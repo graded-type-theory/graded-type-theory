@@ -3,16 +3,21 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Properties.Has-well-behaved-zero
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
-  (𝕄 : Modality)
-  (R : Usage-restrictions 𝕄)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  (R : Usage-restrictions 𝕄 𝐌)
   (open Modality 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
   where
+
+open IsMode 𝐌
 
 open import Definition.Untyped M using (var)
 
@@ -20,9 +25,8 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Inversion 𝕄 R
+open import Graded.Usage R
+open import Graded.Usage.Inversion R
 
 open import Tools.Empty
 open import Tools.Fin
@@ -46,8 +50,8 @@ private
 valid-var-usage : γ ▸[ 𝟙ᵐ ] var x → γ ⟨ x ⟩ ≢ 𝟘
 valid-var-usage γ▸x γ⟨x⟩≡𝟘 = 𝟘≰𝟙 (lemma _ (inv-usage-var γ▸x) γ⟨x⟩≡𝟘)
   where
-  lemma : ∀ x → γ ≤ᶜ 𝟘ᶜ , x ≔ 𝟙 → γ ⟨ x ⟩ ≡ 𝟘 → 𝟘 ≤ 𝟙
-  lemma x0 (_ ∙ γ⟨x⟩≤𝟙) refl = γ⟨x⟩≤𝟙
+  lemma : ∀ x → γ ≤ᶜ 𝟘ᶜ , x ≔ ⌜ 𝟙ᵐ ⌝ → γ ⟨ x ⟩ ≡ 𝟘 → 𝟘 ≤ 𝟙
+  lemma x0 (_ ∙ γ⟨x⟩≤𝟙) refl = ≤-trans γ⟨x⟩≤𝟙 (≤-reflexive ⌜𝟙ᵐ⌝)
   lemma (x +1) (γ≤eᵢ ∙ _) γ⟨x⟩≡𝟘 = lemma x γ≤eᵢ γ⟨x⟩≡𝟘
 
 -- A variant of the positivity property for addition for the

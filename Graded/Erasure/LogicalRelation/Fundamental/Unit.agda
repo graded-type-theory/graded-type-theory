@@ -5,12 +5,14 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
 
 module Graded.Erasure.LogicalRelation.Fundamental.Unit
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
   {R : Type-restrictions 𝕄}
+  (variant : Mode-variant 𝕄)
   (as : Assumptions R)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
@@ -24,7 +26,7 @@ open import Graded.Modality.Properties.Has-well-behaved-zero
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   is-reduction-relation
-open import Graded.Erasure.LogicalRelation.Hidden as
+open import Graded.Erasure.LogicalRelation.Hidden variant as
 
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
@@ -50,8 +52,7 @@ open import Definition.Typed.Syntactic R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Mode 𝕄
-
+open import Graded.Mode.Instances.Zero-one variant
 
 open import Tools.Empty
 open import Tools.Function

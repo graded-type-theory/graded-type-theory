@@ -3,15 +3,18 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Empty
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {𝐌 : IsMode Mode 𝕄}
+  (UR : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions UR
 
 open import Definition.Untyped M
@@ -20,10 +23,9 @@ open import Definition.Untyped.Empty 𝕄
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
-open import Graded.Usage.Weakening 𝕄 UR
+open import Graded.Usage UR
+open import Graded.Usage.Properties UR
+open import Graded.Usage.Weakening UR
 
 open import Tools.Empty
 open import Tools.Function
@@ -41,7 +43,7 @@ opaque
 
   -- A usage rule for emptyrec-sink.
 
-  ▸emptyrec-sink : γ ▸[ 𝟘ᵐ? ] t → δ ▸[ 𝟘ᵐ? ] A →
+  ▸emptyrec-sink : γ ▸[ 𝟘ᵐ ] t → δ ▸[ 𝟘ᵐ ] A →
                    Emptyrec-allowed m 𝟘 → Starˢ-sink →
                    ⌜ m ⌝ ·ᶜ η ▸[ m ] emptyrec-sink A t
   ▸emptyrec-sink {γ} {δ} {m} {η} ▸t ▸A ok ok′ =

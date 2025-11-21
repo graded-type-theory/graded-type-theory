@@ -33,7 +33,6 @@ import Tools.Algebra
 ------------------------------------------------------------------------
 -- Graded modalities
 
-import Graded.Modality.Variant
 import Graded.Modality
 import Graded.Modality.Nr-instances
 
@@ -80,6 +79,9 @@ import Graded.Context.Weakening
 -- Usage modes
 
 import Graded.Mode
+import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
+import Graded.Mode.Instances.Bounded-distributive-lattice
 
 ------------------------------------------------------------------------
 -- The type theory's syntax
@@ -180,6 +182,7 @@ import Graded.Usage
 import Graded.Usage.Weakening
 import Graded.Usage.Inversion
 import Graded.Usage.Properties
+import Graded.Usage.Properties.Zero-one
 import Graded.Usage.Restrictions.Satisfied
 import Graded.Usage.Properties.Has-well-behaved-zero
 import Graded.Usage.Decidable.Assumptions
@@ -190,6 +193,7 @@ import Graded.Usage.Decidable
 
 import Graded.Substitution
 import Graded.Substitution.Properties
+import Graded.Substitution.Properties.Zero-one
 import Graded.Substitution.Decidable
 
 ------------------------------------------------------------------------
@@ -198,6 +202,7 @@ import Graded.Substitution.Decidable
 -- An investigation of to what degree weak Σ-types can emulate strong
 -- Σ-types, and vice versa.
 import Graded.Derived.Sigma
+import Graded.Derived.Sigma.Zero-one
 
 -- Properties related to usage and certain type formers.
 import Graded.Derived.Non-dependent
@@ -210,10 +215,13 @@ import Graded.Derived.Bool.Nr
 import Graded.Derived.Bool.Greatest-lower-bound
 import Graded.Derived.Erased.Usage.Eta
 import Graded.Derived.Erased.Usage.No-eta
+import Graded.Derived.Erased.Usage.No-eta.Zero-one
 import Graded.Derived.Erased.Usage
+import Graded.Derived.Erased.Usage.Zero-one
 import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
 import Graded.Derived.Omega
+import Graded.Derived.Omega.Zero-one
 import Graded.Derived.Vec
 import Graded.Derived.List
 
@@ -385,6 +393,7 @@ import Definition.Typed.Decidable
 -- Definitions related to type and usage restrictions
 
 import Graded.Restrictions
+import Graded.Restrictions.Zero-one
 
 ------------------------------------------------------------------------
 -- Some examples related to some modality instances
@@ -406,6 +415,7 @@ import Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound
 -- Subject reduction for modalities
 
 import Graded.Reduction
+import Graded.Reduction.Zero-one
 import Graded.Reduction.Necessary
 import Graded.FullReduction
 
@@ -423,8 +433,9 @@ import Graded.Modality.Morphism.Usage-restrictions.Examples
 import Graded.Modality.Morphism.Forward-instances
 import Graded.Modality.Morphism.Backward-instances
 import Definition.Typed.QuantityTranslation
+import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
+import Graded.Mode.Instances.Zero-one.QuantityTranslation
 import Graded.Context.QuantityTranslation
-import Graded.Mode.QuantityTranslation
 import Graded.Usage.QuantityTranslation
 
 ------------------------------------------------------------------------
@@ -451,6 +462,7 @@ import Graded.Erasure.Target.Non-terminating
 -- Extraction.
 import Graded.Erasure.Extraction
 import Graded.Erasure.Extraction.Properties
+import Graded.Erasure.Extraction.Properties.Usage
 import Graded.Erasure.Extraction.Non-terminating
 
 -- The logical relation for erasure.
@@ -476,7 +488,7 @@ import Graded.Erasure.LogicalRelation.Fundamental
 -- Soundness of extraction.
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
-import Graded.Erasure.Consequences.Soundness.Extended-type-theory
+-- import Graded.Erasure.Consequences.Soundness.Extended-type-theory
 import Graded.Erasure.Consequences.Soundness.Erased-matches
 import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 
@@ -497,9 +509,9 @@ import Graded.Neutral
 -- Some discussion of under what circumstances a []-cong combinator
 -- can be defined
 
-import Graded.Box-cong
-import Graded.Modify-box-cong-or-J.Configuration
-import Graded.Modify-box-cong-or-J
+-- import Graded.Box-cong
+-- import Graded.Modify-box-cong-or-J.Configuration
+-- import Graded.Modify-box-cong-or-J
 
 ------------------------------------------------------------------------
 -- A resource aware abstract machine
@@ -524,8 +536,10 @@ import Graded.Heap.Usage
 import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Weakening
 import Graded.Heap.Usage.Properties
+import Graded.Heap.Usage.Properties.Zero-one
 import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Reduction
+import Graded.Heap.Usage.Reduction.Zero-one
 
 -- Assumptions used to prove some properties of the abstract machine
 import Graded.Heap.Assumptions
@@ -534,13 +548,14 @@ import Graded.Heap.Assumptions
 import Graded.Heap.Normalization
 import Graded.Heap.Bisimilarity
 import Graded.Heap.Termination
+import Graded.Heap.Termination.Zero-one
 
 -- Resource correctness of the abstract machine
 import Graded.Heap.Soundness
 import Graded.Heap.Soundness.Counterexample
 
 -- A non-interference property stated using the abstract machine
-import Graded.Heap.Non-interference
+-- import Graded.Heap.Non-interference
 
 -- Examples related to the abstract machine
 import Graded.Heap.Examples
@@ -566,7 +581,7 @@ import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 
 -- "A Graded Modal Dependent Type Theory with a Universe and Erasure,
 -- Formalized"
-import README.Graded-type-theory
+-- import README.Graded-type-theory
 
--- "A Formalization of Opaque Definitions for a Dependent Type Theory"
-import README.Opaque-definitions
+-- -- "A Formalization of Opaque Definitions for a Dependent Type Theory"
+-- import README.Opaque-definitions

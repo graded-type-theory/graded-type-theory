@@ -24,7 +24,8 @@ open import Algebra.Definitions (_≡_ {A = A})
 open import Algebra.Structures (_≡_ {A = A})
      using (IsBand; IsCommutativeMonoid; IsMagma; IsMonoid;
             IsSemigroup; IsSemiring;
-            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring)
+            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring;
+            IsIdempotentCommutativeMonoid)
      public
 open import Algebra.Lattice.Structures (_≡_ {A = A})
      using (IsMeetSemilattice; IsDistributiveLattice)

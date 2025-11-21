@@ -227,10 +227,9 @@ opaque
   -- Adding two nrᵢᶜ sequences is the same as pairwise adding the arguments.
 
   nrᵢᶜ-+ᶜ : nrᵢᶜ r (γ₁ +ᶜ γ₂) (δ₁ +ᶜ δ₂) i ≈ᶜ nrᵢᶜ r γ₁ δ₁ i +ᶜ nrᵢᶜ r γ₂ δ₂ i
-  nrᵢᶜ-+ᶜ {(r)} {γ₁ = ε} {(ε)} {(ε)} {(ε)} {(i)} = ε
-  nrᵢᶜ-+ᶜ {(r)} {γ₁ = _ ∙ _} {_ ∙ _} {_ ∙ _} {_ ∙ _} {(i)} =
+  nrᵢᶜ-+ᶜ {γ₁ = ε} {(ε)} {(ε)} {(ε)} {(i)} = ε
+  nrᵢᶜ-+ᶜ {γ₁ = _ ∙ _} {_ ∙ _} {_ ∙ _} {_ ∙ _} {(i)} =
     nrᵢᶜ-+ᶜ ∙ nrᵢ-+ i
-
 
 opaque
 

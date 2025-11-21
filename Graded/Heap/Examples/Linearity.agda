@@ -3,21 +3,25 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Graded.Modality.Variant
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
 open import Definition.Typed.Restrictions
 open import Graded.Modality.Instances.Linearity
 
 module Graded.Heap.Examples.Linearity
-  (variant : Modality-variant _)
-  (UR : Usage-restrictions (linearityModality variant))
-  (TR : Type-restrictions (linearityModality variant))
+  {variant : Mode-variant linearityModality}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions linearityModality Zero-one-isMode)
+  (TR : Type-restrictions linearityModality)
   (As : Assumptions UR TR)
   where
 
-𝕄 : Modality _
-𝕄 = linearityModality variant
+private
+
+  𝕄 : Modality _
+  𝕄 = linearityModality
 
 open Type-restrictions TR
 open Assumptions As
@@ -29,7 +33,7 @@ open import Tools.Product
 open import Definition.Untyped Linearity
 
 open import Graded.Context 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Usage UR
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Reduction type-variant UR factoring-nr
 import Graded.Heap.Examples UR TR As as Ex

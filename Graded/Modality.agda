@@ -14,8 +14,6 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Sum
 
-open import Graded.Modality.Variant a
-
 private variable
   n n₁ n₂ p p′ q r z z₁ s s₁ s₂ z₂ : M
   pᵢ : Sequence M
@@ -326,13 +324,6 @@ record Modality : Set (lsuc a) where
   no-eta-equality
   pattern
   field
-    -- The modality variant.
-    variant            : Modality-variant
     semiring-with-meet : Semiring-with-meet
 
   open Semiring-with-meet semiring-with-meet public
-  open Modality-variant variant public
-
-  field
-    -- If the mode 𝟘ᵐ is allowed, then the zero is well-behaved
-    𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet

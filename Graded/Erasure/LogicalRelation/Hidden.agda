@@ -6,11 +6,13 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
 
 module Graded.Erasure.LogicalRelation.Hidden
   {a} {M : Set a}
   {𝕄 : Modality M}
   {TR : Type-restrictions 𝕄}
+  (variant : Mode-variant 𝕄)
   (as : Assumptions TR)
   where
 
@@ -40,7 +42,7 @@ open import Graded.Erasure.LogicalRelation.Reduction as
 open import Graded.Erasure.Target as T using (strict)
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
+open import Graded.Mode.Instances.Zero-one variant
 
 open import Tools.Bool
 open import Tools.Empty

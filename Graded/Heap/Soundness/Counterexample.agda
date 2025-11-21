@@ -4,13 +4,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
 open import Definition.Typed.Restrictions
 
 module Graded.Heap.Soundness.Counterexample
   {a} {M : Set a} {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+   {mode-variant : Mode-variant 𝕄}
+   (open Graded.Mode.Instances.Zero-one mode-variant)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (TR : Type-restrictions 𝕄)
   (As : Assumptions UR TR)
   where
@@ -36,9 +40,8 @@ open import Definition.Typed.Substitution TR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Mode 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Usage UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr

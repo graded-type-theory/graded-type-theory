@@ -8,7 +8,8 @@
 -- information.
 
 open import Graded.Modality
-open import Graded.Modality.Variant
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
 import Graded.Modality.Instances.Bounded-distributive-lattice
@@ -22,13 +23,12 @@ module Graded.Heap.Non-interference
   {a} {M : Set a}
   (L : Bounded-distributive-lattice M)
   (open Bounded-distributive-lattice L using (⊤; ⊥; ⊥≤))
-  (v : Modality-variant a)
-  (open Modality-variant v)
   (is-⊤? : ∀ p → Dec (p PE.≡ ⊤))
   (open Graded.Modality.Instances.Bounded-distributive-lattice M L is-⊤?)
-  (𝟘-well-behaved : T 𝟘ᵐ-allowed → Has-well-behaved-zero M semiring-with-meet)
-  (UR : Usage-restrictions (modality v 𝟘-well-behaved))
-  (TR : Type-restrictions (modality v 𝟘-well-behaved))
+  (mode-variant : Mode-variant modality)
+  (open Graded.Mode.Instances.Zero-one mode-variant)
+  (UR : Usage-restrictions modality Zero-one-isMode)
+  (TR : Type-restrictions modality)
   (As : Assumptions UR TR)
   (open Usage-restrictions UR)
   ⦃ no-nr : Nr-not-available-GLB ⦄
@@ -36,7 +36,7 @@ module Graded.Heap.Non-interference
 
 private
   𝕄 : Modality M
-  𝕄 = modality v 𝟘-well-behaved
+  𝕄 = modality
 
 open Assumptions As
 open Modality 𝕄
@@ -70,14 +70,13 @@ open import Definition.LogicalRelation.Unary TR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Mode 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Restrictions 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Restrictions.Zero-one 𝕄 mode-variant
+open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
@@ -122,23 +121,23 @@ record No-secret-matches (p : M) : Set a where
     no-secret-unitrec :
       ∀ {m p q} → m ≤ p₀ → ¬ Unitʷ-η → Unitrec-allowed ⌞ m ⌟ p q → p ≤ p₀
     no-secret-J :
-      erased-matches-for-J 𝟙ᵐ PE.≡ none
+      ∀ {m} → m ≤ p₀ → erased-matches-for-J ⌞ m ⌟ PE.≡ none
     no-secret-K :
-      erased-matches-for-K 𝟙ᵐ PE.≡ none
+      ∀ {m} → m ≤ p₀ → erased-matches-for-K ⌞ m ⌟ PE.≡ none
     no-secret-[]-cong :
       ∀ {s m} → m ≤ p₀ → []-cong-allowed-mode s ⌞ m ⌟ → 𝟘 ≤ p₀
 
   ∣J∣≡𝟙 :
-    ∀ {p q} → ∣J erased-matches-for-J 𝟙ᵐ , p , q ∣≡ 𝟙
-  ∣J∣≡𝟙 =
-    ∣J∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym no-secret-J) (none-≤ᵉᵐ {em = some}))
-      (λ em≡some → case PE.trans (PE.sym no-secret-J) em≡some of λ ())
+    ∀ {m p q} → m ≤ p₀ → ∣J erased-matches-for-J ⌞ m ⌟ , p , q ∣≡ 𝟙
+  ∣J∣≡𝟙 m≤p₀ =
+    ∣J∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-J m≤p₀)) (none-≤ᵉᵐ {em = some}))
+      λ em≡some → case PE.trans (PE.sym (no-secret-J m≤p₀)) em≡some of λ ()
 
   ∣K∣≡𝟙 :
-    ∀ {p} → ∣K erased-matches-for-K 𝟙ᵐ , p ∣≡ 𝟙
-  ∣K∣≡𝟙 =
-    ∣K∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym no-secret-K) (none-≤ᵉᵐ {em = some}))
-      (λ em≡some → case PE.trans (PE.sym no-secret-K) em≡some of λ ())
+    ∀ {m p} → m ≤ p₀ → ∣K erased-matches-for-K ⌞ m ⌟ , p ∣≡ 𝟙
+  ∣K∣≡𝟙 m≤p₀ =
+    ∣K∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-K m≤p₀)) (none-≤ᵉᵐ {em = some}))
+      (λ em≡some → case PE.trans (PE.sym (no-secret-K m≤p₀)) em≡some of λ ())
 
 opaque
 
@@ -147,7 +146,7 @@ opaque
     (∀ {n q} {t : Term n} {ρ} → c PE.≢ emptyrecₑ q t ρ) →
     r ≤ p →
     γ ▸ᶜ[ ⌞ r ⌟ ] c →
-    ∣ c ∣ᶜ≡ q → q ≤ p
+    ∣ c ∣ᶜ[ ⌞ r ⌟ ]≡ q → q ≤ p
   no-secret-matchesᶜ _ _ _ _ ∘ₑ =
     ⊥≤ _
   no-secret-matchesᶜ _ _ _ _ fstₑ =
@@ -167,14 +166,16 @@ opaque
           ok r≤p no-η Unit-ok
   no-secret-matchesᶜ _ er∉ _ _ emptyrecₑ =
     ⊥-elim (er∉ PE.refl)
-  no-secret-matchesᶜ ok _ _ _ (Jₑ x) =
-    ≤-trans (≤-reflexive
-      (∣J∣ᶜ-functional x (No-secret-matches.∣J∣≡𝟙 ok)))
-      (⊥≤ _)
-  no-secret-matchesᶜ ok _ _ _ (Kₑ x) =
-    ≤-trans (≤-reflexive
-      (∣K∣ᶜ-functional x (No-secret-matches.∣K∣≡𝟙 ok)))
-      (⊥≤ _)
+  no-secret-matchesᶜ {p} {q} ok _ r≤p _ (Jₑ x) =
+    let open ≤-reasoning in begin
+      q ≈⟨ ∣J∣ᶜ-functional x (No-secret-matches.∣J∣≡𝟙 ok r≤p) ⟩
+      𝟙 ≤⟨ ⊥≤ _ ⟩
+      p ∎
+  no-secret-matchesᶜ {p} {q} ok _ r≤p _ (Kₑ x) =
+      let open ≤-reasoning in begin
+      q ≈⟨ ∣K∣ᶜ-functional x (No-secret-matches.∣K∣≡𝟙 ok r≤p) ⟩
+      𝟙 ≤⟨ ⊥≤ _ ⟩
+      p ∎
   no-secret-matchesᶜ ok _ r≤p ▸c []-congₑ =
     No-secret-matches.no-secret-[]-cong ok r≤p (▸-inv-[]-congₑ ▸c .proj₁)
   no-secret-matchesᶜ _ _ _ ▸c sucₑ =
@@ -191,12 +192,14 @@ opaque
   no-secret-matches {p} {q} ok er∉ (▸ˢ∙ {p = p′} ∣S∣≡p′ ▸c ▸S) ∣cS∣≡q =
     let q₁ , q₂ , ∣c∣≡q₁ , ∣S∣≡q₂ , q≡ = ∣∣∙-inv ∣cS∣≡q
         q₂≤p = no-secret-matches ok (λ er∈ → er∉ (there er∈)) ▸S ∣S∣≡q₂
+        q₂≡p′ = ∣∣-functional ∣S∣≡q₂ ∣S∣≡p′
         open RPo ≤-poset
         p′≤p = begin
-          p′ ≡⟨ ∣∣-functional ∣S∣≡p′ ∣S∣≡q₂ ⟩
+          p′ ≡˘⟨ q₂≡p′ ⟩
           q₂ ≤⟨ q₂≤p ⟩
           p ∎
-        q₁≤p = no-secret-matchesᶜ ok (λ { PE.refl → er∉ here}) p′≤p ▸c ∣c∣≡q₁
+        q₁≤p = no-secret-matchesᶜ ok (λ { PE.refl → er∉ here}) p′≤p ▸c
+                (PE.subst (λ m → ∣ _ ∣ᶜ[ ⌞ m ⌟ ]≡ _) q₂≡p′ ∣c∣≡q₁)
     in  begin
       q       ≡⟨ q≡ ⟩
       q₂ · q₁ ≤⟨ ·-monotone q₂≤p q₁≤p ⟩
@@ -408,19 +411,25 @@ private opaque
               , PE.subst Numeral (PE.sym t≡) (sucₙ num)
               , H~H₁
           (no ¬num) →
-            let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv (⊢ₛ-⇾* ⊢s d′)
-                m , _ , γ , _ , ∣ε∣≡ , ▸H , ▸t , ▸ε , γ≤ = ▸ₛ-inv (▸-⇾* ▸s d′)
-                ⊢n″ , _ = inversion-suc (⊢∷-cong ⊢t (PE.cong (λ x → wk ρ x [ H ]ₕ) t≡))
-                invUsageSuc ▸n″ δ≤ = inv-usage-suc (PE.subst (_▸[_]_ γ ⌞ m ⌟) t≡ ▸t)
-                _ , _ , H″ , H‴ , ρ′ , t′ , d₀ , d₀′ , n , H~H₂ =
-                  non-interference′ {H = H} {t = n″} {ρ = ρ} {S = ε}
+            -- Using case_of_ instead of let here improves type checking
+            -- time significantly.
+            case ⊢ₛ-inv (⊢ₛ-⇾* ⊢s d′) of λ
+              (_ , _ , ⊢H , ⊢t , ⊢S) →
+            case ▸ₛ-inv (▸-⇾* ▸s d′) of λ
+              (m , _ , γ , _ , ∣ε∣≡ , ▸H , ▸t , ▸ε , γ≤) →
+            case inversion-suc (⊢∷-cong ⊢t (PE.cong (λ x → wk ρ x [ H ]ₕ) t≡)) of λ
+              (⊢n″ , _) →
+            case inv-usage-suc (PE.subst (_▸[_]_ γ ⌞ m ⌟) t≡ ▸t) of λ
+              (invUsageSuc ▸n″ δ≤) →
+            case non-interference′ {H = H} {t = n″} {ρ = ρ} {S = ε}
                     ok (▸ₛ ∣ε∣≡ ▸H ▸n″ ▸ε (≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)))))
                     (⊢ₛ ⊢H ⊢n″ ε) H~H₁
-                    x (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
-            in  _ , _ , _ , _ , _ , _
-                  , suc-red-lemma ¬num n t≡ d′ d₀
-                  , suc-red-lemma ¬num n t≡ d′₁ d₀′
-                  , sucₙ n ,  H~H₂
+                    x (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n)) of λ
+              (_ , _ , H″ , H‴ , ρ′ , t′ , d₀ , d₀′ , n , H~H₂) →
+            _ , _ , _ , _ , _ , _
+              , suc-red-lemma ¬num n t≡ d′ d₀
+              , suc-red-lemma ¬num n t≡ d′₁ d₀′
+              , sucₙ n , H~H₂
   non-interference′ ok ▸s ⊢s H~H′ (ℕₜ u ⇒*u ≅u zeroᵣ) PE.refl =
     let _ , _ , H , t , ρ , (d′ , _) , ≡u , v = whBisim-closed ⊢s ▸s (⇒*u , zeroₙ)
     in  case subst-zero {t = wk ρ t} ≡u of λ where
@@ -450,7 +459,7 @@ opaque
     ε ⊢ʰ H ∷ Δ →
     H ~⟨ p ⟩ H′ →
     ∃₆ λ m n H″ H‴ (ρ′ : Wk m n) t′ →
-      ⟨ H , t , id , ε ⟩ ↠* ⟨ H″ , t′ , ρ′ , ε ⟩ ×
+      ⟨ H  , t , id , ε ⟩ ↠* ⟨ H″ , t′ , ρ′ , ε ⟩ ×
       ⟨ H′ , t , id , ε ⟩ ↠* ⟨ H‴ , t′ , ρ′ , ε ⟩ ×
       Numeral t′ × H″ ~⟨ p ⟩ H‴
   non-interference {γ} ok ▸t ⊢t ▸H ⊢H H~H′ =

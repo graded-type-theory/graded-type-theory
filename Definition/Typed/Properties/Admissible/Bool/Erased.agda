@@ -5,18 +5,22 @@
 open import Definition.Typed.Restrictions
 import Definition.Untyped
 import Definition.Untyped.Bool.Erased
-open import Graded.Modality
+import Graded.Modality
+import Graded.Mode
 
 module Definition.Typed.Properties.Admissible.Bool.Erased
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Definition.Untyped M hiding (_[_]))
-  {𝕄 : Modality M}
-  (open Definition.Untyped.Bool.Erased 𝕄)
+  (open Graded.Modality M)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
   (open Modality 𝕄)
+  (𝐌 : IsMode)
+  (open Definition.Untyped.Bool.Erased 𝕄 𝐌)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- It is assumed that modality has an nr function.
-  ⦃ has-nr : Has-nr M semiring-with-meet ⦄
+  ⦃ has-nr : Has-nr semiring-with-meet ⦄
   -- It is assumed that certain Σ-types are allowed.
   (Σ-ok : Σʷ-allowed 𝟙 Boolᵍ)
   -- It is assumed that Erased is allowed for the strength 𝕨.
@@ -39,7 +43,7 @@ open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 
-open import Definition.Untyped.Bool.Nr 𝕄 as B
+open import Definition.Untyped.Bool.Nr 𝕄 𝐌 as B
   using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Erased 𝕄 𝕨

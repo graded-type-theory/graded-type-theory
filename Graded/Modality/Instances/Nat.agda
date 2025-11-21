@@ -22,7 +22,6 @@ open import Tools.Sum
 import Tools.Reasoning.PartialOrder as RPo
 
 open import Graded.Modality Nat
-open import Graded.Modality.Variant lzero
 
 import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Greatest-lower-bound
@@ -30,18 +29,17 @@ import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Natrec
 import Graded.Modality.Properties.PartialOrder
 import Graded.Modality.Properties.Subtraction
+import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 
 open import Definition.Untyped Nat
-open import Definition.Typed.Restrictions
-open import Graded.FullReduction.Assumptions
-open import Graded.Usage.Restrictions
+import Definition.Typed.Restrictions
+import Graded.FullReduction.Assumptions
+import Graded.Usage.Restrictions
 
 private variable
   p q r z z₁ z₂ s s₁ s₂ : Nat
   pᵢ : Sequence Nat
-  variant : Modality-variant
-  TR : Type-restrictions _
-  UR : Usage-restrictions _
 
 ------------------------------------------------------------------------
 -- The modality
@@ -96,11 +94,9 @@ opaque
 
   -- A modality (of any kind) for Nat defined using the nr function
 
-  Nat-modality : Modality-variant → Modality
-  Nat-modality variant = record
-    { variant = variant
-    ; semiring-with-meet = Nat-semiring-with-meet
-    ; 𝟘-well-behaved = λ _ → Nat-has-well-behaved-zero
+  Nat-modality : Modality
+  Nat-modality = record
+    { semiring-with-meet = Nat-semiring-with-meet
     }
 
 opaque
@@ -144,76 +140,96 @@ opaque
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- Instances of Type-restrictions (Nat-modality variant) and are
--- suitable for the full reduction theorem if
--- * whenever Σˢ-allowed m n holds, then m is ⌞ 1 ⌟, or
---   m is ⌞ 0 ⌟, and 𝟘ᵐ is allowed.
+module _ {𝟘ᵐ-allowed : Bool} where
 
-Suitable-for-full-reduction :
-  ∀ variant → Type-restrictions (Nat-modality variant) → Set
-Suitable-for-full-reduction variant TRs =
-  ∀ p q → Σˢ-allowed p q → p ≡ 1 ⊎ p ≡ 0 × T 𝟘ᵐ-allowed
-  where
-  open Modality-variant variant
-  open Type-restrictions TRs
+  open Graded.Mode.Instances.Zero-one.Variant Nat-modality
 
-opaque
-  unfolding Nat-modality Nat-semiring-with-meet
+  private opaque
+    unfolding Nat-modality
 
-  -- Given an instance of Type-restrictions (ℕ⊎∞-modality variant) one
-  -- can create a "suitable" instance.
-
-  suitable-for-full-reduction :
-    Type-restrictions (Nat-modality variant) →
-    ∃ (Suitable-for-full-reduction variant)
-  suitable-for-full-reduction {variant} TR =
-    record TR
-      { ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 1 ⊎ p ≡ 0 × T 𝟘ᵐ-allowed)
-      ; []-cong-allowed = λ s →
-          []-cong-allowed s × T 𝟘ᵐ-allowed
-      ; []-cong→Erased = λ (hyp₁ , hyp₂) →
-          let ok₁ , ok₂ = []-cong→Erased hyp₁
-          in  ok₁ , ok₂ , λ { refl → inj₂ (refl , hyp₂) }
-      ; []-cong→¬Trivial = λ _ ()
+    variant : Mode-variant
+    variant = record
+      { 𝟘ᵐ-allowed = 𝟘ᵐ-allowed
+      ; 𝟘-well-behaved = λ _ → Nat-has-well-behaved-zero
       }
-    , λ _ _ (_ , hyp) → hyp refl
+
+  open Graded.Mode.Instances.Zero-one   variant
+  open Definition.Typed.Restrictions    Nat-modality
+  open Graded.Usage.Restrictions        Nat-modality Zero-one-isMode
+  open Graded.FullReduction.Assumptions variant
+
+  private variable
+    TR : Type-restrictions
+    UR : Usage-restrictions
+
+  -- Instances of Type-restrictions Nat-modality and are
+  -- suitable for the full reduction theorem if
+  -- * whenever Σˢ-allowed m n holds, then m is ⌞ 1 ⌟, or
+  --   m is ⌞ 0 ⌟, and 𝟘ᵐ is allowed.
+
+  Suitable-for-full-reduction :
+    Type-restrictions → Set
+  Suitable-for-full-reduction TRs =
+    ∀ p q → Σˢ-allowed p q → p ≡ 1 ⊎ p ≡ 0 × T 𝟘ᵐ-allowed
     where
-    open Modality-variant variant
-    open Type-restrictions TR
+    open Type-restrictions TRs
 
-opaque
-  unfolding Nat-modality Nat-semiring-with-meet
+  opaque
+    unfolding Nat-modality Nat-semiring-with-meet
 
-  -- The full reduction assumptions hold for Nat-modality variant and
-  -- any "suitable" instance of Type-restrictions.
+    -- Given an instance of Type-restrictions ℕ⊎∞-modality one
+    -- can create a "suitable" instance.
 
-  full-reduction-assumptions :
-    Suitable-for-full-reduction variant TR →
-    Full-reduction-assumptions TR UR
-  full-reduction-assumptions hyp = record
-    { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
-    ; ≡𝟙⊎𝟙≤𝟘 = λ {p} {q} ok →
-        case hyp p q ok of λ where
-          (inj₁ p≡1) → inj₁ p≡1
-          (inj₂ (p≡0 , ok)) → inj₂ (p≡0 , ok , refl)
-    }
+    suitable-for-full-reduction :
+      Type-restrictions →
+      ∃ Suitable-for-full-reduction
+    suitable-for-full-reduction TR =
+      record TR
+        { ΠΣ-allowed = λ b p q →
+            ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 1 ⊎ p ≡ 0 × T 𝟘ᵐ-allowed)
+        ; []-cong-allowed = λ s →
+            []-cong-allowed s × T 𝟘ᵐ-allowed
+        ; []-cong→Erased = λ (hyp₁ , hyp₂) →
+            let ok₁ , ok₂ = []-cong→Erased hyp₁
+            in  ok₁ , ok₂ , λ { refl → inj₂ (refl , hyp₂) }
+        ; []-cong→¬Trivial = λ _ ()
+        }
+      , λ _ _ (_ , hyp) → hyp refl
+      where
+      open Type-restrictions TR
 
-opaque
-  unfolding Nat-modality Nat-semiring-with-meet
+  opaque
+    unfolding Nat-modality Nat-semiring-with-meet variant
 
-  -- Type and usage restrictions that satisfy the full reduction
-  -- assumptions are "suitable".
+    -- The full reduction assumptions hold for Nat-modality and
+    -- any "suitable" instance of Type-restrictions.
 
-  full-reduction-assumptions-suitable :
-    Full-reduction-assumptions TR UR →
-    Suitable-for-full-reduction variant TR
-  full-reduction-assumptions-suitable as p q ok =
-    case ≡𝟙⊎𝟙≤𝟘 ok of λ where
-      (inj₁ p≡1) → inj₁ p≡1
-      (inj₂ (p≡0 , ok , _)) → inj₂ (p≡0 , ok)
-    where
-    open Full-reduction-assumptions as
+    full-reduction-assumptions :
+      Suitable-for-full-reduction TR →
+      Full-reduction-assumptions TR UR
+    full-reduction-assumptions hyp = record
+      { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
+      ; ≡𝟙⊎𝟙≤𝟘 = λ {p} {q} ok →
+          case hyp p q ok of λ where
+            (inj₁ p≡1) → inj₁ p≡1
+            (inj₂ (p≡0 , ok)) → inj₂ (p≡0 , ok , refl)
+      }
+
+  opaque
+    unfolding Nat-modality Nat-semiring-with-meet variant
+
+    -- Type and usage restrictions that satisfy the full reduction
+    -- assumptions are "suitable".
+
+    full-reduction-assumptions-suitable :
+      Full-reduction-assumptions TR UR →
+      Suitable-for-full-reduction TR
+    full-reduction-assumptions-suitable as p q ok =
+      case ≡𝟙⊎𝟙≤𝟘 ok of λ where
+        (inj₁ p≡1) → inj₁ p≡1
+        (inj₂ (p≡0 , ok , _)) → inj₂ (p≡0 , ok)
+      where
+      open Full-reduction-assumptions _ _ as
 
 ------------------------------------------------------------------------
 -- Subtraction

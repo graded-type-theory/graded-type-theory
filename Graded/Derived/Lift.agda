@@ -3,28 +3,30 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Lift
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Sigma 𝕄 R
+open import Graded.Derived.Sigma R
 open import Graded.Derived.Unit R
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Substitution 𝕄 R
-open import Graded.Substitution.Properties 𝕄 R
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
-open import Graded.Usage.Weakening 𝕄 R
+open import Graded.Substitution R
+open import Graded.Substitution.Properties R
+open import Graded.Usage R
+open import Graded.Usage.Properties R
+open import Graded.Usage.Weakening R
 
 open import Definition.Untyped M hiding (lift)
 open import Definition.Untyped.Lift 𝕄
@@ -51,7 +53,7 @@ opaque
     γ ▸[ m ] A →
     γ ▸[ m ] Lift s l A
   ▸Lift {γ} {m} ▸A = sub
-    (ΠΣₘ (▸-cong (PE.sym $ ᵐ·-identityʳ) ▸A) $
+    (ΠΣₘ ▸A $
      sub Unitₘ $ begin
        𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
        𝟘ᶜ              ∎)
@@ -94,7 +96,7 @@ opaque
     (s PE.≡ 𝕨 → r′ ≤ r) →
     (s PE.≡ 𝕨 → Prodrec-allowed m r 𝟙 q) →
     (s PE.≡ 𝕨 → Unitrec-allowed m r q) →
-    (s PE.≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
+    (s PE.≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A) →
     δ ∙ ⌜ m ⌝ · r ▸[ m ] t →
     η ▸[ m ᵐ· r ] u →
     δ +ᶜ r′ ·ᶜ η ▸[ m ] liftrec r q s l A t u
@@ -103,11 +105,10 @@ opaque
      ▸unitrec⟨⟩ ok₂
        (λ { PE.refl →
             let γ , ▸A = ▸A PE.refl in
-              γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ∙ 𝟘
+              γ ∙ ⌜ 𝟘ᵐ ⌝ · q ∙ 𝟘
             , sub
-                (substₘ-lemma _
-                   (▶-cong _
-                      (λ where
+                (substₘ-lemma
+                  (▶-cong _ (λ where
                          x0     → PE.refl
                          (_ +1) → PE.refl) $
                     wf-consSubstₘ
@@ -115,36 +116,38 @@ opaque
                        wf-wk1Substₘ _ _ wf-idSubstₘ) $
                     prodₘ var var
                       (λ _ → begin
-                         ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙)       ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _ ⟩
+                         ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙)        ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _ ⟩
 
-                         𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝ ∙ 𝟘 ∙
-                         ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝                           ≈˘⟨ ≈ᶜ-refl ∙ PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = ⌞ _ ⌟}) ∙
+                         𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝ ∙ 𝟘 ∙
+                         ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝                           ≈˘⟨ ≈ᶜ-refl ∙ PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = ⌞ _ ⌟}) ∙
                                                                            PE.refl ∙ PE.refl ⟩
-                         𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ᵐ· 𝟙 ⌝ ∙ 𝟘 ∙
-                         ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝                           ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
+                         𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ᵐ· 𝟙 ⌝ ∙ 𝟘 ∙
+                         ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝                           ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
 
-                         𝟘ᶜ +ᶜ 𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ᵐ· 𝟙 ⌝ + 𝟘 ∙
-                         𝟘 + 𝟘 ∙ 𝟘 + ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝               ≡⟨⟩
+                         𝟘ᶜ +ᶜ 𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ᵐ· 𝟙 ⌝ + 𝟘 ∙
+                         𝟘 + 𝟘 ∙ 𝟘 + ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝               ≡⟨⟩
 
-                         (𝟘ᶜ , x2 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ᵐ· 𝟙 ⌝) +ᶜ
-                         (𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝)               ≈˘⟨ +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩
+                         (𝟘ᶜ , x2 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ᵐ· 𝟙 ⌝) +ᶜ
+                         (𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝)               ≈˘⟨ +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩
 
-                         𝟙 ·ᶜ (𝟘ᶜ , x2 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ᵐ· 𝟙 ⌝) +ᶜ
-                         (𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝)               ∎)
+
+                          𝟙 ·ᶜ (𝟘ᶜ , x2 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ᵐ· 𝟙 ⌝) +ᶜ
+                          (𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝) ∎)
+
                       (λ ()))
                    ▸A)
                 (begin
-                   γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · q                     ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ⟩
+                   γ ∙ ⌜ 𝟘ᵐ ⌝ · q ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · q                     ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ⟩
 
-                   (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · q) +ᶜ
+                   (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · q ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · q) +ᶜ
                    (γ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)                                       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _) ⟩
 
-                   (⌜ 𝟘ᵐ? ⌝ · q) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙) +ᶜ (γ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)  ≈˘⟨ +ᶜ-congˡ $
+                   (⌜ 𝟘ᵐ ⌝ · q) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙) +ᶜ (γ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)  ≈˘⟨ +ᶜ-congˡ $
                                                                             ≈ᶜ-trans (wk1Substₘ-app _ γ) $ flip _≈ᶜ_._∙_ PE.refl $
                                                                             ≈ᶜ-trans (wk1Substₘ-app _ γ) $ flip _≈ᶜ_._∙_ PE.refl $
                                                                             ≈ᶜ-trans (wk1Substₘ-app _ γ) $ flip _≈ᶜ_._∙_ PE.refl $
                                                                             <*-identityˡ _ ⟩
-                   (⌜ 𝟘ᵐ? ⌝ · q) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙) +ᶜ
+                   (⌜ 𝟘ᵐ ⌝ · q) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙) +ᶜ
                    γ <* wk1Substₘ (wk1Substₘ (wk1Substₘ idSubstₘ))       ∎) })
        (λ _ →
             𝟘ᶜ ∙ ⌜ m ᵐ· r ⌝

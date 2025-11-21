@@ -8,8 +8,9 @@ open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Graded.Erasure.Target as T using (Strictness)
 open import Graded.Modality
-import Graded.Mode
-import Graded.Restrictions
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
+import Graded.Restrictions.Zero-one
 import Graded.Usage
 open import Graded.Usage.Restrictions
 open import Tools.Nat
@@ -18,13 +19,14 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   {a} {M : Set a}
   (open Definition.Untyped M)
   {𝕄 : Modality M}
-  (open Graded.Mode 𝕄)
-  (open Graded.Restrictions 𝕄)
+  {variant : Mode-variant 𝕄}
   (open Modality 𝕄)
+  (open Graded.Mode.Instances.Zero-one variant)
+  (open Graded.Restrictions.Zero-one 𝕄 variant)
   (TR : Type-restrictions 𝕄)
   (open Type-restrictions TR)
-  (UR : Usage-restrictions 𝕄)
-  (open Graded.Usage 𝕄 UR)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (open Graded.Usage UR)
   (open Usage-restrictions UR)
   {kᵈ k : Nat}
   -- A definition context.

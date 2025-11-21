@@ -5,6 +5,7 @@
 open import Definition.Typed.Restrictions
 
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Properties.Admissible.Bool
   {a} {M : Set a}
@@ -22,7 +23,8 @@ module Definition.Typed.Properties.Admissible.Bool
 open Modality 𝕄
 
 open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Bool.OK OKᵍ R Unitʷ-ok
+open import Definition.Typed.Properties.Admissible.Bool.OK
+  OKᵍ R Unitʷ-ok
 open import Definition.Typed.Properties.Admissible.Empty R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi R

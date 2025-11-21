@@ -3,6 +3,8 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
@@ -10,8 +12,10 @@ module Graded.Erasure.Consequences.Soundness
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Type-restrictions TR
@@ -39,14 +43,13 @@ open import Definition.Typed.Substitution TR
 open import Definition.Typed.Weakening.Definition TR
 
 open import Graded.Context 𝕄
-open import Graded.Derived.Erased.Usage 𝕄 UR
+open import Graded.Derived.Erased.Usage UR
 open import Graded.Derived.Omega UR
-open import Graded.Usage 𝕄 UR
+open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Properties UR
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
@@ -127,7 +130,7 @@ module _
 
       open Fundamental FA public
       open Graded.Erasure.LogicalRelation as public
-      open Graded.Erasure.LogicalRelation.Hidden as public
+      open Graded.Erasure.LogicalRelation.Hidden variant as public
       open Graded.Erasure.LogicalRelation.Irrelevance as public
 
     -- Soundness for erasure of natural numbers

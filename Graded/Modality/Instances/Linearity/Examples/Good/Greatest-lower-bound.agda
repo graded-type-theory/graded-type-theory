@@ -3,20 +3,18 @@
 -- for natrec using greatest lower bounds.
 ------------------------------------------------------------------------
 
-open import Tools.Level
-
-import Graded.Modality.Instances.Linearity
-open import Graded.Modality.Variant lzero
+open import Graded.Modality.Instances.Linearity
 open import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant linearityModality
 
 module Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound
-  -- The modality variant.
-  (variant : Modality-variant)
-  (open Graded.Modality.Instances.Linearity variant)
-  (UR : Usage-restrictions linearityModality)
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions linearityModality Zero-one-isMode)
   where
 
-open import Graded.Restrictions linearityModality
+open import Graded.Restrictions.Zero-one linearityModality variant
 open import Graded.Usage.Restrictions.Natrec linearityModality
 open import Graded.Modality Linearity
 
@@ -40,14 +38,13 @@ open import Tools.Relation
 
 open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
-import Graded.Derived.Nat linearityModality UR′ as N
+import Graded.Derived.Nat UR′ as N
 open import Graded.Modality.Properties linearityModality
   hiding (nrᵢ-𝟘-GLB)
-open import Graded.Mode linearityModality
-open import Graded.Usage linearityModality UR′
-open import Graded.Usage.Inversion linearityModality UR′
-open import Graded.Usage.Properties linearityModality UR′
-open import Graded.Usage.Weakening linearityModality UR′
+open import Graded.Usage UR′
+open import Graded.Usage.Inversion UR′
+open import Graded.Usage.Properties UR′
+open import Graded.Usage.Weakening UR′
 
 open import Definition.Untyped Linearity
 open import Definition.Untyped.Nat linearityModality
@@ -149,7 +146,7 @@ module Vec
   (p : Linearity)
   where
 
-  open import Definition.Untyped.Vec linearityModality s p
+  open import Definition.Untyped.Vec linearityModality Zero-one-isMode s p
   import Graded.Derived.Vec s p UR′ as ▸V
 
   opaque
@@ -158,7 +155,7 @@ module Vec
 
     ▸Vec′ :
       γ ▸[ m ] k →
-      δ ▸[ m ᵐ· p ] A →
+      δ ▸[ m ] A →
       γ +ᶜ ω ·ᶜ δ ▸[ m ] Vec′ l A k
     ▸Vec′ {γ} {δ} ▸k ▸A =
       sub-≈ᶜ (▸V.▸Vec′ ▸k ▸A nrᵢᶜ-𝟙-GLBᶜ) $ begin
@@ -268,7 +265,7 @@ module List
   (pₕ pₗ : Linearity)
   where
 
-  open import Definition.Untyped.List linearityModality pₕ pₗ
+  open import Definition.Untyped.List linearityModality Zero-one-isMode pₕ pₗ
   import Graded.Derived.List pₕ pₗ UR′ as ▸L
 
   opaque
@@ -276,7 +273,7 @@ module List
     -- A usage rule for List
 
     ▸List :
-      γ ▸[ m ᵐ· pₕ ] A →
+      γ ▸[ m ] A →
       ω ·ᶜ γ ▸[ m ] List l A
     ▸List {γ} ▸A = sub-≈ᶜ (▸L.▸List ▸A nrᵢᶜ-𝟙-GLBᶜ) $ begin
       ω ·ᶜ γ       ≈˘⟨ +ᶜ-identityˡ _ ⟩
@@ -393,7 +390,7 @@ module List-pₗ≡𝟙
   (pₕ : Linearity)
   where
 
-  open import Definition.Untyped.List linearityModality pₕ 𝟙
+  open import Definition.Untyped.List linearityModality Zero-one-isMode pₕ 𝟙
   module ▸L = List pₕ 𝟙
 
   opaque

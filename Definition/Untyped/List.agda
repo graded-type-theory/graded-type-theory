@@ -7,20 +7,22 @@
 -- rules can be found in Graded.Derived.List
 
 import Graded.Modality
+import Graded.Mode
 import Definition.Untyped
-open import Tools.Bool
 
 module Definition.Untyped.List
-  {ℓ} {M : Set ℓ}
+  {ℓ ℓ′} {M : Set ℓ} {Mode : Set ℓ′}
   (open Graded.Modality M)
   (open Definition.Untyped M)
   (𝕄 : Modality)
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   -- The grade of the "heads" and grade of the length component
   (pₕ pₗ : M)
   where
 
 -- Use vectors defined using weak Unit and Σ-types.
-import Definition.Untyped.Vec 𝕄 𝕨 pₕ as V
+import Definition.Untyped.Vec 𝕄 𝐌 𝕨 pₕ as V
 
 open import Definition.Untyped.Properties M
 

@@ -30,9 +30,3 @@ open import Graded.Modality.Properties.Star semiring-with-meet public
 open import Graded.Modality.Properties.Subtraction semiring-with-meet public
 
 open import Tools.Bool
-
--- Properties that hold if 𝟘 is well-behaved also hold if 𝟘ᵐ is
--- allowed.
-
-module 𝟘ᵐ (ok : T 𝟘ᵐ-allowed) where
-  open H ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ public

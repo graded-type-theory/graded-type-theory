@@ -2,23 +2,27 @@
 -- The usage relation is closed under weakening.
 ------------------------------------------------------------------------
 
-open import Graded.Modality using (Modality)
+import Graded.Mode
+import Graded.Modality
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Weakening
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  (open Graded.Modality M)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Usage 𝕄 R
+open import Graded.Usage R
 open import Graded.Usage.Restrictions.Instance R
-open import Graded.Mode 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
 
@@ -102,7 +106,7 @@ wkUsage
     (wkUsage (lift ρ) ▸A)
     (wk-≤ᶜ ρ χ≤γ)
     (wk-≤ᶜ ρ ∘→ χ≤δ)
-    (wk-≤ᶜ ρ χ≤η)
+    (wk-≤ᶜ ρ ∘→ χ≤η)
     (begin
        wkConₘ ρ χ                                        ≤⟨ wk-≤ᶜ _ fix ⟩
 
@@ -335,7 +339,7 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           (wkUsage⁻¹ ▸A)
           (wkConₘ⁻¹-monotone ρ χ≤γ)
           (wkConₘ⁻¹-monotone ρ ∘→ χ≤δ)
-          (wkConₘ⁻¹-monotone ρ χ≤η)
+          (wkConₘ⁻¹-monotone ρ ∘→ χ≤η)
           (begin
              wkConₘ⁻¹ ρ χ                                            ≤⟨ wkConₘ⁻¹-monotone ρ fix ⟩
 

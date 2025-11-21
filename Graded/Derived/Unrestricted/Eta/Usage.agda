@@ -3,24 +3,25 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Unrestricted.Eta.Usage
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Inversion 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
-
-open import Graded.Mode 𝕄
+open import Graded.Usage R
+open import Graded.Usage.Inversion R
+open import Graded.Usage.Properties R
 
 open import Definition.Untyped M
 open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄
@@ -65,8 +66,7 @@ private
   γ ▸[ m ] A →
   γ ▸[ m ] Unrestricted A
 ▸Unrestricted {m = m} {γ = γ} mω≤𝟘 ▸A = sub
-  (ΠΣₘ
-     (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸A)
+  (ΠΣₘ ▸A
      (sub Unitₘ
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ mω≤𝟘 ⟩
@@ -109,7 +109,7 @@ inv-usage-Unrestricted {γ = γ} {m = m} ▸Unrestricted =
   case inv-usage-Unit ▸Unit of λ {
     (η≤𝟘 ∙ mω≤𝟘) →
       mω≤𝟘
-    , sub (▸-cong ᵐ·-identityʳ-ω ▸A) (begin
+    , sub ▸A (begin
        γ        ≤⟨ γ≤ ⟩
        δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ η≤𝟘 ⟩
        δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩

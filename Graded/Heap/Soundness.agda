@@ -1,16 +1,23 @@
 ------------------------------------------------------------------------
 -- Resource correctness of the heap semantics.
+-- Note that the Zero-one mode instance is used in this module since
+-- the results are related to quantitative modalities. However, it
+-- might be possible to generalize the results to other mode structures
+-- as well.
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
 open import Definition.Typed.Restrictions
-open import Tools.Sum
 
 module Graded.Heap.Soundness
   {a} {M : Set a} {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {mode-variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one mode-variant)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (TR : Type-restrictions 𝕄)
   (As : Assumptions UR TR)
   where
@@ -28,6 +35,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 import Tools.Reasoning.PartialOrder as RPo
+open import Tools.Sum
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -47,20 +55,20 @@ open import Definition.LogicalRelation.Unary TR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Restrictions 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Restrictions.Zero-one 𝕄 mode-variant
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr
 open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
 open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
+open import Graded.Heap.Usage.Properties.Zero-one type-variant UR factoring-nr
 open import Graded.Heap.Usage.Reduction
   type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
-open import Graded.Heap.Termination UR TR As
+open import Graded.Heap.Termination.Zero-one UR TR As
 open import Graded.Heap.Typed UR TR factoring-nr
 open import Graded.Heap.Typed.Inversion UR TR factoring-nr
 open import Graded.Heap.Typed.Reduction UR TR factoring-nr

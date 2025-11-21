@@ -3,26 +3,28 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Identity
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {𝐌 : IsMode Mode 𝕄}
+  (UR : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Substitution.Properties 𝕄 UR
-open import Graded.Usage 𝕄 UR
+open import Graded.Substitution.Properties UR
+open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
-open import Graded.Usage.Properties 𝕄 UR
-open import Graded.Usage.Weakening 𝕄 UR
+open import Graded.Usage.Properties UR
+open import Graded.Usage.Weakening UR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
@@ -48,7 +50,7 @@ opaque
   -- A usage rule for subst.
 
   ▸subst :
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ∙ ⌜ m ⌝ · p ▸[ m ] B →
     γ₃ ▸[ m ] t →
     γ₄ ▸[ m ] u →
@@ -79,11 +81,11 @@ opaque
 
   ▸subst-𝟘 :
     erased-matches-for-J m ≡ not-none sem →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ∙ 𝟘 ▸[ m ] B →
-    γ₃ ▸[ 𝟘ᵐ? ] t →
-    γ₄ ▸[ 𝟘ᵐ? ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₃ ▸[ 𝟘ᵐ ] t →
+    γ₄ ▸[ 𝟘ᵐ ] u →
+    γ₅ ▸[ 𝟘ᵐ ] v →
     γ₆ ▸[ m ] w →
     ω ·ᶜ (γ₂ +ᶜ γ₆) ▸[ m ] subst 𝟘 A B t u v w
   ▸subst-𝟘 ≡not-none ▸A ▸B ▸t ▸u ▸v ▸w =
@@ -96,7 +98,7 @@ opaque
   -- A usage rule for cong.
 
   ▸cong :
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
     γ₄ ▸[ m ] B →

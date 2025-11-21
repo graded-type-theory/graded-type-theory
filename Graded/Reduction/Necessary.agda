@@ -4,32 +4,34 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Reduction.Necessary
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   where
 
 open Type-restrictions TR
 open Usage-restrictions UR
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Restrictions.Natrec 𝕄
 import Graded.Reduction TR UR as R
-import Graded.Usage 𝕄 UR as U
-import Graded.Usage.Inversion 𝕄 UR as UI
-import Graded.Usage.Properties 𝕄 UR as UP
-import Graded.Usage.Weakening 𝕄 UR as UW
+import Graded.Usage UR as U
+import Graded.Usage.Inversion UR as UI
+import Graded.Usage.Properties UR as UP
+import Graded.Usage.Weakening UR as UW
 
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
@@ -57,7 +59,7 @@ private variable
   Δ : Con Term _
   γ δ η θ : Conₘ _
   t u v z s k A B : Term _
-  m : Mode
+  m m′ : Mode
   p q r : M
   ρ : Wk _ _
   x : Fin _
@@ -68,15 +70,15 @@ private variable
 
 -- A usage relation with some requirements
 
-record Usage-relation : Set (lsuc a) where
+record Usage-relation : Set (lsuc (a ⊔ b)) where
   no-eta-equality
   infix 10 _▸[_]_ ▸[_]_
   field
-    _▸[_]_ : Conₘ n → Mode → Term n → Set a
+    _▸[_]_ : Conₘ n → Mode → Term n → Set (a ⊔ b)
 
   -- Well-resourced definitions
 
-  ▸[_]_ : Mode → DCon (Term 0) n → Set a
+  ▸[_]_ : Mode → DCon (Term 0) n → Set (a ⊔ b)
   ▸[ m ] ∇ = ∀ {α t A} → α ↦ t ∷ A ∈ ∇ → ε ▸[ m ] t
 
   field
@@ -89,7 +91,7 @@ record Usage-relation : Set (lsuc a) where
     Uₘ : 𝟘ᶜ {n = n} ▸[ m ] U l
     ℕₘ : 𝟘ᶜ {n = n} ▸[ m ] ℕ
     Unitʷₘ : 𝟘ᶜ {n = n} ▸[ m ] Unitʷ l
-    Σʷₘ : γ ▸[ m ᵐ· p ] A → δ ∙ ⌜ m ⌝ · q ▸[ m ] B → γ +ᶜ δ ▸[ m ] Σʷ p , q ▷ A ▹ B
+    Σʷₘ : γ ▸[ m ] A → δ ∙ ⌜ m ⌝ · q ▸[ m ] B → γ +ᶜ δ ▸[ m ] Σʷ p , q ▷ A ▹ B
     sub : γ ▸[ m ] t → δ ≤ᶜ γ → δ ▸[ m ] t
 
     -- "Inversion lemmas"
@@ -108,7 +110,8 @@ record Usage-relation : Set (lsuc a) where
     -- Properties of the usage relation
     wkUsage : γ ▸[ m ] t → wkConₘ ρ γ ▸[ m ] wk ρ t
     wkUsage⁻¹ : γ ▸[ m ] wk ρ t → wkConₘ⁻¹ ρ γ ▸[ m ] t
-    ▸-𝟘 : ∀ {ok} → γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
+    ▸-· : γ ▸[ m ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ m′ ·ᵐ m ] t
+    ▸ᵐ : γ ▸[ m ] t → γ ≤ᶜ ⌜ m ⌝ ·ᶜ γ
 
     -- Subject reduction
     usagePresTerm :
@@ -116,7 +119,7 @@ record Usage-relation : Set (lsuc a) where
 
 -- A usage relation with a usage rule for natrec on a certain form.
 
-record Usage-relation-natrec₁ : Set (lsuc a) where
+record Usage-relation-natrec₁ : Set (lsuc (a ⊔ b)) where
   no-eta-equality
   field
     usage-relation : Usage-relation
@@ -129,20 +132,20 @@ record Usage-relation-natrec₁ : Set (lsuc a) where
     g : (p r : M) (γ δ : Conₘ n) → Conₘ n
     natrecₘ :
       γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s →
-      η ▸[ m ] k → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+      η ▸[ m ] k → θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A →
       f p r ·ᶜ η +ᶜ g p r γ δ ▸[ m ] natrec p q r A z s k
     inv-usage-natrec :
       γ ▸[ m ] natrec p q r A z s k →
       ∃₄ λ δ₁ δ₂ δ₃ δ₄ →
       δ₁ ▸[ m ] z × δ₂ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
-      δ₃ ▸[ m ] k × δ₄ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A ×
+      δ₃ ▸[ m ] k × δ₄ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A ×
       γ ≤ᶜ f p r ·ᶜ δ₃ +ᶜ g p r δ₁ δ₂
 
 -- A usage relation with a usage rule for natrec on a certain form.
 -- This ansatz is similar to the one above but the function g does
 -- not depend on the grade p.
 
-record Usage-relation-natrec₂ : Set (lsuc a) where
+record Usage-relation-natrec₂ : Set (lsuc (a ⊔ b)) where
   no-eta-equality
   field
     usage-relation : Usage-relation
@@ -155,13 +158,13 @@ record Usage-relation-natrec₂ : Set (lsuc a) where
     g : (r : M) (γ δ : Conₘ n) → Conₘ n
     natrecₘ :
       γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s →
-      η ▸[ m ] k → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+      η ▸[ m ] k → θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A →
       f p r ·ᶜ η +ᶜ g r γ δ ▸[ m ] natrec p q r A z s k
     inv-usage-natrec :
       γ ▸[ m ] natrec p q r A z s k →
       ∃₄ λ δ₁ δ₂ δ₃ δ₄ →
       δ₁ ▸[ m ] z × δ₂ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
-      δ₃ ▸[ m ] k × δ₄ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A ×
+      δ₃ ▸[ m ] k × δ₄ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A ×
       γ ≤ᶜ f p r ·ᶜ δ₃ +ᶜ g r δ₁ δ₂
 
 opaque
@@ -182,7 +185,7 @@ opaque
 
 -- A usage relation with a usage rule for unitrec on a certain form.
 
-record Usage-relation-unitrec : Set (lsuc a) where
+record Usage-relation-unitrec : Set (lsuc (a ⊔ b)) where
   no-eta-equality
   field
     usage-relation : Usage-relation
@@ -194,11 +197,13 @@ record Usage-relation-unitrec : Set (lsuc a) where
     g : M → Conₘ n → Conₘ n
     unitrecₘ :
       γ ▸[ m ᵐ· p ] t → δ ▸[ m ] u →
-      η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+      η ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A →
       Unitrec-allowed m p q →
       f p ·ᶜ γ +ᶜ g p δ ▸[ m ] unitrec l p q A t u
 
-record Usage-relation-prodrec : Set (lsuc a) where
+-- A usage relation with a usage rule for prodrec on a certain form.
+
+record Usage-relation-prodrec : Set (lsuc (a ⊔ b)) where
   no-eta-equality
   field usage-relation : Usage-relation
 
@@ -208,7 +213,7 @@ record Usage-relation-prodrec : Set (lsuc a) where
     prodrecₘ :
       γ ▸[ m ᵐ· r ] t →
       δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
-      η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+      η ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A →
       Prodrec-allowed m r p q →
       f p r γ δ ▸[ m ] prodrec r p q A t u
 
@@ -220,8 +225,8 @@ module _
   -- The proof of subject reduction for the usage relation uses this
   -- assumption:
   (Unitʷ-η→ :
-     ∀ {p q} →
-     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     ∀ {m p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed m p q → ⌜ m ⌝ PE.≢ 𝟘 →
      p ≤ 𝟘)
   where
 
@@ -253,7 +258,8 @@ module _
           in  _ , _ , ▸t₁ , ▸t₂ , γ≤
       ; wkUsage = UW.wkUsage _
       ; wkUsage⁻¹ = UW.wkUsage⁻¹
-      ; ▸-𝟘 = UP.▸-𝟘
+      ; ▸-· = UP.▸-·
+      ; ▸ᵐ = UP.▸ᵐ
       ; usagePresTerm = R.usagePresTerm Unitʷ-η→
       }
 
@@ -486,7 +492,9 @@ module Usage (usage : Usage-relation) where
     -- A usage rule for sink: sink γ is well-resourced under context γ at mode 𝟙ᵐ.
 
     ▸¹sink : γ ▸[ 𝟙ᵐ ] sink γ
-    ▸¹sink = sub (▸sink _) (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-identityˡ _)))
+    ▸¹sink =
+      sub (▸sink _)
+        (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (·ᶜ-congʳ ⌜𝟙ᵐ⌝) (·ᶜ-identityˡ _))))
 
   opaque
 
@@ -544,15 +552,7 @@ module Usage (usage : Usage-relation) where
 
     inv-usage-sink-𝟙ᵐ : δ ▸[ 𝟙ᵐ ] sink γ → δ ≤ᶜ γ
     inv-usage-sink-𝟙ᵐ ▸γ =
-      ≤ᶜ-trans (inv-usage-sink ▸γ) (≤ᶜ-reflexive (·ᶜ-identityˡ _))
-
-  opaque
-
-    -- A usage inversion lemma for sink γ at mode 𝟘ᵐ.
-
-    inv-usage-sink-𝟘ᵐ : ∀ {ok} → δ ▸[ 𝟘ᵐ[ ok ] ] sink γ → δ ≤ᶜ 𝟘ᶜ
-    inv-usage-sink-𝟘ᵐ ▸γ =
-      ≤ᶜ-trans (inv-usage-sink ▸γ) (≤ᶜ-reflexive (·ᶜ-zeroˡ _))
+      ≤ᶜ-trans (inv-usage-sink ▸γ) (≤ᶜ-reflexive (≈ᶜ-trans (·ᶜ-congʳ ⌜𝟙ᵐ⌝) (·ᶜ-identityˡ _)))
 
 ------------------------------------------------------------------------
 -- Usage properties that hold for "arbitrary" usage relations with a
@@ -693,20 +693,20 @@ module Natrec₁
     opaque
       unfolding S
 
-      ▸S : 𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · ⌜ ⌞ r ⌟ ⌝ ▸[ 𝟙ᵐ ] S p r δ
-      ▸S {r} {p} {δ} =
+      ▸S : 𝟘ᶜ ∙ ⌜ 𝟙ᵐ ⌝ · 𝟘 ∙ ⌜ 𝟙ᵐ ⌝ · 𝟙 ▸[ 𝟙ᵐ ] S p r δ
+      ▸S {p} {r} {δ} =
         let ▸δ = sub (wkUsage ▸Sink-Δᴺ) $ begin
-              𝟘ᶜ ∙ 𝟙 · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ ∙ ⌜ 𝟙ᵐ ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
               𝟘ᶜ ∙ 𝟘 ∎
             open ≤ᶜ-reasoning
             ▸Σ = sub (Σʷₘ ℕₘ ▸δ) $ begin
-              𝟘ᶜ ∙ 𝟙 · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-              𝟘ᶜ         ≈˘⟨ +ᶜ-identityʳ _ ⟩
-              𝟘ᶜ +ᶜ 𝟘ᶜ   ∎
+              𝟘ᶜ ∙ ⌜ 𝟙ᵐ ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ              ≈˘⟨ +ᶜ-identityʳ _ ⟩
+              𝟘ᶜ +ᶜ 𝟘ᶜ        ∎
         in  sub (Σʷₘ varₘ ▸Σ) $ begin
-          𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · ⌜ ⌞ r ⌟ ⌝  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-identityˡ _ ⟩
-          𝟘ᶜ ∙ 𝟘     ∙ ⌜ ⌞ r ⌟ ⌝      ≈˘⟨ +ᶜ-identityʳ _ ⟩
-          (𝟘ᶜ , x0 ≔ ⌜ ⌞ r ⌟ ⌝) +ᶜ 𝟘ᶜ ∎
+          𝟘ᶜ ∙ ⌜ 𝟙ᵐ ⌝ · 𝟘 ∙ ⌜ 𝟙ᵐ ⌝ · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-identityʳ _ ⟩
+          𝟘ᶜ ∙ 𝟘     ∙ ⌜ 𝟙ᵐ ⌝           ≈˘⟨ +ᶜ-identityʳ _ ⟩
+          (𝟘ᶜ , x0 ≔ ⌜ 𝟙ᵐ ⌝) +ᶜ 𝟘ᶜ      ∎
         where
         open ≤ᶜ-reasoning
 
@@ -715,17 +715,17 @@ module Natrec₁
       -- A term used in the proofs below.
 
       α : (p r : M) (γ δ : Conₘ n) → Term (1+ n)
-      α p r γ δ = natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) (wk1 (Z γ)) (S p r δ) (var x0)
+      α p r γ δ = natrec 𝟘 𝟘 𝟙 (U 0) (wk1 (Z γ)) (S p r δ) (var x0)
 
     opaque
       unfolding α
 
       α₀≡ :
         α p r γ δ [ zero ]₀ PE.≡
-        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) (Sink Δᴺ γ)
+        natrec 𝟘 𝟘 𝟙 (U 0) (Sink Δᴺ γ)
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 4 ]′ (Sink Δᴺ δ))) zero
       α₀≡ {p} {r} {γ} {δ} =
-        PE.cong₂ (λ x y → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) x y zero)
+        PE.cong₂ (λ x y → natrec 𝟘 𝟘 𝟙 (U 0) x y zero)
           Z₀≡ S₀≡
 
     opaque
@@ -733,21 +733,21 @@ module Natrec₁
 
       α₊≡ :
         α p r γ δ [ suc (var x1) ]↑² PE.≡
-        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) (wk₂ (Sink Δᴺ γ))
+        natrec 𝟘 𝟘 𝟙 (U 0) (wk₂ (Sink Δᴺ γ))
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ))) (suc (var x1))
       α₊≡ {r} =
-        PE.cong₂ (λ x y → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) x y (suc (var x1))) Z₊≡ S₊≡
+        PE.cong₂ (λ x y → natrec 𝟘 𝟘 𝟙 (U 0) x y (suc (var x1))) Z₊≡ S₊≡
 
     opaque
       unfolding α Z S
 
       wk1α≡ :
         wk1 (α p r γ δ) PE.≡
-        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) (wk₂ (Sink Δᴺ γ))
+        natrec 𝟘 𝟘 𝟙 (U 0) (wk₂ (Sink Δᴺ γ))
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ)))
           (var x1)
       wk1α≡ {r} =
-        PE.cong₂ (λ z s → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) z s (var x1))
+        PE.cong₂ (λ z s → natrec 𝟘 𝟘 𝟙 (U 0) z s (var x1))
           (wk-comp _ _ _)
           (PE.cong (λ x → Σʷ r , 𝟘 ▷ _ ▹ (Σʷ _ , 𝟘 ▷ _ ▹ x)) (wk-comp _ _ _))
 
@@ -760,22 +760,21 @@ module Natrec₁
     opaque
       unfolding α
 
-      ▸¹α : tailₘ (g 𝟘 ⌜ ⌞ r ⌟ ⌝ 𝟘ᶜ 𝟘ᶜ) ∙ f 𝟘 ⌜ ⌞ r ⌟ ⌝ + headₘ {n = n} (g 𝟘 ⌜ ⌞ r ⌟ ⌝ 𝟘ᶜ 𝟘ᶜ) ▸[ 𝟙ᵐ ] α {n = n} p r γ δ
-      ▸¹α {r} {p} =
+      ▸¹α : tailₘ (g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ) ∙ f 𝟘 𝟙 + headₘ {n = n} (g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ) ▸[ 𝟙ᵐ ] α {n = n} p r γ δ
+      ▸¹α {p} {r} =
         let ▸U = sub Uₘ (≤ᶜ-refl {γ = 𝟘ᶜ} ∙ ≤-reflexive (·-zeroʳ _))
-            η = g 𝟘 ⌜ ⌞ r ⌟ ⌝ 𝟘ᶜ 𝟘ᶜ
+            η = g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ
             open ≤ᶜ-reasoning
         in  sub (natrecₘ (wkUsage ▸Z) ▸S varₘ ▸U) $ begin
-          tailₘ η ∙ f 𝟘 ⌜ ⌞ r ⌟ ⌝ + headₘ η                ≈˘⟨ +ᶜ-identityˡ _ ∙ PE.refl ⟩
-          (𝟘ᶜ ∙ f 𝟘 ⌜ ⌞ r ⌟ ⌝) +ᶜ (tailₘ η ∙ headₘ η)      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _) ⟩
-          f 𝟘 ⌜ ⌞ r ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ (tailₘ η ∙ headₘ η) ≡⟨ PE.cong (f 𝟘 ⌜ ⌞ r ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ_) (headₘ-tailₘ-correct η) ⟩
-          f 𝟘 ⌜ ⌞ r ⌟ ⌝ ·ᶜ (𝟘ᶜ , x0 ≔ 𝟙) +ᶜ η              ∎
+          tailₘ η ∙ f 𝟘 𝟙 + headₘ η                ≈˘⟨ +ᶜ-identityˡ _ ∙ PE.refl ⟩
+          (𝟘ᶜ ∙ f 𝟘 𝟙) +ᶜ (tailₘ η ∙ headₘ η)      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _) ⟩
+          f 𝟘 𝟙 ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ (tailₘ η ∙ headₘ η) ≡⟨ PE.cong₂ (λ x y → f 𝟘 𝟙 ·ᶜ (𝟘ᶜ ∙ x) +ᶜ y) (PE.sym ⌜𝟙ᵐ⌝) (headₘ-tailₘ-correct η) ⟩
+          f 𝟘 𝟙 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟙ᵐ ⌝) +ᶜ η         ∎
 
     opaque
 
-      ▸α : ⌜ m ⌝ ·ᶜ (tailₘ (g 𝟘 ⌜ ⌞ r ⌟ ⌝ 𝟘ᶜ 𝟘ᶜ) ∙ f 𝟘 ⌜ ⌞ r ⌟ ⌝ + headₘ {n = n} (g 𝟘 ⌜ ⌞ r ⌟ ⌝ 𝟘ᶜ 𝟘ᶜ)) ▸[ m ] α {n = n} p r γ δ
-      ▸α {m = 𝟘ᵐ} = sub (▸-𝟘 ▸¹α) (≤ᶜ-reflexive (·ᶜ-zeroˡ _))
-      ▸α {m = 𝟙ᵐ} = sub ▸¹α (≤ᶜ-reflexive (·ᶜ-identityˡ _))
+      ▸α : ⌜ m ⌝ ·ᶜ (tailₘ (g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ) ∙ f 𝟘 𝟙 + headₘ {n = n} (g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ)) ▸[ m ] α {n = n} p r γ δ
+      ▸α {m} = PE.subst (λ x → ⌜ m ⌝ ·ᶜ (tailₘ (g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ) ∙ f 𝟘 𝟙 + headₘ (g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ)) ▸[ x ] _) (·ᵐ-identityʳ _) (▸-· ▸¹α)
 
     opaque
 
@@ -859,6 +858,7 @@ module Natrec₁
       ▸σ : δ ∙ ⌜ 𝟙ᵐ ⌝ · p ∙ ⌜ 𝟙ᵐ ⌝ · r ▸[ 𝟙ᵐ ] σ p r δ
       ▸σ {δ} {p} {r} =
         sub (prodʷₘ varₘ (prodʷₘ varₘ (wkUsage ▸¹sink))) $ begin
+        δ                        ∙ ⌜ 𝟙ᵐ ⌝ · p                     ∙ ⌜ 𝟙ᵐ ⌝ · r                     ≈⟨ ≈ᶜ-refl ∙ ·-congʳ ⌜𝟙ᵐ⌝ ∙ ·-congʳ ⌜𝟙ᵐ⌝ ⟩
         δ                        ∙ 𝟙 · p                     ∙ 𝟙 · r                     ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ∙ ·-identityˡ _ ⟩
         δ                        ∙ p                         ∙ r                         ≈˘⟨ ≈ᶜ-refl ∙ ·⌜⌞⌟⌝ ∙ ·⌜⌞⌟⌝  ⟩
         δ                        ∙ p · ⌜ ⌞ p ⌟ ⌝             ∙ r · ⌜ ⌞ r ⌟ ⌝             ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityˡ _ ∙ +-identityʳ _ ⟩
@@ -868,7 +868,9 @@ module Natrec₁
         r ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ δ       ∙ r · 𝟘 + p · ⌜ ⌞ p ⌟ ⌝ + 𝟘 ∙ r · ⌜ ⌞ r ⌟ ⌝ + 𝟘 + 𝟘     ≈˘⟨ +ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _)) ∙ PE.refl ∙
                                                                                              +-congˡ (+-congʳ (·-zeroʳ _)) ⟩
         r ·ᶜ 𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ δ  ∙ r · 𝟘 + p · ⌜ ⌞ p ⌟ ⌝ + 𝟘 ∙ r · ⌜ ⌞ r ⌟ ⌝ + p · 𝟘 + 𝟘 ≡⟨⟩
-        r ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ r ⌟ ⌝) +ᶜ p ·ᶜ (𝟘ᶜ , x1 ≔ ⌜ ⌞ p ⌟ ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘) ∎
+        r ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ r ⌟ ⌝) +ᶜ p ·ᶜ (𝟘ᶜ , x1 ≔ ⌜ ⌞ p ⌟ ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)          ≈˘⟨ ≈ᶜ-refl ∙ +-congˡ (+-congʳ (·-congˡ (⌜⌝-cong ᵐ·-identityˡ))) ∙
+                                                                                              +-congʳ (·-congˡ (⌜⌝-cong ᵐ·-identityˡ)) ⟩
+        r ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟙ᵐ ᵐ· r ⌝) +ᶜ p ·ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟙ᵐ ᵐ· p ⌝) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)      ∎
         where
         open ≤ᶜ-reasoning
 
@@ -904,7 +906,7 @@ module Natrec₁
 
       τ : (p r : M) (γ δ : Conₘ n) → Nat → Term n
       τ {n} p r γ δ i =
-        natrec p (f 𝟘 ⌜ ⌞ r ⌟ ⌝ + headₘ {n = n} (g 𝟘 ⌜ ⌞ r ⌟ ⌝ 𝟘ᶜ 𝟘ᶜ)) r
+        natrec p (f 𝟘 𝟙 + headₘ {n = n} (g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ)) r
           (α p r γ δ) (ζ γ) (σ p r δ) (sucᵏ i)
 
     opaque
@@ -949,35 +951,40 @@ module Natrec₁
       unfolding σ
 
       inv-usage-σ[,] :
-        η ▸[ 𝟙ᵐ ] σ p r δ [ t , u ]₁₀ →
-        ∃₂ λ η₁ η₂ → η₁ ▸[ ⌞ p ⌟ ] t × η₂ ▸[ ⌞ r ⌟ ] u × η ≤ᶜ r ·ᶜ η₂ +ᶜ p ·ᶜ η₁ +ᶜ δ
-      inv-usage-σ[,] {η} {p} {r} {δ} ▸σ =
+        η ▸[ m ] σ p r δ [ t , u ]₁₀ →
+        ∃₂ λ η₁ η₂ → η₁ ▸[ m ᵐ· p ] t × η₂ ▸[ m ᵐ· r ] u × η ≤ᶜ ⌜ m ⌝ ·ᶜ (r ·ᶜ η₂ +ᶜ p ·ᶜ η₁ +ᶜ δ)
+      inv-usage-σ[,] {η} {m} {p} {r} {δ} ▸σ =
         let η₁ , η₂ , ▸u , ▸v , η≤ = inv-usage-prodʷ ▸σ
             η₃ , η₄ , ▸t , ▸δ , η₂≤ = inv-usage-prodʷ ▸v
-            ▸δ′ = PE.subst (λ x → η₄ ▸[ 𝟙ᵐ ] x) (wk₂-[,] {t = sink δ}) ▸δ
+            ▸δ′ = PE.subst (λ x → η₄ ▸[ _ ] x) (wk₂-[,] {t = sink δ}) ▸δ
             open ≤ᶜ-reasoning
         in  _ , _ , ▸t , ▸u , (begin
-          η                        ≤⟨ η≤ ⟩
-          r ·ᶜ η₁ +ᶜ η₂            ≤⟨ +ᶜ-monotoneʳ η₂≤ ⟩
-          r ·ᶜ η₁ +ᶜ p ·ᶜ η₃ +ᶜ η₄ ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneʳ (inv-usage-sink-𝟙ᵐ ▸δ′)) ⟩
-          r ·ᶜ η₁ +ᶜ p ·ᶜ η₃ +ᶜ δ  ∎)
+          η                                                              ≤⟨ η≤ ⟩
+          r ·ᶜ η₁ +ᶜ η₂                                                  ≤⟨ +ᶜ-monotoneʳ η₂≤ ⟩
+          r ·ᶜ η₁ +ᶜ p ·ᶜ η₃ +ᶜ η₄                                       ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸ᵐ ▸u)) (+ᶜ-monotone (·ᶜ-monotoneʳ (▸ᵐ ▸t)) (inv-usage-sink ▸δ′)) ⟩
+          r ·ᶜ ⌜ m ᵐ· r ⌝ ·ᶜ η₁ +ᶜ p ·ᶜ ⌜ m ᵐ· p ⌝ ·ᶜ η₃ +ᶜ ⌜ m ⌝ ·ᶜ δ   ≈˘⟨ +ᶜ-cong (·ᶜ-assoc _ _ _) (+ᶜ-congʳ (·ᶜ-assoc _ _ _)) ⟩
+          (r · ⌜ m ᵐ· r ⌝) ·ᶜ η₁ +ᶜ (p · ⌜ m ᵐ· p ⌝) ·ᶜ η₃ +ᶜ ⌜ m ⌝ ·ᶜ δ ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·⌜ᵐ·⌝ _)) (+ᶜ-congʳ (·ᶜ-congʳ (·⌜ᵐ·⌝ _))) ⟩
+          (r · ⌜ m ⌝) ·ᶜ η₁ +ᶜ (p · ⌜ m ⌝) ·ᶜ η₃ +ᶜ ⌜ m ⌝ ·ᶜ δ           ≈˘⟨ +ᶜ-cong (·ᶜ-congʳ (⌜⌝-·-comm _)) (+ᶜ-congʳ (·ᶜ-congʳ (⌜⌝-·-comm _))) ⟩
+          (⌜ m ⌝ · r) ·ᶜ η₁ +ᶜ (⌜ m ⌝ · p) ·ᶜ η₃ +ᶜ ⌜ m ⌝ ·ᶜ δ           ≈⟨ +ᶜ-cong (·ᶜ-assoc _ _ _) (+ᶜ-congʳ (·ᶜ-assoc _ _ _)) ⟩
+          ⌜ m ⌝ ·ᶜ r ·ᶜ η₁ +ᶜ ⌜ m ⌝ ·ᶜ p ·ᶜ η₃ +ᶜ ⌜ m ⌝ ·ᶜ δ             ≈˘⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+          ⌜ m ⌝ ·ᶜ r ·ᶜ η₁ +ᶜ ⌜ m ⌝ ·ᶜ (p ·ᶜ η₃ +ᶜ δ)                    ≈˘⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+          ⌜ m ⌝ ·ᶜ (r ·ᶜ η₁ +ᶜ p ·ᶜ η₃ +ᶜ δ)                             ∎)
 
     opaque
       unfolding σ
 
       inv-usage-σ[k,τ] :
-        η ▸[ 𝟙ᵐ ] σ p r δ [ sucᵏ i , τ p r γ δ i ]₁₀ →
-        ∃ λ θ → θ ▸[ ⌞ r ⌟ ] τ p r γ δ i × η ≤ᶜ δ +ᶜ r ·ᶜ θ
+        η ▸[ m ] σ p r δ [ sucᵏ i , τ p r γ δ i ]₁₀ →
+        ∃ λ θ → θ ▸[ m ᵐ· r ] τ p r γ δ i × η ≤ᶜ ⌜ m ⌝ ·ᶜ (δ +ᶜ r ·ᶜ θ)
       inv-usage-σ[k,τ] {η} {p} {r} {δ} ▸σ =
         let η₁ , η₂ , ▸i , ▸τ , η≤ = inv-usage-σ[,] ▸σ
             open ≤ᶜ-reasoning
-        in  _ , ▸τ , (begin
-          η                      ≤⟨ η≤ ⟩
+        in  _ , ▸τ , ≤ᶜ-trans η≤ (·ᶜ-monotoneʳ (begin
           r ·ᶜ η₂ +ᶜ p ·ᶜ η₁ +ᶜ δ ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (inv-usage-sucᵏ ▸i))) ⟩
           r ·ᶜ η₂ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ δ ≈⟨ +ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _)) ⟩
           r ·ᶜ η₂ +ᶜ 𝟘ᶜ +ᶜ δ      ≈⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
           r ·ᶜ η₂ +ᶜ δ            ≈⟨ +ᶜ-comm _ _ ⟩
-          δ +ᶜ r ·ᶜ η₂            ∎)
+          δ +ᶜ r ·ᶜ η₂            ∎))
 
     opaque
       unfolding τ
@@ -985,31 +992,42 @@ module Natrec₁
       -- The context nrᵢᶜ r γ δ i is an upper bound on valid contexts
       -- for the term τ p r γ δ i.
 
-      ≤-nrᵢᶜ : ∀ i → η ▸[ 𝟙ᵐ ] τ p r γ δ i → η ≤ᶜ nrᵢᶜ r γ δ i
-      ≤-nrᵢᶜ {η} {r} {γ} {δ} 0 ▸nr =
+      ≤-nrᵢᶜ : ∀ i → η ▸[ m ] τ p r γ δ i → η ≤ᶜ ⌜ m ⌝ ·ᶜ nrᵢᶜ r γ δ i
+      ≤-nrᵢᶜ {η} {m} {r} {γ} {δ} 0 ▸nr =
         let open ≤ᶜ-reasoning in begin
-          η            ≤⟨ inv-usage-ζ (usagePresTerm (λ ()) ▸nr (natrec-zero ⊢ζ ⊢σ)) ⟩
-          𝟙 ·ᶜ γ       ≈⟨ ·ᶜ-identityˡ _ ⟩
-          γ            ≈˘⟨ nrᵢᶜ-zero ⟩
-          nrᵢᶜ r γ δ 0 ∎
-      ≤-nrᵢᶜ {η} {p} {r} {γ} {δ} (1+ i) ▸nr =
+          η                     ≤⟨ inv-usage-ζ (usagePresTerm (λ ()) ▸nr (natrec-zero ⊢ζ ⊢σ)) ⟩
+          ⌜ m ⌝ ·ᶜ γ            ≈˘⟨ ·ᶜ-congˡ nrᵢᶜ-zero ⟩
+          ⌜ m ⌝ ·ᶜ nrᵢᶜ r γ δ 0 ∎
+      ≤-nrᵢᶜ {η} {m} {p} {r} {γ} {δ} (1+ i) ▸nr =
         let ▸s = usagePresTerm (λ ()) ▸nr (natrec-suc ⊢ζ ⊢σ (⊢sucᵏ ⊢Γᴺ))
             θ , ▸IH , η≤ = inv-usage-σ[k,τ] ▸s
             open ≤ᶜ-reasoning
-        in  case is-𝟘? r of λ where
-          (yes PE.refl) → begin
-            η                      ≤⟨ η≤ ⟩
-            δ +ᶜ 𝟘 ·ᶜ θ            ≈⟨ +ᶜ-congˡ (·ᶜ-zeroˡ _) ⟩
-            δ +ᶜ 𝟘ᶜ                ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroˡ _) ⟩
-            δ +ᶜ 𝟘 ·ᶜ nrᵢᶜ 𝟘 γ δ i ≈˘⟨ nrᵢᶜ-suc ⟩
-            nrᵢᶜ 𝟘 γ δ (1+ i)      ∎
-          (no r≢𝟘) → begin
-            η                      ≤⟨ η≤ ⟩
-            δ +ᶜ r ·ᶜ θ            ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneʳ
-                                       (≤-nrᵢᶜ i (PE.subst (θ ▸[_] τ p r γ δ i)
-                                         (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) ▸IH))) ⟩
-            δ +ᶜ r ·ᶜ nrᵢᶜ r γ δ i ≈˘⟨ nrᵢᶜ-suc ⟩
-            nrᵢᶜ r γ δ (1+ i)      ∎
+        in  begin
+          η                                                 ≤⟨ η≤ ⟩
+          ⌜ m ⌝ ·ᶜ (δ +ᶜ r ·ᶜ θ)                            ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotoneʳ (·ᶜ-monotoneʳ (≤-nrᵢᶜ i ▸IH))) ⟩
+          ⌜ m ⌝ ·ᶜ (δ +ᶜ r ·ᶜ ⌜ m ᵐ· r ⌝ ·ᶜ nrᵢᶜ r γ δ i)   ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-assoc _ _ _)) ⟩
+          ⌜ m ⌝ ·ᶜ (δ +ᶜ (r · ⌜ m ᵐ· r ⌝) ·ᶜ nrᵢᶜ r γ δ i)  ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-congʳ (·⌜ᵐ·⌝ _))) ⟩
+          ⌜ m ⌝ ·ᶜ (δ +ᶜ (r · ⌜ m ⌝) ·ᶜ nrᵢᶜ r γ δ i)       ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-congʳ (⌜⌝-·-comm _))) ⟩
+          ⌜ m ⌝ ·ᶜ (δ +ᶜ (⌜ m ⌝ · r) ·ᶜ nrᵢᶜ r γ δ i)       ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-assoc _ _ _)) ⟩
+          ⌜ m ⌝ ·ᶜ (δ +ᶜ ⌜ m ⌝ ·ᶜ r ·ᶜ nrᵢᶜ r γ δ i)        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+          ⌜ m ⌝ ·ᶜ δ +ᶜ ⌜ m ⌝ ·ᶜ ⌜ m ⌝ ·ᶜ r ·ᶜ nrᵢᶜ r γ δ i ≈⟨ +ᶜ-congˡ ·ᶜ-idem-⌜⌝ ⟩
+          ⌜ m ⌝ ·ᶜ δ +ᶜ ⌜ m ⌝ ·ᶜ r ·ᶜ nrᵢᶜ r γ δ i          ≈˘⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+          ⌜ m ⌝ ·ᶜ (δ +ᶜ r ·ᶜ nrᵢᶜ r γ δ i)                 ≈˘⟨ ·ᶜ-congˡ nrᵢᶜ-suc ⟩
+          ⌜ m ⌝ ·ᶜ nrᵢᶜ r γ δ (1+ i) ∎
+
+    opaque
+
+      -- The context nrᵢᶜ r γ δ i is an upper bound on valid contexts
+      -- for the term τ p r γ δ i.
+
+      ≤-nrᵢᶜ-𝟙ᵐ : ∀ i → η ▸[ 𝟙ᵐ ] τ p r γ δ i → η ≤ᶜ nrᵢᶜ r γ δ i
+      ≤-nrᵢᶜ-𝟙ᵐ {η} {r} {γ} {δ} i ▸τ = begin
+        η                      ≤⟨ ≤-nrᵢᶜ i ▸τ ⟩
+        ⌜ 𝟙ᵐ ⌝ ·ᶜ nrᵢᶜ r γ δ i ≈⟨ ·ᶜ-congʳ ⌜𝟙ᵐ⌝ ⟩
+        𝟙 ·ᶜ nrᵢᶜ r γ δ i      ≈⟨ ·ᶜ-identityˡ _ ⟩
+        nrᵢᶜ r γ δ i           ∎
+        where
+        open ≤ᶜ-reasoning
 
   opaque
 
@@ -1017,20 +1035,23 @@ module Natrec₁
     -- That is, g p r γ δ is smaller than γ, δ +ᶜ r ·ᶜ γ, ….
 
     g-≤-nrᵢᶜ : ∀ i → g p r γ δ ≤ᶜ nrᵢᶜ r γ δ i
-    g-≤-nrᵢᶜ i = ≤-nrᵢᶜ i ▸τ
+    g-≤-nrᵢᶜ i = ≤-nrᵢᶜ-𝟙ᵐ i ▸τ
 
   opaque
 
     -- If mode 𝟘ᵐ is allowed then g p r 𝟘ᶜ 𝟘ᶜ is equal to 𝟘ᶜ.
 
-    g𝟘𝟘≈𝟘 : T 𝟘ᵐ-allowed → g p r 𝟘ᶜ 𝟘ᶜ ≈ᶜ 𝟘ᶜ {n = n}
-    g𝟘𝟘≈𝟘 {p} {r} {n} ok =
-      let 𝟘▸τ = ▸-𝟘 {ok = ok} (▸τ {p = p} {r = r} {γ = 𝟘ᶜ {n = n}} {δ = 𝟘ᶜ} {i = 0})
+    g𝟘𝟘≈𝟘 : ¬ Trivialᵐ → g p r 𝟘ᶜ 𝟘ᶜ ≈ᶜ 𝟘ᶜ {n = n}
+    g𝟘𝟘≈𝟘 {p} {r} {n} 𝟙ᵐ≢𝟘ᵐ =
+      let 𝟘▸τ = PE.subst (λ m → 𝟘ᶜ {n} ▸[ m ] τ p r 𝟘ᶜ 𝟘ᶜ 0) (·ᵐ-zeroˡ _) $ sub (▸-· ▸τ) $ begin
+                  𝟘ᶜ                    ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+                  𝟘 ·ᶜ g p r 𝟘ᶜ 𝟘ᶜ      ≈˘⟨ ·ᶜ-congʳ (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ) ⟩
+                  ⌜ 𝟘ᵐ ⌝ ·ᶜ g p r 𝟘ᶜ 𝟘ᶜ ∎
           γ , δ , γ≤ , δ≤ , 𝟘≤g = inv-usage-τ 𝟘▸τ
           γ≤𝟘 = begin
-            γ       ≤⟨ γ≤ ⟩
-            𝟘 ·ᶜ 𝟘ᶜ ≈⟨ ·ᶜ-zeroʳ _ ⟩
-            𝟘ᶜ      ∎
+            γ            ≤⟨ γ≤ ⟩
+            ⌜ 𝟘ᵐ ⌝ ·ᶜ 𝟘ᶜ ≈⟨ ·ᶜ-zeroʳ _ ⟩
+            𝟘ᶜ           ∎
           𝟘≤γ = begin
             𝟘ᶜ           ≤⟨ 𝟘≤g ⟩
             g p r γ δ    ≤⟨ g-≤-nrᵢᶜ 0 ⟩
@@ -1038,9 +1059,9 @@ module Natrec₁
             γ ∎
           γ≈𝟘 = ≤ᶜ-antisym γ≤𝟘 𝟘≤γ
           δ≤𝟘 = begin
-            δ ≤⟨ δ≤ ⟩
-            𝟘 ·ᶜ 𝟘ᶜ ≈⟨ ·ᶜ-zeroʳ _ ⟩
-            𝟘ᶜ ∎
+            δ            ≤⟨ δ≤ ⟩
+            ⌜ 𝟘ᵐ ⌝ ·ᶜ 𝟘ᶜ ≈⟨ ·ᶜ-zeroʳ _ ⟩
+            𝟘ᶜ           ∎
           𝟘≤δ = begin
             𝟘ᶜ                     ≤⟨ 𝟘≤g ⟩
             g p r γ δ              ≤⟨ g-≤-nrᵢᶜ 1 ⟩
@@ -1063,60 +1084,65 @@ module Natrec₁
       where
       open ≤ᶜ-reasoning
 
-    private
-
-      opaque
-
-        -- A term used in some lemmas below.
-
-        τ′ : (p r : M) (t : Term 1) → Term 1
-        τ′ p r t = natrec p (f 𝟘 ⌜ ⌞ r ⌟ ⌝ + headₘ {n = 1} (g 𝟘 ⌜ ⌞ r ⌟ ⌝ 𝟘ᶜ 𝟘ᶜ)) r (α p r 𝟘ᶜ 𝟘ᶜ) (ζ 𝟘ᶜ) (σ p r 𝟘ᶜ) t
-
-      opaque
-        unfolding τ′
-
-        ▸τ′ : T 𝟘ᵐ-allowed → ε ∙ f p r ▸[ 𝟙ᵐ ] τ′ p r (suc (var x0))
-        ▸τ′ {p} {r} ok = sub (natrecₘ ▸ζ ▸σ (sucₘ varₘ) ▸α) $ begin
-          ε ∙ f p r                       ≈˘⟨ +ᶜ-identityʳ _ ⟩
-          (ε ∙ f p r) +ᶜ 𝟘ᶜ               ≈˘⟨ +ᶜ-cong (ε ∙ ·-identityʳ _) (g𝟘𝟘≈𝟘 ok) ⟩
-          f p r ·ᶜ (ε ∙ 𝟙) +ᶜ g p r 𝟘ᶜ 𝟘ᶜ ∎
-          where
-          open ≤ᶜ-reasoning
-
-      opaque
-        unfolding τ′
-
-        -- The context ε ∙ p + r · f p r is an upper bound of valid contexts for
-        -- τ′ p r (suc (var x0)).
-
-        ≤-p+rf : γ ▸[ 𝟙ᵐ ] τ′ p r (suc (var x0)) → γ ≤ᶜ (ε ∙ p + r · f p r)
-        ≤-p+rf {γ} {p} {r} ▸nr =
-          let ▸s = usagePresTerm (λ ()) ▸nr (natrec-suc ⊢ζ ⊢σ (var₀ (ℕⱼ εε)))
-              γ₁ , γ₂ , ▸x0 , ▸nr′ , γ≤ = inv-usage-σ[,] ▸s
-              δ₁ , δ₂ , δ₃ , _ , ▸ζ , _ , ▸x0′ , _ , γ₂≤ = inv-usage-natrec ▸nr′
-              open ≤ᶜ-reasoning
-          in  begin
-            γ                                                                         ≤⟨ γ≤ ⟩
-            r ·ᶜ γ₂ +ᶜ p ·ᶜ γ₁ +ᶜ 𝟘ᶜ                                                  ≈⟨ +ᶜ-congˡ (+ᶜ-identityʳ _) ⟩
-            r ·ᶜ γ₂ +ᶜ p ·ᶜ γ₁                                                        ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ γ₂≤) (·ᶜ-monotoneʳ (inv-usage-var ▸x0)) ⟩
-            r ·ᶜ (f p r ·ᶜ δ₃ +ᶜ g p r δ₁ δ₂) +ᶜ p ·ᶜ (ε ∙ ⌜ ⌞ p ⌟ ⌝)                 ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (+ᶜ-monotone (·ᶜ-monotoneʳ (inv-usage-var ▸x0′)) (g-≤-nrᵢᶜ 0))) ⟩
-            r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ nrᵢᶜ r δ₁ δ₂ 0) +ᶜ p ·ᶜ (ε ∙ ⌜ ⌞ p ⌟ ⌝) ≈⟨ +ᶜ-cong (·ᶜ-congˡ (+ᶜ-congˡ nrᵢᶜ-zero)) (ε ∙ ·⌜⌞⌟⌝) ⟩
-            r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ δ₁) +ᶜ (ε ∙ p)                         ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (+ᶜ-monotoneʳ (inv-usage-ζ ▸ζ))) ⟩
-            r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ ⌜ ⌞ r ⌟ ⌝ ·ᶜ 𝟘ᶜ) +ᶜ (ε ∙ p)            ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-zeroʳ _))) ⟩
-            r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ 𝟘ᶜ) +ᶜ (ε ∙ p)                         ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-identityʳ _)) ⟩
-            r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝)) +ᶜ (ε ∙ p)                               ≡⟨⟩
-            ε ∙ r · f p r · ⌜ ⌞ r ⌟ ⌝ + p                                           ≈˘⟨ ε ∙ +-congʳ (·-congˡ (⌜⌝-·-comm ⌞ r ⌟)) ⟩
-            ε ∙ r · ⌜ ⌞ r ⌟ ⌝ · f p r + p                                           ≈˘⟨ ε ∙ +-congʳ (·-assoc _ _ _) ⟩
-            ε ∙ (r · ⌜ ⌞ r ⌟ ⌝) · f p r + p                                         ≈⟨ ε ∙ +-congʳ (·-congʳ ·⌜⌞⌟⌝) ⟩
-            ε ∙ r · f p r + p                                                       ≈⟨ +ᶜ-comm _ _ ⟩
-            ε ∙ p + r · f p r                                                       ∎
+  private
 
     opaque
 
-      -- If mode 𝟘ᵐ is allowed then the function f satisfies a certain inequality.
+      -- A term used in some lemmas below.
 
-      f-≤-p+rf : T 𝟘ᵐ-allowed → f p r ≤ p + r · f p r
-      f-≤-p+rf ok = headₘ-monotone (≤-p+rf (▸τ′ ok))
+      τ′ : (p r : M) (t : Term 1) → Term 1
+      τ′ p r t = natrec p (f 𝟘 𝟙 + headₘ {n = 1} (g 𝟘 𝟙 𝟘ᶜ 𝟘ᶜ)) r (α p r 𝟘ᶜ 𝟘ᶜ) (ζ 𝟘ᶜ) (σ p r 𝟘ᶜ) t
+
+    opaque
+      unfolding τ′
+
+      ▸τ′ : ¬ Trivialᵐ → ε ∙ f p r ▸[ 𝟙ᵐ ] τ′ p r (suc (var x0))
+      ▸τ′ {p} {r} 𝟙ᵐ≢𝟘ᵐ = sub (natrecₘ ▸ζ ▸σ (sucₘ varₘ) ▸α) $ begin
+        ε ∙ f p r                            ≈˘⟨ ε ∙ ·-identityʳ _ ⟩
+        ε ∙ f p r · 𝟙                        ≈˘⟨ ε ∙ ·-congˡ ⌜𝟙ᵐ⌝ ⟩
+        ε ∙ f p r · ⌜ 𝟙ᵐ ⌝                   ≈˘⟨ +ᶜ-identityʳ _ ⟩
+        (ε ∙ f p r · ⌜ 𝟙ᵐ ⌝) +ᶜ 𝟘ᶜ           ≈˘⟨ +ᶜ-congˡ (g𝟘𝟘≈𝟘 𝟙ᵐ≢𝟘ᵐ) ⟩
+        f p r ·ᶜ (ε ∙ ⌜ 𝟙ᵐ ⌝) +ᶜ g p r 𝟘ᶜ 𝟘ᶜ ∎
+        where
+        open ≤ᶜ-reasoning
+
+    opaque
+      unfolding τ′
+
+      -- The context ε ∙ p + r · f p r is an upper bound of valid contexts for
+      -- τ′ p r (suc (var x0)).
+
+      ≤-p+rf : γ ▸[ 𝟙ᵐ ] τ′ p r (suc (var x0)) → γ ≤ᶜ (ε ∙ p + r · f p r)
+      ≤-p+rf {γ} {p} {r} ▸nr =
+        let ▸s = usagePresTerm (λ ()) ▸nr (natrec-suc ⊢ζ ⊢σ (var₀ (ℕⱼ εε)))
+            γ₁ , γ₂ , ▸x0 , ▸nr′ , γ≤ = inv-usage-σ[,] ▸s
+            δ₁ , δ₂ , δ₃ , _ , ▸ζ , _ , ▸x0′ , _ , γ₂≤ = inv-usage-natrec ▸nr′
+            open ≤ᶜ-reasoning
+        in  begin
+          γ                                                                           ≤⟨ γ≤ ⟩
+          ⌜ 𝟙ᵐ ⌝ ·ᶜ (r ·ᶜ γ₂ +ᶜ p ·ᶜ γ₁ +ᶜ 𝟘ᶜ)                                        ≈⟨ ·ᶜ-congʳ ⌜𝟙ᵐ⌝ ⟩
+          𝟙 ·ᶜ (r ·ᶜ γ₂ +ᶜ p ·ᶜ γ₁ +ᶜ 𝟘ᶜ)                                             ≈⟨ ·ᶜ-identityˡ _ ⟩
+          r ·ᶜ γ₂ +ᶜ p ·ᶜ γ₁ +ᶜ 𝟘ᶜ                                                    ≈⟨ +ᶜ-congˡ (+ᶜ-identityʳ _) ⟩
+          r ·ᶜ γ₂ +ᶜ p ·ᶜ γ₁                                                          ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ γ₂≤) (·ᶜ-monotoneʳ (inv-usage-var ▸x0)) ⟩
+          r ·ᶜ (f p r ·ᶜ δ₃ +ᶜ g p r δ₁ δ₂) +ᶜ p ·ᶜ (ε ∙ ⌜ 𝟙ᵐ ᵐ· p ⌝)                 ≈⟨ +ᶜ-congˡ (·ᶜ-congˡ (ε ∙ ⌜⌝-cong ᵐ·-identityˡ)) ⟩
+          r ·ᶜ (f p r ·ᶜ δ₃ +ᶜ g p r δ₁ δ₂) +ᶜ p ·ᶜ (ε ∙ ⌜ ⌞ p ⌟ ⌝)                   ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (+ᶜ-monotone (·ᶜ-monotoneʳ (inv-usage-var ▸x0′)) (g-≤-nrᵢᶜ 0))) ⟩
+          r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ 𝟙ᵐ ᵐ· r ⌝) +ᶜ nrᵢᶜ r δ₁ δ₂ 0) +ᶜ p ·ᶜ (ε ∙ ⌜ ⌞ p ⌟ ⌝) ≈⟨ +ᶜ-cong (·ᶜ-congˡ (+ᶜ-cong (ε ∙ ·-congˡ (⌜⌝-cong ᵐ·-identityˡ)) nrᵢᶜ-zero)) (ε ∙ ·⌜⌞⌟⌝) ⟩
+          r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ δ₁) +ᶜ (ε ∙ p)                            ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (+ᶜ-monotoneʳ (inv-usage-ζ ▸ζ))) ⟩
+          r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ ⌜ 𝟙ᵐ ᵐ· r ⌝ ·ᶜ 𝟘ᶜ) +ᶜ (ε ∙ p)             ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-zeroʳ _))) ⟩
+          r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝) +ᶜ 𝟘ᶜ) +ᶜ (ε ∙ p)                            ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-identityʳ _)) ⟩
+          r ·ᶜ (f p r ·ᶜ (ε ∙ ⌜ ⌞ r ⌟ ⌝)) +ᶜ (ε ∙ p)                                  ≈˘⟨ +ᶜ-congʳ (·ᶜ-congˡ (ε ∙ ⌜⌝-·-comm _)) ⟩
+          ε ∙ r ·  ⌜ ⌞ r ⌟ ⌝ · f p r + p                                              ≈˘⟨ ε ∙ +-congʳ (·-assoc _ _ _) ⟩
+          ε ∙ (r ·  ⌜ ⌞ r ⌟ ⌝) · f p r + p                                            ≈⟨ ε ∙ +-congʳ (·-congʳ ·⌜⌞⌟⌝) ⟩
+          ε ∙ r · f p r + p                                                           ≈⟨ +ᶜ-comm _ _ ⟩
+          ε ∙ p + r · f p r                                                           ∎
+
+  opaque
+
+    -- If the mode structure is non-trivial then the function f
+    -- satisfies a certain inequality.
+
+    f-≤-p+rf : ¬ Trivialᵐ → f p r ≤ p + r · f p r
+    f-≤-p+rf ok = headₘ-monotone (≤-p+rf (▸τ′ ok))
 
 ------------------------------------------------------------------------
 -- Usage properties that hold for "arbitrary" usage relations with a
@@ -1199,9 +1225,10 @@ module Unitrec
 
     g-≤ : Unitrec-allowed 𝟙ᵐ p 𝟘 → g p γ ≤ᶜ γ
     g-≤ {p} {γ} ok = begin
-      g p γ  ≤⟨ ▸τ→≤ (▸τ ok) ⟩
-      𝟙 ·ᶜ γ ≈⟨ ·ᶜ-identityˡ _ ⟩
-      γ      ∎
+      g p γ       ≤⟨ ▸τ→≤ (▸τ ok) ⟩
+      ⌜ 𝟙ᵐ ⌝ ·ᶜ γ ≈⟨ ·ᶜ-congʳ ⌜𝟙ᵐ⌝ ⟩
+      𝟙 ·ᶜ γ      ≈⟨ ·ᶜ-identityˡ _ ⟩
+      γ           ∎
       where
       open ≤ᶜ-reasoning
 
@@ -1300,16 +1327,16 @@ module Prodrec
     opaque
       unfolding α
 
-      ▸α : 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ▸[ 𝟘ᵐ? ] α p r γ δ
+      ▸α : 𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘 ▸[ 𝟘ᵐ ] α p r γ δ
       ▸α {r} =
         let ▸Sink₁ = sub (wkUsage ▸Sink-Δᴺ) $ begin
-              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ᵐ· r ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-              𝟘ᶜ ∙ 𝟘                ∎
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ ∙ 𝟘          ∎
             ▸Sink₂ = sub (wkUsage ▸Sink-Δᴺ) $ begin
-              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+              𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
               𝟘ᶜ ∙ 𝟘           ∎
         in  sub (Σʷₘ (Σʷₘ ℕₘ ▸Sink₁) ▸Sink₂) $ begin
-          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+          𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
           𝟘ᶜ               ≈˘⟨ +ᶜ-identityʳ _ ⟩
           𝟘ᶜ +ᶜ 𝟘ᶜ         ≈˘⟨ +ᶜ-identityʳ _ ⟩
           (𝟘ᶜ +ᶜ 𝟘ᶜ) +ᶜ 𝟘ᶜ ∎
@@ -1361,6 +1388,8 @@ module Prodrec
       ▸υ : δ ∙ ⌜ 𝟙ᵐ ⌝ · r · p ∙ ⌜ 𝟙ᵐ ⌝ · r ▸[ 𝟙ᵐ ] υ p r δ
       ▸υ {δ} {r} {p} =
         sub (prodʷₘ (prodʷₘ varₘ varₘ) (wkUsage ▸¹sink)) $ begin
+          δ ∙ ⌜ 𝟙ᵐ ⌝ · r · p ∙ ⌜ 𝟙ᵐ ⌝ · r
+            ≈⟨ ≈ᶜ-refl ∙ ·-congʳ ⌜𝟙ᵐ⌝ ∙ ·-congʳ ⌜𝟙ᵐ⌝ ⟩
           δ ∙ 𝟙 · r · p ∙ 𝟙 · r
             ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ∙ ·-identityˡ _ ⟩
           δ ∙ r · p ∙ r
@@ -1375,7 +1404,9 @@ module Prodrec
             ≈˘⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityˡ _)) ⟩
           r ·ᶜ ((𝟘ᶜ ∙ p · ⌜ ⌞ r ⌟ ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ⌝)) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)
             ≈˘⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·⌜ᵐ·⌝ ⌞ r ⌟ ∙ ·-zeroʳ _))) ⟩
-          r ·ᶜ (p ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ᵐ· p ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ⌝)) +ᶜ (δ ∙ 𝟘 ∙ 𝟘) ∎
+          r ·ᶜ (p ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ᵐ· p ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ r ⌟ ⌝)) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)
+            ≈˘⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-cong (≈ᶜ-refl ∙ ·-congˡ (⌜⌝-cong (ᵐ·-congʳ ᵐ·-identityˡ)) ∙ PE.refl) (≈ᶜ-refl ∙ ⌜⌝-cong ᵐ·-identityˡ))) ⟩
+          r ·ᶜ (p ·ᶜ (𝟘ᶜ ∙ ⌜ (𝟙ᵐ ᵐ· r)  ᵐ· p ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟙ᵐ ᵐ· r ⌝)) +ᶜ (δ ∙ 𝟘 ∙ 𝟘) ∎
         where
         open ≤ᶜ-reasoning
 
@@ -1408,7 +1439,8 @@ module Prodrec
       unfolding τ
 
       ▸τ : Prodrec-allowed 𝟙ᵐ r p 𝟘 → f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ γ) δ ▸[ 𝟙ᵐ ] τ p r γ δ
-      ▸τ ok = prodrecₘ ▸π ▸υ ▸α ok
+      ▸τ {r} {p} {γ} =
+        prodrecₘ (PE.subst (λ m → ⌜ ⌞ r ⌟ ⌝ ·ᶜ γ ▸[ m ] π p γ) (PE.sym ᵐ·-identityˡ) ▸π) ▸υ ▸α
 
     opaque
       unfolding τ π
@@ -1445,6 +1477,7 @@ module Prodrec
     f-≤ : Prodrec-allowed 𝟙ᵐ r p 𝟘 → f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ γ) δ ≤ᶜ r ·ᶜ γ +ᶜ δ
     f-≤ {r} {p} {γ} {δ} ok = begin
       f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ γ) δ ≤⟨ ▸τ→≤ (▸τ ok) ⟩
+      ⌜ 𝟙ᵐ ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)  ≈⟨ ·ᶜ-congʳ ⌜𝟙ᵐ⌝ ⟩
       𝟙 ·ᶜ (r ·ᶜ γ +ᶜ δ)       ≈⟨ ·ᶜ-identityˡ _ ⟩
       r ·ᶜ γ +ᶜ δ              ∎
       where
@@ -1452,14 +1485,13 @@ module Prodrec
 
   opaque
 
-    -- When r is not equal to 𝟘 (when mode 𝟘ᵐ is allowed), the context given by the
+    -- When ⌜ ⌞ r ⌟ ⌝ is equal to 𝟙 the context given by the
     -- ansatz is bounded by the one used in the "actual" usage rule for prodrec.
 
-    r≢𝟘→f-≤ : (T 𝟘ᵐ-allowed → r PE.≢ 𝟘) → Prodrec-allowed 𝟙ᵐ r p 𝟘 → f p r γ δ ≤ᶜ r ·ᶜ γ +ᶜ δ
-    r≢𝟘→f-≤ {r} {p} {γ} {δ} r≢𝟘 ok = begin
+    ⌞r⌟≡𝟙ᵐ→f-≤ : ⌜ ⌞ r ⌟ ⌝ PE.≡ 𝟙 → Prodrec-allowed 𝟙ᵐ r p 𝟘 → f p r γ δ ≤ᶜ r ·ᶜ γ +ᶜ δ
+    ⌞r⌟≡𝟙ᵐ→f-≤ {r} {p} {γ} {δ} r≡𝟙 ok = begin
       f p r γ δ                ≡˘⟨ PE.cong (λ x → f p r x δ) (≈ᶜ→≡ (·ᶜ-identityˡ _)) ⟩
-      f p r (𝟙 ·ᶜ γ) δ         ≡⟨⟩
-      f p r (⌜ 𝟙ᵐ ⌝ ·ᶜ γ) δ    ≡˘⟨ PE.cong (λ x → f p r (⌜ x ⌝ ·ᶜ γ) δ) (≢𝟘→⌞⌟≡𝟙ᵐ′ r≢𝟘) ⟩
+      f p r (𝟙 ·ᶜ γ) δ         ≡˘⟨ PE.cong (λ x → f p r (x ·ᶜ γ) δ) r≡𝟙 ⟩
       f p r (⌜ ⌞ r ⌟ ⌝ ·ᶜ γ) δ ≤⟨ f-≤ ok ⟩
       r ·ᶜ γ +ᶜ δ              ∎
       where

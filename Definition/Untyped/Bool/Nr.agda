@@ -8,17 +8,22 @@
 -- found in Graded.Derived.Bool.Nr.
 
 import Graded.Modality
+import Graded.Mode
 
 module Definition.Untyped.Bool.Nr
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
   (𝕄 : Modality)
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr (Modality.semiring-with-meet 𝕄) ⦄
   where
 
 private
   open module M = Modality 𝕄 using (𝟘; 𝟙; ω; _+_; _·_; _∧_)
+
+open IsMode 𝐌
 
 open import Definition.Untyped M
 open import Definition.Untyped.Empty 𝕄
@@ -28,7 +33,6 @@ import Definition.Untyped.Bool
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
-open import Graded.Mode 𝕄
 
 open import Tools.Empty
 open import Tools.Fin

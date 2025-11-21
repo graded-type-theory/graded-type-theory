@@ -3,13 +3,18 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
 open import Definition.Typed.Restrictions
 
 module Graded.Heap.Examples
-  {a} {M : Set a} {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {a} {M : Set a}
+  {𝕄 : Modality M}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (TR : Type-restrictions 𝕄)
   (As : Assumptions UR TR)
   where
@@ -25,8 +30,7 @@ open import Tools.PropositionalEquality as PE
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Usage UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr

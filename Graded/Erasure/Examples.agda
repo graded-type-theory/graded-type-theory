@@ -6,18 +6,18 @@ open import Tools.Level
 
 open import Graded.Modality.Instances.Erasure
 open import Graded.Modality.Instances.Erasure.Modality
-open import Graded.Modality.Variant lzero
-import Graded.Mode
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Examples
   {p q r s}
-  (variant : Modality-variant)
-  (open Graded.Mode (ErasureModality variant))
-  (TR : Type-restrictions (ErasureModality variant))
+  (variant : Mode-variant ErasureModality)
+  (open Graded.Mode.Instances.Zero-one variant)
+  (TR : Type-restrictions ErasureModality)
   (open Type-restrictions TR)
-  (UR : Usage-restrictions (ErasureModality variant))
+  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
   (open Usage-restrictions UR)
   -- It is assumed that "Π 𝟘 , p" is allowed.
   (Π-𝟘-ok : Π-allowed 𝟘 p)
@@ -36,7 +36,7 @@ private
   -- The modality that is used in this module.
 
   𝕄 : Modality
-  𝕄 = ErasureModality variant
+  𝕄 = ErasureModality
 
 open import Tools.Empty
 open import Tools.Fin
@@ -63,7 +63,7 @@ open import Definition.Untyped.Properties Erasure
 private
 
   EM : Modality
-  EM = ErasureModality variant
+  EM = ErasureModality
 
   module EM = Modality EM
 
@@ -75,12 +75,12 @@ open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
 open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
-open import Graded.Modality.Instances.Erasure.Properties variant
-open import Graded.Usage EM UR
-open import Graded.Usage.Inversion EM UR
-open import Graded.Usage.Properties EM UR
+open import Graded.Modality.Instances.Erasure.Properties
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
 open import Graded.Usage.Restrictions.Natrec EM
-open import Graded.Usage.Weakening EM UR
+open import Graded.Usage.Weakening UR
 
 private variable
   n       : Nat
@@ -365,7 +365,7 @@ Vec l = lam ω (Vec-body₁ l)
     ≤ᶜ-refl
     ( ≤ᶜ-refl
     , (λ _ → ≤ᶜ-refl)
-    , ≤ᶜ-refl
+    , (λ _ → ≤ᶜ-refl)
     , ≤ᶜ-refl
     )
     (let x , x-glb = Erasure-nrᵢ-glb ω ω 𝟘
@@ -595,7 +595,7 @@ Non-zero = lam ω Non-zero-body
     ≤ᶜ-refl
     ( ≤ᶜ-refl
     , (λ _ → ≤ᶜ-refl)
-    , ≤ᶜ-refl
+    , (λ _ → ≤ᶜ-refl)
     , ≤ᶜ-refl
     )
     (let x , x-glb = Erasure-nrᵢ-glb 𝟘 ω 𝟘
@@ -721,19 +721,21 @@ opaque
              ε ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≤⟨ ≤ᶜ-refl ∙ greatest-elem _ ⟩
              ε ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ 𝟘            ∎) $
         let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-          ε ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝     ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≤⟨ ≤ᶜ-refl ∙
-                                                                      ≤-reflexive (PE.sym (EM.+-identityʳ _)) ∙
-                                                                      greatest-elem _ ⟩
-          ε ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝ + 𝟘 ∙ 𝟘            ∎) $
+          ε ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝  ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-cong (ᵐ·-congʳ ᵐ·-zeroˡ) ∙ PE.refl ⟩
+          ε ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ᵐ· ω ⌝         ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≤⟨ ≤ᶜ-refl ∙
+                                                                  ≤-reflexive (PE.sym (EM.+-identityʳ _)) ∙
+                                                                  greatest-elem _ ⟩
+          ε ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ᵐ· ω ⌝ + 𝟘 ∙ 𝟘            ∎) $
      let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-       ε ∙ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘 + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · ω  ≈⟨ ≈ᶜ-refl ∙ lemma ⟩
+       ε ∙ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘 + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · ω  ≈⟨ ε ∙ EM.+-congʳ (EM.+-congʳ (⌜⌝-cong {m₂ = 𝟘ᵐ? ᵐ· ω} ᵐ·-identityʳ-ω)) ∙
+                                                                     PE.refl ∙ lemma ⟩
 
-       ε ∙ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘 + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙
-         ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝              ∎)
+       ε ∙ ⌜ 𝟘ᵐ? ᵐ· ω ⌝ + 𝟘 + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙
+         ⌜ 𝟘ᵐ? ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝              ∎)
     (λ ⦃ has-nr ⦄ → ε ∙ ≤-reflexive (PE.sym (nr-𝟘 ⦃ Natrec-mode-Has-nr has-nr ⦄ {p = 𝟘} {r = 𝟘})) ∙ PE.refl)
     ( ≤ᶜ-refl
     , (λ _ → ≤ᶜ-refl)
-    , ≤ᶜ-refl
+    , (λ _ → ≤ᶜ-refl)
     , ≤ᶜ-refl
     )
     (let x , x-glb = Erasure-nrᵢ-glb 𝟘 ω 𝟘
@@ -741,17 +743,15 @@ opaque
     in  _ , _ , x-glb , χ-glb
           , ε ∙ PE.sym (PE.trans (EM.+-identityʳ _) (EM.·-zeroʳ _)) ∙ PE.refl)
   where
-  lemma : ⌜ 𝟘ᵐ? ⌝ · ω PE.≡ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝
+  lemma : ⌜ 𝟘ᵐ? ⌝ · ω PE.≡ ⌜ 𝟘ᵐ? ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝
   lemma = 𝟘ᵐ?-elim
-    (λ m → ⌜ m ⌝ · ω PE.≡ ⌜ (m ᵐ· ω) ᵐ· ω ⌝ + ⌜ (m ᵐ· 𝟘) ᵐ· ω ⌝)
+    (λ m → ⌜ m ⌝ · ω PE.≡ ⌜ m ᵐ· ω ⌝ + ⌜ (m ᵐ· 𝟘) ᵐ· ω ⌝)
     PE.refl
     (λ not-ok →
-       ω                                ≡⟨ PE.sym $
-                                           PE.cong₂ (λ m₁ m₂ → ⌜ m₁ ⌝ + ⌜ m₂ ⌝)
-                                             {x = ⌞ ω ⌟ ᵐ· ω} {u = ⌞ 𝟘 ⌟ ᵐ· ω}
-                                             (only-𝟙ᵐ-without-𝟘ᵐ not-ok)
-                                             (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ⟩
-       ⌜ ⌞ ω ⌟ ᵐ· ω ⌝ + ⌜ ⌞ 𝟘 ⌟ ᵐ· ω ⌝  ∎)
+       ω                              ≡⟨⟩
+       ⌜ 𝟙ᵐ ⌝ + ⌜ ⌞ 𝟘 ⌟ ·ᵐ ⌞ ω ⌟ ⌝    ≡˘⟨ EM.+-congʳ {x = ⌜ ⌞ 𝟘 ⌟ ·ᵐ ⌞ ω ⌟ ⌝}
+                                           (⌜⌝-cong {m₁ = ⌞ ω ⌟} (only-𝟙ᵐ-without-𝟘ᵐ not-ok)) ⟩
+       ⌜ ⌞ ω ⌟ ⌝ + ⌜ ⌞ 𝟘 ⌟ ·ᵐ ⌞ ω ⌟ ⌝ ∎)
     where
     open Tools.Reasoning.PropositionalEquality
 

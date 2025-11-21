@@ -7,21 +7,25 @@
 -- rules can be found in Graded.Derived.Vec.
 
 import Graded.Modality
+import Graded.Mode
 import Definition.Untyped
 
 module Definition.Untyped.Vec
-  {ℓ} {M : Set ℓ}
+  {ℓ ℓ′} {M : Set ℓ} {Mode : Set ℓ′}
   (open Graded.Modality M)
   (open Definition.Untyped M)
   (𝕄 : Modality)
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   -- Which Σ and Unit types should be used to define vectors?
   (s : Strength)
   -- The grade of the "heads"
   (p : M)
   where
 
+open IsMode 𝐌
+
 open import Definition.Untyped.Properties M
-open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function

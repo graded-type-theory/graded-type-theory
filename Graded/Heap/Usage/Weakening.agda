@@ -3,14 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage.Weakening
-  {a} {M : Set a} {𝕄 : Modality M}
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (type-variant : Type-variant)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
@@ -25,7 +28,6 @@ open import Definition.Untyped M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Mode 𝕄
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr

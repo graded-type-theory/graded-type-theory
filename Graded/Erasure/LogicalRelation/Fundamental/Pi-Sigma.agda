@@ -5,14 +5,18 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   {TR : Type-restrictions 𝕄}
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (as : Assumptions TR)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
@@ -42,8 +46,8 @@ open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   is-reduction-relation
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden as
-open import Graded.Erasure.LogicalRelation.Value as
+open import Graded.Erasure.LogicalRelation.Hidden variant as
+open import Graded.Erasure.LogicalRelation.Value variant as
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
@@ -51,10 +55,9 @@ import Graded.Erasure.Target.Reasoning
 
 open import Graded.Modality.Properties 𝕄
 
-open import Graded.Mode 𝕄
-
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties.Zero-one variant UR
 
 open import Tools.Empty
 open import Tools.Fin
@@ -483,7 +486,7 @@ opaque
          let open Tools.Reasoning.PartialOrder ≤-poset in
          𝟘≰𝟙 $ begin
            𝟘  ≡˘⟨ p≡𝟘 ⟩
-           p  ≤⟨ InvUsageFst.mp-condition (inv-usage-fst ▸fst-t) PE.refl ⟩
+           p  ≤⟨ inv-usage-fst₀₁ ▸fst-t .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ PE.refl ⟩
            𝟙  ∎)
     of λ
       p≢𝟘 →

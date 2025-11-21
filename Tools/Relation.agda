@@ -6,7 +6,7 @@ module Tools.Relation where
 
 open import Relation.Binary
   using ( Rel; _Preserves₂_⟶_⟶_
-        ; Decidable; Reflexive; Symmetric; Transitive
+        ; Decidable; Reflexive; Symmetric; Transitive; Antisymmetric
         ; DecSetoid; Poset; Preorder; Setoid
         ; IsEquivalence; IsPartialOrder; IsPreorder
         )

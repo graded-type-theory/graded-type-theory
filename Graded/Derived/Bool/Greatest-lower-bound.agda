@@ -4,32 +4,34 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Bool.Greatest-lower-bound
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
   {𝕄 : Modality}
-  (R : Usage-restrictions 𝕄)
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions R)
   ⦃ no-nr : Nr-not-available-GLB ⦄
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Derived.Empty R
-open import Graded.Derived.Nat 𝕄 R
+open import Graded.Derived.Nat R
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Substitution.Properties 𝕄 R
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
+open import Graded.Substitution.Properties R
+open import Graded.Usage R
+open import Graded.Usage.Properties R
 open import Graded.Usage.Restrictions.Instance R
-open import Graded.Usage.Weakening 𝕄 R
+open import Graded.Usage.Weakening R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool.Greatest-lower-bound 𝕄
@@ -64,7 +66,7 @@ opaque
                𝟘ᶜ              ∎)
             var
             (sub-≈ᶜ Uₘ $ begin
-               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+               𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ                ∎))
           (begin
             𝟘ᶜ ∙ ⌜ m ⌝ · (𝟙 ∧ 𝟘)                                ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -73,7 +75,7 @@ opaque
             (𝟙 ∧ 𝟘) ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∙ (𝟙 ∧ 𝟘) · ⌜ m ⌝ + 𝟘 ∧ 𝟘 ∎))
       ▸t
       (sub-≈ᶜ Uₘ $ begin
-         𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+         𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          𝟘ᶜ                ∎))
     (begin
       (𝟙 ∧ 𝟘) ·ᶜ γ                 ≈˘⟨ ·ᶜ-congʳ (∧-congʳ (∧-idem _)) ⟩
@@ -165,7 +167,7 @@ opaque
     Unitrec-allowed m 𝟙 p →
     Emptyrec-allowed m 𝟘 →
     Starˢ-sink →
-    γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] A →
+    γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
     γ₄ ▸[ m ] v →
@@ -185,7 +187,7 @@ opaque
                   (▸emptyrec-sink var (Targetᵇʳ-lemma (sucₘ (sucₘ var))) ok₃ ok₄)
                   (begin
                     γ₂ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ ⌜ m ⌝ · 𝟙 ∙ ⌜ m ⌝ · 𝟙                                  ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ PE.refl ∙ PE.refl ⟩
-                    γ₂ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟙 ∙ ⌜ m ⌝ · 𝟙          ≤⟨ ≤ᶜ⌜⌝·ᶜ ▸t ∙ ≤-refl ∙ ≤-refl ∙ ≤-refl ∙ ≤-refl ∙ ≤-refl ⟩
+                    γ₂ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟙 ∙ ⌜ m ⌝ · 𝟙          ≤⟨ ▸ᵐ ▸t ∙ ≤-refl ∙ ≤-refl ∙ ≤-refl ∙ ≤-refl ∙ ≤-refl ⟩
                     ⌜ m ⌝ ·ᶜ γ₂ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟙 ∙ ⌜ m ⌝ · 𝟙 ≡⟨⟩
                     ⌜ m ⌝ ·ᶜ (γ₂ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ 𝟙 ∙ 𝟙)                                       ∎))
                 var (Π-lemma (sucₘ var) (sucₘ var)))
@@ -213,12 +215,12 @@ opaque
       open ≤ᶜ-reasoning
 
       Targetᵇʳ-lemma :
-        let q = ⌜ 𝟘ᵐ? ⌝ · p in
+        let q = ⌜ 𝟘ᵐ ⌝ · p in
         𝟘ᶜ ∙ ⌜ ⌞ q ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ q ⌟ ] t →
-        wkConₘ (stepn id k) γ₁ +ᶜ q ·ᶜ 𝟘ᶜ ∙ 𝟘 + q · 𝟙 ∙ 𝟘 + q · 𝟙 ▸[ 𝟘ᵐ? ]
+        wkConₘ (stepn id k) γ₁ +ᶜ q ·ᶜ 𝟘ᶜ ∙ 𝟘 + q · 𝟙 ∙ 𝟘 + q · 𝟙 ▸[ 𝟘ᵐ ]
           Targetᵇʳ (2+ k) A t (var x0)
       Targetᵇʳ-lemma ▸t =
-        let q = ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ in
+        let q = ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ in
         ▸Targetᵇʳ′ ▸A ▸t var $ begin
           q ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)              ≈⟨ ·ᶜ-zeroʳ _ ∙ PE.refl ∙ ·-identityʳ _ ⟩
           𝟘ᶜ ∙ q · 𝟙 ∙ q                 ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
@@ -226,26 +228,26 @@ opaque
           𝟙 ·ᶜ (𝟘ᶜ ∙ q ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ q)  ∎
 
       Π-lemma :
-        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ᵐ· 𝟙 ⌝ ▸[ 𝟘ᵐ? ᵐ· 𝟙 ] t →
-        𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ] u →
-        wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · ((𝟙 + p) ∧ p) ▸[ 𝟘ᵐ? ]
+        𝟘ᶜ ∙ ⌜ 𝟘ᵐ ᵐ· 𝟙 ⌝ ▸[ 𝟘ᵐ ᵐ· 𝟙 ] t →
+        𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ] u →
+        wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · ((𝟙 + p) ∧ p) ▸[ 𝟘ᵐ ]
           Π 𝟙 , p ▷ OK t ▹ Targetᵇʳ (2+ k) A u (var x0)
       Π-lemma  {k} ▸t ▸u = sub
-        (ΠΣₘ (▸OK ▸t) $
+        (ΠΣₘ (▸OK (▸-cong ᵐ·-zeroˡ ▸t)) $
          sub (Targetᵇʳ-lemma ▸u) $ begin
-           wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · p                   ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ⟩
-           (wkConₘ (stepn id k) γ₁ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · p) ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _) ⟩
-           (wkConₘ (stepn id k) γ₁ ∙ 𝟘 ∙ 𝟘) +ᶜ (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)    ∎)
+           wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · p                   ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ⟩
+           (wkConₘ (stepn id k) γ₁ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · p) ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _) ⟩
+           (wkConₘ (stepn id k) γ₁ ∙ 𝟘 ∙ 𝟘) +ᶜ (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)    ∎)
         (begin
-          wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · ((𝟙 + p) ∧ p)                         ≈˘⟨ ≈ᶜ-refl ∙ ·-congˡ (∧-congˡ (+-identityˡ _)) ⟩
-          wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · ((𝟙 + p) ∧ (𝟘 + p))                   ≈˘⟨ ≈ᶜ-refl ∙ ·-congˡ (+-distribʳ-∧ _ _ _) ⟩
-          wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · ((𝟙 ∧ 𝟘) + p)                         ≈⟨ ≈ᶜ-refl ∙ ·-distribˡ-+ _ _ _ ⟩
-          wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · (𝟙 ∧ 𝟘) + ⌜ 𝟘ᵐ? ⌝ · p                 ≈˘⟨ +ᶜ-identityˡ _ ∙ +-congʳ (PE.sym (⌜⌝-·-comm 𝟘ᵐ?)) ⟩
-          (𝟘ᶜ ∙ (𝟙 ∧ 𝟘) · ⌜ 𝟘ᵐ? ⌝) +ᶜ (wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p)       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·-congˡ (PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = 𝟘ᵐ?}))) ⟩
-          (𝟙 ∧ 𝟘) ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ᵐ· 𝟙 ⌝) +ᶜ (wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p) ∎)
+          wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · ((𝟙 + p) ∧ p)                         ≈˘⟨ ≈ᶜ-refl ∙ ·-congˡ (∧-congˡ (+-identityˡ _)) ⟩
+          wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · ((𝟙 + p) ∧ (𝟘 + p))                   ≈˘⟨ ≈ᶜ-refl ∙ ·-congˡ (+-distribʳ-∧ _ _ _) ⟩
+          wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · ((𝟙 ∧ 𝟘) + p)                         ≈⟨ ≈ᶜ-refl ∙ ·-distribˡ-+ _ _ _ ⟩
+          wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · (𝟙 ∧ 𝟘) + ⌜ 𝟘ᵐ ⌝ · p                 ≈˘⟨ +ᶜ-identityˡ _ ∙ +-congʳ (PE.sym (⌜⌝-·-comm 𝟘ᵐ)) ⟩
+          (𝟘ᶜ ∙ (𝟙 ∧ 𝟘) · ⌜ 𝟘ᵐ ⌝) +ᶜ (wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p)       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·-congˡ (PE.cong ⌜_⌝ (ᵐ·-identityʳ {m = 𝟘ᵐ}))) ⟩
+          (𝟙 ∧ 𝟘) ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ᵐ· 𝟙 ⌝) +ᶜ (wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p) ∎)
 
       unitrec-lemma :
-        𝟘ᶜ ▸[ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ] t →
+        𝟘ᶜ ▸[ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ] t →
         γ ▸[ m ] u →
         wkConₘ (stepn id k) γ ▸[ m ] lam 𝟙 (unitrec 0 𝟙 p (Targetᵇʳ (2+ k) A t (var x0)) (var x0) (wk[ 1+ k ]′ u))
       unitrec-lemma {k} {γ} ▸t ▸u =
@@ -253,11 +255,11 @@ opaque
         sub
           (unitrecₘ var (wkUsage (stepn id (1+ k)) ▸u)
             (sub (▸Targetᵇʳ ▸A ▸t var) $ begin
-              wkConₘ (stepn id (1+ k)) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p                                                     ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
-              (wkConₘ (stepn id (1+ k)) γ₁ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p)                                       ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·⌜⌞⌟⌝) ⟩
-              (wkConₘ (stepn id (1+ k)) γ₁ ∙ 𝟘) +ᶜ (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)              ≈˘⟨  +ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-identityˡ _)) ⟩
-              (wkConₘ (stepn id (1+ k)) γ₁ ∙ 𝟘) +ᶜ (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝))      ≈˘⟨ +ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-identityˡ _))) ⟩
-              (wkConₘ (stepn id (1+ k)) γ₁ ∙ 𝟘) +ᶜ (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟙 ·ᶜ 𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)) ∎)
+              wkConₘ (stepn id (1+ k)) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p                                                     ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
+              (wkConₘ (stepn id (1+ k)) γ₁ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · p)                                       ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·⌜⌞⌟⌝) ⟩
+              (wkConₘ (stepn id (1+ k)) γ₁ ∙ 𝟘) +ᶜ (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝)              ≈˘⟨  +ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-identityˡ _)) ⟩
+              (wkConₘ (stepn id (1+ k)) γ₁ ∙ 𝟘) +ᶜ (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ (𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝))      ≈˘⟨ +ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-identityˡ _))) ⟩
+              (wkConₘ (stepn id (1+ k)) γ₁ ∙ 𝟘) +ᶜ (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ (𝟙 ·ᶜ 𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝)) ∎)
             ok₂)
           (begin
             wkConₘ (stepn id k) γ ∙ (⌜ m ⌝ · 𝟙)                    ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩

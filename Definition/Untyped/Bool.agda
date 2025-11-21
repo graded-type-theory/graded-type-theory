@@ -14,22 +14,26 @@
 -- found in Graded/Derived/Bool.
 
 import Graded.Modality
+import Graded.Mode
 
 module Definition.Untyped.Bool
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  -- The three grades used in the Σ-type used to encode the type Bool
   (Boolᵍ₁ Boolᵍ₂ OKᵍ : M)
   where
 
 open Modality 𝕄
 
 import Definition.Untyped.Bool.OK 𝕄 OKᵍ as B-OK
+
 open import Definition.Untyped M
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
+
+open import Graded.Modality.Nr-instances
+open import Graded.Modality.Properties 𝕄 hiding (has-nr)
 
 open import Tools.Empty
 open import Tools.Fin

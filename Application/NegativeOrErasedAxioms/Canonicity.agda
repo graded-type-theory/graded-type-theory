@@ -4,7 +4,9 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
-import Graded.Restrictions
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
+import Graded.Restrictions.Zero-one
 open import Graded.Usage.Restrictions
 import Definition.Typed
 open import Definition.Typed.Restrictions
@@ -15,13 +17,15 @@ module Application.NegativeOrErasedAxioms.Canonicity
   (open Graded.Modality M)
   (open Definition.Untyped M)
   {𝕄 : Modality}
-  (open Graded.Restrictions 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (open Graded.Restrictions.Zero-one 𝕄 variant)
   (open Modality 𝕄)
   -- The modality has a well-behaved zero.
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
   (TR : Type-restrictions 𝕄)
   (open Definition.Typed TR)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   -- Erased matches are not allowed.
   (no-erased-matches : No-erased-matches TR UR)
   {m n} {Γ : Cons m n}
@@ -33,13 +37,13 @@ open Usage-restrictions UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Reduction TR UR
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Reduction.Zero-one variant TR UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
+open import Graded.Usage.Properties.Zero-one variant UR
 open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
   TR
@@ -121,7 +125,7 @@ neNeg {γ = γ}
   NegativeType Γ (Π p , q ▷ A ▹ B)       →⟨ (λ hyp → appNeg hyp (refl (syntacticTerm ⊢t)) ⊢u) ⟩
   NegativeType Γ (B [ u ]₀)              □ }
 neNeg (fstⱼ A⊢B d) (fstₙ {p = p} n) γ▸u nΓγ =
-  let invUsageFst m 𝟙ᵐ≡mᵐ·p δ▸t γ≤δ ok = inv-usage-fst γ▸u
+  let _ , m , 𝟙ᵐ≡mᵐ·p , δ▸t , γ≤δ , ok = inv-usage-fst₀₁ γ▸u
   in  fstNeg (neNeg d n (sub δ▸t γ≤δ) nΓγ)
              (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (𝟘≢p m 𝟙ᵐ≡mᵐ·p (ok PE.refl))
@@ -139,7 +143,7 @@ neNeg (sndⱼ A⊢B d) (sndₙ n) γ▸u nΓγ =
              (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (fstⱼ A⊢B d)
 neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
-  case inv-usage-natrec γ▸natrec of λ {
+  case inv-usage-natrec₀₁ γ▸natrec of λ {
     (invUsageNatrec {δ = δ} {θ = θ} {χ = χ} _ _ θ▸n _ γ≤χ extra) →
   NegativeErasedContext Γ γ            →⟨ NegativeErasedContext-upwards-closed γ≤χ ⟩
   NegativeErasedContext Γ χ            →⟨ (NegativeErasedContext-𝟘 λ x → case extra of λ {
@@ -329,7 +333,7 @@ module _
     ∃ λ u → Γ ⊢ t ↘ u ∷ A × (Neutral⁺ (Γ .defs) u → ⊥)
   ¬NeutralNf ⊢t γ▸t nΓγ ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
-        γ▸u = usagePres*Term Unitʷ-η→ ▸Γ γ▸t d
+        γ▸u = usagePres*Term₀₁ Unitʷ-η→ ▸Γ γ▸t d
     in  u , (d , whnfU) ,
         λ x →
           ¬negA $
@@ -345,7 +349,7 @@ module _
     ∃ λ v → Numeral v × Γ ⊢ t ⇒ˢ* v ∷ℕ
   canonicityRed′ γ▸t nΓγ (ℕₜ _ d n≡n (sucᵣ x)) =
     let invUsageSuc δ▸n γ≤δ =
-          inv-usage-suc (usagePres*Term Unitʷ-η→ ▸Γ γ▸t d)
+          inv-usage-suc (usagePres*Term₀₁ Unitʷ-η→ ▸Γ γ▸t d)
         v , numV , d′ = canonicityRed′ (sub δ▸n γ≤δ) nΓγ x
     in  suc v , sucₙ numV , ⇒ˢ*∷ℕ-trans (whred* d) (sucred* d′)
   canonicityRed′ _ _ (ℕₜ _ d _ zeroᵣ) =

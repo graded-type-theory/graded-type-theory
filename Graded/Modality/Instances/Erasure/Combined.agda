@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- A combination of typing and usage for the erasure modality with
+-- A combination of typing and usage for the erasure modality with two
 -- modes
 ------------------------------------------------------------------------
 
@@ -12,13 +12,14 @@ open import Tools.Level
 
 open import Definition.Typed.Restrictions
 
-open import Graded.Modality.Variant lzero
 open import Graded.Modality.Instances.Erasure.Modality
 open import Graded.Usage.Restrictions
+open import Graded.Mode.Instances.Zero-one.Variant ErasureModality
+open import Graded.Mode.Instances.Zero-one 𝟘ᵐ-Allowed
 
 module Graded.Modality.Instances.Erasure.Combined
-  (TR : Type-restrictions (ErasureModality (𝟘ᵐ-allowed-if true)))
-  (UR : Usage-restrictions (ErasureModality (𝟘ᵐ-allowed-if true)))
+  (TR : Type-restrictions ErasureModality)
+  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
   where
 
 open Type-restrictions TR
@@ -29,11 +30,10 @@ private
   -- The modality used in this module.
 
   𝕄 : Modality
-  𝕄 = ErasureModality (𝟘ᵐ-allowed-if true)
+  𝕄 = ErasureModality
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Instances.Erasure
-open import Graded.Mode 𝕄
 open import Graded.Usage.Erased-matches
 
 open import Definition.Typed TR using (_∷_∈_; Trans)
@@ -97,7 +97,7 @@ mutual
     univ  : γ ▸ Γ ⊢ A ∷[ r ] U l →
             γ ▸ Γ ⊢[ r ] A
     ΠΣ    : ΠΣ-allowed b p q →
-            γ ▸ Γ ⊢[ r · p ] A →
+            γ ▸ Γ ⊢[ r ] A →
             γ ∙ q ▸ Γ »∙ A ⊢[ r ] B →
             γ ▸ Γ ⊢[ r ] ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
     Id    : (Id-erased → δ PE.≡ 𝟘ᶜ × r′ PE.≡ 𝟘) →
@@ -152,7 +152,7 @@ mutual
                γ ▸ Γ ⊢ unitrec l p q A t u ∷[ r ] A [ t ]₀
 
     ΠΣ       : ΠΣ-allowed b p q →
-               γ ▸ Γ ⊢ A ∷[ r · p ] U l₁ →
+               γ ▸ Γ ⊢ A ∷[ r ] U l₁ →
                γ ∙ q ▸ Γ »∙ A ⊢ B ∷[ r ] U l₂ →
                γ ▸ Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ r ] U (l₁ ⊔ᵘ l₂)
 

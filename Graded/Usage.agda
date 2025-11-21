@@ -3,21 +3,24 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Usage
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   (open Graded.Modality M)
-  (𝕄 : Modality)
-  (R : Usage-restrictions 𝕄)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Mode 𝕄
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Restrictions.Natrec 𝕄
@@ -26,6 +29,7 @@ open import Definition.Untyped M
 open import Tools.Bool using (T; true; false)
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -83,7 +87,7 @@ opaque
 ⌈⌉-natrec :
   ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
   (p r : M) (γ δ η : Conₘ n) → Conₘ n
-⌈⌉-natrec ⦃ ok = Nr ⦃ (has-nr) ⦄ ⦄ p r γ δ η = nrᶜ ⦃ has-nr ⦄ p r γ δ η
+⌈⌉-natrec ⦃ ok = Nr ⦃ (has-nr) ⦄ ⦄ p r γ δ η = nrᶜ ⦃ Natrec-mode-Has-nr has-nr ⦄ p r γ δ η
 ⌈⌉-natrec ⦃ ok = No-nr-glb has-GLB ⦄ p r γ δ η =
   let x , _ = has-GLB r 𝟙 p
       χ , _ = nrᵢᶜ-has-GLBᶜ has-GLB r γ δ
@@ -100,7 +104,7 @@ mutual
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
   ⌈ defn _ ⌉ _ = 𝟘ᶜ
   ⌈ U _ ⌉ _ = 𝟘ᶜ
-  ⌈ ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ (m ᵐ· p) +ᶜ tailₘ (⌈ G ⌉ m)
+  ⌈ ΠΣ⟨ _ ⟩ p , q ▷ F ▹ G ⌉ m = ⌈ F ⌉ m +ᶜ tailₘ (⌈ G ⌉ m)
   ⌈ lam p t ⌉ m = tailₘ (⌈ t ⌉ m)
   ⌈ t ∘⟨ p ⟩ u ⌉ m = ⌈ t ⌉ m +ᶜ p ·ᶜ ⌈ u ⌉ (m ᵐ· p)
   ⌈ prod 𝕨 p t u ⌉ m = p ·ᶜ ⌈ t ⌉ (m ᵐ· p) +ᶜ ⌈ u ⌉ m
@@ -266,7 +270,7 @@ data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
 -- The "some" variants of the usage rules for K were included to
 -- mirror the rules for J, but if the K rule is available, then it
 -- might be a better idea to use the "all" rules.
-data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
+data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set (a ⊔ a′) where
   sub       : γ ▸[ m ] t
             → δ ≤ᶜ γ
             → δ ▸[ m ] t
@@ -280,7 +284,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   Emptyₘ    : 𝟘ᶜ ▸[ m ] Empty
 
   emptyrecₘ : γ ▸[ m ᵐ· p ] t
-            → δ ▸[ 𝟘ᵐ? ] A
+            → δ ▸[ 𝟘ᵐ ] A
             → Emptyrec-allowed m p
             → p ·ᶜ γ ▸[ m ] emptyrec p A t
 
@@ -295,11 +299,11 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   unitrecₘ : γ ▸[ m ᵐ· p ] t
            → δ ▸[ m ] u
-           → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+           → η ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A
            → Unitrec-allowed m p q
            → p ·ᶜ γ +ᶜ δ ▸[ m ] unitrec l p q A t u
 
-  ΠΣₘ       : γ ▸[ m ᵐ· p ] F
+  ΠΣₘ       : γ ▸[ m ] F
             → δ ∙ ⌜ m ⌝ · q ▸[ m ] G
             → γ +ᶜ δ ▸[ m ] ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 
@@ -314,11 +318,10 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
            → δ ▸[ m ] u
            → p ·ᶜ γ ∧ᶜ δ ▸[ m ] prodˢ p t u
 
-  -- Note that either p ≤ 𝟙 or m′ ≡ 𝟘ᵐ
   fstₘ      : ∀ m
             → γ ▸[ m ᵐ· p ] t
             → m ᵐ· p ≡ m′
-            → (m′ ≡ 𝟙ᵐ → p ≤ 𝟙)
+            → (⌜ m′ ⌝ ≢ 𝟘 → p ≤ 𝟙)
             → γ ▸[ m′ ] fst p t
 
   sndₘ      : γ ▸[ m ] t
@@ -330,7 +333,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   prodrecₘ  : γ ▸[ m ᵐ· r ] t
             → δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
-            → η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+            → η ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A
             → Prodrec-allowed m r p q
             → r ·ᶜ γ +ᶜ δ ▸[ m ] prodrec r p q A t u
 
@@ -347,7 +350,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
-            → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+            → θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A
             → nrᶜ p r γ δ η ▸[ m ] natrec p q r A z s n
 
   -- A usage rule for natrec which applies if a dedicated nr function
@@ -368,8 +371,8 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   --   (among other things). The statement of this lemma includes the
   --   assumption that the modality's zero is well-behaved.
   --
-  -- * The assumption χ ≤ᶜ δ is only required to hold if 𝟘ᵐ is
-  --   allowed. This assumption is used to prove the substitution
+  -- * The assumption χ ≤ᶜ δ is only required to hold if there is more than
+  --   one mode. This assumption is used to prove the substitution
   --   lemma Graded.Substitution.Properties.substₘ-lemma.
   --
   -- Note that this rule may not always be appropriate. See
@@ -382,15 +385,15 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ ▸[ m ] z
             → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
             → η ▸[ m ] n
-            → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+            → θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A
             → χ ≤ᶜ γ
-            → (T 𝟘ᵐ-allowed →
+            → (¬ Trivialᵐ →
                χ ≤ᶜ δ)
-            → (⦃ 𝟘-well-behaved :
-                   Has-well-behaved-zero semiring-with-meet ⦄ →
-               χ ≤ᶜ η)
+            → ((Trivialᵐ → Has-well-behaved-zero semiring-with-meet) →
+                 χ ≤ᶜ η)
             → χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ
             → χ ▸[ m ] natrec p q r A z s n
+
 
   -- Another usage rule for natrec which applies if a dedicated nr function
   -- is not available.
@@ -422,7 +425,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
            → γ ▸[ m ] z
            → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
            → η ▸[ m ] n
-           → θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+           → θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A
            → Greatest-lower-bound x (nrᵢ r 𝟙 p)
            → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)
            → x ·ᶜ η +ᶜ χ ▸[ m ] natrec p q r A z s n
@@ -434,16 +437,16 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
             → γ +ᶜ δ +ᶜ η ▸[ m ] Id A t u
 
   Id₀ₘ      : Id-erased
-            → γ ▸[ 𝟘ᵐ? ] A
-            → δ ▸[ 𝟘ᵐ? ] t
-            → η ▸[ 𝟘ᵐ? ] u
+            → γ ▸[ 𝟘ᵐ ] A
+            → δ ▸[ 𝟘ᵐ ] t
+            → η ▸[ 𝟘ᵐ ] u
             → 𝟘ᶜ ▸[ m ] Id A t u
 
   rflₘ      : 𝟘ᶜ ▸[ m ] rfl
 
   Jₘ        : erased-matches-for-J m ≤ᵉᵐ some
             → (erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘))
-            → γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ m ] t
             → γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B
             → γ₄ ▸[ m ] u
@@ -454,26 +457,26 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
   J₀ₘ₁      : erased-matches-for-J m ≡ some
             → p ≡ 𝟘
             → q ≡ 𝟘
-            → γ₁ ▸[ 𝟘ᵐ? ] A
-            → γ₂ ▸[ 𝟘ᵐ? ] t
+            → γ₁ ▸[ 𝟘ᵐ ] A
+            → γ₂ ▸[ 𝟘ᵐ ] t
             → γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B
             → γ₄ ▸[ m ] u
-            → γ₅ ▸[ 𝟘ᵐ? ] v
-            → γ₆ ▸[ 𝟘ᵐ? ] w
+            → γ₅ ▸[ 𝟘ᵐ ] v
+            → γ₆ ▸[ 𝟘ᵐ ] w
             → ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] J p q A t B u v w
 
   J₀ₘ₂      : erased-matches-for-J m ≡ all
-            → γ₁ ▸[ 𝟘ᵐ? ] A
-            → γ₂ ▸[ 𝟘ᵐ? ] t
-            → γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B
+            → γ₁ ▸[ 𝟘ᵐ ] A
+            → γ₂ ▸[ 𝟘ᵐ ] t
+            → γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] B
             → γ₄ ▸[ m ] u
-            → γ₅ ▸[ 𝟘ᵐ? ] v
-            → γ₆ ▸[ 𝟘ᵐ? ] w
+            → γ₅ ▸[ 𝟘ᵐ ] v
+            → γ₆ ▸[ 𝟘ᵐ ] w
             → γ₄ ▸[ m ] J p q A t B u v w
 
   Kₘ        : erased-matches-for-K m ≤ᵉᵐ some
             → (erased-matches-for-K m ≡ some → p ≢ 𝟘)
-            → γ₁ ▸[ 𝟘ᵐ? ] A
+            → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ m ] t
             → γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B
             → γ₄ ▸[ m ] u
@@ -482,37 +485,37 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set a where
 
   K₀ₘ₁      : erased-matches-for-K m ≡ some
             → p ≡ 𝟘
-            → γ₁ ▸[ 𝟘ᵐ? ] A
-            → γ₂ ▸[ 𝟘ᵐ? ] t
+            → γ₁ ▸[ 𝟘ᵐ ] A
+            → γ₂ ▸[ 𝟘ᵐ ] t
             → γ₃ ∙ 𝟘 ▸[ m ] B
             → γ₄ ▸[ m ] u
-            → γ₅ ▸[ 𝟘ᵐ? ] v
+            → γ₅ ▸[ 𝟘ᵐ ] v
             → ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] K p A t B u v
 
   K₀ₘ₂      : erased-matches-for-K m ≡ all
-            → γ₁ ▸[ 𝟘ᵐ? ] A
-            → γ₂ ▸[ 𝟘ᵐ? ] t
-            → γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B
+            → γ₁ ▸[ 𝟘ᵐ ] A
+            → γ₂ ▸[ 𝟘ᵐ ] t
+            → γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] B
             → γ₄ ▸[ m ] u
-            → γ₅ ▸[ 𝟘ᵐ? ] v
+            → γ₅ ▸[ 𝟘ᵐ ] v
             → γ₄ ▸[ m ] K p A t B u v
 
-  []-congₘ  : γ₁ ▸[ 𝟘ᵐ? ] A
-            → γ₂ ▸[ 𝟘ᵐ? ] t
-            → γ₃ ▸[ 𝟘ᵐ? ] u
-            → γ₄ ▸[ 𝟘ᵐ? ] v
+  []-congₘ  : γ₁ ▸[ 𝟘ᵐ ] A
+            → γ₂ ▸[ 𝟘ᵐ ] t
+            → γ₃ ▸[ 𝟘ᵐ ] u
+            → γ₄ ▸[ 𝟘ᵐ ] v
             → []-cong-allowed-mode s m
             → 𝟘ᶜ ▸[ m ] []-cong s A t u v
 
 -- Usage with implicit mode 𝟙ᵐ
 
-_▸_ : (γ : Conₘ n) (t : Term n) → Set a
+_▸_ : (γ : Conₘ n) (t : Term n) → Set (a ⊔ a′)
 γ ▸ t = γ ▸[ 𝟙ᵐ ] t
 
 -- A definition context is well-resourced if all its transparent
 -- definitions have well-resourced right-hand sides.
 
-▸[_]_ : Mode → DCon (Term 0) n → Set a
+▸[_]_ : Mode → DCon (Term 0) n → Set (a ⊔ a′)
 ▸[ m ] ∇ = ∀ {α t A} → α ↦ t ∷ A ∈ ∇ → ε ▸[ m ] t
 
 opaque

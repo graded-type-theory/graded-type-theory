@@ -3,29 +3,33 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Properties
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
-  (𝕄 : Modality)
-  (R : Usage-restrictions 𝕄)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Inversion 𝕄 R
+open import Graded.Usage R
+open import Graded.Usage.Inversion R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Weakening 𝕄 R
+import Graded.Usage.Restrictions.Instance
+open import Graded.Usage.Weakening R
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 
 import Definition.Typed
 open import Definition.Typed.Restrictions 𝕄
@@ -59,8 +63,8 @@ private
     γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     p q r s z : M
     m m₁ m₂ m₃ m′ : Mode
-    b : Bool
-    ok : T b
+    -- b : Bool
+    ok : T _
     x : Fin n
     sem : Some-erased-matches
     nm : Natrec-mode
@@ -116,380 +120,272 @@ opaque
 ▸-cong : m₁ ≡ m₂ → γ ▸[ m₁ ] t → γ ▸[ m₂ ] t
 ▸-cong = subst (_ ▸[_] _)
 
--- If 𝟘ᵐ is not allowed, then one can convert usage modes freely.
+-- If the mode structure is trivial, then one can convert usage modes freely.
 
-▸-without-𝟘ᵐ : ¬ T 𝟘ᵐ-allowed → γ ▸[ m ] t → γ ▸[ m′ ] t
-▸-without-𝟘ᵐ not-ok =
-  ▸-cong (Mode-propositional-without-𝟘ᵐ not-ok)
+▸-trivialᵐ : Trivialᵐ → γ ▸[ m ] t → γ ▸[ m′ ] t
+▸-trivialᵐ ok =
+  ▸-cong (≡-trivialᵐ ok)
 
 -- If the modality is trivial, then one can convert usage modes
 -- freely.
 
 ▸-trivial : Trivial → γ ▸[ m ] t → γ ▸[ m′ ] t
-▸-trivial 𝟙≡𝟘 = ▸-without-𝟘ᵐ (flip 𝟘ᵐ.non-trivial 𝟙≡𝟘)
+▸-trivial 𝟙≡𝟘 = ▸-trivialᵐ (Trivial→Trivialᵐ 𝟙≡𝟘)
 
 ------------------------------------------------------------------------
--- The lemma ▸-𝟘 and some related results
+-- -- The lemma ▸-· and some related results
 
-opaque
 
-  -- If a term is well-resourced with respect to any context and mode,
-  -- then it is well-resourced with respect to the zero usage context
-  -- and the mode 𝟘ᵐ[ ok ].
+opaque mutual
 
-  ▸-𝟘 : γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t
-
-  -- A variant of ▸-𝟘.
-
-  𝟘ᶜ▸[𝟘ᵐ?] : T 𝟘ᵐ-allowed → γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ? ] t
-  𝟘ᶜ▸[𝟘ᵐ?] ok = ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) ∘→ ▸-𝟘
-
-  -- If a term is well-resourced with respect to any context and mode,
-  -- then it is well-resourced with respect to some usage context and
-  -- the mode 𝟘ᵐ?.
-
-  ▸-𝟘ᵐ? : γ ▸[ m ] t → ∃ λ δ → δ ▸[ 𝟘ᵐ? ] t
-  ▸-𝟘ᵐ? {m = 𝟘ᵐ[ ok ]} ▸t =
-    _ , ▸-cong (PE.sym $ 𝟘ᵐ?≡𝟘ᵐ {ok = ok}) (▸-𝟘 ▸t)
-  ▸-𝟘ᵐ? {m = 𝟙ᵐ} {t} ▸t = 𝟘ᵐ?-elim
-    (λ m → ∃ λ δ → δ ▸[ m ] t)
-    (_ , ▸-𝟘 ▸t)
-    (λ _ → _ , ▸t)
-
-  private
-
-    -- Some lemmas used in the implementation of ▸-𝟘.
-
-    ▸-𝟘-J :
-      γ₁ ▸[ 𝟘ᵐ? ] A →
-      γ₂ ▸[ m₁ ] t →
-      γ₃ ∙ ⌜ m₂ ⌝ · p ∙ ⌜ m₂ ⌝ · q ▸[ m₂ ] B →
-      γ₄ ▸[ m₃ ] u →
-      γ₅ ▸[ m₁ ] v →
-      γ₆ ▸[ m₁ ] w →
-      𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] J p q A t B u v w
-    ▸-𝟘-J {γ₃} {m₂} {p} {q} {B} {ok} ▸A ▸t ▸B ▸u ▸v ▸w
-      with J-view p q 𝟘ᵐ[ ok ]
-    … | is-other ≤some ≢𝟘 = sub
-      (Jₘ ≤some ≢𝟘 ▸A (▸-𝟘 ▸t)
-         (sub (▸-𝟘 ▸B) $ begin
-            𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-            𝟘ᶜ                  ∎)
-         (▸-𝟘 ▸u) (▸-𝟘 ▸v) (▸-𝟘 ▸w))
-      (begin
-         𝟘ᶜ                                 ≈˘⟨ ω·ᶜ+ᶜ⁵𝟘ᶜ ⟩
-         ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
-      where
-      open CR
-    … | is-some-yes ≡some (p≡𝟘 , q≡𝟘) = sub
-      (J₀ₘ₁ ≡some p≡𝟘 q≡𝟘 ▸A (▸-𝟘ᵐ? ▸t .proj₂) (▸-𝟘 ▸B) (▸-𝟘 ▸u)
-         (▸-𝟘ᵐ? ▸v .proj₂) (▸-𝟘ᵐ? ▸w .proj₂))
-      (begin
-         𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
-         ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
-      where
-      open CR
-    … | is-all ≡all = J₀ₘ₂
-      ≡all ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t)
-      (𝟘ᵐ?-elim (λ m → ∃ λ δ → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B)
-         ( 𝟘ᶜ
-         , sub (▸-𝟘 ▸B) (begin
-             𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-             𝟘ᶜ                  ∎)
-         )
-         (λ not-ok →
-              γ₃
-            , sub (▸-cong (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ▸B) (begin
-                γ₃ ∙ 𝟙 · p ∙ 𝟙 · q            ≈⟨ ≈ᶜ-refl ∙
-                                                 cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m₂} not-ok) ∙
-                                                 cong (λ m → ⌜ m ⌝ · q) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m₂} not-ok) ⟩
-                γ₃ ∙ ⌜ m₂ ⌝ · p ∙ ⌜ m₂ ⌝ · q  ∎))
-         .proj₂)
-      (▸-𝟘 ▸u) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸v) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸w)
-      where
-      open CR
-
-    ▸-𝟘-K :
-      γ₁ ▸[ 𝟘ᵐ? ] A →
-      γ₂ ▸[ m₁ ] t →
-      γ₃ ∙ ⌜ m₂ ⌝ · p ▸[ m₂ ] B →
-      γ₄ ▸[ m₃ ] u →
-      γ₅ ▸[ m₁ ] v →
-      𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] K p A t B u v
-    ▸-𝟘-K {γ₃} {m₂} {p} {B} {ok} ▸A ▸t ▸B ▸u ▸v with K-view p 𝟘ᵐ[ ok ]
-    … | is-other ≤some ≢𝟘 = sub
-      (Kₘ ≤some ≢𝟘 ▸A (▸-𝟘 ▸t)
-         (sub (▸-𝟘 ▸B) $ begin
-            𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-            𝟘ᶜ          ∎)
-         (▸-𝟘 ▸u) (▸-𝟘 ▸v))
-      (begin
-         𝟘ᶜ                           ≈˘⟨ ω·ᶜ+ᶜ⁴𝟘ᶜ ⟩
-         ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
-      where
-      open CR
-    … | is-some-yes ≡some p≡𝟘 = sub
-      (K₀ₘ₁ ≡some p≡𝟘 ▸A (▸-𝟘ᵐ? ▸t .proj₂) (▸-𝟘 ▸B) (▸-𝟘 ▸u)
-         (▸-𝟘ᵐ? ▸v .proj₂))
-      (begin
-         𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
-         ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
-      where
-      open CR
-    … | is-all ≡all = K₀ₘ₂
-      ≡all ▸A (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t)
-      (𝟘ᵐ?-elim (λ m → ∃ λ δ → δ ∙ ⌜ m ⌝ · p ▸[ m ] B)
-         ( 𝟘ᶜ
-         , sub (▸-𝟘 ▸B) (begin
-             𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-             𝟘ᶜ          ∎)
-         )
-         (λ not-ok →
-              γ₃
-            , sub (▸-cong (only-𝟙ᵐ-without-𝟘ᵐ not-ok) ▸B) (begin
-                γ₃ ∙ 𝟙 · p       ≈⟨ ≈ᶜ-refl ∙ cong (λ m → ⌜ m ⌝ · p) (Mode-propositional-without-𝟘ᵐ {m₁ = 𝟙ᵐ} {m₂ = m₂} not-ok) ⟩
-                γ₃ ∙ ⌜ m₂ ⌝ · p  ∎))
-         .proj₂)
-      (▸-𝟘 ▸u) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸v)
-      where
-      open CR
-
-  ▸-𝟘 Uₘ =
-    Uₘ
-  ▸-𝟘 ℕₘ =
-    ℕₘ
-  ▸-𝟘 Emptyₘ =
-    Emptyₘ
-  ▸-𝟘 Unitₘ =
-    Unitₘ
-  ▸-𝟘 (ΠΣₘ {q} F G) = sub
-    (ΠΣₘ (▸-𝟘 F)
-       (sub (▸-𝟘 G) $ begin
-          𝟘ᶜ ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-          𝟘ᶜ ∙ 𝟘      ∎))
-    (begin
-       𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 (var {x}) = sub var
-    (begin
-       𝟘ᶜ          ≡˘⟨ 𝟘ᶜ,≔𝟘 ⟩
-       𝟘ᶜ , x ≔ 𝟘  ∎)
-    where
-    open CR
-  ▸-𝟘 defn =
-    defn
-  ▸-𝟘 (lamₘ {p} t) = lamₘ
-    (sub (▸-𝟘 t) $ begin
-       𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-       𝟘ᶜ          ∎)
-    where
-    open CR
-  ▸-𝟘 (_∘ₘ_ {p} t u) = sub
-    (▸-𝟘 t ∘ₘ ▸-𝟘 u)
-    (begin
-       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-       p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-       𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 (prodʷₘ {p} t u) = sub
-    (prodʷₘ (▸-𝟘 t) (▸-𝟘 u))
-    (begin
-       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-       p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 (prodˢₘ {p} t u) = sub
-    (prodˢₘ (▸-𝟘 t) (▸-𝟘 u))
-    (begin
-       𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
-       𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroʳ _ ⟩
-       p ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 {ok} (fstₘ _ t _ _) = fstₘ
-    𝟘ᵐ[ ok ]
-    (▸-𝟘 t)
-    refl
-    (λ ())
-  ▸-𝟘 (sndₘ t) =
-    sndₘ (▸-𝟘 t)
-  ▸-𝟘 (prodrecₘ {r} {p} t u A _) = sub
-    (prodrecₘ
-       (▸-𝟘 t)
-       (sub (▸-𝟘 u) $ begin
-          𝟘ᶜ ∙ 𝟘 · r · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-          𝟘ᶜ                      ∎)
-       A
-       _)
-    (begin
-       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-       r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       r ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 zeroₘ =
-    zeroₘ
-  ▸-𝟘 (sucₘ t) =
-    sucₘ (▸-𝟘 t)
-  ▸-𝟘 (natrecₘ {p} {r} ▸z ▸s ▸n ▸A) = sub
-    (natrecₘ (▸-𝟘 ▸z)
-       (sub (▸-𝟘 ▸s) $ begin
-          𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-          𝟘ᶜ                  ∎)
-       (▸-𝟘 ▸n)
-       ▸A)
-    (begin
-       𝟘ᶜ                ≈˘⟨ nrᶜ-𝟘ᶜ ⟩
-       nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ∎)
-    where
-    open import Graded.Usage.Restrictions.Instance R
-    open CR
-  ▸-𝟘 (natrec-no-nrₘ {p} {r} γ▸z δ▸s η▸n θ▸A χ≤γ χ≤δ χ≤η fix) =
-    natrec-no-nrₘ (▸-𝟘 γ▸z)
-      (sub (▸-𝟘 δ▸s) $ begin
-         𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-         𝟘ᶜ                  ∎)
-      (▸-𝟘 η▸n)
-      θ▸A
-      ≤ᶜ-refl
-      (λ _ → ≤ᶜ-refl)
-      ≤ᶜ-refl
-      (begin
-         𝟘ᶜ                        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-         𝟘ᶜ +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _) (·ᶜ-zeroʳ _) ⟩
-         p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-         𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ r ·ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 (natrec-no-nr-glbₘ {p} {r} {x} ▸z ▸s ▸n ▸A x≤ χ≤) = sub
-    (natrec-no-nr-glbₘ (▸-𝟘 ▸z)
-       (sub (▸-𝟘 ▸s) $ begin
-          𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · r  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-          𝟘ᶜ                  ∎)
-       (▸-𝟘 ▸n)
-       ▸A x≤ (GLBᶜ-const (λ _ → nrᵢᶜ-𝟘ᶜ)))
-    (begin
-      𝟘ᶜ            ≈˘⟨ +ᶜ-identityˡ _ ⟩
-      𝟘ᶜ +ᶜ 𝟘ᶜ      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-      x ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∎)
-    where
-    open CR
-  ▸-𝟘 (emptyrecₘ {p} e A _) = sub
-    (emptyrecₘ (▸-𝟘 e) A _)
-    (begin
-       𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-       p ·ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 starʷₘ =
-    starʷₘ
-  ▸-𝟘 (starˢₘ {γ} ok) = sub
-    (starˢₘ ok)
-    (begin
-       𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-       𝟘 ·ᶜ γ  ∎)
-    where
-    open CR
-  ▸-𝟘 (unitrecₘ {p} ▸t ▸u ▸A _) = sub
-    (unitrecₘ (▸-𝟘 ▸t) (▸-𝟘 ▸u) ▸A _)
-    (begin
-       𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-       p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 (Idₘ ok ▸A ▸t ▸u) = sub
-    (Idₘ ok (▸-𝟘 ▸A) (▸-𝟘 ▸t) (▸-𝟘 ▸u))
-    (begin
-       𝟘ᶜ              ≈˘⟨ +ᶜ-identityˡ _ ⟩
-       𝟘ᶜ +ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-       𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
-    where
-    open CR
-  ▸-𝟘 (Id₀ₘ ok ▸A ▸t ▸u) =
-    Id₀ₘ ok ▸A ▸t ▸u
-  ▸-𝟘 rflₘ =
-    rflₘ
-  ▸-𝟘 (Jₘ _ _ ▸A ▸t ▸B ▸u ▸v ▸w) =
-    ▸-𝟘-J ▸A ▸t ▸B ▸u ▸v ▸w
-  ▸-𝟘 {m} (J₀ₘ₁ {γ₃} _ refl refl ▸A ▸t ▸B ▸u ▸v ▸w) =
-    ▸-𝟘-J ▸A ▸t
-      (sub ▸B $ begin
-         γ₃ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-         γ₃ ∙ 𝟘 ∙ 𝟘                  ∎)
-      ▸u ▸v ▸w
-    where
-    open CR
-  ▸-𝟘 (J₀ₘ₂ _ ▸A ▸t ▸B ▸u ▸v ▸w) =
-    ▸-𝟘-J ▸A ▸t ▸B ▸u ▸v ▸w
-  ▸-𝟘 (Kₘ _ _ ▸A ▸t ▸B ▸u ▸v) =
-    ▸-𝟘-K ▸A ▸t ▸B ▸u ▸v
-  ▸-𝟘 {m} (K₀ₘ₁ {γ₃} _ refl ▸A ▸t ▸B ▸u ▸v) =
-    ▸-𝟘-K ▸A ▸t
-      (sub ▸B $ begin
-         γ₃ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-         γ₃ ∙ 𝟘          ∎)
-      ▸u ▸v
-    where
-    open CR
-  ▸-𝟘 (K₀ₘ₂ _ ▸A ▸t ▸B ▸u ▸v) =
-    ▸-𝟘-K ▸A ▸t ▸B ▸u ▸v
-  ▸-𝟘 ([]-congₘ ▸A ▸t ▸u ▸v _) =
-    []-congₘ ▸A ▸t ▸u ▸v _
-  ▸-𝟘 (sub γ▸t _) =
-    ▸-𝟘 γ▸t
-
-opaque
-
-  -- If a term is well-resourced with respect to ε and any mode, then
-  -- it is well-resourced with respect to ε and the mode 𝟘ᵐ?.
-
-  ε-▸-𝟘ᵐ? : ε ▸[ m ] t → ε ▸[ 𝟘ᵐ? ] t
-  ε-▸-𝟘ᵐ? ▸t =
-    case ▸-𝟘ᵐ? ▸t of λ {
-      (ε , ▸t) →
-    ▸t }
-
-opaque
-
-  -- A variant of ε-▸-𝟘ᵐ?.
-
-  ▸-𝟘ᵐ?-DCon : ▸[ m ] ∇ → ▸[ 𝟘ᵐ? ] ∇
-  ▸-𝟘ᵐ?-DCon ▸∇ = ε-▸-𝟘ᵐ? ∘→ ▸∇
-
-opaque
+  ▸-𝟘 : γ ▸[ m ] t → ⌜ 𝟘ᵐ ⌝ ·ᶜ γ ▸[ 𝟘ᵐ ] t
+  ▸-𝟘 ▸t = ▸-cong (·ᵐ-zeroˡ _) (▸-· {m′ = 𝟘ᵐ} ▸t)
 
   -- The relation _▸[_]_ respects multiplication (in a certain sense).
 
   ▸-· : γ ▸[ m ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ m′ ·ᵐ m ] t
-  ▸-· {γ} {m′ = 𝟘ᵐ} ▸t = sub (▸-𝟘 ▸t) $ begin
-    𝟘 ·ᶜ γ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
-    𝟘ᶜ      ∎
+  ▸-· {m} {m′} = λ where
+      (sub ▸t γ≤δ) →
+        sub (▸-· ▸t) (·ᶜ-monotoneʳ γ≤δ)
+      (var {x}) →
+        sub var $ begin
+          ⌜ m′ ⌝ ·ᶜ (𝟘ᶜ , x ≔ ⌜ m ⌝)        ≡˘⟨ update-distrib-·ᶜ _ _ _ x ⟩
+          ⌜ m′ ⌝ ·ᶜ 𝟘ᶜ , x ≔ ⌜ m′ ⌝ · ⌜ m ⌝ ≈⟨ update-cong (·ᶜ-zeroʳ _) (sym (⌜·ᵐ⌝ m′)) ⟩
+          𝟘ᶜ , x ≔ ⌜ m′ ·ᵐ m ⌝              ∎
+      defn → sub-≈ᶜ defn (·ᶜ-zeroʳ _)
+      Uₘ →
+        sub-≈ᶜ Uₘ (·ᶜ-zeroʳ _)
+      Emptyₘ →
+        sub-≈ᶜ Emptyₘ (·ᶜ-zeroʳ _)
+      (emptyrecₘ {γ} {p} ▸t ▸A ok) →
+        sub-≈ᶜ (emptyrecₘ (▸-ᵐ· ▸t) ▸A (Emptyrec-allowed-·ᵐ ok)) (⌜⌝·ᶜ-comm _ _ _)
+      Unitₘ →
+        sub-≈ᶜ Unitₘ (·ᶜ-zeroʳ _)
+      (starˢₘ {γ} ok) →
+        sub (starˢₘ ok) $ begin
+          ⌜ m′ ⌝ ·ᶜ ⌜ m ⌝ ·ᶜ γ ≈˘⟨ ·ᶜ-assoc _ _ _ ⟩
+          (⌜ m′ ⌝ · ⌜ m ⌝) ·ᶜ γ ≈˘⟨ ·ᶜ-congʳ (⌜·ᵐ⌝ m′) ⟩
+          ⌜ m′ ·ᵐ m ⌝ ·ᶜ γ      ∎
+      starʷₘ →
+        sub-≈ᶜ starʷₘ (·ᶜ-zeroʳ _)
+      (unitrecₘ {γ} {p} {δ} ▸t ▸u ▸A ok) →
+        sub (unitrecₘ (▸-ᵐ· ▸t) (▸-· ▸u) ▸A (Unitrec-allowed-·ᵐ ok)) $ begin
+         ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ +ᶜ δ)         ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+         ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ ≈⟨ +ᶜ-congʳ (⌜⌝·ᶜ-comm _ _ _) ⟩
+         p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ ∎
+      (ΠΣₘ ▸A ▸B) →
+        sub-≈ᶜ (ΠΣₘ (▸-· ▸A) (▸-·-∙ ▸B))
+          (·ᶜ-distribˡ-+ᶜ _ _ _)
+      (lamₘ {γ} {p} ▸t) →
+        lamₘ (▸-·-∙ ▸t)
+      (_∘ₘ_ {γ} {δ} {p} ▸t ▸u) →
+        sub (▸-· ▸t ∘ₘ ▸-ᵐ· ▸u) $ begin
+          ⌜ m′ ⌝ ·ᶜ (γ +ᶜ p ·ᶜ δ)         ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+          ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ p ·ᶜ δ ≈⟨ +ᶜ-congˡ (⌜⌝·ᶜ-comm _ _ _) ⟩
+          ⌜ m′ ⌝ ·ᶜ γ +ᶜ p ·ᶜ ⌜ m′ ⌝ ·ᶜ δ ∎
+      (prodˢₘ {γ} {p} {δ} ▸t ▸u) →
+        sub (prodˢₘ (▸-ᵐ· ▸t) (▸-· ▸u)) $ begin
+        ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ ∧ᶜ δ)         ≈⟨ ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
+        ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ δ ≈⟨ ∧ᶜ-congʳ (⌜⌝·ᶜ-comm _ _ _) ⟩
+        p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ δ ∎
+      (fstₘ m″ ▸t refl ok) →
+        fstₘ _ (▸-cong (sym (·ᵐ-ᵐ·-assoc m′)) (▸-· ▸t))
+          (·ᵐ-ᵐ·-assoc m′) (ok ∘→ ⌜⌝-·ᵐ-𝟘ʳ)
+      (sndₘ ▸t) →
+        sndₘ (▸-· ▸t)
+      (prodʷₘ {γ} {p} {δ} ▸t ▸u) →
+        sub (prodʷₘ (▸-ᵐ· ▸t) (▸-· ▸u)) $ begin
+        ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ +ᶜ δ)         ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+        ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ ≈⟨ +ᶜ-congʳ (⌜⌝·ᶜ-comm _ _ _) ⟩
+        p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ ∎
+      (prodrecₘ {γ} {r} {δ} {p} ▸t ▸u ▸A ok) →
+        sub (prodrecₘ (▸-ᵐ· ▸t) (▸-·-∙₂ ▸u) ▸A (Prodrec-allowed-·ᵐ ok)) $ begin
+          ⌜ m′ ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)         ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+          ⌜ m′ ⌝ ·ᶜ r ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ ≈⟨ +ᶜ-congʳ (⌜⌝·ᶜ-comm _ _ _) ⟩
+          r ·ᶜ ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ ∎
+      ℕₘ →
+        sub-≈ᶜ ℕₘ (·ᶜ-zeroʳ _)
+      zeroₘ →
+        sub-≈ᶜ zeroₘ (·ᶜ-zeroʳ _)
+      (sucₘ ▸t) →
+        sucₘ (▸-· ▸t)
+      (natrecₘ ▸z ▸s ▸n ▸A) →
+        sub-≈ᶜ (natrecₘ (▸-· ▸z) (▸-·-∙₂ ▸s) (▸-· ▸n) ▸A) ⌜⌝-·ᶜ-nrᶜ
+      (natrec-no-nrₘ {γ} {δ} {p} {r} {η} {χ} ▸z ▸s ▸n ▸A le₁ le₂ le₃ le₄) →
+        natrec-no-nrₘ (▸-· ▸z) (▸-·-∙₂ ▸s) (▸-· ▸n) ▸A
+          (·ᶜ-monotoneʳ le₁) (·ᶜ-monotoneʳ ∘→ le₂)
+          (·ᶜ-monotoneʳ ∘→ le₃) $ begin
+            ⌜ m′ ⌝ ·ᶜ χ                                         ≤⟨ ·ᶜ-monotoneʳ le₄ ⟩
+            ⌜ m′ ⌝ ·ᶜ (δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ)                   ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+            ⌜ m′ ⌝ ·ᶜ δ +ᶜ ⌜ m′ ⌝ ·ᶜ (p ·ᶜ η +ᶜ r ·ᶜ χ)         ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+            ⌜ m′ ⌝ ·ᶜ δ +ᶜ ⌜ m′ ⌝ ·ᶜ p ·ᶜ η +ᶜ ⌜ m′ ⌝ ·ᶜ r ·ᶜ χ ≈⟨ +ᶜ-congˡ (+ᶜ-cong (⌜⌝·ᶜ-comm _ _ _) (⌜⌝·ᶜ-comm _ _ _)) ⟩
+            ⌜ m′ ⌝ ·ᶜ δ +ᶜ p ·ᶜ ⌜ m′ ⌝ ·ᶜ η +ᶜ r ·ᶜ ⌜ m′ ⌝ ·ᶜ χ ∎
+      (natrec-no-nr-glbₘ {η} {χ} {x} ▸z ▸s ▸n ▸A x-GLB χ-GLB) →
+        sub (natrec-no-nr-glbₘ (▸-· ▸z) (▸-·-∙₂ ▸s) (▸-· ▸n) ▸A x-GLB
+              (GLBᶜ-congˡ ⌜⌝-·ᶜ-nrᵢᶜ (·ᶜ-GLBᶜˡ χ-GLB))) $ begin
+            ⌜ m′ ⌝ ·ᶜ (x ·ᶜ η +ᶜ χ)         ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+            ⌜ m′ ⌝ ·ᶜ x ·ᶜ η +ᶜ ⌜ m′ ⌝ ·ᶜ χ ≈⟨ +ᶜ-congʳ (⌜⌝·ᶜ-comm _ _ _) ⟩
+            x ·ᶜ ⌜ m′ ⌝ ·ᶜ η +ᶜ ⌜ m′ ⌝ ·ᶜ χ ∎
+      (Idₘ {γ} {δ} {η} ok ▸A ▸t ▸u) →
+        sub (Idₘ ok (▸-· ▸A) (▸-· ▸t) (▸-· ▸u)) $ begin
+          ⌜ m′ ⌝ ·ᶜ (γ +ᶜ δ +ᶜ η)                   ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+          ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ (δ +ᶜ η)         ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+          ⌜ m′ ⌝ ·ᶜ γ +ᶜ ⌜ m′ ⌝ ·ᶜ δ +ᶜ ⌜ m′ ⌝ ·ᶜ η ∎
+      (Id₀ₘ ok ▸A ▸t ▸u) →
+        sub-≈ᶜ (Id₀ₘ ok ▸A ▸t ▸u) (·ᶜ-zeroʳ _)
+      rflₘ →
+        sub-≈ᶜ rflₘ (·ᶜ-zeroʳ _)
+      (Jₘ {p} {q} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} x x₁ ▸A ▸t ▸B ▸u ▸v ▸w) →
+        case J-view p q (m′ ·ᵐ m) of λ where
+          (is-all x₂) →
+            let ▸B′ = sub-≈ᶜ (▸-𝟘 ▸B) (≈ᶜ-refl ∙ lemma″ ∙ lemma″)
+            in  sub (J₀ₘ₂ x₂ ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v) (▸-𝟘 ▸w)) $ begin
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)       ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₄ +ᶜ γ₅ +ᶜ γ₆)             ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜˡ  ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ γ₄                           ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
+              ⌜ m′ ⌝ ·ᶜ γ₄                                ∎
+          (is-some-yes x₂ (refl , refl)) →
+            let ▸B′ = sub-≈ᶜ (▸-· ▸B) (≈ᶜ-refl ∙ lemma′ ∙ lemma′)
+            in  sub (J₀ₘ₁ x₂ refl refl ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v) (▸-𝟘 ▸w)) $ begin
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)       ≈˘⟨ ·ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-assoc _ _ _)) ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ ((γ₃ +ᶜ γ₄) +ᶜ γ₅ +ᶜ γ₆)     ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)                  ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+              ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄)                  ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄)        ∎
+          (is-other x₂ x₃) →
+            sub (Jₘ x₂ x₃ ▸A (▸-· ▸t) (▸-·-∙₂ ▸B) (▸-· ▸u) (▸-· ▸v) (▸-· ▸w)) $ begin
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                                         ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆))                                       ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆))                             ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₄ +ᶜ γ₅ +ᶜ γ₆))                   ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _))) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₅ +ᶜ γ₆))         ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)))) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₅ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₆) ∎
+      (J₀ₘ₁ {γ₃} {γ₄} x refl refl ▸A ▸t ▸B ▸u ▸v ▸w) →
+        case erased-matches-for-J-some·ᵐ {m′ = m′} x of λ where
+          (inj₁ ≡all) →
+            let ▸B′ = ▸-𝟘 ▸B
+            in  sub (J₀ₘ₂ ≡all ▸A ▸t ▸B′ (▸-· ▸u) ▸v ▸w) $ begin
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ γ₄         ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
+              ⌜ m′ ⌝ ·ᶜ γ₄              ∎
+          (inj₂ ≡some) →
+            let ▸B′ = sub-≈ᶜ (▸-· ▸B) (≈ᶜ-refl ∙ sym (·-zeroʳ _) ∙ sym (·-zeroʳ _))
+            in  sub (J₀ₘ₁ ≡some refl refl ▸A ▸t ▸B′ (▸-· ▸u) ▸v ▸w) $ begin
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)           ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+              ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄)           ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄) ∎
+      (J₀ₘ₂ x ▸A ▸t ▸B ▸u ▸v ▸w) →
+        J₀ₘ₂ (erased-matches-for-J-all·ᵐ x) ▸A ▸t ▸B (▸-· ▸u) ▸v ▸w
+      (Kₘ {p} {γ₂} {γ₃} {γ₄} {γ₅} x x₁ ▸A ▸t ▸B ▸u ▸v) →
+        case K-view p (m′ ·ᵐ m) of λ where
+          (is-all x₂) →
+            let ▸B′ = sub-≈ᶜ (▸-𝟘 ▸B) (≈ᶜ-refl ∙ lemma″)
+            in  sub (K₀ₘ₂ x₂ ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v)) $ begin
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅)       ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₄ +ᶜ γ₅)             ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ γ₄                     ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
+              ⌜ m′ ⌝ ·ᶜ γ₄                          ∎
+          (is-some-yes x₂ refl) →
+            let ▸B′ = sub-≈ᶜ (▸-· ▸B) (≈ᶜ-refl ∙ lemma′)
+            in  sub (K₀ₘ₁ x₂ refl ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v)) $ begin
+             ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+             ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅)       ≈˘⟨ ·ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-assoc _ _ _)) ⟩
+             ⌜ m′ ⌝ ·ᶜ ω ·ᶜ ((γ₃ +ᶜ γ₄) +ᶜ γ₅)     ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
+             ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)             ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+             ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄)             ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+             ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄) ∎
+          (is-other x₂ x₃) →
+            sub (Kₘ x₂ x₃ ▸A (▸-· ▸t) (▸-·-∙ ▸B) (▸-· ▸u) (▸-· ▸v)) $ begin
+            ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                               ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+            ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                               ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+            ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅))                   ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
+            ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₄ +ᶜ γ₅))         ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _))) ⟩
+            ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₅) ∎
+      (K₀ₘ₁ {γ₃} {γ₄} x refl ▸A ▸t ▸B ▸u ▸v) →
+        case erased-matches-for-K-some·ᵐ {m′ = m′} x of λ where
+          (inj₁ ≡all) →
+            let ▸B′ = ▸-𝟘 ▸B
+            in  sub (K₀ₘ₂ ≡all ▸A ▸t ▸B′ (▸-· ▸u) ▸v) $ begin
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ γ₄         ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
+              ⌜ m′ ⌝ ·ᶜ γ₄              ∎
+          (inj₂ ≡some) →
+            let ▸B′ = sub-≈ᶜ (▸-· ▸B) (≈ᶜ-refl ∙ sym (·-zeroʳ _))
+            in  sub (K₀ₘ₁ ≡some refl ▸A ▸t ▸B′ (▸-· ▸u) ▸v) $ begin
+              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)           ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+              ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄)           ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄) ∎
+      (K₀ₘ₂ x ▸A ▸t ▸B ▸u ▸v) →
+        K₀ₘ₂ (erased-matches-for-K-all·ᵐ x)
+          ▸A ▸t ▸B (▸-· ▸u) ▸v
+      ([]-congₘ ▸A ▸t ▸u ▸v ok) →
+        sub-≈ᶜ ([]-congₘ ▸A ▸t ▸u ▸v ([]-cong-allowed-mode-·ᵐ ok)) (·ᶜ-zeroʳ _)
     where
-    open CR
-  ▸-· {γ} {m′ = 𝟙ᵐ} ▸t = sub ▸t $ begin
-    𝟙 ·ᶜ γ  ≈⟨ ·ᶜ-identityˡ _ ⟩
-    γ       ∎
-    where
-    open CR
+    ▸-ᵐ· : γ ▸[ m ᵐ· p ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ (m′ ·ᵐ m) ᵐ· p ] t
+    ▸-ᵐ· ▸t = ▸-cong (sym (·ᵐ-ᵐ·-assoc m′)) (▸-· ▸t)
+    lemma : ⌜ m′ ·ᵐ m ⌝ · p ≡ ⌜ m′ ⌝ · ⌜ m ⌝ · p
+    lemma {p} = let open Tools.Reasoning.PropositionalEquality in begin
+      ⌜ m′ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ m′) ⟩
+      (⌜ m′ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
+      ⌜ m′ ⌝ · ⌜ m ⌝ · p   ∎
+    ▸-·-∙ : γ ∙ ⌜ m ⌝ · p ▸[ m ] t → ⌜ m′ ⌝ ·ᶜ γ ∙ ⌜ m′ ·ᵐ m ⌝ · p ▸[ m′ ·ᵐ m ] t
+    ▸-·-∙ ▸t = sub-≈ᶜ (▸-· ▸t) (≈ᶜ-refl ∙ lemma)
+    ▸-·-∙₂ :
+      γ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] t →
+      ⌜ m′ ⌝ ·ᶜ γ ∙ ⌜ m′ ·ᵐ m ⌝ · p ∙ ⌜ m′ ·ᵐ m ⌝ · r ▸[ m′ ·ᵐ m ] t
+    ▸-·-∙₂ ▸t =
+      sub-≈ᶜ (▸-·-∙ ▸t) (≈ᶜ-refl ∙ lemma ∙ refl)
+    lemma′ : 𝟘 ≡ ⌜ m′ ⌝ · ⌜ m ⌝ · 𝟘
+    lemma′ = let open Tools.Reasoning.PropositionalEquality in begin
+      𝟘                  ≡˘⟨ ·-zeroʳ _ ⟩
+      ⌜ m′ ⌝ · 𝟘         ≡˘⟨ ·-congˡ (·-zeroʳ _) ⟩
+      ⌜ m′ ⌝ · ⌜ m ⌝ · 𝟘 ∎
+    lemma″ : ⌜ 𝟘ᵐ ⌝ · p ≡ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p
+    lemma″ {p} = let open Tools.Reasoning.PropositionalEquality in begin
+      ⌜ 𝟘ᵐ ⌝ · p           ≡˘⟨ ·-congʳ (⌜⌝-cong (·ᵐ-zeroˡ _)) ⟩
+      ⌜ 𝟘ᵐ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ 𝟘ᵐ) ⟩
+      (⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
+      ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p   ∎
+    open ≤ᶜ-reasoning
+    open Graded.Usage.Restrictions.Instance R
 
 opaque
 
   -- A variant of ▸-·.
 
   ▸-ᵐ· : γ ▸[ m ] t → ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ m ᵐ· p ] t
-  ▸-ᵐ· {m} {p}  =
+  ▸-ᵐ· {m} {p} =
     ▸-cong
       (⌞ p ⌟ ·ᵐ m  ≡⟨ ·ᵐ-comm ⌞ _ ⌟ _ ⟩
-       m ·ᵐ ⌞ p ⌟  ≡⟨ ·ᵐ⌞⌟ ⟩
+       m ·ᵐ ⌞ p ⌟  ≡⟨⟩
        m ᵐ· p      ∎) ∘→
     ▸-·
     where
     open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- If a term is well-resourced with respect to any context and mode,
+  -- then it is well-resourced with respect to the zero usage context
+  -- and the mode 𝟘ᵐ (if the mode structire is not trivial).
+
+  ▸-𝟘′ : ¬ Trivialᵐ → γ ▸[ m ] t → 𝟘ᶜ ▸[ 𝟘ᵐ ] t
+  ▸-𝟘′ {γ} not-trivial ▸t = sub-≈ᶜ (▸-𝟘 ▸t) $ begin
+    𝟘ᶜ          ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+    𝟘 ·ᶜ γ      ≈˘⟨ ·ᶜ-congʳ (⌜𝟘ᵐ⌝ not-trivial) ⟩
+    ⌜ 𝟘ᵐ ⌝ ·ᶜ γ ∎
+    where
+    open ≈ᶜ-reasoning
+
+opaque
+
+  -- The relation _▸[_]_ respects mode ordering (in a certain sense)
+
+  ▸-≤ᵐ : γ ▸[ m ] t → m ≤ᵐ m′ → ⌜ m′ ⌝ ·ᶜ γ ▸[ m′ ] t
+  ▸-≤ᵐ ▸t m≤m′ = ▸-cong (sym m≤m′) (▸-· ▸t)
 
 opaque
 
@@ -498,40 +394,22 @@ opaque
   ▸-ᵐ·-DCon : ▸[ m ] ∇ → ▸[ m ᵐ· p ] ∇
   ▸-ᵐ·-DCon ▸∇ = ▸-ᵐ· ∘→ ▸∇
 
--- The relation _▸[_]_ respects multiplication (in a certain sense).
+opaque
 
-▸-·′ : γ ▸[ m ] t → ⌜ m ⌝ ·ᶜ γ ▸[ m ] t
-▸-·′ ▸t = ▸-cong ·ᵐ-idem (▸-· ▸t)
+  -- The relation _▸[_]_ respects multiplication (in a certain sense).
 
--- If a term does not use any resources, then it is well-resourced
--- with respect to any mode.
+  ▸-·′ : γ ▸[ m ] t → ⌜ m ⌝ ·ᶜ γ ▸[ m ] t
+  ▸-·′ ▸t = ▸-cong (·ᵐ-idem _) (▸-· ▸t)
 
-𝟘ᶜ▸[𝟙ᵐ]→ : 𝟘ᶜ ▸[ 𝟙ᵐ ] t → 𝟘ᶜ ▸[ m ] t
-𝟘ᶜ▸[𝟙ᵐ]→ {m = 𝟘ᵐ} = ▸-𝟘
-𝟘ᶜ▸[𝟙ᵐ]→ {m = 𝟙ᵐ} = idᶠ
+opaque
 
--- A form of monotonicity for _▸[_]_.
+  -- If a term does not use any resources, then it is well-resourced
+  -- with respect to any mode.
 
-▸-≤ : p ≤ q → ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t → ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
-▸-≤ {p = p} {q = q} {γ = γ} {t = t} p≤q = lemma _ _ refl refl
-  where
-  lemma :
-    ∀ m₁ m₂ → ⌞ p ⌟ ≡ m₁ → ⌞ q ⌟ ≡ m₂ →
-    ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t → ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t
-  lemma 𝟘ᵐ 𝟘ᵐ _ _ ▸t = ▸-cong 𝟘ᵐ-cong ▸t
-  lemma 𝟙ᵐ 𝟙ᵐ _ _ ▸t = ▸t
-  lemma 𝟙ᵐ 𝟘ᵐ _ _ ▸t = sub (▸-𝟘 ▸t) (begin
-    𝟘 ·ᶜ γ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
-    𝟘ᶜ      ∎)
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-  lemma 𝟘ᵐ[ ok ] 𝟙ᵐ ⌞p⌟≡𝟘ᵐ ⌞q⌟≡𝟙ᵐ ▸t =
-    ⊥-elim (⌞⌟≡𝟙ᵐ→≢𝟘 ok ⌞q⌟≡𝟙ᵐ (𝟘ᵐ.𝟘≮ ok (begin
-      𝟘  ≈˘⟨ ⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ ⟩
-      p  ≤⟨ p≤q ⟩
-      q  ∎)))
-    where
-    open Tools.Reasoning.PartialOrder ≤-poset
+  𝟘ᶜ▸[𝟙ᵐ]→ : 𝟘ᶜ ▸[ 𝟙ᵐ ] t → 𝟘ᶜ ▸[ m ] t
+  𝟘ᶜ▸[𝟙ᵐ]→ ▸t =
+    sub-≈ᶜ (▸-cong (·ᵐ-identityʳ _) (▸-· ▸t))
+      (≈ᶜ-sym (·ᶜ-zeroʳ _))
 
 opaque
 
@@ -542,325 +420,314 @@ opaque
   ▸→▸[ᵐ·] :
     γ ▸[ m ] t →
     ∃ λ δ → δ ▸[ m ᵐ· p ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
-  ▸→▸[ᵐ·] {γ} {m = 𝟘ᵐ}         ▸t = γ , ▸t , ≈ᶜ-refl
-  ▸→▸[ᵐ·] {γ} {m = 𝟙ᵐ} {t} {p} ▸t = lemma _ refl
+  ▸→▸[ᵐ·] {γ} {p} ▸t = _ , ▸-ᵐ· ▸t , (begin
+    p ·ᶜ γ               ≈˘⟨ ·ᶜ-congʳ ·⌜⌞⌟⌝ ⟩
+    (p · ⌜ ⌞ p ⌟ ⌝) ·ᶜ γ ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+    p ·ᶜ ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ  ∎)
     where
     open ≈ᶜ-reasoning
 
-    lemma : ∀ m → ⌞ p ⌟ ≡ m → ∃ λ δ → δ ▸[ m ] t × p ·ᶜ γ ≈ᶜ p ·ᶜ δ
-    lemma 𝟙ᵐ       _      = γ , ▸t , ≈ᶜ-refl
-    lemma 𝟘ᵐ[ ok ] ⌞p⌟≡𝟘ᵐ =
-        𝟘ᶜ
-      , ▸-𝟘 ▸t
-      , (begin
-           p ·ᶜ γ   ≈⟨ ·ᶜ-congʳ (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⌟≡𝟘ᵐ) ⟩
-           𝟘 ·ᶜ γ   ≈⟨ ·ᶜ-zeroˡ _ ⟩
-           𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
-           p ·ᶜ 𝟘ᶜ  ∎)
-
-------------------------------------------------------------------------
--- The lemma ▸-𝟘ᵐ and a related result
-
--- If γ ▸[ 𝟘ᵐ[ ok ] ] t, then γ ≤ᶜ 𝟘ᶜ.
-
-▸-𝟘ᵐ : γ ▸[ 𝟘ᵐ[ ok ] ] t → γ ≤ᶜ 𝟘ᶜ
-▸-𝟘ᵐ Uₘ =
-  ≤ᶜ-refl
-▸-𝟘ᵐ ℕₘ =
-  ≤ᶜ-refl
-▸-𝟘ᵐ Emptyₘ =
-  ≤ᶜ-refl
-▸-𝟘ᵐ Unitₘ =
-  ≤ᶜ-refl
-▸-𝟘ᵐ (ΠΣₘ {γ = γ} {δ = δ} γ▸ δ▸) = begin
-  γ +ᶜ δ    ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ γ▸) (tailₘ-monotone (▸-𝟘ᵐ δ▸)) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ        ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (var {x = x}) = begin
-  𝟘ᶜ , x ≔ 𝟘  ≡⟨ 𝟘ᶜ,≔𝟘 ⟩
-  𝟘ᶜ          ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ defn =
-  ≤ᶜ-refl
-▸-𝟘ᵐ (lamₘ γ▸) =
-  tailₘ-monotone (▸-𝟘ᵐ γ▸)
-▸-𝟘ᵐ (_∘ₘ_ {γ = γ} {δ = δ} {p = p} γ▸ δ▸) = begin
-  γ +ᶜ p ·ᶜ δ    ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ γ▸) (·ᶜ-monotoneʳ (▸-𝟘ᵐ δ▸)) ⟩
-  𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityˡ _ ⟩
-  p ·ᶜ 𝟘ᶜ        ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ             ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (prodʷₘ {γ = γ} {p = p} {δ = δ} γ▸ δ▸) = begin
-  p ·ᶜ γ +ᶜ δ    ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ γ▸)) (▸-𝟘ᵐ δ▸) ⟩
-  p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-  p ·ᶜ 𝟘ᶜ        ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ             ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (prodˢₘ {γ = γ} {p = p} {δ = δ} γ▸ δ▸) = begin
-  p ·ᶜ γ ∧ᶜ δ    ≤⟨ ∧ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ γ▸)) (▸-𝟘ᵐ δ▸) ⟩
-  p ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ≈⟨ ∧ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈⟨ ∧ᶜ-idem _ ⟩
-  𝟘ᶜ             ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (fstₘ _ γ▸ eq _) = lemma γ▸ eq
-  where
-  lemma : γ ▸[ m ] t → m ≡ 𝟘ᵐ[ ok ] → γ ≤ᶜ 𝟘ᶜ
-  lemma γ▸ refl = ▸-𝟘ᵐ γ▸
-▸-𝟘ᵐ (sndₘ γ▸) =
-  ▸-𝟘ᵐ γ▸
-▸-𝟘ᵐ (prodrecₘ {γ = γ} {r = r} {δ = δ} γ▸ δ▸ _ _) = begin
-  r ·ᶜ γ +ᶜ δ    ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ γ▸)) (tailₘ-monotone (tailₘ-monotone (▸-𝟘ᵐ δ▸))) ⟩
-  r ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-  r ·ᶜ 𝟘ᶜ        ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ             ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ zeroₘ =
-  ≤ᶜ-refl
-▸-𝟘ᵐ (sucₘ γ▸) =
-  ▸-𝟘ᵐ γ▸
-▸-𝟘ᵐ
-  (natrecₘ {γ = γ} {δ = δ} {p = p} {r = r} {η = η} γ▸ δ▸ η▸ _) = begin
-  nrᶜ p r γ δ η     ≤⟨ nrᶜ-monotone (▸-𝟘ᵐ γ▸) (tailₘ-monotone (tailₘ-monotone (▸-𝟘ᵐ δ▸))) (▸-𝟘ᵐ η▸) ⟩
-  nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ  ≈⟨ nrᶜ-𝟘ᶜ ⟩
-  𝟘ᶜ                ∎
-  where
-  open import Graded.Usage.Restrictions.Instance R
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ
-  (natrec-no-nrₘ {γ = γ} {χ = χ} γ▸ _ _ _ χ≤γ _ _ _) = begin
-  χ   ≤⟨ χ≤γ ⟩
-  γ   ≤⟨ ▸-𝟘ᵐ γ▸ ⟩
-  𝟘ᶜ  ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (natrec-no-nr-glbₘ {γ} {δ} {p} {r} {η} {χ} {x} γ▸ δ▸ η▸ _ x≤ χ≤) = begin
-  x ·ᶜ η +ᶜ χ             ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ η▸)) (χ≤ .proj₁ 0) ⟩
-  x ·ᶜ 𝟘ᶜ +ᶜ nrᵢᶜ r γ δ 0 ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ +ᶜ nrᵢᶜ r γ δ 0      ≈⟨ +ᶜ-identityˡ _ ⟩
-  nrᵢᶜ r γ δ 0            ≤⟨ nrᵢᶜ-monotone {r = r} {i = 0} (▸-𝟘ᵐ γ▸)
-                              (tailₘ-monotone (tailₘ-monotone (▸-𝟘ᵐ δ▸))) ⟩
-  nrᵢᶜ r 𝟘ᶜ 𝟘ᶜ 0          ≈⟨ nrᵢᶜ-𝟘ᶜ {r = r} ⟩
-  𝟘ᶜ                      ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (emptyrecₘ {γ = γ} {p = p} γ▸ _ _) = begin
-  p ·ᶜ γ   ≤⟨ ·ᶜ-monotoneʳ (▸-𝟘ᵐ γ▸) ⟩
-  p ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ       ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ starʷₘ = ≤ᶜ-refl
-▸-𝟘ᵐ (starˢₘ prop) = ≤ᶜ-reflexive (·ᶜ-zeroˡ _)
-▸-𝟘ᵐ (unitrecₘ {γ = γ} {p = p} {δ = δ} γ▸ δ▸ η▸ ok) = begin
-  p ·ᶜ γ +ᶜ δ     ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ γ▸)) (▸-𝟘ᵐ δ▸) ⟩
-  p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-  p ·ᶜ 𝟘ᶜ        ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ             ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (Idₘ {γ} {δ} {η} _ γ▸ δ▸ η▸) = begin
-  γ +ᶜ δ +ᶜ η     ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ γ▸) (+ᶜ-monotone (▸-𝟘ᵐ δ▸) (▸-𝟘ᵐ η▸)) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
-  𝟘ᶜ              ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (Id₀ₘ _ _ _ _) =
-  ≤ᶜ-refl
-▸-𝟘ᵐ rflₘ =
-  ≤ᶜ-refl
-▸-𝟘ᵐ (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ γ₂▸ γ₃▸ γ₄▸ γ₅▸ γ₆▸) = begin
-  ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)  ≤⟨ ·ᶜ-monotoneʳ $
-                                        +ᶜ-monotone (▸-𝟘ᵐ γ₂▸) $
-                                        +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (▸-𝟘ᵐ γ₃▸))) $
-                                        +ᶜ-monotone (▸-𝟘ᵐ γ₄▸) $
-                                        +ᶜ-monotone (▸-𝟘ᵐ γ₅▸) (▸-𝟘ᵐ γ₆▸) ⟩
-  ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ≈⟨ ω·ᶜ+ᶜ⁵𝟘ᶜ ⟩
-  𝟘ᶜ                                 ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (J₀ₘ₁ {γ₃} {γ₄} _ _ _ _ _ γ₃▸ γ₄▸ _ _) = begin
-  ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ·ᶜ-monotoneʳ $
-                      +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (▸-𝟘ᵐ γ₃▸))) (▸-𝟘ᵐ γ₄▸) ⟩
-  ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ≈⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
-  𝟘ᶜ               ∎
-  where
-  open CR
-▸-𝟘ᵐ (J₀ₘ₂ _ _ _ _ γ₄▸ _ _) =
-  ▸-𝟘ᵐ γ₄▸
-▸-𝟘ᵐ (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ γ₂▸ γ₃▸ γ₄▸ γ₅▸) = begin
-  ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)  ≤⟨ ·ᶜ-monotoneʳ $
-                                  +ᶜ-monotone (▸-𝟘ᵐ γ₂▸) $
-                                  +ᶜ-monotone (tailₘ-monotone (▸-𝟘ᵐ γ₃▸)) $
-                                  +ᶜ-monotone (▸-𝟘ᵐ γ₄▸) (▸-𝟘ᵐ γ₅▸) ⟩
-  ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ≈⟨ ω·ᶜ+ᶜ⁴𝟘ᶜ ⟩
-  𝟘ᶜ                           ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-▸-𝟘ᵐ (K₀ₘ₁ {γ₃} {γ₄} _ _ _ _ γ₃▸ γ₄▸ _) = begin
-  ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ·ᶜ-monotoneʳ $
-                      +ᶜ-monotone (tailₘ-monotone (▸-𝟘ᵐ γ₃▸)) (▸-𝟘ᵐ γ₄▸) ⟩
-  ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ≈⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
-  𝟘ᶜ               ∎
-  where
-  open CR
-▸-𝟘ᵐ (K₀ₘ₂ _ _ _ _ γ₄▸ _) =
-  ▸-𝟘ᵐ γ₄▸
-▸-𝟘ᵐ ([]-congₘ _ _ _ _ _) =
-  ≤ᶜ-refl
-▸-𝟘ᵐ (sub {γ = γ} {δ = δ} γ▸ δ≤γ) = begin
-  δ   ≤⟨ δ≤γ ⟩
-  γ   ≤⟨ ▸-𝟘ᵐ γ▸ ⟩
-  𝟘ᶜ  ∎
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 opaque
 
-  -- If γ ▸[ m ] t holds, then γ is bounded from above by ⌜ m ⌝ ·ᶜ γ.
+  -- If a term is well-resourced with respect to ε and any mode, then
+  -- it is well-resourced with respect to ε and the mode 𝟘ᵐ.
 
-  ≤ᶜ⌜⌝·ᶜ : γ ▸[ m ] t → γ ≤ᶜ ⌜ m ⌝ ·ᶜ γ
-  ≤ᶜ⌜⌝·ᶜ {γ} {m = 𝟘ᵐ} {t} ▸t = begin
-    γ       ≤⟨ ▸-𝟘ᵐ ▸t ⟩
-    𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-    𝟘 ·ᶜ γ  ∎
+  ε-▸-𝟘ᵐ : ε ▸[ m ] t → ε ▸[ 𝟘ᵐ ] t
+  ε-▸-𝟘ᵐ ▸t = ▸-𝟘 ▸t
+
+opaque
+
+  -- A variant of ε-▸-𝟘ᵐ.
+
+  ▸-𝟘ᵐ-DCon : ▸[ m ] ∇ → ▸[ 𝟘ᵐ ] ∇
+  ▸-𝟘ᵐ-DCon ▸∇ = ε-▸-𝟘ᵐ ∘→ ▸∇
+
+------------------------------------------------------------------------
+-- The lemmas ▸ᵐ and ▸-𝟘ᵐ
+
+opaque mutual
+
+  ▸ᵐ-ᵐ· : γ ▸[ m ᵐ· p ] t → p ·ᶜ γ ≤ᶜ ⌜ m ⌝ ·ᶜ p ·ᶜ γ
+  ▸ᵐ-ᵐ· {γ} {m} {p} ▸t = begin
+    p ·ᶜ γ                ≤⟨ ·ᶜ-monotoneʳ (▸ᵐ ▸t) ⟩
+    p ·ᶜ ⌜ m ᵐ· p ⌝ ·ᶜ γ  ≈˘⟨ ·ᶜ-assoc _ _ _ ⟩
+    (p · ⌜ m ᵐ· p ⌝) ·ᶜ γ ≈⟨ ·ᶜ-congʳ (·⌜ᵐ·⌝ _) ⟩
+    (p · ⌜ m ⌝) ·ᶜ γ      ≈˘⟨ ·ᶜ-congʳ (⌜⌝-·-comm _) ⟩
+    (⌜ m ⌝ · p) ·ᶜ γ      ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+    ⌜ m ⌝ ·ᶜ p ·ᶜ γ       ∎
     where
     open ≤ᶜ-reasoning
-  ≤ᶜ⌜⌝·ᶜ {γ} {m = 𝟙ᵐ} {t} _ = begin
-    γ       ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-    𝟙 ·ᶜ γ  ∎
+
+  ▸ᵐ : γ ▸[ m ] t → γ ≤ᶜ ⌜ m ⌝ ·ᶜ γ
+  ▸ᵐ {m} = λ where
+      (sub ▸t γ≤) →
+        ≤ᶜ⌜⌝·ᶜ γ≤ (▸ᵐ ▸t)
+      (var {x}) → begin
+        𝟘ᶜ , x ≔ ⌜ m ⌝                  ≈˘⟨ update-cong (·ᶜ-zeroʳ _) (·-idem-⌜⌝ _) ⟩
+        ⌜ m ⌝ ·ᶜ 𝟘ᶜ , x ≔ ⌜ m ⌝ · ⌜ m ⌝ ≡⟨ update-distrib-·ᶜ _ _ _ x ⟩
+        ⌜ m ⌝ ·ᶜ (𝟘ᶜ , x ≔ ⌜ m ⌝)       ∎
+      defn →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      Uₘ →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      Emptyₘ →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      (emptyrecₘ ▸t _ _) →
+        ▸ᵐ-ᵐ· ▸t
+      Unitₘ →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      (starˢₘ x) →
+        ≤ᶜ-reflexive (≈ᶜ-sym ·ᶜ-idem-⌜⌝)
+      starʷₘ →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      (unitrecₘ ▸t ▸u _ _) →
+        lemma (▸ᵐ-ᵐ· ▸t) (▸ᵐ ▸u)
+      (ΠΣₘ ▸A ▸B) →
+        lemma (▸ᵐ ▸A) (tailₘ-monotone (▸ᵐ ▸B))
+      (lamₘ ▸t) →
+        tailₘ-monotone (▸ᵐ ▸t)
+      (▸t ∘ₘ ▸u) →
+        lemma (▸ᵐ ▸t) (▸ᵐ-ᵐ· ▸u)
+      (prodˢₘ {γ} {p} {δ} ▸t ▸u) → begin
+        p ·ᶜ γ ∧ᶜ δ                   ≤⟨ ∧ᶜ-monotone (▸ᵐ-ᵐ· ▸t) (▸ᵐ ▸u) ⟩
+        ⌜ m ⌝ ·ᶜ p ·ᶜ γ ∧ᶜ ⌜ m ⌝ ·ᶜ δ ≈˘⟨ ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ (p ·ᶜ γ ∧ᶜ δ)        ∎
+      (fstₘ _ ▸t refl _) →
+        ▸ᵐ ▸t
+      (sndₘ ▸t) →
+        ▸ᵐ ▸t
+      (prodʷₘ ▸t ▸u) →
+        lemma (▸ᵐ-ᵐ· ▸t) (▸ᵐ ▸u)
+      (prodrecₘ ▸t ▸u _ _) →
+        lemma (▸ᵐ-ᵐ· ▸t) (tailₘ-monotone (tailₘ-monotone (▸ᵐ ▸u)))
+      ℕₘ →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      zeroₘ →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      (sucₘ ▸t) →
+        ▸ᵐ ▸t
+      (natrecₘ {γ} {δ} {p} {r} {η} ▸z ▸s ▸n _) → begin
+        nrᶜ p r γ δ η                                  ≤⟨ nrᶜ-monotone (▸ᵐ ▸z)
+                                                          (tailₘ-monotone (tailₘ-monotone (▸ᵐ ▸s)))
+                                                          (▸ᵐ ▸n) ⟩
+        nrᶜ p r (⌜ m ⌝ ·ᶜ γ) (⌜ m ⌝ ·ᶜ δ) (⌜ m ⌝ ·ᶜ η) ≈˘⟨ ⌜⌝-·ᶜ-nrᶜ ⟩
+        ⌜ m ⌝ ·ᶜ nrᶜ p r γ δ η ∎
+      (natrec-no-nrₘ ▸z _ _ _ γ≤ _ _ _) →
+        ≤ᶜ⌜⌝·ᶜ γ≤ (▸ᵐ ▸z)
+      (natrec-no-nr-glbₘ {η} {χ} {x} ▸z ▸s ▸n _ x-GLB χ-GLB) →
+        let mχ-GLB = GLBᶜ-congˡ ⌜⌝-·ᶜ-nrᵢᶜ (·ᶜ-GLBᶜˡ χ-GLB)
+        in  begin
+          x ·ᶜ η +ᶜ χ                   ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸ᵐ ▸n))
+                                            (GLBᶜ-monotone (λ _ → nrᵢᶜ-monotone (▸ᵐ ▸z) (tailₘ-monotone (tailₘ-monotone (▸ᵐ ▸s))))
+                                              χ-GLB mχ-GLB) ⟩
+          x ·ᶜ ⌜ m ⌝ ·ᶜ η +ᶜ ⌜ m ⌝ ·ᶜ χ ≈˘⟨ +ᶜ-congʳ (⌜⌝·ᶜ-comm _ _ _) ⟩
+          ⌜ m ⌝ ·ᶜ x ·ᶜ η +ᶜ ⌜ m ⌝ ·ᶜ χ ≈˘⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+          ⌜ m ⌝ ·ᶜ (x ·ᶜ η +ᶜ χ)        ∎
+      (Idₘ _ ▸A ▸t ▸u) →
+        lemma (▸ᵐ ▸A) (lemma (▸ᵐ ▸t) (▸ᵐ ▸u))
+      (Id₀ₘ _ _ _ _) →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      rflₘ →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ ▸t ▸B ▸u ▸v ▸w) → begin
+        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                                              ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotone (▸ᵐ ▸t)
+                                                                                          (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (▸ᵐ ▸B)))
+                                                                                          (+ᶜ-monotone (▸ᵐ ▸u) (+ᶜ-monotone (▸ᵐ ▸v) (▸ᵐ ▸w))))) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ γ₄ +ᶜ ⌜ m ⌝ ·ᶜ γ₅ +ᶜ ⌜ m ⌝ ·ᶜ γ₆) ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)))) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ γ₄ +ᶜ ⌜ m ⌝ ·ᶜ (γ₅ +ᶜ γ₆))        ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _))) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ (γ₄ +ᶜ γ₅ +ᶜ γ₆))                 ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆))                          ≈˘⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+        ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                                     ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ∎
+      (J₀ₘ₁ {γ₃} {γ₄} _ _ _ _ _ ▸B ▸u _ _) → begin
+        ω ·ᶜ (γ₃ +ᶜ γ₄)                   ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (▸ᵐ ▸B))) (▸ᵐ ▸u)) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ γ₄) ≈˘⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+        ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₃ +ᶜ γ₄)          ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)          ∎
+      (J₀ₘ₂ _ _ _ _ ▸u _ _) →
+        ▸ᵐ ▸u
+      (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ ▸t ▸B ▸u ▸v) → begin
+        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                                     ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotone (▸ᵐ ▸t)
+                                                                           (+ᶜ-monotone (tailₘ-monotone (▸ᵐ ▸B))
+                                                                           (+ᶜ-monotone (▸ᵐ ▸u) (▸ᵐ ▸v)))) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ γ₄ +ᶜ ⌜ m ⌝ ·ᶜ γ₅) ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _))) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ (γ₄ +ᶜ γ₅))        ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅))                 ≈˘⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+        ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                            ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ∎
+      (K₀ₘ₁ {γ₃} {γ₄} _ _ _ _ ▸B ▸u _) → begin
+        ω ·ᶜ (γ₃ +ᶜ γ₄)                   ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotone (tailₘ-monotone (▸ᵐ ▸B)) (▸ᵐ ▸u)) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ γ₄) ≈˘⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+        ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₃ +ᶜ γ₄)          ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)          ∎
+      (K₀ₘ₂ _ _ _ _ ▸u _) →
+        ▸ᵐ ▸u
+      ([]-congₘ _ _ _ _ _) →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+    where
+    open ≤ᶜ-reasoning
+    open Graded.Usage.Restrictions.Instance R
+    𝟘ᶜ≤ᶜm𝟘ᶜ : 𝟘ᶜ {n} ≤ᶜ ⌜ m ⌝ ·ᶜ 𝟘ᶜ
+    𝟘ᶜ≤ᶜm𝟘ᶜ = ≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _))
+    lemma :
+      γ ≤ᶜ ⌜ m ⌝ ·ᶜ γ → δ ≤ᶜ ⌜ m ⌝ ·ᶜ δ →
+      γ +ᶜ δ ≤ᶜ ⌜ m ⌝ ·ᶜ (γ +ᶜ δ)
+    lemma {γ} {δ} γ≤ δ≤ = begin
+      γ +ᶜ δ                   ≤⟨ +ᶜ-monotone γ≤ δ≤ ⟩
+      ⌜ m ⌝ ·ᶜ γ +ᶜ ⌜ m ⌝ ·ᶜ δ ≈˘⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+      ⌜ m ⌝ ·ᶜ (γ +ᶜ δ)        ∎
+
+opaque
+
+  -- If the mode structure is not trivial and γ ▸[ 𝟘ᵐ ] t, then γ ≤ᶜ 𝟘ᶜ.
+
+  ▸-𝟘ᵐ : ¬ Trivialᵐ → γ ▸[ 𝟘ᵐ ] t → γ ≤ᶜ 𝟘ᶜ
+  ▸-𝟘ᵐ {γ} 𝟙ᵐ≢𝟘ᵐ ▸t = begin
+    γ           ≤⟨ ▸ᵐ ▸t ⟩
+    ⌜ 𝟘ᵐ ⌝ ·ᶜ γ ≈⟨ ·ᶜ-congʳ (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ) ⟩
+    𝟘 ·ᶜ γ      ≈⟨ ·ᶜ-zeroˡ _ ⟩
+    𝟘ᶜ          ∎
     where
     open ≤ᶜ-reasoning
 
 ------------------------------------------------------------------------
 -- Inversion lemmas
 
--- A kind of inversion lemma for _▸[_]_ related to multiplication.
+opaque
 
-▸-⌞·⌟ :
-  ⌜ ⌞ p · q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p · q ⌟ ] t →
-  (⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t) ⊎ (⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t)
-▸-⌞·⌟ {p = p} {q = q} {γ = γ} ▸t =
-  lemma _ _ refl refl
-    (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (PE.sym ⌞⌟·ᵐ) ▸t)
-  where
-  lemma :
-    ∀ m₁ m₂ → ⌞ p ⌟ ≡ m₁ → ⌞ q ⌟ ≡ m₂ →
-    ⌜ m₁ ·ᵐ m₂ ⌝ ·ᶜ γ ▸[ m₁ ·ᵐ m₂ ] t →
-    (⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t) ⊎ (⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t)
-  lemma 𝟘ᵐ _  _ _ ▸t = inj₁ ▸t
-  lemma 𝟙ᵐ 𝟘ᵐ _ _ ▸t = inj₂ ▸t
-  lemma 𝟙ᵐ 𝟙ᵐ _ _ ▸t = inj₁ ▸t
+  -- A kind of inversion lemma for _▸[_]_ related to addition.
 
--- If m₂ is 𝟘ᵐ[ ok ] whenever m₁ is 𝟘ᵐ[ ok ], then one can convert
--- from ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t to ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t.
+  ▸-⌞+⌟ˡ :
+    ⌜ ⌞ p + q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p + q ⌟ ] t →
+    ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
+  ▸-⌞+⌟ˡ {p} {q} {γ} ▸t =
+    sub-≈ᶜ (▸-cong ⌞⌟·ᵐ⌞+⌟ˡ (▸-· {m′ = ⌞ p ⌟} ▸t)) $ begin
+      ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ                   ≈˘⟨ ·ᶜ-congʳ (⌜⌝-cong ⌞⌟·ᵐ⌞+⌟ˡ) ⟩
+      (⌜ ⌞ p ⌟ ·ᵐ ⌞ p + q ⌟ ⌝) ·ᶜ γ    ≈⟨ ·ᶜ-congʳ (⌜·ᵐ⌝ _) ⟩
+      (⌜ ⌞ p ⌟ ⌝ · ⌜ ⌞ p + q ⌟ ⌝) ·ᶜ γ ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+      ⌜ ⌞ p ⌟ ⌝ ·ᶜ ⌜ ⌞ p + q ⌟ ⌝ ·ᶜ γ  ∎
+    where
+    open ≈ᶜ-reasoning
 
-▸-conv :
-  (∀ ok → m₁ ≡ 𝟘ᵐ[ ok ] → m₂ ≡ 𝟘ᵐ[ ok ]) →
-  ⌜ m₁ ⌝ ·ᶜ γ ▸[ m₁ ] t →
-  ⌜ m₂ ⌝ ·ᶜ γ ▸[ m₂ ] t
-▸-conv {m₁ = 𝟘ᵐ} {m₂ = 𝟘ᵐ} _ ▸t =
-  ▸-cong 𝟘ᵐ-cong ▸t
-▸-conv {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} _ ▸t =
-  ▸t
-▸-conv {m₁ = 𝟘ᵐ} {m₂ = 𝟙ᵐ} 𝟘ᵐ≡𝟘ᵐ→𝟙ᵐ≡𝟘ᵐ ▸t =
-  case 𝟘ᵐ≡𝟘ᵐ→𝟙ᵐ≡𝟘ᵐ _ PE.refl of λ ()
-▸-conv {m₁ = 𝟙ᵐ} {m₂ = 𝟘ᵐ} {γ = γ} hyp ▸t = sub
-  (▸-· {m′ = 𝟘ᵐ} ▸t)
-  (begin
-    𝟘 ·ᶜ γ       ≈˘⟨ ·ᶜ-congˡ (·ᶜ-identityˡ _) ⟩
-    𝟘 ·ᶜ 𝟙 ·ᶜ γ  ∎)
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+opaque
 
--- A kind of inversion lemma for _▸[_]_ related to addition.
+  -- A kind of inversion lemma for _▸[_]_ related to addition.
 
-▸-⌞+⌟ˡ :
-  ⌜ ⌞ p + q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p + q ⌟ ] t →
-  ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
-▸-⌞+⌟ˡ = ▸-conv λ ok ⌞p+q⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ (𝟘ᵐ.+-positiveˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p+q⌟≡𝟘ᵐ))
+  ▸-⌞+⌟ʳ :
+    ⌜ ⌞ p + q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p + q ⌟ ] t →
+    ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
+  ▸-⌞+⌟ʳ ▸t =
+    ▸-⌞+⌟ˡ (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (⌞⌟-cong (+-comm _ _)) ▸t)
 
--- A kind of inversion lemma for _▸[_]_ related to addition.
+opaque
 
-▸-⌞+⌟ʳ :
-  ⌜ ⌞ p + q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p + q ⌟ ] t →
-  ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
-▸-⌞+⌟ʳ ▸t =
-  ▸-⌞+⌟ˡ (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (⌞⌟-cong (+-comm _ _)) ▸t)
+  -- A kind of inversion lemma for _▸[_]_ related to the meet operation.
 
--- A kind of inversion lemma for _▸[_]_ related to the meet operation.
+  ▸-⌞∧⌟ˡ :
+    ⌜ ⌞ p ∧ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ∧ q ⌟ ] t →
+    ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
+  ▸-⌞∧⌟ˡ {p} {q} {γ} ▸t =
+    sub-≈ᶜ (▸-cong ⌞⌟·ᵐ⌞∧⌟ˡ (▸-· {m′ = ⌞ p ⌟} ▸t)) $ begin
+      ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ                   ≈˘⟨ ·ᶜ-congʳ (⌜⌝-cong ⌞⌟·ᵐ⌞∧⌟ˡ) ⟩
+      (⌜ ⌞ p ⌟ ·ᵐ ⌞ p ∧ q ⌟ ⌝) ·ᶜ γ    ≈⟨ ·ᶜ-congʳ (⌜·ᵐ⌝ _) ⟩
+      (⌜ ⌞ p ⌟ ⌝ · ⌜ ⌞ p ∧ q ⌟ ⌝) ·ᶜ γ ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+      ⌜ ⌞ p ⌟ ⌝ ·ᶜ ⌜ ⌞ p ∧ q ⌟ ⌝ ·ᶜ γ  ∎
+    where
+    open ≈ᶜ-reasoning
 
-▸-⌞∧⌟ˡ :
-  ⌜ ⌞ p ∧ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ∧ q ⌟ ] t →
-  ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
-▸-⌞∧⌟ˡ = ▸-conv λ ok ⌞p∧q⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ (𝟘ᵐ.∧-positiveˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p∧q⌟≡𝟘ᵐ))
+opaque
 
--- A kind of inversion lemma for _▸[_]_ related to the meet operation.
+  -- A kind of inversion lemma for _▸[_]_ related to the meet operation.
 
-▸-⌞∧⌟ʳ :
-  ⌜ ⌞ p ∧ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ∧ q ⌟ ] t →
-  ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
-▸-⌞∧⌟ʳ ▸t =
-  ▸-⌞∧⌟ˡ (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (⌞⌟-cong (∧-comm _ _)) ▸t)
+  ▸-⌞∧⌟ʳ :
+    ⌜ ⌞ p ∧ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ∧ q ⌟ ] t →
+    ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
+  ▸-⌞∧⌟ʳ ▸t =
+    ▸-⌞∧⌟ˡ (subst (λ m → ⌜ m ⌝ ·ᶜ _ ▸[ m ] _) (⌞⌟-cong (∧-comm _ _)) ▸t)
 
--- A kind of inversion lemma for _▸[_]_ related to the star operation.
+opaque
 
-▸-⌞⊛⌟ˡ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
-  ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
-  ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
-▸-⌞⊛⌟ˡ = ▸-conv λ ok ⌞p⊛q▷r⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ (𝟘ᵐ.⊛≡𝟘ˡ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
+  -- A form of monotonicity for _▸[_]_.
 
--- A kind of inversion lemma for _▸[_]_ related to the star operation.
+  ▸-≤ : p ≤ q → ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t → ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
+  ▸-≤ {p} {q} {γ} {t} p≤q ▸t =
+    ▸-⌞∧⌟ʳ (subst (λ p → ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t) p≤q ▸t)
 
-▸-⌞⊛⌟ʳ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
-  ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
-  ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
-▸-⌞⊛⌟ʳ = ▸-conv λ ok ⌞p⊛q▷r⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ (𝟘ᵐ.⊛≡𝟘ʳ ok (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞p⊛q▷r⌟≡𝟘ᵐ))
+opaque
 
--- A kind of inversion lemma for _▸[_]_ related to the nr function.
+  -- A form of monotonicity for _▸[_]_.
 
-▸-⌞nr⌟₁ :
-  ∀ {n} ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
-  ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
-  ⌜ ⌞ z ⌟ ⌝ ·ᶜ γ ▸[ ⌞ z ⌟ ] t
-▸-⌞nr⌟₁ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ $
-  nr-positive ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄
-    (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₁
+  ▸-≤′ : p ≤ q → γ ▸[ ⌞ p ⌟ ] t → ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
+  ▸-≤′ p≤q ▸t = ▸-≤ᵐ ▸t (⌞⌟-monotone p≤q)
 
--- A kind of inversion lemma for _▸[_]_ related to the nr function.
+opaque
 
-▸-⌞nr⌟₂ :
-  ∀ {n} ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
-  ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
-  ⌜ ⌞ s ⌟ ⌝ ·ᶜ γ ▸[ ⌞ s ⌟ ] t
-▸-⌞nr⌟₂ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ $
-  nr-positive ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄
-    (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₂ .proj₁
+  -- A kind of inversion lemma for _▸[_]_ related to the star operation.
 
--- A kind of inversion lemma for _▸[_]_ related to the nr function.
+  ▸-⌞⊛⌟ˡ :
+    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
+    ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
+  ▸-⌞⊛⌟ˡ {p} {q} {r} = ▸-≤ (⊛-ineq₂ p q r)
 
-▸-⌞nr⌟₃ :
-  ∀ {n} ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
-  ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
-  ⌜ ⌞ n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ n ⌟ ] t
-▸-⌞nr⌟₃ = ▸-conv λ ok ⌞nr-przsn⌟≡𝟘ᵐ →
-  ≡𝟘→⌞⌟≡𝟘ᵐ $
-  nr-positive ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄
-    (⌞⌟≡𝟘ᵐ→≡𝟘 ⌞nr-przsn⌟≡𝟘ᵐ) .proj₂ .proj₂
+opaque
+
+  -- A kind of inversion lemma for _▸[_]_ related to the star operation.
+
+  ▸-⌞⊛⌟ʳ :
+    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
+    ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
+  ▸-⌞⊛⌟ʳ {p} {q} {r} = ▸-⌞+⌟ˡ ∘→ ▸-≤ (⊛-ineq₁ p q r)
+
+opaque
+
+  -- A kind of inversion lemma for _▸[_]_ related to the nr function.
+
+  ▸-⌞nr⌟₁ :
+    ∀ {n} ⦃ ok : Nr-available ⦄ →
+    let open Graded.Usage.Restrictions.Instance R in
+    ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
+    ⌜ ⌞ z ⌟ ⌝ ·ᶜ γ ▸[ ⌞ z ⌟ ] t
+  ▸-⌞nr⌟₁ {p} {r} {z} {s} {γ} {n} ▸t =
+    sub-≈ᶜ (▸-cong ⌞⌟·ᵐ⌞nr⌟₁ (▸-· {m′ = ⌞ z ⌟} ▸t)) $ begin
+      ⌜ ⌞ z ⌟ ⌝ ·ᶜ γ                          ≈˘⟨ ·ᶜ-congʳ (⌜⌝-cong ⌞⌟·ᵐ⌞nr⌟₁) ⟩
+      ⌜ ⌞ z ⌟ ·ᵐ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ      ≈⟨ ·ᶜ-congʳ (⌜·ᵐ⌝ _) ⟩
+      (⌜ ⌞ z ⌟ ⌝ · ⌜ ⌞ nr p r z s n ⌟ ⌝) ·ᶜ γ ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+      ⌜ ⌞ z ⌟ ⌝ ·ᶜ ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ  ∎
+    where
+    open Graded.Usage.Restrictions.Instance R
+    open ≈ᶜ-reasoning
+
+opaque
+
+  -- A kind of inversion lemma for _▸[_]_ related to the nr function.
+
+  ▸-⌞nr⌟₂ :
+    ∀ {n} ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
+    ⌜ ⌞ s ⌟ ⌝ ·ᶜ γ ▸[ ⌞ s ⌟ ] t
+  ▸-⌞nr⌟₂ ▸t = ▸-⌞+⌟ˡ (▸-≤ nr-suc ▸t)
+
+opaque
+
+  -- A kind of inversion lemma for _▸[_]_ related to the nr function.
+
+  ▸-⌞nr⌟₃ :
+    ∀ {n} ⦃ ok : Nr-available ⦄ →
+    let open Graded.Usage.Restrictions.Instance R in
+    ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
+    ⌜ ⌞ n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ n ⌟ ] t
+  ▸-⌞nr⌟₃ {p} {r} {z} {s} {γ} {n} ▸t =
+    sub-≈ᶜ (▸-cong ⌞⌟·ᵐ⌞nr⌟₃ (▸-· {m′ = ⌞ n ⌟} ▸t)) $ begin
+      ⌜ ⌞ n ⌟ ⌝ ·ᶜ γ                          ≈˘⟨ ·ᶜ-congʳ (⌜⌝-cong ⌞⌟·ᵐ⌞nr⌟₃) ⟩
+      ⌜ ⌞ n ⌟ ·ᵐ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ      ≈⟨ ·ᶜ-congʳ (⌜·ᵐ⌝ _) ⟩
+      (⌜ ⌞ n ⌟ ⌝ · ⌜ ⌞ nr p r z s n ⌟ ⌝) ·ᶜ γ ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+      ⌜ ⌞ n ⌟ ⌝ ·ᶜ ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ  ∎
+    where
+    open Graded.Usage.Restrictions.Instance R
+    open ≈ᶜ-reasoning
 
 ------------------------------------------------------------------------
 -- The lemma Conₘ-interchange
@@ -1219,8 +1086,8 @@ opaque
                (λ ok → begin
                   χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤δ ok) (lookup-monotone _ (χ′≤δ′ ok)) ⟩
                   δ , x ≔ δ′ ⟨ x ⟩  ∎)
-               (begin
-                  χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ χ≤η (lookup-monotone _ χ′≤η′) ⟩
+               (λ ok → begin
+                  χ , x ≔ χ′ ⟨ x ⟩  ≤⟨ update-monotone _ (χ≤η ok) (lookup-monotone _ (χ′≤η′ ok)) ⟩
                   η , x ≔ η′ ⟨ x ⟩  ∎)
                (begin
                   χ , x ≔ χ′ ⟨ x ⟩                                    ≤⟨ update-monotone _ fix (lookup-monotone _ fix′) ⟩
@@ -1468,7 +1335,6 @@ Conₘ-interchange₂ {γ = γ} {m} {t} {δ} γ▸t δ▸t =
     (tailₘ γ , x0 ≔ δ₁) ∙ δ₀ ≡⟨ cong (_∙ _) (update-head (tailₘ γ) δ₁) ⟩
     tailₘ (tailₘ γ) ∙ δ₁ ∙ δ₀ ∎
 
-
 ------------------------------------------------------------------------
 -- Variants of some usage rules
 
@@ -1482,15 +1348,15 @@ module _ where
     γ ▸[ m ] t →
     δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
     η ▸[ m ] v →
-    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+    θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A →
     (⦃ has-nr : Nr-available ⦄ →
      χ ≤ᶜ nrᶜ p r γ δ η) →
     (⦃ no-nr : Nr-not-available ⦄ →
      χ ≤ᶜ γ ×
-     (T 𝟘ᵐ-allowed →
+     (¬ Trivialᵐ →
       χ ≤ᶜ δ) ×
-     (⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-      χ ≤ᶜ η) ×
+     ((Trivialᵐ → Has-well-behaved-zero semiring-with-meet) →
+       χ ≤ᶜ η) ×
      χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) →
     (⦃ no-nr : Nr-not-available-GLB ⦄ →
       ∃₂ λ x θ →
@@ -1524,17 +1390,8 @@ opaque
     case Id-erased? of λ where
       (no not-erased) →
         sub (Idₘ not-erased ▸A ▸t ▸u) (δ≤γ₁+γ₂+γ₃ not-erased)
-      (yes erased) → 𝟘ᵐ-allowed-elim
-        (λ ok →
-           sub
-             (Id₀ₘ erased (𝟘ᶜ▸[𝟘ᵐ?] ok ▸A) (𝟘ᶜ▸[𝟘ᵐ?] ok ▸t)
-                (𝟘ᶜ▸[𝟘ᵐ?] ok ▸u))
-             (δ≤𝟘ᶜ erased))
-        (λ not-ok →
-           sub
-             (Id₀ₘ erased (▸-without-𝟘ᵐ not-ok ▸A)
-                (▸-without-𝟘ᵐ not-ok ▸t) (▸-without-𝟘ᵐ not-ok ▸u))
-             (δ≤𝟘ᶜ erased))
+      (yes erased) →
+        sub (Id₀ₘ erased (▸-𝟘 ▸A) (▸-𝟘 ▸t) (▸-𝟘 ▸u)) (δ≤𝟘ᶜ erased)
 
 opaque
 
@@ -1544,7 +1401,7 @@ opaque
   -- removed.
 
   Jₘ-generalised :
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
     γ₄ ▸[ m ] u →
@@ -1557,11 +1414,11 @@ opaque
   … | is-other ≤some ≢𝟘 =
     Jₘ ≤some ≢𝟘 ▸A ▸t ▸B ▸u ▸v ▸w
   … | is-some-yes ≡some (refl , refl) = sub
-    (J₀ₘ₁ ≡some refl refl ▸A (▸-𝟘ᵐ? ▸t .proj₂)
+    (J₀ₘ₁ ≡some refl refl ▸A (▸-𝟘 ▸t)
        (sub ▸B $ begin
           γ₃ ∙ 𝟘 ∙ 𝟘                  ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
           γ₃ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘  ∎)
-       ▸u (▸-𝟘ᵐ? ▸v .proj₂) (▸-𝟘ᵐ? ▸w .proj₂))
+       ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w))
     (begin
        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
                                              ≤ᶜ-trans (≤ᶜ-reflexive $ ≈ᶜ-sym $ ·ᶜ-congˡ $ +ᶜ-assoc _ _ _)
@@ -1572,23 +1429,11 @@ opaque
   Jₘ-generalised
     {γ₂} {m} {γ₃} {p} {q} {B} {γ₄} {γ₅} {γ₆} ▸A ▸t ▸B ▸u ▸v ▸w
     | is-all ≡all = sub
-    (J₀ₘ₂ ≡all ▸A (▸-𝟘ᵐ? ▸t .proj₂)
-       (𝟘ᵐ?-elim (λ m → ∃ λ γ → γ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B)
-          ( 𝟘ᶜ
-          , sub (▸-𝟘 ▸B) (begin
-              𝟘ᶜ ∙ 𝟘 · p ∙ 𝟘 · q  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-              𝟘ᶜ                  ∎)
-          )
-          (λ not-ok →
-               γ₃
-             , sub (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸B)
-                 (begin
-                    γ₃ ∙ 𝟙 · p ∙ 𝟙 · q          ≈˘⟨ ≈ᶜ-refl ∙
-                                                    cong (λ m → ⌜ m ⌝ · _) (only-𝟙ᵐ-without-𝟘ᵐ {m = m} not-ok) ∙
-                                                    cong (λ m → ⌜ m ⌝ · _) (only-𝟙ᵐ-without-𝟘ᵐ {m = m} not-ok) ⟩
-                    γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q  ∎))
-          .proj₂)
-       ▸u (▸-𝟘ᵐ? ▸v .proj₂) (▸-𝟘ᵐ? ▸w .proj₂))
+    (J₀ₘ₂ ≡all ▸A (▸-𝟘 ▸t)
+      (sub (▸-𝟘 ▸B) (begin
+        ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q                 ≈⟨ ≈ᶜ-refl ∙ lemma ∙ lemma ⟩
+        ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · q ∎))
+       ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w))
     (begin
        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
                                              ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ
@@ -1596,7 +1441,15 @@ opaque
        ω ·ᶜ γ₄                            ≤⟨ ω·ᶜ-decreasing ⟩
        γ₄                                 ∎)
     where
-    open CR
+    lemma : ∀ {p} → ⌜ 𝟘ᵐ ⌝ · p ≡ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p
+    lemma {p} = begin
+      ⌜ 𝟘ᵐ ⌝ · p           ≡˘⟨ ·-congʳ (⌜⌝-cong (·ᵐ-zeroˡ _)) ⟩
+      ⌜ 𝟘ᵐ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ 𝟘ᵐ) ⟩
+      (⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
+      ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p   ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+    open ≤ᶜ-reasoning
 
 opaque
 
@@ -1608,33 +1461,20 @@ opaque
     erased-matches-for-J m ≡ not-none sem →
     p ≡ 𝟘 →
     q ≡ 𝟘 →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₁ ▸[ 𝟘ᵐ ] A →
+    γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
     γ₄ ▸[ m ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] v →
-    γ₆ ▸[ 𝟘ᵐ? ] w →
+    γ₅ ▸[ 𝟘ᵐ ] v →
+    γ₆ ▸[ 𝟘ᵐ ] w →
     ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] J p q A t B u v w
   J₀ₘ₁-generalised {m} {γ₃} {B} {γ₄} hyp refl refl ▸A ▸t ▸B ▸u ▸v ▸w
     with erased-matches-for-J m in ok
   … | none = case hyp of λ ()
   … | some = J₀ₘ₁ ok refl refl ▸A ▸t ▸B ▸u ▸v ▸w
   … | all  = sub
-    (J₀ₘ₂ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
-       (𝟘ᵐ?-elim (λ m → ∃ λ γ → γ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ▸[ m ] B)
-          ( 𝟘ᶜ
-          , sub (▸-𝟘 ▸B) (begin
-              𝟘ᶜ ∙ 𝟘 · 𝟘 ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-              𝟘ᶜ                  ∎)
-          )
-          (λ not-ok →
-               γ₃
-             , sub (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸B)
-                 (begin
-                    γ₃ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-                    γ₃ ∙ 𝟘 ∙ 𝟘          ∎))
-          .proj₂)
-       ▸u (▸-𝟘ᵐ? ▸v .proj₂) (▸-𝟘ᵐ? ▸w .proj₂))
+    (J₀ₘ₂ ok ▸A (▸-𝟘 ▸t)
+       (▸-𝟘 ▸B) ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w))
     (begin
        ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
        ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
@@ -1649,7 +1489,7 @@ opaque
   -- erased-matches-for-K m ≡ some → p ≢ 𝟘 have been removed.
 
   Kₘ-generalised :
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
     γ₄ ▸[ m ] u →
@@ -1660,11 +1500,11 @@ opaque
   … | is-other ≤some ≢𝟘 =
     Kₘ ≤some ≢𝟘 ▸A ▸t ▸B ▸u ▸v
   … | is-some-yes ≡some refl = sub
-    (K₀ₘ₁ ≡some refl ▸A (▸-𝟘ᵐ? ▸t .proj₂)
+    (K₀ₘ₁ ≡some refl ▸A (▸-𝟘 ▸t)
        (sub ▸B $ begin
           γ₃ ∙ 𝟘          ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
           γ₃ ∙ ⌜ m ⌝ · 𝟘  ∎)
-       ▸u (▸-𝟘ᵐ? ▸v .proj₂))
+       ▸u (▸-𝟘 ▸v))
     (begin
        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
                                        ≤ᶜ-trans (≤ᶜ-reflexive $ ≈ᶜ-sym $ ·ᶜ-congˡ $ +ᶜ-assoc _ _ _)
@@ -1673,21 +1513,11 @@ opaque
     where
     open CR
   … | is-all ≡all = sub
-    (K₀ₘ₂ ≡all ▸A (▸-𝟘ᵐ? ▸t .proj₂)
-       (𝟘ᵐ?-elim (λ m → ∃ λ γ → γ ∙ ⌜ m ⌝ · p ▸[ m ] B)
-          ( 𝟘ᶜ
-          , sub (▸-𝟘 ▸B) (begin
-              𝟘ᶜ ∙ 𝟘 · p  ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
-              𝟘ᶜ          ∎)
-          )
-          (λ not-ok →
-               γ₃
-             , sub (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸B)
-                 (begin
-                    γ₃ ∙ 𝟙 · p      ≈˘⟨ ≈ᶜ-refl ∙ cong (λ m → ⌜ m ⌝ · _) (only-𝟙ᵐ-without-𝟘ᵐ {m = m} not-ok) ⟩
-                    γ₃ ∙ ⌜ m ⌝ · p  ∎))
-          .proj₂)
-       ▸u (▸-𝟘ᵐ? ▸v .proj₂))
+    (K₀ₘ₂ ≡all ▸A (▸-𝟘 ▸t)
+       (sub (▸-𝟘 ▸B) (begin
+         ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p          ≈⟨ ≈ᶜ-refl ∙ lemma ⟩
+         ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p  ∎))
+       ▸u (▸-𝟘 ▸v))
     (begin
        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
                                        ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ
@@ -1695,6 +1525,14 @@ opaque
        ω ·ᶜ γ₄                      ≤⟨ ω·ᶜ-decreasing ⟩
        γ₄                           ∎)
     where
+    lemma : ∀ {p} → ⌜ 𝟘ᵐ ⌝ · p ≡ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p
+    lemma {p} = begin
+      ⌜ 𝟘ᵐ ⌝ · p           ≡˘⟨ ·-congʳ (⌜⌝-cong (·ᵐ-zeroˡ _)) ⟩
+      ⌜ 𝟘ᵐ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ 𝟘ᵐ) ⟩
+      (⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
+      ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p   ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
     open CR
 
 opaque
@@ -1706,32 +1544,20 @@ opaque
   K₀ₘ₁-generalised :
     erased-matches-for-K m ≡ not-none sem →
     p ≡ 𝟘 →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₁ ▸[ 𝟘ᵐ ] A →
+    γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ∙ 𝟘 ▸[ m ] B →
     γ₄ ▸[ m ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₅ ▸[ 𝟘ᵐ ] v →
     ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] K p A t B u v
   K₀ₘ₁-generalised {m} {γ₃} {B} {γ₄} hyp refl ▸A ▸t ▸B ▸u ▸v
     with erased-matches-for-K m in ok
   … | none = case hyp of λ ()
   … | some = K₀ₘ₁ ok refl ▸A ▸t ▸B ▸u ▸v
   … | all  = sub
-    (K₀ₘ₂ ok ▸A (▸-𝟘ᵐ? ▸t .proj₂)
-       (𝟘ᵐ?-elim (λ m → ∃ λ γ → γ ∙ ⌜ m ⌝ · 𝟘 ▸[ m ] B)
-          ( 𝟘ᶜ
-          , sub (▸-𝟘 ▸B) (begin
-              𝟘ᶜ ∙ 𝟘 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-              𝟘ᶜ          ∎)
-          )
-          (λ not-ok →
-               γ₃
-             , sub (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸B)
-                 (begin
-                    γ₃ ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-                    γ₃ ∙ 𝟘      ∎))
-          .proj₂)
-       ▸u (▸-𝟘ᵐ? ▸v .proj₂))
+    (K₀ₘ₂ ok ▸A (▸-𝟘 ▸t)
+       (▸-𝟘 ▸B)
+       ▸u (▸-𝟘 ▸v))
     (begin
        ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
        ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
@@ -1742,183 +1568,249 @@ opaque
 ------------------------------------------------------------------------
 -- Lemmas related to ⌈_⌉
 
--- The context ⌈ t ⌉ 𝟘ᵐ[ ok ] is equivalent to 𝟘ᶜ.
+opaque
 
-⌈⌉-𝟘ᵐ :
-  ⦃ ok′ : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
-  (t : Term n) → ⌈ t ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ
-⌈⌉-𝟘ᵐ (var x) = begin
-  𝟘ᶜ , x ≔ 𝟘  ≡⟨ 𝟘ᶜ,≔𝟘 ⟩
-  𝟘ᶜ          ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ (defn _) =
-  ≈ᶜ-refl
-⌈⌉-𝟘ᵐ (U _) =
-  ≈ᶜ-refl
-⌈⌉-𝟘ᵐ {ok = ok} (ΠΣ⟨ _ ⟩ _ , _ ▷ F ▹ G) = begin
-  (⌈ F ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ[ ok ]))  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                                    ≈⟨ +ᶜ-identityʳ _ ⟩
-  𝟘ᶜ                                          ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ (lam _ t) =
-  tailₘ-cong (⌈⌉-𝟘ᵐ t)
-⌈⌉-𝟘ᵐ {ok = ok} (t ∘⟨ p ⟩ u) = begin
-  ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ p ·ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ t) (·ᶜ-congˡ (⌈⌉-𝟘ᵐ u)) ⟩
-  𝟘ᶜ +ᶜ p ·ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                               ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ                                     ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok = ok} (prod 𝕨 p t u) = begin
-  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (⌈⌉-𝟘ᵐ u) ⟩
-  p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityʳ _ ⟩
-  p ·ᶜ 𝟘ᶜ                                ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ                                     ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok = ok} (prod 𝕤 p t u) = begin
-  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] ∧ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ ∧ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (⌈⌉-𝟘ᵐ u) ⟩
-  p ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ                          ≈⟨ ∧ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ ∧ᶜ 𝟘ᶜ                               ≈⟨ ∧ᶜ-idem _ ⟩
-  𝟘ᶜ                                     ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ (fst _ t) =
-  ⌈⌉-𝟘ᵐ t
-⌈⌉-𝟘ᵐ (snd _ t) =
-  ⌈⌉-𝟘ᵐ t
-⌈⌉-𝟘ᵐ {ok = ok} (prodrec r _ _ _ t u) = begin
-  r ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (tailₘ (⌈ u ⌉ 𝟘ᵐ[ ok ]))  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ u))) ⟩
-  r ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                                          ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ                                               ≈⟨ +ᶜ-identityˡ _ ⟩
-  𝟘ᶜ                                                     ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok} (unitrec _ p q _ t u) = begin
-  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (⌈⌉-𝟘ᵐ u) ⟩
-  p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityʳ _ ⟩
-  p ·ᶜ 𝟘ᶜ                                ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ                                     ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ ℕ =
-  ≈ᶜ-refl
-⌈⌉-𝟘ᵐ zero =
-  ≈ᶜ-refl
-⌈⌉-𝟘ᵐ (suc t) =
-  ⌈⌉-𝟘ᵐ t
-⌈⌉-𝟘ᵐ {ok} (natrec p _ r A z s n) =
-  lemma (⌈⌉-𝟘ᵐ z) (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ s))) (⌈⌉-𝟘ᵐ n)
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-  lemma :
-    ⦃ ok′ : Natrec-mode-supports-usage-inference nm ⦄ →
-    ⌈ z ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ → tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])) ≈ᶜ 𝟘ᶜ → ⌈ n ⌉ 𝟘ᵐ[ ok ] ≈ᶜ 𝟘ᶜ →
-    ⌈⌉-natrec ⦃ ok = ok′ ⦄ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ]))) (⌈ n ⌉ 𝟘ᵐ[ ok ]) ≈ᶜ 𝟘ᶜ
-  lemma ⦃ (Nr) ⦄ ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 = begin
-     nrᶜ p r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
-      (⌈ n ⌉ 𝟘ᵐ[ ok ])                                         ≈⟨ nrᶜ-cong ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 ⟩
+  -- If nr functions are used then the usage inference function for
+  -- natrec uses an nr function.
 
-     nrᶜ p r 𝟘ᶜ 𝟘ᶜ 𝟘ᶜ                                           ≈⟨ nrᶜ-𝟘ᶜ ⟩
+  ⌈⌉-natrec-nr :
+    ⦃ has-nr : Natrec-mode-has-nr nm ⦄ →
+    ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
+    ⌈⌉-natrec p r γ δ η ≈ᶜ nrᶜ ⦃ Natrec-mode-Has-nr has-nr ⦄ p r γ δ η
+  ⌈⌉-natrec-nr ⦃ has-nr ⦄ ⦃ ok = Nr ⦃ has-nr = has-nr′ ⦄ ⦄ =
+    case Nr-available-propositional has-nr has-nr′ of λ where
+      refl → ≈ᶜ-refl
+  ⌈⌉-natrec-nr ⦃ has-nr ⦄ ⦃ ok = No-nr-glb ⦃ no-nr ⦄ _ ⦄ =
+    ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
 
-     𝟘ᶜ                                                         ∎
-  lemma ⦃ No-nr-glb has-GLB ⦄ ⌈z⌉≈𝟘 ⌈s⌉≈𝟘 ⌈n⌉≈𝟘 =
-    let x , _ = has-GLB r 𝟙 p
-        χ , χ-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ 𝟘ᵐ[ ok ]) (tailₘ (tailₘ (⌈ s ⌉ 𝟘ᵐ[ ok ])))
-        χ≈𝟘 = GLBᶜ-unique
-          (GLBᶜ-congˡ (λ i → ≈ᶜ-trans (nrᵢᶜ-cong ⌈z⌉≈𝟘 ⌈s⌉≈𝟘) nrᵢᶜ-𝟘ᶜ) χ-GLB)
-          (GLBᶜ-const (λ _ → ≈ᶜ-refl))
-    in  begin
-      x ·ᶜ ⌈ n ⌉ 𝟘ᵐ[ ok ] +ᶜ χ ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ ⌈n⌉≈𝟘) ⟩
-      x ·ᶜ 𝟘ᶜ +ᶜ χ             ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
-      𝟘ᶜ +ᶜ χ                  ≈⟨ +ᶜ-identityˡ _ ⟩
-      χ                        ≈⟨ χ≈𝟘 ⟩
-      𝟘ᶜ ∎
-⌈⌉-𝟘ᵐ Unit! =
-  ≈ᶜ-refl
-⌈⌉-𝟘ᵐ star! = ≈ᶜ-refl
-⌈⌉-𝟘ᵐ Empty =
-  ≈ᶜ-refl
-⌈⌉-𝟘ᵐ {ok = ok} (emptyrec p _ t) = begin
-  p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ]  ≈⟨ ·ᶜ-congˡ (⌈⌉-𝟘ᵐ t) ⟩
-  p ·ᶜ 𝟘ᶜ              ≈⟨ ·ᶜ-zeroʳ _ ⟩
-  𝟘ᶜ                   ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok} (Id A t u) with Id-erased?
-… | yes _ = ≈ᶜ-refl
-… | no _  = begin
-  ⌈ A ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ A) (+ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u)) ⟩
-  𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                                      ≈⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
-  𝟘ᶜ                                                  ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ rfl =
-  ≈ᶜ-refl
-⌈⌉-𝟘ᵐ {ok} (J p q _ t B u v w) with J-view p q 𝟘ᵐ[ ok ]
-… | is-all _        = ⌈⌉-𝟘ᵐ u
-… | is-some-yes _ _ = begin
-  ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ[ ok ])) +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ])  ≈⟨ ·ᶜ-congˡ $ +ᶜ-cong (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ B))) (⌈⌉-𝟘ᵐ u) ⟩
-  ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)                                          ≈⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
-  𝟘ᶜ                                                       ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-… | is-other _ _ = begin
-  ω ·ᶜ
-  (⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ[ ok ])) +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ] +ᶜ
-   ⌈ v ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ w ⌉ 𝟘ᵐ[ ok ])                                      ≈⟨ ·ᶜ-congˡ $
-                                                                             +ᶜ-cong (⌈⌉-𝟘ᵐ t) $
-                                                                             +ᶜ-cong (tailₘ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ B))) $
-                                                                             +ᶜ-cong (⌈⌉-𝟘ᵐ u) (+ᶜ-cong (⌈⌉-𝟘ᵐ v) (⌈⌉-𝟘ᵐ w)) ⟩
+opaque
 
-  ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)                                       ≈⟨ ω·ᶜ+ᶜ⁵𝟘ᶜ ⟩
+  -- If neither nr functions nor greatest lower bounds are used for
+  -- natrec then usage inference is not supported.
 
-  𝟘ᶜ                                                                      ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok} (K p _ t B u v) with K-view p 𝟘ᵐ[ ok ]
-… | is-all _        = ⌈⌉-𝟘ᵐ u
-… | is-some-yes _ _ = begin
-  ω ·ᶜ (tailₘ (⌈ B ⌉ 𝟘ᵐ[ ok ]) +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ])  ≈⟨ ·ᶜ-congˡ $ +ᶜ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ B)) (⌈⌉-𝟘ᵐ u) ⟩
-  ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)                                  ≈⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
-  𝟘ᶜ                                               ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-… | is-other _ _ = begin
-  ω ·ᶜ
-  (⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (⌈ B ⌉ 𝟘ᵐ[ ok ]) +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ] +ᶜ
-   ⌈ v ⌉ 𝟘ᵐ[ ok ])                                                ≈⟨ ·ᶜ-congˡ $
-                                                                     +ᶜ-cong (⌈⌉-𝟘ᵐ t) $
-                                                                     +ᶜ-cong (tailₘ-cong (⌈⌉-𝟘ᵐ B)) $
-                                                                     +ᶜ-cong (⌈⌉-𝟘ᵐ u) (⌈⌉-𝟘ᵐ v) ⟩
+  ⌈⌉-natrec-no-nr :
+    ⦃ no-nr : Natrec-mode-no-nr nm ⦄ →
+    ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
+    ⊥
+  ⌈⌉-natrec-no-nr ⦃ no-nr ⦄ ⦃ ok = Nr ⦃ has-nr ⦄ ⦄ =
+    ¬[Nr∧No-nr] has-nr no-nr
+  ⌈⌉-natrec-no-nr ⦃ no-nr ⦄ ⦃ ok = No-nr-glb ⦃ no-nr = no-nr′ ⦄ _ ⦄ =
+    ¬[No-nr∧No-nr-glb] no-nr no-nr′
 
-  ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)                                     ≈⟨ ω·ᶜ+ᶜ⁴𝟘ᶜ ⟩
+opaque
 
-  𝟘ᶜ                                                              ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ ([]-cong _ _ _ _ _) =
-  ≈ᶜ-refl
 
--- The context ⌈ t ⌉ m does not change (up to _≈ᶜ_) if it is
--- multiplied by ⌜ m ⌝.
+  -- If greatest lower bounds are used for natrec then the usage
+  -- inference function for natrec uses greatest lower bounds.
 
-·-⌈⌉ :
-  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
-  (t : Term n) → ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m ≈ᶜ ⌈ t ⌉ m
-·-⌈⌉ {m = 𝟘ᵐ} t = begin
-  𝟘 ·ᶜ ⌈ t ⌉ 𝟘ᵐ  ≈⟨ ·ᶜ-zeroˡ _ ⟩
-  𝟘ᶜ             ≈˘⟨ ⌈⌉-𝟘ᵐ t ⟩
-  ⌈ t ⌉ 𝟘ᵐ       ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
-·-⌈⌉ {m = 𝟙ᵐ} t = begin
-  𝟙 ·ᶜ ⌈ t ⌉ 𝟙ᵐ  ≈⟨ ·ᶜ-identityˡ _ ⟩
-  ⌈ t ⌉ 𝟙ᵐ       ∎
-  where
-  open Tools.Reasoning.Equivalence Conₘ-setoid
+  ⌈⌉-natrec-no-nr-glb :
+    ⦃ no-nr : Natrec-mode-no-nr-glb nm ⦄ →
+    ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
+    Σ ((r z s : M) → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s)) λ has-GLB →
+    ∀ {n p r} {γ δ η : Conₘ n} →
+      ⌈⌉-natrec p r γ δ η ≈ᶜ (has-GLB r 𝟙 p .proj₁ ·ᶜ η +ᶜ nrᵢᶜ-has-GLBᶜ has-GLB r γ δ .proj₁)
+  ⌈⌉-natrec-no-nr-glb ⦃ no-nr ⦄ ⦃ ok = Nr ⦃ has-nr ⦄ ⦄ =
+    ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
+  ⌈⌉-natrec-no-nr-glb ⦃ ok = No-nr-glb has-GLB ⦄ =
+    has-GLB , ≈ᶜ-refl
+
+opaque
+
+  -- The context ⌈ t ⌉ m does not change (up to _≈ᶜ_) if it is
+  -- multiplied by ⌜ m ⌝.
+
+  ·-⌈⌉ :
+    ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
+    (t : Term n) → ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m ≈ᶜ ⌈ t ⌉ m
+  ·-⌈⌉ {m} ⦃ ok ⦄ = λ where
+      (var x) → begin
+        ⌜ m ⌝ ·ᶜ (𝟘ᶜ , x ≔ ⌜ m ⌝)       ≡˘⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ 𝟘ᶜ , x ≔ ⌜ m ⌝ · ⌜ m ⌝ ≈⟨ update-cong (·ᶜ-zeroʳ _) (·-idem-⌜⌝ _) ⟩
+        𝟘ᶜ , x ≔ ⌜ m ⌝                  ∎
+      (defn α) →
+        ·ᶜ-zeroʳ _
+      (U _) →
+        ·ᶜ-zeroʳ _
+      Empty →
+        ·ᶜ-zeroʳ _
+      (emptyrec _ _ t) →
+        ·-⌈⌉-ᵐ· t
+      Unit! →
+        ·ᶜ-zeroʳ _
+      star! →
+        ·ᶜ-zeroʳ _
+      (unitrec _ p _ _ t u) → begin
+        ⌜ m ⌝ ·ᶜ (p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) +ᶜ ⌈ u ⌉ m)        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m ≈⟨ +ᶜ-cong (·-⌈⌉-ᵐ· t) (·-⌈⌉ u) ⟩
+        p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) +ᶜ ⌈ u ⌉ m                   ∎
+      (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) → begin
+        ⌜ m ⌝ ·ᶜ (⌈ A ⌉ m +ᶜ tailₘ (⌈ B ⌉ m))        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ ⌈ A ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ tailₘ (⌈ B ⌉ m) ≈˘⟨ +ᶜ-congˡ (tailₘ-distrib-·ᶜ _ (⌈ B ⌉ m)) ⟩
+        ⌜ m ⌝ ·ᶜ ⌈ A ⌉ m +ᶜ tailₘ (⌜ m ⌝ ·ᶜ ⌈ B ⌉ m) ≈⟨ +ᶜ-cong (·-⌈⌉ A) (tailₘ-cong (·-⌈⌉ B)) ⟩
+        ⌈ A ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) ∎
+      (lam _ t) → begin
+        ⌜ m ⌝ ·ᶜ tailₘ (⌈ t ⌉ m) ≈˘⟨ tailₘ-distrib-·ᶜ _ (⌈ t ⌉ m) ⟩
+        tailₘ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m) ≈⟨ tailₘ-cong (·-⌈⌉ t) ⟩
+        tailₘ (⌈ t ⌉ m)          ∎
+      (t ∘⟨ p ⟩ u) → begin
+        ⌜ m ⌝ ·ᶜ (⌈ t ⌉ m +ᶜ p ·ᶜ ⌈ u ⌉ (m ·ᵐ ⌞ p ⌟))        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ p ·ᶜ ⌈ u ⌉ (m ·ᵐ ⌞ p ⌟) ≈⟨ +ᶜ-cong (·-⌈⌉ t) (·-⌈⌉-ᵐ· u) ⟩
+        ⌈ t ⌉ m +ᶜ p ·ᶜ ⌈ u ⌉ (m ·ᵐ ⌞ p ⌟) ∎
+      (prodˢ p t u) → begin
+        ⌜ m ⌝ ·ᶜ (p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) ∧ᶜ ⌈ u ⌉ m)        ≈⟨ ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) ∧ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m ≈⟨ ∧ᶜ-cong (·-⌈⌉-ᵐ· t) (·-⌈⌉ u) ⟩
+        p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) ∧ᶜ ⌈ u ⌉ m ∎
+      (prodʷ p t u) → begin
+        ⌜ m ⌝ ·ᶜ (p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) +ᶜ ⌈ u ⌉ m)        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m ≈⟨ +ᶜ-cong (·-⌈⌉-ᵐ· t) (·-⌈⌉ u) ⟩
+        p ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ p ⌟) +ᶜ ⌈ u ⌉ m ∎
+      (fst _ t) →
+        ·-⌈⌉ t
+      (snd _ t) →
+        ·-⌈⌉ t
+      (prodrec r _ _ _ t u) → begin
+        ⌜ m ⌝ ·ᶜ (r ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ r ⌟) +ᶜ tailₘ (tailₘ (⌈ u ⌉ m)))        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ r ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ r ⌟) +ᶜ ⌜ m ⌝ ·ᶜ tailₘ (tailₘ (⌈ u ⌉ m)) ≈˘⟨ +ᶜ-congˡ (tailₘ-distrib-·ᶜ _ (tailₘ (⌈ u ⌉ m))) ⟩
+        ⌜ m ⌝ ·ᶜ r ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ r ⌟) +ᶜ tailₘ (⌜ m ⌝ ·ᶜ tailₘ (⌈ u ⌉ m)) ≈˘⟨ +ᶜ-congˡ (tailₘ-cong (tailₘ-distrib-·ᶜ _ (⌈ u ⌉ m))) ⟩
+        ⌜ m ⌝ ·ᶜ r ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ r ⌟) +ᶜ tailₘ (tailₘ (⌜ m ⌝ ·ᶜ ⌈ u ⌉ m)) ≈⟨ +ᶜ-cong (·-⌈⌉-ᵐ· t) (tailₘ-cong (tailₘ-cong (·-⌈⌉ u))) ⟩
+        r ·ᶜ ⌈ t ⌉ (m ·ᵐ ⌞ r ⌟) +ᶜ tailₘ (tailₘ (⌈ u ⌉ m))                   ∎
+      ℕ →
+        ·ᶜ-zeroʳ _
+      zero →
+        ·ᶜ-zeroʳ _
+      (suc t) →
+        ·-⌈⌉ t
+      (natrec _ _ _ _ z s n) →
+        ·-⌈⌉-natrec z s n (natrec-mode? natrec-mode)
+      (Id _ _ _) →
+        ·-⌈⌉-Id
+      rfl →
+        ·ᶜ-zeroʳ _
+      (J _ _ A _ _ _ _ _) → ·-⌈⌉-J {A = A}
+      (K _ A _ _ _ _) → ·-⌈⌉-K {A = A}
+      ([]-cong _ _ _ _ _) →
+        ·ᶜ-zeroʳ _
+    where
+    open ≈ᶜ-reasoning
+    open Graded.Usage.Restrictions.Instance R
+
+    ·-⌈⌉-natrec :
+      ∀ {k} (z : Term k) s n →
+      Natrec-mode? natrec-mode →
+      ⌜ m ⌝ ·ᶜ ⌈⌉-natrec ⦃ ok = ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≈ᶜ
+      ⌈⌉-natrec ⦃ ok = ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
+    ·-⌈⌉-natrec {p} {r} z s n does-have-nr = begin
+      ⌜ m ⌝ ·ᶜ ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)             ≈⟨ ·ᶜ-congˡ ⌈⌉-natrec-nr ⟩
+      ⌜ m ⌝ ·ᶜ nrᶜ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)                   ≈⟨ ⌜⌝-·ᶜ-nrᶜ ⟩
+      nrᶜ p r (⌜ m ⌝ ·ᶜ ⌈ z ⌉ m) (⌜ m ⌝ ·ᶜ tailₘ (tailₘ (⌈ s ⌉ m))) (⌜ m ⌝ ·ᶜ ⌈ n ⌉ m) ≈˘⟨ nrᶜ-cong ≈ᶜ-refl (tailₘ-distrib-·ᶜ _ (tailₘ (⌈ s ⌉ m))) ≈ᶜ-refl ⟩
+      nrᶜ p r (⌜ m ⌝ ·ᶜ ⌈ z ⌉ m) (tailₘ (⌜ m ⌝ ·ᶜ tailₘ (⌈ s ⌉ m))) (⌜ m ⌝ ·ᶜ ⌈ n ⌉ m) ≈˘⟨ nrᶜ-cong ≈ᶜ-refl (tailₘ-cong (tailₘ-distrib-·ᶜ _ (⌈ s ⌉ m))) ≈ᶜ-refl ⟩
+      nrᶜ p r (⌜ m ⌝ ·ᶜ ⌈ z ⌉ m) (tailₘ (tailₘ (⌜ m ⌝ ·ᶜ ⌈ s ⌉ m))) (⌜ m ⌝ ·ᶜ ⌈ n ⌉ m) ≈⟨ nrᶜ-cong (·-⌈⌉ z) (tailₘ-cong (tailₘ-cong (·-⌈⌉ s))) (·-⌈⌉ n) ⟩
+      nrᶜ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)                            ≈˘⟨ ⌈⌉-natrec-nr ⟩
+      ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ∎
+    ·-⌈⌉-natrec {p} {r} z s n does-not-have-nr = ⊥-elim ⌈⌉-natrec-no-nr
+    ·-⌈⌉-natrec {p} {r} z s n does-not-have-nr-glb =
+      let has-GLB , ⌈⌉-natrec≈ᶜ = ⌈⌉-natrec-no-nr-glb
+          x , _ = has-GLB r 𝟙 p
+          χ , χ-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
+          mnrᵢ≈ = λ i → begin
+            ⌜ m ⌝ ·ᶜ nrᵢᶜ r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) i          ≈⟨ ⌜⌝-·ᶜ-nrᵢᶜ i ⟩
+            nrᵢᶜ r (⌜ m ⌝ ·ᶜ ⌈ z ⌉ m) (⌜ m ⌝ ·ᶜ tailₘ (tailₘ (⌈ s ⌉ m))) i ≈˘⟨ nrᵢᶜ-cong ≈ᶜ-refl (tailₘ-distrib-·ᶜ _ (tailₘ (⌈ s ⌉ m))) ⟩
+            nrᵢᶜ r (⌜ m ⌝ ·ᶜ ⌈ z ⌉ m) (tailₘ (⌜ m ⌝ ·ᶜ tailₘ (⌈ s ⌉ m))) i ≈˘⟨ nrᵢᶜ-cong ≈ᶜ-refl (tailₘ-cong (tailₘ-distrib-·ᶜ _ (⌈ s ⌉ m))) ⟩
+            nrᵢᶜ r (⌜ m ⌝ ·ᶜ ⌈ z ⌉ m) (tailₘ (tailₘ (⌜ m ⌝ ·ᶜ ⌈ s ⌉ m))) i ≈⟨ nrᵢᶜ-cong (·-⌈⌉ z) (tailₘ-cong (tailₘ-cong (·-⌈⌉ s))) ⟩
+            nrᵢᶜ r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) i ∎
+          mχ-GLB = GLBᶜ-congˡ mnrᵢ≈ (·ᶜ-GLBᶜˡ χ-GLB)
+      in  begin
+        ⌜ m ⌝ ·ᶜ ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≈⟨ ·ᶜ-congˡ ⌈⌉-natrec≈ᶜ ⟩
+        ⌜ m ⌝ ·ᶜ (x ·ᶜ ⌈ n ⌉ m +ᶜ χ)                                         ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ x ·ᶜ ⌈ n ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ χ                                  ≈⟨ +ᶜ-congʳ (⌜⌝·ᶜ-comm _ _ _) ⟩
+        x ·ᶜ ⌜ m ⌝ ·ᶜ ⌈ n ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ χ                                  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (·-⌈⌉ n)) (GLBᶜ-unique mχ-GLB χ-GLB) ⟩
+        x ·ᶜ ⌈ n ⌉ m +ᶜ χ                                                    ≈˘⟨ ⌈⌉-natrec≈ᶜ ⟩
+        ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)          ∎
+
+    ·-⌈⌉-Id : (⌜ m ⌝ ·ᶜ ⌈ Id A t u ⌉ m) ≈ᶜ ⌈ Id A t u ⌉ m
+    ·-⌈⌉-Id {A} {t} {u} with Id-erased?
+    … | yes _ = ·ᶜ-zeroʳ _
+    … | no _ = begin
+      ⌜ m ⌝ ·ᶜ (⌈ A ⌉ m +ᶜ ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m)                 ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+      ⌜ m ⌝ ·ᶜ ⌈ A ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ (⌈ t ⌉ m +ᶜ ⌈ u ⌉ m)        ≈⟨ +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+      ⌜ m ⌝ ·ᶜ ⌈ A ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m ≈⟨ +ᶜ-cong (·-⌈⌉ A) (+ᶜ-cong (·-⌈⌉ t) (·-⌈⌉ u)) ⟩
+      ⌈ A ⌉ m +ᶜ ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m                            ∎
+
+    ·-⌈⌉-J : ⌜ m ⌝ ·ᶜ ⌈ J p q A t B u v w ⌉ m ≈ᶜ ⌈ J p q A t B u v w ⌉ m
+    ·-⌈⌉-J {p} {q} {t} {B} {u} {v} {w} with J-view p q m
+    … | is-all _ = ·-⌈⌉ u
+    … | is-some-yes _ _ = begin
+      ⌜ m ⌝ ·ᶜ ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)          ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+      ω ·ᶜ ⌜ m ⌝ ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)          ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congʳ (tailₘ-distrib-·ᶜ _ (tailₘ (⌈ B ⌉ m)))) ⟩
+      ω ·ᶜ (tailₘ (⌜ m ⌝ ·ᶜ tailₘ (⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congʳ (tailₘ-cong (tailₘ-distrib-·ᶜ _ (⌈ B ⌉ m)))) ⟩
+      ω ·ᶜ (tailₘ (tailₘ (⌜ m ⌝ ·ᶜ ⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈⟨ ·ᶜ-congˡ (+ᶜ-cong (tailₘ-cong (tailₘ-cong (·-⌈⌉ B))) (·-⌈⌉ u)) ⟩
+      ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)                   ∎
+    … | is-other _ _ = begin
+      ⌜ m ⌝ ·ᶜ ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m)
+        ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+      ω ·ᶜ ⌜ m ⌝ ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m)
+        ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m))
+        ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ (⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m))
+        ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-cong (≈ᶜ-sym (tailₘ-distrib-·ᶜ _ (tailₘ (⌈ B ⌉ m)))) (·ᶜ-distribˡ-+ᶜ _ _ _))) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ tailₘ (⌜ m ⌝ ·ᶜ tailₘ (⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ (⌈ v ⌉ m +ᶜ ⌈ w ⌉ m))
+        ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-cong (tailₘ-cong (≈ᶜ-sym (tailₘ-distrib-·ᶜ _ (⌈ B ⌉ m)))) (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)))) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ tailₘ (tailₘ (⌜ m ⌝ ·ᶜ ⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ ⌈ v ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ ⌈ w ⌉ m)
+        ≈⟨ ·ᶜ-congˡ (+ᶜ-cong (·-⌈⌉ t) (+ᶜ-cong (tailₘ-cong (tailₘ-cong (·-⌈⌉ B))) (+ᶜ-cong (·-⌈⌉ u) (+ᶜ-cong (·-⌈⌉ v) (·-⌈⌉ w))))) ⟩
+      ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m) ∎
+
+    ·-⌈⌉-K : ⌜ m ⌝ ·ᶜ ⌈ K p A t B u v ⌉ m ≈ᶜ ⌈ K p A t B u v ⌉ m
+    ·-⌈⌉-K {p} {t} {B} {u} {v} with K-view p m
+    … | is-all _ = ·-⌈⌉ u
+    … | is-some-yes _ _ = begin
+      ⌜ m ⌝ ·ᶜ ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)          ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+      ω ·ᶜ ⌜ m ⌝ ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)          ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congʳ (tailₘ-distrib-·ᶜ _ (⌈ B ⌉ m))) ⟩
+      ω ·ᶜ (tailₘ (⌜ m ⌝ ·ᶜ ⌈ B ⌉ m) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈⟨ ·ᶜ-congˡ (+ᶜ-cong (tailₘ-cong (·-⌈⌉ B)) (·-⌈⌉ u)) ⟩
+      ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)                   ∎
+    … | is-other _ _ = begin
+      ⌜ m ⌝ ·ᶜ ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)
+        ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+      ω ·ᶜ ⌜ m ⌝ ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)
+        ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m))
+        ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌜ m ⌝ ·ᶜ (⌈ u ⌉ m +ᶜ ⌈ v ⌉ m))
+        ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-cong (≈ᶜ-sym (tailₘ-distrib-·ᶜ _ (⌈ B ⌉ m))) (·ᶜ-distribˡ-+ᶜ _ _ _))) ⟩
+      ω ·ᶜ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ tailₘ (⌜ m ⌝ ·ᶜ ⌈ B ⌉ m) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ ⌈ v ⌉ m)
+        ≈⟨ ·ᶜ-congˡ (+ᶜ-cong (·-⌈⌉ t) (+ᶜ-cong (tailₘ-cong (·-⌈⌉ B)) (+ᶜ-cong (·-⌈⌉ u) (·-⌈⌉ v)))) ⟩
+      ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m) ∎
+
+    ·-⌈⌉-ᵐ· : (t : Term n) → ⌜ m ⌝ ·ᶜ p ·ᶜ ⌈ t ⌉ (m ᵐ· p) ≈ᶜ p ·ᶜ ⌈ t ⌉ (m ᵐ· p)
+    ·-⌈⌉-ᵐ· {p} t = begin
+      ⌜ m ⌝ ·ᶜ p ·ᶜ ⌈ t ⌉ (m ᵐ· p)               ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+      p ·ᶜ ⌜ m ⌝ ·ᶜ ⌈ t ⌉ (m ᵐ· p)               ≈˘⟨ ·ᶜ-congʳ ·⌜⌞⌟⌝ ⟩
+      (p · ⌜ ⌞ p ⌟ ⌝) ·ᶜ ⌜ m ⌝ ·ᶜ ⌈ t ⌉ (m ᵐ· p) ≈⟨ ·ᶜ-assoc _ _ _ ⟩
+      p ·ᶜ ⌜ ⌞ p ⌟ ⌝ ·ᶜ ⌜ m ⌝ ·ᶜ ⌈ t ⌉ (m ᵐ· p)  ≈˘⟨ ·ᶜ-congˡ (·ᶜ-assoc _ _ _) ⟩
+      p ·ᶜ (⌜ ⌞ p ⌟ ⌝ · ⌜ m ⌝) ·ᶜ ⌈ t ⌉ (m ᵐ· p) ≈˘⟨ ·ᶜ-congˡ (·ᶜ-congʳ (⌜·ᵐ⌝ _)) ⟩
+      p ·ᶜ (⌜ ⌞ p ⌟ ·ᵐ m ⌝) ·ᶜ ⌈ t ⌉ (m ᵐ· p)    ≈⟨ ·ᶜ-congˡ (·ᶜ-congʳ (⌜⌝-cong (·ᵐ-comm _ _))) ⟩
+      p ·ᶜ (⌜ m ·ᵐ ⌞ p ⌟ ⌝) ·ᶜ ⌈ t ⌉ (m ᵐ· p)    ≡⟨⟩
+      p ·ᶜ (⌜ m ᵐ· p ⌝) ·ᶜ ⌈ t ⌉ (m ᵐ· p)        ≈⟨ ·ᶜ-congˡ (·-⌈⌉ t) ⟩
+      p ·ᶜ ⌈ t ⌉ (m ᵐ· p)                        ∎
+
+opaque
+
+  -- If the mode structure is not trivial then
+  -- the context ⌈ t ⌉ 𝟘ᵐ is equivalent to 𝟘ᶜ.
+
+  ⌈⌉-𝟘ᵐ :
+    ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
+    ¬ Trivialᵐ →
+    (t : Term n) → ⌈ t ⌉ 𝟘ᵐ ≈ᶜ 𝟘ᶜ
+  ⌈⌉-𝟘ᵐ not-trivial t = begin
+    ⌈ t ⌉ 𝟘ᵐ           ≈˘⟨ ·-⌈⌉ t ⟩
+    ⌜ 𝟘ᵐ ⌝ ·ᶜ ⌈ t ⌉ 𝟘ᵐ ≈⟨ ·ᶜ-congʳ (⌜𝟘ᵐ⌝ not-trivial) ⟩
+    𝟘 ·ᶜ ⌈ t ⌉ 𝟘ᵐ      ≈⟨ ·ᶜ-zeroˡ _ ⟩
+    𝟘ᶜ                 ∎
+    where
+    open ≈ᶜ-reasoning
 
 -- For dedicated nr functions the function ⌈_⌉ provides upper bounds
 -- for valid modality contexts if strong unit types are not allowed to
@@ -1970,42 +1862,33 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
 
   usage-upper-bound′ {m}
     (natrecₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {s} {n} ⦃ has-nr ⦄ γ▸z δ▸s η▸n θ▸A) =
-    lemma has-nr ok
-    where
-    lemma :
-      (has-nr : Natrec-mode-has-nr nm)
-      (ok : Natrec-mode-supports-usage-inference nm) →
-      nrᶜ ⦃ Natrec-mode-Has-nr has-nr ⦄ p r γ δ η ≤ᶜ ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
-    lemma Nr Nr =
-      let γ≤γ′ = usage-upper-bound′ γ▸z
-          δ≤δ′ = usage-upper-bound′ δ▸s
-          η≤η′ = usage-upper-bound′ η▸n
-      in  nrᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)) η≤η′
+    let open ≤ᶜ-reasoning
+        open Graded.Usage.Restrictions.Instance R
+        γ≤γ′ = usage-upper-bound′ γ▸z
+        δ≤δ′ = tailₘ-monotone $ tailₘ-monotone $ usage-upper-bound′ δ▸s
+        η≤η′ = usage-upper-bound′ η▸n
+    in  begin
+      nrᶜ p r γ δ η                                                ≤⟨ nrᶜ-monotone γ≤γ′ δ≤δ′ η≤η′ ⟩
+      nrᶜ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)       ≈˘⟨ ⌈⌉-natrec-nr ⟩
+      ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ∎
 
   usage-upper-bound′ (natrec-no-nrₘ ⦃ no-nr ⦄ _ _ _ _ _ _ _ _) =
-    ⊥-elim (lemma no-nr ok)
-    where
-    lemma :
-      Natrec-mode-no-nr nm → Natrec-mode-supports-usage-inference nm → ⊥
-    lemma No-nr ()
+    ⊥-elim ⌈⌉-natrec-no-nr
 
   usage-upper-bound′ {m} (natrec-no-nr-glbₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {χ} {n} {s} {x} ⦃ no-nr ⦄ ▸z ▸s ▸n ▸A x-GLB χ-GLB) =
-    lemma no-nr ok
-    where
-    lemma :
-      Natrec-mode-no-nr-glb nm →
-      (ok : Natrec-mode-supports-usage-inference nm) →
-      x ·ᶜ η +ᶜ χ ≤ᶜ ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
-    lemma No-nr-glb (No-nr-glb has-GLB) =
-      let x′ , x′-GLB = has-GLB r 𝟙 p
-          χ′ , χ′-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
-          γ≤γ′ = usage-upper-bound′ ▸z
-          δ≤δ′ = usage-upper-bound′ ▸s
-          η≤η′ = usage-upper-bound′ ▸n
-      in  +ᶜ-monotone
-            (·ᶜ-monotone η≤η′ (≤-reflexive (GLB-unique x-GLB x′-GLB)))
-            (GLBᶜ-monotone (λ i → nrᵢᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)))
-              χ-GLB χ′-GLB)
+    let open ≤ᶜ-reasoning
+        has-GLB , ⌈⌉-natrec≈ᶜ = ⌈⌉-natrec-no-nr-glb
+        x′ , x′-GLB = has-GLB r 𝟙 p
+        χ′ , χ′-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
+        γ≤γ′ = usage-upper-bound′ ▸z
+        δ≤δ′ = tailₘ-monotone $ tailₘ-monotone $ usage-upper-bound′ ▸s
+        η≤η′ = usage-upper-bound′ ▸n
+    in  begin
+      x ·ᶜ η +ᶜ χ                                                 ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ η≤η′)
+                                                                     (GLBᶜ-monotone (λ _ → nrᵢᶜ-monotone γ≤γ′ δ≤δ′) χ-GLB χ′-GLB) ⟩
+      x ·ᶜ ⌈ n ⌉ m +ᶜ χ′                                          ≈⟨ +ᶜ-congʳ (·ᶜ-congʳ (GLB-unique x-GLB x′-GLB)) ⟩
+      x′ ·ᶜ ⌈ n ⌉ m +ᶜ χ′                                         ≈˘⟨ ⌈⌉-natrec≈ᶜ ⟩
+      ⌈⌉-natrec p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ∎
 
   usage-upper-bound′ (emptyrecₘ e A _) =
     ·ᶜ-monotoneʳ (usage-upper-bound′ e)
@@ -2123,122 +2006,107 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
 
   usage-upper-bound′ (sub t x) = ≤ᶜ-trans x (usage-upper-bound′ t)
 
+opaque
 
--- A valid modality context can be computed from a well-resourced term
--- (if there is a dedicated nr functions).
+  -- A valid modality context can be computed from a well-resourced term
+  -- (if there is a dedicated nr functions).
 
-usage-inf :
-  ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
-  γ ▸[ m ] t → ⌈ t ⌉ m ▸[ m ] t
-usage-inf Uₘ = Uₘ
-usage-inf ℕₘ = ℕₘ
-usage-inf Emptyₘ = Emptyₘ
-usage-inf Unitₘ = Unitₘ
-usage-inf (ΠΣₘ {G = G} γ▸F δ▸G) =
-  ΠΣₘ (usage-inf γ▸F) (Conₘ-interchange₁ (usage-inf δ▸G) δ▸G)
-usage-inf var = var
-usage-inf defn = defn
-usage-inf (lamₘ {p = p} {t = t} γ▸t) =
-  lamₘ (Conₘ-interchange₁ (usage-inf γ▸t) γ▸t)
-usage-inf (γ▸t ∘ₘ γ▸t₁) = usage-inf γ▸t ∘ₘ usage-inf γ▸t₁
-usage-inf (prodʷₘ γ▸t γ▸t₁) = prodʷₘ (usage-inf γ▸t) (usage-inf γ▸t₁)
-usage-inf (prodˢₘ γ▸t γ▸t₁) = prodˢₘ (usage-inf γ▸t) (usage-inf γ▸t₁)
-usage-inf (fstₘ m γ▸t PE.refl ok) =
-  fstₘ m (usage-inf γ▸t) PE.refl ok
-usage-inf (sndₘ γ▸t) = sndₘ (usage-inf γ▸t)
-usage-inf {m = m} (prodrecₘ {r = r} {δ = δ} {p = p} {u = u} γ▸t δ▸u η▸A ok) =
-  prodrecₘ (usage-inf γ▸t)
-           (Conₘ-interchange₂ (usage-inf δ▸u) δ▸u)
-           η▸A
-           ok
-usage-inf zeroₘ = zeroₘ
-usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
-usage-inf ⦃ ok ⦄
-  (natrecₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {s} {n} ⦃ has-nr ⦄ γ▸z δ▸s η▸n θ▸A) =
-    sub (natrecₘ (usage-inf γ▸z)
+  usage-inf :
+    ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
+    γ ▸[ m ] t → ⌈ t ⌉ m ▸[ m ] t
+  usage-inf Uₘ = Uₘ
+  usage-inf ℕₘ = ℕₘ
+  usage-inf Emptyₘ = Emptyₘ
+  usage-inf Unitₘ = Unitₘ
+  usage-inf (ΠΣₘ {G = G} γ▸F δ▸G) =
+    ΠΣₘ (usage-inf γ▸F) (Conₘ-interchange₁ (usage-inf δ▸G) δ▸G)
+  usage-inf var = var
+  usage-inf defn = defn
+  usage-inf (lamₘ {p = p} {t = t} γ▸t) =
+    lamₘ (Conₘ-interchange₁ (usage-inf γ▸t) γ▸t)
+  usage-inf (γ▸t ∘ₘ γ▸t₁) = usage-inf γ▸t ∘ₘ usage-inf γ▸t₁
+  usage-inf (prodʷₘ γ▸t γ▸t₁) = prodʷₘ (usage-inf γ▸t) (usage-inf γ▸t₁)
+  usage-inf (prodˢₘ γ▸t γ▸t₁) = prodˢₘ (usage-inf γ▸t) (usage-inf γ▸t₁)
+  usage-inf (fstₘ m γ▸t PE.refl ok) =
+    fstₘ m (usage-inf γ▸t) PE.refl ok
+  usage-inf (sndₘ γ▸t) = sndₘ (usage-inf γ▸t)
+  usage-inf {m = m} (prodrecₘ {r = r} {δ = δ} {p = p} {u = u} γ▸t δ▸u η▸A ok) =
+    prodrecₘ (usage-inf γ▸t)
+             (Conₘ-interchange₂ (usage-inf δ▸u) δ▸u)
+             η▸A
+             ok
+  usage-inf zeroₘ = zeroₘ
+  usage-inf (sucₘ γ▸t) = sucₘ (usage-inf γ▸t)
+  usage-inf ⦃ ok ⦄
+    (natrecₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {s} {n} ⦃ has-nr ⦄ γ▸z δ▸s η▸n θ▸A) =
+      sub-≈ᶜ
+        (natrecₘ (usage-inf γ▸z)
           (Conₘ-interchange₂ (usage-inf δ▸s) δ▸s)
           (usage-inf η▸n) θ▸A)
-        (lemma has-nr ok)
-  where
-  lemma :
-    (has-nr : Natrec-mode-has-nr nm)
-    (ok : Natrec-mode-supports-usage-inference nm) →
-    ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≤ᶜ
-    nrᶜ ⦃ Natrec-mode-Has-nr has-nr ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
-  lemma (Nr ⦃ has-nr ⦄) Nr = ≤ᶜ-refl
-usage-inf ⦃ ok ⦄ (natrec-no-nrₘ ⦃ no-nr ⦄ _ _ _ _ _ _ _ _) =
-  ⊥-elim (lemma no-nr ok)
-  where
-  lemma :
-    Natrec-mode-no-nr nm → Natrec-mode-supports-usage-inference nm → ⊥
-  lemma No-nr ()
-usage-inf {m} ⦃ ok ⦄ (natrec-no-nr-glbₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {χ} {n} {s} {x} ⦃ no-nr ⦄ γ▸z δ▸s η▸n θ▸A x-GLB χ-GLB) =
-  let χ′ , χ′-GLB , le = lemma no-nr ok
-  in  sub (natrec-no-nr-glbₘ (usage-inf γ▸z)
-            (Conₘ-interchange₂ (usage-inf δ▸s) δ▸s)
-            (usage-inf η▸n) θ▸A x-GLB χ′-GLB) le
-  where
-  lemma :
-    Natrec-mode-no-nr-glb nm →
-    (ok : Natrec-mode-supports-usage-inference nm) →
-    ∃ λ χ → Greatest-lower-boundᶜ χ (nrᵢᶜ r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))) ×
-    ⌈⌉-natrec ⦃ ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≤ᶜ x ·ᶜ ⌈ n ⌉ m +ᶜ χ
-  lemma No-nr-glb (No-nr-glb has-GLB) =
-    let χ , χ-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
-    in  χ , χ-GLB
-          , +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (≤-reflexive (GLB-unique (has-GLB r 𝟙 p .proj₂) x-GLB)))
-usage-inf (emptyrecₘ γ▸t δ▸A ok) = emptyrecₘ (usage-inf γ▸t) δ▸A ok
-usage-inf starʷₘ = starʷₘ
-usage-inf (starˢₘ prop) = starₘ
-usage-inf (unitrecₘ γ▸t δ▸u η▸A ok) =
-  unitrecₘ (usage-inf γ▸t) (usage-inf δ▸u) η▸A ok
-usage-inf (Idₘ not-ok ▸A ▸t ▸u) with Id-erased?
-… | yes ok = ⊥-elim (not-ok ok)
-… | no _   = Idₘ not-ok (usage-inf ▸A) (usage-inf ▸t) (usage-inf ▸u)
-usage-inf (Id₀ₘ ok ▸A ▸t ▸u) with Id-erased?
-… | no not-ok = ⊥-elim (not-ok ok)
-… | yes _     = Id₀ₘ ok ▸A ▸t ▸u
-usage-inf rflₘ =
-  rflₘ
-usage-inf {m} (Jₘ {p} {q} ≤some ok ▸A ▸t ▸B ▸u ▸v ▸w) with J-view p q m
-… | is-all ≡all               = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-… | is-some-yes ≡some p≡𝟘×q≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘×q≡𝟘
-… | is-other _ _              =
-  Jₘ ≤some ok ▸A (usage-inf ▸t) (Conₘ-interchange₂ (usage-inf ▸B) ▸B)
-    (usage-inf ▸u) (usage-inf ▸v) (usage-inf ▸w)
-usage-inf {m} (J₀ₘ₁ {p} {q} ≡some p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w)
-  with J-view p q m
-… | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
-… | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
-… | is-some-yes _ _ =
-  J₀ₘ₁ ≡some p≡𝟘 q≡𝟘 ▸A (usage-inf ▸t)
-    (Conₘ-interchange₂ (usage-inf ▸B) ▸B) (usage-inf ▸u) (usage-inf ▸v)
-    (usage-inf ▸w)
-usage-inf {m} (J₀ₘ₂ {p} {q} ≡all ▸A ▸t ▸B ▸u ▸v ▸w) with J-view p q m
-… | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-… | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
-… | is-all _            = J₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v ▸w
-usage-inf {m} (Kₘ {p} ≤some ok ▸A ▸t ▸B ▸u ▸v) with K-view p m
-… | is-all ≡all           = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-… | is-some-yes ≡some p≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘
-… | is-other _ _          =
-  Kₘ ≤some ok ▸A (usage-inf ▸t) (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
-    (usage-inf ▸u) (usage-inf ▸v)
-usage-inf {m} (K₀ₘ₁ {p} ≡some p≡𝟘 ▸A ▸t ▸B ▸u ▸v) with K-view p m
-… | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
-… | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some p≡𝟘
-… | is-some-yes _ _ =
-  K₀ₘ₁ ≡some p≡𝟘 ▸A (usage-inf ▸t) (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
-    (usage-inf ▸u) (usage-inf ▸v)
-usage-inf {m} (K₀ₘ₂ {p} ≡all ▸A ▸t ▸B ▸u ▸v) with K-view p m
-… | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-… | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
-… | is-all _            = K₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v
-usage-inf ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-  []-congₘ ▸A ▸t ▸u ▸v ok
-usage-inf (sub γ▸t x) = usage-inf γ▸t
+        ⌈⌉-natrec-nr
+  usage-inf ⦃ ok ⦄ (natrec-no-nrₘ ⦃ no-nr ⦄ _ _ _ _ _ _ _ _) =
+    ⊥-elim ⌈⌉-natrec-no-nr
+  usage-inf {m} ⦃ ok ⦄ (natrec-no-nr-glbₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {χ} {n} {s} {x} ⦃ no-nr ⦄ γ▸z δ▸s η▸n θ▸A x-GLB χ-GLB) =
+    let open ≈ᶜ-reasoning
+        has-GLB , ⌈⌉-natrec≈ᶜ = ⌈⌉-natrec-no-nr-glb
+        x′ , x′-GLB = has-GLB r 𝟙 p
+        χ′ , χ′-GLB = nrᵢᶜ-has-GLBᶜ has-GLB r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m)))
+    in  sub-≈ᶜ (natrec-no-nr-glbₘ (usage-inf γ▸z)
+          (Conₘ-interchange₂ (usage-inf δ▸s) δ▸s)
+          (usage-inf η▸n) θ▸A x′-GLB χ′-GLB)
+        ⌈⌉-natrec≈ᶜ
+  usage-inf (emptyrecₘ γ▸t δ▸A ok) = emptyrecₘ (usage-inf γ▸t) δ▸A ok
+  usage-inf starʷₘ = starʷₘ
+  usage-inf (starˢₘ prop) = starₘ
+  usage-inf (unitrecₘ γ▸t δ▸u η▸A ok) =
+    unitrecₘ (usage-inf γ▸t) (usage-inf δ▸u) η▸A ok
+  usage-inf (Idₘ not-ok ▸A ▸t ▸u) with Id-erased?
+  … | yes ok = ⊥-elim (not-ok ok)
+  … | no _   = Idₘ not-ok (usage-inf ▸A) (usage-inf ▸t) (usage-inf ▸u)
+  usage-inf (Id₀ₘ ok ▸A ▸t ▸u) with Id-erased?
+  … | no not-ok = ⊥-elim (not-ok ok)
+  … | yes _     = Id₀ₘ ok ▸A ▸t ▸u
+  usage-inf rflₘ =
+    rflₘ
+  usage-inf {m} (Jₘ {p} {q} ≤some ok ▸A ▸t ▸B ▸u ▸v ▸w) with J-view p q m
+  … | is-all ≡all               = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ≡some p≡𝟘×q≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘×q≡𝟘
+  … | is-other _ _              =
+    Jₘ ≤some ok ▸A (usage-inf ▸t) (Conₘ-interchange₂ (usage-inf ▸B) ▸B)
+      (usage-inf ▸u) (usage-inf ▸v) (usage-inf ▸w)
+  usage-inf {m} (J₀ₘ₁ {p} {q} ≡some p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w)
+    with J-view p q m
+  … | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+  … | is-some-yes _ _ =
+    J₀ₘ₁ ≡some p≡𝟘 q≡𝟘 ▸A (usage-inf ▸t)
+      (Conₘ-interchange₂ (usage-inf ▸B) ▸B) (usage-inf ▸u) (usage-inf ▸v)
+      (usage-inf ▸w)
+  usage-inf {m} (J₀ₘ₂ {p} {q} ≡all ▸A ▸t ▸B ▸u ▸v ▸w) with J-view p q m
+  … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-all _            = J₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v ▸w
+  usage-inf {m} (Kₘ {p} ≤some ok ▸A ▸t ▸B ▸u ▸v) with K-view p m
+  … | is-all ≡all           = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ≡some p≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘
+  … | is-other _ _          =
+    Kₘ ≤some ok ▸A (usage-inf ▸t) (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
+      (usage-inf ▸u) (usage-inf ▸v)
+  usage-inf {m} (K₀ₘ₁ {p} ≡some p≡𝟘 ▸A ▸t ▸B ▸u ▸v) with K-view p m
+  … | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some p≡𝟘
+  … | is-some-yes _ _ =
+    K₀ₘ₁ ≡some p≡𝟘 ▸A (usage-inf ▸t) (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
+      (usage-inf ▸u) (usage-inf ▸v)
+  usage-inf {m} (K₀ₘ₂ {p} ≡all ▸A ▸t ▸B ▸u ▸v) with K-view p m
+  … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-all _            = K₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v
+  usage-inf ([]-congₘ ▸A ▸t ▸u ▸v ok) =
+    []-congₘ ▸A ▸t ▸u ▸v ok
+  usage-inf (sub γ▸t x) = usage-inf γ▸t
 
-------------------------------------------------------------------------
+
 -- Inlining
 
 opaque
@@ -2286,7 +2154,7 @@ opaque
   ▸inline _ Emptyₘ =
     Emptyₘ
   ▸inline ▸ξ (emptyrecₘ ▸A ▸t ok) =
-    emptyrecₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
+    emptyrecₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t)
       ok
   ▸inline _ Unitₘ =
     Unitₘ
@@ -2296,9 +2164,9 @@ opaque
     starˢₘ ok
   ▸inline ▸ξ (unitrecₘ ▸t ▸u ▸A ok) =
     unitrecₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) ok
   ▸inline ▸ξ (ΠΣₘ ▸A ▸B) =
-    ΠΣₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸B)
+    ΠΣₘ (▸inline ▸ξ ▸A) (▸inline ▸ξ ▸B)
   ▸inline ▸ξ (lamₘ ▸t) =
     lamₘ (▸inline ▸ξ ▸t)
   ▸inline ▸ξ (▸t ∘ₘ ▸u) =
@@ -2313,7 +2181,7 @@ opaque
     prodʷₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
   ▸inline ▸ξ (prodrecₘ ▸t ▸u ▸A ok) =
     prodrecₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) ok
   ▸inline _ ℕₘ =
     ℕₘ
   ▸inline _ zeroₘ =
@@ -2322,45 +2190,45 @@ opaque
     sucₘ (▸inline ▸ξ ▸t)
   ▸inline ▸ξ (natrecₘ ▸t ▸u ▸v ▸A) =
     natrecₘ (▸inline ▸ξ ▸t) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
   ▸inline ▸ξ (natrec-no-nrₘ ▸t ▸u ▸v ▸A ok₁ ok₂ ok₃ ok₄) =
     natrec-no-nrₘ (▸inline ▸ξ ▸t) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok₁ ok₂ ok₃ ok₄
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) ok₁ ok₂ ok₃ ok₄
   ▸inline ▸ξ (natrec-no-nr-glbₘ ▸t ▸u ▸v ▸A ok₁ ok₂) =
     natrec-no-nr-glbₘ (▸inline ▸ξ ▸t) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok₁ ok₂
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) ok₁ ok₂
   ▸inline ▸ξ (Idₘ not-erased ▸A ▸t ▸u) =
     Idₘ not-erased (▸inline ▸ξ ▸A) (▸inline ▸ξ ▸t) (▸inline ▸ξ ▸u)
   ▸inline ▸ξ (Id₀ₘ erased ▸A ▸t ▸u) =
-    Id₀ₘ erased (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸u)
+    Id₀ₘ erased (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸u)
   ▸inline _ rflₘ =
     rflₘ
   ▸inline ▸ξ (Jₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
-    Jₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
+    Jₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
       (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v) (▸inline ▸ξ ▸w)
   ▸inline ▸ξ (J₀ₘ₁ ok₁ ok₂ ok₃ ▸A ▸t ▸B ▸u ▸v ▸w) =
-    J₀ₘ₁ ok₁ ok₂ ok₃ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸w)
+    J₀ₘ₁ ok₁ ok₂ ok₃ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸w)
   ▸inline ▸ξ (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v ▸w) =
-    J₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸w)
+    J₀ₘ₂ ok (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸w)
   ▸inline ▸ξ (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
-    Kₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
+    Kₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
       (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
   ▸inline ▸ξ (K₀ₘ₁ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
-    K₀ₘ₁ ok₁ ok₂ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v)
+    K₀ₘ₁ ok₁ ok₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v)
   ▸inline ▸ξ (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) =
-    K₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v)
+    K₀ₘ₂ ok (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v)
   ▸inline ▸ξ ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-    []-congₘ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸u) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v) ok
+    []-congₘ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸u) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v) ok
 
 opaque
   unfolding inlineᵈ
@@ -2391,12 +2259,12 @@ module _ (TR : Type-restrictions) where
   ▸-term→▸-type hyp =
     case inv-usage-var (hyp ⊢t ▸t) of λ {
       (ε ∙ 𝟘≤𝟙 ∙ 𝟙≤𝟘) →
-    ≤-antisym 𝟙≤𝟘 𝟘≤𝟙 }
+    PE.trans (PE.sym ⌜𝟙ᵐ⌝) (≤-antisym 𝟙≤𝟘 𝟘≤𝟙) }
     where
     Γ′ = ε ∙ U 0 ∙ var x0
     t′ = var x0
     A′ = var x1
-    γ′ = ε ∙ 𝟘 ∙ 𝟙
+    γ′ = ε ∙ 𝟘 ∙ ⌜ 𝟙ᵐ ⌝
 
     ⊢U : ε »⊢ ε ∙ U 0
     ⊢U = ∙ Uⱼ (ε ε)

@@ -3,15 +3,18 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Unit
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {𝐌 : IsMode Mode 𝕄}
+  (UR : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions UR
 
 open import Definition.Untyped M
@@ -19,9 +22,8 @@ open import Definition.Untyped.Unit 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage UR
+open import Graded.Usage.Properties UR
 
 open import Tools.Nat
 open import Tools.Fin
@@ -47,7 +49,7 @@ opaque
 
   ▸unitrec⟨⟩ :
     (s ≡ 𝕨 → Unitrec-allowed m p q) →
-    (s ≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
+    (s ≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A) →
     (s ≡ 𝕨 → ∃ λ δ → δ ▸[ m ᵐ· p ] t × θ ≤ᶜ p ·ᶜ δ +ᶜ η) →
     (s ≡ 𝕤 → θ ≤ᶜ η) →
     η ▸[ m ] u →
@@ -92,20 +94,20 @@ opaque
 
     lemma :
       s ≡ 𝕨 →
-      𝟘ᶜ {n = n} ∙ ⌜ 𝟘ᵐ? ⌝ · Unit-η-grade ▸[ 𝟘ᵐ? ]
+      𝟘ᶜ {n = n} ∙ ⌜ 𝟘ᵐ ⌝ · Unit-η-grade ▸[ 𝟘ᵐ ]
         Id (Unit s l) (star s l) (var x0)
     lemma refl with Id-erased?
     … | yes erased = sub
       (Id₀ₘ erased Unitₘ starₘ var)
       (begin
-         𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+         𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          𝟘ᶜ                ∎)
     … | no not-erased = sub
       (Idₘ not-erased Unitₘ starₘ var)
       (begin
-         𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟙            ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
-         𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝                ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
-         𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)  ∎)
+         𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟙            ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+         𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝                ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
+         𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)  ∎)
 
 opaque
 

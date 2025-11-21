@@ -3,14 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage
-  {a} {M : Set a} {𝕄 : Modality M}
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (type-variant : Type-variant)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
@@ -19,7 +22,9 @@ module Graded.Heap.Usage
 
 open Type-variant type-variant
 open Modality 𝕄
+open IsMode 𝐌
 
+open import Tools.Level
 open import Tools.Nat using (Nat)
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -32,8 +37,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Usage UR
 open import Graded.Usage.Restrictions.Instance UR
 
 private variable
@@ -61,7 +65,7 @@ data _≤ʰ_ : (H : Heap k n) (p : M) → Set a where
 ------------------------------------------------------------------------
 -- Usage of heaps.
 
-data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
+data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set (a ⊔ b) where
   ε : ε ▸ʰ ε
   _∙_ : (γ +ᶜ p ·ᶜ wkConₘ ρ δ) ▸ʰ H
       → δ ▸[ ⌞ p ⌟ ] t
@@ -74,19 +78,19 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
 
 -- Usage of continuations
 
-data _▸ᶜ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (c : Cont n) → Set a where
+data _▸ᶜ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (c : Cont n) → Set (a ⊔ b) where
   ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkConₘ ρ γ ▸ᶜ[ m ] ∘ₑ p u ρ
-  fstₑ : (m ≡ 𝟙ᵐ → p ≤ 𝟙) → 𝟘ᶜ ▸ᶜ[ m ] fstₑ p
+  fstₑ : (⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟙) → 𝟘ᶜ ▸ᶜ[ m ] fstₑ p
   sndₑ : 𝟘ᶜ ▸ᶜ[ m ] sndₑ p
   prodrecₑ : γ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u → Prodrec-allowed m r p q
            → wkConₘ ρ γ ▸ᶜ[ m ] prodrecₑ r p q A u ρ
   natrecₑ : ⦃ has-nr : Nr-available ⦄
           → γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
-          → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q) ▸[ 𝟘ᵐ? ] A
+          → θ ∙ (⌜ 𝟘ᵐ ⌝ · q) ▸[ 𝟘ᵐ ] A
           → wkConₘ ρ (nrᶜ p r γ δ 𝟘ᶜ) ▸ᶜ[ m ] natrecₑ p q r A z s ρ
   natrec-no-nrₑ : ⦃ no-nr : Nr-not-available-GLB ⦄
                 → γ ▸[ m ] z → δ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s
-                → θ ∙ (⌜ 𝟘ᵐ? ⌝ · q) ▸[ 𝟘ᵐ? ] A
+                → θ ∙ (⌜ 𝟘ᵐ ⌝ · q) ▸[ 𝟘ᵐ ] A
                 → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)
                 → wkConₘ ρ χ ▸ᶜ[ m ] natrecₑ p q r A z s ρ
   unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η
@@ -98,14 +102,14 @@ data _▸ᶜ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (c : Cont n) → Set a w
 
 -- Usage of stacks.
 
-data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set a where
+data _▸ˢ_ {n : Nat} : (γ : Conₘ n) (S : Stack n) → Set (a ⊔ b) where
   ε : 𝟘ᶜ ▸ˢ ε
   ▸ˢ∙ : ∣ S ∣≡ p → δ ▸ᶜ[ ⌞ p ⌟ ] c → γ ▸ˢ S → γ +ᶜ p ·ᶜ δ ▸ˢ c ∙ S
 
 ------------------------------------------------------------------------
 -- Usage of evaluation states.
 
-data ▸_ {k n ℓ} : (s : State k n ℓ) → Set a where
+data ▸_ {k n ℓ} : (s : State k n ℓ) → Set (a ⊔ b) where
   ▸ₛ : ∣ S ∣≡ p → γ ▸ʰ H → δ ▸[ ⌞ p ⌟ ] t → η ▸ˢ S →
       γ ≤ᶜ p ·ᶜ wkConₘ ρ δ +ᶜ η →
       ▸ ⟨ H , t , ρ , S ⟩

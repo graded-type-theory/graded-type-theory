@@ -4,14 +4,18 @@
 
 open import Definition.Typed.Restrictions
 import Graded.Modality
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Usage.Restrictions
 
 module Graded.Neutral
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Modality 𝕄
@@ -29,11 +33,11 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Target using (non-strict)
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Restrictions 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Restrictions.Zero-one 𝕄 variant
+open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Properties UR
+open import Graded.Usage.Properties.Zero-one variant UR
 open import Graded.Usage.Restrictions.Instance UR
 
 open import Tools.Empty
@@ -67,7 +71,7 @@ opaque
     Neutral⁺ (Γ .defs) t →
     Γ ⊢ t ∷ A →
     ¬ 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-  neutral-not-well-resourced {Γ} nem consistent tr =
+  neutral-not-well-resourced {Γ} ⦃ 𝟘-well-behaved ⦄ nem consistent tr =
     λ t-ne ⊢t ▸t → helper t-ne ⊢t ▸t ≈ᶜ-refl
     where
     helper : Neutral⁺ (Γ .defs) t → Γ ⊢ t ∷ A → χ ▸[ 𝟙ᵐ ] t → ¬ χ ≈ᶜ 𝟘ᶜ
@@ -117,7 +121,7 @@ opaque
       (natrecₙ v-n) ⊢nr (natrec-no-nrₘ {η} _ _ ▸v _ _ _ χ≤η _) →
         case inversion-natrec ⊢nr of λ {
           (_ , _ , _ , ⊢v , _) →
-        χ ≈ᶜ 𝟘ᶜ  →⟨ ≤ᶜ→≈ᶜ𝟘ᶜ→≈ᶜ𝟘ᶜ χ≤η ⟩
+        χ ≈ᶜ 𝟘ᶜ  →⟨ ≤ᶜ→≈ᶜ𝟘ᶜ→≈ᶜ𝟘ᶜ (χ≤η λ _ → 𝟘-well-behaved) ⟩
         η ≈ᶜ 𝟘ᶜ  →⟨ helper v-n ⊢v ▸v ⟩
         ⊥        □ }
       (natrecₙ v-n) ⊢nr (natrec-no-nr-glbₘ {γ} {δ} {p} {r} {η} {χ} {x} _ _ ▸v  _ x-glb χ-glb) xη+χ≈𝟘 →

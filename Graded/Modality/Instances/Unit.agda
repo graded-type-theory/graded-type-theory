@@ -18,16 +18,14 @@ open import Tools.Sum
 open import Tools.Algebra ⊤
 
 open import Graded.Modality ⊤ public
+open import Graded.Mode.Instances.Zero-one.Variant
+open import Graded.Mode.Instances.Zero-one hiding (_≟_)
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Properties.Subtraction
-open import Graded.Modality.Variant lzero
 open import Graded.FullReduction.Assumptions
 open import Graded.Usage.Restrictions
 
 open import Definition.Typed.Restrictions
-
-private variable
-  variant : Modality-variant
 
 -- Trivial addition (and multiplication and meet) operation
 
@@ -229,27 +227,20 @@ opaque
 
 -- A trivial modality (without 𝟘ᵐ).
 
-UnitModality :
-  (variant : Modality-variant) →
-  let open Modality-variant variant in
-  ¬ T 𝟘ᵐ-allowed →
-  Modality
-UnitModality variant not-ok = record
-  { variant            = variant
-  ; semiring-with-meet = unit-semiring-with-meet
-  ; 𝟘-well-behaved     = ⊥-elim ∘→ not-ok
+UnitModality : Modality
+UnitModality = record
+  { semiring-with-meet = unit-semiring-with-meet
   }
 
 -- The full reduction assumptions hold for any instance of
 -- UnitModality and any type restrictions.
 
 full-reduction-assumptions :
-  let open Modality-variant variant in
-  (ok : ¬ T 𝟘ᵐ-allowed) →
-  {rs : Type-restrictions (UnitModality variant ok)} →
-  {us : Usage-restrictions (UnitModality variant ok)} →
-  Full-reduction-assumptions rs us
-full-reduction-assumptions _ = record
+  {mv : Mode-variant UnitModality} →
+  {rs : Type-restrictions UnitModality} →
+  {us : Usage-restrictions UnitModality (Zero-one-isMode mv)} →
+  Full-reduction-assumptions mv rs us
+full-reduction-assumptions = record
   { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘   = λ _ → inj₁ refl
   }

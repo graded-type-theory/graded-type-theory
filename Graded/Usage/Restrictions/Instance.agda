@@ -3,12 +3,14 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Restrictions.Instance
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
-  (R : Usage-restrictions 𝕄)
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open import Graded.Usage.Restrictions.Natrec 𝕄

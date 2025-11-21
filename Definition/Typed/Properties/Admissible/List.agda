@@ -5,14 +5,18 @@
 open import Definition.Typed.Restrictions
 import Definition.Untyped
 import Definition.Untyped.List
-open import Graded.Modality
+import Graded.Modality
+import Graded.Mode
 
 module Definition.Typed.Properties.Admissible.List
-  {a} {M : Set a}
-  {𝕄 : Modality M}
+  {a b} {M : Set a} {Mode : Set b}
+  (open Graded.Modality M)
   (open Definition.Untyped M)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   (pₕ pₗ : M)
-  (open Definition.Untyped.List 𝕄 pₕ pₗ)
+  (open Definition.Untyped.List 𝕄 𝐌 pₕ pₗ)
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
@@ -23,11 +27,10 @@ module Definition.Typed.Properties.Admissible.List
   (Σ-ok₂ : Σʷ-allowed pₗ 𝟙)
   where
 
-open import Graded.Mode 𝕄
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-import Definition.Typed.Properties.Admissible.Vec 𝕨 pₕ R Unit-ok Σ-ok₁ as V
-import Definition.Untyped.Vec 𝕄 𝕨 pₕ as VU
+import Definition.Typed.Properties.Admissible.Vec 𝐌 𝕨 pₕ R Unit-ok Σ-ok₁ as V
+import Definition.Untyped.Vec 𝕄 𝐌 𝕨 pₕ as VU
 import Definition.Typed.Reasoning.Reduction R as RRed
 import Definition.Typed.Reasoning.Term R as RTerm
 import Definition.Typed.Reasoning.Type R as RType

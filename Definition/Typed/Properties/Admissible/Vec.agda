@@ -5,15 +5,19 @@
 open import Definition.Typed.Restrictions
 import Definition.Untyped
 import Definition.Untyped.Vec
-open import Graded.Modality
+import Graded.Modality
+import Graded.Mode
 
 module Definition.Typed.Properties.Admissible.Vec
-  {a} {M : Set a}
-  {𝕄 : Modality M}
+  {a b} {M : Set a} {Mode : Set b}
+  (open Graded.Modality M)
   (open Definition.Untyped M)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   (s : Strength)
   (p : M)
-  (open Definition.Untyped.Vec 𝕄 s p)
+  (open Definition.Untyped.Vec 𝕄 𝐌 s p)
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
@@ -23,7 +27,8 @@ module Definition.Typed.Properties.Admissible.Vec
   (Σ-ok : Σ-allowed s p 𝟘)
   where
 
-open import Graded.Mode 𝕄
+open IsMode 𝐌
+
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R

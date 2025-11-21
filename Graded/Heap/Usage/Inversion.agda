@@ -3,14 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage.Inversion
-  {a} {M : Set a} {𝕄 : Modality M}
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (type-variant : Type-variant)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
@@ -19,12 +22,11 @@ module Graded.Heap.Usage.Inversion
 
 open import Definition.Untyped M
 
-open import Graded.Mode 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
@@ -42,6 +44,7 @@ open import Tools.Relation
 import Tools.Reasoning.PartialOrder as RPo
 
 open Modality 𝕄
+open IsMode 𝐌
 open Type-variant type-variant
 
 private variable
@@ -118,7 +121,7 @@ opaque
   ▸ₛ-∙-inv :
     ▸ ⟨ H , t , ρ , c ∙ S ⟩ →
     ∃₆ λ p q γ δ η θ →
-    ∣ S ∣≡ p × ∣ c ∣ᶜ≡ q ×
+    ∣ S ∣≡ p × ∣ c ∣ᶜ[ ⌞ p ⌟ ]≡ q ×
     γ ▸ʰ H × δ ▸[ ⌞ p · q ⌟ ] t ×
     η ▸ˢ S × θ ▸ᶜ[ ⌞ p ⌟ ] c ×
     γ ≤ᶜ (p · q) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ p ·ᶜ θ
@@ -127,8 +130,9 @@ opaque
         q , δ′ , η′ , ∣S∣≡ , ▸c , ▸S , η≈ = ▸ˢ-∙-inv ▸cS
         r , q′ , ∣c∣≡ , ∣S∣≡′ , p≡ = ∣∣∙-inv ∣cS∣≡
         q′≡q = ∣∣-functional ∣S∣≡′ ∣S∣≡
-    in  _ , _ , _ , _ , _ , _
-          , ∣S∣≡ , ∣c∣≡ , ▸H , ▸-cong (⌞⌟-cong (trans p≡ (·-congʳ q′≡q))) ▸t , ▸S , ▸c
+    in  _ , _ , _ , _ , _ , _ , ∣S∣≡
+          , subst (λ q → ∣ _ ∣ᶜ[ ⌞ q ⌟ ]≡ r) q′≡q ∣c∣≡
+          , ▸H , ▸-cong (⌞⌟-cong (trans p≡ (·-congʳ q′≡q))) ▸t , ▸S , ▸c
           , (begin
             γ                                           ≤⟨ γ≤ ⟩
             p ·ᶜ wkConₘ ρ δ +ᶜ η                        ≈⟨ +ᶜ-cong (·ᶜ-congʳ p≡) η≈ ⟩
@@ -191,7 +195,7 @@ opaque
   -- Inversion of fst
 
   ▸-inv-fstₑ :
-    γ ▸ᶜ[ m ] fstₑ p → (m ≡ 𝟙ᵐ → p ≤ 𝟙) × γ ≈ᶜ 𝟘ᶜ
+    γ ▸ᶜ[ m ] fstₑ p → (⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟙) × γ ≈ᶜ 𝟘ᶜ
   ▸-inv-fstₑ (fstₑ x) = x , ≈ᶜ-refl
 
 opaque
@@ -231,7 +235,7 @@ opaque
   ▸-inv-natrecₑ :
     γ ▸ᶜ[ m ] natrecₑ p q r A z s ρ →
     ∃₃ λ δ η θ → δ ▸[ m ] z × η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
-    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A × InvUsageNatrecₑ p r δ η ρ γ
+    θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A × InvUsageNatrecₑ p r δ η ρ γ
   ▸-inv-natrecₑ (natrecₑ ▸z ▸s ▸A) =
     _ , _ , _ , ▸z , ▸s , ▸A , invUsageNatrecNr
   ▸-inv-natrecₑ (natrec-no-nrₑ ▸z ▸s ▸A χ-glb) =

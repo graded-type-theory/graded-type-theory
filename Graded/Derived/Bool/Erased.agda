@@ -3,24 +3,28 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Bool.Erased
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
   {𝕄 : Modality}
-  (R : Usage-restrictions 𝕄)
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  (R : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions R)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Nr-available ⦄
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Definition.Untyped M
-open import Definition.Untyped.Bool.Nr 𝕄
+open import Definition.Untyped.Bool.Nr 𝕄 𝐌
   using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
-open import Definition.Untyped.Bool.Erased 𝕄
+open import Definition.Untyped.Bool.Erased 𝕄 𝐌
 open import Definition.Untyped.Erased 𝕄 𝕨 as E
 
 open import Graded.Context 𝕄
@@ -28,16 +32,15 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 import Graded.Derived.Bool.Nr R as B
 open import Graded.Derived.Empty R
-open import Graded.Derived.Erased.Usage 𝕄 R 𝕨
-open import Graded.Derived.Nat 𝕄 R
+open import Graded.Derived.Erased.Usage R 𝕨
+open import Graded.Derived.Nat R
 open import Graded.Usage.Restrictions.Instance R
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Substitution.Properties 𝕄 R
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
-open import Graded.Usage.Weakening 𝕄 R
+open import Graded.Substitution.Properties R
+open import Graded.Usage R
+open import Graded.Usage.Properties R
+open import Graded.Usage.Weakening R
 
 open import Tools.Fin
 open import Tools.Function
@@ -45,6 +48,8 @@ open import Tools.Nat using (Nat; 1+; 2+; 3+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
+
+open Mode-supports-nr mode-supports-nr
 
 private variable
   k n             : Nat
@@ -57,13 +62,13 @@ private opaque
 
   -- A lemma used below.
 
-  ≡nr-𝟘-𝟘-⌜𝟘ᵐ?⌝ :
-    ∀ m → ⌜ m ⌝ · nr p r 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝ PE.≡ nr p r 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝
-  ≡nr-𝟘-𝟘-⌜𝟘ᵐ?⌝ {p} {r} m =
-    ⌜ m ⌝ · nr p r 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝                        ≡⟨ ⌜⌝-·-distribˡ-nr m ⟩
-    nr p r (⌜ m ⌝ · 𝟘) (⌜ m ⌝ · 𝟘) (⌜ m ⌝ · ⌜ 𝟘ᵐ? ⌝)  ≡⟨ PE.cong₃ (nr _ _) (·-zeroʳ _) (·-zeroʳ _) (PE.sym $ ⌜·ᵐ⌝ m) ⟩
-    nr p r 𝟘 𝟘 (⌜ m ·ᵐ 𝟘ᵐ? ⌝)                         ≡⟨ PE.cong (nr _ _ _ _) $ PE.cong ⌜_⌝ $ ·ᵐ-zeroʳ m ⟩
-    nr p r 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝                                ∎
+  ≡nr-𝟘-𝟘-⌜𝟘ᵐ⌝ :
+    ∀ m → ⌜ m ⌝ · nr p r 𝟘 𝟘 ⌜ 𝟘ᵐ ⌝ PE.≡ nr p r 𝟘 𝟘 ⌜ 𝟘ᵐ ⌝
+  ≡nr-𝟘-𝟘-⌜𝟘ᵐ⌝ {p} {r} m =
+    ⌜ m ⌝ · nr p r 𝟘 𝟘 ⌜ 𝟘ᵐ ⌝                        ≡⟨ ⌜⌝-·-nr ⟩
+    nr p r (⌜ m ⌝ · 𝟘) (⌜ m ⌝ · 𝟘) (⌜ m ⌝ · ⌜ 𝟘ᵐ ⌝)  ≡⟨ PE.cong₃ (nr _ _) (·-zeroʳ _) (·-zeroʳ _) (PE.sym $ ⌜·ᵐ⌝ m) ⟩
+    nr p r 𝟘 𝟘 (⌜ m ·ᵐ 𝟘ᵐ ⌝)                         ≡⟨ PE.cong (nr _ _ _ _) $ PE.cong ⌜_⌝ $ ·ᵐ-zeroʳ m ⟩
+    nr p r 𝟘 𝟘 ⌜ 𝟘ᵐ ⌝                                ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
@@ -76,9 +81,9 @@ opaque
   ▸Bool {m} = sub
     (ΠΣₘ ℕₘ $
      sub (▸Erased (B.▸OK var)) $ begin
-       𝟘ᶜ ∙ ⌜ m ⌝ · Boolᵍ              ≈⟨ ≈ᶜ-refl ∙ ≡nr-𝟘-𝟘-⌜𝟘ᵐ?⌝ m ⟩
-       𝟘ᶜ ∙ Boolᵍ                      ≈˘⟨ nrᶜ-𝟘ᶜ ∙ PE.refl ⟩
-       nrᶜ OKᵍ 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)  ∎)
+       𝟘ᶜ ∙ ⌜ m ⌝ · Boolᵍ                                 ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-·-nr ⟩
+       𝟘ᶜ ∙ nr OKᵍ 𝟘 (⌜ m ⌝ · 𝟘) (⌜ m ⌝ · 𝟘) (⌜ m ⌝ · 𝟙) ≈⟨ ≈ᶜ-sym nrᶜ-𝟘ᶜ ∙ PE.cong₃ (nr _ _) (·-zeroʳ _) (·-zeroʳ _) (·-identityʳ _) ⟩
+       nrᶜ OKᵍ 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ⌜ m ⌝)                      ∎)
     (begin
        𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
        𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
@@ -145,7 +150,7 @@ opaque
     Unitrec-allowed m 𝟘 𝟘 →
     Emptyrec-allowed m 𝟘 →
     Starˢ-sink →
-    γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] A →
+    γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
     γ₄ ▸[ m ] v →
@@ -155,11 +160,7 @@ opaque
   ▸boolrec
     {m} {p} {γ₁} {A} {γ₂} {γ₃} {γ₄} {δ}
     ok₁ ok₂ ok₃ ok₄ ok₅ ok₆ ▸A ▸t ▸u ▸v = sub
-    (prodrecₘ
-       (▸-cong
-          (PE.sym $ ≢𝟘→ᵐ·≡′ λ ok →
-           boolrecᵍ-pr≢𝟘 ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄)
-          ▸v)
+    (prodrecₘ (▸-ᵐ· ▸v)
        (sub
           (▸natcase (lam-lemma zeroₘ ▸u)
              (sub
@@ -168,38 +169,38 @@ opaque
                     sub
                       (▸erasedrec (λ ()) (λ _ → ok₂) (λ _ → ok₃)
                          (λ _ →
-                            wkConₘ (stepn id 3) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ 𝟘 ,
+                            wkConₘ (stepn id 3) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ 𝟘 ,
                             sub
                               (▸Targetᵇʳ ▸A (sucₘ (sucₘ var)) var $
                                begin
-                                 ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙)  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _ ⟩
+                                 ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙)  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _ ⟩
 
-                                 𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ 𝟘 ∙
-                                 ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝                      ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
+                                 𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ∙ 𝟘 ∙
+                                 ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝                      ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
 
-                                 (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ 𝟘 ∙ 𝟘) +ᶜ
-                                 (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)               ∎)
+                                 (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ∙ 𝟘 ∙ 𝟘) +ᶜ
+                                 (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝)               ∎)
                               (begin
                                  wkConₘ (stepn id 3) γ₁ ∙
-                                 ⌜ 𝟘ᵐ? ⌝ · p ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · p         ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ⟩
+                                 ⌜ 𝟘ᵐ ⌝ · p ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · p         ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ⟩
 
                                  wkConₘ (stepn id 6) γ₁ +ᶜ
-                                 (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · p)  ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _) ⟩
+                                 (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · p)  ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _) ⟩
 
                                  wkConₘ (stepn id 6) γ₁ +ᶜ
-                                 (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙)     ∎))
+                                 (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟙)     ∎))
                          (sub
                             (▸emptyrec-sink var
                                (▸Targetᵇʳ ▸A (sucₘ (sucₘ var))
                                   (▸[] var) $
                                 begin
-                                  ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ
+                                  ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ·ᶜ
                                   (𝟘ᶜ ∙ 𝟙 ∙ 𝟘 ∙ 𝟘)                       ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
 
-                                  𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ 𝟘 ∙ 𝟘       ≈˘⟨ +ᶜ-identityʳ _ ⟩
+                                  𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ∙ 𝟘 ∙ 𝟘       ≈˘⟨ +ᶜ-identityʳ _ ⟩
 
 
-                                  (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ 𝟘 ∙ 𝟘) +ᶜ
+                                  (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ∙ 𝟘 ∙ 𝟘) +ᶜ
                                   𝟘ᶜ                                     ∎)
                                ok₅ ok₆)
                             (begin
@@ -289,6 +290,12 @@ opaque
        boolrecᵍ-pr ·ᶜ γ₄                                                 ≈⟨ +ᶜ-comm _ _ ⟩
 
        boolrecᵍ-pr ·ᶜ γ₄ +ᶜ
+       nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ  ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ ·⌜⌞⌟⌝) ⟩
+
+       (boolrecᵍ-pr · ⌜ ⌞ boolrecᵍ-pr ⌟ ⌝) ·ᶜ γ₄ +ᶜ
+       nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ  ≈⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
+
+       boolrecᵍ-pr ·ᶜ ⌜ ⌞ boolrecᵍ-pr ⌟ ⌝ ·ᶜ γ₄ +ᶜ
        nrᶜ boolrecᵍ-nc₂ 𝟘 γ₃ (nrᶜ boolrecᵍ-nc₁ 𝟘 γ₂ (⌜ m ⌝ ·ᶜ δ) 𝟘ᶜ) 𝟘ᶜ  ∎)
     where
     open ≤ᶜ-reasoning
@@ -297,43 +304,41 @@ opaque
       unfolding Boolᵍ
 
       Π-lemma :
-        𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ▸[ 𝟘ᵐ? ] t →
-        𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ] u →
-        wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · (Boolᵍ + p) ▸[ 𝟘ᵐ? ]
+        𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ ▸[ 𝟘ᵐ ] t →
+        𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ] u →
+        wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · (Boolᵍ + p) ▸[ 𝟘ᵐ ]
           Π 𝟙 , p ▷ Erased (OK t) ▹ Targetᵇʳ (2+ k) A u (var x0)
       Π-lemma {k} ▸t ▸u = sub
         (ΠΣₘ (▸Erased (B.▸OK ▸t)) $
          sub
            (▸Targetᵇʳ ▸A ▸u var $ begin
-              ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)             ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _ ⟩
+              ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)             ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _ ⟩
 
-              𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝  ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
+              𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝  ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
 
-              𝟘ᶜ +ᶜ 𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ + 𝟘 ∙ 𝟘 +
-              ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝                             ∎)
+              𝟘ᶜ +ᶜ 𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ + 𝟘 ∙ 𝟘 +
+              ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝                             ∎)
            (begin
-              wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ⟩
+              wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · p  ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ⟩
 
               (wkConₘ (stepn id k) γ₁ ∙ 𝟘 ∙ 𝟘) +ᶜ
-              (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · p)                    ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _) ⟩
+              (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · p)                    ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _) ⟩
 
               wkConₘ (stepn id (2+ k)) γ₁ +ᶜ
-              (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)                       ∎))
+              (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)                       ∎))
         (begin
-           wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · (Boolᵍ + p)          ≈⟨ ≈ᶜ-refl ∙ ·-distribˡ-+ _ _ _ ⟩
+           wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · (Boolᵍ + p)                   ≈⟨ ≈ᶜ-sym (+ᶜ-identityˡ _) ∙ ·-distribˡ-+ _ _ _ ⟩
 
-           wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · Boolᵍ + ⌜ 𝟘ᵐ? ⌝ · p  ≈⟨ ≈ᶜ-sym (+ᶜ-identityˡ _) ∙ PE.cong (flip _+_ _) (≡nr-𝟘-𝟘-⌜𝟘ᵐ?⌝ 𝟘ᵐ?) ⟩
+           (𝟘ᶜ +ᶜ wkConₘ (stepn id k) γ₁) ∙ ⌜ 𝟘ᵐ ⌝ · Boolᵍ + ⌜ 𝟘ᵐ ⌝ · p    ≈⟨ ≈ᶜ-refl ∙ +-congʳ (≡nr-𝟘-𝟘-⌜⌝ 𝟘ᵐ) ⟩
 
-           (𝟘ᶜ +ᶜ wkConₘ (stepn id k) γ₁) ∙ Boolᵍ + ⌜ 𝟘ᵐ? ⌝ · p    ≡⟨⟩
+           (𝟘ᶜ ∙ nr OKᵍ 𝟘 𝟘 𝟘 ⌜ 𝟘ᵐ ⌝) +ᶜ
+           (wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p)                           ≈˘⟨ (+ᶜ-congʳ $ nrᶜ-𝟘ᶜ ∙ PE.refl) ⟩
 
-           (𝟘ᶜ ∙ nr OKᵍ 𝟘 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝) +ᶜ
-           (wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p)                  ≈˘⟨ +ᶜ-congʳ $ nrᶜ-𝟘ᶜ ∙ PE.refl ⟩
-
-           nrᶜ OKᵍ 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) +ᶜ
-           (wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p)                  ∎)
+           nrᶜ OKᵍ 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝) +ᶜ
+           (wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p)                           ∎)
 
     lam-lemma :
-      𝟘ᶜ ▸[ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ] t →
+      𝟘ᶜ ▸[ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ] t →
       γ ▸[ m ] u →
       wkConₘ (stepn id k) γ ▸[ m ]
         lam 𝟙
@@ -350,33 +355,33 @@ opaque
               wkConₘ (stepn id (1+ k)) γ₁ ,
               sub
                 (▸Targetᵇʳ ▸A ▸t var $ begin
-                   ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙)   ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ⟩
-                   𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝          ≈˘⟨ +ᶜ-identityˡ _ ⟩
-                   𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)  ∎)
+                   ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙)   ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ⟩
+                   𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝          ≈˘⟨ +ᶜ-identityˡ _ ⟩
+                   𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝)  ∎)
                 (begin
-                   wkConₘ (stepn id (1+ k)) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p          ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
+                   wkConₘ (stepn id (1+ k)) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p          ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
 
-                   wkConₘ (stepn id (2+ k)) γ₁ +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p)  ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _) ⟩
+                   wkConₘ (stepn id (2+ k)) γ₁ +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · p)  ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _) ⟩
 
                    wkConₘ (stepn id (2+ k)) γ₁ +ᶜ
-                   (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙)                          ∎))
+                   (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙)                          ∎))
            (sub
               (unitrecₘ var (wkUsage (stepn id (2+ k)) ▸u)
                  (sub
                     (▸Targetᵇʳ ▸A (wkUsage (step id) ▸t) (▸[] var) $
                      begin
-                       ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+                       ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
                        𝟘ᶜ                         ≈˘⟨ +ᶜ-identityˡ _ ⟩
                        𝟘ᶜ +ᶜ 𝟘ᶜ                   ∎)
                     (begin
-                       wkConₘ (stepn id (2+ k)) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+                       wkConₘ (stepn id (2+ k)) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
 
                        wkConₘ (stepn id (3+ k)) γ₁                ≈˘⟨ +ᶜ-identityʳ _ ⟩
 
                        wkConₘ (stepn id (3+ k)) γ₁ +ᶜ 𝟘ᶜ          ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
 
                        wkConₘ (stepn id (3+ k)) γ₁ +ᶜ
-                       (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ 𝟘ᶜ                        ∎))
+                       (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ 𝟘ᶜ                        ∎))
                  ok₄)
               (begin
                  wkConₘ (stepn id (2+ k)) γ                            ≈˘⟨ +ᶜ-identityˡ _ ⟩
@@ -407,7 +412,7 @@ opaque
     Unitrec-allowed m 𝟘 𝟘 →
     Emptyrec-allowed m 𝟘 →
     Starˢ-sink →
-    γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] A →
+    γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
     γ₄ ▸[ m ] v →
@@ -422,7 +427,7 @@ opaque
     (begin
        γ₂ ∧ᶜ γ₃ +ᶜ γ₄                                                   ≈˘⟨ +ᶜ-congʳ $ ∧ᶜ-congʳ (∧ᶜ-idem _) ⟩
 
-       (γ₂ ∧ᶜ γ₂) ∧ᶜ γ₃ +ᶜ γ₄                                           ≤⟨ +ᶜ-monotoneˡ $ ∧ᶜ-monotoneˡ $ ∧ᶜ-monotoneˡ $ ≤ᶜ⌜⌝·ᶜ ▸t ⟩
+       (γ₂ ∧ᶜ γ₂) ∧ᶜ γ₃ +ᶜ γ₄                                           ≤⟨ +ᶜ-monotoneˡ $ ∧ᶜ-monotoneˡ $ ∧ᶜ-monotoneˡ $ ▸ᵐ ▸t ⟩
 
        (⌜ m ⌝ ·ᶜ γ₂ ∧ᶜ γ₂) ∧ᶜ γ₃ +ᶜ γ₄                                  ≈˘⟨ +ᶜ-congʳ $ ∧ᶜ-congʳ $
                                                                             ∧ᶜ-cong (≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroʳ _) $ +ᶜ-identityˡ _)

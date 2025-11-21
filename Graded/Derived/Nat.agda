@@ -3,25 +3,27 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Nat
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 R
+open import Graded.Usage R
 open import Graded.Usage.Restrictions.Instance R
-open import Graded.Usage.Properties 𝕄 R
-open import Graded.Usage.Weakening 𝕄 R
+open import Graded.Usage.Properties R
+open import Graded.Usage.Weakening R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Nat 𝕄
@@ -39,7 +41,7 @@ private variable
 
 private opaque
 
-  ▸ℕ : 𝟘ᶜ {n = n} ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ▸[ 𝟘ᵐ? ] ℕ
+  ▸ℕ : 𝟘ᶜ {n = n} ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘 ▸[ 𝟘ᵐ ] ℕ
   ▸ℕ = sub-≈ᶜ ℕₘ (≈ᶜ-refl ∙ ·-zeroʳ _)
 
 opaque
@@ -153,9 +155,9 @@ opaque
 
   ▸f : ⦃ ok : Nr-not-available-GLB ⦄ → ε ▸[ 𝟙ᵐ ] f
   ▸f = lamₘ $ lamₘ $ sub-≈ᶜ (▸f′₂ var var) $ begin
-    ε ∙ 𝟙 · 𝟙 ∙ 𝟙 · 𝟙 ≈⟨ ε ∙ ·-identityˡ _ ∙ ·-identityˡ _ ⟩
-    ε ∙ 𝟙     ∙ 𝟙     ≈˘⟨ ε ∙ +-identityʳ _ ∙ +-identityˡ _ ⟩
-    ε ∙ 𝟙 + 𝟘 ∙ 𝟘 + 𝟙 ∎
+    ε ∙ ⌜ 𝟙ᵐ ⌝ · 𝟙 ∙ ⌜ 𝟙ᵐ ⌝ · 𝟙 ≈⟨ ε ∙ ·-identityʳ _ ∙ ·-identityʳ _ ⟩
+    ε ∙ ⌜ 𝟙ᵐ ⌝     ∙ ⌜ 𝟙ᵐ ⌝     ≈˘⟨ ε ∙ +-identityʳ _ ∙ +-identityˡ _ ⟩
+    ε ∙ ⌜ 𝟙ᵐ ⌝ + 𝟘 ∙ 𝟘 + ⌜ 𝟙ᵐ ⌝ ∎
     where
     open ≈ᶜ-reasoning
 
@@ -208,7 +210,7 @@ opaque
     γ ▸[ m ] t →
     δ ∙ ⌜ m ⌝ · p ▸[ m ] u →
     η ▸[ m ] v →
-    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+    θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A →
     nrᶜ p 𝟘 γ δ η ▸[ m ] natcase p q A t u v
   ▸natcase {m} {δ} {p} ▸t ▸u ▸v ▸A =
     natrecₘ ▸t
@@ -229,7 +231,7 @@ opaque
     γ ▸[ m ] t →
     δ ∙ ⌜ m ⌝ · p ▸[ m ] u →
     η ▸[ m ] v →
-    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+    θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A →
     (𝟙 ∧ p) ·ᶜ η +ᶜ γ ∧ᶜ δ ▸[ m ] natcase p q A t u v
   ▸natcase′ ▸t ▸u ▸v ▸A =
     let ▸u′ = sub-≈ᶜ (wkUsage (step id) ▸u) (≈ᶜ-refl ∙ ·-zeroʳ _)
@@ -242,7 +244,7 @@ opaque
 
   ▸strict-const :
     ⦃ has-nr : Nr-available ⦄ →
-    γ ▸[ 𝟘ᵐ? ] A →
+    γ ▸[ 𝟘ᵐ ] A →
     δ ▸[ m ] t →
     η ▸[ m ] u →
     nrᶜ 𝟘 𝟙 δ 𝟘ᶜ η ▸[ m ] strict-const A t u
@@ -253,7 +255,7 @@ opaque
          𝟘ᶜ ∙ ⌜ m ⌝                  ∎)
       ▸u
       (sub (wkUsage (step id) ▸A) $ begin
-         γ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+         γ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          γ ∙ 𝟘            ∎)
     where
     open ≤ᶜ-reasoning
@@ -265,7 +267,7 @@ opaque
 
   ▸strict-const′ :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    γ ▸[ 𝟘ᵐ? ] A →
+    γ ▸[ 𝟘ᵐ ] A →
     δ ▸[ m ] t →
     η ▸[ m ] u →
     η +ᶜ δ ▸[ m ] strict-const A t u

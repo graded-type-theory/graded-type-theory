@@ -3,36 +3,39 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 import Definition.Untyped
 
 module Graded.Derived.List
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
   {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
   (open Definition.Untyped M)
   (pₕ pₗ : M)
-  (R : Usage-restrictions 𝕄)
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 import Graded.Derived.Vec 𝕨 pₕ R as V
-open import Graded.Mode 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Inversion 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
-open import Graded.Usage.Weakening 𝕄 R
-open import Graded.Substitution 𝕄 R
-open import Graded.Substitution.Properties 𝕄 R
+open import Graded.Usage R
+open import Graded.Usage.Inversion R
+open import Graded.Usage.Properties R
+open import Graded.Usage.Weakening R
+open import Graded.Substitution R
+open import Graded.Substitution.Properties R
 
-import Definition.Untyped.Vec 𝕄 𝕨 pₕ as UV
-open import Definition.Untyped.List 𝕄 pₕ pₗ
+import Definition.Untyped.Vec 𝕄 𝐌 𝕨 pₕ as UV
+open import Definition.Untyped.List 𝕄 𝐌 pₕ pₗ
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
@@ -59,7 +62,7 @@ opaque
 
   ▸List :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    γ ▸[ m ᵐ· pₕ ] A →
+    γ ▸[ m ] A →
     Greatest-lower-boundᶜ δ (nrᵢᶜ 𝟙 𝟘ᶜ γ) →
     δ ▸[ m ] List l A
   ▸List ▸A δ-GLB =
@@ -93,14 +96,13 @@ opaque
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     γ ▸[ m ᵐ· pₕ ] h →
     δ ▸[ m ] t →
-    η ▸[ 𝟘ᵐ? ] A →
+    η ▸[ 𝟘ᵐ ] A →
     Greatest-lower-boundᶜ θ (nrᵢᶜ 𝟙 𝟘ᶜ η) →
     Prodrec-allowed m 𝟙 pₗ 𝟘 →
     pₕ ·ᶜ γ +ᶜ δ ▸[ m ] cons l A h t
   ▸cons {γ} {m} {δ} ▸h ▸t ▸A θ-GLB ok =
     let ▸t′ = ▸-cong (sym ᵐ·-identityʳ) ▸t
-        ▸A′ = ▸-cong (sym ᵐ·-zeroˡ) ▸A
-        ▸L = sub-≈ᶜ (wkUsage (step id) (▸List ▸A′ θ-GLB))
+        ▸L = sub-≈ᶜ (wkUsage (step id) (▸List ▸A θ-GLB))
                (≈ᶜ-refl ∙ ·-zeroʳ _)
         ▸h′ = wkUsage (step (step id)) ▸h
         ▸u = prodʷₘ (sucₘ var) (V.▸cons′ʷ refl ▸h′ var)
@@ -148,8 +150,8 @@ opaque
     γ₁ ▸[ m ] nl →
     γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · p₃ ▸[ m ] cs →
     δ ▸[ m ] xs →
-    η₁ ▸[ 𝟘ᵐ? ] A →
-    η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+    η₁ ▸[ 𝟘ᵐ ] A →
+    η₂ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] P →
     Greatest-lower-bound r₁ (nrᵢ p₃ 𝟙 (p₂ · pₗ)) →
     Greatest-lower-bound r₂ (nrᵢ p₃ p₁ p₂) →
     Greatest-lower-boundᶜ γ (nrᵢᶜ p₃ γ₁ γ₂) →
@@ -160,7 +162,7 @@ opaque
     Prodrec-allowed m r₂ pₕ q →
     Prodrec-allowed m r pₗ q →
     r ·ᶜ δ +ᶜ γ ▸[ m ] listrec l r r₂ p₂ p₃ q A P nl cs xs
-  ▸listrec {m} {γ₂} {p₁} {p₂} {p₃} {η₂} {q} {r₁} {r₂} {γ} {r}
+  ▸listrec {m} {γ₂} {p₁} {p₂} {p₃} {δ} {η₂} {q} {r₁} {r₂} {γ} {r}
             ▸nl ▸cs ▸xs ▸A ▸P r₁-GLB r₂-GLB γ-GLB θ-GLB ≤r₁ ≤r₂ ok₁ ok₂ ok₃ =
     let ▸nl′ = wkUsage (step (step id)) ▸nl
         ▸x0 = sub-≈ᶜ var (·ᶜ-zeroʳ _ ∙ ·-identityʳ _)
@@ -177,7 +179,7 @@ opaque
                 (λ { x0 → refl ; (x0 +1) → refl ; (x0 +2) → refl ; (x +1 +2) → refl})
                 (wf-consSubstₘ (wf-consSubstₘ (wf-consSubstₘ
                   (wf-wkSubstₘ′ wf-idSubstₘ) ▸x2) ▸x3x1) ▸x0)
-        ▸cs′ = let open ≈ᶜ-reasoning in sub-≈ᶜ (substₘ-lemma _ Ψ▶σ ▸cs) $ begin
+        ▸cs′ = let open ≈ᶜ-reasoning in sub-≈ᶜ (substₘ-lemma Ψ▶σ ▸cs) $ begin
           γ₂ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ m ⌝ · p₂ · pₗ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · p₃
             ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
           (𝟘ᶜ , x0 ≔ ⌜ m ⌝ · p₃) +ᶜ
@@ -206,22 +208,22 @@ opaque
           γ₂ <* wkSubstₘ′ 6 idSubstₘ                ∎
         ▸A′ = wkUsage (step (step id)) ▸A
         ▸x1x0 = let open ≈ᶜ-reasoning in sub-≈ᶜ (prodʷₘ var var) $ begin
-          ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ pₗ ∙ 𝟙)
-            ≈⟨ ·ᶜ-zeroʳ _ ∙ ⌜⌝-·-comm ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ∙ ·-identityʳ _ ⟩
-          𝟘ᶜ ∙ pₗ · ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝
+          ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ pₗ ∙ 𝟙)
+            ≈⟨ ·ᶜ-zeroʳ _ ∙ ⌜⌝-·-comm ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ∙ ·-identityʳ _ ⟩
+          𝟘ᶜ ∙ pₗ · ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝
             ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityʳ _ ∙ +-identityˡ _ ⟩
-          (𝟘ᶜ ∙ pₗ · ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝)
-            ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·⌜ᵐ·⌝ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ∙ ·-zeroʳ _) ⟩
-          pₗ ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ᵐ· pₗ ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · q ⌟ ⌝) ∎
+          (𝟘ᶜ ∙ pₗ · ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝)
+            ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·⌜ᵐ·⌝ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ∙ ·-zeroʳ _) ⟩
+          pₗ ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ᵐ· pₗ ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · q ⌟ ⌝) ∎
         Ψ▶σ′ = ▶-cong _
                  (λ { x0 → refl ; (x +1) → refl})
                  (wf-consSubstₘ (wf-wkSubstₘ′ wf-idSubstₘ) ▸x1x0)
-        ▸P₊ = let open ≈ᶜ-reasoning in sub-≈ᶜ (substₘ-lemma _ Ψ▶σ′ ▸P) $ begin
-          η₂ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · q · pₗ ∙ ⌜ 𝟘ᵐ? ⌝ · q                     ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ⟩
-          (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q · pₗ ∙ ⌜ 𝟘ᵐ? ⌝ · q) +ᶜ (η₂ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _ ∙ ·-assoc _ _ _ ∙ ·-identityʳ _)
+        ▸P₊ = let open ≈ᶜ-reasoning in sub-≈ᶜ (substₘ-lemma Ψ▶σ′ ▸P) $ begin
+          η₂ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · q · pₗ ∙ ⌜ 𝟘ᵐ ⌝ · q                     ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ⟩
+          (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · q · pₗ ∙ ⌜ 𝟘ᵐ ⌝ · q) +ᶜ (η₂ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)  ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _ ∙ ·-assoc _ _ _ ∙ ·-identityʳ _)
                                                                             (≈ᶜ-trans (<*-wkSubstₘ′ {k = 4} η₂)
                                                                               (<*-identityˡ _ ∙ refl ∙ refl ∙ refl ∙ refl)) ⟩
-          (⌜ 𝟘ᵐ? ⌝ · q) ·ᶜ (𝟘ᶜ ∙ pₗ ∙ 𝟙) +ᶜ (η₂ <* wkSubstₘ′ 4 idSubstₘ)  ∎
+          (⌜ 𝟘ᵐ ⌝ · q) ·ᶜ (𝟘ᶜ ∙ pₗ ∙ 𝟙) +ᶜ (η₂ <* wkSubstₘ′ 4 idSubstₘ)  ∎
         γ-GLB′ = GLBᶜ-congˡ ((λ i → ≈ᶜ-refl ∙ sym (nrᵢ-𝟘 i) ∙ sym (nrᵢ-𝟘 i)))
                    (wk-GLBᶜ (step (step id)) γ-GLB)
         θ-GLB′ = GLBᶜ-congˡ ((λ i → ≈ᶜ-refl ∙ sym (nrᵢ-𝟘 i) ∙ sym (nrᵢ-𝟘 i)))
@@ -239,16 +241,11 @@ opaque
           (γ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ r₁ · ⌜ m ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ r₂ · ⌜ m ⌝)
             ≈˘⟨ +ᶜ-congˡ (+ᶜ-cong (·ᶜ-zeroʳ _ ∙ refl ∙ ·-zeroʳ _) (·ᶜ-zeroʳ _ ∙ ·⌜ᵐ·⌝ m)) ⟩
           (γ ∙ 𝟘 ∙ 𝟘) +ᶜ r₁ ·ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ ∙ 𝟘) +ᶜ r₂ ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· r₂ ⌝) ∎
-        ▸xs′ = let open Tools.Reasoning.PartialOrder ≤-poset
-               in  ▸-cong (sym (≢𝟘→ᵐ·≡′ λ ok r≡𝟘 →
-                     𝟘≰𝟙 ⦃ 𝟘-well-behaved ok ⦄ $ begin
-                       𝟘      ≈˘⟨ ·-zeroˡ _ ⟩
-                       𝟘 · pₗ ≈˘⟨ ·-congʳ r≡𝟘 ⟩
-                       r · pₗ ≤⟨ ≤r₁ ⟩
-                       r₁     ≤⟨ r₁-GLB .proj₁ 0 ⟩
-                       𝟙 ∎))
-                     ▸xs
-    in  prodrecₘ ▸xs′ ▸vr ▸P ok₃
+        open ≈ᶜ-reasoning
+    in  sub-≈ᶜ (prodrecₘ (▸-ᵐ· ▸xs) ▸vr ▸P ok₃) $ begin
+          r ·ᶜ δ +ᶜ γ                ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ ·⌜⌞⌟⌝) ⟩
+          (r · ⌜ ⌞ r ⌟ ⌝) ·ᶜ δ +ᶜ γ  ≈⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
+          r ·ᶜ ⌜ ⌞ r ⌟ ⌝ ·ᶜ δ +ᶜ γ   ∎
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
@@ -261,7 +258,7 @@ opaque
   inv-usage-List :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     γ ▸[ m ] List l A →
-    ∃₄ λ δ η η₁ η₂ → δ ▸[ m ᵐ· pₕ ] A × Greatest-lower-boundᶜ η (nrᵢᶜ 𝟙 η₁ η₂) ×
+    ∃₄ λ δ η η₁ η₂ → δ ▸[ m ] A × Greatest-lower-boundᶜ η (nrᵢᶜ 𝟙 η₁ η₂) ×
     γ ≤ᶜ η × η₁ ≤ᶜ 𝟘ᶜ × η₂ ≤ᶜ δ
   inv-usage-List {γ} ▸L =
     let invUsageΠΣ {δ = γ₁} {η = γ₂} ▸ℕ ▸V γ≤ = inv-usage-ΠΣ ▸L
@@ -307,7 +304,7 @@ opaque
 
   inv-usage-cons :
     γ ▸[ m ] cons l A h t →
-    ∃₃ λ δ η θ → δ ▸[ m ᵐ· pₕ ] h × η ▸[ m ] t × θ ▸[ 𝟘ᵐ? ] List l A × Prodrec-allowed m 𝟙 pₗ 𝟘 × γ ≤ᶜ pₕ ·ᶜ δ +ᶜ η
+    ∃₃ λ δ η θ → δ ▸[ m ᵐ· pₕ ] h × η ▸[ m ] t × θ ▸[ 𝟘ᵐ ] List l A × Prodrec-allowed m 𝟙 pₗ 𝟘 × γ ≤ᶜ pₕ ·ᶜ δ +ᶜ η
   inv-usage-cons {γ} {m} ▸cons =
     let invUsageProdrec {δ = δ₁} {η = δ₂} ▸t ▸u ▸A ok γ≤ = inv-usage-prodrec ▸cons
         invUsageProdʷ {δ = η₁} {η = η₂} ▸suc ▸cons′ δ₂≤ = inv-usage-prodʷ ▸u
@@ -357,7 +354,7 @@ opaque
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     γ ▸[ m ] listrec l r₁ r₂ p₁ p₂ q A P nl cs xs →
     ∃₉ λ δ₁ δ₁′ δ₂ δ₂′ η θ₁ θ₁′ θ₁″ θ₂ → ∃₃ λ x χ φ →
-    θ₁ ▸[ 𝟘ᵐ? ] A × θ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P × δ₁ ▸[ m ] nl ×
+    θ₁ ▸[ 𝟘ᵐ ] A × θ₂ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] P × δ₁ ▸[ m ] nl ×
     δ₂ ∙ ⌜ m ⌝ · r₂ · pₕ ∙ ⌜ m ⌝ · r₂ ▸[ m ]
       cs [ consSubst (consSubst (consSubst (wkSubst 7 idSubst) (var x1)) (prodʷ pₗ (var x4) (var x0))) (var x3 ∘⟨ r₂ ⟩ var x0) ] ×
     η ▸[ m ᵐ· r₁ ] xs ×
