@@ -17,7 +17,7 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
@@ -29,7 +29,7 @@ open import Definition.LogicalRelation.Hidden.Restricted R
 open import Definition.LogicalRelation.Substitution R
 
 open import Tools.Function
-open import Tools.Level hiding (_⊔_)
+import Tools.Level as L
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -54,7 +54,7 @@ opaque
   -- Valid definition contexts.
 
   »ᵛ_ : DCon (Term 0) n → Set a
-  »ᵛ ε = Lift _ ⊤
+  »ᵛ ε = L.Lift _ ⊤
   »ᵛ (∇ ∙⟨ opa φ ⟩[ t ∷ A ]) =
     »ᵛ ∇ ×
     Opacity-allowed ×
@@ -101,8 +101,9 @@ opaque
     ∇ » ε ⊩ᵛ⟨ l ⟩ A →
     Trans φ ∇ » ε ⊩ᵛ⟨ l′ ⟩ t ∷ A →
     »ᵛ ∇ ∙⟨ opa φ ⟩[ t ∷ A ]
-  »ᵛ-∙ᵒ-intro {l} {l′} »∇ ok ⊩A ⊩t = »ᵛ∙ᵒ⇔ .proj₂
-    (»∇ , ok , l ⊔ l′ , emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩A , emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ ⊩t)
+  »ᵛ-∙ᵒ-intro {l} {l′} »∇ ok ⊩A ⊩t =
+    »ᵛ∙ᵒ⇔ .proj₂
+      (»∇ , ok , l′ ⊔ᵘ l , emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩A , emb-⊩ᵛ∷ ≤ᵘ⊔ᵘʳ ⊩t)
 
 opaque
 
@@ -187,8 +188,8 @@ opaque
               → ∇′ » Δ ⊩ˢ σ ∷ Γ
               → ∇′ » Δ ⊢ defn α [ σ ] ⇒ wk wk₀ t [ σ ] ∷ wk wk₀ A [ σ ]
         α⇒t ξ⊇ ⊩σ = PE.subst₂ (_ ⊢ defn α ⇒_∷_)
-                              (PE.sym (wk₀-subst-invariant t))
-                              (PE.sym (wk₀-subst-invariant A))
+                              (PE.sym wk-wk₀-[]≡)
+                              (PE.sym wk-wk₀-[]≡)
                               (δ-red (escape-⊩ˢ∷ ⊩σ .proj₁)
                                      (there*-↦∷∈ ξ⊇ α↦t)
                                      PE.refl PE.refl)
@@ -217,11 +218,11 @@ opaque
           α[]≡α[] ξ⊇ σ₁≡σ₂ = with-inc-⊩≡∷ $
             let ⊢Δ = escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁
                 ⊩ᴿA = wk-⊩ (wk₀∷ʷ⊇ ⊢Δ) (defn-wk-⊩ ξ⊇ (⊩ᵛ→⊩ ⊩A))
-                α-ne = defn (there*-↦⊘∈ ξ⊇ α↦⊘)
+                α-ne = defnᵃ (there*-↦⊘∈ ξ⊇ α↦⊘)
                 A~A = ~-defn (defn ⊢Δ (there*-↦∈ ξ⊇ α↦∷) PE.refl)
                              (there*-↦⊘∈ ξ⊇ α↦⊘)
             in  refl-⊩≡∷ (PE.subst (_ ⊩⟨ l ⟩ defn α ∷_)
-                                   (PE.sym (wk₀-subst-invariant A))
+                                   (PE.sym wk-wk₀-[]≡)
                                    (neutral-⊩∷ ⊩ᴿA α-ne A~A))
 
       in  l , ⊩ᵛ∷⇔ .proj₂ (wk-⊩ᵛ wk₀∷⊇ ⊩Γ ⊩A , α[]≡α[])

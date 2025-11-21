@@ -118,8 +118,9 @@ import Graded.Usage.Restrictions.Satisfied
 --   cases the assumption is that equality reflection is not enabled
 --   or the context is empty).
 --
--- * Universe levels have been added. Instead of a single universe
---   there is now a countably infinite universe hierarchy.
+-- * Instead of a single universe there is now a countably infinite
+--   universe hierarchy, with optional support for a level type and
+--   universe polymorphism.
 --
 -- * Top-level definitions with optional support for opacity have been
 --   added.
@@ -769,7 +770,10 @@ linear-or-affine-has-well-behaved-zero =
 Theorem-6-2 =
   Graded.Usage.Properties.Has-well-behaved-zero.valid-var-usage
 
--- An example: The polymorphic identity function.
+-- An example: The polymorphic identity function. (The paper uses the
+-- function "λ⁰λ^ωx₀", but when support was added for universe levels
+-- this example was replaced by "λ⁰λ⁰λ^ωx₀", where the first argument
+-- is intended to be the universe level of the second argument.)
 
 id = Graded.Erasure.Examples.id
 
@@ -781,17 +785,17 @@ id = Graded.Erasure.Examples.id
 
 ▸id = Graded.Erasure.Examples.▸id
 
--- The identity function applied to two free variables.
+-- The identity function applied to three free variables.
 
-id-x1-x0 = Graded.Erasure.Examples.id-x1-x0
+id-generic = Graded.Erasure.Examples.id-generic
 
--- The term id-x1-x0 is well-typed.
+-- The term id-generic is well-typed.
 
-⊢id-x1-x0 = Graded.Erasure.Examples.⊢id-x1-x0
+⊢id-generic = Graded.Erasure.Examples.⊢id-generic
 
--- The term id-x1-x0 is well-resourced.
+-- The term id-generic is well-resourced.
 
-▸id-x1-x0 = Graded.Erasure.Examples.▸id-x1-x0
+▸id-generic = Graded.Erasure.Examples.▸id-generic
 
 -- The grammar of the untyped target language.
 --

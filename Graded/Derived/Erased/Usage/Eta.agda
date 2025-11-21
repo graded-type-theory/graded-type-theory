@@ -54,6 +54,7 @@ private
 -- Usage rules
 
 opaque
+  unfolding erased
 
   -- A usage rule for erased.
 
@@ -101,18 +102,21 @@ opaque
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
 
--- An inversion lemma for erased.
+opaque
+  unfolding erased
 
-inv-usage-erased :
-  γ ▸[ m ] erased t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t × γ ≤ᶜ 𝟘ᶜ × m PE.≡ 𝟘ᵐ[ ok ]
-inv-usage-erased {γ = γ} {ok = ok} ▸[] =
-  case inv-usage-fst ▸[] of λ where
-    (invUsageFst {δ = δ} m PE.refl ▸t γ≤ _) →
-        ▸-𝟘 ▸t
-      , (begin
-           γ   ≤⟨ γ≤ ⟩
-           δ   ≤⟨ ▸-𝟘ᵐ (▸-cong (ᵐ·𝟘≡𝟘ᵐ m ok) ▸t) ⟩
-           𝟘ᶜ  ∎)
-      , ᵐ·𝟘≡𝟘ᵐ m _
-  where
-  open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  -- An inversion lemma for erased.
+
+  inv-usage-erased :
+    γ ▸[ m ] erased t → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t × γ ≤ᶜ 𝟘ᶜ × m PE.≡ 𝟘ᵐ[ ok ]
+  inv-usage-erased {γ = γ} {ok = ok} ▸[] =
+    case inv-usage-fst ▸[] of λ where
+      (invUsageFst {δ = δ} m PE.refl ▸t γ≤ _) →
+          ▸-𝟘 ▸t
+        , (begin
+             γ   ≤⟨ γ≤ ⟩
+             δ   ≤⟨ ▸-𝟘ᵐ (▸-cong (ᵐ·𝟘≡𝟘ᵐ m ok) ▸t) ⟩
+             𝟘ᶜ  ∎)
+        , ᵐ·𝟘≡𝟘ᵐ m _
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset

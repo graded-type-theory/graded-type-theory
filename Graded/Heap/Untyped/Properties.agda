@@ -82,6 +82,11 @@ opaque
   -- Values applied to weakenings are values
 
   wkValue : (ρ : Wk m n) → Value t → Value (wk ρ t)
+  wkValue ρ Levelᵥ = Levelᵥ
+  wkValue ρ zeroᵘᵥ = zeroᵘᵥ
+  wkValue ρ sucᵘᵥ = sucᵘᵥ
+  wkValue ρ Liftᵥ = Liftᵥ
+  wkValue ρ liftᵥ = liftᵥ
   wkValue ρ lamᵥ = lamᵥ
   wkValue ρ zeroᵥ = zeroᵥ
   wkValue ρ sucᵥ = sucᵥ
@@ -101,6 +106,11 @@ opaque
   -- Values applied to substitutions are values
 
   substValue : (σ : Subst m n) → Value t → Value (t [ σ ])
+  substValue σ Levelᵥ = Levelᵥ
+  substValue σ zeroᵘᵥ = zeroᵘᵥ
+  substValue σ sucᵘᵥ = sucᵘᵥ
+  substValue σ Liftᵥ = Liftᵥ
+  substValue σ liftᵥ = liftᵥ
   substValue σ lamᵥ = lamᵥ
   substValue σ zeroᵥ = zeroᵥ
   substValue σ sucᵥ = sucᵥ
@@ -120,6 +130,11 @@ opaque
   -- Values are non-neutrals
 
   Value→¬Neutral : Value t → ¬ Neutral⁺ ∇ t
+  Value→¬Neutral Levelᵥ ()
+  Value→¬Neutral zeroᵘᵥ ()
+  Value→¬Neutral sucᵘᵥ ()
+  Value→¬Neutral Liftᵥ ()
+  Value→¬Neutral liftᵥ ()
   Value→¬Neutral lamᵥ ()
   Value→¬Neutral zeroᵥ ()
   Value→¬Neutral sucᵥ ()
@@ -141,7 +156,12 @@ opaque
 
   Value→Whnf :
     Value t →
-    Whnf ∇ t ⊎ ∃₆ λ l p q A u v → t ≡ unitrec l p q A u v × Unitʷ-η
+    Whnf ∇ t ⊎ (∃₅ λ p q A u v → t ≡ unitrec p q A u v × Unitʷ-η)
+  Value→Whnf Levelᵥ = inj₁ Levelₙ
+  Value→Whnf zeroᵘᵥ = inj₁ zeroᵘₙ
+  Value→Whnf sucᵘᵥ = inj₁ sucᵘₙ
+  Value→Whnf Liftᵥ = inj₁ Liftₙ
+  Value→Whnf liftᵥ = inj₁ liftₙ
   Value→Whnf lamᵥ = inj₁ lamₙ
   Value→Whnf zeroᵥ = inj₁ zeroₙ
   Value→Whnf sucᵥ = inj₁ sucₙ
@@ -154,7 +174,7 @@ opaque
   Value→Whnf Unitᵥ = inj₁ Unitₙ
   Value→Whnf Emptyᵥ = inj₁ Emptyₙ
   Value→Whnf Idᵥ = inj₁ Idₙ
-  Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , _ , refl , x)
+  Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , refl , x)
 
 ------------------------------------------------------------------------
 -- Properties of the lookup relations
@@ -306,6 +326,7 @@ opaque
   -- Applying a single substitution to a term and then to a continuation
 
   ⦅⦆ᶜ-sgSubst : ∀ c → ⦅ c ⦆ᶜ (t [ u ]₀) ≡ ⦅ wk1ᶜ c ⦆ᶜ t [ u ]₀
+  ⦅⦆ᶜ-sgSubst lowerₑ = refl
   ⦅⦆ᶜ-sgSubst (∘ₑ p u ρ) =
     cong (_ ∘_) (sym (step-sgSubst _ _))
   ⦅⦆ᶜ-sgSubst (fstₑ p) = refl
@@ -319,8 +340,8 @@ opaque
       (lifts-step-sgSubst 1 A)
       (lifts-step-sgSubst 0 z)
       (lifts-step-sgSubst 2 s)
-  ⦅⦆ᶜ-sgSubst {u = v} (unitrecₑ _ p q A u ρ) =
-    cong₂ (λ u A → unitrec _ p q A _ u)
+  ⦅⦆ᶜ-sgSubst (unitrecₑ p q A u ρ) =
+    cong₂ (λ u A → unitrec p q A _ u)
       (sym (step-sgSubst _ _))
       (lifts-step-sgSubst 1 A)
   ⦅⦆ᶜ-sgSubst (emptyrecₑ p A ρ) =
@@ -336,10 +357,11 @@ opaque
       (step-sgSubst A _) (step-sgSubst t _)
       (sym (lifts-step-sgSubst 1 B))
       (step-sgSubst u _))
-  ⦅⦆ᶜ-sgSubst ([]-congₑ s A t u ρ) =
-    sym (cong₃ (λ A t u → []-cong s A t u _)
-      (step-sgSubst A _) (step-sgSubst t _)
-      (step-sgSubst u _))
+  ⦅⦆ᶜ-sgSubst ([]-congₑ s l A t u ρ) =
+    sym $
+    cong₄ (λ l A t u → []-cong s l A t u _)
+      (step-sgSubst l _) (step-sgSubst A _) (step-sgSubst t _)
+      (step-sgSubst u _)
   ⦅⦆ᶜ-sgSubst sucₑ = refl
 
 opaque
@@ -360,6 +382,7 @@ opaque
   -- Applying a double substitution to a term and then to a continuation
 
   ⦅⦆ᶜ-[,] : ∀ e → ⦅ e ⦆ᶜ (t [ u , v ]₁₀) ≡ ⦅ wk2ᶜ e ⦆ᶜ t [ u , v ]₁₀
+  ⦅⦆ᶜ-[,] lowerₑ = refl
   ⦅⦆ᶜ-[,] (∘ₑ p u ρ) =
     cong (_ ∘_) (lifts-step-[,] 0 u)
   ⦅⦆ᶜ-[,] (fstₑ x) = refl
@@ -373,8 +396,8 @@ opaque
       (lifts-step-[,] 1 A)
       (lifts-step-[,] 0 z)
       (lifts-step-[,] 2 s)
-  ⦅⦆ᶜ-[,] (unitrecₑ _ p q A u ρ) =
-    cong₂ (λ x y → unitrec _ p q x _ y)
+  ⦅⦆ᶜ-[,] (unitrecₑ p q A u ρ) =
+    cong₂ (λ x y → unitrec p q x _ y)
       (lifts-step-[,] 1 A) (lifts-step-[,] 0 u)
   ⦅⦆ᶜ-[,] (emptyrecₑ p A ρ) =
     cong (λ A → emptyrec p A _) (lifts-step-[,] 0 A)
@@ -387,9 +410,9 @@ opaque
     cong₄ (λ A t B u → K p A t B u _)
       (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 1 B) (lifts-step-[,] 0 u)
-  ⦅⦆ᶜ-[,] ([]-congₑ s A t u ρ) =
-    cong₃ (λ A t u → []-cong s A t u _)
-      (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
+  ⦅⦆ᶜ-[,] ([]-congₑ s l A t u ρ) =
+    cong₄ (λ l A t u → []-cong s l A t u _)
+      (lifts-step-[,] 0 l) (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 0 u)
   ⦅⦆ᶜ-[,] sucₑ = refl
 
@@ -411,6 +434,7 @@ opaque
   -- Weakening of a continuation applied to a Term
 
   wk-⦅⦆ᶜ : ∀ {ρ : Wk m n} e → wk ρ (⦅ e ⦆ᶜ t) ≡ ⦅ wkᶜ ρ e ⦆ᶜ (wk ρ t)
+  wk-⦅⦆ᶜ lowerₑ = refl
   wk-⦅⦆ᶜ {ρ} (∘ₑ p u ρ′) =
     cong (_ ∘_) (wk-comp ρ ρ′ u)
   wk-⦅⦆ᶜ (fstₑ p) = refl
@@ -424,8 +448,8 @@ opaque
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ z)
       (wk-comp (liftn ρ 2) (liftn ρ′ 2) s)
-  wk-⦅⦆ᶜ {ρ} (unitrecₑ _ p q A u ρ′) =
-    cong₂ (λ A u → unitrec _ p q A _ u)
+  wk-⦅⦆ᶜ {ρ} (unitrecₑ p q A u ρ′) =
+    cong₂ (λ A u → unitrec p q A _ u)
       (wk-comp (lift ρ) (lift ρ′) A)
       (wk-comp ρ ρ′ u)
   wk-⦅⦆ᶜ {ρ} (emptyrecₑ p A ρ′) =
@@ -439,9 +463,9 @@ opaque
     cong₄ (λ A t B u → K p A t B u _)
       (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
       (wk-comp (lift ρ) (lift ρ′) B) (wk-comp ρ ρ′ u)
-  wk-⦅⦆ᶜ {ρ} ([]-congₑ s A t u ρ′) =
-    cong₃ (λ A t u → []-cong s A t u _)
-      (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
+  wk-⦅⦆ᶜ {ρ} ([]-congₑ s l A t u ρ′) =
+    cong₄ (λ l A t u → []-cong s l A t u _)
+      (wk-comp ρ ρ′ l) (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
       (wk-comp ρ ρ′ u)
   wk-⦅⦆ᶜ {ρ} sucₑ = refl
 
@@ -451,6 +475,8 @@ opaque
 
   ⦅⦆ᶜ-cong : ∀ e → t [ σ ] ≡ u [ σ ]
          → ⦅ e ⦆ᶜ t [ σ ] ≡ ⦅ e ⦆ᶜ u [ σ ]
+  ⦅⦆ᶜ-cong lowerₑ t≡u =
+    cong lower t≡u
   ⦅⦆ᶜ-cong (∘ₑ p u ρ) t≡u =
     cong (_∘ _) t≡u
   ⦅⦆ᶜ-cong (fstₑ x) t≡u =
@@ -461,16 +487,16 @@ opaque
     cong (λ t → prodrec _ _ _ _ t _) t≡u
   ⦅⦆ᶜ-cong (natrecₑ p q r A z s ρ) t≡u =
     cong (λ t → natrec _ _ _ _ _ _ t) t≡u
-  ⦅⦆ᶜ-cong (unitrecₑ _ p q A u ρ) t≡u =
-    cong (λ t → unitrec _ _ _ _ t _) t≡u
+  ⦅⦆ᶜ-cong (unitrecₑ p q A u ρ) t≡u =
+    cong (λ t → unitrec _ _ _ t _) t≡u
   ⦅⦆ᶜ-cong (emptyrecₑ p A ρ) t≡u =
     cong (emptyrec _ _) t≡u
   ⦅⦆ᶜ-cong (Jₑ p q A t B u v ρ) t≡u =
     cong (J _ _ _ _ _ _ _) t≡u
   ⦅⦆ᶜ-cong (Kₑ p A t B u ρ) t≡u =
     cong (K _ _ _ _ _) t≡u
-  ⦅⦆ᶜ-cong ([]-congₑ s A t u ρ) t≡u =
-    cong ([]-cong _ _ _ _) t≡u
+  ⦅⦆ᶜ-cong ([]-congₑ _ _ _ _ _ _) t≡u =
+    cong ([]-cong _ _ _ _ _) t≡u
   ⦅⦆ᶜ-cong sucₑ t≡u =
     cong suc t≡u
 
@@ -503,6 +529,7 @@ opaque
   -- Continuation weakening preserves multiplicity
 
   wk-∣∣ᶜ : ∣ c ∣ᶜ≡ p → ∣ wkᶜ ρ c ∣ᶜ≡ p
+  wk-∣∣ᶜ lowerₑ = lowerₑ
   wk-∣∣ᶜ ∘ₑ = ∘ₑ
   wk-∣∣ᶜ fstₑ = fstₑ
   wk-∣∣ᶜ sndₑ = sndₑ
@@ -573,6 +600,7 @@ opaque
   -- The multiplicity relation for continuations is functional
 
   ∣∣ᶜ-functional : ∣ c ∣ᶜ≡ p → ∣ c ∣ᶜ≡ q → p ≡ q
+  ∣∣ᶜ-functional lowerₑ lowerₑ = refl
   ∣∣ᶜ-functional ∘ₑ ∘ₑ = refl
   ∣∣ᶜ-functional fstₑ fstₑ = refl
   ∣∣ᶜ-functional sndₑ sndₑ = refl
@@ -638,17 +666,18 @@ opaque
   ∣∣ᶜ≡ :
     (∀ {n p q r A u v ρ} → c ≡ natrecₑ {n = n} p q r A u v ρ → Nr-available) →
     ∃ ∣ c ∣ᶜ≡_
+  ∣∣ᶜ≡ {c = lowerₑ} _ = 𝟙 , lowerₑ
   ∣∣ᶜ≡ {c = ∘ₑ p u ρ} _ = 𝟙 , ∘ₑ
   ∣∣ᶜ≡ {c = fstₑ x} _ = 𝟙 , fstₑ
   ∣∣ᶜ≡ {c = sndₑ x} _ = 𝟙 , sndₑ
   ∣∣ᶜ≡ {c = prodrecₑ r p q A u ρ} _ = r , prodrecₑ
   ∣∣ᶜ≡ {c = natrecₑ p q r A z s ρ} has-nr =
     _ , natrecₑ (∣nr∣≡ ⦃ has-nr refl ⦄ .proj₂)
-  ∣∣ᶜ≡ {c = unitrecₑ l p q A u ρ} _ = p , unitrecₑ
+  ∣∣ᶜ≡ {c = unitrecₑ p _ _ _ _} _ = p , unitrecₑ
   ∣∣ᶜ≡ {c = emptyrecₑ p A ρ} _ = p , emptyrecₑ
   ∣∣ᶜ≡ {c = Jₑ p q A t B u v ρ} _ = _ , Jₑ (∣J∣≡ .proj₂)
   ∣∣ᶜ≡ {c = Kₑ p A t B u ρ} _ = _ , Kₑ (∣K∣≡ .proj₂)
-  ∣∣ᶜ≡ {c = []-congₑ s A t u ρ} _ = 𝟘 , []-congₑ
+  ∣∣ᶜ≡ {c = []-congₑ _ _ _ _ _ _} _ = 𝟘 , []-congₑ
   ∣∣ᶜ≡ {c = sucₑ} _ = 𝟙 , sucₑ
 
 opaque
@@ -807,6 +836,7 @@ opaque
       q ≡ 𝟘 → ∣ c ∣ᶜ≡ q →
       (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
       (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
+    here′ q≡ lowerₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ ∘ₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ fstₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ sndₑ = ⊥-elim (non-trivial q≡)
@@ -879,16 +909,17 @@ opaque
   -- term is neutral.
 
   ⦅⦆ᶜ-neutral : ∀ c → Neutral V ∇ (⦅ c ⦆ᶜ t) → Neutral V ∇ t
+  ⦅⦆ᶜ-neutral lowerₑ (lowerₙ n) = n
   ⦅⦆ᶜ-neutral (∘ₑ p u ρ) (∘ₙ n) = n
   ⦅⦆ᶜ-neutral (fstₑ x) (fstₙ n) = n
   ⦅⦆ᶜ-neutral (sndₑ x) (sndₙ n) = n
   ⦅⦆ᶜ-neutral (prodrecₑ r p q A u ρ) (prodrecₙ n) = n
   ⦅⦆ᶜ-neutral (natrecₑ p q r A z s ρ) (natrecₙ n) = n
-  ⦅⦆ᶜ-neutral (unitrecₑ l p q A u ρ) (unitrecₙ x n) = n
+  ⦅⦆ᶜ-neutral (unitrecₑ _ _ _ _ _) (unitrecₙ _ n) = n
   ⦅⦆ᶜ-neutral (emptyrecₑ p A ρ) (emptyrecₙ n) = n
   ⦅⦆ᶜ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
   ⦅⦆ᶜ-neutral (Kₑ p A t B u ρ) (Kₙ n) = n
-  ⦅⦆ᶜ-neutral ([]-congₑ s A t u ρ) ([]-congₙ n) = n
+  ⦅⦆ᶜ-neutral ([]-congₑ _ _ _ _ _ _) ([]-congₙ n) = n
   ⦅⦆ᶜ-neutral sucₑ ()
 
 opaque
@@ -990,12 +1021,14 @@ opaque
   wk1-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙ (p , e) , t , step ρ , wk1ˢ S ⟩
   wk1-Normal (val x) = val x
   wk1-Normal (var d) = var (there d)
+  wk1-Normal sup = sup
 
 opaque
 
   wk1●-Normal : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H ∙● , t , step ρ , wk1ˢ S ⟩
   wk1●-Normal (val x) = val x
   wk1●-Normal (var d) = var (there● d)
+  wk1●-Normal sup = sup
 
 opaque
 
@@ -1004,6 +1037,7 @@ opaque
   Normal-stack : Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H , t , ρ , S′ ⟩
   Normal-stack (val x) = val x
   Normal-stack (var x) = var x
+  Normal-stack sup = sup
 
 opaque
 
@@ -1013,6 +1047,7 @@ opaque
   ~ʰ-Normal : H ~ʰ H′ → Normal ⟨ H , t , ρ , S ⟩ → Normal ⟨ H′ , t , ρ , S′ ⟩
   ~ʰ-Normal H~H′ (val x) = val x
   ~ʰ-Normal H~H′ (var x) = var (~ʰ-lookup● H~H′ x)
+  ~ʰ-Normal H~H′ sup = sup
 
 ------------------------------------------------------------------------
 -- Properties of heaps as substitutions
@@ -1108,6 +1143,12 @@ opaque
   toSubstₕ-NeutralAt d (var ok) with toSubstₕ-erased _ _ d
   … | (x′ , ≡x′) =
     subst (NeutralAt _ _ _) (sym ≡x′) (var ok)
+  toSubstₕ-NeutralAt d (supᵘˡₙ n) =
+    supᵘˡₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (supᵘʳₙ n) =
+    supᵘʳₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (lowerₙ n) =
+    lowerₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d (∘ₙ n) =
     ∘ₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d (fstₙ n) =
@@ -1144,17 +1185,18 @@ opaque
   -- No-namesᶜ is closed under weakening.
 
   No-namesᶜ-wk : No-namesᶜ c → No-namesᶜ (wkᶜ ρ c)
-  No-namesᶜ-wk (emptyrecₑ nn)           = emptyrecₑ nn
-  No-namesᶜ-wk (unitrecₑ nn₁ nn₂)       = unitrecₑ nn₁ nn₂
-  No-namesᶜ-wk (∘ₑ nn)                  = ∘ₑ nn
-  No-namesᶜ-wk fstₑ                     = fstₑ
-  No-namesᶜ-wk sndₑ                     = sndₑ
-  No-namesᶜ-wk (prodrecₑ nn₁ nn₂)       = prodrecₑ nn₁ nn₂
-  No-namesᶜ-wk sucₑ                     = sucₑ
-  No-namesᶜ-wk (natrecₑ nn₁ nn₂ nn₃)    = natrecₑ nn₁ nn₂ nn₃
-  No-namesᶜ-wk (Jₑ nn₁ nn₂ nn₃ nn₄ nn₅) = Jₑ nn₁ nn₂ nn₃ nn₄ nn₅
-  No-namesᶜ-wk (Kₑ nn₁ nn₂ nn₃ nn₄)     = Kₑ nn₁ nn₂ nn₃ nn₄
-  No-namesᶜ-wk ([]-congₑ nn₁ nn₂ nn₃)   = []-congₑ nn₁ nn₂ nn₃
+  No-namesᶜ-wk lowerₑ                     = lowerₑ
+  No-namesᶜ-wk (emptyrecₑ nn)             = emptyrecₑ nn
+  No-namesᶜ-wk (unitrecₑ nn₁ nn₂)         = unitrecₑ nn₁ nn₂
+  No-namesᶜ-wk (∘ₑ nn)                    = ∘ₑ nn
+  No-namesᶜ-wk fstₑ                       = fstₑ
+  No-namesᶜ-wk sndₑ                       = sndₑ
+  No-namesᶜ-wk (prodrecₑ nn₁ nn₂)         = prodrecₑ nn₁ nn₂
+  No-namesᶜ-wk sucₑ                       = sucₑ
+  No-namesᶜ-wk (natrecₑ nn₁ nn₂ nn₃)      = natrecₑ nn₁ nn₂ nn₃
+  No-namesᶜ-wk (Jₑ nn₁ nn₂ nn₃ nn₄ nn₅)   = Jₑ nn₁ nn₂ nn₃ nn₄ nn₅
+  No-namesᶜ-wk (Kₑ nn₁ nn₂ nn₃ nn₄)       = Kₑ nn₁ nn₂ nn₃ nn₄
+  No-namesᶜ-wk ([]-congₑ nn₁ nn₂ nn₃ nn₄) = []-congₑ nn₁ nn₂ nn₃ nn₄
 
 opaque
 

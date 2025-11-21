@@ -14,9 +14,10 @@ module Definition.Untyped.Identity
 
 open Modality 𝕄
 
-import Definition.Typed.Decidable.Internal.Term 𝕄 as I
-import Definition.Typed.Decidable.Internal.Substitution 𝕄 as IS
-import Definition.Typed.Decidable.Internal.Weakening 𝕄 as IW
+import Definition.Typed.Decidable.Internal.Term
+import Definition.Typed.Decidable.Internal.Substitution.Primitive
+import Definition.Typed.Decidable.Internal.Weakening
+open import Definition.Typed.Restrictions
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -30,18 +31,11 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                                               : Nat
-  A A₁ A₂ B eq eq₁ eq₂ t t₁ t₂ u u₁ u₂ v w w₁ w₂  : Term _
-  σ                                               : Subst _ _
-  ρ                                               : Wk _ _
-  l l₁ l₂                                         : Universe-level
-  p p′ q q′                                       : M
-  c                                               : I.Constants
-  pᵢ p′ᵢ qᵢ q′ᵢ                                   : I.Termᵍ _
-  lᵢ l₁ᵢ l₂ᵢ                                      : I.Termˡ _
-  Aᵢ A₁ᵢ A₂ᵢ Bᵢ
-    eq₁ᵢ eq₂ᵢ tᵢ t₁ᵢ t₂ᵢ uᵢ u₁ᵢ u₂ᵢ vᵢ wᵢ w₁ᵢ w₂ᵢ : I.Term _ _
-  γ                                               : I.Contexts _
+  n                                                      : Nat
+  A A₁ A₂ B eq eq₁ eq₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ v w w₁ w₂ : Term _
+  σ                                                      : Subst _ _
+  ρ                                                      : Wk _ _
+  p p′ q q′                                              : M
 
 opaque
 
@@ -65,31 +59,11 @@ opaque
   subst-[] {B} =
     cong₄ (J _ _ _ _) (wk1-liftSubst B) refl refl refl
 
--- A variant of subst, intended to be used with the internal
--- type-checker.
-
-substᵢ :
-  I.Termᵍ (c .I.gs) → I.Term c n → I.Term c (1+ n) → I.Term c n →
-  I.Term c n → I.Term c n → I.Term c n → I.Term c n
-substᵢ p A B t u v w =
-  I.J p I.𝟘 A t (IW.wk[ 1 ] B) w u v
-
-opaque
-  unfolding subst
-
-  -- A translation lemma for substᵢ.
-
-  ⌜substᵢ⌝ :
-    I.⌜ substᵢ pᵢ Aᵢ Bᵢ tᵢ uᵢ vᵢ wᵢ ⌝ γ ≡
-    subst (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
-      (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ) (I.⌜ wᵢ ⌝ γ)
-  ⌜substᵢ⌝ = refl
-
 opaque
 
   -- A cast lemma.
 
-  cast : Universe-level → Term n → Term n → Term n → Term n → Term n
+  cast : Term n → Term n → Term n → Term n → Term n → Term n
   cast l A B t u =
     subst 𝟙 (U l) (var x0) A B t u
 
@@ -100,30 +74,10 @@ opaque
 
   cast-[] :
     cast l A B t u [ σ ] ≡
-    cast l (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
+    cast (l [ σ ]) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
   cast-[] {l} {A} {B} {t} {u} {σ} =
     subst 𝟙 (U l) (var x0) A B t u [ σ ]                            ≡⟨ subst-[] ⟩
-    subst 𝟙 (U l) (var x0) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])  ∎
-
--- A variant of cast, intended to be used with the internal
--- type-checker.
-
-castᵢ :
-  I.Termˡ (c .I.ls) → I.Term c n → I.Term c n → I.Term c n →
-  I.Term c n → I.Term c n
-castᵢ l A B t u =
-  substᵢ I.𝟙 (I.U l) (I.var x0) A B t u
-
-opaque
-  unfolding cast subst
-
-  -- A translation lemma for castᵢ.
-
-  ⌜castᵢ⌝ :
-    I.⌜ castᵢ lᵢ Aᵢ Bᵢ tᵢ uᵢ ⌝ γ ≡
-    cast (I.⟦ lᵢ ⟧ˡ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
-      (I.⌜ uᵢ ⌝ γ)
-  ⌜castᵢ⌝ = refl
+    subst 𝟙 (U (l [ σ ])) (var x0) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])  ∎
 
 opaque
 
@@ -131,16 +85,16 @@ opaque
 
   wk-cast :
     wk ρ (cast l A B t u) ≡
-    cast l (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)
+    cast (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)
   wk-cast {ρ} {l} {A} {B} {t} {u} =
-    wk ρ (cast l A B t u)                                         ≡⟨ wk≡subst _ _ ⟩
+    wk ρ (cast l A B t u)                                       ≡⟨ wk≡subst _ _ ⟩
 
-    cast l A B t u [ toSubst ρ ]                                  ≡⟨ cast-[] ⟩
+    cast l A B t u [ toSubst ρ ]                                ≡⟨ cast-[] ⟩
 
-    cast l (A [ toSubst ρ ]) (B [ toSubst ρ ]) (t [ toSubst ρ ])
-      (u [ toSubst ρ ])                                           ≡˘⟨ cong₄ (cast _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
-
-    cast l (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)                    ∎
+    cast (l [ toSubst ρ ]) (A [ toSubst ρ ]) (B [ toSubst ρ ])
+      (t [ toSubst ρ ]) (u [ toSubst ρ ])                       ≡˘⟨ cong₅ cast (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _)
+                                                                      (wk≡subst _ _) ⟩
+    cast (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)           ∎
 
 opaque
 
@@ -200,27 +154,6 @@ opaque
     subst ω (A [ σ ]) (Id (wk1 (A [ σ ])) (wk1 (t [ σ ])) (var x0))
       (u [ σ ]) (v [ σ ]) (eq₂ [ σ ]) (eq₁ [ σ ])                    ∎
 
--- A variant of transitivity, intended to be used with the internal
--- type-checker.
-
-transitivityᵢ :
-  I.Term c n → I.Term c n → I.Term c n → I.Term c n → I.Term c n →
-  I.Term c n → I.Term c n
-transitivityᵢ A t u v eq₁ eq₂ =
-  substᵢ I.ω A (I.Id (IW.wk[ 1 ] A) (IW.wk[ 1 ] t) (I.var x0)) u v eq₂
-    eq₁
-
-opaque
-  unfolding subst transitivity
-
-  -- A translation lemma for transitivityᵢ.
-
-  ⌜transitivityᵢ⌝ :
-    I.⌜ transitivityᵢ Aᵢ tᵢ uᵢ vᵢ eq₁ᵢ eq₂ᵢ ⌝ γ ≡
-    transitivity (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ)
-      (I.⌜ eq₁ᵢ ⌝ γ) (I.⌜ eq₂ᵢ ⌝ γ)
-  ⌜transitivityᵢ⌝ = refl
-
 opaque
 
   -- A simplification lemma for transitivity and symmetry.
@@ -274,28 +207,6 @@ opaque
       (Id (wk1 (B [ σ ])) (wk1 (v [ liftSubst σ ] [ t [ σ ] ]₀))
          (v [ liftSubst σ ]))
       (t [ σ ]) (u [ σ ]) (w [ σ ]) rfl                              ∎
-
--- A variant of cong, intended to be used with the internal
--- type-checker.
-
-congᵢ :
-  I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n → I.Term c n →
-  I.Term c n → I.Term c (1+ n) → I.Term c n → I.Term c n
-congᵢ p A t u B v w =
-  substᵢ p A
-    (I.Id (IW.wk[ 1 ] B) (IW.wk[ 1 ] (I.subst v (IS.sgSubst t))) v) t
-    u w (I.rfl nothing)
-
-opaque
-  unfolding cong subst
-
-  -- A translation lemma for congᵢ.
-
-  ⌜congᵢ⌝ :
-    I.⌜ congᵢ pᵢ Aᵢ tᵢ uᵢ Bᵢ vᵢ wᵢ ⌝ γ ≡
-    cong (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
-      (I.⌜ Bᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ) (I.⌜ wᵢ ⌝ γ)
-  ⌜congᵢ⌝ = refl
 
 opaque
 
@@ -361,32 +272,6 @@ opaque
          (v [ σ ⇑[ 2 ] ] [ wk1 (t₂ [ σ ]) ]₀) (w₁ [ σ ]))
       (cong p (A₂ [ σ ]) (t₂ [ σ ]) (u₂ [ σ ]) (B [ σ ])
          (v [ σ ⇑[ 2 ] ] [ sgSubst (u₁ [ σ ]) ⇑ ]) (w₂ [ σ ]))            ∎
-
--- A variant of cong₂, intended to be used with the internal
--- type-checker.
-
-cong₂ᵢ :
-  I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n → I.Term c n →
-  I.Term c n → I.Term c n → I.Term c n → I.Term c n → I.Term c (2+ n) →
-  I.Term c n → I.Term c n → I.Term c n
-cong₂ᵢ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ =
-  transitivityᵢ B (I.subst v (I.cons (IS.sgSubst t₁) t₂))
-    (I.subst v (I.cons (IS.sgSubst u₁) t₂))
-    (I.subst v (I.cons (IS.sgSubst u₁) u₂))
-    (congᵢ p A₁ t₁ u₁ B (I.subst v (IS.sgSubst (IW.wk[ 1 ] t₂))) w₁)
-    (congᵢ p A₂ t₂ u₂ B (I.subst v (IS.sgSubst u₁ I.⇑)) w₂)
-
-opaque
-  unfolding cong cong₂ subst transitivity
-
-  -- A translation lemma for cong₂ᵢ.
-
-  ⌜cong₂ᵢ⌝ :
-    I.⌜ cong₂ᵢ pᵢ A₁ᵢ t₁ᵢ u₁ᵢ A₂ᵢ t₂ᵢ u₂ᵢ Bᵢ vᵢ w₁ᵢ w₂ᵢ ⌝ γ ≡
-    cong₂ (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ A₁ᵢ ⌝ γ) (I.⌜ t₁ᵢ ⌝ γ) (I.⌜ u₁ᵢ ⌝ γ)
-      (I.⌜ A₂ᵢ ⌝ γ) (I.⌜ t₂ᵢ ⌝ γ) (I.⌜ u₂ᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ)
-      (I.⌜ vᵢ ⌝ γ) (I.⌜ w₁ᵢ ⌝ γ) (I.⌜ w₂ᵢ ⌝ γ)
-  ⌜cong₂ᵢ⌝ = refl
 
 opaque
 
@@ -454,10 +339,10 @@ opaque
 
   -- A certain formulation of function extensionality.
 
-  Funext : M → M → M → M → Universe-level → Universe-level → Term n
+  Funext : M → M → M → M → Term n → Term n → Term n
   Funext p q p′ q′ l₁ l₂ =
     Π p , q ▷ U l₁ ▹
-    Π p′ , q′ ▷ (Π p , q ▷ var x0 ▹ U l₂) ▹
+    Π p′ , q′ ▷ (Π p , q ▷ var x0 ▹ U (wk[ 2 ]′ l₂)) ▹
     let Π-type = Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) in
     Π p′ , q′ ▷ Π-type ▹
     Π p′ , q′ ▷ wk1 Π-type ▹
@@ -473,40 +358,28 @@ opaque
 
   -- A substitution lemma for Funext.
 
-  Funext-[] : Funext p q p′ q′ l₁ l₂ [ σ ] ≡ Funext p q p′ q′ l₁ l₂
-  Funext-[] = refl
-
--- A variant of Funext, intended to be used with the internal
--- type-checker.
-
-Funextᵢ :
-  I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) →
-  I.Termᵍ (c .I.gs) → I.Termˡ (c .I.ls) → I.Termˡ (c .I.ls) →
-  I.Term c n
-Funextᵢ p q p′ q′ l₁ l₂ =
-  I.Π p , q ▷ I.U l₁ ▹
-  I.Π p′ , q′ ▷ (I.Π p , q ▷ I.var x0 ▹ I.U l₂) ▹
-  let Π-type = I.Π p , q ▷ I.var x1 ▹ (I.var x1 I.∘⟨ p ⟩ I.var x0)
-  in
-  I.Π p′ , q′ ▷ Π-type ▹
-  I.Π p′ , q′ ▷ IW.wk[ 1 ] Π-type ▹
-  I.Π p′ , q′ ▷
-    (I.Π p , q ▷ I.var x3 ▹
-     I.Id (I.var x3 I.∘⟨ p ⟩ I.var x0)
-       (I.var x2 I.∘⟨ p ⟩ I.var x0)
-       (I.var x1 I.∘⟨ p ⟩ I.var x0)) ▹
-  I.Id (IW.wk[ 3 ] Π-type) (I.var x2) (I.var x1)
+  Funext-[] :
+    Funext p q p′ q′ l₁ l₂ [ σ ] ≡
+    Funext p q p′ q′ (l₁ [ σ ]) (l₂ [ σ ])
+  Funext-[] {p} {q} {p′} {q′} {l₂} =
+    PE.cong (Π p , q ▷_▹_ _) $
+    PE.cong (flip (Π p′ , q′ ▷_▹_) _) $
+    PE.cong (Π p , q ▷_▹_ _) $
+    PE.cong U $
+    wk[]′-[⇑] l₂
 
 opaque
-  unfolding Funext
 
-  -- A translation lemma for Funextᵢ.
+  -- A weakening lemma for Funext.
 
-  ⌜Funextᵢ⌝ :
-    I.⌜ Funextᵢ {n = n} pᵢ qᵢ p′ᵢ q′ᵢ l₁ᵢ l₂ᵢ ⌝ γ ≡
-    Funext (I.⟦ pᵢ ⟧ᵍ γ) (I.⟦ qᵢ ⟧ᵍ γ) (I.⟦ p′ᵢ ⟧ᵍ γ) (I.⟦ q′ᵢ ⟧ᵍ γ)
-      (I.⟦ l₁ᵢ ⟧ˡ γ) (I.⟦ l₂ᵢ ⟧ˡ γ)
-  ⌜Funextᵢ⌝ = refl
+  wk-Funext :
+    wk ρ (Funext p q p′ q′ l₁ l₂) ≡
+    Funext p q p′ q′ (wk ρ l₁) (wk ρ l₂)
+  wk-Funext {ρ} {p} {q} {p′} {q′} {l₁} {l₂} =
+    wk ρ (Funext p q p′ q′ l₁ l₂)                           ≡⟨ wk≡subst _ _ ⟩
+    Funext p q p′ q′ l₁ l₂ [ toSubst ρ ]                    ≡⟨ Funext-[] ⟩
+    Funext p q p′ q′ (l₁ [ toSubst ρ ]) (l₂ [ toSubst ρ ])  ≡˘⟨ PE.cong₂ (Funext _ _ _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
+    Funext p q p′ q′ (wk ρ l₁) (wk ρ l₂)                    ∎
 
 opaque
 
@@ -524,3 +397,165 @@ opaque
 
   funext-[] : funext p p′ [ σ ] ≡ funext p p′
   funext-[] = refl
+
+------------------------------------------------------------------------
+-- Variants of some of the term formers, intended to be used with the
+-- internal type-checker
+
+module Internal (R : Type-restrictions 𝕄) where
+
+  private
+    module I =
+      Definition.Typed.Decidable.Internal.Term R
+    module IS =
+      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+    module IW =
+      Definition.Typed.Decidable.Internal.Weakening R
+
+  private variable
+    c                                                : I.Constants
+    pᵢ p′ᵢ qᵢ q′ᵢ                                    : I.Termᵍ _
+    Aᵢ A₁ᵢ A₂ᵢ Bᵢ eq₁ᵢ eq₂ᵢ
+      lᵢ l₁ᵢ l₂ᵢ tᵢ t₁ᵢ t₂ᵢ uᵢ u₁ᵢ u₂ᵢ vᵢ wᵢ w₁ᵢ w₂ᵢ : I.Term _ _
+    γ                                                : I.Contexts _
+
+  -- A variant of subst, intended to be used with the internal
+  -- type-checker.
+
+  substᵢ :
+    I.Termᵍ (c .I.gs) → I.Term c n → I.Term c (1+ n) → I.Term c n →
+    I.Term c n → I.Term c n → I.Term c n → I.Term c n
+  substᵢ p A B t u v w =
+    I.J p I.𝟘 A t (IW.wk[ 1 ] B) w u v
+
+  opaque
+    unfolding subst
+
+    -- A translation lemma for substᵢ.
+
+    ⌜substᵢ⌝ :
+      I.⌜ substᵢ pᵢ Aᵢ Bᵢ tᵢ uᵢ vᵢ wᵢ ⌝ γ ≡
+      subst (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+        (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ) (I.⌜ wᵢ ⌝ γ)
+    ⌜substᵢ⌝ = refl
+
+  -- A variant of cast, intended to be used with the internal
+  -- type-checker.
+
+  castᵢ :
+    I.Term c n → I.Term c n → I.Term c n → I.Term c n → I.Term c n →
+    I.Term c n
+  castᵢ l A B t u =
+    substᵢ I.𝟙 (I.U l) (I.var x0) A B t u
+
+  opaque
+    unfolding cast subst
+
+    -- A translation lemma for castᵢ.
+
+    ⌜castᵢ⌝ :
+      I.⌜ castᵢ lᵢ Aᵢ Bᵢ tᵢ uᵢ ⌝ γ ≡
+      cast (I.⌜ lᵢ ⌝ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+        (I.⌜ uᵢ ⌝ γ)
+    ⌜castᵢ⌝ = refl
+
+  -- A variant of transitivity, intended to be used with the internal
+  -- type-checker.
+
+  transitivityᵢ :
+    I.Term c n → I.Term c n → I.Term c n → I.Term c n → I.Term c n →
+    I.Term c n → I.Term c n
+  transitivityᵢ A t u v eq₁ eq₂ =
+    substᵢ I.ω A (I.Id (IW.wk[ 1 ] A) (IW.wk[ 1 ] t) (I.var x0)) u v eq₂
+      eq₁
+
+  opaque
+    unfolding subst transitivity
+
+    -- A translation lemma for transitivityᵢ.
+
+    ⌜transitivityᵢ⌝ :
+      I.⌜ transitivityᵢ Aᵢ tᵢ uᵢ vᵢ eq₁ᵢ eq₂ᵢ ⌝ γ ≡
+      transitivity (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ)
+        (I.⌜ eq₁ᵢ ⌝ γ) (I.⌜ eq₂ᵢ ⌝ γ)
+    ⌜transitivityᵢ⌝ = refl
+
+  -- A variant of cong, intended to be used with the internal
+  -- type-checker.
+
+  congᵢ :
+    I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n → I.Term c n →
+    I.Term c n → I.Term c (1+ n) → I.Term c n → I.Term c n
+  congᵢ p A t u B v w =
+    substᵢ p A
+      (I.Id (IW.wk[ 1 ] B) (IW.wk[ 1 ] (I.subst v (IS.sgSubst t))) v) t
+      u w (I.rfl nothing)
+
+  opaque
+    unfolding cong subst
+
+    -- A translation lemma for congᵢ.
+
+    ⌜congᵢ⌝ :
+      I.⌜ congᵢ pᵢ Aᵢ tᵢ uᵢ Bᵢ vᵢ wᵢ ⌝ γ ≡
+      cong (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
+        (I.⌜ Bᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ) (I.⌜ wᵢ ⌝ γ)
+    ⌜congᵢ⌝ = refl
+
+  -- A variant of cong₂, intended to be used with the internal
+  -- type-checker.
+
+  cong₂ᵢ :
+    I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n → I.Term c n →
+    I.Term c n → I.Term c n → I.Term c n → I.Term c n →
+    I.Term c (2+ n) → I.Term c n → I.Term c n → I.Term c n
+  cong₂ᵢ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ =
+    transitivityᵢ B (I.subst v (I.cons (IS.sgSubst t₁) t₂))
+      (I.subst v (I.cons (IS.sgSubst u₁) t₂))
+      (I.subst v (I.cons (IS.sgSubst u₁) u₂))
+      (congᵢ p A₁ t₁ u₁ B (I.subst v (IS.sgSubst (IW.wk[ 1 ] t₂))) w₁)
+      (congᵢ p A₂ t₂ u₂ B (I.subst v (IS.sgSubst u₁ I.⇑)) w₂)
+
+  opaque
+    unfolding cong cong₂ subst transitivity
+
+    -- A translation lemma for cong₂ᵢ.
+
+    ⌜cong₂ᵢ⌝ :
+      I.⌜ cong₂ᵢ pᵢ A₁ᵢ t₁ᵢ u₁ᵢ A₂ᵢ t₂ᵢ u₂ᵢ Bᵢ vᵢ w₁ᵢ w₂ᵢ ⌝ γ ≡
+      cong₂ (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ A₁ᵢ ⌝ γ) (I.⌜ t₁ᵢ ⌝ γ) (I.⌜ u₁ᵢ ⌝ γ)
+        (I.⌜ A₂ᵢ ⌝ γ) (I.⌜ t₂ᵢ ⌝ γ) (I.⌜ u₂ᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ)
+        (I.⌜ vᵢ ⌝ γ) (I.⌜ w₁ᵢ ⌝ γ) (I.⌜ w₂ᵢ ⌝ γ)
+    ⌜cong₂ᵢ⌝ = refl
+
+  -- A variant of Funext, intended to be used with the internal
+  -- type-checker.
+
+  Funextᵢ :
+    I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) →
+    I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n →
+    I.Term c n
+  Funextᵢ p q p′ q′ l₁ l₂ =
+    I.Π p , q ▷ I.U l₁ ▹
+    I.Π p′ , q′ ▷ (I.Π p , q ▷ I.var x0 ▹ I.U (IW.wk[ 2 ] l₂)) ▹
+    let Π-type = I.Π p , q ▷ I.var x1 ▹ (I.var x1 I.∘⟨ p ⟩ I.var x0)
+    in
+    I.Π p′ , q′ ▷ Π-type ▹
+    I.Π p′ , q′ ▷ IW.wk[ 1 ] Π-type ▹
+    I.Π p′ , q′ ▷
+      (I.Π p , q ▷ I.var x3 ▹
+       I.Id (I.var x3 I.∘⟨ p ⟩ I.var x0)
+         (I.var x2 I.∘⟨ p ⟩ I.var x0)
+         (I.var x1 I.∘⟨ p ⟩ I.var x0)) ▹
+    I.Id (IW.wk[ 3 ] Π-type) (I.var x2) (I.var x1)
+
+  opaque
+    unfolding Funext
+
+    -- A translation lemma for Funextᵢ.
+
+    ⌜Funextᵢ⌝ :
+      I.⌜ Funextᵢ {n = n} pᵢ qᵢ p′ᵢ q′ᵢ l₁ᵢ l₂ᵢ ⌝ γ ≡
+      Funext (I.⟦ pᵢ ⟧ᵍ γ) (I.⟦ qᵢ ⟧ᵍ γ) (I.⟦ p′ᵢ ⟧ᵍ γ) (I.⟦ q′ᵢ ⟧ᵍ γ)
+        (I.⌜ l₁ᵢ ⌝ γ) (I.⌜ l₂ᵢ ⌝ γ)
+    ⌜Funextᵢ⌝ = refl

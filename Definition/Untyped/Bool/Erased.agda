@@ -221,21 +221,21 @@ opaque
   -- A type of booleans.
 
   Bool : Term n
-  Bool = Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased (OK (var x0))
+  Bool = Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘ (OK (var x0))
 
 opaque
 
   -- The constructor true.
 
   true : Term n
-  true = prodʷ 𝟙 (suc zero) E.[ starʷ 0 ]
+  true = prodʷ 𝟙 (suc zero) E.[ starʷ ]
 
 opaque
 
   -- The constructor false.
 
   false : Term n
-  false = prodʷ 𝟙 zero E.[ starʷ 0 ]
+  false = prodʷ 𝟙 zero E.[ starʷ ]
 
 opaque
 
@@ -253,18 +253,19 @@ opaque
   boolrec p A t u v =
     prodrec boolrecᵍ-pr 𝟙 p A v
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
-         (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
+         (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
+          Target 4 A (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 5 A zero E.[ var x0 ]) (var x0)
+            (unitrec 𝟘 𝟘 (Target 5 A zero E.[ var x0 ]) (var x0)
                (wk[ 4 ]′ u))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
-            (Π 𝟙 , p ▷ Erased (OK (suc (var x0))) ▹
+            (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) E.[ var x0 ])
+               (unitrec 𝟘 𝟘 (Target 6 A (suc zero) E.[ var x0 ])
                   (var x0) (wk[ 5 ]′ t))
                (var x0))
             (lam 𝟙 $
@@ -298,9 +299,9 @@ opaque
 
   Bool-[] : Bool [ σ ] ≡ Bool
   Bool-[] {σ} =
-    (Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased (OK (var x0))) [ σ ]  ≡⟨⟩
-    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased (OK (var x0) [ σ ⇑ ])  ≡⟨ cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) $ cong Erased B.OK-[] ⟩
-    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased (OK (var x0))          ∎
+    (Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘ (OK (var x0))) [ σ ]  ≡⟨ cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Erased-[] ⟩
+    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘ (OK (var x0) [ σ ⇑ ])  ≡⟨ cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) $ cong (Erased _) B.OK-[] ⟩
+    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘ (OK (var x0))          ∎
 
 opaque
   unfolding true
@@ -308,7 +309,7 @@ opaque
   -- A substitution lemma for true.
 
   true-[] : true [ σ ] ≡ true
-  true-[] = refl
+  true-[] = cong (prod _ _ _) []-[]
 
 opaque
   unfolding false
@@ -316,7 +317,7 @@ opaque
   -- A substitution lemma for false.
 
   false-[] : false [ σ ] ≡ false
-  false-[] = refl
+  false-[] = cong (prod _ _ _) []-[]
 
 opaque
   unfolding Target
@@ -406,18 +407,19 @@ opaque
   boolrec-[] {p} {A} {t} {u} {v} {σ} =
     prodrec boolrecᵍ-pr 𝟙 p A v
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
-         (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹ Target 4 A (var x1) (var x0))
+         (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
+          Target 4 A (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 5 A zero E.[ var x0 ]) (var x0)
+            (unitrec 𝟘 𝟘 (Target 5 A zero E.[ var x0 ]) (var x0)
                (wk[ 4 ]′ u))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
-            (Π 𝟙 , p ▷ Erased (OK (suc (var x0))) ▹
+            (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘 (Target 6 A (suc zero) E.[ var x0 ])
+               (unitrec 𝟘 𝟘 (Target 6 A (suc zero) E.[ var x0 ])
                   (var x0) (wk[ 5 ]′ t))
                (var x0))
             (lam 𝟙 $
@@ -429,36 +431,42 @@ opaque
             (var x0))
          (var x1) ∘⟨ 𝟙 ⟩
        var x0)
-      [ σ ]                                                               ≡⟨ cong (prodrec _ _ _ _ _) $
-                                                                             cong (flip _∘⟨ 𝟙 ⟩_ _) $
-                                                                             trans natcase-[] $
-                                                                             cong₄ (natcase _ _)
-                                                                               (cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _) (cong Erased B.OK-[]) refl)
-                                                                               (cong (lam _) erasedrec-[])
-                                                                               (trans natcase-[] $
-                                                                                cong₄ (natcase _ _)
-                                                                                  (cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _) (cong Erased B.OK-[]) refl)
-                                                                                  (cong (lam _) erasedrec-[])
-                                                                                  (cong (lam _) $
-                                                                                   trans erasedrec-[] $
-                                                                                   cong₂ (erasedrec _ _) emptyrec-sink-[] refl)
-                                                                                  refl)
-                                                                               refl ⟩
+      [ σ ]                                                             ≡⟨ cong (prodrec _ _ _ _ _) $
+                                                                           cong (flip _∘⟨ 𝟙 ⟩_ _) $
+                                                                           trans natcase-[] $
+                                                                           cong₄ (natcase _ _)
+                                                                             (cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _)
+                                                                                (trans Erased-[] $
+                                                                                 cong (Erased _) B.OK-[])
+                                                                                refl)
+                                                                             (cong (lam _) erasedrec-[])
+                                                                             (trans natcase-[] $
+                                                                              cong₄ (natcase _ _)
+                                                                                (cong₂ (ΠΣ⟨_⟩_,_▷_▹_ _ _ _)
+                                                                                   (trans Erased-[] $
+                                                                                    cong (Erased _) B.OK-[])
+                                                                                   refl)
+                                                                                (cong (lam _) erasedrec-[])
+                                                                                (cong (lam _) $
+                                                                                 trans erasedrec-[] $
+                                                                                 cong₂ (erasedrec _ _) emptyrec-sink-[] refl)
+                                                                                refl)
+                                                                             refl ⟩
     prodrec boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
-         (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹
+         (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
           (Target 4 A (var x1) (var x0) [ σ ⇑[ 4 ] ]))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0) [ σ ⇑[ 4 ] ])
-            (unitrec 0 𝟘 𝟘 (Target 5 A zero E.[ var x0 ] [ σ ⇑[ 5 ] ])
+            (unitrec 𝟘 𝟘 (Target 5 A zero E.[ var x0 ] [ σ ⇑[ 5 ] ])
                (var x0) (wk[ 4 ]′ u [ σ ⇑[ 4 ] ]))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
-            (Π 𝟙 , p ▷ Erased (OK (suc (var x0))) ▹
+            (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
              (Target 5 A (suc (var x1)) (var x0) [ σ ⇑[ 5 ] ]))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0) [ σ ⇑[ 5 ] ])
-               (unitrec 0 𝟘 𝟘
+               (unitrec 𝟘 𝟘
                   (Target 6 A (suc zero) E.[ var x0 ] [ σ ⇑[ 6 ] ])
                   (var x0) (wk[ 5 ]′ t [ σ ⇑[ 5 ] ]))
                (var x0))
@@ -472,44 +480,53 @@ opaque
                (var x0))
             (var x0))
          (var x1) ∘⟨ 𝟙 ⟩
-       var x0)                                                            ≡⟨ cong (prodrec _ _ _ _ _) $
-                                                                             cong (flip (_∘⟨ 𝟙 ⟩_) _) $
-                                                                             cong₄ (natcase _ _)
-                                                                               (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Target-[⇑])
-                                                                               (cong (lam _) $
-                                                                                cong₃ (erasedrec _)
-                                                                                  Target-[⇑]
-                                                                                  (cong₃ (unitrec _ _ _) Target-[⇑] refl (wk[]′-[⇑] u))
-                                                                                  refl)
-                                                                               (cong₄ (natcase _ _)
-                                                                                  (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Target-[⇑])
-                                                                                  (cong (lam _) $
-                                                                                   cong₃ (erasedrec _)
-                                                                                     Target-[⇑]
-                                                                                     (cong₃ (unitrec _ _ _) Target-[⇑] refl (wk[]′-[⇑] t))
-                                                                                     refl)
-                                                                                  (cong (lam _) $
-                                                                                   cong₃ (erasedrec _)
-                                                                                     Target-[⇑]
-                                                                                     (cong₂ emptyrec-sink Target-[⇑] refl)
-                                                                                     refl)
-                                                                                  refl)
-                                                                               refl ⟩
+       var x0)                                                          ≡⟨ (cong (prodrec _ _ _ _ _) $
+                                                                           cong (flip (_∘⟨ 𝟙 ⟩_) _) $
+                                                                           cong₄ (natcase _ _)
+                                                                             (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Target-[⇑])
+                                                                             (cong (lam _) $
+                                                                              cong₃ (erasedrec _)
+                                                                                Target-[⇑]
+                                                                                (cong₃ (unitrec _ _)
+                                                                                   (trans Target-[⇑] $
+                                                                                    cong (Target _ _ _) []-[])
+                                                                                   refl (wk[]′-[⇑] u))
+                                                                                refl)
+                                                                             (cong₄ (natcase _ _)
+                                                                                (cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Target-[⇑])
+                                                                                (cong (lam _) $
+                                                                                 cong₃ (erasedrec _)
+                                                                                   Target-[⇑]
+                                                                                   (cong₃ (unitrec _ _)
+                                                                                      (trans Target-[⇑] $
+                                                                                       cong (Target _ _ _) []-[])
+                                                                                      refl (wk[]′-[⇑] t))
+                                                                                   refl)
+                                                                                (cong (lam _) $
+                                                                                 cong₃ (erasedrec _)
+                                                                                   Target-[⇑]
+                                                                                   (cong₂ emptyrec-sink
+                                                                                      (trans Target-[⇑] $
+                                                                                       cong (Target _ _ _) []-[])
+                                                                                      refl)
+                                                                                   refl)
+                                                                                refl)
+                                                                             refl) ⟩
     prodrec boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
-         (Π 𝟙 , p ▷ Erased (OK (var x0)) ▹
+         (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
           Target 4 (A [ σ ⇑ ]) (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 (A [ σ ⇑ ]) zero (var x0))
-            (unitrec 0 𝟘 𝟘 (Target 5 (A [ σ ⇑ ]) zero E.[ var x0 ])
+            (unitrec 𝟘 𝟘 (Target 5 (A [ σ ⇑ ]) zero E.[ var x0 ])
                (var x0) (wk[ 4 ]′ (u [ σ ])))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
-            (Π 𝟙 , p ▷ Erased (OK (suc (var x0))) ▹
+            (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
              Target 5 (A [ σ ⇑ ]) (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 (A [ σ ⇑ ]) (suc zero) (var x0))
-               (unitrec 0 𝟘 𝟘
+               (unitrec 𝟘 𝟘
                   (Target 6 (A [ σ ⇑ ]) (suc zero) E.[ var x0 ])
                   (var x0) (wk[ 5 ]′ (t [ σ ])))
                (var x0))
@@ -523,7 +540,7 @@ opaque
                (var x0))
             (var x0))
          (var x1) ∘⟨ 𝟙 ⟩
-       var x0)                                                            ∎
+       var x0)                                                          ∎
 
 ------------------------------------------------------------------------
 -- Weakening lemmas

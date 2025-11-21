@@ -68,6 +68,7 @@ opaque
       tr tr-Σ
   Are-preserving-type-restrictions-no-type-restrictions hyp = λ where
       .unfolding-mode-preserved      → refl
+      .level-support-preserved       → level-type small≤small
       .Unitʷ-η-preserved ()
       .Unit-preserved                → _
       .ΠΣ-preserved                  → _
@@ -92,6 +93,7 @@ opaque
       tr tr-Σ
   Are-reflecting-type-restrictions-no-type-restrictions hyp = λ where
       .unfolding-mode-reflected      → refl
+      .level-support-reflected       → level-type small≤small
       .Unitʷ-η-reflected ()
       .Unit-reflected                → _
       .ΠΣ-reflected                  → _
@@ -118,6 +120,7 @@ Are-preserving-type-restrictions-equal-binder-quantities :
 Are-preserving-type-restrictions-equal-binder-quantities {tr = tr} r =
   record
     { unfolding-mode-preserved = R.unfolding-mode-preserved
+    ; level-support-preserved  = R.level-support-preserved
     ; Unitʷ-η-preserved        = R.Unitʷ-η-preserved
     ; Unit-preserved           = R.Unit-preserved
     ; ΠΣ-preserved             = λ {b = b} → λ where
@@ -147,6 +150,7 @@ Are-reflecting-type-restrictions-equal-binder-quantities :
 Are-reflecting-type-restrictions-equal-binder-quantities
   {tr = tr} inj r = record
   { unfolding-mode-reflected = unfolding-mode-reflected
+  ; level-support-reflected  = level-support-reflected
   ; Unitʷ-η-reflected        = Unitʷ-η-reflected
   ; Unit-reflected           = Unit-reflected
   ; ΠΣ-reflected             =
@@ -179,6 +183,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 :
     tr tr-Σ
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   { unfolding-mode-preserved = unfolding-mode-preserved
+  ; level-support-preserved  = level-support-preserved
   ; Unitʷ-η-preserved        = Unitʷ-η-preserved
   ; Unit-preserved           = Unit-preserved
   ; ΠΣ-preserved             = λ where
@@ -205,6 +210,7 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 :
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   { unfolding-mode-reflected      = unfolding-mode-reflected
+  ; level-support-reflected       = level-support-reflected
   ; Unitʷ-η-reflected             = Unitʷ-η-reflected
   ; Unit-reflected                = Unit-reflected
   ; ΠΣ-reflected                  = Σ.map ΠΣ-reflected tr-𝟘
@@ -233,6 +239,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   {𝕄₁} {tr} {𝕄₂} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
   { unfolding-mode-preserved = unfolding-mode-preserved
+  ; level-support-preserved  = level-support-preserved
   ; Unitʷ-η-preserved        = Unitʷ-η-preserved
   ; Unit-preserved           = Unit-preserved
   ; ΠΣ-preserved             = λ {b = b} (bn , is-𝟘 , not-𝟘) →
@@ -301,6 +308,7 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   {tr} {𝕄₂} {𝕄₁} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
   { unfolding-mode-reflected = unfolding-mode-reflected
+  ; level-support-reflected  = level-support-reflected
   ; Unitʷ-η-reflected        = Unitʷ-η-reflected
   ; Unit-reflected           = Unit-reflected
   ; ΠΣ-reflected             = λ {b = b} (bn , is-𝟘 , not-𝟘) →
@@ -361,6 +369,8 @@ opaque
  Are-preserving-type-restrictions-strong-types-restricted hyp r = record
    { unfolding-mode-preserved =
        unfolding-mode-preserved
+   ; level-support-preserved =
+       level-support-preserved
    ; Unitʷ-η-preserved =
        Unitʷ-η-preserved
    ; Unit-preserved =
@@ -401,6 +411,8 @@ opaque
    hyp₁ hyp₂ r = record
    { unfolding-mode-reflected =
        unfolding-mode-reflected
+   ; level-support-reflected =
+       level-support-reflected
    ; Unitʷ-η-reflected =
        Unitʷ-η-reflected
    ; Unit-reflected =
@@ -441,6 +453,8 @@ opaque
  Are-preserving-type-restrictions-no-strong-types r = record
    { unfolding-mode-preserved =
        unfolding-mode-preserved
+   ; level-support-preserved =
+       level-support-preserved
    ; Unitʷ-η-preserved =
        Unitʷ-η-preserved
    ; Unit-preserved =
@@ -477,6 +491,8 @@ opaque
  Are-reflecting-type-restrictions-no-strong-types hyp r = record
    { unfolding-mode-reflected =
        unfolding-mode-reflected
+   ; level-support-reflected =
+       level-support-reflected
    ; Unitʷ-η-reflected =
        Unitʷ-η-reflected
    ; Unit-reflected =
@@ -514,6 +530,7 @@ Are-preserving-type-restrictions-no-erased-matches-TR :
     tr tr-Σ
 Are-preserving-type-restrictions-no-erased-matches-TR r = record
   { unfolding-mode-preserved      = unfolding-mode-preserved
+  ; level-support-preserved       = level-support-preserved
   ; Unitʷ-η-preserved             = Unitʷ-η-preserved
   ; Unit-preserved                = Unit-preserved
   ; ΠΣ-preserved                  = ΠΣ-preserved
@@ -540,6 +557,7 @@ Are-reflecting-type-restrictions-no-erased-matches-TR :
     tr tr-Σ
 Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
   { unfolding-mode-reflected = unfolding-mode-reflected
+  ; level-support-reflected  = level-support-reflected
   ; Unitʷ-η-reflected        = Unitʷ-η-reflected
   ; Unit-reflected           = Unit-reflected
   ; ΠΣ-reflected             = ΠΣ-reflected
@@ -578,6 +596,8 @@ opaque
   Are-preserving-type-restrictions-[]-cong-TR hyp r = record
     { unfolding-mode-preserved =
         unfolding-mode-preserved
+    ; level-support-preserved =
+        level-support-preserved
     ; Unitʷ-η-preserved =
         Unitʷ-η-preserved
     ; Unit-preserved =
@@ -629,6 +649,8 @@ opaque
   Are-reflecting-type-restrictions-[]-cong-TR {𝕄₁} hyp r = record
     { unfolding-mode-reflected =
         unfolding-mode-reflected
+    ; level-support-reflected =
+        level-support-reflected
     ; Unitʷ-η-reflected =
         Unitʷ-η-reflected
     ; Unit-reflected =
@@ -675,6 +697,7 @@ opaque
       tr tr-Σ
   Are-preserving-type-restrictions-no-[]-cong-TR r = record
     { unfolding-mode-preserved      = unfolding-mode-preserved
+    ; level-support-preserved       = level-support-preserved
     ; Unitʷ-η-preserved             = Unitʷ-η-preserved
     ; Unit-preserved                = Unit-preserved
     ; ΠΣ-preserved                  = ΠΣ-preserved
@@ -703,6 +726,7 @@ opaque
       tr tr-Σ
   Are-reflecting-type-restrictions-no-[]-cong-TR hyp r = record
     { unfolding-mode-reflected = unfolding-mode-reflected
+    ; level-support-reflected  = level-support-reflected
     ; Unitʷ-η-reflected        = Unitʷ-η-reflected
     ; Unit-reflected           = Unit-reflected
     ; ΠΣ-reflected             = ΠΣ-reflected
@@ -733,6 +757,7 @@ opaque
       tr tr-Σ
   Are-preserving-type-restrictions-with-equality-reflection r = record
     { unfolding-mode-preserved      = unfolding-mode-preserved
+    ; level-support-preserved       = level-support-preserved
     ; Unitʷ-η-preserved             = Unitʷ-η-preserved
     ; Unit-preserved                = Unit-preserved
     ; ΠΣ-preserved                  = ΠΣ-preserved
@@ -762,6 +787,7 @@ opaque
   Are-reflecting-type-restrictions-with-equality-reflection
     hyp r = record
     { unfolding-mode-reflected      = unfolding-mode-reflected
+    ; level-support-reflected       = level-support-reflected
     ; Unitʷ-η-reflected             = Unitʷ-η-reflected
     ; Unit-reflected                = Unit-reflected
     ; ΠΣ-reflected                  = ΠΣ-reflected
@@ -859,6 +885,7 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω :
 erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
   record
     { unfolding-mode-preserved = unfolding-mode-preserved
+    ; level-support-preserved  = level-support-preserved
     ; Unitʷ-η-preserved        = Unitʷ-η-preserved
     ; Unit-preserved           = Unit-preserved
     ; ΠΣ-preserved             = λ (b , _) →

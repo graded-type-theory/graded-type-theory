@@ -105,6 +105,16 @@ headₘ-distrib-·ᶜ p (γ ∙ q) = refl
 headₘ-tailₘ-correct : (γ : Conₘ (1+ n)) → tailₘ γ ∙ headₘ γ ≡ γ
 headₘ-tailₘ-correct (γ ∙ p) = refl
 
+-- A propositional uniqueness principle for contexts
+
+decomposeᶜ : (γ : Conₘ n) → Conₘ n
+decomposeᶜ {0} γ = ε
+decomposeᶜ {1+ n} γ = decomposeᶜ (tailₘ γ) ∙ headₘ γ
+
+decomposeᶜ-correct : (γ : Conₘ n) → decomposeᶜ γ ≡ γ
+decomposeᶜ-correct ε = refl
+decomposeᶜ-correct (γ ∙ p) = cong (_∙ p) (decomposeᶜ-correct γ)
+
 -- Congruence of tailₘ
 -- If γ ≈ᶜ δ then tailₘ γ ≈ᶜ tailₘ δ
 
@@ -483,6 +493,18 @@ opaque
     let q , q-glb = glb-nrᵢ r p p′
         η , η-glb = GLB-nrᵢ→GLBᶜ-nrᵢᶜ glb-nrᵢ r γ δ
     in  η ∙ q , GLBᶜ-pointwise′ η-glb q-glb
+
+opaque
+
+  -- The greatest lower bound of nrᵢᶜ 𝟘 γ δ is γ ∧ᶜ δ.
+
+  Greatest-lower-boundᶜ-nrᵢᶜ-𝟘 :
+    Greatest-lower-boundᶜ (γ ∧ᶜ δ) (nrᵢᶜ 𝟘 γ δ)
+  Greatest-lower-boundᶜ-nrᵢᶜ-𝟘 {γ = ε} {δ = ε} =
+    ε-GLB
+  Greatest-lower-boundᶜ-nrᵢᶜ-𝟘 {γ = _ ∙ _} {δ = _ ∙ _} =
+    GLBᶜ-pointwise′ Greatest-lower-boundᶜ-nrᵢᶜ-𝟘
+      Greatest-lower-bound-nrᵢ-𝟘
 
 opaque
 

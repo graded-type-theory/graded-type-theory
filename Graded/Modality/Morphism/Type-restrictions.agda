@@ -12,6 +12,7 @@ open import Tools.Sum
 open import Definition.Typed.Restrictions
 
 open import Definition.Untyped.NotParametrised
+open import Definition.Untyped.Properties.NotParametrised
 open import Definition.Untyped.QuantityTranslation
 
 open import Graded.Modality
@@ -46,6 +47,10 @@ record Are-preserving-type-restrictions
     unfolding-mode-preserved :
       R₁.unfolding-mode ≡ R₂.unfolding-mode
 
+    -- R₁.level-support is bounded by R₂.level-support.
+    level-support-preserved :
+      R₁.level-support ≤LS R₂.level-support
+
     -- R₁.Unitʷ-η implies R₂.Unitʷ-η.
     Unitʷ-η-preserved :
       R₁.Unitʷ-η → R₂.Unitʷ-η
@@ -77,6 +82,23 @@ record Are-preserving-type-restrictions
     Equality-reflection-preserved :
       R₁.Equality-reflection → R₂.Equality-reflection
 
+  opaque
+    unfolding Type-restrictions.Level-is-small
+
+    -- R₁.Level-is-small implies R₂.Level-is-small.
+
+    Level-is-small-preserved : R₁.Level-is-small → R₂.Level-is-small
+    Level-is-small-preserved = ≤LS→≡small→≡small level-support-preserved
+
+  opaque
+    unfolding Type-restrictions.Level-allowed
+
+    -- R₁.Level-allowed holds iff R₂.Level-allowed holds.
+
+    Level-allowed⇔ : R₁.Level-allowed ⇔ R₂.Level-allowed
+    Level-allowed⇔ =
+      ≤LS→≢only-literals⇔≢only-literals level-support-preserved
+
 -- The property of reflecting Type-restrictions.
 
 record Are-reflecting-type-restrictions
@@ -96,6 +118,10 @@ record Are-reflecting-type-restrictions
     -- The flag R₁.unfolding-mode is equal to R₂.unfolding-mode.
     unfolding-mode-reflected :
       R₁.unfolding-mode ≡ R₂.unfolding-mode
+
+    -- R₂.level-support is bounded by R₁.level-support.
+    level-support-reflected :
+      R₂.level-support ≤LS R₁.level-support
 
     -- R₂.Unitʷ-η implies R₁.Unitʷ-η.
     Unitʷ-η-reflected :
@@ -130,6 +156,24 @@ record Are-reflecting-type-restrictions
     Equality-reflection-reflected :
       R₂.Equality-reflection → R₁.Equality-reflection
 
+  opaque
+    unfolding Type-restrictions.Level-is-small
+
+    -- R₂.Level-is-small implies R₁.Level-is-small.
+
+    Level-is-small-reflected : R₂.Level-is-small → R₁.Level-is-small
+    Level-is-small-reflected = ≤LS→≡small→≡small level-support-reflected
+
+  opaque
+    unfolding Type-restrictions.Level-allowed
+
+    -- R₁.Level-allowed holds iff R₂.Level-allowed holds.
+
+    Level-allowed⇔ : R₁.Level-allowed ⇔ R₂.Level-allowed
+    Level-allowed⇔ =
+      sym⇔ $
+      ≤LS→≢only-literals⇔≢only-literals level-support-reflected
+
 ------------------------------------------------------------------------
 -- Identity
 
@@ -140,6 +184,7 @@ Are-preserving-type-restrictions-id :
   Are-preserving-type-restrictions R R idᶠ idᶠ
 Are-preserving-type-restrictions-id {R = R} = λ where
     .unfolding-mode-preserved      → refl
+    .level-support-preserved       → refl-≤LS
     .Unitʷ-η-preserved             → idᶠ
     .Unit-preserved                → idᶠ
     .ΠΣ-preserved {b = BMΠ}        → idᶠ
@@ -159,6 +204,7 @@ Are-reflecting-type-restrictions-id :
   Are-reflecting-type-restrictions R R idᶠ idᶠ
 Are-reflecting-type-restrictions-id {R = R} = λ where
     .unfolding-mode-reflected      → refl
+    .level-support-reflected       → refl-≤LS
     .Unitʷ-η-reflected             → idᶠ
     .Unit-reflected                → idᶠ
     .ΠΣ-reflected {b = BMΠ}        → idᶠ
@@ -184,6 +230,8 @@ Are-preserving-type-restrictions-∘ :
 Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
     .unfolding-mode-preserved →
        trans M₂.unfolding-mode-preserved M₁.unfolding-mode-preserved
+    .level-support-preserved →
+      trans-≤LS M₂.level-support-preserved M₁.level-support-preserved
     .Unitʷ-η-preserved →
       M₁.Unitʷ-η-preserved ∘→ M₂.Unitʷ-η-preserved
     .Unit-preserved →
@@ -215,6 +263,8 @@ Are-reflecting-type-restrictions-∘ :
 Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
     .unfolding-mode-reflected →
        trans M₂.unfolding-mode-reflected M₁.unfolding-mode-reflected
+    .level-support-reflected →
+      trans-≤LS M₁.level-support-reflected M₂.level-support-reflected
     .Unitʷ-η-reflected →
       M₂.Unitʷ-η-reflected ∘→ M₁.Unitʷ-η-reflected
     .Unit-reflected →

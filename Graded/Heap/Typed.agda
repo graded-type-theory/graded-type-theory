@@ -38,10 +38,9 @@ private variable
   ρ : Wk _ _
   c : Cont _
   S : Stack _
-  t u v w z s A B B′ C : Term _
+  A B B′ C l s t u v w z : Term _
   p q q′ r : M
   s′ : Strength
-  l : Universe-level
 
 -- Well-formed heaps
 
@@ -55,6 +54,8 @@ data _⊢ʰ_∷_ : (Δ : Con Term k) (H : Heap k m) (Γ : Con Term m) → Set a 
 
 data _⨾_⊢ᶜ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
                   (c : Cont m) (t : Term m) (A B : Term k) → Set a where
+  lowerₑ : ε » Δ ⊢ A
+         → Δ ⨾ H ⊢ᶜ lowerₑ ⟨ t ⟩∷ Lift u A ↝ A
   ∘ₑ : ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ A
      → ε » Δ ∙ A ⊢ B
      → Δ ⨾ H ⊢ᶜ ∘ₑ p u ρ ⟨ t ⟩∷ Π p , q ▷ A ▹ B ↝ B [ wk ρ u [ H ]ₕ ]₀
@@ -71,10 +72,10 @@ data _⨾_⊢ᶜ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
               wk (liftn ρ 2) s [ H ]⇑²ₕ ∷
               wk (lift ρ) A [ H ]⇑ₕ [ suc (var x1) ]↑²
           → Δ ⨾ H ⊢ᶜ natrecₑ p q r A z s ρ ⟨ t ⟩∷ ℕ ↝ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
-  unitrecₑ : ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ l ]₀
-           → ε » Δ ∙ Unitʷ l ⊢ wk (lift ρ) A [ H ]⇑ₕ
+  unitrecₑ : ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ ]₀
+           → ε » Δ ∙ Unitʷ ⊢ wk (lift ρ) A [ H ]⇑ₕ
            → ¬ Unitʷ-η
-           → Δ ⨾ H ⊢ᶜ unitrecₑ l p q A u ρ ⟨ t ⟩∷ Unitʷ l ↝
+           → Δ ⨾ H ⊢ᶜ unitrecₑ p q A u ρ ⟨ t ⟩∷ Unitʷ ↝
                wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀
   emptyrecₑ : ε » Δ ⊢ wk ρ A [ H ]ₕ
             → Δ ⨾ H ⊢ᶜ emptyrecₑ p A ρ ⟨ t ⟩∷ Empty ↝ wk ρ A [ H ]ₕ
@@ -91,9 +92,12 @@ data _⨾_⊢ᶜ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
      → ε » Δ ∙ wk ρ (Id A t t) [ H ]ₕ ⊢ wk (lift ρ) B [ H ]⇑ₕ
      → K-allowed
      → Δ ⨾ H ⊢ᶜ Kₑ p A t B u ρ ⟨ v ⟩∷ wk ρ (Id A t t) [ H ]ₕ ↝ wk (lift ρ) B [ H ]⇑ₕ [ v [ H ]ₕ ]₀
-  []-congₑ : []-cong-allowed s′
-           → let open Erased s′
-             in  Δ ⨾ H ⊢ᶜ []-congₑ s′ A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ H ]ₕ ↝ (wk ρ (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ)
+  []-congₑ :
+    []-cong-allowed s′ →
+    let open Erased s′ in
+    ε » Δ ⊢ wk ρ l [ H ]ₕ ∷Level →
+    Δ ⨾ H ⊢ᶜ []-congₑ s′ l A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ H ]ₕ ↝
+      (wk ρ (Id (Erased l A) ([ t ]) ([ u ])) [ H ]ₕ)
   conv : Δ ⨾ H ⊢ᶜ c ⟨ t ⟩∷ A ↝ B
        → ε » Δ ⊢ B ≡ B′
        → Δ ⨾ H ⊢ᶜ c ⟨ t ⟩∷ A ↝ B′

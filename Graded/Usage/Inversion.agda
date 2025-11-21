@@ -34,20 +34,78 @@ open import Tools.Relation
 
 private
   variable
-    α k n l : Nat
+    α k n : Nat
     γ χ : Conₘ n
     p q r : M
-    A B F t t′ u v z n' : Term n
+    A B F l t t′ u v z n' : Term n
     G : Term (1+ n)
     m : Mode
     b : BinderMode
     s : Strength
 
--- If γ ▸[ m ] U then γ ≤ᶜ 𝟘ᶜ.
+-- A usage inversion lemma for Level.
 
-inv-usage-U : γ ▸[ m ] U l → γ ≤ᶜ 𝟘ᶜ
-inv-usage-U Uₘ = ≤ᶜ-refl
-inv-usage-U (sub γ▸U γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-U γ▸U)
+inv-usage-Level : γ ▸[ m ] Level → γ ≤ᶜ 𝟘ᶜ
+inv-usage-Level Levelₘ            = ≤ᶜ-refl
+inv-usage-Level (sub γ▸Level γ≤δ) =
+  ≤ᶜ-trans γ≤δ (inv-usage-Level γ▸Level)
+
+-- A usage inversion lemma for zeroᵘ.
+
+inv-usage-zeroᵘ : γ ▸[ m ] zeroᵘ → γ ≤ᶜ 𝟘ᶜ
+inv-usage-zeroᵘ zeroᵘₘ            = ≤ᶜ-refl
+inv-usage-zeroᵘ (sub δ▸zeroᵘ γ≤δ) =
+  ≤ᶜ-trans γ≤δ (inv-usage-zeroᵘ δ▸zeroᵘ)
+
+-- A kind of usage inversion lemma for sucᵘ.
+
+inv-usage-sucᵘ : γ ▸[ m ] sucᵘ t → γ ▸[ m ] t
+inv-usage-sucᵘ (sucᵘₘ ▸t)       = ▸t
+inv-usage-sucᵘ (sub δ▸sucᵘ γ≤δ) = sub (inv-usage-sucᵘ δ▸sucᵘ) γ≤δ
+
+-- A usage inversion lemma for _supᵘ_.
+
+inv-usage-supᵘ :
+  γ ▸[ m ] t supᵘ u →
+  ∃₂ λ δ η → γ ≤ᶜ δ +ᶜ η × δ ▸[ m ] t × η ▸[ m ] u
+inv-usage-supᵘ (supᵘₘ ▸t ▸u)    = _ , _ , ≤ᶜ-refl , ▸t , ▸u
+inv-usage-supᵘ (sub δ▸supᵘ γ≤δ) =
+  let _ , _ , δ≤η+θ , η▸t , θ▸u = inv-usage-supᵘ δ▸supᵘ in
+  _ , _ , ≤ᶜ-trans γ≤δ δ≤η+θ , η▸t , θ▸u
+
+-- A usage inversion lemma for U.
+
+inv-usage-U : γ ▸[ m ] U t → γ ≤ᶜ 𝟘ᶜ × ∃ λ δ → δ ▸[ 𝟘ᵐ? ] t
+inv-usage-U (Uₘ ▸t)       = ≤ᶜ-refl , _ , ▸t
+inv-usage-U (sub δ▸U γ≤δ) =
+  let δ≤𝟘 , _ , η▸t = inv-usage-U δ▸U in
+  ≤ᶜ-trans γ≤δ δ≤𝟘 , _ , η▸t
+
+-- A kind of usage inversion lemma for Lift.
+
+inv-usage-Lift :
+  γ ▸[ m ] Lift t A →
+  (∃ λ δ → δ ▸[ 𝟘ᵐ? ] t) × γ ▸[ m ] A
+inv-usage-Lift (Liftₘ ▸t ▸A)   = (_ , ▸t) , ▸A
+inv-usage-Lift (sub ▸Lift γ≤δ) =
+  let ▸t , ▸A = inv-usage-Lift ▸Lift in
+  ▸t , sub ▸A γ≤δ
+
+-- A kind of usage inversion lemma for lift.
+
+inv-usage-lift :
+  γ ▸[ m ] lift u →
+  γ ▸[ m ] u
+inv-usage-lift (liftₘ ▸u)   = ▸u
+inv-usage-lift (sub ▸lift γ≤δ) =
+  let ▸u = inv-usage-lift ▸lift in
+  sub ▸u γ≤δ
+
+-- A kind of usage inversion lemma for lower.
+
+inv-usage-lower : γ ▸[ m ] lower t → γ ▸[ m ] t
+inv-usage-lower (lowerₘ ▸t)      = ▸t
+inv-usage-lower (sub ▸lower γ≤δ) = sub (inv-usage-lower ▸lower) γ≤δ
 
 -- If γ ▸[ m ] ℕ then γ ≤ᶜ 𝟘ᶜ.
 
@@ -61,12 +119,13 @@ inv-usage-Empty : γ ▸[ m ] Empty → γ ≤ᶜ 𝟘ᶜ
 inv-usage-Empty Emptyₘ = ≤ᶜ-refl
 inv-usage-Empty (sub γ▸⊥ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Empty γ▸⊥)
 
--- If γ ▸[ m ] Unit s l then γ ≤ᶜ 𝟘ᶜ.
+-- A usage inversion lemma for Unit.
 
-inv-usage-Unit : γ ▸[ m ] Unit s l → γ ≤ᶜ 𝟘ᶜ
+inv-usage-Unit : γ ▸[ m ] Unit s → γ ≤ᶜ 𝟘ᶜ
 inv-usage-Unit Unitₘ = ≤ᶜ-refl
-inv-usage-Unit (sub γ▸⊤ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-Unit γ▸⊤)
-
+inv-usage-Unit (sub δ▸U γ≤δ) =
+  let δ≤𝟘 = inv-usage-Unit δ▸U in
+  ≤ᶜ-trans γ≤δ δ≤𝟘
 
 record InvUsageΠΣ {n} (γ : Conₘ n) (m : Mode) (b : BinderMode) (p q : M)
                  (F : Term n) (G : Term (1+ n)) : Set a where
@@ -448,53 +507,58 @@ inv-usage-emptyrec (emptyrecₘ δ▸t η▸A ok) = invUsageEmptyrec δ▸t η�
 inv-usage-emptyrec (sub γ▸et γ≤γ′) with inv-usage-emptyrec γ▸et
 ... | invUsageEmptyrec δ▸t η▸A ok γ′≤δ = invUsageEmptyrec δ▸t η▸A ok (≤ᶜ-trans γ≤γ′ γ′≤δ)
 
--- If γ ▸[ m ] starʷ l then γ ≤ᶜ 𝟘ᶜ.
+-- A usage inversion lemma for starʷ.
 
-inv-usage-starʷ : γ ▸[ m ] starʷ l → γ ≤ᶜ 𝟘ᶜ
-inv-usage-starʷ starʷₘ = ≤ᶜ-refl
-inv-usage-starʷ (sub  δ▸star γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-starʷ δ▸star)
+inv-usage-starʷ : γ ▸[ m ] starʷ → γ ≤ᶜ 𝟘ᶜ
+inv-usage-starʷ starʷₘ        = ≤ᶜ-refl
+inv-usage-starʷ (sub δ▸U γ≤δ) =
+  let δ≤𝟘 = inv-usage-starʷ δ▸U in
+  ≤ᶜ-trans γ≤δ δ≤𝟘
 
 -- A type used to state inv-usage-starˢ.
 
-record InvUsageStarˢ {n} (γ : Conₘ n) (m : Mode) : Set a where
+record InvUsageStarˢ
+         {n} (γ : Conₘ n) (m : Mode) : Set a where
   no-eta-equality
   pattern
   constructor invUsageStarˢ
   field
-    {δ}  : Conₘ n
-    ≤⌜⌝· : γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
-    𝟘≈   : ¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ δ
+    {δ} : Conₘ n
+    ≤⌜⌝·  : γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
+    𝟘≈    : ¬ Starˢ-sink → 𝟘ᶜ ≈ᶜ δ
 
 -- A usage inversion lemma for starˢ.
 
-inv-usage-starˢ : γ ▸[ m ] starˢ l → InvUsageStarˢ γ m
+inv-usage-starˢ : γ ▸[ m ] starˢ → InvUsageStarˢ γ m
 inv-usage-starˢ (starˢₘ ok) =
   invUsageStarˢ ≤ᶜ-refl ok
 inv-usage-starˢ (sub γ▸star γ≤γ′) with inv-usage-starˢ γ▸star
-… | invUsageStarˢ ≤⌜⌝· 𝟘ᶜ≈ = invUsageStarˢ (≤ᶜ-trans γ≤γ′ ≤⌜⌝·) 𝟘ᶜ≈
+… | invUsageStarˢ ≤⌜⌝· 𝟘ᶜ≈ =
+  invUsageStarˢ (≤ᶜ-trans γ≤γ′ ≤⌜⌝·) 𝟘ᶜ≈
 
-record InvUsageUnitrec {n} (γ : Conₘ n) (m : Mode) (p q : M)
-                       (A : Term (1+ n)) (t u : Term n) : Set a where
+record InvUsageUnitrec
+         {n} (γ : Conₘ n) (m : Mode) (p q : M)
+         (A : Term (1+ n)) (u v : Term n) : Set a where
   no-eta-equality
   pattern
   constructor invUsageUnitrec
   field
-    {δ η θ} : Conₘ n
-    δ▸t : δ ▸[ m ᵐ· p ] t
-    η▸u : η ▸[ m ] u
-    θ▸A : θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-    P : Unitrec-allowed m p q
-    γ≤δ+η : γ ≤ᶜ p ·ᶜ δ +ᶜ η
+    {γ₂ γ₃ γ₄} : Conₘ n
+    γ₂▸           : γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+    γ₃▸           : γ₃ ▸[ m ᵐ· p ] u
+    γ₄▸           : γ₄ ▸[ m ] v
+    P             : Unitrec-allowed m p q
+    ≤·γ₃+γ₄       : γ ≤ᶜ p ·ᶜ γ₃ +ᶜ γ₄
 
 -- A usage inversion lemma for unitrec.
 
 inv-usage-unitrec :
-  γ ▸[ m ] unitrec l p q A t u → InvUsageUnitrec γ m p q A t u
-inv-usage-unitrec (unitrecₘ δ▸t η▸u θ▸A ok) =
-  invUsageUnitrec δ▸t η▸u θ▸A ok ≤ᶜ-refl
+  γ ▸[ m ] unitrec p q A u v → InvUsageUnitrec γ m p q A u v
+inv-usage-unitrec (unitrecₘ ▸A ▸u ▸v ok) =
+  invUsageUnitrec ▸A ▸u ▸v ok ≤ᶜ-refl
 inv-usage-unitrec (sub γ′▸ur γ≤γ′) with inv-usage-unitrec γ′▸ur
-... | invUsageUnitrec δ▸t η▸u θ▸A ok γ′≤pδ+η =
-  invUsageUnitrec δ▸t η▸u θ▸A ok (≤ᶜ-trans γ≤γ′ γ′≤pδ+η)
+... | invUsageUnitrec ▸A ▸u ▸v ok γ′≤pδ+η =
+  invUsageUnitrec ▸A ▸u ▸v ok (≤ᶜ-trans γ≤γ′ γ′≤pδ+η)
 
 -- A type used to state inv-usage-Id.
 
@@ -653,25 +717,26 @@ inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
 
 record InvUsage-[]-cong
          {n} (γ : Conₘ n) (m : Mode) (s : Strength)
-         (A t u v : Term n) : Set a where
+         (l A t u v : Term n) : Set a where
   no-eta-equality
   pattern
   constructor invUsage-[]-cong
   field
-    {γ₁ γ₂ γ₃ γ₄} : Conₘ n
-    ▸A            : γ₁ ▸[ 𝟘ᵐ? ] A
-    ▸t            : γ₂ ▸[ 𝟘ᵐ? ] t
-    ▸u            : γ₃ ▸[ 𝟘ᵐ? ] u
-    ▸v            : γ₄ ▸[ 𝟘ᵐ? ] v
-    P             : []-cong-allowed-mode s m
-    ≤𝟘            : γ ≤ᶜ 𝟘ᶜ
+    {γ₁ γ₂ γ₃ γ₄ γ₅} : Conₘ n
+    ▸l               : γ₁ ▸[ 𝟘ᵐ? ] l
+    ▸A               : γ₂ ▸[ 𝟘ᵐ? ] A
+    ▸t               : γ₃ ▸[ 𝟘ᵐ? ] t
+    ▸u               : γ₄ ▸[ 𝟘ᵐ? ] u
+    ▸v               : γ₅ ▸[ 𝟘ᵐ? ] v
+    P                : []-cong-allowed-mode s m
+    ≤𝟘               : γ ≤ᶜ 𝟘ᶜ
 
 -- A usage inversion lemma for []-cong.
 
 inv-usage-[]-cong :
-  γ ▸[ m ] []-cong s A t u v → InvUsage-[]-cong γ m s A t u v
-inv-usage-[]-cong ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-  invUsage-[]-cong ▸A ▸t ▸u ▸v ok ≤ᶜ-refl
+  γ ▸[ m ] []-cong s l A t u v → InvUsage-[]-cong γ m s l A t u v
+inv-usage-[]-cong ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
+  invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok ≤ᶜ-refl
 inv-usage-[]-cong (sub γ′▸ γ≤γ′) with inv-usage-[]-cong γ′▸
-... | invUsage-[]-cong ▸A ▸t ▸u ▸v ok γ′≤ =
-  invUsage-[]-cong ▸A ▸t ▸u ▸v ok (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok γ′≤ =
+  invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok (≤ᶜ-trans γ≤γ′ γ′≤)

@@ -20,11 +20,20 @@ open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Conversion R
 
+open import Tools.Bool
+open import Tools.List hiding (_∷_)
+open import Tools.Product
+import Tools.PropositionalEquality as PE
+
 private
   variable
+    d : Bool
     ∇ ∇′ : DCon (Term 0) _
     Γ : Con Term _
-    t u A B : Term _
+    A B l₁ l₂ t u : Term _
+    v v′ v″ v₁ v₂ : Levelᵛ _
+    v₁⁺ v₂⁺ : Level⁺ _
+    ∇′⊇∇ : » _ ⊇ _
 
 opaque mutual
 
@@ -35,6 +44,8 @@ opaque mutual
   defn-wk~↑ ξ⊇ (var-refl ⊢t eq) = var-refl (defn-wkTerm ξ⊇ ⊢t) eq
   defn-wk~↑ ξ⊇ (defn-refl ⊢α α↦⊘ eq) =
     defn-refl (defn-wkTerm ξ⊇ ⊢α) (there*-↦⊘∈ ξ⊇ α↦⊘) eq
+  defn-wk~↑ ∇′⊇∇ (lower-cong t≡u) =
+    lower-cong (defn-wk~↓ ∇′⊇∇ t≡u)
   defn-wk~↑ ξ⊇ (app-cong t~ u<>) =
     app-cong (defn-wk~↓ ξ⊇ t~) (defn-wkConv↑Term ξ⊇ u<>)
   defn-wk~↑ ξ⊇ (fst-cong t~) = fst-cong (defn-wk~↓ ξ⊇ t~)
@@ -71,8 +82,9 @@ opaque mutual
            (defn-wk~↓ ξ⊇ v~)
            (defn-wkEq ξ⊇ ≡Id)
            ok
-  defn-wk~↑ ξ⊇ ([]-cong-cong A<> t<> u<> v~ ≡Id ok) =
-    []-cong-cong (defn-wkConv↑ ξ⊇ A<>)
+  defn-wk~↑ ξ⊇ ([]-cong-cong l↑ A<> t<> u<> v~ ≡Id ok) =
+    []-cong-cong (defn-wkConv↑Level ξ⊇ l↑)
+                 (defn-wkConv↑ ξ⊇ A<>)
                  (defn-wkConv↑Term ξ⊇ t<>)
                  (defn-wkConv↑Term ξ⊇ u<>)
                  (defn-wk~↓ ξ⊇ v~)
@@ -90,7 +102,12 @@ opaque mutual
     » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ A [conv↓] B →
     ∇′ » Γ ⊢ A [conv↓] B
-  defn-wkConv↓ ξ⊇ (U-refl ⊢Γ) = U-refl (defn-wk′ ξ⊇ ⊢Γ)
+  defn-wkConv↓ ∇′⊇∇ (Level-refl ok ⊢Γ) =
+    Level-refl ok (defn-wk′ ∇′⊇∇ ⊢Γ)
+  defn-wkConv↓ ∇′⊇∇ (U-cong l₁≡l₂) =
+    U-cong (defn-wkConv↑Level ∇′⊇∇ l₁≡l₂)
+  defn-wkConv↓ ∇′⊇∇ (Lift-cong l₁≡l₂ A≡B) =
+    Lift-cong (defn-wkConv↑Level ∇′⊇∇ l₁≡l₂) (defn-wkConv↑ ∇′⊇∇ A≡B)
   defn-wkConv↓ ξ⊇ (ℕ-refl ⊢Γ) = ℕ-refl (defn-wk′ ξ⊇ ⊢Γ)
   defn-wkConv↓ ξ⊇ (Empty-refl ⊢Γ) = Empty-refl (defn-wk′ ξ⊇ ⊢Γ)
   defn-wkConv↓ ξ⊇ (Unit-refl ⊢Γ ok) = Unit-refl (defn-wk′ ξ⊇ ⊢Γ) ok
@@ -106,6 +123,8 @@ opaque mutual
     » ∇′ ⊇ ∇ →
     ∇ » Γ ⊢ t [conv↓] u ∷ A →
     ∇′ » Γ ⊢ t [conv↓] u ∷ A
+  defn-wkConv↓Term ∇′⊇∇ (Level-ins l₁≡l₂) =
+    Level-ins (defn-wkConv↓Level ∇′⊇∇ l₁≡l₂)
   defn-wkConv↓Term ξ⊇ (ℕ-ins t~) = ℕ-ins (defn-wk~↓ ξ⊇ t~)
   defn-wkConv↓Term ξ⊇ (Empty-ins t~) = Empty-ins (defn-wk~↓ ξ⊇ t~)
   defn-wkConv↓Term ξ⊇ (Unitʷ-ins no-η t~) = Unitʷ-ins no-η (defn-wk~↓ ξ⊇ t~)
@@ -118,6 +137,11 @@ opaque mutual
            (defn-wk~↓ ξ⊇ t~u)
   defn-wkConv↓Term ξ⊇ (univ ⊢t ⊢u t<>u) =
     univ (defn-wkTerm ξ⊇ ⊢t) (defn-wkTerm ξ⊇ ⊢u) (defn-wkConv↓ ξ⊇ t<>u)
+  defn-wkConv↓Term
+    ∇′⊇∇ (Lift-η ⊢t₁ ⊢t₂ t₁-whnf t₂-whnf lower-t₁≡lower-t₂) =
+    Lift-η (defn-wkTerm ∇′⊇∇ ⊢t₁) (defn-wkTerm ∇′⊇∇ ⊢t₂)
+      (defn-wkWhnf ∇′⊇∇ t₁-whnf) (defn-wkWhnf ∇′⊇∇ t₂-whnf)
+      (defn-wkConv↑Term ∇′⊇∇ lower-t₁≡lower-t₂)
   defn-wkConv↓Term ξ⊇ (zero-refl ⊢Γ) = zero-refl (defn-wk′ ξ⊇ ⊢Γ)
   defn-wkConv↓Term ξ⊇ (starʷ-refl ⊢Γ ok no-η) = starʷ-refl (defn-wk′ ξ⊇ ⊢Γ) ok no-η
   defn-wkConv↓Term ξ⊇ (suc-cong n<>) = suc-cong (defn-wkConv↑Term ξ⊇ n<>)
@@ -167,3 +191,136 @@ opaque mutual
                  (defn-wkRed↘Term ξ⊇ d)
                  (defn-wkRed↘Term ξ⊇ d′)
                  (defn-wkConv↓Term ξ⊇ t<>u)
+
+  defn-wkConv↑Level :
+    » ∇′ ⊇ ∇ →
+    ∇ » Γ ⊢ l₁ [conv↑] l₂ ∷Level →
+    ∇′ » Γ ⊢ l₁ [conv↑] l₂ ∷Level
+  defn-wkConv↑Level ∇′⊇∇ (term ok l₁≡l₂) =
+    term ok (defn-wkConv↑Term ∇′⊇∇ l₁≡l₂)
+  defn-wkConv↑Level ∇′⊇∇ (literal! not-ok ⊢Γ l-lit) =
+    literal! not-ok (defn-wk′ ∇′⊇∇ ⊢Γ) l-lit
+
+  defn-wkConv↓Level :
+    » ∇′ ⊇ ∇ →
+    ∇ » Γ ⊢ l₁ [conv↓] l₂ ∷Level →
+    ∇′ » Γ ⊢ l₁ [conv↓] l₂ ∷Level
+  defn-wkConv↓Level ∇′⊇∇ ([↓]ˡ l₁ᵛ l₂ᵛ l₁↓l₁ᵛ l₂↓l₂ᵛ l₁ᵛ≡l₂ᵛ) =
+    [↓]ˡ (defn-wkLevelᵛ ∇′⊇∇ l₁ᵛ) (defn-wkLevelᵛ ∇′⊇∇ l₂ᵛ)
+      (defn-wk-↓ᵛ l₁↓l₁ᵛ) (defn-wk-↓ᵛ l₂↓l₂ᵛ) (defn-wk-≡ᵛ l₁ᵛ≡l₂ᵛ)
+
+  defn-wkLevelᵛ : » ∇′ ⊇ ∇ → Levelᵛ (∇ » Γ) → Levelᵛ (∇′ » Γ)
+  defn-wkLevelᵛ ∇′⊇∇ L.[]       = L.[]
+  defn-wkLevelᵛ ∇′⊇∇ (x L.∷ xs) =
+    defn-wkLevel⁺ ∇′⊇∇ x L.∷ defn-wkLevelᵛ ∇′⊇∇ xs
+
+  defn-wkLevel⁺ : » ∇′ ⊇ ∇ → Level⁺ (∇ » Γ) → Level⁺ (∇′ » Γ)
+  defn-wkLevel⁺ ∇′⊇∇ (n , l) = n , defn-wkLevelAtom ∇′⊇∇ l
+
+  defn-wkLevelAtom : » ∇′ ⊇ ∇ → LevelAtom (∇ » Γ) → LevelAtom (∇′ » Γ)
+  defn-wkLevelAtom ∇′⊇∇ zeroᵘ    = zeroᵘ
+  defn-wkLevelAtom ∇′⊇∇ (ne t~t) = ne (defn-wk~↓ ∇′⊇∇ t~t)
+
+  defn-wk-↓ᵛ : ∇ » Γ ⊢ t ↓ᵛ v → ∇′ » Γ ⊢ t ↓ᵛ defn-wkLevelᵛ ∇′⊇∇ v
+  defn-wk-↓ᵛ {∇′⊇∇} (zeroᵘₙ ok ⊢Γ) =
+    zeroᵘₙ ok (defn-wk′ ∇′⊇∇ ⊢Γ)
+  defn-wk-↓ᵛ (sucᵘₙ eq t≡u) =
+    sucᵘₙ (defn-wk-sucᵛ eq) (defn-wk-↑ᵛ t≡u)
+  defn-wk-↓ᵛ (neₙ t~v) =
+    neₙ (defn-wk-~ᵛ t~v)
+
+  defn-wk-sucᵛ :
+    v PE.≡ sucᵛ v′ →
+    defn-wkLevelᵛ ∇′⊇∇ v PE.≡ sucᵛ (defn-wkLevelᵛ ∇′⊇∇ v′)
+  defn-wk-sucᵛ PE.refl = PE.cong (_ L.∷_) (defn-wk-map-suc⁺ PE.refl)
+
+  defn-wk-map-suc⁺ :
+    v PE.≡ map-suc⁺ v′ →
+    defn-wkLevelᵛ ∇′⊇∇ v PE.≡ map-suc⁺ (defn-wkLevelᵛ ∇′⊇∇ v′)
+  defn-wk-map-suc⁺ {v′ = L.[]}    PE.refl = PE.refl
+  defn-wk-map-suc⁺ {v′ = _ L.∷ _} PE.refl =
+    PE.cong (_ L.∷_) (defn-wk-map-suc⁺ PE.refl)
+
+  defn-wk-↑ᵛ : ∇ » Γ ⊢ t ↑ᵛ v → ∇′ » Γ ⊢ t ↑ᵛ defn-wkLevelᵛ ∇′⊇∇ v
+  defn-wk-↑ᵛ {∇′⊇∇} ([↑]ᵛ d t↓v) =
+    [↑]ᵛ (defn-wkRed↘Term ∇′⊇∇ d) (defn-wk-↓ᵛ t↓v)
+
+  defn-wk-≡ᵛ : v₁ ≡ᵛ v₂ → defn-wkLevelᵛ ∇′⊇∇ v₁ ≡ᵛ defn-wkLevelᵛ ∇′⊇∇ v₂
+  defn-wk-≡ᵛ (t≤u , u≤t) = defn-wk-≤ᵛ t≤u , defn-wk-≤ᵛ u≤t
+
+  defn-wk-≤ᵛ :
+    ≤ᵛ d v₁ v₂ → ≤ᵛ d (defn-wkLevelᵛ ∇′⊇∇ v₁) (defn-wkLevelᵛ ∇′⊇∇ v₂)
+  defn-wk-≤ᵛ All.[]          = All.[]
+  defn-wk-≤ᵛ (p All.∷ v₁≤v₂) = defn-wk-≤⁺ᵛ p All.∷ defn-wk-≤ᵛ v₁≤v₂
+
+  defn-wk-≤⁺ᵛ :
+    ≤⁺ᵛ d v₁⁺ v₂ →
+    ≤⁺ᵛ d (defn-wkLevel⁺ ∇′⊇∇ v₁⁺) (defn-wkLevelᵛ ∇′⊇∇ v₂)
+  defn-wk-≤⁺ᵛ (Any.here p)      = Any.here (defn-wk-≤⁺ p)
+  defn-wk-≤⁺ᵛ (Any.there v₁≤v₂) = Any.there (defn-wk-≤⁺ᵛ v₁≤v₂)
+
+  defn-wk-≤⁺ :
+    ≤⁺ d v₁⁺ v₂⁺ →
+    ≤⁺ d (defn-wkLevel⁺ ∇′⊇∇ v₁⁺) (defn-wkLevel⁺ ∇′⊇∇ v₂⁺)
+  defn-wk-≤⁺        (n , zeroᵘ≤)      = n , zeroᵘ≤
+  defn-wk-≤⁺ {∇′⊇∇} (n , ne≤ v₁⁺≡v₂⁺) =
+    n , ne≤ (defn-wk-≡ⁿ ∇′⊇∇ v₁⁺≡v₂⁺)
+
+  defn-wk-≡ⁿ : » ∇′ ⊇ ∇ → ≡ⁿ (∇ » Γ) t u d → ≡ⁿ (∇′ » Γ) t u d
+  defn-wk-≡ⁿ ∇′⊇∇ (ne≡ t~u)  = ne≡ (defn-wk~↓ ∇′⊇∇ t~u)
+  defn-wk-≡ⁿ ∇′⊇∇ (ne≡' u~t) = ne≡' (defn-wk~↓ ∇′⊇∇ u~t)
+
+  defn-wk-~ᵛ : ∇ » Γ ⊢ t ~ᵛ v → ∇′ » Γ ⊢ t ~ᵛ defn-wkLevelᵛ ∇′⊇∇ v
+  defn-wk-~ᵛ (supᵘˡₙ {v′} eq t~ u↑) =
+    supᵘˡₙ (defn-wk-supᵛ v′ eq) (defn-wk-~ᵛ t~) (defn-wk-↑ᵛ u↑)
+  defn-wk-~ᵛ (supᵘʳₙ {v′} eq t↑ u~) =
+    supᵘʳₙ (defn-wk-supᵛ-sucᵛ v′ eq) (defn-wk-↑ᵛ t↑) (defn-wk-~ᵛ u~)
+  defn-wk-~ᵛ (neₙ t~ eq) =
+    neₙ (defn-wk~↓ _ t~) (defn-wkLevelᵛ-cong eq)
+
+  defn-wk-supᵛ :
+    (v′ : Levelᵛ (∇ » Γ)) →
+    v PE.≡ supᵛ v′ v″ →
+    defn-wkLevelᵛ ∇′⊇∇ v PE.≡
+    supᵛ (defn-wkLevelᵛ ∇′⊇∇ v′) (defn-wkLevelᵛ ∇′⊇∇ v″)
+  defn-wk-supᵛ               L.[]       PE.refl = PE.refl
+  defn-wk-supᵛ {v = L.[]}    (_ L.∷ _)  ()
+  defn-wk-supᵛ {v = _ L.∷ _} (_ L.∷ v′) eq      =
+    let eq₁ , eq₂ = L.∷-injective eq in
+    PE.cong₂ L._∷_ (defn-wkLevel⁺-cong eq₁) (defn-wk-supᵛ v′ eq₂)
+
+  defn-wkLevel⁺-cong :
+    v₁⁺ PE.≡ v₂⁺ → defn-wkLevel⁺ ∇′⊇∇ v₁⁺ PE.≡ defn-wkLevel⁺ ∇′⊇∇ v₂⁺
+  defn-wkLevel⁺-cong PE.refl = PE.refl
+
+  defn-wk-supᵛ-sucᵛ :
+    (v′ : Levelᵛ (∇ » Γ)) →
+    v PE.≡ supᵛ (sucᵛ v′) v″ →
+    defn-wkLevelᵛ ∇′⊇∇ v PE.≡
+    supᵛ (sucᵛ (defn-wkLevelᵛ ∇′⊇∇ v′)) (defn-wkLevelᵛ ∇′⊇∇ v″)
+  defn-wk-supᵛ-sucᵛ {v = L.[]} _ ()
+  defn-wk-supᵛ-sucᵛ {v = x L.∷ v} v′ eq =
+    let eq₁ , eq₂ = L.∷-injective eq in
+    PE.cong₂ L._∷_ (defn-wkLevel⁺-cong eq₁)
+      (defn-wk-supᵛ-map-suc⁺ v′ eq₂)
+
+  defn-wk-supᵛ-map-suc⁺ :
+    (v′ : Levelᵛ (∇ » Γ)) →
+    v PE.≡ supᵛ (map-suc⁺ v′) v″ →
+    defn-wkLevelᵛ ∇′⊇∇ v PE.≡
+    supᵛ (map-suc⁺ (defn-wkLevelᵛ ∇′⊇∇ v′)) (defn-wkLevelᵛ ∇′⊇∇ v″)
+  defn-wk-supᵛ-map-suc⁺               L.[]       PE.refl = PE.refl
+  defn-wk-supᵛ-map-suc⁺ {v = L.[]}    (_ L.∷ _)  ()
+  defn-wk-supᵛ-map-suc⁺ {v = _ L.∷ _} (_ L.∷ v′) eq      =
+    let eq₁ , eq₂ = L.∷-injective eq in
+    PE.cong₂ L._∷_ (defn-wkLevel⁺-cong-suc⁺ eq₁)
+      (defn-wk-supᵛ-map-suc⁺ v′ eq₂)
+
+  defn-wkLevel⁺-cong-suc⁺ :
+    v₁⁺ PE.≡ suc⁺ v₂⁺ →
+    defn-wkLevel⁺ ∇′⊇∇ v₁⁺ PE.≡ suc⁺ (defn-wkLevel⁺ ∇′⊇∇ v₂⁺)
+  defn-wkLevel⁺-cong-suc⁺ PE.refl = PE.refl
+
+  defn-wkLevelᵛ-cong :
+    v₁ PE.≡ v₂ → defn-wkLevelᵛ ∇′⊇∇ v₁ PE.≡ defn-wkLevelᵛ ∇′⊇∇ v₂
+  defn-wkLevelᵛ-cong PE.refl = PE.refl

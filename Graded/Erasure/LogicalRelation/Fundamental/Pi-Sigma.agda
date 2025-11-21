@@ -87,10 +87,16 @@ opaque
 
   -- Validity of Π and Σ.
 
-  ΠΣʳ : γ ▸ Γ ⊩ʳ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ∣ n ] U l
-  ΠΣʳ =
-    ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (Uᵣ (λ { PE.refl → T.refl })))
+  ΠΣʳ :
+    ts » Γ ⊢ t ∷Level →
+    γ ▸ Γ ⊩ʳ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ∣ n ] U t
+  ΠΣʳ ⊢t =
+    ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
+    ®∷→®∷◂ $
+    ®∷U⇔ .proj₂
+      ( subst-⊢∷L ⊢t ⊢σ
+      , U/Levelᵣ (λ { PE.refl → T.refl })
+      )
 
 ------------------------------------------------------------------------
 -- Lemmas related to Π
@@ -111,7 +117,11 @@ opaque
     ®∷→®∷◂ $
     ®∷Π⇔ .proj₂
       (ΠΣⱼ (subst-⊢-⇑ (syntacticTerm ⊢t) ⊢σ) ok
-      , (λ { PE.refl → _ , T.refl })
+      , (λ { PE.refl →
+             _ ,
+             (erase T.strict (lam p t) T.[ σ′ ]      ≡⟨ PE.cong T._[ _ ] $ lam-keep _ ⟩⇒
+              T.lam (erase T.strict t) T.[ σ′ ]      ≡⟨⟩⇒
+              T.lam (erase T.strict t T.[ σ′ T.⇑ ])  ∎⇒) })
       , λ t′ ⊢t′ →
           case →⊢ˢʷ∷∙ ⊢σ ⊢t′ of λ
             ⊢σ,t′ →
@@ -128,7 +138,7 @@ opaque
                      erase str t T.[ σ′ T.⇑ ] T.[ loop? str T.[ σ′ ] ]₀  ≡⟨ PE.cong (T._[_]₀ (erase _ t T.[ _ ])) $ loop?-[] _ ⟩⇒
                      erase str t T.[ σ′ T.⇑ ] T.[ loop? str ]₀           ∎⇒
                    (T.strict , PE.refl) →
-                     (erase str (lam 𝟘 t) T.[ σ′ ]) T.∘⟨ str ⟩ loop? str  ≡⟨ PE.cong₃ T._∘⟨_⟩_ (PE.cong₂ T._[_] (lam-𝟘-keep t) PE.refl)
+                     (erase str (lam 𝟘 t) T.[ σ′ ]) T.∘⟨ str ⟩ loop? str  ≡⟨ PE.cong₃ T._∘⟨_⟩_ (PE.cong₂ T._[_] (lam-keep t) PE.refl)
                                                                                PE.refl PE.refl ⟩⇒
                      (T.lam (erase str t) T.[ σ′ ]) T.∘⟨ str ⟩ loop? str  ⇒⟨ T.β-red T.↯ ⟩
                      erase str t T.[ σ′ T.⇑ ] T.[ loop? str ]₀            ∎⇒)

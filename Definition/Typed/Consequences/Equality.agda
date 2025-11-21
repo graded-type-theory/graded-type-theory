@@ -15,12 +15,16 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
+import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
@@ -35,47 +39,129 @@ open import Tools.Relation
 
 private
   variable
-    ∇         : DCon (Term 0) _
-    Γ         : Cons _ _
-    A B C t u : Term _
-    V         : Set a
-    b         : BinderMode
-    p q       : M
-    s         : Strength
-    l         : Universe-level
+    ∇           : DCon (Term 0) _
+    Γ           : Cons _ _
+    A B C l t u : Term _
+    V           : Set a
+    b           : BinderMode
+    p q         : M
+    s           : Strength
+
+opaque
+
+  -- If the WHNF A is judgmentally equal to Level, then A is
+  -- propositionally equal to Level (given a certain assumption).
+
+  Level≡A :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ Level ≡ A → Whnf (Γ .defs) A → A PE.≡ Level
+  Level≡A {Γ} {A} Level≡A A-whnf =
+                $⟨ Level≡A ⟩
+    Γ ⊢ Level ≡ A       →⟨ ⊩Level≡⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩≡ ⟩
+    Γ ⊩Level Level ≡ A  ≡⟨ PE.refl ⟩→
+    Γ ⊢ A ⇒* Level      →⟨ flip whnfRed* A-whnf ⟩
+    A PE.≡ Level        □
+
+opaque
+
+  -- If equality reflection is allowed and Level is a small type, then
+  -- there is a WHNF A that is judgementally equal to Level but not
+  -- propositionally equal to Level (given a certain assumption).
+
+  whnf≢Level :
+    Equality-reflection →
+    Level-is-small →
+    » ∇ →
+    ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
+      ∇ » Γ ⊢ Level ≡ A × Whnf ∇ A × A PE.≢ Level
+  whnf≢Level ok Level-ok »∇ =
+    ε ∙ Id (U zeroᵘ) Level Empty ,
+    Empty ,
+    univ
+      (equality-reflection′ ok $
+       var₀ (Idⱼ′ (Levelⱼ (ε »∇) Level-ok) (Emptyⱼ (ε »∇)))) ,
+    Emptyₙ ,
+    (λ ())
 
 opaque
 
   -- If the WHNF A is judgmentally equal to U l, then A is
-  -- propositionally equal to U l (given a certain assumption).
+  -- propositionally equal to U something (given a certain
+  -- assumption).
 
   U≡A :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    Γ ⊢ U l ≡ A → Whnf (Γ .defs) A → A PE.≡ U l
+    Γ ⊢ U l ≡ A → Whnf (Γ .defs) A → ∃ λ k → A PE.≡ U k
   U≡A {Γ} {l} {A} U≡A A-whnf =    $⟨ U≡A ⟩
     Γ ⊢ U l ≡ A                   →⟨ reducible-⊩≡ ⟩
-    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ proj₂ ∘→ ⊩U≡⇔ .proj₁ ∘→ proj₂ ⟩
-    Γ ⊢ A ⇒* U l                  →⟨ flip whnfRed* A-whnf ⟩
-    A PE.≡ U l                    □
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ U l ≡ A)  →⟨ (λ (_ , U≡A) → let (_ , _ , u , d , _) = ⊩U≡⇔ .proj₁ U≡A in u , d) ⟩
+    (∃ λ k → Γ ⊢ A ⇒* U k)        →⟨ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
+    (∃ λ k → A PE.≡ U k)          □
 
 opaque
 
   -- If equality reflection is allowed, then there is a WHNF A that is
-  -- judgementally equal to U l but not propositionally equal to U l
-  -- (given a certain assumption).
+  -- judgementally equal to a universe but not propositionally
+  -- equal to any universe (given a certain assumption).
 
   whnf≢U :
     Equality-reflection →
     Unitʷ-allowed →
     » ∇ →
-    ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
-      ∇ » Γ ⊢ U l ≡ A × Whnf ∇ A × A PE.≢ U l
-  whnf≢U {l} ok₁ ok₂ »∇ =
-    ε ∙ Id (U (1+ l)) (U l) (Unitʷ (1+ l)) ,
-    Unitʷ (1+ l) ,
+    ∃₃ λ (Γ : Con Term 1) (l : Term 1) (A : Term 1) →
+      ∇ » Γ ⊢ U l ≡ A × Whnf ∇ A × ¬ ∃ λ l → A PE.≡ U l
+  whnf≢U ok₁ ok₂ »∇ =
+    ε ∙ Id (U (sucᵘ zeroᵘ)) (U zeroᵘ) (Lift (sucᵘ zeroᵘ) Empty) ,
+    zeroᵘ ,
+    Lift (sucᵘ zeroᵘ) Empty ,
     univ
       (equality-reflection′ ok₁ $
-       var₀ (Idⱼ′ (Uⱼ (ε »∇)) (Unitⱼ (ε »∇) ok₂))) ,
+       var₀ $
+       Idⱼ′
+         (Uⱼ (⊢zeroᵘ (ε »∇)))
+         (_⊢_∷_.conv (Liftⱼ′ (⊢sucᵘ (⊢zeroᵘ (ε »∇))) (Emptyⱼ (ε »∇))) $
+          U-cong-⊢≡ (supᵘₗ-zeroˡ (⊢sucᵘ (⊢zeroᵘ (ε »∇)))))) ,
+    Liftₙ ,
+    (λ ())
+
+opaque
+
+  -- If the WHNF A is judgmentally equal to Lift l B, then A is
+  -- propositionally equal to Lift something (given a certain
+  -- assumption).
+
+  Lift≡A :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ Lift l B ≡ A → Whnf (Γ .defs) A → ∃₂ λ k C → A PE.≡ Lift k C
+  Lift≡A {Γ} {l} {B} {A} Lift≡A A-whnf = $⟨ Lift≡A ⟩
+    Γ ⊢ Lift l B ≡ A                     →⟨ reducible-⊩≡ ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Lift l B ≡ A)    →⟨ (λ (_ , Lift≡A) → let _ , _ , D , _ = ⊩Lift≡⇔ .proj₁ Lift≡A in _ , _ , D) ⟩
+    (∃₂ λ k C → Γ ⊢ A ⇒* Lift k C)       →⟨ Σ.map idᶠ $ Σ.map idᶠ (flip whnfRed* A-whnf) ⟩
+    (∃₂ λ k C → A PE.≡ Lift k C)         □
+
+opaque
+
+  -- If equality reflection is allowed, then there is a WHNF A that is
+  -- judgementally equal to a Lift type but not propositionally
+  -- equal to any Lift type (given a certain assumption).
+
+  whnf≢Lift :
+    Equality-reflection →
+    Unitʷ-allowed →
+    » ∇ →
+    ∃₄ λ (Γ : Con Term 1) (l : Term 1) (B : Term 1) (A : Term 1) →
+      ∇ » Γ ⊢ Lift l B ≡ A × Whnf ∇ A × ¬ ∃₂ λ l B → A PE.≡ Lift l B
+  whnf≢Lift ok₁ ok₂ »∇ =
+    ε ∙ Id (U (zeroᵘ supᵘₗ zeroᵘ)) (Lift zeroᵘ ℕ) Unitʷ ,
+    zeroᵘ ,
+    ℕ ,
+    Unitʷ ,
+    univ
+      (equality-reflection′ ok₁ $
+       var₀ $
+       Idⱼ′ (Liftⱼ′ (⊢zeroᵘ (ε »∇)) (ℕⱼ (ε »∇))) $
+       _⊢_∷_.conv (Unitⱼ (ε »∇) ok₂) $
+       U-cong-⊢≡ (sym-⊢≡∷L (supᵘₗ-zeroˡ (⊢zeroᵘ (ε »∇))))) ,
     Unitₙ ,
     (λ ())
 
@@ -105,7 +191,7 @@ opaque
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       ∇ » Γ ⊢ ℕ ≡ A × Whnf ∇ A × A PE.≢ ℕ
   whnf≢ℕ ok »∇ =
-    ε ∙ Id (U 0) ℕ Empty ,
+    ε ∙ Id (U zeroᵘ) ℕ Empty ,
     Empty ,
     univ
       (equality-reflection′ ok $
@@ -140,7 +226,7 @@ opaque
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       ∇ » Γ ⊢ Empty ≡ A × Whnf ∇ A × A PE.≢ Empty
   whnf≢Empty ok »∇ =
-    ε ∙ Id (U 0) Empty ℕ ,
+    ε ∙ Id (U zeroᵘ) Empty ℕ ,
     ℕ ,
     univ
       (equality-reflection′ ok $
@@ -150,18 +236,21 @@ opaque
 
 opaque
 
-  -- If the WHNF A is judgmentally equal to Unit s l, then A is
-  -- propositionally equal to Unit s l (given a certain assumption).
+  -- If the WHNF A is judgmentally equal to Unit s, then A is
+  -- propositionally equal to Unit s (given a certain assumption).
 
   Unit≡A :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    Γ ⊢ Unit s l ≡ A → Whnf (Γ .defs) A → A PE.≡ Unit s l
-  Unit≡A {Γ} {s} {l} {A} Unit≡A A-whnf =
+    Γ ⊢ Unit s ≡ A → Whnf (Γ .defs) A → A PE.≡ Unit s
+  Unit≡A {Γ} {s} {A} Unit≡A A-whnf =
                                        $⟨ Unit≡A ⟩
-    Γ ⊢ Unit s l ≡ A                   →⟨ reducible-⊩≡ ⟩
-    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Unit s l ≡ A)  →⟨ proj₂ ∘→ proj₂ ∘→ proj₂ ∘→ ⊩Unit≡⇔ .proj₁ ∘→ proj₂ ⟩
-    Γ ⊢ A ⇒* Unit s l                  →⟨ flip whnfRed* A-whnf ⟩
-    A PE.≡ Unit s l                    □
+    Γ ⊢ Unit s ≡ A                   →⟨ reducible-⊩≡ ⟩
+    (∃ λ l′ → Γ ⊩⟨ l′ ⟩ Unit s ≡ A)  →⟨ (λ (_ , Unit≡A) →
+                                            case ⊩Unit≡⇔ .proj₁ Unit≡A of λ {
+                                              (⇒Unit , ok) →
+                                            ⇒Unit }) ⟩
+    Γ ⊢ A ⇒* Unit s        →⟨ flip whnfRed* A-whnf ⟩
+    A PE.≡ Unit s          □
 
 opaque
 
@@ -174,11 +263,11 @@ opaque
     Unit-allowed s →
     » ∇ →
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
-      ∇ » Γ ⊢ Unit s l ≡ A × Whnf ∇ A ×
-      ¬ ∃₂ λ s l → A PE.≡ Unit s l
-  whnf≢Unit {s} {l} ok₁ ok₂ »∇ =
-    ε ∙ Id (U l) (Unit s l) (Id (Unit s l) (star s l) (star s l)) ,
-    Id (Unit s l) (star s l) (star s l) ,
+      ∇ » Γ ⊢ Unit s ≡ A × Whnf ∇ A ×
+      ¬ ∃ λ s → A PE.≡ Unit s
+  whnf≢Unit {s} ok₁ ok₂ »∇ =
+    ε ∙ Id (U zeroᵘ) (Unit s) (Id (Unit s) (star s) (star s)) ,
+    Id (Unit s) (star s) (star s) ,
     univ
       (equality-reflection′ ok₁ $ var₀ $
        let ⊢ε = ε »∇ in
@@ -217,12 +306,12 @@ opaque
     ∃₃ λ (Γ : Con Term 2) (A B : Term 2) →
       ∇ » Γ ⊢ A ≡ B × Neutral⁺ ∇ A × Whnf ∇ B × A PE.≢ B
   whnf≢ne ok »∇ =
-    ε ∙ U 0 ∙ Id (U 0) (var x0) Empty ,
+    ε ∙ U zeroᵘ ∙ Id (U zeroᵘ) (var x0) Empty ,
     var x1 ,
     Empty ,
     univ
       (equality-reflection′ ok $
-       var₀ (Idⱼ′ (var₀ (Uⱼ (ε »∇))) (Emptyⱼ (∙ Uⱼ (ε »∇))))) ,
+       var₀ (Idⱼ′ (var₀ (⊢U₀ (ε »∇))) (Emptyⱼ (∙ ⊢U₀ (ε »∇))))) ,
     var⁺ _ ,
     Emptyₙ ,
     (λ ())
@@ -258,12 +347,14 @@ opaque
       ∇ » Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C × Whnf ∇ C ×
       ¬ ∃₅ λ b p q A B → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   whnf≢ΠΣ {b} {p} {q} ok₁ ok₂ »∇ =
-    ε ∙ Id (U 0) (ΠΣ⟨ b ⟩ p , q ▷ ℕ ▹ ℕ) ℕ ,
+    ε ∙ Id (U zeroᵘ) (ΠΣ⟨ b ⟩ p , q ▷ ℕ ▹ ℕ) ℕ ,
     ℕ , ℕ , ℕ ,
     univ
       (equality-reflection′ ok₁ $
        let ⊢ε = ε »∇ in
-       var₀ (Idⱼ′ (ΠΣⱼ (ℕⱼ ⊢ε) (ℕⱼ (∙ ℕⱼ ⊢ε)) ok₂) (ℕⱼ ⊢ε))) ,
+       var₀ $
+       Idⱼ′ (ΠΣⱼ (⊢zeroᵘ (ε »∇)) (ℕⱼ (ε »∇)) (ℕⱼ (∙ ⊢ℕ (ε »∇))) ok₂)
+         (ℕⱼ (ε »∇))) ,
     ℕₙ ,
     (λ ())
 
@@ -320,7 +411,7 @@ opaque
       ∇ » Γ ⊢ Id A t u ≡ B × Whnf ∇ B ×
       ¬ ∃₃ λ A t u → B PE.≡ Id A t u
   whnf≢Id ok »∇ =
-    ε ∙ Id (U 0) (Id ℕ zero zero) ℕ ,
+    ε ∙ Id (U zeroᵘ) (Id ℕ zero zero) ℕ ,
     ℕ , zero , zero , ℕ ,
     univ
       (equality-reflection′ ok $
@@ -348,7 +439,7 @@ opaque
     case u∼v of λ where
       (rfl₌ _) →
         conv* t⇒*u (sym A≡Id)
-      (ne _ () _) }
+      (ne _ (ne () _) _) }
 
 opaque
 

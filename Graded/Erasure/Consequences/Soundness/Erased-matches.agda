@@ -6,7 +6,6 @@
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped
-open import Graded.Erasure.Target as T using (Strictness)
 open import Graded.Modality
 import Graded.Mode
 import Graded.Restrictions
@@ -45,13 +44,12 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   (only-some-erased-matches : Only-some-erased-matches TR UR)
   -- Equality reflection is not allowed or Δ is empty.
   ⦃ ok : No-equality-reflection or-empty Δ ⦄
-  -- The variant of extraction that is used.
-  (str : Strictness)
   -- The modality's zero is well-behaved.
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
 import Definition.Typed.QuantityTranslation as QT
+open import Definition.Untyped.Properties M
 open import Definition.Untyped.QuantityTranslation.Identity M
 
 open import Graded.Context 𝕄
@@ -60,6 +58,7 @@ open import Graded.Modality.Morphism
 import Graded.Erasure.Consequences.Soundness
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.SucRed
+import Graded.Erasure.Target as T
 
 open import Tools.Function
 open import Tools.Product
@@ -103,7 +102,6 @@ private
              No-equality-reflection-or-empty⇔ .proj₁ $
              ok
          })
-      str
 
 opaque
 
@@ -117,6 +115,7 @@ opaque
     QT.tr-⊢∷ TR TR-η idᶠ idᶠ m (Is-morphism→Is-Σ-morphism m)
       (record
          { unfolding-mode-preserved = refl
+         ; level-support-preserved  = refl-≤LS
          ; Unit-preserved           = idᶠ
          ; ΠΣ-preserved             =
              λ {b = b} →
@@ -141,7 +140,7 @@ opaque
     ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
     glassify ∇ » Δ SR-η.⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
-    eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+    (∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
   soundness-ℕ = Soundness-η.soundness-ℕ ∘→ ⊢∷→⊢∷-η
 
 opaque
@@ -153,7 +152,7 @@ opaque
   -- unitrec-subst and unitrec-β.
 
   soundness-Unit :
-    ∇ » Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-    glassify ∇ » Δ T-η.⊢ t ⇒* star s l ∷ Unit s l ×
-    eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
+    ∇ » Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+    glassify ∇ » Δ T-η.⊢ t ⇒* star s ∷ Unit s ×
+    (∀ str → eraseDCon str ∇ T.⊢ erase str t ⇒* T.star)
   soundness-Unit = Soundness-η.soundness-Unit ∘→ ⊢∷→⊢∷-η

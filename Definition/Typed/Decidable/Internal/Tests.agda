@@ -11,13 +11,13 @@ module Definition.Typed.Decidable.Internal.Tests
   (TR : Type-restrictions 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Equality 𝕄
+open import Definition.Typed.Decidable.Internal.Equality TR
 open import Definition.Typed.Decidable.Internal.Monad TR as M
   hiding (_<$>_; _⊛_)
-open import Definition.Typed.Decidable.Internal.Term 𝕄
-open import Definition.Typed.Decidable.Internal.Substitution 𝕄
+open import Definition.Typed.Decidable.Internal.Term TR
+open import Definition.Typed.Decidable.Internal.Substitution TR
 
-open import Definition.Untyped M as U using (Wk)
+open import Definition.Untyped M using (Wk)
 
 open import Tools.Fin
 open import Tools.Function using (case_of_; _∘→_)
@@ -33,7 +33,6 @@ private variable
   x₁ x₂                : Fin _
   c                    : Constants
   Δ                    : Con _ _
-  l l₁ l₂              : Termˡ _
   s                    : Termˢ _
   b                    : Termᵇᵐ _ _
   p q r                : Termᵍ _
@@ -73,6 +72,7 @@ is-literal-binder-mode? _       = nothing
 -- checked rather than inferred.
 
 data Checkable {c : Constants} {n} : Term c n → Set a where
+  lift : ∀ t → Checkable (lift nothing t)
   lam  : ∀ p t → Checkable (lam p nothing t)
   prod : ∀ s p t₁ t₂ → Checkable (prod s p nothing t₁ t₂)
   rfl  : Checkable (rfl nothing)
@@ -81,6 +81,7 @@ data Checkable {c : Constants} {n} : Term c n → Set a where
 -- be checked rather than inferred?
 
 checkable? : (t : Term c n) → Maybe (Checkable t)
+checkable? (lift nothing _)       = just (lift _)
 checkable? (lam _ nothing _)      = just (lam _ _)
 checkable? (prod _ _ nothing _ _) = just (prod _ _ _ _)
 checkable? (rfl nothing)          = just rfl
@@ -89,14 +90,23 @@ checkable? _                      = nothing
 -- The term's outermost constructor indicates that its type might be
 -- inferable.
 
+infixr 30 _supᵘₗ_
+
 data Inferable {c : Constants} {n} : Term c n → Set a where
   meta-var : ∀ x (σ : Subst c n n′) → Inferable (meta-var x σ)
   var      : ∀ x → Inferable (var x)
   defn     : ∀ α → Inferable (defn α)
+  Level    : Inferable Level
+  zeroᵘ    : Inferable zeroᵘ
+  sucᵘ     : ∀ l → Inferable (sucᵘ l)
+  _supᵘₗ_  : ∀ l₁ l₂ → Inferable (l₁ supᵘₗ l₂)
   U        : ∀ l → Inferable (U l)
-  Unit     : ∀ s l → Inferable (Unit s l)
-  star     : ∀ s l → Inferable (star s l)
-  unitrec  : ∀ l A t₁ t₂ → Inferable (unitrec l p q A t₁ t₂)
+  Lift     : ∀ l A → Inferable (Lift l A)
+  lift     : ∀ l t → Inferable (lift (just l) t)
+  lower    : ∀ t → Inferable (lower t)
+  Unit     : ∀ s → Inferable (Unit s)
+  star     : ∀ s → Inferable (star s)
+  unitrec  : ∀ A t₁ t₂ → Inferable (unitrec p q A t₁ t₂)
   Empty    : Inferable Empty
   emptyrec : ∀ A t → Inferable (emptyrec p A t)
   ΠΣ       : ∀ b p q A₁ A₂ → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂)
@@ -116,7 +126,7 @@ data Inferable {c : Constants} {n} : Term c n → Set a where
   J        : ∀ A₁ t₁ A₂ t₂ t₃ t₄ →
              Inferable (J p q A₁ t₁ A₂ t₂ t₃ t₄)
   K        : ∀ A₁ t₁ A₂ t₂ t₃ → Inferable (K p A₁ t₁ A₂ t₂ t₃)
-  []-cong  : ∀ s A t₁ t₂ t₃ → Inferable ([]-cong s A t₁ t₂ t₃)
+  []-cong  : ∀ s l A t₁ t₂ t₃ → Inferable ([]-cong s l A t₁ t₂ t₃)
 
 -- A procedure that checks that the term's outermost constructor
 -- indicates that its type might be inferable.
@@ -125,10 +135,17 @@ inferable : (t : Term c n) → Check c (Inferable t)
 inferable (meta-var _ _)          = return (meta-var _ _)
 inferable (var _)                 = return (var _)
 inferable (defn _)                = return (defn _)
+inferable Level                   = return Level
+inferable zeroᵘ                   = return zeroᵘ
+inferable (sucᵘ _)                = return (sucᵘ _)
+inferable (_ supᵘₗ _)             = return (_ supᵘₗ _)
 inferable (U _)                   = return (U _)
-inferable (Unit _ _)              = return (Unit _ _)
-inferable (star _ _)              = return (star _ _)
-inferable (unitrec _ _ _ _ _ _)   = return (unitrec _ _ _ _)
+inferable (Lift _ _)              = return (Lift _ _)
+inferable (lift (just _) _)       = return (lift _ _)
+inferable (lower _)               = return (lower _)
+inferable (Unit _)                = return (Unit _)
+inferable (star _)                = return (star _)
+inferable (unitrec _ _ _ _ _)     = return (unitrec _ _ _)
 inferable Empty                   = return Empty
 inferable (emptyrec _ _ _)        = return (emptyrec _ _)
 inferable (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = return (ΠΣ _ _ _ _ _)
@@ -146,7 +163,7 @@ inferable (Id _ _ _)              = return (Id _ _ _)
 inferable (rfl (just _))          = return (rfl _)
 inferable (J _ _ _ _ _ _ _ _)     = return (J _ _ _ _ _ _)
 inferable (K _ _ _ _ _ _)         = return (K _ _ _ _ _)
-inferable ([]-cong _ _ _ _ _)     = return ([]-cong _ _ _ _ _)
+inferable ([]-cong _ _ _ _ _ _)   = return ([]-cong _ _ _ _ _ _)
 inferable _                       = fail "Expected an inferable term."
 
 ------------------------------------------------------------------------
@@ -163,11 +180,14 @@ data Are-equal-eliminators (t : Term c n) : Term c n → Set a where
              Are-equal-eliminators t (var x)
   defn     : ∀ α → t PE.≡ defn α →
              Are-equal-eliminators t (defn α)
+  sup      : ∀ l₁₁ l₂₁ l₁₂ l₂₂ → t PE.≡ l₁₁ supᵘₗ l₂₁ →
+             Are-equal-eliminators t (l₁₂ supᵘₗ l₂₂)
+  lower    : ∀ t₁ t₂ → t PE.≡ lower t₁ →
+             Are-equal-eliminators t (lower t₂)
   emptyrec : ∀ A₁ t₁ A₂ t₂ → t PE.≡ emptyrec p A₁ t₁ →
              Are-equal-eliminators t (emptyrec p A₂ t₂)
-  unitrec  : ∀ l₁ A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ → [ c ] l₁ ≡ˡ l₂ →
-             t PE.≡ unitrec l₁ p q A₁ t₁₁ t₁₂ →
-             Are-equal-eliminators t (unitrec l₂ p q A₂ t₂₁ t₂₂)
+  unitrec  : ∀ A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ → t PE.≡ unitrec p q A₁ t₁₁ t₁₂ →
+             Are-equal-eliminators t (unitrec p q A₂ t₂₁ t₂₂)
   app      : ∀ p t₁₁ t₁₂ t₂₁ t₂₂ → t PE.≡ t₁₁ ∘⟨ p ⟩ t₁₂ →
              Are-equal-eliminators t (t₂₁ ∘⟨ p ⟩ t₂₂)
   fst      : ∀ p t₁ t₂ → t PE.≡ fst p t₁ →
@@ -186,9 +206,9 @@ data Are-equal-eliminators (t : Term c n) : Term c n → Set a where
   K        : ∀ A₁₁ t₁₁ A₁₂ t₁₂ t₁₃ A₂₁ t₂₁ A₂₂ t₂₂ t₂₃ →
              t PE.≡ K p A₁₁ t₁₁ A₁₂ t₁₂ t₁₃ →
              Are-equal-eliminators t (K p A₂₁ t₂₁ A₂₂ t₂₂ t₂₃)
-  []-cong  : ∀ s A₁ t₁₁ t₁₂ t₁₃ A₂ t₂₁ t₂₂ t₂₃ →
-             t PE.≡ []-cong s A₁ t₁₁ t₁₂ t₁₃ →
-             Are-equal-eliminators t ([]-cong s A₂ t₂₁ t₂₂ t₂₃)
+  []-cong  : ∀ s l₁ A₁ t₁₁ t₁₂ t₁₃ l₂ A₂ t₂₁ t₂₂ t₂₃ →
+             t PE.≡ []-cong s l₁ A₁ t₁₁ t₁₂ t₁₃ →
+             Are-equal-eliminators t ([]-cong s l₂ A₂ t₂₁ t₂₂ t₂₃)
 
 -- A procedure that checks that the two terms are applications of
 -- equal eliminators (or equal meta-variables, equal variables, or
@@ -210,15 +230,18 @@ are-equal-eliminators t₁ t₂ =
   are-equal-eliminators? (defn α₁) (defn α₂) =
     (λ eq → defn _ (PE.cong defn eq)) <$>
     dec⇒maybe (α₁ N.≟ α₂)
+  are-equal-eliminators? (_ supᵘₗ _) (_ supᵘₗ _) =
+    just (sup _ _ _ _ PE.refl)
+  are-equal-eliminators? (lower _) (lower _) =
+    just (lower _ _ PE.refl)
   are-equal-eliminators? (emptyrec p₁ _ _) (emptyrec p₂ _ _) =
     (λ eq → emptyrec _ _ _ _ (PE.cong (λ p → emptyrec p _ _) eq)) <$>
     p₁ ≟ᵍ p₂
-  are-equal-eliminators?
-    (unitrec l₁ p₁ q₁ _ _ _) (unitrec l₂ p₂ q₂ _ _ _) =
-    (λ eq₁ eq₂ eq₃ →
-       unitrec _ _ _ _ _ _ _ eq₁
-         (PE.cong₂ (λ p q → unitrec _ p q _ _ _) eq₂ eq₃)) <$>
-    l₁ ≟ˡ l₂ ⊛ p₁ ≟ᵍ p₂ ⊛ q₁ ≟ᵍ q₂
+  are-equal-eliminators? (unitrec p₁ q₁ _ _ _) (unitrec p₂ q₂ _ _ _) =
+    (λ eq₁ eq₂ →
+       unitrec _ _ _ _ _ _
+         (PE.cong₂ (λ p q → unitrec p q _ _ _) eq₁ eq₂)) <$>
+    p₁ ≟ᵍ p₂ ⊛ q₁ ≟ᵍ q₂
   are-equal-eliminators? (_ ∘⟨ p₁ ⟩ _) (_ ∘⟨ p₂ ⟩ _) =
     (λ eq → app _ _ _ _ _ (PE.cong (λ p → _ ∘⟨ p ⟩ _) eq)) <$>
     p₁ ≟ᵍ p₂
@@ -249,10 +272,10 @@ are-equal-eliminators t₁ t₂ =
     (λ eq →
        K _ _ _ _ _ _ _ _ _ _ (PE.cong (λ p → K p _ _ _ _ _) eq)) <$>
     p₁ ≟ᵍ p₂
-  are-equal-eliminators? ([]-cong s₁ _ _ _ _) ([]-cong s₂ _ _ _ _) =
+  are-equal-eliminators? ([]-cong s₁ _ _ _ _ _) ([]-cong s₂ _ _ _ _ _) =
     (λ eq →
-       []-cong _ _ _ _ _ _ _ _ _
-         (PE.cong (λ s → []-cong s _ _ _ _) eq)) <$>
+       []-cong _ _ _ _ _ _ _ _ _ _ _
+         (PE.cong (λ s → []-cong s _ _ _ _ _) eq)) <$>
     s₁ ≟ˢ s₂
   are-equal-eliminators? _ _ =
     nothing
@@ -265,9 +288,11 @@ are-equal-eliminators t₁ t₂ =
 data Is-type-constructor {c : Constants} {n} : Term c n → Set a where
   meta-var : ∀ x (σ : Subst c n n′) →
              Is-type-constructor (meta-var x σ)
+  Level    : Is-type-constructor Level
   U        : ∀ l → Is-type-constructor (U l)
+  Lift     : ∀ l A → Is-type-constructor (Lift l A)
   Empty    : Is-type-constructor Empty
-  Unit     : ∀ s l → Is-type-constructor (Unit s l)
+  Unit     : ∀ s → Is-type-constructor (Unit s)
   ΠΣ       : ∀ b p q A₁ A₂ →
              Is-type-constructor (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂)
   ℕ        : Is-type-constructor ℕ
@@ -278,12 +303,16 @@ data Is-type-constructor {c : Constants} {n} : Term c n → Set a where
 is-type-constructor? : (A : Term c n) → Maybe (Is-type-constructor A)
 is-type-constructor? (meta-var _ _) =
   just (meta-var _ _)
+is-type-constructor? Level =
+  just Level
 is-type-constructor? (U _) =
   just (U _)
+is-type-constructor? (Lift _ _) =
+  just (Lift _ _)
 is-type-constructor? Empty =
   just Empty
-is-type-constructor? (Unit _ _) =
-  just (Unit _ _)
+is-type-constructor? (Unit _) =
+  just (Unit _)
 is-type-constructor? ℕ =
   just ℕ
 is-type-constructor? (ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _) =
@@ -299,9 +328,11 @@ is-type-constructor? _ =
 data Is-type-constructorˡ {c : Constants} {n} : Term c n → Set a where
   meta-var : ∀ x (σ : Subst c n n′) →
              Is-type-constructorˡ (meta-var x σ)
+  Level    : Is-type-constructorˡ Level
   U        : ∀ l → Is-type-constructorˡ (U l)
+  Lift     : ∀ l A → Is-type-constructorˡ (Lift l A)
   Empty    : Is-type-constructorˡ Empty
-  Unit     : ∀ s l → Is-type-constructorˡ (Unit s l)
+  Unit     : ∀ s → Is-type-constructorˡ (Unit s)
   ΠΣ       : Is-literal-binder-mode b →
              ∀ p q A₁ A₂ →
              Is-type-constructorˡ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂)
@@ -313,12 +344,16 @@ data Is-type-constructorˡ {c : Constants} {n} : Term c n → Set a where
 is-type-constructorˡ? : (A : Term c n) → Maybe (Is-type-constructorˡ A)
 is-type-constructorˡ? (meta-var _ _) =
   just (meta-var _ _)
+is-type-constructorˡ? Level =
+  just Level
 is-type-constructorˡ? (U _) =
   just (U _)
+is-type-constructorˡ? (Lift _ _) =
+  just (Lift _ _)
 is-type-constructorˡ? Empty =
   just Empty
-is-type-constructorˡ? (Unit _ _) =
-  just (Unit _ _)
+is-type-constructorˡ? (Unit _) =
+  just (Unit _)
 is-type-constructorˡ? ℕ =
   just ℕ
 is-type-constructorˡ? (ΠΣ⟨ b ⟩ _ , _ ▷ _ ▹ _) =
@@ -336,11 +371,13 @@ data Are-equal-type-constructors (A : Term c n) :
   meta-var : ∀ x₁ (σ₁ : Subst c n n′₁) x₂ (σ₂ : Subst c n n′₂) →
              A PE.≡ meta-var x₁ σ₁ →
              Are-equal-type-constructors A (meta-var x₂ σ₂)
-  U        : [ c ] l₁ ≡ˡ l₂ → A PE.≡ U l₁ →
+  Level    : A PE.≡ Level → Are-equal-type-constructors A Level
+  U        : ∀ l₁ l₂ → A PE.≡ U l₁ →
              Are-equal-type-constructors A (U l₂)
+  Lift     : ∀ l₁ A₁ l₂ A₂ → A PE.≡ Lift l₁ A₁ →
+             Are-equal-type-constructors A (Lift l₂ A₂)
   Empty    : A PE.≡ Empty → Are-equal-type-constructors A Empty
-  Unit     : [ c ] l₁ ≡ˡ l₂ → A PE.≡ Unit s l₁ →
-             Are-equal-type-constructors A (Unit s l₂)
+  Unit     : A PE.≡ Unit s → Are-equal-type-constructors A (Unit s)
   ΠΣ       : ∀ B₁₁ B₁₂ B₂₁ B₂₂ → A PE.≡ ΠΣ⟨ b ⟩ p , q ▷ B₁₁ ▹ B₁₂ →
              Are-equal-type-constructors A (ΠΣ⟨ b ⟩ p , q ▷ B₂₁ ▹ B₂₂)
   ℕ        : A PE.≡ ℕ → Are-equal-type-constructors A ℕ
@@ -356,13 +393,17 @@ are-equal-type-constructors? :
   (A₁ A₂ : Term c n) → Maybe (Are-equal-type-constructors A₁ A₂)
 are-equal-type-constructors? (meta-var _ _) (meta-var _ _) =
   just (meta-var _ _ _ _ PE.refl)
-are-equal-type-constructors? (U l₁) (U l₂) =
-  (λ eq → U eq PE.refl) <$> l₁ ≟ˡ l₂
+are-equal-type-constructors? Level Level =
+  just (Level PE.refl)
+are-equal-type-constructors? (U _) (U _) =
+  just (U _ _ PE.refl)
+are-equal-type-constructors? (Lift _ _) (Lift _ _) =
+  just (Lift _ _ _ _ PE.refl)
 are-equal-type-constructors? Empty Empty =
   just (Empty PE.refl)
-are-equal-type-constructors? (Unit s₁ l₁) (Unit s₂ l₂) =
-  (λ eq₁ eq₂ → Unit eq₂ (PE.cong (λ s → Unit s _) eq₁)) <$>
-  s₁ ≟ˢ s₂ ⊛ l₁ ≟ˡ l₂
+are-equal-type-constructors? (Unit s₁) (Unit s₂) =
+  (λ eq → Unit (PE.cong Unit eq)) <$>
+  s₁ ≟ˢ s₂
 are-equal-type-constructors?
   (ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁₁ ▹ A₁₂) (ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂₁ ▹ A₂₂) =
   (λ eq₁ eq₂ eq₃ →
@@ -379,6 +420,17 @@ are-equal-type-constructors? _ _ =
 ------------------------------------------------------------------------
 -- Some simple tests involving terms
 
+-- The term is an application of weaken.
+
+data Is-weaken {c : Constants} {n} : Term c n → Set a where
+  weaken : ∀ (ρ : Wk n n′) t → Is-weaken (weaken ρ t)
+
+-- Is the term an application of weaken?
+
+is-weaken? : (t : Term c n) → Maybe (Is-weaken t)
+is-weaken? (weaken _ _) = just (weaken _ _)
+is-weaken? _            = nothing
+
 -- The term is an application of weaken or subst.
 
 data Is-weaken-subst {c : Constants} {n} :
@@ -392,6 +444,18 @@ is-weaken-subst? : (t : Term c n) → Maybe (Is-weaken-subst t)
 is-weaken-subst? (weaken _ _) = just (weaken _ _)
 is-weaken-subst? (subst _ _)  = just (subst _ _)
 is-weaken-subst? _            = nothing
+
+-- Are the two terms both applications of meta-variables?
+
+are-meta-variables? :
+  (l₁ l₂ : Term c n) →
+  Maybe
+    (∃₆ λ m₁ (x₁ : Meta-var c m₁) σ₁ m₂ (x₂ : Meta-var c m₂) σ₂ →
+     l₁ PE.≡ meta-var x₁ σ₁ × l₂ PE.≡ meta-var x₂ σ₂)
+are-meta-variables? (meta-var _ _) (meta-var _ _) =
+  just (_ , _ , _ , _ , _ , _ , PE.refl , PE.refl)
+are-meta-variables? _ _ =
+  nothing
 
 opaque
 
@@ -411,53 +475,98 @@ infix 4 _≟ᵐᵛ_
 _≟ᵐᵛ_ : (x₁ x₂ : Meta-var c n) → Maybe (x₁ PE.≡ x₂)
 var x₁ _ ≟ᵐᵛ var x₂ _ = var-cong <$> dec⇒maybe (x₁ ≟ⱽ x₂)
 
--- A procedure that checks that the level is the level zero.
+-- A procedure that checks that the term is the type Level.
 
-is-zero : (l : Termˡ n) → Check c (l PE.≡ zero)
-is-zero zero = return PE.refl
-is-zero _    = fail "Expected the level zero."
+is-Level : (A : Term c n) → Check c (A PE.≡ Level)
+is-Level Level = return PE.refl
+is-Level _     = fail "Expected Level."
+
+-- A procedure that checks that the term is the level zeroᵘ.
+
+is-zeroᵘ : (l : Term c n) → Check c (l PE.≡ zeroᵘ)
+is-zeroᵘ zeroᵘ = return PE.refl
+is-zeroᵘ _     = fail "Expected the level zeroᵘ."
+
+-- The term is a level constructor.
+
+data Level-con {c n} : Term c n → Set a where
+  zeroᵘ : Level-con zeroᵘ
+  sucᵘ  : ∀ l → Level-con (sucᵘ l)
+
+-- Is the term a level constructor?
+
+level-con? : (l : Term c n) → Maybe (Level-con l)
+level-con? zeroᵘ    = just zeroᵘ
+level-con? (sucᵘ _) = just (sucᵘ _)
+level-con? _        = nothing
+
+-- The terms are applications of equal level constructors.
+
+data Equal-level-cons {c n} : Term c n → Term c n → Set a where
+  zeroᵘ : Equal-level-cons zeroᵘ zeroᵘ
+  sucᵘ  : ∀ l₁ l₂ → Equal-level-cons (sucᵘ l₁) (sucᵘ l₂)
+
+-- Are the terms applications of equal level constructors?
+
+equal-level-cons? : (l₁ l₂ : Term c n) → Maybe (Equal-level-cons l₁ l₂)
+equal-level-cons? zeroᵘ    zeroᵘ    = just zeroᵘ
+equal-level-cons? (sucᵘ _) (sucᵘ _) = just (sucᵘ _ _)
+equal-level-cons? _        _        = nothing
+
+-- The top-level constructor of the term indicates that it is
+-- something that could possibly be a level, even if Level is not
+-- allowed. Weakenings and substitutions are assumed to have been
+-- removed.
+
+data Is-perhaps-level {c n} : Term c n → Set a where
+  meta-var : ∀ (x : Meta-var c m) σ → Is-perhaps-level (meta-var x σ)
+  zeroᵘ    : Is-perhaps-level zeroᵘ
+  sucᵘ     : ∀ l → Is-perhaps-level (sucᵘ l)
+  _supᵘₗ_  : ∀ l₁ l₂ → Is-perhaps-level (l₁ supᵘₗ l₂)
+
+-- Does the top-level constructor of the term indicate that it is
+-- something that could possibly be a level, even if Level is not
+-- allowed?
+
+is-perhaps-level? : (l : Term c n) → Maybe (Is-perhaps-level l)
+is-perhaps-level? (meta-var _ _) = just (meta-var _ _)
+is-perhaps-level? zeroᵘ          = just zeroᵘ
+is-perhaps-level? (sucᵘ _)       = just (sucᵘ _)
+is-perhaps-level? (_ supᵘₗ _)    = just (_ supᵘₗ _)
+is-perhaps-level? _              = nothing
 
 -- A procedure that checks that the term is an application of U.
 
 is-U : (A : Term c n) → Check c (∃ λ l → A PE.≡ U l)
 is-U (U _) = return (_ , PE.refl)
-is-U _     = fail "Expected an instance of U."
+is-U _     = fail "Expected an application of U."
 
--- A procedure that checks that the term is U l.
+-- A procedure that checks that the term is an application of Lift.
 
-is-U[_] :
-  (l : Termˡ (c .ls)) (A : Term c n) →
-  Check c (∃ λ l′ → [ c ] l ≡ˡ l′ × A PE.≡ U l′)
-is-U[_] {c} l A =
-  [ is-U′ A ]with-message "Expected a given instance of U."
-  where
-  is-U′ : (A : Term c n) → Maybe (∃ λ l′ → [ c ] l ≡ˡ l′ × A PE.≡ U l′)
-  is-U′ (U l′) = (λ eq → _ , eq , PE.refl) <$> l ≟ˡ l′
-  is-U′ _      = nothing
+is-Lift : (t : Term c n) → Check c (∃₂ λ l A → t PE.≡ Lift l A)
+is-Lift (Lift l A) = return (_ , _ , PE.refl)
+is-Lift _          = fail "Expected an application of Lift."
 
--- Is the term equal to star s l?
+-- Is the term an application of lift?
 
-is-star? :
-  ∀ s l (t : Term c n) →
-  Maybe (∃ λ l′ → [ c ] l ≡ˡ l′ × t PE.≡ star s l′)
-is-star? s l (star s′ l′) =
-  (λ eq₁ eq₂ → _ , eq₂ , PE.cong (λ s → star s _) eq₁) <$>
-  s′ ≟ˢ s ⊛ l ≟ˡ l′
-is-star? _ _ _ = nothing
+is-lift? : (t : Term c n) → Maybe (∃₂ λ l u → t PE.≡ lift l u)
+is-lift? (lift l t) = just (_ , _ , PE.refl)
+is-lift? _          = nothing
 
--- Are the terms both equal to star s l?
+-- Is the term equal to star s?
+
+is-star? : ∀ s (t : Term c n) → Maybe (t PE.≡ star s)
+is-star? s (star s′) = PE.cong star <$> s′ ≟ˢ s
+is-star? _ _         = nothing
+
+-- Are the terms both equal to star s?
 
 are-star? :
-  ∀ s l (t₁ t₂ : Term c n) →
-  Maybe
-    (∃₂ λ l₁ l₂ → [ c ] l ≡ˡ l₁ × [ c ] l ≡ˡ l₂ ×
-     t₁ PE.≡ star s l₁ × t₂ PE.≡ star s l₂)
-are-star? s l (star s₁ l₁) (star s₂ l₂) =
-  (λ eq₁ eq₂ eq₃ eq₄ →
-     _ , _ , eq₃ , eq₄ ,
-     PE.cong (λ s → star s _) eq₁ , PE.cong (λ s → star s _) eq₂) <$>
-  s₁ ≟ˢ s ⊛ s₂ ≟ˢ s ⊛ l ≟ˡ l₁ ⊛ l ≟ˡ l₂
-are-star? _ _ _ _ =
+  ∀ s (t₁ t₂ : Term c n) → Maybe (t₁ PE.≡ star s × t₂ PE.≡ star s)
+are-star? s (star s₁) (star s₂) =
+  (λ eq₁ eq₂ → PE.cong star eq₁ , PE.cong star eq₂) <$>
+  s₁ ≟ˢ s ⊛ s₂ ≟ˢ s
+are-star? _ _ _ =
   nothing
 
 -- A procedure that checks that the term is an application of

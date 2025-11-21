@@ -157,7 +157,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   A = ℕ
 
   ⊢Δ : ⊢ Δ
-  ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ εε)) Σʷ-ok
+  ⊢Δ = ∙ ΠΣⱼ (⊢ℕ (∙ ⊢ℕ εε)) Σʷ-ok
 
   open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
@@ -200,10 +200,10 @@ opaque
     Δ = ε » ε ∙ Id ℕ zero zero
 
     t : Term 1
-    t = []-cong s ℕ zero zero (var x0)
+    t = []-cong s zeroᵘ ℕ zero zero (var x0)
 
     A : Term 1
-    A = Id (Erased ℕ) ([ zero ]) ([ zero ])
+    A = Id (Erased zeroᵘ ℕ) [ zero ] ([ zero ])
 
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε)
@@ -212,10 +212,10 @@ opaque
     consistent = inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ εε)))
 
     ⊢t : Δ ⊢ t ∷ A
-    ⊢t = []-congⱼ′ ok (var ⊢Δ here)
+    ⊢t = []-congⱼ′ ok (⊢zeroᵘ ⊢Δ) (var ⊢Δ here)
 
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-    ▸t = []-congₘ ℕₘ zeroₘ zeroₘ var ok′
+    ▸t = []-congₘ zeroᵘₘ ℕₘ zeroₘ zeroₘ var ok′
 
     open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
@@ -320,8 +320,10 @@ opaque
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
-      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (Kₙ (var _ _))) of λ ()
-      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (Kₙ (var _ _))) of λ ()
+      (zeroᵣ t⇒* _) →
+        case whnfRed*Term t⇒* (ne (Kₙ (var _ _))) of λ ()
+      (sucᵣ t⇒* _ _ _) →
+        case whnfRed*Term t⇒* (ne (Kₙ (var _ _))) of λ ()
 
 opaque
 
@@ -356,16 +358,16 @@ opaque
     hyp ⊢Δ ▸∇ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Cons 0 1
-    Δ = ε » ε ∙ Unitʷ 0
+    Δ = ε » ε ∙ Unitʷ
 
     t : Term 1
-    t = unitrec 0 𝟘 𝟘 ℕ (var x0) zero
+    t = unitrec 𝟘 𝟘 ℕ (var x0) zero
 
     A : Term 1
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Unitⱼ εε Unit-ok
+    ⊢Δ = ∙ ⊢Unit εε Unit-ok
 
     open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
@@ -397,7 +399,7 @@ opaque
        glassify ∇ » Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
-    case soundness-ℕ-counterexample₆ {str = str} ok of λ
+    case soundness-ℕ-counterexample₆ ok of λ
       (⊢t , ▸∇ , ▸t , _) →
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ▸∇ ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
@@ -411,14 +413,16 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ∙ Emptyⱼ εε
+    ⊢Δ = ∙ ⊢Empty εε
 
     open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
-      (zeroᵣ t⇒* _)    → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _ _))) of λ ()
-      (sucᵣ t⇒* _ _ _) → case whnfRed*Term t⇒* (ne (emptyrecₙ (var _ _))) of λ ()
+      (zeroᵣ t⇒* _) →
+        case whnfRed*Term t⇒* (ne (emptyrecₙ (var _ _))) of λ ()
+      (sucᵣ t⇒* _ _ _) →
+        case whnfRed*Term t⇒* (ne (emptyrecₙ (var _ _))) of λ ()
 
 opaque
   unfolding Trans
@@ -457,7 +461,7 @@ opaque
     A = ℕ
 
     ⊢Δ : ⊢ Δ
-    ⊢Δ = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
+    ⊢Δ = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ⊢ℕ εε ]
 
     open LR′ ⊢Δ ⦃ ok = ε ⦄ str ⇒*-is-reduction-relation
 

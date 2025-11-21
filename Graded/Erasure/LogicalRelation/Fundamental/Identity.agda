@@ -26,6 +26,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -49,23 +50,28 @@ open import Tools.PropositionalEquality as PE using (_≡_)
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n           : Nat
-  Γ           : Con Term _
-  γ δ         : Conₘ _
-  A B t u v w : Term _
-  m           : Mode
-  p q         : M
-  s           : Strength
-  l           : Universe-level
+  n             : Nat
+  Γ             : Con Term _
+  γ δ           : Conₘ _
+  A B l t u v w : Term _
+  m             : Mode
+  p q           : M
+  s             : Strength
 
 opaque
 
   -- Validity of Id.
 
-  Idʳ : γ ▸ Γ ⊩ʳ Id A t u ∷[ m ∣ n ] U l
-  Idʳ =
-    ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (Uᵣ (λ { PE.refl → T.refl })))
+  Idʳ :
+    ts » Γ ⊢ v ∷Level →
+    γ ▸ Γ ⊩ʳ Id A t u ∷[ m ∣ n ] U v
+  Idʳ ⊢v =
+    ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
+    ®∷→®∷◂ $
+    ®∷U⇔ .proj₂
+      ( subst-⊢∷L ⊢v ⊢σ
+      , U/Levelᵣ (λ { PE.refl → T.refl })
+      )
 
 opaque
 
@@ -91,23 +97,26 @@ opaque
 
   []-congʳ :
     Empty-con Δ × Transparent ts →
+    ts » Γ ⊢ l ∷Level →
     ts » Γ ⊢ v ∷ Id A t u →
     []-cong-allowed s →
     let open Erased s in
-    γ ▸ Γ ⊩ʳ []-cong s A t u v ∷[ m ∣ n ] Id (Erased A) [ t ] ([ u ])
-  []-congʳ {v} {A} {t} {u} (ε , tr) ⊢v ok =
+    γ ▸ Γ ⊩ʳ []-cong s l A t u v ∷[ m ∣ n ]
+      Id (Erased l A) [ t ] ([ u ])
+  []-congʳ {l} {v} {A} {t} {u} (ε , tr) ⊢l ⊢v ok =
+    let ⊢A , _ = inversion-Id (wf-⊢∷ ⊢v) in
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} ⊢σ _ →
-    let ⊢σv = subst-⊢∷ ⊢v ⊢σ
-        ⊢σA , _ = inversion-Id (syntacticTerm ⊢σv)
-    in
     ®∷→®∷◂ $
     ®∷Id⇔ .proj₂
-      ( Erasedⱼ ([]-cong→Erased ok) ⊢σA
+      ( PE.subst (_⊢_ _) (PE.sym $ Erased.Erased-[] _)
+          (Erasedⱼ ([]-cong→Erased ok) (subst-⊢∷L ⊢l ⊢σ)
+             (subst-⊢ ⊢A ⊢σ))
       , rflᵣ
-          (([]-cong _ A t u v) [ σ ]  ⇒*⟨ PE.subst₄ _⊢_⇒*_∷_
-                                            (PE.cong (_» _) (PE.sym tr)) PE.refl PE.refl PE.refl $
-                                          ε⊢⇒*rfl∷Id $ []-congⱼ′ ok ⊢σv ⟩∎⇛
-           rfl                        ∎)
+          (                              ˘⟨ Erased.Id-Erased-[] _ ⟩⇛≡
+           ([]-cong _ l A t u v) [ σ ]  ⇒*⟨ PE.subst₄ _⊢_⇒*_∷_
+                                              (PE.cong (_» _) (PE.sym tr)) PE.refl PE.refl PE.refl $
+                                            ε⊢⇒*rfl∷Id $ []-congⱼ′ ok (subst-⊢∷L ⊢l ⊢σ) (subst-⊢∷ ⊢v ⊢σ) ⟩∎⇛
+           rfl                          ∎)
           (λ { PE.refl → T.refl })
       )
 

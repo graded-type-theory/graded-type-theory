@@ -12,25 +12,35 @@ module Definition.Typed.Properties
   (R : Type-restrictions 𝕄)
   where
 
+open Type-restrictions R
+
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 
 open import Tools.Fin
+open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 open import Definition.Typed.Properties.Admissible.Bool R public
 open import Definition.Typed.Properties.Admissible.Empty R public
 open import Definition.Typed.Properties.Admissible.Equality R public
 open import Definition.Typed.Properties.Admissible.Erased R public
 open import Definition.Typed.Properties.Admissible.Identity R public
+open import Definition.Typed.Properties.Admissible.Level R public
 open import Definition.Typed.Properties.Admissible.Lift R public
 open import Definition.Typed.Properties.Admissible.Nat R public
 open import Definition.Typed.Properties.Admissible.Non-dependent R
   public
 open import Definition.Typed.Properties.Admissible.Omega R public
+open import Definition.Typed.Properties.Admissible.Pi-Sigma R public
 open import Definition.Typed.Properties.Admissible.Pi R public
 open import Definition.Typed.Properties.Admissible.Sigma R public
+open import Definition.Typed.Properties.Admissible.U R public
 open import Definition.Typed.Properties.Admissible.Unit R public
 open import Definition.Typed.Properties.Admissible.Var R public
 open import Definition.Typed.Properties.Definition R public
@@ -39,7 +49,9 @@ open import Definition.Typed.Properties.Transparentisation R public
 open import Definition.Typed.Properties.Well-formed R public
 
 private variable
+  V                   : Set _
   x                   : Fin _
+  ∇                   : DCon _ _
   Δ                   : Con Term _
   Γ                   : Cons _ _
   A A′ B B′ t t′ u u′ : Term _
@@ -199,3 +211,22 @@ opaque
 
   ⊢≡∷-refl-PE′ : t PE.≡ u → Γ ⊢ u ∷ A → Γ ⊢ t ≡ u ∷ A
   ⊢≡∷-refl-PE′ PE.refl = refl
+
+------------------------------------------------------------------------
+-- A lemma related to Neutral and Neutralᵃ
+
+opaque
+
+  -- Neutral terms with types that are not equal to Level are atomic
+  -- neutral.
+  --
+  -- See also
+  -- Definition.Typed.Consequences.Inequality.Neutral→Neutralᵃ-⊢.
+
+  Neutral→Neutralᵃ-⊢∷ :
+    Γ ⊢ t ∷ A → ¬ Γ ⊢ A ≡ Level → Neutral V ∇ t → Neutralᵃ V ∇ t
+  Neutral→Neutralᵃ-⊢∷ ⊢t A≢Level t-ne =
+    ne t-ne λ where
+      is-supᵘ →
+        let _ , _ , A≡Level = inversion-supᵘ ⊢t in
+        A≢Level A≡Level

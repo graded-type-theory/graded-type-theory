@@ -34,7 +34,7 @@ open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 
 open import Definition.Untyped M hiding (head)
-open import Definition.Untyped.Names-below M
+open import Definition.Untyped.Names-below M as B using (No-names)
 
 private variable
   k m n n′ : Nat
@@ -96,7 +96,7 @@ opaque mutual
             → No-namesʰ H → No-names t
             → ∃₄ λ n′ t′ (ρ′ : Wk m n′) (S′ : Stack m) → Normal ⟨ H , t′ , ρ′ , S′ ⟩ ×
               ⟨ H , t , ρ , S ⟩ ⇢ₑ* ⟨ H , t′ , ρ′ , S′ ⟩
-  normalize _ (defn _) _ _ _ (defn ())
+  normalize _ (defn _) _ _ _ (B.defn ())
   normalize H (var x) ρ S nn _ =
     case normalize-var H nn (wkVar ρ x) of λ
       (_ , t , ρ′ , S′ , n , d) →
@@ -110,60 +110,76 @@ opaque mutual
         case n of λ where
           (var ¬d) → _ , var x , ρ , S , var ¬d , id
           (val ()) }
+  normalize H Level ρ S _ _ =
+    _ , Level , ρ , S , val Levelᵥ , id
+  normalize h zeroᵘ ρ s _ _ =
+    _ , zeroᵘ , ρ , s , val zeroᵘᵥ , id
+  normalize h (sucᵘ t) ρ s _ _ =
+    _ , sucᵘ t , ρ , s , val sucᵘᵥ , id
+  normalize h (t supᵘ u) ρ s _ _ =
+    _ , t supᵘ u , ρ , s , sup , id
+  normalize H (Lift t A) ρ S _ _ =
+    _ , Lift t A , ρ , S , val Liftᵥ , id
+  normalize H (lift t) ρ S _ _ =
+    _ , lift t , ρ , S , val liftᵥ , id
+  normalize H (lower t) ρ S nn (B.lower t-nn) =
+    case normalize H t ρ (lowerₑ ∙ S) nn t-nn of λ
+      (_ , _ , _ , _ , n , d) →
+    _ , _ , _ , _ , n , ⇒ₑ lowerₕ ⇨ d
   normalize H (lam p t) ρ S _ _ =
     _ , lam p t , ρ , S , val lamᵥ , id
-  normalize H (t ∘⟨ p ⟩ u) ρ S H-nn (app t-nn _) =
+  normalize H (t ∘⟨ p ⟩ u) ρ S H-nn (B.app t-nn _) =
     case normalize H t ρ (∘ₑ p u ρ ∙ S) H-nn t-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ appₕ ⇨ d
   normalize H (prod s p t u) ρ S _ _ =
     _ , prod s p t u , ρ , S , val prodᵥ , id
-  normalize H (fst p t) ρ S H-nn (fst t-nn) =
+  normalize H (fst p t) ρ S H-nn (B.fst t-nn) =
     case normalize H t ρ (fstₑ p ∙ S) H-nn t-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ fstₕ ⇨ d
-  normalize H (snd p t) ρ S H-nn (snd t-nn) =
+  normalize H (snd p t) ρ S H-nn (B.snd t-nn) =
     case normalize H t ρ (sndₑ p ∙ S) H-nn t-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ sndₕ ⇨ d
-  normalize H (prodrec r p q A t u) ρ S H-nn (prodrec _ t-nn _) =
+  normalize H (prodrec r p q A t u) ρ S H-nn (B.prodrec _ t-nn _) =
     case normalize H t ρ (prodrecₑ r p q A u ρ ∙ S) H-nn t-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ prodrecₕ ⇨ d
-  normalize H (star s l) ρ S _ _ =
-    _ , star s l , ρ , S , val starᵥ , id
-  normalize H (unitrec l p q A t u) ρ S H-nn (unitrec _ t-nn _) =
+  normalize H (star s) ρ S _ _ =
+    _ , star s , ρ , S , val starᵥ , id
+  normalize H (unitrec p q A t u) ρ S H-nn (B.unitrec _ t-nn _) =
     case Unitʷ-η? of λ where
       (yes η) →
-        _ , unitrec l p q A t u , ρ , S , val (unitrec-ηᵥ η) , id
+        _ , unitrec p q A t u , ρ , S , val (unitrec-ηᵥ η) , id
       (no no-η) →
-        case normalize H t ρ (unitrecₑ l p q A u ρ ∙ S) H-nn t-nn of λ
+        case normalize H t ρ (unitrecₑ p q A u ρ ∙ S) H-nn t-nn of λ
           (_ , _ , _ , _ , n , d) →
         _ , _ , _ , _ , n , ⇒ₑ unitrecₕ no-η ⇨ d
   normalize H zero ρ S _ _ =
     _ , zero , ρ , S , val zeroᵥ , id
   normalize H (suc t) ρ S _ _ =
     _ , suc t , ρ , S , val sucᵥ , id
-  normalize H (natrec p q r A z s n) ρ S H-nn (natrec _ _ _ n-nn) =
+  normalize H (natrec p q r A z s n) ρ S H-nn (B.natrec _ _ _ n-nn) =
     case normalize H n ρ (natrecₑ p q r A z s ρ ∙ S) H-nn n-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ natrecₕ ⇨ d
-  normalize H (emptyrec p A t) ρ S H-nn (emptyrec _ t-nn) =
+  normalize H (emptyrec p A t) ρ S H-nn (B.emptyrec _ t-nn) =
     case normalize H t ρ (emptyrecₑ p A ρ ∙ S) H-nn t-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ emptyrecₕ ⇨ d
   normalize H rfl ρ S _ _ =
     _ , rfl , ρ , S , val rflᵥ , id
-  normalize H (J p q A t B u v w) ρ S H-nn (J _ _ _ _ _ w-nn) =
+  normalize H (J p q A t B u v w) ρ S H-nn (B.J _ _ _ _ _ w-nn) =
     case normalize H w ρ (Jₑ p q A t B u v ρ ∙ S) H-nn w-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ Jₕ ⇨ d
-  normalize H (K p A t B u v) ρ S H-nn (K _ _ _ _ v-nn) =
+  normalize H (K p A t B u v) ρ S H-nn (B.K _ _ _ _ v-nn) =
     case normalize H v ρ (Kₑ p A t B u ρ ∙ S) H-nn v-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ Kₕ ⇨ d
-  normalize H ([]-cong s A t u v) ρ S H-nn ([]-cong _ _ _ v-nn) =
-    case normalize H v ρ ([]-congₑ s A t u ρ ∙ S) H-nn v-nn of λ
+  normalize H ([]-cong s l A t u v) ρ S H-nn (B.[]-cong _ _ _ _ v-nn) =
+    case normalize H v ρ ([]-congₑ s l A t u ρ ∙ S) H-nn v-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ []-congₕ ⇨ d
   normalize H (U l) ρ S _ _ =
@@ -172,8 +188,8 @@ opaque mutual
     _ , ℕ , ρ , S , val ℕᵥ , id
   normalize H Empty ρ S _ _ =
     _ , Empty , ρ , S , val Emptyᵥ , id
-  normalize H (Unit s l) ρ S _ _ =
-    _ , Unit s l , ρ , S , val Unitᵥ , id
+  normalize H (Unit s) ρ S _ _ =
+    _ , Unit s , ρ , S , val Unitᵥ , id
   normalize H (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) ρ S _ _ =
     _ , ΠΣ⟨ b ⟩ p , q ▷ A ▹ B , ρ , S , val ΠΣᵥ , id
   normalize H (Id A t u) ρ S _ _ =

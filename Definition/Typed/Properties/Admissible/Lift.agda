@@ -11,289 +11,269 @@ module Definition.Typed.Properties.Admissible.Lift
   (R : Type-restrictions 𝕄)
   where
 
-open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Sigma R
-open import Definition.Typed.Properties.Admissible.Unit R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Reasoning.Term R
+open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed.Properties.Admissible.Level R
+open import Definition.Typed.Properties.Admissible.U.Primitive R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Syntactic R
-import Definition.Typed.Weakening R as W
+import Definition.Typed.Substitution.Primitive.Primitive R as S
+open import Definition.Typed.Well-formed R
 
-open import Definition.Untyped M hiding (lift)
-open import Definition.Untyped.Lift 𝕄
+open import Definition.Untyped M
+open import Definition.Untyped.Lift M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Sigma 𝕄
-open import Definition.Untyped.Unit 𝕄
+open import Definition.Untyped.Sup R
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                         : Cons _ _
-  A B B₁ B₂ t t₁ t₂ u u₁ u₂ : Term _
-  s                         : Strength
-  l l₁ l₂                   : Universe-level
-  q r                       : M
+  n                                     : Nat
+  Γ                                     : Cons _ _
+  A B B₁ B₂ l l₁ l₂ l₂′ t t₁ t₂ u u₁ u₂ : Term n
+  s                                     : Strength
+  q r                                   : M
 
 ------------------------------------------------------------------------
--- Definitions related to Lift
-
--- Lift s l A is allowed if Lift-allowed s holds.
-
-Lift-allowed : Strength → Set a
-Lift-allowed s = Σ-allowed s 𝟙 𝟘 × Unit-allowed s
+-- Simple variants of typing, equality and reduction rules
 
 opaque
-  unfolding Lift
 
-  -- A typing rule for Lift.
+  -- An admissible typing rule for Lift.
 
-  ⊢Lift :
-    Lift-allowed s →
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ Lift s l₂ A ∷ U (l₁ ⊔ᵘ l₂)
-  ⊢Lift (ok₁ , ok₂) ⊢A =
-    ΠΣⱼ ⊢A (Unitⱼ (∙ univ ⊢A) ok₂) ok₁
+  Liftⱼ′ : Γ ⊢ l₂ ∷Level
+         → Γ ⊢ A ∷ U l₁
+         → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘₗ l₂)
+  Liftⱼ′ ⊢l₂ ⊢A =
+    let ok = inversion-U-Level (wf-⊢∷ ⊢A) in
+    Liftⱼ ok ⊢l₂ ⊢A
 
 opaque
-  unfolding Lift
 
-  -- An inversion lemma for Lift.
+  -- An admissible typing rule for Lift using _⊢_≤_∷Level.
 
-  inversion-Lift :
-    Γ ⊢ Lift s l A →
-    Lift-allowed s × Γ ⊢ A
-  inversion-Lift ⊢Lift =
-    let ⊢A , ⊢Unit , ok = inversion-ΠΣ ⊢Lift in
-    (ok , inversion-Unit ⊢Unit) , ⊢A
+  Liftⱼ≤ : Γ ⊢ l₁ ≤ l₂ ∷Level
+         → Γ ⊢ A ∷ U l₁
+         → Γ ⊢ Lift l₂ A ∷ U l₂
+  Liftⱼ≤ l₁≤l₂ ⊢A =
+    let _ , ⊢l₂ = wf-⊢≤ l₁≤l₂
+        ok      = inversion-Level-⊢ (wf-⊢∷ ⊢l₂)
+    in
+    _⊢_∷_.conv (Liftⱼ′ (term-⊢∷ ⊢l₂) ⊢A) $ U-cong $
+    PE.subst₃ (_⊢_≡_∷_ _) (PE.sym (supᵘₗ≡supᵘ ok)) PE.refl PE.refl l₁≤l₂
+
+opaque
+
+  -- An admissible typing rule for Lift that swaps levels.
+
+  Liftⱼ-comm
+    : Γ ⊢ l₂ ∷Level
+    → Γ ⊢ A ∷ U l₁
+    → Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘₗ l₁)
+  Liftⱼ-comm ⊢l₂ ⊢A =
+    let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A) in
+    conv (Liftⱼ′ ⊢l₂ ⊢A) (U-cong-⊢≡ (supᵘₗ-comm ⊢l₁ ⊢l₂))
+
+opaque
+
+  -- An admissible congruence rule for Lift.
+
+  Lift-cong′ : Γ ⊢ l₂ ≡ l₂′ ∷Level
+             → Γ ⊢ A ≡ B ∷ U l₁
+             → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘₗ l₂)
+  Lift-cong′ l₂≡l₂′ A≡B =
+    let ⊢l₁     = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
+        ⊢l₂ , _ = wf-⊢≡∷L l₂≡l₂′
+    in
+    Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B
+
+opaque
+
+  -- An admissible congruence rule for Lift that swaps levels.
+
+  Lift-cong-comm
+    : Γ ⊢ l₂ ≡ l₂′ ∷Level
+    → Γ ⊢ A ≡ B ∷ U l₁
+    → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₂ supᵘₗ l₁)
+  Lift-cong-comm l₂≡l₂′ A≡B =
+    let ⊢l₁     = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
+        ⊢l₂ , _ = wf-⊢≡∷L l₂≡l₂′
+    in
+    conv (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B)
+      (U-cong-⊢≡ (supᵘₗ-comm ⊢l₁ ⊢l₂))
+
+opaque
+
+  -- An admissible typing rule for lift.
+
+  liftⱼ′ : Γ ⊢ l₂ ∷Level
+         → Γ ⊢ t ∷ A
+         → Γ ⊢ lift t ∷ Lift l₂ A
+  liftⱼ′ ⊢l₂ ⊢t = liftⱼ ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
+
+opaque
+
+  -- An admissible congruence rule for lift.
+
+  lift-cong :
+    Γ ⊢ l₂ ∷Level →
+    Γ ⊢ t ≡ u ∷ A →
+    Γ ⊢ lift t ≡ lift u ∷ Lift l₂ A
+  lift-cong ⊢l₂ t≡u =
+    let _ , ⊢t , ⊢u = wf-⊢≡∷ t≡u
+    in S.lift-cong ⊢l₂ (wf-⊢≡∷ t≡u .proj₁) ⊢t ⊢u t≡u
+
+opaque
+
+  -- An admissible β-equality rule for Lift.
+
+  Lift-β′ : Γ ⊢ t ∷ A
+          → Γ ⊢ lower (lift t) ≡ t ∷ A
+  Lift-β′ ⊢t = Lift-β (wf-⊢∷ ⊢t) ⊢t
+
+opaque
+
+  -- An admissible β-reduction rule for Lift.
+
+  Lift-β⇒ : Γ ⊢ t ∷ A
+          → Γ ⊢ lower (lift t) ⇒ t ∷ A
+  Lift-β⇒ ⊢t = Lift-β (wf-⊢∷ ⊢t) ⊢t
+
+opaque
+
+  -- An admissible η-equality rule for Lift.
+
+  Lift-η′ : Γ ⊢ t ∷ Lift l₂ A
+          → Γ ⊢ u ∷ Lift l₂ A
+          → Γ ⊢ lower t ≡ lower u ∷ A
+          → Γ ⊢ t ≡ u ∷ Lift l₂ A
+  Lift-η′ ⊢t ⊢u lowert≡loweru =
+    let ⊢l₂ , _ = inversion-Lift (wf-⊢∷ ⊢t)
+    in Lift-η ⊢l₂ (wf-⊢≡∷ lowert≡loweru .proj₁) ⊢t ⊢u lowert≡loweru
+
+opaque
+
+  -- An admissible alternative η-equality rule for Lift.
+
+  Lift-η-swap
+    : Γ ⊢ t ∷ Lift l A
+    → Γ ⊢ lower t ≡ u ∷ A
+    → Γ ⊢ t ≡ lift u ∷ Lift l A
+  Lift-η-swap ⊢t lowert≡u =
+    let _ , _ , ⊢u = wf-⊢≡∷ lowert≡u
+        ⊢l , ⊢A = inversion-Lift (wf-⊢∷ ⊢t)
+    in Lift-η′ ⊢t (liftⱼ′ ⊢l ⊢u) (trans lowert≡u (sym′ (Lift-β′ ⊢u)))
+
+opaque
+
+  -- An admissible η-rule for Lift.
+
+  ⊢lift-lower≡∷ :
+    Γ ⊢ t ∷ Lift l A →
+    Γ ⊢ lift (lower t) ≡ t ∷ Lift l A
+  ⊢lift-lower≡∷ ⊢t =
+    let ⊢l , _ = inversion-Lift (wf-⊢∷ ⊢t) in
+    Lift-η′ (liftⱼ′ ⊢l (lowerⱼ ⊢t)) ⊢t
+      (Lift-β′ (lowerⱼ ⊢t))
 
 ------------------------------------------------------------------------
--- A typing rule for lift
+-- Some lemmas related to lower₀
 
 opaque
-  unfolding Lift lift
+  unfolding lower₀
 
-  -- A typing rule for lift.
+  -- A typing rule for lower₀.
 
-  ⊢lift :
-    Lift-allowed s →
+  lower₀Type
+    : Γ ⊢ l ∷Level
+    → Γ »∙ A ⊢ B
+    → Γ »∙ Lift l A ⊢ lower₀ B
+  lower₀Type ⊢l ⊢B =
+    subst-⊢ ⊢B $
+    ⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf ⊢B))) here))
+
+opaque
+  unfolding lower₀
+
+  -- An equality rule for lower₀.
+
+  lower₀TypeEq
+    : Γ ⊢ l ∷Level
+    → Γ »∙ A ⊢ B₁ ≡ B₂
+    → Γ »∙ Lift l A ⊢ lower₀ B₁ ≡ lower₀ B₂
+  lower₀TypeEq ⊢l B₁≡B₂ =
+    subst-⊢≡ B₁≡B₂ $ refl-⊢ˢʷ≡∷ $
+    ⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEq B₁≡B₂))) here))
+
+opaque
+  unfolding lower₀
+
+  -- A typing rule for lower₀.
+
+  lower₀Term :
+    Γ ⊢ l ∷Level →
+    Γ »∙ A ⊢ t ∷ B →
+    Γ »∙ Lift l A ⊢ lower₀ t ∷ lower₀ B
+  lower₀Term ⊢l ⊢t =
+    subst-⊢∷ ⊢t
+      (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfTerm ⊢t))) here)))
+
+opaque
+  unfolding lower₀
+
+  -- An equality rule for lower₀.
+
+  lower₀TermEq :
+    Γ ⊢ l ∷Level →
+    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B →
+    Γ »∙ Lift l A ⊢ lower₀ t₁ ≡ lower₀ t₂ ∷ lower₀ B
+  lower₀TermEq ⊢l t₁≡t₂ =
+    subst-⊢≡∷ t₁≡t₂
+      (refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
+       lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEqTerm t₁≡t₂))) here))
+
+opaque
+  unfolding lower₀
+
+  -- A typing rule involving lower₀, lift and _[_]₀.
+
+  ⊢lower₀[lift]₀ :
+    Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
-    Γ ⊢ lift s l t ∷ Lift s l A
-  ⊢lift (ok₁ , ok₂) ⊢t =
-    let ⊢A = syntacticTerm ⊢t in
-    prodⱼ (Unitⱼ (∙ ⊢A) ok₂) ⊢t (starⱼ (wf ⊢A) ok₂) ok₁
-
-------------------------------------------------------------------------
--- Typing rules for liftrec
-
-private opaque
-  unfolding Lift lift
-
-  -- A lemma used below.
-
-  liftrec-lemma :
-    Γ »∙ Lift s l A ⊢ B₁ ≡ B₂ →
-    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
-    Γ »∙ A »∙ Unit s l ⊢
-      unitrec⟨ s ⟩ l r q
-        (B₁ [ consSubst (wkSubst 3 idSubst)
-                (prod s 𝟙 (var x2) (var x0)) ])
-        (var x0) (wk1 t₁) ≡
-      unitrec⟨ s ⟩ l r q
-        (B₂ [ consSubst (wkSubst 3 idSubst)
-                (prod s 𝟙 (var x2) (var x0)) ])
-        (var x0) (wk1 t₂) ∷
-      B₁ [ prod s 𝟙 (var x1) (var x0) ]↑²
-  liftrec-lemma {s} {l} {B₁} B₁≡B₂ t₁≡t₂ =
-    let (ok₁ , ok₂) , ⊢A = inversion-Lift (⊢∙→⊢ (wfEq B₁≡B₂))
-        ⊢Γ               = wf ⊢A
-        ⊢Unit            = Unitⱼ (∙ ⊢A) ok₂
-        ⊢Unit′           = W.wk₁ ⊢Unit ⊢Unit
-    in
-    PE.subst (_⊢_≡_∷_ _ _ _)
-      (B₁ [ consSubst (wkSubst 3 idSubst)
-              (prod s 𝟙 (var x2) (var x0)) ]
-          [ var x0 ]₀                         ≡⟨ substCompEq B₁ ⟩
-
-       B₁ [ sgSubst (var x0) ₛ•ₛ
-            consSubst (wkSubst 3 idSubst)
-              (prod s 𝟙 (var x2) (var x0)) ]  ≡⟨ (flip substVar-to-subst B₁ λ where
-                                                    x0     → PE.refl
-                                                    (_ +1) → PE.refl) ⟩
-       B₁ [ consSubst (wkSubst 2 idSubst)
-              (prod s 𝟙 (var x1) (var x0)) ]  ≡⟨⟩
-
-       B₁ [ prod s 𝟙 (var x1) (var x0) ]↑²    ∎) $
-    unitrec⟨⟩-cong
-      (subst-⊢≡ B₁≡B₂ $ refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
-       prodⱼ
-         (Unitⱼ
-            (∙ (PE.subst (_⊢_ _) (PE.sym wk[]≡wk[]′) $
-                W.wk (W.stepʷ (W.step (W.step W.id)) ⊢Unit′) ⊢A))
-            ok₂)
-         (var₂ ⊢Unit′)
-         (var₀ ⊢Unit′) ok₁)
-      (refl (var₀ ⊢Unit)) $
-    PE.subst (_⊢_≡_∷_ _ _ _)
-      (wk1 (B₁ [ lift s l (var x0) ]↑)                                    ≡⟨⟩
-
-       (wk1 $
-        B₁ [ consSubst (wk1Subst idSubst)
-               (prod s 𝟙 (var x0) (star s l)) ])                          ≡˘⟨ wk1Subst-wk1 B₁ ⟩
-
-       B₁ [ wk1Subst $ consSubst (wk1Subst idSubst) $
-            prod s 𝟙 (var x0) (star s l) ]                                ≡⟨ (flip substVar-to-subst B₁ λ where
-                                                                                x0     → PE.refl
-                                                                                (_ +1) → PE.refl) ⟩
-       B₁ [ sgSubst (star s l) ₛ•ₛ
-            consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]  ≡˘⟨ substCompEq B₁ ⟩
-
-       B₁ [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-          [ star s l ]₀                                                   ∎) $
-    W.wkEqTerm₁ ⊢Unit t₁≡t₂
+    Γ ⊢ lower₀ B [ lift t ]₀
+  ⊢lower₀[lift]₀ {B} ⊢B ⊢t =
+    let ⊢A = ⊢∙→⊢ (wf ⊢B) in
+    PE.subst (_⊢_ _) (PE.sym ([]↑-[]₀ B)) $
+    substType ⊢B (lowerⱼ (liftⱼ (⊢zeroᵘ (wf ⊢A)) ⊢A ⊢t))
 
 opaque
-  unfolding Lift liftrec
+  unfolding lower₀
 
-  -- An equality rule for liftrec.
-
-  liftrec-cong :
-    Γ »∙ Lift s l A ⊢ B₁ ≡ B₂ →
-    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ lift s l (var x0) ]↑ →
-    Γ ⊢ u₁ ≡ u₂ ∷ Lift s l A →
-    Γ ⊢ liftrec r q s l B₁ t₁ u₁ ≡ liftrec r q s l B₂ t₂ u₂ ∷ B₁ [ u₁ ]₀
-  liftrec-cong B₁≡B₂ t₁≡t₂ u₁≡u₂ =
-    prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
-    liftrec-lemma B₁≡B₂ t₁≡t₂
-
-opaque
-
-  -- A typing rule for liftrec.
-
-  ⊢liftrec :
-    Γ »∙ Lift s l A ⊢ B →
-    Γ »∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
-    Γ ⊢ u ∷ Lift s l A →
-    Γ ⊢ liftrec r q s l B t u ∷ B [ u ]₀
-  ⊢liftrec ⊢B ⊢t ⊢u =
-    syntacticEqTerm
-      (liftrec-cong (refl ⊢B) (refl ⊢t) (refl ⊢u))
-      .proj₂ .proj₁
+  lower₀[lift]₀ :
+    Γ »∙ A ⊢ B →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ lower₀ B [ lift t ]₀ ≡ B [ t ]₀
+  lower₀[lift]₀ {B} ⊢B ⊢t =
+    let ⊢A = ⊢∙→⊢ (wf ⊢B) in
+    PE.subst₂ (_⊢_≡_ _) (PE.sym ([]↑-[]₀ B)) PE.refl $
+    subst-⊢≡ (refl ⊢B) $
+    ⊢ˢʷ≡∷-sgSubst (Lift-β ⊢A ⊢t)
 
 opaque
-  unfolding Lift lift liftrec
+  unfolding lower₀
 
-  -- An equality rule for liftrec.
-
-  liftrec-β :
-    Γ »∙ Lift s l A ⊢ B →
-    Γ »∙ A ⊢ t ∷ B [ lift s l (var x0) ]↑ →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ liftrec r q s l B t (lift s l u) ≡ t [ u ]₀ ∷ B [ lift s l u ]₀
-  liftrec-β {s} {l} {B} {t} {u} {r} {q} ⊢B ⊢t ⊢u =
-    let ⊢Γ               = wfTerm ⊢u
-        (ok₁ , ok₂) , ⊢A = inversion-Lift (⊢∙→⊢ (wf ⊢B))
-        ⊢Unit            = Unitⱼ ⊢Γ ok₂
-    in
-
-    liftrec r q s l B t (lift s l u)                                      ≡⟨⟩⊢
-
-    prodrec⟨ s ⟩ r 𝟙 q B (prod s 𝟙 u (star s l))
-      (unitrec⟨ s ⟩ l r q
-         (B [ consSubst (wkSubst 3 idSubst)
-                (prod s 𝟙 (var x2) (var x0)) ])
-         (var x0) (wk1 t))                                                ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u (starⱼ ⊢Γ ok₂)
-                                                                               (syntacticEqTerm
-                                                                                  (liftrec-lemma (refl ⊢B) (refl ⊢t))
-                                                                                  .proj₂ .proj₁)
-                                                                               (λ _ → ok₁) ⟩⊢
-    unitrec⟨ s ⟩ l r q
-      (B [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ])
-      (var x0) (wk1 t) [ u , star s l ]₁₀ ∷
-      B [ lift s l u ]₀                                                   ≡⟨ unitrec⟨⟩-[] ⟩⊢∷≡
-                                                                          ˘⟨ lemma₂ ⟩≡≡
-    unitrec⟨ s ⟩ l r q
-      (B [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-         [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ])
-      (star s l) (wk1 t [ u , star s l ]₁₀) ∷
-      B [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-        [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ]
-        [ star s l ]₀                                                     ≡⟨ unitrec⟨⟩-β-≡
-                                                                               (λ _ →
-                                                                                  PE.subst (_⊢_ _) (PE.sym lemma₁) $
-                                                                                  subst↑Type ⊢B $
-                                                                                  prodⱼ (W.wk₁ (W.wk₁ ⊢Unit ⊢A) (W.wk₁ ⊢Unit ⊢Unit))
-                                                                                    (W.wkTerm₁ ⊢Unit ⊢u) (var₀ ⊢Unit) ok₁) $
-                                                                             PE.subst₂ (_⊢_∷_ _) (PE.sym lemma₄) (PE.sym lemma₃) $
-                                                                             substTerm ⊢t ⊢u ⟩⊢∷∎≡
-
-    wk1 t [ u , star s l ]₁₀                                              ≡⟨ lemma₄ ⟩
-
-    t [ u ]₀                                                              ∎
-    where
-    lemma₁ :
-      B [ consSubst (wkSubst 3 idSubst)
-            (prod s 𝟙 (var x2) (var x0)) ]
-        [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ] PE.≡
-      B [ prod s 𝟙 (wk1 u) (var x0) ]↑
-    lemma₁ =
-      B [ consSubst (wkSubst 3 idSubst)
-            (prod s 𝟙 (var x2) (var x0)) ]
-        [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ]      ≡⟨ substCompEq B ⟩
-
-      B [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ₛ•ₛ
-          consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]  ≡⟨ (flip substVar-to-subst B λ where
-                                                                              x0     → PE.refl
-                                                                              (_ +1) → PE.refl) ⟩
-      B [ prod s 𝟙 (wk1 u) (var x0) ]↑                                  ∎
-
-    lemma₂ :
-      B [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-        [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ]
-        [ star s l ]₀ PE.≡
-      B [ lift s l u ]₀
-    lemma₂ =
-      B [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-        [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ]
-        [ star s l ]₀                                                   ≡⟨ PE.cong _[ _ ]₀ lemma₁ ⟩
-
-      B [ prod s 𝟙 (wk1 u) (var x0) ]↑ [ star s l ]₀                    ≡⟨ []↑-[]₀ B ⟩
-
-      B [ prod s 𝟙 (wk1 u) (var x0) [ star s l ]₀ ]₀                    ≡⟨⟩
-
-      B [ prod s 𝟙 (wk1 u [ star s l ]₀) (star s l) ]₀                  ≡⟨ PE.cong (B [_]₀) (PE.cong₂ (prod s 𝟙) (wk1-sgSubst _ _) PE.refl) ⟩
-
-      B [ prod s 𝟙 u (star s l) ]₀                                      ≡⟨⟩
-
-      B [ lift s l u ]₀                                                 ∎
-
-    lemma₃ :
-      B [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-        [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ]
-        [ star s l ]₀ PE.≡
-      B [ lift s l (var x0) ]↑ [ u ]₀
-    lemma₃ =
-      B [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-        [ liftSubst (consSubst (consSubst idSubst u) (star s l)) ]
-        [ star s l ]₀                                                   ≡⟨ lemma₂ ⟩
-
-      B [ lift s l u ]₀                                                 ≡⟨⟩
-
-      B [ lift s l (var x0) [ u ]₀ ]₀                                   ≡˘⟨ []↑-[]₀ B ⟩
-
-      B [ lift s l (var x0) ]↑ [ u ]₀                                   ∎
-
-    lemma₄ : wk1 t [ u , star s l ]₁₀ PE.≡ t [ u ]₀
-    lemma₄ =
-      wk1 t [ u , star s l ]₁₀  ≡⟨ step-consSubst t ⟩
-      wk id t [ u ]₀            ≡⟨ PE.cong _[ _ ]₀ $ wk-id t ⟩
-      t [ u ]₀                  ∎
+  lower₀[lift]₀∷
+    : Γ »∙ A ⊢ t ∷ B
+    → Γ ⊢ u ∷ A
+    → Γ ⊢ lower₀ t [ lift u ]₀ ≡ t [ u ]₀ ∷ B [ u ]₀
+  lower₀[lift]₀∷ {t} {B} ⊢t ⊢u =
+    PE.subst₃ (_⊢_≡_∷_ _) (PE.sym ([]↑-[]₀ t)) PE.refl PE.refl
+      (sym′ (substTermEq (refl ⊢t) (sym′ (Lift-β′ ⊢u))))

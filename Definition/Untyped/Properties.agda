@@ -6,12 +6,14 @@
 module Definition.Untyped.Properties {a} (M : Set a) where
 
 open import Definition.Untyped M
+open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties.NotParametrised public
 
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
+open import Tools.Relation
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -21,7 +23,7 @@ open import Tools.Vec as Vec using (ε)
 
 private
   variable
-    j k k₁ k₂ ℓ m n o α β : Nat
+    j k k₁ k₂ ℓ l m n n₁ n₂ o α β : Nat
     x x₁ x₂ : Fin _
     eq eq₁ eq₂ : _ ≡ _
     𝕋 𝕌 : Set _
@@ -30,14 +32,13 @@ private
     Γ : Con Term _
     Δ : Cons _ _
     φ : Unfolding _
-    A A₁ A₂ B₁ B₂ E F G H t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+    A A₁ A₂ B₁ B₂ E F G H l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
     σ σ₁ σ₂ σ′ : Subst m n
     p p₁ p₂ q q₁ q₂ r r₁ r₂ : M
     s s₁ s₂ : Strength
     b₁ b₂ : BinderMode
-    l l₁ l₂ : Universe-level
     f : 𝕋 → 𝕌
 
 ------------------------------------------------------------------------
@@ -254,7 +255,18 @@ opaque
   toTerm∘fromTerm : (t : Term n) → toTerm (fromTerm t) ≡ t
   toTerm∘fromTerm (var x) = refl
   toTerm∘fromTerm (defn α) = refl
-  toTerm∘fromTerm (U l) = refl
+  toTerm∘fromTerm Level = refl
+  toTerm∘fromTerm zeroᵘ = refl
+  toTerm∘fromTerm (sucᵘ l) = cong sucᵘ (toTerm∘fromTerm l)
+  toTerm∘fromTerm (l₁ supᵘ l₂) =
+    cong₂ _supᵘ_ (toTerm∘fromTerm l₁) (toTerm∘fromTerm l₂)
+  toTerm∘fromTerm (U l) = cong U (toTerm∘fromTerm l)
+  toTerm∘fromTerm (Lift l A) =
+    cong₂ Lift (toTerm∘fromTerm l) (toTerm∘fromTerm A)
+  toTerm∘fromTerm (lift a) =
+    cong lift (toTerm∘fromTerm a)
+  toTerm∘fromTerm (lower a) =
+    cong lower (toTerm∘fromTerm a)
   toTerm∘fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (toTerm∘fromTerm A) (toTerm∘fromTerm B)
   toTerm∘fromTerm (lam p t) =
@@ -277,10 +289,10 @@ opaque
   toTerm∘fromTerm (natrec p q r A z s n) =
     cong₄ (natrec p q r) (toTerm∘fromTerm A) (toTerm∘fromTerm z)
       (toTerm∘fromTerm s) (toTerm∘fromTerm n)
-  toTerm∘fromTerm (Unit s l) = refl
-  toTerm∘fromTerm (star s l) = refl
-  toTerm∘fromTerm (unitrec l p q A t u) =
-    cong₃ (unitrec l p q) (toTerm∘fromTerm A)
+  toTerm∘fromTerm (Unit s) = refl
+  toTerm∘fromTerm (star s) = refl
+  toTerm∘fromTerm (unitrec p q A t u) =
+    cong₃ (unitrec p q) (toTerm∘fromTerm A)
       (toTerm∘fromTerm t) (toTerm∘fromTerm u)
   toTerm∘fromTerm Empty = refl
   toTerm∘fromTerm (emptyrec p A t) =
@@ -295,9 +307,9 @@ opaque
   toTerm∘fromTerm (K p A t B u v) =
     cong₅ (K p) (toTerm∘fromTerm A) (toTerm∘fromTerm t)
       (toTerm∘fromTerm B) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
-  toTerm∘fromTerm ([]-cong s A t u v) =
-    cong₄ ([]-cong s) (toTerm∘fromTerm A) (toTerm∘fromTerm t)
-      (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+  toTerm∘fromTerm ([]-cong s l A t u v) =
+    cong₅ ([]-cong s) (toTerm∘fromTerm l) (toTerm∘fromTerm A)
+      (toTerm∘fromTerm t) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
 
 opaque
 
@@ -307,7 +319,21 @@ opaque
   fromTerm∘toTerm : (t : Term′ n) → fromTerm (toTerm t) ≡ t
   fromTerm∘toTerm (var x) = refl
   fromTerm∘toTerm (gen (Defnkind α) []) = refl
-  fromTerm∘toTerm (gen (Ukind l) []) = refl
+  fromTerm∘toTerm (gen Levelkind []) = refl
+  fromTerm∘toTerm (gen Zeroᵘkind []) = refl
+  fromTerm∘toTerm (gen Sucᵘkind (l ∷ₜ [])) =
+    cong (λ l → gen Sucᵘkind (l ∷ₜ [])) (fromTerm∘toTerm l)
+  fromTerm∘toTerm (gen Supᵘkind (l₁ ∷ₜ l₂ ∷ₜ [])) =
+    cong₂ (λ l₁ l₂ → gen Supᵘkind (l₁ ∷ₜ l₂ ∷ₜ []))
+      (fromTerm∘toTerm l₁) (fromTerm∘toTerm l₂)
+  fromTerm∘toTerm (gen Ukind (l ∷ₜ [])) =
+    cong (λ l → gen Ukind (l ∷ₜ [])) (fromTerm∘toTerm l)
+  fromTerm∘toTerm (gen Liftkind (l ∷ₜ A ∷ₜ [])) =
+    cong₂ (λ l A → gen Liftkind (l ∷ₜ A ∷ₜ [])) (fromTerm∘toTerm l) (fromTerm∘toTerm A)
+  fromTerm∘toTerm (gen liftkind (a ∷ₜ [])) =
+    cong (λ a → gen liftkind (a ∷ₜ [])) (fromTerm∘toTerm a)
+  fromTerm∘toTerm (gen lowerkind (a ∷ₜ [])) =
+    cong (λ a → gen lowerkind (a ∷ₜ [])) (fromTerm∘toTerm a)
   fromTerm∘toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
     cong₂ (λ A B → gen (Binderkind b p q) (A ∷ₜ B ∷ₜ []))
       (fromTerm∘toTerm A) (fromTerm∘toTerm B)
@@ -334,11 +360,14 @@ opaque
     cong₄ (λ A z s n → gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ []))
       (fromTerm∘toTerm A) (fromTerm∘toTerm z)
       (fromTerm∘toTerm s) (fromTerm∘toTerm n)
-  fromTerm∘toTerm (gen (Unitkind s l) []) = refl
-  fromTerm∘toTerm (gen (Starkind s l) []) = refl
-  fromTerm∘toTerm (gen (Unitreckind l p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
-    cong₃ (λ A t u → gen (Unitreckind l p q) (A ∷ₜ t ∷ₜ u ∷ₜ []))
-      (fromTerm∘toTerm A) (fromTerm∘toTerm t) (fromTerm∘toTerm u)
+  fromTerm∘toTerm (gen (Unitkind s) []) =
+    refl
+  fromTerm∘toTerm (gen (Starkind s) []) =
+    refl
+  fromTerm∘toTerm (gen (Unitreckind p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+    cong₃ (λ A t u → gen (Unitreckind p q) (A ∷ₜ t ∷ₜ u ∷ₜ []))
+      (fromTerm∘toTerm A)
+      (fromTerm∘toTerm t) (fromTerm∘toTerm u)
   fromTerm∘toTerm (gen Emptykind []) = refl
   fromTerm∘toTerm (gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])) =
     cong₂ (λ A t → gen (Emptyreckind p) (A ∷ₜ t ∷ₜ []))
@@ -356,21 +385,38 @@ opaque
     cong₅ (λ A t B u v → gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ []))
       (fromTerm∘toTerm A) (fromTerm∘toTerm t) (fromTerm∘toTerm B)
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
-  fromTerm∘toTerm (gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
-    cong₄ (λ A t u v → gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
-      (fromTerm∘toTerm A) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (gen (Boxcongkind s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+    cong₅
+      (λ l A t u v → gen (Boxcongkind s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
+      (fromTerm∘toTerm l) (fromTerm∘toTerm A) (fromTerm∘toTerm t)
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
 
 ------------------------------------------------------------------------
 -- No-confusion lemmas
 
-U≢B : ∀ W → U l PE.≢ ⟦ W ⟧ F ▹ G
+Level≢B : ∀ W → Level PE.≢ ⟦ W ⟧ F ▹ G
+Level≢B (BΠ p q) ()
+Level≢B (BΣ m p q) ()
+
+Level≢ΠΣ : ∀ b → Level PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Level≢ΠΣ BMΠ ()
+Level≢ΠΣ (BMΣ s) ()
+
+U≢B : ∀ W → U t PE.≢ ⟦ W ⟧ F ▹ G
 U≢B (BΠ p q) ()
 U≢B (BΣ m p q) ()
 
-U≢ΠΣ : ∀ b → U l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+U≢ΠΣ : ∀ b → U t PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 U≢ΠΣ BMΠ ()
 U≢ΠΣ (BMΣ s) ()
+
+Lift≢B : ∀ W → Lift t A PE.≢ ⟦ W ⟧ F ▹ G
+Lift≢B (BΠ p q) ()
+Lift≢B (BΣ m p q) ()
+
+Lift≢ΠΣ : ∀ b → Lift t A PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Lift≢ΠΣ BMΠ ()
+Lift≢ΠΣ (BMΣ s) ()
 
 ℕ≢B : ∀ W → ℕ PE.≢ ⟦ W ⟧ F ▹ G
 ℕ≢B (BΠ p q) ()
@@ -388,11 +434,11 @@ Empty≢ΠΣ : ∀ b → Empty PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Empty≢ΠΣ BMΠ ()
 Empty≢ΠΣ (BMΣ _) ()
 
-Unit≢B : ∀ W → Unit s l PE.≢ ⟦ W ⟧ F ▹ G
+Unit≢B : ∀ W → Unit s PE.≢ ⟦ W ⟧ F ▹ G
 Unit≢B (BΠ p q) ()
 Unit≢B (BΣ m p q) ()
 
-Unit≢ΠΣ : ∀ b → Unit s l PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
+Unit≢ΠΣ : ∀ b → Unit s PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Unit≢ΠΣ BMΠ ()
 Unit≢ΠΣ (BMΣ _) ()
 
@@ -421,7 +467,14 @@ opaque
   wk≡wk′ : ∀ t → wk ρ t ≡ toTerm (wk′ ρ (fromTerm t))
   wk≡wk′ (var x) = refl
   wk≡wk′ (defn α) = refl
-  wk≡wk′ (U x) = refl
+  wk≡wk′ Level = refl
+  wk≡wk′ zeroᵘ = refl
+  wk≡wk′ (sucᵘ l) = cong sucᵘ (wk≡wk′ l)
+  wk≡wk′ (l₁ supᵘ l₂) = cong₂ _supᵘ_ (wk≡wk′ l₁) (wk≡wk′ l₂)
+  wk≡wk′ (U l) = cong U (wk≡wk′ l)
+  wk≡wk′ (Lift l A) = cong₂ Lift (wk≡wk′ l) (wk≡wk′ A)
+  wk≡wk′ (lift a) = cong lift (wk≡wk′ a)
+  wk≡wk′ (lower a) = cong lower (wk≡wk′ a)
   wk≡wk′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (wk≡wk′ t) (wk≡wk′ t₁)
   wk≡wk′ (lam p t) = cong (lam p) (wk≡wk′ t)
@@ -436,10 +489,10 @@ opaque
   wk≡wk′ (suc t) = cong suc (wk≡wk′ t)
   wk≡wk′ (natrec p q r t t₁ t₂ t₃) =
     cong₄ (natrec p q r) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂) (wk≡wk′ t₃)
-  wk≡wk′ (Unit x x₁) = refl
-  wk≡wk′ (star x x₁) = refl
-  wk≡wk′ (unitrec x p q t t₁ t₂) =
-    cong₃ (unitrec x p q) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
+  wk≡wk′ (Unit x) = refl
+  wk≡wk′ (star x) = refl
+  wk≡wk′ (unitrec p q t t₁ t₂) =
+    cong₃ (unitrec p q) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
   wk≡wk′ Empty = refl
   wk≡wk′ (emptyrec p t t₁) =
     cong₂ (emptyrec p) (wk≡wk′ t) (wk≡wk′ t₁)
@@ -452,8 +505,9 @@ opaque
   wk≡wk′ (K p t t₁ t₂ t₃ t₄) =
     cong₅ (K p) (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂)
       (wk≡wk′ t₃) (wk≡wk′ t₄)
-  wk≡wk′ ([]-cong x t t₁ t₂ t₃) =
-    cong₄ []-cong! (wk≡wk′ t) (wk≡wk′ t₁) (wk≡wk′ t₂) (wk≡wk′ t₃)
+  wk≡wk′ ([]-cong _ l A t u v) =
+    cong₅ []-cong! (wk≡wk′ l) (wk≡wk′ A) (wk≡wk′ t) (wk≡wk′ u)
+      (wk≡wk′ v)
 
 opaque mutual
 
@@ -595,13 +649,21 @@ wk1-wk≡lift-wk1 ρ t = trans (wk1-wk ρ t) (sym (lift-wk1 ρ t))
 
 opaque
 
-  -- Relating substitution of terms with susbtitution of the alternative
+  -- Relating substitution of terms with substitution of the alternative
   -- term representation.
 
   subst≡subst′ : ∀ t → t [ σ ] ≡ toTerm (fromTerm t [ σ ]′)
   subst≡subst′ (var x) = sym (toTerm∘fromTerm _)
   subst≡subst′ (defn α) = refl
-  subst≡subst′ (U x) = refl
+  subst≡subst′ Level = refl
+  subst≡subst′ zeroᵘ = refl
+  subst≡subst′ (sucᵘ l) = cong sucᵘ (subst≡subst′ l)
+  subst≡subst′ (l₁ supᵘ l₂) =
+    cong₂ _supᵘ_ (subst≡subst′ l₁) (subst≡subst′ l₂)
+  subst≡subst′ (U l) = cong U (subst≡subst′ l)
+  subst≡subst′ (Lift l A) = cong₂ Lift (subst≡subst′ l) (subst≡subst′ A)
+  subst≡subst′ (lift a) = cong lift (subst≡subst′ a)
+  subst≡subst′ (lower a) = cong lower (subst≡subst′ a)
   subst≡subst′ (ΠΣ⟨ b ⟩ p , q ▷ t ▹ t₁) =
     cong₂ (ΠΣ⟨ b ⟩ p , q ▷_▹_) (subst≡subst′ t) (subst≡subst′ t₁)
   subst≡subst′ (lam p t) = cong (lam p) (subst≡subst′ t)
@@ -620,10 +682,10 @@ opaque
   subst≡subst′ (natrec p q r t t₁ t₂ t₃) =
     cong₄ (natrec p q r) (subst≡subst′ t)
       (subst≡subst′ t₁) (subst≡subst′ t₂) (subst≡subst′ t₃)
-  subst≡subst′ (Unit x x₁) = refl
-  subst≡subst′ (star x x₁) = refl
-  subst≡subst′ (unitrec x p q t t₁ t₂) =
-    cong₃ (unitrec x p q) (subst≡subst′ t)
+  subst≡subst′ (Unit x) = refl
+  subst≡subst′ (star x) = refl
+  subst≡subst′ (unitrec p q t t₁ t₂) =
+    cong₃ (unitrec p q) (subst≡subst′ t)
       (subst≡subst′ t₁) (subst≡subst′ t₂)
   subst≡subst′ Empty = refl
   subst≡subst′ (emptyrec p t t₁) =
@@ -637,9 +699,9 @@ opaque
   subst≡subst′ (K p t t₁ t₂ t₃ t₄) =
     cong₅ (K p) (subst≡subst′ t) (subst≡subst′ t₁) (subst≡subst′ t₂)
       (subst≡subst′ t₃) (subst≡subst′ t₄)
-  subst≡subst′ ([]-cong x t t₁ t₂ t₃) =
-    cong₄ []-cong! (subst≡subst′ t) (subst≡subst′ t₁)
-      (subst≡subst′ t₂) (subst≡subst′ t₃)
+  subst≡subst′ ([]-cong _ l A t u v) =
+    cong₅ []-cong! (subst≡subst′ l) (subst≡subst′ A) (subst≡subst′ t)
+      (subst≡subst′ u) (subst≡subst′ v)
 
 -- Two substitutions σ and σ′ are equal if they are pointwise equal,
 -- i.e., agree on all variables.
@@ -937,6 +999,17 @@ opaque
     t [ liftSubst σ ₛ• step id ]  ≡⟨⟩
     t [ wk1Subst σ ]              ≡⟨ wk1Subst-wk1 t ⟩
     wk1 (t [ σ ])                 ∎
+
+opaque
+
+  -- Applying liftSubst σ to wk2 t amounts to the same thing as first
+  -- applying σ and then weakening the result two steps.
+
+  wk2-liftSubst : ∀ t → wk2 t [ σ ⇑ ⇑ ] ≡ wk2 (t [ σ ])
+  wk2-liftSubst {σ} t =
+    wk2 t [ σ ⇑ ⇑ ]     ≡⟨ wk1-liftSubst (wk1 t) ⟩
+    wk1 (wk1 t [ σ ⇑ ]) ≡⟨ cong wk1 (wk1-liftSubst t) ⟩
+    wk2 (t [ σ ])       ∎
 
 -- Composition of liftings is lifting of the composition.
 
@@ -1558,6 +1631,17 @@ opaque
 
 opaque
 
+  -- The result of applying a substitution to wk wk₀ t is wk wk₀ t.
+
+  wk-wk₀-[]≡ : wk wk₀ t [ σ ] ≡ wk wk₀ t
+  wk-wk₀-[]≡ {t} {σ} =
+    wk wk₀ t [ σ ]     ≡⟨ subst-wk t ⟩
+    t [ σ ₛ• wk₀ ]     ≡⟨ substVar-to-subst (λ ()) t ⟩
+    t [ toSubst wk₀ ]  ≡˘⟨ wk≡subst _ _ ⟩
+    wk wk₀ t           ∎
+
+opaque
+
   -- A version of the above property involving lifted weakenings and
   -- substitutions
 
@@ -1628,21 +1712,6 @@ opaque
 
 opaque
 
-  -- Closed terms are invariant under substitution
-
-  wk₀-subst-invariant : {σ : Subst m n} (t : Term 0) → wk wk₀ t [ σ ] ≡ wk wk₀ t
-  wk₀-subst-invariant {n = 0} {σ} t = begin
-    wk wk₀ t [ σ ]     ≡⟨ []≡wk-wk₀ (wk wk₀ t) ⟩
-    wk wk₀ (wk wk₀ t)  ≡⟨ wk₀-comp wk₀ t ⟩
-    wk wk₀ t           ∎
-  wk₀-subst-invariant {n = 1+ n} {σ} t = begin
-    wk wk₀ t [ σ ]                            ≡⟨ head-tail-subst (wk wk₀ t) ⟩
-    wk wk₀ t [ consSubst (tail σ) (head σ) ]  ≡⟨ step-consSubst t ⟩
-    wk wk₀ t [ tail σ ]                       ≡⟨ wk₀-subst-invariant t ⟩
-    wk wk₀ t                                  ∎
-
-opaque
-
   -- One can express _[_,_]₁₀ using _[_]₀ and wk1.
 
   [,]≡[wk1]₀[]₀ :
@@ -1681,6 +1750,14 @@ opaque
     t [ u , v ]₁₀ [ σ ]                                ≡⟨ [,]-[]-fusion t ⟩
     t [ consSubst (consSubst σ (u [ σ ])) (v [ σ ]) ]  ≡˘⟨ doubleSubstComp t _ _ _ ⟩
     t [ liftSubstn σ 2 ] [ u [ σ ] , v [ σ ] ]₁₀       ∎
+
+opaque
+
+  -- A lemma related to Unit.
+
+  ≡Unit-wk1[]₀ :
+    Unit s ≡ Unit s [ t ]₀
+  ≡Unit-wk1[]₀ {s} {t} = refl
 
 opaque
 
@@ -1981,16 +2058,16 @@ opaque
 
 opaque
 
-  -- Applying _[ u ]↑ to a term that has been weakened at least two
-  -- steps amounts to the same thing as doing nothing.
+  -- Applying _[ u ]↑ to a term that has been weakened at least one
+  -- step amounts to the same thing as doing nothing.
 
-  wk[]′-[]↑ : wk[ 2+ k ]′ t [ u ]↑ ≡ wk[ 2+ k ]′ t
+  wk[]′-[]↑ : wk[ 1+ k ]′ t [ u ]↑ ≡ wk[ 1+ k ]′ t
   wk[]′-[]↑ {k} {t} {u} =
-    wk[ 2+ k ]′ t [ u ]↑                                     ≡⟨⟩
-    wk[ 2+ k ]′ t [ consSubst (wk1Subst idSubst) u ]         ≡⟨ subst-wk t ⟩
-    t [ consSubst (wk1Subst idSubst) u ₛ• stepn id (2+ k) ]  ≡⟨⟩
-    t [ toSubst (stepn id (2+ k)) ]                          ≡˘⟨ wk≡subst _ _ ⟩
-    wk[ 2+ k ]′ t                                            ∎
+    wk[ 1+ k ]′ t [ u ]↑                                     ≡⟨⟩
+    wk[ 1+ k ]′ t [ consSubst (wk1Subst idSubst) u ]         ≡⟨ subst-wk t ⟩
+    t [ consSubst (wk1Subst idSubst) u ₛ• stepn id (1+ k) ]  ≡⟨⟩
+    t [ toSubst (stepn id (1+ k)) ]                          ≡˘⟨ wk≡subst _ _ ⟩
+    wk[ 1+ k ]′ t                                            ∎
 
 opaque
 
@@ -2053,6 +2130,19 @@ opaque
     wk₂ t [ σ ]         ≡˘⟨ cong _[ σ ] $ wk[]≡wk[]′ {k = 2} {t = t} ⟩
     wk2 t [ σ ]         ≡⟨ wk2-tail t ⟩
     t [ tail (tail σ) ] ∎
+
+opaque
+
+  -- One can combine wk (lift (step id)) and wk[ 1+ k ]′.
+
+  wk-lift-step-id-wk[1+]′≡ :
+    wk (lift (step id)) (wk[ 1+ k ]′ t) ≡ wk[ 2+ k ]′ t
+  wk-lift-step-id-wk[1+]′≡ {k} {t} =
+    wk (lift (step id)) (wk[ 1+ k ]′ t)     ≡˘⟨ cong (wk _) $ wk-comp _ _ _ ⟩
+    wk (lift (step id)) (wk1 (wk[ k ]′ t))  ≡˘⟨ wk1-wk≡lift-wk1 _ _ ⟩
+    wk[ 2 ] (wk[ k ]′ t)                    ≡⟨ trans (wk[]≡wk[]′ {k = 2}) $
+                                               wk-comp _ _ _ ⟩
+    wk[ 2+ k ]′ t                           ∎
 
 ------------------------------------------------------------------------
 -- Some lemmas related to _[_][_]↑
@@ -2341,6 +2431,85 @@ opaque
     t               ∎
 
 ------------------------------------------------------------------------
+-- Some lemmas related to replace₂
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to wk[_]′ and replace₂.
+
+  wk[2+]′-[replace₂] :
+    wk[ 2+ k ]′ t [ replace₂ u v ] ≡ wk[ 2+ k ]′ t
+  wk[2+]′-[replace₂] {k} {t} {u} {v} =
+    wk[ 2+ k ]′ t [ replace₂ u v ]         ≡⟨ subst-wk t ⟩
+    t [ replace₂ u v ₛ• stepn id (2+ k) ]  ≡⟨⟩
+    t [ toSubst (stepn id (2+ k)) ]        ≡˘⟨ wk≡subst _ _ ⟩
+    wk[ 2+ k ]′ t                          ∎
+
+opaque
+
+  -- A lemma related to wk[_] and replace₂.
+
+  wk[2+]-[replace₂] :
+    wk[ 2+ k ] t [ replace₂ u v ] ≡ wk[ 2+ k ] t
+  wk[2+]-[replace₂] {k} {t} {u} {v} =
+    wk[ 2+ k ] t [ replace₂ u v ]   ≡⟨ PE.cong _[ _ ] $ wk[]≡wk[]′ {k = 2+ k} ⟩
+    wk[ 2+ k ]′ t [ replace₂ u v ]  ≡⟨ wk[2+]′-[replace₂] ⟩
+    wk[ 2+ k ]′ t                   ≡˘⟨ wk[]≡wk[]′ ⟩
+    wk[ 2+ k ] t                    ∎
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to _⇑[_] and replace₂.
+
+  [replace₂]-[⇑] :
+    (t : Term (2+ k + n)) (σ : Subst m n) →
+    let σ⇑ = σ ⇑[ 2 + k ] in
+    t [ replace₂ u v ] [ σ⇑ ] ≡
+    t [ σ⇑ ] [ replace₂ (u [ σ⇑ ]) (v [ σ⇑ ]) ]
+  [replace₂]-[⇑] {k} {u} {v} t σ =
+    let σ⇑ = σ ⇑[ 2 + k ] in
+    t [ replace₂ u v ] [ σ⇑ ]                    ≡⟨ substCompEq t ⟩
+    t [ σ⇑ ₛ•ₛ replace₂ u v ]                    ≡⟨ (flip substVar-to-subst t λ where
+                                                       x0        → PE.refl
+                                                       (x0 +1)   → PE.refl
+                                                       (_ +1 +1) → PE.sym $ wk[2+]-[replace₂] {k = 0}) ⟩
+    t [ replace₂ (u [ σ⇑ ]) (v [ σ⇑ ]) ₛ•ₛ σ⇑ ]  ≡˘⟨ substCompEq t ⟩
+    t [ σ⇑ ] [ replace₂ (u [ σ⇑ ]) (v [ σ⇑ ]) ]  ∎
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to _[_,_]₁₀ and replace₂.
+
+  [replace₂]-[,]₁₀ :
+    ∀ t →
+    t [ replace₂ u₁ u₂ ] [ v₁ , v₂ ]₁₀ ≡
+    t [ u₁ [ v₁ , v₂ ]₁₀ , u₂ [ v₁ , v₂ ]₁₀ ]₁₀
+  [replace₂]-[,]₁₀ t =
+    trans (substCompEq t) $
+    flip substVar-to-subst t λ where
+      x0        → refl
+      (x0 +1)   → refl
+      (_ +1 +1) → refl
+
+opaque
+  unfolding replace₂
+
+  -- A lemma related to _[_][_]↑ and replace₂.
+
+  [2][]↑-[replace₂] :
+    ∀ t →
+    t [ 2 ][ u ]↑ [ replace₂ v₁ v₂ ] ≡
+    t [ u [ replace₂ v₁ v₂ ] ]↑²
+  [2][]↑-[replace₂] t =
+    PE.trans (substCompEq t) $
+    flip substVar-to-subst t λ where
+      x0     → refl
+      (_ +1) → refl
+
+------------------------------------------------------------------------
 -- Some lemmas related to numerals
 
 -- The predicate Numeral is decidable
@@ -2355,7 +2524,14 @@ opaque
       (no ¬n) → no (λ { (sucₙ n) → ¬n n})
   isNumeral? (var x) = no (λ ())
   isNumeral? (defn α) = no (λ ())
-  isNumeral? (U _) = no (λ ())
+  isNumeral? Level = no (λ ())
+  isNumeral? zeroᵘ = no (λ ())
+  isNumeral? (sucᵘ _) = no (λ ())
+  isNumeral? (_ supᵘ _) = no (λ ())
+  isNumeral? (U n) = no (λ ())
+  isNumeral? (Lift _ _) = no λ ()
+  isNumeral? (lift _) = no λ ()
+  isNumeral? (lower _) = no λ ()
   isNumeral? ℕ = no λ ()
   isNumeral? Empty = no λ ()
   isNumeral? Unit! = no λ ()
@@ -2369,12 +2545,12 @@ opaque
   isNumeral? (prodrec _ _ _ _ _ _) = no λ ()
   isNumeral? (natrec _ _ _ _ _ _ _) = no λ ()
   isNumeral? star! = no λ ()
-  isNumeral? (unitrec _ _ _ _ _ _) = no λ ()
+  isNumeral? (unitrec _ _ _ _ _) = no λ ()
   isNumeral? (emptyrec _ _ _) = no λ ()
   isNumeral? rfl = no λ ()
   isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
   isNumeral? (K _ _ _ _ _ _) = no λ ()
-  isNumeral? ([]-cong! _ _ _ _) = no λ ()
+  isNumeral? ([]-cong! _ _ _ _ _) = no λ ()
 
 opaque
 
@@ -2429,6 +2605,26 @@ opaque
 
 ------------------------------------------------------------------------
 -- Injectivity of constructors with respect to propositional equality
+
+-- U is injective.
+
+U-PE-injectivity : U t₁ PE.≡ U t₂ → t₁ PE.≡ t₂
+U-PE-injectivity PE.refl = PE.refl
+
+-- Lift is injective.
+
+Lift-PE-injectivity : Lift t₁ A₁ PE.≡ Lift t₂ A₂ → t₁ PE.≡ t₂ × A₁ PE.≡ A₂
+Lift-PE-injectivity PE.refl = PE.refl , PE.refl
+
+-- The constructor Term.sucᵘ is injective.
+
+sucᵘ-PE-injectivity : Term.sucᵘ t₁ PE.≡ sucᵘ t₂ → t₁ PE.≡ t₂
+sucᵘ-PE-injectivity PE.refl = PE.refl
+
+-- The constructor supᵘ is injective.
+
+supᵘ-PE-injectivity : t₁ supᵘ u₁ PE.≡ t₂ supᵘ u₂ → t₁ PE.≡ t₂ × u₁ PE.≡ u₂
+supᵘ-PE-injectivity PE.refl = PE.refl , PE.refl
 
 -- BΠ is injective.
 
@@ -2507,30 +2703,40 @@ emptyrec-PE-injectivity PE.refl = PE.refl , PE.refl , PE.refl
 -- The constructor Unit is injective.
 
 Unit-PE-injectivity :
-  _≡_ {A = Term n} (Unit s₁ l₁) (Unit s₂ l₂) →
-  s₁ ≡ s₂ × l₁ ≡ l₂
-Unit-PE-injectivity refl = refl , refl
+  _≡_ {A = Term n} (Unit s₁) (Unit s₂) →
+  s₁ ≡ s₂
+Unit-PE-injectivity refl = refl
 
 -- The constructor star is injective.
 
 star-PE-injectivity :
-  _≡_ {A = Term n} (star s₁ l₁) (star s₂ l₂) →
-  s₁ PE.≡ s₂ × l₁ PE.≡ l₂
-star-PE-injectivity PE.refl = PE.refl , PE.refl
+  _≡_ {A = Term n} (star s₁) (star s₂) → s₁ PE.≡ s₂
+star-PE-injectivity PE.refl = PE.refl
 
 -- The constructor unitrec is injective.
 
 unitrec-PE-injectivity :
-  unitrec l₁ p₁ q₁ A₁ t₁ u₁ PE.≡ unitrec l₂ p₂ q₂ A₂ t₂ u₂ →
-  l₁ PE.≡ l₂ × p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ ×
+  unitrec p₁ q₁ A₁ t₁ u₁ PE.≡ unitrec p₂ q₂ A₂ t₂ u₂ →
+  p₁ PE.≡ p₂ × q₁ PE.≡ q₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ ×
   u₁ PE.≡ u₂
 unitrec-PE-injectivity PE.refl =
-  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
 
 -- The constructor suc is injective.
 
 suc-PE-injectivity : suc t₁ PE.≡ suc t₂ → t₁ PE.≡ t₂
 suc-PE-injectivity PE.refl = PE.refl
+
+opaque
+
+  -- The function sucᵏ is injective.
+
+  sucᵏ-PE-injectivity : sucᵏ {n = n} n₁ ≡ sucᵏ n₂ → n₁ ≡ n₂
+  sucᵏ-PE-injectivity {n₁ = 0}    {n₂ = 0}    _  = refl
+  sucᵏ-PE-injectivity {n₁ = 0}    {n₂ = 1+ _} ()
+  sucᵏ-PE-injectivity {n₁ = 1+ _} {n₂ = 0}    ()
+  sucᵏ-PE-injectivity {n₁ = 1+ _} {n₂ = 1+ _} eq =
+    cong 1+ (sucᵏ-PE-injectivity (suc-PE-injectivity eq))
 
 -- The constructor natrec is injective.
 
@@ -2570,10 +2776,11 @@ K-PE-injectivity PE.refl =
 -- []-cong is injective.
 
 []-cong-PE-injectivity :
-  []-cong s₁ A₁ t₁ u₁ v₁ PE.≡ []-cong s₂ A₂ t₂ u₂ v₂ →
-  s₁ PE.≡ s₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂ × v₁ PE.≡ v₂
+  []-cong s₁ l₁ A₁ t₁ u₁ v₁ PE.≡ []-cong s₂ l₂ A₂ t₂ u₂ v₂ →
+  s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × A₁ PE.≡ A₂ × t₁ PE.≡ t₂ × u₁ PE.≡ u₂ ×
+  v₁ PE.≡ v₂
 []-cong-PE-injectivity PE.refl =
-  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
+  PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
 
 ------------------------------------------------------------------------
 -- Properties related to inlining of definitions
@@ -2624,18 +2831,32 @@ opaque
     refl
   inline-id {eq} (defn _) =
     PE.cong (wk _) (inline-Nat-id {eq = eq})
-  inline-id (U _) =
+  inline-id Level =
     refl
+  inline-id zeroᵘ =
+    refl
+  inline-id (sucᵘ t) =
+    cong sucᵘ (inline-id t)
+  inline-id (t supᵘ u) =
+    cong₂ _supᵘ_ (inline-id t) (inline-id u)
+  inline-id (U t) =
+    cong U (inline-id t)
+  inline-id (Lift t A) =
+    cong₂ Lift (inline-id t) (inline-id A)
+  inline-id (lift t) =
+    cong lift (inline-id t)
+  inline-id (lower t) =
+    cong lower (inline-id t)
   inline-id Empty =
     refl
   inline-id (emptyrec p A t) =
     cong₂ (emptyrec _) (inline-id A) (inline-id t)
-  inline-id (Unit _ _) =
+  inline-id (Unit _) =
     refl
-  inline-id (star _ _) =
+  inline-id (star _) =
     refl
-  inline-id (unitrec _ _ _ A t u) =
-    cong₃ (unitrec _ _ _) (inline-id A) (inline-id t) (inline-id u)
+  inline-id (unitrec _ _ A t u) =
+    cong₃ (unitrec _ _) (inline-id A) (inline-id t) (inline-id u)
   inline-id (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
     cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-id A) (inline-id B)
   inline-id (lam p t) =
@@ -2669,9 +2890,9 @@ opaque
   inline-id (K p A t B u v) =
     cong₅ (K _) (inline-id A) (inline-id t) (inline-id B) (inline-id u)
       (inline-id v)
-  inline-id ([]-cong s A t u v) =
-    cong₄ ([]-cong _) (inline-id A) (inline-id t) (inline-id u)
-      (inline-id v)
+  inline-id ([]-cong _ l A t u v) =
+    cong₅ ([]-cong _) (inline-id l) (inline-id A) (inline-id t)
+      (inline-id u) (inline-id v)
 
 opaque
   unfolding inline-Con
@@ -2693,18 +2914,32 @@ opaque
     refl
   wk-inline (defn _) =
     wk₀-comp _ _
-  wk-inline (U _) =
+  wk-inline Level =
     refl
+  wk-inline zeroᵘ =
+    refl
+  wk-inline (sucᵘ t) =
+    cong sucᵘ (wk-inline t)
+  wk-inline (t supᵘ u) =
+    cong₂ _supᵘ_ (wk-inline t) (wk-inline u)
+  wk-inline (U t) =
+    cong U (wk-inline t)
+  wk-inline (Lift t A) =
+    cong₂ Lift (wk-inline t) (wk-inline A)
+  wk-inline (lift t) =
+    cong lift (wk-inline t)
+  wk-inline (lower t) =
+    cong lower (wk-inline t)
   wk-inline Empty =
     refl
   wk-inline (emptyrec p A t) =
     cong₂ (emptyrec _) (wk-inline A) (wk-inline t)
-  wk-inline (Unit _ _) =
+  wk-inline (Unit _) =
     refl
-  wk-inline (star _ _) =
+  wk-inline (star _) =
     refl
-  wk-inline (unitrec _ _ _ A t u) =
-    cong₃ (unitrec _ _ _) (wk-inline A) (wk-inline t) (wk-inline u)
+  wk-inline (unitrec _ _ A t u) =
+    cong₃ (unitrec _ _) (wk-inline A) (wk-inline t) (wk-inline u)
   wk-inline (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
     cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (wk-inline A) (wk-inline B)
   wk-inline (lam p t) =
@@ -2738,9 +2973,9 @@ opaque
   wk-inline (K p A t B u v) =
     cong₅ (K _) (wk-inline A) (wk-inline t) (wk-inline B) (wk-inline u)
       (wk-inline v)
-  wk-inline ([]-cong s A t u v) =
-    cong₄ ([]-cong _) (wk-inline A) (wk-inline t) (wk-inline u)
-      (wk-inline v)
+  wk-inline ([]-cong _ l A t u v) =
+    cong₅ ([]-cong _) (wk-inline l) (wk-inline A) (wk-inline t)
+      (wk-inline u) (wk-inline v)
 
 opaque
   unfolding inline inline-Subst
@@ -2848,19 +3083,33 @@ opaque
   inline-[] (var _) =
     refl
   inline-[] (defn _) =
-    sym $ wk₀-subst-invariant _
-  inline-[] (U _) =
+    sym wk-wk₀-[]≡
+  inline-[] Level =
     refl
+  inline-[] zeroᵘ =
+    refl
+  inline-[] (sucᵘ t) =
+    cong sucᵘ (inline-[] t)
+  inline-[] (t supᵘ u) =
+    cong₂ _supᵘ_ (inline-[] t) (inline-[] u)
+  inline-[] (U t) =
+    cong U (inline-[] t)
+  inline-[] (Lift t A) =
+    cong₂ Lift (inline-[] t) (inline-[] A)
+  inline-[] (lift t) =
+    cong lift (inline-[] t)
+  inline-[] (lower t) =
+    cong lower (inline-[] t)
   inline-[] Empty =
     refl
   inline-[] (emptyrec _ A t) =
     cong₂ (emptyrec _) (inline-[] A) (inline-[] t)
-  inline-[] (Unit _ _) =
+  inline-[] (Unit _) =
     refl
-  inline-[] (star _ _) =
+  inline-[] (star _) =
     refl
-  inline-[] (unitrec _ _ _ A t u) =
-    cong₃ (unitrec _ _ _) (inline-[⇑] 1 A) (inline-[] t) (inline-[] u)
+  inline-[] (unitrec _ _ A t u) =
+    cong₃ (unitrec _ _) (inline-[⇑] 1 A) (inline-[] t) (inline-[] u)
   inline-[] (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
     cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-[] A) (inline-[⇑] 1 B)
   inline-[] (lam _ t) =
@@ -2895,9 +3144,9 @@ opaque
   inline-[] (K _ A t B u v) =
     cong₅ (K _) (inline-[] A) (inline-[] t) (inline-[⇑] 1 B)
       (inline-[] u) (inline-[] v)
-  inline-[] ([]-cong _ A t u v) =
-    cong₄ ([]-cong _) (inline-[] A) (inline-[] t) (inline-[] u)
-      (inline-[] v)
+  inline-[] ([]-cong _ l A t u v) =
+    cong₅ ([]-cong _) (inline-[] l) (inline-[] A) (inline-[] t)
+      (inline-[] u) (inline-[] v)
 
   -- A variant of inline-[].
 
@@ -2970,6 +3219,26 @@ opaque
   …   | yes _  =
     cong₂ (inline-< ξ) ≤-propositional <′-propositional
 
+opaque
+  unfolding inline
+
+  -- Inlining does not affect level literals.
+
+  inline-Level-literal :
+    Level-literal t → inline ξ t ≡ t
+  inline-Level-literal zeroᵘ        = PE.refl
+  inline-Level-literal (sucᵘ t-lit) =
+    cong sucᵘ (inline-Level-literal t-lit)
+
+opaque
+
+  -- If t is a level literal, then inline ξ t is also a level literal.
+
+  Level-literal-inline :
+    Level-literal t → Level-literal (inline ξ t)
+  Level-literal-inline t-lit =
+    PE.subst Level-literal (PE.sym $ inline-Level-literal t-lit) t-lit
+
 ------------------------------------------------------------------------
 -- Properties related to inlining and glassification
 
@@ -3008,18 +3277,32 @@ opaque
     refl
   inline-glassifyᵉ {ξ} (defn _) =
     cong (wk _) (inline-Nat-glassifyᵉ ξ)
-  inline-glassifyᵉ (U _) =
+  inline-glassifyᵉ Level =
     refl
+  inline-glassifyᵉ zeroᵘ =
+    refl
+  inline-glassifyᵉ (sucᵘ t) =
+    cong sucᵘ (inline-glassifyᵉ t)
+  inline-glassifyᵉ (t supᵘ u) =
+    cong₂ _supᵘ_ (inline-glassifyᵉ t) (inline-glassifyᵉ u)
+  inline-glassifyᵉ (U t) =
+    cong U (inline-glassifyᵉ t)
+  inline-glassifyᵉ (Lift t A) =
+    cong₂ Lift (inline-glassifyᵉ t) (inline-glassifyᵉ A)
+  inline-glassifyᵉ (lift t) =
+    cong lift (inline-glassifyᵉ t)
+  inline-glassifyᵉ (lower t) =
+    cong lower (inline-glassifyᵉ t)
   inline-glassifyᵉ Empty =
     refl
   inline-glassifyᵉ (emptyrec p A t) =
     cong₂ (emptyrec _) (inline-glassifyᵉ A) (inline-glassifyᵉ t)
-  inline-glassifyᵉ (Unit _ _) =
+  inline-glassifyᵉ (Unit _) =
     refl
-  inline-glassifyᵉ (star _ _) =
+  inline-glassifyᵉ (star _) =
     refl
-  inline-glassifyᵉ (unitrec _ _ _ A t u) =
-    cong₃ (unitrec _ _ _) (inline-glassifyᵉ A) (inline-glassifyᵉ t)
+  inline-glassifyᵉ (unitrec _ _ A t u) =
+    cong₃ (unitrec _ _) (inline-glassifyᵉ A) (inline-glassifyᵉ t)
       (inline-glassifyᵉ u)
   inline-glassifyᵉ (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) =
     cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (inline-glassifyᵉ A) (inline-glassifyᵉ B)
@@ -3057,9 +3340,9 @@ opaque
   inline-glassifyᵉ (K p A t B u v) =
     cong₅ (K _) (inline-glassifyᵉ A) (inline-glassifyᵉ t)
       (inline-glassifyᵉ B) (inline-glassifyᵉ u) (inline-glassifyᵉ v)
-  inline-glassifyᵉ ([]-cong s A t u v) =
-    cong₄ ([]-cong _) (inline-glassifyᵉ A) (inline-glassifyᵉ t)
-      (inline-glassifyᵉ u) (inline-glassifyᵉ v)
+  inline-glassifyᵉ ([]-cong _ l A t u v) =
+    cong₅ ([]-cong _) (inline-glassifyᵉ l) (inline-glassifyᵉ A)
+      (inline-glassifyᵉ t) (inline-glassifyᵉ u) (inline-glassifyᵉ v)
 
 opaque
   unfolding inlineᵈ
@@ -3132,12 +3415,19 @@ opaque
   is-var? : (t : Term n) → Is-var? t
   is-var? (var x)                 = var x
   is-var? (defn _)                = not-var (λ ())
+  is-var? Level                   = not-var (λ ())
+  is-var? zeroᵘ                   = not-var (λ ())
+  is-var? (sucᵘ _)                = not-var (λ ())
+  is-var? (_ supᵘ _)              = not-var (λ ())
   is-var? (U _)                   = not-var (λ ())
+  is-var? (Lift _ _)              = not-var (λ ())
+  is-var? (lift _)                = not-var (λ ())
+  is-var? (lower _)               = not-var (λ ())
   is-var? Empty                   = not-var (λ ())
   is-var? (emptyrec _ _ _)        = not-var (λ ())
-  is-var? (Unit _ _)              = not-var (λ ())
-  is-var? (star _ _)              = not-var (λ ())
-  is-var? (unitrec _ _ _ _ _ _)   = not-var (λ ())
+  is-var? (Unit _)                = not-var (λ ())
+  is-var? (star _)                = not-var (λ ())
+  is-var? (unitrec _ _ _ _ _)     = not-var (λ ())
   is-var? (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = not-var (λ ())
   is-var? (lam _ _)               = not-var (λ ())
   is-var? (_ ∘⟨ _ ⟩ _)            = not-var (λ ())
@@ -3153,7 +3443,7 @@ opaque
   is-var? rfl                     = not-var (λ ())
   is-var? (J _ _ _ _ _ _ _ _)     = not-var (λ ())
   is-var? (K _ _ _ _ _ _)         = not-var (λ ())
-  is-var? ([]-cong _ _ _ _ _)     = not-var (λ ())
+  is-var? ([]-cong _ _ _ _ _ _)   = not-var (λ ())
 
 ------------------------------------------------------------------------
 -- Some lemmas related to DCon/DExt
@@ -3197,3 +3487,326 @@ opaque
     {f g : ∀ {n} → Term n → Term n} →
     (∀ {n} (x : Term n) → f x ≡ g x) → map-Cons f Δ ≡ map-Cons g Δ
   map-Cons-cong f≡g = cong₂ _»_ (map-DCon-cong f≡g) (map-Con-cong f≡g)
+
+------------------------------------------------------------------------
+-- Some lemmas related to level literals
+
+opaque
+
+  -- It is decidable whether two level literals are equal.
+
+  infix 4 _≟L_
+
+  _≟L_ :
+    Level-literal l₁ → Level-literal l₂ →
+    Dec (l₁ ≡ l₂)
+  zeroᵘ   ≟L zeroᵘ   = yes refl
+  zeroᵘ   ≟L sucᵘ _  = no (λ ())
+  sucᵘ _  ≟L zeroᵘ   = no (λ ())
+  sucᵘ l₁ ≟L sucᵘ l₂ =
+    Dec-map (cong sucᵘ , sucᵘ-PE-injectivity) (l₁ ≟L l₂)
+
+opaque
+
+  -- Level-literal is propositional.
+
+  Level-literal-propositional : Is-proposition (Level-literal t)
+  Level-literal-propositional {x = zeroᵘ}  {y = zeroᵘ}  = refl
+  Level-literal-propositional {x = sucᵘ _} {y = sucᵘ _} =
+    cong sucᵘ Level-literal-propositional
+
+opaque
+  unfolding size-of-Level
+
+  -- If t-lit : Level-literal t, then ↓ᵘ (size-of-Level t-lit) is
+  -- equal to t.
+
+  ↓ᵘ-size-of-Level :
+    {t-lit : Level-literal t} →
+    ↓ᵘ (size-of-Level t-lit) ≡ t
+  ↓ᵘ-size-of-Level {t-lit = zeroᵘ}  = refl
+  ↓ᵘ-size-of-Level {t-lit = sucᵘ _} = cong sucᵘ ↓ᵘ-size-of-Level
+
+opaque
+
+  -- An alternative characterisation of Level-literal.
+
+  Level-literal⇔ : Level-literal t ⇔ ∃ λ n → t ≡ ↓ᵘ n
+  Level-literal⇔ =
+    (λ t-lit → _ , sym (↓ᵘ-size-of-Level {t-lit = t-lit})) , from
+    where
+    from : (∃ λ n → t ≡ ↓ᵘ n) → Level-literal t
+    from (0    , refl) = zeroᵘ
+    from (1+ n , refl) = sucᵘ (from (n , refl))
+
+opaque
+
+  -- The term ↓ᵘ n is a level literal.
+
+  Level-literal-↓ᵘ : Level-literal {n = n} (↓ᵘ m)
+  Level-literal-↓ᵘ = Level-literal⇔ .proj₂ (_ , refl)
+
+opaque
+
+  -- A substitution lemma for sucᵘᵏ.
+
+  sucᵘᵏ-[] : ∀ n → sucᵘᵏ n t [ σ ] ≡ sucᵘᵏ n (t [ σ ])
+  sucᵘᵏ-[] 0      = refl
+  sucᵘᵏ-[] (1+ n) = cong sucᵘ (sucᵘᵏ-[] n)
+
+opaque
+
+  -- A weakening lemma for sucᵘᵏ.
+
+  wk-sucᵘᵏ : ∀ n → wk ρ (sucᵘᵏ n t) ≡ sucᵘᵏ n (wk ρ t)
+  wk-sucᵘᵏ {ρ} {t} n =
+    wk ρ (sucᵘᵏ n t)           ≡⟨ wk≡subst _ _ ⟩
+    sucᵘᵏ n t [ toSubst ρ ]    ≡⟨ sucᵘᵏ-[] n ⟩
+    sucᵘᵏ n (t [ toSubst ρ ])  ≡˘⟨ cong (sucᵘᵏ n) $ wk≡subst _ _ ⟩
+    sucᵘᵏ n (wk ρ t)           ∎
+
+opaque
+
+  -- A substitution lemma for ↓ᵘ_.
+
+  ↓ᵘ-[] : (↓ᵘ n) [ σ ] ≡ ↓ᵘ n
+  ↓ᵘ-[] {n} = sucᵘᵏ-[] n
+
+opaque
+
+  -- A weakening lemma for ↓ᵘ_.
+
+  wk-↓ᵘ : wk ρ (↓ᵘ n) ≡ ↓ᵘ n
+  wk-↓ᵘ {ρ} {n} =
+    wk ρ (↓ᵘ n)           ≡⟨ wk≡subst _ _ ⟩
+    (↓ᵘ n) [ toSubst ρ ]  ≡⟨ ↓ᵘ-[] ⟩
+    ↓ᵘ n                  ∎
+
+opaque
+
+  -- If t is a level literal, then t [ σ₁ ] ≡ t [ σ₂ ] holds.
+
+  Level-literal→[]≡[] : Level-literal t → t [ σ₁ ] ≡ t [ σ₂ ]
+  Level-literal→[]≡[] {t} {σ₁} {σ₂} t-lit =
+    let n , eq = Level-literal⇔ .proj₁ t-lit in
+    t [ σ₁ ]       ≡⟨ cong _[ _ ] eq ⟩
+    (↓ᵘ n) [ σ₁ ]  ≡⟨ ↓ᵘ-[] ⟩
+    ↓ᵘ n           ≡˘⟨ ↓ᵘ-[] ⟩
+    (↓ᵘ n) [ σ₂ ]  ≡˘⟨ cong _[ _ ] eq ⟩
+    t [ σ₂ ]       ∎
+
+opaque
+
+  -- If t is a level literal, then t [ σ ] is also a level literal.
+
+  Level-literal-[] : Level-literal t → Level-literal (t [ σ ])
+  Level-literal-[] {t} {σ} =
+    Level-literal t           ⇔⟨ Level-literal⇔ ⟩→
+    (∃ λ n → t ≡ ↓ᵘ n)        →⟨ Σ.map idᶠ (λ { refl → ↓ᵘ-[] }) ⟩
+    (∃ λ n → t [ σ ] ≡ ↓ᵘ n)  ⇔˘⟨ Level-literal⇔ ⟩→
+    Level-literal (t [ σ ])   □
+
+opaque
+
+  -- The term t is a level literal if and only if wk ρ t is.
+
+  wk-Level-literal : Level-literal t ⇔ Level-literal (wk ρ t)
+  wk-Level-literal = to , flip from refl
+    where
+    to : Level-literal t → Level-literal (wk ρ t)
+    to = subst Level-literal (sym $ wk≡subst _ _) ∘→ Level-literal-[]
+
+    from : Level-literal u → wk ρ t ≡ u → Level-literal t
+    from zeroᵘ eq =
+      case wk-zeroᵘ eq of λ {
+        refl →
+      zeroᵘ }
+    from (sucᵘ u-lit) eq =
+      case wk-sucᵘ eq of λ {
+        (_ , refl , refl) →
+      sucᵘ (from u-lit refl) }
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- A "computation rule" for _supᵘₗ′_.
+
+  supᵘₗ′≡↓ᵘ⊔ :
+    (l₁-lit : Level-literal l₁) (l₂-lit : Level-literal l₂) →
+    l₁ supᵘₗ′ l₂ ≡ ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)
+  supᵘₗ′≡↓ᵘ⊔ {l₁} {l₂} l₁-lit l₂-lit
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes _ =
+    cong₂ (λ l₁ l₂ → ↓ᵘ (size-of-Level l₁ ⊔ size-of-Level l₂))
+      Level-literal-propositional Level-literal-propositional
+  … | no not-both = ⊥-elim (not-both (l₁-lit , l₂-lit))
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- Another "computation rule" for _supᵘₗ′_.
+
+  supᵘₗ′≡supᵘ :
+    ¬ (Level-literal l₁ × Level-literal l₂) →
+    l₁ supᵘₗ′ l₂ ≡ l₁ supᵘ l₂
+  supᵘₗ′≡supᵘ {l₁} {l₂} not-both
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes (l₁-lit , l₂-lit) = ⊥-elim (not-both (l₁-lit , l₂-lit))
+  … | no _                  = refl
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- The term l₁ supᵘₗ′ l₂ is a level literal if and only if l₁ and l₂
+  -- are.
+
+  Level-literal-supᵘₗ′⇔ :
+    Level-literal (l₁ supᵘₗ′ l₂) ⇔ (Level-literal l₁ × Level-literal l₂)
+  Level-literal-supᵘₗ′⇔ =
+    to ,
+    (λ (l₁-lit , l₂-lit) →
+       subst Level-literal (sym $ supᵘₗ′≡↓ᵘ⊔ l₁-lit l₂-lit)
+         Level-literal-↓ᵘ)
+    where
+    to :
+      Level-literal (l₁ supᵘₗ′ l₂) →
+      Level-literal l₁ × Level-literal l₂
+    to {l₁} {l₂} supᵘₗ′-lit
+      with Level-literal? l₁ ×-dec Level-literal? l₂
+    … | yes (l₁-lit , l₂-lit) = l₁-lit , l₂-lit
+    … | no _                  = case supᵘₗ′-lit of λ ()
+
+opaque
+
+  -- Inlining commutes with _supᵘₗ′_ for level literals.
+
+  inline-supᵘₗ′ :
+    Level-literal l₁ → Level-literal l₂ →
+    inline ξ (l₁ supᵘₗ′ l₂) PE.≡ inline ξ l₁ supᵘₗ′ inline ξ l₂
+  inline-supᵘₗ′ {l₁} {l₂} {ξ} l₁-lit l₂-lit =
+    inline ξ (l₁ supᵘₗ′ l₂)         ≡⟨ inline-Level-literal (Level-literal-supᵘₗ′⇔ .proj₂ (l₁-lit , l₂-lit)) ⟩
+    l₁ supᵘₗ′ l₂                    ≡˘⟨ cong₂ _supᵘₗ′_ (inline-Level-literal l₁-lit) (inline-Level-literal l₂-lit) ⟩
+    inline ξ l₁ supᵘₗ′ inline ξ l₂  ∎
+
+opaque
+  unfolding Level-literal⇔ size-of-Level
+
+  -- A lemma related to size-of-Level.
+
+  size-of-Level-Level-literal⇔ :
+    {eq : t ≡ ↓ᵘ n} →
+    size-of-Level (Level-literal⇔ .proj₂ (n , eq)) ≡ n
+  size-of-Level-Level-literal⇔ {n = 0}    {eq = refl} = refl
+  size-of-Level-Level-literal⇔ {n = 1+ _} {eq = refl} =
+    cong 1+ size-of-Level-Level-literal⇔
+
+opaque
+  unfolding Level-literal-↓ᵘ
+
+  -- A lemma relating size-of-Level and Level-literal-↓ᵘ.
+
+  size-of-Level-Level-literal-↓ᵘ :
+    size-of-Level (Level-literal-↓ᵘ {n = n} {m = m}) ≡ m
+  size-of-Level-Level-literal-↓ᵘ = size-of-Level-Level-literal⇔
+
+opaque
+  unfolding Level-literal-[] Level-literal⇔
+
+  -- The function size-of-Level is not affected by applications of
+  -- Level-literal-[].
+
+  size-of-Level-Level-literal-[] :
+    {t-lit : Level-literal t} →
+    size-of-Level (Level-literal-[] {σ = σ} t-lit) ≡
+    size-of-Level t-lit
+  size-of-Level-Level-literal-[] = size-of-Level-Level-literal⇔
+
+opaque
+
+  -- The function size-of-Level is not affected by applications of
+  -- subst Level-literal.
+
+  size-of-Level-subst :
+    {eq : l₁ ≡ l₂} {l₁-lit : Level-literal l₁} →
+    size-of-Level (subst Level-literal eq l₁-lit) ≡
+    size-of-Level l₁-lit
+  size-of-Level-subst {eq = refl} = refl
+
+opaque
+  unfolding wk-Level-literal
+
+  -- The function size-of-Level is not affected by applications of the
+  -- forward direction of wk-Level-literal.
+
+  size-of-Level-wk-Level-literal :
+    {t-lit : Level-literal t} →
+    size-of-Level (wk-Level-literal {ρ = ρ} .proj₁ t-lit) ≡
+    size-of-Level t-lit
+  size-of-Level-wk-Level-literal {t} {ρ} {t-lit} =
+    size-of-Level
+      (subst Level-literal (sym $ wk≡subst _ _) $
+       Level-literal-[] t-lit)                     ≡⟨ size-of-Level-subst ⟩
+
+    size-of-Level (Level-literal-[] t-lit)         ≡⟨ size-of-Level-Level-literal-[] ⟩
+
+    size-of-Level t-lit                            ∎
+
+opaque
+  unfolding Level-literal-supᵘₗ′⇔
+
+  -- A lemma relating size-of-Level, Level-literal-supᵘₗ′⇔ and _⊔_.
+
+  size-of-Level-Level-literal-supᵘₗ′⇔ :
+    {l₁-lit : Level-literal l₁}
+    {l₂-lit : Level-literal l₂} →
+    size-of-Level (Level-literal-supᵘₗ′⇔ .proj₂ (l₁-lit , l₂-lit)) ≡
+    size-of-Level l₁-lit ⊔ size-of-Level l₂-lit
+  size-of-Level-Level-literal-supᵘₗ′⇔ {l₁-lit} {l₂-lit} =
+    size-of-Level
+      (PE.subst Level-literal (PE.sym (supᵘₗ′≡↓ᵘ⊔ l₁-lit l₂-lit))
+         Level-literal-↓ᵘ)                                         ≡⟨ size-of-Level-subst ⟩
+
+    size-of-Level
+      (Level-literal-↓ᵘ
+         {m = size-of-Level l₁-lit ⊔ size-of-Level l₂-lit})        ≡⟨ size-of-Level-Level-literal-↓ᵘ ⟩
+
+    size-of-Level l₁-lit ⊔ size-of-Level l₂-lit                    ∎
+
+opaque
+
+  -- A substitution lemma for _supᵘₗ′_.
+
+  supᵘₗ′-[] :
+    Level-literal l₁ → Level-literal l₂ →
+    l₁ supᵘₗ′ l₂ [ σ ] ≡ (l₁ [ σ ]) supᵘₗ′ (l₂ [ σ ])
+  supᵘₗ′-[] {l₁} {l₂} {σ} l₁-lit l₂-lit =
+    l₁ supᵘₗ′ l₂ [ σ ]                                        ≡⟨ cong _[ _ ] $ supᵘₗ′≡↓ᵘ⊔ _ _ ⟩
+
+    (↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)) [ σ ]  ≡⟨ ↓ᵘ-[] ⟩
+
+    ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)          ≡˘⟨ cong₂ (λ l₁ l₂ → ↓ᵘ (l₁ ⊔ l₂))
+                                                                    size-of-Level-Level-literal-[]
+                                                                    size-of-Level-Level-literal-[] ⟩
+    ↓ᵘ
+      (size-of-Level (Level-literal-[] l₁-lit) ⊔
+       size-of-Level (Level-literal-[] l₂-lit))               ≡˘⟨ supᵘₗ′≡↓ᵘ⊔ _ _ ⟩
+
+    (l₁ [ σ ]) supᵘₗ′ (l₂ [ σ ])                              ∎
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- A weakening lemma for _supᵘₗ′_.
+
+  wk-supᵘₗ′ : wk ρ (l₁ supᵘₗ′ l₂) ≡ wk ρ l₁ supᵘₗ′ wk ρ l₂
+  wk-supᵘₗ′ {ρ} {l₁} {l₂}
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes (l₁-lit , l₂-lit) =
+    wk ρ (↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit))  ≡˘⟨ cong (wk _) $ supᵘₗ′≡↓ᵘ⊔ _ _ ⟩
+    wk ρ (l₁ supᵘₗ′ l₂)                                      ≡⟨ wk≡subst _ _ ⟩
+    l₁ supᵘₗ′ l₂ [ toSubst ρ ]                               ≡⟨ supᵘₗ′-[] l₁-lit l₂-lit ⟩
+    (l₁ [ toSubst ρ ]) supᵘₗ′ (l₂ [ toSubst ρ ])             ≡˘⟨ cong₂ _supᵘₗ′_ (wk≡subst _ _) (wk≡subst _ _) ⟩
+    wk ρ l₁ supᵘₗ′ wk ρ l₂                                   ∎
+  … | no not-both =
+    wk ρ l₁ supᵘ   wk ρ l₂  ≡˘⟨ supᵘₗ′≡supᵘ (not-both ∘→ Σ.map (wk-Level-literal .proj₂) (wk-Level-literal .proj₂)) ⟩
+    wk ρ l₁ supᵘₗ′ wk ρ l₂  ∎

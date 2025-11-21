@@ -23,9 +23,9 @@ open import Definition.Typed.Well-formed R
 open import Tools.Product
 
 private variable
-  Γ       : Cons _ _
-  A t u v : Term _
-  s       : Strength
+  Γ         : Cons _ _
+  A l t u v : Term _
+  s         : Strength
 
 opaque
 
@@ -41,8 +41,9 @@ opaque
   []-congⱼ′ :
     let open Erased s in
     []-cong-allowed s →
+    Γ ⊢ l ∷Level →
     Γ ⊢ v ∷ Id A t u →
-    Γ ⊢ []-cong s A t u v ∷ Id (Erased A) ([ t ]) ([ u ])
-  []-congⱼ′ ok ⊢v =
-    let _ , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
-    []-congⱼ (wf-⊢∷ ⊢t) ⊢t ⊢u ⊢v ok
+    Γ ⊢ []-cong s l A t u v ∷ Id (Erased l A) ([ t ]) ([ u ])
+  []-congⱼ′ ok ⊢l ⊢v =
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
+    []-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok

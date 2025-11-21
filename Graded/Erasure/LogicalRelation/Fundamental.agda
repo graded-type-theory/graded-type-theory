@@ -38,16 +38,20 @@ open import Graded.Mode 𝕄
 open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Properties M
 open import Definition.Typed.EqRelInstance TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Weakening TR hiding (wk)
 open import Definition.Typed.Weakening.Definition TR
+open import Definition.Typed.Well-formed TR
 
 import Graded.Erasure.LogicalRelation
 open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
+import Graded.Erasure.LogicalRelation.Fundamental.Level
+import Graded.Erasure.LogicalRelation.Fundamental.Lift
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
@@ -160,6 +164,8 @@ module Fundamental
 
   open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
   open Graded.Erasure.LogicalRelation.Fundamental.Identity as
+  open Graded.Erasure.LogicalRelation.Fundamental.Level as
+  open Graded.Erasure.LogicalRelation.Fundamental.Lift as
   open Graded.Erasure.LogicalRelation.Fundamental.Nat as
   open Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma UR as
   open Graded.Erasure.LogicalRelation.Fundamental.Unit as
@@ -181,10 +187,25 @@ module Fundamental
       Names< n t → γ ▸ Γ ⊩ʳ t ∷[ m ∣ n ] A
     fundamental′ {m = 𝟘ᵐ} ⊢t _ _ =
       ▸⊩ʳ∷[𝟘ᵐ]
-    fundamental′ (Uⱼ _) _ _ =
-      Uʳ
-    fundamental′ (ΠΣⱼ _ _ _) _ _ =
-      ΠΣʳ
+    fundamental′ (Levelⱼ ⊢Γ _) _ _ =
+      Levelʳ (⊢zeroᵘ ⊢Γ)
+    fundamental′ (zeroᵘⱼ ok _) _ _ =
+      zeroᵘʳ ok
+    fundamental′ (sucᵘⱼ ⊢l) _ _ =
+      sucᵘʳ (inversion-Level-⊢ (wf-⊢∷ ⊢l))
+    fundamental′ (supᵘⱼ ⊢l _) _ _ =
+      supᵘʳ (inversion-Level-⊢ (wf-⊢∷ ⊢l))
+    fundamental′ (Uⱼ ⊢t) _ _ =
+      Uʳ ⊢t
+    fundamental′ (Liftⱼ ⊢l₁ ⊢l₂ _) _ _ =
+      Liftʳ (⊢supᵘₗ ⊢l₁ ⊢l₂)
+    fundamental′ (liftⱼ ⊢t _ ⊢u) ▸lift (lift <n) =
+      let ▸u = inv-usage-lift ▸lift in
+      liftʳ ⊢t ⊢u (fundamental′ ⊢u ▸u <n)
+    fundamental′ (lowerⱼ ⊢t) ▸lower (lower <n) =
+      lowerʳ (fundamental′ ⊢t (inv-usage-lower ▸lower) <n)
+    fundamental′ (ΠΣⱼ ⊢t _ _ _) _ _ =
+      ΠΣʳ ⊢t
     fundamental′ (ℕⱼ _) _ _ =
       ℕʳ
     fundamental′ (Emptyⱼ _) _ _ =
@@ -212,7 +233,7 @@ module Fundamental
       wk wk₀ t ® T.wk wk₀ (erase s t) ∷ wk wk₀ A ◂ ⌜ m ⌝  →⟨ ®∷◂-⇐* (⇒*→⇛ (redMany (δ-red well-formed α↦t∈ PE.refl PE.refl)))
                                                                (T.trans (T.δ-red α↦erase-t) T.refl) ⟩
 
-      defn α ® T.defn α ∷ wk wk₀ A ◂ ⌜ m ⌝                ≡⟨ PE.cong (_ ® _ ∷_◂ _) $ PE.sym $ wk₀-subst-invariant _ ⟩→
+      defn α ® T.defn α ∷ wk wk₀ A ◂ ⌜ m ⌝                ≡⟨ PE.cong (_ ® _ ∷_◂ _) $ PE.sym wk-wk₀-[]≡ ⟩→
 
       defn α ® T.defn α ∷ wk wk₀ A [ σ ] ◂ ⌜ m ⌝          □
     fundamental′ (lamⱼ _ ⊢t ok) ▸lam (lam <n) =
@@ -305,15 +326,15 @@ module Fundamental
     fundamental′
       {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u ok) γ▸ur (unitrec _ <n₂ <n₃) =
       case inv-usage-unitrec γ▸ur of λ
-        (invUsageUnitrec δ▸t η▸u _ ok′ γ≤pδ+η) →
+        (invUsageUnitrec _ δ▸t η▸u ok′ γ≤pδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
       unitrecʳ ⊢A ⊢t ⊢u (fundamental′ ⊢t δ▸t <n₂)
         (fundamental′ ⊢u η▸u <n₃)
         (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
            (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
            (inj₂ k≡0) → inj₁ (k≡0 , PE.sym (glassify-idem _)))
-    fundamental′ (Idⱼ _ _ _) _ _ =
-      Idʳ
+    fundamental′ (Idⱼ ⊢A _ _) _ _ =
+      Idʳ (inversion-U-Level (wf-⊢∷ ⊢A))
     fundamental′ (rflⱼ ⊢t) _ _ =
       rflʳ ⊢t
     fundamental′ {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J (J _ _ _ <n₄ _ <n₆) =
@@ -402,12 +423,12 @@ module Fundamental
                (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) $
           Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _) (fundamental′ ⊢u ▸u <n₄)
             (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental′ ⊢v ▸v <n₅))
-    fundamental′ ([]-congⱼ _ _ _ ⊢v ok) _ _ =
+    fundamental′ ([]-congⱼ ⊢l _ _ _ ⊢v ok) _ _ =
       []-congʳ
         (case closed-or-no-erased-matches of λ where
            (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
            (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _))
-        ⊢v ok
+        ⊢l ⊢v ok
     fundamental′ (conv ⊢t A≡B) γ▸t <n =
       conv-▸⊩ʳ∷ A≡B (fundamental′ ⊢t γ▸t <n)
 

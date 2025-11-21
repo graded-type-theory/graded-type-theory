@@ -26,18 +26,17 @@ open import Graded.Erasure.Extraction 𝕄
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Level
-open import Tools.List using (List)
+import Tools.Level as L
 open import Tools.Nat
 open import Tools.Product
-open import Tools.PropositionalEquality as PE using (_≡_)
+import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 
 private
   variable
     m n : Nat
-    A B t t₁ t′ u : U.Term n
+    A B t t₁ t′ u u′ : U.Term n
     v v₂ v′ w : T.Term n
     p : M
     s : Strength
@@ -45,13 +44,12 @@ private
 ------------------------------------------------------------------------
 -- The logical relation
 
--- In the non-strict setting terms of type U are related to all target
--- terms, and in the strict setting they are related to those terms
--- that reduce to ↯. (All types are erased by the extraction
--- function.)
+-- In the non-strict setting terms of type U or Level are related to
+-- all target terms, and in the strict setting they are related to
+-- those terms that reduce to ↯.
 
-data _®_∷U (t : U.Term k) (v : T.Term k) : Set a where
-  Uᵣ : (str ≡ strict → vs T.⊢ v ⇒* ↯) → t ® v ∷U
+data _®_∷U/Level (t : U.Term k) (v : T.Term k) : Set a where
+  U/Levelᵣ : (str PE.≡ strict → vs T.⊢ v ⇒* ↯) → t ® v ∷U/Level
 
 -- Terms of type ℕ are related if both reduce to zero or if both
 -- reduce to the successors of related terms (in the strict setting
@@ -70,11 +68,11 @@ data _®_∷Empty (t : U.Term k) (v : T.Term k) : Set a where
 
 -- Terms of type Unit are related if both reduce to star.
 
-data _®_∷Unit⟨_,_⟩
-  (t : U.Term k) (v : T.Term k) (s : Strength) (l : Universe-level) :
+data _®_∷Unit⟨_⟩
+  (t : U.Term k) (v : T.Term k) (s : Strength) :
   Set a where
-  starᵣ : t ⇛ U.star s l ∷ Unit s l → vs T.⊢ v ⇒* T.star →
-          t ® v ∷Unit⟨ s , l ⟩
+  starᵣ : t ⇛ U.star s ∷ Unit s → vs T.⊢ v ⇒* T.star →
+          t ® v ∷Unit⟨ s ⟩
 
 -- Equality proofs are related in the non-strict setting if the source
 -- term reduces to rfl. In the strict setting the target term should
@@ -83,7 +81,7 @@ data _®_∷Unit⟨_,_⟩
 data _®_∷Id⟨_⟩⟨_⟩⟨_⟩
        (t : U.Term k) (v : T.Term k) (Ty lhs rhs : U.Term k) :
        Set a where
-  rflᵣ : t ⇛ U.rfl ∷ Id Ty lhs rhs → (str ≡ strict → vs T.⊢ v ⇒* ↯) →
+  rflᵣ : t ⇛ U.rfl ∷ Id Ty lhs rhs → (str PE.≡ strict → vs T.⊢ v ⇒* ↯) →
          t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
 
 mutual
@@ -93,15 +91,17 @@ mutual
 
   _®_∷_/_ : (t : U.Term k) (v : T.Term k)
             (A : U.Term k) ([A] : ts » Δ ⊨ A) → Set a
-  t ® v ∷ A / Uᵣ x         = t ® v ∷U
-  t ® v ∷ A / ℕᵣ x         = t ® v ∷ℕ
-  t ® v ∷ A / Emptyᵣ x     = t ® v ∷Empty
-  t ® v ∷ A / Unitᵣ {s} ⊨A = t ® v ∷Unit⟨ s , ⊨A ._⊨Unit⟨_⟩_.l ⟩
-  t ® v ∷ A / ne _         = Lift a ⊥
+  t ® v ∷ _ / Levelᵣ _          = t ® v ∷U/Level
+  t ® v ∷ _ / Uᵣ _              = t ® v ∷U/Level
+  t ® v ∷ _ / Liftᵣ′ {Ty} _ ⊩Ty = lower t ® v ∷ Ty / ⊩Ty
+  t ® v ∷ A / ℕᵣ x              = t ® v ∷ℕ
+  t ® v ∷ A / Emptyᵣ x          = t ® v ∷Empty
+  t ® v ∷ A / Unitᵣ {s} ⊨A      = t ® v ∷Unit⟨ s ⟩
+  t ® v ∷ A / ne _              = L.Lift a ⊥
 
   -- Π:
   t ® v ∷ A / Bᵣ′ BMΠ p q F G D [F] [G] =
-    (str ≡ strict → ∃ λ v′ → vs T.⊢ v ⇒* T.lam v′) ×
+    (str PE.≡ strict → ∃ λ v′ → vs T.⊢ v ⇒* T.lam v′) ×
     (∀ {a} → (⊢a : ts » Δ ⊢ a ∷ F) →
      Π-® F G t a v [F] ([G] ⊢a) p (is-𝟘? p))
 
@@ -156,7 +156,7 @@ mutual
   Σ-® F [F] t₁ v v₂ p = case is-𝟘? p of λ where
     -- Erased Σ:
     -- v reduces to v₂
-    (yes p≡𝟘) → Lift a (vs T.⊢ v ⇒* v₂)
+    (yes p≡𝟘) → L.Lift a (vs T.⊢ v ⇒* v₂)
     -- There is a term v₁ such that v reduces to (v₁, v₂)
     -- and t₁ is related to v₁.
     (no p≢𝟘) → ∃ λ v₁ → (vs T.⊢ v ⇒* T.prod v₁ v₂)
@@ -201,7 +201,7 @@ opaque
             → vs T.⊢ v ⇒* v₂ → p PE.≡ 𝟘
             → Σ-® F [F] t₁ v v₂ p
 Σ-®-intro-𝟘 {p = p} v⇒v₂ p≡𝟘 with is-𝟘? p
-... | yes _ = lift v⇒v₂
+... | yes _ = L.lift v⇒v₂
 ... | no p≢𝟘 = ⊥-elim (p≢𝟘 p≡𝟘)
 
 Σ-®-intro-ω : ∀ {F [F] t₁ v v₂ p}
@@ -222,7 +222,7 @@ opaque
             t₁ ® v₁ ∷ F / [F] → p PE.≢ 𝟘 → P p)
          → P p
 Σ-®-elim {p = p} P extra f g with is-𝟘? p
-Σ-®-elim {p = p} P (lift v⇒v₂) f g | yes p≡𝟘 = f v⇒v₂ p≡𝟘
+Σ-®-elim {p = p} P (L.lift v⇒v₂) f g | yes p≡𝟘 = f v⇒v₂ p≡𝟘
 Σ-®-elim {p = p} P (v₁ , v⇒v₁,v₂ , t₁®v₁) f g | no p≢𝟘 = g v₁ v⇒v₁,v₂ t₁®v₁ p≢𝟘
 
 opaque

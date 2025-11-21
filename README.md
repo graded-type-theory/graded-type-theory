@@ -1,7 +1,10 @@
-# An Agda Formalization of a Graded Modal Type Theory with a Universe Hierarchy, Erasure and Opaque Definitions
+# An Agda Formalization of a Graded Modal Type Theory with Erasure, First-Class Universe Levels and Opaque Definitions
 
-This formalization originated as a fork of [logrel-mltt](https://github.com/mr-ohman/logrel-mltt).
-The original work consisted of the following contributions:
+## Project history
+
+This formalization originated as a fork of
+[logrel-mltt](https://github.com/mr-ohman/logrel-mltt). That work
+consisted of the following contributions:
 
 - _A Logical Relation for Martin-Löf Type Theory in Agda_, code mostly
   written by Joakim Öhman (@mr-ohman) in 2016 as part of a master's
@@ -9,7 +12,7 @@ The original work consisted of the following contributions:
   (@andreasabel).
 
   That development is described in the article _Decidability of
-  Conversion for Type Theory in Type Theory_ by Andreas Abel, Joakim
+  Conversion for Type Theory in Type Theory_, Andreas Abel, Joakim
   Öhman and Andrea Vezzosi, _Proceedings of the ACM on Programming
   Languages_, Volume 2, Issue POPL, 2017
   ([doi:10.1145/3158111](https://doi.org/10.1145/3158111)).
@@ -20,23 +23,29 @@ The original work consisted of the following contributions:
 
 - The code was refactored to use well-scoped syntax by Oskar Eriksson (@oskeri, 2021).
 
-This work lifts the original formalization to graded modal type
-theory. It is the basis of the paper _A Graded Modal Type Theory with
-a Universe and Erasure, Formalized_ by Andreas Abel, Nils Anders
-Danielsson and Oskar Eriksson, _Proceedings of the ACM on Programming
-Languages_, Volume 7, Issue ICFP, 2023
-([doi:10.1145/3607862](https://doi.org/10.1145/3607862)).
+The formalization was lifted to graded modal type theory: this is the
+basis of the paper _A Graded Modal Type Theory with a Universe and
+Erasure, Formalized_, Andreas Abel, Nils Anders Danielsson and Oskar
+Eriksson, _Proceedings of the ACM on Programming Languages_, Volume 7,
+Issue ICFP, 2023
+([doi:10.1145/3607862](https://doi.org/10.1145/3607862)). See also
+[README.Graded-type-theory](README/Graded-type-theory.agda).
 
-The present version of the code contains changes made after
-publication of the ICFP paper, see [README.Graded-type-theory](README/Graded-type-theory.agda). Some
-highlights:
+Later other additions were made. Some highlights:
 
 - Identity types were added by Nils Anders Danielsson (@nad, 2023).
 
 - A weak unit type was added by Oskar Eriksson (@oskeri, 2023).
 
-- A universe hierarchy was added by Nils Anders Danielsson and Ondřej
-  Kubánek (@nad and @kubaneko, 2024).
+- A universe hierarchy with first-class universe levels was added by
+  Nils Anders Danielsson, Naïm Camille Favier and Ondřej Kubánek
+  (@nad, @ncfavier and @kubaneko, 2024-2025), see
+  [README.First-class-universe-levels](README/First-class-universe-levels.lagda.md)
+  for more details. This addition is also described in the paper
+  _Normalisation for First-Class Universe Levels_, Nils Anders
+  Danielsson, Naïm Camille Favier and Ondřej Kubánek, _Proceedings of
+  the ACM on Programming Languages_, Volume 10, Issue POPL, 2026
+  ([doi:10.1145/3776645](https://doi.org/10.1145/3776645)).
 
 - Top-level definitions and opacity were added by Nils Anders
   Danielsson and Eve Geng (@nad and @phantamanta44, 2025), see
@@ -48,7 +57,7 @@ highlights:
   '25)_, 2025
   ([doi:10.1145/3759538.3759653](https://doi.org/10.1145/3759538.3759653)).
 
-### Dependencies ###
+## Dependencies ##
 
 This project is written in Agda. It uses an Agda feature that, at the
 time of writing, has not yet been released

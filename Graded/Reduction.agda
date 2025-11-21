@@ -82,30 +82,31 @@ opaque
     open ≤ᶜ-reasoning
 
     Γ′ : Con Term 1
-    Γ′ = ε ∙ Unitʷ 0
+    Γ′ = ε ∙ Unitʷ
 
     γ′ : Conₘ 1
     γ′ = ε ∙ 𝟙
 
     A′ t′ u′ : Term 1
     A′ = ℕ
-    t′ = unitrec 0 𝟙 𝟘 ℕ (var x0) zero
+    t′ = unitrec 𝟙 𝟘 ℕ (var x0) zero
     u′ = zero
 
     ⊢Γ′ : ε »⊢ Γ′
-    ⊢Γ′ = ∙ Unitⱼ (ε ε) ok
+    ⊢Γ′ = ∙ ⊢Unit εε ok
 
     t′⇒u′ : ε » Γ′ ⊢ t′ ⇒ u′ ∷ A′
     t′⇒u′ =
-      unitrec-β-η (ℕⱼ (∙ Unitⱼ ⊢Γ′ ok)) (var₀ (Unitⱼ (ε ε) ok))
+      unitrec-β-η (⊢ℕ (∙ ⊢Unit ⊢Γ′ ok)) (var₀ (⊢Unit εε ok))
         (zeroⱼ ⊢Γ′) ok η
 
     ▸t′ : γ′ ▸[ 𝟙ᵐ ] t′
     ▸t′ = sub
-      (unitrecₘ var zeroₘ
+      (unitrecₘ
          (sub ℕₘ $ begin
             𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
             𝟘ᶜ                ∎)
+         var zeroₘ
          unitrec-ok)
       (begin
          ε ∙ 𝟙                  ≈˘⟨ ε ∙ ·⌜⌞⌟⌝ ⟩
@@ -333,13 +334,13 @@ module _
     in  sub (emptyrecₘ (usagePresTerm (▸-ᵐ· ∘→ ▸∇) δ▸t t⇒u) η▸A ok) γ≤δ
 
   usagePresTerm ▸∇ γ▸ur (unitrec-subst x x₁ t⇒t′ _ _) =
-    let invUsageUnitrec δ▸t η▸u θ▸A ok γ≤γ′ = inv-usage-unitrec γ▸ur
+    let invUsageUnitrec θ▸A δ▸t η▸u ok γ≤γ′ = inv-usage-unitrec γ▸ur
         δ▸t′ = usagePresTerm (▸-ᵐ· ∘→ ▸∇) δ▸t t⇒t′
-    in  sub (unitrecₘ δ▸t′ η▸u θ▸A ok) γ≤γ′
+    in  sub (unitrecₘ θ▸A δ▸t′ η▸u ok) γ≤γ′
 
 
   usagePresTerm {γ} _ γ▸ur (unitrec-β {p = p} x x₁ _ _) =
-    let invUsageUnitrec {δ = δ} {η = η} δ▸t η▸u θ▸A ok γ≤γ′ =
+    let invUsageUnitrec {γ₃ = δ} {γ₄ = η} θ▸A δ▸t η▸u ok γ≤γ′ =
           inv-usage-unitrec γ▸ur
         δ≤𝟘 = inv-usage-starʷ δ▸t
     in  sub η▸u (begin
@@ -354,7 +355,7 @@ module _
   usagePresTerm
     {m} {γ} _ γ▸ur (unitrec-β-η {u} {p} _ _ _ Unit-ok η-ok) =
     case inv-usage-unitrec γ▸ur of λ
-      (invUsageUnitrec {δ} {η} _ η▸u _ unitrec-ok γ≤pδ+η) →
+      (invUsageUnitrec {γ₃ = δ} {γ₄ = η} _ _ η▸u unitrec-ok γ≤pδ+η) →
     case PE.singleton m of λ where
       (𝟘ᵐ , PE.refl) →                               $⟨ η▸u ⟩
         η ▸[ 𝟘ᵐ ] u                                  →⟨ proj₂ ∘→ ▸[𝟘ᵐ]⇔ .proj₁ ⟩
@@ -398,10 +399,11 @@ module _
         (K₀ₘ₂ ok ▸A ▸t ▸B ▸u (usagePresTerm (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v v⇒v′))
         γ≤
 
-  usagePresTerm ▸∇ γ▸ ([]-cong-subst _ _ _ v⇒v′ _) =
+  usagePresTerm ▸∇ γ▸ ([]-cong-subst _ v⇒v′ _) =
     case inv-usage-[]-cong γ▸ of
-      λ (invUsage-[]-cong ▸A ▸t ▸u ▸v ok γ≤) →
-    sub ([]-congₘ ▸A ▸t ▸u (usagePresTerm (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v v⇒v′) ok)
+      λ (invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok γ≤) →
+    sub
+      ([]-congₘ ▸l ▸A ▸t ▸u (usagePresTerm (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v v⇒v′) ok)
       γ≤
 
   usagePresTerm {γ} _ γ▸ (J-β _ _ _ _ _ _) =
@@ -452,10 +454,40 @@ module _
     where
     open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-  usagePresTerm _ γ▸ ([]-cong-β _ _ _ _ _) =
+  usagePresTerm _ γ▸ ([]-cong-β _ _ _) =
     case inv-usage-[]-cong γ▸ of
-      λ (invUsage-[]-cong _ _ _ _ _ γ≤) →
+      λ (invUsage-[]-cong _ _ _ _ _ _ γ≤) →
     sub rflₘ γ≤
+
+  usagePresTerm ▸∇ γ▸ (supᵘ-substˡ t⇒t′ _) =
+    case inv-usage-supᵘ γ▸ of λ (_ , _ , γ≤ , ▸t , ▸u) →
+      sub (supᵘₘ (usagePresTerm ▸∇ ▸t t⇒t′) ▸u) γ≤
+  usagePresTerm ▸∇ γ▸ (supᵘ-substʳ _ u⇒u′) =
+    case inv-usage-supᵘ γ▸ of λ (_ , _ , γ≤ , ▸t , ▸u) →
+      sub (supᵘₘ ▸t (usagePresTerm ▸∇ ▸u u⇒u′)) γ≤
+  usagePresTerm {γ} _ γ▸ (supᵘ-zeroˡ _) =
+    case inv-usage-supᵘ γ▸ of λ (δ , η , γ≤ , ▸zeroᵘ , ▸u) →
+      sub ▸u (begin
+        γ       ≤⟨ γ≤ ⟩
+        δ +ᶜ η  ≤⟨ +ᶜ-monotoneˡ (inv-usage-zeroᵘ ▸zeroᵘ) ⟩
+        𝟘ᶜ +ᶜ η ≈⟨ +ᶜ-identityˡ η ⟩
+        η       ∎)
+      where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usagePresTerm {γ} _ γ▸ (supᵘ-zeroʳ _) =
+    case inv-usage-supᵘ γ▸ of λ (δ , η , γ≤ , ▸u , ▸zeroᵘ) →
+      sub ▸u (begin
+        γ       ≤⟨ γ≤ ⟩
+        δ +ᶜ η  ≤⟨ +ᶜ-monotoneʳ (inv-usage-zeroᵘ ▸zeroᵘ) ⟩
+        δ +ᶜ 𝟘ᶜ ≈⟨ +ᶜ-identityʳ δ ⟩
+        δ       ∎)
+      where open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
+  usagePresTerm {γ} _ γ▸ (supᵘ-sucᵘ _ _) =
+    case inv-usage-supᵘ γ▸ of λ (δ , η , γ≤ , ▸t , ▸u) →
+      sub (sucᵘₘ (supᵘₘ (inv-usage-sucᵘ ▸t) (inv-usage-sucᵘ ▸u))) γ≤
+  usagePresTerm {γ} ▸∇ γ▸ (lower-subst t⇒t′) =
+    lowerₘ (usagePresTerm ▸∇ (inv-usage-lower γ▸) t⇒t′)
+  usagePresTerm {γ} _ γ▸ (Lift-β _ _) =
+    inv-usage-lift (inv-usage-lower γ▸)
 
   -- Type reduction preserves usage (for well-resourced definition
   -- contexts).
@@ -484,7 +516,7 @@ module _
 -- Some results related to η-long normal forms
 
 -- Note that reduction does not include η-expansion (for WHNFs, see
--- no-η-expansion-Unitˢ and no-η-expansion-Σˢ in
+-- no-η-expansion-Unitˢ, no-η-expansion-Σˢ and no-η-expansion-Lift in
 -- Definition.Typed.Properties). In Graded.FullReduction it is proved
 -- that a well-resourced term has a well-resourced η-long normal form,
 -- *given certain assumptions*. Here it is proved that, given certain
@@ -512,11 +544,11 @@ Well-resourced-normal-form-without-η-long-normal-form =
 η-long-nf-for-0⇔sink⊎𝟙≤𝟘 :
   Unit-allowed s →
   Unit-with-η s →
-  let Γ = ε ∙ Unit s 0
+  let Γ = ε ∙ Unit s
       γ = ε ∙ 𝟙
-      A = Unit s 0
+      A = Unit s
       t = var x0
-      u = star s 0
+      u = star s
   in
   ε » Γ ⊢ t ∷ A ×
   γ ▸[ 𝟙ᵐ ] t ×
@@ -526,7 +558,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
 η-long-nf-for-0⇔sink⊎𝟙≤𝟘 {s} ok η =
     ⊢0
   , var
-  , starₙ (∙ ⊢Unit) ok
+  , starₙ (∙ ε⊢Unit) ok
   , sym′ (Unit-η-≡ η ⊢0)
   , (λ ▸* →
        let open Tools.Reasoning.PartialOrder ≤-poset in
@@ -559,8 +591,8 @@ Well-resourced-normal-form-without-η-long-normal-form =
            ε ∙ 𝟙  ≤⟨ ε ∙ 𝟙≤𝟘 ⟩
            ε ∙ 𝟘  ∎)
   where
-  ⊢Unit = Unitⱼ (ε ε) ok
-  ⊢0    = var₀ ⊢Unit
+  ε⊢Unit = ⊢Unit εε ok
+  ⊢0     = var₀ ε⊢Unit
 
 -- If "Π 𝟙 , q" is allowed, and Unit s is allowed and comes with
 -- η-equality, then the identity function lam 𝟙 (var x0) has type
@@ -574,9 +606,9 @@ Well-resourced-normal-form-without-η-long-normal-form =
   Π-allowed 𝟙 q →
   Unit-allowed s →
   Unit-with-η s →
-  let A = Π 𝟙 , q ▷ Unit s 0 ▹ Unit s 0
+  let A = Π 𝟙 , q ▷ Unit s ▹ Unit s
       t = lam 𝟙 (var x0)
-      u = lam 𝟙 (star s 0)
+      u = lam 𝟙 (star s)
   in
   ε » ε ⊢ t ∷ A ×
   ε ▸[ 𝟙ᵐ ] t ×
@@ -604,11 +636,12 @@ Well-resourced-normal-form-without-η-long-normal-form =
 -- The type Well-resourced-normal-form-without-η-long-normal-form is
 -- inhabited if Unit s is allowed and comes with η-equality, s is 𝕨 or
 -- Unitˢ is not allowed to be used as a sink, 𝟙 is not bounded by 𝟘,
--- Π-allowed 𝟙 q holds for some q, and equality reflection is not
--- allowed.
+-- Π-allowed 𝟙 q holds for some q, and Level and equality reflection
+-- are not allowed.
 
 well-resourced-normal-form-without-η-long-normal-form-Unit :
   ⦃ not-ok : No-equality-reflection ⦄ →
+  ¬ Level-allowed →
   ¬ 𝟙 ≤ 𝟘 →
   s PE.≡ 𝕨 ⊎ ¬ Starˢ-sink →
   Unit-allowed s →
@@ -616,7 +649,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit :
   Π-allowed 𝟙 q →
   Well-resourced-normal-form-without-η-long-normal-form
 well-resourced-normal-form-without-η-long-normal-form-Unit
-  {s} 𝟙≰𝟘 ok₁ ok₂ ok₃ ok₄ =
+  {s} not-ok 𝟙≰𝟘 ok₁ ok₂ ok₃ ok₄ =
   case η-long-nf-for-id⇔sink⊎𝟙≤𝟘 ok₄ ok₂ ok₃ of λ
     (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
     _ , _
@@ -626,7 +659,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
   , λ (v , ⊢v , t≡v , ▸v) →
                                      $⟨ ▸v ⟩
       ε ▸[ 𝟙ᵐ ] v                    →⟨ PE.subst (_▸[_]_ _ _) $
-                                        normal-terms-unique ⊢v ⊢u (trans (sym′ t≡v) t≡u) ⟩
+                                        normal-terms-unique not-ok ⊢v ⊢u (trans (sym′ t≡v) t≡u) ⟩
       ε ▸[ 𝟙ᵐ ] lam 𝟙 star!          →⟨ ▸u→ ⟩
       s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘  →⟨ (λ where
                                            (inj₂ 𝟙≤𝟘)              → 𝟙≰𝟘 𝟙≤𝟘
@@ -660,7 +693,7 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
 η-long-nf-for-0⇔≡𝟙⊎≡𝟘 {p = p} ok =
     ⊢0
   , var
-  , prodₙ (ℕⱼ ε∙Σℕℕ∙ℕ)
+  , prodₙ (⊢ℕ ε∙Σℕℕ∙ℕ)
       (neₙ ℕₙ (fstₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here)))
       (neₙ ℕₙ (sndₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here)))
       ok
@@ -671,9 +704,9 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
      (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)  □⇔)
   where
   u′      = prodˢ p (fst p (var x0)) (snd p (var x0))
-  ⊢Σℕℕ    = ΠΣⱼ (ℕⱼ (∙ ℕⱼ (ε ε))) ok
-  ε∙Σℕℕ∙ℕ = ∙ ℕⱼ (∙ ⊢Σℕℕ)
-  Σℕℕ∙ℕ⊢ℕ = ℕⱼ ε∙Σℕℕ∙ℕ
+  ⊢Σℕℕ    = ΠΣⱼ (⊢ℕ (∙ ⊢ℕ εε)) ok
+  ε∙Σℕℕ∙ℕ = ∙ ⊢ℕ (∙ ⊢Σℕℕ)
+  Σℕℕ∙ℕ⊢ℕ = ⊢ℕ ε∙Σℕℕ∙ℕ
   ⊢0      = var₀ ⊢Σℕℕ
 
   lemma₁ : ε ∙ 𝟙 ▸[ 𝟙ᵐ ] u′ ⇔ (𝟙 ≤ p × (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙))
@@ -758,8 +791,8 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
   u′ = prodˢ p (fst p (var x0)) (snd p (var x0))
 
 -- The type Well-resourced-normal-form-without-η-long-normal-form is
--- inhabited if equality reflection is not allowed and there are
--- quantities p, q and r such that
+-- inhabited if Level and equality reflection are not allowed and
+-- there are quantities p, q and r such that
 -- * p is distinct from 𝟙,
 -- * "p is 𝟘 and 𝟘ᵐ is allowed and 𝟙 ≤ 𝟘" does not hold,
 -- * Σˢ-allowed p q holds, and
@@ -767,13 +800,14 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
 
 well-resourced-normal-form-without-η-long-normal-form-Σˢ :
   ⦃ not-ok : No-equality-reflection ⦄ →
+  ¬ Level-allowed →
   p ≢ 𝟙 →
   ¬ (p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘) →
   Σˢ-allowed p q →
   Π-allowed 𝟙 r →
   Well-resourced-normal-form-without-η-long-normal-form
 well-resourced-normal-form-without-η-long-normal-form-Σˢ
-  {p = p} p≢𝟙 ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] ok₁ ok₂ =
+  {p} not-ok p≢𝟙 ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] ok₁ ok₂ =
   case η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok₂ ok₁ of λ {
     (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
     _ , _
@@ -782,7 +816,7 @@ well-resourced-normal-form-without-η-long-normal-form-Σˢ
   , ▸t
   , λ (v , ⊢v , t≡v , ▸v) →                                        $⟨ ▸v ⟩
       ε ▸[ 𝟙ᵐ ] v                                                  →⟨ PE.subst (_▸[_]_ _ _) $
-                                                                      normal-terms-unique ⊢v ⊢u (trans (sym′ t≡v) t≡u) ⟩
+                                                                      normal-terms-unique not-ok ⊢v ⊢u (trans (sym′ t≡v) t≡u) ⟩
       ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
       p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                   →⟨ (λ { (inj₁ p≡𝟙) → p≢𝟙 p≡𝟙; (inj₂ hyp) → ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] hyp }) ⟩
       ⊥                                                            □ }

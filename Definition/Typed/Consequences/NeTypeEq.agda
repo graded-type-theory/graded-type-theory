@@ -19,6 +19,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
@@ -62,6 +63,11 @@ neTypeEq (defn α↦⊘) (defn ⊢Γ α↦∷A PE.refl) (defn _ α↦∷B PE.ref
     PE.refl → refl (W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦∷A (defn-wf ⊢Γ)))
 neTypeEq (var ok x) (var x₁ x₂) (var x₃ x₄) =
   varTypeEq (syntacticTerm (var x₃ x₂)) (syntacticTerm (var x₃ x₄)) x₂ x₄
+neTypeEq (supᵘˡₙ _) (supᵘⱼ ⊢t _) (supᵘⱼ _ _) =
+  refl (wf-⊢∷ ⊢t)
+neTypeEq (supᵘʳₙ _) (supᵘⱼ ⊢t _) (supᵘⱼ _ _) =
+  refl (wf-⊢∷ ⊢t)
+neTypeEq (lowerₙ x) (lowerⱼ y) (lowerⱼ z) = Lift-injectivity (neTypeEq x y z) .proj₂
 neTypeEq (∘ₙ neT) (t∷A ∘ⱼ t∷A₁) (t∷B ∘ⱼ t∷B₁) with neTypeEq neT t∷A t∷B
 ... | q = ΠΣ-injectivity q .proj₂ .proj₁ (refl t∷A₁)
 neTypeEq (fstₙ neP) (fstⱼ _ ⊢t) (fstⱼ _ ⊢t′) with neTypeEq neP ⊢t ⊢t′
@@ -83,8 +89,10 @@ neTypeEq (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w
 neTypeEq (Kₙ _) (Kⱼ ⊢B _ ⊢v _) (Kⱼ _ _ _ _) =
   refl (substType ⊢B ⊢v)
-neTypeEq ([]-congₙ _) ([]-congⱼ _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _) =
-  refl (Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢u))
+neTypeEq
+  ([]-congₙ _) ([]-congⱼ ⊢l _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _ _) =
+  refl $
+  Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢u)
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q
 neTypeEq x t∷A (conv t∷B x₃) = let q = neTypeEq x t∷A t∷B

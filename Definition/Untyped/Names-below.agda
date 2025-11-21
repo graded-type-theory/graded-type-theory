@@ -12,16 +12,15 @@ open import Tools.Nat
 open import Tools.Relation
 
 private variable
-  α k m n       : Nat
-  x             : Fin _
-  ∇             : DCon (Term 0) _
-  ρ             : Wk _ _
-  σ             : Subst _ _
-  A B C t u v w : Term _
-  l             : Universe-level
-  b             : BinderMode
-  s             : Strength
-  p q r         : M
+  α k m n               : Nat
+  x                     : Fin _
+  ∇                     : DCon (Term 0) _
+  ρ                     : Wk _ _
+  σ                     : Subst _ _
+  A B C l l₁ l₂ t u v w : Term _
+  b                     : BinderMode
+  s                     : Strength
+  p q r                 : M
 
 ------------------------------------------------------------------------
 -- Names< and some related definitions
@@ -33,19 +32,33 @@ data Names< (m : Nat) : Term n → Set a where
     Names< m (var x)
   defn :
     α < m → Names< m {n = n} (defn α)
+  Level :
+    Names< m {n = n} Level
+  zeroᵘ :
+    Names< m {n = n} zeroᵘ
+  sucᵘ :
+    Names< m l → Names< m (sucᵘ l)
+  supᵘ :
+    Names< m l₁ → Names< m l₂ → Names< m (l₁ supᵘ l₂)
   U :
-    Names< m {n = n} (U l)
+    Names< m l → Names< m (U l)
+  Lift :
+    Names< m l → Names< m A → Names< m (Lift l A)
+  lift :
+    Names< m t → Names< m (lift t)
+  lower :
+    Names< m t → Names< m (lower t)
   Empty :
     Names< m {n = n} Empty
   emptyrec :
     Names< m A → Names< m t → Names< m (emptyrec p A t)
   Unit :
-    Names< m {n = n} (Unit s l)
+    Names< m {n = n} (Unit s)
   star :
-    Names< m {n = n} (star s l)
+    Names< m {n = n} (star s)
   unitrec :
     Names< m A → Names< m t → Names< m u →
-    Names< m (unitrec l p q A t u)
+    Names< m (unitrec p q A t u)
   ΠΣ :
     Names< m A → Names< m B → Names< m (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   lam :
@@ -81,8 +94,8 @@ data Names< (m : Nat) : Term n → Set a where
     Names< m A → Names< m t → Names< m B → Names< m u → Names< m v →
     Names< m (K p A t B u v)
   []-cong :
-    Names< m A → Names< m t → Names< m u → Names< m v →
-    Names< m ([]-cong s A t u v)
+    Names< m l → Names< m A → Names< m t → Names< m u → Names< m v →
+    Names< m ([]-cong s l A t u v)
 
 -- No-names t means that there are no names in t.
 
@@ -106,8 +119,22 @@ opaque
     var
   Names<-wk (defn <n) =
     defn <n
-  Names<-wk U =
-    U
+  Names<-wk Level =
+    Level
+  Names<-wk zeroᵘ =
+    zeroᵘ
+  Names<-wk (sucᵘ <n) =
+    sucᵘ (Names<-wk <n)
+  Names<-wk (supᵘ <n₁ <n₂) =
+    supᵘ (Names<-wk <n₁) (Names<-wk <n₂)
+  Names<-wk (U <n) =
+    U (Names<-wk <n)
+  Names<-wk (Lift <n₁ <n₂) =
+    Lift (Names<-wk <n₁) (Names<-wk <n₂)
+  Names<-wk (lift <n) =
+    lift (Names<-wk <n)
+  Names<-wk (lower <n) =
+    lower (Names<-wk <n)
   Names<-wk Empty =
     Empty
   Names<-wk (emptyrec <n₁ <n₂) =
@@ -151,9 +178,9 @@ opaque
   Names<-wk (K <n₁ <n₂ <n₃ <n₄ <n₅) =
     K (Names<-wk <n₁) (Names<-wk <n₂) (Names<-wk <n₃)
       (Names<-wk <n₄) (Names<-wk <n₅)
-  Names<-wk ([]-cong <n₁ <n₂ <n₃ <n₄) =
+  Names<-wk ([]-cong <n₁ <n₂ <n₃ <n₄ <n₅) =
     []-cong (Names<-wk <n₁) (Names<-wk <n₂) (Names<-wk <n₃)
-      (Names<-wk <n₄)
+      (Names<-wk <n₄) (Names<-wk <n₅)
 
 opaque
 
@@ -164,17 +191,31 @@ opaque
     var
   Names<-wk→ {t = defn _} (defn <n) =
     defn <n
-  Names<-wk→ {t = U _} U =
-    U
+  Names<-wk→ {t = Level} _ =
+    Level
+  Names<-wk→ {t = zeroᵘ} _ =
+    zeroᵘ
+  Names<-wk→ {t = sucᵘ _} (sucᵘ <n) =
+    sucᵘ (Names<-wk→ <n)
+  Names<-wk→ {t = _ supᵘ _} (supᵘ <n₁ <n₂) =
+    supᵘ (Names<-wk→ <n₁) (Names<-wk→ <n₂)
+  Names<-wk→ {t = U _} (U <n) =
+    U (Names<-wk→ <n)
+  Names<-wk→ {t = Lift _ _} (Lift <n₁ <n₂) =
+    Lift (Names<-wk→ <n₁) (Names<-wk→ <n₂)
+  Names<-wk→ {t = lift _} (lift <n) =
+    lift (Names<-wk→ <n)
+  Names<-wk→ {t = lower _} (lower <n) =
+    lower (Names<-wk→ <n)
   Names<-wk→ {t = Empty} Empty =
     Empty
   Names<-wk→ {t = emptyrec _ _ _} (emptyrec <n₁ <n₂) =
     emptyrec (Names<-wk→ <n₁) (Names<-wk→ <n₂)
-  Names<-wk→ {t = Unit _ _} Unit =
+  Names<-wk→ {t = Unit _} Unit =
     Unit
-  Names<-wk→ {t = star _ _} star =
+  Names<-wk→ {t = star _} star =
     star
-  Names<-wk→ {t = unitrec _ _ _ _ _ _} (unitrec <n₁ <n₂ <n₃) =
+  Names<-wk→ {t = unitrec _ _ _ _ _} (unitrec <n₁ <n₂ <n₃) =
     unitrec (Names<-wk→ <n₁) (Names<-wk→ <n₂) (Names<-wk→ <n₃)
   Names<-wk→ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} (ΠΣ <n₁ <n₂) =
     ΠΣ (Names<-wk→ <n₁) (Names<-wk→ <n₂)
@@ -209,9 +250,9 @@ opaque
   Names<-wk→ {t = K _ _ _ _ _ _} (K <n₁ <n₂ <n₃ <n₄ <n₅) =
     K (Names<-wk→ <n₁) (Names<-wk→ <n₂) (Names<-wk→ <n₃)
       (Names<-wk→ <n₄) (Names<-wk→ <n₅)
-  Names<-wk→ {t = []-cong _ _ _ _ _} ([]-cong <n₁ <n₂ <n₃ <n₄) =
+  Names<-wk→ {t = []-cong _ _ _ _ _ _} ([]-cong <n₁ <n₂ <n₃ <n₄ <n₅) =
     []-cong (Names<-wk→ <n₁) (Names<-wk→ <n₂) (Names<-wk→ <n₃)
-      (Names<-wk→ <n₄)
+      (Names<-wk→ <n₄) (Names<-wk→ <n₅)
 
 ------------------------------------------------------------------------
 -- Substitution lemmas
@@ -258,8 +299,22 @@ opaque
     σ-<n _
   Names<-[] (defn <n) _ =
     defn <n
-  Names<-[] U _ =
-    U
+  Names<-[] Level _ =
+    Level
+  Names<-[] zeroᵘ _ =
+    zeroᵘ
+  Names<-[] (sucᵘ l-<n) σ-<n =
+    sucᵘ (Names<-[] l-<n σ-<n)
+  Names<-[] (supᵘ l₁-<n l₂-<n) σ-<n =
+    supᵘ (Names<-[] l₁-<n σ-<n) (Names<-[] l₂-<n σ-<n)
+  Names<-[] (U l-<n) σ-<n =
+    U (Names<-[] l-<n σ-<n)
+  Names<-[] (Lift l-<n A-<n) σ-<n =
+    Lift (Names<-[] l-<n σ-<n) (Names<-[] A-<n σ-<n)
+  Names<-[] (lift t-<n) σ-<n =
+    lift (Names<-[] t-<n σ-<n)
+  Names<-[] (lower t-<n) σ-<n =
+    lower (Names<-[] t-<n σ-<n)
   Names<-[] Empty _ =
     Empty
   Names<-[] (emptyrec A-<n t-<n) σ-<n =
@@ -308,9 +363,9 @@ opaque
     K (Names<-[] A-<n σ-<n) (Names<-[] t-<n σ-<n)
       (Names<-[] B-<n (Names<ˢ-⇑ σ-<n)) (Names<-[] u-<n σ-<n)
       (Names<-[] v-<n σ-<n)
-  Names<-[] ([]-cong A-<n t-<n u-<n v-<n) σ-<n =
-    []-cong (Names<-[] A-<n σ-<n) (Names<-[] t-<n σ-<n)
-      (Names<-[] u-<n σ-<n) (Names<-[] v-<n σ-<n)
+  Names<-[] ([]-cong l-<n A-<n t-<n u-<n v-<n) σ-<n =
+    []-cong (Names<-[] l-<n σ-<n) (Names<-[] A-<n σ-<n)
+      (Names<-[] t-<n σ-<n) (Names<-[] u-<n σ-<n) (Names<-[] v-<n σ-<n)
 
 opaque
 
@@ -338,17 +393,31 @@ opaque
     var
   Names<-[]→ {t = defn _} (defn <n) =
     defn <n
-  Names<-[]→ {t = U _} U =
-    U
+  Names<-[]→ {t = Level} _ =
+    Level
+  Names<-[]→ {t = zeroᵘ} _ =
+    zeroᵘ
+  Names<-[]→ {t = sucᵘ _} (sucᵘ <n) =
+    sucᵘ (Names<-[]→ <n)
+  Names<-[]→ {t = _ supᵘ _} (supᵘ <n₁ <n₂) =
+    supᵘ (Names<-[]→ <n₁) (Names<-[]→ <n₂)
+  Names<-[]→ {t = U _} (U <n) =
+    U (Names<-[]→ <n)
+  Names<-[]→ {t = Lift _ _} (Lift <n₁ <n₂) =
+    Lift (Names<-[]→ <n₁) (Names<-[]→ <n₂)
+  Names<-[]→ {t = lift _} (lift <n) =
+    lift (Names<-[]→ <n)
+  Names<-[]→ {t = lower _} (lower <n) =
+    lower (Names<-[]→ <n)
   Names<-[]→ {t = Empty} Empty =
     Empty
   Names<-[]→ {t = emptyrec _ _ _} (emptyrec <n₁ <n₂) =
     emptyrec (Names<-[]→ <n₁) (Names<-[]→ <n₂)
-  Names<-[]→ {t = Unit _ _} Unit =
+  Names<-[]→ {t = Unit _} Unit =
     Unit
-  Names<-[]→ {t = star _ _} star =
+  Names<-[]→ {t = star _} star =
     star
-  Names<-[]→ {t = unitrec _ _ _ _ _ _} (unitrec <n₁ <n₂ <n₃) =
+  Names<-[]→ {t = unitrec _ _ _ _ _} (unitrec <n₁ <n₂ <n₃) =
     unitrec (Names<-[]→ <n₁) (Names<-[]→ <n₂) (Names<-[]→ <n₃)
   Names<-[]→ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} (ΠΣ <n₁ <n₂) =
     ΠΣ (Names<-[]→ <n₁) (Names<-[]→ <n₂)
@@ -383,6 +452,17 @@ opaque
   Names<-[]→ {t = K _ _ _ _ _ _} (K <n₁ <n₂ <n₃ <n₄ <n₅) =
     K (Names<-[]→ <n₁) (Names<-[]→ <n₂) (Names<-[]→ <n₃)
       (Names<-[]→ <n₄) (Names<-[]→ <n₅)
-  Names<-[]→ {t = []-cong _ _ _ _ _} ([]-cong <n₁ <n₂ <n₃ <n₄) =
+  Names<-[]→ {t = []-cong _ _ _ _ _ _} ([]-cong <n₁ <n₂ <n₃ <n₄ <n₅) =
     []-cong (Names<-[]→ <n₁) (Names<-[]→ <n₂) (Names<-[]→ <n₃)
-      (Names<-[]→ <n₄)
+      (Names<-[]→ <n₄) (Names<-[]→ <n₅)
+
+------------------------------------------------------------------------
+-- Another lemma
+
+opaque
+
+  -- If l is a level literal, then Names< n holds for l.
+
+  Level-literal→Names< : Level-literal l → Names< n l
+  Level-literal→Names< zeroᵘ        = zeroᵘ
+  Level-literal→Names< (sucᵘ l-lit) = sucᵘ (Level-literal→Names< l-lit)

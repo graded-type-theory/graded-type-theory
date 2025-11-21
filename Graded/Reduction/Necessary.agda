@@ -52,11 +52,10 @@ open import Tools.Relation
 
 private variable
   n i : Nat
-  l : Universe-level
   Γ : Cons _ _
   Δ : Con Term _
   γ δ η θ : Conₘ _
-  t u v z s k A B : Term _
+  t u v z s k l A B : Term _
   m : Mode
   p q r : M
   ρ : Wk _ _
@@ -84,11 +83,11 @@ record Usage-relation : Set (lsuc a) where
     varₘ : (𝟘ᶜ , x ≔ ⌜ m ⌝) ▸[ m ] var x
     zeroₘ : 𝟘ᶜ {n = n} ▸[ m ] zero
     sucₘ : γ ▸[ m ] t → γ ▸[ m ] suc t
-    starʷₘ : 𝟘ᶜ {n = n} ▸[ m ] starʷ l
+    starʷₘ : 𝟘ᶜ {n = n} ▸[ m ] starʷ
     prodʷₘ : γ ▸[ m ᵐ· p ] t → δ ▸[ m ] u → p ·ᶜ γ +ᶜ δ ▸[ m ] prodʷ p t u
-    Uₘ : 𝟘ᶜ {n = n} ▸[ m ] U l
+    Uₘ : 𝟘ᶜ {n = n} ▸[ m ] U zeroᵘ
     ℕₘ : 𝟘ᶜ {n = n} ▸[ m ] ℕ
-    Unitʷₘ : 𝟘ᶜ {n = n} ▸[ m ] Unitʷ l
+    Unitʷₘ : 𝟘ᶜ {n = n} ▸[ m ] Unitʷ
     Σʷₘ : γ ▸[ m ᵐ· p ] A → δ ∙ ⌜ m ⌝ · q ▸[ m ] B → γ +ᶜ δ ▸[ m ] Σʷ p , q ▷ A ▹ B
     sub : γ ▸[ m ] t → δ ≤ᶜ γ → δ ▸[ m ] t
 
@@ -100,7 +99,7 @@ record Usage-relation : Set (lsuc a) where
     inv-usage-suc :
       γ ▸[ m ] suc t → ∃ λ δ → δ ▸[ m ] t × γ ≤ᶜ δ
     inv-usage-starʷ :
-      γ ▸[ m ] starʷ l → γ ≤ᶜ 𝟘ᶜ
+      γ ▸[ m ] starʷ → γ ≤ᶜ 𝟘ᶜ
     inv-usage-prodʷ :
       γ ▸[ m ] prodʷ p t u →
       ∃₂ λ δ η → δ ▸[ m ᵐ· p ] t × η ▸[ m ] u × γ ≤ᶜ p ·ᶜ δ +ᶜ η
@@ -193,10 +192,10 @@ record Usage-relation-unitrec : Set (lsuc a) where
     f : M → M
     g : M → Conₘ n → Conₘ n
     unitrecₘ :
-      γ ▸[ m ᵐ· p ] t → δ ▸[ m ] u →
       η ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+      γ ▸[ m ᵐ· p ] t → δ ▸[ m ] u →
       Unitrec-allowed m p q →
-      f p ·ᶜ γ +ᶜ g p δ ▸[ m ] unitrec l p q A t u
+      f p ·ᶜ γ +ᶜ g p δ ▸[ m ] unitrec p q A t u
 
 record Usage-relation-prodrec : Set (lsuc a) where
   no-eta-equality
@@ -237,7 +236,7 @@ module _
       ; sucₘ = U.sucₘ
       ; starʷₘ = U.starʷₘ
       ; prodʷₘ = U.prodʷₘ
-      ; Uₘ = U.Uₘ
+      ; Uₘ = U.Uₘ U.zeroᵘₘ
       ; ℕₘ = U.ℕₘ
       ; Unitʷₘ = U.Unitₘ
       ; Σʷₘ = U.ΠΣₘ
@@ -310,7 +309,7 @@ private
     -- A term with a given best usage context.
 
     sink : Conₘ n → Term n
-    sink ε = starʷ 0
+    sink ε = starʷ
     sink (γ ∙ p) = prodʷ p (var x0) (wk1 (sink γ))
 
   opaque
@@ -318,7 +317,7 @@ private
 
     -- sink for the empty context is the unit element.
 
-    sink-ε-≡ : sink ε PE.≡ starʷ 0
+    sink-ε-≡ : sink ε PE.≡ starʷ
     sink-ε-≡ = PE.refl
 
   opaque
@@ -334,7 +333,7 @@ private
     -- The type of sink under a given typing context.
 
     Sink : Con Term n → Conₘ n → Term n
-    Sink ε ε = Unitʷ 0
+    Sink ε ε = Unitʷ
     Sink (Γ ∙ A) (γ ∙ p) = Σʷ p , 𝟘 ▷ wk1 A ▹ wk₂ (Sink Γ γ)
 
   opaque
@@ -342,7 +341,7 @@ private
 
     -- Sink for the empty context is the unit type.
 
-    Sink-ε-≡ : Sink ε ε PE.≡ Unitʷ 0
+    Sink-ε-≡ : Sink ε ε PE.≡ Unitʷ
     Sink-ε-≡ = PE.refl
 
   opaque
@@ -369,7 +368,7 @@ private
     ⊢-Sink :
       ⊢ Γ → Sink-allowed γ → Γ ⊢ Sink (Γ .vars) γ
     ⊢-Sink {γ = ε} (ε »d) ok =
-      ⊢-cong (Unitⱼ (ε »d) ok) (PE.sym Sink-ε-≡)
+      ⊢-cong (⊢Unit (ε »d) ok) (PE.sym Sink-ε-≡)
     ⊢-Sink {γ = γ ∙ p} (∙ ⊢A) (ok₁ , ok₂) =
       ⊢-cong
         (ΠΣⱼ (W.wk (stepʷ (step id) (W.wk (stepʷ id ⊢A) ⊢A)) (⊢-Sink (wf ⊢A) ok₁)) ok₂)
@@ -409,19 +408,20 @@ private
 
     ⊢Γᴺ : ⊢ (Γᴺ {n = n})
     ⊢Γᴺ {n = 0} = εε
-    ⊢Γᴺ {n = 1+ n} = ∙ ℕⱼ ⊢Γᴺ
+    ⊢Γᴺ {n = 1+ n} = ∙ ⊢ℕ ⊢Γᴺ
 
   opaque
     unfolding Sink-allowed
 
-    -- Sink is a well-formed term of type U 0 under Γᴺ.
+    -- Sink is a well-formed term of type U zeroᵘ under Γᴺ.
 
-    ⊢∷-Sink-Γᴺ : Sink-allowed γ → Γᴺ ⊢ Sink Δᴺ γ ∷ U 0
+    ⊢∷-Sink-Γᴺ : Sink-allowed γ → Γᴺ ⊢ Sink Δᴺ γ ∷ U zeroᵘ
     ⊢∷-Sink-Γᴺ {γ = ε} ok =
       ⊢∷-cong (Unitⱼ εε ok) (PE.sym Sink-ε-≡)
     ⊢∷-Sink-Γᴺ {γ = γ ∙ p} (ok₁ , ok₂) =
       ⊢∷-cong
-        (ΠΣⱼ (ℕⱼ ⊢Γᴺ) (wkTerm (stepʷ (step id) (ℕⱼ ⊢Γᴺ)) (⊢∷-Sink-Γᴺ ok₁)) ok₂)
+        (ΠΣⱼ (⊢zeroᵘ ⊢Γᴺ) (ℕⱼ ⊢Γᴺ)
+           (wkTerm (stepʷ (step id) (⊢ℕ ⊢Γᴺ)) (⊢∷-Sink-Γᴺ ok₁)) ok₂)
         (PE.sym Sink-∙-≡)
 
 ------------------------------------------------------------------------
@@ -608,7 +608,7 @@ module Natrec₁
     opaque
       unfolding Z
 
-      ⊢Z : Γᴺ ⊢ Z γ ∷ U 0
+      ⊢Z : Γᴺ ⊢ Z γ ∷ U zeroᵘ
       ⊢Z = ⊢∷-Sink-Γᴺ Sink-ok
 
     opaque
@@ -665,28 +665,37 @@ module Natrec₁
     opaque
       unfolding S
 
-      ⊢S : Γᴺ »∙ U l ⊢ S p r δ ∷ U l
+      ⊢S : Γᴺ »∙ U zeroᵘ ⊢ S p r δ ∷ U zeroᵘ
       ⊢S =
-        let ⊢x0 = var₀ (Uⱼ ⊢Γᴺ)
-        in  ΠΣⱼ ⊢x0
-             (ΠΣⱼ (ℕⱼ (∙ univ ⊢x0))
-               (wkTerm (stepʷ (step (step (step (step id)))) (ℕⱼ (∙ (univ ⊢x0))))
-                 (⊢∷-Sink-Γᴺ Sink-ok))
+        let ⊢x0 = var₀ (⊢U₀ ⊢Γᴺ)
+            ⊢U0 = ⊢U₀ (∙ ⊢ℕ (∙ ⊢ℕ ⊢Γᴺ))
+        in
+        ΠΣⱼ (⊢zeroᵘ (∙ ⊢U0)) ⊢x0
+             (ΠΣⱼ (⊢zeroᵘ (∙ univ (var₀ ⊢U0))) (ℕⱼ (∙ univ ⊢x0))
+               (wkTerm (ʷ⊇-drop (∙ ⊢ℕ (∙ (univ ⊢x0))))
+                  (⊢∷-Sink-Γᴺ Sink-ok))
                Σ-ok)
              Σ-ok
 
     opaque
 
-      ⊢S₀ : Γᴺ »∙ U l ⊢ Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 4 ]′ (Sink Δᴺ δ)) ∷ U l
-      ⊢S₀ {l} =
-        PE.subst (Γᴺ »∙ U l ⊢_∷ U l) S₀≡
+      ⊢S₀ :
+        Γᴺ »∙ U zeroᵘ ⊢
+        Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 4 ]′ (Sink Δᴺ δ)) ∷
+        U zeroᵘ
+      ⊢S₀ =
+        PE.subst (Γᴺ »∙ U zeroᵘ ⊢_∷ U zeroᵘ) S₀≡
           (subst-⊢∷-⇑ {k = 2} ⊢S (⊢ˢʷ∷-sgSubst (zeroⱼ ⊢Γᴺ)))
 
     opaque
 
-      ⊢S₊ : Γᴺ ⊢ A → Γᴺ »∙ A »∙ ℕ »∙ U l ⊢ Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ)) ∷ U l
-      ⊢S₊ {A} {l} ⊢A =
-        PE.subst (Γᴺ »∙ A »∙ ℕ »∙ U l ⊢_∷ _) S₊≡
+      ⊢S₊ :
+        Γᴺ ⊢ A →
+        Γᴺ »∙ A »∙ ℕ »∙ U zeroᵘ ⊢
+        Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ)) ∷
+        U zeroᵘ
+      ⊢S₊ {A} ⊢A =
+        PE.subst (Γᴺ »∙ A »∙ ℕ »∙ U zeroᵘ ⊢_∷ _) S₊≡
           (subst-⊢∷-⇑ {k = 2} ⊢S (→⊢ˢʷ∷∙ (⊢ˢʷ∷-wkSubst (∙ ⊢A) (⊢ˢʷ∷-idSubst ⊢Γᴺ))
             (sucⱼ (var₁ ⊢A))))
 
@@ -715,17 +724,18 @@ module Natrec₁
       -- A term used in the proofs below.
 
       α : (p r : M) (γ δ : Conₘ n) → Term (1+ n)
-      α p r γ δ = natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) (wk1 (Z γ)) (S p r δ) (var x0)
+      α p r γ δ =
+        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U zeroᵘ) (wk1 (Z γ)) (S p r δ) (var x0)
 
     opaque
       unfolding α
 
       α₀≡ :
         α p r γ δ [ zero ]₀ PE.≡
-        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) (Sink Δᴺ γ)
+        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U zeroᵘ) (Sink Δᴺ γ)
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 4 ]′ (Sink Δᴺ δ))) zero
       α₀≡ {p} {r} {γ} {δ} =
-        PE.cong₂ (λ x y → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) x y zero)
+        PE.cong₂ (λ x y → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U zeroᵘ) x y zero)
           Z₀≡ S₀≡
 
     opaque
@@ -733,21 +743,23 @@ module Natrec₁
 
       α₊≡ :
         α p r γ δ [ suc (var x1) ]↑² PE.≡
-        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) (wk₂ (Sink Δᴺ γ))
+        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U zeroᵘ) (wk₂ (Sink Δᴺ γ))
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ))) (suc (var x1))
       α₊≡ {r} =
-        PE.cong₂ (λ x y → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) x y (suc (var x1))) Z₊≡ S₊≡
+        PE.cong₂
+          (λ x y → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U zeroᵘ) x y (suc (var x1)))
+          Z₊≡ S₊≡
 
     opaque
       unfolding α Z S
 
       wk1α≡ :
         wk1 (α p r γ δ) PE.≡
-        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) (wk₂ (Sink Δᴺ γ))
+        natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U zeroᵘ) (wk₂ (Sink Δᴺ γ))
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ)))
           (var x1)
       wk1α≡ {r} =
-        PE.cong₂ (λ z s → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U 0) z s (var x1))
+        PE.cong₂ (λ z s → natrec 𝟘 𝟘 ⌜ ⌞ r ⌟ ⌝ (U zeroᵘ) z s (var x1))
           (wk-comp _ _ _)
           (PE.cong (λ x → Σʷ r , 𝟘 ▷ _ ▹ (Σʷ _ , 𝟘 ▷ _ ▹ x)) (wk-comp _ _ _))
 
@@ -755,7 +767,8 @@ module Natrec₁
       unfolding α
 
       ⊢α : Γᴺ ⊢ α p r γ δ
-      ⊢α = univ (natrecⱼ (wkTerm (stepʷ id (ℕⱼ ⊢Γᴺ)) ⊢Z) ⊢S (var ⊢Γᴺ here))
+      ⊢α =
+        univ (natrecⱼ (wkTerm (stepʷ id (⊢ℕ ⊢Γᴺ)) ⊢Z) ⊢S (var ⊢Γᴺ here))
 
     opaque
       unfolding α
@@ -818,9 +831,11 @@ module Natrec₁
         let ⊢α′ = ⊢α {p = p} {r = r} {γ = γ} {δ = δ}
             ⊢δ = wkTerm (stepʷ (step id) ⊢α′) (⊢∷-sink ⊢Γᴺ Sink-ok)
             ⊢δ′ = ⊢∷-conv-PE ⊢δ (PE.sym (step-sgSubst (Sink Δᴺ _) (var x1)))
-            ⊢Sink = W.wk (stepʷ (step (step (step id))) (ℕⱼ (∙ W.wk (stepʷ id ⊢α′) ⊢α′)))
+            ⊢Sink = W.wk
+                      (stepʷ (step (step (step id)))
+                         (⊢ℕ (∙ W.wk (stepʷ id ⊢α′) ⊢α′)))
                       (⊢-Sink ⊢Γᴺ Sink-ok)
-            ⊢Sink′ = W.wk (stepʷ (step (step id)) (ℕⱼ (∙ ⊢α′)))
+            ⊢Sink′ = W.wk (stepʷ (step (step id)) (⊢ℕ (∙ ⊢α′)))
                        (⊢-Sink ⊢Γᴺ Sink-ok)
             ⊢Z₊ = wkTerm (stepʷ (step id) ⊢α′) (⊢∷-Sink-Γᴺ Sink-ok)
             ⊢Σ = ΠΣⱼ ⊢Sink Σ-ok
@@ -832,7 +847,7 @@ module Natrec₁
             ≡⟨ PE.cong₂ (λ x y → Σʷ r , 𝟘 ▷ x ▹ Σʷ p , 𝟘 ▷ ℕ ▹ y) wk1α≡ lemma ⟩⊢≡
           Σʷ r , 𝟘 ▷ _ ▹ Σʷ p , 𝟘 ▷ ℕ ▹ _
             ≡˘⟨ univ (natrec-suc ⊢Z₊ (⊢S₊ ⊢α′) (var₁ ⊢α′))  ⟩⊢∎≡
-          natrec 𝟘 𝟘 _ (U 0) (wk₂ (Sink Δᴺ γ))
+          natrec 𝟘 𝟘 _ (U zeroᵘ) (wk₂ (Sink Δᴺ γ))
             (Σʷ r , 𝟘 ▷ var x0 ▹ Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ)) (suc (var x1))
               ≡˘⟨ α₊≡ ⟩
           α p r γ δ [ suc (var x1) ]↑² ∎)
@@ -1091,7 +1106,8 @@ module Natrec₁
 
         ≤-p+rf : γ ▸[ 𝟙ᵐ ] τ′ p r (suc (var x0)) → γ ≤ᶜ (ε ∙ p + r · f p r)
         ≤-p+rf {γ} {p} {r} ▸nr =
-          let ▸s = usagePresTerm (λ ()) ▸nr (natrec-suc ⊢ζ ⊢σ (var₀ (ℕⱼ εε)))
+          let ▸s = usagePresTerm (λ ()) ▸nr
+                     (natrec-suc ⊢ζ ⊢σ (var₀ (⊢ℕ εε)))
               γ₁ , γ₂ , ▸x0 , ▸nr′ , γ≤ = inv-usage-σ[,] ▸s
               δ₁ , δ₂ , δ₃ , _ , ▸ζ , _ , ▸x0′ , _ , γ₂≤ = inv-usage-natrec ▸nr′
               open ≤ᶜ-reasoning
@@ -1164,7 +1180,7 @@ module Unitrec
     opaque
 
       τ : M → Conₘ n → Term n
-      τ p δ = unitrec 0 p 𝟘 (wk1 (Sink Δᴺ δ)) (starʷ 0) (sink δ)
+      τ p δ = unitrec p 𝟘 (wk1 (Sink Δᴺ δ)) starʷ (sink δ)
 
     opaque
       unfolding τ
@@ -1172,7 +1188,7 @@ module Unitrec
       ▸τ : Unitrec-allowed 𝟙ᵐ p 𝟘 → g p γ ▸[ 𝟙ᵐ ] τ p γ
       ▸τ {p} {γ} ok =
         let ▸A = sub (wkUsage ▸Sink-Δᴺ) (≤ᶜ-refl {γ = 𝟘ᶜ} ∙ ≤-reflexive (·-zeroʳ _))
-        in  sub (unitrecₘ starʷₘ ▸¹sink ▸A ok) $ begin
+        in  sub (unitrecₘ ▸A starʷₘ ▸¹sink ok) $ begin
           g p γ              ≈˘⟨ +ᶜ-identityˡ _ ⟩
           𝟘ᶜ +ᶜ g p γ        ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
           f p ·ᶜ 𝟘ᶜ +ᶜ g p γ ∎
@@ -1185,7 +1201,8 @@ module Unitrec
 
       ▸τ→≤ : γ ▸[ m ] τ p δ → γ ≤ᶜ ⌜ m ⌝ ·ᶜ δ
       ▸τ→≤ ▸ur =
-        let ⊢A = W.wk (stepʷ id (Unitⱼ ⊢Γᴺ Unit-ok)) (⊢-Sink ⊢Γᴺ Sink-ok)
+        let ⊢A = W.wk (stepʷ id (⊢Unit ⊢Γᴺ Unit-ok))
+                   (⊢-Sink ⊢Γᴺ Sink-ok)
             ⊢u = ⊢∷-conv-PE (⊢∷-sink ⊢Γᴺ Sink-ok) (PE.sym (wk1-sgSubst _ _))
         in  case Unitʷ-η? of λ where
           (yes η) →
@@ -1243,7 +1260,7 @@ module Prodrec
 
       ⊢π : ⊢ Γ → Γ ⊢ π p γ ∷ Σʷ p , 𝟘 ▷ ℕ ▹ wk1 (Sink (Γ .vars) γ)
       ⊢π ⊢Γ =
-        let ⊢Sink = W.wk (stepʷ id (ℕⱼ ⊢Γ)) (⊢-Sink ⊢Γ Sink-ok)
+        let ⊢Sink = W.wk (stepʷ id (⊢ℕ ⊢Γ)) (⊢-Sink ⊢Γ Sink-ok)
             ⊢sink = ⊢∷-conv-PE (⊢∷-sink ⊢Γ Sink-ok) (PE.sym (wk1-sgSubst _ _))
         in  prodⱼ ⊢Sink (zeroⱼ ⊢Γ) ⊢sink Σ-ok
 
@@ -1293,7 +1310,11 @@ module Prodrec
 
       ⊢α : Γᴺ ⊢ A → Γᴺ »∙ A ⊢ α p r γ δ
       ⊢α ⊢A =
-        let ⊢Σ = ΠΣⱼ (W.wk (stepʷ (step id) (ℕⱼ (∙ ⊢A))) (⊢-Sink ⊢Γᴺ Sink-ok)) Σ-ok
+        let ⊢Σ =
+              ΠΣⱼ
+                (W.wk (stepʷ (step id) (⊢ℕ (∙ ⊢A)))
+                   (⊢-Sink ⊢Γᴺ Sink-ok))
+                Σ-ok
             ⊢Sink = W.wk (stepʷ (step id) ⊢Σ) (⊢-Sink ⊢Γᴺ Sink-ok)
         in  ΠΣⱼ ⊢Sink Σ-ok
 
@@ -1344,8 +1365,9 @@ module Prodrec
       ⊢υ :
         Γᴺ »∙ wk1 (Sink Δᴺ γ) ⊢ υ p r δ ∷ α p r γ δ [ prodʷ p (var x1) (var x0) ]↑²
       ⊢υ {γ} {p} {r} {δ} =
-        let ⊢Sinkγ = W.wk (stepʷ id (ℕⱼ ⊢Γᴺ)) (⊢-Sink ⊢Γᴺ Sink-ok)
-            ⊢Sinkγ′ = W.wk (stepʷ (step (step id)) (ℕⱼ (∙ ⊢Sinkγ))) (⊢-Sink ⊢Γᴺ Sink-ok)
+        let ⊢Sinkγ = W.wk (stepʷ id (⊢ℕ ⊢Γᴺ)) (⊢-Sink ⊢Γᴺ Sink-ok)
+            ⊢Sinkγ′ = W.wk (stepʷ (step (step id)) (⊢ℕ (∙ ⊢Sinkγ)))
+                        (⊢-Sink ⊢Γᴺ Sink-ok)
             ⊢Σ = ΠΣⱼ ⊢Sinkγ′ Σ-ok
             ⊢Sinkδ = W.wk (stepʷ (step (step id)) ⊢Σ) (⊢-Sink ⊢Γᴺ Sink-ok)
             ⊢x0 = ⊢∷-conv-PE (var₀ ⊢Sinkγ) (PE.trans wk[]≡wk[]′ (PE.sym (step-sgSubst (Sink Δᴺ γ) (var x1))))
@@ -1419,7 +1441,8 @@ module Prodrec
       ▸τ→≤ : η ▸[ m ] τ p r γ δ → η ≤ᶜ ⌜ m ⌝ ·ᶜ (r ·ᶜ γ +ᶜ δ)
       ▸τ→≤ {η} {m} {p} {r} {γ} {δ} ▸pr =
         let ⊢sink = ⊢∷-conv-PE (⊢∷-sink ⊢Γᴺ Sink-ok) (PE.sym (wk1-sgSubst _ zero))
-            ⊢Σ = ΠΣⱼ (W.wk (stepʷ id (ℕⱼ ⊢Γᴺ)) (⊢-Sink ⊢Γᴺ Sink-ok)) Σ-ok
+            ⊢Σ = ΠΣⱼ (W.wk (stepʷ id (⊢ℕ ⊢Γᴺ)) (⊢-Sink ⊢Γᴺ Sink-ok))
+                   Σ-ok
             ▸υ[,] = usagePresTerm (λ ()) ▸pr
                       (prodrec-β-⇒ (⊢α ⊢Σ) (zeroⱼ ⊢Γᴺ) ⊢sink ⊢υ)
             η₁ , η₂ , ▸0 , ▸γ , η≤ = inv-usage-υ[,] ▸υ[,]

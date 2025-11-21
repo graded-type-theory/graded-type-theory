@@ -18,9 +18,9 @@ open Type-restrictions TR
 open import Definition.Typed TR
 open import Definition.Typed.Decidable.Internal TR
 import Definition.Typed.Decidable.Internal.Context TR as C
-import Definition.Typed.Decidable.Internal.Term 𝕄 as I
-import Definition.Typed.Decidable.Internal.Substitution 𝕄 as S
-import Definition.Typed.Decidable.Internal.Weakening 𝕄 as W
+import Definition.Typed.Decidable.Internal.Term TR as I
+import Definition.Typed.Decidable.Internal.Substitution TR as S
+import Definition.Typed.Decidable.Internal.Weakening TR as W
 open import Definition.Typed.Inversion TR
 open import
   Definition.Typed.Properties.Admissible.Identity.Very-primitive TR
@@ -32,8 +32,10 @@ open import Definition.Typed.Weakening.Definition TR
 open import Definition.Typed.Well-formed TR
 
 open import Definition.Untyped M
-open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Identity 𝕄 as Id
 open import Definition.Untyped.Properties M
+
+open Id.Internal TR
 
 open import Tools.Bool
 open import Tools.Fin
@@ -66,7 +68,7 @@ opaque
     ε ∙⟨ tra ⟩[ zero ∷ ℕ ] » ε ⊢
       lam ω (lam ω (var x0) ∘⟨ ω ⟩ zero) ≡
       lam ω (defn 0) ∷
-      Π ω , ω ▷ Unit 𝕤 0 ▹ ℕ
+      Π ω , ω ▷ Unit 𝕤 ▹ ℕ
   let-α≡zero-in-λλ0∘zero≡λα ok₁ ok₂ =
     check-and-equal-cons-type-and-terms-sound
       (record (I.empty-Contexts false)
@@ -79,7 +81,7 @@ opaque
       (I.lam I.ω nothing $
        I.lam I.ω (just (I.ω , I.ℕ)) (I.var x0) I.∘⟨ I.ω ⟩ I.zero)
       (I.lam I.ω nothing (I.defn 0))
-      (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
+      (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 ▹ I.ℕ)
       10
       PE.refl
       (record
@@ -110,13 +112,12 @@ opaque
       » Δ ⊢
       lam ω (defn 1 ∘⟨ ω ⟩ zero) ≡
       lam ω (defn 0) ∷
-      Π ω , ω ▷ Unit 𝕤 0 ▹ ℕ
+      Π ω , ω ▷ Unit 𝕤 ▹ ℕ
   let-α≡zero-in-let-β≡λ0-in-λβ∙zero≡λα {Δ} ⊢Δ ok₁ ok₂ =
     check-and-equal-type-and-terms-sound
       {c = record { base-con-allowed = true }}
       (record
          { grades       = V.ε
-         ; levels       = V.ε
          ; strengths    = V.ε
          ; binder-modes = V.ε
          ; metas        = I.emptyᶜᵐ
@@ -132,7 +133,7 @@ opaque
            I.base)
       (I.lam I.ω nothing (I.defn 1 I.∘⟨ I.ω ⟩ I.zero))
       (I.lam I.ω nothing (I.defn 0))
-      (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
+      (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 ▹ I.ℕ)
       10
       PE.refl
       (record
@@ -190,7 +191,6 @@ opaque
       where
       c′ : I.Constants
       c′ .I.gs               = 1
-      c′ .I.ls               = 0
       c′ .I.ss               = 0
       c′ .I.bms              = 0
       c′ .I.ms               = 6
@@ -202,7 +202,6 @@ opaque
 
       γ′ : I.Contexts c′
       γ′ .I.grades              = p V.∷ V.ε
-      γ′ .I.levels              = V.ε
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
@@ -263,7 +262,6 @@ opaque
       where
       c′ : I.Constants
       c′ .I.gs               = 1
-      c′ .I.ls               = 0
       c′ .I.ss               = 0
       c′ .I.bms              = 0
       c′ .I.ms               = 6
@@ -275,7 +273,6 @@ opaque
 
       γ′ : I.Contexts c′
       γ′ .I.grades              = p V.∷ V.ε
-      γ′ .I.levels              = V.ε
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
@@ -358,7 +355,6 @@ opaque
       where
       c′ : I.Constants
       c′ .I.gs               = 1
-      c′ .I.ls               = 0
       c′ .I.ss               = 0
       c′ .I.bms              = 0
       c′ .I.ms               = 12
@@ -390,7 +386,6 @@ opaque
 
       γ′ : I.Contexts c′
       γ′ .I.grades              = p V.∷ V.ε
-      γ′ .I.levels              = V.ε
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ

@@ -157,40 +157,80 @@ wk₀ {n = 1+ n} = step wk₀
 
 -- Universe levels.
 
-Universe-level : Set
-Universe-level = Nat
+data Universe-level : Set where
+  0ᵘ+_ : Nat → Universe-level
+  ωᵘ : Universe-level
+
+0ᵘ : Universe-level
+0ᵘ = 0ᵘ+ 0
+
+1ᵘ : Universe-level
+1ᵘ = 0ᵘ+ 1
 
 -- The maximum of two universe levels.
 
 infixl 6 _⊔ᵘ_
 
 _⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
-_⊔ᵘ_ = flip Tools.Nat._⊔_
-
--- The definition above is set up so that l ⊔ᵘ 0 is definitionally
--- equal to l, with the intention to make it a little easier to work
--- with Erased.
-
-_ : l ⊔ᵘ 0 ≡ l
-_ = refl
+(0ᵘ+ m) ⊔ᵘ (0ᵘ+ n) = 0ᵘ+ (m Tools.Nat.⊔ n)
+(0ᵘ+ m) ⊔ᵘ ωᵘ      = ωᵘ
+ωᵘ      ⊔ᵘ n       = ωᵘ
 
 -- Ordering of universe levels.
 
 infix 4 _≤ᵘ_
 
-_≤ᵘ_ : (_ _ : Universe-level) → Set
-i ≤ᵘ j = i ≤′ j
+data _≤ᵘ_ : Universe-level → Universe-level → Set where
+  ≤ᵘ-fin : ∀ {l l′} → l ≤′ l′ → 0ᵘ+ l ≤ᵘ 0ᵘ+ l′
+  ≤ᵘ-ωᵘ  : ∀ {l} → l ≤ᵘ ωᵘ
 
-open Tools.Nat public
-  using ()
-  renaming (≤′-refl to ≤ᵘ-refl; ≤′-step to ≤ᵘ-step)
+≤ᵘ-refl : ∀ {l} → l ≤ᵘ l
+≤ᵘ-refl {0ᵘ+ x} = ≤ᵘ-fin ≤′-refl
+≤ᵘ-refl {(ωᵘ)} = ≤ᵘ-ωᵘ
 
 -- Strict ordering of universe levels.
 
 infix 4 _<ᵘ_
 
-_<ᵘ_ : (_ _ : Universe-level) → Set
-i <ᵘ j = i <′ j
+data _<ᵘ_ : Universe-level → Universe-level → Set where
+  <ᵘ-fin : ∀ {l l′} → l <′ l′ → 0ᵘ+ l <ᵘ 0ᵘ+ l′
+  <ᵘ-ωᵘ  : ∀ {l} → 0ᵘ+ l <ᵘ ωᵘ
+
+0ᵘ<ᵘ1ᵘ : 0ᵘ <ᵘ 1ᵘ
+0ᵘ<ᵘ1ᵘ = <ᵘ-fin ≤′-refl
+
+------------------------------------------------------------------------
+-- Level-support
+
+-- If Level is a type, is it small?
+
+data Level-small : Set where
+  small not-small : Level-small
+
+-- Is Level a type, and in that case is the type small?
+
+data Level-support : Set where
+  -- Only level literals are allowed. Level is not a type.
+  only-literals : Level-support
+  -- Level is a type.
+  level-type : Level-small → Level-support
+
+private variable
+  sm sm₁ sm₂ : Level-small
+
+-- An ordering relation for Level-small.
+
+infix 4 _≤LSm_
+
+data _≤LSm_ : Level-small → Level-small → Set where
+  not-small≤  : not-small ≤LSm sm
+  small≤small : small     ≤LSm small
+
+-- An ordering relation for Level-support.
+
+data _≤LS_ : Level-support → Level-support → Set where
+  only-literals≤ : only-literals ≤LS only-literals
+  level-type     : sm₁ ≤LSm sm₂ → level-type sm₁ ≤LS level-type sm₂
 
 ------------------------------------------------------------------------
 -- Definition contexts

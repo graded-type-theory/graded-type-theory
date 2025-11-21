@@ -38,8 +38,22 @@ private
     Γ : Cons m n
     p p′ q : M
     s s′ s₁ s₂ : Strength
-    l l₁ l₂ : Universe-level
-    A B t u : Term _
+    A B l l₁ l₂ t u : Term _
+
+opaque
+
+  -- A variant of inversion-lift.
+
+  inversion-lift-Lift :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ lift t ∷ Lift u A →
+    Γ ⊢ t ∷ A
+  inversion-lift-Lift ⊢lift =
+    case inversion-lift ⊢lift of λ
+      (_ , _ , ⊢t , Lift≡Lift) →
+    case Lift-injectivity Lift≡Lift of λ
+      (u≡u′ , A≡A′) →
+    conv ⊢t (sym A≡A′)
 
 opaque
 
@@ -134,13 +148,13 @@ opaque
 
   inversion-star-Unit :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    Γ ⊢ star s₁ l₁ ∷ Unit s₂ l₂ →
-    s₁ PE.≡ s₂ × l₁ PE.≡ l₂ × Unit-allowed s₁
+    Γ ⊢ star s₁ ∷ Unit s₂ →
+    s₁ PE.≡ s₂ × Unit-allowed s₁
   inversion-star-Unit ⊢star =
     let Unit≡Unit , Unit-ok = inversion-star ⊢star
-        eq₁ , eq₂           = Unit-injectivity (sym Unit≡Unit)
+        eq = Unit-injectivity (sym Unit≡Unit)
     in
-    eq₁ , eq₂ , Unit-ok
+    eq , Unit-ok
 
 opaque
 
@@ -170,8 +184,21 @@ opaque
       prodₙ
     (ne t-ne) →
       ne t-ne
+    Levelₙ →
+      ⊥-elim (U≢ΠΣⱼ (sym (inversion-Level ⊢t .proj₁)))
+    zeroᵘₙ →
+      ⊥-elim (Level≢ΠΣⱼ (sym (inversion-zeroᵘ ⊢t)))
+    sucᵘₙ →
+      let _ , A≡Level = inversion-sucᵘ ⊢t in
+      ⊥-elim (Level≢ΠΣⱼ (sym A≡Level))
     Uₙ →
       ⊥-elim (U≢ΠΣⱼ (sym (inversion-U ⊢t)))
+    Liftₙ →
+      let _ , _ , _ , B≡ = inversion-Lift∷ ⊢t
+      in ⊥-elim (U≢ΠΣⱼ (sym B≡))
+    liftₙ →
+      let _ , _ , _ , B≡Lift = inversion-lift ⊢t
+      in ⊥-elim (Lift≢ΠΣⱼ (sym B≡Lift))
     ΠΣₙ →
       let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
       ⊥-elim (U≢ΠΣⱼ (sym Σ≡U))
@@ -204,14 +231,27 @@ opaque
 
   whnfStar :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    Γ ⊢ t ∷ Unit s l → Whnf (Γ .defs) t → Star⁺ (Γ .defs) t
+    Γ ⊢ t ∷ Unit s → Whnf (Γ .defs) t → Star⁺ (Γ .defs) t
   whnfStar ⊢t = λ where
     starₙ →
       starₙ
     (ne t-ne) →
       ne t-ne
+    Levelₙ →
+      ⊥-elim (U≢Unitⱼ (sym (inversion-Level ⊢t .proj₁)))
+    zeroᵘₙ →
+      ⊥-elim (Level≢Unitⱼ (sym (inversion-zeroᵘ ⊢t)))
+    sucᵘₙ →
+      let _ , A≡Level = inversion-sucᵘ ⊢t in
+      ⊥-elim (Level≢Unitⱼ (sym A≡Level))
     Uₙ →
       ⊥-elim (U≢Unitⱼ (sym (inversion-U ⊢t)))
+    Liftₙ →
+      let _ , _ , _ , B≡ = inversion-Lift∷ ⊢t
+      in ⊥-elim (U≢Unitⱼ (sym B≡))
+    liftₙ →
+      let _ , _ , _ , B≡Lift = inversion-lift ⊢t
+      in ⊥-elim (Lift≢Unitⱼ (sym B≡Lift))
     ΠΣₙ →
       let _ , _ , _ , _ , Σ≡U , _ = inversion-ΠΣ-U ⊢t in
       ⊥-elim (U≢Unitⱼ (sym Σ≡U))

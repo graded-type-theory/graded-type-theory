@@ -20,9 +20,10 @@ open Usage-restrictions UR
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Level
+import Tools.Level as L
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Sum
 open import Tools.Unit
 
@@ -33,7 +34,9 @@ open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
 
 open import Definition.Typed TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR hiding (_⇨*_)
+open import Definition.Typed.Well-formed TR
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 
@@ -189,14 +192,16 @@ module _ (As : Assumptions) where
 -- the abstract machine (with tracking).
 
 -- Most properties are proven under the assumptions that the nr
--- function is factoring (if it is used for usage) and that equality
--- reflection is not allowed or the context is empty.
+-- function is factoring (if it is used for usage), that equality
+-- reflection is not allowed or the context is empty, and that Level
+-- is not allowed.
 
 module _
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   ⦃ ok : No-equality-reflection or-empty Δ ⦄
+  (Level-not-allowed : ¬ Level-allowed)
   where
 
   open Imports factoring-nr
@@ -226,7 +231,7 @@ module _
     ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s _ =
       case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
           (inj₁ w) → ⊥-elim (whnfRedTerm d w)
-          (inj₂ (_ , _ , _ , _ , _ , _ , ≡ur , η)) →
+          (inj₂ (_ , _ , _ , _ , _ , ≡ur , η)) →
             case subst-unitrec {t = wk ρ t} ≡ur of λ where
               (inj₁ (_ , ≡x)) → case subst Value ≡x (wkValue ρ x) of λ ()
               (inj₂ (_ , _ , _ , ≡ur′ , refl , refl , refl)) →
@@ -235,7 +240,7 @@ module _
                 _ , _ , _ , unitrec-ηₕ η , lemma η d}
         where
         lemma :
-          Unitʷ-η → ε » Δ ⊢ (unitrec l p q A u v) ⇒ w ∷ B → w PE.≡ v
+          Unitʷ-η → ε » Δ ⊢ (unitrec p q A u v) ⇒ w ∷ B → w PE.≡ v
         lemma η (conv d x) = lemma η d
         lemma η (unitrec-subst _ _ _ _ no-η) = ⊥-elim (no-η η)
         lemma η (unitrec-β _ _ _ no-η) = ⊥-elim (no-η η)
@@ -246,8 +251,11 @@ module _
       _ , _ , _ , d′ , whrDetTerm d (⇒ᵥ→⇒ ⊢s d′)
     ⊢⇒→⇒ᵥ d (var d′) ⊢s - =
       let _ , _ , _ , _ , ⊢S = ⊢ₛ-inv ⊢s
-      in  ⊥-elim $ neRedTerm {V = Lift _ ⊤} d $ NeutralAt→Neutral $
+      in  ⊥-elim $ neRedTerm {V = L.Lift _ ⊤} d $ NeutralAt→Neutral $
           toSubstₕ-NeutralAt d′ $ ⊢⦅⦆ˢ-NeutralAt ⊢S (var _)
+    ⊢⇒→⇒ᵥ _ sup (⊢ₛ _ ⊢supᵘ _) - =
+      ⊥-elim $ Level-not-allowed $
+      inversion-Level-⊢ (wf-⊢∷ (inversion-supᵘ ⊢supᵘ .proj₁))
 
 -- The remaining properties are proven under some additional assumptions
 
@@ -272,7 +280,8 @@ module _ (As : Assumptions) where
       let d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
           ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
           _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv (▸-⇾ₑ* ▸s d′)
-          _ , _ , s″ , d‴ , u≡ = ⊢⇒→⇒ᵥ factoring-nr d″ n ⊢s′ ∣S∣≡
+          _ , _ , s″ , d‴ , u≡ =
+            ⊢⇒→⇒ᵥ factoring-nr Level-not-allowed d″ n ⊢s′ ∣S∣≡
       in  _ , _ , s″ , ⇾ₑ* d′ ⇨* ⇒ᵥ d‴ ⇨ id , u≡ }
 
   opaque

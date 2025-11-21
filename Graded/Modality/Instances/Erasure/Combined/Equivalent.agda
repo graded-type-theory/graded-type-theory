@@ -7,7 +7,7 @@
 {-# OPTIONS --backtracking-instance-search #-}
 
 open import Tools.Bool using (true; T)
-open import Tools.Level
+open import Tools.Level using (lzero)
 
 open import Definition.Typed.Restrictions
 
@@ -77,13 +77,13 @@ open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  ∇               : DCon _ _
-  Γ               : Cons _ _
-  A A₁ A₂ t t₁ t₂ : Term _
-  γ δ             : Conₘ _
-  p q r           : Erasure
-  m               : Mode
-  s s₂            : Size
+  ∇                       : DCon _ _
+  Γ                       : Cons _ _
+  A A₁ A₂ l l₁ l₂ t t₁ t₂ : Term _
+  γ δ                     : Conₘ _
+  p q r                   : Erasure
+  m                       : Mode
+  s s₂                    : Size
 
 private opaque
 
@@ -176,8 +176,12 @@ opaque mutual
   -- If A is well-formed and well-resourced, then A is well-resourced.
 
   ⊢[]→▸ : γ ▸ Γ ⊢[ p ] A → γ ▸[ ⌞ p ⌟ ] A
+  ⊢[]→▸ (Level _ _) =
+    sub Levelₘ (greatest-elemᶜ _)
   ⊢[]→▸ (univ ⊢A) =
     ⊢∷[]→▸ ⊢A
+  ⊢[]→▸ (Lift ⊢l ⊢A) =
+    Liftₘ (⊢∷L→▸? ⊢l) (⊢[]→▸ ⊢A)
   ⊢[]→▸ {γ} (ΠΣ ok ⊢A ⊢B) =
     sub (ΠΣₘ (▸-cong (PE.sym ⌞⌟ᵐ·) (⊢[]→▸ ⊢A)) (∙▸→∙⌜⌝·▸ (⊢[]→▸ ⊢B)))
       (begin
@@ -226,8 +230,23 @@ opaque mutual
     open ≤ᶜ-reasoning
   ⊢∷[]→▸ (defn _ _ _) =
     sub defn (greatest-elemᶜ _)
-  ⊢∷[]→▸ (U _) =
-    sub Uₘ (greatest-elemᶜ _)
+  ⊢∷[]→▸ (Level _ _) =
+    sub Levelₘ (greatest-elemᶜ _)
+  ⊢∷[]→▸ (zeroᵘ _ _) =
+    sub zeroᵘₘ (greatest-elemᶜ _)
+  ⊢∷[]→▸ (sucᵘ ⊢l) =
+    sucᵘₘ (⊢∷[]→▸ ⊢l)
+  ⊢∷[]→▸ (⊢supᵘ ⊢l₁ ⊢l₂) =
+    PE.subst (_▸[ _ ] _) (+ᶜ-idem _) $
+    supᵘₘ (⊢∷[]→▸ ⊢l₁) (⊢∷[]→▸ ⊢l₂)
+  ⊢∷[]→▸ (U ⊢l) =
+    sub (Uₘ (⊢∷L→▸? ⊢l)) (greatest-elemᶜ _)
+  ⊢∷[]→▸ (Lift ⊢l ⊢A) =
+    Liftₘ (⊢∷L→▸? ⊢l) (⊢∷[]→▸ ⊢A)
+  ⊢∷[]→▸ (lift _ ⊢t) =
+    liftₘ (⊢∷[]→▸ ⊢t)
+  ⊢∷[]→▸ (lower ⊢t) =
+    lowerₘ (⊢∷[]→▸ ⊢t)
   ⊢∷[]→▸ (Empty _) =
     sub Emptyₘ (greatest-elemᶜ _)
   ⊢∷[]→▸ (emptyrec ok ⊢A ⊢t) =
@@ -239,8 +258,8 @@ opaque mutual
     sub starₘ (greatest-elemᶜ _)
   ⊢∷[]→▸ (unitrec ok ⊢A ⊢t ⊢u) =
     sub
-      (unitrecₘ (▸-cong (PE.sym ⌞⌟ᵐ·) (⊢∷[]→▸ ⊢t)) (⊢∷[]→▸ ⊢u)
-         (sub (⊢[]→▸? ⊢A) (greatest-elemᶜ (𝟘ᶜ ∙ _))) ok)
+      (unitrecₘ (sub (⊢[]→▸? ⊢A) (greatest-elemᶜ (𝟘ᶜ ∙ _)))
+         (▸-cong (PE.sym ⌞⌟ᵐ·) (⊢∷[]→▸ ⊢t)) (⊢∷[]→▸ ⊢u) ok)
       ≤ᶜ·ᶜ+ᶜ
   ⊢∷[]→▸ {γ} (ΠΣ _ ⊢A ⊢B) =
     sub (ΠΣₘ (▸-cong (PE.sym ⌞⌟ᵐ·) (⊢∷[]→▸ ⊢A)) (∙▸→∙⌜⌝·▸ (⊢∷[]→▸ ⊢B)))
@@ -451,9 +470,27 @@ opaque mutual
              ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ)  ∎) }
     where
     open ≤ᶜ-reasoning
-  ⊢∷[]→▸ ([]-cong _ ok ⊢A ⊢t ⊢u ⊢v) =
-    sub ([]-congₘ (⊢[]→▸? ⊢A) (⊢∷[]→▸? ⊢t) (⊢∷[]→▸? ⊢u) (⊢∷[]→▸? ⊢v) ok)
+  ⊢∷[]→▸ ([]-cong _ ok ⊢l ⊢A ⊢t ⊢u ⊢v) =
+    sub
+      ([]-congₘ (⊢∷L→▸? ⊢l) (⊢[]→▸? ⊢A) (⊢∷[]→▸? ⊢t) (⊢∷[]→▸? ⊢u)
+         (⊢∷[]→▸? ⊢v) ok)
       (greatest-elemᶜ _)
+
+  -- If l is a well-formed level, then l is well-resourced with
+  -- respect to 𝟘ᶜ and 𝟘ᵐ.
+
+  ⊢∷L→▸ : Γ C.⊢ l ∷Level → 𝟘ᶜ ▸[ 𝟘ᵐ ] l
+  ⊢∷L→▸ (term _ ⊢l) =
+    ⊢∷→▸ ⊢l
+  ⊢∷L→▸ (literal _ _ l-lit) =
+    Level-literal→▸ l-lit
+
+  private
+
+    -- A variant of ⊢∷L→▸.
+
+    ⊢∷L→▸? : Γ C.⊢ l ∷Level → 𝟘ᶜ ▸[ 𝟘ᵐ? ] l
+    ⊢∷L→▸? ⊢l = 𝟘ᶜ▸[𝟘ᵐ?] _ (⊢∷L→▸ ⊢l)
 
 opaque
 
@@ -487,8 +524,12 @@ opaque mutual
   -- If A is well-formed and well-resourced, then A is well-formed.
 
   ⊢[]→⊢ : γ ▸ Γ ⊢[ p ] A → Γ T.⊢ A
+  ⊢[]→⊢ (Level ok ⊢Γ) =
+    Levelⱼ ok (⊢→⊢ ⊢Γ)
   ⊢[]→⊢ (univ ⊢A) =
     univ (⊢∷[]→⊢∷ ⊢A)
+  ⊢[]→⊢ (Lift ⊢l ⊢A) =
+    Liftⱼ (⊢∷L→⊢∷L ⊢l) (⊢[]→⊢ ⊢A)
   ⊢[]→⊢ (ΠΣ ok _ ⊢B) =
     ΠΣⱼ (⊢[]→⊢ ⊢B) ok
   ⊢[]→⊢ (Id _ _ _ ⊢t ⊢u) =
@@ -503,8 +544,22 @@ opaque mutual
     var (⊢→⊢ ⊢Γ) x∈
   ⊢∷[]→⊢∷ (defn ⊢Γ α∈ eq) =
     defn (⊢→⊢ ⊢Γ) α∈ eq
-  ⊢∷[]→⊢∷ (U ⊢Γ) =
-    Uⱼ (⊢→⊢ ⊢Γ)
+  ⊢∷[]→⊢∷ (Level ok ⊢Γ) =
+    Levelⱼ (⊢→⊢ ⊢Γ) ok
+  ⊢∷[]→⊢∷ (zeroᵘ ok ⊢Γ) =
+    zeroᵘⱼ ok (⊢→⊢ ⊢Γ)
+  ⊢∷[]→⊢∷ (sucᵘ ⊢l) =
+    sucᵘⱼ (⊢∷[]→⊢∷ ⊢l)
+  ⊢∷[]→⊢∷ (⊢supᵘ ⊢l₁ ⊢l₂) =
+    supᵘⱼ (⊢∷[]→⊢∷ ⊢l₁) (⊢∷[]→⊢∷ ⊢l₂)
+  ⊢∷[]→⊢∷ (U ⊢l) =
+    Uⱼ (⊢∷L→⊢∷L ⊢l)
+  ⊢∷[]→⊢∷ (Lift ⊢l ⊢A) =
+    Liftⱼ′ (⊢∷L→⊢∷L ⊢l) (⊢∷[]→⊢∷ ⊢A)
+  ⊢∷[]→⊢∷ (lift ⊢l ⊢t) =
+    liftⱼ′ (⊢∷L→⊢∷L ⊢l) (⊢∷[]→⊢∷ ⊢t)
+  ⊢∷[]→⊢∷ (lower ⊢t) =
+    lowerⱼ (⊢∷[]→⊢∷ ⊢t)
   ⊢∷[]→⊢∷ (Empty ⊢Γ) =
     Emptyⱼ (⊢→⊢ ⊢Γ)
   ⊢∷[]→⊢∷ (emptyrec _ ⊢A ⊢t) =
@@ -516,7 +571,7 @@ opaque mutual
   ⊢∷[]→⊢∷ (unitrec _ ⊢A ⊢t ⊢u) =
     unitrecⱼ′ (⊢[]→⊢ ⊢A) (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u)
   ⊢∷[]→⊢∷ (ΠΣ ok ⊢A ⊢B) =
-    ΠΣⱼ (⊢∷[]→⊢∷ ⊢A) (⊢∷[]→⊢∷ ⊢B) ok
+    ΠΣⱼ′ (⊢∷[]→⊢∷ ⊢A) (⊢∷[]→⊢∷ ⊢B) ok
   ⊢∷[]→⊢∷ (lam ok ⊢t) =
     lamⱼ′ ok (⊢∷[]→⊢∷ ⊢t)
   ⊢∷[]→⊢∷ (app ⊢t ⊢u) =
@@ -545,8 +600,16 @@ opaque mutual
     Jⱼ′ (⊢[]→⊢ ⊢B) (⊢∷[]→⊢∷ ⊢u) (⊢∷[]→⊢∷ ⊢w)
   ⊢∷[]→⊢∷ (K _ _ _ ok _ _ ⊢B ⊢u ⊢v) =
     Kⱼ (⊢[]→⊢ ⊢B) (⊢∷[]→⊢∷ ⊢u) (⊢∷[]→⊢∷ ⊢v) ok
-  ⊢∷[]→⊢∷ ([]-cong ok _ _ _ _ ⊢v) =
-    []-congⱼ′ ok (⊢∷[]→⊢∷ ⊢v)
+  ⊢∷[]→⊢∷ ([]-cong ok _ ⊢l _ _ _ ⊢v) =
+    []-congⱼ′ ok (⊢∷L→⊢∷L ⊢l) (⊢∷[]→⊢∷ ⊢v)
+
+  -- If l is well-formed, then l is well-formed.
+
+  ⊢∷L→⊢∷L : Γ C.⊢ l ∷Level → Γ T.⊢ l ∷Level
+  ⊢∷L→⊢∷L (term ok ⊢l) =
+    term ok (⊢∷[]→⊢∷ ⊢l)
+  ⊢∷L→⊢∷L (literal not-ok ⊢Γ l-lit) =
+    literal not-ok (⊢→⊢ ⊢Γ) l-lit
 
   -- Definitional equality implies definitional equality.
 
@@ -557,8 +620,12 @@ opaque mutual
     sym (⊢≡→⊢≡ A₁≡A₂)
   ⊢≡→⊢≡ (trans A₁≡A₂ A₂≡A₃) =
     trans (⊢≡→⊢≡ A₁≡A₂) (⊢≡→⊢≡ A₂≡A₃)
+  ⊢≡→⊢≡ (U-cong l₁≡l₂) =
+    U-cong (⊢≡∷→⊢≡∷ l₁≡l₂)
   ⊢≡→⊢≡ (univ A₁≡A₂) =
     univ (⊢≡∷→⊢≡∷ A₁≡A₂)
+  ⊢≡→⊢≡ (Lift-cong l₁≡l₂ A₁≡A₂) =
+    Lift-cong (⊢≡∷L→⊢≡∷L l₁≡l₂) (⊢≡→⊢≡ A₁≡A₂)
   ⊢≡→⊢≡ (ΠΣ-cong ok A₁≡A₂ B₁≡B₂) =
     ΠΣ-cong (⊢≡→⊢≡ A₁≡A₂) (⊢≡→⊢≡ B₁≡B₂) ok
   ⊢≡→⊢≡ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
@@ -577,6 +644,32 @@ opaque mutual
     trans (⊢≡∷→⊢≡∷ t₁≡t₂) (⊢≡∷→⊢≡∷ t₂≡t₃)
   ⊢≡∷→⊢≡∷ (δ-red ⊢Γ α∈ eq₁ eq₂) =
     δ-red (⊢→⊢ ⊢Γ) α∈ eq₁ eq₂
+  ⊢≡∷→⊢≡∷ (sucᵘ-cong l₁≡l₂) =
+    sucᵘ-cong (⊢≡∷→⊢≡∷ l₁≡l₂)
+  ⊢≡∷→⊢≡∷ (supᵘ-cong l₁₁≡l₂₁ l₁₂≡l₂₂) =
+    supᵘ-cong (⊢≡∷→⊢≡∷ l₁₁≡l₂₁) (⊢≡∷→⊢≡∷ l₁₂≡l₂₂)
+  ⊢≡∷→⊢≡∷ (supᵘ-zeroˡ ⊢l) =
+    supᵘ-zeroˡ (⊢∷[]→⊢∷ ⊢l)
+  ⊢≡∷→⊢≡∷ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    supᵘ-sucᵘ (⊢∷[]→⊢∷ ⊢l₁) (⊢∷[]→⊢∷ ⊢l₂)
+  ⊢≡∷→⊢≡∷ (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) =
+    supᵘ-assoc (⊢∷[]→⊢∷ ⊢l₁) (⊢∷[]→⊢∷ ⊢l₂) (⊢∷[]→⊢∷ ⊢l₃)
+  ⊢≡∷→⊢≡∷ (supᵘ-comm ⊢l₁ ⊢l₂) =
+    supᵘ-comm (⊢∷[]→⊢∷ ⊢l₁) (⊢∷[]→⊢∷ ⊢l₂)
+  ⊢≡∷→⊢≡∷ (supᵘ-idem ⊢l) =
+    supᵘ-idem (⊢∷[]→⊢∷ ⊢l)
+  ⊢≡∷→⊢≡∷ (supᵘ-sub ⊢l) =
+    supᵘ-sub (⊢∷[]→⊢∷ ⊢l)
+  ⊢≡∷→⊢≡∷ (U-cong l₁≡l₂) =
+    U-cong (⊢≡∷→⊢≡∷ l₁≡l₂)
+  ⊢≡∷→⊢≡∷ (Lift-cong l₁≡l₂ A₁≡A₂) =
+    Lift-cong′ (⊢≡∷L→⊢≡∷L l₁≡l₂) (⊢≡∷→⊢≡∷ A₁≡A₂)
+  ⊢≡∷→⊢≡∷ (lower-cong t₁≡t₂) =
+    lower-cong (⊢≡∷→⊢≡∷ t₁≡t₂)
+  ⊢≡∷→⊢≡∷ (Lift-β ⊢t) =
+    Lift-β′ (⊢∷[]→⊢∷ ⊢t)
+  ⊢≡∷→⊢≡∷ (Lift-η ⊢t₁ ⊢t₂ lower-t₁≡lower-t₂) =
+    Lift-η′ (⊢∷[]→⊢∷ ⊢t₁) (⊢∷[]→⊢∷ ⊢t₂) (⊢≡∷→⊢≡∷ lower-t₁≡lower-t₂)
   ⊢≡∷→⊢≡∷ (emptyrec-cong A₁≡A₂ t₁≡t₂) =
     emptyrec-cong (⊢≡→⊢≡ A₁≡A₂) (⊢≡∷→⊢≡∷ t₁≡t₂)
   ⊢≡∷→⊢≡∷ (η-unit ok ⊢t₁ ⊢t₂) =
@@ -588,7 +681,7 @@ opaque mutual
   ⊢≡∷→⊢≡∷ (unitrec-β-η η ⊢A ⊢t ⊢u) =
     unitrec-β-η-≡ (⊢[]→⊢ ⊢A) (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u) η
   ⊢≡∷→⊢≡∷ (ΠΣ-cong ok A₁≡A₂ B₁≡B₂) =
-    ΠΣ-cong (⊢≡∷→⊢≡∷ A₁≡A₂) (⊢≡∷→⊢≡∷ B₁≡B₂) ok
+    ΠΣ-cong′ (⊢≡∷→⊢≡∷ A₁≡A₂) (⊢≡∷→⊢≡∷ B₁≡B₂) ok
   ⊢≡∷→⊢≡∷ (app-cong t₁≡t₂ u₁≡u₂) =
     app-cong (⊢≡∷→⊢≡∷ t₁≡t₂) (⊢≡∷→⊢≡∷ u₁≡u₂)
   ⊢≡∷→⊢≡∷ (β-red ok ⊢t ⊢u) =
@@ -633,13 +726,21 @@ opaque mutual
       (⊢≡∷→⊢≡∷ v₁≡v₂) ok
   ⊢≡∷→⊢≡∷ (K-β ok ⊢B ⊢u) =
     K-β (⊢[]→⊢ ⊢B) (⊢∷[]→⊢∷ ⊢u) ok
-  ⊢≡∷→⊢≡∷ ([]-cong-cong ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
-    []-cong-cong (⊢≡→⊢≡ A₁≡A₂) (⊢≡∷→⊢≡∷ t₁≡t₂) (⊢≡∷→⊢≡∷ u₁≡u₂)
-      (⊢≡∷→⊢≡∷ v₁≡v₂) ok
-  ⊢≡∷→⊢≡∷ ([]-cong-β ok ⊢t) =
-    []-cong-β (⊢∷[]→⊢∷ ⊢t) PE.refl ok
+  ⊢≡∷→⊢≡∷ ([]-cong-cong ok l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
+    []-cong-cong (⊢≡∷L→⊢≡∷L l₁≡l₂) (⊢≡→⊢≡ A₁≡A₂) (⊢≡∷→⊢≡∷ t₁≡t₂)
+      (⊢≡∷→⊢≡∷ u₁≡u₂) (⊢≡∷→⊢≡∷ v₁≡v₂) ok
+  ⊢≡∷→⊢≡∷ ([]-cong-β ok ⊢l ⊢t) =
+    []-cong-β-≡ (⊢∷L→⊢∷L ⊢l) (refl (⊢∷[]→⊢∷ ⊢t)) ok
   ⊢≡∷→⊢≡∷ (equality-reflection ok ⊢v) =
     equality-reflection′ ok (⊢∷[]→⊢∷ ⊢v)
+
+  -- Definitional equality implies definitional equality.
+
+  ⊢≡∷L→⊢≡∷L : Γ C.⊢ l₁ ≡ l₂ ∷Level → Γ T.⊢ l₁ ≡ l₂ ∷Level
+  ⊢≡∷L→⊢≡∷L (term ok l₁≡l₂) =
+    term ok (⊢≡∷→⊢≡∷ l₁≡l₂)
+  ⊢≡∷L→⊢≡∷L (literal! not-ok ⊢Γ l-lit) =
+    literal not-ok (⊢→⊢ ⊢Γ) l-lit
 
 ------------------------------------------------------------------------
 -- From the other systems to the combined one, part 1: lemmas that do
@@ -654,14 +755,18 @@ private
   record P (s : Size) : Set where
     no-eta-equality
     field
-      »←»     : (⊢∇ : T.» ∇) → size-» ⊢∇ PE.≡ s → C.» ∇
-      ⊢←⊢′    : (⊢Γ : T.⊢ Γ) → size-⊢′ ⊢Γ PE.≡ s → C.⊢ Γ
-      ⊢←⊢     : (⊢A : Γ T.⊢ A) → size-⊢ ⊢A PE.≡ s → Γ C.⊢ A
-      ⊢∷←⊢∷   : (⊢t : Γ T.⊢ t ∷ A) → size-⊢∷ ⊢t PE.≡ s → Γ C.⊢ t ∷ A
-      ⊢≡←⊢≡   : (A₁≡A₂ : Γ T.⊢ A₁ ≡ A₂) → size-⊢≡ A₁≡A₂ PE.≡ s →
-                Γ C.⊢ A₁ ≡ A₂
-      ⊢≡∷←⊢≡∷ : (t₁≡t₂ : Γ T.⊢ t₁ ≡ t₂ ∷ A) → size-⊢≡∷ t₁≡t₂ PE.≡ s →
-                Γ C.⊢ t₁ ≡ t₂ ∷ A
+      »←»       : (⊢∇ : T.» ∇) → size-» ⊢∇ PE.≡ s → C.» ∇
+      ⊢←⊢′      : (⊢Γ : T.⊢ Γ) → size-⊢′ ⊢Γ PE.≡ s → C.⊢ Γ
+      ⊢←⊢       : (⊢A : Γ T.⊢ A) → size-⊢ ⊢A PE.≡ s → Γ C.⊢ A
+      ⊢∷←⊢∷     : (⊢t : Γ T.⊢ t ∷ A) → size-⊢∷ ⊢t PE.≡ s → Γ C.⊢ t ∷ A
+      ⊢∷L←⊢∷L   : (⊢l : Γ T.⊢ l ∷Level) → size-⊢∷L ⊢l PE.≡ s →
+                  Γ C.⊢ l ∷Level
+      ⊢≡←⊢≡     : (A₁≡A₂ : Γ T.⊢ A₁ ≡ A₂) → size-⊢≡ A₁≡A₂ PE.≡ s →
+                  Γ C.⊢ A₁ ≡ A₂
+      ⊢≡∷←⊢≡∷   : (t₁≡t₂ : Γ T.⊢ t₁ ≡ t₂ ∷ A) → size-⊢≡∷ t₁≡t₂ PE.≡ s →
+                  Γ C.⊢ t₁ ≡ t₂ ∷ A
+      ⊢≡∷L←⊢≡∷L : (l₁≡l₂ : Γ T.⊢ l₁ ≡ l₂ ∷Level) →
+                  size-⊢≡∷L l₁≡l₂ PE.≡ s → Γ C.⊢ l₁ ≡ l₂ ∷Level
 
 -- Variants of the fields of P.
 
@@ -695,6 +800,12 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
       Γ C.⊢ t ∷ A
     ⊢∷←⊢∷ ⊢t ⦃ lt ⦄ = P.⊢∷←⊢∷ (hyp lt) ⊢t PE.refl
 
+    ⊢∷L←⊢∷L :
+      (⊢l : Γ T.⊢ l ∷Level) →
+      ⦃ lt : size-⊢∷L ⊢l <ˢ s₂ ⦄ →
+      Γ C.⊢ l ∷Level
+    ⊢∷L←⊢∷L ⊢l ⦃ lt ⦄ = P.⊢∷L←⊢∷L (hyp lt) ⊢l PE.refl
+
     ⊢≡←⊢≡ :
       (A₁≡A₂ : Γ T.⊢ A₁ ≡ A₂) →
       ⦃ lt : size-⊢≡ A₁≡A₂ <ˢ s₂ ⦄ →
@@ -706,6 +817,12 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
       ⦃ lt : size-⊢≡∷ t₁≡t₂ <ˢ s₂ ⦄ →
       Γ C.⊢ t₁ ≡ t₂ ∷ A
     ⊢≡∷←⊢≡∷ t₁≡t₂ ⦃ lt ⦄ = P.⊢≡∷←⊢≡∷ (hyp lt) t₁≡t₂ PE.refl
+
+    ⊢≡∷L←⊢≡∷L :
+      (l₁≡l₂ : Γ T.⊢ l₁ ≡ l₂ ∷Level) →
+      ⦃ lt : size-⊢≡∷L l₁≡l₂ <ˢ s₂ ⦄ →
+      Γ C.⊢ l₁ ≡ l₂ ∷Level
+    ⊢≡∷L←⊢≡∷L l₁≡l₂ ⦃ lt ⦄ = P.⊢≡∷L←⊢≡∷L (hyp lt) l₁≡l₂ PE.refl
 
   opaque
 
@@ -783,19 +900,15 @@ private module Inhabited where
       size-⊢ ⊢A PE.≡ s₂ →
       Γ C.⊢ A
     ⊢←⊢ₛ hyp = let open Variants hyp in λ where
-      (Uⱼ ⊢Γ) PE.refl →
-        univ (U (⊢←⊢′ ⊢Γ))
+      (Levelⱼ ok ⊢Γ) PE.refl →
+        Level ok (⊢←⊢′ ⊢Γ)
       (univ ⊢A) PE.refl →
         univ (⊢∷←⊢∷ ⊢A)
-      (Emptyⱼ ⊢Γ) PE.refl →
-        univ (Empty (⊢←⊢′ ⊢Γ))
-      (Unitⱼ ⊢Γ ok) PE.refl →
-        univ (Unit ok (⊢←⊢′ ⊢Γ))
+      (Liftⱼ ⊢l ⊢A) PE.refl →
+        Lift (⊢∷L←⊢∷L ⊢l) (⊢←⊢ ⊢A)
       (ΠΣⱼ ⊢B ok) PE.refl →
         let _ , ⊢A = ∙⊢→⊢-<ˢ ⊢B in
         ΠΣ ok (⊢←⊢-<ˢ ⊢A) (▸⊢[𝟘]←⊢ ⊢B)
-      (ℕⱼ ⊢Γ) PE.refl →
-        univ (ℕ (⊢←⊢′ ⊢Γ))
       (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
         case Id-erased? of λ where
           (yes erased) →
@@ -819,8 +932,22 @@ private module Inhabited where
         var (greatest-elem _) (⊢←⊢′ ⊢Γ) x∈Γ
       (defn ⊢Γ α∈ eq) PE.refl →
         defn (⊢←⊢′ ⊢Γ) α∈ eq
-      (Uⱼ ⊢Γ) PE.refl →
-        U (⊢←⊢′ ⊢Γ)
+      (Levelⱼ ⊢Γ ok) PE.refl →
+        Level ok (⊢←⊢′ ⊢Γ)
+      (zeroᵘⱼ ok ⊢Γ) PE.refl →
+        zeroᵘ ok (⊢←⊢′ ⊢Γ)
+      (sucᵘⱼ ⊢l) PE.refl →
+        sucᵘ (⊢∷←⊢∷ ⊢l)
+      (supᵘⱼ ⊢l₁ ⊢l₂) PE.refl →
+        ⊢supᵘ (⊢∷←⊢∷ ⊢l₁) (⊢∷←⊢∷ ⊢l₂)
+      (Uⱼ ⊢l) PE.refl →
+        U (⊢∷L←⊢∷L ⊢l)
+      (Liftⱼ _ ⊢l ⊢A) PE.refl →
+        Lift (⊢∷L←⊢∷L ⊢l) (⊢∷←⊢∷ ⊢A)
+      (liftⱼ ⊢l _ ⊢t) PE.refl →
+        lift (⊢∷L←⊢∷L ⊢l) (⊢∷←⊢∷ ⊢t)
+      (lowerⱼ ⊢t) PE.refl →
+        lower (⊢∷←⊢∷ ⊢t)
       (Emptyⱼ ⊢Γ) PE.refl →
         Empty (⊢←⊢′ ⊢Γ)
       (emptyrecⱼ ⊢A ⊢t) PE.refl →
@@ -833,7 +960,7 @@ private module Inhabited where
       (unitrecⱼ {p} {q} ⊢A ⊢t ⊢u _) PE.refl →
         unitrec (PE.subst (λ m → Unitrec-allowed m p q) (PE.sym ⌞𝟘⌟) _)
           (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u)
-      (ΠΣⱼ ⊢A ⊢B ok) PE.refl →
+      (ΠΣⱼ _ ⊢A ⊢B ok) PE.refl →
         ΠΣ ok (⊢∷←⊢∷ ⊢A) (▸⊢∷[𝟘]←⊢∷ ⊢B)
       (lamⱼ _ ⊢t ok) PE.refl →
         lam ok (▸⊢∷[𝟘]←⊢∷ ⊢t)
@@ -913,9 +1040,22 @@ private module Inhabited where
               (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
               ok (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷-<ˢ ⊢t) (▸⊢[𝟘]←⊢ ⊢B) (⊢∷←⊢∷ ⊢u)
               (⊢∷←⊢∷ ⊢v)
-      ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
+      ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
         []-cong ok (PE.subst ([]-cong-allowed-mode _) (PE.sym ⌞𝟘⌟) _)
-          (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
+          (⊢∷L←⊢∷L ⊢l) (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
+
+    -- If l is well-typed, then l is well-typed.
+
+    ⊢∷L←⊢∷Lₛ :
+      (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
+      (⊢l : Γ T.⊢ l ∷Level) →
+      size-⊢∷L ⊢l PE.≡ s₂ →
+      Γ C.⊢ l ∷Level
+    ⊢∷L←⊢∷Lₛ hyp = let open Variants hyp in λ where
+      (term ok ⊢l) PE.refl →
+        term ok (⊢∷←⊢∷ ⊢l)
+      (literal not-ok ⊢Γ l-lit) PE.refl →
+        literal not-ok (⊢←⊢′ ⊢Γ) l-lit
 
     -- Definitional equality implies definitional equality.
 
@@ -931,8 +1071,12 @@ private module Inhabited where
         sym (⊢≡←⊢≡ A₁≡A₂)
       (trans A₁≡A₂ A₂≡A₃) PE.refl →
         trans (⊢≡←⊢≡ A₁≡A₂) (⊢≡←⊢≡ A₂≡A₃)
+      (U-cong l₁≡l₂) PE.refl →
+        U-cong (⊢≡∷←⊢≡∷ l₁≡l₂)
       (univ A₁≡A₂) PE.refl →
         univ (⊢≡∷←⊢≡∷ A₁≡A₂)
+      (Lift-cong l₁≡l₂ A₁≡A₂) PE.refl →
+        Lift-cong (⊢≡∷L←⊢≡∷L l₁≡l₂) (⊢≡←⊢≡ A₁≡A₂)
       (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) PE.refl →
         ΠΣ-cong ok (⊢≡←⊢≡ A₁≡A₂) (⊢≡←⊢≡ B₁≡B₂)
       (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) PE.refl →
@@ -956,6 +1100,32 @@ private module Inhabited where
         trans (⊢≡∷←⊢≡∷ t₁≡t₂) (⊢≡∷←⊢≡∷ t₂≡t₃)
       (δ-red ⊢Γ α∈ eq₁ eq₂) PE.refl →
         δ-red (⊢←⊢′ ⊢Γ) α∈ eq₁ eq₂
+      (sucᵘ-cong l₁≡l₂) PE.refl →
+        sucᵘ-cong (⊢≡∷←⊢≡∷ l₁≡l₂)
+      (supᵘ-cong l₁₁≡l₂₁ l₁₂≡l₂₂) PE.refl →
+        supᵘ-cong (⊢≡∷←⊢≡∷ l₁₁≡l₂₁) (⊢≡∷←⊢≡∷ l₁₂≡l₂₂)
+      (supᵘ-zeroˡ ⊢l) PE.refl →
+        supᵘ-zeroˡ (⊢∷←⊢∷ ⊢l)
+      (supᵘ-sucᵘ ⊢l₁ ⊢l₂) PE.refl →
+        supᵘ-sucᵘ (⊢∷←⊢∷ ⊢l₁) (⊢∷←⊢∷ ⊢l₂)
+      (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) PE.refl →
+        supᵘ-assoc (⊢∷←⊢∷ ⊢l₁) (⊢∷←⊢∷ ⊢l₂) (⊢∷←⊢∷ ⊢l₃)
+      (supᵘ-comm ⊢l₁ ⊢l₂) PE.refl →
+        supᵘ-comm (⊢∷←⊢∷ ⊢l₁) (⊢∷←⊢∷ ⊢l₂)
+      (supᵘ-idem ⊢l) PE.refl →
+        supᵘ-idem (⊢∷←⊢∷ ⊢l)
+      (supᵘ-sub ⊢l) PE.refl →
+        supᵘ-sub (⊢∷←⊢∷ ⊢l)
+      (U-cong l₁≡l₂) PE.refl →
+        U-cong (⊢≡∷←⊢≡∷ l₁≡l₂)
+      (Lift-cong _ _ l₁≡l₂ A₁≡A₂) PE.refl →
+        Lift-cong (⊢≡∷L←⊢≡∷L l₁≡l₂) (⊢≡∷←⊢≡∷ A₁≡A₂)
+      (lower-cong t₁≡t₂) PE.refl →
+        lower-cong (⊢≡∷←⊢≡∷ t₁≡t₂)
+      (Lift-β _ ⊢t) PE.refl →
+        Lift-β (⊢∷←⊢∷ ⊢t)
+      (Lift-η _ _ ⊢t₁ ⊢t₂ lower-t₁≡lower-t₂) PE.refl →
+        Lift-η (⊢∷←⊢∷ ⊢t₁) (⊢∷←⊢∷ ⊢t₂) (⊢≡∷←⊢≡∷ lower-t₁≡lower-t₂)
       (emptyrec-cong A₁≡A₂ t₁≡t₂) PE.refl →
         emptyrec-cong (⊢≡←⊢≡ A₁≡A₂) (⊢≡∷←⊢≡∷ t₁≡t₂)
       (η-unit ⊢t₁ ⊢t₂ ok) PE.refl →
@@ -967,7 +1137,7 @@ private module Inhabited where
         unitrec-β η (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t)
       (unitrec-β-η ⊢A ⊢t ⊢u _ η) PE.refl →
         unitrec-β-η η (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u)
-      (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) PE.refl →
+      (ΠΣ-cong _ A₁≡A₂ B₁≡B₂ ok) PE.refl →
         ΠΣ-cong ok (⊢≡∷←⊢≡∷ A₁≡A₂) (⊢≡∷←⊢≡∷ B₁≡B₂)
       (app-cong t₁≡t₂ u₁≡u₂) PE.refl →
         app-cong (⊢≡∷←⊢≡∷ t₁≡t₂) (⊢≡∷←⊢≡∷ u₁≡u₂)
@@ -1013,13 +1183,26 @@ private module Inhabited where
           (⊢≡∷←⊢≡∷ u₁≡u₂) (⊢≡∷←⊢≡∷ v₁≡v₂)
       (K-β ⊢B ⊢u ok) PE.refl →
         K-β ok (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u)
-      ([]-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
-        []-cong-cong ok (⊢≡←⊢≡ A₁≡A₂) (⊢≡∷←⊢≡∷ t₁≡t₂) (⊢≡∷←⊢≡∷ u₁≡u₂)
-          (⊢≡∷←⊢≡∷ v₁≡v₂)
-      ([]-cong-β ⊢t PE.refl ok) PE.refl →
-        []-cong-β ok (⊢∷←⊢∷ ⊢t)
+      ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
+        []-cong-cong ok (⊢≡∷L←⊢≡∷L l₁≡l₂) (⊢≡←⊢≡ A₁≡A₂)
+          (⊢≡∷←⊢≡∷ t₁≡t₂) (⊢≡∷←⊢≡∷ u₁≡u₂) (⊢≡∷←⊢≡∷ v₁≡v₂)
+      ([]-cong-β ⊢l ⊢t PE.refl ok) PE.refl →
+        []-cong-β ok (⊢∷L←⊢∷L ⊢l) (⊢∷←⊢∷ ⊢t)
       (equality-reflection ok _ ⊢v) PE.refl →
         equality-reflection ok (⊢∷←⊢∷ ⊢v)
+
+    -- Definitional equality implies definitional equality.
+
+    ⊢≡∷L←⊢≡∷Lₛ :
+      (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
+      (l₁≡l₂ : Γ T.⊢ l₁ ≡ l₂ ∷Level) →
+      size-⊢≡∷L l₁≡l₂ PE.≡ s₂ →
+      Γ C.⊢ l₁ ≡ l₂ ∷Level
+    ⊢≡∷L←⊢≡∷Lₛ hyp = let open Variants hyp in λ where
+      (term ok l₁≡l₂) PE.refl →
+        term ok (⊢≡∷←⊢≡∷ l₁≡l₂)
+      (literal not-ok ⊢Γ l-lit) PE.refl →
+        literal! not-ok (⊢←⊢′ ⊢Γ) l-lit
 
   opaque
 
@@ -1030,12 +1213,14 @@ private module Inhabited where
       well-founded-induction P
         (λ _ hyp →
            record
-             { »←»     = »←»ₛ     hyp
-             ; ⊢←⊢′    = ⊢←⊢′ₛ    hyp
-             ; ⊢←⊢     = ⊢←⊢ₛ     hyp
-             ; ⊢∷←⊢∷   = ⊢∷←⊢∷ₛ   hyp
-             ; ⊢≡←⊢≡   = ⊢≡←⊢≡ₛ   hyp
-             ; ⊢≡∷←⊢≡∷ = ⊢≡∷←⊢≡∷ₛ hyp
+             { »←»       = »←»ₛ       hyp
+             ; ⊢←⊢′      = ⊢←⊢′ₛ      hyp
+             ; ⊢←⊢       = ⊢←⊢ₛ       hyp
+             ; ⊢∷←⊢∷     = ⊢∷←⊢∷ₛ     hyp
+             ; ⊢∷L←⊢∷L   = ⊢∷L←⊢∷Lₛ   hyp
+             ; ⊢≡←⊢≡     = ⊢≡←⊢≡ₛ     hyp
+             ; ⊢≡∷←⊢≡∷   = ⊢≡∷←⊢≡∷ₛ   hyp
+             ; ⊢≡∷L←⊢≡∷L = ⊢≡∷L←⊢≡∷Lₛ hyp
              })
         _
 
@@ -1069,6 +1254,13 @@ opaque
 
 opaque
 
+  -- If l is well-formed, then l is well-formed.
+
+  ⊢∷L←⊢∷L : Γ T.⊢ l ∷Level → Γ C.⊢ l ∷Level
+  ⊢∷L←⊢∷L ⊢l = P.⊢∷L←⊢∷L Inhabited.P-inhabited ⊢l PE.refl
+
+opaque
+
   -- Definitional equality implies definitional equality.
 
   ⊢≡←⊢≡ : Γ T.⊢ A₁ ≡ A₂ → Γ C.⊢ A₁ ≡ A₂
@@ -1081,6 +1273,13 @@ opaque
   ⊢≡∷←⊢≡∷ : Γ T.⊢ t₁ ≡ t₂ ∷ A → Γ C.⊢ t₁ ≡ t₂ ∷ A
   ⊢≡∷←⊢≡∷ t₁≡t₂ = P.⊢≡∷←⊢≡∷ Inhabited.P-inhabited t₁≡t₂ PE.refl
 
+opaque
+
+  -- Definitional equality implies definitional equality.
+
+  ⊢≡∷L←⊢≡∷L : Γ T.⊢ l₁ ≡ l₂ ∷Level → Γ C.⊢ l₁ ≡ l₂ ∷Level
+  ⊢≡∷L←⊢≡∷L l₁≡l₂ = P.⊢≡∷L←⊢≡∷L Inhabited.P-inhabited l₁≡l₂ PE.refl
+
 ------------------------------------------------------------------------
 -- From the other systems to the combined one, part 2: lemmas that do
 -- involve the usage relation _▸[_]_
@@ -1091,14 +1290,13 @@ opaque mutual
   -- and well-resourced.
 
   ⊢[]←⊢▸ : Γ T.⊢ A → γ ▸[ ⌞ p ⌟ ] A → γ ▸ Γ ⊢[ p ] A
-  ⊢[]←⊢▸ (Uⱼ ⊢Γ) _ =
-    univ (U (⊢←⊢′ ⊢Γ))
+  ⊢[]←⊢▸ (Levelⱼ ok ⊢Γ) _ =
+    Level ok (⊢←⊢′ ⊢Γ)
   ⊢[]←⊢▸ (univ ⊢A) ▸A =
     univ (⊢∷[]←⊢∷▸ ⊢A ▸A)
-  ⊢[]←⊢▸ (Emptyⱼ ⊢Γ) _ =
-    univ (Empty (⊢←⊢′ ⊢Γ))
-  ⊢[]←⊢▸ (Unitⱼ ⊢Γ ok) _ =
-    univ (Unit ok (⊢←⊢′ ⊢Γ))
+  ⊢[]←⊢▸ (Liftⱼ ⊢l ⊢A) ▸Lift =
+    let _ , ▸A = inv-usage-Lift ▸Lift in
+    Lift (⊢∷L←⊢∷L ⊢l) (⊢[]←⊢▸ ⊢A ▸A)
   ⊢[]←⊢▸ {γ} {p} (ΠΣⱼ {q} ⊢B ok) ▸ΠΣ =
     let open ≤ᶜ-reasoning
         invUsageΠΣ {δ} {η} ▸A ▸B γ≤δ+η = inv-usage-ΠΣ ▸ΠΣ
@@ -1114,8 +1312,6 @@ opaque mutual
          γ      ∙             q  ≤⟨ γ≤δ+η ∙ ≤-refl ⟩
          δ +ᶜ η ∙             q  ≤⟨ +ᶜ-decreasingʳ _ _ ∙ ·-increasingˡ ⟩
          η      ∙ ⌜ ⌞ p ⌟ ⌝ · q  ∎)
-  ⊢[]←⊢▸ (ℕⱼ ⊢Γ) _ =
-    univ (ℕ (⊢←⊢′ ⊢Γ))
   ⊢[]←⊢▸ {γ} (Idⱼ ⊢A ⊢t ⊢u) ▸Id =
     case inv-usage-Id ▸Id of λ where
       (invUsageId {δ} {η} {θ} not-erased ▸A ▸t ▸u γ≤δ+η+θ) →
@@ -1157,8 +1353,39 @@ opaque mutual
         (⊢←⊢′ ⊢Γ) x∈Γ
     (defn ⊢Γ α∈ eq) _ →
       defn (⊢←⊢′ ⊢Γ) α∈ eq
-    (Uⱼ ⊢Γ) _ →
-      U (⊢←⊢′ ⊢Γ)
+    (Levelⱼ ⊢Γ ok) _ →
+      Level ok (⊢←⊢′ ⊢Γ)
+    (zeroᵘⱼ ok ⊢Γ) _ →
+      zeroᵘ ok (⊢←⊢′ ⊢Γ)
+    (sucᵘⱼ ⊢l) ▸sucᵘ →
+      let ▸l = inv-usage-sucᵘ ▸sucᵘ in
+      sucᵘ (⊢∷[]←⊢∷▸ ⊢l ▸l)
+    (supᵘⱼ ⊢l₁ ⊢l₂) ▸supᵘ →
+      let open ≤ᶜ-reasoning
+          δ , η , γ≤δ+η , ▸l₁ , ▸l₂ = inv-usage-supᵘ ▸supᵘ
+      in
+      ⊢supᵘ
+        (⊢∷[]←⊢∷▸ ⊢l₁ $
+         sub ▸l₁ $ begin
+           γ       ≤⟨ γ≤δ+η ⟩
+           δ +ᶜ η  ≤⟨ +ᶜ-decreasingˡ _ _ ⟩
+           δ       ∎)
+        (⊢∷[]←⊢∷▸ ⊢l₂ $
+         sub ▸l₂ $ begin
+           γ       ≤⟨ γ≤δ+η ⟩
+           δ +ᶜ η  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
+           η       ∎)
+    (Uⱼ ⊢l) _ →
+      U (⊢∷L←⊢∷L ⊢l)
+    (Liftⱼ _ ⊢l ⊢A) ▸Lift →
+      let _ , ▸A = inv-usage-Lift ▸Lift in
+      Lift (⊢∷L←⊢∷L ⊢l) (⊢∷[]←⊢∷▸ ⊢A ▸A)
+    (liftⱼ ⊢l _ ⊢t) ▸lift →
+      let ▸t = inv-usage-lift ▸lift in
+      lift (⊢∷L←⊢∷L ⊢l) (⊢∷[]←⊢∷▸ ⊢t ▸t)
+    (lowerⱼ ⊢t) ▸lower →
+      let ▸t = inv-usage-lower ▸lower in
+      lower (⊢∷[]←⊢∷▸ ⊢t ▸t)
     (Emptyⱼ ⊢Γ) _ →
       Empty (⊢←⊢′ ⊢Γ)
     (emptyrecⱼ ⊢A ⊢t) ▸er →
@@ -1174,7 +1401,7 @@ opaque mutual
       star ok (⊢←⊢′ ⊢Γ)
     (unitrecⱼ {p} ⊢A ⊢t ⊢u ok) ▸ur →
       let open ≤ᶜ-reasoning
-          invUsageUnitrec {δ} {η} ▸t ▸u _ ok γ≤pδ+η =
+          invUsageUnitrec {γ₃ = δ} {γ₄ = η} _ ▸t ▸u ok γ≤pδ+η =
             inv-usage-unitrec ▸ur
       in
       unitrec ok (⊢←⊢ ⊢A)
@@ -1188,7 +1415,7 @@ opaque mutual
            γ            ≤⟨ γ≤pδ+η ⟩
            p ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
            η            ∎)
-    (ΠΣⱼ {q} ⊢A ⊢B ok) ▸ΠΣ →
+    (ΠΣⱼ {q} _ ⊢A ⊢B ok) ▸ΠΣ →
       let open ≤ᶜ-reasoning
           invUsageΠΣ {δ} {η} ▸A ▸B γ≤δ+η = inv-usage-ΠΣ ▸ΠΣ
       in
@@ -1538,9 +1765,10 @@ opaque mutual
             (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
             ok ⊢A (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢B) (⊢∷[]←⊢∷▸ ⊢u (sub ▸u γ≤))
             (⊢∷←⊢∷ ⊢v)
-    ([]-congⱼ ⊢A ⊢t ⊢u ⊢v ok) ▸bc →
-      let invUsage-[]-cong _ _ _ _ ok′ _ = inv-usage-[]-cong ▸bc in
-      []-cong ok ok′ (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
+    ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) ▸bc →
+      let invUsage-[]-cong _ _ _ _ _ ok′ _ = inv-usage-[]-cong ▸bc in
+      []-cong ok ok′ (⊢∷L←⊢∷L ⊢l) (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u)
+        (⊢∷←⊢∷ ⊢v)
 
 ------------------------------------------------------------------------
 -- Logical equivalences
@@ -1599,3 +1827,17 @@ opaque
 
   ⊢≡∷⇔⊢≡∷ : Γ C.⊢ t₁ ≡ t₂ ∷ A ⇔ Γ T.⊢ t₁ ≡ t₂ ∷ A
   ⊢≡∷⇔⊢≡∷ = ⊢≡∷→⊢≡∷ , ⊢≡∷←⊢≡∷
+
+opaque
+
+  -- A logical equivalence for "is a well-formed level".
+
+  ⊢∷L⇔⊢∷L : Γ C.⊢ l ∷Level ⇔ Γ T.⊢ l ∷Level
+  ⊢∷L⇔⊢∷L = ⊢∷L→⊢∷L , ⊢∷L←⊢∷L
+
+opaque
+
+  -- A logical equivalence for "are definitionally equal levels".
+
+  ⊢≡∷L⇔⊢≡∷L : Γ C.⊢ l₁ ≡ l₂ ∷Level ⇔ Γ T.⊢ l₁ ≡ l₂ ∷Level
+  ⊢≡∷L⇔⊢≡∷L = ⊢≡∷L→⊢≡∷L , ⊢≡∷L←⊢≡∷L

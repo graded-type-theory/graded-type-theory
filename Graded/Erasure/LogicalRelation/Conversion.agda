@@ -53,18 +53,23 @@ private opaque
              → ShapeView (ts » Δ) A B [A] [B]
              → t ® v ∷ A / [A]
              → t ® v ∷ B / [B]
+  convTermʳ′ _ (Levelᵥ _ _) t®v = t®v
   convTermʳ′ A≡B (Uᵥ UA UB) t®v = t®v
-  convTermʳ′ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
   convTermʳ′
-    {A} {B}
-    A≡B (Unitᵥ {s} (Unitᵣ l A⇒*Unit) (Unitᵣ l′ B⇒*Unit)) t®v =
-    case Unit-injectivity
-           (Unit s l  ≡˘⟨ subset* A⇒*Unit ⟩⊢
-            A         ≡⟨ A≡B ⟩⊢
-            B         ≡⟨ subset* B⇒*Unit ⟩⊢∎
-            Unit s l′ ∎) of λ {
-      (_ , PE.refl) →
-    t®v }
+    {A} {B} A≡B
+    (Liftᵥ (Liftᵣ {level = l₁} {Ty = A′} A⇒*Lift ⊩A′)
+       (Liftᵣ {level = l₂} {Ty = B′} B⇒*Lift ⊩B′))
+    t®v =
+    let _ , A′≡B′ =
+          Lift-injectivity
+            (Lift l₁ A′  ≡˘⟨ subset* A⇒*Lift ⟩⊢
+             A           ≡⟨ A≡B ⟩⊢
+             B           ≡⟨ subset* B⇒*Lift ⟩⊢∎
+             Lift l₂ B′  ∎)
+    in
+    convTermʳ′ A′≡B′ (goodCases ⊩A′ ⊩B′ (A′≡B′)) t®v
+  convTermʳ′ A≡B (ℕᵥ ℕA ℕB) t®v = t®v
+  convTermʳ′ _ (Unitᵥ _ _) t®v = t®v
   convTermʳ′
     A≡B
     (Bᵥ BMΠ p q (Bᵣ F G A⇒Π [F] [G])

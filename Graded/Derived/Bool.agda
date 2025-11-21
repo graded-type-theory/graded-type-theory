@@ -63,7 +63,7 @@ opaque
                𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ              ∎)
             var
-            (sub Uₘ $ begin
+            (sub (Uₘ zeroᵘₘ) $ begin
                𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ                ∎))
          (begin
@@ -71,7 +71,7 @@ opaque
             𝟘ᶜ ∙ nr 𝟘 𝟘 𝟘 𝟘 ⌜ m ⌝       ≈˘⟨ nrᶜ-𝟘ᶜ ∙ PE.refl ⟩
             nrᶜ 𝟘 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ⌜ m ⌝)  ∎))
       ▸t
-      (sub Uₘ $ begin
+      (sub (Uₘ zeroᵘₘ) $ begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          𝟘ᶜ                ∎)
     where
@@ -300,12 +300,12 @@ opaque
       γ ▸[ m ] u →
       wkConₘ (stepn id k) γ ▸[ m ]
         lam boolrecᵍ-Π
-          (unitrec 0 boolrecᵍ-Π p (Target (2+ k) A t (var x0)) (var x0)
-             (wk[ 1+ k ]′ u))
+          (unitrec boolrecᵍ-Π p (Target (2+ k) A t (var x0))
+             (var x0) (wk[ 1+ k ]′ u))
     unitrec-lemma {k} {γ} ▸t ▸u =
       lamₘ $
       sub
-        (unitrecₘ var (wkUsage (stepn id (1+ k)) ▸u)
+        (unitrecₘ
            (sub
               (▸Target ▸A ▸t var $ begin
                  ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙)        ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ⟩
@@ -319,7 +319,7 @@ opaque
 
                  wkConₘ (stepn id (2+ k)) γ₁ +ᶜ
                  (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙)                          ∎))
-           ok₂)
+           var (wkUsage (stepn id (1+ k)) ▸u) ok₂)
         (begin
            wkConₘ (stepn id k) γ ∙ ⌜ m ⌝ · boolrecᵍ-Π               ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
 

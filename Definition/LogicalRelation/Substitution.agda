@@ -24,18 +24,22 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R as TW using (_∷_⊇_; _»_∷ʷ_⊇_)
 open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+import Tools.Level as L
 open import Tools.Nat using (Nat)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
+open import Tools.Unit
 
 private variable
   m n κ                                                 : Nat
@@ -129,6 +133,30 @@ opaque
 
   _⊩ᵛ⟨_⟩_∷_ : Cons κ n → Universe-level → Term n → Term n → Set a
   Γ ⊩ᵛ⟨ l ⟩ t ∷ A = Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷ A
+
+-- Valid level equality.
+
+infix 4 _⊩ᵛ⟨_⟩_≡_∷Level
+
+data _⊩ᵛ⟨_⟩_≡_∷Level
+       (Γ : Cons m n) (l : Universe-level) (t u : Term n) : Set a
+       where
+  term :
+    Level-allowed → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Level → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level
+  literal :
+    ¬ Level-allowed → ⊩ᵛ Γ → Level-literal t → t PE.≡ u →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level
+
+pattern literal! not-ok t-lit ⊩Γ = literal not-ok t-lit ⊩Γ PE.refl
+
+opaque
+
+  -- Valid levels.
+
+  infix 4 _⊩ᵛ⟨_⟩_∷Level
+
+  _⊩ᵛ⟨_⟩_∷Level : Cons m n → Universe-level → Term n → Set a
+  Γ ⊩ᵛ⟨ l ⟩ t ∷Level = Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷Level
 
 ------------------------------------------------------------------------
 -- Some characterisation lemmas
@@ -307,7 +335,7 @@ opaque
 
 opaque
 
-  -- A characterisation lemma for _⊩ᵛ⟨_⟩_∷_.
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_≡_∷_.
 
   ⊩ᵛ≡∷⇔ʰ :
     ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A ⇔
@@ -400,8 +428,42 @@ opaque
     (∃ λ l → (∇ » Δ ⊩ᵛ⟨ l ⟩ A) × ∇ » Η ⊩⟨ l ⟩ head σ ∷ A [ tail σ ]) ×
     ∇ » Η ⊩ˢ tail σ ∷ Δ                                                 □⇔
 
+opaque
+  unfolding _⊩ᵛ⟨_⟩_∷Level
+
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_∷Level.
+
+  ⊩ᵛ∷L⇔⊩ᵛ≡∷L : Γ ⊩ᵛ⟨ l ⟩ t ∷Level ⇔ Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷Level
+  ⊩ᵛ∷L⇔⊩ᵛ≡∷L = id⇔
+
+opaque
+
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_≡_∷Level.
+
+  ⊩ᵛ≡∷L⇔ :
+    Level-allowed →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level ⇔ Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ Level
+  ⊩ᵛ≡∷L⇔ ok =
+    (λ where
+       (term _ t≡u)           → t≡u
+       (literal not-ok _ _ _) → ⊥-elim (not-ok ok)) ,
+    term ok
+
+opaque
+
+  -- A characterisation lemma for _⊩ᵛ⟨_⟩_∷Level.
+
+  ⊩ᵛ∷L⇔ :
+    Level-allowed →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷Level ⇔ Γ ⊩ᵛ⟨ l ⟩ t ∷ Level
+  ⊩ᵛ∷L⇔ {Γ} {l} {t} ok =
+    Γ ⊩ᵛ⟨ l ⟩ t ∷Level       ⇔⟨ ⊩ᵛ∷L⇔⊩ᵛ≡∷L ⟩
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷Level   ⇔⟨ ⊩ᵛ≡∷L⇔ ok ⟩
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷ Level  ⇔˘⟨ ⊩ᵛ∷⇔⊩ᵛ≡∷ ⟩
+    Γ ⊩ᵛ⟨ l ⟩ t ∷ Level      □⇔
+
 ------------------------------------------------------------------------
--- An introduction lemma
+-- Some introduction lemmas
 
 opaque
 
@@ -409,6 +471,23 @@ opaque
 
   ⊩ᵛ-∙-intro : Γ ⊩ᵛ⟨ l ⟩ A → ⊩ᵛ Γ »∙ A
   ⊩ᵛ-∙-intro ⊩A = ⊩ᵛ∙⇔ .proj₂ (_ , ⊩A)
+
+opaque
+
+  -- An introduction lemma for _⊩ᵛ⟨_⟩_∷Level.
+
+  term-⊩ᵛ∷L :
+    Level-allowed → Γ ⊩ᵛ⟨ l ⟩ t ∷ Level → Γ ⊩ᵛ⟨ l ⟩ t ∷Level
+  term-⊩ᵛ∷L ok = ⊩ᵛ∷L⇔ ok .proj₂
+
+opaque
+
+  -- An introduction lemma for _⊩ᵛ⟨_⟩_∷Level.
+
+  literal-⊩ᵛ∷L :
+    ¬ Level-allowed → ⊩ᵛ Γ → Level-literal t → Γ ⊩ᵛ⟨ l ⟩ t ∷Level
+  literal-⊩ᵛ∷L not-ok ⊩Γ t-lit =
+    ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₂ (literal! not-ok ⊩Γ t-lit)
 
 ------------------------------------------------------------------------
 -- Reflexivity
@@ -439,6 +518,15 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷ A
   refl-⊩ᵛ≡∷ = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₁
+
+opaque
+
+  -- Reflexivity for _⊩ᵛ⟨_⟩_≡_∷Level.
+
+  refl-⊩ᵛ≡∷L :
+    Γ ⊩ᵛ⟨ l ⟩ t ∷Level →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ t ∷Level
+  refl-⊩ᵛ≡∷L = ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₁
 
 ------------------------------------------------------------------------
 -- Some substitution lemmas
@@ -714,6 +802,30 @@ opaque
     in  ⊩ˢ∷∙⇔ .proj₂ $ (l , defn-wk-⊩ᵛ ξ⊇ ⊩A , defn-wk-⊩∷ ξ⊇ ⊩h)
                      , defn-wk-⊩ˢ∷ ξ⊇ ⊩t
 
+opaque
+
+  -- A weakening lemma for definitions for _⊩ᵛ⟨_⟩_≡_∷Level.
+
+  defn-wk-⊩ᵛ≡∷L :
+    » ∇′ ⊇ ∇ →
+    ∇ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level →
+    ∇′ » Δ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level
+  defn-wk-⊩ᵛ≡∷L ∇′⊇∇ (term ok t≡u) =
+    term ok (defn-wk-⊩ᵛ≡∷ ∇′⊇∇ t≡u)
+  defn-wk-⊩ᵛ≡∷L ∇′⊇∇ (literal! not-ok ⊩Γ t-lit) =
+    literal! not-ok (defn-wk-⊩ᵛ′ ∇′⊇∇ ⊩Γ) t-lit
+
+opaque
+
+  -- A weakening lemma for definitions for _⊩ᵛ⟨_⟩_∷Level.
+
+  defn-wk-⊩ᵛ∷L :
+    » ∇′ ⊇ ∇ →
+    ∇ » Δ ⊩ᵛ⟨ l ⟩ t ∷Level →
+    ∇′ » Δ ⊩ᵛ⟨ l ⟩ t ∷Level
+  defn-wk-⊩ᵛ∷L ∇′⊇∇ =
+    ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₂ ∘→ defn-wk-⊩ᵛ≡∷L ∇′⊇∇ ∘→ ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₁
+
 ------------------------------------------------------------------------
 -- Changing type levels
 
@@ -828,6 +940,27 @@ opaque
   wf-⊩ᵛ≡∷ t≡u =
       ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ (trans-⊩ᵛ≡∷ t≡u (sym-⊩ᵛ≡∷ t≡u))
     , ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ (trans-⊩ᵛ≡∷ (sym-⊩ᵛ≡∷ t≡u) t≡u)
+
+opaque
+
+  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_≡_∷Level.
+
+  wf-⊩ᵛ≡∷L :
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level → Γ ⊩ᵛ⟨ l ⟩ t ∷Level × Γ ⊩ᵛ⟨ l ⟩ u ∷Level
+  wf-⊩ᵛ≡∷L (term ok t≡u) =
+    let ⊩t , ⊩u = wf-⊩ᵛ≡∷ t≡u in
+    term-⊩ᵛ∷L ok ⊩t , term-⊩ᵛ∷L ok ⊩u
+  wf-⊩ᵛ≡∷L (literal! not-ok ⊩Γ t-lit) =
+    literal-⊩ᵛ∷L not-ok ⊩Γ t-lit , literal-⊩ᵛ∷L not-ok ⊩Γ t-lit
+
+opaque
+
+  -- A well-formedness lemma for _⊩ᵛ⟨_⟩_∷Level.
+
+  wf-⊩ᵛ∷L : Γ ⊩ᵛ⟨ l ⟩ t ∷Level → ⊩ᵛ Γ
+  wf-⊩ᵛ∷L ⊩t = case ⊩ᵛ∷L⇔⊩ᵛ≡∷L .proj₁ ⊩t of λ where
+    (term _ t≡u)       → wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t≡u .proj₁))
+    (literal _ ⊩Γ _ _) → ⊩Γ
 
 ------------------------------------------------------------------------
 -- More characterisation lemmas
@@ -1430,7 +1563,7 @@ opaque
         , (with-inc-⊩≡∷ $
            refl-⊩≡∷ $
            neutral-⊩∷ (⊩ᵛ→⊩ˢ∷→⊩[] ⊩A $ wf-⊩ˢ≡∷ σ₁⇑₊≡σ₂⇑₊ .proj₁)
-             (varₗ′ _) $
+             varᵃₗ′ $
            ~-var $
            _⊢_∷_.var (∙ ⊢A[σ₁] ⦃ inc = or-empty-1+→ ⦄) $
            PE.subst₂ (_∷_∈_ _) (PE.sym $ wk1Subst-wk1 A) PE.refl here)
@@ -1677,6 +1810,51 @@ opaque
     ∇ »⊢ Η × ∇ » Η ⊢ˢʷ tail σ₁ ≡ tail σ₂ ∷ Δ                                →⟨ (λ (⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀ , ⊢Η , σ₁₊≡σ₂₊) →
                                                                                   ⊢Η , ⊢ˢʷ≡∷∙⇔ .proj₂ (σ₁₊≡σ₂₊ , ⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀)) ⟩
     ∇ »⊢ Η × ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ ∙ A                                      □
+
+opaque
+
+  -- An escape lemma for _⊩ᵛ⟨_⟩_≡_∷Level.
+
+  escape-⊩ᵛ≡∷L :
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level → Γ ⊢ t ≅ u ∷Level
+  escape-⊩ᵛ≡∷L (term _ t≡u) =
+    ⊢≅∷→⊢≅∷L (escape-⊩ᵛ≡∷ t≡u)
+  escape-⊩ᵛ≡∷L (literal! not-ok ⊩Γ t-lit) =
+    Level-literal→⊢≅∷L not-ok (escape-⊩ᵛ′ ⊩Γ) t-lit
+
+opaque
+
+  -- An escape lemma for _⊩ᵛ⟨_⟩_∷Level.
+
+  escape-⊩ᵛ∷L :
+    ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷Level → Γ ⊢ t ∷Level
+  escape-⊩ᵛ∷L =
+    proj₁ ∘→ wf-⊢≡∷L ∘→ ⊢≅∷L→⊢≡∷L ∘→ escape-⊩ᵛ≡∷L ∘→ refl-⊩ᵛ≡∷L
+
+opaque
+
+  -- A limited escape lemma for _⊩ᵛ⟨_⟩_≡_∷Level.
+
+  escape-⊩ᵛ≡∷L′ :
+    ¬ Level-allowed →
+    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level →
+    Level-literal t × Level-literal u
+  escape-⊩ᵛ≡∷L′ not-ok (term ok _) =
+    ⊥-elim (not-ok ok)
+  escape-⊩ᵛ≡∷L′ _ (literal! _ _ t-lit) =
+    t-lit , t-lit
+
+opaque
+
+  -- A limited escape lemma for _⊩ᵛ⟨_⟩_∷Level.
+
+  escape-⊩ᵛ∷L′ :
+    ¬ Level-allowed →
+    Γ ⊩ᵛ⟨ l ⟩ t ∷Level →
+    Level-literal t
+  escape-⊩ᵛ∷L′ not-ok = proj₁ ∘→ escape-⊩ᵛ≡∷L′ not-ok ∘→ refl-⊩ᵛ≡∷L
 
 ------------------------------------------------------------------------
 -- Embedding

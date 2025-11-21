@@ -17,7 +17,7 @@ open import Definition.Untyped.Inversion M
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level as L using (module Lift)
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -25,24 +25,29 @@ open import Tools.Relation
 open import Tools.Sum renaming (map to ⊎-map)
 open import Tools.Unit
 
-private
-  variable
-    p q r : M
-    m n α l : Nat
-    x : Fin _
-    y : Nat ⊎ Fin _
-    ∇ : DCon (Term 0) _
-    t u v w A B C F G : Term _
-    V V′ : Set a
-    σ : Subst _ _
-    s : Strength
+private variable
+  α m n               : Nat
+  x                   : Fin _
+  y                   : Nat ⊎ Fin _
+  V V′                : Set a
+  ∇                   : DCon (Term 0) _
+  A B C F G l t u v w : Term _
+  s                   : Strength
+  b                   : BinderMode
+  p q r               : M
 
 ------------------------------------------------------------------------
 -- Neutral terms
 
+-- A term is neutral if reduction is blocked by a variable or an
+-- opaque definition in its head position.
+
 data Neutral {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   defn      : α ↦⊘∷ A ∈ ∇   → Neutral V ∇ (defn α)
   var       : V → ∀ x       → Neutral V ∇ (var x)
+  supᵘˡₙ    : Neutral V ∇ t → Neutral V ∇ (t supᵘ u)
+  supᵘʳₙ    : Neutral V ∇ u → Neutral V ∇ (sucᵘ t supᵘ u)
+  lowerₙ    : Neutral V ∇ t → Neutral V ∇ (lower t)
   ∘ₙ        : Neutral V ∇ t → Neutral V ∇ (t ∘⟨ p ⟩ u)
   fstₙ      : Neutral V ∇ t → Neutral V ∇ (fst p t)
   sndₙ      : Neutral V ∇ t → Neutral V ∇ (snd p t)
@@ -50,16 +55,19 @@ data Neutral {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   prodrecₙ  : Neutral V ∇ t → Neutral V ∇ (prodrec r p q A t u)
   emptyrecₙ : Neutral V ∇ t → Neutral V ∇ (emptyrec p A t)
   unitrecₙ  : ¬ Unitʷ-η →
-              Neutral V ∇ t → Neutral V ∇ (unitrec l p q A t u)
+              Neutral V ∇ t → Neutral V ∇ (unitrec p q A t u)
   Jₙ        : Neutral V ∇ w → Neutral V ∇ (J p q A t B u v w)
   Kₙ        : Neutral V ∇ v → Neutral V ∇ (K p A t B u v)
-  []-congₙ  : Neutral V ∇ v → Neutral V ∇ ([]-cong s A t u v)
+  []-congₙ  : Neutral V ∇ v → Neutral V ∇ ([]-cong s l A t u v)
 
 opaque
 
   ne→ : (V → V′) → Neutral V ∇ t → Neutral V′ ∇ t
   ne→ f (defn α↦⊘)     = defn α↦⊘
   ne→ f (var ok x)     = var (f ok) x
+  ne→ f (supᵘˡₙ b)     = supᵘˡₙ (ne→ f b)
+  ne→ f (supᵘʳₙ b)     = supᵘʳₙ (ne→ f b)
+  ne→ f (lowerₙ b)     = lowerₙ (ne→ f b)
   ne→ f (∘ₙ b)         = ∘ₙ (ne→ f b)
   ne→ f (fstₙ b)       = fstₙ (ne→ f b)
   ne→ f (sndₙ b)       = sndₙ (ne→ f b)
@@ -77,7 +85,78 @@ opaque
   ne↑ ok = ne→ (λ _ → ok)
 
 ------------------------------------------------------------------------
+-- Constructor applications are not neutral
+
+opaque
+
+  -- Constructor applications are not neutral.
+
+  ¬-Neutral-Level : ¬ Neutral {n = n} V ∇ Level
+  ¬-Neutral-Level ()
+
+  ¬-Neutral-U : ¬ Neutral {n = n} V ∇ (U l)
+  ¬-Neutral-U ()
+
+  ¬-Neutral-Lift : ¬ Neutral {n = n} V ∇ (Lift l A)
+  ¬-Neutral-Lift ()
+
+  ¬-Neutral-ΠΣ : ¬ Neutral V ∇ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
+  ¬-Neutral-ΠΣ ()
+
+  ¬-Neutral-lam : ¬ Neutral V ∇ (lam p t)
+  ¬-Neutral-lam ()
+
+  ¬-Neutral-prod : ¬ Neutral V ∇ (prod s p t u)
+  ¬-Neutral-prod ()
+
+  ¬-Neutral-Empty : ¬ Neutral {n = n} V ∇ Empty
+  ¬-Neutral-Empty ()
+
+  ¬-Neutral-Unit : ¬ Neutral {n = n} V ∇ (Unit s)
+  ¬-Neutral-Unit ()
+
+  ¬-Neutral-star : ¬ Neutral {n = n} V ∇ (star s)
+  ¬-Neutral-star ()
+
+  ¬-Neutral-ℕ : ¬ Neutral {n = n} V ∇ ℕ
+  ¬-Neutral-ℕ ()
+
+  ¬-Neutral-zero : ¬ Neutral {n = n} V ∇ zero
+  ¬-Neutral-zero ()
+
+  ¬-Neutral-suc : ¬ Neutral V ∇ (suc t)
+  ¬-Neutral-suc ()
+
+  ¬-Neutral-Id : ¬ Neutral V ∇ (Id A t u)
+  ¬-Neutral-Id ()
+
+  ¬-Neutral-rfl : ¬ Neutral {n = n} V ∇ rfl
+  ¬-Neutral-rfl ()
+
+opaque
+
+  -- Level literals are not neutral.
+
+  ¬-Neutral-Level-literal :
+    Level-literal l → ¬ Neutral V ∇ l
+  ¬-Neutral-Level-literal zeroᵘ    ()
+  ¬-Neutral-Level-literal (sucᵘ _) ()
+
+------------------------------------------------------------------------
 -- No-confusion lemmas
+
+-- Different whnfs are trivially distinguished by propositional equality.
+-- (The following statements are sometimes called "no-confusion theorems".)
+
+opaque
+
+  Level≢ne : Neutral V ∇ A → Level ≢ A
+  Level≢ne () refl
+
+opaque
+
+  Lift≢ne : Neutral V ∇ A → Lift l B ≢ A
+  Lift≢ne () refl
 
 opaque
 
@@ -96,7 +175,7 @@ opaque
 
 opaque
 
-  Unit≢ne : Neutral V ∇ A → Unit s l ≢ A
+  Unit≢ne : Neutral V ∇ A → Unit s ≢ A
   Unit≢ne () refl
 
 opaque
@@ -115,6 +194,16 @@ opaque
 
   Id≢ne : Neutral V ∇ B → Id A t u ≢ B
   Id≢ne () refl
+
+opaque
+
+  zeroᵘ≢ne : Neutral V ∇ t → zeroᵘ ≢ t
+  zeroᵘ≢ne () refl
+
+opaque
+
+  sucᵘ≢ne : Neutral V ∇ t → sucᵘ u ≢ t
+  sucᵘ≢ne () refl
 
 opaque
 
@@ -138,15 +227,20 @@ opaque
 
 opaque
 
-  star≢ne : Neutral V ∇ t → star s l ≢ t
+  star≢ne : Neutral V ∇ t → star s ≢ t
   star≢ne () refl
 
 ------------------------------------------------------------------------
--- Weakening lemmas
+-- Weakening
+
+-- Weakening of a neutral term.
 
 wkNeutral : ∀ ρ → Neutral V ∇ t → Neutral {n = n} V ∇ (wk ρ t)
-wkNeutral ρ (defn α↦⊘)        = defn α↦⊘
 wkNeutral ρ (var ok x)        = var ok (wkVar ρ x)
+wkNeutral ρ (defn α↦⊘)        = defn α↦⊘
+wkNeutral ρ (supᵘˡₙ t)        = supᵘˡₙ (wkNeutral ρ t)
+wkNeutral ρ (supᵘʳₙ t)        = supᵘʳₙ (wkNeutral ρ t)
+wkNeutral ρ (lowerₙ n)        = lowerₙ (wkNeutral ρ n)
 wkNeutral ρ (∘ₙ b)            = ∘ₙ (wkNeutral ρ b)
 wkNeutral ρ (fstₙ b)          = fstₙ (wkNeutral ρ b)
 wkNeutral ρ (sndₙ b)          = sndₙ (wkNeutral ρ b)
@@ -159,7 +253,25 @@ wkNeutral ρ (Kₙ b)            = Kₙ (wkNeutral ρ b)
 wkNeutral ρ ([]-congₙ b)      = []-congₙ (wkNeutral ρ b)
 
 ------------------------------------------------------------------------
--- Inversion lemmas
+-- Inversion lemmas for Neutral
+
+opaque
+
+  -- An inversion lemma for supᵘ.
+
+  inv-ne-supᵘ :
+    Neutral V ∇ (t supᵘ u) →
+    Neutral V ∇ t ⊎
+    (∃ λ t′ → t ≡ sucᵘ t′ × Neutral V ∇ u)
+  inv-ne-supᵘ (supᵘˡₙ n) = inj₁ n
+  inv-ne-supᵘ (supᵘʳₙ n) = inj₂ (_ , refl , n)
+
+opaque
+
+  -- An inversion lemma for lower.
+
+  inv-ne-lower : Neutral V ∇ (lower t) → Neutral V ∇ t
+  inv-ne-lower (lowerₙ n) = n
 
 opaque
 
@@ -208,7 +320,7 @@ opaque
   -- An inversion lemma for unitrec.
 
   inv-ne-unitrec :
-    Neutral V ∇ (unitrec l p q A t u) → ¬ Unitʷ-η × Neutral V ∇ t
+    Neutral V ∇ (unitrec p q A t u) → ¬ Unitʷ-η × Neutral V ∇ t
   inv-ne-unitrec (unitrecₙ no-η b) = no-η , b
 
 opaque
@@ -229,14 +341,14 @@ opaque
 
   -- An inversion lemma for []-cong.
 
-  inv-ne-[]-cong : Neutral V ∇ ([]-cong s A t u v) → Neutral V ∇ v
+  inv-ne-[]-cong : Neutral V ∇ ([]-cong s l A t u v) → Neutral V ∇ v
   inv-ne-[]-cong ([]-congₙ b) = b
 
 ------------------------------------------------------------------------
 -- Specializations
 
 Neutral⁺ : DCon (Term 0) m → Term n → Set a
-Neutral⁺ ∇ t = Neutral (Lift _ ⊤) ∇ t
+Neutral⁺ ∇ t = Neutral (L.Lift _ ⊤) ∇ t
 
 opaque
 
@@ -246,15 +358,15 @@ opaque
 opaque
 
   var⁺ : ∀ x → Neutral⁺ {n = n} ∇ (var x)
-  var⁺ = var (lift tt)
+  var⁺ = var (L.lift tt)
 
 opaque
 
   ne↑⁺ : Neutral V ∇ t → Neutral⁺ ∇ t
-  ne↑⁺ = ne↑ (lift tt)
+  ne↑⁺ = ne↑ (L.lift tt)
 
 Neutral⁻ : DCon (Term 0) m → Term n → Set a
-Neutral⁻ ∇ t = Neutral (Lift _ ⊥) ∇ t
+Neutral⁻ ∇ t = Neutral (L.Lift _ ⊥) ∇ t
 
 opaque
 
@@ -271,6 +383,9 @@ opaque
   dichotomy-ne : Neutral V ∇ t → Neutral⁻ ∇ t ⊎ V
   dichotomy-ne (defn α↦⊘)        = inj₁ (defn α↦⊘)
   dichotomy-ne (var ok x)        = inj₂ ok
+  dichotomy-ne (supᵘˡₙ b)        = ⊎-map supᵘˡₙ idᶠ (dichotomy-ne b)
+  dichotomy-ne (supᵘʳₙ b)        = ⊎-map supᵘʳₙ idᶠ (dichotomy-ne b)
+  dichotomy-ne (lowerₙ b)        = ⊎-map lowerₙ idᶠ (dichotomy-ne b)
   dichotomy-ne (∘ₙ b)            = ⊎-map ∘ₙ idᶠ (dichotomy-ne b)
   dichotomy-ne (fstₙ b)          = ⊎-map fstₙ idᶠ (dichotomy-ne b)
   dichotomy-ne (sndₙ b)          = ⊎-map sndₙ idᶠ (dichotomy-ne b)
@@ -287,6 +402,9 @@ opaque
   closed-ne : {t : Term 0} → Neutral V ∇ t → Neutral⁻ ∇ t
   closed-ne (defn α↦⊘)        = defn α↦⊘
   closed-ne (var _ ())
+  closed-ne (supᵘˡₙ b)        = supᵘˡₙ (closed-ne b)
+  closed-ne (supᵘʳₙ b)        = supᵘʳₙ (closed-ne b)
+  closed-ne (lowerₙ b)        = lowerₙ (closed-ne b)
   closed-ne (∘ₙ b)            = ∘ₙ (closed-ne b)
   closed-ne (fstₙ b)          = fstₙ (closed-ne b)
   closed-ne (sndₙ b)          = sndₙ (closed-ne b)
@@ -314,6 +432,9 @@ opaque
   or-empty-Neutral ⦃ ok = possibly-nonempty ⦃ ok ⦄ ⦄ (var _ _) =
     var ok _
   or-empty-Neutral (defn ∈∇)         = defn ∈∇
+  or-empty-Neutral (supᵘˡₙ n)        = supᵘˡₙ (or-empty-Neutral n)
+  or-empty-Neutral (supᵘʳₙ n)        = supᵘʳₙ (or-empty-Neutral n)
+  or-empty-Neutral (lowerₙ n)        = lowerₙ (or-empty-Neutral n)
   or-empty-Neutral (∘ₙ n)            = ∘ₙ (or-empty-Neutral n)
   or-empty-Neutral (fstₙ n)          = fstₙ (or-empty-Neutral n)
   or-empty-Neutral (sndₙ n)          = sndₙ (or-empty-Neutral n)
@@ -336,6 +457,9 @@ data NeutralAt {m n} (V : Set a) (∇ : DCon (Term 0) m) :
        Nat ⊎ Fin n → Term n → Set a where
   defn      : α ↦⊘∷ A ∈ ∇ → NeutralAt V ∇ (inj₁ α) (defn α)
   var       : V → NeutralAt V ∇ (inj₂ x) (var x)
+  supᵘˡₙ    : NeutralAt V ∇ y t → NeutralAt V ∇ y (t supᵘ u)
+  supᵘʳₙ    : NeutralAt V ∇ y u → NeutralAt V ∇ y (sucᵘ t supᵘ u)
+  lowerₙ    : NeutralAt V ∇ y t → NeutralAt V ∇ y (lower t)
   ∘ₙ        : NeutralAt V ∇ y t → NeutralAt V ∇ y (t ∘⟨ p ⟩ u)
   fstₙ      : NeutralAt V ∇ y t → NeutralAt V ∇ y (fst p t)
   sndₙ      : NeutralAt V ∇ y t → NeutralAt V ∇ y (snd p t)
@@ -343,10 +467,10 @@ data NeutralAt {m n} (V : Set a) (∇ : DCon (Term 0) m) :
   prodrecₙ  : NeutralAt V ∇ y t → NeutralAt V ∇ y (prodrec r p q C t u)
   emptyrecₙ : NeutralAt V ∇ y t → NeutralAt V ∇ y (emptyrec p A t)
   unitrecₙ  : ¬ Unitʷ-η →
-              NeutralAt V ∇ y t → NeutralAt V ∇ y (unitrec l p q A t u)
+              NeutralAt V ∇ y t → NeutralAt V ∇ y (unitrec p q A t u)
   Jₙ        : NeutralAt V ∇ y w → NeutralAt V ∇ y (J p q A t B u v w)
   Kₙ        : NeutralAt V ∇ y v → NeutralAt V ∇ y (K p A t B u v)
-  []-congₙ  : NeutralAt V ∇ y v → NeutralAt V ∇ y ([]-cong s A t u v)
+  []-congₙ  : NeutralAt V ∇ y v → NeutralAt V ∇ y ([]-cong s l A t u v)
 
 opaque
 
@@ -355,6 +479,9 @@ opaque
   NeutralAt→Neutral : NeutralAt V ∇ y t → Neutral V ∇ t
   NeutralAt→Neutral (defn α↦)      = defn α↦
   NeutralAt→Neutral (var ok)       = var ok _
+  NeutralAt→Neutral (supᵘˡₙ n)     = supᵘˡₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (supᵘʳₙ n)     = supᵘʳₙ (NeutralAt→Neutral n)
+  NeutralAt→Neutral (lowerₙ n)     = lowerₙ (NeutralAt→Neutral n)
   NeutralAt→Neutral (∘ₙ n)         = ∘ₙ (NeutralAt→Neutral n)
   NeutralAt→Neutral (fstₙ n)       = fstₙ (NeutralAt→Neutral n)
   NeutralAt→Neutral (sndₙ n)       = sndₙ (NeutralAt→Neutral n)
@@ -375,6 +502,12 @@ opaque
     _ , defn α↦
   Neutral→NeutralAt (var ok x) =
     _ , var ok
+  Neutral→NeutralAt (supᵘˡₙ n) =
+    _ , supᵘˡₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (supᵘʳₙ n) =
+    _ , supᵘʳₙ (Neutral→NeutralAt n .proj₂)
+  Neutral→NeutralAt (lowerₙ n) =
+    _ , lowerₙ (Neutral→NeutralAt n .proj₂)
   Neutral→NeutralAt (∘ₙ n) =
     _ , ∘ₙ (Neutral→NeutralAt n .proj₂)
   Neutral→NeutralAt (fstₙ n) =

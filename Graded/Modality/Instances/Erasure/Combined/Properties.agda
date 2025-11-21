@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 open import Tools.Bool
-open import Tools.Level
+open import Tools.Level using (lzero)
 
 open import Definition.Typed.Restrictions
 
@@ -58,8 +58,12 @@ opaque mutual
   -- Subsumption for _▸_⊢[_]_.
 
   sub-⊢ : γ ▸ Γ ⊢[ p ] A → δ ≤ᶜ γ → δ ▸ Γ ⊢[ p ] A
+  sub-⊢ (Level ok ⊢Γ) _ =
+    Level ok ⊢Γ
   sub-⊢ (univ ⊢A) δ≤γ =
     univ (sub-⊢∷ ⊢A δ≤γ)
+  sub-⊢ (Lift ⊢l ⊢A) δ≤γ =
+    Lift ⊢l (sub-⊢ ⊢A δ≤γ)
   sub-⊢ (ΠΣ ok ⊢A ⊢B) δ≤γ =
     ΠΣ ok (sub-⊢ ⊢A δ≤γ) (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl))
   sub-⊢ {γ} {δ} (Id {δ = η} hyp₁ hyp₂ ⊢A ⊢t ⊢u) δ≤γ =
@@ -116,8 +120,22 @@ opaque mutual
     open POR
   sub-⊢∷ (defn ⊢Γ α∈ eq) _ =
     defn ⊢Γ α∈ eq
+  sub-⊢∷ (Level ok ⊢Γ) _ =
+    Level ok ⊢Γ
+  sub-⊢∷ (zeroᵘ ok ⊢Γ) _ =
+    zeroᵘ ok ⊢Γ
+  sub-⊢∷ (sucᵘ ⊢l) δ≤γ =
+    sucᵘ (sub-⊢∷ ⊢l δ≤γ)
+  sub-⊢∷ (⊢supᵘ ⊢l₁ ⊢l₂) δ≤γ =
+    ⊢supᵘ (sub-⊢∷ ⊢l₁ δ≤γ) (sub-⊢∷ ⊢l₂ δ≤γ)
   sub-⊢∷ (U ⊢Γ) _ =
     U ⊢Γ
+  sub-⊢∷ (Lift ⊢l ⊢A) δ≤γ =
+    Lift ⊢l (sub-⊢∷ ⊢A δ≤γ)
+  sub-⊢∷ (lift ⊢l ⊢t) δ≤γ =
+    lift ⊢l (sub-⊢∷ ⊢t δ≤γ)
+  sub-⊢∷ (lower ⊢t) δ≤γ =
+    lower (sub-⊢∷ ⊢t δ≤γ)
   sub-⊢∷ (Empty ⊢Γ) _ =
     Empty ⊢Γ
   sub-⊢∷ (emptyrec ok ⊢A ⊢t) δ≤γ =
@@ -240,5 +258,5 @@ opaque mutual
           (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
           ok ⊢A (sub-⊢∷ ⊢t δ≤γ) (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl))
           (sub-⊢∷ ⊢u δ≤γ) (sub-⊢∷ ⊢v δ≤γ) }
-  sub-⊢∷ ([]-cong ok₁ ok₂ ⊢A ⊢t ⊢u ⊢v) _ =
-    []-cong ok₁ ok₂ ⊢A ⊢t ⊢u ⊢v
+  sub-⊢∷ ([]-cong ok₁ ok₂ ⊢l ⊢A ⊢t ⊢u ⊢v) _ =
+    []-cong ok₁ ok₂ ⊢l ⊢A ⊢t ⊢u ⊢v

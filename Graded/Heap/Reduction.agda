@@ -34,12 +34,11 @@ private variable
   m m′ n n′ k ℓ : Nat
   H H′ : Heap _ _
   ρ ρ′ : Wk _ _
-  t t′ u v w z s A B t₁ t₂ : Term _
+  A B l s t t′ t₁ t₂ u v w z : Term _
   x : Fin _
   S S′ : Stack _
   p p′ q q′ r : M
   str : Strength
-  l : Universe-level
   s₁ s₂ s₃ : State _ _ _
 
 -- The abstract machine has three different semantics.
@@ -62,6 +61,7 @@ private variable
 infix 28 _⇒ₑ_
 
 data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
+  lowerₕ : ⟨ H , lower t , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , lowerₑ ∙ S ⟩
   appₕ : ⟨ H , t ∘⟨ p ⟩ u , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , ∘ₑ p u ρ ∙ S ⟩
   fstₕ : ⟨ H , fst p t , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , fstₑ p ∙ S ⟩
   sndₕ : ⟨ H , snd p t , ρ , S ⟩ ⇒ₑ ⟨ H , t , ρ , sndₑ p ∙ S ⟩
@@ -70,16 +70,16 @@ data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
   natrecₕ : ⟨ H , natrec p q r A z s t , ρ , S ⟩ ⇒ₑ
             ⟨ H , t , ρ , natrecₑ p q r A z s ρ ∙ S ⟩
   unitrecₕ : ¬ Unitʷ-η →
-             ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ₑ
-             ⟨ H , t , ρ , unitrecₑ l p q A u ρ ∙ S ⟩
+             ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ₑ
+             ⟨ H , t , ρ , unitrecₑ p q A u ρ ∙ S ⟩
   emptyrecₕ : ⟨ H , emptyrec p A t , ρ , S ⟩ ⇒ₑ
               ⟨ H , t , ρ , emptyrecₑ p A ρ ∙ S ⟩
   Jₕ : ⟨ H , J p q A t B u v w , ρ , S ⟩ ⇒ₑ
        ⟨ H , w , ρ , Jₑ p q A t B u v ρ ∙ S ⟩
   Kₕ : ⟨ H , K p A t B u v , ρ , S ⟩ ⇒ₑ
        ⟨ H , v , ρ , Kₑ p A t B u ρ ∙ S ⟩
-  []-congₕ : ⟨ H , []-cong str A t u v , ρ , S ⟩ ⇒ₑ
-             ⟨ H , v , ρ , []-congₑ str A t u ρ ∙ S ⟩
+  []-congₕ : ⟨ H , []-cong str l A t u v , ρ , S ⟩ ⇒ₑ
+             ⟨ H , v , ρ , []-congₑ str l A t u ρ ∙ S ⟩
 
 -- The relation _⇾ₑ_ describes evaluation of states with an eliminator
 -- or a variable in head position with resource tracking.
@@ -128,6 +128,8 @@ data _⇢ₑ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
 infix 28 _⇒ᵥ_
 
 data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
+  liftₕ : ⟨ H , lift t , ρ , lowerₑ ∙ S ⟩ ⇒ᵥ
+          ⟨ H , t      , ρ , S          ⟩
   lamₕ : ∣ S ∣≡ q
        → ⟨ H , lam p t , ρ , ∘ₑ p u ρ′ ∙ S ⟩ ⇒ᵥ
          ⟨ H ∙ (q · p , u , ρ′) , t , lift ρ , wk1ˢ S ⟩
@@ -152,15 +154,15 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
                               (wk (liftn (step id) 2) s) (var x0)
                           , lift ρ′)
              , s , liftn ρ′ 2 , wk2ˢ S ⟩
-  starʷₕ :  ⟨ H , starʷ l , ρ  , unitrecₑ l p q A u ρ′ ∙ S ⟩ ⇒ᵥ
-            ⟨ H , u       , ρ′ ,                         S ⟩
+  starʷₕ :  ⟨ H , starʷ , ρ  , unitrecₑ p q A u ρ′ ∙ S ⟩ ⇒ᵥ
+            ⟨ H , u     , ρ′ ,                       S ⟩
   unitrec-ηₕ : Unitʷ-η →
-               ⟨ H , unitrec l p q A t u , ρ , S ⟩ ⇒ᵥ
-               ⟨ H ,                   u , ρ , S ⟩
+               ⟨ H , unitrec p q A t u , ρ , S ⟩ ⇒ᵥ
+               ⟨ H ,                 u , ρ , S ⟩
   rflₕⱼ : ⟨ H , rfl , ρ  , Jₑ p q A t B u v ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , u   , ρ′ , S ⟩
   rflₕₖ : ⟨ H , rfl , ρ ,  Kₑ p A t B u ρ′ ∙ S ⟩ ⇒ᵥ ⟨ H , u , ρ′ , S ⟩
-  rflₕₑ : ⟨ H , rfl , ρ  , []-congₑ str A t u ρ′ ∙ S ⟩ ⇒ᵥ
+  rflₕₑ : ⟨ H , rfl , ρ  , []-congₑ str l A t u ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , rfl , ρ′ , S ⟩
 
 -- The relation _⇒ₙ_ allows evaluation under the successor constructor

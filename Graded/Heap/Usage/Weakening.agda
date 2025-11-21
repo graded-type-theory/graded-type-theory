@@ -57,6 +57,8 @@ opaque
   -- Usage of weakened continuations.
 
   wk-▸ᶜ : (ρ : Wk k n) → γ ▸ᶜ[ m ] c → wkConₘ ρ γ ▸ᶜ[ m ] wkᶜ ρ c
+  wk-▸ᶜ ρ lowerₑ =
+    subst (_▸ᶜ[ _ ] _) (sym (wk-𝟘ᶜ ρ)) lowerₑ
   wk-▸ᶜ ρ (∘ₑ {γ} {m} {ρ = ρ′} ▸u) =
     subst (_▸ᶜ[ _ ] _) (≈ᶜ→≡ (·ᶜ-• γ ρ ρ′)) (∘ₑ {m = m} ▸u)
   wk-▸ᶜ ρ (fstₑ p≤𝟙) =

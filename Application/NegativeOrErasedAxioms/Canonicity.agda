@@ -47,6 +47,7 @@ open import Application.NegativeOrErasedAxioms.NegativeOrErasedType TR
 open import Graded.Erasure.SucRed TR
 
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Normal-form M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
@@ -138,6 +139,10 @@ neNeg (sndⱼ A⊢B d) (sndₙ n) γ▸u nΓγ =
   in  sndNeg (neNeg d n (sub δ▸t γ≤δ) nΓγ)
              (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
              (fstⱼ A⊢B d)
+neNeg (supᵘⱼ _ _) _ _ _ =
+  level
+neNeg (lowerⱼ d) (lowerₙ n) γ▸u nΓγ =
+  lowerNeg (neNeg d n (inv-usage-lower γ▸u) nΓγ) (refl (syntacticTerm d))
 neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
   case inv-usage-natrec γ▸natrec of λ {
     (invUsageNatrec {δ = δ} {θ = θ} {χ = χ} _ _ θ▸n _ γ≤χ extra) →
@@ -155,7 +160,7 @@ neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
         (inj₂ θ≈𝟘) → θ≈𝟘                                 }}) ⟩
 
   NegativeErasedContext Γ θ            →⟨ neNeg ⊢n n-ne θ▸n ⟩
-  NegativeType Γ ℕ                     →⟨ flip ¬negℕ (refl (ℕⱼ (wfTerm ⊢n))) ⟩
+  NegativeType Γ ℕ                     →⟨ flip ¬negℕ (refl (⊢ℕ (wfTerm ⊢n))) ⟩
   ⊥                                    →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ n ]₀)            □ }
 neNeg
@@ -181,9 +186,9 @@ neNeg
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
   ⊥-elim (consistent _ d)
 neNeg
-  {γ} (unitrecⱼ {l} {A} {t} {p} _ d _ ok) (unitrecₙ no-η n) γ▸unitrec =
+  {γ} (unitrecⱼ {A} {t} {p} _ d _ ok) (unitrecₙ no-η n) γ▸unitrec =
   case inv-usage-unitrec γ▸unitrec of λ {
-   (invUsageUnitrec {δ = δ} {η = η} δ▸t _ _ ok′ γ≤pδ+η) →
+   (invUsageUnitrec {γ₃ = δ} {γ₄ = η} _ δ▸t _ ok′ γ≤pδ+η) →
   case no-η ∘→ no-erased-matches non-trivial .proj₂ .proj₁ ok′ of λ
     p≢𝟘 →
   NegativeErasedContext Γ γ               →⟨ NegativeErasedContext-upwards-closed γ≤pδ+η ⟩
@@ -194,7 +199,7 @@ neNeg
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ               →⟨ neNeg d n (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸t) ⟩
-  NegativeType Γ (Unitʷ l)                →⟨ flip ¬negUnit (refl (Unitⱼ (wfTerm d) ok)) ⟩
+  NegativeType Γ Unitʷ                    →⟨ flip ¬negUnit (refl (⊢Unit (wfTerm d) ok)) ⟩
   ⊥                                       →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)               □ }
 neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
@@ -244,12 +249,12 @@ neNeg {γ} (Kⱼ {A} {t} {B} {v} _ _ ⊢v ok) (Kₙ v-ne) ▸K =
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
       of λ ()
-neNeg ([]-congⱼ _ _ _ _ ok) ([]-congₙ _) _ =
+neNeg ([]-congⱼ _ _ _ _ _ ok) ([]-congₙ _) _ =
   ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
 neNeg (Uⱼ _)          ()
-neNeg (ΠΣⱼ _ _ _)     ()
+neNeg (ΠΣⱼ _ _ _ _)   ()
 neNeg (lamⱼ _ _ _)    ()
 neNeg (prodⱼ _ _ _ _) ()
 neNeg (Emptyⱼ _)      ()
@@ -260,6 +265,11 @@ neNeg (zeroⱼ _)       ()
 neNeg (sucⱼ _)        ()
 neNeg (Idⱼ _ _ _)     ()
 neNeg (rflⱼ _)        ()
+neNeg (Levelⱼ _ _)    ()
+neNeg (zeroᵘⱼ _ _)    ()
+neNeg (sucᵘⱼ _)       ()
+neNeg (Liftⱼ _ _ _)   ()
+neNeg (liftⱼ _ _ _)   ()
 
 -- Lemma: A normal form which has the type ℕ in a negative/erased
 -- context, and which is well-resourced (with respect to the mode 𝟙ᵐ),
@@ -290,14 +300,19 @@ nfN (conv d c) γ▸u nΓγ n c' =
 -- Impossible cases: type is not ℕ.
 
 -- * Canonical types
-nfN (Uⱼ _)      _ _ Uₙ          c = ⊥-elim (U≢ℕ c)
-nfN (ΠΣⱼ _ _ _) _ _ (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
-nfN (ℕⱼ _)      _ _ ℕₙ          c = ⊥-elim (U≢ℕ c)
-nfN (Emptyⱼ _)  _ _ Emptyₙ      c = ⊥-elim (U≢ℕ c)
-nfN (Unitⱼ _ _) _ _ Unitₙ       c = ⊥-elim (U≢ℕ c)
-nfN (Idⱼ _ _ _) _ _ (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
+nfN (Levelⱼ _ _)  _ _ Levelₙ      c = ⊥-elim (U≢ℕ c)
+nfN (Liftⱼ _ _ _) _ _ (Liftₙ _ _) c = ⊥-elim (U≢ℕ c)
+nfN (Uⱼ _)        _ _ (Uₙ _)      c = ⊥-elim (U≢ℕ c)
+nfN (ΠΣⱼ _ _ _ _) _ _ (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
+nfN (ℕⱼ _)        _ _ ℕₙ          c = ⊥-elim (U≢ℕ c)
+nfN (Emptyⱼ _)    _ _ Emptyₙ      c = ⊥-elim (U≢ℕ c)
+nfN (Unitⱼ _ _)   _ _ Unitₙ       c = ⊥-elim (U≢ℕ c)
+nfN (Idⱼ _ _ _)   _ _ (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
 
 -- * Canonical forms
+nfN (zeroᵘⱼ _ _)    _ _ zeroᵘₙ      c = ⊥-elim (Level≢ℕ c)
+nfN (sucᵘⱼ _)       _ _ (sucᵘₙ _)   c = ⊥-elim (Level≢ℕ c)
+nfN (liftⱼ _ _ _)   _ _ (liftₙ _)   c = ⊥-elim (Lift≢ℕ c)
 nfN (lamⱼ _ _ _)    _ _ (lamₙ _)    c = ⊥-elim (ℕ≢ΠΣⱼ (sym c))
 nfN (prodⱼ _ _ _ _) _ _ (prodₙ _ _) c = ⊥-elim (ℕ≢ΠΣⱼ (sym c))
 nfN (starⱼ _ _)     _ _ starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
@@ -353,10 +368,10 @@ module _
   canonicityRed′ γ▸t nΓγ (ℕₜ _ d _ (ne (neNfₜ neK _))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (redFirst*Term d) γ▸t nΓγ
-            (flip ¬negℕ $ refl (ℕⱼ $ wfTerm $ redFirst*Term d))
+            (flip ¬negℕ $ refl (⊢ℕ $ wfTerm $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
-        PE.subst (Neutral⁺ _) (whrDet*Term (d , ne (ne→ _ neK)) d′) $
-        ne→ _ neK
+        PE.subst (Neutral⁺ _) (whrDet*Term (d , ne! neK) d′) $
+        ne→ _ (ne⁻ neK)
 
   canonicityRed :
     Γ ⊢ t ∷ ℕ → γ ▸[ 𝟙ᵐ ] t → NegativeErasedContext Γ γ →

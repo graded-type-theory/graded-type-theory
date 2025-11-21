@@ -18,7 +18,7 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Level
+import Tools.Level as L
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -29,10 +29,10 @@ open import Tools.Unit
 private
   variable
     p q r : M
-    n l : Nat
+    n : Nat
     ∇ ∇′ : DCon (Term 0) _
     ξ : DExt _ _ _
-    t u v w A B F G : Term _
+    A B F G l t u v w : Term _
     V V′ : Set a
     ρ : Wk _ _
     σ : Subst _ _
@@ -47,20 +47,25 @@ private
 data Whnf {m n} (∇ : DCon (Term 0) m) : Term n → Set a where
 
   -- Type constructors are whnfs.
+  Levelₙ : Whnf ∇ Level
   Uₙ     : Whnf ∇ (U l)
+  Liftₙ  : Whnf ∇ (Lift l A)
   ΠΣₙ    : Whnf ∇ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     : Whnf ∇ ℕ
-  Unitₙ  : Whnf ∇ (Unit s l)
+  Unitₙ  : Whnf ∇ (Unit s)
   Emptyₙ : Whnf ∇ Empty
   Idₙ    : Whnf ∇ (Id A t u)
 
   -- Introductions are whnfs.
-  lamₙ  : Whnf ∇ (lam p t)
-  zeroₙ : Whnf ∇ zero
-  sucₙ  : Whnf ∇ (suc t)
-  starₙ : Whnf ∇ (star s l)
-  prodₙ : Whnf ∇ (prod s p t u)
-  rflₙ  : Whnf ∇ rfl
+  zeroᵘₙ : Whnf ∇ zeroᵘ
+  sucᵘₙ  : Whnf ∇ (sucᵘ t)
+  liftₙ  : Whnf ∇ (lift t)
+  lamₙ   : Whnf ∇ (lam p t)
+  zeroₙ  : Whnf ∇ zero
+  sucₙ   : Whnf ∇ (suc t)
+  starₙ  : Whnf ∇ (star s)
+  prodₙ  : Whnf ∇ (prod s p t u)
+  rflₙ   : Whnf ∇ rfl
 
   -- Neutral terms are whnfs.
   ne    : Neutral⁺ ∇ t → Whnf ∇ t
@@ -81,7 +86,7 @@ data Natural {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   ne    : Neutral V ∇ t → Natural V ∇ t
 
 Natural⁺ : ∀ {m n} → DCon (Term 0) m → Term n → Set a
-Natural⁺ = Natural (Lift _ ⊤)
+Natural⁺ = Natural (L.Lift _ ⊤)
 
 opaque
 
@@ -90,25 +95,30 @@ opaque
   natural↑ ok sucₙ   = sucₙ
   natural↑ ok (ne b) = ne (ne↑ ok b)
 
--- A type in WHNF is either a universe, a Π-type, a Σ-type, ℕ, Empty,
--- a unit type, an identity type, or neutral.
+-- A type in WHNF is either Level, a universe, a lifted type, a
+-- Π-type, a Σ-type, ℕ, Empty, a unit type, an identity type, or
+-- neutral.
 
 data Type {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
+  Levelₙ :                 Type V ∇ Level
   Uₙ     :                 Type V ∇ (U l)
+  Liftₙ  :                 Type V ∇ (Lift l A)
   ΠΣₙ    :                 Type V ∇ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕₙ     :                 Type V ∇ ℕ
   Emptyₙ :                 Type V ∇ Empty
-  Unitₙ  :                 Type V ∇ (Unit s l)
+  Unitₙ  :                 Type V ∇ (Unit s)
   Idₙ    :                 Type V ∇ (Id A t u)
   ne     : Neutral V ∇ t → Type V ∇ t
 
 Type⁺ : ∀ {m n} → DCon (Term 0) m → Term n → Set a
-Type⁺ = Type (Lift _ ⊤)
+Type⁺ = Type (L.Lift _ ⊤)
 
 opaque
 
   type↑ : V → Type V′ ∇ t → Type V ∇ t
+  type↑ _  Levelₙ = Levelₙ
   type↑ ok Uₙ     = Uₙ
+  type↑ _  Liftₙ  = Liftₙ
   type↑ ok ΠΣₙ    = ΠΣₙ
   type↑ ok ℕₙ     = ℕₙ
   type↑ ok Emptyₙ = Emptyₙ
@@ -127,7 +137,7 @@ data Function {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   ne   : Neutral V ∇ t → Function V ∇ t
 
 Function⁺ : ∀ {m n} → DCon (Term 0) m → Term n → Set a
-Function⁺ = Function (Lift _ ⊤)
+Function⁺ = Function (L.Lift _ ⊤)
 
 opaque
 
@@ -142,7 +152,7 @@ data Product {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   ne    : Neutral V ∇ t → Product V ∇ t
 
 Product⁺ : ∀ {m n} → DCon (Term 0) m → Term n → Set a
-Product⁺ = Product (Lift _ ⊤)
+Product⁺ = Product (L.Lift _ ⊤)
 
 opaque
 
@@ -153,11 +163,11 @@ opaque
 -- Star holds for applications of star as well as neutral terms.
 
 data Star {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
-  starₙ :                 Star V ∇ (star s l)
+  starₙ :                 Star V ∇ (star s)
   ne    : Neutral V ∇ t → Star V ∇ t
 
 Star⁺ : ∀ {m n} → DCon (Term 0) m → Term n → Set a
-Star⁺ = Star (Lift _ ⊤)
+Star⁺ = Star (L.Lift _ ⊤)
 
 opaque
 
@@ -172,7 +182,7 @@ data Identity {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   ne   : Neutral V ∇ t → Identity V ∇ t
 
 Identity⁺ : ∀ {m n} → DCon (Term 0) m → Term n → Set a
-Identity⁺ = Identity (Lift _ ⊤)
+Identity⁺ = Identity (L.Lift _ ⊤)
 
 opaque
 
@@ -206,7 +216,9 @@ naturalWhnf zeroₙ  = zeroₙ
 naturalWhnf (ne b) = ne-whnf b
 
 typeWhnf : Type V ∇ A → Whnf ∇ A
+typeWhnf Levelₙ = Levelₙ
 typeWhnf Uₙ     = Uₙ
+typeWhnf Liftₙ  = Liftₙ
 typeWhnf ΠΣₙ    = ΠΣₙ
 typeWhnf ℕₙ     = ℕₙ
 typeWhnf Emptyₙ = Emptyₙ
@@ -243,11 +255,12 @@ identityWhnf (ne b) = ne-whnf b
 -- neutral.
 
 data No-η-equality {m n} (∇ : DCon (Term 0) m) : Term n → Set a where
+  Levelₙ :                No-η-equality ∇ Level
   Uₙ     :                No-η-equality ∇ (U l)
   Σʷₙ    :                No-η-equality ∇ (Σʷ p , q ▷ A ▹ B)
   Emptyₙ :                No-η-equality ∇ Empty
   ℕₙ     :                No-η-equality ∇ ℕ
-  Unitʷₙ : ¬ Unitʷ-η    → No-η-equality ∇ (Unitʷ l)
+  Unitʷₙ : ¬ Unitʷ-η    → No-η-equality ∇ Unitʷ
   Idₙ    :                No-η-equality ∇ (Id A t u)
   neₙ    : Neutral⁺ ∇ A → No-η-equality ∇ A
 
@@ -255,6 +268,7 @@ data No-η-equality {m n} (∇ : DCon (Term 0) m) : Term n → Set a where
 
 No-η-equality→Whnf : No-η-equality ∇ A → Whnf ∇ A
 No-η-equality→Whnf = λ where
+  Levelₙ     → Levelₙ
   Uₙ         → Uₙ
   Σʷₙ        → ΠΣₙ
   Emptyₙ     → Emptyₙ
@@ -274,7 +288,9 @@ wkNatural ρ zeroₙ  = zeroₙ
 wkNatural ρ (ne b) = ne (wkNeutral ρ b)
 
 wkType : ∀ ρ → Type V ∇ t → Type {n = n} V ∇ (wk ρ t)
+wkType ρ Levelₙ = Levelₙ
 wkType ρ Uₙ     = Uₙ
+wkType ρ Liftₙ  = Liftₙ
 wkType ρ ΠΣₙ    = ΠΣₙ
 wkType ρ ℕₙ     = ℕₙ
 wkType ρ Emptyₙ = Emptyₙ
@@ -295,25 +311,31 @@ wkIdentity rflₙ   = rflₙ
 wkIdentity (ne b) = ne (wkNeutral _ b)
 
 wkWhnf : ∀ ρ → Whnf ∇ t → Whnf {n = n} ∇ (wk ρ t)
-wkWhnf ρ Uₙ     = Uₙ
-wkWhnf ρ ΠΣₙ    = ΠΣₙ
-wkWhnf ρ ℕₙ     = ℕₙ
-wkWhnf ρ Emptyₙ = Emptyₙ
-wkWhnf ρ Unitₙ  = Unitₙ
-wkWhnf ρ Idₙ    = Idₙ
-wkWhnf ρ lamₙ   = lamₙ
-wkWhnf ρ prodₙ  = prodₙ
-wkWhnf ρ zeroₙ  = zeroₙ
-wkWhnf ρ sucₙ   = sucₙ
-wkWhnf ρ starₙ  = starₙ
-wkWhnf ρ rflₙ   = rflₙ
-wkWhnf ρ (ne x) = ne (wkNeutral ρ x)
+wkWhnf ρ Levelₙ  = Levelₙ
+wkWhnf ρ Uₙ      = Uₙ
+wkWhnf ρ Liftₙ   = Liftₙ
+wkWhnf ρ liftₙ   = liftₙ
+wkWhnf ρ ΠΣₙ     = ΠΣₙ
+wkWhnf ρ ℕₙ      = ℕₙ
+wkWhnf ρ Emptyₙ  = Emptyₙ
+wkWhnf ρ Unitₙ   = Unitₙ
+wkWhnf ρ Idₙ     = Idₙ
+wkWhnf ρ zeroᵘₙ  = zeroᵘₙ
+wkWhnf ρ sucᵘₙ   = sucᵘₙ
+wkWhnf ρ lamₙ    = lamₙ
+wkWhnf ρ prodₙ   = prodₙ
+wkWhnf ρ zeroₙ   = zeroₙ
+wkWhnf ρ sucₙ    = sucₙ
+wkWhnf ρ starₙ   = starₙ
+wkWhnf ρ rflₙ    = rflₙ
+wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
 
 opaque
 
   -- A weakening lemma for No-η-equality.
 
   wk-No-η-equality : No-η-equality ∇ A → No-η-equality ∇ (wk ρ A)
+  wk-No-η-equality Levelₙ        = Levelₙ
   wk-No-η-equality Uₙ            = Uₙ
   wk-No-η-equality Σʷₙ           = Σʷₙ
   wk-No-η-equality Emptyₙ        = Emptyₙ
@@ -324,6 +346,20 @@ opaque
 
 ------------------------------------------------------------------------
 -- Inversion lemmas
+
+opaque
+
+  -- An inversion lemma for supᵘ.
+
+  inv-whnf-supᵘ : Whnf ∇ (t supᵘ u) → Neutral⁺ ∇ (t supᵘ u)
+  inv-whnf-supᵘ (ne n) = n
+
+opaque
+
+  -- An inversion lemma for lower.
+
+  inv-whnf-lower : Whnf ∇ (lower t) → Neutral⁺ ∇ t
+  inv-whnf-lower (ne n) = inv-ne-lower n
 
 opaque
 
@@ -372,7 +408,7 @@ opaque
   -- An inversion lemma for unitrec.
 
   inv-whnf-unitrec :
-    Whnf ∇ (unitrec l p q A t u) → ¬ Unitʷ-η × Neutral⁺ ∇ t
+    Whnf ∇ (unitrec p q A t u) → ¬ Unitʷ-η × Neutral⁺ ∇ t
   inv-whnf-unitrec (ne b) = inv-ne-unitrec b
 
 opaque
@@ -393,7 +429,7 @@ opaque
 
   -- An inversion lemma for []-cong.
 
-  inv-whnf-[]-cong : Whnf ∇ ([]-cong s A t u v) → Neutral⁺ ∇ v
+  inv-whnf-[]-cong : Whnf ∇ ([]-cong s l A t u v) → Neutral⁺ ∇ v
   inv-whnf-[]-cong (ne b) = inv-ne-[]-cong b
 
 ------------------------------------------------------------------------
@@ -412,6 +448,23 @@ opaque
   ne⁺-subst {t} ≡u (var ok x) =
     case subst-var {t = t} ≡u of λ where
       (x′ , refl , _) → var ok x′
+  ne⁺-subst {t} ≡u (supᵘˡₙ b) =
+    case subst-supᵘ {t = t} ≡u of λ where
+      (inj₁ (x , refl))               → var⁺ x
+      (inj₂ (_ , _ , refl , ≡t′ , _)) →
+        supᵘˡₙ (ne⁺-subst ≡t′ b)
+  ne⁺-subst {t} ≡u (supᵘʳₙ b) =
+    case subst-supᵘ {t = t} ≡u of λ where
+      (inj₁ (x , refl))                  → var⁺ x
+      (inj₂ (t′ , _ , refl , ≡t′ , ≡t″)) →
+        case subst-sucᵘ {t = t′} ≡t′ of λ where
+          (inj₁ (x , refl))     → supᵘˡₙ (var⁺ x)
+          (inj₂ (_ , refl , _)) → supᵘʳₙ (ne⁺-subst ≡t″ b)
+  ne⁺-subst {t} ≡u (lowerₙ b) =
+    case subst-lower {t = t} ≡u of λ where
+      (inj₁ (x , refl))       → var⁺ x
+      (inj₂ (_ , refl , ≡t′)) →
+        lowerₙ (ne⁺-subst ≡t′ b)
   ne⁺-subst {t} ≡u (∘ₙ b) =
     case subst-∘ {t = t} ≡u of λ where
       (inj₁ (x , refl)) → var⁺ x
@@ -457,7 +510,7 @@ opaque
   ne⁺-subst {t} ≡u ([]-congₙ b) =
     case subst-[]-cong {w = t} ≡u of λ where
       (inj₁ (x , refl)) → var⁺ x
-      (inj₂ (_ , _ , _ , _ , refl , _ , _ , _ , ≡t′)) →
+      (inj₂ (_ , _ , _ , _ , _ , refl , _ , _ , _ , _ , ≡t′)) →
         []-congₙ (ne⁺-subst ≡t′ b)
 
 opaque
@@ -469,10 +522,18 @@ opaque
   whnf-subst {t} = lemma refl
     where
     lemma : t [ σ ] ≡ u → Whnf ∇ u → Whnf ∇ t
+    lemma ≡u Levelₙ =
+      case subst-Level {t = t} ≡u of λ where
+        (inj₁ (x , refl)) → ne (var⁺ x)
+        (inj₂ refl)       → Levelₙ
     lemma ≡u Uₙ =
       case subst-U {t = t} ≡u of λ where
-        (inj₁ (x , refl)) → ne (var⁺ x)
-        (inj₂ refl) → Uₙ
+        (inj₁ (x , refl))     → ne (var⁺ x)
+        (inj₂ (_ , refl , _)) → Uₙ
+    lemma ≡u Liftₙ =
+      case subst-Lift {t = t} ≡u of λ where
+        (inj₁ (x , refl))             → ne (var⁺ x)
+        (inj₂ (_ , _ , refl , _ , _)) → Liftₙ
     lemma ≡u ΠΣₙ =
       case subst-ΠΣ {t = t} ≡u of λ where
         (inj₁ (x , refl)) → ne (var⁺ x)
@@ -493,6 +554,18 @@ opaque
       case subst-Id {v = t} ≡u of λ where
         (inj₁ (x , refl)) → ne (var⁺ x)
         (inj₂ (_ , _ , _ , refl , _)) → Idₙ
+    lemma ≡u zeroᵘₙ =
+      case subst-zeroᵘ {t = t} ≡u of λ where
+        (inj₁ (x , refl)) → ne (var⁺ x)
+        (inj₂ refl)       → zeroᵘₙ
+    lemma ≡u sucᵘₙ =
+      case subst-sucᵘ {t = t} ≡u of λ where
+        (inj₁ (x , refl))     → ne (var⁺ x)
+        (inj₂ (_ , refl , _)) → sucᵘₙ
+    lemma ≡u liftₙ =
+      case subst-lift {t = t} ≡u of λ where
+        (inj₁ (x , refl))     → ne (var⁺ x)
+        (inj₂ (_ , refl , _)) → liftₙ
     lemma ≡u lamₙ =
       case subst-lam {t = t} ≡u of λ where
         (inj₁ (x , refl)) → ne (var⁺ x)
@@ -531,6 +604,9 @@ opaque
   Neutral-inline : Neutral V (glassify ∇) t → Neutral V ∇′ (inline ξ t)
   Neutral-inline (defn α↦)            = ⊥-elim (glass-↦⊘∈ α↦)
   Neutral-inline (var ok _)           = var ok _
+  Neutral-inline (supᵘˡₙ t-ne)        = supᵘˡₙ (Neutral-inline t-ne)
+  Neutral-inline (supᵘʳₙ t-ne)        = supᵘʳₙ (Neutral-inline t-ne)
+  Neutral-inline (lowerₙ t-ne)        = lowerₙ (Neutral-inline t-ne)
   Neutral-inline (∘ₙ t-ne)            = ∘ₙ (Neutral-inline t-ne)
   Neutral-inline (fstₙ t-ne)          = fstₙ (Neutral-inline t-ne)
   Neutral-inline (sndₙ t-ne)          = sndₙ (Neutral-inline t-ne)
@@ -550,12 +626,17 @@ opaque
   -- under ∇′.
 
   Whnf-inline : Whnf (glassify ∇) t → Whnf ∇′ (inline ξ t)
+  Whnf-inline Levelₙ    = Levelₙ
   Whnf-inline Uₙ        = Uₙ
+  Whnf-inline Liftₙ     = Liftₙ
   Whnf-inline ΠΣₙ       = ΠΣₙ
   Whnf-inline ℕₙ        = ℕₙ
   Whnf-inline Unitₙ     = Unitₙ
   Whnf-inline Emptyₙ    = Emptyₙ
   Whnf-inline Idₙ       = Idₙ
+  Whnf-inline zeroᵘₙ    = zeroᵘₙ
+  Whnf-inline sucᵘₙ     = sucᵘₙ
+  Whnf-inline liftₙ     = liftₙ
   Whnf-inline lamₙ      = lamₙ
   Whnf-inline zeroₙ     = zeroₙ
   Whnf-inline sucₙ      = sucₙ

@@ -62,7 +62,7 @@ private variable
   b                                          : Bool
   n                                          : Nat
   Γ                                          : Cons _ _
-  A A₁ A₂ B B₁ B₂
+  A A₁ A₂ B B₁ B₂ l l₁ l₂
     t t′ t₁ t₂ u u₁ u₂ v v′ v₁ v₂ w w′ w₁ w₂ : Term _
   ρ                                          : Wk _ _
   σ                                          : Subst _ _
@@ -111,6 +111,8 @@ record Configuration : Set (lsuc a) where
     Opacity-allowed-→ :
       ¬ T glassification →
       TRₛ.Opacity-allowed → TRₜ.Opacity-allowed
+    level-support-≤ :
+      TRₛ.level-support ≤LS TRₜ.level-support
     unfolding-mode-≡ :
       TRₛ.unfolding-mode PE.≡ TRₜ.unfolding-mode
     Unit-allowed-→ :
@@ -148,56 +150,62 @@ record Configuration : Set (lsuc a) where
     -- How []-cong should be translated.
 
     []-cong′ :
-      Strength → (_ _ _ _ : Term n) → Term n
+      Strength → (_ _ _ _ _ : Term n) → Term n
 
     -- Assumptions related to []-cong′.
 
     []-cong′-[] :
-      []-cong′ s A t u v [ σ ] PE.≡
-      []-cong′ s (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+      []-cong′ s l A t u v [ σ ] PE.≡
+      []-cong′ s (l [ σ ]) (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
 
     ▸[]-cong′ :
       URₛ.[]-cong-allowed-mode s m →
-      γ₁ ▸[ 𝟘ᵐ? ] A →
-      γ₂ ▸[ 𝟘ᵐ? ] t →
-      γ₃ ▸[ 𝟘ᵐ? ] u →
-      γ₄ ▸[ 𝟘ᵐ? ] v →
-      𝟘ᶜ ▸[ m ] []-cong′ s A t u v
+      γ₁ ▸[ 𝟘ᵐ? ] l →
+      γ₂ ▸[ 𝟘ᵐ? ] A →
+      γ₃ ▸[ 𝟘ᵐ? ] t →
+      γ₄ ▸[ 𝟘ᵐ? ] u →
+      γ₅ ▸[ 𝟘ᵐ? ] v →
+      𝟘ᶜ ▸[ m ] []-cong′ s l A t u v
 
     []-cong′-cong :
       let open Erased s in
       TRₛ.[]-cong-allowed s →
+      Γ ⊢ l₁ ≡ l₂ ∷Level →
       Γ ⊢ A₁ ≡ A₂ →
       Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
       Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
       Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
-      Γ ⊢ []-cong′ s A₁ t₁ u₁ v₁ ≡ []-cong′ s A₂ t₂ u₂ v₂ ∷
-        Id (Erased A₁) [ t₁ ] ([ u₁ ])
+      Γ ⊢ []-cong′ s l₁ A₁ t₁ u₁ v₁ ≡ []-cong′ s l₂ A₂ t₂ u₂ v₂ ∷
+        Id (Erased l₁ A₁) [ t₁ ] ([ u₁ ])
 
     []-cong′-subst :
       T preservation-of-reduction →
       let open Erased s in
       TRₛ.[]-cong-allowed s →
+      Γ ⊢ l ∷Level →
       Γ ⊢ v ⇒ v′ ∷ Id A t u →
-      Γ ⊢ []-cong′ s A t u v ⇒* []-cong′ s A t u v′ ∷
-        Id (Erased A) [ t ] ([ u ])
+      Γ ⊢ []-cong′ s l A t u v ⇒* []-cong′ s l A t u v′ ∷
+        Id (Erased l A) [ t ] ([ u ])
 
     []-cong′-β-≡′ :
       ¬ T preservation-of-reduction →
       let open Erased s in
       TRₛ.[]-cong-allowed s →
+      Γ ⊢ l ∷Level →
       Γ ⊢ t ∷ A →
-      Γ ⊢ []-cong′ s A t t rfl ≡ rfl ∷ Id (Erased A) [ t ] ([ t ])
+      Γ ⊢ []-cong′ s l A t t rfl ≡ rfl ∷ Id (Erased l A) [ t ] ([ t ])
 
     []-cong′-β-⇒* :
       T preservation-of-reduction →
       let open Erased s in
       TRₛ.[]-cong-allowed s →
+      Γ ⊢ l ∷Level →
       Γ ⊢ t ≡ t′ ∷ A →
-      Γ ⊢ []-cong′ s A t t′ rfl ⇒* rfl ∷ Id (Erased A) [ t ] ([ t′ ])
+      Γ ⊢ []-cong′ s l A t t′ rfl ⇒* rfl ∷
+        Id (Erased l A) [ t ] ([ t′ ])
 
     erase-[]-cong′ :
-      erase′ b str ([]-cong′ s A t u v) PE.≡ loop? str
+      erase′ b str ([]-cong′ s l A t u v) PE.≡ loop? str
 
     -- How J should be translated.
 
@@ -281,6 +289,29 @@ record Configuration : Set (lsuc a) where
 
   opaque
 
+    -- Level-allowed holds for the source if and only if it holds for
+    -- the target.
+
+    Level-allowed-⇔ : TRₛ.Level-allowed ⇔ TRₜ.Level-allowed
+    Level-allowed-⇔ =
+      TRₛ.Level-allowed                     ⇔⟨ TRₛ.Level-allowed⇔≢ ⟩
+      TRₛ.level-support PE.≢ only-literals  ⇔⟨ ≤LS→≢only-literals⇔≢only-literals level-support-≤ ⟩
+      TRₜ.level-support PE.≢ only-literals  ⇔˘⟨ TRₜ.Level-allowed⇔≢ ⟩
+      TRₜ.Level-allowed                     □⇔
+
+  opaque
+
+    -- Level-is-small holds for the target if it holds for the source.
+
+    Level-is-small-→ : TRₛ.Level-is-small → TRₜ.Level-is-small
+    Level-is-small-→ =
+      TRₛ.Level-is-small                       ⇔⟨ TRₛ.Level-is-small⇔ ⟩→
+      TRₛ.level-support PE.≡ level-type small  →⟨ ≤LS→≡small→≡small level-support-≤ ⟩
+      TRₜ.level-support PE.≡ level-type small  ⇔˘⟨ TRₜ.Level-is-small⇔ ⟩→
+      TRₜ.Level-is-small                       □
+
+  opaque
+
     -- Unitʷ-η holds for the source if and only if it holds for the
     -- target.
 
@@ -333,17 +364,17 @@ record Configuration : Set (lsuc a) where
     -- A weakening lemma for []-cong′.
 
     wk-[]-cong′ :
-      wk ρ ([]-cong′ s A t u v) PE.≡
-      []-cong′ s (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)
-    wk-[]-cong′ {ρ} {s} {A} {t} {u} {v} =
-      wk ρ ([]-cong′ s A t u v)                                         ≡⟨ wk≡subst _ _ ⟩
+      wk ρ ([]-cong′ s l A t u v) PE.≡
+      []-cong′ s (wk ρ l) (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)
+    wk-[]-cong′ {ρ} {s} {l} {A} {t} {u} {v} =
+      wk ρ ([]-cong′ s l A t u v)                                       ≡⟨ wk≡subst _ _ ⟩
 
-      []-cong′ s A t u v [ toSubst ρ ]                                  ≡⟨ []-cong′-[] ⟩
+      []-cong′ s l A t u v [ toSubst ρ ]                                ≡⟨ []-cong′-[] ⟩
 
-      []-cong′ s (A [ toSubst ρ ]) (t [ toSubst ρ ]) (u [ toSubst ρ ])
-        (v [ toSubst ρ ])                                               ≡˘⟨ PE.cong₄ ([]-cong′ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _)
-                                                                              (wk≡subst _ _) ⟩
-      []-cong′ s (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)                    ∎
+      []-cong′ s (l [ toSubst ρ ]) (A [ toSubst ρ ]) (t [ toSubst ρ ])
+        (u [ toSubst ρ ]) (v [ toSubst ρ ])                             ≡˘⟨ PE.cong₅ ([]-cong′ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _)
+                                                                              (wk≡subst _ _) (wk≡subst _ _) ⟩
+      []-cong′ s (wk ρ l) (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)           ∎
       where
       open Tools.Reasoning.PropositionalEquality
 
@@ -389,11 +420,14 @@ record Configuration : Set (lsuc a) where
     ⊢[]-cong′ :
       let open Erased s in
       TRₛ.[]-cong-allowed s →
+      Γ ⊢ l ∷Level →
       Γ ⊢ v ∷ Id A t u →
-      Γ ⊢ []-cong′ s A t u v ∷ Id (Erased A) [ t ] ([ u ])
-    ⊢[]-cong′ ok ⊢v =
+      Γ ⊢ []-cong′ s l A t u v ∷ Id (Erased l A) [ t ] ([ u ])
+    ⊢[]-cong′ ok ⊢l ⊢v =
       let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
-      wf-⊢≡∷ ([]-cong′-cong ok (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢v))
+      wf-⊢≡∷
+        ([]-cong′-cong ok (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (refl ⊢u)
+           (refl ⊢v))
         .proj₂ .proj₁
 
   opaque
@@ -403,12 +437,13 @@ record Configuration : Set (lsuc a) where
     []-cong′-β-≡ :
       let open Erased s in
       TRₛ.[]-cong-allowed s →
+      Γ ⊢ l ∷Level →
       Γ ⊢ t ∷ A →
-      Γ ⊢ []-cong′ s A t t rfl ≡ rfl ∷ Id (Erased A) [ t ] ([ t ])
-    []-cong′-β-≡ ok ⊢t =
+      Γ ⊢ []-cong′ s l A t t rfl ≡ rfl ∷ Id (Erased l A) [ t ] ([ t ])
+    []-cong′-β-≡ ok ⊢l ⊢t =
       case T? preservation-of-reduction of λ where
-        (yes pres)   → subset*Term ([]-cong′-β-⇒* pres ok (refl ⊢t))
-        (no no-pres) → []-cong′-β-≡′ no-pres ok ⊢t
+        (yes pres)   → subset*Term ([]-cong′-β-⇒* pres ok ⊢l (refl ⊢t))
+        (no no-pres) → []-cong′-β-≡′ no-pres ok ⊢l ⊢t
 
   opaque
 
@@ -418,14 +453,16 @@ record Configuration : Set (lsuc a) where
       T preservation-of-reduction →
       let open Erased s in
       TRₛ.[]-cong-allowed s →
+      Γ ⊢ l ∷Level →
       Γ ⊢ v ⇒* v′ ∷ Id A t u →
-      Γ ⊢ []-cong′ s A t u v ⇒* []-cong′ s A t u v′ ∷
-        Id (Erased A) [ t ] ([ u ])
-    []-cong′-subst* pres ok = λ where
+      Γ ⊢ []-cong′ s l A t u v ⇒* []-cong′ s l A t u v′ ∷
+        Id (Erased l A) [ t ] ([ u ])
+    []-cong′-subst* pres ok ⊢l = λ where
       (id ⊢v) →
-        id (⊢[]-cong′ ok ⊢v)
+        id (⊢[]-cong′ ok ⊢l ⊢v)
       (v⇒v′ ⇨ v′⇒*v″) →
-        []-cong′-subst pres ok v⇒v′ ⇨∷* []-cong′-subst* pres ok v′⇒*v″
+        []-cong′-subst pres ok ⊢l v⇒v′ ⇨∷*
+        []-cong′-subst* pres ok ⊢l v′⇒*v″
 
   opaque
 
@@ -508,38 +545,40 @@ opaque
      Usage-restrictions.[]-cong-allowed-mode URₛ s m → T 𝟘ᵐ-allowed) →
     Configuration
   remove-[]-cong 𝟘ᵐ-ok = λ where
-      .preservation-of-reduction    → true
-      .glassification               → false
-      .Configuration.TRₜ            → TRₜ
-      .Configuration.URₜ            → URₜ
-      .Opacity-allowed-→ _          → idᶠ
-      .unfolding-mode-≡             → PE.refl
-      .Unit-allowed-→               → idᶠ
-      .η-for-Unitʷ-≡                → PE.refl
-      .ΠΣ-allowed-→                 → idᶠ
-      .K-allowed-→                  → idᶠ
-      .Equality-reflection-→        → idᶠ
-      .Emptyrec-allowed-𝟙ᵐ-→        → idᶠ
-      .Unitrec-allowed-𝟙ᵐ-→         → idᶠ
-      .Starˢ-sink-→                 → idᶠ
-      .Prodrec-allowed-𝟙ᵐ-→         → idᶠ
-      .natrec-mode-≡                → PE.refl
-      .Id-erased-⇔                  → id⇔
-      .erased-matches-for-K-≡       → PE.refl
-      .[]-cong′                     → []-cong-J
-      .[]-cong′-[]                  → []-cong-J-[]
-      .▸[]-cong′ {m} ok ▸A ▸t ▸u ▸v →
+      .preservation-of-reduction       → true
+      .glassification                  → false
+      .Configuration.TRₜ               → TRₜ
+      .Configuration.URₜ               → URₜ
+      .Opacity-allowed-→ _             → idᶠ
+      .level-support-≤                 → refl-≤LS
+      .unfolding-mode-≡                → PE.refl
+      .Unit-allowed-→                  → idᶠ
+      .η-for-Unitʷ-≡                   → PE.refl
+      .ΠΣ-allowed-→                    → idᶠ
+      .K-allowed-→                     → idᶠ
+      .Equality-reflection-→           → idᶠ
+      .Emptyrec-allowed-𝟙ᵐ-→           → idᶠ
+      .Unitrec-allowed-𝟙ᵐ-→            → idᶠ
+      .Starˢ-sink-→                    → idᶠ
+      .Prodrec-allowed-𝟙ᵐ-→            → idᶠ
+      .natrec-mode-≡                   → PE.refl
+      .Id-erased-⇔                     → id⇔
+      .erased-matches-for-K-≡          → PE.refl
+      .[]-cong′                        → []-cong-J
+      .[]-cong′-[]                     → []-cong-J-[]
+      .▸[]-cong′ {m} ok ▸l ▸A ▸t ▸u ▸v →
         ▸[]-cong-J {ok = 𝟘ᵐ-ok m ok}
-          (some-erased-matches-allowed .proj₂) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A)
-          (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
+          (some-erased-matches-allowed .proj₂) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸l)
+          (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u)
+          (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
       .[]-cong′-cong ok →
         []-cong-J-cong (TRₛ .[]-cong→Erased ok)
-      .[]-cong′-subst _ ok v⇒v′ →
-        redMany ([]-cong-J-subst (TRₛ .[]-cong→Erased ok) v⇒v′)
+      .[]-cong′-subst _ ok ⊢l v⇒v′ →
+        redMany ([]-cong-J-subst (TRₛ .[]-cong→Erased ok) ⊢l v⇒v′)
       .[]-cong′-β-≡′ ¬⊤ →
         ⊥-elim (¬⊤ _)
-      .[]-cong′-β-⇒* _ ok t≡t′ →
-        redMany ([]-cong-J-β-⇒′ (TRₛ .[]-cong→Erased ok) t≡t′)
+      .[]-cong′-β-⇒* _ ok ⊢l t≡t′ →
+        redMany ([]-cong-J-β-⇒′ (TRₛ .[]-cong→Erased ok) ⊢l t≡t′)
       .erase-[]-cong′ →
         erase-[]-cong-J
       .J′                    → J
@@ -595,37 +634,38 @@ opaque
     Usage-restrictions.erased-matches-for-J URₛ 𝟙ᵐ ≤ᵉᵐ some →
     Configuration
   remove-J-𝟘-𝟘 ⦃ ok = 𝟘ᵐ-ok ⦄ ≤some = λ where
-      .preservation-of-reduction         → false
-      .glassification                    → false
-      .Configuration.TRₜ                 → TRₜ
-      .Configuration.URₜ                 → URₜ
-      .Opacity-allowed-→ _               → idᶠ
-      .unfolding-mode-≡                  → PE.refl
-      .Unit-allowed-→                    → inj₁
-      .η-for-Unitʷ-≡                     → PE.refl
-      .ΠΣ-allowed-→ {bm = BMΣ _}         → inj₁
-      .ΠΣ-allowed-→ {bm = BMΠ}           → idᶠ
-      .K-allowed-→                       → idᶠ
-      .Equality-reflection-→             → idᶠ
-      .Emptyrec-allowed-𝟙ᵐ-→             → idᶠ
-      .Unitrec-allowed-𝟙ᵐ-→              → idᶠ
-      .Starˢ-sink-→                      → idᶠ
-      .Prodrec-allowed-𝟙ᵐ-→              → idᶠ
-      .natrec-mode-≡                     → PE.refl
-      .Id-erased-⇔                       → id⇔
-      .erased-matches-for-K-≡            → PE.refl
-      .[]-cong′                          → []-cong
-      .[]-cong′-[]                       → PE.refl
-      .▸[]-cong′ {m = 𝟙ᵐ} ok ▸A ▸t ▸u ▸v →
-        []-congₘ ▸A ▸t ▸u ▸v (inj₁ ok)
-      .▸[]-cong′ {m = 𝟘ᵐ} _ ▸A ▸t ▸u ▸v →
-        []-congₘ ▸A ▸t ▸u ▸v _
-      .[]-cong′-cong _ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ →
-        []-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ non-trivial
-      .[]-cong′-subst _ _ v⇒v′ →
-        redMany $ []-cong-subst′ v⇒v′ non-trivial
-      .[]-cong′-β-≡′ _ _ ⊢t →
-        []-cong-β-≡ (refl ⊢t) non-trivial
+      .preservation-of-reduction            → false
+      .glassification                       → false
+      .Configuration.TRₜ                    → TRₜ
+      .Configuration.URₜ                    → URₜ
+      .Opacity-allowed-→ _                  → idᶠ
+      .level-support-≤                      → refl-≤LS
+      .unfolding-mode-≡                     → PE.refl
+      .Unit-allowed-→                       → inj₁
+      .η-for-Unitʷ-≡                        → PE.refl
+      .ΠΣ-allowed-→ {bm = BMΣ _}            → inj₁
+      .ΠΣ-allowed-→ {bm = BMΠ}              → idᶠ
+      .K-allowed-→                          → idᶠ
+      .Equality-reflection-→                → idᶠ
+      .Emptyrec-allowed-𝟙ᵐ-→                → idᶠ
+      .Unitrec-allowed-𝟙ᵐ-→                 → idᶠ
+      .Starˢ-sink-→                         → idᶠ
+      .Prodrec-allowed-𝟙ᵐ-→                 → idᶠ
+      .natrec-mode-≡                        → PE.refl
+      .Id-erased-⇔                          → id⇔
+      .erased-matches-for-K-≡               → PE.refl
+      .[]-cong′                             → []-cong
+      .[]-cong′-[]                          → PE.refl
+      .▸[]-cong′ {m = 𝟙ᵐ} ok ▸l ▸A ▸t ▸u ▸v →
+        []-congₘ ▸l ▸A ▸t ▸u ▸v (inj₁ ok)
+      .▸[]-cong′ {m = 𝟘ᵐ} _ ▸l ▸A ▸t ▸u ▸v →
+        []-congₘ ▸l ▸A ▸t ▸u ▸v _
+      .[]-cong′-cong _ l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ →
+        []-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ non-trivial
+      .[]-cong′-subst _ _ ⊢l v⇒v′ →
+        redMany $ []-cong-subst ⊢l v⇒v′ non-trivial
+      .[]-cong′-β-≡′ _ _ ⊢l ⊢t →
+        []-cong-β-≡ ⊢l (refl ⊢t) non-trivial
       .[]-cong′-β-⇒* ()
       .erase-[]-cong′ →
         PE.refl
@@ -828,40 +868,41 @@ opaque
 
   replace-[]-cong-with-rfl : Configuration
   replace-[]-cong-with-rfl = λ where
-      .preservation-of-reduction    → true
-      .glassification               → true
-      .Configuration.TRₜ            → TRₜ
-      .Configuration.URₜ            → URₜ
-      .Opacity-allowed-→ ¬⊤         → ⊥-elim (¬⊤ _)
-      .unfolding-mode-≡             → PE.refl
-      .Unit-allowed-→               → idᶠ
-      .η-for-Unitʷ-≡                → PE.refl
-      .ΠΣ-allowed-→                 → idᶠ
-      .K-allowed-→                  → idᶠ
-      .Equality-reflection-→        → _
-      .Emptyrec-allowed-𝟙ᵐ-→        → idᶠ
-      .Unitrec-allowed-𝟙ᵐ-→         → idᶠ
-      .Starˢ-sink-→                 → idᶠ
-      .Prodrec-allowed-𝟙ᵐ-→         → idᶠ
-      .natrec-mode-≡                → PE.refl
-      .Id-erased-⇔                  → id⇔
-      .erased-matches-for-K-≡       → PE.refl
-      .[]-cong′ _ _ _ _ _           → rfl
-      .[]-cong′-[]                  → PE.refl
-      .▸[]-cong′ _ _ _ _ _          → rflₘ
-      .[]-cong′-cong ok _ _ _ v₁≡v₂ →
+      .preservation-of-reduction          → true
+      .glassification                     → true
+      .Configuration.TRₜ                  → TRₜ
+      .Configuration.URₜ                  → URₜ
+      .Opacity-allowed-→ ¬⊤               → ⊥-elim (¬⊤ _)
+      .level-support-≤                    → refl-≤LS
+      .unfolding-mode-≡                   → PE.refl
+      .Unit-allowed-→                     → idᶠ
+      .η-for-Unitʷ-≡                      → PE.refl
+      .ΠΣ-allowed-→                       → idᶠ
+      .K-allowed-→                        → idᶠ
+      .Equality-reflection-→              → _
+      .Emptyrec-allowed-𝟙ᵐ-→              → idᶠ
+      .Unitrec-allowed-𝟙ᵐ-→               → idᶠ
+      .Starˢ-sink-→                       → idᶠ
+      .Prodrec-allowed-𝟙ᵐ-→               → idᶠ
+      .natrec-mode-≡                      → PE.refl
+      .Id-erased-⇔                        → id⇔
+      .erased-matches-for-K-≡             → PE.refl
+      .[]-cong′ _ _ _ _ _ _               → rfl
+      .[]-cong′-[]                        → PE.refl
+      .▸[]-cong′ _ _ _ _ _ _              → rflₘ
+      .[]-cong′-cong ok l₁≡l₂ _ _ _ v₁≡v₂ →
         refl $
         []-cong-with-equality-reflection _ (TRₛ .[]-cong→Erased ok)
-          (wf-⊢≡∷ v₁≡v₂ .proj₂ .proj₁)
-      .[]-cong′-subst _ ok v⇒v′ →
+          (wf-⊢≡∷L l₁≡l₂ .proj₁) (wf-⊢≡∷ v₁≡v₂ .proj₂ .proj₁)
+      .[]-cong′-subst _ ok ⊢l v⇒v′ →
         id $
-        []-cong-with-equality-reflection _ (TRₛ .[]-cong→Erased ok)
+        []-cong-with-equality-reflection _ (TRₛ .[]-cong→Erased ok) ⊢l
           (wf-⊢≡∷ (subsetTerm v⇒v′) .proj₂ .proj₁)
       .[]-cong′-β-≡′ ¬⊤ →
         ⊥-elim (¬⊤ _)
-      .[]-cong′-β-⇒* _ ok t≡t′ →
+      .[]-cong′-β-⇒* _ ok ⊢l t≡t′ →
         id $
-        []-cong-with-equality-reflection _ (TRₛ .[]-cong→Erased ok)
+        []-cong-with-equality-reflection _ (TRₛ .[]-cong→Erased ok) ⊢l
           (rflⱼ′ t≡t′)
       .erase-[]-cong′ →
         PE.refl
@@ -897,43 +938,45 @@ opaque
 
   turn-on-equality-reflection : Configuration
   turn-on-equality-reflection = λ where
-      .preservation-of-reduction → true
-      .glassification            → true
-      .Configuration.TRₜ         → TRₜ
-      .Configuration.URₜ         → URₛ
-      .Opacity-allowed-→ ¬⊤      → ⊥-elim (¬⊤ _)
-      .unfolding-mode-≡          → PE.refl
-      .Unit-allowed-→            → idᶠ
-      .η-for-Unitʷ-≡             → PE.refl
-      .ΠΣ-allowed-→              → idᶠ
-      .K-allowed-→               → idᶠ
-      .Equality-reflection-→     → _
-      .Emptyrec-allowed-𝟙ᵐ-→     → idᶠ
-      .Unitrec-allowed-𝟙ᵐ-→      → idᶠ
-      .Starˢ-sink-→              → idᶠ
-      .Prodrec-allowed-𝟙ᵐ-→      → idᶠ
-      .natrec-mode-≡             → PE.refl
-      .Id-erased-⇔               → id⇔
-      .erased-matches-for-K-≡    → PE.refl
-      .[]-cong′                  → []-cong
-      .[]-cong′-[]               → PE.refl
-      .▸[]-cong′ ok ▸A ▸t ▸u ▸v  → []-congₘ ▸A ▸t ▸u ▸v ok
-      .[]-cong′-cong ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ →
-        []-cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok
-      .[]-cong′-subst _ ok v⇒v′ → redMany ([]-cong-subst′ v⇒v′ ok)
-      .[]-cong′-β-≡′ ¬⊤         → ⊥-elim (¬⊤ _)
-      .[]-cong′-β-⇒* _ ok t≡t′  → redMany ([]-cong-β-⇒ t≡t′ ok)
-      .erase-[]-cong′           → PE.refl
-      .J′                       → J
-      .J′-[]                    → PE.refl
-      .▸J′                      → Jₘ
-      .▸J′₀₁ ok                 → J₀ₘ₁ ok PE.refl PE.refl
-      .▸J′₀₂                    → J₀ₘ₂
-      .J′-cong                  → J-cong′
-      .J′-subst _ ⊢B ⊢u w⇒w′    → redMany (J-subst′ ⊢B ⊢u w⇒w′)
-      .J′-β-≡′ ¬⊤               → ⊥-elim (¬⊤ _)
-      .J′-β-⇒* _ t≡t′ ⊢B ⊢u     → redMany (J-β-⇒ t≡t′ ⊢B ⊢u)
-      .erase-J′                 → PE.refl
+      .preservation-of-reduction   → true
+      .glassification              → true
+      .Configuration.TRₜ           → TRₜ
+      .Configuration.URₜ           → URₛ
+      .Opacity-allowed-→ ¬⊤        → ⊥-elim (¬⊤ _)
+      .level-support-≤             → refl-≤LS
+      .unfolding-mode-≡            → PE.refl
+      .Unit-allowed-→              → idᶠ
+      .η-for-Unitʷ-≡               → PE.refl
+      .ΠΣ-allowed-→                → idᶠ
+      .K-allowed-→                 → idᶠ
+      .Equality-reflection-→       → _
+      .Emptyrec-allowed-𝟙ᵐ-→       → idᶠ
+      .Unitrec-allowed-𝟙ᵐ-→        → idᶠ
+      .Starˢ-sink-→                → idᶠ
+      .Prodrec-allowed-𝟙ᵐ-→        → idᶠ
+      .natrec-mode-≡               → PE.refl
+      .Id-erased-⇔                 → id⇔
+      .erased-matches-for-K-≡      → PE.refl
+      .[]-cong′                    → []-cong
+      .[]-cong′-[]                 → PE.refl
+      .▸[]-cong′ ok ▸l ▸A ▸t ▸u ▸v →
+        []-congₘ ▸l ▸A ▸t ▸u ▸v ok
+      .[]-cong′-cong ok l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ →
+        []-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok
+      .[]-cong′-subst _ ok ⊢l v⇒v′ → redMany ([]-cong-subst ⊢l v⇒v′ ok)
+      .[]-cong′-β-≡′ ¬⊤            → ⊥-elim (¬⊤ _)
+      .[]-cong′-β-⇒* _ ok ⊢l t≡t′  → redMany ([]-cong-β ⊢l t≡t′ ok)
+      .erase-[]-cong′              → PE.refl
+      .J′                          → J
+      .J′-[]                       → PE.refl
+      .▸J′                         → Jₘ
+      .▸J′₀₁ ok                    → J₀ₘ₁ ok PE.refl PE.refl
+      .▸J′₀₂                       → J₀ₘ₂
+      .J′-cong                     → J-cong′
+      .J′-subst _ ⊢B ⊢u w⇒w′       → redMany (J-subst′ ⊢B ⊢u w⇒w′)
+      .J′-β-≡′ ¬⊤                  → ⊥-elim (¬⊤ _)
+      .J′-β-⇒* _ t≡t′ ⊢B ⊢u        → redMany (J-β-⇒ t≡t′ ⊢B ⊢u)
+      .erase-J′                    → PE.refl
     where
     TRₜ : Type-restrictions
     TRₜ = with-equality-reflection TRₛ

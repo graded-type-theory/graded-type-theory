@@ -37,7 +37,7 @@ private variable
   ∇ ∇′ ∇″ ∇₁ ∇₂ ∇₃ : DCon _ _
   ξ                : DExt _ _ _
   Γ                : Con _ _
-  A B t u          : Term _
+  A B l l₁ l₂ t u  : Term _
   V                : Set a
   φ φ₁ φ₂ φ₃       : Unfolding _
 
@@ -60,6 +60,9 @@ opaque
   ne-opaque-ok : » ∇ → Neutral⁻ ∇ t → Opacity-allowed
   ne-opaque-ok »∇ (defn α↦t)     = opaque-ok »∇ α↦t
   ne-opaque-ok »∇ (var ok _)     = ⊥-elim (Lift.lower ok)
+  ne-opaque-ok »∇ (supᵘˡₙ b)     = ne-opaque-ok »∇ b
+  ne-opaque-ok »∇ (supᵘʳₙ b)     = ne-opaque-ok »∇ b
+  ne-opaque-ok »∇ (lowerₙ b)     = ne-opaque-ok »∇ b
   ne-opaque-ok »∇ (∘ₙ b)         = ne-opaque-ok »∇ b
   ne-opaque-ok »∇ (fstₙ b)       = ne-opaque-ok »∇ b
   ne-opaque-ok »∇ (sndₙ b)       = ne-opaque-ok »∇ b
@@ -432,6 +435,9 @@ opaque
   glass-no-ne⁻ : ¬ Neutral⁻ (glassify ∇) t
   glass-no-ne⁻ (defn α↦⊘)     = glass-↦⊘∈ α↦⊘
   glass-no-ne⁻ (var ok x)     = Lift.lower ok
+  glass-no-ne⁻ (supᵘˡₙ b)     = glass-no-ne⁻ b
+  glass-no-ne⁻ (supᵘʳₙ b)     = glass-no-ne⁻ b
+  glass-no-ne⁻ (lowerₙ b)     = glass-no-ne⁻ b
   glass-no-ne⁻ (∘ₙ b)         = glass-no-ne⁻ b
   glass-no-ne⁻ (fstₙ b)       = glass-no-ne⁻ b
   glass-no-ne⁻ (sndₙ b)       = glass-no-ne⁻ b
@@ -474,19 +480,34 @@ opaque mutual
   glassify-⊢′ (∙ ⊢A) = ∙ glassify-⊢ ⊢A
 
   glassify-⊢ : ∇ » Γ ⊢ A → glassify ∇ » Γ ⊢ A
-  glassify-⊢ (Uⱼ ⊢Γ) = Uⱼ (glassify-⊢′ ⊢Γ)
-  glassify-⊢ (ℕⱼ ⊢Γ) = ℕⱼ (glassify-⊢′ ⊢Γ)
-  glassify-⊢ (Emptyⱼ ⊢Γ) = Emptyⱼ (glassify-⊢′ ⊢Γ)
-  glassify-⊢ (Unitⱼ ⊢Γ ok) = Unitⱼ (glassify-⊢′ ⊢Γ) ok
+  glassify-⊢ (Levelⱼ ok ⊢Γ) =
+    Levelⱼ ok (glassify-⊢′ ⊢Γ)
+  glassify-⊢ (Liftⱼ ⊢l ⊢A) =
+    Liftⱼ (glassify-⊢∷L ⊢l) (glassify-⊢ ⊢A)
   glassify-⊢ (ΠΣⱼ ⊢A ok) = ΠΣⱼ (glassify-⊢ ⊢A) ok
   glassify-⊢ (Idⱼ ⊢A ⊢t ⊢u) =
     Idⱼ (glassify-⊢ ⊢A) (glassify-⊢∷ ⊢t) (glassify-⊢∷ ⊢u)
   glassify-⊢ (univ ⊢A) = univ (glassify-⊢∷ ⊢A)
 
   glassify-⊢∷ : ∇ » Γ ⊢ t ∷ A → glassify ∇ » Γ ⊢ t ∷ A
-  glassify-⊢∷ (Uⱼ ⊢Γ) = Uⱼ (glassify-⊢′ ⊢Γ)
-  glassify-⊢∷ (ΠΣⱼ ⊢t₁ ⊢t₂ ok) =
-    ΠΣⱼ (glassify-⊢∷ ⊢t₁) (glassify-⊢∷ ⊢t₂) ok
+  glassify-⊢∷ (Levelⱼ ⊢Γ ok) =
+    Levelⱼ (glassify-⊢′ ⊢Γ) ok
+  glassify-⊢∷ (zeroᵘⱼ ok ⊢Γ) =
+    zeroᵘⱼ ok (glassify-⊢′ ⊢Γ)
+  glassify-⊢∷ (sucᵘⱼ ⊢l) =
+    sucᵘⱼ (glassify-⊢∷ ⊢l)
+  glassify-⊢∷ (supᵘⱼ ⊢l₁ ⊢l₂) =
+    supᵘⱼ (glassify-⊢∷ ⊢l₁) (glassify-⊢∷ ⊢l₂)
+  glassify-⊢∷ (Uⱼ ⊢l) =
+    Uⱼ (glassify-⊢∷L ⊢l)
+  glassify-⊢∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
+    Liftⱼ (glassify-⊢∷L ⊢l₁) (glassify-⊢∷L ⊢l₂) (glassify-⊢∷ ⊢A)
+  glassify-⊢∷ (liftⱼ ⊢l ⊢A ⊢t) =
+    liftⱼ (glassify-⊢∷L ⊢l) (glassify-⊢ ⊢A) (glassify-⊢∷ ⊢t)
+  glassify-⊢∷ (lowerⱼ ⊢t) =
+    lowerⱼ (glassify-⊢∷ ⊢t)
+  glassify-⊢∷ (ΠΣⱼ ⊢l ⊢t₁ ⊢t₂ ok) =
+    ΠΣⱼ (glassify-⊢∷L ⊢l) (glassify-⊢∷ ⊢t₁) (glassify-⊢∷ ⊢t₂) ok
   glassify-⊢∷ (ℕⱼ ⊢Γ) = ℕⱼ (glassify-⊢′ ⊢Γ)
   glassify-⊢∷ (Emptyⱼ ⊢Γ) = Emptyⱼ (glassify-⊢′ ⊢Γ)
   glassify-⊢∷ (Unitⱼ ⊢Γ ok) = Unitⱼ (glassify-⊢′ ⊢Γ) ok
@@ -543,11 +564,18 @@ opaque mutual
        (glassify-⊢∷ ⊢tᵣ)
        (glassify-⊢∷ ⊢tₚ)
        ok
-  glassify-⊢∷ ([]-congⱼ ⊢A ⊢t₁ ⊢t₂ ⊢tₚ ok) =
-    []-congⱼ (glassify-⊢ ⊢A)
+  glassify-⊢∷ ([]-congⱼ ⊢l ⊢A ⊢t₁ ⊢t₂ ⊢tₚ ok) =
+    []-congⱼ (glassify-⊢∷L ⊢l)
+             (glassify-⊢ ⊢A)
              (glassify-⊢∷ ⊢t₁)
              (glassify-⊢∷ ⊢t₂)
              (glassify-⊢∷ ⊢tₚ) ok
+
+  glassify-⊢∷L : ∇ » Γ ⊢ l ∷Level → glassify ∇ » Γ ⊢ l ∷Level
+  glassify-⊢∷L (term ok ⊢l) =
+    term ok (glassify-⊢∷ ⊢l)
+  glassify-⊢∷L (literal not-ok ⊢Γ l-lit) =
+    literal not-ok (glassify-⊢′ ⊢Γ) l-lit
 
   glassify-⊢≡ : ∇ » Γ ⊢ A ≡ B → glassify ∇ » Γ ⊢ A ≡ B
   glassify-⊢≡ (univ A≡A′) = univ (glassify-⊢≡∷ A≡A′)
@@ -555,6 +583,10 @@ opaque mutual
   glassify-⊢≡ (sym A≡A′) = sym (glassify-⊢≡ A≡A′)
   glassify-⊢≡ (trans A≡A′ A′≡A″) =
     trans (glassify-⊢≡ A≡A′) (glassify-⊢≡ A′≡A″)
+  glassify-⊢≡ (U-cong l₁≡l₂) =
+    U-cong (glassify-⊢≡∷ l₁≡l₂)
+  glassify-⊢≡ (Lift-cong l₁≡l₂ A₁≡A₂) =
+    Lift-cong (glassify-⊢≡∷L l₁≡l₂) (glassify-⊢≡ A₁≡A₂)
   glassify-⊢≡ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     ΠΣ-cong (glassify-⊢≡ A₁≡A₂) (glassify-⊢≡ B₁≡B₂) ok
   glassify-⊢≡ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
@@ -572,8 +604,37 @@ opaque mutual
     conv (glassify-⊢≡∷ t≡t′) (glassify-⊢≡ A≡A′)
   glassify-⊢≡∷ (δ-red ⊢Γ α↦t A≡A′ t≡t′) =
     δ-red (glassify-⊢′ ⊢Γ) (glassify-↦∷∈ α↦t) A≡A′ t≡t′
-  glassify-⊢≡∷ (ΠΣ-cong t₁≡t₂ u₁≡u₂ ok) =
-    ΠΣ-cong (glassify-⊢≡∷ t₁≡t₂) (glassify-⊢≡∷ u₁≡u₂) ok
+  glassify-⊢≡∷ (sucᵘ-cong l₁≡l₂) =
+    sucᵘ-cong (glassify-⊢≡∷ l₁≡l₂)
+  glassify-⊢≡∷ (supᵘ-cong l₁≡l₃ l₂≡l₄) =
+    supᵘ-cong (glassify-⊢≡∷ l₁≡l₃) (glassify-⊢≡∷ l₂≡l₄)
+  glassify-⊢≡∷ (supᵘ-zeroˡ ⊢l) =
+    supᵘ-zeroˡ (glassify-⊢∷ ⊢l)
+  glassify-⊢≡∷ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    supᵘ-sucᵘ (glassify-⊢∷ ⊢l₁) (glassify-⊢∷ ⊢l₂)
+  glassify-⊢≡∷ (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) =
+    supᵘ-assoc (glassify-⊢∷ ⊢l₁) (glassify-⊢∷ ⊢l₂) (glassify-⊢∷ ⊢l₃)
+  glassify-⊢≡∷ (supᵘ-comm ⊢l₁ ⊢l₂) =
+    supᵘ-comm (glassify-⊢∷ ⊢l₁) (glassify-⊢∷ ⊢l₂)
+  glassify-⊢≡∷ (supᵘ-idem ⊢l) =
+    supᵘ-idem (glassify-⊢∷ ⊢l)
+  glassify-⊢≡∷ (supᵘ-sub ⊢l) =
+    supᵘ-sub (glassify-⊢∷ ⊢l)
+  glassify-⊢≡∷ (U-cong l₁≡l₂) =
+    U-cong (glassify-⊢≡∷ l₁≡l₂)
+  glassify-⊢≡∷ (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂) =
+    Lift-cong (glassify-⊢∷L ⊢l₁) (glassify-⊢∷L ⊢l₂)
+      (glassify-⊢≡∷L l₂≡l₃) (glassify-⊢≡∷ A₁≡A₂)
+  glassify-⊢≡∷ (lower-cong t₁≡t₂) =
+    lower-cong (glassify-⊢≡∷ t₁≡t₂)
+  glassify-⊢≡∷ (Lift-β ⊢A ⊢t) =
+    Lift-β (glassify-⊢ ⊢A) (glassify-⊢∷ ⊢t)
+  glassify-⊢≡∷ (Lift-η ⊢l ⊢A ⊢t ⊢u lower-t≡lower-u) =
+    Lift-η (glassify-⊢∷L ⊢l) (glassify-⊢ ⊢A) (glassify-⊢∷ ⊢t)
+      (glassify-⊢∷ ⊢u) (glassify-⊢≡∷ lower-t≡lower-u)
+  glassify-⊢≡∷ (ΠΣ-cong ⊢l t₁≡t₂ u₁≡u₂ ok) =
+    ΠΣ-cong (glassify-⊢∷L ⊢l) (glassify-⊢≡∷ t₁≡t₂) (glassify-⊢≡∷ u₁≡u₂)
+      ok
   glassify-⊢≡∷ (app-cong t₁≡t₂ u₁≡u₂) =
     app-cong (glassify-⊢≡∷ t₁≡t₂) (glassify-⊢≡∷ u₁≡u₂)
   glassify-⊢≡∷ (β-red ⊢A ⊢t ⊢x eq ok) =
@@ -672,8 +733,9 @@ opaque mutual
            (glassify-⊢≡∷ r≡)
            (glassify-⊢≡∷ p≡)
            ok
-  glassify-⊢≡∷ ([]-cong-cong A≡A′ t₁≡t₂ u₁≡u₂ p≡p′ ok) =
-    []-cong-cong (glassify-⊢≡ A≡A′)
+  glassify-⊢≡∷ ([]-cong-cong l₁≡l₂ A≡A′ t₁≡t₂ u₁≡u₂ p≡p′ ok) =
+    []-cong-cong (glassify-⊢≡∷L l₁≡l₂)
+                 (glassify-⊢≡ A≡A′)
                  (glassify-⊢≡∷ t₁≡t₂)
                  (glassify-⊢≡∷ u₁≡u₂)
                  (glassify-⊢≡∷ p≡p′) ok
@@ -684,10 +746,17 @@ opaque mutual
         eq
   glassify-⊢≡∷ (K-β ⊢A ⊢t ok) =
     K-β (glassify-⊢ ⊢A) (glassify-⊢∷ ⊢t) ok
-  glassify-⊢≡∷ ([]-cong-β ⊢t eq ok) =
-    []-cong-β (glassify-⊢∷ ⊢t) eq ok
+  glassify-⊢≡∷ ([]-cong-β ⊢l ⊢t eq ok) =
+    []-cong-β (glassify-⊢∷L ⊢l) (glassify-⊢∷ ⊢t) eq ok
   glassify-⊢≡∷ (equality-reflection ok ⊢Id ⊢t) =
     equality-reflection ok (glassify-⊢ ⊢Id) (glassify-⊢∷ ⊢t)
+
+  glassify-⊢≡∷L :
+    ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → glassify ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level
+  glassify-⊢≡∷L (term ok l₁≡l₂) =
+    term ok (glassify-⊢≡∷ l₁≡l₂)
+  glassify-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
+    literal not-ok (glassify-⊢′ ⊢Γ) l-lit
 
 opaque
 
@@ -696,6 +765,20 @@ opaque
     conv (glassify-⇒∷ t⇒t′) (glassify-⊢≡ A≡A′)
   glassify-⇒∷ (δ-red ⊢Γ α↦t A≡A′ T≡T′) =
     δ-red (glassify-⊢′ ⊢Γ) (glassify-↦∷∈ α↦t) A≡A′ T≡T′
+  glassify-⇒∷ (supᵘ-substˡ l₁⇒l₂ ⊢l₃) =
+    supᵘ-substˡ (glassify-⇒∷ l₁⇒l₂) (glassify-⊢∷ ⊢l₃)
+  glassify-⇒∷ (supᵘ-substʳ ⊢l₁ l₂⇒l₃) =
+    supᵘ-substʳ (glassify-⊢∷ ⊢l₁) (glassify-⇒∷ l₂⇒l₃)
+  glassify-⇒∷ (supᵘ-zeroˡ ⊢l) =
+    supᵘ-zeroˡ (glassify-⊢∷ ⊢l)
+  glassify-⇒∷ (supᵘ-zeroʳ ⊢l) =
+    supᵘ-zeroʳ (glassify-⊢∷ ⊢l)
+  glassify-⇒∷ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    supᵘ-sucᵘ (glassify-⊢∷ ⊢l₁) (glassify-⊢∷ ⊢l₂)
+  glassify-⇒∷ (lower-subst t⇒u) =
+    lower-subst (glassify-⇒∷ t⇒u)
+  glassify-⇒∷ (Lift-β ⊢A ⊢t) =
+    Lift-β (glassify-⊢ ⊢A) (glassify-⊢∷ ⊢t)
   glassify-⇒∷ (app-subst t⇒t′ ⊢a) =
     app-subst (glassify-⇒∷ t⇒t′) (glassify-⊢∷ ⊢a)
   glassify-⇒∷ (β-red ⊢A ⊢t ⊢x eq ok) =
@@ -763,12 +846,8 @@ opaque
             (glassify-⊢∷ ⊢r)
             (glassify-⇒∷ t⇒t′)
             ok
-  glassify-⇒∷ ([]-cong-subst ⊢A ⊢a ⊢a′ t⇒t′ ok) =
-    []-cong-subst (glassify-⊢ ⊢A)
-                  (glassify-⊢∷ ⊢a)
-                  (glassify-⊢∷ ⊢a′)
-                  (glassify-⇒∷ t⇒t′)
-                  ok
+  glassify-⇒∷ ([]-cong-subst ⊢l t⇒t′ ok) =
+    []-cong-subst (glassify-⊢∷L ⊢l) (glassify-⇒∷ t⇒t′) ok
   glassify-⇒∷ (J-β ⊢t ⊢t′ t≡t′ ⊢A A≡ ⊢tᵣ) =
     J-β (glassify-⊢∷ ⊢t)
         (glassify-⊢∷ ⊢t′)
@@ -778,12 +857,8 @@ opaque
         (glassify-⊢∷ ⊢tᵣ)
   glassify-⇒∷ (K-β ⊢A ⊢t ok) =
     K-β (glassify-⊢ ⊢A) (glassify-⊢∷ ⊢t) ok
-  glassify-⇒∷ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-    []-cong-β (glassify-⊢ ⊢A)
-              (glassify-⊢∷ ⊢t)
-              (glassify-⊢∷ ⊢t′)
-              (glassify-⊢≡∷ t≡t′)
-              ok
+  glassify-⇒∷ ([]-cong-β ⊢l t≡t′ ok) =
+    []-cong-β (glassify-⊢∷L ⊢l) (glassify-⊢≡∷ t≡t′) ok
 
 opaque
 

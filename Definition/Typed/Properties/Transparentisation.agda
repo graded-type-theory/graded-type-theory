@@ -21,11 +21,14 @@ open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
+open import Definition.Typed.Properties.Admissible.Identity.Primitive R
+open import Definition.Typed.Properties.Admissible.Lift R
+open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 open import Definition.Typed.Properties.Definition R
 open import Definition.Typed.Well-formed R
 
 open import Tools.Function
-open import Tools.Level
+import Tools.Level as L
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -39,7 +42,7 @@ private
     n α : Nat
     ∇ ∇′ ∇″ : DCon (Term 0) _
     Γ : Con Term _
-    t u A B : Term _
+    A B l l₁ l₂ t u : Term _
     V : Set a
     φ φ′ : Unfolding _
 
@@ -100,10 +103,10 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
     -- Trans φ ∇.
 
     unfold-⊢ : ∇ » Γ ⊢ A → Trans φ ∇ » Γ ⊢ A
-    unfold-⊢ (Uⱼ ⊢Γ) = Uⱼ (unfold-⊢′ ⊢Γ)
-    unfold-⊢ (ℕⱼ ⊢Γ) = ℕⱼ (unfold-⊢′ ⊢Γ)
-    unfold-⊢ (Emptyⱼ ⊢Γ) = Emptyⱼ (unfold-⊢′ ⊢Γ)
-    unfold-⊢ (Unitⱼ ⊢Γ ok) = Unitⱼ (unfold-⊢′ ⊢Γ) ok
+    unfold-⊢ (Levelⱼ ok ⊢Γ) =
+      Levelⱼ ok (unfold-⊢′ ⊢Γ)
+    unfold-⊢ (Liftⱼ ⊢l ⊢A) =
+      Liftⱼ (unfold-⊢∷L ⊢l) (unfold-⊢ ⊢A)
     unfold-⊢ (ΠΣⱼ ⊢A ok) = ΠΣⱼ (unfold-⊢ ⊢A) ok
     unfold-⊢ (Idⱼ ⊢A ⊢t ⊢u) =
       Idⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u)
@@ -113,9 +116,23 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
     -- Trans φ ∇.
 
     unfold-⊢∷ : ∇ » Γ ⊢ t ∷ A → Trans φ ∇ » Γ ⊢ t ∷ A
-    unfold-⊢∷ (Uⱼ ⊢Γ) = Uⱼ (unfold-⊢′ ⊢Γ)
-    unfold-⊢∷ (ΠΣⱼ ⊢t₁ ⊢t₂ ok) =
-      ΠΣⱼ (unfold-⊢∷ ⊢t₁) (unfold-⊢∷ ⊢t₂) ok
+    unfold-⊢∷ (Levelⱼ ⊢Γ ok) =
+      Levelⱼ (unfold-⊢′ ⊢Γ) ok
+    unfold-⊢∷ (zeroᵘⱼ ok ⊢Γ) =
+      zeroᵘⱼ ok (unfold-⊢′ ⊢Γ)
+    unfold-⊢∷ (sucᵘⱼ ⊢l) =
+      sucᵘⱼ (unfold-⊢∷ ⊢l)
+    unfold-⊢∷ (supᵘⱼ ⊢l₁ ⊢l₂) =
+      supᵘⱼ (unfold-⊢∷ ⊢l₁) (unfold-⊢∷ ⊢l₂)
+    unfold-⊢∷ (Uⱼ ⊢l) = Uⱼ (unfold-⊢∷L ⊢l)
+    unfold-⊢∷ (Liftⱼ _ ⊢l ⊢A) =
+      Liftⱼ′ (unfold-⊢∷L ⊢l) (unfold-⊢∷ ⊢A)
+    unfold-⊢∷ (liftⱼ ⊢l _ ⊢t) =
+      liftⱼ′ (unfold-⊢∷L ⊢l) (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (lowerⱼ ⊢t) =
+      lowerⱼ (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (ΠΣⱼ _ ⊢t₁ ⊢t₂ ok) =
+      ΠΣⱼ′ (unfold-⊢∷ ⊢t₁) (unfold-⊢∷ ⊢t₂) ok
     unfold-⊢∷ (ℕⱼ ⊢Γ) = ℕⱼ (unfold-⊢′ ⊢Γ)
     unfold-⊢∷ (Emptyⱼ ⊢Γ) = Emptyⱼ (unfold-⊢′ ⊢Γ)
     unfold-⊢∷ (Unitⱼ ⊢Γ ok) = Unitⱼ (unfold-⊢′ ⊢Γ) ok
@@ -172,11 +189,17 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
         (unfold-⊢∷ ⊢tᵣ)
         (unfold-⊢∷ ⊢tₚ)
         ok
-    unfold-⊢∷ ([]-congⱼ ⊢A ⊢t₁ ⊢t₂ ⊢tₚ ok) =
-      []-congⱼ (unfold-⊢ ⊢A)
-              (unfold-⊢∷ ⊢t₁)
-              (unfold-⊢∷ ⊢t₂)
-              (unfold-⊢∷ ⊢tₚ) ok
+    unfold-⊢∷ ([]-congⱼ ⊢l _ _ _ ⊢tₚ ok) =
+      []-congⱼ′ ok (unfold-⊢∷L ⊢l) (unfold-⊢∷ ⊢tₚ)
+
+    -- Levels that are well-formed under ∇ are well-formed under
+    -- Trans φ ∇.
+
+    unfold-⊢∷L : ∇ » Γ ⊢ l ∷Level → Trans φ ∇ » Γ ⊢ l ∷Level
+    unfold-⊢∷L (term ok ⊢l) =
+      term ok (unfold-⊢∷ ⊢l)
+    unfold-⊢∷L (literal not-ok ⊢Γ l-lit) =
+      literal not-ok (unfold-⊢′ ⊢Γ) l-lit
 
     -- Type equalities that hold under ∇ hold under Trans φ ∇.
 
@@ -186,6 +209,10 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
     unfold-⊢≡ (sym A≡A′) = sym (unfold-⊢≡ A≡A′)
     unfold-⊢≡ (trans A≡A′ A′≡A″) =
       trans (unfold-⊢≡ A≡A′) (unfold-⊢≡ A′≡A″)
+    unfold-⊢≡ (U-cong l₁≡l₂) =
+      U-cong (unfold-⊢≡∷ l₁≡l₂)
+    unfold-⊢≡ (Lift-cong l₁≡l₂ A₁≡A₂) =
+      Lift-cong (unfold-⊢≡∷L l₁≡l₂) (unfold-⊢≡ A₁≡A₂)
     unfold-⊢≡ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
       ΠΣ-cong (unfold-⊢≡ A₁≡A₂) (unfold-⊢≡ B₁≡B₂) ok
     unfold-⊢≡ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
@@ -205,8 +232,35 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
       conv (unfold-⊢≡∷ t≡t′) (unfold-⊢≡ A≡A′)
     unfold-⊢≡∷ (δ-red ⊢Γ α↦t A≡A′ t≡t′) =
       δ-red (unfold-⊢′ ⊢Γ) (unfold-↦∷∈ α↦t) A≡A′ t≡t′
-    unfold-⊢≡∷ (ΠΣ-cong t₁≡t₂ u₁≡u₂ ok) =
-      ΠΣ-cong (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂) ok
+    unfold-⊢≡∷ (sucᵘ-cong l₁≡l₂) =
+      sucᵘ-cong (unfold-⊢≡∷ l₁≡l₂)
+    unfold-⊢≡∷ (supᵘ-cong l₁₁≡l₂₁ l₁₂≡l₂₂) =
+      supᵘ-cong (unfold-⊢≡∷ l₁₁≡l₂₁) (unfold-⊢≡∷ l₁₂≡l₂₂)
+    unfold-⊢≡∷ (supᵘ-zeroˡ ⊢l) =
+      supᵘ-zeroˡ (unfold-⊢∷ ⊢l)
+    unfold-⊢≡∷ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+      supᵘ-sucᵘ (unfold-⊢∷ ⊢l₁) (unfold-⊢∷ ⊢l₂)
+    unfold-⊢≡∷ (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) =
+      supᵘ-assoc (unfold-⊢∷ ⊢l₁) (unfold-⊢∷ ⊢l₂) (unfold-⊢∷ ⊢l₃)
+    unfold-⊢≡∷ (supᵘ-comm ⊢l₁ ⊢l₂) =
+      supᵘ-comm (unfold-⊢∷ ⊢l₁) (unfold-⊢∷ ⊢l₂)
+    unfold-⊢≡∷ (supᵘ-idem ⊢l) =
+      supᵘ-idem (unfold-⊢∷ ⊢l)
+    unfold-⊢≡∷ (supᵘ-sub ⊢l) =
+      supᵘ-sub (unfold-⊢∷ ⊢l)
+    unfold-⊢≡∷ (U-cong l₁≡l₂) =
+      U-cong (unfold-⊢≡∷ l₁≡l₂)
+    unfold-⊢≡∷ (Lift-cong _ _ l₁≡l₂ A₁≡A₂) =
+      Lift-cong′ (unfold-⊢≡∷L l₁≡l₂) (unfold-⊢≡∷ A₁≡A₂)
+    unfold-⊢≡∷ (lower-cong t₁≡t₂) =
+      lower-cong (unfold-⊢≡∷ t₁≡t₂)
+    unfold-⊢≡∷ (Lift-β _ ⊢t) =
+      Lift-β′ (unfold-⊢∷ ⊢t)
+    unfold-⊢≡∷ (Lift-η _ _ ⊢t₁ ⊢t₂ lower-t₁≡lower-t₂) =
+      Lift-η′ (unfold-⊢∷ ⊢t₁) (unfold-⊢∷ ⊢t₂)
+        (unfold-⊢≡∷ lower-t₁≡lower-t₂)
+    unfold-⊢≡∷ (ΠΣ-cong ⊢l t₁≡t₂ u₁≡u₂ ok) =
+      ΠΣ-cong (unfold-⊢∷L ⊢l) (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂) ok
     unfold-⊢≡∷ (app-cong t₁≡t₂ u₁≡u₂) =
       app-cong (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂)
     unfold-⊢≡∷ (β-red ⊢A ⊢t ⊢x eq ok) =
@@ -305,11 +359,9 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
             (unfold-⊢≡∷ r≡)
             (unfold-⊢≡∷ p≡)
             ok
-    unfold-⊢≡∷ ([]-cong-cong A≡A′ t₁≡t₂ u₁≡u₂ p≡p′ ok) =
-      []-cong-cong (unfold-⊢≡ A≡A′)
-                  (unfold-⊢≡∷ t₁≡t₂)
-                  (unfold-⊢≡∷ u₁≡u₂)
-                  (unfold-⊢≡∷ p≡p′) ok
+    unfold-⊢≡∷ ([]-cong-cong l₁≡l₂ A≡A′ t₁≡t₂ u₁≡u₂ p≡p′ ok) =
+      []-cong-cong (unfold-⊢≡∷L l₁≡l₂) (unfold-⊢≡ A≡A′)
+        (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂) (unfold-⊢≡∷ p≡p′) ok
     unfold-⊢≡∷ (J-β ⊢t ⊢A ⊢tᵣ eq) =
       J-β (unfold-⊢∷ ⊢t)
           (unfold-⊢ ⊢A)
@@ -317,10 +369,19 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
           eq
     unfold-⊢≡∷ (K-β ⊢A ⊢t ok) =
       K-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok
-    unfold-⊢≡∷ ([]-cong-β ⊢t eq ok) =
-      []-cong-β (unfold-⊢∷ ⊢t) eq ok
+    unfold-⊢≡∷ ([]-cong-β ⊢l ⊢t PE.refl ok) =
+      []-cong-β-≡ (unfold-⊢∷L ⊢l) (refl (unfold-⊢∷ ⊢t)) ok
     unfold-⊢≡∷ (equality-reflection ok ⊢Id ⊢t) =
       equality-reflection ok (unfold-⊢ ⊢Id) (unfold-⊢∷ ⊢t)
+
+    -- Level equalities that hold under ∇ hold under Trans φ ∇.
+
+    unfold-⊢≡∷L :
+      ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → Trans φ ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level
+    unfold-⊢≡∷L (term ok l₁≡l₂) =
+      term ok (unfold-⊢≡∷ l₁≡l₂)
+    unfold-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
+      literal not-ok (unfold-⊢′ ⊢Γ) l-lit
 
   opaque
 
@@ -331,6 +392,20 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
       conv (unfold-⇒∷ t⇒t′) (unfold-⊢≡ A≡A′)
     unfold-⇒∷ (δ-red ⊢Γ α↦t A≡A′ T≡T′) =
       δ-red (unfold-⊢′ ⊢Γ) (unfold-↦∷∈ α↦t) A≡A′ T≡T′
+    unfold-⇒∷ (supᵘ-substˡ l₁⇒l₂ ⊢l₃) =
+      supᵘ-substˡ (unfold-⇒∷ l₁⇒l₂) (unfold-⊢∷ ⊢l₃)
+    unfold-⇒∷ (supᵘ-substʳ ⊢l₁ l₂⇒l₃) =
+      supᵘ-substʳ (unfold-⊢∷ ⊢l₁) (unfold-⇒∷ l₂⇒l₃)
+    unfold-⇒∷ (supᵘ-zeroˡ ⊢l) =
+      supᵘ-zeroˡ (unfold-⊢∷ ⊢l)
+    unfold-⇒∷ (supᵘ-zeroʳ ⊢l) =
+      supᵘ-zeroʳ (unfold-⊢∷ ⊢l)
+    unfold-⇒∷ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+      supᵘ-sucᵘ (unfold-⊢∷ ⊢l₁) (unfold-⊢∷ ⊢l₂)
+    unfold-⇒∷ (lower-subst t⇒u) =
+      lower-subst (unfold-⇒∷ t⇒u)
+    unfold-⇒∷ (Lift-β _ ⊢t) =
+      Lift-β⇒ (unfold-⊢∷ ⊢t)
     unfold-⇒∷ (app-subst t⇒t′ ⊢a) =
       app-subst (unfold-⇒∷ t⇒t′) (unfold-⊢∷ ⊢a)
     unfold-⇒∷ (β-red ⊢A ⊢t ⊢x eq ok) =
@@ -398,12 +473,8 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
               (unfold-⊢∷ ⊢r)
               (unfold-⇒∷ t⇒t′)
               ok
-    unfold-⇒∷ ([]-cong-subst ⊢A ⊢a ⊢a′ t⇒t′ ok) =
-      []-cong-subst (unfold-⊢ ⊢A)
-                    (unfold-⊢∷ ⊢a)
-                    (unfold-⊢∷ ⊢a′)
-                    (unfold-⇒∷ t⇒t′)
-                    ok
+    unfold-⇒∷ ([]-cong-subst ⊢l t⇒t′ ok) =
+      []-cong-subst (unfold-⊢∷L ⊢l) (unfold-⇒∷ t⇒t′) ok
     unfold-⇒∷ (J-β ⊢t ⊢t′ t≡t′ ⊢A A≡ ⊢tᵣ) =
       J-β (unfold-⊢∷ ⊢t)
           (unfold-⊢∷ ⊢t′)
@@ -413,12 +484,8 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
           (unfold-⊢∷ ⊢tᵣ)
     unfold-⇒∷ (K-β ⊢A ⊢t ok) =
       K-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok
-    unfold-⇒∷ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-      []-cong-β (unfold-⊢ ⊢A)
-                (unfold-⊢∷ ⊢t)
-                (unfold-⊢∷ ⊢t′)
-                (unfold-⊢≡∷ t≡t′)
-                ok
+    unfold-⇒∷ ([]-cong-β ⊢l t≡t′ ok) =
+      []-cong-β (unfold-⊢∷L ⊢l) (unfold-⊢≡∷ t≡t′) ok
 
   opaque
 

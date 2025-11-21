@@ -26,7 +26,7 @@ open Data.Nat.Properties public
          *-identityˡ; *-identityʳ; *-assoc; *-comm; *-zeroʳ; *-cancelˡ-≡;
          *-suc; *-1-isCommutativeMonoid; +-*-isSemiring; ⊔-isSemilattice;
          m*n≡0⇒m≡0∨n≡0;
-         ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m⊔n≡m⇒n≤m;
+         ⊔-identityʳ; ⊔-assoc; ⊔-comm; ⊔-idem; m≥n⇒m⊔n≡m; m≤n⇒m⊔n≡n; m⊔n≡m⇒n≤m; m⊔n≡n⇒m≤n;
          ⊓-assoc; ⊓-comm;
          +-distribˡ-⊔; +-distribʳ-⊔; ∸-distribʳ-⊔;
          *-distribˡ-+; *-distribʳ-+; *-distribˡ-⊔; *-distribʳ-⊔;
@@ -36,12 +36,12 @@ open Data.Nat.Properties public
          ≤-<-trans;
          n≮0; n≮n; ≤∧≢⇒<; m<n⇒n≢0;
          ≤⇒pred≤;
-         +-mono-≤; m≤n⇒m≤1+n; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n;
+         +-mono-≤; m≤n⇒m≤1+n; m≤m+n; m≤n+m; m+n≤o⇒n≤o; 0<1+n; n≤1+n; 1+n≢n;
          *-mono-≤; m≤m*n; m≤n*m; m+1+n≰m;
          m≤m⊔n; m≤n⊔m;
          m<n⊓o⇒m<n; m<n⊓o⇒m<o; ⊓-pres-m<;
          m⊓n≤m⊔n; m+n∸n≡m; m∸n+n≡m; ⊔-mono-<;
-         <⇒<′; <′⇒<; ≤′⇒≤; ≤′-trans)
+         <⇒<′; <′⇒<; ≤⇒≤′; ≤′⇒≤; ≤′-trans; z≤′n)
   renaming (suc-injective to 1+-injective;
             s≤′s to 1+≤′1+)
 open import Data.Nat.Show public using (show)
@@ -54,7 +54,6 @@ open import Tools.Function
 open import Tools.Level using (Level; lzero)
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality
-import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
@@ -62,11 +61,12 @@ pattern 1+ n = suc n
 pattern 2+ n = 1+ (1+ n)
 pattern 3+ n = 1+ (2+ n)
 pattern 4+ n = 1+ (3+ n)
+pattern 5+ n = 1+ (4+ n)
 
 private variable
-  a                      : Level
-  k m m′ n n′ n₂ n₃ n₄ o : Nat
-  p                      : Nat → Bool
+  a             : Level
+  k m m′ n n′ o : Nat
+  p             : Nat → Bool
 
 -- Nat is a set.
 
@@ -364,21 +364,6 @@ opaque
 
   ⊔-mono : m ≤′ m′ → n ≤′ n′ → m ⊔ n ≤′ m′ ⊔ n′
   ⊔-mono p q = ≤⇒≤′ (⊔-mono-≤ (≤′⇒≤ p) (≤′⇒≤ q))
-
-opaque
-
-  -- A rearrangement lemma for _⊔_.
-
-  ⊔-swap : ∀ n₁ → (n₁ ⊔ n₂) ⊔ (n₃ ⊔ n₄) ≡ (n₁ ⊔ n₃) ⊔ (n₂ ⊔ n₄)
-  ⊔-swap {n₂} {n₃} {n₄} n₁ =
-    (n₁ ⊔ n₂) ⊔ (n₃ ⊔ n₄)  ≡⟨ ⊔-assoc n₁ _ _ ⟩
-    n₁ ⊔ (n₂ ⊔ (n₃ ⊔ n₄))  ≡˘⟨ cong (n₁ ⊔_) (⊔-assoc n₂ _ _) ⟩
-    n₁ ⊔ ((n₂ ⊔ n₃) ⊔ n₄)  ≡⟨ cong ((n₁ ⊔_) ∘→ (_⊔ _)) (⊔-comm n₂ _) ⟩
-    n₁ ⊔ ((n₃ ⊔ n₂) ⊔ n₄)  ≡⟨ cong (n₁ ⊔_) (⊔-assoc n₃ _ _) ⟩
-    n₁ ⊔ (n₃ ⊔ (n₂ ⊔ n₄))  ≡˘⟨ ⊔-assoc n₁ _ _ ⟩
-    (n₁ ⊔ n₃) ⊔ (n₂ ⊔ n₄)  ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
 
 opaque
 

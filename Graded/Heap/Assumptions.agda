@@ -33,6 +33,8 @@ open import Tools.Sum
 
 record Assumptions : Set a where
   field
+    -- The type Level is not allowed.
+    Level-not-allowed : ¬ Level-allowed
     -- The modality supports subtraction.
     subtraction-ok : Supports-subtraction
     -- An assumption related to the weak unit type when η-equality is

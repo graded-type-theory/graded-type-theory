@@ -12,6 +12,8 @@ open import Relation.Binary public
         )
 open import Relation.Nullary public
   using (¬_; Dec; yes; no; ¬?)
+open import Relation.Nullary.Decidable public
+  using (decidable-stable)
 
 open import Tools.Level
 open import Tools.Sum using (_⊎_; inj₁; inj₂)

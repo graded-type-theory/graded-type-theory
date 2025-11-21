@@ -16,28 +16,86 @@ module Definition.Typed.Inversion.Primitive
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
+open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Sup R
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
+import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Size
 open import Tools.Size.Instances
+open import Tools.Sum
 
 private variable
-  α         : Nat
-  Γ         : Cons _ _
-  A B C t u : Term _
-  b         : BinderMode
-  l         : Universe-level
-  s         : Strength
-  p q       : M
-  sz        : Size
+  α                 : Nat
+  Γ                 : Cons _ _
+  A B C t u l l₁ l₂ : Term _
+  b                 : BinderMode
+  s                 : Strength
+  p q               : M
+  sz                : Size
+
+------------------------------------------------------------------------
+-- Inversion for Level
+
+opaque
+
+  -- An inversion lemma for _⊢_∷Level.
+
+  inversion-∷Level :
+    Γ ⊢ l ∷Level →
+    (Level-allowed → Γ ⊢ l ∷ Level) ×
+    (¬ Level-allowed → ⊢ Γ × Level-literal l)
+  inversion-∷Level (term ok ⊢l) =
+     (λ _ → ⊢l) , ⊥-elim ∘→ (_$ ok)
+  inversion-∷Level (literal not-ok ⊢Γ l-lit) =
+    ⊥-elim ∘→ not-ok , (λ _ → ⊢Γ , l-lit)
+
+opaque
+
+  -- Inversion for Level.
+
+  inversion-Level : Γ ⊢ Level ∷ A → Γ ⊢ A ≡ U zeroᵘ × Level-is-small
+  inversion-Level (Levelⱼ ⊢Γ ok)    = refl (⊢U₀ ⊢Γ) , ok
+  inversion-Level (conv ⊢Level eq) =
+    let a , ok = inversion-Level ⊢Level
+    in trans (sym eq) a , ok
+
+opaque
+
+  -- Inversion for Level.
+
+  inversion-Level-⊢ : Γ ⊢ Level → Level-allowed
+  inversion-Level-⊢ (Levelⱼ ok _) =
+    Level-allowed⇔⊎ .proj₂ (inj₂ ok)
+  inversion-Level-⊢ (univ ⊢Level) =
+    let _ , ok = inversion-Level ⊢Level in
+    Level-allowed⇔⊎ .proj₂ (inj₁ ok)
+
+opaque
+
+  -- Inversion for zeroᵘ.
+
+  inversion-zeroᵘ : Γ ⊢ zeroᵘ ∷ A → Γ ⊢ A ≡ Level
+  inversion-zeroᵘ (zeroᵘⱼ ok ⊢Γ)   = refl (Levelⱼ′ ok ⊢Γ)
+  inversion-zeroᵘ (conv ⊢zeroᵘ eq) = trans (sym eq) (inversion-zeroᵘ ⊢zeroᵘ)
+
+opaque
+
+  -- Inversion for zeroᵘ.
+
+  inversion-zeroᵘ-⊢ : Γ ⊢ zeroᵘ → ∃ λ l → Γ ⊢ U l ≡ Level
+  inversion-zeroᵘ-⊢ (univ ⊢zeroᵘ) = _ , inversion-zeroᵘ ⊢zeroᵘ
 
 ------------------------------------------------------------------------
 -- Inversion for U
@@ -46,12 +104,42 @@ opaque
 
   -- Inversion for U.
 
-  inversion-U : Γ ⊢ U l ∷ A → Γ ⊢ A ≡ U (1+ l)
-  inversion-U (Uⱼ ⊢Γ)       = refl (Uⱼ ⊢Γ)
+  inversion-U : Γ ⊢ U t ∷ A → Γ ⊢ A ≡ U (sucᵘ t)
+  inversion-U (Uⱼ ⊢t)        = refl (⊢U (⊢sucᵘ ⊢t))
   inversion-U (conv ⊢U B≡A) = trans (sym B≡A) (inversion-U ⊢U)
 
+  inversion-U∷-Level : Γ ⊢ U l ∷ A → Γ ⊢ l ∷Level
+  inversion-U∷-Level (Uⱼ ⊢l)     = ⊢l
+  inversion-U∷-Level (conv ⊢U _) = inversion-U∷-Level ⊢U
+
+  inversion-U-Level : Γ ⊢ U l → Γ ⊢ l ∷Level
+  inversion-U-Level (univ ⊢U) = inversion-U∷-Level ⊢U
+
 ------------------------------------------------------------------------
--- Inversion for U
+-- Inversion for Lift
+
+opaque
+
+  inversion-Lift∷ :
+    Γ ⊢ Lift t A ∷ B →
+    ∃ λ k₁ → Γ ⊢ t ∷Level × Γ ⊢ A ∷ U k₁ × Γ ⊢ B ≡ U (k₁ supᵘₗ t)
+  inversion-Lift∷ (conv x x₁) =
+    let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
+    in _ , ⊢t , ⊢A , trans (sym x₁) B≡
+  inversion-Lift∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
+    _ , ⊢l₂ , ⊢A , refl (⊢U (⊢supᵘₗ ⊢l₁ ⊢l₂))
+
+  inversion-Lift : Γ ⊢ Lift t A → Γ ⊢ t ∷Level × Γ ⊢ A
+  inversion-Lift (univ x) =
+    let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
+    in ⊢t , univ ⊢A
+  inversion-Lift (Liftⱼ x x₁) = x , x₁
+
+  inversion-lift : Γ ⊢ lift t ∷ A → ∃₂ λ l B → Γ ⊢ t ∷ B × Γ ⊢ A ≡ Lift l B
+  inversion-lift (conv a x) =
+    let _ , _ , ⊢t , A≡Lift = inversion-lift a
+    in _ , _ , ⊢t , trans (sym x) A≡Lift
+  inversion-lift (liftⱼ a₁ a₂ a₃) = _ , _ , a₃ , refl (Liftⱼ a₁ a₂)
 
 ------------------------------------------------------------------------
 -- Inversion for Empty
@@ -60,8 +148,8 @@ opaque
 
   -- Inversion for Empty.
 
-  inversion-Empty : Γ ⊢ Empty ∷ A → Γ ⊢ A ≡ U 0
-  inversion-Empty (Emptyⱼ ⊢Γ)      = refl (Uⱼ ⊢Γ)
+  inversion-Empty : Γ ⊢ Empty ∷ A → Γ ⊢ A ≡ U zeroᵘ
+  inversion-Empty (Emptyⱼ ⊢Γ)      = refl (⊢U₀ ⊢Γ)
   inversion-Empty (conv ⊢Empty eq) =
     trans (sym eq) (inversion-Empty ⊢Empty)
 
@@ -85,8 +173,8 @@ opaque
 
   -- Inversion for Unit.
 
-  inversion-Unit-U : Γ ⊢ Unit s l ∷ A → Γ ⊢ A ≡ U l × Unit-allowed s
-  inversion-Unit-U (Unitⱼ ⊢Γ ok)    = refl (Uⱼ ⊢Γ) , ok
+  inversion-Unit-U : Γ ⊢ Unit s ∷ A → Γ ⊢ A ≡ U zeroᵘ × Unit-allowed s
+  inversion-Unit-U (Unitⱼ ⊢Γ ok)    = refl (⊢U₀ ⊢Γ) , ok
   inversion-Unit-U (conv ⊢Unit B≡A) =
     let B≡U , ok = inversion-Unit-U ⊢Unit in
     trans (sym B≡A) B≡U , ok
@@ -95,9 +183,8 @@ opaque
 
   -- Inversion for Unit.
 
-  inversion-Unit : Γ ⊢ Unit s l → Unit-allowed s
+  inversion-Unit : Γ ⊢ Unit s → Unit-allowed s
   inversion-Unit = λ where
-    (Unitⱼ _ ok) → ok
     (univ ⊢Unit) →
       let _ , ok = inversion-Unit-U ⊢Unit in
       ok
@@ -107,8 +194,8 @@ opaque
   -- Inversion for star.
 
   inversion-star :
-    Γ ⊢ star s l ∷ A → Γ ⊢ A ≡ Unit s l × Unit-allowed s
-  inversion-star (starⱼ ⊢Γ ok)   = refl (Unitⱼ ⊢Γ ok) , ok
+    Γ ⊢ star s ∷ A → Γ ⊢ A ≡ Unit s × Unit-allowed s
+  inversion-star (starⱼ ⊢Γ ok)   = refl (univ (Unitⱼ ⊢Γ ok)) , ok
   inversion-star (conv ⊢star eq) =
     let a , b = inversion-star ⊢star in
     trans (sym eq) a , b
@@ -120,8 +207,8 @@ opaque
 
   -- Inversion for ℕ.
 
-  inversion-ℕ : Γ ⊢ ℕ ∷ A → Γ ⊢ A ≡ U 0
-  inversion-ℕ (ℕⱼ ⊢Γ)      = refl (Uⱼ ⊢Γ)
+  inversion-ℕ : Γ ⊢ ℕ ∷ A → Γ ⊢ A ≡ U zeroᵘ
+  inversion-ℕ (ℕⱼ ⊢Γ)      = refl (⊢U₀ ⊢Γ)
   inversion-ℕ (conv ⊢ℕ eq) = trans (sym eq) (inversion-ℕ ⊢ℕ)
 
 opaque
@@ -129,7 +216,7 @@ opaque
   -- Inversion for zero.
 
   inversion-zero : Γ ⊢ zero ∷ A → Γ ⊢ A ≡ ℕ
-  inversion-zero (zeroⱼ ⊢Γ)      = refl (ℕⱼ ⊢Γ)
+  inversion-zero (zeroⱼ ⊢Γ)      = refl (univ (ℕⱼ ⊢Γ))
   inversion-zero (conv ⊢zero eq) = trans (sym eq) (inversion-zero ⊢zero)
 
 opaque
@@ -137,7 +224,7 @@ opaque
   -- Inversion for suc.
 
   inversion-suc : Γ ⊢ suc t ∷ A → Γ ⊢ t ∷ ℕ × Γ ⊢ A ≡ ℕ
-  inversion-suc (sucⱼ ⊢t)      = ⊢t , refl (ℕⱼ (wfTerm ⊢t))
+  inversion-suc (sucⱼ ⊢t)      = ⊢t , refl (univ (ℕⱼ (wfTerm ⊢t)))
   inversion-suc (conv ⊢suc eq) =
     let a , b = inversion-suc ⊢suc in
     a , trans (sym eq) b
@@ -159,31 +246,6 @@ opaque
   inversion-Id-⊢∷ (conv ⊢Id ≡U)  =
     let (⊢A , A<) , (⊢t , t<) , (⊢u , u<) = inversion-Id-⊢∷ ⊢Id in
     (conv ⊢A ≡U , A< ↙⊕ ◻) , (⊢t , ↙ <ˢ→≤ˢ t<) , (⊢u , ↙ <ˢ→≤ˢ u<)
-
-opaque
-
-  -- Inversion for Id.
-
-  inversion-Id-U :
-    Γ ⊢ Id A t u ∷ B →
-    ∃ λ l → Γ ⊢ A ∷ U l × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A × Γ ⊢ B ≡ U l
-  inversion-Id-U = λ where
-    (Idⱼ ⊢A ⊢t ⊢u) → _ , ⊢A , ⊢t , ⊢u , refl (Uⱼ (wfTerm ⊢A))
-    (conv ⊢Id C≡B) →
-      case inversion-Id-U ⊢Id of λ {
-        (_ , ⊢A , ⊢t , ⊢u , C≡U) →
-      _ , ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
-
-opaque
-
-  -- A variant of inversion-Id-U.
-
-  inversion-Id∷U :
-    Γ ⊢ Id A t u ∷ U l →
-    Γ ⊢ A ∷ U l × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
-  inversion-Id∷U ⊢Id =
-    let _ , ⊢A , ⊢t , ⊢u , ≡U = inversion-Id-U ⊢Id in
-    conv ⊢A (sym ≡U) , ⊢t , ⊢u
 
 opaque
   unfolding size-⊢
@@ -236,18 +298,19 @@ opaque
 
   inversion-ΠΣ-⊢∷ :
     (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C) →
-    ∃₂ λ l₁ l₂ →
-    (∃ λ (⊢A : Γ ⊢ A ∷ U l₁) → size-⊢∷ ⊢A <ˢ size-⊢∷ ⊢ΠΣ) ×
-    (∃ λ (⊢B : Γ »∙ A ⊢ B ∷ U l₂) → size-⊢∷ ⊢B <ˢ size-⊢∷ ⊢ΠΣ) ×
-    Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
+    ∃ λ l →
+    Γ ⊢ l ∷Level ×
+    (∃ λ (⊢A : Γ ⊢ A ∷ U l) → size-⊢∷ ⊢A <ˢ size-⊢∷ ⊢ΠΣ) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B ∷ U (wk1 l)) → size-⊢∷ ⊢B <ˢ size-⊢∷ ⊢ΠΣ) ×
+    Γ ⊢ C ≡ U l ×
     ΠΣ-allowed b p q
-  inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢A ⊢B ok) =
-    _ , _ , (⊢A , !) , (⊢B , !) , refl (Uⱼ (wfTerm ⊢A)) , ok
+  inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢l ⊢A ⊢B ok) =
+    _ , ⊢l , (⊢A , !) , (⊢B , !) , refl (⊢U ⊢l) , ok
   inversion-ΠΣ-⊢∷ (conv ⊢ΠΣ eq₁) =
-    let _ , _ , (⊢A , A<) , (⊢B , B<) , eq₂ , ok =
+    let _ , ⊢l , (⊢A , A<) , (⊢B , B<) , eq₂ , ok =
           inversion-ΠΣ-⊢∷ ⊢ΠΣ
     in
-    _ , _ , (⊢A , ↙ <ˢ→≤ˢ A<) , (⊢B , ↙ <ˢ→≤ˢ B<) ,
+    _ , ⊢l , (⊢A , ↙ <ˢ→≤ˢ A<) , (⊢B , ↙ <ˢ→≤ˢ B<) ,
     trans (sym eq₁) eq₂ , ok
 
 opaque
@@ -256,12 +319,13 @@ opaque
 
   inversion-ΠΣ-U :
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C →
-    ∃₂ λ l₁ l₂ →
-      Γ ⊢ A ∷ U l₁ × Γ »∙ A ⊢ B ∷ U l₂ × Γ ⊢ C ≡ U (l₁ ⊔ᵘ l₂) ×
+    ∃ λ l →
+      Γ ⊢ l ∷Level ×
+      Γ ⊢ A ∷ U l × Γ »∙ A ⊢ B ∷ U (wk1 l) × Γ ⊢ C ≡ U l ×
       ΠΣ-allowed b p q
   inversion-ΠΣ-U ⊢ΠΣ =
-    let _ , _ , (⊢A , _) , (⊢B , _) , C≡ , ok = inversion-ΠΣ-⊢∷ ⊢ΠΣ in
-    _ , _ , ⊢A , ⊢B , C≡ , ok
+    let _ , ⊢l , (⊢A , _) , (⊢B , _) , C≡ , ok = inversion-ΠΣ-⊢∷ ⊢ΠΣ in
+    _ , ⊢l , ⊢A , ⊢B , C≡ , ok
 
 opaque
   unfolding size-⊢

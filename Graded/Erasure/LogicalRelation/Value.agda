@@ -49,7 +49,8 @@ opaque
       t ® u ∷ A / ⊨A →
       ∃ λ v → T.Value v × vs T.⊢ u ⇒* v
     helper = λ where
-      (Uᵣ _)            (Uᵣ v⇒*↯)           → _ , T.↯    , v⇒*↯ refl
+      (Levelᵣ _)        (U/Levelᵣ v⇒*↯)     → _ , T.↯    , v⇒*↯ refl
+      (Uᵣ _)            (U/Levelᵣ v⇒*↯)     → _ , T.↯    , v⇒*↯ refl
       (ℕᵣ _)            (zeroᵣ _ v⇒*zero)   → _ , T.zero , v⇒*zero
       (ℕᵣ _)            (sucᵣ _ v⇒*suc _ _) → _ , T.suc  , v⇒*suc
       (Emptyᵣ _)        ()
@@ -58,6 +59,7 @@ opaque
       (Idᵣ _)           (rflᵣ _ v⇒*↯)       → _ , T.↯    , v⇒*↯ refl
       (Bᵣ BMΠ _ _ record{}) (u⇒*lam , _)    → _ , T.lam  ,
                                               u⇒*lam refl .proj₂
+      (Liftᵣ′ _ ⊩B)     lower-t®u           → helper ⊩B lower-t®u
       (Bᵣ′ (BMΣ _) _ _ _ _ _ _ ⊨B) (_ , _ , _ , _ , _ , t₂®v₂ , more) →
         Σ-®-elim _ more
           (λ u⇒*v₂ _ →

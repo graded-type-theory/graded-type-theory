@@ -27,9 +27,8 @@ import Tools.PropositionalEquality as PE
 
 private
   variable
-    Γ   : Cons _ _
-    A B : Term _
-    l   : Universe-level
+    Γ     : Cons _ _
+    A B l : Term _
 
 -- The relation _⊢_[conv↓]_∷ U l is contained in _⊢_[conv↓]_.
 

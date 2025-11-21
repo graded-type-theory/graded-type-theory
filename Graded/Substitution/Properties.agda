@@ -364,6 +364,37 @@ liftSubstₘ-app (Ψ ⊙ η) γ p = begin
   γ ∙ p ∎
   where open Tools.Reasoning.Equivalence Conₘ-setoid
 
+opaque
+  unfolding replace₁ₘ
+
+  -- A "reduction rule" for _<*_ and replace₁ₘ.
+
+  <*-replace₁ₘ :
+    (γ ∙ p) <* replace₁ₘ k δ ≈ᶜ p ·ᶜ δ +ᶜ wkConₘ (stepn id k) γ
+  <*-replace₁ₘ {γ} {p} {k} {δ} = begin
+    p ·ᶜ δ +ᶜ γ <* wkSubstₘ′ k idSubstₘ            ≈⟨ +ᶜ-congˡ (<*-wkSubstₘ′ γ) ⟩
+    p ·ᶜ δ +ᶜ wkConₘ (stepn id k) (γ <* idSubstₘ)  ≈⟨ +ᶜ-congˡ (wk-≈ᶜ (stepn _ k) (<*-identityˡ _)) ⟩
+    p ·ᶜ δ +ᶜ wkConₘ (stepn id k) γ                ∎
+    where
+    open ≈ᶜ-reasoning
+
+opaque
+  unfolding replace₂ₘ
+
+  -- A "reduction rule" for _<*_ and replace₂ₘ.
+
+  <*-replace₂ₘ :
+    (γ ∙ p ∙ q) <* replace₂ₘ δ η ≈ᶜ
+    p ·ᶜ δ +ᶜ q ·ᶜ η +ᶜ wkConₘ (stepn id 2) γ
+  <*-replace₂ₘ {γ} {p} {q} {δ} {η} = begin
+    q ·ᶜ η +ᶜ p ·ᶜ δ +ᶜ γ <* wkSubstₘ′ 2 idSubstₘ              ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
+    (q ·ᶜ η +ᶜ p ·ᶜ δ) +ᶜ γ <* wkSubstₘ′ 2 idSubstₘ            ≈⟨ +ᶜ-cong (+ᶜ-comm _ _) (<*-wkSubstₘ′ {k = 2} γ) ⟩
+    (p ·ᶜ δ +ᶜ q ·ᶜ η) +ᶜ wkConₘ (stepn id 2) (γ <* idSubstₘ)  ≈⟨ +ᶜ-congˡ (wk-≈ᶜ (stepn id 2) (<*-identityˡ _)) ⟩
+    (p ·ᶜ δ +ᶜ q ·ᶜ η) +ᶜ wkConₘ (stepn id 2) γ                ≈⟨ +ᶜ-assoc _ _ _ ⟩
+    p ·ᶜ δ +ᶜ q ·ᶜ η +ᶜ wkConₘ (stepn id 2) γ                  ∎
+    where
+    open ≈ᶜ-reasoning
+
 -------------------------------
 -- Well-formed substitutions --
 -------------------------------
@@ -475,6 +506,28 @@ wf-tailSubstₘ :
 wf-tailSubstₘ Ψ▶σ x =
   sub-≈ᶜ (Ψ▶σ (x +1))
     (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroˡ _)) (+ᶜ-identityˡ _)))
+
+opaque
+  unfolding replace₁ₘ
+
+  -- A well-formedness lemma for replace₁ₘ.
+
+  wf-replace₁ₘ :
+    ⌜ mo ⌝ ·ᶜ γ ▸[ mo ] t →
+    replace₁ₘ k γ ▶[ consᵐ mo mos ] replace₁ k t
+  wf-replace₁ₘ = wf-consSubstₘ (wf-wkSubstₘ′ wf-idSubstₘ)
+
+opaque
+  unfolding replace₂ replace₂ₘ
+
+  -- A well-formedness lemma for replace₂ₘ.
+
+  wf-replace₂ₘ :
+    ⌜ mo₂ ⌝ ·ᶜ γ ▸[ mo₂ ] t →
+    ⌜ mo₁ ⌝ ·ᶜ δ ▸[ mo₁ ] u →
+    replace₂ₘ γ δ ▶[ consᵐ mo₁ (consᵐ mo₂ mos) ] replace₂ t u
+  wf-replace₂ₘ ▸t ▸u =
+    wf-consSubstₘ (wf-consSubstₘ (wf-wkSubstₘ′ wf-idSubstₘ) ▸t) ▸u
 
 -- A preservation lemma for _▶[_]_.
 
@@ -984,8 +1037,37 @@ mutual
     (Ψ : Substₘ m n) →
     Ψ ▶[ ⌞ γ ⌟ᶜ ] σ → γ ▸[ mo ] t → substₘ Ψ γ ▸[ mo ] t [ σ ]
 
-  substₘ-lemma Ψ _ Uₘ =
-    sub-≈ᶜ Uₘ (<*-zeroˡ Ψ)
+  substₘ-lemma Ψ _ Levelₘ =
+    sub Levelₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+
+  substₘ-lemma Ψ _ zeroᵘₘ =
+    sub zeroᵘₘ (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+
+  substₘ-lemma Ψ ▶σ (sucᵘₘ ▸t) =
+    sucᵘₘ (substₘ-lemma Ψ ▶σ ▸t)
+
+  substₘ-lemma Ψ ▶σ (supᵘₘ {γ} {δ} ▸t ▸u) =
+    let ▶σ₁ = ▶-⌞+ᶜ⌟ˡ Ψ γ ▶σ
+        ▶σ₂ = ▶-⌞+ᶜ⌟ʳ Ψ γ ▶σ
+    in
+    sub (supᵘₘ (substₘ-lemma Ψ ▶σ₁ ▸t) (substₘ-lemma Ψ ▶σ₂ ▸u)) (begin
+      (γ +ᶜ δ) <* Ψ     ≈⟨ <*-distrib-+ᶜ Ψ γ _ ⟩
+      γ <* Ψ +ᶜ δ <* Ψ  ∎)
+    where
+    open ≤ᶜ-reasoning
+
+  substₘ-lemma Ψ ▶σ (Uₘ ▸t) =
+    sub (Uₘ (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂))
+      (≤ᶜ-reflexive (<*-zeroˡ Ψ))
+
+  substₘ-lemma Ψ ▶σ (Liftₘ ▸t ▸A) =
+    Liftₘ (substₘ-lemma-𝟘ᵐ? Ψ ▶σ ▸t .proj₂) (substₘ-lemma Ψ ▶σ ▸A)
+
+  substₘ-lemma Ψ ▶σ (liftₘ ▸u) =
+    liftₘ (substₘ-lemma Ψ ▶σ ▸u)
+
+  substₘ-lemma Ψ ▶σ (lowerₘ ▸t) =
+    lowerₘ (substₘ-lemma Ψ ▶σ ▸t)
 
   substₘ-lemma Ψ _ ℕₘ =
     sub-≈ᶜ ℕₘ (<*-zeroˡ Ψ)
@@ -1272,34 +1354,37 @@ mutual
            p ·ᶜ γ <* Ψ    ≈⟨ ≡𝟘→·<*≈ᶜ·𝟘 {δ = γ} Ψ p≡𝟘 ⟩
            p ·ᶜ 𝟘ᶜ        ∎)
 
-  substₘ-lemma Ψ Ψ▶σ starʷₘ = sub
+  substₘ-lemma Ψ ▶σ starʷₘ = sub
     starʷₘ
     (≤ᶜ-reflexive (<*-zeroˡ Ψ))
 
-  substₘ-lemma Ψ _ (starˢₘ {γ = γ} prop) = sub
-    (starˢₘ (λ ns → ≈ᶜ-trans (≈ᶜ-sym (<*-zeroˡ Ψ)) (<*-cong Ψ (prop ns))))
+  substₘ-lemma Ψ ▶σ (starˢₘ {γ} prop) = sub
+    (starˢₘ
+       (λ ns → ≈ᶜ-trans (≈ᶜ-sym (<*-zeroˡ Ψ)) (<*-cong Ψ (prop ns))))
     (≤ᶜ-reflexive (<*-distrib-·ᶜ Ψ _ γ))
 
-  substₘ-lemma {mo = mo} Ψ Ψ▶σ (unitrecₘ {γ = γ} {p = p} {δ = δ} {η = η} γ▸t δ▸u η▸A ok) =
-    let ▸u = substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) Ψ▶σ) δ▸u
-        ▸A = substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ Ψ▶σ η▸A .proj₂
+  substₘ-lemma
+    {mo} Ψ ▶σ (unitrecₘ {γ₃ = γ} {p} {γ₄ = δ} ▸A ▸u ▸v ok) =
+    let ▸v = substₘ-lemma Ψ (▶-⌞+ᶜ⌟ʳ Ψ (_ ·ᶜ γ) ▶σ) ▸v
+        ▸A = substₘ-lemma-∙⌜𝟘ᵐ?⌝·▸[𝟘ᵐ?] Ψ ▶σ ▸A .proj₂
         le = begin
           (p ·ᶜ γ +ᶜ δ) <* Ψ       ≈⟨ <*-distrib-+ᶜ Ψ (p ·ᶜ γ) δ ⟩
           (p ·ᶜ γ) <* Ψ +ᶜ δ <* Ψ  ≈⟨ +ᶜ-congʳ (<*-distrib-·ᶜ Ψ p γ) ⟩
           p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ    ∎
-    in  case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (p ·ᶜ γ) Ψ▶σ) of λ where
+    in  case ▶-⌞·⌟ Ψ γ (▶-⌞+ᶜ⌟ˡ Ψ (p ·ᶜ γ) ▶σ) of λ where
       (inj₁ (p≡𝟘 , ok′)) →
-        let ▸t = ▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok′ ⦄ mo p≡𝟘) (substₘ-lemma₀ ⦃ ok = ok′ ⦄ Ψ Ψ▶σ γ▸t)
-        in  sub (unitrecₘ ▸t ▸u ▸A ok)
+        let ▸u = ▸-cong (≡𝟘→𝟘ᵐ≡ᵐ· ⦃ ok = ok′ ⦄ mo p≡𝟘)
+                   (substₘ-lemma₀ ⦃ ok = ok′ ⦄ Ψ ▶σ ▸u)
+        in  sub (unitrecₘ ▸A ▸u ▸v ok)
                 (begin
                   (p ·ᶜ γ +ᶜ δ) <* Ψ     ≤⟨ le ⟩
                   p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ  ≡⟨ cong (λ p → p ·ᶜ γ <* Ψ +ᶜ δ <* Ψ) p≡𝟘 ⟩
                   𝟘 ·ᶜ γ <* Ψ +ᶜ δ <* Ψ  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
                   𝟘ᶜ +ᶜ δ <* Ψ           ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
                   p ·ᶜ 𝟘ᶜ +ᶜ δ <* Ψ ∎)
-      (inj₂ Ψ▶σ′) →
-        let ▸t = substₘ-lemma Ψ Ψ▶σ′ γ▸t
-        in  sub (unitrecₘ ▸t ▸u ▸A ok) le
+      (inj₂ ▶σ′) →
+        let ▸u = substₘ-lemma Ψ ▶σ′ ▸u
+        in  sub (unitrecₘ ▸A ▸u ▸v ok) le
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
@@ -1436,8 +1521,9 @@ mutual
     (substₘ-lemma Ψ Ψ▶σ ▸u)
     (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸v .proj₂)
 
-  substₘ-lemma Ψ Ψ▶σ ([]-congₘ ▸A ▸t ▸u ▸v ok) = sub
+  substₘ-lemma Ψ Ψ▶σ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) = sub
     ([]-congₘ
+       (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸l .proj₂)
        (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸A .proj₂)
        (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸t .proj₂)
        (substₘ-lemma-𝟘ᵐ? Ψ Ψ▶σ ▸u .proj₂)

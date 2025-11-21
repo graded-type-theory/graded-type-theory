@@ -23,6 +23,7 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation.Substitution.Introductions.Level R
 open import
   Definition.LogicalRelation.Substitution.Introductions.Universe R
 open import Definition.LogicalRelation.Unary R
@@ -37,6 +38,7 @@ open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
@@ -69,21 +71,21 @@ opaque
         case ℕ-view ⊩ℕ of λ {
           (ℕᵣ ℕ⇒*ℕ) →
         wfEq (subset* ℕ⇒*ℕ) })
-    , (λ ⊢Γ → ℕᵣ (id (ℕⱼ ⊢Γ)))
+    , (λ ⊢Γ → ℕᵣ (id (⊢ℕ ⊢Γ)))
 
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
-  ⊩ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ∷ U 0 ⇔ ⊢ Γ
+  ⊩ℕ∷U⇔ : Γ ⊩⟨ ωᵘ ⟩ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
   ⊩ℕ∷U⇔ =
       (λ ⊩ℕ →
          case ⊩∷U⇔ .proj₁ ⊩ℕ of λ
-           (_ , _ , _ , ℕ⇒* , _) →
+           (_ , _ , _ , _ , ℕ⇒* , _) →
          wfEqTerm (subset*Term ℕ⇒*))
     , (λ ⊢Γ →
          ⊩∷U⇔ .proj₂
-           ( ≤ᵘ-refl , ⊩ℕ⇔ .proj₂ ⊢Γ
+           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩ℕ⇔ .proj₂ ⊢Γ
            , (_ , id (ℕⱼ ⊢Γ) , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
            ))
 
@@ -99,7 +101,7 @@ opaque
            (ℕᵣ _) →
          ℕ≡A })
     , (λ ℕ≡A →
-         case id (ℕⱼ (wfEq (subset* ℕ≡A))) of λ
+         case id (⊢ℕ (wfEq (subset* ℕ≡A))) of λ
            ℕ⇒*ℕ →
          let ⊩ℕ = ℕᵣ ℕ⇒*ℕ in
            ⊩ℕ
@@ -110,17 +112,17 @@ opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
-  ⊩ℕ≡ℕ∷U⇔ : Γ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U 0 ⇔ ⊢ Γ
+  ⊩ℕ≡ℕ∷U⇔ : Γ ⊩⟨ ωᵘ ⟩ ℕ ≡ ℕ ∷ U zeroᵘ ⇔ ⊢ Γ
   ⊩ℕ≡ℕ∷U⇔ =
       (λ ℕ≡ℕ →
          case ⊩≡∷U⇔ .proj₁ ℕ≡ℕ of λ
-           (_ , _ , _ , _ , ℕ⇒* , _) →
+           (_ , _ , _ , _ , _ , ℕ⇒* , _) →
          wfEqTerm (subset*Term ℕ⇒*))
     , (λ ⊢Γ →
          case id (ℕⱼ ⊢Γ) of λ
            ℕ⇒*ℕ →
          ⊩≡∷U⇔ .proj₂
-           ( ≤ᵘ-refl , ⊩ℕ≡⇔ .proj₂ (id (ℕⱼ ⊢Γ))
+           ( ⊩zeroᵘ ⊢Γ , <ᵘ-ωᵘ , ⊩ℕ≡⇔ .proj₂ (id (⊢ℕ ⊢Γ))
            , (_ , _ , ℕ⇒*ℕ , ℕ⇒*ℕ , ℕₙ , ℕₙ , ≅ₜ-ℕrefl ⊢Γ)
            ))
 
@@ -136,7 +138,7 @@ opaque
            (ℕᵣ _) →
          t≡u })
     , (λ t≡u →
-         ℕᵣ (id (ℕⱼ (wfEqTerm (subset*Term (_⊩ℕ_≡_∷ℕ.d t≡u))))) , t≡u)
+         ℕᵣ (id (⊢ℕ (wfEqTerm (subset*Term (_⊩ℕ_≡_∷ℕ.d t≡u))))) , t≡u)
 
 opaque
 
@@ -184,8 +186,8 @@ opaque
     Γ ⊩⟨ l ⟩ t ≡ u ∷ ℕ          □⇔
     where
     lemma₀ : [Natural]-prop Γ (suc t) (suc u) → Γ ⊩ℕ t ≡ u ∷ℕ
-    lemma₀ (sucᵣ t≡u)           = t≡u
-    lemma₀ (ne (neNfₜ₌ () _ _))
+    lemma₀ (sucᵣ t≡u)                  = t≡u
+    lemma₀ (ne (neNfₜ₌ (ne () _) _ _))
 
     lemma₁ : Γ ⊩ℕ suc t ≡ suc u ∷ℕ → Γ ⊩ℕ t ≡ u ∷ℕ
     lemma₁ (ℕₜ₌ _ _ suc-t⇒*t′ suc-u⇒*u′ _ t′≡u′) =
@@ -202,7 +204,7 @@ opaque
       ℕₜ₌ _ _ (id (sucⱼ (redFirst*Term t⇒*t′)))
         (id (sucⱼ (redFirst*Term u⇒*u′)))
         (≅-suc-cong $
-         ≅ₜ-red (id (ℕⱼ (wfEqTerm (≅ₜ-eq t′≅u′))) , ℕₙ)
+         ≅ₜ-red (id (⊢ℕ (wfEqTerm (≅ₜ-eq t′≅u′))) , ℕₙ)
            (t⇒*t′ , naturalWhnf t′-ok) (u⇒*u′ , naturalWhnf u′-ok)
            t′≅u′)
         (sucᵣ t≡u)
@@ -234,7 +236,7 @@ opaque
          case whnfRed*Term suc⇒* sucₙ of λ {
            PE.refl →
          case rest of λ where
-           (ne (neNfₜ₌ () _ _)) }}})
+           (ne (neNfₜ₌ (ne () _) _ _)) }}})
     , ⊥-elim
 
 ------------------------------------------------------------------------
@@ -250,7 +252,7 @@ opaque
       ( ⊩Γ
       , λ {_} {∇′} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
           ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ∇′ »⊢ Δ                      →⟨ ℕⱼ ⟩
+          ∇′ »⊢ Δ                      →⟨ ⊢ℕ ⟩
           (∇′ » Δ ⊢ ℕ)                 →⟨ id ⟩
           ∇′ » Δ ⊢ ℕ ⇒* ℕ              ⇔˘⟨ ⊩ℕ≡⇔ ⟩→
           ∇′ » Δ ⊩⟨ l ⟩ ℕ ≡ ℕ          □
@@ -260,14 +262,14 @@ opaque
 
   -- Validity of ℕ, seen as a term former.
 
-  ℕᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ 1 ⟩ ℕ ∷ U 0
+  ℕᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ωᵘ ⟩ ℕ ∷ U zeroᵘ
   ℕᵗᵛ {Γ} ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
-      ( ⊩ᵛU ⊩Γ
+      ( ⊩ᵛU (zeroᵘᵛ′ ⊩Γ)
       , λ {_} {∇′} ξ⊇ {_} {Δ} {σ₁} {σ₂} →
-          ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars  →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
-          ∇′ »⊢ Δ                      ⇔˘⟨ ⊩ℕ≡ℕ∷U⇔ ⟩→
-          ∇′ » Δ ⊩⟨ 1 ⟩ ℕ ≡ ℕ ∷ U 0    □
+          ∇′ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars     →⟨ proj₁ ∘→ escape-⊩ˢ≡∷ ⟩
+          ∇′ »⊢ Δ                         ⇔˘⟨ ⊩ℕ≡ℕ∷U⇔ ⟩→
+          ∇′ » Δ ⊩⟨ ωᵘ ⟩ ℕ ≡ ℕ ∷ U zeroᵘ  □
       )
 
 ------------------------------------------------------------------------
@@ -426,7 +428,7 @@ private opaque
          -- to v₁′ and v₂′ are equal neutral terms.
          (ne (neNfₜ₌ v₁′-ne v₂′-ne v₁′~v₂′)) →
            neutral-⊩≡∷ (wf-⊩≡ A₁[v₁′]≡A₂[v₂′] .proj₁)
-             (natrecₙ v₁′-ne) (natrecₙ v₂′-ne) $
+             (natrecₙᵃ v₁′-ne) (natrecₙᵃ v₂′-ne) $
            ~-natrec A₁≅A₂ (escape-⊩≡∷ t₁≡t₂) u₁≅u₂ v₁′~v₂′
 
          -- If v₁′ and v₂′ are both zero, then one can conclude by

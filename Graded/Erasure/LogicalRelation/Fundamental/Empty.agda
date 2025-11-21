@@ -32,6 +32,7 @@ import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄
 
 open import Definition.LogicalRelation.Substitution R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 
 open import Graded.Context 𝕄
@@ -61,10 +62,10 @@ opaque
 
   -- Validity of Empty.
 
-  Emptyʳ : γ ▸ Γ ⊩ʳ Empty ∷[ m ∣ n ] U 0
+  Emptyʳ : γ ▸ Γ ⊩ʳ Empty ∷[ m ∣ n ] U zeroᵘ
   Emptyʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (Uᵣ (λ { refl → T.refl })))
+    ®∷→®∷◂ (®∷U⇔ .proj₂ (⊢zeroᵘ ⊢Δ , U/Levelᵣ (λ { refl → T.refl })))
 
 opaque
 

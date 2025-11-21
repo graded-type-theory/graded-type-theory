@@ -47,11 +47,11 @@ import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 
 private variable
-  ∇           : DCon (Term 0) _
-  Γ           : Con Term _
-  γ₁ γ₂ γ₃ γ₄ : Conₘ _
-  A t u v     : Term _
-  s s₁ s₂     : Strength
+  ∇              : DCon (Term 0) _
+  Γ              : Con Term _
+  γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ _
+  A l t u v      : Term _
+  s s₁ s₂        : Strength
 
 opaque
 
@@ -88,13 +88,9 @@ opaque
     open L as
 
 opaque
+  unfolding Erased.Erased Erased.[_]
 
-  -- A variant of the previous lemma: If the modality's zero is
-  -- well-behaved, []-cong is allowed, the type Id A t u is inhabited
-  -- under a context pair glassify ∇ » Γ that satisfies
-  -- Fundamental-assumptions⁻, and the witness of inhabitance as well
-  -- as the terms A, t and u are well-resourced with respect to any
-  -- context and the mode 𝟘ᵐ?, then t is definitionally equal to u.
+  -- A variant of the previous lemma.
   --
   -- Note that if []-cong is allowed, then (at the time of writing)
   -- Fundamental-assumptions⁻ only holds for the empty variable
@@ -105,18 +101,25 @@ opaque
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
     Fundamental-assumptions⁻ (glassify ∇ » Γ) →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
-    γ₃ ▸[ 𝟘ᵐ? ] u →
-    γ₄ ▸[ 𝟘ᵐ? ] v →
+    γ₁ ▸[ 𝟘ᵐ? ] l →
+    γ₂ ▸[ 𝟘ᵐ? ] A →
+    γ₃ ▸[ 𝟘ᵐ? ] t →
+    γ₄ ▸[ 𝟘ᵐ? ] u →
+    γ₅ ▸[ 𝟘ᵐ? ] v →
+    glassify ∇ » Γ ⊢ l ∷Level →
     glassify ∇ » Γ ⊢ v ∷ Id A t u →
     glassify ∇ » Γ ⊢ t ≡ u ∷ A
   Id→≡′
-    {s} {∇} {Γ} {A} {t} {u} {v} []-cong-ok []-cong-ok′ ok ▸A ▸t ▸u ▸v =
-    glassify ∇ » Γ ⊢ v ∷ Id A t u                                       →⟨ []-congⱼ′ []-cong-ok ⟩
-    glassify ∇ » Γ ⊢ []-cong _ A t u v ∷ Id (Erased A) ([ t ]) ([ u ])  →⟨ flip (Id→≡ ok) ([]-congₘ ▸A ▸t ▸u ▸v []-cong-ok′) ⟩
-    glassify ∇ » Γ ⊢ ([ t ]) ≡ ([ u ]) ∷ Erased A                       →⟨ proj₁ ∘→ proj₂ ∘→ prod-cong⁻¹ ⟩
-    glassify ∇ » Γ ⊢ t ≡ u ∷ A                                          □
+    {s} {∇} {Γ} {l} {A} {t} {u} {v}
+    []-cong-ok []-cong-ok′ ok ▸l ▸A ▸t ▸u ▸v ⊢l =
+    glassify ∇ » Γ ⊢ v ∷ Id A t u                  →⟨ []-congⱼ′ []-cong-ok ⊢l ⟩
+
+    glassify ∇ » Γ ⊢ []-cong _ l A t u v ∷
+      Id (Erased l A) [ t ] ([ u ])                →⟨ flip (Id→≡ ok) ([]-congₘ ▸l ▸A ▸t ▸u ▸v []-cong-ok′) ⟩
+
+    glassify ∇ » Γ ⊢ [ t ] ≡ ([ u ]) ∷ Erased l A  →⟨ proj₁ ∘→ proj₂ ∘→ prod-cong⁻¹ ⟩
+
+    glassify ∇ » Γ ⊢ t ≡ u ∷ A                     □
     where
     open Erased s
     open Fundamental-assumptions⁻ ok
@@ -134,29 +137,32 @@ opaque
     []-cong-allowed s₁ →
     []-cong-allowed-mode s₁ 𝟙ᵐ →
     Fundamental-assumptions⁻ (glassify ∇ » Γ) →
-    γ₁ ▸[ 𝟘ᵐ ] A →
-    γ₂ ▸[ 𝟘ᵐ ] t →
-    γ₃ ▸[ 𝟘ᵐ ] u →
-    γ₄ ▸[ 𝟘ᵐ ] v →
-    glassify ∇ » Γ ⊢ v ∷ Erased.Erased s₂ (Id A t u) →
+    γ₁ ▸[ 𝟘ᵐ ] l →
+    γ₂ ▸[ 𝟘ᵐ ] A →
+    γ₃ ▸[ 𝟘ᵐ ] t →
+    γ₄ ▸[ 𝟘ᵐ ] u →
+    γ₅ ▸[ 𝟘ᵐ ] v →
+    glassify ∇ » Γ ⊢ l ∷Level →
+    glassify ∇ » Γ ⊢ v ∷ Erased.Erased s₂ l (Id A t u) →
     glassify ∇ » Γ ⊢ t ≡ u ∷ A
   Id→≡″
-    {∇} {Γ} {γ₁} {A} {γ₂} {t} {γ₃} {u} {v} {s₂} ⦃ ok ⦄
-    []-cong-ok []-cong-ok′ as ▸A ▸t ▸u ▸v =
-    glassify ∇ » Γ ⊢ v ∷ Erased (Id A t u)           →⟨ erasedⱼ ⟩
+    {∇} {Γ} {l} {γ₂} {A} {γ₃} {t} {γ₄} {u} {v} {s₂} ⦃ ok ⦄
+    []-cong-ok []-cong-ok′ as ▸l ▸A ▸t ▸u ▸v ⊢l =
+    glassify ∇ » Γ ⊢ v ∷ Erased l (Id A t u)         →⟨ erasedⱼ ⟩
     glassify ∇ » Γ ⊢ erased (Id A t u) v ∷ Id A t u  →⟨ Id→≡′ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ []-cong-ok []-cong-ok′ as
-                                                          (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
-                                                          (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u)
+                                                          (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸l) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A)
+                                                          (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u)
                                                           (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $
                                                            ▸erased s₂ ▸v
                                                              (λ _ →
                                                                   _
                                                                 , Idₘ-generalised ▸A ▸t ▸u
                                                                     (λ _ → begin
-                                                                       γ₁ +ᶜ γ₂ +ᶜ γ₃  ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ ▸A) (+ᶜ-monotone (▸-𝟘ᵐ ▸t) (▸-𝟘ᵐ ▸u)) ⟩
+                                                                       γ₂ +ᶜ γ₃ +ᶜ γ₄  ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ ▸A) $ +ᶜ-monotone (▸-𝟘ᵐ ▸t) (▸-𝟘ᵐ ▸u) ⟩
                                                                        𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
                                                                        𝟘ᶜ              ∎)
-                                                                    (λ _ → ≤ᶜ-refl))) ⟩
+                                                                    (λ _ → ≤ᶜ-refl)))
+                                                          ⊢l ⟩
     glassify ∇ » Γ ⊢ t ≡ u ∷ A                       □
     where
     open Erased s₂

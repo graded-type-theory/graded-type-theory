@@ -18,6 +18,7 @@ open import Definition.Typed.Properties.Admissible.Sigma R
 import Definition.Typed.Substitution.Primitive R as P
 
 open import Definition.Untyped M
+import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
 
 open import Tools.Function
@@ -42,8 +43,22 @@ opaque
   subst-⊢⇒∷ (conv t⇒u B≡A) ⊢σ =
     conv (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢≡ B≡A (refl-⊢ˢʷ≡∷ ⊢σ))
   subst-⊢⇒∷ (δ-red ⊢Γ α↦t PE.refl PE.refl) ⊢σ =
-    PE.subst (_ ⊢ _ ⇒_∷ _) (PE.sym (wk₀-subst-invariant _))
-             (δ-red (wf-⊢ˢʷ∷ ⊢σ) α↦t (wk₀-subst-invariant _) PE.refl)
+    PE.subst (_ ⊢ _ ⇒_∷ _) (PE.sym wk-wk₀-[]≡)
+             (δ-red (wf-⊢ˢʷ∷ ⊢σ) α↦t wk-wk₀-[]≡ PE.refl)
+  subst-⊢⇒∷ (supᵘ-zeroˡ ⊢l) ⊢σ =
+    supᵘ-zeroˡ (subst-⊢∷ ⊢l ⊢σ)
+  subst-⊢⇒∷ (supᵘ-zeroʳ ⊢l) ⊢σ =
+    supᵘ-zeroʳ (subst-⊢∷ ⊢l ⊢σ)
+  subst-⊢⇒∷ (supᵘ-sucᵘ ⊢l ⊢u) ⊢σ =
+    supᵘ-sucᵘ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
+  subst-⊢⇒∷ (supᵘ-substˡ l⇒l′ ⊢u) ⊢σ =
+    supᵘ-substˡ (subst-⊢⇒∷ l⇒l′ ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
+  subst-⊢⇒∷ (supᵘ-substʳ ⊢l u⇒u′) ⊢σ =
+    supᵘ-substʳ (subst-⊢∷ ⊢l ⊢σ) (subst-⊢⇒∷ u⇒u′ ⊢σ)
+  subst-⊢⇒∷ (lower-subst x) ⊢σ =
+    lower-subst (subst-⊢⇒∷ x ⊢σ)
+  subst-⊢⇒∷ (Lift-β x₁ x₂) ⊢σ =
+    Lift-β (subst-⊢ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
   subst-⊢⇒∷ (app-subst {G = B} t⇒u ⊢v) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (singleSubstLift B _))
       (app-subst (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢∷ ⊢v ⊢σ))
@@ -135,8 +150,9 @@ opaque
     K-subst (subst-⊢-⇑ ⊢B ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ))
       (subst-⊢⇒∷ v₁⇒v₂ ⊢σ) ok
-  subst-⊢⇒∷ ([]-cong-subst _ _ _ v₁⇒v₂ ok) ⊢σ =
-    []-cong-subst′ (subst-⊢⇒∷ v₁⇒v₂ ⊢σ) ok
+  subst-⊢⇒∷ ([]-cong-subst ⊢l v₁⇒v₂ ok) ⊢σ =
+    PE.subst (_⊢_⇒_∷_ _ _ _) (E.Id-Erased-[] _) $
+    []-cong-subst (subst-⊢∷L ⊢l ⊢σ) (subst-⊢⇒∷ v₁⇒v₂ ⊢σ) ok
   subst-⊢⇒∷ (J-β {t} {A} {B} _ _ t≡t′ ⊢B _ ⊢u) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
     J-β-⇒ (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ))
@@ -149,8 +165,9 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
     K-β (subst-⊢-⇑ ⊢B ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢∷ ⊢u ⊢σ)) ok
-  subst-⊢⇒∷ ([]-cong-β _ _ _ t≡t′ ok) ⊢σ =
-    []-cong-β-⇒ (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ)) ok
+  subst-⊢⇒∷ ([]-cong-β ⊢l t≡t′ ok) ⊢σ =
+    PE.subst (_⊢_⇒_∷_ _ _ _) (E.Id-Erased-[] _) $
+    []-cong-β (subst-⊢∷L ⊢l ⊢σ) (subst-⊢≡∷ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ)) ok
 
 opaque
 

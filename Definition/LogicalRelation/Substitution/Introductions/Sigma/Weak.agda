@@ -38,6 +38,7 @@ open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
@@ -75,8 +76,8 @@ data _⊩⟨_⟩_≡_∷Σʷ_,_▷_▹_
     Γ ⊩⟨ l ⟩ t₁₂ ≡ t₂₂ ∷ B [ t₁₁ ]₀ →
     Γ ⊩⟨ l ⟩ prodʷ p t₁₁ t₁₂ ≡ prodʷ p t₂₁ t₂₂ ∷Σʷ p , q ▷ A ▹ B
   ne :
-    Neutralₗ (Γ .defs) t₁ →
-    Neutralₗ (Γ .defs) t₂ →
+    Neutralᵃₗ (Γ .defs) t₁ →
+    Neutralᵃₗ (Γ .defs) t₂ →
     Γ ⊢ t₁ ~ t₂ ∷ Σʷ p , q ▷ A ▹ B →
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷Σʷ p , q ▷ A ▹ B
 
@@ -87,7 +88,7 @@ opaque
 
   ⊩≡∷Σʷ→Product :
     Γ ⊩⟨ l ⟩ t ≡ u ∷Σʷ p , q ▷ A ▹ B →
-    Productₗ (Γ .defs) t × Productₗ (Γ .defs) u
+    Productᵃₗ (Γ .defs) t × Productᵃₗ (Γ .defs) u
   ⊩≡∷Σʷ→Product = λ where
     (prodₙ _ _)      → prodₙ , prodₙ
     (ne t-ne u-ne _) → ne t-ne , ne u-ne
@@ -178,7 +179,7 @@ data _⊩⟨_⟩_∷Σʷ_,_▷_▹_
     Γ ⊩⟨ l ⟩ t₂ ∷ B [ t₁ ]₀ →
     Γ ⊩⟨ l ⟩ prodʷ p t₁ t₂ ∷Σʷ p , q ▷ A ▹ B
   ne :
-    Neutralₗ (Γ .defs) t →
+    Neutralᵃₗ (Γ .defs) t →
     Γ ⊢~ t ∷ Σʷ p , q ▷ A ▹ B →
     Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B
 
@@ -206,7 +207,7 @@ opaque
 
   -- If Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B holds, then t is a product.
 
-  ⊩∷Σʷ→Product : Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B → Productₗ (Γ .defs) t
+  ⊩∷Σʷ→Product : Γ ⊩⟨ l ⟩ t ∷Σʷ p , q ▷ A ▹ B → Productᵃₗ (Γ .defs) t
   ⊩∷Σʷ→Product = proj₁ ∘→ ⊩≡∷Σʷ→Product ∘→ ⊩∷Σʷ⇔⊩≡∷Σʷ .proj₁
 
 opaque
@@ -233,8 +234,8 @@ opaque
      Γ ⊩⟨ l ⟩ u₁ ≡ u₂ ∷Σʷ p , q ▷ A ▹ B)  ⇔⟨ (Σ-cong-⇔ λ _ → Σ-cong-⇔ λ _ →
                                                 ( (λ (_ , t⇒*u₁ , t⇒*u₂ , u₁≅u₂ , u₁≡u₂) →
                                                      let u₁-prod , u₂-prod = ⊩≡∷Σʷ→Product u₁≡u₂ in
-                                                     case whrDet*Term (t⇒*u₁ , productWhnf u₁-prod)
-                                                            (t⇒*u₂ , productWhnf u₂-prod) of λ {
+                                                     case whrDet*Term (t⇒*u₁ , Productᵃ→Whnf u₁-prod)
+                                                            (t⇒*u₂ , Productᵃ→Whnf u₂-prod) of λ {
                                                        PE.refl →
                                                      t⇒*u₁ , wf-⊢≅∷ u₁≅u₂ .proj₁ , ⊩∷Σʷ⇔⊩≡∷Σʷ .proj₂ u₁≡u₂ })
                                                 , (λ (t⇒*u , ≅u , ⊩u) →
@@ -466,7 +467,7 @@ opaque
 
          (ne v₁-ne v₂-ne v₁~v₂) →
            neutral-⊩≡∷ ⊩C₁[σ₁⇑][v₁]
-             (prodrecₙ v₁-ne) (prodrecₙ v₂-ne) $
+             (prodrecₙᵃ v₁-ne) (prodrecₙᵃ v₂-ne) $
            ~-prodrec
              (with-inc-⊢≅ (subst-⊢≡ ⊢C₁≡C₂ (⊢ˢʷ≡∷-⇑ (≅-eq (escape-⊩≡ ΣAB[σ₁]≡ΣAB[σ₂])) ⊢σ₁≡σ₂)) $
               R.escape-⊩≡ ⦃ inc = included ⦄ $

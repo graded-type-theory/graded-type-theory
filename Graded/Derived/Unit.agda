@@ -22,6 +22,7 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Mode 𝕄
 open import Graded.Usage 𝕄 UR
 open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Weakening 𝕄 UR
 
 open import Tools.Nat
 open import Tools.Fin
@@ -33,12 +34,11 @@ open import Tools.Relation
 
 private variable
   n       : Nat
-  A t u   : Term _
+  A t u v : Term _
   γ δ η θ : Conₘ _
   p q     : M
   m       : Mode
   s       : Strength
-  l       : Universe-level
 
 opaque
   unfolding unitrec⟨_⟩
@@ -48,13 +48,14 @@ opaque
   ▸unitrec⟨⟩ :
     (s ≡ 𝕨 → Unitrec-allowed m p q) →
     (s ≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A) →
-    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ m ᵐ· p ] t × θ ≤ᶜ p ·ᶜ δ +ᶜ η) →
+    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ m ᵐ· p ] u × θ ≤ᶜ p ·ᶜ δ +ᶜ η) →
     (s ≡ 𝕤 → θ ≤ᶜ η) →
-    η ▸[ m ] u →
-    θ ▸[ m ] unitrec⟨ s ⟩ l p q A t u
-  ▸unitrec⟨⟩ {s = 𝕨} ok ▸A ▸t _ ▸u =
-    let _ , ▸t , θ≤pδ+η = ▸t refl in
-    sub (unitrecₘ ▸t ▸u (▸A refl .proj₂) (ok refl)) θ≤pδ+η
+    η ▸[ m ] v →
+    θ ▸[ m ] unitrec⟨ s ⟩ p q A u v
+  ▸unitrec⟨⟩ {s = 𝕨} ok ▸A ▸u _ ▸v =
+    let _ , ▸u , θ≤pδ+η = ▸u refl in
+    sub (unitrecₘ (▸A refl .proj₂) ▸u ▸v (ok refl))
+      θ≤pδ+η
   ▸unitrec⟨⟩ {s = 𝕤} _ _ _ θ≤η ▸u =
     sub ▸u (θ≤η refl)
 
@@ -73,15 +74,16 @@ opaque
   -- A usage rule for Unit-η.
 
   ▸Unit-η :
+    ∀ {γ : Conₘ n} →
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 Unit-η-grade) →
-    (s ≡ 𝕨 → γ ▸[ m ] t) →
+    (s ≡ 𝕨 → γ ▸[ m ] u) →
     (s ≡ 𝕤 → γ ≤ᶜ 𝟘ᶜ) →
-    γ ▸[ m ] Unit-η s l Unit-η-grade t
-  ▸Unit-η {γ} {l} ok ▸t ≤𝟘ᶜ =
-    ▸unitrec⟨⟩ ok ((_ ,_) ∘→ lemma)
+    γ ▸[ m ] Unit-η s Unit-η-grade u
+  ▸Unit-η {n} {s} {γ} ok ▸u ≤𝟘ᶜ =
+    ▸unitrec⟨⟩ ok (λ s≡𝕨 → 𝟘ᶜ , lemma s≡𝕨)
       (λ s≡𝕨 →
            γ
-         , ▸-cong (sym ᵐ·-identityʳ) (▸t s≡𝕨)
+         , ▸-cong (sym ᵐ·-identityʳ) (▸u s≡𝕨)
          , (begin
               γ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityʳ _) $
                                 ·ᶜ-identityˡ _ ⟩
@@ -92,8 +94,8 @@ opaque
 
     lemma :
       s ≡ 𝕨 →
-      𝟘ᶜ {n = n} ∙ ⌜ 𝟘ᵐ? ⌝ · Unit-η-grade ▸[ 𝟘ᵐ? ]
-        Id (Unit s l) (star s l) (var x0)
+      𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · Unit-η-grade ▸[ 𝟘ᵐ? ]
+        Id {n = 1+ n} (Unit s) (star s) (var x0)
     lemma refl with Id-erased?
     … | yes erased = sub
       (Id₀ₘ erased Unitₘ starₘ var)
@@ -113,8 +115,9 @@ opaque
 
   ▸Unit-η′ :
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 Unit-η-grade) →
-    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ m ] t) →
-    ∃ λ γ → γ ▸[ m ] Unit-η s l Unit-η-grade t
-  ▸Unit-η′ {s = 𝕤} _  _  = 𝟘ᶜ , ▸Unit-η (λ ()) (λ ()) (λ _ → ≤ᶜ-refl)
-  ▸Unit-η′ {s = 𝕨} ok ▸t = case ▸t refl of λ where
-    (γ , ▸t) → γ , ▸Unit-η ok (λ _ → ▸t) (λ ())
+    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ m ] u) →
+    ∃ λ γ → γ ▸[ m ] Unit-η s Unit-η-grade u
+  ▸Unit-η′ {s = 𝕤} _ _ =
+    𝟘ᶜ , ▸Unit-η (λ ()) (λ ()) (λ _ → ≤ᶜ-refl)
+  ▸Unit-η′ {s = 𝕨} ok ▸u = case ▸u refl of λ where
+    (γ , ▸u) → γ , ▸Unit-η ok (λ _ → ▸u) (λ ())

@@ -16,6 +16,7 @@ open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Equality R
+import Definition.Typed.Properties.Admissible.Nat.Primitive
 open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
@@ -34,6 +35,8 @@ import Tools.PropositionalEquality as PE
 open Modality 𝕄
 open Type-restrictions R
 
+open Definition.Typed.Properties.Admissible.Nat.Primitive R public
+
 private
   variable
     Γ : Cons _ _
@@ -45,14 +48,11 @@ private
 
   -- Some lemmas used below.
 
-  ⊢ℕ : ε »⊢ ε ∙ ℕ
-  ⊢ℕ  = ∙ ℕⱼ εε
+  ⊢εℕ : ε »⊢ ε ∙ ℕ
+  ⊢εℕ  = ∙ ⊢ℕ εε
 
-  ⊢ℕℕ : ε »⊢ ε ∙ ℕ ∙ ℕ
-  ⊢ℕℕ = ∙ ℕⱼ ⊢ℕ
-
-  ⊢ℕℕℕ : ε »⊢ ε ∙ ℕ ∙ ℕ ∙ ℕ
-  ⊢ℕℕℕ = ∙ ℕⱼ ⊢ℕℕ
+  ⊢εℕℕ : ε »⊢ ε ∙ ℕ ∙ ℕ
+  ⊢εℕℕ = ∙ ⊢ℕ ⊢εℕ
 
 opaque
 
@@ -103,7 +103,7 @@ opaque
 
   ⊢double′ : Γ ⊢ t ∷ ℕ → Γ ⊢ double′ t ∷ ℕ
   ⊢double′ ⊢t =
-    natrecⱼ ⊢t (sucⱼ (var (∙ ℕⱼ (∙ syntacticTerm ⊢t)) here)) ⊢t
+    natrecⱼ ⊢t (sucⱼ (var (∙ ⊢ℕ (∙ syntacticTerm ⊢t)) here)) ⊢t
 
 opaque
 
@@ -120,14 +120,14 @@ opaque
 
   ⊢double : Π-allowed 𝟙 𝟘 → ε » ε ⊢ double ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
   ⊢double Π-𝟙-𝟘 =
-    lamⱼ′ Π-𝟙-𝟘 $ ⊢double′ (var ⊢ℕ here)
+    lamⱼ′ Π-𝟙-𝟘 $ ⊢double′ (var ⊢εℕ here)
 
 opaque
 
   -- A typing rule for plus′.
 
   ⊢plus′ : Γ ⊢ t ∷ ℕ → Γ ⊢ u ∷ ℕ → Γ ⊢ plus′ t u ∷ ℕ
-  ⊢plus′ ⊢t ⊢u = natrecⱼ ⊢t (sucⱼ (var₀ (ℕⱼ (∙ ℕⱼ (wfTerm ⊢t))))) ⊢u
+  ⊢plus′ ⊢t ⊢u = natrecⱼ ⊢t (sucⱼ (var₀ (⊢ℕ (∙ ⊢ℕ (wfTerm ⊢t))))) ⊢u
 
 opaque
 
@@ -142,7 +142,7 @@ opaque
   ⊢plus Π-𝟙-𝟘 =
     lamⱼ′ Π-𝟙-𝟘 $
     lamⱼ′ Π-𝟙-𝟘 $
-    ⊢plus′ (var ⊢ℕℕ here) (var ⊢ℕℕ (there here))
+    ⊢plus′ (var ⊢εℕℕ here) (var ⊢εℕℕ (there here))
 
 opaque
   unfolding f′
@@ -151,7 +151,7 @@ opaque
 
   ⊢f′ : Γ ⊢ t ∷ ℕ → Γ ⊢ u ∷ ℕ → Γ ⊢ f′ t u ∷ ℕ
   ⊢f′ ⊢t ⊢u =
-    let ⊢ℕ = ℕⱼ (∙ ℕⱼ (wfTerm ⊢t)) in
+    let ⊢ℕ = ⊢ℕ (∙ ⊢ℕ (wfTerm ⊢t)) in
     natrecⱼ ⊢t
       (⊢plus′ (wkTerm (∷⊇→∷ʷ⊇ (step (step id)) (∙ ⊢ℕ)) ⊢t) (var₁ ⊢ℕ)) ⊢u
 
@@ -164,7 +164,7 @@ opaque
     Π-allowed 𝟙 p →
     ε » ε ⊢ f ∷ Π 𝟙 , p ▷ ℕ ▹ Π 𝟙 , p ▷ ℕ ▹ ℕ
   ⊢f ok =
-    let ⊢ℕ = ℕⱼ ⊢ℕ in
+    let ⊢ℕ = ⊢ℕ ⊢εℕ in
     lamⱼ′ ok $
     lamⱼ′ ok $
     ⊢f′ (var₁ ⊢ℕ) (var₀ ⊢ℕ)
@@ -176,7 +176,7 @@ opaque
   ⊢pred′ : Γ ⊢ t ∷ ℕ → Γ ⊢ pred′ t ∷ ℕ
   ⊢pred′ ⊢t =
     natrecⱼ (zeroⱼ (wfTerm ⊢t))
-      (var (∙ ℕⱼ (∙ ℕⱼ (wfTerm ⊢t))) (there here))
+      (var (∙ ⊢ℕ (∙ ⊢ℕ (wfTerm ⊢t))) (there here))
       ⊢t
 
 opaque
@@ -185,7 +185,7 @@ opaque
 
   ⊢pred : Π-allowed 𝟙 𝟘 → ε » ε ⊢ pred ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
   ⊢pred Π-𝟙-𝟘 =
-    lamⱼ′ Π-𝟙-𝟘 $ ⊢pred′ (var ⊢ℕ here)
+    lamⱼ′ Π-𝟙-𝟘 $ ⊢pred′ (var ⊢εℕ here)
 
 ------------------------------------------------------------------------
 -- Lemmas related to natcase
@@ -334,7 +334,7 @@ opaque
     Γ ⊢ u₁ ⇒ u₂ ∷ ℕ →
     Γ ⊢ strict-const A t u₁ ⇒ strict-const A t u₂ ∷ A
   strict-const-subst ⊢t u₁⇒u₂ =
-    let ⊢A = wk₁ (ℕⱼ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
+    let ⊢A = wk₁ (⊢ℕ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-subst
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
@@ -365,7 +365,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ strict-const A t zero ⇒ t ∷ A
   strict-const-zero-⇒ ⊢t =
-    let ⊢A = wk₁ (ℕⱼ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
+    let ⊢A = wk₁ (⊢ℕ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-zero
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)

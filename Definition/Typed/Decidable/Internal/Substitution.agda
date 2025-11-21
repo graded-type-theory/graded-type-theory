@@ -2,290 +2,50 @@
 -- Substitution operations used by Definition.Typed.Decidable.Internal
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed.Decidable.Internal.Substitution
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Term 𝕄
-open import Definition.Typed.Decidable.Internal.Weakening 𝕄
+open Type-restrictions R
 
-open import Definition.Untyped M as U using (Wk)
+open import Definition.Typed R
+open import Definition.Typed.Decidable.Internal.Term R
+import Definition.Typed.Decidable.Internal.Substitution.Primitive
+open import Definition.Typed.Inversion R
+open import Definition.Typed.Well-formed R
+
+import Definition.Untyped M as U
 open import Definition.Untyped.Properties M
+import Definition.Untyped.Sup R as S
 
-open Wk
-
+open import Tools.Empty
 open import Tools.Function
-open import Tools.Fin
 open import Tools.Maybe
-open import Tools.Nat as N
+open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
+open import Tools.Sum
+
+open Definition.Typed.Decidable.Internal.Substitution.Primitive R public
 
 private variable
-  n n₁ n₂ n₃ : Nat
-  c          : Constants
-  γ          : Contexts _
-  ρ          : Wk _ _
-  σ σ₂       : Subst _ _ _
-
-------------------------------------------------------------------------
--- Composition
-
--- Composition of substitutions.
-
-infixl 30 _ₛ•ₛ_
-
-_ₛ•ₛ_ : Subst c n₃ n₂ → Subst c n₂ n₁ → Subst c n₃ n₁
-id        ₛ•ₛ σ         = σ
-wk1 σ₁    ₛ•ₛ σ₂        = wk1 (σ₁ ₛ•ₛ σ₂)
-σ₁        ₛ•ₛ id        = σ₁
-σ₁        ₛ•ₛ cons σ₂ t = cons (σ₁ ₛ•ₛ σ₂) (subst t σ₁)
-σ₁ ⇑      ₛ•ₛ wk1 σ₂    = wk1 (σ₁ ₛ•ₛ σ₂)
-σ₁ ⇑      ₛ•ₛ σ₂ ⇑      = (σ₁ ₛ•ₛ σ₂) ⇑
-cons σ₁ _ ₛ•ₛ wk1 σ₂    = σ₁ ₛ•ₛ σ₂
-cons σ₁ t ₛ•ₛ σ₂ ⇑      = cons (σ₁ ₛ•ₛ σ₂) t
-
-opaque
-
-  -- The function ⌜_⌝ˢ commutes with _ₛ•ₛ_/U._ₛ•ₛ_.
-
-  ⌜ₛ•ₛ⌝ˢ :
-    ∀ (σ₁ : Subst c n₃ n₂) x →
-    ⌜ σ₁ ₛ•ₛ σ₂ ⌝ˢ γ x PE.≡ (⌜ σ₁ ⌝ˢ γ U.ₛ•ₛ ⌜ σ₂ ⌝ˢ γ) x
-  ⌜ₛ•ₛ⌝ˢ {σ₂} {γ} id x =
-    ⌜ σ₂ ⌝ˢ γ x                  ≡˘⟨ subst-id _ ⟩
-    ⌜ σ₂ ⌝ˢ γ x U.[ U.idSubst ]  ∎
-  ⌜ₛ•ₛ⌝ˢ {σ₂} {γ} (wk1 σ₁) x =
-    U.wk1 (⌜ σ₁ ₛ•ₛ σ₂ ⌝ˢ γ x)                  ≡⟨ PE.cong U.wk1 (⌜ₛ•ₛ⌝ˢ σ₁ _) ⟩
-    U.wk1 ((⌜ σ₁ ⌝ˢ γ U.ₛ•ₛ ⌜ σ₂ ⌝ˢ γ) x)       ≡⟨⟩
-    U.wk1 (⌜ σ₂ ⌝ˢ γ x U.[ ⌜ σ₁ ⌝ˢ γ ])         ≡⟨ wk-subst (⌜ σ₂ ⌝ˢ _ _) ⟩
-    ⌜ σ₂ ⌝ˢ γ x U.[ U.wk1Subst (⌜ σ₁ ⌝ˢ γ) ]    ≡⟨⟩
-    (U.wk1Subst (⌜ σ₁ ⌝ˢ γ) U.ₛ•ₛ ⌜ σ₂ ⌝ˢ γ) x  ∎
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = id} (_ ⇑) _ =
-    PE.refl
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = wk1 σ₂} {γ} (σ₁ ⇑) x =
-    U.wk1 (⌜ σ₁ ₛ•ₛ σ₂ ⌝ˢ γ x)               ≡⟨ PE.cong U.wk1 (⌜ₛ•ₛ⌝ˢ σ₁ _) ⟩
-    U.wk1 ((⌜ σ₁ ⌝ˢ γ U.ₛ•ₛ ⌜ σ₂ ⌝ˢ γ) x)    ≡⟨⟩
-    U.wk1 (⌜ σ₂ ⌝ˢ γ x U.[ ⌜ σ₁ ⌝ˢ γ ])      ≡˘⟨ wk1-liftSubst (⌜ σ₂ ⌝ˢ _ _) ⟩
-    U.wk1 (⌜ σ₂ ⌝ˢ γ x) U.[ ⌜ σ₁ ⌝ˢ γ U.⇑ ]  ∎
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = _ ⇑} (_ ⇑) x0 =
-    PE.refl
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = σ₂ ⇑} {γ} (σ₁ ⇑) (x +1) =
-    U.wk1 (⌜ σ₁ ₛ•ₛ σ₂ ⌝ˢ γ x)               ≡⟨ PE.cong U.wk1 (⌜ₛ•ₛ⌝ˢ σ₁ _) ⟩
-    U.wk1 ((⌜ σ₁ ⌝ˢ γ U.ₛ•ₛ ⌜ σ₂ ⌝ˢ γ) x)    ≡⟨⟩
-    U.wk1 (⌜ σ₂ ⌝ˢ γ x U.[ ⌜ σ₁ ⌝ˢ γ ])      ≡˘⟨ wk1-liftSubst (⌜ σ₂ ⌝ˢ _ _) ⟩
-    U.wk1 (⌜ σ₂ ⌝ˢ γ x) U.[ ⌜ σ₁ ⌝ˢ γ U.⇑ ]  ∎
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = cons _ _} (_ ⇑) x0 =
-    PE.refl
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = cons σ₂ _} {γ} σ₁@(_ ⇑) (x +1) =
-    ⌜ σ₁ ₛ•ₛ σ₂ ⌝ˢ γ x           ≡⟨ ⌜ₛ•ₛ⌝ˢ {σ₂ = σ₂} σ₁ _ ⟩
-    ⌜ σ₂ ⌝ˢ γ x U.[ ⌜ σ₁ ⌝ˢ γ ]  ∎
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = id} (cons _ _) _ =
-    PE.refl
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = wk1 σ₂} {γ} (cons σ₁ t) x =
-    ⌜ σ₁ ₛ•ₛ σ₂ ⌝ˢ γ x                                           ≡⟨ ⌜ₛ•ₛ⌝ˢ σ₁ _ ⟩
-    (⌜ σ₁ ⌝ˢ γ U.ₛ•ₛ ⌜ σ₂ ⌝ˢ γ) x                                ≡⟨⟩
-    ⌜ σ₂ ⌝ˢ γ x U.[ ⌜ σ₁ ⌝ˢ γ ]                                  ≡˘⟨ wk1-tail (⌜ σ₂ ⌝ˢ _ _) ⟩
-    U.wk1 (⌜ σ₂ ⌝ˢ γ x) U.[ U.consSubst (⌜ σ₁ ⌝ˢ γ) (⌜ t ⌝ γ) ]  ∎
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = _ ⇑} (cons _ _) x0 =
-    PE.refl
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = σ₂ ⇑} {γ} (cons σ₁ t) (x +1) =
-    ⌜ σ₁ ₛ•ₛ σ₂ ⌝ˢ γ x                                           ≡⟨ ⌜ₛ•ₛ⌝ˢ σ₁ _ ⟩
-    (⌜ σ₁ ⌝ˢ γ U.ₛ•ₛ ⌜ σ₂ ⌝ˢ γ) x                                ≡⟨⟩
-    ⌜ σ₂ ⌝ˢ γ x U.[ ⌜ σ₁ ⌝ˢ γ ]                                  ≡˘⟨ wk1-tail (⌜ σ₂ ⌝ˢ _ _) ⟩
-    U.wk1 (⌜ σ₂ ⌝ˢ γ x) U.[ U.consSubst (⌜ σ₁ ⌝ˢ γ) (⌜ t ⌝ γ) ]  ∎
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = cons _ _} (cons _ _) x0 =
-    PE.refl
-  ⌜ₛ•ₛ⌝ˢ {σ₂ = cons σ₂ _} {γ} σ₁@(cons _ _) (x +1) =
-    ⌜ σ₁ ₛ•ₛ σ₂ ⌝ˢ γ x           ≡⟨ ⌜ₛ•ₛ⌝ˢ {σ₂ = σ₂} σ₁ _ ⟩
-    ⌜ σ₂ ⌝ˢ γ x U.[ ⌜ σ₁ ⌝ˢ γ ]  ∎
-
--- Composition of substitutions and weakenings.
-
-infixl 30 _ₛ•_
-
-_ₛ•_ : Subst c n₃ n₂ → Wk n₂ n₁ → Subst c n₃ n₁
-σ ₛ• ρ = σ ₛ•ₛ toSubst ρ
-
-opaque
-
-  -- The function ⌜_⌝ˢ commutes with _ₛ•_/U._ₛ•_.
-
-  ⌜ₛ•⌝ˢ :
-    ∀ (σ : Subst c n₃ n₂) x →
-    ⌜ σ ₛ• ρ ⌝ˢ γ x PE.≡ (⌜ σ ⌝ˢ γ U.ₛ• ρ) x
-  ⌜ₛ•⌝ˢ {ρ} {γ} σ x =
-    ⌜ σ ₛ•ₛ toSubst ρ ⌝ˢ γ x             ≡⟨ ⌜ₛ•ₛ⌝ˢ σ _ ⟩
-    (⌜ σ ⌝ˢ γ U.ₛ•ₛ ⌜ toSubst ρ ⌝ˢ γ) x  ≡⟨ PE.cong U._[ ⌜ σ ⌝ˢ _ ] (⌜toSubst⌝ˢ x) ⟩
-    (⌜ σ ⌝ˢ γ U.ₛ•ₛ U.toSubst ρ) x       ≡⟨⟩
-    (⌜ σ ⌝ˢ γ U.ₛ• ρ) x                  ∎
-
-------------------------------------------------------------------------
--- Heads and tails of substitutions
-
--- The "head" of a substitution.
-
-headₛ : Subst c n₂ (1+ n₁) → Term c n₂
-headₛ id         = var x0
-headₛ (wk1 σ)    = weaken (step id) (headₛ σ)
-headₛ (σ ⇑)      = var x0
-headₛ (cons _ t) = t
-
-opaque
-
-  -- The function headₛ is correctly implemented.
-
-  ⌜headₛ⌝ :
-    (σ : Subst c n₂ (1+ n₁)) → ⌜ headₛ σ ⌝ γ PE.≡ U.head (⌜ σ ⌝ˢ γ)
-  ⌜headₛ⌝ id         = PE.refl
-  ⌜headₛ⌝ (wk1 σ)    = PE.cong U.wk1 (⌜headₛ⌝ σ)
-  ⌜headₛ⌝ (_ ⇑)      = PE.refl
-  ⌜headₛ⌝ (cons _ _) = PE.refl
-
--- The "tail" of a substitution.
---
--- In Definition.Typed.Decidable.Internal.equal-sub and equal-sub′ the
--- following comparisons can (at the time of writing) be made:
---
---   headₛ σ₁                 = headₛ σ₂
---   headₛ (tailₛ σ₁)         = headₛ (tailₛ σ₂)
---   headₛ (tailₛ (tailₛ σ₁)) = headₛ (tailₛ (tailₛ σ₂))
---                            ⋮
---
--- If σ₁ and σ₂ are both id, then one gets the following substitutions:
---
---   id
---   wk1 id
---   wk1 (wk1 id)
---   ⋮
---
--- Normalising the head of wk1ⁿ id is linear in n, so comparing the
--- identity substitution with itself is at least quadratic in the size
--- of the context. This could perhaps be addressed by having a special
--- case for id, but one would get a similar problem for, say, wk1 id.
--- Another option might be to use a different representation of
--- substitutions, for instance one with wk1 replaced by something
--- corresponding to wkSubst ∘→ 1+, implemented in such a way that
--- adjacent occurrences of that constructor are merged. However, such
--- changes might amount to premature optimisation.
-
-tailₛ : Subst c n₂ (1+ n₁) → Subst c n₂ n₁
-tailₛ id         = wk1 id
-tailₛ (wk1 σ)    = wk1 (tailₛ σ)
-tailₛ (σ ⇑)      = wk1 σ
-tailₛ (cons σ _) = σ
-
-opaque
-
-  -- The function tailₛ is correctly implemented.
-
-  ⌜tailₛ⌝ˢ :
-    ∀ (σ : Subst c n₂ (1+ n₁)) x →
-    ⌜ tailₛ σ ⌝ˢ γ x PE.≡ U.tail (⌜ σ ⌝ˢ γ) x
-  ⌜tailₛ⌝ˢ id         _ = PE.refl
-  ⌜tailₛ⌝ˢ (wk1 σ)    _ = PE.cong U.wk1 (⌜tailₛ⌝ˢ σ _)
-  ⌜tailₛ⌝ˢ (_ ⇑)      _ = PE.refl
-  ⌜tailₛ⌝ˢ (cons _ _) _ = PE.refl
-
-opaque
-
-  -- An η-rule for substitutions.
-
-  ⌜cons-tailₛ-headₛ⌝ˢ :
-    ∀ (σ : Subst c n₂ (1+ n₁)) x →
-    ⌜ cons (tailₛ σ) (headₛ σ) ⌝ˢ γ x PE.≡ ⌜ σ ⌝ˢ γ x
-  ⌜cons-tailₛ-headₛ⌝ˢ {γ} σ x =
-    ⌜ cons (tailₛ σ) (headₛ σ) ⌝ˢ γ x                      ≡⟨⟩
-    U.consSubst (⌜ tailₛ σ ⌝ˢ γ) (⌜ headₛ σ ⌝ γ) x         ≡⟨ consSubst-cong (⌜tailₛ⌝ˢ σ) x ⟩
-    U.consSubst (U.tail (⌜ σ ⌝ˢ γ)) (⌜ headₛ σ ⌝ γ) x      ≡⟨ PE.cong (flip (U.consSubst _) x) (⌜headₛ⌝ σ) ⟩
-    U.consSubst (U.tail (⌜ σ ⌝ˢ γ)) (U.head (⌜ σ ⌝ˢ γ)) x  ≡⟨ consSubst-η {σ = ⌜ σ ⌝ˢ _} _ ⟩
-    ⌜ σ ⌝ˢ γ x                                             ∎
-
-------------------------------------------------------------------------
--- Some derived substitution operations
-
--- Weakening of substitutions.
-
-wkSubst : ∀ k → Subst c n₂ n₁ → Subst c (k N.+ n₂) n₁
-wkSubst k = U.stepn id k •ₛ_
-
-opaque
-
-  -- The function ⌜_⌝ˢ commutes with wkSubst/U.wkSubst.
-
-  ⌜wkSubst⌝ˢ :
-    ∀ k (x : Fin n) →
-    ⌜ wkSubst k σ ⌝ˢ γ x PE.≡ U.wkSubst k (⌜ σ ⌝ˢ γ) x
-  ⌜wkSubst⌝ˢ         0      _ = PE.refl
-  ⌜wkSubst⌝ˢ {σ} {γ} (1+ k) x =
-    ⌜ wk1 (wkSubst k σ) ⌝ˢ γ x             ≡⟨⟩
-    U.wk1Subst (⌜ wkSubst k σ ⌝ˢ γ) x      ≡⟨ wk1Subst-cong (⌜wkSubst⌝ˢ k) _ ⟩
-    U.wk1Subst (U.wkSubst k (⌜ σ ⌝ˢ γ)) x  ∎
-
--- Lifting.
-
-infix 35 _⇑[_]
-
-_⇑[_] : Subst c n₂ n₁ → ∀ k → Subst c (k N.+ n₂) (k N.+ n₁)
-σ ⇑[ 0    ] = σ
-σ ⇑[ 1+ k ] = σ ⇑[ k ] ⇑
-
-opaque
-
-  -- The functions ⌜_⌝ˢ/⌜_⌝ commute with _⇑[_]/U._⇑[_].
-
-  ⌜⇑[]⌝ˢ :
-    ∀ k (x : Fin (k N.+ n)) →
-    ⌜ σ ⇑[ k ] ⌝ˢ γ x PE.≡ (⌜ σ ⌝ˢ γ U.⇑[ k ]) x
-  ⌜⇑[]⌝ˢ 0 _ =
-    PE.refl
-  ⌜⇑[]⌝ˢ (1+ _) x0 =
-    PE.refl
-  ⌜⇑[]⌝ˢ {σ} {γ} (1+ k) (x +1) =
-    U.wk1 (⌜ (σ ⇑[ k ]) ⌝ˢ γ x)    ≡⟨ PE.cong U.wk1 (⌜⇑[]⌝ˢ k _) ⟩
-    U.wk1 ((⌜ σ ⌝ˢ γ U.⇑[ k ]) x)  ∎
-
--- Singleton substitutions.
-
-sgSubst : Term c n → Subst c n (1+ n)
-sgSubst = cons id
+  n n₁ n₂ : Nat
+  c       : Constants
+  γ       : Contexts _
+  Γ       : U.Cons _ _
+  A       : U.Term _
+  t       : Term _ _
+  σ       : Subst _ _ _
 
 ------------------------------------------------------------------------
 -- Applying substitutions to terms
-
--- Finds the term corresponding to a given variable.
-
-infix 25 _[_]ᵛ
-
-_[_]ᵛ : Fin n₁ → Subst c n₂ n₁ → Term c n₂
-x      [ id       ]ᵛ = var x
-x      [ wk1 σ    ]ᵛ = weaken (step id) (x [ σ ]ᵛ)
-x0     [ _ ⇑      ]ᵛ = var x0
-(x +1) [ σ ⇑      ]ᵛ = weaken (step id) (x [ σ ]ᵛ)
-x0     [ cons _ t ]ᵛ = t
-(x +1) [ cons σ _ ]ᵛ = x [ σ ]ᵛ
-
-opaque
-
-  -- The function _[_]ᵛ is correctly defined.
-
-  ⌜[]ᵛ⌝ : ∀ (σ : Subst c n₂ n₁) x → ⌜ x [ σ ]ᵛ ⌝ γ PE.≡ ⌜ σ ⌝ˢ γ x
-  ⌜[]ᵛ⌝ id _ =
-    PE.refl
-  ⌜[]ᵛ⌝ (wk1 σ) x =
-    PE.cong U.wk1 (⌜[]ᵛ⌝ σ x)
-  ⌜[]ᵛ⌝ (_ ⇑) x0 =
-    PE.refl
-  ⌜[]ᵛ⌝ (σ ⇑) (x +1) =
-    PE.cong U.wk1 (⌜[]ᵛ⌝ σ x)
-  ⌜[]ᵛ⌝ (cons _ _) x0 =
-    PE.refl
-  ⌜[]ᵛ⌝ (cons σ _) (x +1) =
-    ⌜[]ᵛ⌝ σ x
 
 -- Substitution (lazy): This operation applies the substitution by
 -- pushing it just below the term's top-level constructor (unless the
@@ -299,12 +59,19 @@ weaken ρ t            [ σ ] = subst t (σ ₛ• ρ)
 subst t σ′            [ σ ] = subst t (σ ₛ•ₛ σ′)
 var x                 [ σ ] = x [ σ ]ᵛ
 defn α                [ σ ] = defn α
-U l                   [ σ ] = U l
+Level                 [ _ ] = Level
+zeroᵘ                 [ _ ] = zeroᵘ
+sucᵘ l                [ σ ] = sucᵘ (subst l σ)
+l₁ supᵘₗ l₂           [ σ ] = subst l₁ σ supᵘₗ subst l₂ σ
+U l                   [ σ ] = U (subst l σ)
+Lift l A              [ σ ] = Lift (subst l σ) (subst A σ)
+lift l t              [ σ ] = lift (flip subst σ <$> l) (subst t σ)
+lower t               [ σ ] = lower (subst t σ)
 Empty                 [ σ ] = Empty
 emptyrec p A t        [ σ ] = emptyrec p (subst A σ) (subst t σ)
-Unit s l              [ σ ] = Unit s l
-star s l              [ σ ] = star s l
-unitrec l p q A t u   [ σ ] = unitrec l p q (subst A (σ ⇑)) (subst t σ)
+Unit s                [ σ ] = Unit s
+star s                [ σ ] = star s
+unitrec p q A t u     [ σ ] = unitrec p q (subst A (σ ⇑)) (subst t σ)
                                 (subst u σ)
 ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ σ ] = ΠΣ⟨ b ⟩ p , q ▷ subst A σ ▹ subst B (σ ⇑)
 lam p qA t            [ σ ] = lam p (Σ.map idᶠ (flip subst σ) <$> qA)
@@ -329,74 +96,226 @@ J p q A t B u v w     [ σ ] = J p q (subst A σ) (subst t σ)
                                 (subst v σ) (subst w σ)
 K p A t B u v         [ σ ] = K p (subst A σ) (subst t σ)
                                 (subst B (σ ⇑)) (subst u σ) (subst v σ)
-[]-cong s A t u v     [ σ ] = []-cong s (subst A σ) (subst t σ)
-                                (subst u σ) (subst v σ)
+[]-cong s l A t u v   [ σ ] = []-cong s (subst l σ) (subst A σ)
+                                (subst t σ) (subst u σ) (subst v σ)
+
+------------------------------------------------------------------------
+-- Not-supᵘₗ
+
+-- The term is not an application of _supᵘₗ_.
+
+Not-supᵘₗ : Term c n → Set a
+Not-supᵘₗ t = ¬ (∃₂ λ l₁ l₂ → t PE.≡ l₁ supᵘₗ l₂)
 
 opaque
 
-  -- The function ⌜_⌝ commutes with substitution.
+  -- If t [ σ ] is not an application of _supᵘₗ_, then the same
+  -- applies to t.
+
+  Not-supᵘₗ-[]→ : Not-supᵘₗ (t [ σ ]) → Not-supᵘₗ t
+  Not-supᵘₗ-[]→ {t = _ supᵘₗ _} hyp _ =
+    hyp (_ , _ , PE.refl)
+  Not-supᵘₗ-[]→ {t = meta-var _ _}          _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = weaken _ _}            _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = subst _ _}             _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = var _}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = defn _}                _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = Level}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = zeroᵘ}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = sucᵘ _}                _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = U _}                   _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = Lift _ _}              _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = lift _ _}              _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = lower _}               _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = Empty}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = emptyrec _ _ _}        _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = Unit _}                _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = star _}                _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = unitrec _ _ _ _ _}     _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = lam _ _ _}             _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = _ ∘⟨ _ ⟩ _}            _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = prod _ _ _ _ _}        _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = fst _ _}               _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = snd _ _}               _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = prodrec _ _ _ _ _ _}   _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = ℕ}                     _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = zero}                  _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = suc _}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = natrec _ _ _ _ _ _ _}  _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = Id _ _ _}              _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = rfl _}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = J _ _ _ _ _ _ _ _}     _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = K _ _ _ _ _ _}         _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {t = []-cong _ _ _ _ _ _}   _ (_ , _ , ())
+
+------------------------------------------------------------------------
+-- ⌜[]⌝
+
+-- A type used to state ⌜[]⌝.
+
+data ⌜[]⌝-assumption
+       (t : Term c n₁) (σ : Subst c n₂ n₁) (γ : Contexts c) :
+       Set a where
+  level-allowed : Level-allowed → ⌜[]⌝-assumption t σ γ
+
+  not-supᵘₗ : Not-supᵘₗ t → ⌜[]⌝-assumption t σ γ
+
+  type₁ : Γ ⊢ ⌜ t [ σ ] ⌝ γ                 → ⌜[]⌝-assumption t σ γ
+  type₂ : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]        → ⌜[]⌝-assumption t σ γ
+  level : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ] ∷Level → ⌜[]⌝-assumption t σ γ
+  term₁ : Γ ⊢ ⌜ t [ σ ] ⌝ γ          ∷ A    → ⌜[]⌝-assumption t σ γ
+  term₂ : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ] ∷ A    → ⌜[]⌝-assumption t σ γ
+
+opaque
+
+  -- The function ⌜_⌝ commutes with substitution, given a certain
+  -- assumption.
 
   ⌜[]⌝ :
-    (t : Term c n) → ⌜ t [ σ ] ⌝ γ PE.≡ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
-  ⌜[]⌝ {σ} {γ} (meta-var x σ′) =
+    (t : Term c n) →
+    ⌜[]⌝-assumption t σ γ →
+    ⌜ t [ σ ] ⌝ γ PE.≡ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
+  ⌜[]⌝ {σ} {γ} (meta-var x σ′) _ =
     ⌜ meta-var x (σ ₛ•ₛ σ′) ⌝ γ              ≡⟨ ⌜meta-var⌝ (σ ₛ•ₛ _) ⟩
     ⌜ x ⌝ᵐ γ U.[ ⌜ σ ₛ•ₛ σ′ ⌝ˢ γ ]           ≡⟨ substVar-to-subst (⌜ₛ•ₛ⌝ˢ σ) (⌜ x ⌝ᵐ γ) ⟩
     ⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ U.ₛ•ₛ ⌜ σ′ ⌝ˢ γ ]  ≡˘⟨ substCompEq (⌜ x ⌝ᵐ γ) ⟩
     ⌜ x ⌝ᵐ γ U.[ ⌜ σ′ ⌝ˢ γ ] U.[ ⌜ σ ⌝ˢ γ ]  ≡˘⟨ PE.cong U._[ _ ] (⌜meta-var⌝ σ′) ⟩
     ⌜ meta-var x σ′ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]       ∎
-  ⌜[]⌝ {σ} {γ} (weaken ρ t) =
+  ⌜[]⌝ {σ} {γ} (weaken ρ t) _ =
     ⌜ t ⌝ γ U.[ ⌜ σ ₛ• ρ ⌝ˢ γ ]      ≡⟨ substVar-to-subst (⌜ₛ•⌝ˢ σ) (⌜ t ⌝ _) ⟩
     ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ U.ₛ• ρ ]    ≡˘⟨ subst-wk (⌜ t ⌝ _) ⟩
     U.wk ρ (⌜ t ⌝ γ) U.[ ⌜ σ ⌝ˢ γ ]  ∎
-  ⌜[]⌝ {σ} {γ} (subst t σ′) =
+  ⌜[]⌝ {σ} {γ} (subst t σ′) _ =
     ⌜ t ⌝ γ U.[ ⌜ σ ₛ•ₛ σ′ ⌝ˢ γ ]           ≡⟨ substVar-to-subst (⌜ₛ•ₛ⌝ˢ σ) (⌜ t ⌝ _) ⟩
     ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ U.ₛ•ₛ ⌜ σ′ ⌝ˢ γ ]  ≡˘⟨ substCompEq (⌜ t ⌝ _) ⟩
     ⌜ t ⌝ γ U.[ ⌜ σ′ ⌝ˢ γ ] U.[ ⌜ σ ⌝ˢ γ ]  ∎
-  ⌜[]⌝ {σ} (var _) =
+  ⌜[]⌝ {σ} (var _) _ =
     ⌜[]ᵛ⌝ σ _
-  ⌜[]⌝ (defn _) =
+  ⌜[]⌝ (defn _) _ =
     PE.refl
-  ⌜[]⌝ (U _) =
+  ⌜[]⌝ Level _ =
     PE.refl
-  ⌜[]⌝ Empty =
+  ⌜[]⌝ zeroᵘ _ =
     PE.refl
-  ⌜[]⌝ (emptyrec _ _ _) =
+  ⌜[]⌝ (sucᵘ _) _ =
     PE.refl
-  ⌜[]⌝ (Unit _ _) =
+  ⌜[]⌝ {σ} {γ} (l₁ supᵘₗ l₂) hyp =
+    case hyp of λ where
+      (level-allowed okᴸ) →
+        lemma′ okᴸ
+      (not-supᵘₗ not-sup) →
+        ⊥-elim (not-sup (_ , _ , PE.refl))
+      (type₁ ⊢⊔) →
+        let _ , _ , _ , ≡Level = inversion-supᵘₗ-⊢ ⊢⊔ in
+        lemma ≡Level
+      (type₂ ⊢⊔) →
+        case S.supᵘₗ≡ (⌜ l₁ ⌝ γ) (⌜ l₂ ⌝ γ) of λ where
+          (inj₁ (n , eq)) →
+            let _ , ≡Level =
+                  inversion-↓ᵘ-⊢ {n = n} $
+                  PE.subst (_⊢_ _)
+                    (PE.trans (PE.cong U._[ _ ] eq) ↓ᵘ-[]) ⊢⊔
+            in
+            lemma ≡Level
+          (inj₂ eq) →
+            let _ , _ , _ , ≡Level =
+                  inversion-supᵘ-⊢ $
+                  PE.subst (_⊢_ _) (PE.cong U._[ _ ] eq) ⊢⊔
+            in
+            lemma ≡Level
+      (level (term okᴸ _)) →
+        lemma′ okᴸ
+      (level (literal not-ok _ ⊔-lit)) →
+        case U.Level-literal? (⌜ l₁ ⌝ γ) ×-dec
+             U.Level-literal? (⌜ l₂ ⌝ γ) of λ where
+          (yes both-lit) →
+            PE.sym (S.supᵘₗ-[]′ (λ _ → both-lit))
+          (no not-both) →
+            case
+              PE.subst (λ l → U.Level-literal (l U.[ _ ]))
+                (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ   ≡⟨ S.supᵘₗ≡supᵘₗ′ not-ok ⟩
+                 ⌜ l₁ ⌝ γ U.supᵘₗ′ ⌜ l₂ ⌝ γ  ≡⟨ supᵘₗ′≡supᵘ not-both ⟩
+                 ⌜ l₁ ⌝ γ U.supᵘ ⌜ l₂ ⌝ γ    ∎)
+                ⊔-lit
+            of λ ()
+      (term₁ ⊢⊔) →
+        let _ , _ , ≡Level = inversion-supᵘₗ-⊢∷ ⊢⊔ in
+        lemma ≡Level
+      (term₂ ⊢⊔) →
+        case S.supᵘₗ≡ (⌜ l₁ ⌝ γ) (⌜ l₂ ⌝ γ) of λ where
+          (inj₁ (n , eq)) →
+            let ≡Level =
+                  inversion-↓ᵘ {n = n} $
+                  PE.subst (flip (_⊢_∷_ _) _)
+                    (PE.trans (PE.cong U._[ _ ] eq) ↓ᵘ-[]) ⊢⊔
+            in
+            lemma ≡Level
+          (inj₂ eq) →
+            let _ , _ , ≡Level =
+                  inversion-supᵘ $
+                  PE.subst (flip (_⊢_∷_ _) _) (PE.cong U._[ _ ] eq) ⊢⊔
+            in
+            lemma ≡Level
+    where
+    lemma′ :
+      Level-allowed →
+      (⌜ l₁ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) PE.≡
+      ⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
+    lemma′ okᴸ = PE.sym (S.supᵘₗ-[]′ (⊥-elim ∘→ (_$ okᴸ)))
+
+    lemma :
+      Γ ⊢ A ≡ U.Level →
+      (⌜ l₁ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) PE.≡
+      ⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
+    lemma ≡Level = lemma′ (inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂))
+  ⌜[]⌝ (U _) _ =
     PE.refl
-  ⌜[]⌝ (star _ _) =
+  ⌜[]⌝ (Lift _ _) _ =
     PE.refl
-  ⌜[]⌝ (unitrec _ _ _ _ _ _) =
+  ⌜[]⌝ (lift _ _) _ =
     PE.refl
-  ⌜[]⌝ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) =
+  ⌜[]⌝ (lower _) _ =
     PE.refl
-  ⌜[]⌝ (lam _ _ _) =
+  ⌜[]⌝ Empty _ =
     PE.refl
-  ⌜[]⌝ (_ ∘⟨ _ ⟩ _) =
+  ⌜[]⌝ (emptyrec _ _ _) _ =
     PE.refl
-  ⌜[]⌝ (prod _ _ _ _ _) =
+  ⌜[]⌝ (Unit _) _ =
     PE.refl
-  ⌜[]⌝ (fst _ _) =
+  ⌜[]⌝ (star _) _ =
     PE.refl
-  ⌜[]⌝ (snd _ _) =
+  ⌜[]⌝ (unitrec _ _ _ _ _) _ =
     PE.refl
-  ⌜[]⌝ (prodrec _ _ _ _ _ _) =
+  ⌜[]⌝ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) _ =
     PE.refl
-  ⌜[]⌝ ℕ =
+  ⌜[]⌝ (lam _ _ _) _ =
     PE.refl
-  ⌜[]⌝ zero =
+  ⌜[]⌝ (_ ∘⟨ _ ⟩ _) _ =
     PE.refl
-  ⌜[]⌝ (suc _) =
+  ⌜[]⌝ (prod _ _ _ _ _) _ =
     PE.refl
-  ⌜[]⌝ (natrec _ _ _ _ _ _ _) =
+  ⌜[]⌝ (fst _ _) _ =
     PE.refl
-  ⌜[]⌝ (Id _ _ _) =
+  ⌜[]⌝ (snd _ _) _ =
     PE.refl
-  ⌜[]⌝ (rfl _) =
+  ⌜[]⌝ (prodrec _ _ _ _ _ _) _ =
     PE.refl
-  ⌜[]⌝ (J _ _ _ _ _ _ _ _) =
+  ⌜[]⌝ ℕ _ =
     PE.refl
-  ⌜[]⌝ (K _ _ _ _ _ _) =
+  ⌜[]⌝ zero _ =
     PE.refl
-  ⌜[]⌝ ([]-cong _ _ _ _ _) =
+  ⌜[]⌝ (suc _) _ =
+    PE.refl
+  ⌜[]⌝ (natrec _ _ _ _ _ _ _) _ =
+    PE.refl
+  ⌜[]⌝ (Id _ _ _) _ =
+    PE.refl
+  ⌜[]⌝ (rfl _) _ =
+    PE.refl
+  ⌜[]⌝ (J _ _ _ _ _ _ _ _) _ =
+    PE.refl
+  ⌜[]⌝ (K _ _ _ _ _ _) _ =
+    PE.refl
+  ⌜[]⌝ ([]-cong _ _ _ _ _ _) _ =
     PE.refl

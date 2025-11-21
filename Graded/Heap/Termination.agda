@@ -34,8 +34,10 @@ open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.Consequences.Reduction TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR hiding (_⇨*_)
+open import Definition.Typed.Well-formed TR
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage 𝕄 UR
@@ -47,6 +49,7 @@ open import Graded.Heap.Bisimilarity UR TR
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
 open import Graded.Heap.Typed UR TR factoring-nr
+open import Graded.Heap.Typed.Inversion UR TR factoring-nr
 open import Graded.Heap.Typed.Properties UR TR factoring-nr
 open import Graded.Heap.Typed.Reduction UR TR factoring-nr
 open import Graded.Heap.Usage type-variant UR factoring-nr
@@ -86,8 +89,12 @@ opaque
   ⊢▸Final-reasons consistent prop ⊢s ▸s f =
     let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s in
     case ▸Final-reasons′ subtraction-ok prop ▸s f of λ where
-      (inj₁ (_ , _  , _ , er∈S , ok)) →
+      (inj₁ (inj₁ (_ , _  , _ , er∈S , ok))) →
         ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈S)
+      (inj₁ (inj₂ (_ , _ , refl))) →
+        let _ , _ , _ , ⊢supᵘ , _ = ⊢ₛ-inv ⊢s in
+        ⊥-elim $ Level-not-allowed $
+        inversion-Level-⊢ (wf-⊢∷ (inversion-supᵘ ⊢supᵘ .proj₁))
       (inj₂ (inj₁ (_ , _ , refl , v , ¬m))) →
         ⊥-elim (¬m (⊢Matching ∣S∣≡ ⊢s v))
       (inj₂ (inj₂ (inj₁ x))) →

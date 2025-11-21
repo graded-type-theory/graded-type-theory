@@ -28,6 +28,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Mode 𝕄
 
 import Definition.Typed
+import Definition.Typed.Properties
 open import Definition.Typed.Restrictions 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -254,8 +255,27 @@ opaque
       where
       open CR
 
-  ▸-𝟘 Uₘ =
-    Uₘ
+  ▸-𝟘 Levelₘ =
+    Levelₘ
+  ▸-𝟘 zeroᵘₘ =
+    zeroᵘₘ
+  ▸-𝟘 (sucᵘₘ ▸t) =
+    sucᵘₘ (▸-𝟘 ▸t)
+  ▸-𝟘 (supᵘₘ t u) = sub
+    (supᵘₘ (▸-𝟘 t) (▸-𝟘 u))
+    (begin
+       𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+    where
+    open CR
+  ▸-𝟘 (Uₘ ▸t) =
+    Uₘ ▸t
+  ▸-𝟘 (Liftₘ ▸t ▸A) =
+    Liftₘ ▸t (▸-𝟘 ▸A)
+  ▸-𝟘 (liftₘ ▸u) =
+    liftₘ (▸-𝟘 ▸u)
+  ▸-𝟘 (lowerₘ ▸t) =
+    lowerₘ (▸-𝟘 ▸t)
   ▸-𝟘 ℕₘ =
     ℕₘ
   ▸-𝟘 Emptyₘ =
@@ -394,8 +414,8 @@ opaque
        𝟘 ·ᶜ γ  ∎)
     where
     open CR
-  ▸-𝟘 (unitrecₘ {p} ▸t ▸u ▸A _) = sub
-    (unitrecₘ (▸-𝟘 ▸t) (▸-𝟘 ▸u) ▸A _)
+  ▸-𝟘 (unitrecₘ {p} ▸A ▸u ▸v _) = sub
+    (unitrecₘ ▸A (▸-𝟘 ▸u) (▸-𝟘 ▸v) _)
     (begin
        𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        p ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -438,8 +458,8 @@ opaque
     open CR
   ▸-𝟘 (K₀ₘ₂ _ ▸A ▸t ▸B ▸u ▸v) =
     ▸-𝟘-K ▸A ▸t ▸B ▸u ▸v
-  ▸-𝟘 ([]-congₘ ▸A ▸t ▸u ▸v _) =
-    []-congₘ ▸A ▸t ▸u ▸v _
+  ▸-𝟘 ([]-congₘ ▸l ▸A ▸t ▸u ▸v _) =
+    []-congₘ ▸l ▸A ▸t ▸u ▸v _
   ▸-𝟘 (sub γ▸t _) =
     ▸-𝟘 γ▸t
 
@@ -564,8 +584,26 @@ opaque
 -- If γ ▸[ 𝟘ᵐ[ ok ] ] t, then γ ≤ᶜ 𝟘ᶜ.
 
 ▸-𝟘ᵐ : γ ▸[ 𝟘ᵐ[ ok ] ] t → γ ≤ᶜ 𝟘ᶜ
-▸-𝟘ᵐ Uₘ =
+▸-𝟘ᵐ Levelₘ =
   ≤ᶜ-refl
+▸-𝟘ᵐ zeroᵘₘ =
+  ≤ᶜ-refl
+▸-𝟘ᵐ (sucᵘₘ ▸t) =
+  ▸-𝟘ᵐ ▸t
+▸-𝟘ᵐ (supᵘₘ {γ} {δ} ▸t ▸u) = begin
+  γ +ᶜ δ    ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ ▸t) (▸-𝟘ᵐ ▸u) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityˡ _ ⟩
+  𝟘ᶜ        ∎
+  where
+  open CR
+▸-𝟘ᵐ (Uₘ _) =
+  ≤ᶜ-refl
+▸-𝟘ᵐ (Liftₘ _ ▸A) =
+  ▸-𝟘ᵐ ▸A
+▸-𝟘ᵐ (liftₘ ▸u) =
+  ▸-𝟘ᵐ ▸u
+▸-𝟘ᵐ (lowerₘ ▸t) =
+  ▸-𝟘ᵐ ▸t
 ▸-𝟘ᵐ ℕₘ =
   ≤ᶜ-refl
 ▸-𝟘ᵐ Emptyₘ =
@@ -658,8 +696,8 @@ opaque
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 ▸-𝟘ᵐ starʷₘ = ≤ᶜ-refl
 ▸-𝟘ᵐ (starˢₘ prop) = ≤ᶜ-reflexive (·ᶜ-zeroˡ _)
-▸-𝟘ᵐ (unitrecₘ {γ = γ} {p = p} {δ = δ} γ▸ δ▸ η▸ ok) = begin
-  p ·ᶜ γ +ᶜ δ     ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ γ▸)) (▸-𝟘ᵐ δ▸) ⟩
+▸-𝟘ᵐ (unitrecₘ {γ₃} {p} {γ₄} _ ▸u ▸v ok) = begin
+  p ·ᶜ γ₃ +ᶜ γ₄  ≤⟨ +ᶜ-monotone (·ᶜ-monotoneʳ (▸-𝟘ᵐ ▸u)) (▸-𝟘ᵐ ▸v) ⟩
   p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
   p ·ᶜ 𝟘ᶜ        ≈⟨ ·ᶜ-zeroʳ _ ⟩
   𝟘ᶜ             ∎
@@ -712,7 +750,7 @@ opaque
   open CR
 ▸-𝟘ᵐ (K₀ₘ₂ _ _ _ _ γ₄▸ _) =
   ▸-𝟘ᵐ γ₄▸
-▸-𝟘ᵐ ([]-congₘ _ _ _ _ _) =
+▸-𝟘ᵐ ([]-congₘ _ _ _ _ _ _) =
   ≤ᶜ-refl
 ▸-𝟘ᵐ (sub {γ = γ} {δ = δ} γ▸ δ≤γ) = begin
   δ   ≤⟨ δ≤γ ⟩
@@ -978,14 +1016,60 @@ opaque
     where
     open CR
 
-  Conₘ-interchange {δ} Uₘ ▸U x = sub
-    Uₘ
+  Conₘ-interchange {δ} Levelₘ ▸Level x = sub
+    Levelₘ
     (begin
-       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-U ▸U ⟩
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-Level ▸Level ⟩
        𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
        𝟘ᶜ                 ∎)
     where
     open CR
+
+  Conₘ-interchange {δ} zeroᵘₘ ▸zeroᵘ x = sub
+    zeroᵘₘ
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-zeroᵘ ▸zeroᵘ ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open CR
+
+  Conₘ-interchange (sucᵘₘ ▸t) ▸sucᵘ x =
+    sucᵘₘ (Conₘ-interchange ▸t (inv-usage-sucᵘ ▸sucᵘ) x)
+
+  Conₘ-interchange {δ = η} (supᵘₘ {γ} {δ} γ▸t δ▸u) ▸supᵘ x =
+    case inv-usage-supᵘ ▸supᵘ of λ
+      (γ′ , δ′ , η≤γ′+δ′ , γ′▸t , δ′▸u) → sub
+    (supᵘₘ (Conₘ-interchange γ▸t γ′▸t x) (Conₘ-interchange δ▸u δ′▸u x))
+    (begin
+       γ +ᶜ δ , x ≔ η ⟨ x ⟩                      ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤γ′+δ′ ⟩
+       γ +ᶜ δ , x ≔ (γ′ +ᶜ δ′) ⟨ x ⟩             ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ γ′ _ _ ⟩
+       γ +ᶜ δ , x ≔ γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
+       (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ∎)
+    where
+    open CR
+
+  Conₘ-interchange {δ} (Uₘ γ▸t) ▸U x =
+    let δ≤𝟘 , _ = inv-usage-U ▸U in
+    sub
+      (Uₘ γ▸t)
+      (begin
+         𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤𝟘 ⟩
+         𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+         𝟘ᶜ                 ∎)
+    where
+    open CR
+
+  Conₘ-interchange (Liftₘ ▸t ▸A) ▸Lift x =
+    let _ , ▸A′ = inv-usage-Lift ▸Lift in
+    Liftₘ ▸t (Conₘ-interchange ▸A ▸A′ x)
+
+  Conₘ-interchange (liftₘ ▸u) ▸lift x =
+    let ▸u′ = inv-usage-lift ▸lift in
+    liftₘ (Conₘ-interchange ▸u ▸u′ x)
+
+  Conₘ-interchange (lowerₘ ▸t) ▸lower x =
+    lowerₘ (Conₘ-interchange ▸t (inv-usage-lower ▸lower) x)
 
   Conₘ-interchange {δ = η} (ΠΣₘ {γ} {δ} ▸t ▸u) ▸ΠΣ x =
     case inv-usage-ΠΣ ▸ΠΣ of λ
@@ -1130,28 +1214,31 @@ opaque
     case inv-usage-starˢ ▸star of λ
       (invUsageStarˢ {δ = γ′} δ≤⌜m⌝γ′ 𝟘≈γ′) → sub
     (let open Tools.Reasoning.Equivalence Conₘ-setoid in
-     starˢₘ λ not-sink → begin
-       𝟘ᶜ                 ≡˘⟨ update-self _ _ ⟩
-       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≈⟨ update-cong (ok not-sink) (lookup-cong $ 𝟘≈γ′ not-sink) ⟩
-       γ , x ≔ γ′ ⟨ x ⟩   ∎)
+     starˢₘ
+       (λ not-sink → begin
+          𝟘ᶜ                 ≡˘⟨ update-self _ _ ⟩
+          𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≈⟨ update-cong (ok not-sink) (lookup-cong $ 𝟘≈γ′ not-sink) ⟩
+          γ , x ≔ γ′ ⟨ x ⟩   ∎))
     (let open CR in begin
        ⌜ m ⌝ ·ᶜ γ , x ≔ δ ⟨ x ⟩              ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤⌜m⌝γ′ ⟩
        ⌜ m ⌝ ·ᶜ γ , x ≔ (⌜ m ⌝ ·ᶜ γ′) ⟨ x ⟩  ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
        ⌜ m ⌝ ·ᶜ γ , x ≔ ⌜ m ⌝ · γ′ ⟨ x ⟩     ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
        ⌜ m ⌝ ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩)           ∎)
 
-  Conₘ-interchange {δ = η} (unitrecₘ {γ} {p} {δ} ▸t ▸u ▸A ok) ▸ur x =
-    case inv-usage-unitrec ▸ur of λ
-      (invUsageUnitrec {δ = γ′} {η = δ′} ▸t′ ▸u′ _ _ η≤pγ′+δ′) → sub
-    (unitrecₘ (Conₘ-interchange ▸t ▸t′ x) (Conₘ-interchange ▸u ▸u′ x) ▸A
-       ok)
-    (begin
-       p ·ᶜ γ +ᶜ δ , x ≔ η ⟨ x ⟩                          ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤pγ′+δ′ ⟩
-       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′ +ᶜ δ′) ⟨ x ⟩            ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ (_ ·ᶜ γ′) _ _ ⟩
-       p ·ᶜ γ +ᶜ δ , x ≔ (p ·ᶜ γ′) ⟨ x ⟩ + δ′ ⟨ x ⟩       ≡⟨ cong (_,_≔_ _ _) $ cong (_+ _) $ lookup-distrib-·ᶜ γ′ _ _ ⟩
-       p ·ᶜ γ +ᶜ δ , x ≔ p · γ′ ⟨ x ⟩ + δ′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
-       (p ·ᶜ γ , x ≔ p · γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ≡⟨ cong (_+ᶜ _) $ update-distrib-·ᶜ _ _ _ _ ⟩
-       p ·ᶜ (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)      ∎)
+  Conₘ-interchange {δ} (unitrecₘ {γ₃} {p} {γ₄} ▸A ▸u ▸v ok) ▸ur x =
+    let invUsageUnitrec {γ₃ = γ₃′} {γ₄ = γ₄′} _ ▸u′ ▸v′ _ δ≤pγ₃′+γ₄′ =
+          inv-usage-unitrec ▸ur
+    in
+    sub
+      (unitrecₘ ▸A (Conₘ-interchange ▸u ▸u′ x)
+         (Conₘ-interchange ▸v ▸v′ x) ok)
+      (begin
+         p ·ᶜ γ₃ +ᶜ γ₄ , x ≔ δ ⟨ x ⟩                            ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤pγ₃′+γ₄′ ⟩
+         p ·ᶜ γ₃ +ᶜ γ₄ , x ≔ (p ·ᶜ γ₃′ +ᶜ γ₄′) ⟨ x ⟩            ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-+ᶜ (_ ·ᶜ γ₃′) _ _ ⟩
+         p ·ᶜ γ₃ +ᶜ γ₄ , x ≔ (p ·ᶜ γ₃′) ⟨ x ⟩ + γ₄′ ⟨ x ⟩       ≡⟨ cong (_,_≔_ _ _) $ cong (flip _+_ _) $ lookup-distrib-·ᶜ γ₃′ _ _ ⟩
+         p ·ᶜ γ₃ +ᶜ γ₄ , x ≔ p · γ₃′ ⟨ x ⟩ + γ₄′ ⟨ x ⟩          ≡⟨ update-distrib-+ᶜ _ _ _ _ _ ⟩
+         (p ·ᶜ γ₃ , x ≔ p · γ₃′ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ γ₄′ ⟨ x ⟩)  ≡⟨ cong (_+ᶜ _) $ update-distrib-·ᶜ _ _ _ _ ⟩
+         p ·ᶜ (γ₃ , x ≔ γ₃′ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ γ₄′ ⟨ x ⟩)      ∎)
     where
     open CR
 
@@ -1431,10 +1518,10 @@ opaque
     where
     open CR
 
-  Conₘ-interchange {δ} ([]-congₘ ▸A ▸t ▸u ▸v ok) ▸bc x =
+  Conₘ-interchange {δ} ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) ▸bc x =
     case inv-usage-[]-cong ▸bc of λ
-      (invUsage-[]-cong _ _ _ _ _ δ≤𝟘) → sub
-    ([]-congₘ ▸A ▸t ▸u ▸v ok)
+      (invUsage-[]-cong _ _ _ _ _ _ δ≤𝟘) → sub
+    ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok)
     (begin
        𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤𝟘 ⟩
        𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
@@ -1740,6 +1827,17 @@ opaque
     open CR
 
 ------------------------------------------------------------------------
+-- A lemma related to level literals
+
+opaque
+
+  -- Level literals are well-resourced with respect to 𝟘ᵐ.
+
+  Level-literal→▸ : Level-literal t → 𝟘ᶜ ▸[ m ] t
+  Level-literal→▸ zeroᵘ        = zeroᵘₘ
+  Level-literal→▸ (sucᵘ t-lit) = sucᵘₘ (Level-literal→▸ t-lit)
+
+------------------------------------------------------------------------
 -- Lemmas related to ⌈_⌉
 
 -- The context ⌈ t ⌉ 𝟘ᵐ[ ok ] is equivalent to 𝟘ᶜ.
@@ -1754,8 +1852,26 @@ opaque
   open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ (defn _) =
   ≈ᶜ-refl
+⌈⌉-𝟘ᵐ Level =
+  ≈ᶜ-refl
+⌈⌉-𝟘ᵐ zeroᵘ =
+  ≈ᶜ-refl
+⌈⌉-𝟘ᵐ (sucᵘ t) =
+  ⌈⌉-𝟘ᵐ t
+⌈⌉-𝟘ᵐ {ok} (t supᵘ u) = begin
+  ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ t) (⌈⌉-𝟘ᵐ u) ⟩
+  𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityʳ _ ⟩
+  𝟘ᶜ                                ∎
+  where
+  open Tools.Reasoning.Equivalence Conₘ-setoid
 ⌈⌉-𝟘ᵐ (U _) =
   ≈ᶜ-refl
+⌈⌉-𝟘ᵐ (Lift _ A) =
+  ⌈⌉-𝟘ᵐ A
+⌈⌉-𝟘ᵐ (lift u) =
+  ⌈⌉-𝟘ᵐ u
+⌈⌉-𝟘ᵐ (lower t) =
+  ⌈⌉-𝟘ᵐ t
 ⌈⌉-𝟘ᵐ {ok = ok} (ΠΣ⟨ _ ⟩ _ , _ ▷ F ▹ G) = begin
   (⌈ F ⌉ 𝟘ᵐ[ ok ] +ᶜ tailₘ (⌈ G ⌉ 𝟘ᵐ[ ok ]))  ≈⟨ +ᶜ-cong (⌈⌉-𝟘ᵐ F) (tailₘ-cong (⌈⌉-𝟘ᵐ G)) ⟩
   𝟘ᶜ +ᶜ 𝟘ᶜ                                    ≈⟨ +ᶜ-identityʳ _ ⟩
@@ -1796,7 +1912,7 @@ opaque
   𝟘ᶜ                                                     ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ {ok} (unitrec _ p q _ t u) = begin
+⌈⌉-𝟘ᵐ {ok} (unitrec p _ _ t u) = begin
   p ·ᶜ ⌈ t ⌉ 𝟘ᵐ[ ok ] +ᶜ ⌈ u ⌉ 𝟘ᵐ[ ok ]  ≈⟨ +ᶜ-cong (·ᶜ-congˡ (⌈⌉-𝟘ᵐ t)) (⌈⌉-𝟘ᵐ u) ⟩
   p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ                          ≈⟨ +ᶜ-identityʳ _ ⟩
   p ·ᶜ 𝟘ᶜ                                ≈⟨ ·ᶜ-zeroʳ _ ⟩
@@ -1899,7 +2015,7 @@ opaque
   𝟘ᶜ                                                              ∎
   where
   open Tools.Reasoning.Equivalence Conₘ-setoid
-⌈⌉-𝟘ᵐ ([]-cong _ _ _ _ _) =
+⌈⌉-𝟘ᵐ ([]-cong _ _ _ _ _ _) =
   ≈ᶜ-refl
 
 -- The context ⌈ t ⌉ m does not change (up to _≈ᶜ_) if it is
@@ -1931,10 +2047,49 @@ usage-upper-bound :
 usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   where
   usage-upper-bound′ : γ ▸[ m ] t → γ ≤ᶜ ⌈ t ⌉ m
-  usage-upper-bound′ Uₘ     = ≤ᶜ-refl
-  usage-upper-bound′ ℕₘ     = ≤ᶜ-refl
-  usage-upper-bound′ Emptyₘ = ≤ᶜ-refl
-  usage-upper-bound′ Unitₘ  = ≤ᶜ-refl
+  usage-upper-bound′ Levelₘ =
+    ≤ᶜ-refl
+  usage-upper-bound′ zeroᵘₘ =
+    ≤ᶜ-refl
+  usage-upper-bound′ (sucᵘₘ ▸t) =
+    usage-upper-bound′ ▸t
+  usage-upper-bound′ (supᵘₘ ▸t ▸u) =
+    +ᶜ-monotone (usage-upper-bound′ ▸t) (usage-upper-bound′ ▸u)
+
+  usage-upper-bound′ (Uₘ ▸t) =
+    ≤ᶜ-refl
+
+  usage-upper-bound′ (Liftₘ _ ▸A) =
+    usage-upper-bound′ ▸A
+  usage-upper-bound′ (liftₘ ▸u) =
+    usage-upper-bound′ ▸u
+  usage-upper-bound′ (lowerₘ ▸t) =
+    usage-upper-bound′ ▸t
+
+  usage-upper-bound′ Emptyₘ =
+    ≤ᶜ-refl
+  usage-upper-bound′ (emptyrecₘ e A _) =
+    ·ᶜ-monotoneʳ (usage-upper-bound′ e)
+
+  usage-upper-bound′ Unitₘ =
+    ≤ᶜ-refl
+  usage-upper-bound′ starʷₘ =
+    ≤ᶜ-refl
+  usage-upper-bound′ {m} (starˢₘ {γ} hyp) =
+    case ok′ of λ where
+      (inj₁ no-sink) → begin
+        ⌜ m ⌝ ·ᶜ γ   ≈˘⟨ ·ᶜ-congˡ (hyp no-sink) ⟩
+        ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+        𝟘ᶜ           ∎
+      (inj₂ ≤𝟘) → begin
+        ⌜ m ⌝ ·ᶜ γ   ≤⟨ ·ᶜ-monotoneʳ (≤ᶜ𝟘ᶜ ≤𝟘) ⟩
+        ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+        𝟘ᶜ           ∎
+    where
+    open ≤ᶜ-reasoning
+  usage-upper-bound′ (unitrecₘ _ u v _) =
+    +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ u))
+      (usage-upper-bound′ v)
 
   usage-upper-bound′ (ΠΣₘ {G = G} ▸F ▸G) =
     +ᶜ-monotone (usage-upper-bound′ ▸F)
@@ -1965,6 +2120,7 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
     +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
                 (tailₘ-monotone (tailₘ-monotone (usage-upper-bound′ u)))
 
+  usage-upper-bound′ ℕₘ       = ≤ᶜ-refl
   usage-upper-bound′ zeroₘ    = ≤ᶜ-refl
   usage-upper-bound′ (sucₘ t) = usage-upper-bound′ t
 
@@ -2006,27 +2162,6 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
             (·ᶜ-monotone η≤η′ (≤-reflexive (GLB-unique x-GLB x′-GLB)))
             (GLBᶜ-monotone (λ i → nrᵢᶜ-monotone γ≤γ′ (tailₘ-monotone (tailₘ-monotone δ≤δ′)))
               χ-GLB χ′-GLB)
-
-  usage-upper-bound′ (emptyrecₘ e A _) =
-    ·ᶜ-monotoneʳ (usage-upper-bound′ e)
-
-  usage-upper-bound′ starʷₘ = ≤ᶜ-refl
-  usage-upper-bound′ {m} (starˢₘ {γ} {l} hyp) =
-    case ok′ of λ where
-      (inj₁ no-sink) → begin
-        ⌜ m ⌝ ·ᶜ γ   ≈˘⟨ ·ᶜ-congˡ (hyp no-sink) ⟩
-        ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
-        𝟘ᶜ           ∎
-      (inj₂ ≤𝟘) → begin
-        ⌜ m ⌝ ·ᶜ γ   ≤⟨ ·ᶜ-monotoneʳ (≤ᶜ𝟘ᶜ ≤𝟘) ⟩
-        ⌜ m ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
-        𝟘ᶜ           ∎
-    where
-    open ≤ᶜ-reasoning
-
-  usage-upper-bound′ (unitrecₘ t u A ok) =
-    +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
-      (usage-upper-bound′ u)
 
   usage-upper-bound′ {m} (Idₘ {γ} {A} {δ} {t} {η} {u} not-ok ▸A ▸t ▸u)
     with Id-erased?
@@ -2118,7 +2253,7 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
   … | is-all _            = usage-upper-bound′ ▸u
 
-  usage-upper-bound′ ([]-congₘ _ _ _ _ _) =
+  usage-upper-bound′ ([]-congₘ _ _ _ _ _ _) =
     ≤ᶜ-refl
 
   usage-upper-bound′ (sub t x) = ≤ᶜ-trans x (usage-upper-bound′ t)
@@ -2130,7 +2265,14 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
 usage-inf :
   ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
   γ ▸[ m ] t → ⌈ t ⌉ m ▸[ m ] t
-usage-inf Uₘ = Uₘ
+usage-inf Levelₘ = Levelₘ
+usage-inf zeroᵘₘ = zeroᵘₘ
+usage-inf (sucᵘₘ ▸t) = sucᵘₘ (usage-inf ▸t)
+usage-inf (supᵘₘ ▸t ▸u) = supᵘₘ (usage-inf ▸t) (usage-inf ▸u)
+usage-inf (Uₘ ▸t) = Uₘ (usage-inf ▸t)
+usage-inf (Liftₘ ▸t ▸A) = Liftₘ ▸t (usage-inf ▸A)
+usage-inf (liftₘ ▸u) = liftₘ (usage-inf ▸u)
+usage-inf (lowerₘ ▸t) = lowerₘ (usage-inf ▸t)
 usage-inf ℕₘ = ℕₘ
 usage-inf Emptyₘ = Emptyₘ
 usage-inf Unitₘ = Unitₘ
@@ -2189,9 +2331,9 @@ usage-inf {m} ⦃ ok ⦄ (natrec-no-nr-glbₘ {γ} {z} {δ} {p} {r} {η} {q} {A}
           , +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (≤-reflexive (GLB-unique (has-GLB r 𝟙 p .proj₂) x-GLB)))
 usage-inf (emptyrecₘ γ▸t δ▸A ok) = emptyrecₘ (usage-inf γ▸t) δ▸A ok
 usage-inf starʷₘ = starʷₘ
-usage-inf (starˢₘ prop) = starₘ
-usage-inf (unitrecₘ γ▸t δ▸u η▸A ok) =
-  unitrecₘ (usage-inf γ▸t) (usage-inf δ▸u) η▸A ok
+usage-inf (starˢₘ _) = starₘ
+usage-inf (unitrecₘ ▸A ▸u ▸v ok) =
+  unitrecₘ ▸A (usage-inf ▸u) (usage-inf ▸v) ok
 usage-inf (Idₘ not-ok ▸A ▸t ▸u) with Id-erased?
 … | yes ok = ⊥-elim (not-ok ok)
 … | no _   = Idₘ not-ok (usage-inf ▸A) (usage-inf ▸t) (usage-inf ▸u)
@@ -2234,8 +2376,8 @@ usage-inf {m} (K₀ₘ₂ {p} ≡all ▸A ▸t ▸B ▸u ▸v) with K-view p m
 … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
 … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
 … | is-all _            = K₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v
-usage-inf ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-  []-congₘ ▸A ▸t ▸u ▸v ok
+usage-inf ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
+  []-congₘ ▸l ▸A ▸t ▸u ▸v ok
 usage-inf (sub γ▸t x) = usage-inf γ▸t
 
 ------------------------------------------------------------------------
@@ -2281,8 +2423,22 @@ opaque
   ▸inline {ξ} ▸ξ defn =
     PE.subst (_▸[ _ ] _) wkConₘ-ε $
     wkUsage _ (▸inline-Nat {ξ = ξ} ▸ξ)
-  ▸inline _ Uₘ =
-    Uₘ
+  ▸inline _ Levelₘ =
+    Levelₘ
+  ▸inline _ zeroᵘₘ =
+    zeroᵘₘ
+  ▸inline ▸ξ (sucᵘₘ ▸l) =
+    sucᵘₘ (▸inline ▸ξ ▸l)
+  ▸inline ▸ξ (supᵘₘ ▸l₁ ▸l₂) =
+    supᵘₘ (▸inline ▸ξ ▸l₁) (▸inline ▸ξ ▸l₂)
+  ▸inline ▸ξ (Uₘ ▸l) =
+    Uₘ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸l)
+  ▸inline ▸ξ (Liftₘ ▸l ▸A) =
+    Liftₘ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸l) (▸inline ▸ξ ▸A)
+  ▸inline ▸ξ (liftₘ ▸t) =
+    liftₘ (▸inline ▸ξ ▸t)
+  ▸inline ▸ξ (lowerₘ ▸t) =
+    lowerₘ (▸inline ▸ξ ▸t)
   ▸inline _ Emptyₘ =
     Emptyₘ
   ▸inline ▸ξ (emptyrecₘ ▸A ▸t ok) =
@@ -2294,9 +2450,9 @@ opaque
     starʷₘ
   ▸inline _ (starˢₘ ok) =
     starˢₘ ok
-  ▸inline ▸ξ (unitrecₘ ▸t ▸u ▸A ok) =
-    unitrecₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) ok
+  ▸inline ▸ξ (unitrecₘ ▸A ▸t ▸u ok) =
+    unitrecₘ(▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t)
+      (▸inline ▸ξ ▸u) ok
   ▸inline ▸ξ (ΠΣₘ ▸A ▸B) =
     ΠΣₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸B)
   ▸inline ▸ξ (lamₘ ▸t) =
@@ -2358,9 +2514,10 @@ opaque
     K₀ₘ₂ ok (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
       (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
       (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v)
-  ▸inline ▸ξ ([]-congₘ ▸A ▸t ▸u ▸v ok) =
-    []-congₘ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t)
-      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸u) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v) ok
+  ▸inline ▸ξ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
+    []-congₘ (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸l) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸A)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸t) (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸u)
+      (▸inline (▸-𝟘ᵐ?-DCon ▸ξ) ▸v) ok
 
 opaque
   unfolding inlineᵈ
@@ -2378,6 +2535,7 @@ opaque
 module _ (TR : Type-restrictions) where
 
   open Definition.Typed TR
+  open Definition.Typed.Properties TR
 
   -- It is always the case that ∇ » Γ ⊢ t ∷ A implies ∇ » Γ ⊢ A (see
   -- Definition.Typed.Well-formed.wf-⊢∷), but if ε » Γ ⊢ t ∷ A and
@@ -2393,16 +2551,16 @@ module _ (TR : Type-restrictions) where
       (ε ∙ 𝟘≤𝟙 ∙ 𝟙≤𝟘) →
     ≤-antisym 𝟙≤𝟘 𝟘≤𝟙 }
     where
-    Γ′ = ε ∙ U 0 ∙ var x0
+    Γ′ = ε ∙ U zeroᵘ ∙ var x0
     t′ = var x0
     A′ = var x1
     γ′ = ε ∙ 𝟘 ∙ 𝟙
 
-    ⊢U : ε »⊢ ε ∙ U 0
-    ⊢U = ∙ Uⱼ (ε ε)
+    ⊢∙U : ε »⊢ ε ∙ U zeroᵘ
+    ⊢∙U = ∙ ⊢U₀ εε
 
     ⊢Γ : ε »⊢ Γ′
-    ⊢Γ = ∙ univ (var ⊢U here)
+    ⊢Γ = ∙ univ (var ⊢∙U here)
 
     ⊢t : ε » Γ′ ⊢ t′ ∷ A′
     ⊢t = var ⊢Γ here

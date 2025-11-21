@@ -25,10 +25,9 @@ open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  Γ           : Cons _ _
-  A B C D t u : Term _
-  l           : Nat
-  s s₁ s₂     : Size
+  Γ                   : Cons _ _
+  A B C D l l₁ l₂ t u : Term _
+  s s₁ s₂             : Size
 
 private opaque
 
@@ -57,6 +56,10 @@ private
         (⊢t : Γ ⊢ t ∷ A) →
         size-⊢∷ ⊢t PE.≡ s →
         ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
+      wfLevel-<ˢ :
+        (⊢l : Γ ⊢ l ∷Level) →
+        size-⊢∷L ⊢l PE.≡ s →
+        ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
 
 -- Variants of the fields of P, along with some lemmas.
 
@@ -77,6 +80,12 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
       ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
     wfTerm-<ˢ ⊢t ⦃ lt ⦄ = P.wfTerm-<ˢ (hyp lt) ⊢t PE.refl
+
+    wfLevel-<ˢ :
+      (⊢l : Γ ⊢ l ∷Level) →
+      ⦃ lt : size-⊢∷L ⊢l <ˢ s₂ ⦄ →
+      ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
+    wfLevel-<ˢ ⊢l ⦃ lt ⦄ = P.wfLevel-<ˢ (hyp lt) ⊢l PE.refl
 
   opaque
     unfolding size-⊢′
@@ -143,13 +152,11 @@ private module Lemmas where
       size-⊢ ⊢A PE.≡ s₂ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢ ⊢A
     wf-<ˢ′ hyp = λ where
-        (Uⱼ ⊢Γ)      _       → ⊢Γ , !
-        (univ A)     PE.refl → fix (wfTerm-<ˢ A)
-        (ΠΣⱼ ⊢B _)   PE.refl → fix (∙⊢→⊢-<ˢ ⊢B .proj₁)
-        (Emptyⱼ ⊢Γ)  _       → ⊢Γ , !
-        (Unitⱼ ⊢Γ _) _       → ⊢Γ , !
-        (ℕⱼ ⊢Γ)      _       → ⊢Γ , !
-        (Idⱼ ⊢A _ _) PE.refl → fix (wf-<ˢ ⊢A)
+        (Levelⱼ _ ⊢Γ) _       → ⊢Γ , !
+        (univ A)      PE.refl → fix (wfTerm-<ˢ A)
+        (Liftⱼ _ ⊢A)  PE.refl → fix (wf-<ˢ ⊢A)
+        (ΠΣⱼ ⊢B _)    PE.refl → fix (∙⊢→⊢-<ˢ ⊢B .proj₁)
+        (Idⱼ ⊢A _ _)  PE.refl → fix (wf-<ˢ ⊢A)
       where
       open Variants hyp
 
@@ -165,31 +172,55 @@ private module Lemmas where
       size-⊢∷ ⊢t PE.≡ s₂ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷ ⊢t
     wfTerm-<ˢ′ hyp = λ where
-        (conv ⊢t _)           PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (var ⊢Γ _)            _       → ⊢Γ , !
-        (defn ⊢Γ _ _)         _       → ⊢Γ , !
-        (Uⱼ ⊢Γ)               _       → ⊢Γ , !
-        (ΠΣⱼ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
-        (lamⱼ _ ⊢t _)         PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
-        (⊢t ∘ⱼ _)             PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (prodⱼ _ ⊢t _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (fstⱼ _ ⊢t)           PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (sndⱼ _ ⊢t)           PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (prodrecⱼ _ ⊢t _ _)   PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Emptyⱼ ⊢Γ)           _       → ⊢Γ , !
-        (emptyrecⱼ ⊢A _)      PE.refl → fix (wf-<ˢ ⊢A)
-        (Unitⱼ ⊢Γ _)          _       → ⊢Γ , !
-        (starⱼ ⊢Γ _)          _       → ⊢Γ , !
-        (unitrecⱼ ⊢A ⊢t _ _)  PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (ℕⱼ ⊢Γ)               _       → ⊢Γ , !
-        (zeroⱼ ⊢Γ)            _       → ⊢Γ , !
-        (sucⱼ n)              PE.refl → fix (wfTerm-<ˢ n)
-        (natrecⱼ ⊢t _ _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Idⱼ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
-        (rflⱼ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Jⱼ ⊢t _ _ _ _)       PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (Kⱼ _ ⊢u _ _)         PE.refl → fix (wfTerm-<ˢ ⊢u)
-        ([]-congⱼ ⊢A _ _ _ _) PE.refl → fix (wf-<ˢ ⊢A)
+        (conv ⊢t _)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (var ⊢Γ _)              _       → ⊢Γ , !
+        (defn ⊢Γ _ _)           _       → ⊢Γ , !
+        (Levelⱼ ⊢Γ _)           _       → ⊢Γ , !
+        (zeroᵘⱼ _ ⊢Γ)           _       → ⊢Γ , !
+        (sucᵘⱼ t)               PE.refl → fix (wfTerm-<ˢ t)
+        (supᵘⱼ t u)             PE.refl → fix (wfTerm-<ˢ t)
+        (Uⱼ ⊢l)                 PE.refl → fix (wfLevel-<ˢ ⊢l)
+        (Liftⱼ _ _ ⊢A)          PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (liftⱼ _ ⊢A _)          PE.refl → fix (wf-<ˢ ⊢A)
+        (lowerⱼ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (ΠΣⱼ _ ⊢A _ _)          PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (lamⱼ _ ⊢t _)           PE.refl → fix (∙⊢∷→⊢-<ˢ ⊢t .proj₁)
+        (⊢t ∘ⱼ _)               PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodⱼ _ ⊢t _ _)        PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (fstⱼ _ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (sndⱼ _ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodrecⱼ _ ⊢t _ _)     PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Emptyⱼ ⊢Γ)             _       → ⊢Γ , !
+        (emptyrecⱼ ⊢A _)        PE.refl → fix (wf-<ˢ ⊢A)
+        (Unitⱼ ⊢Γ _)            PE.refl → ⊢Γ , !
+        (starⱼ ⊢Γ _)            PE.refl → ⊢Γ , !
+        (unitrecⱼ ⊢A ⊢t _ _)    PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (ℕⱼ ⊢Γ)                 _       → ⊢Γ , !
+        (zeroⱼ ⊢Γ)              _       → ⊢Γ , !
+        (sucⱼ n)                PE.refl → fix (wfTerm-<ˢ n)
+        (natrecⱼ ⊢t _ _)        PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Idⱼ ⊢A _ _)            PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (rflⱼ ⊢t)               PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Jⱼ ⊢t _ _ _ _)         PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (Kⱼ _ ⊢u _ _)           PE.refl → fix (wfTerm-<ˢ ⊢u)
+        ([]-congⱼ _ ⊢A _ _ _ _) PE.refl → fix (wf-<ˢ ⊢A)
+      where
+      open Variants hyp
+
+  opaque
+    unfolding size-⊢∷L
+
+    -- If there is a proof of type Γ ⊢ l ∷Level, then there is a
+    -- strictly smaller proof of type ⊢ Γ.
+
+    wfLevel-<ˢ′ :
+      (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
+      (⊢l : Γ ⊢ l ∷Level) →
+      size-⊢∷L ⊢l PE.≡ s₂ →
+      ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
+    wfLevel-<ˢ′ hyp = λ where
+        (term _ ⊢l)      PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (literal _ ⊢Γ _) _       → ⊢Γ , !
       where
       open Variants hyp
 
@@ -202,8 +233,9 @@ private module Lemmas where
       well-founded-induction P
         (λ _ hyp →
            record
-             { wf-<ˢ     = wf-<ˢ′     hyp
-             ; wfTerm-<ˢ = wfTerm-<ˢ′ hyp
+             { wf-<ˢ      = wf-<ˢ′      hyp
+             ; wfTerm-<ˢ  = wfTerm-<ˢ′  hyp
+             ; wfLevel-<ˢ = wfLevel-<ˢ′ hyp
              })
         _
 
@@ -225,6 +257,15 @@ opaque
   wfTerm-<ˢ ⊢t = P.wfTerm-<ˢ Lemmas.P-inhabited ⊢t PE.refl
 
 opaque
+
+  -- If there is a proof of type Γ ⊢ l ∷Level, then there is a
+  -- strictly smaller proof of type ⊢ Γ.
+
+  wfLevel-<ˢ :
+    (⊢l : Γ ⊢ l ∷Level) → ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
+  wfLevel-<ˢ ⊢l = P.wfLevel-<ˢ Lemmas.P-inhabited ⊢l PE.refl
+
+opaque
   unfolding size-⊢′
 
   mutual
@@ -238,6 +279,8 @@ opaque
     wfEq-<ˢ (refl ⊢A)           = fix (wf-<ˢ ⊢A)
     wfEq-<ˢ (sym B≡A)           = fix (wfEq-<ˢ B≡A)
     wfEq-<ˢ (trans A≡B B≡C)     = fix (wfEq-<ˢ A≡B)
+    wfEq-<ˢ (U-cong l₁≡l₂)      = fix (wfEqTerm-<ˢ l₁≡l₂)
+    wfEq-<ˢ (Lift-cong _ A≡B)   = fix (wfEq-<ˢ A≡B)
     wfEq-<ˢ (ΠΣ-cong A₁≡B₁ _ _) = fix (wfEq-<ˢ A₁≡B₁)
     wfEq-<ˢ (Id-cong A≡B _ _)   = fix (wfEq-<ˢ A≡B)
 
@@ -257,7 +300,33 @@ opaque
       fix (wfEqTerm-<ˢ t≡u)
     wfEqTerm-<ˢ (δ-red ⊢Γ _ _ _) =
       ⊢Γ , !
-    wfEqTerm-<ˢ (ΠΣ-cong A≡B _ _) =
+    wfEqTerm-<ˢ (sucᵘ-cong t≡u) =
+      fix (wfEqTerm-<ˢ t≡u)
+    wfEqTerm-<ˢ (supᵘ-cong t≡t' u≡u') =
+      fix (wfEqTerm-<ˢ t≡t')
+    wfEqTerm-<ˢ (supᵘ-zeroˡ l) =
+      fix (wfTerm-<ˢ l)
+    wfEqTerm-<ˢ (supᵘ-sucᵘ l₁ l₂) =
+      fix (wfTerm-<ˢ l₁)
+    wfEqTerm-<ˢ (supᵘ-assoc l₁ l₂ l₃) =
+      fix (wfTerm-<ˢ l₁)
+    wfEqTerm-<ˢ (supᵘ-comm l₁ l₂) =
+      fix (wfTerm-<ˢ l₁)
+    wfEqTerm-<ˢ (supᵘ-idem ⊢l) =
+      fix (wfTerm-<ˢ ⊢l)
+    wfEqTerm-<ˢ (supᵘ-sub ⊢l) =
+      fix (wfTerm-<ˢ ⊢l)
+    wfEqTerm-<ˢ (U-cong l₁≡l₂) =
+      fix (wfEqTerm-<ˢ l₁≡l₂)
+    wfEqTerm-<ˢ (Lift-cong _ _ _ A≡B) =
+      fix (wfEqTerm-<ˢ A≡B)
+    wfEqTerm-<ˢ (lower-cong t≡u) =
+      fix (wfEqTerm-<ˢ t≡u)
+    wfEqTerm-<ˢ (Lift-β x _) =
+      fix (wf-<ˢ x)
+    wfEqTerm-<ˢ (Lift-η _ ⊢A _ _ _) =
+      fix (wf-<ˢ ⊢A)
+    wfEqTerm-<ˢ (ΠΣ-cong _ A≡B _ _) =
       fix (wfEqTerm-<ˢ A≡B)
     wfEqTerm-<ˢ (app-cong t₁≡u₁ _) =
       fix (wfEqTerm-<ˢ t₁≡u₁)
@@ -305,16 +374,28 @@ opaque
       fix (wfTerm-<ˢ ⊢t₁)
     wfEqTerm-<ˢ (K-cong A₁≡A₂ _ _ _ _ _) =
       fix (wfEq-<ˢ A₁≡A₂)
-    wfEqTerm-<ˢ ([]-cong-cong A≡B _ _ _ _) =
+    wfEqTerm-<ˢ ([]-cong-cong _ A≡B _ _ _ _) =
       fix (wfEq-<ˢ A≡B)
     wfEqTerm-<ˢ (J-β ⊢t _ _ _) =
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (K-β _ ⊢u _) =
       fix (wfTerm-<ˢ ⊢u)
-    wfEqTerm-<ˢ ([]-cong-β ⊢t _ _) =
+    wfEqTerm-<ˢ ([]-cong-β _ ⊢t _ _) =
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (equality-reflection _ _ ⊢v) =
       fix (wfTerm-<ˢ ⊢v)
+
+opaque
+  unfolding size-⊢′
+
+  -- If there is a proof of type Γ ⊢ l₁ ≡ l₂ ∷Level, then there is a
+  -- strictly smaller proof of type ⊢ Γ.
+
+  wfEqLevel-<ˢ :
+    (l₁≡l₂ : Γ ⊢ l₁ ≡ l₂ ∷Level) →
+    ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡∷L l₁≡l₂
+  wfEqLevel-<ˢ (term _ l₁≡l₂)   = fix (wfEqTerm-<ˢ l₁≡l₂)
+  wfEqLevel-<ˢ (literal _ ⊢Γ _) = ⊢Γ , !
 
 opaque
 
@@ -332,6 +413,15 @@ opaque
   wfTerm-≤ˢ :
     (⊢t : Γ ⊢ t ∷ A) → ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ ≤ˢ size-⊢∷ ⊢t
   wfTerm-≤ˢ = Σ.map idᶠ <ˢ→≤ˢ ∘→ wfTerm-<ˢ
+
+opaque
+
+  -- If there is a proof of type Γ ⊢ l ∷Level, then there is a proof
+  -- of type ⊢ Γ that is no larger than the first proof.
+
+  wfLevel-≤ˢ :
+    (⊢l : Γ ⊢ l ∷Level) → ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ ≤ˢ size-⊢∷L ⊢l
+  wfLevel-≤ˢ = Σ.map idᶠ <ˢ→≤ˢ ∘→ wfLevel-<ˢ
 
 opaque
 
@@ -353,6 +443,16 @@ opaque
 
 opaque
 
+  -- If there is a proof of type Γ ⊢ l₁ ≡ l₂ ∷Level, then there is a
+  -- proof of type ⊢ Γ that is no larger than the first proof.
+
+  wfEqLevel-≤ˢ :
+    (l₁≡l₂ : Γ ⊢ l₁ ≡ l₂ ∷Level) →
+    ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ ≤ˢ size-⊢≡∷L l₁≡l₂
+  wfEqLevel-≤ˢ = Σ.map idᶠ <ˢ→≤ˢ ∘→ wfEqLevel-<ˢ
+
+opaque
+
   -- If a type is well-typed with respect to Γ, then Γ is well-formed.
 
   wf : Γ ⊢ A → ⊢ Γ
@@ -364,6 +464,13 @@ opaque
 
   wfTerm : Γ ⊢ t ∷ A → ⊢ Γ
   wfTerm = proj₁ ∘→ wfTerm-<ˢ
+
+opaque
+
+  -- If a level is well-typed with respect to Γ, then Γ is well-formed.
+
+  wfLevel : Γ ⊢ l ∷Level → ⊢ Γ
+  wfLevel = proj₁ ∘→ wfLevel-<ˢ
 
 opaque
 
@@ -380,6 +487,14 @@ opaque
 
   wfEqTerm : Γ ⊢ t ≡ u ∷ A → ⊢ Γ
   wfEqTerm = proj₁ ∘→ wfEqTerm-<ˢ
+
+opaque
+
+  -- If a level equality is well-formed with respect to Γ, then Γ is
+  -- well-formed.
+
+  wfEqLevel : Γ ⊢ l₁ ≡ l₂ ∷Level → ⊢ Γ
+  wfEqLevel = proj₁ ∘→ wfEqLevel-<ˢ
 
 opaque
 
@@ -553,5 +668,5 @@ opaque
 
 -- An example of how _∙[_] can be used.
 
-_ : ε »⊢ ε ∙ ℕ ∙ U l ∙ Empty
-_ = εε ∙[ ℕⱼ ] ∙[ Uⱼ ] ∙[ Emptyⱼ ]
+_ : ε »⊢ ε ∙ ℕ ∙ Empty
+_ = εε ∙[ _⊢_.univ ∘→ ℕⱼ ] ∙[ _⊢_.univ ∘→ Emptyⱼ ]

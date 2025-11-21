@@ -1,24 +1,11 @@
 ------------------------------------------------------------------------
--- Types can be lifted to larger universes
+-- Definitions related to Lift
 ------------------------------------------------------------------------
 
--- Typing rules for the term formers defined in this module can be
--- found in Definition.Typed.Properties.Admissible.Lift, and usage
--- rules can be found in Graded.Derived.Lift.
+module Definition.Untyped.Lift {a} (M : Set a) where
 
-open import Graded.Modality
-
-module Definition.Untyped.Lift
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  where
-
-open Modality 𝕄
-
-open import Definition.Untyped M hiding (lift)
+open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Sigma 𝕄
-open import Definition.Untyped.Unit 𝕄
 
 open import Tools.Fin
 open import Tools.Function
@@ -27,127 +14,62 @@ open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n     : Nat
-  A t u : Term _
-  σ     : Subst _ _
-  s     : Strength
-  l     : Universe-level
-  q r   : M
+  n : Nat
+  t : Term _
+  σ : Subst _ _
+  ρ : Wk _ _
 
 opaque
 
-  -- Lifting.
+  -- If Γ ∙ A ⊢ t ∷ B, then Γ ∙ Lift l A ⊢ lower₀ t ∷ lower₀ B.
 
-  Lift : Strength → Universe-level → Term n → Term n
-  Lift s l A = Σ⟨ s ⟩ 𝟙 , 𝟘 ▷ A ▹ Unit s l
-
-opaque
-  unfolding Lift
-
-  -- A substitution lemma for Lift.
-
-  Lift-[] : Lift s l A [ σ ] ≡ Lift s l (A [ σ ])
-  Lift-[] = refl
+  lower₀ : Term (1+ n) → Term (1+ n)
+  lower₀ t = t [ lower (var x0) ]↑
 
 opaque
+  unfolding lower₀
 
-  -- A constructor for Lift.
+  -- A substitution lemma for lower₀.
 
-  lift : Strength → Universe-level → Term n → Term n
-  lift s l t = prod s 𝟙 t (star s l)
-
-opaque
-  unfolding lift
-
-  -- A substitution lemma for lift.
-
-  lift-[] : lift s l t [ σ ] ≡ lift s l (t [ σ ])
-  lift-[] = refl
+  lower₀-[] :
+    lower₀ t [ σ ] ≡ t [ consSubst (tail σ) (lower (head σ)) ]
+  lower₀-[] {t} {σ} =
+    trans (substCompEq t) $
+    flip substVar-to-subst t λ where
+      x0     → refl
+      (_ +1) → refl
 
 opaque
+  unfolding lower₀
 
-  -- An eliminator for Lift.
+  -- Another substitution lemma for lower₀.
 
-  liftrec :
-    M → M → Strength → Universe-level →
-    Term (1+ n) → Term (1+ n) → Term n → Term n
-  liftrec r q s l A t u =
-    prodrec⟨ s ⟩ r 𝟙 q A u
-      (unitrec⟨ s ⟩ l r q
-         (A [ consSubst (wkSubst 3 idSubst)
-                (prod s 𝟙 (var x2) (var x0)) ])
-         (var x0) (wk1 t))
+  lower₀-[⇑] : lower₀ t [ σ ⇑ ] ≡ lower₀ (t [ σ ⇑ ])
+  lower₀-[⇑] {t} {σ} =
+    t [ lower (var x0) ]↑ [ σ ⇑ ]  ≡⟨ [][]↑-commutes t ⟩
+    t [ σ ⇑ ] [ lower (var x0) ]↑  ∎
 
 opaque
-  unfolding liftrec
 
-  -- A substitution lemma for liftrec.
+  -- A weakening lemma for lower₀.
 
-  liftrec-[] :
-    liftrec r q s l A t u [ σ ] ≡
-    liftrec r q s l (A [ σ ⇑ ]) (t [ σ ⇑ ]) (u [ σ ])
-  liftrec-[] {r} {q} {s} {l} {A} {t} {u} {σ} =
-    liftrec r q s l A t u [ σ ]                        ≡⟨⟩
+  wk-lower₀ :
+    wk ρ (lower₀ t) ≡
+    t [ consSubst (tail (toSubst ρ)) (lower (head (toSubst ρ))) ]
+  wk-lower₀ {ρ} {t} =
+    wk ρ (lower₀ t)                                                ≡⟨ wk≡subst _ _ ⟩
+    lower₀ t [ toSubst ρ ]                                         ≡⟨ lower₀-[] ⟩
+    t [ consSubst (tail (toSubst ρ)) (lower (head (toSubst ρ))) ]  ∎
 
-    prodrec⟨ s ⟩ r 𝟙 q A u
-      (unitrec⟨ s ⟩ l r q
-         (A [ consSubst (wkSubst 3 idSubst)
-                (prod s 𝟙 (var x2) (var x0)) ])
-         (var x0) (wk1 t)) [ σ ]                       ≡⟨ prodrec⟨⟩-[] ⟩
+opaque
 
-    prodrec⟨ s ⟩ r 𝟙 q (A [ σ ⇑ ]) (u [ σ ])
-      (unitrec⟨ s ⟩ l r q
-         (A [ consSubst (wkSubst 3 idSubst)
-                (prod s 𝟙 (var x2) (var x0)) ])
-         (var x0) (wk1 t) [ σ ⇑ ⇑ ])                   ≡⟨ cong (prodrec⟨ _ ⟩ _ _ _ _ _)
-                                                          unitrec⟨⟩-[] ⟩
-    prodrec⟨ s ⟩ r 𝟙 q (A [ σ ⇑ ]) (u [ σ ])
-      (unitrec⟨ s ⟩ l r q
-         (A [ consSubst (wkSubst 3 idSubst)
-                (prod s 𝟙 (var x2) (var x0)) ]
-            [ σ ⇑ ⇑ ⇑ ])
-         (var x0) (wk1 t [ σ ⇑ ⇑ ]))                   ≡⟨ cong (prodrec⟨ _ ⟩ _ _ _ _ _) $
-                                                          cong₃ (unitrec⟨ _ ⟩ _ _ _)
-                                                            lemma₂ refl (wk1-liftSubst t) ⟩
-    prodrec⟨ s ⟩ r 𝟙 q (A [ σ ⇑ ]) (u [ σ ])
-      (unitrec⟨ s ⟩ l r q
-         (A [ σ ⇑ ]
-            [ consSubst (wkSubst 3 idSubst)
-                (prod s 𝟙 (var x2) (var x0)) ])
-         (var x0) (wk1 (t [ σ ⇑ ])))                   ≡⟨⟩
+  -- Another weakening lemma for lower₀.
 
-    liftrec r q s l (A [ σ ⇑ ]) (t [ σ ⇑ ]) (u [ σ ])  ∎
-    where
-    lemma₁ :
-      (t : Term n) →
-      wk[ 3 ] t ≡
-      wk1 t
-        [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-    lemma₁ t =
-      wk[ 3 ] t                                                         ≡⟨ wk[]≡[] 3 ⟩
-
-      t [ wkSubst 3 idSubst ]                                           ≡˘⟨ cong _[ _ ] $ wk-id t ⟩
-
-      wk id t [ wkSubst 3 idSubst ]                                     ≡˘⟨ step-consSubst t ⟩
-
-      wk1 t
-        [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]  ∎
-
-    lemma₂ :
-      A [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-        [ σ ⇑ ⇑ ⇑ ] ≡
-      A [ σ ⇑ ]
-        [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-    lemma₂ =
-      A [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]
-        [ σ ⇑ ⇑ ⇑ ]                                                       ≡⟨ substCompEq A ⟩
-
-      A [ (σ ⇑ ⇑ ⇑) ₛ•ₛ
-          consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]    ≡⟨ (flip substVar-to-subst A λ where
-                                                                                x0     → refl
-                                                                                (_ +1) → lemma₁ _) ⟩
-      A [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ₛ•ₛ
-          (σ ⇑) ]                                                         ≡˘⟨ substCompEq A ⟩
-
-      A [ σ ⇑ ]
-        [ consSubst (wkSubst 3 idSubst) (prod s 𝟙 (var x2) (var x0)) ]    ∎
+  wk-lift-lower₀ : wk (lift ρ) (lower₀ t) ≡ lower₀ (wk (lift ρ) t)
+  wk-lift-lower₀ {ρ} {t} =
+    wk (lift ρ) (lower₀ t)           ≡⟨ wk≡subst _ _ ⟩
+    lower₀ t [ toSubst (lift ρ) ]    ≡⟨ substVar-to-subst (toSubst-liftn 1) (lower₀ _) ⟩
+    lower₀ t [ toSubst ρ ⇑ ]         ≡⟨ lower₀-[⇑] ⟩
+    lower₀ (t [ toSubst ρ ⇑ ])       ≡˘⟨ cong lower₀ $ substVar-to-subst (toSubst-liftn 1) t ⟩
+    lower₀ (t [ toSubst (lift ρ) ])  ≡˘⟨ cong lower₀ $ wk≡subst _ _ ⟩
+    lower₀ (wk (lift ρ) t)           ∎

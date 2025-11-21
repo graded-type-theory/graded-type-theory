@@ -26,7 +26,7 @@ open import Graded.Erasure.Target as T using (Strictness)
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level using (lsuc)
 open import Tools.List hiding (_∷_)
 open import Tools.Nat
 open import Tools.Product
@@ -71,6 +71,10 @@ record Is-reduction-relation
     whnf-⇛ : t ⇛ u ∷ A → Whnf (Γ .defs) u → t ⇛ v ∷ A → v ⇛ u ∷ A
 
     -- Some congruence properties.
+
+    lower-⇛ :
+      t₁ ⇛ t₂ ∷ Lift u A →
+      lower t₁ ⇛ lower t₂ ∷ A
 
     app-⇛ :
       t₁ ⇛ t₂ ∷ Π p , q ▷ A ▹ B →
@@ -128,6 +132,7 @@ opaque instance
     ; ⇛→⊢≡      = subset*Term
     ; trans-⇛   = _⇨∷*_
     ; whnf-⇛    = λ t⇒*u u-whnf → whrDet↘Term (t⇒*u , u-whnf)
+    ; lower-⇛   = lower-subst*
     ; app-⇛     = app-subst*
     ; fst-⇛     = fst-subst*
     ; snd-⇛     = snd-subst*
@@ -148,6 +153,7 @@ opaque instance
     ; ⇛→⊢≡      = idᶠ
     ; trans-⇛   = trans
     ; whnf-⇛    = λ t≡u _ t≡v → trans (sym′ t≡v) t≡u
+    ; lower-⇛   = lower-cong
     ; app-⇛     = λ t₁≡t₂ ⊢u → app-cong t₁≡t₂ (refl ⊢u)
     ; fst-⇛     = fst-cong′
     ; snd-⇛     = snd-cong′
@@ -189,6 +195,7 @@ opaque
     ; trans-⇛   = λ (_ , ⊢v₁) (_ , ⊢v₂) → _ , ⊢transitivity ⊢v₁ ⊢v₂
     ; whnf-⇛    = λ (_ , ⊢v₁) _ (_ , ⊢v₂) →
                     _ , ⊢transitivity (⊢symmetry ⊢v₂) ⊢v₁
+    ; lower-⇛   = ⊢≡→⇛ ∘→ R.lower-⇛ ∘→ ⇛→⊢≡
     ; app-⇛     = λ t₁⇛t₂ ⊢u → ⊢≡→⇛ (R.app-⇛ (⇛→⊢≡ t₁⇛t₂) ⊢u)
     ; fst-⇛     = ⊢≡→⇛ ∘→ R.fst-⇛ ∘→ ⇛→⊢≡
     ; snd-⇛     = ⊢≡→⇛ ∘→ R.snd-⇛ ∘→ ⇛→⊢≡

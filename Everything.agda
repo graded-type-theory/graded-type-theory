@@ -84,27 +84,31 @@ import Graded.Context.Weakening
 import Graded.Mode
 
 ------------------------------------------------------------------------
--- The type theory's syntax
+-- The type theory's syntax (as well as type restrictions)
 
 import Definition.Untyped
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
+import Definition.Typed.Variant
+import Definition.Typed.Restrictions
+import Definition.Untyped.Sup
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Weakening
-import Definition.Typed.Decidable.Internal.Substitution
+import Definition.Typed.Decidable.Internal.Substitution.Primitive
 import Definition.Typed.Decidable.Internal.Equality
-import Definition.Typed.Variant
 import Definition.Untyped.Neutral
 import Definition.Untyped.Whnf
+import Definition.Untyped.Neutral.Atomic
 import Definition.Untyped.Names-below
 import Definition.Untyped.Identity
+import Definition.Untyped.Lift
+import Definition.Untyped.Pi-Sigma
 import Definition.Untyped.Pi
 import Definition.Untyped.Sigma
 import Definition.Untyped.Non-dependent
 import Definition.Untyped.Unit
 import Definition.Untyped.Nat
-import Definition.Untyped.Lift
 import Definition.Untyped.Empty
 import Definition.Untyped.Bool
 import Definition.Untyped.Erased.Eta
@@ -119,38 +123,44 @@ import Graded.Derived.Unrestricted.Eta.Untyped
 ------------------------------------------------------------------------
 -- The type theory, along with some basic properties
 
-import Definition.Typed.Restrictions
 import Definition.Typed
 import Definition.Typed.Size
-import Definition.Typed.Reasoning.Type
 import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
+import Definition.Typed.Properties.Admissible.Level.Primitive
+import Definition.Typed.Properties.Admissible.U.Primitive
 import Definition.Typed.Inversion.Primitive
-import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Properties.Definition.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Weakening.Definition
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive.Primitive
+import Definition.Typed.Properties.Admissible.Erased.Primitive
 import Definition.Typed.Well-formed
+import Definition.Typed.Properties.Admissible.U
 import Definition.Typed.Substitution.Primitive
 import Definition.Typed.Properties.Admissible.Equality
 import Definition.Typed.Properties.Admissible.Identity.Very-primitive
-import Definition.Typed.Stability
 import Definition.Typed.Properties.Reduction
 import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Reasoning.Term
-import Definition.Typed.Properties.Admissible.Pi
+import Definition.Typed.Reasoning.Type
 import Definition.Typed.Syntactic
+import Definition.Typed.Properties.Admissible.Nat.Primitive
+import Definition.Typed.Stability
 import Definition.Typed.Inversion
-import Definition.Typed.InverseUniv
+import Definition.Typed.Properties.Admissible.Level
+import Definition.Typed.Properties.Admissible.Lift
+import Definition.Typed.Properties.Admissible.Pi-Sigma
+import Definition.Typed.Properties.Admissible.Pi
+import Definition.Typed.Properties.Admissible.Nat
+import Definition.Typed.Properties.Admissible.Unit
 import Definition.Typed.Properties.Admissible.Empty
 import Definition.Typed.Properties.Admissible.Identity.Primitive
 import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Properties.Admissible.Sigma
 import Definition.Typed.Properties.Admissible.Non-dependent
-import Definition.Typed.Properties.Admissible.Unit
 import Definition.Typed.Properties.Admissible.Erased.Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta
 import Definition.Typed.Properties.Admissible.Erased
@@ -158,12 +168,12 @@ import Definition.Typed.Properties.Definition
 import Definition.Typed.Properties.Transparentisation
 import Definition.Typed.Decidable.Internal.Constraint
 import Definition.Typed.Decidable.Internal.Monad
+import Definition.Typed.Decidable.Internal.Substitution
 import Definition.Typed.Decidable.Internal.Tests
 import Definition.Typed.Decidable.Internal.Context
 import Definition.Typed.Decidable.Internal
 import Definition.Typed.Decidable.Internal.Examples
 import Definition.Typed.Properties.Admissible.Identity
-import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
 import Definition.Typed.Properties.Admissible.Bool.Erased
@@ -204,17 +214,16 @@ import Graded.Substitution.Decidable
 ------------------------------------------------------------------------
 -- Some derived definitions related to usage
 
--- An investigation of to what degree weak Σ-types can emulate strong
--- Σ-types, and vice versa.
-import Graded.Derived.Sigma
-
 -- Properties related to usage and certain type formers.
 import Graded.Derived.Non-dependent
 import Graded.Derived.Identity
 import Graded.Derived.Unit
 import Graded.Derived.Nat
-import Graded.Derived.Lift
 import Graded.Derived.Empty
+import Graded.Derived.Lift
+import Graded.Derived.Pi-Sigma
+import Graded.Derived.Pi
+import Graded.Derived.Sigma
 import Graded.Derived.Bool
 import Graded.Derived.Erased.Usage.Eta
 import Graded.Derived.Erased.Usage.No-eta
@@ -290,6 +299,7 @@ import Definition.LogicalRelation.Weakening.Restricted
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Properties.Kit
 import Definition.LogicalRelation.Properties.Whnf
+import Definition.LogicalRelation.Properties.Primitive
 import Definition.LogicalRelation.Properties.Reflexivity
 import Definition.LogicalRelation.Unary
 import Definition.LogicalRelation.Properties.Escape
@@ -312,11 +322,13 @@ import Definition.LogicalRelation.Substitution
 
 -- The fundamental lemma of the logical relations.
 import Definition.LogicalRelation.Substitution.Introductions.Var
+import Definition.LogicalRelation.Substitution.Introductions.Level
 import Definition.LogicalRelation.Substitution.Introductions.Universe
 import Definition.LogicalRelation.Substitution.Introductions.Definition
 import Definition.LogicalRelation.Substitution.Introductions.Empty
 import Definition.LogicalRelation.Substitution.Introductions.Emptyrec
 import Definition.LogicalRelation.Substitution.Introductions.Unit
+import Definition.LogicalRelation.Substitution.Introductions.Lift
 import Definition.LogicalRelation.Substitution.Introductions.Nat
 import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
 import Definition.LogicalRelation.Substitution.Introductions.Pi
@@ -340,15 +352,16 @@ import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Consequences.Admissible.Pi
 import Definition.Typed.Consequences.Admissible.Sigma
-import Definition.Typed.Consequences.Inversion.Lift
+import Definition.Typed.Consequences.Admissible.Erased
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
 import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
-import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
 import Definition.Typed.Consequences.Transparentisation
+import Definition.Typed.Consequences.Universe
+import Graded.Derived.Unrestricted.Eta.Typed
 
 -- A simplified version of the logical relation for types
 import Definition.LogicalRelation.Simplified
@@ -357,6 +370,7 @@ import Definition.LogicalRelation.Simplified
 import Definition.Conversion
 import Definition.Conversion.Whnf
 import Definition.Conversion.Reduction
+import Definition.Conversion.Level
 import Definition.Conversion.Soundness
 import Definition.Conversion.Inversion
 import Definition.Conversion.Stability
@@ -472,6 +486,8 @@ import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Value
 
 -- The fundamental lemma of the logical relation for erasure.
+import Graded.Erasure.LogicalRelation.Fundamental.Level
+import Graded.Erasure.LogicalRelation.Fundamental.Lift
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
@@ -572,6 +588,9 @@ import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 -- "A Graded Modal Dependent Type Theory with a Universe and Erasure,
 -- Formalized"
 import README.Graded-type-theory
+
+-- "Normalisation for First-Class Universe Levels"
+import README.First-class-universe-levels
 
 -- "A Formalization of Opaque Definitions for a Dependent Type Theory"
 import README.Opaque-definitions

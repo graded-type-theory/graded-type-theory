@@ -84,6 +84,15 @@ opaque
                                           flip PE.trans (𝟘ᶜ-lookup x) ⟩
         𝟙 ≡ 𝟘                          →⟨ non-trivial ⟩
         ⊥                              □
+      (supᵘˡₙ t-n) ⊢supᵘ (supᵘₘ ▸t _) →
+        let ⊢t , _ = inversion-supᵘ ⊢supᵘ in
+        helper t-n ⊢t ▸t ∘→ proj₁ ∘→ +ᶜ-positive
+      (supᵘʳₙ u-n) ⊢supᵘ (supᵘₘ _ ▸u) →
+        let _ , ⊢u , _ = inversion-supᵘ ⊢supᵘ in
+        helper u-n ⊢u ▸u ∘→ proj₂ ∘→ +ᶜ-positive
+      (lowerₙ t-n) ⊢lower (lowerₘ ▸t) →
+        case inversion-lower ⊢lower of λ (_ , _ , ⊢t , _) →
+          helper t-n ⊢t ▸t
       (∘ₙ t-n) ⊢∘ (▸t ∘ₘ _) →
         case inversion-app ⊢∘ of λ {
           (_ , _ , _ , ⊢t , _) →
@@ -137,7 +146,7 @@ opaque
             p ≡ 𝟘 ⊎ γ ≈ᶜ 𝟘ᶜ  →⟨ (λ { (inj₁ p≡𝟘) → ⊥-elim $ p≢𝟘 p≡𝟘; (inj₂ γ≈𝟘) → γ≈𝟘 }) ⟩
             γ ≈ᶜ 𝟘ᶜ          →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) ⟩
             ⊥                □
-      (unitrecₙ no-η t-n) ⊢ur (unitrecₘ {γ} {p} {δ} ▸t _ _ ok) →
+      (unitrecₙ no-η t-n) ⊢ur (unitrecₘ {γ₃ = γ} {p} {γ₄ = δ} _ ▸t _ ok) →
         case inversion-unitrec ⊢ur of λ {
           (_ , ⊢t , _ , _) →
         case no-η ∘→ nem non-trivial .proj₂ .proj₁ ok of λ
@@ -196,7 +205,7 @@ opaque
         of λ ()
       ([]-congₙ _) ⊢bc _ →
         case inversion-[]-cong ⊢bc of λ {
-          (_ , _ , _ , _ , ok , _) →
+          (_ , _ , _ , _ , _ , ok , _) →
         ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₁ ok }
       t-n ⊢t (sub {γ} ▸t χ≤γ) →
         χ ≈ᶜ 𝟘ᶜ  →⟨ ≤ᶜ→≈ᶜ𝟘ᶜ→≈ᶜ𝟘ᶜ χ≤γ ⟩
@@ -353,7 +362,7 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t
   neutral-well-resourced₇ ok =
     let ⊢t , ▸∇ , ▸t , _ =
-          soundness-ℕ-counterexample₆ {str = non-strict} ok
+          soundness-ℕ-counterexample₆ ok
     in
     _ , _ , _ , _ , _ , (λ {_ _ _} → ▸∇) , PE.refl ,
     emptyrecₙ (var _ _) , ⊢t , ▸t

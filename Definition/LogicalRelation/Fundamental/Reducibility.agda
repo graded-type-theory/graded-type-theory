@@ -61,3 +61,17 @@ opaque
 
   reducible-⊩≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   reducible-⊩≡∷ = Σ.map idᶠ R.⊩≡∷→ ∘→ RR.reducible-⊩≡∷
+
+opaque
+
+  -- A reducibility lemma for _⊢_∷Level.
+
+  reducible-⊩∷L : Γ ⊢ t ∷Level → Γ ⊩Level t ∷Level
+  reducible-⊩∷L = RR.reducible-⊩∷L
+
+opaque
+
+  -- A reducibility lemma for _⊢_≡_∷Level.
+
+  reducible-⊩≡∷L : Γ ⊢ t ≡ u ∷Level → Γ ⊩Level t ≡ u ∷Level
+  reducible-⊩≡∷L = RR.reducible-⊩≡∷L

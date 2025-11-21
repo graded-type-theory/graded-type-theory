@@ -17,8 +17,11 @@ open import Tools.Relation
 open import Tools.PropositionalEquality
 open import Tools.Sum as ⊎
 
+open import Induction
+open import Induction.WellFounded
+
 private variable
-  α ℓ m n            : Nat
+  α ℓ m n o          : Nat
   A A₁ A₂            : Set _
   P Q                : Nat → Set _
   B B₁ B₂ t t₁ t₂    : A
@@ -29,6 +32,8 @@ private variable
   ω₁ ω₂              : Opacity _
   x y                : Fin _
   l l₁ l₁′ l₂ l₂′ l₃ : Universe-level
+  sm sm₁ sm₂ sm₃     : Level-small
+  s s₁ s₂ s₃         : Level-support
 
 ------------------------------------------------------------------------
 -- Properties of weakening
@@ -180,7 +185,10 @@ opaque
   infix 4 _≟ᵘ_
 
   _≟ᵘ_ : Decidable (_≡_ {A = Universe-level})
-  _≟ᵘ_ = _≟_
+  0ᵘ+ l₁ ≟ᵘ 0ᵘ+ l₂ = Dec-map (cong 0ᵘ+_ , λ { refl → refl }) (l₁ ≟ l₂)
+  0ᵘ+ l₁ ≟ᵘ ωᵘ     = no (λ ())
+  ωᵘ     ≟ᵘ 0ᵘ+ l₂ = no (λ ())
+  ωᵘ     ≟ᵘ ωᵘ     = yes refl
 
 ------------------------------------------------------------------------
 -- Properties related to _≤ᵘ_ and _<ᵘ_
@@ -189,43 +197,70 @@ opaque
 
   -- The level 0 is the lowest level.
 
-  0≤ᵘ : 0 ≤ᵘ l
-  0≤ᵘ = 0≤′
-
-opaque
-
-  -- The successor function is monotone for _≤ᵘ_.
-
-  1+≤ᵘ1+ : l₁ ≤ᵘ l₂ → 1+ l₁ ≤ᵘ 1+ l₂
-  1+≤ᵘ1+ = 1+≤′1+
-
-opaque
-
-  -- A level is bounded by its successor.
-
-  ≤ᵘ1+ : l ≤ᵘ 1+ l
-  ≤ᵘ1+ = ≤ᵘ-step ≤ᵘ-refl
+  0≤ᵘ : 0ᵘ ≤ᵘ l
+  0≤ᵘ {0ᵘ+ x} = ≤ᵘ-fin z≤′n
+  0≤ᵘ {(ωᵘ)}  = ≤ᵘ-ωᵘ
 
 opaque
 
   -- The relation _≤ᵘ_ is transitive.
 
   ≤ᵘ-trans : l₁ ≤ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ ≤ᵘ l₃
-  ≤ᵘ-trans = ≤′-trans
+  ≤ᵘ-trans (≤ᵘ-fin p) (≤ᵘ-fin q) = ≤ᵘ-fin (≤′-trans p q)
+  ≤ᵘ-trans _          ≤ᵘ-ωᵘ      = ≤ᵘ-ωᵘ
 
 opaque
 
   -- The relation _<ᵘ_ is transitive.
 
   <ᵘ-trans : l₁ <ᵘ l₂ → l₂ <ᵘ l₃ → l₁ <ᵘ l₃
-  <ᵘ-trans = <′-trans
+  <ᵘ-trans (<ᵘ-fin p) (<ᵘ-fin q) = <ᵘ-fin (<′-trans p q)
+  <ᵘ-trans (<ᵘ-fin _) <ᵘ-ωᵘ      = <ᵘ-ωᵘ
+  <ᵘ-trans <ᵘ-ωᵘ      ()
+
+opaque
+
+  <ᵘ-≤ᵘ-trans : l₁ <ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ <ᵘ l₃
+  <ᵘ-≤ᵘ-trans (<ᵘ-fin p) (≤ᵘ-fin q) = <ᵘ-fin (≤′-trans p q)
+  <ᵘ-≤ᵘ-trans (<ᵘ-fin _) ≤ᵘ-ωᵘ      = <ᵘ-ωᵘ
+  <ᵘ-≤ᵘ-trans <ᵘ-ωᵘ      ≤ᵘ-ωᵘ      = <ᵘ-ωᵘ
 
 opaque
 
   -- The relation _<ᵘ_ is contained in _≤ᵘ_.
 
   <ᵘ→≤ᵘ : l₁ <ᵘ l₂ → l₁ ≤ᵘ l₂
-  <ᵘ→≤ᵘ = <′→≤′
+  <ᵘ→≤ᵘ (<ᵘ-fin p) = ≤ᵘ-fin (<′→≤′ p)
+  <ᵘ→≤ᵘ <ᵘ-ωᵘ      = ≤ᵘ-ωᵘ
+
+-- The relation _<ᵘ_ is well-founded.
+
+private
+  nat-accessible : ∀ n → Acc _<ᵘ_ (0ᵘ+ n)
+  nat-accessible′ : ∀ n → WfRec _<ᵘ_ (Acc _<ᵘ_) (0ᵘ+ n)
+  nat-accessible n = acc (nat-accessible′ n)
+  nat-accessible′ .(1+ n) (<ᵘ-fin {l = n} (≤′-refl)) = nat-accessible n
+  nat-accessible′ .(1+ n) (<ᵘ-fin (≤′-step {n} p)) = nat-accessible′ n (<ᵘ-fin p)
+
+  ωᵘ-accessible′ : WfRec _<ᵘ_ (Acc _<ᵘ_) ωᵘ
+  ωᵘ-accessible′ <ᵘ-ωᵘ = nat-accessible _
+
+  ωᵘ-accessible : Acc _<ᵘ_ ωᵘ
+  ωᵘ-accessible = acc ωᵘ-accessible′
+
+<ᵘ-wellFounded : WellFounded _<ᵘ_
+<ᵘ-wellFounded (0ᵘ+ n) = nat-accessible n
+<ᵘ-wellFounded ωᵘ      = ωᵘ-accessible
+
+<ᵘ-Rec : ∀ {ℓ} → RecStruct Universe-level ℓ ℓ
+<ᵘ-Rec = WfRec _<ᵘ_
+
+module _ {ℓ} where
+  open All <ᵘ-wellFounded ℓ public
+    renaming ( wfRecBuilder to <ᵘ-recBuilder
+             ; wfRec        to <ᵘ-rec
+             )
+    hiding (wfRec-builder)
 
 ------------------------------------------------------------------------
 -- Properties related to _⊔ᵘ_
@@ -235,35 +270,130 @@ opaque
   -- The level l₁ is bounded by the maximum of l₁ and l₂.
 
   ≤ᵘ⊔ᵘʳ : l₁ ≤ᵘ l₁ ⊔ᵘ l₂
-  ≤ᵘ⊔ᵘʳ = ≤′⊔ˡ
+  ≤ᵘ⊔ᵘʳ {0ᵘ+ l₁} {0ᵘ+ l₂} = ≤ᵘ-fin ≤′⊔ʳ
+  ≤ᵘ⊔ᵘʳ {0ᵘ+ l₁} {(ωᵘ)}   = ≤ᵘ-ωᵘ
+  ≤ᵘ⊔ᵘʳ {(ωᵘ)}            = ≤ᵘ-ωᵘ
 
 opaque
 
   -- The level l₂ is bounded by the maximum of l₁ and l₂.
 
   ≤ᵘ⊔ᵘˡ : l₂ ≤ᵘ l₁ ⊔ᵘ l₂
-  ≤ᵘ⊔ᵘˡ = ≤′⊔ʳ
+  ≤ᵘ⊔ᵘˡ {0ᵘ+ l₂} {0ᵘ+ l₁} = ≤ᵘ-fin ≤′⊔ˡ
+  ≤ᵘ⊔ᵘˡ {(ωᵘ)}   {0ᵘ+ l₁} = ≤ᵘ-ωᵘ
+  ≤ᵘ⊔ᵘˡ {(l₂)}   {(ωᵘ)}   = ≤ᵘ-ωᵘ
 
 opaque
 
   -- The function _⊔ᵘ_ is monotone.
 
   ⊔ᵘ-mono : l₁ ≤ᵘ l₁′ → l₂ ≤ᵘ l₂′ → l₁ ⊔ᵘ l₂ ≤ᵘ l₁′ ⊔ᵘ l₂′
-  ⊔ᵘ-mono = flip ⊔-mono
+  ⊔ᵘ-mono (≤ᵘ-fin l₁≤) (≤ᵘ-fin l₂≤) = ≤ᵘ-fin (⊔-mono l₁≤ l₂≤)
+  ⊔ᵘ-mono (≤ᵘ-fin l₁≤) ≤ᵘ-ωᵘ        = ≤ᵘ-ωᵘ
+  ⊔ᵘ-mono ≤ᵘ-ωᵘ        l₂≤          = ≤ᵘ-ωᵘ
 
 opaque
 
   -- 0 is a left identity for _⊔ᵘ_.
 
-  ⊔ᵘ-identityˡ : 0 ⊔ᵘ l ≡ l
-  ⊔ᵘ-identityˡ = ⊔-identityʳ _
+  ⊔ᵘ-identityˡ : 0ᵘ ⊔ᵘ l ≡ l
+  ⊔ᵘ-identityˡ {0ᵘ+ l} = refl
+  ⊔ᵘ-identityˡ {(ωᵘ)}  = refl
 
 opaque
 
   -- The function _⊔ᵘ_ is idempotent.
 
   ⊔ᵘ-idem : l ⊔ᵘ l ≡ l
-  ⊔ᵘ-idem = ⊔-idem _
+  ⊔ᵘ-idem {0ᵘ+ l} = cong 0ᵘ+_ (⊔-idem l)
+  ⊔ᵘ-idem {(ωᵘ)}  = refl
+
+------------------------------------------------------------------------
+-- Properties related to Level-support
+
+opaque
+
+  -- Equality is decidable for Level-small.
+
+  infix 4 _≟-Level-small_
+
+  _≟-Level-small_ : Decidable-equality Level-small
+  small     ≟-Level-small small     = yes refl
+  small     ≟-Level-small not-small = no (λ ())
+  not-small ≟-Level-small small     = no (λ ())
+  not-small ≟-Level-small not-small = yes refl
+
+opaque
+
+  -- Equality is decidable for Level-support.
+
+  infix 4 _≟-Level-support_
+
+  _≟-Level-support_ : Decidable-equality Level-support
+  only-literals ≟-Level-support only-literals = yes refl
+  only-literals ≟-Level-support level-type _  = no (λ ())
+  level-type _  ≟-Level-support only-literals = no (λ ())
+  level-type s₁ ≟-Level-support level-type s₂ with s₁ ≟-Level-small s₂
+  … | yes eq    = yes (cong level-type eq)
+  … | no not-eq = no (not-eq ∘→ λ { refl → refl })
+
+opaque
+
+  -- The relation _≤LSm_ is reflexive.
+
+  refl-≤LSm : sm ≤LSm sm
+  refl-≤LSm {sm = small}     = small≤small
+  refl-≤LSm {sm = not-small} = not-small≤
+
+opaque
+
+  -- The relation _≤LSm_ is transitive.
+
+  trans-≤LSm : sm₁ ≤LSm sm₂ → sm₂ ≤LSm sm₃ → sm₁ ≤LSm sm₃
+  trans-≤LSm not-small≤  _           = not-small≤
+  trans-≤LSm small≤small small≤small = small≤small
+
+opaque
+
+  -- The relation _≤LS_ is reflexive.
+
+  refl-≤LS : s ≤LS s
+  refl-≤LS {s = only-literals} = only-literals≤
+  refl-≤LS {s = level-type _}  = level-type refl-≤LSm
+
+opaque
+
+  -- The relation _≤LS_ is transitive.
+
+  trans-≤LS : s₁ ≤LS s₂ → s₂ ≤LS s₃ → s₁ ≤LS s₃
+  trans-≤LS only-literals≤ only-literals≤ = only-literals≤
+  trans-≤LS (level-type p) (level-type q) = level-type (trans-≤LSm p q)
+
+opaque
+
+  -- If s₁ ≤LS s₂, then s₁ is distinct from only-literals exactly when
+  -- s₂ is distinct from only-literals.
+
+  ≤LS→≢only-literals⇔≢only-literals :
+    s₁ ≤LS s₂ →
+    s₁ ≢ only-literals ⇔ s₂ ≢ only-literals
+  ≤LS→≢only-literals⇔≢only-literals = λ where
+    only-literals≤           → id⇔
+    (level-type not-small≤)  → (λ _ ()) , (λ _ ())
+    (level-type small≤small) → id⇔
+
+opaque
+
+  -- If s₁ ≤LS s₂ and s₁ is equal to level-type small, then s₂ is
+  -- equal to level-type small.
+
+  ≤LS→≡small→≡small :
+    s₁ ≤LS s₂ →
+    s₁ ≡ level-type small → s₂ ≡ level-type small
+  ≤LS→≡small→≡small = λ where
+    only-literals≤           → λ ()
+    (level-type not-small≤)  → λ ()
+    (level-type small≤small) → idᶠ
 
 ------------------------------------------------------------------------
 -- Some properties related to DCon and DExt
@@ -377,8 +507,8 @@ opaque
   -- ∇.
 
   ≰→↦∈→↦∈ :
-    {ξ : DExt A n l} →
-    ¬ l ≤ α → α ↦∷ B ∈ ∇ ᵈ• ξ → α ↦∷ B ∈ ∇
+    {ξ : DExt A o n} →
+    ¬ n ≤ α → α ↦∷ B ∈ ∇ ᵈ• ξ → α ↦∷ B ∈ ∇
   ≰→↦∈→↦∈ {ξ = idᵉ} _ α↦ = α↦
   ≰→↦∈→↦∈ {ξ = step ξ _ _ _} l≰α here =
     ⊥-elim $ l≰α (DExt→≤ ξ)
@@ -392,8 +522,8 @@ opaque
   -- t and B in ∇.
 
   ≰→↦∷∈→↦∷∈ :
-    {ξ : DExt A n l} →
-    ¬ l ≤ α → α ↦ t ∷ B ∈ ∇ ᵈ• ξ → α ↦ t ∷ B ∈ ∇
+    {ξ : DExt A o n} →
+    ¬ n ≤ α → α ↦ t ∷ B ∈ ∇ ᵈ• ξ → α ↦ t ∷ B ∈ ∇
   ≰→↦∷∈→↦∷∈ {ξ = idᵉ} _ α↦ = α↦
   ≰→↦∷∈→↦∷∈ {ξ = step ξ _ _ _} l≰α here =
     ⊥-elim $ l≰α (DExt→≤ ξ)

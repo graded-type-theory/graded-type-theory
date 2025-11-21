@@ -27,10 +27,10 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  α n           : Nat
-  ∇ ∇₁ ∇₂       : DCon (Term 0) _
-  Γ             : Con Term _
-  A B C t u v w : Term _
+  α n             : Nat
+  ∇ ∇₁ ∇₂         : DCon (Term 0) _
+  Γ               : Con Term _
+  A B C l t u v w : Term _
 
 opaque mutual
 
@@ -40,18 +40,14 @@ opaque mutual
   ⊢→Names< :
     {∇ : DCon (Term 0) n} →
     ∇ » Γ ⊢ A → Names< n A
-  ⊢→Names< (Uⱼ _) =
-    U
+  ⊢→Names< (Levelⱼ _ _) =
+    Level
   ⊢→Names< (univ ⊢A) =
     ⊢∷→Names< ⊢A
-  ⊢→Names< (Emptyⱼ _) =
-    Empty
-  ⊢→Names< (Unitⱼ _ _) =
-    Unit
+  ⊢→Names< (Liftⱼ ⊢l ⊢A) =
+    Lift (⊢∷L→Names< ⊢l) (⊢→Names< ⊢A)
   ⊢→Names< (ΠΣⱼ ⊢B _) =
     ΠΣ (⊢→Names< (⊢∙→⊢ (wf ⊢B))) (⊢→Names< ⊢B)
-  ⊢→Names< (ℕⱼ _) =
-    ℕ
   ⊢→Names< (Idⱼ ⊢A ⊢t ⊢u) =
     Id (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
 
@@ -67,8 +63,22 @@ opaque mutual
     var
   ⊢∷→Names< (defn ⊢Γ α↦ _) =
     defn (scoped-↦∈ α↦)
-  ⊢∷→Names< (Uⱼ _) =
-    U
+  ⊢∷→Names< (Levelⱼ _ _) =
+    Level
+  ⊢∷→Names< (zeroᵘⱼ _ _) =
+    zeroᵘ
+  ⊢∷→Names< (sucᵘⱼ ⊢l) =
+    sucᵘ (⊢∷→Names< ⊢l)
+  ⊢∷→Names< (supᵘⱼ ⊢l₁ ⊢l₂) =
+    supᵘ (⊢∷→Names< ⊢l₁) (⊢∷→Names< ⊢l₂)
+  ⊢∷→Names< (Uⱼ ⊢l) =
+    U (⊢∷L→Names< ⊢l)
+  ⊢∷→Names< (Liftⱼ _ ⊢l ⊢A) =
+    Lift (⊢∷L→Names< ⊢l) (⊢∷→Names< ⊢A)
+  ⊢∷→Names< (liftⱼ _ _ ⊢t) =
+    lift (⊢∷→Names< ⊢t)
+  ⊢∷→Names< (lowerⱼ ⊢t) =
+    lower (⊢∷→Names< ⊢t)
   ⊢∷→Names< (Emptyⱼ _) =
     Empty
   ⊢∷→Names< (emptyrecⱼ ⊢A ⊢t) =
@@ -79,7 +89,7 @@ opaque mutual
     star
   ⊢∷→Names< (unitrecⱼ ⊢A ⊢t ⊢u _) =
     unitrec (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
-  ⊢∷→Names< (ΠΣⱼ ⊢A ⊢B _) =
+  ⊢∷→Names< (ΠΣⱼ _ ⊢A ⊢B _) =
     ΠΣ (⊢∷→Names< ⊢A) (⊢∷→Names< ⊢B)
   ⊢∷→Names< (lamⱼ _ ⊢t _) =
     lam (⊢∷→Names< ⊢t)
@@ -113,8 +123,20 @@ opaque mutual
     let ⊢A , ⊢t , _ = inversion-Id (wf-⊢∷ ⊢v) in
     K (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢→Names< ⊢B) (⊢∷→Names< ⊢u)
       (⊢∷→Names< ⊢v)
-  ⊢∷→Names< ([]-congⱼ ⊢A ⊢t ⊢u ⊢v _) =
-    []-cong (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u) (⊢∷→Names< ⊢v)
+  ⊢∷→Names< ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v _) =
+    []-cong (⊢∷L→Names< ⊢l) (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
+      (⊢∷→Names< ⊢v)
+
+  -- If ∇ » Γ ⊢ l ∷Level holds, where ∇ has length n, then l only uses
+  -- names below n.
+
+  ⊢∷L→Names< :
+    {∇ : DCon (Term 0) n} →
+    ∇ » Γ ⊢ l ∷Level → Names< n l
+  ⊢∷L→Names< (term _ ⊢l) =
+    ⊢∷→Names< ⊢l
+  ⊢∷L→Names< (literal _ _ l-lit) =
+    Level-literal→Names< l-lit
 
 opaque
 

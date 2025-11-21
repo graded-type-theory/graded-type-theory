@@ -31,6 +31,7 @@ import Tools.Reasoning.PartialOrder as RPo
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
@@ -197,10 +198,11 @@ opaque
 
   redNumeral′
     consistent prop s-nn (ℕₜ _ d _ (ne (neNfₜ neK _))) PE.refl ⊢s ▸s =
-    let neK = ne→ _ neK in
+    let neK = ne→ _ (ne⁻ neK) in
     case whBisim consistent prop s-nn ⊢s ▸s (d , ne neK) of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
-    ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK) }
+    ⊥-elim $
+    Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK }
 
 opaque
 

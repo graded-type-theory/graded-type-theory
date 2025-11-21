@@ -11,7 +11,7 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.List
 open import Tools.PropositionalEquality as PE hiding (subst)
-open import Tools.Relation
+open import Tools.Relation as Dec
 
 -- Some definitions that do not depend on M are re-exported from
 -- Definition.Untyped.NotParametrised.
@@ -34,6 +34,7 @@ infixl 30 _∘⟨_⟩_
 infixl 30 _∘_
 infix 30 ⟦_⟧_▹_
 infixl 30 _ₛ•ₛ_ _•ₛ_ _ₛ•_
+infixr 30 _supᵘ_ _supᵘₗ′_
 infix 25 _[_]
 infix 25 _[_]₀
 infix 25 _[_]↑
@@ -56,12 +57,19 @@ infix 24 _∙[_][_][_]ʷ _∙[_][_][_]
 data Term (n : Nat) : Set a where
   var : (x : Fin n) → Term n
   defn : (α : Nat) → Term n
-  U : Universe-level → Term n
+  Level : Term n
+  zeroᵘ : Term n
+  sucᵘ : Term n → Term n
+  _supᵘ_ : Term n → Term n → Term n
+  U : Term n → Term n
+  Lift : (l : Term n) (A : Term n) → Term n
+  lift : (a : Term n) → Term n
+  lower : (a : Term n) → Term n
   Empty : Term n
   emptyrec : (p : M) (A t : Term n) → Term n
-  Unit : Strength → Universe-level → Term n
-  star : Strength → Universe-level → Term n
-  unitrec : Universe-level → (p q : M) (A : Term (1+ n))
+  Unit : Strength → Term n
+  star : Strength → Term n
+  unitrec : (p q : M) → (A : Term (1+ n))
             (t u : Term n) → Term n
   ΠΣ⟨_⟩_,_▷_▹_ : (b : BinderMode) (p q : M) (A : Term n)
                (B : Term (1+ n)) → Term n
@@ -83,11 +91,11 @@ data Term (n : Nat) : Set a where
       Term n
   K : (p : M) (A t : Term n) (B : Term (1+ n)) (u v : Term n) →
       Term n
-  []-cong : Strength → (A t u v : Term n) → Term n
+  []-cong : Strength → (l A t u v : Term n) → Term n
 
-pattern Unit! = Unit _ _
-pattern Unitʷ l = Unit 𝕨 l
-pattern Unitˢ l = Unit 𝕤 l
+pattern Unit! = Unit _
+pattern Unitʷ = Unit 𝕨
+pattern Unitˢ = Unit 𝕤
 
 pattern Π_,_▷_▹_ p q F G = ΠΣ⟨ BMΠ ⟩ p , q ▷ F ▹ G
 pattern Σˢ_,_▷_▹_ p q F G = ΠΣ⟨ BMΣ 𝕤 ⟩ p , q ▷ F ▹ G
@@ -101,13 +109,13 @@ pattern prodˢ p t u = prod 𝕤 p t u
 pattern prodʷ p t u = prod 𝕨 p t u
 pattern prod! t u = prod _ _ t u
 
-pattern star! = star _ _
-pattern starʷ l = star 𝕨 l
-pattern starˢ l = star 𝕤 l
+pattern star! = star _
+pattern starʷ = star 𝕨
+pattern starˢ = star 𝕤
 
-pattern []-cong! A t u v = []-cong _ A t u v
-pattern []-congʷ A t u v = []-cong 𝕨 A t u v
-pattern []-congˢ A t u v = []-cong 𝕤 A t u v
+pattern []-cong! l A t u v = []-cong _ l A t u v
+pattern []-congʷ l A t u v = []-cong 𝕨 l A t u v
+pattern []-congˢ l A t u v = []-cong 𝕤 l A t u v
 
 private variable
   t : Term _
@@ -144,6 +152,83 @@ sucᵏ : (k : Nat) → Term n
 sucᵏ 0      = zero
 sucᵏ (1+ n) = suc (sucᵏ n)
 
+-- Level literals.
+
+data Level-literal {n : Nat} : Term n → Set a where
+  zeroᵘ : Level-literal zeroᵘ
+  sucᵘ  : Level-literal t → Level-literal (sucᵘ t)
+
+opaque
+
+  -- One can decide whether a term is a level literal or not.
+
+  Level-literal? : (t : Term n) → Dec (Level-literal t)
+  Level-literal? = λ where
+    zeroᵘ    → yes zeroᵘ
+    (sucᵘ t) →
+      Dec.map sucᵘ (λ { (sucᵘ t-lit) → t-lit }) (Level-literal? t)
+    (var _)                 → no (λ ())
+    (defn _)                → no (λ ())
+    Level                   → no (λ ())
+    (_ supᵘ _)              → no (λ ())
+    (U _)                   → no (λ ())
+    (Lift _ _)              → no (λ ())
+    (lift _)                → no (λ ())
+    (lower _)               → no (λ ())
+    Empty                   → no (λ ())
+    (emptyrec _ _ _)        → no (λ ())
+    (Unit _)                → no (λ ())
+    (star _)                → no (λ ())
+    (unitrec _ _ _ _ _)     → no (λ ())
+    (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) → no (λ ())
+    (lam _ _)               → no (λ ())
+    (_ ∘⟨ _ ⟩ _)            → no (λ ())
+    (prod _ _ _ _)          → no (λ ())
+    (fst _ _)               → no (λ ())
+    (snd _ _)               → no (λ ())
+    (prodrec _ _ _ _ _ _)   → no (λ ())
+    ℕ                       → no (λ ())
+    zero                    → no (λ ())
+    (suc _)                 → no (λ ())
+    (natrec _ _ _ _ _ _ _)  → no (λ ())
+    (Id _ _ _)              → no (λ ())
+    rfl                     → no (λ ())
+    (J _ _ _ _ _ _ _ _)     → no (λ ())
+    (K _ _ _ _ _ _)         → no (λ ())
+    ([]-cong _ _ _ _ _ _)   → no (λ ())
+
+opaque
+
+  -- Converts level literals to the corresponding natural numbers.
+
+  size-of-Level : Level-literal t → Nat
+  size-of-Level zeroᵘ        = 0
+  size-of-Level (sucᵘ t-lit) = 1+ (size-of-Level t-lit)
+
+-- Iterated applications of sucᵘ.
+
+sucᵘᵏ : Nat → Term n → Term n
+sucᵘᵏ 0      t = t
+sucᵘᵏ (1+ k) t = sucᵘ (sucᵘᵏ k t)
+
+-- The canonical level term corresponding to the given natural number.
+
+↓ᵘ_ : Nat → Term n
+↓ᵘ k = sucᵘᵏ k zeroᵘ
+
+opaque
+
+  -- A variant of _supᵘ_.
+  --
+  -- If the inputs are level literals, then a literal is returned.
+
+  _supᵘₗ′_ : Term n → Term n → Term n
+  l₁ supᵘₗ′ l₂ with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes (l₁-lit , l₂-lit) =
+    ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)
+  … | no _ =
+    l₁ supᵘ l₂
+
 ------------------------------------------------------------------------
 -- An alternative syntax representation
 
@@ -156,14 +241,23 @@ sucᵏ (1+ n) = suc (sucᵏ n)
 data Kind : (ns : List Nat) → Set a where
   Defnkind : (α : Nat) → Kind []
 
-  Ukind : Universe-level → Kind []
+  Levelkind : Kind []
+  Zeroᵘkind  : Kind []
+  Sucᵘkind   : Kind (0 ∷ [])
+  Supᵘkind   : Kind (0 ∷ 0 ∷ [])
+
+  Ukind : Kind (0 ∷ [])
+
+  Liftkind : Kind (0 ∷ 0 ∷ [])
+  liftkind : Kind (0 ∷ [])
+  lowerkind : Kind (0 ∷ [])
 
   Emptykind    : Kind []
   Emptyreckind : (p : M) → Kind (0 ∷ 0 ∷ [])
 
-  Unitkind : Strength → Universe-level → Kind []
-  Starkind : Strength → Universe-level → Kind []
-  Unitreckind : Universe-level → (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
+  Unitkind : Strength → Kind []
+  Starkind : Strength → Kind []
+  Unitreckind : (p q : M) → Kind (1 ∷ 0 ∷ 0 ∷ [])
 
   Binderkind : (b : BinderMode) (p q : M) → Kind (0 ∷ 1 ∷ [])
 
@@ -184,7 +278,7 @@ data Kind : (ns : List Nat) → Set a where
   Reflkind    : Kind []
   Jkind       : M → M → Kind (0 ∷ 0 ∷ 2 ∷ 0 ∷ 0 ∷ 0 ∷ [])
   Kkind       : M → Kind (0 ∷ 0 ∷ 1 ∷ 0 ∷ 0 ∷ [])
-  Boxcongkind : Strength → Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
+  Boxcongkind : Strength → Kind (0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ [])
 
 -- In the alternative term representations, a term is either a
 -- variable (de Bruijn index) or a "generic"
@@ -210,8 +304,22 @@ toTerm (var x) =
   var x
 toTerm (gen (Defnkind α) []) =
   defn α
-toTerm (gen (Ukind l) []) =
-  U l
+toTerm (gen Levelkind []) =
+  Level
+toTerm (gen Zeroᵘkind []) =
+  zeroᵘ
+toTerm (gen Sucᵘkind (l ∷ₜ [])) =
+  sucᵘ (toTerm l)
+toTerm (gen Supᵘkind (l₁ ∷ₜ l₂ ∷ₜ [])) =
+  toTerm l₁ supᵘ toTerm l₂
+toTerm (gen Ukind (l ∷ₜ [])) =
+  U (toTerm l)
+toTerm (gen Liftkind (l ∷ₜ A ∷ₜ [])) =
+  Lift (toTerm l) (toTerm A)
+toTerm (gen liftkind (a ∷ₜ [])) =
+  lift (toTerm a)
+toTerm (gen lowerkind (a ∷ₜ [])) =
+  lower (toTerm a)
 toTerm (gen (Binderkind b p q) (A ∷ₜ B ∷ₜ [])) =
   ΠΣ⟨ b ⟩ p , q ▷ (toTerm A) ▹ (toTerm B)
 toTerm (gen (Lamkind p) (t ∷ₜ [])) =
@@ -234,12 +342,12 @@ toTerm (gen Suckind (t ∷ₜ [])) =
   suc (toTerm t)
 toTerm (gen (Natreckind p q r) (A ∷ₜ z ∷ₜ s ∷ₜ n ∷ₜ [])) =
   natrec p q r (toTerm A) (toTerm z) (toTerm s) (toTerm n)
-toTerm (gen (Unitkind s l) []) =
-  Unit s l
-toTerm (gen (Starkind s l) []) =
-  star s l
-toTerm (gen (Unitreckind l p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
-  unitrec l p q (toTerm A) (toTerm t) (toTerm u)
+toTerm (gen (Unitkind s) []) =
+  Unit s
+toTerm (gen (Starkind s) []) =
+  star s
+toTerm (gen (Unitreckind p q) (A ∷ₜ t ∷ₜ u ∷ₜ [])) =
+  unitrec p q (toTerm A) (toTerm t) (toTerm u)
 toTerm (gen Emptykind []) =
   Empty
 toTerm (gen (Emptyreckind p) (A ∷ₜ t ∷ₜ [])) =
@@ -252,8 +360,8 @@ toTerm (gen (Jkind p q) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [
   J p q (toTerm A) (toTerm t) (toTerm B) (toTerm u) (toTerm v) (toTerm w)
 toTerm (gen (Kkind p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ [])) =
   K p (toTerm A) (toTerm t) (toTerm B) (toTerm u) (toTerm v)
-toTerm (gen (Boxcongkind s) (A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
-  []-cong s (toTerm A) (toTerm t) (toTerm u) (toTerm v)
+toTerm (gen (Boxcongkind s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+  []-cong s (toTerm l) (toTerm A) (toTerm t) (toTerm u) (toTerm v)
 
 -- Converting to the alternative syntax.
 
@@ -262,8 +370,22 @@ fromTerm (var x) =
   var x
 fromTerm (defn α) =
   gen (Defnkind α) []
+fromTerm Level =
+  gen Levelkind []
+fromTerm zeroᵘ =
+  gen Zeroᵘkind []
+fromTerm (sucᵘ l) =
+  gen Sucᵘkind (fromTerm l ∷ₜ [])
+fromTerm (l₁ supᵘ l₂) =
+  gen Supᵘkind (fromTerm l₁ ∷ₜ fromTerm l₂ ∷ₜ [])
 fromTerm (U l) =
-  gen (Ukind l) []
+  gen Ukind (fromTerm l ∷ₜ [])
+fromTerm (Lift l A) =
+  gen Liftkind (fromTerm l ∷ₜ fromTerm A ∷ₜ [])
+fromTerm (lift a) =
+  gen liftkind (fromTerm a ∷ₜ [])
+fromTerm (lower a) =
+  gen lowerkind (fromTerm a ∷ₜ [])
 fromTerm (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
   gen (Binderkind b p q) (fromTerm A ∷ₜ fromTerm B ∷ₜ [])
 fromTerm (lam p t) =
@@ -288,12 +410,12 @@ fromTerm (suc t) =
 fromTerm (natrec p q r A z s n) =
   gen (Natreckind p q r)
     (fromTerm A ∷ₜ fromTerm z ∷ₜ fromTerm s ∷ₜ fromTerm n ∷ₜ [])
-fromTerm (Unit s l) =
-  gen (Unitkind s l) []
-fromTerm (star s l) =
-  gen (Starkind s l) []
-fromTerm (unitrec l p q A t u) =
-  gen (Unitreckind l p q)
+fromTerm (Unit s) =
+  gen (Unitkind s) []
+fromTerm (star s) =
+  gen (Starkind s) []
+fromTerm (unitrec p q A t u) =
+  gen (Unitreckind p q)
     (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ [])
 fromTerm Empty =
   gen Emptykind []
@@ -311,10 +433,10 @@ fromTerm (K p A t B u v) =
   gen (Kkind p)
     (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm B
                 ∷ₜ fromTerm u ∷ₜ fromTerm v ∷ₜ [])
-fromTerm ([]-cong s A t u v) =
+fromTerm ([]-cong s l A t u v) =
   gen (Boxcongkind s)
-    (fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u
-                ∷ₜ fromTerm v ∷ₜ [])
+    (fromTerm l ∷ₜ fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ
+     fromTerm v ∷ₜ [])
 
 ------------------------------------------------------------------------
 -- Weakening
@@ -325,7 +447,14 @@ fromTerm ([]-cong s A t u v) =
 wk : (ρ : Wk m n) (t : Term n) → Term m
 wk ρ (var x) = var (wkVar ρ x)
 wk ρ (defn α) = defn α
-wk ρ (U l) = U l
+wk ρ Level = Level
+wk ρ zeroᵘ = zeroᵘ
+wk ρ (sucᵘ l) = sucᵘ (wk ρ l)
+wk ρ (l₁ supᵘ l₂) = wk ρ l₁ supᵘ wk ρ l₂
+wk ρ (U l) = U (wk ρ l)
+wk ρ (Lift l A) = Lift (wk ρ l) (wk ρ A)
+wk ρ (lift a) = lift (wk ρ a)
+wk ρ (lower a) = lower (wk ρ a)
 wk ρ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
   ΠΣ⟨ b ⟩ p , q ▷ wk ρ A ▹ wk (lift ρ) B
 wk ρ (lam p t) = lam p (wk (lift ρ) t)
@@ -340,10 +469,10 @@ wk ρ zero = zero
 wk ρ (suc t) = suc (wk ρ t)
 wk ρ (natrec p q r A z s n) =
   natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) (wk ρ n)
-wk ρ (Unit s l) = Unit s l
-wk ρ (star s l) = star s l
-wk ρ (unitrec l p q A t u) =
-  unitrec l p q (wk (lift ρ) A) (wk ρ t) (wk ρ u)
+wk ρ (Unit s) = Unit s
+wk ρ (star s) = star s
+wk ρ (unitrec p q A t u) =
+  unitrec p q (wk (lift ρ) A) (wk ρ t) (wk ρ u)
 wk ρ Empty = Empty
 wk ρ (emptyrec p A t) = emptyrec p (wk ρ A) (wk ρ t)
 wk ρ (Id A t u) = Id (wk ρ A) (wk ρ t) (wk ρ u)
@@ -352,8 +481,8 @@ wk ρ (J p q A t B u v w) =
   J p q (wk ρ A) (wk ρ t) (wk (liftn ρ 2) B) (wk ρ u) (wk ρ v) (wk ρ w)
 wk ρ (K p A t B u v) =
   K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) (wk ρ v)
-wk ρ ([]-cong s A t u v) =
-  []-cong s (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)
+wk ρ ([]-cong s l A t u v) =
+  []-cong s (wk ρ l) (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)
 
 -- Weakening for the alternative term representation.
 
@@ -510,7 +639,14 @@ toSubst pr x = var (wkVar pr x)
 _[_] : (t : Term n) (σ : Subst m n) → Term m
 var x [ σ ] = σ x
 defn α [ σ ] = defn α
-U l [ σ ] = U l
+Level [ σ ] = Level
+zeroᵘ [ σ ] = zeroᵘ
+sucᵘ l [ σ ] = sucᵘ (l [ σ ])
+l₁ supᵘ l₂ [ σ ] = (l₁ [ σ ]) supᵘ (l₂ [ σ ])
+U l [ σ ] = U (l [ σ ])
+Lift l A [ σ ] = Lift (l [ σ ]) (A [ σ ])
+lift a [ σ ] = lift (a [ σ ])
+lower a [ σ ] = lower (a [ σ ])
 ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ σ ] =
   ΠΣ⟨ b ⟩ p , q ▷ A [ σ ] ▹ (B [ σ ⇑ ])
 lam p t [ σ ] = lam p (t [ σ ⇑ ])
@@ -525,10 +661,10 @@ zero [ σ ] = zero
 suc t [ σ ] = suc (t [ σ ])
 natrec p q r A z s n [ σ ] =
   natrec p q r (A [ σ ⇑ ]) (z [ σ ]) (s [ σ ⇑[ 2 ] ]) (n [ σ ])
-Unit s l [ σ ] = Unit s l
-star s l [ σ ] = star s l
-unitrec l p q A t u [ σ ] =
-  unitrec l p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ])
+Unit s [ σ ] = Unit s
+star s [ σ ] = star s
+unitrec p q A t u [ σ ] =
+  unitrec p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ])
 Empty [ σ ] = Empty
 emptyrec p A t [ σ ] = emptyrec p (A [ σ ]) (t [ σ ])
 Id A t u [ σ ] = Id (A [ σ ]) (t [ σ ]) (u [ σ ])
@@ -538,8 +674,8 @@ J p q A t B u v w [ σ ] =
     (w [ σ ])
 K p A t B u v [ σ ] =
   K p (A [ σ ]) (t [ σ ]) (B [ σ ⇑ ]) (u [ σ ]) (v [ σ ])
-[]-cong s A t u v [ σ ] =
-  []-cong s (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+[]-cong s l A t u v [ σ ] =
+  []-cong s (l [ σ ]) (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
 
 -- Substitution for the alternative term representation.
 
@@ -603,6 +739,18 @@ _•ₛ_ ρ σ x = wk ρ (σ x)
 _ₛ•_ : Subst l m → Wk m n → Subst l n
 _ₛ•_ σ ρ x = σ (wkVar ρ x)
 
+-- The family of substitutions used in _[_]↑, _[_]↑² and _[_][_]↑.
+
+replace₁ : ∀ k → Term (k + n) → Subst (k + n) (1+ n)
+replace₁ k t = consSubst (wkSubst k idSubst) t
+
+opaque
+
+  -- A variant of the family of substitutions used in _[_]↑.
+
+  replace₂ : Term (2+ n) → Term (2+ n) → Subst (2+ n) (2+ n)
+  replace₂ t u = consSubst (consSubst (wkSubst 2 idSubst) t) u
+
 -- Substitute the first variable of a term with an other term.
 --
 -- If Γ∙A ⊢ t : B and Γ ⊢ s : A then Γ ⊢ t[s]₀ : B[s]₀.
@@ -616,7 +764,7 @@ t [ s ]₀ = t [ sgSubst s ]
 -- If Γ∙A ⊢ t : B and Γ∙A ⊢ s : A then Γ∙A ⊢ t[s]↑ : B[s]↑.
 
 _[_]↑ : (t : Term (1+ n)) (s : Term (1+ n)) → Term (1+ n)
-t [ s ]↑ = t [ consSubst (wk1Subst idSubst) s ]
+t [ s ]↑ = t [ replace₁ 1 s ]
 
 
 -- Substitute the first two variables of a term with other terms.
@@ -631,12 +779,12 @@ t [ s , s′ ]₁₀ = t [ consSubst (sgSubst s) s′ ]
 -- If Γ ∙ A ⊢ t : A′ and Γ ∙ B ∙ C ⊢ s : A then Γ ∙ B ∙ C ⊢ t[s]↑² : A′
 
 _[_]↑² : (t : Term (1+ n)) (s : Term (2+ n)) → Term (2+ n)
-t [ s ]↑² = t [ consSubst (wk1Subst (wk1Subst idSubst)) s ]
+t [ s ]↑² = t [ replace₁ 2 s ]
 
 -- A generalisation of _[_]↑ and _[_]↑².
 
 _[_][_]↑ : Term (1+ n) → ∀ k → Term (k + n) → Term (k + n)
-t [ k ][ u ]↑ = t [ consSubst (wkSubst k idSubst) u ]
+t [ k ][ u ]↑ = t [ replace₁ k u ]
 
 -- Δ ∙[ k ][ Γ ][ σ ] is Δ extended with the last k elements of Γ,
 -- modified using σ (suitably lifted).
@@ -684,8 +832,22 @@ opaque
       t
     inline ξ (defn α) =
       wk wk₀ (inline-Nat ξ α)
-    inline _ t@(U _) =
+    inline _ t@Level =
       t
+    inline _ t@zeroᵘ =
+      t
+    inline ξ (sucᵘ t) =
+      sucᵘ (inline ξ t)
+    inline ξ (t supᵘ u) =
+      inline ξ t supᵘ inline ξ u
+    inline ξ (U t) =
+      U (inline ξ t)
+    inline ξ (Lift t A) =
+      Lift (inline ξ t) (inline ξ A)
+    inline ξ (lift t) =
+      lift (inline ξ t)
+    inline ξ (lower t) =
+      lower (inline ξ t)
     inline ξ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) =
       ΠΣ⟨ b ⟩ p , q ▷ inline ξ A ▹ inline ξ B
     inline ξ (lam p t) =
@@ -708,12 +870,12 @@ opaque
       suc (inline ξ t)
     inline ξ (natrec p q r A t u v) =
       natrec p q r (inline ξ A) (inline ξ t) (inline ξ u) (inline ξ v)
-    inline _ t@(Unit _ _) =
+    inline _ t@(Unit _) =
       t
-    inline _ t@(star _ _) =
+    inline _ t@(star _) =
       t
-    inline ξ (unitrec l p q A t u) =
-      unitrec l p q (inline ξ A) (inline ξ t) (inline ξ u)
+    inline ξ (unitrec p q A t u) =
+      unitrec p q (inline ξ A) (inline ξ t) (inline ξ u)
     inline _ t@Empty =
       t
     inline ξ (emptyrec p A t) =
@@ -727,8 +889,9 @@ opaque
         (inline ξ v) (inline ξ w)
     inline ξ (K p A t B u v) =
       K p (inline ξ A) (inline ξ t) (inline ξ B) (inline ξ u) (inline ξ v)
-    inline ξ ([]-cong s A t u v) =
-      []-cong s (inline ξ A) (inline ξ t) (inline ξ u) (inline ξ v)
+    inline ξ ([]-cong s l A t u v) =
+      []-cong s (inline ξ l) (inline ξ A) (inline ξ t) (inline ξ u)
+        (inline ξ v)
 
   -- Inlines all definitions that are in scope. Opacity is ignored.
 

@@ -75,7 +75,7 @@ opaque
   ▸Bool : 𝟘ᶜ ▸[ m ] Bool {n = n}
   ▸Bool {m} = sub
     (ΠΣₘ ℕₘ $
-     sub (▸Erased (B.▸OK var)) $ begin
+     sub (▸Erased zeroᵘₘ (B.▸OK var)) $ begin
        𝟘ᶜ ∙ ⌜ m ⌝ · Boolᵍ              ≈⟨ ≈ᶜ-refl ∙ ≡nr-𝟘-𝟘-⌜𝟘ᵐ?⌝ m ⟩
        𝟘ᶜ ∙ Boolᵍ                      ≈˘⟨ nrᶜ-𝟘ᶜ ∙ PE.refl ⟩
        nrᶜ OKᵍ 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)  ∎)
@@ -300,9 +300,9 @@ opaque
         𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ▸[ 𝟘ᵐ? ] t →
         𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ] u →
         wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ? ⌝ · (Boolᵍ + p) ▸[ 𝟘ᵐ? ]
-          Π 𝟙 , p ▷ Erased (OK t) ▹ Target (2+ k) A u (var x0)
+          Π 𝟙 , p ▷ Erased zeroᵘ (OK t) ▹ Target (2+ k) A u (var x0)
       Π-lemma {k} ▸t ▸u = sub
-        (ΠΣₘ (▸Erased (B.▸OK ▸t)) $
+        (ΠΣₘ (▸Erased zeroᵘₘ (B.▸OK ▸t)) $
          sub
            (▸Target ▸A ▸u var $ begin
               ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)             ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _ ⟩
@@ -338,9 +338,8 @@ opaque
       wkConₘ (stepn id k) γ ▸[ m ]
         lam 𝟙
           (erasedrec p (Target (2+ k) A t (var x0))
-             (unitrec 0 𝟘 𝟘
-                (Target (3+ k) A (wk1 t) E.[ var x0 ]) (var x0)
-                (wk[ 2+ k ]′ u))
+             (unitrec 𝟘 𝟘 (Target (3+ k) A (wk1 t) E.[ var x0 ])
+                (var x0) (wk[ 2+ k ]′ u))
              (var x0))
     lam-lemma {k} {γ} ▸t ▸u =
       lamₘ $
@@ -361,7 +360,7 @@ opaque
                    wkConₘ (stepn id (2+ k)) γ₁ +ᶜ
                    (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ 𝟙)                          ∎))
            (sub
-              (unitrecₘ var (wkUsage (stepn id (2+ k)) ▸u)
+              (unitrecₘ
                  (sub
                     (▸Target ▸A (wkUsage (step id) ▸t) (▸[] var) $
                      begin
@@ -377,7 +376,7 @@ opaque
 
                        wkConₘ (stepn id (3+ k)) γ₁ +ᶜ
                        (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ 𝟘ᶜ                        ∎))
-                 ok₄)
+                 var (wkUsage (stepn id (2+ k)) ▸u) ok₄)
               (begin
                  wkConₘ (stepn id (2+ k)) γ                            ≈˘⟨ +ᶜ-identityˡ _ ⟩
                  𝟘ᶜ +ᶜ wkConₘ (stepn id (2+ k)) γ                      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩

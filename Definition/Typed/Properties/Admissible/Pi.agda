@@ -14,31 +14,41 @@ module Definition.Typed.Properties.Admissible.Pi
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Lift M
 open import Definition.Untyped.Pi M
+open import Definition.Untyped.Pi-Sigma M
 open import Definition.Untyped.Properties M
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
+open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed.Properties.Admissible.Level R
+open import Definition.Typed.Properties.Admissible.Lift R
+open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
+open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution.Primitive R
 import Definition.Typed.Substitution.Primitive.Primitive R as S
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  ∇                            : DCon _ _
-  Δ                            : Con _ _
-  Γ                            : Cons _ _
-  A B C D E t t′ u u₁ u₂ u₃ u₄ : Term _
-  p p₁ p₂ p₃ p₄ q q₁ q₂ q₃ q₄  : M
+  n                                                       : Nat
+  ∇                                                       : DCon _ _
+  Δ                                                       : Con _ _
+  Γ                                                       : Cons _ _
+  A B C D E F a f g l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ u₃ u₄ u₅ v : Term _
+  p p′ p₁ p₂ p₃ p₄ p₅ q q₁ q₂ q₃ q₄ q₅                    : M
 
 opaque
 
@@ -192,6 +202,54 @@ opaque
     t [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ⇑ ] [ u₄ ]₀              ≡⟨ singleSubstComp _ _ t ⟩
     t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ]         ∎
 
+opaque
+
+  -- A variant of β-red-⇒.
+  --
+  -- See also Definition.Typed.Consequences.Admissible.Pi.β-red-⇒₅.
+
+  β-red-⇒₅′ :
+    Π-allowed p₁ q₁ →
+    Π-allowed p₂ q₂ →
+    Π-allowed p₃ q₃ →
+    Π-allowed p₄ q₄ →
+    Π-allowed p₅ q₅ →
+    Γ »∙ A »∙ B »∙ C »∙ D »∙ E ⊢ t ∷ F →
+    Γ ⊢ u₁ ∷ A →
+    Γ ⊢ u₂ ∷ B [ u₁ ]₀ →
+    Γ ⊢ u₃ ∷ C [ u₁ , u₂ ]₁₀ →
+    Γ ⊢ u₄ ∷ D [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ] →
+    Γ ⊢ u₅ ∷
+      E [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ] →
+    Γ ⊢
+      lam p₁ (lam p₂ (lam p₃ (lam p₄ (lam p₅ t))))
+        ∘⟨ p₁ ⟩ u₁ ∘⟨ p₂ ⟩ u₂ ∘⟨ p₃ ⟩ u₃ ∘⟨ p₄ ⟩ u₄ ∘⟨ p₅ ⟩ u₅ ⇒*
+      t [ consSubst
+            (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄)
+            u₅ ] ∷
+      F [ consSubst
+            (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄)
+            u₅ ]
+  β-red-⇒₅′
+    {p₁} {p₂} {p₃} {p₄} {p₅} {t} {F} {u₁} {u₂} {u₃} {u₄} {u₅}
+    ok₁ ok₂ ok₃ ok₄ ok₅ ⊢t ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄ ⊢u₅ =
+    lam p₁ (lam p₂ (lam p₃ (lam p₄ (lam p₅ t)))) ∘⟨ p₁ ⟩ u₁ ∘⟨ p₂ ⟩ u₂
+      ∘⟨ p₃ ⟩ u₃ ∘⟨ p₄ ⟩ u₄ ∘⟨ p₅ ⟩ u₅                                    ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _) (singleSubstComp _ _ F) $
+                                                                              app-subst* (β-red-⇒₄′ ok₁ ok₂ ok₃ ok₄ (lamⱼ′ ok₅ ⊢t) ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄)
+                                                                                ⊢u₅ ⟩
+    lam p₅
+      (t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ⇑ ])
+      ∘⟨ p₅ ⟩ u₅                                                          ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (singleSubstComp _ _ F) $
+                                                                             β-red-⇒
+                                                                               (subst-⊢∷-⇑ ⊢t $
+                                                                                →⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u₁) ⊢u₂) ⊢u₃) ⊢u₄)
+                                                                               ⊢u₅ ok₅ ⟩∎≡
+    t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ⇑ ]
+      [ u₅ ]₀                                                             ≡⟨ singleSubstComp _ _ t ⟩
+
+    t [ consSubst
+          (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄) u₅ ]  ∎
+
 ------------------------------------------------------------------------
 -- Iterated Π-types
 
@@ -247,3 +305,119 @@ opaque
     let ⊢A , _ = inversion-ΠΣ (inversion-Πs (wf-⊢∷ ⊢t)) in
     PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
     wkTerm₁ ⊢A (⊢apps possibly-nonempty ⊢t) ∘ⱼ var₀ ⊢A
+
+------------------------------------------------------------------------
+-- Some lemmas related to Πʰ
+
+opaque
+  unfolding ΠΣʰ lamʰ
+
+  -- A typing rule for lamʰ.
+
+  ⊢lamʰ :
+    Π-allowed p q →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
+    Γ »∙ A ⊢ t ∷ B →
+    Γ ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
+  ⊢lamʰ ok ⊢l₁ ⊢l₂ ⊢t =
+    let ⊢A = ⊢∙→⊢ (wfTerm ⊢t) in
+    lamⱼ′ ok (liftⱼ′ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
+
+opaque
+  unfolding ΠΣʰ ∘ʰ
+
+  -- An equality rule for ∘ʰ.
+
+  app-congʰ :
+    Γ »∙ A ⊢ B →
+    Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u₁ ≡ u₂ ∷ A →
+    Γ ⊢ ∘ʰ p t₁ u₁ ≡ ∘ʰ p t₂ u₂ ∷ B [ u₁ ]₀
+  app-congʰ ⊢B t₁≡t₂ u₁≡u₂ =
+    let ⊢A , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
+        _ , ⊢l₂ , _    = inversion-ΠΣʰ-⊢ (wf-⊢≡∷ t₁≡t₂ .proj₁)
+    in
+    conv (lower-cong (app-cong t₁≡t₂ (lift-cong ⊢l₂ u₁≡u₂)))
+      (lower₀[lift]₀ ⊢B ⊢u₁)
+
+opaque
+
+  -- A typing rule for ∘ʰ.
+
+  ⊢∘ʰ :
+    Γ »∙ A ⊢ B →
+    Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ ∘ʰ p t u ∷ B [ u ]₀
+  ⊢∘ʰ ⊢B ⊢t ⊢u =
+    wf-⊢≡∷ (app-congʰ ⊢B (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
+
+opaque
+  unfolding lamʰ ∘ʰ
+
+  -- A β-rule for ∘ʰ and lamʰ.
+
+  β-redʰ :
+    Γ »∙ A ⊢ t ∷ B →
+    Γ ⊢ u ∷ A →
+    Π-allowed p q →
+    Γ ⊢ ∘ʰ p (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
+  β-redʰ {t} {u} {p} ⊢t ⊢u ok =
+    let ⊢0      = ⊢zeroᵘ (wfTerm ⊢u)
+        ⊢wk-l₁  = wkLevel₁ (Liftⱼ ⊢0 (wf-⊢∷ ⊢u)) ⊢0
+        ⊢lift-u = liftⱼ′ ⊢0 ⊢u
+    in
+    ∘ʰ p (lamʰ p t) u                              ≡⟨⟩⊢
+    lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift u)  ≡⟨ lower-cong $
+                                                      _⊢_≡_∷_.conv (β-red-≡ (liftⱼ′ ⊢wk-l₁ (lower₀Term ⊢0 ⊢t)) ⊢lift-u ok) $
+                                                      Lift-cong (refl-⊢≡∷L (substLevel ⊢wk-l₁ ⊢lift-u)) (lower₀[lift]₀ (wf-⊢∷ ⊢t) ⊢u) ⟩⊢
+    lower (lift (lower₀ t) [ lift u ]₀)            ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢u)) ⟩⊢
+    lower (lift (t [ u ]₀))                        ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢u) ⟩⊢∎
+    t [ u ]₀                                       ∎
+
+opaque
+  unfolding ΠΣʰ ∘ʰ lower₀
+
+  -- An η-rule for Πʰ.
+
+  η-eqʰ :
+    Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u ∷ Πʰ p q l₁ l₂ A B →
+    Γ »∙ A ⊢ ∘ʰ p (wk1 t) (var x0) ≡ ∘ʰ p (wk1 u) (var x0) ∷ B →
+    Γ ⊢ t ≡ u ∷ Πʰ p q l₁ l₂ A B
+  η-eqʰ {Γ} {t} {p} {q} {l₁} {l₂} {A} {B} {u} ⊢t ⊢u t≡u =
+    let _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢t)
+        ⊢B , _      = wf-⊢≡∷ t≡u
+        ⊢Lift-A     = Liftⱼ ⊢l₂ (⊢∙→⊢ (wf ⊢B))
+        ⊢0          = var₀ ⊢Lift-A
+
+        lemma :
+          Γ ⊢ v ∷ Πʰ p q l₁ l₂ A B →
+          Γ »∙ Lift l₂ A ⊢ lower₀ (lower (wk1 v ∘⟨ p ⟩ lift (var x0))) ≡
+            lower (wk1 v ∘⟨ p ⟩ var x0) ∷ lower₀ B
+        lemma ⊢t =
+          conv
+            (lower-cong $
+             app-cong
+               (PE.subst₃ (_⊢_≡_∷_ _)
+                  (PE.sym (wk1-[][]↑ 1)) PE.refl PE.refl
+                  (refl (wkTerm₁ ⊢Lift-A ⊢t)))
+               (sym′ (Lift-η-swap ⊢0 (refl (lowerⱼ ⊢0)))))
+            (PE.subst (_⊢_≡_ _ _) (wkSingleSubstId _) $
+             substTypeEq
+               (_⊢_≡_.refl $
+                W.wk (liftʷ (step id) (wk₁ ⊢Lift-A ⊢Lift-A)) $
+                lower₀Type ⊢l₂ ⊢B)
+               (sym′ (Lift-η-swap ⊢0 (refl (lowerⱼ ⊢0)))))
+    in
+    η-eq′ ⊢t ⊢u $
+    Lift-η′
+      (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
+       wkTerm₁ ⊢Lift-A ⊢t ∘ⱼ ⊢0)
+      (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
+       wkTerm₁ ⊢Lift-A ⊢u ∘ⱼ ⊢0)
+      (lower (wk1 t ∘⟨ p ⟩ var x0)                  ≡˘⟨ lemma ⊢t ⟩⊢
+       lower₀ (lower (wk1 t ∘⟨ p ⟩ lift (var x0)))  ≡⟨ lower₀TermEq ⊢l₂ t≡u ⟩⊢
+       lower₀ (lower (wk1 u ∘⟨ p ⟩ lift (var x0)))  ≡⟨ lemma ⊢u ⟩⊢∎
+       lower (wk1 u ∘⟨ p ⟩ var x0)                  ∎)

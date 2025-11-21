@@ -33,10 +33,12 @@ import Definition.Typed.Consequences.Canonicity TR as TC
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.EqualityRelation
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Weakening.Definition TR
+open import Definition.Typed.Well-formed TR
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Usage 𝕄 UR
@@ -67,9 +69,9 @@ open import Tools.Bool using (T; true)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+import Tools.Level as TL
 open import Tools.Nat using (Nat; 1+)
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 open import Tools.PropositionalEquality as PE using (_≢_)
@@ -90,7 +92,6 @@ private
     s : Strength
     l : Universe-level
     sem : Some-erased-matches
-    str : Strictness
 
 -- WH reduction soundness of natural numbers
 
@@ -105,10 +106,9 @@ module _
 
   module Soundness
     (FA⁻ : Fundamental-assumptions⁻ (glassify ∇ » Δ))
-    (str : Strictness)
     where
 
-    private module L (⊢Δ : glassify ∇ »⊢ Δ) where
+    private module L (str : Strictness) (⊢Δ : glassify ∇ »⊢ Δ) where
 
       open Graded.Erasure.LogicalRelation.Fundamental TR UR
 
@@ -130,49 +130,72 @@ module _
       open Graded.Erasure.LogicalRelation.Hidden as public
       open Graded.Erasure.LogicalRelation.Irrelevance as public
 
-    -- Soundness for erasure of natural numbers
-    -- Well-typed terms of the natural number type reduce to numerals
-    -- if erased matches are disallowed or the term is closed.
-    --
-    -- Note the assumptions of the local module Soundness.
+    private opaque
 
-    soundness-ℕ :
-      ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-      ∃ λ n →
-      glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
-      eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-    soundness-ℕ {t} ⊢t ▸t =                                $⟨ fundamentalErased-𝟙ᵐ ⊢t′ ▸t ⟩
-
-      t ® erase str t ∷ ℕ                                  ⇔⟨ ®∷ℕ⇔ ⟩→
-
-      t ® erase str t ∷ℕ                                   →⟨ soundness-ℕ′ ⟩
-
-      (∃ λ n →
-       glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
-       eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)  □
-      where
-      ⊢t′ : glassify ∇ » Δ ⊢ t ∷ ℕ
-      ⊢t′ = glassify-⊢∷ ⊢t
-
-      open L (wfTerm ⊢t′)
+      -- A preliminary formulation of soundness for ℕ.
 
       soundness-ℕ′ :
-        u ® v ∷ℕ →
+        ∀ str →
+        ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
         ∃ λ n →
-        glassify ∇ » Δ ⊢ u ⇒ˢ* sucᵏ n ∷ℕ ×
-        eraseDCon str ∇ ⊢ v ⇒ˢ⟨ str ⟩* T.sucᵏ n
-      soundness-ℕ′ (zeroᵣ ⇒*zero ⇒*zero′) =
-        0 , whred* ⇒*zero , ⇒*→⇒ˢ⟨⟩* ⇒*zero′
-      soundness-ℕ′ {v} (sucᵣ {v′} ⇒*suc ⇒*suc′ num u®v) =
-        let n , d , d′ = soundness-ℕ′ u®v
-        in  1+ n , ⇒ˢ*∷ℕ-trans (whred* ⇒*suc) (sucred* d) ,
-            (case PE.singleton str of λ where
-               (non-strict , PE.refl) →
-                 ⇒ˢ*-trans (whred*′ ⇒*suc′) (sucred*′ d′)
-               (strict , PE.refl) →
-                 v              ⇒*⟨ ⇒*suc′ ⟩
-                 T.suc v′       ≡˘⟨ PE.cong T.suc $ TP.Value→⇒*→≡ (TP.Numeral→Value num) d′ ⟩⇒
-                 T.sucᵏ (1+ n)  ∎⇒)
+        glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
+        eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+      soundness-ℕ′ {t} str ⊢t ▸t =                           $⟨ fundamentalErased-𝟙ᵐ ⊢t′ ▸t ⟩
+
+        t ® erase str t ∷ ℕ                                  ⇔⟨ ®∷ℕ⇔ ⟩→
+
+        t ® erase str t ∷ℕ                                   →⟨ soundness-ℕ″ ⟩
+
+        (∃ λ n →
+         glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
+         eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)  □
+        where
+        ⊢t′ : glassify ∇ » Δ ⊢ t ∷ ℕ
+        ⊢t′ = glassify-⊢∷ ⊢t
+
+        open L str (wfTerm ⊢t′)
+
+        soundness-ℕ″ :
+          u ® v ∷ℕ →
+          ∃ λ n →
+          glassify ∇ » Δ ⊢ u ⇒ˢ* sucᵏ n ∷ℕ ×
+          eraseDCon str ∇ ⊢ v ⇒ˢ⟨ str ⟩* T.sucᵏ n
+        soundness-ℕ″ (zeroᵣ ⇒*zero ⇒*zero′) =
+          0 , whred* ⇒*zero , ⇒*→⇒ˢ⟨⟩* ⇒*zero′
+        soundness-ℕ″ {v} (sucᵣ {v′} ⇒*suc ⇒*suc′ num u®v) =
+          let n , d , d′ = soundness-ℕ″ u®v
+          in  1+ n , ⇒ˢ*∷ℕ-trans (whred* ⇒*suc) (sucred* d) ,
+              (case PE.singleton str of λ where
+                 (non-strict , PE.refl) →
+                   ⇒ˢ*-trans (whred*′ ⇒*suc′) (sucred*′ d′)
+                 (strict , PE.refl) →
+                   v              ⇒*⟨ ⇒*suc′ ⟩
+                   T.suc v′       ≡˘⟨ PE.cong T.suc $ TP.Value→⇒*→≡ (TP.Numeral→Value num) d′ ⟩⇒
+                   T.sucᵏ (1+ n)  ∎⇒)
+
+    opaque
+
+      -- Soundness of erasure for natural numbers.
+      --
+      -- Note the assumptions of the local module Soundness.
+
+      soundness-ℕ :
+        ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        ∃ λ n →
+        glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
+        (∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
+      soundness-ℕ ⊢t ▸t =
+        let n , t⇒*₁ , erase-t⇒*₁ = soundness-ℕ′ non-strict ⊢t ▸t
+            _ , t⇒*₂ , erase-t⇒*₂ = soundness-ℕ′     strict ⊢t ▸t
+        in
+        n , t⇒*₁ , λ where
+          non-strict → erase-t⇒*₁
+          strict     →
+            PE.subst (_⊢_⇒ˢ⟨_⟩*_ _ _ _)
+              (PE.cong T.sucᵏ $ sucᵏ-PE-injectivity $
+               deterministic-⊢⇒ˢ*∷ℕ t⇒*₂ t⇒*₁
+                 (sucᵏ-Numeral _) (sucᵏ-Numeral _))
+              erase-t⇒*₂
 
     -- A variant of soundness-ℕ which only considers the source
     -- language.
@@ -187,6 +210,26 @@ module _
         (n , t⇒ˢ*n , _) →
           n , t⇒ˢ*n }
 
+    private opaque
+
+      -- A preliminary formulation of soundness for Unit.
+
+      soundness-Unit′ :
+        ∀ str →
+        ∇ » Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        glassify ∇ » Δ ⊢ t ⇒* star s ∷ Unit s ×
+        eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
+      soundness-Unit′ {t} {s} str ⊢t ▸t =
+        case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t′ ▸t of λ where
+          (starᵣ t⇒*star erase-t⇒*star) →
+            t⇒*star ,
+            erase-t⇒*star
+        where
+        ⊢t′ : glassify ∇ » Δ ⊢ t ∷ Unit s
+        ⊢t′ = glassify-⊢∷ ⊢t
+
+        open L str (wfTerm ⊢t′)
+
     opaque
 
       -- Soundness of extraction for unit types.
@@ -194,18 +237,16 @@ module _
       -- Note the assumptions of the local module Soundness.
 
       soundness-Unit :
-        ∇ » Δ ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-        glassify ∇ » Δ ⊢ t ⇒* star s l ∷ Unit s l ×
-        eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
-      soundness-Unit {t} {s} {l} ⊢t ▸t =
-        case ®∷Unit⇔ .proj₁ $ fundamentalErased-𝟙ᵐ ⊢t′ ▸t of λ where
-          (starᵣ t⇒*star erase-t⇒*star) →
-            t⇒*star , erase-t⇒*star
-        where
-        ⊢t′ : glassify ∇ » Δ ⊢ t ∷ Unit s l
-        ⊢t′ = glassify-⊢∷ ⊢t
-
-        open L (wfTerm ⊢t′)
+        ∇ » Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
+        glassify ∇ » Δ ⊢ t ⇒* star s ∷ Unit s ×
+        (∀ str → eraseDCon str ∇ T.⊢ erase str t ⇒* T.star)
+      soundness-Unit ⊢t ▸t =
+        let t⇒* , erase-t⇒*₁ = soundness-Unit′     strict ⊢t ▸t
+            _   , erase-t⇒*₂ = soundness-Unit′ non-strict ⊢t ▸t
+        in
+        t⇒* , λ where
+          strict     → erase-t⇒*₁
+          non-strict → erase-t⇒*₂
 
   -- If the variable context is empty, then the results in Soundness
   -- hold without any further assumptions related to the variable
@@ -213,11 +254,10 @@ module _
 
   module Soundness₀
     (▸∇ : ▸[ 𝟙ᵐ ] glassify ∇)
-    (str : Strictness)
     where
 
     private
-      module S »∇ = Soundness (fundamental-assumptions⁻₀ »∇ ▸∇) str
+      module S »∇ = Soundness (fundamental-assumptions⁻₀ »∇ ▸∇)
 
     opaque
 
@@ -227,7 +267,7 @@ module _
         ∇ » ε ⊢ t ∷ ℕ → ε ▸[ 𝟙ᵐ ] t →
         ∃ λ n →
         glassify ∇ » ε ⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
-        eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+        (∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
       soundness-ℕ ⊢t =
         S.soundness-ℕ (glassify-» (defn-wf (wfTerm ⊢t))) ⊢t
 
@@ -247,22 +287,20 @@ module _
       -- Soundness of extraction for unit types.
 
       soundness-Unit :
-        ∇ » ε ⊢ t ∷ Unit s l → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
-        glassify ∇ » ε ⊢ t ⇒* star s l ∷ Unit s l ×
-        eraseDCon str ∇ T.⊢ erase str t ⇒* T.star
+        ∇ » ε ⊢ t ∷ Unit s → ε ▸[ 𝟙ᵐ ] t →
+        glassify ∇ » ε ⊢ t ⇒* star s ∷ Unit s ×
+        (∀ str → eraseDCon str ∇ T.⊢ erase str t ⇒* T.star)
       soundness-Unit ⊢t =
         S.soundness-Unit (glassify-» (defn-wf (wfTerm ⊢t))) ⊢t
 
 opaque
 
-  -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
-  -- certain kinds of erased matches are allowed), and if additionally
-  -- Σʷ-allowed p 𝟘 holds, then there is a counterexample to
-  -- soundness-ℕ-only-source without the assumption "erased matches
-  -- are not allowed unless the context is empty" (and without the
-  -- strictness argument, the assumption that the modality's zero is
-  -- well-behaved, and the assumption that No-equality-reflection
-  -- holds or the variable context is empty).
+  -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 and Σʷ-allowed p 𝟘 hold for some p,
+  -- then there is a counterexample to soundness-ℕ-only-source without
+  -- the assumption "erased matches are not allowed unless the context
+  -- is empty" (and without the strictness argument, the assumption
+  -- that the modality's zero is well-behaved, and the assumption that
+  -- No-equality-reflection holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
   -- also works for a variant of the statement with reduction replaced
@@ -285,7 +323,7 @@ opaque
   soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
       inhabited-consistent
         (⊢ˢʷ∷-sgSubst (prodⱼ ℕ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok))
-    , prodrecⱼ′ (ℕⱼ (∙ ΠΣⱼ Σℕ⊢ℕ Σʷ-ok)) (var₀ ⊢Σ) (zeroⱼ (∙ Σℕ⊢ℕ))
+    , prodrecⱼ′ (⊢ℕ (∙ ΠΣⱼ Σℕ⊢ℕ Σʷ-ok)) (var₀ ⊢Σ) (zeroⱼ (∙ Σℕ⊢ℕ))
     , (λ ())
     , sub
         (prodrecₘ var
@@ -306,18 +344,18 @@ opaque
     , (λ where
          (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _ _)))
          (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (prodrecₙ (var _ _))))
-    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+    , sucᵏ≢ne {V = TL.Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
         _ (prodrecₙ (var _ _)) ∘→
       sym′ ∘→ proj₂
     where
     ℕ⊢ℕ : ε » ε ∙ ℕ ⊢ ℕ
-    ℕ⊢ℕ = ℕⱼ (∙ ℕⱼ εε)
+    ℕ⊢ℕ = ⊢ℕ (∙ ⊢ℕ εε)
 
     ⊢Σ : ε » ε ⊢ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
     ⊢Σ = ΠΣⱼ ℕ⊢ℕ Σʷ-ok
 
     Σℕ⊢ℕ : ε » ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ ∙ ℕ ⊢ ℕ
-    Σℕ⊢ℕ = ℕⱼ (∙ ℕⱼ (∙ ⊢Σ))
+    Σℕ⊢ℕ = ⊢ℕ (∙ ⊢ℕ (∙ ⊢Σ))
 
 opaque
 
@@ -338,8 +376,8 @@ opaque
     let ∇ = ε
         Δ = ε ∙ Id ℕ zero zero
         open Erased s
-        t = J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
-              ([]-cong s ℕ zero zero (var {n = 1} x0))
+        t = J 𝟘 𝟘 (Erased zeroᵘ ℕ) ([ zero ]) ℕ zero ([ zero ])
+              ([]-cong s zeroᵘ ℕ zero zero (var {n = 1} x0))
     in
     Consistent (glassify ∇ » Δ) ×
     ∇ » Δ ⊢ t ∷ ℕ ×
@@ -349,28 +387,29 @@ opaque
     (⦃ ok : No-equality-reflection ⦄ →
      ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₂ {s = s} ok ok′ =
-    case ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε) of λ {
-      ⊢Id →
-      inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ εε)))
-    , Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ ([]-cong→Erased ok) (zeroⱼ ⊢Id))))
-        (zeroⱼ ⊢Id) ([]-congⱼ′ ok (var ⊢Id here))
-    , (λ ())
-    , sub-≈ᶜ
-        (Jₘ-generalised (▸Erased s ℕₘ) (▸[] s zeroₘ)
-           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-            sub ℕₘ $ begin
-              𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-              𝟘ᶜ                  ∎)
-           zeroₘ (▸[] s zeroₘ) ([]-congₘ ℕₘ zeroₘ zeroₘ var ok′))
-        (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ)
-    , (λ where
-         (0 , whred J⇒ ⇨ˢ _) →
-           whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _ _))))
-         (1+ _ , whred J⇒ ⇨ˢ _) →
-           whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _ _)))))
-    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
-        _ (Jₙ ([]-congₙ (var _ _))) ∘→
-      sym′ ∘→ proj₂ }
+    let ⊢Id = ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε) in
+    inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ εε))) ,
+    Jⱼ′
+      (⊢ℕ $ J-motive-context $
+       []ⱼ ([]-cong→Erased ok) (⊢zeroᵘ ⊢Id) (zeroⱼ ⊢Id))
+      (zeroⱼ ⊢Id) ([]-congⱼ′ ok (⊢zeroᵘ ⊢Id) (var ⊢Id here)) ,
+    (λ ()) ,
+    sub-≈ᶜ
+      (Jₘ-generalised (▸Erased s zeroᵘₘ ℕₘ) (▸[] s zeroₘ)
+         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
+          sub ℕₘ $ begin
+            𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+            𝟘ᶜ                  ∎)
+         zeroₘ (▸[] s zeroₘ) ([]-congₘ zeroᵘₘ ℕₘ zeroₘ zeroₘ var ok′))
+      (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ) ,
+    (λ where
+       (0 , whred J⇒ ⇨ˢ _) →
+         whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _ _))))
+       (1+ _ , whred J⇒ ⇨ˢ _) →
+         whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _ _))))) ,
+    sucᵏ≢ne {V = TL.Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+      _ (Jₙ ([]-congₙ (var _ _))) ∘→
+    sym′ ∘→ proj₂
 
 opaque
 
@@ -402,7 +441,7 @@ opaque
     case ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε) of λ {
       ⊢Id →
       inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ εε)))
-    , Jⱼ′ (ℕⱼ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
+    , Jⱼ′ (⊢ℕ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
     , (λ ())
     , sub
         (J₀ₘ₁-generalised ≡not-none PE.refl PE.refl ℕₘ zeroₘ ℕₘ zeroₘ
@@ -413,7 +452,7 @@ opaque
     , (λ where
          (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _ _)))
          (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _ _))))
-    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+    , sucᵏ≢ne {V = TL.Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
         _ (Jₙ (var _ _)) ∘→
       sym′ ∘→ proj₂ }
     where
@@ -451,7 +490,7 @@ opaque
     case ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε) of λ {
       ⊢Id →
       inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ εε)))
-    , Kⱼ (ℕⱼ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
+    , Kⱼ (⊢ℕ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
         K-ok
     , (λ ())
     , sub
@@ -462,7 +501,7 @@ opaque
     , (λ where
          (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _ _)))
          (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _ _))))
-    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+    , sucᵏ≢ne {V = TL.Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
         _ (Kₙ (var _ _)) ∘→
       sym′ ∘→ proj₂ }
     where
@@ -487,8 +526,8 @@ opaque
     Unitʷ-allowed →
     ¬ Unitʷ-η →
     let ∇ = ε
-        Δ = ε ∙ Unitʷ 0
-        t = unitrec 0 𝟘 𝟘 ℕ (var {n = 1} x0) zero
+        Δ = ε ∙ Unitʷ
+        t = unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero
     in
     Consistent (glassify ∇ » Δ) ×
     ∇ » Δ ⊢ t ∷ ℕ ×
@@ -498,21 +537,18 @@ opaque
     (⦃ ok : No-equality-reflection ⦄ →
      ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₅ unitrec-ok Unit-ok no-η =
-    case Unitⱼ εε Unit-ok of λ
-      ⊢Unit →
-    case ∙ ⊢Unit of λ
-      ⊢∙Unit →
+    let ε⊢Unit = ⊢Unit εε Unit-ok in
       inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ εε Unit-ok))
-    , unitrecⱼ (ℕⱼ (⊢∙Unit ∙[ flip Unitⱼ Unit-ok ])) (var₀ ⊢Unit)
-        (zeroⱼ ⊢∙Unit) Unit-ok
+    , unitrecⱼ (⊢ℕ (∙ ⊢Unit (∙ ε⊢Unit) Unit-ok)) (var₀ ε⊢Unit)
+        (zeroⱼ (∙ ε⊢Unit)) Unit-ok
     , (λ ())
     , sub
-        (unitrecₘ var zeroₘ
+        (unitrecₘ
            (sub ℕₘ $
             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
               𝟘ᶜ                ∎)
-           unitrec-ok)
+           var zeroₘ unitrec-ok)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ                                ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
            𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -522,7 +558,7 @@ opaque
            whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _ _)))
          (1+ _ , whred unitrec⇒ ⇨ˢ _) →
            whnfRedTerm unitrec⇒ (ne (unitrecₙ no-η (var _ _))))
-    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+    , sucᵏ≢ne {V = TL.Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
         _ (unitrecₙ no-η (var _ _)) ∘→
       sym′ ∘→ proj₂
 
@@ -530,8 +566,7 @@ opaque
 
   -- If Emptyrec-allowed 𝟙ᵐ 𝟘 holds, then there are counterexamples to
   -- both parts of the conclusion of a variant of the statement of
-  -- soundness-ℕ without the following assumptions (for any
-  -- strictness):
+  -- soundness-ℕ without the following assumptions:
   --
   -- * "if erased matches are allowed for emptyrec, then the context
   --   is consistent",
@@ -557,11 +592,14 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
-    (¬ ∃ λ n → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n) ×
+    (¬ ∃ λ n →
+       ∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n) ×
+    (∀ str →
+     ¬ ∃ λ n → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n) ×
     (⦃ ok : No-equality-reflection ⦄ →
      ¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-counterexample₆ emptyrec-ok =
-      emptyrecⱼ (ℕⱼ (εε ∙[ Emptyⱼ ])) (var₀ (Emptyⱼ εε))
+      emptyrecⱼ (⊢ℕ (εε ∙[ ⊢Empty ])) (var₀ (⊢Empty εε))
     , (λ ())
     , (sub (emptyrecₘ var ℕₘ emptyrec-ok) $ begin
          𝟘ᶜ                          ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
@@ -571,8 +609,10 @@ opaque
            whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _ _)))
          (1+ _ , whred emptyrec⇒ ⇨ˢ _) →
            whnfRedTerm emptyrec⇒ (ne (emptyrecₙ (var _ _))))
-    , ¬loop⇒ˢ* TP.Value-sucᵏ ∘→ proj₂
-    , sucᵏ≢ne {V = Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
+    , let ce = λ _ → ¬loop⇒ˢ* TP.Value-sucᵏ ∘→ proj₂ in
+      ce strict ∘→ Σ.map idᶠ (_$ strict)
+    , ce
+    , sucᵏ≢ne {V = TL.Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
         _ (emptyrecₙ (var _ _)) ∘→
       sym′ ∘→ proj₂
     where
@@ -603,7 +643,7 @@ opaque
     (¬ ∃ λ n → ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
     (¬ ∃ λ n → ∇ » Δ ⊢ t ≡ sucᵏ n ∷ ℕ)
   soundness-ℕ-only-source-counterexample₇ ok =
-    let ∇»⊢Δ = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ℕⱼ εε ] in
+    let ∇»⊢Δ = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ⊢ℕ εε ] in
     inhabited-consistent (⊢ˢʷ∷-idSubst ∇»⊢Δ) ,
     ε ,
     defn ∇»⊢Δ here PE.refl ,
@@ -614,7 +654,7 @@ opaque
          whnfRedTerm emptyrec⇒ (ne (defn here))
        (1+ _ , whred emptyrec⇒ ⇨ˢ _) →
          whnfRedTerm emptyrec⇒ (ne (defn here))) ,
-    sucᵏ≢ne {V = Lift _ ⊤}
+    sucᵏ≢ne {V = TL.Lift _ ⊤}
       ⦃ ok = possibly-nonempty
                ⦃ ok = Opacity-allowed→No-equality-reflection ok ⦄ ⦄
       _ (defn here) ∘→
@@ -644,9 +684,12 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ ×
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucᵏ n ∷ℕ) ×
-    (¬ ∃ λ n → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
-  soundness-ℕ-counterexample₈ {p} {str} ok Π-ok p≤𝟙+p =
-    (let ⊢E = Emptyⱼ εε in
+    (¬ ∃ λ n →
+       ∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n) ×
+    (∀ str →
+     ¬ ∃ λ n → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
+  soundness-ℕ-counterexample₈ {p} ok Π-ok p≤𝟙+p =
+    (let ⊢E = ⊢Empty εε in
      ⊢Ω∷ ok Π-ok (var₀ ⊢E) (ℕⱼ (∙ ⊢E))) ,
     (λ ()) ,
     ▸Ω (λ _ → p≤𝟙+p) ,
@@ -655,14 +698,18 @@ opaque
        (inj₁ Ω⇒)       →
          Ω-does-not-reduce-to-WHNF-⊢∷
            (naturalWhnf (Numeral→Natural (sucᵏ-Numeral _))) Ω⇒) ,
-    (λ (n , erase-Ω⇒) → case PE.singleton str of λ where
-       (strict , PE.refl) →
-         erase-Ω-does-not-have-a-value TP.Value-sucᵏ erase-Ω⇒
-       (non-strict , PE.refl) → case ⇒ˢ*→⇒*⊎⇒*suc erase-Ω⇒ of λ where
-         (inj₂ (_ , erase-Ω⇒)) →
-           erase-Ω-does-not-have-a-value T.suc erase-Ω⇒
-         (inj₁ erase-Ω⇒) →
-           erase-Ω-does-not-have-a-value TP.Value-sucᵏ erase-Ω⇒)
+    let ce = λ where
+          strict (n , erase-Ω⇒) →
+            erase-Ω-does-not-have-a-value TP.Value-sucᵏ erase-Ω⇒
+          non-strict (n , erase-Ω⇒) →
+            case ⇒ˢ*→⇒*⊎⇒*suc erase-Ω⇒ of λ where
+              (inj₂ (_ , erase-Ω⇒)) →
+                erase-Ω-does-not-have-a-value T.suc erase-Ω⇒
+              (inj₁ erase-Ω⇒) →
+                erase-Ω-does-not-have-a-value TP.Value-sucᵏ erase-Ω⇒
+    in
+    (λ (n , erase-Ω⇒) → ce strict (n , erase-Ω⇒ strict)) ,
+    ce
     where
     lemma : ∀ m → p ≤ ⌜ m ⌝ + p
     lemma 𝟙ᵐ = p≤𝟙+p
@@ -674,12 +721,12 @@ opaque
 
     open ≤ᶜ-reasoning
 
--- Run-time canonicity for a given term with respect to given contexts
--- (and a given strictness). Run-time canonicity holds if there is a
--- numeral n such that
+-- Run-time canonicity for a given term with respect to given
+-- contexts. Run-time canonicity holds if there is a numeral n such
+-- that
 --
--- * the extracted term reduces to n (under the extracted context),
---   and
+-- * the extracted term reduces to n (under the extracted context and
+--   any strictness), and
 --
 -- * there is a proof showing that the term is equal to the numeral.
 --
@@ -688,10 +735,10 @@ opaque
 -- soundness-ℕ-only-target-not-counterexample₇ below).
 
 Run-time-canonicity-for :
-  Strictness → DCon (Term 0) m → Con Term n → Term n → Set a
-Run-time-canonicity-for str ∇ Δ t =
+  DCon (Term 0) m → Con Term n → Term n → Set a
+Run-time-canonicity-for ∇ Δ t =
   ∃ λ n →
-  eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n ×
+  (∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n) ×
   ∃₃ λ u m (∇′ : DCon (Term 0) m) →
   » ∇′ ⊇ ∇ ×
   ∇′ » Δ ⊢ u ∷ Id ℕ t (sucᵏ n)
@@ -703,7 +750,7 @@ Run-time-canonicity-for str ∇ Δ t =
 
 soundness-ℕ-only-target-not-counterexample₁ :
   Σʷ-allowed p 𝟘 →
-  Run-time-canonicity-for str
+  Run-time-canonicity-for
     ε
     (ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
     (prodrec 𝟘 p 𝟘 ℕ (var {n = 1} x0) zero)
@@ -712,15 +759,15 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
 ... | no 𝟘≢𝟘 = ⊥-elim (𝟘≢𝟘 PE.refl)
 ... | yes _ =
     0
-  , refl-⇒ˢ⟨⟩*
+  , (λ _ → refl-⇒ˢ⟨⟩*)
   , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
   , 0 , ε , id⊇
   , ⊢subst (Idⱼ′ ⊢pr (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
       (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² εε)))
       (rflⱼ′
-         (prodrec 𝟘 p 𝟘 ℕ 0,0 zero  ≡⟨ prodrec-β-≡ (ℕⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
+         (prodrec 𝟘 p 𝟘 ℕ 0,0 zero  ≡⟨ prodrec-β-≡ (⊢ℕ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
                                          (fstʷⱼ (var₀ (⊢ℕ² εε))) (sndʷⱼ (var₀ (⊢ℕ² εε)))
-                                         (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])) ⟩⊢∎
+                                         (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])) ⟩⊢∎
           zero                      ∎))
   where
   ℕ² : Term n
@@ -739,51 +786,60 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
   η = Σʷ-η-prodʷ-fstʷ-sndʷ _ _ _ _ (var x0)
 
   ⊢ℕ² : ⊢ Γ → Γ ⊢ ℕ²
-  ⊢ℕ² ⊢Γ = ΠΣⱼ (ℕⱼ (⊢Γ ∙[ ℕⱼ ])) ok
+  ⊢ℕ² ⊢Γ = ΠΣⱼ (⊢ℕ (⊢Γ ∙[ ⊢ℕ ])) ok
 
   ⊢pr : Δ′ »∙ ℕ² ⊢ pr ∷ ℕ
   ⊢pr =
-    prodrecⱼ′ (ℕⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
+    prodrecⱼ′ (⊢ℕ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
       (var₀ (⊢ℕ² (εε ∙[ ⊢ℕ² ])))
-      (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ℕⱼ ] ∙[ ℕⱼ ]))
+      (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ]))
 
 opaque
 
   soundness-ℕ-only-target-not-counterexample₂ :
     []-cong-allowed s →
     let open Erased s in
-    Run-time-canonicity-for str
+    Run-time-canonicity-for
       ε
       (ε ∙ Id ℕ zero zero)
-      (J 𝟘 𝟘 (Erased ℕ) ([ zero ]) ℕ zero ([ zero ])
-         ([]-cong s ℕ zero zero (var {n = 1} x0)))
+      (J 𝟘 𝟘 (Erased zeroᵘ ℕ) ([ zero ]) ℕ zero ([ zero ])
+         ([]-cong s zeroᵘ ℕ zero zero (var {n = 1} x0)))
   soundness-ℕ-only-target-not-counterexample₂ {s} ok =
       _
-    , refl-⇒ˢ⟨⟩*
+    , (λ _ → refl-⇒ˢ⟨⟩*)
     , J 𝟘 𝟘 ℕ zero
         (Id ℕ
-            (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ var x1 ]
-               ([]-cong s ℕ zero (var x1) (var x0)))
+            (J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ var x1 ]
+               ([]-cong s zeroᵘ ℕ zero (var x1) (var x0)))
             zero)
         rfl zero (var x0)
     , 0 , ε , id⊇
-    , Jⱼ′
-        (Idⱼ′
-           (Jⱼ′ (ℕⱼ (J-motive-context ([]ⱼ Erased-ok ⊢zero))) ⊢zero
-              ([]-congⱼ′ ok
-                 (var₀ (J-motive-context-type (zeroⱼ ⊢Δ)))))
-           ⊢zero)
-        (rflⱼ′
-           (J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
-              ([]-cong s ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (ℕⱼ ⊢Δ)))
-                                                                      (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ))) (refl ⊢ℕ)
-                                                                      (refl (zeroⱼ ⊢Δ)) (refl ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
-                                                                      ([]-cong-β (zeroⱼ ⊢Δ) PE.refl ok) ⟩⊢
+    , PE.subst (_⊢_∷_ _ _)
+        (PE.cong (flip (Id _) _) $
+         PE.cong₆ (J _ _)
+           Er.Erased-[] Er.[]-[] PE.refl PE.refl Er.[]-[] PE.refl)
+        (Jⱼ′
+           (Idⱼ′
+              (Jⱼ′ (⊢ℕ (J-motive-context ([]ⱼ Erased-ok ⊢0 ⊢zero)))
+                 ⊢zero
+                 ([]-congⱼ′ ok ⊢0 $
+                  var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
+              ⊢zero)
+           (rflⱼ′
+              (J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ var x1 ]
+                 ([]-cong s zeroᵘ ℕ zero (var x1) (var x0))
+                 [ zero , rfl ]₁₀                                         ≡⟨ PE.cong₆ (J _ _) Er.Erased-[] Er.[]-[] PE.refl PE.refl Er.[]-[]
+                                                                               PE.refl ⟩⊢≡
+               J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
+                 ([]-cong s zeroᵘ ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (⊢ℕ ⊢Δ)))
+                                                                               (refl ⊢[zero]) (refl ⊢ℕ′)
+                                                                               (refl (zeroⱼ ⊢Δ)) (refl ⊢[zero])
+                                                                               ([]-cong-β-≡ (⊢zeroᵘ ⊢Δ) (refl (zeroⱼ ⊢Δ)) ok) ⟩⊢
 
-            J 𝟘 𝟘 (Erased ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+               J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ⊢[zero] ⊢ℕ′ (zeroⱼ ⊢Δ) ⟩⊢∎
 
-            zero                                                 ∎))
-        (var₀ ⊢0≡0)
+               zero                                                       ∎))
+           (var₀ ⊢0≡0))
     where
     open module Er = Erased s using (Erased)
 
@@ -799,33 +855,42 @@ opaque
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
 
-    ⊢ℕ : Δ′ »∙ Erased ℕ »∙ Id (Erased ℕ) Er.[ zero ] (var x0) ⊢ ℕ
-    ⊢ℕ = ℕⱼ (J-motive-context ([]ⱼ Erased-ok (zeroⱼ ⊢Δ)))
+    ⊢ℕ′ :
+      Δ′ »∙ Erased zeroᵘ ℕ »∙
+      Id (wk1 (Erased zeroᵘ ℕ)) (wk1 Er.[ zero ]) (var x0) ⊢
+      ℕ
+    ⊢ℕ′ = ⊢ℕ (J-motive-context ([]ⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (zeroⱼ ⊢Δ)))
+
+    ⊢0 : Δ′ »∙ ℕ »∙ Id ℕ zero (var x0) ⊢ zeroᵘ ∷Level
+    ⊢0 = ⊢zeroᵘ (J-motive-context (zeroⱼ ⊢Δ))
 
     ⊢zero : Δ′ »∙ ℕ »∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
     ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
 
+    ⊢[zero] : Δ′ ⊢ Er.[ zero ] ∷ Erased zeroᵘ ℕ
+    ⊢[zero] = []ⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (zeroⱼ ⊢Δ)
+
 opaque
 
   soundness-ℕ-only-target-not-counterexample₃ :
-    Run-time-canonicity-for str
+    Run-time-canonicity-for
       ε
       (ε ∙ Id ℕ zero zero)
       (J 𝟘 𝟘 ℕ zero ℕ zero zero (var {n = 1} x0))
   soundness-ℕ-only-target-not-counterexample₃ =
       _
-    , refl-⇒ˢ⟨⟩*
+    , (λ _ → refl-⇒ˢ⟨⟩*)
     , J 𝟘 𝟘 ℕ zero
         (Id ℕ (J 𝟘 𝟘 ℕ zero ℕ zero (var x1) (var x0)) zero)
         rfl zero (var x0)
     , 0 , ε , id⊇
     , Jⱼ′
         (Idⱼ′
-           (Jⱼ′ (ℕⱼ (J-motive-context ⊢zero)) ⊢zero
+           (Jⱼ′ (⊢ℕ (J-motive-context ⊢zero)) ⊢zero
               (var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
            ⊢zero)
         (rflⱼ′
-           (J 𝟘 𝟘 ℕ zero ℕ zero zero rfl  ≡⟨ J-β-≡ (zeroⱼ ⊢Δ) ⊢ℕ (zeroⱼ ⊢Δ) ⟩⊢∎
+           (J 𝟘 𝟘 ℕ zero ℕ zero zero rfl  ≡⟨ J-β-≡ (zeroⱼ ⊢Δ) ⊢ℕ′ (zeroⱼ ⊢Δ) ⟩⊢∎
             zero                          ∎))
         (var₀ ⊢0≡0)
     where
@@ -838,8 +903,8 @@ opaque
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
 
-    ⊢ℕ : Δ′ »∙ ℕ »∙ Id ℕ zero (var x0) ⊢ ℕ
-    ⊢ℕ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
+    ⊢ℕ′ : Δ′ »∙ ℕ »∙ Id ℕ zero (var x0) ⊢ ℕ
+    ⊢ℕ′ = ⊢ℕ (J-motive-context (zeroⱼ ⊢Δ))
 
     ⊢zero : Δ′ »∙ ℕ »∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
     ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
@@ -848,24 +913,24 @@ opaque
 
   soundness-ℕ-only-target-not-counterexample₄ :
     K-allowed →
-    Run-time-canonicity-for str
+    Run-time-canonicity-for
       ε
       (ε ∙ Id ℕ zero zero)
       (K 𝟘 ℕ zero ℕ zero (var {n = 1} x0))
   soundness-ℕ-only-target-not-counterexample₄ ok =
       _
-    , refl-⇒ˢ⟨⟩*
+    , (λ _ → refl-⇒ˢ⟨⟩*)
     , K 𝟘 ℕ zero
         (Id ℕ (K 𝟘 ℕ zero ℕ zero (var x0)) zero)
         rfl (var x0)
     , 0 , ε , id⊇
     , Kⱼ
         (Idⱼ′
-           (Kⱼ (ℕⱼ (K-motive-context ⊢zero)) ⊢zero
+           (Kⱼ (⊢ℕ (K-motive-context ⊢zero)) ⊢zero
               (var₀ (K-motive-context-type (zeroⱼ ⊢Δ))) ok)
            ⊢zero)
         (rflⱼ′
-           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β ⊢ℕ (zeroⱼ ⊢Δ) ok ⟩⊢∎
+           (K 𝟘 ℕ zero ℕ zero rfl  ≡⟨ K-β ⊢ℕ′ (zeroⱼ ⊢Δ) ok ⟩⊢∎
             zero                   ∎))
         (var₀ ⊢0≡0)
         ok
@@ -879,8 +944,8 @@ opaque
     ⊢Δ : ⊢ Δ′
     ⊢Δ = ∙ ⊢0≡0
 
-    ⊢ℕ : Δ′ »∙ Id ℕ zero zero ⊢ ℕ
-    ⊢ℕ = ℕⱼ (K-motive-context (zeroⱼ ⊢Δ))
+    ⊢ℕ′ : Δ′ »∙ Id ℕ zero zero ⊢ ℕ
+    ⊢ℕ′ = ⊢ℕ (K-motive-context (zeroⱼ ⊢Δ))
 
     ⊢zero : Δ′ »∙ Id ℕ zero zero ⊢ zero ∷ ℕ
     ⊢zero = zeroⱼ (K-motive-context (zeroⱼ ⊢Δ))
@@ -889,48 +954,50 @@ opaque
 
   soundness-ℕ-only-target-not-counterexample₅ :
     Unitʷ-allowed →
-    Run-time-canonicity-for str
+    Run-time-canonicity-for
       ε
-      (ε ∙ Unitʷ 0)
-      (unitrec 0 𝟘 𝟘 ℕ (var {n = 1} x0) zero)
+      (ε ∙ Unitʷ)
+      (unitrec 𝟘 𝟘 ℕ (var {n = 1} x0) zero)
   soundness-ℕ-only-target-not-counterexample₅ Unit-ok with is-𝟘? 𝟘
   … | no 𝟘≢𝟘 = ⊥-elim $ 𝟘≢𝟘 PE.refl
   … | yes _  =
       _
-    , refl-⇒ˢ⟨⟩*
-    , subst ω (Unitʷ 0) (Id ℕ (unitrec 0 𝟘 𝟘 ℕ (var x0) zero) zero)
-        (starʷ 0) (var x0) (Unit-η 𝕨 0 ω (var x0)) rfl
+    , (λ _ → refl-⇒ˢ⟨⟩*)
+    , subst ω Unitʷ
+        (Id ℕ (unitrec 𝟘 𝟘 ℕ (var x0) zero) zero)
+        starʷ (var x0) (Unit-η 𝕨 ω (var x0)) rfl
     , 0 , ε , id⊇
     , ⊢subst
         (Idⱼ′
-           (unitrecⱼ (ℕⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
+           (unitrecⱼ
+              (⊢ℕ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
               (var₀ (⊢Unitʷ (εε ∙[ ⊢Unitʷ ])))
               (zeroⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)
            (zeroⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
         (⊢Unit-η (var₀ (⊢Unitʷ εε)))
         (rflⱼ′
-           (unitrec 0 𝟘 𝟘 ℕ (starʷ 0) zero  ≡⟨ unitrec-β-≡ (ℕⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (εε ∙[ ⊢Unitʷ ])) ⟩⊢∎
-            zero                            ∎))
+           (unitrec 𝟘 𝟘 ℕ starʷ zero  ≡⟨ unitrec-β-≡ (⊢ℕ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) (zeroⱼ (εε ∙[ ⊢Unitʷ ])) ⟩⊢∎
+            zero                      ∎))
     where
-    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ 0
-    ⊢Unitʷ ⊢Γ = Unitⱼ ⊢Γ Unit-ok
+    ⊢Unitʷ : ⊢ Γ → Γ ⊢ Unitʷ
+    ⊢Unitʷ ⊢Γ = ⊢Unit ⊢Γ Unit-ok
 
 opaque
   unfolding Trans eraseDCon′
 
   soundness-ℕ-only-target-not-counterexample₇ :
     Opacity-allowed →
-    Run-time-canonicity-for str
+    Run-time-canonicity-for
       Opaque[ zero ∷ ℕ ]
       ε
       (defn 0)
   soundness-ℕ-only-target-not-counterexample₇ ok =
-    let ∇»⊢ε = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ℕⱼ εε ]
+    let ∇»⊢ε = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ⊢ℕ εε ]
         ⊢Id  = Idⱼ′ (defn ∇»⊢ε here PE.refl) (zeroⱼ ∇»⊢ε)
         ⊢rfl = rflⱼ′ $ δ-red (glassify-⊢′ ∇»⊢ε) here PE.refl PE.refl
     in
     0 ,
-    ⇒*→⇒ˢ⟨⟩* (T.trans (T.δ-red T.here) T.refl) ,
+    (λ _ → ⇒*→⇒ˢ⟨⟩* (T.trans (T.δ-red T.here) T.refl)) ,
     defn 1 ,
     2 ,
     Opaque[ zero ∷ ℕ ] ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id ℕ (defn 0) zero ] ,
@@ -938,7 +1005,8 @@ opaque
     defn (ε ∙ᵒ⟨ ok ⟩[ ⊢rfl ∷ ⊢Id ]) here PE.refl
 
 -- A variant of run-time canonicity that uses erase′ true instead of
--- erase (and eraseDCon′ true instead of eraseDCon).
+-- erase (and eraseDCon′ true instead of eraseDCon), and a given
+-- strictness.
 
 Run-time-canonicity-with-arguments-removed-for :
   Strictness → DCon (Term 0) m → Con Term n → Term n → Set a

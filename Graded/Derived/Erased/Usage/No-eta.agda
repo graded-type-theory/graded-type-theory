@@ -23,6 +23,7 @@ open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased.No-eta 𝕄
+open import Definition.Untyped.Sigma 𝕄
 
 open import Graded.Derived.Sigma 𝕄 R
 
@@ -46,6 +47,7 @@ private variable
 -- Usage rules
 
 opaque
+  unfolding erased fst⟨_⟩
 
   -- A usage rule for erased.
 
@@ -81,35 +83,38 @@ opaque
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
 
--- An inversion lemma for erased.
+opaque
+  unfolding erased fst⟨_⟩
 
-inv-usage-erased :
-  γ ▸[ m ] erased A t →
-  𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t ×
-  𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] A ×
-  γ ≤ᶜ 𝟘ᶜ ×
-  m ≡ 𝟘ᵐ[ ok ] ×
-  Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘
-inv-usage-erased {γ} {m} {ok} ▸erased =
-  case inv-usage-fstʷ (inj₁ $ 𝟘ᵐ.𝟘≰𝟙 ok) ▸erased of λ
-    (η , _ , γ≤ , ▸t , ▸A , 𝟘∧⌜m⌝𝟘≤⌜m⌝ , P-ok) →
-  case
-    (let open Tools.Reasoning.PartialOrder ≤-poset in begin
-       𝟘              ≡˘⟨ ∧-idem _ ⟩
-       𝟘 ∧ 𝟘          ≡˘⟨ ∧-congˡ $ ·-zeroʳ _ ⟩
-       𝟘 ∧ ⌜ m ⌝ · 𝟘  ≤⟨ 𝟘∧⌜m⌝𝟘≤⌜m⌝ ⟩
-       ⌜ m ⌝          ∎)
-  of λ
-    𝟘≤⌜m⌝ →
-  case PE.singleton m of λ where
-    (𝟙ᵐ , PE.refl) →
-      ⊥-elim $ 𝟘ᵐ.𝟘≰𝟙 ok 𝟘≤⌜m⌝
-    (𝟘ᵐ , PE.refl) →
-        ▸-𝟘 ▸t
-      , ▸-𝟘 ▸A
-      , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-           γ        ≤⟨ γ≤ ⟩
-           𝟘ᶜ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
-           𝟘ᶜ       ∎)
-      , 𝟘ᵐ-cong
-      , P-ok
+  -- An inversion lemma for erased.
+
+  inv-usage-erased :
+    γ ▸[ m ] erased A t →
+    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t ×
+    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] A ×
+    γ ≤ᶜ 𝟘ᶜ ×
+    m ≡ 𝟘ᵐ[ ok ] ×
+    Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘
+  inv-usage-erased {γ} {m} {ok} ▸erased =
+    case inv-usage-fstʷ (inj₁ $ 𝟘ᵐ.𝟘≰𝟙 ok) ▸erased of λ
+      (η , _ , γ≤ , ▸t , ▸A , 𝟘∧⌜m⌝𝟘≤⌜m⌝ , P-ok) →
+    case
+      (let open Tools.Reasoning.PartialOrder ≤-poset in begin
+         𝟘              ≡˘⟨ ∧-idem _ ⟩
+         𝟘 ∧ 𝟘          ≡˘⟨ ∧-congˡ $ ·-zeroʳ _ ⟩
+         𝟘 ∧ ⌜ m ⌝ · 𝟘  ≤⟨ 𝟘∧⌜m⌝𝟘≤⌜m⌝ ⟩
+         ⌜ m ⌝          ∎)
+    of λ
+      𝟘≤⌜m⌝ →
+    case PE.singleton m of λ where
+      (𝟙ᵐ , PE.refl) →
+        ⊥-elim $ 𝟘ᵐ.𝟘≰𝟙 ok 𝟘≤⌜m⌝
+      (𝟘ᵐ , PE.refl) →
+          ▸-𝟘 ▸t
+        , ▸-𝟘 ▸A
+        , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
+             γ        ≤⟨ γ≤ ⟩
+             𝟘ᶜ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
+             𝟘ᶜ       ∎)
+        , 𝟘ᵐ-cong
+        , P-ok

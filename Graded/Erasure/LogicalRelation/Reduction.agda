@@ -56,13 +56,17 @@ opaque
     t′ ® v ∷ A / [A] →
     t ⇛ t′ ∷ A →
     t ® v ∷ A / [A]
-  sourceRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) _ =
-    Uᵣ ⇒*↯
+  sourceRedSubstTerm (Levelᵣ _) (U/Levelᵣ ⇒*↯) _ =
+    U/Levelᵣ ⇒*↯
+  sourceRedSubstTerm (Uᵣ _) (U/Levelᵣ ⇒*↯) _ =
+    U/Levelᵣ ⇒*↯
+  sourceRedSubstTerm (Liftᵣ′ ⇒*Lift ⊩A) t′®v t⇛t′ =
+    sourceRedSubstTerm ⊩A t′®v (lower-⇛ (conv-⇛ t⇛t′ (subset* ⇒*Lift)))
   sourceRedSubstTerm (ℕᵣ D) (zeroᵣ t′⇒zero v⇒v′) t⇒t′ =
     zeroᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* D)) t′⇒zero) v⇒v′
   sourceRedSubstTerm (ℕᵣ ⇒*ℕ) (sucᵣ t′⇒suc v⇒v′ num t®v) t⇒t′ =
     sucᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* ⇒*ℕ)) t′⇒suc) v⇒v′ num t®v
-  sourceRedSubstTerm (Unitᵣ′ _ D) (starᵣ t′⇒star v⇒star) t⇒t′ =
+  sourceRedSubstTerm (Unitᵣ D) (starᵣ t′⇒star v⇒star) t⇒t′ =
     starᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* D)) t′⇒star) v⇒star
   sourceRedSubstTerm (Bᵣ′ BMΠ p q F G D [F] [G]) t®v t⇒t′
     with is-𝟘? p
@@ -93,7 +97,12 @@ opaque
     t ® v′ ∷ A / [A] →
     vs T.⊢ v ⇒ v′ →
     t ® v ∷ A / [A]
-  targetRedSubstTerm (Uᵣ _) (Uᵣ ⇒*↯) v⇒v′ = Uᵣ (T.trans v⇒v′ ∘→ ⇒*↯)
+  targetRedSubstTerm (Levelᵣ _) (U/Levelᵣ ⇒*↯) v⇒v′ =
+    U/Levelᵣ (T.trans v⇒v′ ∘→ ⇒*↯)
+  targetRedSubstTerm (Uᵣ _) (U/Levelᵣ ⇒*↯) v⇒v′ =
+    U/Levelᵣ (T.trans v⇒v′ ∘→ ⇒*↯)
+  targetRedSubstTerm (Liftᵣ′ _ ⊩A) t®v′ v⇒v′ =
+    targetRedSubstTerm ⊩A t®v′ v⇒v′
   targetRedSubstTerm (ℕᵣ x) (zeroᵣ t′⇒zero v′⇒zero) v⇒v′ = zeroᵣ t′⇒zero (trans v⇒v′ v′⇒zero)
   targetRedSubstTerm (ℕᵣ _) (sucᵣ t′⇒suc v′⇒suc num t®v) v⇒v′ =
     sucᵣ t′⇒suc (trans v⇒v′ v′⇒suc) num t®v
@@ -173,15 +182,19 @@ opaque
     t ® v ∷ A / [A] →
     t ⇛ t′ ∷ A →
     t′ ® v ∷ A / [A]
-  sourceRedSubstTerm′ (Uᵣ _) (Uᵣ ⇒*↯) _ =
-    Uᵣ ⇒*↯
+  sourceRedSubstTerm′ (Levelᵣ _) (U/Levelᵣ ⇒*↯) _ =
+    U/Levelᵣ ⇒*↯
+  sourceRedSubstTerm′ (Uᵣ _) (U/Levelᵣ ⇒*↯) _ =
+    U/Levelᵣ ⇒*↯
+  sourceRedSubstTerm′ (Liftᵣ′ ⇒*Lift ⊩A) t®v t⇛t′ =
+    sourceRedSubstTerm′ ⊩A t®v (lower-⇛ (conv-⇛ t⇛t′ (subset* ⇒*Lift)))
   sourceRedSubstTerm′ (ℕᵣ D) (zeroᵣ t⇒zero v⇒zero) t⇒t′
     with whnf-⇛ t⇒zero zeroₙ (conv-⇛ t⇒t′ (subset* D))
   ... | t′⇒zero = zeroᵣ t′⇒zero v⇒zero
   sourceRedSubstTerm′ (ℕᵣ D) (sucᵣ t⇒suc v⇒suc num t®v) t⇒t′
     with whnf-⇛ t⇒suc sucₙ (conv-⇛ t⇒t′ (subset* D))
   ... | t′⇒suc = sucᵣ t′⇒suc v⇒suc num t®v
-  sourceRedSubstTerm′ (Unitᵣ′ _ x) (starᵣ t⇒star v⇒star) t⇒t′
+  sourceRedSubstTerm′ (Unitᵣ x) (starᵣ t⇒star v⇒star) t⇒t′
     with whnf-⇛ t⇒star starₙ (conv-⇛ t⇒t′ (subset* x))
   ... | t′⇒star = starᵣ t′⇒star v⇒star
   sourceRedSubstTerm′
@@ -244,8 +257,12 @@ opaque
 
   targetRedSubstTerm′ : ([A] : ts » Δ ⊨ A) → t ® v ∷ A / [A]
                       → vs T.⊢ v ⇒ v′ → t ® v′ ∷ A / [A]
-  targetRedSubstTerm′ (Uᵣ _) (Uᵣ v⇒*↯) v⇒v′ =
-    Uᵣ (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
+  targetRedSubstTerm′ (Levelᵣ _) (U/Levelᵣ v⇒*↯) v⇒v′ =
+    U/Levelᵣ (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
+  targetRedSubstTerm′ (Uᵣ _) (U/Levelᵣ v⇒*↯) v⇒v′ =
+    U/Levelᵣ (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
+  targetRedSubstTerm′ (Liftᵣ′ _ ⊩A) t®v v⇒v′ =
+    targetRedSubstTerm′ ⊩A t®v v⇒v′
   targetRedSubstTerm′ (ℕᵣ x) (zeroᵣ x₁ v⇒zero) v⇒v′ with red*Det v⇒zero (T.trans v⇒v′ T.refl)
   ... | inj₁ x₂ rewrite zero-noRed x₂ = zeroᵣ x₁ T.refl
   ... | inj₂ x₂ = zeroᵣ x₁ x₂

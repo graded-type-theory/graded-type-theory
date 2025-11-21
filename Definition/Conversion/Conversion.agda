@@ -18,8 +18,9 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.EqRelInstance R using (eqRelInstance)
 open import Definition.Typed.EqualityRelation.Instance R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
@@ -61,6 +62,14 @@ mutual
              (stabilityRed↘Term Δ≡Η (conv↘∷ d′ B₁≡B′))
              (convConv↓Term′ Δ≡Η B₁≡B′ whnfB′ t<>u)
 
+  conv~∷ :
+    ∇ »⊢ Δ ≡ Η →
+    ∇ » Δ ⊢ A ≡ B →
+    ∇ » Δ ⊢ t ~ u ∷ A →
+    ∇ » Η ⊢ t ~ u ∷ B
+  conv~∷ Γ≡Δ A≡B (↑ A≡C t~u) =
+    stability~∷ Γ≡Δ $ ↑ (trans (sym A≡B) A≡C) t~u
+
   -- Conversion of algorithmic equality with terms and types in WHNF.
   convConv↓Term′ :
     ∇ »⊢ Δ ≡ Η →
@@ -68,6 +77,8 @@ mutual
     Whnf ∇ B →
     ∇ » Δ ⊢ t [conv↓] u ∷ A →
     ∇ » Η ⊢ t [conv↓] u ∷ B
+  convConv↓Term′ Γ≡Δ A≡B whnfB (Level-ins x) rewrite Level≡A A≡B whnfB =
+    Level-ins (stabilityConv↓Level Γ≡Δ x)
   convConv↓Term′ Δ≡Η A≡B whnfB (ℕ-ins x) rewrite ℕ≡A A≡B whnfB =
     ℕ-ins (stability~↓ Δ≡Η x)
   convConv↓Term′ Δ≡Η A≡B whnfB (Empty-ins x) rewrite Empty≡A A≡B whnfB =
@@ -83,8 +94,21 @@ mutual
   convConv↓Term′ Δ≡Η A≡B whnfB (ne-ins t u x x₁) =
     ne-ins (stabilityTerm Δ≡Η (conv t A≡B)) (stabilityTerm Δ≡Η (conv u A≡B))
            (ne↑⁺ (ne≡A (ne↑ₗ x) A≡B whnfB)) (stability~↓ Δ≡Η x₁)
-  convConv↓Term′ Δ≡Η A≡B whnfB (univ x x₁ x₂) rewrite U≡A A≡B whnfB =
-    univ (stabilityTerm Δ≡Η x) (stabilityTerm Δ≡Η x₁) (stabilityConv↓ Δ≡Η x₂)
+  convConv↓Term′ Γ≡Δ A≡B whnfB (univ x x₁ x₂) =
+    case U≡A A≡B whnfB of λ {
+      (_ , PE.refl) →
+    let l≡k = U-injectivity A≡B
+        Ul≡Uk = U-cong-⊢≡ l≡k
+    in univ (stabilityTerm Γ≡Δ (conv x Ul≡Uk)) (stabilityTerm Γ≡Δ (conv x₁ Ul≡Uk)) (stabilityConv↓ Γ≡Δ x₂) }
+  convConv↓Term′ Γ≡Δ A≡B whnfB (Lift-η ⊢t ⊢u wt wu lower≡lower) =
+    case Lift≡A A≡B whnfB of λ {
+      (_ , _ , PE.refl) →
+    let k≡k′ , A≡A′ = Lift-injectivity A≡B
+    in Lift-η
+      (stabilityTerm Γ≡Δ (conv ⊢t A≡B))
+      (stabilityTerm Γ≡Δ (conv ⊢u A≡B))
+      wt wu
+      (convConv↑Term′ Γ≡Δ A≡A′ lower≡lower) }
   convConv↓Term′ Δ≡Η A≡B whnfB (zero-refl x) rewrite ℕ≡A A≡B whnfB =
     let _ , ⊢Η , _ = contextConvSubst Δ≡Η
     in  zero-refl ⊢Η

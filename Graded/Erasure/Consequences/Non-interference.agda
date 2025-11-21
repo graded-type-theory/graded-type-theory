@@ -5,7 +5,6 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 import Definition.Untyped
-open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 open import Graded.Erasure.Target as T using (Strictness)
@@ -19,7 +18,6 @@ module Graded.Erasure.Consequences.Non-interference
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  ⦃ eqrel : EqRelSet TR ⦄
   {kᵈ k : Nat}
   {∇ : DCon (Term 0) kᵈ}
   {Δ : Con Term k}
@@ -30,6 +28,7 @@ module Graded.Erasure.Consequences.Non-interference
 open Fundamental-assumptions FA
 
 open import Definition.Typed TR
+open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 

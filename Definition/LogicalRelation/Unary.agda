@@ -18,6 +18,7 @@ open Type-restrictions R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Properties.Kit R
+open import Definition.LogicalRelation.Properties.Primitive R
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Whnf R
 open import Definition.LogicalRelation.Weakening.Restricted R
@@ -28,11 +29,12 @@ open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level as L
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -46,8 +48,8 @@ private variable
   l l′           : Universe-level
   l′<l           : _ <ᵘ _
   s              : Strength
-  t-prod t-prod′ : Product _ _ _
-  t-id           : Identity _ _ _
+  t-prod t-prod′ : Productᵃ _ _ _
+  t-id           : Identityᵃ _ _ _
   p q            : M
 
 ------------------------------------------------------------------------
@@ -62,7 +64,7 @@ record _⊩neNf_∷_ (Γ : Cons m n) (k A : Term n) : Set a where
   pattern
   constructor neNfₜ
   field
-    neK : Neutralₗ (Γ .defs) k
+    neK : Neutralᵃₗ (Γ .defs) k
     k≡k : Γ ⊢~ k ∷ A
 
 opaque
@@ -106,8 +108,7 @@ opaque
            neₜ _ t⇒u
              (⊩neNf∷⇔⊩neNf≡∷ .proj₂ $
               PE.subst (flip (_⊩neNf_≡_∷_ _ _) _)
-                (whrDet*Term (t⇒v , ne-whnf v-ne) (t⇒u , ne-whnf u-ne))
-                u≡v))
+                (whrDet*Term (t⇒v , ne! v-ne) (t⇒u , ne! u-ne)) u≡v))
 
 ------------------------------------------------------------------------
 -- U
@@ -116,17 +117,18 @@ opaque
 
 infix 4 _⊩U_∷U/_
 
-record _⊩U_∷U/_ (Γ : Cons m n) (t : Term n) (l′<l : l′ <ᵘ l) :
+record _⊩U_∷U/_ {T} (Γ : Cons m n) (t : Term n) ([T] : Γ ⊩′⟨ l ⟩U T) :
          Set a where
   no-eta-equality
   pattern
   constructor Uₜ
-  open LogRelKit (kit′ l′<l)
+  open _⊩₁U_ [T]
+  open LogRelKit (kit′ k<)
   field
     C      : Term n
-    ⇒*C    : Γ ⊢ t ⇒* C ∷ U l′
+    ⇒*C    : Γ ⊢ t ⇒* C ∷ U k
     C-type : Typeₗ (Γ .defs) C
-    ≅C     : Γ ⊢≅ C ∷ U l′
+    ≅C     : Γ ⊢≅ C ∷ U k
     ⊩t     : Γ ⊩ t
 
 opaque
@@ -134,12 +136,12 @@ opaque
   -- The relation _⊩U_∷U/_ is pointwise logically equivalent to
   -- the diagonal of a certain relation.
 
-  ⊩U∷U⇔⊩U≡∷U : Γ ⊩U t ∷U/ l′<l ⇔ LogRel._⊩₁U_≡_∷U/_ _ kit′ Γ t t l′<l
-  ⊩U∷U⇔⊩U≡∷U {l′<l} =
+  ⊩U∷U⇔⊩U≡∷U : ∀ {T} {[T] : Γ ⊩′⟨ l ⟩U T} → Γ ⊩U t ∷U/ [T] ⇔ LogRel._⊩₁U_≡_∷U/_ _ kit′ Γ t t [T]
+  ⊩U∷U⇔⊩U≡∷U {[T]} =
       (λ where
          (Uₜ _ t⇒A A-type ≅A ⊩t) →
            Uₜ₌ _ _ t⇒A t⇒A A-type A-type ≅A ⊩t ⊩t
-             (⊩<≡⇔⊩≡ l′<l .proj₂ $ reflEq $ ⊩<⇔⊩ l′<l .proj₁ ⊩t))
+             (⊩<≡⇔⊩≡ k< .proj₂ $ reflEq $ ⊩<⇔⊩ k< .proj₁ ⊩t))
     , (λ where
          (Uₜ₌ _ _ t⇒A t⇒B A-type B-type A≅B ⊩t _ _) →
            Uₜ _ t⇒A A-type
@@ -148,6 +150,7 @@ opaque
                    (t⇒A , typeWhnf A-type))
                 A≅B)
              ⊩t)
+    where open _⊩₁U_ [T]
 
 ------------------------------------------------------------------------
 -- Empty
@@ -169,10 +172,10 @@ opaque
 
 opaque
 
-  -- If t satisfies Empty-prop Γ, then t is a neutral term (a specific
-  -- kind of WHNF).
+  -- If t satisfies Empty-prop Γ, then t is an atomic neutral term (a
+  -- specific kind of WHNF).
 
-  empty : Empty-prop Γ t → Neutralₗ (Γ .defs) t
+  empty : Empty-prop Γ t → Neutralᵃₗ (Γ .defs) t
   empty (ne (neNfₜ t-ne _)) = t-ne
 
 -- Unary reducibility for terms of the empty type.
@@ -215,48 +218,48 @@ opaque
 
 -- A property for terms of unit type in WHNF.
 
-data Unit-prop′ (Γ : Cons m n) (l : Universe-level) (s : Strength) :
+data Unit-prop′ (Γ : Cons m n) (s : Strength) :
        Term n → Set a where
-  starᵣ : Unit-prop′ Γ l s (star s l)
-  ne    : Γ ⊩neNf t ∷ Unit s l → Unit-prop′ Γ l s t
+  starᵣ : Unit-prop′ Γ s (star s)
+  ne    : Γ ⊩neNf t ∷ Unit s → Unit-prop′ Γ s t
 
 opaque
 
-  -- The relation Unit-prop′ Γ l 𝕨 is pointwise logically equivalent
-  -- to the diagonal of [Unitʷ]-prop Γ l.
+  -- The relation Unit-prop′ Γ s is pointwise logically equivalent
+  -- to the diagonal of [Unit]-prop′ Γ s.
 
-  Unit-prop′-𝕨⇔[Unitʷ]-prop : Unit-prop′ Γ l 𝕨 t ⇔ [Unitʷ]-prop Γ l t t
-  Unit-prop′-𝕨⇔[Unitʷ]-prop =
+  Unit-prop′⇔[Unit]-prop′ : ∀ {s} → Unit-prop′ Γ s t ⇔ [Unit]-prop′ Γ s t t
+  Unit-prop′⇔[Unit]-prop′ {s} =
       (λ where
-         starᵣ   → starᵣ
+         starᵣ → starᵣ
          (ne ⊩t) → ne (⊩neNf∷⇔⊩neNf≡∷ .proj₁ ⊩t))
     , flip lemma PE.refl
     where
-    lemma : [Unitʷ]-prop Γ l t t′ → t PE.≡ t′ → Unit-prop′ Γ l 𝕨 t
-    lemma starᵣ _         = starᵣ
+    lemma : [Unit]-prop′ Γ s t t′ → t PE.≡ t′ → Unit-prop′ Γ s t
+    lemma starᵣ _ = starᵣ
     lemma (ne ⊩t) PE.refl = ne (⊩neNf∷⇔⊩neNf≡∷ .proj₂ ⊩t)
 
 -- A property for terms of unit type in WHNF.
 
-data Unit-prop (Γ : Cons m n) (l : Universe-level) :
+data Unit-prop (Γ : Cons m n) :
        Strength → Term n → Set a where
-  Unitₜʷ : Unit-prop′ Γ l 𝕨 t → ¬ Unitʷ-η → Unit-prop Γ l 𝕨 t
-  Unitₜˢ : Unit-with-η s → Unit-prop Γ l s t
+  Unitₜʷ : Unit-prop′ Γ 𝕨 t → ¬ Unitʷ-η → Unit-prop Γ 𝕨 t
+  Unitₜˢ : Unit-with-η s → Unit-prop Γ s t
 
 opaque
 
   -- The relation Unit-prop is pointwise logically equivalent to the
   -- diagonal of [Unit]-prop.
 
-  Unit-prop⇔[Unit]-prop : Unit-prop Γ l s t ⇔ [Unit]-prop Γ l s t t
+  Unit-prop⇔[Unit]-prop : Unit-prop Γ s t ⇔ [Unit]-prop Γ s t t
   Unit-prop⇔[Unit]-prop =
       (λ where
          (Unitₜʷ prop no-η) →
-           Unitₜ₌ʷ (Unit-prop′-𝕨⇔[Unitʷ]-prop .proj₁ prop) no-η
+           Unitₜ₌ʷ (Unit-prop′⇔[Unit]-prop′ .proj₁ prop) no-η
          (Unitₜˢ η) → Unitₜ₌ˢ η)
     , (λ where
          (Unitₜ₌ʷ prop no-η) →
-           Unitₜʷ (Unit-prop′-𝕨⇔[Unitʷ]-prop .proj₂ prop) no-η
+           Unitₜʷ (Unit-prop′⇔[Unit]-prop′ .proj₂ prop) no-η
          (Unitₜ₌ˢ η) → Unitₜˢ η)
 
 opaque
@@ -264,8 +267,8 @@ opaque
   -- A "smart constructor" for Unit-prop.
 
   Unit-prop′→Unit-prop :
-    Unit-prop′ Γ l s t →
-    Unit-prop Γ l s t
+    Unit-prop′ Γ s t →
+    Unit-prop Γ s t
   Unit-prop′→Unit-prop {s} prop =
     case Unit-with-η? s of λ where
       (inj₁ η)                → Unitₜˢ η
@@ -273,19 +276,18 @@ opaque
 
 -- Unary reducibility for terms of unit type.
 
-infix 4 _⊩Unit⟨_,_⟩_∷Unit
+infix 4 _⊩Unit⟨_⟩_∷Unit
 
-record _⊩Unit⟨_,_⟩_∷Unit
-         (Γ : Cons m n) (l : Universe-level) (s : Strength)
-         (t : Term n) :
+record _⊩Unit⟨_⟩_∷Unit
+         (Γ : Cons m n) (s : Strength) (t : Term n) :
          Set a where
   no-eta-equality
   pattern
   constructor Unitₜ
   field
     u    : Term n
-    ↘u   : Γ ⊢ t ↘ u ∷ Unit s l
-    prop : Unit-prop Γ l s u
+    ↘u   : Γ ⊢ t ↘ u ∷ Unit s
+    prop : Unit-prop Γ s u
 
 opaque
 
@@ -293,14 +295,14 @@ opaque
   -- to the diagonal of _⊩Unit⟨_,_⟩_≡_∷Unit.
 
   ⊩Unit∷Unit⇔⊩Unit≡∷Unit :
-    Γ ⊩Unit⟨ l , s ⟩ t ∷Unit ⇔ Γ ⊩Unit⟨ l , s ⟩ t ≡ t ∷Unit
+    Γ ⊩Unit⟨ s ⟩ t ∷Unit ⇔ Γ ⊩Unit⟨ s ⟩ t ≡ t ∷Unit
   ⊩Unit∷Unit⇔⊩Unit≡∷Unit =
       (λ (Unitₜ _ ↘u prop) →
          Unitₜ₌ _ _ ↘u ↘u (Unit-prop⇔[Unit]-prop .proj₁ prop))
     , (λ (Unitₜ₌ _ _ ↘u ↘v prop) →
          Unitₜ _ ↘u
            (Unit-prop⇔[Unit]-prop .proj₂ $
-            PE.subst ([Unit]-prop _ _ _ _) (whrDet*Term ↘v ↘u) prop))
+            PE.subst ([Unit]-prop _ _ _) (whrDet*Term ↘v ↘u) prop))
 
 ------------------------------------------------------------------------
 -- Π
@@ -319,7 +321,7 @@ record _⊩⟨_⟩Π_∷_/_ (Γ : Cons m n) (l : Universe-level) (t A : Term n)
   field
     u     : Term n
     ⇒*u   : Γ ⊢ t ⇒* u ∷ Π p , q ▷ F ▹ G
-    u-fun : Functionₗ (Γ .defs) u
+    u-fun : Functionᵃₗ (Γ .defs) u
     ≅u    : Γ ⊢≅ u ∷ Π p , q ▷ F ▹ G
     ⊩u    : ∀ {m′} {∇ : DCon (Term 0) m′}
             (∇⊇Γ : » ∇ ⊇ Γ .defs)
@@ -344,8 +346,8 @@ opaque
       (λ (Πₜ _ t⇒u u-fun ≅u ⊩u) →
          _ , _ , t⇒u , t⇒u , u-fun , u-fun , ≅u , ⊩u)
     , (λ (_ , _ , t⇒u , t⇒v , u-fun , v-fun , u≅v , u≡v) →
-         case whrDet*Term (t⇒u , functionWhnf u-fun)
-                (t⇒v , functionWhnf v-fun) of λ {
+         case whrDet*Term (t⇒u , Functionᵃ→Whnf u-fun)
+                (t⇒v , Functionᵃ→Whnf v-fun) of λ {
            PE.refl →
          Πₜ _ t⇒u u-fun u≅v u≡v })
 
@@ -355,14 +357,14 @@ opaque
 -- A property for terms of Σ-type in WHNF.
 
 data Σ-prop (Γ : Cons m n) :
-  (t : Term n) (s : Strength) → Productₗ (Γ .defs) t →
+  (t : Term n) (s : Strength) → Productᵃₗ (Γ .defs) t →
   Γ ⊩′⟨ l ⟩B⟨ BΣ s p q ⟩ A → Set a where
   𝕤 :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕤 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A
         id-Γ = id (wfEq (≅-eq A≡A))
     in
-    (t-prod : Productₗ (Γ .defs) t) →
+    (t-prod : Productᵃₗ (Γ .defs) t) →
     (⊩fst : Γ ⊩⟨ l ⟩ fst p t ∷ wk id F / [F] id⊇ id-Γ) →
     Γ ⊩⟨ l ⟩ snd p t ∷ wk (lift id) G [ fst p t ]₀ / [G] id⊇ id-Γ ⊩fst →
     Σ-prop Γ t 𝕤 t-prod ⊩A
@@ -377,7 +379,7 @@ data Σ-prop (Γ : Cons m n) :
   𝕨-ne :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕨 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A in
-    (t-ne : Neutralₗ (Γ .defs) t) →
+    (t-ne : Neutralᵃₗ (Γ .defs) t) →
     Γ ⊢~ t ∷ Σʷ p , q ▷ F ▹ G →
     Σ-prop Γ t 𝕨 (ne t-ne) ⊩A
 
@@ -414,8 +416,8 @@ opaque
       ⊩t₁ , ⊩t₁ , ⊩t₁ , ⊩t₂
     Σ-prop→[Σ]-prop record{} (ne _) (𝕨-ne _ ~t) =
       ~t
-    Σ-prop→[Σ]-prop record{} (ne ()) (𝕨-prodₙ _ _)
-    Σ-prop→[Σ]-prop record{} prodₙ (𝕨-ne () _)
+    Σ-prop→[Σ]-prop record{} (ne (ne () _)) (𝕨-prodₙ _ _)
+    Σ-prop→[Σ]-prop record{} prodₙ (𝕨-ne (ne () _) _)
 
   -- A variant of Σ-prop⇔[Σ]-prop (which is defined below).
 
@@ -448,7 +450,7 @@ record _⊩⟨_⟩Σ_∷_/_ (Γ : Cons m n) (l : Universe-level) (t A : Term n)
   field
     u      : Term n
     ⇒*u    : Γ ⊢ t ⇒* u ∷ Σ⟨ s ⟩ p , q ▷ F ▹ G
-    u-prod : Productₗ (Γ .defs) u
+    u-prod : Productᵃₗ (Γ .defs) u
     ≅u     : Γ ⊢≅ u ∷ Σ⟨ s ⟩ p , q ▷ F ▹ G
     prop   : Σ-prop Γ u s u-prod ⊩A
 
@@ -466,8 +468,8 @@ opaque
          _ , _ , t⇒u , t⇒u , ≅u , u-prod , u-prod ,
          Σ-prop⇔[Σ]-prop .proj₁ prop)
     , (λ (_ , _ , t⇒u , t⇒v , u≅v , u-prod , v-prod , prop) →
-         case whrDet*Term (t⇒u , productWhnf u-prod)
-                (t⇒v , productWhnf v-prod) of λ {
+         case whrDet*Term (t⇒u , Productᵃ→Whnf u-prod)
+                (t⇒v , Productᵃ→Whnf v-prod) of λ {
            PE.refl →
          Σₜ _ t⇒u u-prod u≅v (Σ-prop⇔[Σ]-prop′ .proj₂ prop) })
 
@@ -558,7 +560,7 @@ opaque
   natural : Natural-prop Γ t → Natural Var-included (Γ .defs) t
   natural (sucᵣ _)            = sucₙ
   natural zeroᵣ               = zeroₙ
-  natural (ne (neNfₜ t-ne _)) = ne t-ne
+  natural (ne (neNfₜ t-ne _)) = ne (ne⁻ t-ne)
 
 ------------------------------------------------------------------------
 -- Id
@@ -569,49 +571,49 @@ opaque
 
   ⊩Id∷-view⇔′ :
     {⊩A : Γ ⊩′⟨ l ⟩Id A}
-    {t-id t-id′ : Identityₗ (Γ .defs) t} →
+    {t-id t-id′ : Identityᵃₗ (Γ .defs) t} →
     let open _⊩ₗId_ ⊩A in
     ⊩Id∷-view ⊩A t t-id ⇔
-    Identity-rec t-id
-      (Identity-rec t-id′
+    Identityᵃ-rec t-id
+      (Identityᵃ-rec t-id′
          (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
-         (Lift _ ⊥))
-      (Identity-rec t-id′
-         (Lift _ ⊥)
+         (L.Lift _ ⊥))
+      (Identityᵃ-rec t-id′
+         (L.Lift _ ⊥)
          (Γ ⊢~ t ∷ Id Ty lhs rhs))
   ⊩Id∷-view⇔′ {Γ} {l} {A} {t} {⊩A} = lemma₁ _ , lemma₂ _ _
     where
     open _⊩ₗId_ ⊩A
 
     lemma₁ :
-      (t-id′ : Identityₗ (Γ .defs) t) →
+      (t-id′ : Identityᵃₗ (Γ .defs) t) →
       ⊩Id∷-view ⊩A t t-id →
-      Identity-rec t-id
-        (Identity-rec t-id′
+      Identityᵃ-rec t-id
+        (Identityᵃ-rec t-id′
            (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
-           (Lift _ ⊥))
-        (Identity-rec t-id′
-           (Lift _ ⊥)
+           (L.Lift _ ⊥))
+        (Identityᵃ-rec t-id′
+           (L.Lift _ ⊥)
            (Γ ⊢~ t ∷ Id Ty lhs rhs))
-    lemma₁ rflₙ    (rflᵣ lhs≡rhs) = lhs≡rhs
-    lemma₁ (ne _)  (ne _ ~t) = ~t
-    lemma₁ rflₙ    (ne () _)
-    lemma₁ (ne ()) (rflᵣ _)
+    lemma₁ rflₙ           (rflᵣ lhs≡rhs)   = lhs≡rhs
+    lemma₁ (ne _)         (ne _ ~t)        = ~t
+    lemma₁ rflₙ           (ne (ne () _) _)
+    lemma₁ (ne (ne () _)) (rflᵣ _)
 
     lemma₂ :
-      (t-id t-id′ : Identityₗ (Γ .defs) t) →
-      Identity-rec t-id
-        (Identity-rec t-id′
+      (t-id t-id′ : Identityᵃₗ (Γ .defs) t) →
+      Identityᵃ-rec t-id
+        (Identityᵃ-rec t-id′
            (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
-           (Lift _ ⊥))
-        (Identity-rec t-id′
-           (Lift _ ⊥)
+           (L.Lift _ ⊥))
+        (Identityᵃ-rec t-id′
+           (L.Lift _ ⊥)
            (Γ ⊢~ t ∷ Id Ty lhs rhs)) →
       ⊩Id∷-view ⊩A t t-id
-    lemma₂ rflₙ      rflₙ    lhs≡rhs = rflᵣ lhs≡rhs
-    lemma₂ (ne t-ne) (ne _)  ~t      = ne t-ne ~t
-    lemma₂ rflₙ      (ne ())
-    lemma₂ (ne ())   rflₙ
+    lemma₂ rflₙ           rflₙ    lhs≡rhs = rflᵣ lhs≡rhs
+    lemma₂ (ne t-ne)      (ne _)  ~t      = ne t-ne ~t
+    lemma₂ rflₙ           (ne (ne () _))
+    lemma₂ (ne (ne () _)) rflₙ
 
   -- The relation ⊩Id∷-view is pointwise logically equivalent to a
   -- certain relation.
@@ -620,12 +622,12 @@ opaque
     {⊩A : Γ ⊩′⟨ l ⟩Id A} →
     let open _⊩ₗId_ ⊩A in
     ⊩Id∷-view ⊩A t t-id ⇔
-    Identity-rec t-id
-      (Identity-rec t-id
+    Identityᵃ-rec t-id
+      (Identityᵃ-rec t-id
          (Γ ⊩⟨ l ⟩ lhs ≡ rhs ∷ Ty / ⊩Ty)
-         (Lift _ ⊥))
-      (Identity-rec t-id
-         (Lift _ ⊥)
+         (L.Lift _ ⊥))
+      (Identityᵃ-rec t-id
+         (L.Lift _ ⊥)
          (Γ ⊢~ t ∷ Id Ty lhs rhs))
   ⊩Id∷-view⇔ = ⊩Id∷-view⇔′
 
@@ -643,7 +645,7 @@ record _⊩⟨_⟩Id_∷_/_ (Γ : Cons m n) (l : Universe-level) (t A : Term n)
   field
     u    : Term n
     ⇒*u  : Γ ⊢ t ⇒* u ∷ Id Ty lhs rhs
-    u-id : Identityₗ (Γ .defs) u
+    u-id : Identityᵃₗ (Γ .defs) u
     prop : ⊩Id∷-view ⊩A u u-id
 
 opaque
@@ -664,8 +666,8 @@ opaque
            { ⇒*u  = t⇒u
            ; u-id = u-id
            ; prop =
-               case whrDet*Term (t⇒u , identityWhnf u-id)
-                      (t⇒v , identityWhnf v-id) of λ {
+               case whrDet*Term (t⇒u , Identityᵃ→Whnf u-id)
+                      (t⇒v , Identityᵃ→Whnf v-id) of λ {
                  PE.refl →
                ⊩Id∷-view⇔′ .proj₂ rest }
            })

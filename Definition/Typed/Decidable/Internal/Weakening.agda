@@ -2,17 +2,20 @@
 -- Weakening operations used by Definition.Typed.Decidable.Internal
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed.Decidable.Internal.Weakening
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Term 𝕄
+open import Definition.Typed.Decidable.Internal.Term R
 
 open import Definition.Untyped M as U using (Wk)
 open import Definition.Untyped.Properties M
+import Definition.Untyped.Sup R as S
 
 open Wk
 
@@ -106,10 +109,17 @@ wk ρ (var x)                 = var (U.wkVar ρ x)
 wk ρ (defn α)                = defn α
 wk ρ Empty                   = Empty
 wk ρ (emptyrec p A t)        = emptyrec p (weaken ρ A) (weaken ρ t)
-wk ρ (U l)                   = U l
-wk ρ (Unit s l)              = Unit s l
-wk ρ (star s l)              = star s l
-wk ρ (unitrec l p q A t u)   = unitrec l p q (weaken (lift ρ) A)
+wk _ Level                   = Level
+wk _ zeroᵘ                   = zeroᵘ
+wk ρ (sucᵘ l)                = sucᵘ (weaken ρ l)
+wk ρ (l₁ supᵘₗ l₂)           = weaken ρ l₁ supᵘₗ weaken ρ l₂
+wk ρ (U l)                   = U (weaken ρ l)
+wk ρ (Lift l A)              = Lift (weaken ρ l) (weaken ρ A)
+wk ρ (lift l t)              = lift (weaken ρ <$> l) (weaken ρ t)
+wk ρ (lower t)               = lower (weaken ρ t)
+wk ρ (Unit s)                = Unit s
+wk ρ (star s)                = star s
+wk ρ (unitrec p q A t u)     = unitrec p q (weaken (lift ρ) A)
                                  (weaken ρ t) (weaken ρ u)
 wk ρ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) = ΠΣ⟨ b ⟩ p , q ▷ weaken ρ A ▹
                                weaken (lift ρ) B
@@ -137,8 +147,8 @@ wk ρ (J p q A t B u v w)     = J p q (weaken ρ A) (weaken ρ t)
 wk ρ (K p A t B u v)         = K p (weaken ρ A) (weaken ρ t)
                                  (weaken (lift ρ) B) (weaken ρ u)
                                  (weaken ρ v)
-wk ρ ([]-cong s A t u v)     = []-cong s (weaken ρ A) (weaken ρ t)
-                                 (weaken ρ u) (weaken ρ v)
+wk ρ ([]-cong s l A t u v)   = []-cong s (weaken ρ l) (weaken ρ A)
+                                 (weaken ρ t) (weaken ρ u) (weaken ρ v)
 
 opaque
 
@@ -163,17 +173,32 @@ opaque
     PE.refl
   ⌜wk⌝ (defn _) =
     PE.refl
+  ⌜wk⌝ Level =
+    PE.refl
+  ⌜wk⌝ zeroᵘ =
+    PE.refl
+  ⌜wk⌝ (sucᵘ _) =
+    PE.refl
+  ⌜wk⌝ {ρ} {γ} (l₁ supᵘₗ l₂) =
+    U.wk ρ (⌜ l₁ ⌝ γ) S.supᵘₗ U.wk ρ (⌜ l₂ ⌝ γ)  ≡˘⟨ S.wk-supᵘₗ ⟩
+    U.wk ρ (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ)           ∎
   ⌜wk⌝ (U _) =
+    PE.refl
+  ⌜wk⌝ (Lift _ _) =
+    PE.refl
+  ⌜wk⌝ (lift _ _) =
+    PE.refl
+  ⌜wk⌝ (lower _) =
     PE.refl
   ⌜wk⌝ Empty =
     PE.refl
   ⌜wk⌝ (emptyrec _ _ _) =
     PE.refl
-  ⌜wk⌝ (Unit _ _) =
+  ⌜wk⌝ (Unit _) =
     PE.refl
-  ⌜wk⌝ (star _ _) =
+  ⌜wk⌝ (star _) =
     PE.refl
-  ⌜wk⌝ (unitrec _ _ _ _ _ _) =
+  ⌜wk⌝ (unitrec _ _ _ _ _) =
     PE.refl
   ⌜wk⌝ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) =
     PE.refl
@@ -205,7 +230,7 @@ opaque
     PE.refl
   ⌜wk⌝ (K _ _ _ _ _ _) =
     PE.refl
-  ⌜wk⌝ ([]-cong _ _ _ _ _) =
+  ⌜wk⌝ ([]-cong _ _ _ _ _ _) =
     PE.refl
 
 ------------------------------------------------------------------------

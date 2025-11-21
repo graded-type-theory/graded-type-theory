@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
-open import Definition.Untyped.NotParametrised
+open import Definition.Untyped.NotParametrised using (Strength)
 
 module Definition.Untyped.Erased
   {a} {M : Set a}
@@ -13,7 +13,7 @@ module Definition.Untyped.Erased
 
 open Modality 𝕄
 
-open import Definition.Untyped M as U
+open import Definition.Untyped M as U hiding (_[_])
 import Definition.Untyped.Erased.Eta 𝕄 as Eta
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
@@ -30,20 +30,135 @@ open import Tools.PropositionalEquality as PE hiding (subst; cong)
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n           : Nat
-  A B t u v w : Term _
-  σ           : Subst _ _
-  p           : M
+  n             : Nat
+  ξ             : DExt _ _ _
+  A B l t u v w : Term _
+  σ             : Subst _ _
+  ρ             : Wk _ _
+  p             : M
 
--- The type constructor Erased.
+opaque
 
-Erased : Term n → Term n
-Erased A = Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Unit s 0
+  -- The type constructor Erased.
 
--- The constructor [_].
+  Erased : Term n → Term n → Term n
+  Erased l A = Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Lift (wk1 l) (Unit s)
 
-[_] : Term n → Term n
-[ t ] = prod s 𝟘 t (star s 0)
+opaque
+  unfolding Erased
+
+  -- A substitution lemma for Erased.
+
+  Erased-[] : Erased l A U.[ σ ] ≡ Erased (l U.[ σ ]) (A U.[ σ ])
+  Erased-[] {l} {A} {σ} =
+    Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A U.[ σ ] ▹ Lift (wk1 l U.[ σ ⇑ ]) (Unit s)  ≡⟨ PE.cong (Σ⟨ s ⟩_,_▷_▹_ _ _ _) (PE.cong (flip Lift _) (wk1-liftSubst l)) ⟩
+    Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A U.[ σ ] ▹ Lift (wk1 (l U.[ σ ])) (Unit s)  ∎
+
+opaque
+
+  -- A weakening lemma for Erased.
+
+  wk-Erased : wk ρ (Erased l A) ≡ Erased (wk ρ l) (wk ρ A)
+  wk-Erased {ρ} {l} {A} =
+    wk ρ (Erased l A)                               ≡⟨ wk≡subst _ _ ⟩
+    Erased l A U.[ toSubst ρ ]                      ≡⟨ Erased-[] ⟩
+    Erased (l U.[ toSubst ρ ]) (A U.[ toSubst ρ ])  ≡˘⟨ PE.cong₂ Erased (wk≡subst _ _) (wk≡subst _ _) ⟩
+    Erased (wk ρ l) (wk ρ A)                        ∎
+
+opaque
+  unfolding inline Erased
+
+  -- Inlining commutes with Erased.
+
+  inline-Erased :
+    inline ξ (Erased l A) ≡ Erased (inline ξ l) (inline ξ A)
+  inline-Erased {l} =
+    PE.cong (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷_▹_ _) $
+    PE.cong (flip Lift _) $
+    PE.sym $ wk-inline l
+
+opaque
+
+  -- The constructor [_].
+
+  [_] : Term n → Term n
+  [ t ] = prod s 𝟘 t (lift (star s))
+
+opaque
+  unfolding [_]
+
+  -- A substitution lemma for [_].
+
+  []-[] : [ t ] U.[ σ ] ≡ [ t U.[ σ ] ]
+  []-[] = refl
+
+opaque
+
+  -- A weakening lemma for [_].
+
+  wk-[] : wk ρ [ t ] ≡ [ wk ρ t ]
+  wk-[] {ρ} {t} =
+    wk ρ [ t ]             ≡⟨ wk≡subst _ _ ⟩
+    [ t ] U.[ toSubst ρ ]  ≡⟨ []-[] ⟩
+    [ t U.[ toSubst ρ ] ]  ≡˘⟨ PE.cong [_] $ wk≡subst _ _ ⟩
+    [ wk ρ t ]             ∎
+
+opaque
+  unfolding inline [_]
+
+  -- Inlining commutes with [_].
+
+  inline-[]′ :
+    inline ξ [ t ] ≡ [ inline ξ t ]
+  inline-[]′ = refl
+
+opaque
+
+  -- A substitution lemma for Id, Erased and [_].
+
+  Id-Erased-[] :
+    Id (Erased (l U.[ σ ]) (A U.[ σ ])) [ t U.[ σ ] ] [ u U.[ σ ] ] ≡
+    Id (Erased l A) [ t ] [ u ] U.[ σ ]
+  Id-Erased-[] = sym $ cong₃ Id Erased-[] []-[] []-[]
+
+opaque
+
+  -- A weakening lemma for Id, Erased and [_].
+
+  wk-Id-Erased :
+    Id (Erased (wk ρ l) (wk ρ A)) [ wk ρ t ] [ wk ρ u ] ≡
+    wk ρ (Id (Erased l A) [ t ] [ u ])
+  wk-Id-Erased = sym $ cong₃ Id wk-Erased wk-[] wk-[]
+
+opaque
+
+  -- A combination of Id-Erased-[] and wk-Id-Erased.
+
+  wk-Id-Erased-[]-[] :
+    Id (Erased (wk ρ l U.[ σ ]) (wk ρ A U.[ σ ])) [ wk ρ t U.[ σ ] ]
+       [ wk ρ u U.[ σ ] ] ≡
+    wk ρ (Id (Erased l A) [ t ] [ u ]) U.[ σ ]
+  wk-Id-Erased-[]-[] {ρ} {l} {σ} {A} {t} {u} =
+    Id (Erased (wk ρ l U.[ σ ]) (wk ρ A U.[ σ ])) [ wk ρ t U.[ σ ] ]
+       [ wk ρ u U.[ σ ] ]                                             ≡⟨ Id-Erased-[] ⟩
+
+    Id (Erased (wk ρ l) (wk ρ A)) [ wk ρ t ] [ wk ρ u ] U.[ σ ]       ≡⟨ PE.cong U._[ σ ] wk-Id-Erased ⟩
+
+    wk ρ (Id (Erased l A) [ t ] [ u ]) U.[ σ ]                        ∎
+
+opaque
+  unfolding inline
+
+  -- An inlining lemma for Id, Erased and [_].
+
+  inline-Id-Erased :
+    Id (Erased (inline ξ l) (inline ξ A)) [ inline ξ t ]
+      [ inline ξ u ] ≡
+    inline ξ (Id (Erased l A) [ t ] [ u ])
+  inline-Id-Erased {ξ} {l} {A} {t} {u} =
+    Id (Erased (inline ξ l) (inline ξ A)) [ inline ξ t ] [ inline ξ u ]  ≡˘⟨ cong₃ Id inline-Erased inline-[]′ inline-[]′ ⟩
+    Id (inline ξ (Erased l A)) (inline ξ [ t ]) (inline ξ [ u ])         ≡⟨⟩
+    inline ξ (Id (Erased l A) [ t ] [ u ])                               ∎
 
 opaque
 
@@ -60,9 +175,20 @@ opaque
   -- A substitution lemma for erased.
 
   erased-[] : erased A t U.[ σ ] ≡ erased (A U.[ σ ]) (t U.[ σ ])
-  erased-[] {A} {t} = case singleton s of λ where
-    (𝕤 , refl) → refl
-    (𝕨 , refl) → NoEta.erased-[] A t
+  erased-[] = case singleton s of λ where
+    (𝕤 , refl) → Eta.erased-[]
+    (𝕨 , refl) → NoEta.erased-[]
+
+opaque
+
+  -- A weakening lemma for erased.
+
+  wk-erased : wk ρ (erased A t) ≡ erased (wk ρ A) (wk ρ t)
+  wk-erased {ρ} {A} {t} =
+    wk ρ (erased A t)                               ≡⟨ wk≡subst _ _ ⟩
+    erased A t U.[ toSubst ρ ]                      ≡⟨ erased-[] ⟩
+    erased (A U.[ toSubst ρ ]) (t U.[ toSubst ρ ])  ≡˘⟨ PE.cong₂ erased (wk≡subst _ _) (wk≡subst _ _) ⟩
+    erased (wk ρ A) (wk ρ t)                        ∎
 
 opaque
 
@@ -80,8 +206,8 @@ opaque
   erasedrec : M → Term (1+ n) → Term (1+ n) → Term n → Term n
   erasedrec p B t u =
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B u
-      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
-         (var x0) (wk1 t))
+      (unitrec⟨ s ⟩ 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑)
+         (lower (var x0)) (wk1 t))
 
 opaque
   unfolding erasedrec
@@ -93,42 +219,42 @@ opaque
     erasedrec p (B U.[ liftSubst σ ]) (t U.[ liftSubst σ ]) (u U.[ σ ])
   erasedrec-[] {p} {B} {t} {u} {σ} =
     prodrec⟨ s ⟩ is-𝕨 𝟘 p B u
-      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
-         (var x0) (wk1 t))
-      U.[ σ ]                                                        ≡⟨ prodrec⟨⟩-[] ⟩
+      (unitrec⟨ s ⟩ 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑)
+         (lower (var x0)) (wk1 t))
+      U.[ σ ]                                                               ≡⟨ prodrec⟨⟩-[] ⟩
 
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
-      (unitrec⟨ s ⟩ 0 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
-         (var x0) (wk1 t)
-         U.[ liftSubstn σ 2 ])                                       ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _)
-                                                                        unitrec⟨⟩-[] ⟩
+      (unitrec⟨ s ⟩ 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑)
+         (lower (var x0)) (wk1 t)
+         U.[ liftSubstn σ 2 ])                                              ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _)
+                                                                               unitrec⟨⟩-[] ⟩
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
-      (unitrec⟨ s ⟩ 0 𝟙 p
-         (B [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑
+      (unitrec⟨ s ⟩ 𝟙 p
+         (B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑
             U.[ liftSubstn σ 3 ])
-         (var x0) (wk1 t U.[ liftSubstn σ 2 ]))                      ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _) $
-                                                                        PE.cong₃ (unitrec⟨_⟩ _ _ _ _)
-                                                                          (PE.trans (substCompEq B) $
-                                                                           PE.trans (flip substVar-to-subst B λ
-                                                                                       { x0     → PE.refl
-                                                                                       ; (_ +1) → PE.sym $ wk1-[][]↑ 3
-                                                                                       }) $
-                                                                           PE.sym $ substCompEq B)
-                                                                          PE.refl
-                                                                          (wk1-liftSubst t) ⟩
+         (lower (var x0)) (wk1 t U.[ liftSubstn σ 2 ]))                     ≡⟨ PE.cong (prodrec⟨_⟩ _ _ _ _ _ _) $
+                                                                               PE.cong₃ (unitrec⟨_⟩ _ _ _)
+                                                                                 (PE.trans (substCompEq B) $
+                                                                                  PE.trans (flip substVar-to-subst B λ
+                                                                                              { x0     → PE.refl
+                                                                                              ; (_ +1) → PE.sym $ wk1-[][]↑ 3
+                                                                                              }) $
+                                                                                  PE.sym $ substCompEq B)
+                                                                                 PE.refl
+                                                                                 (wk1-liftSubst t) ⟩
     prodrec⟨ s ⟩ is-𝕨 𝟘 p (B U.[ liftSubst σ ]) (u U.[ σ ])
-      (unitrec⟨ s ⟩ 0 𝟙 p
-         (B U.[ liftSubst σ ] [ 3 ][ prod s 𝟘 (var x2) (var x0) ]↑)
-         (var x0) (wk1 (t U.[ liftSubst σ ])))                       ∎
+      (unitrec⟨ s ⟩ 𝟙 p
+         (B U.[ liftSubst σ ] [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑)
+         (lower (var x0)) (wk1 (t U.[ liftSubst σ ])))                      ∎
 
 opaque
 
   -- A propositional η-rule for Erased.
 
-  Erased-η : Term n → Term n → Term n
-  Erased-η A t =
+  Erased-η : Term n → Term n → Term n → Term n
+  Erased-η l A t =
     erasedrec 𝟙
-      (Id (Erased (wk1 A)) [ erased (wk1 A) (var x0) ] (var x0))
+      (Id (Erased (wk1 l) (wk1 A)) [ erased (wk1 A) (var x0) ] (var x0))
       rfl t
 
 opaque
@@ -137,28 +263,35 @@ opaque
   -- A substitution lemma for Erased-η.
 
   Erased-η-[] :
-    Erased-η A t U.[ σ ] ≡ Erased-η (A U.[ σ ]) (t U.[ σ ])
-  Erased-η-[] {A} {t} {σ} =
+    Erased-η l A u U.[ σ ] ≡
+    Erased-η (l U.[ σ ]) (A U.[ σ ]) (u U.[ σ ])
+  Erased-η-[] {l} {A} {u} {σ} =
     erasedrec 𝟙
-      (Id (Erased (wk1 A)) [ erased (wk1 A) (var x0) ] (var x0))
-      rfl t U.[ σ ]                                               ≡⟨ erasedrec-[] ⟩
+      (Id (Erased (wk1 l) (wk1 A)) [ erased (wk1 A) (var x0) ] (var x0))
+      rfl u U.[ σ ]                                                       ≡⟨ erasedrec-[] ⟩
 
     erasedrec 𝟙
-      (Id (Erased (wk1 A U.[ liftSubst σ ]))
-         [ erased (wk1 A) (var x0) U.[ liftSubst σ ] ] (var x0))
-      rfl (t U.[ σ ])                                             ≡⟨ cong₃ (erasedrec _)
-                                                                       (cong₃ Id refl (PE.cong [_] erased-[]) refl)
-                                                                       refl
-                                                                       refl ⟩
+      (Id (Erased (wk1 l) (wk1 A) U.[ σ ⇑ ])
+         ([ erased (wk1 A) (var x0) ] U.[ σ ⇑ ]) (var x0))
+      rfl (u U.[ σ ])                                                     ≡⟨ cong₃ (erasedrec _) (cong₃ Id Erased-[] []-[] refl) refl refl ⟩
+
     erasedrec 𝟙
-      (Id (Erased (wk1 A U.[ liftSubst σ ]))
-         [ erased (wk1 A U.[ liftSubst σ ]) (var x0) ] (var x0))
-      rfl (t U.[ σ ])                                             ≡⟨ PE.cong (λ A → erasedrec _ (Id (Erased A) [ erased A _ ] _) _ _) $
-                                                                     wk1-liftSubst A ⟩
+      (Id (Erased (wk1 l U.[ σ ⇑ ]) (wk1 A U.[ σ ⇑ ]))
+         [ erased (wk1 A) (var x0) U.[ σ ⇑ ] ] (var x0))
+      rfl (u U.[ σ ])                                                     ≡⟨ cong₃ (erasedrec _)
+                                                                               (cong₃ Id refl (PE.cong [_] erased-[]) refl)
+                                                                               refl
+                                                                               refl ⟩
     erasedrec 𝟙
-      (Id (Erased (wk1 (A U.[ σ ])))
+      (Id (Erased (wk1 l U.[ σ ⇑ ]) (wk1 A U.[ σ ⇑ ]))
+         [ erased (wk1 A U.[ σ ⇑ ]) (var x0) ] (var x0))
+      rfl (u U.[ σ ])                                                     ≡⟨ PE.cong₂ (λ l A → erasedrec _ (Id (Erased l A) [ erased A _ ] _) _ _)
+                                                                               (wk1-liftSubst l)
+                                                                               (wk1-liftSubst A) ⟩
+    erasedrec 𝟙
+      (Id (Erased (wk1 (l U.[ σ ])) (wk1 (A U.[ σ ])))
          [ erased (wk1 (A U.[ σ ])) (var x0) ] (var x0))
-      rfl (t U.[ σ ])                                             ∎
+      rfl (u U.[ σ ])                                                     ∎
 
 opaque
 
@@ -176,6 +309,7 @@ opaque
     mapᴱ A t u U.[ σ ] ≡
     mapᴱ (A U.[ σ ]) (t U.[ σ ⇑ ]) (u U.[ σ ])
   mapᴱ-[] {A} {t} {u} {σ} =
+    [ t U.[ erased A u ]₀ ] U.[ σ ]                        ≡⟨ []-[] ⟩
     [ t U.[ erased A u ]₀ U.[ σ ] ]                        ≡⟨ PE.cong ([_]) $ singleSubstLift t _ ⟩
     [ t U.[ σ ⇑ ] U.[ erased A u U.[ σ ] ]₀ ]              ≡⟨ PE.cong ([_] ∘→ t U.[ σ ⇑ ] U.[_]₀) erased-[] ⟩
     [ t U.[ σ ⇑ ] U.[ erased (A U.[ σ ]) (u U.[ σ ]) ]₀ ]  ∎
@@ -189,8 +323,8 @@ opaque
   substᵉ :
     Term n → Term (1+ n) → Term n → Term n → Term n → Term n → Term n
   substᵉ A B t u v w =
-    subst 𝟘 (Erased A) (B [ erased (wk1 A) (var x0) ]↑) [ t ] [ u ]
-      ([]-cong s A t u v) w
+    subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑)
+      [ t ] [ u ] ([]-cong s zeroᵘ A t u v) w
 
 opaque
   unfolding substᵉ
@@ -199,30 +333,30 @@ opaque
 
   substᵉ-[] :
     substᵉ A B t u v w U.[ σ ] ≡
-    substᵉ (A U.[ σ ]) (B U.[ liftSubst σ ]) (t U.[ σ ]) (u U.[ σ ])
-      (v U.[ σ ]) (w U.[ σ ])
+    substᵉ (A U.[ σ ]) (B U.[ liftSubst σ ]) (t U.[ σ ])
+      (u U.[ σ ]) (v U.[ σ ]) (w U.[ σ ])
   substᵉ-[] {A} {B} {t} {u} {v} {w} {σ} =
-    subst 𝟘 (Erased A) (B [ erased (wk1 A) (var x0) ]↑) [ t ] [ u ]
-      ([]-cong s A t u v) w U.[ σ ]                                       ≡⟨ subst-[] ⟩
+    subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑) [ t ]
+      [ u ] ([]-cong s zeroᵘ A t u v) w U.[ σ ]                           ≡⟨ subst-[] ⟩
 
-    subst 𝟘 (Erased A U.[ σ ])
+    subst 𝟘 (Erased zeroᵘ A U.[ σ ])
       (B [ erased (wk1 A) (var x0) ]↑ U.[ liftSubst σ ]) ([ t ] U.[ σ ])
-      ([ u ] U.[ σ ]) ([]-cong s A t u v U.[ σ ]) (w U.[ σ ])             ≡⟨ cong₅ (subst _ _) lemma refl refl refl refl ⟩
+      ([ u ] U.[ σ ]) ([]-cong s zeroᵘ A t u v U.[ σ ]) (w U.[ σ ])       ≡⟨ cong₆ (subst _) Erased-[] lemma []-[] []-[] refl refl ⟩
 
-    subst 𝟘 (Erased (A U.[ σ ]))
+    subst 𝟘 (Erased zeroᵘ (A U.[ σ ]))
       (B U.[ liftSubst σ ] [ erased (wk1 (A U.[ σ ])) (var x0) ]↑)
       [ t U.[ σ ] ] [ u U.[ σ ] ]
-      ([]-cong s (A U.[ σ ]) (t U.[ σ ]) (u U.[ σ ]) (v U.[ σ ]))
+      ([]-cong s zeroᵘ (A U.[ σ ]) (t U.[ σ ]) (u U.[ σ ]) (v U.[ σ ]))
       (w U.[ σ ])                                                         ∎
     where
     lemma :
       B [ erased (wk1 A) (var x0) ]↑ U.[ liftSubst σ ] ≡
       B U.[ liftSubst σ ] [ erased (wk1 (A U.[ σ ])) (var x0) ]↑
     lemma =
-      B [ erased (wk1 A) (var x0) ]↑ U.[ liftSubst σ ]                    ≡⟨ singleSubstLift↑ _ B _ ⟩
-      B U.[ liftSubst σ ] [ erased (wk1 A) (var x0) U.[ liftSubst σ ] ]↑  ≡⟨ PE.cong (B U.[ _ ] [_]↑) erased-[] ⟩
-      B U.[ liftSubst σ ] [ erased (wk1 A U.[ liftSubst σ ]) (var x0) ]↑  ≡⟨ PE.cong (λ A → B U.[ _ ] [ erased A _ ]↑) $ wk1-liftSubst A ⟩
-      B U.[ liftSubst σ ] [ erased (wk1 (A U.[ σ ])) (var x0) ]↑          ∎
+      B [ erased (wk1 A) (var x0) ]↑ U.[ liftSubst σ ]            ≡⟨ singleSubstLift↑ _ B _ ⟩
+      B U.[ liftSubst σ ] [ erased (wk1 A) (var x0) U.[ σ ⇑ ] ]↑  ≡⟨ PE.cong (B U.[ _ ] [_]↑) erased-[] ⟩
+      B U.[ liftSubst σ ] [ erased (wk1 A U.[ σ ⇑ ]) (var x0) ]↑  ≡⟨ PE.cong (λ A → B U.[ _ ] [ erased A _ ]↑) (wk1-liftSubst A) ⟩
+      B U.[ liftSubst σ ] [ erased (wk1 (A U.[ σ ])) (var x0) ]↑  ∎
 
 opaque
 
@@ -254,7 +388,7 @@ opaque
 
   Jᵉ-[] :
     Jᵉ A t B u v w U.[ σ ] ≡
-    Jᵉ (A U.[ σ ]) (t U.[ σ ]) (B U.[ liftSubstn σ 2 ]) (u U.[ σ ])
+    Jᵉ (A U.[ σ ]) (t U.[ σ ]) (B U.[ σ ⇑[ 2 ] ]) (u U.[ σ ])
       (v U.[ σ ]) (w U.[ σ ])
   Jᵉ-[] {A} {t} {B} {u} {v} {w} {σ} =
     case

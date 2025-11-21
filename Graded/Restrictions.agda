@@ -58,6 +58,7 @@ private variable
 
 no-type-restrictions : Bool → Bool → Type-restrictions
 no-type-restrictions k equality-reflection = λ where
+    .level-support                 → level-type small
     .Unit-allowed                  → λ _ → Lift _ ⊤
     .ΠΣ-allowed                    → λ _ _ _ → Lift _ ⊤
     .Opacity-allowed               → Lift _ (¬ T equality-reflection)

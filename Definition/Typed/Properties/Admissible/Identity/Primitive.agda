@@ -20,7 +20,9 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
 import Definition.Typed.Properties.Admissible.Identity.Very-primitive
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Pi R
+open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
@@ -37,8 +39,7 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
-open import Tools.Nat as N using (Nat; 1+; 2+; 3+)
+open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -48,20 +49,16 @@ open Definition.Typed.Properties.Admissible.Identity.Very-primitive R
   public
 
 private variable
-  ∇                                                    : DCon (Term 0) _
   m n                                                  : Nat
+  ∇                                                    : DCon (Term 0) _
   Δ Δ₁ Δ₂                                              : Con Term _
-  Γ                                                    : Cons _ _
-  Η                                                    : Cons _ _
+  Γ Η                                                  : Cons _ _
   A A₁ A₁₁ A₁₂ A₂ A₂₁ A₂₂ A′ B B₁ B₂ C
-    eq eq₁ eq₁₁ eq₁₂ eq₂ eq₂₁ eq₂₂
+    eq eq₁ eq₁₁ eq₁₂ eq₂ eq₂₁ eq₂₂ l l₁ l₂
     t t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ t′ u u₁ u₁₁ u₁₂ u₂ u₂₁ u₂₂
     v v₁ v₂ w w₁ w₁₁ w₁₂ w₂ w₂₁ w₂₂                    : Term _
-  σ                                                    : Subst _ _
-  p p′ p″ q q′ q″                                      : M
-  b                                                    : BinderMode
+  p p′ q q′                                            : M
   s                                                    : Strength
-  l l₁ l₂                                              : Universe-level
 
 ------------------------------------------------------------------------
 -- Lemmas related to rfl
@@ -371,73 +368,40 @@ opaque
 
 opaque
 
-  -- A variant of []-cong-subst.
-
-  []-cong-subst′ :
-    Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
-    []-cong-allowed s →
-    let open Erased s in
-      Γ ⊢ []-cong s A t u v₁ ⇒ []-cong s A t u v₂ ∷
-        Id (Erased A) ([ t ]) ([ u ])
-  []-cong-subst′ v₁⇒v₂ =
-    case inversion-Id (syntacticTerm (redFirstTerm v₁⇒v₂)) of λ {
-      (⊢A , ⊢t , ⊢u) →
-    []-cong-subst ⊢A ⊢t ⊢u v₁⇒v₂ }
-
-opaque
-
   -- A variant of []-cong-subst for _⊢_⇒*_∷_.
 
   []-cong-subst* :
     let open Erased s in
+    Γ ⊢ l ∷Level →
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
     []-cong-allowed s →
-    Γ ⊢ []-cong s A t u v₁ ⇒* []-cong s A t u v₂ ∷
-      Id (Erased A) [ t ] ([ u ])
-  []-cong-subst* {s} v₁⇒*v₂ ok =
-    let ⊢A , ⊢t , ⊢u =
-          inversion-Id (syntacticTerm (redFirst*Term v₁⇒*v₂))
-    in
+    Γ ⊢ []-cong s l A t u v₁ ⇒* []-cong s l A t u v₂ ∷
+      Id (Erased l A) [ t ] ([ u ])
+  []-cong-subst* ⊢l v₁⇒*v₂ ok =
     case v₁⇒*v₂ of λ where
-      (id ⊢v₁)         → id ([]-congⱼ ⊢A ⊢t ⊢u ⊢v₁ ok)
+      (id ⊢v₁)         → id ([]-congⱼ′ ok ⊢l ⊢v₁)
       (v₁⇒v₃ ⇨ v₃⇒*v₂) →
-        []-cong-subst ⊢A ⊢t ⊢u v₁⇒v₃ ok ⇨ []-cong-subst* v₃⇒*v₂ ok
-
-opaque
-
-  -- A variant of the reduction rule []-cong-β.
-
-  []-cong-β-⇒ :
-    Γ ⊢ t ≡ t′ ∷ A →
-    []-cong-allowed s →
-    let open Erased s in
-      Γ ⊢ []-cong s A t t′ rfl ⇒ rfl ∷
-        Id (Erased A) ([ t ]) ([ t′ ])
-  []-cong-β-⇒ t≡t′ =
-    case syntacticEqTerm t≡t′ of λ {
-      (⊢A , ⊢t , ⊢t′) →
-    []-cong-β ⊢A ⊢t ⊢t′ t≡t′ }
+        []-cong-subst ⊢l v₁⇒v₃ ok ⇨ []-cong-subst* ⊢l v₃⇒*v₂ ok
 
 opaque
 
   -- A variant of the equality rule []-cong-β.
 
   []-cong-β-≡ :
+    Γ ⊢ l ∷Level →
     Γ ⊢ t ≡ t′ ∷ A →
     []-cong-allowed s →
     let open Erased s in
-      Γ ⊢ []-cong s A t t′ rfl ≡ rfl ∷
-        Id (Erased A) ([ t ]) ([ t′ ])
-  []-cong-β-≡ t≡t′ ok =
-    case syntacticEqTerm t≡t′ of λ {
-      (⊢A , ⊢t , ⊢t′) →
-    case []-cong-cong (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
-           (refl (rflⱼ′ t≡t′)) ok of λ
-      []-cong-t≡[]-cong-t′ →
-    case ([]-cong-β ⊢t PE.refl ok) of λ
-      []-cong-⇒ →
-    trans []-cong-t≡[]-cong-t′ (conv []-cong-⇒
-      (Id-cong (refl (Erasedⱼ ⊢A)) (refl ([]ⱼ ⊢A ⊢t)) ([]-cong′ ⊢A t≡t′))) }
+      Γ ⊢ []-cong s l A t t′ rfl ≡ rfl ∷
+        Id (Erased l A) ([ t ]) ([ t′ ])
+  []-cong-β-≡ ⊢l t≡t′ ok =
+    let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′ in
+    trans
+      ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
+         (refl (rflⱼ′ t≡t′)) ok)
+      (conv ([]-cong-β ⊢l ⊢t PE.refl ok)
+         (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
+            ([]-cong′ ⊢l ⊢A t≡t′)))
     where
     open EP ([]-cong→Erased ok)
 
@@ -598,11 +562,12 @@ opaque
   -- A typing rule for cast.
 
   ⊢cast :
+    Γ ⊢ l ∷Level →
     Γ ⊢ t ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t u ∷ B
-  ⊢cast ⊢t ⊢u =
-    ⊢subst (univ (var₀ (Uⱼ (wfTerm ⊢t)))) ⊢t ⊢u
+  ⊢cast ⊢l ⊢t ⊢u =
+    ⊢subst (univ (var₀ (⊢U ⊢l))) ⊢t ⊢u
 
 opaque
   unfolding cast
@@ -610,33 +575,36 @@ opaque
   -- A reduction rule for cast.
 
   cast-⇒′ :
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ≡ A′ ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
-  cast-⇒′ A≡A′ ⊢t =
-    subst-⇒′ (univ (var₀ (Uⱼ (wfTerm ⊢t)))) A≡A′ ⊢t
+  cast-⇒′ ⊢l A≡A′ ⊢t =
+    subst-⇒′ (univ (var₀ (⊢U ⊢l))) A≡A′ ⊢t
 
 opaque
 
   -- Another reduction rule for cast.
 
   cast-⇒ :
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A rfl t ⇒ t ∷ A
-  cast-⇒ ⊢A ⊢t =
-    cast-⇒′ (refl ⊢A) ⊢t
+  cast-⇒ ⊢l ⊢A ⊢t =
+    cast-⇒′ ⊢l (refl ⊢A) ⊢t
 
 opaque
 
   -- An equality rule for cast.
 
   cast-≡ :
+    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A rfl t ≡ t ∷ A
-  cast-≡ ⊢A ⊢t =
-    subsetTerm (cast-⇒ ⊢A ⊢t)
+  cast-≡ ⊢l ⊢A ⊢t =
+    subsetTerm (cast-⇒ ⊢l ⊢A ⊢t)
 
 opaque
   unfolding cast
@@ -660,24 +628,26 @@ opaque
   -- A reduction rule for cast.
 
   cast-subst :
+    Γ ⊢ l ∷Level →
     Γ ⊢ t₁ ⇒ t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
-  cast-subst t₁⇒t₂ ⊢u =
-    subst-subst (univ (var₀ (Uⱼ (wfTerm ⊢u)))) t₁⇒t₂ ⊢u
+  cast-subst ⊢l t₁⇒t₂ ⊢u =
+    subst-subst (univ (var₀ (⊢U ⊢l))) t₁⇒t₂ ⊢u
 
 opaque
 
   -- A reduction rule for cast.
 
   cast-subst* :
+    Γ ⊢ l ∷Level →
     Γ ⊢ t₁ ⇒* t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒* cast l A B t₂ u ∷ B
-  cast-subst* = λ where
-    (id ⊢t)          ⊢u → id (⊢cast ⊢t ⊢u)
+  cast-subst* ⊢l = λ where
+    (id ⊢t)          ⊢u → id (⊢cast ⊢l ⊢t ⊢u)
     (t₁⇒t₃ ⇨ t₃⇒*t₂) ⊢u →
-      cast-subst t₁⇒t₃ ⊢u ⇨ cast-subst* t₃⇒*t₂ ⊢u
+      cast-subst ⊢l t₁⇒t₃ ⊢u ⇨ cast-subst* ⊢l t₃⇒*t₂ ⊢u
 
 opaque
   unfolding cast
@@ -1226,60 +1196,66 @@ opaque
         Id A (cast l B A (symmetry (U l) A B t) (cast l A B t u)) u
   ⊢cast-symmetry-cast {t} {l} {A} {B} {u} ⊢t ⊢u =
     let _ , ⊢A , ⊢B = inversion-Id (wf-⊢∷ ⊢t)
+        ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
         ⊢Id         = J-motive-context-type ⊢A
         ⊢0          = PE.subst (_⊢_∷_ _ _)
-                        (PE.cong₂ (Id _) wk[]≡wk[]′ PE.refl) $
+                        (PE.cong₃ Id
+                           (PE.cong U wk[]≡wk[]′) wk[]≡wk[]′ PE.refl) $
                       var₀ ⊢Id
+        ⊢l′         = wkLevel (ʷ⊇-drop (∙ ⊢Id)) ⊢l
         ⊢u′         = wkTerm (ʷ⊇-drop (∙ ⊢Id)) ⊢u
     in
     J ω ω (U l) A
       (Id (wk[ 2 ]′ A)
-         (cast l (var x1) (wk[ 2 ]′ A)
-            (symmetry (U l) (wk[ 2 ]′ A) (var x1) (var x0))
-            (cast l (wk[ 2 ]′ A) (var x1) (var x0) (wk[ 2 ]′ u)))
+         (cast (wk[ 2 ]′ l) (var x1) (wk[ 2 ]′ A)
+            (symmetry (U (wk[ 2 ]′ l)) (wk[ 2 ]′ A) (var x1) (var x0))
+            (cast (wk[ 2 ]′ l) (wk[ 2 ]′ A) (var x1) (var x0) (wk[ 2 ]′ u)))
          (wk[ 2 ]′ u))
       rfl B t ,
     PE.subst (_⊢_∷_ _ _)
       (Id (wk[ 2 ]′ A)
-         (cast l (var x1) (wk[ 2 ]′ A)
-            (symmetry (U l) (wk[ 2 ]′ A) (var x1) (var x0))
-            (cast l (wk[ 2 ]′ A) (var x1) (var x0) (wk[ 2 ]′ u)))
+         (cast (wk[ 2 ]′ l) (var x1) (wk[ 2 ]′ A)
+            (symmetry (U (wk[ 2 ]′ l)) (wk[ 2 ]′ A) (var x1) (var x0))
+            (cast (wk[ 2 ]′ l) (wk[ 2 ]′ A) (var x1) (var x0)
+               (wk[ 2 ]′ u)))
          (wk[ 2 ]′ u)
-       [ B , t ]₁₀                                                  ≡⟨ PE.cong₃ Id
-                                                                         wk₂-[,]
-                                                                         (PE.trans cast-[] $
-                                                                          PE.cong₃ (cast _ _)
-                                                                            wk₂-[,]
-                                                                            (PE.trans symmetry-[] $
-                                                                             PE.cong₃ (symmetry _) wk₂-[,] PE.refl PE.refl)
-                                                                            (PE.trans cast-[] $
-                                                                             PE.cong₄ (cast _) wk₂-[,] PE.refl PE.refl wk₂-[,]))
-                                                                         wk₂-[,] ⟩
-       Id A (cast l B A (symmetry (U l) A B t) (cast l A B t u)) u  ∎)
-      (Jⱼ′ (Idⱼ′ (⊢cast (⊢symmetry ⊢0) (⊢cast ⊢0 ⊢u′)) ⊢u′)
+       [ B , t ]₁₀                                                      ≡⟨ PE.cong₃ Id
+                                                                             wk₂-[,]
+                                                                             (PE.trans cast-[] $
+                                                                              PE.cong₅ cast
+                                                                                wk₂-[,] PE.refl wk₂-[,]
+                                                                                (PE.trans symmetry-[] $
+                                                                                 PE.cong₄ symmetry wk₂-[,] wk₂-[,] PE.refl PE.refl)
+                                                                                (PE.trans cast-[] $
+                                                                                 PE.cong₅ cast wk₂-[,] wk₂-[,] PE.refl PE.refl wk₂-[,]))
+                                                                             wk₂-[,] ⟩
+       Id A (cast l B A (symmetry (U l) A B t) (cast l A B t u)) u      ∎)
+      (Jⱼ′ (Idⱼ′ (⊢cast ⊢l′ (⊢symmetry ⊢0) (⊢cast ⊢l′ ⊢0 ⊢u′)) ⊢u′)
          (_⊢_∷_.conv (rflⱼ ⊢u) $ univ
-            (Id A u u                                                    ≡˘⟨ Id-cong (refl ⊢A) (cast-≡ ⊢A ⊢u) (refl ⊢u) ⟩⊢
+            (Id A u u                                                    ≡˘⟨ Id-cong (refl ⊢A) (cast-≡ ⊢l ⊢A ⊢u) (refl ⊢u) ⟩⊢
 
              Id A (cast l A A rfl u) u                                   ≡˘⟨ Id-cong
                                                                                (refl ⊢A)
-                                                                               (cast-cong (refl ⊢A) (refl ⊢A) (symmetry-≡ ⊢A) (cast-≡ ⊢A ⊢u))
+                                                                               (cast-cong (refl ⊢A) (refl ⊢A) (symmetry-≡ ⊢A) (cast-≡ ⊢l ⊢A ⊢u))
                                                                                (refl ⊢u) ⟩⊢∎≡
              Id A
                (cast l A A (symmetry (U l) A A rfl) (cast l A A rfl u))
                u                                                         ≡˘⟨ PE.cong₃ Id
                                                                                wk₂-[,]
                                                                                (PE.trans cast-[] $
-                                                                                PE.cong₃ (cast _ _)
-                                                                                  wk₂-[,]
+                                                                                PE.cong₅ cast
+                                                                                  wk₂-[,] PE.refl wk₂-[,]
                                                                                   (PE.trans symmetry-[] $
-                                                                                   PE.cong₃ (symmetry _) wk₂-[,] PE.refl PE.refl)
+                                                                                   PE.cong₄ symmetry wk₂-[,] wk₂-[,] PE.refl PE.refl)
                                                                                   (PE.trans cast-[] $
-                                                                                   PE.cong₄ (cast _) wk₂-[,] PE.refl PE.refl wk₂-[,]))
+                                                                                   PE.cong₅ cast wk₂-[,] wk₂-[,] PE.refl PE.refl wk₂-[,]))
                                                                                wk₂-[,] ⟩
              Id (wk[ 2 ]′ A)
-               (cast l (var x1) (wk[ 2 ]′ A)
-                  (symmetry (U l) (wk[ 2 ]′ A) (var x1) (var x0))
-                  (cast l (wk[ 2 ]′ A) (var x1) (var x0) (wk[ 2 ]′ u)))
+               (cast (wk[ 2 ]′ l) (var x1) (wk[ 2 ]′ A)
+                  (symmetry (U (wk[ 2 ]′ l)) (wk[ 2 ]′ A) (var x1)
+                     (var x0))
+                  (cast (wk[ 2 ]′ l) (wk[ 2 ]′ A) (var x1) (var x0)
+                     (wk[ 2 ]′ u)))
                (wk[ 2 ]′ u)
              [ A , rfl ]₁₀                                               ∎))
          ⊢t)
@@ -1296,48 +1272,55 @@ opaque
     ∃ λ v →
       Γ ⊢ v ∷ Id A₁ (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u) t₁) t₂
   cast-right-left {u} {l} {A₁} {A₂} {t₁} {t₂} ⊢u ⊢v =
-    let ⊢A₂ , _ , ⊢cast-t₂  = inversion-Id (wf-⊢∷ ⊢v)
-        _ , _ , _ , ⊢t₂ , _ = inversion-cast ⊢cast-t₂
+    let ⊢A₂ , _ , ⊢cast-t₂    = inversion-Id (wf-⊢∷ ⊢v)
+        ⊢A₁ , _ , _ , ⊢t₂ , _ = inversion-cast ⊢cast-t₂
+        ⊢l                    = inversion-U-Level (wf-⊢∷ ⊢A₁)
     in
     _ ,
     PE.subst (_⊢_∷_ _ _)
       (Id A₁
-         (cast l (wk1 A₂) (wk1 A₁)
-            (symmetry (U l) (wk1 A₁) (wk1 A₂) (wk1 u)) (var x0)
+         (cast (wk1 l) (wk1 A₂) (wk1 A₁)
+            (symmetry (U (wk1 l)) (wk1 A₁) (wk1 A₂) (wk1 u)) (var x0)
             [ t₁ ]₀)
-         t₂                                                      ≡⟨ PE.cong₂ (Id _)
-                                                                      (PE.trans cast-[] $
-                                                                       PE.cong₄ (cast _)
-                                                                         (wk1-sgSubst _ _)
-                                                                         (wk1-sgSubst _ _)
-                                                                         (PE.trans symmetry-[] $
-                                                                          PE.cong₃ (symmetry _)
-                                                                            (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _))
-                                                                         PE.refl)
-                                                                      PE.refl ⟩
-       Id A₁ (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u) t₁) t₂       ∎)
+         t₂                                                            ≡⟨ PE.cong₂ (Id _)
+                                                                            (PE.trans cast-[] $
+                                                                             PE.cong₅ cast
+                                                                               (wk1-sgSubst _ _)
+                                                                               (wk1-sgSubst _ _)
+                                                                               (wk1-sgSubst _ _)
+                                                                               (PE.trans symmetry-[] $
+                                                                                PE.cong₄ symmetry
+                                                                                  (PE.cong U $ wk1-sgSubst _ _)
+                                                                                  (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _))
+                                                                               PE.refl)
+                                                                            PE.refl ⟩
+       Id A₁ (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u) t₁) t₂             ∎)
       (⊢transitivity
          (⊢cong {p = ω}
-            (⊢cast (⊢symmetry (wkTerm₁ ⊢A₂ ⊢u)) (var₀ ⊢A₂)) ⊢v)
+            (⊢cast (wkLevel₁ ⊢A₂ ⊢l) (⊢symmetry (wkTerm₁ ⊢A₂ ⊢u))
+               (var₀ ⊢A₂))
+            ⊢v)
          (PE.subst (_⊢_∷_ _ _)
             (Id A₁
                (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u)
                   (cast l A₁ A₂ u t₂))
-               t₂                                                      ≡˘⟨ PE.cong₂ (Id _)
-                                                                             (PE.trans cast-[] $
-                                                                              PE.cong₄ (cast _)
-                                                                                (wk1-sgSubst _ _)
-                                                                                (wk1-sgSubst _ _)
-                                                                                (PE.trans symmetry-[] $
-                                                                                 PE.cong₃ (symmetry _)
-                                                                                   (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _))
-                                                                                PE.refl)
-                                                                             PE.refl ⟩
+               t₂                                                   ≡˘⟨ PE.cong₂ (Id _)
+                                                                          (PE.trans cast-[] $
+                                                                           PE.cong₅ cast
+                                                                             (wk1-sgSubst _ _)
+                                                                             (wk1-sgSubst _ _)
+                                                                             (wk1-sgSubst _ _)
+                                                                             (PE.trans symmetry-[] $
+                                                                              PE.cong₄ symmetry
+                                                                                (PE.cong U $ wk1-sgSubst _ _)
+                                                                                (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _))
+                                                                             PE.refl)
+                                                                          PE.refl ⟩
              Id A₁
-               (cast l (wk1 A₂) (wk1 A₁)
-                  (symmetry (U l) (wk1 A₁) (wk1 A₂) (wk1 u)) (var x0)
-                  [ cast l A₁ A₂ u t₂ ]₀)
-               t₂                                                      ∎) $
+               (cast (wk1 l) (wk1 A₂) (wk1 A₁)
+                  (symmetry (U (wk1 l)) (wk1 A₁) (wk1 A₂) (wk1 u))
+                  (var x0) [ cast l A₁ A₂ u t₂ ]₀)
+               t₂                                                   ∎) $
           ⊢cast-symmetry-cast ⊢u ⊢t₂ .proj₂))
 
 ------------------------------------------------------------------------
@@ -1480,7 +1463,7 @@ opaque
   -- Γ.
 
   Has-function-extensionality :
-    M → M → M → M → Universe-level → Universe-level → Cons m n → Set a
+    M → M → M → M → Term n → Term n → Cons m n → Set a
   Has-function-extensionality p q p′ q′ l₁ l₂ Γ =
     ∃ λ t → Γ ⊢ t ∷ Funext p q p′ q′ l₁ l₂
 
@@ -1490,35 +1473,33 @@ opaque
   -- instance of function extensionality holds.
 
   with-function-extensionality-assumption :
-    M → M → M → M → Universe-level → Universe-level →
-    Cons m n → Cons m (1+ n)
+    M → M → M → M → Term n → Term n → Cons m n → Cons m (1+ n)
   with-function-extensionality-assumption p q p′ q′ l₁ l₂ Γ =
     Γ »∙ Funext p q p′ q′ l₁ l₂
 
 private opaque
 
-  -- A lemma used below.
+  -- Some lemmas used below.
 
-  ⊢Π3Id :
+  ⊢Π3Id′ :
     Π-allowed p q →
-    ⊢ Η →
-    Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U l₂ »∙
+    Η ⊢ l₁ ∷Level →
+    Η »∙ U l₁ »∙ var x0 ⊢ wk[ 2 ]′ l₂ ∷Level →
+    Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U (wk[ 2 ]′ l₂) »∙
     Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) »∙
     Π p , q ▷ var x2 ▹ (var x2 ∘⟨ p ⟩ var x0) ⊢
     Π p , q ▷ var x3 ▹
     Id (var x3 ∘⟨ p ⟩ var x0)
       (var x2 ∘⟨ p ⟩ var x0) (var x1 ∘⟨ p ⟩ var x0)
-  ⊢Π3Id {p} {q} {Η} ok ⊢Η =
+  ⊢Π3Id′ {p} {q} {Η} {l₁} {l₂} ok ⊢l₁ ⊢l₂ =
     flip _⊢_.ΠΣⱼ ok $
     Idⱼ′ (var₂ ⊢3 ∘ⱼ var₀ ⊢3) (var₁ ⊢3 ∘ⱼ var₀ ⊢3)
     where
-    ⊢1 : Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U l₂ ⊢ var x1
-    ⊢1 =
-      _⊢_.univ $ var₁ $ flip _⊢_.ΠΣⱼ ok $
-      Uⱼ (∙ univ (var₀ (Uⱼ ⊢Η)))
+    ⊢1 : Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U (wk[ 2 ]′ l₂) ⊢ var x1
+    ⊢1 = univ (var₁ (ΠΣⱼ (⊢U ⊢l₂) ok))
 
     ⊢2 :
-      Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U l₂ »∙
+      Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U (wk[ 2 ]′ l₂) »∙
       Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) ⊢
       var x2
     ⊢2 =
@@ -1526,7 +1507,7 @@ private opaque
       univ (var₁ ⊢1 ∘ⱼ var₀ ⊢1)
 
     ⊢3 :
-      Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U l₂ »∙
+      Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U (wk[ 2 ]′ l₂) »∙
       Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) »∙
       Π p , q ▷ var x2 ▹ (var x2 ∘⟨ p ⟩ var x0) ⊢
       var x3
@@ -1534,27 +1515,43 @@ private opaque
       _⊢_.univ $ var₃ $ flip _⊢_.ΠΣⱼ ok $
       univ (var₂ ⊢2 ∘ⱼ var₀ ⊢2)
 
+  ⊢Π3Id :
+    Π-allowed p q →
+    Η ⊢ l₁ ∷Level →
+    Η ⊢ l₂ ∷Level →
+    Η »∙ U l₁ »∙ Π p , q ▷ var x0 ▹ U (wk[ 2 ]′ l₂) »∙
+    Π p , q ▷ var x1 ▹ (var x1 ∘⟨ p ⟩ var x0) »∙
+    Π p , q ▷ var x2 ▹ (var x2 ∘⟨ p ⟩ var x0) ⊢
+    Π p , q ▷ var x3 ▹
+    Id (var x3 ∘⟨ p ⟩ var x0)
+      (var x2 ∘⟨ p ⟩ var x0) (var x1 ∘⟨ p ⟩ var x0)
+  ⊢Π3Id ok ⊢l₁ ⊢l₂ =
+    ⊢Π3Id′ ok ⊢l₁ (wkLevel (ʷ⊇-drop (∙ univ (var₀ (⊢U ⊢l₁)))) ⊢l₂)
+
 opaque
   unfolding
     Has-function-extensionality with-function-extensionality-assumption
     Funext
 
-  -- If Η is a well-formed context pair and certain Π-types are
-  -- allowed, then the context
+  -- If l₁ and l₂ are well-typed levels with respect to Η, and certain
+  -- Π-types are allowed, then the context
   -- with-function-extensionality-assumption p q p′ q′ l₁ l₂ Η
-  -- satisfies Has-function-extensionality p q p′ q′ l₁ l₂.
+  -- satisfies
+  -- Has-function-extensionality p q p′ q′ (wk1 l₁) (wk1 l₂).
 
   Has-function-extensionality-with-function-extensionality-assumption :
     Π-allowed p q →
     Π-allowed p′ q′ →
-    ⊢ Η →
-    Has-function-extensionality p q p′ q′ l₁ l₂
+    Η ⊢ l₁ ∷Level →
+    Η ⊢ l₂ ∷Level →
+    Has-function-extensionality p q p′ q′ (wk1 l₁) (wk1 l₂)
       (with-function-extensionality-assumption p q p′ q′ l₁ l₂ Η)
   Has-function-extensionality-with-function-extensionality-assumption
-    ok ok′ ⊢Η =
-    let ⊢Π3Id = ⊢Π3Id ok ⊢Η in
+    ok ok′ ⊢l₁ ⊢l₂ =
+    let ⊢Π3Id = ⊢Π3Id ok ⊢l₁ ⊢l₂ in
     var x0 ,
-    (var₀ $
+    (PE.subst (_⊢_∷_ _ _) wk-Funext $
+     var₀ $
      flip _⊢_.ΠΣⱼ ok $ flip _⊢_.ΠΣⱼ ok′ $ flip _⊢_.ΠΣⱼ ok′ $
      flip _⊢_.ΠΣⱼ ok′ $ flip _⊢_.ΠΣⱼ ok′ $
      Idⱼ′ (var₂ ⊢Π3Id) (var₁ ⊢Π3Id))
@@ -1629,34 +1626,51 @@ opaque
 
   -- A typing rule for funext.
 
-  ⊢funext :
+  ⊢funext′ :
     Equality-reflection →
     Π-allowed p q →
     Π-allowed p′ q′ →
-    ⊢ Γ →
+    Γ ⊢ l₁ ∷Level →
+    Γ »∙ U l₁ »∙ var x0 ⊢ wk[ 2 ]′ l₂ ∷Level →
     Γ ⊢ funext p p′ ∷ Funext p q p′ q′ l₁ l₂
-  ⊢funext ok Π-ok Π-ok′ ⊢Γ =
-    let ⊢Π3Id = ⊢Π3Id Π-ok ⊢Γ in
+  ⊢funext′ ok Π-ok Π-ok′ ⊢l₁ ⊢l₂ =
+    let ⊢Π3Id = ⊢Π3Id′ Π-ok ⊢l₁ ⊢l₂ in
     lamⱼ′ Π-ok $ lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $ lamⱼ′ Π-ok′ $
     function-extensionality-Π ok (var₂ ⊢Π3Id) (var₁ ⊢Π3Id)
       (var₀ ⊢Π3Id)
 
 opaque
+
+  -- A variant of ⊢funext′.
+
+  ⊢funext :
+    Equality-reflection →
+    Π-allowed p q →
+    Π-allowed p′ q′ →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
+    Γ ⊢ funext p p′ ∷ Funext p q p′ q′ l₁ l₂
+  ⊢funext ok Π-ok Π-ok′ ⊢l₁ ⊢l₂ =
+    ⊢funext′ ok Π-ok Π-ok′ ⊢l₁
+      (wkLevel (ʷ⊇-drop (∙ univ (var₀ (⊢U ⊢l₁)))) ⊢l₂)
+
+opaque
   unfolding Has-function-extensionality
 
   -- In the presence of equality reflection
-  -- Has-function-extensionality p q p′ q′ holds for every well-formed
-  -- context pair (assuming that certain Π-types are allowed).
+  -- Has-function-extensionality p q p′ q′ holds for all well-formed
+  -- levels (assuming that certain Π-types are allowed).
 
   has-function-extensionality :
     Equality-reflection →
     Π-allowed p q →
     Π-allowed p′ q′ →
-    ⊢ Η →
+    Η ⊢ l₁ ∷Level →
+    Η ⊢ l₂ ∷Level →
     Has-function-extensionality p q p′ q′ l₁ l₂ Η
-  has-function-extensionality {p} {p′} ok Π-ok Π-ok′ ⊢Η =
+  has-function-extensionality {p} {p′} ok Π-ok Π-ok′ ⊢l₁ ⊢l₂ =
     funext p p′ ,
-    ⊢funext ok Π-ok Π-ok′ ⊢Η
+    ⊢funext ok Π-ok Π-ok′ ⊢l₁ ⊢l₂
 
 opaque
 
@@ -1710,8 +1724,9 @@ opaque
     let open Erased s in
     Equality-reflection →
     Erased-allowed s →
+    Γ ⊢ l ∷Level →
     Γ ⊢ eq ∷ Id A t u →
-    Γ ⊢ rfl ∷ Id (Erased A) [ t ] ([ u ])
-  []-cong-with-equality-reflection ok₁ ok₂ ⊢eq =
+    Γ ⊢ rfl ∷ Id (Erased l A) [ t ] ([ u ])
+  []-cong-with-equality-reflection ok₁ ok₂ ⊢l ⊢eq =
     let ⊢A , _ = inversion-Id (syntacticTerm ⊢eq) in
-    rflⱼ′ (EP.[]-cong′ ok₂ ⊢A (equality-reflection′ ok₁ ⊢eq))
+    rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A (equality-reflection′ ok₁ ⊢eq))

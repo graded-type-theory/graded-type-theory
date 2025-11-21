@@ -15,10 +15,11 @@ module Definition.Typed.Decidable.Internal.Monad
   where
 
 open import Definition.Typed.Decidable.Internal.Constraint TR
-open import Definition.Typed.Decidable.Internal.Term 𝕄
+open import Definition.Typed.Decidable.Internal.Term TR
 
+open import Tools.Bool
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level as L
 open import Tools.List
 open import Tools.Maybe using (Maybe; just; nothing)
 open import Tools.Nat using (Nat)
@@ -28,11 +29,15 @@ open import Tools.String
 open import Tools.Sum
 open import Tools.Unit
 
+open Any using (Any)
+
 private variable
-  ℓ ℓ₁ ℓ₂ : Level
+  ℓ ℓ₁ ℓ₂ : L.Level
   A B     : Set _
   x y z   : A
   f       : A → B
+  xs ys   : List _
+  b       : Bool
   m n     : Nat
   c       : Constants
   γ       : Contexts _
@@ -44,7 +49,7 @@ private variable
 -- Stack trace entries.
 
 data Call (c : Constants) : Set a where
-  [red-ty] [check-type] [infer] :
+  [red-ty] [check-type] [check-level] [infer] [normalise-level] :
     Cons c m n → Term c n → Call c
   [red-tm] [check] [equal-ty] [equal-ne-inf] :
     Cons c m n → (_ _ : Term c n) → Call c
@@ -152,6 +157,26 @@ f ⊛ x = do
   f ← f
   x ← x
   return (f x)
+
+-- Runs the computation if the boolean is "true".
+
+when : Bool → Check c ⊤ → Check c ⊤
+when true  x = x
+when false _ = return tt
+
+-- The computation succeeds if the predicate holds for all arguments
+-- in the list.
+
+all : (A → Check c ⊤) → List A → Check c ⊤
+all _ []       = return tt
+all f (x ∷ xs) = f x >> all f xs
+
+-- The computation succeeds if the predicate holds for some argument
+-- in the list.
+
+any : (A → Check c ⊤) → List A → Check c ⊤
+any _ []       = fail "Empty list."
+any f (x ∷ xs) = f x catch any f xs
 
 -- Checking a constraint.
 
@@ -261,6 +286,37 @@ opaque
     with inv->>= eq
   … | inv _ eq₂ ok! =
     inv _ _ eq₁ eq₂ PE.refl
+
+opaque
+
+  -- An inversion lemma for when.
+
+  inv-when : b PE.≡ true → OK (when b x) tt γ st → OK x tt γ st
+  inv-when PE.refl = idᶠ
+
+opaque
+
+  -- An inversion lemma for all.
+
+  inv-all : OK (all f xs) tt γ st → All (λ x → OK (f x) tt γ st) xs
+  inv-all {xs = []}    ok! = []
+  inv-all {xs = _ ∷ _} eq
+    with inv->>= eq
+  … | inv _ eq₁ eq =
+    eq₁ ∷ inv-all eq
+
+opaque
+
+  -- An inversion lemma for any.
+
+  inv-any : OK (any f xs) tt γ st → Any (λ x → OK (f x) tt γ st) xs
+  inv-any {xs = []}    not-ok
+  inv-any {xs = _ ∷ _} eq
+    with inv-catch eq
+  … | inj₁ eq =
+    here eq
+  … | inj₂ eq =
+    there (inv-any eq)
 
 opaque
 

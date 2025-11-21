@@ -20,6 +20,7 @@ open Type-restrictions R
 open import Graded.Erasure.LogicalRelation as
 
 open import Definition.LogicalRelation.Simplified R
+
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
@@ -50,17 +51,16 @@ private opaque
                     → t ® v ∷ A / [A]
                     → ShapeView (ts » Δ) A A [A] [A]′
                     → t ® v ∷ A / [A]′
+  irrelevanceTermSV t®v (Levelᵥ _ _) = t®v
   irrelevanceTermSV t®v (Uᵥ UA UA′) = t®v
+  irrelevanceTermSV
+    t®v (Liftᵥ (Liftᵣ A⇒*Lift₁ ⊩B₁) (Liftᵣ A⇒*Lift₂ ⊩B₂)) =
+    case whrDet* (A⇒*Lift₁ , Liftₙ) (A⇒*Lift₂ , Liftₙ) of λ {
+      PE.refl →
+    irrelevanceTermSV t®v (goodCasesRefl ⊩B₁ ⊩B₂) }
   irrelevanceTermSV t®v (ℕᵥ ℕA ℕA′) = t®v
   irrelevanceTermSV t®v (Emptyᵥ EmptyA EmptyA′) = t®v
-  irrelevanceTermSV {A} t®v
-    (Unitᵥ {s} (Unitᵣ l A⇒*Unit₁) (Unitᵣ l′ A⇒*Unit₂)) =
-    case Unit-injectivity
-           (Unit s l  ≡˘⟨ subset* A⇒*Unit₁ ⟩⊢
-            A         ≡⟨ subset* A⇒*Unit₂ ⟩⊢∎
-            Unit s l′ ∎) of λ {
-      (_ , PE.refl) →
-    t®v }
+  irrelevanceTermSV t®v (Unitᵥ _ _) = t®v
   irrelevanceTermSV t®v (ne neA neA′) = t®v
   irrelevanceTermSV
     t®v

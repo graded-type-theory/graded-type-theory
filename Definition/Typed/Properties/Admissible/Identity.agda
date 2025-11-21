@@ -16,16 +16,18 @@ open Type-restrictions R
 open import Definition.Typed R
 open import Definition.Typed.Decidable.Internal R
 import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Term 𝕄 as I
-import Definition.Typed.Decidable.Internal.Substitution 𝕄 as IS
-import Definition.Typed.Decidable.Internal.Weakening 𝕄 as IW
+import Definition.Typed.Decidable.Internal.Term R as I
+import Definition.Typed.Decidable.Internal.Substitution R as IS
+import Definition.Typed.Decidable.Internal.Weakening R as IW
 open import Definition.Typed.Inversion R
 import Definition.Typed.Properties.Admissible.Identity.Primitive
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M as U
-open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Identity 𝕄 as Id
+
+open Id.Internal R
 
 open import Tools.Bool
 open import Tools.Fin
@@ -41,12 +43,11 @@ import Tools.Vec as V
 open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
-  m n                           : Nat
-  Η                             : Cons _ _
-  A₁ A₂ B₁ B₂ t t₁ t₂ u u₁ u₂ v : Term _
-  p p′ p″ q q′ q″               : M
-  b                             : BinderMode
-  l l₁ l₂                       : Universe-level
+  m n                             : Nat
+  Η                               : Cons _ _
+  A₁ A₂ B₁ B₂ l t t₁ t₂ u u₁ u₂ v : Term _
+  p p′ p″ q q′ q″                 : M
+  b                               : BinderMode
 
 ------------------------------------------------------------------------
 -- Some preservation lemmas
@@ -67,20 +68,20 @@ private opaque
   -- defined.
 
   Π-cong-Idˡ′ :
-    ∀ {a b} →
-    Function-extensionality a (lsuc b) →
-    {A₁ A₂ : Set a} {B₁ : A₁ → Set b} {B₂ : A₂ → Set b} →
+    ∀ {a} →
+    Function-extensionality a (lsuc a) →
+    {A₁ A₂ : Set a} {B₁ : A₁ → Set a} {B₂ : A₂ → Set a} →
     (A₁≡A₂ : A₁ PE.≡ A₂) →
     ((x : A₁) → B₁ x PE.≡ B₂ (PE.subst (λ A → A) A₁≡A₂ x)) →
     ((x : A₁) → B₁ x) PE.≡ ((x : A₂) → B₂ x)
-  Π-cong-Idˡ′ {b} fe {A₁} {A₂} {B₁} {B₂} A₁≡A₂ B₁≡B₂ =
+  Π-cong-Idˡ′ {a} fe {A₁} {A₂} {B₁} {B₂} A₁≡A₂ B₁≡B₂ =
     J′ (λ A₂ A₁≡A₂ →
-          {B₂ : A₂ → Set b} →
+          {B₂ : A₂ → Set a} →
           ((x : A₁) → B₁ x PE.≡ B₂ (PE.subst (λ A → A) A₁≡A₂ x)) →
           ((x : A₁) → B₁ x) PE.≡ ((x : A₂) → B₂ x))
        (λ {B₂} B₁≡B₂ →
           PE.cong (λ B → (x : A₁) → B x) {x = B₁} {y = B₂}
-            (ext {A = A₁} {P = λ _ → Set b} {f = B₁} {g = B₂} fe B₁≡B₂))
+            (ext {A = A₁} {P = λ _ → Set a} {f = B₁} {g = B₂} fe B₁≡B₂))
        A₁≡A₂ B₁≡B₂
 
 opaque
@@ -96,57 +97,58 @@ opaque
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Π-allowed p″ q″ →
-    Has-function-extensionality p′ q′ p″ q″ l₁ (1+ l₂) Γ →
-    Γ »∙ A₂ ⊢ B₂ ∷ U l₂ →
-    Γ ⊢ t ∷ Id (U l₁) A₁ A₂ →
+    Has-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Γ →
+    Γ »∙ A₂ ⊢ B₂ ∷ U (wk1 l) →
+    Γ ⊢ t ∷ Id (U l) A₁ A₂ →
     Γ »∙ A₁ ⊢ u ∷
-      Id (U l₂) B₁
-        (B₂ [ cast l₁ (wk1 A₁) (wk1 A₂) (wk1 t) (var x0) ]↑) →
+      Id (U (wk1 l)) B₁
+        (B₂ [ cast (wk1 l) (wk1 A₁) (wk1 A₂) (wk1 t) (var x0) ]↑) →
     ∃ λ v →
       Γ ⊢ v ∷
-        Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
-          (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
+        Id (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
   ΠΣ-cong-Idˡ
-    {m} {n} {b} {p} {q} {p′} {q′} {p″} {q″} {l₁} {l₂}
+    {m} {n} {b} {p} {q} {p′} {q′} {p″} {q″} {l}
     {A₂} {B₂} {t} {A₁} {u} {B₁} {Γ}
     ok₁ ok₂ ok₃ (funext , ⊢funext) ⊢B₂ ⊢t ⊢u =
     let _ , ⊢A₁ , ⊢A₂ = inversion-Id (wf-⊢∷ ⊢t)
         _ , ⊢B₁ , _   = inversion-Id (wf-⊢∷ ⊢u)
+        ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
     in
     _ ,
     check-type-and-term-sound
       γ′
       (I.base nothing I.» I.base)
-      (I.J I.ω I.ω (I.U xl₁) xA₁
-         (I.Π xp″ , xq″ ▷ (I.Π xp′ , xq′ ▷ I.var x1 ▹ I.U xl₂) ▹
+      (I.J I.ω I.ω (I.U xl) xA₁
+         (I.Π xp″ , xq″ ▷
+            I.Π xp′ , xq′ ▷ I.var x1 ▹ I.U (IW.wk[ 3 ] xl) ▹
           I.Π xp″ , xq″ ▷
             I.Π xp′ , xq′ ▷ IW.wk[ 3 ] xA₁ ▹
-            I.Id (I.U xl₂)
+            I.Id (I.U (IW.wk[ 4 ] xl))
               (I.subst xB₁ (I.cons (IS.wkSubst 4 I.id) (I.var x0)))
               (I.var x1 I.∘⟨ xp′ ⟩
-               castᵢ xl₁ (IW.wk[ 4 ] xA₁) (I.var x3) (I.var x2)
-                 (I.var x0)) ▹
-          I.Id (I.U (xl₁ I.⊔ᵘ xl₂))
+               castᵢ (IW.wk[ 4 ] xl) (IW.wk[ 4 ] xA₁) (I.var x3)
+                 (I.var x2) (I.var x0)) ▹
+          I.Id (I.U (IW.wk[ 4 ] xl))
             (IW.wk[ 4 ] (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁))
             (I.ΠΣ⟨ xb ⟩ xp , xq ▷ I.var x3 ▹
              (I.var x2 I.∘⟨ xp′ ⟩ I.var x0)))
          (I.lam xp″ nothing $ I.lam xp″ nothing $
-          congᵢ I.ω (IW.wk[ 2 ] (I.Π xp′ , xq′ ▷ xA₁ ▹ I.U xl₂))
-            (IW.wk[ 2 ] (I.lam xp′ (just (xq′ , xA₁)) xB₁))
-            (I.var x1)
-            (I.U (xl₁ I.⊔ᵘ xl₂))
+          congᵢ I.ω
+            (IW.wk[ 2 ] (I.Π xp′ , xq′ ▷ xA₁ ▹ I.U (IW.wk[ 1 ] xl)))
+            (IW.wk[ 2 ] (I.lam xp′ (just (xq′ , xA₁)) xB₁)) (I.var x1)
+            (I.U (IW.wk[ 2 ] xl))
             (I.ΠΣ⟨ xb ⟩ xp , xq ▷ IW.wk[ 3 ] xA₁ ▹
              (I.var x1 I.∘⟨ xp′ ⟩ I.var x0))
             (IW.wk[ 2 ]
                (xfunext I.∘⟨ xp′ ⟩ xA₁ I.∘⟨ xp″ ⟩
-                I.lam xp′ nothing (I.U xl₂) I.∘⟨ xp″ ⟩
+                I.lam xp′ nothing (I.U (IW.wk[ 1 ] xl)) I.∘⟨ xp″ ⟩
                 I.lam xp′ nothing xB₁) I.∘⟨ xp″ ⟩
              I.var x1 I.∘⟨ xp″ ⟩
              I.var x0))
          xA₂ xt I.∘⟨ xp″ ⟩
        I.lam xp′ nothing xB₂ I.∘⟨ xp″ ⟩
        I.lam xp′ nothing xu)
-      (I.Id (I.U (xl₁ I.⊔ᵘ xl₂)) (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁)
+      (I.Id (I.U xl) (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁)
          (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₂ ▹ xB₂))
       25
       PE.refl
@@ -154,34 +156,30 @@ opaque
          .IC.constraints-wf             → ok₁ L.∷ ok₂ L.∷ ok₃ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢A₁
-           (I.var! x1)       → ⊢B₁
-           (I.var! x2)       → ⊢A₂
-           (I.var! x3)       → ⊢B₂
-           (I.var! x4)       → ⊢t
-           (I.var! x5)       → ⊢u
-           (I.var! x6)       → ⊢funext
-           (I.var  not-x7 _))
+           (I.var! x0)       → ⊢l
+           (I.var! x1)       → ⊢A₁
+           (I.var! x2)       → ⊢B₁
+           (I.var! x3)       → ⊢A₂
+           (I.var! x4)       → ⊢B₂
+           (I.var! x5)       → ⊢t
+           (I.var! x6)       → ⊢u
+           (I.var! x7)       → ⊢funext
+           (I.var  not-x8 _))
       (wfTerm ⊢A₁)
       where
       c′ : I.Constants
       c′ .I.gs               = 6
-      c′ .I.ls               = 2
       c′ .I.ss               = 0
       c′ .I.bms              = 1
-      c′ .I.ms               = 7
+      c′ .I.ms               = 8
       c′ .I.base-dcon-size   = m
       c′ .I.base-con-size    = n
       c′ .I.base-con-allowed = true
       c′ .I.meta-con-size    =
-        n V.∷ 1+ n V.∷ n V.∷ 1+ n V.∷ n V.∷ 1+ n V.∷ n V.∷ V.ε
+        n V.∷ n V.∷ 1+ n V.∷ n V.∷ 1+ n V.∷ n V.∷ 1+ n V.∷ n V.∷ V.ε
 
       xb : I.Termᵇᵐ 0 1
       xb = I.var x0
-
-      xl₁ xl₂ : I.Termˡ 2
-      xl₁ = I.var x0
-      xl₂ = I.var x1
 
       xp xp′ xp″ xq xq′ xq″ : I.Termᵍ 6
       xp  = I.var x0
@@ -191,20 +189,20 @@ opaque
       xq′ = I.var x4
       xq″ = I.var x5
 
-      xA₁ xA₂ xt xfunext : I.Term c′ n
-      xA₁     = I.varᵐ x0
-      xA₂     = I.varᵐ x2
-      xt      = I.varᵐ x4
-      xfunext = I.varᵐ x6
+      xl xA₁ xA₂ xt xfunext : I.Term c′ n
+      xl      = I.varᵐ x0
+      xA₁     = I.varᵐ x1
+      xA₂     = I.varᵐ x3
+      xt      = I.varᵐ x5
+      xfunext = I.varᵐ x7
 
       xB₁ xB₂ xu : I.Term c′ (1+ n)
-      xB₁ = I.varᵐ x1
-      xB₂ = I.varᵐ x3
-      xu  = I.varᵐ x5
+      xB₁ = I.varᵐ x2
+      xB₂ = I.varᵐ x4
+      xu  = I.varᵐ x6
 
       γ′ : I.Contexts c′
       γ′ .I.grades       = p V.∷ p′ V.∷ p″ V.∷ q V.∷ q′ V.∷ q″ V.∷ V.ε
-      γ′ .I.levels       = l₁ V.∷ l₂ V.∷ V.ε
       γ′ .I.strengths    = V.ε
       γ′ .I.binder-modes = b V.∷ V.ε
       γ′ .I.⌜base⌝       = Γ
@@ -215,24 +213,25 @@ opaque
         L.[]
       γ′ .I.metas .I.equalities = L.[]
       γ′ .I.metas .I.bindings   = λ where
-        (I.var! x0) → I.base , I.term A₁ (I.U xl₁)
-        (I.var! x1) → I.base I.∙ xA₁ , I.term B₁ (I.U xl₂)
-        (I.var! x2) → I.base , I.term A₂ (I.U xl₁)
-        (I.var! x3) → I.base I.∙ xA₂ , I.term B₂ (I.U xl₂)
-        (I.var! x4) → I.base , I.term t  (I.Id (I.U xl₁) xA₁ xA₂)
-        (I.var! x5) →
+        (I.var! x0) → I.base , I.level l
+        (I.var! x1) → I.base , I.term A₁ (I.U xl)
+        (I.var! x2) → I.base I.∙ xA₁ , I.term B₁ (I.U (IW.wk[ 1 ] xl))
+        (I.var! x3) → I.base , I.term A₂ (I.U xl)
+        (I.var! x4) → I.base I.∙ xA₂ , I.term B₂ (I.U (IW.wk[ 1 ] xl))
+        (I.var! x5) → I.base , I.term t  (I.Id (I.U xl) xA₁ xA₂)
+        (I.var! x6) →
           I.base I.∙ xA₁ ,
           I.term u
-            (I.Id (I.U xl₂) xB₁
+            (I.Id (I.U (IW.wk[ 1 ] xl)) xB₁
                (I.subst xB₂
                   (I.cons (I.wk1 I.id)
-                     (I.J I.𝟙 I.𝟘 (I.U xl₁) (IW.wk[ 1 ] xA₁)
+                     (I.J I.𝟙 I.𝟘 (I.U (IW.wk[ 1 ] xl)) (IW.wk[ 1 ] xA₁)
                         (IW.wk[ 1 ] (I.var x0)) (I.var x0)
                         (IW.wk[ 1 ] xA₂) (IW.wk[ 1 ] xt)))))
-        (I.var! x6) →
+        (I.var! x7) →
           I.base ,
-          I.term funext (Funextᵢ xp′ xq′ xp″ xq″ xl₁ (I.suc xl₂))
-        (I.var not-x7 _)
+          I.term funext (Funextᵢ xp′ xq′ xp″ xq″ xl (I.sucᵘ xl))
+        (I.var not-x8 _)
 
 opaque
 
@@ -242,16 +241,15 @@ opaque
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Π-allowed p″ q″ →
-    Has-function-extensionality p′ q′ p″ q″ l₁ (1+ l₂) Η →
-    Η »∙ A₁ ⊢ B₁ ∷ U l₂ →
-    Η ⊢ t ∷ Id (U l₁) A₂ A₁ →
+    Has-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Η →
+    Η »∙ A₁ ⊢ B₁ ∷ U (wk1 l) →
+    Η ⊢ t ∷ Id (U l) A₂ A₁ →
     Η »∙ A₂ ⊢ u ∷
-      Id (U l₂) (B₁ [ cast l₁ (wk1 A₂) (wk1 A₁) (wk1 t) (var x0) ]↑)
-        B₂ →
+      Id (U (wk1 l))
+        (B₁ [ cast (wk1 l) (wk1 A₂) (wk1 A₁) (wk1 t) (var x0) ]↑) B₂ →
     ∃ λ v →
       Η ⊢ v ∷
-        Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
-          (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
+        Id (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
   ΠΣ-cong-Idʳ ok ok′ ok″ ext ⊢B₁ ⊢t ⊢u =
     _ ,
     ⊢symmetry (ΠΣ-cong-Idˡ ok ok′ ok″ ext ⊢B₁ ⊢t (⊢symmetry ⊢u) .proj₂)
@@ -298,6 +296,7 @@ opaque
         _ , ⊢cast-u₁ , ⊢u₂  = inversion-Id (wf-⊢∷ ⊢v)
         _ , _ , _ , ⊢t₁ , _ = inversion-cast ⊢cast-t₁
         _ , _ , _ , ⊢u₁ , _ = inversion-cast ⊢cast-u₁
+        ⊢l                  = inversion-U-Level (wf-⊢∷ ⊢A₁)
     in
     _ ,
     check-type-and-term-sound
@@ -308,19 +307,21 @@ opaque
           I.Π xp , xq ▷ I.var x2 ▹
           I.Π xp , xq ▷
             I.Id (I.var x3)
-              (castᵢ xl (IW.wk[ 4 ] xA₁) (I.var x3) (I.var x2)
+              (castᵢ (IW.wk[ 4 ] xl) (IW.wk[ 4 ] xA₁) (I.var x3)
+                 (I.var x2)
               (IW.wk[ 4 ] xt₁)) (I.var x1) ▹
           I.Π xp , xq ▷
             I.Id (I.var x4)
-              (castᵢ xl (IW.wk[ 5 ] xA₁) (I.var x4) (I.var x3)
-                 (IW.wk[ 5 ] xu₁))
+              (castᵢ (IW.wk[ 5 ] xl) (IW.wk[ 5 ] xA₁) (I.var x4)
+                 (I.var x3) (IW.wk[ 5 ] xu₁))
               (I.var x1) ▹
-          I.Id (I.U xl) (IW.wk[ 6 ] (I.Id xA₁ xt₁ xu₁))
+          I.Id (I.U (IW.wk[ 6 ] xl)) (IW.wk[ 6 ] (I.Id xA₁ xt₁ xu₁))
             (I.Id (I.var x5) (I.var x3) (I.var x2)))
          (I.lam xp nothing $ I.lam xp nothing $ I.lam xp nothing $
           I.lam xp nothing $
           cong₂ᵢ I.ω (IW.wk[ 4 ] xA₁) (IW.wk[ 4 ] xt₁) (I.var x3)
-            (IW.wk[ 4 ] xA₁) (IW.wk[ 4 ] xu₁) (I.var x2) (I.U xl)
+            (IW.wk[ 4 ] xA₁) (IW.wk[ 4 ] xu₁) (I.var x2)
+            (I.U (IW.wk[ 4 ] xl))
             (I.Id (IW.wk[ 6 ] xA₁) (I.var x1) (I.var x0)) (I.var x1)
             (I.var x0))
          xA₂ xt I.∘⟨ xp ⟩
@@ -332,68 +333,66 @@ opaque
          .IC.constraints-wf             → ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢A₁
-           (I.var! x1)       → ⊢A₂
-           (I.var! x2)       → ⊢t
-           (I.var! x3)       → ⊢t₁
-           (I.var! x4)       → ⊢t₂
-           (I.var! x5)       → ⊢u
-           (I.var! x6)       → ⊢u₁
-           (I.var! x7)       → ⊢u₂
-           (I.var! x8)       → ⊢v
-           (I.var  not-x9 _))
+           (I.var! x0)        → ⊢l
+           (I.var! x1)        → ⊢A₁
+           (I.var! x2)        → ⊢A₂
+           (I.var! x3)        → ⊢t
+           (I.var! x4)        → ⊢t₁
+           (I.var! x5)        → ⊢t₂
+           (I.var! x6)        → ⊢u
+           (I.var! x7)        → ⊢u₁
+           (I.var! x8)        → ⊢u₂
+           (I.var! x9)        → ⊢v
+           (I.var  not-x10 _))
       (wfTerm ⊢A₁)
       where
       c′ : I.Constants
       c′ .I.gs               = 2
-      c′ .I.ls               = 1
       c′ .I.ss               = 0
       c′ .I.bms              = 0
-      c′ .I.ms               = 9
+      c′ .I.ms               = 10
       c′ .I.base-dcon-size   = m
       c′ .I.base-con-size    = n
       c′ .I.base-con-allowed = true
-      c′ .I.meta-con-size    = V.replicate 9 n
-
-      xl : I.Termˡ 1
-      xl = I.var x0
+      c′ .I.meta-con-size    = V.replicate 10 n
 
       xp xq : I.Termᵍ 2
       xp = I.var x0
       xq = I.var x1
 
-      xA₁ xA₂ xt xt₁ xt₂ xu xu₁ xu₂ xv : I.Term c′ n
-      xA₁ = I.varᵐ x0
-      xA₂ = I.varᵐ x1
-      xt  = I.varᵐ x2
-      xt₁ = I.varᵐ x3
-      xt₂ = I.varᵐ x4
-      xu  = I.varᵐ x5
-      xu₁ = I.varᵐ x6
-      xu₂ = I.varᵐ x7
-      xv  = I.varᵐ x8
+      xl xA₁ xA₂ xt xt₁ xt₂ xu xu₁ xu₂ xv : I.Term c′ n
+      xl  = I.varᵐ x0
+      xA₁ = I.varᵐ x1
+      xA₂ = I.varᵐ x2
+      xt  = I.varᵐ x3
+      xt₁ = I.varᵐ x4
+      xt₂ = I.varᵐ x5
+      xu  = I.varᵐ x6
+      xu₁ = I.varᵐ x7
+      xu₂ = I.varᵐ x8
+      xv  = I.varᵐ x9
 
       γ′ : I.Contexts c′
       γ′ .I.grades              = p V.∷ q V.∷ V.ε
-      γ′ .I.levels              = l V.∷ V.ε
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
       γ′ .I.constraints         = I.π-allowed xp xq L.∷ L.[]
       γ′ .I.metas .I.equalities = L.[]
       γ′ .I.metas .I.bindings   = λ where
-        (I.var! x0) → I.base , I.term A₁ (I.U xl)
-        (I.var! x1) → I.base , I.term A₂ (I.U xl)
-        (I.var! x2) → I.base , I.term t (I.Id (I.U xl) xA₁ xA₂)
-        (I.var! x3) → I.base , I.term t₁ xA₁
-        (I.var! x4) → I.base , I.term t₂ xA₂
-        (I.var! x5) →
+        (I.var! x0) → I.base , I.level l
+        (I.var! x1) → I.base , I.term A₁ (I.U xl)
+        (I.var! x2) → I.base , I.term A₂ (I.U xl)
+        (I.var! x3) → I.base , I.term t (I.Id (I.U xl) xA₁ xA₂)
+        (I.var! x4) → I.base , I.term t₁ xA₁
+        (I.var! x5) → I.base , I.term t₂ xA₂
+        (I.var! x6) →
           I.base , I.term u (I.Id xA₂ (castᵢ xl xA₁ xA₂ xt xt₁) xt₂)
-        (I.var! x6) → I.base , I.term u₁ xA₁
-        (I.var! x7) → I.base , I.term u₂ xA₂
-        (I.var! x8) →
+        (I.var! x7) → I.base , I.term u₁ xA₁
+        (I.var! x8) → I.base , I.term u₂ xA₂
+        (I.var! x9) →
           I.base , I.term v (I.Id xA₂ (castᵢ xl xA₁ xA₂ xt xu₁) xu₂)
-        (I.var not-x9 _)
+        (I.var not-x10 _)
 
 opaque
 

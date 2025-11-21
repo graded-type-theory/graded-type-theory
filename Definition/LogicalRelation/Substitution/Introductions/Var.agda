@@ -17,6 +17,7 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -49,7 +50,7 @@ opaque
   ⊩var x∈Γ ⊩A =
     case var (wf (escape-⊩ ⊩A)) x∈Γ of λ
       ⊢var →
-    neutral-⊩∷ ⊩A (varₗ _) (~-var ⊢var)
+    neutral-⊩∷ ⊩A varᵃₗ (~-var ⊢var)
 
 opaque
 

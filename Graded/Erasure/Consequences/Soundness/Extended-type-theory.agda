@@ -19,6 +19,7 @@ open Type-restrictions TR
 
 import Definition.Typed
 open Definition.Typed TR
+import Definition.Typed.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Properties.Definition
 import Definition.Typed.Substitution
@@ -61,8 +62,7 @@ private variable
   ∇         : DCon _ _
   Δ Η       : Con _ _
   Γ         : Cons _ _
-  A t       : Term _
-  l₁ l₂     : Universe-level
+  A l₁ l₂ t : Term _
   γ         : Conₘ _
   m         : Mode
   p p′ q q′ : M
@@ -327,8 +327,8 @@ opaque
       .eraseᴱ-[]ᴱ →
         hasX.wk₀-erase-[] UR
       .soundness-ℕᴱ ⊢t ▸∇ ▸t →
-        let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ _ ⊢t ▸t in
-        _ , subset*Termˢ t⇒n , erase-t⇒n
+        let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ ⊢t ▸t in
+        _ , subset*Termˢ t⇒n , erase-t⇒n _
     where
     open Definition.Typed.Substitution TR
     open Extended-type-theory
@@ -338,12 +338,42 @@ opaque
 ------------------------------------------------------------------------
 -- An instance that uses equality reflection
 
+-- Some definitions used below.
+
+private module Extended-type-theory-with-equality-reflection where
+
+  module Conf = Configuration turn-on-equality-reflection
+  module DT   = Definition.Typed Conf.TRₜ
+  module DP   = Definition.Typed.Properties TR
+  module DP′  = Definition.Typed.Properties Conf.TRₜ
+  module DD   = Definition.Typed.Properties.Definition Conf.TRₜ
+  module GS   = Graded.Erasure.SucRed Conf.TRₜ
+  module GM   = Graded.Modify-box-cong-or-J turn-on-equality-reflection
+  module GU   = Graded.Usage 𝕄 Conf.URₜ
+
+  opaque
+    unfolding turn-on-equality-reflection
+
+    tr-id : GM.tr t PE.≡ t
+    tr-id = GM.tr-id PE.refl PE.refl
+
+  opaque
+    unfolding
+      turn-on-equality-reflection
+      Graded.Modify-box-cong-or-J.tr-DCon
+      Graded.Modify-box-cong-or-J.tr-Cons
+
+    tr-Cons≡ : GM.tr-Cons (∇ » Δ) PE.≡ glassify ∇ » map-Con idᶠ Δ
+    tr-Cons≡ {∇} {Δ} =
+      PE.cong₂ _»_
+        (glassify (map-DCon GM.tr ∇)  ≡⟨ PE.cong glassify $ GM.map-DCon-tr-id PE.refl PE.refl ⟩
+         glassify ∇                   ∎)
+        (map-Con GM.tr Δ  ≡⟨ GM.map-Con-tr-id PE.refl PE.refl ⟩
+         Δ                ≡˘⟨ map-Con-id ⟩
+         map-Con idᶠ Δ    ∎)
+
 opaque
-  unfolding
-    turn-on-equality-reflection
-    eraseDCon′
-    Graded.Modify-box-cong-or-J.tr-DCon
-    Graded.Modify-box-cong-or-J.tr-Cons
+  unfolding eraseDCon′
 
   -- An instance that uses equality reflection.
 
@@ -365,42 +395,26 @@ opaque
         glassify (glassify ∇)      ≡⟨ DD.glassify-idem _ ⟩
         glassify ∇                 ≡˘⟨ PE.cong glassify map-DCon-id ⟩
         glassify (map-DCon idᶠ ∇)  ∎
-      .eraseᴱ-tr         → PE.refl
-      .eraseᴱ-[]ᴱ        → hasX.wk₀-erase-[] _
-      .tr-⊢∷ {Γ = ∇ » Γ} →
-        PE.subst₃ DT._⊢_∷_
-          (PE.cong₂ _»_
-             (glassify (map-DCon GM.tr ∇)  ≡⟨ PE.cong glassify $ GM.map-DCon-tr-id PE.refl PE.refl ⟩
-              glassify ∇                   ∎)
-             (map-Con GM.tr Γ  ≡⟨ GM.map-Con-tr-id PE.refl PE.refl ⟩
-              Γ                ≡˘⟨ map-Con-id ⟩
-              map-Con idᶠ Γ    ∎))
-          tr-id tr-id ∘→
-        GM.tr-⊢∷
+      .eraseᴱ-tr  → PE.refl
+      .eraseᴱ-[]ᴱ → hasX.wk₀-erase-[] _
+      .tr-⊢∷      →
+        PE.subst₃ DT._⊢_∷_ tr-Cons≡ tr-id tr-id ∘→ GM.tr-⊢∷
       .tr-▸ →
         PE.subst (GU._▸[_]_ _ _) tr-id ∘→ GM.tr-▸
       .soundness-ℕᴱ ⊢t ▸∇ ▸t →
-        let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ _ ⊢t ▸t in
-        _ , GS.subset*Termˢ t⇒n , erase-t⇒n
+        let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ ⊢t ▸t in
+        _ , GS.subset*Termˢ t⇒n , erase-t⇒n _
     where
-    module Conf = Configuration turn-on-equality-reflection
-
-    module DT = Definition.Typed Conf.TRₜ
-    module DD = Definition.Typed.Properties.Definition Conf.TRₜ
-    module GS = Graded.Erasure.SucRed Conf.TRₜ
-    module GM = Graded.Modify-box-cong-or-J turn-on-equality-reflection
-    module GU = Graded.Usage 𝕄 Conf.URₜ
-
-    open Definition.Typed.Substitution Conf.TRₜ
     open Extended-type-theory
+    open Extended-type-theory-with-equality-reflection
+    open Definition.Typed.Substitution Conf.TRₜ
     open Graded.Erasure.Consequences.Soundness Conf.TRₜ Conf.URₜ
     open Graded.Substitution.Properties 𝕄 Conf.URₜ
 
-    tr-id : GM.tr t PE.≡ t
-    tr-id = GM.tr-id PE.refl PE.refl
-
 opaque
-  unfolding Extended-type-theory-with-equality-reflection
+  unfolding
+    Extended-type-theory-with-equality-reflection
+    turn-on-equality-reflection
 
   -- A variant of the soundness theorem for erasure for natural
   -- numbers.
@@ -442,7 +456,10 @@ opaque
            Extended-type-theory-with-equality-reflection
 
 opaque
-  unfolding Extended-type-theory-with-equality-reflection
+  unfolding
+    Extended-type-theory-with-equality-reflection
+    Funext
+    turn-on-equality-reflection
 
   -- A variant of the soundness theorem for erasure for natural
   -- numbers that shows that it is, in some sense, safe to "postulate"
@@ -462,25 +479,28 @@ opaque
     ∃ λ n →
       glassify ∇ » ε Ext.⊢ t [ funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
       eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-  soundness-ℕ-with-function-extensionality
-    {∇} Π-ok Π-ok′ ·p≤𝟘 ·p′≤𝟘 ⊢t =
+  soundness-ℕ-with-function-extensionality Π-ok Π-ok′ ·p≤𝟘 ·p′≤𝟘 ⊢t =
+    let ⊢U , ⊢Π , _ = inversion-ΠΣ (DP.⊢∙→⊢ (DP.wfTerm ⊢t))
+        ⊢l₁         = inversion-U-Level ⊢U
+        ⊢l₂         = inversion-U-Level $
+                      inversion-ΠΣ (inversion-ΠΣ ⊢Π .proj₁)
+                        .proj₂ .proj₁
+    in
     soundness-ℕ-using-equality-reflection
-      (⊢ˢʷ∷-sgSubst $ ⊢funext _ Π-ok Π-ok′ (DT.ε »∇))
+      (⊢ˢʷ∷-sgSubst $
+       DP′.⊢funext′ _ Π-ok Π-ok′ (tr-⊢∷L ⊢l₁) (tr-⊢∷L ⊢l₂))
       (λ { x0 → ▸funext ·p≤𝟘 ·p′≤𝟘; (() +1) })
       ⊢t
     where
-    TR′ : Type-restrictions 𝕄
-    TR′ = with-equality-reflection TR
+    open Extended-type-theory-with-equality-reflection
 
-    module DT = Definition.Typed TR′
-
-    open Definition.Typed.Properties TR′
-    open Definition.Typed.Substitution TR′
+    open Definition.Typed.Inversion TR
+    open Definition.Typed.Substitution Conf.TRₜ
     open Extended-type-theory
            Extended-type-theory-with-equality-reflection
 
-    »∇ : DT.» glassify ∇
-    »∇ = defn-wf (wfTerm (tr-⊢∷ ⊢t))
+    tr-⊢∷L : Γ ⊢ t ∷Level → tr-Cons Γ DT.⊢ t ∷Level
+    tr-⊢∷L = PE.subst₂ DT._⊢_∷Level tr-Cons≡ tr-id ∘→ GM.tr-⊢∷L
 
 opaque
 

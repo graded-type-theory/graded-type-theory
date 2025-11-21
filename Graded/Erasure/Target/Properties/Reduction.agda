@@ -70,9 +70,9 @@ unitrec-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ unitrec t u ⇒* unitrec t′ u
 unitrec-subst* refl = refl
 unitrec-subst* (trans x d) = trans (unitrec-subst x) (unitrec-subst* d)
 
--- Values do not reduce.
-
 opaque
+
+  -- Values do not reduce.
 
   Value→¬⇒ : Value t → ¬ ∇ ⊢ t ⇒ u
   Value→¬⇒ lam  ()
@@ -81,6 +81,14 @@ opaque
   Value→¬⇒ suc  ()
   Value→¬⇒ star ()
   Value→¬⇒ ↯    ()
+
+opaque
+
+  -- Terms that "reduce forever" do not reduce to values.
+
+  Reduces-forever→Value→¬⇒* :
+    Reduces-forever ∇ t → Value u → ¬ ∇ ⊢ t ⇒* u
+  Reduces-forever→Value→¬⇒* red val = Value→¬⇒ val ∘→ proj₂ ∘→ red
 
 opaque
 

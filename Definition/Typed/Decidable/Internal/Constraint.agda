@@ -14,12 +14,11 @@ module Definition.Typed.Decidable.Internal.Constraint
 
 open Type-restrictions TR
 
-open import Definition.Typed.Decidable.Internal.Equality 𝕄
-open import Definition.Typed.Decidable.Internal.Term 𝕄
+open import Definition.Typed.Decidable.Internal.Equality TR
+open import Definition.Typed.Decidable.Internal.Term TR
 open import Definition.Typed.Variant
 
-open import Tools.Level
-open import Tools.List
+import Tools.Level as L
 open import Tools.Maybe
 open import Tools.PropositionalEquality
 
@@ -30,11 +29,14 @@ private variable
 
 ⟦_⟧ᶜ : Constraint c → Contexts c → Set a
 ⟦ k-allowed                 ⟧ᶜ _ = K-allowed
+⟦ level-allowed             ⟧ᶜ _ = L.Lift _ Level-allowed
+⟦ level-is-small            ⟧ᶜ _ = L.Lift _ Level-is-small
 ⟦ opacity-allowed           ⟧ᶜ _ = Opacity-allowed
-⟦ unfolding-mode-transitive ⟧ᶜ _ = Lift _ (unfolding-mode ≡ transitive)
+⟦ unfolding-mode-transitive ⟧ᶜ _ = L.Lift _
+                                     (unfolding-mode ≡ transitive)
 ⟦ box-cong-allowed s        ⟧ᶜ γ = []-cong-allowed (⟦ s ⟧ˢ γ)
 ⟦ unit-allowed s            ⟧ᶜ γ = Unit-allowed (⟦ s ⟧ˢ γ)
-⟦ unit-with-η s             ⟧ᶜ γ = Lift _ (Unit-with-η (⟦ s ⟧ˢ γ))
+⟦ unit-with-η s             ⟧ᶜ γ = L.Lift _ (Unit-with-η (⟦ s ⟧ˢ γ))
 ⟦ πσ-allowed b p q          ⟧ᶜ γ =
   ΠΣ-allowed (⟦ b ⟧ᵇᵐ γ) (⟦ p ⟧ᵍ γ) (⟦ q ⟧ᵍ γ)
 
@@ -44,6 +46,10 @@ infix 4 _≟ᶜ_
 
 _≟ᶜ_ : (C₁ C₂ : Constraint c) → Maybe (C₁ ≡ C₂)
 k-allowed ≟ᶜ k-allowed =
+  just refl
+level-allowed ≟ᶜ level-allowed =
+  just refl
+level-is-small ≟ᶜ level-is-small =
   just refl
 opacity-allowed ≟ᶜ opacity-allowed =
   just refl

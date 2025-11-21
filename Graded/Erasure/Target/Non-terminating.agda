@@ -48,9 +48,9 @@ opaque
 
 opaque
 
-  -- The term loop s only reduces to terms that can reduce further.
+  -- The term loop s "reduces forever".
 
-  loop-reduces-forever : ∇ ⊢ loop s ⇒* t → ∃ λ u → ∇ ⊢ t ⇒ u
+  loop-reduces-forever : Reduces-forever ∇ (loop {n = n} s)
   loop-reduces-forever refl =
     _ , loop⇒loop
   loop-reduces-forever (trans nt⇒t t⇒*u)
@@ -62,10 +62,7 @@ opaque
   -- The term loop s does not reduce to a value.
 
   ¬loop⇒* : Value v → ¬ ∇ ⊢ loop s ⇒* v
-  ¬loop⇒* {v} {∇} {s} v-val =
-    ∇ ⊢ loop s ⇒* v        →⟨ loop-reduces-forever ⟩
-    (∃ λ v′ → ∇ ⊢ v ⇒ v′)  →⟨ Value→¬⇒ v-val ∘→ proj₂ ⟩
-    ⊥                      □
+  ¬loop⇒* = Reduces-forever→Value→¬⇒* loop-reduces-forever
 
 opaque
   unfolding loop

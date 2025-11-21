@@ -68,6 +68,8 @@ opaque
   -- Weakening of continuations
 
   wk-⊢ᶜ : ρ ∷ H ⊇ʰ H′ → Δ ⨾ H′ ⊢ᶜ c ⟨ t ⟩∷ A ↝ B → Δ ⨾ H ⊢ᶜ wkᶜ ρ c ⟨ wk ρ t ⟩∷ A ↝ B
+  wk-⊢ᶜ ρ (lowerₑ ⊢B) =
+    lowerₑ ⊢B
   wk-⊢ᶜ {ρ} {H} {Δ} {t} [ρ] (∘ₑ {ρ = ρ′} {u} {A} {B} {p} ⊢u ⊢B) =
     case wk-liftₕ 0 [ρ] u of λ
       u≡u′ →
@@ -161,10 +163,13 @@ opaque
     subst₂ (Δ ⨾ H ⊢ᶜ Kₑ p A t B u (ρ • ρ′) ⟨ wk ρ v ⟩∷_↝_)
       (PE.sym Id≡Id′) (PE.sym (cong₂ _[_]₀ B≡B′ (wk-[]ₕ [ρ] v)))
       (Kₑ ⊢u′ ⊢B′ ok)
-  wk-⊢ᶜ {ρ} {H} {Δ} {t = v} [ρ] ([]-congₑ {s′ = s} {A} {t} {u} {ρ = ρ′} ok) =
-    PE.subst₂ (Δ ⨾ H ⊢ᶜ []-congₑ s A t u (ρ • ρ′) ⟨ wk ρ v ⟩∷_↝_)
+  wk-⊢ᶜ
+    {ρ} {H} {Δ} {t = v}
+    [ρ] ([]-congₑ {s′ = s} {ρ = ρ′} {l} {A} {t} {u} ok ⊢l) =
+    PE.subst₂ (Δ ⨾ H ⊢ᶜ []-congₑ s l A t u (ρ • ρ′) ⟨ wk ρ v ⟩∷_↝_)
       (PE.sym (wk-liftₕ 0 [ρ] (Id A t u)))
-      (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased A) ([ t ]) ([ u ])))) ([]-congₑ ok)
+      (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased l A) ([ t ]) ([ u ]))))
+      ([]-congₑ ok (subst (_⊢_∷Level _) (wk-liftₕ 0 [ρ] l) ⊢l))
     where
     open Erased s
   wk-⊢ᶜ ρ (conv ⊢c x) =

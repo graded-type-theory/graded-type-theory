@@ -1,13 +1,6 @@
 ------------------------------------------------------------------------
--- Prodrec for strong Σ-types and projections for all Σ-types
+-- Definitions related to Σ-types
 ------------------------------------------------------------------------
-
--- These definitions are part of an investigation of to what degree
--- weak Σ-types can emulate strong Σ-types, and vice versa. This
--- investigation was prompted by a question asked by an anonymous
--- reviewer. See also Definition.Typed.Properties.Admissible.Sigma,
--- Definition.Typed.Consequences.Admissible.Sigma, and
--- Graded.Derived.Sigma.
 
 open import Graded.Modality
 
@@ -31,8 +24,19 @@ private variable
   n       : Nat
   A B t u : Term _
   σ       : Subst _ _
+  ρ       : Wk _ _
   s       : Strength
   p q r   : M
+
+------------------------------------------------------------------------
+-- Prodrec for strong Σ-types and projections for all Σ-types
+
+-- These definitions are part of an investigation of to what degree
+-- weak Σ-types can emulate strong Σ-types, and vice versa. This
+-- investigation was prompted by a question asked by an anonymous
+-- reviewer. See also Definition.Typed.Properties.Admissible.Sigma,
+-- Definition.Typed.Consequences.Admissible.Sigma, and
+-- Graded.Derived.Sigma.
 
 -- A definition of prodrec for strong Σ-types.
 
@@ -184,3 +188,148 @@ opaque
     Strength → M → M → Term n → Term (1+ n) → Term n → Term n
   Σ⟨ 𝕤 ⟩-η-prod-fst-snd = λ _ _ _ _ _ → rfl
   Σ⟨ 𝕨 ⟩-η-prod-fst-snd = Σʷ-η-prodʷ-fstʷ-sndʷ
+
+------------------------------------------------------------------------
+-- Some definitions related to the heterogeneous Σ type
+
+opaque
+
+  -- Heterogeneous pairs.
+
+  prodʰ : Strength → M → (_ _ : Term n) → Term n
+  prodʰ s p t u = prod s p (lift t) (lift u)
+
+-- Heterogeneous strong pairs.
+
+prodʰˢ : M → (_ _ : Term n) → Term n
+prodʰˢ = prodʰ 𝕤
+
+-- Heterogeneous weak pairs.
+
+prodʰʷ : M → (_ _ : Term n) → Term n
+prodʰʷ = prodʰ 𝕨
+
+opaque
+
+  -- A heterogeneous first projection.
+
+  fstʰ : M → Term n → Term n
+  fstʰ p t = lower (fst p t)
+
+opaque
+
+  -- A heterogeneous second projection.
+
+  sndʰ : M → Term n → Term n
+  sndʰ p t = lower (snd p t)
+
+opaque
+
+  -- A variant of prodrec⟨_⟩ for Σʰ⟨_⟩.
+
+  prodrecʰ⟨_⟩ :
+    Strength → M → M → M → Term (1+ n) → Term n → Term (2+ n) → Term n
+  prodrecʰ⟨ s ⟩ r p q A t u =
+    prodrec⟨ s ⟩ r p q A t
+      (u [ replace₂ (lower (var x1)) (lower (var x0)) ])
+
+------------------------------------------------------------------------
+-- Some substitution lemmas
+
+opaque
+  unfolding prodʰ
+
+  -- A substitution lemma for prodʰ.
+
+  prodʰ-[] : prodʰ s p t u [ σ ] ≡ prodʰ s p (t [ σ ]) (u [ σ ])
+  prodʰ-[] = refl
+
+opaque
+  unfolding fstʰ
+
+  -- A substitution lemma for fstʰ.
+
+  fstʰ-[] : fstʰ p t [ σ ] ≡ fstʰ p (t [ σ ])
+  fstʰ-[] = refl
+
+opaque
+  unfolding sndʰ
+
+  -- A substitution lemma for sndʰ.
+
+  sndʰ-[] : sndʰ p t [ σ ] ≡ sndʰ p (t [ σ ])
+  sndʰ-[] = refl
+
+opaque
+  unfolding prodrecʰ⟨_⟩
+
+  -- A substitution lemma for prodrecʰ.
+
+  prodrecʰ⟨⟩-[] :
+    prodrecʰ⟨ s ⟩ r p q A t u [ σ ] ≡
+    prodrecʰ⟨ s ⟩ r p q (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑[ 2 ] ])
+  prodrecʰ⟨⟩-[] {s} {r} {p} {q} {A} {t} {u} {σ} =
+    prodrec⟨ s ⟩ r p q A t
+      (u [ replace₂ (lower (var x1)) (lower (var x0)) ]) [ σ ]         ≡⟨ prodrec⟨⟩-[] ⟩
+
+    prodrec⟨ s ⟩ r p q (A [ σ ⇑ ]) (t [ σ ])
+      (u [ replace₂ (lower (var x1)) (lower (var x0)) ] [ σ ⇑[ 2 ] ])  ≡⟨ cong (prodrec⟨ _ ⟩ _ _ _ _ _) $ [replace₂]-[⇑] u σ ⟩
+
+    prodrec⟨ s ⟩ r p q (A [ σ ⇑ ]) (t [ σ ])
+      (u [ σ ⇑[ 2 ] ] [ replace₂ (lower (var x1)) (lower (var x0)) ])  ∎
+
+------------------------------------------------------------------------
+-- Some weakening lemmas
+
+opaque
+
+  -- A weakening lemma for prodʰ.
+
+  wk-prodʰ : wk ρ (prodʰ s p t u) ≡ prodʰ s p (wk ρ t) (wk ρ u)
+  wk-prodʰ {ρ} {s} {p} {t} {u} =
+    wk ρ (prodʰ s p t u)                           ≡⟨ wk≡subst _ _ ⟩
+    prodʰ s p t u [ toSubst ρ ]                    ≡⟨ prodʰ-[] ⟩
+    prodʰ s p (t [ toSubst ρ ]) (u [ toSubst ρ ])  ≡˘⟨ cong₂ (prodʰ _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
+    prodʰ s p (wk ρ t) (wk ρ u)                    ∎
+
+opaque
+
+  -- A weakening lemma for fstʰ.
+
+  wk-fstʰ : wk ρ (fstʰ p t) ≡ fstʰ p (wk ρ t)
+  wk-fstʰ {ρ} {p} {t} =
+    wk ρ (fstʰ p t)           ≡⟨ wk≡subst _ _ ⟩
+    fstʰ p t [ toSubst ρ ]    ≡⟨ fstʰ-[] ⟩
+    fstʰ p (t [ toSubst ρ ])  ≡˘⟨ cong (fstʰ _) $ wk≡subst _ _ ⟩
+    fstʰ p (wk ρ t)           ∎
+
+opaque
+
+  -- A weakening lemma for sndʰ.
+
+  wk-sndʰ : wk ρ (sndʰ p t) ≡ sndʰ p (wk ρ t)
+  wk-sndʰ {ρ} {p} {t} =
+    wk ρ (sndʰ p t)           ≡⟨ wk≡subst _ _ ⟩
+    sndʰ p t [ toSubst ρ ]    ≡⟨ sndʰ-[] ⟩
+    sndʰ p (t [ toSubst ρ ])  ≡˘⟨ cong (sndʰ _) $ wk≡subst _ _ ⟩
+    sndʰ p (wk ρ t)           ∎
+
+opaque
+
+  -- A weakening lemma for prodrecʰ.
+
+  wk-prodrecʰ :
+    wk ρ (prodrecʰ⟨ s ⟩ r p q A t u) ≡
+    prodrecʰ⟨ s ⟩ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)
+  wk-prodrecʰ {ρ} {s} {r} {p} {q} {A} {t} {u} =
+    wk ρ (prodrecʰ⟨ s ⟩ r p q A t u)                                 ≡⟨ wk≡subst _ _ ⟩
+
+    prodrecʰ⟨ s ⟩ r p q A t u [ toSubst ρ ]                          ≡⟨ prodrecʰ⟨⟩-[] ⟩
+
+    prodrecʰ⟨ s ⟩ r p q (A [ toSubst ρ ⇑ ]) (t [ toSubst ρ ])
+      (u [ toSubst ρ ⇑[ 2 ] ])                                       ≡˘⟨ cong₃ (prodrecʰ⟨ _ ⟩ _ _ _) (substVar-to-subst (toSubst-liftn 1) A)
+                                                                      refl (substVar-to-subst (toSubst-liftn 2) u) ⟩
+    prodrecʰ⟨ s ⟩ r p q (A [ toSubst (lift ρ) ]) (t [ toSubst ρ ])
+      (u [ toSubst (liftn ρ 2) ])                                    ≡˘⟨ cong₃ (prodrecʰ⟨ _ ⟩ _ _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
+
+    prodrecʰ⟨ s ⟩ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)  ∎

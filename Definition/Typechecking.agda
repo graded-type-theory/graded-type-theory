@@ -11,24 +11,35 @@ module Definition.Typechecking
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Typed R
+open import Definition.Untyped.Sup R
+open import Definition.Untyped.Whnf M type-variant
 
+open import Definition.Typed R
+open import Definition.Typed.Consequences.Inequality R
+open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typed.Inversion R
+open import Definition.Typed.Properties R
+
+open import Tools.Empty
 open import Tools.Fin
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+open import Tools.Relation
 
 private
   variable
-    m n l l₁ l₂ α : Nat
+    m n α : Nat
     φ : Unfolding _
     ∇ : DCon (Term 0) m
     Δ : Con Term n
     Γ : Cons m n
-    t u v w A B C₁ C₂ F G : Term n
+    l l₁ l₂ t u v w A B C C₁ C₂ F G : Term n
     p q r p′ q′ : M
     b : BinderMode
     s : Strength
@@ -40,10 +51,15 @@ mutual
   infix 4 _⊢_⇇Type
 
   data _⊢_⇇Type (Γ : Cons m n) : Term n → Set a where
-    Uᶜ : Γ ⊢ U l ⇇Type
+    Levelᶜ : Level-allowed
+           → Γ ⊢ Level ⇇Type
+    Uᶜ : Γ ⊢ l ⇇Level → Γ ⊢ U l ⇇Type
+    Liftᶜ : Γ ⊢ l ⇇Level
+          → Γ ⊢ A ⇇Type
+          → Γ ⊢ Lift l A ⇇Type
     ℕᶜ : Γ ⊢ ℕ ⇇Type
     Unitᶜ : Unit-allowed s
-          → Γ ⊢ Unit s l ⇇Type
+          → Γ ⊢ Unit s ⇇Type
     Emptyᶜ : Γ ⊢ Empty ⇇Type
     ΠΣᶜ : Γ ⊢ F ⇇Type
        → Γ »∙ F ⊢ G ⇇Type
@@ -60,18 +76,32 @@ mutual
   infix 4 _⊢_⇉_
 
   data _⊢_⇉_ (Γ : Cons m n) : (_ _ : Term n) → Set a where
-    Uᵢ : Γ ⊢ U l ⇉ U (1+ l)
+    Levelᵢ : Level-is-small → Γ ⊢ Level ⇉ U zeroᵘ
+    zeroᵘᵢ : Level-allowed
+           → Γ ⊢ zeroᵘ ⇉ Level
+    sucᵘᵢ : Γ ⊢ t ⇇ Level
+          → Γ ⊢ sucᵘ t ⇉ Level
+    supᵘᵢ : Γ ⊢ t ⇇ Level
+          → Γ ⊢ u ⇇ Level
+          → Γ ⊢ t supᵘ u ⇉ Level
+    Uᵢ : Γ ⊢ l ⇇Level → Γ ⊢ U l ⇉ U (sucᵘ l)
+    Liftᵢ : Γ ⊢ l₂ ⇇Level
+          → Γ ⊢ A ⇉ C
+          → Γ ⊢ C ↘ U l₁
+          → Γ ⊢ Lift l₂ A ⇉ U (l₁ supᵘₗ l₂)
     ΠΣᵢ : Γ ⊢ A ⇉ C₁
-        → Γ ⊢ C₁ ↘ U l₁
-        → Γ »∙ A ⊢ B ⇉ C₂
-        → Γ »∙ A ⊢ C₂ ↘ U l₂
+        → Γ ⊢ C₁ ↘ U l
+        → Γ »∙ A ⊢ B ⇇ U (wk1 l)
         → ΠΣ-allowed b p q
-        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇉ U (l₁ ⊔ᵘ l₂)
+        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ⇉ U l
     varᵢ : ∀ {x}
          → x ∷ A ∈ Γ .vars
          → Γ ⊢ var x ⇉ A
     defnᵢ : α ↦∷ A ∈ Γ .defs
           → Γ ⊢ defn α ⇉ wk wk₀ A
+    lowerᵢ : Γ ⊢ t ⇉ A
+           → Γ ⊢ A ↘ Lift l B
+           → Γ ⊢ lower t ⇉ B
     appᵢ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ↘ Π p , q ▷ F ▹ G
          → Γ ⊢ u ⇇ F
@@ -87,7 +117,7 @@ mutual
              → Γ ⊢ B ↘ Σʷ p , q ▷ F ▹ G
              → Γ »∙ F »∙ G ⊢ u ⇇ (A [ prodʷ p (var x1) (var x0) ]↑²)
              → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]₀
-    ℕᵢ : Γ ⊢ ℕ ⇉ U 0
+    ℕᵢ : Γ ⊢ ℕ ⇉ U zeroᵘ
     zeroᵢ : Γ ⊢ zero ⇉ ℕ
     sucᵢ : Γ ⊢ t ⇇ ℕ
          → Γ ⊢ suc t ⇉ ℕ
@@ -98,14 +128,14 @@ mutual
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
     Unitᵢ : Unit-allowed s
-          → Γ ⊢ Unit s l ⇉ U l
+          → Γ ⊢ Unit s ⇉ U zeroᵘ
     starᵢ : Unit-allowed s
-          → Γ ⊢ star s l ⇉ Unit s l
-    unitrecᵢ : Γ »∙ Unitʷ l ⊢ A ⇇Type
-             → Γ ⊢ t ⇇ Unitʷ l
-             → Γ ⊢ u ⇇ A [ starʷ l ]₀
-             → Γ ⊢ unitrec l p q A t u ⇉ A [ t ]₀
-    Emptyᵢ : Γ ⊢ Empty ⇉ U 0
+          → Γ ⊢ star s ⇉ Unit s
+    unitrecᵢ : Γ »∙ Unitʷ ⊢ A ⇇Type
+             → Γ ⊢ t ⇇ Unitʷ
+             → Γ ⊢ u ⇇ A [ starʷ ]₀
+             → Γ ⊢ unitrec p q A t u ⇉ A [ t ]₀
+    Emptyᵢ : Γ ⊢ Empty ⇉ U zeroᵘ
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
               → Γ ⊢ emptyrec p A t ⇉ A
@@ -128,18 +158,22 @@ mutual
        → Γ ⊢ v ⇇ Id A t t
        → K-allowed
        → Γ ⊢ K p A t B u v ⇉ B [ v ]₀
-    []-congᵢ : Γ ⊢ A ⇇Type
+    []-congᵢ : Γ ⊢ l ⇇Level
+             → Γ ⊢ A ⇇Type
              → Γ ⊢ t ⇇ A
              → Γ ⊢ u ⇇ A
              → Γ ⊢ v ⇇ Id A t u
              → []-cong-allowed s
              → let open Erased s in
-               Γ ⊢ []-cong s A t u v ⇉
-                 Id (Erased A) ([ t ]) ([ u ])
+               Γ ⊢ []-cong s l A t u v ⇉
+                 Id (Erased l A) [ t ] ([ u ])
 
   infix 4 _⊢_⇇_
 
   data _⊢_⇇_ (Γ : Cons m n) : (_ _ : Term n) → Set a where
+    liftᶜ : Γ ⊢ A ↘ Lift l B
+          → Γ ⊢ t ⇇ B
+          → Γ ⊢ lift t ⇇ A
     lamᶜ : Γ ⊢ A ↘ Π p , q ▷ F ▹ G
          → Γ »∙ F ⊢ t ⇇ G
          → Γ ⊢ lam p t ⇇ A
@@ -155,11 +189,40 @@ mutual
          → Γ ⊢ A ≡ B
          → Γ ⊢ t ⇇ B
 
+  data _⊢_⇇Level (Γ : Cons m n) (l : Term n) : Set a where
+    term    : Level-allowed
+            → Γ ⊢ l ⇇ Level
+            → Γ ⊢ l ⇇Level
+    literal : ¬ Level-allowed
+            → Level-literal l
+            → Γ ⊢ l ⇇Level
+
+opaque
+
+  -- A variant of univᶜ.
+
+  ⊢⇇U→⊢⇇Type :
+    ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
+    Γ ⊢ A ⇇ U l → Γ ⊢ A ⇇Type
+  ⊢⇇U→⊢⇇Type (liftᶜ U↘Lift _) =
+    case whnfRed* (U↘Lift .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (lamᶜ U↘Π _) =
+    case whnfRed* (U↘Π .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (prodᶜ U↘Σ _ _) =
+    case whnfRed* (U↘Σ .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (rflᶜ U↘Id _) =
+    case whnfRed* (U↘Id .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (infᶜ A⇉ ≡U) =
+    univᶜ A⇉ (U-norm ≡U .proj₂ , Uₙ)
+
 mutual
 
   -- Checkable types.
 
   data Checkable-type {n : Nat} : Term n → Set a where
+    Liftᶜ  : Checkable-level l →
+             Checkable-type A →
+             Checkable-type (Lift l A)
     ΠΣᶜ    : Checkable-type A → Checkable-type B →
              Checkable-type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     Idᶜ    : Checkable-type A → Checkable t → Checkable u →
@@ -169,10 +232,16 @@ mutual
   -- Inferable terms.
 
   data Inferable {n : Nat} : (Term n) → Set a where
-    Uᵢ : Inferable (U l)
-    ΠΣᵢ : Inferable A → Inferable B → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
+    Levelᵢ : Inferable Level
+    zeroᵘᵢ : Inferable zeroᵘ
+    sucᵘᵢ : Checkable t → Inferable (sucᵘ t)
+    supᵘᵢ : Checkable t → Checkable u → Inferable (t supᵘ u)
+    Uᵢ : Checkable-level l → Inferable (U l)
+    Liftᵢ : Checkable-level l → Inferable A → Inferable (Lift l A)
+    ΠΣᵢ : Inferable A → Checkable B → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     varᵢ : ∀ {x} → Inferable (var x)
     defnᵢ : Inferable (defn α)
+    lowerᵢ : Inferable t → Inferable (lower t)
     ∘ᵢ : Inferable t → Checkable u → Inferable (t ∘⟨ p ⟩ u)
     fstᵢ : Inferable t → Inferable (fst p t)
     sndᵢ : Inferable t → Inferable (snd p t)
@@ -183,10 +252,10 @@ mutual
     sucᵢ : Checkable t → Inferable (suc t)
     natrecᵢ : Checkable-type A → Checkable t → Checkable u → Checkable v →
               Inferable (natrec p q r A t u v)
-    Unitᵢ : Inferable (Unit s l)
-    starᵢ : Inferable (star s l)
+    Unitᵢ : Inferable (Unit s)
+    starᵢ : Inferable (star s)
     unitrecᵢ : Checkable-type A → Checkable t → Checkable u →
-               Inferable (unitrec l p q A t u)
+               Inferable (unitrec p q A t u)
     Emptyᵢ : Inferable Empty
     emptyrecᵢ : Checkable-type A → Checkable t →
                 Inferable (emptyrec p A t)
@@ -196,16 +265,24 @@ mutual
          Inferable (J p q A t B u v w)
     Kᵢ : Checkable-type A → Checkable t → Checkable-type B →
          Checkable u → Checkable v → Inferable (K p A t B u v)
-    []-congᵢ : Checkable-type A → Checkable t → Checkable u →
-               Checkable v → Inferable ([]-cong s A t u v)
+    []-congᵢ : Checkable-level l → Checkable-type A → Checkable t →
+               Checkable u → Checkable v →
+               Inferable ([]-cong s l A t u v)
 
   -- Checkable terms.
 
   data Checkable : (Term n) → Set a where
+    liftᶜ : Checkable t → Checkable (lift t)
     lamᶜ : Checkable t → Checkable (lam p t)
     prodᶜ : ∀ {m} → Checkable t → Checkable u → Checkable (prod m p t u)
     rflᶜ : Checkable {n = n} rfl
     infᶜ : Inferable t → Checkable t
+
+  -- Checkable levels.
+
+  data Checkable-level (l : Term n) : Set a where
+    term    : Level-allowed → Checkable l → Checkable-level l
+    literal : ¬ Level-allowed → Checkable-level l
 
 -- CheckableDCon ∇ means that the types and terms in ∇ are checkable.
 
@@ -235,14 +312,136 @@ opaque
   CheckableCons : Cons m n → Set a
   CheckableCons (∇ » Γ) = CheckableDCon ∇ × CheckableCon Γ
 
+opaque
+
+  -- There is a well-typed term that is checkable but not inferable.
+
+  Checkable×¬Inferable :
+    let t : Term 0
+        t = lift zero
+    in
+    ε » ε ⊢ t ∷ Lift zeroᵘ ℕ × Checkable t × ¬ Inferable t
+  Checkable×¬Inferable =
+    liftⱼ′ (⊢zeroᵘ εε) (zeroⱼ εε) ,
+    liftᶜ (infᶜ zeroᵢ) ,
+    (λ { () })
+
+opaque
+
+  -- The term A = Π p , q ▷ lam r (var x0) ▹ var x0 is a checkable
+  -- type but not checkable. If Γ .vars is empty or equality
+  -- reflection is not allowed, then Γ ⊢ A does not hold.
+
+  Checkable-type×¬Checkable :
+    let A : Term 0
+        A = Π p , q ▷ lam r (var x0) ▹ var x0
+    in
+    Checkable-type A × ¬ Checkable A ×
+    ({Γ : Cons n 0} ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
+     ¬ Γ ⊢ A)
+  Checkable-type×¬Checkable =
+    ΠΣᶜ (checkᶜ (lamᶜ (infᶜ varᵢ))) (checkᶜ (infᶜ varᵢ)) ,
+    (λ { (infᶜ (ΠΣᵢ () _)) }) ,
+    (λ ⊢A →
+       let ⊢lam , _ = inversion-ΠΣ ⊢A in
+       case ⊢lam of λ {
+         (univ ⊢lam) →
+       let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢lam in
+       U≢ΠΣⱼ U≡Π })
+
+opaque
+
+  -- Every well-formed type that is checkable is inferable (if the
+  -- variable context is empty or equality reflection is disallowed).
+
+  ⊢→Checkable→Inferable :
+    ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
+    Γ ⊢ A → Checkable A → Inferable A
+  ⊢→Checkable→Inferable ⊢A = λ where
+    (liftᶜ _) →
+      case ⊢A of λ {
+        (univ ⊢lift) →
+      let _ , _ , _ , U≡Lift = inversion-lift ⊢lift in
+      ⊥-elim (U≢Liftⱼ U≡Lift) }
+    (lamᶜ _) →
+      case ⊢A of λ {
+        (univ ⊢lam) →
+      let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢lam in
+      ⊥-elim (U≢ΠΣⱼ U≡Π) }
+    (prodᶜ _ _) →
+      case ⊢A of λ {
+        (univ ⊢prod) →
+      let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢prod in
+      ⊥-elim (U≢ΠΣⱼ U≡Σ) }
+    rflᶜ →
+      case ⊢A of λ {
+        (univ ⊢rfl) →
+      let _ , _ , _ , _ , U≡Id = inversion-rfl ⊢rfl in
+      ⊥-elim (Id≢U (sym U≡Id)) }
+    (infᶜ A) →
+      A
+
+opaque
+
+  -- Every well-formed type that is a checkable type is inferable (if
+  -- equality reflection is disallowed).
+
+  ⊢→Checkable-type→Inferable :
+    ⦃ ok : No-equality-reflection ⦄ →
+    Γ ⊢ A → Checkable-type A → Inferable A
+  ⊢→Checkable-type→Inferable ⊢A = λ where
+    (Liftᶜ l B) →
+      let _ , ⊢B = inversion-Lift ⊢A in
+      Liftᵢ l (⊢→Checkable-type→Inferable ⊢B B)
+    (ΠΣᶜ B C) →
+      let ⊢B , ⊢C , _ = inversion-ΠΣ ⊢A in
+      ΠΣᵢ (⊢→Checkable-type→Inferable ⊢B B)
+        (infᶜ (⊢→Checkable-type→Inferable ⊢C C))
+    (Idᶜ B t u) →
+      let ⊢B , _ = inversion-Id ⊢A in
+      Idᵢ (⊢→Checkable-type→Inferable ⊢B B) t u
+    (checkᶜ A) →
+      ⊢→Checkable→Inferable ⦃ ok = possibly-nonempty ⦄ ⊢A A
+
+opaque
+
+  -- If Level is allowed, then Checkable-level l is logically
+  -- equivalent to Checkable l.
+
+  Checkable-level⇔ :
+    Level-allowed →
+    Checkable-level l ⇔ Checkable l
+  Checkable-level⇔ ok =
+    (λ where
+       (term _ l)       → l
+       (literal not-ok) → ⊥-elim (not-ok ok)) ,
+    term ok
+
+opaque
+
+  -- If Level is allowed, then Γ ⊢ l ⇇Level is logically
+  -- equivalent to Γ ⊢ l ⇇ Level.
+
+  ⊢⇇Level⇔ :
+    Level-allowed →
+    Γ ⊢ l ⇇Level ⇔ Γ ⊢ l ⇇ Level
+  ⊢⇇Level⇔ ok =
+    (λ where
+       (term _ ⊢l)        → ⊢l
+       (literal not-ok _) → ⊥-elim (not-ok ok)) ,
+    term ok
+
 mutual
 
   -- Γ ⊢ A ⇇Type implies that A is a checkable type.
 
   Checkable⇇Type : Γ ⊢ A ⇇Type → Checkable-type A
-  Checkable⇇Type Uᶜ          = checkᶜ (infᶜ Uᵢ)
+  Checkable⇇Type (Levelᶜ _)  = checkᶜ (infᶜ Levelᵢ)
+  Checkable⇇Type (Liftᶜ l A) = Liftᶜ (Checkable⇇Level l)
+                                 (Checkable⇇Type A)
+  Checkable⇇Type (Uᶜ l)      = checkᶜ (infᶜ (Uᵢ (Checkable⇇Level l)))
   Checkable⇇Type ℕᶜ          = checkᶜ (infᶜ ℕᵢ)
-  Checkable⇇Type (Unitᶜ _)   = checkᶜ (infᶜ Unitᵢ)
+  Checkable⇇Type (Unitᶜ _) = checkᶜ (infᶜ Unitᵢ)
   Checkable⇇Type Emptyᶜ      = checkᶜ (infᶜ Emptyᵢ)
   Checkable⇇Type (ΠΣᶜ A B _) = ΠΣᶜ (Checkable⇇Type A) (Checkable⇇Type B)
   Checkable⇇Type (Idᶜ A t u) = Idᶜ (Checkable⇇Type A) (Checkable⇇ t)
@@ -252,6 +451,7 @@ mutual
   -- Γ ⊢ t ⇇ A implies that t is a checkable term.
 
   Checkable⇇ : Γ ⊢ t ⇇ A → Checkable t
+  Checkable⇇ (liftᶜ x t⇇) = liftᶜ (Checkable⇇ t⇇)
   Checkable⇇ (lamᶜ x t⇇A) = lamᶜ (Checkable⇇ t⇇A)
   Checkable⇇ (prodᶜ x t⇇A t⇇A₁) = prodᶜ (Checkable⇇ t⇇A) (Checkable⇇ t⇇A₁)
   Checkable⇇ (rflᶜ _ _) = rflᶜ
@@ -260,8 +460,14 @@ mutual
   -- Γ ⊢ t ⇉ A implies that t is an inferable term.
 
   Inferable⇉ : Γ ⊢ t ⇉ A → Inferable t
-  Inferable⇉ Uᵢ = Uᵢ
-  Inferable⇉ (ΠΣᵢ A _ B _ _) = ΠΣᵢ (Inferable⇉ A) (Inferable⇉ B)
+  Inferable⇉ (Levelᵢ ok) = Levelᵢ
+  Inferable⇉ (zeroᵘᵢ _) = zeroᵘᵢ
+  Inferable⇉ (sucᵘᵢ x) = sucᵘᵢ (Checkable⇇ x)
+  Inferable⇉ (supᵘᵢ x x₁) = supᵘᵢ (Checkable⇇ x) (Checkable⇇ x₁)
+  Inferable⇉ (Uᵢ l) = Uᵢ (Checkable⇇Level l)
+  Inferable⇉ (Liftᵢ l A ↘U) = Liftᵢ (Checkable⇇Level l) (Inferable⇉ A)
+  Inferable⇉ (lowerᵢ x y) = lowerᵢ (Inferable⇉ x)
+  Inferable⇉ (ΠΣᵢ A _ B _) = ΠΣᵢ (Inferable⇉ A) (Checkable⇇ B)
   Inferable⇉ (varᵢ x) = varᵢ
   Inferable⇉ (defnᵢ α↦t) = defnᵢ
   Inferable⇉ (appᵢ t⇉A x x₁) = ∘ᵢ (Inferable⇉ t⇉A) (Checkable⇇ x₁)
@@ -286,6 +492,14 @@ mutual
   Inferable⇉ (Kᵢ A t B u v _) =
     Kᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇Type B)
       (Checkable⇇ u) (Checkable⇇ v)
-  Inferable⇉ ([]-congᵢ A t u v _) =
-    []-congᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇ u)
-      (Checkable⇇ v)
+  Inferable⇉ ([]-congᵢ l A t u v _) =
+    []-congᵢ (Checkable⇇Level l) (Checkable⇇Type A) (Checkable⇇ t)
+      (Checkable⇇ u) (Checkable⇇ v)
+
+  -- Γ ⊢ t ⇇Level implies that t is a checkable level.
+
+  Checkable⇇Level : Γ ⊢ l ⇇Level → Checkable-level l
+  Checkable⇇Level (term ok l) =
+    term ok (Checkable⇇ l)
+  Checkable⇇Level (literal not-ok _) =
+    literal not-ok

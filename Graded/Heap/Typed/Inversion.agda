@@ -22,8 +22,10 @@ open Type-restrictions TR
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Typed TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
+open import Definition.Typed.Well-formed TR
 
 open import Graded.Heap.Typed UR TR factoring-nr
 open import Graded.Heap.Untyped type-variant UR factoring-nr
@@ -38,13 +40,27 @@ open import Tools.Relation
 private variable
   H : Heap _ _
   Δ : Con Term _
-  t u v w z s A B C D F G : Term _
+  A B C D F G l s t u v w z : Term _
   p q q′ r : M
   ρ : Wk _ _
   S : Stack _
   c : Cont _
   s′ : Strength
-  l : Universe-level
+
+opaque
+
+  -- Inversion of lower
+
+  inversion-lowerₑ :
+    Δ ⨾ H ⊢ᶜ lowerₑ ⟨ t ⟩∷ A ↝ B →
+    ∃₂ λ u F → (ε » Δ ⊢ F) × A PE.≡ Lift u F × ε » Δ ⊢ B ≡ F
+  inversion-lowerₑ (lowerₑ ⊢B) =
+    _ , _ , ⊢B , PE.refl , refl ⊢B
+  inversion-lowerₑ (conv ⊢e B≡B′) =
+    case inversion-lowerₑ ⊢e of λ
+      (u , F , ⊢F , A≡Lift , B′≡) →
+    -- _ , _ , _ , ⊢G , A≡Σ , trans (sym B≡B′) B′≡
+    _ , _ , ⊢F , A≡Lift , trans (sym B≡B′) B′≡
 
 opaque
 
@@ -139,11 +155,11 @@ opaque
   -- Inversion of unitrec
 
   inversion-unitrecₑ :
-    Δ ⨾ H ⊢ᶜ unitrecₑ l p q A u ρ ⟨ t ⟩∷ B ↝ C →
-    ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ l ]₀ ×
-    (ε » Δ ∙ Unitʷ l ⊢ wk (lift ρ) A [ H ]⇑ₕ) ×
+    Δ ⨾ H ⊢ᶜ unitrecₑ p q A u ρ ⟨ t ⟩∷ B ↝ C →
+    ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ ]₀ ×
+    (ε » Δ ∙ Unitʷ ⊢ wk (lift ρ) A [ H ]⇑ₕ) ×
     ¬ Unitʷ-η ×
-    B PE.≡ Unitʷ l ×
+    B PE.≡ Unitʷ ×
     (ε » Δ ⊢ t [ H ]ₕ ∷ B →
      ε » Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-unitrecₑ {A} (unitrecₑ ⊢u ⊢A no-η) =
@@ -218,20 +234,29 @@ opaque
   -- Inversion of []-cong
 
   inversion-[]-congₑ :
-    Δ ⨾ H ⊢ᶜ []-congₑ s′ A t u ρ ⟨ v ⟩∷ B ↝ C
-    → let open E s′ in
-    []-cong-allowed s′
-    × B PE.≡ wk ρ (Id A t u) [ H ]ₕ
-    × (ε » Δ ⊢ wk ρ t [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
-       ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
-       ε » Δ ⊢ C ≡ (wk ρ (Id (Erased A) ([ t ]) ([ u ])) [ H ]ₕ))
-  inversion-[]-congₑ ([]-congₑ ok) =
+    Δ ⨾ H ⊢ᶜ []-congₑ s′ l A t u ρ ⟨ v ⟩∷ B ↝ C →
+    let module E′ = E s′ in
+    []-cong-allowed s′ ×
+    ε » Δ ⊢ wk ρ l [ H ]ₕ ∷Level ×
+    B PE.≡ wk ρ (Id A t u) [ H ]ₕ ×
+    (ε » Δ ⊢ wk ρ t [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
+     ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
+     ε » Δ ⊢ C ≡
+       Id (E′.Erased (wk ρ l [ H ]ₕ) (wk ρ A [ H ]ₕ))
+         E′.[ wk ρ t [ H ]ₕ ] E′.[ wk ρ u [ H ]ₕ ])
+  inversion-[]-congₑ ([]-congₑ {s′} ok ⊢l) =
     let E-ok = []-cong→Erased ok in
-    ok , PE.refl , λ ⊢t ⊢u → refl (Idⱼ′ ([]ⱼ E-ok ⊢t) ([]ⱼ E-ok ⊢u))
-  inversion-[]-congₑ (conv ⊢c ≡C) =
-    case inversion-[]-congₑ ⊢c of λ
-      (ok , B≡ , C′≡) →
-    ok , B≡ , λ ⊢t ⊢u → trans (sym ≡C) (C′≡ ⊢t ⊢u)
+    ok , ⊢l , PE.refl ,
+    λ ⊢t ⊢u →
+      PE.subst₂ (_⊢_≡_ _) wk-Id-Erased-[]-[] PE.refl $
+      _⊢_≡_.refl $
+      Idⱼ′ ([]ⱼ E-ok ⊢l ⊢t) ([]ⱼ E-ok ⊢l ⊢u)
+    where
+    open E s′
+  inversion-[]-congₑ (conv ⊢e ≡C) =
+    case inversion-[]-congₑ ⊢e of λ
+      (ok , ⊢l , B≡ , C′≡) →
+    ok , ⊢l , B≡ , λ ⊢t ⊢u → trans (sym ≡C) (C′≡ ⊢t ⊢u)
 
 opaque
 

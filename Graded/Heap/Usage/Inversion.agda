@@ -46,7 +46,7 @@ open Type-variant type-variant
 
 private variable
   H : Heap _ _
-  A B s t u v z : Term _
+  A B l s t u v z : Term _
   ρ : Wk _ _
   c : Cont _
   S : Stack _
@@ -55,7 +55,6 @@ private variable
   m : Mode
   x : Fin _
   str : Strength
-  l : Universe-level
 
 opaque
 
@@ -179,6 +178,14 @@ opaque
 
 opaque
 
+  -- Inversion of lower
+
+  ▸-inv-lowerₑ :
+    γ ▸ᶜ[ m ] lowerₑ → γ ≈ᶜ 𝟘ᶜ
+  ▸-inv-lowerₑ lowerₑ = ≈ᶜ-refl
+
+opaque
+
   -- Inversion of application
 
   ▸-inv-∘ₑ :
@@ -242,7 +249,7 @@ opaque
   -- Inversion of unitrec
 
   ▸-inv-unitrecₑ :
-    γ ▸ᶜ[ m ] unitrecₑ l p q A u ρ →
+    γ ▸ᶜ[ m ] unitrecₑ p q A u ρ →
     ∃ λ δ → δ ▸[ m ] u × Unitrec-allowed m p q ×
     ¬ Unitʷ-η × γ ≈ᶜ wkConₘ ρ δ
   ▸-inv-unitrecₑ (unitrecₑ ▸u ok no-η) =
@@ -282,7 +289,7 @@ opaque
   -- Inversion of []-cong
 
   ▸-inv-[]-congₑ :
-    γ ▸ᶜ[ m ] []-congₑ str A t u ρ →
+    γ ▸ᶜ[ m ] []-congₑ str l A t u ρ →
     []-cong-allowed-mode str m × γ ≈ᶜ 𝟘ᶜ
   ▸-inv-[]-congₑ ([]-congₑ ok) =
     ok , ≈ᶜ-refl

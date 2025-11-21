@@ -17,8 +17,9 @@ open EqRelSet eqrel
 open Type-restrictions R
 
 import Definition.LogicalRelation R as L
-open L using (Neutralₗ; varₗ; varₗ′; Typeₗ; Functionₗ; Productₗ; Identityₗ)
-  public
+open L public using
+  (Neutralₗ; Neutralᵃₗ; varᵃₗ; varᵃₗ′;
+   Typeₗ; Functionᵃₗ; Productᵃₗ; Identityᵃₗ)
 import Definition.LogicalRelation.Hidden R as H
 open import Definition.LogicalRelation.Weakening.Restricted R
 
@@ -28,6 +29,8 @@ open import Definition.Typed.Weakening R using (_»_∷ʷ_⊇_)
 open import Definition.Typed.Weakening.Definition R using (»_⊇_)
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
@@ -1012,11 +1015,12 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_ _⊩⟨_⟩_∷_
 
-  -- Neutral terms that satisfy certain properties are reducible.
+  -- Atomic neutral terms that satisfy certain properties are
+  -- reducible.
 
   neutral-⊩∷ :
     Γ ⊩⟨ l ⟩ A →
-    Neutralₗ (Γ .defs) t →
+    Neutralᵃₗ (Γ .defs) t →
     Γ ⊢~ t ∷ A →
     Γ ⊩⟨ l ⟩ t ∷ A
   neutral-⊩∷ ⊩A t-ne ~t = H.neutral-⊩∷ ⊩A t-ne ~t
@@ -1039,13 +1043,13 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_∷_
 
-  -- Reducible equality holds between neutral terms that satisfy
-  -- certain properties.
+  -- Reducible equality holds between atomic neutral terms that
+  -- satisfy certain properties.
 
   neutral-⊩≡∷ :
     Γ ⊩⟨ l ⟩ A →
-    Neutralₗ (Γ .defs) t →
-    Neutralₗ (Γ .defs) u →
+    Neutralᵃₗ (Γ .defs) t →
+    Neutralᵃₗ (Γ .defs) u →
     Γ ⊢ t ~ u ∷ A →
     Γ ⊩⟨ l ⟩ t ≡ u ∷ A
   neutral-⊩≡∷ ⊩A t-ne u-ne t~u = H.neutral-⊩≡∷ ⊩A t-ne u-ne t~u
@@ -1070,14 +1074,16 @@ opaque
     Neutralₗ (Γ .defs) A →
     Γ ⊩⟨ l ⟩ t ∷ A ⇔
     (⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
-     Γ ⊢≅ A × ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralₗ (Γ .defs) u × Γ ⊢~ u ∷ A)
+     Γ ⊢≅ A ×
+     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralᵃₗ (Γ .defs) u × Γ ⊢~ u ∷ A)
   ⊩∷ne⇔ {Γ} {A} {l} {t} A-ne =
     Γ ⊩⟨ l ⟩ t ∷ A                                                  ⇔⟨ ⊩∷⇔ ⟩
 
     (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ H.⊩⟨ l ⟩ t ∷ A)  ⇔⟨ instance-Π-cong-⇔ $ H.⊩∷ne⇔ A-ne ⟩
 
-    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊢≅ A ×
-     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralₗ (Γ .defs) u × Γ ⊢~ u ∷ A)    □⇔
+    (⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
+     Γ ⊢≅ A ×
+     ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralᵃₗ (Γ .defs) u × Γ ⊢~ u ∷ A)   □⇔
 
 opaque
   unfolding _⊩⟨_⟩_≡_

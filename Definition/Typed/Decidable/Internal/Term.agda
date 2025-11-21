@@ -3,17 +3,19 @@
 -- translation to regular terms
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed.Decidable.Internal.Term
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
+  (R : Type-restrictions 𝕄)
   where
 
 open import Definition.Untyped M as U
-  using
-    (BinderMode; Opacity; Strength; Unfolding; Universe-level; Wk; _»_)
+  using (BinderMode; Opacity; Strength; Unfolding; Wk; _»_)
 open import Definition.Untyped.Properties M
+import Definition.Untyped.Sup R as S
 
 open U.Con
 open U.DCon
@@ -55,14 +57,6 @@ data Termᵍ (n : Nat) : Set a where
   _+_ _·_ _∧_ : (p q : Termᵍ n) → Termᵍ n
   ⌜⌞_⌟⌝       : (p : Termᵍ n) → Termᵍ n
 
--- Universe level terms.
-
-data Termˡ (n : Nat) : Set where
-  var  : (x : Fin n) → Termˡ n
-  zero : Termˡ n
-  suc  : (l : Termˡ n) → Termˡ n
-  _⊔ᵘ_ : (l₁ l₂ : Termˡ n) → Termˡ n
-
 -- Strength terms.
 
 data Termˢ (n : Nat) : Set where
@@ -85,9 +79,6 @@ record Constants : Set where
   field
     -- The number of grade variables.
     gs : Nat
-
-    -- The number of universe level variables.
-    ls : Nat
 
     -- The number of strength variables.
     ss : Nat
@@ -152,6 +143,7 @@ mutual
   --   right form.
 
   infix  30 ΠΣ⟨_⟩_,_▷_▹_
+  infixr 30 _supᵘₗ_
   infixl 30 _∘⟨_⟩_
 
   data Term (c : Constants) (n : Nat) : Set a where
@@ -160,13 +152,20 @@ mutual
     subst        : (t : Term c m) (σ : Subst c n m) → Term c n
     var          : (x : Fin n) → Term c n
     defn         : (α : Nat) → Term c n
-    U            : (l : Termˡ (c .ls)) → Term c n
+    Level        : Term c n
+    zeroᵘ        : Term c n
+    sucᵘ         : (l : Term c n) → Term c n
+    _supᵘₗ_      : (l₁ l₂ : Term c n) → Term c n
+    U            : (l : Term c n) → Term c n
+    Lift         : (l A : Term c n) → Term c n
+    lift         : (l : Maybe (Term c n)) (t : Term c n) → Term c n
+    lower        : (t : Term c n) → Term c n
     Empty        : Term c n
     emptyrec     : (p : Termᵍ (c .gs)) (A t : Term c n) → Term c n
-    Unit         : (s : Termˢ (c .ss)) (l : Termˡ (c .ls)) → Term c n
-    star         : (s : Termˢ (c .ss)) (l : Termˡ (c .ls)) → Term c n
-    unitrec      : (l : Termˡ (c .ls)) (p q : Termᵍ (c .gs))
-                   (A : Term c (1+ n)) (t u : Term c n) → Term c n
+    Unit         : (s : Termˢ (c .ss)) → Term c n
+    star         : (s : Termˢ (c .ss)) → Term c n
+    unitrec      : (p q : Termᵍ (c .gs)) (A : Term c (1+ n))
+                   (t u : Term c n) → Term c n
     ΠΣ⟨_⟩_,_▷_▹_ : (b : Termᵇᵐ (c .ss) (c .bms)) (p q : Termᵍ (c .gs))
                    (A : Term c n) (B : Term c (1+ n)) → Term c n
     lam          : (p : Termᵍ (c .gs))
@@ -193,7 +192,7 @@ mutual
                    (B : Term c (2+ n)) (u v w : Term c n) → Term c n
     K            : (p : Termᵍ (c .gs)) (A t : Term c n)
                    (B : Term c (1+ n)) (u v : Term c n) → Term c n
-    []-cong      : (s : Termˢ (c .ss)) (A t u v : Term c n) → Term c n
+    []-cong      : (s : Termˢ (c .ss)) (l A t u v : Term c n) → Term c n
 
   -- Substitutions.
   --
@@ -224,7 +223,8 @@ pattern var! x = var x refl
 -- procedures.
 
 data Constraint (c : Constants) : Set a where
-  k-allowed opacity-allowed unfolding-mode-transitive :
+  k-allowed level-allowed level-is-small opacity-allowed
+    unfolding-mode-transitive :
     Constraint c
   box-cong-allowed unit-allowed unit-with-η :
     (s : Termˢ (c .ss)) → Constraint c
@@ -270,21 +270,23 @@ data Con (c : Constants) : Nat → Set a where
   ε    : Con c 0
   _∙_  : Con c n → Term c n → Con c (1+ n)
 
--- Types or terms with types.
+-- Types, terms with types, or levels.
 
 data Type-or-term (c : Constants) (n : Nat) : Set a where
-  type : (A : U.Term n) → Type-or-term c n
-  term : (t : U.Term n) (A : Term c n) → Type-or-term c n
+  type  : (A : U.Term n) → Type-or-term c n
+  term  : (t : U.Term n) (A : Term c n) → Type-or-term c n
+  level : (l : U.Term n) → Type-or-term c n
 
 -- Meta-variable contexts.
 --
--- Meta-variables can refer to types and terms in possibly different
--- variable contexts. The idea is that it should be possible to work
--- relative to terms and types that are well-formed with respect to
--- variable contexts that are extensions of some base context.
+-- Meta-variables can refer to types, terms and levels in possibly
+-- different variable contexts. The idea is that it should be possible
+-- to work relative to terms, types and levels that are well-formed
+-- with respect to variable contexts that are extensions of some base
+-- context.
 --
 -- Different meta-variables can also refer to definitionally equal
--- terms or types.
+-- terms, types or levels.
 
 record Meta-con (c : Constants) : Set a where
   no-eta-equality
@@ -309,7 +311,6 @@ emptyᶜᵐ :
   Meta-con
     (record
        { gs               = n₁
-       ; ls               = n₂
        ; ss               = n₃
        ; bms              = n₄
        ; ms               = 0
@@ -329,7 +330,6 @@ record Contexts (c : Constants) : Set a where
   no-eta-equality
   field
     grades       : Vec M (c .gs)
-    levels       : Vec Universe-level (c .ls)
     strengths    : Vec Strength (c .ss)
     binder-modes : Vec BinderMode (c .bms)
     constraints  : List (Constraint c)
@@ -348,7 +348,6 @@ empty-Contexts :
   Contexts
     (record
        { gs               = 0
-       ; ls               = 0
        ; ss               = 0
        ; bms              = 0
        ; ms               = 0
@@ -358,7 +357,6 @@ empty-Contexts :
        ; base-con-size    = 0
        })
 empty-Contexts _ .grades       = Vec.[]
-empty-Contexts _ .levels       = Vec.[]
 empty-Contexts _ .strengths    = Vec.[]
 empty-Contexts _ .binder-modes = Vec.[]
 empty-Contexts _ .constraints  = List.[]
@@ -421,14 +419,6 @@ is-id? _  = nothing
 ⟦ t₁ ∧ t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.∧ ⟦ t₂ ⟧ᵍ γ
 ⟦ ⌜⌞ t ⌟⌝ ⟧ᵍ γ = Mode.⌜ Mode.⌞ ⟦ t ⟧ᵍ γ ⌟ ⌝
 
--- Translates universe level terms to universe levels.
-
-⟦_⟧ˡ : Termˡ (c .ls) → Contexts c → Universe-level
-⟦ var x    ⟧ˡ γ = Vec.lookup (γ .levels) x
-⟦ zero     ⟧ˡ _ = 0
-⟦ suc l    ⟧ˡ γ = 1+ (⟦ l ⟧ˡ γ)
-⟦ l₁ ⊔ᵘ l₂ ⟧ˡ γ = ⟦ l₁ ⟧ˡ γ U.⊔ᵘ ⟦ l₂ ⟧ˡ γ
-
 -- Translates strength terms to strengths.
 
 ⟦_⟧ˢ : Termˢ (c .ss) → Contexts c → Strength
@@ -455,15 +445,21 @@ mutual
   ⌜ subst t σ               ⌝ γ = ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
   ⌜ var x                   ⌝ _ = U.var x
   ⌜ defn α                  ⌝ _ = U.defn α
-  ⌜ U l                     ⌝ γ = U.U (⟦ l ⟧ˡ γ)
+  ⌜ Level                   ⌝ _ = U.Level
+  ⌜ zeroᵘ                   ⌝ _ = U.zeroᵘ
+  ⌜ sucᵘ l                  ⌝ γ = U.sucᵘ (⌜ l ⌝ γ)
+  ⌜ l₁ supᵘₗ l₂             ⌝ γ = ⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ
+  ⌜ Lift l A                ⌝ γ = U.Lift (⌜ l ⌝ γ) (⌜ A ⌝ γ)
+  ⌜ lift _ t                ⌝ γ = U.lift (⌜ t ⌝ γ)
+  ⌜ lower t                 ⌝ γ = U.lower (⌜ t ⌝ γ)
+  ⌜ U l                     ⌝ γ = U.U (⌜ l ⌝ γ)
   ⌜ Empty                   ⌝ _ = U.Empty
   ⌜ emptyrec p A t          ⌝ γ = U.emptyrec (⟦ p ⟧ᵍ γ) (⌜ A ⌝ γ)
                                     (⌜ t ⌝ γ)
-  ⌜ Unit s l                ⌝ γ = U.Unit (⟦ s ⟧ˢ γ) (⟦ l ⟧ˡ γ)
-  ⌜ star s l                ⌝ γ = U.star (⟦ s ⟧ˢ γ) (⟦ l ⟧ˡ γ)
-  ⌜ unitrec l p q A t₁ t₂   ⌝ γ = U.unitrec (⟦ l ⟧ˡ γ) (⟦ p ⟧ᵍ γ)
-                                    (⟦ q ⟧ᵍ γ) (⌜ A ⌝ γ) (⌜ t₁ ⌝ γ)
-                                    (⌜ t₂ ⌝ γ)
+  ⌜ Unit s                  ⌝ γ = U.Unit (⟦ s ⟧ˢ γ)
+  ⌜ star s                  ⌝ γ = U.star (⟦ s ⟧ˢ γ)
+  ⌜ unitrec p q A t₁ t₂     ⌝ γ = U.unitrec (⟦ p ⟧ᵍ γ) (⟦ q ⟧ᵍ γ)
+                                    (⌜ A ⌝ γ) (⌜ t₁ ⌝ γ) (⌜ t₂ ⌝ γ)
   ⌜ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂ ⌝ γ = U.ΠΣ⟨ ⟦ b ⟧ᵇᵐ γ ⟩ ⟦ p ⟧ᵍ γ ,
                                     ⟦ q ⟧ᵍ γ ▷ ⌜ A₁ ⌝ γ ▹ ⌜ A₂ ⌝ γ
   ⌜ lam p _ t               ⌝ γ = U.lam (⟦ p ⟧ᵍ γ) (⌜ t ⌝ γ)
@@ -488,8 +484,9 @@ mutual
                                     (⌜ t₃ ⌝ γ) (⌜ t₄ ⌝ γ)
   ⌜ K p A₁ t₁ A₂ t₂ t₃      ⌝ γ = U.K (⟦ p ⟧ᵍ γ) (⌜ A₁ ⌝ γ) (⌜ t₁ ⌝ γ)
                                     (⌜ A₂ ⌝ γ) (⌜ t₂ ⌝ γ) (⌜ t₃ ⌝ γ)
-  ⌜ []-cong s A t₁ t₂ t₃    ⌝ γ = U.[]-cong (⟦ s ⟧ˢ γ) (⌜ A ⌝ γ)
-                                    (⌜ t₁ ⌝ γ) (⌜ t₂ ⌝ γ) (⌜ t₃ ⌝ γ)
+  ⌜ []-cong s l A t₁ t₂ t₃  ⌝ γ = U.[]-cong (⟦ s ⟧ˢ γ) (⌜ l ⌝ γ)
+                                    (⌜ A ⌝ γ) (⌜ t₁ ⌝ γ) (⌜ t₂ ⌝ γ)
+                                    (⌜ t₃ ⌝ γ)
 
   -- Turns substitutions into regular substitutions.
 
@@ -505,6 +502,7 @@ mutual
   ⌜ x ⌝ᵐ γ with γ .metas .bindings x
   … | _ , type A   = A
   … | _ , term t _ = t
+  … | _ , level l  = l
 
 opaque
 
@@ -562,10 +560,13 @@ infix 30 Σʷ_,_▷_▹_
 
 -- The type constructor Erased.
 
-Erased : Termˢ (c .ss) → Term c n → Term c n
-Erased s A = ΠΣ⟨ BMΣ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Unit s zero
+Erased : Termˢ (c .ss) → (_ _ : Term c n) → Term c n
+Erased s l A =
+  ΠΣ⟨ BMΣ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Lift (weaken (U.step U.id) l) (Unit s)
 
 -- The term constructor [_].
 
-box : Termˢ (c .ss) → Term c n → Term c n
-box s t = prod s 𝟘 (just (𝟘 , Unit s zero)) t (star s zero)
+box : Termˢ (c .ss) → (_ _ : Term c n) → Term c n
+box s l t =
+  prod s 𝟘 (just (𝟘 , Lift (weaken (U.step U.id) l) (Unit s))) t
+    (lift (just l) (star s))

@@ -42,13 +42,12 @@ private variable
   ρ ρ′ : Wk _ _
   γ δ η θ χ : Conₘ _
   p q q′ r : M
-  A B t t′ u u′ v z s : Term _
+  A B l t t′ u u′ v z s : Term _
   S S′ : Stack _
   c : Cont _
   m : Mode
   e : Entry _ _
   s′ : Strength
-  l : Universe-level
 
 -- A comparison relation for the grades in the heap.
 -- H ≤ʰ p iff all grades in the heap are bounded by p.
@@ -75,6 +74,7 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set a where
 -- Usage of continuations
 
 data _▸ᶜ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (c : Cont n) → Set a where
+  lowerₑ : 𝟘ᶜ ▸ᶜ[ m ] lowerₑ
   ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkConₘ ρ γ ▸ᶜ[ m ] ∘ₑ p u ρ
   fstₑ : (m ≡ 𝟙ᵐ → p ≤ 𝟙) → 𝟘ᶜ ▸ᶜ[ m ] fstₑ p
   sndₑ : 𝟘ᶜ ▸ᶜ[ m ] sndₑ p
@@ -90,11 +90,12 @@ data _▸ᶜ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (c : Cont n) → Set a w
                 → Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ)
                 → wkConₘ ρ χ ▸ᶜ[ m ] natrecₑ p q r A z s ρ
   unitrecₑ : γ ▸[ m ] u → Unitrec-allowed m p q → ¬ Unitʷ-η
-           → wkConₘ ρ γ ▸ᶜ[ m ] unitrecₑ l p q A u ρ
+           → wkConₘ ρ γ ▸ᶜ[ m ] unitrecₑ p q A u ρ
   emptyrecₑ : Emptyrec-allowed m p → 𝟘ᶜ ▸ᶜ[ m ] emptyrecₑ p A ρ
   Jₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᶜ[ m ] Jₑ p q A t B u v ρ
   Kₑ : γ ▸[ m ] u → wkConₘ ρ γ ▸ᶜ[ m ] Kₑ p A t B u ρ
-  []-congₑ : []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᶜ[ m ] []-congₑ s′ A t u ρ
+  []-congₑ :
+    []-cong-allowed-mode s′ m → 𝟘ᶜ ▸ᶜ[ m ] []-congₑ s′ l A t u ρ
 
 -- Usage of stacks.
 

@@ -13,6 +13,12 @@ module Graded.Erasure.LogicalRelation.Fundamental.Universe
   (as : Assumptions R)
   where
 
+open Assumptions as
+
+open import Definition.LogicalRelation.Substitution R
+open import Definition.Typed R
+open import Definition.Typed.Properties R
+open import Definition.Typed.Substitution R
 open import Definition.Untyped M
 
 open import Graded.Context 𝕄
@@ -21,6 +27,7 @@ open import Graded.Erasure.LogicalRelation.Hidden as
 import Graded.Erasure.Target as T
 open import Graded.Mode 𝕄
 
+open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -28,15 +35,21 @@ import Tools.PropositionalEquality as PE
 private variable
   n : Nat
   Γ : Con Term _
+  t : Term _
   γ : Conₘ _
   m : Mode
-  l : Universe-level
 
 opaque
 
   -- Validity for U.
 
-  Uʳ : γ ▸ Γ ⊩ʳ U l ∷[ m ∣ n ] U (1+ l)
-  Uʳ =
-    ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
-    ®∷→®∷◂ (®∷U⇔ .proj₂ (Uᵣ (λ { PE.refl → T.refl })))
+  Uʳ :
+    ts » Γ ⊢ t ∷Level →
+    γ ▸ Γ ⊩ʳ U t ∷[ m ∣ n ] U (sucᵘ t)
+  Uʳ ⊢t =
+    ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
+    ®∷→®∷◂ $
+    ®∷U⇔ .proj₂
+      ( ⊢sucᵘ (subst-⊢∷L ⊢t ⊢σ)
+      , U/Levelᵣ (λ { PE.refl → T.refl })
+      )

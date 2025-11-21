@@ -70,6 +70,7 @@ private variable
 -- * []-cong is allowed for 𝕨 exactly when the modality is non-trivial.
 -- * Opaque definitions are allowed.
 -- * Equality reflection is not allowed.
+-- * Level is small.
 -- * 𝟘ᵐ is allowed exactly when the modality is non-trivial.
 
 All-properties-hold-for : Extended-modality a → Set a
@@ -90,6 +91,7 @@ All-properties-hold-for M =
   ([]-cong-allowed 𝕨 ⇔ (¬ Trivial)) ×
   Opacity-allowed ×
   ¬ Equality-reflection ×
+  Level-is-small ×
   (T 𝟘ᵐ-allowed ⇔ (¬ Trivial))
   where
   open Extended-modality M
@@ -172,7 +174,10 @@ opaque
     , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
+    , Level-is-small⇔ .proj₂ refl
     , ((λ ()) , (_$ refl))
+    where
+    open Extended-modality Trivial
 
 -- An erasure modality.
 
@@ -216,7 +221,10 @@ opaque
     , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
+    , Level-is-small⇔ .proj₂ refl
     , ((λ _ ()) , _)
+    where
+    open Extended-modality Erasure
 
 -- An affine types modality.
 
@@ -271,7 +279,10 @@ opaque
     , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
+    , Level-is-small⇔ .proj₂ refl
     , ((λ _ ()) , _)
+    where
+    open Extended-modality Affine-types
 
 -- A linearity modality.
 
@@ -330,7 +341,10 @@ opaque
     , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
+    , Level-is-small⇔ .proj₂ refl
     , ((λ _ ()) , _)
+    where
+    open Extended-modality Linearity
 
 -- A linear or affine types modality.
 
@@ -391,7 +405,10 @@ opaque
     , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
+    , Level-is-small⇔ .proj₂ refl
     , ((λ _ ()) , _)
+    where
+    open Extended-modality Linear-or-affine-types
 
 ------------------------------------------------------------------------
 -- Some morphisms between the modalities above

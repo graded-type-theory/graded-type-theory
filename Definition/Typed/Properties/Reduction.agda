@@ -17,6 +17,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
+open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
 open import Definition.Typed.Well-formed R
@@ -33,16 +34,15 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Tools.Sum using (_⊎_; inj₁; inj₂)
+open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                               : Cons _ _
-  A A′ B B′ C t t′ u u′ v v₁ v₂ w : Term _
-  V                               : Set ℓ
-  n α                             : Nat
-  s                               : Strength
-  p p′ q r                        : M
-  l                               : Universe-level
+  Γ                                 : Cons _ _
+  A A′ B B′ C l t t′ u u′ v v₁ v₂ w : Term _
+  V                                 : Set ℓ
+  n α                               : Nat
+  s                                 : Strength
+  p p′ q r                          : M
 
 ------------------------------------------------------------------------
 -- Inversion lemmas related to _⊢_⇒_∷_
@@ -56,6 +56,20 @@ opaque
     (∃₂ λ t′ A′ → α ↦ t′ ∷ A′ ∈ Γ .defs × t PE.≡ wk (wk₀ {n = n}) t′)
   inv-⇒-defn (conv d _)               = inv-⇒-defn d
   inv-⇒-defn (δ-red ⊢Γ α↦t A≡A′ t≡t′) = _ , _ , α↦t , t≡t′
+
+opaque
+
+  -- An inversion lemma related to lower.
+
+  inv-⇒-lower :
+    Γ ⊢ lower t ⇒ u ∷ A →
+    (∃₂ λ t′ B → Γ ⊢ t ⇒ t′ ∷ B × u PE.≡ lower t′) ⊎
+    (∃ λ t′ → t PE.≡ lift t′ × u PE.≡ t′)
+  inv-⇒-lower (conv d _)      = inv-⇒-lower d
+  inv-⇒-lower (lower-subst x) = inj₁ (_ , _ , x , PE.refl)
+  inv-⇒-lower (Lift-β x₁ x₂)  = inj₂ (_ , PE.refl , PE.refl)
+
+opaque
 
   -- An inversion lemma related to _∘⟨_⟩_.
 
@@ -129,10 +143,10 @@ opaque
   -- An inversion lemma related to unitrec.
 
   inv-⇒-unitrec :
-    Γ ⊢ unitrec l p q A t u ⇒ v ∷ B →
-    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec l p q A t′ u ×
+    Γ ⊢ unitrec p q A t u ⇒ v ∷ B →
+    (∃₂ λ t′ C → Γ ⊢ t ⇒ t′ ∷ C × v PE.≡ unitrec p q A t′ u ×
      ¬ Unitʷ-η) ⊎
-    t PE.≡ starʷ l × v PE.≡ u × ¬ Unitʷ-η ⊎
+    (t PE.≡ starʷ × v PE.≡ u × ¬ Unitʷ-η) ⊎
     v PE.≡ u × Unitʷ-η
   inv-⇒-unitrec (conv d _) =
     inv-⇒-unitrec d
@@ -172,15 +186,20 @@ opaque
   -- An inversion lemma related to []-cong.
 
   inv-⇒-[]-cong :
-    Γ ⊢ []-cong s A t u v ⇒ w ∷ C →
-    (∃ λ v′ → Γ ⊢ v ⇒ v′ ∷ Id A t u × w PE.≡ []-cong s A t u v′) ⊎
+    Γ ⊢ []-cong s l A t u v ⇒ w ∷ C →
+    (∃ λ v′ → Γ ⊢ v ⇒ v′ ∷ Id A t u × w PE.≡ []-cong s l A t u v′) ⊎
     v PE.≡ rfl × w PE.≡ rfl × Γ ⊢ t ≡ u ∷ A
   inv-⇒-[]-cong (conv d _) =
     inv-⇒-[]-cong d
-  inv-⇒-[]-cong ([]-cong-subst _ _ _ d _) =
+  inv-⇒-[]-cong ([]-cong-subst _ d _) =
     inj₁ (_ , d , PE.refl)
-  inv-⇒-[]-cong ([]-cong-β _ _ _ t≡t′ _) =
+  inv-⇒-[]-cong ([]-cong-β _ t≡t′ _) =
     inj₂ (PE.refl , PE.refl , t≡t′)
+
+  -- An inversion lemma related to sucᵘ.
+
+  ¬sucᵘ⇒ : ¬ Γ ⊢ sucᵘ t ⇒ u ∷ A
+  ¬sucᵘ⇒ (conv d _) = ¬sucᵘ⇒ d
 
 ------------------------------------------------------------------------
 -- The reduction relations are contained in the equality relations
@@ -191,6 +210,14 @@ opaque
   -- relation _⊢_≡_∷_.
 
   subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
+  subsetTerm (supᵘ-zeroˡ ⊢l) = supᵘ-zeroˡ ⊢l
+  subsetTerm (supᵘ-zeroʳ ⊢l) =
+    supᵘ-zeroʳⱼ (inversion-Level-⊢ (wf-⊢∷ ⊢l)) (sucᵘⱼ ⊢l)
+  subsetTerm (supᵘ-sucᵘ ⊢l₁ ⊢l₂) = supᵘ-sucᵘ ⊢l₁ ⊢l₂
+  subsetTerm (supᵘ-substˡ t⇒t′ ⊢u) = supᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
+  subsetTerm (supᵘ-substʳ ⊢t u⇒u′) = supᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)
+  subsetTerm (lower-subst x) = lower-cong (subsetTerm x)
+  subsetTerm (Lift-β ⊢A x₁) = Lift-β ⊢A x₁
   subsetTerm (natrec-subst z s n⇒n′) =
     natrec-cong (refl (⊢∙→⊢ (wfTerm s))) (refl z) (refl s)
       (subsetTerm n⇒n′)
@@ -217,8 +244,11 @@ opaque
   subsetTerm (K-subst ⊢B ⊢u v⇒v′ ok) =
     let (⊢A , _) , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (subsetTerm v⇒v′) ok
-  subsetTerm ([]-cong-subst ⊢A ⊢t ⊢u v⇒v′ ok) =
-    []-cong-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (subsetTerm v⇒v′) ok
+  subsetTerm ([]-cong-subst ⊢l v⇒v′ ok) =
+    let v≡v′         = subsetTerm v⇒v′
+        ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢≡∷ v≡v′ .proj₁)
+    in
+    []-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (refl ⊢u) v≡v′ ok
   subsetTerm (J-β {t} {A} {t′} {B} {u} {p} {q} ⊢t _ t≡t′ ⊢B _ ⊢u) =
     J p q A t B u t′ rfl  ≡⟨ sym′ $
                              J-cong (refl (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B)))))
@@ -227,21 +257,24 @@ opaque
     u                     ∎
   subsetTerm (K-β ⊢B ⊢u ok) =
     K-β ⊢B ⊢u ok
-  subsetTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
+  subsetTerm ([]-cong-β ⊢l t≡t′ ok) =
+    let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′ in
     trans
-      ([]-cong-cong (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
-         (conv (refl (rflⱼ ⊢t)) (Id-cong (refl ⊢A) (refl ⊢t) t≡t′))
+      ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
+         (_⊢_≡_∷_.conv (refl (rflⱼ ⊢t)) $
+          Id-cong (refl ⊢A) (refl ⊢t) t≡t′)
          ok)
-      (conv ([]-cong-β ⊢t PE.refl ok)
-         (Id-cong (refl (Erasedⱼ ⊢A)) (refl ([]ⱼ ⊢A ⊢t))
-            ([]-cong′ ⊢A t≡t′)))
+      (conv ([]-cong-β ⊢l ⊢t PE.refl ok)
+         (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
+            ([]-cong′ ⊢l ⊢A t≡t′)))
     where
     open EP ([]-cong→Erased ok)
   subsetTerm (unitrec-subst A u t⇒t′ ok no-η) =
     unitrec-cong (refl A) (subsetTerm t⇒t′) (refl u) ok no-η
-  subsetTerm (unitrec-β A u ok₁ ok₂) = unitrec-β A u ok₁ ok₂
+  subsetTerm (unitrec-β A u ok₁ ok₂) =
+    unitrec-β A u ok₁ ok₂
   subsetTerm (unitrec-β-η A t u ok₁ ok₂) =
-   unitrec-β-η A t u ok₁ ok₂
+    unitrec-β-η A t u ok₁ ok₂
 
 opaque
 
@@ -384,6 +417,22 @@ opaque
   neRedTerm = λ where
     (conv d _)                → neRedTerm d
     (δ-red _ α↦t _ _)         → λ { (defn α↦⊘) → exclusion-↦∈ α↦⊘ α↦t }
+    (supᵘ-zeroˡ _)            → ⊎.[ (λ ()) , (λ { (_ , () , _) }) ] ∘→
+                                inv-ne-supᵘ
+    (supᵘ-zeroʳ _)            → ⊎.[ (λ ()) , (λ { (_ , _ , ()) }) ] ∘→
+                                inv-ne-supᵘ
+    (supᵘ-sucᵘ _ _)           → ⊎.[ (λ ()) , (λ { (_ , _ , ()) }) ] ∘→
+                                inv-ne-supᵘ
+    (supᵘ-substˡ d _)         → ⊎.[ neRedTerm d
+                                  , (λ { (_ , PE.refl , _) → ¬sucᵘ⇒ d })
+                                  ] ∘→
+                                inv-ne-supᵘ
+    (supᵘ-substʳ _ d)         → ⊎.[ (λ ())
+                                  , neRedTerm d ∘→ proj₂ ∘→ proj₂
+                                  ] ∘→
+                                inv-ne-supᵘ
+    (lower-subst x)           → neRedTerm x ∘→ inv-ne-lower
+    (Lift-β ⊢A x₁)            → (λ ()) ∘→ inv-ne-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-ne-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-ne-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-ne-natrec
@@ -398,10 +447,10 @@ opaque
     (Σ-β₂ _ _ _ _ _)          → (λ ()) ∘→ inv-ne-snd
     (J-subst _ _ _ _ d)       → neRedTerm d ∘→ inv-ne-J
     (K-subst _ _ d _)         → neRedTerm d ∘→ inv-ne-K
-    ([]-cong-subst _ _ _ d _) → neRedTerm d ∘→ inv-ne-[]-cong
+    ([]-cong-subst _ d _)     → neRedTerm d ∘→ inv-ne-[]-cong
     (J-β _ _ _ _ _ _)         → (λ ()) ∘→ inv-ne-J
     (K-β _ _ _)               → (λ ()) ∘→ inv-ne-K
-    ([]-cong-β _ _ _ _ _)     → (λ ()) ∘→ inv-ne-[]-cong
+    ([]-cong-β _ _ _)         → (λ ()) ∘→ inv-ne-[]-cong
     (unitrec-subst _ _ d _ _) → neRedTerm d ∘→ proj₂ ∘→ inv-ne-unitrec
     (unitrec-β _ _ _ _)       → (λ ()) ∘→ proj₂ ∘→ inv-ne-unitrec
     (unitrec-β-η _ _ _ _ ok)  → (_$ ok) ∘→ proj₁ ∘→ inv-ne-unitrec
@@ -424,6 +473,13 @@ opaque
   whnfRedTerm = λ where
     (conv d _)                → whnfRedTerm d
     (δ-red ⊢Γ α↦t A≡A′ t≡t′)  → λ { (ne b) → neRedTerm (δ-red ⊢Γ α↦t A≡A′ t≡t′) b }
+    d@(supᵘ-zeroˡ _)          → neRedTerm d ∘→ inv-whnf-supᵘ
+    d@(supᵘ-zeroʳ _)          → neRedTerm d ∘→ inv-whnf-supᵘ
+    d@(supᵘ-sucᵘ _ _)         → neRedTerm d ∘→ inv-whnf-supᵘ
+    d@(supᵘ-substˡ _ _)       → neRedTerm d ∘→ inv-whnf-supᵘ
+    d@(supᵘ-substʳ _ _)       → neRedTerm d ∘→ inv-whnf-supᵘ
+    (lower-subst x)           → neRedTerm x ∘→ inv-whnf-lower
+    (Lift-β _ _)              → (λ ()) ∘→ inv-whnf-lower
     (app-subst d _)           → neRedTerm d ∘→ inv-whnf-∘
     (β-red _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-∘
     (natrec-subst _ _ d)      → neRedTerm d ∘→ inv-whnf-natrec
@@ -438,10 +494,10 @@ opaque
     (Σ-β₂ _ _ _ _ _)          → (λ ()) ∘→ inv-whnf-snd
     (J-subst _ _ _ _ d)       → neRedTerm d ∘→ inv-whnf-J
     (K-subst _ _ d _)         → neRedTerm d ∘→ inv-whnf-K
-    ([]-cong-subst _ _ _ d _) → neRedTerm d ∘→ inv-whnf-[]-cong
+    ([]-cong-subst _ d _)     → neRedTerm d ∘→ inv-whnf-[]-cong
     (J-β _ _ _ _ _ _)         → (λ ()) ∘→ inv-whnf-J
     (K-β _ _ _)               → (λ ()) ∘→ inv-whnf-K
-    ([]-cong-β _ _ _ _ _)     → (λ ()) ∘→ inv-whnf-[]-cong
+    ([]-cong-β _ _ _)         → (λ ()) ∘→ inv-whnf-[]-cong
     (unitrec-subst _ _ d _ _) → neRedTerm d ∘→ proj₂ ∘→
                                 inv-whnf-unitrec
     (unitrec-β _ _ _ _)       → (λ ()) ∘→ proj₂ ∘→ inv-whnf-unitrec
@@ -487,6 +543,36 @@ opaque
       case inv-⇒-defn d′ of λ where
         (_ , _ , α↦u′ , PE.refl) →
           PE.cong (wk wk₀) (proj₂ (unique-↦∷∈ α↦u α↦u′ PE.refl))
+    (supᵘ-zeroˡ _) (supᵘ-zeroˡ _) → PE.refl
+    d@(supᵘ-zeroˡ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-zeroˡ _) (supᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (supᵘ-zeroʳ _) (supᵘ-zeroʳ _) → PE.refl
+    d@(supᵘ-zeroʳ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-zeroʳ _) (supᵘ-substˡ d _) → ⊥-elim (¬sucᵘ⇒ d)
+    (supᵘ-zeroʳ _) (supᵘ-substʳ _ d) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (supᵘ-sucᵘ _ _) (supᵘ-sucᵘ _ _) → PE.refl
+    d@(supᵘ-sucᵘ _ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-sucᵘ _ _) (supᵘ-substˡ d _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (supᵘ-sucᵘ _ _) (supᵘ-substʳ _ d) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (supᵘ-substˡ d _) (supᵘ-substˡ d′ _) → PE.cong (_supᵘ _) (whrDetTerm d d′)
+    d@(supᵘ-substˡ _ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-substˡ d _) (supᵘ-zeroˡ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (supᵘ-substˡ d _) (supᵘ-zeroʳ _) → ⊥-elim (¬sucᵘ⇒ d)
+    (supᵘ-substˡ d _) (supᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (supᵘ-substˡ d _) (supᵘ-substʳ _ d′) → ⊥-elim (¬sucᵘ⇒ d)
+    (supᵘ-substʳ _ d) (supᵘ-substʳ _ d′) → PE.cong (_ supᵘ_) (whrDetTerm d d′)
+    d@(supᵘ-substʳ _ _) (conv d′ _) → whrDetTerm d d′
+    (supᵘ-substʳ _ d) (supᵘ-zeroʳ _) → ⊥-elim (whnfRedTerm d zeroᵘₙ)
+    (supᵘ-substʳ _ d) (supᵘ-sucᵘ _ _) → ⊥-elim (whnfRedTerm d sucᵘₙ)
+    (supᵘ-substʳ _ d) (supᵘ-substˡ d′ _) → ⊥-elim (¬sucᵘ⇒ d′)
+    (lower-subst d) d′ →
+      case inv-⇒-lower d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) → PE.cong lower (whrDetTerm d d′)
+        (inj₂ (_ , PE.refl , PE.refl)) → ⊥-elim (whnfRedTerm d liftₙ)
+    (Lift-β x₁ x₂) d′ →
+      case inv-⇒-lower d′ of λ where
+        (inj₁ (_ , _ , d′ , PE.refl)) → ⊥-elim (whnfRedTerm d′ liftₙ)
+        (inj₂ (_ , PE.refl , PE.refl)) → PE.refl
     (app-subst d _) d′ →
       case inv-⇒-∘ d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl)) →
@@ -550,9 +636,9 @@ opaque
     (unitrec-subst _ _ d _ no-η) d′ →
       case inv-⇒-unitrec d′ of λ where
         (inj₁ (_ , _ , d′ , PE.refl , _)) →
-          PE.cong (λ t → unitrec _ _ _ _ t _) (whrDetTerm d d′)
-        (inj₂ (inj₁ (PE.refl , _))) → ⊥-elim (whnfRedTerm d starₙ)
-        (inj₂ (inj₂ (_ , η)))       → ⊥-elim (no-η η)
+          PE.cong (λ t → unitrec _ _ _ t _) (whrDetTerm d d′)
+        (inj₂ (inj₁ (PE.refl , PE.refl , _))) → ⊥-elim (whnfRedTerm d starₙ)
+        (inj₂ (inj₂ (_ , η)))           → ⊥-elim (no-η η)
     (unitrec-β _ _ _ no-η) d′ →
       case inv-⇒-unitrec d′ of λ where
         (inj₁ (_ , _ , d′ , _))         → ⊥-elim (whnfRedTerm d′ starₙ)
@@ -581,12 +667,12 @@ opaque
       case inv-⇒-K d′ of λ where
         (inj₁ (_ , _ , d′ , _)) → ⊥-elim (whnfRedTerm d′ rflₙ)
         (inj₂ (_ , PE.refl))    → PE.refl
-    ([]-cong-subst _ _ _ d _) d′ →
+    ([]-cong-subst _ d _) d′ →
       case inv-⇒-[]-cong d′ of λ where
         (inj₁ (_ , d′ , PE.refl)) →
-          PE.cong ([]-cong _ _ _ _) (whrDetTerm d d′)
+          PE.cong ([]-cong _ _ _ _ _) (whrDetTerm d d′)
         (inj₂ (PE.refl , _)) → ⊥-elim (whnfRedTerm d rflₙ)
-    ([]-cong-β _ _ _ _ _) d′ →
+    ([]-cong-β _ _ _) d′ →
       case inv-⇒-[]-cong d′ of λ where
         (inj₁ (_ , d′ , _))      → ⊥-elim (whnfRedTerm d′ rflₙ)
         (inj₂ (_ , PE.refl , _)) → PE.refl
@@ -656,11 +742,11 @@ opaque
 opaque
 
   -- Reduction does not include η-expansion (for WHNFs) for unit types
-  -- with (or without) η-equality: if a WHNF t reduces to star s l (at
-  -- type Unit s l), then t is equal to star s l.
+  -- with (or without) η-equality: if a WHNF t reduces to star s (at
+  -- type Unit s), then t is equal to star s.
 
   no-η-expansion-Unit :
-    Whnf (Γ .defs) t → Γ ⊢ t ⇒* star s l ∷ Unit s l → t PE.≡ star s l
+    Whnf (Γ .defs) t → Γ ⊢ t ⇒* star s ∷ Unit s → t PE.≡ star s
   no-η-expansion-Unit = flip whnfRed*Term
 
 opaque
@@ -674,6 +760,18 @@ opaque
     Γ ⊢ t ⇒* prodˢ p u v ∷ Σˢ p′ , q ▷ A ▹ B →
     t PE.≡ prodˢ p u v
   no-η-expansion-Σˢ = flip whnfRed*Term
+
+opaque
+
+  -- Reduction does not include η-expansion for lifted types (for
+  -- WHNFs): if a WHNF t reduces to lift u (at type Lift l A), then t
+  -- is equal to lift u.
+
+  no-η-expansion-Lift :
+    Whnf (Γ .defs) t →
+    Γ ⊢ t ⇒* lift u ∷ Lift l A →
+    t PE.≡ lift u
+  no-η-expansion-Lift = flip whnfRed*Term
 
 ------------------------------------------------------------------------
 -- Transitivity
@@ -736,3 +834,41 @@ opaque
   univ* : Γ ⊢ A ⇒* B ∷ U l → Γ ⊢ A ⇒* B
   univ* (id ⊢A)     = id (univ ⊢A)
   univ* (A⇒B ⇨ B⇒C) = univ A⇒B ⇨ univ* B⇒C
+
+------------------------------------------------------------------------
+-- Some lemmas related to supᵘ
+
+opaque
+
+  -- A variant of supᵘ-substˡ.
+
+  supᵘ-substˡ* :
+    Γ ⊢ t ⇒* t′ ∷ Level →
+    Γ ⊢ u ∷ Level →
+    Γ ⊢ t supᵘ u ⇒* t′ supᵘ u ∷ Level
+  supᵘ-substˡ* (id ⊢t) ⊢u = id (supᵘⱼ ⊢t ⊢u)
+  supᵘ-substˡ* (d ⇨ t⇒*t′) ⊢u = supᵘ-substˡ d ⊢u ⇨ supᵘ-substˡ* t⇒*t′ ⊢u
+
+opaque
+
+  -- A variant of supᵘ-substʳ.
+
+  supᵘ-substʳ* :
+    Γ ⊢ t ∷ Level →
+    Γ ⊢ u ⇒* u′ ∷ Level →
+    Γ ⊢ sucᵘ t supᵘ u ⇒* sucᵘ t supᵘ u′ ∷ Level
+  supᵘ-substʳ* ⊢t (id ⊢u) = id (supᵘⱼ (sucᵘⱼ ⊢t) ⊢u)
+  supᵘ-substʳ* ⊢t (d ⇨ u⇒*u′) = supᵘ-substʳ ⊢t d ⇨ supᵘ-substʳ* ⊢t u⇒*u′
+
+------------------------------------------------------------------------
+-- Some lemmas related to lower
+
+opaque
+
+  -- A variant of lower-subst.
+
+  lower-subst* :
+    Γ ⊢ t ⇒* t′ ∷ Lift u A →
+    Γ ⊢ lower t ⇒* lower t′ ∷ A
+  lower-subst* (id ⊢t) = id (lowerⱼ ⊢t)
+  lower-subst* (d ⇨ t⇒*t′) = lower-subst d ⇨ lower-subst* t⇒*t′

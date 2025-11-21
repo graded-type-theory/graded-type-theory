@@ -32,6 +32,7 @@ open import Tools.Reasoning.PropositionalEquality
 open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
+open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 
 open import Graded.Context 𝕄
@@ -80,13 +81,17 @@ opaque
     ((p ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
   ¬soundness-ε-inconsistent {p} ok₁ ok₂ =
     let Δ = ε ∙ Empty
-        ⊢Δ = ∙ Emptyⱼ εε
-        ⊢Δ′ = ∙ ℕⱼ ⊢Δ
-        ⊢ℕ = ℕⱼ ⊢Δ′
+        ⊢Δ = ∙ ⊢Empty εε
+        ⊢Δ′ = ∙ ⊢ℕ ⊢Δ
         H = erasedHeap 1 ∙ (𝟙 · p , zero , id)
         S = emptyrecₑ 𝟘 (Π p , 𝟘 ▷ ℕ ▹ ℕ) (lift id) ∙ (∘ₑ p (var y0) (lift id) ∙ ε)
         t = lam p (emptyrec 𝟘 (Π p , 𝟘 ▷ ℕ ▹ ℕ) (var x1) ∘⟨ p ⟩ var x0) ∘⟨ p ⟩ zero
-        ⊢t = lamⱼ ⊢ℕ (emptyrecⱼ (ΠΣⱼ (ℕⱼ (∙ ℕⱼ ⊢Δ′)) ok₂) (var ⊢Δ′ (there here)) ∘ⱼ var ⊢Δ′ here) ok₂ ∘ⱼ zeroⱼ ⊢Δ
+        ⊢t =
+          lamⱼ′ ok₂
+            (emptyrecⱼ (ΠΣⱼ (⊢ℕ (∙ ⊢ℕ ⊢Δ′)) ok₂)
+               (var ⊢Δ′ (there here)) ∘ⱼ
+             var ⊢Δ′ here) ∘ⱼ
+          zeroⱼ ⊢Δ
         eq₁ = begin
           𝟙 · p                 ≡⟨ ·-identityˡ _ ⟩
           p                     ≡˘⟨ +-identityˡ _ ⟩
@@ -139,15 +144,17 @@ opaque
     ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
   ¬soundness-ε-erased-matches-unitrec ok₁ ok₂ ok₃ no-η =
-    let Δ = ε ∙ Unitʷ 0
-        ⊢Δ = ∙ Unitⱼ εε ok₁
-        ⊢Δ′ = ∙ ℕⱼ ⊢Δ
+    let Δ = ε ∙ Unitʷ
+        ⊢Δ = ∙ ⊢Unit εε ok₁
+        ⊢Δ′ = ∙ ⊢ℕ ⊢Δ
         H = erasedHeap 1 ∙ (𝟙 · 𝟙 , zero , id)
-        S = unitrecₑ 0 𝟘 𝟘 ℕ (var x0) (lift id) ∙ ε
-        t = lam 𝟙 (unitrec 0 𝟘 𝟘 ℕ (var x1) (var x0)) ∘⟨ 𝟙 ⟩ zero
-        ⊢t = lamⱼ (ℕⱼ ⊢Δ′)
-               (unitrecⱼ (ℕⱼ (∙ Unitⱼ ⊢Δ′ ok₁)) (var ⊢Δ′ (there here)) (var ⊢Δ′ here) ok₁) ok₂
-              ∘ⱼ zeroⱼ ⊢Δ
+        S = unitrecₑ 𝟘 𝟘 ℕ (var x0) (lift id) ∙ ε
+        t = lam 𝟙 (unitrec 𝟘 𝟘 ℕ (var x1) (var x0)) ∘⟨ 𝟙 ⟩ zero
+        ⊢t =
+          lamⱼ′ ok₂
+            (unitrecⱼ (⊢ℕ (∙ ⊢Unit ⊢Δ′ ok₁)) (var ⊢Δ′ (there here))
+               (var ⊢Δ′ here) ok₁)
+           ∘ⱼ zeroⱼ ⊢Δ
         eq₁ = begin
           𝟙 · 𝟙     ≡⟨ ·-identityˡ _ ⟩
           𝟙         ≡˘⟨ +-identityˡ _ ⟩
@@ -161,9 +168,16 @@ opaque
           𝟘                  ≡˘⟨ +-identityˡ _ ⟩
           𝟘 + 𝟘              ≡˘⟨ +-congʳ (·-zeroˡ _) ⟩
           𝟘 ·  ⌜ ⌞ 𝟘 ⌟ ⌝ + 𝟘 ∎
-        ▸t = sub (lamₘ (sub (unitrecₘ {η = 𝟘ᶜ} var var (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _))) ok₃)
-                               (≤ᶜ-reflexive (ε ∙ eq₂ ∙ eq₁))) ∘ₘ zeroₘ)
-              (≤ᶜ-reflexive (ε ∙ eq₃))
+        ▸t =
+          sub-≈ᶜ
+            (lamₘ
+               (sub-≈ᶜ
+                  (unitrecₘ {γ₂ = 𝟘ᶜ}
+                     (sub ℕₘ (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _))) var
+                     var ok₃)
+                  (ε ∙ eq₂ ∙ eq₁)) ∘ₘ
+             zeroₘ)
+            (ε ∙ eq₃)
     in  _ , Δ , t , (λ _ x → ¬Empty (substTerm x (starⱼ εε ok₁))) , ⊢t
           , ▸t , _ , _ , H , var x1 , lift id , S
           , (⇾ₑ (⇒ₑ appₕ) ⇨ ⇒ᵥ (lamₕ ε) ⇨ ⇾ₑ (⇒ₑ unitrecₕ no-η) ⇨ id)
@@ -200,15 +214,16 @@ opaque
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
   ¬soundness-ε-erased-matches-prodrec {p} ok₁ ok₂ ok₃ =
     let Δ = ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
-        ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ εε)) ok₁
-        ⊢Δ′ = ∙ ℕⱼ ⊢Δ
-        ⊢Δ″ = ∙ ℕⱼ ⊢Δ′
+        ⊢Δ = ∙ ΠΣⱼ (⊢ℕ (∙ ⊢ℕ εε)) ok₁
+        ⊢Δ′ = ∙ ⊢ℕ (∙ ⊢ℕ ⊢Δ)
         H = erasedHeap 1 ∙ (𝟙 · 𝟙 , zero , id)
         S = prodrecₑ 𝟘 p 𝟘 ℕ (var x2) (lift id) ∙ ε
         t = lam 𝟙 (prodrec 𝟘 p 𝟘 ℕ (var x1) (var x2)) ∘⟨ 𝟙 ⟩ zero
-        ⊢t = lamⱼ (ℕⱼ ⊢Δ′)
-                    (prodrecⱼ (ℕⱼ (∙ ΠΣⱼ (ℕⱼ ⊢Δ″) ok₁)) (var ⊢Δ′ (there here)) (var (∙ ℕⱼ ⊢Δ″) (there (there here))) ok₁) ok₂
-                  ∘ⱼ zeroⱼ ⊢Δ
+        ⊢t =
+          lamⱼ′ ok₂
+            (prodrecⱼ (⊢ℕ (∙ ΠΣⱼ (⊢ℕ ⊢Δ′) ok₁)) (var₁ (⊢ℕ ⊢Δ))
+               (var₂ (⊢ℕ ⊢Δ′)) ok₁) ∘ⱼ
+          zeroⱼ ⊢Δ
         eq₁ = begin
           𝟙 · 𝟘 · p ≡⟨ ·-identityˡ _ ⟩
           𝟘 · p     ≡⟨ ·-zeroˡ _ ⟩
@@ -231,7 +246,7 @@ opaque
     in  _ , Δ , t
           , (λ _ x →
                ¬Empty $ substTerm x $
-               prodⱼ (ℕⱼ (∙ ℕⱼ εε)) (zeroⱼ εε) (zeroⱼ εε) ok₁)
+               prodⱼ (⊢ℕ (∙ ⊢ℕ εε)) (zeroⱼ εε) (zeroⱼ εε) ok₁)
           , ⊢t , ▸t , _ , _ , H , var x1 , lift id , S
           , (⇾ₑ (⇒ₑ appₕ) ⇨ ⇒ᵥ (lamₕ ε) ⇨ ⇾ₑ (⇒ₑ prodrecₕ) ⇨ id)
           , (λ { s (⇾ₑ d) → ¬↦∧↦● (↦[]→↦ (⇾ₑ-inv-var d .proj₂ .proj₂ .proj₂)) (there here)
@@ -267,12 +282,11 @@ opaque
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
   ¬soundness-ε-not-erased ok =
     let Δ = ε ∙ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ
-        ⊢Δ = ∙ ΠΣⱼ (ℕⱼ (∙ ℕⱼ εε)) ok
-        ⊢Δ′ = ∙ ℕⱼ ⊢Δ
+        ⊢Δ = ∙ ΠΣⱼ (⊢ℕ (∙ ⊢ℕ εε)) ok
         H = erasedHeap 1 ∙ (𝟙 · 𝟙 , zero , id)
         S = ∘ₑ 𝟙 (var y0) (lift id) ∙ ε
         t = lam 𝟙 (var x1 ∘⟨ 𝟙 ⟩ var x0) ∘⟨ 𝟙 ⟩ zero
-        ⊢t = lamⱼ (ℕⱼ ⊢Δ′) (var ⊢Δ′ (there here) ∘ⱼ var ⊢Δ′ here) ok ∘ⱼ zeroⱼ ⊢Δ
+        ⊢t = lamⱼ′ ok (var₁ (⊢ℕ ⊢Δ) ∘ⱼ var₀ (⊢ℕ ⊢Δ)) ∘ⱼ zeroⱼ ⊢Δ
         eq₁ = begin
           𝟙         ≡˘⟨ +-identityʳ _ ⟩
           𝟙 + 𝟘     ≡˘⟨ +-congˡ (·-zeroʳ _) ⟩
@@ -287,7 +301,7 @@ opaque
     in  _ , Δ , _ , t
           , (λ _ x →
                ¬Empty $ substTerm x $
-               lamⱼ (ℕⱼ (∙ ℕⱼ εε)) (var (∙ ℕⱼ εε) here) ok)
+               lamⱼ′ ok (var₀ (⊢ℕ εε)))
           , ≈ᶜ-refl , ⊢t , ▸t
           , _ , _ , H , var x1 , lift id , S
           , (⇾ₑ (⇒ₑ appₕ) ⇨ ⇒ᵥ (lamₕ ε) ⇨ ⇾ₑ (⇒ₑ appₕ) ⇨ id)

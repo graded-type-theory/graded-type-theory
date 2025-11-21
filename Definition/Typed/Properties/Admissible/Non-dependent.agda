@@ -16,6 +16,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Pi R
+open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Weakening R
@@ -31,12 +32,11 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ                                         : Cons _ _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
-  b                                         : BinderMode
-  s                                         : Strength
-  l₁ l₂                                     : Universe-level
-  p q r                                     : M
+  Γ                                           : Cons _ _
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ l t t₁ t₂ u u₁ u₂ v : Term _
+  b                                           : BinderMode
+  s                                           : Strength
+  p q r                                       : M
 
 ------------------------------------------------------------------------
 -- Rules for _⟶×⟨_⟩[_]_
@@ -73,11 +73,11 @@ opaque
 
   ⟶×-cong-U :
     ΠΣ-allowed b p 𝟘 →
-    Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
-    Γ ⊢ B₁ ≡ B₂ ∷ U l₂ →
-    Γ ⊢ A₁ ⟶×⟨ b ⟩[ p ] B₁ ≡ A₂ ⟶×⟨ b ⟩[ p ] B₂ ∷ U (l₁ ⊔ᵘ l₂)
+    Γ ⊢ A₁ ≡ A₂ ∷ U l →
+    Γ ⊢ B₁ ≡ B₂ ∷ U l →
+    Γ ⊢ A₁ ⟶×⟨ b ⟩[ p ] B₁ ≡ A₂ ⟶×⟨ b ⟩[ p ] B₂ ∷ U l
   ⟶×-cong-U ok A₁≡A₂ B₁≡B₂ =
-    ΠΣ-cong A₁≡A₂ (wkEqTerm₁ (univ (wf-⊢≡∷ A₁≡A₂ .proj₂ .proj₁)) B₁≡B₂)
+    ΠΣ-cong′ A₁≡A₂ (wkEqTerm₁ (univ (wf-⊢≡∷ A₁≡A₂ .proj₂ .proj₁)) B₁≡B₂)
       ok
 
 opaque
@@ -86,9 +86,9 @@ opaque
 
   ⊢⟶×-U :
     ΠΣ-allowed b p 𝟘 →
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ B ∷ U l₂ →
-    Γ ⊢ A ⟶×⟨ b ⟩[ p ] B ∷ U (l₁ ⊔ᵘ l₂)
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ B ∷ U l →
+    Γ ⊢ A ⟶×⟨ b ⟩[ p ] B ∷ U l
   ⊢⟶×-U ok ⊢A ⊢B =
     wf-⊢≡∷ (⟶×-cong-U ok (refl ⊢A) (refl ⊢B)) .proj₂ .proj₁
 

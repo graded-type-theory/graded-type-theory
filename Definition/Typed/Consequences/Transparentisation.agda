@@ -20,11 +20,11 @@ open import Definition.Untyped.Neutral M type-variant hiding (ℕ≢ne)
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Definition R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
 
 open import Tools.Function
-open import Tools.Level
+import Tools.Level as L
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -44,18 +44,18 @@ opaque
     ∃₂ λ (∇ : DCon (Term 0) 2) (φ : Unfolding 2) →
       » ∇ × ¬ » Trans φ ∇
   no-unfold-» mode-eq ok =
-    let ∇₁ = ε ∙⟨ opa ε ⟩[ ℕ ∷ U 0 ]
+    let ∇₁ = ε ∙⟨ opa ε ⟩[ ℕ ∷ U zeroᵘ ]
         ∇ = ∇₁ ∙⟨ opa (ε ¹) ⟩[ zero ∷ defn 0 ]
-        ∇₁⊢ε = ε ∙ᵒ⟨ ok ⟩[ ℕⱼ εε ∷ Uⱼ εε ]
+        ∇₁⊢ε = ε ∙ᵒ⟨ ok ⟩[ ℕⱼ εε ∷ ⊢U (⊢zeroᵘ εε) ]
         ∇₁ᵗ⊢ε = ε ∙ᵗ[ ℕⱼ εε ]
         »∇ = ∙ᵒ⟨ ok ⟩[
           conv (zeroⱼ ∇₁ᵗ⊢ε) (sym (univ (δ-red ∇₁ᵗ⊢ε here PE.refl PE.refl))) ∷
           univ (defn ∇₁⊢ε here PE.refl) ]
         not »Trans-∇ =
-          ℕ≢ne {V = Lift _ ⊤} ⦃ ok = ε ⦄
+          ℕ≢ne {V = L.Lift _ ⊤} ⦃ ok = ε ⦄
             (defn
                (there
-                  (PE.subst (_↦⊘∷_∈_ _ (U 0) ∘→ flip Trans _)
+                  (PE.subst (_↦⊘∷_∈_ _ (U zeroᵘ) ∘→ flip Trans _)
                      (PE.sym $ ⊔ᵒᵗ≡const mode-eq) here)))
             (sym (inversion-zero (wf-↦∷∈ here »Trans-∇)))
     in  ∇ , ε ⁰ ¹ , »∇ , not

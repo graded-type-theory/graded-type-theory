@@ -17,8 +17,9 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (K)
 open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Properties.Kit R
+open import Definition.LogicalRelation R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
@@ -32,7 +33,6 @@ private
     A B t : Term _
     Γ : Cons _ _
 
-
 -- Reflexivity of reducible terms.
 reflEqTerm : ∀ {l A t} ([A] : Γ ⊩⟨ l ⟩ A)
            → Γ ⊩⟨ l ⟩ t ∷ A / [A]
@@ -41,10 +41,12 @@ reflEqTerm _ ⊩t = ⊩t
 
 -- Reflexivity of reducible types.
 reflEq : ∀ {l A} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ A ≡ A / [A]
-reflEq (Uᵣ′ l′ l< ⊢Γ) = ⊢Γ
+reflEq (Levelᵣ D) = D
+reflEq (Uᵣ′ k [k] k< A⇒*U) = U₌ k A⇒*U (reflLevel [k])
+reflEq (Liftᵣ′ D [k] [F]) = Lift₌ D (reflLevel [k]) (reflEq [F])
 reflEq (ℕᵣ D) = D
 reflEq (Emptyᵣ D) = D
-reflEq (Unitᵣ′ _ _ D _) = D
+reflEq (Unitᵣ′ D _) = Unit₌ D
 reflEq (ne′ _ D neK K≡K) = ne₌ _ D neK K≡K
 reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A

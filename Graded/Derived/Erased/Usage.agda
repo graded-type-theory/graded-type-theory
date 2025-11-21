@@ -48,7 +48,7 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  A B t u v w             : Term _
+  A B l t u v w           : Term _
   γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η : Conₘ _
   p                       : M
   m                       : Mode
@@ -58,24 +58,27 @@ private variable
 -- Usage rules
 
 opaque
+  unfolding Erased
 
   -- A usage rule for Erased.
 
   ▸Erased :
-    γ ▸[ 𝟘ᵐ? ] A →
-    γ ▸[ m ] Erased A
-  ▸Erased {γ} {m} ▸A = sub
+    γ ▸[ 𝟘ᵐ? ] l →
+    δ ▸[ 𝟘ᵐ? ] A →
+    δ ▸[ m ] Erased l A
+  ▸Erased {δ} {m} ▸l ▸A = sub
     (ΠΣₘ
        (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸A)
-       (sub Unitₘ
+       (sub (Liftₘ (wkUsage (step id) ▸l) Unitₘ)
           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
              𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
              𝟘ᶜ              ∎)))
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-       γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       γ +ᶜ 𝟘ᶜ  ∎)
+       δ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       δ +ᶜ 𝟘ᶜ  ∎)
 
 opaque
+  unfolding [_]
 
   ▸[] : γ ▸[ 𝟘ᵐ? ] t → 𝟘ᶜ ▸[ m ] [ t ]
   ▸[] {(n)} {γ} {t} {m} ▸t = lemma s PE.refl
@@ -83,13 +86,13 @@ opaque
     open Tools.Reasoning.PartialOrder (≤ᶜ-poset {n})
     lemma : ∀ s′ → s PE.≡ s′ → 𝟘ᶜ ▸[ m ] [ t ]
     lemma 𝕤 PE.refl = sub
-      (prodˢₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+      (prodˢₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) (liftₘ starₘ))
       (begin
          𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
          𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
          𝟘 ·ᶜ γ ∧ᶜ 𝟘ᶜ  ∎)
     lemma 𝕨 PE.refl = sub
-      (prodʷₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) starₘ)
+      (prodʷₘ (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸t) (liftₘ starₘ))
       (begin
          𝟘ᶜ             ≈˘⟨ +ᶜ-identityˡ _ ⟩
          𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
@@ -174,7 +177,7 @@ opaque
                      wf-consSubstₘ
                        (wf-wk1Substₘ _ _ $ wf-wk1Substₘ _ _ $
                         wf-wk1Substₘ _ _ wf-idSubstₘ) $
-                     prodₘ var var
+                     prodₘ var (liftₘ var)
                        (λ _ → begin
                           ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)         ≈⟨ ·ᶜ-congʳ lemma₂ ⟩
 
@@ -205,7 +208,7 @@ opaque
           (λ where
              PE.refl →
                  𝟘ᶜ ∙ ⌜ m ᵐ· 𝟙 ⌝
-               , var
+               , lowerₘ var
                , (begin
                     δ ∙ ⌜ m ⌝ · 𝟙 · 𝟘 ∙ ⌜ m ⌝ · 𝟙          ≈⟨ ≈ᶜ-refl ∙ PE.trans (·-congˡ $ ·-zeroʳ _) (·-zeroʳ _) ∙
                                                               ·-identityʳ _ ⟩
@@ -282,14 +285,17 @@ opaque
     (s ≡ 𝕨 → Prodrec-allowed m 𝟙 𝟘 𝟙) →
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 𝟙) →
+    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] l) →
     (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] A) →
     δ ▸[ m ᵐ· is-𝕨 ] t →
-    δ ▸[ m ] Erased-η A t
-  ▸Erased-η {A} {δ} trivial P-ok₁ P-ok₂ U-ok ▸A ▸t = sub
+    δ ▸[ m ] Erased-η l A t
+  ▸Erased-η {A} {δ} trivial P-ok₁ P-ok₂ U-ok ▸l ▸A ▸t = sub
     (▸erasedrec (λ _ → trivial) P-ok₁ U-ok
        (λ s≡𝕨 →
             𝟘ᶜ
-          , Idₘ-generalised (▸Erased (wkUsage _ (▸A′ s≡𝕨)))
+          , Idₘ-generalised
+              (▸Erased (wkUsage _ (▸l s≡𝕨 .proj₂))
+                 (wkUsage _ (▸A′ s≡𝕨)))
               (▸[] $
                ▸erased′
                  (λ s≡𝕨 not-ok → trivial not-ok , P-ok₂ s≡𝕨 not-ok)
@@ -375,7 +381,7 @@ opaque
     γ₆ ▸[ m ] w →
     ω ·ᶜ (γ₂ +ᶜ γ₆) ▸[ m ] substᵉ A B t u v w
   ▸substᵉ {m} {γ₂} {γ₆} trivial 𝟘≤𝟙 ok ▸A ▸B ▸t ▸u ▸v ▸w = sub
-    (▸subst (▸Erased ▸A)
+    (▸subst (▸Erased zeroᵘₘ ▸A)
        (sub
           (substₘ-lemma _
              (▶-cong _
@@ -398,7 +404,7 @@ opaque
              γ₂ <* wk1Substₘ idSubstₘ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
                                                       +ᶜ-identityˡ _ ⟩
              𝟘 ·ᶜ 𝟘ᶜ +ᶜ γ₂ <* wk1Substₘ idSubstₘ  ∎))
-       (▸[] ▸t) (▸[] ▸u) ([]-congₘ ▸A ▸t ▸u ▸v ok) ▸w)
+       (▸[] ▸t) (▸[] ▸u) ([]-congₘ zeroᵘₘ ▸A ▸t ▸u ▸v ok) ▸w)
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        ω ·ᶜ (γ₂ +ᶜ γ₆)                    ≈˘⟨ ·ᶜ-congˡ $ +ᶜ-congˡ $
                                               ≈ᶜ-trans (+ᶜ-identityˡ _) $
@@ -592,22 +598,29 @@ opaque
 -- Inversion lemmas for usage
 
 opaque
+  unfolding Erased
 
   -- An inversion lemma for Erased.
 
-  inv-usage-Erased : γ ▸[ m ] Erased A → γ ▸[ 𝟘ᵐ? ] A
+  inv-usage-Erased :
+    γ ▸[ m ] Erased l A → γ ▸[ 𝟘ᵐ? ] A × ∃ λ δ → δ ▸[ 𝟘ᵐ? ] l
   inv-usage-Erased {γ} {m} ▸Erased =
-    case inv-usage-ΠΣ ▸Erased of λ {
-      (invUsageΠΣ {δ = δ} {η = η} ▸A ▸Unit γ≤) →
-    sub (▸-cong (ᵐ·-zeroʳ m) ▸A) $ begin
+    let invUsageΠΣ {δ} {η} ▸A ▸Lift-Unit γ≤ =
+          inv-usage-ΠΣ ▸Erased
+        (_ , ▸wk1-l) , ▸Unit =
+          inv-usage-Lift ▸Lift-Unit
+    in
+    sub (▸-cong (ᵐ·-zeroʳ m) ▸A) (begin
       γ        ≤⟨ γ≤ ⟩
       δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (inv-usage-Unit ▸Unit)) ⟩
       δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-      δ        ∎ }
+      δ        ∎) ,
+    (_ , wkUsage⁻¹ ▸wk1-l)
     where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+    open ≤ᶜ-reasoning
 
 opaque
+  unfolding [_]
 
   -- An inversion lemma for [_].
 
@@ -626,17 +639,18 @@ opaque
           𝟘ᶜ ∧ᶜ η      ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
           𝟘ᶜ           ∎) }
     lemma 𝕨 PE.refl =
-      case inv-usage-prodʷ ▸[] of λ {
-        (invUsageProdʷ {δ = δ} {η} ▸t ▸star γ≤) →
-      case inv-usage-starʷ ▸star of λ
-        η≤𝟘 →
+      let invUsageProdʷ {δ} {η} ▸t ▸lift-star γ≤ =
+            inv-usage-prodʷ ▸[]
+          η≤𝟘 =
+            inv-usage-starʷ (inv-usage-lift ▸lift-star)
+      in
       (_ , ▸-cong (ᵐ·-zeroʳ m) ▸t)
       , (begin
           γ            ≤⟨ γ≤ ⟩
           𝟘 ·ᶜ δ +ᶜ η  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
           𝟘ᶜ +ᶜ η      ≈⟨ +ᶜ-identityˡ _ ⟩
           η            ≤⟨ η≤𝟘 ⟩
-          𝟘ᶜ           ∎) }
+          𝟘ᶜ           ∎)
 
 opaque
   unfolding erased

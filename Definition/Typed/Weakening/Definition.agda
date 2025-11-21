@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
@@ -35,7 +36,7 @@ private
     ∇ ∇′ ∇″ : DCon (Term 0) _
     ξ : DExt _ _ _
     Γ Δ : Con Term _
-    t t′ A A′ : Term _
+    A A′ l l₁ l₂ t t′ : Term _
     V : Set a
     φ : Unfolding _
     ω : Opacity _
@@ -237,10 +238,10 @@ opaque mutual
   defn-wk′ ξ⊇ (∙ ⊢Γ) = ∙ defn-wk ξ⊇ ⊢Γ
 
   defn-wk : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A → ∇′ » Γ ⊢ A
-  defn-wk ξ⊇ (Uⱼ ⊢Γ) = Uⱼ (defn-wk′ ξ⊇ ⊢Γ)
-  defn-wk ξ⊇ (ℕⱼ ⊢Γ) = ℕⱼ (defn-wk′ ξ⊇ ⊢Γ)
-  defn-wk ξ⊇ (Emptyⱼ ⊢Γ) = Emptyⱼ (defn-wk′ ξ⊇ ⊢Γ)
-  defn-wk ξ⊇ (Unitⱼ ⊢Γ ok) = Unitⱼ (defn-wk′ ξ⊇ ⊢Γ) ok
+  defn-wk ξ⊇ (Levelⱼ ok ⊢Γ) =
+    Levelⱼ ok (defn-wk′ ξ⊇ ⊢Γ)
+  defn-wk ξ⊇ (Liftⱼ ⊢l ⊢A) =
+    Liftⱼ (defn-wkLevel ξ⊇ ⊢l) (defn-wk ξ⊇ ⊢A)
   defn-wk ξ⊇ (ΠΣⱼ ⊢A ok) = ΠΣⱼ (defn-wk ξ⊇ ⊢A) ok
   defn-wk ξ⊇ (Idⱼ ⊢A ⊢t₁ ⊢t₂) =
     Idⱼ (defn-wk ξ⊇ ⊢A)
@@ -249,9 +250,26 @@ opaque mutual
   defn-wk ξ⊇ (univ ⊢A) = univ (defn-wkTerm ξ⊇ ⊢A)
 
   defn-wkTerm : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ t ∷ A → ∇′ » Γ ⊢ t ∷ A
-  defn-wkTerm ξ⊇ (Uⱼ ⊢Γ) = Uⱼ (defn-wk′ ξ⊇ ⊢Γ)
-  defn-wkTerm ξ⊇ (ΠΣⱼ ⊢t₁ ⊢t₂ ok) =
-    ΠΣⱼ (defn-wkTerm ξ⊇ ⊢t₁) (defn-wkTerm ξ⊇ ⊢t₂) ok
+  defn-wkTerm ξ⊇ (Levelⱼ ⊢Γ ok) =
+    Levelⱼ (defn-wk′ ξ⊇ ⊢Γ) ok
+  defn-wkTerm ξ⊇ (zeroᵘⱼ ok ⊢Γ) =
+    zeroᵘⱼ ok (defn-wk′ ξ⊇ ⊢Γ)
+  defn-wkTerm ξ⊇ (sucᵘⱼ ⊢l) =
+    sucᵘⱼ (defn-wkTerm ξ⊇ ⊢l)
+  defn-wkTerm ξ⊇ (supᵘⱼ ⊢l₁ ⊢l₂) =
+    supᵘⱼ (defn-wkTerm ξ⊇ ⊢l₁) (defn-wkTerm ξ⊇ ⊢l₂)
+  defn-wkTerm ξ⊇ (Uⱼ ⊢l) =
+    Uⱼ (defn-wkLevel ξ⊇ ⊢l)
+  defn-wkTerm ξ⊇ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
+    Liftⱼ (defn-wkLevel ξ⊇ ⊢l₁) (defn-wkLevel ξ⊇ ⊢l₂)
+      (defn-wkTerm ξ⊇ ⊢A)
+  defn-wkTerm ξ⊇ (liftⱼ ⊢l ⊢A ⊢t) =
+    liftⱼ (defn-wkLevel ξ⊇ ⊢l) (defn-wk ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t)
+  defn-wkTerm ξ⊇ (lowerⱼ ⊢t) =
+    lowerⱼ (defn-wkTerm ξ⊇ ⊢t)
+  defn-wkTerm ξ⊇ (ΠΣⱼ ⊢l ⊢t₁ ⊢t₂ ok) =
+    ΠΣⱼ (defn-wkLevel ξ⊇ ⊢l) (defn-wkTerm ξ⊇ ⊢t₁) (defn-wkTerm ξ⊇ ⊢t₂)
+      ok
   defn-wkTerm ξ⊇ (ℕⱼ ⊢Γ) = ℕⱼ (defn-wk′ ξ⊇ ⊢Γ)
   defn-wkTerm ξ⊇ (Emptyⱼ ⊢Γ) = Emptyⱼ (defn-wk′ ξ⊇ ⊢Γ)
   defn-wkTerm ξ⊇ (Unitⱼ ⊢Γ ok) = Unitⱼ (defn-wk′ ξ⊇ ⊢Γ) ok
@@ -308,11 +326,18 @@ opaque mutual
        (defn-wkTerm ξ⊇ ⊢tᵣ)
        (defn-wkTerm ξ⊇ ⊢tₚ)
        ok
-  defn-wkTerm ξ⊇ ([]-congⱼ ⊢A ⊢t₁ ⊢t₂ ⊢tₚ ok) =
-    []-congⱼ (defn-wk ξ⊇ ⊢A)
+  defn-wkTerm ξ⊇ ([]-congⱼ ⊢l ⊢A ⊢t₁ ⊢t₂ ⊢tₚ ok) =
+    []-congⱼ (defn-wkLevel ξ⊇ ⊢l)
+             (defn-wk ξ⊇ ⊢A)
              (defn-wkTerm ξ⊇ ⊢t₁)
              (defn-wkTerm ξ⊇ ⊢t₂)
              (defn-wkTerm ξ⊇ ⊢tₚ) ok
+
+  defn-wkLevel : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ l ∷Level → ∇′ » Γ ⊢ l ∷Level
+  defn-wkLevel ∇′⊇∇ (term ok ⊢l) =
+    term ok (defn-wkTerm ∇′⊇∇ ⊢l)
+  defn-wkLevel ∇′⊇∇ (literal not-ok ⊢Γ l-lit) =
+    literal not-ok (defn-wk′ ∇′⊇∇ ⊢Γ) l-lit
 
   defn-wkEq : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ≡ A′ → ∇′ » Γ ⊢ A ≡ A′
   defn-wkEq ξ⊇ (univ A≡A′) = univ (defn-wkEqTerm ξ⊇ A≡A′)
@@ -320,6 +345,10 @@ opaque mutual
   defn-wkEq ξ⊇ (sym A≡A′) = sym (defn-wkEq ξ⊇ A≡A′)
   defn-wkEq ξ⊇ (trans A≡A′ A′≡A″) =
     trans (defn-wkEq ξ⊇ A≡A′) (defn-wkEq ξ⊇ A′≡A″)
+  defn-wkEq ξ⊇ (U-cong l₁≡l₂) =
+    U-cong (defn-wkEqTerm ξ⊇ l₁≡l₂)
+  defn-wkEq ξ⊇ (Lift-cong l₁≡l₂ A₁≡A₂) =
+    Lift-cong (defn-wkEqLevel ξ⊇ l₁≡l₂) (defn-wkEq ξ⊇ A₁≡A₂)
   defn-wkEq ξ⊇ (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) =
     ΠΣ-cong (defn-wkEq ξ⊇ A₁≡A₂) (defn-wkEq ξ⊇ B₁≡B₂) ok
   defn-wkEq ξ⊇ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
@@ -337,8 +366,38 @@ opaque mutual
     conv (defn-wkEqTerm ξ⊇ t≡t′) (defn-wkEq ξ⊇ A≡A′)
   defn-wkEqTerm ξ⊇ (δ-red ⊢Γ α↦t A≡A′ t≡t′) =
     δ-red (defn-wk′ ξ⊇ ⊢Γ) (there*-↦∷∈ ξ⊇ α↦t) A≡A′ t≡t′
-  defn-wkEqTerm ξ⊇ (ΠΣ-cong t₁≡t₂ u₁≡u₂ ok) =
-    ΠΣ-cong (defn-wkEqTerm ξ⊇ t₁≡t₂) (defn-wkEqTerm ξ⊇ u₁≡u₂) ok
+  defn-wkEqTerm ξ⊇ (sucᵘ-cong l₁≡l₂) =
+    sucᵘ-cong (defn-wkEqTerm ξ⊇ l₁≡l₂)
+  defn-wkEqTerm ξ⊇ (supᵘ-cong l₁≡l₃ l₂≡l₄) =
+    supᵘ-cong (defn-wkEqTerm ξ⊇ l₁≡l₃) (defn-wkEqTerm ξ⊇ l₂≡l₄)
+  defn-wkEqTerm ξ⊇ (supᵘ-zeroˡ ⊢l) =
+    supᵘ-zeroˡ (defn-wkTerm ξ⊇ ⊢l)
+  defn-wkEqTerm ξ⊇ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    supᵘ-sucᵘ (defn-wkTerm ξ⊇ ⊢l₁) (defn-wkTerm ξ⊇ ⊢l₂)
+  defn-wkEqTerm ξ⊇ (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) =
+    supᵘ-assoc (defn-wkTerm ξ⊇ ⊢l₁) (defn-wkTerm ξ⊇ ⊢l₂)
+      (defn-wkTerm ξ⊇ ⊢l₃)
+  defn-wkEqTerm ξ⊇ (supᵘ-comm ⊢l₁ ⊢l₂) =
+    supᵘ-comm (defn-wkTerm ξ⊇ ⊢l₁) (defn-wkTerm ξ⊇ ⊢l₂)
+  defn-wkEqTerm ξ⊇ (supᵘ-idem ⊢l) =
+    supᵘ-idem (defn-wkTerm ξ⊇ ⊢l)
+  defn-wkEqTerm ξ⊇ (supᵘ-sub ⊢l) =
+    supᵘ-sub (defn-wkTerm ξ⊇ ⊢l)
+  defn-wkEqTerm ξ⊇ (U-cong l₁≡l₂) =
+    U-cong (defn-wkEqTerm ξ⊇ l₁≡l₂)
+  defn-wkEqTerm ξ⊇ (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂) =
+    Lift-cong (defn-wkLevel ξ⊇ ⊢l₁) (defn-wkLevel ξ⊇ ⊢l₂)
+      (defn-wkEqLevel ξ⊇ l₂≡l₃) (defn-wkEqTerm ξ⊇ A₁≡A₂)
+  defn-wkEqTerm ξ⊇ (lower-cong t₁≡t₂) =
+    lower-cong (defn-wkEqTerm ξ⊇ t₁≡t₂)
+  defn-wkEqTerm ξ⊇ (Lift-β ⊢A ⊢t) =
+    Lift-β (defn-wk ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t)
+  defn-wkEqTerm ξ⊇ (Lift-η ⊢l ⊢A ⊢t₁ ⊢t₂ lower-t₁≡lower-t₂) =
+    Lift-η (defn-wkLevel ξ⊇ ⊢l) (defn-wk ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t₁)
+      (defn-wkTerm ξ⊇ ⊢t₂) (defn-wkEqTerm ξ⊇ lower-t₁≡lower-t₂)
+  defn-wkEqTerm ξ⊇ (ΠΣ-cong ⊢l t₁≡t₂ u₁≡u₂ ok) =
+    ΠΣ-cong (defn-wkLevel ξ⊇ ⊢l) (defn-wkEqTerm ξ⊇ t₁≡t₂)
+      (defn-wkEqTerm ξ⊇ u₁≡u₂) ok
   defn-wkEqTerm ξ⊇ (app-cong t₁≡t₂ u₁≡u₂) =
     app-cong (defn-wkEqTerm ξ⊇ t₁≡t₂) (defn-wkEqTerm ξ⊇ u₁≡u₂)
   defn-wkEqTerm ξ⊇ (β-red ⊢A ⊢t ⊢x eq ok) =
@@ -437,8 +496,9 @@ opaque mutual
            (defn-wkEqTerm ξ⊇ r≡)
            (defn-wkEqTerm ξ⊇ p≡)
            ok
-  defn-wkEqTerm ξ⊇ ([]-cong-cong A≡A′ t₁≡t₂ u₁≡u₂ p≡p′ ok) =
-    []-cong-cong (defn-wkEq ξ⊇ A≡A′)
+  defn-wkEqTerm ξ⊇ ([]-cong-cong l₁≡l₂ A≡A′ t₁≡t₂ u₁≡u₂ p≡p′ ok) =
+    []-cong-cong (defn-wkEqLevel ξ⊇ l₁≡l₂)
+                 (defn-wkEq ξ⊇ A≡A′)
                  (defn-wkEqTerm ξ⊇ t₁≡t₂)
                  (defn-wkEqTerm ξ⊇ u₁≡u₂)
                  (defn-wkEqTerm ξ⊇ p≡p′) ok
@@ -449,10 +509,17 @@ opaque mutual
         eq
   defn-wkEqTerm ξ⊇ (K-β ⊢A ⊢t ok) =
     K-β (defn-wk ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t) ok
-  defn-wkEqTerm ξ⊇ ([]-cong-β ⊢t eq ok) =
-    []-cong-β (defn-wkTerm ξ⊇ ⊢t) eq ok
+  defn-wkEqTerm ξ⊇ ([]-cong-β ⊢l ⊢t eq ok) =
+    []-cong-β (defn-wkLevel ξ⊇ ⊢l) (defn-wkTerm ξ⊇ ⊢t) eq ok
   defn-wkEqTerm ξ⊇ (equality-reflection ok ⊢Id ⊢t) =
     equality-reflection ok (defn-wk ξ⊇ ⊢Id) (defn-wkTerm ξ⊇ ⊢t)
+
+  defn-wkEqLevel :
+    » ∇′ ⊇ ∇ → ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → ∇′ » Γ ⊢ l₁ ≡ l₂ ∷Level
+  defn-wkEqLevel ∇′⊇∇ (term ok l₁≡l₂) =
+    term ok (defn-wkEqTerm ∇′⊇∇ l₁≡l₂)
+  defn-wkEqLevel ∇′⊇∇ (literal not-ok ⊢Γ l-lit) =
+    literal not-ok (defn-wk′ ∇′⊇∇ ⊢Γ) l-lit
 
 ------------------------------------------------------------------------
 -- Weakening for weakenings
@@ -476,6 +543,20 @@ opaque
     conv (defn-wkRedTerm ξ⊇ t⇒t′) (defn-wkEq ξ⊇ A≡A′)
   defn-wkRedTerm ξ⊇ (δ-red ⊢Γ α↦t A≡A′ T≡T′) =
     δ-red (defn-wk′ ξ⊇ ⊢Γ) (there*-↦∷∈ ξ⊇ α↦t) A≡A′ T≡T′
+  defn-wkRedTerm ξ⊇ (supᵘ-substˡ l₁⇒l₂ ⊢l₃) =
+    supᵘ-substˡ (defn-wkRedTerm ξ⊇ l₁⇒l₂) (defn-wkTerm ξ⊇ ⊢l₃)
+  defn-wkRedTerm ξ⊇ (supᵘ-substʳ ⊢l₁ l₂⇒l₃) =
+    supᵘ-substʳ (defn-wkTerm ξ⊇ ⊢l₁) (defn-wkRedTerm ξ⊇ l₂⇒l₃)
+  defn-wkRedTerm ξ⊇ (supᵘ-zeroˡ ⊢l) =
+    supᵘ-zeroˡ (defn-wkTerm ξ⊇ ⊢l)
+  defn-wkRedTerm ξ⊇ (supᵘ-zeroʳ ⊢l) =
+    supᵘ-zeroʳ (defn-wkTerm ξ⊇ ⊢l)
+  defn-wkRedTerm ξ⊇ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
+    supᵘ-sucᵘ (defn-wkTerm ξ⊇ ⊢l₁) (defn-wkTerm ξ⊇ ⊢l₂)
+  defn-wkRedTerm ξ⊇ (lower-subst t⇒u) =
+    lower-subst (defn-wkRedTerm ξ⊇ t⇒u)
+  defn-wkRedTerm ξ⊇ (Lift-β ⊢A ⊢t) =
+    Lift-β (defn-wk ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t)
   defn-wkRedTerm ξ⊇ (app-subst t⇒t′ ⊢a) =
     app-subst (defn-wkRedTerm ξ⊇ t⇒t′) (defn-wkTerm ξ⊇ ⊢a)
   defn-wkRedTerm ξ⊇ (β-red ⊢A ⊢t ⊢x eq ok) =
@@ -543,12 +624,8 @@ opaque
             (defn-wkTerm ξ⊇ ⊢r)
             (defn-wkRedTerm ξ⊇ t⇒t′)
             ok
-  defn-wkRedTerm ξ⊇ ([]-cong-subst ⊢A ⊢a ⊢a′ t⇒t′ ok) =
-    []-cong-subst (defn-wk ξ⊇ ⊢A)
-                  (defn-wkTerm ξ⊇ ⊢a)
-                  (defn-wkTerm ξ⊇ ⊢a′)
-                  (defn-wkRedTerm ξ⊇ t⇒t′)
-                  ok
+  defn-wkRedTerm ξ⊇ ([]-cong-subst ⊢l t⇒t′ ok) =
+    []-cong-subst (defn-wkLevel ξ⊇ ⊢l) (defn-wkRedTerm ξ⊇ t⇒t′) ok
   defn-wkRedTerm ξ⊇ (J-β ⊢t ⊢t′ t≡t′ ⊢A A≡ ⊢tᵣ) =
     J-β (defn-wkTerm ξ⊇ ⊢t)
         (defn-wkTerm ξ⊇ ⊢t′)
@@ -558,12 +635,8 @@ opaque
         (defn-wkTerm ξ⊇ ⊢tᵣ)
   defn-wkRedTerm ξ⊇ (K-β ⊢A ⊢t ok) =
     K-β (defn-wk ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t) ok
-  defn-wkRedTerm ξ⊇ ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-    []-cong-β (defn-wk ξ⊇ ⊢A)
-              (defn-wkTerm ξ⊇ ⊢t)
-              (defn-wkTerm ξ⊇ ⊢t′)
-              (defn-wkEqTerm ξ⊇ t≡t′)
-              ok
+  defn-wkRedTerm ξ⊇ ([]-cong-β ⊢l t≡t′ ok) =
+    []-cong-β (defn-wkLevel ξ⊇ ⊢l) (defn-wkEqTerm ξ⊇ t≡t′) ok
 
 opaque
 
@@ -600,6 +673,9 @@ opaque
   defn-wkNeutral : » ∇′ ⊇ ∇ → Neutral V ∇ t → Neutral V ∇′ t
   defn-wkNeutral ξ⊇ (defn α↦⊘)     = defn (there*-↦⊘∈ ξ⊇ α↦⊘)
   defn-wkNeutral ξ⊇ (var ok x)     = var ok x
+  defn-wkNeutral ξ⊇ (supᵘˡₙ b)     = supᵘˡₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (supᵘʳₙ b)     = supᵘʳₙ (defn-wkNeutral ξ⊇ b)
+  defn-wkNeutral ξ⊇ (lowerₙ b)     = lowerₙ (defn-wkNeutral ξ⊇ b)
   defn-wkNeutral ξ⊇ (∘ₙ b)         = ∘ₙ (defn-wkNeutral ξ⊇ b)
   defn-wkNeutral ξ⊇ (fstₙ b)       = fstₙ (defn-wkNeutral ξ⊇ b)
   defn-wkNeutral ξ⊇ (sndₙ b)       = sndₙ (defn-wkNeutral ξ⊇ b)
@@ -613,15 +689,28 @@ opaque
 
 opaque
 
+  -- A variant of defn-wkNeutral for Neutralᵃ.
+
+  defn-wkNeutralᵃ : » ∇′ ⊇ ∇ → Neutralᵃ V ∇ t → Neutralᵃ V ∇′ t
+  defn-wkNeutralᵃ ∇′⊇∇ (ne t-n t-nn) =
+    ne (defn-wkNeutral ∇′⊇∇ t-n) t-nn
+
+opaque
+
   -- A WHNF weakening lemma for the definition context.
 
   defn-wkWhnf : » ∇′ ⊇ ∇ → Whnf ∇ t → Whnf ∇′ t
+  defn-wkWhnf _  Levelₙ = Levelₙ
   defn-wkWhnf ξ⊇ Uₙ     = Uₙ
+  defn-wkWhnf _  Liftₙ  = Liftₙ
   defn-wkWhnf ξ⊇ ΠΣₙ    = ΠΣₙ
   defn-wkWhnf ξ⊇ ℕₙ     = ℕₙ
   defn-wkWhnf ξ⊇ Unitₙ  = Unitₙ
   defn-wkWhnf ξ⊇ Emptyₙ = Emptyₙ
   defn-wkWhnf ξ⊇ Idₙ    = Idₙ
+  defn-wkWhnf _  zeroᵘₙ = zeroᵘₙ
+  defn-wkWhnf _  sucᵘₙ  = sucᵘₙ
+  defn-wkWhnf _  liftₙ  = liftₙ
   defn-wkWhnf ξ⊇ lamₙ   = lamₙ
   defn-wkWhnf ξ⊇ zeroₙ  = zeroₙ
   defn-wkWhnf ξ⊇ sucₙ   = sucₙ
@@ -644,7 +733,9 @@ opaque
   -- A WHNF view weakening lemma for the definition context.
 
   defn-wkType : » ∇′ ⊇ ∇ → Type V ∇ t → Type V ∇′ t
+  defn-wkType _  Levelₙ = Levelₙ
   defn-wkType ξ⊇ Uₙ     = Uₙ
+  defn-wkType _  Liftₙ  = Liftₙ
   defn-wkType ξ⊇ ΠΣₙ    = ΠΣₙ
   defn-wkType ξ⊇ ℕₙ     = ℕₙ
   defn-wkType ξ⊇ Emptyₙ = Emptyₙ
@@ -662,6 +753,14 @@ opaque
 
 opaque
 
+  -- A variant of defn-wkFunction for Functionᵃ.
+
+  defn-wkFunctionᵃ : » ∇′ ⊇ ∇ → Functionᵃ V ∇ t → Functionᵃ V ∇′ t
+  defn-wkFunctionᵃ _    lamₙ   = lamₙ
+  defn-wkFunctionᵃ ∇′⊇∇ (ne n) = ne (defn-wkNeutralᵃ ∇′⊇∇ n)
+
+opaque
+
   -- A WHNF view weakening lemma for the definition context.
 
   defn-wkProduct : » ∇′ ⊇ ∇ → Product V ∇ t → Product V ∇′ t
@@ -670,11 +769,27 @@ opaque
 
 opaque
 
+  -- A variant of defn-wkProduct for Productᵃ.
+
+  defn-wkProductᵃ : » ∇′ ⊇ ∇ → Productᵃ V ∇ t → Productᵃ V ∇′ t
+  defn-wkProductᵃ _    prodₙ  = prodₙ
+  defn-wkProductᵃ ∇′⊇∇ (ne n) = ne (defn-wkNeutralᵃ ∇′⊇∇ n)
+
+opaque
+
   -- A WHNF view weakening lemma for the definition context.
 
   defn-wkIdentity : » ∇′ ⊇ ∇ → Identity V ∇ t → Identity V ∇′ t
   defn-wkIdentity ξ⊇ rflₙ   = rflₙ
   defn-wkIdentity ξ⊇ (ne n) = ne (defn-wkNeutral ξ⊇ n)
+
+opaque
+
+  -- A variant of defn-wkIdentity for Identityᵃ.
+
+  defn-wkIdentityᵃ : » ∇′ ⊇ ∇ → Identityᵃ V ∇ t → Identityᵃ V ∇′ t
+  defn-wkIdentityᵃ _    rflₙ   = rflₙ
+  defn-wkIdentityᵃ ∇′⊇∇ (ne n) = ne (defn-wkNeutralᵃ ∇′⊇∇ n)
 
 opaque
 

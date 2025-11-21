@@ -38,20 +38,32 @@ deterministic⇉-var {x = x +1} (there y) (there z) rewrite deterministic⇉-var
 -- Type inference is deterministic.
 
 deterministic⇉ : Γ ⊢ t ⇉ A → Γ ⊢ t ⇉ B → A PE.≡ B
-deterministic⇉ Uᵢ Uᵢ = PE.refl
-deterministic⇉ (ΠΣᵢ A₁ C₁ B₁ D₁ _) (ΠΣᵢ A₂ C₂ B₂ D₂ _) =
-  case deterministic⇉ A₁ A₂ of λ {
+deterministic⇉ (Levelᵢ _) (Levelᵢ _) = PE.refl
+deterministic⇉ (zeroᵘᵢ _) (zeroᵘᵢ _) = PE.refl
+deterministic⇉ (sucᵘᵢ _) (sucᵘᵢ _) = PE.refl
+deterministic⇉ (supᵘᵢ _ _) (supᵘᵢ _ _) = PE.refl
+deterministic⇉ (Uᵢ x) (Uᵢ y) = PE.refl
+deterministic⇉ (Liftᵢ _ x ↘U₁) (Liftᵢ _ y ↘U₂) =
+  case deterministic⇉ x y of λ {
     PE.refl →
-  case deterministic⇉ B₁ B₂ of λ {
+  case whrDet* ↘U₁ ↘U₂ of λ {
+    PE.refl →
+  PE.refl }}
+deterministic⇉ (ΠΣᵢ A₁ C₁ B₁ _) (ΠΣᵢ A₂ C₂ B₂ _) =
+  case deterministic⇉ A₁ A₂ of λ {
     PE.refl →
   case whrDet* C₁ C₂ of λ {
     PE.refl →
-  case whrDet* D₁ D₂ of λ {
-    PE.refl →
-  PE.refl }}}}
+  PE.refl }}
 deterministic⇉ (varᵢ x) (varᵢ x₁) = deterministic⇉-var x x₁
 deterministic⇉ (defnᵢ ↦∷A) (defnᵢ ↦∷A′) =
   PE.cong (wk wk₀) (unique-↦∈ ↦∷A ↦∷A′ PE.refl)
+deterministic⇉ (lowerᵢ x y) (lowerᵢ x′ y′) =
+  case deterministic⇉ x x′ of λ {
+    PE.refl →
+  case whrDet* y y′ of λ {
+    PE.refl →
+  PE.refl }}
 deterministic⇉ (appᵢ x x₁ x₂) (appᵢ y x₃ x₄)
   rewrite deterministic⇉ x y
   with B-PE-injectivity BΠ! BΠ! (whrDet* x₁ x₃)
@@ -82,4 +94,4 @@ deterministic⇉ (Idᵢ A₁ B₁ _ _) (Idᵢ A₂ B₂ _ _) =
   PE.refl }}
 deterministic⇉ (Jᵢ _ _ _ _ _ _) (Jᵢ _ _ _ _ _ _) = PE.refl
 deterministic⇉ (Kᵢ _ _ _ _ _ _) (Kᵢ _ _ _ _ _ _) = PE.refl
-deterministic⇉ ([]-congᵢ _ _ _ _ _) ([]-congᵢ _ _ _ _ _) = PE.refl
+deterministic⇉ ([]-congᵢ _ _ _ _ _ _) ([]-congᵢ _ _ _ _ _ _) = PE.refl

@@ -58,12 +58,20 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ                                               : Cons _ _
-  A A₁ A₂ B B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  γ                                               : Conₘ _
-  p q                                             : Erasure
-  s                                               : Strength
-  l                                               : Universe-level
+  Γ                                                       : Cons _ _
+  A A₁ A₂ B B₁ B₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  γ                                                       : Conₘ _
+  p q                                                     : Erasure
+  s                                                       : Strength
+
+private opaque
+
+  -- A lemma used below.
+
+  ∷U→▸ : Γ ⊢ A ∷ U l → 𝟘ᶜ ▸[ 𝟘ᵐ? ] l
+  ∷U→▸ ⊢A =
+    let ⊢l = ⊢∷L←⊢∷L (inversion-U-Level (wf-⊢∷ (⊢∷[]→⊢∷ ⊢A))) in
+    ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) (⊢∷L→▸ ⊢l)
 
 opaque
 
@@ -72,11 +80,13 @@ opaque
   ⊢-Erased :
     let open Erased s in
     Erased-allowed s →
+    Γ ⊢ l ∷Level →
     Γ ⊢ A →
-    γ ▸ Γ ⊢[ p ] Erased A
-  ⊢-Erased ok ⊢A =
-    ⊢[]←⊢▸ (Erasedⱼ ok (⊢[]→⊢ ⊢A))
-      (▸Erased _ (▸-cong ⌞𝟘⌟≡𝟘ᵐ? (sub (⊢[]→▸ ⊢A) (greatest-elemᶜ _))))
+    γ ▸ Γ ⊢[ p ] Erased l A
+  ⊢-Erased ok ⊢l ⊢A =
+    ⊢[]←⊢▸ (Erasedⱼ ok (⊢∷L→⊢∷L ⊢l) (⊢[]→⊢ ⊢A))
+      (▸Erased _ (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) (⊢∷L→▸ ⊢l))
+         (▸-cong ⌞𝟘⌟≡𝟘ᵐ? (sub (⊢[]→▸ ⊢A) (greatest-elemᶜ _))))
 
 opaque
 
@@ -85,10 +95,11 @@ opaque
   ⊢≡-Erased :
     let open Erased s in
     Erased-allowed s →
-    Γ ⊢ A ≡ B →
-    Γ ⊢ Erased A ≡ Erased B
-  ⊢≡-Erased ok =
-    ⊢≡←⊢≡ ∘→ Erased-cong ok ∘→ ⊢≡→⊢≡
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
+  ⊢≡-Erased ok l₁≡l₂ A₁≡A₂ =
+    ⊢≡←⊢≡ (Erased-cong ok (⊢≡∷L→⊢≡∷L l₁≡l₂) (⊢≡→⊢≡ A₁≡A₂))
 
 opaque
 
@@ -98,10 +109,11 @@ opaque
     let open Erased s in
     Erased-allowed s →
     Γ ⊢ A ∷ U l →
-    γ ▸ Γ ⊢ Erased A ∷[ p ] U l
+    γ ▸ Γ ⊢ Erased l A ∷[ p ] U l
   ⊢∷-Erased ok ⊢A =
     ⊢∷[]←⊢∷▸ (Erasedⱼ-U ok (⊢∷[]→⊢∷ ⊢A))
-      (▸Erased _ (▸-cong ⌞𝟘⌟≡𝟘ᵐ? (sub (⊢∷[]→▸ ⊢A) (greatest-elemᶜ _))))
+      (▸Erased _ (∷U→▸ ⊢A)
+         (▸-cong ⌞𝟘⌟≡𝟘ᵐ? (sub (⊢∷[]→▸ ⊢A) (greatest-elemᶜ _))))
 
 opaque
 
@@ -110,10 +122,11 @@ opaque
   ⊢≡∷-Erased :
     let open Erased s in
     Erased-allowed s →
-    Γ ⊢ A ≡ B ∷ U l →
-    Γ ⊢ Erased A ≡ Erased B ∷ U l
-  ⊢≡∷-Erased ok =
-    ⊢≡∷←⊢≡∷ ∘→ Erased-cong-U ok ∘→ ⊢≡∷→⊢≡∷
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
+    Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
+  ⊢≡∷-Erased ok l₁≡l₂ A₁≡A₂ =
+    ⊢≡∷←⊢≡∷ (Erased-cong-U ok (⊢≡∷L→⊢≡∷L l₁≡l₂) (⊢≡∷→⊢≡∷ A₁≡A₂))
 
 opaque
 
@@ -122,10 +135,11 @@ opaque
   ⊢∷-[] :
     let open Erased s in
     Erased-allowed s →
+    Γ ⊢ l ∷Level →
     Γ ⊢ t ∷ A →
-    𝟘ᶜ ▸ Γ ⊢ [ t ] ∷[ p ] Erased A
-  ⊢∷-[] ok ⊢t =
-    ⊢∷[]←⊢∷▸ ([]ⱼ ok (⊢∷[]→⊢∷ ⊢t))
+    𝟘ᶜ ▸ Γ ⊢ [ t ] ∷[ p ] Erased l A
+  ⊢∷-[] ok ⊢l ⊢t =
+    ⊢∷[]←⊢∷▸ ([]ⱼ ok (⊢∷L→⊢∷L ⊢l) (⊢∷[]→⊢∷ ⊢t))
       (▸[] _ (▸-cong ⌞𝟘⌟≡𝟘ᵐ? (⊢∷[]→▸ ⊢t)))
 
 opaque
@@ -135,10 +149,11 @@ opaque
   ⊢≡∷-[] :
     let open Erased s in
     Erased-allowed s →
+    Γ ⊢ l ∷Level →
     Γ ⊢ t ≡ u ∷ A →
-    Γ ⊢ [ t ] ≡ [ u ] ∷ Erased A
-  ⊢≡∷-[] ok =
-    ⊢≡∷←⊢≡∷ ∘→ []-cong′ ok ∘→ ⊢≡∷→⊢≡∷
+    Γ ⊢ [ t ] ≡ [ u ] ∷ Erased l A
+  ⊢≡∷-[] ok ⊢l t≡u =
+    ⊢≡∷←⊢≡∷ ([]-cong′ ok (⊢∷L→⊢∷L ⊢l) (⊢≡∷→⊢≡∷ t≡u))
 
 opaque
 
@@ -146,11 +161,11 @@ opaque
 
   ⊢∷-erased :
     let open Erased s in
-    Γ ⊢ t ∷ Erased A →
+    Γ ⊢ t ∷ Erased l A →
     Γ ⊢ erased A t ∷ A
   ⊢∷-erased ⊢t =
     let ⊢t′ = ⊢∷[]→⊢∷ ⊢t
-        ⊢A  = ⊢←⊢ (inversion-Erased (wf-⊢∷ ⊢t′) .proj₁)
+        ⊢A  = ⊢←⊢ (inversion-Erased (wf-⊢∷ ⊢t′) .proj₂ .proj₁)
     in
     ⊢∷[]←⊢∷▸ (erasedⱼ ⊢t′)
       (▸-cong (PE.sym ⌞𝟘⌟) $
@@ -164,7 +179,7 @@ opaque
   ⊢≡∷-erased :
     let open Erased s in
     Γ ⊢ A ≡ B →
-    Γ ⊢ t ≡ u ∷ Erased A →
+    Γ ⊢ t ≡ u ∷ Erased l A →
     Γ ⊢ erased A t ≡ erased B u ∷ A
   ⊢≡∷-erased A≡B t≡u =
     ⊢≡∷←⊢≡∷ (erased-cong (⊢≡→⊢≡ A≡B) (⊢≡∷→⊢≡∷ t≡u))
@@ -188,9 +203,9 @@ opaque
     let open Erased s in
     (s PE.≡ 𝕨 → Prodrec-allowed ⌞ q ⌟ ω 𝟘 p) →
     (s PE.≡ 𝕨 → Unitrec-allowed ⌞ q ⌟ ω p) →
-    Γ »∙ Erased A ⊢ B →
+    Γ »∙ Erased l A ⊢ B →
     γ ∙ 𝟘 ▸ Γ »∙ A ⊢ t ∷[ q ] B [ [ var x0 ] ]↑ →
-    γ ▸ Γ ⊢ u ∷[ q · is-𝕨 ] Erased A →
+    γ ▸ Γ ⊢ u ∷[ q · is-𝕨 ] Erased l A →
     γ ▸ Γ ⊢ erasedrec p B t u ∷[ q ] B [ u ]₀
   ⊢∷-erasedrec {p} {γ} ok₁ ok₂ ⊢B ⊢t ⊢u =
     ⊢∷[]←⊢∷▸ (⊢erasedrec (⊢[]→⊢ ⊢B) (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u))
@@ -215,9 +230,9 @@ opaque
 
   ⊢≡∷-erasedrec :
     let open Erased s in
-    Γ »∙ Erased A ⊢ B₁ ≡ B₂ →
+    Γ »∙ Erased l A ⊢ B₁ ≡ B₂ →
     Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B₁ [ [ var x0 ] ]↑ →
-    Γ ⊢ u₁ ≡ u₂ ∷ Erased A →
+    Γ ⊢ u₁ ≡ u₂ ∷ Erased l A →
     Γ ⊢ erasedrec p B₁ t₁ u₁ ≡ erasedrec p B₂ t₂ u₂ ∷ B₁ [ u₁ ]₀
   ⊢≡∷-erasedrec B₁≡B₂ t₁≡t₂ u₁≡u₂ =
     ⊢≡∷←⊢≡∷ $
@@ -229,7 +244,7 @@ opaque
 
   ⊢≡∷-erasedrec-[] :
     let open Erased s in
-    Γ »∙ Erased A ⊢ B →
+    Γ »∙ Erased l A ⊢ B →
     Γ »∙ A ⊢ t ∷ B [ [ var x0 ] ]↑ →
     Γ ⊢ u ∷ A →
     Γ ⊢ erasedrec p B t [ u ] ≡ t [ u ]₀ ∷ B [ [ u ] ]₀
@@ -242,14 +257,15 @@ opaque
 
   ⊢∷-mapᴱ :
     let open Erased s in
+    Γ ⊢ l₂ ∷Level →
     Γ »∙ A ⊢ t ∷ wk1 B →
-    Γ ⊢ u ∷ Erased A →
-    𝟘ᶜ ▸ Γ ⊢ mapᴱ A t u ∷[ p ] Erased B
-  ⊢∷-mapᴱ {s} ⊢t ⊢u =
-    let ⊢u′ = ⊢∷[]→⊢∷ ⊢u
-        ⊢A  = ⊢←⊢ (inversion-Erased (wf-⊢∷ ⊢u′) .proj₁)
+    Γ ⊢ u ∷ Erased l₁ A →
+    𝟘ᶜ ▸ Γ ⊢ mapᴱ A t u ∷[ p ] Erased l₂ B
+  ⊢∷-mapᴱ {s} ⊢l₂ ⊢t ⊢u =
+    let ⊢t′ = ⊢∷[]→⊢∷ ⊢t
+        ⊢A  = ⊢←⊢ (⊢∙→⊢ (wfTerm ⊢t′))
     in
-    ⊢∷[]←⊢∷▸ (⊢mapᴱ (⊢∷[]→⊢∷ ⊢t) ⊢u′)
+    ⊢∷[]←⊢∷▸ (⊢mapᴱ (⊢∷L→⊢∷L ⊢l₂) ⊢t′ (⊢∷[]→⊢∷ ⊢u))
       (▸mapᴱ s (λ _ → _ , ▸-cong ⌞𝟘⌟ (⊢[]→▸ ⊢A))
          (▸-cong ⌞𝟘⌟ (⊢∷[]→▸ ⊢t)) (▸-cong ⌞𝟘⌟ (⊢∷[]→▸ ⊢u)))
 
@@ -259,12 +275,15 @@ opaque
 
   ⊢≡∷-mapᴱ :
     let open Erased s in
+    Γ ⊢ l₂ ∷Level →
     Γ ⊢ A₁ ≡ A₂ →
     Γ »∙ A₁ ⊢ t₁ ≡ t₂ ∷ wk1 B →
-    Γ ⊢ u₁ ≡ u₂ ∷ Erased A₁ →
-    Γ ⊢ mapᴱ A₁ t₁ u₁ ≡ mapᴱ A₂ t₂ u₂ ∷ Erased B
-  ⊢≡∷-mapᴱ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    ⊢≡∷←⊢≡∷ $ mapᴱ-cong (⊢≡→⊢≡ A₁≡A₂) (⊢≡∷→⊢≡∷ t₁≡t₂) (⊢≡∷→⊢≡∷ u₁≡u₂)
+    Γ ⊢ u₁ ≡ u₂ ∷ Erased l₁ A₁ →
+    Γ ⊢ mapᴱ A₁ t₁ u₁ ≡ mapᴱ A₂ t₂ u₂ ∷ Erased l₂ B
+  ⊢≡∷-mapᴱ ⊢l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
+    ⊢≡∷←⊢≡∷ $
+    mapᴱ-cong (⊢∷L→⊢∷L ⊢l₂) (⊢≡→⊢≡ A₁≡A₂) (⊢≡∷→⊢≡∷ t₁≡t₂)
+      (⊢≡∷→⊢≡∷ u₁≡u₂)
 
 opaque
 
@@ -273,10 +292,12 @@ opaque
   ⊢≡∷-mapᴱ-[] :
     let open Erased s in
     Erased-allowed s →
+    Γ ⊢ l ∷Level →
     Γ »∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ u ∷ A →
-    Γ ⊢ mapᴱ A t [ u ] ≡ [ t [ u ]₀ ] ∷ Erased B
-  ⊢≡∷-mapᴱ-[] ok ⊢t ⊢u = ⊢≡∷←⊢≡∷ $ mapᴱ-β ok (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u)
+    Γ ⊢ mapᴱ A t [ u ] ≡ [ t [ u ]₀ ] ∷ Erased l B
+  ⊢≡∷-mapᴱ-[] ok ⊢l ⊢t ⊢u =
+    ⊢≡∷←⊢≡∷ $ mapᴱ-β ok (⊢∷L→⊢∷L ⊢l) (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u)
 
 opaque
 

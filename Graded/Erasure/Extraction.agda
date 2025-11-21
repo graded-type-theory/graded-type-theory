@@ -91,12 +91,20 @@ mutual
     erase″ (var x)                 = T.var x
     erase″ (defn α)                = T.defn α
     erase″ (U _)                   = loop? s
+    erase″ Level                   = loop? s
+    erase″ zeroᵘ                   = loop? s
+    erase″ (sucᵘ _)                = loop? s
+    erase″ (_ supᵘ _)              = loop? s
+    erase″ (Lift _ _)              = loop? s
+    erase″ (lift t)                = erase″ t
+    erase″ (lower t)               = erase″ t
     erase″ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = loop? s
-    erase″ (U.lam p t)             = case remove of λ where
-      false → T.lam (erase″ t)
-      true  → case is-𝟘? p of λ where
-        (no _)  → T.lam (erase″ t)
-        (yes _) → erase″ t T.[ loop s ]₀
+    erase″ (U.lam p t)             = case is-𝟘? p of λ where
+      (no _)  → T.lam (erase″ t)
+      (yes _) →
+        if remove
+        then erase″ t T.[ loop s ]₀
+        else T.lam (erase″ t)
     erase″ (t U.∘⟨ p ⟩ u) = case is-𝟘? p of λ where
       (no _)  → erase″ t T.∘⟨ s ⟩ erase″ u
       (yes _) → app-𝟘′ remove s (erase″ t)
@@ -119,16 +127,16 @@ mutual
       T.natrec (erase″ t) (erase″ u) (erase″ v)
     erase″ Unit!                 = loop? s
     erase″ U.star!               = T.star
-    erase″ (U.unitrec _ p _ _ t u) = case is-𝟘? p of λ where
+    erase″ (U.unitrec p _ _ t u) = case is-𝟘? p of λ where
       (no _)  → T.unitrec (erase″ t) (erase″ u)
       (yes _) → erase″ u
-    erase″ Empty               = loop? s
-    erase″ (emptyrec p A t)    = loop s
-    erase″ (Id _ _ _)          = loop? s
-    erase″ U.rfl               = loop? s
-    erase″ (J _ _ _ _ _ u _ _) = erase″ u
-    erase″ (K _ _ _ _ u _)     = erase″ u
-    erase″ ([]-cong _ _ _ _ _) = loop? s
+    erase″ Empty                 = loop? s
+    erase″ (emptyrec p A t)      = loop s
+    erase″ (Id _ _ _)            = loop? s
+    erase″ U.rfl                 = loop? s
+    erase″ (J _ _ _ _ _ u _ _)   = erase″ u
+    erase″ (K _ _ _ _ u _)       = erase″ u
+    erase″ ([]-cong _ _ _ _ _ _) = loop? s
 
 mutual
 

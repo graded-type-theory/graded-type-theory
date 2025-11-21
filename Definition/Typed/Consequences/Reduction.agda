@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Omega M
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
@@ -41,9 +42,9 @@ open import Definition.LogicalRelation.Unary R
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Level
+import Tools.Level as L
 open import Tools.Nat using (Nat)
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
@@ -54,11 +55,38 @@ private
     ∇ : DCon (Term 0) _
     Δ : Con Term _
     Γ : Cons _ _
-    A B C t u v w : Term _
+    A B C l t u v w : Term _
     p q : M
     b : BinderMode
     m s : Strength
-    l : Universe-level
+
+-- Is-level ∇ holds for zeroᵘ, applications of sucᵘ, and (certain)
+-- neutral terms.
+
+data Is-level {m n} (∇ : DCon (Term 0) m) : Term n → Set a where
+  zeroᵘ : Is-level ∇ zeroᵘ
+  sucᵘ  : Is-level ∇ (sucᵘ l)
+  ne    : Neutral⁺ ∇ l → Is-level ∇ l
+
+opaque
+
+  -- If the type of l is Level, then l reduces to an application of a
+  -- level constructor or a neutral term (given a certain assumption).
+
+  red-Level :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ l ∷ Level → ∃ λ l′ → Is-level (Γ .defs) l′ × Γ ⊢ l ⇒* l′ ∷ Level
+  red-Level ⊢t =
+    case ⊩∷Level⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ where
+      (ok , literal not-ok _ _) →
+        ⊥-elim (not-ok ok)
+      (_ , term l⇒l′ l′-prop) →
+        _ ,
+        (case l′-prop of λ where
+           (zeroᵘᵣ _)  → zeroᵘ
+           (sucᵘᵣ _ _) → sucᵘ
+           (neLvl n)   → ne (ne→ _ (nelevel n))) ,
+        l⇒l′
 
 opaque
 
@@ -71,7 +99,7 @@ opaque
     Type No-equality-reflection (Γ .defs) u × Γ ⊢ t ⇒* u ∷ U l
   red-U ⊢t =
     case ⊩∷U⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
-      (_ , _ , u , t⇒*u , u-type , _) →
+      (_ , _ , _ , u , t⇒*u , u-type , _) →
     u , u-type , t⇒*u
 
 opaque
@@ -86,7 +114,7 @@ opaque
   red-Empty ⊢t =
     case ⊩∷Empty⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (Emptyₜ u t⇒*u _ (ne (neNfₜ u-ne _))) →
-    u , u-ne , t⇒*u }
+    u , ne⁻ u-ne , t⇒*u }
 
 opaque
 
@@ -111,11 +139,12 @@ opaque
 
   red-Unit :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    Γ ⊢ t ∷ Unit s l → ∃ λ u →
-    Star No-equality-reflection (Γ .defs) u × Γ ⊢ t ⇒* u ∷ Unit s l
+    Γ ⊢ t ∷ Unit s →
+    ∃ λ u →
+      Star No-equality-reflection (Γ .defs) u × Γ ⊢ t ⇒* u ∷ Unit s
   red-Unit ⊢t =
     case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
-      (_ , _ , Unitₜ u (t⇒*u , u-whnf) _) →
+      (_ , Unitₜ u (t⇒*u , u-whnf) _) →
       u
     , (case whnfStar (wf-⊢≡∷ (subset*Term t⇒*u) .proj₂ .proj₂)
               u-whnf of λ where
@@ -139,7 +168,7 @@ opaque
     , (case rest of λ where
          zeroᵣ               → zeroₙ
          (sucᵣ _)            → sucₙ
-         (ne (neNfₜ u-ne _)) → ne u-ne)
+         (ne (neNfₜ u-ne _)) → ne (ne⁻ u-ne))
     , t⇒*u }
 
 opaque
@@ -155,7 +184,7 @@ opaque
   red-Π ⊢t =
     case ⊩∷Π⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-fun , _) →
-    u , u-fun , t⇒*u
+    u , Functionᵃ→ u-fun , t⇒*u
 
 opaque
 
@@ -170,11 +199,11 @@ opaque
   red-Σ {m = 𝕤} ⊢t =
     case ⊩∷Σˢ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , u-prod , _) →
-    u , u-prod , t⇒*u
+    u , Productᵃ→ u-prod , t⇒*u
   red-Σ {m = 𝕨} ⊢t =
     case ⊩∷Σʷ⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
       (_ , u , t⇒*u , _ , rest) →
-    u , ⊩∷Σʷ→Product rest , t⇒*u
+    u , Productᵃ→ (⊩∷Σʷ→Product rest) , t⇒*u
 
 opaque
 
@@ -192,7 +221,7 @@ opaque
       w
     , (case rest of λ where
          (rflᵣ _)    → rflₙ
-         (ne w-ne _) → ne w-ne)
+         (ne w-ne _) → ne (ne⁻ w-ne))
     , t⇒*w
 
 opaque
@@ -204,7 +233,7 @@ opaque
     Γ ⊢ t ∷ Id A u v →
     ∃ λ w → Γ ⊢ t ⇒* w ∷ Id A u v ×
       ∃ λ (w-id : Identity No-equality-reflection (Γ .defs) w) →
-      Identity-rec w-id (Γ ⊢ u ≡ v ∷ A) (Lift _ ⊤)
+      Identity-rec w-id (Γ ⊢ u ≡ v ∷ A) (L.Lift _ ⊤)
   red-Id′ {Γ} ⊢t =
     let _ , w-id , t⇒*w = red-Id ⊢t in
     _ , t⇒*w , w-id ,
@@ -213,17 +242,19 @@ opaque
     lemma :
       Γ ⊢ w ∷ Id A u v →
       (w-id : Identity No-equality-reflection (Γ .defs) w) →
-      Identity-rec w-id (Γ ⊢ u ≡ v ∷ A) (Lift _ ⊤)
+      Identity-rec w-id (Γ ⊢ u ≡ v ∷ A) (L.Lift _ ⊤)
     lemma ⊢w rflₙ   = inversion-rfl-Id ⊢w
     lemma ⊢w (ne _) = _
 
 -- Helper function where all reducible types can be reduced to WHNF.
 whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
                 → ∃ λ B → Whnf (Γ .defs) B × Γ ⊢ A ⇒* B
-whNorm′ (Uᵣ′ l _ ⇒*U) = U l , Uₙ , ⇒*U
+whNorm′ (Levelᵣ D) = Level , Levelₙ , D
+whNorm′ (Uᵣ′ l _ _ ⇒*U) = U l , Uₙ , ⇒*U
+whNorm′ (Liftᵣ′ D [k] [F]) = Lift _ _ , Liftₙ , D
 whNorm′ (ℕᵣ D) = ℕ , ℕₙ , D
 whNorm′ (Emptyᵣ D) = Empty , Emptyₙ , D
-whNorm′ (Unitᵣ′ _ _ D _) = Unit! , Unitₙ , D
+whNorm′ (Unitᵣ′ D _) = Unit! , Unitₙ , D
 whNorm′ (ne′ H D neH H≡H) = H , ne-whnf neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
@@ -240,12 +271,12 @@ opaque
 
 opaque
 
-  -- If A is definitionally equal to U l, then A reduces to U l (given
+  -- If A is definitionally equal to U l, then A reduces to a universe (given
   -- a certain assumption).
 
   U-norm :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    Γ ⊢ A ≡ U l → Γ ⊢ A ⇒* U l
+    Γ ⊢ A ≡ U l → ∃ λ k → Γ ⊢ A ⇒* U k
   U-norm {A} {l} A≡U =
     let B , B-whnf , A⇒*B = whNorm (syntacticEq A≡U .proj₁)
         U≡B               =
@@ -253,7 +284,40 @@ opaque
           A    ≡⟨ subset* A⇒*B ⟩⊢∎
           B    ∎
     in
-    PE.subst (_⊢_⇒*_ _ _) (U≡A U≡B B-whnf) A⇒*B
+    Σ.map idᶠ (λ eq → PE.subst (_⊢_⇒*_ _ _) eq A⇒*B) (U≡A U≡B B-whnf)
+
+opaque
+
+  Lift-norm :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ A ≡ Lift l B →
+    ∃₂ λ k C → Γ ⊢ A ⇒* Lift k C
+  Lift-norm {A} {l} {B} A≡Lift =
+    case whNorm (syntacticEq A≡Lift .proj₁) of λ
+      (A′ , A′-whnf , A⇒*A′) →
+    let Lift≡A′ =
+          Lift l B  ≡˘⟨ A≡Lift ⟩⊢
+          A         ≡⟨ subset* A⇒*A′ ⟩⊢∎
+          A′        ∎
+    in case Lift≡A Lift≡A′ A′-whnf of λ {
+      (_ , _ , PE.refl) →
+    _ , _ , A⇒*A′ }
+
+opaque
+
+  -- If A is definitionally equal to Unit s, then A reduces to Unit s
+  -- (given a certain assumption).
+
+  Unit-norm :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ A ≡ Unit s → Γ ⊢ A ↘ Unit s
+  Unit-norm A≡Unit =
+    let ⊢A , _ = wf-⊢≡ A≡Unit in
+    case whNorm ⊢A of λ
+      (_ , B-whnf , A⇒*B) →
+    case Unit≡A (trans (sym A≡Unit) (subset* A⇒*B)) B-whnf of λ {
+      PE.refl →
+    A⇒*B , Unitₙ }
 
 opaque
 
@@ -270,8 +334,25 @@ opaque
       (⦃ not-ok : No-equality-reflection ⦄ → Γ »∙ B ⊢ C ≡ C′) ×
       (∀ {t u} → Γ ⊢ t ≡ u ∷ B → Γ ⊢ C [ t ]₀ ≡ C′ [ u ]₀)
   ΠΣNorm {A} A≡ΠΣ with whNorm (syntacticEq A≡ΠΣ .proj₁)
+  … | _ , Levelₙ , D =
+    ⊥-elim (Level≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
+  … | _ , zeroᵘₙ , A⇒zeroᵘ =
+    case wf-⊢≡ (subset* A⇒zeroᵘ) of λ where
+      (_ , univ ⊢zeroᵘ) →
+        ⊥-elim (U≢Level (inversion-zeroᵘ ⊢zeroᵘ))
+  … | _ , sucᵘₙ , A⇒sucᵘ =
+    case wf-⊢≡ (subset* A⇒sucᵘ) of λ where
+      (_ , univ ⊢sucᵘ) →
+        ⊥-elim (U≢Level (proj₂ (inversion-sucᵘ ⊢sucᵘ)))
   … | _ , Uₙ , D =
     ⊥-elim (U≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
+  … | _ , Liftₙ , D =
+    ⊥-elim (Lift≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
+  … | _ , liftₙ , D =
+    case wf-⊢≡ (subset* D) of λ where
+      (fst₁ , univ x) →
+        let _ , _ , _ , B≡Lift = inversion-lift x
+        in ⊥-elim (U≢Liftⱼ B≡Lift)
   … | _ , ΠΣₙ , D =
     let B≡B′ , C≡C′ , C[]≡C′[] , p≡p′ , q≡q′ , b≡b′ =
           ΠΣ-injectivity′ (trans (sym A≡ΠΣ) (subset* D))
@@ -341,9 +422,17 @@ opaque
 -- Helper function where reducible all terms can be reduced to WHNF.
 whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ A / [A]
                 → ∃ λ b → Whnf (Γ .defs) b × Γ ⊢ a ⇒* b ∷ A
-whNormTerm′ (Uᵣ′ _ _ A⇒*U) ⊩a =
+whNormTerm′ (Levelᵣ x) (term d d′ prop) =
+  let w , _ = lsplit prop
+  in _ , w , conv* d (sym (subset* x))
+whNormTerm′ (Levelᵣ A⇒*Level) (literal not-ok _ _ _) =
+  ⊥-elim $ not-ok $
+  inversion-Level-⊢ (wf-⊢≡ (subset* A⇒*Level) .proj₂)
+whNormTerm′ (Uᵣ′ _ _ _ A⇒*U) ⊩a =
   let Uₜ C B⇒*C C-type C≅C ⊩B = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩a in
   C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))
+whNormTerm′ (Liftᵣ′ D _ _) (Liftₜ₌ _ _ (t⇒* , wt) _ _) =
+  _ , wt , conv* t⇒* (sym (subset* D))
 whNormTerm′ (ℕᵣ x) ⊩a =
   let ℕₜ n d n≡n prop = ⊩ℕ∷ℕ⇔⊩ℕ≡∷ℕ .proj₂ ⊩a
       natN = natural prop
@@ -351,22 +440,22 @@ whNormTerm′ (ℕᵣ x) ⊩a =
 whNormTerm′ (Emptyᵣ x) ⊩a =
   let Emptyₜ n d n≡n prop = ⊩Empty∷Empty⇔⊩Empty≡∷Empty .proj₂ ⊩a
       emptyN = empty prop
-  in  n , ne-whnf emptyN , conv* d (sym (subset* x))
-whNormTerm′ (Unitᵣ′ _ _ A⇒*Unit _) ⊩a =
+  in  n , ne! emptyN , conv* d (sym (subset* x))
+whNormTerm′ (Unitᵣ′ A⇒*Unit _) ⊩a =
   let Unitₜ t (a⇒*t , t-whnf) _ = ⊩Unit∷Unit⇔⊩Unit≡∷Unit .proj₂ ⊩a in
   t , t-whnf , conv* a⇒*t (sym (subset* A⇒*Unit))
 whNormTerm′ (ne (ne H D neH H≡H)) ⊩a =
   let neₜ k d (neNfₜ neH₁ k≡k) = ⊩ne∷⇔⊩ne≡∷ .proj₂ ⊩a in
-  k , ne-whnf neH₁ , conv* d (sym (subset* D))
+  k , ne! neH₁ , conv* d (sym (subset* D))
 whNormTerm′ (Bᵣ BΠ! ⊩A@(Bᵣ _ _ D _ _ _ _ _)) ⊩a =
   let Πₜ f d funcF _ _ = ⊩Π∷⇔⊩Π≡∷ ⊩A .proj₂ ⊩a in
-  f , functionWhnf funcF , conv* d (sym (subset* D))
+  f , Functionᵃ→Whnf funcF , conv* d (sym (subset* D))
 whNormTerm′ (Bᵣ BΣ! ⊩A@(Bᵣ _ _ D _ _ _ _ _)) ⊩a =
   let Σₜ p d pProd _ _ = ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ ⊩a in
-  p , productWhnf pProd , conv* d (sym (subset* D))
+  p , Productᵃ→Whnf pProd , conv* d (sym (subset* D))
 whNormTerm′ (Idᵣ ⊩Id) ⊩a =
   let Idₜ a′ a⇒*a′ a′-id _ = ⊩Id∷⇔⊩Id≡∷ ⊩Id .proj₂ ⊩a in
-    a′ , identityWhnf a′-id
+    a′ , Identityᵃ→Whnf a′-id
   , conv* a⇒*a′ (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id)))
 
 opaque
@@ -396,8 +485,8 @@ opaque
     ∃₂ λ (Γ : Con Term 1) A →
       ∇ » Γ ⊢ A × ¬ ∃₂ λ Δ B → Whnf ∇ B × ∇ » Δ ⊢ A ⇒* B
   type-without-WHNF {p} ok₁ ok₂ »∇ =
-    let ⊢E = Emptyⱼ (ε »∇) in
-    ε ∙ Empty , Ω p , univ (⊢Ω∷ ok₁ ok₂ (var₀ ⊢E) (Uⱼ {l = 0} (∙ ⊢E))) ,
+    let ⊢E = ⊢Empty (ε »∇) in
+    ε ∙ Empty , Ω p , univ (⊢Ω∷ ok₁ ok₂ (var₀ ⊢E) (⊢U₀∷ (∙ ⊢E))) ,
     (λ (_ , _ , B-whnf , A⇒*B) →
        Ω-does-not-reduce-to-WHNF-⊢ B-whnf A⇒*B)
 
@@ -414,7 +503,7 @@ opaque
     ∃₃ λ (Γ : Con Term 1) t A →
       ∇ » Γ ⊢ t ∷ A × ¬ ∃₃ λ Δ u B → Whnf ∇ u × ∇ » Δ ⊢ t ⇒* u ∷ B
   term-without-WHNF {p} ok₁ ok₂ »∇ =
-    let ⊢E = Emptyⱼ (ε »∇) in
+    let ⊢E = ⊢Empty (ε »∇) in
     ε ∙ Empty , Ω p , Empty , ⊢Ω∷ ok₁ ok₂ (var₀ ⊢E) (Emptyⱼ (∙ ⊢E)) ,
     (λ (_ , _ , _ , u-whnf , t⇒*u) →
        Ω-does-not-reduce-to-WHNF-⊢∷ u-whnf t⇒*u)

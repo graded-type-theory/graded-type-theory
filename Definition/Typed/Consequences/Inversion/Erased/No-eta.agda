@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Some inversion lemmas related to typing and the weak variant of
+-- Lemmas related to inversion for typing for the weak variant of
 -- Erased
 ------------------------------------------------------------------------
 
@@ -30,14 +30,17 @@ open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Typed.Consequences.Inversion.Erased R 𝕨 public
 
 opaque
+  unfolding erased fst⟨_⟩
 
   -- If Erased is allowed, then a certain form of inversion for erased
   -- does not hold.
@@ -46,7 +49,7 @@ opaque
     Erasedʷ-allowed →
     ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
        Γ ⊢ erased A t ∷ A →
-       ∃₂ λ q l → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Unitʷ l)
+       ∃₂ λ q l → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ Lift l Unitʷ)
   ¬-inversion-erased′ (Unit-ok , Σʷ-ok) inversion-erased = bad
     where
     Γ′ : Con Term 0
@@ -59,28 +62,31 @@ opaque
     A′ = ℕ
 
     ⊢Γ′∙ℕ : ε »⊢ Γ′ ∙ ℕ
-    ⊢Γ′∙ℕ = ∙ ℕⱼ εε
+    ⊢Γ′∙ℕ = ∙ ⊢ℕ εε
 
     ⊢t′₁ : ε » Γ′ ⊢ t′ ∷ Σʷ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
-    ⊢t′₁ = prodⱼ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok
+    ⊢t′₁ = prodⱼ (⊢ℕ ⊢Γ′∙ℕ) (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok
 
     ⊢erased-t′ : ε » Γ′ ⊢ erased A′ t′ ∷ A′
     ⊢erased-t′ = fstʷⱼ ⊢t′₁
 
     erased-t′≡zero : ε » Γ′ ⊢ erased A′ t′ ≡ zero ∷ A′
-    erased-t′≡zero = fstʷ-β-≡ (ℕⱼ ⊢Γ′∙ℕ) (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok
+    erased-t′≡zero = fstʷ-β-≡ (⊢ℕ ⊢Γ′∙ℕ) (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok
 
-    ⊢t′₂ : ∃₂ λ q l → ε » Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Unitʷ l
+    ⊢t′₂ : ∃₂ λ q l → ε » Γ′ ⊢ t′ ∷ Σʷ 𝟘 , q ▷ A′ ▹ Lift l Unitʷ
     ⊢t′₂ = inversion-erased ⊢erased-t′
 
     ⊢snd-t′ :
-      ∃ λ l → ε » Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ (Unitʷ l) t′ ∷ Unitʷ l
-    ⊢snd-t′ = _ , sndʷⱼ (⊢t′₂ .proj₂ .proj₂)
+      ∃₂ λ l₁ l₂ →
+        ε » Γ′ ⊢ sndʷ 𝟘 (⊢t′₂ .proj₁) A′ (Lift l₁ Unitʷ) t′ ∷
+        Lift l₂ Unitʷ
+    ⊢snd-t′ =
+      let _ , l , ⊢t′ = ⊢t′₂ in
+      l , _ , sndʷⱼ ⊢t′
 
-    ℕ≡Unit : ∃ λ l → ε » Γ′ ⊢ ℕ ≡ Unitʷ l
-    ℕ≡Unit =
-      let l , ⊢snd-t′ = ⊢snd-t′ in
-      case inversion-prodrec ⊢snd-t′ of
+    ℕ≡Lift : ∃ λ l → ε » Γ′ ⊢ ℕ ≡ Lift l Unitʷ
+    ℕ≡Lift =
+      case inversion-prodrec (⊢snd-t′ .proj₂ .proj₂) of
         λ (F , G , _ , _ , _ , _ , ⊢t′ , ⊢x₀ , Unit≡) →
       case inversion-var ⊢x₀ of λ {
         (Q , here , Unit≡′) →
@@ -101,15 +107,18 @@ opaque
                  (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst εε) $
                   PE.subst (_⊢_∷_ _ _) (PE.sym (subst-id F)) ⊢zero″)
                  (conv ⊢zero′ (sym G₀≡G′₀))
-      in case PE.subst (_⊢_≡_ _ _) (wk1-tail G)
-               (subst-⊢≡ Unit≡′ (refl-⊢ˢʷ≡∷ ⊢σ)) of
-        λ Unit≡″ →
-      l , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
+      in
+      case PE.subst (_⊢_≡_ _ _)
+             (wk1-tail G)
+             (subst-⊢≡ Unit≡′ (refl-⊢ˢʷ≡∷ ⊢σ)) of λ
+        Unit≡″ →
+      _ , sym (trans Unit≡″ (trans G₀≡G′₀ ≡ℕ′)) }
 
     bad : ⊥
-    bad = ℕ≢Unitⱼ ⦃ ok = ε ⦄ (ℕ≡Unit .proj₂)
+    bad = Lift≢ℕ ⦃ ok = ε ⦄ (sym (ℕ≡Lift .proj₂))
 
 opaque
+  unfolding Erased
 
   -- If Erased is allowed, then another form of inversion for erased
   -- also does not hold.
@@ -118,7 +127,7 @@ opaque
     Erasedʷ-allowed →
     ¬ (∀ {m n} {Γ : Cons m n} {t A : Term n} →
        Γ ⊢ erased A t ∷ A →
-       Γ ⊢ t ∷ Erased A)
+       ∃ λ l → Γ ⊢ t ∷ Erased l A)
   ¬-inversion-erased Erased-ok inversion-erased =
     ¬-inversion-erased′ Erased-ok λ ⊢erased →
-    _ , _ , inversion-erased ⊢erased
+    _ , _ , inversion-erased ⊢erased .proj₂

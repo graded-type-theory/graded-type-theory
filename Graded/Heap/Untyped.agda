@@ -33,7 +33,7 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Untyped M hiding (head)
-open import Definition.Untyped.Names-below M
+open import Definition.Untyped.Names-below M using (No-names)
 
 open import Graded.Modality.Nr-instances
 open import Graded.Mode
@@ -43,12 +43,11 @@ open import Graded.Usage.Erased-matches
 private variable
   n n′ m m′ m″ n″ k : Nat
   Γ : Con Term _
-  t t₁ t₂ u v A B C : Term _
+  A B C l t t′ t₁ t₂ u v : Term _
   x : Fin _
   p q r q′ q″ : M
   s : Strength
   b : BinderMode
-  l : Universe-level
   ρ ρ′ : Wk _ _
 
 opaque instance
@@ -96,6 +95,7 @@ wk1ᵉ = wkᵉ (step id)
 -- also treated as a continuation when evaluating under it.
 
 data Cont (m : Nat) : Set a where
+  lowerₑ    : Cont m
   ∘ₑ        : (p : M) (u : Term n) (ρ : Wk m n) → Cont m
   fstₑ      : M → Cont m
   sndₑ      : M → Cont m
@@ -103,14 +103,14 @@ data Cont (m : Nat) : Set a where
               (ρ : Wk m n) → Cont m
   natrecₑ   : (p q r : M) (A : Term (1+ n)) (z : Term n)
               (s : Term (2+ n)) (ρ : Wk m n) → Cont m
-  unitrecₑ  : (l : Universe-level) (p q : M) (A : Term (1+ n))
-              (u : Term n) (ρ : Wk m n) → Cont m
+  unitrecₑ  : (p q : M) (A : Term (1+ n)) (u : Term n) (ρ : Wk m n) →
+              Cont m
   emptyrecₑ : (p : M) (A : Term n) (ρ : Wk m n) → Cont m
   Jₑ        : (p q : M) (A t : Term n) (B : Term (2+ n))
               (u v : Term n) (ρ : Wk m n) → Cont m
   Kₑ        : (p : M) (A t : Term n) (B : Term (1+ n))
               (u : Term n) (ρ : Wk m n) → Cont m
-  []-congₑ  : (s : Strength) (A t u : Term n) (ρ : Wk m n) → Cont m
+  []-congₑ  : (s : Strength) (l A t u : Term n) (ρ : Wk m n) → Cont m
   sucₑ      : Cont m
 
 private variable
@@ -119,16 +119,17 @@ private variable
 -- Weakening of continuations
 
 wkᶜ : Wk m′ m → Cont m → Cont m′
+wkᶜ _ lowerₑ = lowerₑ
 wkᶜ ρ (∘ₑ p u ρ′) = ∘ₑ p u (ρ • ρ′)
 wkᶜ ρ (fstₑ p) = fstₑ p
 wkᶜ ρ (sndₑ p) = sndₑ p
 wkᶜ ρ (natrecₑ p q r A z s ρ′) = natrecₑ p q r A z s (ρ • ρ′)
 wkᶜ ρ (prodrecₑ r p q A u ρ′) = prodrecₑ r p q A u (ρ • ρ′)
-wkᶜ ρ (unitrecₑ l p q A u ρ′) = unitrecₑ l p q A u (ρ • ρ′)
+wkᶜ ρ (unitrecₑ p q A u ρ′) = unitrecₑ p q A u (ρ • ρ′)
 wkᶜ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
 wkᶜ ρ (Jₑ p q A t B u v ρ′) = Jₑ p q A t B u v (ρ • ρ′)
 wkᶜ ρ (Kₑ p A t B u ρ′) = Kₑ p A t B u (ρ • ρ′)
-wkᶜ ρ ([]-congₑ s A t u ρ′) = []-congₑ s A t u (ρ • ρ′)
+wkᶜ ρ ([]-congₑ s l A t u ρ′) = []-congₑ s l A t u (ρ • ρ′)
 wkᶜ ρ sucₑ = sucₑ
 
 wk1ᶜ : Cont m → Cont (1+ m)
@@ -174,6 +175,7 @@ data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
 -- be evaluated.
 
 data ∣_∣ᶜ≡_ {m} : Cont m → M → Set a where
+  lowerₑ : ∣ lowerₑ ∣ᶜ≡ 𝟙
   ∘ₑ : ∣ ∘ₑ p u ρ ∣ᶜ≡ 𝟙
   fstₑ : ∣ fstₑ p ∣ᶜ≡ 𝟙
   sndₑ : ∣ sndₑ p ∣ᶜ≡ 𝟙
@@ -181,7 +183,7 @@ data ∣_∣ᶜ≡_ {m} : Cont m → M → Set a where
   natrecₑ :
     ∣natrec p , r ∣≡ q′ →
     ∣ natrecₑ p q r A u v ρ ∣ᶜ≡ q′
-  unitrecₑ : ∣ unitrecₑ l p q A u ρ ∣ᶜ≡ p
+  unitrecₑ : ∣ unitrecₑ p q A u ρ ∣ᶜ≡ p
   emptyrecₑ : ∣ emptyrecₑ p A ρ ∣ᶜ≡ p
   Jₑ :
     ∣J erased-matches-for-J 𝟙ᵐ , p , q ∣≡ r →
@@ -189,7 +191,7 @@ data ∣_∣ᶜ≡_ {m} : Cont m → M → Set a where
   Kₑ :
     ∣K erased-matches-for-K 𝟙ᵐ , p ∣≡ r →
     ∣ Kₑ p A t B u ρ ∣ᶜ≡ r
-  []-congₑ : ∣ []-congₑ s A t u ρ ∣ᶜ≡ 𝟘
+  []-congₑ : ∣ []-congₑ s l A t u ρ ∣ᶜ≡ 𝟘
   sucₑ : ∣ sucₑ ∣ᶜ≡ 𝟙
 
 -- Evaluation stacks, indexed by the size of the heap
@@ -247,7 +249,7 @@ data natrec_,_∈ {m} (p r : M) : (S : Stack m) → Set a where
 -- A predicate for stacks containing unitrecₑ (with a given grade)
 
 data unitrec_∈_ {m} (p : M) : (S : Stack m) → Set a where
-  here  : unitrec p ∈ (unitrecₑ n p q A u ρ ∙ S)
+  here  : unitrec p ∈ (unitrecₑ p q A u ρ ∙ S)
   there : unitrec p ∈ S → unitrec p ∈ (c ∙ S)
 
 -- A predicate for stacks containing emptyrecₑ (with a given grade)
@@ -271,7 +273,7 @@ data K_∈_ {m} (p : M) : (S : Stack m) → Set a where
 -- A predicate for stacks containing []-congₑ
 
 data []-cong∈_ {m} : (S : Stack m) → Set a where
-  here : []-cong∈ ([]-congₑ s A t u ρ ∙ S)
+  here : []-cong∈ ([]-congₑ s l A t u ρ ∙ S)
   there : []-cong∈ S → []-cong∈ (c ∙ S)
 
 -- A predicate for stacks containing []-congₑ
@@ -423,6 +425,7 @@ record State (k m n : Nat) : Set a where
 infixr 29 ⦅_⦆ᶜ_
 
 ⦅_⦆ᶜ_ : Cont m → (Term m → Term m)
+⦅ lowerₑ ⦆ᶜ t = lower t
 ⦅ ∘ₑ p u ρ ⦆ᶜ t = t ∘⟨ p ⟩ wk ρ u
 ⦅ fstₑ p ⦆ᶜ t = fst p t
 ⦅ sndₑ p ⦆ᶜ t = snd p t
@@ -430,16 +433,16 @@ infixr 29 ⦅_⦆ᶜ_
   prodrec r p q (wk (lift ρ) A) t (wk (liftn ρ 2) u)
 ⦅ natrecₑ p q r A z s ρ ⦆ᶜ t =
   natrec p q r (wk (lift ρ) A) (wk ρ z) (wk (liftn ρ 2) s) t
-⦅ unitrecₑ l p q A u ρ ⦆ᶜ t =
-  unitrec l p q (wk (lift ρ) A) t (wk ρ u)
+⦅ unitrecₑ p q A u ρ ⦆ᶜ t =
+  unitrec p q (wk (lift ρ) A) t (wk ρ u)
 ⦅ emptyrecₑ p A ρ ⦆ᶜ t =
   emptyrec p (wk ρ A) t
 ⦅ Jₑ p q A t B u v ρ ⦆ᶜ w =
   J p q (wk ρ A) (wk ρ t) (wk (liftn ρ 2) B) (wk ρ u) (wk ρ v) w
 ⦅ Kₑ p A t B u ρ ⦆ᶜ v =
   K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) v
-⦅ []-congₑ s A t u ρ ⦆ᶜ v =
-  []-cong s (wk ρ A ) (wk ρ t) (wk ρ u) v
+⦅ []-congₑ s l A t u ρ ⦆ᶜ v =
+  []-cong s (wk ρ l) (wk ρ A) (wk ρ t) (wk ρ u) v
 ⦅ sucₑ ⦆ᶜ t = suc t
 
 -- Converting stacks back to terms
@@ -477,8 +480,9 @@ data No-namesʰ : Heap k m → Set a where
 -- names.
 
 data No-namesᶜ : Cont m → Set a where
+  lowerₑ    : No-namesᶜ {m = m} lowerₑ
   emptyrecₑ : No-names A → No-namesᶜ (emptyrecₑ p A ρ)
-  unitrecₑ  : No-names A → No-names u → No-namesᶜ (unitrecₑ l p q A u ρ)
+  unitrecₑ  : No-names A → No-names u → No-namesᶜ (unitrecₑ p q A u ρ)
   ∘ₑ        : No-names u → No-namesᶜ (∘ₑ p u ρ)
   fstₑ      : No-namesᶜ {m = m} (fstₑ p)
   sndₑ      : No-namesᶜ {m = m} (sndₑ p)
@@ -490,8 +494,8 @@ data No-namesᶜ : Cont m → Set a where
               No-names v → No-namesᶜ (Jₑ p q A t B u v ρ)
   Kₑ        : No-names A → No-names t → No-names B → No-names u →
               No-namesᶜ (Kₑ p A t B u ρ)
-  []-congₑ  : No-names A → No-names t → No-names u →
-              No-namesᶜ ([]-congₑ s A t u ρ)
+  []-congₑ  : No-names l → No-names A → No-names t → No-names u →
+              No-namesᶜ ([]-congₑ s l A t u ρ)
 
 -- No-namesˢ holds for a stack if it does not contain any names.
 
@@ -517,27 +521,33 @@ No-namesₛ s@(⟨ _ , _ , _ , S ⟩) = No-namesₛ′ s × No-namesˢ S
 -- Values are those terms that do not evaluate further
 
 data Value {n : Nat} : (t : Term n) → Set a where
+  Levelᵥ : Value Level
+  zeroᵘᵥ : Value zeroᵘ
+  sucᵘᵥ : Value (sucᵘ t)
+  Liftᵥ : Value (Lift t A)
+  liftᵥ : Value (lift t)
   lamᵥ : Value (lam p t)
   zeroᵥ : Value zero
   sucᵥ : Value (suc t)
-  starᵥ : Value (star s l)
+  starᵥ : Value (star s)
   prodᵥ : Value (prod s p u t)
   rflᵥ : Value rfl
-  Uᵥ : Value (U l)
+  Uᵥ : Value (U t)
   ΠΣᵥ : Value (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕᵥ : Value ℕ
-  Unitᵥ : Value (Unit s l)
+  Unitᵥ : Value (Unit s)
   Emptyᵥ : Value Empty
   Idᵥ : Value (Id A t u)
-  unitrec-ηᵥ : Unitʷ-η → Value (unitrec l p q A t u)
+  unitrec-ηᵥ : Unitʷ-η → Value (unitrec p q A t u)
 
--- States in normal form are either values, or variables without
--- entries in the heap.
+-- States in normal form are either values, variables without
+-- entries in the heap, or levels of the form t ⊔ u.
 -- I.e. states which do not reduce with _⇒ₙ_
 
 data Normal : (State k m n) → Set a where
   val : Value t → Normal ⟨ H , t , ρ , S ⟩
   var : H ⊢ wkVar ρ x ↦● → Normal ⟨ H , var x , ρ , S ⟩
+  sup : Normal ⟨ H , t supᵘ u , ρ , S ⟩
 
 ------------------------------------------------------------------------
 -- Matching terms and continuations
@@ -551,14 +561,15 @@ data Normal : (State k m n) → Set a where
 -- considered a value and matches any stack.
 
 data Matching {m n} : Term n → Stack m → Set a where
+  lowerₑ : Matching (lift t) (lowerₑ ∙ S)
   ∘ₑ : Matching (lam p t) (∘ₑ p u ρ ∙ S)
   fstₑ : Matching (prodˢ p t u) (fstₑ p ∙ S)
   sndₑ : Matching (prodˢ p t u) (sndₑ p ∙ S)
   prodrecₑ : Matching (prodʷ p t u) (prodrecₑ r p q A v ρ ∙ S)
   natrecₑ₀ : Matching zero (natrecₑ p q r A t u ρ ∙ S)
   natrecₑ₊ : Matching (suc v) (natrecₑ p q r A t u ρ ∙ S)
-  unitrecₑ : Matching (starʷ l) (unitrecₑ l p q A u ρ ∙ S)
-  unitrec-η : Unitʷ-η → Matching (unitrec l p q A t u) S
+  unitrecₑ : Matching starʷ (unitrecₑ p q A u ρ ∙ S)
+  unitrec-η : Unitʷ-η → Matching (unitrec p q A t u) S
   Jₑ : Matching rfl (Jₑ p q A t B u v ρ ∙ S)
   Kₑ : Matching rfl (Kₑ p A t B u ρ ∙ S)
-  []-congₑ : Matching rfl ([]-congₑ s A t u ρ ∙ S)
+  []-congₑ : Matching rfl ([]-congₑ s l A t u ρ ∙ S)

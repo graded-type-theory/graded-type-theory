@@ -86,17 +86,17 @@ private variable
 
 private module Lemmas (⊢Γ : ⊢ Γ) where opaque
 
-  Empty⊢ℕ∷U : Γ »∙ Empty ⊢ ℕ ∷ U 0
-  Empty⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ])
+  Empty⊢ℕ∷U : Γ »∙ Empty ⊢ ℕ ∷ U zeroᵘ
+  Empty⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ])
 
   Empty⊢ℕ : Γ »∙ Empty ⊢ ℕ
   Empty⊢ℕ = univ Empty⊢ℕ∷U
 
-  Empty∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ ⊢ ℕ ∷ U 0
-  Empty∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ])
+  Empty∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ ⊢ ℕ ∷ U zeroᵘ
+  Empty∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢ℕ ])
 
-  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ »∙ ℕ ⊢ ℕ ∷ U 0
-  Empty∙ℕ∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ Emptyⱼ ] ∙[ ℕⱼ ] ∙[ ℕⱼ ])
+  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ »∙ ℕ ⊢ ℕ ∷ U zeroᵘ
+  Empty∙ℕ∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])
 
 opaque
 
@@ -123,7 +123,7 @@ opaque
 
   cast : Term n → Term n → Term n → Term n → Term n
   cast t A B u =
-    subst 𝟙 (U 0) (var x0) A B (emptyrec 𝟘 (Id (U 0) A B) t) u
+    subst 𝟙 (U zeroᵘ) (var x0) A B (emptyrec 𝟘 (Id (U zeroᵘ) A B) t) u
 
 opaque
   unfolding cast subst
@@ -140,12 +140,12 @@ opaque
 
   ⊢cast :
     Γ ⊢ t ∷ Empty →
-    Γ ⊢ A ∷ U 0 →
-    Γ ⊢ B ∷ U 0 →
+    Γ ⊢ A ∷ U zeroᵘ →
+    Γ ⊢ B ∷ U zeroᵘ →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast t A B u ∷ B
   ⊢cast ⊢t ⊢A ⊢B =
-    ⊢subst (univ $ var₀ $ Uⱼ (wfTerm ⊢t)) (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
+    ⊢subst (univ $ var₀ $ ⊢U₀ (wfTerm ⊢t)) (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
 
 opaque
   unfolding cast
@@ -160,13 +160,14 @@ opaque
     γ₄ ▸[ 𝟙ᵐ ] u →
     ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄) ▸[ 𝟙ᵐ ] cast t A B u
   ▸cast {γ₁} {γ₂} {γ₃} {γ₄} ok ▸t ▸A ▸B ▸u =
-    sub (▸subst Uₘ
+    sub (▸subst (Uₘ zeroᵘₘ)
            (sub var $ begin
               𝟘ᶜ ∙ 𝟙 · 𝟙   ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
               𝟘ᶜ , x0 ≔ 𝟙  ∎)
            ▸A ▸B
            (emptyrecₘ (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) ▸t)
-              (Idₘ-generalised Uₘ (▸-𝟘ᵐ? ▸A .proj₂) (▸-𝟘ᵐ? ▸B .proj₂)
+              (Idₘ-generalised (Uₘ zeroᵘₘ) (▸-𝟘ᵐ? ▸A .proj₂)
+                 (▸-𝟘ᵐ? ▸B .proj₂)
                  (λ _ → ∧ᶜ-decreasingˡ 𝟘ᶜ _)
                  (λ _ → ∧ᶜ-decreasingʳ _ _))
               ok)
@@ -232,7 +233,8 @@ opaque
   ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ =
     lamⱼ′ ω+ω-ok $
     ⊢cast (var₁ Empty⊢ℕ) Empty∙ℕ⊢ℕ∷U
-      (ΠΣⱼ Empty∙ℕ⊢ℕ∷U Empty∙ℕ∙ℕ⊢ℕ∷U ω-ok) (var₀ Empty⊢ℕ) ∘ⱼ
+      (ΠΣⱼ (⊢zeroᵘ (∙ Empty⊢ℕ)) Empty∙ℕ⊢ℕ∷U Empty∙ℕ∙ℕ⊢ℕ∷U ω-ok)
+      (var₀ Empty⊢ℕ) ∘ⱼ
     var₀ Empty⊢ℕ
     where
     open Lemmas ⊢Γ
@@ -318,7 +320,8 @@ opaque
   ⊢extracts-to-loop 𝟘-ok ω-ok ω+ω-ok ⊢Γ =
     lamⱼ′ 𝟘-ok $
     ⊢λx∙xx ω-ok ω+ω-ok ⊢Γ ∘ⱼ
-    ⊢cast (var₀ (Emptyⱼ ⊢Γ)) (ΠΣⱼ Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
+    ⊢cast (var₀ (⊢Empty ⊢Γ))
+      (ΠΣⱼ (⊢zeroᵘ (∙ ⊢Empty ⊢Γ)) Empty⊢ℕ∷U Empty∙ℕ⊢ℕ∷U ω+ω-ok)
       Empty⊢ℕ∷U (⊢λx∙xx ω-ok ω+ω-ok ⊢Γ)
     where
     open Lemmas ⊢Γ
@@ -387,6 +390,28 @@ opaque
 opaque
 
   -- If erasable arguments are removed entirely and strict
+  -- applications are used, then the extraction of loops {n = n} p
+  -- "reduces forever" (if the modality's zero is well-behaved).
+
+  loops-reduces-forever :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    T.Reduces-forever {n = n} vs (erase′ true strict (loops p))
+  loops-reduces-forever =
+    lemma ∘→ PE.subst (flip (T._⊢_⇒*_ _) _) erase-loops
+    where
+    lemma :
+      T.Reduces-forever {n = n} vs
+        (T.lam T.zero T.∘⟨ strict ⟩ loop strict)
+    lemma T.refl =
+      _ , T.app-subst-arg T.lam loop⇒loop
+    lemma (T.trans s ss) =
+      case redDet _ s (T.app-subst-arg T.lam loop⇒loop) of λ {
+        PE.refl →
+      lemma ss }
+
+opaque
+
+  -- If erasable arguments are removed entirely and strict
   -- applications are used, then the extraction of loops p does not
   -- reduce to a value (if the modality's zero is well-behaved).
 
@@ -394,20 +419,8 @@ opaque
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     T.Value v →
     ¬ vs T.⊢ erase′ true strict (loops p) ⇒* v
-  loops-does-not-reduce-to-a-value {v} {vs} {p} v-value =
-    vs T.⊢ erase′ true strict (loops p) ⇒* v            ≡⟨ PE.cong (_ T.⊢_⇒* _) erase-loops ⟩→
-    vs T.⊢ T.lam T.zero T.∘⟨ strict ⟩ loop strict ⇒* v  →⟨ helper ⟩
-    ⊥                                                   □
-    where
-    helper : ¬ vs T.⊢ T.lam T.zero T.∘⟨ strict ⟩ loop s ⇒* v
-    helper T.refl =
-      case v-value of λ ()
-    helper (T.trans (T.app-subst ())     _)
-    helper (T.trans (T.β-red loop-value) _) =
-      ¬loop⇒* loop-value (T.refl {∇ = List.[]})
-    helper (T.trans (T.app-subst-arg _ loop⇒) ⇒*v)
-      rewrite redDet _ loop⇒ loop⇒loop =
-      helper ⇒*v
+  loops-does-not-reduce-to-a-value =
+    Reduces-forever→Value→¬⇒* loops-reduces-forever
 
 opaque
   unfolding loops

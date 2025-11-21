@@ -8,6 +8,7 @@ open import Tools.Bool
 open import Tools.Fin
 open import Tools.List
 open import Tools.Nat using (Nat; 1+; 2+; _+_)
+open import Tools.Product
 open import Tools.PropositionalEquality using (_≡_; refl)
 open import Tools.Relation
 open import Tools.Unit
@@ -310,3 +311,11 @@ private
     (defn 0 ∷ []) ⊢ defn {n = n} 0 ⇒ defn 0
   non-terminating-recursive-definition =
     δ-red here
+
+-- Reduces-forever vs t means that there are arbitrarily long
+-- reduction sequences (with respect to the definition context vs)
+-- starting with t.
+
+Reduces-forever : List (Term 0) → Term n → Set
+Reduces-forever vs t =
+  ∀ {u} → vs ⊢ t ⇒* u → ∃ λ v → vs ⊢ u ⇒ v

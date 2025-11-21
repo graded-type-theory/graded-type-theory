@@ -26,18 +26,23 @@ open Type-restrictions TR
 open import Definition.Typed TR hiding (Trans)
 open import Definition.Typed.Decidable.Internal.Constraint TR
 open import Definition.Typed.Decidable.Internal.Context TR
-open import Definition.Typed.Decidable.Internal.Equality 𝕄
+open import Definition.Typed.Decidable.Internal.Equality TR
 open import Definition.Typed.Decidable.Internal.Monad TR
-open import Definition.Typed.Decidable.Internal.Substitution 𝕄
-open import Definition.Typed.Decidable.Internal.Term 𝕄
+open import Definition.Typed.Decidable.Internal.Substitution TR
+open import Definition.Typed.Decidable.Internal.Term TR
 open import Definition.Typed.Decidable.Internal.Tests TR
-open import Definition.Typed.Decidable.Internal.Weakening 𝕄
+open import Definition.Typed.Decidable.Internal.Weakening TR
 open import Definition.Typed.Inversion TR
+open import Definition.Typed.Properties.Admissible.Empty TR
 open import Definition.Typed.Properties.Admissible.Equality TR
 open import Definition.Typed.Properties.Admissible.Erased TR
 open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
+open import Definition.Typed.Properties.Admissible.Level TR
+open import Definition.Typed.Properties.Admissible.Lift TR
+open import Definition.Typed.Properties.Admissible.Nat TR
 open import Definition.Typed.Properties.Admissible.Pi TR
 open import Definition.Typed.Properties.Admissible.Sigma TR
+open import Definition.Typed.Properties.Admissible.U TR
 open import Definition.Typed.Properties.Admissible.Unit TR
 open import Definition.Typed.Properties.Admissible.Var TR
 open import Definition.Typed.Properties.Reduction TR
@@ -47,14 +52,14 @@ import Definition.Typed.Reasoning.Term TR as TmR
 import Definition.Typed.Reasoning.Type TR as TyR
 open import Definition.Typed.Stability TR
 open import Definition.Typed.Substitution.Primitive TR
-open import Definition.Typed.Variant
 import Definition.Typed.Weakening TR as W
 open import Definition.Typed.Well-formed TR
 
-open import Definition.Untyped M as U using (_or-empty_; _»_)
+open import Definition.Untyped M as U using (_»_)
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+import Definition.Untyped.Sup TR as S
 open import Definition.Untyped.Whnf M type-variant
 
 open U.Con
@@ -62,34 +67,37 @@ open U.Context-pair
 open U.Opacity
 open U.Strength
 open U.Wk
-open _or-empty_
 
+open import Tools.Bool
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function hiding (ext)
 import Tools.Level as L
-open import Tools.List as List using (All; _∈_; [])
+open import Tools.List as List using (List; All; module Any; _∈_; [])
 open import Tools.Maybe as M using (Maybe; nothing; just)
 open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
-open import Tools.Sum
+open import Tools.Sum as ⊎
 open import Tools.Unit
 import Tools.Vec as Vec
 
+open Any using (Any)
+
 private variable
-  m n n₁ n₂ n₃                              : Nat
-  c                                         : Constants
-  γ                                         : Contexts _
-  st                                        : Stack-trace _
-  ∇                                         : DCon _ _
-  Δ Δ′ Δ₁ Δ₂ Η₁ Η₂                          : Con _ _
-  Γ Γ′                                      : Cons _ _ _
-  x₁ x₂                                     : Meta-var _ _
-  A A′ A₁ A₁′ A₂ A₂′ B t t′ t₁ t₁′ t₂ t₂′ u : Term _ _
-  l                                         : Termˡ _
-  σ′ σ₁ σ₂                                  : Subst _ _ _
+  b                                                    : Bool
+  k m n n₁ n₂ n₃                                       : Nat
+  c                                                    : Constants
+  γ                                                    : Contexts _
+  st                                                   : Stack-trace _
+  ∇                                                    : DCon _ _
+  Δ Δ′ Δ₁ Δ₂ Η₁ Η₂                                     : Con _ _
+  Γ Γ′                                                 : Cons _ _ _
+  x₁ x₂                                                : Meta-var _ _
+  A A′ A₁ A₁′ A₂ A₂′ B l l′ l₁ l₂ t t′ t₁ t₁′ t₂ t₂′ u : Term _ _
+  σ σ′ σ₁ σ₂                                           : Subst _ _ _
 
 ------------------------------------------------------------------------
 -- A lemma
@@ -139,6 +147,219 @@ Fuel : Set
 Fuel = Nat
 
 ------------------------------------------------------------------------
+-- "Normal" forms for levels
+
+mutual
+
+  -- "Normal" forms. These "normal" forms are not necessarily unique.
+  -- One could perhaps imagine sorting the lists, using some kind of
+  -- lexicographic comparison of terms. However, the lists are expected
+  -- to be short. Two normal forms are compared by
+  -- * comparing the natural numbers and
+  -- * comparing every element in one list with all the elements in the
+  --   other list.
+
+  Termˡⁿ : Constants → Nat → Set a
+  Termˡⁿ c n = Termˡⁿ′ c n × Nat
+
+  -- One component of the normal form type.
+  --
+  -- The terms are supposed to be atomic neutral levels
+  -- (meta-variables are included in this category), but that is not
+  -- enforced by the type.
+
+  Termˡⁿ′ : Constants → Nat → Set a
+  Termˡⁿ′ c n = List (Nat × Term c n)
+
+private variable
+  nf nf₁ nf₂ : Termˡⁿ _ _
+
+opaque
+
+  -- The semantics of a normal form.
+
+  ⌜_⌝ˡⁿ : Termˡⁿ c n → Contexts c → U.Term n
+  ⌜ ns , n ⌝ˡⁿ γ =
+    List.foldr (λ (n , l₁) → U.sucᵘᵏ n (⌜ l₁ ⌝ γ) S.supᵘₗ_) (U.↓ᵘ n) ns
+
+opaque
+  unfolding ⌜_⌝ˡⁿ
+
+  -- A lemma related to ⌜_⌝ˡⁿ.
+
+  ⌜⊔⌝ˡⁿ :
+    ∀ {Γ : U.Cons m n} nf →
+    Γ ⊢ ⌜ nf , n₂ ⌝ˡⁿ γ ∷Level →
+    Γ ⊢ ⌜ nf , n₁ N.⊔ n₂ ⌝ˡⁿ γ ≡ (U.↓ᵘ n₁) S.supᵘₗ ⌜ nf , n₂ ⌝ˡⁿ γ
+      ∷Level
+  ⌜⊔⌝ˡⁿ List.[] ⊢nf =
+    sym-⊢≡∷L (supᵘₗ-↓ᵘ (wfLevel ⊢nf))
+  ⌜⊔⌝ˡⁿ (_ List.∷ nf) ⊢nf =
+    let ⊢n+l , ⊢nf = inversion-supᵘₗ ⊢nf
+        ⊢↓         = ⊢↓ᵘ (wfLevel ⊢n+l)
+    in
+    trans-⊢≡∷L (supᵘₗ-cong (refl-⊢≡∷L ⊢n+l) (⌜⊔⌝ˡⁿ nf ⊢nf)) $
+    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢n+l ⊢↓ ⊢nf)) $
+    trans-⊢≡∷L (supᵘₗ-cong (supᵘₗ-comm ⊢n+l ⊢↓) (refl-⊢≡∷L ⊢nf)) $
+    supᵘₗ-assoc ⊢↓ ⊢n+l ⊢nf
+
+-- Below Γ γ nf₁ nf₂ means that nf₁ is bounded by nf₂.
+
+Below : U.Cons m n → Contexts c → Termˡⁿ c n → Termˡⁿ c n → Set a
+Below Γ γ (nf₁ , n₁) (nf₂ , n₂) =
+  n₁ N.≤ n₂ ×
+  All
+    (λ (n₁ , l₁) →
+       Any
+         (λ (n₂ , l₂) →
+            Γ ⊢ U.sucᵘᵏ n₁ (⌜ l₁ ⌝ γ) ≤ₗ U.sucᵘᵏ n₂ (⌜ l₂ ⌝ γ) ∷Level)
+         nf₂)
+    nf₁
+
+private opaque
+  unfolding ⌜_⌝ˡⁿ
+
+  -- A lemma used to prove Below→≤.
+
+  Below→≤-lemma :
+    ∀ {Γ : U.Cons m n} {l} →
+    Γ ⊢ l ∷Level →
+    Γ ⊢ ⌜ nf ⌝ˡⁿ γ ∷Level →
+    Any (λ (n′ , l′) → Γ ⊢ l ≤ₗ U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) ∷Level)
+      (nf .proj₁) →
+    Γ ⊢ l ≤ₗ ⌜ nf ⌝ˡⁿ γ ∷Level
+  Below→≤-lemma ⊢l ⊢nf (List.here l≤n′+l′) =
+    let ⊢n′+l′ , ⊢nf = inversion-supᵘₗ ⊢nf in
+    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l ⊢n′+l′ ⊢nf)) $
+    supᵘₗ-cong l≤n′+l′ (refl-⊢≡∷L ⊢nf)
+  Below→≤-lemma ⊢l ⊢nf (List.there below) =
+    let ⊢n′+l′ , ⊢nf = inversion-supᵘₗ ⊢nf in
+    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l ⊢n′+l′ ⊢nf)) $
+    trans-⊢≡∷L (supᵘₗ-cong (supᵘₗ-comm ⊢l ⊢n′+l′) (refl-⊢≡∷L ⊢nf)) $
+    trans-⊢≡∷L (supᵘₗ-assoc ⊢n′+l′ ⊢l ⊢nf) $
+    supᵘₗ-cong (refl-⊢≡∷L ⊢n′+l′) (Below→≤-lemma ⊢l ⊢nf below)
+
+opaque
+  unfolding ⌜_⌝ˡⁿ
+
+  -- Below Γ γ nf₁ nf₂ implies that ⌜ nf₁ ⌝ˡⁿ γ is below ⌜ nf₂ ⌝ˡⁿ γ,
+  -- given certain assumptions.
+
+  Below→≤ :
+    {Γ : U.Cons m n} →
+    Γ ⊢ ⌜ nf₁ ⌝ˡⁿ γ ∷Level →
+    Γ ⊢ ⌜ nf₂ ⌝ˡⁿ γ ∷Level →
+    Below Γ γ nf₁ nf₂ →
+    Γ ⊢ ⌜ nf₁ ⌝ˡⁿ γ ≤ₗ ⌜ nf₂ ⌝ˡⁿ γ ∷Level
+  Below→≤ {nf₁ = List.[] , _} {nf₂ = nf₂ , _} _ ⊢nf₂ (n₁≤n₂ , _) =
+    PE.subst (_⊢_≡_∷Level _ _)
+      (PE.cong (λ n → ⌜ nf₂ , n ⌝ˡⁿ _) (N.m≤n⇒m⊔n≡n n₁≤n₂)) $
+    sym-⊢≡∷L (⌜⊔⌝ˡⁿ nf₂ ⊢nf₂)
+  Below→≤
+    {nf₁ = _ List.∷ _ , _} ⊢nf₁ ⊢nf₂ (n₁≤n₂ , below₁ List.∷ below₂) =
+    let ⊢n+l , ⊢nf₁ = inversion-supᵘₗ ⊢nf₁ in
+    trans-⊢≡∷L (supᵘₗ-assoc ⊢n+l ⊢nf₁ ⊢nf₂) $
+    trans-⊢≡∷L
+      (supᵘₗ-cong (refl-⊢≡∷L ⊢n+l) $
+       Below→≤ ⊢nf₁ ⊢nf₂ (n₁≤n₂ , below₂)) $
+    Below→≤-lemma ⊢n+l ⊢nf₂ below₁
+
+opaque
+
+  -- If nf₁ is bounded by nf₂ and vice versa, then the two normal
+  -- forms are equal, given certain assumptions.
+
+  Below-antisymmetric :
+    {Γ : U.Cons m n} →
+    Γ ⊢ ⌜ nf₁ ⌝ˡⁿ γ ∷Level →
+    Γ ⊢ ⌜ nf₂ ⌝ˡⁿ γ ∷Level →
+    Below Γ γ nf₁ nf₂ →
+    Below Γ γ nf₂ nf₁ →
+    Γ ⊢ ⌜ nf₁ ⌝ˡⁿ γ ≡ ⌜ nf₂ ⌝ˡⁿ γ ∷Level
+  Below-antisymmetric ⊢nf₁ ⊢nf₂ nf₁≤nf₂ nf₂≤nf₁ =
+    antisym-⊢≤ₗ∷L (Below→≤ ⊢nf₁ ⊢nf₂ nf₁≤nf₂)
+      (Below→≤ ⊢nf₂ ⊢nf₁ nf₂≤nf₁)
+
+-- Turns atomic neutral levels (and other terms) into "normal" forms.
+
+⌞_⌟ˡⁿ : Term c n → Termˡⁿ c n
+⌞ l ⌟ˡⁿ = (0 , l) List.∷ [] , 0
+
+opaque
+  unfolding ⌜_⌝ˡⁿ
+
+  -- The function ⌞_⌟ˡⁿ is correctly defined.
+
+  ⌞⌟ˡⁿ-correct :
+    {Γ : U.Cons m n} →
+    Γ ⊢ ⌜ l ⌝ γ ∷Level →
+    Γ ⊢ ⌜ ⌞ l ⌟ˡⁿ ⌝ˡⁿ γ ≡ ⌜ l ⌝ γ ∷Level
+  ⌞⌟ˡⁿ-correct ⊢l = supᵘₗ-zeroʳ ⊢l
+
+-- Zero.
+
+zeroᵘˡⁿ : Termˡⁿ c n
+zeroᵘˡⁿ = [] , 0
+
+opaque
+  unfolding ⌜_⌝ˡⁿ
+
+  -- The normal form zeroᵘˡⁿ is correctly defined.
+
+  zeroᵘˡⁿ-correct :
+    {Γ : U.Cons m n} →
+    ⊢ Γ →
+    Γ ⊢ ⌜ zeroᵘˡⁿ ⌝ˡⁿ γ ≡ U.zeroᵘ ∷Level
+  zeroᵘˡⁿ-correct ⊢Γ = refl-⊢≡∷L (⊢zeroᵘ ⊢Γ)
+
+-- A successor operation for Termˡⁿ.
+
+sucᵘˡⁿ : Termˡⁿ c n → Termˡⁿ c n
+sucᵘˡⁿ = Σ.map (List.map (Σ.map 1+ idᶠ)) 1+
+
+opaque
+  unfolding ⌜_⌝ˡⁿ
+
+  -- The function sucᵘˡⁿ is correctly defined.
+
+  sucᵘˡⁿ-correct :
+    {Γ : U.Cons m n} →
+    Γ ⊢ ⌜ nf ⌝ˡⁿ γ ∷Level →
+    Γ ⊢ ⌜ sucᵘˡⁿ nf ⌝ˡⁿ γ ≡ U.sucᵘ (⌜ nf ⌝ˡⁿ γ) ∷Level
+  sucᵘˡⁿ-correct {nf = List.[] , _} ⊢nf =
+    refl-⊢≡∷L (⊢↓ᵘ (wfLevel ⊢nf))
+  sucᵘˡⁿ-correct {nf = _ List.∷ nf′ , _} ⊢nf =
+    let ⊢n+l , ⊢nf = inversion-supᵘₗ ⊢nf in
+    trans-⊢≡∷L
+      (supᵘₗ-cong (refl-⊢≡∷L (⊢sucᵘ ⊢n+l))
+         (sucᵘˡⁿ-correct {nf = nf′ , _} ⊢nf))
+      (supᵘₗ-sucᵘ ⊢n+l ⊢nf)
+
+-- Max for Termˡⁿ.
+
+supᵘₗˡⁿ : Termˡⁿ c n → Termˡⁿ c n → Termˡⁿ c n
+supᵘₗˡⁿ (ns₁ , n₁) (ns₂ , n₂) = ns₁ List.++ ns₂ , n₁ N.⊔ n₂
+
+opaque
+  unfolding ⌜_⌝ˡⁿ
+
+  -- The function supᵘₗˡⁿ is correctly defined.
+
+  supᵘₗˡⁿ-correct :
+    {Γ : U.Cons m n} →
+    Γ ⊢ ⌜ nf₁ ⌝ˡⁿ γ ∷Level →
+    Γ ⊢ ⌜ nf₂ ⌝ˡⁿ γ ∷Level →
+    Γ ⊢ ⌜ supᵘₗˡⁿ nf₁ nf₂ ⌝ˡⁿ γ ≡ ⌜ nf₁ ⌝ˡⁿ γ S.supᵘₗ ⌜ nf₂ ⌝ˡⁿ γ ∷Level
+  supᵘₗˡⁿ-correct {nf₁ = List.[] , _} {nf₂ = nf , _} ⊢nf₁ ⊢nf₂ =
+    ⌜⊔⌝ˡⁿ nf ⊢nf₂
+  supᵘₗˡⁿ-correct {nf₁ = _ List.∷ nf₁ , _} ⊢nf₁ ⊢nf₂ =
+    let ⊢n+l , ⊢nf₁ = inversion-supᵘₗ ⊢nf₁ in
+    trans-⊢≡∷L
+      (supᵘₗ-cong (refl-⊢≡∷L ⊢n+l)
+         (supᵘₗˡⁿ-correct {nf₁ = nf₁ , _} ⊢nf₁ ⊢nf₂))
+      (sym-⊢≡∷L (supᵘₗ-assoc ⊢n+l ⊢nf₁ ⊢nf₂))
+
+------------------------------------------------------------------------
 -- Reduction and type and equality checking
 
 private
@@ -155,16 +376,20 @@ private
     Γ , _ ← is-∙ Γ
     equal-sub″ k Γ
 
--- Removes top-level weaken and subst constructors.
+-- Removes top-level weaken and subst constructors. The boolean
+-- indicates if any subst constructors were removed.
 
-remove-weaken-subst : Fuel → Term c n → Check c (Term c n)
+remove-weaken-subst : Fuel → Term c n → Check c (Bool × Term c n)
 remove-weaken-subst 0 _ =
   fail "No fuel left."
 remove-weaken-subst (1+ n) t =
   case is-weaken-subst? t of λ where
-    (just (weaken ρ t)) → remove-weaken-subst n (wk ρ t)
-    (just (subst t σ))  → remove-weaken-subst n (t [ σ ])
-    nothing             → return t
+    (just (weaken ρ t)) →
+      Σ.map idᶠ idᶠ <$> remove-weaken-subst n (wk ρ t)
+    (just (subst t σ)) →
+      Σ.map (λ _ → true) idᶠ <$> remove-weaken-subst n (t [ σ ])
+    nothing →
+      return (false , t)
 
 -- Returns the context associated to the meta-variable.
 
@@ -184,6 +409,9 @@ is-term x = do
       fail "Expected a term."
     (Δ , term _ A) → do
       return (Δ , A)
+    (Δ , level l) → do
+      require level-allowed
+      return (Δ , Level)
 
 -- Checks that the two meta-variables are equal.
 
@@ -260,13 +488,38 @@ mutual
         A ← red-ty n (∇ » Δ) A
         is-U A
         return Δ
+      (_ , level _) →
+        fail "Expected a type, found a level."
+
+  -- Checks that the meta-variable, with the substitution applied to
+  -- it, refers to a level. In that case the level's context as well
+  -- as a possibly more annotated version of the level is returned.
+  --
+  -- The substitution is not assumed to be well-formed.
+
+  is-level :
+    Fuel → Cons c m n₂ → Meta-var c n₁ → Subst c n₂ n₁ →
+    Check c (Con c n₁ × Term c n₂)
+  is-level n (∇ » Γ) x σ = do
+    γ ← ask
+    case γ .metas .bindings x of λ where
+      (_ , type _) →
+        fail "Expected a level, found a type."
+      (Δ , term _ A) → do
+        σ ← check-sub n ∇ Γ σ Δ
+        B ← red-ty n (∇ » Γ) (A [ σ ])
+        is-Level B
+        return (Δ , meta-var x σ)
+      (Δ , level _) → do
+        σ ← check-sub n ∇ Γ σ Δ
+        return (Δ , meta-var x σ)
 
   -- Reduction for types.
 
   red-ty : Fuel → Cons c m n → Term c n → Check c (Term c n)
   red-ty 0      _ _ = fail "No fuel left."
   red-ty (1+ n) Γ A = register ([red-ty] Γ A) do
-    A ← remove-weaken-subst n A
+    _ , A ← remove-weaken-subst n A
     case is-type-constructor? A of λ where
       (just _) → return A
       nothing  → do
@@ -304,22 +557,53 @@ mutual
       t , B ← definition-of (Γ .defs) α
       t     ← red-tm n (Γ .defs » ε) t B
       return (wk U.wk₀ t)
+    red-tm′ _ _ Level _ =
+      return Level
+    red-tm′ _ _ zeroᵘ _ =
+      return zeroᵘ
+    red-tm′ _ _ (sucᵘ l) _ =
+      return (sucᵘ l)
+    red-tm′ n Γ (l₁ supᵘₗ l₂) _ = do
+      l₁ ← red-tm n Γ l₁ Level
+      case level-con? l₁ of λ where
+        nothing          → return (l₁ supᵘₗ l₂)
+        (just zeroᵘ)     → red-tm n Γ l₂ Level
+        (just (sucᵘ l₁)) → do
+          l₂ ← red-tm n Γ l₂ Level
+          case level-con? l₂ of λ where
+            nothing          → return (sucᵘ l₁ supᵘₗ l₂)
+            (just zeroᵘ)     → return (sucᵘ l₁)
+            (just (sucᵘ l₂)) → return (sucᵘ (l₁ supᵘₗ l₂))
     red-tm′ _ _ (U l) _ =
       return (U l)
+    red-tm′ _ _ (Lift l A) _ =
+      return (Lift l A)
+    red-tm′ _ _ (lift l t) _ =
+      return (lift l t)
+    red-tm′ n Γ (lower t) A = do
+      B         ← infer-red n Γ t
+      l , C , _ ← is-Lift B
+      equal-ty n Γ A C
+      t ← red-tm n Γ t (Lift l C)
+      case is-lift? t of λ where
+        nothing            → return (lower t)
+        (just (_ , t , _)) → do
+          t ← check n Γ t C
+          red-tm n Γ t C
     red-tm′ _ _ Empty _ =
       return Empty
     red-tm′ n Γ (emptyrec p A t) _ = do
       t ← red-tm n Γ t Empty
       return (emptyrec p A t)
-    red-tm′ _ _ (Unit s l) _ =
-      return (Unit s l)
-    red-tm′ _ _ (star s l) _ =
-      return (star s l)
-    red-tm′ n Γ (unitrec l p q A t₁ t₂) _ = do
-      t₁ ← red-tm n Γ t₁ (Unit 𝕨 l)
-      case is-star? 𝕨 l t₁ of λ where
-        (just _) → red-tm n Γ t₂ (subst A (sgSubst (star 𝕨 l)))
-        nothing  → return (unitrec l p q A t₁ t₂)
+    red-tm′ _ _ (Unit s) _ =
+      return (Unit s)
+    red-tm′ _ _ (star s) _ =
+      return (star s)
+    red-tm′ n Γ (unitrec p q A t₁ t₂) _ = do
+      t₁ ← red-tm n Γ t₁ (Unit 𝕨)
+      case is-star? 𝕨 t₁ of λ where
+        (just _) → red-tm n Γ t₂ (subst A (sgSubst (star 𝕨)))
+        nothing  → return (unitrec p q A t₁ t₂)
     red-tm′ _ _ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂) _ =
       return (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂)
     red-tm′ _ _ (lam p qA t) _ =
@@ -412,10 +696,10 @@ mutual
       case is-rfl? t₃ of λ where
         (just _) → red-tm n Γ t₂ (subst A₂ (sgSubst (rfl (just t₁))))
         nothing  → return (K p A₁ t₁ A₂ t₂ t₃)
-    red-tm′ n Γ ([]-cong s A t₁ t₂ t₃) _ = do
+    red-tm′ n Γ ([]-cong s l A t₁ t₂ t₃) _ = do
       t₃ ← red-tm n Γ t₃ (Id A t₁ t₂)
       case is-rfl? t₃ of λ where
-        nothing  → return ([]-cong s A t₁ t₂ t₃)
+        nothing  → return ([]-cong s l A t₁ t₂ t₃)
         (just _) → do
           equal-tm n Γ t₁ t₂ A
           return (rfl (just t₁))
@@ -429,7 +713,7 @@ mutual
   check-type 0 _ _ =
     fail "No fuel left."
   check-type (1+ n) Γ A = register ([check-type] Γ A) do
-    A ← remove-weaken-subst n A
+    _ , A ← remove-weaken-subst n A
     check-type′ n Γ (is-type-constructor? A)
 
   private
@@ -444,13 +728,21 @@ mutual
       Δ ← is-type n (Γ .defs) x
       σ ← check-sub n (Γ .defs) (Γ .vars) σ Δ
       return (meta-var x σ)
-    check-type′ _ _ (just (U l)) =
+    check-type′ _ _ (just Level) = do
+      require level-allowed
+      return Level
+    check-type′ n Γ (just (U l)) = do
+      l ← check-level n Γ l
       return (U l)
+    check-type′ n Γ (just (Lift l A)) = do
+      l ← check-level n Γ l
+      A ← check-type n Γ A
+      return (Lift l A)
     check-type′ _ _ (just Empty) =
       return Empty
-    check-type′ _ _ (just (Unit s l)) = do
+    check-type′ _ _ (just (Unit s)) = do
       require (unit-allowed s)
-      return (Unit s l)
+      return (Unit s)
     check-type′ n Γ (just (ΠΣ b p q A₁ A₂)) = do
       A₁ ← check-type n Γ A₁
       A₂ ← check-type n (Γ »∙ A₁) A₂
@@ -468,6 +760,38 @@ mutual
       is-U B
       return A
 
+  -- A type-checker for levels.
+  --
+  -- The returned term is a possibly more annotated version of the
+  -- input.
+  --
+  -- Note that if an application of a substitution to _supᵘₗ_ is
+  -- encountered, then the level is only accepted if Level is allowed.
+  -- The reason is that a term like
+  -- subst (var x0 supᵘₗ var x0) (sgSubst zeroᵘ) does not correspond
+  -- to a level literal: its translation is, at the time of writing,
+  -- U.zeroᵘ U.supᵘ U.zeroᵘ. (If necessary it might be possible to
+  -- avoid requiring Level in more cases.)
+
+  check-level : Fuel → Cons c m n → Term c n → Check c (Term c n)
+  check-level 0 _ _ =
+    fail "No fuel left."
+  check-level (1+ n) Γ l = register ([check-level] Γ l) do
+    removed , l ← remove-weaken-subst n l
+    case is-perhaps-level? l of λ where
+      nothing → do
+        require level-allowed
+        check n Γ l Level
+      (just (meta-var x σ)) →
+        proj₂ <$> is-level n Γ x σ
+      (just zeroᵘ) →
+        return zeroᵘ
+      (just (sucᵘ l)) →
+        sucᵘ <$> check-level n Γ l
+      (just (l₁ supᵘₗ l₂)) → do
+        when removed (require level-allowed)
+        _supᵘₗ_ <$> check-level n Γ l₁ ⊛ check-level n Γ l₂
+
   -- A type-checker for terms.
   --
   -- The returned term is a possibly more annotated version of the
@@ -477,7 +801,7 @@ mutual
   check 0 _ _ _ =
     fail "No fuel left."
   check (1+ n) Γ t A = register ([check] Γ t A) do
-    t ← remove-weaken-subst n t
+    _ , t ← remove-weaken-subst n t
     case checkable? t of λ where
       nothing → do
         B ← infer n Γ t
@@ -494,6 +818,10 @@ mutual
     check′ :
       {t : Term c n} →
       Fuel → Cons c m n → Checkable t → Term c n → Check c (Term c n)
+    check′ n Γ (lift t) A = do
+      l , B , _ ← is-Lift A
+      t ← check n Γ t B
+      return (lift (just l) t)
     check′ n Γ (lam p t) A = do
       q , B₁ , B₂ , _ ← is-ΠΣ BMΠ p A
       t ← check n (Γ »∙ B₁) t B₂
@@ -525,8 +853,8 @@ mutual
   infer 0 _ _ =
     fail "No fuel left."
   infer (1+ n) Γ t = register ([infer] Γ t) do
-    t   ← remove-weaken-subst n t
-    inf ← inferable t
+    _ , t ← remove-weaken-subst n t
+    inf   ← inferable t
     infer′ n Γ inf
 
   private
@@ -545,33 +873,60 @@ mutual
     infer′ _ Γ (defn α) = do
       A ← type-of (Γ .defs) α
       return (weaken U.wk₀ A)
-    infer′ _ _ (U l) =
-      return (U (suc l))
-    infer′ _ _ (Unit s l) = do
+    infer′ _ _ Level = do
+      require level-is-small
+      return (U zeroᵘ)
+    infer′ _ _ zeroᵘ = do
+      require level-allowed
+      return Level
+    infer′ n Γ (sucᵘ l) = do
+      require level-allowed
+      check n Γ l Level
+      return Level
+    infer′ n Γ (l₁ supᵘₗ l₂) = do
+      require level-allowed
+      check n Γ l₁ Level
+      check n Γ l₂ Level
+      return Level
+    infer′ n Γ (U l) = do
+      l ← check-level n Γ l
+      return (U (sucᵘ l))
+    infer′ n Γ (Lift l A) = do
+      l₁ ← check-level n Γ l
+      l₂ ← infer-U n Γ A
+      return (U (l₁ supᵘₗ l₂))
+    infer′ n Γ (lift l t) = do
+      l ← check-level n Γ l
+      A ← infer n Γ t
+      return (Lift l A)
+    infer′ n Γ (lower t) = do
+      A         ← infer-red n Γ t
+      _ , B , _ ← is-Lift A
+      return B
+    infer′ _ _ (Unit s) = do
       require (unit-allowed s)
-      return (U l)
-    infer′ _ _ (star s l) = do
+      return (U zeroᵘ)
+    infer′ _ _ (star s) = do
       require (unit-allowed s)
-      return (Unit s l)
-    infer′ n Γ (unitrec l A t₁ t₂) = do
-      A  ← check-type n (Γ »∙ Unit 𝕨 l) A
-      t₁ ← check n Γ t₁ (Unit 𝕨 l)
-      check n Γ t₂ (subst A (sgSubst (star 𝕨 l)))
+      return (Unit s)
+    infer′ n Γ (unitrec A t₁ t₂) = do
+      A  ← check-type n (Γ »∙ Unit 𝕨) A
+      t₁ ← check n Γ t₁ (Unit 𝕨)
+      check n Γ t₂ (subst A (sgSubst (star 𝕨)))
       require (unit-allowed 𝕨)
       return (subst A (sgSubst t₁))
     infer′ _ _ Empty =
-      return (U zero)
+      return (U zeroᵘ)
     infer′ n Γ (emptyrec A t) = do
       A ← check-type n Γ A
       check n Γ t Empty
       return A
     infer′ n Γ (ΠΣ b p q A₁ A₂) = do
-      B₁     ← infer-red n Γ A₁
-      l₁ , _ ← is-U B₁
-      B₂     ← infer-red n (Γ »∙ A₁) A₂
-      l₂ , _ ← is-U B₂
+      B₁    ← infer-red n Γ A₁
+      l , _ ← is-U B₁
+      check n (Γ »∙ A₁) A₂ (U (wk[ 1 ] l))
       require (πσ-allowed b p q)
-      return (U (l₁ ⊔ᵘ l₂))
+      return (U l)
     infer′ n Γ (lam p q A₁ t) = do
       A₁ ← check-type n Γ A₁
       A₂ ← infer n (Γ »∙ A₁) t
@@ -607,7 +962,7 @@ mutual
               (var x1) (var x0)))
       return (subst A (sgSubst t₁))
     infer′ _ _ ℕ =
-      return (U zero)
+      return (U zeroᵘ)
     infer′ _ _ zero =
       return ℕ
     infer′ n Γ (suc t) = do
@@ -647,18 +1002,19 @@ mutual
       t₃ ← check n Γ t₃ (Id A₁ t₁ t₁)
       require k-allowed
       return (subst A₂ (sgSubst t₃))
-    infer′ n Γ ([]-cong s A t₁ t₂ t₃) = do
+    infer′ n Γ ([]-cong s l A t₁ t₂ t₃) = do
+      l  ← check-level n Γ l
       A  ← check-type n Γ A
       t₁ ← check n Γ t₁ A
       t₂ ← check n Γ t₂ A
       check n Γ t₃ (Id A t₁ t₂)
       require (box-cong-allowed s)
-      return (Id (Erased s A) (box s t₁) (box s t₂))
+      return (Id (Erased s l A) (box s l t₁) (box s l t₂))
 
   -- A variant of infer that checks that the inferred type is U l for
   -- some universe level l. The level is returned.
 
-  infer-U : Fuel → Cons c m n → Term c n → Check c (Termˡ (c .ls))
+  infer-U : Fuel → Cons c m n → Term c n → Check c (Term c n)
   infer-U n Γ A = do
     B     ← infer-red n Γ A
     l , _ ← is-U B
@@ -730,15 +1086,22 @@ mutual
   equal-tm-red n Γ t₁ t₂ A with is-type-constructorˡ? A
   … | just (meta-var _ _) =
     equal-ne-red n Γ t₁ t₂ A
+  … | just Level =
+    case equal-level-cons? t₁ t₂ of λ where
+      (just zeroᵘ)        → return tt
+      (just (sucᵘ l₁ l₂)) → equal-tm n Γ l₁ l₂ Level
+      nothing             → equal-ne-red n Γ t₁ t₂ A
   … | just (U l) =
     equal-ty-red-U n Γ t₁ t₂ l
+  … | just (Lift _ A) =
+    equal-tm n Γ (lower t₁) (lower t₂) A
   … | just Empty =
     equal-ne-red n Γ t₁ t₂ A
-  … | just (Unit s l) =
+  … | just (Unit s) =
     case s ≟ˢ 𝕤 of λ where
       (just _) → return tt
       nothing  →
-        case are-star? s l t₁ t₂ of λ where
+        case are-star? s t₁ t₂ of λ where
           (just _) → return tt
           nothing  →
             equal-ne-red n Γ t₁ t₂ A
@@ -866,14 +1229,22 @@ mutual
     equal-ne-inf′ (defn α _) = do
       A ← type-of (Γ .defs) α
       return (weaken U.wk₀ A)
+    equal-ne-inf′ (sup l₁₁ l₂₁ l₁₂ l₂₂ _) = do
+      check-and-equal-level n Γ (l₁₁ supᵘₗ l₂₁) (l₁₂ supᵘₗ l₂₂)
+      require level-allowed
+      return Level
+    equal-ne-inf′ (lower t₁ t₂ _) = do
+      A          ← equal-ne-inf-red n Γ t₁ t₂
+      _ , B ,  _ ← is-Lift A
+      return B
     equal-ne-inf′ (emptyrec A₁ t₁ A₂ t₂ _) = do
       A ← check-and-equal-ty n Γ A₁ A₂
       equal-ne-red n Γ t₁ t₂ Empty
       return A
-    equal-ne-inf′ (unitrec l₁ A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _ _) = do
-      A ← check-and-equal-ty n (Γ »∙ Unit 𝕨 l₁) A₁ A₂
-      equal-ne-red n Γ t₁₁ t₂₁ (Unit 𝕨 l₁)
-      check-and-equal-tm n Γ t₁₂ t₂₂ (subst A (sgSubst (star 𝕨 l₁)))
+    equal-ne-inf′ (unitrec A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _) = do
+      A ← check-and-equal-ty n (Γ »∙ Unit 𝕨) A₁ A₂
+      equal-ne-red n Γ t₁₁ t₂₁ (Unit 𝕨)
+      check-and-equal-tm n Γ t₁₂ t₂₂ (subst A (sgSubst (star 𝕨)))
       require (unit-allowed 𝕨)
       return (subst A (sgSubst t₁₁))
     equal-ne-inf′ (app p t₁₁ t₁₂ t₂₁ t₂₂ _) = do
@@ -927,13 +1298,14 @@ mutual
       equal-ne-red n Γ t₁₃ t₂₃ (Id A₁ t₁ t₁)
       require k-allowed
       return (subst A₂ (sgSubst t₁₃))
-    equal-ne-inf′ ([]-cong s A₁ t₁₁ t₁₂ t₁₃ A₂ t₂₁ t₂₂ t₂₃ _) = do
+    equal-ne-inf′ ([]-cong s l₁ A₁ t₁₁ t₁₂ t₁₃ l₂ A₂ t₂₁ t₂₂ t₂₃ _) = do
+      l  ← check-and-equal-level n Γ l₁ l₂
       A  ← check-and-equal-ty n Γ A₁ A₂
       t₁ ← check-and-equal-tm n Γ t₁₁ t₂₁ A
       t₂ ← check-and-equal-tm n Γ t₁₂ t₂₂ A
       equal-ne-red n Γ t₁₃ t₂₃ (Id A t₁ t₂)
       require (box-cong-allowed s)
-      return (Id (Erased s A) (box s t₁) (box s t₂))
+      return (Id (Erased s l A) (box s l t₁) (box s l t₂))
 
   -- Are the two types equal?
 
@@ -956,11 +1328,16 @@ mutual
     PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
     are-equal-meta-vars x₁ x₂
     return tt
-  … | just (U _ _) =
+  … | just (Level _) =
     return tt
+  … | just (U l₁ l₂ _) =
+    equal-level n Γ l₁ l₂
+  … | just (Lift l₁ A₁ l₂ A₂ _) = do
+    equal-level n Γ l₁ l₂
+    equal-ty n Γ A₁ A₂
   … | just (Empty _) =
     return tt
-  … | just (Unit _ _) =
+  … | just (Unit _) =
     return tt
   … | just (ΠΣ A₁₁ A₁₂ A₂₁ A₂₂ _) = do
     equal-ty n Γ A₁₁ A₂₁
@@ -984,31 +1361,32 @@ mutual
   -- but that assumption is not made here.
 
   equal-ty-red-U :
-    Fuel → (Γ : Cons c m n) (A₁ A₂ : Term c n) → Termˡ (c .ls) →
-    Check c ⊤
+    Fuel → (Γ : Cons c m n) (A₁ A₂ l : Term c n) → Check c ⊤
   equal-ty-red-U {c} n Γ A₁ A₂ l with are-equal-type-constructors? A₁ A₂
   … | just (meta-var x₁ σ₁ x₂ σ₂ _) = do
-    Δ₁     ← context-of x₁
-    Δ₂ , A ← is-term x₂
-    A      ← red-ty n (Γ .defs » Δ₂) A
-    is-U[ l ] A
+    Δ₁      ← context-of x₁
+    Δ₂ , A  ← is-term x₂
     PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
     are-equal-meta-vars x₁ x₂
+    equal-ty n Γ (subst A σ₁) (U l)
+  … | just (Level _) =
     return tt
-  … | just (U _ _) =
-    return tt
+  … | just (U l₁ l₂ _) =
+    equal-level n Γ l₁ l₂
+  … | just (Lift l₁ A₁ l₂ A₂ _) = do
+    equal-level n Γ l₁ l₂
+    l₃ ← infer-U n Γ A₁
+    A₂ ← check n Γ A₂ (U l₃)
+    equal-tm n Γ A₁ A₂ (U l₃)
+    equal-level n Γ (l₃ supᵘₗ l₁) l
   … | just (Empty _) =
     return tt
-  … | just (Unit _ _) =
+  … | just (Unit _) =
     return tt
   … | just (ΠΣ A₁₁ A₁₂ A₂₁ A₂₂ _) = do
-    l₁ ← infer-U n Γ A₁₁
-    l₂ ← infer-U n (Γ »∙ A₁₁) A₁₂
-    [ _≟ˡ_ {c = c} (l₁ ⊔ᵘ l₂) l ]with-message "Expected equal levels."
-    A₂₁ ← check n Γ A₂₁ (U l₁)
-    A₂₂ ← check n (Γ »∙ A₁₁) A₂₂ (U l₂)
-    equal-tm n Γ A₁₁ A₂₁ (U l₁)
-    equal-tm n (Γ »∙ A₁₁) A₁₂ A₂₂ (U l₂)
+    A₁ ← check-and-equal-tm n Γ A₁₁ A₂₁ (U l)
+    check-and-equal-tm n (Γ »∙ A₁) A₁₂ A₂₂ (U (wk[ 1 ] l))
+    return tt
   … | just (ℕ _) =
     return tt
   … | just (Id A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _) = do
@@ -1017,8 +1395,77 @@ mutual
     equal-tm n Γ t₁₂ t₂₂ A₁
   … | nothing = do
     B ← equal-ne-inf-red n Γ A₁ A₂
-    is-U[ l ] B
+    equal-ty n Γ B (U l)
     return tt
+
+  -- Are the two levels equal?
+
+  equal-level : Fuel → (Γ : Cons c m n) (l₁ l₂ : Term c n) → Check c ⊤
+  equal-level n Γ l₁ l₂ = do
+    nf₁ , n₁ ← normalise-level false n Γ l₁
+    nf₂ , n₂ ← normalise-level false n Γ l₂
+    [ M.dec⇒maybe (n₁ N.≟ n₂) ]with-message
+      "Expected equal natural numbers."
+    below n Γ nf₁ nf₂
+    below n Γ nf₂ nf₁
+
+  -- "Normalises" level expressions.
+  --
+  -- If the boolean is true, then the level is reduced.
+
+  normalise-level :
+    Bool → Fuel → Cons c m n → Term c n → Check c (Termˡⁿ c n)
+  normalise-level _ 0 _ _ =
+    fail "No fuel left."
+  normalise-level reduced (1+ n) Γ l =
+    register ([normalise-level] Γ l) do
+      _ , l ← remove-weaken-subst n l
+      case is-perhaps-level? l of λ where
+        (just (meta-var x σ)) →
+          return ⌞ meta-var x σ ⌟ˡⁿ
+        (just zeroᵘ) →
+          return zeroᵘˡⁿ
+        (just (sucᵘ l)) →
+          sucᵘˡⁿ <$> normalise-level false n Γ l
+        (just (l₁ supᵘₗ l₂)) →
+          supᵘₗˡⁿ <$> normalise-level false n Γ l₁ ⊛
+            normalise-level false n Γ l₂
+        nothing → case reduced of λ where
+          true →
+            return ⌞ l ⌟ˡⁿ
+          false → do
+            require level-allowed
+            l ← red-tm n Γ l Level
+            normalise-level true n Γ l
+
+  -- Compares (parts of) "normal" forms.
+
+  below : Fuel → Cons c m n → Termˡⁿ′ c n → Termˡⁿ′ c n → Check c ⊤
+  below n Γ ns₁ ns₂ = all (λ l₁ → any (below′ n Γ l₁) ns₂) ns₁
+
+  private
+
+    -- A helper function.
+
+    below′ :
+      Fuel → Cons c m n → Nat × Term c n → Nat × Term c n → Check c ⊤
+    below′ n Γ (n₁ , l₁) (n₂ , l₂) = do
+      [ M.dec⇒maybe (n₁ N.≤? n₂) ]with-message
+        "The number is too large."
+      case are-meta-variables? l₁ l₂ of λ where
+        -- The first case is included because Level might not be
+        -- allowed.
+        (just (_ , x₁ , σ₁ , _ , x₂ , σ₂ , _)) → do
+          Δ₁     ← context-of x₁
+          Δ₂ , _ ← is-level n Γ x₂ σ₂
+          -- Note that if the previous line succeeds, then σ₂ is
+          -- well-formed. The computation on the following line does
+          -- not (at the time of writing) make use of this fact.
+          PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
+          are-equal-meta-vars x₁ x₂
+        nothing → do
+          require level-allowed
+          equal-tm n Γ l₁ l₂ Level
 
   -- An equality checker for substitutions. This variant, unlike
   -- equal-sub below, is supposed to work for (at least some)
@@ -1097,6 +1544,20 @@ mutual
     A₂ ← check-type n Γ A₂
     equal-ty n Γ A₁ A₂
     return A₁
+
+  -- A procedure that checks two universe levels and then checks that
+  -- they are equal.
+  --
+  -- The returned level is a possibly more annotated version of the
+  -- input.
+
+  check-and-equal-level :
+    Fuel → Cons c m n → Term c n → Term c n → Check c (Term c n)
+  check-and-equal-level n Γ l₁ l₂ = do
+    l₁ ← check-level n Γ l₁
+    l₂ ← check-level n Γ l₂
+    equal-level n Γ l₁ l₂
+    return l₁
 
   -- A procedure that checks two terms of type A and then checks that
   -- the terms are equal at type A. The type is assumed to be
@@ -1250,10 +1711,10 @@ opaque
     OK (red-tm n Γ t A) u γ st ×
     ¬ Whnf (⌜ Γ ⌝ᶜ γ .defs) (⌜ u ⌝ γ)
   successful-reduction-without-WHNF okᵉ =
-    let ⊢Γ = ∙ Emptyⱼ εε in
-    emptyrecⱼ (ℕⱼ ⊢Γ)
+    let ⊢Γ = ∙ ⊢Empty εε in
+    emptyrecⱼ (⊢ℕ ⊢Γ)
       (_⊢_∷_.conv (zeroⱼ ⊢Γ) $
-       univ (⊢∷Empty→⊢≡∷ okᵉ (var₀ (Emptyⱼ εε)) (ℕⱼ ⊢Γ) (Emptyⱼ ⊢Γ))) ,
+       univ (⊢∷Empty→⊢≡∷ okᵉ (var₀ (⊢Empty εε)) (ℕⱼ ⊢Γ) (Emptyⱼ ⊢Γ))) ,
     ok PE.refl ,
     (λ { (ne (emptyrecₙ ())) })
 
@@ -1272,11 +1733,9 @@ opaque
     Unitʷ-allowed →
     Unitʷ-η →
     let n = 4 N.+ n
-        Γ = emptyᶜ »∙ Unit 𝕨 zero
-        t = unitrec zero ω ω ℕ
-              (unitrec zero ω ω (Unit 𝕨 zero) (star 𝕨 zero) (var x0))
-              zero
-        u = unitrec zero ω ω ℕ (var x0) zero
+        Γ = emptyᶜ »∙ Unit 𝕨
+        t = unitrec ω ω ℕ (unitrec ω ω (Unit 𝕨) (star 𝕨) (var x0)) zero
+        u = unitrec ω ω ℕ (var x0) zero
         A = ℕ
     in
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ ×
@@ -1284,12 +1743,12 @@ opaque
     ¬ Whnf (⌜ Γ ⌝ᶜ γ .defs) (⌜ u ⌝ γ) ×
     ¬ ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ⇒* ⌜ u ⌝ γ ∷ ⌜ A ⌝ γ
   successful-reduction-without-reduction-sequence okᵘ η =
-    let ⊢Unit  = Unitⱼ εε okᵘ
-        ⊢Unit′ = Unitⱼ (∙ ⊢Unit) okᵘ
-        ⊢ℕ     = ℕⱼ (∙ ⊢Unit′)
-        ⊢ur    = unitrecⱼ′ (Unitⱼ (∙ ⊢Unit′) okᵘ) (starⱼ (∙ ⊢Unit) okᵘ)
-                   (var₀ ⊢Unit)
-        ⊢0     = zeroⱼ (∙ ⊢Unit)
+    let ⊢Unit′ = ⊢Unit εε okᵘ
+        ⊢Unit″ = ⊢Unit (∙ ⊢Unit′) okᵘ
+        ⊢ℕ     = ⊢ℕ (∙ ⊢Unit″)
+        ⊢ur    = unitrecⱼ′ (⊢Unit (∙ ⊢Unit″) okᵘ) (starⱼ (∙ ⊢Unit′) okᵘ)
+                   (var₀ ⊢Unit′)
+        ⊢0     = zeroⱼ (∙ ⊢Unit′)
     in
     unitrecⱼ′ ⊢ℕ ⊢ur ⊢0 ,
     ok PE.refl ,
@@ -1328,36 +1787,106 @@ opaque
 
   remove-weaken-subst-sound-⊢ :
     ∀ {Γ : U.Cons m n} n →
-    OK (remove-weaken-subst n A) B γ st →
+    OK (remove-weaken-subst n A) (b , B) γ st →
     Γ ⊢ ⌜ A ⌝ γ ⊎ Γ ⊢ ⌜ B ⌝ γ →
     Γ ⊢ ⌜ A ⌝ γ ≡ ⌜ B ⌝ γ
   remove-weaken-subst-sound-⊢     0      not-ok
   remove-weaken-subst-sound-⊢ {A} (1+ _) _      _
     with is-weaken-subst? A
-  remove-weaken-subst-sound-⊢ (1+ n) eq (inj₁ ⊢A)
-    | just (weaken _ A) =
+  remove-weaken-subst-sound-⊢ (1+ n) eq ⊢A
+    | just (weaken _ A)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
     PE.subst (flip (_⊢_≡_ _) _) (⌜wk⌝ A) $
     remove-weaken-subst-sound-⊢ n eq $
-    inj₁ (PE.subst (_⊢_ _) (PE.sym (⌜wk⌝ A)) ⊢A)
-  remove-weaken-subst-sound-⊢ (1+ n) eq (inj₂ ⊢B)
-    | just (weaken _ A) =
-    PE.subst (flip (_⊢_≡_ _) _) (⌜wk⌝ A) $
-    remove-weaken-subst-sound-⊢ n eq (inj₂ ⊢B)
+    ⊎.map (PE.subst (_⊢_ _) (PE.sym (⌜wk⌝ A))) idᶠ ⊢A
   remove-weaken-subst-sound-⊢ (1+ n) eq (inj₁ ⊢A)
-    | just (subst A _) =
-    PE.subst (flip (_⊢_≡_ _) _) (⌜[]⌝ A) $
+    | just (subst A _)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
+    let A[]≡ = ⌜[]⌝ A (type₂ ⊢A) in
+    PE.subst (flip (_⊢_≡_ _) _) A[]≡ $
     remove-weaken-subst-sound-⊢ n eq $
-    inj₁ (PE.subst (_⊢_ _) (PE.sym (⌜[]⌝ A)) ⊢A)
+    inj₁ (PE.subst (_⊢_ _) (PE.sym A[]≡) ⊢A)
   remove-weaken-subst-sound-⊢ (1+ n) eq (inj₂ ⊢B)
-    | just (subst A _) =
-    PE.subst (flip (_⊢_≡_ _) _) (⌜[]⌝ A) $
-    remove-weaken-subst-sound-⊢ n eq (inj₂ ⊢B)
-  remove-weaken-subst-sound-⊢ (1+ _) ok! (inj₁ ⊢A)
+    | just (subst A _)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
+    let A[σ]≡B    = remove-weaken-subst-sound-⊢ n eq (inj₂ ⊢B)
+        ⊢A[σ] , _ = wf-⊢≡ A[σ]≡B
+    in
+    PE.subst (flip (_⊢_≡_ _) _) (⌜[]⌝ A (type₁ ⊢A[σ])) A[σ]≡B
+  remove-weaken-subst-sound-⊢ (1+ _) ok! ⊢A
     | nothing =
-    refl ⊢A
-  remove-weaken-subst-sound-⊢ (1+ _) ok! (inj₂ ⊢B)
+    refl $
+    case ⊢A of λ where
+      (inj₁ ⊢A) → ⊢A
+      (inj₂ ⊢A) → ⊢A
+
+opaque
+
+  -- Soundness for remove-weaken-subst for levels.
+
+  remove-weaken-subst-sound-⊢∷L :
+    ∀ {Γ : U.Cons m n} n →
+    OK (remove-weaken-subst n l) (b , l′) γ st →
+    Γ ⊢ ⌜ l ⌝ γ ∷Level ⊎
+    Γ ⊢ ⌜ l′ ⌝ γ ∷Level × (Not-supᵘₗ l′ ⊎ ¬ T b ⊎ Level-allowed) →
+    Γ ⊢ ⌜ l ⌝ γ ≡ ⌜ l′ ⌝ γ ∷Level ×
+    (Not-supᵘₗ l′ → Not-supᵘₗ l)
+  remove-weaken-subst-sound-⊢∷L     0      not-ok
+  remove-weaken-subst-sound-⊢∷L {l} (1+ _) _      _
+    with is-weaken-subst? l
+  remove-weaken-subst-sound-⊢∷L (1+ n) eq ⊢l
+    | just (weaken _ l)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
+    Σ.map (PE.subst (flip (_⊢_≡_∷Level _) _) (⌜wk⌝ l))
+      (λ { _ _ (_ , _ , ()) }) $
+    remove-weaken-subst-sound-⊢∷L n eq $
+    ⊎.map (PE.subst (_⊢_∷Level _) (PE.sym (⌜wk⌝ l)))
+      (Σ.map idᶠ $ ⊎.map idᶠ $ ⊎.map idᶠ idᶠ) ⊢l
+  remove-weaken-subst-sound-⊢∷L (1+ n) eq (inj₁ ⊢l)
+    | just (subst l _)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
+    let l[]≡ = ⌜[]⌝ l (level ⊢l) in
+    Σ.map (PE.subst (flip (_⊢_≡_∷Level _) _) l[]≡)
+      (λ { _ _ (_ , _ , ()) }) $
+    remove-weaken-subst-sound-⊢∷L n eq $
+    inj₁ (PE.subst (_⊢_∷Level _) (PE.sym l[]≡) ⊢l)
+  remove-weaken-subst-sound-⊢∷L (1+ n) eq (inj₂ (⊢l′ , inj₁ not-sup))
+    | just (subst l _)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
+    let l[σ]≡ , not→not =
+          remove-weaken-subst-sound-⊢∷L n eq (inj₂ (⊢l′ , inj₁ not-sup))
+    in
+    PE.subst (flip (_⊢_≡_∷Level _) _)
+      (⌜[]⌝ l (not-supᵘₗ (Not-supᵘₗ-[]→ (not→not not-sup))))
+      l[σ]≡ ,
+    (λ { _ (_ , _ , ()) })
+  remove-weaken-subst-sound-⊢∷L (1+ n) eq (inj₂ (⊢l′ , inj₂ extra))
+    | just (subst l _)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
+    let l[]≡ =
+          ⌜[]⌝ l $
+          case extra of λ where
+            (inj₁ not) → ⊥-elim (not _)
+            (inj₂ okᴸ) → level-allowed okᴸ
+    in
+    Σ.map (PE.subst (flip (_⊢_≡_∷Level _) _) l[]≡)
+      (λ { _ _ (_ , _ , ()) }) $
+    remove-weaken-subst-sound-⊢∷L n eq $ inj₂ $ ⊢l′ ,_ $ inj₂ $
+    ⊎.map (λ ¬⊤ _ → ¬⊤ _) idᶠ extra
+  remove-weaken-subst-sound-⊢∷L (1+ _) ok! ⊢l
     | nothing =
-    refl ⊢B
+    refl-⊢≡∷L
+      (case ⊢l of λ where
+         (inj₁ ⊢l)       → ⊢l
+         (inj₂ (⊢l , _)) → ⊢l) ,
+    idᶠ
 
 opaque
 
@@ -1365,44 +1894,53 @@ opaque
 
   remove-weaken-subst-sound-⊢∷ :
     ∀ {Γ : U.Cons m n} {A} n →
-    OK (remove-weaken-subst n t) u γ st →
+    OK (remove-weaken-subst n t) (b , u) γ st →
     Γ ⊢ ⌜ t ⌝ γ ∷ A ⊎ Γ ⊢ ⌜ u ⌝ γ ∷ A →
     Γ ⊢ ⌜ t ⌝ γ ≡ ⌜ u ⌝ γ ∷ A
   remove-weaken-subst-sound-⊢∷     0      not-ok
   remove-weaken-subst-sound-⊢∷ {t} (1+ _) _      _
     with is-weaken-subst? t
-  remove-weaken-subst-sound-⊢∷ (1+ n) eq (inj₁ ⊢t)
-    | just (weaken _ t) =
+  remove-weaken-subst-sound-⊢∷ (1+ n) eq ⊢t
+    | just (weaken _ t)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
     PE.subst₃ (_⊢_≡_∷_ _) (⌜wk⌝ t) PE.refl PE.refl $
     remove-weaken-subst-sound-⊢∷ n eq $
-    inj₁ (PE.subst (flip (_⊢_∷_ _) _) (PE.sym (⌜wk⌝ t)) ⊢t)
-  remove-weaken-subst-sound-⊢∷ (1+ n) eq (inj₂ ⊢u)
-    | just (weaken _ t) =
-    PE.subst₃ (_⊢_≡_∷_ _) (⌜wk⌝ t) PE.refl PE.refl $
-    remove-weaken-subst-sound-⊢∷ n eq (inj₂ ⊢u)
+    ⊎.map (PE.subst (flip (_⊢_∷_ _) _) (PE.sym (⌜wk⌝ t))) idᶠ ⊢t
   remove-weaken-subst-sound-⊢∷ (1+ n) eq (inj₁ ⊢t)
-    | just (subst t _) =
-    PE.subst₃ (_⊢_≡_∷_ _) (⌜[]⌝ t) PE.refl PE.refl $
+    | just (subst t _)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
+    let t[]≡ = ⌜[]⌝ t (term₂ ⊢t) in
+    PE.subst₃ (_⊢_≡_∷_ _) t[]≡ PE.refl PE.refl $
     remove-weaken-subst-sound-⊢∷ n eq $
-    inj₁ (PE.subst (flip (_⊢_∷_ _) _) (PE.sym (⌜[]⌝ t)) ⊢t)
+    inj₁ (PE.subst (flip (_⊢_∷_ _) _) (PE.sym t[]≡) ⊢t)
   remove-weaken-subst-sound-⊢∷ (1+ n) eq (inj₂ ⊢u)
-    | just (subst t _) =
-    PE.subst₃ (_⊢_≡_∷_ _) (⌜[]⌝ t) PE.refl PE.refl $
-    remove-weaken-subst-sound-⊢∷ n eq (inj₂ ⊢u)
-  remove-weaken-subst-sound-⊢∷ (1+ _) ok! (inj₁ ⊢t)
+    | just (subst t _)
+    with inv-<$> eq
+  … | inv _ eq PE.refl =
+    let t[σ]≡u        = remove-weaken-subst-sound-⊢∷ n eq (inj₂ ⊢u)
+        _ , ⊢t[σ] , _ = wf-⊢≡∷ t[σ]≡u
+    in
+    PE.subst₃ (_⊢_≡_∷_ _) (⌜[]⌝ t (term₁ ⊢t[σ]))
+      PE.refl PE.refl t[σ]≡u
+  remove-weaken-subst-sound-⊢∷ (1+ _) ok! ⊢t
     | nothing =
-    refl ⊢t
-  remove-weaken-subst-sound-⊢∷ (1+ _) ok! (inj₂ ⊢u)
-    | nothing =
-    refl ⊢u
+    refl $
+    case ⊢t of λ where
+      (inj₁ ⊢t) → ⊢t
+      (inj₂ ⊢t) → ⊢t
 
 -- A type used to state is-term-sound and
 -- are-equal-meta-vars-sound-tm.
 
 data Is-term (x : Meta-var c n) (A : Term c n) (γ : Contexts c)
        (Γ : Cons c m n) : Set a where
-  term : ∀ {t} → γ .metas .bindings x PE.≡ (Γ .vars , term t A) →
-         Is-term x A γ Γ
+  term  : ∀ {t} → γ .metas .bindings x PE.≡ (Γ .vars , term t A) →
+          Is-term x A γ Γ
+  level : ∀ {l} → γ .metas .bindings x PE.≡ (Γ .vars , level l) →
+          A PE.≡ Level → Level-allowed →
+          Is-term x A γ Γ
 
 opaque
 
@@ -1420,6 +1958,11 @@ opaque
     with γ .metas .bindings x in γx≡ | ⊢γ .metas-wf .bindings-wf x | eq
   … | _ , type _   | _  | not-ok
   … | _ , term _ _ | ⊢t | ok!    = term γx≡ , ⊢t
+  … | _ , level _  | ⊢l | eq     =
+    case inv->>= eq of λ {
+      (inv _ eq₁ ok!) →
+    let L.lift okᴸ = inv-require ⊢γ eq₁ in
+    level γx≡ PE.refl okᴸ , ⊢∷Level→⊢∷Level okᴸ ⊢l }
 
 opaque
 
@@ -1444,18 +1987,148 @@ opaque
        | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
   are-equal-meta-vars-sound-tm _ _ (term ()) _
     | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-tm _ _ (term ()) _
+    | _ | _ | _ | _ | _ , level _
   are-equal-meta-vars-sound-tm _ _ (term PE.refl) _
     | _ | _ | _ | _ | Δ₁≡Δ₂ , term A₁≡A t₁≡t₂ =
     stabilityEqTerm Δ₁≡Δ₂ (conv t₁≡t₂ A₁≡A)
+  are-equal-meta-vars-sound-tm {x₁} {x₂} {γ} _ ⊢γ (level _ _ _) _
+    | _ | inv (inj₂ (inj₁ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-tm _ _ (level () _ _) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-tm _ _ (level () _ _) _
+    | _ | _ | _ | _ | _ , term _ _
+  are-equal-meta-vars-sound-tm _ _ (level PE.refl PE.refl okᴸ) _
+    | _ | _ | _ | _ | Δ₁≡Δ₂ , level l₁≡l₂ =
+    stabilityEqTerm Δ₁≡Δ₂ (⊢≡∷Level→⊢≡∷Level okᴸ l₁≡l₂)
   are-equal-meta-vars-sound-tm {x₁} {x₂} {γ} _ ⊢γ (term _) _
     | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
     with γ .metas .bindings x₁ | γ .metas .bindings x₂
        | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
   are-equal-meta-vars-sound-tm _ _ (term ()) _
     | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-tm _ _ (term ()) _
+    | _ | _ | _ | _ | _ , level _
   are-equal-meta-vars-sound-tm _ _ (term PE.refl) _
     | _ | _ | _ | _ | _ , term _ t₁≡t₂ =
     sym′ t₁≡t₂
+  are-equal-meta-vars-sound-tm {x₁} {x₂} {γ} _ ⊢γ (level _ _ _) _
+    | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-tm _ _ (level () _ _) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-tm _ _ (level () _ _) _
+    | _ | _ | _ | _ | _ , term _ _
+  are-equal-meta-vars-sound-tm _ _ (level PE.refl PE.refl okᴸ) _
+    | _ | _ | _ | _ | _ , level l₁≡l₂ =
+    sym′ (⊢≡∷Level→⊢≡∷Level okᴸ l₁≡l₂)
+
+-- A type used to state are-equal-meta-vars-sound-level and
+-- is-level-sound.
+
+data Is-level
+       (x : Meta-var c n₁) (σ : Subst c n₂ n₁) (γ : Contexts c)
+       (Γ : Cons c m n₂) (Δ : Con c n₁) : Set a where
+  level : ∀ {l} → γ .metas .bindings x PE.≡ (Δ , level l) →
+          Is-level x σ γ Γ Δ
+  term  : ∀ {t A} → γ .metas .bindings x PE.≡ (Δ , term t A) →
+          ⌜ Γ .defs » Δ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
+          ⌜ Γ ⌝ᶜ γ ⊢ ⌜ subst A σ ⌝ γ ≡ U.Level →
+          Is-level x σ γ Γ Δ
+
+opaque
+
+  -- Soundness for are-equal-meta-vars for levels.
+
+  are-equal-meta-vars-sound-level :
+    ∀ σ₁ →
+    OK (are-equal-meta-vars x₁ x₂) tt γ st →
+    Contexts-wf (Γ .defs) γ →
+    Is-level x₂ σ₂ γ Γ Δ →
+    ⌜ Γ ⌝ᶜ γ ⊢ˢʷ ⌜ σ₁ ⌝ˢ γ ≡ ⌜ σ₂ ⌝ˢ γ ∷ ⌜ Δ ⌝ᶜᵛ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ meta-var x₁ σ₁ ⌝ γ ≡ ⌜ meta-var x₂ σ₂ ⌝ γ ∷Level
+  are-equal-meta-vars-sound-level {x₁} {x₂} {γ} {σ₂} σ₁ eq _ _ _
+    rewrite ⌜meta-var⌝ {γ = γ} {x = x₁} σ₁
+          | ⌜meta-var⌝ {γ = γ} {x = x₂} σ₂
+    with inv->>= eq
+  … | inv _ ok! eq
+    with inv->>= eq
+  are-equal-meta-vars-sound-level {x₂} {γ} _ _ ⊢γ (level _) _
+    | _ | inv (inj₁ PE.refl) _ _
+    with γ .metas .bindings x₂ | ⊢γ .metas-wf .bindings-wf x₂
+  are-equal-meta-vars-sound-level _ _ _ (level ()) _
+    | _ | _ | _ , type _ | _
+  are-equal-meta-vars-sound-level _ _ _ (level ()) _
+    | _ | _ | _ , term _ _ | _
+  are-equal-meta-vars-sound-level _ _ _ (level PE.refl) σ₁≡σ₂
+    | _ | _ | _ , level _ | ⊢l =
+    subst-⊢≡∷L (refl-⊢≡∷L ⊢l) σ₁≡σ₂
+  are-equal-meta-vars-sound-level {x₂} {γ} _ _ ⊢γ (term _ _ _) _
+    | _ | inv (inj₁ PE.refl) _ _
+    with γ .metas .bindings x₂ | ⊢γ .metas-wf .bindings-wf x₂
+  are-equal-meta-vars-sound-level _ _ _ (term () _ _) _
+    | _ | _ | _ , type _ | _
+  are-equal-meta-vars-sound-level _ _ _ (term () _ _) _
+    | _ | _ | _ , level _ | _
+  are-equal-meta-vars-sound-level _ _ _ (term PE.refl ⊢A ≡Level) σ₁≡σ₂
+    | _ | _ | _ , term _ _ | ⊢t =
+    let okᴸ = inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂) in
+    _⊢_≡_∷Level.term okᴸ $
+    conv (subst-⊢≡∷ (refl ⊢t) σ₁≡σ₂)
+      (trans (subst-⊢≡ (refl ⊢A) σ₁≡σ₂) ≡Level)
+  are-equal-meta-vars-sound-level {x₁} {x₂} {γ} _ _ ⊢γ (level _) _
+    | _ | inv (inj₂ (inj₁ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-level _ _ _ (level ()) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-level _ _ _ (level ()) _
+    | _ | _ | _ | _ | _ , term _ _
+  are-equal-meta-vars-sound-level _ _ _ (level PE.refl) σ₁≡σ₂
+    | _ | _ | _ | _ | Η₁≡Η₂ , level l₁≡l₂ =
+    subst-⊢≡∷L (stabilityEqLevel Η₁≡Η₂ l₁≡l₂) σ₁≡σ₂
+  are-equal-meta-vars-sound-level {x₁} {x₂} {γ} _ _ ⊢γ (level _) _
+    | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-level _ _ _ (level ()) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-level _ _ _ (level ()) _
+    | _ | _ | _ | _ | _ , term _ _
+  are-equal-meta-vars-sound-level _ _ _ (level PE.refl) σ₁≡σ₂
+    | _ | _ | _ | _ | _ , level l₁≡l₂ =
+    subst-⊢≡∷L (sym-⊢≡∷L l₁≡l₂) σ₁≡σ₂
+  are-equal-meta-vars-sound-level {x₁} {x₂} {γ} _ _ ⊢γ (term _ _ _) _
+    | _ | inv (inj₂ (inj₁ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-level _ _ _ (term () _ _) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-level _ _ _ (term () _ _) _
+    | _ | _ | _ | _ | _ , level _
+  are-equal-meta-vars-sound-level _ _ _ (term PE.refl ⊢A₂ ≡Level) σ₁≡σ₂
+    | _ | _ | _ | _ | Η₁≡Η₂ , term A₁≡A₂ t₁≡t₂ =
+    let okᴸ = inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂) in
+    _⊢_≡_∷Level.term okᴸ $
+    conv (subst-⊢≡∷ (stabilityEqTerm Η₁≡Η₂ (conv t₁≡t₂ A₁≡A₂)) σ₁≡σ₂)
+      (trans (subst-⊢≡ (refl ⊢A₂) σ₁≡σ₂) ≡Level)
+  are-equal-meta-vars-sound-level {x₁} {x₂} {γ} _ _ ⊢γ (term _ _ _) _
+    | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-level _ _ _ (term () _ _) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-level _ _ _ (term () _ _) _
+    | _ | _ | _ | _ | _ , level _
+  are-equal-meta-vars-sound-level _ _ _ (term PE.refl ⊢A₁ ≡Level) σ₁≡σ₂
+    | _ | _ | _ | _ | _ , term _ t₁≡t₂ =
+    let okᴸ = inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂) in
+    _⊢_≡_∷Level.term okᴸ $
+    conv (subst-⊢≡∷ (sym′ t₁≡t₂) σ₁≡σ₂)
+      (trans (subst-⊢≡ (refl ⊢A₁) σ₁≡σ₂) ≡Level)
 
 -- A type used to state are-equal-meta-vars-sound-ty and
 -- is-type-sound.
@@ -1494,12 +2167,16 @@ opaque
     stabilityEq Δ₁≡Δ₂ A₁≡A₂
   are-equal-meta-vars-sound-ty _ _ (type ()) _
     | _ | _ | _ | _ | _ , term _ _
+  are-equal-meta-vars-sound-ty _ _ (type ()) _
+    | _ | _ | _ | _ | _ , level _
   are-equal-meta-vars-sound-ty {x₁} {x₂} {γ} _ ⊢γ (term _ _) _
     | _ | inv (inj₂ (inj₁ ∈eqs)) _ _
     with γ .metas .bindings x₁ | γ .metas .bindings x₂
        | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
   are-equal-meta-vars-sound-ty _ _ (term () _) _
     | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-ty _ _ (term () _) _
+    | _ | _ | _ | _ | _ , level _
   are-equal-meta-vars-sound-ty _ _ (term PE.refl A₂≡U) _
     | _ | _ | _ | _ | Δ₁≡Δ₂ , term A₁≡A₂ t₁≡t₂ =
     univ (conv (stabilityEqTerm Δ₁≡Δ₂ (conv t₁≡t₂ A₁≡A₂)) A₂≡U)
@@ -1512,17 +2189,23 @@ opaque
     sym A₁≡A₂
   are-equal-meta-vars-sound-ty _ _ (type ()) _
     | _ | _ | _ | _ | _ , term _ _
+  are-equal-meta-vars-sound-ty _ _ (type ()) _
+    | _ | _ | _ | _ | _ , level _
   are-equal-meta-vars-sound-ty {x₁} {x₂} {γ} _ ⊢γ (term _ _) _
     | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
     with γ .metas .bindings x₁ | γ .metas .bindings x₂
        | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
   are-equal-meta-vars-sound-ty _ _ (term () _) _
     | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-ty _ _ (term () _) _
+    | _ | _ | _ | _ | _ , level _
   are-equal-meta-vars-sound-ty _ _ (term PE.refl A₁≡U) _
     | _ | _ | _ | _ | _ , term _ t₁≡t₂ =
     sym (univ (conv t₁≡t₂ A₁≡U))
 
-opaque mutual
+opaque
+ unfolding Erased.Erased Erased.[_]
+ mutual
 
   -- Soundness for red-ty.
 
@@ -1534,7 +2217,7 @@ opaque mutual
   red-ty-sound             0      not-ok
   red-ty-sound {A} {B} {γ} (1+ n) eq     ⊢γ ⊢A
     with inv->>= (inv-register eq)
-  … | inv A′ eq₁ eq
+  … | inv (_ , A′) eq₁ eq
     with is-type-constructor? A′ | eq
   … | just _ | ok! =
     remove-weaken-subst-sound-⊢ n eq₁ (inj₁ ⊢A)
@@ -1587,7 +2270,7 @@ opaque mutual
       ⌜ u ⌝ γ           ∎
     red-tm′-sound {u} {γ} n (subst t σ) eq ⊢γ ⊢t[σ] =
       let open TmR
-          eq′ = PE.sym (⌜[]⌝ t)
+          eq′ = PE.sym (⌜[]⌝ t (term₂ ⊢t[σ]))
       in
       ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]  ≡⟨ eq′ ⟩⊢≡
       ⌜ t [ σ ] ⌝ γ           ≡⟨ red-tm-sound n eq ⊢γ $
@@ -1616,8 +2299,115 @@ opaque mutual
       U.wk U.wk₀ (⌜ t′ ⌝ γ)            ≡˘⟨ ⌜wk⌝ t′ ⟩
       ⌜ wk U.wk₀ t′ ⌝ γ                ≡⟨⟩
       ⌜ u ⌝ γ                          ∎
+    red-tm′-sound _ Level ok! _ ⊢Level =
+      refl ⊢Level
+    red-tm′-sound _ zeroᵘ ok! _ ⊢zeroᵘ =
+      refl ⊢zeroᵘ
+    red-tm′-sound _ (sucᵘ _) ok! _ ⊢sucᵘ =
+      refl ⊢sucᵘ
+    red-tm′-sound {A} {u} {γ} n (l₁ supᵘₗ l₂) eq ⊢γ ⊢sup
+      with inv->>= eq
+    … | inv l₁′ eq₁ eq
+      using ⊢l₁ , ⊢l₂ , A≡Level ← inversion-supᵘₗ-⊢∷ ⊢sup
+          | okᴸ                 ← inversion-Level-⊢ (wf-⊢≡ A≡Level .proj₂)
+          | l₁≡l₁′              ← red-tm-sound n eq₁ ⊢γ ⊢l₁
+          | _ , _ , ⊢l₁′        ← wf-⊢≡∷ l₁≡l₁′
+          | l₁⊔l₂≡              ←
+              ⊢≡∷Level→⊢≡∷Level okᴸ $
+              supᵘₗ-cong (term-⊢≡∷ l₁≡l₁′) (refl-⊢≡∷L (term-⊢∷ ⊢l₂))
+      with level-con? l₁′ | eq
+    … | nothing | ok! =
+      let open TmR in
+                        ∷ ⌜ A ⌝ γ   ⟨ A≡Level ⟩≡∷
+      ⌜ l₁ supᵘₗ l₂ ⌝ γ ∷ U.Level  ≡⟨ l₁⊔l₂≡ ⟩⊢∷∎≡
+      ⌜ l₁′ supᵘₗ l₂ ⌝ γ           ≡⟨⟩
+      ⌜ u ⌝ γ                      ∎
+    … | just zeroᵘ | eq =
+      let open TmR in
+                        ∷ ⌜ A ⌝ γ   ⟨ A≡Level ⟩≡∷
+      ⌜ l₁ supᵘₗ l₂ ⌝ γ ∷ U.Level  ≡⟨ l₁⊔l₂≡ ⟩⊢∷
+      ⌜ zeroᵘ supᵘₗ l₂ ⌝ γ         ≡⟨ ⊢≡∷Level→⊢≡∷Level okᴸ $
+                                      supᵘₗ-zeroˡ (term-⊢∷ ⊢l₂) ⟩⊢
+      ⌜ l₂ ⌝ γ                     ≡⟨ red-tm-sound n eq ⊢γ ⊢l₂ ⟩⊢∎
+      ⌜ u ⌝ γ                      ∎
+    … | just (sucᵘ l₁″) | eq
+      with inv->>= eq
+    … | inv l₂′ eq₂ eq
+      using ⊢l₁″ , _     ← inversion-sucᵘ ⊢l₁′
+          | l₂≡l₂′       ← red-tm-sound n eq₂ ⊢γ ⊢l₂
+          | _ , _ , ⊢l₂′ ← wf-⊢≡∷ l₂≡l₂′
+          | l₁′⊔l₂≡      ←
+              ⊢≡∷Level→⊢≡∷Level okᴸ $
+              supᵘₗ-cong (refl-⊢≡∷L (term-⊢∷ ⊢l₁′)) (term-⊢≡∷ l₂≡l₂′)
+      with level-con? l₂′ | eq
+    … | nothing | ok! =
+      let open TmR in
+                        ∷ ⌜ A ⌝ γ   ⟨ A≡Level ⟩≡∷
+      ⌜ l₁ supᵘₗ l₂ ⌝ γ ∷ U.Level  ≡⟨ l₁⊔l₂≡ ⟩⊢∷
+      ⌜ sucᵘ l₁″ supᵘₗ l₂ ⌝ γ      ≡⟨ l₁′⊔l₂≡ ⟩⊢∎≡
+      ⌜ sucᵘ l₁″ supᵘₗ l₂′ ⌝ γ     ≡⟨⟩
+      ⌜ u ⌝ γ                      ∎
+    … | just zeroᵘ | ok! =
+      let open TmR in
+                        ∷ ⌜ A ⌝ γ   ⟨ A≡Level ⟩≡∷
+      ⌜ l₁ supᵘₗ l₂ ⌝ γ ∷ U.Level  ≡⟨ l₁⊔l₂≡ ⟩⊢∷
+      ⌜ sucᵘ l₁″ supᵘₗ l₂ ⌝ γ      ≡⟨ l₁′⊔l₂≡ ⟩⊢
+      ⌜ sucᵘ l₁″ supᵘₗ zeroᵘ ⌝ γ   ≡⟨ ⊢≡∷Level→⊢≡∷Level okᴸ $
+                                      supᵘₗ-zeroʳ (term-⊢∷ ⊢l₁′) ⟩⊢∎≡
+      ⌜ sucᵘ l₁″ ⌝ γ               ≡⟨⟩
+      ⌜ u ⌝ γ                      ∎
+    … | just (sucᵘ l₂″) | ok! =
+      let ⊢l₂″ , _ = inversion-sucᵘ ⊢l₂′
+
+          open TmR
+      in
+                        ∷ ⌜ A ⌝ γ     ⟨ A≡Level ⟩≡∷
+      ⌜ l₁ supᵘₗ l₂ ⌝ γ ∷ U.Level    ≡⟨ l₁⊔l₂≡ ⟩⊢∷
+      ⌜ sucᵘ l₁″ supᵘₗ l₂ ⌝ γ        ≡⟨ l₁′⊔l₂≡ ⟩⊢
+      ⌜ sucᵘ l₁″ supᵘₗ sucᵘ l₂″ ⌝ γ  ≡⟨ ⊢≡∷Level→⊢≡∷Level okᴸ $
+                                        supᵘₗ-sucᵘ (term-⊢∷ ⊢l₁″) (term-⊢∷ ⊢l₂″) ⟩⊢∎≡
+      ⌜ sucᵘ (l₁″ supᵘₗ l₂″) ⌝ γ     ≡⟨⟩
+      ⌜ u ⌝ γ                        ∎
     red-tm′-sound _ (U _) ok! _ ⊢U =
       refl ⊢U
+    red-tm′-sound _ (Lift _ _) ok! _ ⊢Lift =
+      refl ⊢Lift
+    red-tm′-sound _ (lift _ _) ok! _ ⊢lift =
+      refl ⊢lift
+    red-tm′-sound {A} {u} {γ} n (lower t) eq ⊢γ ⊢lower
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv (_ , C , PE.refl) _ eq
+      using inv _ eq₂ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv t′ eq₃ eq
+      using ⊢A               ← wf-⊢∷ ⊢lower
+          | ⊢Γ               ← wf ⊢A
+          | ⊢t               ← infer-red-sound n eq₁ ⊢γ ⊢Γ
+          | _ , ⊢C           ← inversion-Lift (wf-⊢∷ ⊢t)
+          | A≡C              ← equal-ty-sound′ n eq₂ ⊢γ ⊢A ⊢C
+          | lower-t≡lower-t′ ← lower-cong (red-tm-sound n eq₃ ⊢γ ⊢t)
+      with is-lift? t′ | eq
+    … | just (l , t″ , PE.refl) | eq =
+      let inv t‴ eq₄ eq₅ = inv->>= eq
+          t″≡t‴          = check-sound′ n eq₄ ⊢γ ⊢C
+          _ , ⊢t″ , ⊢t‴  = wf-⊢≡∷ t″≡t‴
+
+          open TmR
+      in
+                    ∷ ⌜ A ⌝ γ   ⟨ A≡C ⟩≡∷
+      ⌜ lower t ⌝ γ ∷ ⌜ C ⌝ γ  ≡⟨ lower-t≡lower-t′ ⟩⊢∷
+      ⌜ lower (lift l t″) ⌝ γ  ≡⟨ Lift-β′ ⊢t″ ⟩⊢
+      ⌜ t″ ⌝ γ                 ≡⟨ t″≡t‴ ⟩⊢
+      ⌜ t‴ ⌝ γ                 ≡⟨ red-tm-sound n eq₅ ⊢γ ⊢t‴ ⟩⊢∎
+      ⌜ u ⌝ γ                  ∎
+    … | nothing | ok! =
+      let open TmR in
+                    ∷ ⌜ A ⌝ γ   ⟨ A≡C ⟩≡∷
+      ⌜ lower t ⌝ γ ∷ ⌜ C ⌝ γ  ≡⟨ lower-t≡lower-t′ ⟩⊢∷∎≡
+      ⌜ lower t′ ⌝ γ           ≡⟨⟩
+      ⌜ u ⌝ γ                  ∎
     red-tm′-sound _ Empty ok! _ ⊢Empty =
       refl ⊢Empty
     red-tm′-sound n (emptyrec _ _ _) eq ⊢γ ⊢er
@@ -1625,40 +2415,39 @@ opaque mutual
     … | inv _ eq ok! =
       let ⊢A , ⊢t , ≡A = inversion-emptyrec ⊢er in
       conv (emptyrec-cong (refl ⊢A) (red-tm-sound n eq ⊢γ ⊢t)) (sym ≡A)
-    red-tm′-sound _ (Unit _ _) ok! _ ⊢Unit =
+    red-tm′-sound _ (Unit _) ok! _ ⊢Unit =
       refl ⊢Unit
-    red-tm′-sound _ (star _ _) ok! _ ⊢star =
+    red-tm′-sound _ (star _) ok! _ ⊢star =
       refl ⊢star
-    red-tm′-sound {A} {u} {γ} n (unitrec l p q B t₁ t₂) eq ⊢γ ⊢ur
+    red-tm′-sound {A} {u} {γ} n (unitrec p q B t₁ t₂) eq ⊢γ ⊢ur
       with inv->>= eq
     … | inv t₁′ eq₁ eq₂
       using ⊢B , ⊢t₁ , ⊢t₂ , A≡ ← inversion-unitrec ⊢ur
           | t₁≡                 ← red-tm-sound n eq₁ ⊢γ ⊢t₁
           | ur≡                 ← unitrec-cong′ (refl ⊢B) t₁≡ (refl ⊢t₂)
-      with is-star? 𝕨 l t₁′ | eq₂
-    … | just (l′ , l≡l′ , ≡star) | eq₂ =
+      with is-star? 𝕨 t₁′ | eq₂
+    … | just ≡star | eq₂ =
       let ≡star =
-            ⌜ t₁′ ⌝ γ        ≡⟨ PE.cong (flip ⌜_⌝ _) ≡star ⟩
-            ⌜ star 𝕨 l′ ⌝ γ  ≡˘⟨ PE.cong (U.star _) (l≡l′ _) ⟩
-            ⌜ star 𝕨 l ⌝ γ   ∎
+            ⌜ t₁′ ⌝ γ     ≡⟨ PE.cong (flip ⌜_⌝ _) ≡star ⟩
+            ⌜ star 𝕨 ⌝ γ  ∎
 
           open TmR
       in
-                                          ∷ ⌜ A ⌝ γ                    ⟨ A≡ ⟩≡∷
-      ⌜ unitrec l p q B t₁         t₂ ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₁ ⌝ γ ]₀   ≡⟨ ur≡ ⟩⊢∷
-      ⌜ unitrec l p q B t₁′        t₂ ⌝ γ                             ≡⟨ PE.cong (flip (U.unitrec _ _ _ _) _) ≡star ⟩⊢≡
-                                                                       ⟨ substTypeEq (refl ⊢B) t₁≡ ⟩≡
-                                          ∷ ⌜ B ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀   ⟨ PE.cong (⌜ B ⌝ _ U.[_]₀) ≡star ⟩≡∷≡
-      ⌜ unitrec l p q B (star 𝕨 l) t₂ ⌝ γ ∷
-        ⌜ B ⌝ γ U.[ U.starʷ (⟦ l ⟧ˡ γ) ]₀                             ⇒⟨ unitrec-β-⇒ ⊢B ⊢t₂ ⟩⊢∷
-      ⌜ t₂ ⌝ γ                                                        ≡⟨ red-tm-sound n eq₂ ⊢γ ⊢t₂ ⟩⊢∎
-      ⌜ u ⌝ γ                                                         ∎
+                                      ∷ ⌜ A ⌝ γ                    ⟨ A≡ ⟩≡∷
+      ⌜ unitrec p q B t₁       t₂ ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₁ ⌝ γ ]₀   ≡⟨ ur≡ ⟩⊢∷
+      ⌜ unitrec p q B t₁′      t₂ ⌝ γ                             ≡⟨ PE.cong (flip (U.unitrec _ _ _) _) ≡star ⟩⊢≡
+                                                                   ⟨ substTypeEq (refl ⊢B) t₁≡ ⟩≡
+                                      ∷ ⌜ B ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀   ⟨ PE.cong (⌜ B ⌝ _ U.[_]₀) ≡star ⟩≡∷≡
+      ⌜ unitrec p q B (star 𝕨) t₂ ⌝ γ ∷
+        ⌜ B ⌝ γ U.[ U.starʷ ]₀                                    ⇒⟨ unitrec-β-⇒ ⊢B ⊢t₂ ⟩⊢∷
+      ⌜ t₂ ⌝ γ                                                    ≡⟨ red-tm-sound n eq₂ ⊢γ ⊢t₂ ⟩⊢∎
+      ⌜ u ⌝ γ                                                     ∎
     … | nothing | ok! =
       let open TmR in
-                                   ∷ ⌜ A ⌝ γ                   ⟨ A≡ ⟩≡∷
-      ⌜ unitrec l p q B t₁  t₂ ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₁ ⌝ γ ]₀  ≡⟨ ur≡ ⟩⊢∷∎≡
-      ⌜ unitrec l p q B t₁′ t₂ ⌝ γ                            ≡⟨⟩
-      ⌜ u ⌝ γ                                                 ∎
+                                 ∷ ⌜ A ⌝ γ                   ⟨ A≡ ⟩≡∷
+      ⌜ unitrec p q B t₁  t₂ ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₁ ⌝ γ ]₀  ≡⟨ ur≡ ⟩⊢∷∎≡
+      ⌜ unitrec p q B t₁′ t₂ ⌝ γ                            ≡⟨⟩
+      ⌜ u ⌝ γ                                               ∎
     red-tm′-sound _ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) ok! _ ⊢ΠΣ =
       refl ⊢ΠΣ
     red-tm′-sound _ (lam _ _ _) ok! _ ⊢lam =
@@ -1687,6 +2476,8 @@ opaque mutual
       let inv t₁‴ eq₅ eq₆ = inv->>= eq
           t₁″≡t₁‴         = check-sound′ n eq₅ ⊢γ ⊢B₂
           _ , ⊢t₁″ , ⊢t₁‴ = wf-⊢≡∷ t₁″≡t₁‴
+          ≡t₁‴[t₂′]       =
+            PE.sym (⌜[]⌝ t₁‴ (term₂ (substTerm ⊢t₁‴ ⊢t₂′)))
 
           open TmR
       in
@@ -1695,9 +2486,9 @@ opaque mutual
       ⌜ t₁′           ∘⟨ p ⟩ t₂′ ⌝ γ                              ≡⟨ PE.cong (U._∘⟨ _ ⟩ _ ∘→ flip ⌜_⌝ _) ≡lam ⟩⊢≡
       ⌜ lam p qB₁ t₁″ ∘⟨ p ⟩ t₂′ ⌝ γ                              ⇒⟨ β-red-⇒ ⊢t₁″ ⊢t₂′ Π-ok ⟩⊢
       ⌜ t₁″ ⌝ γ U.[ ⌜ t₂′ ⌝ γ ]₀                                  ≡⟨ substTermEq t₁″≡t₁‴ (refl ⊢t₂′) ⟩⊢
-      ⌜ t₁‴ ⌝ γ U.[ ⌜ t₂′ ⌝ γ ]₀                                  ≡˘⟨ ⌜[]⌝ t₁‴ ⟩⊢≡
+      ⌜ t₁‴ ⌝ γ U.[ ⌜ t₂′ ⌝ γ ]₀                                  ≡⟨ ≡t₁‴[t₂′] ⟩⊢≡
       ⌜ t₁‴ [ sgSubst t₂′ ] ⌝ γ                                   ≡⟨ red-tm-sound n eq₆ ⊢γ $
-                                                                     PE.subst (flip (_⊢_∷_ _) _) (PE.sym (⌜[]⌝ t₁‴)) $
+                                                                     PE.subst (flip (_⊢_∷_ _) _) ≡t₁‴[t₂′] $
                                                                      substTerm ⊢t₁‴ ⊢t₂′ ⟩⊢∎
       ⌜ u ⌝ γ                                                     ∎
     … | nothing | ok! =
@@ -1966,21 +2757,24 @@ opaque mutual
       ⌜ K p B₁ t₁ B₂ t₂ t₃  ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ K-cong (refl ⊢B₁) (refl ⊢t₁) (refl ⊢B₂) (refl ⊢t₂) t₃≡t₃′ K-ok ⟩⊢∷∎≡
       ⌜ K p B₁ t₁ B₂ t₂ t₃′ ⌝ γ                             ≡⟨⟩
       ⌜ u ⌝ γ                                               ∎
-    red-tm′-sound {A} {u} {γ} n ([]-cong s B t₁ t₂ t₃) eq ⊢γ ⊢bc
+    red-tm′-sound {A} {u} {γ} n ([]-cong s l B t₁ t₂ t₃) eq ⊢γ ⊢bc
       with inv->>= eq
     … | inv t₃′ eq₁ eq
-      using ⊢B , ⊢t₁ , ⊢t₂ , ⊢t₃ , okᵇᶜ , A≡ ← inversion-[]-cong ⊢bc
-          | t₃≡t₃′                           ← red-tm-sound n eq₁ ⊢γ ⊢t₃
+      using ⊢l , ⊢B , ⊢t₁ , ⊢t₂ , ⊢t₃ , okᵇᶜ , A≡ ←
+              inversion-[]-cong ⊢bc
+          | t₃≡t₃′ ←
+              red-tm-sound n eq₁ ⊢γ ⊢t₃
       with is-rfl? t₃′ | eq
     … | nothing | ok! =
       let open TmR
           module E = Erased (⟦ s ⟧ˢ γ)
       in
-                                 ∷ ⌜ A ⌝ γ                        ⟨ A≡ ⟩≡∷
-      ⌜ []-cong s B t₁ t₂ t₃ ⌝ γ ∷
-        U.Id (E.Erased (⌜ B ⌝ γ)) E.[ ⌜ t₁ ⌝ γ ] E.[ ⌜ t₂ ⌝ γ ]  ≡⟨ []-cong-cong (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡t₃′ okᵇᶜ ⟩⊢∷∎≡
-      ⌜ []-cong s B t₁ t₂ t₃′ ⌝ γ                                ≡⟨⟩
-      ⌜ u ⌝ γ                                                    ∎
+                                   ∷ ⌜ A ⌝ γ                 ⟨ A≡ ⟩≡∷
+      ⌜ []-cong s l B t₁ t₂ t₃ ⌝ γ ∷
+        U.Id (E.Erased (⌜ l ⌝ γ) (⌜ B ⌝ γ)) E.[ ⌜ t₁ ⌝ γ ]
+          E.[ ⌜ t₂ ⌝ γ ]                                    ≡⟨ []-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡t₃′ okᵇᶜ ⟩⊢∷∎≡
+      ⌜ []-cong s l B t₁ t₂ t₃′ ⌝ γ                         ≡⟨⟩
+      ⌜ u ⌝ γ                                               ∎
     … | just (t₁? , ≡rfl) | eq
       with inv->>= eq
     … | inv _ eq₂ ok! =
@@ -1993,12 +2787,13 @@ opaque mutual
             ⌜ t₃′ ⌝ γ  ≡⟨ PE.cong (flip ⌜_⌝ _) ≡rfl ⟩
             U.rfl      ∎
       in
-                                 ∷ ⌜ A ⌝ γ                        ⟨ A≡ ⟩≡∷
-      ⌜ []-cong s B t₁ t₂ t₃ ⌝ γ ∷
-        U.Id (E.Erased (⌜ B ⌝ γ)) E.[ ⌜ t₁ ⌝ γ ] E.[ ⌜ t₂ ⌝ γ ]  ≡⟨ []-cong-cong (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡rfl okᵇᶜ ⟩⊢∷
-      ⌜ []-cong s B t₁ t₂ (rfl t₁?) ⌝ γ                          ≡⟨ subsetTerm ([]-cong-β-⇒ t₁≡t₂ okᵇᶜ) ⟩⊢∎≡
-      U.rfl                                                      ≡⟨⟩
-      ⌜ u ⌝ γ                                                    ∎
+                                   ∷ ⌜ A ⌝ γ                 ⟨ A≡ ⟩≡∷
+      ⌜ []-cong s l B t₁ t₂ t₃ ⌝ γ ∷
+        U.Id (E.Erased (⌜ l ⌝ γ) (⌜ B ⌝ γ)) E.[ ⌜ t₁ ⌝ γ ]
+          E.[ ⌜ t₂ ⌝ γ ]                                    ≡⟨ []-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡rfl okᵇᶜ ⟩⊢∷
+      ⌜ []-cong s l B t₁ t₂ (rfl t₁?) ⌝ γ                   ≡⟨ subsetTerm ([]-cong-β ⊢l t₁≡t₂ okᵇᶜ) ⟩⊢∎≡
+      U.rfl                                                 ≡⟨⟩
+      ⌜ u ⌝ γ                                               ∎
 
   -- Soundness for is-type.
 
@@ -2012,7 +2807,8 @@ opaque mutual
     with inv->>= eq
   … | inv _ ok! eq
     with γ .metas .bindings x in γx≡ | ⊢γ .metas-wf .bindings-wf x | eq
-  … | _ , type _   | ⊢A | ok! = type γx≡ , ⊢A
+  … | _ , type _   | ⊢A | ok!    = type γx≡ , ⊢A
+  … | _ , level _  | _  | not-ok
   … | _ , term _ _ | ⊢t | eq
     with inv->>= eq
   … | inv _ eq₁ eq
@@ -2020,6 +2816,60 @@ opaque mutual
   … | inv (_ , PE.refl) eq₂ ok! =
     let A≡U = red-ty-sound n eq₁ ⊢γ (wf-⊢∷ ⊢t) in
     term γx≡ A≡U , univ (conv ⊢t A≡U)
+
+  -- Soundness for is-level.
+
+  is-level-sound :
+    ∀ {x : Meta-var c n} {n} →
+    OK (is-level n Γ x σ) (Δ , l′) γ st →
+    Contexts-wf (Γ .defs) γ →
+    ⊢ ⌜ Γ ⌝ᶜ γ →
+    Is-level x σ γ Γ Δ ×
+    ⌜ Γ .defs ⌝ᶜᵈ γ »⊢ ⌜ Δ ⌝ᶜᵛ γ ×
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ meta-var x σ ⌝ γ ≡ ⌜ l′ ⌝ γ ∷Level
+  is-level-sound {γ} {x} eq ⊢γ _
+    with inv->>= eq
+  … | inv _ ok! eq
+    with γ .metas .bindings x in γx≡ | ⊢γ .metas-wf .bindings-wf x
+  is-level-sound             _ _  _  | inv _ _ not-ok | _ , type _  | _
+  is-level-sound {σ} {γ} {x} _ ⊢γ ⊢Γ | inv _ _ eq     | _ , level _ | ⊢l
+    with inv->>= eq
+  … | inv σ′ eq₁ ok!
+    rewrite ⌜meta-var⌝ {γ = γ} {x = x} σ
+          | ⌜meta-var⌝ {γ = γ} {x = x} σ′
+          | γx≡ =
+    let σ≡σ′ = check-sub-sound′ σ eq₁ ⊢γ ⊢Γ (wfLevel ⊢l) in
+    level γx≡ ,
+    wfLevel ⊢l ,
+    subst-⊢≡∷L (refl-⊢≡∷L ⊢l) σ≡σ′
+  is-level-sound
+    {σ} {γ} {x} {n} _ ⊢γ ⊢Γ | inv _ _ eq | _ , term _ A | ⊢t
+    with inv->>= eq
+  … | inv σ′ eq₁ eq
+    with inv->>= eq
+  … | inv _ eq₂ eq
+    with inv->>= eq
+  … | inv PE.refl _ ok!
+    rewrite ⌜meta-var⌝ {γ = γ} {x = x} σ
+          | ⌜meta-var⌝ {γ = γ} {x = x} σ′
+          | γx≡ =
+    let open TyR
+
+        σ≡σ′        = check-sub-sound′ σ eq₁ ⊢γ ⊢Γ (wfTerm ⊢t)
+        _ , _ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
+        ⊢A          = wf-⊢∷ ⊢t
+        ⊢A[σ′]      = subst-⊢ ⊢A ⊢σ′
+        ≡A[σ′]      = PE.sym (⌜[]⌝ A (type₂ ⊢A[σ′]))
+        A[σ]≡Level  =
+          ⌜ A ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]   ≡⟨ subst-⊢≡ (refl ⊢A) σ≡σ′ ⟩⊢
+          ⌜ A ⌝ γ U.[ ⌜ σ′ ⌝ˢ γ ]  ≡⟨ ≡A[σ′] ⟩⊢≡
+          ⌜ A [ σ′ ] ⌝ γ           ≡⟨ red-ty-sound n eq₂ ⊢γ $
+                                      PE.subst (_⊢_ _) ≡A[σ′] ⊢A[σ′] ⟩⊢∎
+          U.Level                  ∎
+    in
+    term γx≡ ⊢A A[σ]≡Level ,
+    wfTerm ⊢t ,
+    term-⊢≡∷ (conv (subst-⊢≡∷ (refl ⊢t) σ≡σ′) A[σ]≡Level)
 
   -- Soundness for check-type.
 
@@ -2031,10 +2881,10 @@ opaque mutual
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ ≡ ⌜ A′ ⌝ γ
   check-type-sound′              0      not-ok
   check-type-sound′ {A} {A′} {γ} (1+ n) eq     ⊢γ ⊢Γ =
-    let inv A″ eq₁ eq₂ = inv->>= (inv-register eq)
-        A″≡A′          = check-type′-sound (is-type-constructor? A″) eq₂
-                           ⊢γ ⊢Γ
-        ⊢A″ , _        = wf-⊢≡ A″≡A′
+    let inv (_ , A″) eq₁ eq₂ = inv->>= (inv-register eq)
+        A″≡A′                = check-type′-sound
+                                 (is-type-constructor? A″) eq₂ ⊢γ ⊢Γ
+        ⊢A″ , _              = wf-⊢≡ A″≡A′
     in
     ⌜ A ⌝ γ   ≡⟨ remove-weaken-subst-sound-⊢ n eq₁ (inj₂ ⊢A″) ⟩⊢
     ⌜ A″ ⌝ γ  ≡⟨ A″≡A′ ⟩⊢∎
@@ -2062,15 +2912,29 @@ opaque mutual
           σ≡σ′   = check-sub-sound′ σ eq₂ ⊢γ ⊢Γ (wf ⊢x)
       in
       subst-⊢≡ (refl ⊢x) σ≡σ′
-    check-type′-sound (just (U _)) ok! _ ⊢Γ =
-      refl (Uⱼ ⊢Γ)
+    check-type′-sound (just Level) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let L.lift okᴸ = inv-require ⊢γ eq₁ in
+      refl (Levelⱼ′ okᴸ ⊢Γ)
+    check-type′-sound {n} (just (U _)) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      U-cong-⊢≡ (check-level-sound′ n eq₁ ⊢γ ⊢Γ)
+    check-type′-sound {n} (just (Lift _ _)) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ ok! =
+      Lift-cong (check-level-sound′ n eq₁ ⊢γ ⊢Γ)
+        (check-type-sound′ n eq₂ ⊢γ ⊢Γ)
     check-type′-sound (just Empty) ok! _ ⊢Γ =
-      refl (Emptyⱼ ⊢Γ)
-    check-type′-sound (just (Unit _ _)) eq ⊢γ ⊢Γ
+      refl (⊢Empty ⊢Γ)
+    check-type′-sound (just (Unit _)) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ ok! =
       let Unit-ok = inv-require ⊢γ eq₁ in
-      refl (Unitⱼ ⊢Γ Unit-ok)
+      refl (⊢Unit ⊢Γ Unit-ok)
     check-type′-sound {n} (just (ΠΣ _ _ _ _ _)) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -2085,7 +2949,7 @@ opaque mutual
       in
       sym (ΠΣ-cong (sym A₁≡A₁′) (sym A₂≡A₂′) ΠΣ-ok)
     check-type′-sound (just ℕ) ok! _ ⊢Γ =
-      refl (ℕⱼ ⊢Γ)
+      refl (⊢ℕ ⊢Γ)
     check-type′-sound {n} (just (Id _ _ _)) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -2106,6 +2970,62 @@ opaque mutual
     … | inv (_ , PE.refl) _ ok! =
       refl (univ (infer-red-sound n eq₁ ⊢γ ⊢Γ))
 
+  -- Soundness for check-level.
+
+  check-level-sound′ :
+    ∀ n →
+    OK (check-level n Γ l) l′ γ st →
+    Contexts-wf (Γ .defs) γ →
+    ⊢ ⌜ Γ ⌝ᶜ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ≡ ⌜ l′ ⌝ γ ∷Level
+  check-level-sound′ 0      not-ok
+  check-level-sound′ (1+ n) eq     _  _
+    with inv->>= (inv-register eq)
+  … | inv (_ , l′) eq₁ eq
+    using l≡l′ ← proj₁ ∘→ remove-weaken-subst-sound-⊢∷L n eq₁ ∘→ inj₂
+    with is-perhaps-level? l′ | eq
+  check-level-sound′ (1+ n) _ ⊢γ ⊢Γ | _ | nothing | eq =
+    let inv _ eq₂ eq₃ = inv->>= eq
+        L.lift okᴸ    = inv-require ⊢γ eq₂
+        l′≡           = check-sound′ n eq₃ ⊢γ (Levelⱼ′ okᴸ ⊢Γ)
+        _ , ⊢l′ , _   = wf-⊢≡∷ l′≡
+    in
+    trans-⊢≡∷L (l≡l′ (term-⊢∷ ⊢l′ , inj₂ (inj₂ okᴸ))) $
+    term-⊢≡∷ l′≡
+  check-level-sound′ _ _ ⊢γ ⊢Γ | _ | just (meta-var _ _) | eq
+    with inv-<$> eq
+  … | inv _ eq₂ PE.refl =
+    let _ , _ , l′≡l″ = is-level-sound eq₂ ⊢γ ⊢Γ
+        ⊢l′ , _       = wf-⊢≡∷L l′≡l″
+    in
+    trans-⊢≡∷L (l≡l′ (⊢l′ , inj₁ (λ { (_ , _ , ()) } ))) l′≡l″
+  check-level-sound′ _ _ _ ⊢Γ | _ | just zeroᵘ | ok! =
+    l≡l′ (⊢zeroᵘ ⊢Γ , inj₁ (λ { (_ , _ , ()) } ))
+  check-level-sound′ (1+ n) _ ⊢γ ⊢Γ | _ | just (sucᵘ _) | eq
+    with inv-<$> eq
+  … | inv _ eq₂ PE.refl =
+    let l′≡     = sucᵘ-cong-⊢≡∷L (check-level-sound′ n eq₂ ⊢γ ⊢Γ)
+        ⊢l′ , _ = wf-⊢≡∷L l′≡
+    in
+    trans-⊢≡∷L (l≡l′ (⊢l′ , inj₁ (λ { (_ , _ , ()) } ))) l′≡
+  check-level-sound′ (1+ n) _ ⊢γ ⊢Γ
+    | inv (b , _) _ _ | just (_ supᵘₗ _) | eq
+    using inv _ eq₂ eq ← inv->>= eq
+    with inv-⊛ eq
+  … | inv _ _ eq eq₄ PE.refl
+    with inv-<$> eq
+  … | inv _ eq₃ PE.refl =
+    let l′≡     = supᵘₗ-cong (check-level-sound′ n eq₃ ⊢γ ⊢Γ)
+                    (check-level-sound′ n eq₄ ⊢γ ⊢Γ)
+        ⊢l′ , _ = wf-⊢≡∷L l′≡
+        extra   = case PE.singleton b of λ where
+          (false , eq) → inj₁ (PE.subst T eq)
+          (true  , eq) →
+            let L.lift okᴸ = inv-require ⊢γ (inv-when eq eq₂) in
+            inj₂ okᴸ
+    in
+    trans-⊢≡∷L (l≡l′ (⊢l′ , inj₂ extra)) l′≡
+
   -- Soundness for check.
 
   check-sound′ :
@@ -2117,7 +3037,7 @@ opaque mutual
   check-sound′ 0      not-ok
   check-sound′ (1+ n) eq     _ ⊢A
     with inv->>= (inv-register eq)
-  … | inv t″ eq₁ eq
+  … | inv (_ , t″) eq₁ eq
     using t≡t″ ← remove-weaken-subst-sound-⊢∷ n eq₁
     with checkable? t″
   check-sound′ (1+ n) _ ⊢γ ⊢A | inv _ eq₁ eq | nothing
@@ -2129,7 +3049,8 @@ opaque mutual
         B≡A = equal-ty-sound′ n eq₃ ⊢γ (wf-⊢∷ ⊢t′) ⊢A
     in
     t≡t″ (inj₂ (conv ⊢t′ B≡A))
-  check-sound′ {t} {t′} {γ} (1+ n) _ ⊢γ ⊢A | inv t″ eq₁ eq | just t″-c =
+  check-sound′ {t} {t′} {γ} (1+ n) _ ⊢γ ⊢A
+    | inv (_ , t″) eq₁ eq | just t″-c =
     let inv _ eq₂ eq₃ = inv->>= eq
         A≡A′          = red-ty-sound n eq₂ ⊢γ ⊢A
         _ , ⊢A′       = wf-⊢≡ A≡A′
@@ -2152,6 +3073,13 @@ opaque mutual
       Contexts-wf (Γ .defs) γ →
       ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
       ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ≡ ⌜ t′ ⌝ γ ∷ ⌜ A ⌝ γ
+    check′-sound {n} (lift _) eq ⊢γ ⊢A
+      with inv->>= eq
+    … | inv (_ , _ , PE.refl) _ eq
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let ⊢l , ⊢B = inversion-Lift ⊢A in
+      lift-cong ⊢l (check-sound′ n eq₁ ⊢γ ⊢B)
     check′-sound {n} (lam p _) eq ⊢γ ⊢A
       with inv->>= eq
     … | inv (_ , _ , _ , PE.refl) _ eq
@@ -2239,19 +3167,91 @@ opaque mutual
       with inv->>= eq
     … | inv _ eq ok! =
       defn ⊢Γ (type-of-sound (Γ .defs) eq) PE.refl
-    infer′-sound (U _) ok! _ ⊢Γ =
-      Uⱼ ⊢Γ
-    infer′-sound (Unit _ _) eq ⊢γ ⊢Γ
+    infer′-sound Level eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let L.lift Level-small = inv-require ⊢γ eq₁ in
+      Levelⱼ ⊢Γ Level-small
+    infer′-sound zeroᵘ eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let L.lift okᴸ = inv-require ⊢γ eq₁ in
+      zeroᵘⱼ okᴸ ⊢Γ
+    infer′-sound {n} (sucᵘ _) eq ⊢γ ⊢Γ
+      using inv _ eq₁ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₂ ok! =
+      let L.lift okᴸ = inv-require ⊢γ eq₁
+          l≡l′       = check-sound′ n eq₂ ⊢γ (Levelⱼ′ okᴸ ⊢Γ)
+          _ , ⊢l , _ = wf-⊢≡∷ l≡l′
+      in
+      sucᵘⱼ ⊢l
+    infer′-sound {n} (_ supᵘₗ _) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ eq
+      with inv->>= eq
+    … | inv _ eq₃ ok! =
+      let L.lift okᴸ  = inv-require ⊢γ eq₁
+          ⊢Level      = Levelⱼ′ okᴸ ⊢Γ
+          l₁≡         = check-sound′ n eq₂ ⊢γ ⊢Level
+          _ , ⊢l₁ , _ = wf-⊢≡∷ l₁≡
+          l₂≡         = check-sound′ n eq₃ ⊢γ ⊢Level
+          _ , ⊢l₂ , _ = wf-⊢≡∷ l₂≡
+      in
+      ⊢∷Level→⊢∷Level okᴸ (⊢supᵘₗ (term-⊢∷ ⊢l₁) (term-⊢∷ ⊢l₂))
+    infer′-sound {n} (U _) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let l≡l′   = check-level-sound′ n eq₁ ⊢γ ⊢Γ
+          ⊢l , _ = wf-⊢≡∷L l≡l′
+      in
+      conv (Uⱼ ⊢l) (U-cong-⊢≡ (sucᵘ-cong-⊢≡∷L l≡l′))
+    infer′-sound {n} {γ} (Lift l _) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv l₁ eq₁ eq
+      with inv->>= eq
+    … | inv l₂ eq₂ ok! =
+      let open TyR
+
+          l≡l₁   = check-level-sound′ n eq₁ ⊢γ ⊢Γ
+          ⊢l , _ = wf-⊢≡∷L l≡l₁
+          ⊢A     = infer-U-sound n eq₂ ⊢γ ⊢Γ
+          ⊢l₂    = inversion-U-Level (wf-⊢∷ ⊢A)
+          U≡U    =
+            ⌜ U (l₂ supᵘₗ l) ⌝ γ   ≡⟨ U-cong-⊢≡ (supᵘₗ-comm ⊢l₂ ⊢l) ⟩⊢
+            ⌜ U (l supᵘₗ l₂) ⌝ γ   ≡⟨ U-cong-⊢≡ (supᵘₗ-cong l≡l₁ (refl-⊢≡∷L ⊢l₂)) ⟩⊢∎
+            ⌜ U (l₁ supᵘₗ l₂) ⌝ γ  ∎
+      in
+      conv (Liftⱼ′ ⊢l ⊢A) U≡U
+    infer′-sound {n} (lift _ _) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ ok! =
+      let l≡l′    = check-level-sound′ n eq₁ ⊢γ ⊢Γ
+          _ , ⊢l′ = wf-⊢≡∷L l≡l′
+          ⊢t      = infer-sound n eq₂ ⊢γ ⊢Γ
+      in
+      liftⱼ′ ⊢l′ ⊢t
+    infer′-sound {n} (lower _) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv (_ , _ , PE.refl) _ ok! =
+      lowerⱼ (infer-red-sound n eq₁ ⊢γ ⊢Γ)
+    infer′-sound (Unit _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ ok! =
       let Unit-ok = inv-require ⊢γ eq₁ in
       Unitⱼ ⊢Γ Unit-ok
-    infer′-sound (star _ _) eq ⊢γ ⊢Γ
+    infer′-sound (star _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ ok! =
       let Unit-ok = inv-require ⊢γ eq₁ in
       starⱼ ⊢Γ Unit-ok
-    infer′-sound {n} (unitrec _ A _ _) eq ⊢γ ⊢Γ
+    infer′-sound {n} (unitrec A _ _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
       with inv->>= eq
@@ -2260,7 +3260,7 @@ opaque mutual
       with inv->>= eq
     … | inv _ eq₄ ok! =
       let Unit-ok = inv-require ⊢γ eq₄
-          ⊢Unit   = Unitⱼ ⊢Γ Unit-ok
+          ⊢Unit   = ⊢Unit ⊢Γ Unit-ok
           A≡A′    = check-type-sound′ n eq₁ ⊢γ (∙ ⊢Unit)
           _ , ⊢A′ = wf-⊢≡ A≡A′
           t₁≡t₁′  = check-sound′ n eq₂ ⊢γ ⊢Unit
@@ -2277,7 +3277,7 @@ opaque mutual
       with inv->>= eq
     … | inv _ eq₂ ok! =
       let A≡A′ = check-type-sound′ n eq₁ ⊢γ ⊢Γ
-          t≡t′ = check-sound′ n eq₂ ⊢γ (Emptyⱼ ⊢Γ)
+          t≡t′ = check-sound′ n eq₂ ⊢γ (⊢Empty ⊢Γ)
       in
       wf-⊢≡∷ (emptyrec-cong (sym A≡A′) (sym′ t≡t′)) .proj₂ .proj₂
     infer′-sound {n} (ΠΣ _ _ _ _ _) eq ⊢γ ⊢Γ
@@ -2288,14 +3288,15 @@ opaque mutual
       with inv->>= eq
     … | inv _ eq₂ eq
       with inv->>= eq
-    … | inv (_ , PE.refl) _ eq
-      with inv->>= eq
     … | inv _ eq₃ ok! =
-      let ⊢A₁   = infer-red-sound n eq₁ ⊢γ ⊢Γ
-          ⊢A₂   = infer-red-sound n eq₂ ⊢γ (∙ univ ⊢A₁)
-          ΠΣ-ok = inv-require ⊢γ eq₃
+      let ⊢A₁         = infer-red-sound n eq₁ ⊢γ ⊢Γ
+          ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A₁)
+          A₂≡         = check-sound′ n eq₂ ⊢γ
+                          (⊢U (W.wkLevel₁ (univ ⊢A₁) ⊢l))
+          _ , ⊢A₂ , _ = wf-⊢≡∷ A₂≡
+          ΠΣ-ok       = inv-require ⊢γ eq₃
       in
-      ΠΣⱼ ⊢A₁ ⊢A₂ ΠΣ-ok
+      ΠΣⱼ ⊢l ⊢A₁ ⊢A₂ ΠΣ-ok
     infer′-sound {n} (lam _ _ _ _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -2377,7 +3378,7 @@ opaque mutual
     infer′-sound {n} (suc _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq ok! =
-      let t≡t′       = check-sound′ n eq ⊢γ (ℕⱼ ⊢Γ)
+      let t≡t′       = check-sound′ n eq ⊢γ (⊢ℕ ⊢Γ)
           _ , ⊢t , _ = wf-⊢≡∷ t≡t′
       in
       sucⱼ ⊢t
@@ -2388,12 +3389,12 @@ opaque mutual
           | inv _ eq₃ eq ← inv->>= eq
       with inv->>= eq
     … | inv _ eq₄ ok! =
-      let A≡A′    = check-type-sound′ n eq₁ ⊢γ (∙ ℕⱼ ⊢Γ)
+      let A≡A′    = check-type-sound′ n eq₁ ⊢γ (∙ ⊢ℕ ⊢Γ)
           _ , ⊢A′ = wf-⊢≡ A≡A′
           t₁≡t₁′  = check-sound′ n eq₂ ⊢γ (substType ⊢A′ (zeroⱼ ⊢Γ))
           t₂≡t₂′  = check-sound′ n eq₃ ⊢γ $
                     subst-⊢ ⊢A′ (⊢ˢʷ∷-[][]↑ (sucⱼ (var₁ ⊢A′)))
-          t₃≡t₃′  = check-sound′ n eq₄ ⊢γ (ℕⱼ ⊢Γ)
+          t₃≡t₃′  = check-sound′ n eq₄ ⊢γ (⊢ℕ ⊢Γ)
       in
       wf-⊢≡∷
         (natrec-cong (sym A≡A′) (sym′ t₁≡t₁′) (sym′ t₂≡t₂′)
@@ -2475,28 +3476,31 @@ opaque mutual
         (K-cong (sym A₁≡A₁′) (sym′ t₁≡t₁′) (sym A₂≡A₂′) (sym′ t₂≡t₂′)
            (sym′ t₃≡t₃′) K-ok)
         .proj₂ .proj₂
-    infer′-sound {n} ([]-cong _ _ _ _ _) eq ⊢γ ⊢Γ
+    infer′-sound {n} ([]-cong _ _ _ _ _ _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
       with inv->>= eq
     … | inv _ eq₂ eq
       with inv->>= eq
     … | inv _ eq₃ eq
-      using inv _ eq₄ eq ← inv->>= eq
       with inv->>= eq
-    … | inv _ eq₅ ok! =
-      let A≡A′         = check-type-sound′ n eq₁ ⊢γ ⊢Γ
+    … | inv _ eq₄ eq
+      using inv _ eq₅ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₆ ok! =
+      let l≡l′         = check-level-sound′ n eq₁ ⊢γ ⊢Γ
+          A≡A′         = check-type-sound′ n eq₂ ⊢γ ⊢Γ
           _ , ⊢A′      = wf-⊢≡ A≡A′
-          t₁≡t₁′       = check-sound′ n eq₂ ⊢γ ⊢A′
+          t₁≡t₁′       = check-sound′ n eq₃ ⊢γ ⊢A′
           _ , _ , ⊢t₁′ = wf-⊢≡∷ t₁≡t₁′
-          t₂≡t₂′       = check-sound′ n eq₃ ⊢γ ⊢A′
+          t₂≡t₂′       = check-sound′ n eq₄ ⊢γ ⊢A′
           _ , _ , ⊢t₂′ = wf-⊢≡∷ t₂≡t₂′
-          t₃≡t₃′       = check-sound′ n eq₄ ⊢γ (Idⱼ′ ⊢t₁′ ⊢t₂′)
-          okᵇᶜ         = inv-require ⊢γ eq₅
+          t₃≡t₃′       = check-sound′ n eq₅ ⊢γ (Idⱼ′ ⊢t₁′ ⊢t₂′)
+          okᵇᶜ         = inv-require ⊢γ eq₆
       in
       wf-⊢≡∷
-        ([]-cong-cong (sym A≡A′) (sym′ t₁≡t₁′) (sym′ t₂≡t₂′)
-           (sym′ t₃≡t₃′) okᵇᶜ)
+        ([]-cong-cong (sym-⊢≡∷L l≡l′) (sym A≡A′) (sym′ t₁≡t₁′)
+           (sym′ t₂≡t₂′) (sym′ t₃≡t₃′) okᵇᶜ)
         .proj₂ .proj₂
 
   -- Soundness for infer-U.
@@ -2646,21 +3650,39 @@ opaque mutual
     | just (meta-var _ _) =
     equal-ne-red-sound n eq ⊢γ (wf-⊢∷ ⊢t₁)
   equal-tm-red-sound {t₁} {t₂} n _ eq ⊢γ ⊢t₁ ⊢t₂
+    | just Level
+    using ⊢Γ  ← wfTerm ⊢t₁
+        | okᴸ ← inversion-Level-⊢ (wf-⊢∷ ⊢t₁)
+    with equal-level-cons? t₁ t₂ | eq
+  … | just zeroᵘ | ok! =
+    refl (zeroᵘⱼ okᴸ ⊢Γ)
+  … | just (sucᵘ _ _) | eq =
+    let ⊢l₁ , _ = inversion-sucᵘ ⊢t₁
+        ⊢l₂ , _ = inversion-sucᵘ ⊢t₂
+    in
+    sucᵘ-cong (equal-tm-sound′ n eq ⊢γ ⊢l₁ ⊢l₂)
+  … | nothing | eq =
+    equal-ne-red-sound n eq ⊢γ (Levelⱼ′ okᴸ ⊢Γ)
+  equal-tm-red-sound {t₁} {t₂} n _ eq ⊢γ ⊢t₁ ⊢t₂
     | just (U _) =
     equal-ty-red-U-sound t₁ eq ⊢γ ⊢t₁ ⊢t₂
   equal-tm-red-sound n _ eq ⊢γ ⊢t₁ ⊢t₂
+    | just (Lift _ _) =
+    let lower-t₁≡lower-t₂ =
+          equal-tm-sound′ n eq ⊢γ (lowerⱼ ⊢t₁) (lowerⱼ ⊢t₂)
+    in
+    Lift-η′ ⊢t₁ ⊢t₂ lower-t₁≡lower-t₂
+  equal-tm-red-sound n _ eq ⊢γ ⊢t₁ ⊢t₂
     | just Empty =
     equal-ne-red-sound n eq ⊢γ (wf-⊢∷ ⊢t₁)
-  equal-tm-red-sound {Γ} {t₁} {t₂} n _ eq ⊢γ ⊢t₁ ⊢t₂
-    | just (Unit s l)
+  equal-tm-red-sound {t₁} {t₂} n _ eq ⊢γ ⊢t₁ ⊢t₂
+    | just (Unit s)
     with s ≟ˢ 𝕤
   … | just PE.refl =
     η-unit ⊢t₁ ⊢t₂ (inj₁ PE.refl)
   … | nothing
-    with are-star? s l t₁ t₂
-  … | just (_ , _ , l≡l₁ , l≡l₂ , PE.refl , PE.refl) =
-    PE.subst (flip (_⊢_≡_∷_ _ _) _)
-      (PE.cong (U.star _) (PE.trans (PE.sym (l≡l₁ _)) (l≡l₂ _))) $
+    with are-star? s t₁ t₂
+  … | just (PE.refl , PE.refl) =
     refl ⊢t₁
   … | nothing
     with inv-catch eq
@@ -2814,17 +3836,33 @@ opaque mutual
   … | inv _ eq ok! =
     refl (defn ⊢Γ (type-of-sound (Γ .defs) eq) PE.refl)
   equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
+    | inv (sup _ _ _ _ PE.refl) _ eq
+    using inv _ eq₁ eq ← inv->>= eq
+    with inv->>= eq
+  … | inv _ eq₂ ok! =
+    let _ , ⊔≡⊔    = check-and-equal-level-sound′ n eq₁ ⊢γ ⊢Γ
+        L.lift okᴸ = inv-require ⊢γ eq₂
+    in
+    ⊢≡∷Level→⊢≡∷Level okᴸ ⊔≡⊔
+  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
+    | inv (lower _ _ PE.refl) _ eq
+    with inv->>= eq
+  … | inv _ eq₁ eq
+    with inv->>= eq
+  … | inv (_ , _ , PE.refl) _ ok! =
+    lower-cong (equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ)
+  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
     | inv (emptyrec _ _ _ _ PE.refl) _ eq
     with inv->>= eq
   … | inv _ eq₁ eq
     with inv->>= eq
   … | inv _ eq₂ ok! =
     let A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ ⊢Γ
-        t₁≡t₂        = equal-ne-red-sound n eq₂ ⊢γ (Emptyⱼ ⊢Γ)
+        t₁≡t₂        = equal-ne-red-sound n eq₂ ⊢γ (⊢Empty ⊢Γ)
     in
     conv (emptyrec-cong A₁≡A₂ t₁≡t₂) A₁≡A
   equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (unitrec _ _ _ _ _ _ _ l₁≡l₂ PE.refl) _ eq
+    | inv (unitrec _ _ _ _ _ _ PE.refl) _ eq
     with inv->>= eq
   … | inv _ eq₁ eq
     using inv _ eq₂ eq ← inv->>= eq
@@ -2832,7 +3870,7 @@ opaque mutual
     with inv->>= eq
   … | inv _ eq₄ ok! =
     let Unit-ok      = inv-require ⊢γ eq₄
-        ⊢Unit        = Unitⱼ ⊢Γ Unit-ok
+        ⊢Unit        = ⊢Unit ⊢Γ Unit-ok
         ⊢⋆           = starⱼ ⊢Γ Unit-ok
         A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ (∙ ⊢Unit)
         _ , ⊢A       = wf-⊢≡ A₁≡A
@@ -2842,10 +3880,7 @@ opaque mutual
                          (substType ⊢A ⊢⋆)
         t₁₂≡t₂₂      = conv t₁₂≡t₂₂ (substTypeEq (sym A₁≡A) (refl ⊢⋆))
     in
-    conv
-      (PE.subst (flip (_⊢_≡_∷_ _ _) _)
-         (PE.cong (λ l → U.unitrec l _ _ _ _ _) (l₁≡l₂ _)) $
-       unitrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
+    conv (unitrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
       (substTypeEq A₁≡A (refl ⊢t₁₁))
   equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
     | inv (app _ _ _ _ _ PE.refl) _ eq
@@ -2905,7 +3940,7 @@ opaque mutual
         | inv _ eq₃ eq ← inv->>= eq
     with inv->>= eq
   … | inv _ eq₄ ok! =
-    let A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ (∙ ℕⱼ ⊢Γ)
+    let A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ (∙ ⊢ℕ ⊢Γ)
         _ , ⊢A       = wf-⊢≡ A₁≡A
         ⊢0           = zeroⱼ ⊢Γ
         ⊢suc-1       = sucⱼ (var₁ ⊢A)
@@ -2917,7 +3952,7 @@ opaque mutual
         t₁₂≡t₂₂      = stabilityEqTerm (refl-∙ (sym A₁≡A)) $
                        conv t₁₂≡t₂₂ $
                        subst↑²TypeEq (sym A₁≡A) (refl ⊢suc-1)
-        t₁₃≡t₂₃      = equal-ne-red-sound n eq₄ ⊢γ (ℕⱼ ⊢Γ)
+        t₁₃≡t₂₃      = equal-ne-red-sound n eq₄ ⊢γ (⊢ℕ ⊢Γ)
         _ , ⊢t₁₃ , _ = wf-⊢≡∷ t₁₃≡t₂₃
     in
     conv (natrec-cong A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃)
@@ -2997,35 +4032,40 @@ opaque mutual
     conv (K-cong A₁₁≡A₂₁ t₁₁≡t₂₁ A₁₂≡A₂₂ t₁₂≡t₂₂ t₁₃≡t₂₃ K-ok)
       (substTypeEq A₁₂≡A₂ (refl ⊢t₁₃))
   equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv ([]-cong _ _ _ _ _ _ _ _ _ PE.refl) _ eq
+    | inv ([]-cong _ _ _ _ _ _ _ _ _ _ _ PE.refl) _ eq
     with inv->>= eq
   … | inv _ eq₁ eq
     with inv->>= eq
   … | inv _ eq₂ eq
     with inv->>= eq
   … | inv _ eq₃ eq
-    using inv _ eq₄ eq ← inv->>= eq
     with inv->>= eq
-  … | inv _ eq₅ ok! =
-    let A₁≡A , A₁≡A₂     = check-and-equal-ty-sound′ n eq₁ ⊢γ ⊢Γ
+  … | inv _ eq₄ eq
+    using inv _ eq₅ eq ← inv->>= eq
+    with inv->>= eq
+  … | inv _ eq₆ ok! =
+    let l₁≡l , l₁≡l₂     = check-and-equal-level-sound′ n eq₁ ⊢γ ⊢Γ
+        _ , ⊢l           = wf-⊢≡∷L l₁≡l
+        A₁≡A , A₁≡A₂     = check-and-equal-ty-sound′ n eq₂ ⊢γ ⊢Γ
         _ , ⊢A           = wf-⊢≡ A₁≡A
-        t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₂ ⊢γ ⊢A
+        t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₃ ⊢γ ⊢A
         _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
         t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁≡A)
-        t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound′ n eq₃ ⊢γ ⊢A
+        t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound′ n eq₄ ⊢γ ⊢A
         _ , _ , ⊢t₂      = wf-⊢≡∷ t₁₂≡t₂
         t₁₂≡t₂₂          = conv t₁₂≡t₂₂ (sym A₁≡A)
-        t₁₃≡t₂₃          = equal-ne-red-sound n eq₄ ⊢γ (Idⱼ′ ⊢t₁ ⊢t₂)
+        t₁₃≡t₂₃          = equal-ne-red-sound n eq₅ ⊢γ (Idⱼ′ ⊢t₁ ⊢t₂)
         t₁₃≡t₂₃          = conv t₁₃≡t₂₃ $
                            Id-cong (sym A₁≡A) (sym′ t₁₁≡t₁)
                              (sym′ t₁₂≡t₂)
-        okᵇᶜ             = inv-require ⊢γ eq₅
+        okᵇᶜ             = inv-require ⊢γ eq₆
         okᴱ              = []-cong→Erased okᵇᶜ
     in
-    _⊢_≡_∷_.conv ([]-cong-cong A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃ okᵇᶜ) $
+    _⊢_≡_∷_.conv
+      ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃ okᵇᶜ) $
     _⊢_≡_.sym $
-    Id-cong (sym (Erased-cong okᴱ A₁≡A)) (sym′ ([]-cong′ okᴱ t₁₁≡t₁))
-      (sym′ ([]-cong′ okᴱ t₁₂≡t₂))
+    Id-cong (sym (Erased-cong okᴱ l₁≡l A₁≡A))
+      (sym′ ([]-cong′ okᴱ ⊢l t₁₁≡t₁)) (sym′ ([]-cong′ okᴱ ⊢l t₁₂≡t₂))
 
   -- Soundness for equal-ty.
 
@@ -3080,13 +4120,24 @@ opaque mutual
         x₁≡x₂         = are-equal-meta-vars-sound-ty eq₃ ⊢γ x₂-type ⊢x₂
     in
     subst-⊢≡ x₁≡x₂ σ₁≡σ₂
-  equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (U l₁≡l₂ PE.refl) =
-    PE.subst (_⊢_≡_ _ _) (PE.cong U.U (l₁≡l₂ _)) $
+  equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (Level PE.refl) =
     refl ⊢A₁
+  equal-ty-red-sound _ _ _ eq ⊢γ ⊢A₁ ⊢A₂ | just (U _ _ PE.refl) =
+    let ⊢l₁ = inversion-U-Level ⊢A₁
+        ⊢l₂ = inversion-U-Level ⊢A₂
+    in
+    U-cong-⊢≡ (equal-level-sound′ eq ⊢γ ⊢l₁ ⊢l₂)
+  equal-ty-red-sound n _ _ eq ⊢γ ⊢A₁ ⊢A₂ | just (Lift _ _ _ _ PE.refl) =
+    let inv _ eq₁ eq₂ = inv->>= eq
+        ⊢l₁ , ⊢A₁     = inversion-Lift ⊢A₁
+        ⊢l₂ , ⊢A₂     = inversion-Lift ⊢A₂
+        l₁≡l₂         = equal-level-sound′ eq₁ ⊢γ ⊢l₁ ⊢l₂
+        A₁≡A₂         = equal-ty-sound′ n eq₂ ⊢γ ⊢A₁ ⊢A₂
+    in
+    Lift-cong l₁≡l₂ A₁≡A₂
   equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (Empty PE.refl) =
     refl ⊢A₁
-  equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (Unit l₁≡l₂ PE.refl) =
-    PE.subst (_⊢_≡_ _ _) (PE.cong (U.Unit _) (l₁≡l₂ _)) $
+  equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (Unit PE.refl) =
     refl ⊢A₁
   equal-ty-red-sound n _ _ eq ⊢γ ⊢A₁ ⊢A₂ | just (ΠΣ _ _ _ _ PE.refl) =
     let inv _ eq₁ eq₂       = inv->>= eq
@@ -3138,55 +4189,68 @@ opaque mutual
     with inv->>= eq
   … | inv _ eq₁ eq
     with inv->>= eq
-  … | inv _ eq₂ eq
-    with inv->>= eq
-  … | inv (_ , l≡l′ , PE.refl) _ eq
-    with inv->>= eq
-  … | inv PE.refl eq₃ eq
-    with inv->>= eq
-  … | inv _ eq₄ _ =
-    let x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
-        ≡U            = red-ty-sound n eq₂ ⊢γ (wf-⊢∷ ⊢x₂)
-        σ₁≡σ₂         = equal-sub′-sound eq₃ ⊢γ (wfTerm ⊢x₁[σ₁])
+  … | inv PE.refl eq₂ eq =
+    let inv _ eq₃ eq₄ = inv->>= eq
+        x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
+        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (wfTerm ⊢x₁[σ₁])
                           (wfTerm ⊢x₂)
-        x₁≡x₂         = are-equal-meta-vars-sound-tm eq₄ ⊢γ x₂-term ⊢x₂
+        _ , ⊢σ₁ , _   = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+        x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term ⊢x₂
+        A[σ₁]≡Ul      = equal-ty-sound′ n eq₄ ⊢γ
+                          (subst-⊢ (wf-⊢∷ ⊢x₂) ⊢σ₁) (wf-⊢∷ ⊢x₁[σ₁])
     in
-    PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U.U (PE.sym (l≡l′ _))) $
-    subst-⊢≡∷ (conv x₁≡x₂ ≡U) σ₁≡σ₂
-  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (U l₁≡l₂ PE.refl) =
-    PE.subst (flip (_⊢_≡_∷_ _ _) _) (PE.cong U.U (l₁≡l₂ _)) $
+    conv (subst-⊢≡∷ x₁≡x₂ σ₁≡σ₂) A[σ₁]≡Ul
+  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Level PE.refl) =
     refl ⊢A₁
+  equal-ty-red-U-sound _ eq ⊢γ ⊢A₁ ⊢A₂ | just (U _ _ PE.refl) =
+    let Ul≡U1+l₁ = inversion-U ⊢A₁
+        ⊢l₁      = inversion-U∷-Level ⊢A₁
+        ⊢l₂      = inversion-U∷-Level ⊢A₂
+    in
+    conv (U-cong-⊢≡∷ (equal-level-sound′ eq ⊢γ ⊢l₁ ⊢l₂)) (sym Ul≡U1+l₁)
+  equal-ty-red-U-sound {γ} _ {n} eq ⊢γ ⊢A₁ ⊢A₂
+    | just (Lift _ A₁ _ A₂ PE.refl) =
+    let open TmR
+
+        inv _ eq₁ eq   = inv->>= eq
+        inv _ eq₂ eq   = inv->>= eq
+        inv A₂′ eq₃ eq = inv->>= eq
+        inv _ eq₄ eq₅  = inv->>= eq
+        _ , ⊢l₁ , _    = inversion-Lift∷ ⊢A₁
+        _ , ⊢l₂ , _    = inversion-Lift∷ ⊢A₂
+        l₁≡l₂          = equal-level-sound′ eq₁ ⊢γ ⊢l₁ ⊢l₂
+        ⊢l₁ , _        = wf-⊢≡∷L l₁≡l₂
+        ⊢A₁            = infer-U-sound n eq₂ ⊢γ (wfTerm ⊢A₁)
+        ⊢l₃            = inversion-U-Level (wf-⊢∷ ⊢A₁)
+        A₂≡A₂′         = check-sound′ n eq₃ ⊢γ (⊢U ⊢l₃)
+        _ , _ , ⊢A₂′   = wf-⊢≡∷ A₂≡A₂′
+        A₁≡A₂′         = equal-tm-sound′ n eq₄ ⊢γ ⊢A₁ ⊢A₂′
+        ⊢l             = inversion-U-Level (wf-⊢∷ ⊢A₂)
+        ⊔≡l            = equal-level-sound′ eq₅ ⊢γ (⊢supᵘₗ ⊢l₃ ⊢l₁) ⊢l
+        A₁≡A₂          =
+          ⌜ A₁ ⌝ γ   ≡⟨ A₁≡A₂′ ⟩⊢
+          ⌜ A₂′ ⌝ γ  ≡˘⟨ A₂≡A₂′ ⟩⊢∎
+          ⌜ A₂ ⌝ γ   ∎
+    in
+    conv (Lift-cong′ l₁≡l₂ A₁≡A₂) (U-cong-⊢≡ ⊔≡l)
   equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Empty PE.refl) =
     refl ⊢A₁
-  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Unit l₁≡l₂ PE.refl) =
-    PE.subst (flip (_⊢_≡_∷_ _ _) _) (PE.cong (U.Unit _) (l₁≡l₂ _)) $
+  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Unit PE.refl) =
     refl ⊢A₁
-  equal-ty-red-U-sound _ {n} eq ⊢γ ⊢A₁ ⊢A₂ | just (ΠΣ _ _ _ _ PE.refl)
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv _ eq₂ eq
-    with inv->>= eq
-  … | inv l₁⊔l₂≡l _ eq =
-    let inv _ eq₃ eq  = inv->>= eq
-        inv _ eq₄ eq  = inv->>= eq
-        inv _ eq₅ eq₆ = inv->>= eq
-
+  equal-ty-red-U-sound _ {n} eq ⊢γ ⊢A₁ _ | just (ΠΣ _ _ _ _ PE.refl) =
+    let inv _ eq₁ eq              = inv->>= eq
+        inv _ eq₂ _               = inv->>= eq
         _ , _ , _ , _ , _ , ΠΣ-ok = inversion-ΠΣ-U ⊢A₁
-
-        ⊢Γ            = wfTerm ⊢A₁
-        ⊢A₁₁          = infer-U-sound n eq₁ ⊢γ ⊢Γ
-        ⊢A₁₂          = infer-U-sound n eq₂ ⊢γ (∙ univ ⊢A₁₁)
-        A₂₁≡A₂₁′      = check-sound′ n eq₃ ⊢γ (Uⱼ ⊢Γ)
-        _ , _ , ⊢A₂₁′ = wf-⊢≡∷ A₂₁≡A₂₁′
-        A₂₂≡A₂₂′      = check-sound′ n eq₄ ⊢γ (Uⱼ (∙ univ ⊢A₁₁))
-        _ , _ , ⊢A₂₂′ = wf-⊢≡∷ A₂₂≡A₂₂′
-        A₁₁≡A₂₁′      = equal-tm-sound′ n eq₅ ⊢γ ⊢A₁₁ ⊢A₂₁′
-        A₁₂≡A₂₂′      = equal-tm-sound′ n eq₆ ⊢γ ⊢A₁₂ ⊢A₂₂′
+        ⊢Ul                       = wf-⊢∷ ⊢A₁
+        ⊢l                        = inversion-U-Level ⊢Ul
+        A₁₁≡A₁ , A₁₁≡A₂₁          = check-and-equal-tm-sound′ n eq₁ ⊢γ
+                                      ⊢Ul
+        _ , _ , ⊢A₁               = wf-⊢≡∷ A₁₁≡A₁
+        _ , A₁₂≡A₂₂               = check-and-equal-tm-sound′ n eq₂ ⊢γ
+                                      (W.wk₁ (univ ⊢A₁) ⊢Ul)
     in
-    PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U.U (l₁⊔l₂≡l _)) $
-    ΠΣ-cong (trans A₁₁≡A₂₁′ (sym′ A₂₁≡A₂₁′))
-      (trans A₁₂≡A₂₂′ (sym′ A₂₂≡A₂₂′)) ΠΣ-ok
+    ΠΣ-cong ⊢l A₁₁≡A₂₁
+      (stabilityEqTerm (refl-∙ (sym (univ A₁₁≡A₁))) A₁₂≡A₂₂) ΠΣ-ok
   equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (ℕ PE.refl) =
     refl ⊢A₁
   equal-ty-red-U-sound _ {n} eq ⊢γ ⊢A₁ ⊢A₂
@@ -3205,9 +4269,200 @@ opaque mutual
     with inv->>= eq
   … | inv _ eq₁ eq
     with inv->>= eq
-  … | inv (_ , l≡l′ , PE.refl) _ _ =
-    PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U.U (PE.sym (l≡l′ _))) $
-    equal-ne-inf-red-sound n eq₁ ⊢γ (wfTerm ⊢A₁)
+  … | inv _ eq₂ _ =
+    let A₁≡A₂  = equal-ne-inf-red-sound n eq₁ ⊢γ (wfTerm ⊢A₁)
+        ⊢B , _ = wf-⊢≡∷ A₁≡A₂
+        B≡Ul   = equal-ty-sound′ n eq₂ ⊢γ ⊢B (wf-⊢∷ ⊢A₁)
+    in
+    conv A₁≡A₂ B≡Ul
+
+  -- Soundness for equal-level.
+
+  equal-level-sound′ :
+    OK (equal-level n Γ l₁ l₂) tt γ st →
+    Contexts-wf (Γ .defs) γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ∷Level →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₂ ⌝ γ ∷Level →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l₂ ⌝ γ ∷Level
+  equal-level-sound′ {n} eq ⊢γ ⊢l₁ ⊢l₂
+    with inv->>= eq
+  … | inv _ eq₁ eq
+    with inv->>= eq
+  … | inv _ eq₂ eq
+    with inv->>= eq
+  … | inv PE.refl _ eq =
+    let inv _ eq₃ eq₄ = inv->>= eq
+        l₁≡nf₁        = normalise-level-sound n eq₁ ⊢γ ⊢l₁
+        _ , ⊢nf₁      = wf-⊢≡∷L l₁≡nf₁
+        l₂≡nf₂        = normalise-level-sound n eq₂ ⊢γ ⊢l₂
+        _ , ⊢nf₂      = wf-⊢≡∷L l₂≡nf₂
+    in
+    trans-⊢≡∷L l₁≡nf₁ $
+    trans-⊢≡∷L
+      (Below-antisymmetric ⊢nf₁ ⊢nf₂ (below-sound eq₃ ⊢γ ⊢nf₁ ⊢nf₂)
+         (below-sound eq₄ ⊢γ ⊢nf₂ ⊢nf₁)) $
+    sym-⊢≡∷L l₂≡nf₂
+
+  -- Soundness for normalise-level.
+
+  normalise-level-sound :
+    ∀ n →
+    OK (normalise-level b n Γ l) nf γ st →
+    Contexts-wf (Γ .defs) γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ∷Level →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ≡ ⌜ nf ⌝ˡⁿ γ ∷Level
+  normalise-level-sound 0      not-ok
+  normalise-level-sound (1+ n) eq     _ ⊢l
+    with inv->>= (inv-register eq)
+  … | inv (_ , l′) eq₁ eq
+    using l≡l′ , _ ← remove-weaken-subst-sound-⊢∷L n eq₁ (inj₁ ⊢l)
+        | _ , ⊢l′  ← wf-⊢≡∷L l≡l′
+    with is-perhaps-level? l′
+  normalise-level-sound _ _ _ _ | inv _ _ ok! | just (meta-var _ _) =
+    trans-⊢≡∷L l≡l′ $
+    sym-⊢≡∷L (⌞⌟ˡⁿ-correct ⊢l′)
+  normalise-level-sound _ _ _ ⊢l | inv _ _ ok! | just zeroᵘ =
+    trans-⊢≡∷L l≡l′ $
+    sym-⊢≡∷L (zeroᵘˡⁿ-correct (wfLevel ⊢l))
+  normalise-level-sound (1+ n) _ ⊢γ _ | inv _ _ eq | just (sucᵘ _)
+    with inv-<$> eq
+  … | inv _ eq₂ PE.refl =
+    let ⊢l″     = inversion-sucᵘ-⊢∷L ⊢l′
+        l″≡l‴   = normalise-level-sound n eq₂ ⊢γ ⊢l″
+        _ , ⊢l‴ = wf-⊢≡∷L l″≡l‴
+    in
+    trans-⊢≡∷L l≡l′ $
+    trans-⊢≡∷L (sucᵘ-cong-⊢≡∷L l″≡l‴) $
+    sym-⊢≡∷L (sucᵘˡⁿ-correct ⊢l‴)
+  normalise-level-sound (1+ n) _ ⊢γ _ | inv _ _ eq | just (_ supᵘₗ _)
+    with inv-⊛ eq
+  … | inv _ _ eq eq₃ PE.refl
+    with inv-<$> eq
+  … | inv _ eq₂ PE.refl =
+    let ⊢l₁ , ⊢l₂ = inversion-supᵘₗ ⊢l′
+        l₁≡l₁′    = normalise-level-sound n eq₂ ⊢γ ⊢l₁
+        _ , ⊢l₁′  = wf-⊢≡∷L l₁≡l₁′
+        l₂≡l₂′    = normalise-level-sound n eq₃ ⊢γ ⊢l₂
+        _ , ⊢l₂′  = wf-⊢≡∷L l₂≡l₂′
+    in
+    trans-⊢≡∷L l≡l′ $
+    trans-⊢≡∷L (supᵘₗ-cong l₁≡l₁′ l₂≡l₂′) $
+    sym-⊢≡∷L (supᵘₗˡⁿ-correct ⊢l₁′ ⊢l₂′)
+  normalise-level-sound {b = true} _ _ _ _ | inv _ _ ok! | nothing =
+    trans-⊢≡∷L l≡l′ $
+    sym-⊢≡∷L (⌞⌟ˡⁿ-correct ⊢l′)
+  normalise-level-sound
+    {b = false} (1+ n) _ ⊢γ _ | inv _ _ eq | nothing =
+    let inv _ eq₂ eq  = inv->>= eq
+        inv _ eq₃ eq₄ = inv->>= eq
+        L.lift okᴸ    = inv-require ⊢γ eq₂
+        ⊢l′           = ⊢∷Level→⊢∷Level okᴸ ⊢l′
+        l′≡l″         = red-tm-sound n eq₃ ⊢γ ⊢l′
+        _ , _ , ⊢l″   = wf-⊢≡∷ l′≡l″
+        l″≡l‴         = normalise-level-sound n eq₄ ⊢γ (term-⊢∷ ⊢l″)
+    in
+    trans-⊢≡∷L l≡l′ $
+    trans-⊢≡∷L (term-⊢≡∷ l′≡l″) l″≡l‴
+
+  -- Soundness for below.
+
+  below-sound :
+    ∀ {nf₁ nf₂} →
+    OK (below n Γ nf₁ nf₂) tt γ st →
+    ∀ {n} →
+    Contexts-wf (Γ .defs) γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ nf₁ , n ⌝ˡⁿ γ ∷Level →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ nf₂ , n ⌝ˡⁿ γ ∷Level →
+    Below (⌜ Γ ⌝ᶜ γ) γ (nf₁ , n) (nf₂ , n)
+  below-sound {Γ} {γ} eq ⊢γ ⊢nf₁ ⊢nf₂ =
+    N.≤-refl , below-sound₁ (All.map inv-any (inv-all eq)) ⊢nf₁ ⊢nf₂
+    where
+    opaque
+      unfolding ⌜_⌝ˡⁿ
+
+      below-sound₂ :
+        ∀ {nf₂} l₁ →
+        Any (λ nl₂ → OK (below′ n Γ (n₁ , l₁) nl₂) tt γ st) nf₂ →
+        ∀ {n} →
+        ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ∷Level →
+        ⌜ Γ ⌝ᶜ γ ⊢ ⌜ nf₂ , n ⌝ˡⁿ γ ∷Level →
+        Any
+          (λ (n₂ , l₂) →
+             ⌜ Γ ⌝ᶜ γ ⊢ U.sucᵘᵏ n₁ (⌜ l₁ ⌝ γ) ≤ₗ U.sucᵘᵏ n₂ (⌜ l₂ ⌝ γ)
+               ∷Level)
+          nf₂
+      below-sound₂ l₁ (List.here eq) ⊢l₁ ⊢nf₂ =
+        let ⊢n₂+l₂ , _ = inversion-supᵘₗ ⊢nf₂
+            ⊢l₂        = inversion-sucᵘᵏ-⊢∷L ⊢n₂+l₂
+        in
+        List.here (below′-sound l₁ eq ⊢γ ⊢l₁ ⊢l₂)
+      below-sound₂ l₁ (List.there below) ⊢l₁ ⊢nf₂ =
+        let _ , ⊢nf₂ = inversion-supᵘₗ ⊢nf₂ in
+        List.there (below-sound₂ l₁ below ⊢l₁ ⊢nf₂)
+
+    opaque
+      unfolding ⌜_⌝ˡⁿ
+
+      below-sound₁ :
+        ∀ {nf₁ nf₂} →
+        All (λ nl₁ → Any (λ nl₂ → OK (below′ n Γ nl₁ nl₂) tt γ st) nf₂)
+          nf₁ →
+        ∀ {n} →
+        ⌜ Γ ⌝ᶜ γ ⊢ ⌜ nf₁ , n ⌝ˡⁿ γ ∷Level →
+        ⌜ Γ ⌝ᶜ γ ⊢ ⌜ nf₂ , n ⌝ˡⁿ γ ∷Level →
+        All
+          (λ (n₁ , l₁) →
+             Any
+               (λ (n₂ , l₂) →
+                  ⌜ Γ ⌝ᶜ γ ⊢ U.sucᵘᵏ n₁ (⌜ l₁ ⌝ γ) ≤ₗ
+                    U.sucᵘᵏ n₂ (⌜ l₂ ⌝ γ) ∷Level)
+               nf₂)
+          nf₁
+      below-sound₁ List.[] _ _ =
+        List.[]
+      below-sound₁ (List._∷_ {x = _ , l₁} below₁ below₂) ⊢nf₁ ⊢nf₂ =
+        let ⊢n₁+l₁ , ⊢nf₁ = inversion-supᵘₗ ⊢nf₁
+            ⊢l₁           = inversion-sucᵘᵏ-⊢∷L ⊢n₁+l₁
+        in
+        below-sound₂ l₁ below₁ ⊢l₁ ⊢nf₂ List.∷
+        below-sound₁ below₂ ⊢nf₁ ⊢nf₂
+
+  private
+
+    -- Soundness for below′.
+
+    below′-sound :
+      ∀ l₁ →
+      OK (below′ n Γ (n₁ , l₁) (n₂ , l₂)) tt γ st →
+      Contexts-wf (Γ .defs) γ →
+      ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ∷Level →
+      ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₂ ⌝ γ ∷Level →
+      ⌜ Γ ⌝ᶜ γ ⊢ U.sucᵘᵏ n₁ (⌜ l₁ ⌝ γ) ≤ₗ U.sucᵘᵏ n₂ (⌜ l₂ ⌝ γ) ∷Level
+    below′-sound {n} {l₂} l₁ eq ⊢γ ⊢l₁ ⊢l₂
+      with are-meta-variables? l₁ l₂ | inv->>= eq
+    … | nothing | inv n₁≤n₂ _ eq =
+      let inv _ eq₁ eq₂ = inv->>= eq
+          L.lift okᴸ    = inv-require ⊢γ eq₁
+          l₁≡l₂         = equal-tm-sound′ n eq₂ ⊢γ
+                            (⊢∷Level→⊢∷Level okᴸ ⊢l₁)
+                            (⊢∷Level→⊢∷Level okᴸ ⊢l₂)
+      in
+      sucᵘᵏ-mono n₁≤n₂ (reflexive-⊢≤ₗ∷L (term-⊢≡∷ l₁≡l₂))
+    … | just (_ , _ , σ₁ , _ , _ , _ , PE.refl , PE.refl)
+      | inv n₁≤n₂ _ eq
+      with inv->>= eq
+    … | inv _ _ eq
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv PE.refl eq₂ eq₃ =
+      let ⊢Γ                 = wfLevel ⊢l₁
+          x₂-level , ⊢Δ₂ , _ = is-level-sound eq₁ ⊢γ ⊢Γ
+          σ₁≡σ₂              = equal-sub′-sound eq₂ ⊢γ ⊢Γ ⊢Δ₂
+          x₁[σ₁]≡x₂[σ₂]      = are-equal-meta-vars-sound-level σ₁ eq₃ ⊢γ
+                                 x₂-level σ₁≡σ₂
+      in
+      sucᵘᵏ-mono n₁≤n₂ (reflexive-⊢≤ₗ∷L x₁[σ₁]≡x₂[σ₂])
 
   -- Soundness for equal-sub′.
 
@@ -3294,6 +4549,31 @@ opaque mutual
     where
     open TyR
 
+  -- Soundness for check-and-equal-level.
+
+  check-and-equal-level-sound′ :
+    ∀ n →
+    OK (check-and-equal-level n Γ l₁ l₂) l γ st →
+    Contexts-wf (Γ .defs) γ →
+    ⊢ ⌜ Γ ⌝ᶜ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l ⌝ γ ∷Level ×
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l₂ ⌝ γ ∷Level
+  check-and-equal-level-sound′ n eq ⊢γ ⊢Γ
+    with inv->>= eq
+  … | inv _ eq₁ eq
+    with inv->>= eq
+  … | inv _ eq₂ eq
+    with inv->>= eq
+  … | inv _ eq₃ ok! =
+    let l₁≡l₁′   = check-level-sound′ n eq₁ ⊢γ ⊢Γ
+        _ , ⊢l₁′ = wf-⊢≡∷L l₁≡l₁′
+        l₂≡l₂′   = check-level-sound′ n eq₂ ⊢γ ⊢Γ
+        _ , ⊢l₂′ = wf-⊢≡∷L l₂≡l₂′
+        l₁′≡l₂′  = equal-level-sound′ eq₃ ⊢γ ⊢l₁′ ⊢l₂′
+    in
+    l₁≡l₁′ ,
+    trans-⊢≡∷L l₁≡l₁′ (trans-⊢≡∷L l₁′≡l₂′ (sym-⊢≡∷L l₂≡l₂′))
+
   -- Soundness for check-and-equal-tm.
 
   check-and-equal-tm-sound′ :
@@ -3336,6 +4616,19 @@ opaque
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ
   check-type-sound _ _ _ n eq ⊢γ ⊢Γ =
     wf-⊢≡ (check-type-sound′ n (ok eq) ⊢γ ⊢Γ) .proj₁
+
+opaque
+
+  -- Soundness for check-level.
+
+  check-level-sound :
+    ∀ γ (Γ : Cons c m n) l n →
+    check-level n Γ l .run (γ # []) PE.≡ inj₂ l′ →
+    Contexts-wf (Γ .defs) γ →
+    ⊢ ⌜ Γ ⌝ᶜ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ∷Level
+  check-level-sound _ _ _ n eq ⊢γ ⊢Γ =
+    wf-⊢≡∷L (check-level-sound′ n (ok eq) ⊢γ ⊢Γ) .proj₁
 
 opaque
 
@@ -3390,6 +4683,20 @@ opaque
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₂ ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A₂ ⌝ γ
   equal-ty-sound _ _ _ _ n eq = equal-ty-sound′ n (ok eq)
+
+opaque
+
+  -- Soundness for equal-level.
+
+  equal-level-sound :
+    ∀ γ (Γ : Cons c m n) l₁ l₂ n →
+    equal-level n Γ l₁ l₂ .run (γ # []) PE.≡ inj₂ tt →
+    Contexts-wf (Γ .defs) γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ∷Level →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₂ ⌝ γ ∷Level →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l₂ ⌝ γ ∷Level
+  equal-level-sound _ _ _ _ n eq =
+    equal-level-sound′ {n = n} (ok eq)
 
 opaque
 
@@ -3452,6 +4759,20 @@ opaque
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A₂ ⌝ γ
   check-and-equal-ty-sound _ _ _ _ n eq ⊢γ ⊢Γ =
     check-and-equal-ty-sound′ n (ok eq) ⊢γ ⊢Γ .proj₂
+
+opaque
+
+  -- Soundness for check-and-equal-level.
+
+  check-and-equal-level-sound :
+    ∀ γ (Γ : Cons c m n) l₁ l₂ n →
+    check-and-equal-level n Γ l₁ l₂ .run (γ # []) PE.≡ inj₂ l →
+    Contexts-wf (Γ .defs) γ →
+    ⊢ ⌜ Γ ⌝ᶜ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l ⌝ γ ∷Level ×
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l₂ ⌝ γ ∷Level
+  check-and-equal-level-sound _ _ _ _ n eq =
+    check-and-equal-level-sound′ n (ok eq)
 
 opaque
 

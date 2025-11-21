@@ -12,13 +12,11 @@ module Definition.Typed.Decidable.Internal.Context
   (TR : Type-restrictions 𝕄)
   where
 
-open Type-restrictions TR
-
 open import Definition.Typed TR as T hiding (Trans)
 open import Definition.Typed.Decidable.Internal.Constraint TR
 open import Definition.Typed.Decidable.Internal.Monad TR
-open import Definition.Typed.Decidable.Internal.Term 𝕄
-open import Definition.Typed.Decidable.Internal.Weakening 𝕄
+open import Definition.Typed.Decidable.Internal.Term TR
+open import Definition.Typed.Decidable.Internal.Weakening TR
 open import Definition.Typed.Properties.Definition TR
 open import Definition.Typed.Reasoning.Type TR
 open import Definition.Typed.Stability TR
@@ -240,18 +238,22 @@ opaque
 Type-or-term-wf : Cons c m n → Type-or-term c n → Contexts c → Set a
 Type-or-term-wf Γ (type A)   γ = ⌜ Γ ⌝ᶜ γ ⊢ A
 Type-or-term-wf Γ (term t A) γ = ⌜ Γ ⌝ᶜ γ ⊢ t ∷ ⌜ A ⌝ γ
+Type-or-term-wf Γ (level l)  γ = ⌜ Γ ⌝ᶜ γ ⊢ l ∷Level
 
 -- The equality is well-formed.
 
 data Equality-wf (Γ : Cons c m n) (γ : Contexts c) :
        (_ _ : Type-or-term c n) → Set a where
-  type : ∀ {A₁ A₂} →
-         ⌜ Γ ⌝ᶜ γ ⊢ A₁ ≡ A₂ →
-         Equality-wf Γ γ (type A₁) (type A₂)
-  term : ∀ {t₁ t₂} →
-         ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A₂ ⌝ γ →
-         ⌜ Γ ⌝ᶜ γ ⊢ t₁ ≡ t₂ ∷ ⌜ A₁ ⌝ γ →
-         Equality-wf Γ γ (term t₁ A₁) (term t₂ A₂)
+  type  : ∀ {A₁ A₂} →
+          ⌜ Γ ⌝ᶜ γ ⊢ A₁ ≡ A₂ →
+          Equality-wf Γ γ (type A₁) (type A₂)
+  term  : ∀ {t₁ t₂} →
+          ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A₂ ⌝ γ →
+          ⌜ Γ ⌝ᶜ γ ⊢ t₁ ≡ t₂ ∷ ⌜ A₁ ⌝ γ →
+          Equality-wf Γ γ (term t₁ A₁) (term t₂ A₂)
+  level : ∀ {l₁ l₂} →
+          ⌜ Γ ⌝ᶜ γ ⊢ l₁ ≡ l₂ ∷Level →
+          Equality-wf Γ γ (level l₁) (level l₂)
 
 -- Meta-con-wf Γ γ means that the meta-context in γ is well-formed
 -- with respect to Γ.

@@ -54,9 +54,8 @@ open import Definition.Untyped.Nat affineModality
 
 private variable
   n : Nat
-  l : Universe-level
-  γ δ η γ₁ γ₂ δ₁ δ₂ η₁ η₂ : Conₘ _
-  A k h t u nl cs P xs : Term _
+  γ γ₁ γ₂ δ δ₁ δ₂ η η₁ η₂ η₃ θ : Conₘ _
+  A k l h t u nl cs P xs : Term _
   m : Mode
   p p₁ p₂ p₃ p₄ q q₁ q₂ q₃ r r₁ r₂ : Affine
 
@@ -157,13 +156,14 @@ module Vec
     -- A usage rule for Vec′
 
     ▸Vec′ :
-      γ ▸[ m ] k →
+      γ ▸[ 𝟘ᵐ? ] l →
       δ ▸[ m ᵐ· p ] A →
-      γ +ᶜ ω ·ᶜ δ ▸[ m ] Vec′ l A k
-    ▸Vec′ {γ} {δ} ▸k ▸A =
-      sub-≈ᶜ (▸V.▸Vec′ ▸k ▸A nrᵢᶜ-𝟙-GLBᶜ) $ begin
-        γ +ᶜ ω ·ᶜ δ       ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
-        γ +ᶜ 𝟘ᶜ +ᶜ ω ·ᶜ δ ∎
+      η ▸[ m ] k →
+      η +ᶜ ω ·ᶜ δ ▸[ m ] Vec′ l A k
+    ▸Vec′ {δ} {η} ▸l ▸A ▸k =
+      sub-≈ᶜ (▸V.▸Vec′ ▸l ▸A ▸k nrᵢᶜ-𝟙-GLBᶜ) $ begin
+        η +ᶜ ω ·ᶜ δ        ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
+        η +ᶜ 𝟘ᶜ +ᶜ ω ·ᶜ δ  ∎
       where
       open ≈ᶜ-reasoning
 
@@ -176,15 +176,16 @@ module Vec
       γ₂ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₂ · p ∙ ⌜ m ⌝ · p₃ ∙ ⌜ m ⌝ · p₄ ▸[ m ] cs →
       δ₁ ▸[ m ] k →
       δ₂ ▸[ m ᵐ· r₂ ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
       Unitrec-allowed m r₂ q₂ →
       Prodrec-allowed m r₂ p q₂ →
       M.Greatest-lower-bound r₂ (M.nrᵢ p₄ p₂ p₃) →
       nrᶜ ⦃ zero-one-many-has-nr ⦄ 𝟘 p₄ γ₁ γ₂ 𝟘ᶜ +ᶜ nr 𝟘 p₄ 𝟙 p₁ 𝟘 ·ᶜ δ₁ +ᶜ r₂ ·ᶜ δ₂
-        ▸[ m ] vecrec′ l p₁ p₄ r₂ q₁ q₂ A P nl cs k xs
-    ▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸A ▸P ok₁ ok₂ ok₃ =
-       ▸V.▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸A ▸P (nr-nrᵢ-GLB _) ok₃
+        ▸[ m ] vecrec′ p₁ p₄ r₂ q₁ q₂ l A P nl cs k xs
+    ▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P ok₁ ok₂ ok₃ =
+       ▸V.▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P (nr-nrᵢ-GLB _) ok₃
                     nrᶜ-nrᵢᶜ-GLBᶜ nrᵢᶜ-𝟙-GLBᶜ ok₁ ok₂
 
   opaque
@@ -196,14 +197,19 @@ module Vec
       γ₂ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₂ · p ∙ ⌜ m ⌝ · p₃ ∙ ⌜ m ⌝ · 𝟘 ▸[ m ] cs →
       δ₁ ▸[ m ] k →
       δ₂ ▸[ m ᵐ· (p₂ ∧ p₃) ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
       Unitrec-allowed m (p₂ ∧ p₃) q₂ →
       Prodrec-allowed m (p₂ ∧ p₃) p q₂ →
       (γ₁ ∧ᶜ γ₂) +ᶜ (p₁ ∧ 𝟙) ·ᶜ δ₁ +ᶜ (p₂ ∧ p₃) ·ᶜ δ₂
-        ▸[ m ] vecrec′ l p₁ 𝟘 (p₂ ∧ p₃) q₁ q₂ A P nl cs k xs
-    ▸vecrec′-𝟘 {γ₁} {γ₂} {p₁} {p₂} {p₃} {δ₁} {δ₂} ▸nl ▸cs ▸k ▸xs ▸A ▸P ok₁ ok₂ =
-      sub-≈ᶜ (▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸A ▸P ok₁ ok₂ (nrᵢ-𝟘-GLB _ _)) $ begin
+        ▸[ m ] vecrec′ p₁ 𝟘 (p₂ ∧ p₃) q₁ q₂ l A P nl cs k xs
+    ▸vecrec′-𝟘
+      {γ₁} {γ₂} {p₁} {p₂} {p₃} {δ₁} {δ₂}
+      ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P ok₁ ok₂ =
+      sub-≈ᶜ
+        (▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P ok₁ ok₂ (nrᵢ-𝟘-GLB _ _)) $
+      begin
         γ₁ ∧ᶜ γ₂ +ᶜ (p₁ ∧ 𝟙) ·ᶜ δ₁ +ᶜ (p₂ ∧ p₃) ·ᶜ δ₂                                       ≈⟨ +ᶜ-congʳ (∧ᶜ-comm _ _) ⟩
         γ₂ ∧ᶜ γ₁ +ᶜ (p₁ ∧ 𝟙) ·ᶜ δ₁ +ᶜ (p₂ ∧ p₃) ·ᶜ δ₂                                       ≈˘⟨ +ᶜ-congʳ (∧ᶜ-congʳ (+ᶜ-identityˡ _)) ⟩
         (𝟘ᶜ +ᶜ γ₂) ∧ᶜ γ₁ +ᶜ (p₁ ∧ 𝟙) ·ᶜ δ₁ +ᶜ (p₂ ∧ p₃) ·ᶜ δ₂                               ≈˘⟨ +ᶜ-congʳ (∧ᶜ-cong (+ᶜ-congʳ (·ᶜ-zeroʳ _)) (+ᶜ-identityˡ _)) ⟩
@@ -221,14 +227,19 @@ module Vec
       γ₂ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₂ · p ∙ ⌜ m ⌝ · p₃ ∙ ⌜ m ⌝ · 𝟙 ▸[ m ] cs →
       δ₁ ▸[ m ] k →
       δ₂ ▸[ m ᵐ· (p₂ + ω · p₃) ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
       Unitrec-allowed m (p₂ + ω · p₃) q₂ →
       Prodrec-allowed m (p₂ + ω · p₃) p q₂ →
       (γ₁ +ᶜ ω ·ᶜ γ₂) +ᶜ (𝟙 + ω · p₁) ·ᶜ δ₁ +ᶜ (p₂ + ω · p₃) ·ᶜ δ₂
-        ▸[ m ] vecrec′ l p₁ 𝟙 (p₂ + ω · p₃) q₁ q₂ A P nl cs k xs
-    ▸vecrec′-𝟙 {γ₁} {γ₂} {p₁} {p₂} {p₃} {δ₁} {δ₂} ▸nl ▸cs ▸k ▸xs ▸A ▸P ok₁ ok₂ =
-      sub-≈ᶜ (▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸A ▸P ok₁ ok₂ (nrᵢ-𝟙-GLB _ _)) $ begin
+        ▸[ m ] vecrec′ p₁ 𝟙 (p₂ + ω · p₃) q₁ q₂ l A P nl cs k xs
+    ▸vecrec′-𝟙
+      {γ₁} {γ₂} {p₁} {p₂} {p₃} {δ₁} {δ₂}
+      ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P ok₁ ok₂ =
+      sub-≈ᶜ
+        (▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P ok₁ ok₂ (nrᵢ-𝟙-GLB _ _)) $
+      begin
         (γ₁ +ᶜ ω ·ᶜ γ₂) +ᶜ (𝟙 + ω · p₁) ·ᶜ δ₁ +ᶜ (p₂ + ω · p₃) ·ᶜ δ₂                             ≈⟨ +ᶜ-congʳ (+ᶜ-comm _ _) ⟩
         (ω ·ᶜ γ₂ +ᶜ γ₁) +ᶜ (𝟙 + ω · p₁) ·ᶜ δ₁ +ᶜ (p₂ + ω · p₃) ·ᶜ δ₂                             ≈˘⟨ +ᶜ-congʳ (+ᶜ-identityˡ _) ⟩
         (𝟘ᶜ +ᶜ ω ·ᶜ γ₂ +ᶜ γ₁) +ᶜ (𝟙 + ω · p₁) ·ᶜ δ₁ +ᶜ (p₂ + ω · p₃) ·ᶜ δ₂                       ≈˘⟨ +ᶜ-congʳ (+ᶜ-congʳ (·ᶜ-zeroʳ _)) ⟩
@@ -246,18 +257,28 @@ module Vec
       γ₂ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₂ · p ∙ ⌜ m ⌝ · p₃ ∙ ⌜ m ⌝ · ω ▸[ m ] cs →
       δ₁ ▸[ m ] k →
       δ₂ ▸[ m ᵐ· (ω · (p₂ + p₃)) ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
       Unitrec-allowed m (ω · (p₂ + p₃)) q₂ →
       Prodrec-allowed m (ω · (p₂ + p₃)) p q₂ →
       ω ·ᶜ (γ₁ +ᶜ γ₂) +ᶜ ω ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂
-        ▸[ m ] vecrec′ l p₁ ω (ω · (p₂ + p₃)) q₁ q₂ A P nl cs k xs
-    ▸vecrec′-ω {γ₁} {γ₂} {p₁} {p₂} {p₃} {δ₁} {δ₂} ▸nl ▸cs ▸k ▸xs ▸A ▸P ok₁ ok₂ =
-      sub-≈ᶜ (▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸A ▸P ok₁ ok₂ (nrᵢ-ω-GLB _ _)) $ begin
-      ω ·ᶜ (γ₁ +ᶜ γ₂) +ᶜ ω ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂                                       ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-comm _ _)) ⟩
-      ω ·ᶜ (γ₂ +ᶜ γ₁) +ᶜ ω ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂                                       ≈˘⟨ +ᶜ-cong (·ᶜ-congˡ (+ᶜ-identityˡ _)) (+ᶜ-congʳ (·ᶜ-congʳ (M.+-comm (ω · p₁) ω))) ⟩
-      ω ·ᶜ (𝟘ᶜ +ᶜ γ₂ +ᶜ γ₁) +ᶜ (ω · p₁ + ω) ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂                      ≈˘⟨ +ᶜ-cong nrᶜ-ω-≈ᶜ (+ᶜ-congʳ (·ᶜ-congʳ (M.·-distribˡ-+ ω p₁ 𝟙))) ⟩
-      nrᶜ ⦃ zero-one-many-has-nr ⦄ 𝟘 ω γ₁ γ₂ 𝟘ᶜ +ᶜ nr 𝟘 ω 𝟙 p₁ 𝟘 ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂ ∎
+        ▸[ m ] vecrec′ p₁ ω (ω · (p₂ + p₃)) q₁ q₂ l A P nl cs k xs
+    ▸vecrec′-ω
+      {γ₁} {γ₂} {p₁} {p₂} {p₃} {δ₁} {δ₂}
+      ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P ok₁ ok₂ =
+      sub-≈ᶜ
+        (▸vecrec′ ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P ok₁ ok₂ (nrᵢ-ω-GLB _ _)) $
+      begin
+        ω ·ᶜ (γ₁ +ᶜ γ₂) +ᶜ ω ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂  ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-comm _ _)) ⟩
+
+        ω ·ᶜ (γ₂ +ᶜ γ₁) +ᶜ ω ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂  ≈˘⟨ +ᶜ-cong (·ᶜ-congˡ (+ᶜ-identityˡ _)) (+ᶜ-congʳ (·ᶜ-congʳ (M.+-comm (ω · p₁) ω))) ⟩
+
+        ω ·ᶜ (𝟘ᶜ +ᶜ γ₂ +ᶜ γ₁) +ᶜ
+        (ω · p₁ + ω) ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂          ≈˘⟨ +ᶜ-cong nrᶜ-ω-≈ᶜ (+ᶜ-congʳ (·ᶜ-congʳ (M.·-distribˡ-+ ω p₁ 𝟙))) ⟩
+
+        nrᶜ ⦃ zero-one-many-has-nr ⦄ 𝟘 ω γ₁ γ₂ 𝟘ᶜ +ᶜ
+        nr 𝟘 ω 𝟙 p₁ 𝟘 ·ᶜ δ₁ +ᶜ (ω · (p₂ + p₃)) ·ᶜ δ₂         ∎
       where
       open ≈ᶜ-reasoning
 
@@ -276,11 +297,12 @@ module List
     -- A usage rule for List
 
     ▸List :
-      γ ▸[ m ᵐ· pₕ ] A →
-      ω ·ᶜ γ ▸[ m ] List l A
-    ▸List {γ} ▸A = sub-≈ᶜ (▸L.▸List ▸A nrᵢᶜ-𝟙-GLBᶜ) $ begin
-      ω ·ᶜ γ       ≈˘⟨ +ᶜ-identityˡ _ ⟩
-      𝟘ᶜ +ᶜ ω ·ᶜ γ ∎
+      γ ▸[ 𝟘ᵐ? ] l →
+      δ ▸[ m ᵐ· pₕ ] A →
+      ω ·ᶜ δ ▸[ m ] List l A
+    ▸List {δ} ▸l ▸A = sub-≈ᶜ (▸L.▸List ▸l ▸A nrᵢᶜ-𝟙-GLBᶜ) $ begin
+      ω ·ᶜ δ       ≈˘⟨ +ᶜ-identityˡ _ ⟩
+      𝟘ᶜ +ᶜ ω ·ᶜ δ ∎
       where
       open ≈ᶜ-reasoning
 
@@ -288,7 +310,7 @@ module List
 
     -- A usage rule for nil
 
-    ▸nil : 𝟘ᶜ ▸[ m ] nil l A
+    ▸nil : 𝟘ᶜ ▸[ m ] nil A
     ▸nil = ▸L.▸nil
 
   opaque
@@ -296,12 +318,13 @@ module List
     -- A usage rule for cons
 
     ▸cons :
-      γ ▸[ m ᵐ· pₕ ] h →
-      δ ▸[ m ] t →
-      η ▸[ 𝟘ᵐ? ] A →
+      γ ▸[ 𝟘ᵐ? ] l →
+      δ ▸[ 𝟘ᵐ? ] A →
+      η ▸[ m ᵐ· pₕ ] h →
+      θ ▸[ m ] t →
       Prodrec-allowed m 𝟙 pₗ 𝟘 →
-      pₕ ·ᶜ γ +ᶜ δ ▸[ m ] cons l A h t
-    ▸cons ▸h ▸t ▸A ok = ▸L.▸cons ▸h ▸t ▸A nrᵢᶜ-𝟙-GLBᶜ ok
+      pₕ ·ᶜ η +ᶜ θ ▸[ m ] cons l A h t
+    ▸cons ▸l ▸A ▸h ▸t ok = ▸L.▸cons ▸l ▸A ▸h ▸t nrᵢᶜ-𝟙-GLBᶜ ok
 
   opaque
 
@@ -311,8 +334,9 @@ module List
       γ₁ ▸[ m ] nl →
       γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · p₃ ▸[ m ] cs →
       δ ▸[ m ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
       M.Greatest-lower-bound r₁ (M.nrᵢ p₃ 𝟙 (p₂ · pₗ)) →
       M.Greatest-lower-bound r₂ (M.nrᵢ p₃ p₁ p₂) →
       Greatest-lower-boundᶜ γ (nrᵢᶜ p₃ γ₁ γ₂) →
@@ -321,9 +345,11 @@ module List
       Unitrec-allowed m r₂ q →
       Prodrec-allowed m r₂ pₕ q →
       Prodrec-allowed m r pₗ q →
-      r ·ᶜ δ +ᶜ γ ▸[ m ] listrec l r r₂ p₂ p₃ q A P nl cs xs
-    ▸listrec ▸nl ▸cs ▸xs ▸A ▸P r₁-GLB r₂-GLB γ-GLB ≤r₁ ≤r₂ ok₁ ok₂ ok₃ =
-      ▸L.▸listrec ▸nl ▸cs ▸xs ▸A ▸P r₁-GLB r₂-GLB γ-GLB nrᵢᶜ-𝟙-GLBᶜ ≤r₁ ≤r₂ ok₁ ok₂ ok₃
+      r ·ᶜ δ +ᶜ γ ▸[ m ] listrec r r₂ p₂ p₃ q l A P nl cs xs
+    ▸listrec
+      ▸nl ▸cs ▸xs ▸l ▸A ▸P r₁-GLB r₂-GLB γ-GLB ≤r₁ ≤r₂ ok₁ ok₂ ok₃ =
+      ▸L.▸listrec ▸nl ▸cs ▸xs ▸l ▸A ▸P r₁-GLB r₂-GLB γ-GLB nrᵢᶜ-𝟙-GLBᶜ
+        ≤r₁ ≤r₂ ok₁ ok₂ ok₃
 
   opaque
 
@@ -333,16 +359,18 @@ module List
       γ₁ ▸[ m ] nl →
       γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · 𝟘 ▸[ m ] cs →
       δ ▸[ m ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
       r · pₗ ≤ 𝟙 ∧ p₂ · pₗ →
       r ≤ p₁ ∧ p₂ →
       Unitrec-allowed m (p₁ ∧ p₂) q →
       Prodrec-allowed m (p₁ ∧ p₂) pₕ q →
       Prodrec-allowed m r pₗ q →
-      r ·ᶜ δ +ᶜ (γ₁ ∧ᶜ γ₂) ▸[ m ] listrec l r (p₁ ∧ p₂) p₂ 𝟘 q A P nl cs xs
-    ▸listrec-𝟘 ▸nl ▸cs ▸xs ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
-      ▸listrec ▸nl ▸cs ▸xs ▸A ▸P (nrᵢ-𝟘-GLB _ _) (nrᵢ-𝟘-GLB _ _)
+      r ·ᶜ δ +ᶜ (γ₁ ∧ᶜ γ₂) ▸[ m ]
+        listrec r (p₁ ∧ p₂) p₂ 𝟘 q l A P nl cs xs
+    ▸listrec-𝟘 ▸nl ▸cs ▸xs ▸l ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
+      ▸listrec ▸nl ▸cs ▸xs ▸l ▸A ▸P (nrᵢ-𝟘-GLB _ _) (nrᵢ-𝟘-GLB _ _)
         nrᵢᶜ-𝟘-GLBᶜ rpₗ≤ r≤ ok₁ ok₂ ok₃
 
   opaque
@@ -353,16 +381,18 @@ module List
       γ₁ ▸[ m ] nl →
       γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · 𝟙 ▸[ m ] cs →
       δ ▸[ m ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
       r · pₗ ≤ 𝟙 + ω · p₂ · pₗ →
       r ≤ p₁ + ω · p₂ →
       Unitrec-allowed m (p₁ + ω · p₂) q →
       Prodrec-allowed m (p₁ + ω · p₂) pₕ q →
       Prodrec-allowed m r pₗ q →
-      r ·ᶜ δ +ᶜ γ₁ +ᶜ ω ·ᶜ γ₂ ▸[ m ] listrec l r (p₁ + ω · p₂) p₂ 𝟙 q A P nl cs xs
-    ▸listrec-𝟙 ▸nl ▸cs ▸xs ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
-      ▸listrec ▸nl ▸cs ▸xs ▸A ▸P (nrᵢ-𝟙-GLB _ _) (nrᵢ-𝟙-GLB _ _)
+      r ·ᶜ δ +ᶜ γ₁ +ᶜ ω ·ᶜ γ₂ ▸[ m ]
+        listrec r (p₁ + ω · p₂) p₂ 𝟙 q l A P nl cs xs
+    ▸listrec-𝟙 ▸nl ▸cs ▸xs ▸l ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
+      ▸listrec ▸nl ▸cs ▸xs ▸l ▸A ▸P (nrᵢ-𝟙-GLB _ _) (nrᵢ-𝟙-GLB _ _)
         nrᵢᶜ-𝟙-GLBᶜ rpₗ≤ r≤ ok₁ ok₂ ok₃
 
   opaque
@@ -373,16 +403,18 @@ module List
       γ₁ ▸[ m ] nl →
       γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · ω ▸[ m ] cs →
       δ ▸[ m ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
       r · pₗ ≤ ω →
       r ≤ ω · (p₁ + p₂) →
       Unitrec-allowed m (ω · (p₁ + p₂)) q →
       Prodrec-allowed m (ω · (p₁ + p₂)) pₕ q →
       Prodrec-allowed m r pₗ q →
-      r ·ᶜ δ +ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂) ▸[ m ] listrec l r (ω · (p₁ + p₂)) p₂ ω q A P nl cs xs
-    ▸listrec-ω ▸nl ▸cs ▸xs ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
-      ▸listrec ▸nl ▸cs ▸xs ▸A ▸P (nrᵢ-ω-GLB _ _) (nrᵢ-ω-GLB _ _)
+      r ·ᶜ δ +ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂) ▸[ m ]
+        listrec r (ω · (p₁ + p₂)) p₂ ω q l A P nl cs xs
+    ▸listrec-ω ▸nl ▸cs ▸xs ▸l ▸A ▸P rpₗ≤ r≤ ok₁ ok₂ ok₃ =
+      ▸listrec ▸nl ▸cs ▸xs ▸l ▸A ▸P (nrᵢ-ω-GLB _ _) (nrᵢ-ω-GLB _ _)
         nrᵢᶜ-ω-GLBᶜ (≤-trans rpₗ≤ refl) r≤ ok₁ ok₂ ok₃
 
 ------------------------------------------------------------------------
@@ -404,14 +436,16 @@ module List-pₗ≡𝟙
       γ₁ ▸[ m ] nl →
       γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · 𝟘 ▸[ m ] cs →
       δ ▸[ m ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
       Unitrec-allowed m (p₁ ∧ p₂) q →
       Prodrec-allowed m (p₁ ∧ p₂) pₕ q →
       Prodrec-allowed m (𝟙 ∧ p₁ ∧ p₂) 𝟙 q →
-      (𝟙 ∧ p₁ ∧ p₂) ·ᶜ δ +ᶜ (γ₁ ∧ᶜ γ₂) ▸[ m ] listrec l (𝟙 ∧ p₁ ∧ p₂) (p₁ ∧ p₂) p₂ 𝟘 q A P nl cs xs
-    ▸listrec-𝟘 {p₁} {p₂} ▸nl ▸cs ▸xs ▸A ▸P ok₁ ok₂ ok₃ =
-      ▸L.▸listrec-𝟘 ▸nl ▸cs ▸xs ▸A ▸P
+      (𝟙 ∧ p₁ ∧ p₂) ·ᶜ δ +ᶜ (γ₁ ∧ᶜ γ₂) ▸[ m ]
+        listrec (𝟙 ∧ p₁ ∧ p₂) (p₁ ∧ p₂) p₂ 𝟘 q l A P nl cs xs
+    ▸listrec-𝟘 {p₁} {p₂} ▸nl ▸cs ▸xs ▸l ▸A ▸P ok₁ ok₂ ok₃ =
+      ▸L.▸listrec-𝟘 ▸nl ▸cs ▸xs ▸l ▸A ▸P
         (begin
           (𝟙 ∧ p₁ ∧ p₂) · 𝟙 ≈⟨ M.·-identityʳ _ ⟩
           𝟙 ∧ p₁ ∧ p₂       ≤⟨ ∧-monotoneʳ {r = 𝟙} (∧-decreasingʳ p₁ p₂) ⟩
@@ -431,14 +465,16 @@ module List-pₗ≡𝟙
       γ₁ ▸[ m ] nl →
       γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · 𝟙 ▸[ m ] cs →
       δ ▸[ m ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
       Unitrec-allowed m (p₁ + ω · p₂) q →
       Prodrec-allowed m (p₁ + ω · p₂) pₕ q →
       Prodrec-allowed m (ω · p₂ + (𝟙 ∧ p₁)) 𝟙 q →
-      (ω · p₂ + (𝟙 ∧ p₁)) ·ᶜ δ +ᶜ γ₁ +ᶜ ω ·ᶜ γ₂ ▸[ m ] listrec l (ω · p₂ + (𝟙 ∧ p₁)) (p₁ + ω · p₂) p₂ 𝟙 q A P nl cs xs
-    ▸listrec-𝟙 {p₁} {p₂} ▸nl ▸cs ▸xs ▸A ▸P ok₁ ok₂ ok₃ =
-      ▸L.▸listrec-𝟙 ▸nl ▸cs ▸xs ▸A ▸P
+      (ω · p₂ + (𝟙 ∧ p₁)) ·ᶜ δ +ᶜ γ₁ +ᶜ ω ·ᶜ γ₂ ▸[ m ]
+        listrec (ω · p₂ + (𝟙 ∧ p₁)) (p₁ + ω · p₂) p₂ 𝟙 q l A P nl cs xs
+    ▸listrec-𝟙 {p₁} {p₂} ▸nl ▸cs ▸xs ▸l ▸A ▸P ok₁ ok₂ ok₃ =
+      ▸L.▸listrec-𝟙 ▸nl ▸cs ▸xs ▸l ▸A ▸P
         (begin
           (ω · p₂ + (𝟙 ∧ p₁)) · 𝟙 ≈⟨ M.·-identityʳ _ ⟩
           ω · p₂ + (𝟙 ∧ p₁)       ≤⟨ +-monotoneʳ (∧-decreasingˡ 𝟙 p₁) ⟩
@@ -461,11 +497,14 @@ module List-pₗ≡𝟙
       γ₁ ▸[ m ] nl →
       γ₂ ∙ ⌜ m ⌝ · p₁ · pₕ ∙ ⌜ m ⌝ · p₂ ∙ ⌜ m ⌝ · ω ▸[ m ] cs →
       δ ▸[ m ] xs →
-      η₁ ▸[ 𝟘ᵐ? ] A →
-      η₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+      η₁ ▸[ 𝟘ᵐ? ] l →
+      η₂ ▸[ 𝟘ᵐ? ] A →
+      η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
       Unitrec-allowed m (ω · (p₁ + p₂)) q →
       Prodrec-allowed m (ω · (p₁ + p₂)) pₕ q →
       Prodrec-allowed m ω 𝟙 q →
-      ω ·ᶜ δ +ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂) ▸[ m ] listrec l ω (ω · (p₁ + p₂)) p₂ ω q A P nl cs xs
-    ▸listrec-ω {p₁} {p₂} ▸nl ▸cs ▸xs ▸A ▸P ok₁ ok₂ ok₃ =
-      ▸L.▸listrec-ω ▸nl ▸cs ▸xs ▸A ▸P ≤-refl (ω≤ (p₁ + p₂)) ok₁ ok₂ ok₃
+      ω ·ᶜ δ +ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂) ▸[ m ]
+        listrec ω (ω · (p₁ + p₂)) p₂ ω q l A P nl cs xs
+    ▸listrec-ω {p₁} {p₂} ▸nl ▸cs ▸xs ▸l ▸A ▸P ok₁ ok₂ ok₃ =
+      ▸L.▸listrec-ω ▸nl ▸cs ▸xs ▸l ▸A ▸P ≤-refl (ω≤ (p₁ + p₂))
+        ok₁ ok₂ ok₃

@@ -14,6 +14,7 @@ module Definition.Typed.Properties.Admissible.Unit
 open Type-restrictions TR
 
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties.Admissible.Equality TR
@@ -24,8 +25,11 @@ open import Definition.Typed.Properties.Reduction TR
 open import Definition.Typed.Properties.Well-formed TR
 open import Definition.Typed.Reasoning.Reduction TR
 open import Definition.Typed.Reasoning.Term TR
+open import Definition.Typed.Stability TR
 open import Definition.Typed.Substitution.Primitive TR
 open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Weakening TR
+open import Definition.Typed.Well-formed TR
 open import Definition.Untyped.Unit 𝕄
 
 open import Tools.Function
@@ -35,11 +39,20 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                          : Cons _ _
-  A A₁ A₂ t t′ t₁ t₂ u u₁ u₂ : Term _
-  s                          : Strength
-  l                          : Universe-level
-  p q                        : M
+  Γ                                     : Cons _ _
+  A A₁ A₂ l l′ l₁ l₂ t t′ t₁ t₂ u u₁ u₂ : Term _
+  s                                     : Strength
+  p q                                   : M
+
+------------------------------------------------------------------------
+-- A lemma related to _⊢_
+
+opaque
+
+  -- A variant of Unitⱼ.
+
+  ⊢Unit : ⊢ Γ → Unit-allowed s → Γ ⊢ Unit s
+  ⊢Unit ⊢Γ ok = univ (Unitⱼ ⊢Γ ok)
 
 ------------------------------------------------------------------------
 -- A definitional η-rule
@@ -50,10 +63,11 @@ opaque
 
   Unit-η-≡ :
     Unit-with-η s →
-    Γ ⊢ t ∷ Unit s l →
-    Γ ⊢ star s l ≡ t ∷ Unit s l
+    Γ ⊢ t ∷ Unit s →
+    Γ ⊢ star s ≡ t ∷ Unit s
   Unit-η-≡ η ⊢t =
-    η-unit (starⱼ (wfTerm ⊢t) (⊢∷Unit→Unit-allowed ⊢t)) ⊢t η
+    let ok = inversion-Unit (syntacticTerm ⊢t) in
+    η-unit (starⱼ (wfTerm ⊢t) ok) ⊢t η
 
 ------------------------------------------------------------------------
 -- Lemmas related to unitrec
@@ -63,24 +77,27 @@ opaque
   -- A variant of unitrecⱼ.
 
   unitrecⱼ′ :
-    Γ »∙ Unitʷ l ⊢ A →
-    Γ ⊢ t ∷ Unitʷ l →
-    Γ ⊢ u ∷ A [ starʷ l ]₀ →
-    Γ ⊢ unitrec l p q A t u ∷ A [ t ]₀
+    Γ »∙ Unitʷ ⊢ A →
+    Γ ⊢ t ∷ Unitʷ →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
+    Γ ⊢ unitrec p q A t u ∷ A [ t ]₀
   unitrecⱼ′ ⊢A ⊢t ⊢u =
-    unitrecⱼ ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t)
+    let ok = inversion-Unit (⊢∙→⊢ (wf ⊢A)) in
+    unitrecⱼ ⊢A ⊢t ⊢u ok
 
 opaque
 
   -- A generalisation of unitrec-cong.
 
   unitrec-cong′ :
-    Γ »∙ Unitʷ l ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ Unitʷ l →
-    Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ starʷ l ]₀ →
-    Γ ⊢ unitrec l p q A₁ t₁ u₁ ≡ unitrec l p q A₂ t₂ u₂ ∷ A₁ [ t₁ ]₀
+    Γ »∙ Unitʷ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Unitʷ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ starʷ ]₀ →
+    Γ ⊢ unitrec p q A₁ t₁ u₁ ≡ unitrec p q A₂ t₂ u₂ ∷ A₁ [ t₁ ]₀
   unitrec-cong′
-    {l} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {p} {q} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
+    {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {p} {q} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
+    case wfEqTerm t₁≡t₂ of λ
+      ⊢Γ →
     case inversion-Unit $ syntacticEqTerm t₁≡t₂ .proj₁ of λ
       ok →
     case Unitʷ-η? of λ where
@@ -93,21 +110,26 @@ opaque
           (_ , ⊢t₁ , ⊢t₂) →
         case syntacticEqTerm u₁≡u₂ of λ
           (_ , ⊢u₁ , ⊢u₂) →
-        unitrec l p q A₁ t₁ u₁  ≡⟨ unitrec-β-η ⊢A₁ ⊢t₁ ⊢u₁ ok η ⟩⊢
+        unitrec p q A₁ t₁ u₁  ≡⟨ unitrec-β-η ⊢A₁ ⊢t₁ ⊢u₁ ok η ⟩⊢
         u₁                      ≡⟨ conv u₁≡u₂
                                      (substTypeEq (refl ⊢A₁) (Unit-η-≡ (inj₂ η) ⊢t₁)) ⟩⊢
-        u₂                      ≡˘⟨ conv (unitrec-β-η ⊢A₂ ⊢t₂ (conv ⊢u₂ (substTypeEq A₁≡A₂ (refl (starⱼ (wfTerm ⊢t₁) ok)))) ok η)
+        u₂                      ≡˘⟨ conv
+                                      (unitrec-β-η
+                                        ⊢A₂
+                                        ⊢t₂
+                                        (conv ⊢u₂ (substTypeEq A₁≡A₂ (refl (starⱼ ⊢Γ ok))))
+                                        ok η)
                                       (sym (substTypeEq A₁≡A₂ t₁≡t₂)) ⟩⊢∎
-        unitrec l p q A₂ t₂ u₂  ∎
+        unitrec p q A₂ t₂ u₂  ∎
 
 opaque
 
   -- A generalisation of _⊢_≡_∷_.unitrec-β.
 
   unitrec-β-≡ :
-    Γ »∙ Unitʷ l ⊢ A →
-    Γ ⊢ t ∷ A [ starʷ l ]₀ →
-    Γ ⊢ unitrec l p q A (starʷ l) t ≡ t ∷ A [ starʷ l ]₀
+    Γ »∙ Unitʷ ⊢ A →
+    Γ ⊢ t ∷ A [ starʷ ]₀ →
+    Γ ⊢ unitrec p q A starʷ t ≡ t ∷ A [ starʷ ]₀
   unitrec-β-≡ ⊢A ⊢t =
     case wf ⊢A of λ {
       (∙ ⊢Unit) →
@@ -115,7 +137,7 @@ opaque
       Unit-ok →
     case Unitʷ-η? of λ where
       (yes ok) →
-        unitrec-β-η ⊢A (starⱼ (wf ⊢Unit) Unit-ok) ⊢t Unit-ok ok
+        unitrec-β-η ⊢A (starⱼ (wfTerm ⊢t) Unit-ok) ⊢t Unit-ok ok
       (no not-ok) →
         unitrec-β ⊢A ⊢t Unit-ok not-ok }
 
@@ -124,71 +146,82 @@ opaque
   -- A generalisation of _⊢_⇒_∷_.unitrec-β.
 
   unitrec-β-⇒ :
-    Γ »∙ Unitʷ l ⊢ A →
-    Γ ⊢ t ∷ A [ starʷ l ]₀ →
-    Γ ⊢ unitrec l p q A (starʷ l) t ⇒ t ∷ A [ starʷ l ]₀
+    Γ »∙ Unitʷ ⊢ A →
+    Γ ⊢ t ∷ A [ starʷ ]₀ →
+    Γ ⊢ unitrec p q A starʷ t ⇒ t ∷ A [ starʷ ]₀
   unitrec-β-⇒ ⊢A ⊢t =
-    case wf ⊢A of λ {
-      (∙ ⊢Unit) →
-    case inversion-Unit ⊢Unit of λ
-      Unit-ok →
+    let Unit-ok = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+    in
     case Unitʷ-η? of λ where
       (yes ok) →
-        unitrec-β-η ⊢A (starⱼ (wf ⊢Unit) Unit-ok) ⊢t Unit-ok ok
+        unitrec-β-η ⊢A
+          (starⱼ (wfTerm ⊢t) Unit-ok)
+          ⊢t Unit-ok ok
       (no not-ok) →
-        unitrec-β ⊢A ⊢t Unit-ok not-ok }
-
+        unitrec-β ⊢A ⊢t Unit-ok not-ok
 
 opaque
 
   -- A variant of _⊢_≡_∷_.unitrec-β-η.
 
   unitrec-β-η-≡ :
-    Γ »∙ Unitʷ l ⊢ A →
-    Γ ⊢ t ∷ Unitʷ l →
-    Γ ⊢ u ∷ A [ starʷ l ]₀ →
+    Γ »∙ Unitʷ ⊢ A →
+    Γ ⊢ t ∷ Unitʷ →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
     Unitʷ-η →
-    Γ ⊢ unitrec l p q A t u ≡ u ∷ A [ t ]₀
+    Γ ⊢ unitrec p q A t u ≡ u ∷ A [ t ]₀
   unitrec-β-η-≡ ⊢A ⊢t ⊢u η =
-    unitrec-β-η ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t) η
+    case wf ⊢A of λ {
+      (∙ ⊢Unit) →
+    case inversion-Unit ⊢Unit of λ
+      Unit-ok →
+    unitrec-β-η ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t) η }
 
 opaque
 
   -- A variant of _⊢_⇒_∷_.unitrec-β-η.
 
   unitrec-β-η-⇒ :
-    Γ »∙ Unitʷ l ⊢ A →
-    Γ ⊢ t ∷ Unitʷ l →
-    Γ ⊢ u ∷ A [ starʷ l ]₀ →
+    Γ »∙ Unitʷ ⊢ A →
+    Γ ⊢ t ∷ Unitʷ →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
     Unitʷ-η →
-    Γ ⊢ unitrec l p q A t u ⇒ u ∷ A [ t ]₀
+    Γ ⊢ unitrec p q A t u ⇒ u ∷ A [ t ]₀
   unitrec-β-η-⇒ ⊢A ⊢t ⊢u η =
-    unitrec-β-η ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t) η
+    case wf ⊢A of λ {
+      (∙ ⊢Unit) →
+    case inversion-Unit ⊢Unit of λ
+      Unit-ok →
+    unitrec-β-η ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t) η }
 
 opaque
 
   -- A variant of unitrec-subst
 
   unitrec-subst′ :
-    Γ »∙ Unitʷ l ⊢ A →
-    Γ ⊢ u ∷ A [ starʷ l ]₀ →
-    Γ ⊢ t₁ ⇒ t₂ ∷ Unitʷ l →
+    Γ »∙ Unitʷ ⊢ A →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
+    Γ ⊢ t₁ ⇒ t₂ ∷ Unitʷ →
     ¬ Unitʷ-η →
-    Γ ⊢ unitrec l p q A t₁ u ⇒ unitrec l p q A t₂ u ∷ A [ t₁ ]₀
+    Γ ⊢ unitrec p q A t₁ u ⇒ unitrec p q A t₂ u ∷ A [ t₁ ]₀
   unitrec-subst′ ⊢A ⊢u t₁⇒t₂ =
+    case wf ⊢A of λ {
+      (∙ ⊢Unit) →
+    case inversion-Unit ⊢Unit of λ
+      Unit-ok →
     unitrec-subst ⊢A ⊢u t₁⇒t₂ $
-    inversion-Unit $ syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₁
+    inversion-Unit $ syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₁ }
 
 opaque
 
   -- A variant of unitrec-subst for _⊢_⇒*_∷_.
 
   unitrec-subst* :
-    Γ ⊢ t ⇒* t′ ∷ Unitʷ l →
-    Γ »∙ Unitʷ l ⊢ A →
-    Γ ⊢ u ∷ A [ starʷ l ]₀ →
+    Γ ⊢ t ⇒* t′ ∷ Unitʷ →
+    Γ »∙ Unitʷ ⊢ A →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
     ¬ Unitʷ-η →
-    Γ ⊢ unitrec l p q A t u ⇒* unitrec l p q A t′ u ∷ A [ t ]₀
+    Γ ⊢ unitrec p q A t u ⇒* unitrec p q A t′ u ∷ A [ t ]₀
   unitrec-subst* (id ⊢t) ⊢A ⊢u _ =
     id (unitrecⱼ ⊢A ⊢t ⊢u (⊢∷Unit→Unit-allowed ⊢t))
   unitrec-subst* (t⇒t′ ⇨ t′⇒*t″) ⊢A ⊢u not-ok =
@@ -202,20 +235,20 @@ opaque
   -- A variant of unitrec-subst* and unitrec-β-⇒/unitrec-β-η-⇒.
 
   unitrec-subst*-β :
-    Γ »∙ Unitʷ l ⊢ A →
-    Γ ⊢ u ∷ A [ starʷ l ]₀ →
-    Γ ⊢ t ⇒* starʷ l ∷ Unitʷ l →
-    Γ ⊢ unitrec l p q A t u ⇒* u ∷ A [ t ]₀
-  unitrec-subst*-β {l} {A} {u} {t} {p} {q} ⊢A ⊢u t⇒⋆ =
+    Γ »∙ Unitʷ ⊢ A →
+    Γ ⊢ u ∷ A [ starʷ ]₀ →
+    Γ ⊢ t ⇒* starʷ ∷ Unitʷ →
+    Γ ⊢ unitrec p q A t u ⇒* u ∷ A [ t ]₀
+  unitrec-subst*-β {A} {u} {t} {p} {q} ⊢A ⊢u t⇒⋆ =
     case Unitʷ-η? of λ where
       (yes η) →
         redMany $
         unitrec-β-η-⇒ ⊢A (redFirst*Term t⇒⋆) ⊢u η
       (no no-η) →
-        unitrec l p q A t u          ⇒*⟨ unitrec-subst* t⇒⋆ ⊢A ⊢u no-η ⟩
-        unitrec l p q A (starʷ l) u  ⇒⟨ conv (unitrec-β-⇒ ⊢A ⊢u)
-                                          (substTypeEq (refl ⊢A) (sym′ (subset*Term t⇒⋆))) ⟩∎
-        u                            ∎
+        unitrec p q A t u      ⇒*⟨ unitrec-subst* t⇒⋆ ⊢A ⊢u no-η ⟩
+        unitrec p q A starʷ u  ⇒⟨ conv (unitrec-β-⇒ ⊢A ⊢u)
+                                    (substTypeEq (refl ⊢A) (sym′ (subset*Term t⇒⋆))) ⟩∎
+        u                      ∎
 
 ------------------------------------------------------------------------
 -- Lemmas related to unitrec⟨_⟩
@@ -226,10 +259,10 @@ opaque
   -- A typing rule for unitrec⟨_⟩.
 
   ⊢unitrec⟨⟩ :
-    Γ »∙ Unit s l ⊢ A →
-    Γ ⊢ t ∷ Unit s l →
-    Γ ⊢ u ∷ A [ star s l ]₀ →
-    Γ ⊢ unitrec⟨ s ⟩ l p q A t u ∷ A [ t ]₀
+    Γ »∙ Unit s ⊢ A →
+    Γ ⊢ t ∷ Unit s →
+    Γ ⊢ u ∷ A [ star s ]₀ →
+    Γ ⊢ unitrec⟨ s ⟩ p q A t u ∷ A [ t ]₀
   ⊢unitrec⟨⟩ {s = 𝕨} ⊢A ⊢t ⊢u =
     unitrecⱼ′ ⊢A ⊢t ⊢u
   ⊢unitrec⟨⟩ {s = 𝕤} ⊢A ⊢t ⊢u =
@@ -241,12 +274,12 @@ opaque
   -- A reduction rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-β-⇒* :
-    (s PE.≡ 𝕨 → Γ »∙ Unit s l ⊢ A) →
-    Γ ⊢ t ∷ A [ star s l ]₀ →
-    Γ ⊢ unitrec⟨ s ⟩ l p q A (star s l) t ⇒* t ∷ A [ star s l ]₀
+    (s PE.≡ 𝕨 → Γ »∙ Unit s ⊢ A) →
+    Γ ⊢ t ∷ A [ star s ]₀ →
+    Γ ⊢ unitrec⟨ s ⟩ p q A (star s) t ⇒* t ∷ A [ star s ]₀
   unitrec⟨⟩-β-⇒* {s = 𝕨} ⊢A ⊢t =
     redMany $ unitrec-β-⇒ (⊢A PE.refl) ⊢t
-  unitrec⟨⟩-β-⇒* {s = 𝕤} ⊢A ⊢t =
+  unitrec⟨⟩-β-⇒* {s = 𝕤} _ ⊢t =
     id ⊢t
 
 opaque
@@ -254,9 +287,9 @@ opaque
   -- An equality rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-β-≡ :
-    (s PE.≡ 𝕨 → Γ »∙ Unit s l ⊢ A) →
-    Γ ⊢ t ∷ A [ star s l ]₀ →
-    Γ ⊢ unitrec⟨ s ⟩ l p q A (star s l) t ≡ t ∷ A [ star s l ]₀
+    (s PE.≡ 𝕨 → Γ »∙ Unit s ⊢ A) →
+    Γ ⊢ t ∷ A [ star s ]₀ →
+    Γ ⊢ unitrec⟨ s ⟩ p q A (star s) t ≡ t ∷ A [ star s ]₀
   unitrec⟨⟩-β-≡ ⊢A ⊢t =
     subset*Term (unitrec⟨⟩-β-⇒* ⊢A ⊢t)
 
@@ -266,18 +299,18 @@ opaque
   -- Another reduction rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-subst :
-    Γ »∙ Unit s l ⊢ A →
-    Γ ⊢ u ∷ A [ star s l ]₀ →
-    Γ ⊢ t₁ ⇒ t₂ ∷ Unit s l →
+    Γ »∙ Unit s ⊢ A →
+    Γ ⊢ u ∷ A [ star s ]₀ →
+    Γ ⊢ t₁ ⇒ t₂ ∷ Unit s →
     s PE.≡ 𝕤 ⊎ ¬ Unitʷ-η →
-    Γ ⊢ unitrec⟨ s ⟩ l p q A t₁ u ⇒* unitrec⟨ s ⟩ l p q A t₂ u ∷
+    Γ ⊢ unitrec⟨ s ⟩ p q A t₁ u ⇒* unitrec⟨ s ⟩ p q A t₂ u ∷
       A [ t₁ ]₀
   unitrec⟨⟩-subst {s = 𝕨} _  _  _     (inj₁ ())
   unitrec⟨⟩-subst {s = 𝕨} ⊢A ⊢u t₁⇒t₂ (inj₂ not-ok) =
+    case inversion-Unit (⊢∙→⊢ (wf ⊢A)) of λ
+      ok →
     redMany $
-    unitrec-subst ⊢A ⊢u t₁⇒t₂
-      (inversion-Unit $ syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₁)
-      not-ok
+    unitrec-subst ⊢A ⊢u t₁⇒t₂ ok not-ok
   unitrec⟨⟩-subst {s = 𝕤} {p} {q} ⊢A ⊢u t₁⇒t₂ _ =
     id $
     ⊢unitrec⟨⟩ {p = p} {q = q} ⊢A
@@ -289,10 +322,10 @@ opaque
   -- Another equality rule for unitrec⟨_⟩.
 
   unitrec⟨⟩-cong :
-    Γ »∙ Unit s l ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ Unit s l →
-    Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ star s l ]₀ →
-    Γ ⊢ unitrec⟨ s ⟩ l p q A₁ t₁ u₁ ≡ unitrec⟨ s ⟩ l p q A₂ t₂ u₂ ∷
+    Γ »∙ Unit s ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Unit s →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ star s ]₀ →
+    Γ ⊢ unitrec⟨ s ⟩ p q A₁ t₁ u₁ ≡ unitrec⟨ s ⟩ p q A₂ t₂ u₂ ∷
       A₁ [ t₁ ]₀
   unitrec⟨⟩-cong {s = 𝕨} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     unitrec-cong′ A₁≡A₂ t₁≡t₂ u₁≡u₂
@@ -310,16 +343,14 @@ opaque
   -- A typing rule for Unit-η.
 
   ⊢Unit-η :
-    Γ ⊢ t ∷ Unit s l →
-    Γ ⊢ Unit-η s l p t ∷ Id (Unit s l) (star s l) t
-  ⊢Unit-η ⊢t =
+    Γ ⊢ t ∷ Unit s →
+    Γ ⊢ Unit-η s p t ∷ Id (Unit s) (star s) t
+  ⊢Unit-η {t} {s} ⊢t =
     case syntacticTerm ⊢t of λ
       ⊢Unit →
-    case wf ⊢Unit of λ
-      ⊢Γ →
     case inversion-Unit ⊢Unit of λ
       ok →
-    ⊢unitrec⟨⟩
-      (Idⱼ′ (starⱼ (∙ Unitⱼ ⊢Γ ok) ok) (var₀ ⊢Unit))
-      ⊢t
-      (rflⱼ (starⱼ ⊢Γ ok))
+    PE.subst (_⊢_∷_ _ _) (PE.sym ≡Id-wk1-wk1-0[]₀) $
+    ⊢unitrec⟨⟩ (Idⱼ′ (starⱼ (∙ ⊢Unit) ok) (var₀ ⊢Unit)) ⊢t $
+    PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ $
+    rflⱼ (starⱼ (wfTerm ⊢t) ok)
