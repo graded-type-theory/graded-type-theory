@@ -14,8 +14,6 @@ module Graded.Box-cong
   (TR : Type-restrictions 𝕄)
   (open Type-restrictions TR)
   (UR : Usage-restrictions 𝕄)
-  -- It is assumed that Level is allowed.
-  (Level-ok : Level-allowed)
   where
 
 open Modality 𝕄
@@ -88,13 +86,14 @@ private opaque
   -- Some lemmas used below.
 
   ⊢Id-2-1-0 :
+    Level-allowed →
     ⊢ Γ →
     Γ ∙ Level ∙ U (var x0) ∙ var x0 ∙ var x1 ⊢
       Id (var x2) (var x1) (var x0)
-  ⊢Id-2-1-0 {Γ} ⊢Γ = Idⱼ′ (var₁ ⊢1) (var₀ ⊢1)
+  ⊢Id-2-1-0 {Γ} ok ⊢Γ = Idⱼ′ (var₁ ⊢1) (var₀ ⊢1)
     where
     ⊢1 : Γ ∙ Level ∙ U (var x0) ∙ var x0 ⊢ var x1
-    ⊢1 = univ (var₁ (univ (var₀ (⊢U′ (var₀ (Levelⱼ′ Level-ok ⊢Γ))))))
+    ⊢1 = univ (var₁ (univ (var₀ (⊢U′ (var₀ (Levelⱼ′ ok ⊢Γ))))))
 
   Id-[]₀≡ :
     let open Erased s in
@@ -443,8 +442,18 @@ Has-computing-[]-cong s m q₁ q₂ q₃ q₄ q₅ =
 
 opaque
 
+  -- If Has-[]-cong holds, then Level is allowed.
+
+  Has-[]-cong→Level-allowed :
+    Has-[]-cong s m q₁ q₂ q₃ q₄ q₅ → Level-allowed
+  Has-[]-cong→Level-allowed (_ , _ , ⊢[]-cong) =
+    let ⊢Level , _ = inversion-ΠΣ (wf-⊢∷ ⊢[]-cong) in
+    inversion-Level-⊢ ⊢Level
+
+opaque
+
   -- []-cong is supported for the strength s and the mode m, for
-  -- grades for which "Π 𝟘" are allowed, if
+  -- grades for which "Π 𝟘" are allowed, if Level is allowed and
   --
   -- * []-cong is allowed for s, or
   -- * Erased is allowed for s and
@@ -453,6 +462,7 @@ opaque
   --   * the modality is trivial.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong :
+    Level-allowed →
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
     Erased-allowed s ×
     (erased-matches-for-J m ≢ none ⊎
@@ -464,9 +474,9 @@ opaque
     Π-allowed 𝟘 q₄ →
     Π-allowed 𝟘 q₅ →
     Has-computing-[]-cong s m q₁ q₂ q₃ q₄ q₅
-  []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong {s} {m} ok ok₁ ok₂ ok₃ ok₄ ok₅ =
-    let ⊢[]-cong″ =
-          ⊢[]-cong″ ok′ (var₃ (⊢Id-2-1-0 ε)) (var₀ (⊢Id-2-1-0 ε))
+  []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong {s} {m} Level-ok ok ok₁ ok₂ ok₃ ok₄ ok₅ =
+    let ⊢Id       = ⊢Id-2-1-0 Level-ok ε
+        ⊢[]-cong″ = ⊢[]-cong″ ok′ (var₃ ⊢Id) (var₀ ⊢Id)
     in
       ( []-cong′
       , (lamₘ $ lamₘ $ lamₘ $ lamₘ $ lamₘ $
@@ -487,7 +497,7 @@ opaque
                                                                             β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
                                                                               (W.wkTerm
                                                                                  (W.liftʷ (W.lift (W.lift (W.lift (W.lift W.wk₀∷⊇)))) $
-                                                                                  ⊢Id-2-1-0 (wfTerm ⊢A))
+                                                                                  ⊢Id-2-1-0 Level-ok (wfTerm ⊢A))
                                                                                  ⊢[]-cong″)
                                                                               (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
                                                                               ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
@@ -596,7 +606,7 @@ opaque
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
     ¬ Has-[]-cong s 𝟙ᵐ q₁ q₂ q₃ q₄ q₅
-  ¬-[]-cong nem Unitʷ-η→ (_ , ▸[]-cong , ⊢[]-cong) =
+  ¬-[]-cong nem Unitʷ-η→ has-[]-cong@(_ , ▸[]-cong , ⊢[]-cong) =
     case lemma
            (lemma
               (lemma
@@ -633,7 +643,7 @@ opaque
     t″ = zero
 
     ⊢l : ε ⊢ l′ ∷ Level
-    ⊢l = zeroᵘⱼ Level-ok ε
+    ⊢l = zeroᵘⱼ (Has-[]-cong→Level-allowed has-[]-cong) ε
 
     ⊢A : ε ⊢ A′ ∷ U l′
     ⊢A = ℕⱼ ε
@@ -701,6 +711,16 @@ Has-weaker-computing-[]-cong s m q₁ q₂ q₃ q₄ q₅ =
   Γ ⊢ wk wk₀ []-cong′ ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∘⟨ ω ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡
     rfl ∷ Id (Erased l A) [ t ] ([ t ])
 
+opaque
+
+  -- If Has-weaker-[]-cong holds, then Level is allowed.
+
+  Has-weaker-[]-cong→Level-allowed :
+    Has-weaker-[]-cong s m q₁ q₂ q₃ q₄ q₅ → Level-allowed
+  Has-weaker-[]-cong→Level-allowed (_ , _ , ⊢[]-cong) =
+    let ⊢Level , _ = inversion-ΠΣ (wf-⊢∷ ⊢[]-cong) in
+    inversion-Level-⊢ ⊢Level
+
 -- Some definitions/lemmas used below.
 
 private
@@ -708,7 +728,8 @@ private
     (hyp₂ : Π-allowed 𝟘 q₂ → Π-allowed ω q₂)
     (hyp₃ : Π-allowed 𝟘 q₃ → Π-allowed ω q₃)
     (hyp₄ : Π-allowed 𝟘 q₄ → Π-allowed ω q₄)
-    (([]-cong′ , _ , ⊢[]-cong′) : Has-[]-cong s m q₁ q₂ q₃ q₄ q₅)
+    (has-[]-cong@([]-cong′ , _ , ⊢[]-cong′) :
+     Has-[]-cong s m q₁ q₂ q₃ q₄ q₅)
     where
 
     open Erased s
@@ -737,7 +758,7 @@ private
         ⊢Id :
           ε ∙ Level ∙ U (var x0) ∙ var x0 ∙ var x1 ⊢
           Id (var x2) (var x1) (var x0)
-        ⊢Id = ⊢Id-2-1-0 ε
+        ⊢Id = ⊢Id-2-1-0 (Has-[]-cong→Level-allowed has-[]-cong) ε
 
     oks :
       Π-allowed 𝟘 q₁ × Π-allowed ω q₂ × Π-allowed ω q₃ ×
@@ -838,6 +859,8 @@ opaque
     hyp₂ hyp₃ hyp₄ (has-[]-cong@([]-cong′ , _ , _) , []-cong′≡) =
     let open Has-[]-cong→Has-weaker-[]-cong hyp₂ hyp₃ hyp₄ has-[]-cong
 
+        ok = Has-[]-cong→Level-allowed has-[]-cong
+
         ok₁ , ok₂ , ok₃ , ok₄ , ok₅ = oks
     in
       Has-[]-cong→Has-weaker-[]-cong hyp₂ hyp₃ hyp₄ has-[]-cong
@@ -849,9 +872,9 @@ opaque
           ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∘⟨ ω ⟩ t ∘⟨ 𝟘 ⟩ rfl                ⇒*⟨ β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
                                                                               (W.wkTerm
                                                                                  (W.liftʷ (W.lift (W.lift (W.lift (W.lift W.wk₀∷⊇)))) $
-                                                                                  ⊢Id-2-1-0 (wfTerm ⊢A))
+                                                                                  ⊢Id-2-1-0 ok (wfTerm ⊢A))
                                                                                  ⊢[]-cong″)
-                                                                              (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
+                                                                              (⊢∷Level→⊢∷Level ok (inversion-U-Level (wf-⊢∷ ⊢A)))
                                                                               ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         (wk (liftn wk₀ 5) (wk wk₀ []-cong′)
            [ consSubst
@@ -878,7 +901,8 @@ private
     (hyp₂ : Π-allowed ω q₂ → Π-allowed 𝟘 q₂)
     (hyp₃ : Π-allowed ω q₃ → Π-allowed 𝟘 q₃)
     (hyp₄ : Π-allowed ω q₄ → Π-allowed 𝟘 q₄)
-    (([]-cong′ , _ , ⊢[]-cong′) : Has-weaker-[]-cong s m q₁ q₂ q₃ q₄ q₅)
+    (has-[]-cong@([]-cong′ , _ , ⊢[]-cong′) :
+     Has-weaker-[]-cong s m q₁ q₂ q₃ q₄ q₅)
     where
 
     open Erased s
@@ -907,14 +931,16 @@ private
           []-cong″ ∷
           Id (Erased (var x4) (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong″ =
-        let _ , ⊢Π  , ok₁    = inversion-ΠΣ $ syntacticTerm ⊢[]-cong′
+        let ok               = Has-weaker-[]-cong→Level-allowed
+                                 has-[]-cong
+            _ , ⊢Π  , ok₁    = inversion-ΠΣ $ syntacticTerm ⊢[]-cong′
             _ , ⊢Π  , ok₂    = inversion-ΠΣ ⊢Π
             _ , ⊢Π  , ok₃    = inversion-ΠΣ ⊢Π
             _ , ⊢Π  , ok₄    = inversion-ΠΣ ⊢Π
             _ , ⊢Id , ok₅    = inversion-ΠΣ ⊢Π
             Erased-ok , _    = inversion-Erased $
                                inversion-Id ⊢Id .proj₁
-            ⊢Id              = ⊢Id-2-1-0 ε
+            ⊢Id              = ⊢Id-2-1-0 ok ε
             ⊢3               = var₃ ⊢Id
             ⊢Erased-3        = Erasedⱼ-U Erased-ok ⊢3
             ⊢Erased-Erased-3 = univ (Erasedⱼ-U Erased-ok ⊢Erased-3)
@@ -1228,7 +1254,7 @@ opaque
           Id (Erased l A) [ t ] ([ t ])                                   ⇒*⟨ β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
                                                                                 (W.wkTerm
                                                                                    (W.liftʷ (W.lift (W.lift (W.lift (W.lift W.wk₀∷⊇)))) $
-                                                                                    ⊢Id-2-1-0 (wfTerm ⊢A))
+                                                                                    ⊢Id-2-1-0 Level-ok (wfTerm ⊢A))
                                                                                    ⊢[]-cong″)
                                                                                 ⊢l ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢∷
                                                                            ˘⟨ Id-cong (refl (univ ⊢Erased-A)) mapᴱ-lemma mapᴱ-lemma ⟩≡
@@ -1301,6 +1327,9 @@ opaque
 
         rfl                                                               ∎
         where
+        Level-ok : Level-allowed
+        Level-ok = Has-weaker-[]-cong→Level-allowed has-[]-cong
+
         Erased-ok : Erased-allowed s
         Erased-ok =
           proj₁ $ inversion-Erased $
