@@ -646,15 +646,15 @@ No-η-equality→≢Lift = λ where
   (U.Unitʷₙ _)    Unit≡Lift  → Lift≢Unitⱼ (sym Unit≡Lift)
   (U.neₙ A-ne)    A≡Lift     → Lift≢ne A-ne (sym A≡Lift)
 
--- If A is a type without η-equality (not definitionally equal to
--- Level), then a WHNF that is not "Neutralˡ" is not definitionally
--- equal at type A to any neutral term (given a certain assumption).
+-- If No-η-equality A holds, for some A distinct from Level, then a
+-- WHNF that is not "Neutralˡ" is not definitionally equal at type A
+-- to any neutral term (given a certain assumption).
 --
--- TODO: Can the assumption of type ¬ Γ ⊢ A ≡ Level be removed?
+-- TODO: Can the assumption of type A ≢ Level be removed?
 
 whnf≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
-  No-η-equality A → ¬ Γ ⊢ A ≡ Level →
+  No-η-equality A → A ≢ Level →
   Whnf t → ¬ Neutralˡ t → Neutral u →
   ¬ Γ ⊢ t ≡ u ∷ A
 whnf≢ne {Γ} {A} {t} {u} ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u =
@@ -688,7 +688,7 @@ whnf≢ne {Γ} {A} {t} {u} ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u =
   lemma : ∀ {l} → ([A] : Γ ⊩⟨ l ⟩ A) → ¬ Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A]
   lemma = λ where
     (Levelᵣ A⇒*Level) _ →
-      A≢Level (subset* A⇒*Level)
+      A≢Level (whnfRed* A⇒*Level (U.No-η-equality→Whnf ¬-A-η))
     (Liftᵣ′ A⇒*Lift _ _) _ →
       case A⇒*no-η A⇒*Lift of λ where
         (U.neₙ ())
@@ -779,7 +779,7 @@ zero≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral t →
   ¬ Γ ⊢ zero ≡ t ∷ ℕ
-zero≢ne = whnf≢ne U.ℕₙ (Level≢ℕ ∘→ sym) U.zeroₙ (λ { (U.ne ()) })
+zero≢ne = whnf≢ne U.ℕₙ (λ ()) U.zeroₙ (λ { (U.ne ()) })
 
 -- The term suc t is not definitionally equal (at type ℕ) to any
 -- neutral term (given a certain assumption).
@@ -788,7 +788,7 @@ suc≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral u →
   ¬ Γ ⊢ suc t ≡ u ∷ ℕ
-suc≢ne = whnf≢ne U.ℕₙ (Level≢ℕ ∘→ sym) U.sucₙ (λ { (U.ne ()) })
+suc≢ne = whnf≢ne U.ℕₙ (λ ()) U.sucₙ (λ { (U.ne ()) })
 
 -- The term starʷ l is not definitionally equal (at type Unitʷ l) to
 -- any neutral term (given certain assumptions).
@@ -799,7 +799,7 @@ starʷ≢ne :
   Neutral t →
   ¬ Γ ⊢ starʷ ≡ t ∷ Unitʷ
 starʷ≢ne no-η =
-  whnf≢ne (U.Unitʷₙ no-η) (Level≢Unitⱼ ∘→ sym) U.starₙ (λ { (U.ne ()) })
+  whnf≢ne (U.Unitʷₙ no-η) (λ ()) U.starₙ (λ { (U.ne ()) })
 
 -- The term prodʷ p t u is not definitionally equal (at type
 -- Σʷ p , q ▷ A ▹ B) to any neutral term (given a certain assumption).
@@ -808,7 +808,7 @@ prodʷ≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
   ¬ Γ ⊢ prodʷ p t u ≡ v ∷ Σʷ p , q ▷ A ▹ B
-prodʷ≢ne = whnf≢ne U.Σʷₙ (Level≢ΠΣⱼ ∘→ sym) U.prodₙ (λ { (U.ne ()) })
+prodʷ≢ne = whnf≢ne U.Σʷₙ (λ ()) U.prodₙ (λ { (U.ne ()) })
 
 -- The term rfl is not definitionally equal (at type Id A t u) to any
 -- neutral term (given a certain assumption).
@@ -817,7 +817,7 @@ rfl≢ne :
   ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
   Neutral v →
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
-rfl≢ne = whnf≢ne U.Idₙ (Level≢Id ∘→ sym) U.rflₙ (λ { (U.ne ()) })
+rfl≢ne = whnf≢ne U.Idₙ (λ ()) U.rflₙ (λ { (U.ne ()) })
 
 -- For any level t, t is not equal to sucᵘ t (given a certain assumption).
 
