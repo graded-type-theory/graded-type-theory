@@ -727,8 +727,8 @@ opaque
 opaque
 
   -- Reduction does not include η-expansion (for WHNFs) for unit types
-  -- with (or without) η-equality: if a WHNF t reduces to star s l (at
-  -- type Unit s l), then t is equal to star s l.
+  -- with (or without) η-equality: if a WHNF t reduces to star s (at
+  -- type Unit s), then t is equal to star s.
 
   no-η-expansion-Unit :
     Whnf t → Γ ⊢ t ⇒* star s ∷ Unit s → t PE.≡ star s
