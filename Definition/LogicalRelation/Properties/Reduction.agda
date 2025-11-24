@@ -213,7 +213,7 @@ opaque
       B⇒*Unit →
     Unitᵣ′ B⇒*Unit ok , Unit₌ B⇒*Unit
   redSubst*′ A⇒*B (ne′ inc C A⇒*C C-ne C≅C) =
-    case whrDet↘ (A⇒*C , ne! C-ne) A⇒*B of λ
+    case whrDet↘ (A⇒*C , ne C-ne) A⇒*B of λ
       B⇒*C →
     ne′ inc C B⇒*C C-ne C≅C , ne₌ inc C B⇒*C C-ne C≅C
   redSubst*′ A⇒*B (Bᵣ′ W C D A⇒*ΠΣ ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok) =

@@ -229,8 +229,8 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
   transEqT
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ _) (ne _ K₂ D₂ neK₂ _))
     (ne₌ _ M D′ neM K≡M) (ne₌ inc M₁ D″ neM₁ K≡M₁)
-    rewrite whrDet* (D₁ , ne! neK₁) (D′ , ne! neM)
-          | whrDet* (D₂ , ne! neK₂) (D″ , ne! neM₁) =
+    rewrite whrDet* (D₁ , ne neK₁) (D′ , ne neM)
+          | whrDet* (D₂ , ne neK₂) (D″ , ne neM₁) =
     ne₌ inc M₁ D″ neM₁ (≅-trans K≡M K≡M₁)
   transEqT {n = n} {Γ = Γ} {l′ = l′} {l″ = l″}
           (Bᵥ W W′ W″ (Bᵣ F G D A≡A [F] [G] G-ext _)

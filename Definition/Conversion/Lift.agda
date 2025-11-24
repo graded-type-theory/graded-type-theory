@@ -134,12 +134,11 @@ mutual
           B≡Unit →
         η-unit (conv ⊢t B≡Unit) (conv ⊢u B≡Unit) (ne! t-ne) (ne! u-ne) ok η }
   lift~toConv↓′ (ne′ _ H D neH H≡H) D₁ ([~] A (D₂ , whnfB) k~l)
-                rewrite PE.sym (whrDet* (D , ne! neH) (D₁ , whnfB)) =
+                rewrite PE.sym (whrDet* (D , ne neH) (D₁ , whnfB)) =
     let _ , ⊢t , ⊢u = syntacticEqTerm (soundness~↑ k~l)
         A≡H = subset* D₂
     in
-    ne-ins (conv ⊢t A≡H) (conv ⊢u A≡H) (ne⁻ neH)
-      ([~] A (D₂ , ne! neH) k~l)
+    ne-ins (conv ⊢t A≡H) (conv ⊢u A≡H) neH ([~] A (D₂ , ne neH) k~l)
   lift~toConv↓′
     (Πᵣ′ F G D A≡A [F] [G] G-ext _) D₁ ([~] A (D₂ , whnfB) k~l)
     rewrite PE.sym (whrDet* (D , ΠΣₙ) (D₁ , whnfB)) =

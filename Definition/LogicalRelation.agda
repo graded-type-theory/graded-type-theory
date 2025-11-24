@@ -55,7 +55,7 @@ private
 
 -- We will refer to expressions that satisfies the logical relation as reducible.
 
--- Reducibility of atomic neutrals:
+-- Reducibility of neutrals:
 
 -- Neutral type
 record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
@@ -66,7 +66,7 @@ record _⊩ne_ {ℓ : Nat} (Γ : Con Term ℓ) (A : Term ℓ) : Set a where
     neutrals-included : Neutrals-included
     K                 : Term ℓ
     D                 : Γ ⊢ A ⇒* K
-    neK               : Neutralᵃ K
+    neK               : Neutral K
     K≡K               : Γ ⊢≅ K
 
 -- Neutral type equality
@@ -79,10 +79,11 @@ record _⊩ne_≡_/_ (Γ : Con Term ℓ) (A B : Term ℓ) ([A] : Γ ⊩ne A) : S
     neutrals-included : Neutrals-included
     M                 : Term ℓ
     D′                : Γ ⊢ B ⇒* M
-    neM               : Neutralᵃ M
+    neM               : Neutral M
     K≡M               : Γ ⊢ K ≅ M
 
--- Neutral term equality in WHNF
+-- Equality for atomic neutral terms with neutral types (the latter
+-- condition is not enforced by this definition).
 record _⊩neNf_≡_∷_ (Γ : Con Term ℓ) (k m A : Term ℓ) : Set a where
   inductive
   no-eta-equality
@@ -94,7 +95,7 @@ record _⊩neNf_≡_∷_ (Γ : Con Term ℓ) (k m A : Term ℓ) : Set a where
     neM               : Neutralᵃ m
     k≡m               : Γ ⊢ k ~ m ∷ A
 
--- Neutral term equality
+-- Equality for terms with types that reduce to neutral types.
 record _⊩ne_≡_∷_/_ (Γ : Con Term ℓ) (t u A : Term ℓ) ([A] : Γ ⊩ne A) : Set a where
   no-eta-equality
   pattern

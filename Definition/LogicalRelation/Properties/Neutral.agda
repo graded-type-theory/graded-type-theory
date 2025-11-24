@@ -49,23 +49,23 @@ private
 
 opaque
 
-  -- Atomic neutral reflexive types are reducible (if
-  -- Neutrals-included holds).
+  -- Neutral reflexive types are reducible (if Neutrals-included
+  -- holds).
 
-  neu : Neutrals-included → Neutralᵃ A → Γ ⊢≅ A → Γ ⊩⟨ l ⟩ A
+  neu : Neutrals-included → Neutral A → Γ ⊢≅ A → Γ ⊩⟨ l ⟩ A
   neu inc neA ≅A = ne′ inc _ (id (wf-⊢≡ (≅-eq ≅A) .proj₁)) neA ≅A
 
 opaque
 
-  -- Equal, atomic neutral types are reducibly equal.
+  -- Equal neutral types are reducibly equal.
 
   neuEq :
-    (⊩A : Γ ⊩⟨ l ⟩ A) → Neutralᵃ A → Neutralᵃ B → Γ ⊢ A ≅ B →
+    (⊩A : Γ ⊩⟨ l ⟩ A) → Neutral A → Neutral B → Γ ⊢ A ≅ B →
     Γ ⊩⟨ l ⟩ A ≡ B / ⊩A
   neuEq {Γ} {A} {B} [A] neA neB A~B =
-    case ne-view (ne⁻ neA) [A] of λ {
+    case ne-view neA [A] of λ {
       (ne [A]′@(ne inc _ D neK K≡K)) →
-    let A≡K = whnfRed* D (ne! neA) in
+    let A≡K = whnfRed* D (ne neA) in
     ne₌ inc _ (id (wf-⊢≡ (≅-eq A~B) .proj₂)) neB
       (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B) }
 
@@ -104,7 +104,7 @@ opaque
       in
       ⊩U∷U⇔⊩U≡∷U .proj₁
         (Uₜ _ (id (conv ⊢n A≡U)) (ne (ne⁻ n-ne)) n≡n
-          (⊩<⇔⊩ k< .proj₂ (neu inc n-ne (≅-univ n≡n))))
+          (⊩<⇔⊩ k< .proj₂ (neu inc (ne⁻ n-ne) (≅-univ n≡n))))
     neuTerm′ (ℕᵣ D) =
       let A≡ℕ  = subset* D
           n~n′ = ~-conv ~n A≡ℕ
@@ -216,13 +216,14 @@ opaque
           n~n′₁ = ~-conv n~n′ A≡U
           ≅n , ≅n′ = wf-⊢≅ (~-to-≅ n~n′₁)
           n≡n′ = ~-to-≅ₜ n~n′₁
-          ⊩n = neu inc n-ne ≅n
+          ⊩n = neu inc (ne⁻ n-ne) ≅n
       in
       Uₜ₌ _ _ (id (conv ⊢n A≡U)) (id (conv ⊢n′ A≡U))
         (ne (ne⁻ n-ne)) (ne (ne⁻ n′-ne)) n≡n′
         (⊩<⇔⊩ k< .proj₂ ⊩n)
-        (⊩<⇔⊩ k< .proj₂ (neu inc n′-ne ≅n′))
-        (⊩<≡⇔⊩≡′ k< .proj₂ (neuEq ⊩n n-ne n′-ne (≅-univ n≡n′)))
+        (⊩<⇔⊩ k< .proj₂ (neu inc (ne⁻ n′-ne) ≅n′))
+        (⊩<≡⇔⊩≡′ k< .proj₂ $
+         neuEq ⊩n (ne⁻ n-ne) (ne⁻ n′-ne) (≅-univ n≡n′))
     neuEqTerm′ (ℕᵣ D) =
       let A≡ℕ = subset* D
           n~n′₁ = ~-conv n~n′ A≡ℕ

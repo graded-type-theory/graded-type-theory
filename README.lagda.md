@@ -81,10 +81,13 @@ anonymous reviewers.
 ## Changes compared to the paper
 
 The paper is accompanied by a code artifact. This section describes
-(some) differences between that artifact and the present version of
-the code:
+some differences between that artifact and the present version of the
+code:
 
 * Atomic neutrals are now defined in a different way.
+
+* The definition of reducibility for neutral types no longer requires
+  the types to be atomic neutral.
 
 ## Pointers to code for specific definitions, theorems etc. in the paper
 

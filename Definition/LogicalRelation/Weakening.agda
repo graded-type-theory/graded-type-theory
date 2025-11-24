@@ -330,7 +330,7 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
   wk ρ (Unitᵣ [A]) = Unitᵣ (wkUnit (∷ʷʳ⊇→∷ʷ⊇ ρ) [A])
   wk {ρ} [ρ] (ne′ inc _ D neK K≡K) =
     let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
-    ne′ inc (U.wk ρ _) (wkRed* [ρ] D) (wkNeutralᵃ neK) (≅-wk [ρ] K≡K)
+    ne′ inc (U.wk ρ _) (wkRed* [ρ] D) (wkNeutral _ neK) (≅-wk [ρ] K≡K)
   wk {m} {Δ} {Γ} {A} {ρ} [ρ] (Πᵣ′ F G D A≡A [F] [G] G-ext ok) =
     let [ρ]′ = ∷ʷʳ⊇→∷ʷ⊇ [ρ]
         [F]′ : ∀ {k} {ρ : Wk k m} {ρ′ E}
@@ -428,7 +428,7 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
   wkEq ρ (Unitᵣ′ _ _) A≡B = wkEqUnit (∷ʷʳ⊇→∷ʷ⊇ ρ) A≡B
   wkEq {ρ = ρ} [ρ] (ne′ _ _ _ _ _) (ne₌ inc M D′ neM K≡M) =
     let [ρ] = ∷ʷʳ⊇→∷ʷ⊇ [ρ] in
-    ne₌ inc (U.wk ρ M) (wkRed* [ρ] D′) (wkNeutralᵃ neM) (≅-wk [ρ] K≡M)
+    ne₌ inc (U.wk ρ M) (wkRed* [ρ] D′) (wkNeutral _ neM) (≅-wk [ρ] K≡M)
   wkEq
     {ρ}
     [ρ] (Πᵣ′ F G D A≡A [F] [G] G-ext _) (B₌ F′ G′ D′ A≡B [F≡F′] [G≡G′]) =

@@ -97,7 +97,7 @@ mutual
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ _ M D′ neM K≡M)
     (neₜ₌ k m d d′ (neNfₜ₌ inc neK₂ neM₁ k≡m)) =
     let K≡K₁ = PE.subst (λ x → _ ⊢ _ ≡ x)
-                        (whrDet* (D′ , ne! neM) (D₁ , ne! neK₁))
+                        (whrDet* (D′ , ne neM) (D₁ , ne neK₁))
                         (≅-eq K≡M)
     in  neₜ₌ k m (conv* d K≡K₁) (conv* d′ K≡K₁)
           (neNfₜ₌ inc neK₂ neM₁ (~-conv k≡m K≡K₁))
@@ -248,7 +248,7 @@ mutual
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ _ M D′ neM K≡M)
     (neₜ₌ k m d d′ (neNfₜ₌ inc neK₂ neM₁ k≡m)) =
     let K₁≡K = PE.subst (λ x → _ ⊢ x ≡ _)
-                        (whrDet* (D′ , ne! neM) (D₁ , ne! neK₁))
+                        (whrDet* (D′ , ne neM) (D₁ , ne neK₁))
                         (sym (≅-eq K≡M))
     in  neₜ₌ k m (conv* d K₁≡K) (conv* d′ K₁≡K)
           (neNfₜ₌ inc neK₂ neM₁ (~-conv k≡m K₁≡K))

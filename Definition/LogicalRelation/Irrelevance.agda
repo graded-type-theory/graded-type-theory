@@ -106,7 +106,7 @@ mutual
     Unit₌ D
   irrelevanceEqT
     (ne (ne _ _ D neK _) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ inc M D′ neM K≡M)
-    rewrite whrDet* (D , ne! neK) (D₁ , ne! neK₁) =
+    rewrite whrDet* (D , ne neK) (D₁ , ne neK₁) =
     ne₌ inc M D′ neM K≡M
   irrelevanceEqT
     {Γ = Γ}
@@ -219,7 +219,7 @@ mutual
     t≡u
   irrelevanceEqTermT
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (neₜ₌ k m d d′ nf)
-    with whrDet* (D₁ , ne! neK₁) (D , ne! neK)
+    with whrDet* (D₁ , ne neK₁) (D , ne neK)
   … | PE.refl = neₜ₌ k m d d′ nf
   irrelevanceEqTermT
     {Γ = Γ} {t = t} {u = u}

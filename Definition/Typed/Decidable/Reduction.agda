@@ -112,7 +112,7 @@ private opaque
     Lift≢Unitⱼ (trans (sym (subset* A⇒*W)) (subset* A⇒*Unit))
   isLift′ (ne′ _ _ A⇒*B B-ne _) =
     no λ (_ , _ , A⇒*W) →
-    I.Lift≢ne (ne⁻ B-ne) (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
+    I.Lift≢ne B-ne (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
   isLift′ (Bᵣ′ (BM _ _ _) _ _ A⇒*B _ _ _ _ _) =
     no λ (_ , _ , A⇒*W) →
     Lift≢ΠΣⱼ (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
@@ -160,7 +160,7 @@ private opaque
     Unit≢ΠΣⱼ (trans (sym (subset* A⇒*Unit)) (subset* A⇒*W))
   isΠΣ′ (ne′ _ _ A⇒*B B-ne _) =
     no λ (_ , _ , _ , _ , _ , A⇒*W) →
-    I.ΠΣ≢ne (ne⁻ B-ne) (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
+    I.ΠΣ≢ne B-ne (trans (sym (subset* A⇒*W)) (subset* A⇒*B))
   isΠΣ′ (Πᵣ′ _ _ A⇒*ΠΣ _ _ _ _ _) =
     yes (_ , _ , _ , _ , _ , A⇒*ΠΣ)
   isΠΣ′ (Σᵣ′ _ _ A⇒*ΠΣ _ _ _ _ _) =
@@ -269,7 +269,7 @@ opaque
           (subset* (_⊩Unit⟨_⟩_.⇒*-Unit ⊩Unit))
     helper (ne ⊩A) =
       no λ (_ , _ , _ , A⇒*Id) →
-        I.Id≢ne (ne⁻ neK) $ trans (sym (subset* A⇒*Id)) (subset* D)
+        I.Id≢ne neK $ trans (sym (subset* A⇒*Id)) (subset* D)
       where
       open _⊩ne_ ⊩A
     helper (Bᵣ (BM _ _ _) ⊩A) =

@@ -106,7 +106,7 @@ escapeEq (Emptyᵣ D) D′ =
 escapeEq (Unitᵣ′ D ok) (Unit₌ D′) =
   ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unit-refl (wf (redFirst* D)) ok)
 escapeEq (ne′ _ _ D neK _) (ne₌ _ _ D′ neM K≡M) =
-  ≅-red (D , ne! neK) (D′ , ne! neM) K≡M
+  ≅-red (D , ne neK) (D′ , ne neM) K≡M
 escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (D , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
@@ -142,7 +142,7 @@ escapeTermEq (Unitᵣ′ D ok) (Unitₜ₌ _ _ d d′ prop) =
        (Unitₜ₌ʷ starᵣ _) → ≅ₜ-star-refl (wf (redFirst* D)) ok
        (Unitₜ₌ʷ (ne (neNfₜ₌ _ _ _ t′~u′)) _) → ~-to-≅ₜ t′~u′)
 escapeTermEq (ne′ _ _ D neK _) (neₜ₌ _ _ d d′ (neNfₜ₌ _ neT neU t≡u)) =
-  ≅ₜ-red (D , ne (ne⁻ neK)) (d , ne (ne⁻ neT)) (d′ , ne (ne⁻ neU))
+  ≅ₜ-red (D , ne neK) (d , ne (ne⁻ neT)) (d′ , ne (ne⁻ neU))
     (~-to-≅ₜ t≡u)
 escapeTermEq
   (Bᵣ′ BΠ! _ _ D _ _ _ _ _) (Πₜ₌ _ _ d d′ funcF funcG f≡g _) =

@@ -25,6 +25,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R using (_∷ʷ_⊇_)
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties.Neutral M type-variant
 
@@ -954,15 +955,14 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_
 
-  -- Atomic neutral types that satisfy certain properties are
-  -- reducible.
+  -- Neutral types that satisfy certain properties are reducible.
 
   neutral-⊩ :
-    Neutralᵃ A →
+    Neutral A →
     Γ ⊢≅ A →
     Γ ⊩⟨ l ⟩ A
   neutral-⊩ A-ne ≅A =
-    H.neutral-⊩ (or-empty-Neutral→ (ne⁻ A-ne)) A-ne ≅A
+    H.neutral-⊩ (or-empty-Neutral→ A-ne) A-ne ≅A
 
 opaque
   unfolding _⊩⟨_⟩_ _⊩⟨_⟩_∷_
@@ -981,14 +981,14 @@ opaque
 opaque
   unfolding _⊩⟨_⟩_ _⊩⟨_⟩_≡_
 
-  -- Reducible equality holds between atomic neutral types that
-  -- satisfy certain properties.
+  -- Reducible equality holds between neutral types that satisfy
+  -- certain properties.
 
   neutral-⊩≡ :
     Γ ⊩⟨ l ⟩ A →
     Γ ⊩⟨ l ⟩ B →
-    Neutralᵃ A →
-    Neutralᵃ B →
+    Neutral A →
+    Neutral B →
     Γ ⊢ A ≅ B →
     Γ ⊩⟨ l ⟩ A ≡ B
   neutral-⊩≡ ⊩A ⊩B A-ne B-ne A≅B =
@@ -1014,7 +1014,7 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩ne⇔ :
-    Neutralᵃ A →
+    Neutral A →
     Γ ⊩⟨ l ⟩ A ⇔ (⦃ inc : Neutrals-included or-empty Γ ⦄ → Γ ⊢≅ A)
   ⊩ne⇔ {A} {Γ} {l} A-ne =
     Γ ⊩⟨ l ⟩ A                                               ⇔⟨ ⊩⇔ ⟩
@@ -1024,7 +1024,7 @@ opaque
     (⦃ inc : Neutrals-included or-empty Γ ⦄ →
      Neutrals-included × Γ ⊢≅ A)                             ⇔⟨ instance-Π-cong-⇔ $
                                                                   proj₂
-                                                                , (or-empty-Neutral→ (ne⁻ A-ne) ,_)
+                                                                , (or-empty-Neutral→ A-ne ,_)
                                                               ⟩
     (⦃ inc : Neutrals-included or-empty Γ ⦄ → Γ ⊢≅ A)        □⇔
 
@@ -1033,7 +1033,7 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷ne⇔ :
-    Neutralᵃ A →
+    Neutral A →
     Γ ⊩⟨ l ⟩ t ∷ A ⇔
     (⦃ inc : Neutrals-included or-empty Γ ⦄ →
      Γ ⊢≅ A × ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralᵃ u × Γ ⊢~ u ∷ A)
@@ -1046,7 +1046,7 @@ opaque
      Neutrals-included × Γ ⊢≅ A ×
      ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralᵃ u × Γ ⊢~ u ∷ A)           ⇔⟨ instance-Π-cong-⇔ $
                                                                       proj₂
-                                                                    , (or-empty-Neutral→ (ne⁻ A-ne) ,_)
+                                                                    , (or-empty-Neutral→ A-ne ,_)
                                                                   ⟩
     (⦃ inc : Neutrals-included or-empty Γ ⦄ →
      Γ ⊢≅ A × ∃ λ u → Γ ⊢ t ⇒* u ∷ A × Neutralᵃ u × Γ ⊢~ u ∷ A)  □⇔
@@ -1057,29 +1057,29 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩ne≡⇔ :
-    Neutralᵃ A →
+    Neutral A →
     Γ ⊩⟨ l ⟩ A ≡ B ⇔
     (⦃ inc : Neutrals-included or-empty Γ ⦄ →
-     ∃ λ C → Neutralᵃ C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
+     ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)
   ⊩ne≡⇔ {A} {Γ} {l} {B} A-ne =
-    Γ ⊩⟨ l ⟩ A ≡ B                                                     ⇔⟨ ⊩≡⇔ ⟩
+    Γ ⊩⟨ l ⟩ A ≡ B                                                    ⇔⟨ ⊩≡⇔ ⟩
 
-    (⦃ inc : Neutrals-included or-empty Γ ⦄ → Γ H.⊩⟨ l ⟩ A ≡ B)        ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡⇔ A-ne ⟩
+    (⦃ inc : Neutrals-included or-empty Γ ⦄ → Γ H.⊩⟨ l ⟩ A ≡ B)       ⇔⟨ instance-Π-cong-⇔ $ H.⊩ne≡⇔ A-ne ⟩
 
     (⦃ inc : Neutrals-included or-empty Γ ⦄ →
-     Neutrals-included × ∃ λ C → Neutralᵃ C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ instance-Π-cong-⇔ $
-                                                                            proj₂
-                                                                          , (or-empty-Neutral→ (ne⁻ A-ne) ,_) ⟩
+     Neutrals-included × ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)  ⇔⟨ instance-Π-cong-⇔ $
+                                                                           proj₂
+                                                                         , (or-empty-Neutral→ A-ne ,_) ⟩
     (⦃ inc : Neutrals-included or-empty Γ ⦄ →
-     ∃ λ C → Neutralᵃ C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)                      □⇔
+     ∃ λ C → Neutral C × Γ ⊢ B ⇒* C × Γ ⊢ A ≅ C)                      □⇔
 
 opaque
 
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩ne≡ne⇔ :
-    Neutralᵃ A →
-    Neutralᵃ B →
+    Neutral A →
+    Neutral B →
     Γ ⊩⟨ l ⟩ A ≡ B ⇔
     (⦃ inc : Neutrals-included or-empty Γ ⦄ → Γ ⊢ A ≅ B)
   ⊩ne≡ne⇔ {A} {B} {Γ} {l} A-ne B-ne =
@@ -1090,7 +1090,7 @@ opaque
     (⦃ inc : Neutrals-included or-empty Γ ⦄ →
      Neutrals-included × Γ ⊢ A ≅ B)                              ⇔⟨ instance-Π-cong-⇔ $
                                                                       proj₂
-                                                                    , (or-empty-Neutral→ (ne⁻ A-ne) ,_)
+                                                                    , (or-empty-Neutral→ A-ne ,_)
                                                                   ⟩
 
     (⦃ inc : Neutrals-included or-empty Γ ⦄ → Γ ⊢ A ≅ B)         □⇔
@@ -1101,7 +1101,7 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷ne⇔ :
-    Neutralᵃ A →
+    Neutral A →
     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A ⇔
     (⦃ inc : Neutrals-included or-empty Γ ⦄ →
      Γ ⊢≅ A ×

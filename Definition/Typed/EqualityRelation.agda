@@ -56,7 +56,7 @@ record Equality-relations
   (_⊢_≅_∷Level : ∀ {n} → Con Term n → (_ _ : Term n) → Set ℓ)
   -- Equality of atomic neutral terms.
   (_⊢_~_∷_ : ∀ {n} → Con Term n → (t u A : Term n) → Set ℓ)
-  -- Are atomic neutral cases included in the logical relation?
+  -- Are neutral cases included in the logical relation?
   (Neutrals-included : Set ℓ) :
   Set ℓ where
   no-eta-equality
@@ -576,7 +576,7 @@ record EqRelSet : Set (lsuc ℓ) where
     -- Equality of neutral terms
     _⊢_~_∷_ : Con Term n → (t u A : Term n) → Set ℓ
 
-    -- Are (atomic) neutral cases included in the logical relation?
+    -- Are neutral cases included in the logical relation?
     Neutrals-included : Set ℓ
 
     ----------------

@@ -272,14 +272,12 @@ opaque
   ne≡A :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     Neutral B → Γ ⊢ B ≡ A → Whnf A → Neutral A
-  ne≡A {Γ} {B} {A} B-ne B≡A A-whnf =   $⟨ B≡A ⟩
-    Γ ⊢ B ≡ A                          →⟨ reducible-⊩≡ ⟩
-    (∃ λ l → Γ ⊩⟨ l ⟩ B ≡ A)           →⟨ Σ.map idᶠ (Σ.map idᶠ proj₁) ∘→ proj₂ ∘→
-                                          ⊩ne≡⇔ (I.Neutral→Neutralᵃ-⊢ (wf-⊢≡ B≡A .proj₁) B-ne) .proj₁ ∘→ proj₂ ⟩
-    (∃ λ C → Neutralᵃ C × Γ ⊢ A ⇒* C)  →⟨ (λ (_ , C-ne , A⇒*C) →
-                                             PE.subst Neutralᵃ (PE.sym $ whnfRed* A⇒*C A-whnf) C-ne) ⟩
-    Neutralᵃ A                         →⟨ ne⁻ ⟩
-    Neutral A                          □
+  ne≡A {Γ} {B} {A} B-ne B≡A A-whnf =  $⟨ B≡A ⟩
+    Γ ⊢ B ≡ A                         →⟨ reducible-⊩≡ ⟩
+    (∃ λ l → Γ ⊩⟨ l ⟩ B ≡ A)          →⟨ Σ.map idᶠ (Σ.map idᶠ proj₁) ∘→ proj₂ ∘→ ⊩ne≡⇔ B-ne .proj₁ ∘→ proj₂ ⟩
+    (∃ λ C → Neutral C × Γ ⊢ A ⇒* C)  →⟨ (λ (_ , C-ne , A⇒*C) →
+                                            PE.subst Neutral (PE.sym $ whnfRed* A⇒*C A-whnf) C-ne) ⟩
+    Neutral A                         □
 
 opaque
 

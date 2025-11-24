@@ -111,7 +111,7 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
     Unit₌ A⇒*Unit
   symEqT
     (ne (ne _ _ D neK K≡K) (ne _ K₁ D₁ neK₁ K≡K₁)) (ne₌ inc M D′ neM K≡M)
-    rewrite whrDet* (D′ , ne! neM) (D₁ , ne! neK₁) =
+    rewrite whrDet* (D′ , ne neM) (D₁ , ne neK₁) =
     ne₌ inc _ D neK (≅-sym K≡M)
   symEqT
     {n} {Γ = Γ} {l′ = l′}
