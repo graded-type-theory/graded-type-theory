@@ -78,7 +78,8 @@ opaque
 opaque
 
   -- If the WHNF A is judgmentally equal to U l, then A is
-  -- propositionally equal to U l (given a certain assumption).
+  -- propositionally equal to U something (given a certain
+  -- assumption).
 
   U≡A :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
@@ -117,7 +118,8 @@ opaque
 opaque
 
   -- If the WHNF A is judgmentally equal to Lift l B, then A is
-  -- propositionally equal to Lift l B (given a certain assumption).
+  -- propositionally equal to Lift something (given a certain
+  -- assumption).
 
   Lift≡A :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
@@ -222,8 +224,8 @@ opaque
 
 opaque
 
-  -- If the WHNF A is judgmentally equal to Unit s l, then A is
-  -- propositionally equal to Unit s l (given a certain assumption).
+  -- If the WHNF A is judgmentally equal to Unit s, then A is
+  -- propositionally equal to Unit s (given a certain assumption).
 
   Unit≡A :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
