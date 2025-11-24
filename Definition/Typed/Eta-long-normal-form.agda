@@ -226,7 +226,7 @@ mutual
                 K-allowed →
                 Γ ⊢ne K p A t B u v ∷ B [ v ]₀
     []-congₙ  : Γ ⊢nf l ∷Level →
-                Γ ⊢nf A ∷ U l →
+                Γ ⊢nf A →
                 Γ ⊢nf t ∷ A →
                 Γ ⊢nf u ∷ A →
                 Γ ⊢ne v ∷ Id A t u →
@@ -310,7 +310,7 @@ mutual
                                   (⊢nf∷→⊢∷ ⊢v) (⊢ne∷→⊢∷ ⊢w)
     (Kₙ _ _ ⊢B ⊢u ⊢v ok)      → Kⱼ (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
                                   ok
-    ([]-congₙ _ ⊢A _ _ ⊢v ok) → []-congⱼ′ ok (⊢nf∷→⊢∷ ⊢A) (⊢ne∷→⊢∷ ⊢v)
+    ([]-congₙ ⊢l _ _ _ ⊢v ok) → []-congⱼ′ ok (⊢nf∷L→⊢∷L ⊢l) (⊢ne∷→⊢∷ ⊢v)
 
 mutual
 
@@ -387,7 +387,7 @@ mutual
     (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)        → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
                                      (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
                                      (⊢ne∷→NfNeutral ⊢v)
-    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf∷L→Nf ⊢l) (⊢nf∷→Nf ⊢A)
+    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf∷L→Nf ⊢l) (⊢nf→Nf ⊢A)
                                      (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
                                      (⊢ne∷→NfNeutral ⊢v)
 
@@ -581,7 +581,7 @@ mutual
         ok
       ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v ok) → []-congₙ
         (⊢nf∷L-stable Γ≡Δ ⊢l)
-        (⊢nf∷-stable Γ≡Δ ⊢A)
+        (⊢nf-stable Γ≡Δ ⊢A)
         (⊢nf∷-stable Γ≡Δ ⊢t)
         (⊢nf∷-stable Γ≡Δ ⊢u)
         (⊢ne∷-stable Γ≡Δ ⊢v)
@@ -1125,7 +1125,7 @@ opaque
     Γ ⊢ne []-cong s l A t u v ∷ B →
     let open Erased s in
     Γ ⊢nf l ∷Level ×
-    Γ ⊢nf A ∷ U l ×
+    (Γ ⊢nf A) ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
     Γ ⊢ne v ∷ Id A t u ×
@@ -1147,7 +1147,7 @@ opaque
     Γ ⊢nf []-cong s l A t u v ∷ B →
     let open Erased s in
     Γ ⊢nf l ∷Level ×
-    Γ ⊢nf A ∷ U l ×
+    (Γ ⊢nf A) ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
     Γ ⊢ne v ∷ Id A t u ×
@@ -1168,7 +1168,7 @@ opaque
     Γ ⊢nf []-cong s l A t u v ∷ B ⊎ Γ ⊢ne []-cong s l A t u v ∷ B →
     let open Erased s in
     Γ ⊢nf l ∷Level ×
-    Γ ⊢nf A ∷ U l ×
+    (Γ ⊢nf A) ×
     Γ ⊢nf t ∷ A ×
     Γ ⊢nf u ∷ A ×
     Γ ⊢ne v ∷ Id A t u ×
@@ -1652,11 +1652,10 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
           PE.refl →
         let _ , ⊢A₁ , ⊢t₁ , ⊢u₁ , ⊢v₁ , _ = inversion-nf-ne-[]-cong ⊢u
             _ , ⊢A₂ , ⊢t₂ , ⊢u₂ , ⊢v₂ , _ = inversion-nf-ne-[]-cong ⊢v
-            A₂≡A₁                         =
-              sym (univ (soundnessConv↑Term A₁≡A₂))
+            A₂≡A₁                         = sym (soundnessConv↑ A₁≡A₂)
         in
         PE.cong₄ ([]-cong _ _)
-          (normal-terms-unique-[conv↑]∷ ⊢A₁ ⊢A₂ A₁≡A₂)
+          (normal-types-unique-[conv↑] ⊢A₁ ⊢A₂ A₁≡A₂)
           (normal-terms-unique-[conv↑]∷ ⊢t₁ (convₙ ⊢t₂ A₂≡A₁) t₁≡t₂)
           (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ A₂≡A₁) u₁≡u₂)
           (neutral-terms-unique-~↓ ⊢v₁ ⊢v₂ v₁~v₂) }

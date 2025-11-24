@@ -149,7 +149,7 @@ mutual
        → K-allowed
        → Γ ⊢ K p A t B u v ⇉ B [ v ]₀
     []-congᵢ : Γ ⊢ l ⇇Level
-             → Γ ⊢ A ⇇ U l
+             → Γ ⊢ A ⇇Type
              → Γ ⊢ t ⇇ A
              → Γ ⊢ u ⇇ A
              → Γ ⊢ v ⇇ Id A t u
@@ -252,7 +252,7 @@ mutual
          Inferable (J p q A t B u v w)
     Kᵢ : Checkable-type A → Checkable t → Checkable-type B →
          Checkable u → Checkable v → Inferable (K p A t B u v)
-    []-congᵢ : Checkable-level l → Checkable A → Checkable t →
+    []-congᵢ : Checkable-level l → Checkable-type A → Checkable t →
                Checkable u → Checkable v →
                Inferable ([]-cong s l A t u v)
 
@@ -456,7 +456,7 @@ mutual
     Kᵢ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇Type B)
       (Checkable⇇ u) (Checkable⇇ v)
   Inferable⇉ ([]-congᵢ l A t u v _) =
-    []-congᵢ (Checkable⇇Level l) (Checkable⇇ A) (Checkable⇇ t)
+    []-congᵢ (Checkable⇇Level l) (Checkable⇇Type A) (Checkable⇇ t)
       (Checkable⇇ u) (Checkable⇇ v)
 
   -- Γ ⊢ t ⇇Level implies that t is a checkable level.

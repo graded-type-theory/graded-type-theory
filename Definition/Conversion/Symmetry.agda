@@ -207,24 +207,22 @@ mutual
     let _ , _ , B≡C , v₂~v₁ = sym~↓ Γ≡Δ v₁~v₂
         ⊢l₁≡l₂              = soundnessConv↑Level l₁≡l₂
         ⊢l₁ , _             = wf-⊢≡∷L ⊢l₁≡l₂
-        ⊢A₁≡A₂              = soundnessConv↑Term A₁≡A₂
+        ⊢A₁≡A₂              = soundnessConv↑ A₁≡A₂
         ⊢t₁≡t₂              = soundnessConv↑Term t₁≡t₂
         ⊢u₁≡u₂              = soundnessConv↑Term u₁≡u₂
-        Γ≡Γ                 = reflConEq (wfEqTerm ⊢A₁≡A₂)
+        Γ≡Γ                 = reflConEq (wfEq ⊢A₁≡A₂)
         Erased-ok           = []-cong→Erased ok
     in
     _ ,
-    Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ (univ ⊢A₁≡A₂))
+    Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ ⊢A₁≡A₂)
       ([]-cong′ Erased-ok ⊢l₁ ⊢t₁≡t₂) ([]-cong′ Erased-ok ⊢l₁ ⊢u₁≡u₂) ,
-    []-cong-cong (symConv↑Level Γ≡Δ l₁≡l₂)
-      (convConv↑Term′ Γ≡Δ (U-cong-⊢≡ ⊢l₁≡l₂)
-         (symConv↑Term Γ≡Γ A₁≡A₂))
-      (convConv↑Term′ Γ≡Δ (univ ⊢A₁≡A₂) (symConv↑Term Γ≡Γ t₁≡t₂))
-      (convConv↑Term′ Γ≡Δ (univ ⊢A₁≡A₂) (symConv↑Term Γ≡Γ u₁≡u₂))
+    []-cong-cong (symConv↑Level Γ≡Δ l₁≡l₂) (symConv↑ Γ≡Δ A₁≡A₂)
+      (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+      (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂))
       v₂~v₁
       (stabilityEq Γ≡Δ $
        trans (trans (sym B≡C) B≡Id-t₁-u₁)
-         (Id-cong (univ ⊢A₁≡A₂) ⊢t₁≡t₂ ⊢u₁≡u₂))
+         (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂))
       ok
 
   -- Symmetry of algorithmic equality of neutrals of types in WHNF.

@@ -41,11 +41,9 @@ opaque
   []-congⱼ′ :
     let open Erased s in
     []-cong-allowed s →
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ []-cong s l A t u v ∷ Id (Erased l A) ([ t ]) ([ u ])
-  []-congⱼ′ ok ⊢A ⊢v =
-    let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
-        _ , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v)
-    in
+  []-congⱼ′ ok ⊢l ⊢v =
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
     []-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok

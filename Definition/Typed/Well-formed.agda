@@ -126,9 +126,7 @@ opaque mutual
     (Kⱼ ⊢B _ ⊢v _) →
       subst-⊢ ⊢B (⊢ˢʷ∷-sgSubst ⊢v)
     ([]-congⱼ ⊢l ⊢A ⊢t ⊢u _ ok) →
-      let open Erased ([]-cong→Erased ok)
-          ⊢A = univ ⊢A
-      in
+      let open Erased ([]-cong→Erased ok) in
       Idⱼ (Erasedⱼ ⊢l ⊢A) ([]ⱼ ⊢l ⊢A ⊢t) ([]ⱼ ⊢l ⊢A ⊢u)
 
   -- A well-formedness lemma for _⊢_≡_.
@@ -489,28 +487,24 @@ opaque mutual
     ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
       let open Erased ([]-cong→Erased ok)
           ⊢l₁ , ⊢l₂     = wf-⊢≡∷L l₁≡l₂
-          _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
-          ⊢A₁′          = univ ⊢A₁
+          ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
           _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
       in
-      Idⱼ (Erasedⱼ ⊢l₁ ⊢A₁′) ([]ⱼ ⊢l₁ ⊢A₁′ ⊢t₁) ([]ⱼ ⊢l₁ ⊢A₁′ ⊢u₁) ,
+      Idⱼ (Erasedⱼ ⊢l₁ ⊢A₁) ([]ⱼ ⊢l₁ ⊢A₁ ⊢t₁) ([]ⱼ ⊢l₁ ⊢A₁ ⊢u₁) ,
       []-congⱼ ⊢l₁ ⊢A₁ ⊢t₁ ⊢u₁ ⊢v₁ ok ,
       conv
-        ([]-congⱼ ⊢l₂ (conv ⊢A₂ (U-cong-⊢≡ l₁≡l₂))
-           (conv ⊢t₂ (univ A₁≡A₂)) (conv ⊢u₂ (univ A₁≡A₂))
-           (conv ⊢v₂ (Id-cong (univ A₁≡A₂) t₁≡t₂ u₁≡u₂)) ok)
+        ([]-congⱼ ⊢l₂ ⊢A₂ (conv ⊢t₂ A₁≡A₂) (conv ⊢u₂ A₁≡A₂)
+           (conv ⊢v₂ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂)) ok)
         (_⊢_≡_.sym $
-         Id-cong (Erased-cong l₁≡l₂ ⊢A₁′ (univ A₁≡A₂))
-           ([]-cong′ ⊢l₁ ⊢A₁′ t₁≡t₂)
-           ([]-cong′ ⊢l₁ ⊢A₁′ u₁≡u₂))
+         Id-cong (Erased-cong l₁≡l₂ ⊢A₁ A₁≡A₂) ([]-cong′ ⊢l₁ ⊢A₁ t₁≡t₂)
+           ([]-cong′ ⊢l₁ ⊢A₁ u₁≡u₂))
     ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok) →
       let open Erased ([]-cong→Erased ok)
-          ⊢A′  = univ ⊢A
-          ⊢[t] = []ⱼ ⊢l ⊢A′ ⊢t
+          ⊢[t] = []ⱼ ⊢l ⊢A ⊢t
       in
-      Idⱼ (Erasedⱼ ⊢l ⊢A′) ⊢[t] ⊢[t] ,
+      Idⱼ (Erasedⱼ ⊢l ⊢A) ⊢[t] ⊢[t] ,
       []-congⱼ ⊢l ⊢A ⊢t ⊢t (rflⱼ ⊢t) ok ,
       rflⱼ ⊢[t]
     (equality-reflection _ ⊢Id _) →

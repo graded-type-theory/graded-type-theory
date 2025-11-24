@@ -290,7 +290,7 @@ mutual
       (no not)                  →
         no λ { (Kᵢ A t B u v) → not (A , t , B , u , v) }
   dec-Inferable ([]-cong s l A t u v) =
-    case dec-Checkable-level l ×-dec dec-Checkable A ×-dec
+    case dec-Checkable-level l ×-dec dec-Checkable-type A ×-dec
          dec-Checkable t ×-dec dec-Checkable u ×-dec
          dec-Checkable v of λ where
       (yes (l , A , t , u , v)) → yes ([]-congᵢ l A t u v)
@@ -989,9 +989,9 @@ mutual
     case
       ([]-cong-allowed? s ×-dec
        dec⇇Level-with-cont l ⊢Γ λ ⊢l →
-       dec⇇-with-cont A (⊢U ⊢l) λ ⊢A →
-       dec⇇-with-cont t (univ ⊢A) λ ⊢t →
-       dec⇇-with-cont u (univ ⊢A) λ ⊢u →
+       dec⇇Type-with-cont ⊢Γ A λ ⊢A →
+       dec⇇-with-cont t ⊢A λ ⊢t →
+       dec⇇-with-cont u ⊢A λ ⊢u →
        dec⇇ v (Idⱼ′ ⊢t ⊢u))
       of λ where
       (yes (ok , l , A , t , u , v)) → yes (_ , []-congᵢ l A t u v ok)

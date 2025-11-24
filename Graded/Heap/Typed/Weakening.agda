@@ -165,14 +165,11 @@ opaque
       (Kₑ ⊢u′ ⊢B′ ok)
   wk-⊢ᵉ
     {ρ} {H} {Δ} {t = v}
-    [ρ] ([]-congₑ {s′ = s} {ρ = ρ′} {A} {l} {t} {u} ok ⊢A) =
+    [ρ] ([]-congₑ {s′ = s} {ρ = ρ′} {l} {A} {t} {u} ok ⊢l) =
     PE.subst₂ (Δ ⨾ H ⊢ᵉ []-congₑ s l A t u (ρ • ρ′) ⟨ wk ρ v ⟩∷_↝_)
       (PE.sym (wk-liftₕ 0 [ρ] (Id A t u)))
       (PE.sym (wk-liftₕ 0 [ρ] (Id (Erased l A) ([ t ]) ([ u ]))))
-      ([]-congₑ ok $
-       subst₂ (_⊢_∷_ _)
-         (wk-liftₕ 0 [ρ] A) (cong U (wk-liftₕ 0 [ρ] l))
-         ⊢A)
+      ([]-congₑ ok (subst (_⊢_∷Level _) (wk-liftₕ 0 [ρ] l) ⊢l))
     where
     open Erased s
   wk-⊢ᵉ ρ (conv ⊢e x) =

@@ -156,15 +156,14 @@ opaque
       (λ x → _ ⨾ H′ ⊢ᵉ Kₑ p A t B u ρ ⟨ v ⟩∷ wk ρ (Id A t t) [ x ] ↝ wk (lift ρ) B [ liftSubst x ] [ v [ x ] ]₀)
       (PE.sym H≡H′) (Kₑ ⊢u′ ⊢B′ ok)
   heapUpdate-⊢ᵉ
-    {t = v} {H′} ([]-congₑ {s′ = s} {ρ} {A} {l} {t} {u} ok ⊢A) d =
+    {t = v} {H′} ([]-congₑ {s′ = s} {ρ} {l} {A} {t} {u} ok ⊢l) d =
     PE.subst
       (λ x →
          _ ⨾ H′ ⊢ᵉ []-congₑ s l A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ x ] ↝
          wk ρ (Id (E′.Erased l A) E′.[ t ] E′.[ u ]) [ x ])
       (PE.sym (heapUpdateSubst d))
       ([]-congₑ ok $
-       PE.subst (λ H → _ ⊢ wk _ A [ H ] ∷ U (wk _ l [ H ]))
-         (heapUpdateSubst d) ⊢A)
+       PE.subst (λ H → _ ⊢ wk _ l [ H ] ∷Level) (heapUpdateSubst d) ⊢l)
     where
     module E′ = E s
   heapUpdate-⊢ᵉ (conv ⊢e x) d =
@@ -386,14 +385,13 @@ opaque
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
     case inversion-[]-congₑ ⊢e of λ {
-      (ok , ⊢A , PE.refl , B≡) →
-    let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
-        t≡u         = inversion-rfl-Id ⊢rfl
+      (ok , ⊢l , PE.refl , B≡) →
+    let t≡u         = inversion-rfl-Id ⊢rfl
         _ , ⊢t , ⊢u = syntacticEqTerm t≡u
         ≡B          = sym (B≡ ⊢t ⊢u)
     in
     ⊢ₛ ⊢H (conv (rflⱼ′ ([]-cong′ ([]-cong→Erased ok) ⊢l t≡u)) ≡B)
-      (⊢ˢ-convₜ ⊢S (conv ([]-cong-β-≡ ⊢A t≡u ok) ≡B)) }
+      (⊢ˢ-convₜ ⊢S (conv ([]-cong-β-≡ ⊢l t≡u ok) ≡B)) }
 
 opaque
 
@@ -442,12 +440,13 @@ opaque
         _ , ⊢t , ⊢B , ⊢u , ⊢v , ok , A≡B₊ = inversion-K ⊢t
     in  ⊢ₛ ⊢H ⊢v (conv (Kₑ ⊢u ⊢B ok) (sym A≡B₊) ∙ ⊢S)
   ⊢ₛ-⇒ₑ ⊢s []-congₕ =
-    let _ , _ , ⊢H , ⊢t , ⊢S          = ⊢ₛ-inv ⊢s
-        ⊢A , ⊢t , ⊢u , ⊢v , ok , A≡Id = inversion-[]-cong ⊢t
+    let _ , _ , ⊢H , ⊢t , ⊢S            = ⊢ₛ-inv ⊢s
+        ⊢l , _ , _ , _ , ⊢v , ok , A≡Id = inversion-[]-cong ⊢t
     in
-    ⊢ₛ ⊢H ⊢v (conv ([]-congₑ ok ⊢A)
-      (sym (PE.subst (_⊢_≡_ _ _) (E.wk-Id-Erased-[]-[] _) A≡Id)) ∙
-    ⊢S)
+    ⊢ₛ ⊢H ⊢v
+      (conv ([]-congₑ ok ⊢l)
+         (sym (PE.subst (_⊢_≡_ _ _) (E.wk-Id-Erased-[]-[] _) A≡Id)) ∙
+       ⊢S)
 
 opaque
 

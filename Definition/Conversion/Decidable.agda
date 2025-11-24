@@ -591,7 +591,7 @@ private opaque
     Dec
       (s₁ PE.≡ s₂ ×
        Γ ⊢ l₁ [conv↑] l₂ ∷Level ×
-       Γ ⊢ A₁ [conv↑] A₂ ∷ U l₁ ×
+       Γ ⊢ A₁ [conv↑] A₂ ×
        ∃ λ B → Γ ⊢ v₁ ~ v₂ ↓ B) →
     (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ t₁ [conv↑] t₂ ∷ A₁)) →
     (Γ ⊢ A₁ ≡ A₂ → Dec (Γ ⊢ u₁ [conv↑] u₂ ∷ A₁)) →
@@ -601,7 +601,7 @@ private opaque
   dec~↑-[]-cong-cong
     ok ⊢v₁ (yes (PE.refl , l₁≡l₂ , A₁≡A₂ , _ , v₁~v₂)) dec₁ dec₂ =
     case
-       (let A₁≡A₂ = univ (soundnessConv↑Term A₁≡A₂) in
+       (let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
         dec₁ A₁≡A₂ ×-dec dec₂ A₁≡A₂)
       of λ where
       (yes (t₁≡t₂ , u₁≡u₂)) →
@@ -630,7 +630,7 @@ private opaque
     not-all-equal
       ( s₁≡s₂
       , PE.subst (_⊢_[conv↑]_∷Level _ _) ≡l₂ l₁≡
-      , PE.subst (flip (_⊢_[conv↑]_∷_ _ _) _) ≡A₂ A₁≡
+      , PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡
       , _ , PE.subst (flip (_⊢_~_↓_ _ _) _) ≡v₂ v₁~
       )
 
@@ -827,10 +827,8 @@ mutual
           PE.refl , PE.refl , _ , u₁≡ , C₁≡ , u₂≡ , u₃≡ , u₄~ , _)) →
         let ⊢t₄ = ~↓→∷ t₄~ in
         dec~↑-[]-cong-cong ok (conv ⊢t₄ B₂≡Id)
-          (decStrength _ _ ×-dec decConv↑Level t₁≡ u₁≡ ×-dec′ λ t₁≡u₁ →
-           decConv↑TermConv (U-cong-⊢≡ (soundnessConv↑Level t₁≡u₁))
-             B₁≡ C₁≡ ×-dec
-           dec~↓ t₄~ u₄~)
+          (decStrength _ _ ×-dec decConv↑Level t₁≡ u₁≡ ×-dec
+           decConv↑ B₁≡ C₁≡ ×-dec dec~↓ t₄~ u₄~)
           (λ eq → decConv↑TermConv eq t₂≡ u₂≡)
           (λ eq → decConv↑TermConv eq t₃≡ u₃≡)
       (inj₂ (u≢bc , _)) →

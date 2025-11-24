@@ -106,13 +106,13 @@ opaque
 
   []-congʳ :
     Empty-con Δ →
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ v ∷ Id A t u →
     []-cong-allowed s →
     let open Erased s in
     γ ▸ Γ ⊩ʳ []-cong s l A t u v ∷[ m ] Id (Erased l A) [ t ] ([ u ])
-  []-congʳ {A} {l} {v} {t} {u} ε ⊢A ⊢v ok =
-    let _ , ⊩l = fundamental-⊩ᵛ∷L (inversion-U-Level (wf-⊢∷ ⊢A))
+  []-congʳ {l} {v} {A} {t} {u} ε ⊢l ⊢v ok =
+    let _ , ⊩l = fundamental-⊩ᵛ∷L ⊢l
         _ , ⊩v = fundamental-⊩ᵛ∷ ⊢v
         ⊩t , _ = ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩v)
     in
@@ -122,7 +122,7 @@ opaque
       ( R.escape-⊩ (⊩ᵛ→⊩ˢ∷→⊩[] (Erasedᵛ ⊩l (wf-⊩ᵛ∷ ⊩t)) ⊩σ)
       , rflᵣ
           (                              ˘⟨ Erased.Id-Erased-[] _ ⟩⇛≡
-           ([]-cong _ l A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok (subst-⊢∷ ⊢A (escape-⊩ˢ∷ ⊩σ .proj₂)) $ R.escape-⊩∷ $
+           ([]-cong _ l A t u v) [ σ ]  ⇒*⟨ ε⊢⇒*rfl∷Id $ []-congⱼ′ ok (subst-⊢∷L ⊢l (escape-⊩ˢ∷ ⊩σ .proj₂)) $ R.escape-⊩∷ $
                                             ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩v ⊩σ ⟩∎⇛
            rfl                          ∎)
           (λ { PE.refl → T.refl })

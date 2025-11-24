@@ -91,7 +91,7 @@ data _⨾_⊢ᵉ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
   []-congₑ :
     []-cong-allowed s′ →
     let open Erased s′ in
-    Δ ⊢ wk ρ A [ H ]ₕ ∷ U (wk ρ l [ H ]ₕ) →
+    Δ ⊢ wk ρ l [ H ]ₕ ∷Level →
     Δ ⨾ H ⊢ᵉ []-congₑ s′ l A t u ρ ⟨ v ⟩∷ wk ρ (Id A t u) [ H ]ₕ ↝
       (wk ρ (Id (Erased l A) ([ t ]) ([ u ])) [ H ]ₕ)
   conv : Δ ⨾ H ⊢ᵉ e ⟨ t ⟩∷ A ↝ B

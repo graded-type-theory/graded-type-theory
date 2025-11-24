@@ -200,10 +200,9 @@ opaque mutual
       _
     , Kᵛ ok ⊢B (fundamental-⊩ᵛ ⊢B .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
         (fundamental-⊩ᵛ∷ ⊢v .proj₂)
-  fundamental-⊩ᵛ∷ ([]-congⱼ ⊢l ⊢A _ _ ⊢v ok) =
+  fundamental-⊩ᵛ∷ ([]-congⱼ ⊢l _ _ _ ⊢v ok) =
     _ ,
-    []-congᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) (fundamental-⊩ᵛ∷ ⊢A .proj₂)
-      (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+    []-congᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) (fundamental-⊩ᵛ∷ ⊢v .proj₂)
   fundamental-⊩ᵛ∷ (Uⱼ ⊢l) =
     _ , ⊩ᵛU∷U (fundamental-⊩ᵛ∷L ⊢l .proj₂)
 
@@ -366,15 +365,15 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) =
     _ ,
     []-cong-congᵛ ok (fundamental-⊩ᵛ≡∷L l₁≡l₂ .proj₂)
-      (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂) (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
+      (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂) (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂) (fundamental-⊩ᵛ≡∷ v₁≡v₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (J-β ⊢t ⊢B ⊢u PE.refl) =
     _ , J-βᵛ ⊢t ⊢B (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ≡∷ (K-β ⊢B ⊢u ok) =
     _ , K-βᵛ ok ⊢B (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ≡∷ ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok) =
+  fundamental-⊩ᵛ≡∷ ([]-cong-β ⊢l _ ⊢t PE.refl ok) =
     _ ,
-    []-cong-βᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) ⊢A
+    []-cong-βᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ≡∷ (equality-reflection ok _ ⊢v) =
     _ , equality-reflectionᵛ ok (fundamental-⊩ᵛ∷ ⊢v .proj₂)

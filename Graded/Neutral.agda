@@ -189,7 +189,7 @@ opaque
         of λ ()
       ([]-congₙ _) ⊢bc _ →
         case inversion-[]-cong ⊢bc of λ {
-          (_ , _ , _ , _ , ok , _) →
+          (_ , _ , _ , _ , _ , ok , _) →
         ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₁ ok }
       t-n ⊢t (sub {γ} ▸t χ≤γ) →
         χ ≈ᶜ 𝟘ᶜ  →⟨ ≤ᶜ→≈ᶜ𝟘ᶜ→≈ᶜ𝟘ᶜ χ≤γ ⟩

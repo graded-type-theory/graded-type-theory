@@ -97,7 +97,7 @@ mutual
       (stabilityEq Γ≡Δ ≡Id) ok }
   stability~↑ Γ≡Δ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     []-cong-cong (stabilityConv↑Level Γ≡Δ l₁≡l₂)
-      (stabilityConv↑Term Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
+      (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
       (stabilityEq Γ≡Δ ≡Id) ok
 

@@ -96,7 +96,7 @@ mutual
       (soundnessConv↑ B₁≡B₂) (soundnessConv↑Term u₁≡u₂)
       (conv (soundness~↓ v₁~v₂) ≡Id) ok
   soundness~↑ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    []-cong-cong (soundnessConv↑Level l₁≡l₂) (soundnessConv↑Term A₁≡A₂)
+    []-cong-cong (soundnessConv↑Level l₁≡l₂) (soundnessConv↑ A₁≡A₂)
       (soundnessConv↑Term t₁≡t₂) (soundnessConv↑Term u₁≡u₂)
       (conv (soundness~↓ v₁~v₂) ≡Id) ok
 

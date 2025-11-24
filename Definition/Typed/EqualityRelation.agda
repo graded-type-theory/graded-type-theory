@@ -403,7 +403,7 @@ record Equality-relations
     -- relation (in a certain way).
     ~-[]-cong
       : Γ ⊢ l₁ ≅ l₂ ∷Level
-      → Γ ⊢ A₁ ≅ A₂ ∷ U l₁
+      → Γ ⊢ A₁ ≅ A₂
       → Γ ⊢ t₁ ≅ t₂ ∷ A₁
       → Γ ⊢ u₁ ≅ u₂ ∷ A₁
       → Γ ⊢ v₁ ~ v₂ ∷ Id A₁ t₁ u₁

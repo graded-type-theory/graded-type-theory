@@ -344,16 +344,15 @@ opaque
   -- A variant of []-cong-subst.
 
   []-cong-subst′ :
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
     []-cong-allowed s →
     let open Erased s in
       Γ ⊢ []-cong s l A t u v₁ ⇒ []-cong s l A t u v₂ ∷
         Id (Erased l A) ([ t ]) ([ u ])
-  []-cong-subst′ ⊢A v₁⇒v₂ =
-    case inversion-Id (syntacticTerm (redFirstTerm v₁⇒v₂)) of λ {
-      (_ , ⊢t , ⊢u) →
-    []-cong-subst ⊢A ⊢t ⊢u v₁⇒v₂ }
+  []-cong-subst′ ⊢l v₁⇒v₂ =
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ (redFirstTerm v₁⇒v₂)) in
+    []-cong-subst ⊢l ⊢A ⊢t ⊢u v₁⇒v₂
 
 opaque
 
@@ -361,57 +360,51 @@ opaque
 
   []-cong-subst* :
     let open Erased s in
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
     []-cong-allowed s →
     Γ ⊢ []-cong s l A t u v₁ ⇒* []-cong s l A t u v₂ ∷
       Id (Erased l A) [ t ] ([ u ])
-  []-cong-subst* {s} ⊢A v₁⇒*v₂ ok =
-    let _ , ⊢t , ⊢u =
-          inversion-Id (syntacticTerm (redFirst*Term v₁⇒*v₂))
-    in
+  []-cong-subst* ⊢l v₁⇒*v₂ ok =
     case v₁⇒*v₂ of λ where
-      (id ⊢v₁)         → id ([]-congⱼ′ ok ⊢A ⊢v₁)
+      (id ⊢v₁)         → id ([]-congⱼ′ ok ⊢l ⊢v₁)
       (v₁⇒v₃ ⇨ v₃⇒*v₂) →
-        []-cong-subst ⊢A ⊢t ⊢u v₁⇒v₃ ok ⇨ []-cong-subst* ⊢A v₃⇒*v₂ ok
+        []-cong-subst′ ⊢l v₁⇒v₃ ok ⇨ []-cong-subst* ⊢l v₃⇒*v₂ ok
 
 opaque
 
   -- A variant of the reduction rule []-cong-β.
 
   []-cong-β-⇒ :
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ t ≡ t′ ∷ A →
     []-cong-allowed s →
     let open Erased s in
       Γ ⊢ []-cong s l A t t′ rfl ⇒ rfl ∷
         Id (Erased l A) ([ t ]) ([ t′ ])
-  []-cong-β-⇒ ⊢A t≡t′ =
-    case syntacticEqTerm t≡t′ of λ {
-      (_ , ⊢t , ⊢t′) →
-    []-cong-β ⊢A ⊢t ⊢t′ t≡t′ }
+  []-cong-β-⇒ ⊢l t≡t′ =
+    let ⊢A , ⊢t , ⊢t′ = syntacticEqTerm t≡t′ in
+    []-cong-β ⊢l ⊢A ⊢t ⊢t′ t≡t′
 
 opaque
 
   -- A variant of the equality rule []-cong-β.
 
   []-cong-β-≡ :
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ t ≡ t′ ∷ A →
     []-cong-allowed s →
     let open Erased s in
       Γ ⊢ []-cong s l A t t′ rfl ≡ rfl ∷
         Id (Erased l A) ([ t ]) ([ t′ ])
-  []-cong-β-≡ ⊢A t≡t′ ok =
-    let ⊢l           = inversion-U-Level (wf-⊢∷ ⊢A)
-        ⊢A′ , ⊢t , _ = wf-⊢≡∷ t≡t′
-    in
+  []-cong-β-≡ ⊢l t≡t′ ok =
+    let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′ in
     trans
       ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (refl (rflⱼ′ t≡t′)) ok)
       (conv ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok)
-         (Id-cong (refl (Erasedⱼ ⊢l ⊢A′)) (refl ([]ⱼ ⊢l ⊢A′ ⊢t))
-            ([]-cong′ ⊢l ⊢A′ t≡t′)))
+         (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
+            ([]-cong′ ⊢l ⊢A t≡t′)))
     where
     open EP ([]-cong→Erased ok)
 

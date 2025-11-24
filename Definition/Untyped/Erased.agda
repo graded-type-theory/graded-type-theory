@@ -285,11 +285,10 @@ opaque
   -- This variant of subst is an alternative to subst 𝟘.
 
   substᵉ :
-    Term n → Term n → Term (1+ n) → Term n → Term n → Term n → Term n →
-    Term n
-  substᵉ l A B t u v w =
-    subst 𝟘 (Erased l A) (B [ erased (wk1 A) (var x0) ]↑)
-      [ t ] [ u ] ([]-cong s l A t u v) w
+    Term n → Term (1+ n) → Term n → Term n → Term n → Term n → Term n
+  substᵉ A B t u v w =
+    subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑)
+      [ t ] [ u ] ([]-cong s zeroᵘ A t u v) w
 
 opaque
   unfolding substᵉ
@@ -297,22 +296,21 @@ opaque
   -- A substitution lemma for substᵉ.
 
   substᵉ-[] :
-    substᵉ l A B t u v w U.[ σ ] ≡
-    substᵉ (l U.[ σ ]) (A U.[ σ ]) (B U.[ liftSubst σ ]) (t U.[ σ ])
+    substᵉ A B t u v w U.[ σ ] ≡
+    substᵉ (A U.[ σ ]) (B U.[ liftSubst σ ]) (t U.[ σ ])
       (u U.[ σ ]) (v U.[ σ ]) (w U.[ σ ])
-  substᵉ-[] {l} {A} {B} {t} {u} {v} {w} {σ} =
-    subst 𝟘 (Erased l A) (B [ erased (wk1 A) (var x0) ]↑) [ t ] [ u ]
-      ([]-cong s l A t u v) w U.[ σ ]                                     ≡⟨ subst-[] ⟩
+  substᵉ-[] {A} {B} {t} {u} {v} {w} {σ} =
+    subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑) [ t ]
+      [ u ] ([]-cong s zeroᵘ A t u v) w U.[ σ ]                           ≡⟨ subst-[] ⟩
 
-    subst 𝟘 (Erased l A U.[ σ ])
+    subst 𝟘 (Erased zeroᵘ A U.[ σ ])
       (B [ erased (wk1 A) (var x0) ]↑ U.[ liftSubst σ ]) ([ t ] U.[ σ ])
-      ([ u ] U.[ σ ]) ([]-cong s l A t u v U.[ σ ]) (w U.[ σ ])           ≡⟨ cong₆ (subst _) Erased-[] lemma []-[] []-[] refl refl ⟩
+      ([ u ] U.[ σ ]) ([]-cong s zeroᵘ A t u v U.[ σ ]) (w U.[ σ ])       ≡⟨ cong₆ (subst _) Erased-[] lemma []-[] []-[] refl refl ⟩
 
-    subst 𝟘 (Erased (l U.[ σ ]) (A U.[ σ ]))
+    subst 𝟘 (Erased zeroᵘ (A U.[ σ ]))
       (B U.[ liftSubst σ ] [ erased (wk1 (A U.[ σ ])) (var x0) ]↑)
       [ t U.[ σ ] ] [ u U.[ σ ] ]
-      ([]-cong s (l U.[ σ ]) (A U.[ σ ]) (t U.[ σ ]) (u U.[ σ ])
-         (v U.[ σ ]))
+      ([]-cong s zeroᵘ (A U.[ σ ]) (t U.[ σ ]) (u U.[ σ ]) (v U.[ σ ]))
       (w U.[ σ ])                                                         ∎
     where
     lemma :
@@ -328,11 +326,9 @@ opaque
 
   -- An alternative to J 𝟘 𝟘.
 
-  Jᵉ :
-    Term n → Term n → Term n → Term (2+ n) → Term n → Term n → Term n →
-    Term n
-  Jᵉ {n} l A t B u v w =
-    substᵉ l Singleton
+  Jᵉ : Term n → Term n → Term (2+ n) → Term n → Term n → Term n → Term n
+  Jᵉ {n} A t B u v w =
+    substᵉ Singleton
       (B U.[ consSubst
                (consSubst (wk1Subst idSubst)
                   (fst⟨ s ⟩ 𝟘 (wk1 A) (var x0)))
@@ -355,10 +351,10 @@ opaque
   -- A substitution lemma for Jᵉ.
 
   Jᵉ-[] :
-    Jᵉ l A t B u v w U.[ σ ] ≡
-    Jᵉ (l U.[ σ ]) (A U.[ σ ]) (t U.[ σ ]) (B U.[ σ ⇑[ 2 ] ])
-      (u U.[ σ ]) (v U.[ σ ]) (w U.[ σ ])
-  Jᵉ-[] {l} {A} {t} {B} {u} {v} {w} {σ} =
+    Jᵉ A t B u v w U.[ σ ] ≡
+    Jᵉ (A U.[ σ ]) (t U.[ σ ]) (B U.[ σ ⇑[ 2 ] ]) (u U.[ σ ])
+      (v U.[ σ ]) (w U.[ σ ])
+  Jᵉ-[] {A} {t} {B} {u} {v} {w} {σ} =
     case
       PE.cong (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘 (A U.[ σ ]))
         {x = Id (wk1 A) (wk1 t) (var x0) U.[ _ ]} $
@@ -369,7 +365,6 @@ opaque
     of λ
       lemma →
     substᵉ
-      l
       (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Id (wk1 A) (wk1 t) (var x0))
       (B U.[ consSubst
                (consSubst (wk1Subst idSubst)
@@ -385,7 +380,6 @@ opaque
       u U.[ σ ]                                                          ≡⟨ substᵉ-[] ⟩
 
     substᵉ
-      (l U.[ σ ])
       (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A U.[ σ ] ▹
        Id (wk1 A U.[ liftSubst σ ]) (wk1 t U.[ liftSubst σ ]) (var x0))
       (B U.[ consSubst
@@ -403,7 +397,7 @@ opaque
             (wk₂ (prod s 𝟘 t rfl) U.[ liftSubstn σ 2 ])
             (prod s 𝟘 (var x1) (var x0)))
          rfl (v U.[ σ ]) (w U.[ σ ]))
-      (u U.[ σ ])                                                         ≡⟨ cong₆ (substᵉ _) lemma
+      (u U.[ σ ])                                                         ≡⟨ cong₆ substᵉ lemma
                                                                                (
       B U.[ consSubst
               (consSubst (wk1Subst idSubst)
@@ -465,7 +459,6 @@ opaque
                                                                                   refl refl refl)
                                                                                refl ⟩
     substᵉ
-      (l U.[ σ ])
       (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A U.[ σ ] ▹
        Id (wk1 (A U.[ σ ])) (wk1 (t U.[ σ ])) (var x0))
       (B U.[ liftSubstn σ 2 ]

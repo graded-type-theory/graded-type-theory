@@ -149,7 +149,7 @@ mutual
       (wk~↓ [ρ] v₁~v₂) (wkEq [ρ] ≡Id) ok }
   wk~↑ [ρ] ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     PE.subst (_⊢_~_↑_ _ _ _) (wk-Id-Erased _) $
-    []-cong-cong (wkConv↑Level [ρ] l₁≡l₂) (wkConv↑Term [ρ] A₁≡A₂)
+    []-cong-cong (wkConv↑Level [ρ] l₁≡l₂) (wkConv↑ [ρ] A₁≡A₂)
       (wkConv↑Term [ρ] t₁≡t₂) (wkConv↑Term [ρ] u₁≡u₂) (wk~↓ [ρ] v₁~v₂)
       (wkEq [ρ] ≡Id) ok
 

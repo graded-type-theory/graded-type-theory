@@ -104,13 +104,13 @@ opaque
     γ₃ ▸[ 𝟘ᵐ? ] t →
     γ₄ ▸[ 𝟘ᵐ? ] u →
     γ₅ ▸[ 𝟘ᵐ? ] v →
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ t ≡ u ∷ A
   Id→≡′
     {s} {Γ} {l} {A} {t} {u} {v}
-    []-cong-ok []-cong-ok′ ok ▸l ▸A ▸t ▸u ▸v ⊢A =
-    Γ ⊢ v ∷ Id A t u                                           →⟨ []-congⱼ′ []-cong-ok ⊢A ⟩
+    []-cong-ok []-cong-ok′ ok ▸l ▸A ▸t ▸u ▸v ⊢l =
+    Γ ⊢ v ∷ Id A t u                                           →⟨ []-congⱼ′ []-cong-ok ⊢l ⟩
     Γ ⊢ []-cong s l A t u v ∷ Id (Erased l A) ([ t ]) ([ u ])  →⟨ flip (Id→≡ ok) ([]-congₘ ▸l ▸A ▸t ▸u ▸v []-cong-ok′) ⟩
     Γ ⊢ [ t ] ≡ [ u ] ∷ Erased l A                             →⟨ proj₁ ∘→ proj₂ ∘→ prod-cong⁻¹ ⟩
     Γ ⊢ t ≡ u ∷ A                                              □
@@ -136,12 +136,12 @@ opaque
     γ₃ ▸[ 𝟘ᵐ ] t →
     γ₄ ▸[ 𝟘ᵐ ] u →
     γ₅ ▸[ 𝟘ᵐ ] v →
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ v ∷ Erased.Erased s₂ l (Id A t u) →
     Γ ⊢ t ≡ u ∷ A
   Id→≡″
     {s₂} {Γ} {l} {A} {γ₃} {t} {γ₄} {u} {v} ⦃ ok ⦄
-    []-cong-ok []-cong-ok′ P-ok as ▸l ▸A ▸t ▸u ▸v ⊢A =
+    []-cong-ok []-cong-ok′ P-ok as ▸l ▸A ▸t ▸u ▸v ⊢l =
     Γ ⊢ v ∷ Erased l (Id A t u)         →⟨ erasedⱼ ⟩
     Γ ⊢ erased (Id A t u) v ∷ Id A t u  →⟨ Id→≡′ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ []-cong-ok []-cong-ok′ as
                                              (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸l) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A)
@@ -157,7 +157,7 @@ opaque
                                                           𝟘ᶜ        ∎)
                                                        (λ _ → ≤ᶜ-refl))
                                                 P-ok)
-                                             ⊢A ⟩
+                                             ⊢l ⟩
     Γ ⊢ t ≡ u ∷ A                       □
     where
     open Erased s₂

@@ -190,7 +190,7 @@ mutual
               → K-allowed
               → Γ ⊢ K p A t B u v ∷ B [ v ]₀
     []-congⱼ  : Γ ⊢ l ∷Level
-              → Γ ⊢ A ∷ U l
+              → Γ ⊢ A
               → Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
               → Γ ⊢ v ∷ Id A t u
@@ -452,7 +452,7 @@ mutual
                   → K-allowed
                   → Γ ⊢ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
     []-cong-cong  : Γ ⊢ l₁ ≡ l₂ ∷Level
-                  → Γ ⊢ A₁ ≡ A₂ ∷ U l₁
+                  → Γ ⊢ A₁ ≡ A₂
                   → Γ ⊢ t₁ ≡ t₂ ∷ A₁
                   → Γ ⊢ u₁ ≡ u₂ ∷ A₁
                   → Γ ⊢ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁
@@ -462,7 +462,7 @@ mutual
                       []-cong k l₂ A₂ t₂ u₂ v₂ ∷
                       Id (Erased l₁ A₁) ([ t₁ ]) ([ u₁ ])
     []-cong-β     : Γ ⊢ l ∷Level
-                  → Γ ⊢ A ∷ U l
+                  → Γ ⊢ A
                   → Γ ⊢ t ∷ A
                   → t PE.≡ t′
                   → []-cong-allowed k
@@ -623,7 +623,8 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → Γ ⊢ u ∷ B [ rfl ]₀
                  → K-allowed
                  → Γ ⊢ K p A t B u rfl ⇒ u ∷ B [ rfl ]₀
-  []-cong-subst  : Γ ⊢ A ∷ U l
+  []-cong-subst  : Γ ⊢ l ∷Level
+                 → Γ ⊢ A
                  → Γ ⊢ t ∷ A
                  → Γ ⊢ u ∷ A
                  → Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u
@@ -631,7 +632,8 @@ data _⊢_⇒_∷_ (Γ : Con Term n) : Term n → Term n → Term n → Set ℓ 
                  → let open Erased k in
                    Γ ⊢ []-cong k l A t u v₁ ⇒ []-cong k l A t u v₂ ∷
                      Id (Erased l A) ([ t ]) ([ u ])
-  []-cong-β      : Γ ⊢ A ∷ U l
+  []-cong-β      : Γ ⊢ l ∷Level
+                 → Γ ⊢ A
                  → Γ ⊢ t ∷ A
                  → Γ ⊢ t′ ∷ A
                  → Γ ⊢ t ≡ t′ ∷ A

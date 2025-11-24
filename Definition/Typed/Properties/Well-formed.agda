@@ -202,7 +202,7 @@ private module Lemmas where
         (rflⱼ ⊢t)               PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Jⱼ ⊢t _ _ _ _)         PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Kⱼ _ ⊢u _ _)           PE.refl → fix (wfTerm-<ˢ ⊢u)
-        ([]-congⱼ _ ⊢A _ _ _ _) PE.refl → fix (wfTerm-<ˢ ⊢A)
+        ([]-congⱼ _ ⊢A _ _ _ _) PE.refl → fix (wf-<ˢ ⊢A)
       where
       open Variants hyp
 
@@ -372,13 +372,13 @@ opaque
     wfEqTerm-<ˢ (K-cong A₁≡A₂ _ _ _ _ _) =
       fix (wfEq-<ˢ A₁≡A₂)
     wfEqTerm-<ˢ ([]-cong-cong _ A≡B _ _ _ _) =
-      fix (wfEqTerm-<ˢ A≡B)
+      fix (wfEq-<ˢ A≡B)
     wfEqTerm-<ˢ (J-β ⊢t _ _ _) =
       fix (wfTerm-<ˢ ⊢t)
     wfEqTerm-<ˢ (K-β _ ⊢u _) =
       fix (wfTerm-<ˢ ⊢u)
     wfEqTerm-<ˢ ([]-cong-β _ ⊢A _ _ _) =
-      fix (wfTerm-<ˢ ⊢A)
+      fix (wf-<ˢ ⊢A)
     wfEqTerm-<ˢ (equality-reflection _ _ ⊢v) =
       fix (wfTerm-<ˢ ⊢v)
 

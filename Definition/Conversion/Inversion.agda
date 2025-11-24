@@ -860,7 +860,7 @@ opaque
      t PE.≡ []-cong s t₁ B t₂ t₃ t₄ ×
      u PE.≡ []-cong s u₁ C u₂ u₃ u₄ ×
      Γ ⊢ t₁ [conv↑] u₁ ∷Level ×
-     Γ ⊢ B [conv↑] C ∷ U t₁ ×
+     (Γ ⊢ B [conv↑] C) ×
      Γ ⊢ t₂ [conv↑] u₂ ∷ B ×
      Γ ⊢ t₃ [conv↑] u₃ ∷ B ×
      Γ ⊢ t₄ ~ u₄ ↓ D ×
@@ -897,7 +897,7 @@ opaque
     A PE.≡ Id (Erased t₁ B) [ t₂ ] ([ t₃ ]) ×
     u PE.≡ []-cong s u₁ C u₂ u₃ u₄ ×
     Γ ⊢ t₁ [conv↑] u₁ ∷Level ×
-    Γ ⊢ B [conv↑] C ∷ U t₁ ×
+    (Γ ⊢ B [conv↑] C) ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B ×
     Γ ⊢ t₃ [conv↑] u₃ ∷ B ×
     Γ ⊢ t₄ ~ u₄ ↓ D ×
@@ -918,7 +918,7 @@ opaque
     A PE.≡ Id (Erased t₁ B) [ t₂ ] ([ t₃ ]) ×
     t PE.≡ []-cong s t₁ B t₂ t₃ t₄ ×
     Γ ⊢ t₁ [conv↑] u₁ ∷Level ×
-    Γ ⊢ B [conv↑] C ∷ U t₁ ×
+    (Γ ⊢ B [conv↑] C) ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B ×
     Γ ⊢ t₃ [conv↑] u₃ ∷ B ×
     Γ ⊢ t₄ ~ u₄ ↓ D ×

@@ -207,8 +207,8 @@ opaque
       (inj₂ (_ , ≡U)) →
         ⊥-elim $ Id≢U ⦃ ok = possibly-nonempty ⦄ ≡U
   Only-Level-or-U→Neutral→≡Level⊎≡U only ⊢bc ([]-congₙ t-ne) =
-    let _ , _ , _ , ⊢t , _ , A≡ = inversion-[]-cong ⊢bc
-        Id≡ , _                 =
+    let _ , _ , _ , _ , ⊢t , _ , A≡ = inversion-[]-cong ⊢bc
+        Id≡ , _                     =
           Only-Level-or-U→Neutral→≡Level⊎≡U only ⊢t t-ne
     in
     case Id≡ of λ where

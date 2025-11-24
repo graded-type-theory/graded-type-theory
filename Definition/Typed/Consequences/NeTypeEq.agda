@@ -75,8 +75,7 @@ neTypeEq {Γ} (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
 neTypeEq (Kₙ _) (Kⱼ ⊢B _ ⊢v _) (Kⱼ _ _ _ _) =
   refl (substType ⊢B ⊢v)
 neTypeEq
-  ([]-congₙ _) ([]-congⱼ _ ⊢A ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _ _) =
-  let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+  ([]-congₙ _) ([]-congⱼ ⊢l _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _ _) =
   refl $
   Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢u)
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B

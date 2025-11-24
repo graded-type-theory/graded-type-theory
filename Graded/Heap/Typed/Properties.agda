@@ -108,9 +108,9 @@ opaque
     Jⱼ′ ⊢B ⊢u ⊢t
   ⊢⦅⦆ᵉ (Kₑ ⊢u ⊢B ok) ⊢t =
     Kⱼ ⊢B ⊢u ⊢t ok
-  ⊢⦅⦆ᵉ ([]-congₑ ok ⊢A) ⊢t =
+  ⊢⦅⦆ᵉ ([]-congₑ ok ⊢l) ⊢t =
     PE.subst (_⊢_∷_ _ _) (E.wk-Id-Erased-[]-[] _) $
-    []-congⱼ′ ok ⊢A ⊢t
+    []-congⱼ′ ok ⊢l ⊢t
   ⊢⦅⦆ᵉ (conv ⊢e B≡B′) ⊢t =
     conv (⊢⦅⦆ᵉ ⊢e ⊢t) B≡B′
 
@@ -165,11 +165,11 @@ opaque
     case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
       (⊢A , ⊢t , _) →
     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) t≡u ok
-  ⊢⦅⦆ᵉ-cong ([]-congₑ ok ⊢A) t≡u =
+  ⊢⦅⦆ᵉ-cong ([]-congₑ ok ⊢l) t≡u =
     let _ , ⊢t , ⊢u = inversion-Id (syntacticEqTerm t≡u .proj₁) in
     PE.subst (_⊢_≡_∷_ _ _ _) (E.wk-Id-Erased-[]-[] _) $
-    []-cong-cong (refl-⊢≡∷L (inversion-U-Level (wf-⊢∷ ⊢A))) (refl ⊢A)
-      (refl ⊢t) (refl ⊢u) t≡u ok
+    []-cong-cong (refl-⊢≡∷L ⊢l) (refl (wf-⊢∷ ⊢t)) (refl ⊢t) (refl ⊢u)
+      t≡u ok
   ⊢⦅⦆ᵉ-cong (conv ⊢e B≡B′) t≡u =
     conv (⊢⦅⦆ᵉ-cong ⊢e t≡u) B≡B′
 
@@ -212,9 +212,9 @@ opaque
     J-subst′ ⊢B ⊢u d
   ⊢⦅⦆ᵉ-subst (Kₑ ⊢u ⊢B ok) d =
     K-subst ⊢B ⊢u d ok
-  ⊢⦅⦆ᵉ-subst ([]-congₑ ok ⊢A) d =
+  ⊢⦅⦆ᵉ-subst ([]-congₑ ok ⊢l) d =
     PE.subst (_⊢_⇒_∷_ _ _ _) (E.wk-Id-Erased-[]-[] _) $
-    []-cong-subst′ ⊢A d ok
+    []-cong-subst′ ⊢l d ok
   ⊢⦅⦆ᵉ-subst (conv ⊢e B≡B′) d =
     conv (⊢⦅⦆ᵉ-subst ⊢e d) B≡B′
 
@@ -270,8 +270,8 @@ opaque
   ⊢ᵉ-convₜ {H} {t} {u} (Kₑ ⊢u ⊢B ok) t≡u =
     conv (Kₑ ⊢u ⊢B ok)
       (substTypeEq (refl ⊢B) (sym′ t≡u))
-  ⊢ᵉ-convₜ ([]-congₑ ok ⊢A) _ =
-    []-congₑ ok ⊢A
+  ⊢ᵉ-convₜ ([]-congₑ ok ⊢l) _ =
+    []-congₑ ok ⊢l
   ⊢ᵉ-convₜ (conv ⊢e B≡B′) t≡u =
     conv (⊢ᵉ-convₜ ⊢e t≡u) B≡B′
 

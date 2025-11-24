@@ -220,18 +220,16 @@ opaque
     Δ ⨾ H ⊢ᵉ []-congₑ s′ l A t u ρ ⟨ v ⟩∷ B ↝ C →
     let module E′ = E s′ in
     []-cong-allowed s′ ×
-    Δ ⊢ wk ρ A [ H ]ₕ ∷ U (wk ρ l [ H ]ₕ) ×
+    Δ ⊢ wk ρ l [ H ]ₕ ∷Level ×
     B PE.≡ wk ρ (Id A t u) [ H ]ₕ ×
     (Δ ⊢ wk ρ t [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
      Δ ⊢ wk ρ u [ H ]ₕ ∷ wk ρ A [ H ]ₕ →
      Δ ⊢ C ≡
        Id (E′.Erased (wk ρ l [ H ]ₕ) (wk ρ A [ H ]ₕ))
          E′.[ wk ρ t [ H ]ₕ ] E′.[ wk ρ u [ H ]ₕ ])
-  inversion-[]-congₑ ([]-congₑ {s′} ok ⊢A) =
-    let E-ok = []-cong→Erased ok
-        ⊢l   = inversion-U-Level (wf-⊢∷ ⊢A)
-    in
-    ok , ⊢A , PE.refl ,
+  inversion-[]-congₑ ([]-congₑ {s′} ok ⊢l) =
+    let E-ok = []-cong→Erased ok in
+    ok , ⊢l , PE.refl ,
     λ ⊢t ⊢u →
       PE.subst₂ (_⊢_≡_ _) wk-Id-Erased-[]-[] PE.refl $
       _⊢_≡_.refl $
@@ -240,8 +238,8 @@ opaque
     open E s′
   inversion-[]-congₑ (conv ⊢e ≡C) =
     case inversion-[]-congₑ ⊢e of λ
-      (ok , ⊢A , B≡ , C′≡) →
-    ok , ⊢A , B≡ , λ ⊢t ⊢u → trans (sym ≡C) (C′≡ ⊢t ⊢u)
+      (ok , ⊢l , B≡ , C′≡) →
+    ok , ⊢l , B≡ , λ ⊢t ⊢u → trans (sym ≡C) (C′≡ ⊢t ⊢u)
 
 opaque
 

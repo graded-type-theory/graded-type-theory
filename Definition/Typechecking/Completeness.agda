@@ -284,11 +284,9 @@ mutual
         (completeness⇇ v ⊢v) ok
     , ≡B }
   completeness⇉ ([]-congᵢ l A t u v) ⊢[]-cong =
-    let ⊢A , ⊢t , ⊢u , ⊢v , ok , ≡B = inversion-[]-cong ⊢[]-cong
-        ⊢l                          = inversion-U-Level (wf-⊢∷ ⊢A)
-    in
+    let ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok , ≡B = inversion-[]-cong ⊢[]-cong in
     _ ,
-    []-congᵢ (completeness⇇Level l ⊢l) (completeness⇇ A ⊢A)
+    []-congᵢ (completeness⇇Level l ⊢l) (completeness⇇Type A ⊢A)
       (completeness⇇ t ⊢t) (completeness⇇ u ⊢u) (completeness⇇ v ⊢v)
       ok ,
     ≡B

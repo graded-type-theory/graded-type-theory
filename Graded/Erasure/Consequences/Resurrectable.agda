@@ -321,7 +321,7 @@ opaque
     ¬ Resurrectable s q₁ q₂ Γ zeroᵘ ℕ
   ¬-ℕ-resurrectable
     {Γ} ⦃ ok ⦄ Unitʷ-η→ P-ok []-cong-ok []-cong-ok′ as (_ , ▸t , ⊢t) =
-    let ⊢ℕ = ℕⱼ (wfTerm ⊢t) in
+    let ⊢0 = ⊢zeroᵘ (wfTerm ⊢t) in
 
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
@@ -343,7 +343,7 @@ opaque
            (usagePres*Term Unitʷ-η→ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
       (invUsageProd ▸t₁ ▸t₂ _ _) →
     case Id→≡″ []-cong-ok []-cong-ok′ P-ok as zeroᵘₘ ℕₘ (▸-𝟘 ▸t₁) zeroₘ
-           (▸-𝟘 ▸t₂) ⊢ℕ $
+           (▸-𝟘 ▸t₂) ⊢0 $
          PE.subst (_⊢_∷_ _ _)
            (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
             Erased.Erased-[] _) $
@@ -377,7 +377,7 @@ opaque
                   t∘1⇒t₁′,t₂′) of λ {
           (invUsageProd ▸t₁′ ▸t₂′ _ _) →
         case Id→≡″ []-cong-ok []-cong-ok′ P-ok as zeroᵘₘ ℕₘ (▸-𝟘 ▸t₁′)
-               (sucₘ zeroₘ) (▸-𝟘 ▸t₂′) ⊢ℕ $
+               (sucₘ zeroₘ) (▸-𝟘 ▸t₂′) ⊢0 $
              PE.subst (_⊢_∷_ _ _)
                (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
                 Erased.Erased-[] _) $

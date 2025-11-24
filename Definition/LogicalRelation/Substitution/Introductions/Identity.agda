@@ -686,7 +686,7 @@ opaque
     (ok : []-cong-allowed s) →
     let open E ok in
     Γ ⊩Level k₁ ≡ k₂ ∷Level →
-    Γ ⊩⟨ l ⟩ A₁ ≡ A₂ ∷ U k₁ →
+    Γ ⊩⟨ l ⟩ A₁ ≡ A₂ →
     Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊩⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ →
     Γ ⊩⟨ l‴ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
@@ -695,49 +695,48 @@ opaque
   ⊩[]-cong≡[]-cong
     {s} {k₁} {k₂} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂}
     ok k₁≡k₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    let A₁≅A₂         = escape-⊩≡∷ A₁≡A₂
-        ⊩k₁ , ⊩A₁     = ⊩∷U→ (wf-⊩≡∷ A₁≡A₂ .proj₁)
-        t₁≡t₂         = level-⊩≡∷ ⊩A₁ t₁≡t₂
-        t₁≅t₂         = escape-⊩≡∷ t₁≡t₂
-        ⊩t₁ , _       = wf-⊩≡∷ t₁≡t₂
-        u₁≡u₂         = level-⊩≡∷ ⊩A₁ u₁≡u₂
-        u₁≅u₂         = escape-⊩≡∷ u₁≡u₂
-        ⊩u₁ , _       = wf-⊩≡∷ u₁≡u₂
-        v₁≡v₂         = level-⊩≡∷ (⊩Id⇔ .proj₂ (⊩t₁ , ⊩u₁)) v₁≡v₂
-        k₁≅k₂         = escapeLevelEq k₁≡k₂
-        ⊢k₁≡k₂        = ⊢≅∷L→⊢≡∷L k₁≅k₂
-        ⊢k₁ , _       = wf-⊢≡∷L ⊢k₁≡k₂
-        ⊢A₁≡A₂        = ≅ₜ-eq A₁≅A₂
-        _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ ⊢A₁≡A₂
-        ⊢A₂           = conv ⊢A₂ (U-cong-⊢≡ ⊢k₁≡k₂)
-        ⊢t₁≡t₂        = ≅ₜ-eq t₁≅t₂
-        ⊢u₁≡u₂        = ≅ₜ-eq u₁≅u₂
-        ⊢Id≡Id        =
+    let ⊩k₁ , _   = wf-Level-eq k₁≡k₂
+        k₁≅k₂     = escapeLevelEq k₁≡k₂
+        ⊩A₁ , _   = wf-⊩≡ A₁≡A₂
+        A₁≅A₂     = escape-⊩≡ A₁≡A₂
+        t₁≡t₂     = level-⊩≡∷ ⊩A₁ t₁≡t₂
+        t₁≅t₂     = escape-⊩≡∷ t₁≡t₂
+        ⊩t₁ , _   = wf-⊩≡∷ t₁≡t₂
+        u₁≡u₂     = level-⊩≡∷ ⊩A₁ u₁≡u₂
+        u₁≅u₂     = escape-⊩≡∷ u₁≡u₂
+        ⊩u₁ , _   = wf-⊩≡∷ u₁≡u₂
+        v₁≡v₂     = level-⊩≡∷ (⊩Id⇔ .proj₂ (⊩t₁ , ⊩u₁)) v₁≡v₂
+        ⊢k₁≡k₂    = ⊢≅∷L→⊢≡∷L k₁≅k₂
+        ⊢k₁ , ⊢k₂ = wf-⊢≡∷L ⊢k₁≡k₂
+        ⊢A₁≡A₂    = ≅-eq A₁≅A₂
+        ⊢t₁≡t₂    = ≅ₜ-eq t₁≅t₂
+        ⊢u₁≡u₂    = ≅ₜ-eq u₁≅u₂
+        ⊢Id≡Id    =
           let ok = []-cong→Erased ok in
-          Id-cong (Erased-cong ok ⊢k₁≡k₂ (univ ⊢A₁≡A₂))
+          Id-cong (Erased-cong ok ⊢k₁≡k₂ ⊢A₁≡A₂)
             ([]-cong′ ok ⊢k₁ ⊢t₁≡t₂) ([]-cong′ ok ⊢k₁ ⊢u₁≡u₂)
     in
     case ⊩≡∷Id⇔ .proj₁ v₁≡v₂ of λ
       (v₁′ , v₂′ , v₁⇒*v₁′ , v₂⇒*v₂′ , ⊩t , ⊩u , rest) →
-    let []-cong⇒*[]-cong₁ = []-cong-subst* ⊢A₁ v₁⇒*v₁′ ok
+    let []-cong⇒*[]-cong₁ = []-cong-subst* ⊢k₁ v₁⇒*v₁′ ok
         []-cong⇒*[]-cong₂ =
-          []-cong-subst* ⊢A₂
-            (conv* v₂⇒*v₂′ (Id-cong (univ ⊢A₁≡A₂) ⊢t₁≡t₂ ⊢u₁≡u₂)) ok
+          []-cong-subst* ⊢k₂
+            (conv* v₂⇒*v₂′ (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂)) ok
     in
     case rest of λ where
       (rfl₌ t₁≡u₁) →
         let t₂≡u₂ =
-                   ˘⟨ ⊩≡∷U⇔ .proj₁ A₁≡A₂ .proj₂ .proj₂ .proj₁ ⟩⊩∷
+                   ˘⟨ A₁≡A₂ ⟩⊩∷
               t₂  ≡˘⟨ t₁≡t₂ ⟩⊩∷
               t₁  ≡⟨ t₁≡u₁ ⟩⊩∷
               u₁  ≡⟨ u₁≡u₂ ⟩⊩∷∎
               u₂  ∎
         in
         []-cong s k₁ A₁ t₁ u₁ v₁               ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
-        []-cong s k₁ A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β-⇒ ⊢A₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
+        []-cong s k₁ A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β-⇒ ⊢k₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
         rfl ∷ Id (Erased k₁ A₁) [ t₁ ] [ u₁ ]  ≡⟨ refl-⊩≡∷ (⊩rfl′ (⊩[]≡[] ⊩k₁ t₁≡u₁)) ⟩⊩∷∷⇐*
                                                 ⟨ ⊢Id≡Id ⟩⇒
-        rfl ∷ Id (Erased k₂ A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β-⇒ ⊢A₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
+        rfl ∷ Id (Erased k₂ A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β-⇒ ⊢k₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
         []-cong s k₂ A₂ t₂ u₂ rfl              ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎
         []-cong s k₂ A₂ t₂ u₂ v₂               ∎
 
@@ -759,16 +758,14 @@ opaque
   ⊩[]-cong :
     (ok : []-cong-allowed s) →
     let open E ok in
-    Γ ⊩⟨ l ⟩ A ∷ U k →
-    Γ ⊩⟨ l′ ⟩ v ∷ Id A t u →
+    Γ ⊩Level k ∷Level →
+    Γ ⊩⟨ l ⟩ v ∷ Id A t u →
     Γ ⊩⟨ l ⟩ []-cong s k A t u v ∷ Id (Erased k A) [ t ] [ u ]
-  ⊩[]-cong ok ⊩A ⊩v =
-    let ⊩k , _              = ⊩∷U→ ⊩A
-        _ , _ , ⊩t , ⊩u , _ = ⊩∷Id⇔ .proj₁ ⊩v
-    in
+  ⊩[]-cong ok ⊩k ⊩v =
+    let _ , _ , ⊩t , ⊩u , _ = ⊩∷Id⇔ .proj₁ ⊩v in
     ⊩∷⇔⊩≡∷ .proj₂ $
-    ⊩[]-cong≡[]-cong ok (reflLevel ⊩k) (refl-⊩≡∷ ⊩A) (refl-⊩≡∷ ⊩t)
-      (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v)
+    ⊩[]-cong≡[]-cong ok (reflLevel ⊩k) (refl-⊩≡ (wf-⊩∷ ⊩t))
+      (refl-⊩≡∷ ⊩t) (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v)
 
 opaque
 
@@ -778,7 +775,7 @@ opaque
     (ok : []-cong-allowed s) →
     let open E ok in
     Γ ⊩ᵛ⟨ l′ ⟩ k₁ ≡ k₂ ∷Level →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ ∷ U k₁ →
+    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
     Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ →
     Γ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
@@ -788,13 +785,13 @@ opaque
     let ⊩k₁ , _ = wf-⊩ᵛ≡∷L k₁≡k₂ in
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ≡
-          (Id-congᵛ (Erased-congᵛ k₁≡k₂ $ ⊩ᵛ≡∷U→⊩ᵛ≡ A₁≡A₂)
+          (Id-congᵛ (Erased-congᵛ k₁≡k₂ A₁≡A₂)
              ([]-congᵛ′ ⊩k₁ t₁≡t₂) ([]-congᵛ′ ⊩k₁ u₁≡u₂))
           .proj₁
       , λ σ₁≡σ₂ →
           PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) Id-Erased-[] $
           ⊩[]-cong≡[]-cong ok (⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L k₁≡k₂ σ₁≡σ₂)
-            (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ A₁≡A₂ σ₁≡σ₂)
+            (R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ σ₁≡σ₂)
             (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ σ₁≡σ₂)
             (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ u₁≡u₂ σ₁≡σ₂)
             (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ v₁≡v₂ σ₁≡σ₂)
@@ -810,14 +807,13 @@ opaque
     (ok : []-cong-allowed s) →
     let open E ok in
     Γ ⊩ᵛ⟨ l′ ⟩ k ∷Level →
-    Γ ⊩ᵛ⟨ l ⟩ A ∷ U k →
-    Γ ⊩ᵛ⟨ l″ ⟩ v ∷ Id A t u →
+    Γ ⊩ᵛ⟨ l ⟩ v ∷ Id A t u →
     Γ ⊩ᵛ⟨ l ⟩ []-cong s k A t u v ∷ Id (Erased k A) [ t ] [ u ]
-  []-congᵛ ok ⊩k ⊩A ⊩v =
+  []-congᵛ ok ⊩k ⊩v =
     let ⊩t , ⊩u = ⊩ᵛId⇔ .proj₁ $ wf-⊩ᵛ∷ ⊩v in
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
-    []-cong-congᵛ ok (refl-⊩ᵛ≡∷L ⊩k) (refl-⊩ᵛ≡∷ ⊩A) (refl-⊩ᵛ≡∷ ⊩t)
-      (refl-⊩ᵛ≡∷ ⊩u) (refl-⊩ᵛ≡∷ ⊩v)
+    []-cong-congᵛ ok (refl-⊩ᵛ≡∷L ⊩k) (refl-⊩ᵛ≡ (wf-⊩ᵛ∷ ⊩t))
+      (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u) (refl-⊩ᵛ≡∷ ⊩v)
 
 opaque
 
@@ -827,17 +823,16 @@ opaque
     (ok : []-cong-allowed s) →
     let open E ok in
     Γ ⊩ᵛ⟨ l′ ⟩ k ∷Level →
-    Γ ⊢ A ∷ U k →
     Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
     Γ ⊩ᵛ⟨ l ⟩ []-cong s k A t t rfl ≡ rfl ∷ Id (Erased k A) [ t ] [ t ]
-  []-cong-βᵛ ok ⊩k ⊢A ⊩t =
+  []-cong-βᵛ ok ⊩k ⊩t =
     ⊩ᵛ∷-⇐
       (λ ⊩σ →
          PE.subst (_⊢_⇒_∷_ _ _ _) Id-Erased-[] $
-         let ⊢A[σ] = subst-⊢∷ ⊢A (escape-⊩ˢ∷ ⊩σ .proj₂)
+         let ⊢k[σ] = escapeLevel $ ⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩k ⊩σ
              ⊢t[σ] = R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ
          in
-         []-cong-β-⇒ ⊢A[σ] (refl ⊢t[σ]) ok)
+         []-cong-β-⇒ ⊢k[σ] (refl ⊢t[σ]) ok)
       (rflᵛ ([]ᵛ ⊩k ⊩t))
     where
     open E ok

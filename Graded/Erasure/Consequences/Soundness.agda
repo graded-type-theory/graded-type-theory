@@ -395,7 +395,7 @@ opaque
     Jⱼ′
       (⊢ℕ $ J-motive-context $
        []ⱼ ([]-cong→Erased ok) (⊢zeroᵘ ⊢Id) (zeroⱼ ⊢Id))
-      (zeroⱼ ⊢Id) ([]-congⱼ′ ok (ℕⱼ ⊢Id) (var ⊢Id here)) ,
+      (zeroⱼ ⊢Id) ([]-congⱼ′ ok (⊢zeroᵘ ⊢Id) (var ⊢Id here)) ,
     sub
       (Jₘ-generalised (▸Erased s zeroᵘₘ ℕₘ) (▸[] s zeroₘ)
          (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
@@ -643,11 +643,9 @@ opaque
            Er.Erased-[] Er.[]-[] PE.refl PE.refl Er.[]-[] PE.refl)
         (Jⱼ′
            (Idⱼ′
-              (Jⱼ′
-                 (⊢ℕ $
-                  J-motive-context ([]ⱼ Erased-ok (⊢zeroᵘ ⊢∙Id) ⊢zero))
+              (Jⱼ′ (⊢ℕ (J-motive-context ([]ⱼ Erased-ok ⊢0 ⊢zero)))
                  ⊢zero
-                 ([]-congⱼ′ ok (ℕⱼ ⊢∙Id) $
+                 ([]-congⱼ′ ok ⊢0 $
                   var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
               ⊢zero)
            (rflⱼ′
@@ -659,7 +657,7 @@ opaque
                  ([]-cong s zeroᵘ ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (⊢ℕ ⊢Δ)))
                                                                                (refl ⊢[zero]) (refl ⊢ℕ′)
                                                                                (refl (zeroⱼ ⊢Δ)) (refl ⊢[zero])
-                                                                               ([]-cong-β-≡ (ℕⱼ ⊢Δ) (refl (zeroⱼ ⊢Δ)) ok) ⟩⊢
+                                                                               ([]-cong-β-≡ (⊢zeroᵘ ⊢Δ) (refl (zeroⱼ ⊢Δ)) ok) ⟩⊢
 
                J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ] rfl  ≡⟨ J-β-≡ ⊢[zero] ⊢ℕ′ (zeroⱼ ⊢Δ) ⟩⊢∎
 
@@ -687,11 +685,11 @@ opaque
       ℕ
     ⊢ℕ′ = ⊢ℕ (J-motive-context ([]ⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (zeroⱼ ⊢Δ)))
 
-    ⊢∙Id : ⊢ Δ′ ∙ ℕ ∙ Id ℕ zero (var x0)
-    ⊢∙Id = J-motive-context (zeroⱼ ⊢Δ)
+    ⊢0 : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zeroᵘ ∷Level
+    ⊢0 = ⊢zeroᵘ (J-motive-context (zeroⱼ ⊢Δ))
 
     ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
-    ⊢zero = zeroⱼ ⊢∙Id
+    ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
 
     ⊢[zero] : Δ′ ⊢ Er.[ zero ] ∷ Erased zeroᵘ ℕ
     ⊢[zero] = []ⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (zeroⱼ ⊢Δ)

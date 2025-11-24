@@ -182,13 +182,11 @@ mutual
       ⊢v →
       substType ⊢B ⊢v
     , Kⱼ ⊢B (soundness⇇ ⊢u) ⊢v ok }}}}
-  soundness⇉ _ ([]-congᵢ ⊢l ⊢A ⊢t ⊢u ⊢v ok) =
-    let ⊢A = soundness⇇ ⊢A
-        ⊢l = inversion-U-Level (wf-⊢∷ ⊢A)
-    in
+  soundness⇉ ⊢Γ ([]-congᵢ ⊢l _ ⊢t ⊢u ⊢v ok) =
+    let ⊢l = soundness⇇Level ⊢Γ ⊢l in
     Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢l (soundness⇇ ⊢t))
       ([]ⱼ ([]-cong→Erased ok) ⊢l (soundness⇇ ⊢u)) ,
-    []-congⱼ′ ok ⊢A (soundness⇇ ⊢v)
+    []-congⱼ′ ok ⊢l (soundness⇇ ⊢v)
 
   soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
   soundness⇇ (liftᶜ A↘Lift t⇇B) =

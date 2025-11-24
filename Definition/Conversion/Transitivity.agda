@@ -170,15 +170,14 @@ mutual
     ([]-cong-cong l₂≡l₃ A₂≡A₃ t₂≡t₃ u₂≡u₃ v₂~v₃ _ _) =
     let ⊢l₁≡l₂    = soundnessConv↑Level l₁≡l₂
         ⊢l₁ , _   = wf-⊢≡∷L ⊢l₁≡l₂
-        ⊢A₁≡A₂    = soundnessConv↑Term A₁≡A₂
+        ⊢A₁≡A₂    = soundnessConv↑ A₁≡A₂
         Erased-ok = []-cong→Erased ok
     in
-    []-cong-cong (transConvLevel l₁≡l₂ l₂≡l₃)
-      (transConv↑Term (U-cong-⊢≡ ⊢l₁≡l₂) A₁≡A₂ A₂≡A₃)
-      (transConv↑Term (univ ⊢A₁≡A₂) t₁≡t₂ t₂≡t₃)
-      (transConv↑Term (univ ⊢A₁≡A₂) u₁≡u₂ u₂≡u₃)
+    []-cong-cong (transConvLevel l₁≡l₂ l₂≡l₃) (transConv↑ A₁≡A₂ A₂≡A₃)
+      (transConv↑Term ⊢A₁≡A₂ t₁≡t₂ t₂≡t₃)
+      (transConv↑Term ⊢A₁≡A₂ u₁≡u₂ u₂≡u₃)
       (trans~↓ v₁~v₂ v₂~v₃ .proj₁) B₁≡Id-t₁-u₁ ok ,
-    Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ (univ ⊢A₁≡A₂))
+    Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ ⊢A₁≡A₂)
       ([]-cong′ Erased-ok ⊢l₁ (soundnessConv↑Term t₁≡t₂))
       ([]-cong′ Erased-ok ⊢l₁ (soundnessConv↑Term u₁≡u₂))
 

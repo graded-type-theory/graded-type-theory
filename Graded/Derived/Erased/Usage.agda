@@ -48,11 +48,11 @@ open import Tools.Relation
 open import Tools.Sum using (inj₁; inj₂)
 
 private variable
-  A B l t u v w              : Term _
-  γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ γ₇ δ η : Conₘ _
-  p                          : M
-  m                          : Mode
-  ok                         : T _
+  A B l t u v w           : Term _
+  γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η : Conₘ _
+  p                       : M
+  m                       : Mode
+  ok                      : T _
 
 ------------------------------------------------------------------------
 -- Usage rules
@@ -370,16 +370,15 @@ opaque
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     []-cong-allowed-mode s m →
-    γ₁ ▸[ 𝟘ᵐ? ] l →
-    γ₂ ▸[ 𝟘ᵐ? ] A →
-    γ₃ ∙ 𝟘 ▸[ m ] B →
-    γ₄ ▸[ 𝟘ᵐ? ] t →
-    γ₅ ▸[ 𝟘ᵐ? ] u →
-    γ₆ ▸[ 𝟘ᵐ? ] v →
-    γ₇ ▸[ m ] w →
-    ω ·ᶜ (γ₃ +ᶜ γ₇) ▸[ m ] substᵉ l A B t u v w
-  ▸substᵉ {m} {γ₃} {γ₇} ok trivial 𝟘≤𝟙 ok′ ▸l ▸A ▸B ▸t ▸u ▸v ▸w = sub
-    (▸subst (▸Erased ▸l ▸A)
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ∙ 𝟘 ▸[ m ] B →
+    γ₃ ▸[ 𝟘ᵐ? ] t →
+    γ₄ ▸[ 𝟘ᵐ? ] u →
+    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₆ ▸[ m ] w →
+    ω ·ᶜ (γ₂ +ᶜ γ₆) ▸[ m ] substᵉ A B t u v w
+  ▸substᵉ {m} {γ₂} {γ₆} ok trivial 𝟘≤𝟙 ok′ ▸A ▸B ▸t ▸u ▸v ▸w = sub
+    (▸subst (▸Erased zeroᵘₘ ▸A)
        (sub
           (substₘ-lemma _
              (▶-cong _
@@ -396,19 +395,19 @@ opaque
                    𝟘ᶜ               ∎))
              ▸B)
           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-             γ₃ ∙ ⌜ m ⌝ · 𝟘                       ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-             γ₃ ∙ 𝟘                               ≈˘⟨ <*-identityˡ _ ∙ PE.refl ⟩
-             γ₃ <* idSubstₘ ∙ 𝟘                   ≈˘⟨ wk1Substₘ-app _ γ₃ ⟩
-             γ₃ <* wk1Substₘ idSubstₘ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
+             γ₂ ∙ ⌜ m ⌝ · 𝟘                       ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+             γ₂ ∙ 𝟘                               ≈˘⟨ <*-identityˡ _ ∙ PE.refl ⟩
+             γ₂ <* idSubstₘ ∙ 𝟘                   ≈˘⟨ wk1Substₘ-app _ γ₂ ⟩
+             γ₂ <* wk1Substₘ idSubstₘ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
                                                       +ᶜ-identityˡ _ ⟩
-             𝟘 ·ᶜ 𝟘ᶜ +ᶜ γ₃ <* wk1Substₘ idSubstₘ  ∎))
-       (▸[] ▸t) (▸[] ▸u) ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok′) ▸w)
+             𝟘 ·ᶜ 𝟘ᶜ +ᶜ γ₂ <* wk1Substₘ idSubstₘ  ∎))
+       (▸[] ▸t) (▸[] ▸u) ([]-congₘ zeroᵘₘ ▸A ▸t ▸u ▸v ok′) ▸w)
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-       ω ·ᶜ (γ₃ +ᶜ γ₇)                    ≈˘⟨ ·ᶜ-congˡ $ +ᶜ-congˡ $
+       ω ·ᶜ (γ₂ +ᶜ γ₆)                    ≈˘⟨ ·ᶜ-congˡ $ +ᶜ-congˡ $
                                               ≈ᶜ-trans (+ᶜ-identityˡ _) $
                                               ≈ᶜ-trans (+ᶜ-identityˡ _) $
                                               +ᶜ-identityˡ _ ⟩
-       ω ·ᶜ (γ₃ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ γ₇)  ∎)
+       ω ·ᶜ (γ₂ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ γ₆)  ∎)
 
 opaque
   unfolding Jᵉ
@@ -420,15 +419,14 @@ opaque
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
     []-cong-allowed-mode s m →
-    γ₁ ▸[ 𝟘ᵐ? ] l →
-    γ₂ ▸[ 𝟘ᵐ? ] A →
-    γ₃ ▸[ 𝟘ᵐ? ] t →
-    γ₄ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
-    γ₅ ▸[ m ] u →
-    γ₆ ▸[ 𝟘ᵐ? ] v →
-    γ₇ ▸[ 𝟘ᵐ? ] w →
-    ω ·ᶜ (γ₄ +ᶜ γ₅) ▸[ m ] Jᵉ l A t B u v w
-  ▸Jᵉ {γ₃} {γ₄} {γ₆} {γ₇} ok trivial 𝟘≤𝟙 ok′ ▸l ▸A ▸t ▸B ▸u ▸v ▸w =
+    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
+    γ₄ ▸[ m ] u →
+    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₆ ▸[ 𝟘ᵐ? ] w →
+    ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] Jᵉ A t B u v w
+  ▸Jᵉ {γ₂} {γ₃} {γ₅} {γ₆} ok trivial 𝟘≤𝟙 ok′ ▸A ▸t ▸B ▸u ▸v ▸w =
     case
       𝟘ᵐ?-elim (λ m → 𝟘 ≤ ⌜ m ⌝) ≤-refl
         (λ not-ok →
@@ -440,24 +438,24 @@ opaque
       (ΠΣₘ (▸-cong (PE.sym ᵐ·-zeroˡ) ▸A) $
        Idₘ-generalised (wkUsage _ ▸A) (wkUsage _ ▸t) var
          (λ _ → begin
-            (γ₃ ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-            (γ₃ ∧ᶜ 𝟘ᶜ) ∙ 𝟘            ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙ ≤-refl ⟩
+            (γ₂ ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            (γ₂ ∧ᶜ 𝟘ᶜ) ∙ 𝟘            ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙ ≤-refl ⟩
             𝟘ᶜ                        ∎)
          (λ _ → begin
-            (γ₃ ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘    ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-            (γ₃ ∧ᶜ 𝟘ᶜ) ∙ 𝟘              ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙ 𝟘≤⌜𝟘ᵐ?⌝ ⟩
-            γ₃ ∙ ⌜ 𝟘ᵐ? ⌝                ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
-            (γ₃ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)  ∎)) of λ
+            (γ₂ ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘    ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            (γ₂ ∧ᶜ 𝟘ᶜ) ∙ 𝟘              ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙ 𝟘≤⌜𝟘ᵐ?⌝ ⟩
+            γ₂ ∙ ⌜ 𝟘ᵐ? ⌝                ≈˘⟨ +ᶜ-identityʳ _ ∙ +-identityˡ _ ⟩
+            (γ₂ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)  ∎)) of λ
       ▸Singleton →
     case (prodₘ (▸-cong (PE.sym ᵐ·-zeroˡ) ▸t) rflₘ
             (λ _ → begin
                𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-               𝟘 ·ᶜ γ₃        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-               𝟘 ·ᶜ γ₃ +ᶜ 𝟘ᶜ  ∎)
+               𝟘 ·ᶜ γ₂        ≈˘⟨ +ᶜ-identityʳ _ ⟩
+               𝟘 ·ᶜ γ₂ +ᶜ 𝟘ᶜ  ∎)
             (λ _ → begin
                𝟘ᶜ             ≈˘⟨ ∧ᶜ-idem _ ⟩
                𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
-               𝟘 ·ᶜ γ₃ ∧ᶜ 𝟘ᶜ  ∎)) of λ
+               𝟘 ·ᶜ γ₂ ∧ᶜ 𝟘ᶜ  ∎)) of λ
       ▸t,rfl →
     case
       (λ s≡𝕨 →
@@ -470,7 +468,7 @@ opaque
          (𝕨 , s≡𝕨) → ≡-trivial ∘→ trivial s≡𝕨) ∘→
       𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ of λ
       𝟘≤𝟙′ →
-    ▸substᵉ ok trivial 𝟘≤𝟙 ok′ ▸l ▸Singleton
+    ▸substᵉ ok trivial 𝟘≤𝟙 ok′ ▸Singleton
       (sub
          (flip (substₘ-lemma _) ▸B $
           ▶-cong _
@@ -496,41 +494,41 @@ opaque
                     (▸fst⟨⟩ ok″ ok 𝟘≤𝟙′ var
                        (λ _ → wkUsage _ $ wkUsage _ ▸A))
                     (λ _ → begin
-                       ((γ₃ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-                       ((γ₃ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ 𝟘            ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙ ≤-refl ⟩
+                       ((γ₂ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+                       ((γ₂ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ 𝟘            ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙ ≤-refl ⟩
                        𝟘ᶜ                              ∎)
                     (λ _ → begin
-                       ((γ₃ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘          ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-                       ((γ₃ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ 𝟘                    ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙ ≤-refl ⟩
-                       γ₃ ∙ 𝟘 ∙ 𝟘                              ≈˘⟨ +ᶜ-identityʳ _ ⟩
-                       (γ₃ ∙ 𝟘 ∙ 𝟘) +ᶜ 𝟘ᶜ                      ≈˘⟨ +ᶜ-congˡ $ ∧ᶜ-idem _ ⟩
-                       (γ₃ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)              ≤⟨ +ᶜ-monotoneʳ $ ∧ᶜ-monotoneʳ (≤ᶜ-refl ∙ 𝟘≤⌜𝟘ᵐ?⌝) ⟩
-                       (γ₃ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝))  ∎)))
+                       ((γ₂ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘          ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+                       ((γ₂ ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ 𝟘                    ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙ ≤-refl ⟩
+                       γ₂ ∙ 𝟘 ∙ 𝟘                              ≈˘⟨ +ᶜ-identityʳ _ ⟩
+                       (γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ 𝟘ᶜ                      ≈˘⟨ +ᶜ-congˡ $ ∧ᶜ-idem _ ⟩
+                       (γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)              ≤⟨ +ᶜ-monotoneʳ $ ∧ᶜ-monotoneʳ (≤ᶜ-refl ∙ 𝟘≤⌜𝟘ᵐ?⌝) ⟩
+                       (γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝))  ∎)))
           (begin
              ⌜ 𝟘ᵐ? ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝)         ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-distribˡ-∧ _ _ _ ⟩
              𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝ · ⌜ 𝟘ᵐ? ⌝  ≈⟨ ≈ᶜ-refl ∙ ∧-cong (·-zeroʳ _) (·-idem-⌜⌝ 𝟘ᵐ?) ⟩
              𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝                      ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
              𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)                  ∎))
        (begin
-          γ₄ ∙ 𝟘                                             ≈˘⟨ <*-identityˡ _ ∙ PE.refl ⟩
+          γ₃ ∙ 𝟘                                             ≈˘⟨ <*-identityˡ _ ∙ PE.refl ⟩
 
-          γ₄ <* idSubstₘ ∙ 𝟘                                 ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) $
+          γ₃ <* idSubstₘ ∙ 𝟘                                 ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) $
                                                                  +ᶜ-identityˡ _ ⟩
 
-          𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ (γ₄ <* idSubstₘ ∙ 𝟘)                   ≈˘⟨ +ᶜ-cong (·ᶜ-zeroˡ _) $
-                                                                 +ᶜ-cong (·ᶜ-zeroˡ _) (wk1Substₘ-app _ γ₄) ⟩
+          𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ (γ₃ <* idSubstₘ ∙ 𝟘)                   ≈˘⟨ +ᶜ-cong (·ᶜ-zeroˡ _) $
+                                                                 +ᶜ-cong (·ᶜ-zeroˡ _) (wk1Substₘ-app _ γ₃) ⟩
           (𝟘 ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝)) +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟙) +ᶜ
-          γ₄ <* wk1Substₘ idSubstₘ                           ∎))
+          γ₃ <* wk1Substₘ idSubstₘ                           ∎))
       ▸t,rfl
       (prodₘ (▸-cong (PE.sym ᵐ·-zeroˡ) ▸v) ▸w
          (λ _ → begin
-            𝟘ᶜ ∧ᶜ γ₇       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-            γ₇             ≈˘⟨ +ᶜ-identityˡ _ ⟩
-            𝟘ᶜ +ᶜ γ₇       ≈˘⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
-            𝟘 ·ᶜ γ₆ +ᶜ γ₇  ∎)
+            𝟘ᶜ ∧ᶜ γ₆       ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+            γ₆             ≈˘⟨ +ᶜ-identityˡ _ ⟩
+            𝟘ᶜ +ᶜ γ₆       ≈˘⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
+            𝟘 ·ᶜ γ₅ +ᶜ γ₆  ∎)
          (λ _ → begin
-            𝟘ᶜ ∧ᶜ γ₇       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
-            𝟘 ·ᶜ γ₆ ∧ᶜ γ₇  ∎))
+            𝟘ᶜ ∧ᶜ γ₆       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
+            𝟘 ·ᶜ γ₅ ∧ᶜ γ₆  ∎))
       (Jₘ-generalised ▸A ▸t
          (sub
             (Idₘ-generalised (wkUsage _ ▸Singleton) (wkUsage _ ▸t,rfl)

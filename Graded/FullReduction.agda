@@ -275,9 +275,9 @@ module _ (as : Full-reduction-assumptions) where
               inv-usage-[]-cong ▸[]-cong
         in
         sub
-          ([]-congₘ (fullRedTermConv↑Level l↑ ▸l)
-             (fullRedTermConv↑ A↑ ▸A) (fullRedTermConv↑ t↑ ▸t)
-             (fullRedTermConv↑ u↑ ▸u) (fullRedNe~↓ v~ ▸v) ok)
+          ([]-congₘ (fullRedTermConv↑Level l↑ ▸l) (fullRedConv↑ A↑ ▸A)
+             (fullRedTermConv↑ t↑ ▸t) (fullRedTermConv↑ u↑ ▸u)
+             (fullRedNe~↓ v~ ▸v) ok)
           γ≤
 
     fullRedNe~↓ :

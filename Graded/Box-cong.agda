@@ -476,7 +476,7 @@ opaque
     Has-computing-[]-cong s m q₁ q₂ q₃ q₄ q₅
   []-cong⊎J⊎𝟘ᵐ⊎Trivial→[]-cong {s} {m} Level-ok ok ok₁ ok₂ ok₃ ok₄ ok₅ =
     let ⊢Id       = ⊢Id-2-1-0 Level-ok ε
-        ⊢[]-cong″ = ⊢[]-cong″ ok′ (var₃ ⊢Id) (var₀ ⊢Id)
+        ⊢[]-cong″ = ⊢[]-cong″ ok′ (term Level-ok (var₄ ⊢Id)) (var₀ ⊢Id)
     in
       ( []-cong′
       , (lamₘ $ lamₘ $ lamₘ $ lamₘ $ lamₘ $
@@ -508,7 +508,7 @@ opaque
               rfl ]                                                     ≡⟨ PE.trans (subst-wk ([]-cong″ ok′ _ _ _ _ _)) $
                                                                            []-cong″-[] ok′ ⟩⊢≡
 
-        []-cong″ ok′ l A t t rfl                                        ⇒⟨ []-cong″-β-⇒ ok′ ⊢A ⊢t ⟩⊢∎
+        []-cong″ ok′ l A t t rfl                                        ⇒⟨ []-cong″-β-⇒ ok′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢t ⟩⊢∎
 
         rfl                                                             ∎
     where
@@ -562,12 +562,11 @@ opaque
     ⊢[]-cong″ :
       let open Erased s in
       ∀ ok →
-      Γ ⊢ A ∷ U l →
+      Γ ⊢ l ∷Level →
       Γ ⊢ v ∷ Id A t u →
       Γ ⊢ []-cong″ ok l A t u v ∷ Id (Erased l A) [ t ] ([ u ])
     ⊢[]-cong″ (inj₁ (ok , _)) = []-congⱼ′ ok
-    ⊢[]-cong″ (inj₂ _)        =
-      []-cong-Jⱼ Erased-ok ∘→ inversion-U-Level ∘→ wf-⊢∷
+    ⊢[]-cong″ (inj₂ _)        = []-cong-Jⱼ Erased-ok
 
     []-cong″-[] :
       ∀ ok →
@@ -579,12 +578,11 @@ opaque
     []-cong″-β-⇒ :
       let open Erased s in
       ∀ ok →
-      Γ ⊢ A ∷ U l →
+      Γ ⊢ l ∷Level →
       Γ ⊢ t ∷ A →
       Γ ⊢ []-cong″ ok l A t t rfl ⇒ rfl ∷ Id (Erased l A) [ t ] ([ t ])
-    []-cong″-β-⇒ (inj₁ (ok , _)) ⊢A ⊢t = []-cong-β-⇒ ⊢A (refl ⊢t) ok
-    []-cong″-β-⇒ (inj₂ _)        ⊢A ⊢t =
-      []-cong-J-β-⇒ Erased-ok (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢t
+    []-cong″-β-⇒ (inj₁ (ok , _)) ⊢l ⊢t = []-cong-β-⇒ ⊢l (refl ⊢t) ok
+    []-cong″-β-⇒ (inj₂ _)        ⊢l ⊢t = []-cong-J-β-⇒ Erased-ok ⊢l ⊢t
 
     []-cong′ : Term 0
     []-cong′ =

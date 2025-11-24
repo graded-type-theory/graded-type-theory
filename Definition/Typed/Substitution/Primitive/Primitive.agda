@@ -1126,7 +1126,7 @@ private module Inhabited where
           (subst-⊢∷ ⊢v ⊢σ) ok
       ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
         PE.subst (_⊢_∷_ _ _) (E.Id-Erased-[] _) $
-        []-congⱼ (subst-⊢∷L ⊢l ⊢σ) (subst-⊢∷ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
+        []-congⱼ (subst-⊢∷L ⊢l ⊢σ) (subst-⊢ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
           (subst-⊢∷ ⊢u ⊢σ) (subst-⊢∷ ⊢v ⊢σ) ok
 
   opaque
@@ -1330,7 +1330,7 @@ private module Inhabited where
           (subst-⊢∷→⊢≡∷ ⊢v σ₁≡σ₂) ok
       ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
         PE.subst (_⊢_≡_∷_ _ _ _) (E.Id-Erased-[] _) $
-        []-cong-cong (subst-⊢∷L→⊢≡∷L ⊢l σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢A σ₁≡σ₂)
+        []-cong-cong (subst-⊢∷L→⊢≡∷L ⊢l σ₁≡σ₂) (subst-⊢→⊢≡ ⊢A σ₁≡σ₂)
           (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
           (subst-⊢∷→⊢≡∷ ⊢v σ₁≡σ₂) ok
 
@@ -1723,13 +1723,13 @@ private module Inhabited where
         u [ σ₂ ]                ∎
       ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
         PE.subst (_⊢_≡_∷_ _ _ _) (E.Id-Erased-[] _) $
-        []-cong-cong (subst-⊢≡∷L l₁≡l₂ σ₁≡σ₂) (subst-⊢≡∷ A₁≡A₂ σ₁≡σ₂)
+        []-cong-cong (subst-⊢≡∷L l₁≡l₂ σ₁≡σ₂) (subst-⊢≡ A₁≡A₂ σ₁≡σ₂)
           (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂) (subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
           (subst-⊢≡∷ v₁≡v₂ σ₁≡σ₂) ok
       ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok) PE.refl →
         let _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
         PE.subst (_⊢_≡_∷_ _ _ _) (E.Id-Erased-[] _) $
-        []-cong-β (subst-⊢∷L ⊢l ⊢σ₁) (subst-⊢∷ ⊢A ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁)
+        []-cong-β (subst-⊢∷L ⊢l ⊢σ₁) (subst-⊢ ⊢A ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁)
           PE.refl ok
       (equality-reflection ok ⊢Id ⊢v) PE.refl →
         let ⊢A , ⊢t , ⊢u  = inversion-Id-⊢ ⊢Id

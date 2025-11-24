@@ -176,7 +176,7 @@ opaque
     consistent = inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε)))
 
     ⊢t : Δ ⊢ t ∷ A
-    ⊢t = []-congⱼ′ ok (ℕⱼ ⊢Δ) (var ⊢Δ here)
+    ⊢t = []-congⱼ′ ok (⊢zeroᵘ ⊢Δ) (var ⊢Δ here)
 
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
     ▸t = []-congₘ zeroᵘₘ ℕₘ zeroₘ zeroₘ var ok′
