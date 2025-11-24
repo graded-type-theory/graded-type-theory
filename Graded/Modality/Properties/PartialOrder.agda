@@ -14,6 +14,7 @@ open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
+import Tools.Reasoning.PartialOrder
 
 private
   variable
@@ -70,6 +71,11 @@ private
   ; _≤_            = _≤_
   ; isPartialOrder = ≤-partial
   }
+
+-- Reasoning combinators for _≤_
+
+module ≤-reasoning = Tools.Reasoning.PartialOrder ≤-poset
+
 
 -- If _≡_ is decidable (for M), then _≤_ is decidable.
 
