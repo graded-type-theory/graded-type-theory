@@ -225,7 +225,7 @@ mutual
           t₁′ , ⊢t₁′ , t₁≡t₁′ = fullRedTermConv↑ t₁≡t₂
           u₁′ , ⊢u₁′ , u₁≡u₁′ = fullRedTermConv↑ u₁≡u₂
           v₁′ , ⊢v₁′ , v₁≡v₁′ = fullRedNe~↓ v₁~v₂
-          _ , ⊢A₁ , _         = wf-⊢≡∷ A₁≡A₁′
+          ⊢l₁ , _             = wf-⊢≡∷L l₁≡l₁′
           Erased-ok           = []-cong→Erased ok
       in
       []-cong _ l₁′ A₁′ t₁′ u₁′ v₁′ ,
@@ -236,9 +236,9 @@ mutual
               (trans B≡Id-t₁-u₁ (Id-cong (univ A₁≡A₁′) t₁≡t₁′ u₁≡u₁′)))
            ok)
         (_⊢_≡_.sym $
-         Id-cong (Erased-cong Erased-ok l₁≡l₁′ A₁≡A₁′)
-           ([]-cong′ Erased-ok ⊢A₁ t₁≡t₁′)
-           ([]-cong′ Erased-ok ⊢A₁ u₁≡u₁′)) ,
+         Id-cong (Erased-cong Erased-ok l₁≡l₁′ (univ A₁≡A₁′))
+           ([]-cong′ Erased-ok ⊢l₁ t₁≡t₁′)
+           ([]-cong′ Erased-ok ⊢l₁ u₁≡u₁′)) ,
       []-cong-cong l₁≡l₁′ A₁≡A₁′ t₁≡t₁′ u₁≡u₁′ (conv v₁≡v₁′ B≡Id-t₁-u₁)
         ok
 

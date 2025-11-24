@@ -63,19 +63,12 @@ opaque
   unfolding Erased erased
 
   -- An equality rule for erased.
-  --
-  -- Note that the assumption of type Γ ⊢ A₁ ≡ A₂ ∷ U l could be
-  -- replaced by one of type Γ ⊢ A₁ ≡ A₂. See
-  -- Definition.Typed.Properties.Admissible.Erased.Primitive.[]ⱼ for
-  -- some motivation.
 
   erased-cong :
-    Γ ⊢ A₁ ≡ A₂ ∷ U l →
+    Γ ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ Erased l A₁ →
     Γ ⊢ erased A₁ t₁ ≡ erased A₂ t₂ ∷ A₁
-  erased-cong A₁≡A₂ t₁≡t₂ =
-    let A₁≡A₂ = univ A₁≡A₂ in
-    fst⟨⟩-cong A₁≡A₂ t₁≡t₂
+  erased-cong = fst⟨⟩-cong
 
 opaque
   unfolding erased fst⟨_⟩

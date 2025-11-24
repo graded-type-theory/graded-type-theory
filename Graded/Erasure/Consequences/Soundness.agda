@@ -393,8 +393,8 @@ opaque
     let ⊢Id = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε) in
     inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ ε))) ,
     Jⱼ′
-      (⊢ℕ $
-       J-motive-context ([]ⱼ ([]-cong→Erased ok) (ℕⱼ ⊢Id) (zeroⱼ ⊢Id)))
+      (⊢ℕ $ J-motive-context $
+       []ⱼ ([]-cong→Erased ok) (⊢zeroᵘ ⊢Id) (zeroⱼ ⊢Id))
       (zeroⱼ ⊢Id) ([]-congⱼ′ ok (ℕⱼ ⊢Id) (var ⊢Id here)) ,
     sub
       (Jₘ-generalised (▸Erased s zeroᵘₘ ℕₘ) (▸[] s zeroₘ)
@@ -643,9 +643,11 @@ opaque
            Er.Erased-[] Er.[]-[] PE.refl PE.refl Er.[]-[] PE.refl)
         (Jⱼ′
            (Idⱼ′
-              (Jⱼ′ (⊢ℕ (J-motive-context ([]ⱼ Erased-ok ⊢ℕ∷ ⊢zero)))
+              (Jⱼ′
+                 (⊢ℕ $
+                  J-motive-context ([]ⱼ Erased-ok (⊢zeroᵘ ⊢∙Id) ⊢zero))
                  ⊢zero
-                 ([]-congⱼ′ ok ⊢ℕ∷ $
+                 ([]-congⱼ′ ok (ℕⱼ ⊢∙Id) $
                   var₀ (J-motive-context-type (zeroⱼ ⊢Δ))))
               ⊢zero)
            (rflⱼ′
@@ -654,7 +656,7 @@ opaque
                  [ zero , rfl ]₁₀                                         ≡⟨ PE.cong₆ (J _ _) Er.Erased-[] Er.[]-[] PE.refl PE.refl Er.[]-[]
                                                                                PE.refl ⟩⊢≡
                J 𝟘 𝟘 (Erased zeroᵘ ℕ) Er.[ zero ] ℕ zero Er.[ zero ]
-                 ([]-cong s zeroᵘ ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (ℕⱼ ⊢Δ)))
+                 ([]-cong s zeroᵘ ℕ zero zero rfl)                        ≡⟨ J-cong′ (refl (Erasedⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (⊢ℕ ⊢Δ)))
                                                                                (refl ⊢[zero]) (refl ⊢ℕ′)
                                                                                (refl (zeroⱼ ⊢Δ)) (refl ⊢[zero])
                                                                                ([]-cong-β-≡ (ℕⱼ ⊢Δ) (refl (zeroⱼ ⊢Δ)) ok) ⟩⊢
@@ -683,16 +685,16 @@ opaque
       Δ′ ∙ Erased zeroᵘ ℕ ∙
       Id (wk1 (Erased zeroᵘ ℕ)) (wk1 Er.[ zero ]) (var x0) ⊢
       ℕ
-    ⊢ℕ′ = ⊢ℕ (J-motive-context ([]ⱼ Erased-ok (ℕⱼ ⊢Δ) (zeroⱼ ⊢Δ)))
+    ⊢ℕ′ = ⊢ℕ (J-motive-context ([]ⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (zeroⱼ ⊢Δ)))
 
-    ⊢ℕ∷ : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ ℕ ∷ U zeroᵘ
-    ⊢ℕ∷ = ℕⱼ (J-motive-context (zeroⱼ ⊢Δ))
+    ⊢∙Id : ⊢ Δ′ ∙ ℕ ∙ Id ℕ zero (var x0)
+    ⊢∙Id = J-motive-context (zeroⱼ ⊢Δ)
 
     ⊢zero : Δ′ ∙ ℕ ∙ Id ℕ zero (var x0) ⊢ zero ∷ ℕ
-    ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
+    ⊢zero = zeroⱼ ⊢∙Id
 
     ⊢[zero] : Δ′ ⊢ Er.[ zero ] ∷ Erased zeroᵘ ℕ
-    ⊢[zero] = []ⱼ Erased-ok (ℕⱼ ⊢Δ) (zeroⱼ ⊢Δ)
+    ⊢[zero] = []ⱼ Erased-ok (⊢zeroᵘ ⊢Δ) (zeroⱼ ⊢Δ)
 
 opaque
 

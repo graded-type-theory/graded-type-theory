@@ -19,9 +19,11 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Tools.Function
 open import Tools.Nat
@@ -74,8 +76,9 @@ neTypeEq (Kₙ _) (Kⱼ ⊢B _ ⊢v _) (Kⱼ _ _ _ _) =
   refl (substType ⊢B ⊢v)
 neTypeEq
   ([]-congₙ _) ([]-congⱼ _ ⊢A ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _ _) =
+  let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
   refl $
-  Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢A ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢A ⊢u)
+  Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢u)
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q
 neTypeEq x t∷A (conv t∷B x₃) = let q = neTypeEq x t∷A t∷B

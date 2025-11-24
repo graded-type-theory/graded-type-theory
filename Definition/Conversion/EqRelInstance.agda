@@ -288,14 +288,14 @@ module Lemmas where
     ~-[]-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ (↑ Id-t₁-u₁≡B v₁~v₂) ok =
       let _ , _ , _ , B⇒*Id-t₃-u₃ , _ , t₁≡t₃ , u₁≡u₃ =
             Id-norm (sym Id-t₁-u₁≡B)
-          _ , ⊢A₁ , _ =
-            wf-⊢≡∷ (soundnessConv↑Term A₁≡A₂)
+          ⊢l₁ , _ =
+            wf-⊢≡∷L (soundnessConv↑Level l₁≡l₂)
       in
       ↑ (_⊢_≡_.refl $
          Idⱼ′
-           ([]ⱼ ([]-cong→Erased ok) ⊢A₁
+           ([]ⱼ ([]-cong→Erased ok) ⊢l₁
               (syntacticEqTerm t₁≡t₃ .proj₂ .proj₁))
-           ([]ⱼ ([]-cong→Erased ok) ⊢A₁
+           ([]ⱼ ([]-cong→Erased ok) ⊢l₁
               (syntacticEqTerm u₁≡u₃ .proj₂ .proj₁)))
         ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂
            ([~] _ (B⇒*Id-t₃-u₃ , Idₙ) v₁~v₂)

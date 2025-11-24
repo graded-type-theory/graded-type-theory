@@ -76,7 +76,7 @@ private opaque
   ⊢Erased-OK :
     Γ ⊢ t ∷ ℕ →
     Γ ⊢ Erased zeroᵘ (OK t)
-  ⊢Erased-OK = Erasedⱼ Erased-ok ∘→ ⊢OK∷U
+  ⊢Erased-OK ⊢t = Erasedⱼ Erased-ok (⊢zeroᵘ (wfTerm ⊢t)) (⊢OK ⊢t)
 
 ------------------------------------------------------------------------
 -- Typing rules for Bool, true and false
@@ -118,7 +118,7 @@ opaque
          (PE.sym $
           PE.trans Erased-[] $
           PE.cong (Erased _) B.OK-[]) $
-       []ⱼ Erased-ok (⊢OK∷U (sucⱼ (zeroⱼ ⊢Γ))) $
+       []ⱼ Erased-ok (⊢zeroᵘ ⊢Γ) $
        _⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok) (sym (OK-1≡ ⊢Γ)))
       Σ-ok
     where
@@ -138,7 +138,7 @@ opaque
          (PE.sym $
           PE.trans Erased-[] $
           PE.cong (Erased _) B.OK-[]) $
-       []ⱼ Erased-ok (⊢OK∷U (zeroⱼ ⊢Γ)) $
+       []ⱼ Erased-ok (⊢zeroᵘ ⊢Γ) $
        _⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok) (sym (OK-0≡ ⊢Γ)))
       Σ-ok
     where
@@ -229,7 +229,7 @@ private
     opaque
 
       ⊢[starʷ] : Γ ⊢ [ starʷ ] ∷ Erased zeroᵘ Unitʷ
-      ⊢[starʷ] = []ⱼ Erased-ok (Unitⱼ ⊢Γ Unitʷ-ok) ⊢starʷ
+      ⊢[starʷ] = []ⱼ Erased-ok (⊢zeroᵘ ⊢Γ) ⊢starʷ
 
     opaque
 
@@ -260,7 +260,7 @@ private
 
       Π-[]₀-lemma :
         Γ ⊢ t [ u ]₀ ∷ ℕ →
-        Γ ⊢ OK (t [ u ]₀) ≡ Unitʷ ∷ U zeroᵘ →
+        Γ ⊢ OK (t [ u ]₀) ≡ Unitʷ →
         Γ ⊢
           (Π 𝟙 , p ▷ Erased zeroᵘ (OK t) ▹ Target 2 A₁ (wk1 t) (var x0))
             [ u ]₀ ≡
@@ -298,8 +298,7 @@ private
         let ⊢Δ∙B = wfTerm ⊢t in
         Target-cong′ A₁≡A₂ (zeroⱼ ⊢Δ∙B)
           (conv ⊢t $ sym $
-           Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Δ∙B))
-             (OK-0≡∷U ⊢Δ∙B))
+           Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Δ∙B)) (OK-0≡ ⊢Δ∙B))
 
     opaque
 
@@ -313,8 +312,7 @@ private
         let ⊢Δ∙B = wfTerm ⊢t in
         Target-cong′ A₁≡A₂ (sucⱼ (zeroⱼ ⊢Δ∙B))
           (conv ⊢t $ sym $
-           Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Δ∙B))
-             (OK-1≡∷U ⊢Δ∙B))
+           Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Δ∙B)) (OK-1≡ ⊢Δ∙B))
 
     opaque
       unfolding true
@@ -364,15 +362,16 @@ private
             (var x0) (wk[ 1+ k ]′ u₂) ∷
           Target (1+ k) A₁ zero (var x0) [ [ var x0 ] ]↑
       unitrec-lemma-0 ≡Γ ⊢Δ =
-        let ⊢Unitʷ = ⊢Unit ⊢Δ Unitʷ-ok in
+        let ⊢Unitʷ  = ⊢Unit ⊢Δ Unitʷ-ok
+            ⊢Unitʷ′ = ⊢Unit (∙ ⊢Unitʷ) Unitʷ-ok
+        in
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.trans (Target-[₀⇑] 0) $
            PE.trans (PE.cong (Target _ _ _) []-[]) $
            PE.sym $ Target-[↑⇑] 0) $
         unitrec-cong′
           (Target-lemma-0 ≡Γ $
-           []ⱼ Erased-ok (Unitⱼ (∙ ⊢Unit (∙ ⊢Unitʷ) Unitʷ-ok) Unitʷ-ok)
-             (var₀ (⊢Unit (∙ ⊢Unitʷ) Unitʷ-ok)))
+           []ⱼ Erased-ok (⊢zeroᵘ (∙ ⊢Unitʷ′)) (var₀ ⊢Unitʷ′))
           (refl (var₀ ⊢Unitʷ))
           (wk-u₁≡wk-u₂ ≡Γ (∙ ⊢Unitʷ))
 
@@ -388,15 +387,16 @@ private
             (var x0) (wk[ 1+ k ]′ t₂) ∷
           Target (1+ k) A₁ (suc zero) (var x0) [ [ var x0 ] ]↑
       unitrec-lemma-1 ≡Γ ⊢Δ =
-        let ⊢Unitʷ = ⊢Unit ⊢Δ Unitʷ-ok in
+        let ⊢Unitʷ  = ⊢Unit ⊢Δ Unitʷ-ok
+            ⊢Unitʷ′ = ⊢Unit (∙ ⊢Unitʷ) Unitʷ-ok
+        in
         PE.subst (_⊢_≡_∷_ _ _ _)
           (PE.trans (Target-[₀⇑] 0) $
            PE.trans (PE.cong (Target _ _ _) []-[]) $
            PE.sym $ Target-[↑⇑] 0) $
         unitrec-cong′
           (Target-lemma-1 ≡Γ $
-           []ⱼ Erased-ok (Unitⱼ (∙ ⊢Unit (∙ ⊢Unitʷ) Unitʷ-ok) Unitʷ-ok)
-             (var₀ (⊢Unit (∙ ⊢Unitʷ) Unitʷ-ok)))
+           []ⱼ Erased-ok (⊢zeroᵘ (∙ ⊢Unitʷ′)) (var₀ ⊢Unitʷ′))
           (refl (var₀ ⊢Unitʷ))
           (wk-t₁≡wk-t₂ ≡Γ (∙ ⊢Unitʷ))
 
@@ -484,7 +484,7 @@ private
           PE.refl PE.refl
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[₀⇑] 1) $
         erasedrec-lemma-0 ≡Γ $
-        Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Δ)) (OK-0≡∷U ⊢Δ)
+        Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Δ)) (OK-0≡ ⊢Δ)
 
     opaque
 
@@ -514,7 +514,7 @@ private
           PE.refl PE.refl
           (PE.trans (Target-[₀⇑] 0) $ PE.sym $ Target-[₀⇑] 1) $
         erasedrec-lemma-1 ≡Γ $
-        Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Δ)) (OK-1≡∷U ⊢Δ)
+        Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Δ)) (OK-1≡ ⊢Δ)
 
     opaque
 
@@ -541,10 +541,8 @@ private
             [ suc (var x0) ]↑
       lam-lemma-2+ PE.refl ⊢Δ =
         let ⊢OK₁   = ⊢OK∷U (sucⱼ (sucⱼ (var₀ (⊢ℕ ⊢Δ))))
-            ⊢OK₂   = Erasedⱼ Erased-ok ⊢OK₁
+            ⊢OK₂   = Erasedⱼ Erased-ok (⊢zeroᵘ (∙ ⊢ℕ ⊢Δ)) (univ ⊢OK₁)
             ⊢OK₃   = wk₁ ⊢OK₂ (univ ⊢OK₁)
-            ⊢OK₄   = PE.subst₂ (_⊢_∷_ _) B.wk-OK PE.refl $
-                     wkTerm (stepʷ (step id) ⊢OK₃) ⊢OK₁
             lemma  = PE.trans (PE.cong wk1 B.wk-OK) B.wk-OK
         in
         flip lam-cong Π-ok $
@@ -564,7 +562,7 @@ private
           (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (Target-[↑⇑] 0)) $
            emptyrec-sink-cong Unitˢ-ok Π-𝟙-𝟘-ok
              (Target-cong′ A₁≡A₂ (sucⱼ (sucⱼ (var₂ ⊢OK₃))) $
-              []ⱼ Erased-ok ⊢OK₄ $
+              []ⱼ Erased-ok (⊢zeroᵘ (∙ ⊢OK₃)) $
               PE.subst (_⊢_∷_ _ _) lemma $
               var₀ ⊢OK₃)
              (_⊢_≡_∷_.refl $
@@ -898,7 +896,7 @@ opaque
                                                                                  (PE.sym $
                                                                                   PE.trans Erased-[] $
                                                                                   PE.cong (Erased _) B.OK-[]) $
-                                                                               Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Γ)) (sym′ (OK-1≡∷U ⊢Γ)))
+                                                                               Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Γ)) (sym (OK-1≡ ⊢Γ)))
                                                                               (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁) ⟩⊢
     (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
        (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
@@ -960,7 +958,7 @@ opaque
                                                                                     (syntacticEqTerm (lam-lemma-0 PE.refl ⊢Γ) .proj₂ .proj₁)
                                                                                     (syntacticEqTerm (natcase-lemma PE.refl ⊢Γ) .proj₂ .proj₁)
                                                                                     (zeroⱼ ⊢Γ))
-                                                                                 (Π-[]₀-lemma (sucⱼ (zeroⱼ ⊢Γ)) (OK-1≡∷U ⊢Γ)))
+                                                                                 (Π-[]₀-lemma (sucⱼ (zeroⱼ ⊢Γ)) (OK-1≡ ⊢Γ)))
                                                                               ⊢[starʷ] ⟩⊢
     (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
        (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
@@ -1029,7 +1027,7 @@ opaque
                                                                                     (syntacticEq (Π-lemma PE.refl (sucⱼ (var₀ (⊢ℕ ⊢Γ)))) .proj₁)
                                                                                     (syntacticEqTerm (lam-lemma-1 PE.refl ⊢Γ) .proj₂ .proj₁)
                                                                                     (syntacticEqTerm (lam-lemma-2+ PE.refl ⊢Γ) .proj₂ .proj₁))
-                                                                                 (Π-[]₀-lemma (sucⱼ (zeroⱼ ⊢Γ)) (OK-1≡∷U ⊢Γ)))
+                                                                                 (Π-[]₀-lemma (sucⱼ (zeroⱼ ⊢Γ)) (OK-1≡ ⊢Γ)))
                                                                               ⊢[starʷ] ⟩⊢
     lam 𝟙
       (erasedrec p (Target 2 A (suc zero) (var x0))
@@ -1080,7 +1078,7 @@ opaque
                                                                             unitrec-β-⇒
                                                                               (syntacticEq
                                                                                  (Target-lemma-1 PE.refl $
-                                                                                  []ⱼ Erased-ok (Unitⱼ (∙ ⊢Unitʷ) Unitʷ-ok) (var₀ ⊢Unitʷ))
+                                                                                  []ⱼ Erased-ok (⊢zeroᵘ (∙ ⊢Unitʷ)) (var₀ ⊢Unitʷ))
                                                                                  .proj₁)
                                                                               (PE.subst (flip (_⊢_∷_ _) _) (wk-id _) $
                                                                                syntacticEqTerm (wk-t₁≡wk-t₂ PE.refl ⊢Γ) .proj₂ .proj₁) ⟩⊢∎
@@ -1134,7 +1132,7 @@ opaque
                                                                                   (PE.sym $
                                                                                    PE.trans Erased-[] $
                                                                                    PE.cong (Erased _) B.OK-[]) $
-                                                                                Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Γ)) (sym′ (OK-0≡∷U ⊢Γ)))
+                                                                                Erased-cong Erased-ok (refl-⊢≡∷L (⊢zeroᵘ ⊢Γ)) (sym (OK-0≡ ⊢Γ)))
                                                                                (syntacticEqTerm natcase-natcase-lemma .proj₂ .proj₁) ⟩⊢
     (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
        (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
@@ -1195,7 +1193,7 @@ opaque
                                                                                      (syntacticEq (Π-lemma PE.refl (var₀ (⊢ℕ ⊢Γ))) .proj₁)
                                                                                      (syntacticEqTerm (lam-lemma-0 PE.refl ⊢Γ) .proj₂ .proj₁)
                                                                                      (syntacticEqTerm (natcase-lemma PE.refl ⊢Γ) .proj₂ .proj₁))
-                                                                                  (Π-[]₀-lemma (zeroⱼ ⊢Γ) (OK-0≡∷U ⊢Γ)))
+                                                                                  (Π-[]₀-lemma (zeroⱼ ⊢Γ) (OK-0≡ ⊢Γ)))
                                                                                ⊢[starʷ] ⟩⊢
     lam 𝟙
       (erasedrec p (Target 2 A zero (var x0))
@@ -1244,7 +1242,7 @@ opaque
                                                                              unitrec-β-⇒
                                                                                (syntacticEq
                                                                                   (Target-lemma-0 PE.refl $
-                                                                                   []ⱼ Erased-ok (Unitⱼ (∙ ⊢Unitʷ) Unitʷ-ok) (var₀ ⊢Unitʷ))
+                                                                                   []ⱼ Erased-ok (⊢zeroᵘ (∙ ⊢Unitʷ)) (var₀ ⊢Unitʷ))
                                                                                   .proj₁)
                                                                                (PE.subst (flip (_⊢_∷_ _) _) (wk-id _) $
                                                                                 syntacticEqTerm (wk-u₁≡wk-u₂ PE.refl ⊢Γ) .proj₂ .proj₁) ⟩⊢∎

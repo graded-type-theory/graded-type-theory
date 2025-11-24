@@ -31,6 +31,7 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 open import Definition.Typed.Consequences.Admissible TR
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Injectivity TR
@@ -386,11 +387,12 @@ opaque
       (_ , _ , _ , ⊢H , ⊢rfl , ⊢e , ⊢S) →
     case inversion-[]-congₑ ⊢e of λ {
       (ok , ⊢A , PE.refl , B≡) →
-    let t≡u         = inversion-rfl-Id ⊢rfl
+    let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
+        t≡u         = inversion-rfl-Id ⊢rfl
         _ , ⊢t , ⊢u = syntacticEqTerm t≡u
         ≡B          = sym (B≡ ⊢t ⊢u)
     in
-    ⊢ₛ ⊢H (conv (rflⱼ′ ([]-cong′ ([]-cong→Erased ok) ⊢A t≡u)) ≡B)
+    ⊢ₛ ⊢H (conv (rflⱼ′ ([]-cong′ ([]-cong→Erased ok) ⊢l t≡u)) ≡B)
       (⊢ˢ-convₜ ⊢S (conv ([]-cong-β-≡ ⊢A t≡u ok) ≡B)) }
 
 opaque

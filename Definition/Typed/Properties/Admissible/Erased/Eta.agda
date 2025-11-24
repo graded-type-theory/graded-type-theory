@@ -102,14 +102,13 @@ opaque
   -- Another kind of η-rule.
 
   [erased] :
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ t ∷ Erased l A →
     Γ ⊢ [ erased t ] ≡ t ∷ Erased l A
-  [erased] ⊢A ⊢t =
-    let _ , ⊢Lift-Unit , Σ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
-        _ , ⊢Unit             = inversion-Lift ⊢Lift-Unit
-        Erased-ok             = inversion-Unit ⊢Unit , Σ-ok
-        ⊢l                    = inversion-U-Level (wf-⊢∷ ⊢A)
+  [erased] ⊢l ⊢t =
+    let ⊢A , ⊢Lift-Unit , Σ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
+        _ , ⊢Unit              = inversion-Lift ⊢Lift-Unit
+        Erased-ok              = inversion-Unit ⊢Unit , Σ-ok
     in
     Erased-η-≡ (ET.[]ⱼ Erased-ok ⊢l ⊢A (erasedⱼ ⊢t)) ⊢t $
     Erased-β Erased-ok (erasedⱼ ⊢t)

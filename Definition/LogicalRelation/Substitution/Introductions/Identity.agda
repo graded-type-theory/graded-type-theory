@@ -706,6 +706,7 @@ opaque
         v₁≡v₂         = level-⊩≡∷ (⊩Id⇔ .proj₂ (⊩t₁ , ⊩u₁)) v₁≡v₂
         k₁≅k₂         = escapeLevelEq k₁≡k₂
         ⊢k₁≡k₂        = ⊢≅∷L→⊢≡∷L k₁≅k₂
+        ⊢k₁ , _       = wf-⊢≡∷L ⊢k₁≡k₂
         ⊢A₁≡A₂        = ≅ₜ-eq A₁≅A₂
         _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ ⊢A₁≡A₂
         ⊢A₂           = conv ⊢A₂ (U-cong-⊢≡ ⊢k₁≡k₂)
@@ -713,8 +714,8 @@ opaque
         ⊢u₁≡u₂        = ≅ₜ-eq u₁≅u₂
         ⊢Id≡Id        =
           let ok = []-cong→Erased ok in
-          Id-cong (Erased-cong ok ⊢k₁≡k₂ ⊢A₁≡A₂)
-            ([]-cong′ ok ⊢A₁ ⊢t₁≡t₂) ([]-cong′ ok ⊢A₁ ⊢u₁≡u₂)
+          Id-cong (Erased-cong ok ⊢k₁≡k₂ (univ ⊢A₁≡A₂))
+            ([]-cong′ ok ⊢k₁ ⊢t₁≡t₂) ([]-cong′ ok ⊢k₁ ⊢u₁≡u₂)
     in
     case ⊩≡∷Id⇔ .proj₁ v₁≡v₂ of λ
       (v₁′ , v₂′ , v₁⇒*v₁′ , v₂⇒*v₂′ , ⊩t , ⊩u , rest) →

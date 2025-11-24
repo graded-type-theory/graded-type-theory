@@ -79,6 +79,47 @@ module _ (Erased-ok : Erased-allowed s) where
 
   opaque
 
+    -- A formation rule for Erased.
+
+    Erasedⱼ′ :
+      Γ ∙ A ⊢ wk1 l ∷Level →
+      Γ ⊢ Erased l A
+    Erasedⱼ′ = P′.Erasedⱼ′
+
+  opaque
+
+    -- A variant of Erasedⱼ″.
+
+    Erasedⱼ :
+      Γ ⊢ l ∷Level →
+      Γ ⊢ A →
+      Γ ⊢ Erased l A
+    Erasedⱼ = P′.Erasedⱼ
+
+  opaque
+
+    -- An equality rule for Erased.
+
+    Erased-cong′ :
+      Γ ∙ A₁ ⊢ wk1 l₁ ≡ wk1 l₂ ∷Level →
+      Γ ⊢ A₁ ≡ A₂ →
+      Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
+    Erased-cong′ = P′.Erased-cong′
+
+  opaque
+
+    -- A variant of Erased-cong′.
+
+    Erased-cong :
+      Γ ⊢ l₁ ≡ l₂ ∷Level →
+      Γ ⊢ A₁ ≡ A₂ →
+      Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
+    Erased-cong l₁≡l₂ A₁≡A₂ =
+      let ⊢A₁ , _ = wf-⊢≡ A₁≡A₂ in
+      P′.Erased-cong l₁≡l₂ ⊢A₁ A₁≡A₂
+
+  opaque
+
     -- An introduction rule for U for Erased.
 
     Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased l A ∷ U l
@@ -89,6 +130,20 @@ module _ (Erased-ok : Erased-allowed s) where
   opaque
 
     -- An equality rule for U for Erased.
+
+    Erased-cong-U′ :
+      Γ ∙ A₁ ⊢ wk1 l₁ ≡ wk1 l₂ ∷Level →
+      Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
+      Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
+    Erased-cong-U′ wk1-l₁≡wk1-l₂ A₁≡A₂ =
+      let ⊢U , _ = wf-⊢≡∷ A₁≡A₂
+          ⊢l₁    = inversion-U-Level ⊢U
+      in
+      P′.Erased-cong-U′ ⊢l₁ wk1-l₁≡wk1-l₂ A₁≡A₂
+
+  opaque
+
+    -- A variant of Erased-cong-U′.
 
     Erased-cong-U :
       Γ ⊢ l₁ ≡ l₂ ∷Level →
@@ -102,47 +157,23 @@ module _ (Erased-ok : Erased-allowed s) where
 
   opaque
 
-    -- A formation rule for Erased.
-
-    Erasedⱼ : Γ ⊢ A ∷ U l → Γ ⊢ Erased l A
-    Erasedⱼ ⊢A =
-      let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
-      P′.Erasedⱼ ⊢l ⊢A
-
-  opaque
-
-    -- An equality rule for Erased.
-
-    Erased-cong :
-      Γ ⊢ l₁ ≡ l₂ ∷Level →
-      Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
-      Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
-    Erased-cong l₁≡l₂ A₁≡A₂ =
-      let ⊢l₁ , _     = wf-⊢≡∷L l₁≡l₂
-          _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
-      in
-      P′.Erased-cong ⊢l₁ l₁≡l₂ (univ ⊢A₁) A₁≡A₂
-
-  opaque
-
     -- An introduction rule for Erased.
 
-    []ⱼ : Γ ⊢ A ∷ U l → Γ ⊢ t ∷ A → Γ ⊢ [ t ] ∷ Erased l A
-    []ⱼ ⊢A =
-      let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
-      P′.[]ⱼ ⊢l ⊢A
+    []ⱼ :
+      Γ ⊢ l ∷Level →
+      Γ ⊢ t ∷ A →
+      Γ ⊢ [ t ] ∷ Erased l A
+    []ⱼ ⊢l ⊢t = P′.[]ⱼ ⊢l (wf-⊢∷ ⊢t) ⊢t
 
   opaque
 
     -- An equality rule for Erased.
 
     []-cong′ :
-      Γ ⊢ A ∷ U l → Γ ⊢ t₁ ≡ t₂ ∷ A → Γ ⊢ [ t₁ ] ≡ [ t₂ ] ∷ Erased l A
-    []-cong′ ⊢A t₁≡t₂ =
-      let ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A)
-          _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-      in
-      P′.[]-cong′ ⊢l ⊢A ⊢t₁ ⊢t₂ t₁≡t₂
+      Γ ⊢ l ∷Level → Γ ⊢ t₁ ≡ t₂ ∷ A → Γ ⊢ [ t₁ ] ≡ [ t₂ ] ∷ Erased l A
+    []-cong′ ⊢l t₁≡t₂ =
+      let ⊢A , _ = wf-⊢≡∷ t₁≡t₂ in
+      P′.[]-cong′ ⊢l ⊢A t₁≡t₂
 
   opaque
     unfolding erased
@@ -176,7 +207,7 @@ module _ where
     -- A corresponding congruence rule.
 
     erased-cong :
-      Γ ⊢ A₁ ≡ A₂ ∷ U l →
+      Γ ⊢ A₁ ≡ A₂ →
       Γ ⊢ t₁ ≡ t₂ ∷ Erased s l A₁ →
       Γ ⊢ erased s A₁ t₁ ≡ erased s A₂ t₂ ∷ A₁
     erased-cong {s} A₁≡A₂ = case PE.singleton s of λ where
@@ -514,12 +545,11 @@ opaque
 
   ⊢Erased-η :
     let open Erased s in
-    Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ Erased l A →
     Γ ⊢ Erased-η l A t ∷ Id (Erased l A) [ erased A t ] t
-  ⊢Erased-η {s} {A} {l} ⊢A ⊢t =
+  ⊢Erased-η {s} {l} {A} ⊢t =
     let ⊢Erased-A           = wf-⊢∷ ⊢t
-        Erased-ok , ⊢A′ , _ = inversion-Erased ⊢Erased-A
+        Erased-ok , ⊢A , ⊢l = inversion-Erased ⊢Erased-A
         ⊢0                  = PE.subst (_⊢_∷_ _ _) wk-Erased $
                               var₀ ⊢Erased-A
     in
@@ -534,7 +564,11 @@ opaque
          PE.refl) $
     ⊢erasedrec
       (Idⱼ′
-         ([]ⱼ Erased-ok (wkTerm₁ (Erasedⱼ Erased-ok ⊢A) ⊢A)
+         ([]ⱼ Erased-ok
+            (PE.subst (_⊢_∷Level _) wk[]′-[]↑ $
+             subst-⊢∷L ⊢l $ ⊢ˢʷ∷-[][]↑ $ erasedⱼ $
+             PE.subst (_⊢_∷_ _ _) wk-Erased $
+             var₀ ⊢Erased-A)
             (erasedⱼ ⊢0))
          ⊢0)
       (PE.subst (_⊢_∷_ _ _)
@@ -545,10 +579,10 @@ opaque
              Erased (wk1 l) (wk1 A)                                  ∎)
             []-[] PE.refl) $
        rflⱼ′ $
-       []-cong′ Erased-ok (wkTerm₁ ⊢A′ ⊢A)
+       []-cong′ Erased-ok ⊢l
          (erased (wk1 A) (var x0) [ [ var x0 ] ]↑    ≡⟨ erased-[] ⟩⊢≡
           erased (wk1 A [ [ var x0 ] ]↑) [ var x0 ]  ≡⟨ PE.cong (flip erased _) $ wk1-[][]↑ 1 ⟩⊢≡
-          erased (wk1 A) [ var x0 ]                  ≡⟨ Erased-β Erased-ok (var₀ ⊢A′) ⟩⊢∎
+          erased (wk1 A) [ var x0 ]                  ≡⟨ Erased-β Erased-ok (var₀ ⊢A) ⟩⊢∎
           var x0                                     ∎))
       ⊢t
     where
@@ -565,14 +599,14 @@ opaque
 
   mapᴱ-cong :
     let open Erased s in
-    Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
-    Γ ⊢ B ∷ U l₂ →
+    Γ ⊢ l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ →
     Γ ∙ A₁ ⊢ t₁ ≡ t₂ ∷ wk1 B →
     Γ ⊢ u₁ ≡ u₂ ∷ Erased l₁ A₁ →
     Γ ⊢ mapᴱ A₁ t₁ u₁ ≡ mapᴱ A₂ t₂ u₂ ∷ Erased l₂ B
-  mapᴱ-cong A₁≡A₂ ⊢B t₁≡t₂ u₁≡u₂ =
+  mapᴱ-cong ⊢l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     let ok , _ = inversion-Erased $ wf-⊢≡∷ u₁≡u₂ .proj₁ in
-    []-cong′ ok ⊢B $
+    []-cong′ ok ⊢l₂ $
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     substTermEq t₁≡t₂ (erased-cong A₁≡A₂ u₁≡u₂)
 
@@ -582,13 +616,13 @@ opaque
 
   ⊢mapᴱ :
     let open Erased s in
-    Γ ⊢ A ∷ U l₁ →
-    Γ ⊢ B ∷ U l₂ →
+    Γ ⊢ l₂ ∷Level →
     Γ ∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ u ∷ Erased l₁ A →
     Γ ⊢ mapᴱ A t u ∷ Erased l₂ B
-  ⊢mapᴱ ⊢A ⊢B ⊢t ⊢u =
-    wf-⊢≡∷ (mapᴱ-cong (refl ⊢A) ⊢B (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
+  ⊢mapᴱ ⊢l₂ ⊢t ⊢u =
+    wf-⊢≡∷ (mapᴱ-cong ⊢l₂ (refl (⊢∙→⊢ (wfTerm ⊢t))) (refl ⊢t) (refl ⊢u))
+      .proj₂ .proj₁
 
 opaque
   unfolding Erased.mapᴱ
@@ -598,12 +632,12 @@ opaque
   mapᴱ-β :
     let open Erased s in
     Erased-allowed s →
-    Γ ⊢ B ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ u ∷ A →
     Γ ⊢ mapᴱ A t [ u ] ≡ [ t [ u ]₀ ] ∷ Erased l B
-  mapᴱ-β ok ⊢B ⊢t ⊢u =
-    []-cong′ ok ⊢B $
+  mapᴱ-β ok ⊢l ⊢t ⊢u =
+    []-cong′ ok ⊢l $
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     substTermEq (refl ⊢t) (Erased-β ok ⊢u)
 
@@ -644,7 +678,7 @@ module _ (ok : []-cong-allowed s) where
     ⊢[erased-0]↑ ⊢A ⊢B =
       subst-⊢ ⊢B $ ⊢ˢʷ∷-[][]↑ $ erasedⱼ $
       PE.subst (_⊢_∷_ _ _) wk-Erased $
-      var₀ (Erasedⱼ Erased-ok ⊢A)
+      var₀ (Erasedⱼ Erased-ok (inversion-U-Level (wf-⊢∷ ⊢A)) (univ ⊢A))
 
   ----------------------------------------------------------------------
   -- Lemmas related to substᵉ
@@ -680,9 +714,10 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ u ∷ B [ t ]₀ →
       Γ ⊢ substᵉ l A B t t′ rfl u ⇒* u ∷ B [ t ]₀
     substᵉ-⇒*′ {A} {l} {B} {t} {t′} {u} ⊢A ⊢B t≡t′ ⊢u =
-      let _ , ⊢t , _ = wf-⊢≡∷ t≡t′
+      let ⊢l         = inversion-U-Level (wf-⊢∷ ⊢A)
+          _ , ⊢t , _ = wf-⊢≡∷ t≡t′
           ⊢B[]↑      = ⊢[erased-0]↑ ⊢A ⊢B
-          [t]≡[t′]   = []-cong′ Erased-ok ⊢A t≡t′
+          [t]≡[t′]   = []-cong′ Erased-ok ⊢l t≡t′
           ≡B[t]₀     = [erased-0]↑[[]]₀≡[]₀ ⊢B ⊢t
           ⊢u         = conv ⊢u (sym ≡B[t]₀)
       in
@@ -736,21 +771,22 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ w₁ ≡ w₂ ∷ B₁ [ t₁ ]₀ →
       Γ ⊢ substᵉ l₁ A₁ B₁ t₁ u₁ v₁ w₁ ≡ substᵉ l₂ A₂ B₂ t₂ u₂ v₂ w₂ ∷
         B₁ [ u₁ ]₀
-    substᵉ-cong l₁≡l₂ A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
-      let _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
+    substᵉ-cong {l₁} l₁≡l₂ A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
+      let ⊢l₁ , _     = wf-⊢≡∷L l₁≡l₂
+          _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
           ⊢B₁ , _     = wf-⊢≡ B₁≡B₂
           _ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , _ = wf-⊢≡∷ u₁≡u₂
-          ⊢Erased-A₁  = Erasedⱼ Erased-ok ⊢A₁
+          ⊢Erased-A₁  = Erasedⱼ Erased-ok ⊢l₁ (univ ⊢A₁)
       in
       conv
-        (subst-cong (Erased-cong Erased-ok l₁≡l₂ A₁≡A₂)
+        (subst-cong (Erased-cong Erased-ok l₁≡l₂ (univ A₁≡A₂))
            (subst-⊢≡ B₁≡B₂ $ ⊢ˢʷ≡∷-[][]↑ $
-            erased-cong (wkEqTerm₁ ⊢Erased-A₁ A₁≡A₂) $
+            erased-cong {l = wk1 l₁} (wkEq₁ ⊢Erased-A₁ (univ A₁≡A₂)) $
             refl $ PE.subst (_⊢_∷_ _ _) wk-Erased $
             var₀ ⊢Erased-A₁)
-           ([]-cong′ Erased-ok ⊢A₁ t₁≡t₂)
-           ([]-cong′ Erased-ok ⊢A₁ u₁≡u₂)
+           ([]-cong′ Erased-ok ⊢l₁ t₁≡t₂)
+           ([]-cong′ Erased-ok ⊢l₁ u₁≡u₂)
            ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok)
            (conv w₁≡w₂ $ sym $ [erased-0]↑[[]]₀≡[]₀ ⊢B₁ ⊢t₁))
         ([erased-0]↑[[]]₀≡[]₀ ⊢B₁ ⊢u₁)

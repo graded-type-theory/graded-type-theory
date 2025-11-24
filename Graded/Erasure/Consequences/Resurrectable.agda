@@ -135,8 +135,8 @@ opaque
     , (lamⱼ′ ok₁ $
        emptyrecⱼ
          (ΠΣⱼ
-            (Erasedⱼ Erased-ok $
-             Idⱼ (Emptyⱼ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢Empty ]))
+            (Erasedⱼ Erased-ok (⊢zeroᵘ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢Empty ])) $
+             Idⱼ′
                (var₀ (⊢Empty (⊢Γ ∙[ ⊢Empty ])))
                (var₁ (⊢Empty (⊢Γ ∙[ ⊢Empty ]))))
             ok₂)
@@ -175,12 +175,11 @@ opaque
             𝟙 ·ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ  ∎))
     , (lamⱼ′ ok₁ $
        prodⱼ
-         (Erasedⱼ Erased-ok $
-          Idⱼ (Unitⱼ (∙ ⊢Unit₂) Unit-ok) (var₀ ⊢Unit₂) (var₁ ⊢Unit₂))
+         (Erasedⱼ Erased-ok (⊢zeroᵘ (∙ ⊢Unit₂)) $
+          Idⱼ′ (var₀ ⊢Unit₂) (var₁ ⊢Unit₂))
          ⊢star
          (PE.subst (_⊢_∷_ _ _) (PE.sym Erased-[]) $
-          []ⱼ Erased-ok (Idⱼ ⊢Unit₂∷ ⊢star (var₀ ⊢Unit₁))
-            (⊢Unit-η (var₀ ⊢Unit₁)))
+          []ⱼ Erased-ok (⊢zeroᵘ ⊢Γ∙Unit) (⊢Unit-η (var₀ ⊢Unit₁)))
          ok₂)
     where
     open Erased s₁
@@ -192,11 +191,8 @@ opaque
     ⊢Γ∙Unit : ⊢ Γ ∙ Unit s₂
     ⊢Γ∙Unit = ∙ ⊢Unit₁
 
-    ⊢Unit₂∷ : Γ ∙ Unit s₂ ⊢ Unit s₂ ∷ U zeroᵘ
-    ⊢Unit₂∷ = Unitⱼ ⊢Γ∙Unit Unit-ok
-
     ⊢Unit₂ : Γ ∙ Unit s₂ ⊢ Unit s₂
-    ⊢Unit₂ = univ ⊢Unit₂∷
+    ⊢Unit₂ = ⊢Unit ⊢Γ∙Unit Unit-ok
 
     ⊢star : Γ ∙ Unit s₂ ⊢ star s₂ ∷ Unit s₂
     ⊢star = starⱼ ⊢Γ∙Unit Unit-ok

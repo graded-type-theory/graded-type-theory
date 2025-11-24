@@ -22,8 +22,10 @@ open Type-restrictions TR
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Typed TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
+open import Definition.Typed.Well-formed TR
 
 open import Graded.Heap.Typed UR TR factoring-nr
 open import Graded.Heap.Untyped type-variant UR factoring-nr
@@ -226,12 +228,14 @@ opaque
        Id (E′.Erased (wk ρ l [ H ]ₕ) (wk ρ A [ H ]ₕ))
          E′.[ wk ρ t [ H ]ₕ ] E′.[ wk ρ u [ H ]ₕ ])
   inversion-[]-congₑ ([]-congₑ {s′} ok ⊢A) =
-    let E-ok = []-cong→Erased ok in
+    let E-ok = []-cong→Erased ok
+        ⊢l   = inversion-U-Level (wf-⊢∷ ⊢A)
+    in
     ok , ⊢A , PE.refl ,
     λ ⊢t ⊢u →
       PE.subst₂ (_⊢_≡_ _) wk-Id-Erased-[]-[] PE.refl $
       _⊢_≡_.refl $
-      Idⱼ′ ([]ⱼ E-ok ⊢A ⊢t) ([]ⱼ E-ok ⊢A ⊢u)
+      Idⱼ′ ([]ⱼ E-ok ⊢l ⊢t) ([]ⱼ E-ok ⊢l ⊢u)
     where
     open E s′
   inversion-[]-congₑ (conv ⊢e ≡C) =

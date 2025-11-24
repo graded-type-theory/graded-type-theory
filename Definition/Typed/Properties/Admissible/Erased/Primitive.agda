@@ -2,9 +2,9 @@
 -- Some properties related to typing and Erased
 ------------------------------------------------------------------------
 
--- Note that lemmas corresponding to the lemmas in this module, but
--- with fewer arguments, can (at the time of writing) be found in
--- Definition.Typed.Properties.Admissible.Erased.
+-- Note that lemmas corresponding to the lemmas in this module, in
+-- some cases with fewer arguments, can (at the time of writing) be
+-- found in Definition.Typed.Properties.Admissible.Erased.
 
 import Graded.Modality
 open import Definition.Typed.Restrictions
@@ -43,6 +43,53 @@ private variable
 opaque
   unfolding Erased
 
+  -- A formation rule for Erased.
+
+  Erasedⱼ′ :
+    Γ ∙ A ⊢ wk1 l ∷Level →
+    Γ ⊢ Erased l A
+  Erasedⱼ′ ⊢l =
+    ΠΣⱼ (Liftⱼ ⊢l (univ (Unitⱼ (wfLevel ⊢l) Unit-ok))) Σ-ok
+
+opaque
+
+  -- A variant of Erasedⱼ′.
+
+  Erasedⱼ :
+    Γ ⊢ l ∷Level →
+    Γ ⊢ A →
+    Γ ⊢ Erased l A
+  Erasedⱼ ⊢l ⊢A = Erasedⱼ′ (wkLevel₁ ⊢A ⊢l)
+
+opaque
+  unfolding Erased
+
+  -- An equality rule for Erased.
+
+  Erased-cong′ :
+    Γ ∙ A₁ ⊢ wk1 l₁ ≡ wk1 l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
+  Erased-cong′ l₁≡l₂ A₁≡A₂ =
+    ΠΣ-cong A₁≡A₂
+      (Lift-cong l₁≡l₂ (refl (univ (Unitⱼ (wfEqLevel l₁≡l₂) Unit-ok))))
+      Σ-ok
+
+opaque
+
+  -- A variant of Erased-cong′.
+
+  Erased-cong :
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ A₁ →
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
+  Erased-cong l₁≡l₂ ⊢A₁ =
+    Erased-cong′ (wkEqLevel₁ ⊢A₁ l₁≡l₂)
+
+opaque
+  unfolding Erased
+
   -- An introduction rule for U for Erased.
 
   Erasedⱼ-U :
@@ -65,68 +112,47 @@ opaque
 
   -- An equality rule for U for Erased.
 
+  Erased-cong-U′ :
+    Γ ⊢ l₁ ∷Level →
+    Γ ∙ A₁ ⊢ wk1 l₁ ≡ wk1 l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
+    Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
+  Erased-cong-U′ ⊢l₁ l₁≡l₂ A₁≡A₂ =
+    let ⊢∙A₁ = wfEqLevel l₁≡l₂
+        ⊢l₁′ = wkLevel₁ (⊢∙→⊢ ⊢∙A₁) ⊢l₁
+    in
+    ΠΣ-cong ⊢l₁ A₁≡A₂
+      (conv
+         (_⊢_≡_∷_.Lift-cong (⊢zeroᵘ ⊢∙A₁) ⊢l₁′ l₁≡l₂ $
+          refl (Unitⱼ ⊢∙A₁ Unit-ok))
+         (U-cong-⊢≡ (supᵘₗ-identityˡ ⊢l₁′)))
+      Σ-ok
+
+opaque
+
+  -- A variant of Erased-cong-U′.
+
   Erased-cong-U :
     Γ ⊢ l₁ ∷Level →
     Γ ⊢ l₁ ≡ l₂ ∷Level →
     Γ ⊢ A₁ →
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
     Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
-  Erased-cong-U ⊢l₁ l₁≡l₂ ⊢A₁ A₁≡A₂ =
-    let ⊢l₁′ = wkLevel₁ ⊢A₁ ⊢l₁ in
-    ΠΣ-cong ⊢l₁ A₁≡A₂
-      (conv
-         (_⊢_≡_∷_.Lift-cong (⊢zeroᵘ (∙ ⊢A₁))
-            (wkLevel₁ ⊢A₁ ⊢l₁) (wkEqLevel₁ ⊢A₁ l₁≡l₂) $
-          refl (Unitⱼ (∙ ⊢A₁) Unit-ok))
-         (U-cong-⊢≡ (supᵘₗ-identityˡ ⊢l₁′)))
-      Σ-ok
-
-opaque
-
-  -- A formation rule for Erased.
-
-  Erasedⱼ :
-    Γ ⊢ l ∷Level →
-    Γ ⊢ A ∷ U l →
-    Γ ⊢ Erased l A
-  Erasedⱼ ⊢l ⊢A = univ (Erasedⱼ-U ⊢l ⊢A)
-
-opaque
-
-  -- An equality rule for Erased.
-
-  Erased-cong :
-    Γ ⊢ l₁ ∷Level →
-    Γ ⊢ l₁ ≡ l₂ ∷Level →
-    Γ ⊢ A₁ →
-    Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
-    Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
-  Erased-cong ⊢l₁ l₁≡l₂ ⊢A₁ A₁≡A₂ =
-    univ (Erased-cong-U ⊢l₁ l₁≡l₂ ⊢A₁ A₁≡A₂)
+  Erased-cong-U ⊢l₁ l₁≡l₂ ⊢A₁ =
+    Erased-cong-U′ ⊢l₁ (wkEqLevel₁ ⊢A₁ l₁≡l₂)
 
 opaque
   unfolding Erased [_]
 
   -- An introduction rule for Erased.
-  --
-  -- Note that the assumption of type Γ ⊢ A ∷ U l could be replaced by
-  -- one of type Γ ⊢ A. The current type signature is used for the
-  -- following reasons:
-  --
-  -- * This is more in line with the type of the corresponding Agda
-  --   construction.
-  --
-  -- * If the implementation of Erased or [_] is changed, or they are
-  --   turned into primitives, then fewer changes might be needed.
 
   []ⱼ :
     Γ ⊢ l ∷Level →
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ A →
     Γ ⊢ t ∷ A →
     Γ ⊢ [ t ] ∷ Erased l A
   []ⱼ ⊢l ⊢A ⊢t =
-    let ⊢A    = univ ⊢A
-        ⊢Γ    = wfTerm ⊢t
+    let ⊢Γ    = wfTerm ⊢t
         ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
     in
     prodⱼ (Liftⱼ (wkLevel₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) ⊢t
@@ -138,20 +164,14 @@ opaque
   unfolding Erased [_]
 
   -- An equality rule for Erased.
-  --
-  -- Note that the assumption of type Γ ⊢ A ∷ U l could be replaced by
-  -- one of type Γ ⊢ A.
 
   []-cong′ :
     Γ ⊢ l ∷Level →
-    Γ ⊢ A ∷ U l →
-    Γ ⊢ t₁ ∷ A →
-    Γ ⊢ t₂ ∷ A →
+    Γ ⊢ A →
     Γ ⊢ t₁ ≡ t₂ ∷ A →
     Γ ⊢ [ t₁ ] ≡ [ t₂ ] ∷ Erased l A
-  []-cong′ ⊢l ⊢A ⊢t₁ ⊢t₂ t₁≡t₂ =
-    let ⊢A    = univ ⊢A
-        ⊢Γ    = wfTerm ⊢t₁
+  []-cong′ ⊢l ⊢A t₁≡t₂ =
+    let ⊢Γ    = wf ⊢A
         ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
         ⊢star = starⱼ ⊢Γ Unit-ok
     in

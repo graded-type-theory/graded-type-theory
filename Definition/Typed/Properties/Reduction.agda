@@ -237,16 +237,18 @@ opaque
     u                     ∎
   subsetTerm (K-β ⊢B ⊢u ok) =
     K-β ⊢B ⊢u ok
-  subsetTerm ([]-cong-β ⊢A ⊢t ⊢t′ t≡t′ ok) =
-    let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+  subsetTerm ([]-cong-β ⊢A ⊢t _ t≡t′ ok) =
+    let ⊢l  = inversion-U-Level (wf-⊢∷ ⊢A)
+        ⊢A′ = univ ⊢A
+    in
     trans
       ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (_⊢_≡_∷_.conv (refl (rflⱼ ⊢t)) $
           Id-cong (refl (univ ⊢A)) (refl ⊢t) t≡t′)
          ok)
       (conv ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok)
-         (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
-            ([]-cong′ ⊢l ⊢A ⊢t ⊢t′ t≡t′)))
+         (Id-cong (refl (Erasedⱼ ⊢l ⊢A′)) (refl ([]ⱼ ⊢l ⊢A′ ⊢t))
+            ([]-cong′ ⊢l ⊢A′ t≡t′)))
     where
     open EP ([]-cong→Erased ok)
   subsetTerm (unitrec-subst A u t⇒t′ ok no-η) =

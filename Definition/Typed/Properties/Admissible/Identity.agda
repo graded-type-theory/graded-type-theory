@@ -404,14 +404,14 @@ opaque
         Id (Erased l A) ([ t ]) ([ t′ ])
   []-cong-β-≡ ⊢A t≡t′ ok =
     let ⊢l           = inversion-U-Level (wf-⊢∷ ⊢A)
-        _ , ⊢t , ⊢t′ = wf-⊢≡∷ t≡t′
+        ⊢A′ , ⊢t , _ = wf-⊢≡∷ t≡t′
     in
     trans
       ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (refl (rflⱼ′ t≡t′)) ok)
       (conv ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok)
-         (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
-            ([]-cong′ ⊢l ⊢A ⊢t ⊢t′ t≡t′)))
+         (Id-cong (refl (Erasedⱼ ⊢l ⊢A′)) (refl ([]ⱼ ⊢l ⊢A′ ⊢t))
+            ([]-cong′ ⊢l ⊢A′ t≡t′)))
     where
     open EP ([]-cong→Erased ok)
 
@@ -1273,11 +1273,9 @@ opaque
     let open Erased s in
     Equality-reflection →
     Erased-allowed s →
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ l ∷Level →
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ rfl ∷ Id (Erased l A) [ t ] ([ u ])
-  []-cong-with-equality-reflection ok₁ ok₂ ⊢A ⊢eq =
-    let ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A)
-        _ , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq)
-    in
-    rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A ⊢t ⊢u (equality-reflection′ ok₁ ⊢eq))
+  []-cong-with-equality-reflection ok₁ ok₂ ⊢l ⊢eq =
+    let ⊢A , _ = inversion-Id (syntacticTerm ⊢eq) in
+    rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A (equality-reflection′ ok₁ ⊢eq))
