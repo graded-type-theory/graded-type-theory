@@ -55,8 +55,9 @@ private variable
 -- Usage-restrictions-satisfied
 
 -- Usage-restrictions-satisfied m t means that the usage restrictions
--- for Prodrec and Unitrec hold, for certain modes, for every subterm
--- in t.
+-- for emptyrec, unitrec, prodrec and []-cong hold, for certain modes,
+-- for every subterm in t, and that a certain condition holds for
+-- every application of natrec in t.
 
 data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
   varᵤ :
