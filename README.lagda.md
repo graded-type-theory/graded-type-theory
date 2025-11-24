@@ -4,7 +4,7 @@ module README where
 
 # An Agda Formalization of a Graded Modal Type Theory with First-Class Universe Levels and Erasure
 
-This code is related to the paper "Normalisation for First-Class
+This code is related to the POPL 2026 paper "Normalisation for First-Class
 Universe Levels" by Nils Anders Danielsson, Naïm Camille Favier and
 Ondřej Kubánek. It builds on an existing formalisation, see "Project
 history" below.
