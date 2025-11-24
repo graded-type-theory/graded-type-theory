@@ -371,7 +371,7 @@ opaque mutual
     _ , J-βᵛ ⊢t ⊢B (fundamental-⊩ᵛ∷ ⊢u .proj₂)
   fundamental-⊩ᵛ≡∷ (K-β ⊢B ⊢u ok) =
     _ , K-βᵛ ok ⊢B (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ≡∷ ([]-cong-β ⊢l _ ⊢t PE.refl ok) =
+  fundamental-⊩ᵛ≡∷ ([]-cong-β ⊢l ⊢t PE.refl ok) =
     _ ,
     []-cong-βᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)

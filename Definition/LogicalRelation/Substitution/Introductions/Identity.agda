@@ -733,10 +733,10 @@ opaque
               u₂  ∎
         in
         []-cong s k₁ A₁ t₁ u₁ v₁               ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
-        []-cong s k₁ A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β-⇒ ⊢k₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
+        []-cong s k₁ A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β ⊢k₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
         rfl ∷ Id (Erased k₁ A₁) [ t₁ ] [ u₁ ]  ≡⟨ refl-⊩≡∷ (⊩rfl′ (⊩[]≡[] ⊩k₁ t₁≡u₁)) ⟩⊩∷∷⇐*
                                                 ⟨ ⊢Id≡Id ⟩⇒
-        rfl ∷ Id (Erased k₂ A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β-⇒ ⊢k₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
+        rfl ∷ Id (Erased k₂ A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β ⊢k₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
         []-cong s k₂ A₂ t₂ u₂ rfl              ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎
         []-cong s k₂ A₂ t₂ u₂ v₂               ∎
 
@@ -832,7 +832,7 @@ opaque
          let ⊢k[σ] = escapeLevel $ ⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L ⊩k ⊩σ
              ⊢t[σ] = R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ
          in
-         []-cong-β-⇒ ⊢k[σ] (refl ⊢t[σ]) ok)
+         []-cong-β ⊢k[σ] (refl ⊢t[σ]) ok)
       (rflᵛ ([]ᵛ ⊩k ⊩t))
     where
     open E ok

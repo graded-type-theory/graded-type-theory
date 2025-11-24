@@ -214,7 +214,7 @@ opaque
     K-subst ⊢B ⊢u d ok
   ⊢⦅⦆ᵉ-subst ([]-congₑ ok ⊢l) d =
     PE.subst (_⊢_⇒_∷_ _ _ _) (E.wk-Id-Erased-[]-[] _) $
-    []-cong-subst′ ⊢l d ok
+    []-cong-subst ⊢l d ok
   ⊢⦅⦆ᵉ-subst (conv ⊢e B≡B′) d =
     conv (⊢⦅⦆ᵉ-subst ⊢e d) B≡B′
 

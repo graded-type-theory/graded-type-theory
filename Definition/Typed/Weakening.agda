@@ -859,9 +859,9 @@ private module Inhabited where
           []-cong-cong (wkEqLevel ρ⊇ ⊢Δ l₁≡l₂) (wkEq ρ⊇ ⊢Δ A₁≡A₂)
             (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
             (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂) ok
-        ([]-cong-β ⊢l ⊢A ⊢t eq ok) PE.refl →
+        ([]-cong-β ⊢l ⊢t eq ok) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (wk-Id-Erased _) $
-          []-cong-β (wkLevel ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+          []-cong-β (wkLevel ρ⊇ ⊢Δ ⊢l) (wkTerm ρ⊇ ⊢Δ ⊢t)
             (PE.cong (U.wk _) eq) ok
         (equality-reflection ok ⊢Id ⊢v) PE.refl →
           equality-reflection ok (wk ρ⊇ ⊢Δ ⊢Id) (wkTerm ρ⊇ ⊢Δ ⊢v)
@@ -1169,10 +1169,9 @@ mutual
       (PE.subst (_ ⊢ _ ∷_) (wk-β B) $
        wkTerm ρ ⊢u)
       (wkRedTerm ρ ⊢v) ok
-  wkRedTerm ρ ([]-cong-subst l A t u v ok) =
+  wkRedTerm ρ ([]-cong-subst l v ok) =
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk-Id-Erased _) $
-    []-cong-subst (wkLevel ρ l) (wk ρ A) (wkTerm ρ t) (wkTerm ρ u)
-      (wkRedTerm ρ v) ok
+    []-cong-subst (wkLevel ρ l) (wkRedTerm ρ v) ok
   wkRedTerm ρ (J-β {B} ⊢t ⊢t′ t≡t′ ⊢B B≡B ⊢u) =
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ rfl) ⇒ _ ∷_)
       (PE.sym $ wk-β-doubleSubst _ B _ _) $
@@ -1209,10 +1208,9 @@ mutual
       (PE.subst (_ ⊢ _ ∷_) (wk-β B) $
        wkTerm ρ ⊢u)
       ok
-  wkRedTerm ρ ([]-cong-β ⊢l ⊢A ⊢t ⊢t′ t≡t′ ok) =
+  wkRedTerm ρ ([]-cong-β ⊢l t≡t′ ok) =
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk-Id-Erased _) $
-    []-cong-β (wkLevel ρ ⊢l) (wk ρ ⊢A) (wkTerm ρ ⊢t) (wkTerm ρ ⊢t′)
-      (wkEqTerm ρ t≡t′) ok
+    []-cong-β (wkLevel ρ ⊢l) (wkEqTerm ρ t≡t′) ok
 
 wkRed* : ρ ∷ʷ Δ ⊇ Γ → Γ ⊢ A ⇒* B → Δ ⊢ U.wk ρ A ⇒* U.wk ρ B
 wkRed* ρ (id A)         = id (wk ρ A)

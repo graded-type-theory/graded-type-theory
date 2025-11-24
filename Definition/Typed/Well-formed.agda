@@ -500,8 +500,9 @@ opaque mutual
         (_⊢_≡_.sym $
          Id-cong (Erased-cong l₁≡l₂ ⊢A₁ A₁≡A₂) ([]-cong′ ⊢l₁ ⊢A₁ t₁≡t₂)
            ([]-cong′ ⊢l₁ ⊢A₁ u₁≡u₂))
-    ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok) →
+    ([]-cong-β ⊢l ⊢t PE.refl ok) →
       let open Erased ([]-cong→Erased ok)
+          ⊢A   = wf-⊢∷ ⊢t
           ⊢[t] = []ⱼ ⊢l ⊢A ⊢t
       in
       Idⱼ (Erasedⱼ ⊢l ⊢A) ⊢[t] ⊢[t] ,

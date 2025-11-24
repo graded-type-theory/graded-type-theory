@@ -471,9 +471,9 @@ mutual
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (K-preserved ok)
-  tr-⊢≡∷ ([]-cong-β l A t PE.refl ok) =
+  tr-⊢≡∷ ([]-cong-β l t PE.refl ok) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    []-cong-β (tr-⊢∷L l) (tr-⊢′ A) (tr-⊢∷ t) PE.refl
+    []-cong-β (tr-⊢∷L l) (tr-⊢∷ t) PE.refl
       ([]-cong-preserved ok)
   tr-⊢≡∷ (equality-reflection ok _ v) =
     P₂.equality-reflection′ (Equality-reflection-preserved ok) (tr-⊢∷ v)
@@ -648,9 +648,9 @@ module _
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (tr-⊢⇒∷ v₁⇒v₂) (K-preserved ok)
-  tr-⊢⇒∷ ([]-cong-subst l _ _ _ v₁⇒v₂ ok) =
+  tr-⊢⇒∷ ([]-cong-subst l v₁⇒v₂ ok) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    P₂.[]-cong-subst′ (tr-⊢∷L l) (tr-⊢⇒∷ v₁⇒v₂) ([]-cong-preserved ok)
+    []-cong-subst (tr-⊢∷L l) (tr-⊢⇒∷ v₁⇒v₂) ([]-cong-preserved ok)
   tr-⊢⇒∷ (J-β {B} _ _ t≡t′ ⊢B _ u) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[,] B) $
     P₂.J-β-⇒ (tr-⊢≡∷ t≡t′)
@@ -668,9 +668,9 @@ module _
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym $ tr-Term-[] B) $
        tr-⊢∷ u)
       (K-preserved ok)
-  tr-⊢⇒∷ ([]-cong-β l _ _ _ t≡t′ ok) =
+  tr-⊢⇒∷ ([]-cong-β l t≡t′ ok) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-Id-Erased-[]-[] ok) $
-    P₂.[]-cong-β-⇒ (tr-⊢∷L l) (tr-⊢≡∷ t≡t′) ([]-cong-preserved ok)
+    []-cong-β (tr-⊢∷L l) (tr-⊢≡∷ t≡t′) ([]-cong-preserved ok)
 
   -- Preservation of _⊢_⇒_.
 

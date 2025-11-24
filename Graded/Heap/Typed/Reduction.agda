@@ -692,7 +692,7 @@ opaque
         _ , ⊢t , ⊢u = syntacticEqTerm t≡u
     in
     ⊢⦅⦆ˢ-subst ⊢S $
-    conv ([]-cong-β-⇒ ⊢A t≡u ok) (sym (B′≡ ⊢t ⊢u)) }
+    conv ([]-cong-β ⊢A t≡u ok) (sym (B′≡ ⊢t ⊢u)) }
 
 opaque
 

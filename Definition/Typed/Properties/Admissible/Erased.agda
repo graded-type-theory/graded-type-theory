@@ -720,7 +720,7 @@ module _ (ok : []-cong-allowed s) where
       in
       conv*
         (subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑)
-           [ t ] [ t′ ] ([]-cong s zeroᵘ A t t′ rfl) u              ⇒⟨ conv (subst-subst ⊢B[]↑ ([]-cong-β-⇒ ⊢0 t≡t′ ok) ⊢u) $
+           [ t ] [ t′ ] ([]-cong s zeroᵘ A t t′ rfl) u              ⇒⟨ conv (subst-subst ⊢B[]↑ ([]-cong-β ⊢0 t≡t′ ok) ⊢u) $
                                                                        substTypeEq (refl ⊢B[]↑) (sym′ [t]≡[t′]) ⟩
          subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑)
            [ t ] [ t′ ] rfl u                                       ⇒⟨ subst-⇒′ ⊢B[]↑ [t]≡[t′] ⊢u ⟩∎
@@ -800,7 +800,7 @@ module _ (ok : []-cong-allowed s) where
       in
       conv
         (subst-subst (⊢[erased-0]↑ ⊢B)
-           ([]-cong-subst′ (⊢zeroᵘ (wfTerm ⊢t)) v₁⇒v₂ ok)
+           ([]-cong-subst (⊢zeroᵘ (wfTerm ⊢t)) v₁⇒v₂ ok)
            (conv ⊢w $ sym $ [erased-0]↑[[]]₀≡[]₀ ⊢B ⊢t))
         ([erased-0]↑[[]]₀≡[]₀ ⊢B ⊢u)
 

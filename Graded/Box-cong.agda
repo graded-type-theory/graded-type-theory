@@ -581,7 +581,7 @@ opaque
       Γ ⊢ l ∷Level →
       Γ ⊢ t ∷ A →
       Γ ⊢ []-cong″ ok l A t t rfl ⇒ rfl ∷ Id (Erased l A) [ t ] ([ t ])
-    []-cong″-β-⇒ (inj₁ (ok , _)) ⊢l ⊢t = []-cong-β-⇒ ⊢l (refl ⊢t) ok
+    []-cong″-β-⇒ (inj₁ (ok , _)) ⊢l ⊢t = []-cong-β ⊢l (refl ⊢t) ok
     []-cong″-β-⇒ (inj₂ _)        ⊢l ⊢t = []-cong-J-β-⇒ Erased-ok ⊢l ⊢t
 
     []-cong′ : Term 0

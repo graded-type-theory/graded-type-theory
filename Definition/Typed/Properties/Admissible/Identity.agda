@@ -341,21 +341,6 @@ opaque
 
 opaque
 
-  -- A variant of []-cong-subst.
-
-  []-cong-subst′ :
-    Γ ⊢ l ∷Level →
-    Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
-    []-cong-allowed s →
-    let open Erased s in
-      Γ ⊢ []-cong s l A t u v₁ ⇒ []-cong s l A t u v₂ ∷
-        Id (Erased l A) ([ t ]) ([ u ])
-  []-cong-subst′ ⊢l v₁⇒v₂ =
-    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ (redFirstTerm v₁⇒v₂)) in
-    []-cong-subst ⊢l ⊢A ⊢t ⊢u v₁⇒v₂
-
-opaque
-
   -- A variant of []-cong-subst for _⊢_⇒*_∷_.
 
   []-cong-subst* :
@@ -369,22 +354,7 @@ opaque
     case v₁⇒*v₂ of λ where
       (id ⊢v₁)         → id ([]-congⱼ′ ok ⊢l ⊢v₁)
       (v₁⇒v₃ ⇨ v₃⇒*v₂) →
-        []-cong-subst′ ⊢l v₁⇒v₃ ok ⇨ []-cong-subst* ⊢l v₃⇒*v₂ ok
-
-opaque
-
-  -- A variant of the reduction rule []-cong-β.
-
-  []-cong-β-⇒ :
-    Γ ⊢ l ∷Level →
-    Γ ⊢ t ≡ t′ ∷ A →
-    []-cong-allowed s →
-    let open Erased s in
-      Γ ⊢ []-cong s l A t t′ rfl ⇒ rfl ∷
-        Id (Erased l A) ([ t ]) ([ t′ ])
-  []-cong-β-⇒ ⊢l t≡t′ =
-    let ⊢A , ⊢t , ⊢t′ = syntacticEqTerm t≡t′ in
-    []-cong-β ⊢l ⊢A ⊢t ⊢t′ t≡t′
+        []-cong-subst ⊢l v₁⇒v₃ ok ⇨ []-cong-subst* ⊢l v₃⇒*v₂ ok
 
 opaque
 
@@ -402,7 +372,7 @@ opaque
     trans
       ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (refl (rflⱼ′ t≡t′)) ok)
-      (conv ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok)
+      (conv ([]-cong-β ⊢l ⊢t PE.refl ok)
          (Id-cong (refl (Erasedⱼ ⊢l ⊢A)) (refl ([]ⱼ ⊢l ⊢A ⊢t))
             ([]-cong′ ⊢l ⊢A t≡t′)))
     where

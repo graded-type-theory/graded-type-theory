@@ -1726,11 +1726,10 @@ private module Inhabited where
         []-cong-cong (subst-⊢≡∷L l₁≡l₂ σ₁≡σ₂) (subst-⊢≡ A₁≡A₂ σ₁≡σ₂)
           (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂) (subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
           (subst-⊢≡∷ v₁≡v₂ σ₁≡σ₂) ok
-      ([]-cong-β ⊢l ⊢A ⊢t PE.refl ok) PE.refl →
+      ([]-cong-β ⊢l ⊢t PE.refl ok) PE.refl →
         let _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
         PE.subst (_⊢_≡_∷_ _ _ _) (E.Id-Erased-[] _) $
-        []-cong-β (subst-⊢∷L ⊢l ⊢σ₁) (subst-⊢ ⊢A ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁)
-          PE.refl ok
+        []-cong-β (subst-⊢∷L ⊢l ⊢σ₁) (subst-⊢∷ ⊢t ⊢σ₁) PE.refl ok
       (equality-reflection ok ⊢Id ⊢v) PE.refl →
         let ⊢A , ⊢t , ⊢u  = inversion-Id-⊢ ⊢Id
             _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂

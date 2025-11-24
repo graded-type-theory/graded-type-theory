@@ -228,8 +228,8 @@ opaque mutual
     size-⊢∷ ⊢t ⊕ size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
   size-⊢≡∷ (K-β ⊢B ⊢u _) =
     size-⊢ ⊢B ⊕ size-⊢∷ ⊢u
-  size-⊢≡∷ ([]-cong-β ⊢l ⊢A ⊢t _ _) =
-    size-⊢∷L ⊢l ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
+  size-⊢≡∷ ([]-cong-β ⊢l ⊢t _ _) =
+    size-⊢∷L ⊢l ⊕ size-⊢∷ ⊢t
   size-⊢≡∷ (equality-reflection _ ⊢Id ⊢v) =
     size-⊢ ⊢Id ⊕ size-⊢∷ ⊢v
 
