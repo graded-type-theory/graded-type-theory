@@ -249,12 +249,11 @@ opaque
   whnf≢Unit :
     Equality-reflection →
     Unit-allowed s →
-    ∃₃ λ (Γ : Con Term 1) (l : Term 1) (A : Term 1) →
+    ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       Γ ⊢ Unit s ≡ A × Whnf A ×
       ¬ ∃ λ s → A PE.≡ Unit s
   whnf≢Unit {s} ok₁ ok₂ =
     ε ∙ Id (U zeroᵘ) (Unit s) (Id (Unit s) (star s) (star s)) ,
-    zeroᵘ ,
     Id (Unit s) (star s) (star s) ,
     univ
       (equality-reflection′ ok₁ $ var₀ $
