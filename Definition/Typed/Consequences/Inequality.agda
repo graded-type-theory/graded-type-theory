@@ -17,6 +17,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant as U
   using (Neutral; Neutralˡ; No-η-equality; Whnf)
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -32,11 +33,12 @@ open import Definition.LogicalRelation.Substitution.Introductions.Level R
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat as Nat using (Nat; 1+n≢n)
+open import Tools.Nat as Nat using (Nat; 1+; 1+n≢n)
 open import Tools.Product
 open import Tools.Relation
 open import Tools.Empty
 open import Tools.PropositionalEquality as PE using (_≢_)
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum using (inj₁; inj₂)
 
 private
@@ -836,3 +838,34 @@ opaque
         1+n≢n (PE.sym (↑ⁿ-cong ⊩t (⊩sucᵘ ⊩t) ⊩t≡sucᵘt))
       (literal not-ok _ _ , _) →
         not-ok ok
+
+opaque
+
+  -- The level zeroᵘ is not equal to sucᵘ l (given a certain
+  -- assumption).
+
+  zeroᵘ≢sucᵘ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ zeroᵘ ≡ sucᵘ l ∷Level
+  zeroᵘ≢sucᵘ (term ok 0≡1+) =
+    let _ , 0≡1+  = ⊩≡∷Level⇔ .proj₁ (reducible-⊩≡∷ 0≡1+ .proj₂)
+        ⊩0 , ⊩1+l = wf-Level-eq 0≡1+
+        ⊩l        = ⊩sucᵘ⇔ .proj₁ ⊩1+l
+    in
+    case
+      0              ≡˘⟨ ↑ⁿ-zeroᵘ ⊩0 ⟩
+      ↑ⁿ ⊩0          ≡⟨ ↑ⁿ-cong ⊩0 (⊩sucᵘ ⊩l) 0≡1+ ⟩
+      ↑ⁿ (⊩sucᵘ ⊩l)  ≡⟨ ↑ⁿ-sucᵘ ⊩l (⊩sucᵘ ⊩l) ⟩
+      1+ (↑ⁿ ⊩l)     ∎
+    of λ ()
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- ℕ does not have type U (sucᵘ l) (given a certain assumption).
+
+  ¬ℕ∷U-sucᵘ :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    ¬ Γ ⊢ ℕ ∷ U (sucᵘ l)
+  ¬ℕ∷U-sucᵘ = zeroᵘ≢sucᵘ ∘→ sym-⊢≡∷L ∘→ U-injectivity ∘→ inversion-ℕ
