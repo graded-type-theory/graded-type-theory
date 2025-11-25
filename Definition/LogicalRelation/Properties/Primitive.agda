@@ -393,6 +393,27 @@ opaque
   ⊩sucᵘ≡sucᵘ (literal! not-ok ⊢Γ t-lit) =
     literal! not-ok ⊢Γ (sucᵘ t-lit)
 
+opaque
+
+  -- A characterisation lemma for _⊩Level_∷Level.
+
+  ⊩sucᵘ⇔ : Γ ⊩Level sucᵘ t ∷Level ⇔ Γ ⊩Level t ∷Level
+  ⊩sucᵘ⇔ = to , ⊩sucᵘ
+    where
+    to : Γ ⊩Level sucᵘ t ∷Level → Γ ⊩Level t ∷Level
+    to (term suc⇒ (zeroᵘᵣ _)) =
+      case whnfRed*Term suc⇒ sucᵘₙ of λ ()
+    to (term suc⇒ (sucᵘᵣ _ ⊩l)) =
+      case whnfRed*Term suc⇒ sucᵘₙ of λ {
+        PE.refl →
+      ⊩l }
+    to (term suc⇒ (neLvl ⊩l)) =
+      case whnfRed*Term suc⇒ sucᵘₙ of λ {
+        PE.refl →
+      case nelevel ⊩l of λ { (ne ()) } }
+    to (literal not-ok ⊢Γ (sucᵘ l-lit)) =
+      literal not-ok ⊢Γ l-lit
+
 opaque mutual
 
   -- An introduction lemma for supᵘ.
