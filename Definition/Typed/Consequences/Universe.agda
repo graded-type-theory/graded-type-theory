@@ -127,7 +127,8 @@ opaque
   --
   -- * consequently does not live in any universe
   --
-  -- (assuming that equality reflection is not allowed).
+  -- (assuming that equality reflection is not allowed or the context
+  -- is empty).
   --
   -- Note that there is no assumption that Level is allowed. This
   -- result makes use of the fact that Π-types are homogeneous: if
@@ -135,17 +136,19 @@ opaque
   -- U l (in the latter case weakened).
 
   type-without-type :
-    ⦃ ok : No-equality-reflection ⦄ →
-    let A = Π p , q ▷ ℕ ▹ U zeroᵘ in
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    let A = Π p , q ▷ U zeroᵘ ▹ U (sucᵘ zeroᵘ) in
     (Π-allowed p q → ⊢ Γ → Γ ⊢ A) ×
     (¬ ∃ λ B → Γ ⊢ A ∷ B) ×
     (¬ ∃ λ l → Γ ⊢ A ∷ U l)
   type-without-type =
     let ¬⊢∷ = λ (_ , ⊢A) →
-          let _ , _ , ⊢ℕ , ⊢U , _ , _ = inversion-ΠΣ-U ⊢A in
-          ¬U∷U ⦃ ok = possibly-nonempty ⦄ $
-          conv ⊢U (wkEq₁ (univ ⊢ℕ) (inversion-ℕ ⊢ℕ))
+          let _ , _ , ⊢U₀ , ⊢U₁ , _ = inversion-ΠΣ-U ⊢A in
+          ¬U∷U $
+          conv (substTerm ⊢U₁ (Emptyⱼ (wfTerm ⊢U₀)))
+            (PE.subst (flip (_⊢_≡_ _) _) (PE.sym $ wk1-sgSubst _ _) $
+             inversion-U ⊢U₀)
     in
-    (λ ok ⊢Γ → ΠΣⱼ (⊢U₀ (∙ ⊢ℕ ⊢Γ)) ok) ,
+    (λ ok ⊢Γ → ΠΣⱼ (⊢U (⊢sucᵘ (⊢zeroᵘ (∙ ⊢U₀ ⊢Γ)))) ok) ,
     ¬⊢∷ ,
     ¬⊢∷ ∘→ Σ.map _ idᶠ
