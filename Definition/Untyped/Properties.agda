@@ -2462,12 +2462,11 @@ opaque
     (l₁-lit : Level-literal l₁) (l₂-lit : Level-literal l₂) →
     l₁ supᵘₗ′ l₂ ≡ ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)
   supᵘₗ′≡↓ᵘ⊔ {l₁} {l₂} l₁-lit l₂-lit
-    with level-literal? l₁ | level-literal? l₂
-  … | literal _ | literal _ =
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes _ =
     cong₂ (λ l₁ l₂ → ↓ᵘ (size-of-Level l₁ ⊔ size-of-Level l₂))
       Level-literal-propositional Level-literal-propositional
-  … | not-literal l₁-not | _                  = ⊥-elim (l₁-not l₁-lit)
-  … | _                  | not-literal l₂-not = ⊥-elim (l₂-not l₂-lit)
+  … | no not-both = ⊥-elim (not-both (l₁-lit , l₂-lit))
 
 opaque
   unfolding _supᵘₗ′_
@@ -2478,11 +2477,9 @@ opaque
     ¬ (Level-literal l₁ × Level-literal l₂) →
     l₁ supᵘₗ′ l₂ ≡ l₁ supᵘ l₂
   supᵘₗ′≡supᵘ {l₁} {l₂} not-both
-    with level-literal? l₁ | level-literal? l₂
-  … | literal l₁-lit | literal l₂-lit =
-    ⊥-elim (not-both (l₁-lit , l₂-lit))
-  … | literal _     | not-literal _ = refl
-  … | not-literal _ | _             = refl
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes (l₁-lit , l₂-lit) = ⊥-elim (not-both (l₁-lit , l₂-lit))
+  … | no _                  = refl
 
 opaque
   unfolding _supᵘₗ′_
@@ -2501,13 +2498,10 @@ opaque
     to :
       Level-literal (l₁ supᵘₗ′ l₂) →
       Level-literal l₁ × Level-literal l₂
-    to {l₁} {l₂} supᵘₗ′-lit with level-literal? l₁ | level-literal? l₂
-    … | literal l₁-lit | literal l₂-lit =
-      l₁-lit , l₂-lit
-    … | literal _ | not-literal _ =
-      case supᵘₗ′-lit of λ ()
-    … | not-literal _ | _ =
-      case supᵘₗ′-lit of λ ()
+    to {l₁} {l₂} supᵘₗ′-lit
+      with Level-literal? l₁ ×-dec Level-literal? l₂
+    … | yes (l₁-lit , l₂-lit) = l₁-lit , l₂-lit
+    … | no _                  = case supᵘₗ′-lit of λ ()
 
 opaque
   unfolding Level-literal⇔ size-of-Level
@@ -2621,16 +2615,13 @@ opaque
 
   wk-supᵘₗ′ : wk ρ (l₁ supᵘₗ′ l₂) ≡ wk ρ l₁ supᵘₗ′ wk ρ l₂
   wk-supᵘₗ′ {ρ} {l₁} {l₂}
-    with level-literal? l₁ | level-literal? l₂
-  … | literal l₁-lit | literal l₂-lit =
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes (l₁-lit , l₂-lit) =
     wk ρ (↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit))  ≡˘⟨ cong (wk _) $ supᵘₗ′≡↓ᵘ⊔ _ _ ⟩
     wk ρ (l₁ supᵘₗ′ l₂)                                      ≡⟨ wk≡subst _ _ ⟩
     l₁ supᵘₗ′ l₂ [ toSubst ρ ]                               ≡⟨ supᵘₗ′-[] l₁-lit l₂-lit ⟩
     (l₁ [ toSubst ρ ]) supᵘₗ′ (l₂ [ toSubst ρ ])             ≡˘⟨ cong₂ _supᵘₗ′_ (wk≡subst _ _) (wk≡subst _ _) ⟩
     wk ρ l₁ supᵘₗ′ wk ρ l₂                                   ∎
-  … | literal _ | not-literal l₂-not =
-    wk ρ l₁ supᵘ   wk ρ l₂  ≡˘⟨ supᵘₗ′≡supᵘ (l₂-not ∘→ wk-Level-literal .proj₂ ∘→ proj₂) ⟩
-    wk ρ l₁ supᵘₗ′ wk ρ l₂  ∎
-  … | not-literal l₁-not | _ =
-    wk ρ l₁ supᵘ   wk ρ l₂  ≡˘⟨ supᵘₗ′≡supᵘ (l₁-not ∘→ wk-Level-literal .proj₂ ∘→ proj₁) ⟩
+  … | no not-both =
+    wk ρ l₁ supᵘ   wk ρ l₂  ≡˘⟨ supᵘₗ′≡supᵘ (not-both ∘→ Σ.map (wk-Level-literal .proj₂) (wk-Level-literal .proj₂)) ⟩
     wk ρ l₁ supᵘₗ′ wk ρ l₂  ∎

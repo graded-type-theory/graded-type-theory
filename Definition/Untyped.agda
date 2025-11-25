@@ -10,7 +10,7 @@ open import Tools.Nat
 open import Tools.Product
 open import Tools.List
 open import Tools.PropositionalEquality as PE hiding (subst)
-open import Tools.Relation
+open import Tools.Relation as Dec
 
 -- Some definitions that do not depend on M are re-exported from
 -- Definition.Untyped.NotParametrised.
@@ -146,51 +146,43 @@ data Level-literal {n : Nat} : Term n → Set a where
   zeroᵘ : Level-literal zeroᵘ
   sucᵘ  : Level-literal t → Level-literal (sucᵘ t)
 
--- A view of terms as level literals or not level literals.
-
-data Level-literal? {n} : Term n → Set a where
-  literal     : Level-literal t → Level-literal? t
-  not-literal : ¬ Level-literal t → Level-literal? t
-
 opaque
 
-  -- The Level-literal? view is inhabited for every term.
+  -- One can decide whether a term is a level literal or not.
 
-  level-literal? : (t : Term n) → Level-literal? t
-  level-literal? = λ where
-    zeroᵘ    → literal zeroᵘ
-    (sucᵘ t) → case level-literal? t of λ where
-      (literal t-lit)         → literal (sucᵘ t-lit)
-      (not-literal t-not-lit) → not-literal λ where
-        (sucᵘ t-lit) → t-not-lit t-lit
-    (var _)                 → not-literal (λ ())
-    Level                   → not-literal (λ ())
-    (_ supᵘ _)              → not-literal (λ ())
-    (U _)                   → not-literal (λ ())
-    (Lift _ _)              → not-literal (λ ())
-    (lift _)                → not-literal (λ ())
-    (lower _)               → not-literal (λ ())
-    Empty                   → not-literal (λ ())
-    (emptyrec _ _ _)        → not-literal (λ ())
-    (Unit _)                → not-literal (λ ())
-    (star _)                → not-literal (λ ())
-    (unitrec _ _ _ _ _)     → not-literal (λ ())
-    (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) → not-literal (λ ())
-    (lam _ _)               → not-literal (λ ())
-    (_ ∘⟨ _ ⟩ _)            → not-literal (λ ())
-    (prod _ _ _ _)          → not-literal (λ ())
-    (fst _ _)               → not-literal (λ ())
-    (snd _ _)               → not-literal (λ ())
-    (prodrec _ _ _ _ _ _)   → not-literal (λ ())
-    ℕ                       → not-literal (λ ())
-    zero                    → not-literal (λ ())
-    (suc _)                 → not-literal (λ ())
-    (natrec _ _ _ _ _ _ _)  → not-literal (λ ())
-    (Id _ _ _)              → not-literal (λ ())
-    rfl                     → not-literal (λ ())
-    (J _ _ _ _ _ _ _ _)     → not-literal (λ ())
-    (K _ _ _ _ _ _)         → not-literal (λ ())
-    ([]-cong _ _ _ _ _ _)   → not-literal (λ ())
+  Level-literal? : (t : Term n) → Dec (Level-literal t)
+  Level-literal? = λ where
+    zeroᵘ    → yes zeroᵘ
+    (sucᵘ t) →
+      Dec.map sucᵘ (λ { (sucᵘ t-lit) → t-lit }) (Level-literal? t)
+    (var _)                 → no (λ ())
+    Level                   → no (λ ())
+    (_ supᵘ _)              → no (λ ())
+    (U _)                   → no (λ ())
+    (Lift _ _)              → no (λ ())
+    (lift _)                → no (λ ())
+    (lower _)               → no (λ ())
+    Empty                   → no (λ ())
+    (emptyrec _ _ _)        → no (λ ())
+    (Unit _)                → no (λ ())
+    (star _)                → no (λ ())
+    (unitrec _ _ _ _ _)     → no (λ ())
+    (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) → no (λ ())
+    (lam _ _)               → no (λ ())
+    (_ ∘⟨ _ ⟩ _)            → no (λ ())
+    (prod _ _ _ _)          → no (λ ())
+    (fst _ _)               → no (λ ())
+    (snd _ _)               → no (λ ())
+    (prodrec _ _ _ _ _ _)   → no (λ ())
+    ℕ                       → no (λ ())
+    zero                    → no (λ ())
+    (suc _)                 → no (λ ())
+    (natrec _ _ _ _ _ _ _)  → no (λ ())
+    (Id _ _ _)              → no (λ ())
+    rfl                     → no (λ ())
+    (J _ _ _ _ _ _ _ _)     → no (λ ())
+    (K _ _ _ _ _ _)         → no (λ ())
+    ([]-cong _ _ _ _ _ _)   → no (λ ())
 
 opaque
 
@@ -218,10 +210,10 @@ opaque
   -- If the inputs are level literals, then a literal is returned.
 
   _supᵘₗ′_ : Term n → Term n → Term n
-  l₁ supᵘₗ′ l₂ with level-literal? l₁ | level-literal? l₂
-  … | literal l₁-lit | literal l₂-lit =
+  l₁ supᵘₗ′ l₂ with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes (l₁-lit , l₂-lit) =
     ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)
-  … | _ | _ =
+  … | no _ =
     l₁ supᵘ l₂
 
 ------------------------------------------------------------------------

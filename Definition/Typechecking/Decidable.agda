@@ -1080,10 +1080,10 @@ mutual
   dec⇇Level (term ok l) ⊢Γ =
     Dec-map (sym⇔ $ ⊢⇇Level⇔ ok) (dec⇇ l (Levelⱼ′ ok ⊢Γ))
   dec⇇Level {l} (literal not-ok) _ =
-    case level-literal? l of λ where
-      (literal l-lit) →
+    case Level-literal? l of λ where
+      (yes l-lit) →
         yes (literal not-ok l-lit)
-      (not-literal not-lit) →
+      (no not-lit) →
         no λ where
           (term ok _)       → not-ok ok
           (literal _ l-lit) → not-lit l-lit

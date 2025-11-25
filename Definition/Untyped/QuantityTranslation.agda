@@ -16,9 +16,10 @@ open import Tools.Fin
 open import Tools.Function
 open import Tools.List
 open import Tools.Nat
-open import Tools.Product renaming (_,_ to _#_)
+open import Tools.Product as Σ renaming (_,_ to _#_)
 open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 open import Definition.Typed.Variant
 
@@ -1612,8 +1613,8 @@ opaque
     tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂ ≡
     tr-Term (l₁ U₁.supᵘₗ′ l₂)
   tr-Term-supᵘₗ′ {l₁} {l₂}
-    with U₁.level-literal? l₁ | U₁.level-literal? l₂
-  … | literal l₁-lit | literal l₂-lit =
+    with U₁.Level-literal? l₁ ×-dec U₁.Level-literal? l₂
+  … | yes (l₁-lit # l₂-lit) =
     let l₁-lit′ = tr-Level-literal .proj₁ l₁-lit
         l₂-lit′ = tr-Level-literal .proj₁ l₂-lit
     in
@@ -1623,11 +1624,8 @@ opaque
                                                                                size-of-Level-tr-Level-literal ⟩
     U₂.↓ᵘ (U₁.size-of-Level l₁-lit ⊔ U₁.size-of-Level l₂-lit)            ≡˘⟨ tr-Term-↓ᵘ ⟩
     tr-Term (U₁.↓ᵘ (U₁.size-of-Level l₁-lit ⊔ U₁.size-of-Level l₂-lit))  ∎
-  … | literal l₁-lit | not-literal l₂-not =
-    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂  ≡⟨ UP₂.supᵘₗ′≡supᵘ (l₂-not ∘→ tr-Level-literal .proj₂ ∘→ proj₂) ⟩
-    tr-Term l₁ U₂.supᵘ tr-Term l₂    ∎
-  … | not-literal l₁-not | _ =
-    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂  ≡⟨ UP₂.supᵘₗ′≡supᵘ (l₁-not ∘→ tr-Level-literal .proj₂ ∘→ proj₁) ⟩
+  … | no not-both =
+    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂  ≡⟨ UP₂.supᵘₗ′≡supᵘ (not-both ∘→ Σ.map (tr-Level-literal .proj₂) (tr-Level-literal .proj₂)) ⟩
     tr-Term l₁ U₂.supᵘ tr-Term l₂    ∎
 
 ------------------------------------------------------------------------
