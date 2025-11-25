@@ -443,10 +443,11 @@ opaque
     Γ ⊩⟨ l ⟩ t ∷ Level →
     Γ ⊩⟨ l′ ⟩ u ∷ Level →
     Γ ⊩⟨ l ⟩ sucᵘ t supᵘ sucᵘ u ≡ sucᵘ (t supᵘ u) ∷ Level
-  ⊩supᵘ-sucᵘ ⊩t ⊩u = ⊩∷-⇐*
-    (redMany (supᵘ-sucᵘ (escape-⊩∷ ⊩t) (escape-⊩∷ ⊩u)))
-    (⊩sucᵘ∷Level $ ⊩∷⇔⊩≡∷ .proj₂ $
-      ⊩supᵘ≡supᵘ∷Level (refl-⊩≡∷ ⊩t) (refl-⊩≡∷ ⊩u))
+  ⊩supᵘ-sucᵘ ⊩t ⊩u =
+    let ok , ⊩t = ⊩∷Level⇔ .proj₁ ⊩t
+        _  , ⊩u = ⊩∷Level⇔ .proj₁ ⊩u
+    in
+    ⊩≡∷Level⇔ .proj₂ (ok , ⊩sucᵘ-supᵘ-sucᵘ≡sucᵘ-supᵘ ok ⊩t ⊩u)
 
 opaque
 

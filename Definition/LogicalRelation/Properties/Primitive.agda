@@ -946,6 +946,23 @@ opaque
     transEqTermLevel (⊩supᵘ-congʳ ok ⊩t₁ u₁≡u₂)
       (⊩supᵘ-congˡ ok t₁≡t₂ ⊩u₂)
 
+opaque
+
+  -- Distributivity of sucᵘ over _supᵘ_ (assuming that Level is
+  -- allowed).
+
+  ⊩sucᵘ-supᵘ-sucᵘ≡sucᵘ-supᵘ :
+    Level-allowed →
+    Γ ⊩Level t ∷Level →
+    Γ ⊩Level u ∷Level →
+    Γ ⊩Level sucᵘ t supᵘ sucᵘ u ≡ sucᵘ (t supᵘ u) ∷Level
+  ⊩sucᵘ-supᵘ-sucᵘ≡sucᵘ-supᵘ ok ⊩t ⊩u =
+    redLevel′
+      (redMany $
+       supᵘ-sucᵘ (⊢∷Level→⊢∷Level ok (escapeLevel ⊩t))
+          (⊢∷Level→⊢∷Level ok (escapeLevel ⊩u)))
+      (⊩sucᵘ (⊩supᵘ ok ⊩t ⊩u))
+
 ------------------------------------------------------------------------
 -- Level realisation
 
