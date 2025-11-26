@@ -423,45 +423,45 @@ opaque mutual
     Γ ⊩Level t ∷Level →
     Γ ⊩Level u ∷Level →
     Γ ⊩Level t supᵘ u ∷Level
-  ⊩supᵘ {u} ok (term {l′ = t′} t⇒ propt) ⊩u =
-    case ⊩u of λ where
-      (literal not-ok _ _)      → ⊥-elim (not-ok ok)
-      (term {l′ = u′} u⇒ propu) →
-        let ⊢u  = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩u)
-            ⊢Γ  = wfTerm ⊢u
-            ⊢t′ = escape-Level-prop ⊢Γ propt
-            ⊢u′ = escape-Level-prop ⊢Γ propu
-        in
-        ⊩Level-⇒* (supᵘ-substˡ* t⇒ ⊢u) $
-        case propt of λ where
-          (zeroᵘᵣ _) →
-            term
-              (zeroᵘ supᵘ u  ⇒⟨ supᵘ-zeroˡ ⊢u ⟩
-               u             ⇒*⟨ u⇒ ⟩∎
-               u′            ∎)
-              propu
-          (sucᵘᵣ {k = t′} _ ⊩t′) →
-            let ⊢t′ = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩t′) in
-            ⊩Level-⇒* (supᵘ-substʳ* ⊢t′ u⇒) $
+  ⊩supᵘ {t} {u} ok (term t⇒ propt) ⊩u =
+    let ⊢u = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩u) in
+    case propt of λ where
+      (zeroᵘᵣ _) →
+        ⊩Level-⇒*
+          (t     supᵘ u  ⇒*⟨ supᵘ-substˡ* t⇒ ⊢u ⟩
+           zeroᵘ supᵘ u  ⇒⟨ supᵘ-zeroˡ ⊢u ⟩∎
+           u             ∎)
+          ⊩u
+      (sucᵘᵣ {k = t′} _ ⊩t′) →
+        let ⊢t′ = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩t′) in
+        case ⊩u of λ where
+          (term u⇒ propu) →
             case propu of λ where
               (zeroᵘᵣ _) → term
-                (sucᵘ t′ supᵘ zeroᵘ ⇒⟨ supᵘ-zeroʳ ⊢t′ ⟩∎
-                 sucᵘ t′            ∎)
+                (t supᵘ u            ⇒*⟨ supᵘ-substˡ* t⇒ ⊢u ⟩
+                 sucᵘ t′ supᵘ u      ⇒*⟨ supᵘ-substʳ* ⊢t′ u⇒ ⟩
+                 sucᵘ t′ supᵘ zeroᵘ  ⇒⟨ supᵘ-zeroʳ ⊢t′ ⟩∎
+                 sucᵘ t′             ∎)
                 (sucᵘᵣ ok ⊩t′)
               (sucᵘᵣ {k = u′} _ ⊩u′) →
                 let ⊢u′ = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩u′) in
                 term
-                  (sucᵘ t′ supᵘ sucᵘ u′ ⇒⟨ supᵘ-sucᵘ ⊢t′ ⊢u′ ⟩∎
-                   sucᵘ (t′ supᵘ u′)    ∎)
+                  (t supᵘ u              ⇒*⟨ supᵘ-substˡ* t⇒ ⊢u ⟩
+                   sucᵘ t′ supᵘ u        ⇒*⟨ supᵘ-substʳ* ⊢t′ u⇒ ⟩
+                   sucᵘ t′ supᵘ sucᵘ u′  ⇒⟨ supᵘ-sucᵘ ⊢t′ ⊢u′ ⟩∎
+                   sucᵘ (t′ supᵘ u′)     ∎)
                   (sucᵘᵣ ok (⊩supᵘ ok ⊩t′ ⊩u′))
-              (neLvl ⊩u′) →
-                term
-                  (id (supᵘⱼ (sucᵘⱼ ⊢t′) ⊢u′))
-                  (neLvl (supᵘʳᵣ ⊩t′ ⊩u′))
-          (neLvl ⊩t′) →
-            term
-              (id (supᵘⱼ ⊢t′ ⊢u))
-              (neLvl (supᵘˡᵣ ⊩t′ ⊩u))
+              (neLvl {k = u′} ⊩u′) → term
+                (t supᵘ u         ⇒*⟨ supᵘ-substˡ* t⇒ ⊢u ⟩
+                 sucᵘ t′ supᵘ u   ⇒*⟨ supᵘ-substʳ* ⊢t′ u⇒ ⟩∎
+                 sucᵘ t′ supᵘ u′  ∎)
+                (neLvl (supᵘʳᵣ ⊩t′ ⊩u′))
+          (literal not-ok _ _) →
+            ⊥-elim (not-ok ok)
+      (neLvl ⊩t′) →
+        term
+          (supᵘ-substˡ* t⇒ ⊢u)
+          (neLvl (supᵘˡᵣ ⊩t′ ⊩u))
   ⊩supᵘ ok (literal not-ok _ _) _ =
     ⊥-elim (not-ok ok)
 
@@ -669,27 +669,34 @@ opaque
     Level-allowed →
     Γ ⊩Level t ∷Level →
     Γ ⊩Level t supᵘ t ≡ t ∷Level
-  ⊩supᵘ-idem ok ⊩t@(term t⇒ propt) =
-    let ⊢t = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩t)
-        ⊢Γ = wfTerm ⊢t
-        ⊢t′ = escape-Level-prop ⊢Γ propt
-    in
-    ⊩Level≡-⇒* (supᵘ-substˡ* t⇒ ⊢t) t⇒ $
+  ⊩supᵘ-idem {t} ok ⊩t@(term t⇒ propt) =
+    let ⊢t = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩t) in
     case propt of λ where
-      (zeroᵘᵣ _) →
-        redLevel′ (supᵘ-zeroˡ ⊢t ⇨ t⇒) (⊩zeroᵘ ⊢Γ)
-      (sucᵘᵣ _ ⊩t′) →
+      (zeroᵘᵣ _) → term
+        (t supᵘ t      ⇒*⟨ supᵘ-substˡ* t⇒ ⊢t ⟩
+         zeroᵘ supᵘ t  ⇒⟨ supᵘ-zeroˡ ⊢t ⟩
+         t             ⇒*⟨ t⇒ ⟩∎
+         zeroᵘ         ∎)
+        (t      ⇒*⟨ t⇒ ⟩∎
+         zeroᵘ  ∎)
+        (zeroᵘᵣ ok)
+      (sucᵘᵣ {k = t′} _ ⊩t′) →
         let ⊢t′ = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩t′) in
-        ⊩Level≡-⇒*
-          (supᵘ-substʳ* ⊢t′ t⇒ ⇨∷* redMany (supᵘ-sucᵘ ⊢t′ ⊢t′))
-          (id (sucᵘⱼ ⊢t′))
-          (⊩sucᵘ≡sucᵘ (⊩supᵘ-idem ok ⊩t′))
-      (neLvl ⊩t′) →
         term
-          (id (supᵘⱼ ⊢t′ ⊢t))
-          (id ⊢t′)
-          ([Level]-prop.neLvl $
-           supᵘ-idemᵣ ⊩t′ (symLevel (redLevel′ t⇒ (⊩neLvl ⊩t′))))
+          (t supᵘ t              ⇒*⟨ supᵘ-substˡ* t⇒ ⊢t ⟩
+           sucᵘ t′ supᵘ t        ⇒*⟨ supᵘ-substʳ* ⊢t′ t⇒ ⟩
+           sucᵘ t′ supᵘ sucᵘ t′  ⇒⟨ supᵘ-sucᵘ ⊢t′ ⊢t′ ⟩∎
+           sucᵘ (t′ supᵘ t′)     ∎)
+          (t        ⇒*⟨ t⇒ ⟩∎
+           sucᵘ t′  ∎)
+          (sucᵘᵣ ok (⊩supᵘ-idem ok ⊩t′))
+      (neLvl {k = t′} ⊩t′) → term
+        (t supᵘ t   ⇒*⟨ supᵘ-substˡ* t⇒ ⊢t ⟩∎
+         t′ supᵘ t  ∎)
+        (t   ⇒*⟨ t⇒ ⟩∎
+         t′  ∎)
+        ([Level]-prop.neLvl $
+         supᵘ-idemᵣ ⊩t′ (symLevel (redLevel′ t⇒ (⊩neLvl ⊩t′))))
   ⊩supᵘ-idem ok (literal not-ok _ _) = ⊥-elim (not-ok ok)
 
 opaque
