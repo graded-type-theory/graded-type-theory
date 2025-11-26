@@ -1171,6 +1171,17 @@ opaque
   ↑ⁿ-supᵘ {ok} (literal not-ok _ _) _ = ⊥-elim (not-ok ok)
   ↑ⁿ-supᵘ {ok} _ (literal not-ok _ _) = ⊥-elim (not-ok ok)
 
+  ↑ⁿ-supᵘ′ :
+    {ok : Level-allowed}
+    (⊩t : Γ ⊩Level t ∷Level)
+    (⊩u : Γ ⊩Level u ∷Level)
+    (⊩t⊔u : Γ ⊩Level t supᵘ u ∷Level) →
+    ↑ⁿ ⊩t⊔u PE.≡ ↑ⁿ ⊩t ⊔ ↑ⁿ ⊩u
+  ↑ⁿ-supᵘ′ {ok} ⊩t ⊩u ⊩t⊔u =
+    ↑ⁿ ⊩t⊔u            ≡⟨ ↑ⁿ-irrelevance ⊩t⊔u (⊩supᵘ ok ⊩t ⊩u) ⟩
+    ↑ⁿ ⊩supᵘ ok ⊩t ⊩u  ≡⟨ ↑ⁿ-supᵘ ⊩t ⊩u ⟩
+    ↑ⁿ ⊩t ⊔ ↑ⁿ ⊩u      ∎
+
   ↑ᵘ-supᵘ :
     {ok : Level-allowed}
     (⊩t : Γ ⊩Level t ∷Level)
