@@ -82,6 +82,15 @@ opaque
 
 opaque
 
+  -- Level literals are not neutral.
+
+  ¬-Neutral-Level-literal :
+    Level-literal l → ¬ Neutralˡ l
+  ¬-Neutral-Level-literal zeroᵘ    (ne ())
+  ¬-Neutral-Level-literal (sucᵘ _) (ne ())
+
+opaque
+
   -- Being a numeral is preserved under weakening
 
   wk-numeral : Numeral t → Numeral (wk ρ t)
