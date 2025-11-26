@@ -27,6 +27,7 @@ open import Definition.Typed.Well-formed R
 open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Var R
+open import Definition.Typed.Properties.Well-formed R
 
 open import Tools.Fin
 open import Tools.Function
@@ -70,51 +71,129 @@ opaque
 -- Some properties related to ΠΣʰ
 
 opaque
-  unfolding ΠΣʰ lower₀
+  unfolding ΠΣʰ
 
-  -- An admissible typing rule for ΠΣʰ.
+  -- An admissible type equality rule for ΠΣʰ.
 
-  ΠΣʰⱼ :
-    Γ ⊢ l₂ ∷Level →
-    Γ ⊢ A ∷ U l₁ →
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+  ΠΣʰ-cong-⊢′ :
     ΠΣ-allowed b p q →
-    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘₗ l₂)
-  ΠΣʰⱼ ⊢l₂ ⊢A ⊢B ok =
-    let ⊢l₁     = inversion-U-Level (wf-⊢∷ ⊢A)
-        ⊢Lift-A = Liftⱼ ⊢l₁ ⊢l₂ ⊢A
-    in
-    ΠΣⱼ (⊢supᵘₗ ⊢l₁ ⊢l₂) ⊢Lift-A
-      (PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
-       Liftⱼ-comm (wkLevel₁ (univ ⊢Lift-A) ⊢l₁)
-         (PE.subst (_⊢_∷_ _ _) wk[]′-[]↑ $
-          lower₀Term ⊢l₂ ⊢B))
+    Γ ∙ Lift l₂₁ A₁ ⊢ wk1 l₁₁ ≡ wk1 l₁₂ ∷Level →
+    Γ ⊢ l₂₁ ≡ l₂₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+    Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂
+  ΠΣʰ-cong-⊢′ ok l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ B₁≡B₂ =
+    let Lift≡Lift = Lift-cong l₂₁≡l₂₂ A₁≡A₂ in
+    ΠΣ-cong Lift≡Lift
+      (Lift-cong l₁₁≡l₁₂ (lower₀TypeEq (wf-⊢≡∷L l₂₁≡l₂₂ .proj₁) B₁≡B₂))
       ok
+
+opaque
+
+  -- An admissible type equality rule for ΠΣʰ.
+
+  ΠΣʰ-cong-⊢ :
+    ΠΣ-allowed b p q →
+    Γ ⊢ l₁₁ ≡ l₁₂ ∷Level →
+    Γ ⊢ l₂₁ ≡ l₂₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ∙ A₁ ⊢ B₁ ≡ B₂ →
+    Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂
+  ΠΣʰ-cong-⊢ ok l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ =
+    let ⊢l₂₁ , _ = wf-⊢≡∷L l₂₁≡l₂₂
+        ⊢A₁  , _ = wf-⊢≡ A₁≡A₂
+    in
+    ΠΣʰ-cong-⊢′ ok (wkEqLevel₁ (Liftⱼ ⊢l₂₁ ⊢A₁) l₁₁≡l₁₂) l₂₁≡l₂₂ A₁≡A₂
+
+opaque
+
+  -- An admissible type well-formedness rule for ΠΣʰ.
+
+  ⊢ΠΣʰ′ :
+    ΠΣ-allowed b p q →
+    Γ ∙ Lift l₂ A ⊢ wk1 l₁ ∷Level →
+    Γ ∙ A ⊢ B →
+    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B
+  ⊢ΠΣʰ′ ok ⊢l₁ ⊢B =
+    let ⊢l₂ , _ = inversion-Lift (⊢∙→⊢ (wfLevel ⊢l₁)) in
+    wf-⊢≡
+      (ΠΣʰ-cong-⊢′ ok (refl-⊢≡∷L ⊢l₁) (refl-⊢≡∷L ⊢l₂)
+         (refl (⊢∙→⊢ (wf ⊢B))) (refl ⊢B))
+      .proj₁
+
+opaque
+
+  -- An admissible type well-formedness rule for ΠΣʰ.
+
+  ⊢ΠΣʰ :
+    ΠΣ-allowed b p q →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₂ ∷Level →
+    Γ ∙ A ⊢ B →
+    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B
+  ⊢ΠΣʰ ok ⊢l₁ ⊢l₂ ⊢B =
+    wf-⊢≡
+      (ΠΣʰ-cong-⊢ ok (refl-⊢≡∷L ⊢l₁) (refl-⊢≡∷L ⊢l₂)
+         (refl (⊢∙→⊢ (wf ⊢B))) (refl ⊢B))
+      .proj₁
 
 opaque
   unfolding ΠΣʰ lower₀
 
-  -- An admissible equality rule for ΠΣʰ.
+  -- An admissible term equality rule for ΠΣʰ.
 
-  ΠΣʰ-cong :
+  ΠΣʰ-cong-⊢∷′ :
+    ΠΣ-allowed b p q →
+    Γ ∙ Lift l₂₁ A₁ ⊢ wk1 l₁₁ ≡ wk1 l₁₂ ∷Level →
+    Γ ⊢ l₂₁ ≡ l₂₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l₁₁ →
+    Γ ∙ A₁ ⊢ B₁ ≡ B₂ ∷ U (wk1 l₂₁) →
+    Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂ ∷
+      U (l₁₁ supᵘₗ l₂₁)
+  ΠΣʰ-cong-⊢∷′ ok l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ B₁≡B₂ =
+    let ⊢l₂₁ , _ = wf-⊢≡∷L l₂₁≡l₂₂ in
+    ΠΣ-cong′
+      (Lift-cong′ l₂₁≡l₂₂ A₁≡A₂)
+      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
+       Lift-cong-comm l₁₁≡l₁₂
+         (PE.subst (_⊢_≡_∷_ _ _ _) wk[]′-[]↑ $
+          lower₀TermEq ⊢l₂₁ B₁≡B₂))
+      ok
+
+opaque
+
+  -- An admissible term equality rule for ΠΣʰ.
+
+  ΠΣʰ-cong-⊢∷ :
+    ΠΣ-allowed b p q →
     Γ ⊢ l₁₁ ≡ l₁₂ ∷Level →
     Γ ⊢ l₂₁ ≡ l₂₂ ∷Level →
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁₁ →
     Γ ∙ A₁ ⊢ B₁ ≡ B₂ ∷ U (wk1 l₂₁) →
-    ΠΣ-allowed b p q →
     Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂ ∷
       U (l₁₁ supᵘₗ l₂₁)
-  ΠΣʰ-cong l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ B₁≡B₂ ok =
+  ΠΣʰ-cong-⊢∷ ok l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ =
     let ⊢l₂₁ , _    = wf-⊢≡∷L l₂₁≡l₂₂
         _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
     in
-    ΠΣ-cong′
-      (Lift-cong′ l₂₁≡l₂₂ A₁≡A₂)
-      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
-       Lift-cong-comm (wkEqLevel₁ (Liftⱼ ⊢l₂₁ (univ ⊢A₁)) l₁₁≡l₁₂)
-         (PE.subst (_⊢_≡_∷_ _ _ _) wk[]′-[]↑ $
-          lower₀TermEq ⊢l₂₁ B₁≡B₂))
-      ok
+    ΠΣʰ-cong-⊢∷′ ok (wkEqLevel₁ (Liftⱼ ⊢l₂₁ (univ ⊢A₁)) l₁₁≡l₁₂) l₂₁≡l₂₂
+      A₁≡A₂
+
+opaque
+
+  -- An admissible typing rule for ΠΣʰ.
+
+  ⊢ΠΣʰ∷ :
+    ΠΣ-allowed b p q →
+    Γ ⊢ l₂ ∷Level →
+    Γ ⊢ A ∷ U l₁ →
+    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘₗ l₂)
+  ⊢ΠΣʰ∷ ok ⊢l₂ ⊢A ⊢B =
+    wf-⊢≡∷
+      (ΠΣʰ-cong-⊢∷ ok (refl-⊢≡∷L (inversion-U-Level (wf-⊢∷ ⊢A)))
+         (refl-⊢≡∷L ⊢l₂) (refl ⊢A) (refl ⊢B))
+      .proj₂ .proj₁
 
 private opaque
   unfolding lower₀
@@ -131,8 +210,6 @@ private opaque
     PE.subst (flip (_⊢_∷_ _) _) ([][]↑-[↑⇑] 0 t)
       (subst-⊢∷ ⊢lower₀-t $
        ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A ⊢l) (var₀ ⊢A)))
-    where
-    open import Definition.Typed.Properties.Well-formed R
 
 private opaque
   unfolding lower₀
@@ -149,8 +226,6 @@ private opaque
     PE.subst (_⊢_ _) ([][]↑-[↑⇑] 0 B)
       (subst-⊢ ⊢lower₀-B $
        ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A ⊢l) (var₀ ⊢A)))
-    where
-    open import Definition.Typed.Properties.Well-formed R
 
 opaque
   unfolding ΠΣʰ lower₀

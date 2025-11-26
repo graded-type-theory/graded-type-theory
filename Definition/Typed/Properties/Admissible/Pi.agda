@@ -25,6 +25,7 @@ open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
+open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
@@ -42,10 +43,10 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                                                     : Nat
-  Γ                                                     : Con Term _
-  A B C D E F a f g l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ u₃ u₄ u₅ : Term _
-  p p′ p₁ p₂ p₃ p₄ p₅ q q₁ q₂ q₃ q₄ q₅                  : M
+  n                                                       : Nat
+  Γ                                                       : Con Term _
+  A B C D E F a f g l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ u₃ u₄ u₅ v : Term _
+  p p′ p₁ p₂ p₃ p₄ p₅ q q₁ q₂ q₃ q₄ q₅                    : M
 
 opaque
 
@@ -248,75 +249,34 @@ opaque
           (consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄) u₅ ]  ∎
 
 ------------------------------------------------------------------------
--- Heterogeneous variants of the typing rules for Π
+-- Some lemmas related to Πʰ
 
 opaque
   unfolding ΠΣʰ lamʰ
 
   -- A typing rule for lamʰ.
 
-  lamʰⱼ′
-    : Γ ⊢ l₁ ∷Level
-    → Γ ⊢ l₂ ∷Level
-    → Γ ∙ A ⊢ B
-    → Γ ∙ A ⊢ t ∷ B
-    → Π-allowed p q
-    → Γ     ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
-  lamʰⱼ′ ⊢l₁ ⊢l₂ ⊢B ⊢t ok =
-    let ⊢A = ⊢∙→⊢ (wf ⊢B)
-    in lamⱼ′ ok (liftⱼ′ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
-
-opaque
-
-  -- A variant of lamʰⱼ′.
-
-  lamʰⱼ :
+  ⊢lamʰ :
+    Π-allowed p q →
     Γ ⊢ l₁ ∷Level →
     Γ ⊢ l₂ ∷Level →
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ∙ A ⊢ t ∷ B →
-    Π-allowed p q →
     Γ ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
-  lamʰⱼ ⊢l₁ ⊢l₂ ⊢B = lamʰⱼ′ ⊢l₁ ⊢l₂ (univ ⊢B)
+  ⊢lamʰ ok ⊢l₁ ⊢l₂ ⊢t =
+    let ⊢A = ⊢∙→⊢ (wfTerm ⊢t) in
+    lamⱼ′ ok (liftⱼ′ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
 
 opaque
   unfolding ΠΣʰ ∘ʰ
 
-  -- A typing rule for ∘ʰ.
+  -- An equality rule for ∘ʰ.
 
-  ∘ʰⱼ′ :
-    Γ ∙ A ⊢ B →
-    Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ ∘ʰ p t u ∷ B [ u ]₀
-  ∘ʰⱼ′ ⊢B ⊢t ⊢u =
-    let ⊢A          = wf-⊢∷ ⊢u
-        _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ (wf-⊢∷ ⊢t)
-    in
-    conv (lowerⱼ (⊢t ∘ⱼ liftⱼ ⊢l₂ ⊢A ⊢u)) (lower₀[lift]₀ ⊢B ⊢u)
-
-opaque
-
-  -- A variant of ∘ʰⱼ′.
-
-  ∘ʰⱼ :
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
-    Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ ∘ʰ p t u ∷ B [ u ]₀
-  ∘ʰⱼ ⊢B = ∘ʰⱼ′ (univ ⊢B)
-
-opaque
-  unfolding ΠΣʰ ∘ʰ
-
-  -- Heterogeneous application congruence
-
-  app-congʰ′ :
+  app-congʰ :
     Γ ∙ A ⊢ B →
     Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
     Γ ⊢ u₁ ≡ u₂ ∷ A →
     Γ ⊢ ∘ʰ p t₁ u₁ ≡ ∘ʰ p t₂ u₂ ∷ B [ u₁ ]₀
-  app-congʰ′ ⊢B t₁≡t₂ u₁≡u₂ =
+  app-congʰ ⊢B t₁≡t₂ u₁≡u₂ =
     let ⊢A , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
         _ , ⊢l₂ , _    = inversion-ΠΣʰ-⊢ (wf-⊢≡∷ t₁≡t₂ .proj₁)
     in
@@ -325,110 +285,81 @@ opaque
 
 opaque
 
-  -- A variant of app-congʰ′.
+  -- A typing rule for ∘ʰ.
 
-  app-congʰ :
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
-    Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B →
-    Γ ⊢ u₁ ≡ u₂ ∷ A →
-    Γ ⊢ ∘ʰ p t₁ u₁ ≡ ∘ʰ p t₂ u₂ ∷ B [ u₁ ]₀
-  app-congʰ ⊢B = app-congʰ′ (univ ⊢B)
+  ⊢∘ʰ :
+    Γ ∙ A ⊢ B →
+    Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ ∘ʰ p t u ∷ B [ u ]₀
+  ⊢∘ʰ ⊢B ⊢t ⊢u =
+    wf-⊢≡∷ (app-congʰ ⊢B (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
 
 opaque
   unfolding lamʰ ∘ʰ
 
-  -- Heterogeneous β-reduction
-
-  β-redʰ′
-    : Γ ∙ A ⊢ t ∷ B
-    → Γ     ⊢ a ∷ A
-    → p PE.≡ p′
-    → Π-allowed p q
-    → Γ     ⊢ ∘ʰ p′ (lamʰ p t) a ≡ t [ a ]₀ ∷ B [ a ]₀
-  β-redʰ′ {A} {t} {B} {a} {p} ⊢t ⊢a PE.refl ok =
-    let ⊢0 = ⊢zeroᵘ (wfTerm ⊢a)
-        ⊢A = wf-⊢∷ ⊢a
-        ⊢B = wf-⊢∷ ⊢t
-        ⊢LiftA = Liftⱼ ⊢0 ⊢A
-        ⊢wkl₁ = wkLevel₁ ⊢LiftA ⊢0
-        ⊢lower₀B = lower₀Type ⊢0 ⊢B
-        ⊢LiftB = Liftⱼ ⊢wkl₁ ⊢lower₀B
-        ⊢lifta = liftⱼ′ ⊢0 ⊢a
-        ⊢lower₀t = lower₀Term ⊢0 ⊢t
-        ⊢liftlower₀t = liftⱼ′ ⊢wkl₁ ⊢lower₀t
-    in
-    ∘ʰ p (lamʰ p t) a                              ≡⟨⟩⊢
-    lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift a)  ≡⟨ lower-cong $
-                                                      _⊢_≡_∷_.conv (β-red ⊢LiftB ⊢liftlower₀t ⊢lifta PE.refl ok) $
-                                                      Lift-cong (refl-⊢≡∷L (substLevel ⊢wkl₁ ⊢lifta)) (lower₀[lift]₀ ⊢B ⊢a) ⟩⊢
-    lower (lift (lower₀ t) [ lift a ]₀)            ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢a)) ⟩⊢
-    lower (lift (t [ a ]₀))                        ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢a) ⟩⊢∎
-    t [ a ]₀                                       ∎
-
-opaque
-
-  -- A variant of β-redʰ′.
+  -- A β-rule for ∘ʰ and lamʰ.
 
   β-redʰ :
     Γ ∙ A ⊢ t ∷ B →
     Γ ⊢ u ∷ A →
     Π-allowed p q →
     Γ ⊢ ∘ʰ p (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
-  β-redʰ ⊢t ⊢u = β-redʰ′ ⊢t ⊢u PE.refl
+  β-redʰ {t} {u} {p} ⊢t ⊢u ok =
+    let ⊢0      = ⊢zeroᵘ (wfTerm ⊢u)
+        ⊢wk-l₁  = wkLevel₁ (Liftⱼ ⊢0 (wf-⊢∷ ⊢u)) ⊢0
+        ⊢lift-u = liftⱼ′ ⊢0 ⊢u
+    in
+    ∘ʰ p (lamʰ p t) u                              ≡⟨⟩⊢
+    lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift u)  ≡⟨ lower-cong $
+                                                      _⊢_≡_∷_.conv (β-red-≡ (liftⱼ′ ⊢wk-l₁ (lower₀Term ⊢0 ⊢t)) ⊢lift-u ok) $
+                                                      Lift-cong (refl-⊢≡∷L (substLevel ⊢wk-l₁ ⊢lift-u)) (lower₀[lift]₀ (wf-⊢∷ ⊢t) ⊢u) ⟩⊢
+    lower (lift (lower₀ t) [ lift u ]₀)            ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢u)) ⟩⊢
+    lower (lift (t [ u ]₀))                        ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢u) ⟩⊢∎
+    t [ u ]₀                                       ∎
 
 opaque
   unfolding ΠΣʰ ∘ʰ lower₀
 
-  -- Heterogeneous η-rule
-
-  η-eqʰ′
-    : Γ ⊢ l₁ ∷ Level
-    → Γ ∙ A ⊢ B
-    → Γ     ⊢ f ∷ Πʰ p q l₁ l₂ A B
-    → Γ     ⊢ g ∷ Πʰ p q l₁ l₂ A B
-    → Γ ∙ A ⊢ ∘ʰ p (wk1 f) (var x0) ≡ ∘ʰ p (wk1 g) (var x0) ∷ B
-    → Γ     ⊢ f ≡ g ∷ Πʰ p q l₁ l₂ A B
-  η-eqʰ′ {Γ} {l₁} {A} {B} {f} {p} {q} {l₂} {g} ⊢l₁ ⊢B ⊢f ⊢g f≡g =
-    let _ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢f)
-        ⊢A = ⊢∙→⊢ (wf ⊢B)
-        ⊢LiftA = Liftⱼ ⊢l₂ ⊢A
-        ⊢x₀ = var (∙ ⊢LiftA) here
-        lemma
-          : ∀ {f}
-          → Γ ⊢ f ∷ Πʰ p q l₁ l₂ A B
-          → Γ ∙ Lift l₂ A ⊢ lower₀ (lower (wk1 f ∘⟨ p ⟩ lift (var x0)))
-                          ≡ lower (wk1 f ∘⟨ p ⟩ var x0) ∷ lower₀ B
-        lemma ⊢f =
-          conv
-            (lower-cong
-              (app-cong
-                (PE.subst₃ (_⊢_≡_∷_ _)
-                  (PE.sym (wk1-[][]↑ 1)) PE.refl PE.refl
-                  (refl (wkTerm₁ ⊢LiftA ⊢f)))
-                (sym′ (Lift-η-swap ⊢x₀ (refl (lowerⱼ ⊢x₀))))))
-            (PE.subst (_⊢_≡_ _ _) (wkSingleSubstId _)
-              (substTypeEq
-                (refl (W.wk
-                  (liftʷ (step id) (wk₁ ⊢LiftA ⊢LiftA))
-                  (lower₀Type ⊢l₂ ⊢B)))
-                (sym′ (Lift-η-swap ⊢x₀ (refl (lowerⱼ ⊢x₀))))))
-    in η-eq′ ⊢f ⊢g $ Lift-η′
-        (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) (wkTerm₁ ⊢LiftA ⊢f ∘ⱼ var (∙ ⊢LiftA) here))
-        (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) (wkTerm₁ ⊢LiftA ⊢g ∘ⱼ var (∙ ⊢LiftA) here))
-        (lower (wk1 f ∘⟨ p ⟩ var x0)                 ≡˘⟨ lemma ⊢f ⟩⊢
-         lower₀ (lower (wk1 f ∘⟨ p ⟩ lift (var x0))) ≡⟨ lower₀TermEq ⊢l₂ f≡g ⟩⊢
-         lower₀ (lower (wk1 g ∘⟨ p ⟩ lift (var x0))) ≡⟨ lemma ⊢g ⟩⊢∎
-         lower (wk1 g ∘⟨ p ⟩ var x0)                 ∎)
-
-opaque
-
-  -- A variant of η-eqʰ′
+  -- An η-rule for Πʰ.
 
   η-eqʰ :
-    Γ ⊢ l₁ ∷ Level →
-    Γ ∙ A ⊢ B ∷ U (wk1 l₂) →
-    Γ ⊢ t₁ ∷ Πʰ p q l₁ l₂ A B →
-    Γ ⊢ t₂ ∷ Πʰ p q l₁ l₂ A B →
-    Γ ∙ A ⊢ ∘ʰ p (wk1 t₁) (var x0) ≡ ∘ʰ p (wk1 t₂) (var x0) ∷ B →
-    Γ ⊢ t₁ ≡ t₂ ∷ Πʰ p q l₁ l₂ A B
-  η-eqʰ ⊢l₁ ⊢B = η-eqʰ′ ⊢l₁ (univ ⊢B)
+    Γ ⊢ t ∷ Πʰ p q l₁ l₂ A B →
+    Γ ⊢ u ∷ Πʰ p q l₁ l₂ A B →
+    Γ ∙ A ⊢ ∘ʰ p (wk1 t) (var x0) ≡ ∘ʰ p (wk1 u) (var x0) ∷ B →
+    Γ ⊢ t ≡ u ∷ Πʰ p q l₁ l₂ A B
+  η-eqʰ {Γ} {t} {p} {q} {l₁} {l₂} {A} {B} {u} ⊢t ⊢u t≡u =
+    let _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢t)
+        ⊢B , _      = wf-⊢≡∷ t≡u
+        ⊢Lift-A     = Liftⱼ ⊢l₂ (⊢∙→⊢ (wf ⊢B))
+        ⊢0          = var₀ ⊢Lift-A
+
+        lemma :
+          Γ ⊢ v ∷ Πʰ p q l₁ l₂ A B →
+          Γ ∙ Lift l₂ A ⊢ lower₀ (lower (wk1 v ∘⟨ p ⟩ lift (var x0))) ≡
+            lower (wk1 v ∘⟨ p ⟩ var x0) ∷ lower₀ B
+        lemma ⊢t =
+          conv
+            (lower-cong $
+             app-cong
+               (PE.subst₃ (_⊢_≡_∷_ _)
+                  (PE.sym (wk1-[][]↑ 1)) PE.refl PE.refl
+                  (refl (wkTerm₁ ⊢Lift-A ⊢t)))
+               (sym′ (Lift-η-swap ⊢0 (refl (lowerⱼ ⊢0)))))
+            (PE.subst (_⊢_≡_ _ _) (wkSingleSubstId _) $
+             substTypeEq
+               (_⊢_≡_.refl $
+                W.wk (liftʷ (step id) (wk₁ ⊢Lift-A ⊢Lift-A)) $
+                lower₀Type ⊢l₂ ⊢B)
+               (sym′ (Lift-η-swap ⊢0 (refl (lowerⱼ ⊢0)))))
+    in
+    η-eq′ ⊢t ⊢u $
+    Lift-η′
+      (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
+       wkTerm₁ ⊢Lift-A ⊢t ∘ⱼ ⊢0)
+      (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
+       wkTerm₁ ⊢Lift-A ⊢u ∘ⱼ ⊢0)
+      (lower (wk1 t ∘⟨ p ⟩ var x0)                  ≡˘⟨ lemma ⊢t ⟩⊢
+       lower₀ (lower (wk1 t ∘⟨ p ⟩ lift (var x0)))  ≡⟨ lower₀TermEq ⊢l₂ t≡u ⟩⊢
+       lower₀ (lower (wk1 u ∘⟨ p ⟩ lift (var x0)))  ≡⟨ lemma ⊢u ⟩⊢∎
+       lower (wk1 u ∘⟨ p ⟩ var x0)                  ∎)

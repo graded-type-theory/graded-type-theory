@@ -162,12 +162,12 @@ import Definition.Typed.Properties.Admissible.Lift
 Admissible heterogeneous Π- and Σ-types.
 ```agda
 import Definition.Typed.Properties.Admissible.Pi-Sigma
-  using (ΠΣʰⱼ; ΠΣʰ-cong)
+  using (⊢ΠΣʰ; ΠΣʰ-cong-⊢; ⊢ΠΣʰ∷; ΠΣʰ-cong-⊢∷)
 import Definition.Typed.Properties.Admissible.Pi
-  using (lamʰⱼ; ∘ʰⱼ; app-congʰ; β-redʰ; η-eqʰ)
+  using (⊢lamʰ; ⊢∘ʰ; app-congʰ; β-redʰ; η-eqʰ)
 import Definition.Typed.Properties.Admissible.Sigma using
-  (prodʰⱼ; prodʰ-cong;
-   fstʰⱼ; sndʰⱼ; fstʰ-cong; sndʰ-cong; Σʰ-β₁; Σʰ-β₂; Σʰ-η;
+  (⊢prodʰ; prodʰ-cong;
+   ⊢fstʰ; ⊢sndʰ; fstʰ-cong; sndʰ-cong; Σʰ-β₁; Σʰ-β₂; Σʰ-η;
    ⊢prodrecʰ⟨⟩; prodrecʰ⟨⟩-cong; prodrecʰ⟨⟩-β)
 ```
 
