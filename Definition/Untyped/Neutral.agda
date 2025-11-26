@@ -267,7 +267,7 @@ data Natural {n : Nat} : Term n → Set a where
 
 
 -- A type in WHNF is either a universe, a Π-type, a Σ-type, Level, ℕ, Empty,
--- a unit type, an identity type, or neutral.
+-- a unit type, an identity type, or atomic neutral.
 
 data Type {n : Nat} : Term n → Set a where
   Levelₙ :             Type Level
