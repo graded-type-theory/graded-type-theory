@@ -1,3 +1,6 @@
+---
+fontsize: 20px
+---
 # An Agda Formalization of a Graded Modal Type Theory with a Universe and Erasure
 
 Hyperlinked rendering:
@@ -16,6 +19,13 @@ Hyperlinked rendering:
   _Graded Modal Type Theory, Formalized_
   by Oskar Eriksson presented on May 8 2025, handle: [https://hdl.handle.net/2077/86472](https://hdl.handle.net/2077/86472).
 
+- [POPL 2026 Artefact](popl2026/)
+
+  This version is the basis for the publication
+  _Normalisation for First-Class Universe Levels_
+  by Nils Anders Danielsson, Naïm Camille Favier, and Ondřej Kubánek,
+  in _Proceedings of the ACM on Programming Languages, Volume 10, Issue POPL, 2026_,
+  doi: [https://doi.org/10.1145/3776645](https://doi.org/10.1145/3776645).
 
 - [Development version (master)](master/)
 
