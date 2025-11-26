@@ -1477,3 +1477,90 @@ opaque
   Γ ⊩Level t supᵘ u ≡ u ∷Level →
   ↑ᵘ ⊩t ≤ᵘ ↑ᵘ ⊩u
 ↑ᵘ-cong-≤ ok t≤u = ≤ᵘ-fin (≤⇒≤′ (↑ⁿ-cong-≤ ok t≤u))
+
+opaque
+  unfolding ↑ⁿ_ size-of-Level
+
+  -- Any function of a certain type that satisfies a certain
+  -- specification is pointwise equal to ↑ⁿ_.
+
+  ↑ⁿ-unique :
+    (f : ∀ {n Γ} {t : Term n} → Γ ⊩Level t ∷Level → Nat) →
+    (∀ {n Γ} {t u : Term n}
+       {⊩t : Γ ⊩Level t ∷Level} {⊩u : Γ ⊩Level u ∷Level} →
+     Γ ⊢ t ⇒* u ∷ Level → f ⊩t PE.≡ f ⊩u) →
+    (∀ {n} {Γ : Con Term n} {⊩0 : Γ ⊩Level zeroᵘ ∷Level} →
+     f ⊩0 PE.≡ 0) →
+    (∀ {n Γ} {t : Term n}
+     {⊩t : Γ ⊩Level t ∷Level} {⊩1+t : Γ ⊩Level sucᵘ t ∷Level} →
+     f ⊩1+t PE.≡ 1+ (f ⊩t)) →
+    (∀ {n Γ} {t u : Term n}
+     {⊩t : Γ ⊩Level t ∷Level} {⊩u : Γ ⊩Level u ∷Level}
+     {⊩t⊔u : Γ ⊩Level t supᵘ u ∷Level} →
+     f ⊩t⊔u PE.≡ f ⊩t ⊔ f ⊩u) →
+    (∀ {n Γ} {t : Term n} {⊩t : Γ ⊩Level t ∷Level} →
+     Neutral t → f ⊩t PE.≡ ↑ᵘ-neutral) →
+    {⊩t : Γ ⊩Level t ∷Level} →
+    f ⊩t PE.≡ ↑ⁿ ⊩t
+  ↑ⁿ-unique {Γ} f f-⇒* f-0 f-1+ f-⊔ f-ne {⊩t} = f≡ _
+    where
+    f-irrelevance :
+      {⊩t ⊩u : Γ ⊩Level t ∷Level} →
+      Level-allowed →
+      f ⊩t PE.≡ f ⊩u
+    f-irrelevance {⊩t} ok =
+      f-⇒* (id (⊢∷Level→⊢∷Level ok (escapeLevel ⊩t)))
+
+    f′ : Level-prop Γ t → Nat
+    f′ = f ∘→ ⊩Lvl (wfLevel (escapeLevel ⊩t))
+
+    f″ : neLevel-prop Γ t → Nat
+    f″ = f ∘→ ⊩neLvl
+
+    mutual
+
+      f≡ : (⊩t : Γ ⊩Level t ∷Level) → f ⊩t PE.≡ ↑ⁿ ⊩t
+      f≡ (literal _ _ zeroᵘ) =
+        f-0
+      f≡ ⊩t@(literal not-ok ⊢Γ (sucᵘ l-lit)) =
+        f ⊩t                              ≡⟨ f-1+ ⟩
+        1+ (f (literal not-ok ⊢Γ l-lit))  ≡⟨ PE.cong 1+ (f≡ _) ⟩
+        1+ (size-of-Level l-lit)          ∎
+      f≡ ⊩t@(term t⇒u ⊩u) =
+        f ⊩t        ≡⟨ f-⇒* t⇒u ⟩
+        f′ ⊩u       ≡⟨ f′≡ _ ⟩
+        ↑ⁿ-prop ⊩u  ≡⟨⟩
+        ↑ⁿ ⊩t       ∎
+
+      f′≡ : (⊩t : Level-prop Γ t) → f′ ⊩t PE.≡ ↑ⁿ-prop ⊩t
+      f′≡ ⊩t@(zeroᵘᵣ _) =
+        f′ ⊩t       ≡⟨ f-0 ⟩
+        0           ≡⟨⟩
+        ↑ⁿ-prop ⊩t  ∎
+      f′≡ ⊩t@(sucᵘᵣ _ ⊩t′) =
+        f′ ⊩t        ≡⟨ f-1+ ⟩
+        1+ (f ⊩t′)   ≡⟨ PE.cong 1+ (f≡ _) ⟩
+        1+ (↑ⁿ ⊩t′)  ≡⟨⟩
+        ↑ⁿ-prop ⊩t   ∎
+      f′≡ ⊩t@(neLvl ⊩t′) =
+        f′ ⊩t          ≡⟨ f-irrelevance (inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩t′))) ⟩
+        f″ ⊩t′         ≡⟨ f″≡ _ ⟩
+        ↑ⁿ-neprop ⊩t′  ≡⟨⟩
+        ↑ⁿ-prop ⊩t     ∎
+
+      f″≡ : (⊩t : neLevel-prop Γ t) → f″ ⊩t PE.≡ ↑ⁿ-neprop ⊩t
+      f″≡ ⊩t@(supᵘˡᵣ ⊩t₁ ⊩t₂) =
+        f″ ⊩t                   ≡⟨ f-⊔ ⟩
+        f″ ⊩t₁ ⊔ f ⊩t₂          ≡⟨ PE.cong₂ _⊔_ (f″≡ _) (f≡ _) ⟩
+        ↑ⁿ-neprop ⊩t₁ ⊔ ↑ⁿ ⊩t₂  ≡⟨⟩
+        ↑ⁿ-neprop ⊩t            ∎
+      f″≡ ⊩t@(supᵘʳᵣ ⊩t₁ ⊩t₂) =
+        f″ ⊩t                        ≡⟨ f-⊔ ⟩
+        f (⊩sucᵘ ⊩t₁) ⊔ f″ ⊩t₂       ≡⟨ PE.cong (flip _⊔_ _) f-1+ ⟩
+        1+ (f ⊩t₁) ⊔ f″ ⊩t₂          ≡⟨ PE.cong₂ _⊔_ (PE.cong 1+ (f≡ _)) (f″≡ _) ⟩
+        1+ (↑ⁿ ⊩t₁) ⊔ ↑ⁿ-neprop ⊩t₂  ≡⟨⟩
+        ↑ⁿ-neprop ⊩t                 ∎
+      f″≡ ⊩t@(ne (neNfₜ₌ _ t-ne _ _)) =
+        f″ ⊩t         ≡⟨ f-ne t-ne ⟩
+        ↑ᵘ-neutral    ≡⟨⟩
+        ↑ⁿ-neprop ⊩t  ∎
