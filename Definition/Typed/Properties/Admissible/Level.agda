@@ -19,6 +19,7 @@ open import Definition.Typed.Inversion R
 import Definition.Typed.Substitution.Primitive.Primitive R as S
 open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Level.Primitive R as LP
+open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
@@ -43,7 +44,7 @@ private variable
   A B B₁ B₂ l l₁ l₂ l₂′ l₃ t t₁ t₂ u u₁ u₂ : Term _
 
 ------------------------------------------------------------------------
--- Some lemmas related to U
+-- Some lemmas related to U and/or Id
 
 opaque
 
@@ -65,6 +66,19 @@ opaque
   ¬Level-is-small→¬Id-Level∷U not-ok ⊢Id =
     let _ , Level∷U , _ = inversion-Id-U ⊢Id in
     ¬Level-is-small→¬Level∷U not-ok Level∷U
+
+opaque
+
+  -- If Level is allowed, then the type Id Level t u can be formed for
+  -- well-typed levels t and u.
+
+  ⊢Id-Level :
+    Level-allowed →
+    Γ ⊢ t ∷ Level →
+    Γ ⊢ u ∷ Level →
+    Γ ⊢ Id Level t u
+  ⊢Id-Level ok ⊢t ⊢u =
+    Idⱼ (Levelⱼ′ ok (wfTerm ⊢t)) ⊢t ⊢u
 
 ------------------------------------------------------------------------
 -- Lemmas related to _⊢_≤_∷Level
