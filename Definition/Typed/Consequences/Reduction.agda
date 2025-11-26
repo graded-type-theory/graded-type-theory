@@ -46,11 +46,39 @@ open import Tools.Sum
 
 private
   variable
+    n : Nat
     Γ Δ : Con Term _
     A B C l t u v : Term _
     p q : M
     b : BinderMode
     m s : Strength
+
+-- Is-level holds for zeroᵘ, applications of sucᵘ, and neutral terms.
+
+data Is-level {n} : Term n → Set a where
+  zeroᵘ : Is-level zeroᵘ
+  sucᵘ  : Is-level (sucᵘ l)
+  ne    : Neutralˡ l → Is-level l
+
+opaque
+
+  -- If the type of l is Level, then l reduces to an application of a
+  -- level constructor or a neutral term (given a certain assumption).
+
+  red-Level :
+    ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
+    Γ ⊢ l ∷ Level → ∃ λ l′ → Is-level l′ × Γ ⊢ l ⇒* l′ ∷ Level
+  red-Level ⊢t =
+    case ⊩∷Level⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ where
+      (ok , literal not-ok _ _) →
+        ⊥-elim (not-ok ok)
+      (_ , term l⇒l′ l′-prop) →
+        _ ,
+        (case l′-prop of λ where
+           (zeroᵘᵣ _)  → zeroᵘ
+           (sucᵘᵣ _ _) → sucᵘ
+           (neLvl n)   → ne (nelevel n)) ,
+        l⇒l′
 
 opaque
 
