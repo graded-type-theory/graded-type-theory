@@ -6,7 +6,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
@@ -14,11 +13,10 @@ module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet TR ⦄
   where
 
-open EqRelSet eqrel
 open Modality 𝕄
+open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Untyped M
@@ -47,8 +45,10 @@ record Fundamental-assumptions⁻ (Δ : Con Term k) : Set a where
     -- Erased matches are not allowed unless the context is empty.
     closed-or-no-erased-matches : No-erased-matches TR UR ⊎ Empty-con Δ
     instance
-      -- Neutrals-included holds or the context is empty.
-      ⦃ inc ⦄ : Neutrals-included or-empty Δ
+      -- No-equality-reflection holds or the variable context is
+      -- empty.
+      ⦃ no-equality-reflection-or-empty ⦄ :
+        No-equality-reflection or-empty Δ
 
 -- The fundamental lemma is proved under the assumption that a given
 -- context Δ satisfies the following assumptions.
@@ -67,11 +67,11 @@ record Fundamental-assumptions (Δ : Con Term k) : Set a where
 
 fundamental-assumptions⁻₀ : Fundamental-assumptions⁻ ε
 fundamental-assumptions⁻₀ = record
-  { consistent                  = λ _ →
-                                    inhabited-consistent
-                                      (⊢ˢʷ∷-idSubst ε)
-  ; closed-or-no-erased-matches = inj₂ ε
-  ; inc                         = ε
+  { consistent                      = λ _ →
+                                        inhabited-consistent
+                                          (⊢ˢʷ∷-idSubst ε)
+  ; closed-or-no-erased-matches     = inj₂ ε
+  ; no-equality-reflection-or-empty = ε
   }
 
 -- Fundamental-assumptions holds unconditionally for empty contexts.

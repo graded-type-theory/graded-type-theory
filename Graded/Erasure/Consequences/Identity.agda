@@ -81,7 +81,11 @@ opaque
     open Fundamental-assumptions⁻ ok
 
     as : Assumptions
-    as = record { ⊢Δ = wfTerm ⊢v; inc = inc; str = T.non-strict }
+    as = record
+      { ⊢Δ  = wfTerm ⊢v
+      ; inc = no-equality-reflection-or-empty
+      ; str = T.non-strict
+      }
 
     open H as
     open L as

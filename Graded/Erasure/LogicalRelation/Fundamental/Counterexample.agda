@@ -6,7 +6,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
@@ -16,10 +15,8 @@ module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  {{eqrel : EqRelSet TR}}
   where
 
-open EqRelSet eqrel
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -33,6 +30,7 @@ import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
+open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 
@@ -63,7 +61,7 @@ private
   module LR
     {Δ : Con Term k}
     (⊢Δ : ⊢ Δ)
-    ⦃ inc : Neutrals-included or-empty Δ ⦄
+    ⦃ ok : No-equality-reflection or-empty Δ ⦄
     (str : Strictness)
     {_⇛_∷_}
     (is-reduction-relation : Is-reduction-relation Δ _⇛_∷_)
@@ -93,16 +91,16 @@ private
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally
--- Σʷ-allowed p 𝟘 and Neutrals-included hold, then one can prove a
+-- Σʷ-allowed p 𝟘 and No-equality-reflection hold, then one can prove a
 -- negation of a variant of the statement of the fundamental lemma.
 
 negation-of-fundamental-lemma-with-erased-matches₁ :
-  ⦃ inc : Neutrals-included ⦄ →
+  ⦃ ok : No-equality-reflection ⦄ →
   Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
   Σʷ-allowed p 𝟘 →
   ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
      Consistent Δ →
-     ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+     ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
        {_⇛_∷_}
        ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
      let open LR ⊢Δ str is-reduction-relation in
@@ -113,7 +111,8 @@ negation-of-fundamental-lemma-with-erased-matches₁
   {p} {str} P-ok Σʷ-ok hyp =
   case soundness-ℕ-only-source-counterexample₁ P-ok Σʷ-ok of λ
     (consistent , ⊢t , ▸t , _) →
-  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
+  ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+  hyp ⊢Δ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
   where
   Δ : Con Term 1
   Δ = ε ∙ (Σʷ p , 𝟘 ▷ ℕ ▹ ℕ)
@@ -127,7 +126,7 @@ negation-of-fundamental-lemma-with-erased-matches₁
   ⊢Δ : ⊢ Δ
   ⊢Δ = ∙ ΠΣⱼ (⊢ℕ (∙ ⊢ℕ ε)) Σʷ-ok
 
-  open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+  open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
   ¬t®t : ¬ t ® erase str t ∷ A
   ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -138,17 +137,17 @@ negation-of-fundamental-lemma-with-erased-matches₁
 
 opaque
 
-  -- If []-cong-allowed, []-cong-allowed-mode and Neutrals-included
-  -- hold, then one can prove a negation of a variant of the statement
-  -- of the fundamental lemma.
+  -- If []-cong-allowed, []-cong-allowed-mode and
+  -- No-equality-reflection hold, then one can prove a negation of a
+  -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₂ :
-    ⦃ inc : Neutrals-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
        let open LR ⊢Δ str is-reduction-relation in
@@ -157,7 +156,8 @@ opaque
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₂
     {s} {str} ok ok′ hyp =
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+    hyp ⊢Δ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     open Erased s
     Δ : Con Term 1
@@ -181,7 +181,7 @@ opaque
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
     ▸t = []-congₘ zeroᵘₘ ℕₘ zeroₘ zeroₘ var ok′
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t =
@@ -192,15 +192,15 @@ opaque
 opaque
 
   -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem and
-  -- Neutrals-included holds, then one can prove a negation of a
+  -- No-equality-reflection holds, then one can prove a negation of a
   -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₃ :
-    ⦃ inc : Neutrals-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
        let open LR ⊢Δ str is-reduction-relation in
@@ -211,7 +211,8 @@ opaque
     {str} ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₃ ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+    hyp ⊢Δ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -225,7 +226,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -237,16 +238,17 @@ opaque
 opaque
 
   -- If the K rule is allowed, erased-matches-for-K 𝟙ᵐ is equal to
-  -- not-none sem, and Neutrals-included holds, then one can prove a
-  -- negation of a variant of the statement of the fundamental lemma.
+  -- not-none sem, and No-equality-reflection holds, then one can
+  -- prove a negation of a variant of the statement of the fundamental
+  -- lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₄ :
-    ⦃ inc : Neutrals-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     K-allowed →
     erased-matches-for-K 𝟙ᵐ ≡ not-none sem →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
        let open LR ⊢Δ str is-reduction-relation in
@@ -257,7 +259,8 @@ opaque
     {str} K-ok ≡not-none hyp =
     case soundness-ℕ-only-source-counterexample₄ K-ok ≡not-none of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+    hyp ⊢Δ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Id ℕ zero zero
@@ -271,7 +274,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ ε) (zeroⱼ ε)
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -285,17 +288,17 @@ opaque
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 holds and η-equality is not allowed for
   -- weak unit types (which means that certain kinds of erased matches
   -- are allowed), and if additionally Unitʷ-allowed and
-  -- Neutrals-included hold, then one can prove a negation of a
+  -- No-equality-reflection hold, then one can prove a negation of a
   -- variant of the statement of the fundamental lemma.
 
   negation-of-fundamental-lemma-with-erased-matches₅ :
-    ⦃ inc : Neutrals-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     Unitʷ-allowed →
     Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 →
     ¬ Unitʷ-η →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
        Consistent Δ →
-       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
        let open LR ⊢Δ str is-reduction-relation in
@@ -306,7 +309,8 @@ opaque
     {str} Unit-ok ok no-η hyp =
     case soundness-ℕ-only-source-counterexample₅ ok Unit-ok no-η of λ
       (consistent , ⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ consistent ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+    hyp ⊢Δ consistent ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Unitʷ
@@ -320,7 +324,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ ⊢Unit ε Unit-ok
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where
@@ -331,15 +335,15 @@ opaque
 
 opaque
 
-  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 and Neutrals-included hold, then one can
-  -- prove a negation of a variant of the statement of the fundamental
-  -- lemma.
+  -- If Emptyrec-allowed 𝟙ᵐ 𝟘 and No-equality-reflection hold, then
+  -- one can prove a negation of a variant of the statement of the
+  -- fundamental lemma.
 
   negation-of-fundamental-lemma-without-consistency₆ :
-    ⦃ inc : Neutrals-included ⦄ →
+    ⦃ ok : No-equality-reflection ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     ¬ (∀ {k} {Δ : Con Term k} (⊢Δ : ⊢ Δ) →
-       ∀ ⦃ inc : Neutrals-included or-empty Δ ⦄
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄ →
        let open LR ⊢Δ str is-reduction-relation in
@@ -349,7 +353,7 @@ opaque
   negation-of-fundamental-lemma-without-consistency₆ {str} ok hyp =
     case soundness-ℕ-counterexample₆ ok of λ
       (⊢t , ▸t , _) →
-    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ⦃ inc = included ⦄ ⊢t ▸t
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $ hyp ⊢Δ ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
     where
     Δ : Con Term 1
     Δ = ε ∙ Empty
@@ -363,7 +367,7 @@ opaque
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ ⊢Empty ε
 
-    open LR ⊢Δ ⦃ inc = included ⦄ str ⇒*-is-reduction-relation
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 
     ¬t®t : ¬ t ® erase str t ∷ A
     ¬t®t t®t = case ®∷ℕ⇔ .proj₁ t®t of λ where

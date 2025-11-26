@@ -4,7 +4,6 @@
 
 open import Graded.Modality
 open import Graded.Usage.Restrictions
-open import Definition.Typed.EqualityRelation
 import Definition.Typed
 open import Definition.Typed.Restrictions
 import Definition.Untyped
@@ -17,18 +16,19 @@ module Graded.Erasure.LogicalRelation.Fundamental
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  {{eqrel : EqRelSet TR}}
   where
+
+open Type-restrictions TR
 
 open Definition.Untyped M
 open Definition.Typed TR
-open EqRelSet {{...}}
 
 import Definition.LogicalRelation.Properties TR as LP
 import Definition.LogicalRelation.Substitution.Introductions.Var TR as V
 
 import Definition.LogicalRelation.Fundamental TR as F
 
+open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Well-formed TR
@@ -82,7 +82,7 @@ private
 
 module _
   (⊢Δ : ⊢ Δ)
-  ⦃ inc : Neutrals-included or-empty Δ ⦄
+  ⦃ ok : No-equality-reflection or-empty Δ ⦄
   {s : Strictness}
   {_⇛_∷_}
   ⦃ is-reduction-relation : Is-reduction-relation Δ _⇛_∷_ ⦄
@@ -140,7 +140,7 @@ module Fundamental
     as : Assumptions
     as = record
       { ⊢Δ                    = well-formed
-      ; inc                   = inc
+      ; inc                   = no-equality-reflection-or-empty
       ; str                   = s
       ; is-reduction-relation = is-reduction-relation
       }

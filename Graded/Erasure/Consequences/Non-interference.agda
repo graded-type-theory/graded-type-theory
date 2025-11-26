@@ -5,7 +5,6 @@
 open import Graded.Modality
 open import Graded.Usage.Restrictions
 import Definition.Untyped
-open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 open import Graded.Erasure.Target as T using (Strictness)
@@ -19,7 +18,6 @@ module Graded.Erasure.Consequences.Non-interference
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
-  ⦃ eqrel : EqRelSet TR ⦄
   {k : Nat}
   {Δ : Con Term k}
   (FA : Fundamental-assumptions TR UR Δ)
@@ -29,6 +27,7 @@ module Graded.Erasure.Consequences.Non-interference
 open Fundamental-assumptions FA
 
 open import Definition.Typed TR
+open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 import Definition.LogicalRelation.Fundamental TR as F
@@ -46,10 +45,14 @@ private
 
   as : Assumptions
   as = record
-    { ⊢Δ                    = well-formed
-    ; inc                   = Fundamental-assumptions.inc FA
-    ; str                   = str
-    ; is-reduction-relation = ⇒*-is-reduction-relation
+    { ⊢Δ =
+        well-formed
+    ; inc =
+        Fundamental-assumptions.no-equality-reflection-or-empty FA
+    ; str =
+        str
+    ; is-reduction-relation =
+        ⇒*-is-reduction-relation
     }
 
 open import Graded.Erasure.LogicalRelation as

@@ -28,7 +28,7 @@ open import Definition.Untyped.Unit 𝕄
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Consistency TR
 import Definition.Typed.Consequences.Canonicity TR as TC
-open import Definition.Typed.EqualityRelation
+open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
@@ -91,7 +91,6 @@ module _
   -- The following results make use of some assumptions.
 
   module Soundness′
-    ⦃ eqrel : EqRelSet TR ⦄
     (FA : Fundamental-assumptions Δ)
     {str : Strictness}
     where
@@ -103,7 +102,7 @@ module _
       as : Assumptions
       as = record
         { ⊢Δ                    = well-formed
-        ; inc                   = inc
+        ; inc                   = no-equality-reflection-or-empty
         ; str                   = str
         ; is-reduction-relation = ⇒*-is-reduction-relation
         }
@@ -179,10 +178,14 @@ module _
 
       as : Assumptions
       as = record
-        { ⊢Δ                    = ⊢Δ
-        ; inc                   = Fundamental-assumptions.inc FA
-        ; str                   = str
-        ; is-reduction-relation = ⇒*-is-reduction-relation
+        { ⊢Δ =
+            ⊢Δ
+        ; inc =
+            Fundamental-assumptions.no-equality-reflection-or-empty FA
+        ; str =
+            str
+        ; is-reduction-relation =
+            ⇒*-is-reduction-relation
         }
 
       open Soundness′ FA public

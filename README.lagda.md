@@ -490,10 +490,8 @@ code uses the formulation "if the modality is non-trivial, then erased
 matches are disallowed for weak Σ and unit types as well as the
 identity type": the paper focuses on the erasure modality, which is
 non-trivial, and identity types are mostly ignored in the text. The
-statement in the code also has the condition "Neutrals-included holds
-or the context is empty", which for the soundness theorem is
-instantiated to "equality reflection is disallowed or the context is
-empty".
+statement in the code also has the condition "equality reflection is
+disallowed or the context is empty".
 ```agda
 import Graded.Erasure.Consequences.Soundness
 theorem-5-1 =
