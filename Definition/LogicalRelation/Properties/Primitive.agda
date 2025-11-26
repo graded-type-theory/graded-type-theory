@@ -1437,6 +1437,28 @@ opaque
   → ↑ᵘ [t] PE.≡ ↑ᵘ [u]
 ↑ᵘ-cong {[t]} {[u]} t≡u = PE.cong 0ᵘ+_ (↑ⁿ-cong [t] [u] t≡u)
 
+opaque
+
+  -- Level realisation respects reduction.
+
+  ↑ⁿ-respects-⇒* :
+    {⊩t : Γ ⊩Level t ∷Level} {⊩u : Γ ⊩Level u ∷Level} →
+    Γ ⊢ t ⇒* u ∷ Level →
+    ↑ⁿ ⊩t PE.≡ ↑ⁿ ⊩u
+  ↑ⁿ-respects-⇒* {⊩t} t⇒*u =
+    ↑ⁿ-cong _ _ (redLevel t⇒*u ⊩t)
+
+opaque
+
+  -- Level realisation respects reduction.
+
+  ↑ᵘ-respects-⇒* :
+    {⊩t : Γ ⊩Level t ∷Level} {⊩u : Γ ⊩Level u ∷Level} →
+    Γ ⊢ t ⇒* u ∷ Level →
+    ↑ᵘ ⊩t PE.≡ ↑ᵘ ⊩u
+  ↑ᵘ-respects-⇒* {⊩t} t⇒*u =
+    ↑ᵘ-cong (redLevel t⇒*u ⊩t)
+
 -- Level realisation preserves inequality.
 
 ↑ⁿ-cong-≤ :
