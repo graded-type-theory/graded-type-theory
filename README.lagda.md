@@ -551,7 +551,8 @@ open Definition.Typed.Restrictions.Type-restrictions
   using
     (level-support; Level-is-small; Level-is-not-small; Level-allowed)
 
-import Definition.Typed.Inversion using (¬Level-is-small→¬Level∷U)
+import Definition.Typed.Properties.Admissible.Level
+  using (¬Level-is-small→¬Level∷U)
 ```
 
 Canonicity is proved for natural number terms in contexts where the

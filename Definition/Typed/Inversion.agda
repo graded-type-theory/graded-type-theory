@@ -269,18 +269,6 @@ opaque
 
 opaque
 
-  -- If Level is not small, then Id Level t u does not belong to any
-  -- universe.
-
-  ¬Level-is-small→¬Id-Level∷U :
-    ¬ Level-is-small →
-    ¬ Γ ⊢ Id Level t u ∷ U l
-  ¬Level-is-small→¬Id-Level∷U not-ok ⊢Id =
-    let _ , Level∷U , _ = inversion-Id-U ⊢Id in
-    ¬Level-is-small→¬Level∷U not-ok Level∷U
-
-opaque
-
   -- Inversion for rfl.
 
   inversion-rfl :

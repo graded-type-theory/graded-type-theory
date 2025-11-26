@@ -69,15 +69,6 @@ opaque
 
 opaque
 
-  -- If Level is not small, then Level is not in any universe.
-
-  ¬Level-is-small→¬Level∷U :
-    ¬ Level-is-small → ¬ Γ ⊢ Level ∷ U t
-  ¬Level-is-small→¬Level∷U ¬small Level∷Ut =
-    ¬small (inversion-Level Level∷Ut .proj₂)
-
-opaque
-
   -- Inversion for Level.
 
   inversion-Level-⊢ : Γ ⊢ Level → Level-allowed

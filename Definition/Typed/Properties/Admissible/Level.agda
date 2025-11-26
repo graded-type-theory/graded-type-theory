@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------
--- Admissible rules for Level as well as some lemmas related to
--- _⊢_≡_∷Level
+-- Admissible rules for Level as well as some other lemmas related to
+-- Level
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -33,6 +33,7 @@ open import Tools.Nat as N using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 open LP public hiding (supᵘ-zeroʳⱼ)
 
@@ -40,6 +41,30 @@ private variable
   n                                        : Nat
   Γ                                        : Con Term _
   A B B₁ B₂ l l₁ l₂ l₂′ l₃ t t₁ t₂ u u₁ u₂ : Term _
+
+------------------------------------------------------------------------
+-- Some lemmas related to U
+
+opaque
+
+  -- If Level is not small, then Level is not in any universe.
+
+  ¬Level-is-small→¬Level∷U :
+    ¬ Level-is-small → ¬ Γ ⊢ Level ∷ U t
+  ¬Level-is-small→¬Level∷U ¬small Level∷Ut =
+    ¬small (inversion-Level Level∷Ut .proj₂)
+
+opaque
+
+  -- If Level is not small, then Id Level t u does not belong to any
+  -- universe.
+
+  ¬Level-is-small→¬Id-Level∷U :
+    ¬ Level-is-small →
+    ¬ Γ ⊢ Id Level t u ∷ U l
+  ¬Level-is-small→¬Id-Level∷U not-ok ⊢Id =
+    let _ , Level∷U , _ = inversion-Id-U ⊢Id in
+    ¬Level-is-small→¬Level∷U not-ok Level∷U
 
 ------------------------------------------------------------------------
 -- Lemmas related to _⊢_≤_∷Level
