@@ -78,7 +78,7 @@ opaque
   --
   -- (assuming that Γ is empty or equality reflection is not allowed).
 
-  ¬ΠU∷U :
+  the-type-of-id-does-not-have-a-type :
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     let A = Π p₁ , q₁ ▷ Level ▹
             Π p₂ , q₂ ▷ U (var x0) ▹
@@ -89,7 +89,7 @@ opaque
      Γ ⊢ A) ×
     (¬ ∃ λ B → Γ ⊢ A ∷ B) ×
     (¬ ∃ λ l → Γ ⊢ A ∷ U l)
-  ¬ΠU∷U =
+  the-type-of-id-does-not-have-a-type =
     let ¬⊢∷ = λ (_ , ⊢A) →
           let l , ⊢l , ⊢Level , ⊢ΠU , _ , _  = inversion-ΠΣ-U ⊢A
               l′ , _ , ⊢U , _ , U≡U , _      = inversion-ΠΣ-U ⊢ΠU
