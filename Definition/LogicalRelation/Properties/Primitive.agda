@@ -19,6 +19,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Properties.Neutral M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -1067,6 +1068,51 @@ opaque
   : ∀ {t} {[t] : Γ ⊩Level t ∷Level} {[t]′ : Γ ⊩Level t ∷Level}
   → ↑ᵘ [t] PE.≡ ↑ᵘ [t]′
 ↑ᵘ-irrelevance {[t]} {[t]′} = PE.cong 0ᵘ+_ (↑ⁿ-irrelevance [t] [t]′)
+
+opaque
+  unfolding ↑ⁿ_
+
+  -- Level realisation sends every atomic neutral level to a fixed
+  -- external level.
+
+  ↑ⁿ-prop-ne :
+    (⊩t : Level-prop Γ t) →
+    Neutral t →
+    ↑ⁿ-prop ⊩t PE.≡ ↑ᵘ-neutral
+  ↑ⁿ-prop-ne = λ where
+    (zeroᵘᵣ _)           ()
+    (sucᵘᵣ _ _)          ()
+    (neLvl (supᵘˡᵣ _ _)) ()
+    (neLvl (supᵘʳᵣ _ _)) ()
+    (neLvl (ne _))       _  → PE.refl
+
+opaque
+  unfolding ↑ⁿ_
+
+  -- Level realisation sends every atomic neutral level to a fixed
+  -- external level.
+
+  ↑ⁿ-ne :
+    (⊩t : Γ ⊩Level t ∷Level) →
+    Neutral t →
+    ↑ⁿ ⊩t PE.≡ ↑ᵘ-neutral
+  ↑ⁿ-ne (term l⇒l′ l′-prop) l-ne =
+    case whnfRed*Term l⇒l′ (ne! l-ne) of λ {
+      PE.refl →
+    ↑ⁿ-prop-ne l′-prop l-ne }
+  ↑ⁿ-ne (literal _ _ l-lit) l-ne =
+    ⊥-elim $ ¬-Neutral-Level-literal l-lit (ne l-ne)
+
+opaque
+
+  -- Level realisation sends every atomic neutral level to a fixed
+  -- external level.
+
+  ↑ᵘ-ne :
+    (⊩t : Γ ⊩Level t ∷Level) →
+    Neutral t →
+    ↑ᵘ ⊩t PE.≡ 0ᵘ+ ↑ᵘ-neutral
+  ↑ᵘ-ne ⊩t t-ne = PE.cong 0ᵘ+_ (↑ⁿ-ne ⊩t t-ne)
 
 opaque
   unfolding ↑ⁿ_ size-of-Level
