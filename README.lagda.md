@@ -171,9 +171,7 @@ import Definition.Typed.Properties.Admissible.Sigma using
    ⊢prodrecʰ⟨⟩; prodrecʰ⟨⟩-cong; prodrecʰ⟨⟩-β)
 ```
 
-Well-formedness and subject reduction are only mentioned in the
-Contributions section; we plan to revise the paper to include these
-results in this section.
+Lemma 2.1: well-formedness and subject reduction.
 ```agda
 import Definition.Typed.Syntactic
   using (syntacticTerm; syntacticRedTerm)
