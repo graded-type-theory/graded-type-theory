@@ -58,9 +58,9 @@ unitrec-subst* : t ⇒* t′ → unitrec t u ⇒* unitrec t′ u
 unitrec-subst* refl = refl
 unitrec-subst* (trans x d) = trans (unitrec-subst x) (unitrec-subst* d)
 
--- Values do not reduce.
-
 opaque
+
+  -- Values do not reduce.
 
   Value→¬⇒ : Value t → ¬ t ⇒ u
   Value→¬⇒ lam  ()
