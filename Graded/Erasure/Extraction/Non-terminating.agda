@@ -388,6 +388,26 @@ opaque
 opaque
 
   -- If erasable arguments are removed entirely and strict
+  -- applications are used, then the extraction of loops {n = n} p
+  -- "reduces forever" (if the modality's zero is well-behaved).
+
+  loops-reduces-forever :
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    T.Reduces-forever (erase′ true strict (loops {n = n} p))
+  loops-reduces-forever = lemma ∘→ PE.subst (flip T._⇒*_ _) erase-loops
+    where
+    lemma :
+      T.lam T.zero T.∘⟨ strict ⟩ loop strict T.⇒* v → ∃ λ v′ → v T.⇒ v′
+    lemma T.refl =
+      _ , T.app-subst-arg T.lam loop⇒loop
+    lemma (T.trans s ss) =
+      case redDet _ s (T.app-subst-arg T.lam loop⇒loop) of λ {
+        PE.refl →
+      lemma ss }
+
+opaque
+
+  -- If erasable arguments are removed entirely and strict
   -- applications are used, then the extraction of loops p does not
   -- reduce to a value (if the modality's zero is well-behaved).
 
@@ -395,20 +415,8 @@ opaque
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
     T.Value v →
     ¬ erase′ true strict (loops p) T.⇒* v
-  loops-does-not-reduce-to-a-value {v} {p} v-value =
-    erase′ true strict (loops p) T.⇒* v            ≡⟨ PE.cong (T._⇒* _) erase-loops ⟩→
-    T.lam T.zero T.∘⟨ strict ⟩ loop strict T.⇒* v  →⟨ helper ⟩
-    ⊥                                              □
-    where
-    helper : ¬ T.lam T.zero T.∘⟨ strict ⟩ loop s T.⇒* v
-    helper T.refl =
-      case v-value of λ ()
-    helper (T.trans (T.app-subst ())     _)
-    helper (T.trans (T.β-red loop-value) _) =
-      ¬loop⇒* loop-value T.refl
-    helper (T.trans (T.app-subst-arg _ loop⇒) ⇒*v)
-      rewrite redDet _ loop⇒ loop⇒loop =
-      helper ⇒*v
+  loops-does-not-reduce-to-a-value =
+    Reduces-forever→Value→¬⇒* loops-reduces-forever
 
 opaque
   unfolding loops

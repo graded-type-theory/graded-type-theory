@@ -7,6 +7,7 @@ module Graded.Erasure.Target where
 open import Tools.Bool
 open import Tools.Fin
 open import Tools.Nat using (Nat; 1+; 2+; _+_)
+open import Tools.Product
 open import Tools.PropositionalEquality using (_≡_; refl)
 open import Tools.Relation
 open import Tools.Unit
@@ -288,3 +289,10 @@ data _⇒_ : (t u : Term n) → Set where
 data _⇒*_ : (t u : Term n) → Set where
   refl : t ⇒* t
   trans : t ⇒ t′ → t′ ⇒* u → t ⇒* u
+
+-- Reduces-forever t means that there are arbitrarily long reduction
+-- sequences starting with t.
+
+Reduces-forever : Term n → Set
+Reduces-forever t =
+  ∀ {u} → t ⇒* u → ∃ λ v → u ⇒ v

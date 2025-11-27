@@ -9,6 +9,7 @@ open import Graded.Erasure.Target
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
@@ -69,6 +70,13 @@ opaque
   Value→¬⇒ suc  ()
   Value→¬⇒ star ()
   Value→¬⇒ ↯    ()
+
+opaque
+
+  -- Terms that "reduce forever" do not reduce to values.
+
+  Reduces-forever→Value→¬⇒* : Reduces-forever t → Value u → ¬ t ⇒* u
+  Reduces-forever→Value→¬⇒* red val = Value→¬⇒ val ∘→ proj₂ ∘→ red
 
 opaque
 
