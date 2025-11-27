@@ -318,12 +318,11 @@ module _
         ε ⊢ t ⇒* star s ∷ Unit s × (∀ str → erase str t T.⇒* T.star)
       soundness-Unit = S.soundness-Unit
 
--- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
--- certain kinds of erased matches are allowed), and if additionally
--- Σʷ-allowed p 𝟘 holds, then there is a counterexample to
--- soundness-ℕ-only-source without the assumption "erased matches are
--- not allowed unless the context is empty" (and without the
--- assumption that the modality's zero is well-behaved).
+-- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 and Σʷ-allowed p 𝟘 hold for some p,
+-- then there is a counterexample to soundness-ℕ-only-source without
+-- the assumption "erased matches are not allowed unless the context
+-- is empty" (and without the assumption that the modality's zero is
+-- well-behaved).
 
 soundness-ℕ-only-source-counterexample₁ :
   Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 →
