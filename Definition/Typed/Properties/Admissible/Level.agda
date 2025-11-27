@@ -230,15 +230,22 @@ opaque
     literal not-ok ⊢Γ (sucᵘ l-lit)
 
 ------------------------------------------------------------------------
--- A lemma related to sucᵘᵏ
+-- Some lemmas related to sucᵘᵏ and ↓ᵘ_
 
 opaque
 
   -- A typing rule for sucᵘᵏ.
 
-  ⊢sucᵘᵏ : Γ ⊢ t ∷ Level → Γ ⊢ sucᵘᵏ n t ∷ Level
+  ⊢sucᵘᵏ : Γ ⊢ t ∷Level → Γ ⊢ sucᵘᵏ n t ∷Level
   ⊢sucᵘᵏ {n = 0}      ⊢t = ⊢t
-  ⊢sucᵘᵏ {n = N.1+ _} ⊢t = sucᵘⱼ (⊢sucᵘᵏ ⊢t)
+  ⊢sucᵘᵏ {n = N.1+ _} ⊢t = ⊢sucᵘ (⊢sucᵘᵏ ⊢t)
+
+opaque
+
+  -- A typing rule for ↓ᵘ_.
+
+  ⊢↓ᵘ : ⊢ Γ → Γ ⊢ ↓ᵘ n ∷Level
+  ⊢↓ᵘ ⊢Γ = ⊢sucᵘᵏ (⊢zeroᵘ ⊢Γ)
 
 ------------------------------------------------------------------------
 -- Some lemmas related to _supᵘ_

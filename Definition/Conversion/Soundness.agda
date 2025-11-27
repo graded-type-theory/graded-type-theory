@@ -389,7 +389,8 @@ mutual
   ⊢suc⁺ :
     Level-allowed → ⊢ Γ → (x : Level⁺ Γ) →
     Γ ⊢ Level⁺→Term (suc⁺ x) ∷ Level
-  ⊢suc⁺ ok ⊢Γ (n , a) = sucᵘⱼ (⊢sucᵘᵏ (⊢LevelAtom ok ⊢Γ a))
+  ⊢suc⁺ ok ⊢Γ (n , a) =
+    sucᵘⱼ (⊢∷Level→⊢∷Level ok (⊢sucᵘᵏ (term-⊢∷ (⊢LevelAtom ok ⊢Γ a))))
 
   ⊢map-suc⁺ :
     Level-allowed → ⊢ Γ → (l : Levelᵛ Γ) →
