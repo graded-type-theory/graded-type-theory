@@ -1,4 +1,4 @@
-# An Agda Formalization of a Graded Modal Type Theory with First-Class Universe Levels and Erasure
+# An Agda Formalisation of a Graded Modal Type Theory with First-Class Universe Levels and Erasure
 
 This code is related to the paper "Normalisation for First-Class
 Universe Levels", Nils Anders Danielsson, Naïm Camille Favier and
@@ -26,7 +26,7 @@ The licence for this project can be found in the file LICENSE.
 
 ## Project history
 
-This formalization originated as a fork of
+This formalisation originated as a fork of
 [logrel-mltt](https://github.com/mr-ohman/logrel-mltt). That work
 consisted of the following contributions:
 
@@ -47,7 +47,7 @@ consisted of the following contributions:
 * The code was refactored to use well-scoped syntax by Oskar
   Eriksson (2021).
 
-The formalization was lifted to graded modal type theory: this is the
+The formalisation was lifted to graded modal type theory: this is the
 basis of the paper "A Graded Modal Type Theory with a Universe and
 Erasure, Formalized", Andreas Abel, Nils Anders Danielsson and Oskar
 Eriksson, Proceedings of the ACM on Programming Languages, Volume 7,
