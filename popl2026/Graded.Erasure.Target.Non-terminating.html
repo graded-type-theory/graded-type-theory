@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Erasure.Target.Non-terminating</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- A non-terminating term</a>
+<a id="100" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="174" class="Keyword">module</a> <a id="181" href="Graded.Erasure.Target.Non-terminating.html" class="Module">Graded.Erasure.Target.Non-terminating</a> <a id="219" class="Keyword">where</a>
+
+<a id="226" class="Keyword">open</a> <a id="231" class="Keyword">import</a> <a id="238" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
+
+<a id="274" class="Keyword">open</a> <a id="279" class="Keyword">import</a> <a id="286" href="Graded.Erasure.Target.html" class="Module">Graded.Erasure.Target</a>
+<a id="308" class="Keyword">open</a> <a id="313" class="Keyword">import</a> <a id="320" href="Graded.Erasure.Target.Properties.html" class="Module">Graded.Erasure.Target.Properties</a>
+
+<a id="354" class="Keyword">open</a> <a id="359" class="Keyword">import</a> <a id="366" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="378" class="Keyword">open</a> <a id="383" class="Keyword">import</a> <a id="390" href="Tools.Fin.html" class="Module">Tools.Fin</a>
+<a id="400" class="Keyword">open</a> <a id="405" class="Keyword">import</a> <a id="412" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="427" class="Keyword">open</a> <a id="432" class="Keyword">import</a> <a id="439" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="449" class="Keyword">open</a> <a id="454" class="Keyword">import</a> <a id="461" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="475" class="Keyword">open</a> <a id="480" class="Keyword">import</a> <a id="487" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="515" class="Keyword">open</a> <a id="520" class="Keyword">import</a> <a id="527" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+
+<a id="543" class="Keyword">private</a> <a id="551" class="Keyword">variable</a>
+  <a id="562" href="Graded.Erasure.Target.Non-terminating.html#562" class="Generalizable">n</a>   <a id="566" class="Symbol">:</a> <a id="568" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+  <a id="574" href="Graded.Erasure.Target.Non-terminating.html#574" class="Generalizable">x</a>   <a id="578" class="Symbol">:</a> <a id="580" href="Data.Fin.Base.html#1132" class="Datatype">Fin</a> <a id="584" class="Symbol">_</a>
+  <a id="588" href="Graded.Erasure.Target.Non-terminating.html#588" class="Generalizable">t</a> <a id="590" href="Graded.Erasure.Target.Non-terminating.html#590" class="Generalizable">v</a> <a id="592" class="Symbol">:</a> <a id="594" href="Graded.Erasure.Target.html#1253" class="Datatype">Term</a> <a id="599" class="Symbol">_</a>
+  <a id="603" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a>   <a id="607" class="Symbol">:</a> <a id="609" href="Graded.Erasure.Target.html#673" class="Datatype">Strictness</a>
+  <a id="622" href="Graded.Erasure.Target.Non-terminating.html#622" class="Generalizable">ρ</a>   <a id="626" class="Symbol">:</a> <a id="628" href="Definition.Untyped.NotParametrised.html#2948" class="Datatype">Wk</a> <a id="631" class="Symbol">_</a> <a id="633" class="Symbol">_</a>
+  <a id="637" href="Graded.Erasure.Target.Non-terminating.html#637" class="Generalizable">σ</a>   <a id="641" class="Symbol">:</a> <a id="643" href="Graded.Erasure.Target.html#3596" class="Function">Subst</a> <a id="649" class="Symbol">_</a> <a id="651" class="Symbol">_</a>
+
+<a id="654" class="Keyword">opaque</a>
+
+  <a id="664" class="Comment">-- A non-terminating term (which uses applications with the given</a>
+  <a id="732" class="Comment">-- strictness).</a>
+
+  <a id="loop"></a><a id="751" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="756" class="Symbol">:</a> <a id="758" href="Graded.Erasure.Target.html#673" class="Datatype">Strictness</a> <a id="769" class="Symbol">→</a> <a id="771" href="Graded.Erasure.Target.html#1253" class="Datatype">Term</a> <a id="776" href="Graded.Erasure.Target.Non-terminating.html#562" class="Generalizable">n</a>
+  <a id="780" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="785" href="Graded.Erasure.Target.Non-terminating.html#785" class="Bound">s</a> <a id="787" class="Symbol">=</a> <a id="789" href="Graded.Erasure.Target.Non-terminating.html#814" class="Function">ω</a> <a id="791" href="Graded.Erasure.Target.html#1350" class="InductiveConstructor Operator">∘⟨</a> <a id="794" href="Graded.Erasure.Target.Non-terminating.html#785" class="Bound">s</a> <a id="796" href="Graded.Erasure.Target.html#1350" class="InductiveConstructor Operator">⟩</a> <a id="798" href="Graded.Erasure.Target.Non-terminating.html#814" class="Function">ω</a>
+    <a id="804" class="Keyword">where</a>
+    <a id="814" href="Graded.Erasure.Target.Non-terminating.html#814" class="Function">ω</a> <a id="816" class="Symbol">:</a> <a id="818" href="Graded.Erasure.Target.html#1253" class="Datatype">Term</a> <a id="823" href="Graded.Erasure.Target.Non-terminating.html#562" class="Generalizable">n</a>
+    <a id="829" href="Graded.Erasure.Target.Non-terminating.html#814" class="Function">ω</a> <a id="831" class="Symbol">=</a> <a id="833" href="Graded.Erasure.Target.html#1311" class="InductiveConstructor">lam</a> <a id="837" class="Symbol">(</a><a id="838" href="Graded.Erasure.Target.html#1278" class="InductiveConstructor">var</a> <a id="842" href="Data.Fin.Base.html#1154" class="InductiveConstructor">x0</a> <a id="845" href="Graded.Erasure.Target.html#1350" class="InductiveConstructor Operator">∘⟨</a> <a id="848" href="Graded.Erasure.Target.Non-terminating.html#785" class="Bound">s</a> <a id="850" href="Graded.Erasure.Target.html#1350" class="InductiveConstructor Operator">⟩</a> <a id="852" href="Graded.Erasure.Target.html#1278" class="InductiveConstructor">var</a> <a id="856" href="Data.Fin.Base.html#1154" class="InductiveConstructor">x0</a><a id="858" class="Symbol">)</a>
+
+<a id="861" class="Keyword">opaque</a>
+  <a id="870" class="Keyword">unfolding</a> <a id="880" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a>
+
+  <a id="888" class="Comment">-- The term loop s reduces in one step to itself.</a>
+
+  <a id="loop⇒loop"></a><a id="941" href="Graded.Erasure.Target.Non-terminating.html#941" class="Function">loop⇒loop</a> <a id="951" class="Symbol">:</a> <a id="953" class="Symbol">(</a><a id="954" href="Graded.Erasure.Target.html#1253" class="Datatype">Term</a> <a id="959" href="Graded.Erasure.Target.Non-terminating.html#562" class="Generalizable">n</a> <a id="961" href="Function.Base.html#4505" class="Function Operator">∋</a> <a id="963" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="968" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a><a id="969" class="Symbol">)</a> <a id="971" href="Graded.Erasure.Target.html#7040" class="Datatype Operator">⇒</a> <a id="973" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="978" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a>
+  <a id="982" href="Graded.Erasure.Target.Non-terminating.html#941" class="Function">loop⇒loop</a> <a id="992" class="Symbol">=</a> <a id="994" href="Graded.Erasure.Target.html#7223" class="InductiveConstructor">β-red</a> <a id="1000" class="Symbol">(</a><a id="1001" href="Graded.Erasure.Target.Properties.Reduction.html#5366" class="Function">Value→Value⟨⟩</a> <a id="1015" href="Graded.Erasure.Target.html#6182" class="InductiveConstructor">lam</a><a id="1018" class="Symbol">)</a>
+
+<a id="1021" class="Keyword">opaque</a>
+
+  <a id="1031" class="Comment">-- The term loop s &quot;reduces forever&quot;.</a>
+
+  <a id="loop-reduces-forever"></a><a id="1072" href="Graded.Erasure.Target.Non-terminating.html#1072" class="Function">loop-reduces-forever</a> <a id="1093" class="Symbol">:</a> <a id="1095" href="Graded.Erasure.Target.html#8070" class="Function">Reduces-forever</a> <a id="1111" class="Symbol">(</a><a id="1112" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="1117" class="Symbol">{</a><a id="1118" class="Argument">n</a> <a id="1120" class="Symbol">=</a> <a id="1122" href="Graded.Erasure.Target.Non-terminating.html#562" class="Generalizable">n</a><a id="1123" class="Symbol">}</a> <a id="1125" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a><a id="1126" class="Symbol">)</a>
+  <a id="1130" href="Graded.Erasure.Target.Non-terminating.html#1072" class="Function">loop-reduces-forever</a> <a id="1151" href="Graded.Erasure.Target.html#7919" class="InductiveConstructor">refl</a> <a id="1156" class="Symbol">=</a>
+    <a id="1162" class="Symbol">_</a> <a id="1164" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1166" href="Graded.Erasure.Target.Non-terminating.html#941" class="Function">loop⇒loop</a>
+  <a id="1178" href="Graded.Erasure.Target.Non-terminating.html#1072" class="Function">loop-reduces-forever</a> <a id="1199" class="Symbol">(</a><a id="1200" href="Graded.Erasure.Target.html#7935" class="InductiveConstructor">trans</a> <a id="1206" href="Graded.Erasure.Target.Non-terminating.html#1206" class="Bound">nt⇒t</a> <a id="1211" href="Graded.Erasure.Target.Non-terminating.html#1211" class="Bound">t⇒*u</a><a id="1215" class="Symbol">)</a>
+    <a id="1221" class="Keyword">rewrite</a> <a id="1229" href="Relation.Binary.PropositionalEquality.Core.html#2035" class="Function">sym</a> <a id="1233" href="Function.Base.html#1993" class="Function Operator">$</a> <a id="1235" href="Graded.Erasure.Target.Properties.Reduction.html#2352" class="Function">redDet</a> <a id="1242" class="Symbol">_</a> <a id="1244" href="Graded.Erasure.Target.Non-terminating.html#941" class="Function">loop⇒loop</a> <a id="1254" href="Graded.Erasure.Target.Non-terminating.html#1206" class="Bound">nt⇒t</a> <a id="1259" class="Symbol">=</a>
+    <a id="1265" href="Graded.Erasure.Target.Non-terminating.html#1072" class="Function">loop-reduces-forever</a> <a id="1286" href="Graded.Erasure.Target.Non-terminating.html#1211" class="Bound">t⇒*u</a>
+
+<a id="1292" class="Keyword">opaque</a>
+
+  <a id="1302" class="Comment">-- The term loop s does not reduce to a value.</a>
+
+  <a id="¬loop⇒*"></a><a id="1352" href="Graded.Erasure.Target.Non-terminating.html#1352" class="Function">¬loop⇒*</a> <a id="1360" class="Symbol">:</a> <a id="1362" href="Graded.Erasure.Target.html#6149" class="Datatype">Value</a> <a id="1368" href="Graded.Erasure.Target.Non-terminating.html#590" class="Generalizable">v</a> <a id="1370" class="Symbol">→</a> <a id="1372" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="1374" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="1379" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a> <a id="1381" href="Graded.Erasure.Target.html#7883" class="Datatype Operator">⇒*</a> <a id="1384" href="Graded.Erasure.Target.Non-terminating.html#590" class="Generalizable">v</a>
+  <a id="1388" href="Graded.Erasure.Target.Non-terminating.html#1352" class="Function">¬loop⇒*</a> <a id="1396" class="Symbol">=</a> <a id="1398" href="Graded.Erasure.Target.Properties.Reduction.html#2173" class="Function">Reduces-forever→Value→¬⇒*</a> <a id="1424" href="Graded.Erasure.Target.Non-terminating.html#1072" class="Function">loop-reduces-forever</a>
+
+<a id="1446" class="Keyword">opaque</a>
+  <a id="1455" class="Keyword">unfolding</a> <a id="1465" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a>
+
+  <a id="1473" class="Comment">-- The term loop s is closed.</a>
+
+  <a id="loop-closed"></a><a id="1506" href="Graded.Erasure.Target.Non-terminating.html#1506" class="Function">loop-closed</a> <a id="1518" class="Symbol">:</a> <a id="1520" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="1522" href="Graded.Erasure.Target.html#2222" class="Datatype">HasX</a> <a id="1527" href="Graded.Erasure.Target.Non-terminating.html#574" class="Generalizable">x</a> <a id="1529" class="Symbol">(</a><a id="1530" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="1535" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a><a id="1536" class="Symbol">)</a>
+  <a id="1540" href="Graded.Erasure.Target.Non-terminating.html#1506" class="Function">loop-closed</a> <a id="1552" class="Symbol">(</a><a id="1553" href="Graded.Erasure.Target.html#2332" class="InductiveConstructor">∘ₓˡ</a> <a id="1557" class="Symbol">(</a><a id="1558" href="Graded.Erasure.Target.html#2292" class="InductiveConstructor">lamₓ</a> <a id="1563" class="Symbol">(</a><a id="1564" href="Graded.Erasure.Target.html#2332" class="InductiveConstructor">∘ₓˡ</a> <a id="1568" class="Symbol">())))</a>
+  <a id="1576" href="Graded.Erasure.Target.Non-terminating.html#1506" class="Function">loop-closed</a> <a id="1588" class="Symbol">(</a><a id="1589" href="Graded.Erasure.Target.html#2332" class="InductiveConstructor">∘ₓˡ</a> <a id="1593" class="Symbol">(</a><a id="1594" href="Graded.Erasure.Target.html#2292" class="InductiveConstructor">lamₓ</a> <a id="1599" class="Symbol">(</a><a id="1600" href="Graded.Erasure.Target.html#2371" class="InductiveConstructor">∘ₓʳ</a> <a id="1604" class="Symbol">())))</a>
+  <a id="1612" href="Graded.Erasure.Target.Non-terminating.html#1506" class="Function">loop-closed</a> <a id="1624" class="Symbol">(</a><a id="1625" href="Graded.Erasure.Target.html#2371" class="InductiveConstructor">∘ₓʳ</a> <a id="1629" class="Symbol">(</a><a id="1630" href="Graded.Erasure.Target.html#2292" class="InductiveConstructor">lamₓ</a> <a id="1635" class="Symbol">(</a><a id="1636" href="Graded.Erasure.Target.html#2332" class="InductiveConstructor">∘ₓˡ</a> <a id="1640" class="Symbol">())))</a>
+  <a id="1648" href="Graded.Erasure.Target.Non-terminating.html#1506" class="Function">loop-closed</a> <a id="1660" class="Symbol">(</a><a id="1661" href="Graded.Erasure.Target.html#2371" class="InductiveConstructor">∘ₓʳ</a> <a id="1665" class="Symbol">(</a><a id="1666" href="Graded.Erasure.Target.html#2292" class="InductiveConstructor">lamₓ</a> <a id="1671" class="Symbol">(</a><a id="1672" href="Graded.Erasure.Target.html#2371" class="InductiveConstructor">∘ₓʳ</a> <a id="1676" class="Symbol">())))</a>
+
+<a id="1683" class="Keyword">opaque</a>
+  <a id="1692" class="Keyword">unfolding</a> <a id="1702" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a>
+
+  <a id="1710" class="Comment">-- The result of weakening loop s is loop s.</a>
+
+  <a id="wk-loop"></a><a id="1758" href="Graded.Erasure.Target.Non-terminating.html#1758" class="Function">wk-loop</a> <a id="1766" class="Symbol">:</a> <a id="1768" href="Graded.Erasure.Target.html#2949" class="Function">wk</a> <a id="1771" href="Graded.Erasure.Target.Non-terminating.html#622" class="Generalizable">ρ</a> <a id="1773" class="Symbol">(</a><a id="1774" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="1779" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a><a id="1780" class="Symbol">)</a> <a id="1782" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="1784" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="1789" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a>
+  <a id="1793" href="Graded.Erasure.Target.Non-terminating.html#1758" class="Function">wk-loop</a> <a id="1801" class="Symbol">=</a> <a id="1803" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+
+<a id="1809" class="Keyword">opaque</a>
+  <a id="1818" class="Keyword">unfolding</a> <a id="1828" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a>
+
+  <a id="1836" class="Comment">-- The result of applying a substitution to loop s is loop s.</a>
+
+  <a id="loop-[]"></a><a id="1901" href="Graded.Erasure.Target.Non-terminating.html#1901" class="Function">loop-[]</a> <a id="1909" class="Symbol">:</a> <a id="1911" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="1916" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a> <a id="1918" href="Graded.Erasure.Target.html#4891" class="Function Operator">[</a> <a id="1920" href="Graded.Erasure.Target.Non-terminating.html#637" class="Generalizable">σ</a> <a id="1922" href="Graded.Erasure.Target.html#4891" class="Function Operator">]</a> <a id="1924" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="1926" href="Graded.Erasure.Target.Non-terminating.html#751" class="Function">loop</a> <a id="1931" href="Graded.Erasure.Target.Non-terminating.html#603" class="Generalizable">s</a>
+  <a id="1935" href="Graded.Erasure.Target.Non-terminating.html#1901" class="Function">loop-[]</a> <a id="1943" class="Symbol">=</a> <a id="1945" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+</pre></body></html>
