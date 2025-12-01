@@ -131,6 +131,9 @@ jobs:
 ## DOC DEPLOYMENT
 ########################################################################
 
+      - name: Install pandoc
+        uses: pandoc/actions/setup@v1
+
       # We start by retrieving the currently deployed docs.
       # We remove the content that is in the directory we are going to populate
       # so that stale files corresponding to deleted modules do not accumulate.
@@ -144,7 +147,8 @@ jobs:
       # We then generate the docs in the HTML_DIR subdirectory.
       - name: Generate HTML
         run: |
-          agda --html --html-dir="${{ env.HTML_DIR }}" "${{ env.MAIN }}"
+          agda --html --html-highlight=auto --html-dir="${{ env.HTML_DIR }}" "${{ env.MAIN }}"
+          pandoc "${{ env.HTML_DIR }}/README.md" -o "${{ env.HTML_DIR }}/README.html" -s -c Agda.css -M document-css=true
           cp "${{ env.HTML_DIR }}/${{ env.INDEX }}" "${{ env.HTML_DIR }}/index.html"
 
       - name: Deploy HTML
