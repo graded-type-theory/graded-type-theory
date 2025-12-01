@@ -11,18 +11,29 @@ an existing formalisation, see "Project history" below.
 
 The code depends on some libraries:
 
-* Agda's standard library, version 2.3.
-* The builtin modules that are shipped with Agda 2.8.0.
+* Agda's standard library, version 2.3
+  ([licence](https://github.com/agda/agda-stdlib/blob/v2.3/LICENCE)).
+* The builtin modules that are shipped with Agda 2.8.0
+  ([licence](https://github.com/agda/agda/blob/v2.8.0/LICENSE)).
 
-When HTML code is generated from this file code is also generated
-for the two libraries above, so URLs for their licences are
-included here. At the time of writing the licence texts can be
-found via the following URLs:
+When HTML code is generated from this file code is also generated for
+the two libraries above, so links (which are up-to-date at the time of
+writing) to their licences are included above.
 
-* https://github.com/agda/agda-stdlib/blob/v2.3/LICENCE
-* https://github.com/agda/agda/blob/v2.8.0/LICENSE
+The licence for this project can be found in the file @LICENSE@.
 
-The licence for this project can be found in the file LICENSE.
+## Type-checking
+
+To type-check everything in the formalisation, including this file,
+you can run the following command (assuming that @agda@ refers to a
+suitable version of Agda set up with a suitable version of its
+standard library):
+```sh
+agda Everything.agda
+```
+The file @graded-type-theory.agda-lib@ includes the flag `--safe`,
+which disallows things like postulates, turning off the termination
+checker, and so on.
 
 ## Project history
 
