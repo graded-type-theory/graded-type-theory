@@ -88,6 +88,10 @@ Below pointers to code are included for all the main definitions,
 theorems, etc. in the paper, along with some discussion of
 differences between the paper and the code.
 
+Note that if HTML has been generated from this file in a suitable way
+using @agda --html@, then names in import statements below should be
+linked to the corresponding definitions.
+
 ### 2: A Type Theory with First-Class Universe Levels
 
 #### 2.1: Syntax
@@ -582,13 +586,17 @@ import Definition.Typed.Consequences.Canonicity
 ### 4: Decidability of Equality
 
 Algorithmic equality. The conversion relations are denoted as follows:
+
 * `Γ ⊢ A [conv↑] B` and `Γ ⊢ A [conv↓] B` for arbitrary types and
   types in WHNF, respectively,
+
 * `Γ ⊢ t [conv↑] u ∷ A` and `Γ ⊢ t [conv↓] u ∷ B` for arbitrary terms
   with arbitrary types, and terms in WHNF with types in WHNF,
   respectively, and
+
 * `Γ ⊢ t ~ u ↑ A` and `Γ ⊢ t ~ u ↓ A` for atomic neutral terms and
   atomic neutral terms with types in WHNF, respectively.
+
 ```agda
 import Definition.Conversion
   using
