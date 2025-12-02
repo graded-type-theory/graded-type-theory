@@ -63,7 +63,7 @@ basis of the paper "A Graded Modal Type Theory with a Universe and
 Erasure, Formalized", Andreas Abel, Nils Anders Danielsson and Oskar
 Eriksson, Proceedings of the ACM on Programming Languages, Volume 7,
 Issue ICFP, 2023
-([doi.org/10.1145/3607862](https://doi.org/10.1145/3607862)).
+([doi:10.1145/3607862](https://doi.org/10.1145/3607862)).
 
 Later other additions were made:
 
