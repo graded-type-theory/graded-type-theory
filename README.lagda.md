@@ -89,7 +89,7 @@ theorems, etc. in the paper, along with some discussion of
 differences between the paper and the code.
 
 Note that if HTML has been generated from this file in a suitable way
-using @agda --html@, then names in import statements below should be
+using `agda --html`, then names in import statements below should be
 linked to the corresponding definitions.
 
 ### 2: A Type Theory with First-Class Universe Levels
