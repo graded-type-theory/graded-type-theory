@@ -21,6 +21,7 @@ open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
 open import Definition.Typed.Properties.Admissible.Var TR
 open import Definition.Typed.Properties.Reduction TR
 open import Definition.Typed.Properties.Well-formed TR
+open import Definition.Typed.Reasoning.Reduction TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution.Primitive TR
 open import Definition.Typed.Syntactic TR
@@ -194,6 +195,26 @@ opaque
     unitrec-subst ⊢A ⊢u t⇒t′ ok not-ok ⇨
     conv* (unitrec-subst* t′⇒*t″ ⊢A ⊢u not-ok)
       (substTypeEq (refl ⊢A) (sym′ (subsetTerm t⇒t′)))
+
+opaque
+
+  -- A variant of unitrec-subst* and unitrec-β-⇒/unitrec-β-η-⇒.
+
+  unitrec-subst*-β :
+    Γ »∙ Unitʷ l ⊢ A →
+    Γ ⊢ u ∷ A [ starʷ l ]₀ →
+    Γ ⊢ t ⇒* starʷ l ∷ Unitʷ l →
+    Γ ⊢ unitrec l p q A t u ⇒* u ∷ A [ t ]₀
+  unitrec-subst*-β {l} {A} {u} {t} {p} {q} ⊢A ⊢u t⇒⋆ =
+    case Unitʷ-η? of λ where
+      (yes η) →
+        redMany $
+        unitrec-β-η-⇒ ⊢A (redFirst*Term t⇒⋆) ⊢u η
+      (no no-η) →
+        unitrec l p q A t u          ⇒*⟨ unitrec-subst* t⇒⋆ ⊢A ⊢u no-η ⟩
+        unitrec l p q A (starʷ l) u  ⇒⟨ conv (unitrec-β-⇒ ⊢A ⊢u)
+                                          (substTypeEq (refl ⊢A) (sym′ (subset*Term t⇒⋆))) ⟩∎
+        u                            ∎
 
 ------------------------------------------------------------------------
 -- Lemmas related to unitrec⟨_⟩
