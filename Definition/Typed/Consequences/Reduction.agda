@@ -90,6 +90,22 @@ opaque
 
 opaque
 
+  -- WHNFs of type Empty are neutral (given a certain assumption).
+
+  ⊢∷Empty→Whnf→Neutral :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Empty →
+    Whnf (Γ .defs) t →
+    Neutral⁺ (Γ .defs) t
+  ⊢∷Empty→Whnf→Neutral ⊢t t-whnf =
+    case red-Empty ⊢t of λ
+      (_ , u-ne , t⇒*u) →
+    case whnfRed*Term t⇒*u t-whnf of λ {
+      PE.refl →
+    ne→ _ u-ne }
+
+opaque
+
   -- If t has a unit type, then t reduces to star or a neutral term
   -- (given a certain assumption).
 
