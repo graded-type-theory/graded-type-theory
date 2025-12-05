@@ -2511,6 +2511,13 @@ Unit-PE-injectivity :
   s₁ ≡ s₂ × l₁ ≡ l₂
 Unit-PE-injectivity refl = refl , refl
 
+-- The constructor star is injective.
+
+star-PE-injectivity :
+  _≡_ {A = Term n} (star s₁ l₁) (star s₂ l₂) →
+  s₁ PE.≡ s₂ × l₁ PE.≡ l₂
+star-PE-injectivity PE.refl = PE.refl , PE.refl
+
 -- The constructor unitrec is injective.
 
 unitrec-PE-injectivity :
