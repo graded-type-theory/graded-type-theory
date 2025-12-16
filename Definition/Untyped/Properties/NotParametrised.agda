@@ -359,6 +359,18 @@ opaque
     cong (λ ξ → step ξ _ _ _) glassifyᵉ-as-DExt
 
 opaque
+
+  -- If α points to something in a definition context of length n,
+  -- then α is less than n.
+
+  ↦∷∈→< :
+    {∇ : DCon A n} →
+    α ↦∷ B ∈ ∇ →
+    α < n
+  ↦∷∈→< here       = ≤-refl
+  ↦∷∈→< (there α↦) = m≤n⇒m≤1+n (↦∷∈→< α↦)
+
+opaque
   unfolding _ᵈ•_
 
   -- If α points to B in ∇ ᵈ• ξ, but not in ξ, then α points to B in
