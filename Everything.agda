@@ -15,6 +15,8 @@ import Tools.Product
 import Tools.PropositionalEquality
 import Tools.Empty
 import Tools.Function
+import Tools.Maybe
+import Tools.String
 
 import Tools.Reasoning.Preorder
 import Tools.Reasoning.Equivalence
@@ -374,6 +376,19 @@ import Definition.Typed.Decidable.Reduction
 import Definition.Typechecking.Decidable.Assumptions
 import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
+
+------------------------------------------------------------------------
+-- An internal type-checker
+
+import Definition.Typed.Decidable.Internal.Term
+import Definition.Typed.Decidable.Internal.Weakening
+import Definition.Typed.Decidable.Internal.Substitution
+import Definition.Typed.Decidable.Internal.Constraints
+import Definition.Typed.Decidable.Internal.Monad
+import Definition.Typed.Decidable.Internal.Tests
+import Definition.Typed.Decidable.Internal.Context
+import Definition.Typed.Decidable.Internal
+import Definition.Typed.Decidable.Internal.Examples
 
 ------------------------------------------------------------------------
 -- Definitions related to type and usage restrictions

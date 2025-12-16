@@ -16,32 +16,22 @@ private variable
 
 pattern _+2 x = x +1 +1
 
--- One.
+pattern x1 = x0 +1
+pattern x2 = x1 +1
+pattern x3 = x2 +1
+pattern x4 = x3 +1
+pattern x5 = x4 +1
+pattern x6 = x5 +1
+pattern x7 = x6 +1
+pattern x8 = x7 +1
+pattern x9 = x8 +1
 
-x1 : Fin (2 + n)
-x1 = x0 +1
-
--- Two.
-
-x2 : Fin (3 + n)
-x2 = x1 +1
-
--- Three.
-
-x3 : Fin (4 + n)
-x3 = x2 +1
-
--- Four.
-
-x4 : Fin (5 + n)
-x4 = x3 +1
-
--- Five.
-
-x5 : Fin (6 + n)
-x5 = x4 +1
-
--- Six.
-
-x6 : Fin (7 + n)
-x6 = x5 +1
+pattern not-x1 = () +1
+pattern not-x2 = () +1 +1
+pattern not-x3 = () +1 +1 +1
+pattern not-x4 = () +1 +1 +1 +1
+pattern not-x5 = () +1 +1 +1 +1 +1
+pattern not-x6 = () +1 +1 +1 +1 +1 +1
+pattern not-x7 = () +1 +1 +1 +1 +1 +1 +1
+pattern not-x8 = () +1 +1 +1 +1 +1 +1 +1 +1
+pattern not-x9 = () +1 +1 +1 +1 +1 +1 +1 +1 +1

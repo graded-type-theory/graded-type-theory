@@ -1,9 +1,7 @@
 ------------------------------------------------------------------------
--- Vectors
+-- Strings
 ------------------------------------------------------------------------
 
-module Tools.Vec where
+module Tools.String where
 
-open import Data.Vec.Base public
-  using (Vec; _∷_; tail; lookup; zipWith; replicate)
-  renaming ([] to ε)
+open import Data.String.Base public using (String)
