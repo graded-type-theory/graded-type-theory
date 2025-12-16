@@ -377,7 +377,7 @@ is-type-constructor? _ =
 data Is-type-constructorˡ {c : Constants} {n} : Term c n → Set a where
   meta-var : ∀ x (σ : Subst c n n′) →
              Is-type-constructorˡ (meta-var x σ)
-  U        : Is-type-constructorˡ (U l)
+  U        : ∀ l → Is-type-constructorˡ (U l)
   Empty    : Is-type-constructorˡ Empty
   Unit     : ∀ s l → Is-type-constructorˡ (Unit s l)
   ΠΣ       : Is-literal-binder-mode b →
@@ -392,7 +392,7 @@ is-type-constructorˡ? : (A : Term c n) → Maybe (Is-type-constructorˡ A)
 is-type-constructorˡ? (meta-var _ _) =
   just (meta-var _ _)
 is-type-constructorˡ? (U _) =
-  just U
+  just (U _)
 is-type-constructorˡ? Empty =
   just Empty
 is-type-constructorˡ? (Unit _ _) =
@@ -478,11 +478,28 @@ are-equal-meta-vars (var x₁ eq₁) (var x₂ eq₂) =
   (λ { PE.refl → PE.cong (var _) N.Nat-set }) M.<$>
   [ dec⇒maybe (x₁ ≟ⱽ x₂) ]with-message "Expected equal meta-variables."
 
+-- A procedure that checks that the level is the level zero.
+
+is-zero : (l : Termˡ n) → Check c (l PE.≡ zero)
+is-zero zero = return PE.refl
+is-zero _    = fail "Expected the level zero."
+
 -- A procedure that checks that the term is an application of U.
 
 is-U : (A : Term c n) → Check c (∃ λ l → A PE.≡ U l)
 is-U (U _) = return (_ , PE.refl)
 is-U _     = fail "Expected an instance of U."
+
+-- A procedure that checks that the term is U l.
+
+is-U[_] :
+  (l : Termˡ (c .ls)) (A : Term c n) → Check c (A PE.≡ U l)
+is-U[_] {c} l A =
+  [ is-U′ A ]with-message "Expected a given instance of U."
+  where
+  is-U′ : (A : Term c n) → Maybe (A PE.≡ U l)
+  is-U′ (U l′) = PE.cong U <$> l′ ≟ˡ l
+  is-U′ _      = nothing
 
 -- Is the term equal to star s l?
 

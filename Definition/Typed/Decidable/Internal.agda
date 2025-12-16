@@ -25,8 +25,6 @@ module Definition.Typed.Decidable.Internal
 
 open Type-restrictions TR
 
-open import Definition.Conversion.Consequences.InverseUniv TR
-
 open import Definition.Typed TR hiding (Trans)
 open import Definition.Typed.Consequences.Injectivity TR
 open import Definition.Typed.Consequences.Inversion TR
@@ -81,6 +79,7 @@ private variable
   Δ Δ₁ Δ₂ Η₁ Η₂       : Con _ _
   Γ                   : Cons _ _ _
   A A₁ A₂ B t t₁ t₂ u : Term _ _
+  l                   : Termˡ _
   σ₁ σ₂               : Subst _ _ _
   Cs                  : Constraints _
 
@@ -588,6 +587,15 @@ mutual
       require (λ γ → []-cong-allowed (⟦ s ⟧ˢ γ))
       return (Id (Erased s A) (box s t₁) (box s t₂))
 
+  -- A variant of infer that checks that the inferred type is U l for
+  -- some universe level l. The level is returned.
+
+  infer-U : Fuel → Cons c m n → Term c n → Check c (Termˡ (c .ls))
+  infer-U n Γ A = do
+    B     ← infer-red n Γ A
+    l , _ ← is-U B
+    return l
+
   -- An equality checker for variable contexts.
 
   equal-con : Fuel → Cons c m n → Con c n → Check c ⊤
@@ -646,8 +654,8 @@ mutual
   equal-tm-red n Γ t₁ t₂ A with is-type-constructorˡ? A
   … | just (meta-var _ _) =
     equal-ne-red n Γ t₁ t₂ A
-  … | just U =
-    equal-ty-red n Γ t₁ t₂
+  … | just (U l) =
+    equal-ty-red-U n Γ t₁ t₂ l
   … | just Empty =
     equal-ne-red n Γ t₁ t₂ A
   … | just (Unit s l) =
@@ -883,6 +891,50 @@ mutual
   … | nothing = do
     B ← equal-ne-inf-red n Γ A₁ A₂
     is-U B
+    return tt
+
+  -- Are the two reduced terms of type U l equal?
+  --
+  -- If equality reflection is disallowed, then it suffices to check
+  -- that the terms are equal as types (see
+  -- Definition.Conversion.Consequences.InverseUniv.inverseUnivEq),
+  -- but that assumption is not made here.
+
+  equal-ty-red-U :
+    Fuel → (Γ : Cons c m n) (A₁ A₂ : Term c n) → Termˡ (c .ls) →
+    Check c ⊤
+  equal-ty-red-U n Γ A₁ A₂ l with are-equal-type-constructors? A₁ A₂
+  … | just (meta-var x₁ σ₁ x₂ σ₂ _) = do
+    Δ₁ , _ ← is-term x₁
+    Δ₂ , A ← is-term x₂
+    A      ← red n (Γ .defs » Δ₂) A
+    is-U[ l ] A
+    PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
+    are-equal-meta-vars x₁ x₂
+    return tt
+  … | just (U _) =
+    return tt
+  … | just (Empty _) =
+    return tt
+  … | just (Unit _) =
+    return tt
+  … | just (ΠΣ A₁₁ A₁₂ A₂₁ A₂₂ _) = do
+    l₁ ← infer-U n Γ A₁₁
+    l₂ ← infer-U n (Γ »∙ A₁₁) A₁₂
+    [ l₁ ⊔ᵘ l₂ ≟ˡ l ]with-message "Expected equal levels."
+    check n Γ A₂₁ (U l₁)
+    check n (Γ »∙ A₁₁) A₂₂ (U l₂)
+    equal-tm n Γ A₁₁ A₂₁ (U l₁)
+    equal-tm n (Γ »∙ A₁₁) A₁₂ A₂₂ (U l₂)
+  … | just (ℕ _) =
+    return tt
+  … | just (Id A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _) = do
+    equal-tm n Γ A₁ A₂ (U l)
+    equal-tm n Γ t₁₁ t₂₁ A₁
+    equal-tm n Γ t₁₂ t₂₂ A₁
+  … | nothing = do
+    B ← equal-ne-inf-red n Γ A₁ A₂
+    is-U[ l ] B
     return tt
 
   -- An equality checker for substitutions. This variant, unlike
@@ -1987,6 +2039,22 @@ opaque mutual
       in
       []-congⱼ′ okᵇᶜ ⊢t₃
 
+  -- Soundness for infer-U.
+
+  infer-U-sound :
+    ⦃ ok : No-equality-reflection ⦄ →
+    ∀ {Γ : Cons c m n} n →
+    OK (infer-U n Γ t) l γ →
+    Meta-con-wf (Γ .defs) γ →
+    ⊢ ⌜ Γ ⌝ᶜ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ U l ⌝ γ
+  infer-U-sound n eq ⊢Μ ⊢Γ
+    with inv->>= eq
+  … | inv _ eq₁ eq
+    with inv->>= eq
+  … | inv (_ , PE.refl) _ ok! =
+    infer-red-sound n eq₁ ⊢Μ ⊢Γ
+
   -- Soundness for equal-con.
 
   equal-con-sound′ :
@@ -2113,9 +2181,8 @@ opaque mutual
     | just (meta-var _ _) =
     equal-ne-red-sound n eq ⊢Μ (wf-⊢∷ ⊢t₁)
   equal-tm-red-sound {t₁} {t₂} n _ eq ⊢Μ ⊢t₁ ⊢t₂
-    | just U =
-    inverseUnivEq ⊢t₁ $
-    equal-ty-red-sound n t₁ t₂ eq ⊢Μ (univ ⊢t₁) (univ ⊢t₂)
+    | just (U _) =
+    equal-ty-red-U-sound t₁ eq ⊢Μ ⊢t₁ ⊢t₂
   equal-tm-red-sound n _ eq ⊢Μ ⊢t₁ ⊢t₂
     | just Empty =
     equal-ne-red-sound n eq ⊢Μ (wf-⊢∷ ⊢t₁)
@@ -2511,6 +2578,88 @@ opaque mutual
     with inv->>= eq
   … | inv (_ , PE.refl) _ ok! =
     univ (equal-ne-inf-red-sound n eq₁ ⊢Μ (wf ⊢A₁))
+
+  -- Soundness for equal-ty-red-U.
+
+  equal-ty-red-U-sound :
+    ⦃ ok : No-equality-reflection ⦄ →
+    ∀ {Γ : Cons c m n} A₁ {n} →
+    OK (equal-ty-red-U n Γ A₁ A₂ l) tt γ →
+    Meta-con-wf (Γ .defs) γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ∷ ⌜ U l ⌝ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₂ ⌝ γ ∷ ⌜ U l ⌝ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A₂ ⌝ γ ∷ ⌜ U l ⌝ γ
+  equal-ty-red-U-sound {A₂} A₁ _ _ _ _
+    with are-equal-type-constructors? A₁ A₂
+  equal-ty-red-U-sound {γ} _ {n} eq ⊢Μ ⊢x₁ _
+    | just (meta-var x₁ σ₁ x₂ σ₂ PE.refl)
+    rewrite ⌜meta-var⌝ {γ = γ} {x = x₁} σ₁
+          | ⌜meta-var⌝ {γ = γ} {x = x₂} σ₂
+    with inv->>= eq
+  … | inv _ _ eq
+    with inv->>= eq
+  … | inv _ eq₁ eq
+    with inv->>= eq
+  … | inv _ eq₂ eq
+    with inv->>= eq
+  … | inv PE.refl _ eq
+    with inv->>= eq
+  … | inv PE.refl eq₃ eq
+    with inv->>= eq
+  … | inv PE.refl _ _ =
+    let ⊢x₂   = is-term-sound eq₁ ⊢Μ
+        ≡U    = red-sound-⊢ ⦃ ok = possibly-nonempty ⦄ n eq₂ (wf-⊢∷ ⊢x₂)
+        σ₁≡σ₂ = equal-sub′-sound eq₃ ⊢Μ (wfTerm ⊢x₁) (wfTerm ⊢x₂)
+    in
+    subst-⊢≡∷ (conv (refl ⊢x₂) ≡U) σ₁≡σ₂
+  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (U PE.refl) =
+    refl ⊢A₁
+  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Empty PE.refl) =
+    refl ⊢A₁
+  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Unit PE.refl) =
+    refl ⊢A₁
+  equal-ty-red-U-sound _ {n} eq ⊢Μ ⊢A₁ ⊢A₂ | just (ΠΣ _ _ _ _ PE.refl)
+    with inv->>= eq
+  … | inv _ eq₁ eq
+    with inv->>= eq
+  … | inv _ eq₂ eq
+    with inv->>= eq
+  … | inv PE.refl _ eq =
+    let inv _ eq₃ eq  = inv->>= eq
+        inv _ eq₄ eq  = inv->>= eq
+        inv _ eq₅ eq₆ = inv->>= eq
+
+        _ , _ , _ , _ , _ , ΠΣ-ok = inversion-ΠΣ-U ⊢A₁
+
+        ⊢Γ      = wfTerm ⊢A₁
+        ⊢A₁₁    = infer-U-sound n eq₁ ⊢Μ ⊢Γ
+        ⊢A₁₂    = infer-U-sound n eq₂ ⊢Μ (∙ univ ⊢A₁₁)
+        ⊢A₂₁    = check-sound′ n eq₃ ⊢Μ (Uⱼ ⊢Γ)
+        ⊢A₂₂    = check-sound′ n eq₄ ⊢Μ (Uⱼ (∙ univ ⊢A₁₁))
+        A₁₁≡A₂₁ = equal-tm-sound′ n eq₅ ⊢Μ ⊢A₁₁ ⊢A₂₁
+        A₁₂≡A₂₂ = equal-tm-sound′ n eq₆ ⊢Μ ⊢A₁₂ ⊢A₂₂
+    in
+    ΠΣ-cong A₁₁≡A₂₁ A₁₂≡A₂₂ ΠΣ-ok
+  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (ℕ PE.refl) =
+    refl ⊢A₁
+  equal-ty-red-U-sound _ {n} eq ⊢Μ ⊢A₁ ⊢A₂
+    | just (Id _ _ _ _ _ _ PE.refl) =
+   let inv _ eq₁ eq      = inv->>= eq
+       inv _ eq₂ eq₃     = inv->>= eq
+       ⊢A₁ , ⊢t₁₁ , ⊢t₁₂ = inversion-Id∷U ⊢A₁
+       ⊢A₂ , ⊢t₂₁ , ⊢t₂₂ = inversion-Id∷U ⊢A₂
+       A₁≡A₂             = equal-tm-sound′ n eq₁ ⊢Μ ⊢A₁ ⊢A₂
+       A₂≡A₁             = sym (univ A₁≡A₂)
+   in
+   Id-cong A₁≡A₂
+     (equal-tm-sound′ n eq₂ ⊢Μ ⊢t₁₁ (conv ⊢t₂₁ A₂≡A₁))
+     (equal-tm-sound′ n eq₃ ⊢Μ ⊢t₁₂ (conv ⊢t₂₂ A₂≡A₁))
+  equal-ty-red-U-sound _ {n} eq ⊢Μ ⊢A₁ _ | nothing
+    with inv->>= eq
+  … | inv _ eq₁ eq
+    with inv->>= eq
+  … | inv PE.refl _ _ =
+    equal-ne-inf-red-sound n eq₁ ⊢Μ (wfTerm ⊢A₁)
 
   -- Soundness for equal-sub′.
 

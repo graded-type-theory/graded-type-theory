@@ -382,14 +382,14 @@ opaque
              I.var x1 I.∘⟨ xp″ ⟩
              I.var x0))
          xA₂ xt I.∘⟨ xp″ ⟩
-       I.lam xp′ xB₂ I.∘⟨ xp″ ⟩
+       I.lam xp′ xB₂ I.∷[ I.Π xp′ , xq′ ▷ xA₂ ▹ I.U xl₂ ] I.∘⟨ xp″ ⟩
        I.lam xp′ xu)
       (I.Id (I.U (xl₁ I.⊔ᵘ xl₂)) (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁)
          (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₂ ▹ xB₂))
       25
       PE.refl
       (ok₁ , ok₁ , ok₂ , ok₂ , ok₁ , ok₁ , ok₃ , ok₃ , ok₂ , ok₂ , ok₂ ,
-       ok₁ , ok₁)
+       ok₁ , ok₁ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂)
       (record
          { bindings-wf = λ where
              (I.var! x0)       → ⊢A₁
