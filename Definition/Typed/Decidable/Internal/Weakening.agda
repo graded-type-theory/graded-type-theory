@@ -102,7 +102,6 @@ opaque mutual
 wk : Wk n₂ n₁ → Term c n₁ → Term c n₂
 wk ρ (t ∷[ A ])              = weaken ρ t ∷[ weaken ρ A ]
 wk ρ (meta-var x σ)          = meta-var x (ρ •ₛ σ)
-wk ρ (⌞ t ⌟ σ)               = ⌞ t ⌟ (ρ •ₛ σ)
 wk ρ (weaken ρ′ t)           = weaken (ρ U.• ρ′) t
 wk ρ (subst t σ)             = subst t (ρ •ₛ σ)
 wk ρ (var x)                 = var (U.wkVar ρ x)
@@ -153,10 +152,6 @@ opaque
     ⌜ x ⌝ᵐ γ U.[ ρ U.•ₛ ⌜ σ ⌝ˢ γ ]    ≡˘⟨ wk-subst (⌜ x ⌝ᵐ γ) ⟩
     U.wk ρ (⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ ])  ≡˘⟨ PE.cong (U.wk _) (⌜meta-var⌝ σ) ⟩
     U.wk ρ (⌜ meta-var x σ ⌝ γ)       ∎
-  ⌜wk⌝ {ρ} {γ} (⌞ t ⌟ σ) =
-    t U.[ ⌜ ρ •ₛ σ ⌝ˢ γ ]      ≡⟨ substVar-to-subst ⌜•ₛ⌝ˢ t ⟩
-    t U.[ ρ U.•ₛ ⌜ σ ⌝ˢ γ ]    ≡˘⟨ wk-subst t ⟩
-    U.wk ρ (t U.[ ⌜ σ ⌝ˢ γ ])  ∎
   ⌜wk⌝ {ρ} {γ} (weaken ρ′ t) =
     ⌜ weaken (ρ U.• ρ′) t ⌝ γ   ≡⟨⟩
     U.wk (ρ U.• ρ′) (⌜ t ⌝ γ)   ≡˘⟨ wk-comp _ _ _ ⟩

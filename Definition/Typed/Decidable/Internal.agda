@@ -137,8 +137,7 @@ mutual
 
   -- Reduction.
   --
-  -- Note that type annotations are removed, and that reduction fails
-  -- if an embedded regular term is encountered.
+  -- Note that type annotations are removed.
   --
   -- Note also that if the definition context's length is not a
   -- literal natural number, then the code can get stuck, due to the
@@ -157,8 +156,6 @@ mutual
       red n Γ t
     red′ _ _ (meta-var x σ) =
       return (meta-var x σ)
-    red′ _ _ (⌞ _ ⌟ _) =
-      fail "Embedded terms are not reduced."
     red′ n Γ (weaken ρ t) =
       red n Γ (wk ρ t)
     red′ n Γ (subst t σ) =
@@ -1158,8 +1155,7 @@ opaque mutual
       red-sound-⊢∷ n eq ⊢t
     red′-sound-⊢∷ _ (meta-var _ _) ok! ⊢x =
       refl ⊢x
-    red′-sound-⊢∷         _ (⌞ _ ⌟ _)    not-ok
-    red′-sound-⊢∷ {γ} {u} n (weaken ρ t) eq     ⊢wk-ρ-t =
+    red′-sound-⊢∷ {γ} {u} n (weaken ρ t) eq ⊢wk-ρ-t =
       let open TmR
           eq′ = PE.sym (⌜wk⌝ t)
       in
@@ -1549,8 +1545,7 @@ opaque mutual
       red-sound-⊢ n eq ⊢t
     red′-sound-⊢ _ (meta-var _ _) ok! ⊢x =
       refl ⊢x
-    red′-sound-⊢         _ (⌞ _ ⌟ _)    not-ok
-    red′-sound-⊢ {γ} {B} n (weaken ρ A) eq     ⊢wk-ρ-A =
+    red′-sound-⊢ {γ} {B} n (weaken ρ A) eq ⊢wk-ρ-A =
       let open TyR
           eq′ = PE.sym (⌜wk⌝ A)
       in

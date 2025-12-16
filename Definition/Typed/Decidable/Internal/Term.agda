@@ -149,10 +149,6 @@ mutual
   --   stands for a well-formed type or a well-typed term, and in the
   --   latter case the term's type can be obtained.
   --
-  -- * Embedded regular terms (combined with substitutions). Note that
-  --   the type-checker does not support these terms. TODO: Remove
-  --   support for them.
-  --
   -- * Explicit weakenings and substitutions. These terms are
   --   translated to regular terms using the function ⌜_⌝ defined
   --   below, and the inclusion of term constructors for applying
@@ -169,7 +165,6 @@ mutual
   data Term (c : Constants) (n : Nat) : Set a where
     _∷[_]        : (t A : Term c n) → Term c n
     meta-var     : (x : Meta-var c m) (σ : Subst c n m) → Term c n
-    ⌞_⌟          : (t : U.Term m) (σ : Subst c n m) → Term c n
     weaken       : (ρ : Wk n m) (t : Term c m) → Term c n
     subst        : (t : Term c m) (σ : Subst c n m) → Term c n
     var          : (x : Fin n) → Term c n
@@ -431,7 +426,6 @@ mutual
   ⌜ meta-var x σ ⌝ γ with is-id? σ
   … | just id = ⌜ x ⌝ᵐ γ
   … | nothing = ⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ ]
-  ⌜ ⌞ t ⌟ σ                 ⌝ γ = t U.[ ⌜ σ ⌝ˢ γ ]
   ⌜ weaken ρ t              ⌝ γ = U.wk ρ (⌜ t ⌝ γ)
   ⌜ subst t σ               ⌝ γ = ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
   ⌜ var x                   ⌝ _ = U.var x
@@ -519,72 +513,6 @@ opaque
 
 ⌜_⌝ᶜ : Cons c m n → Contexts c → U.Cons m n
 ⌜ Γ ⌝ᶜ γ = ⌜ Γ .defs ⌝ᶜᵈ γ » ⌜ Γ .vars ⌝ᶜᵛ γ
-
-------------------------------------------------------------------------
--- Translation from regular contexts
-
-opaque
-
-  -- Turns regular variable contexts into variable contexts.
-  --
-  -- This definition is opaque because it is only intended to be
-  -- applied to contexts that are meta-level variables.
-
-  ⌞_⌟ᶜᵛ : U.Con U.Term n → Con c n
-  ⌞ ε     ⌟ᶜᵛ = ε
-  ⌞ Γ ∙ A ⌟ᶜᵛ = ⌞ Γ ⌟ᶜᵛ ∙ ⌞ A ⌟ id
-
-opaque
-  unfolding ⌞_⌟ᶜᵛ
-
-  -- ⌜_⌝ᶜᵛ δ is a left inverse of ⌞_⌟ᶜᵛ.
-
-  ⌜⌞⌟ᶜᵛ⌝ᶜᵛ : {Γ : U.Con U.Term n} → ⌜ ⌞ Γ ⌟ᶜᵛ ⌝ᶜᵛ γ PE.≡ Γ
-  ⌜⌞⌟ᶜᵛ⌝ᶜᵛ {Γ = ε}     = PE.refl
-  ⌜⌞⌟ᶜᵛ⌝ᶜᵛ {Γ = _ ∙ _} = PE.cong₂ _∙_ ⌜⌞⌟ᶜᵛ⌝ᶜᵛ (subst-id _)
-
-opaque
-
-  -- Turns regular definition contexts into definition contexts.
-  --
-  -- This definition is opaque because it is only intended to be
-  -- applied to contexts that are meta-level variables.
-
-  ⌞_⌟ᶜᵈ : U.DCon (U.Term 0) n → DCon c n
-  ⌞ ε                 ⌟ᶜᵈ = ε
-  ⌞ ∇ ∙⟨ o ⟩[ t ∷ A ] ⌟ᶜᵈ =
-    ⌞ ∇ ⌟ᶜᵈ ∙⟨ o ⟩[ ⌞ t ⌟ id ∷ ⌞ A ⌟ id ]
-
-opaque
-  unfolding ⌞_⌟ᶜᵈ
-
-  -- ⌜_⌝ᶜᵈ γ is a left inverse of ⌞_⌟ᶜᵈ.
-
-  ⌜⌞⌟ᶜᵈ⌝ᶜᵈ : {Γ : U.DCon (U.Term 0) n} → ⌜ ⌞ Γ ⌟ᶜᵈ ⌝ᶜᵈ γ PE.≡ Γ
-  ⌜⌞⌟ᶜᵈ⌝ᶜᵈ {Γ = ε}                 = PE.refl
-  ⌜⌞⌟ᶜᵈ⌝ᶜᵈ {Γ = _ ∙⟨ _ ⟩[ _ ∷ _ ]} =
-    PE.cong₃ _∙⟨ _ ⟩[_∷_] ⌜⌞⌟ᶜᵈ⌝ᶜᵈ (subst-id _) (subst-id _)
-
-opaque
-
-  -- Turns regular context pairs into context triples.
-  --
-  -- This definition is opaque because it is only intended to be
-  -- applied to context pairs that are meta-level variables.
-
-  ⌞_⌟ᶜ : U.Cons m n → Cons c m n
-  ⌞ ∇ » Γ ⌟ᶜ = record
-    { defs = ⌞ ∇ ⌟ᶜᵈ
-    ; vars = ⌞ Γ ⌟ᶜᵛ
-    }
-
-opaque
-  unfolding ⌞_⌟ᶜ
-
-  -- ⌜_⌝ᶜ γ is a left inverse of ⌞_⌟ᶜ.
-
-  ⌜⌞⌟ᶜ⌝ᶜ : {Γ : U.Cons m n} → ⌜ ⌞ Γ ⌟ᶜ ⌝ᶜ γ PE.≡ Γ
-  ⌜⌞⌟ᶜ⌝ᶜ {Γ = _ » _} = PE.cong₂ _»_ ⌜⌞⌟ᶜᵈ⌝ᶜᵈ ⌜⌞⌟ᶜᵛ⌝ᶜᵛ
 
 ------------------------------------------------------------------------
 -- An abbreviation

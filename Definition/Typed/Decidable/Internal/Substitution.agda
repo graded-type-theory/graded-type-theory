@@ -298,7 +298,6 @@ infix 25 _[_]
 _[_] : Term c n₁ → Subst c n₂ n₁ → Term c n₂
 t ∷[ A ]              [ σ ] = subst t σ ∷[ subst A σ ]
 meta-var x σ′         [ σ ] = meta-var x (σ ₛ•ₛ σ′)
-⌞ t ⌟ σ′              [ σ ] = ⌞ t ⌟ (σ ₛ•ₛ σ′)
 weaken ρ t            [ σ ] = subst t (σ ₛ• ρ)
 subst t σ′            [ σ ] = subst t (σ ₛ•ₛ σ′)
 var x                 [ σ ] = x [ σ ]ᵛ
@@ -347,10 +346,6 @@ opaque
     ⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ U.ₛ•ₛ ⌜ σ′ ⌝ˢ γ ]  ≡˘⟨ substCompEq (⌜ x ⌝ᵐ γ) ⟩
     ⌜ x ⌝ᵐ γ U.[ ⌜ σ′ ⌝ˢ γ ] U.[ ⌜ σ ⌝ˢ γ ]  ≡˘⟨ PE.cong U._[ _ ] (⌜meta-var⌝ σ′) ⟩
     ⌜ meta-var x σ′ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]       ∎
-  ⌜[]⌝ {σ} {γ} (⌞ t ⌟ σ′) =
-    t U.[ ⌜ σ ₛ•ₛ σ′ ⌝ˢ γ ]           ≡⟨ substVar-to-subst (⌜ₛ•ₛ⌝ˢ σ) t ⟩
-    t U.[ ⌜ σ ⌝ˢ γ U.ₛ•ₛ ⌜ σ′ ⌝ˢ γ ]  ≡˘⟨ substCompEq t ⟩
-    t U.[ ⌜ σ′ ⌝ˢ γ ] U.[ ⌜ σ ⌝ˢ γ ]  ∎
   ⌜[]⌝ {σ} {γ} (weaken ρ t) =
     ⌜ t ⌝ γ U.[ ⌜ σ ₛ• ρ ⌝ˢ γ ]      ≡⟨ substVar-to-subst (⌜ₛ•⌝ˢ σ) (⌜ t ⌝ _) ⟩
     ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ U.ₛ• ρ ]    ≡˘⟨ subst-wk (⌜ t ⌝ _) ⟩
