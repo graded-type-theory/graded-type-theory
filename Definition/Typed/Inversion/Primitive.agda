@@ -175,6 +175,17 @@ opaque
       _ , ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
 
 opaque
+
+  -- A variant of inversion-Id-U.
+
+  inversion-Id∷U :
+    Γ ⊢ Id A t u ∷ U l →
+    Γ ⊢ A ∷ U l × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
+  inversion-Id∷U ⊢Id =
+    let _ , ⊢A , ⊢t , ⊢u , ≡U = inversion-Id-U ⊢Id in
+    conv ⊢A (sym ≡U) , ⊢t , ⊢u
+
+opaque
   unfolding size-⊢
 
   -- An inversion lemma for Id.
