@@ -675,8 +675,10 @@ mutual
   … | just (ΠΣ BMΣ-𝕨 p _ A₁ A₂) =
     case are-prodʷ? p t₁ t₂ of λ where
       (just (t₁₁ , t₁₂ , t₂₁ , t₂₂ , _)) → do
-        equal-tm n Γ t₁₁ t₂₁ A₁
-        equal-tm n Γ t₁₂ t₂₂ (subst A₂ (sgSubst t₁₁))
+        -- Here check-and-equal-tm is used instead of equal-tm to
+        -- avoid uses of injectivity lemmas.
+        check-and-equal-tm n Γ t₁₁ t₂₁ A₁
+        check-and-equal-tm n Γ t₁₂ t₂₂ (subst A₂ (sgSubst t₁₁))
       nothing →
         equal-ne-red n Γ t₁ t₂ A
   … | just (Id _ _ _) =
@@ -2171,16 +2173,12 @@ opaque mutual
   … | nothing =
     equal-ne-red-sound n eq ⊢Μ (wf-⊢∷ ⊢t₁)
   … | just (_ , _ , _ , _ , PE.refl , PE.refl) =
-    let inv _ eq₁ eq₂   = inv->>= eq
-        _ , ⊢A₂ , Σ-ok  = inversion-ΠΣ (wf-⊢∷ ⊢t₁)
-        ⊢t₁₁ , ⊢t₁₂ , _ = inversion-prod-Σ ⦃ ok = possibly-nonempty ⦄
-                            ⊢t₁
-        ⊢t₂₁ , ⊢t₂₂ , _ = inversion-prod-Σ ⦃ ok = possibly-nonempty ⦄
-                            ⊢t₂
-        t₁₁≡t₂₁         = equal-tm-sound′ n eq₁ ⊢Μ ⊢t₁₁ ⊢t₂₁
-        t₁₂≡t₂₂         = equal-tm-sound′ n eq₂ ⊢Μ ⊢t₁₂
-                            (conv ⊢t₂₂
-                               (sym (substTypeEq (refl ⊢A₂) t₁₁≡t₂₁)))
+    let inv _ eq₁ eq₂    = inv->>= eq
+        ⊢A₁ , ⊢A₂ , Σ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t₁)
+        t₁₁≡t₂₁          = check-and-equal-tm-sound′ n eq₁ ⊢Μ ⊢A₁
+        _ , ⊢t₁₁ , _     = wf-⊢≡∷ t₁₁≡t₂₁
+        t₁₂≡t₂₂          = check-and-equal-tm-sound′ n eq₂ ⊢Μ
+                             (substType ⊢A₂ ⊢t₁₁)
     in
     prod-cong ⊢A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ Σ-ok
   equal-tm-red-sound {t₁} {t₂} n _ eq ⊢Μ ⊢t₁ ⊢t₂
