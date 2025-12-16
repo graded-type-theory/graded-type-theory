@@ -90,6 +90,16 @@ opaque
 opaque
   unfolding _ᵈ•_
 
+  -- A corollary of ᵈ•⊇.
+
+  »∙→»∙⊇ :
+    » ∇ ∙⟨ ω ⟩[ t ∷ A ] →
+    » ∇ ∙⟨ ω ⟩[ t ∷ A ] ⊇ ∇
+  »∙→»∙⊇ = ᵈ•⊇ {ξ = step₁ _ _ _}
+
+opaque
+  unfolding _ᵈ•_
+
   -- If ∇′ is an extension of ∇, then there is some extension ξ such
   -- that ∇′ is equal to ∇ ᵈ• ξ.
 
