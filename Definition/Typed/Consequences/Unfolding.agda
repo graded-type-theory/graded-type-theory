@@ -20,7 +20,6 @@ open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Equality R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Definition R
