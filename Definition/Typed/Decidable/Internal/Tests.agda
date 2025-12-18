@@ -156,24 +156,23 @@ is-literal-binder-mode? _       = nothing
 -- checked rather than inferred.
 
 data Checkable {c : Constants} {n} : Term c n → Set a where
-  lam  : ∀ p t → Checkable (lam p t)
-  prod : ∀ s p t₁ t₂ → Checkable (prod s p t₁ t₂)
-  rfl  : Checkable rfl
+  lam  : ∀ p t → Checkable (lam p nothing t)
+  prod : ∀ s p t₁ t₂ → Checkable (prod s p nothing t₁ t₂)
+  rfl  : Checkable (rfl nothing)
 
 -- Does the term's outermost constructor indicate that its type should
 -- be checked rather than inferred?
 
 checkable? : (t : Term c n) → Maybe (Checkable t)
-checkable? (lam _ _)      = just (lam _ _)
-checkable? (prod _ _ _ _) = just (prod _ _ _ _)
-checkable? rfl            = just rfl
-checkable? _              = nothing
+checkable? (lam _ nothing _)      = just (lam _ _)
+checkable? (prod _ _ nothing _ _) = just (prod _ _ _ _)
+checkable? (rfl nothing)          = just rfl
+checkable? _                      = nothing
 
 -- The term's outermost constructor indicates that its type might be
 -- inferable.
 
 data Inferable {c : Constants} {n} : Term c n → Set a where
-  _∷[_]    : ∀ t A → Inferable (t ∷[ A ])
   meta-var : ∀ x (σ : Subst c n n′) → Inferable (meta-var x σ)
   var      : ∀ x → Inferable (var x)
   defn     : ∀ α → Inferable (defn α)
@@ -184,7 +183,10 @@ data Inferable {c : Constants} {n} : Term c n → Set a where
   Empty    : Inferable Empty
   emptyrec : ∀ A t → Inferable (emptyrec p A t)
   ΠΣ       : ∀ b p q A₁ A₂ → Inferable (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂)
+  lam      : ∀ p q A t → Inferable (lam p (just (q , A)) t)
   app      : ∀ t₁ p t₂ → Inferable (t₁ ∘⟨ p ⟩ t₂)
+  prod     : ∀ s p q A₂ t₁ t₂ →
+             Inferable (prod s p (just (q , A₂)) t₁ t₂)
   fst      : ∀ p t → Inferable (fst p t)
   snd      : ∀ p t → Inferable (snd p t)
   prodrec  : ∀ p A t₁ t₂ → Inferable (prodrec r p q A t₁ t₂)
@@ -193,6 +195,7 @@ data Inferable {c : Constants} {n} : Term c n → Set a where
   suc      : ∀ t → Inferable (suc t)
   natrec   : ∀ A t₁ t₂ t₃ → Inferable (natrec p q r A t₁ t₂ t₃)
   Id       : ∀ A t₁ t₂ → Inferable (Id A t₁ t₂)
+  rfl      : ∀ t → Inferable (rfl (just t))
   J        : ∀ A₁ t₁ A₂ t₂ t₃ t₄ →
              Inferable (J p q A₁ t₁ A₂ t₂ t₃ t₄)
   K        : ∀ A₁ t₁ A₂ t₂ t₃ → Inferable (K p A₁ t₁ A₂ t₂ t₃)
@@ -202,7 +205,6 @@ data Inferable {c : Constants} {n} : Term c n → Set a where
 -- indicates that its type might be inferable.
 
 inferable : (t : Term c n) → Check c (Inferable t)
-inferable (_ ∷[ _ ])              = return (_ ∷[ _ ])
 inferable (meta-var _ _)          = return (meta-var _ _)
 inferable (var _)                 = return (var _)
 inferable (defn _)                = return (defn _)
@@ -213,7 +215,9 @@ inferable (unitrec _ _ _ _ _ _)   = return (unitrec _ _ _ _)
 inferable Empty                   = return Empty
 inferable (emptyrec _ _ _)        = return (emptyrec _ _)
 inferable (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) = return (ΠΣ _ _ _ _ _)
+inferable (lam _ (just _) _)      = return (lam _ _ _ _)
 inferable (_ ∘⟨ _ ⟩ _)            = return (app _ _ _)
+inferable (prod _ _ (just _) _ _) = return (prod _ _ _ _ _ _)
 inferable (fst _ _)               = return (fst _ _)
 inferable (snd _ _)               = return (snd _ _)
 inferable (prodrec _ _ _ _ _ _)   = return (prodrec _ _ _ _)
@@ -222,6 +226,7 @@ inferable zero                    = return zero
 inferable (suc _)                 = return (suc _)
 inferable (natrec _ _ _ _ _ _ _)  = return (natrec _ _ _ _)
 inferable (Id _ _ _)              = return (Id _ _ _)
+inferable (rfl (just _))          = return (rfl _)
 inferable (J _ _ _ _ _ _ _ _)     = return (J _ _ _ _ _ _)
 inferable (K _ _ _ _ _ _)         = return (K _ _ _ _ _)
 inferable ([]-cong _ _ _ _ _)     = return ([]-cong _ _ _ _ _)
@@ -540,9 +545,9 @@ is-ΠΣ b p A =
 
 -- Is the term equal to an application of lam p?
 
-is-lam? : ∀ p (t : Term c n) → Maybe (∃ λ u → t PE.≡ lam p u)
-is-lam? p (lam p′ _) =
-  (λ eq → _ , PE.cong (λ p → lam p _) eq) <$>
+is-lam? : ∀ p (t : Term c n) → Maybe (∃₂ λ qA u → t PE.≡ lam p qA u)
+is-lam? p (lam p′ _ _) =
+  (λ eq → _ , _ , PE.cong (λ p → lam p _ _) eq) <$>
   p′ ≟ᵍ p
 is-lam? _ _ =
   nothing
@@ -550,9 +555,11 @@ is-lam? _ _ =
 -- Is the term equal to an application of prod s p?
 
 is-prod? :
-  ∀ s p (t : Term c n) → Maybe (∃₂ λ t₁ t₂ → t PE.≡ prod s p t₁ t₂)
-is-prod? s p (prod s′ p′ _ _) =
-  (λ eq₁ eq₂ → _ , _ , PE.cong₂ (λ s p → prod s p _ _) eq₁ eq₂) <$>
+  ∀ s p (t : Term c n) →
+  Maybe (∃₃ λ qA₂ t₁ t₂ → t PE.≡ prod s p qA₂ t₁ t₂)
+is-prod? s p (prod s′ p′ _ _ _) =
+  (λ eq₁ eq₂ →
+     _ , _ , _ , PE.cong₂ (λ s p → prod s p _ _ _) eq₁ eq₂) <$>
   s′ ≟ˢ s ⊛ p′ ≟ᵍ p
 is-prod? _ _ _ =
   nothing
@@ -562,11 +569,11 @@ is-prod? _ _ _ =
 are-prodʷ? :
   ∀ p (t₁ t₂ : Term c n) →
   Maybe
-    (∃₄ λ t₁₁ t₁₂ t₂₁ t₂₂ →
-     t₁ PE.≡ prod 𝕨 p t₁₁ t₁₂ × t₂ PE.≡ prod 𝕨 p t₂₁ t₂₂)
-are-prodʷ? p (prod 𝕨 p₁ _ _) (prod 𝕨 p₂ _ _) =
+    (∃₆ λ qA₂₁ t₁₁ t₂₁ qA₂₂ t₁₂ t₂₂ →
+     t₁ PE.≡ prod 𝕨 p qA₂₁ t₁₁ t₂₁ × t₂ PE.≡ prod 𝕨 p qA₂₂ t₁₂ t₂₂)
+are-prodʷ? p (prod 𝕨 p₁ _ _ _) (prod 𝕨 p₂ _ _ _) =
   (λ eq₁ eq₂ →
-     _ , _ , _ , _ ,
+     _ , _ , _ , _ , _ , _ ,
      (case eq₁ of λ {
         PE.refl →
       case eq₂ of λ {
@@ -603,17 +610,19 @@ is-Id : (A : Term c n) → Check c (∃₃ λ B t₁ t₂ → A PE.≡ Id B t₁
 is-Id (Id _ _ _) = return (_ , _ , _ , PE.refl)
 is-Id -          = fail "Expected an identity type."
 
--- Is the term equal to rfl?
+-- Is the term an application of rfl?
 
-is-rfl? : (t : Term c n) → Maybe (t PE.≡ rfl)
-is-rfl? rfl = just PE.refl
-is-rfl? _   = nothing
+is-rfl? : (t : Term c n) → Maybe (∃ λ u → t PE.≡ rfl u)
+is-rfl? (rfl _) = just (_ , PE.refl)
+is-rfl? _       = nothing
 
--- Are both terms equal to rfl?
+-- Are both terms equal to applications of rfl?
 
-are-rfl? : (t₁ t₂ : Term c n) → Maybe (t₁ PE.≡ rfl × t₂ PE.≡ rfl)
-are-rfl? rfl rfl = just (PE.refl , PE.refl)
-are-rfl? _   _   = nothing
+are-rfl? :
+  (t₁ t₂ : Term c n) →
+  Maybe (∃₂ λ u₁ u₂ → t₁ PE.≡ rfl u₁ × t₂ PE.≡ rfl u₂)
+are-rfl? (rfl _) (rfl _) = just (_ , _ , PE.refl , PE.refl)
+are-rfl? _       _       = nothing
 
 ------------------------------------------------------------------------
 -- Some simple tests involving contexts

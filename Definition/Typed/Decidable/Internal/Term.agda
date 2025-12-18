@@ -136,10 +136,9 @@ mutual
   --   grades is at the time of writing only a syntactic check, the
   --   modality laws have not been implemented.)
   --
-  -- * Type annotations. This feature is included so that one can, at
-  --   least sometimes, have things like β-redexes in the terms to be
-  --   type-checked. Note that type annotations are not preserved by
-  --   reduction, and might be ignored by the type-checker.
+  -- * One can optionally annotate some term constructors with extra
+  --   information. This feature is included so that one can have
+  --   things like β-redexes in the terms to be type-checked.
   --
   -- * Variables ("meta-variables") that refer to regular terms or
   --   types. This feature is included so that one can refer to
@@ -158,12 +157,10 @@ mutual
   --   var x0 [ var x1 ]₀: the translation "automatically" has the
   --   right form.
 
-  infixl 35 _∷[_]
   infix  30 ΠΣ⟨_⟩_,_▷_▹_
   infixl 30 _∘⟨_⟩_
 
   data Term (c : Constants) (n : Nat) : Set a where
-    _∷[_]        : (t A : Term c n) → Term c n
     meta-var     : (x : Meta-var c m) (σ : Subst c n m) → Term c n
     weaken       : (ρ : Wk n m) (t : Term c m) → Term c n
     subst        : (t : Term c m) (σ : Subst c n m) → Term c n
@@ -178,10 +175,13 @@ mutual
                    (A : Term c (1+ n)) (t u : Term c n) → Term c n
     ΠΣ⟨_⟩_,_▷_▹_ : (b : Termᵇᵐ (c .ss) (c .bms)) (p q : Termᵍ (c .gs))
                    (A : Term c n) (B : Term c (1+ n)) → Term c n
-    lam          : (p : Termᵍ (c .gs)) (t : Term c (1+ n)) → Term c n
+    lam          : (p : Termᵍ (c .gs))
+                   (qA : Maybe (Termᵍ (c .gs) × Term c n))
+                   (t : Term c (1+ n)) → Term c n
     _∘⟨_⟩_       : (t : Term c n) (p : Termᵍ (c .gs)) (u : Term c n) →
                    Term c n
     prod         : (s : Termˢ (c .ss)) (p : Termᵍ (c .gs))
+                   (qB : Maybe (Termᵍ (c .gs) × Term c (1+ n)))
                    (t u : Term c n) → Term c n
     fst          : (p : Termᵍ (c .gs)) (t : Term c n) → Term c n
     snd          : (p : Termᵍ (c .gs)) (t : Term c n) → Term c n
@@ -194,7 +194,7 @@ mutual
                    (t : Term c n) (u : Term c (2+ n)) (v : Term c n) →
                    Term c n
     Id           : (A t u : Term c n) → Term c n
-    rfl          : Term c n
+    rfl          : (t : Maybe (Term c n)) → Term c n
     J            : (p q : Termᵍ (c .gs)) (A t : Term c n)
                    (B : Term c (2+ n)) (u v w : Term c n) → Term c n
     K            : (p : Termᵍ (c .gs)) (A t : Term c n)
@@ -422,7 +422,6 @@ mutual
   -- Turns terms into regular terms.
 
   ⌜_⌝ : Term c n → Contexts c → U.Term n
-  ⌜ t ∷[ _ ]     ⌝ γ = ⌜ t ⌝ γ
   ⌜ meta-var x σ ⌝ γ with is-id? σ
   … | just id = ⌜ x ⌝ᵐ γ
   … | nothing = ⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ ]
@@ -441,9 +440,9 @@ mutual
                                     (⌜ t₂ ⌝ γ)
   ⌜ ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂ ⌝ γ = U.ΠΣ⟨ ⟦ b ⟧ᵇᵐ γ ⟩ ⟦ p ⟧ᵍ γ ,
                                     ⟦ q ⟧ᵍ γ ▷ ⌜ A₁ ⌝ γ ▹ ⌜ A₂ ⌝ γ
-  ⌜ lam p t                 ⌝ γ = U.lam (⟦ p ⟧ᵍ γ) (⌜ t ⌝ γ)
+  ⌜ lam p _ t               ⌝ γ = U.lam (⟦ p ⟧ᵍ γ) (⌜ t ⌝ γ)
   ⌜ t₁ ∘⟨ p ⟩ t₂            ⌝ γ = ⌜ t₁ ⌝ γ U.∘⟨ ⟦ p ⟧ᵍ γ ⟩ ⌜ t₂ ⌝ γ
-  ⌜ prod s p t₁ t₂          ⌝ γ = U.prod (⟦ s ⟧ˢ γ) (⟦ p ⟧ᵍ γ)
+  ⌜ prod s p _ t₁ t₂        ⌝ γ = U.prod (⟦ s ⟧ˢ γ) (⟦ p ⟧ᵍ γ)
                                     (⌜ t₁ ⌝ γ) (⌜ t₂ ⌝ γ)
   ⌜ fst p t                 ⌝ γ = U.fst (⟦ p ⟧ᵍ γ) (⌜ t ⌝ γ)
   ⌜ snd p t                 ⌝ γ = U.snd (⟦ p ⟧ᵍ γ) (⌜ t ⌝ γ)
@@ -457,7 +456,7 @@ mutual
                                     (⟦ r ⟧ᵍ γ) (⌜ A ⌝ γ) (⌜ t₁ ⌝ γ)
                                     (⌜ t₂ ⌝ γ) (⌜ t₃ ⌝ γ)
   ⌜ Id A t₁ t₂              ⌝ γ = U.Id (⌜ A ⌝ γ) (⌜ t₁ ⌝ γ) (⌜ t₂ ⌝ γ)
-  ⌜ rfl                     ⌝ _ = U.rfl
+  ⌜ rfl _                   ⌝ _ = U.rfl
   ⌜ J p q A₁ t₁ A₂ t₂ t₃ t₄ ⌝ γ = U.J (⟦ p ⟧ᵍ γ) (⟦ q ⟧ᵍ γ) (⌜ A₁ ⌝ γ)
                                     (⌜ t₁ ⌝ γ) (⌜ A₂ ⌝ γ) (⌜ t₂ ⌝ γ)
                                     (⌜ t₃ ⌝ γ) (⌜ t₄ ⌝ γ)
@@ -563,4 +562,4 @@ Erased s A = ΠΣ⟨ BMΣ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Unit s zero
 -- The term constructor [_].
 
 box : Termˢ (c .ss) → Term c n → Term c n
-box s t = prod s 𝟘 t (star s zero)
+box s t = prod s 𝟘 (just (𝟘 , Unit s zero)) t (star s zero)

@@ -21,7 +21,10 @@ open import Definition.Untyped.Properties M
 open Wk
 
 open import Tools.Fin
+open import Tools.Function
+open import Tools.Maybe
 open import Tools.Nat as N
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
@@ -100,7 +103,6 @@ opaque mutual
 -- it just below the term's top-level constructor.
 
 wk : Wk n₂ n₁ → Term c n₁ → Term c n₂
-wk ρ (t ∷[ A ])              = weaken ρ t ∷[ weaken ρ A ]
 wk ρ (meta-var x σ)          = meta-var x (ρ •ₛ σ)
 wk ρ (weaken ρ′ t)           = weaken (ρ U.• ρ′) t
 wk ρ (subst t σ)             = subst t (ρ •ₛ σ)
@@ -115,9 +117,12 @@ wk ρ (unitrec l p q A t u)   = unitrec l p q (weaken (lift ρ) A)
                                  (weaken ρ t) (weaken ρ u)
 wk ρ (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) = ΠΣ⟨ b ⟩ p , q ▷ weaken ρ A ▹
                                weaken (lift ρ) B
-wk ρ (lam p t)               = lam p (weaken (lift ρ) t)
+wk ρ (lam p qA t)            = lam p (Σ.map idᶠ (weaken ρ) <$> qA)
+                                 (weaken (lift ρ) t)
 wk ρ (t ∘⟨ p ⟩ u)            = weaken ρ t ∘⟨ p ⟩ weaken ρ u
-wk ρ (prod s p t u)          = prod s p (weaken ρ t) (weaken ρ u)
+wk ρ (prod s p qB t u)       = prod s p
+                                 (Σ.map idᶠ (weaken (lift ρ)) <$> qB)
+                                 (weaken ρ t) (weaken ρ u)
 wk ρ (fst p t)               = fst p (weaken ρ t)
 wk ρ (snd p t)               = snd p (weaken ρ t)
 wk ρ (prodrec r p q A t u)   = prodrec r p q (weaken (lift ρ) A)
@@ -129,7 +134,7 @@ wk ρ (natrec p q r A t u v)  = natrec p q r (weaken (lift ρ) A)
                                  (weaken ρ t) (weaken (U.liftn ρ 2) u)
                                  (weaken ρ v)
 wk ρ (Id A t u)              = Id (weaken ρ A) (weaken ρ t) (weaken ρ u)
-wk ρ rfl                     = rfl
+wk ρ (rfl t)                 = rfl (weaken ρ <$> t)
 wk ρ (J p q A t B u v w)     = J p q (weaken ρ A) (weaken ρ t)
                                  (weaken (U.liftn ρ 2) B) (weaken ρ u)
                                  (weaken ρ v) (weaken ρ w)
@@ -144,8 +149,6 @@ opaque
   -- The function ⌜_⌝ commutes with weakening.
 
   ⌜wk⌝ : (t : Term c n) → ⌜ wk ρ t ⌝ γ PE.≡ U.wk ρ (⌜ t ⌝ γ)
-  ⌜wk⌝ (_ ∷[ _ ]) =
-    PE.refl
   ⌜wk⌝ {ρ} {γ} (meta-var x σ) =
     ⌜ meta-var x (ρ •ₛ σ) ⌝ γ         ≡⟨ ⌜meta-var⌝ (ρ •ₛ _) ⟩
     ⌜ x ⌝ᵐ γ U.[ ⌜ ρ •ₛ σ ⌝ˢ γ ]      ≡⟨ substVar-to-subst ⌜•ₛ⌝ˢ (⌜ x ⌝ᵐ γ) ⟩
@@ -178,11 +181,11 @@ opaque
     PE.refl
   ⌜wk⌝ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) =
     PE.refl
-  ⌜wk⌝ (lam _ _) =
+  ⌜wk⌝ (lam _ _ _) =
     PE.refl
   ⌜wk⌝ (_ ∘⟨ _ ⟩ _) =
     PE.refl
-  ⌜wk⌝ (prod _ _ _ _) =
+  ⌜wk⌝ (prod _ _ _ _ _) =
     PE.refl
   ⌜wk⌝ (fst _ _) =
     PE.refl
@@ -200,7 +203,7 @@ opaque
     PE.refl
   ⌜wk⌝ (Id _ _ _) =
     PE.refl
-  ⌜wk⌝ rfl =
+  ⌜wk⌝ (rfl _) =
     PE.refl
   ⌜wk⌝ (J _ _ _ _ _ _ _ _) =
     PE.refl

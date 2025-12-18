@@ -23,7 +23,9 @@ open Wk
 
 open import Tools.Function
 open import Tools.Fin
+open import Tools.Maybe
 open import Tools.Nat as N
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
@@ -296,7 +298,6 @@ opaque
 infix 25 _[_]
 
 _[_] : Term c n₁ → Subst c n₂ n₁ → Term c n₂
-t ∷[ A ]              [ σ ] = subst t σ ∷[ subst A σ ]
 meta-var x σ′         [ σ ] = meta-var x (σ ₛ•ₛ σ′)
 weaken ρ t            [ σ ] = subst t (σ ₛ• ρ)
 subst t σ′            [ σ ] = subst t (σ ₛ•ₛ σ′)
@@ -310,9 +311,12 @@ star s l              [ σ ] = star s l
 unitrec l p q A t u   [ σ ] = unitrec l p q (subst A (σ ⇑)) (subst t σ)
                                 (subst u σ)
 ΠΣ⟨ b ⟩ p , q ▷ A ▹ B [ σ ] = ΠΣ⟨ b ⟩ p , q ▷ subst A σ ▹ subst B (σ ⇑)
-lam p t               [ σ ] = lam p (subst t (σ ⇑))
+lam p qA t            [ σ ] = lam p (Σ.map idᶠ (flip subst σ) <$> qA)
+                                (subst t (σ ⇑))
 t ∘⟨ p ⟩ u            [ σ ] = subst t σ ∘⟨ p ⟩ subst u σ
-prod s p t u          [ σ ] = prod s p (subst t σ) (subst u σ)
+prod s p qB t u       [ σ ] = prod s p
+                                (Σ.map idᶠ (flip subst (σ ⇑)) <$> qB)
+                                (subst t σ) (subst u σ)
 fst p t               [ σ ] = fst p (subst t σ)
 snd p t               [ σ ] = snd p (subst t σ)
 prodrec r p q A t u   [ σ ] = prodrec r p q (subst A (σ ⇑)) (subst t σ)
@@ -323,7 +327,7 @@ suc t                 [ σ ] = suc (subst t σ)
 natrec p q r A t u v  [ σ ] = natrec p q r (subst A (σ ⇑)) (subst t σ)
                                 (subst u (σ ⇑[ 2 ])) (subst v σ)
 Id A t u              [ σ ] = Id (subst A σ) (subst t σ) (subst u σ)
-rfl                   [ σ ] = rfl
+rfl t                 [ σ ] = rfl (flip subst σ <$> t)
 J p q A t B u v w     [ σ ] = J p q (subst A σ) (subst t σ)
                                 (subst B (σ ⇑[ 2 ])) (subst u σ)
                                 (subst v σ) (subst w σ)
@@ -338,8 +342,6 @@ opaque
 
   ⌜[]⌝ :
     (t : Term c n) → ⌜ t [ σ ] ⌝ γ PE.≡ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
-  ⌜[]⌝ (_ ∷[ _ ]) =
-    PE.refl
   ⌜[]⌝ {σ} {γ} (meta-var x σ′) =
     ⌜ meta-var x (σ ₛ•ₛ σ′) ⌝ γ              ≡⟨ ⌜meta-var⌝ (σ ₛ•ₛ _) ⟩
     ⌜ x ⌝ᵐ γ U.[ ⌜ σ ₛ•ₛ σ′ ⌝ˢ γ ]           ≡⟨ substVar-to-subst (⌜ₛ•ₛ⌝ˢ σ) (⌜ x ⌝ᵐ γ) ⟩
@@ -372,11 +374,11 @@ opaque
     PE.refl
   ⌜[]⌝ (ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _) =
     PE.refl
-  ⌜[]⌝ (lam _ _) =
+  ⌜[]⌝ (lam _ _ _) =
     PE.refl
   ⌜[]⌝ (_ ∘⟨ _ ⟩ _) =
     PE.refl
-  ⌜[]⌝ (prod _ _ _ _) =
+  ⌜[]⌝ (prod _ _ _ _ _) =
     PE.refl
   ⌜[]⌝ (fst _ _) =
     PE.refl
@@ -394,7 +396,7 @@ opaque
     PE.refl
   ⌜[]⌝ (Id _ _ _) =
     PE.refl
-  ⌜[]⌝ rfl =
+  ⌜[]⌝ (rfl _) =
     PE.refl
   ⌜[]⌝ (J _ _ _ _ _ _ _ _) =
     PE.refl

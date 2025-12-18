@@ -72,10 +72,9 @@ opaque
     check-and-equal-cons-type-and-terms-sound
       (I.empty-Contexts false)
       (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ] I.» I.ε)
-      (I.lam I.ω $
-       I.lam I.ω (I.var x0) I.∷[ I.Π I.ω , I.ω ▷ I.ℕ ▹ I.ℕ ]
-         I.∘⟨ I.ω ⟩ I.zero)
-      (I.lam I.ω (I.defn 0))
+      (I.lam I.ω nothing $
+       I.lam I.ω (just (I.ω , I.ℕ)) (I.var x0) I.∘⟨ I.ω ⟩ I.zero)
+      (I.lam I.ω nothing (I.defn 0))
       (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
       9
       PE.refl
@@ -119,11 +118,11 @@ opaque
          ; ⌜base⌝       = ε » Δ
          })
       (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ]
-           I.∙⟨ tra ⟩[ I.lam I.ω (I.var x0) ∷
+           I.∙⟨ tra ⟩[ I.lam I.ω nothing (I.var x0) ∷
                        I.Π I.ω , I.ω ▷ I.ℕ ▹ I.ℕ ] I.»
            I.base)
-      (I.lam I.ω (I.defn 1 I.∘⟨ I.ω ⟩ I.zero))
-      (I.lam I.ω (I.defn 0))
+      (I.lam I.ω nothing (I.defn 1 I.∘⟨ I.ω ⟩ I.zero))
+      (I.lam I.ω nothing (I.defn 0))
       (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
       8
       PE.refl
@@ -133,7 +132,7 @@ opaque
        check-dcon-sound
          (I.empty-Contexts false)
          (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ]
-              I.∙⟨ tra ⟩[ I.lam I.ω (I.var x0) ∷
+              I.∙⟨ tra ⟩[ I.lam I.ω nothing (I.var x0) ∷
                           I.Π I.ω , I.ω ▷ I.ℕ ▹ I.ℕ ])
          5
          PE.refl
@@ -156,7 +155,7 @@ private
   cong′ p A t u B v w =
     subst′ p A
       (I.Id (W.wk[ 1 ] B) (W.wk[ 1 ] (I.subst v (S.sgSubst t))) v) t u w
-      I.rfl
+      (I.rfl nothing)
 
   cast′ :
     I.Termˡ (c .I.ls) → I.Term c n → I.Term c n → I.Term c n →
@@ -368,22 +367,22 @@ opaque
             (W.wk[ 4 ] (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁))
             (I.ΠΣ⟨ xb ⟩ xp , xq ▷ I.var x3 ▹
              (I.var x2 I.∘⟨ xp′ ⟩ I.var x0)))
-         (I.lam xp″ $ I.lam xp″ $
+         (I.lam xp″ nothing $ I.lam xp″ nothing $
           cong′ I.ω (W.wk[ 2 ] (I.Π xp′ , xq′ ▷ xA₁ ▹ I.U xl₂))
-            (W.wk[ 2 ]
-               (I.lam xp′ xB₁ I.∷[ I.Π xp′ , xq′ ▷ xA₁ ▹ I.U xl₂ ]))
+            (W.wk[ 2 ] (I.lam xp′ (just (xq′ , xA₁)) xB₁))
             (I.var x1)
             (I.U (xl₁ I.⊔ᵘ xl₂))
             (I.ΠΣ⟨ xb ⟩ xp , xq ▷ W.wk[ 3 ] xA₁ ▹
              (I.var x1 I.∘⟨ xp′ ⟩ I.var x0))
             (W.wk[ 2 ]
                (xfunext I.∘⟨ xp′ ⟩ xA₁ I.∘⟨ xp″ ⟩
-                I.lam xp′ (I.U xl₂) I.∘⟨ xp″ ⟩ I.lam xp′ xB₁) I.∘⟨ xp″ ⟩
+                I.lam xp′ nothing (I.U xl₂) I.∘⟨ xp″ ⟩
+                I.lam xp′ nothing xB₁) I.∘⟨ xp″ ⟩
              I.var x1 I.∘⟨ xp″ ⟩
              I.var x0))
          xA₂ xt I.∘⟨ xp″ ⟩
-       I.lam xp′ xB₂ I.∷[ I.Π xp′ , xq′ ▷ xA₂ ▹ I.U xl₂ ] I.∘⟨ xp″ ⟩
-       I.lam xp′ xu)
+       I.lam xp′ (just (xq′ , xA₂)) xB₂ I.∘⟨ xp″ ⟩
+       I.lam xp′ nothing xu)
       (I.Id (I.U (xl₁ I.⊔ᵘ xl₂)) (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁)
          (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₂ ▹ xB₂))
       25
