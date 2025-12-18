@@ -22,7 +22,6 @@ import Definition.Typed.Decidable.Internal.Term 𝕄 as I
 import Definition.Typed.Decidable.Internal.Substitution 𝕄 as S
 import Definition.Typed.Decidable.Internal.Weakening 𝕄 as W
 open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
 open import Definition.Typed.Properties.Well-formed TR
 open import Definition.Typed.Substitution.Primitive TR
 open import Definition.Typed.Weakening.Definition TR
@@ -43,14 +42,11 @@ import Tools.PropositionalEquality as PE
 import Tools.Vec as V
 
 private variable
-  m n                     : Nat
-  c                       : I.Constants
-  Γ                       : DCon _ _
-  Δ                       : Con _ _
-  A A₁ A₂ B B₁ B₂ t u v w : Term _
-  l₁ l₂                   : Universe-level
-  b                       : BinderMode
-  p p′ p″ q q′ q″         : M
+  m n         : Nat
+  c           : I.Constants
+  Δ           : Con _ _
+  A B t u v w : Term _
+  p           : M
 
 opaque
 
@@ -136,48 +132,6 @@ opaque
          ok₁
          ε)
 
-private
-
-  -- Some term formers used in the examples below.
-
-  subst′ :
-    I.Termᵍ (c .I.gs) → I.Term c n → I.Term c (1+ n) → I.Term c n →
-    I.Term c n → I.Term c n → I.Term c n → I.Term c n
-  subst′ p A B t u v w =
-    I.J p I.𝟘 A t (W.wk[ 1 ] B) w u v
-
-  cong′ :
-    I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n → I.Term c n →
-    I.Term c n → I.Term c (1+ n) → I.Term c n → I.Term c n
-  cong′ p A t u B v w =
-    subst′ p A
-      (I.Id (W.wk[ 1 ] B) (W.wk[ 1 ] (I.subst v (S.sgSubst t))) v) t u w
-      (I.rfl nothing)
-
-  cast′ :
-    I.Termˡ (c .I.ls) → I.Term c n → I.Term c n → I.Term c n →
-    I.Term c n → I.Term c n
-  cast′ l A B t u =
-    subst′ I.𝟙 (I.U l) (I.var x0) A B t u
-
-  Funext′ :
-    I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) →
-    I.Termᵍ (c .I.gs) → I.Termˡ (c .I.ls) → I.Termˡ (c .I.ls) →
-    I.Term c n
-  Funext′ p q p′ q′ l₁ l₂ =
-    I.Π p , q ▷ I.U l₁ ▹
-    I.Π p′ , q′ ▷ (I.Π p , q ▷ I.var x0 ▹ I.U l₂) ▹
-    let Π-type = I.Π p , q ▷ I.var x1 ▹ (I.var x1 I.∘⟨ p ⟩ I.var x0)
-    in
-    I.Π p′ , q′ ▷ Π-type ▹
-    I.Π p′ , q′ ▷ W.wk[ 1 ] Π-type ▹
-    I.Π p′ , q′ ▷
-      (I.Π p , q ▷ I.var x3 ▹
-       I.Id (I.var x3 I.∘⟨ p ⟩ I.var x0)
-         (I.var x2 I.∘⟨ p ⟩ I.var x0)
-         (I.var x1 I.∘⟨ p ⟩ I.var x0)) ▹
-    I.Id (W.wk[ 3 ] Π-type) (I.var x2) (I.var x1)
-
 opaque
   unfolding subst
 
@@ -194,7 +148,7 @@ opaque
     check-type-and-term-sound
       γ′
       (I.base nothing I.» I.base)
-      (subst′ (I.var x0) (I.varᵐ x0) (I.varᵐ x1) (I.varᵐ x2) (I.varᵐ x3)
+      (substᵢ (I.var x0) (I.varᵐ x0) (I.varᵐ x1) (I.varᵐ x2) (I.varᵐ x3)
          (I.varᵐ x4) (I.varᵐ x5))
       (I.subst (I.varᵐ x1) (S.sgSubst (I.varᵐ x3)))
       9
@@ -264,7 +218,7 @@ opaque
     check-type-and-term-sound
       γ′
       (I.base nothing I.» I.base)
-      (cong′ (I.var x0) (I.varᵐ x0) (I.varᵐ x1) (I.varᵐ x2) (I.varᵐ x3)
+      (congᵢ (I.var x0) (I.varᵐ x0) (I.varᵐ x1) (I.varᵐ x2) (I.varᵐ x3)
          (I.varᵐ x4) (I.varᵐ x5))
       (I.Id (I.varᵐ x3) (I.subst (I.varᵐ x4) (S.sgSubst (I.varᵐ x1)))
          (I.subst (I.varᵐ x4) (S.sgSubst (I.varᵐ x2))))
@@ -312,154 +266,3 @@ opaque
         (I.var! x5) →
           I.base , I.term w (I.Id (I.varᵐ x0) (I.varᵐ x1) (I.varᵐ x2))
         (I.var not-x6 _)
-
-opaque
-  unfolding Funext Has-function-extensionality cast cong subst
-
-  -- A larger example.
-  --
-  -- This example makes use of a type annotation, because the code
-  -- that is type-checked contains a β-redex (the application of cong′
-  -- gives rise to a β-redex).
-
-  ΠΣ-cong-Idˡ′ :
-    {Γ : Cons m n} →
-    ΠΣ-allowed b p q →
-    Π-allowed p′ q′ →
-    Π-allowed p″ q″ →
-    Has-function-extensionality p′ q′ p″ q″ l₁ (1+ l₂) Γ →
-    Γ »∙ A₂ ⊢ B₂ ∷ U l₂ →
-    Γ ⊢ t ∷ Id (U l₁) A₁ A₂ →
-    Γ »∙ A₁ ⊢ u ∷
-      Id (U l₂) B₁
-        (B₂ [ cast l₁ (wk1 A₁) (wk1 A₂) (wk1 t) (var x0) ]↑) →
-    ∃ λ v →
-      Γ ⊢ v ∷
-        Id (U (l₁ ⊔ᵘ l₂)) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
-          (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
-  ΠΣ-cong-Idˡ′
-    {m} {n} {b} {p} {q} {p′} {q′} {p″} {q″} {l₁} {l₂}
-    {A₂} {B₂} {t} {A₁} {u} {B₁} {Γ}
-    ok₁ ok₂ ok₃ (funext , ⊢funext) ⊢B₂ ⊢t ⊢u =
-    let _ , ⊢A₁ , ⊢A₂ = inversion-Id (wf-⊢∷ ⊢t)
-        _ , ⊢B₁ , _   = inversion-Id (wf-⊢∷ ⊢u)
-    in
-    _ ,
-    check-type-and-term-sound
-      γ′
-      (I.base nothing I.» I.base)
-      (I.J I.ω I.ω (I.U xl₁) xA₁
-         (I.Π xp″ , xq″ ▷ (I.Π xp′ , xq′ ▷ I.var x1 ▹ I.U xl₂) ▹
-          I.Π xp″ , xq″ ▷
-            I.Π xp′ , xq′ ▷ W.wk[ 3 ] xA₁ ▹
-            I.Id (I.U xl₂)
-              (I.subst xB₁ (I.cons (S.wkSubst 4 I.id) (I.var x0)))
-              (I.var x1 I.∘⟨ xp′ ⟩
-               cast′ xl₁ (W.wk[ 4 ] xA₁) (I.var x3) (I.var x2)
-                 (I.var x0)) ▹
-          I.Id (I.U (xl₁ I.⊔ᵘ xl₂))
-            (W.wk[ 4 ] (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁))
-            (I.ΠΣ⟨ xb ⟩ xp , xq ▷ I.var x3 ▹
-             (I.var x2 I.∘⟨ xp′ ⟩ I.var x0)))
-         (I.lam xp″ nothing $ I.lam xp″ nothing $
-          cong′ I.ω (W.wk[ 2 ] (I.Π xp′ , xq′ ▷ xA₁ ▹ I.U xl₂))
-            (W.wk[ 2 ] (I.lam xp′ (just (xq′ , xA₁)) xB₁))
-            (I.var x1)
-            (I.U (xl₁ I.⊔ᵘ xl₂))
-            (I.ΠΣ⟨ xb ⟩ xp , xq ▷ W.wk[ 3 ] xA₁ ▹
-             (I.var x1 I.∘⟨ xp′ ⟩ I.var x0))
-            (W.wk[ 2 ]
-               (xfunext I.∘⟨ xp′ ⟩ xA₁ I.∘⟨ xp″ ⟩
-                I.lam xp′ nothing (I.U xl₂) I.∘⟨ xp″ ⟩
-                I.lam xp′ nothing xB₁) I.∘⟨ xp″ ⟩
-             I.var x1 I.∘⟨ xp″ ⟩
-             I.var x0))
-         xA₂ xt I.∘⟨ xp″ ⟩
-       I.lam xp′ nothing xB₂ I.∘⟨ xp″ ⟩
-       I.lam xp′ nothing xu)
-      (I.Id (I.U (xl₁ I.⊔ᵘ xl₂)) (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁)
-         (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₂ ▹ xB₂))
-      25
-      PE.refl
-      (ok₁ , ok₁ , ok₂ , ok₂ , ok₁ , ok₁ , ok₃ , ok₃ , ok₂ , ok₂ , ok₂ ,
-       ok₁ , ok₁ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
-       ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
-       ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
-       ok₂)
-      (record
-         { bindings-wf = λ where
-             (I.var! x0)       → ⊢A₁
-             (I.var! x1)       → ⊢B₁
-             (I.var! x2)       → ⊢A₂
-             (I.var! x3)       → ⊢B₂
-             (I.var! x4)       → ⊢t
-             (I.var! x5)       → ⊢u
-             (I.var! x6)       → ⊢funext
-             (I.var  not-x7 _)
-         })
-      (wfTerm ⊢A₁)
-      where
-      c′ : I.Constants
-      c′ .I.gs               = 6
-      c′ .I.ls               = 2
-      c′ .I.ss               = 0
-      c′ .I.bms              = 1
-      c′ .I.ms               = 7
-      c′ .I.base-dcon-size   = m
-      c′ .I.base-con-size    = n
-      c′ .I.base-con-allowed = true
-      c′ .I.meta-con-size    =
-        n V.∷ 1+ n V.∷ n V.∷ 1+ n V.∷ n V.∷ 1+ n V.∷ n V.∷ V.ε
-
-      xb : I.Termᵇᵐ 0 1
-      xb = I.var x0
-
-      xl₁ xl₂ : I.Termˡ 2
-      xl₁ = I.var x0
-      xl₂ = I.var x1
-
-      xp xp′ xp″ xq xq′ xq″ : I.Termᵍ 6
-      xp  = I.var x0
-      xp′ = I.var x1
-      xp″ = I.var x2
-      xq  = I.var x3
-      xq′ = I.var x4
-      xq″ = I.var x5
-
-      xA₁ xA₂ xt xfunext : I.Term c′ n
-      xA₁     = I.varᵐ x0
-      xA₂     = I.varᵐ x2
-      xt      = I.varᵐ x4
-      xfunext = I.varᵐ x6
-
-      xB₁ xB₂ xu : I.Term c′ (1+ n)
-      xB₁ = I.varᵐ x1
-      xB₂ = I.varᵐ x3
-      xu  = I.varᵐ x5
-
-      γ′ : I.Contexts c′
-      γ′ .I.grades            = p V.∷ p′ V.∷ p″ V.∷ q V.∷ q′ V.∷ q″ V.∷
-                                V.ε
-      γ′ .I.levels            = l₁ V.∷ l₂ V.∷ V.ε
-      γ′ .I.strengths         = V.ε
-      γ′ .I.binder-modes      = b V.∷ V.ε
-      γ′ .I.⌜base⌝            = Γ
-      γ′ .I.metas .I.bindings = λ where
-        (I.var! x0) → I.base , I.term A₁ (I.U xl₁)
-        (I.var! x1) → I.base I.∙ xA₁ , I.term B₁ (I.U xl₂)
-        (I.var! x2) → I.base , I.term A₂ (I.U xl₁)
-        (I.var! x3) → I.base I.∙ xA₂ , I.term B₂ (I.U xl₂)
-        (I.var! x4) → I.base , I.term t  (I.Id (I.U xl₁) xA₁ xA₂)
-        (I.var! x5) →
-          I.base I.∙ xA₁ ,
-          I.term u
-            (I.Id (I.U xl₂) xB₁
-               (I.subst xB₂
-                  (I.cons (I.wk1 I.id)
-                     (I.J I.𝟙 I.𝟘 (I.U xl₁) (W.wk[ 1 ] xA₁)
-                        (W.wk[ 1 ] (I.var x0)) (I.var x0)
-                        (W.wk[ 1 ] xA₂) (W.wk[ 1 ] xt)))))
-        (I.var! x6) →
-          I.base ,
-          I.term funext (Funext′ xp′ xq′ xp″ xq″ xl₁ (I.suc xl₂))
-        (I.var not-x7 _)
