@@ -4,24 +4,20 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
-open import Graded.Usage.Restrictions
 
 module Definition.Typed.Decidable.Internal.Tests
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Monad TR UR as M
+open import Definition.Typed.Decidable.Internal.Monad TR as M
   hiding (_<$>_; _⊛_)
-open import Definition.Typed.Decidable.Internal.Term TR UR
-open import Definition.Typed.Decidable.Internal.Substitution TR UR
+open import Definition.Typed.Decidable.Internal.Term TR
+open import Definition.Typed.Decidable.Internal.Substitution TR
 
 open import Definition.Untyped M using (Wk)
 open import Definition.Untyped.Properties M
-
-open import Graded.Usage.Restrictions.Natrec 𝕄
 
 open import Tools.Bool as B using (T)
 open import Tools.Fin
@@ -75,14 +71,6 @@ t₁₁ · t₁₂ ≟ᵍ t₂₁ · t₂₂ =
   PE.cong₂ _·_ <$> t₁₁ ≟ᵍ t₂₁ ⊛ t₁₂ ≟ᵍ t₂₂
 t₁₁ ∧ t₁₂ ≟ᵍ t₂₁ ∧ t₂₂ =
   PE.cong₂ _∧_ <$> t₁₁ ≟ᵍ t₂₁ ⊛ t₁₂ ≟ᵍ t₂₂
-nr ⦃ has-nr = has-nr₁ ⦄ t₁₁ t₁₂ t₁₃ t₁₄ t₁₅ ≟ᵍ
-  nr ⦃ has-nr = has-nr₂ ⦄ t₂₁ t₂₂ t₂₃ t₂₄ t₂₅ =
-  (λ { PE.refl PE.refl PE.refl PE.refl PE.refl →
-       case Nr-available-propositional has-nr₁ has-nr₂ of λ {
-         PE.refl →
-       PE.refl }}) <$>
-  t₁₁ ≟ᵍ t₂₁ ⊛ t₁₂ ≟ᵍ t₂₂ ⊛ t₁₃ ≟ᵍ t₂₃ ⊛ t₁₄ ≟ᵍ t₂₄ ⊛
-  t₁₅ ≟ᵍ t₂₅
 _ ≟ᵍ _ =
   nothing
 

@@ -14,26 +14,24 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
-open import Graded.Usage.Restrictions
 
 module Definition.Typed.Decidable.Internal
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
   where
 
 open Type-restrictions TR
 
 open import Definition.Typed TR hiding (Trans)
 open import Definition.Typed.Consequences.Unfolding TR
-open import Definition.Typed.Decidable.Internal.Constraints TR UR
-open import Definition.Typed.Decidable.Internal.Context TR UR
-open import Definition.Typed.Decidable.Internal.Monad TR UR
-open import Definition.Typed.Decidable.Internal.Substitution TR UR
-open import Definition.Typed.Decidable.Internal.Term TR UR
-open import Definition.Typed.Decidable.Internal.Tests TR UR
-open import Definition.Typed.Decidable.Internal.Weakening TR UR
+open import Definition.Typed.Decidable.Internal.Constraints TR
+open import Definition.Typed.Decidable.Internal.Context TR
+open import Definition.Typed.Decidable.Internal.Monad TR
+open import Definition.Typed.Decidable.Internal.Substitution TR
+open import Definition.Typed.Decidable.Internal.Term TR
+open import Definition.Typed.Decidable.Internal.Tests TR
+open import Definition.Typed.Decidable.Internal.Weakening TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 import Definition.Typed.Reasoning.Term TR as TmR

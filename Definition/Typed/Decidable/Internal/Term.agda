@@ -5,16 +5,12 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
-open import Graded.Usage.Restrictions
 
 module Definition.Typed.Decidable.Internal.Term
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
   where
-
-open Usage-restrictions UR
 
 open import Definition.Typed TR
 
@@ -26,8 +22,6 @@ open import Definition.Untyped.Properties M
 open U.Con
 open U.DCon
 open Opacity
-
-open import Graded.Usage.Restrictions.Natrec 𝕄
 
 open import Tools.Bool using (Bool; T)
 open import Tools.Fin
@@ -58,8 +52,6 @@ data Termᵍ (n : Nat) : Set a where
   var         : (x : Fin n) → Termᵍ n
   𝟘 𝟙 ω       : Termᵍ n
   _+_ _·_ _∧_ : (p q : Termᵍ n) → Termᵍ n
-  nr          : ⦃ has-nr : Nr-available ⦄
-                (p₁ p₂ p₃ p₄ p₅ : Termᵍ n) → Termᵍ n
 
 -- Universe level terms.
 
@@ -384,16 +376,13 @@ is-id? _  = nothing
 -- Translates grade terms to grades.
 
 ⟦_⟧ᵍ : Termᵍ (c .gs) → Contexts c → M
-⟦ var x                        ⟧ᵍ γ = Vec.lookup (γ .grades) x
-⟦ 𝟘                            ⟧ᵍ γ = M.𝟘
-⟦ 𝟙                            ⟧ᵍ γ = M.𝟙
-⟦ ω                            ⟧ᵍ γ = M.ω
-⟦ t₁ + t₂                      ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.+ ⟦ t₂ ⟧ᵍ γ
-⟦ t₁ · t₂                      ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.· ⟦ t₂ ⟧ᵍ γ
-⟦ t₁ ∧ t₂                      ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.∧ ⟦ t₂ ⟧ᵍ γ
-⟦ nr ⦃ has-nr ⦄ t₁ t₂ t₃ t₄ t₅ ⟧ᵍ γ =
-  Has-nr.nr (Natrec-mode-Has-nr has-nr)
-    (⟦ t₁ ⟧ᵍ γ) (⟦ t₂ ⟧ᵍ γ) (⟦ t₃ ⟧ᵍ γ) (⟦ t₄ ⟧ᵍ γ) (⟦ t₅ ⟧ᵍ γ)
+⟦ var x   ⟧ᵍ γ = Vec.lookup (γ .grades) x
+⟦ 𝟘       ⟧ᵍ γ = M.𝟘
+⟦ 𝟙       ⟧ᵍ γ = M.𝟙
+⟦ ω       ⟧ᵍ γ = M.ω
+⟦ t₁ + t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.+ ⟦ t₂ ⟧ᵍ γ
+⟦ t₁ · t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.· ⟦ t₂ ⟧ᵍ γ
+⟦ t₁ ∧ t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.∧ ⟦ t₂ ⟧ᵍ γ
 
 -- Translates universe level terms to universe levels.
 

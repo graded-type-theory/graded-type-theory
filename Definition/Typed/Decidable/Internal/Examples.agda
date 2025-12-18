@@ -5,24 +5,22 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
-open import Graded.Usage.Restrictions
 
 module Definition.Typed.Decidable.Internal.Examples
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
   where
 
 open Modality 𝕄
 open Type-restrictions TR
 
 open import Definition.Typed TR
-open import Definition.Typed.Decidable.Internal TR UR
-import Definition.Typed.Decidable.Internal.Context TR UR as C
-import Definition.Typed.Decidable.Internal.Term TR UR as I
-import Definition.Typed.Decidable.Internal.Substitution TR UR as S
-import Definition.Typed.Decidable.Internal.Weakening TR UR as W
+open import Definition.Typed.Decidable.Internal TR
+import Definition.Typed.Decidable.Internal.Context TR as C
+import Definition.Typed.Decidable.Internal.Term TR as I
+import Definition.Typed.Decidable.Internal.Substitution TR as S
+import Definition.Typed.Decidable.Internal.Weakening TR as W
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR

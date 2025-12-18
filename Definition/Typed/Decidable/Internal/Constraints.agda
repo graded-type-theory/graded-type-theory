@@ -4,16 +4,14 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
-open import Graded.Usage.Restrictions
 
 module Definition.Typed.Decidable.Internal.Constraints
   {a} {M : Set a}
   {𝕄 : Modality M}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Term TR UR
+open import Definition.Typed.Decidable.Internal.Term TR
 
 open import Tools.Function
 open import Tools.Level
