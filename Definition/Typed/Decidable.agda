@@ -18,7 +18,6 @@ open Type-restrictions R
 
 open import Definition.Untyped M
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Unfolding R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Variant

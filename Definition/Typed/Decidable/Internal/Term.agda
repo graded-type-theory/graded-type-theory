@@ -3,16 +3,12 @@
 -- translation to regular terms
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed.Decidable.Internal.Term
   {a} {M : Set a}
-  {𝕄 : Modality M}
-  (TR : Type-restrictions 𝕄)
+  (𝕄 : Modality M)
   where
-
-open import Definition.Typed TR
 
 open import Definition.Untyped M as U
   using
@@ -21,7 +17,6 @@ open import Definition.Untyped.Properties M
 
 open U.Con
 open U.DCon
-open Opacity
 
 open import Tools.Bool using (Bool; T)
 open import Tools.Fin
@@ -35,9 +30,9 @@ private
   module M = Modality 𝕄
 
 private variable
-  b                        : Bool
-  m n n′ n₁ n₂ n₃ n₄ n₅ n₆ : Nat
-  x                        : Fin _
+  b                     : Bool
+  m n n₁ n₂ n₃ n₄ n₅ n₆ : Nat
+  x                     : Fin _
 
 ------------------------------------------------------------------------
 -- Terms for grades, universe levels, strengths and binder modes
@@ -481,26 +476,6 @@ opaque
   ⌜meta-var⌝ σ with is-id? σ
   … | just id = PE.sym (subst-id _)
   … | nothing = PE.refl
-
--- Turns definition contexts into regular definition contexts.
-
-⌜_⌝ᶜᵈ : DCon c n → Contexts c → U.DCon (U.Term 0) n
-⌜ base nothing      ⌝ᶜᵈ γ = γ .⌜base⌝ .U.defs
-⌜ base (just φ)     ⌝ᶜᵈ γ = Trans φ (γ .⌜base⌝ .U.defs)
-⌜ ε                 ⌝ᶜᵈ _ = ε
-⌜ ∇ ∙⟨ n ⟩[ t ∷ A ] ⌝ᶜᵈ γ = ⌜ ∇ ⌝ᶜᵈ γ ∙⟨ n ⟩[ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ ]
-
--- Turns variable contexts into regular variable contexts.
-
-⌜_⌝ᶜᵛ : Con c n → Contexts c → U.Con U.Term n
-⌜ base  ⌝ᶜᵛ γ = γ .⌜base⌝ .U.vars
-⌜ ε     ⌝ᶜᵛ _ = ε
-⌜ Γ ∙ A ⌝ᶜᵛ γ = ⌜ Γ ⌝ᶜᵛ γ ∙ ⌜ A ⌝ γ
-
--- Turns context pairs into regular context pairs.
-
-⌜_⌝ᶜ : Cons c m n → Contexts c → U.Cons m n
-⌜ Γ ⌝ᶜ γ = ⌜ Γ .defs ⌝ᶜᵈ γ » ⌜ Γ .vars ⌝ᶜᵛ γ
 
 ------------------------------------------------------------------------
 -- An abbreviation

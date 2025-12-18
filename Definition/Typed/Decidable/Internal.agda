@@ -24,20 +24,28 @@ module Definition.Typed.Decidable.Internal
 open Type-restrictions TR
 
 open import Definition.Typed TR hiding (Trans)
-open import Definition.Typed.Consequences.Unfolding TR
-open import Definition.Typed.Decidable.Internal.Constraints TR
+open import Definition.Typed.Decidable.Internal.Constraints 𝕄
 open import Definition.Typed.Decidable.Internal.Context TR
-open import Definition.Typed.Decidable.Internal.Monad TR
-open import Definition.Typed.Decidable.Internal.Substitution TR
-open import Definition.Typed.Decidable.Internal.Term TR
-open import Definition.Typed.Decidable.Internal.Tests TR
-open import Definition.Typed.Decidable.Internal.Weakening TR
+open import Definition.Typed.Decidable.Internal.Monad 𝕄
+open import Definition.Typed.Decidable.Internal.Substitution 𝕄
+open import Definition.Typed.Decidable.Internal.Term 𝕄
+open import Definition.Typed.Decidable.Internal.Tests 𝕄
+open import Definition.Typed.Decidable.Internal.Weakening 𝕄
 open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed.Properties.Admissible.Equality TR
+open import Definition.Typed.Properties.Admissible.Erased TR
+open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
+open import Definition.Typed.Properties.Admissible.Pi TR
+open import Definition.Typed.Properties.Admissible.Sigma TR
+open import Definition.Typed.Properties.Admissible.Unit TR
+open import Definition.Typed.Properties.Admissible.Var TR
+open import Definition.Typed.Properties.Reduction TR
+open import Definition.Typed.Properties.Transparentisation TR
+open import Definition.Typed.Properties.Well-formed TR
 import Definition.Typed.Reasoning.Term TR as TmR
 import Definition.Typed.Reasoning.Type TR as TyR
 open import Definition.Typed.Stability TR
-open import Definition.Typed.Substitution TR
+open import Definition.Typed.Substitution.Primitive TR
 open import Definition.Typed.Variant
 import Definition.Typed.Weakening TR as W
 open import Definition.Typed.Well-formed TR

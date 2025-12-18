@@ -1,12 +1,12 @@
 ------------------------------------------------------------------------
--- Typing is preserved by unfolding only under certain conditions
+-- Some properties related to transparentisation
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Variant
 open import Definition.Typed.Restrictions
 open import Graded.Modality
 
-module Definition.Typed.Consequences.Unfolding
+module Definition.Typed.Properties.Transparentisation
   {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
@@ -20,7 +20,6 @@ open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Definition R
 open import Definition.Typed.Well-formed R
@@ -443,32 +442,6 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
     unfold-⇒*∷ : ∇ » Γ ⊢ t ⇒* u ∷ A → Trans φ ∇ » Γ ⊢ t ⇒* u ∷ A
     unfold-⇒*∷ (id ⊢t)      = id (unfold-⊢∷ ⊢t)
     unfold-⇒*∷ (t⇒x ⇨ x⇒*u) = unfold-⇒∷ t⇒x ⇨ unfold-⇒*∷ x⇒*u
-
-module Explicit (mode-eq : unfolding-mode PE.≡ explicit) where
-
-  opaque
-    unfolding Trans
-
-    no-unfold-» :
-      Opacity-allowed →
-      ∃₂ λ (∇ : DCon (Term 0) 2) (φ : Unfolding 2) →
-        » ∇ × ¬ » Trans φ ∇
-    no-unfold-» ok =
-      let ∇₁ = ε ∙⟨ opa ε ⟩[ ℕ ∷ U 0 ]
-          ∇ = ∇₁ ∙⟨ opa (ε ¹) ⟩[ zero ∷ defn 0 ]
-          ∇₁⊢ε = ε ∙ᵒ⟨ ok ⟩[ ℕⱼ εε ∷ Uⱼ εε ]
-          ∇₁ᵗ⊢ε = ε ∙ᵗ[ ℕⱼ εε ]
-          »∇ = ∙ᵒ⟨ ok ⟩[
-            conv (zeroⱼ ∇₁ᵗ⊢ε) (sym (univ (δ-red ∇₁ᵗ⊢ε here PE.refl PE.refl))) ∷
-            univ (defn ∇₁⊢ε here PE.refl) ]
-          not »Trans-∇ =
-            ℕ≢ne {V = Lift _ ⊤} ⦃ ok = ε ⦄
-              (defn
-                 (there
-                    (PE.subst (_↦⊘∷_∈_ _ (U 0) ∘→ flip Trans _)
-                       (PE.sym $ ⊔ᵒᵗ≡const mode-eq) here)))
-              (sym (inversion-zero (wf-↦∷∈ here »Trans-∇)))
-      in  ∇ , ε ⁰ ¹ , »∇ , not
 
 module Transitive (mode-eq : unfolding-mode PE.≡ transitive) where
 

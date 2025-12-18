@@ -90,6 +90,12 @@ import Definition.Untyped
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
+import Definition.Typed.Decidable.Internal.Term
+import Definition.Typed.Decidable.Internal.Weakening
+import Definition.Typed.Decidable.Internal.Substitution
+import Definition.Typed.Decidable.Internal.Constraints
+import Definition.Typed.Decidable.Internal.Monad
+import Definition.Typed.Decidable.Internal.Tests
 import Definition.Typed.Variant
 import Definition.Untyped.Neutral
 import Definition.Untyped.Whnf
@@ -132,7 +138,7 @@ import Definition.Typed.Substitution.Primitive.Primitive
 import Definition.Typed.Well-formed
 import Definition.Typed.Substitution.Primitive
 import Definition.Typed.Properties.Admissible.Equality
-import Definition.Typed.Properties.Admissible.Identity.Primitive
+import Definition.Typed.Properties.Admissible.Identity.Very-primitive
 import Definition.Typed.Stability
 import Definition.Typed.Properties.Reduction
 import Definition.Typed.Reasoning.Reduction
@@ -142,7 +148,7 @@ import Definition.Typed.Syntactic
 import Definition.Typed.Inversion
 import Definition.Typed.InverseUniv
 import Definition.Typed.Properties.Admissible.Empty
-import Definition.Typed.Properties.Admissible.Identity
+import Definition.Typed.Properties.Admissible.Identity.Primitive
 import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Properties.Admissible.Sigma
 import Definition.Typed.Properties.Admissible.Non-dependent
@@ -150,12 +156,17 @@ import Definition.Typed.Properties.Admissible.Unit
 import Definition.Typed.Properties.Admissible.Erased.Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta
 import Definition.Typed.Properties.Admissible.Erased
+import Definition.Typed.Properties.Definition
+import Definition.Typed.Properties.Transparentisation
+import Definition.Typed.Decidable.Internal.Context
+import Definition.Typed.Decidable.Internal
+import Definition.Typed.Decidable.Internal.Examples
+import Definition.Typed.Properties.Admissible.Identity
 import Definition.Typed.Properties.Admissible.Lift
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Bool
 import Definition.Typed.Properties.Admissible.Bool.Erased
 import Definition.Typed.Properties.Admissible.Omega
-import Definition.Typed.Properties.Definition
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.Names-below
@@ -336,7 +347,7 @@ import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
 import Graded.Derived.Unrestricted.Eta.Typed
 import Definition.Typed.Consequences.NeTypeEq
-import Definition.Typed.Consequences.Unfolding
+import Definition.Typed.Consequences.Transparentisation
 
 -- A simplified version of the logical relation for types
 import Definition.LogicalRelation.Simplified
@@ -376,19 +387,6 @@ import Definition.Typed.Decidable.Reduction
 import Definition.Typechecking.Decidable.Assumptions
 import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
-
-------------------------------------------------------------------------
--- An internal type-checker
-
-import Definition.Typed.Decidable.Internal.Term
-import Definition.Typed.Decidable.Internal.Weakening
-import Definition.Typed.Decidable.Internal.Substitution
-import Definition.Typed.Decidable.Internal.Constraints
-import Definition.Typed.Decidable.Internal.Monad
-import Definition.Typed.Decidable.Internal.Tests
-import Definition.Typed.Decidable.Internal.Context
-import Definition.Typed.Decidable.Internal
-import Definition.Typed.Decidable.Internal.Examples
 
 ------------------------------------------------------------------------
 -- Definitions related to type and usage restrictions

@@ -799,22 +799,23 @@ _ = SubjectReduction.subject-reduction
 Theorem 5.12 states that with transitive unfolding (using the bitwise disjunction operator), well-formedness of
 definition contexts (among other things) is preserved under transparentization by any unfolding vector:
 ```
-import Definition.Typed.Consequences.Unfolding
-_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-»
-_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢′
-_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢
-_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢∷
-_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢≡
-_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⊢≡∷
-_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⇒∷
-_ = Definition.Typed.Consequences.Unfolding.Transitive.unfold-⇒
+import Definition.Typed.Properties.Transparentisation
+_ = Definition.Typed.Properties.Transparentisation.Transitive.unfold-»
+_ = Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢′
+_ = Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢
+_ = Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢∷
+_ = Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢≡
+_ = Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢≡∷
+_ = Definition.Typed.Properties.Transparentisation.Transitive.unfold-⇒∷
+_ = Definition.Typed.Properties.Transparentisation.Transitive.unfold-⇒
 ```
 (The last seven definitions above are given in a module with an extra assumption that is instantiated in the module
 `Transitive`; see `open Unconditional`.)
 
 Counterexample 5.13 demonstrates that the same is not necessarily true of the alternative operator:
 ```
-_ = Definition.Typed.Consequences.Unfolding.Explicit.no-unfold-»
+import Definition.Typed.Consequences.Transparentisation
+_ = Definition.Typed.Consequences.Transparentisation.no-unfold-»
 ```
 
 The text discusses efficiency of type-checking. Our implementation of `decWfDCon`, a type-checker for definition

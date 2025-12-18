@@ -15,10 +15,10 @@ module Definition.Typed.Decidable.Internal.Context
 open Type-restrictions TR
 
 open import Definition.Typed TR as T hiding (Trans)
-open import Definition.Typed.Decidable.Internal.Monad TR
-open import Definition.Typed.Decidable.Internal.Term TR
-open import Definition.Typed.Decidable.Internal.Weakening TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed.Decidable.Internal.Monad 𝕄
+open import Definition.Typed.Decidable.Internal.Term 𝕄
+open import Definition.Typed.Decidable.Internal.Weakening 𝕄
+open import Definition.Typed.Properties.Definition TR
 open import Definition.Typed.Reasoning.Type TR
 open import Definition.Typed.Weakening.Definition TR
 open import Definition.Typed.Well-formed TR
@@ -28,6 +28,7 @@ open import Definition.Untyped M as U
 open import Definition.Untyped.Properties M
 
 open U.Con
+open U.DCon
 open Opacity
 open Wk
 open _↦∷_∈_
@@ -52,6 +53,29 @@ private variable
   γ     : Contexts _
   φ     : Unfolding _
   A t   : Term _ _
+
+------------------------------------------------------------------------
+-- Translation of contexts
+
+-- Turns definition contexts into regular definition contexts.
+
+⌜_⌝ᶜᵈ : DCon c n → Contexts c → U.DCon (U.Term 0) n
+⌜ base nothing      ⌝ᶜᵈ γ = γ .⌜base⌝ .U.defs
+⌜ base (just φ)     ⌝ᶜᵈ γ = T.Trans φ (γ .⌜base⌝ .U.defs)
+⌜ ε                 ⌝ᶜᵈ _ = ε
+⌜ ∇ ∙⟨ n ⟩[ t ∷ A ] ⌝ᶜᵈ γ = ⌜ ∇ ⌝ᶜᵈ γ ∙⟨ n ⟩[ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ ]
+
+-- Turns variable contexts into regular variable contexts.
+
+⌜_⌝ᶜᵛ : Con c n → Contexts c → U.Con U.Term n
+⌜ base  ⌝ᶜᵛ γ = γ .⌜base⌝ .U.vars
+⌜ ε     ⌝ᶜᵛ _ = ε
+⌜ Γ ∙ A ⌝ᶜᵛ γ = ⌜ Γ ⌝ᶜᵛ γ ∙ ⌜ A ⌝ γ
+
+-- Turns context pairs into regular context pairs.
+
+⌜_⌝ᶜ : Cons c m n → Contexts c → U.Cons m n
+⌜ Γ ⌝ᶜ γ = ⌜ Γ .defs ⌝ᶜᵈ γ » ⌜ Γ .vars ⌝ᶜᵛ γ
 
 ------------------------------------------------------------------------
 -- Lookup procedures

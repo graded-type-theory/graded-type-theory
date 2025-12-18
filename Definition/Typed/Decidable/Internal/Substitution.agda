@@ -2,17 +2,15 @@
 -- Substitution operations used by Definition.Typed.Decidable.Internal
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed.Decidable.Internal.Substitution
   {a} {M : Set a}
-  {𝕄 : Modality M}
-  (TR : Type-restrictions 𝕄)
+  (𝕄 : Modality M)
   where
 
-open import Definition.Typed.Decidable.Internal.Term TR
-open import Definition.Typed.Decidable.Internal.Weakening TR
+open import Definition.Typed.Decidable.Internal.Term 𝕄
+open import Definition.Typed.Decidable.Internal.Weakening 𝕄
 
 open import Definition.Untyped M as U using (Wk)
 open import Definition.Untyped.Properties M

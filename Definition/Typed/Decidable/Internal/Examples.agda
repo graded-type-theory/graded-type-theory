@@ -18,12 +18,13 @@ open Type-restrictions TR
 open import Definition.Typed TR
 open import Definition.Typed.Decidable.Internal TR
 import Definition.Typed.Decidable.Internal.Context TR as C
-import Definition.Typed.Decidable.Internal.Term TR as I
-import Definition.Typed.Decidable.Internal.Substitution TR as S
-import Definition.Typed.Decidable.Internal.Weakening TR as W
+import Definition.Typed.Decidable.Internal.Term 𝕄 as I
+import Definition.Typed.Decidable.Internal.Substitution 𝕄 as S
+import Definition.Typed.Decidable.Internal.Weakening 𝕄 as W
 open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
+open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
+open import Definition.Typed.Properties.Well-formed TR
+open import Definition.Typed.Substitution.Primitive TR
 open import Definition.Typed.Weakening.Definition TR
 open import Definition.Typed.Well-formed TR
 

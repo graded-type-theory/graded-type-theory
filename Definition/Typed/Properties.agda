@@ -35,6 +35,7 @@ open import Definition.Typed.Properties.Admissible.Unit R public
 open import Definition.Typed.Properties.Admissible.Var R public
 open import Definition.Typed.Properties.Definition R public
 open import Definition.Typed.Properties.Reduction R public
+open import Definition.Typed.Properties.Transparentisation R public
 open import Definition.Typed.Properties.Well-formed R public
 
 private variable

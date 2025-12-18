@@ -23,7 +23,7 @@ open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Erased.Eta R as Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta R as NoEta
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as P
-open import Definition.Typed.Properties.Admissible.Identity R
+open import Definition.Typed.Properties.Admissible.Identity.Primitive R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Admissible.Unit R
 open import Definition.Typed.Properties.Admissible.Var R

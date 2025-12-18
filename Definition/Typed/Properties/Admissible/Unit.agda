@@ -17,7 +17,8 @@ open import Definition.Untyped M
 open import Definition.Typed TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties.Admissible.Equality TR
-open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
+open import
+  Definition.Typed.Properties.Admissible.Identity.Very-primitive TR
 open import Definition.Typed.Properties.Admissible.Var TR
 open import Definition.Typed.Properties.Reduction TR
 open import Definition.Typed.Properties.Well-formed TR

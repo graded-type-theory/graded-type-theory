@@ -12,7 +12,8 @@ module Definition.Typed.Stability
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Identity.Primitive R
+open import
+  Definition.Typed.Properties.Admissible.Identity.Very-primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Well-formed R
