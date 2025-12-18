@@ -348,7 +348,7 @@ are-equal-eliminators t₁ t₂ =
 data Is-type-constructor {c : Constants} {n} : Term c n → Set a where
   meta-var : ∀ x (σ : Subst c n n′) →
              Is-type-constructor (meta-var x σ)
-  U        : Is-type-constructor (U l)
+  U        : ∀ l → Is-type-constructor (U l)
   Empty    : Is-type-constructor Empty
   Unit     : ∀ s l → Is-type-constructor (Unit s l)
   ΠΣ       : ∀ b p q A₁ A₂ →
@@ -362,7 +362,7 @@ is-type-constructor? : (A : Term c n) → Maybe (Is-type-constructor A)
 is-type-constructor? (meta-var _ _) =
   just (meta-var _ _)
 is-type-constructor? (U _) =
-  just U
+  just (U _)
 is-type-constructor? Empty =
   just Empty
 is-type-constructor? (Unit _ _) =

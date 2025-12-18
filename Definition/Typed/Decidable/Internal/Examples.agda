@@ -61,7 +61,6 @@ opaque
   -- used.
 
   let-α≡zero-in-λλ0∘zero≡λα :
-    ⦃ ok : No-equality-reflection ⦄ →
     Π-allowed ω ω →
     Unit-allowed 𝕤 →
     ε ∙⟨ tra ⟩[ zero ∷ ℕ ] » ε ⊢
@@ -76,9 +75,9 @@ opaque
        I.lam I.ω (just (I.ω , I.ℕ)) (I.var x0) I.∘⟨ I.ω ⟩ I.zero)
       (I.lam I.ω nothing (I.defn 0))
       (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
-      9
+      10
       PE.refl
-      (ok₂ , ok₁ , ok₁)
+      (ok₂ , ok₁ , ok₁ , ok₂ , ok₁ , ok₁ , ok₁ , ok₁ , ok₂ , ok₁)
       (C.Meta-con-wf-empty PE.refl)
       ε
       (λ ())
@@ -96,7 +95,6 @@ opaque
   -- you know what definition a given level refers to?
 
   let-α≡zero-in-let-β≡λ0-in-λβ∙zero≡λα :
-    ⦃ ok : No-equality-reflection ⦄ →
     ε »⊢ Δ →
     Π-allowed ω ω →
     Unit-allowed 𝕤 →
@@ -124,9 +122,9 @@ opaque
       (I.lam I.ω nothing (I.defn 1 I.∘⟨ I.ω ⟩ I.zero))
       (I.lam I.ω nothing (I.defn 0))
       (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
-      8
+      10
       PE.refl
-      (ok₂ , ok₁)
+      (ok₂ , ok₁ , ok₂ , ok₁ , ok₂ , ok₁)
       (C.Meta-con-wf-empty PE.refl)
       (flip defn-wk′ ⊢Δ $ »⊇ε $
        check-dcon-sound
@@ -134,7 +132,7 @@ opaque
          (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ]
               I.∙⟨ tra ⟩[ I.lam I.ω nothing (I.var x0) ∷
                           I.Π I.ω , I.ω ▷ I.ℕ ▹ I.ℕ ])
-         5
+         6
          PE.refl
          ok₁
          ε)
@@ -187,7 +185,6 @@ opaque
   -- An example that includes use of a meta-variable context.
 
   ⊢subst′ :
-    ⦃ ok : No-equality-reflection ⦄
     {Γ : Cons m n} →
     Γ »∙ A ⊢ B →
     Γ ⊢ v ∷ Id A t u →
@@ -201,7 +198,7 @@ opaque
       (subst′ (I.var x0) (I.varᵐ x0) (I.varᵐ x1) (I.varᵐ x2) (I.varᵐ x3)
          (I.varᵐ x4) (I.varᵐ x5))
       (I.subst (I.varᵐ x1) (S.sgSubst (I.varᵐ x3)))
-      8
+      9
       PE.refl
       _
       (record
@@ -256,7 +253,6 @@ opaque
   -- a term former that takes a number of arguments on the meta-level.
 
   ⊢cong′ :
-    ⦃ ok : No-equality-reflection ⦄
     {Γ : Cons m n} →
     Γ »∙ A ⊢ v ∷ wk1 B →
     Γ ⊢ w ∷ Id A t u →
@@ -273,7 +269,7 @@ opaque
          (I.varᵐ x4) (I.varᵐ x5))
       (I.Id (I.varᵐ x3) (I.subst (I.varᵐ x4) (S.sgSubst (I.varᵐ x1)))
          (I.subst (I.varᵐ x4) (S.sgSubst (I.varᵐ x2))))
-      9
+      10
       PE.refl
       _
       (record
@@ -328,7 +324,6 @@ opaque
   -- gives rise to a β-redex).
 
   ΠΣ-cong-Idˡ′ :
-    ⦃ ok : No-equality-reflection ⦄
     {Γ : Cons m n} →
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
@@ -381,14 +376,17 @@ opaque
              I.var x1 I.∘⟨ xp″ ⟩
              I.var x0))
          xA₂ xt I.∘⟨ xp″ ⟩
-       I.lam xp′ (just (xq′ , xA₂)) xB₂ I.∘⟨ xp″ ⟩
+       I.lam xp′ nothing xB₂ I.∘⟨ xp″ ⟩
        I.lam xp′ nothing xu)
       (I.Id (I.U (xl₁ I.⊔ᵘ xl₂)) (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁)
          (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₂ ▹ xB₂))
       25
       PE.refl
       (ok₁ , ok₁ , ok₂ , ok₂ , ok₁ , ok₁ , ok₃ , ok₃ , ok₂ , ok₂ , ok₂ ,
-       ok₁ , ok₁ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂)
+       ok₁ , ok₁ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
+       ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
+       ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
+       ok₂)
       (record
          { bindings-wf = λ where
              (I.var! x0)       → ⊢A₁
