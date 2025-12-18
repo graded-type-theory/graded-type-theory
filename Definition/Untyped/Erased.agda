@@ -13,17 +13,23 @@ module Definition.Untyped.Erased
 
 open Modality 𝕄
 
+import Definition.Typed.Decidable.Internal.Term
+import Definition.Typed.Decidable.Internal.Substitution.Primitive
+import Definition.Typed.Decidable.Internal.Weakening
+open import Definition.Typed.Restrictions
+
 open import Definition.Untyped M as U hiding (_[_])
 import Definition.Untyped.Erased.Eta 𝕄 as Eta
-open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Identity 𝕄 hiding (module Internal)
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Sigma 𝕄
-open import Definition.Untyped.Unit 𝕄
+open import Definition.Untyped.Sigma 𝕄 as US hiding (module Internal)
+open import Definition.Untyped.Unit 𝕄 as UU hiding (module Internal)
 
 import Definition.Untyped.Erased.No-eta 𝕄 as NoEta
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Maybe
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (subst; cong)
@@ -515,3 +521,60 @@ opaque
             (prod s 𝟘 (var x1) (var x0)))
          rfl (v U.[ σ ]) (w U.[ σ ]))
       (u U.[ σ ])                                                         ∎
+
+------------------------------------------------------------------------
+-- A variant of one term former, intended to be used with the internal
+-- type-checker
+
+module Internal (R : Type-restrictions 𝕄) where
+
+  open US.Internal R
+  open UU.Internal R
+
+  private
+    module I =
+      Definition.Typed.Decidable.Internal.Term R
+    module IS =
+      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+    module IW =
+      Definition.Typed.Decidable.Internal.Weakening R
+
+  private variable
+    c        : I.Constants
+    pᵢ       : I.Termᵍ _
+    Bᵢ tᵢ uᵢ : I.Term _ _
+    γ        : I.Contexts _
+
+  -- A variant of natcase, intended to be used with the internal
+  -- type-checker.
+
+  erasedrecᵢ :
+    I.Termᵍ (c .I.gs) → (_ _ : I.Term c (1+ n)) → I.Term c n →
+    I.Term c n
+  erasedrecᵢ p B t u =
+    prodrec⟨ s ⟩ᵢ is-𝕨′ I.𝟘 p B u
+      (unitrec⟨ s ⟩ᵢ I.𝟙 p
+         (I.subst B (I.cons (IS.wkSubst 3 I.id)
+            (I.prod s′ I.𝟘 nothing (I.var x2)
+               (I.lift nothing (I.var x0)))))
+         (I.lower (I.var x0)) (IW.wk[ 1 ] t))
+    where
+    s′ = case s of λ where
+      𝕨 → I.𝕨
+      𝕤 → I.𝕤
+
+    is-𝕨′ = case PE.singleton s of λ where
+      (𝕨 , _) → I.𝟙
+      (𝕤 , _) → I.𝟘
+
+  opaque
+    unfolding erasedrec is-𝕨 prodrec⟨_⟩ unitrec⟨_⟩
+
+    -- A translation lemma for erasedrecᵢ.
+
+    ⌜erasedrecᵢ⌝ :
+      I.⌜ erasedrecᵢ pᵢ Bᵢ tᵢ uᵢ ⌝ γ ≡
+      erasedrec (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Bᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
+    ⌜erasedrecᵢ⌝ with PE.singleton s
+    … | 𝕨 , refl = refl
+    … | 𝕤 , refl = refl

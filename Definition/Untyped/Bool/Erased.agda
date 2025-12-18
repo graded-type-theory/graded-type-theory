@@ -20,13 +20,21 @@ module Definition.Untyped.Bool.Erased
 
 open Modality 𝕄
 
+import Definition.Typed.Decidable.Internal.Term
+import Definition.Typed.Decidable.Internal.Substitution.Primitive
+import Definition.Typed.Decidable.Internal.Weakening
+open import Definition.Typed.Restrictions
+
 open import Definition.Untyped M hiding (_[_]′)
 open import Definition.Untyped.Bool 𝕄 as B
   using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
-open import Definition.Untyped.Empty 𝕄
-open import Definition.Untyped.Erased 𝕄 𝕨 as E hiding ([_])
-open import Definition.Untyped.Nat 𝕄
+open import Definition.Untyped.Empty 𝕄 as UE hiding (module Internal)
+open import Definition.Untyped.Erased 𝕄 𝕨 as E
+  hiding (module Internal; [_])
+open import Definition.Untyped.Nat 𝕄 as UN hiding (module Internal)
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Sigma 𝕄 hiding (module Internal)
+open import Definition.Untyped.Unit 𝕄 hiding (module Internal)
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
@@ -36,6 +44,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Maybe
 open import Tools.Nat as N using (Nat; 1+; 2+)
 open import Tools.Product
 open import Tools.PropositionalEquality
@@ -277,6 +286,147 @@ opaque
             (var x0))
          (var x1) ∘⟨ 𝟙 ⟩
        var x0)
+
+------------------------------------------------------------------------
+-- Variants of the term formers, intended to be used with the internal
+-- type-checker
+
+module Internal (R : Type-restrictions 𝕄) where
+
+  open B.Internal R using (OKᵢ)
+  open E.Internal R
+  open UE.Internal R
+  open UN.Internal R
+
+  private
+    module I =
+      Definition.Typed.Decidable.Internal.Term R
+    module IS =
+      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+    module IW =
+      Definition.Typed.Decidable.Internal.Weakening R
+
+  private variable
+    c                              : I.Constants
+    pᵢ p₁ᵢ p₂ᵢ q₁ᵢ q₂ᵢ q₃ᵢ q₄ᵢ q₅ᵢ : I.Termᵍ _
+    Aᵢ tᵢ uᵢ vᵢ                    : I.Term _ _
+    γ                              : I.Contexts _
+
+  -- A variant of Bool.
+
+  Boolᵢ : (_ _ : I.Termᵍ (c .I.gs)) → I.Term c n
+  Boolᵢ Boolᵍ OKᵍ =
+    I.Σʷ I.𝟙 , Boolᵍ ▷ I.ℕ ▹ I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.var x0))
+
+  opaque
+    unfolding Bool Erased OK natcase
+
+    -- A translation lemma for Boolᵢ.
+
+    ⌜Boolᵢ⌝ :
+      I.⟦ p₁ᵢ ⟧ᵍ γ ≡ Boolᵍ →
+      I.⟦ p₂ᵢ ⟧ᵍ γ ≡ OKᵍ →
+      I.⌜ Boolᵢ {n = n} p₁ᵢ p₂ᵢ ⌝ γ ≡ Bool
+    ⌜Boolᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl
+
+  -- A variant of true.
+
+  trueᵢ : (_ _ : I.Termᵍ (c .I.gs)) → I.Term c n
+  trueᵢ Boolᵍ OKᵍ =
+    I.prod I.𝕨 I.𝟙
+      (just (Boolᵍ , I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.var x0))))
+      (I.suc I.zero) (I.box I.𝕨 I.zeroᵘ (I.star I.𝕨))
+
+  opaque
+    unfolding true E.[_]
+
+    -- A translation lemma for trueᵢ.
+
+    ⌜trueᵢ⌝ : I.⌜ trueᵢ {n = n} p₁ᵢ p₂ᵢ ⌝ γ ≡ true
+    ⌜trueᵢ⌝ = refl
+
+  -- A variant of false.
+
+  falseᵢ : (_ _ : I.Termᵍ (c .I.gs)) → I.Term c n
+  falseᵢ Boolᵍ OKᵍ =
+    I.prod I.𝕨 I.𝟙
+      (just (Boolᵍ , I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.var x0))))
+      I.zero (I.box I.𝕨 I.zeroᵘ (I.star I.𝕨))
+
+  opaque
+    unfolding false E.[_]
+
+    -- A translation lemma for falseᵢ.
+
+    ⌜falseᵢ⌝ : I.⌜ falseᵢ {n = n} p₁ᵢ p₂ᵢ ⌝ γ ≡ false
+    ⌜falseᵢ⌝ = refl
+
+  -- A variant of Target.
+
+  Targetᵢ :
+    ∀ k → I.Term c (1+ n) → I.Term c (k N.+ n) → I.Term c (k N.+ n) →
+    I.Term c (k N.+ n)
+  Targetᵢ k A t u =
+    I.subst A (I.cons (IS.wkSubst k I.id) (I.prod I.𝕨 I.𝟙 nothing t u))
+
+  -- A variant of boolrec.
+
+  boolrecᵢ :
+    (_ _ _ _ _ _ : I.Termᵍ (c .I.gs)) → I.Term c (1+ n) →
+    (_ _ _ : I.Term c n) → I.Term c n
+  boolrecᵢ Boolᵍ OKᵍ boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-pr p A t u v =
+    I.prodrec boolrecᵍ-pr I.𝟙 p A v
+      (natcaseᵢ boolrecᵍ-nc₂ (Boolᵍ I.+ p)
+         (I.Π I.𝟙 , p ▷
+            I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.var x0)) ▹
+          Targetᵢ 4 A (I.var x1) (I.var x0))
+         (I.lam I.𝟙 nothing $
+          erasedrecᵢ p (Targetᵢ 4 A I.zero (I.var x0))
+            (I.unitrec I.𝟘 I.𝟘
+               (Targetᵢ 5 A I.zero (I.box I.𝕨 I.zeroᵘ (I.var x0)))
+               (I.var x0) (IW.wk[ 4 ] u))
+            (I.var x0))
+         (natcaseᵢ boolrecᵍ-nc₁ (Boolᵍ I.+ p)
+            (I.Π I.𝟙 , p ▷
+               I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.suc (I.var x0))) ▹
+             Targetᵢ 5 A (I.suc (I.var x1)) (I.var x0))
+            (I.lam I.𝟙 nothing $
+             erasedrecᵢ p (Targetᵢ 5 A (I.suc I.zero) (I.var x0))
+               (I.unitrec I.𝟘 I.𝟘
+                  (Targetᵢ 6 A (I.suc I.zero)
+                     (I.box I.𝕨 I.zeroᵘ (I.var x0)))
+                  (I.var x0) (IW.wk[ 5 ] t))
+               (I.var x0))
+            (I.lam I.𝟙 nothing $
+             erasedrecᵢ p
+               (Targetᵢ 6 A (I.suc (I.suc (I.var x2))) (I.var x0))
+               (emptyrec-sinkᵢ
+                  (Targetᵢ 6 A (I.suc (I.suc (I.var x2)))
+                     (I.box I.𝕨 I.zeroᵘ (I.var x0)))
+                  (I.var x0))
+               (I.var x0))
+            (I.var x0))
+         (I.var x1) I.∘⟨ I.𝟙 ⟩
+       I.var x0)
+
+  opaque
+    unfolding
+      Erased OK Target boolrec emptyrec-sink erasedrec is-𝕨 natcase
+      prodrec⟨_⟩ unitrec⟨_⟩ E.[_]
+
+    -- A translation lemma for boolrecᵢ.
+
+    ⌜boolrecᵢ⌝ :
+      I.⟦ q₁ᵢ ⟧ᵍ γ ≡ Boolᵍ →
+      I.⟦ q₂ᵢ ⟧ᵍ γ ≡ OKᵍ →
+      I.⟦ q₃ᵢ ⟧ᵍ γ ≡ boolrecᵍ-nc₁ →
+      I.⟦ q₄ᵢ ⟧ᵍ γ ≡ boolrecᵍ-nc₂ →
+      I.⟦ q₅ᵢ ⟧ᵍ γ ≡ boolrecᵍ-pr →
+      I.⌜ boolrecᵢ q₁ᵢ q₂ᵢ q₃ᵢ q₄ᵢ q₅ᵢ pᵢ Aᵢ tᵢ uᵢ vᵢ ⌝ γ ≡
+      boolrec (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
+        (I.⌜ vᵢ ⌝ γ)
+    ⌜boolrecᵢ⌝ eq₁ eq₂ eq₃ eq₄ eq₅
+      rewrite eq₁ | eq₂ | eq₃ | eq₄ | eq₅ = refl
 
 ------------------------------------------------------------------------
 -- An unfolding lemma

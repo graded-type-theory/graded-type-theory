@@ -11,6 +11,10 @@ module Definition.Untyped.Empty
 
 open Modality 𝕄
 
+import Definition.Typed.Decidable.Internal.Term
+import Definition.Typed.Decidable.Internal.Weakening
+open import Definition.Typed.Restrictions
+
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -47,3 +51,36 @@ opaque
                                                                             refl refl ⟩
     emptyrec 𝟘 (Π 𝟙 , 𝟘 ▷ Unitˢ ▹ (wk1 (A [ σ ]))) (t [ σ ]) ∘⟨ 𝟙 ⟩
     starˢ ∎
+
+------------------------------------------------------------------------
+-- A variant of one term former, intended to be used with the internal
+-- type-checker
+
+module Internal (R : Type-restrictions 𝕄) where
+
+  private
+    module I  = Definition.Typed.Decidable.Internal.Term R
+    module IW = Definition.Typed.Decidable.Internal.Weakening R
+
+  private variable
+    c     : I.Constants
+    Aᵢ tᵢ : I.Term _ _
+    γ     : I.Contexts _
+
+  -- A variant of emptyrec-sink, intended to be used with the internal
+  -- type-checker.
+
+  emptyrec-sinkᵢ : I.Term c n → I.Term c n → I.Term c n
+  emptyrec-sinkᵢ A t =
+    I.emptyrec I.𝟘 (I.Π I.𝟙 , I.𝟘 ▷ I.Unit I.𝕤 ▹ IW.wk[ 1 ] A) t
+      I.∘⟨ I.𝟙 ⟩ I.star I.𝕤
+
+  opaque
+    unfolding emptyrec-sink
+
+    -- A translation lemma for emptyrec-sinkᵢ.
+
+    ⌜emptyrec-sinkᵢ⌝ :
+      I.⌜ emptyrec-sinkᵢ Aᵢ tᵢ ⌝ γ ≡
+      emptyrec-sink (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+    ⌜emptyrec-sinkᵢ⌝ = refl

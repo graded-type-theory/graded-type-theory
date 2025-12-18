@@ -11,6 +11,10 @@ module Definition.Untyped.Sigma
 
 open Modality 𝕄
 
+import Definition.Typed.Decidable.Internal.Term
+import Definition.Typed.Decidable.Internal.Substitution.Primitive
+open import Definition.Typed.Restrictions
+
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -333,3 +337,45 @@ opaque
       (u [ toSubst (liftn ρ 2) ])                                    ≡˘⟨ cong₃ (prodrecʰ⟨ _ ⟩ _ _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
 
     prodrecʰ⟨ s ⟩ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)  ∎
+
+------------------------------------------------------------------------
+-- A variant of one term former, intended to be used with the internal
+-- type-checker
+
+module Internal (R : Type-restrictions 𝕄) where
+
+  private
+    module I =
+      Definition.Typed.Decidable.Internal.Term R
+    module IS =
+      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+
+  private variable
+    c        : I.Constants
+    pᵢ qᵢ rᵢ : I.Termᵍ _
+    Aᵢ tᵢ uᵢ : I.Term _ _
+    γ        : I.Contexts _
+
+  -- A variant of prodrec⟨_⟩, intended to be used with the internal
+  -- type-checker.
+
+  prodrec⟨_⟩ᵢ :
+    Strength →
+    (_ _ _ : I.Termᵍ (c .I.gs)) → I.Term c (1+ n) → I.Term c n →
+    I.Term c (2+ n) → I.Term c n
+  prodrec⟨ 𝕨 ⟩ᵢ r p q A t u = I.prodrec r p q A t u
+  prodrec⟨ 𝕤 ⟩ᵢ _ p _ _ t u =
+    I.subst u (I.cons (IS.sgSubst (I.fst p t)) (I.snd p t))
+
+  opaque
+    unfolding prodrec⟨_⟩
+
+    -- A translation lemma for prodrec⟨_⟩ᵢ.
+
+    ⌜prodrec⟨⟩ᵢ⌝ :
+      ∀ s →
+      I.⌜ prodrec⟨ s ⟩ᵢ rᵢ pᵢ qᵢ Aᵢ tᵢ uᵢ ⌝ γ ≡
+      prodrec⟨ s ⟩ (I.⟦ rᵢ ⟧ᵍ γ) (I.⟦ pᵢ ⟧ᵍ γ) (I.⟦ qᵢ ⟧ᵍ γ)
+        (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
+    ⌜prodrec⟨⟩ᵢ⌝ 𝕨 = refl
+    ⌜prodrec⟨⟩ᵢ⌝ 𝕤 = refl

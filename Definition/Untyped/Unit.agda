@@ -11,6 +11,9 @@ module Definition.Untyped.Unit
 
 open Modality 𝕄
 
+import Definition.Typed.Decidable.Internal.Term
+open import Definition.Typed.Restrictions
+
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -71,3 +74,41 @@ opaque
       rfl
                                     ≡⟨⟩
     Unit-η s p (t [ σ ]) ∎
+
+------------------------------------------------------------------------
+-- A variant of one term former, intended to be used with the internal
+-- type-checker
+
+module Internal (R : Type-restrictions 𝕄) where
+
+  private
+    module I = Definition.Typed.Decidable.Internal.Term R
+
+  private variable
+    c        : I.Constants
+    pᵢ qᵢ    : I.Termᵍ _
+    Aᵢ tᵢ uᵢ : I.Term _ _
+    γ        : I.Contexts _
+
+  -- A variant of unitrec⟨_⟩, intended to be used with the internal
+  -- type-checker.
+
+  unitrec⟨_⟩ᵢ :
+    Strength →
+    (_ _ : I.Termᵍ (c .I.gs)) → I.Term c (1+ n) → (_ _ : I.Term c n) →
+    I.Term c n
+  unitrec⟨ 𝕨 ⟩ᵢ p q A t u = I.unitrec p q A t u
+  unitrec⟨ 𝕤 ⟩ᵢ _ _ _ _ u = u
+
+  opaque
+    unfolding unitrec⟨_⟩
+
+    -- A translation lemma for unitrec⟨_⟩ᵢ.
+
+    ⌜unitrec⟨⟩ᵢ⌝ :
+      ∀ s →
+      I.⌜ unitrec⟨ s ⟩ᵢ pᵢ qᵢ Aᵢ tᵢ uᵢ ⌝ γ ≡
+      unitrec⟨ s ⟩ (I.⟦ pᵢ ⟧ᵍ γ) (I.⟦ qᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+        (I.⌜ uᵢ ⌝ γ)
+    ⌜unitrec⟨⟩ᵢ⌝ 𝕨 = refl
+    ⌜unitrec⟨⟩ᵢ⌝ 𝕤 = refl

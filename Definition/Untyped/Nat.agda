@@ -15,6 +15,10 @@ module Definition.Untyped.Nat
 
 open Modality 𝕄
 
+import Definition.Typed.Decidable.Internal.Term
+import Definition.Typed.Decidable.Internal.Weakening
+open import Definition.Typed.Restrictions
+
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -156,3 +160,39 @@ opaque
     strict-const A t u [ toSubst ρ ]                                    ≡⟨ strict-const-[] ⟩
     strict-const (A [ toSubst ρ ]) (t [ toSubst ρ ]) (u [ toSubst ρ ])  ≡˘⟨ cong₃ strict-const (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) ⟩
     strict-const (wk ρ A) (wk ρ t) (wk ρ u)                             ∎
+
+------------------------------------------------------------------------
+-- A variant of one term former, intended to be used with the internal
+-- type-checker
+
+module Internal (R : Type-restrictions 𝕄) where
+
+  private
+    module I  = Definition.Typed.Decidable.Internal.Term R
+    module IW = Definition.Typed.Decidable.Internal.Weakening R
+
+  private variable
+    c           : I.Constants
+    pᵢ qᵢ       : I.Termᵍ _
+    Aᵢ tᵢ uᵢ vᵢ : I.Term _ _
+    γ           : I.Contexts _
+
+  -- A variant of natcase, intended to be used with the internal
+  -- type-checker.
+
+  natcaseᵢ :
+    I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) → I.Term c (1+ n) →
+    I.Term c n → I.Term c (1+ n) → I.Term c n → I.Term c n
+  natcaseᵢ p q A t u v =
+    I.natrec p q I.𝟘 A t (IW.wk[ 1 ] u) v
+
+  opaque
+    unfolding natcase
+
+    -- A translation lemma for natcaseᵢ.
+
+    ⌜natcaseᵢ⌝ :
+      I.⌜ natcaseᵢ pᵢ qᵢ Aᵢ tᵢ uᵢ vᵢ ⌝ γ ≡
+      natcase (I.⟦ pᵢ ⟧ᵍ γ) (I.⟦ qᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+        (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ)
+    ⌜natcaseᵢ⌝ = refl
