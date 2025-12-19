@@ -72,7 +72,7 @@ opaque
       (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
       10
       PE.refl
-      (ok₂ , ok₁ , ok₁ , ok₂ , ok₁ , ok₁ , ok₁ , ok₁ , ok₂ , ok₁)
+      (ok₂ , ok₁)
       (C.Meta-con-wf-empty PE.refl)
       ε
       (λ ())
@@ -119,7 +119,7 @@ opaque
       (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
       10
       PE.refl
-      (ok₂ , ok₁ , ok₂ , ok₁ , ok₂ , ok₁)
+      (ok₂ , ok₁)
       (C.Meta-con-wf-empty PE.refl)
       (flip defn-wk′ ⊢Δ $ »⊇ε $
        check-dcon-sound

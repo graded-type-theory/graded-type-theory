@@ -148,11 +148,7 @@ opaque
          (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₂ ▹ xB₂))
       25
       PE.refl
-      (ok₁ , ok₁ , ok₂ , ok₂ , ok₁ , ok₁ , ok₃ , ok₃ , ok₂ , ok₂ , ok₂ ,
-       ok₁ , ok₁ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
-       ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
-       ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ , ok₂ ,
-       ok₂)
+      (ok₃ , ok₁ , ok₂)
       (record
          { bindings-wf = λ where
              (I.var! x0)       → ⊢A₁
@@ -325,7 +321,7 @@ opaque
       (I.Id (I.U xl) (I.Id xA₁ xt₁ xu₁) (I.Id xA₂ xt₂ xu₂))
       29
       PE.refl
-      (ok , ok , ok , ok)
+      ok
       (record
          { bindings-wf = λ where
              (I.var! x0)       → ⊢A₁

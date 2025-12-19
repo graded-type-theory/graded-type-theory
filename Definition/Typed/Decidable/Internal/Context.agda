@@ -15,7 +15,7 @@ module Definition.Typed.Decidable.Internal.Context
 open Type-restrictions TR
 
 open import Definition.Typed TR as T hiding (Trans)
-open import Definition.Typed.Decidable.Internal.Monad 𝕄
+open import Definition.Typed.Decidable.Internal.Monad TR
 open import Definition.Typed.Decidable.Internal.Term 𝕄
 open import Definition.Typed.Decidable.Internal.Weakening 𝕄
 open import Definition.Typed.Properties.Definition TR

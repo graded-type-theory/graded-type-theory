@@ -2,15 +2,17 @@
 -- Various tests used by Definition.Typed.Decidable.Internal
 ------------------------------------------------------------------------
 
+open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed.Decidable.Internal.Tests
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
+  (TR : Type-restrictions 𝕄)
   where
 
 open import Definition.Typed.Decidable.Internal.Equality 𝕄
-open import Definition.Typed.Decidable.Internal.Monad 𝕄 as M
+open import Definition.Typed.Decidable.Internal.Monad TR as M
   hiding (_<$>_; _⊛_)
 open import Definition.Typed.Decidable.Internal.Term 𝕄
 open import Definition.Typed.Decidable.Internal.Substitution 𝕄

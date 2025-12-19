@@ -24,13 +24,13 @@ module Definition.Typed.Decidable.Internal
 open Type-restrictions TR
 
 open import Definition.Typed TR hiding (Trans)
-open import Definition.Typed.Decidable.Internal.Constraints 𝕄
+open import Definition.Typed.Decidable.Internal.Constraint TR
 open import Definition.Typed.Decidable.Internal.Context TR
 open import Definition.Typed.Decidable.Internal.Equality 𝕄
-open import Definition.Typed.Decidable.Internal.Monad 𝕄
+open import Definition.Typed.Decidable.Internal.Monad TR
 open import Definition.Typed.Decidable.Internal.Substitution 𝕄
 open import Definition.Typed.Decidable.Internal.Term 𝕄
-open import Definition.Typed.Decidable.Internal.Tests 𝕄
+open import Definition.Typed.Decidable.Internal.Tests TR
 open import Definition.Typed.Decidable.Internal.Weakening 𝕄
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties.Admissible.Equality TR
@@ -397,12 +397,12 @@ mutual
     check-type′ _ _ (just Empty) =
       return Empty
     check-type′ _ _ (just (Unit s l)) = do
-      require (λ γ → Unit-allowed (⟦ s ⟧ˢ γ))
+      require (unit-allowed s)
       return (Unit s l)
     check-type′ n Γ (just (ΠΣ b p q A₁ A₂)) = do
       A₁ ← check-type n Γ A₁
       A₂ ← check-type n (Γ »∙ A₁) A₂
-      require (λ γ → ΠΣ-allowed (⟦ b ⟧ᵇᵐ γ) (⟦ p ⟧ᵍ γ) (⟦ q ⟧ᵍ γ))
+      require (πσ-allowed b p q)
       return (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂)
     check-type′ _ _ (just ℕ) =
       return ℕ
@@ -496,16 +496,16 @@ mutual
     infer′ _ _ (U l) =
       return (U (suc l))
     infer′ _ _ (Unit s l) = do
-      require (λ γ → Unit-allowed (⟦ s ⟧ˢ γ))
+      require (unit-allowed s)
       return (U l)
     infer′ _ _ (star s l) = do
-      require (λ γ → Unit-allowed (⟦ s ⟧ˢ γ))
+      require (unit-allowed s)
       return (Unit s l)
     infer′ n Γ (unitrec l A t₁ t₂) = do
       A  ← check-type n (Γ »∙ Unit 𝕨 l) A
       t₁ ← check n Γ t₁ (Unit 𝕨 l)
       check n Γ t₂ (subst A (sgSubst (star 𝕨 l)))
-      require (λ _ → Unit-allowed 𝕨)
+      require (unit-allowed 𝕨)
       return (subst A (sgSubst t₁))
     infer′ _ _ Empty =
       return (U zero)
@@ -518,12 +518,12 @@ mutual
       l₁ , _ ← is-U B₁
       B₂     ← infer-red n (Γ »∙ A₁) A₂
       l₂ , _ ← is-U B₂
-      require (λ γ → ΠΣ-allowed (⟦ b ⟧ᵇᵐ γ) (⟦ p ⟧ᵍ γ) (⟦ q ⟧ᵍ γ))
+      require (πσ-allowed b p q)
       return (U (l₁ ⊔ᵘ l₂))
     infer′ n Γ (lam p q A₁ t) = do
       A₁ ← check-type n Γ A₁
       A₂ ← infer n (Γ »∙ A₁) t
-      require (λ γ → Π-allowed (⟦ p ⟧ᵍ γ) (⟦ q ⟧ᵍ γ))
+      require (πσ-allowed BMΠ p q)
       return (Π p , q ▷ A₁ ▹ A₂)
     infer′ n Γ (app t₁ p t₂) = do
       A               ← infer-red n Γ t₁
@@ -534,7 +534,7 @@ mutual
       A₁ ← infer n Γ t₁
       A₂ ← check-type n (Γ »∙ A₁) A₂
       check n Γ t₂ (subst A₂ (sgSubst t₁))
-      require (λ γ → Σ-allowed (⟦ s ⟧ˢ γ) (⟦ p ⟧ᵍ γ) (⟦ q ⟧ᵍ γ))
+      require (πσ-allowed (BMΣ s) p q)
       return (ΠΣ⟨ BMΣ s ⟩ p , q ▷ A₁ ▹ A₂)
     infer′ n Γ (fst p t) = do
       A          ← infer-red n Γ t
@@ -593,14 +593,14 @@ mutual
       A₂ ← check-type n (Γ »∙ Id A₁ t₁ t₁) A₂
       check n Γ t₂ (subst A₂ (sgSubst (rfl (just t₁))))
       t₃ ← check n Γ t₃ (Id A₁ t₁ t₁)
-      require (λ _ → K-allowed)
+      require k-allowed
       return (subst A₂ (sgSubst t₃))
     infer′ n Γ ([]-cong s A t₁ t₂ t₃) = do
       A  ← check-type n Γ A
       t₁ ← check n Γ t₁ A
       t₂ ← check n Γ t₂ A
       check n Γ t₃ (Id A t₁ t₂)
-      require (λ γ → []-cong-allowed (⟦ s ⟧ˢ γ))
+      require (box-cong-allowed s)
       return (Id (Erased s A) (box s t₁) (box s t₂))
 
   -- A variant of infer that checks that the inferred type is U l for
@@ -691,7 +691,7 @@ mutual
           nothing  →
             equal-ne-red n Γ t₁ t₂ A
               catch
-            require (λ γ → L.Lift _ (Unit-with-η (⟦ s ⟧ˢ γ)))
+            require (unit-with-η s)
   … | just ℕ =
     case are-zero-or-suc? t₁ t₂ of λ where
       (just (inj₁ _))             → return tt
@@ -819,7 +819,7 @@ mutual
       A ← check-and-equal-ty n (Γ »∙ Unit 𝕨 l₁) A₁ A₂
       equal-ne-red n Γ t₁₁ t₂₁ (Unit 𝕨 l₁)
       check-and-equal-tm n Γ t₁₂ t₂₂ (subst A (sgSubst (star 𝕨 l₁)))
-      require (λ _ → Unit-allowed 𝕨)
+      require (unit-allowed 𝕨)
       return (subst A (sgSubst t₁₁))
     equal-ne-inf′ (app p t₁₁ t₁₂ t₂₁ t₂₂ _) = do
       A               ← equal-ne-inf-red n Γ t₁₁ t₂₁
@@ -870,14 +870,14 @@ mutual
       check-and-equal-tm n Γ t₁₂ t₂₂
         (subst A₂ (sgSubst (rfl (just t₁))))
       equal-ne-red n Γ t₁₃ t₂₃ (Id A₁ t₁ t₁)
-      require (λ _ → K-allowed)
+      require k-allowed
       return (subst A₂ (sgSubst t₁₃))
     equal-ne-inf′ ([]-cong s A₁ t₁₁ t₁₂ t₁₃ A₂ t₂₁ t₂₂ t₂₃ _) = do
       A  ← check-and-equal-ty n Γ A₁ A₂
       t₁ ← check-and-equal-tm n Γ t₁₁ t₂₁ A
       t₂ ← check-and-equal-tm n Γ t₁₂ t₂₂ A
       equal-ne-red n Γ t₁₃ t₂₃ (Id A t₁ t₂)
-      require (λ γ → []-cong-allowed (⟦ s ⟧ˢ γ))
+      require (box-cong-allowed s)
       return (Id (Erased s A) (box s t₁) (box s t₂))
 
   -- Are the two types equal?
@@ -1130,7 +1130,7 @@ check-dcon : Fuel → DCon c m → Check c ⊤
 check-dcon _ (base nothing) =
   return tt
 check-dcon _ (base (just _)) =
-  require (λ _ → L.Lift _ (unfolding-mode PE.≡ transitive))
+  require unfolding-mode-transitive
 check-dcon _ ε =
   return tt
 check-dcon {c} n (∇ ∙⟨ tra ⟩[ t ∷ A ]) = do
@@ -1143,7 +1143,8 @@ check-dcon {c} n (∇ ∙⟨ opa o ⟩[ t ∷ A ]) = do
   check-dcon n ∇
   check-type n (∇ » ε) A
   check n (Trans o ∇ » ε) t A
-  require (λ _ → Opacity-allowed × unfolding-mode PE.≡ transitive)
+  require opacity-allowed
+  require unfolding-mode-transitive
 
 -- A procedure that checks a context pair.
 --
@@ -3452,8 +3453,10 @@ opaque
     using inv ms≡0 _   eq ← inv->>= eq
         | inv _    eq₁ eq ← inv->>= eq
         | inv _    eq₂ eq ← inv->>= eq
+        | inv _    eq₃ eq ← inv->>= eq
     with inv->>= eq
-  … | inv _ eq₃ (ok PE.refl (opacity-ok , unfolding≡trans)) =
+  … | inv _ (ok PE.refl opacity-ok)
+        (ok PE.refl (L.lift unfolding≡trans)) =
     let »∇     = check-dcon-sound′ ∇ eq₁ ⊢base
         A≡A′   = check-type-sound′ n eq₂ (Meta-con-wf-empty ms≡0) (ε »∇)
         ⊢A , _ = wf-⊢≡ A≡A′

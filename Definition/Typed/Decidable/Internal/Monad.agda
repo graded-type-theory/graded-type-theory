@@ -5,14 +5,16 @@
 -- This "monad" may or may not satisfy the monad laws, no such proof
 -- is included here.
 
+open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed.Decidable.Internal.Monad
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  {𝕄 : Modality M}
+  (TR : Type-restrictions 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Constraints 𝕄
+open import Definition.Typed.Decidable.Internal.Constraint TR
 open import Definition.Typed.Decidable.Internal.Term 𝕄
 
 open import Tools.Function
@@ -69,8 +71,13 @@ _catch_ : Check c A → Check c A → Check c A
 … | x@(inj₂ _) = x
 
 -- Registering a constraint.
+--
+-- Perhaps this code has a space leak. A constraint like
+-- πσ-allowed b p q is small (if b, p and q are small expressions).
+-- However, if the constraint contains a pending Agda substitution,
+-- then it might still be a large structure in memory.
 
-require : (Contexts c → Set a) → Check c ⊤
+require : Constraint c → Check c ⊤
 require C .run _ = inj₂ (tt , con C)
 
 -- The monad's return operation.
