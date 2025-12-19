@@ -22,6 +22,11 @@ module Graded.Heap.Untyped
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  -- A grade representing the stack multiplicity of the empty stack
+  -- For quantitative instances, it probably only makes sense to set
+  -- this to 𝟙. For information flow instances, this represents the
+  -- security level at which programs are run.
+  (∣ε∣ : M)
   where
 
 open Modality 𝕄
@@ -210,7 +215,7 @@ private variable
 -- being evaluated.
 
 data ∣_∣≡_ {m} : Stack m → M → Set (a ⊔ a′) where
-  ε   : ∣ ε ∣≡ 𝟙
+  ε   : ∣ ε ∣≡ ∣ε∣
   _∙_ : ∣ c ∣ᶜ[ ⌞ p ⌟ ]≡ q → ∣ S ∣≡ p → ∣ c ∙ S ∣≡ p · q
 
 -- Weakening of stacks

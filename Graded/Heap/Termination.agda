@@ -15,7 +15,8 @@ module Graded.Heap.Termination
   {𝐌 : IsMode Mode 𝕄}
   (UR : Usage-restrictions 𝕄 𝐌)
   (TR : Type-restrictions 𝕄)
-  (As : Assumptions UR TR)
+  (∣ε∣ : M)
+  (As : Assumptions UR TR ∣ε∣)
   where
 
 open Assumptions As
@@ -46,19 +47,19 @@ open import Graded.Usage UR
 open import Graded.Usage.Properties UR
 open import Graded.Restrictions 𝕄 𝐌
 
-open import Graded.Heap.Bisimilarity UR TR
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Typed UR TR factoring-nr
-open import Graded.Heap.Typed.Properties UR TR factoring-nr
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
-open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
+open import Graded.Heap.Bisimilarity UR TR ∣ε∣
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Properties UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Reduction UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ∣ε∣
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
+  type-variant UR factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available
+open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣
 
 private variable
   t t′ u A B : Term _
@@ -155,7 +156,7 @@ module Termination {k} {Δ : Con Term k}
 
     whBisim-initial-ε :
       ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-      𝟘ᶜ ▸ t →
+      𝟘ᶜ ▸[ ⌞ ∣ε∣ ⌟ ] t →
       ε » Δ ⊢ t ↘ u ∷ A →
       ∃₅ λ m n H u′ (ρ : Wk m n) → initial t ⇘ ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
     whBisim-initial-ε ▸t d =
@@ -185,7 +186,7 @@ module Termination {k} {Δ : Con Term k}
 
     initial-⇘-ε :
       ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-      ε » Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
+      ε » Δ ⊢ t ∷ A → 𝟘ᶜ ▸[ ⌞ ∣ε∣ ⌟ ] t →
       ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
     initial-⇘-ε ⊢t ▸t =
       ⊢▸-⇘ (⊢initial ⊢t) (▸initial ▸t)
@@ -206,14 +207,15 @@ module Termination-inline {k} {Δ : Con Term k}
 
     whBisim-initial :
       ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
-      ▸[ 𝟙ᵐ ] glassify ∇ →
-      𝟘ᶜ ▸ t →
+      ▸[ ⌞ ∣ε∣ ⌟ ] glassify ∇ →
+      𝟘ᶜ ▸[ ⌞ ∣ε∣ ⌟ ] t →
       glassify ∇ » Δ ⊢ t ↘ u ∷ A →
       ∃₅ λ m n H u′ (ρ : Wk m n) →
       initial (inlineᵈ ∇ t) ⇘ ⟨ H , u′ , ρ , ε ⟩ ×
       wk ρ u′ [ H ]ₕ ≡ inlineᵈ ∇ u × Value u′
     whBisim-initial ▸∇ ▸t t↘u =
-      whBisim-initial-ε ⦃ ok = or-empty-inline-Conᵈ ⦄ (▸inlineᵈ ▸∇ ▸t) (⊢inlineᵈ↘inlineᵈ∷ t↘u)
+      whBisim-initial-ε ⦃ ok = or-empty-inline-Conᵈ ⦄
+        (▸inlineᵈ ▸∇ ▸t) (⊢inlineᵈ↘inlineᵈ∷ t↘u)
 
   opaque
 
@@ -223,8 +225,8 @@ module Termination-inline {k} {Δ : Con Term k}
     initial-⇘ :
       ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
       ∇ » Δ ⊢ t ∷ A →
-      ▸[ 𝟙ᵐ ] glassify ∇ →
-      𝟘ᶜ ▸ t →
+      ▸[ ⌞ ∣ε∣ ⌟ ] glassify ∇ →
+      𝟘ᶜ ▸[ ⌞ ∣ε∣ ⌟ ] t →
       ∃₅ λ m n H u (ρ : Wk m n) →
       initial (inlineᵈ ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
     initial-⇘  ⊢t ▸∇ ▸t =
@@ -265,7 +267,7 @@ opaque
 opaque
 
   initial-⇘-closed-ε :
-    ε » ε ⊢ t ∷ A → ε ▸ t →
+    ε » ε ⊢ t ∷ A → ε ▸[ ⌞ ∣ε∣ ⌟ ] t →
     ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-closed-ε =
     Termination.initial-⇘-ε ⊢▸Final-reasons-closed ⦃ ok = ε ⦄
@@ -278,7 +280,7 @@ opaque
   -- definition context must be empty.
 
   initial-⇘-closed :
-    ∇ » ε ⊢ t ∷ A → ▸[ 𝟙ᵐ ] glassify ∇ → ε ▸ t →
+    ∇ » ε ⊢ t ∷ A → ▸[ ⌞ ∣ε∣ ⌟ ] glassify ∇ → ε ▸[ ⌞ ∣ε∣ ⌟ ] t →
     ∃₅ λ m n H u (ρ : Wk m n) →
     initial (inlineᵈ ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-closed ⊢t ▸∇ ▸t =

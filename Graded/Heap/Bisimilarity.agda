@@ -15,6 +15,7 @@ module Graded.Heap.Bisimilarity
   {𝐌 : IsMode Mode 𝕄}
   (UR : Usage-restrictions 𝕄 𝐌)
   (TR : Type-restrictions 𝕄)
+  (∣ε∣ : M)
   where
 
 open Modality 𝕄
@@ -29,7 +30,7 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Sum
 open import Tools.Unit
 
-open import Graded.Heap.Assumptions UR TR
+open import Graded.Heap.Assumptions UR TR ∣ε∣
 
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
@@ -55,18 +56,18 @@ private
       ⦃ has-nr : Nr-available ⦄ →
       Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
     where
-    open import Graded.Heap.Untyped              type-variant UR factoring-nr public
-    open import Graded.Heap.Untyped.Properties   type-variant UR factoring-nr public
-    open import Graded.Heap.Usage                type-variant UR factoring-nr public
-    open import Graded.Heap.Usage.Inversion      type-variant UR factoring-nr public
-    open import Graded.Heap.Usage.Properties     type-variant UR factoring-nr public
-    open import Graded.Heap.Normalization        type-variant UR factoring-nr public
-    open import Graded.Heap.Reduction            type-variant UR factoring-nr public
-    open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr public
-    open import Graded.Heap.Typed                          UR TR factoring-nr public
-    open import Graded.Heap.Typed.Inversion                UR TR factoring-nr public
-    open import Graded.Heap.Typed.Properties               UR TR factoring-nr public
-    open import Graded.Heap.Typed.Reduction                UR TR factoring-nr public
+    open import Graded.Heap.Untyped              type-variant UR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Untyped.Properties   type-variant UR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Usage                type-variant UR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Usage.Inversion      type-variant UR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Usage.Properties     type-variant UR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Normalization        type-variant UR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Reduction            type-variant UR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Typed                          UR TR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Typed.Inversion                UR TR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Typed.Properties               UR TR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Typed.Reduction                UR TR factoring-nr ∣ε∣ public
 
     variable
       s s′ : State _ _ _
@@ -121,7 +122,7 @@ module _ (As : Assumptions) where
   open Assumptions As
   open Imports factoring-nr
   open import Graded.Heap.Usage.Reduction
-    type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+    type-variant UR factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available
 
   opaque
 
@@ -271,7 +272,7 @@ module _ (As : Assumptions) where
   open Assumptions As
   open Imports factoring-nr
   open import Graded.Heap.Usage.Reduction
-    type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+    type-variant UR factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available
 
   opaque
 

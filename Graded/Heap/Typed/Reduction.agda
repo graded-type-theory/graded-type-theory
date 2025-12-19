@@ -19,6 +19,7 @@ module Graded.Heap.Typed.Reduction
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open Type-restrictions TR
@@ -38,14 +39,14 @@ import Definition.Typed.Consequences.Inequality TR as I
 open import Definition.Typed.Consequences.Injectivity TR
 open import Definition.Typed.Consequences.Inversion TR
 
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
-open import Graded.Heap.Typed UR TR factoring-nr
-open import Graded.Heap.Typed.Inversion UR TR factoring-nr
-open import Graded.Heap.Typed.Properties UR TR factoring-nr
-open import Graded.Heap.Typed.Weakening UR TR factoring-nr
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
+open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Inversion UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Properties UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Weakening UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin

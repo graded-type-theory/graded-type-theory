@@ -24,6 +24,7 @@ module Graded.Heap.Usage.Reduction
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   (Unitʷ-η→ : ∀ {m p q} → Unitʷ-η → Unitrec-allowed m p q → ⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟘)
   (¬Nr-not-available : ¬ Nr-not-available)
   where
@@ -40,14 +41,14 @@ import Tools.Reasoning.Equivalence as REq
 
 open import Definition.Untyped M
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
-open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage.Weakening type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Weakening type-variant UR factoring-nr ∣ε∣
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

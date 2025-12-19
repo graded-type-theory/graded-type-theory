@@ -8,13 +8,11 @@
 -- information.
 
 open import Graded.Modality
-open import Graded.Mode.Instances.Zero-one.Variant
-import Graded.Mode.Instances.Zero-one
+import Graded.Mode.Instances.Bounded-distributive-lattice
 open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
 import Graded.Modality.Instances.Bounded-distributive-lattice
 open import Definition.Typed.Restrictions
-open import Tools.Bool using (T)
 import Tools.PropositionalEquality as PE
 open import Tools.Algebra
 open import Tools.Relation
@@ -25,11 +23,12 @@ module Graded.Heap.Non-interference
   (open Bounded-distributive-lattice L using (⊤; ⊥; ⊥≤))
   (is-⊤? : ∀ p → Dec (p PE.≡ ⊤))
   (open Graded.Modality.Instances.Bounded-distributive-lattice M L is-⊤?)
-  (mode-variant : Mode-variant modality)
-  (open Graded.Mode.Instances.Zero-one mode-variant)
-  (UR : Usage-restrictions modality Zero-one-isMode)
+  (open Graded.Mode.Instances.Bounded-distributive-lattice L is-⊤?)
+  (UR : Usage-restrictions modality bounded-distributive-lattice-isMode)
   (TR : Type-restrictions modality)
-  (As : Assumptions UR TR)
+  -- The security level programs should be run in
+  (ℓ₀ : M)
+  (As : Assumptions UR TR ℓ₀)
   (open Usage-restrictions UR)
   ⦃ no-nr : Nr-not-available-GLB ⦄
   where
@@ -60,9 +59,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
-open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR
-open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
 open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
 open import Definition.LogicalRelation.Unary TR
@@ -71,29 +68,27 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Restrictions.Zero-one 𝕄 mode-variant
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Natrec 𝕄
 open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
-open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Usage type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
-open import Graded.Heap.Termination UR TR As
-open import Graded.Heap.Typed UR TR factoring-nr
-open import Graded.Heap.Typed.Inversion UR TR factoring-nr
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr
-open import Graded.Heap.Typed.Properties UR TR factoring-nr
-open import Graded.Heap.Typed.Substitution UR TR factoring-nr
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
-open import Graded.Heap.Soundness UR TR As
+  type-variant UR factoring-nr ℓ₀ Unitʷ-η→ ¬Nr-not-available
+open import Graded.Heap.Termination UR TR ℓ₀ As
+open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
+open import Graded.Heap.Typed.Inversion UR TR factoring-nr ℓ₀
+open import Graded.Heap.Typed.Reduction UR TR factoring-nr ℓ₀
+open import Graded.Heap.Typed.Properties UR TR factoring-nr ℓ₀
+open import Graded.Heap.Typed.Substitution UR TR factoring-nr ℓ₀
+open import Graded.Heap.Reduction type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ℓ₀
 
 private variable
   n t t′ t″ A : Term _
@@ -104,7 +99,6 @@ private variable
   ρ ρ′ ρ″ : Wk _ _
   S S′ : Stack _
   c : Cont _
-  m : Mode
   x : Fin _
   p p₀ q r : M
   y : Ptr _
@@ -113,106 +107,106 @@ private instance
   or-empty-ε : ∀ {A : Set a} → A or-empty ε {A = Term}
   or-empty-ε = ε
 
-record No-secret-matches (p : M) : Set a where
+record No-secret-matches : Set a where
   no-eta-equality
   field
     no-secret-prodrec :
-      ∀ {m p q r} → m ≤ p₀ → Prodrec-allowed ⌞ m ⌟ r p q → r ≤ p₀
+      ∀ {m p q r} → m ≤ ℓ₀ → Prodrec-allowed m r p q → r ≤ ℓ₀
     no-secret-unitrec :
-      ∀ {m p q} → m ≤ p₀ → ¬ Unitʷ-η → Unitrec-allowed ⌞ m ⌟ p q → p ≤ p₀
+      ∀ {m p q} → m ≤ ℓ₀ → ¬ Unitʷ-η → Unitrec-allowed m p q → p ≤ ℓ₀
     no-secret-J :
-      ∀ {m} → m ≤ p₀ → erased-matches-for-J ⌞ m ⌟ PE.≡ none
+      ∀ {m} → m ≤ ℓ₀ → erased-matches-for-J m PE.≡ none
     no-secret-K :
-      ∀ {m} → m ≤ p₀ → erased-matches-for-K ⌞ m ⌟ PE.≡ none
+      ∀ {m} → m ≤ ℓ₀ → erased-matches-for-K m PE.≡ none
     no-secret-[]-cong :
-      ∀ {s m} → m ≤ p₀ → []-cong-allowed-mode s ⌞ m ⌟ → 𝟘 ≤ p₀
+      ∀ {s m} → m ≤ ℓ₀ → []-cong-allowed-mode s m → 𝟘 ≤ ℓ₀
 
   ∣J∣≡𝟙 :
-    ∀ {m p q} → m ≤ p₀ → ∣J erased-matches-for-J ⌞ m ⌟ , p , q ∣≡ 𝟙
-  ∣J∣≡𝟙 m≤p₀ =
-    ∣J∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-J m≤p₀)) (none-≤ᵉᵐ {em = some}))
-      λ em≡some → case PE.trans (PE.sym (no-secret-J m≤p₀)) em≡some of λ ()
+    ∀ {m p q} → m ≤ ℓ₀ → ∣J erased-matches-for-J ⌞ m ⌟ , p , q ∣≡ 𝟙
+  ∣J∣≡𝟙 m≤ℓ₀ =
+    ∣J∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-J m≤ℓ₀)) (none-≤ᵉᵐ {em = some}))
+      λ em≡some → case PE.trans (PE.sym (no-secret-J m≤ℓ₀)) em≡some of λ ()
 
   ∣K∣≡𝟙 :
-    ∀ {m p} → m ≤ p₀ → ∣K erased-matches-for-K ⌞ m ⌟ , p ∣≡ 𝟙
-  ∣K∣≡𝟙 m≤p₀ =
-    ∣K∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-K m≤p₀)) (none-≤ᵉᵐ {em = some}))
-      (λ em≡some → case PE.trans (PE.sym (no-secret-K m≤p₀)) em≡some of λ ())
+    ∀ {m p} → m ≤ ℓ₀ → ∣K erased-matches-for-K ⌞ m ⌟ , p ∣≡ 𝟙
+  ∣K∣≡𝟙 m≤ℓ₀ =
+    ∣K∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-K m≤ℓ₀)) (none-≤ᵉᵐ {em = some}))
+      (λ em≡some → case PE.trans (PE.sym (no-secret-K m≤ℓ₀)) em≡some of λ ())
 
 opaque
 
   no-secret-matchesᶜ :
-    No-secret-matches p →
+    No-secret-matches →
     (∀ {n q} {t : Term n} {ρ} → c PE.≢ emptyrecₑ q t ρ) →
-    r ≤ p →
+    r ≤ ℓ₀ →
     γ ▸ᶜ[ ⌞ r ⌟ ] c →
-    ∣ c ∣ᶜ[ ⌞ r ⌟ ]≡ q → q ≤ p
+    ∣ c ∣ᶜ[ ⌞ r ⌟ ]≡ q → q ≤ ℓ₀
   no-secret-matchesᶜ _ _ _ _ ∘ₑ =
     ⊥≤ _
   no-secret-matchesᶜ _ _ _ _ fstₑ =
     ⊥≤ _
   no-secret-matchesᶜ _ _ _ _ sndₑ =
     ⊥≤ _
-  no-secret-matchesᶜ ok _ r≤p ▸c prodrecₑ =
-    No-secret-matches.no-secret-prodrec ok r≤p
+  no-secret-matchesᶜ ok _ r≤ℓ₀ ▸c prodrecₑ =
+    No-secret-matches.no-secret-prodrec ok r≤ℓ₀
       (▸-inv-prodrecₑ ▸c .proj₂ .proj₂ .proj₁)
-  no-secret-matchesᶜ ok _ r≤p ▸c (natrecₑ (has-nrₑ ⦃ has-nr ⦄)) =
+  no-secret-matchesᶜ ok _ r≤ℓ₀ ▸c (natrecₑ (has-nrₑ ⦃ has-nr ⦄)) =
     ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
-  no-secret-matchesᶜ ok _ r≤p ▸c (natrecₑ (no-nrₑ q-GLB)) =
+  no-secret-matchesᶜ ok _ r≤ℓ₀ ▸c (natrecₑ (no-nrₑ q-GLB)) =
     ≤-trans (≤-reflexive (≤-antisym (q-GLB .proj₁ 0) (⊥≤ _))) (⊥≤ _)
-  no-secret-matchesᶜ ok _ r≤p ▸c unitrecₑ =
+  no-secret-matchesᶜ ok _ r≤ℓ₀ ▸c unitrecₑ =
     let _ , _ , Unit-ok , no-η , _ = ▸-inv-unitrecₑ ▸c
     in  No-secret-matches.no-secret-unitrec
-          ok r≤p no-η Unit-ok
+          ok r≤ℓ₀ no-η Unit-ok
   no-secret-matchesᶜ _ er∉ _ _ emptyrecₑ =
     ⊥-elim (er∉ PE.refl)
-  no-secret-matchesᶜ {p} {q} ok _ r≤p _ (Jₑ x) =
+  no-secret-matchesᶜ {q} ok _ r≤ℓ₀ _ (Jₑ x) =
     let open ≤-reasoning in begin
-      q ≈⟨ ∣J∣ᶜ-functional x (No-secret-matches.∣J∣≡𝟙 ok r≤p) ⟩
+      q ≈⟨ ∣J∣ᶜ-functional x (No-secret-matches.∣J∣≡𝟙 ok r≤ℓ₀) ⟩
       𝟙 ≤⟨ ⊥≤ _ ⟩
-      p ∎
-  no-secret-matchesᶜ {p} {q} ok _ r≤p _ (Kₑ x) =
+      ℓ₀ ∎
+  no-secret-matchesᶜ {q} ok _ r≤ℓ₀ _ (Kₑ x) =
       let open ≤-reasoning in begin
-      q ≈⟨ ∣K∣ᶜ-functional x (No-secret-matches.∣K∣≡𝟙 ok r≤p) ⟩
+      q ≈⟨ ∣K∣ᶜ-functional x (No-secret-matches.∣K∣≡𝟙 ok r≤ℓ₀) ⟩
       𝟙 ≤⟨ ⊥≤ _ ⟩
-      p ∎
-  no-secret-matchesᶜ ok _ r≤p ▸c []-congₑ =
-    No-secret-matches.no-secret-[]-cong ok r≤p (▸-inv-[]-congₑ ▸c .proj₁)
+      ℓ₀ ∎
+  no-secret-matchesᶜ ok _ r≤ℓ₀ ▸c []-congₑ =
+    No-secret-matches.no-secret-[]-cong ok r≤ℓ₀ (▸-inv-[]-congₑ ▸c .proj₁)
   no-secret-matchesᶜ _ _ _ ▸c sucₑ =
     ⊥-elim (▸-inv-sucₑ ▸c)
 
 opaque
 
   no-secret-matches :
-    No-secret-matches p →
+    No-secret-matches →
     (∀ {p} → ¬ emptyrec p ∈ S) →
     γ ▸ˢ S →
-    ∣ S ∣≡ q → q ≤ p
-  no-secret-matches _ _ ε ε = ⊥≤ _
-  no-secret-matches {p} {q} ok er∉ (▸ˢ∙ {p = p′} ∣S∣≡p′ ▸c ▸S) ∣cS∣≡q =
+    ∣ S ∣≡ q → q ≤ ℓ₀
+  no-secret-matches _ _ ε ε = ≤-refl
+  no-secret-matches {q} ok er∉ (▸ˢ∙ {p} ∣S∣≡p ▸c ▸S) ∣cS∣≡q =
     let q₁ , q₂ , ∣c∣≡q₁ , ∣S∣≡q₂ , q≡ = ∣∣∙-inv ∣cS∣≡q
-        q₂≤p = no-secret-matches ok (λ er∈ → er∉ (there er∈)) ▸S ∣S∣≡q₂
-        q₂≡p′ = ∣∣-functional ∣S∣≡q₂ ∣S∣≡p′
+        q₂≤ℓ₀ = no-secret-matches ok (λ er∈ → er∉ (there er∈)) ▸S ∣S∣≡q₂
+        q₂≡p = ∣∣-functional ∣S∣≡q₂ ∣S∣≡p
         open RPo ≤-poset
-        p′≤p = begin
-          p′ ≡˘⟨ q₂≡p′ ⟩
-          q₂ ≤⟨ q₂≤p ⟩
-          p ∎
-        q₁≤p = no-secret-matchesᶜ ok (λ { PE.refl → er∉ here}) p′≤p ▸c
-                (PE.subst (λ m → ∣ _ ∣ᶜ[ ⌞ m ⌟ ]≡ _) q₂≡p′ ∣c∣≡q₁)
+        p≤ℓ₀ = begin
+          p  ≡˘⟨ q₂≡p ⟩
+          q₂ ≤⟨ q₂≤ℓ₀ ⟩
+          ℓ₀ ∎
+        q₁≤ℓ₀ = no-secret-matchesᶜ ok (λ { PE.refl → er∉ here}) p≤ℓ₀ ▸c
+                  (PE.subst (λ m → ∣ _ ∣ᶜ[ ⌞ m ⌟ ]≡ _) q₂≡p ∣c∣≡q₁)
     in  begin
-      q       ≡⟨ q≡ ⟩
-      q₂ · q₁ ≤⟨ ·-monotone q₂≤p q₁≤p ⟩
-      p · p   ≡⟨ ·-idem _ ⟩
-      p       ∎
+      q        ≡⟨ q≡ ⟩
+      q₂ · q₁  ≤⟨ ·-monotone q₂≤ℓ₀ q₁≤ℓ₀ ⟩
+      ℓ₀ · ℓ₀  ≡⟨ ·-idem _ ⟩
+      ℓ₀       ∎
 
 opaque
 
   no-secret-matches′ :
-    No-secret-matches p →
+    No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
     ε ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
-    ∣ S ∣≡ q → q ≤ p
+    ∣ S ∣≡ q → q ≤ ℓ₀
   no-secret-matches′ ok ▸s ⊢s ∣S∣≡q =
     no-secret-matches ok
       (⊢emptyrec∉S (λ _ → ¬Empty) ⊢s)
@@ -265,12 +259,12 @@ opaque
 opaque
 
   ~⟨⟩-⇾ₑ :
-    No-secret-matches p →
+    No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
     ε ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
-    H ~⟨ p ⟩ H′ →
+    H ~⟨ ℓ₀ ⟩ H′ →
     ⟨ H , t , ρ , S ⟩ ⇾ₑ ⟨ H″ , t′ , ρ′ , S′ ⟩ →
-    ∃ λ H‴ → ⟨ H′ , t , ρ , S ⟩ ⇾ₑ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H″ ~⟨ p ⟩ H‴
+    ∃ λ H‴ → ⟨ H′ , t , ρ , S ⟩ ⇾ₑ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H″ ~⟨ ℓ₀ ⟩ H‴
   ~⟨⟩-⇾ₑ ok ▸s ⊢s H~H′ (var ∣S∣≡q d) =
     let _ , d′ , H″~H‴ = ~⟨⟩-↦[] H~H′ d (no-secret-matches′ ok ▸s ⊢s ∣S∣≡q)
     in  _ , var ∣S∣≡q d′ , H″~H‴
@@ -321,12 +315,12 @@ opaque
 opaque
 
   ~⟨⟩-⇾ :
-    No-secret-matches p →
+    No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
     ε ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
-    H ~⟨ p ⟩ H′ →
+    H ~⟨ ℓ₀ ⟩ H′ →
     ⟨ H , t , ρ , S ⟩ ⇾ ⟨ H″ , t′ , ρ′ , S′ ⟩ →
-    ∃ λ H‴ → ⟨ H′ , t , ρ , S ⟩ ⇾ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H″ ~⟨ p ⟩ H‴
+    ∃ λ H‴ → ⟨ H′ , t , ρ , S ⟩ ⇾ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H″ ~⟨ ℓ₀ ⟩ H‴
   ~⟨⟩-⇾ ok ▸s ⊢s H~H′ (⇾ₑ d) =
     let _ , d′ , H″~H‴ = ~⟨⟩-⇾ₑ ok ▸s ⊢s H~H′ d
     in  _ , ⇾ₑ d′ , H″~H‴
@@ -337,12 +331,12 @@ opaque
 opaque
 
   ~⟨⟩-↠ :
-    No-secret-matches p →
+    No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
     ε ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
-    H ~⟨ p ⟩ H′ →
+    H ~⟨ ℓ₀ ⟩ H′ →
     ⟨ H , t , ρ , S ⟩ ↠ ⟨ H″ , t′ , ρ′ , S′ ⟩ →
-    ∃ λ H‴ → ⟨ H′ , t , ρ , S ⟩ ↠ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H″ ~⟨ p ⟩ H‴
+    ∃ λ H‴ → ⟨ H′ , t , ρ , S ⟩ ↠ ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H″ ~⟨ ℓ₀ ⟩ H‴
   ~⟨⟩-↠ ok ▸s ⊢s H~H′ (⇾ₑ d) =
     let _ , d′ , H″~H‴ = ~⟨⟩-⇾ₑ ok ▸s ⊢s H~H′ d
     in  _ , ⇾ₑ d′ , H″~H‴
@@ -356,12 +350,12 @@ opaque
 opaque
 
   ~⟨⟩-⇾* :
-    No-secret-matches p →
+    No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
     ε ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
-    H ~⟨ p ⟩ H′ →
+    H ~⟨ ℓ₀ ⟩ H′ →
     ⟨ H , t , ρ , S ⟩ ⇾* ⟨ H″ , t′ , ρ′ , S′ ⟩ →
-    ∃ λ H‴ → ⟨ H′ , t , ρ , S ⟩ ⇾* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H″ ~⟨ p ⟩ H‴
+    ∃ λ H‴ → ⟨ H′ , t , ρ , S ⟩ ⇾* ⟨ H‴ , t′ , ρ′ , S′ ⟩ × H″ ~⟨ ℓ₀ ⟩ H‴
   ~⟨⟩-⇾* ok ▸s ⊢s H~H′ id =
     _ , id , H~H′
   ~⟨⟩-⇾* ok ▸s ⊢s H~H′ (_⇨_ {s₂ = record{}} x d) =
@@ -386,16 +380,16 @@ private opaque
 private opaque
 
   non-interference′ :
-    No-secret-matches p →
+    No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
     ε ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ ℕ →
-    H ~⟨ p ⟩ H′ →
+    H ~⟨ ℓ₀ ⟩ H′ →
     ε » ε ⊩ℕ n ∷ℕ → n PE.≡ ⦅ ⟨ H , t , ρ , S ⟩ ⦆ →
     ∃₆ λ m n H″ H‴ (ρ′ : Wk m n) t′ →
       ⟨ H , t , ρ , S ⟩ ↠* ⟨ H″ , t′ , ρ′ , ε ⟩ ×
       ⟨ H′ , t , ρ , S ⟩ ↠* ⟨ H‴ , t′ , ρ′ , ε ⟩ ×
       Numeral t′ ×
-      H″ ~⟨ p ⟩ H‴
+      H″ ~⟨ ℓ₀ ⟩ H‴
   non-interference′ ok ▸s ⊢s H~H′ (ℕₜ u ⇒*u ≅u (sucᵣ x)) PE.refl =
     let _ , _ , H , t , ρ , (d′ , _) , ≡u , v = whBisim-closed ⊢s ▸s (⇒*u , sucₙ)
     in  case subst-suc {t = wk ρ t} ≡u of λ where
@@ -451,23 +445,29 @@ private opaque
 
 opaque
 
+  -- Non-interference for the abstract machine.
+  -- Any well-typed and well-resourced program at security level ℓ₀
+  -- can be evaluated under two different (well-typed and
+  -- well-resourced) heaps that are ℓ₀-equivalent to produce the same
+  -- natural number and two ℓ₀-equivalent heaps.
+
   non-interference :
-    No-secret-matches p →
-    γ ▸[ 𝟙ᵐ ] t →
+    No-secret-matches →
+    γ ▸[ ℓ₀ ] t →
     ε » Δ ⊢ t ∷ ℕ →
     γ ▸ʰ H →
     ε ⊢ʰ H ∷ Δ →
-    H ~⟨ p ⟩ H′ →
+    H ~⟨ ℓ₀ ⟩ H′ →
     ∃₆ λ m n H″ H‴ (ρ′ : Wk m n) t′ →
       ⟨ H  , t , id , ε ⟩ ↠* ⟨ H″ , t′ , ρ′ , ε ⟩ ×
       ⟨ H′ , t , id , ε ⟩ ↠* ⟨ H‴ , t′ , ρ′ , ε ⟩ ×
-      Numeral t′ × H″ ~⟨ p ⟩ H‴
+      Numeral t′ × H″ ~⟨ ℓ₀ ⟩ H‴
   non-interference {γ} ok ▸t ⊢t ▸H ⊢H H~H′ =
     let open ≤ᶜ-reasoning
-        ▸s = ▸ₛ ε ▸H (▸-cong (PE.sym ⌞𝟙⌟) ▸t) ε $ begin
-          γ            ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-          𝟙 ·ᶜ γ       ≈˘⟨ +ᶜ-identityʳ _ ⟩
-          𝟙 ·ᶜ γ +ᶜ 𝟘ᶜ ∎
+        ▸s = ▸ₛ ε ▸H ▸t ε $ begin
+          γ             ≤⟨ ·ᶜ-increasing (·-increasingʳ _ _) ⟩
+          ℓ₀ ·ᶜ γ       ≈˘⟨ +ᶜ-identityʳ _ ⟩
+          ℓ₀ ·ᶜ γ +ᶜ 𝟘ᶜ ∎
         ⊢t′ = substHeapTerm ⊢H (⊢∷-cong ⊢t (PE.sym (wk-id _)))
         ⊢s = ⊢ₛ ⊢H ⊢t′ ε
         _ , _ , _ , _ , _ , _ , d₁ , d₂ , num , H″~H‴ =

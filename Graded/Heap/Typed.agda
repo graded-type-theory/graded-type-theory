@@ -18,6 +18,7 @@ module Graded.Heap.Typed
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open Type-restrictions TR
@@ -26,7 +27,7 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Typed TR
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
 
 open import Tools.Fin
 open import Tools.Nat

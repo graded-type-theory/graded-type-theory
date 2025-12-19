@@ -18,6 +18,7 @@ module Graded.Heap.Typed.Substitution
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open Type-restrictions TR
@@ -27,8 +28,8 @@ open import Definition.Untyped.Properties M
 open import Definition.Typed TR
 open import Definition.Typed.Substitution TR
 
-open import Graded.Heap.Typed UR TR factoring-nr
-open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
 
 open import Tools.Function
 open import Tools.Product

@@ -18,7 +18,7 @@ module Graded.Heap.Termination.Zero-one
   (open Graded.Mode.Instances.Zero-one mode-variant)
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (TR : Type-restrictions 𝕄)
-  (As : Assumptions UR TR)
+  (As : Assumptions UR TR 𝟙)
   where
 
 open Assumptions As
@@ -41,18 +41,19 @@ open import Definition.Typed.Names-below TR
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 open import Graded.Usage UR
+open import Graded.Usage.Properties UR
 open import Graded.Restrictions.Zero-one 𝕄 mode-variant
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Termination UR TR As
-open import Graded.Heap.Typed UR TR factoring-nr
-open import Graded.Heap.Typed.Properties UR TR factoring-nr
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Termination UR TR 𝟙 As
+open import Graded.Heap.Typed UR TR factoring-nr 𝟙
+open import Graded.Heap.Typed.Properties UR TR factoring-nr 𝟙
+open import Graded.Heap.Typed.Reduction UR TR factoring-nr 𝟙
+open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Reduction.Zero-one
   type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
-open import Graded.Heap.Reduction type-variant UR factoring-nr
+open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
 
 private variable
   t t′ u A B : Term _
@@ -144,7 +145,8 @@ opaque
     ε » Δ ⊢ t ↘ u ∷ A →
     ∃₅ λ m n H u′ (ρ : Wk m n) → initial t ⇘ ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
   whBisim-initial-ε consistent prop ▸t =
-    Termination.whBisim-initial-ε (⊢▸Final-reasons consistent prop) ▸t
+    Termination.whBisim-initial-ε (⊢▸Final-reasons consistent prop)
+      (▸-cong (PE.sym ⌞𝟙⌟) ▸t)
 
 opaque
 
@@ -167,7 +169,7 @@ opaque
   whBisim-initial consistent prop ▸∇ ▸t =
     Termination-inline.whBisim-initial
       (⊢▸Final-reasons ⦃ ok = or-empty-inline-Conᵈ ⦄ consistent prop)
-      ▸∇ ▸t
+      (PE.subst (λ m → ▸[ m ] glassify _) (PE.sym ⌞𝟙⌟) ▸∇) (▸-cong (PE.sym ⌞𝟙⌟) ▸t)
 
 opaque
 
@@ -194,7 +196,8 @@ opaque
     ε » Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-ε consistent prop ⊢t ▸t =
-    Termination.initial-⇘-ε (⊢▸Final-reasons consistent prop) ⊢t ▸t
+    Termination.initial-⇘-ε (⊢▸Final-reasons consistent prop) ⊢t
+      (▸-cong (PE.sym ⌞𝟙⌟) ▸t)
 
 opaque
 
@@ -216,4 +219,5 @@ opaque
   initial-⇘ consistent prop ⊢t ▸∇ ▸t =
     Termination-inline.initial-⇘
       (⊢▸Final-reasons ⦃ ok = or-empty-inline-Conᵈ ⦄ consistent prop)
-        ⊢t ▸∇ ▸t
+        ⊢t (PE.subst (λ m → ▸[ m ] glassify _) (PE.sym ⌞𝟙⌟) ▸∇)
+        (▸-cong (PE.sym ⌞𝟙⌟) ▸t)

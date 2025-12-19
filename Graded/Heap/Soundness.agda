@@ -16,14 +16,14 @@ open import Definition.Typed.Restrictions
 module Graded.Heap.Soundness
   {a} {M : Set a} {𝕄 : Modality M}
   {mode-variant : Mode-variant 𝕄}
+  (open Modality 𝕄)
   (open Graded.Mode.Instances.Zero-one mode-variant)
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (TR : Type-restrictions 𝕄)
-  (As : Assumptions UR TR)
+  (As : Assumptions UR TR 𝟙)
   where
 
 open Assumptions As
-open Modality 𝕄
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -60,21 +60,21 @@ open import Graded.Usage UR
 open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
-open import Graded.Heap.Usage.Properties type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Usage.Properties type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Properties.Zero-one type-variant UR factoring-nr
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+  type-variant UR factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
 open import Graded.Heap.Termination.Zero-one UR TR As
-open import Graded.Heap.Typed UR TR factoring-nr
-open import Graded.Heap.Typed.Inversion UR TR factoring-nr
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr
-open import Graded.Heap.Typed.Properties UR TR factoring-nr
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr
+open import Graded.Heap.Typed UR TR factoring-nr 𝟙
+open import Graded.Heap.Typed.Inversion UR TR factoring-nr 𝟙
+open import Graded.Heap.Typed.Reduction UR TR factoring-nr 𝟙
+open import Graded.Heap.Typed.Properties UR TR factoring-nr 𝟙
+open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr 𝟙
 
 private variable
   k : Nat
@@ -263,7 +263,7 @@ opaque
     (ε » Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-ε {k} {t} {Δ} consistent prop ⊢t ▸t =
-    case ▸initial ▸t of λ
+    case ▸initial (▸-cong (PE.sym ⌞𝟙⌟) ▸t) of λ
       ▸s →
     case redNumeral consistent prop
            (⊢initial ⊢t) ▸s of λ
