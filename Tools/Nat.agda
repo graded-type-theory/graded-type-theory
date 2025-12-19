@@ -54,6 +54,7 @@ open import Tools.Function
 open import Tools.Level using (Level; lzero)
 open import Tools.Product as Σ
 open import Tools.PropositionalEquality
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
@@ -63,9 +64,9 @@ pattern 3+ n = 1+ (2+ n)
 pattern 4+ n = 1+ (3+ n)
 
 private variable
-  a             : Level
-  k m m′ n n′ o : Nat
-  p             : Nat → Bool
+  a                      : Level
+  k m m′ n n′ n₂ n₃ n₄ o : Nat
+  p                      : Nat → Bool
 
 -- Nat is a set.
 
@@ -363,6 +364,21 @@ opaque
 
   ⊔-mono : m ≤′ m′ → n ≤′ n′ → m ⊔ n ≤′ m′ ⊔ n′
   ⊔-mono p q = ≤⇒≤′ (⊔-mono-≤ (≤′⇒≤ p) (≤′⇒≤ q))
+
+opaque
+
+  -- A rearrangement lemma for _⊔_.
+
+  ⊔-swap : ∀ n₁ → (n₁ ⊔ n₂) ⊔ (n₃ ⊔ n₄) ≡ (n₁ ⊔ n₃) ⊔ (n₂ ⊔ n₄)
+  ⊔-swap {n₂} {n₃} {n₄} n₁ =
+    (n₁ ⊔ n₂) ⊔ (n₃ ⊔ n₄)  ≡⟨ ⊔-assoc n₁ _ _ ⟩
+    n₁ ⊔ (n₂ ⊔ (n₃ ⊔ n₄))  ≡˘⟨ cong (n₁ ⊔_) (⊔-assoc n₂ _ _) ⟩
+    n₁ ⊔ ((n₂ ⊔ n₃) ⊔ n₄)  ≡⟨ cong ((n₁ ⊔_) ∘→ (_⊔ _)) (⊔-comm n₂ _) ⟩
+    n₁ ⊔ ((n₃ ⊔ n₂) ⊔ n₄)  ≡⟨ cong (n₁ ⊔_) (⊔-assoc n₃ _ _) ⟩
+    n₁ ⊔ (n₃ ⊔ (n₂ ⊔ n₄))  ≡˘⟨ ⊔-assoc n₁ _ _ ⟩
+    (n₁ ⊔ n₃) ⊔ (n₂ ⊔ n₄)  ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
 
 opaque
 

@@ -14,16 +14,18 @@ open import Definition.Typed.Decidable.Internal.Monad 𝕄 as M
 open import Definition.Typed.Decidable.Internal.Term 𝕄
 open import Definition.Typed.Decidable.Internal.Substitution 𝕄
 
-open import Definition.Untyped M using (Wk)
+open import Definition.Untyped M as U using (Universe-level; Wk)
 open import Definition.Untyped.Properties M
 
 open import Tools.Bool as B using (T)
-open import Tools.Fin
-open import Tools.Function using (case_of_; flip; _∘→_)
+open import Tools.Fin as Fin
+open import Tools.Function using (case_of_; flip; idᶠ; _∘→_)
+open import Tools.List as List
 open import Tools.Maybe
 open import Tools.Nat as N using (Nat; 1+)
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 import Tools.Vec as Vec
 
@@ -32,7 +34,7 @@ private variable
   x₁ x₂                : Fin _
   c                    : Constants
   Δ                    : Con _ _
-  l                    : Termˡ _
+  l l₁ l₂              : Termˡ _
   s                    : Termˢ _
   b                    : Termᵇᵐ _ _
   p q r                : Termᵍ _
@@ -72,21 +74,172 @@ t₁₁ ∧ t₁₂ ≟ᵍ t₂₁ ∧ t₂₂ =
 _ ≟ᵍ _ =
   nothing
 
--- Are the two universe level terms syntactically equal?
+-- Semantic equality of universe level terms.
+
+[_]_≡ˡ_ : ∀ c → (_ _ : Termˡ (c .ls)) → Set a
+[ c ] t₁ ≡ˡ t₂ = (γ : Contexts c) → ⟦ t₁ ⟧ˡ γ PE.≡ ⟦ t₂ ⟧ˡ γ
+
+-- Are the two universe level terms semantically equal?
+--
+-- The implementation could presumably be more efficient, but the
+-- terms are expected to be small.
 
 infix 4 _≟ˡ_
 
-_≟ˡ_ : (t₁ t₂ : Termˡ n) → Maybe (t₁ PE.≡ t₂)
-var x ≟ˡ var y =
-  PE.cong var <$> dec⇒maybe (x ≟ⱽ y)
-zero ≟ˡ zero =
-  just PE.refl
-suc t₁ ≟ˡ suc t₂ =
-  PE.cong suc <$> t₁ ≟ˡ t₂
-t₁₁ ⊔ᵘ t₁₂ ≟ˡ t₂₁ ⊔ᵘ t₂₂ =
-  PE.cong₂ _⊔ᵘ_ <$> t₁₁ ≟ˡ t₂₁ ⊛ t₁₂ ≟ˡ t₂₂
-_ ≟ˡ _ =
-  nothing
+_≟ˡ_ : (t₁ t₂ : Termˡ (c .ls)) → Maybe ([ c ] t₁ ≡ˡ t₂)
+t₁ ≟ˡ t₂ =
+  soundness t₁ t₂ <$> normalise t₁ ≟ˡⁿ normalise t₂
+  where
+  -- Normal forms.
+  --
+  -- Invariant: There is at most one list element for each variable,
+  -- and later variables are larger.
+
+  Termˡⁿ′ : Nat → Set
+  Termˡⁿ′ n = List (Nat × Fin n)
+
+  Termˡⁿ : Nat → Set
+  Termˡⁿ n = Termˡⁿ′ n × Nat
+
+  -- Semantics of normal forms.
+
+  ⟦_⟧ˡⁿ″ : Nat × Fin (c .ls) → Contexts c → Universe-level
+  ⟦ n , x ⟧ˡⁿ″ γ = n N.+ Vec.lookup (γ .levels) x
+
+  ⟦_⟧ˡⁿ′ : Termˡⁿ′ (c .ls) → Contexts c → Universe-level
+  ⟦ ns ⟧ˡⁿ′ γ = List.foldr U._⊔ᵘ_ 0 (List.map (flip ⟦_⟧ˡⁿ″ γ) ns)
+
+  ⟦_⟧ˡⁿ : Termˡⁿ (c .ls) → Contexts c → Universe-level
+  ⟦ ns , n ⟧ˡⁿ γ = ⟦ ns ⟧ˡⁿ′ γ U.⊔ᵘ n
+
+  -- An equality test for normal forms.
+
+  infix 4 _≟ˡⁿ_
+
+  _≟ˡⁿ_ : (n₁ n₂ : Termˡⁿ n) → Maybe (n₁ PE.≡ n₂)
+  n₁ ≟ˡⁿ n₂ =
+    dec⇒maybe (Σ.≡-dec (List.≡-dec (Σ.≡-dec N._≟_ _≟ⱽ_)) N._≟_ n₁ n₂)
+
+  -- Normal form operations.
+
+  sucⁿ′ : Termˡⁿ′ n → Termˡⁿ′ n
+  sucⁿ′ = List.map (Σ.map 1+ idᶠ)
+
+  sucⁿ : Termˡⁿ n → Termˡⁿ n
+  sucⁿ = Σ.map sucⁿ′ 1+
+
+  mergeⁿ : (_ _ : List (Nat × Fin n)) → List (Nat × Fin n)
+  mergeⁿ []                     ns                     = ns
+  mergeⁿ ns                     []                     = ns
+  mergeⁿ ns₁@((n₁ , x₁) ∷ ns₁′) ns₂@((n₂ , x₂) ∷ ns₂′)
+    with mergeⁿ ns₁′ ns₂ | mergeⁿ ns₁′ ns₂′ | mergeⁿ ns₁  ns₂′
+       | Fin.compare x₁ x₂
+  … | ns | _  | _  | less _ _    = (n₁         , x₁) ∷ ns
+  … | _  | ns | _  | equal _     = (n₁ U.⊔ᵘ n₂ , x₁) ∷ ns
+  … | _  | _  | ns | greater _ _ = (n₂         , x₂) ∷ ns
+
+  maxⁿ : Termˡⁿ n → Termˡⁿ n → Termˡⁿ n
+  maxⁿ (ns₁ , n₁) (ns₂ , n₂) = mergeⁿ ns₁ ns₂ , n₁ U.⊔ᵘ n₂
+
+  opaque
+
+    -- The normal form operations have the intended semantics.
+
+    sucⁿ-correct :
+      (n : Termˡⁿ (c .ls)) (γ : Contexts c) →
+      ⟦ sucⁿ n ⟧ˡⁿ γ PE.≡ 1+ (⟦ n ⟧ˡⁿ γ)
+    sucⁿ-correct ([] , n) γ =
+      1+ n           ≡˘⟨ PE.cong 1+ (N.⊔-identityʳ _) ⟩
+      1+ (0 U.⊔ᵘ n)  ∎
+    sucⁿ-correct ((n₁ , x) ∷ ns , n₂) γ =
+      (⟦ 1+ n₁ , x ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ sucⁿ′ ns ⟧ˡⁿ′ γ) U.⊔ᵘ 1+ n₂  ≡˘⟨ N.⊔-assoc (1+ _) (⟦ sucⁿ′ ns ⟧ˡⁿ′ γ) _ ⟩
+      ⟦ 1+ n₁ , x ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ sucⁿ (ns , n₂) ⟧ˡⁿ γ          ≡⟨ PE.cong (_ U.⊔ᵘ_) (sucⁿ-correct (ns , n₂) γ) ⟩
+      ⟦ 1+ n₁ , x ⟧ˡⁿ″ γ U.⊔ᵘ 1+ (⟦ ns , n₂ ⟧ˡⁿ γ)            ≡⟨ N.⊔-assoc (1+ _) (1+ (⟦ ns ⟧ˡⁿ′ γ)) (⟦ 1+ n₁ , _ ⟧ˡⁿ″ γ) ⟩
+      (⟦ 1+ n₁ , x ⟧ˡⁿ″ γ U.⊔ᵘ 1+ (⟦ ns ⟧ˡⁿ′ γ)) U.⊔ᵘ 1+ n₂   ∎
+
+    mergeⁿ-correct :
+      (ns₁ ns₂ : Termˡⁿ′ (c .ls)) (γ : Contexts c) →
+      ⟦ mergeⁿ ns₁ ns₂ ⟧ˡⁿ′ γ PE.≡ ⟦ ns₁ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ ns₂ ⟧ˡⁿ′ γ
+    mergeⁿ-correct [] ns₂ γ =
+      ⟦ ns₂ ⟧ˡⁿ′ γ         ≡˘⟨ N.⊔-identityʳ _ ⟩
+      0 U.⊔ᵘ ⟦ ns₂ ⟧ˡⁿ′ γ  ∎
+    mergeⁿ-correct (_ ∷ _) [] γ =
+      PE.refl
+    mergeⁿ-correct ns₁@((n₁ , x₁) ∷ ns₁′) ns₂@((n₂ , x₂) ∷ ns₂′) γ
+      with mergeⁿ ns₁′ ns₂  | mergeⁿ-correct ns₁′ ns₂  γ
+         | mergeⁿ ns₁′ ns₂′ | mergeⁿ-correct ns₁′ ns₂′ γ
+         | mergeⁿ ns₁  ns₂′ | mergeⁿ-correct ns₁  ns₂′ γ
+         | Fin.compare x₁ x₂
+    … | ns | eq | _ | _ | _ | _ | less _ _ =
+      ⟦ n₁ , _ ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ ns ⟧ˡⁿ′ γ                        ≡⟨ PE.cong (_ U.⊔ᵘ_) eq ⟩
+      ⟦ n₁ , _ ⟧ˡⁿ″ γ U.⊔ᵘ (⟦ ns₁′ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ ns₂ ⟧ˡⁿ′ γ)  ≡⟨ N.⊔-assoc (⟦ ns₂ ⟧ˡⁿ′ γ) _ _ ⟩
+      ⟦ ns₁ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ ns₂ ⟧ˡⁿ′ γ                          ∎
+    … | _ | _ | ns | eq | _ | _ | equal x =
+      ⟦ n₁ U.⊔ᵘ n₂ , x ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ ns ⟧ˡⁿ′ γ                         ≡⟨ PE.cong (_ U.⊔ᵘ_) eq ⟩
+
+      ⟦ n₁ U.⊔ᵘ n₂ , x ⟧ˡⁿ″ γ U.⊔ᵘ (⟦ ns₁′ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ ns₂′ ⟧ˡⁿ′ γ)  ≡⟨ PE.cong (U._⊔ᵘ (_ U.⊔ᵘ ⟦ ns₂′ ⟧ˡⁿ′ γ)) (N.+-distribʳ-⊔ _ n₂ _) ⟩
+
+      (⟦ n₁ , x ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ n₂ , x ⟧ˡⁿ″ γ) U.⊔ᵘ
+      (⟦ ns₁′ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ ns₂′ ⟧ˡⁿ′ γ)                               ≡⟨ N.⊔-swap (⟦ ns₂′ ⟧ˡⁿ′ γ) ⟩
+
+      (⟦ n₁ , x ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ ns₁′ ⟧ˡⁿ′ γ) U.⊔ᵘ
+      (⟦ n₂ , x ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ ns₂′ ⟧ˡⁿ′ γ)                             ∎
+    … | _ | _ | _ | _ | ns | eq | greater _ _ =
+      ⟦ n₂ , _ ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ ns ⟧ˡⁿ′ γ                        ≡⟨ PE.cong (_ U.⊔ᵘ_) eq ⟩
+      ⟦ n₂ , _ ⟧ˡⁿ″ γ U.⊔ᵘ (⟦ ns₁ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ ns₂′ ⟧ˡⁿ′ γ)  ≡⟨ N.⊔-assoc (⟦ ns₂′ ⟧ˡⁿ′ γ) _ _ ⟩
+      (⟦ n₂ , _ ⟧ˡⁿ″ γ U.⊔ᵘ ⟦ ns₁ ⟧ˡⁿ′ γ) U.⊔ᵘ ⟦ ns₂′ ⟧ˡⁿ′ γ  ≡⟨ PE.cong (U._⊔ᵘ ⟦ ns₂′ ⟧ˡⁿ′ γ) (N.⊔-comm (⟦ ns₁ ⟧ˡⁿ′ γ) _) ⟩
+      (⟦ ns₁ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ n₂ , _ ⟧ˡⁿ″ γ) U.⊔ᵘ ⟦ ns₂′ ⟧ˡⁿ′ γ  ≡˘⟨ N.⊔-assoc (⟦ ns₂′ ⟧ˡⁿ′ γ) _ _ ⟩
+      ⟦ ns₁ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ ns₂ ⟧ˡⁿ′ γ                          ∎
+
+    maxⁿ-correct :
+      (n₁ n₂ : Termˡⁿ (c .ls)) (γ : Contexts c) →
+      ⟦ maxⁿ n₁ n₂ ⟧ˡⁿ γ PE.≡ ⟦ n₁ ⟧ˡⁿ γ U.⊔ᵘ ⟦ n₂ ⟧ˡⁿ γ
+    maxⁿ-correct (ns₁ , n₁) (ns₂ , n₂) γ =
+      ⟦ mergeⁿ ns₁ ns₂ ⟧ˡⁿ′ γ U.⊔ᵘ (n₁ U.⊔ᵘ n₂)           ≡⟨ PE.cong (U._⊔ᵘ _) (mergeⁿ-correct ns₁ ns₂ γ) ⟩
+      (⟦ ns₁ ⟧ˡⁿ′ γ U.⊔ᵘ ⟦ ns₂ ⟧ˡⁿ′ γ) U.⊔ᵘ (n₁ U.⊔ᵘ n₂)  ≡⟨ N.⊔-swap n₂ ⟩
+      (⟦ ns₁ ⟧ˡⁿ′ γ U.⊔ᵘ n₁) U.⊔ᵘ (⟦ ns₂ ⟧ˡⁿ′ γ U.⊔ᵘ n₂)  ∎
+
+  -- Normalisation.
+
+  normalise : Termˡ n → Termˡⁿ n
+  normalise (var x)    = (0 , x) ∷ [] , 0
+  normalise zero       = [] , 0
+  normalise (suc t)    = sucⁿ (normalise t)
+  normalise (t₁ ⊔ᵘ t₂) = maxⁿ (normalise t₁) (normalise t₂)
+
+  opaque
+
+    -- Normalisation produces terms with the same semantics.
+
+    normalise-correct :
+      (t : Termˡ (c .ls)) (γ : Contexts c) →
+      ⟦ normalise t ⟧ˡⁿ γ PE.≡ ⟦ t ⟧ˡ γ
+    normalise-correct (var _) _ =
+      PE.refl
+    normalise-correct zero _ =
+      PE.refl
+    normalise-correct (suc t) γ =
+      ⟦ sucⁿ (normalise t) ⟧ˡⁿ γ  ≡⟨ sucⁿ-correct (normalise t) γ ⟩
+      1+ (⟦ normalise t ⟧ˡⁿ γ)    ≡⟨ PE.cong 1+ (normalise-correct t _) ⟩
+      1+ (⟦ t ⟧ˡ γ)               ∎
+    normalise-correct (t₁ ⊔ᵘ t₂) γ =
+      ⟦ maxⁿ (normalise t₁) (normalise t₂) ⟧ˡⁿ γ      ≡⟨ maxⁿ-correct (normalise t₁) (normalise t₂) γ ⟩
+      ⟦ normalise t₁ ⟧ˡⁿ γ U.⊔ᵘ ⟦ normalise t₂ ⟧ˡⁿ γ  ≡⟨ PE.cong₂ U._⊔ᵘ_ (normalise-correct t₁ _) (normalise-correct t₂ _) ⟩
+      ⟦ t₁ ⟧ˡ γ U.⊔ᵘ ⟦ t₂ ⟧ˡ γ                        ∎
+
+  opaque
+
+    -- Equal normal forms have the same semantics.
+
+    soundness :
+      (t₁ t₂ : Termˡ (c .ls)) →
+      normalise t₁ PE.≡ normalise t₂ →
+      [ c ] t₁ ≡ˡ t₂
+    soundness t₁ t₂ eq γ =
+      ⟦ t₁ ⟧ˡ γ             ≡˘⟨ normalise-correct t₁ γ ⟩
+      ⟦ normalise t₁ ⟧ˡⁿ γ  ≡⟨ PE.cong (flip ⟦_⟧ˡⁿ γ) eq ⟩
+      ⟦ normalise t₂ ⟧ˡⁿ γ  ≡⟨ normalise-correct t₂ γ ⟩
+      ⟦ t₂ ⟧ˡ γ             ∎
 
 -- Are the two strength terms syntactically equal?
 
@@ -234,9 +387,9 @@ data Are-equal-eliminators (t : Term c n) : Term c n → Set a where
              Are-equal-eliminators t (defn α)
   emptyrec : ∀ A₁ t₁ A₂ t₂ → t PE.≡ emptyrec p A₁ t₁ →
              Are-equal-eliminators t (emptyrec p A₂ t₂)
-  unitrec  : ∀ l A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ →
-             t PE.≡ unitrec l p q A₁ t₁₁ t₁₂ →
-             Are-equal-eliminators t (unitrec l p q A₂ t₂₁ t₂₂)
+  unitrec  : ∀ l₁ A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ → [ c ] l₁ ≡ˡ l₂ →
+             t PE.≡ unitrec l₁ p q A₁ t₁₁ t₁₂ →
+             Are-equal-eliminators t (unitrec l₂ p q A₂ t₂₁ t₂₂)
   app      : ∀ p t₁₁ t₁₂ t₂₁ t₂₂ → t PE.≡ t₁₁ ∘⟨ p ⟩ t₁₂ →
              Are-equal-eliminators t (t₂₁ ∘⟨ p ⟩ t₂₂)
   fst      : ∀ p t₁ t₂ → t PE.≡ fst p t₁ →
@@ -285,8 +438,8 @@ are-equal-eliminators t₁ t₂ =
   are-equal-eliminators?
     (unitrec l₁ p₁ q₁ _ _ _) (unitrec l₂ p₂ q₂ _ _ _) =
     (λ eq₁ eq₂ eq₃ →
-       unitrec _ _ _ _ _ _ _
-         (PE.cong₃ (λ l p q → unitrec l p q _ _ _) eq₁ eq₂ eq₃)) <$>
+       unitrec _ _ _ _ _ _ _ eq₁
+         (PE.cong₂ (λ p q → unitrec _ p q _ _ _) eq₂ eq₃)) <$>
     l₁ ≟ˡ l₂ ⊛ p₁ ≟ᵍ p₂ ⊛ q₁ ≟ᵍ q₂
   are-equal-eliminators? (_ ∘⟨ p₁ ⟩ _) (_ ∘⟨ p₂ ⟩ _) =
     (λ eq → app _ _ _ _ _ (PE.cong (λ p → _ ∘⟨ p ⟩ _) eq)) <$>
@@ -405,10 +558,11 @@ data Are-equal-type-constructors (A : Term c n) :
   meta-var : ∀ x₁ (σ₁ : Subst c n n′₁) x₂ (σ₂ : Subst c n n′₂) →
              A PE.≡ meta-var x₁ σ₁ →
              Are-equal-type-constructors A (meta-var x₂ σ₂)
-  U        : A PE.≡ U l → Are-equal-type-constructors A (U l)
+  U        : [ c ] l₁ ≡ˡ l₂ → A PE.≡ U l₁ →
+             Are-equal-type-constructors A (U l₂)
   Empty    : A PE.≡ Empty → Are-equal-type-constructors A Empty
-  Unit     : A PE.≡ Unit s l →
-             Are-equal-type-constructors A (Unit s l)
+  Unit     : [ c ] l₁ ≡ˡ l₂ → A PE.≡ Unit s l₁ →
+             Are-equal-type-constructors A (Unit s l₂)
   ΠΣ       : ∀ B₁₁ B₁₂ B₂₁ B₂₂ → A PE.≡ ΠΣ⟨ b ⟩ p , q ▷ B₁₁ ▹ B₁₂ →
              Are-equal-type-constructors A (ΠΣ⟨ b ⟩ p , q ▷ B₂₁ ▹ B₂₂)
   ℕ        : A PE.≡ ℕ → Are-equal-type-constructors A ℕ
@@ -425,12 +579,11 @@ are-equal-type-constructors? :
 are-equal-type-constructors? (meta-var _ _) (meta-var _ _) =
   just (meta-var _ _ _ _ PE.refl)
 are-equal-type-constructors? (U l₁) (U l₂) =
-  (λ eq → U (PE.cong U eq)) <$>
-  l₁ ≟ˡ l₂
+  (λ eq → U eq PE.refl) <$> l₁ ≟ˡ l₂
 are-equal-type-constructors? Empty Empty =
   just (Empty PE.refl)
 are-equal-type-constructors? (Unit s₁ l₁) (Unit s₂ l₂) =
-  (λ eq₁ eq₂ → Unit (PE.cong₂ Unit eq₁ eq₂)) <$>
+  (λ eq₁ eq₂ → Unit eq₂ (PE.cong (λ s → Unit s _) eq₁)) <$>
   s₁ ≟ˢ s₂ ⊛ l₁ ≟ˡ l₂
 are-equal-type-constructors?
   (ΠΣ⟨ b₁ ⟩ p₁ , q₁ ▷ A₁₁ ▹ A₁₂) (ΠΣ⟨ b₂ ⟩ p₂ , q₂ ▷ A₂₁ ▹ A₂₂) =
@@ -484,28 +637,37 @@ is-U _     = fail "Expected an instance of U."
 -- A procedure that checks that the term is U l.
 
 is-U[_] :
-  (l : Termˡ (c .ls)) (A : Term c n) → Check c (A PE.≡ U l)
+  (l : Termˡ (c .ls)) (A : Term c n) →
+  Check c (∃ λ l′ → [ c ] l ≡ˡ l′ × A PE.≡ U l′)
 is-U[_] {c} l A =
   [ is-U′ A ]with-message "Expected a given instance of U."
   where
-  is-U′ : (A : Term c n) → Maybe (A PE.≡ U l)
-  is-U′ (U l′) = PE.cong U <$> l′ ≟ˡ l
+  is-U′ : (A : Term c n) → Maybe (∃ λ l′ → [ c ] l ≡ˡ l′ × A PE.≡ U l′)
+  is-U′ (U l′) = (λ eq → _ , eq , PE.refl) <$> l ≟ˡ l′
   is-U′ _      = nothing
 
 -- Is the term equal to star s l?
 
-is-star? : ∀ s l (t : Term c n) → Maybe (t PE.≡ star s l)
-is-star? s l (star s′ l′) = PE.cong₂ star <$> s′ ≟ˢ s ⊛ l′ ≟ˡ l
-is-star? _ _ _            = nothing
+is-star? :
+  ∀ s l (t : Term c n) →
+  Maybe (∃ λ l′ → [ c ] l ≡ˡ l′ × t PE.≡ star s l′)
+is-star? s l (star s′ l′) =
+  (λ eq₁ eq₂ → _ , eq₂ , PE.cong (λ s → star s _) eq₁) <$>
+  s′ ≟ˢ s ⊛ l ≟ˡ l′
+is-star? _ _ _ = nothing
 
 -- Are the terms both equal to star s l?
 
 are-star? :
   ∀ s l (t₁ t₂ : Term c n) →
-  Maybe (t₁ PE.≡ star s l × t₂ PE.≡ star s l)
+  Maybe
+    (∃₂ λ l₁ l₂ → [ c ] l ≡ˡ l₁ × [ c ] l ≡ˡ l₂ ×
+     t₁ PE.≡ star s l₁ × t₂ PE.≡ star s l₂)
 are-star? s l (star s₁ l₁) (star s₂ l₂) =
-  (λ { PE.refl PE.refl PE.refl PE.refl → PE.refl , PE.refl }) <$>
-  s₁ ≟ˢ s ⊛ s₂ ≟ˢ s ⊛ l₁ ≟ˡ l ⊛ l₂ ≟ˡ l
+  (λ eq₁ eq₂ eq₃ eq₄ →
+     _ , _ , eq₃ , eq₄ ,
+     PE.cong (λ s → star s _) eq₁ , PE.cong (λ s → star s _) eq₂) <$>
+  s₁ ≟ˢ s ⊛ s₂ ≟ˢ s ⊛ l ≟ˡ l₁ ⊛ l ≟ˡ l₂
 are-star? _ _ _ _ =
   nothing
 

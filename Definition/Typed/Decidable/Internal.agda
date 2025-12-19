@@ -795,8 +795,8 @@ mutual
     Fuel → (Γ : Cons c m n) (t₁ t₂ : Term c n) → Check c (Term c n)
   equal-ne-inf              0      _ _  _  = fail "No fuel left."
   equal-ne-inf {c} {n = n′} (1+ n) Γ t₁ t₂ = do
-    equal ← are-equal-eliminators t₁ t₂
-    equal-ne-inf′ equal
+    eq ← are-equal-eliminators t₁ t₂
+    equal-ne-inf′ eq
     where
     equal-ne-inf′ : Are-equal-eliminators t₁ t₂ → Check c (Term c n′)
     equal-ne-inf′ (meta-var x₁ σ₁ x₂ σ₂ _) = do
@@ -814,10 +814,10 @@ mutual
       A ← check-and-equal-ty n Γ A₁ A₂
       equal-ne-red n Γ t₁ t₂ Empty
       return A
-    equal-ne-inf′ (unitrec l A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _) = do
-      A ← check-and-equal-ty n (Γ »∙ Unit 𝕨 l) A₁ A₂
-      equal-ne-red n Γ t₁₁ t₂₁ (Unit 𝕨 l)
-      check-and-equal-tm n Γ t₁₂ t₂₂ (subst A (sgSubst (star 𝕨 l)))
+    equal-ne-inf′ (unitrec l₁ A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _ _) = do
+      A ← check-and-equal-ty n (Γ »∙ Unit 𝕨 l₁) A₁ A₂
+      equal-ne-red n Γ t₁₁ t₂₁ (Unit 𝕨 l₁)
+      check-and-equal-tm n Γ t₁₂ t₂₂ (subst A (sgSubst (star 𝕨 l₁)))
       require (λ _ → Unit-allowed 𝕨)
       return (subst A (sgSubst t₁₁))
     equal-ne-inf′ (app p t₁₁ t₁₂ t₂₁ t₂₂ _) = do
@@ -900,11 +900,11 @@ mutual
     PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
     are-equal-meta-vars x₁ x₂
     return tt
-  … | just (U _) =
+  … | just (U _ _) =
     return tt
   … | just (Empty _) =
     return tt
-  … | just (Unit _) =
+  … | just (Unit _ _) =
     return tt
   … | just (ΠΣ A₁₁ A₁₂ A₂₁ A₂₂ _) = do
     equal-ty n Γ A₁₁ A₂₁
@@ -930,7 +930,7 @@ mutual
   equal-ty-red-U :
     Fuel → (Γ : Cons c m n) (A₁ A₂ : Term c n) → Termˡ (c .ls) →
     Check c ⊤
-  equal-ty-red-U n Γ A₁ A₂ l with are-equal-type-constructors? A₁ A₂
+  equal-ty-red-U {c} n Γ A₁ A₂ l with are-equal-type-constructors? A₁ A₂
   … | just (meta-var x₁ σ₁ x₂ σ₂ _) = do
     Δ₁ , _ ← is-term x₁
     Δ₂ , A ← is-term x₂
@@ -939,16 +939,16 @@ mutual
     PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
     are-equal-meta-vars x₁ x₂
     return tt
-  … | just (U _) =
+  … | just (U _ _) =
     return tt
   … | just (Empty _) =
     return tt
-  … | just (Unit _) =
+  … | just (Unit _ _) =
     return tt
   … | just (ΠΣ A₁₁ A₁₂ A₂₁ A₂₂ _) = do
     l₁ ← infer-U n Γ A₁₁
     l₂ ← infer-U n (Γ »∙ A₁₁) A₁₂
-    [ l₁ ⊔ᵘ l₂ ≟ˡ l ]with-message "Expected equal levels."
+    [ _≟ˡ_ {c = c} (l₁ ⊔ᵘ l₂) l ]with-message "Expected equal levels."
     A₂₁ ← check n Γ A₂₁ (U l₁)
     A₂₂ ← check n (Γ »∙ A₁₁) A₂₂ (U l₂)
     equal-tm n Γ A₁₁ A₂₁ (U l₁)
@@ -1468,13 +1468,19 @@ opaque mutual
           | t₁≡                 ← red-tm-sound n eq₁ ⊢Μ ⊢t₁
           | ur≡                 ← unitrec-cong′ (refl ⊢B) t₁≡ (refl ⊢t₂)
       with is-star? 𝕨 l t₁′ | eq₂
-    … | just ≡star | eq₂ =
-      let open TmR in
+    … | just (l′ , l≡l′ , ≡star) | eq₂ =
+      let ≡star =
+            ⌜ t₁′ ⌝ γ        ≡⟨ PE.cong (flip ⌜_⌝ _) ≡star ⟩
+            ⌜ star 𝕨 l′ ⌝ γ  ≡˘⟨ PE.cong (U.star _) (l≡l′ _) ⟩
+            ⌜ star 𝕨 l ⌝ γ   ∎
+
+          open TmR
+      in
                                           ∷ ⌜ A ⌝ γ                    ⟨ A≡ ⟩≡∷
       ⌜ unitrec l p q B t₁         t₂ ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₁ ⌝ γ ]₀   ≡⟨ ur≡ ⟩⊢∷
-      ⌜ unitrec l p q B t₁′        t₂ ⌝ γ                             ≡⟨ PE.cong (flip (U.unitrec _ _ _ _) _ ∘→ flip ⌜_⌝ _) ≡star ⟩⊢≡
+      ⌜ unitrec l p q B t₁′        t₂ ⌝ γ                             ≡⟨ PE.cong (flip (U.unitrec _ _ _ _) _) ≡star ⟩⊢≡
                                                                        ⟨ substTypeEq (refl ⊢B) t₁≡ ⟩≡
-                                          ∷ ⌜ B ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀   ⟨ PE.cong (⌜ B ⌝ _ U.[_]₀ ∘→ flip ⌜_⌝ _) ≡star ⟩≡∷≡
+                                          ∷ ⌜ B ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀   ⟨ PE.cong (⌜ B ⌝ _ U.[_]₀) ≡star ⟩≡∷≡
       ⌜ unitrec l p q B (star 𝕨 l) t₂ ⌝ γ ∷
         ⌜ B ⌝ γ U.[ U.starʷ (⟦ l ⟧ˡ γ) ]₀                             ⇒⟨ unitrec-β-⇒ ⊢B ⊢t₂ ⟩⊢∷
       ⌜ t₂ ⌝ γ                                                        ≡⟨ red-tm-sound n eq₂ ⊢Μ ⊢t₂ ⟩⊢∎
@@ -2461,7 +2467,9 @@ opaque mutual
     η-unit ⊢t₁ ⊢t₂ (inj₁ PE.refl)
   … | nothing
     with are-star? s l t₁ t₂
-  … | just (PE.refl , PE.refl) =
+  … | just (_ , _ , l≡l₁ , l≡l₂ , PE.refl , PE.refl) =
+    PE.subst (flip (_⊢_≡_∷_ _ _) _)
+      (PE.cong (U.star _) (PE.trans (PE.sym (l≡l₁ _)) (l≡l₂ _))) $
     refl ⊢t₁
   … | nothing
     with inv-catch eq
@@ -2622,7 +2630,7 @@ opaque mutual
     in
     conv (emptyrec-cong A₁≡A₂ t₁≡t₂) A₁≡A
   equal-ne-inf-sound (1+ n) _ ⊢Μ ⊢Γ
-    | inv (unitrec _ _ _ _ _ _ _ PE.refl) _ eq
+    | inv (unitrec _ _ _ _ _ _ _ l₁≡l₂ PE.refl) _ eq
     with inv->>= eq
   … | inv _ eq₁ eq
     using inv _ eq₂ eq ← inv->>= eq
@@ -2639,7 +2647,10 @@ opaque mutual
                          (substType ⊢A ⊢⋆)
         t₁₂≡t₂₂      = conv t₁₂≡t₂₂ (substTypeEq (sym A₁≡A) (refl ⊢⋆))
     in
-    conv (unitrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
+    conv
+      (PE.subst (flip (_⊢_≡_∷_ _ _) _)
+         (PE.cong (λ l → U.unitrec l _ _ _ _ _) (l₁≡l₂ _)) $
+       unitrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
       (substTypeEq A₁≡A (refl ⊢t₁₁))
   equal-ne-inf-sound (1+ n) _ ⊢Μ ⊢Γ
     | inv (app _ _ _ _ _ PE.refl) _ eq
@@ -2871,11 +2882,13 @@ opaque mutual
         σ₁≡σ₂ = equal-sub′-sound eq₂ ⊢Μ (wf ⊢x₁) (wf ⊢x)
     in
     subst-⊢≡ (refl ⊢x) σ₁≡σ₂
-  equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (U PE.refl) =
+  equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (U l₁≡l₂ PE.refl) =
+    PE.subst (_⊢_≡_ _ _) (PE.cong U.U (l₁≡l₂ _)) $
     refl ⊢A₁
   equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (Empty PE.refl) =
     refl ⊢A₁
-  equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (Unit PE.refl) =
+  equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (Unit l₁≡l₂ PE.refl) =
+    PE.subst (_⊢_≡_ _ _) (PE.cong (U.Unit _) (l₁≡l₂ _)) $
     refl ⊢A₁
   equal-ty-red-sound n _ _ eq ⊢Μ ⊢A₁ ⊢A₂ | just (ΠΣ _ _ _ _ PE.refl) =
     let inv _ eq₁ eq₂       = inv->>= eq
@@ -2929,7 +2942,7 @@ opaque mutual
     with inv->>= eq
   … | inv _ eq₂ eq
     with inv->>= eq
-  … | inv PE.refl _ eq
+  … | inv (_ , l≡l′ , PE.refl) _ eq
     with inv->>= eq
   … | inv PE.refl eq₃ eq
     with inv->>= eq
@@ -2938,12 +2951,15 @@ opaque mutual
         ≡U    = red-ty-sound n eq₂ ⊢Μ (wf-⊢∷ ⊢x₂)
         σ₁≡σ₂ = equal-sub′-sound eq₃ ⊢Μ (wfTerm ⊢x₁) (wfTerm ⊢x₂)
     in
+    PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U.U (PE.sym (l≡l′ _))) $
     subst-⊢≡∷ (conv (refl ⊢x₂) ≡U) σ₁≡σ₂
-  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (U PE.refl) =
+  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (U l₁≡l₂ PE.refl) =
+    PE.subst (flip (_⊢_≡_∷_ _ _) _) (PE.cong U.U (l₁≡l₂ _)) $
     refl ⊢A₁
   equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Empty PE.refl) =
     refl ⊢A₁
-  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Unit PE.refl) =
+  equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Unit l₁≡l₂ PE.refl) =
+    PE.subst (flip (_⊢_≡_∷_ _ _) _) (PE.cong (U.Unit _) (l₁≡l₂ _)) $
     refl ⊢A₁
   equal-ty-red-U-sound _ {n} eq ⊢Μ ⊢A₁ ⊢A₂ | just (ΠΣ _ _ _ _ PE.refl)
     with inv->>= eq
@@ -2951,7 +2967,7 @@ opaque mutual
     with inv->>= eq
   … | inv _ eq₂ eq
     with inv->>= eq
-  … | inv PE.refl _ eq =
+  … | inv l₁⊔l₂≡l _ eq =
     let inv _ eq₃ eq  = inv->>= eq
         inv _ eq₄ eq  = inv->>= eq
         inv _ eq₅ eq₆ = inv->>= eq
@@ -2968,6 +2984,7 @@ opaque mutual
         A₁₁≡A₂₁′      = equal-tm-sound′ n eq₅ ⊢Μ ⊢A₁₁ ⊢A₂₁′
         A₁₂≡A₂₂′      = equal-tm-sound′ n eq₆ ⊢Μ ⊢A₁₂ ⊢A₂₂′
     in
+    PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U.U (l₁⊔l₂≡l _)) $
     ΠΣ-cong (trans A₁₁≡A₂₁′ (sym′ A₂₁≡A₂₁′))
       (trans A₁₂≡A₂₂′ (sym′ A₂₂≡A₂₂′)) ΠΣ-ok
   equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (ℕ PE.refl) =
@@ -2988,7 +3005,8 @@ opaque mutual
     with inv->>= eq
   … | inv _ eq₁ eq
     with inv->>= eq
-  … | inv PE.refl _ _ =
+  … | inv (_ , l≡l′ , PE.refl) _ _ =
+    PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U.U (PE.sym (l≡l′ _))) $
     equal-ne-inf-red-sound n eq₁ ⊢Μ (wfTerm ⊢A₁)
 
   -- Soundness for equal-sub′.
