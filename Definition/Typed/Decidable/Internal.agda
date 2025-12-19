@@ -26,6 +26,7 @@ open Type-restrictions TR
 open import Definition.Typed TR hiding (Trans)
 open import Definition.Typed.Decidable.Internal.Constraints 𝕄
 open import Definition.Typed.Decidable.Internal.Context TR
+open import Definition.Typed.Decidable.Internal.Equality 𝕄
 open import Definition.Typed.Decidable.Internal.Monad 𝕄
 open import Definition.Typed.Decidable.Internal.Substitution 𝕄
 open import Definition.Typed.Decidable.Internal.Term 𝕄

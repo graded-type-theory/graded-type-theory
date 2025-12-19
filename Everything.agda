@@ -93,6 +93,7 @@ import Definition.Untyped.Properties
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Weakening
 import Definition.Typed.Decidable.Internal.Substitution
+import Definition.Typed.Decidable.Internal.Equality
 import Definition.Typed.Decidable.Internal.Constraints
 import Definition.Typed.Decidable.Internal.Monad
 import Definition.Typed.Decidable.Internal.Tests
