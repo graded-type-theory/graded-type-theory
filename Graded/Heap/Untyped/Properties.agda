@@ -1121,7 +1121,47 @@ opaque
 
 opaque
 
-  -- An inversion lemma for heap equality
+  -- p-equivalence for heaps is reflexive
+
+  ~⟨⟩-refl : H ~⟨ p ⟩ H
+  ~⟨⟩-refl {H = ε}     = ε
+  ~⟨⟩-refl {H = H ∙ c} = ~⟨⟩-refl ∙ λ _ → refl
+  ~⟨⟩-refl {H = H ∙●}  = ~⟨⟩-refl ∙●
+
+opaque
+
+  -- p-equivalence for heaps is symmetric
+
+  ~⟨⟩-sym : H ~⟨ p ⟩ H′ → H′ ~⟨ p ⟩ H
+  ~⟨⟩-sym ε = ε
+  ~⟨⟩-sym (H~H′ ∙ t≡u) = ~⟨⟩-sym H~H′ ∙ (sym ∘→ t≡u)
+  ~⟨⟩-sym (H~H′ ∙●) = ~⟨⟩-sym H~H′ ∙●
+
+opaque
+
+  -- p-equivalence for heaps is transitive
+
+  ~⟨⟩-trans : H ~⟨ p ⟩ H′ → H′ ~⟨ p ⟩ H″ → H ~⟨ p ⟩ H″
+  ~⟨⟩-trans ε ε = ε
+  ~⟨⟩-trans (H~H′ ∙ t≡u) (H′~H″ ∙ u≡v) =
+    ~⟨⟩-trans H~H′ H′~H″ ∙ λ q≤p → trans (t≡u q≤p) (u≡v q≤p)
+  ~⟨⟩-trans (H~H′ ∙●) (H′~H″ ∙●) =
+    ~⟨⟩-trans H~H′ H′~H″ ∙●
+
+opaque
+
+  -- p-equivalent heaps are also q-equivalent if q ≤ p.
+
+  ~⟨⟩-≤ : H ~⟨ p ⟩ H′ → q ≤ p → H ~⟨ q ⟩ H′
+  ~⟨⟩-≤ ε _ = ε
+  ~⟨⟩-≤ (H~H′ ∙ t≡u) q≤p =
+    ~⟨⟩-≤ H~H′ q≤p ∙ λ r≤q → t≡u (≤-trans r≤q q≤p)
+  ~⟨⟩-≤ (H~H′ ∙●) q≤p =
+    ~⟨⟩-≤ H~H′ q≤p ∙●
+
+opaque
+
+  -- An inversion lemma for p-equivalent heaps
 
   ~⟨⟩-inv-∙ :
     {ρ : Wk m n} {ρ′ : Wk m k} →

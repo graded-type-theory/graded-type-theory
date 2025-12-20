@@ -277,6 +277,9 @@ opaque
   ~⟨⟩-↦[] (H~H′ ∙ t≡u) (there d) q≤p =
     let _ , d , H″~H‴ = ~⟨⟩-↦[] H~H′ d q≤p
     in  _ , there d , H″~H‴ ∙ t≡u
+  ~⟨⟩-↦[] (H~H′ ∙●) (there● d) q≤p =
+    let _ , d , H″~H‴ = ~⟨⟩-↦[] H~H′ d q≤p
+    in  _ , there● d , H″~H‴ ∙●
 
 opaque
 
