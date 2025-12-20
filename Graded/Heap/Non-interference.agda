@@ -5,7 +5,8 @@
 -- We use a bounded distributive lattice of security levels as the
 -- modality. The top element represents high security (secret)
 -- information while the bottom element represents low security (public)
--- information.
+-- information. The same lattice is used for the modes to represent the
+-- security clearence of the user.
 
 open import Graded.Modality
 import Graded.Mode.Instances.Bounded-distributive-lattice
@@ -104,8 +105,29 @@ private variable
   y : Ptr _
 
 private instance
+
+  -- An instance used in some lemmas below.
+
   or-empty-ε : ∀ {A : Set a} → A or-empty ε {A = Term}
   or-empty-ε = ε
+
+-- The property of not having any secret matches.
+--
+-- For prodrec, a match is secret if it is done at a mode that is at
+--   least as public as the current security level and the components
+--   are used at a level that is more secret than the current security
+--   level.
+-- For unitrec, a match is secret if it is done at a mode that is at
+--   least as public as the current security level and the match is
+--   done at a level that is more secret than the current security
+--   level.
+-- For J and K, a match is secret if it is done at a mode that is at
+--   least as public as the current security level and the
+--   erased matches (for that mode) is not none.
+-- For []-cong, a match is secret if it is done at a mode that is at
+--   least as public as the current security level and the current
+--   level is not 𝟘.
+-- Note that all matches are allowed for the empty type.
 
 record No-secret-matches : Set a where
   no-eta-equality
@@ -121,11 +143,17 @@ record No-secret-matches : Set a where
     no-secret-[]-cong :
       ∀ {s m} → m ≤ ℓ₀ → []-cong-allowed-mode s m → 𝟘 ≤ ℓ₀
 
+  -- If there are no secret matches then the multiplicity for Jₑ
+  -- is equal to 𝟙.
+
   ∣J∣≡𝟙 :
     ∀ {m p q} → m ≤ ℓ₀ → ∣J erased-matches-for-J ⌞ m ⌟ , p , q ∣≡ 𝟙
   ∣J∣≡𝟙 m≤ℓ₀ =
     ∣J∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-J m≤ℓ₀)) (none-≤ᵉᵐ {em = some}))
       λ em≡some → case PE.trans (PE.sym (no-secret-J m≤ℓ₀)) em≡some of λ ()
+
+  -- If there are no secret matches then the multiplicity for Kₑ
+  -- is equal to 𝟙.
 
   ∣K∣≡𝟙 :
     ∀ {m p} → m ≤ ℓ₀ → ∣K erased-matches-for-K ⌞ m ⌟ , p ∣≡ 𝟙
@@ -135,11 +163,17 @@ record No-secret-matches : Set a where
 
 opaque
 
+  -- If secret matches are not allowed, then any continuation that is
+  -- well-resourced at a mode that is at least as public as the current
+  -- level has a stack multiplicity that is bounded by (at least as
+  -- public as) the current security level (assuming that the
+  -- continuation is not equal to emptyrecₑ).
+
   no-secret-matchesᶜ :
     No-secret-matches →
     (∀ {n q} {t : Term n} {ρ} → c PE.≢ emptyrecₑ q t ρ) →
     r ≤ ℓ₀ →
-    γ ▸ᶜ[ ⌞ r ⌟ ] c →
+    γ ▸ᶜ[ r ] c →
     ∣ c ∣ᶜ[ ⌞ r ⌟ ]≡ q → q ≤ ℓ₀
   no-secret-matchesᶜ _ _ _ _ ∘ₑ =
     ⊥≤ _
@@ -177,6 +211,10 @@ opaque
 
 opaque
 
+  -- If secret matches are not allowed, then any well-resourced stack
+  -- that does not contain emptyrecₑ has a stack multiplicity that is
+  -- bounded by (at least as public as) the current security level.
+
   no-secret-matches :
     No-secret-matches →
     (∀ {p} → ¬ emptyrec p ∈ S) →
@@ -202,6 +240,10 @@ opaque
 
 opaque
 
+  -- A variant of the above property for well-typed and well-resourced
+  -- states. Note that the stack is not assumed to not contain
+  -- emptyrecₑ.
+
   no-secret-matches′ :
     No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
@@ -214,6 +256,10 @@ opaque
       ∣S∣≡q
 
 opaque
+
+  -- Heap lookups respect p-equivalence in a certain sense.
+  -- Lookup at levels at most p give the same result for p-equivalent
+  -- heaps and results in p-equivalent heaps.
 
   ~⟨⟩-↦[] :
     H ~⟨ p ⟩ H′ → H ⊢ y ↦[ q ] t , ρ ⨾ H″ →
@@ -233,6 +279,11 @@ opaque
     in  _ , there● d , H″~H‴ ∙●
 
 opaque
+
+  -- The abstract machine reduction _⇒ₑ_ respects p-equivalence in a
+  -- certain sense.
+  -- One may replace the heap of a state with a p-equivalent one and
+  -- evaluate the same (up to p-equivalence of the resulting heaps).
 
   ~⟨⟩-⇒ₑ :
     H ~⟨ p ⟩ H′ →
@@ -261,6 +312,11 @@ opaque
 
 opaque
 
+  -- The abstract machine reduction _⇾ₑ_ respects p-equivalence in a
+  -- certain sense if secret matches are not allowed.
+  -- One may replace the heap of a state with a p-equivalent one and
+  -- evaluate the same (up to p-equivalence of the resulting heaps).
+
   ~⟨⟩-⇾ₑ :
     No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
@@ -276,6 +332,11 @@ opaque
     in  H‴ , ⇒ₑ d′ , H″~H‴
 
 opaque
+
+  -- The abstract machine reduction _⇒ᵥ_ respects p-equivalence in a
+  -- certain sense.
+  -- One may replace the heap of a state with a p-equivalent one and
+  -- evaluate the same (up to p-equivalence of the resulting heaps).
 
   ~⟨⟩-⇒ᵥ :
     H ~⟨ p ⟩ H′ →
@@ -306,6 +367,11 @@ opaque
 
 opaque
 
+  -- The abstract machine reduction _⇒ₙ_ respects p-equivalence in a
+  -- certain sense.
+  -- One may replace the heap of a state with a p-equivalent one and
+  -- evaluate the same (up to p-equivalence of the resulting heaps).
+
   ~⟨⟩-⇒ₙ :
     H ~⟨ p ⟩ H′ →
     ⟨ H , t , ρ , S ⟩ ⇒ₙ ⟨ H″ , t′ , ρ′ , S′ ⟩ →
@@ -316,6 +382,11 @@ opaque
     _ , numₕ x , H~H′
 
 opaque
+
+  -- The abstract machine reduction _⇾_ respects p-equivalence in a
+  -- certain sense if secret matches are not allowed.
+  -- One may replace the heap of a state with a p-equivalent one and
+  -- evaluate the same (up to p-equivalence of the resulting heaps).
 
   ~⟨⟩-⇾ :
     No-secret-matches →
@@ -332,6 +403,11 @@ opaque
     in  _ , ⇒ᵥ d′ , H″~H‴
 
 opaque
+
+  -- The abstract machine reduction _↠_ respects p-equivalence in a
+  -- certain sense if secret matches are not allowed.
+  -- One may replace the heap of a state with a p-equivalent one and
+  -- evaluate the same (up to p-equivalence of the resulting heaps).
 
   ~⟨⟩-↠ :
     No-secret-matches →
@@ -352,6 +428,11 @@ opaque
 
 opaque
 
+  -- The abstract machine reduction _⇾*_ respects p-equivalence in a
+  -- certain sense if secret matches are not allowed.
+  -- One may replace the heap of a state with a p-equivalent one and
+  -- evaluate the same (up to p-equivalence of the resulting heaps).
+
   ~⟨⟩-⇾* :
     No-secret-matches →
     ▸ ⟨ H , t , ρ , S ⟩ →
@@ -368,6 +449,8 @@ opaque
 
 private opaque
 
+  -- A lemma used below about composing certain heap reductions.
+
   suc-red-lemma :
     ¬ Numeral n →
     Numeral t″ →
@@ -381,6 +464,18 @@ private opaque
       ↠*-concat (++sucₛ-↠* d₂) (⇒ₙ (numₕ num) ⇨ id))
 
 private opaque
+
+  -- A lemma used to show the main non-interference theorem.
+  -- If secret matches are not allowed then any well-resourced and
+  -- well-typed state (of type ℕ) evaluates to some numeral and if the
+  -- heap is replaced by an ℓ₀-equivalent one the new state evaluates
+  -- to the same numeral and the heaps of the two final states are
+  -- ℓ₀-equivalent.
+  --
+  -- The proof is done by induction over a structure representing the
+  -- numeral that the term evaluates to. This structure is defined as
+  -- part of a logical relation that is used elsewhere in the
+  -- formalization. See Definition.LogicalRelation
 
   non-interference′ :
     No-secret-matches →
@@ -427,6 +522,7 @@ private opaque
               , suc-red-lemma ¬num n t≡ d′ d₀
               , suc-red-lemma ¬num n t≡ d′₁ d₀′
               , sucₙ n , H~H₂
+
   non-interference′ ok ▸s ⊢s H~H′ (ℕₜ u ⇒*u ≅u zeroᵣ) PE.refl =
     let _ , _ , H , t , ρ , (d′ , _) , ≡u , v = whBisim-closed ⊢s ▸s (⇒*u , zeroₙ)
     in  case subst-zero {t = wk ρ t} ≡u of λ where
@@ -452,7 +548,8 @@ opaque
   -- Any well-typed and well-resourced program at security level ℓ₀
   -- can be evaluated under two different (well-typed and
   -- well-resourced) heaps that are ℓ₀-equivalent to produce the same
-  -- natural number and two ℓ₀-equivalent heaps.
+  -- natural number and two ℓ₀-equivalent heaps (assuming that
+  -- secret matches are not allowed).
 
   non-interference :
     No-secret-matches →
