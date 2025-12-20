@@ -559,6 +559,7 @@ import Graded.Heap.Untyped.Properties
 import Graded.Heap.Reduction
 import Graded.Heap.Reduction.Inversion
 import Graded.Heap.Reduction.Properties
+import Graded.Heap.Reduction.Reasoning
 
 -- Typing for the abstract machine
 import Graded.Heap.Typed
