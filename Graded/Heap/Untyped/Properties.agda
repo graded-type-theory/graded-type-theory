@@ -1087,6 +1087,19 @@ opaque
   update-~ʰ (there d) = update-~ʰ d ∙ _
   update-~ʰ (there● d) = update-~ʰ d ∙●
 
+opaque
+
+  -- An inversion lemma for heap equality
+
+  ~⟨⟩-inv-∙ :
+    {ρ : Wk m n} {ρ′ : Wk m k} →
+    H ∙ (q , t , ρ) ~⟨ p ⟩ H′ ∙ (r , u , ρ′) →
+    Σ (k ≡ n) λ k≡n → H ~⟨ p ⟩ H′ ×
+    ρ ≡ subst (Wk m) k≡n ρ′ × q ≡ r ×
+    (q ≤ p → t ≡ subst Term k≡n u)
+  ~⟨⟩-inv-∙ (H~H′ ∙ t≡u) =
+    refl , H~H′ , refl , refl , t≡u
+
 ------------------------------------------------------------------------
 -- Properties of states in normal form
 

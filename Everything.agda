@@ -555,7 +555,8 @@ import Graded.Heap.Soundness
 import Graded.Heap.Soundness.Counterexample
 
 -- A non-interference property stated using the abstract machine
--- import Graded.Heap.Non-interference
+import Graded.Heap.Non-interference
+import Graded.Heap.Non-interference.Examples
 
 -- Examples related to the abstract machine
 import Graded.Heap.Examples
