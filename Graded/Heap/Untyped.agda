@@ -374,6 +374,7 @@ data _~ʰ_ : (H H′ : Heap k m) → Set a where
 data _~⟨_⟩_ : (H : Heap k m) (p : M) (H′ : Heap k m) → Set a where
   ε : ε ~⟨ p ⟩ ε
   _∙_ : H ~⟨ p ⟩ H′ → (q ≤ p → t ≡ u) → H ∙ (q , t , ρ) ~⟨ p ⟩ H′ ∙ (q , u , ρ)
+  _∙● : H ~⟨ p ⟩ H′ → H ∙● ~⟨ p ⟩ H′ ∙●
 
 -- Weakening of heaps
 
