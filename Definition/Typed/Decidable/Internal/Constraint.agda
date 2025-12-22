@@ -103,8 +103,6 @@ data Constraints (c : Constants) : Set a where
 ⟦ Cs₁ ∪ Cs₂ ⟧′ γ = ⟦ Cs₁ ⟧′ γ × ⟦ Cs₂ ⟧′ γ
 
 -- A smart constructor.
---
--- This constructor is used to make certain proofs a little easier.
 
 infixr 5 _∪′_
 

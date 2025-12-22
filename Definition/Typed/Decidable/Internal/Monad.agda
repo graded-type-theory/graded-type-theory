@@ -34,6 +34,7 @@ private variable
   f       : A → B
   c       : Constants
   γ       : Contexts _
+  C       : Constraint _
   Cs      : Constraints _
 
 ------------------------------------------------------------------------
@@ -143,6 +144,13 @@ data OK {A : Set ℓ} (x : Check c A) (y : A) (γ : Contexts c) :
 
 pattern not-ok = ok ()      _
 pattern ok!    = ok PE.refl _
+
+opaque
+
+  -- An inversion lemma for require.
+
+  inv-require : OK (require C) tt γ → ⟦ C ⟧₁ γ
+  inv-require (ok PE.refl c) = c
 
 opaque
 

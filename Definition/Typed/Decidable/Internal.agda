@@ -1898,16 +1898,22 @@ opaque mutual
       refl (Uⱼ ⊢Γ)
     check-type′-sound (just Empty) ok! _ ⊢Γ =
       refl (Emptyⱼ ⊢Γ)
-    check-type′-sound (just (Unit _ _)) (ok PE.refl Unit-ok) _ ⊢Γ =
+    check-type′-sound (just (Unit _ _)) eq _ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let Unit-ok = inv-require eq₁ in
       refl (Unitⱼ ⊢Γ Unit-ok)
     check-type′-sound {n} (just (ΠΣ _ _ _ _ _)) eq ⊢Μ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
       with inv->>= eq
-    … | inv _ eq₂ (ok PE.refl ΠΣ-ok) =
+    … | inv _ eq₂ eq
+      with inv->>= eq
+    … | inv _ eq₃ ok! =
       let A₁≡A₁′   = check-type-sound′ n eq₁ ⊢Μ ⊢Γ
           _ , ⊢A₁′ = wf-⊢≡ A₁≡A₁′
           A₂≡A₂′   = check-type-sound′ n eq₂ ⊢Μ (∙ ⊢A₁′)
+          ΠΣ-ok    = inv-require eq₃
       in
       sym (ΠΣ-cong (sym A₁≡A₁′) (sym A₂≡A₂′) ΠΣ-ok)
     check-type′-sound (just ℕ) ok! _ ⊢Γ =
@@ -2067,18 +2073,26 @@ opaque mutual
       defn ⊢Γ (type-of-sound (Γ .defs) eq) PE.refl
     infer′-sound (U _) ok! _ ⊢Γ =
       Uⱼ ⊢Γ
-    infer′-sound (Unit _ _) (ok PE.refl Unit-ok) _ ⊢Γ =
+    infer′-sound (Unit _ _) eq _ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let Unit-ok = inv-require eq₁ in
       Unitⱼ ⊢Γ Unit-ok
-    infer′-sound (star _ _) (ok PE.refl Unit-ok) _ ⊢Γ =
+    infer′-sound (star _ _) eq _ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let Unit-ok = inv-require eq₁ in
       starⱼ ⊢Γ Unit-ok
     infer′-sound {n} (unitrec _ A _ _) eq ⊢Μ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
       with inv->>= eq
     … | inv _ eq₂ eq
+      using inv _ eq₃ eq ← inv->>= eq
       with inv->>= eq
-    … | inv _ eq₃ (ok PE.refl Unit-ok) =
-      let ⊢Unit   = Unitⱼ ⊢Γ Unit-ok
+    … | inv _ eq₄ ok! =
+      let Unit-ok = inv-require eq₄
+          ⊢Unit   = Unitⱼ ⊢Γ Unit-ok
           A≡A′    = check-type-sound′ n eq₁ ⊢Μ (∙ ⊢Unit)
           _ , ⊢A′ = wf-⊢≡ A≡A′
           t₁≡t₁′  = check-sound′ n eq₂ ⊢Μ ⊢Unit
@@ -2106,9 +2120,12 @@ opaque mutual
       with inv->>= eq
     … | inv _ eq₂ eq
       with inv->>= eq
-    … | inv (_ , PE.refl) _ (ok PE.refl ΠΣ-ok) =
-      let ⊢A₁ = infer-red-sound n eq₁ ⊢Μ ⊢Γ
-          ⊢A₂ = infer-red-sound n eq₂ ⊢Μ (∙ univ ⊢A₁)
+    … | inv (_ , PE.refl) _ eq
+      with inv->>= eq
+    … | inv _ eq₃ ok! =
+      let ⊢A₁   = infer-red-sound n eq₁ ⊢Μ ⊢Γ
+          ⊢A₂   = infer-red-sound n eq₂ ⊢Μ (∙ univ ⊢A₁)
+          ΠΣ-ok = inv-require eq₃
       in
       ΠΣⱼ ⊢A₁ ⊢A₂ ΠΣ-ok
     infer′-sound {n} (lam _ _ _ _) eq ⊢Μ ⊢Γ
@@ -2117,10 +2134,11 @@ opaque mutual
       with inv->>= eq
     … | inv _ eq₂ eq
       with inv->>= eq
-    … | inv _ (ok PE.refl Π-ok) ok! =
+    … | inv _ eq₃ ok! =
       let A₁≡A₁′   = check-type-sound′ n eq₁ ⊢Μ ⊢Γ
           _ , ⊢A₁′ = wf-⊢≡ A₁≡A₁′
           ⊢t       = infer-sound n eq₂ ⊢Μ (∙ ⊢A₁′)
+          Π-ok     = inv-require eq₃
       in
       lamⱼ′ Π-ok ⊢t
     infer′-sound {n} (app _ _ _) eq ⊢Μ ⊢Γ
@@ -2142,12 +2160,13 @@ opaque mutual
     … | inv _ eq₂ eq
       using inv _ eq₃ eq ← inv->>= eq
       with inv->>= eq
-    … | inv _ (ok PE.refl Σ-ok) ok! =
+    … | inv _ eq₄ ok! =
       let ⊢t₁      = infer-sound n eq₁ ⊢Μ ⊢Γ
           ⊢A₁      = wf-⊢∷ ⊢t₁
           A₂≡A₂′   = check-type-sound′ n eq₂ ⊢Μ (∙ ⊢A₁)
           _ , ⊢A₂′ = wf-⊢≡ A₂≡A₂′
           t₂≡t₂′   = check-sound′ n eq₃ ⊢Μ (substType ⊢A₂′ ⊢t₁)
+          Σ-ok     = inv-require eq₄
       in
       wf-⊢≡∷ (prod-cong ⊢A₂′ (refl ⊢t₁) t₂≡t₂′ Σ-ok) .proj₂ .proj₁
     infer′-sound {n} (fst _ _) eq ⊢Μ ⊢Γ
@@ -2271,7 +2290,7 @@ opaque mutual
       with inv->>= eq
     … | inv _ eq₅ eq
       with inv->>= eq
-    … | inv _ (ok PE.refl K-ok) ok! =
+    … | inv _ eq₆ ok! =
       let A₁≡A₁′       = check-type-sound′ n eq₁ ⊢Μ ⊢Γ
           _ , ⊢A₁′     = wf-⊢≡ A₁≡A₁′
           t₁≡t₁′       = check-sound′ n eq₂ ⊢Μ ⊢A₁′
@@ -2282,6 +2301,7 @@ opaque mutual
           t₂≡t₂′       = check-sound′ n eq₄ ⊢Μ $
                          substType ⊢A₂′ (rflⱼ ⊢t₁′)
           t₃≡t₃′       = check-sound′ n eq₅ ⊢Μ ⊢Id
+          K-ok         = inv-require eq₆
       in
       wf-⊢≡∷
         (K-cong (sym A₁≡A₁′) (sym′ t₁≡t₁′) (sym A₂≡A₂′) (sym′ t₂≡t₂′)
@@ -2296,7 +2316,7 @@ opaque mutual
     … | inv _ eq₃ eq
       using inv _ eq₄ eq ← inv->>= eq
       with inv->>= eq
-    … | inv _ (ok PE.refl okᵇᶜ) ok! =
+    … | inv _ eq₅ ok! =
       let A≡A′         = check-type-sound′ n eq₁ ⊢Μ ⊢Γ
           _ , ⊢A′      = wf-⊢≡ A≡A′
           t₁≡t₁′       = check-sound′ n eq₂ ⊢Μ ⊢A′
@@ -2304,6 +2324,7 @@ opaque mutual
           t₂≡t₂′       = check-sound′ n eq₃ ⊢Μ ⊢A′
           _ , _ , ⊢t₂′ = wf-⊢≡∷ t₂≡t₂′
           t₃≡t₃′       = check-sound′ n eq₄ ⊢Μ (Idⱼ′ ⊢t₁′ ⊢t₂′)
+          okᵇᶜ         = inv-require eq₅
       in
       wf-⊢≡∷
         ([]-cong-cong (sym A≡A′) (sym′ t₁≡t₁′) (sym′ t₂≡t₂′)
@@ -2477,7 +2498,8 @@ opaque mutual
     with inv-catch eq
   … | inj₁ eq =
     equal-ne-red-sound n eq ⊢Μ (wf-⊢∷ ⊢t₁)
-  … | inj₂ (ok PE.refl (L.lift η)) =
+  … | inj₂ eq =
+    let L.lift η = inv-require eq in
     η-unit ⊢t₁ ⊢t₂ η
   equal-tm-red-sound {t₁} {t₂} n _ eq ⊢Μ ⊢t₁ ⊢t₂
     | just ℕ
@@ -2638,8 +2660,9 @@ opaque mutual
     using inv _ eq₂ eq ← inv->>= eq
         | inv _ eq₃ eq ← inv->>= eq
     with inv->>= eq
-  … | inv _ (ok PE.refl Unit-ok) ok! =
-    let ⊢Unit        = Unitⱼ ⊢Γ Unit-ok
+  … | inv _ eq₄ ok! =
+    let Unit-ok      = inv-require eq₄
+        ⊢Unit        = Unitⱼ ⊢Γ Unit-ok
         ⊢⋆           = starⱼ ⊢Γ Unit-ok
         A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢Μ (∙ ⊢Unit)
         _ , ⊢A       = wf-⊢≡ A₁≡A
@@ -2780,7 +2803,7 @@ opaque mutual
     using inv _ eq₄ eq ← inv->>= eq
         | inv _ eq₅ eq ← inv->>= eq
     with inv->>= eq
-  … | inv _ (ok PE.refl K-ok) ok! =
+  … | inv _ eq₆ ok! =
     let A₁₁≡A₁ , A₁₁≡A₂₁ = check-and-equal-ty-sound′ n eq₁ ⊢Μ ⊢Γ
         _ , ⊢A₁          = wf-⊢≡ A₁₁≡A₁
         t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₂ ⊢Μ ⊢A₁
@@ -2799,6 +2822,7 @@ opaque mutual
         t₁₃≡t₂₃          = equal-ne-red-sound n eq₅ ⊢Μ ⊢Id
         _ , ⊢t₁₃ , _     = wf-⊢≡∷ t₁₃≡t₂₃
         t₁₃≡t₂₃          = conv t₁₃≡t₂₃ Id≡Id
+        K-ok             = inv-require eq₆
     in
     conv (K-cong A₁₁≡A₂₁ t₁₁≡t₂₁ A₁₂≡A₂₂ t₁₂≡t₂₂ t₁₃≡t₂₃ K-ok)
       (substTypeEq A₁₂≡A₂ (refl ⊢t₁₃))
@@ -2812,7 +2836,7 @@ opaque mutual
   … | inv _ eq₃ eq
     using inv _ eq₄ eq ← inv->>= eq
     with inv->>= eq
-  … | inv _ (ok PE.refl okᵇᶜ) ok! =
+  … | inv _ eq₅ ok! =
     let A₁≡A , A₁≡A₂     = check-and-equal-ty-sound′ n eq₁ ⊢Μ ⊢Γ
         _ , ⊢A           = wf-⊢≡ A₁≡A
         t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₂ ⊢Μ ⊢A
@@ -2825,6 +2849,7 @@ opaque mutual
         t₁₃≡t₂₃          = conv t₁₃≡t₂₃ $
                            Id-cong (sym A₁≡A) (sym′ t₁₁≡t₁)
                              (sym′ t₁₂≡t₂)
+        okᵇᶜ             = inv-require eq₅
         okᴱ              = []-cong→Erased okᵇᶜ
     in
     _⊢_≡_∷_.conv ([]-cong-cong A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃ okᵇᶜ) $
@@ -3435,7 +3460,8 @@ opaque
     » ⌜ ∇ ⌝ᶜᵈ γ
   check-dcon-sound′ (base nothing) _ ⊢base =
     ⊢base
-  check-dcon-sound′ (base (just _)) (ok PE.refl (L.lift eq)) ⊢base =
+  check-dcon-sound′ (base (just _)) eq ⊢base =
+    let L.lift eq = inv-require eq in
     Transitive.unfold-» eq ⊢base
   check-dcon-sound′ ε _ _ =
     ε
@@ -3449,15 +3475,17 @@ opaque
         _ , ⊢t , _       = wf-⊢≡∷ t≡t′
     in
     ∙ᵗ[ ⊢t ]
-  check-dcon-sound′ {n} (∇ ∙⟨ opa _ ⟩[ _ ∷ _ ]) eq ⊢base
-    using inv ms≡0 _   eq ← inv->>= eq
-        | inv _    eq₁ eq ← inv->>= eq
-        | inv _    eq₂ eq ← inv->>= eq
-        | inv _    eq₃ eq ← inv->>= eq
-    with inv->>= eq
-  … | inv _ (ok PE.refl opacity-ok)
-        (ok PE.refl (L.lift unfolding≡trans)) =
-    let »∇     = check-dcon-sound′ ∇ eq₁ ⊢base
+  check-dcon-sound′ {n} (∇ ∙⟨ opa _ ⟩[ _ ∷ _ ]) eq ⊢base =
+    let inv ms≡0 _   eq  = inv->>= eq
+        inv _    eq₁ eq  = inv->>= eq
+        inv _    eq₂ eq  = inv->>= eq
+        inv _    eq₃ eq  = inv->>= eq
+        inv _    eq₄ eq₅ = inv->>= eq
+
+        opacity-ok             = inv-require eq₄
+        L.lift unfolding≡trans = inv-require eq₅
+
+        »∇     = check-dcon-sound′ ∇ eq₁ ⊢base
         A≡A′   = check-type-sound′ n eq₂ (Meta-con-wf-empty ms≡0) (ε »∇)
         ⊢A , _ = wf-⊢≡ A≡A′
         ⊢t     =
