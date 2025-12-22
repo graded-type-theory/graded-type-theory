@@ -102,15 +102,6 @@ data Constraints (c : Constants) : Set a where
 ⟦ con C     ⟧′ γ = ⟦ C ⟧₁ γ
 ⟦ Cs₁ ∪ Cs₂ ⟧′ γ = ⟦ Cs₁ ⟧′ γ × ⟦ Cs₂ ⟧′ γ
 
--- A smart constructor.
-
-infixr 5 _∪′_
-
-_∪′_ : Constraints c → Constraints c → Constraints c
-Cs   ∪′ none = Cs
-none ∪′ Cs   = Cs
-Cs₁  ∪′ Cs₂  = Cs₁ ∪ Cs₂
-
 -- Membership in a collection of constraints.
 
 infix 4 _∈ᶜ_
@@ -339,16 +330,3 @@ opaque
     ⟦ Cs₁ ∪ Cs₂ ⟧′ γ         ⇔⟨ id⇔ ⟩
     ⟦ Cs₁ ⟧′ γ × ⟦ Cs₂ ⟧′ γ  ⇔˘⟨ ⟦⟧⇔⟦⟧′ Cs₁ ×-cong-⇔ ⟦⟧⇔⟦⟧′ Cs₂ ⟩
     ⟦ Cs₁ ⟧ γ × ⟦ Cs₂ ⟧ γ    □⇔
-
-opaque
-
-  -- ⟦ Cs₁ ∪ Cs₂ ⟧′ γ is logically equivalent to ⟦ Cs₁ ∪′ Cs₂ ⟧′ γ.
-
-  ⟦∪⟧′⇔⟦∪′⟧′ : ∀ Cs₁ Cs₂ → ⟦ Cs₁ ∪ Cs₂ ⟧′ γ ⇔ ⟦ Cs₁ ∪′ Cs₂ ⟧′ γ
-  ⟦∪⟧′⇔⟦∪′⟧′ _       none    = proj₁ , (_, _)
-  ⟦∪⟧′⇔⟦∪′⟧′ none    (con _) = proj₂ , (_ ,_)
-  ⟦∪⟧′⇔⟦∪′⟧′ (con _) (con _) = id⇔
-  ⟦∪⟧′⇔⟦∪′⟧′ (_ ∪ _) (con _) = id⇔
-  ⟦∪⟧′⇔⟦∪′⟧′ none    (_ ∪ _) = proj₂ , (_ ,_)
-  ⟦∪⟧′⇔⟦∪′⟧′ (con _) (_ ∪ _) = id⇔
-  ⟦∪⟧′⇔⟦∪′⟧′ (_ ∪ _) (_ ∪ _) = id⇔

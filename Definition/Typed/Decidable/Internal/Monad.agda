@@ -95,7 +95,7 @@ _>>=_ : Check c A → (A → Check c B) → Check c B
 … | inj₁ s         = inj₁ s
 … | inj₂ (x , Cs₁) with f x .run Μ
 …   | inj₁ s         = inj₁ s
-…   | inj₂ (y , Cs₂) = inj₂ (y , Cs₁ ∪′ Cs₂)
+…   | inj₂ (y , Cs₂) = inj₂ (y , Cs₁ ∪ Cs₂)
 
 -- A variant of _>>=_.
 
@@ -184,7 +184,7 @@ opaque
                                                      in eq₂
   inv->>=         not-ok          | _              | inj₁ _
   inv->>=         (ok PE.refl cs) | inj₂ (y , Cs₁) | inj₂ (_ , Cs₂) =
-    let cs₁ , cs₂ = ⟦∪⟧′⇔⟦∪′⟧′ Cs₁ Cs₂ .proj₂ cs in
+    let cs₁ , cs₂ = cs in
     inv y (ok eq₁ cs₁) (ok eq₂ cs₂)
 
 -- A type used to state inv-<$>.
