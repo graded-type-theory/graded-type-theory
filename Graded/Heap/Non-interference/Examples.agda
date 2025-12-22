@@ -52,7 +52,6 @@ open import Definition.Untyped.Nat modality
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Reduction TR
 
 open import Tools.Empty
 open import Tools.Fin
@@ -83,43 +82,32 @@ opaque
     (prodrec-ok : Prodrec-allowed ℓ₀ 𝟘 𝟘 𝟘)
     -- A certain Σ-type is allowed
     (Σ-ok : Σʷ-allowed 𝟘 𝟘) →
-    ∃₄ λ k (t : Term (1+ k)) γ Δ →
-      -- For simplicity, we assume that the heaps contain concrete
-      -- values for x0 as opposed to computations (that would evaluate to
-      -- values eventually).
-      ∀ {H₁ H₂ : Heap 0 k} {ρ : Wk k n} {ρ′ : Wk k m} {p t₁ t₂ q u₁ u₂} →
-        let H₁′ : Heap 0 (1+ k)
-            H₁′ = H₁ ∙ (p , prodʷ 𝟘 t₁ t₂ , ρ)
-            H₂′ : Heap 0 (1+ k)
-            H₂′ = H₂ ∙ (q , prodʷ 𝟘 u₁ u₂ , ρ′)
-        in  H₁′ ~⟨ ℓ₀ ⟩ H₂′ → γ ▸ʰ H₁′ → ε ⊢ʰ H₁′ ∷ Δ →
-      ¬ No-secret-matches ×
-      γ ▸[ ℓ₀ ] t ×
-      ε » Δ ⊢ t ∷ ℕ ×
-      ∃₆ λ m n H₁″ H₂″ (ρ : Wk m n) t′ →
-        ⟨ H₁′ , t , id , ε ⟩ ↠* ⟨ H₁″ , t′ , ρ , ε ⟩ ×
-        ⟨ H₂′ , t , id , ε ⟩ ↠* ⟨ H₂″ , t′ , ρ , ε ⟩ ×
-        Numeral t′ × H₁″ ~⟨ ℓ₀ ⟩ H₂″
+    ∃₄ λ k (t : Term k) γ Γ →
+    ¬ No-secret-matches ×
+    γ ▸[ ℓ₀ ] t ×
+    ε » Γ ⊢ t ∷ ℕ ×
+    ∀ H₁ H₂ → H₁ ~⟨ ℓ₀ ⟩ H₂ → ε ⊢ʰ H₁ ∷ Γ → γ ▸ʰ H₁ →
+    ∃₆ λ m n H₁′ H₂′ (ρ : Wk m n) u →
+       ⟨ H₁ , t , id , ε ⟩ ↠* ⟨ H₁′ , u , ρ , ε ⟩ ×
+       ⟨ H₂ , t , id , ε ⟩ ↠* ⟨ H₂′ , u , ρ , ε ⟩ ×
+       Numeral u × H₁′ ~⟨ ℓ₀ ⟩ H₂′
   non-interference-with-secret-matches 𝟘≰ℓ₀ prodrec-ok Σ-ok =
-    _ , t , 𝟘ᶜ , ε ∙ A , λ { {H₁ = ε} {H₂ = ε} H₁~H₂ ▸H₁ ⊢H₁ →
-        case ~⟨⟩-inv-∙ H₁~H₂ of λ {
-          (refl , _ , refl , _ , _) →
-        secret-matches , ▸t , ⊢t , _ , _ , _ , _
-      , _ , zero , ⟨t⟩⇒⟨zero⟩ , ⟨t⟩⇒⟨zero⟩ , zeroₙ
-      , (H₁~H₂ ∙ (⊥-elim ∘→ 𝟘≰ℓ₀) ∙ (⊥-elim ∘→ 𝟘≰ℓ₀))}}
+    _ , t , ε , ε , secret-matches , ▸t , ⊢t
+      , λ H₁ H₂ H₁~H₂ ⊢H₁ ▸H₁ →
+       _ , _ , _ , _ , _ , _ , ⟨t⟩⇒⟨zero⟩ H₁ , ⟨t⟩⇒⟨zero⟩ H₂ , zeroₙ
+         , (H₁~H₂ ∙ (⊥-elim ∘→ 𝟘≰ℓ₀) ∙ (⊥-elim ∘→ 𝟘≰ℓ₀))
     where
 
-    t : Term 1
-    t = prodrec 𝟘 𝟘 𝟘 ℕ (var x0) zero
-
-    A : ∀ {n} → Term n
-    A = Σʷ 𝟘 , 𝟘 ▷ ℕ ▹ ℕ
+    -- The program t corresponds to
+    -- let (_ , _) = (zero , zero) in zero
+    t : Term 0
+    t = prodrec 𝟘 𝟘 𝟘 ℕ (prodʷ 𝟘 zero zero) zero
 
     secret-matches : ¬ No-secret-matches
     secret-matches nsm =
       𝟘≰ℓ₀ (No-secret-matches.no-secret-prodrec nsm ≤-refl prodrec-ok)
 
-    ▸t : 𝟘ᶜ ▸[ ℓ₀ ] t
+    ▸t : ε ▸[ ℓ₀ ] t
     ▸t =
       let ▸zero = sub-≈ᶜ zeroₘ $ begin
             𝟘ᶜ ∙ ℓ₀ · 𝟘 · 𝟘 ∙ ℓ₀ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-congˡ (·-zeroʳ _) ∙ ·-zeroʳ _ ⟩
@@ -130,40 +118,31 @@ opaque
             𝟘ᶜ ∙ 𝟘 · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
             𝟘ᶜ ∙ 𝟘     ≡⟨⟩
             𝟘ᶜ         ∎
-      in  sub-≈ᶜ (prodrecₘ var ▸zero ▸ℕ prodrec-ok) $ begin
-        𝟘ᶜ                     ≡⟨⟩
-        ε ∙ 𝟘                  ≈˘⟨ ε ∙ ·-zeroˡ _ ⟩
-        ε ∙ 𝟘 · 𝟘              ≈˘⟨ ε ∙ ·-congˡ (·-zeroʳ _) ⟩
-        ε ∙ 𝟘 · ℓ₀ · 𝟘         ≈˘⟨ +ᶜ-identityʳ _ ⟩
-        (ε ∙ 𝟘 · ℓ₀ · 𝟘) +ᶜ 𝟘ᶜ ∎
+      in  prodrecₘ (prodʷₘ zeroₘ zeroₘ) ▸zero ▸ℕ prodrec-ok
       where
       open ≈ᶜ-reasoning
 
-    ⊢A : ∀ {n} {Δ : Con Term n} → ε »⊢ Δ → ε » Δ ⊢ A
-    ⊢A ⊢Δ = ΠΣⱼ (ℕⱼ (∙ ℕⱼ ⊢Δ)) Σ-ok
-
-    ⊢t : ε » ε ∙ A ⊢ t ∷ ℕ
-    ⊢t = prodrecⱼ (ℕⱼ (∙ ⊢A (∙ ⊢A εε)))
-           (var (∙ ⊢A εε) here)
-           (zeroⱼ (∙ ℕⱼ (∙ ℕⱼ (∙ ⊢A εε))))
-           Σ-ok
+    ⊢t : ε » ε ⊢ t ∷ ℕ
+    ⊢t =
+      let ⊢ℕ = ℕⱼ (∙ ℕⱼ εε)
+      in  prodrecⱼ (ℕⱼ (∙ (ΠΣⱼ ⊢ℕ Σ-ok)))
+            (prodⱼ ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) Σ-ok)
+            (zeroⱼ (∙ ⊢ℕ)) Σ-ok
 
     ⟨t⟩⇒⟨zero⟩ :
-      ⟨ ε ∙ (p , (prodʷ 𝟘 u v) , ρ) , t , id , ε ⟩ ↠*
-      ⟨ ε ∙ (p , prodʷ 𝟘 u v , ρ) ∙ (𝟘 , u , step ρ) ∙ (𝟘 , v , stepn ρ 2) , zero , liftn id 2 , ε ⟩
-    ⟨t⟩⇒⟨zero⟩ {p} {u} {v} {ρ} =
-      let ∣S∣≡ = subst (∣ prodrecₑ 𝟘 𝟘 𝟘 ℕ zero id ∙ ε ∣≡_)
-                   (·-zeroʳ _) (prodrecₑ ∙ ε)
+      ∀ (H : Heap 0 0) →
+      ⟨ H , t , id , ε ⟩ ↠*
+      ⟨ H ∙ (𝟘 , zero , id) ∙ (𝟘 , zero , step id) , zero , liftn id 2 , ε ⟩
+    ⟨t⟩⇒⟨zero⟩ H =
+      let u = prodʷ 𝟘 zero zero
+          H′ = H ∙ (ℓ₀ · 𝟘 · 𝟘 , zero , id) ∙ (ℓ₀ · 𝟘 , zero , step id)
+          H″ = H ∙ (𝟘 , zero , id) ∙ (𝟘 , zero , step id)
+          H′≡H″ = cong₂ (λ x y → (H ∙ (x , _)) ∙ (y , _))
+                    (PE.trans (·-congˡ (·-zeroʳ _)) (·-zeroʳ _))
+                    (·-zeroʳ _)
       in
-       (⟨ ε ∙ (p , prodʷ 𝟘 u v , ρ)     , t                              , id         , ε ⟩                             ≡⟨⟩↠
-        ⟨ ε ∙ (p , prodʷ 𝟘 u v , ρ)     , prodrec 𝟘 𝟘 𝟘 ℕ (var x0) zero  , id         , ε ⟩                             ⇒ₑ⟨ prodrecₕ ⟩
-        ⟨ ε ∙ (p , prodʷ 𝟘 u v , ρ)     , var x0                         , id         , prodrecₑ 𝟘 𝟘 𝟘 ℕ zero id ∙ ε ⟩  ⇾ₑ⟨ var ∣S∣≡ (here p-𝟘≡p) ⟩
-        ⟨ ε ∙ (p , prodʷ 𝟘 u v , ρ)     , prodʷ 𝟘 u v                    , step ρ     , prodrecₑ 𝟘 𝟘 𝟘 ℕ zero id ∙ ε ⟩  ⇒ᵥ⟨ prodʷₕ ε ⟩
-        ⟨ ε ∙ (p , prodʷ 𝟘 u v , ρ)
-            ∙ (ℓ₀ · 𝟘 · 𝟘 , u , step ρ)
-            ∙ (ℓ₀ · 𝟘 , v , stepn ρ 2)  , zero                           , liftn id 2 , ε ⟩                              ≡⟨ cong₂ (λ x y → (ε ∙ (p , prodʷ 𝟘 u v , ρ) ∙ (x , _)) ∙ (y , _))
-                                                                                                                             (PE.trans (·-congˡ (·-zeroʳ _)) (·-zeroʳ _)) (·-zeroʳ _)
-                                                                                                                           ⨾ refl ⨾ refl ⨾ refl ⟩↠
-        ⟨ ε ∙ (p , prodʷ 𝟘 u v , ρ)
-            ∙ (𝟘 , u , step ρ)
-            ∙ (𝟘 , v , stepn ρ 2)       , zero                           , liftn id 2 , ε ⟩ ∎)
+        ⟨ H , t                      , id         , ε ⟩                            ≡⟨⟩↠
+        ⟨ H , prodrec 𝟘 𝟘 𝟘 ℕ u zero , id         , ε ⟩                            ⇒ₑ⟨ prodrecₕ ⟩
+        ⟨ H , prodʷ 𝟘 zero zero      , id         , prodrecₑ 𝟘 𝟘 𝟘 ℕ zero id ∙ ε ⟩ ⇒ᵥ⟨ prodʷₕ ε ⟩
+        ⟨ H′ , zero                  , liftn id 2 , ε ⟩                            ≡⟨ H′≡H″ ⨾ refl ⨾ refl ⨾ refl ⟩↠
+        ⟨ H″ , zero                  , liftn id 2 , ε ⟩                            ∎
