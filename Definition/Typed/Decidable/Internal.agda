@@ -750,20 +750,22 @@ mutual
   … | just (ΠΣ BMΠ p _ A₁ A₂) =
     equal-tm n (Γ »∙ A₁) (wk[ 1 ] t₁ ∘⟨ p ⟩ var x0)
       (wk[ 1 ] t₂ ∘⟨ p ⟩ var x0) A₂
-  … | just (ΠΣ BMΣ-𝕤 p _ A₁ A₂) = do
-    equal-tm n Γ (fst p t₁) (fst p t₂) A₁
-    equal-tm n Γ (snd p t₁) (snd p t₂)
-      (subst A₂ (sgSubst (fst p t₁)))
-  … | just (ΠΣ BMΣ-𝕨 p _ A₁ A₂) =
-    case are-prodʷ? p t₁ t₂ of λ where
-      (just (_ , t₁₁ , t₁₂ , _ , t₂₁ , t₂₂ , _)) → do
-        -- Here check-and-equal-tm is used instead of equal-tm to
-        -- avoid uses of injectivity lemmas.
-        t₁ ← check-and-equal-tm n Γ t₁₁ t₂₁ A₁
-        check-and-equal-tm n Γ t₁₂ t₂₂ (subst A₂ (sgSubst t₁))
-        return tt
+  … | just (ΠΣ (BMΣ s) p _ A₁ A₂) = do
+    case s ≟ˢ 𝕤 of λ where
+      (just _) → do
+        equal-tm n Γ (fst p t₁) (fst p t₂) A₁
+        equal-tm n Γ (snd p t₁) (snd p t₂)
+          (subst A₂ (sgSubst (fst p t₁)))
       nothing →
-        equal-ne-red n Γ t₁ t₂ A
+        case are-prod? s p t₁ t₂ of λ where
+          (just (_ , t₁₁ , t₁₂ , _ , t₂₁ , t₂₂ , _)) → do
+            -- Here check-and-equal-tm is used instead of equal-tm to
+            -- avoid uses of injectivity lemmas.
+            t₁ ← check-and-equal-tm n Γ t₁₁ t₂₁ A₁
+            check-and-equal-tm n Γ t₁₂ t₂₂ (subst A₂ (sgSubst t₁))
+            return tt
+          nothing →
+            equal-ne-red n Γ t₁ t₂ A
   … | just (Id _ _ _) =
     case are-rfl? t₁ t₂ of λ where
       (just _) → return tt
@@ -2685,8 +2687,10 @@ opaque mutual
              W.wkTerm₁ ⊢A₁ ⊢t₂ ∘ⱼ var₀ ⊢A₁)
     in
     η-eq′ ⊢t₁ ⊢t₂ t₁∘x0≡t₂∘x0
-  equal-tm-red-sound n _ eq ⊢γ ⊢t₁ ⊢t₂
-    | just (ΠΣ BMΣ-𝕤 _ _ _ A₂) =
+  equal-tm-red-sound {t₁} {t₂} n _ eq ⊢γ ⊢t₁ ⊢t₂
+    | just (ΠΣ (BMΣ s) p _ _ A₂)
+    with s ≟ˢ 𝕤
+  … | just PE.refl =
     let inv _ eq₁ eq₂ = inv->>= eq
         _ , ⊢A₂ , _   = inversion-ΠΣ (wf-⊢∷ ⊢t₁)
         fst-t₁≡fst-t₂ =
@@ -2696,9 +2700,8 @@ opaque mutual
       (equal-tm-sound′ n eq₂ ⊢γ (sndⱼ′ ⊢t₁)
          (conv (sndⱼ′ ⊢t₂) $
           substTypeEq (refl ⊢A₂) (sym′ fst-t₁≡fst-t₂)))
-  equal-tm-red-sound {t₁} {t₂} n _ eq ⊢γ ⊢t₁ ⊢t₂
-    | just (ΠΣ BMΣ-𝕨 p _ _ A₂)
-    with are-prodʷ? p t₁ t₂
+  … | nothing
+    with are-prod? s p t₁ t₂
   … | nothing =
     equal-ne-red-sound n eq ⊢γ (wf-⊢∷ ⊢t₁)
   … | just (_ , _ , _ , _ , _ , _ , PE.refl , PE.refl)

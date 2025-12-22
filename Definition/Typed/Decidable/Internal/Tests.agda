@@ -51,20 +51,19 @@ check-meta-con-empty {c} = do
 ------------------------------------------------------------------------
 -- A simple test involving binder modes
 
--- The binder mode is a literal binder mode (BMΠ, BMΣ 𝕤 or BMΣ 𝕨).
+-- The binder mode is a literal binder mode (BMΠ or BMΣ s; s does not
+-- have to be a literal).
 
 data Is-literal-binder-mode {m n} : Termᵇᵐ m n → Set a where
-  BMΠ   : Is-literal-binder-mode BMΠ
-  BMΣ-𝕤 : Is-literal-binder-mode (BMΣ 𝕤)
-  BMΣ-𝕨 : Is-literal-binder-mode (BMΣ 𝕨)
+  BMΠ : Is-literal-binder-mode BMΠ
+  BMΣ : ∀ s → Is-literal-binder-mode (BMΣ s)
 
 -- Is the binder mode a literal binder mode?
 
 is-literal-binder-mode? :
   (b : Termᵇᵐ m n) → Maybe (Is-literal-binder-mode b)
 is-literal-binder-mode? BMΠ     = just BMΠ
-is-literal-binder-mode? (BMΣ 𝕤) = just BMΣ-𝕤
-is-literal-binder-mode? (BMΣ 𝕨) = just BMΣ-𝕨
+is-literal-binder-mode? (BMΣ _) = just (BMΣ _)
 is-literal-binder-mode? _       = nothing
 
 ------------------------------------------------------------------------
@@ -502,23 +501,27 @@ is-prod? s p (prod s′ p′ _ _ _) =
 is-prod? _ _ _ =
   nothing
 
--- Are the terms both applications of prod 𝕨 p?
+-- Are the terms both applications of prod s p?
 
-are-prodʷ? :
-  ∀ p (t₁ t₂ : Term c n) →
+are-prod? :
+  ∀ s p (t₁ t₂ : Term c n) →
   Maybe
     (∃₆ λ qA₂₁ t₁₁ t₂₁ qA₂₂ t₁₂ t₂₂ →
-     t₁ PE.≡ prod 𝕨 p qA₂₁ t₁₁ t₂₁ × t₂ PE.≡ prod 𝕨 p qA₂₂ t₁₂ t₂₂)
-are-prodʷ? p (prod 𝕨 p₁ _ _ _) (prod 𝕨 p₂ _ _ _) =
-  (λ eq₁ eq₂ →
+     t₁ PE.≡ prod s p qA₂₁ t₁₁ t₂₁ × t₂ PE.≡ prod s p qA₂₂ t₁₂ t₂₂)
+are-prod? s p (prod s₁ p₁ _ _ _) (prod s₂ p₂ _ _ _) =
+  (λ eq₁ eq₂ eq₃ eq₄ →
      _ , _ , _ , _ , _ , _ ,
      (case eq₁ of λ {
         PE.refl →
       case eq₂ of λ {
         PE.refl →
-      PE.refl , PE.refl }})) <$>
-  p ≟ᵍ p₁ ⊛ p ≟ᵍ p₂
-are-prodʷ? _ _ _ =
+      case eq₃ of λ {
+        PE.refl →
+      case eq₄ of λ {
+        PE.refl →
+      PE.refl , PE.refl }}}})) <$>
+  s ≟ˢ s₁ ⊛ s ≟ˢ s₂ ⊛ p ≟ᵍ p₁ ⊛ p ≟ᵍ p₂
+are-prod? _ _ _ _ =
   nothing
 
 -- Is the term equal to zero or an application of suc?
