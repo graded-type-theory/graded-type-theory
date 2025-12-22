@@ -256,7 +256,7 @@ opaque
 
   Meta-con-wf-empty :
     c .ms PE.≡ 0 → Meta-con-wf {c} ∇ γ
-  Meta-con-wf-empty PE.refl .bindings-wf (var () _)
+  Meta-con-wf-empty ms≡0 .bindings-wf = ⊥-elim ∘→ ¬-Meta-var ms≡0
 
 ------------------------------------------------------------------------
 -- Well-formed contexts

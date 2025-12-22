@@ -19,12 +19,15 @@ open U.Con
 open U.DCon
 
 open import Tools.Bool using (Bool; T)
+open import Tools.Empty
+open import Tools.Function
 open import Tools.Fin
 open import Tools.List using (List)
 open import Tools.Maybe
 open import Tools.Nat as N using (Nat; 1+; 2+)
 open import Tools.Product
-import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality hiding (subst)
+open import Tools.Relation
 open import Tools.Vec as Vec using (Vec)
 
 private
@@ -206,10 +209,10 @@ mutual
   -- The type Meta-var c n represents meta-variables.
 
   data Meta-var (c : Constants) (n : Nat) : Set where
-    var : (x : Fin (c .ms)) → Vec.lookup (c .meta-con-size) x PE.≡ n →
+    var : (x : Fin (c .ms)) → Vec.lookup (c .meta-con-size) x ≡ n →
           Meta-var c n
 
-pattern var! x = var x PE.refl
+pattern var! x = var x refl
 
 ------------------------------------------------------------------------
 -- Constraints
@@ -286,6 +289,12 @@ record Meta-con (c : Constants) : Set a where
 
 open Meta-con public
 
+-- If the number of meta-variables is zero, then there are no
+-- meta-variables.
+
+¬-Meta-var : c .ms ≡ 0 → ¬ Meta-var c n
+¬-Meta-var refl (var () _)
+
 -- An empty meta-variable context.
 
 emptyᶜᵐ :
@@ -301,7 +310,7 @@ emptyᶜᵐ :
        ; base-con-allowed = b
        ; base-con-size    = n₆
        })
-emptyᶜᵐ .bindings (var () _)
+emptyᶜᵐ .bindings = ⊥-elim ∘→ ¬-Meta-var refl
 
 -- A grade context, a universe level context, a strength context, a
 -- binder mode context, a list of constraints, a meta-variable
@@ -495,10 +504,10 @@ opaque
 
   ⌜meta-var⌝ :
     {x : Meta-var c n₁} (σ : Subst c n₂ n₁) →
-    ⌜ meta-var x σ ⌝ γ PE.≡ ⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ ]
+    ⌜ meta-var x σ ⌝ γ ≡ ⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ ]
   ⌜meta-var⌝ σ with is-id? σ
-  … | just id = PE.sym (subst-id _)
-  … | nothing = PE.refl
+  … | just id = sym (subst-id _)
+  … | nothing = refl
 
 ------------------------------------------------------------------------
 -- An abbreviation
@@ -514,8 +523,8 @@ opaque
 
   ⌜varᵐ⌝ :
     (γ : Contexts c) →
-    ⌜ varᵐ x ⌝ γ PE.≡ ⌜ var x PE.refl ⌝ᵐ γ
-  ⌜varᵐ⌝ _ = PE.refl
+    ⌜ varᵐ x ⌝ γ ≡ ⌜ var x refl ⌝ᵐ γ
+  ⌜varᵐ⌝ _ = refl
 
 ------------------------------------------------------------------------
 -- Some abbreviations
