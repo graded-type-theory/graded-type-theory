@@ -18,6 +18,8 @@ open import Definition.Untyped.Properties M
 open U.Con
 open U.DCon
 
+import Graded.Mode 𝕄 as Mode
+
 open import Tools.Bool using (Bool; T)
 open import Tools.Empty
 open import Tools.Function
@@ -51,6 +53,7 @@ data Termᵍ (n : Nat) : Set a where
   var         : (x : Fin n) → Termᵍ n
   𝟘 𝟙 ω       : Termᵍ n
   _+_ _·_ _∧_ : (p q : Termᵍ n) → Termᵍ n
+  ⌜⌞_⌟⌝       : (p : Termᵍ n) → Termᵍ n
 
 -- Universe level terms.
 
@@ -416,6 +419,7 @@ is-id? _  = nothing
 ⟦ t₁ + t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.+ ⟦ t₂ ⟧ᵍ γ
 ⟦ t₁ · t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.· ⟦ t₂ ⟧ᵍ γ
 ⟦ t₁ ∧ t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.∧ ⟦ t₂ ⟧ᵍ γ
+⟦ ⌜⌞ t ⌟⌝ ⟧ᵍ γ = Mode.⌜ Mode.⌞ ⟦ t ⟧ᵍ γ ⌟ ⌝
 
 -- Translates universe level terms to universe levels.
 
