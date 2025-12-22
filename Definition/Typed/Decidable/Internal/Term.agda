@@ -22,7 +22,7 @@ open import Tools.Bool using (Bool; T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Fin
-open import Tools.List using (List)
+open import Tools.List as L using (List)
 open import Tools.Maybe
 open import Tools.Nat as N using (Nat; 1+; 2+)
 open import Tools.Product
@@ -279,6 +279,9 @@ data Type-or-term (c : Constants) (n : Nat) : Set a where
 -- variable contexts. The idea is that it should be possible to work
 -- relative to terms and types that are well-formed with respect to
 -- variable contexts that are extensions of some base context.
+--
+-- Different meta-variables can also refer to definitionally equal
+-- terms or types.
 
 record Meta-con (c : Constants) : Set a where
   no-eta-equality
@@ -286,6 +289,8 @@ record Meta-con (c : Constants) : Set a where
     bindings :
       ∀ {n} (x : Meta-var c n) →
       Con c n × Type-or-term c n
+    equalities :
+      List (∃ λ n → Meta-var c n × Meta-var c n)
 
 open Meta-con public
 
@@ -310,7 +315,8 @@ emptyᶜᵐ :
        ; base-con-allowed = b
        ; base-con-size    = n₆
        })
-emptyᶜᵐ .bindings = ⊥-elim ∘→ ¬-Meta-var refl
+emptyᶜᵐ .bindings   = ⊥-elim ∘→ ¬-Meta-var refl
+emptyᶜᵐ .equalities = L.[]
 
 -- A grade context, a universe level context, a strength context, a
 -- binder mode context, a list of constraints, a meta-variable

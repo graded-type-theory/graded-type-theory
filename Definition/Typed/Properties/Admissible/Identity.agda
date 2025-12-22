@@ -151,9 +151,9 @@ opaque
       25
       PE.refl
       (λ where
-         .IC.constraints-wf →
-           ok₁ L.∷ ok₂ L.∷ ok₃ L.∷ L.[]
-         .IC.metas-wf .IC.bindings-wf → λ where
+         .IC.constraints-wf             → ok₁ L.∷ ok₂ L.∷ ok₃ L.∷ L.[]
+         .IC.metas-wf .IC.equalities-wf → L.[]
+         .IC.metas-wf .IC.bindings-wf   → λ where
            (I.var! x0)       → ⊢A₁
            (I.var! x1)       → ⊢B₁
            (I.var! x2)       → ⊢A₂
@@ -213,7 +213,8 @@ opaque
         I.π-allowed xp′ xq′   L.∷
         I.π-allowed xp″ xq″   L.∷
         L.[]
-      γ′ .I.metas .I.bindings = λ where
+      γ′ .I.metas .I.equalities = L.[]
+      γ′ .I.metas .I.bindings   = λ where
         (I.var! x0) → I.base , I.term A₁ (I.U xl₁)
         (I.var! x1) → I.base I.∙ xA₁ , I.term B₁ (I.U xl₂)
         (I.var! x2) → I.base , I.term A₂ (I.U xl₁)
@@ -328,9 +329,9 @@ opaque
       29
       PE.refl
       (λ where
-         .IC.constraints-wf →
-           ok L.∷ L.[]
-         .IC.metas-wf .IC.bindings-wf → λ where
+         .IC.constraints-wf             → ok L.∷ L.[]
+         .IC.metas-wf .IC.equalities-wf → L.[]
+         .IC.metas-wf .IC.bindings-wf   → λ where
            (I.var! x0)       → ⊢A₁
            (I.var! x1)       → ⊢A₂
            (I.var! x2)       → ⊢t
@@ -373,13 +374,14 @@ opaque
       xv  = I.varᵐ x8
 
       γ′ : I.Contexts c′
-      γ′ .I.grades            = p V.∷ q V.∷ V.ε
-      γ′ .I.levels            = l V.∷ V.ε
-      γ′ .I.strengths         = V.ε
-      γ′ .I.binder-modes      = V.ε
-      γ′ .I.⌜base⌝            = Γ
-      γ′ .I.constraints       = I.π-allowed xp xq L.∷ L.[]
-      γ′ .I.metas .I.bindings = λ where
+      γ′ .I.grades              = p V.∷ q V.∷ V.ε
+      γ′ .I.levels              = l V.∷ V.ε
+      γ′ .I.strengths           = V.ε
+      γ′ .I.binder-modes        = V.ε
+      γ′ .I.⌜base⌝              = Γ
+      γ′ .I.constraints         = I.π-allowed xp xq L.∷ L.[]
+      γ′ .I.metas .I.equalities = L.[]
+      γ′ .I.metas .I.bindings   = λ where
         (I.var! x0) → I.base , I.term A₁ (I.U xl)
         (I.var! x1) → I.base , I.term A₂ (I.U xl)
         (I.var! x2) → I.base , I.term t (I.Id (I.U xl) xA₁ xA₂)

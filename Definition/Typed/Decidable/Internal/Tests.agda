@@ -26,6 +26,7 @@ open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum
+import Tools.Vec as Vec
 
 private variable
   m n n₁ n₂ n′ n′₁ n′₂ : Nat
@@ -393,12 +394,23 @@ is-weaken-subst? (weaken _ _) = just (weaken _ _)
 is-weaken-subst? (subst _ _)  = just (subst _ _)
 is-weaken-subst? _            = nothing
 
--- A procedure that checks that the two meta-variables are equal.
+opaque
 
-are-equal-meta-vars : (x₁ x₂ : Meta-var c n) → Check c (x₁ PE.≡ x₂)
-are-equal-meta-vars (var x₁ eq₁) (var x₂ eq₂) =
-  (λ { PE.refl → PE.cong (var _) N.Nat-set }) M.<$>
-  [ dec⇒maybe (x₁ ≟ⱽ x₂) ]with-message "Expected equal meta-variables."
+  -- A lemma related to equality of meta-variables.
+
+  var-cong :
+    {eq₁ : Vec.lookup (c .meta-con-size) x₁ PE.≡ n}
+    {eq₂ : Vec.lookup (c .meta-con-size) x₂ PE.≡ n} →
+    x₁ PE.≡ x₂ →
+    Meta-var.var {c = c} x₁ eq₁ PE.≡ var x₂ eq₂
+  var-cong PE.refl = PE.cong (var _) N.Nat-set
+
+-- Are the two meta-variables equal?
+
+infix 4 _≟ᵐᵛ_
+
+_≟ᵐᵛ_ : (x₁ x₂ : Meta-var c n) → Maybe (x₁ PE.≡ x₂)
+var x₁ _ ≟ᵐᵛ var x₂ _ = var-cong <$> dec⇒maybe (x₁ ≟ⱽ x₂)
 
 -- A procedure that checks that the level is the level zero.
 

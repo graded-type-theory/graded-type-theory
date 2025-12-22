@@ -67,8 +67,8 @@ open _or-empty_
 open import Tools.Fin
 open import Tools.Function hiding (ext)
 import Tools.Level as L
-open import Tools.List using (All)
-open import Tools.Maybe as M
+open import Tools.List as List using (All; _∈_)
+open import Tools.Maybe as M using (Maybe; nothing; just)
 open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
@@ -76,6 +76,7 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
 open import Tools.Unit
+import Tools.Vec as Vec
 
 private variable
   m n n₁ n₂ n₃                              : Nat
@@ -84,6 +85,7 @@ private variable
   ∇                                         : DCon _ _
   Δ Δ′ Δ₁ Δ₂ Η₁ Η₂                          : Con _ _
   Γ Γ′                                      : Cons _ _ _
+  x₁ x₂                                     : Meta-var _ _
   A A′ A₁ A₁′ A₂ A₂′ B t t′ t₁ t₁′ t₂ t₂′ u : Term _ _
   l                                         : Termˡ _
   σ′ σ₁ σ₂                                  : Subst _ _ _
@@ -163,6 +165,13 @@ remove-weaken-subst (1+ n) t =
     (just (subst t σ))  → remove-weaken-subst n (t [ σ ])
     nothing             → return t
 
+-- Returns the context associated to the meta-variable.
+
+context-of : Meta-var c n → Check c (Con c n)
+context-of x = do
+  Μ ← ask
+  return (Μ .bindings x .proj₁)
+
 -- Checks that the meta-variable refers to a term. In that case the
 -- term's variable context and type are returned.
 
@@ -174,6 +183,50 @@ is-term x = do
       fail "Expected a term."
     (Δ , term _ A) → do
       return (Δ , A)
+
+-- Checks that the two meta-variables are equal.
+
+are-equal-meta-vars : (_ _ : Meta-var c n) → Check c ⊤
+are-equal-meta-vars x₁ x₂ = do
+  Μ ← ask
+  [ are-equal-meta-vars? Μ x₁ x₂ ]with-message
+    "Expected equal meta-variables."
+  return tt
+  where
+  -- Note that this test does not match on the natural numbers. Those
+  -- numbers might be meta-level variables.
+
+  equal? :
+    (p₁ p₂ : ∃ λ n → Meta-var c n × Meta-var c n) →
+    Maybe (p₁ PE.≡ p₂)
+  equal?
+    {c}
+    (n₁ , var x₁ eq₁₁ , var y₁ eq₂₁) (n₂ , var x₂ eq₁₂ , var y₂ eq₂₂) =
+    (λ x₁≡x₂ y₁≡y₂ →
+       let n₁≡n₂ =
+             n₁                                ≡˘⟨ eq₁₁ ⟩
+             Vec.lookup (c .meta-con-size) x₁  ≡⟨ PE.cong (Vec.lookup (c .meta-con-size)) x₁≡x₂ ⟩
+             Vec.lookup (c .meta-con-size) x₂  ≡⟨ eq₁₂ ⟩
+             n₂                                ∎
+       in
+       case n₁≡n₂ of λ {
+         PE.refl →
+       PE.cong₂ (λ x y → _ , x , y)
+         (var-cong x₁≡x₂) (var-cong y₁≡y₂) }) M.<$>
+    M.dec⇒maybe (x₁ ≟ⱽ x₂) M.⊛ M.dec⇒maybe (y₁ ≟ⱽ y₂)
+
+  are-equal-meta-vars? :
+    (Μ : Meta-con c) (x₁ x₂ : Meta-var c n) →
+    Maybe
+      (x₁ PE.≡ x₂ ⊎
+       (n , x₁ , x₂) ∈ Μ .equalities ⊎
+       (n , x₂ , x₁) ∈ Μ .equalities)
+  are-equal-meta-vars? Μ x₁ x₂ =
+    (inj₁ M.<$> x₁ ≟ᵐᵛ x₂) M.<∣>
+    (inj₂ ∘→ inj₁ M.<$>
+     List.member? equal? (_ , x₁ , x₂) (Μ .equalities)) M.<∣>
+    (inj₂ ∘→ inj₂ M.<$>
+     List.member? equal? (_ , x₂ , x₁) (Μ .equalities))
 
 mutual
 
@@ -798,7 +851,7 @@ mutual
     where
     equal-ne-inf′ : Are-equal-eliminators t₁ t₂ → Check c (Term c n′)
     equal-ne-inf′ (meta-var x₁ σ₁ x₂ σ₂ _) = do
-      Δ₁ , _  ← is-term x₁
+      Δ₁      ← context-of x₁
       Δ₂ , A  ← is-term x₂
       PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
       are-equal-meta-vars x₁ x₂
@@ -893,7 +946,7 @@ mutual
     Fuel → (Γ : Cons c m n) (A₁ A₂ : Term c n) → Check c ⊤
   equal-ty-red n Γ A₁ A₂ with are-equal-type-constructors? A₁ A₂
   … | just (meta-var x₁ σ₁ x₂ σ₂ _) = do
-    Δ₁ ← is-type n (Γ .defs) x₁
+    Δ₁ ← context-of x₁
     Δ₂ ← is-type n (Γ .defs) x₂
     PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
     are-equal-meta-vars x₁ x₂
@@ -930,7 +983,7 @@ mutual
     Check c ⊤
   equal-ty-red-U {c} n Γ A₁ A₂ l with are-equal-type-constructors? A₁ A₂
   … | just (meta-var x₁ σ₁ x₂ σ₂ _) = do
-    Δ₁ , _ ← is-term x₁
+    Δ₁     ← context-of x₁
     Δ₂ , A ← is-term x₂
     A      ← red-ty n (Γ .defs » Δ₂) A
     is-U[ l ] A
@@ -1338,6 +1391,14 @@ opaque
     | nothing =
     refl ⊢u
 
+-- A type used to state is-term-sound and
+-- are-equal-meta-vars-sound-tm.
+
+data Is-term (x : Meta-var c n) (A : Term c n) (γ : Contexts c)
+       (Γ : Cons c m n) : Set a where
+  term : ∀ {t} → γ .metas .bindings x PE.≡ (Γ .vars , term t A) →
+         Is-term x A γ Γ
+
 opaque
 
   -- Soundness for is-term.
@@ -1346,13 +1407,115 @@ opaque
     {x : Meta-var c n} →
     OK (is-term x) (Δ , A) γ →
     Contexts-wf ∇ γ →
+    Is-term x A γ (∇ » Δ) ×
     ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ ⌝ᶜᵛ γ ⊢ ⌜ x ⌝ᵐ γ ∷ ⌜ A ⌝ γ
   is-term-sound {γ} {x} eq ⊢γ
     with inv->>= eq
   … | inv _ ok! eq
-    with γ .metas .bindings x | ⊢γ .metas-wf .bindings-wf x | eq
+    with γ .metas .bindings x in γx≡ | ⊢γ .metas-wf .bindings-wf x | eq
   … | _ , type _   | _  | not-ok
-  … | _ , term _ _ | ⊢t | ok!    = ⊢t
+  … | _ , term _ _ | ⊢t | ok!    = term γx≡ , ⊢t
+
+opaque
+
+  -- Soundness for are-equal-meta-vars for terms.
+
+  are-equal-meta-vars-sound-tm :
+    OK (are-equal-meta-vars x₁ x₂) tt γ →
+    Contexts-wf (Γ .defs) γ →
+    Is-term x₂ A γ Γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ x₂ ⌝ᵐ γ ∷ ⌜ A ⌝ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ x₁ ⌝ᵐ γ ≡ ⌜ x₂ ⌝ᵐ γ ∷ ⌜ A ⌝ γ
+  are-equal-meta-vars-sound-tm eq _ _ _
+    with inv->>= eq
+  … | inv _ ok! eq
+    with inv->>= eq
+  are-equal-meta-vars-sound-tm _ _ _ ⊢x₂
+    | _ | inv (inj₁ PE.refl) _ _ =
+    refl ⊢x₂
+  are-equal-meta-vars-sound-tm {x₁} {x₂} {γ} _ ⊢γ (term _) _
+    | _ | inv (inj₂ (inj₁ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-tm _ _ (term ()) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-tm _ _ (term PE.refl) _
+    | _ | _ | _ | _ | Δ₁≡Δ₂ , term A₁≡A t₁≡t₂ =
+    stabilityEqTerm Δ₁≡Δ₂ (conv t₁≡t₂ A₁≡A)
+  are-equal-meta-vars-sound-tm {x₁} {x₂} {γ} _ ⊢γ (term _) _
+    | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-tm _ _ (term ()) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-tm _ _ (term PE.refl) _
+    | _ | _ | _ | _ | _ , term _ t₁≡t₂ =
+    sym′ t₁≡t₂
+
+-- A type used to state are-equal-meta-vars-sound-ty and
+-- is-type-sound.
+
+data Is-type (x : Meta-var c n) (γ : Contexts c) (Γ : Cons c m n) :
+       Set a where
+  type : ∀ {A} → γ .metas .bindings x PE.≡ (Γ .vars , type A) →
+         Is-type x γ Γ
+  term : ∀ {t l} → γ .metas .bindings x PE.≡ (Γ .vars , term t A) →
+         ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ ≡ U.U l →
+         Is-type x γ Γ
+
+opaque
+
+  -- Soundness for are-equal-meta-vars for types.
+
+  are-equal-meta-vars-sound-ty :
+    OK (are-equal-meta-vars x₁ x₂) tt γ →
+    Contexts-wf (Γ .defs) γ →
+    Is-type x₂ γ Γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ x₂ ⌝ᵐ γ →
+    ⌜ Γ ⌝ᶜ γ ⊢ ⌜ x₁ ⌝ᵐ γ ≡ ⌜ x₂ ⌝ᵐ γ
+  are-equal-meta-vars-sound-ty eq _ _ _
+    with inv->>= eq
+  … | inv _ ok! eq
+    with inv->>= eq
+  are-equal-meta-vars-sound-ty _ _ _ ⊢x₂
+    | _ | inv (inj₁ PE.refl) _ _ =
+    refl ⊢x₂
+  are-equal-meta-vars-sound-ty {x₁} {x₂} {γ} _ ⊢γ (type _) _
+    | _ | inv (inj₂ (inj₁ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-ty _ _ (type PE.refl) _
+    | _ | _ | _ | _ | Δ₁≡Δ₂ , type A₁≡A₂ =
+    stabilityEq Δ₁≡Δ₂ A₁≡A₂
+  are-equal-meta-vars-sound-ty _ _ (type ()) _
+    | _ | _ | _ | _ | _ , term _ _
+  are-equal-meta-vars-sound-ty {x₁} {x₂} {γ} _ ⊢γ (term _ _) _
+    | _ | inv (inj₂ (inj₁ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-ty _ _ (term () _) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-ty _ _ (term PE.refl A₂≡U) _
+    | _ | _ | _ | _ | Δ₁≡Δ₂ , term A₁≡A₂ t₁≡t₂ =
+    univ (conv (stabilityEqTerm Δ₁≡Δ₂ (conv t₁≡t₂ A₁≡A₂)) A₂≡U)
+  are-equal-meta-vars-sound-ty {x₁} {x₂} {γ} _ ⊢γ (type _) _
+    | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-ty _ _ (type PE.refl) _
+    | _ | _ | _ | _ | _ , type A₁≡A₂ =
+    sym A₁≡A₂
+  are-equal-meta-vars-sound-ty _ _ (type ()) _
+    | _ | _ | _ | _ | _ , term _ _
+  are-equal-meta-vars-sound-ty {x₁} {x₂} {γ} _ ⊢γ (term _ _) _
+    | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
+    with γ .metas .bindings x₁ | γ .metas .bindings x₂
+       | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
+  are-equal-meta-vars-sound-ty _ _ (term () _) _
+    | _ | _ | _ | _ | _ , type _
+  are-equal-meta-vars-sound-ty _ _ (term PE.refl A₁≡U) _
+    | _ | _ | _ | _ | _ , term _ t₁≡t₂ =
+    sym (univ (conv t₁≡t₂ A₁≡U))
 
 opaque mutual
 
@@ -1837,18 +2000,20 @@ opaque mutual
     ∀ {x : Meta-var c n} {n} →
     OK (is-type n ∇ x) Δ γ →
     Contexts-wf ∇ γ →
+    Is-type x γ (∇ » Δ) ×
     ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ ⌝ᶜᵛ γ ⊢ ⌜ x ⌝ᵐ γ
   is-type-sound {γ} {x} {n} eq ⊢γ
     with inv->>= eq
   … | inv _ ok! eq
-    with γ .metas .bindings x | ⊢γ .metas-wf .bindings-wf x | eq
-  … | _ , type _   | ⊢A | ok! = ⊢A
+    with γ .metas .bindings x in γx≡ | ⊢γ .metas-wf .bindings-wf x | eq
+  … | _ , type _   | ⊢A | ok! = type γx≡ , ⊢A
   … | _ , term _ _ | ⊢t | eq
     with inv->>= eq
   … | inv _ eq₁ eq
     with inv->>= eq
   … | inv (_ , PE.refl) eq₂ ok! =
-    univ (conv ⊢t (red-ty-sound n eq₁ ⊢γ (wf-⊢∷ ⊢t)))
+    let A≡U = red-ty-sound n eq₁ ⊢γ (wf-⊢∷ ⊢t) in
+    term γx≡ A≡U , univ (conv ⊢t A≡U)
 
   -- Soundness for check-type.
 
@@ -1887,8 +2052,8 @@ opaque mutual
     … | inv σ′ eq₂ ok!
       rewrite ⌜meta-var⌝ {γ = γ} {x = x} σ
             | ⌜meta-var⌝ {γ = γ} {x = x} σ′ =
-      let ⊢x   = is-type-sound eq₁ ⊢γ
-          σ≡σ′ = check-sub-sound′ σ eq₂ ⊢γ ⊢Γ (wf ⊢x)
+      let _ , ⊢x = is-type-sound eq₁ ⊢γ
+          σ≡σ′   = check-sub-sound′ σ eq₂ ⊢γ ⊢Γ (wf ⊢x)
       in
       subst-⊢≡ (refl ⊢x) σ≡σ′
     check-type′-sound (just (U _)) ok! _ ⊢Γ =
@@ -2057,9 +2222,9 @@ opaque mutual
     … | inv _ eq₁ eq
       with inv->>= eq
     … | inv _ eq₂ ok! =
-      let ⊢t   = is-term-sound eq₁ ⊢γ
-          ⊢Δ   = wfTerm ⊢t
-          σ≡σ′ = check-sub-sound′ σ eq₂ ⊢γ ⊢Γ ⊢Δ
+      let _ , ⊢t = is-term-sound eq₁ ⊢γ
+          ⊢Δ     = wfTerm ⊢t
+          σ≡σ′   = check-sub-sound′ σ eq₂ ⊢γ ⊢Γ ⊢Δ
       in
       wf-⊢≡∷ (subst-⊢≡∷ (refl ⊢t) (sym-⊢ˢʷ≡∷ ⊢Δ σ≡σ′)) .proj₂ .proj₂
     infer′-sound {Γ} (var _) eq _ ⊢Γ =
@@ -2627,11 +2792,12 @@ opaque mutual
     with inv->>= eq
   … | inv PE.refl eq₂ eq
     with inv->>= eq
-  … | inv PE.refl _ ok! =
-    let ⊢t    = is-term-sound eq₁ ⊢γ
-        σ₁≡σ₂ = equal-sub′-sound eq₂ ⊢γ ⊢Γ (wfTerm ⊢t)
+  … | inv _ eq₃ ok! =
+    let x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
+        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ ⊢Γ (wfTerm ⊢x₂)
+        x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term ⊢x₂
     in
-    subst-⊢≡∷ (refl ⊢t) σ₁≡σ₂
+    subst-⊢≡∷ x₁≡x₂ σ₁≡σ₂
   equal-ne-inf-sound {Γ} _ _ _ ⊢Γ
     | inv (var _ PE.refl) _ eq =
     refl (var ⊢Γ (index-sound (Γ .vars) eq .proj₁ PE.refl))
@@ -2890,7 +3056,7 @@ opaque mutual
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A₂ ⌝ γ
   equal-ty-red-sound _ A₁ A₂ _ _ _ _
     with are-equal-type-constructors? A₁ A₂
-  equal-ty-red-sound {γ} _ _ _ eq ⊢γ ⊢x₁ _
+  equal-ty-red-sound {γ} _ _ _ eq ⊢γ ⊢x₁[σ₁] _
     | just (meta-var x₁ σ₁ x₂ σ₂ PE.refl)
     rewrite ⌜meta-var⌝ {γ = γ} {x = x₁} σ₁
           | ⌜meta-var⌝ {γ = γ} {x = x₂} σ₂
@@ -2899,13 +3065,14 @@ opaque mutual
     with inv->>= eq
   … | inv _ eq₁ eq
     with inv->>= eq
-  … | inv PE.refl eq₂ eq
-    with inv->>= eq
-  … | inv PE.refl _ ok! =
-    let ⊢x    = is-type-sound eq₁ ⊢γ
-        σ₁≡σ₂ = equal-sub′-sound eq₂ ⊢γ (wf ⊢x₁) (wf ⊢x)
+  … | inv PE.refl eq₂ eq =
+    let inv _ eq₃ _ = inv->>= eq
+        x₂-type , ⊢x₂ = is-type-sound eq₁ ⊢γ
+        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (wf ⊢x₁[σ₁]) (wf ⊢x₂)
+        Δ₁≡Δ₂ , _     = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+        x₁≡x₂         = are-equal-meta-vars-sound-ty eq₃ ⊢γ x₂-type ⊢x₂
     in
-    subst-⊢≡ (refl ⊢x) σ₁≡σ₂
+    subst-⊢≡ x₁≡x₂ σ₁≡σ₂
   equal-ty-red-sound _ _ _ _ _ ⊢A₁ _ | just (U l₁≡l₂ PE.refl) =
     PE.subst (_⊢_≡_ _ _) (PE.cong U.U (l₁≡l₂ _)) $
     refl ⊢A₁
@@ -2955,7 +3122,7 @@ opaque mutual
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A₂ ⌝ γ ∷ ⌜ U l ⌝ γ
   equal-ty-red-U-sound {A₂} A₁ _ _ _ _
     with are-equal-type-constructors? A₁ A₂
-  equal-ty-red-U-sound {γ} _ {n} eq ⊢γ ⊢x₁ _
+  equal-ty-red-U-sound {γ} _ {n} eq ⊢γ ⊢x₁[σ₁] _
     | just (meta-var x₁ σ₁ x₂ σ₂ PE.refl)
     rewrite ⌜meta-var⌝ {γ = γ} {x = x₁} σ₁
           | ⌜meta-var⌝ {γ = γ} {x = x₂} σ₂
@@ -2970,13 +3137,15 @@ opaque mutual
     with inv->>= eq
   … | inv PE.refl eq₃ eq
     with inv->>= eq
-  … | inv PE.refl _ _ =
-    let ⊢x₂   = is-term-sound eq₁ ⊢γ
-        ≡U    = red-ty-sound n eq₂ ⊢γ (wf-⊢∷ ⊢x₂)
-        σ₁≡σ₂ = equal-sub′-sound eq₃ ⊢γ (wfTerm ⊢x₁) (wfTerm ⊢x₂)
+  … | inv _ eq₄ _ =
+    let x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
+        ≡U            = red-ty-sound n eq₂ ⊢γ (wf-⊢∷ ⊢x₂)
+        σ₁≡σ₂         = equal-sub′-sound eq₃ ⊢γ (wfTerm ⊢x₁[σ₁])
+                          (wfTerm ⊢x₂)
+        x₁≡x₂         = are-equal-meta-vars-sound-tm eq₄ ⊢γ x₂-term ⊢x₂
     in
     PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U.U (PE.sym (l≡l′ _))) $
-    subst-⊢≡∷ (conv (refl ⊢x₂) ≡U) σ₁≡σ₂
+    subst-⊢≡∷ (conv x₁≡x₂ ≡U) σ₁≡σ₂
   equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (U l₁≡l₂ PE.refl) =
     PE.subst (flip (_⊢_≡_∷_ _ _) _) (PE.cong U.U (l₁≡l₂ _)) $
     refl ⊢A₁
