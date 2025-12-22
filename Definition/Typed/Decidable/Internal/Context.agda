@@ -15,6 +15,7 @@ module Definition.Typed.Decidable.Internal.Context
 open Type-restrictions TR
 
 open import Definition.Typed TR as T hiding (Trans)
+open import Definition.Typed.Decidable.Internal.Constraint TR
 open import Definition.Typed.Decidable.Internal.Monad TR
 open import Definition.Typed.Decidable.Internal.Term 𝕄
 open import Definition.Typed.Decidable.Internal.Weakening 𝕄
@@ -37,18 +38,21 @@ open _↦_∷_∈_
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.List as List using (All)
 open import Tools.Maybe using (nothing; just)
 open import Tools.Nat as N using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Unit
 import Tools.Vec as V
 
 private variable
   α m n : Nat
   x     : Fin _
   c     : Constants
+  C     : Constraint _
   ∇     : DCon _ _
   γ     : Contexts _
   φ     : Unfolding _
@@ -253,3 +257,35 @@ opaque
   Meta-con-wf-empty :
     c .ms PE.≡ 0 → Meta-con-wf {c} ∇ γ
   Meta-con-wf-empty PE.refl .bindings-wf (var () _)
+
+------------------------------------------------------------------------
+-- Well-formed contexts
+
+-- The contexts are well-formed.
+
+record Contexts-wf (∇ : DCon c n) (γ : Contexts c) : Set a where
+  field
+    -- The meta-variable context is well-formed.
+    metas-wf : Meta-con-wf ∇ γ
+
+    -- The constraints hold.
+    constraints-wf : All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints)
+
+open Contexts-wf public
+
+opaque
+
+  -- An inversion lemma for require.
+
+  inv-require′ :
+    All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints) →
+    OK (require C) tt γ → ⟦ C ⟧ᶜ γ
+  inv-require′ constraints-wf eq =
+    List.lookup constraints-wf (inv-require-∈ eq)
+
+opaque
+
+  -- An inversion lemma for require.
+
+  inv-require : Contexts-wf ∇ γ → OK (require C) tt γ → ⟦ C ⟧ᶜ γ
+  inv-require ⊢γ = inv-require′ (⊢γ .constraints-wf)

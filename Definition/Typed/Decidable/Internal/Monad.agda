@@ -17,12 +17,10 @@ module Definition.Typed.Decidable.Internal.Monad
 open import Definition.Typed.Decidable.Internal.Constraint TR
 open import Definition.Typed.Decidable.Internal.Term 𝕄
 
-open import Tools.Function
 open import Tools.Level
+open import Tools.List
 open import Tools.Maybe using (Maybe; just; nothing)
-open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Relation
 open import Tools.String
 open import Tools.Sum
 open import Tools.Unit
@@ -33,21 +31,20 @@ private variable
   x y z   : A
   f       : A → B
   c       : Constants
-  γ       : Contexts _
   C       : Constraint _
-  Cs      : Constraints _
+  γ       : Contexts _
 
 ------------------------------------------------------------------------
 -- The monad, along with some basic operations
 
--- A monad with failure (including error messages), collection of
--- constraints, and a reader component (a meta-context).
+-- A monad with failure (including error messages), checking of
+-- constraints, and a reader component (contexts).
 
 record Check (c : Constants) (A : Set ℓ) : Set (lsuc a ⊔ ℓ) where
   constructor wrap
   no-eta-equality
   field
-    run : Meta-con c → String ⊎ (A × Constraints c)
+    run : Contexts c → String ⊎ A
 
 open Check public
 
@@ -59,7 +56,7 @@ fail s .run _ = inj₁ s
 -- The meta-context.
 
 ask : Check c (Meta-con c)
-ask .run Μ = inj₂ (Μ , none)
+ask .run γ = inj₂ (γ .metas)
 
 -- | If the first computation fails, try the second one. In that case,
 -- throw away the first computation's error message.
@@ -67,35 +64,32 @@ ask .run Μ = inj₂ (Μ , none)
 infixr 2 _catch_
 
 _catch_ : Check c A → Check c A → Check c A
-(m₁ catch m₂) .run Μ with m₁ .run Μ
-… | inj₁ _     = m₂ .run Μ
+(m₁ catch m₂) .run γ with m₁ .run γ
+… | inj₁ _     = m₂ .run γ
 … | x@(inj₂ _) = x
 
--- Registering a constraint.
---
--- Perhaps this code has a space leak. A constraint like
--- πσ-allowed b p q is small (if b, p and q are small expressions).
--- However, if the constraint contains a pending Agda substitution,
--- then it might still be a large structure in memory.
+-- Checking a constraint.
 
 require : Constraint c → Check c ⊤
-require C .run _ = inj₂ (tt , con C)
+require C .run γ with member C (γ .constraints)
+… | just _  = inj₂ tt
+… | nothing = inj₁ "Failed to verify constraint."
 
 -- The monad's return operation.
 
 return : A → Check c A
-return x .run _ = inj₂ (x , none)
+return x .run _ = inj₂ x
 
 -- The monad's bind operation.
 
 infixl 1 _>>=_
 
 _>>=_ : Check c A → (A → Check c B) → Check c B
-(m >>= f) .run Μ with m .run Μ
+(m >>= f) .run γ with m .run γ
 … | inj₁ s         = inj₁ s
-… | inj₂ (x , Cs₁) with f x .run Μ
-…   | inj₁ s         = inj₁ s
-…   | inj₂ (y , Cs₂) = inj₂ (y , Cs₁ ∪ Cs₂)
+… | inj₂ x with f x .run γ
+…   | inj₁ s = inj₁ s
+…   | inj₂ y = inj₂ y
 
 -- A variant of _>>=_.
 
@@ -134,32 +128,33 @@ infix 4 [_]with-message_
 ------------------------------------------------------------------------
 -- The predicate OK
 
--- OK x y γ means that the computation x succeeded for γ .metas,
--- returned y, and that the returned constraints are satisfiable with
--- respect to γ.
+-- OK x y γ means that the computation x succeeded for γ and returned
+-- y.
 
 data OK {A : Set ℓ} (x : Check c A) (y : A) (γ : Contexts c) :
        Set (lsuc a ⊔ ℓ) where
-  ok : x .run (γ .metas) PE.≡ inj₂ (y , Cs) → ⟦ Cs ⟧′ γ → OK x y γ
+  ok : x .run γ PE.≡ inj₂ y → OK x y γ
 
-pattern not-ok = ok ()      _
-pattern ok!    = ok PE.refl _
+pattern not-ok = ok ()
+pattern ok!    = ok PE.refl
 
 opaque
 
   -- An inversion lemma for require.
 
-  inv-require : OK (require C) tt γ → ⟦ C ⟧₁ γ
-  inv-require (ok PE.refl c) = c
+  inv-require-∈ : OK (require C) tt γ → C ∈ γ .constraints
+  inv-require-∈ {C} {γ} (ok eq) with member C (γ .constraints)
+  inv-require-∈         not-ok | nothing
+  inv-require-∈         ok!    | just C∈ = C∈
 
 opaque
 
   -- An inversion lemma for _catch_.
 
   inv-catch : OK (x catch y) z γ → OK x z γ ⊎ OK y z γ
-  inv-catch {x} {γ} (ok eq      _)  with x .run (γ .metas) in eq
-  inv-catch         (ok PE.refl cs) | inj₂ _ = inj₁ (ok eq cs)
-  inv-catch         (ok eq      cs) | inj₁ _ = inj₂ (ok eq cs)
+  inv-catch {x} {γ} (ok eq     ) with x .run γ in eq
+  inv-catch         (ok PE.refl) | inj₂ _ = inj₁ (ok eq)
+  inv-catch         (ok eq     ) | inj₁ _ = inj₂ (ok eq)
 
 -- A type used to state inv->>=.
 
@@ -177,15 +172,12 @@ opaque
   -- An inversion lemma for _>>=_.
 
   inv->>= : OK (x >>= f) y γ → Inv->>= x f y γ
-  inv->>= {x} {γ} (ok _ _)        with x .run (γ .metas) in eq₁
-  inv->>=         not-ok          | inj₁ _
-  inv->>= {f} {γ} _               | inj₂ (y , _)   with f y .run
-                                                            (γ .metas)
-                                                     in eq₂
-  inv->>=         not-ok          | _              | inj₁ _
-  inv->>=         (ok PE.refl cs) | inj₂ (y , Cs₁) | inj₂ (_ , Cs₂) =
-    let cs₁ , cs₂ = cs in
-    inv y (ok eq₁ cs₁) (ok eq₂ cs₂)
+  inv->>= {x} {γ} (ok _)       with x .run γ in eq₁
+  inv->>=         not-ok       | inj₁ _
+  inv->>= {f} {γ} _            | inj₂ y with f y .run γ in eq₂
+  inv->>=         not-ok       | _      | inj₁ _
+  inv->>=         (ok PE.refl) | inj₂ y | inj₂ _ =
+    inv y (ok eq₁) (ok eq₂)
 
 -- A type used to state inv-<$>.
 

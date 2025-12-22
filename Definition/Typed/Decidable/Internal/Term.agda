@@ -20,6 +20,7 @@ open U.DCon
 
 open import Tools.Bool using (Bool; T)
 open import Tools.Fin
+open import Tools.List using (List)
 open import Tools.Maybe
 open import Tools.Nat as N using (Nat; 1+; 2+)
 open import Tools.Product
@@ -211,6 +212,25 @@ mutual
 pattern var! x = var x PE.refl
 
 ------------------------------------------------------------------------
+-- Constraints
+
+-- Constraints that can be imposed by the type-checker and other
+-- procedures.
+
+data Constraint (c : Constants) : Set a where
+  k-allowed opacity-allowed unfolding-mode-transitive :
+    Constraint c
+  box-cong-allowed unit-allowed unit-with-η :
+    (s : Termˢ (c .ss)) → Constraint c
+  πσ-allowed :
+    (b : Termᵇᵐ (c .ss) (c .bms)) (p q : Termᵍ (c .gs)) → Constraint c
+
+pattern π-allowed p q   = πσ-allowed BMΠ p q
+pattern σ-allowed s p q = πσ-allowed (BMΣ s) p q
+pattern σˢ-allowed p q  = σ-allowed 𝕤 p q
+pattern σʷ-allowed p q  = σ-allowed 𝕨 p q
+
+------------------------------------------------------------------------
 -- Contexts
 
 -- Definition contexts.
@@ -284,7 +304,8 @@ emptyᶜᵐ :
 emptyᶜᵐ .bindings (var () _)
 
 -- A grade context, a universe level context, a strength context, a
--- binder mode context, a meta-variable context, and a base context.
+-- binder mode context, a list of constraints, a meta-variable
+-- context, and a base context.
 
 record Contexts (c : Constants) : Set a where
   no-eta-equality
@@ -293,6 +314,7 @@ record Contexts (c : Constants) : Set a where
     levels       : Vec Universe-level (c .ls)
     strengths    : Vec Strength (c .ss)
     binder-modes : Vec BinderMode (c .bms)
+    constraints  : List (Constraint c)
     metas        : Meta-con c
     ⌜base⌝       : U.Cons (c .base-dcon-size) (c .base-con-size)
 
@@ -321,6 +343,7 @@ empty-Contexts _ .grades       = Vec.[]
 empty-Contexts _ .levels       = Vec.[]
 empty-Contexts _ .strengths    = Vec.[]
 empty-Contexts _ .binder-modes = Vec.[]
+empty-Contexts _ .constraints  = List.[]
 empty-Contexts _ .metas        = emptyᶜᵐ
 empty-Contexts _ .⌜base⌝       = ε » ε
 

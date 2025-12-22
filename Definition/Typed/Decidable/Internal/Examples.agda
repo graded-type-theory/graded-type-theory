@@ -35,6 +35,7 @@ open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
 import Tools.Level as L
+import Tools.List as L
 open import Tools.Maybe
 open import Tools.Nat
 open import Tools.Product
@@ -64,7 +65,12 @@ opaque
       Π ω , ω ▷ Unit 𝕤 0 ▹ ℕ
   let-α≡zero-in-λλ0∘zero≡λα ok₁ ok₂ =
     check-and-equal-cons-type-and-terms-sound
-      (I.empty-Contexts false)
+      (record (I.empty-Contexts false)
+         { constraints =
+             I.π-allowed I.ω I.ω L.∷
+             I.unit-allowed I.𝕤  L.∷
+             L.[]
+         })
       (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ] I.» I.ε)
       (I.lam I.ω nothing $
        I.lam I.ω (just (I.ω , I.ℕ)) (I.var x0) I.∘⟨ I.ω ⟩ I.zero)
@@ -72,8 +78,10 @@ opaque
       (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
       10
       PE.refl
-      (ok₂ , ok₁)
-      (C.Meta-con-wf-empty PE.refl)
+      (record
+         { metas-wf       = C.Meta-con-wf-empty PE.refl
+         ; constraints-wf = ok₁ L.∷ ok₂ L.∷ L.[]
+         })
       ε
       (λ ())
 
@@ -109,6 +117,10 @@ opaque
          ; binder-modes = V.ε
          ; metas        = I.emptyᶜᵐ
          ; ⌜base⌝       = ε » Δ
+         ; constraints  =
+             I.π-allowed I.ω I.ω L.∷
+             I.unit-allowed I.𝕤  L.∷
+             L.[]
          })
       (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ]
            I.∙⟨ tra ⟩[ I.lam I.ω nothing (I.var x0) ∷
@@ -119,17 +131,23 @@ opaque
       (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 I.zero ▹ I.ℕ)
       10
       PE.refl
-      (ok₂ , ok₁)
-      (C.Meta-con-wf-empty PE.refl)
+      (record
+         { metas-wf       = C.Meta-con-wf-empty PE.refl
+         ; constraints-wf = ok₁ L.∷ ok₂ L.∷ L.[]
+         })
       (flip defn-wk′ ⊢Δ $ »⊇ε $
        check-dcon-sound
-         (I.empty-Contexts false)
+         (record (I.empty-Contexts false)
+            { constraints =
+                I.π-allowed I.ω I.ω L.∷
+                L.[]
+            })
          (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ]
               I.∙⟨ tra ⟩[ I.lam I.ω nothing (I.var x0) ∷
                           I.Π I.ω , I.ω ▷ I.ℕ ▹ I.ℕ ])
          6
          PE.refl
-         ok₁
+         (ok₁ L.∷ L.[])
          ε)
 
 opaque
@@ -153,16 +171,18 @@ opaque
       (I.subst (I.varᵐ x1) (S.sgSubst (I.varᵐ x3)))
       9
       PE.refl
-      _
       (record
-         { bindings-wf = λ where
-             (I.var! x0)       → ⊢A
-             (I.var! x1)       → ⊢B
-             (I.var! x2)       → ⊢t
-             (I.var! x3)       → ⊢u
-             (I.var! x4)       → ⊢v
-             (I.var! x5)       → ⊢w
-             (I.var  not-x6 _)
+         { constraints-wf = L.[]
+         ; metas-wf       = record
+             { bindings-wf = λ where
+                 (I.var! x0)       → ⊢A
+                 (I.var! x1)       → ⊢B
+                 (I.var! x2)       → ⊢t
+                 (I.var! x3)       → ⊢u
+                 (I.var! x4)       → ⊢v
+                 (I.var! x5)       → ⊢w
+                 (I.var  not-x6 _)
+             }
          })
       (wfTerm ⊢v)
       where
@@ -184,6 +204,7 @@ opaque
       γ′ .I.strengths         = V.ε
       γ′ .I.binder-modes      = V.ε
       γ′ .I.⌜base⌝            = Γ
+      γ′ .I.constraints       = L.[]
       γ′ .I.metas .I.bindings = λ where
         (I.var! x0) → I.base , I.type A
         (I.var! x1) → I.base I.∙ I.varᵐ x0 , I.type B
@@ -224,16 +245,18 @@ opaque
          (I.subst (I.varᵐ x4) (S.sgSubst (I.varᵐ x2))))
       10
       PE.refl
-      _
       (record
-         { bindings-wf = λ where
-             (I.var! x0)       → ⊢A
-             (I.var! x1)       → ⊢t
-             (I.var! x2)       → ⊢u
-             (I.var! x3)       → ⊢B
-             (I.var! x4)       → ⊢v
-             (I.var! x5)       → ⊢w
-             (I.var  not-x6 _)
+         { constraints-wf = L.[]
+         ; metas-wf       = record
+             { bindings-wf = λ where
+                 (I.var! x0)       → ⊢A
+                 (I.var! x1)       → ⊢t
+                 (I.var! x2)       → ⊢u
+                 (I.var! x3)       → ⊢B
+                 (I.var! x4)       → ⊢v
+                 (I.var! x5)       → ⊢w
+                 (I.var  not-x6 _)
+             }
          })
       (wfTerm ⊢w)
       where
@@ -255,6 +278,7 @@ opaque
       γ′ .I.strengths         = V.ε
       γ′ .I.binder-modes      = V.ε
       γ′ .I.⌜base⌝            = Γ
+      γ′ .I.constraints       = L.[]
       γ′ .I.metas .I.bindings = λ where
         (I.var! x0) → I.base , I.type A
         (I.var! x1) → I.base , I.term t (I.varᵐ x0)

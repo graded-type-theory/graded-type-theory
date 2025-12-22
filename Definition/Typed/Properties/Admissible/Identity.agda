@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Decidable.Internal R
+import Definition.Typed.Decidable.Internal.Context R as IC
 import Definition.Typed.Decidable.Internal.Term 𝕄 as I
 import Definition.Typed.Decidable.Internal.Substitution 𝕄 as IS
 import Definition.Typed.Decidable.Internal.Weakening 𝕄 as IW
@@ -30,6 +31,7 @@ open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level
+import Tools.List as L
 open import Tools.Maybe
 open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Product
@@ -148,18 +150,18 @@ opaque
          (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₂ ▹ xB₂))
       25
       PE.refl
-      (ok₃ , ok₁ , ok₂)
-      (record
-         { bindings-wf = λ where
-             (I.var! x0)       → ⊢A₁
-             (I.var! x1)       → ⊢B₁
-             (I.var! x2)       → ⊢A₂
-             (I.var! x3)       → ⊢B₂
-             (I.var! x4)       → ⊢t
-             (I.var! x5)       → ⊢u
-             (I.var! x6)       → ⊢funext
-             (I.var  not-x7 _)
-         })
+      (λ where
+         .IC.constraints-wf →
+           ok₁ L.∷ ok₂ L.∷ ok₃ L.∷ L.[]
+         .IC.metas-wf .IC.bindings-wf → λ where
+           (I.var! x0)       → ⊢A₁
+           (I.var! x1)       → ⊢B₁
+           (I.var! x2)       → ⊢A₂
+           (I.var! x3)       → ⊢B₂
+           (I.var! x4)       → ⊢t
+           (I.var! x5)       → ⊢u
+           (I.var! x6)       → ⊢funext
+           (I.var  not-x7 _))
       (wfTerm ⊢A₁)
       where
       c′ : I.Constants
@@ -201,12 +203,16 @@ opaque
       xu  = I.varᵐ x5
 
       γ′ : I.Contexts c′
-      γ′ .I.grades            = p V.∷ p′ V.∷ p″ V.∷ q V.∷ q′ V.∷ q″ V.∷
-                                V.ε
-      γ′ .I.levels            = l₁ V.∷ l₂ V.∷ V.ε
-      γ′ .I.strengths         = V.ε
-      γ′ .I.binder-modes      = b V.∷ V.ε
-      γ′ .I.⌜base⌝            = Γ
+      γ′ .I.grades       = p V.∷ p′ V.∷ p″ V.∷ q V.∷ q′ V.∷ q″ V.∷ V.ε
+      γ′ .I.levels       = l₁ V.∷ l₂ V.∷ V.ε
+      γ′ .I.strengths    = V.ε
+      γ′ .I.binder-modes = b V.∷ V.ε
+      γ′ .I.⌜base⌝       = Γ
+      γ′ .I.constraints  =
+        I.πσ-allowed xb xp xq L.∷
+        I.π-allowed xp′ xq′   L.∷
+        I.π-allowed xp″ xq″   L.∷
+        L.[]
       γ′ .I.metas .I.bindings = λ where
         (I.var! x0) → I.base , I.term A₁ (I.U xl₁)
         (I.var! x1) → I.base I.∙ xA₁ , I.term B₁ (I.U xl₂)
@@ -321,20 +327,20 @@ opaque
       (I.Id (I.U xl) (I.Id xA₁ xt₁ xu₁) (I.Id xA₂ xt₂ xu₂))
       29
       PE.refl
-      ok
-      (record
-         { bindings-wf = λ where
-             (I.var! x0)       → ⊢A₁
-             (I.var! x1)       → ⊢A₂
-             (I.var! x2)       → ⊢t
-             (I.var! x3)       → ⊢t₁
-             (I.var! x4)       → ⊢t₂
-             (I.var! x5)       → ⊢u
-             (I.var! x6)       → ⊢u₁
-             (I.var! x7)       → ⊢u₂
-             (I.var! x8)       → ⊢v
-             (I.var  not-x9 _)
-         })
+      (λ where
+         .IC.constraints-wf →
+           ok L.∷ L.[]
+         .IC.metas-wf .IC.bindings-wf → λ where
+           (I.var! x0)       → ⊢A₁
+           (I.var! x1)       → ⊢A₂
+           (I.var! x2)       → ⊢t
+           (I.var! x3)       → ⊢t₁
+           (I.var! x4)       → ⊢t₂
+           (I.var! x5)       → ⊢u
+           (I.var! x6)       → ⊢u₁
+           (I.var! x7)       → ⊢u₂
+           (I.var! x8)       → ⊢v
+           (I.var  not-x9 _))
       (wfTerm ⊢A₁)
       where
       c′ : I.Constants
@@ -372,6 +378,7 @@ opaque
       γ′ .I.strengths         = V.ε
       γ′ .I.binder-modes      = V.ε
       γ′ .I.⌜base⌝            = Γ
+      γ′ .I.constraints       = I.π-allowed xp xq L.∷ L.[]
       γ′ .I.metas .I.bindings = λ where
         (I.var! x0) → I.base , I.term A₁ (I.U xl)
         (I.var! x1) → I.base , I.term A₂ (I.U xl)
