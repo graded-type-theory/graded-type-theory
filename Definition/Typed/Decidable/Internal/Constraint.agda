@@ -59,11 +59,3 @@ unit-with-η s₁ ≟ᶜ unit-with-η s₂ =
   cong₃ πσ-allowed <$> b₁ ≟ᵇᵐ b₂ ⊛ p₁ ≟ᵍ p₂ ⊛ q₁ ≟ᵍ q₂
 _ ≟ᶜ _ =
   nothing
-
--- A list membership test for constraints.
-
-member : (C : Constraint c) (Cs : List (Constraint c)) → Maybe (C ∈ Cs)
-member _  []        = nothing
-member C₁ (C₂ ∷ Cs) with C₁ ≟ᶜ C₂
-… | just eq = just (here eq)
-… | nothing = there <$> member C₁ Cs

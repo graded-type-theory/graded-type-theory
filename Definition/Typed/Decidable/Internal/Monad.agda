@@ -71,7 +71,7 @@ _catch_ : Check c A → Check c A → Check c A
 -- Checking a constraint.
 
 require : Constraint c → Check c ⊤
-require C .run γ with member C (γ .constraints)
+require C .run γ with member? _≟ᶜ_ C (γ .constraints)
 … | just _  = inj₂ tt
 … | nothing = inj₁ "Failed to verify constraint."
 
@@ -143,7 +143,7 @@ opaque
   -- An inversion lemma for require.
 
   inv-require-∈ : OK (require C) tt γ → C ∈ γ .constraints
-  inv-require-∈ {C} {γ} (ok eq) with member C (γ .constraints)
+  inv-require-∈ {C} {γ} (ok eq) with member? _≟ᶜ_ C (γ .constraints)
   inv-require-∈         not-ok | nothing
   inv-require-∈         ok!    | just C∈ = C∈
 
