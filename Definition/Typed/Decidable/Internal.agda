@@ -67,7 +67,7 @@ open _or-empty_
 open import Tools.Fin
 open import Tools.Function hiding (ext)
 import Tools.Level as L
-open import Tools.List as List using (All; _∈_)
+open import Tools.List as List using (All; _∈_; [])
 open import Tools.Maybe as M using (Maybe; nothing; just)
 open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Product as Σ
@@ -82,6 +82,7 @@ private variable
   m n n₁ n₂ n₃                              : Nat
   c                                         : Constants
   γ                                         : Contexts _
+  st                                        : Stack-trace _
   ∇                                         : DCon _ _
   Δ Δ′ Δ₁ Δ₂ Η₁ Η₂                          : Con _ _
   Γ Γ′                                      : Cons _ _ _
@@ -170,7 +171,7 @@ remove-weaken-subst (1+ n) t =
 context-of : Meta-var c n → Check c (Con c n)
 context-of x = do
   Μ ← ask
-  return (Μ .bindings x .proj₁)
+  return (Μ .metas .bindings x .proj₁)
 
 -- Checks that the meta-variable refers to a term. In that case the
 -- term's variable context and type are returned.
@@ -178,7 +179,7 @@ context-of x = do
 is-term : Meta-var c n → Check c (Con c n × Term c n)
 is-term x = do
   Μ ← ask
-  case Μ .bindings x of λ where
+  case Μ .metas .bindings x of λ where
     (_ , type _) →
       fail "Expected a term."
     (Δ , term _ A) → do
@@ -189,7 +190,7 @@ is-term x = do
 are-equal-meta-vars : (_ _ : Meta-var c n) → Check c ⊤
 are-equal-meta-vars x₁ x₂ = do
   Μ ← ask
-  [ are-equal-meta-vars? Μ x₁ x₂ ]with-message
+  [ are-equal-meta-vars? (Μ .metas) x₁ x₂ ]with-message
     "Expected equal meta-variables."
   return tt
   where
@@ -252,7 +253,7 @@ mutual
     Fuel → DCon c m → Meta-var c n → Check c (Con c n)
   is-type n ∇ x = do
     Μ ← ask
-    case Μ .bindings x of λ where
+    case Μ .metas .bindings x of λ where
       (Δ , type _) →
         return Δ
       (Δ , term _ A) → do
@@ -264,7 +265,7 @@ mutual
 
   red-ty : Fuel → Cons c m n → Term c n → Check c (Term c n)
   red-ty 0      _ _ = fail "No fuel left."
-  red-ty (1+ n) Γ A = do
+  red-ty (1+ n) Γ A = register ([red-ty] Γ A) do
     A ← remove-weaken-subst n A
     case is-type-constructor? A of λ where
       (just _) → return A
@@ -283,7 +284,8 @@ mutual
 
   red-tm : Fuel → Cons c m n → (t A : Term c n) → Check c (Term c n)
   red-tm 0      _ _ _ = fail "No fuel left."
-  red-tm (1+ n) Γ t A = red-tm′ n Γ t A
+  red-tm (1+ n) Γ t A = register ([red-tm] Γ t A) do
+    red-tm′ n Γ t A
 
   private
 
@@ -426,7 +428,7 @@ mutual
   check-type : Fuel → Cons c m n → Term c n → Check c (Term c n)
   check-type 0 _ _ =
     fail "No fuel left."
-  check-type (1+ n) Γ A = do
+  check-type (1+ n) Γ A = register ([check-type] Γ A) do
     A ← remove-weaken-subst n A
     check-type′ n Γ (is-type-constructor? A)
 
@@ -474,7 +476,7 @@ mutual
   check : Fuel → Cons c m n → Term c n → Term c n → Check c (Term c n)
   check 0 _ _ _ =
     fail "No fuel left."
-  check (1+ n) Γ t A = do
+  check (1+ n) Γ t A = register ([check] Γ t A) do
     t ← remove-weaken-subst n t
     case checkable? t of λ where
       nothing → do
@@ -522,7 +524,7 @@ mutual
   infer : Fuel → Cons c m n → Term c n → Check c (Term c n)
   infer 0 _ _ =
     fail "No fuel left."
-  infer (1+ n) Γ t = do
+  infer (1+ n) Γ t = register ([infer] Γ t) do
     t   ← remove-weaken-subst n t
     inf ← inferable t
     infer′ n Γ inf
@@ -716,7 +718,7 @@ mutual
   equal-tm : Fuel → Cons c m n → (t₁ t₂ A : Term c n) → Check c ⊤
   equal-tm 0 _ _ _ _ =
     fail "No fuel left."
-  equal-tm (1+ n) Γ t₁ t₂ A = do
+  equal-tm (1+ n) Γ t₁ t₂ A = register ([equal-tm] Γ t₁ t₂ A) do
     t₁ ← red-tm n Γ t₁ A
     t₂ ← red-tm n Γ t₂ A
     A  ← red-ty n Γ A
@@ -817,7 +819,7 @@ mutual
   --   equal-ne-inf-sound :
   --     ⦃ ok : No-equality-reflection ⦄ →
   --     ∀ {B₁ B₂} n →
-  --     OK (equal-ne-inf n Γ t₁ t₂) A γ →
+  --     OK (equal-ne-inf n Γ t₁ t₂) A γ st →
   --     Contexts-wf (Γ .defs) γ →
   --     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ∷ B₁ →
   --     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₂ ⌝ γ ∷ B₂ →
@@ -847,9 +849,10 @@ mutual
   equal-ne-inf :
     Fuel → (Γ : Cons c m n) (t₁ t₂ : Term c n) → Check c (Term c n)
   equal-ne-inf              0      _ _  _  = fail "No fuel left."
-  equal-ne-inf {c} {n = n′} (1+ n) Γ t₁ t₂ = do
-    eq ← are-equal-eliminators t₁ t₂
-    equal-ne-inf′ eq
+  equal-ne-inf {c} {n = n′} (1+ n) Γ t₁ t₂ =
+    register ([equal-ne-inf] Γ t₁ t₂) do
+      eq ← are-equal-eliminators t₁ t₂
+      equal-ne-inf′ eq
     where
     equal-ne-inf′ : Are-equal-eliminators t₁ t₂ → Check c (Term c n′)
     equal-ne-inf′ (meta-var x₁ σ₁ x₂ σ₂ _) = do
@@ -937,7 +940,7 @@ mutual
   equal-ty : Fuel → (Γ : Cons c m n) (A₁ A₂ : Term c n) → Check c ⊤
   equal-ty 0 _ _ _ =
     fail "No fuel left."
-  equal-ty (1+ n) Γ A₁ A₂ = do
+  equal-ty (1+ n) Γ A₁ A₂ = register ([equal-ty] Γ A₁ A₂) do
     A₁ ← red-ty n Γ A₁
     A₂ ← red-ty n Γ A₂
     equal-ty-red n Γ A₁ A₂
@@ -1244,7 +1247,7 @@ opaque
         A = ℕ
     in
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ ×
-    OK (red-tm n Γ t A) u γ ×
+    OK (red-tm n Γ t A) u γ st ×
     ¬ Whnf (⌜ Γ ⌝ᶜ γ .defs) (⌜ u ⌝ γ)
   successful-reduction-without-WHNF okᵉ =
     let ⊢Γ = ∙ Emptyⱼ εε in
@@ -1277,7 +1280,7 @@ opaque
         A = ℕ
     in
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ ×
-    OK (red-tm n Γ t A) u γ ×
+    OK (red-tm n Γ t A) u γ st ×
     ¬ Whnf (⌜ Γ ⌝ᶜ γ .defs) (⌜ u ⌝ γ) ×
     ¬ ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ⇒* ⌜ u ⌝ γ ∷ ⌜ A ⌝ γ
   successful-reduction-without-reduction-sequence okᵘ η =
@@ -1306,7 +1309,7 @@ private opaque
 
   equal-sub″-sound :
     ∀ {k} {Δ : Con c (k N.+ c .base-con-size)} (∇ : DCon c m) →
-    OK (equal-sub″ k Δ) tt γ →
+    OK (equal-sub″ k Δ) tt γ st →
     ⊢ ⌜ ∇ » Δ ⌝ᶜ γ →
     ⌜ ∇ » Δ ⌝ᶜ γ ⊢ˢʷ ⌜ wkSubst k id ⌝ˢ γ ∷ γ .⌜base⌝ .vars
   equal-sub″-sound {k = 0} _ eq ⊢base
@@ -1325,7 +1328,7 @@ opaque
 
   remove-weaken-subst-sound-⊢ :
     ∀ {Γ : U.Cons m n} n →
-    OK (remove-weaken-subst n A) B γ →
+    OK (remove-weaken-subst n A) B γ st →
     Γ ⊢ ⌜ A ⌝ γ ⊎ Γ ⊢ ⌜ B ⌝ γ →
     Γ ⊢ ⌜ A ⌝ γ ≡ ⌜ B ⌝ γ
   remove-weaken-subst-sound-⊢     0      not-ok
@@ -1362,7 +1365,7 @@ opaque
 
   remove-weaken-subst-sound-⊢∷ :
     ∀ {Γ : U.Cons m n} {A} n →
-    OK (remove-weaken-subst n t) u γ →
+    OK (remove-weaken-subst n t) u γ st →
     Γ ⊢ ⌜ t ⌝ γ ∷ A ⊎ Γ ⊢ ⌜ u ⌝ γ ∷ A →
     Γ ⊢ ⌜ t ⌝ γ ≡ ⌜ u ⌝ γ ∷ A
   remove-weaken-subst-sound-⊢∷     0      not-ok
@@ -1407,7 +1410,7 @@ opaque
 
   is-term-sound :
     {x : Meta-var c n} →
-    OK (is-term x) (Δ , A) γ →
+    OK (is-term x) (Δ , A) γ st →
     Contexts-wf ∇ γ →
     Is-term x A γ (∇ » Δ) ×
     ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ ⌝ᶜᵛ γ ⊢ ⌜ x ⌝ᵐ γ ∷ ⌜ A ⌝ γ
@@ -1423,7 +1426,7 @@ opaque
   -- Soundness for are-equal-meta-vars for terms.
 
   are-equal-meta-vars-sound-tm :
-    OK (are-equal-meta-vars x₁ x₂) tt γ →
+    OK (are-equal-meta-vars x₁ x₂) tt γ st →
     Contexts-wf (Γ .defs) γ →
     Is-term x₂ A γ Γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ x₂ ⌝ᵐ γ ∷ ⌜ A ⌝ γ →
@@ -1470,7 +1473,7 @@ opaque
   -- Soundness for are-equal-meta-vars for types.
 
   are-equal-meta-vars-sound-ty :
-    OK (are-equal-meta-vars x₁ x₂) tt γ →
+    OK (are-equal-meta-vars x₁ x₂) tt γ st →
     Contexts-wf (Γ .defs) γ →
     Is-type x₂ γ Γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ x₂ ⌝ᵐ γ →
@@ -1524,13 +1527,13 @@ opaque mutual
   -- Soundness for red-ty.
 
   red-ty-sound :
-    ∀ n → OK (red-ty n Γ A) B γ →
+    ∀ n → OK (red-ty n Γ A) B γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ ≡ ⌜ B ⌝ γ
   red-ty-sound             0      not-ok
   red-ty-sound {A} {B} {γ} (1+ n) eq     ⊢γ ⊢A
-    with inv->>= eq
+    with inv->>= (inv-register eq)
   … | inv A′ eq₁ eq
     with is-type-constructor? A′ | eq
   … | just _ | ok! =
@@ -1555,19 +1558,20 @@ opaque mutual
   -- successful-reduction-without-reduction-sequence.
 
   red-tm-sound :
-    ∀ n → OK (red-tm n Γ t A) u γ →
+    ∀ n → OK (red-tm n Γ t A) u γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ≡ ⌜ u ⌝ γ ∷ ⌜ A ⌝ γ
   red-tm-sound     0      not-ok
-  red-tm-sound {t} (1+ n) eq     = red-tm′-sound n t eq
+  red-tm-sound {t} (1+ n) eq     =
+    red-tm′-sound n t (inv-register eq)
 
   private
 
     -- Soundness for red-tm′
 
     red-tm′-sound :
-      ∀ n t → OK (red-tm′ n Γ t A) u γ →
+      ∀ n t → OK (red-tm′ n Γ t A) u γ st →
       Contexts-wf (Γ .defs) γ →
       ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ →
       ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ≡ ⌜ u ⌝ γ ∷ ⌜ A ⌝ γ
@@ -2000,7 +2004,7 @@ opaque mutual
 
   is-type-sound :
     ∀ {x : Meta-var c n} {n} →
-    OK (is-type n ∇ x) Δ γ →
+    OK (is-type n ∇ x) Δ γ st →
     Contexts-wf ∇ γ →
     Is-type x γ (∇ » Δ) ×
     ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ ⌝ᶜᵛ γ ⊢ ⌜ x ⌝ᵐ γ
@@ -2021,13 +2025,13 @@ opaque mutual
 
   check-type-sound′ :
     ∀ n →
-    OK (check-type n Γ A) A′ γ →
+    OK (check-type n Γ A) A′ γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ ≡ ⌜ A′ ⌝ γ
   check-type-sound′              0      not-ok
   check-type-sound′ {A} {A′} {γ} (1+ n) eq     ⊢γ ⊢Γ =
-    let inv A″ eq₁ eq₂ = inv->>= eq
+    let inv A″ eq₁ eq₂ = inv->>= (inv-register eq)
         A″≡A′          = check-type′-sound (is-type-constructor? A″) eq₂
                            ⊢γ ⊢Γ
         ⊢A″ , _        = wf-⊢≡ A″≡A′
@@ -2044,7 +2048,7 @@ opaque mutual
 
     check-type′-sound :
       (A-c : Maybe (Is-type-constructor A)) →
-      OK (check-type′ n Γ A-c) A′ γ →
+      OK (check-type′ n Γ A-c) A′ γ st →
       Contexts-wf (Γ .defs) γ →
       ⊢ ⌜ Γ ⌝ᶜ γ →
       ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ ≡ ⌜ A′ ⌝ γ
@@ -2106,13 +2110,13 @@ opaque mutual
 
   check-sound′ :
     ∀ n →
-    OK (check n Γ t A) t′ γ →
+    OK (check n Γ t A) t′ γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ≡ ⌜ t′ ⌝ γ ∷ ⌜ A ⌝ γ
   check-sound′ 0      not-ok
   check-sound′ (1+ n) eq     _ ⊢A
-    with inv->>= eq
+    with inv->>= (inv-register eq)
   … | inv t″ eq₁ eq
     using t≡t″ ← remove-weaken-subst-sound-⊢∷ n eq₁
     with checkable? t″
@@ -2144,7 +2148,7 @@ opaque mutual
 
     check′-sound :
       (t-c : Checkable t) →
-      OK (check′ n Γ t-c A) t′ γ →
+      OK (check′ n Γ t-c A) t′ γ st →
       Contexts-wf (Γ .defs) γ →
       ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
       ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ≡ ⌜ t′ ⌝ γ ∷ ⌜ A ⌝ γ
@@ -2180,7 +2184,7 @@ opaque mutual
 
   infer-red-sound :
     ∀ n →
-    OK (infer-red n Γ t) A γ →
+    OK (infer-red n Γ t) A γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ
@@ -2194,13 +2198,13 @@ opaque mutual
 
   infer-sound :
     ∀ n →
-    OK (infer n Γ t) A γ →
+    OK (infer n Γ t) A γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ
   infer-sound 0      not-ok
   infer-sound (1+ n) eq     ⊢γ ⊢Γ =
-    let inv _ eq₁ eq = inv->>= eq
+    let inv _ eq₁ eq = inv->>= (inv-register eq)
         inv t-i _ eq = inv->>= eq
         t≡t′         = remove-weaken-subst-sound-⊢∷ n eq₁ $
                        inj₂ (infer′-sound t-i eq ⊢γ ⊢Γ)
@@ -2214,7 +2218,7 @@ opaque mutual
 
     infer′-sound :
       (t-i : Inferable t) →
-      OK (infer′ n Γ t-i) A γ →
+      OK (infer′ n Γ t-i) A γ st →
       Contexts-wf (Γ .defs) γ →
       ⊢ ⌜ Γ ⌝ᶜ γ →
       ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ
@@ -2499,7 +2503,7 @@ opaque mutual
 
   infer-U-sound :
     ∀ {Γ : Cons c m n} n →
-    OK (infer-U n Γ t) l γ →
+    OK (infer-U n Γ t) l γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ U l ⌝ γ
@@ -2513,7 +2517,7 @@ opaque mutual
   -- Soundness for equal-con.
 
   equal-con-sound′ :
-    OK (equal-con n Γ Δ) tt γ →
+    OK (equal-con n Γ Δ) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ .defs »⊢ ⌜ Δ ⌝ᶜᵛ γ →
@@ -2528,7 +2532,7 @@ opaque mutual
 
     equal-con′-sound :
       (Δ₁∼Δ₂ : Equal-con-constructors⁼ Δ₁ Δ₂) →
-      OK (equal-con′ n ∇ Δ₁∼Δ₂) tt γ →
+      OK (equal-con′ n ∇ Δ₁∼Δ₂) tt γ st →
       Contexts-wf ∇ γ →
       ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₁ ⌝ᶜᵛ γ →
       ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₂ ⌝ᶜᵛ γ →
@@ -2548,7 +2552,7 @@ opaque mutual
 
   check-sub-sound′ :
     ∀ σ →
-    OK (check-sub n ∇ Δ₂ σ Δ₁) σ′ γ →
+    OK (check-sub n ∇ Δ₂ σ Δ₁) σ′ γ st →
     Contexts-wf ∇ γ →
     ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₂ ⌝ᶜᵛ γ →
     ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₁ ⌝ᶜᵛ γ →
@@ -2602,7 +2606,7 @@ opaque mutual
 
   equal-tm-sound′ :
     ∀ n →
-    OK (equal-tm n Γ t₁ t₂ A) tt γ →
+    OK (equal-tm n Γ t₁ t₂ A) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ∷ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ →
@@ -2611,7 +2615,7 @@ opaque mutual
   equal-tm-sound′ {t₁} {t₂} {A} {γ} (1+ n) eq     ⊢γ ⊢t₁ ⊢t₂ =
     let open TmR
 
-        inv t₁′ eq₁ eq  = inv->>= eq
+        inv t₁′ eq₁ eq  = inv->>= (inv-register eq)
         inv t₂′ eq₂ eq  = inv->>= eq
         inv A′  eq₃ eq₄ = inv->>= eq
 
@@ -2631,7 +2635,7 @@ opaque mutual
 
   equal-tm-red-sound :
     ∀ n A →
-    OK (equal-tm-red n Γ t₁ t₂ A) tt γ →
+    OK (equal-tm-red n Γ t₁ t₂ A) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ∷ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ →
@@ -2733,7 +2737,7 @@ opaque mutual
 
   equal-ne-sound :
     ∀ n →
-    OK (equal-ne n Γ t₁ t₂ A) tt γ →
+    OK (equal-ne n Γ t₁ t₂ A) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
@@ -2748,7 +2752,7 @@ opaque mutual
 
   equal-ne-red-sound :
     ∀ n →
-    OK (equal-ne-red n Γ t₁ t₂ A) tt γ →
+    OK (equal-ne-red n Γ t₁ t₂ A) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
@@ -2763,7 +2767,7 @@ opaque mutual
 
   equal-ne-inf-red-sound :
     ∀ n →
-    OK (equal-ne-inf-red n Γ t₁ t₂) A γ →
+    OK (equal-ne-inf-red n Γ t₁ t₂) A γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
@@ -2778,13 +2782,13 @@ opaque mutual
 
   equal-ne-inf-sound :
     ∀ n →
-    OK (equal-ne-inf n Γ t₁ t₂) A γ →
+    OK (equal-ne-inf n Γ t₁ t₂) A γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
   equal-ne-inf-sound 0      not-ok
   equal-ne-inf-sound (1+ _) eq     _ _
-    with inv->>= eq
+    with inv->>= (inv-register eq)
   equal-ne-inf-sound {γ} _ _ ⊢γ ⊢Γ
     | inv (meta-var x₁ σ₁ x₂ σ₂ PE.refl) _ eq
     rewrite ⌜meta-var⌝ {γ = γ} {x = x₁} σ₁
@@ -3027,7 +3031,7 @@ opaque mutual
 
   equal-ty-sound′ :
     ∀ n →
-    OK (equal-ty n Γ A₁ A₂) tt γ →
+    OK (equal-ty n Γ A₁ A₂) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₂ ⌝ γ →
@@ -3036,7 +3040,7 @@ opaque mutual
   equal-ty-sound′ {A₁} {A₂} {γ} (1+ n) eq     ⊢γ ⊢A₁ ⊢A₂ =
     let open TyR
 
-        inv A₁′ eq₁ eq  = inv->>= eq
+        inv A₁′ eq₁ eq  = inv->>= (inv-register eq)
         inv A₂′ eq₂ eq₃ = inv->>= eq
 
         A₁≡A₁′ = red-ty-sound n eq₁ ⊢γ ⊢A₁
@@ -3052,7 +3056,7 @@ opaque mutual
 
   equal-ty-red-sound :
     ∀ n A₁ A₂ →
-    OK (equal-ty-red n Γ A₁ A₂) tt γ →
+    OK (equal-ty-red n Γ A₁ A₂) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₂ ⌝ γ →
@@ -3118,7 +3122,7 @@ opaque mutual
 
   equal-ty-red-U-sound :
     ∀ {Γ : Cons c m n} A₁ {n} →
-    OK (equal-ty-red-U n Γ A₁ A₂ l) tt γ →
+    OK (equal-ty-red-U n Γ A₁ A₂ l) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ∷ ⌜ U l ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₂ ⌝ γ ∷ ⌜ U l ⌝ γ →
@@ -3208,7 +3212,7 @@ opaque mutual
   -- Soundness for equal-sub′.
 
   equal-sub′-sound :
-    OK (equal-sub′ n (∇ » Δ) σ₁ Η₁ σ₂ Η₂) PE.refl γ →
+    OK (equal-sub′ n (∇ » Δ) σ₁ Η₁ σ₂ Η₂) PE.refl γ st →
     Contexts-wf ∇ γ →
     ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ ⌝ᶜᵛ γ →
     ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Η₂ ⌝ᶜᵛ γ →
@@ -3221,7 +3225,7 @@ opaque mutual
 
     equal-sub′-sound′ :
       (n₁≡n₂ : n₁ PE.≡ n₂) →
-      OK (equal-sub′ n (∇ » Δ) σ₁ Η₁ σ₂ Η₂) n₁≡n₂ γ →
+      OK (equal-sub′ n (∇ » Δ) σ₁ Η₁ σ₂ Η₂) n₁≡n₂ γ st →
       Contexts-wf ∇ γ →
       ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ ⌝ᶜᵛ γ →
       ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Η₂ ⌝ᶜᵛ γ →
@@ -3264,7 +3268,7 @@ opaque mutual
 
   check-and-equal-ty-sound′ :
     ∀ n →
-    OK (check-and-equal-ty n Γ A₁ A₂) A γ →
+    OK (check-and-equal-ty n Γ A₁ A₂) A γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A ⌝ γ ×
@@ -3294,7 +3298,7 @@ opaque mutual
 
   check-and-equal-tm-sound′ :
     ∀ n →
-    OK (check-and-equal-tm n Γ t₁ t₂ A) t γ →
+    OK (check-and-equal-tm n Γ t₁ t₂ A) t γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ ×
@@ -3326,7 +3330,7 @@ opaque
 
   check-type-sound :
     ∀ γ (Γ : Cons c m n) A n →
-    check-type n Γ A .run γ PE.≡ inj₂ A′ →
+    check-type n Γ A .run (γ # []) PE.≡ inj₂ A′ →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ
@@ -3339,7 +3343,7 @@ opaque
 
   check-sound :
     ∀ γ (Γ : Cons c m n) t A n →
-    check n Γ t A .run γ PE.≡ inj₂ t′ →
+    check n Γ t A .run (γ # []) PE.≡ inj₂ t′ →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ
@@ -3352,7 +3356,7 @@ opaque
 
   equal-con-sound :
     ∀ γ (Γ : Cons c m n) Δ n →
-    equal-con n Γ Δ .run γ PE.≡ inj₂ tt →
+    equal-con n Γ Δ .run (γ # []) PE.≡ inj₂ tt →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ .defs »⊢ ⌜ Δ ⌝ᶜᵛ γ →
@@ -3366,7 +3370,7 @@ opaque
 
   check-sub-sound :
     ∀ γ (∇ : DCon c m) Δ₂ (σ : Subst c n₂ n₁) Δ₁ n →
-    check-sub n ∇ Δ₂ σ Δ₁ .run γ PE.≡ inj₂ σ′ →
+    check-sub n ∇ Δ₂ σ Δ₁ .run (γ # []) PE.≡ inj₂ σ′ →
     Contexts-wf ∇ γ →
     ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₂ ⌝ᶜᵛ γ →
     ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₁ ⌝ᶜᵛ γ →
@@ -3380,7 +3384,7 @@ opaque
 
   equal-ty-sound :
     ∀ γ (Γ : Cons c m n) A₁ A₂ n →
-    equal-ty n Γ A₁ A₂ .run γ PE.≡ inj₂ tt →
+    equal-ty n Γ A₁ A₂ .run (γ # []) PE.≡ inj₂ tt →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₂ ⌝ γ →
@@ -3393,7 +3397,7 @@ opaque
 
   equal-tm-sound :
     ∀ γ (Γ : Cons c m n) t₁ t₂ A n →
-    equal-tm n Γ t₁ t₂ A .run γ PE.≡ inj₂ tt →
+    equal-tm n Γ t₁ t₂ A .run (γ # []) PE.≡ inj₂ tt →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ∷ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ →
@@ -3406,7 +3410,7 @@ opaque
 
   check-type-and-term-sound′ :
     ∀ n →
-    OK (check-type-and-term n Γ t A) (t′ , A′) γ →
+    OK (check-type-and-term n Γ t A) (t′ , A′) γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     (⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ ≡ ⌜ A′ ⌝ γ) ×
@@ -3428,7 +3432,7 @@ opaque
 
   check-type-and-term-sound :
     ∀ γ (Γ : Cons c m n) t A n →
-    check-type-and-term n Γ t A .run γ PE.≡ inj₂ (t′ , A′) →
+    check-type-and-term n Γ t A .run (γ # []) PE.≡ inj₂ (t′ , A′) →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ
@@ -3442,7 +3446,7 @@ opaque
 
   check-and-equal-ty-sound :
     ∀ γ (Γ : Cons c m n) A₁ A₂ n →
-    check-and-equal-ty n Γ A₁ A₂ .run γ PE.≡ inj₂ A →
+    check-and-equal-ty n Γ A₁ A₂ .run (γ # []) PE.≡ inj₂ A →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A₁ ⌝ γ ≡ ⌜ A₂ ⌝ γ
@@ -3455,7 +3459,7 @@ opaque
 
   check-and-equal-tm-sound :
     ∀ γ (Γ : Cons c m n) t₁ t₂ A n →
-    check-and-equal-tm n Γ t₁ t₂ A .run γ PE.≡ inj₂ t →
+    check-and-equal-tm n Γ t₁ t₂ A .run (γ # []) PE.≡ inj₂ t →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
@@ -3468,7 +3472,7 @@ opaque
 
   check-and-equal-type-and-terms-sound′ :
     ∀ n →
-    OK (check-and-equal-type-and-terms n Γ t₁ t₂ A) tt γ →
+    OK (check-and-equal-type-and-terms n Γ t₁ t₂ A) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
@@ -3487,7 +3491,8 @@ opaque
 
   check-and-equal-type-and-terms-sound :
     ∀ γ (Γ : Cons c m n) t₁ t₂ A n →
-    check-and-equal-type-and-terms n Γ t₁ t₂ A .run γ PE.≡ inj₂ tt →
+    check-and-equal-type-and-terms n Γ t₁ t₂ A .run (γ # []) PE.≡
+      inj₂ tt →
     Contexts-wf (Γ .defs) γ →
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
@@ -3500,7 +3505,7 @@ opaque
 
   equal-sub-sound′ :
     ∀ Δ →
-    OK (equal-sub n Γ σ₁ σ₂ Δ) tt γ →
+    OK (equal-sub n Γ σ₁ σ₂ Δ) tt γ st →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ .defs »⊢ ⌜ Δ ⌝ᶜᵛ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ˢʷ ⌜ σ₁ ⌝ˢ γ ∷ ⌜ Δ ⌝ᶜᵛ γ →
@@ -3542,7 +3547,7 @@ opaque
 
   equal-sub-sound :
     ∀ γ (Γ : Cons c m n₂) (σ₁ σ₂ : Subst c n₂ n₁) Δ n →
-    equal-sub n Γ σ₁ σ₂ Δ .run γ PE.≡ inj₂ tt →
+    equal-sub n Γ σ₁ σ₂ Δ .run (γ # []) PE.≡ inj₂ tt →
     Contexts-wf (Γ .defs) γ →
     ⌜ Γ ⌝ᶜ γ .defs »⊢ ⌜ Δ ⌝ᶜᵛ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ˢʷ ⌜ σ₁ ⌝ˢ γ ∷ ⌜ Δ ⌝ᶜᵛ γ →
@@ -3556,7 +3561,7 @@ opaque
 
   check-con-sound′ :
     ∀ (Δ : Con c n) {n} →
-    OK (check-con n ∇ Δ) Δ′ γ →
+    OK (check-con n ∇ Δ) Δ′ γ st →
     Contexts-wf ∇ γ →
     (Base-con-allowed c → ⌜ ∇ ⌝ᶜᵈ γ »⊢ γ .⌜base⌝ .vars) →
     » ⌜ ∇ ⌝ᶜᵈ γ →
@@ -3582,7 +3587,7 @@ opaque
 
   check-con-sound :
     ∀ γ (∇ : DCon c m) (Δ : Con c n) n →
-    check-con n ∇ Δ .run γ PE.≡ inj₂ Δ′ →
+    check-con n ∇ Δ .run (γ # []) PE.≡ inj₂ Δ′ →
     Contexts-wf ∇ γ →
     (Base-con-allowed c → ⌜ ∇ ⌝ᶜᵈ γ »⊢ γ .⌜base⌝ .vars) →
     » ⌜ ∇ ⌝ᶜᵈ γ →
@@ -3596,7 +3601,7 @@ opaque
 
   check-dcon-sound′ :
     (∇ : DCon c m) →
-    OK (check-dcon n ∇) tt γ →
+    OK (check-dcon n ∇) tt γ st →
     All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints) →
     » γ .⌜base⌝ .defs →
     » ⌜ ∇ ⌝ᶜᵈ γ
@@ -3661,7 +3666,7 @@ opaque
 
   check-dcon-sound :
     ∀ γ (∇ : DCon c m) n →
-    check-dcon n ∇ .run γ PE.≡ inj₂ tt →
+    check-dcon n ∇ .run (γ # []) PE.≡ inj₂ tt →
     All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints) →
     » γ .⌜base⌝ .defs →
     » ⌜ ∇ ⌝ᶜᵈ γ
@@ -3673,7 +3678,7 @@ opaque
 
   check-cons-sound′ :
     ∀ (Γ : Cons c m n) {n} →
-    OK (check-cons n Γ) Γ′ γ →
+    OK (check-cons n Γ) Γ′ γ st →
     Contexts-wf (Γ .defs) γ →
     » γ .⌜base⌝ .defs →
     (Base-con-allowed c → ⌜ Γ .defs ⌝ᶜᵈ γ »⊢ γ .⌜base⌝ .vars) →
@@ -3692,7 +3697,7 @@ opaque
 
   check-cons-sound :
     ∀ γ (Γ : Cons c m n) n →
-    check-cons n Γ .run γ PE.≡ inj₂ Γ′ →
+    check-cons n Γ .run (γ # []) PE.≡ inj₂ Γ′ →
     Contexts-wf (Γ .defs) γ →
     » γ .⌜base⌝ .defs →
     (Base-con-allowed c → ⌜ Γ .defs ⌝ᶜᵈ γ »⊢ γ .⌜base⌝ .vars) →
@@ -3708,7 +3713,7 @@ opaque
 
   check-cons-type-and-term-sound′ :
     ∀ (Γ : Cons c m n) {n} →
-    OK (check-cons-type-and-term n Γ t A) tt γ →
+    OK (check-cons-type-and-term n Γ t A) tt γ st →
     Contexts-wf (Γ .defs) γ →
     » γ .⌜base⌝ .defs →
     (Base-con-allowed c → ⌜ Γ .defs ⌝ᶜᵈ γ »⊢ γ .⌜base⌝ .vars) →
@@ -3731,7 +3736,7 @@ opaque
 
   check-cons-type-and-term-sound :
     ∀ γ (Γ : Cons c m n) t A n →
-    check-cons-type-and-term n Γ t A .run γ PE.≡ inj₂ tt →
+    check-cons-type-and-term n Γ t A .run (γ # []) PE.≡ inj₂ tt →
     Contexts-wf (Γ .defs) γ →
     » γ .⌜base⌝ .defs →
     (Base-con-allowed c → ⌜ Γ .defs ⌝ᶜᵈ γ »⊢ γ .⌜base⌝ .vars) →
@@ -3745,7 +3750,7 @@ opaque
 
   check-and-equal-cons-type-and-terms-sound′ :
     ∀ (Γ : Cons c m n) {n} →
-    OK (check-and-equal-cons-type-and-terms n Γ t₁ t₂ A) tt γ →
+    OK (check-and-equal-cons-type-and-terms n Γ t₁ t₂ A) tt γ st →
     Contexts-wf (Γ .defs) γ →
     » γ .⌜base⌝ .defs →
     (Base-con-allowed c → ⌜ Γ .defs ⌝ᶜᵈ γ »⊢ γ .⌜base⌝ .vars) →
@@ -3766,7 +3771,7 @@ opaque
 
   check-and-equal-cons-type-and-terms-sound :
     ∀ γ (Γ : Cons c m n) t₁ t₂ A n →
-    check-and-equal-cons-type-and-terms n Γ t₁ t₂ A .run γ PE.≡
+    check-and-equal-cons-type-and-terms n Γ t₁ t₂ A .run (γ # []) PE.≡
       inj₂ tt →
     Contexts-wf (Γ .defs) γ →
     » γ .⌜base⌝ .defs →

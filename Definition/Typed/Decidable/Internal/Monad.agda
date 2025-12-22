@@ -17,9 +17,12 @@ module Definition.Typed.Decidable.Internal.Monad
 open import Definition.Typed.Decidable.Internal.Constraint TR
 open import Definition.Typed.Decidable.Internal.Term 𝕄
 
+open import Tools.Function
 open import Tools.Level
 open import Tools.List
 open import Tools.Maybe using (Maybe; just; nothing)
+open import Tools.Nat using (Nat)
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.String
 open import Tools.Sum
@@ -30,33 +33,73 @@ private variable
   A B     : Set _
   x y z   : A
   f       : A → B
+  m n     : Nat
   c       : Constants
-  C       : Constraint _
   γ       : Contexts _
+  C       : Constraint _
 
 ------------------------------------------------------------------------
 -- The monad, along with some basic operations
 
+-- Stack trace entries.
+
+data Call (c : Constants) : Set a where
+  [red-ty] [check-type] [infer] :
+    Cons c m n → Term c n → Call c
+  [red-tm] [check] [equal-ty] [equal-ne-inf] :
+    Cons c m n → (_ _ : Term c n) → Call c
+  [equal-tm] :
+    Cons c m n → (_ _ _ : Term c n) → Call c
+
+-- Stack traces.
+
+Stack-trace : Constants → Set a
+Stack-trace c = List (Call c)
+
+private variable
+  cl : Call _
+  st : Stack-trace _
+
+-- The monad's reader component.
+
+record Monad-con (c : Constants) : Set a where
+  constructor _#_
+  no-eta-equality
+  field
+    contexts    : Contexts c
+    stack-trace : Stack-trace c
+
+open Monad-con public
+
 -- A monad with failure (including error messages), checking of
--- constraints, and a reader component (contexts).
+-- constraints, stack traces, and a reader component (contexts).
 
 record Check (c : Constants) (A : Set ℓ) : Set (lsuc a ⊔ ℓ) where
   constructor wrap
   no-eta-equality
   field
-    run : Contexts c → String ⊎ A
+    run : Monad-con c → String × List (Call c) ⊎ A
 
 open Check public
+
+private variable
+  chk : Check _ _
 
 -- Failure.
 
 fail : String → Check c A
-fail s .run _ = inj₁ s
+fail s .run Μ = inj₁ (s , Μ .stack-trace)
 
--- The meta-context.
+-- Registering a call in the stack trace.
 
-ask : Check c (Meta-con c)
-ask .run γ = inj₂ (γ .metas)
+register : Call c → Check c A → Check c A
+register c comp .run Μ =
+  comp .run (record Μ { stack-trace = c ∷ Μ .stack-trace })
+
+-- The contexts.
+
+ask : Check c (Contexts c)
+ask .run γ = inj₂ (γ .contexts)
 
 -- | If the first computation fails, try the second one. In that case,
 -- throw away the first computation's error message.
@@ -67,13 +110,6 @@ _catch_ : Check c A → Check c A → Check c A
 (m₁ catch m₂) .run γ with m₁ .run γ
 … | inj₁ _     = m₂ .run γ
 … | x@(inj₂ _) = x
-
--- Checking a constraint.
-
-require : Constraint c → Check c ⊤
-require C .run γ with member? _≟ᶜ_ C (γ .constraints)
-… | just _  = inj₂ tt
-… | nothing = inj₁ "Failed to verify constraint."
 
 -- The monad's return operation.
 
@@ -117,6 +153,15 @@ f ⊛ x = do
   x ← x
   return (f x)
 
+-- Checking a constraint.
+
+require : Constraint c → Check c ⊤
+require C = do
+  Μ ← ask
+  case member? _≟ᶜ_ C (Μ .constraints) of λ where
+    (just _) → return tt
+    nothing  → fail "Failed to verify constraint."
+
 -- Converts from Maybe to the monad.
 
 infix 4 [_]with-message_
@@ -128,69 +173,70 @@ infix 4 [_]with-message_
 ------------------------------------------------------------------------
 -- The predicate OK
 
--- OK x y γ means that the computation x succeeded for γ and returned
--- y.
+-- OK x y st γ means that the computation x succeeded for st and γ and
+-- returned y.
 
-data OK {A : Set ℓ} (x : Check c A) (y : A) (γ : Contexts c) :
-       Set (lsuc a ⊔ ℓ) where
-  ok : x .run γ PE.≡ inj₂ y → OK x y γ
+data OK {A : Set ℓ} (x : Check c A) (y : A) (γ : Contexts c)
+       (st : Stack-trace c) : Set (lsuc a ⊔ ℓ) where
+  ok : x .run (γ # st) PE.≡ inj₂ y → OK x y γ st
 
 pattern not-ok = ok ()
 pattern ok!    = ok PE.refl
 
 opaque
 
-  -- An inversion lemma for require.
+  -- An inversion lemma for register.
 
-  inv-require-∈ : OK (require C) tt γ → C ∈ γ .constraints
-  inv-require-∈ {C} {γ} (ok eq) with member? _≟ᶜ_ C (γ .constraints)
-  inv-require-∈         not-ok | nothing
-  inv-require-∈         ok!    | just C∈ = C∈
+  inv-register :
+    OK (register cl chk) x γ st →
+    OK chk x γ (cl ∷ st)
+  inv-register (ok eq) = ok eq
 
 opaque
 
   -- An inversion lemma for _catch_.
 
-  inv-catch : OK (x catch y) z γ → OK x z γ ⊎ OK y z γ
-  inv-catch {x} {γ} (ok eq     ) with x .run γ in eq
+  inv-catch : OK (x catch y) z γ st → OK x z γ st ⊎ OK y z γ st
+  inv-catch {x} {γ} {st} (ok eq) with x .run (γ # st) in eq
   inv-catch         (ok PE.refl) | inj₂ _ = inj₁ (ok eq)
   inv-catch         (ok eq     ) | inj₁ _ = inj₂ (ok eq)
 
 -- A type used to state inv->>=.
 
 record Inv->>= {A : Set ℓ₁} {B : Set ℓ₂}
-         (x : Check c A) (f : A → Check c B) (y : B) (γ : Contexts c) :
-         Set (lsuc a ⊔ ℓ₁ ⊔ ℓ₂) where
+         (x : Check c A) (f : A → Check c B) (y : B) (γ : Contexts c)
+         (st : Stack-trace c) : Set (lsuc a ⊔ ℓ₁ ⊔ ℓ₂) where
   constructor inv
   field
     value : A
-    ok₁   : OK x value γ
-    ok₂   : OK (f value) y γ
+    ok₁   : OK x value γ st
+    ok₂   : OK (f value) y γ st
 
 opaque
 
   -- An inversion lemma for _>>=_.
 
-  inv->>= : OK (x >>= f) y γ → Inv->>= x f y γ
-  inv->>= {x} {γ} (ok _)       with x .run γ in eq₁
-  inv->>=         not-ok       | inj₁ _
-  inv->>= {f} {γ} _            | inj₂ y with f y .run γ in eq₂
-  inv->>=         not-ok       | _      | inj₁ _
-  inv->>=         (ok PE.refl) | inj₂ y | inj₂ _ =
+  inv->>= : OK (x >>= f) y γ st → Inv->>= x f y γ st
+  inv->>= {x} {γ} {st} (ok _) with x .run (γ # st) in eq₁
+  inv->>=              not-ok | inj₁ _
+  inv->>= {f} {γ} {st} _      | inj₂ y
+   with f y .run (γ # st) in eq₂
+  inv->>= not-ok       | _      | inj₁ _
+  inv->>= (ok PE.refl) | inj₂ y | inj₂ _ =
     inv y (ok eq₁) (ok eq₂)
 
 -- A type used to state inv-<$>.
 
 data Inv-<$> {A : Set ℓ₁} {B : Set ℓ₂}
-       (f : A → B) (x : Check c A) (y : B) (γ : Contexts c) :
-       Set (lsuc a ⊔ ℓ₁ ⊔ ℓ₂) where
-  inv : ∀ x′ → OK x x′ γ → f x′ PE.≡ y → Inv-<$> f x y γ
+       (f : A → B) (x : Check c A) (y : B) (γ : Contexts c)
+       (st : Stack-trace c) : Set (lsuc a ⊔ ℓ₁ ⊔ ℓ₂) where
+  inv : ∀ x′ → OK x x′ γ st → f x′ PE.≡ y → Inv-<$> f x y γ st
 
 opaque
 
   -- An inversion lemma for _<$>_.
 
-  inv-<$> : OK (f <$> x) y γ → Inv-<$> f x y γ
+  inv-<$> : OK (f <$> x) y γ st → Inv-<$> f x y γ st
   inv-<$> eq
     with inv->>= eq
   … | inv _ eq ok! =
@@ -199,18 +245,28 @@ opaque
 -- A type used to state inv-⊛.
 
 data Inv-⊛ {A : Set ℓ₁} {B : Set ℓ₂}
-       (f : Check c (A → B)) (x : Check c A) (y : B) (γ : Contexts c) :
-       Set (lsuc a ⊔ ℓ₁ ⊔ ℓ₂) where
-  inv : ∀ f′ x′ → OK f f′ γ → OK x x′ γ → f′ x′ PE.≡ y → Inv-⊛ f x y γ
+       (f : Check c (A → B)) (x : Check c A) (y : B) (γ : Contexts c)
+       (st : Stack-trace c) : Set (lsuc a ⊔ ℓ₁ ⊔ ℓ₂) where
+  inv : ∀ f′ x′ → OK f f′ γ st → OK x x′ γ st → f′ x′ PE.≡ y →
+        Inv-⊛ f x y γ st
 
 opaque
 
   -- An inversion lemma for _⊛_.
 
-  inv-⊛ : OK (x ⊛ y) z γ → Inv-⊛ x y z γ
+  inv-⊛ : OK (x ⊛ y) z γ st → Inv-⊛ x y z γ st
   inv-⊛ eq
     with inv->>= eq
   … | inv _ eq₁ eq
     with inv->>= eq
   … | inv _ eq₂ ok! =
     inv _ _ eq₁ eq₂ PE.refl
+
+opaque
+
+  -- An inversion lemma for require.
+
+  inv-require-∈ : OK (require C) tt γ st → C ∈ γ .constraints
+  inv-require-∈ {C} {γ} (ok eq) with member? _≟ᶜ_ C (γ .constraints)
+  inv-require-∈ not-ok | nothing
+  inv-require-∈ ok!    | just C∈ = C∈

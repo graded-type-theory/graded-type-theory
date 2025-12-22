@@ -58,6 +58,7 @@ private variable
   C         : Constraint _
   ∇         : DCon _ _
   γ         : Contexts _
+  st        : Stack-trace _
   φ         : Unfolding _
   A A₁ A₂ t : Term _ _
 
@@ -104,7 +105,7 @@ opaque
 
   type-of-sound :
     (∇ : DCon c n) →
-    OK (type-of ∇ α) A γ →
+    OK (type-of ∇ α) A γ st →
     α ↦∷ ⌜ A ⌝ γ ∈ ⌜ ∇ ⌝ᶜᵈ γ
   type-of-sound     (base _)                 not-ok
   type-of-sound     ε                        not-ok
@@ -132,7 +133,7 @@ opaque
 
   definition-of-sound :
     (∇ : DCon c n) →
-    OK (definition-of ∇ α) (t , A) γ →
+    OK (definition-of ∇ α) (t , A) γ st →
     » ⌜ ∇ ⌝ᶜᵈ γ →
     α ↦ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ ∈ ⌜ ∇ ⌝ᶜᵈ γ ×
     (∀ {B} →
@@ -174,7 +175,7 @@ opaque
 
   index-sound :
     ∀ Δ {A : Term c n} {B γ} →
-    OK (index Δ x) A γ →
+    OK (index Δ x) A γ st →
     ⌜ A ⌝ γ PE.≡ B ⇔ x ∷ B ∈ ⌜ Δ ⌝ᶜᵛ γ
   index-sound          base    not-ok
   index-sound {x = ()} ε
@@ -310,7 +311,7 @@ opaque
 
   inv-require′ :
     All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints) →
-    OK (require C) tt γ → ⟦ C ⟧ᶜ γ
+    OK (require C) tt γ st → ⟦ C ⟧ᶜ γ
   inv-require′ constraints-wf eq =
     L.lookup constraints-wf (inv-require-∈ eq)
 
@@ -318,5 +319,5 @@ opaque
 
   -- An inversion lemma for require.
 
-  inv-require : Contexts-wf ∇ γ → OK (require C) tt γ → ⟦ C ⟧ᶜ γ
+  inv-require : Contexts-wf ∇ γ → OK (require C) tt γ st → ⟦ C ⟧ᶜ γ
   inv-require ⊢γ = inv-require′ (⊢γ .constraints-wf)
