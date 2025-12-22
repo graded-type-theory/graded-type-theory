@@ -20,12 +20,18 @@ module Definition.Untyped.Vec
   (p : M)
   where
 
+import Definition.Typed.Decidable.Internal.Term 𝕄 as I
+import Definition.Typed.Decidable.Internal.Substitution 𝕄 as IS
+import Definition.Typed.Decidable.Internal.Weakening 𝕄 as IW
+
 open import Definition.Untyped.Properties M
 open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Maybe
 open import Tools.Nat hiding (_+_)
+open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
@@ -38,6 +44,15 @@ private variable
   σ : Subst _ _
   ρ : Wk _ _
   p₁ p₂ r q q₁ q₂ : M
+  c : I.Constants
+  pᵢ p₁ᵢ p₂ᵢ p₃ᵢ p₄ᵢ p₅ᵢ p₆ᵢ q₁ᵢ q₂ᵢ : I.Termᵍ _
+  lᵢ : I.Termˡ _
+  sᵢ : I.Termˢ _
+  Aᵢ A₁ᵢ A₂ᵢ tᵢ t₁ᵢ t₂ᵢ t₃ᵢ t₄ᵢ uᵢ vᵢ : I.Term _ _
+  γ : I.Contexts _
+
+------------------------------------------------------------------------
+-- Term formers
 
 opaque
 
@@ -126,6 +141,9 @@ opaque
       (vecrec-cons r q₂ P cs)
       k
     ∘⟨ r ⟩ xs
+
+------------------------------------------------------------------------
+-- Some lemmas about the term formers
 
 opaque
   unfolding Vec′
@@ -240,3 +258,161 @@ opaque
 
   cons′≡prod : cons′ A k h t ≡ prod s p h t
   cons′≡prod = refl
+
+------------------------------------------------------------------------
+-- Variants of some of the term formers, intended to be used with the
+-- internal type-checker
+
+-- A variant of Vec′.
+
+Vec′ᵢ :
+  I.Termˢ (c .I.ss) → I.Termᵍ (c .I.gs) → I.Termˡ (c .I.ls) →
+  (_ _ : I.Term c n) → I.Term c n
+Vec′ᵢ s p l A t =
+  I.natrec I.𝟘 I.𝟘 I.𝟙
+    (I.U l)
+    (I.Unit s l)
+    (I.ΠΣ⟨ I.BMΣ s ⟩ p , I.𝟘 ▷ IW.wk[ 2 ] A ▹ I.var x1)
+    t
+
+opaque
+  unfolding Vec′
+
+  -- A translation lemma for Vec′ᵢ.
+
+  ⌜Vec′ᵢ⌝ :
+    I.⟦ sᵢ ⟧ˢ γ ≡ s →
+    I.⟦ pᵢ ⟧ᵍ γ ≡ p →
+    I.⌜ Vec′ᵢ sᵢ pᵢ lᵢ Aᵢ tᵢ ⌝ γ ≡
+    Vec′ (I.⟦ lᵢ ⟧ˡ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+  ⌜Vec′ᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl
+
+-- A variant of Vec.
+
+Vecᵢ :
+  I.Termˢ (c .I.ss) → (_ _ _ : I.Termᵍ (c .I.gs)) → I.Termˡ (c .I.ls) →
+  I.Term c n
+Vecᵢ s p q₁ q₂ l =
+  I.lam I.𝟙 (just (q₁ , I.U l)) $
+  I.lam I.𝟙 (just (q₂ , I.ℕ)) $
+  Vec′ᵢ s p l (I.var x1) (I.var x0)
+
+opaque
+  unfolding Vec Vec′
+
+  -- A translation lemma for Vecᵢ.
+
+  ⌜Vecᵢ⌝ :
+    I.⟦ sᵢ ⟧ˢ γ ≡ s →
+    I.⟦ pᵢ ⟧ᵍ γ ≡ p →
+    I.⌜ Vecᵢ {n = n} sᵢ pᵢ q₁ᵢ q₂ᵢ lᵢ ⌝ γ ≡ Vec (I.⟦ lᵢ ⟧ˡ γ)
+  ⌜Vecᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl
+
+-- A variant of nil′.
+
+nil′ᵢ : I.Termˢ (c .I.ss) → I.Termˡ (c .I.ls) → I.Term c n
+nil′ᵢ s l = I.star s l
+
+opaque
+  unfolding nil′
+
+  -- A translation lemma for nil′ᵢ.
+
+  ⌜nil′ᵢ⌝ :
+    I.⟦ sᵢ ⟧ˢ γ ≡ s →
+    I.⌜ nil′ᵢ {n = n} sᵢ lᵢ ⌝ γ ≡ nil′ (I.⟦ lᵢ ⟧ˡ γ) A
+  ⌜nil′ᵢ⌝ eq rewrite eq = refl
+
+-- A variant of nil.
+
+nilᵢ : I.Termˢ (c .I.ss) → I.Termˡ (c .I.ls) → I.Term c n
+nilᵢ s l = I.lam I.𝟘 nothing (nil′ᵢ s l)
+
+opaque
+  unfolding nil nil′
+
+  -- A translation lemma for nilᵢ.
+
+  ⌜nilᵢ⌝ :
+    I.⟦ sᵢ ⟧ˢ γ ≡ s →
+    I.⌜ nilᵢ {n = n} sᵢ lᵢ ⌝ γ ≡ nil (I.⟦ lᵢ ⟧ˡ γ)
+  ⌜nilᵢ⌝ eq rewrite eq = refl
+
+-- A variant of cons′.
+
+cons′ᵢ :
+  I.Termˢ (c .I.ss) → I.Termᵍ (c .I.gs) → (_ _ : I.Term c n) →
+  I.Term c n
+cons′ᵢ s p t u = I.prod s p nothing t u
+
+opaque
+  unfolding cons′
+
+  -- A translation lemma for cons′ᵢ.
+
+  ⌜cons′ᵢ⌝ :
+    I.⟦ sᵢ ⟧ˢ γ ≡ s →
+    I.⟦ pᵢ ⟧ᵍ γ ≡ p →
+    I.⌜ cons′ᵢ sᵢ pᵢ uᵢ vᵢ ⌝ γ ≡ cons′ A t (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ)
+  ⌜cons′ᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl
+
+-- A variant of cons.
+
+consᵢ : I.Termˢ (c .I.ss) → I.Termᵍ (c .I.gs) → I.Term c n
+consᵢ s p =
+  I.lam I.𝟘 nothing $ I.lam I.𝟘 nothing $
+  I.lam I.𝟙 nothing $ I.lam I.𝟙 nothing $
+  cons′ᵢ s p (I.var x1) (I.var x0)
+
+opaque
+  unfolding cons cons′
+
+  -- A translation lemma for consᵢ.
+
+  ⌜consᵢ⌝ :
+    I.⟦ sᵢ ⟧ˢ γ ≡ s →
+    I.⟦ pᵢ ⟧ᵍ γ ≡ p →
+    I.⌜ consᵢ {n = n} sᵢ pᵢ ⌝ γ ≡ cons
+  ⌜consᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl
+
+-- A variant of vecrec′.
+
+vecrecᵢ :
+  I.Termˢ (c .I.ss) → I.Termˡ (c .I.ls) →
+  (_ _ _ _ _ _ : I.Termᵍ (c .I.gs)) → I.Term c n → I.Term c (2+ n) →
+  I.Term c n → I.Term c (4+ n) → (_ _ : I.Term c n) → I.Term c n
+vecrecᵢ s l p₁ p₂ p₃ p₄ p₅ p₆ A₁ A₂ t₁ t₂ t₃ t₄ =
+  I.natrec p₂ (I.⌜⌞ p₄ ⌟⌝ I.+ p₅) p₃
+    (I.Π p₄ , p₆ ▷ Vec′ᵢ s p₁ l (IW.wk[ 1 ] A₁) (I.var x0) ▹ A₂)
+    (I.lam p₄ nothing $
+     I.unitrec l p₄ p₆
+       (I.subst A₂ (I.cons (I.wk1 I.id) I.zero I.⇑)) (I.var x0)
+          (IW.wk[ 1 ] t₁))
+    (I.lam p₄ nothing $
+     I.prodrec p₄ p₁ p₆
+       (I.subst A₂ (I.cons (IS.wkSubst 3 I.id) (I.suc (I.var x2)) I.⇑))
+       (I.var x0)
+       (I.subst t₂
+          (I.cons
+             (I.cons
+                (I.cons (I.cons (IS.wkSubst 5 I.id) (I.var x4))
+                   (I.var x1))
+                (I.var x0))
+             (I.var x3 I.∘⟨ p₄ ⟩ I.var x0))))
+    t₃ I.∘⟨ p₄ ⟩
+  t₄
+
+opaque
+  unfolding Vec′ vecrec′ vecrec-nil vecrec-cons
+
+  -- A translation lemma for vecrecᵢ.
+
+  ⌜vecrecᵢ⌝ :
+    I.⟦ sᵢ ⟧ˢ γ ≡ s →
+    I.⟦ p₁ᵢ ⟧ᵍ γ ≡ p →
+    I.⌜ vecrecᵢ sᵢ lᵢ p₁ᵢ p₂ᵢ p₃ᵢ p₄ᵢ p₅ᵢ p₆ᵢ A₁ᵢ A₂ᵢ t₁ᵢ t₂ᵢ t₃ᵢ t₄ᵢ ⌝
+      γ ≡
+    vecrec′ (I.⟦ lᵢ ⟧ˡ γ) (I.⟦ p₂ᵢ ⟧ᵍ γ) (I.⟦ p₃ᵢ ⟧ᵍ γ) (I.⟦ p₄ᵢ ⟧ᵍ γ)
+      (I.⟦ p₅ᵢ ⟧ᵍ γ) (I.⟦ p₆ᵢ ⟧ᵍ γ) (I.⌜ A₁ᵢ ⌝ γ) (I.⌜ A₂ᵢ ⌝ γ)
+      (I.⌜ t₁ᵢ ⌝ γ) (I.⌜ t₂ᵢ ⌝ γ) (I.⌜ t₃ᵢ ⌝ γ) (I.⌜ t₄ᵢ ⌝ γ)
+  ⌜vecrecᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl

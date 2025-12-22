@@ -19,14 +19,22 @@ module Definition.Untyped.List
   (pₕ pₗ : M)
   where
 
+import Definition.Typed.Decidable.Internal.Term 𝕄 as I
+import Definition.Typed.Decidable.Internal.Substitution 𝕄 as IS
+import Definition.Typed.Decidable.Internal.Weakening 𝕄 as IW
+
 -- Use vectors defined using weak Unit and Σ-types.
 import Definition.Untyped.Vec 𝕄 𝕨 pₕ as V
 
 open import Definition.Untyped.Properties M
 
+open import Graded.Mode 𝕄
+
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Maybe
+open import Tools.Nat using (Nat; 1+; 3+)
+open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 
@@ -38,7 +46,15 @@ private variable
   l : Universe-level
   σ : Subst _ _
   ρ : Wk _ _
-  p₁ p₂ q r₁ r₂ : M
+  p₁ p₂ p₃ q r₁ r₂ : M
+  c : I.Constants
+  p₁ᵢ p₂ᵢ p₃ᵢ p₄ᵢ p₅ᵢ pₕᵢ pₗᵢ : I.Termᵍ _
+  lᵢ : I.Termˡ _
+  Aᵢ A₁ᵢ A₂ᵢ t₁ᵢ t₂ᵢ t₃ᵢ : I.Term _ _
+  γ : I.Contexts _
+
+------------------------------------------------------------------------
+-- Term formers
 
 opaque
 
@@ -185,3 +201,111 @@ opaque
                (var x2)) (prodʷ pₗ (var x3) (var x1))) (var x0) ])
         (var x1) (var x0))
   listrec≡ = refl
+
+------------------------------------------------------------------------
+-- Variants of the term formers, intended to be used with the internal
+-- type-checker
+
+-- A variant of List.
+
+Listᵢ :
+  (_ _ : I.Termᵍ (c .I.gs)) → I.Termˡ (c .I.ls) → I.Term c n →
+  I.Term c n
+Listᵢ pₕ pₗ l A =
+  I.Σʷ pₗ , I.𝟙 ▷ I.ℕ ▹ V.Vec′ᵢ I.𝕨 pₕ l (IW.wk[ 1 ] A) (I.var x0)
+
+opaque
+  unfolding List V.Vec′
+
+  -- A translation lemma for Listᵢ.
+
+  ⌜Listᵢ⌝ :
+    I.⟦ pₕᵢ ⟧ᵍ γ ≡ pₕ →
+    I.⟦ pₗᵢ ⟧ᵍ γ ≡ pₗ →
+    I.⌜ Listᵢ pₕᵢ pₗᵢ lᵢ Aᵢ ⌝ γ ≡
+    List (I.⟦ lᵢ ⟧ˡ γ) (I.⌜ Aᵢ ⌝ γ)
+  ⌜Listᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl
+
+-- A variant of nil.
+
+nilᵢ :
+  (_ _ : I.Termᵍ (c .I.gs)) → I.Termˡ (c .I.ls) → I.Term c n →
+  I.Term c n
+nilᵢ pₗ pₕ l A =
+  I.prod I.𝕨 pₗ
+    (just (I.𝟙 , V.Vec′ᵢ I.𝕨 pₕ l (IW.wk[ 1 ] A) (I.var x0))) I.zero
+    (V.nil′ᵢ I.𝕨 l)
+
+opaque
+  unfolding nil V.nil′
+
+  -- A translation lemma for nilᵢ.
+
+  ⌜nilᵢ⌝ :
+    I.⟦ pₗᵢ ⟧ᵍ γ ≡ pₗ →
+    I.⌜ nilᵢ {n = n} pₗᵢ pₕᵢ lᵢ Aᵢ ⌝ γ ≡ nil (I.⟦ lᵢ ⟧ˡ γ) (I.⌜ Aᵢ ⌝ γ)
+  ⌜nilᵢ⌝ eq rewrite eq = refl
+
+-- A variant of cons.
+
+consᵢ :
+  (_ _ : I.Termᵍ (c .I.gs)) → I.Termˡ (c .I.ls) → (_ _ _ : I.Term c n) →
+  I.Term c n
+consᵢ pₕ pₗ l A t₁ t₂ =
+  I.prodrec I.𝟙 pₗ I.𝟘 (IW.wk[ 1 ] (Listᵢ pₕ pₗ l A)) t₂
+    (I.prod I.𝕨 pₗ nothing (I.suc (I.var x1))
+       (V.cons′ᵢ I.𝕨 pₕ (IW.wk[ 2 ] t₁) (I.var x0)))
+
+
+opaque
+  unfolding List V.Vec′ cons V.cons′
+
+  -- A translation lemma for consᵢ.
+
+  ⌜consᵢ⌝ :
+    I.⟦ pₕᵢ ⟧ᵍ γ ≡ pₕ →
+    I.⟦ pₗᵢ ⟧ᵍ γ ≡ pₗ →
+    I.⌜ consᵢ pₕᵢ pₗᵢ lᵢ Aᵢ t₁ᵢ t₂ᵢ ⌝ γ ≡
+    cons (I.⟦ lᵢ ⟧ˡ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ t₁ᵢ ⌝ γ) (I.⌜ t₂ᵢ ⌝ γ)
+  ⌜consᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl
+
+-- A variant of listrec.
+
+listrecᵢ :
+  I.Termˡ (c .I.ls) →
+  (_ _ _ _ _ _ _ : I.Termᵍ (c .I.gs)) →
+  I.Term c n → I.Term c (1+ n) → I.Term c n → I.Term c (3+ n) →
+  I.Term c n → I.Term c n
+listrecᵢ l pₕ pₗ p₁ p₂ p₃ p₄ p₅ A₁ A₂ t₁ t₂ t₃ =
+  I.prodrec p₁ pₗ p₅ A₂ t₃
+    (V.vecrecᵢ I.𝕨 l pₕ (p₃ I.· pₗ) p₄ p₂ (p₅ I.· pₗ) p₅
+      (IW.wk[ 2 ] A₁)
+      (I.subst A₂
+         (I.cons (IS.wkSubst 4 I.id)
+            (I.prod I.𝕨 pₗ nothing (I.var x1) (I.var x0))))
+      (IW.wk[ 2 ] t₁)
+      (I.subst t₂
+         (I.cons
+            (I.cons (I.cons (IS.wkSubst 6 I.id) (I.var x2))
+               (I.prod I.𝕨 pₗ
+                  (just
+                     (I.𝟙 ,
+                      V.Vec′ᵢ I.𝕨 pₕ l (IW.wk[ 7 ] A₁) (I.var x0)))
+                  (I.var x3) (I.var x1)))
+            (I.var x0)))
+      (I.var x1) (I.var x0))
+
+opaque
+  unfolding V.Vec′ listrec V.vecrec′ V.vecrec-nil V.vecrec-cons
+
+  -- A translation lemma for listrecᵢ.
+
+  ⌜listrecᵢ⌝ :
+    I.⟦ pₕᵢ ⟧ᵍ γ ≡ pₕ →
+    I.⟦ pₗᵢ ⟧ᵍ γ ≡ pₗ →
+    I.⌜ listrecᵢ lᵢ pₕᵢ pₗᵢ p₁ᵢ p₂ᵢ p₃ᵢ p₄ᵢ p₅ᵢ A₁ᵢ A₂ᵢ t₁ᵢ t₂ᵢ t₃ᵢ ⌝ γ
+      ≡
+    listrec (I.⟦ lᵢ ⟧ˡ γ) (I.⟦ p₁ᵢ ⟧ᵍ γ) (I.⟦ p₂ᵢ ⟧ᵍ γ) (I.⟦ p₃ᵢ ⟧ᵍ γ)
+      (I.⟦ p₄ᵢ ⟧ᵍ γ) (I.⟦ p₅ᵢ ⟧ᵍ γ) (I.⌜ A₁ᵢ ⌝ γ) (I.⌜ A₂ᵢ ⌝ γ)
+      (I.⌜ t₁ᵢ ⌝ γ) (I.⌜ t₂ᵢ ⌝ γ) (I.⌜ t₃ᵢ ⌝ γ)
+  ⌜listrecᵢ⌝ eq₁ eq₂ rewrite eq₁ | eq₂ = refl
