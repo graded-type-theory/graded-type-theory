@@ -562,11 +562,11 @@ opaque
   -- A typing rule for cast.
 
   ⊢cast :
-    Γ ⊢ l ∷Level →
     Γ ⊢ t ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t u ∷ B
-  ⊢cast ⊢l ⊢t ⊢u =
+  ⊢cast ⊢t ⊢u =
+    let ⊢l = inversion-U-Level (inversion-Id (wf-⊢∷ ⊢t) .proj₁) in
     ⊢subst (univ (var₀ (⊢U ⊢l))) ⊢t ⊢u
 
 opaque
@@ -575,11 +575,11 @@ opaque
   -- A reduction rule for cast.
 
   cast-⇒′ :
-    Γ ⊢ l ∷Level →
     Γ ⊢ A ≡ A′ ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
-  cast-⇒′ ⊢l A≡A′ ⊢t =
+  cast-⇒′ A≡A′ ⊢t =
+    let ⊢l = inversion-U-Level (wf-⊢≡∷ A≡A′ .proj₁) in
     subst-⇒′ (univ (var₀ (⊢U ⊢l))) A≡A′ ⊢t
 
 opaque
@@ -587,24 +587,22 @@ opaque
   -- Another reduction rule for cast.
 
   cast-⇒ :
-    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A rfl t ⇒ t ∷ A
-  cast-⇒ ⊢l ⊢A ⊢t =
-    cast-⇒′ ⊢l (refl ⊢A) ⊢t
+  cast-⇒ ⊢A ⊢t =
+    cast-⇒′ (refl ⊢A) ⊢t
 
 opaque
 
   -- An equality rule for cast.
 
   cast-≡ :
-    Γ ⊢ l ∷Level →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A rfl t ≡ t ∷ A
-  cast-≡ ⊢l ⊢A ⊢t =
-    subsetTerm (cast-⇒ ⊢l ⊢A ⊢t)
+  cast-≡ ⊢A ⊢t =
+    subsetTerm (cast-⇒ ⊢A ⊢t)
 
 opaque
   unfolding cast
@@ -628,11 +626,13 @@ opaque
   -- A reduction rule for cast.
 
   cast-subst :
-    Γ ⊢ l ∷Level →
     Γ ⊢ t₁ ⇒ t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
-  cast-subst ⊢l t₁⇒t₂ ⊢u =
+  cast-subst t₁⇒t₂ ⊢u =
+    let ⊢l = inversion-U-Level $
+             inversion-Id (wf-⊢≡∷ (subsetTerm t₁⇒t₂) .proj₁) .proj₁
+    in
     subst-subst (univ (var₀ (⊢U ⊢l))) t₁⇒t₂ ⊢u
 
 opaque
@@ -640,14 +640,13 @@ opaque
   -- A reduction rule for cast.
 
   cast-subst* :
-    Γ ⊢ l ∷Level →
     Γ ⊢ t₁ ⇒* t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t₁ u ⇒* cast l A B t₂ u ∷ B
-  cast-subst* ⊢l = λ where
-    (id ⊢t)          ⊢u → id (⊢cast ⊢l ⊢t ⊢u)
+  cast-subst* = λ where
+    (id ⊢t)          ⊢u → id (⊢cast ⊢t ⊢u)
     (t₁⇒t₃ ⇨ t₃⇒*t₂) ⊢u →
-      cast-subst ⊢l t₁⇒t₃ ⊢u ⇨ cast-subst* ⊢l t₃⇒*t₂ ⊢u
+      cast-subst t₁⇒t₃ ⊢u ⇨ cast-subst* t₃⇒*t₂ ⊢u
 
 opaque
   unfolding cast
@@ -1202,7 +1201,6 @@ opaque
                         (PE.cong₃ Id
                            (PE.cong U wk[]≡wk[]′) wk[]≡wk[]′ PE.refl) $
                       var₀ ⊢Id
-        ⊢l′         = wkLevel (ʷ⊇-drop (∙ ⊢Id)) ⊢l
         ⊢u′         = wkTerm (ʷ⊇-drop (∙ ⊢Id)) ⊢u
     in
     J ω ω (U l) A
@@ -1230,13 +1228,13 @@ opaque
                                                                                  PE.cong₅ cast wk₂-[,] wk₂-[,] PE.refl PE.refl wk₂-[,]))
                                                                              wk₂-[,] ⟩
        Id A (cast l B A (symmetry (U l) A B t) (cast l A B t u)) u      ∎)
-      (Jⱼ′ (Idⱼ′ (⊢cast ⊢l′ (⊢symmetry ⊢0) (⊢cast ⊢l′ ⊢0 ⊢u′)) ⊢u′)
+      (Jⱼ′ (Idⱼ′ (⊢cast (⊢symmetry ⊢0) (⊢cast ⊢0 ⊢u′)) ⊢u′)
          (_⊢_∷_.conv (rflⱼ ⊢u) $ univ
-            (Id A u u                                                    ≡˘⟨ Id-cong (refl ⊢A) (cast-≡ ⊢l ⊢A ⊢u) (refl ⊢u) ⟩⊢
+            (Id A u u                                                    ≡˘⟨ Id-cong (refl ⊢A) (cast-≡ ⊢A ⊢u) (refl ⊢u) ⟩⊢
 
              Id A (cast l A A rfl u) u                                   ≡˘⟨ Id-cong
                                                                                (refl ⊢A)
-                                                                               (cast-cong (refl ⊢A) (refl ⊢A) (symmetry-≡ ⊢A) (cast-≡ ⊢l ⊢A ⊢u))
+                                                                               (cast-cong (refl ⊢A) (refl ⊢A) (symmetry-≡ ⊢A) (cast-≡ ⊢A ⊢u))
                                                                                (refl ⊢u) ⟩⊢∎≡
              Id A
                (cast l A A (symmetry (U l) A A rfl) (cast l A A rfl u))
@@ -1297,9 +1295,7 @@ opaque
        Id A₁ (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u) t₁) t₂             ∎)
       (⊢transitivity
          (⊢cong {p = ω}
-            (⊢cast (wkLevel₁ ⊢A₂ ⊢l) (⊢symmetry (wkTerm₁ ⊢A₂ ⊢u))
-               (var₀ ⊢A₂))
-            ⊢v)
+            (⊢cast (⊢symmetry (wkTerm₁ ⊢A₂ ⊢u)) (var₀ ⊢A₂)) ⊢v)
          (PE.subst (_⊢_∷_ _ _)
             (Id A₁
                (cast l A₂ A₁ (symmetry (U l) A₁ A₂ u)
