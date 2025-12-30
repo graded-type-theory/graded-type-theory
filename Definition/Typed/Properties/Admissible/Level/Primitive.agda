@@ -27,10 +27,14 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum
 
 private variable
-  Γ                              : Con Term _
-  A B l l₁ l₁₁ l₁₂ l₂ l₂₁ l₂₂ l₃ : Term _
+  n                                  : Nat
+  Γ                                  : Con Term _
+  A B l l₁ l₁₁ l₁₂ l₂ l₂₁ l₂₂ l₃ t u : Term _
+  b                                  : BinderMode
+  p q                                : M
 
 ------------------------------------------------------------------------
 -- A lemma related to Level
@@ -211,6 +215,63 @@ opaque
     size-of-Level (Level-literal-supᵘₗ′⇔ .proj₂ (l₁-lit , l₂-lit))  ≡⟨ size-of-Level-Level-literal-supᵘₗ′⇔ ⟩
 
     size-of-Level l₁-lit ⊔ size-of-Level l₂-lit                     ∎
+
+opaque
+  unfolding _supᵘₗ_ _supᵘₗ′_
+
+  -- Applications of _supᵘₗ_ are equal to (applications of) ↓ᵘ_ or
+  -- _supᵘ_.
+
+  supᵘₗ≡ :
+    (l₁ l₂ : Term n) →
+    (∃ λ n → l₁ supᵘₗ l₂ PE.≡ ↓ᵘ n) ⊎ l₁ supᵘₗ l₂ PE.≡ l₁ supᵘ l₂
+  supᵘₗ≡ l₁ l₂ with level-support
+  … | level-type _  = inj₂ PE.refl
+  … | only-literals
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  …   | no _  = inj₂ PE.refl
+  …   | yes _ = inj₁ (_ , PE.refl)
+
+opaque
+
+  -- Applications of _supᵘₗ_ are not equal to Level.
+
+  supᵘₗ≢Level : l₁ supᵘₗ l₂ PE.≢ Level
+  supᵘₗ≢Level {l₁} {l₂} eq with supᵘₗ≡ l₁ l₂
+  … | inj₁ (0 , eq′)    = case PE.trans (PE.sym eq) eq′ of λ ()
+  … | inj₁ (1+ _ , eq′) = case PE.trans (PE.sym eq) eq′ of λ ()
+  … | inj₂ eq′          = case PE.trans (PE.sym eq) eq′ of λ ()
+
+opaque
+
+  -- Applications of _supᵘₗ_ are not equal to applications of Lift.
+
+  supᵘₗ≢Lift : l₁ supᵘₗ l₂ PE.≢ Lift l A
+  supᵘₗ≢Lift {l₁} {l₂} eq with supᵘₗ≡ l₁ l₂
+  … | inj₁ (0 , eq′)    = case PE.trans (PE.sym eq) eq′ of λ ()
+  … | inj₁ (1+ _ , eq′) = case PE.trans (PE.sym eq) eq′ of λ ()
+  … | inj₂ eq′          = case PE.trans (PE.sym eq) eq′ of λ ()
+
+opaque
+
+  -- Applications of _supᵘₗ_ are not equal to applications of
+  -- ΠΣ⟨_⟩_,_▷_▹_.
+
+  supᵘₗ≢ΠΣ : l₁ supᵘₗ l₂ PE.≢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
+  supᵘₗ≢ΠΣ {l₁} {l₂} eq with supᵘₗ≡ l₁ l₂
+  … | inj₁ (0 , eq′)    = case PE.trans (PE.sym eq) eq′ of λ ()
+  … | inj₁ (1+ _ , eq′) = case PE.trans (PE.sym eq) eq′ of λ ()
+  … | inj₂ eq′          = case PE.trans (PE.sym eq) eq′ of λ ()
+
+opaque
+
+  -- Applications of _supᵘₗ_ are not equal to applications of Id.
+
+  supᵘₗ≢Id : l₁ supᵘₗ l₂ PE.≢ Id A t u
+  supᵘₗ≢Id {l₁} {l₂} eq with supᵘₗ≡ l₁ l₂
+  … | inj₁ (0 , eq′)    = case PE.trans (PE.sym eq) eq′ of λ ()
+  … | inj₁ (1+ _ , eq′) = case PE.trans (PE.sym eq) eq′ of λ ()
+  … | inj₂ eq′          = case PE.trans (PE.sym eq) eq′ of λ ()
 
 opaque
 
