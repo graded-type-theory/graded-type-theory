@@ -70,6 +70,19 @@ opaque
   ⊢sucᵘ (literal not-ok ⊢Γ l-lit) = literal not-ok ⊢Γ (sucᵘ l-lit)
 
 ------------------------------------------------------------------------
+-- A lemma related to Level-literal
+
+opaque
+
+  -- If l is a level literal, then l is a well-formed level in
+  -- well-formed contexts.
+
+  Level-literal→⊢∷Level : ⊢ Γ → Level-literal l → Γ ⊢ l ∷Level
+  Level-literal→⊢∷Level ⊢Γ zeroᵘ        = ⊢zeroᵘ ⊢Γ
+  Level-literal→⊢∷Level ⊢Γ (sucᵘ l-lit) =
+    ⊢sucᵘ (Level-literal→⊢∷Level ⊢Γ l-lit)
+
+------------------------------------------------------------------------
 -- Some lemmas related to _⊢_∷Level or _⊢_≡_∷Level
 
 opaque
