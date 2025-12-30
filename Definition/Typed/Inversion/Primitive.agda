@@ -86,6 +86,13 @@ opaque
   inversion-zeroᵘ (zeroᵘⱼ ok ⊢Γ)   = refl (Levelⱼ′ ok ⊢Γ)
   inversion-zeroᵘ (conv ⊢zeroᵘ eq) = trans (sym eq) (inversion-zeroᵘ ⊢zeroᵘ)
 
+opaque
+
+  -- Inversion for zeroᵘ.
+
+  inversion-zeroᵘ-⊢ : Γ ⊢ zeroᵘ → ∃ λ l → Γ ⊢ U l ≡ Level
+  inversion-zeroᵘ-⊢ (univ ⊢zeroᵘ) = _ , inversion-zeroᵘ ⊢zeroᵘ
+
 ------------------------------------------------------------------------
 -- Inversion for U
 

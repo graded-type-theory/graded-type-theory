@@ -25,8 +25,10 @@ open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -34,6 +36,7 @@ open import Tools.Relation
 open I public
 
 private variable
+  n                     : Nat
   x                     : Fin _
   Γ                     : Con Term _
   A B C l l₁ l₂ t u v w : Term _
@@ -74,6 +77,54 @@ opaque
 
 opaque
 
+  -- Inversion for sucᵘ.
+
+  inversion-sucᵘ-⊢ :
+    Γ ⊢ sucᵘ l →
+    Γ ⊢ l ∷ Level × ∃ λ l′ → Γ ⊢ U l′ ≡ Level
+  inversion-sucᵘ-⊢ (univ ⊢sucᵘ) =
+    let ⊢l , U≡Level = inversion-sucᵘ ⊢sucᵘ in
+    ⊢l , _ , U≡Level
+
+opaque
+
+  -- Inversion for sucᵘ.
+
+  inversion-sucᵘ-⊢∷L :
+    Γ ⊢ sucᵘ l ∷Level →
+    Γ ⊢ l ∷Level
+  inversion-sucᵘ-⊢∷L (term ok ⊢sucᵘ) =
+    term ok (inversion-sucᵘ ⊢sucᵘ .proj₁)
+  inversion-sucᵘ-⊢∷L (literal not-ok ⊢Γ (sucᵘ l-lit)) =
+    literal not-ok ⊢Γ l-lit
+
+opaque
+
+  -- Inversion for sucᵘᵏ.
+
+  inversion-sucᵘᵏ-⊢∷L : Γ ⊢ sucᵘᵏ n l ∷Level → Γ ⊢ l ∷Level
+  inversion-sucᵘᵏ-⊢∷L {n = 0}    = idᶠ
+  inversion-sucᵘᵏ-⊢∷L {n = 1+ _} =
+    inversion-sucᵘᵏ-⊢∷L ∘→ inversion-sucᵘ-⊢∷L
+
+opaque
+
+  -- Inversion for ↓ᵘ_.
+
+  inversion-↓ᵘ : Γ ⊢ ↓ᵘ n ∷ A → Γ ⊢ A ≡ Level
+  inversion-↓ᵘ {n = 0}    = inversion-zeroᵘ
+  inversion-↓ᵘ {n = 1+ _} = proj₂ ∘→ inversion-sucᵘ
+
+opaque
+
+  -- Inversion for ↓ᵘ_.
+
+  inversion-↓ᵘ-⊢ : Γ ⊢ (↓ᵘ n) → ∃ λ l → Γ ⊢ U l ≡ Level
+  inversion-↓ᵘ-⊢ {n = 0}    = inversion-zeroᵘ-⊢
+  inversion-↓ᵘ-⊢ {n = 1+ _} = proj₂ ∘→ inversion-sucᵘ-⊢
+
+opaque
+
   -- Inversion for supᵘ.
 
   inversion-supᵘ :
@@ -85,6 +136,74 @@ opaque
   inversion-supᵘ (conv ⊢supᵘ eq) =
     let ⊢l₁ , ⊢l₂ , A≡ = inversion-supᵘ ⊢supᵘ in
     ⊢l₁ , ⊢l₂ , trans (sym eq) A≡
+
+opaque
+
+  -- Inversion for supᵘ.
+
+  inversion-supᵘ-⊢ :
+    Γ ⊢ l₁ supᵘ l₂ →
+    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × ∃ λ l → Γ ⊢ U l ≡ Level
+  inversion-supᵘ-⊢ (univ eq) =
+    let ⊢l₁ , ⊢l₂ , U≡Level = inversion-supᵘ eq in
+    ⊢l₁ , ⊢l₂ , _ , U≡Level
+
+opaque
+  unfolding _supᵘₗ′_
+
+  -- Inversion for _supᵘₗ′_.
+
+  inversion-supᵘₗ′-⊢∷ :
+    Γ ⊢ l₁ supᵘₗ′ l₂ ∷ A →
+    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × Γ ⊢ A ≡ Level
+  inversion-supᵘₗ′-⊢∷ {l₁} {l₂} ⊢sup
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | no _ =
+    inversion-supᵘ ⊢sup
+  … | yes (l₁-lit , l₂-lit) =
+    let ≡Level = inversion-↓ᵘ ⊢sup
+        ok     = inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂)
+        ⊢Γ     = wfEq ≡Level
+    in
+    ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷Level ⊢Γ l₁-lit) ,
+    ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷Level ⊢Γ l₂-lit) ,
+    ≡Level
+
+opaque
+  unfolding _supᵘₗ_
+
+  -- Inversion for _supᵘₗ_.
+
+  inversion-supᵘₗ-⊢∷ :
+    Γ ⊢ l₁ supᵘₗ l₂ ∷ A →
+    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × Γ ⊢ A ≡ Level
+  inversion-supᵘₗ-⊢∷ ⊢sup with level-support
+  … | only-literals = inversion-supᵘₗ′-⊢∷ ⊢sup
+  … | level-type _  = inversion-supᵘ ⊢sup
+
+opaque
+
+  -- Inversion for _supᵘₗ_.
+
+  inversion-supᵘₗ-⊢ :
+    Γ ⊢ l₁ supᵘₗ l₂ →
+    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × (∃ λ l → Γ ⊢ U l ≡ Level)
+  inversion-supᵘₗ-⊢ ⊢sup = inversion-supᵘₗ-⊢′ ⊢sup PE.refl
+    where
+    inversion-supᵘₗ-⊢′ :
+      Γ ⊢ A → l₁ supᵘₗ l₂ PE.≡ A →
+      Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × (∃ λ l → Γ ⊢ U l ≡ Level)
+    inversion-supᵘₗ-⊢′ (Levelⱼ _ _) eq =
+      ⊥-elim (supᵘₗ≢Level eq)
+    inversion-supᵘₗ-⊢′ (univ ⊢sup) PE.refl =
+      let ⊢l₁ , ⊢l₂ , ≡Level = inversion-supᵘₗ-⊢∷ ⊢sup in
+      ⊢l₁ , ⊢l₂ , _ , ≡Level
+    inversion-supᵘₗ-⊢′ (Liftⱼ _ _) eq =
+      ⊥-elim (supᵘₗ≢Lift eq)
+    inversion-supᵘₗ-⊢′ (ΠΣⱼ _ _) eq =
+      ⊥-elim (supᵘₗ≢ΠΣ eq)
+    inversion-supᵘₗ-⊢′ (Idⱼ _ _ _) eq =
+      ⊥-elim (supᵘₗ≢Id eq)
 
 opaque
 
@@ -266,6 +385,17 @@ opaque
       case inversion-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →
       _ , ⊢A , ⊢t , ⊢u , trans (sym C≡B) C≡U }
+
+opaque
+
+  -- A variant of inversion-Id-U.
+
+  inversion-Id∷U :
+    Γ ⊢ Id A t u ∷ U l →
+    Γ ⊢ A ∷ U l × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
+  inversion-Id∷U ⊢Id =
+    let _ , ⊢A , ⊢t , ⊢u , ≡U = inversion-Id-U ⊢Id in
+    conv ⊢A (sym ≡U) , ⊢t , ⊢u
 
 opaque
 
