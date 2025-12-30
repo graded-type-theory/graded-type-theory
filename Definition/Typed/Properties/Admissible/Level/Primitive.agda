@@ -350,3 +350,30 @@ opaque
       (PE.sym $ supᵘₗ≡↓ᵘ⊔ not-ok zeroᵘ l-lit)
       ↓ᵘ-size-of-Level $
     literal not-ok ⊢Γ Level-literal-↓ᵘ
+
+------------------------------------------------------------------------
+-- Some lemmas related to _⊢_∷Level or _⊢_≡_∷Level
+
+opaque
+
+  -- If Γ ⊢ l ∷Level holds and Level is allowed, then Γ ⊢ l ∷ Level
+  -- holds.
+
+  ⊢∷Level→⊢∷Level :
+    Level-allowed →
+    Γ ⊢ l ∷Level →
+    Γ ⊢ l ∷ Level
+  ⊢∷Level→⊢∷Level _  (term _ ⊢l)          = ⊢l
+  ⊢∷Level→⊢∷Level ok (literal not-ok _ _) = ⊥-elim (not-ok ok)
+
+opaque
+
+  -- If Γ ⊢ l₁ ≡ l₂ ∷Level holds and Level is allowed, then
+  -- Γ ⊢ l₁ ≡ l₂ ∷ Level holds.
+
+  ⊢≡∷Level→⊢≡∷Level :
+    Level-allowed →
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ l₁ ≡ l₂ ∷ Level
+  ⊢≡∷Level→⊢≡∷Level _  (term _ l₁≡l₂)       = l₁≡l₂
+  ⊢≡∷Level→⊢≡∷Level ok (literal not-ok _ _) = ⊥-elim (not-ok ok)

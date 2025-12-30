@@ -178,30 +178,6 @@ supᵘ-subᵏ {k = N.1+ k} t≤u = supᵘ-sub′ (supᵘ-subᵏ t≤u)
 
 opaque
 
-  -- If Γ ⊢ l ∷Level holds and Level is allowed, then Γ ⊢ l ∷ Level
-  -- holds.
-
-  ⊢∷Level→⊢∷Level :
-    Level-allowed →
-    Γ ⊢ l ∷Level →
-    Γ ⊢ l ∷ Level
-  ⊢∷Level→⊢∷Level _  (term _ ⊢l)          = ⊢l
-  ⊢∷Level→⊢∷Level ok (literal not-ok _ _) = ⊥-elim (not-ok ok)
-
-opaque
-
-  -- If Γ ⊢ l₁ ≡ l₂ ∷Level holds and Level is allowed, then
-  -- Γ ⊢ l₁ ≡ l₂ ∷ Level holds.
-
-  ⊢≡∷Level→⊢≡∷Level :
-    Level-allowed →
-    Γ ⊢ l₁ ≡ l₂ ∷Level →
-    Γ ⊢ l₁ ≡ l₂ ∷ Level
-  ⊢≡∷Level→⊢≡∷Level _  (term _ l₁≡l₂)       = l₁≡l₂
-  ⊢≡∷Level→⊢≡∷Level ok (literal not-ok _ _) = ⊥-elim (not-ok ok)
-
-opaque
-
   -- A variant of _⊢_∷Level.term.
 
   term-⊢∷ : Γ ⊢ l ∷ Level → Γ ⊢ l ∷Level
