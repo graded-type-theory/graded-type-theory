@@ -300,11 +300,10 @@ opaque
   -- A variant of supᵘ-zeroʳⱼ.
 
   supᵘₗ-zeroʳ :
-    ⊢ Γ →
     Γ ⊢ l ∷Level →
     Γ ⊢ l supᵘₗ zeroᵘ ≡ l ∷Level
-  supᵘₗ-zeroʳ ⊢Γ ⊢l =
-    trans-⊢≡∷L (supᵘₗ-comm ⊢l (⊢zeroᵘ ⊢Γ)) (supᵘₗ-zeroˡ ⊢l)
+  supᵘₗ-zeroʳ ⊢l =
+    trans-⊢≡∷L (supᵘₗ-comm ⊢l (⊢zeroᵘ (wfLevel ⊢l))) (supᵘₗ-zeroˡ ⊢l)
 
 opaque
   unfolding size-of-Level
