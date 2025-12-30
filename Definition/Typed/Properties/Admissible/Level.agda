@@ -31,7 +31,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat as N using (Nat)
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
@@ -79,99 +79,6 @@ opaque
     Γ ⊢ Id Level t u
   ⊢Id-Level ok ⊢t ⊢u =
     Idⱼ (Levelⱼ′ ok (wfTerm ⊢t)) ⊢t ⊢u
-
-------------------------------------------------------------------------
--- Lemmas related to _⊢_≤_∷Level
-
-wf-⊢≤ : Γ ⊢ t ≤ u ∷Level → Γ ⊢ t ∷ Level × Γ ⊢ u ∷ Level
-wf-⊢≤ t≤u =
-  let _ , ⊢t⊔u , ⊢u = syntacticEqTerm t≤u
-      ⊢t , _ = inversion-supᵘ ⊢t⊔u
-  in ⊢t , ⊢u
-
--- The order on levels is reflexive
-
-⊢≤-refl : ∀ {t u} → Γ ⊢ t ≡ u ∷ Level → Γ ⊢ t ≤ u ∷Level
-⊢≤-refl t≡u =
-  let _ , _ , ⊢u = syntacticEqTerm t≡u
-  in trans (supᵘ-cong t≡u (refl ⊢u)) (supᵘ-idem ⊢u)
-
--- The order on levels is transitive
-
-⊢≤-trans
-  : ∀ {t u v}
-  → Γ ⊢ t ≤ u ∷Level
-  → Γ ⊢ u ≤ v ∷Level
-  → Γ ⊢ t ≤ v ∷Level
-⊢≤-trans {t} {u} {v} t≤u u≤v =
-  let ⊢t , ⊢u = wf-⊢≤ t≤u
-      _  , ⊢v = wf-⊢≤ u≤v
-  in
-  t supᵘ v          ≡˘⟨ supᵘ-cong (refl ⊢t) u≤v ⟩⊢
-  t supᵘ (u supᵘ v) ≡˘⟨ supᵘ-assoc ⊢t ⊢u ⊢v ⟩⊢
-  (t supᵘ u) supᵘ v ≡⟨ supᵘ-cong t≤u (refl ⊢v) ⟩⊢
-  u supᵘ v          ≡⟨ u≤v ⟩⊢∎
-  v                 ∎
-
--- The order on levels is antisymmetric
-
-⊢≤-antisymmetric
-  : ∀ {t u}
-  → Γ ⊢ t ≤ u ∷Level
-  → Γ ⊢ u ≤ t ∷Level
-  → Γ ⊢ t ≡ u ∷ Level
-⊢≤-antisymmetric {t} {u} t≤u u≤t =
-  let ⊢t , ⊢u = wf-⊢≤ t≤u in
-  t        ≡˘⟨ u≤t ⟩⊢
-  u supᵘ t ≡⟨ supᵘ-comm ⊢u ⊢t ⟩⊢
-  t supᵘ u ≡⟨ t≤u ⟩⊢∎
-  u        ∎
-
--- A variant of supᵘ-sub.
---
--- This is also proved in EqualityRelation but we can't import that
--- without creating a dependency cycle...
-
-supᵘ-sub′
-  : Γ ⊢ t ≤ u ∷Level
-  → Γ ⊢ t ≤ sucᵘ u ∷Level
-supᵘ-sub′ {t} {u} t≤u =
-  let ⊢t , ⊢u = wf-⊢≤ t≤u in
-  t supᵘ sucᵘ u               ≡˘⟨ supᵘ-cong (refl ⊢t) (trans (supᵘ-sucᵘ ⊢t ⊢u) (sucᵘ-cong t≤u)) ⟩⊢
-  t supᵘ (sucᵘ t supᵘ sucᵘ u) ≡˘⟨ supᵘ-assoc ⊢t (sucᵘⱼ ⊢t) (sucᵘⱼ ⊢u) ⟩⊢
-  (t supᵘ sucᵘ t) supᵘ sucᵘ u ≡⟨ supᵘ-cong (supᵘ-sub ⊢t) (refl (sucᵘⱼ ⊢u)) ⟩⊢
-  sucᵘ t supᵘ sucᵘ u          ≡⟨ supᵘ-sucᵘ ⊢t ⊢u ⟩⊢
-  sucᵘ (t supᵘ u)             ≡⟨ sucᵘ-cong t≤u ⟩⊢∎
-  sucᵘ u                      ∎
-
--- If t ≤ u, then t ≤ sucᵘᵏ k u
-
-supᵘ-subᵏ
-  : ∀ {t u k}
-  → Γ ⊢ t ≤ u ∷Level
-  → Γ ⊢ t ≤ sucᵘᵏ k u ∷Level
-supᵘ-subᵏ {k = 0}      t≤u = t≤u
-supᵘ-subᵏ {k = N.1+ k} t≤u = supᵘ-sub′ (supᵘ-subᵏ t≤u)
-
--- If t ≤ u, then sucᵘ t ≤ sucᵘ u
-
-≤-sucᵘ
-  : ∀ {t u}
-  → Γ ⊢ t ≤ u ∷Level
-  → Γ ⊢ sucᵘ t ≤ sucᵘ u ∷Level
-≤-sucᵘ t≤u =
-  let ⊢t , ⊢u = wf-⊢≤ t≤u
-  in trans (supᵘ-sucᵘ ⊢t ⊢u) (sucᵘ-cong t≤u)
-
--- If n ≤ m and t ≤ u, then sucᵘᵏ n t ≤ sucᵘᵏ m u
-
-≤-sucᵘᵏ
-  : ∀ {t u n m}
-  → n N.≤ m
-  → Γ ⊢ t ≤ u ∷Level
-  → Γ ⊢ sucᵘᵏ n t ≤ sucᵘᵏ m u ∷Level
-≤-sucᵘᵏ N.z≤n       t≤u = supᵘ-subᵏ t≤u
-≤-sucᵘᵏ (N.s≤s n≤m) t≤u = ≤-sucᵘ (≤-sucᵘᵏ n≤m t≤u)
 
 ------------------------------------------------------------------------
 -- Some lemmas related to _⊢_∷Level, _⊢_≡_∷Level or _⊢_≤ₗ_∷Level
@@ -543,3 +450,89 @@ opaque
     step-⊢≤ₗ∷L (sucᵘᵏ-mono N.z≤n l₁≤l₂)
   sucᵘᵏ-mono (N.s≤s n₁≤n₂) l₁≤l₂ =
     sucᵘ-mono (sucᵘᵏ-mono n₁≤n₂ l₁≤l₂)
+
+------------------------------------------------------------------------
+-- Lemmas related to _⊢_≤_∷Level
+
+opaque
+
+  -- A well-formedness lemma.
+
+  wf-⊢≤ : Γ ⊢ l₁ ≤ l₂ ∷Level → Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level
+  wf-⊢≤ l₁≤l₂ =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≤l₂ .proj₁) in
+    Σ.map (⊢∷Level→⊢∷Level ok) (⊢∷Level→⊢∷Level ok)
+      (wf-⊢≤ₗ∷L (term-⊢≤∷L l₁≤l₂))
+
+opaque
+
+  -- Reflexivity.
+
+  ⊢≤-refl : Γ ⊢ l₁ ≡ l₂ ∷ Level → Γ ⊢ l₁ ≤ l₂ ∷Level
+  ⊢≤-refl l₁≡l₂ =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≡l₂ .proj₁) in
+    ⊢≤ₗ∷Level→⊢≤∷Level ok (reflexive-⊢≤ₗ∷L (term-⊢≡∷ l₁≡l₂))
+
+opaque
+
+  -- Transitivity.
+
+  ⊢≤-trans :
+    Γ ⊢ l₁ ≤ l₂ ∷Level → Γ ⊢ l₂ ≤ l₃ ∷Level → Γ ⊢ l₁ ≤ l₃ ∷Level
+  ⊢≤-trans l₁≤l₂ l₂≤l₃ =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≤l₂ .proj₁) in
+    ⊢≤ₗ∷Level→⊢≤∷Level ok
+      (trans-⊢≤ₗ∷L (term-⊢≤∷L l₁≤l₂) (term-⊢≤∷L l₂≤l₃))
+
+opaque
+
+  -- Antisymmetry.
+
+  ⊢≤-antisymmetric :
+    Γ ⊢ l₁ ≤ l₂ ∷Level → Γ ⊢ l₂ ≤ l₁ ∷Level → Γ ⊢ l₁ ≡ l₂ ∷ Level
+  ⊢≤-antisymmetric l₁≤l₂ l₂≤l₁ =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≤l₂ .proj₁) in
+    ⊢≡∷Level→⊢≡∷Level ok
+      (antisym-⊢≤ₗ∷L (term-⊢≤∷L l₁≤l₂) (term-⊢≤∷L l₂≤l₁))
+
+opaque
+
+  -- A variant of supᵘ-sub.
+  --
+  -- See also Definition.Typed.EqualityRelation.≅ₜ-supᵘ-sub′.
+
+  supᵘ-sub′ : Γ ⊢ l₁ ≤ l₂ ∷Level → Γ ⊢ l₁ ≤ sucᵘ l₂ ∷Level
+  supᵘ-sub′ l₁≤l₂ =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≤l₂ .proj₁) in
+    ⊢≤ₗ∷Level→⊢≤∷Level ok (step-⊢≤ₗ∷L (term-⊢≤∷L l₁≤l₂))
+
+opaque
+
+  -- A variant of supᵘ-sub′.
+
+  supᵘ-subᵏ : Γ ⊢ l₁ ≤ l₂ ∷Level → Γ ⊢ l₁ ≤ sucᵘᵏ n l₂ ∷Level
+  supᵘ-subᵏ {n = 0}      = idᶠ
+  supᵘ-subᵏ {n = N.1+ _} = supᵘ-sub′ ∘→ supᵘ-subᵏ
+
+opaque
+
+  -- The function sucᵘ is monotone.
+
+  ≤-sucᵘ :
+    Γ ⊢ l₁ ≤ l₂ ∷Level →
+    Γ ⊢ sucᵘ l₁ ≤ sucᵘ l₂ ∷Level
+  ≤-sucᵘ l₁≤l₂ =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≤l₂ .proj₁) in
+    ⊢≤ₗ∷Level→⊢≤∷Level ok (sucᵘ-mono (term-⊢≤∷L l₁≤l₂))
+
+opaque
+
+  -- The function sucᵘᵏ is monotone.
+
+  ≤-sucᵘᵏ :
+    n₁ N.≤ n₂ →
+    Γ ⊢ l₁ ≤ l₂ ∷Level →
+    Γ ⊢ sucᵘᵏ n₁ l₁ ≤ sucᵘᵏ n₂ l₂ ∷Level
+  ≤-sucᵘᵏ n₁≤n₂ l₁≤l₂ =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≤l₂ .proj₁) in
+    ⊢≤ₗ∷Level→⊢≤∷Level ok (sucᵘᵏ-mono n₁≤n₂ (term-⊢≤∷L l₁≤l₂))
