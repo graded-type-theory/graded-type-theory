@@ -39,7 +39,7 @@ open import Tools.Relation
 open LP public hiding (supᵘ-zeroʳⱼ)
 
 private variable
-  n                                        : Nat
+  n n₁ n₂                                  : Nat
   Γ                                        : Con Term _
   A B B₁ B₂ l l₁ l₂ l₂′ l₃ t t₁ t₂ u u₁ u₂ : Term _
 
@@ -415,3 +415,17 @@ opaque
        ↓ᵘ (size-of-Level l-lit N.⊔ N.1+ (size-of-Level l-lit))  ≡˘⟨ supᵘₗ≡↓ᵘ⊔ not-ok l-lit (sucᵘ l-lit) ⟩
        l supᵘₗ sucᵘ l                                           ∎) $
     literal not-ok ⊢Γ (sucᵘ l-lit)
+
+opaque
+
+  -- A variant of supᵘₗ-sucᵘ.
+
+  supᵘₗ-↓ᵘ :
+    ⊢ Γ → Γ ⊢ (↓ᵘ n₁) supᵘₗ (↓ᵘ n₂) ≡ ↓ᵘ (n₁ N.⊔ n₂) ∷Level
+  supᵘₗ-↓ᵘ {n₁ = 0} ⊢Γ =
+    supᵘₗ-zeroˡ (⊢↓ᵘ ⊢Γ)
+  supᵘₗ-↓ᵘ {n₁ = N.1+ _} {n₂ = 0} ⊢Γ =
+    supᵘₗ-zeroʳ (⊢↓ᵘ ⊢Γ)
+  supᵘₗ-↓ᵘ {n₁ = N.1+ _} {n₂ = N.1+ _} ⊢Γ =
+    trans-⊢≡∷L (supᵘₗ-sucᵘ (⊢↓ᵘ ⊢Γ) (⊢↓ᵘ ⊢Γ))
+      (sucᵘ-cong-⊢≡∷L (supᵘₗ-↓ᵘ ⊢Γ))
