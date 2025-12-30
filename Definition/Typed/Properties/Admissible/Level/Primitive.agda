@@ -22,7 +22,7 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat as N using (Nat; 1+; _⊔_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -330,7 +330,7 @@ opaque
   supᵘₗ-comm (literal not-ok ⊢Γ l₁-lit) (literal _ _ l₂-lit) =
     PE.subst₂ (_⊢_≡_∷Level _)
       (PE.sym $ supᵘₗ≡↓ᵘ⊔ not-ok l₁-lit l₂-lit)
-      (PE.trans (PE.cong ↓ᵘ_ (⊔-comm (size-of-Level _) _)) $
+      (PE.trans (PE.cong ↓ᵘ_ (N.⊔-comm (size-of-Level _) _)) $
        PE.sym $ supᵘₗ≡↓ᵘ⊔ not-ok l₂-lit l₁-lit) $
     literal not-ok ⊢Γ Level-literal-↓ᵘ
 
@@ -377,3 +377,23 @@ opaque
     Γ ⊢ l₁ ≡ l₂ ∷ Level
   ⊢≡∷Level→⊢≡∷Level _  (term _ l₁≡l₂)       = l₁≡l₂
   ⊢≡∷Level→⊢≡∷Level ok (literal not-ok _ _) = ⊥-elim (not-ok ok)
+
+opaque
+
+  -- If Γ ⊢ l₁ ≤ₗ l₂ ∷Level holds and Level is allowed, then
+  -- Γ ⊢ l₁ ≤ l₂ ∷Level holds.
+
+  ⊢≤ₗ∷Level→⊢≤∷Level :
+    Level-allowed →
+    Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
+    Γ ⊢ l₁ ≤ l₂ ∷Level
+  ⊢≤ₗ∷Level→⊢≤∷Level ok l₁≤l₂ = ⊢≤ₗ∷Level→⊢≤∷Level′ l₁≤l₂ PE.refl
+    where
+    ⊢≤ₗ∷Level→⊢≤∷Level′ :
+      Γ ⊢ l ≡ l₂ ∷Level →
+      l PE.≡ l₁ supᵘₗ l₂ →
+      Γ ⊢ l₁ ≤ l₂ ∷Level
+    ⊢≤ₗ∷Level→⊢≤∷Level′ (term _ l₁≤l₂) PE.refl =
+      PE.subst₃ (_⊢_≡_∷_ _) (supᵘₗ≡supᵘ ok) PE.refl PE.refl l₁≤l₂
+    ⊢≤ₗ∷Level→⊢≤∷Level′ (literal not-ok _ _) _ =
+      ⊥-elim (not-ok ok)

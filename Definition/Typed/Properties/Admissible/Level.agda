@@ -39,9 +39,9 @@ open import Tools.Relation
 open LP public hiding (supᵘ-zeroʳⱼ)
 
 private variable
-  n n₁ n₂                                  : Nat
-  Γ                                        : Con Term _
-  A B B₁ B₂ l l₁ l₂ l₂′ l₃ t t₁ t₂ u u₁ u₂ : Term _
+  n n₁ n₂                                                  : Nat
+  Γ                                                        : Con Term _
+  A B B₁ B₂ l l₁ l₁₁ l₁₂ l₂ l₂′ l₂₁ l₂₂ l₃ t t₁ t₂ u u₁ u₂ : Term _
 
 ------------------------------------------------------------------------
 -- Some lemmas related to U and/or Id
@@ -174,7 +174,7 @@ supᵘ-subᵏ {k = N.1+ k} t≤u = supᵘ-sub′ (supᵘ-subᵏ t≤u)
 ≤-sucᵘᵏ (N.s≤s n≤m) t≤u = ≤-sucᵘ (≤-sucᵘᵏ n≤m t≤u)
 
 ------------------------------------------------------------------------
--- Some lemmas related to _⊢_∷Level or _⊢_≡_∷Level
+-- Some lemmas related to _⊢_∷Level, _⊢_≡_∷Level or _⊢_≤ₗ_∷Level
 
 opaque
 
@@ -189,6 +189,16 @@ opaque
 
   term-⊢≡∷ : Γ ⊢ l₁ ≡ l₂ ∷ Level → Γ ⊢ l₁ ≡ l₂ ∷Level
   term-⊢≡∷ l₁≡l₂ = term (inversion-Level-⊢ (wf-⊢≡∷ l₁≡l₂ .proj₁)) l₁≡l₂
+
+opaque
+
+  -- The relation _⊢_≤_∷Level is contained in _⊢_≤ₗ_∷Level.
+
+  term-⊢≤∷L : Γ ⊢ l₁ ≤ l₂ ∷Level → Γ ⊢ l₁ ≤ₗ l₂ ∷Level
+  term-⊢≤∷L l₁≤l₂ =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≤l₂ .proj₁) in
+    PE.subst (flip (_⊢_≡_∷Level _) _) (PE.sym (supᵘₗ≡supᵘ ok)) $
+    term-⊢≡∷ l₁≤l₂
 
 ------------------------------------------------------------------------
 -- A lemma related to suc
@@ -374,13 +384,122 @@ opaque
     literal not-ok ⊢Γ l-lit
 
 opaque
+
+  -- A variant of supᵘₗ-sucᵘ.
+
+  supᵘₗ-↓ᵘ :
+    ⊢ Γ → Γ ⊢ (↓ᵘ n₁) supᵘₗ (↓ᵘ n₂) ≡ ↓ᵘ (n₁ N.⊔ n₂) ∷Level
+  supᵘₗ-↓ᵘ {n₁ = 0} ⊢Γ =
+    supᵘₗ-zeroˡ (⊢↓ᵘ ⊢Γ)
+  supᵘₗ-↓ᵘ {n₁ = N.1+ _} {n₂ = 0} ⊢Γ =
+    supᵘₗ-zeroʳ (⊢↓ᵘ ⊢Γ)
+  supᵘₗ-↓ᵘ {n₁ = N.1+ _} {n₂ = N.1+ _} ⊢Γ =
+    trans-⊢≡∷L (supᵘₗ-sucᵘ (⊢↓ᵘ ⊢Γ) (⊢↓ᵘ ⊢Γ))
+      (sucᵘ-cong-⊢≡∷L (supᵘₗ-↓ᵘ ⊢Γ))
+
+------------------------------------------------------------------------
+-- Some lemmas related to _⊢_≤ₗ_∷Level
+
+opaque
+
+  -- A well-formedness lemma.
+
+  wf-⊢≤ₗ∷L : Γ ⊢ l₁ ≤ₗ l₂ ∷Level → Γ ⊢ l₁ ∷Level × Γ ⊢ l₂ ∷Level
+  wf-⊢≤ₗ∷L l₁≤l₂ =
+    let ⊢⊔ , _ = wf-⊢≡∷L l₁≤l₂ in
+    inversion-supᵘₗ ⊢⊔
+
+opaque
+
+  -- Reflexivity.
+
+  refl-⊢≤ₗ∷L :
+    Γ ⊢ l ∷Level →
+    Γ ⊢ l ≤ₗ l ∷Level
+  refl-⊢≤ₗ∷L = supᵘₗ-idem
+
+opaque
+
+  -- Reflexivity.
+
+  reflexive-⊢≤ₗ∷L :
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ l₁ ≤ₗ l₂ ∷Level
+  reflexive-⊢≤ₗ∷L l₁≡l₂ =
+    let _ , ⊢l₂ = wf-⊢≡∷L l₁≡l₂ in
+    trans-⊢≡∷L (supᵘₗ-cong l₁≡l₂ (refl-⊢≡∷L ⊢l₂)) $
+    supᵘₗ-idem ⊢l₂
+
+opaque
+
+  -- Transitivity.
+
+  trans-⊢≤ₗ∷L :
+    Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
+    Γ ⊢ l₂ ≤ₗ l₃ ∷Level →
+    Γ ⊢ l₁ ≤ₗ l₃ ∷Level
+  trans-⊢≤ₗ∷L l₁≤l₂ l₂≤l₃ =
+    let ⊢l₁ , ⊢l₂ = wf-⊢≤ₗ∷L l₁≤l₂
+        _   , ⊢l₃ = wf-⊢≤ₗ∷L l₂≤l₃
+    in
+    trans-⊢≡∷L (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (sym-⊢≡∷L l₂≤l₃)) $
+    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l₁ ⊢l₂ ⊢l₃)) $
+    trans-⊢≡∷L (supᵘₗ-cong l₁≤l₂ (refl-⊢≡∷L ⊢l₃)) l₂≤l₃
+
+opaque
+
+  -- Antisymmetry.
+
+  antisym-⊢≤ₗ∷L :
+    Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
+    Γ ⊢ l₂ ≤ₗ l₁ ∷Level →
+    Γ ⊢ l₁ ≡ l₂ ∷Level
+  antisym-⊢≤ₗ∷L l₁≤l₂ l₂≤l₁ =
+    let ⊢l₁ , ⊢l₂ = wf-⊢≤ₗ∷L l₁≤l₂ in
+    trans-⊢≡∷L (sym-⊢≡∷L l₂≤l₁) $
+    trans-⊢≡∷L (supᵘₗ-comm ⊢l₂ ⊢l₁) l₁≤l₂
+
+opaque
+
+  -- The function sucᵘ is monotone.
+
+  sucᵘ-mono :
+    Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
+    Γ ⊢ sucᵘ l₁ ≤ₗ sucᵘ l₂ ∷Level
+  sucᵘ-mono l₁≤l₂ =
+    let ⊢l₁ , ⊢l₂ = wf-⊢≤ₗ∷L l₁≤l₂ in
+    trans-⊢≡∷L (supᵘₗ-sucᵘ ⊢l₁ ⊢l₂)
+      (sucᵘ-cong-⊢≡∷L l₁≤l₂)
+
+opaque
+
+  -- The function _supᵘₗ_ is monotone.
+
+  supᵘₗ-mono :
+    Γ ⊢ l₁₁ ≤ₗ l₂₁ ∷Level →
+    Γ ⊢ l₁₂ ≤ₗ l₂₂ ∷Level →
+    Γ ⊢ l₁₁ supᵘₗ l₁₂ ≤ₗ l₂₁ supᵘₗ l₂₂ ∷Level
+  supᵘₗ-mono l₁₁≤l₂₁ l₁₂≤l₂₂ =
+    let ⊢l₁₁ , ⊢l₂₁ = wf-⊢≤ₗ∷L l₁₁≤l₂₁
+        ⊢l₁₂ , ⊢l₂₂ = wf-⊢≤ₗ∷L l₁₂≤l₂₂
+    in
+    trans-⊢≡∷L (supᵘₗ-assoc ⊢l₁₁ ⊢l₁₂ (⊢supᵘₗ ⊢l₂₁ ⊢l₂₂)) $
+    trans-⊢≡∷L
+      (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁₁) $
+       trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l₁₂ ⊢l₂₁ ⊢l₂₂)) $
+       trans-⊢≡∷L (supᵘₗ-cong (supᵘₗ-comm ⊢l₁₂ ⊢l₂₁) (refl-⊢≡∷L ⊢l₂₂)) $
+       supᵘₗ-assoc ⊢l₂₁ ⊢l₁₂ ⊢l₂₂) $
+    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l₁₁ ⊢l₂₁ (⊢supᵘₗ ⊢l₁₂ ⊢l₂₂))) $
+    supᵘₗ-cong l₁₁≤l₂₁ l₁₂≤l₂₂
+
+opaque
   unfolding size-of-Level
 
   -- A variant of supᵘ-sub.
 
   supᵘₗ-sub :
     Γ ⊢ l ∷Level →
-    Γ ⊢ l supᵘₗ sucᵘ l ≡ sucᵘ l ∷Level
+    Γ ⊢ l ≤ₗ sucᵘ l ∷Level
   supᵘₗ-sub (term ok ⊢l) =
     PE.subst (flip (_⊢_≡_∷Level _) _) (PE.sym $ supᵘₗ≡supᵘ ok) $
     term ok (supᵘ-sub ⊢l)
@@ -394,14 +513,33 @@ opaque
 
 opaque
 
-  -- A variant of supᵘₗ-sucᵘ.
+  -- If l₁ is bounded by l₂, then l₁ is also bounded by sucᵘ l₂.
 
-  supᵘₗ-↓ᵘ :
-    ⊢ Γ → Γ ⊢ (↓ᵘ n₁) supᵘₗ (↓ᵘ n₂) ≡ ↓ᵘ (n₁ N.⊔ n₂) ∷Level
-  supᵘₗ-↓ᵘ {n₁ = 0} ⊢Γ =
-    supᵘₗ-zeroˡ (⊢↓ᵘ ⊢Γ)
-  supᵘₗ-↓ᵘ {n₁ = N.1+ _} {n₂ = 0} ⊢Γ =
-    supᵘₗ-zeroʳ (⊢↓ᵘ ⊢Γ)
-  supᵘₗ-↓ᵘ {n₁ = N.1+ _} {n₂ = N.1+ _} ⊢Γ =
-    trans-⊢≡∷L (supᵘₗ-sucᵘ (⊢↓ᵘ ⊢Γ) (⊢↓ᵘ ⊢Γ))
-      (sucᵘ-cong-⊢≡∷L (supᵘₗ-↓ᵘ ⊢Γ))
+  step-⊢≤ₗ∷L :
+    Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
+    Γ ⊢ l₁ ≤ₗ sucᵘ l₂ ∷Level
+  step-⊢≤ₗ∷L l₁≤l₂ =
+    let ⊢l₁ , ⊢l₂ = wf-⊢≤ₗ∷L l₁≤l₂ in
+    trans-⊢≡∷L
+      (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) $
+       trans-⊢≡∷L (sucᵘ-cong-⊢≡∷L (sym-⊢≡∷L l₁≤l₂)) $
+       sym-⊢≡∷L (supᵘₗ-sucᵘ ⊢l₁ ⊢l₂)) $
+    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l₁ (⊢sucᵘ ⊢l₁) (⊢sucᵘ ⊢l₂))) $
+    trans-⊢≡∷L (supᵘₗ-cong (supᵘₗ-sub ⊢l₁) (refl-⊢≡∷L (⊢sucᵘ ⊢l₂))) $
+    trans-⊢≡∷L (supᵘₗ-sucᵘ ⊢l₁ ⊢l₂) $
+    sucᵘ-cong-⊢≡∷L l₁≤l₂
+
+opaque
+
+  -- The function sucᵘᵏ is monotone.
+
+  sucᵘᵏ-mono :
+    n₁ N.≤ n₂ →
+    Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
+    Γ ⊢ sucᵘᵏ n₁ l₁ ≤ₗ sucᵘᵏ n₂ l₂ ∷Level
+  sucᵘᵏ-mono (N.z≤n {n = 0}) l₁≤l₂ =
+    l₁≤l₂
+  sucᵘᵏ-mono (N.z≤n {n = N.1+ _}) l₁≤l₂ =
+    step-⊢≤ₗ∷L (sucᵘᵏ-mono N.z≤n l₁≤l₂)
+  sucᵘᵏ-mono (N.s≤s n₁≤n₂) l₁≤l₂ =
+    sucᵘ-mono (sucᵘᵏ-mono n₁≤n₂ l₁≤l₂)

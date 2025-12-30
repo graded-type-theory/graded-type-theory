@@ -669,6 +669,13 @@ _⊢_↘_∷_ : (Γ : Con Term n) → Term n → Term n → Term n → Set ℓ
 _⊢_≤_∷Level : (Γ : Con Term n) (t u : Term n) → Set ℓ
 Γ ⊢ t ≤ u ∷Level = Γ ⊢ t supᵘ u ≡ u ∷ Level
 
+-- A variant of _⊢_≤_∷Level, expressed using _supᵘₗ_ and _⊢_≡_∷Level.
+
+infix 4 _⊢_≤ₗ_∷Level
+
+_⊢_≤ₗ_∷Level : Con Term n → (_ _ : Term n) → Set ℓ
+Γ ⊢ l₁ ≤ₗ l₂ ∷Level = Γ ⊢ l₁ supᵘₗ l₂ ≡ l₂ ∷Level
+
 -- A context Γ is consistent if the empty type is not inhabited in Γ.
 
 Consistent : Con Term n → Set ℓ
