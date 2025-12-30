@@ -500,7 +500,6 @@ import Graded.Erasure.LogicalRelation.Fundamental
 -- Soundness of extraction.
 import Graded.Erasure.SucRed
 import Graded.Erasure.Consequences.Soundness
-import Graded.Erasure.Consequences.Soundness.Extended-type-theory
 import Graded.Erasure.Consequences.Soundness.Erased-matches
 import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
 
@@ -524,6 +523,11 @@ import Graded.Neutral
 import Graded.Box-cong
 import Graded.Modify-box-cong-or-J.Configuration
 import Graded.Modify-box-cong-or-J
+
+------------------------------------------------------------------------
+-- Soundness of extraction via extended type theories
+
+import Graded.Erasure.Consequences.Soundness.Extended-type-theory
 
 ------------------------------------------------------------------------
 -- A resource aware abstract machine
