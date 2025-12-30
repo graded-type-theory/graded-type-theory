@@ -4,9 +4,10 @@
 -- Anders Danielsson and Oskar Eriksson
 --------------------------------------------------------------------------
 
--- Note that Gaëtan Gilbert, Wojciech Nawrocki, Joakim Öhman and
--- Andrea Vezzosi have also contributed to the code, and some changes
--- to the code were made after feedback from anonymous reviewers.
+-- Note that Naïm Camille Favier, Eve Geng, Gaëtan Gilbert, Ondřej
+-- Kubánek, Wojciech Nawrocki, Joakim Öhman and Andrea Vezzosi have
+-- also contributed to the code, and some changes to the code were
+-- made after feedback from anonymous reviewers.
 --
 -- The code also depends on some libraries:
 --
