@@ -1221,56 +1221,63 @@ mutual
 
   equal-ne-inf :
     Fuel → (Γ : Cons c m n) (t₁ t₂ : Term c n) → Check c (Term c n)
-  equal-ne-inf              0      _ _  _  = fail "No fuel left."
-  equal-ne-inf {c} {n = n′} (1+ n) Γ t₁ t₂ =
+  equal-ne-inf 0      _ _  _  = fail "No fuel left."
+  equal-ne-inf (1+ n) Γ t₁ t₂ =
     register ([equal-ne-inf] Γ t₁ t₂) do
       eq ← are-equal-eliminators t₁ t₂
-      equal-ne-inf′ eq
-    where
-    equal-ne-inf′ : Are-equal-eliminators t₁ t₂ → Check c (Term c n′)
-    equal-ne-inf′ (meta-var x₁ σ₁ x₂ σ₂ _) = do
+      equal-ne-inf′ n Γ eq
+
+  private
+
+    -- A helper function.
+
+    equal-ne-inf′ :
+      {t₁ t₂ : Term c n} →
+      Fuel → Cons c m n → Are-equal-eliminators t₁ t₂ →
+      Check c (Term c n)
+    equal-ne-inf′ n Γ (meta-var x₁ σ₁ x₂ σ₂ _) = do
       Δ₁      ← context-of x₁
       Δ₂ , A  ← is-term x₂
       PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
       are-equal-meta-vars x₁ x₂
       return (subst A σ₁)
-    equal-ne-inf′ (var x _) =
+    equal-ne-inf′ _ Γ (var x _) =
       index (Γ .vars) x
-    equal-ne-inf′ (defn α _) = do
+    equal-ne-inf′ _ Γ (defn α _) = do
       A ← type-of (Γ .defs) α
       return (weaken U.wk₀ A)
-    equal-ne-inf′ (sup l₁₁ l₂₁ l₁₂ l₂₂ _) = do
+    equal-ne-inf′ n Γ (sup l₁₁ l₂₁ l₁₂ l₂₂ _) = do
       check-and-equal-level n Γ (l₁₁ supᵘₗ l₂₁) (l₁₂ supᵘₗ l₂₂)
       require level-allowed
       return Level
-    equal-ne-inf′ (lower t₁ t₂ _) = do
+    equal-ne-inf′ n Γ (lower t₁ t₂ _) = do
       A          ← equal-ne-inf-red n Γ t₁ t₂
       _ , B ,  _ ← is-Lift A
       return B
-    equal-ne-inf′ (emptyrec A₁ t₁ A₂ t₂ _) = do
+    equal-ne-inf′ n Γ (emptyrec A₁ t₁ A₂ t₂ _) = do
       A ← check-and-equal-ty n Γ A₁ A₂
       equal-ne-red n Γ t₁ t₂ Empty
       return A
-    equal-ne-inf′ (unitrec A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _) = do
+    equal-ne-inf′ n Γ (unitrec A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _) = do
       A ← check-and-equal-ty n (Γ »∙ Unit 𝕨) A₁ A₂
       equal-ne-red n Γ t₁₁ t₂₁ (Unit 𝕨)
       check-and-equal-tm n Γ t₁₂ t₂₂ (subst A (sgSubst (star 𝕨)))
       require (unit-allowed 𝕨)
       return (subst A (sgSubst t₁₁))
-    equal-ne-inf′ (app p t₁₁ t₁₂ t₂₁ t₂₂ _) = do
+    equal-ne-inf′ n Γ (app p t₁₁ t₁₂ t₂₁ t₂₂ _) = do
       A               ← equal-ne-inf-red n Γ t₁₁ t₂₁
       _ , A₁ , A₂ , _ ← is-ΠΣ BMΠ p A
       t₂              ← check-and-equal-tm n Γ t₁₂ t₂₂ A₁
       return (subst A₂ (sgSubst t₂))
-    equal-ne-inf′ (fst p t₁′ t₂′ _) = do
+    equal-ne-inf′ n Γ (fst p t₁′ t₂′ _) = do
       A          ← equal-ne-inf-red n Γ t₁′ t₂′
       _ , A₁ , _ ← is-ΠΣ (BMΣ 𝕤) p A
       return A₁
-    equal-ne-inf′ (snd p t₁′ t₂′ _) = do
+    equal-ne-inf′ n Γ (snd p t₁′ t₂′ _) = do
       A              ← equal-ne-inf-red n Γ t₁′ t₂′
       _ , _ , A₂ , _ ← is-ΠΣ (BMΣ 𝕤) p A
       return (subst A₂ (sgSubst (fst p t₁′)))
-    equal-ne-inf′ (prodrec p A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _) = do
+    equal-ne-inf′ n Γ (prodrec p A₁ t₁₁ t₁₂ A₂ t₂₁ t₂₂ _) = do
       B               ← equal-ne-inf-red n Γ t₁₁ t₂₁
       q , B₁ , B₂ , _ ← is-ΠΣ (BMΣ 𝕨) p B
       A ← check-and-equal-ty n (Γ »∙ Σʷ p , q ▷ B₁ ▹ B₂) A₁ A₂
@@ -1280,7 +1287,7 @@ mutual
               (prod 𝕨 p (just (q , weaken (lift (U.stepn id 2)) B₂))
                  (var x1) (var x0))))
       return (subst A (sgSubst t₁₁))
-    equal-ne-inf′ (natrec A₁ t₁₁ t₁₂ t₁₃ A₂ t₂₁ t₂₂ t₂₃ _) = do
+    equal-ne-inf′ n Γ (natrec A₁ t₁₁ t₁₂ t₁₃ A₂ t₂₁ t₂₂ t₂₃ _) = do
       A ← check-and-equal-ty n (Γ »∙ ℕ) A₁ A₂
       check-and-equal-tm n Γ t₁₁ t₂₁ (subst A (sgSubst zero))
       check-and-equal-tm n (Γ »∙ ℕ »∙ A) t₁₂ t₂₂
@@ -1288,7 +1295,7 @@ mutual
       equal-ne-red n Γ t₁₃ t₂₃ ℕ
       return (subst A (sgSubst t₁₃))
     equal-ne-inf′
-      (J A₁₁ t₁₁ A₁₂ t₁₂ t₁₃ t₁₄ A₂₁ t₂₁ A₂₂ t₂₂ t₂₃ t₂₄ _) = do
+      n Γ (J A₁₁ t₁₁ A₁₂ t₁₂ t₁₃ t₁₄ A₂₁ t₂₁ A₂₂ t₂₂ t₂₃ t₂₄ _) = do
       A₁ ← check-and-equal-ty n Γ A₁₁ A₂₁
       t₁ ← check-and-equal-tm n Γ t₁₁ t₂₁ A₁
       A₂ ←
@@ -1299,7 +1306,7 @@ mutual
       t₃ ← check-and-equal-tm n Γ t₁₃ t₂₃ A₁
       equal-ne-red n Γ t₁₄ t₂₄ (Id A₁ t₁ t₃)
       return (subst A₂ (cons (sgSubst t₃) t₁₄))
-    equal-ne-inf′ (K A₁₁ t₁₁ A₁₂ t₁₂ t₁₃ A₂₁ t₂₁ A₂₂ t₂₂ t₂₃ _) = do
+    equal-ne-inf′ n Γ (K A₁₁ t₁₁ A₁₂ t₁₂ t₁₃ A₂₁ t₂₁ A₂₂ t₂₂ t₂₃ _) = do
       A₁ ← check-and-equal-ty n Γ A₁₁ A₂₁
       t₁ ← check-and-equal-tm n Γ t₁₁ t₂₁ A₁
       A₂ ← check-and-equal-ty n (Γ »∙ Id A₁ t₁ t₁) A₁₂ A₂₂
@@ -1308,7 +1315,8 @@ mutual
       equal-ne-red n Γ t₁₃ t₂₃ (Id A₁ t₁ t₁)
       require k-allowed
       return (subst A₂ (sgSubst t₁₃))
-    equal-ne-inf′ ([]-cong s l₁ A₁ t₁₁ t₁₂ t₁₃ l₂ A₂ t₂₁ t₂₂ t₂₃ _) = do
+    equal-ne-inf′
+      n Γ ([]-cong s l₁ A₁ t₁₁ t₁₂ t₁₃ l₂ A₂ t₂₁ t₂₂ t₂₃ _) = do
       l  ← check-and-equal-level n Γ l₁ l₂
       A  ← check-and-equal-ty n Γ A₁ A₂
       t₁ ← check-and-equal-tm n Γ t₁₁ t₂₁ A
@@ -3717,263 +3725,264 @@ opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
   equal-ne-inf-sound 0      not-ok
-  equal-ne-inf-sound (1+ _) eq     _ _
+  equal-ne-inf-sound (1+ _) eq     ⊢γ ⊢Γ
     with inv->>= (inv-register eq)
-  equal-ne-inf-sound {γ} _ _ ⊢γ ⊢Γ
-    | inv (meta-var x₁ σ₁ x₂ σ₂ PE.refl) _ eq
-    rewrite ⌜meta-var⌝ {γ = γ} {x = x₁} σ₁
-          | ⌜meta-var⌝ {γ = γ} {x = x₂} σ₂
-    using inv _ _ eq ← inv->>= eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv PE.refl eq₂ eq
-    with inv->>= eq
-  … | inv _ eq₃ ok! =
-    let x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
-        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ ⊢Γ (wfTerm ⊢x₂)
-        x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term ⊢x₂
-    in
-    subst-⊢≡∷ x₁≡x₂ σ₁≡σ₂
-  equal-ne-inf-sound {Γ} _ _ _ ⊢Γ
-    | inv (var _ PE.refl) _ eq =
-    refl (var ⊢Γ (index-sound (Γ .vars) eq .proj₁ PE.refl))
-  equal-ne-inf-sound {Γ} _ _ _ ⊢Γ
-    | inv (defn _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq ok! =
-    refl (defn ⊢Γ (type-of-sound (Γ .defs) eq) PE.refl)
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (sup _ _ _ _ PE.refl) _ eq
-    using inv _ eq₁ eq ← inv->>= eq
-    with inv->>= eq
-  … | inv _ eq₂ ok! =
-    let _ , ⊔≡⊔    = check-and-equal-level-sound′ n eq₁ ⊢γ ⊢Γ
-        L.lift okᴸ = inv-require ⊢γ eq₂
-    in
-    ⊢≡∷Level→⊢≡∷Level okᴸ ⊔≡⊔
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (lower _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv (_ , _ , PE.refl) _ ok! =
-    lower-cong (equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ)
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (emptyrec _ _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv _ eq₂ ok! =
-    let A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ ⊢Γ
-        t₁≡t₂        = equal-ne-red-sound n eq₂ ⊢γ (⊢Empty ⊢Γ)
-    in
-    conv (emptyrec-cong A₁≡A₂ t₁≡t₂) A₁≡A
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (unitrec _ _ _ _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    using inv _ eq₂ eq ← inv->>= eq
-        | inv _ eq₃ eq ← inv->>= eq
-    with inv->>= eq
-  … | inv _ eq₄ ok! =
-    let Unit-ok      = inv-require ⊢γ eq₄
-        ⊢Unit        = ⊢Unit ⊢Γ Unit-ok
-        ⊢⋆           = starⱼ ⊢Γ Unit-ok
-        A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ (∙ ⊢Unit)
-        _ , ⊢A       = wf-⊢≡ A₁≡A
-        t₁₁≡t₂₁      = equal-ne-red-sound n eq₂ ⊢γ ⊢Unit
-        _ , ⊢t₁₁ , _ = wf-⊢≡∷ t₁₁≡t₂₁
-        _ , t₁₂≡t₂₂  = check-and-equal-tm-sound′ n eq₃ ⊢γ
-                         (substType ⊢A ⊢⋆)
-        t₁₂≡t₂₂      = conv t₁₂≡t₂₂ (substTypeEq (sym A₁≡A) (refl ⊢⋆))
-    in
-    conv (unitrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
-      (substTypeEq A₁≡A (refl ⊢t₁₁))
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (app _ _ _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv (_ , _ , _ , PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₂ ok! =
-    let t₁₁≡t₂₁          = equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ
-        ⊢Π , _           = wf-⊢≡∷ t₁₁≡t₂₁
-        ⊢A₁ , ⊢A₂ , _    = inversion-ΠΣ ⊢Π
-        t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound′ n eq₂ ⊢γ ⊢A₁
-    in
-    conv (app-cong t₁₁≡t₂₁ t₁₂≡t₂₂) (substTypeEq (refl ⊢A₂) t₁₂≡t₂)
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (fst _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv (_ , _ , _ , PE.refl) _ ok! =
-    fst-cong′ (equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ)
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (snd _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv (_ , _ , _ , PE.refl) _ ok! =
-    snd-cong′ (equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ)
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (prodrec _ _ _ _ _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv (_ , _ , _ , PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₂ eq
-    with inv->>= eq
-  … | inv _ eq₃ ok! =
-    let t₁₁≡t₂₁      = equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ
-        _ , ⊢t₁₁ , _ = wf-⊢≡∷ t₁₁≡t₂₁
-        ⊢Σ , _       = wf-⊢≡∷ t₁₁≡t₂₁
-        A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₂ ⊢γ (∙ ⊢Σ)
-        _ , ⊢A       = wf-⊢≡ A₁≡A
-        _ , t₁₂≡t₂₂  = check-and-equal-tm-sound′ n eq₃ ⊢γ
-                         (subst↑²Type ⊢A (⊢1,0 ⊢Σ))
-        t₁₂≡t₂₂      = conv t₁₂≡t₂₂ $
-                       subst↑²TypeEq (sym A₁≡A) (refl (⊢1,0 ⊢Σ))
-    in
-    conv (prodrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
-      (substTypeEq A₁≡A (refl ⊢t₁₁))
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (natrec _ _ _ _ _ _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    using inv _ eq₂ eq ← inv->>= eq
-        | inv _ eq₃ eq ← inv->>= eq
-    with inv->>= eq
-  … | inv _ eq₄ ok! =
-    let A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ (∙ ⊢ℕ ⊢Γ)
-        _ , ⊢A       = wf-⊢≡ A₁≡A
-        ⊢0           = zeroⱼ ⊢Γ
-        ⊢suc-1       = sucⱼ (var₁ ⊢A)
-        _ , t₁₁≡t₂₁  = check-and-equal-tm-sound′ n eq₂ ⊢γ
-                         (substType ⊢A ⊢0)
-        t₁₁≡t₂₁      = conv t₁₁≡t₂₁ (substTypeEq (sym A₁≡A) (refl ⊢0))
-        _ , t₁₂≡t₂₂  = check-and-equal-tm-sound′ n eq₃ ⊢γ
-                         (subst↑²Type ⊢A ⊢suc-1)
-        t₁₂≡t₂₂      = stabilityEqTerm (refl-∙ (sym A₁≡A)) $
-                       conv t₁₂≡t₂₂ $
-                       subst↑²TypeEq (sym A₁≡A) (refl ⊢suc-1)
-        t₁₃≡t₂₃      = equal-ne-red-sound n eq₄ ⊢γ (⊢ℕ ⊢Γ)
-        _ , ⊢t₁₃ , _ = wf-⊢≡∷ t₁₃≡t₂₃
-    in
-    conv (natrec-cong A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃)
-      (substTypeEq A₁≡A (refl ⊢t₁₃))
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (J _ _ _ _ _ _ _ _ _ _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv _ eq₂ eq
-    with inv->>= eq
-  … | inv _ eq₃ eq
-    using inv _ eq₄ eq ← inv->>= eq
-    with inv->>= eq
-  … | inv _ eq₅ eq
-    with inv->>= eq
-  … | inv _ eq₆ ok! =
-    let A₁₁≡A₁ , A₁₁≡A₂₁ = check-and-equal-ty-sound′ n eq₁ ⊢γ ⊢Γ
-        _ , ⊢A₁          = wf-⊢≡ A₁₁≡A₁
-        t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₂ ⊢γ ⊢A₁
-        _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
-        t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁₁≡A₁)
-        A₁₂≡A₂ , A₁₂≡A₂₂ = check-and-equal-ty-sound′ n eq₃ ⊢γ
-                             (J-motive-context ⊢t₁)
-        _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
-        A₁₂≡A₂₂          = stabilityEq
-                             (J-motive-context-cong′ (sym A₁₁≡A₁)
-                                (sym′ t₁₁≡t₁))
-                             A₁₂≡A₂₂
-        _ , t₁₂≡t₂₂      = check-and-equal-tm-sound′ n eq₄ ⊢γ
-                             (J-result ⊢A₂ (rflⱼ ⊢t₁))
-        t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
-                           J-motive-rfl-cong (sym A₁₂≡A₂) (sym′ t₁₁≡t₁)
-        t₁₃≡t₃ , t₁₃≡t₂₃ = check-and-equal-tm-sound′ n eq₅ ⊢γ ⊢A₁
-        _ , _ , ⊢t₃      = wf-⊢≡∷ t₁₃≡t₃
-        t₁₃≡t₂₃          = conv t₁₃≡t₂₃ (sym A₁₁≡A₁)
-        t₁₄≡t₂₄          = equal-ne-red-sound n eq₆ ⊢γ (Idⱼ′ ⊢t₁ ⊢t₃)
-        _ , ⊢t₁₄ , _     = wf-⊢≡∷ t₁₄≡t₂₄
-        t₁₄≡t₂₄          = conv t₁₄≡t₂₄ $
-                           Id-cong (sym A₁₁≡A₁) (sym′ t₁₁≡t₁)
-                             (sym′ t₁₃≡t₃)
-    in
-    conv (J-cong′ A₁₁≡A₂₁ t₁₁≡t₂₁ A₁₂≡A₂₂ t₁₂≡t₂₂ t₁₃≡t₂₃ t₁₄≡t₂₄)
-      (sym (J-result-cong (sym A₁₂≡A₂) (sym′ t₁₃≡t₃) (refl ⊢t₁₄)))
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv (K _ _ _ _ _ _ _ _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv _ eq₂ eq
-    with inv->>= eq
-  … | inv _ eq₃ eq
-    using inv _ eq₄ eq ← inv->>= eq
-        | inv _ eq₅ eq ← inv->>= eq
-    with inv->>= eq
-  … | inv _ eq₆ ok! =
-    let A₁₁≡A₁ , A₁₁≡A₂₁ = check-and-equal-ty-sound′ n eq₁ ⊢γ ⊢Γ
-        _ , ⊢A₁          = wf-⊢≡ A₁₁≡A₁
-        t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₂ ⊢γ ⊢A₁
-        _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
-        t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁₁≡A₁)
-        Id≡Id            = Id-cong (sym A₁₁≡A₁) (sym′ t₁₁≡t₁)
-                             (sym′ t₁₁≡t₁)
-        ⊢Id , _          = wf-⊢≡ Id≡Id
-        A₁₂≡A₂ , A₁₂≡A₂₂ = check-and-equal-ty-sound′ n eq₃ ⊢γ (∙ ⊢Id)
-        _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
-        A₁₂≡A₂₂          = stabilityEq (refl-∙ Id≡Id) A₁₂≡A₂₂
-        _ , t₁₂≡t₂₂      = check-and-equal-tm-sound′ n eq₄ ⊢γ $
-                           substType ⊢A₂ (rflⱼ ⊢t₁)
-        t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
-                           substTypeEq (sym A₁₂≡A₂) (refl (rflⱼ ⊢t₁))
-        t₁₃≡t₂₃          = equal-ne-red-sound n eq₅ ⊢γ ⊢Id
-        _ , ⊢t₁₃ , _     = wf-⊢≡∷ t₁₃≡t₂₃
-        t₁₃≡t₂₃          = conv t₁₃≡t₂₃ Id≡Id
-        K-ok             = inv-require ⊢γ eq₆
-    in
-    conv (K-cong A₁₁≡A₂₁ t₁₁≡t₂₁ A₁₂≡A₂₂ t₁₂≡t₂₂ t₁₃≡t₂₃ K-ok)
-      (substTypeEq A₁₂≡A₂ (refl ⊢t₁₃))
-  equal-ne-inf-sound (1+ n) _ ⊢γ ⊢Γ
-    | inv ([]-cong _ _ _ _ _ _ _ _ _ _ _ PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv _ eq₂ eq
-    with inv->>= eq
-  … | inv _ eq₃ eq
-    with inv->>= eq
-  … | inv _ eq₄ eq
-    using inv _ eq₅ eq ← inv->>= eq
-    with inv->>= eq
-  … | inv _ eq₆ ok! =
-    let l₁≡l , l₁≡l₂     = check-and-equal-level-sound′ n eq₁ ⊢γ ⊢Γ
-        _ , ⊢l           = wf-⊢≡∷L l₁≡l
-        A₁≡A , A₁≡A₂     = check-and-equal-ty-sound′ n eq₂ ⊢γ ⊢Γ
-        _ , ⊢A           = wf-⊢≡ A₁≡A
-        t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₃ ⊢γ ⊢A
-        _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
-        t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁≡A)
-        t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound′ n eq₄ ⊢γ ⊢A
-        _ , _ , ⊢t₂      = wf-⊢≡∷ t₁₂≡t₂
-        t₁₂≡t₂₂          = conv t₁₂≡t₂₂ (sym A₁≡A)
-        t₁₃≡t₂₃          = equal-ne-red-sound n eq₅ ⊢γ (Idⱼ′ ⊢t₁ ⊢t₂)
-        t₁₃≡t₂₃          = conv t₁₃≡t₂₃ $
-                           Id-cong (sym A₁≡A) (sym′ t₁₁≡t₁)
-                             (sym′ t₁₂≡t₂)
-        okᵇᶜ             = inv-require ⊢γ eq₆
-        okᴱ              = []-cong→Erased okᵇᶜ
-    in
-    _⊢_≡_∷_.conv
-      ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃ okᵇᶜ) $
-    _⊢_≡_.sym $
-    Id-cong (sym (Erased-cong okᴱ l₁≡l A₁≡A))
-      (sym′ ([]-cong′ okᴱ ⊢l t₁₁≡t₁)) (sym′ ([]-cong′ okᴱ ⊢l t₁₂≡t₂))
+  … | inv t₁-t₂-ee _ eq =
+    equal-ne-inf′-sound t₁-t₂-ee eq ⊢γ ⊢Γ
+
+  private
+
+    -- Soundness for equal-ne-inf′.
+
+    equal-ne-inf′-sound :
+      (eq : Are-equal-eliminators t₁ t₂) →
+      OK (equal-ne-inf′ n Γ eq) A γ st →
+      Contexts-wf (Γ .defs) γ →
+      ⊢ ⌜ Γ ⌝ᶜ γ →
+      ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t₁ ⌝ γ ≡ ⌜ t₂ ⌝ γ ∷ ⌜ A ⌝ γ
+    equal-ne-inf′-sound {γ} (meta-var x₁ σ₁ x₂ σ₂ PE.refl) eq ⊢γ ⊢Γ
+      rewrite ⌜meta-var⌝ {γ = γ} {x = x₁} σ₁
+            | ⌜meta-var⌝ {γ = γ} {x = x₂} σ₂
+      using inv _ _ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv PE.refl eq₂ eq
+      with inv->>= eq
+    … | inv _ eq₃ ok! =
+      let x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
+          σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ ⊢Γ (wfTerm ⊢x₂)
+          x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term
+                            ⊢x₂
+      in
+      subst-⊢≡∷ x₁≡x₂ σ₁≡σ₂
+    equal-ne-inf′-sound {Γ} (var _ PE.refl) eq _ ⊢Γ =
+      refl (var ⊢Γ (index-sound (Γ .vars) eq .proj₁ PE.refl))
+    equal-ne-inf′-sound {Γ} (defn _ PE.refl) eq _ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq ok! =
+      refl (defn ⊢Γ (type-of-sound (Γ .defs) eq) PE.refl)
+    equal-ne-inf′-sound {n} (sup _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      using inv _ eq₁ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₂ ok! =
+      let _ , ⊔≡⊔    = check-and-equal-level-sound′ n eq₁ ⊢γ ⊢Γ
+          L.lift okᴸ = inv-require ⊢γ eq₂
+      in
+      ⊢≡∷Level→⊢≡∷Level okᴸ ⊔≡⊔
+    equal-ne-inf′-sound {n} (lower _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv (_ , _ , PE.refl) _ ok! =
+      lower-cong (equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ)
+    equal-ne-inf′-sound {n} (emptyrec _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ ok! =
+      let A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ ⊢Γ
+          t₁≡t₂        = equal-ne-red-sound n eq₂ ⊢γ (⊢Empty ⊢Γ)
+      in
+      conv (emptyrec-cong A₁≡A₂ t₁≡t₂) A₁≡A
+    equal-ne-inf′-sound {n} (unitrec _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      using inv _ eq₂ eq ← inv->>= eq
+          | inv _ eq₃ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₄ ok! =
+      let Unit-ok      = inv-require ⊢γ eq₄
+          ⊢Unit        = ⊢Unit ⊢Γ Unit-ok
+          ⊢⋆           = starⱼ ⊢Γ Unit-ok
+          A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ (∙ ⊢Unit)
+          _ , ⊢A       = wf-⊢≡ A₁≡A
+          t₁₁≡t₂₁      = equal-ne-red-sound n eq₂ ⊢γ ⊢Unit
+          _ , ⊢t₁₁ , _ = wf-⊢≡∷ t₁₁≡t₂₁
+          _ , t₁₂≡t₂₂  = check-and-equal-tm-sound′ n eq₃ ⊢γ
+                           (substType ⊢A ⊢⋆)
+          t₁₂≡t₂₂      = conv t₁₂≡t₂₂ (substTypeEq (sym A₁≡A) (refl ⊢⋆))
+      in
+      conv (unitrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
+        (substTypeEq A₁≡A (refl ⊢t₁₁))
+    equal-ne-inf′-sound {n} (app _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv (_ , _ , _ , PE.refl) _ eq
+      with inv->>= eq
+    … | inv _ eq₂ ok! =
+      let t₁₁≡t₂₁          = equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ
+          ⊢Π , _           = wf-⊢≡∷ t₁₁≡t₂₁
+          ⊢A₁ , ⊢A₂ , _    = inversion-ΠΣ ⊢Π
+          t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound′ n eq₂ ⊢γ ⊢A₁
+      in
+      conv (app-cong t₁₁≡t₂₁ t₁₂≡t₂₂) (substTypeEq (refl ⊢A₂) t₁₂≡t₂)
+    equal-ne-inf′-sound {n} (fst _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv (_ , _ , _ , PE.refl) _ ok! =
+      fst-cong′ (equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ)
+    equal-ne-inf′-sound {n} (snd _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv (_ , _ , _ , PE.refl) _ ok! =
+      snd-cong′ (equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ)
+    equal-ne-inf′-sound {n} (prodrec _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv (_ , _ , _ , PE.refl) _ eq
+      with inv->>= eq
+    … | inv _ eq₂ eq
+      with inv->>= eq
+    … | inv _ eq₃ ok! =
+      let t₁₁≡t₂₁      = equal-ne-inf-red-sound n eq₁ ⊢γ ⊢Γ
+          _ , ⊢t₁₁ , _ = wf-⊢≡∷ t₁₁≡t₂₁
+          ⊢Σ , _       = wf-⊢≡∷ t₁₁≡t₂₁
+          A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₂ ⊢γ (∙ ⊢Σ)
+          _ , ⊢A       = wf-⊢≡ A₁≡A
+          _ , t₁₂≡t₂₂  = check-and-equal-tm-sound′ n eq₃ ⊢γ
+                           (subst↑²Type ⊢A (⊢1,0 ⊢Σ))
+          t₁₂≡t₂₂      = conv t₁₂≡t₂₂ $
+                         subst↑²TypeEq (sym A₁≡A) (refl (⊢1,0 ⊢Σ))
+      in
+      conv (prodrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
+        (substTypeEq A₁≡A (refl ⊢t₁₁))
+    equal-ne-inf′-sound {n} (natrec _ _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      using inv _ eq₂ eq ← inv->>= eq
+          | inv _ eq₃ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₄ ok! =
+      let A₁≡A , A₁≡A₂ = check-and-equal-ty-sound′ n eq₁ ⊢γ (∙ ⊢ℕ ⊢Γ)
+          _ , ⊢A       = wf-⊢≡ A₁≡A
+          ⊢0           = zeroⱼ ⊢Γ
+          ⊢suc-1       = sucⱼ (var₁ ⊢A)
+          _ , t₁₁≡t₂₁  = check-and-equal-tm-sound′ n eq₂ ⊢γ
+                           (substType ⊢A ⊢0)
+          t₁₁≡t₂₁      = conv t₁₁≡t₂₁ (substTypeEq (sym A₁≡A) (refl ⊢0))
+          _ , t₁₂≡t₂₂  = check-and-equal-tm-sound′ n eq₃ ⊢γ
+                           (subst↑²Type ⊢A ⊢suc-1)
+          t₁₂≡t₂₂      = stabilityEqTerm (refl-∙ (sym A₁≡A)) $
+                         conv t₁₂≡t₂₂ $
+                         subst↑²TypeEq (sym A₁≡A) (refl ⊢suc-1)
+          t₁₃≡t₂₃      = equal-ne-red-sound n eq₄ ⊢γ (⊢ℕ ⊢Γ)
+          _ , ⊢t₁₃ , _ = wf-⊢≡∷ t₁₃≡t₂₃
+      in
+      conv (natrec-cong A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃)
+        (substTypeEq A₁≡A (refl ⊢t₁₃))
+    equal-ne-inf′-sound {n} (J _ _ _ _ _ _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ eq
+      with inv->>= eq
+    … | inv _ eq₃ eq
+      using inv _ eq₄ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₅ eq
+      with inv->>= eq
+    … | inv _ eq₆ ok! =
+      let A₁₁≡A₁ , A₁₁≡A₂₁ = check-and-equal-ty-sound′ n eq₁ ⊢γ ⊢Γ
+          _ , ⊢A₁          = wf-⊢≡ A₁₁≡A₁
+          t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₂ ⊢γ ⊢A₁
+          _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
+          t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁₁≡A₁)
+          A₁₂≡A₂ , A₁₂≡A₂₂ = check-and-equal-ty-sound′ n eq₃ ⊢γ
+                               (J-motive-context ⊢t₁)
+          _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
+          A₁₂≡A₂₂          = stabilityEq
+                               (J-motive-context-cong′ (sym A₁₁≡A₁)
+                                  (sym′ t₁₁≡t₁))
+                               A₁₂≡A₂₂
+          _ , t₁₂≡t₂₂      = check-and-equal-tm-sound′ n eq₄ ⊢γ
+                               (J-result ⊢A₂ (rflⱼ ⊢t₁))
+          t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
+                             J-motive-rfl-cong (sym A₁₂≡A₂)
+                               (sym′ t₁₁≡t₁)
+          t₁₃≡t₃ , t₁₃≡t₂₃ = check-and-equal-tm-sound′ n eq₅ ⊢γ ⊢A₁
+          _ , _ , ⊢t₃      = wf-⊢≡∷ t₁₃≡t₃
+          t₁₃≡t₂₃          = conv t₁₃≡t₂₃ (sym A₁₁≡A₁)
+          t₁₄≡t₂₄          = equal-ne-red-sound n eq₆ ⊢γ (Idⱼ′ ⊢t₁ ⊢t₃)
+          _ , ⊢t₁₄ , _     = wf-⊢≡∷ t₁₄≡t₂₄
+          t₁₄≡t₂₄          = conv t₁₄≡t₂₄ $
+                             Id-cong (sym A₁₁≡A₁) (sym′ t₁₁≡t₁)
+                               (sym′ t₁₃≡t₃)
+      in
+      conv (J-cong′ A₁₁≡A₂₁ t₁₁≡t₂₁ A₁₂≡A₂₂ t₁₂≡t₂₂ t₁₃≡t₂₃ t₁₄≡t₂₄)
+        (sym (J-result-cong (sym A₁₂≡A₂) (sym′ t₁₃≡t₃) (refl ⊢t₁₄)))
+    equal-ne-inf′-sound {n} (K _ _ _ _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ eq
+      with inv->>= eq
+    … | inv _ eq₃ eq
+      using inv _ eq₄ eq ← inv->>= eq
+          | inv _ eq₅ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₆ ok! =
+      let A₁₁≡A₁ , A₁₁≡A₂₁ = check-and-equal-ty-sound′ n eq₁ ⊢γ ⊢Γ
+          _ , ⊢A₁          = wf-⊢≡ A₁₁≡A₁
+          t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₂ ⊢γ ⊢A₁
+          _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
+          t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁₁≡A₁)
+          Id≡Id            = Id-cong (sym A₁₁≡A₁) (sym′ t₁₁≡t₁)
+                               (sym′ t₁₁≡t₁)
+          ⊢Id , _          = wf-⊢≡ Id≡Id
+          A₁₂≡A₂ , A₁₂≡A₂₂ = check-and-equal-ty-sound′ n eq₃ ⊢γ (∙ ⊢Id)
+          _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
+          A₁₂≡A₂₂          = stabilityEq (refl-∙ Id≡Id) A₁₂≡A₂₂
+          _ , t₁₂≡t₂₂      = check-and-equal-tm-sound′ n eq₄ ⊢γ $
+                             substType ⊢A₂ (rflⱼ ⊢t₁)
+          t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
+                             substTypeEq (sym A₁₂≡A₂) (refl (rflⱼ ⊢t₁))
+          t₁₃≡t₂₃          = equal-ne-red-sound n eq₅ ⊢γ ⊢Id
+          _ , ⊢t₁₃ , _     = wf-⊢≡∷ t₁₃≡t₂₃
+          t₁₃≡t₂₃          = conv t₁₃≡t₂₃ Id≡Id
+          K-ok             = inv-require ⊢γ eq₆
+      in
+      conv (K-cong A₁₁≡A₂₁ t₁₁≡t₂₁ A₁₂≡A₂₂ t₁₂≡t₂₂ t₁₃≡t₂₃ K-ok)
+        (substTypeEq A₁₂≡A₂ (refl ⊢t₁₃))
+    equal-ne-inf′-sound
+      {n} ([]-cong _ _ _ _ _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ eq
+      with inv->>= eq
+    … | inv _ eq₃ eq
+      with inv->>= eq
+    … | inv _ eq₄ eq
+      using inv _ eq₅ eq ← inv->>= eq
+      with inv->>= eq
+    … | inv _ eq₆ ok! =
+      let l₁≡l , l₁≡l₂     = check-and-equal-level-sound′ n eq₁ ⊢γ ⊢Γ
+          _ , ⊢l           = wf-⊢≡∷L l₁≡l
+          A₁≡A , A₁≡A₂     = check-and-equal-ty-sound′ n eq₂ ⊢γ ⊢Γ
+          _ , ⊢A           = wf-⊢≡ A₁≡A
+          t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound′ n eq₃ ⊢γ ⊢A
+          _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
+          t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁≡A)
+          t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound′ n eq₄ ⊢γ ⊢A
+          _ , _ , ⊢t₂      = wf-⊢≡∷ t₁₂≡t₂
+          t₁₂≡t₂₂          = conv t₁₂≡t₂₂ (sym A₁≡A)
+          t₁₃≡t₂₃          = equal-ne-red-sound n eq₅ ⊢γ (Idⱼ′ ⊢t₁ ⊢t₂)
+          t₁₃≡t₂₃          = conv t₁₃≡t₂₃ $
+                             Id-cong (sym A₁≡A) (sym′ t₁₁≡t₁)
+                               (sym′ t₁₂≡t₂)
+          okᵇᶜ             = inv-require ⊢γ eq₆
+          okᴱ              = []-cong→Erased okᵇᶜ
+      in
+      _⊢_≡_∷_.conv
+        ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃ okᵇᶜ) $
+      _⊢_≡_.sym $
+      Id-cong (sym (Erased-cong okᴱ l₁≡l A₁≡A))
+        (sym′ ([]-cong′ okᴱ ⊢l t₁₁≡t₁)) (sym′ ([]-cong′ okᴱ ⊢l t₁₂≡t₂))
 
   -- Soundness for equal-ty.
 
