@@ -420,17 +420,6 @@ are-equal-type-constructors? _ _ =
 ------------------------------------------------------------------------
 -- Some simple tests involving terms
 
--- The term is an application of weaken.
-
-data Is-weaken {c : Constants} {n} : Term c n → Set a where
-  weaken : ∀ (ρ : Wk n n′) t → Is-weaken (weaken ρ t)
-
--- Is the term an application of weaken?
-
-is-weaken? : (t : Term c n) → Maybe (Is-weaken t)
-is-weaken? (weaken _ _) = just (weaken _ _)
-is-weaken? _            = nothing
-
 -- The term is an application of weaken or subst.
 
 data Is-weaken-subst {c : Constants} {n} :
