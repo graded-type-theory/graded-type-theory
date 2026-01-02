@@ -2143,7 +2143,7 @@ opaque
 
   private
 
-    -- Soundness for red-tm′
+    -- Soundness for red-tm′.
 
     red-tm′-sound :
       ∀ n t → OK (red-tm′ n Γ t A) u γ st →
