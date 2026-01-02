@@ -59,8 +59,5 @@ Later other additions were made. Some highlights:
 
 ## Dependencies ##
 
-This project is written in Agda. It uses an Agda feature that, at the
-time of writing, has not yet been released
-(`--no-occurrence-analysis`): this feature is likely to end up in
-Agda 2.9.0. The code has been tested to be working with a development
-version of Agda and its standard library version 2.3.
+This project is written in Agda. It has been tested to be working with
+Agda version 2.8.0 and its standard library version 2.3.
