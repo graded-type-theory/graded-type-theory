@@ -32,16 +32,16 @@ open import Tools.Unit
 open Any using (Any)
 
 private variable
-  ℓ ℓ₁ ℓ₂ : L.Level
-  A B     : Set _
-  x y z   : A
-  f       : A → B
-  xs ys   : List _
-  b       : Bool
-  m n     : Nat
-  c       : Constants
-  γ       : Contexts _
-  C       : Constraint _
+  ℓ ℓ₁ ℓ₂   : L.Level
+  A B       : Set _
+  x y z     : A
+  f         : A → B
+  xs ys     : List _
+  b         : Bool
+  m n n₁ n₂ : Nat
+  c         : Constants
+  γ         : Contexts _
+  C         : Constraint _
 
 ------------------------------------------------------------------------
 -- The monad, along with some basic operations
@@ -55,6 +55,8 @@ data Call (c : Constants) : Set a where
     Cons c m n → (_ _ : Term c n) → Call c
   [equal-tm] :
     Cons c m n → (_ _ _ : Term c n) → Call c
+  [check-sub] :
+    DCon c m → Con c n₂ → Subst c n₂ n₁ → Con c n₁ → Call c
 
 -- Stack traces.
 

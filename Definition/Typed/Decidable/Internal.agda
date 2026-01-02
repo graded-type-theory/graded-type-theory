@@ -1058,24 +1058,34 @@ mutual
   check-sub :
     Fuel → DCon c m → Con c n₂ → Subst c n₂ n₁ → Con c n₁ →
     Check c (Subst c n₂ n₁)
-  check-sub n ∇ Δ₂ id Δ₁ = do
-    equal-con n (∇ » Δ₂) Δ₁
-    return id
-  check-sub n ∇ Δ₂ (wk1 σ) Δ₁ = do
-    Δ₂ , _ ← is-∙ Δ₂
-    σ      ← check-sub n ∇ Δ₂ σ Δ₁
-    return (wk1 σ)
-  check-sub n ∇ Δ₂ (σ ⇑) Δ₁ = do
-    Δ₂ , A , _ ← is-∙ Δ₂
-    Δ₁ , B , _ ← is-∙ Δ₁
-    σ          ← check-sub n ∇ Δ₂ σ Δ₁
-    equal-ty n (∇ » Δ₂) A (subst B σ)
-    return (σ ⇑)
-  check-sub n ∇ Δ₂ (cons σ t) Δ₁ = do
-    Δ₁ , B , _ ← is-∙ Δ₁
-    σ          ← check-sub n ∇ Δ₂ σ Δ₁
-    t          ← check n (∇ » Δ₂) t (subst B σ)
-    return (cons σ t)
+  check-sub n ∇ Δ₂ σ Δ₁ =
+    register ([check-sub] ∇ Δ₂ σ Δ₁) (check-sub′ n ∇ Δ₂ σ Δ₁)
+
+  private
+
+    -- A helper function.
+
+    check-sub′ :
+      Fuel → DCon c m → Con c n₂ → Subst c n₂ n₁ → Con c n₁ →
+      Check c (Subst c n₂ n₁)
+    check-sub′ n ∇ Δ₂ id Δ₁ = do
+      equal-con n (∇ » Δ₂) Δ₁
+      return id
+    check-sub′ n ∇ Δ₂ (wk1 σ) Δ₁ = do
+      Δ₂ , _ ← is-∙ Δ₂
+      σ      ← check-sub n ∇ Δ₂ σ Δ₁
+      return (wk1 σ)
+    check-sub′ n ∇ Δ₂ (σ ⇑) Δ₁ = do
+      Δ₂ , A , _ ← is-∙ Δ₂
+      Δ₁ , B , _ ← is-∙ Δ₁
+      σ          ← check-sub n ∇ Δ₂ σ Δ₁
+      equal-ty n (∇ » Δ₂) A (subst B σ)
+      return (σ ⇑)
+    check-sub′ n ∇ Δ₂ (cons σ t) Δ₁ = do
+      Δ₁ , B , _ ← is-∙ Δ₁
+      σ          ← check-sub n ∇ Δ₂ σ Δ₁
+      t          ← check n (∇ » Δ₂) t (subst B σ)
+      return (cons σ t)
 
   -- Are the two terms equal at the given type?
 
@@ -2257,50 +2267,59 @@ private module Lemmas (p : P n) where opaque
     ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₂ ⌝ᶜᵛ γ →
     ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₁ ⌝ᶜᵛ γ →
     ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ₂ ⌝ᶜᵛ γ ⊢ˢʷ ⌜ σ ⌝ˢ γ ≡ ⌜ σ′ ⌝ˢ γ ∷ ⌜ Δ₁ ⌝ᶜᵛ γ
-  check-sub-sound id eq ⊢γ ⊢Δ₂ ⊢Δ₁
-    with inv->>= eq
-  … | inv _ eq₁ ok! =
-    let Γ≡Δ = equal-con-sound eq₁ ⊢γ ⊢Δ₂ ⊢Δ₁ in
-    refl-⊢ˢʷ≡∷ (stability-⊢ˢʷ∷ʳ Γ≡Δ (⊢ˢʷ∷-idSubst ⊢Δ₂))
-  check-sub-sound (wk1 σ) eq ⊢γ ⊢Δ₂ ⊢Δ₁
-    with inv->>= eq
-  … | inv (_ , _ , PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ ok! =
-    let ⊢A   = ⊢∙→⊢ ⊢Δ₂
-        σ≡σ′ = check-sub-sound σ eq₁ ⊢γ (wf ⊢A) ⊢Δ₁
-    in
-    ⊢ˢʷ≡∷-wk1Subst ⊢A σ≡σ′
-  check-sub-sound (σ ⇑) eq ⊢γ ⊢Δ₂ ⊢Δ₁
-    with inv->>= eq
-  … | inv (_ , _ , PE.refl) _ eq
-    with inv->>= eq
-  … | inv (_ , _ , PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv _ eq₂ ok! =
-    let ⊢A          = ⊢∙→⊢ ⊢Δ₂
-        ⊢B          = ⊢∙→⊢ ⊢Δ₁
-        σ≡σ′        = check-sub-sound σ eq₁ ⊢γ (wf ⊢A) (wf ⊢B)
-        _ , _ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
-        A≡B[σ′]     = equal-ty-sound eq₂ ⊢γ ⊢A (subst-⊢ ⊢B ⊢σ′)
-    in
-    stability-⊢ˢʷ≡∷ˡ (refl-∙ (sym A≡B[σ′])) $
-    sym-⊢ˢʷ≡∷ ⊢Δ₁ (⊢ˢʷ≡∷-⇑′ ⊢B (sym-⊢ˢʷ≡∷ (wf ⊢B) σ≡σ′))
-  check-sub-sound (cons σ _) eq ⊢γ ⊢Δ₂ ⊢Δ₁
-    with inv->>= eq
-  … | inv (_ , _ , PE.refl) _ eq
-    with inv->>= eq
-  … | inv _ eq₁ eq
-    with inv->>= eq
-  … | inv _ eq₂ ok! =
-    let ⊢B          = ⊢∙→⊢ ⊢Δ₁
-        σ≡σ′        = check-sub-sound σ eq₁ ⊢γ ⊢Δ₂ (wf ⊢B)
-        _ , _ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
-        t≡t′        = check-sound eq₂ ⊢γ (subst-⊢ ⊢B ⊢σ′)
-    in
-    sym-⊢ˢʷ≡∷ ⊢Δ₁ (→⊢ˢʷ≡∷∙ ⊢B (sym-⊢ˢʷ≡∷ (wf ⊢B) σ≡σ′) (sym′ t≡t′))
+  check-sub-sound σ eq = check-sub′-sound σ (inv-register eq)
+    where
+    check-sub′-sound :
+      ∀ σ →
+      OK (check-sub′ n ∇ Δ₂ σ Δ₁) σ′ γ st →
+      Contexts-wf ∇ γ →
+      ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₂ ⌝ᶜᵛ γ →
+      ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ₁ ⌝ᶜᵛ γ →
+      ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ₂ ⌝ᶜᵛ γ ⊢ˢʷ ⌜ σ ⌝ˢ γ ≡ ⌜ σ′ ⌝ˢ γ ∷ ⌜ Δ₁ ⌝ᶜᵛ γ
+    check-sub′-sound id eq ⊢γ ⊢Δ₂ ⊢Δ₁
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let Γ≡Δ = equal-con-sound eq₁ ⊢γ ⊢Δ₂ ⊢Δ₁ in
+      refl-⊢ˢʷ≡∷ (stability-⊢ˢʷ∷ʳ Γ≡Δ (⊢ˢʷ∷-idSubst ⊢Δ₂))
+    check-sub′-sound (wk1 σ) eq ⊢γ ⊢Δ₂ ⊢Δ₁
+      with inv->>= eq
+    … | inv (_ , _ , PE.refl) _ eq
+      with inv->>= eq
+    … | inv _ eq₁ ok! =
+      let ⊢A   = ⊢∙→⊢ ⊢Δ₂
+          σ≡σ′ = check-sub-sound σ eq₁ ⊢γ (wf ⊢A) ⊢Δ₁
+      in
+      ⊢ˢʷ≡∷-wk1Subst ⊢A σ≡σ′
+    check-sub′-sound (σ ⇑) eq ⊢γ ⊢Δ₂ ⊢Δ₁
+      with inv->>= eq
+    … | inv (_ , _ , PE.refl) _ eq
+      with inv->>= eq
+    … | inv (_ , _ , PE.refl) _ eq
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ ok! =
+      let ⊢A          = ⊢∙→⊢ ⊢Δ₂
+          ⊢B          = ⊢∙→⊢ ⊢Δ₁
+          σ≡σ′        = check-sub-sound σ eq₁ ⊢γ (wf ⊢A) (wf ⊢B)
+          _ , _ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
+          A≡B[σ′]     = equal-ty-sound eq₂ ⊢γ ⊢A (subst-⊢ ⊢B ⊢σ′)
+      in
+      stability-⊢ˢʷ≡∷ˡ (refl-∙ (sym A≡B[σ′])) $
+      sym-⊢ˢʷ≡∷ ⊢Δ₁ (⊢ˢʷ≡∷-⇑′ ⊢B (sym-⊢ˢʷ≡∷ (wf ⊢B) σ≡σ′))
+    check-sub′-sound (cons σ _) eq ⊢γ ⊢Δ₂ ⊢Δ₁
+      with inv->>= eq
+    … | inv (_ , _ , PE.refl) _ eq
+      with inv->>= eq
+    … | inv _ eq₁ eq
+      with inv->>= eq
+    … | inv _ eq₂ ok! =
+      let ⊢B          = ⊢∙→⊢ ⊢Δ₁
+          σ≡σ′        = check-sub-sound σ eq₁ ⊢γ ⊢Δ₂ (wf ⊢B)
+          _ , _ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
+          t≡t′        = check-sound eq₂ ⊢γ (subst-⊢ ⊢B ⊢σ′)
+      in
+      sym-⊢ˢʷ≡∷ ⊢Δ₁ (→⊢ˢʷ≡∷∙ ⊢B (sym-⊢ˢʷ≡∷ (wf ⊢B) σ≡σ′) (sym′ t≡t′))
 
   -- Soundness for is-type.
 
