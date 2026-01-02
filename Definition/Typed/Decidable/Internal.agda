@@ -87,17 +87,18 @@ import Tools.Vec as Vec
 open Any using (Any)
 
 private variable
-  b                                                    : Bool
-  k m n n₁ n₂ n₃                                       : Nat
-  c                                                    : Constants
-  γ                                                    : Contexts _
-  st                                                   : Stack-trace _
-  ∇                                                    : DCon _ _
-  Δ Δ′ Δ₁ Δ₂ Η₁ Η₂                                     : Con _ _
-  Γ Γ′                                                 : Cons _ _ _
-  x₁ x₂                                                : Meta-var _ _
-  A A′ A₁ A₁′ A₂ A₂′ B l l′ l₁ l₂ t t′ t₁ t₁′ t₂ t₂′ u : Term _ _
-  σ σ′ σ₁ σ₂                                           : Subst _ _ _
+  b                                    : Bool
+  k m n n₁ n₂ n₃                       : Nat
+  c                                    : Constants
+  γ                                    : Contexts _
+  st                                   : Stack-trace _
+  ∇                                    : DCon _ _
+  Δ Δ′ Δ₁ Δ₂ Η₁ Η₂                     : Con _ _
+  Γ Γ′                                 : Cons _ _ _
+  x₁ x₂                                : Meta-var _ _
+  A A′ A₁ A₁′ A₂ A₂′ B
+    l l′ l″ l₁ l₂ t t′ t₁ t₁′ t₂ t₂′ u : Term _ _
+  σ σ′ σ₁ σ₂                           : Subst _ _ _
 
 ------------------------------------------------------------------------
 -- A lemma
@@ -376,20 +377,20 @@ private
     Γ , _ ← is-∙ Γ
     equal-sub″ k Γ
 
--- Removes top-level weaken and subst constructors. The boolean
--- indicates if any subst constructors were removed.
+-- Removes top-level weaken and subst constructors.
+--
+-- For the meaning of the boolean, see
+-- really-remove-weaken-subst-sound.
 
-remove-weaken-subst : Fuel → Term c n → Check c (Bool × Term c n)
-remove-weaken-subst 0 _ =
+really-remove-weaken-subst :
+  Fuel → Term c n → Check c (Term c n × Bool)
+really-remove-weaken-subst 0 _ =
   fail "No fuel left."
-remove-weaken-subst (1+ n) t =
+really-remove-weaken-subst (1+ n) t = do
+  t , b , _ ← return (remove-weaken-subst t)
   case is-weaken-subst? t of λ where
-    (just (weaken ρ t)) →
-      Σ.map idᶠ idᶠ <$> remove-weaken-subst n (wk ρ t)
-    (just (subst t σ)) →
-      Σ.map (λ _ → true) idᶠ <$> remove-weaken-subst n (t [ σ ])
-    nothing →
-      return (false , t)
+    nothing  → return (t , b)
+    (just _) → really-remove-weaken-subst n t
 
 -- Returns the context associated to the meta-variable.
 
@@ -519,7 +520,7 @@ mutual
   red-ty : Fuel → Cons c m n → Term c n → Check c (Term c n)
   red-ty 0      _ _ = fail "No fuel left."
   red-ty (1+ n) Γ A = register ([red-ty] Γ A) do
-    _ , A ← remove-weaken-subst n A
+    A , _ ← really-remove-weaken-subst n A
     case is-type-constructor? A of λ where
       (just _) → return A
       nothing  → do
@@ -713,7 +714,7 @@ mutual
   check-type 0 _ _ =
     fail "No fuel left."
   check-type (1+ n) Γ A = register ([check-type] Γ A) do
-    _ , A ← remove-weaken-subst n A
+    A , _ ← really-remove-weaken-subst n A
     check-type′ n Γ (is-type-constructor? A)
 
   private
@@ -765,9 +766,9 @@ mutual
   -- The returned term is a possibly more annotated version of the
   -- input.
   --
-  -- Note that if an application of a substitution to _supᵘₗ_ is
-  -- encountered, then the level is only accepted if Level is allowed.
-  -- The reason is that a term like
+  -- Note that if an application of a not cons-free substitution to
+  -- _supᵘₗ_ is encountered, then the level is only accepted if Level
+  -- is allowed. The reason is that a term like
   -- subst (var x0 supᵘₗ var x0) (sgSubst zeroᵘ) does not correspond
   -- to a level literal: its translation is, at the time of writing,
   -- U.zeroᵘ U.supᵘ U.zeroᵘ. (If necessary it might be possible to
@@ -777,20 +778,29 @@ mutual
   check-level 0 _ _ =
     fail "No fuel left."
   check-level (1+ n) Γ l = register ([check-level] Γ l) do
-    removed , l ← remove-weaken-subst n l
-    case is-perhaps-level? l of λ where
-      nothing → do
-        require level-allowed
-        check n Γ l Level
-      (just (meta-var x σ)) →
-        proj₂ <$> is-level n Γ x σ
-      (just zeroᵘ) →
-        return zeroᵘ
-      (just (sucᵘ l)) →
-        sucᵘ <$> check-level n Γ l
-      (just (l₁ supᵘₗ l₂)) → do
-        when removed (require level-allowed)
-        _supᵘₗ_ <$> check-level n Γ l₁ ⊛ check-level n Γ l₂
+    l , cons-free-sub ← really-remove-weaken-subst n l
+    check-level′ n Γ (is-perhaps-level? l) cons-free-sub
+
+  private
+
+    -- A helper function.
+
+    check-level′ :
+      {l : Term c n} →
+      Fuel → Cons c m n → Maybe (Is-perhaps-level l) → Bool →
+      Check c (Term c n)
+    check-level′ {l} n Γ nothing _ = do
+      require level-allowed
+      check n Γ l Level
+    check-level′ n Γ (just (meta-var x σ)) _ =
+      proj₂ <$> is-level n Γ x σ
+    check-level′ _ _ (just zeroᵘ) _ =
+      return zeroᵘ
+    check-level′ n Γ (just (sucᵘ l)) _ =
+      sucᵘ <$> check-level n Γ l
+    check-level′ n Γ (just (l₁ supᵘₗ l₂)) cons-free-sub = do
+      unless cons-free-sub (require level-allowed)
+      _supᵘₗ_ <$> check-level n Γ l₁ ⊛ check-level n Γ l₂
 
   -- A type-checker for terms.
   --
@@ -801,7 +811,7 @@ mutual
   check 0 _ _ _ =
     fail "No fuel left."
   check (1+ n) Γ t A = register ([check] Γ t A) do
-    _ , t ← remove-weaken-subst n t
+    t , _ ← really-remove-weaken-subst n t
     case checkable? t of λ where
       nothing → do
         B ← infer n Γ t
@@ -853,7 +863,7 @@ mutual
   infer 0 _ _ =
     fail "No fuel left."
   infer (1+ n) Γ t = register ([infer] Γ t) do
-    _ , t ← remove-weaken-subst n t
+    t , _ ← really-remove-weaken-subst n t
     inf   ← inferable t
     infer′ n Γ inf
 
@@ -1419,24 +1429,32 @@ mutual
     fail "No fuel left."
   normalise-level reduced (1+ n) Γ l =
     register ([normalise-level] Γ l) do
-      _ , l ← remove-weaken-subst n l
-      case is-perhaps-level? l of λ where
-        (just (meta-var x σ)) →
-          return ⌞ meta-var x σ ⌟ˡⁿ
-        (just zeroᵘ) →
-          return zeroᵘˡⁿ
-        (just (sucᵘ l)) →
-          sucᵘˡⁿ <$> normalise-level false n Γ l
-        (just (l₁ supᵘₗ l₂)) →
-          supᵘₗˡⁿ <$> normalise-level false n Γ l₁ ⊛
-            normalise-level false n Γ l₂
-        nothing → case reduced of λ where
-          true →
-            return ⌞ l ⌟ˡⁿ
-          false → do
-            require level-allowed
-            l ← red-tm n Γ l Level
-            normalise-level true n Γ l
+      l , _ ← really-remove-weaken-subst n l
+      normalise-level′ reduced n Γ (is-perhaps-level? l)
+
+  private
+
+    -- A helper function.
+
+    normalise-level′ :
+      {l : Term c n} →
+      Bool → Fuel → Cons c m n → Maybe (Is-perhaps-level l) →
+      Check c (Termˡⁿ c n)
+    normalise-level′ _ _ _ (just (meta-var x σ)) =
+      return ⌞ meta-var x σ ⌟ˡⁿ
+    normalise-level′ _ _ _ (just zeroᵘ) =
+      return zeroᵘˡⁿ
+    normalise-level′ _ n Γ (just (sucᵘ l)) =
+      sucᵘˡⁿ <$> normalise-level false n Γ l
+    normalise-level′ _ n Γ (just (l₁ supᵘₗ l₂)) =
+      supᵘₗˡⁿ <$> normalise-level false n Γ l₁ ⊛
+        normalise-level false n Γ l₂
+    normalise-level′ {l} true n Γ nothing =
+      return ⌞ l ⌟ˡⁿ
+    normalise-level′ {l} false n Γ nothing = do
+      require level-allowed
+      l ← red-tm n Γ l Level
+      normalise-level true n Γ l
 
   -- Compares (parts of) "normal" forms.
 
@@ -1783,153 +1801,26 @@ private opaque
 
 opaque
 
-  -- Soundness for remove-weaken-subst for types.
+  -- Soundness for really-remove-weaken-subst.
 
-  remove-weaken-subst-sound-⊢ :
-    ∀ {Γ : U.Cons m n} n →
-    OK (remove-weaken-subst n A) (b , B) γ st →
-    Γ ⊢ ⌜ A ⌝ γ ⊎ Γ ⊢ ⌜ B ⌝ γ →
-    Γ ⊢ ⌜ A ⌝ γ ≡ ⌜ B ⌝ γ
-  remove-weaken-subst-sound-⊢     0      not-ok
-  remove-weaken-subst-sound-⊢ {A} (1+ _) _      _
-    with is-weaken-subst? A
-  remove-weaken-subst-sound-⊢ (1+ n) eq ⊢A
-    | just (weaken _ A)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    PE.subst (flip (_⊢_≡_ _) _) (⌜wk⌝ A) $
-    remove-weaken-subst-sound-⊢ n eq $
-    ⊎.map (PE.subst (_⊢_ _) (PE.sym (⌜wk⌝ A))) idᶠ ⊢A
-  remove-weaken-subst-sound-⊢ (1+ n) eq (inj₁ ⊢A)
-    | just (subst A _)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    let A[]≡ = ⌜[]⌝ A (type₂ ⊢A) in
-    PE.subst (flip (_⊢_≡_ _) _) A[]≡ $
-    remove-weaken-subst-sound-⊢ n eq $
-    inj₁ (PE.subst (_⊢_ _) (PE.sym A[]≡) ⊢A)
-  remove-weaken-subst-sound-⊢ (1+ n) eq (inj₂ ⊢B)
-    | just (subst A _)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    let A[σ]≡B    = remove-weaken-subst-sound-⊢ n eq (inj₂ ⊢B)
-        ⊢A[σ] , _ = wf-⊢≡ A[σ]≡B
-    in
-    PE.subst (flip (_⊢_≡_ _) _) (⌜[]⌝ A (type₁ ⊢A[σ])) A[σ]≡B
-  remove-weaken-subst-sound-⊢ (1+ _) ok! ⊢A
-    | nothing =
-    refl $
-    case ⊢A of λ where
-      (inj₁ ⊢A) → ⊢A
-      (inj₂ ⊢A) → ⊢A
-
-opaque
-
-  -- Soundness for remove-weaken-subst for levels.
-
-  remove-weaken-subst-sound-⊢∷L :
-    ∀ {Γ : U.Cons m n} n →
-    OK (remove-weaken-subst n l) (b , l′) γ st →
-    Γ ⊢ ⌜ l ⌝ γ ∷Level ⊎
-    Γ ⊢ ⌜ l′ ⌝ γ ∷Level × (Not-supᵘₗ l′ ⊎ ¬ T b ⊎ Level-allowed) →
-    Γ ⊢ ⌜ l ⌝ γ ≡ ⌜ l′ ⌝ γ ∷Level ×
-    (Not-supᵘₗ l′ → Not-supᵘₗ l)
-  remove-weaken-subst-sound-⊢∷L     0      not-ok
-  remove-weaken-subst-sound-⊢∷L {l} (1+ _) _      _
-    with is-weaken-subst? l
-  remove-weaken-subst-sound-⊢∷L (1+ n) eq ⊢l
-    | just (weaken _ l)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    Σ.map (PE.subst (flip (_⊢_≡_∷Level _) _) (⌜wk⌝ l))
-      (λ { _ _ (_ , _ , ()) }) $
-    remove-weaken-subst-sound-⊢∷L n eq $
-    ⊎.map (PE.subst (_⊢_∷Level _) (PE.sym (⌜wk⌝ l)))
-      (Σ.map idᶠ $ ⊎.map idᶠ $ ⊎.map idᶠ idᶠ) ⊢l
-  remove-weaken-subst-sound-⊢∷L (1+ n) eq (inj₁ ⊢l)
-    | just (subst l _)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    let l[]≡ = ⌜[]⌝ l (level ⊢l) in
-    Σ.map (PE.subst (flip (_⊢_≡_∷Level _) _) l[]≡)
-      (λ { _ _ (_ , _ , ()) }) $
-    remove-weaken-subst-sound-⊢∷L n eq $
-    inj₁ (PE.subst (_⊢_∷Level _) (PE.sym l[]≡) ⊢l)
-  remove-weaken-subst-sound-⊢∷L (1+ n) eq (inj₂ (⊢l′ , inj₁ not-sup))
-    | just (subst l _)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    let l[σ]≡ , not→not =
-          remove-weaken-subst-sound-⊢∷L n eq (inj₂ (⊢l′ , inj₁ not-sup))
-    in
-    PE.subst (flip (_⊢_≡_∷Level _) _)
-      (⌜[]⌝ l (not-supᵘₗ (Not-supᵘₗ-[]→ (not→not not-sup))))
-      l[σ]≡ ,
-    (λ { _ (_ , _ , ()) })
-  remove-weaken-subst-sound-⊢∷L (1+ n) eq (inj₂ (⊢l′ , inj₂ extra))
-    | just (subst l _)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    let l[]≡ =
-          ⌜[]⌝ l $
-          case extra of λ where
-            (inj₁ not) → ⊥-elim (not _)
-            (inj₂ okᴸ) → level-allowed okᴸ
-    in
-    Σ.map (PE.subst (flip (_⊢_≡_∷Level _) _) l[]≡)
-      (λ { _ _ (_ , _ , ()) }) $
-    remove-weaken-subst-sound-⊢∷L n eq $ inj₂ $ ⊢l′ ,_ $ inj₂ $
-    ⊎.map (λ ¬⊤ _ → ¬⊤ _) idᶠ extra
-  remove-weaken-subst-sound-⊢∷L (1+ _) ok! ⊢l
-    | nothing =
-    refl-⊢≡∷L
-      (case ⊢l of λ where
-         (inj₁ ⊢l)       → ⊢l
-         (inj₂ (⊢l , _)) → ⊢l) ,
-    idᶠ
-
-opaque
-
-  -- Soundness for remove-weaken-subst for terms.
-
-  remove-weaken-subst-sound-⊢∷ :
-    ∀ {Γ : U.Cons m n} {A} n →
-    OK (remove-weaken-subst n t) (b , u) γ st →
-    Γ ⊢ ⌜ t ⌝ γ ∷ A ⊎ Γ ⊢ ⌜ u ⌝ γ ∷ A →
-    Γ ⊢ ⌜ t ⌝ γ ≡ ⌜ u ⌝ γ ∷ A
-  remove-weaken-subst-sound-⊢∷     0      not-ok
-  remove-weaken-subst-sound-⊢∷ {t} (1+ _) _      _
-    with is-weaken-subst? t
-  remove-weaken-subst-sound-⊢∷ (1+ n) eq ⊢t
-    | just (weaken _ t)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    PE.subst₃ (_⊢_≡_∷_ _) (⌜wk⌝ t) PE.refl PE.refl $
-    remove-weaken-subst-sound-⊢∷ n eq $
-    ⊎.map (PE.subst (flip (_⊢_∷_ _) _) (PE.sym (⌜wk⌝ t))) idᶠ ⊢t
-  remove-weaken-subst-sound-⊢∷ (1+ n) eq (inj₁ ⊢t)
-    | just (subst t _)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    let t[]≡ = ⌜[]⌝ t (term₂ ⊢t) in
-    PE.subst₃ (_⊢_≡_∷_ _) t[]≡ PE.refl PE.refl $
-    remove-weaken-subst-sound-⊢∷ n eq $
-    inj₁ (PE.subst (flip (_⊢_∷_ _) _) (PE.sym t[]≡) ⊢t)
-  remove-weaken-subst-sound-⊢∷ (1+ n) eq (inj₂ ⊢u)
-    | just (subst t _)
-    with inv-<$> eq
-  … | inv _ eq PE.refl =
-    let t[σ]≡u        = remove-weaken-subst-sound-⊢∷ n eq (inj₂ ⊢u)
-        _ , ⊢t[σ] , _ = wf-⊢≡∷ t[σ]≡u
-    in
-    PE.subst₃ (_⊢_≡_∷_ _) (⌜[]⌝ t (term₁ ⊢t[σ]))
-      PE.refl PE.refl t[σ]≡u
-  remove-weaken-subst-sound-⊢∷ (1+ _) ok! ⊢t
-    | nothing =
-    refl $
-    case ⊢t of λ where
-      (inj₁ ⊢t) → ⊢t
-      (inj₂ ⊢t) → ⊢t
+  really-remove-weaken-subst-sound :
+    ∀ n →
+    OK (really-remove-weaken-subst n t) (u , b) γ st →
+    Remove-weaken-subst-assumption t u b γ →
+    ⌜ t ⌝ γ PE.≡ ⌜ u ⌝ γ
+  really-remove-weaken-subst-sound             0      not-ok
+  really-remove-weaken-subst-sound {t} {u} {γ} (1+ n) eq     ass
+    with inv->>= eq
+  … | inv (t′ , _ , t≡t′) ok! eq
+    with is-weaken-subst? t′ | eq
+  … | nothing | ok! =
+    t≡t′ ass
+  … | just ws | eq =
+    let t≡t′ = t≡t′ (not-supᵘₗ (Is-weaken-subst→Not-supᵘₗ ws)) in
+    ⌜ t ⌝ γ   ≡⟨ t≡t′ ⟩
+    ⌜ t′ ⌝ γ  ≡⟨ really-remove-weaken-subst-sound n eq $
+                 cast-Remove-weaken-subst-assumption t≡t′ ass ⟩
+    ⌜ u ⌝ γ  ∎
 
 -- A type used to state is-term-sound and
 -- are-equal-meta-vars-sound-tm.
@@ -2217,18 +2108,19 @@ opaque
   red-ty-sound             0      not-ok
   red-ty-sound {A} {B} {γ} (1+ n) eq     ⊢γ ⊢A
     with inv->>= (inv-register eq)
-  … | inv (_ , A′) eq₁ eq
-    with is-type-constructor? A′ | eq
+  … | inv (A′ , _) eq₁ eq₂
+    using A≡A′ ← really-remove-weaken-subst-sound n eq₁ (type₁ ⊢A)
+    with is-type-constructor? A′ | eq₂
   … | just _ | ok! =
-    remove-weaken-subst-sound-⊢ n eq₁ (inj₁ ⊢A)
+    PE.subst (_⊢_≡_ _ _) A≡A′ (refl ⊢A)
   … | nothing | eq
     with inv->>= eq
-  … | inv _ eq₂ eq
+  … | inv _ eq₃ eq
     with inv->>= eq
-  … | inv (_ , PE.refl) _ eq₃ =
-    let ⊢A′ = infer-red-sound n eq₂ ⊢γ (wf ⊢A) in
-    ⌜ A  ⌝ γ  ≡⟨ remove-weaken-subst-sound-⊢ n eq₁ (inj₁ ⊢A) ⟩⊢
-    ⌜ A′ ⌝ γ  ≡⟨ univ (red-tm-sound n eq₃ ⊢γ ⊢A′) ⟩⊢∎
+  … | inv (_ , PE.refl) _ eq₄ =
+    let ⊢A′ = infer-red-sound n eq₃ ⊢γ (wf ⊢A) in
+    ⌜ A  ⌝ γ  ≡⟨ A≡A′ ⟩⊢≡
+    ⌜ A′ ⌝ γ  ≡⟨ univ (red-tm-sound n eq₄ ⊢γ ⊢A′) ⟩⊢∎
     ⌜ B  ⌝ γ  ∎
     where
     open TyR
@@ -2880,13 +2772,14 @@ opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ ≡ ⌜ A′ ⌝ γ
   check-type-sound′              0      not-ok
-  check-type-sound′ {A} {A′} {γ} (1+ n) eq     ⊢γ ⊢Γ =
-    let inv (_ , A″) eq₁ eq₂ = inv->>= (inv-register eq)
-        A″≡A′                = check-type′-sound
-                                 (is-type-constructor? A″) eq₂ ⊢γ ⊢Γ
-        ⊢A″ , _              = wf-⊢≡ A″≡A′
+  check-type-sound′ {A} {A′} {γ} (1+ n) eq     ⊢γ ⊢Γ
+    with inv->>= (inv-register eq)
+  … | inv (A″ , _) eq₁ eq₂ =
+    let A″≡A′   = check-type′-sound (is-type-constructor? A″) eq₂ ⊢γ ⊢Γ
+        ⊢A″ , _ = wf-⊢≡ A″≡A′
+        A≡A″    = really-remove-weaken-subst-sound n eq₁ (type₂ ⊢A″)
     in
-    ⌜ A ⌝ γ   ≡⟨ remove-weaken-subst-sound-⊢ n eq₁ (inj₂ ⊢A″) ⟩⊢
+    ⌜ A ⌝ γ   ≡⟨ A≡A″ ⟩⊢≡
     ⌜ A″ ⌝ γ  ≡⟨ A″≡A′ ⟩⊢∎
     ⌜ A′ ⌝ γ  ∎
     where
@@ -2979,52 +2872,65 @@ opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ≡ ⌜ l′ ⌝ γ ∷Level
   check-level-sound′ 0      not-ok
-  check-level-sound′ (1+ n) eq     _  _
+  check-level-sound′ (1+ n) eq     ⊢γ ⊢Γ
     with inv->>= (inv-register eq)
-  … | inv (_ , l′) eq₁ eq
-    using l≡l′ ← proj₁ ∘→ remove-weaken-subst-sound-⊢∷L n eq₁ ∘→ inj₂
-    with is-perhaps-level? l′ | eq
-  check-level-sound′ (1+ n) _ ⊢γ ⊢Γ | _ | nothing | eq =
-    let inv _ eq₂ eq₃ = inv->>= eq
-        L.lift okᴸ    = inv-require ⊢γ eq₂
-        l′≡           = check-sound′ n eq₃ ⊢γ (Levelⱼ′ okᴸ ⊢Γ)
-        _ , ⊢l′ , _   = wf-⊢≡∷ l′≡
-    in
-    trans-⊢≡∷L (l≡l′ (term-⊢∷ ⊢l′ , inj₂ (inj₂ okᴸ))) $
-    term-⊢≡∷ l′≡
-  check-level-sound′ _ _ ⊢γ ⊢Γ | _ | just (meta-var _ _) | eq
-    with inv-<$> eq
-  … | inv _ eq₂ PE.refl =
-    let _ , _ , l′≡l″ = is-level-sound eq₂ ⊢γ ⊢Γ
-        ⊢l′ , _       = wf-⊢≡∷L l′≡l″
-    in
-    trans-⊢≡∷L (l≡l′ (⊢l′ , inj₁ (λ { (_ , _ , ()) } ))) l′≡l″
-  check-level-sound′ _ _ _ ⊢Γ | _ | just zeroᵘ | ok! =
-    l≡l′ (⊢zeroᵘ ⊢Γ , inj₁ (λ { (_ , _ , ()) } ))
-  check-level-sound′ (1+ n) _ ⊢γ ⊢Γ | _ | just (sucᵘ _) | eq
-    with inv-<$> eq
-  … | inv _ eq₂ PE.refl =
-    let l′≡     = sucᵘ-cong-⊢≡∷L (check-level-sound′ n eq₂ ⊢γ ⊢Γ)
-        ⊢l′ , _ = wf-⊢≡∷L l′≡
-    in
-    trans-⊢≡∷L (l≡l′ (⊢l′ , inj₁ (λ { (_ , _ , ()) } ))) l′≡
-  check-level-sound′ (1+ n) _ ⊢γ ⊢Γ
-    | inv (b , _) _ _ | just (_ supᵘₗ _) | eq
-    using inv _ eq₂ eq ← inv->>= eq
-    with inv-⊛ eq
-  … | inv _ _ eq eq₄ PE.refl
-    with inv-<$> eq
-  … | inv _ eq₃ PE.refl =
-    let l′≡     = supᵘₗ-cong (check-level-sound′ n eq₃ ⊢γ ⊢Γ)
-                    (check-level-sound′ n eq₄ ⊢γ ⊢Γ)
-        ⊢l′ , _ = wf-⊢≡∷L l′≡
-        extra   = case PE.singleton b of λ where
-          (false , eq) → inj₁ (PE.subst T eq)
-          (true  , eq) →
-            let L.lift okᴸ = inv-require ⊢γ (inv-when eq eq₂) in
-            inj₂ okᴸ
-    in
-    trans-⊢≡∷L (l≡l′ (⊢l′ , inj₂ extra)) l′≡
+  … | inv (l′ , _) eq₁ eq₂ =
+    check-level′-sound
+      (PE.sym ∘→ really-remove-weaken-subst-sound n eq₁)
+      (is-perhaps-level? l′) eq₂ ⊢γ ⊢Γ
+
+  private
+
+    -- Soundness for check-level′.
+
+    check-level′-sound :
+      (Remove-weaken-subst-assumption l l′ b γ →
+       ⌜ l′ ⌝ γ PE.≡ ⌜ l ⌝ γ) →
+      (l′-l : Maybe (Is-perhaps-level l′)) →
+      OK (check-level′ n Γ l′-l b) l″ γ st →
+      Contexts-wf (Γ .defs) γ →
+      ⊢ ⌜ Γ ⌝ᶜ γ →
+      ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ≡ ⌜ l″ ⌝ γ ∷Level
+    check-level′-sound {n} l≡l′ nothing eq ⊢γ ⊢Γ =
+      let inv _ eq₁ eq₂ = inv->>= eq
+          L.lift okᴸ    = inv-require ⊢γ eq₁
+          l′≡           = check-sound′ n eq₂ ⊢γ (Levelⱼ′ okᴸ ⊢Γ)
+      in
+      PE.subst (flip (_⊢_≡_∷Level _) _) (l≡l′ (level-allowed okᴸ)) $
+      term-⊢≡∷ l′≡
+    check-level′-sound l≡l′ (just (meta-var _ _)) eq ⊢γ ⊢Γ
+      with inv-<$> eq
+    … | inv _ eq₁ PE.refl =
+      let _ , _ , l′≡l″ = is-level-sound eq₁ ⊢γ ⊢Γ in
+      PE.subst (flip (_⊢_≡_∷Level _) _)
+        (l≡l′ (not-supᵘₗ (λ { (_ , _ , ()) } )))
+        l′≡l″
+    check-level′-sound l≡l′ (just zeroᵘ) ok! _ ⊢Γ =
+      PE.subst (flip (_⊢_≡_∷Level _) _)
+        (l≡l′ (not-supᵘₗ (λ { (_ , _ , ()) } )))
+        (refl-⊢≡∷L (⊢zeroᵘ ⊢Γ))
+    check-level′-sound {n} l≡l′ (just (sucᵘ _)) eq ⊢γ ⊢Γ
+      with inv-<$> eq
+    … | inv _ eq₁ PE.refl =
+      let l′≡ = sucᵘ-cong-⊢≡∷L (check-level-sound′ n eq₁ ⊢γ ⊢Γ) in
+      PE.subst (flip (_⊢_≡_∷Level _) _)
+        (l≡l′ (not-supᵘₗ (λ { (_ , _ , ()) } )))
+        l′≡
+    check-level′-sound {b} {n} l≡l′ (just (_ supᵘₗ _)) eq ⊢γ ⊢Γ
+      using inv _ eq₁ eq ← inv->>= eq
+      with inv-⊛ eq
+    … | inv _ _ eq eq₃ PE.refl
+      with inv-<$> eq
+    … | inv _ eq₂ PE.refl =
+      let l′≡ = supᵘₗ-cong (check-level-sound′ n eq₂ ⊢γ ⊢Γ)
+                  (check-level-sound′ n eq₃ ⊢γ ⊢Γ)
+          ass = case PE.singleton b of λ where
+            (true  , eq) → cons-free eq
+            (false , eq) →
+              let L.lift okᴸ = inv-require ⊢γ (inv-unless eq eq₁) in
+              level-allowed okᴸ
+      in
+      PE.subst (flip (_⊢_≡_∷Level _) _) (l≡l′ ass) l′≡
 
   -- Soundness for check.
 
@@ -3037,27 +2943,28 @@ opaque
   check-sound′ 0      not-ok
   check-sound′ (1+ n) eq     _ ⊢A
     with inv->>= (inv-register eq)
-  … | inv (_ , t″) eq₁ eq
-    using t≡t″ ← remove-weaken-subst-sound-⊢∷ n eq₁
+  … | inv (t″ , _) eq₁ eq
+    using t≡t″ ← really-remove-weaken-subst-sound n eq₁
     with checkable? t″
-  check-sound′ (1+ n) _ ⊢γ ⊢A | inv _ eq₁ eq | nothing
+  check-sound′ (1+ n) _ ⊢γ ⊢A | inv _ _ eq | nothing
     with inv->>= eq
   … | inv _ eq₂ eq
     with inv->>= eq
   … | inv _ eq₃ ok! =
-    let ⊢t′ = infer-sound n eq₂ ⊢γ (wf ⊢A)
-        B≡A = equal-ty-sound′ n eq₃ ⊢γ (wf-⊢∷ ⊢t′) ⊢A
+    let ⊢t″ = infer-sound n eq₂ ⊢γ (wf ⊢A)
+        B≡A = equal-ty-sound′ n eq₃ ⊢γ (wf-⊢∷ ⊢t″) ⊢A
     in
-    t≡t″ (inj₂ (conv ⊢t′ B≡A))
+    PE.subst₃ (_⊢_≡_∷_ _) (PE.sym (t≡t″ (term₂ ⊢t″))) PE.refl PE.refl $
+    refl (conv ⊢t″ B≡A)
   check-sound′ {t} {t′} {γ} (1+ n) _ ⊢γ ⊢A
-    | inv (_ , t″) eq₁ eq | just t″-c =
+    | inv (t″ , _) _ eq | just t″-c =
     let inv _ eq₂ eq₃ = inv->>= eq
         A≡A′          = red-ty-sound n eq₂ ⊢γ ⊢A
         _ , ⊢A′       = wf-⊢≡ A≡A′
         t″≡t′         = check′-sound t″-c eq₃ ⊢γ ⊢A′
         _ , ⊢t″ , _   = wf-⊢≡∷ t″≡t′
     in
-    ⌜ t ⌝ γ   ≡⟨ t≡t″ (inj₂ (conv ⊢t″ (sym A≡A′))) ⟩⊢
+    ⌜ t ⌝ γ   ≡⟨ t≡t″ (term₂ ⊢t″) ⟩⊢≡
     ⌜ t″ ⌝ γ  ≡⟨ conv t″≡t′ (sym A≡A′) ⟩⊢∎
     ⌜ t′ ⌝ γ  ∎
     where
@@ -3131,14 +3038,15 @@ opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ
   infer-sound 0      not-ok
-  infer-sound (1+ n) eq     ⊢γ ⊢Γ =
-    let inv _ eq₁ eq = inv->>= (inv-register eq)
-        inv t-i _ eq = inv->>= eq
-        t≡t′         = remove-weaken-subst-sound-⊢∷ n eq₁ $
-                       inj₂ (infer′-sound t-i eq ⊢γ ⊢Γ)
-        _ , ⊢t , _   = wf-⊢≡∷ t≡t′
+  infer-sound (1+ n) eq     ⊢γ ⊢Γ
+    with inv->>= (inv-register eq)
+  … | inv _ eq₁ eq =
+    let inv t′-i _ eq₂ = inv->>= eq
+        ⊢t′            = infer′-sound t′-i eq₂ ⊢γ ⊢Γ
+        t≡t′           = really-remove-weaken-subst-sound n eq₁
+                           (term₂ ⊢t′)
     in
-    ⊢t
+    PE.subst (flip (_⊢_∷_ _) _) (PE.sym t≡t′) ⊢t′
 
   private
 
@@ -4312,57 +4220,62 @@ opaque
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ∷Level →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ≡ ⌜ nf ⌝ˡⁿ γ ∷Level
   normalise-level-sound 0      not-ok
-  normalise-level-sound (1+ n) eq     _ ⊢l
+  normalise-level-sound (1+ n) eq     ⊢γ ⊢l
     with inv->>= (inv-register eq)
-  … | inv (_ , l′) eq₁ eq
-    using l≡l′ , _ ← remove-weaken-subst-sound-⊢∷L n eq₁ (inj₁ ⊢l)
-        | _ , ⊢l′  ← wf-⊢≡∷L l≡l′
-    with is-perhaps-level? l′
-  normalise-level-sound _ _ _ _ | inv _ _ ok! | just (meta-var _ _) =
-    trans-⊢≡∷L l≡l′ $
-    sym-⊢≡∷L (⌞⌟ˡⁿ-correct ⊢l′)
-  normalise-level-sound _ _ _ ⊢l | inv _ _ ok! | just zeroᵘ =
-    trans-⊢≡∷L l≡l′ $
-    sym-⊢≡∷L (zeroᵘˡⁿ-correct (wfLevel ⊢l))
-  normalise-level-sound (1+ n) _ ⊢γ _ | inv _ _ eq | just (sucᵘ _)
-    with inv-<$> eq
-  … | inv _ eq₂ PE.refl =
-    let ⊢l″     = inversion-sucᵘ-⊢∷L ⊢l′
-        l″≡l‴   = normalise-level-sound n eq₂ ⊢γ ⊢l″
-        _ , ⊢l‴ = wf-⊢≡∷L l″≡l‴
-    in
-    trans-⊢≡∷L l≡l′ $
-    trans-⊢≡∷L (sucᵘ-cong-⊢≡∷L l″≡l‴) $
-    sym-⊢≡∷L (sucᵘˡⁿ-correct ⊢l‴)
-  normalise-level-sound (1+ n) _ ⊢γ _ | inv _ _ eq | just (_ supᵘₗ _)
-    with inv-⊛ eq
-  … | inv _ _ eq eq₃ PE.refl
-    with inv-<$> eq
-  … | inv _ eq₂ PE.refl =
-    let ⊢l₁ , ⊢l₂ = inversion-supᵘₗ ⊢l′
-        l₁≡l₁′    = normalise-level-sound n eq₂ ⊢γ ⊢l₁
-        _ , ⊢l₁′  = wf-⊢≡∷L l₁≡l₁′
-        l₂≡l₂′    = normalise-level-sound n eq₃ ⊢γ ⊢l₂
-        _ , ⊢l₂′  = wf-⊢≡∷L l₂≡l₂′
-    in
-    trans-⊢≡∷L l≡l′ $
-    trans-⊢≡∷L (supᵘₗ-cong l₁≡l₁′ l₂≡l₂′) $
-    sym-⊢≡∷L (supᵘₗˡⁿ-correct ⊢l₁′ ⊢l₂′)
-  normalise-level-sound {b = true} _ _ _ _ | inv _ _ ok! | nothing =
-    trans-⊢≡∷L l≡l′ $
-    sym-⊢≡∷L (⌞⌟ˡⁿ-correct ⊢l′)
-  normalise-level-sound
-    {b = false} (1+ n) _ ⊢γ _ | inv _ _ eq | nothing =
-    let inv _ eq₂ eq  = inv->>= eq
-        inv _ eq₃ eq₄ = inv->>= eq
-        L.lift okᴸ    = inv-require ⊢γ eq₂
-        ⊢l′           = ⊢∷Level→⊢∷Level okᴸ ⊢l′
-        l′≡l″         = red-tm-sound n eq₃ ⊢γ ⊢l′
-        _ , _ , ⊢l″   = wf-⊢≡∷ l′≡l″
-        l″≡l‴         = normalise-level-sound n eq₄ ⊢γ (term-⊢∷ ⊢l″)
-    in
-    trans-⊢≡∷L l≡l′ $
-    trans-⊢≡∷L (term-⊢≡∷ l′≡l″) l″≡l‴
+  … | inv (l′ , _) eq₁ eq₂ =
+    let l≡l′ = really-remove-weaken-subst-sound n eq₁ (level ⊢l) in
+    PE.subst (flip (_⊢_≡_∷Level _) _) (PE.sym l≡l′) $
+    normalise-level′-sound (is-perhaps-level? l′) eq₂ ⊢γ $
+    PE.subst (_⊢_∷Level _) l≡l′ ⊢l
+
+  private
+
+    -- Soundness for normalise-level′.
+
+    normalise-level′-sound :
+      (l-l : Maybe (Is-perhaps-level l)) →
+      OK (normalise-level′ b n Γ l-l) nf γ st →
+      Contexts-wf (Γ .defs) γ →
+      ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ∷Level →
+      ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ≡ ⌜ nf ⌝ˡⁿ γ ∷Level
+    normalise-level′-sound (just (meta-var _ _)) ok! _ ⊢x[σ] =
+      sym-⊢≡∷L (⌞⌟ˡⁿ-correct ⊢x[σ])
+    normalise-level′-sound (just zeroᵘ) ok! _ ⊢zeroᵘ =
+      sym-⊢≡∷L (zeroᵘˡⁿ-correct (wfLevel ⊢zeroᵘ))
+    normalise-level′-sound {n} (just (sucᵘ _)) eq ⊢γ ⊢sucᵘ
+      with inv-<$> eq
+    … | inv _ eq₁ PE.refl =
+      let ⊢l      = inversion-sucᵘ-⊢∷L ⊢sucᵘ
+          l≡l′    = normalise-level-sound n eq₁ ⊢γ ⊢l
+          _ , ⊢l′ = wf-⊢≡∷L l≡l′
+      in
+      trans-⊢≡∷L (sucᵘ-cong-⊢≡∷L l≡l′) $
+      sym-⊢≡∷L (sucᵘˡⁿ-correct ⊢l′)
+    normalise-level′-sound {n} (just (_ supᵘₗ _)) eq ⊢γ ⊢supᵘ
+      with inv-⊛ eq
+    … | inv _ _ eq eq₂ PE.refl
+      with inv-<$> eq
+    … | inv _ eq₁ PE.refl =
+      let ⊢l₁ , ⊢l₂ = inversion-supᵘₗ ⊢supᵘ
+          l₁≡l₁′    = normalise-level-sound n eq₁ ⊢γ ⊢l₁
+          _ , ⊢l₁′  = wf-⊢≡∷L l₁≡l₁′
+          l₂≡l₂′    = normalise-level-sound n eq₂ ⊢γ ⊢l₂
+          _ , ⊢l₂′  = wf-⊢≡∷L l₂≡l₂′
+      in
+      trans-⊢≡∷L (supᵘₗ-cong l₁≡l₁′ l₂≡l₂′) $
+      sym-⊢≡∷L (supᵘₗˡⁿ-correct ⊢l₁′ ⊢l₂′)
+    normalise-level′-sound {b = true} nothing ok! _ ⊢l =
+      sym-⊢≡∷L (⌞⌟ˡⁿ-correct ⊢l)
+    normalise-level′-sound {b = false} {n} nothing eq ⊢γ ⊢l =
+      let inv _ eq₁ eq  = inv->>= eq
+          inv _ eq₂ eq₃ = inv->>= eq
+          L.lift okᴸ    = inv-require ⊢γ eq₁
+          ⊢l            = ⊢∷Level→⊢∷Level okᴸ ⊢l
+          l≡l′          = red-tm-sound n eq₂ ⊢γ ⊢l
+          _ , _ , ⊢l′   = wf-⊢≡∷ l≡l′
+          l′≡l″         = normalise-level-sound n eq₃ ⊢γ (term-⊢∷ ⊢l′)
+      in
+      trans-⊢≡∷L (term-⊢≡∷ l≡l′) l′≡l″
 
   -- Soundness for below.
 

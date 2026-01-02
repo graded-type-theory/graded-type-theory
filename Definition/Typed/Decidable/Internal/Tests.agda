@@ -36,6 +36,7 @@ private variable
   s                    : Termˢ _
   b                    : Termᵇᵐ _ _
   p q r                : Termᵍ _
+  t                    : Term _ _
 
 ------------------------------------------------------------------------
 -- A simple test involving the Constants
@@ -433,6 +434,15 @@ is-weaken-subst? : (t : Term c n) → Maybe (Is-weaken-subst t)
 is-weaken-subst? (weaken _ _) = just (weaken _ _)
 is-weaken-subst? (subst _ _)  = just (subst _ _)
 is-weaken-subst? _            = nothing
+
+opaque
+
+  -- If a term is an application of weaken or subst, then it is not an
+  -- application of _supᵘₗ_.
+
+  Is-weaken-subst→Not-supᵘₗ : Is-weaken-subst t → Not-supᵘₗ t
+  Is-weaken-subst→Not-supᵘₗ (weaken _ _) (_ , _ , ())
+  Is-weaken-subst→Not-supᵘₗ (subst _ _)  (_ , _ , ())
 
 -- Are the two terms both applications of meta-variables?
 

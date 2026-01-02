@@ -14,16 +14,20 @@ module Definition.Typed.Decidable.Internal.Substitution
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal.Term R
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
+open import Definition.Typed.Decidable.Internal.Term R
+open import Definition.Typed.Decidable.Internal.Weakening R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Well-formed R
 
-import Definition.Untyped M as U
+open import Definition.Untyped M as U using (Level-literal)
+open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
 import Definition.Untyped.Sup R as S
 
+open import Tools.Bool
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Maybe
 open import Tools.Nat
@@ -36,13 +40,15 @@ open import Tools.Sum
 open Definition.Typed.Decidable.Internal.Substitution.Primitive R public
 
 private variable
-  n n₁ n₂ : Nat
-  c       : Constants
-  γ       : Contexts _
-  Γ       : U.Cons _ _
-  A       : U.Term _
-  t       : Term _ _
-  σ       : Subst _ _ _
+  b         : Bool
+  n n₁ n₂   : Nat
+  x         : Fin _
+  c         : Constants
+  γ         : Contexts _
+  Γ         : U.Cons _ _
+  A         : U.Term _
+  t t₁ t₂ u : Term _ _
+  σ         : Subst _ _ _
 
 ------------------------------------------------------------------------
 -- Applying substitutions to terms
@@ -98,6 +104,118 @@ K p A t B u v         [ σ ] = K p (subst A σ) (subst t σ)
                                 (subst B (σ ⇑)) (subst u σ) (subst v σ)
 []-cong s l A t u v   [ σ ] = []-cong s (subst l σ) (subst A σ)
                                 (subst t σ) (subst u σ) (subst v σ)
+
+------------------------------------------------------------------------
+-- Cons-free
+
+-- Cons-free σ means that σ does not contain the constructor cons,
+-- with the exception of applications of the form cons _ (var _).
+
+infix 35 _⇑
+
+data Cons-free {c} : Subst c n₂ n₁ → Set a where
+  id   : Cons-free (id {n = n})
+  wk1  : Cons-free σ → Cons-free (wk1 σ)
+  _⇑   : Cons-free σ → Cons-free (σ ⇑)
+  cons : Cons-free σ → Cons-free (cons σ (var x))
+
+-- Is the substitution cons-free?
+
+cons-free? : (σ : Subst c n₂ n₁) → Maybe (Cons-free σ)
+cons-free? id               = just id
+cons-free? (wk1 σ)          = wk1 <$> cons-free? σ
+cons-free? (σ ⇑)            = _⇑ <$> cons-free? σ
+cons-free? (cons σ (var _)) = cons <$> cons-free? σ
+cons-free? (cons _ _)       = nothing
+
+opaque
+
+  -- If σ is cons-free, then U.var x U.[ ⌜ σ ⌝ˢ γ ] is a variable.
+
+  Cons-free→var-[] :
+    Cons-free σ → ∃ λ y → U.var x U.[ ⌜ σ ⌝ˢ γ ] PE.≡ U.var y
+  Cons-free→var-[] {x} id =
+    x , PE.refl
+  Cons-free→var-[] {x} {γ} (wk1 {σ} σ-cf) =
+    Σ.map _+1
+      (λ {x = y} hyp →
+         U.wk1 (U.var x U.[ ⌜ σ ⌝ˢ γ ])  ≡⟨ PE.cong U.wk1 hyp ⟩
+         U.wk1 (U.var y)                 ≡⟨⟩
+         U.var (y +1)                    ∎)
+      (Cons-free→var-[] σ-cf)
+  Cons-free→var-[] {x = x0} (_ ⇑) =
+    x0 , PE.refl
+  Cons-free→var-[] {x = x +1} {γ} (_⇑ {σ} σ-cf) =
+    Σ.map _+1
+      (λ {x = y} hyp →
+         U.wk1 (U.var x U.[ ⌜ σ ⌝ˢ γ ])  ≡⟨ PE.cong U.wk1 hyp ⟩
+         U.wk1 (U.var y)                 ≡⟨⟩
+         U.var (y +1)                    ∎)
+      (Cons-free→var-[] σ-cf)
+  Cons-free→var-[] {x = x0} (cons {x} _) =
+    x , PE.refl
+  Cons-free→var-[] {x = _ +1} (cons σ-cf) =
+    Cons-free→var-[] σ-cf
+
+opaque
+
+  -- If σ is cons-free, then t is a level literal if and only if
+  -- t U.[ ⌜ σ ⌝ˢ γ ] is a level literal.
+
+  Cons-free→Level-literal-[] :
+    ∀ {t} →
+    Cons-free σ →
+    Level-literal t ⇔ Level-literal (t U.[ ⌜ σ ⌝ˢ γ ])
+  Cons-free→Level-literal-[] σ-cf =
+    Level-literal-[] , flip (lemma σ-cf) PE.refl
+    where
+    lemma :
+      ∀ {t u} →
+      Cons-free σ → Level-literal u → t U.[ ⌜ σ ⌝ˢ γ ] PE.≡ u →
+      Level-literal t
+    lemma {t} σ-cf U.zeroᵘ eq =
+      case subst-zeroᵘ {t = t} eq of λ where
+        (inj₁ (_ , PE.refl)) →
+          case PE.trans (PE.sym eq) (Cons-free→var-[] σ-cf .proj₂)
+          of λ ()
+        (inj₂ PE.refl) →
+          U.zeroᵘ
+    lemma {t} σ-cf (U.sucᵘ u-lit) eq =
+      case subst-sucᵘ {t = t} eq of λ where
+        (inj₁ (_ , PE.refl)) →
+          case PE.trans (PE.sym eq) (Cons-free→var-[] σ-cf .proj₂)
+          of λ ()
+        (inj₂ (_ , PE.refl , eq)) →
+          U.sucᵘ (lemma σ-cf u-lit eq)
+
+opaque
+  unfolding S._supᵘₗ_
+
+  -- If σ is cons-free, then U_.[ ⌜ σ ⌝ˢ γ ] commutes with S._supᵘₗ_.
+
+  Cons-free→supᵘₗ[⌜⌝ˢ] :
+    ∀ {t u} →
+    Cons-free σ →
+    t S.supᵘₗ u U.[ ⌜ σ ⌝ˢ γ ] PE.≡
+    (t U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (u U.[ ⌜ σ ⌝ˢ γ ])
+  Cons-free→supᵘₗ[⌜⌝ˢ] {σ} {γ} {t} {u} σ-cf
+    with level-support
+  … | U.level-type _  = PE.refl
+  … | U.only-literals
+    with U.Level-literal? t ×-dec U.Level-literal? u
+       | U.Level-literal? (t U.[ ⌜ σ ⌝ˢ γ ]) ×-dec
+         U.Level-literal? (u U.[ ⌜ σ ⌝ˢ γ ])
+  …   | yes (tₗ , uₗ) | _ =
+        supᵘₗ′-[] tₗ uₗ
+  …   | no not-both₁ | no not-both₂ =
+        t U.supᵘₗ′ u U.[ ⌜ σ ⌝ˢ γ ]                     ≡⟨ PE.cong U._[ _ ] (supᵘₗ′≡supᵘ not-both₁) ⟩
+        t U.supᵘ u U.[ ⌜ σ ⌝ˢ γ ]                       ≡⟨⟩
+        (t U.[ ⌜ σ ⌝ˢ γ ]) U.supᵘ (u U.[ ⌜ σ ⌝ˢ γ ])    ≡˘⟨ supᵘₗ′≡supᵘ not-both₂ ⟩
+        (t U.[ ⌜ σ ⌝ˢ γ ]) U.supᵘₗ′ (u U.[ ⌜ σ ⌝ˢ γ ])  ∎
+  …   | no not-both | yes both =
+        ⊥-elim $ not-both $
+        Σ.map (Cons-free→Level-literal-[] σ-cf .proj₂)
+          (Cons-free→Level-literal-[] σ-cf .proj₂) both
 
 ------------------------------------------------------------------------
 -- Not-supᵘₗ
@@ -157,6 +275,8 @@ opaque
 data ⌜[]⌝-assumption
        (t : Term c n₁) (σ : Subst c n₂ n₁) (γ : Contexts c) :
        Set a where
+  cons-free : Cons-free σ → ⌜[]⌝-assumption t σ γ
+
   level-allowed : Level-allowed → ⌜[]⌝-assumption t σ γ
 
   not-supᵘₗ : Not-supᵘₗ t → ⌜[]⌝-assumption t σ γ
@@ -202,6 +322,8 @@ opaque
     PE.refl
   ⌜[]⌝ {σ} {γ} (l₁ supᵘₗ l₂) hyp =
     case hyp of λ where
+      (cons-free σ-cf) →
+        PE.sym (Cons-free→supᵘₗ[⌜⌝ˢ] σ-cf)
       (level-allowed okᴸ) →
         lemma′ okᴸ
       (not-supᵘₗ not-sup) →
@@ -319,3 +441,129 @@ opaque
     PE.refl
   ⌜[]⌝ ([]-cong _ _ _ _ _ _) _ =
     PE.refl
+
+------------------------------------------------------------------------
+-- Removing weaken and subst
+
+-- Removes top-level weaken and subst constructors.
+
+remove-weaken-subst′ :
+  (t : Term c n) →
+  ∃₃ λ n′ (σ : Subst c n n′) (u : Term c n′) →
+    ∀ {γ} → ⌜ t ⌝ γ PE.≡ ⌜ subst u σ ⌝ γ
+remove-weaken-subst′ (weaken ρ t) with remove-weaken-subst′ t
+… | _ , σ , u , hyp = _ , ρ •ₛ σ , u , lemma
+  where
+  opaque
+    lemma : U.wk ρ (⌜ t ⌝ γ) PE.≡ ⌜ u ⌝ γ U.[ ⌜ ρ •ₛ σ ⌝ˢ γ ]
+    lemma {γ} =
+      U.wk ρ (⌜ t ⌝ γ)                 ≡⟨ PE.cong (U.wk _) hyp ⟩
+      U.wk ρ (⌜ u ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])  ≡⟨ wk-subst (⌜ u ⌝ _) ⟩
+      ⌜ u ⌝ γ U.[ ρ U.•ₛ ⌜ σ ⌝ˢ γ ]    ≡˘⟨ substVar-to-subst ⌜•ₛ⌝ˢ (⌜ u ⌝ _) ⟩
+      ⌜ u ⌝ γ U.[ ⌜ ρ •ₛ σ ⌝ˢ γ ]      ∎
+remove-weaken-subst′ (subst t σ) with remove-weaken-subst′ t
+… | _ , σ′ , u , hyp = _ , σ ₛ•ₛ σ′ , u , lemma
+  where
+  opaque
+    lemma : ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ] PE.≡ ⌜ u ⌝ γ U.[ ⌜ σ ₛ•ₛ σ′ ⌝ˢ γ ]
+    lemma {γ} =
+      ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]                  ≡⟨ PE.cong U._[ _ ] hyp ⟩
+      ⌜ u ⌝ γ U.[ ⌜ σ′ ⌝ˢ γ ] U.[ ⌜ σ ⌝ˢ γ ]  ≡⟨ substCompEq (⌜ u ⌝ _) ⟩
+      ⌜ u ⌝ γ U.[ ⌜ σ ⌝ˢ γ U.ₛ•ₛ ⌜ σ′ ⌝ˢ γ ]  ≡˘⟨ substVar-to-subst (⌜ₛ•ₛ⌝ˢ σ) (⌜ u ⌝ _) ⟩
+      ⌜ u ⌝ γ U.[ ⌜ σ ₛ•ₛ σ′ ⌝ˢ γ ]           ∎
+remove-weaken-subst′ t = _ , id , t , lemma
+  where
+  opaque
+    lemma : ⌜ t ⌝ γ PE.≡ ⌜ subst t id ⌝ γ
+    lemma {γ} =
+      ⌜ t ⌝ γ                  ≡˘⟨ subst-id _ ⟩
+      ⌜ t ⌝ γ U.[ U.idSubst ]  ∎
+
+-- A type used to state remove-weaken-subst.
+
+data Remove-weaken-subst-assumption
+       (t u : Term c n) (b : Bool) (γ : Contexts c) : Set a where
+  cons-free : b PE.≡ true → Remove-weaken-subst-assumption t u b γ
+
+  level-allowed : Level-allowed → Remove-weaken-subst-assumption t u b γ
+
+  not-supᵘₗ : Not-supᵘₗ u → Remove-weaken-subst-assumption t u b γ
+
+  type₁ : Γ ⊢ ⌜ t ⌝ γ        → Remove-weaken-subst-assumption t u b γ
+  type₂ : Γ ⊢ ⌜ u ⌝ γ        → Remove-weaken-subst-assumption t u b γ
+  level : Γ ⊢ ⌜ t ⌝ γ ∷Level → Remove-weaken-subst-assumption t u b γ
+  term₁ : Γ ⊢ ⌜ t ⌝ γ ∷ A    → Remove-weaken-subst-assumption t u b γ
+  term₂ : Γ ⊢ ⌜ u ⌝ γ ∷ A    → Remove-weaken-subst-assumption t u b γ
+
+opaque
+
+  -- A cast lemma for Remove-weaken-subst-assumption.
+
+  cast-Remove-weaken-subst-assumption :
+    ⌜ t₁ ⌝ γ PE.≡ ⌜ t₂ ⌝ γ →
+    Remove-weaken-subst-assumption t₁ u b γ →
+    Remove-weaken-subst-assumption t₂ u b γ
+  cast-Remove-weaken-subst-assumption eq = λ where
+    (cons-free cf)     → cons-free cf
+    (level-allowed ok) → level-allowed ok
+    (not-supᵘₗ ns)     → not-supᵘₗ ns
+    (type₁ ⊢t)         → type₁ (PE.subst (_⊢_ _) eq ⊢t)
+    (type₂ ⊢u)         → type₂ ⊢u
+    (level ⊢t)         → level (PE.subst (_⊢_∷Level _) eq ⊢t)
+    (term₁ ⊢t)         → term₁ (PE.subst (flip (_⊢_∷_ _) _) eq ⊢t)
+    (term₂ ⊢u)         → term₂ ⊢u
+
+-- Removes top-level weaken and subst constructors.
+--
+-- Note that the result might have top-level weaken or subst
+-- constructors (for instance if the term is
+-- subst (var x0) (cons id (subst ℕ id))).
+
+remove-weaken-subst :
+  (t : Term c n) →
+  ∃₂ λ (u : Term c n) (b : Bool) →
+    ∀ {γ} → Remove-weaken-subst-assumption t u b γ →
+    ⌜ t ⌝ γ PE.≡ ⌜ u ⌝ γ
+remove-weaken-subst t with remove-weaken-subst′ t
+… | _ , σ , u , hyp = u [ σ ] , cf , lemma
+  where
+  cf : Bool
+  cf with cons-free? σ
+  … | just _  = true
+  … | nothing = false
+
+  opaque
+
+    ≡true→Cons-free : cf PE.≡ true → Cons-free σ
+    ≡true→Cons-free _  with cons-free? σ
+    ≡true→Cons-free _  | just cf = cf
+    ≡true→Cons-free () | nothing
+
+    lemma :
+      Remove-weaken-subst-assumption t (u [ σ ]) cf γ →
+      ⌜ t ⌝ γ PE.≡ ⌜ u [ σ ] ⌝ γ
+    lemma {γ} ass =
+      ⌜ t ⌝ γ                 ≡⟨ hyp ⟩
+      ⌜ subst u σ ⌝ γ         ≡⟨⟩
+      ⌜ u ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]  ≡˘⟨ ⌜[]⌝ _ ass′ ⟩
+      ⌜ u [ σ ] ⌝ γ           ∎
+      where
+      ass′ : ⌜[]⌝-assumption u σ γ
+      ass′ = case ass of λ where
+        (cons-free ok)     → cons-free (≡true→Cons-free ok)
+        (level-allowed ok) → level-allowed ok
+        (not-supᵘₗ ns)     → not-supᵘₗ (Not-supᵘₗ-[]→ ns)
+        (type₁ ⊢t)         → type₂ (PE.subst (_⊢_ _) hyp ⊢t)
+        (type₂ ⊢u[σ])      → type₁ ⊢u[σ]
+        (level ⊢t)         → level (PE.subst (_⊢_∷Level _) hyp ⊢t)
+        (term₁ ⊢t)         → term₂ (PE.subst (flip (_⊢_∷_ _) _) hyp ⊢t)
+        (term₂ ⊢u[σ])      → term₁ ⊢u[σ]
+
+-- The result of remove-weaken-subst can have top-level weaken or
+-- subst constructors.
+
+_ :
+  remove-weaken-subst {c = c} {n = n}
+    (subst (var x0) (cons id (subst ℕ id))) .proj₁ PE.≡
+  subst ℕ id
+_ = PE.refl

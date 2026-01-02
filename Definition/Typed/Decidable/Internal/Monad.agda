@@ -158,11 +158,11 @@ f ⊛ x = do
   x ← x
   return (f x)
 
--- Runs the computation if the boolean is "true".
+-- Runs the computation if the boolean is "false".
 
-when : Bool → Check c ⊤ → Check c ⊤
-when true  x = x
-when false _ = return tt
+unless : Bool → Check c ⊤ → Check c ⊤
+unless true  _ = return tt
+unless false x = x
 
 -- The computation succeeds if the predicate holds for all arguments
 -- in the list.
@@ -289,10 +289,10 @@ opaque
 
 opaque
 
-  -- An inversion lemma for when.
+  -- An inversion lemma for unless.
 
-  inv-when : b PE.≡ true → OK (when b x) tt γ st → OK x tt γ st
-  inv-when PE.refl = idᶠ
+  inv-unless : b PE.≡ false → OK (unless b x) tt γ st → OK x tt γ st
+  inv-unless PE.refl = idᶠ
 
 opaque
 

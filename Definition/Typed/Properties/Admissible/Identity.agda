@@ -150,7 +150,7 @@ opaque
        I.lam xp′ nothing xu)
       (I.Id (I.U xl) (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₁ ▹ xB₁)
          (I.ΠΣ⟨ xb ⟩ xp , xq ▷ xA₂ ▹ xB₂))
-      25
+      27
       PE.refl
       (λ where
          .IC.constraints-wf             → ok₁ L.∷ ok₂ L.∷ ok₃ L.∷ L.[]

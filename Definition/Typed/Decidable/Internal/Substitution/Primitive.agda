@@ -263,25 +263,29 @@ infix 25 _[_]ᵛ
 
 _[_]ᵛ : Fin n₁ → Subst c n₂ n₁ → Term c n₂
 x      [ id       ]ᵛ = var x
-x      [ wk1 σ    ]ᵛ = weaken (step id) (x [ σ ]ᵛ)
+x      [ wk1 σ    ]ᵛ = wk (step id) (x [ σ ]ᵛ)
 x0     [ _ ⇑      ]ᵛ = var x0
-(x +1) [ σ ⇑      ]ᵛ = weaken (step id) (x [ σ ]ᵛ)
+(x +1) [ σ ⇑      ]ᵛ = wk (step id) (x [ σ ]ᵛ)
 x0     [ cons _ t ]ᵛ = t
 (x +1) [ cons σ _ ]ᵛ = x [ σ ]ᵛ
 
 opaque
 
-  -- The function _[_]ᵛ is correctly defined.
+  -- A translation lemma for _[_]ᵛ.
 
   ⌜[]ᵛ⌝ : ∀ (σ : Subst c n₂ n₁) x → ⌜ x [ σ ]ᵛ ⌝ γ PE.≡ ⌜ σ ⌝ˢ γ x
   ⌜[]ᵛ⌝ id _ =
     PE.refl
-  ⌜[]ᵛ⌝ (wk1 σ) x =
-    PE.cong U.wk1 (⌜[]ᵛ⌝ σ x)
+  ⌜[]ᵛ⌝ {γ} (wk1 σ) x =
+    ⌜ wk (step id) (x [ σ ]ᵛ) ⌝ γ  ≡⟨ ⌜wk⌝ (_ [ σ ]ᵛ) ⟩
+    U.wk1 (⌜ x [ σ ]ᵛ ⌝ γ)         ≡⟨ PE.cong U.wk1 (⌜[]ᵛ⌝ σ _) ⟩
+    U.wk1 (⌜ σ ⌝ˢ γ x)             ∎
   ⌜[]ᵛ⌝ (_ ⇑) x0 =
     PE.refl
-  ⌜[]ᵛ⌝ (σ ⇑) (x +1) =
-    PE.cong U.wk1 (⌜[]ᵛ⌝ σ x)
+  ⌜[]ᵛ⌝ {γ} (σ ⇑) (x +1) =
+    ⌜ wk (U.step U.id) (x [ σ ]ᵛ) ⌝ γ  ≡⟨ ⌜wk⌝ (_ [ σ ]ᵛ) ⟩
+    U.wk1 (⌜ x [ σ ]ᵛ ⌝ γ)             ≡⟨ PE.cong U.wk1 (⌜[]ᵛ⌝ σ x) ⟩
+    U.wk1 (⌜ σ ⌝ˢ γ x)                 ∎
   ⌜[]ᵛ⌝ (cons _ _) x0 =
     PE.refl
   ⌜[]ᵛ⌝ (cons σ _) (x +1) =
