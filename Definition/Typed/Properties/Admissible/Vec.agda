@@ -27,8 +27,9 @@ open import Graded.Mode 𝕄
 open import Definition.Typed R
 open import Definition.Typed.Decidable.Internal R
 import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Term R as I
 import Definition.Typed.Decidable.Internal.Substitution R as IS
+import Definition.Typed.Decidable.Internal.Term R as I
+import Definition.Typed.Decidable.Internal.Tests R as IT
 import Definition.Typed.Decidable.Internal.Weakening R as IW
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -181,8 +182,8 @@ opaque
         I.σ-allowed xs xp I.𝟘 L.∷
         L.[]
       γ .I.metas .I.equalities =
-        (_ , I.var! x1 , I.var! x2) L.∷
-        (_ , I.var! x3 , I.var! x4) L.∷
+        (_ , IT.meta xA₁ , IT.meta xA₂) L.∷
+        (_ , IT.meta xt₁ , IT.meta xt₂) L.∷
         L.[]
       γ .I.metas .I.bindings = λ where
         (I.var! x0)      → I.base , I.level l
@@ -566,8 +567,8 @@ opaque
         I.σ-allowed xs xp I.𝟘 L.∷
         L.[]
       γ .I.metas .I.equalities =
-        (_ , I.var! x3 , I.var! x4) L.∷
-        (_ , I.var! x5 , I.var! x6) L.∷
+        (_ , IT.meta xu₁ , IT.meta xu₂) L.∷
+        (_ , IT.meta xv₁ , IT.meta xv₂) L.∷
         L.[]
       γ .I.metas .I.bindings = λ where
         (I.var! x0)      → I.base , I.level l₁

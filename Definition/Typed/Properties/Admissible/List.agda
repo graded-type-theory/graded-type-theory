@@ -24,8 +24,9 @@ module Definition.Typed.Properties.Admissible.List
 open import Definition.Typed R
 open import Definition.Typed.Decidable.Internal R
 import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Term R as I
 import Definition.Typed.Decidable.Internal.Substitution R as IS
+import Definition.Typed.Decidable.Internal.Term R as I
+import Definition.Typed.Decidable.Internal.Tests R as IT
 import Definition.Typed.Decidable.Internal.Weakening R as IW
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
@@ -123,7 +124,7 @@ opaque
     check-and-equal-type-and-terms-sound
       (γ′ L.[] λ where
          .I.equalities →
-           (_ , I.var! x1 , I.var! x2) L.∷
+           (_ , IT.meta xA₁ , IT.meta xA₂) L.∷
            L.[]
          .I.bindings → λ where
            (I.var! x0)      → I.base , I.level l
@@ -231,9 +232,9 @@ opaque
     check-and-equal-type-and-terms-sound
       (γ′ L.[] λ where
          .I.equalities →
-           (_ , I.var! x1 , I.var! x2) L.∷
-           (_ , I.var! x3 , I.var! x4) L.∷
-           (_ , I.var! x5 , I.var! x6) L.∷
+           (_ , IT.meta xA₁ , IT.meta xA₂) L.∷
+           (_ , IT.meta xt₁ , IT.meta xt₂) L.∷
+           (_ , IT.meta xu₁ , IT.meta xu₂) L.∷
            L.[]
          .I.bindings → λ where
            (I.var! x0)      → I.base , I.level l

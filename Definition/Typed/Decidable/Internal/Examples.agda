@@ -19,6 +19,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Decidable.Internal TR
 import Definition.Typed.Decidable.Internal.Context TR as C
 import Definition.Typed.Decidable.Internal.Term TR as I
+import Definition.Typed.Decidable.Internal.Tests TR as T
 import Definition.Typed.Decidable.Internal.Substitution TR as S
 import Definition.Typed.Decidable.Internal.Weakening TR as W
 open import Definition.Typed.Inversion TR
@@ -391,12 +392,12 @@ opaque
       γ′ .I.⌜base⌝              = Γ
       γ′ .I.constraints         = L.[]
       γ′ .I.metas .I.equalities =
-        (_ , I.var! x0  , I.var! x1)  L.∷
-        (_ , I.var! x2  , I.var! x3)  L.∷
-        (_ , I.var! x4  , I.var! x5)  L.∷
-        (_ , I.var! x6  , I.var! x7)  L.∷
-        (_ , I.var! x8  , I.var! x9)  L.∷
-        (_ , I.var! x10 , I.var! x11) L.∷
+        (_ , T.meta xA₁ , T.meta xA₂) L.∷
+        (_ , T.meta xB₁ , T.meta xB₂) L.∷
+        (_ , T.meta xt₁ , T.meta xt₂) L.∷
+        (_ , T.meta xu₁ , T.meta xu₂) L.∷
+        (_ , T.meta xv₁ , T.meta xv₂) L.∷
+        (_ , T.meta xw₁ , T.meta xw₂) L.∷
         L.[]
       γ′ .I.metas .I.bindings = λ where
         (I.var! x0)  → I.base         , I.type A₁

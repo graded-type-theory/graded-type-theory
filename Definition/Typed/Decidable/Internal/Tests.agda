@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Various tests used by Definition.Typed.Decidable.Internal
+-- Various tests used by Definition.Typed.Decidable.Internal, and a
+-- few other definitions
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -26,6 +27,7 @@ open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum
+open import Tools.Unit
 import Tools.Vec as Vec
 
 private variable
@@ -420,6 +422,33 @@ are-equal-type-constructors? _ _ =
 
 ------------------------------------------------------------------------
 -- Some simple tests involving terms
+
+-- The term is a meta-variable.
+
+data Is-meta-var {c : Constants} {n} : Term c n → Set a where
+  meta-var : (x : Meta-var c m) (σ : Subst c n m) →
+             Is-meta-var (meta-var x σ)
+
+-- Is the term a meta-variable?
+
+is-meta-var? : (t : Term c n) → Maybe (Is-meta-var t)
+is-meta-var? (meta-var _ _) = just (meta-var _ _)
+is-meta-var? _              = nothing
+
+-- A function that is used to state meta.
+
+Meta-type : Term c n → Set
+Meta-type {c} t with is-meta-var? t
+… | just (meta-var {m} _ _) = Meta-var c m
+… | nothing                 = ⊤
+
+-- Extracts the meta-variable from a term that is a meta-variable. For
+-- other terms the result is trivial.
+
+meta : (t : Term c n) → Meta-type t
+meta t with is-meta-var? t
+… | just (meta-var x _) = x
+… | nothing             = _
 
 -- The term is an application of weaken or subst.
 
