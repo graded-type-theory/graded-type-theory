@@ -198,6 +198,20 @@ infix 4 [_]with-message_
 [ nothing ]with-message s = fail s
 
 ------------------------------------------------------------------------
+-- Fuel
+
+-- The type of "fuel" used to ensure termination of some definitions.
+
+Fuel : Set
+Fuel = Nat
+
+-- A computation that fails with the error message "No fuel left.". No
+-- stack trace is returned.
+
+no-fuel : Check c A
+no-fuel .run _ = inj₁ ("No fuel left." , [])
+
+------------------------------------------------------------------------
 -- The predicate OK
 
 -- OK x y st γ means that the computation x succeeded for st and γ and

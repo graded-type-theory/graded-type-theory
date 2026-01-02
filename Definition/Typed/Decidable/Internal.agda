@@ -137,15 +137,6 @@ private opaque
       Σ-ok
 
 ------------------------------------------------------------------------
--- Fuel
-
--- The type of "fuel" used to ensure termination of some definitions
--- below.
-
-Fuel : Set
-Fuel = Nat
-
-------------------------------------------------------------------------
 -- "Normal" forms for levels
 
 mutual
@@ -383,7 +374,7 @@ private
 really-remove-weaken-subst :
   Fuel → Term c n → Check c (Term c n × Bool)
 really-remove-weaken-subst 0 _ =
-  fail "No fuel left."
+  no-fuel
 really-remove-weaken-subst (1+ n) t = do
   t , b , _ ← return (remove-weaken-subst t)
   case is-weaken-subst? t of λ where
@@ -516,7 +507,7 @@ mutual
   -- Reduction for types.
 
   red-ty : Fuel → Cons c m n → Term c n → Check c (Term c n)
-  red-ty 0      _ _ = fail "No fuel left."
+  red-ty 0      _ _ = no-fuel
   red-ty (1+ n) Γ A = register ([red-ty] Γ A) do
     A , _ ← really-remove-weaken-subst n A
     case is-type-constructor? A of λ where
@@ -535,7 +526,7 @@ mutual
   -- Reduction for a term with a given type.
 
   red-tm : Fuel → Cons c m n → (t A : Term c n) → Check c (Term c n)
-  red-tm 0      _ _ _ = fail "No fuel left."
+  red-tm 0      _ _ _ = no-fuel
   red-tm (1+ n) Γ t A = register ([red-tm] Γ t A) do
     red-tm′ n Γ t A
 
@@ -710,7 +701,7 @@ mutual
 
   check-type : Fuel → Cons c m n → Term c n → Check c (Term c n)
   check-type 0 _ _ =
-    fail "No fuel left."
+    no-fuel
   check-type (1+ n) Γ A = register ([check-type] Γ A) do
     A , _ ← really-remove-weaken-subst n A
     check-type′ n Γ (is-type-constructor? A)
@@ -774,7 +765,7 @@ mutual
 
   check-level : Fuel → Cons c m n → Term c n → Check c (Term c n)
   check-level 0 _ _ =
-    fail "No fuel left."
+    no-fuel
   check-level (1+ n) Γ l = register ([check-level] Γ l) do
     l , cons-free-sub ← really-remove-weaken-subst n l
     check-level′ n Γ (is-perhaps-level? l) cons-free-sub
@@ -807,7 +798,7 @@ mutual
 
   check : Fuel → Cons c m n → Term c n → Term c n → Check c (Term c n)
   check 0 _ _ _ =
-    fail "No fuel left."
+    no-fuel
   check (1+ n) Γ t A = register ([check] Γ t A) do
     t , _ ← really-remove-weaken-subst n t
     case checkable? t of λ where
@@ -859,7 +850,7 @@ mutual
 
   infer : Fuel → Cons c m n → Term c n → Check c (Term c n)
   infer 0 _ _ =
-    fail "No fuel left."
+    no-fuel
   infer (1+ n) Γ t = register ([infer] Γ t) do
     t , _ ← really-remove-weaken-subst n t
     inf   ← inferable t
@@ -1091,7 +1082,7 @@ mutual
 
   equal-tm : Fuel → Cons c m n → (t₁ t₂ A : Term c n) → Check c ⊤
   equal-tm 0 _ _ _ _ =
-    fail "No fuel left."
+    no-fuel
   equal-tm (1+ n) Γ t₁ t₂ A = register ([equal-tm] Γ t₁ t₂ A) do
     t₁ ← red-tm n Γ t₁ A
     t₂ ← red-tm n Γ t₂ A
@@ -1229,7 +1220,7 @@ mutual
 
   equal-ne-inf :
     Fuel → (Γ : Cons c m n) (t₁ t₂ : Term c n) → Check c (Term c n)
-  equal-ne-inf 0      _ _  _  = fail "No fuel left."
+  equal-ne-inf 0      _ _  _  = no-fuel
   equal-ne-inf (1+ n) Γ t₁ t₂ =
     register ([equal-ne-inf] Γ t₁ t₂) do
       eq ← are-equal-eliminators t₁ t₂
@@ -1337,7 +1328,7 @@ mutual
 
   equal-ty : Fuel → (Γ : Cons c m n) (A₁ A₂ : Term c n) → Check c ⊤
   equal-ty 0 _ _ _ =
-    fail "No fuel left."
+    no-fuel
   equal-ty (1+ n) Γ A₁ A₂ = register ([equal-ty] Γ A₁ A₂) do
     A₁ ← red-ty n Γ A₁
     A₂ ← red-ty n Γ A₂
@@ -1442,7 +1433,7 @@ mutual
   normalise-level :
     Bool → Fuel → Cons c m n → Term c n → Check c (Termˡⁿ c n)
   normalise-level _ 0 _ _ =
-    fail "No fuel left."
+    no-fuel
   normalise-level reduced (1+ n) Γ l =
     register ([normalise-level] Γ l) do
       l , _ ← really-remove-weaken-subst n l
