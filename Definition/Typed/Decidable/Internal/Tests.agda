@@ -450,29 +450,6 @@ meta t with is-meta-var? t
 … | just (meta-var x _) = x
 … | nothing             = _
 
--- The term is an application of weaken or subst.
-
-data Is-weaken-subst {c : Constants} {n} :
-       Term c n → Set a where
-  weaken : ∀ (ρ : Wk n n′) t → Is-weaken-subst (weaken ρ t)
-  subst  : ∀ t (σ : Subst c n n′) → Is-weaken-subst (subst t σ)
-
--- Is the term an application of weaken or subst?
-
-is-weaken-subst? : (t : Term c n) → Maybe (Is-weaken-subst t)
-is-weaken-subst? (weaken _ _) = just (weaken _ _)
-is-weaken-subst? (subst _ _)  = just (subst _ _)
-is-weaken-subst? _            = nothing
-
-opaque
-
-  -- If a term is an application of weaken or subst, then it is not an
-  -- application of _supᵘₗ_.
-
-  Is-weaken-subst→Not-supᵘₗ : Is-weaken-subst t → Not-supᵘₗ t
-  Is-weaken-subst→Not-supᵘₗ (weaken _ _) (_ , _ , ())
-  Is-weaken-subst→Not-supᵘₗ (subst _ _)  (_ , _ , ())
-
 -- Are the two terms both applications of meta-variables?
 
 are-meta-variables? :

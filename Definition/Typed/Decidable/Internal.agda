@@ -85,7 +85,7 @@ import Tools.Vec as Vec
 open Any using (Any)
 
 private variable
-  b                                    : Bool
+  b b₁ b₂                              : Bool
   k m n n₁ n₂ n₃                       : Nat
   c                                    : Constants
   γ                                    : Contexts _
@@ -368,18 +368,20 @@ private
 
 -- Removes top-level weaken and subst constructors.
 --
--- For the meaning of the boolean, see
--- really-remove-weaken-subst-sound.
+-- For the meaning of the boolean in the result, see
+-- really-remove-weaken-subst-sound. If the boolean argument is false,
+-- then a certain check is not run and the returned boolean is always
+-- false.
 
 really-remove-weaken-subst :
-  Fuel → Term c n → Check c (Term c n × Bool)
-really-remove-weaken-subst 0 _ =
+  Fuel → Term c n → Bool → Check c (Term c n × Bool)
+really-remove-weaken-subst 0 _ _ =
   no-fuel
-really-remove-weaken-subst (1+ n) t = do
-  t , b , _ ← return (remove-weaken-subst t)
+really-remove-weaken-subst (1+ n) t run-check = do
+  t , b ← remove-weaken-subst n t run-check
   case is-weaken-subst? t of λ where
-    nothing  → return (t , b)
-    (just _) → really-remove-weaken-subst n t
+    (no _)  → return (t , b)
+    (yes _) → really-remove-weaken-subst n t run-check
 
 -- Returns the context associated to the meta-variable.
 
@@ -509,7 +511,7 @@ mutual
   red-ty : Fuel → Cons c m n → Term c n → Check c (Term c n)
   red-ty 0      _ _ = no-fuel
   red-ty (1+ n) Γ A = register ([red-ty] Γ A) do
-    A , _ ← really-remove-weaken-subst n A
+    A , _ ← really-remove-weaken-subst n A false
     case is-type-constructor? A of λ where
       (just _) → return A
       nothing  → do
@@ -703,7 +705,7 @@ mutual
   check-type 0 _ _ =
     no-fuel
   check-type (1+ n) Γ A = register ([check-type] Γ A) do
-    A , _ ← really-remove-weaken-subst n A
+    A , _ ← really-remove-weaken-subst n A false
     check-type′ n Γ (is-type-constructor? A)
 
   private
@@ -755,20 +757,19 @@ mutual
   -- The returned term is a possibly more annotated version of the
   -- input.
   --
-  -- Note that if an application of a not cons-free substitution to
-  -- _supᵘₗ_ is encountered, then the level is only accepted if Level
-  -- is allowed. The reason is that a term like
-  -- subst (var x0 supᵘₗ var x0) (sgSubst zeroᵘ) does not correspond
-  -- to a level literal: its translation is, at the time of writing,
-  -- U.zeroᵘ U.supᵘ U.zeroᵘ. (If necessary it might be possible to
-  -- avoid requiring Level in more cases.)
+  -- Note that if an application of a substitution σ to l₁ supᵘₗ l₂ is
+  -- encountered, then the level is only accepted if Level is allowed
+  -- or if σ, l₁ and l₂ satisfy a certain condition. The reason is
+  -- that a term like subst (var x0 supᵘₗ var x0) (sgSubst zeroᵘ) does
+  -- not correspond to a level literal: its translation is, at the
+  -- time of writing, U.zeroᵘ U.supᵘ U.zeroᵘ.
 
   check-level : Fuel → Cons c m n → Term c n → Check c (Term c n)
   check-level 0 _ _ =
     no-fuel
   check-level (1+ n) Γ l = register ([check-level] Γ l) do
-    l , cons-free-sub ← really-remove-weaken-subst n l
-    check-level′ n Γ (is-perhaps-level? l) cons-free-sub
+    l , condition-satisfied ← really-remove-weaken-subst n l true
+    check-level′ n Γ (is-perhaps-level? l) condition-satisfied
 
   private
 
@@ -787,8 +788,8 @@ mutual
       return zeroᵘ
     check-level′ n Γ (just (sucᵘ l)) _ =
       sucᵘ <$> check-level n Γ l
-    check-level′ n Γ (just (l₁ supᵘₗ l₂)) cons-free-sub = do
-      unless cons-free-sub (require level-allowed)
+    check-level′ n Γ (just (l₁ supᵘₗ l₂)) condition-satisfied = do
+      unless condition-satisfied (require level-allowed)
       _supᵘₗ_ <$> check-level n Γ l₁ ⊛ check-level n Γ l₂
 
   -- A type-checker for terms.
@@ -800,7 +801,7 @@ mutual
   check 0 _ _ _ =
     no-fuel
   check (1+ n) Γ t A = register ([check] Γ t A) do
-    t , _ ← really-remove-weaken-subst n t
+    t , _ ← really-remove-weaken-subst n t false
     case checkable? t of λ where
       nothing → do
         B ← infer n Γ t
@@ -852,7 +853,7 @@ mutual
   infer 0 _ _ =
     no-fuel
   infer (1+ n) Γ t = register ([infer] Γ t) do
-    t , _ ← really-remove-weaken-subst n t
+    t , _ ← really-remove-weaken-subst n t false
     inf   ← inferable t
     infer′ n Γ inf
 
@@ -1436,7 +1437,7 @@ mutual
     no-fuel
   normalise-level reduced (1+ n) Γ l =
     register ([normalise-level] Γ l) do
-      l , _ ← really-remove-weaken-subst n l
+      l , _ ← really-remove-weaken-subst n l false
       normalise-level′ reduced n Γ (is-perhaps-level? l)
 
   private
@@ -1812,20 +1813,21 @@ opaque
 
   really-remove-weaken-subst-sound :
     ∀ n →
-    OK (really-remove-weaken-subst n t) (u , b) γ st →
-    Remove-weaken-subst-assumption t u b γ →
+    OK (really-remove-weaken-subst n t b₁) (u , b₂) γ st →
+    Remove-weaken-subst-assumption t u b₂ γ →
     ⌜ t ⌝ γ PE.≡ ⌜ u ⌝ γ
   really-remove-weaken-subst-sound             0      not-ok
   really-remove-weaken-subst-sound {t} {u} {γ} (1+ n) eq     ass
     with inv->>= eq
-  … | inv (t′ , _ , t≡t′) ok! eq
-    with is-weaken-subst? t′ | eq
-  … | nothing | ok! =
+  … | inv (t′ , _) eq₁ eq₂
+    using t≡t′ ← remove-weaken-subst-sound {γ′ = γ} eq₁
+    with is-weaken-subst? t′ | eq₂
+  … | no _ | ok! =
     t≡t′ ass
-  … | just ws | eq =
+  … | yes ws | eq₂ =
     let t≡t′ = t≡t′ (not-supᵘₗ (Is-weaken-subst→Not-supᵘₗ ws)) in
     ⌜ t ⌝ γ   ≡⟨ t≡t′ ⟩
-    ⌜ t′ ⌝ γ  ≡⟨ really-remove-weaken-subst-sound n eq $
+    ⌜ t′ ⌝ γ  ≡⟨ really-remove-weaken-subst-sound n eq₂ $
                  cast-Remove-weaken-subst-assumption t≡t′ ass ⟩
     ⌜ u ⌝ γ  ∎
 
@@ -3687,7 +3689,7 @@ private module Lemmas (p : P n) where opaque
     let l′≡ = supᵘₗ-cong (check-level-sound eq₂ ⊢γ ⊢Γ)
                 (check-level-sound eq₃ ⊢γ ⊢Γ)
         ass = case PE.singleton b of λ where
-          (true  , eq) → cons-free eq
+          (true  , eq) → literal-free-or-iff eq
           (false , eq) →
             let L.lift okᴸ = inv-require ⊢γ (inv-unless eq eq₁) in
             level-allowed okᴸ

@@ -166,6 +166,20 @@ unless : Bool → Check c ⊤ → Check c ⊤
 unless true  _ = return tt
 unless false x = x
 
+-- Short-circuiting and.
+
+and : Check c Bool → Check c Bool → Check c Bool
+and x y = do
+  b ← x
+  if b then y else return false
+
+-- Short-circuiting or.
+
+or : Check c Bool → Check c Bool → Check c Bool
+or x y = do
+  b ← x
+  if b then return true else y
+
 -- The computation succeeds if the predicate holds for all arguments
 -- in the list.
 
@@ -309,6 +323,26 @@ opaque
 
   inv-unless : b PE.≡ false → OK (unless b x) tt γ st → OK x tt γ st
   inv-unless PE.refl = idᶠ
+
+opaque
+
+  -- An inversion lemma for and.
+
+  inv-and : OK (and x y) true γ st → OK x true γ st × OK y true γ st
+  inv-and eq
+    with inv->>= eq
+  … | inv false _   not-ok
+  … | inv true  eq₁ eq₂    =
+    eq₁ , eq₂
+
+opaque
+
+  -- An inversion lemma for or.
+
+  inv-or : OK (or x y) true γ st → OK x true γ st ⊎ OK y true γ st
+  inv-or eq with inv->>= eq
+  … | inv true  eq ok! = inj₁ eq
+  … | inv false _  eq  = inj₂ eq
 
 opaque
 
