@@ -288,6 +288,31 @@ data ⌜[]⌝-assumption
   term₂ : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ] ∷ A    → ⌜[]⌝-assumption t σ γ
 
 opaque
+  unfolding U.size-of-Level
+
+  -- If Level is not allowed, then translation does not necessarily
+  -- commute with _[_]/U._[_].
+
+  ¬⌜[]⌝ :
+    ¬ Level-allowed →
+    let t = var {n = 1+ n} x0 supᵘₗ var x0
+        σ = sgSubst zeroᵘ
+    in
+    ¬ ⌜ t [ σ ] ⌝ γ PE.≡ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
+  ¬⌜[]⌝ {γ} not-okᴸ hyp =
+    case
+      U.zeroᵘ                                               ≡˘⟨ supᵘₗ′≡↓ᵘ⊔ U.zeroᵘ U.zeroᵘ ⟩
+      U.zeroᵘ U.supᵘₗ′ U.zeroᵘ                              ≡˘⟨ S.supᵘₗ≡supᵘₗ′ not-okᴸ ⟩
+      U.zeroᵘ S.supᵘₗ U.zeroᵘ                               ≡⟨⟩
+      ⌜ var x0 supᵘₗ var x0 [ sgSubst zeroᵘ ] ⌝ γ           ≡⟨ hyp ⟩
+      ⌜ var x0 supᵘₗ var x0 ⌝ γ U.[ ⌜ sgSubst zeroᵘ ⌝ˢ γ ]  ≡⟨⟩
+      (U.var x0 S.supᵘₗ U.var x0) U.[ U.zeroᵘ ]₀            ≡⟨ PE.cong U._[ _ ]₀ (S.supᵘₗ≡supᵘₗ′ not-okᴸ) ⟩
+      (U.var x0 U.supᵘₗ′ U.var x0) U.[ U.zeroᵘ ]₀           ≡⟨ PE.cong U._[ _ ]₀ (supᵘₗ′≡supᵘ (λ { (() , _) })) ⟩
+      (U.var x0 U.supᵘ U.var x0) U.[ U.zeroᵘ ]₀             ≡⟨⟩
+      U.zeroᵘ U.supᵘ U.zeroᵘ                                ∎
+    of λ ()
+
+opaque
 
   -- The function ⌜_⌝ commutes with substitution, given a certain
   -- assumption.
