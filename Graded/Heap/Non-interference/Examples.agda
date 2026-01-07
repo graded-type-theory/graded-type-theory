@@ -23,19 +23,35 @@ module Graded.Heap.Non-interference.Examples
   (TR : Type-restrictions modality)
   -- The security level programs should be run in
   (ℓ₀ : M)
-  (As : Assumptions UR TR ℓ₀)
   (open Usage-restrictions UR)
   ⦃ no-nr : Nr-not-available-GLB ⦄
   where
 
 open Type-restrictions TR
-open Assumptions As
 open Modality modality
 
-open import Graded.Heap.Non-interference L is-⊤? UR TR ℓ₀ As
+
+open import Tools.Empty
+open import Tools.Fin
+open import Tools.Function
+open import Tools.Nat using (Nat; 1+)
+open import Tools.Product
+open import Tools.PropositionalEquality
+open import Tools.Relation
+
+open import Graded.Usage.Restrictions.Natrec modality
+
+private opaque
+
+  factoring-nr :
+    ⦃ has-nr : Nr-available ⦄ →
+    Is-factoring-nr _ (Natrec-mode-Has-nr has-nr)
+  factoring-nr ⦃ has-nr ⦄ =
+    ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
+
+open import Graded.Heap.Non-interference L is-⊤? UR TR ℓ₀
 open import Graded.Heap.Reduction type-variant UR factoring-nr ℓ₀
 import Graded.Heap.Reduction.Reasoning type-variant UR factoring-nr ℓ₀ as R
-open import Graded.Heap.Termination UR TR ℓ₀ As
 open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
 open import Graded.Heap.Untyped type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ℓ₀
@@ -54,14 +70,6 @@ open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
-
-open import Tools.Empty
-open import Tools.Fin
-open import Tools.Function
-open import Tools.Nat using (Nat; 1+)
-open import Tools.Product
-open import Tools.PropositionalEquality
-open import Tools.Relation
 
 private variable
   m n : Nat

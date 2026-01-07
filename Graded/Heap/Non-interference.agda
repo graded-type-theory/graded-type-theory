@@ -21,7 +21,7 @@ open import Tools.Relation
 module Graded.Heap.Non-interference
   {a} {M : Set a}
   (L : Bounded-distributive-lattice M)
-  (open Bounded-distributive-lattice L using (⊤; ⊥; ⊥≤))
+  (open Bounded-distributive-lattice L using (⊤; ⊥; ⊥≤; ≤⊤))
   (is-⊤? : ∀ p → Dec (p PE.≡ ⊤))
   (open Graded.Modality.Instances.Bounded-distributive-lattice M L is-⊤?)
   (open Graded.Mode.Instances.Bounded-distributive-lattice L is-⊤?)
@@ -29,18 +29,9 @@ module Graded.Heap.Non-interference
   (TR : Type-restrictions modality)
   -- The security level programs should be run in
   (ℓ₀ : M)
-  (As : Assumptions UR TR ℓ₀)
   (open Usage-restrictions UR)
   ⦃ no-nr : Nr-not-available-GLB ⦄
   where
-
-private
-  𝕄 : Modality M
-  𝕄 = modality
-
-open Assumptions As
-open Modality 𝕄
-open Type-restrictions TR
 
 open import Tools.Empty
 open import Tools.Fin
@@ -50,6 +41,13 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
 import Tools.Reasoning.PartialOrder as RPo
+
+private
+  𝕄 : Modality M
+  𝕄 = modality
+
+open Modality 𝕄
+open Type-restrictions TR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -71,9 +69,22 @@ open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Natrec 𝕄
 open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
+open import Graded.Usage.Restrictions.Natrec modality
+
+private
+
+  -- The assumptions used to prove termination hold.
+
+  As : Assumptions UR TR ℓ₀
+  As = record
+    { subtraction-ok = Addition≡Meet.supports-subtraction +≡∧
+    ; Unitʷ-η→ = λ _ _ _ → ≤⊤ _
+    ; natrec-mode-ok = inj₂ no-nr
+    }
+
+open Assumptions As
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ℓ₀
@@ -81,7 +92,7 @@ open import Graded.Heap.Usage type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr ℓ₀ Unitʷ-η→ ¬Nr-not-available
+  type-variant UR factoring-nr ℓ₀ Unitʷ-η→ (flip ¬[No-nr∧No-nr-glb] no-nr)
 open import Graded.Heap.Termination UR TR ℓ₀ As
 open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
 open import Graded.Heap.Typed.Inversion UR TR factoring-nr ℓ₀
