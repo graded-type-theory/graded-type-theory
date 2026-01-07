@@ -21,6 +21,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage R
+open import Graded.Usage.Inversion R
 open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Properties R
 open import Graded.Usage.Weakening R
@@ -30,6 +31,7 @@ open import Definition.Untyped.Nat 𝕄
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
+open import Tools.Product
 open import Tools.PropositionalEquality
 
 private variable
@@ -276,3 +278,46 @@ opaque
         ▸A₁ = sub-≈ᶜ (wkUsage (step id) ▸A) (≈ᶜ-refl ∙ ·-zeroʳ _)
     in  sub-≈ᶜ (natrec-no-nr-glbₘ ▸t ▸x0 ▸u ▸A₁ nrᵢ-const-GLB₁ nrᵢᶜ-const-GLBᶜ₁)
           (≈ᶜ-sym (+ᶜ-congʳ (·ᶜ-identityˡ _)))
+
+------------------------------------------------------------------------
+-- Usage inversion lemmas
+
+opaque
+  unfolding natcase
+
+  -- Usage inversion for natcase for the theory using greatest lower
+  -- bounds in the usage rule for natrec.
+
+  inv-usage-natcase-glb :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    γ ▸[ m ] natcase p q A t u v →
+    ∃₄ λ δ η θ φ →
+      δ ▸[ m ] t × η ∙ ⌜ m ⌝ · p ▸[ m ] u × θ ▸[ m ] v × φ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A ×
+      γ ≤ᶜ (𝟙 ∧ p) ·ᶜ θ +ᶜ δ ∧ᶜ η
+  inv-usage-natcase-glb {γ} {p} ▸nc =
+    let δ , η , θ , φ , x , χ , ▸t , ▸u , ▸v , ▸A , γ≤ , x-GLB , χ-GLB = inv-usage-natrec-no-nr-glb ▸nc
+        open ≤ᶜ-reasoning
+    in  _ , _ , _ , _ , ▸t , wkUsage⁻¹ ▸u , ▸v , ▸A , (begin
+      γ                      ≤⟨ γ≤ ⟩
+      x ·ᶜ θ +ᶜ χ            ≈⟨ +ᶜ-cong (·ᶜ-congʳ (GLB-unique x-GLB nrᵢ-𝟘-GLB)) (GLBᶜ-unique χ-GLB nrᵢᶜ-𝟘-GLB) ⟩
+      (𝟙 ∧ p) ·ᶜ θ +ᶜ δ ∧ᶜ η ∎)
+
+opaque
+  unfolding strict-const
+
+  -- Usage inversion for strict-const for the theory using greatest lower
+  -- bounds in the usage rule for natrec.
+
+  inv-usage-strict-const-glb :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    γ ▸[ m ] strict-const A t u →
+    ∃₃ λ δ η θ → δ ▸[ m ] t × η ▸[ m ] u × θ ▸[ 𝟘ᵐ ] A × γ ≤ᶜ δ +ᶜ η
+  inv-usage-strict-const-glb {γ} ▸sc =
+    let δ , η , θ , φ , x , χ , ▸t , ▸x1 , ▸u , ▸A , γ≤ , x-GLB , χ-GLB = inv-usage-natrec-no-nr-glb ▸sc
+        open ≤ᶜ-reasoning
+    in  _ , _ , _ , ▸t , ▸u , wkUsage⁻¹ ▸A , (begin
+      γ                      ≤⟨ γ≤ ⟩
+      x ·ᶜ θ +ᶜ χ            ≤⟨ +ᶜ-monotone (·ᶜ-monotoneˡ (x-GLB .proj₁ 0)) (χ-GLB .proj₁ 0) ⟩
+      𝟙 ·ᶜ θ +ᶜ nrᵢᶜ 𝟙 δ η 0 ≈⟨ +ᶜ-cong (·ᶜ-identityˡ _) nrᵢᶜ-zero ⟩
+      θ +ᶜ δ                 ≈⟨ +ᶜ-comm _ _ ⟩
+      δ +ᶜ θ                 ∎)
