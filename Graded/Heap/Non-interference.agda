@@ -23,7 +23,8 @@ module Graded.Heap.Non-interference
   (L : Bounded-distributive-lattice M)
   (open Bounded-distributive-lattice L using (⊤; ⊥; ⊥≤; ≤⊤))
   (is-⊤? : ∀ p → Dec (p PE.≡ ⊤))
-  (open Graded.Modality.Instances.Bounded-distributive-lattice M L is-⊤?)
+  (open Graded.Modality.Instances.Bounded-distributive-lattice M L is-⊤?
+    hiding (supports-subtraction))
   (open Graded.Mode.Instances.Bounded-distributive-lattice L is-⊤?)
   (UR : Usage-restrictions modality bounded-distributive-lattice-isMode)
   (TR : Type-restrictions modality)
@@ -73,13 +74,15 @@ open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
 open import Graded.Usage.Restrictions.Natrec modality
 
+open Addition≡Meet +≡∧
+
 private
 
   -- The assumptions used to prove termination hold.
 
   As : Assumptions UR TR ℓ₀
   As = record
-    { subtraction-ok = Addition≡Meet.supports-subtraction +≡∧
+    { subtraction-ok = supports-subtraction
     ; Unitʷ-η→ = λ _ _ _ → ≤⊤ _
     ; natrec-mode-ok = inj₂ no-nr
     }
@@ -121,6 +124,9 @@ private instance
 
   or-empty-ε : ∀ {A : Set a} → A or-empty ε {A = Term}
   or-empty-ε = ε
+
+------------------------------------------------------------------------
+-- The definition No-secret-matches and some related properties
 
 -- The property of not having any secret matches.
 --
@@ -266,6 +272,64 @@ opaque
       (▸ₛ-inv ▸s .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₂ .proj₁)
       ∣S∣≡q
 
+------------------------------------------------------------------------
+-- Properties related to heap lookups
+
+opaque
+
+  -- Heap lookups at level p succeed if the level of the entry is lower
+  -- or equal and the updated heap is unchanged.
+
+  ↦[] :
+    {H : Heap 0 _} →
+    H ⟨ y ⟩ʰ ≤ q → ∃₃ λ n (t : Term n) ρ → H ⊢ y ↦[ q ] t , ρ ⨾ H
+  ↦[] {y = y0} {H = H ∙ c} ≤q =
+    _ , _ , _ , here (p-q≡p ≤q)
+  ↦[] {y = _+1 y} {H = H ∙ c} ≤q =
+    let _ , _ , _ , d = ↦[] {y = y} ≤q
+    in  _ , _ , _ , there d
+
+opaque
+
+  -- Heap lookups at level q succeeds only if the level of the entry is
+  -- lower or equal to q and the updated heap is unchanged.
+
+  ↦[]-inv :
+    {H : Heap 0 _} →
+    H ⊢ y ↦[ q ] t , ρ ⨾ H′ →
+    H ⟨ y ⟩ʰ ≤ q × H PE.≡ H′
+  ↦[]-inv (here x) =
+    let p≤q , r≡p = p-q≡r→p≤q∧r≡p x
+    in  p≤q , PE.cong (λ x → _ ∙ (x , _)) (PE.sym r≡p)
+  ↦[]-inv (there d) =
+    let p≤q , H≡H′ = ↦[]-inv d
+    in  p≤q , (PE.cong (λ x → x ∙ _) H≡H′)
+
+opaque
+
+  -- Heap lookups at level q succeed iff the level of the entry is
+  -- bounded by q and the updated heap is unchanged.
+
+  ↦[]⇔ :
+    {H : Heap 0 _} →
+    (∃₃ λ n (t : Term n) ρ → H ⊢ y ↦[ q ] t , ρ ⨾ H′) ⇔ (H ⟨ y ⟩ʰ ≤ q × H PE.≡ H′)
+  ↦[]⇔ =
+      (λ (_ , _ , _ , d) → ↦[]-inv d)
+    , (λ {(≤q , PE.refl) → ↦[] ≤q})
+
+opaque
+
+  -- An alternative variable reduction rule for the security lattice
+  -- instance
+
+  varₕ :
+    {H : Heap 0 _} →
+    ∣ S ∣≡ p → H ⟨ wkVar ρ x ⟩ʰ ≤ p →
+    ∃₃ λ n (t : Term n) ρ′ → ⟨ H , var x , ρ , S ⟩ ⇾ₑ ⟨ H , t , ρ′ , S ⟩
+  varₕ ∣S∣≡p ≤p =
+    let _ , _ , _ , d = ↦[] ≤p
+    in  _ , _ , _ , var ∣S∣≡p d
+
 opaque
 
   -- Heap lookups respect p-equivalence in a certain sense.
@@ -279,7 +343,7 @@ opaque
   ~⟨⟩-↦[] ε ()
   ~⟨⟩-↦[] (H~H′ ∙ t≡u) (here p-q≡r) q≤p =
     _ , PE.subst (λ x → _ ⊢ y0 ↦[ _ ] x , _ ⨾ _)
-          (PE.sym (t≡u (≤-trans (Addition≡Meet.p-q≡r→p≤q∧r≡p +≡∧ p-q≡r .proj₁) q≤p)))
+          (PE.sym (t≡u (≤-trans (p-q≡r→p≤q∧r≡p p-q≡r .proj₁) q≤p)))
           (here p-q≡r)
       , H~H′ ∙ λ _ → PE.refl
   ~⟨⟩-↦[] (H~H′ ∙ t≡u) (there d) q≤p =
@@ -288,6 +352,9 @@ opaque
   ~⟨⟩-↦[] (H~H′ ∙●) (there● d) q≤p =
     let _ , d , H″~H‴ = ~⟨⟩-↦[] H~H′ d q≤p
     in  _ , there● d , H″~H‴ ∙●
+
+------------------------------------------------------------------------
+-- The abstract machine semantics respects p-equivalent heaps
 
 opaque
 
@@ -457,6 +524,9 @@ opaque
     let _  , x′ , H₀~H₁ = ~⟨⟩-⇾ ok ▸s ⊢s H~H′ x
         _ , d′ , H₂~H₃ = ~⟨⟩-⇾* ok (▸-⇾ ▸s x) (⊢ₛ-⇾ ⊢s x) H₀~H₁ d
     in  _ , (x′ ⇨ d′) , H₂~H₃
+
+------------------------------------------------------------------------
+-- Non-interference
 
 private opaque
 
