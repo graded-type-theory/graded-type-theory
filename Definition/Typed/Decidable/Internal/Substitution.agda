@@ -348,19 +348,12 @@ opaque
             lemma ≡Level
       (level (term okᴸ _)) →
         lemma′ okᴸ
-      (level (literal not-ok _ ⊔-lit)) →
-        case U.Level-literal? (⌜ l₁ ⌝ γ) ×-dec
-             U.Level-literal? (⌜ l₂ ⌝ γ) of λ where
-          (yes both-lit) →
-            PE.sym (S.supᵘₗ-[]′ (λ _ → both-lit))
-          (no not-both) →
-            case
-              PE.subst (λ l → U.Level-literal (l U.[ _ ]))
-                (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ   ≡⟨ S.supᵘₗ≡supᵘₗ′ not-ok ⟩
-                 ⌜ l₁ ⌝ γ U.supᵘₗ′ ⌜ l₂ ⌝ γ  ≡⟨ supᵘₗ′≡supᵘ not-both ⟩
-                 ⌜ l₁ ⌝ γ U.supᵘ ⌜ l₂ ⌝ γ    ∎)
-                ⊔-lit
-            of λ ()
+      (level (literal _ _ ⊔-lit)) →
+        PE.sym $ S.supᵘₗ-[]′ λ not-okᴸ _ →
+          (                                                     $⟨ ⊔-lit ⟩
+           Level-literal (⌜ subst (l₁ supᵘₗ l₂) σ ⌝ γ)          →⟨ S.Level-literal-supᵘₗ-[] ⟩
+           Level-literal (⌜ l₁ supᵘₗ l₂ ⌝ γ)                    ⇔⟨ S.Level-literal-supᵘₗ⇔ not-okᴸ ⟩→
+           Level-literal (⌜ l₁ ⌝ γ) × Level-literal (⌜ l₂ ⌝ γ)  □)
       (term₁ ⊢⊔) →
         let _ , _ , ≡Level = inversion-supᵘₗ-⊢∷ ⊢⊔ in
         lemma ≡Level

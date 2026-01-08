@@ -199,7 +199,7 @@ opaque
           in
           PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
             (PE.cong U $ PE.sym $
-             supᵘₗ-[]′ λ not-ok →
+             supᵘₗ-[]′ λ not-ok _ →
              escape-⊩ᵛ∷L′ not-ok ⊩k₁ ,
              escape-⊩ᵛ≡∷L′ not-ok k≡k′ .proj₁) $
           ⊩Lift≡Lift∷ ⊩k₁[σ₁]

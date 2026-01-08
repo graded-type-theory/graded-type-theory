@@ -41,7 +41,7 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Size
 open import Tools.Size.Instances
-open import Tools.Sum using (inj₂)
+open import Tools.Sum using (inj₁; inj₂)
 
 private variable
   ∇ ∇′                              : DCon (Term 0) _
@@ -621,7 +621,7 @@ opaque
     l₁ supᵘₗ l₂ [ σ ] PE.≡ (l₁ [ σ ]) supᵘₗ (l₂ [ σ ])
   supᵘₗ-[] ⊢l₁ ⊢l₂ =
     supᵘₗ-[]′
-      (λ not-ok →
+      (λ not-ok _ →
          inversion-∷Level ⊢l₁ .proj₂ not-ok .proj₂ ,
          inversion-∷Level ⊢l₂ .proj₂ not-ok .proj₂)
 

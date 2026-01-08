@@ -63,13 +63,23 @@ opaque
   -- A substitution lemma for _supᵘₗ_.
 
   supᵘₗ-[]′ :
-    (¬ Level-allowed → Level-literal l₁ × Level-literal l₂) →
+    (¬ Level-allowed →
+     Level-literal (l₁ [ σ ]) × Level-literal (l₂ [ σ ]) →
+     Level-literal l₁ × Level-literal l₂) →
     l₁ supᵘₗ l₂ [ σ ] ≡ (l₁ [ σ ]) supᵘₗ (l₂ [ σ ])
-  supᵘₗ-[]′ hyp with level-support in eq
+  supᵘₗ-[]′ {l₁} {σ} {l₂} hyp with level-support in eq
   … | level-type _  = refl
-  … | only-literals =
-    let l₁-lit , l₂-lit = hyp (¬Level-allowed⇔ .proj₂ eq) in
-    supᵘₗ′-[] l₁-lit l₂-lit
+  … | only-literals
+    using not-ok ← ¬Level-allowed⇔ .proj₂ eq
+    with Level-literal? (l₁ [ σ ]) ×-dec Level-literal? (l₂ [ σ ])
+  … | yes both    = uncurry supᵘₗ′-[] (hyp not-ok both)
+  … | no not-both =
+    l₁ supᵘₗ′ l₂ [ σ ]            ≡⟨ (cong _[ _ ] $
+                                      supᵘₗ′≡supᵘ λ (l₁-lit , l₂-lit) →
+                                      not-both (Level-literal-[] l₁-lit , Level-literal-[] l₂-lit)) ⟩
+    l₁ supᵘ l₂ [ σ ]              ≡⟨⟩
+    (l₁ [ σ ]) supᵘ (l₂ [ σ ])    ≡˘⟨ supᵘₗ′≡supᵘ not-both ⟩
+    (l₁ [ σ ]) supᵘₗ′ (l₂ [ σ ])  ∎
 
 opaque
   unfolding _supᵘₗ_
@@ -113,6 +123,20 @@ opaque
     ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)  ∎
 
 opaque
+  unfolding _supᵘₗ_
+
+  -- If l₁ supᵘₗ l₂ is a level literal, then both l₁ and l₂ are level
+  -- literals, and Level is not allowed.
+
+  Level-literal-supᵘₗ→ :
+    Level-literal (l₁ supᵘₗ l₂) →
+    ¬ Level-allowed × Level-literal l₁ × Level-literal l₂
+  Level-literal-supᵘₗ→ _     with level-support in eq
+  Level-literal-supᵘₗ→ ()    | level-type _
+  Level-literal-supᵘₗ→ ⊔-lit | only-literals =
+    ¬Level-allowed⇔ .proj₂ eq , Level-literal-supᵘₗ′⇔ .proj₁ ⊔-lit
+
+opaque
 
   -- If Level is not allowed, then l₁ supᵘₗ l₂ is a level literal if
   -- and only if l₁ and l₂ are.
@@ -127,6 +151,31 @@ opaque
                                             ⟩
     Level-literal (l₁ supᵘₗ′ l₂)           ⇔⟨ Level-literal-supᵘₗ′⇔ ⟩
     (Level-literal l₁ × Level-literal l₂)  □⇔
+
+opaque
+
+  -- If l₁ supᵘₗ l₂ [ σ ] is a level literal, then l₁ supᵘₗ l₂ is a
+  -- level literal.
+
+  Level-literal-supᵘₗ-[] :
+    Level-literal (l₁ supᵘₗ l₂ [ σ ]) →
+    Level-literal (l₁ supᵘₗ l₂)
+  Level-literal-supᵘₗ-[] {l₁} {l₂} {σ} with Level-allowed?
+  … | yes ok =
+    Level-literal (l₁ supᵘₗ l₂ [ σ ])  ≡⟨ cong (Level-literal ∘→ _[ _ ]) (supᵘₗ≡supᵘ ok) ⟩→
+    Level-literal (l₁ supᵘ l₂ [ σ ])   →⟨ (λ ()) ⟩
+    Level-literal (l₁ supᵘₗ l₂)        □
+  … | no not-ok
+    with Level-literal? l₁ ×-dec Level-literal? l₂
+  … | yes both =
+    Level-literal (l₁ supᵘₗ l₂ [ σ ])    →⟨ (λ _ → both) ⟩
+    Level-literal l₁ × Level-literal l₂  →⟨ Level-literal-supᵘₗ⇔ not-ok .proj₂ ⟩
+    Level-literal (l₁ supᵘₗ l₂)          □
+  … | no not-both =
+    Level-literal (l₁ supᵘₗ l₂ [ σ ])   ≡⟨ cong (Level-literal ∘→ _[ _ ]) (supᵘₗ≡supᵘₗ′ not-ok) ⟩→
+    Level-literal (l₁ supᵘₗ′ l₂ [ σ ])  ≡⟨ cong (Level-literal ∘→ _[ _ ]) (supᵘₗ′≡supᵘ not-both) ⟩→
+    Level-literal (l₁ supᵘ l₂ [ σ ])    →⟨ (λ ()) ⟩
+    Level-literal (l₁ supᵘₗ l₂)         □
 
 opaque
   unfolding Level-literal-supᵘₗ⇔
