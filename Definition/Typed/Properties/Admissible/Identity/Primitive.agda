@@ -978,20 +978,30 @@ opaque
 
   -- A reduction rule for symmetry.
 
+  symmetry-⇒′ :
+    Γ ⊢ t ≡ t′ ∷ A →
+    Γ ⊢ symmetry A t t′ rfl ⇒ rfl ∷ Id A t t
+  symmetry-⇒′ t≡t′ =
+    let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′
+        Id≡Id       = PE.cong₃ Id
+                        (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)
+    in
+    PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
+    subst-⇒′
+      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      t≡t′
+      (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) $
+       rflⱼ ⊢t)
+
+opaque
+
+  -- A reduction rule for symmetry.
+
   symmetry-⇒ :
     Γ ⊢ t ∷ A →
     Γ ⊢ symmetry A t t rfl ⇒ rfl ∷ Id A t t
   symmetry-⇒ ⊢t =
-    case syntacticTerm ⊢t of λ
-      ⊢A →
-    case PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _) of λ
-      Id≡Id →
-    PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
-    subst-⇒
-      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
-      ⊢t
-      (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) $
-       rflⱼ ⊢t)
+    symmetry-⇒′ (refl ⊢t)
 
 opaque
 
@@ -1002,6 +1012,125 @@ opaque
     Γ ⊢ symmetry A t t rfl ≡ rfl ∷ Id A t t
   symmetry-≡ ⊢t =
     subsetTerm (symmetry-⇒ ⊢t)
+
+opaque
+  unfolding symmetry
+
+  -- A reduction rule for symmetry.
+
+  symmetry-subst :
+    Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
+    Γ ⊢ symmetry A t u v₁ ⇒ symmetry A t u v₂ ∷ Id A u t
+  symmetry-subst v₁⇒v₂ =
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢≡∷ (subsetTerm v₁⇒v₂) .proj₁)
+    in
+    PE.subst (_⊢_⇒_∷_ _ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
+    subst-subst
+      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      v₁⇒v₂
+      (PE.subst (_⊢_∷_ _ _)
+         (PE.sym $
+          PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
+       rflⱼ ⊢t)
+
+opaque
+
+  -- A reduction rule for symmetry.
+
+  symmetry-subst* :
+    Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
+    Γ ⊢ symmetry A t u v₁ ⇒* symmetry A t u v₂ ∷ Id A u t
+  symmetry-subst* (id ⊢v)          = id (⊢symmetry ⊢v)
+  symmetry-subst* (v₁⇒v₃ ⇨ v₃⇒*v₂) =
+    symmetry-subst v₁⇒v₃ ⇨ symmetry-subst* v₃⇒*v₂
+
+opaque
+  unfolding symmetry
+
+  -- An inversion lemma for symmetry.
+
+  inversion-symmetry :
+    Γ ⊢ symmetry A t u v ∷ B →
+    Γ ⊢ v ∷ Id A t u ×
+    Γ ⊢ B ≡ Id A u t
+  inversion-symmetry ⊢sym =
+    let _ , _ , _ , ⊢v , _ , B≡ = inversion-subst ⊢sym in
+    ⊢v ,
+    PE.subst (_⊢_≡_ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) B≡
+
+opaque
+
+  -- A preservation lemma for symmetry.
+
+  symmetry-cong-Id :
+    Γ ⊢ w ∷ Id (Id A t u) v₁ v₂ →
+    ∃ λ eq →
+      Γ ⊢ eq ∷ Id (Id A u t) (symmetry A t u v₁) (symmetry A t u v₂)
+  symmetry-cong-Id {w} {A} {t} {u} {v₁} {v₂} ⊢w =
+    let ⊢Id , _ = inversion-Id (wf-⊢∷ ⊢w) in
+    cong ω (Id A t u) v₁ v₂ (Id A u t)
+      (symmetry (wk1 A) (wk1 t) (wk1 u) (var x0)) w ,
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₂ (Id _) lemma lemma)
+      (⊢cong (⊢symmetry (var₀ ⊢Id)) ⊢w)
+    where
+    lemma :
+      symmetry (wk1 A) (wk1 t) (wk1 u) (var x0) [ v ]₀ PE.≡
+      symmetry A t u v
+    lemma =
+      PE.trans symmetry-[] $
+      PE.cong₄ symmetry
+        (wk1-sgSubst _ _) (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl
+
+opaque
+  unfolding symmetry
+
+  -- A simplification lemma for symmetry.
+
+  Id-symmetry-symmetry :
+    Γ ⊢ v ∷ Id A t u →
+    ∃ λ w → Γ ⊢ w ∷ Id (Id A t u) (symmetry A u t (symmetry A t u v)) v
+  Id-symmetry-symmetry {v} {A} {t} {u} ⊢v =
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢∷ ⊢v)
+        ⊢0          = PE.subst (_⊢_∷_ _ _)
+                        (PE.cong₃ Id wk[]≡wk[]′ wk[]≡wk[]′ PE.refl) $
+                      var₀ (J-motive-context-type ⊢t)
+    in
+    J ω ω A t
+      (Id (Id (wk[ 2 ]′ A) (wk[ 2 ]′ t) (var x1))
+         (symmetry (wk[ 2 ]′ A) (var x1) (wk[ 2 ]′ t)
+            (symmetry (wk[ 2 ]′ A) (wk[ 2 ]′ t) (var x1) (var x0)))
+         (var x0))
+      rfl u v ,
+    PE.subst (_⊢_∷_ _ _) lemma
+      (Jⱼ′ (Idⱼ′ (⊢symmetry (⊢symmetry ⊢0)) ⊢0)
+         (PE.subst (_⊢_∷_ _ _) (PE.sym lemma) $
+          rflⱼ′
+            (symmetry A t t (symmetry A t t rfl)  ≡⟨ symmetry-cong (refl ⊢A) (refl ⊢t) (refl ⊢t) (symmetry-≡ ⊢t) ⟩⊢
+             symmetry A t t rfl                   ≡⟨ symmetry-≡ ⊢t ⟩⊢∎
+             rfl                                  ∎))
+         ⊢v)
+    where
+    lemma :
+      ∀ {u v} →
+      Id (Id (wk[ 2 ]′ A) (wk[ 2 ]′ t) (var x1))
+        (symmetry (wk[ 2 ]′ A) (var x1) (wk[ 2 ]′ t)
+           (symmetry (wk[ 2 ]′ A) (wk[ 2 ]′ t) (var x1) (var x0)))
+        (var x0)
+        [ u , v ]₁₀ PE.≡
+      Id (Id A t u) (symmetry A u t (symmetry A t u v)) v
+    lemma =
+      PE.cong₃ Id
+        (PE.cong₃ Id wk₂-[,] wk₂-[,] PE.refl)
+        (PE.trans symmetry-[] $
+         PE.cong₄ symmetry
+           wk₂-[,] PE.refl wk₂-[,]
+           (PE.trans symmetry-[] $
+            PE.cong₄ symmetry
+              wk₂-[,] wk₂-[,] PE.refl PE.refl))
+        PE.refl
 
 ------------------------------------------------------------------------
 -- Lemmas related to transitivity-symmetryˡ
