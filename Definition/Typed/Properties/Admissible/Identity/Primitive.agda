@@ -1310,6 +1310,37 @@ opaque
       (_ , ⊢A , ⊢B , ⊢t , ⊢u , C≡) →
     ⊢A , ⊢B , ⊢t , ⊢u , C≡
 
+opaque
+
+  -- A preservation lemma for cast.
+
+  cast-cong-Id :
+    Γ ⊢ v ∷ Id (Id (U l) A B) t₁ t₂ →
+    Γ ⊢ w ∷ Id A u₁ u₂ →
+    ∃ λ eq → Γ ⊢ eq ∷ Id B (cast l A B t₁ u₁) (cast l A B t₂ u₂)
+  cast-cong-Id {v} {l} {A} {B} {t₁} {t₂} {w} {u₁} {u₂} ⊢v ⊢w =
+    let ⊢Id , _    = inversion-Id (wf-⊢∷ ⊢v)
+        _ , ⊢A , _ = inversion-Id ⊢Id
+        ⊢A′        = wk₁ ⊢Id (univ ⊢A)
+    in
+    cong₂ ω (Id (U l) A B) t₁ t₂ A u₁ u₂ B
+      (cast (wk[ 2 ]′ l) (wk[ 2 ]′ A) (wk[ 2 ]′ B) (var x1) (var x0)) v
+      w ,
+    PE.subst (_⊢_∷_ _ _) (PE.cong₂ (Id _) lemma lemma)
+      (⊢cong₂
+         (⊢cast
+            (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $ var₁ ⊢A′)
+            (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $ var₀ ⊢A′))
+         ⊢v ⊢w)
+    where
+    lemma :
+      cast (wk[ 2 ]′ l) (wk[ 2 ]′ A) (wk[ 2 ]′ B) (var x1) (var x0)
+        [ t , u ]₁₀ PE.≡
+      cast l A B t u
+    lemma =
+      PE.trans cast-[] $
+      PE.cong₅ cast wk₂-[,] wk₂-[,] wk₂-[,] PE.refl PE.refl
+
 ------------------------------------------------------------------------
 -- Some lemmas related to cast and symmetry
 
