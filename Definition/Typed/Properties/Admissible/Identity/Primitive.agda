@@ -554,187 +554,6 @@ opaque
   inv-⇒-subst = inv-⇒-J
 
 ------------------------------------------------------------------------
--- Lemmas related to cast
-
-opaque
-  unfolding cast
-
-  -- A typing rule for cast.
-
-  ⊢cast :
-    Γ ⊢ t ∷ Id (U l) A B →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ cast l A B t u ∷ B
-  ⊢cast ⊢t ⊢u =
-    let ⊢l = inversion-U-Level (inversion-Id (wf-⊢∷ ⊢t) .proj₁) in
-    ⊢subst (univ (var₀ (⊢U ⊢l))) ⊢t ⊢u
-
-opaque
-  unfolding cast
-
-  -- A reduction rule for cast.
-
-  cast-⇒′ :
-    Γ ⊢ A ≡ A′ ∷ U l →
-    Γ ⊢ t ∷ A →
-    Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
-  cast-⇒′ A≡A′ ⊢t =
-    let ⊢l = inversion-U-Level (wf-⊢≡∷ A≡A′ .proj₁) in
-    subst-⇒′ (univ (var₀ (⊢U ⊢l))) A≡A′ ⊢t
-
-opaque
-
-  -- Another reduction rule for cast.
-
-  cast-⇒ :
-    Γ ⊢ A ∷ U l →
-    Γ ⊢ t ∷ A →
-    Γ ⊢ cast l A A rfl t ⇒ t ∷ A
-  cast-⇒ ⊢A ⊢t =
-    cast-⇒′ (refl ⊢A) ⊢t
-
-opaque
-
-  -- An equality rule for cast.
-
-  cast-≡ :
-    Γ ⊢ A ∷ U l →
-    Γ ⊢ t ∷ A →
-    Γ ⊢ cast l A A rfl t ≡ t ∷ A
-  cast-≡ ⊢A ⊢t =
-    subsetTerm (cast-⇒ ⊢A ⊢t)
-
-opaque
-  unfolding cast
-
-  -- An equality rule for cast.
-
-  cast-cong :
-    Γ ⊢ A₁ ≡ A₂ ∷ U l →
-    Γ ⊢ B₁ ≡ B₂ ∷ U l →
-    Γ ⊢ t₁ ≡ t₂ ∷ Id (U l) A₁ B₁ →
-    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊢ cast l A₁ B₁ t₁ u₁ ≡ cast l A₂ B₂ t₂ u₂ ∷ B₁
-  cast-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ =
-    case inversion-Id (syntacticEqTerm t₁≡t₂ .proj₁) of λ
-      (⊢U , ⊢A₁ , ⊢B₁) →
-    subst-cong (refl ⊢U) (refl (univ (var₀ ⊢U))) A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂
-
-opaque
-  unfolding cast
-
-  -- A reduction rule for cast.
-
-  cast-subst :
-    Γ ⊢ t₁ ⇒ t₂ ∷ Id (U l) A B →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
-  cast-subst t₁⇒t₂ ⊢u =
-    let ⊢l = inversion-U-Level $
-             inversion-Id (wf-⊢≡∷ (subsetTerm t₁⇒t₂) .proj₁) .proj₁
-    in
-    subst-subst (univ (var₀ (⊢U ⊢l))) t₁⇒t₂ ⊢u
-
-opaque
-
-  -- A reduction rule for cast.
-
-  cast-subst* :
-    Γ ⊢ t₁ ⇒* t₂ ∷ Id (U l) A B →
-    Γ ⊢ u ∷ A →
-    Γ ⊢ cast l A B t₁ u ⇒* cast l A B t₂ u ∷ B
-  cast-subst* = λ where
-    (id ⊢t)          ⊢u → id (⊢cast ⊢t ⊢u)
-    (t₁⇒t₃ ⇨ t₃⇒*t₂) ⊢u →
-      cast-subst t₁⇒t₃ ⊢u ⇨ cast-subst* t₃⇒*t₂ ⊢u
-
-opaque
-  unfolding cast
-
-  -- An inversion lemma for cast.
-
-  inversion-cast :
-    Γ ⊢ cast l A B t u ∷ C →
-    Γ ⊢ A ∷ U l ×
-    Γ ⊢ B ∷ U l ×
-    Γ ⊢ t ∷ Id (U l) A B ×
-    Γ ⊢ u ∷ A ×
-    Γ ⊢ C ≡ B
-  inversion-cast ⊢cast =
-    case inversion-subst ⊢cast of λ
-      (_ , ⊢A , ⊢B , ⊢t , ⊢u , C≡) →
-    ⊢A , ⊢B , ⊢t , ⊢u , C≡
-
-------------------------------------------------------------------------
--- Lemmas related to symmetry
-
-opaque
-  unfolding symmetry
-
-  -- An equality rule for symmetry.
-
-  symmetry-cong :
-    Γ ⊢ A₁ ≡ A₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
-    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊢ eq₁ ≡ eq₂ ∷ Id A₁ t₁ u₁ →
-    Γ ⊢ symmetry A₁ t₁ u₁ eq₁ ≡ symmetry A₂ t₂ u₂ eq₂ ∷ Id A₁ u₁ t₁
-  symmetry-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ eq₁≡eq₂ =
-    let ⊢A₁ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂ in
-    PE.subst (_⊢_≡_∷_ _ _ _)
-      (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
-    subst-cong A₁≡A₂
-      (Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (refl (var₀ ⊢A₁))
-         (wkEqTerm₁ ⊢A₁ t₁≡t₂))
-      t₁≡t₂ u₁≡u₂ eq₁≡eq₂
-      (PE.subst (_⊢_≡_∷_ _ _ _)
-         (PE.sym $
-          PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
-       refl (rflⱼ ⊢t₁))
-
-opaque
-
-  -- A typing rule for symmetry.
-
-  ⊢symmetry :
-    Γ ⊢ eq ∷ Id A t u →
-    Γ ⊢ symmetry A t u eq ∷ Id A u t
-  ⊢symmetry ⊢eq =
-    let ⊢A , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq) in
-    wf-⊢≡∷ (symmetry-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢eq))
-      .proj₂ .proj₁
-
-opaque
-  unfolding symmetry
-
-  -- A reduction rule for symmetry.
-
-  symmetry-⇒ :
-    Γ ⊢ t ∷ A →
-    Γ ⊢ symmetry A t t rfl ⇒ rfl ∷ Id A t t
-  symmetry-⇒ ⊢t =
-    case syntacticTerm ⊢t of λ
-      ⊢A →
-    case PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _) of λ
-      Id≡Id →
-    PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
-    subst-⇒
-      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
-      ⊢t
-      (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) $
-       rflⱼ ⊢t)
-
-opaque
-
-  -- An equality rule for symmetry.
-
-  symmetry-≡ :
-    Γ ⊢ t ∷ A →
-    Γ ⊢ symmetry A t t rfl ≡ rfl ∷ Id A t t
-  symmetry-≡ ⊢t =
-    subsetTerm (symmetry-⇒ ⊢t)
-
-------------------------------------------------------------------------
 -- Lemmas related to transitivity
 
 opaque
@@ -802,71 +621,6 @@ opaque
     Γ ⊢ transitivity A t u u eq rfl ≡ eq ∷ Id A t u
   transitivity-≡ ⊢eq =
     subsetTerm (transitivity-⇒ ⊢eq)
-
-------------------------------------------------------------------------
--- Lemmas related to transitivity-symmetryˡ
-
-opaque
-  unfolding transitivity-symmetryˡ
-
-  -- A typing rule for transitivity-symmetryˡ.
-
-  ⊢transitivity-symmetryˡ :
-    Γ ⊢ eq ∷ Id A t u →
-    Γ ⊢ transitivity-symmetryˡ A t u eq ∷
-      Id (Id A u u) (transitivity A u t u (symmetry A t u eq) eq) rfl
-  ⊢transitivity-symmetryˡ {eq} {A} {t} {u} ⊢eq =
-    case inversion-Id (syntacticTerm ⊢eq) of λ
-      (⊢A , ⊢t , _) →
-    case Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) of λ
-      ⊢Id-t′-0 →
-    PE.subst (_⊢_∷_ _ _)
-      (PE.cong₃ Id
-         (PE.cong₃ Id wk2-[,] PE.refl PE.refl)
-         (transitivity (wk2 A) (var x1) (wk2 t) (var x1)
-            (symmetry (wk2 A) (wk2 t) (var x1) (var x0)) (var x0)
-            [ u , eq ]₁₀                                               ≡⟨ transitivity-[] ⟩
-
-          transitivity (wk2 A [ u , eq ]₁₀) u (wk2 t [ u , eq ]₁₀) u
-            (symmetry (wk2 A) (wk2 t) (var x1) (var x0) [ u , eq ]₁₀)
-            eq                                                         ≡⟨ PE.cong₆ transitivity wk2-[,] PE.refl wk2-[,] PE.refl
-                                                                            symmetry-[] PE.refl ⟩
-          transitivity A u t u
-            (symmetry (wk2 A [ u , eq ]₁₀) (wk2 t [ u , eq ]₁₀) u eq)
-            eq                                                         ≡⟨ PE.cong₂ (transitivity _ _ _ _)
-                                                                            (PE.cong₄ symmetry wk2-[,] wk2-[,] PE.refl PE.refl)
-                                                                            PE.refl ⟩
-          transitivity A u t u (symmetry A t u eq) eq                  ∎)
-         PE.refl) $
-    Jⱼ′
-      (Idⱼ′
-         (⊢transitivity (⊢symmetry (var₀ ⊢Id-t′-0)) (var₀ ⊢Id-t′-0))
-         (rflⱼ (var₁ ⊢Id-t′-0)))
-      (rflⱼ′
-         (transitivity (wk2 A) (var x1) (wk2 t) (var x1)
-            (symmetry (wk2 A) (wk2 t) (var x1) (var x0)) (var x0)
-            [ t , rfl ]₁₀                                                 ≡⟨ transitivity-[] ⟩⊢≡
-
-          transitivity (wk2 A [ t , rfl ]₁₀) t (wk2 t [ t , rfl ]₁₀) t
-            (symmetry (wk2 A) (wk2 t) (var x1) (var x0) [ t , rfl ]₁₀)
-            rfl                                                           ≡⟨ PE.cong₆ transitivity wk2-[,] PE.refl wk2-[,] PE.refl
-                                                                               symmetry-[] PE.refl ⟩⊢≡
-          transitivity A t t t
-            (symmetry (wk2 A [ t , rfl ]₁₀) (wk2 t [ t , rfl ]₁₀) t rfl)
-            rfl                                                           ≡⟨ PE.cong₂ (transitivity _ _ _ _)
-                                                                               (PE.cong₄ symmetry wk2-[,] wk2-[,] PE.refl PE.refl)
-                                                                               PE.refl ⟩⊢≡
-
-                                                                           ⟨ PE.subst (flip (_⊢_≡_ _) _)
-                                                                               (PE.sym $ PE.cong₃ Id wk2-[,] PE.refl PE.refl) $
-                                                                             refl (Idⱼ′ ⊢t ⊢t) ⟩≡
-
-          transitivity A t t t (symmetry A t t rfl) rfl                   ≡⟨ transitivity-≡ (⊢symmetry (rflⱼ ⊢t)) ⟩⊢
-
-          symmetry A t t rfl                                              ≡⟨ symmetry-≡ ⊢t ⟩⊢∎
-
-          rfl                                                             ∎))
-      ⊢eq
 
 ------------------------------------------------------------------------
 -- Lemmas related to cong
@@ -1179,6 +933,252 @@ opaque
       Id (B [ u ]₀) (t ∘⟨ p ⟩ u) (t ∘⟨ p ⟩ u)
   pointwise-equality-≡ ⊢t ⊢u =
     subsetTerm (pointwise-equality-⇒ ⊢t ⊢u)
+
+------------------------------------------------------------------------
+-- Lemmas related to symmetry
+
+opaque
+  unfolding symmetry
+
+  -- An equality rule for symmetry.
+
+  symmetry-cong :
+    Γ ⊢ A₁ ≡ A₂ →
+    Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊢ eq₁ ≡ eq₂ ∷ Id A₁ t₁ u₁ →
+    Γ ⊢ symmetry A₁ t₁ u₁ eq₁ ≡ symmetry A₂ t₂ u₂ eq₂ ∷ Id A₁ u₁ t₁
+  symmetry-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ eq₁≡eq₂ =
+    let ⊢A₁ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂ in
+    PE.subst (_⊢_≡_∷_ _ _ _)
+      (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
+    subst-cong A₁≡A₂
+      (Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (refl (var₀ ⊢A₁))
+         (wkEqTerm₁ ⊢A₁ t₁≡t₂))
+      t₁≡t₂ u₁≡u₂ eq₁≡eq₂
+      (PE.subst (_⊢_≡_∷_ _ _ _)
+         (PE.sym $
+          PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
+       refl (rflⱼ ⊢t₁))
+
+opaque
+
+  -- A typing rule for symmetry.
+
+  ⊢symmetry :
+    Γ ⊢ eq ∷ Id A t u →
+    Γ ⊢ symmetry A t u eq ∷ Id A u t
+  ⊢symmetry ⊢eq =
+    let ⊢A , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq) in
+    wf-⊢≡∷ (symmetry-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢eq))
+      .proj₂ .proj₁
+
+opaque
+  unfolding symmetry
+
+  -- A reduction rule for symmetry.
+
+  symmetry-⇒ :
+    Γ ⊢ t ∷ A →
+    Γ ⊢ symmetry A t t rfl ⇒ rfl ∷ Id A t t
+  symmetry-⇒ ⊢t =
+    case syntacticTerm ⊢t of λ
+      ⊢A →
+    case PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _) of λ
+      Id≡Id →
+    PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
+    subst-⇒
+      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      ⊢t
+      (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) $
+       rflⱼ ⊢t)
+
+opaque
+
+  -- An equality rule for symmetry.
+
+  symmetry-≡ :
+    Γ ⊢ t ∷ A →
+    Γ ⊢ symmetry A t t rfl ≡ rfl ∷ Id A t t
+  symmetry-≡ ⊢t =
+    subsetTerm (symmetry-⇒ ⊢t)
+
+------------------------------------------------------------------------
+-- Lemmas related to transitivity-symmetryˡ
+
+opaque
+  unfolding transitivity-symmetryˡ
+
+  -- A typing rule for transitivity-symmetryˡ.
+
+  ⊢transitivity-symmetryˡ :
+    Γ ⊢ eq ∷ Id A t u →
+    Γ ⊢ transitivity-symmetryˡ A t u eq ∷
+      Id (Id A u u) (transitivity A u t u (symmetry A t u eq) eq) rfl
+  ⊢transitivity-symmetryˡ {eq} {A} {t} {u} ⊢eq =
+    case inversion-Id (syntacticTerm ⊢eq) of λ
+      (⊢A , ⊢t , _) →
+    case Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) of λ
+      ⊢Id-t′-0 →
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₃ Id
+         (PE.cong₃ Id wk2-[,] PE.refl PE.refl)
+         (transitivity (wk2 A) (var x1) (wk2 t) (var x1)
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0)) (var x0)
+            [ u , eq ]₁₀                                               ≡⟨ transitivity-[] ⟩
+
+          transitivity (wk2 A [ u , eq ]₁₀) u (wk2 t [ u , eq ]₁₀) u
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0) [ u , eq ]₁₀)
+            eq                                                         ≡⟨ PE.cong₆ transitivity wk2-[,] PE.refl wk2-[,] PE.refl
+                                                                            symmetry-[] PE.refl ⟩
+          transitivity A u t u
+            (symmetry (wk2 A [ u , eq ]₁₀) (wk2 t [ u , eq ]₁₀) u eq)
+            eq                                                         ≡⟨ PE.cong₂ (transitivity _ _ _ _)
+                                                                            (PE.cong₄ symmetry wk2-[,] wk2-[,] PE.refl PE.refl)
+                                                                            PE.refl ⟩
+          transitivity A u t u (symmetry A t u eq) eq                  ∎)
+         PE.refl) $
+    Jⱼ′
+      (Idⱼ′
+         (⊢transitivity (⊢symmetry (var₀ ⊢Id-t′-0)) (var₀ ⊢Id-t′-0))
+         (rflⱼ (var₁ ⊢Id-t′-0)))
+      (rflⱼ′
+         (transitivity (wk2 A) (var x1) (wk2 t) (var x1)
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0)) (var x0)
+            [ t , rfl ]₁₀                                                 ≡⟨ transitivity-[] ⟩⊢≡
+
+          transitivity (wk2 A [ t , rfl ]₁₀) t (wk2 t [ t , rfl ]₁₀) t
+            (symmetry (wk2 A) (wk2 t) (var x1) (var x0) [ t , rfl ]₁₀)
+            rfl                                                           ≡⟨ PE.cong₆ transitivity wk2-[,] PE.refl wk2-[,] PE.refl
+                                                                               symmetry-[] PE.refl ⟩⊢≡
+          transitivity A t t t
+            (symmetry (wk2 A [ t , rfl ]₁₀) (wk2 t [ t , rfl ]₁₀) t rfl)
+            rfl                                                           ≡⟨ PE.cong₂ (transitivity _ _ _ _)
+                                                                               (PE.cong₄ symmetry wk2-[,] wk2-[,] PE.refl PE.refl)
+                                                                               PE.refl ⟩⊢≡
+
+                                                                           ⟨ PE.subst (flip (_⊢_≡_ _) _)
+                                                                               (PE.sym $ PE.cong₃ Id wk2-[,] PE.refl PE.refl) $
+                                                                             refl (Idⱼ′ ⊢t ⊢t) ⟩≡
+
+          transitivity A t t t (symmetry A t t rfl) rfl                   ≡⟨ transitivity-≡ (⊢symmetry (rflⱼ ⊢t)) ⟩⊢
+
+          symmetry A t t rfl                                              ≡⟨ symmetry-≡ ⊢t ⟩⊢∎
+
+          rfl                                                             ∎))
+      ⊢eq
+
+------------------------------------------------------------------------
+-- Lemmas related to cast
+
+opaque
+  unfolding cast
+
+  -- A typing rule for cast.
+
+  ⊢cast :
+    Γ ⊢ t ∷ Id (U l) A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ cast l A B t u ∷ B
+  ⊢cast ⊢t ⊢u =
+    let ⊢l = inversion-U-Level (inversion-Id (wf-⊢∷ ⊢t) .proj₁) in
+    ⊢subst (univ (var₀ (⊢U ⊢l))) ⊢t ⊢u
+
+opaque
+  unfolding cast
+
+  -- A reduction rule for cast.
+
+  cast-⇒′ :
+    Γ ⊢ A ≡ A′ ∷ U l →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
+  cast-⇒′ A≡A′ ⊢t =
+    let ⊢l = inversion-U-Level (wf-⊢≡∷ A≡A′ .proj₁) in
+    subst-⇒′ (univ (var₀ (⊢U ⊢l))) A≡A′ ⊢t
+
+opaque
+
+  -- Another reduction rule for cast.
+
+  cast-⇒ :
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ cast l A A rfl t ⇒ t ∷ A
+  cast-⇒ ⊢A ⊢t =
+    cast-⇒′ (refl ⊢A) ⊢t
+
+opaque
+
+  -- An equality rule for cast.
+
+  cast-≡ :
+    Γ ⊢ A ∷ U l →
+    Γ ⊢ t ∷ A →
+    Γ ⊢ cast l A A rfl t ≡ t ∷ A
+  cast-≡ ⊢A ⊢t =
+    subsetTerm (cast-⇒ ⊢A ⊢t)
+
+opaque
+  unfolding cast
+
+  -- An equality rule for cast.
+
+  cast-cong :
+    Γ ⊢ A₁ ≡ A₂ ∷ U l →
+    Γ ⊢ B₁ ≡ B₂ ∷ U l →
+    Γ ⊢ t₁ ≡ t₂ ∷ Id (U l) A₁ B₁ →
+    Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊢ cast l A₁ B₁ t₁ u₁ ≡ cast l A₂ B₂ t₂ u₂ ∷ B₁
+  cast-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ =
+    case inversion-Id (syntacticEqTerm t₁≡t₂ .proj₁) of λ
+      (⊢U , ⊢A₁ , ⊢B₁) →
+    subst-cong (refl ⊢U) (refl (univ (var₀ ⊢U))) A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂
+
+opaque
+  unfolding cast
+
+  -- A reduction rule for cast.
+
+  cast-subst :
+    Γ ⊢ t₁ ⇒ t₂ ∷ Id (U l) A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
+  cast-subst t₁⇒t₂ ⊢u =
+    let ⊢l = inversion-U-Level $
+             inversion-Id (wf-⊢≡∷ (subsetTerm t₁⇒t₂) .proj₁) .proj₁
+    in
+    subst-subst (univ (var₀ (⊢U ⊢l))) t₁⇒t₂ ⊢u
+
+opaque
+
+  -- A reduction rule for cast.
+
+  cast-subst* :
+    Γ ⊢ t₁ ⇒* t₂ ∷ Id (U l) A B →
+    Γ ⊢ u ∷ A →
+    Γ ⊢ cast l A B t₁ u ⇒* cast l A B t₂ u ∷ B
+  cast-subst* = λ where
+    (id ⊢t)          ⊢u → id (⊢cast ⊢t ⊢u)
+    (t₁⇒t₃ ⇨ t₃⇒*t₂) ⊢u →
+      cast-subst t₁⇒t₃ ⊢u ⇨ cast-subst* t₃⇒*t₂ ⊢u
+
+opaque
+  unfolding cast
+
+  -- An inversion lemma for cast.
+
+  inversion-cast :
+    Γ ⊢ cast l A B t u ∷ C →
+    Γ ⊢ A ∷ U l ×
+    Γ ⊢ B ∷ U l ×
+    Γ ⊢ t ∷ Id (U l) A B ×
+    Γ ⊢ u ∷ A ×
+    Γ ⊢ C ≡ B
+  inversion-cast ⊢cast =
+    case inversion-subst ⊢cast of λ
+      (_ , ⊢A , ⊢B , ⊢t , ⊢u , C≡) →
+    ⊢A , ⊢B , ⊢t , ⊢u , C≡
 
 ------------------------------------------------------------------------
 -- Some lemmas related to cast and symmetry

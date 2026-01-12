@@ -61,43 +61,6 @@ opaque
 
 opaque
 
-  -- A cast lemma.
-
-  cast : Term n → Term n → Term n → Term n → Term n → Term n
-  cast l A B t u =
-    subst 𝟙 (U l) (var x0) A B t u
-
-opaque
-  unfolding cast
-
-  -- A substitution lemma for cast.
-
-  cast-[] :
-    cast l A B t u [ σ ] ≡
-    cast (l [ σ ]) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
-  cast-[] {l} {A} {B} {t} {u} {σ} =
-    subst 𝟙 (U l) (var x0) A B t u [ σ ]                            ≡⟨ subst-[] ⟩
-    subst 𝟙 (U (l [ σ ])) (var x0) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])  ∎
-
-opaque
-
-  -- A weakening lemma for cast.
-
-  wk-cast :
-    wk ρ (cast l A B t u) ≡
-    cast (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)
-  wk-cast {ρ} {l} {A} {B} {t} {u} =
-    wk ρ (cast l A B t u)                                       ≡⟨ wk≡subst _ _ ⟩
-
-    cast l A B t u [ toSubst ρ ]                                ≡⟨ cast-[] ⟩
-
-    cast (l [ toSubst ρ ]) (A [ toSubst ρ ]) (B [ toSubst ρ ])
-      (t [ toSubst ρ ]) (u [ toSubst ρ ])                       ≡˘⟨ cong₅ cast (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _)
-                                                                      (wk≡subst _ _) ⟩
-    cast (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)           ∎
-
-opaque
-
   -- Symmetry.
 
   symmetry :
@@ -168,6 +131,43 @@ opaque
             (var x0))
          rfl)
       rfl u eq
+
+opaque
+
+  -- A cast lemma.
+
+  cast : Term n → Term n → Term n → Term n → Term n → Term n
+  cast l A B t u =
+    subst 𝟙 (U l) (var x0) A B t u
+
+opaque
+  unfolding cast
+
+  -- A substitution lemma for cast.
+
+  cast-[] :
+    cast l A B t u [ σ ] ≡
+    cast (l [ σ ]) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
+  cast-[] {l} {A} {B} {t} {u} {σ} =
+    subst 𝟙 (U l) (var x0) A B t u [ σ ]                            ≡⟨ subst-[] ⟩
+    subst 𝟙 (U (l [ σ ])) (var x0) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])  ∎
+
+opaque
+
+  -- A weakening lemma for cast.
+
+  wk-cast :
+    wk ρ (cast l A B t u) ≡
+    cast (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)
+  wk-cast {ρ} {l} {A} {B} {t} {u} =
+    wk ρ (cast l A B t u)                                       ≡⟨ wk≡subst _ _ ⟩
+
+    cast l A B t u [ toSubst ρ ]                                ≡⟨ cast-[] ⟩
+
+    cast (l [ toSubst ρ ]) (A [ toSubst ρ ]) (B [ toSubst ρ ])
+      (t [ toSubst ρ ]) (u [ toSubst ρ ])                       ≡˘⟨ cong₅ cast (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _)
+                                                                      (wk≡subst _ _) ⟩
+    cast (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)           ∎
 
 opaque
 
