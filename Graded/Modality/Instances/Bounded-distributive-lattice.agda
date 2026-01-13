@@ -16,17 +16,23 @@ module Graded.Modality.Instances.Bounded-distributive-lattice
   where
 
 open import Graded.Modality M
+import Graded.Context
+import Graded.Context.Properties
 import Graded.Modality.Instances.LowerBounded as L
-open import Graded.Modality.Properties.Subtraction
+import Graded.Modality.Properties
 import Graded.Modality.Properties.Star as Star
+open import Graded.Usage.Restrictions
 
 open import Tools.Bool using (T; false)
+open import Tools.Function
+open import Tools.Nat using (1+)
 open import Tools.Product
 import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
 private variable
-  p q : M
+  p q r : M
+  γ δ : Graded.Context.Conₘ _ _
 
 
 -- Bounded, distributive lattices can be turned into "semirings with
@@ -150,39 +156,89 @@ modality = L.isModality
   ⊥
   ⊥≤
 
+private
+  module 𝕄 = Modality modality
+  module MP = Graded.Modality.Properties modality
+  module C = Graded.Context modality
+  module CP = Graded.Context.Properties modality
+
 opaque
 
   -- The addition coincides with the meet
 
-  +≡∧ : ∀ p q → Semiring-with-meet._+_ semiring-with-meet p q ≡ Semiring-with-meet._∧_ semiring-with-meet p q
+  +≡∧ : ∀ p q → p 𝕄.+ q ≡ p 𝕄.∧ q
   +≡∧ p q = PE.refl
+
+opaque
+
+  -- Addition conicides with meet for contexts
+
+  +ᶜ≈ᶜ∧ᶜ : γ C.+ᶜ δ C.≈ᶜ γ C.∧ᶜ δ
+  +ᶜ≈ᶜ∧ᶜ {γ = C.ε} {δ = C.ε} = C.ε
+  +ᶜ≈ᶜ∧ᶜ {γ = _ C.∙ _} {δ = _ C.∙ _} = +ᶜ≈ᶜ∧ᶜ C.∙ (+≡∧ _ _)
 
 opaque
 
   -- Multiplication is increasing
 
-  ·-increasingˡ : ∀ p q → p ≤ Semiring-with-meet._·_ semiring-with-meet p q
+  ·-increasingˡ : ∀ p q → p ≤ p 𝕄.· q
   ·-increasingˡ p q = PE.sym (absorptive .proj₂ p q)
 
 opaque
 
   -- Multiplication is increasing
 
-  ·-increasingʳ : ∀ p q → q ≤ Semiring-with-meet._·_ semiring-with-meet p q
+  ·-increasingʳ : ∀ p q → q ≤ p 𝕄.· q
   ·-increasingʳ p q = PE.trans (PE.sym (absorptive .proj₂ q p)) (cong (q ∧_) (∨-comm _ _))
 
 opaque
 
   -- Multiplication is idempotent
 
-  ·-idem : Idempotent (Semiring-with-meet._·_ semiring-with-meet)
+  ·-idem : Idempotent 𝕄._·_
   ·-idem = ∨-idem
 
 opaque
 
   -- Bounded, distributive lattices support Subtraction
 
-  supports-subtraction :
-    Supports-subtraction semiring-with-meet
+  supports-subtraction : MP.Supports-subtraction
   supports-subtraction =
-    Addition≡Meet.supports-subtraction semiring-with-meet +≡∧
+    MP.Addition≡Meet.supports-subtraction +≡∧
+
+
+opaque
+
+  -- The greatest lower bound of nrᵢ r p q is p ∧ q
+
+  nrᵢ-glb : 𝕄.Greatest-lower-bound (p ∧ q) (𝕄.nrᵢ r p q)
+  nrᵢ-glb = lemma₁ , λ q′ q′≤ → MP.∧-greatest-lower-bound (q′≤ 0)
+                                 (MP.≤-trans (q′≤ 1) (MP.∧-decreasingˡ _ _))
+    where
+    open MP.≤-reasoning
+    lemma₁ : ∀ i → p ∧ q 𝕄.≤ 𝕄.nrᵢ r p q i
+    lemma₁ 0 = MP.∧-decreasingˡ _ _
+    lemma₁ {p} {q} {r} (1+ i) = begin
+      p ∧ q                      ≈˘⟨ ∧-congˡ (∧-idem _) ⟩
+      p ∧ (q ∧ q)                ≈˘⟨ ∧-assoc _ _ _ ⟩
+      (p ∧ q) ∧ q                ≈⟨ ∧-comm _ _ ⟩
+      q ∧ (p ∧ q)                ≤⟨ MP.∧-monotoneʳ (lemma₁ i) ⟩
+      q ∧ 𝕄.nrᵢ r p q i          ≤⟨ MP.∧-monotoneʳ (·-increasingʳ _ _) ⟩
+      q ∧ (r 𝕄.· 𝕄.nrᵢ r p q i)  ≡⟨⟩
+      𝕄.nrᵢ r p q (1+ i)         ∎
+
+opaque
+
+  -- The greatest lower bound of nrᵢᶜ r γ δ is γ ∧ᶜ δ
+
+  nrᵢᶜ-glbᶜ : C.Greatest-lower-boundᶜ (γ C.∧ᶜ δ) (CP.nrᵢᶜ r γ δ)
+  nrᵢᶜ-glbᶜ {γ = C.ε} {δ = C.ε} = CP.ε-GLB
+  nrᵢᶜ-glbᶜ {γ = γ C.∙ p} {δ C.∙ q} =
+    CP.GLBᶜ-pointwise′ nrᵢᶜ-glbᶜ nrᵢ-glb
+
+opaque
+
+  -- The greatest lower bound of nrᵢ r ⊥ p is ⊥
+
+  nrᵢ-⊥-glb : 𝕄.Greatest-lower-bound ⊥ (𝕄.nrᵢ r ⊥ p)
+  nrᵢ-⊥-glb = (λ _ → ⊥≤ _) , (λ q q≤ → q≤ 0)

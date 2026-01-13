@@ -255,6 +255,7 @@ import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Zero-one-many
 import Graded.Modality.Instances.Bounded-distributive-lattice
+import Graded.Modality.Instances.Bounded-distributive-lattice.Usage
 import Graded.Modality.Instances.Set.Interval
 
 -- Modality instances.
