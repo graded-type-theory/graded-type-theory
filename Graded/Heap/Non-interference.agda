@@ -76,18 +76,16 @@ open import Graded.Usage.Restrictions.Natrec modality
 
 open Addition≡Meet +≡∧
 
-private
+-- The assumptions used to prove termination hold.
 
-  -- The assumptions used to prove termination hold.
+non-interference-assumptions : Assumptions UR TR ℓ₀
+non-interference-assumptions = record
+   { subtraction-ok = supports-subtraction
+   ; Unitʷ-η→ = λ _ _ _ → ≤⊤ _
+   ; natrec-mode-ok = inj₂ no-nr
+   }
 
-  As : Assumptions UR TR ℓ₀
-  As = record
-    { subtraction-ok = supports-subtraction
-    ; Unitʷ-η→ = λ _ _ _ → ≤⊤ _
-    ; natrec-mode-ok = inj₂ no-nr
-    }
-
-open Assumptions As
+open Assumptions non-interference-assumptions
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ℓ₀
@@ -96,7 +94,7 @@ open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Reduction
   type-variant UR factoring-nr ℓ₀ Unitʷ-η→ (flip ¬[No-nr∧No-nr-glb] no-nr)
-open import Graded.Heap.Termination UR TR ℓ₀ As
+open import Graded.Heap.Termination UR TR ℓ₀ non-interference-assumptions
 open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
 open import Graded.Heap.Typed.Inversion UR TR factoring-nr ℓ₀
 open import Graded.Heap.Typed.Reduction UR TR factoring-nr ℓ₀
