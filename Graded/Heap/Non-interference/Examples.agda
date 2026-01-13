@@ -169,16 +169,17 @@ opaque
        ⟨ H₂ , t , id , ε ⟩ ↠* ⟨ H₂′ , u , ρ , ε ⟩ ×
        Numeral u × H₁′ ~⟨ ℓ₀ ⟩ H₂′
   non-interference-with-secret-matches ℓ₀≢𝟘 prodrec-ok Σ-ok =
-    _ , t , ε , ε , secret-matches , ▸t , ⊢t
+    _ , t , _ , _ , secret-matches , ▸t , ⊢t
       , λ H₁ H₂ H₁~H₂ ⊢H₁ ▸H₁ →
        _ , _ , _ , _ , _ , _ , ⟨t⟩⇒⟨zero⟩ H₁ , ⟨t⟩⇒⟨zero⟩ H₂ , zeroₙ
          , (H₁~H₂ ∙ (⊥-elim ∘→ 𝟘≰ℓ₀ ℓ₀≢𝟘) ∙ (⊥-elim ∘→ 𝟘≰ℓ₀ ℓ₀≢𝟘))
     where
 
     -- The program t corresponds to
-    -- let (_ , _) = (zero , zero) in zero
-    t : Term 0
-    t = prodrec 𝟘 𝟘 𝟘 ℕ (prodʷ 𝟘 zero zero) zero
+    -- let (_ , _) = (x , y) in zero
+    -- where x and y are secret
+    t : Term 2
+    t = prodrec 𝟘 𝟘 𝟘 ℕ (prodʷ 𝟘 (var x1) (var x0)) zero
 
     -- There are no secret matches
 
@@ -188,7 +189,7 @@ opaque
 
     -- The program t is well-resourced.
 
-    ▸t : ε ▸[ ℓ₀ ] t
+    ▸t : 𝟘ᶜ ▸[ ℓ₀ ] t
     ▸t =
       let ▸zero = sub-≈ᶜ zeroₘ $ begin
             𝟘ᶜ ∙ ℓ₀ · 𝟘 · 𝟘 ∙ ℓ₀ · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-congˡ (·-zeroʳ _) ∙ ·-zeroʳ _ ⟩
@@ -199,40 +200,44 @@ opaque
             𝟘ᶜ ∙ 𝟘 · 𝟘 ≈⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ⟩
             𝟘ᶜ ∙ 𝟘     ≡⟨⟩
             𝟘ᶜ         ∎
-      in  prodrecₘ (prodʷₘ zeroₘ zeroₘ) ▸zero ▸ℕ prodrec-ok
+      in  sub-≈ᶜ (prodrecₘ (prodʷₘ var var) ▸zero ▸ℕ prodrec-ok) $ begin
+            𝟘ᶜ           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+            𝟘 ·ᶜ _       ≈˘⟨ +ᶜ-identityʳ _ ⟩
+            𝟘 ·ᶜ _ +ᶜ 𝟘ᶜ ∎
       where
       open ≈ᶜ-reasoning
 
     -- The program t is well-typed (of type ℕ).
 
-    ⊢t : ε » ε ⊢ t ∷ ℕ
+    ⊢t : ε » (ε ∙ ℕ ∙ ℕ) ⊢ t ∷ ℕ
     ⊢t =
-      let ⊢ℕ = ℕⱼ (∙ ℕⱼ εε)
-      in  prodrecⱼ (ℕⱼ (∙ (ΠΣⱼ ⊢ℕ Σ-ok)))
-            (prodⱼ ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) Σ-ok)
+      let ⊢ℕ′ = ∙ ℕⱼ (∙ ℕⱼ εε)
+          ⊢ℕ = ℕⱼ (∙ ℕⱼ ⊢ℕ′)
+      in  prodrecⱼ (ℕⱼ (∙ ΠΣⱼ ⊢ℕ Σ-ok))
+            (prodⱼ ⊢ℕ (var ⊢ℕ′ (there here)) (var ⊢ℕ′ here) Σ-ok)
             (zeroⱼ (∙ ⊢ℕ)) Σ-ok
 
     -- The program t evaluates to zero in the abstract machine (and the
     -- heap is extended in a certain way).
 
     ⟨t⟩⇒⟨zero⟩ :
-      ∀ (H : Heap 0 0) →
+      ∀ (H : Heap 0 2) →
       ⟨ H , t , id , ε ⟩ ↠*
-      ⟨ H ∙ (𝟘 , zero , id) ∙ (𝟘 , zero , step id) , zero , liftn id 2 , ε ⟩
+      ⟨ H ∙ (𝟘 , var x1 , id) ∙ (𝟘 , var x0 , step id) , zero , liftn id 2 , ε ⟩
     ⟨t⟩⇒⟨zero⟩ H =
-      let u = prodʷ 𝟘 zero zero
-          H′ = H ∙ (ℓ₀ · 𝟘 · 𝟘 , zero , id) ∙ (ℓ₀ · 𝟘 , zero , step id)
-          H″ = H ∙ (𝟘 , zero , id) ∙ (𝟘 , zero , step id)
+      let u = prodʷ 𝟘 (var x1) (var x0)
+          H′ = H ∙ (ℓ₀ · 𝟘 · 𝟘 , var x1 , id) ∙ (ℓ₀ · 𝟘 , var x0 , step id)
+          H″ = H ∙ (𝟘 , var x1 , id) ∙ (𝟘 , var x0 , step id)
           H′≡H″ = cong₂ (λ x y → (H ∙ (x , _)) ∙ (y , _))
                     (PE.trans (·-congˡ (·-zeroʳ _)) (·-zeroʳ _))
                     (·-zeroʳ _)
           open R
       in
-        ⟨ H , t                      , id         , ε ⟩                            ≡⟨⟩↠
-        ⟨ H , prodrec 𝟘 𝟘 𝟘 ℕ u zero , id         , ε ⟩                            ⇒ₑ⟨ prodrecₕ ⟩
-        ⟨ H , prodʷ 𝟘 zero zero      , id         , prodrecₑ 𝟘 𝟘 𝟘 ℕ zero id ∙ ε ⟩ ⇒ᵥ⟨ prodʷₕ ε ⟩
-        ⟨ H′ , zero                  , liftn id 2 , ε ⟩                            ≡⟨ H′≡H″ ⨾ refl ⨾ refl ⨾ refl ⟩↠
-        ⟨ H″ , zero                  , liftn id 2 , ε ⟩                            ∎
+        ⟨ H , t                         , id         , ε ⟩                            ≡⟨⟩↠
+        ⟨ H , prodrec 𝟘 𝟘 𝟘 ℕ u zero    , id         , ε ⟩                            ⇒ₑ⟨ prodrecₕ ⟩
+        ⟨ H , prodʷ 𝟘 (var x1) (var x0) , id         , prodrecₑ 𝟘 𝟘 𝟘 ℕ zero id ∙ ε ⟩ ⇒ᵥ⟨ prodʷₕ ε ⟩
+        ⟨ H′ , zero                     , liftn id 2 , ε ⟩                            ≡⟨ H′≡H″ ⨾ refl ⨾ refl ⨾ refl ⟩↠
+        ⟨ H″ , zero                     , liftn id 2 , ε ⟩                            ∎
 
 opaque
   unfolding natcase
@@ -263,7 +268,7 @@ opaque
     where
 
     -- The program t more or less corresponds to the following (x is secret):
-    -- if (1 + x == zero)
+    -- if (1 + x == 0)
     --   then 1
     --   else 0
 
@@ -278,7 +283,8 @@ opaque
           ⊢ℕ′ = ℕⱼ (∙ ⊢ℕ)
           ⊢ℕ″ = ℕⱼ (∙ ⊢ℕ′)
       in  lamⱼ ⊢ℕ″
-            (⊢natcase (ℕⱼ (∙ ⊢ℕ″)) (sucⱼ (zeroⱼ (∙ ⊢ℕ′))) (zeroⱼ (∙ ⊢ℕ″)) (sucⱼ (var (∙ ⊢ℕ′) here))) Π-ok ∘ⱼ
+            (⊢natcase (ℕⱼ (∙ ⊢ℕ″)) (sucⱼ (zeroⱼ (∙ ⊢ℕ′)))
+              (zeroⱼ (∙ ⊢ℕ″)) (sucⱼ (var (∙ ⊢ℕ′) here))) Π-ok ∘ⱼ
           var (∙ ⊢ℕ) here
 
     -- The program t is not well-resourced under any context.
