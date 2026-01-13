@@ -53,7 +53,7 @@ open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
   m n                                                   : Nat
-  Η                                                     : Cons _ _
+  Γ                                                     : Cons _ _
   A A₁ A₂ B B₁ B₂ ext l l₁ l₁′ l₂ l₂′ t t₁ t₂ u u₁ u₂ v : Term _
   p p′ p″ q q′ q″                                       : M
   b                                                     : BinderMode
@@ -259,8 +259,8 @@ opaque
 
   Has-function-extensionality-supᵘₗ :
     Has-function-extensionality p q p′ q′
-      (l₁ supᵘₗ l₁′) (l₂ supᵘₗ l₂′) Η →
-    Has-function-extensionality p q p′ q′ l₁ l₂ Η
+      (l₁ supᵘₗ l₁′) (l₂ supᵘₗ l₂′) Γ →
+    Has-function-extensionality p q p′ q′ l₁ l₂ Γ
   Has-function-extensionality-supᵘₗ (_ , ⊢ext) =
     _ , Is-function-extensionality-lower-ext ⊢ext
 
@@ -272,10 +272,10 @@ opaque
   -- holds for smaller levels l₁ and l₂.
 
   Has-function-extensionality-downwards-closed :
-    Η ⊢ l₁ ≤ₗ l₁′ ∷Level →
-    Η ⊢ l₂ ≤ₗ l₂′ ∷Level →
-    Has-function-extensionality p q p′ q′ l₁′ l₂′ Η →
-    Has-function-extensionality p q p′ q′ l₁ l₂ Η
+    Γ ⊢ l₁ ≤ₗ l₁′ ∷Level →
+    Γ ⊢ l₂ ≤ₗ l₂′ ∷Level →
+    Has-function-extensionality p q p′ q′ l₁′ l₂′ Γ →
+    Has-function-extensionality p q p′ q′ l₁ l₂ Γ
   Has-function-extensionality-downwards-closed
     l₁≤l₁′ l₂≤l₂′ (ext , ⊢ext) =
     let ⊢Ul₁′ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
@@ -529,13 +529,13 @@ opaque
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Π-allowed p″ q″ →
-    Is-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Η ext →
-    Η »∙ A₁ ⊢ B₁ ∷ U (wk1 l) →
-    Η ⊢ t ∷ Id (U l) A₂ A₁ →
-    Η »∙ A₂ ⊢ u ∷
+    Is-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Γ ext →
+    Γ »∙ A₁ ⊢ B₁ ∷ U (wk1 l) →
+    Γ ⊢ t ∷ Id (U l) A₂ A₁ →
+    Γ »∙ A₂ ⊢ u ∷
       Id (U (wk1 l))
         (B₁ [ cast (wk1 l) (wk1 A₂) (wk1 A₁) (wk1 t) (var x0) ]↑) B₂ →
-    Η ⊢ ΠΣ-cong-Idʳ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u ∷
+    Γ ⊢ ΠΣ-cong-Idʳ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u ∷
       Id (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂)
   ⊢ΠΣ-cong-Idʳ ok ok′ ok″ ext ⊢B₁ ⊢t ⊢u =
     ⊢symmetry (⊢ΠΣ-cong-Idˡ ok ok′ ok″ ext ⊢B₁ ⊢t (⊢symmetry ⊢u))
@@ -686,10 +686,10 @@ opaque
 
   Id-cong-Idʳ :
     Π-allowed p q →
-    Η ⊢ t ∷ Id (U l) A₁ A₂ →
-    Η ⊢ u ∷ Id A₁ t₁ (cast⁻¹ l A₁ A₂ t t₂) →
-    Η ⊢ v ∷ Id A₁ u₁ (cast⁻¹ l A₁ A₂ t u₂) →
-    ∃ λ w → Η ⊢ w ∷ Id (U l) (Id A₁ t₁ u₁) (Id A₂ t₂ u₂)
+    Γ ⊢ t ∷ Id (U l) A₁ A₂ →
+    Γ ⊢ u ∷ Id A₁ t₁ (cast⁻¹ l A₁ A₂ t t₂) →
+    Γ ⊢ v ∷ Id A₁ u₁ (cast⁻¹ l A₁ A₂ t u₂) →
+    ∃ λ w → Γ ⊢ w ∷ Id (U l) (Id A₁ t₁ u₁) (Id A₂ t₂ u₂)
   Id-cong-Idʳ ok ⊢t ⊢u ⊢v =
     Id-cong-Idˡ ok ⊢t (cast-right-left′ ⊢t ⊢u .proj₂)
       (cast-right-left′ ⊢t ⊢v .proj₂)
