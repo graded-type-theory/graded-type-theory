@@ -22,18 +22,26 @@ import Definition.Typed.Decidable.Internal.Substitution R as IS
 import Definition.Typed.Decidable.Internal.Weakening R as IW
 open import Definition.Typed.Inversion R
 import Definition.Typed.Properties.Admissible.Identity.Primitive
+open import Definition.Typed.Properties.Admissible.Level R
+open import Definition.Typed.Properties.Admissible.Lift R
+open import Definition.Typed.Properties.Admissible.U R
+open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Substitution.Primitive R
+open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄 as Id
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.Sup R
 
 open Id.Internal R
 
 open import Tools.Bool
 open import Tools.Fin
 open import Tools.Function as F hiding (ext)
-open import Tools.Level
+open import Tools.Level as Lvl using (lsuc; _⊔_)
 import Tools.List as L
 open import Tools.Maybe
 open import Tools.Nat as N using (Nat; 1+)
@@ -44,11 +52,246 @@ import Tools.Vec as V
 open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
-  m n                                           : Nat
-  Η                                             : Cons _ _
-  A A₁ A₂ B B₁ B₂ ext l l₁ l₂ t t₁ t₂ u u₁ u₂ v : Term _
-  p p′ p″ q q′ q″                               : M
-  b                                             : BinderMode
+  m n                                                   : Nat
+  Η                                                     : Cons _ _
+  A A₁ A₂ B B₁ B₂ ext l l₁ l₁′ l₂ l₂′ t t₁ t₂ u u₁ u₂ v : Term _
+  p p′ p″ q q′ q″                                       : M
+  b                                                     : BinderMode
+
+------------------------------------------------------------------------
+-- Some lemmas related to function extensionality
+
+private opaque
+
+  -- A formulation of function extensionality for certain levels.
+
+  Funext′ : (a b : Lvl.Level) → Set (lsuc (a ⊔ b))
+  Funext′ a b =
+    (A : Set a) (B : A → Set b)
+    (f g : (x : A) → B x) →
+    ((x : A) → f x PE.≡ g x) →
+    f PE.≡ g
+
+  -- The following code illustrates roughly how lower-ext below is
+  -- defined.
+
+  Is-function-extensionality-lower-ext′ :
+    ∀ a a′ b b′ →
+    Funext′ (a ⊔ a′) (b ⊔ b′) →
+    Funext′ a b
+  Is-function-extensionality-lower-ext′ a a′ b b′ ext =
+    λ A B f g f≡g →
+      PE.cong
+        {A = (x : Lvl.Lift a′ A) → Lvl.Lift b′ (B (Lvl.Lift.lower x))}
+        {B = (x : A) → B x} (λ f x → Lvl.Lift.lower (f (Lvl.lift x)))
+        {x = λ (x : Lvl.Lift a′ A) →
+               Lvl.lift {ℓ = b′} (f (Lvl.Lift.lower x))}
+        {y = λ x → Lvl.lift (g (Lvl.Lift.lower x))}
+        (ext (Lvl.Lift a′ A) (λ x → Lvl.Lift b′ (B (Lvl.Lift.lower x)))
+           (λ x → Lvl.lift (f (Lvl.Lift.lower x)))
+           (λ x → Lvl.lift (g (Lvl.Lift.lower x)))
+           (λ x →
+              PE.cong {A = B (Lvl.Lift.lower x)}
+                {B = Lvl.Lift b′ (B (Lvl.Lift.lower x))}
+                (λ x → Lvl.lift x)
+                {x = f (Lvl.Lift.lower x)} {y = g (Lvl.Lift.lower x)}
+                (f≡g (Lvl.Lift.lower x))))
+
+opaque
+  unfolding cong subst
+
+  -- A definition that is used to state
+  -- Is-function-extensionality-lower-ext below.
+
+  lower-ext : M → M → M → Term n → Term n → Term n → Term n
+  lower-ext p q p′ l₁′ l₂′ ext =
+    lam p $ lam p′ $ lam p′ $ lam p′ $ lam p′ $
+    cong ω
+      (Π p , q ▷ Lift (wk[ 5 ]′ l₁′) (var x4) ▹
+       Lift (wk[ 6 ]′ l₂′) (var x4 ∘⟨ p ⟩ lower (var x0)))
+      (lam p (lift (var x3 ∘⟨ p ⟩ lower (var x0))))
+      (lam p (lift (var x2 ∘⟨ p ⟩ lower (var x0))))
+      (Π p , q ▷ var x4 ▹ (var x4 ∘⟨ p ⟩ var x0))
+      (lam p (lower (var x1 ∘⟨ p ⟩ lift (var x0))))
+      (wk[ 5 ]′ ext ∘⟨ p ⟩ Lift (wk[ 5 ]′ l₁′) (var x4) ∘⟨ p′ ⟩
+       lam p (Lift (wk[ 6 ]′ l₂′) (var x4 ∘⟨ p ⟩ lower (var x0)))
+         ∘⟨ p′ ⟩
+       lam p (lift (var x3 ∘⟨ p ⟩ lower (var x0))) ∘⟨ p′ ⟩
+       lam p (lift (var x2 ∘⟨ p ⟩ lower (var x0))) ∘⟨ p′ ⟩
+       lam p
+         (cong ω (var x4 ∘⟨ p ⟩ lower (var x0))
+            (var x3 ∘⟨ p ⟩ lower (var x0))
+            (var x2 ∘⟨ p ⟩ lower (var x0))
+            (Lift (wk[ 6 ]′ l₂′) (var x4 ∘⟨ p ⟩ lower (var x0)))
+            (lift (var x0)) (var x1 ∘⟨ p ⟩ lower (var x0))))
+
+opaque
+  unfolding Funext Is-function-extensionality lower-ext
+
+  -- If function extensionality holds for l₁ supᵘₗ l₁′ and
+  -- l₂ supᵘₗ l₂′, then it also holds for l₁ and l₂.
+
+  Is-function-extensionality-lower-ext :
+    {Γ : Cons m n} →
+    Is-function-extensionality
+      p q p′ q′ (l₁ supᵘₗ l₁′) (l₂ supᵘₗ l₂′) Γ ext →
+    Is-function-extensionality
+      p q p′ q′ l₁ l₂ Γ (lower-ext p q p′ l₁′ l₂′ ext)
+  Is-function-extensionality-lower-ext
+    {m} {n} {p} {q} {p′} {q′} {l₁} {l₁′} {l₂} {l₂′} {ext} {Γ} ⊢ext =
+    let ⊢Γ                    = wfTerm ⊢ext
+        ⊢U[l₁⊔l₁′] , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
+        ⊢Π , _ , ok₂          = inversion-ΠΣ ⊢Π
+        ⊢l₁⊔l₁′               = inversion-U-Level ⊢U[l₁⊔l₁′]
+        ⊢l₁ , ⊢l₁′            = inversion-supᵘₗ ⊢l₁⊔l₁′
+        ⊢l₂ , ⊢l₂′            =
+          inversion-supᵘₗ $
+          PE.subst (_⊢_∷Level _) wk₂-[,] $
+          subst-⊢∷L
+            (inversion-U-Level (inversion-ΠΣ ⊢Π .proj₂ .proj₁)) $
+          →⊢ˢʷ∷∙
+            (⊢ˢʷ∷-sgSubst $
+             conv (Liftⱼ′ ⊢l₁⊔l₁′ (ℕⱼ ⊢Γ))
+               (U-cong-⊢≡ (supᵘₗ-zeroˡ ⊢l₁⊔l₁′))) $
+          liftⱼ′ ⊢l₁⊔l₁′ (zeroⱼ ⊢Γ)
+    in
+    check-type-and-term-sound
+      γ′
+      (I.base nothing I.» I.base)
+      (I.lam xp nothing $ I.lam xp′ nothing $ I.lam xp′ nothing $
+       I.lam xp′ nothing $ I.lam xp′ nothing $
+       congᵢ I.ω
+         (I.Π xp , xq ▷ I.Lift (IW.wk[ 5 ] xl₁′) (I.var x4) ▹
+          I.Lift (IW.wk[ 6 ] xl₂′)
+            (I.var x4 I.∘⟨ xp ⟩ I.lower (I.var x0)))
+         (I.lam xp (just (xq , I.Lift (IW.wk[ 5 ] xl₁′) (I.var x4))) $
+          I.lift (just (IW.wk[ 6 ] xl₂′))
+            (I.var x3 I.∘⟨ xp ⟩ I.lower (I.var x0)))
+         (I.lam xp nothing $
+          I.lift nothing (I.var x2 I.∘⟨ xp ⟩ I.lower (I.var x0)))
+         (I.Π xp , xq ▷ I.var x4 ▹ (I.var x4 I.∘⟨ xp ⟩ I.var x0))
+         (I.lam xp nothing $
+          I.lower (I.var x1 I.∘⟨ xp ⟩ I.lift nothing (I.var x0)))
+         (IW.wk[ 5 ] xext I.∘⟨ xp ⟩
+          I.Lift (IW.wk[ 5 ] xl₁′) (I.var x4) I.∘⟨ xp′ ⟩
+          I.lam xp nothing
+            (I.Lift (IW.wk[ 6 ] xl₂′)
+               (I.var x4 I.∘⟨ xp ⟩ I.lower (I.var x0))) I.∘⟨ xp′ ⟩
+          I.lam xp nothing
+            (I.lift nothing (I.var x3 I.∘⟨ xp ⟩ I.lower (I.var x0)))
+            I.∘⟨ xp′ ⟩
+          I.lam xp nothing
+            (I.lift nothing (I.var x2 I.∘⟨ xp ⟩ I.lower (I.var x0)))
+            I.∘⟨ xp′ ⟩
+          I.lam xp nothing
+            (congᵢ I.ω (I.var x4 I.∘⟨ xp ⟩ I.lower (I.var x0))
+               (I.var x3 I.∘⟨ xp ⟩ I.lower (I.var x0))
+               (I.var x2 I.∘⟨ xp ⟩ I.lower (I.var x0))
+               (I.Lift (IW.wk[ 6 ] xl₂′)
+                  (I.var x4 I.∘⟨ xp ⟩ I.lower (I.var x0)))
+               (I.lift nothing (I.var x0))
+               (I.var x1 I.∘⟨ xp ⟩ I.lower (I.var x0)))))
+      (Funextᵢ xp xq xp′ xq′ xl₁ xl₂)
+      26
+      PE.refl
+      (λ where
+         .IC.constraints-wf             → ok₁ L.∷ ok₂ L.∷ L.[]
+         .IC.metas-wf .IC.equalities-wf → L.[]
+         .IC.metas-wf .IC.bindings-wf   → λ where
+           (I.var! x0)       → ⊢l₁
+           (I.var! x1)       → ⊢l₁′
+           (I.var! x2)       → ⊢l₂
+           (I.var! x3)       → ⊢l₂′
+           (I.var! x4)       → ⊢ext
+           (I.var  not-x5 _))
+      (wfTerm ⊢ext)
+      where
+      c′ : I.Constants
+      c′ .I.gs               = 4
+      c′ .I.ss               = 0
+      c′ .I.bms              = 0
+      c′ .I.ms               = 5
+      c′ .I.base-dcon-size   = m
+      c′ .I.base-con-size    = n
+      c′ .I.base-con-allowed = true
+      c′ .I.meta-con-size    = V.replicate 5 n
+
+      xp xp′ xq xq′ : I.Termᵍ 4
+      xp  = I.var x0
+      xp′ = I.var x1
+      xq  = I.var x2
+      xq′ = I.var x3
+
+      xl₁ xl₁′ xl₂ xl₂′ xext : I.Term c′ n
+      xl₁  = I.varᵐ x0
+      xl₁′ = I.varᵐ x1
+      xl₂  = I.varᵐ x2
+      xl₂′ = I.varᵐ x3
+      xext = I.varᵐ x4
+
+      γ′ : I.Contexts c′
+      γ′ .I.grades       = p V.∷ p′ V.∷ q V.∷ q′ V.∷ V.ε
+      γ′ .I.strengths    = V.ε
+      γ′ .I.binder-modes = V.ε
+      γ′ .I.⌜base⌝       = Γ
+      γ′ .I.constraints  =
+        I.π-allowed xp  xq  L.∷
+        I.π-allowed xp′ xq′ L.∷
+        L.[]
+      γ′ .I.metas .I.equalities = L.[]
+      γ′ .I.metas .I.bindings   = λ where
+        (I.var! x0) → I.base , I.level l₁
+        (I.var! x1) → I.base , I.level l₁′
+        (I.var! x2) → I.base , I.level l₂
+        (I.var! x3) → I.base , I.level l₂′
+        (I.var! x4) →
+          I.base ,
+          I.term ext
+            (Funextᵢ xp xq xp′ xq′ (xl₁ I.supᵘₗ xl₁′)
+               (xl₂ I.supᵘₗ xl₂′))
+        (I.var not-x5 _)
+
+opaque
+  unfolding Has-function-extensionality
+
+  -- If function extensionality holds for l₁ supᵘₗ l₁′ and
+  -- l₂ supᵘₗ l₂′, then it also holds for l₁ and l₂.
+
+  Has-function-extensionality-supᵘₗ :
+    Has-function-extensionality p q p′ q′
+      (l₁ supᵘₗ l₁′) (l₂ supᵘₗ l₂′) Η →
+    Has-function-extensionality p q p′ q′ l₁ l₂ Η
+  Has-function-extensionality-supᵘₗ (_ , ⊢ext) =
+    _ , Is-function-extensionality-lower-ext ⊢ext
+
+opaque
+  unfolding
+    Funext Has-function-extensionality Is-function-extensionality
+
+  -- If function extensionality holds for l₁′ and l₂′, then it also
+  -- holds for smaller levels l₁ and l₂.
+
+  Has-function-extensionality-downwards-closed :
+    Η ⊢ l₁ ≤ₗ l₁′ ∷Level →
+    Η ⊢ l₂ ≤ₗ l₂′ ∷Level →
+    Has-function-extensionality p q p′ q′ l₁′ l₂′ Η →
+    Has-function-extensionality p q p′ q′ l₁ l₂ Η
+  Has-function-extensionality-downwards-closed
+    l₁≤l₁′ l₂≤l₂′ (ext , ⊢ext) =
+    let ⊢Ul₁′ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
+        _     , ⊢Π , ok₂ = inversion-ΠΣ ⊢Π
+    in
+    Has-function-extensionality-supᵘₗ
+      (ext ,
+       conv ⊢ext
+         (ΠΣ-cong (U-cong-⊢≡ (sym-⊢≡∷L l₁≤l₁′))
+            (ΠΣ-cong
+               (ΠΣ-cong (refl (univ (var₀ ⊢Ul₁′)))
+                  (U-cong-⊢≡ $ sym-⊢≡∷L $
+                   wkEqLevel (ʷ⊇-drop (∙ univ (var₀ ⊢Ul₁′))) l₂≤l₂′)
+                  ok₁)
+               (refl ⊢Π) ok₂)
+            ok₁))
 
 ------------------------------------------------------------------------
 -- Some preservation lemmas
