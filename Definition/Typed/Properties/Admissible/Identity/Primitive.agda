@@ -1254,15 +1254,16 @@ opaque
   -- An equality rule for cast.
 
   cast-cong :
-    Γ ⊢ A₁ ≡ A₂ ∷ U l →
-    Γ ⊢ B₁ ≡ B₂ ∷ U l →
-    Γ ⊢ t₁ ≡ t₂ ∷ Id (U l) A₁ B₁ →
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
+    Γ ⊢ B₁ ≡ B₂ ∷ U l₁ →
+    Γ ⊢ t₁ ≡ t₂ ∷ Id (U l₁) A₁ B₁ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊢ cast l A₁ B₁ t₁ u₁ ≡ cast l A₂ B₂ t₂ u₂ ∷ B₁
-  cast-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ =
-    case inversion-Id (syntacticEqTerm t₁≡t₂ .proj₁) of λ
-      (⊢U , ⊢A₁ , ⊢B₁) →
-    subst-cong (refl ⊢U) (refl (univ (var₀ ⊢U))) A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂
+    Γ ⊢ cast l₁ A₁ B₁ t₁ u₁ ≡ cast l₂ A₂ B₂ t₂ u₂ ∷ B₁
+  cast-cong l₁≡l₂ A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ =
+    let ⊢U , ⊢A₁ , ⊢B₁ = inversion-Id (wf-⊢≡∷ t₁≡t₂ .proj₁) in
+    subst-cong (U-cong-⊢≡ l₁≡l₂) (refl (univ (var₀ ⊢U))) A₁≡A₂ B₁≡B₂
+      t₁≡t₂ u₁≡u₂
 
 opaque
   unfolding cast
@@ -1363,7 +1364,8 @@ opaque
 
              Id A (cast l A A rfl u) u                                   ≡˘⟨ Id-cong
                                                                                (refl ⊢A)
-                                                                               (cast-cong (refl ⊢A) (refl ⊢A) (symmetry-≡ ⊢A) (cast-≡ ⊢A ⊢u))
+                                                                               (cast-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢A) (symmetry-≡ ⊢A)
+                                                                                  (cast-≡ ⊢A ⊢u))
                                                                                (refl ⊢u) ⟩⊢∎≡
              Id A
                (cast l A A (symmetry (U l) A A rfl) (cast l A A rfl u))
