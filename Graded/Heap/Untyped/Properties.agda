@@ -885,53 +885,54 @@ opaque
   ∣nr∣≢𝟘 has-nrₑ = nr₂≢𝟘
   ∣nr∣≢𝟘 (no-nrₑ x) refl = 𝟘≰𝟙 (x .proj₁ 0)
 
--- opaque
+opaque
 
---   -- If the stack multiplicity is 𝟘 then the stack contains an erased
---   -- prodrec, unitrec or emptyrec or J, K or []-cong.
+  -- If the stack multiplicity is 𝟘 then the stack contains an erased
+  -- prodrec, unitrec or emptyrec or J, K or []-cong.
 
---   ∣∣≡𝟘→erased-match :
---     ⦃ Has-well-behaved-zero _ 𝕄 ⦄ →
---     ∣ S ∣≡ 𝟘 →
---     (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
---     (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)
---   ∣∣≡𝟘→erased-match = lemma refl
---     where
---     there′ :
---       (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
---       (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S) →
---       (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
---       (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
---     there′ (inj₁ (_ , x)) = inj₁ (_ , there x)
---     there′ (inj₂ (inj₁ x)) = inj₂ (inj₁ (there x))
---     there′ (inj₂ (inj₂ (inj₁ x))) = inj₂ (inj₂ (inj₁ (there x)))
---     there′ (inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , x))))) = inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , there x))))
---     there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , x)))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , there x)))))
---     there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (there x)))))
---     here′ :
---       q ≡ 𝟘 → ∣ c ∣ᶜ[ mo ]≡ q →
---       (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
---       (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
---     here′ q≡ ∘ₑ = ⊥-elim (non-trivial q≡)
---     here′ q≡ fstₑ = ⊥-elim (non-trivial q≡)
---     here′ q≡ sndₑ = ⊥-elim (non-trivial q≡)
---     here′ refl prodrecₑ = inj₁ (_ , here)
---     here′ q≡ (natrecₑ x) = ⊥-elim (∣nr∣≢𝟘 x q≡)
---     here′ refl unitrecₑ = inj₂ (inj₁ here)
---     here′ refl emptyrecₑ = inj₂ (inj₂ (inj₁ here))
---     here′ q≡ (Jₑ x) = inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , here))))
---     here′ q≡ (Kₑ x) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , here)))))
---     here′ q≡ []-congₑ = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ here))))
---     here′ q≡ sucₑ = ⊥-elim (non-trivial q≡)
---     lemma :
---       q ≡ 𝟘 → ∣ S ∣≡ q →
---       (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
---       (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)
---     lemma q≡ ε = ⊥-elim (non-trivial {!q≡!})
---     lemma q≡ (∣e∣≡ ∙ ∣S∣≡) =
---       case zero-product q≡ of λ where
---         (inj₁ x) → there′ (lemma x ∣S∣≡)
---         (inj₂ x) → here′ x ∣e∣≡
+  ∣∣≡𝟘→erased-match :
+    ⦃ Has-well-behaved-zero _ 𝕄 ⦄ →
+    ∣ε∣ ≢ 𝟘 →
+    ∣ S ∣≡ 𝟘 →
+    (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
+    (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)
+  ∣∣≡𝟘→erased-match ∣ε∣≢𝟘 = lemma refl
+    where
+    there′ :
+      (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
+      (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S) →
+      (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
+      (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
+    there′ (inj₁ (_ , x)) = inj₁ (_ , there x)
+    there′ (inj₂ (inj₁ x)) = inj₂ (inj₁ (there x))
+    there′ (inj₂ (inj₂ (inj₁ x))) = inj₂ (inj₂ (inj₁ (there x)))
+    there′ (inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , x))))) = inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , there x))))
+    there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , x)))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , there x)))))
+    there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (there x)))))
+    here′ :
+      q ≡ 𝟘 → ∣ c ∣ᶜ[ mo ]≡ q →
+      (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
+      (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
+    here′ q≡ ∘ₑ = ⊥-elim (non-trivial q≡)
+    here′ q≡ fstₑ = ⊥-elim (non-trivial q≡)
+    here′ q≡ sndₑ = ⊥-elim (non-trivial q≡)
+    here′ refl prodrecₑ = inj₁ (_ , here)
+    here′ q≡ (natrecₑ x) = ⊥-elim (∣nr∣≢𝟘 x q≡)
+    here′ refl unitrecₑ = inj₂ (inj₁ here)
+    here′ refl emptyrecₑ = inj₂ (inj₂ (inj₁ here))
+    here′ q≡ (Jₑ x) = inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , here))))
+    here′ q≡ (Kₑ x) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , here)))))
+    here′ q≡ []-congₑ = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ here))))
+    here′ q≡ sucₑ = ⊥-elim (non-trivial q≡)
+    lemma :
+      q ≡ 𝟘 → ∣ S ∣≡ q →
+      (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
+      (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)
+    lemma q≡ ε = ⊥-elim (∣ε∣≢𝟘 q≡)
+    lemma q≡ (∣e∣≡ ∙ ∣S∣≡) =
+      case zero-product q≡ of λ where
+        (inj₁ x) → there′ (lemma x ∣S∣≡)
+        (inj₂ x) → here′ x ∣e∣≡
 
 opaque
 
