@@ -275,7 +275,7 @@ no-usage-restrictions nm nr-ok erased sink = λ where
 -- natrecₘ for natrec using a given nr function.
 
 nr-available-UR :
-  (has-nr : Has-nr semiring-with-meet) →
+  (has-nr : Has-nr 𝕄) →
   Mode-supports-nr ⦃ has-nr ⦄ 𝐌 →
   Usage-restrictions → Usage-restrictions
 nr-available-UR has-nr nr-ok UR = record UR
@@ -287,7 +287,7 @@ nr-available-UR has-nr nr-ok UR = record UR
 -- natrec-no-nr-glbₘ for natrec, assuming that the rule is supported.
 
 nr-not-available-glb-UR :
-  Has-well-behaved-GLBs semiring-with-meet →
+  Has-well-behaved-GLBs 𝕄 →
   Usage-restrictions → Usage-restrictions
 nr-not-available-glb-UR ok UR =
   record UR

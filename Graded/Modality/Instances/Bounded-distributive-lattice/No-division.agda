@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------
 -- A bounded, distributive lattice for which division is not total for
--- the associated "semiring with meet"
+-- the associated modality
 ------------------------------------------------------------------------
 
 module
@@ -238,20 +238,19 @@ bounded-distributive-lattice = record
 
 
 
--- The "semiring with meet" associated to
+-- The modality associated to
 -- bounded-distributive-lattice.
 
-semiring-with-meet : Semiring-with-meet ⊤⊎ℕ⊎ℕ
-semiring-with-meet =
-  BDL.semiring-with-meet _ bounded-distributive-lattice λ where
+modality : Modality ⊤⊎ℕ⊎ℕ
+modality = BDL.modality _ bounded-distributive-lattice λ where
     ⊥         → no (λ ())
     (left _)  → no (λ ())
     (right n) → Dec.map (cong right) (λ { refl → refl }) (n N.≟ 0)
 
--- The zero-product property fails for this "semiring with meet".
+-- The zero-product property fails for this modality.
 
 ¬-zero-product :
-  let open Semiring-with-meet semiring-with-meet in
+  let open Modality modality in
   ¬ (∀ {p q} → p · q ≡ 𝟘 → p ≡ 𝟘 ⊎ q ≡ 𝟘)
 ¬-zero-product =
   ({p q : ⊤⊎ℕ⊎ℕ} → p · q ≡ right 0 → p ≡ right 0 ⊎ q ≡ right 0)        →⟨ (λ hyp → hyp) ⟩
@@ -259,22 +258,22 @@ semiring-with-meet =
   right 1 ≡ right 0 ⊎ left 0 ≡ right 0                                 →⟨ (λ { (inj₁ ()); (inj₂ ()) }) ⟩
   ⊥′                                                                   □
   where
-  open Semiring-with-meet semiring-with-meet
+  open Modality modality
 
--- This "semiring with meet" does not have a well-behaved zero.
+-- This modality does not have a well-behaved zero.
 
 ¬-Has-well-behaved-zero :
-  ¬ Has-well-behaved-zero ⊤⊎ℕ⊎ℕ semiring-with-meet
+  ¬ Has-well-behaved-zero ⊤⊎ℕ⊎ℕ modality
 ¬-Has-well-behaved-zero =
-  Has-well-behaved-zero ⊤⊎ℕ⊎ℕ semiring-with-meet                 →⟨ Has-well-behaved-zero.zero-product ⟩
+  Has-well-behaved-zero ⊤⊎ℕ⊎ℕ modality                           →⟨ Has-well-behaved-zero.zero-product ⟩
   ({p q : ⊤⊎ℕ⊎ℕ} → p · q ≡ right 0 → p ≡ right 0 ⊎ q ≡ right 0)  →⟨ ¬-zero-product ⟩
   ⊥′                                                             □
   where
-  open Semiring-with-meet semiring-with-meet
+  open Modality modality
 
-open Graded.Modality.Properties.Division semiring-with-meet
+open Graded.Modality.Properties.Division modality
 
--- Division by left n is not supported for semiring-with-meet.
+-- Division by left n is not supported for the modality.
 
 ¬-Supports-division-by-left : ¬ Supports-division-by (left n)
 ¬-Supports-division-by-left {n = n₀} =
@@ -283,7 +282,7 @@ open Graded.Modality.Properties.Division semiring-with-meet
   (∃ λ r → right n₀ / left n₀ ≡ r)  →⟨ rn₀/ln₀≢ _ ∘→ proj₂ ⟩
   ⊥′                                □
   where
-  open Semiring-with-meet semiring-with-meet
+  open Modality modality
 
   right-injective : right m ≡ right n → m ≡ n
   right-injective refl = refl
@@ -305,7 +304,7 @@ open Graded.Modality.Properties.Division semiring-with-meet
     1+ n ≡ n                        →⟨ (λ ()) ⟩
     ⊥′                              □
 
--- Division is not supported for semiring-with-meet.
+-- Division is not supported for the modality.
 
 ¬-Supports-division : ¬ Supports-division
 ¬-Supports-division =
@@ -313,7 +312,7 @@ open Graded.Modality.Properties.Division semiring-with-meet
   Supports-division-by (left 0)  →⟨ ¬-Supports-division-by-left ⟩
   ⊥′                             □
 
--- Division is not total for semiring-with-meet.
+-- Division is not total for the modality.
 
 ¬-division-total : ¬ ((p q : ⊤⊎ℕ⊎ℕ) → ∃ (p / q ≡_))
 ¬-division-total =

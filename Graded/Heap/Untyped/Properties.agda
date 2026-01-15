@@ -880,7 +880,7 @@ opaque
   -- The multiplicity of natrecₑ is not 𝟘.
 
   ∣nr∣≢𝟘 :
-   ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄ →
+   ⦃ Has-well-behaved-zero _ 𝕄 ⦄ →
    ∣natrec p , r ∣≡ q → q ≢ 𝟘
   ∣nr∣≢𝟘 has-nrₑ = nr₂≢𝟘
   ∣nr∣≢𝟘 (no-nrₑ x) refl = 𝟘≰𝟙 (x .proj₁ 0)
@@ -891,7 +891,7 @@ opaque
 --   -- prodrec, unitrec or emptyrec or J, K or []-cong.
 
 --   ∣∣≡𝟘→erased-match :
---     ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄ →
+--     ⦃ Has-well-behaved-zero _ 𝕄 ⦄ →
 --     ∣ S ∣≡ 𝟘 →
 --     (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
 --     (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)

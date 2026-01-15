@@ -67,7 +67,7 @@ opaque
   -- definitionally equal to u.
 
   Id→≡ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     Fundamental-assumptions⁻ (glassify ∇ » Γ) →
     glassify ∇ » Γ ⊢ v ∷ Id A t u →
     𝟘ᶜ ▸[ 𝟙ᵐ ] v →
@@ -106,7 +106,7 @@ opaque
   -- context.
 
   Id→≡′ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
     Fundamental-assumptions⁻ (glassify ∇ » Γ) →

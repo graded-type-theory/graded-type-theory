@@ -666,7 +666,7 @@ opaque
   -- A kind of inversion lemma for _▸[_]_ related to the star operation.
 
   ▸-⌞⊛⌟ˡ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-star : Has-star 𝕄 ⦄ →
     ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
     ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⌟ ] t
   ▸-⌞⊛⌟ˡ {p} {q} {r} = ▸-≤ (⊛-ineq₂ p q r)
@@ -676,7 +676,7 @@ opaque
   -- A kind of inversion lemma for _▸[_]_ related to the star operation.
 
   ▸-⌞⊛⌟ʳ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-star : Has-star 𝕄 ⦄ →
     ⌜ ⌞ p ⊛ q ▷ r ⌟ ⌝ ·ᶜ γ ▸[ ⌞ p ⊛ q ▷ r ⌟ ] t →
     ⌜ ⌞ q ⌟ ⌝ ·ᶜ γ ▸[ ⌞ q ⌟ ] t
   ▸-⌞⊛⌟ʳ {p} {q} {r} = ▸-⌞+⌟ˡ ∘→ ▸-≤ (⊛-ineq₁ p q r)
@@ -705,7 +705,7 @@ opaque
   -- A kind of inversion lemma for _▸[_]_ related to the nr function.
 
   ▸-⌞nr⌟₂ :
-    ∀ {n} ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ∀ {n} ⦃ has-nr : Has-nr 𝕄 ⦄ →
     ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
     ⌜ ⌞ s ⌟ ⌝ ·ᶜ γ ▸[ ⌞ s ⌟ ] t
   ▸-⌞nr⌟₂ ▸t = ▸-⌞+⌟ˡ (▸-≤ nr-suc ▸t)
@@ -1355,7 +1355,7 @@ module _ where
      χ ≤ᶜ γ ×
      (¬ Trivialᵐ →
       χ ≤ᶜ δ) ×
-     ((Trivialᵐ → Has-well-behaved-zero semiring-with-meet) →
+     ((Trivialᵐ → Has-well-behaved-zero 𝕄) →
        χ ≤ᶜ η) ×
      χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ) →
     (⦃ no-nr : Nr-not-available-GLB ⦄ →

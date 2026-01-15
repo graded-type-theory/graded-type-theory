@@ -356,8 +356,8 @@ record Is-Σ-order-embedding
 record Is-nr-preserving-morphism
   {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
-  ⦃ has-nr₁ : Has-nr M₁ (Modality.semiring-with-meet 𝕄₁) ⦄
-  ⦃ has-nr₂ : Has-nr M₂ (Modality.semiring-with-meet 𝕄₂) ⦄
+  ⦃ has-nr₁ : Has-nr M₁ 𝕄₁ ⦄
+  ⦃ has-nr₂ : Has-nr M₂ 𝕄₂ ⦄
   (tr : M₁ → M₂) : Set (a₁ ⊔ a₂) where
 
   no-eta-equality
@@ -409,8 +409,8 @@ record Is-no-nr-glb-preserving-morphism
 record Is-nr-reflecting-morphism
   {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
-  ⦃ has-nr₁ : Has-nr M₁ (Modality.semiring-with-meet 𝕄₁) ⦄
-  ⦃ has-nr₂ : Has-nr M₂ (Modality.semiring-with-meet 𝕄₂) ⦄
+  ⦃ has-nr₁ : Has-nr M₁ 𝕄₁ ⦄
+  ⦃ has-nr₂ : Has-nr M₂ 𝕄₂ ⦄
   (tr : M₁ → M₂) : Set (a₁ ⊔ a₂) where
 
   no-eta-equality
@@ -536,7 +536,7 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
   open Is-order-embedding
 
 Is-nr-preserving-morphism-id :
-  ⦃ has-nr : Has-nr _ (Modality.semiring-with-meet 𝕄) ⦄ →
+  ⦃ has-nr : Has-nr _ 𝕄 ⦄ →
   Is-nr-preserving-morphism 𝕄 𝕄 idᶠ
 Is-nr-preserving-morphism-id {𝕄} = λ where
     .tr-nr → ≤-refl
@@ -553,7 +553,7 @@ Is-no-nr-glb-preserving-morphism-id = λ where
   open Is-no-nr-glb-preserving-morphism
 
 Is-nr-reflecting-morphism-id :
-  ⦃ has-nr : Has-nr _ (Modality.semiring-with-meet 𝕄) ⦄ →
+  ⦃ has-nr : Has-nr _ 𝕄 ⦄ →
   Is-nr-reflecting-morphism 𝕄 𝕄 idᶠ
 Is-nr-reflecting-morphism-id {𝕄} = λ where
     .tr-≤-nr hyp →
@@ -779,9 +779,9 @@ Is-Σ-order-embedding-∘
   open Tools.Reasoning.PartialOrder ≤-poset
 
 Is-nr-preserving-morphism-∘ :
-  ⦃ has-nr₁ : Has-nr _ (Modality.semiring-with-meet 𝕄₁) ⦄ →
-  ⦃ has-nr₂ : Has-nr _ (Modality.semiring-with-meet 𝕄₂) ⦄ →
-  ⦃ has-nr₃ : Has-nr _ (Modality.semiring-with-meet 𝕄₃) ⦄ →
+  ⦃ has-nr₁ : Has-nr _ 𝕄₁ ⦄ →
+  ⦃ has-nr₂ : Has-nr _ 𝕄₂ ⦄ →
+  ⦃ has-nr₃ : Has-nr _ 𝕄₃ ⦄ →
   Is-morphism 𝕄₂ 𝕄₃ tr₁ →
   Is-nr-preserving-morphism 𝕄₂ 𝕄₃ tr₁ →
   Is-nr-preserving-morphism 𝕄₁ 𝕄₂ tr₂ →
@@ -812,9 +812,9 @@ Is-no-nr-glb-preserving-morphism-∘ f g = λ where
   open Is-no-nr-glb-preserving-morphism
 
 Is-nr-reflecting-morphism-∘ :
-  ⦃ has-nr₁ : Has-nr _ (Modality.semiring-with-meet 𝕄₁) ⦄ →
-  ⦃ has-nr₂ : Has-nr _ (Modality.semiring-with-meet 𝕄₂) ⦄ →
-  ⦃ has-nr₃ : Has-nr _ (Modality.semiring-with-meet 𝕄₃) ⦄ →
+  ⦃ has-nr₁ : Has-nr _ 𝕄₁ ⦄ →
+  ⦃ has-nr₂ : Has-nr _ 𝕄₂ ⦄ →
+  ⦃ has-nr₃ : Has-nr _ 𝕄₃ ⦄ →
   Is-morphism 𝕄₂ 𝕄₃ tr₁ →
   Is-nr-reflecting-morphism 𝕄₂ 𝕄₃ tr₁ →
   Is-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr₂ →

@@ -389,7 +389,7 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set (a ⊔ a�
             → χ ≤ᶜ γ
             → (¬ Trivialᵐ →
                χ ≤ᶜ δ)
-            → ((Trivialᵐ → Has-well-behaved-zero semiring-with-meet) →
+            → ((Trivialᵐ → Has-well-behaved-zero 𝕄) →
                  χ ≤ᶜ η)
             → χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ
             → χ ▸[ m ] natrec p q r A z s n

@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- A natrec-star operator can be defined for every semiring with a
+-- A natrec-star operator can be defined for every modality with a
 -- global least element ∞
 ------------------------------------------------------------------------
 
@@ -8,8 +8,8 @@ import Graded.Modality
 module Graded.Modality.Instances.LowerBounded
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Semiring-with-meet)
-  (open Semiring-with-meet 𝕄)
+  (𝕄 : Modality)
+  (open Modality 𝕄)
   (∞ : M) (∞-min : (p : M) → ∞ ≤ p)
   where
 
@@ -130,10 +130,3 @@ has-star = record
 
 has-nr : Has-nr 𝕄
 has-nr = Star.has-nr ⦃ has-star = has-star ⦄
-
--- 𝕄 can be turned into a modality.
-
-isModality : Modality
-isModality = record
-  { semiring-with-meet = 𝕄
-  }

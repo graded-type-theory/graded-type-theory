@@ -145,8 +145,8 @@ module Is-morphism (m : Is-morphism 𝕄₁ 𝕄₂ tr) where
 
 
 module Is-nr-preserving-morphism
-  ⦃ has-nr₁ : Has-nr M₁ M₁.semiring-with-meet ⦄
-  ⦃ has-nr₂ : Has-nr M₂ M₂.semiring-with-meet ⦄
+  ⦃ has-nr₁ : Has-nr M₁ 𝕄₁ ⦄
+  ⦃ has-nr₂ : Has-nr M₂ 𝕄₂ ⦄
   (m : M.Is-nr-preserving-morphism 𝕄₁ 𝕄₂ tr) where
 
   open M.Is-nr-preserving-morphism m
@@ -183,8 +183,8 @@ module Is-no-nr-glb-preserving-morphism
       in  γ′ ∙ p′ , CP₂.GLBᶜ-pointwise′ γ′-glb p′-glb
 
 module Is-nr-reflecting-morphism
-  ⦃ has-nr₁ : Has-nr M₁ M₁.semiring-with-meet ⦄
-  ⦃ has-nr₂ : Has-nr M₂ M₂.semiring-with-meet ⦄
+  ⦃ has-nr₁ : Has-nr M₁ 𝕄₁ ⦄
+  ⦃ has-nr₂ : Has-nr M₂ 𝕄₂ ⦄
   (m : M.Is-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr) where
 
   open M.Is-nr-reflecting-morphism m

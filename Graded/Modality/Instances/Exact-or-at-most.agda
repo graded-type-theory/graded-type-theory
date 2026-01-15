@@ -226,10 +226,10 @@ opaque
 ------------------------------------------------------------------------
 -- The modality
 
--- A "semiring with meet" for Exact-or-at-most.
+-- A modality instance for Exact-or-at-most.
 
-exact-or-at-most-semiring-with-meet : Semiring-with-meet
-exact-or-at-most-semiring-with-meet = record
+exact-or-at-most-modality : Modality
+exact-or-at-most-modality = record
   { _+_ = _+_
   ; _·_ = _·_
   ; _∧_ = _∧_
@@ -606,7 +606,7 @@ opaque instance
   -- The zero is well-behaved
 
   exact-or-at-most-has-well-behaved-zero :
-    Has-well-behaved-zero exact-or-at-most-semiring-with-meet
+    Has-well-behaved-zero exact-or-at-most-modality
   exact-or-at-most-has-well-behaved-zero = record
     { non-trivial = λ ()
     ; zero-product = zero-product
@@ -637,14 +637,14 @@ opaque instance
     ∧-positiveˡ {p = ≈/≤1+ _ _} {q = ∞}         ()
     ∧-positiveˡ {p = ∞}                         ()
 
-open Semiring-with-meet exact-or-at-most-semiring-with-meet
+open Modality exact-or-at-most-modality
   hiding (_+_; _·_; _∧_; 𝟘; 𝟙; _≤_)
-open Graded.Modality.Properties.Addition exact-or-at-most-semiring-with-meet
-open Graded.Modality.Properties.Has-well-behaved-zero exact-or-at-most-semiring-with-meet
-open Graded.Modality.Properties.Meet exact-or-at-most-semiring-with-meet
-open Graded.Modality.Properties.Multiplication exact-or-at-most-semiring-with-meet
-open Graded.Modality.Properties.Natrec exact-or-at-most-semiring-with-meet
-open Graded.Modality.Properties.PartialOrder exact-or-at-most-semiring-with-meet
+open Graded.Modality.Properties.Addition exact-or-at-most-modality
+open Graded.Modality.Properties.Has-well-behaved-zero exact-or-at-most-modality
+open Graded.Modality.Properties.Meet exact-or-at-most-modality
+open Graded.Modality.Properties.Multiplication exact-or-at-most-modality
+open Graded.Modality.Properties.Natrec exact-or-at-most-modality
+open Graded.Modality.Properties.PartialOrder exact-or-at-most-modality
 
 opaque
 
@@ -757,7 +757,7 @@ opaque
 
   nr₂→exact-or-at-most-has-nr : (nr₂ : Op₂ Exact-or-at-most) → (∀ {p r} → nr₂ p r ≢ 𝟘)
                               → (∀ {p r} → nr₂ p r ≤ p + r · nr₂ p r)
-                              → Has-nr exact-or-at-most-semiring-with-meet
+                              → Has-nr exact-or-at-most-modality
   nr₂→exact-or-at-most-has-nr nr₂ nr₂≢𝟘 nr₂≤ = record
     { nr = nr
     ; nr-monotone = λ {p = p} {r} → nr-monotone {p = p} {r}
@@ -918,7 +918,7 @@ opaque
 
 instance opaque
 
-  exact-or-at-most-has-nr : Has-nr exact-or-at-most-semiring-with-meet
+  exact-or-at-most-has-nr : Has-nr exact-or-at-most-modality
   exact-or-at-most-has-nr =
     nr₂→exact-or-at-most-has-nr (λ p r → nr₃ r 𝟙 p)
       (λ {_} {r} nr₃≡𝟘 → case nr₃-positive r nr₃≡𝟘 of λ ())
@@ -992,12 +992,12 @@ opaque
 
   -- The nr function returns results that are at least as large as those
   -- of any other factoring nr function with nr₂ p 𝟘 ≤ 𝟙 and
-  -- nr₂ 𝟘 𝟙 ≤ 𝟙 for zero-one-many-semiring-with-meet.
+  -- nr₂ 𝟘 𝟙 ≤ 𝟙 for exact-or-at-most-semiring-with-meet
   -- (Note that the nr₂ function used by nr has these properties,
   -- see nr₂p𝟘≤𝟙 and nr₂𝟘𝟙≤𝟙 above)
 
   nr-greatest-factoring :
-    (has-nr : Has-nr exact-or-at-most-semiring-with-meet)
+    (has-nr : Has-nr exact-or-at-most-modality)
     (is-factoring-nr : Is-factoring-nr has-nr)
     (nr₂p𝟘≤𝟙 : ∀ {p} → Is-factoring-nr.nr₂ is-factoring-nr p 𝟘 ≤ 𝟙)
     (nr₂𝟘𝟙≤𝟙 : Is-factoring-nr.nr₂ is-factoring-nr 𝟘 𝟙 ≤ 𝟙) →
@@ -1162,15 +1162,6 @@ opaque
         s + p · n + ≈/≤1+ b (1+ m) · nr′ p (≈/≤1+ b (1+ m)) z s n   ≡˘⟨ +-assoc s (p · n) _ ⟩
         (s + p · n) + ≈/≤1+ b (1+ m) · nr′ p (≈/≤1+ b (1+ m)) z s n ∎
 
-opaque
-
-  -- A modality instance of the exact-or-at-most-semiring-with-meet
-
-  exact-or-at-most-modality : Modality
-  exact-or-at-most-modality = record
-    {  semiring-with-meet = exact-or-at-most-semiring-with-meet
-    }
-
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
@@ -1179,7 +1170,6 @@ module _ {𝟘ᵐ-allowed : Bool} where
   open Graded.Mode.Instances.Zero-one.Variant exact-or-at-most-modality
 
   private opaque
-    unfolding exact-or-at-most-modality
 
     variant : Mode-variant
     variant = record
@@ -1215,7 +1205,6 @@ module _ {𝟘ᵐ-allowed : Bool} where
     open Usage-restrictions UR
 
   opaque
-    unfolding exact-or-at-most-modality
 
     -- Given an instance of Type-restrictions exact-or-at-most-modality
     -- one can create a "suitable" instance.
@@ -1251,7 +1240,6 @@ module _ {𝟘ᵐ-allowed : Bool} where
       open Usage-restrictions UR
 
   opaque
-    unfolding exact-or-at-most-modality
 
     -- The full reduction assumptions hold for any instance of
     -- exact-or-at-most-modality and any "suitable" Type-restrictions and
@@ -1270,7 +1258,6 @@ module _ {𝟘ᵐ-allowed : Bool} where
       }
 
   opaque
-    unfolding exact-or-at-most-modality
 
     -- Type and usage restrictions that satisfy the full reduction
     -- assumptions are "suitable".
@@ -1295,7 +1282,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
 -- Subtraction
 
 open import Graded.Modality.Properties.Subtraction
-  exact-or-at-most-semiring-with-meet
+  exact-or-at-most-modality
 
 opaque
 

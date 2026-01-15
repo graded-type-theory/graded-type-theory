@@ -203,7 +203,7 @@ not-canonicityEq :
        open Modality 𝕄
        open Graded.Mode.Instances.Zero-one variant
    in
-   ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
+   ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
    (TR : Type-restrictions 𝕄) →
    let open Type-restrictions TR
        open

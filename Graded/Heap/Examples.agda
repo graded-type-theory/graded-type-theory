@@ -29,7 +29,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality as PE
 
 open import Graded.Context 𝕄
-open import Graded.Modality.Properties.Subtraction semiring-with-meet
+open import Graded.Modality.Properties.Subtraction 𝕄
 open import Graded.Usage UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙

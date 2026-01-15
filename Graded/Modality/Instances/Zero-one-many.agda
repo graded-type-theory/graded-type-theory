@@ -85,17 +85,17 @@ Meet-requirements _∧_ =
   (𝟘 ∧ 𝟙 ≢ 𝟘) ×
   (𝟙 ∧ 𝟘 ≢ 𝟘)
 
--- The meet operation of a "Semiring-with-meet" for Zero-one-many for
+-- The meet operation of a "Modality" for Zero-one-many for
 -- which the zero is 𝟘, the one is 𝟙, ω ≤ p for all p
 -- and 𝟘 ∧ 𝟙 ≢ 𝟘 has to satisfy the Meet-requirements.
 
 Meet-requirements-required :
-  (M : Semiring-with-meet) →
-  Semiring-with-meet.𝟘          M ≡ 𝟘 →
-  Semiring-with-meet.𝟙          M ≡ 𝟙 →
-  Semiring-with-meet._∧_ M    𝟘 𝟙 ≢ 𝟘 →
-  (∀ p → Semiring-with-meet._≤_ M ω p) →
-  Meet-requirements (Semiring-with-meet._∧_ M)
+  (M : Modality) →
+  Modality.𝟘          M ≡ 𝟘 →
+  Modality.𝟙          M ≡ 𝟙 →
+  Modality._∧_ M    𝟘 𝟙 ≢ 𝟘 →
+  (∀ p → Modality._≤_ M ω p) →
+  Meet-requirements (Modality._∧_ M)
 Meet-requirements-required M@record{} refl refl 𝟘∧𝟙≢𝟘 ω≤ =
     (𝟘 ∧ 𝟘  ≡⟨ ∧-idem _ ⟩
      𝟘      ∎)
@@ -119,7 +119,7 @@ Meet-requirements-required M@record{} refl refl 𝟘∧𝟙≢𝟘 ω≤ =
        𝟙 ∧ 𝟘  ≡⟨ 𝟙∧𝟘≡𝟘 ⟩
        𝟘      ∎))
   where
-  open Semiring-with-meet M hiding (𝟘; 𝟙; ω)
+  open Modality M hiding (𝟘; 𝟙; ω)
   open Meet M
   open PartialOrder M
   open Tools.Reasoning.PropositionalEquality
@@ -262,17 +262,17 @@ opaque
 Order-requirements : (Zero-one-many → Zero-one-many → Set) → Set
 Order-requirements _≤_ = (ω ≤ 𝟙) × (ω ≤ 𝟘) × ¬ (𝟘 ≤ 𝟙)
 
--- The ordering relation of a "Semiring-with-meet" for Zero-one-many for
+-- The ordering relation of a "Modality" for Zero-one-many for
 -- which the zero is 𝟘, the one is 𝟙 and p ∧ ω equals ω for all p
 -- has to satisfy the Order-requirements.
 
 Order-requirements-required :
-  (M : Semiring-with-meet) →
-  Semiring-with-meet.𝟘          M ≡ 𝟘 →
-  Semiring-with-meet.𝟙          M ≡ 𝟙 →
-  Semiring-with-meet._∧_ M    𝟘 𝟙 ≢ 𝟘 →
-  (∀ p → Semiring-with-meet._≤_ M ω p) →
-  Order-requirements (Semiring-with-meet._≤_ M)
+  (M : Modality) →
+  Modality.𝟘          M ≡ 𝟘 →
+  Modality.𝟙          M ≡ 𝟙 →
+  Modality._∧_ M    𝟘 𝟙 ≢ 𝟘 →
+  (∀ p → Modality._≤_ M ω p) →
+  Order-requirements (Modality._≤_ M)
 Order-requirements-required M@record{} refl refl 𝟘∧𝟙≢𝟘 ω≤ =
   case Meet-requirements-required M refl refl 𝟘∧𝟙≢𝟘 ω≤ of λ where
     (_ , _ , _ , _ , ω⊓𝟘≡ω , _ , ω⊓𝟙≡ω , 𝟘⊓𝟙≢𝟘 , _) →
@@ -284,7 +284,7 @@ Order-requirements-required M@record{} refl refl 𝟘∧𝟙≢𝟘 ω≤ =
            𝟘 ⊓ 𝟙  ≡˘⟨ 𝟘≡𝟘⊓𝟙 ⟩
            𝟘      ∎))
   where
-  open Semiring-with-meet M using () renaming (_∧_ to _⊓_)
+  open Modality M using () renaming (_∧_ to _⊓_)
   open Tools.Reasoning.PropositionalEquality
 
 -- The inferred ordering relation.
@@ -486,12 +486,12 @@ opaque
   ω·+≤ω·ʳ         ω = refl
 
 ------------------------------------------------------------------------
--- The modality without the star operation
+-- The modality
 
--- The zero-one-many semiring with meet
+-- The zero-one-many modality
 
-zero-one-many-semiring-with-meet : Semiring-with-meet
-zero-one-many-semiring-with-meet = record
+zero-one-many-modality : Modality
+zero-one-many-modality = record
   { _+_          = _+_
   ; _·_          = _·_
   ; _∧_          = _∧_
@@ -705,7 +705,7 @@ zero-one-many-semiring-with-meet = record
 instance
 
   zero-one-many-has-well-behaved-zero :
-    Has-well-behaved-zero zero-one-many-semiring-with-meet
+    Has-well-behaved-zero zero-one-many-modality
   zero-one-many-has-well-behaved-zero = record
     { non-trivial = λ ()
     ; zero-product =  λ where
@@ -762,18 +762,18 @@ Star-requirements _⊛_▷_ _∧_ =
                                 ((𝟙 ⊛ 𝟘 ▷ 𝟙) ≤ 𝟙) ×
                                 ((𝟙 ⊛ 𝟙 ▷ 𝟘) ≤ 𝟙)
 
--- A star operation for a Semiring-with-meet for Zero-one-many for
+-- A star operation for a Modality for Zero-one-many for
 -- which the zero is 𝟘, the one is 𝟙, addition is _+_, multiplication
 -- is _·_, and the meet operation is _∧_ has to satisfy the
 -- Star-requirements (for _∧_) if certain conditions are satisfied.
 
 Star-requirements-required′ :
-  (M : Semiring-with-meet) →
-  Semiring-with-meet.𝟘   M ≡ 𝟘 →
-  Semiring-with-meet.𝟙   M ≡ 𝟙 →
-  Semiring-with-meet._+_ M ≡ _+_ →
-  Semiring-with-meet._·_ M ≡ _·_ →
-  Semiring-with-meet._∧_ M ≡ _∧_ →
+  (M : Modality) →
+  Modality.𝟘   M ≡ 𝟘 →
+  Modality.𝟙   M ≡ 𝟙 →
+  Modality._+_ M ≡ _+_ →
+  Modality._·_ M ≡ _·_ →
+  Modality._∧_ M ≡ _∧_ →
   (_⊛_▷_ :
    Zero-one-many → Zero-one-many → Zero-one-many → Zero-one-many) →
   (∀ p q r → (p ⊛ q ▷ r) ≤ q + r · (p ⊛ q ▷ r)) →
@@ -817,7 +817,7 @@ Star-requirements-required′
       , ⊛-ineq₂ _ _ _
       , ⊛-ineq₂ _ _ _
   where
-  open Semiring-with-meet M hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+  open Modality M hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
   open PartialOrder M
   open Meet M
   open Tools.Reasoning.PartialOrder ≤-poset
@@ -880,15 +880,15 @@ Star-requirements-required′
        ω              ∎)
     (ω≤ (𝟙 ⊛ 𝟘 ▷ ω))
 
--- Every natrec-star operator for zero-one-many-semiring-with-meet has
+-- Every natrec-star operator for zero-one-many-modality has
 -- to satisfy the Star-requirements (for _∧_).
 
 Star-requirements-required :
-  (has-star : Has-star zero-one-many-semiring-with-meet) →
+  (has-star : Has-star zero-one-many-modality) →
   Star-requirements (Has-star._⊛_▷_ has-star) _∧_
 Star-requirements-required has-star =
   Star-requirements-required′
-    zero-one-many-semiring-with-meet refl refl refl refl refl
+    zero-one-many-modality refl refl refl refl refl
     _⊛_▷_
     ⊛-ineq₁
     ⊛-ineq₂
@@ -897,15 +897,15 @@ Star-requirements-required has-star =
   open Has-star has-star
 
 ------------------------------------------------------------------------
--- One variant of the modality
+-- A star opaerator for the modality
 
 -- A natrec-star operator defined using the construction in
 -- Graded.Modality.Instances.LowerBounded.
 
 zero-one-many-lower-bounded-star :
-  Has-star zero-one-many-semiring-with-meet
+  Has-star zero-one-many-modality
 zero-one-many-lower-bounded-star =
-  LowerBounded.has-star zero-one-many-semiring-with-meet ω ω≤
+  LowerBounded.has-star zero-one-many-modality ω ω≤
 
 -- With this definition the result of p ⊛ q ▷ r is 𝟘 when p and q are
 -- 𝟘, and ω otherwise.
@@ -933,7 +933,7 @@ zero-one-many-lower-bounded-⊛ =
   open Tools.Reasoning.PropositionalEquality
 
 ------------------------------------------------------------------------
--- A variant of the modality with a "greatest" star operation
+-- A "greatest" star operation for the modality
 
 -- A "greatest" definition of the star operation.
 
@@ -977,7 +977,7 @@ lower-bounded≢greatest hyp =
       ω            ∎
   where
   open Tools.Reasoning.PropositionalEquality
-  module M = Semiring-with-meet zero-one-many-semiring-with-meet
+  module M = Modality zero-one-many-modality
 
 -- A simplification lemma for the star operation.
 
@@ -1028,10 +1028,10 @@ lower-bounded≢greatest hyp =
 
 -- The natrec-star operator returns results that are at least as large
 -- as those of any other natrec-star operator for
--- zero-one-many-semiring-with-meet.
+-- zero-one-many-modality.
 
 ⊛-greatest :
-  (has-star : Has-star zero-one-many-semiring-with-meet) →
+  (has-star : Has-star zero-one-many-modality) →
   ∀ p q r → Has-star._⊛_▷_ has-star p q r ≤ p ⊛ q ▷ r
 ⊛-greatest has-star =
   case Star-requirements-required has-star of λ where
@@ -1075,13 +1075,13 @@ lower-bounded≢greatest hyp =
         𝟙           ∎
   where
   open Has-star has-star renaming (_⊛_▷_ to _⊛_▷′_)
-  open PartialOrder zero-one-many-semiring-with-meet
+  open PartialOrder zero-one-many-modality
   open Tools.Reasoning.PartialOrder ≤-poset
 
 -- The "greatest" star operator defined above is a proper natrec-star
 -- operator.
 
-zero-one-many-greatest-star : Has-star zero-one-many-semiring-with-meet
+zero-one-many-greatest-star : Has-star zero-one-many-modality
 zero-one-many-greatest-star = record
   { _⊛_▷_                   = _⊛_▷_
   ; ⊛-ineq                  = ⊛-ineq₁ , ⊛-ineq₂
@@ -1093,14 +1093,13 @@ zero-one-many-greatest-star = record
     , (λ _ _ _ → ≤-reflexive (⊛-distribʳ-∧ r _ _ _))
   }
   where
-  semiring-with-meet = zero-one-many-semiring-with-meet
 
-  open Semiring-with-meet semiring-with-meet
+  open Modality zero-one-many-modality
     hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
-  open PartialOrder semiring-with-meet
-  open Addition semiring-with-meet
-  open Meet semiring-with-meet
-  open Multiplication semiring-with-meet
+  open PartialOrder zero-one-many-modality
+  open Addition zero-one-many-modality
+  open Meet zero-one-many-modality
+  open Multiplication zero-one-many-modality
 
   ⊛-ineq₁ : ∀ p q r → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r
   ⊛-ineq₁ p = λ where
@@ -1248,7 +1247,7 @@ zero-one-many-greatest-star = record
 -- one.
 
 ¬-lower-bounded-greatest :
-  ¬ ((has-star : Has-star zero-one-many-semiring-with-meet) →
+  ¬ ((has-star : Has-star zero-one-many-modality) →
      ∀ p q r →
      Has-star._⊛_▷_ has-star                         p q r ≤
      Has-star._⊛_▷_ zero-one-many-lower-bounded-star p q r)
@@ -1258,7 +1257,7 @@ zero-one-many-greatest-star = record
 -- The "greatest" natrec-star operator defined above provides a
 -- possible nr function.
 
-zero-one-many-greatest-star-nr : Has-nr zero-one-many-semiring-with-meet
+zero-one-many-greatest-star-nr : Has-nr zero-one-many-modality
 zero-one-many-greatest-star-nr =
   Star.has-nr _ ⦃ has-star = zero-one-many-greatest-star ⦄
 
@@ -1273,7 +1272,7 @@ opaque
     where
     open Has-nr zero-one-many-greatest-star-nr
     open Is-factoring-nr factoring
-    open Semiring-with-meet zero-one-many-semiring-with-meet
+    open Modality zero-one-many-modality
       hiding (𝟘; 𝟙; ω; _+_; _·_)
     open Tools.Reasoning.PropositionalEquality
     𝟙≡ω : 𝟙 ≡ ω
@@ -1286,7 +1285,7 @@ opaque
       ω ∎
 
 ------------------------------------------------------------------------
--- A variant of the modality with a custom nr function
+-- A custim nr function for the modality
 
 -- An nr function for Zero-one-many.
 --
@@ -1448,7 +1447,7 @@ nr′-view = λ where
 nr≡nr′ : ∀ p r → nr p r z s n ≡ nr′ p r z s n
 nr≡nr′ p r = lemma _ _ _ _ _ (nr′-view p r _ _ _)
   where
-  open Semiring-with-meet zero-one-many-semiring-with-meet
+  open Modality zero-one-many-modality
     hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_)
   open Tools.Reasoning.PropositionalEquality
 
@@ -1585,7 +1584,7 @@ nr-𝟘 p r =
     lemma₁ (nr-view _ _ _ _ _)
   , λ { (refl , refl , refl) → lemma₂ p r }
   where
-  open Semiring-with-meet zero-one-many-semiring-with-meet
+  open Modality zero-one-many-modality
     hiding (𝟘; 𝟙; _+_; _·_; _∧_)
   open Tools.Reasoning.PropositionalEquality
 
@@ -1612,9 +1611,9 @@ nr-𝟘 p r =
       𝟘 ∧ 𝟘                  ≡⟨⟩
       𝟘                      ∎
 
--- An nr function can be defined for zero-one-many-semiring-with-meet.
+-- An nr function can be defined for zero-one-many-modality.
 
-zero-one-many-has-nr : Has-nr zero-one-many-semiring-with-meet
+zero-one-many-has-nr : Has-nr zero-one-many-modality
 zero-one-many-has-nr = record
   { nr          = nr
   ; nr-monotone = λ {p = p} {r = r} → nr-monotone p r
@@ -1625,12 +1624,12 @@ zero-one-many-has-nr = record
   ; nr-suc      = λ {p = p} {r = r} → nr-suc p r
   }
   where
-  open Semiring-with-meet zero-one-many-semiring-with-meet
+  open Modality zero-one-many-modality
     hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
-  open Addition zero-one-many-semiring-with-meet
-  open Meet zero-one-many-semiring-with-meet
-  open Multiplication zero-one-many-semiring-with-meet
-  open PartialOrder zero-one-many-semiring-with-meet
+  open Addition zero-one-many-modality
+  open Meet zero-one-many-modality
+  open Multiplication zero-one-many-modality
+  open PartialOrder zero-one-many-modality
 
   nr-monotone :
     ∀ p r →
@@ -1810,7 +1809,7 @@ opaque
     }
     where
     open Tools.Reasoning.PropositionalEquality
-    open Semiring-with-meet zero-one-many-semiring-with-meet
+    open Modality zero-one-many-modality
            hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_)
     nr₂ : Op₂ Zero-one-many
     nr₂ p r = 𝟙 ∧ (r + p)
@@ -1836,10 +1835,10 @@ opaque
 opaque
 
   -- The nr function returns results that are at least as large as those
-  -- of any other factoring nr function for zero-one-many-semiring-with-meet.
+  -- of any other factoring nr function for zero-one-many-modality.
 
   nr-greatest-factoring :
-    (has-nr : Has-nr zero-one-many-semiring-with-meet)
+    (has-nr : Has-nr zero-one-many-modality)
     (is-factoring-nr : Is-factoring-nr has-nr) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
   nr-greatest-factoring has-nr is-factoring-nr = λ where
@@ -1928,11 +1927,11 @@ opaque
     where
     open Is-factoring-nr is-factoring-nr renaming (nr₂ to nr₂″)
     open Has-nr has-nr renaming (nr to nr″; nr-positive to nr″-positive)
-    open Addition zero-one-many-semiring-with-meet
-    open Meet zero-one-many-semiring-with-meet
-    open Natrec zero-one-many-semiring-with-meet renaming (nr-𝟘 to nr″-𝟘)
-    open PartialOrder zero-one-many-semiring-with-meet
-    open Semiring-with-meet zero-one-many-semiring-with-meet
+    open Addition zero-one-many-modality
+    open Meet zero-one-many-modality
+    open Natrec zero-one-many-modality renaming (nr-𝟘 to nr″-𝟘)
+    open PartialOrder zero-one-many-modality
+    open Modality zero-one-many-modality
       hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
     open Tools.Reasoning.PartialOrder ≤-poset
     lemma : nr″ p r z s n ≤ ω → nr″ p r z s n ≤ nr p r z s n
@@ -1976,17 +1975,10 @@ opaque
     Has-nr.Linearity-like-nr-for-𝟙 zero-one-many-has-nr
   nr-linearity-like-for-𝟙 = refl
 
--- A modality defined using zero-one-many-has-nr.
-
-zero-one-many-modality : Modality
-zero-one-many-modality = record
-  { semiring-with-meet = zero-one-many-semiring-with-meet
-  }
-
 ------------------------------------------------------------------------
 -- Subtraction
 
-open Subtraction zero-one-many-semiring-with-meet
+open Subtraction zero-one-many-modality
 
 opaque
 
@@ -2029,7 +2021,7 @@ opaque
 
 opaque
 
-  -- The semiring supports subtraction with
+  -- The modality supports subtraction with
   --   ω - p ≡ ω for all p
   --   p - 𝟘 ≡ p for all p
   --   𝟙 - 𝟙 ≡ 𝟘
@@ -2101,20 +2093,20 @@ opaque
   -- nr 𝟘 r z s 𝟘 is the greatest lower bound of nrᵢ r z s.
 
   nr-nrᵢ-GLB :
-    let 𝕄 = zero-one-many-semiring-with-meet in
-    ∀ r → Semiring-with-meet.Greatest-lower-bound
-            𝕄 (nr 𝟘 r z s 𝟘) (Semiring-with-meet.nrᵢ 𝕄 r z s)
+    let 𝕄 = zero-one-many-modality in
+    ∀ r → Modality.Greatest-lower-bound
+            𝕄 (nr 𝟘 r z s 𝟘) (Modality.nrᵢ 𝕄 r z s)
   nr-nrᵢ-GLB {z} {s} = λ where
       𝟘 → GLB-congʳ (sym (trans (∧-congʳ (+-congʳ (·-zeroʳ (𝟙 ∧ 𝟘))))
             (∧-comm s z))) nrᵢ-𝟘-GLB
       𝟙 → lemma-𝟙 _ _
       ω → lemma-ω _ _
     where
-    open Semiring-with-meet zero-one-many-semiring-with-meet
+    open Modality zero-one-many-modality
       hiding (𝟘; 𝟙; ω; _∧_; _·_; _+_)
-    open GLB zero-one-many-semiring-with-meet
-    open Natrec zero-one-many-semiring-with-meet
-    open PartialOrder zero-one-many-semiring-with-meet
+    open GLB zero-one-many-modality
+    open Natrec zero-one-many-modality
+    open PartialOrder zero-one-many-modality
     lemma′ : ∀ {z} i → nrᵢ 𝟙 z 𝟘 i ≡ z
     lemma′ 0 = refl
     lemma′ (1+ i) =
@@ -2144,10 +2136,10 @@ opaque
   -- The sequence nrᵢ r z s has a greatest lower bound
 
   nrᵢ-GLB :
-    let 𝕄 = zero-one-many-semiring-with-meet in
+    let 𝕄 = zero-one-many-modality in
     ∀ r z s → ∃ λ p →
-      Semiring-with-meet.Greatest-lower-bound
-        𝕄 p (Semiring-with-meet.nrᵢ 𝕄 r z s)
+      Modality.Greatest-lower-bound
+        𝕄 p (Modality.nrᵢ 𝕄 r z s)
   nrᵢ-GLB r z s = _ , nr-nrᵢ-GLB r
 
 opaque
@@ -2155,23 +2147,23 @@ opaque
   -- The greatest lower bound for certain nrᵢ sequences
 
   nrᵢ-𝟘-GLB :
-    let 𝕄 = zero-one-many-semiring-with-meet in
-    ∀ p q → Semiring-with-meet.Greatest-lower-bound
-            𝕄 (p ∧ q) (Semiring-with-meet.nrᵢ 𝕄 𝟘 p q)
-  nrᵢ-𝟘-GLB p q = Natrec.nrᵢ-𝟘-GLB zero-one-many-semiring-with-meet
+    let 𝕄 = zero-one-many-modality in
+    ∀ p q → Modality.Greatest-lower-bound
+            𝕄 (p ∧ q) (Modality.nrᵢ 𝕄 𝟘 p q)
+  nrᵢ-𝟘-GLB p q = Natrec.nrᵢ-𝟘-GLB zero-one-many-modality
 
 opaque
 
   -- The greatest lower bound for certain nrᵢ sequences
 
   nrᵢ-𝟙-GLB :
-    let 𝕄 = zero-one-many-semiring-with-meet in
-    ∀ p q → Semiring-with-meet.Greatest-lower-bound
-            𝕄 (p + ω · q) (Semiring-with-meet.nrᵢ 𝕄 𝟙 p q)
+    let 𝕄 = zero-one-many-modality in
+    ∀ p q → Modality.Greatest-lower-bound
+            𝕄 (p + ω · q) (Modality.nrᵢ 𝕄 𝟙 p q)
   nrᵢ-𝟙-GLB p q =
-    GLB.GLB-congʳ zero-one-many-semiring-with-meet (+-comm (ω · q) p) (nr-nrᵢ-GLB {z = p} {s = q} 𝟙)
+    GLB.GLB-congʳ zero-one-many-modality (+-comm (ω · q) p) (nr-nrᵢ-GLB {z = p} {s = q} 𝟙)
     where
-    open Semiring-with-meet zero-one-many-semiring-with-meet
+    open Modality zero-one-many-modality
       hiding (𝟙; ω; _·_; _+_)
 
 opaque
@@ -2179,13 +2171,13 @@ opaque
   -- The greatest lower bound for certain nrᵢ sequences
 
   nrᵢ-ω-GLB :
-    let 𝕄 = zero-one-many-semiring-with-meet in
-    ∀ p q → Semiring-with-meet.Greatest-lower-bound
-            𝕄 (ω · (p + q)) (Semiring-with-meet.nrᵢ 𝕄 ω p q)
+    let 𝕄 = zero-one-many-modality in
+    ∀ p q → Modality.Greatest-lower-bound
+            𝕄 (ω · (p + q)) (Modality.nrᵢ 𝕄 ω p q)
   nrᵢ-ω-GLB p q =
-    GLB.GLB-congʳ zero-one-many-semiring-with-meet (·-congˡ (+-comm q p)) (nr-nrᵢ-GLB {z = p} {s = q} ω)
+    GLB.GLB-congʳ zero-one-many-modality (·-congˡ (+-comm q p)) (nr-nrᵢ-GLB {z = p} {s = q} ω)
     where
-    open Semiring-with-meet zero-one-many-semiring-with-meet
+    open Modality zero-one-many-modality
       hiding (ω; _·_; _+_)
 
 opaque
@@ -2193,7 +2185,7 @@ opaque
   -- The modality has well-behaved GLBs
 
   zero-one-many-supports-glb-for-natrec :
-    Has-well-behaved-GLBs zero-one-many-semiring-with-meet
+    Has-well-behaved-GLBs zero-one-many-modality
   zero-one-many-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = ·-GLBˡ
@@ -2201,11 +2193,11 @@ opaque
     ; +nrᵢ-GLB = +nrᵢ-GLB
     }
     where
-    open Semiring-with-meet zero-one-many-semiring-with-meet
+    open Modality zero-one-many-modality
       hiding (_+_; _·_; _≤_; 𝟘; 𝟙; ω)
-    open GLB zero-one-many-semiring-with-meet
-    open Multiplication zero-one-many-semiring-with-meet
-    open PartialOrder zero-one-many-semiring-with-meet
+    open GLB zero-one-many-modality
+    open Multiplication zero-one-many-modality
+    open PartialOrder zero-one-many-modality
 
     ·-GLBˡ :
       {pᵢ : Sequence Zero-one-many} →

@@ -22,7 +22,7 @@ module Application.NegativeOrErasedAxioms.Canonicity
   (open Graded.Restrictions.Zero-one 𝕄 variant)
   (open Modality 𝕄)
   -- The modality has a well-behaved zero.
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
   (TR : Type-restrictions 𝕄)
   (open Definition.Typed TR)
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)

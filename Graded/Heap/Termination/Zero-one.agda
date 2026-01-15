@@ -82,7 +82,7 @@ opaque
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
     ⊢▸Final-Reasons Δ H t ρ S
   ⊢▸Final-reasons consistent prop ⊢s ▸s f =
     let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s in
@@ -107,7 +107,7 @@ opaque
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
     Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final ⟨ H , t , ρ , S ⟩ →
@@ -124,7 +124,7 @@ opaque
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     ε » Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
@@ -140,7 +140,7 @@ opaque
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k ≢ 0 →
      No-erased-matches′ type-variant UR ×
-     Has-well-behaved-zero M semiring-with-meet) →
+     Has-well-behaved-zero M 𝕄) →
     𝟘ᶜ ▸ t →
     ε » Δ ⊢ t ↘ u ∷ A →
     ∃₅ λ m n H u′ (ρ : Wk m n) → initial t ⇘ ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
@@ -159,7 +159,7 @@ opaque
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Conᵈ ∇ Γ)) →
     (k ≢ 0 →
      No-erased-matches′ type-variant UR ×
-     Has-well-behaved-zero M semiring-with-meet) →
+     Has-well-behaved-zero M 𝕄) →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸ t →
     glassify ∇ » Γ ⊢ t ↘ u ∷ A →
@@ -177,7 +177,7 @@ opaque
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M semiring-with-meet) →
+    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × Value t
@@ -192,7 +192,7 @@ opaque
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     (k ≢ 0 →
      No-erased-matches′ type-variant UR ×
-     Has-well-behaved-zero M semiring-with-meet) →
+     Has-well-behaved-zero M 𝕄) →
     ε » Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-ε consistent prop ⊢t ▸t =
@@ -210,7 +210,7 @@ opaque
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Conᵈ ∇ Δ)) →
     (k ≢ 0 →
      No-erased-matches′ type-variant UR ×
-     Has-well-behaved-zero M semiring-with-meet) →
+     Has-well-behaved-zero M 𝕄) →
     ∇ » Δ ⊢ t ∷ A →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸ t →

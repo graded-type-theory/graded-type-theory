@@ -102,7 +102,7 @@ _≤ᶜ_ : (γ δ : Conₘ n) → Set a
 -- arguments are still single grades).
 
 nrᶜ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr 𝕄 ⦄ →
   M → M → Conₘ n → Conₘ n → Conₘ n → Conₘ n
 nrᶜ p r ε       ε       ε       = ε
 nrᶜ p r (γ ∙ g) (δ ∙ d) (η ∙ e) = nrᶜ p r γ δ η ∙ nr p r g d e
@@ -111,7 +111,7 @@ nrᶜ p r (γ ∙ g) (δ ∙ d) (η ∙ e) = nrᶜ p r γ δ η ∙ nr p r g d e
 -- argument is still a single grade).
 
 _⊛ᶜ_▷_ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-star : Has-star 𝕄 ⦄ →
   Conₘ n → Conₘ n → M → Conₘ n
 ε       ⊛ᶜ ε     ▷ r = ε
 (γ ∙ p) ⊛ᶜ δ ∙ q ▷ r = (γ ⊛ᶜ δ ▷ r) ∙ (p ⊛ q ▷ r)

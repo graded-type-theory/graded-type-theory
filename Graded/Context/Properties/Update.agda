@@ -148,7 +148,7 @@ update-distrib-∧ᶜ (γ ∙ p′) (δ ∙ q′) p q (x +1) = cong (_∙ _) (up
 -- γ ⊛ᶜ δ ▷ r , x ≔ p ⊛ q ▷ r ≡ (γ , x ≔ p) ⊛ᶜ (δ , x ≔ q) ▷ r
 
 update-distrib-⊛ᶜ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-star : Has-star 𝕄 ⦄ →
   (γ δ : Conₘ n) (r p q : M) (x : Fin n) →
   γ ⊛ᶜ δ ▷ r , x ≔ (p ⊛ q ▷ r) ≡ (γ , x ≔ p) ⊛ᶜ (δ , x ≔ q) ▷ r
 update-distrib-⊛ᶜ ε       _       _ _ _ ()

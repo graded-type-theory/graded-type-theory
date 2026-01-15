@@ -354,12 +354,12 @@ opaque
   ≢𝟘·≢𝟘 {p = ≤ω} {q = ≤ω} _   _   ()
 
 ------------------------------------------------------------------------
--- The modality without the star operation
+-- The modality
 
--- The "linear or affine types" semiring with meet
+-- A modality for Linear-or-affine.
 
-linear-or-affine-semiring-with-meet : Semiring-with-meet
-linear-or-affine-semiring-with-meet  = record
+linear-or-affine : Modality
+linear-or-affine  = record
   { _+_          = _+_
   ; _·_          = _·_
   ; _∧_          = _∧_
@@ -801,10 +801,10 @@ linear-or-affine-semiring-with-meet  = record
 
 instance
 
-  -- The semiring has a well behaved zero
+  -- The modality has a well behaved zero
 
   linear-or-affine-has-well-behaved-zero :
-    Has-well-behaved-zero linear-or-affine-semiring-with-meet
+    Has-well-behaved-zero linear-or-affine
   linear-or-affine-has-well-behaved-zero = record
     { non-trivial = λ ()
     ; zero-product = λ where
@@ -889,12 +889,12 @@ Star-requirements _⊛_▷_ =
 -- Star-requirements if certain conditions are satisfied.
 
 Star-requirements-required′ :
-  (M : Semiring-with-meet) →
-  Semiring-with-meet.𝟘   M ≡ 𝟘 →
-  Semiring-with-meet.𝟙   M ≡ 𝟙 →
-  Semiring-with-meet._+_ M ≡ _+_ →
-  Semiring-with-meet._·_ M ≡ _·_ →
-  Semiring-with-meet._∧_ M ≡ _∧_ →
+  (M : Modality) →
+  Modality.𝟘   M ≡ 𝟘 →
+  Modality.𝟙   M ≡ 𝟙 →
+  Modality._+_ M ≡ _+_ →
+  Modality._·_ M ≡ _·_ →
+  Modality._∧_ M ≡ _∧_ →
   (_⊛_▷_ :
    Linear-or-affine → Linear-or-affine → Linear-or-affine →
    Linear-or-affine) →
@@ -973,7 +973,7 @@ Star-requirements-required′
   , ⊛-ineq₂ _ _ _
   , ⊛-ineq₂ _ _ _
   where
-  open Semiring-with-meet M using (·-zeroʳ)
+  open Modality M using (·-zeroʳ)
   open PartialOrder M
   open Meet M
   open Multiplication M
@@ -1072,15 +1072,15 @@ Star-requirements-required′
        ≤ω                ∎)
     (≤ω≤ (≤𝟙 ⊛ 𝟘 ▷ ≤ω))
 
--- Every natrec-star operator for linear-or-affine-semiring-with-meet
+-- Every natrec-star operator for linear-or-affine
 -- has to satisfy the Star-requirements.
 
 Star-requirements-required :
-  (has-star : Has-star linear-or-affine-semiring-with-meet) →
+  (has-star : Has-star linear-or-affine) →
   Star-requirements (Has-star._⊛_▷_ has-star)
 Star-requirements-required has-star =
   Star-requirements-required′
-    linear-or-affine-semiring-with-meet refl refl refl refl refl
+    linear-or-affine refl refl refl refl refl
     _⊛_▷_ ⊛-ineq₁ ⊛-ineq₂ ·-sub-distribʳ-⊛
   where
   open Has-star has-star
@@ -1191,10 +1191,10 @@ p ⊛ q ▷ ≤ω = ≤ω · (p ∧ q)
 
 -- The natrec-star operator returns results that are at least as large
 -- as those of any other natrec-star operator for
--- linear-or-affine-semiring-with-meet.
+-- linear-or-affine.
 
 ⊛-greatest :
-  (has-star : Has-star linear-or-affine-semiring-with-meet) →
+  (has-star : Has-star linear-or-affine) →
   ∀ p q r → Has-star._⊛_▷_ has-star p q r ≤ p ⊛ q ▷ r
 ⊛-greatest has-star =
   case Star-requirements-required has-star of
@@ -1285,14 +1285,14 @@ p ⊛ q ▷ ≤ω = ≤ω · (p ∧ q)
       ≤𝟙            ∎
   where
   open Has-star has-star renaming (_⊛_▷_ to _⊛_▷′_)
-  open PartialOrder linear-or-affine-semiring-with-meet
+  open PartialOrder linear-or-affine
   open Tools.Reasoning.PartialOrder ≤-poset
 
 -- The "greatest" star operator defined above is a proper natrec-star
 -- operator.
 
 linear-or-affine-has-star :
-  Has-star linear-or-affine-semiring-with-meet
+  Has-star linear-or-affine
 linear-or-affine-has-star = record
   { _⊛_▷_                   = _⊛_▷_
   ; ⊛-ineq                  = ⊛-ineq₁ , ⊛-ineq₂
@@ -1304,13 +1304,12 @@ linear-or-affine-has-star = record
     , (λ _ _ _ → ≤-reflexive (⊛-distribʳ-∧ r _ _ _))
   }
   where
-  semiring-with-meet = linear-or-affine-semiring-with-meet
 
-  open Semiring-with-meet semiring-with-meet
+  open Modality linear-or-affine
     hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
-  open PartialOrder semiring-with-meet
-  open Addition semiring-with-meet
-  open Multiplication semiring-with-meet
+  open PartialOrder linear-or-affine
+  open Addition linear-or-affine
+  open Multiplication linear-or-affine
 
   ⊛-ineq₁ : ∀ p q r → p ⊛ q ▷ r ≤ q + r · p ⊛ q ▷ r
   ⊛-ineq₁ = λ where
@@ -1540,16 +1539,6 @@ linear-or-affine-has-star = record
       (p ∧ q) ∧ (p′ ∧ q)  ∎
 
 ------------------------------------------------------------------------
--- A modality
-
--- A modality for Linear-or-affine.
-
-linear-or-affine : Modality
-linear-or-affine = record
-  { semiring-with-meet = linear-or-affine-semiring-with-meet
-  }
-
-------------------------------------------------------------------------
 -- Custom nr functions for the Modality
 
 opaque
@@ -1563,7 +1552,7 @@ opaque
   -- these problems (see
   -- Graded.Modality.Instances.Linear-or-affine.Examples.Good.Nr).
 
-  bad-linear-or-affine-has-nr : Has-nr linear-or-affine-semiring-with-meet
+  bad-linear-or-affine-has-nr : Has-nr linear-or-affine
   bad-linear-or-affine-has-nr =
     Star.has-nr _ ⦃ linear-or-affine-has-star ⦄
 
@@ -2518,9 +2507,9 @@ nr-𝟘 r =
     ≤ω ≤ω → refl
 
 -- An nr function can be defined for
--- linear-or-affine-semiring-with-meet.
+-- linear-or-affine.
 
-linear-or-affine-has-nr : Has-nr linear-or-affine-semiring-with-meet
+linear-or-affine-has-nr : Has-nr linear-or-affine
 linear-or-affine-has-nr = record
   { nr          = nr
   ; nr-monotone = λ {p = p} {r = r} → nr-monotone p r
@@ -2531,12 +2520,12 @@ linear-or-affine-has-nr = record
   ; nr-suc      = λ {p = _} {r = r} → nr-suc r _ _ _ _
   }
   where
-  open Semiring-with-meet linear-or-affine-semiring-with-meet
+  open Modality linear-or-affine
     hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
-  open Addition linear-or-affine-semiring-with-meet
-  open Meet linear-or-affine-semiring-with-meet
-  open Multiplication linear-or-affine-semiring-with-meet
-  open PartialOrder linear-or-affine-semiring-with-meet
+  open Addition linear-or-affine
+  open Meet linear-or-affine
+  open Multiplication linear-or-affine
+  open PartialOrder linear-or-affine
 
   nr-monotone :
     ∀ p r →
@@ -4117,7 +4106,7 @@ opaque
     ; nr-factoring = λ {p} {r} {z} {s} {n} → nr-factoring p r z s n
     }
     where
-    open Semiring-with-meet linear-or-affine-semiring-with-meet
+    open Modality linear-or-affine
       hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
 
     nr₂ : Op₂ Linear-or-affine
@@ -4174,10 +4163,10 @@ opaque
 opaque
 
   -- The nr function returns results that are at least as large as those
-  -- of any other factoring nr function for linear-or-affine-semiring-with-meet.
+  -- of any other factoring nr function for linear-or-affine.
 
   nr-greatest-factoring :
-    (has-nr : Has-nr linear-or-affine-semiring-with-meet)
+    (has-nr : Has-nr linear-or-affine)
     (is-factoring-nr : Is-factoring-nr has-nr) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
   nr-greatest-factoring has-nr is-factoring-nr = λ where
@@ -4300,11 +4289,11 @@ opaque
     where
     open Is-factoring-nr is-factoring-nr renaming (nr₂ to nr₂′)
     open Has-nr has-nr renaming (nr to nr′; nr-positive to nr′-positive)
-    open Addition linear-or-affine-semiring-with-meet
-    open Meet linear-or-affine-semiring-with-meet
-    open Multiplication linear-or-affine-semiring-with-meet
-    open PartialOrder linear-or-affine-semiring-with-meet
-    open Semiring-with-meet linear-or-affine-semiring-with-meet
+    open Addition linear-or-affine
+    open Meet linear-or-affine
+    open Multiplication linear-or-affine
+    open PartialOrder linear-or-affine
+    open Modality linear-or-affine
       hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
     open Tools.Reasoning.PartialOrder ≤-poset
     lemma : nr′ p r z s n ≤ ≤ω → nr′ p r z s n ≤ nr p r z s n
@@ -4317,7 +4306,7 @@ opaque
       s + 𝟘 + r · nr′ p r z s 𝟘     ≡⟨⟩
       s + r · nr′ p r z s 𝟘         ∎
     nr′-𝟘 : nr′ p r 𝟘 𝟘 𝟘 ≡ 𝟘
-    nr′-𝟘 = Natrec.nr-𝟘 linear-or-affine-semiring-with-meet ⦃ has-nr ⦄
+    nr′-𝟘 = Natrec.nr-𝟘 linear-or-affine ⦃ has-nr ⦄
     pn≡ω→nr′≤ : p · n ≡ ≤ω → nr′ p r z s n ≤ nr p r z s n
     pn≡ω→nr′≤ {p} {n} {r} {z} {s} pn≡ω = lemma $ begin
       nr′ p r z s n                 ≤⟨ nr-suc ⟩
@@ -4507,7 +4496,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
 ------------------------------------------------------------------------
 -- Subtraction
 
-open Subtraction linear-or-affine-semiring-with-meet
+open Subtraction linear-or-affine
 
 opaque
 
@@ -4600,7 +4589,7 @@ opaque
 
 opaque
 
-  -- The semiring supports subtraction with
+  -- The modality supports subtraction with
   --   ≤ω - p ≡ ≤ω for all p
   --   p - 𝟘 ≡ p for all p
   --   𝟙 - 𝟙 ≡ 𝟘
@@ -4709,9 +4698,9 @@ opaque
   -- nr 𝟘 r z s 𝟘 is the greatest lower bound of nrᵢ r z s.
 
   nr-nrᵢ-GLB :
-    let 𝕄 = linear-or-affine-semiring-with-meet in
-      ∀ r → Semiring-with-meet.Greatest-lower-bound
-              𝕄 (nr 𝟘 r z s 𝟘) (Semiring-with-meet.nrᵢ 𝕄 r z s)
+    let 𝕄 = linear-or-affine in
+      ∀ r → Modality.Greatest-lower-bound
+              𝕄 (nr 𝟘 r z s 𝟘) (Modality.nrᵢ 𝕄 r z s)
   nr-nrᵢ-GLB = λ where
       𝟘 → GLB-congʳ (sym (trans (∧-congʳ (+-congʳ (·-zeroʳ (𝟙 ∧ 𝟘))))
             (∧-comm _ _))) nrᵢ-𝟘-GLB
@@ -4719,11 +4708,11 @@ opaque
       ≤𝟙 → lemma-≤𝟙 _ _
       ≤ω → lemma-ω _ _
     where
-    open Semiring-with-meet linear-or-affine-semiring-with-meet
+    open Modality linear-or-affine
       hiding (𝟘; 𝟙; ω; _∧_; _·_; _+_)
-    open GLB linear-or-affine-semiring-with-meet
-    open Natrec linear-or-affine-semiring-with-meet
-    open PartialOrder linear-or-affine-semiring-with-meet
+    open GLB linear-or-affine
+    open Natrec linear-or-affine
+    open PartialOrder linear-or-affine
     lemma′ : ∀ {z} i → nrᵢ 𝟙 z 𝟘 i ≡ z
     lemma′ 0 = refl
     lemma′ (1+ i) = trans (·-identityˡ _) (lemma′ i)
@@ -4802,10 +4791,10 @@ opaque
   -- The sequence nrᵢ r z s has a greatest lower bound
 
   nrᵢ-GLB :
-    let 𝕄 = linear-or-affine-semiring-with-meet in
+    let 𝕄 = linear-or-affine in
     ∀ r z s → ∃ λ p →
-      Semiring-with-meet.Greatest-lower-bound
-        𝕄 p (Semiring-with-meet.nrᵢ 𝕄 r z s)
+      Modality.Greatest-lower-bound
+        𝕄 p (Modality.nrᵢ 𝕄 r z s)
   nrᵢ-GLB r z s = _ , nr-nrᵢ-GLB r
 
 opaque
@@ -4813,7 +4802,7 @@ opaque
   -- The modality has well-behaved GLBs
 
   linear-or-affine-supports-glb-for-natrec :
-    Has-well-behaved-GLBs linear-or-affine-semiring-with-meet
+    Has-well-behaved-GLBs linear-or-affine
   linear-or-affine-supports-glb-for-natrec = record
     { +-GLBˡ = λ {_} {_} {q} → +-GLBˡ {q = q}
     ; ·-GLBˡ = λ {_} {_} {q} → ·-GLBˡ {q = q}
@@ -4821,11 +4810,11 @@ opaque
     ; +nrᵢ-GLB = +nrᵢ-GLB
     }
     where
-    open Semiring-with-meet linear-or-affine-semiring-with-meet
+    open Modality linear-or-affine
       hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
-    open GLB linear-or-affine-semiring-with-meet
-    open Multiplication linear-or-affine-semiring-with-meet
-    open PartialOrder linear-or-affine-semiring-with-meet
+    open GLB linear-or-affine
+    open Multiplication linear-or-affine
+    open PartialOrder linear-or-affine
 
     ·-GLBˡ :
       {pᵢ : Sequence Linear-or-affine} →
@@ -5051,22 +5040,22 @@ opaque
   -- The greatest lower bound for certain nrᵢ sequences
 
   nrᵢ-𝟘-GLB :
-    let 𝕄 = linear-or-affine-semiring-with-meet in
-    ∀ p q → Semiring-with-meet.Greatest-lower-bound
-            𝕄 (p ∧ q) (Semiring-with-meet.nrᵢ 𝕄 𝟘 p q)
-  nrᵢ-𝟘-GLB p q = Natrec.nrᵢ-𝟘-GLB linear-or-affine-semiring-with-meet
+    let 𝕄 = linear-or-affine in
+    ∀ p q → Modality.Greatest-lower-bound
+            𝕄 (p ∧ q) (Modality.nrᵢ 𝕄 𝟘 p q)
+  nrᵢ-𝟘-GLB p q = Natrec.nrᵢ-𝟘-GLB linear-or-affine
 
 opaque
 
   -- The greatest lower bound of certain nrᵢ sequences
 
   nrᵢ-𝟙-GLB :
-    let 𝕄 = linear-or-affine-semiring-with-meet in
-    ∀ p q → Semiring-with-meet.Greatest-lower-bound
-            𝕄 (p + ≤ω · q) (Semiring-with-meet.nrᵢ 𝕄 𝟙 p q)
+    let 𝕄 = linear-or-affine in
+    ∀ p q → Modality.Greatest-lower-bound
+            𝕄 (p + ≤ω · q) (Modality.nrᵢ 𝕄 𝟙 p q)
   nrᵢ-𝟙-GLB p q =
-    GLB.GLB-congʳ linear-or-affine-semiring-with-meet
-      (Semiring-with-meet.+-comm linear-or-affine-semiring-with-meet (≤ω · q) p)
+    GLB.GLB-congʳ linear-or-affine
+      (Modality.+-comm linear-or-affine (≤ω · q) p)
       (nr-nrᵢ-GLB {z = p} {s = q} 𝟙)
 
 opaque
@@ -5074,13 +5063,13 @@ opaque
   -- The greatest lower bound for certain nrᵢ sequences
 
   nrᵢ-≤ω-GLB :
-    let 𝕄 = linear-or-affine-semiring-with-meet in
-    ∀ p q → Semiring-with-meet.Greatest-lower-bound
-            𝕄 (≤ω · (p + q)) (Semiring-with-meet.nrᵢ 𝕄 ≤ω p q)
+    let 𝕄 = linear-or-affine in
+    ∀ p q → Modality.Greatest-lower-bound
+            𝕄 (≤ω · (p + q)) (Modality.nrᵢ 𝕄 ≤ω p q)
   nrᵢ-≤ω-GLB p q =
-    GLB.GLB-congʳ linear-or-affine-semiring-with-meet
+    GLB.GLB-congʳ linear-or-affine
       (·-congˡ {x = ≤ω} (+-comm q p))
       (nr-nrᵢ-GLB {z = p} {s = q} ≤ω)
       where
-      open Semiring-with-meet linear-or-affine-semiring-with-meet
+      open Modality linear-or-affine
         hiding (_·_; _+_)

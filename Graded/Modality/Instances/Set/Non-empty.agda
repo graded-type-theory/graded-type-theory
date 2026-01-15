@@ -308,17 +308,6 @@ record Is-non-empty-set (S : Set a) : Set (lsuc (lsuc a)) where
   ¬-·-sub-distribˡ-+ : ¬ _·_ SubDistributesOverˡ _+_ by _≤_
   ¬-·-sub-distribˡ-+ = ∪-𝟙.¬-·-sub-distribˡ-+
 
-  -- There is no "semiring with meet" for which the semiring's
-  -- implementations of addition and multiplication match those of the
-  -- set.
-
-  no-semiring-with-meet :
-    (semiring : Semiring-with-meet S) →
-    Semiring-with-meet._+_ semiring ≡ _+_ →
-    Semiring-with-meet._·_ semiring ≡ _·_ →
-    ⊥
-  no-semiring-with-meet = ∪-𝟙.no-semiring-with-meet
-
   -- There is no modality for which the modality's implementations of
   -- addition and multiplication match those of the set.
 

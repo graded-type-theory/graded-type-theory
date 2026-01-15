@@ -30,13 +30,13 @@ open import Graded.Modality.Instances.Set.Interval
 
 private
   module NA =
-    Graded.Modality.Properties.Addition ℕ⊎∞.ℕ⊎∞-semiring-with-meet
+    Graded.Modality.Properties.Addition ℕ⊎∞.ℕ⊎∞-modality
   module NM =
-    Graded.Modality.Properties.Meet ℕ⊎∞.ℕ⊎∞-semiring-with-meet
+    Graded.Modality.Properties.Meet ℕ⊎∞.ℕ⊎∞-modality
   module NMu =
-    Graded.Modality.Properties.Multiplication ℕ⊎∞.ℕ⊎∞-semiring-with-meet
+    Graded.Modality.Properties.Multiplication ℕ⊎∞.ℕ⊎∞-modality
   module NP =
-    Graded.Modality.Properties.PartialOrder ℕ⊎∞.ℕ⊎∞-semiring-with-meet
+    Graded.Modality.Properties.PartialOrder ℕ⊎∞.ℕ⊎∞-modality
 
 private variable
   A       : Set

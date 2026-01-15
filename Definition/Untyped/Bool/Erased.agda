@@ -18,7 +18,7 @@ module Definition.Untyped.Bool.Erased
   (open Graded.Mode Mode 𝕄)
   (𝐌 : IsMode)
   -- It is assumed that the modality has an nr function.
-  ⦃ has-nr : Has-nr (Modality.semiring-with-meet 𝕄) ⦄
+  ⦃ has-nr : Has-nr 𝕄 ⦄
   where
 
 open Modality 𝕄
@@ -194,7 +194,7 @@ opaque
   -- non-zero.
 
   boolrecᵍ-pr≢𝟘 :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     boolrecᵍ-pr ≢ 𝟘
   boolrecᵍ-pr≢𝟘 =
     nr boolrecᵍ-nc₂ 𝟘 𝟘 𝟘 𝟙 ∧ 𝟙 ≡ 𝟘  →⟨ ∧-positiveʳ ⟩

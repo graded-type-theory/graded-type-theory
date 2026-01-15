@@ -196,10 +196,10 @@ p ≤ q = p ≡ p ∧ q
 ------------------------------------------------------------------------
 -- The modality
 
--- The relevancy semiring with meet
+-- The relevancy modality structure
 
-relevancy-semiring-with-meet : Semiring-with-meet
-relevancy-semiring-with-meet = record
+relevancy-modality : Modality
+relevancy-modality = record
   { _+_ = _+_
   ; _·_ = _·_
   ; _∧_ = _∧_
@@ -387,19 +387,19 @@ relevancy-semiring-with-meet = record
     ω ≥𝟙 → refl
     ω ω  → refl
 
-open Semiring-with-meet relevancy-semiring-with-meet
+open Modality relevancy-modality
   hiding (_+_;_·_;_∧_;𝟘;ω;_≤_)
-open Addition relevancy-semiring-with-meet
-open GLB relevancy-semiring-with-meet
-open Natrec relevancy-semiring-with-meet
-open PartialOrder relevancy-semiring-with-meet
-open Subtraction relevancy-semiring-with-meet
+open Addition relevancy-modality
+open GLB relevancy-modality
+open Natrec relevancy-modality
+open PartialOrder relevancy-modality
+open Subtraction relevancy-modality
 
--- The semiring has a well-behaved zero
+-- The modality has a well-behaved zero
 
 instance
   relevancy-has-well-behaved-zero :
-    Has-well-behaved-zero relevancy-semiring-with-meet
+    Has-well-behaved-zero relevancy-modality
   relevancy-has-well-behaved-zero = record
     { non-trivial = λ ()
     ; zero-product = zero-product _ _
@@ -430,13 +430,6 @@ instance
     ∧-positive ≥𝟙 ω ()
     ∧-positive ω q ()
 
--- A modality
-
-relevancy-modality : Modality
-relevancy-modality = record
-  { semiring-with-meet = relevancy-semiring-with-meet
-  }
-
 ------------------------------------------------------------------------
 -- Subtraction
 
@@ -463,7 +456,7 @@ opaque
 
 opaque
 
-  -- The semiring supports subtraction with
+  -- The modality supports subtraction with
   --   ω - p ≡ ω for all p
   --   p - 𝟘 ≡ p for all p
   --   ≥𝟙 - ≥𝟙 ≡ ω
@@ -648,7 +641,7 @@ opaque instance
   -- The modality has well-behaved GLBs.
 
   relevancy-supports-glb-for-natrec :
-    Has-well-behaved-GLBs relevancy-semiring-with-meet
+    Has-well-behaved-GLBs relevancy-modality
   relevancy-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLB _ _
     ; ·-GLBˡ = ·-GLB _ _
@@ -724,9 +717,9 @@ opaque instance
 
 opaque instance
 
-  -- The semiring has an nr function
+  -- The modality has an nr function
 
-  relevancy-has-nr : Has-nr relevancy-semiring-with-meet
+  relevancy-has-nr : Has-nr relevancy-modality
   relevancy-has-nr =
     nrᵢ-GLB→nr λ r _ _ → _ , nr₃-nrᵢ-GLB r
 

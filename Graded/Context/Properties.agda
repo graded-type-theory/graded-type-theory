@@ -363,7 +363,7 @@ opaque
   -- is constantly 𝟘ᶜ (if the modality has a well-behaved zero).
 
   𝟘ᶜ-GLBᶜ-inv :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero _ semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero _ 𝕄 ⦄ →
     Greatest-lower-boundᶜ 𝟘ᶜ γᵢ → ∀ i → γᵢ i ≈ᶜ 𝟘ᶜ
   𝟘ᶜ-GLBᶜ-inv (𝟘≤ , 𝟘-glb) i = 𝟘ᶜ≮ (𝟘≤ i)
 
@@ -597,7 +597,7 @@ opaque
 
 -- Lifting the properties of Has-well-behaved-GLBs to contexts
 
-module _ ⦃ ok : Has-well-behaved-GLBs M semiring-with-meet ⦄ where
+module _ ⦃ ok : Has-well-behaved-GLBs M 𝕄 ⦄ where
 
   open Has-well-behaved-GLBs ok public
 

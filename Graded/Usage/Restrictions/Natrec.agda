@@ -28,9 +28,9 @@ open Modality 𝕄
 --               bounds.
 
 data Natrec-mode : Set a where
-  Nr        : ⦃ has-nr : Has-nr semiring-with-meet ⦄ → Natrec-mode
+  Nr        : ⦃ has-nr : Has-nr 𝕄 ⦄ → Natrec-mode
   No-nr     : Natrec-mode
-  No-nr-glb : ⦃ ok : Has-well-behaved-GLBs semiring-with-meet ⦄ →
+  No-nr-glb : ⦃ ok : Has-well-behaved-GLBs 𝕄 ⦄ →
               Natrec-mode
 
 private variable
@@ -40,7 +40,7 @@ private variable
 
 data Natrec-mode-has-nr : Natrec-mode → Set a where
   Nr :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr 𝕄 ⦄ →
     Natrec-mode-has-nr Nr
 
 data Natrec-mode-no-nr : Natrec-mode → Set a where
@@ -48,7 +48,7 @@ data Natrec-mode-no-nr : Natrec-mode → Set a where
 
 data Natrec-mode-no-nr-glb : Natrec-mode → Set a where
   No-nr-glb :
-    ⦃ ok : Has-well-behaved-GLBs semiring-with-meet ⦄ →
+    ⦃ ok : Has-well-behaved-GLBs 𝕄 ⦄ →
     Natrec-mode-no-nr-glb No-nr-glb
 
 -- Does the natrec mode support usage inference?
@@ -59,7 +59,7 @@ data Natrec-mode-supports-usage-inference (nm : Natrec-mode) : Set a where
     Natrec-mode-supports-usage-inference nm
   No-nr-glb :
     ⦃ no-nr : Natrec-mode-no-nr-glb nm ⦄ →
-    ⦃ ok : Has-well-behaved-GLBs semiring-with-meet ⦄ →
+    ⦃ ok : Has-well-behaved-GLBs 𝕄 ⦄ →
     (∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s)) →
     Natrec-mode-supports-usage-inference nm
 
@@ -68,7 +68,7 @@ data Natrec-mode-supports-usage-inference (nm : Natrec-mode) : Set a where
 
 Natrec-mode-Has-nr :
   Natrec-mode-has-nr nm →
-  Has-nr semiring-with-meet
+  Has-nr 𝕄
 Natrec-mode-Has-nr (Nr ⦃ has-nr ⦄) = has-nr
 
 -- If a natrec-mode corresponds to the usage rule using greatest lower
@@ -76,7 +76,7 @@ Natrec-mode-Has-nr (Nr ⦃ has-nr ⦄) = has-nr
 
 Natrec-mode-Has-well-behaved-GLBs :
   Natrec-mode-no-nr-glb nm →
-  Has-well-behaved-GLBs semiring-with-meet
+  Has-well-behaved-GLBs 𝕄
 Natrec-mode-Has-well-behaved-GLBs (No-nr-glb ⦃ ok ⦄) = ok
 
 opaque
@@ -143,7 +143,7 @@ opaque
 --     Natrec-inference-view nm
 --   does-no-have-nr-glb :
 --     ⦃ no-nr : Natrec-mode-no-nr-glb nm ⦄ →
---     ⦃ ok : Has-well-behaved-GLBs semiring-with-meet ⦄ →
+--     ⦃ ok : Has-well-behaved-GLBs 𝕄 ⦄ →
 --     (∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s)) →
 --     Natrec-inference-view nm
 

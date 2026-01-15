@@ -616,7 +616,7 @@ opaque
   -- Another kind of subsumption for _▸_⊩ʳ_∷[_∣_]_.
 
   subsumption-▸⊩ʳ∷[]-≤ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     δ ≤ᶜ γ →
     γ ▸ Γ ⊩ʳ t ∷[ m ∣ n ] A →
     δ ▸ Γ ⊩ʳ t ∷[ m ∣ n ] A
@@ -751,7 +751,7 @@ opaque
   -- A variant of the previous lemma.
 
   ▸⊩ʳ∷[𝟙ᵐ]→®∷ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     𝟘ᶜ ▸ Δ ⊩ʳ t ∷[ 𝟙ᵐ ] A →
     t ® erase str t ∷ A
   ▸⊩ʳ∷[𝟙ᵐ]→®∷ {t} {A} =

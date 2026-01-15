@@ -50,7 +50,7 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   -- The variant of extraction that is used.
   (str : Strictness)
   -- The modality's zero is well-behaved.
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 import Definition.Typed.QuantityTranslation as QT

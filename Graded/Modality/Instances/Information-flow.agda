@@ -179,10 +179,10 @@ limit {p = p} P dec P-p =
 ------------------------------------------------------------------------
 -- The modality
 
--- A "semiring with meet" for Level.
+-- A three-point information flow modality.
 
-L≤M≤H-semiring-with-meet : Semiring-with-meet
-L≤M≤H-semiring-with-meet = record
+L≤M≤H : Modality
+L≤M≤H = record
   { _+_     = _+_
   ; _·_     = _·_
   ; _∧_     = _∧_
@@ -410,10 +410,10 @@ L≤M≤H-semiring-with-meet = record
 
 instance
 
-  -- This semiring has a well-behaved zero.
+  -- This modality has a well-behaved zero.
 
   L≤M≤H-has-well-behaved-zero :
-    Has-well-behaved-zero L≤M≤H-semiring-with-meet
+    Has-well-behaved-zero L≤M≤H
   L≤M≤H-has-well-behaved-zero = record
     { non-trivial = λ ()
     ; zero-product = λ where
@@ -442,9 +442,9 @@ instance
         {p = H}         _  → refl
     }
 
--- A natrec-star operator can be defined for L≤M≤H-semiring-with-meet.
+-- A natrec-star operator can be defined for L≤M≤H.
 
-L≤M≤H-has-star : Has-star L≤M≤H-semiring-with-meet
+L≤M≤H-has-star : Has-star L≤M≤H
 L≤M≤H-has-star = record
   { _⊛_▷_              = _⊛_▷_
   ; ⊛-ineq             =
@@ -655,19 +655,12 @@ L≤M≤H-has-star = record
            H H H → refl)
   }
 
--- A three-point information flow modality (of any kind).
-
-L≤M≤H : Modality
-L≤M≤H = record
-  { semiring-with-meet = L≤M≤H-semiring-with-meet
-  }
-
 ------------------------------------------------------------------------
 -- Some properties related to division
 
 private
   module D =
-    Graded.Modality.Properties.Division L≤M≤H-semiring-with-meet
+    Graded.Modality.Properties.Division L≤M≤H
 
 -- The result of dividing p by q is p / q.
 
@@ -818,7 +811,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
     where
     open Full-reduction-assumptions _ _ as
 
-open import Graded.Modality.Properties.Subtraction L≤M≤H-semiring-with-meet
+open import Graded.Modality.Properties.Subtraction L≤M≤H
 
 opaque
 

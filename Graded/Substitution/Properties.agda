@@ -170,7 +170,7 @@ opaque
   -- Proof by induction on Ψ using sub-distributivity and interchange properties of ⊛ᶜ
 
   <*-sub-distrib-⊛ᶜ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-star : Has-star 𝕄 ⦄ →
     (Ψ : Substₘ m n) (γ δ : Conₘ n) (r : M) →
     (γ ⊛ᶜ δ ▷ r) <* Ψ ≤ᶜ (γ <* Ψ) ⊛ᶜ (δ <* Ψ) ▷ r
   <*-sub-distrib-⊛ᶜ [] ε ε r = ≤ᶜ-reflexive (≈ᶜ-sym (⊛ᶜ-idem-𝟘ᶜ r))
@@ -194,7 +194,7 @@ opaque
   -- The function _<* Ψ sub-distributes over nrᶜ p r.
 
   <*-sub-distrib-nrᶜ :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr 𝕄 ⦄ →
     (Ψ : Substₘ m n) (γ : Conₘ n) →
     nrᶜ p r γ δ η <* Ψ ≤ᶜ nrᶜ p r (γ <* Ψ) (δ <* Ψ) (η <* Ψ)
   <*-sub-distrib-nrᶜ {p = p} {r = r} {δ = ε} {η = ε} [] ε = begin
@@ -747,7 +747,7 @@ opaque
   -- An inversion lemma for _▶[_]_ related to the star operation.
 
   ▶-⌞⊛ᶜ⌟ˡ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-star : Has-star 𝕄 ⦄ →
     (Ψ : Substₘ m n) (γ : Conₘ n) →
     Ψ ▶[ ⌞ γ ⊛ᶜ δ ▷ r ⌟ᶜ ] σ → Ψ ▶[ ⌞ γ ⌟ᶜ ] σ
   ▶-⌞⊛ᶜ⌟ˡ {δ = δ} {r = r} Ψ γ Ψ▶ x = sub
@@ -766,7 +766,7 @@ opaque
   -- An inversion lemma for _▶[_]_ related to the star operation.
 
   ▶-⌞⊛ᶜ⌟ʳ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-star : Has-star 𝕄 ⦄ →
     (Ψ : Substₘ m n) (γ : Conₘ n) →
     Ψ ▶[ ⌞ γ ⊛ᶜ δ ▷ r ⌟ᶜ ] σ → Ψ ▶[ ⌞ δ ⌟ᶜ ] σ
   ▶-⌞⊛ᶜ⌟ʳ {δ = δ} {r = r} Ψ γ Ψ▶ x = sub
@@ -807,7 +807,7 @@ opaque
   -- An inversion lemma for _▶[_]_ related to the nr function.
 
   ▶-⌞nrᶜ⌟₂ :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr 𝕄 ⦄ →
     (Ψ : Substₘ m n) (γ : Conₘ n) →
     Ψ ▶[ ⌞ nrᶜ p r γ δ η ⌟ᶜ ] σ → Ψ ▶[ ⌞ δ ⌟ᶜ ] σ
   ▶-⌞nrᶜ⌟₂ {p = p} {r = r} {δ = δ} {η = η} Ψ γ Ψ▶ x = sub

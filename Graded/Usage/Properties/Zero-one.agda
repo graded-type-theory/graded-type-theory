@@ -109,7 +109,7 @@ opaque
     (T 𝟘ᵐ-allowed →
      χ ≤ᶜ δ) →
     (⦃ 𝟘-well-behaved :
-         Has-well-behaved-zero semiring-with-meet ⦄ →
+         Has-well-behaved-zero 𝕄 ⦄ →
      χ ≤ᶜ η) →
      χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ →
      χ ▸[ m ] natrec p q r A z s n
@@ -132,7 +132,7 @@ opaque
     η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
     θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A ×
     γ ≤ᶜ χ × χ ≤ᶜ δ × (T 𝟘ᵐ-allowed → χ ≤ᶜ η) ×
-    (⦃ _ : Has-well-behaved-zero semiring-with-meet ⦄ → χ ≤ᶜ θ) ×
+    (⦃ _ : Has-well-behaved-zero 𝕄 ⦄ → χ ≤ᶜ θ) ×
     χ ≤ᶜ η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ
   inv-usage-natrec-no-nr₀₁ ▸nr =
     let δ , η , θ , φ , χ , ▸z , ▸s , ▸n , ▸A
@@ -151,7 +151,7 @@ data InvUsageNatrec′₀₁ (p r : M) (γ δ η : Conₘ k) : Conₘ k → Set 
     χ ≤ᶜ γ →
     (¬ Trivialᵐ →
      χ ≤ᶜ δ) →
-    (⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ → χ ≤ᶜ η) →
+    (⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ → χ ≤ᶜ η) →
     χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ →
     InvUsageNatrec′₀₁ p r γ δ η χ
   invUsageNatrecNoNrGLB :

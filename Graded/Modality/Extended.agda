@@ -65,7 +65,7 @@ record Extended-modality a : Set (lsuc a) where
     NR : Usage-restrictions.Nr-available UR
 
     -- The modality has well-behaved GLBs.
-    NO-NR-GLB : Has-well-behaved-GLBs _ semiring-with-meet
+    NO-NR-GLB : Has-well-behaved-GLBs _ 𝕄
 
   open Has-nr (Natrec-mode-Has-nr 𝕄 NR) public
 
@@ -77,7 +77,7 @@ record Extended-modality a : Set (lsuc a) where
     NR₁ : Linearity-like-nr-for-𝟙
 
     -- The modality supports subtraction
-    SUB : Supports-subtraction semiring-with-meet
+    SUB : Supports-subtraction 𝕄
 
   open Type-restrictions TR public
   open Usage-restrictions UR public

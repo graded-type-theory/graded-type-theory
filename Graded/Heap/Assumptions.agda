@@ -22,7 +22,7 @@ open IsMode 𝐌
 open Type-restrictions TR
 open Usage-restrictions UR
 
-open import Graded.Modality.Properties.Subtraction semiring-with-meet
+open import Graded.Modality.Properties.Subtraction 𝕄
 import Graded.Heap.Reduction
 import Graded.Heap.Typed
 import Graded.Heap.Untyped

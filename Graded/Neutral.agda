@@ -64,7 +64,7 @@ opaque
   -- allowed for 𝟙ᵐ and 𝟘).
 
   neutral-not-well-resourced :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Γ) →
     Transparent (Γ .defs) →

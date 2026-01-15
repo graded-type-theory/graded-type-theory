@@ -27,7 +27,7 @@ open import Graded.Modality ℕ⊎∞
 import Graded.Modality.Instances.Bounded-distributive-lattice ℕ⊎∞ as BDL
 
 private
-  module R = Semiring-with-meet ℕ⊎∞.ℕ⊎∞-semiring-with-meet
+  module R = Modality ℕ⊎∞.ℕ⊎∞-modality
 
 private variable
   xs ys : ℕ⊎∞
@@ -252,18 +252,18 @@ bounded-distributive-lattice = record
     ∞     ∞     ⌞ _ ⌟ → refl
     ∞     ∞     ∞     → refl
 
--- A "semiring with meet" for Set-ℕ, obtained from the distributive
+-- A modality for Set-ℕ, obtained from the distributive
 -- lattice.
 
-semiring-with-meet : Semiring-with-meet
-semiring-with-meet =
-  BDL.semiring-with-meet bounded-distributive-lattice is-𝟘?
+modality : Modality
+modality =
+  BDL.modality bounded-distributive-lattice is-𝟘?
   where
-  open Semiring-with-meet ℕ⊎∞.ℕ⊎∞-semiring-with-meet
+  open Modality ℕ⊎∞.ℕ⊎∞-modality
 
--- The "semiring with meet" has a well-behaved zero.
+-- The modality has a well-behaved zero.
 
-has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
+has-well-behaved-zero : Has-well-behaved-zero modality
 has-well-behaved-zero = record
   { non-trivial  = λ ()
   ; +-positiveˡ  = Z.∧-positiveˡ
@@ -280,11 +280,3 @@ has-well-behaved-zero = record
   }
   where
   module Z = Has-well-behaved-zero ℕ⊎∞.ℕ⊎∞-has-well-behaved-zero
-
--- A modality (of any kind) for Set-ℕ defined using the construction
--- in Graded.Modality.Instances.BoundedStar.
-
-modality : Modality
-modality = BDL.modality
-  bounded-distributive-lattice
-  (Semiring-with-meet.is-𝟘? ℕ⊎∞.ℕ⊎∞-semiring-with-meet)

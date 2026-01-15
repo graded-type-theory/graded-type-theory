@@ -161,10 +161,10 @@ _ ≟ _ = yes refl
   ; zero = (λ x → refl) , (λ x → refl)
   }
 
--- The trivial semiring with meet
+-- The trivial modality structure
 
-unit-semiring-with-meet : Semiring-with-meet
-unit-semiring-with-meet = record
+UnitModality : Modality
+UnitModality = record
   { _+_ = _+_
   ; _·_ = _+_
   ; _∧_ = _+_
@@ -180,10 +180,10 @@ unit-semiring-with-meet = record
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   }
 
--- A natrec-star operator can be defined for the trivial "semiring
--- with meet".
+-- A natrec-star operator can be defined for the trivial modality
+-- structure
 
-unit-has-star : Has-star unit-semiring-with-meet
+unit-has-star : Has-star UnitModality
 unit-has-star = record
   { _⊛_▷_ = _⊛_▷_
   ; ⊛-ineq = (λ p q r → refl) , (λ p q r → refl)
@@ -192,9 +192,9 @@ unit-has-star = record
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
   }
 
--- An nr function can be defined for unit-semiring-with-meet.
+-- An nr function can be defined for UnitModality.
 
-unit-has-nr : Has-nr unit-semiring-with-meet
+unit-has-nr : Has-nr UnitModality
 unit-has-nr = Star.has-nr _ ⦃ has-star = unit-has-star ⦄
 
 opaque
@@ -217,20 +217,13 @@ opaque
 
   -- The modality has well-behaved GLBs.
   unit-supports-glb-for-nr :
-    Has-well-behaved-GLBs unit-semiring-with-meet
+    Has-well-behaved-GLBs UnitModality
   unit-supports-glb-for-nr = record
     { +-GLBˡ = λ _ → (λ _ → refl) , λ _ _ → refl
     ; ·-GLBˡ = λ _ → (λ _ → refl) , λ _ _ → refl
     ; ·-GLBʳ = λ _ → (λ _ → refl) , λ _ _ → refl
     ; +nrᵢ-GLB = λ _ _ → _ , ((λ _ → refl) , (λ _ _ → refl)) , refl
     }
-
--- A trivial modality (without 𝟘ᵐ).
-
-UnitModality : Modality
-UnitModality = record
-  { semiring-with-meet = unit-semiring-with-meet
-  }
 
 -- The full reduction assumptions hold for any instance of
 -- UnitModality and any type restrictions.
@@ -249,5 +242,5 @@ opaque
 
   -- The modality supports subtraction
 
-  unit-supports-subtraction : Supports-subtraction unit-semiring-with-meet
+  unit-supports-subtraction : Supports-subtraction UnitModality
   unit-supports-subtraction _ = _ , refl , λ _ _ → refl

@@ -14,7 +14,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Nat
   {R : Type-restrictions 𝕄}
   (variant : Mode-variant 𝕄)
   (as : Assumptions R)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open Assumptions as

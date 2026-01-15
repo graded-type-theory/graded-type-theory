@@ -25,7 +25,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Empty
   (as : Assumptions R)
   (open Assumptions as)
   (consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ts » Δ))
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open import Graded.Erasure.LogicalRelation as

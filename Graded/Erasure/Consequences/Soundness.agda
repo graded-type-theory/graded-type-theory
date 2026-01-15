@@ -101,7 +101,7 @@ private
 -- modality's zero is well-behaved.
 
 module _
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
   -- The following results make use of some assumptions.
@@ -961,7 +961,7 @@ opaque
   -- well-behaved.
 
   no-run-time-canonicity-if-strict-and-arguments-removed :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     Π-allowed 𝟘 p →
     Π-allowed ω q →

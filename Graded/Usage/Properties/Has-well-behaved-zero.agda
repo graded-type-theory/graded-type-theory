@@ -14,7 +14,7 @@ module Graded.Usage.Properties.Has-well-behaved-zero
   {𝐌 : IsMode}
   (R : Usage-restrictions 𝕄 𝐌)
   (open Modality 𝕄)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
   where
 
 open IsMode 𝐌
@@ -104,7 +104,7 @@ x◂𝟘∈γ∧δʳ {γ = γ} {δ} p≡𝟘 d =
 -- usage relation for variables.
 
 x◂𝟘∈γ⊛δˡ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-star : Has-star 𝕄 ⦄ →
   p ≡ 𝟘 → x ◂ p ∈ γ ⊛ᶜ δ ▷ r → x ◂ 𝟘 ∈ γ
 x◂𝟘∈γ⊛δˡ {x = x0} {γ ∙ p} {δ ∙ q} p⊛q≡𝟘 here =
   subst (λ x → _ ◂ x ∈ γ ∙ p) (⊛≡𝟘ˡ p⊛q≡𝟘) here
@@ -115,7 +115,7 @@ x◂𝟘∈γ⊛δˡ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
 -- usage relation for variables.
 
 x◂𝟘∈γ⊛δʳ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-star : Has-star 𝕄 ⦄ →
   p ≡ 𝟘 → x ◂ p ∈ γ ⊛ᶜ δ ▷ r → x ◂ 𝟘 ∈ δ
 x◂𝟘∈γ⊛δʳ {x = x0} {γ ∙ p} {δ ∙ q} p⊛q≡𝟘 here =
   subst (λ x → _ ◂ x ∈ δ ∙ q) (⊛≡𝟘ʳ p⊛q≡𝟘) here
@@ -125,7 +125,7 @@ x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
 -- A kind of positivity property for nrᶜ and _◂_∈_.
 
 ◂𝟘∈nrᶜ₁ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr 𝕄 ⦄ →
   q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ γ
 ◂𝟘∈nrᶜ₁ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
   subst (_ ◂_∈ _) (nr-positive nrᶜ≡𝟘 .proj₁) here
@@ -135,7 +135,7 @@ x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
 -- A kind of positivity property for nrᶜ and _◂_∈_.
 
 ◂𝟘∈nrᶜ₂ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr 𝕄 ⦄ →
   q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ δ
 ◂𝟘∈nrᶜ₂ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
   subst (_ ◂_∈ _) (nr-positive nrᶜ≡𝟘 .proj₂ .proj₁) here
@@ -145,7 +145,7 @@ x◂𝟘∈γ⊛δʳ {x = x +1} {γ ∙ p} {δ ∙ q} eq (there d) =
 -- A kind of positivity property for nrᶜ and _◂_∈_.
 
 ◂𝟘∈nrᶜ₃ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr 𝕄 ⦄ →
   q ≡ 𝟘 → x ◂ q ∈ nrᶜ p r γ δ η → x ◂ 𝟘 ∈ η
 ◂𝟘∈nrᶜ₃ {x = x0} {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} nrᶜ≡𝟘 here =
   subst (_ ◂_∈ _) (nr-positive nrᶜ≡𝟘 .proj₂ .proj₂) here
