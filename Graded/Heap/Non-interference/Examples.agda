@@ -15,7 +15,7 @@ open import Tools.Relation
 module Graded.Heap.Non-interference.Examples
   {a} {M : Set a}
   (L : Bounded-distributive-lattice M)
-  (open Bounded-distributive-lattice L using (⊤; ⊥; ⊥≤; ≤⊤))
+  (open Bounded-distributive-lattice L using (⊤; ⊥≤; ≤⊤))
   (is-⊤? : ∀ p → Dec (p PE.≡ ⊤))
   (open Graded.Modality.Instances.Bounded-distributive-lattice M L is-⊤?)
   (open Graded.Mode.Instances.Bounded-distributive-lattice L is-⊤?)
@@ -45,6 +45,8 @@ open import Graded.Heap.Non-interference L is-⊤? UR TR ℓ₀
 open Assumptions non-interference-assumptions
 
 open import Graded.Heap.Reduction type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ℓ₀
 import Graded.Heap.Reduction.Reasoning type-variant UR factoring-nr ℓ₀ as R
 open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
 open import Graded.Heap.Untyped type-variant UR factoring-nr ℓ₀
@@ -340,3 +342,145 @@ opaque
         ⟨ H₁′ , natrec 𝟘 𝟘 𝟘 ℕ (suc zero) (wk1 zero) (suc (var x0)) , lift id , ε ⟩              ⇒ₑ⟨ natrecₕ ⟩
         ⟨ H₁′ , suc (var x0) , lift id , natrecₑ 𝟘 𝟘 𝟘 ℕ (suc zero) zero (lift id) ∙ ε ⟩         ⇒ᵥ⟨ sucₕ ε (no-nrₑ nrᵢ-𝟘-GLB) ⟩
         ⟨ H₂ , zero , liftn id 3 ,  ε ⟩                                                          ∎
+
+------------------------------------------------------------------------
+-- An example of a non-interferent program that might at first appear
+-- to be safe
+
+opaque
+  unfolding natcase
+
+  not-non-interference-with-not-well-resourced :
+    -- ℓ₀ is not 𝟘
+    (ℓ₀≢𝟘 : ℓ₀ ≢ 𝟘) →
+    -- Certain Π-types are allowed
+    Π-allowed 𝟘 𝟘 →
+    ∃₃ λ k (t : Term k) Γ →
+    (∀ γ → ¬ γ ▸[ ℓ₀ ] t) ×
+    ε » Γ ⊢ t ∷ ℕ ×
+    ¬ (∀ {γ : Conₘ k} H₁ H₂ →
+      γ ▸ʰ H₁ → ε ⊢ʰ H₁ ∷ Γ →
+      H₁ ~⟨ ℓ₀ ⟩ H₂ →
+      ∃₆ λ m n H₁′ H₂′ (ρ : Wk m n) u →
+      ⟨ H₁ , t , id , ε ⟩ ↠* ⟨ H₁′ , u , ρ , ε ⟩ ×
+      ⟨ H₂ , t , id , ε ⟩ ↠* ⟨ H₂′ , u , ρ , ε ⟩ ×
+      Numeral u × H₁′ ~⟨ ℓ₀ ⟩ H₂′)
+  not-non-interference-with-not-well-resourced ℓ₀≢𝟘 Π-ok =
+    _ , t , _ , ¬▸t , ⊢t , λ non-interferent →
+      let _ , _ , _ , _ , _ , _ , d , _ , n , _ =
+            non-interferent h₁ h₂ (ε ∙ sucₘ zeroₘ) (ε ∙ sucⱼ (zeroⱼ (ε ε))) H₁~H₂
+          eq₁ , eq₂ , eq₃ = ↠*-det d ⟨t⟩⇒₁ (λ _ → lemma₁ n) (λ _ → lemma₂)
+      in  lemma eq₁ eq₂ eq₃ n λ ()
+    where
+
+    -- The program t more or less corresponds to the following (x is secret):
+    -- if (x == 0)
+    --   then 0
+    --   else 0
+    t : Term 1
+    t = lam 𝟘 (natcase 𝟘 𝟘 ℕ zero zero (var x0)) ∘⟨ 𝟘 ⟩ var x0
+
+    -- The program t is well-typed (of type ℕ).
+
+    ⊢t : ε » (ε ∙ ℕ) ⊢ t ∷ ℕ
+    ⊢t =
+      let ⊢ℕ = ℕⱼ εε
+          ⊢ℕ′ = ℕⱼ (∙ ⊢ℕ)
+          ⊢ℕ″ = ℕⱼ (∙ ⊢ℕ′)
+      in  lamⱼ ⊢ℕ″
+            (⊢natcase (ℕⱼ (∙ ⊢ℕ″)) (zeroⱼ (∙ ⊢ℕ′))
+              (zeroⱼ (∙ ⊢ℕ″)) (var (∙ ⊢ℕ′) here)) Π-ok ∘ⱼ
+          var (∙ ⊢ℕ) here
+
+    -- The program t is not well-resourced under any context.
+
+    ¬▸t : ∀ γ → ¬ γ ▸[ ℓ₀ ] t
+    ¬▸t (_ ∙ p) ▸t =
+      case inv-usage-app ▸t of λ {
+        (invUsageApp  ▸λ ▸x0 _) →
+      case inv-usage-lam ▸λ of λ {
+        (invUsageLam ▸nc _) →
+      case inv-usage-natcase-glb ▸nc of λ {
+        (_ ∙ _ ∙ p₁ , _ ∙ _ ∙ p₂ , _ ∙ _ ∙ p₃ , _ , ▸0 , ▸0′ , ▸x , _ , _ ∙ _ ∙ 𝟘≤) →
+      case inv-usage-numeral ▸0 zeroₙ of λ {
+        (_ ∙ _ ∙ p₁≤) →
+      case inv-usage-numeral ▸0′ zeroₙ of λ {
+        (_ ∙ _ ∙ p₂≤ ∙ _) →
+      𝟘≰ℓ₀ ℓ₀≢𝟘 $ begin
+        𝟘                      ≈˘⟨ ·-zeroʳ _ ⟩
+        ℓ₀ · 𝟘                 ≤⟨ 𝟘≤ ⟩
+        (𝟙 ∧ 𝟘) · p₃ + p₁ ∧ p₂ ≤⟨ +-monotone (·-monotoneˡ (∧-decreasingˡ _ _)) (∧-monotone p₁≤ p₂≤) ⟩
+        𝟙 · p₃ + 𝟘 ∧ 𝟘         ≈⟨ +-cong (·-identityˡ _) (∧-idem _) ⟩
+        p₃ + 𝟘                 ≈⟨ +-identityʳ _ ⟩
+        p₃                     ≤⟨ headₘ-monotone (inv-usage-var ▸x) ⟩
+        ℓ₀                     ∎ }}}}}
+      where
+      open ≤-reasoning
+
+    -- The heaps used in the counterexample
+
+    h₁ : Heap 0 1
+    h₁ = ε ∙ (𝟘 , suc zero , id)
+
+    h₂ : Heap 0 1
+    h₂ = ε ∙ (𝟘 , suc (suc zero) , id)
+
+    -- The two heaps are ℓ₀-equivalent
+
+    H₁~H₂ : h₁ ~⟨ ℓ₀ ⟩ h₂
+    H₁~H₂ = ε ∙ (⊥-elim ∘→ 𝟘≰ℓ₀ ℓ₀≢𝟘)
+
+    -- Evaluating t under h₁
+    -- Reduction stops because the variable x0 cannot be looked up (see lemma₂)
+
+    ⟨t⟩⇒₁ : ⟨ h₁ , t , id , ε ⟩ ↠*
+           ⟨ h₁ ∙ (𝟘 , var x0 , id) , var x0 , lift id , natrecₑ 𝟘 𝟘 𝟘 ℕ zero zero (lift id) ∙ ε ⟩
+    ⟨t⟩⇒₁ =
+        ⟨ h₁ , t , id , ε ⟩
+      ≡⟨⟩↠
+        ⟨ h₁ , lam 𝟘 (natcase 𝟘 𝟘 ℕ zero zero (var x0)) ∘⟨ 𝟘 ⟩ var x0 , id , ε ⟩
+      ⇒ₑ⟨ appₕ ⟩
+        ⟨ h₁ , lam 𝟘 (natcase 𝟘 𝟘 ℕ zero zero (var x0)) , id , ∘ₑ 𝟘 (var x0) id ∙ ε ⟩
+      ⇒ᵥ⟨ lamₕ ε ⟩
+        ⟨ h₁ ∙ (ℓ₀ · 𝟘 , var x0 , id) , natcase 𝟘 𝟘 ℕ zero zero (var x0) , lift id , ε ⟩
+      ≡⟨ cong (λ x → h₁ ∙ (x , _)) (·-zeroʳ _) ⨾ refl ⨾ refl ⨾ refl ⟩↠
+        ⟨ h₁ ∙ (𝟘 , var x0 , id) , natrec 𝟘 𝟘 𝟘 ℕ zero zero (var x0) , lift id , ε ⟩
+      ⇒ₑ⟨ natrecₕ ⟩
+        ⟨ h₁ ∙ (𝟘 , var x0 , id) , var x0 , lift id , natrecₑ 𝟘 𝟘 𝟘 ℕ zero zero (lift id) ∙ ε ⟩ ∎
+      where
+      open R
+
+    lemma₁ :
+      ∀ {m n H} {s : State 0 m n} →
+      Numeral u → ⟨ H , u , ρ , ε ⟩ ↠ s → ⊥
+    lemma₁ zeroₙ (⇾ₑ′ ())
+    lemma₁ zeroₙ (⇒ᵥ ())
+    lemma₁ zeroₙ (⇒ₙ ())
+    lemma₁ (sucₙ n) (⇾ₑ′ ())
+    lemma₁ (sucₙ n) (⇒ᵥ ())
+    lemma₁ (sucₙ n) (⇒ₙ x) =
+      case ⇒ₙ-inv-num (sucₙ n) x of λ ()
+
+    lemma₂ :
+      ∀ {m n} {s : State 0 m n} →
+      ⟨ h₁ ∙ (𝟘 , var x0 , id) , var x0 , lift id , natrecₑ 𝟘 𝟘 𝟘 ℕ zero zero (lift id) ∙ ε ⟩ ↠ s → ⊥
+    lemma₂ (⇾ₑ var (natrecₑ (has-nrₑ ⦃ has-nr ⦄) ∙ ε) _) =
+      ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
+    lemma₂ (⇾ₑ var (natrecₑ {q′ = p} (no-nrₑ p-GLB) ∙ ε) d) =
+      let 𝟘≤ℓ₀p , _ = ↦[]-inv ⦃ no-nr = no-nr ⦄ d
+          open ≤-reasoning
+      in  𝟘≰ℓ₀ ℓ₀≢𝟘 $ begin
+            𝟘      ≤⟨ 𝟘≤ℓ₀p ⟩
+            ℓ₀ · p ≤⟨ ·-monotoneʳ (p-GLB .proj₁ 0) ⟩
+            ℓ₀ · 𝟙 ≈⟨ ·-identityʳ _ ⟩
+            ℓ₀     ∎
+    lemma₂ (⇾ₑ′ ())
+    lemma₂ (⇒ᵥ ())
+    lemma₂ (⇒ₙ ())
+
+    lemma :
+      ∀ {m m′ n n′} {ρ₁ : Wk m n} {ρ₂ : Wk m′ n′} {u₁ u₂ H₁ H₂ S₁ S₂} →
+      (eq₁ : m PE.≡ m′) (eq₂ : n PE.≡ n′) →
+      subst₂ (State 0) eq₁ eq₂ ⟨ H₁ , u₁ , ρ₁ , S₁ ⟩ ≡ ⟨ H₂ , u₂ , ρ₂ , S₂ ⟩ →
+      Numeral u₁ → ¬ Numeral u₂ → ⊥
+    lemma refl refl refl n ¬n = ¬n n
