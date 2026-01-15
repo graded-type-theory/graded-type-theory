@@ -833,43 +833,6 @@ opaque
                 ⊥-elim (¬d ∣S∣≡ d′)
               (inj₂ d) → inj₁ (_ , refl , d , λ x → ▸s● ok ⦃ x ⦄ d ▸s)
 
--- opaque
-
---   -- A variant of the above property with the added assumption that
---   -- there are no erased matches and the zero is well-behaved if the
---   -- state is not closed.
-
---   -- Under this assumption there are four reasons why a well-resourced
---   -- state can be Final:
---   -- 1. It has a variable in head position pointing to a dummy entry
---   --    in the heap, the stack contains an erased emptyrec and erased uses
---   --    of emptyrec are allowed.
---   -- 2. It has a value in head position, the stack is not empty and the
---   --    top of the stack does not match the head.
---   -- 3. It has a value in head position and the stack is empty.
---   -- 4. It has a name in head position.
-
---   ▸Final-reasons′ :
---     ∀ {k} {H : Heap k _} →
---     Supports-subtraction →
---     (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
---     ▸ ⟨ H , t , ρ , S ⟩ →
---     Final (⟨_,_,_,_⟩ H t ρ S) →
---     (∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘) ⊎
---     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
---     Value t × S ≡ ε ⊎
---     (∃ λ α → t ≡ defn α)
---   ▸Final-reasons′ {ρ} ok prop ▸s f =
---     let _ , _ , _ , _ , _ , _ , _ , ▸S , _ = ▸ₛ-inv ▸s in
---     case ▸Final-reasons ok ▸s f of λ where
---       (inj₂ x) → inj₂ x
---       (inj₁ (x , t≡x , d , ∣S∣≡𝟘)) →
---         let nem , wb-𝟘 = prop (¬erased-heap→¬↦● d)
---         in  inj₁ (x , t≡x , d , {!!})
---         -- case ▸∣∣≢𝟘 nem ⦃ wb-𝟘 ⦄ ▸S of λ where
---         --       (inj₁ ∣S∣≢𝟘) → ⊥-elim (∣S∣≢𝟘 (∣S∣≡𝟘 wb-𝟘))
---         --       (inj₂ prop) → inj₁ (x , t≡x , d , prop)
-
 opaque
 
   -- A variant of ▸Final-reasons
