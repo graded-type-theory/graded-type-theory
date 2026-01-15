@@ -39,6 +39,7 @@ module Graded.Heap.Non-interference
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Sum
@@ -106,6 +107,7 @@ open import Graded.Heap.Reduction type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ℓ₀
 
 private variable
+  k : Nat
   n t t′ t″ A : Term _
   s : State _ _ _
   γ δ η : Conₘ _
@@ -354,6 +356,32 @@ opaque
   ~⟨⟩-↦[] (H~H′ ∙●) (there● d) q≤p =
     let _ , d , H″~H‴ = ~⟨⟩-↦[] H~H′ d q≤p
     in  _ , there● d , H″~H‴ ∙●
+
+------------------------------------------------------------------------
+-- A property related to usage for heaps
+
+opaque
+
+  -- An alternative characterization of being a well-resourced heap
+
+  ▸ʰ→⟨⟩ʰ :
+    {H : Heap 0 k} →
+    γ ▸ʰ H →
+    (∀ x → ∃₄ λ n (t : Term n) ρ δ → H ⊢ x ↦ (t , ρ) × δ ▸[ H ⟨ x ⟩ʰ ] t × H ⟨ x ⟩ʰ ≤ γ ⟨ x ⟩)
+  ▸ʰ→⟨⟩ʰ ε ()
+  ▸ʰ→⟨⟩ʰ (▸H ∙ ▸c) x0 =
+    _ , _ , _ , _ , here , ▸c , ≤-refl
+  ▸ʰ→⟨⟩ʰ {γ = γ ∙ _} {H = H ∙ _} (▸H ∙ _) (x +1) =
+    let _ , _ , _ , _ , d , ▸c , H≤γ = ▸ʰ→⟨⟩ʰ ▸H x
+        open ≤-reasoning
+    in  _ , _ , _ , _ , there d , ▸c , (begin
+         H ⟨ x ⟩ʰ            ≤⟨ H≤γ ⟩
+         (γ +ᶜ _ ·ᶜ _) ⟨ x ⟩ ≈⟨ lookup-cong {x = x} (+ᶜ≈ᶜ∧ᶜ {γ = γ}) ⟩
+         (γ ∧ᶜ _ ·ᶜ _) ⟨ x ⟩ ≤⟨ lookup-monotone x (∧ᶜ-decreasingˡ γ _) ⟩
+         γ ⟨ x ⟩             ∎)
+  ▸ʰ→⟨⟩ʰ (sub ▸H γ≤δ) x =
+    let _ , _ , _ , _ , d , ▸c , H≤γ = ▸ʰ→⟨⟩ʰ ▸H x
+    in  _ , _ , _ , _ , d , ▸c , ≤-trans H≤γ (lookup-monotone x γ≤δ)
 
 ------------------------------------------------------------------------
 -- The abstract machine semantics respects p-equivalent heaps
@@ -659,7 +687,7 @@ opaque
         ⊢s = ⊢ₛ ⊢H₁ ⊢t′ ε
         _ , _ , _ , _ , _ , _ , d₁ , d₂ , num , H₁′~H₂′ =
           non-interference′ ok ▸s ⊢s H₁~H₂
-            (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ ⊢s) .proj₂) )
+            (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ ⊢s) .proj₂))
             PE.refl
     in  _ , _ , _ , _ , _ , _
           , d₁ , d₂ , num , H₁′~H₂′
