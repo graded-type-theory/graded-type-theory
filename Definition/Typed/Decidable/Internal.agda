@@ -1750,8 +1750,8 @@ opaque
   --
   -- This problem could presumably be averted by checking if Unitʷ-η
   -- holds or not, but that check might get stuck at compile-time: the
-  -- idea is that red should work even if the Type-restrictions record
-  -- is a variable.
+  -- idea is that red-tm should work even if the Type-restrictions
+  -- record is a variable.
 
   successful-reduction-without-reduction-sequence :
     Unitʷ-allowed →
