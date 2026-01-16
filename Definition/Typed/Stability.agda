@@ -13,7 +13,7 @@ module Definition.Typed.Stability
 
 open import Definition.Typed R
 open import
-  Definition.Typed.Properties.Admissible.Identity.Very-primitive R
+  Definition.Typed.Properties.Admissible.Identity.Primitive R
 open import Definition.Typed.Properties.Admissible.Nat.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Inversion.Primitive R

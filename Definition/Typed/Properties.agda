@@ -26,7 +26,6 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
-open import Definition.Typed.Properties.Admissible.Bool R public
 open import Definition.Typed.Properties.Admissible.Empty R public
 open import Definition.Typed.Properties.Admissible.Equality R public
 open import Definition.Typed.Properties.Admissible.Erased R public

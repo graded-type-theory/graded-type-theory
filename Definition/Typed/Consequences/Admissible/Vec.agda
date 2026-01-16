@@ -6,7 +6,7 @@ open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Graded.Modality
 
-module Definition.Typed.Properties.Admissible.Vec
+module Definition.Typed.Consequences.Admissible.Vec
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Definition.Untyped M)

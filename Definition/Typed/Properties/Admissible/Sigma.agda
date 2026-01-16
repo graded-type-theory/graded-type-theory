@@ -18,7 +18,7 @@ open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Equality R
-open import Definition.Typed.Properties.Admissible.Identity.Primitive R
+open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R

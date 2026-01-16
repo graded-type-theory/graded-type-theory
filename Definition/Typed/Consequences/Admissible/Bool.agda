@@ -3,24 +3,22 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
-import Definition.Untyped
-import Definition.Untyped.Bool.Erased
+import Definition.Untyped.Bool
 open import Graded.Modality
 
-module Definition.Typed.Properties.Admissible.Bool.Erased
+module Definition.Typed.Consequences.Admissible.Bool
   {a} {M : Set a}
-  (open Definition.Untyped M hiding (_[_]))
   {𝕄 : Modality M}
-  (open Definition.Untyped.Bool.Erased 𝕄)
+  (open Definition.Untyped.Bool 𝕄)
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr M semiring-with-meet ⦄
   -- It is assumed that certain Σ-types are allowed.
-  (Σ-ok : Σʷ-allowed 𝟙 Boolᵍ)
-  -- It is assumed that Erased is allowed for the strength 𝕨.
-  (Erased-ok : Erased-allowed 𝕨)
+  (Σ-ok : Σʷ-allowed ω Boolᵍ)
+  -- It is assumed that weak unit types are allowed.
+  (Unitʷ-ok : Unitʷ-allowed)
   where
 
 open Internal R
@@ -28,26 +26,24 @@ open Internal R
 open import Definition.Typed R
 open import Definition.Typed.Decidable.Internal R
 import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Substitution R as IS
 import Definition.Typed.Decidable.Internal.Term R as I
 import Definition.Typed.Decidable.Internal.Tests R as IT
-import Definition.Typed.Properties.Admissible.Bool.OK
-open import Definition.Typed.Properties.Admissible.Erased R
+import Definition.Typed.Decidable.Internal.Substitution R as IS
+open import Definition.Typed.Properties.Admissible.Bool.OK
+  R Unitʷ-ok
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
-open import Definition.Untyped.Bool 𝕄 as B using (OK)
+open import Definition.Untyped M
 open import Definition.Untyped.Empty 𝕄
-open import Definition.Untyped.Erased 𝕄 𝕨
 open import Definition.Untyped.Nat 𝕄
-open import Definition.Untyped.Sigma 𝕄
-open import Definition.Untyped.Unit 𝕄
 
 import Tools.Bool as Bool
 open import Tools.Fin
@@ -57,35 +53,16 @@ open import Tools.Maybe
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 import Tools.Vec as V
 
 private variable
-  k m ms n                          : Nat
   ∇                                 : DCon (Term 0) _
+  k m ms n                          : Nat
   Δ                                 : Con Term _
   Γ                                 : Cons _ _
   A A₁ A₂ B t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
   p                                 : M
-
-------------------------------------------------------------------------
--- Some lemmas used below
-
-private opaque
-
-  Unitʷ-ok : Unitʷ-allowed
-  Unitʷ-ok = Erased-ok .proj₁
-
-  Σʷ-𝟘-𝟘-ok : Σʷ-allowed 𝟘 𝟘
-  Σʷ-𝟘-𝟘-ok = Erased-ok .proj₂
-
-open Definition.Typed.Properties.Admissible.Bool.OK R Unitʷ-ok
-
-private opaque
-
-  ⊢Erased-OK :
-    Γ ⊢ t ∷ ℕ →
-    Γ ⊢ Erased zeroᵘ (OK t)
-  ⊢Erased-OK ⊢t = Erasedⱼ Erased-ok (⊢zeroᵘ (wfTerm ⊢t)) (⊢OK ⊢t)
 
 ------------------------------------------------------------------------
 -- Typing rules for Bool, true and false
@@ -99,9 +76,7 @@ opaque
     ⊢ Γ →
     Γ ⊢ Bool ∷ U zeroᵘ
   ⊢Bool∷U ⊢Γ =
-    ΠΣⱼ (⊢zeroᵘ ⊢Γ) (ℕⱼ ⊢Γ)
-     (Erasedⱼ-U Erased-ok (⊢OK∷U (var₀ (⊢ℕ ⊢Γ))))
-     Σ-ok
+    ΠΣⱼ (⊢zeroᵘ ⊢Γ) (ℕⱼ ⊢Γ) (⊢OK∷U (var₀ (⊢ℕ ⊢Γ))) Σ-ok
 
 opaque
 
@@ -121,14 +96,11 @@ opaque
     ⊢ Γ →
     Γ ⊢ true ∷ Bool
   ⊢true ⊢Γ =
-    prodⱼ (⊢Erased-OK (var₀ (⊢ℕ ⊢Γ)))
-      (sucⱼ (zeroⱼ ⊢Γ))
-      (PE.subst (_⊢_∷_ _ _)
-         (PE.sym $
-          PE.trans Erased-[] $
-          PE.cong (Erased _) B.OK-[]) $
-       []ⱼ Erased-ok (⊢zeroᵘ ⊢Γ) $
-       _⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok) (sym (OK-1≡ ⊢Γ)))
+    prodⱼ (⊢OK (var₀ (⊢ℕ ⊢Γ))) (sucⱼ (zeroⱼ ⊢Γ))
+      (conv (starⱼ ⊢Γ Unitʷ-ok)
+         (Unitʷ                      ≡˘⟨ OK-1≡ ⊢Γ ⟩⊢∎≡
+          OK (suc zero)              ≡˘⟨ OK-[] ⟩
+          OK (var x0) [ suc zero ]₀  ∎))
       Σ-ok
 
 opaque
@@ -140,13 +112,11 @@ opaque
     ⊢ Γ →
     Γ ⊢ false ∷ Bool
   ⊢false ⊢Γ =
-    prodⱼ (⊢Erased-OK (var₀ (⊢ℕ ⊢Γ))) (zeroⱼ ⊢Γ)
-      (PE.subst (_⊢_∷_ _ _)
-         (PE.sym $
-          PE.trans Erased-[] $
-          PE.cong (Erased _) B.OK-[]) $
-       []ⱼ Erased-ok (⊢zeroᵘ ⊢Γ) $
-       _⊢_∷_.conv (starⱼ ⊢Γ Unitʷ-ok) (sym (OK-0≡ ⊢Γ)))
+    prodⱼ (⊢OK (var₀ (⊢ℕ ⊢Γ))) (zeroⱼ ⊢Γ)
+      (conv (starⱼ ⊢Γ Unitʷ-ok)
+         (Unitʷ                  ≡˘⟨ OK-0≡ ⊢Γ ⟩⊢∎≡
+          OK zero                ≡˘⟨ OK-[] ⟩
+          OK (var x0) [ zero ]₀  ∎))
       Σ-ok
 
 ------------------------------------------------------------------------
@@ -160,21 +130,14 @@ opaque
   Target-cong :
     ∇ » drop k Δ ∙ Bool ⊢ A₁ ≡ A₂ →
     ∇ » Δ ⊢ t₁ ≡ t₂ ∷ ℕ →
-    ∇ » Δ ⊢ u₁ ≡ u₂ ∷ Erased zeroᵘ (OK t₁) →
+    ∇ » Δ ⊢ u₁ ≡ u₂ ∷ OK t₁ →
     ∇ » Δ ⊢ Target k A₁ t₁ u₁ ≡ Target k A₂ t₂ u₂
   Target-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     [][]↑-cong A₁≡A₂ $
     PE.subst (_⊢_≡_∷_ _ _ _)
-      (PE.cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) $
-       PE.sym $
-       PE.trans Erased-[] $
-       PE.cong (Erased _) B.OK-[]) $
-    prod-cong (⊢Erased-OK (var₀ (⊢ℕ (wfEqTerm t₁≡t₂)))) t₁≡t₂
-      (PE.subst (_⊢_≡_∷_ _ _ _)
-         (PE.sym $
-          PE.trans Erased-[] $
-          PE.cong (Erased _) B.OK-[])
-         u₁≡u₂)
+      (PE.cong (Σ⟨_⟩_,_▷_▹_ _ _ _ _) $ PE.sym OK-[]) $
+    prod-cong (⊢OK (var₀ (⊢ℕ (wfEqTerm t₁≡t₂)))) t₁≡t₂
+      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym OK-[]) u₁≡u₂)
       Σ-ok
 
 private opaque
@@ -184,7 +147,7 @@ private opaque
   Target-cong′ :
     ∇ » drop k Δ ∙ Bool ⊢ A₁ ≡ A₂ →
     ∇ » Δ ⊢ t ∷ ℕ →
-    ∇ » Δ ⊢ u ∷ Erased zeroᵘ (OK t) →
+    ∇ » Δ ⊢ u ∷ OK t →
     ∇ » Δ ⊢ Target k A₁ t u ≡ Target k A₂ t u
   Target-cong′ A₁≡A₂ ⊢t ⊢u =
     Target-cong A₁≡A₂ (refl ⊢t) (refl ⊢u)
@@ -196,7 +159,7 @@ opaque
   ⊢Target :
     ∇ » drop k Δ ∙ Bool ⊢ A →
     ∇ » Δ ⊢ t ∷ ℕ →
-    ∇ » Δ ⊢ u ∷ Erased zeroᵘ (OK t) →
+    ∇ » Δ ⊢ u ∷ OK t →
     ∇ » Δ ⊢ Target k A t u
   ⊢Target ⊢A ⊢t ⊢u =
     syntacticEq (Target-cong′ (refl ⊢A) ⊢t ⊢u) .proj₁
@@ -210,7 +173,7 @@ private
   module Defs (p : M) (Γ : Cons m n) (meta-con-size : V.Vec Nat ms)
     where
     c : I.Constants
-    c .I.gs               = 6
+    c .I.gs               = 7
     c .I.ss               = 0
     c .I.bms              = 0
     c .I.ms               = ms
@@ -219,13 +182,15 @@ private
     c .I.base-con-allowed = Bool.true
     c .I.meta-con-size    = meta-con-size
 
-    xp xBoolᵍ xOKᵍ xboolrecᵍ-nc₁ xboolrecᵍ-nc₂ xboolrecᵍ-pr : I.Termᵍ 6
+    xp xBoolᵍ xOKᵍ xboolrecᵍ-Π xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
+      xboolrecᵍ-pr : I.Termᵍ 7
     xp            = I.var x0
     xBoolᵍ        = I.var x1
     xOKᵍ          = I.var x2
-    xboolrecᵍ-nc₁ = I.var x3
-    xboolrecᵍ-nc₂ = I.var x4
-    xboolrecᵍ-pr  = I.var x5
+    xboolrecᵍ-Π   = I.var x3
+    xboolrecᵍ-nc₁ = I.var x4
+    xboolrecᵍ-nc₂ = I.var x5
+    xboolrecᵍ-pr  = I.var x6
 
     Boolᵢ′ : I.Term c n
     Boolᵢ′ = Boolᵢ xBoolᵍ xOKᵍ
@@ -238,26 +203,26 @@ private
 
     boolrecᵢ′ : I.Term c (1+ n) → (_ _ _ : I.Term c n) → I.Term c n
     boolrecᵢ′ =
-      boolrecᵢ xBoolᵍ xOKᵍ xboolrecᵍ-nc₁ xboolrecᵍ-nc₂ xboolrecᵍ-pr xp
+      boolrecᵢ xBoolᵍ xOKᵍ xboolrecᵍ-Π xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
+        xboolrecᵍ-pr xp
 
     γ :
       (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
       I.Contexts c
     γ _ .I.grades =
-      p V.∷ Boolᵍ V.∷ B.OKᵍ V.∷ B.boolrecᵍ-nc₁ V.∷ B.boolrecᵍ-nc₂ V.∷
-      boolrecᵍ-pr V.∷ V.ε
+      p V.∷ Boolᵍ V.∷ OKᵍ V.∷ boolrecᵍ-Π V.∷ boolrecᵍ-nc₁ V.∷
+      boolrecᵍ-nc₂ V.∷ boolrecᵍ-pr V.∷ V.ε
     γ _ .I.strengths           = V.ε
     γ _ .I.binder-modes        = V.ε
     γ _ .I.⌜base⌝              = Γ
     γ Μ .I.metas .I.bindings   = Μ
     γ _ .I.metas .I.equalities = L.[]
     γ _ .I.constraints         =
-      I.unit-allowed I.𝕤      L.∷
-      I.unit-allowed I.𝕨      L.∷
-      I.π-allowed I.𝟙 I.𝟘     L.∷
-      I.π-allowed I.𝟙 xp      L.∷
-      I.σʷ-allowed I.𝟘 I.𝟘    L.∷
-      I.σʷ-allowed I.𝟙 xBoolᵍ L.∷
+      I.unit-allowed I.𝕤         L.∷
+      I.unit-allowed I.𝕨         L.∷
+      I.π-allowed xboolrecᵍ-Π xp L.∷
+      I.π-allowed I.𝟙 I.𝟘        L.∷
+      I.σʷ-allowed I.ω xBoolᵍ    L.∷
       L.[]
 
     γ′ :
@@ -267,14 +232,13 @@ private
 
 opaque
   unfolding
-    Bool Erased OK Target boolrec emptyrec-sink erasedrec natcase is-𝕨
-    prodrec⟨_⟩ true false unitrec⟨_⟩ [_]
+    Bool OK Target boolrec boolrecᵍ-nc₃ emptyrec-sink false natcase true
 
   -- An equality rule for boolrec.
 
   boolrec-cong :
     {Γ : Cons m n} →
-    Π-allowed 𝟙 p →
+    Π-allowed boolrecᵍ-Π p →
     Π-allowed 𝟙 𝟘 →
     Unitˢ-allowed →
     Γ »∙ Bool ⊢ A₁ ≡ A₂ →
@@ -317,12 +281,11 @@ opaque
       (boolrecᵢ′ xA₁ xt₁ xu₁ xv₁)
       (boolrecᵢ′ xA₂ xt₂ xu₂ xv₂)
       (I.subst xA₁ (IS.sgSubst xv₁))
-      39
+      33
       PE.refl
       (λ where
          .IC.constraints-wf →
-           Unitˢ-ok L.∷ Unitʷ-ok L.∷ Π-𝟙-𝟘-ok L.∷ Π-ok L.∷ Σʷ-𝟘-𝟘-ok L.∷
-           Σ-ok L.∷ L.[]
+           Unitˢ-ok L.∷ Unitʷ-ok L.∷ Π-ok L.∷ Π-𝟙-𝟘-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf →
            (reflConEq (∙ ⊢Bool ⊢Γ) , IC.type A₁≡A₂) L.∷
            (reflConEq ⊢Γ ,
@@ -363,7 +326,7 @@ opaque
   -- A typing rule for boolrec.
 
   ⊢boolrec :
-    Π-allowed 𝟙 p →
+    Π-allowed boolrecᵍ-Π p →
     Π-allowed 𝟙 𝟘 →
     Unitˢ-allowed →
     Γ »∙ Bool ⊢ A →
@@ -379,14 +342,13 @@ opaque
 
 opaque
   unfolding
-    Bool Erased OK Target boolrec emptyrec-sink erasedrec natcase is-𝕨
-    prodrec⟨_⟩ true false unitrec⟨_⟩ [_]
+    Bool OK Target boolrec boolrecᵍ-nc₃ emptyrec-sink false natcase true
 
   -- An equality rule for boolrec.
 
   boolrec-true-≡ :
     {Γ : Cons m n} →
-    Π-allowed 𝟙 p →
+    Π-allowed boolrecᵍ-Π p →
     Π-allowed 𝟙 𝟘 →
     Unitˢ-allowed →
     Γ »∙ Bool ⊢ A →
@@ -407,12 +369,11 @@ opaque
       (boolrecᵢ′ xA xt xu trueᵢ′)
       xt
       (I.subst xA (IS.sgSubst trueᵢ′))
-      33
+      27
       PE.refl
       (λ where
          .IC.constraints-wf →
-           Unitˢ-ok L.∷ Unitʷ-ok L.∷ Π-𝟙-𝟘-ok L.∷ Π-ok L.∷ Σʷ-𝟘-𝟘-ok L.∷
-           Σ-ok L.∷ L.[]
+           Unitˢ-ok L.∷ Unitʷ-ok L.∷ Π-ok L.∷ Π-𝟙-𝟘-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
            (I.var! x0)       → ⊢A
@@ -432,14 +393,13 @@ opaque
 
 opaque
   unfolding
-    Bool Erased OK Target boolrec emptyrec-sink erasedrec natcase is-𝕨
-    prodrec⟨_⟩ true false unitrec⟨_⟩ [_]
+    Bool OK Target boolrec boolrecᵍ-nc₃ emptyrec-sink false natcase true
 
   -- An equality rule for boolrec.
 
   boolrec-false-≡ :
     {Γ : Cons m n} →
-    Π-allowed 𝟙 p →
+    Π-allowed boolrecᵍ-Π p →
     Π-allowed 𝟙 𝟘 →
     Unitˢ-allowed →
     Γ »∙ Bool ⊢ A →
@@ -460,12 +420,11 @@ opaque
       (boolrecᵢ′ xA xt xu falseᵢ′)
       xu
       (I.subst xA (IS.sgSubst falseᵢ′))
-      33
+      27
       PE.refl
       (λ where
          .IC.constraints-wf →
-           Unitˢ-ok L.∷ Unitʷ-ok L.∷ Π-𝟙-𝟘-ok L.∷ Π-ok L.∷ Σʷ-𝟘-𝟘-ok L.∷
-           Σ-ok L.∷ L.[]
+           Unitˢ-ok L.∷ Unitʷ-ok L.∷ Π-ok L.∷ Π-𝟙-𝟘-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
            (I.var! x0)       → ⊢A

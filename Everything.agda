@@ -141,7 +141,7 @@ import Definition.Typed.Well-formed
 import Definition.Typed.Properties.Admissible.U
 import Definition.Typed.Substitution.Primitive
 import Definition.Typed.Properties.Admissible.Equality
-import Definition.Typed.Properties.Admissible.Identity.Very-primitive
+import Definition.Typed.Properties.Admissible.Identity.Primitive
 import Definition.Typed.Properties.Reduction
 import Definition.Typed.Reasoning.Reduction
 import Definition.Typed.Reasoning.Term
@@ -157,35 +157,23 @@ import Definition.Typed.Properties.Admissible.Pi
 import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Properties.Admissible.Unit
 import Definition.Typed.Properties.Admissible.Empty
-import Definition.Typed.Properties.Admissible.Identity.Primitive
+import Definition.Typed.Properties.Admissible.Identity
 import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Properties.Admissible.Sigma
 import Definition.Typed.Properties.Admissible.Non-dependent
 import Definition.Typed.Properties.Admissible.Erased.Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta
 import Definition.Typed.Properties.Admissible.Erased
+import Definition.Typed.Properties.Admissible.Bool.OK
+import Definition.Typed.Properties.Admissible.Omega
 import Definition.Typed.Properties.Definition
 import Definition.Typed.Properties.Transparentisation
-import Definition.Typed.Decidable.Internal.Constraint
-import Definition.Typed.Decidable.Internal.Monad
-import Definition.Typed.Decidable.Internal.Substitution
-import Definition.Typed.Decidable.Internal.Tests
-import Definition.Typed.Decidable.Internal.Context
-import Definition.Typed.Decidable.Internal
-import Definition.Typed.Decidable.Internal.Examples
-import Definition.Typed.Properties.Admissible.Identity
-import Definition.Typed.Properties.Admissible.Bool.OK
-import Definition.Typed.Properties.Admissible.Bool
-import Definition.Typed.Properties.Admissible.Bool.Erased
-import Definition.Typed.Properties.Admissible.Omega
 import Definition.Typed.Substitution
 import Definition.Typed.Properties
 import Definition.Typed.Names-below
 import Definition.Typed.EqualityRelation
 import Definition.Typed.EqualityRelation.Instance
 import Definition.Typed.EqRelInstance
-import Definition.Typed.Properties.Admissible.Vec
-import Definition.Typed.Properties.Admissible.List
 
 ------------------------------------------------------------------------
 -- The usage relation
@@ -356,7 +344,6 @@ import Definition.Typed.Consequences.Admissible.Erased
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
-import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.NeTypeEq
 import Definition.Typed.Consequences.Transparentisation
@@ -389,6 +376,23 @@ import Definition.Conversion.Consequences.Var
 import Definition.Untyped.Normal-form
 import Definition.Typed.Eta-long-normal-form
 import Definition.Conversion.FullReduction
+
+-- An "internal" type-checker.
+import Definition.Typed.Decidable.Internal.Constraint
+import Definition.Typed.Decidable.Internal.Monad
+import Definition.Typed.Decidable.Internal.Substitution
+import Definition.Typed.Decidable.Internal.Tests
+import Definition.Typed.Decidable.Internal.Context
+import Definition.Typed.Decidable.Internal
+import Definition.Typed.Decidable.Internal.Examples
+
+-- Some code that uses the internal type-checker.
+import Definition.Typed.Consequences.Admissible.Identity
+import Definition.Typed.Consequences.Admissible.Bool
+import Definition.Typed.Consequences.Admissible.Bool.Erased
+import Definition.Typed.Consequences.Admissible.Vec
+import Definition.Typed.Consequences.Admissible.List
+import Definition.Typed.Consequences.Admissible
 
 -- Bidirectional typechecking.
 import Definition.Typechecking

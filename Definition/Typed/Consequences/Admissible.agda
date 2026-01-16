@@ -11,6 +11,8 @@ module Definition.Typed.Consequences.Admissible
   (R : Type-restrictions 𝕄)
   where
 
+open import Definition.Typed.Consequences.Admissible.Bool R public
 open import Definition.Typed.Consequences.Admissible.Erased R public
+open import Definition.Typed.Consequences.Admissible.Identity R public
 open import Definition.Typed.Consequences.Admissible.Pi R public
 open import Definition.Typed.Consequences.Admissible.Sigma R public

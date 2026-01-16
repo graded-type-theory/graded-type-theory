@@ -23,8 +23,7 @@ import Definition.Typed.Decidable.Internal.Tests TR as T
 import Definition.Typed.Decidable.Internal.Substitution TR as S
 import Definition.Typed.Decidable.Internal.Weakening TR as W
 open import Definition.Typed.Inversion TR
-open import
-  Definition.Typed.Properties.Admissible.Identity.Very-primitive TR
+open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
 open import Definition.Typed.Properties.Well-formed TR
 open import Definition.Typed.Stability TR
 open import Definition.Typed.Substitution.Primitive TR

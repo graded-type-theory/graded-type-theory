@@ -34,7 +34,7 @@ open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties.Admissible.Empty TR
 open import Definition.Typed.Properties.Admissible.Equality TR
 open import Definition.Typed.Properties.Admissible.Erased TR
-open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
+open import Definition.Typed.Properties.Admissible.Identity TR
 open import Definition.Typed.Properties.Admissible.Level TR
 open import Definition.Typed.Properties.Admissible.Lift TR
 open import Definition.Typed.Properties.Admissible.Nat TR

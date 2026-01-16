@@ -21,7 +21,7 @@ open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Admissible.Identity.Primitive R
+open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 open import Definition.Typed.Properties.Definition R

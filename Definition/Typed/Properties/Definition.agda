@@ -18,7 +18,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Empty R
 open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Erased R
-open import Definition.Typed.Properties.Admissible.Identity.Primitive R
+open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Nat R
