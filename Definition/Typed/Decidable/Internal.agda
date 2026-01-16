@@ -689,10 +689,10 @@ mutual
     red-tm′ n Γ ([]-cong s l A t₁ t₂ t₃) _ = do
       t₃ ← red-tm n Γ t₃ (Id A t₁ t₂)
       case is-rfl? t₃ of λ where
-        nothing  → return ([]-cong s l A t₁ t₂ t₃)
-        (just _) → do
+        nothing          → return ([]-cong s l A t₁ t₂ t₃)
+        (just (t₃′ , _)) → do
           equal-tm n Γ t₁ t₂ A
-          return (rfl (just t₁))
+          return (rfl (box s l M.<$> (t₃′ M.<∣> just t₁)))
 
   -- A type-checker for types.
   --
