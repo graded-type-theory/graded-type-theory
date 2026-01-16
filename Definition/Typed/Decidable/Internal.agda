@@ -525,8 +525,6 @@ mutual
   -- natural number, then the code can get stuck, due to the use of de
   -- Bruijn levels.
 
-  -- Reduction for a term with a given type.
-
   red-tm : Fuel → Cons c m n → (t A : Term c n) → Check c (Term c n)
   red-tm 0      _ _ _ = no-fuel
   red-tm (1+ n) Γ t A = register ([red-tm] Γ t A) do
