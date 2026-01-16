@@ -223,8 +223,8 @@ pattern var! x = var x refl
 -- procedures.
 
 data Constraint (c : Constants) : Set a where
-  k-allowed level-allowed level-is-small opacity-allowed
-    unfolding-mode-transitive :
+  k-allowed level-allowed level-is-small no-equality-reflection
+    opacity-allowed unfolding-mode-transitive :
     Constraint c
   box-cong-allowed unit-allowed unit-with-η :
     (s : Termˢ (c .ss)) → Constraint c

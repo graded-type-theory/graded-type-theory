@@ -12,6 +12,8 @@ module Definition.Typed.Decidable.Internal.Context
   (TR : Type-restrictions 𝕄)
   where
 
+open Type-restrictions TR
+
 open import Definition.Typed TR as T hiding (Trans)
 open import Definition.Typed.Decidable.Internal.Constraint TR
 open import Definition.Typed.Decidable.Internal.Monad TR
@@ -40,18 +42,19 @@ open import Tools.Function
 open import Tools.List as L using (List; All)
 open import Tools.Maybe using (nothing; just)
 open import Tools.Nat as N using (Nat)
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum as ⊎
 open import Tools.Unit
 import Tools.Vec as V
 
 private variable
   B         : Set _
+  x y z     : B
   P         : B → Set _
   α m n     : Nat
-  x         : Fin _
   c         : Constants
   C         : Constraint _
   ∇         : DCon _ _
@@ -323,3 +326,15 @@ opaque
 
   inv-require : Contexts-wf ∇ γ → OK (require C) tt γ st → ⟦ C ⟧ᶜ γ
   inv-require ⊢γ = inv-require′ (⊢γ .constraints-wf)
+
+opaque
+
+  -- An inversion lemma for if-no-equality-reflection.
+
+  inv-if-no-equality-reflection :
+    Contexts-wf ∇ γ →
+    OK (if-no-equality-reflection x y) z γ st →
+    No-equality-reflection × OK x z γ st ⊎ OK y z γ st
+  inv-if-no-equality-reflection ⊢γ =
+    ⊎.map (Σ.map (L.lookup (⊢γ .constraints-wf)) idᶠ) idᶠ ∘→
+    inv-if-no-equality-reflection-∈

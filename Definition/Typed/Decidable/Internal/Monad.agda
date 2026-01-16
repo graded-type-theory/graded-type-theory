@@ -49,7 +49,7 @@ private variable
 -- Stack trace entries.
 
 data Call (c : Constants) : Set a where
-  [red-ty] [check-type] [check-level] [infer] [normalise-level] :
+  [red] [red-ty] [check-type] [check-level] [infer] [normalise-level] :
     Cons c m n → Term c n → Call c
   [red-tm] [check] [equal-ty] [equal-ne-inf] :
     Cons c m n → (_ _ : Term c n) → Call c
@@ -203,6 +203,22 @@ require C = do
     (just _) → return tt
     nothing  → fail "Failed to verify constraint."
 
+-- Checks if equality reflection is disallowed.
+
+no-equality-reflection? : Check c Bool
+no-equality-reflection? =
+  (require no-equality-reflection >> return true)
+    catch
+  return false
+
+-- Does one thing if equality reflection is definitely disallowed, and
+-- another thing if equality reflection is possibly allowed.
+
+if-no-equality-reflection : Check c A → Check c A → Check c A
+if-no-equality-reflection x y = do
+  disallowed ← no-equality-reflection?
+  if disallowed then x else y
+
 -- Converts from Maybe to the monad.
 
 infix 4 [_]with-message_
@@ -240,6 +256,16 @@ pattern ok!    = ok PE.refl
 
 opaque
 
+  -- The computation register cl x succeeds if x succeeds (with a
+  -- certain call stack).
+
+  OK-register :
+    OK x y γ (cl ∷ st) →
+    OK (register cl x) y γ st
+  OK-register (ok eq) = ok eq
+
+opaque
+
   -- An inversion lemma for register.
 
   inv-register :
@@ -249,12 +275,52 @@ opaque
 
 opaque
 
+  -- The computation x catch y succeeds if x succeeds or y succeeds.
+
+  OK-catch :
+    (∃ λ z → OK x z γ st) ⊎ (∃ λ z → OK y z γ st) →
+    ∃ λ z → OK (x catch y) z γ st
+  OK-catch eq = let _ , eq = lemma eq in _ , ok eq
+    where
+    lemma :
+      (∃ λ z → OK x z γ st) ⊎ (∃ λ z → OK y z γ st) →
+      ∃ λ z → (x catch y) .run (γ # st) PE.≡ inj₂ z
+    lemma {x} {γ} {st} (inj₁ (_ , ok _))   with x .run (γ # st)
+    lemma              (inj₁ (_ , not-ok)) | inj₁ _
+    lemma              _                   | inj₂ _ = _ , PE.refl
+    lemma {x} {γ} {st} (inj₂ _)            with x .run (γ # st)
+    lemma              _                   | inj₂ _ = _ , PE.refl
+    lemma {γ} {st} {y} (inj₂ (_ , ok _))   | inj₁ _ with y .run (γ # st)
+    lemma              (inj₂ (_ , not-ok)) | inj₁ _ | inj₁ _
+    lemma              _                   | inj₁ _ | inj₂ _ =
+      _ , PE.refl
+
+opaque
+
   -- An inversion lemma for _catch_.
 
   inv-catch : OK (x catch y) z γ st → OK x z γ st ⊎ OK y z γ st
   inv-catch {x} {γ} {st} (ok eq) with x .run (γ # st) in eq
   inv-catch         (ok PE.refl) | inj₂ _ = inj₁ (ok eq)
   inv-catch         (ok eq     ) | inj₁ _ = inj₂ (ok eq)
+
+opaque
+
+  -- The computation x >>= f succeeds if x succeeds with the value y
+  -- and f y succeeds (with the same contexts and call stack).
+
+  OK->>= :
+    OK x y γ st → OK (f y) z γ st → OK (x >>= f) z γ st
+  OK->>= eq₁ eq₂ = ok (lemma eq₁ eq₂)
+    where
+    lemma :
+      OK x y γ st → OK (f y) z γ st →
+      (x >>= f) .run (γ # st) PE.≡ inj₂ z
+    lemma {x} {γ} {st} (ok _) _      with x .run (γ # st)
+    lemma              not-ok _      | inj₁ _
+    lemma {γ} {st} {f} ok!    (ok _) | inj₂ y with f y .run (γ # st)
+    lemma              ok!    not-ok | inj₂ _ | inj₁ _
+    lemma              ok!    ok!    | inj₂ _ | inj₂ _ = PE.refl
 
 -- A type used to state inv->>=.
 
@@ -376,3 +442,50 @@ opaque
   inv-require-∈ {C} {γ} (ok eq) with member? _≟ᶜ_ C (γ .constraints)
   inv-require-∈ not-ok | nothing
   inv-require-∈ ok!    | just C∈ = C∈
+
+opaque
+
+  -- The computation no-equality-reflection? always succeeds.
+
+  OK-no-equality-reflection? :
+    ∃ λ b → OK no-equality-reflection? b γ st
+  OK-no-equality-reflection? = OK-catch (inj₂ (_ , ok!))
+
+opaque
+
+  -- An inversion lemma for no-equality-reflection?.
+
+  inv-no-equality-reflection?-∈ :
+    OK no-equality-reflection? true γ st →
+    no-equality-reflection ∈ γ .constraints
+  inv-no-equality-reflection?-∈ eq with inv-catch eq
+  … | inj₂ not-ok
+  … | inj₁ eq     =
+    let inv _ eq _ = inv->>= eq in
+    inv-require-∈ eq
+
+opaque
+
+  -- The computation if-no-equality-reflection x y succeeds with the
+  -- value z if x and y both succeed with the value z (and the same
+  -- contexts and call stack).
+
+  OK-if-no-equality-reflection :
+    OK x z γ st → OK y z γ st →
+    OK (if-no-equality-reflection x y) z γ st
+  OK-if-no-equality-reflection {γ} {st} eq₁ eq₂
+    with OK-no-equality-reflection? {γ = γ} {st = st}
+  … | true  , eq = OK->>= eq eq₁
+  … | false , eq = OK->>= eq eq₂
+
+opaque
+
+  -- An inversion lemma for if-no-equality-reflection.
+
+  inv-if-no-equality-reflection-∈ :
+    OK (if-no-equality-reflection x y) z γ st →
+    no-equality-reflection ∈ γ .constraints × OK x z γ st ⊎
+    OK y z γ st
+  inv-if-no-equality-reflection-∈ eq with inv->>= eq
+  … | inv true  eq₁ eq₂ = inj₁ (inv-no-equality-reflection?-∈ eq₁ , eq₂)
+  … | inv false _   eq₂ = inj₂ eq₂

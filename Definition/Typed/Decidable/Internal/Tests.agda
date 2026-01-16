@@ -558,20 +558,34 @@ is-lift? : (t : Term c n) → Maybe (∃₂ λ l u → t PE.≡ lift l u)
 is-lift? (lift l t) = just (_ , _ , PE.refl)
 is-lift? _          = nothing
 
--- Is the term equal to star s?
+-- Is the term equal to an application of star?
 
-is-star? : ∀ s (t : Term c n) → Maybe (t PE.≡ star s)
-is-star? s (star s′) = PE.cong star <$> s′ ≟ˢ s
-is-star? _ _         = nothing
+is-star? : (t : Term c n) → Maybe (∃ λ s → t PE.≡ star s)
+is-star? (star _) = just (_ , PE.refl)
+is-star? _        = nothing
+
+-- Is the term equal to star 𝕨?
+
+is-star-𝕨? : ∀ (t : Term c n) → Maybe (t PE.≡ star 𝕨)
+is-star-𝕨? (star s) = PE.cong star <$> s ≟ˢ 𝕨
+is-star-𝕨? _        = nothing
+
+-- Are both terms applications of star?
+
+are-star? :
+  (t₁ t₂ : Term c n) →
+  Maybe (∃₂ λ s₁ s₂ → t₁ PE.≡ star s₁ × t₂ PE.≡ star s₂)
+are-star? (star _) (star _) = just (_ , _ , PE.refl , PE.refl)
+are-star? _        _        = nothing
 
 -- Are the terms both equal to star s?
 
-are-star? :
+are-star⟨_⟩? :
   ∀ s (t₁ t₂ : Term c n) → Maybe (t₁ PE.≡ star s × t₂ PE.≡ star s)
-are-star? s (star s₁) (star s₂) =
+are-star⟨ s ⟩? (star s₁) (star s₂) =
   (λ eq₁ eq₂ → PE.cong star eq₁ , PE.cong star eq₂) <$>
   s₁ ≟ˢ s ⊛ s₂ ≟ˢ s
-are-star? _ _ _ =
+are-star⟨ _ ⟩? _ _ =
   nothing
 
 -- A procedure that checks that the term is an application of
@@ -594,35 +608,61 @@ is-ΠΣ b p A =
   is-ΠΣ? _ _ _ =
     nothing
 
+-- Is the term equal to an application of lam?
+
+is-lam? : (t : Term c n) → Maybe (∃₃ λ p qA u → t PE.≡ lam p qA u)
+is-lam? (lam _ _ _) = just (_ , _ , _ , PE.refl)
+is-lam? _           = nothing
+
 -- Is the term equal to an application of lam p?
 
-is-lam? : ∀ p (t : Term c n) → Maybe (∃₂ λ qA u → t PE.≡ lam p qA u)
-is-lam? p (lam p′ _ _) =
+is-lam⟨_⟩? : ∀ p (t : Term c n) → Maybe (∃₂ λ qA u → t PE.≡ lam p qA u)
+is-lam⟨ p ⟩? (lam p′ _ _) =
   (λ eq → _ , _ , PE.cong (λ p → lam p _ _) eq) <$>
   p′ ≟ᵍ p
-is-lam? _ _ =
+is-lam⟨ _ ⟩? _ =
   nothing
+
+-- Is the term equal to an application of prod?
+
+is-prod? :
+  (t : Term c n) →
+  Maybe (∃₅ λ s p qA₂ t₁ t₂ → t PE.≡ prod s p qA₂ t₁ t₂)
+is-prod? (prod _ _ _ _ _) = just (_ , _ , _ , _ , _ , PE.refl)
+is-prod? _                = nothing
 
 -- Is the term equal to an application of prod s p?
 
-is-prod? :
+is-prod⟨_,_⟩? :
   ∀ s p (t : Term c n) →
   Maybe (∃₃ λ qA₂ t₁ t₂ → t PE.≡ prod s p qA₂ t₁ t₂)
-is-prod? s p (prod s′ p′ _ _ _) =
+is-prod⟨ s , p ⟩? (prod s′ p′ _ _ _) =
   (λ eq₁ eq₂ →
      _ , _ , _ , PE.cong₂ (λ s p → prod s p _ _ _) eq₁ eq₂) <$>
   s′ ≟ˢ s ⊛ p′ ≟ᵍ p
-is-prod? _ _ _ =
+is-prod⟨ _ , _ ⟩? _ =
+  nothing
+
+-- Are the terms both applications of prod?
+
+are-prod? :
+  ∀ (t₁ t₂ : Term c n) →
+  Maybe
+    (∃₁₀ λ s₁ p₁ qA₂₁ t₁₁ t₂₁ s₂ p₂ qA₂₂ t₁₂ t₂₂ →
+     t₁ PE.≡ prod s₁ p₁ qA₂₁ t₁₁ t₂₁ × t₂ PE.≡ prod s₂ p₂ qA₂₂ t₁₂ t₂₂)
+are-prod? (prod _ _ _ _ _) (prod _ _ _ _ _) =
+  just (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl)
+are-prod? _ _ =
   nothing
 
 -- Are the terms both applications of prod s p?
 
-are-prod? :
+are-prod⟨_,_⟩? :
   ∀ s p (t₁ t₂ : Term c n) →
   Maybe
     (∃₆ λ qA₂₁ t₁₁ t₂₁ qA₂₂ t₁₂ t₂₂ →
      t₁ PE.≡ prod s p qA₂₁ t₁₁ t₂₁ × t₂ PE.≡ prod s p qA₂₂ t₁₂ t₂₂)
-are-prod? s p (prod s₁ p₁ _ _ _) (prod s₂ p₂ _ _ _) =
+are-prod⟨ s , p ⟩? (prod s₁ p₁ _ _ _) (prod s₂ p₂ _ _ _) =
   (λ eq₁ eq₂ eq₃ eq₄ →
      _ , _ , _ , _ , _ , _ ,
      (case eq₁ of λ {
@@ -635,7 +675,7 @@ are-prod? s p (prod s₁ p₁ _ _ _) (prod s₂ p₂ _ _ _) =
         PE.refl →
       PE.refl , PE.refl }}}})) <$>
   s ≟ˢ s₁ ⊛ s ≟ˢ s₂ ⊛ p ≟ᵍ p₁ ⊛ p ≟ᵍ p₂
-are-prod? _ _ _ _ =
+are-prod⟨ _ , _ ⟩? _ _ =
   nothing
 
 -- Is the term equal to zero or an application of suc?

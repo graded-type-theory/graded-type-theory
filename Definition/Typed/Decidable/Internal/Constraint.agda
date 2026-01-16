@@ -31,6 +31,7 @@ private variable
 ⟦ k-allowed                 ⟧ᶜ _ = K-allowed
 ⟦ level-allowed             ⟧ᶜ _ = L.Lift _ Level-allowed
 ⟦ level-is-small            ⟧ᶜ _ = L.Lift _ Level-is-small
+⟦ no-equality-reflection    ⟧ᶜ _ = No-equality-reflection
 ⟦ opacity-allowed           ⟧ᶜ _ = Opacity-allowed
 ⟦ unfolding-mode-transitive ⟧ᶜ _ = L.Lift _
                                      (unfolding-mode ≡ transitive)
@@ -50,6 +51,8 @@ k-allowed ≟ᶜ k-allowed =
 level-allowed ≟ᶜ level-allowed =
   just refl
 level-is-small ≟ᶜ level-is-small =
+  just refl
+no-equality-reflection ≟ᶜ no-equality-reflection =
   just refl
 opacity-allowed ≟ᶜ opacity-allowed =
   just refl
