@@ -1083,9 +1083,9 @@ mutual
   equal-tm 0 _ _ _ _ =
     no-fuel
   equal-tm (1+ n) Γ t₁ t₂ A = register ([equal-tm] Γ t₁ t₂ A) do
+    A  ← red-ty n Γ A
     t₁ ← red-tm n Γ t₁ A
     t₂ ← red-tm n Γ t₂ A
-    A  ← red-ty n Γ A
     equal-tm-red n Γ t₁ t₂ A
 
   -- Are the two reduced terms equal at the given reduced type?
@@ -4564,21 +4564,21 @@ private module P-1+ (p : P n) where opaque
   equal-tm-1+-sound {t₁} {t₂} {A} {γ} eq ⊢γ ⊢t₁ ⊢t₂ =
     let open TmR
 
-        inv t₁′ eq₁ eq  = inv->>= (inv-register eq)
-        inv t₂′ eq₂ eq  = inv->>= eq
-        inv A′  eq₃ eq₄ = inv->>= eq
+        inv A′  eq₁ eq  = inv->>= (inv-register eq)
+        inv t₁′ eq₂ eq  = inv->>= eq
+        inv t₂′ eq₃ eq₄ = inv->>= eq
 
-        t₁≡t₁′ = red-tm-sound eq₁ ⊢γ ⊢t₁
-        t₂≡t₂′ = red-tm-sound eq₂ ⊢γ ⊢t₂
-        A≡A′   = red-ty-sound eq₃ ⊢γ (wf-⊢∷ ⊢t₁)
+        A≡A′   = red-ty-sound eq₁ ⊢γ (wf-⊢∷ ⊢t₁)
+        t₁≡t₁′ = red-tm-sound eq₂ ⊢γ (conv ⊢t₁ A≡A′)
+        t₂≡t₂′ = red-tm-sound eq₃ ⊢γ (conv ⊢t₂ A≡A′)
     in
-    ⌜ t₁ ⌝ γ   ≡⟨ t₁≡t₁′ ⟩⊢
-    ⌜ t₁′ ⌝ γ  ≡⟨ flip _⊢_≡_∷_.conv (sym A≡A′) $
-                  equal-tm-red-sound A′ eq₄ ⊢γ
-                    (conv (wf-⊢≡∷ t₁≡t₁′ .proj₂ .proj₂) A≡A′)
-                    (conv (wf-⊢≡∷ t₂≡t₂′ .proj₂ .proj₂) A≡A′) ⟩⊢
-    ⌜ t₂′ ⌝ γ  ≡˘⟨ t₂≡t₂′ ⟩⊢∎
-    ⌜ t₂ ⌝ γ   ∎
+             ∷ ⌜ A ⌝ γ    ⟨ A≡A′ ⟩≡∷
+    ⌜ t₁ ⌝ γ ∷ ⌜ A′ ⌝ γ  ≡⟨ t₁≡t₁′ ⟩⊢∷
+    ⌜ t₁′ ⌝ γ            ≡⟨ equal-tm-red-sound A′ eq₄ ⊢γ
+                              (wf-⊢≡∷ t₁≡t₁′ .proj₂ .proj₂)
+                              (wf-⊢≡∷ t₂≡t₂′ .proj₂ .proj₂) ⟩⊢
+    ⌜ t₂′ ⌝ γ            ≡˘⟨ t₂≡t₂′ ⟩⊢∎
+    ⌜ t₂ ⌝ γ             ∎
 
   -- Soundness for normalise-level b (1+ n).
 
