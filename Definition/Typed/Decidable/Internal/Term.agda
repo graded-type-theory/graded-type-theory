@@ -22,7 +22,7 @@ open U.DCon
 
 import Graded.Mode 𝕄 as Mode
 
-open import Tools.Bool using (Bool; T)
+open import Tools.Bool using (Bool; false; T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Fin
@@ -217,24 +217,53 @@ mutual
 pattern var! x = var x refl
 
 ------------------------------------------------------------------------
--- Constraints
-
 -- Constraints that can be imposed by the type-checker and other
--- procedures.
+-- procedures
+
+-- Nullary constraints.
+
+data Constraint⁰ : Set where
+  k-allowed level-allowed level-is-small no-equality-reflection
+    opacity-allowed unfolding-mode-transitive : Constraint⁰
+
+-- Non-nullary constraints.
+
+data Constraint⁺ (c : Constants) : Set a where
+  box-cong-allowed unit-allowed unit-with-η :
+    (s : Termˢ (c .ss)) → Constraint⁺ c
+  πσ-allowed :
+    (b : Termᵇᵐ (c .ss) (c .bms)) (p q : Termᵍ (c .gs)) → Constraint⁺ c
+
+-- All constraints.
 
 data Constraint (c : Constants) : Set a where
-  k-allowed level-allowed level-is-small no-equality-reflection
-    opacity-allowed unfolding-mode-transitive :
-    Constraint c
-  box-cong-allowed unit-allowed unit-with-η :
-    (s : Termˢ (c .ss)) → Constraint c
-  πσ-allowed :
-    (b : Termᵇᵐ (c .ss) (c .bms)) (p q : Termᵍ (c .gs)) → Constraint c
+  constr⁰ : Constraint⁰ → Constraint c
+  constr⁺ : Constraint⁺ c → Constraint c
 
 pattern π-allowed p q   = πσ-allowed BMΠ p q
 pattern σ-allowed s p q = πσ-allowed (BMΣ s) p q
 pattern σˢ-allowed p q  = σ-allowed 𝕤 p q
 pattern σʷ-allowed p q  = σ-allowed 𝕨 p q
+
+-- A representation of sets of nullary contraints.
+
+record Constraints⁰ : Set where
+  no-eta-equality
+  field
+    k-allowed? level-allowed? level-is-small? no-equality-reflection?
+      opacity-allowed? unfolding-mode-transitive? : Bool
+
+open Constraints⁰ public
+
+-- An empty set.
+
+emptyᶜ⁰ : Constraints⁰
+emptyᶜ⁰ .Constraints⁰.k-allowed?                 = false
+emptyᶜ⁰ .Constraints⁰.level-allowed?             = false
+emptyᶜ⁰ .Constraints⁰.level-is-small?            = false
+emptyᶜ⁰ .Constraints⁰.no-equality-reflection?    = false
+emptyᶜ⁰ .Constraints⁰.opacity-allowed?           = false
+emptyᶜ⁰ .Constraints⁰.unfolding-mode-transitive? = false
 
 ------------------------------------------------------------------------
 -- Contexts
@@ -323,8 +352,9 @@ emptyᶜᵐ .bindings   = ⊥-elim ∘→ ¬-Meta-var refl
 emptyᶜᵐ .equalities = L.[]
 
 -- A grade context, a universe level context, a strength context, a
--- binder mode context, a list of constraints, a meta-variable
--- context, and a base context.
+-- binder mode context, a set of nullary constraints, a list of
+-- non-nullary constraints, a meta-variable context, and a base
+-- context.
 
 record Contexts (c : Constants) : Set a where
   no-eta-equality
@@ -332,7 +362,8 @@ record Contexts (c : Constants) : Set a where
     grades       : Vec M (c .gs)
     strengths    : Vec Strength (c .ss)
     binder-modes : Vec BinderMode (c .bms)
-    constraints  : List (Constraint c)
+    constraints⁰ : Constraints⁰
+    constraints⁺ : List (Constraint⁺ c)
     metas        : Meta-con c
     ⌜base⌝       : U.Cons (c .base-dcon-size) (c .base-con-size)
 
@@ -359,7 +390,8 @@ empty-Contexts :
 empty-Contexts _ .grades       = Vec.[]
 empty-Contexts _ .strengths    = Vec.[]
 empty-Contexts _ .binder-modes = Vec.[]
-empty-Contexts _ .constraints  = List.[]
+empty-Contexts _ .constraints⁰ = emptyᶜ⁰
+empty-Contexts _ .constraints⁺ = List.[]
 empty-Contexts _ .metas        = emptyᶜᵐ
 empty-Contexts _ .⌜base⌝       = ε » ε
 

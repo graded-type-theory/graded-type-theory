@@ -550,7 +550,7 @@ is-term x = do
     (Δ , term _ A) → do
       return (Δ , A)
     (Δ , level l) → do
-      require level-allowed
+      require⁰ level-allowed
       return (Δ , Level)
 
 -- Checks that the two meta-variables are equal.
@@ -870,7 +870,7 @@ mutual
       σ ← check-sub n (Γ .defs) (Γ .vars) σ Δ
       return (meta-var x σ)
     check-type′ _ _ (just Level) = do
-      require level-allowed
+      require⁰ level-allowed
       return Level
     check-type′ n Γ (just (U l)) = do
       l ← check-level n Γ l
@@ -882,12 +882,12 @@ mutual
     check-type′ _ _ (just Empty) =
       return Empty
     check-type′ _ _ (just (Unit s)) = do
-      require (unit-allowed s)
+      require⁺ (unit-allowed s)
       return (Unit s)
     check-type′ n Γ (just (ΠΣ b p q A₁ A₂)) = do
       A₁ ← check-type n Γ A₁
       A₂ ← check-type n (Γ »∙ A₁) A₂
-      require (πσ-allowed b p q)
+      require⁺ (πσ-allowed b p q)
       return (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ A₂)
     check-type′ _ _ (just ℕ) =
       return ℕ
@@ -929,7 +929,7 @@ mutual
       Fuel → Cons c m n → Maybe (Is-perhaps-level l) → Bool →
       Check c (Term c n)
     check-level′ {l} n Γ nothing _ = do
-      require level-allowed
+      require⁰ level-allowed
       check n Γ l Level
     check-level′ n Γ (just (meta-var x σ)) _ =
       proj₂ <$> is-level n Γ x σ
@@ -938,7 +938,7 @@ mutual
     check-level′ n Γ (just (sucᵘ l)) _ =
       sucᵘ <$> check-level n Γ l
     check-level′ n Γ (just (l₁ supᵘₗ l₂)) condition-satisfied = do
-      unless condition-satisfied (require level-allowed)
+      unless condition-satisfied (require⁰ level-allowed)
       _supᵘₗ_ <$> check-level n Γ l₁ ⊛ check-level n Γ l₂
 
   -- A type-checker for terms.
@@ -1023,17 +1023,17 @@ mutual
       A ← type-of (Γ .defs) α
       return (weaken U.wk₀ A)
     infer′ _ _ Level = do
-      require level-is-small
+      require⁰ level-is-small
       return (U zeroᵘ)
     infer′ _ _ zeroᵘ = do
-      require level-allowed
+      require⁰ level-allowed
       return Level
     infer′ n Γ (sucᵘ l) = do
-      require level-allowed
+      require⁰ level-allowed
       check n Γ l Level
       return Level
     infer′ n Γ (l₁ supᵘₗ l₂) = do
-      require level-allowed
+      require⁰ level-allowed
       check n Γ l₁ Level
       check n Γ l₂ Level
       return Level
@@ -1053,16 +1053,16 @@ mutual
       _ , B , _ ← is-Lift A
       return B
     infer′ _ _ (Unit s) = do
-      require (unit-allowed s)
+      require⁺ (unit-allowed s)
       return (U zeroᵘ)
     infer′ _ _ (star s) = do
-      require (unit-allowed s)
+      require⁺ (unit-allowed s)
       return (Unit s)
     infer′ n Γ (unitrec A t₁ t₂) = do
       A  ← check-type n (Γ »∙ Unit 𝕨) A
       t₁ ← check n Γ t₁ (Unit 𝕨)
       check n Γ t₂ (subst A (sgSubst (star 𝕨)))
-      require (unit-allowed 𝕨)
+      require⁺ (unit-allowed 𝕨)
       return (subst A (sgSubst t₁))
     infer′ _ _ Empty =
       return (U zeroᵘ)
@@ -1074,12 +1074,12 @@ mutual
       B₁    ← infer-red n Γ A₁
       l , _ ← is-U B₁
       check n (Γ »∙ A₁) A₂ (U (wk[ 1 ] l))
-      require (πσ-allowed b p q)
+      require⁺ (πσ-allowed b p q)
       return (U l)
     infer′ n Γ (lam p q A₁ t) = do
       A₁ ← check-type n Γ A₁
       A₂ ← infer n (Γ »∙ A₁) t
-      require (π-allowed p q)
+      require⁺ (π-allowed p q)
       return (Π p , q ▷ A₁ ▹ A₂)
     infer′ n Γ (app t₁ p t₂) = do
       A               ← infer-red n Γ t₁
@@ -1090,7 +1090,7 @@ mutual
       A₁ ← infer n Γ t₁
       A₂ ← check-type n (Γ »∙ A₁) A₂
       check n Γ t₂ (subst A₂ (sgSubst t₁))
-      require (σ-allowed s p q)
+      require⁺ (σ-allowed s p q)
       return (ΠΣ⟨ BMΣ s ⟩ p , q ▷ A₁ ▹ A₂)
     infer′ n Γ (fst p t) = do
       A          ← infer-red n Γ t
@@ -1149,7 +1149,7 @@ mutual
       A₂ ← check-type n (Γ »∙ Id A₁ t₁ t₁) A₂
       check n Γ t₂ (subst A₂ (sgSubst (rfl (just t₁))))
       t₃ ← check n Γ t₃ (Id A₁ t₁ t₁)
-      require k-allowed
+      require⁰ k-allowed
       return (subst A₂ (sgSubst t₃))
     infer′ n Γ ([]-cong s l A t₁ t₂ t₃) = do
       l  ← check-level n Γ l
@@ -1157,7 +1157,7 @@ mutual
       t₁ ← check n Γ t₁ A
       t₂ ← check n Γ t₂ A
       check n Γ t₃ (Id A t₁ t₂)
-      require (box-cong-allowed s)
+      require⁺ (box-cong-allowed s)
       return (Id (Erased s l A) (box s l t₁) (box s l t₂))
 
   -- A variant of infer that checks that the inferred type is U l for
@@ -1269,7 +1269,7 @@ mutual
              (just _) → return tt
              nothing  → equal-ne-red n Γ t₁ t₂ A)
           catch
-        require (unit-with-η s)
+        require⁺ (unit-with-η s)
   … | just ℕ =
     case are-zero-or-suc? t₁ t₂ of λ where
       (just (inj₁ _))             → return tt
@@ -1409,7 +1409,7 @@ mutual
       return (weaken U.wk₀ A)
     equal-ne-inf′ n Γ (sup l₁₁ l₂₁ l₁₂ l₂₂ _) = do
       check-and-equal-level n Γ (l₁₁ supᵘₗ l₂₁) (l₁₂ supᵘₗ l₂₂)
-      require level-allowed
+      require⁰ level-allowed
       return Level
     equal-ne-inf′ n Γ (lower t₁ t₂ _) = do
       A          ← equal-ne-inf-red n Γ t₁ t₂
@@ -1423,7 +1423,7 @@ mutual
       A ← check-and-equal-ty n (Γ »∙ Unit 𝕨) A₁ A₂
       equal-ne-red n Γ t₁₁ t₂₁ (Unit 𝕨)
       check-and-equal-tm n Γ t₁₂ t₂₂ (subst A (sgSubst (star 𝕨)))
-      require (unit-allowed 𝕨)
+      require⁺ (unit-allowed 𝕨)
       return (subst A (sgSubst t₁₁))
     equal-ne-inf′ n Γ (app p t₁₁ t₁₂ t₂₁ t₂₂ _) = do
       A               ← equal-ne-inf-red n Γ t₁₁ t₂₁
@@ -1474,7 +1474,7 @@ mutual
       check-and-equal-tm n Γ t₁₂ t₂₂
         (subst A₂ (sgSubst (rfl (just t₁))))
       equal-ne-red n Γ t₁₃ t₂₃ (Id A₁ t₁ t₁)
-      require k-allowed
+      require⁰ k-allowed
       return (subst A₂ (sgSubst t₁₃))
     equal-ne-inf′
       n Γ ([]-cong s l₁ A₁ t₁₁ t₁₂ t₁₃ l₂ A₂ t₂₁ t₂₂ t₂₃ _) = do
@@ -1483,7 +1483,7 @@ mutual
       t₁ ← check-and-equal-tm n Γ t₁₁ t₂₁ A
       t₂ ← check-and-equal-tm n Γ t₁₂ t₂₂ A
       equal-ne-red n Γ t₁₃ t₂₃ (Id A t₁ t₂)
-      require (box-cong-allowed s)
+      require⁺ (box-cong-allowed s)
       return (Id (Erased s l A) (box s l t₁) (box s l t₂))
 
   -- Are the two types equal?
@@ -1619,7 +1619,7 @@ mutual
     normalise-level′ {l} true n Γ nothing =
       return ⌞ l ⌟ˡⁿ
     normalise-level′ {l} false n Γ nothing = do
-      require level-allowed
+      require⁰ level-allowed
       l ← red-tm n Γ l Level
       normalise-level true n Γ l
 
@@ -1646,7 +1646,7 @@ mutual
           PE.refl ← equal-sub′ n true Γ σ₁ Δ₁ σ₂ Δ₂
           are-equal-meta-vars x₁ x₂
         nothing → do
-          require level-allowed
+          require⁰ level-allowed
           equal-tm n Γ l₁ l₂ Level
 
   -- An equality checker for substitutions. This variant, unlike
@@ -1839,7 +1839,7 @@ check-dcon : Fuel → DCon c m → Check c ⊤
 check-dcon _ (base nothing) =
   return tt
 check-dcon _ (base (just _)) =
-  require unfolding-mode-transitive
+  require⁰ unfolding-mode-transitive
 check-dcon _ ε =
   return tt
 check-dcon {c} n (∇ ∙⟨ tra ⟩[ t ∷ A ]) = do
@@ -1852,8 +1852,8 @@ check-dcon {c} n (∇ ∙⟨ opa o ⟩[ t ∷ A ]) = do
   check-dcon n ∇
   check-type n (∇ » ε) A
   check n (Trans o ∇ » ε) t A
-  require opacity-allowed
-  require unfolding-mode-transitive
+  require⁰ opacity-allowed
+  require⁰ unfolding-mode-transitive
 
 -- A procedure that checks a context pair.
 --
@@ -2601,7 +2601,7 @@ opaque
   … | _ , level _  | ⊢l | eq     =
     case inv->>= eq of λ {
       (inv _ eq₁ ok!) →
-    let L.lift okᴸ = inv-require ⊢γ eq₁ in
+    let L.lift okᴸ = inv-require⁰ ⊢γ level-allowed eq₁ in
     level γx≡ PE.refl okᴸ , ⊢∷Level→⊢∷Level okᴸ ⊢l }
 
 opaque
@@ -3306,7 +3306,7 @@ private module Lemmas (p : P n) where opaque
       with are-meta-variables? l₁ l₂ | inv->>= eq
     … | nothing | inv n₁≤n₂ _ eq =
       let inv _ eq₁ eq₂ = inv->>= eq
-          L.lift okᴸ    = inv-require ⊢γ eq₁
+          L.lift okᴸ    = inv-require⁰ ⊢γ level-allowed eq₁
           l₁≡l₂         = equal-tm-sound eq₂ ⊢γ
                             (⊢∷Level→⊢∷Level okᴸ ⊢l₁)
                             (⊢∷Level→⊢∷Level okᴸ ⊢l₂)
@@ -3749,7 +3749,7 @@ private module Lemmas (p : P n) where opaque
   … | nothing
     with inv-catch eq
   … | inj₂ eq =
-    let L.lift η = inv-require ⊢γ eq in
+    let L.lift η = inv-require⁺ ⊢γ eq in
     η-unit ⊢t₁ ⊢t₂ η
   … | inj₁ eq
     with inv-if-no-equality-reflection ⊢γ eq
@@ -4435,7 +4435,7 @@ private module Lemmas (p : P n) where opaque
   check-type′-sound (just Level) eq ⊢γ ⊢Γ
     with inv->>= eq
   … | inv _ eq₁ ok! =
-    let L.lift okᴸ = inv-require ⊢γ eq₁ in
+    let L.lift okᴸ = inv-require⁰ ⊢γ level-allowed eq₁ in
     refl (Levelⱼ′ okᴸ ⊢Γ)
   check-type′-sound (just (U _)) eq ⊢γ ⊢Γ
     with inv->>= eq
@@ -4453,7 +4453,7 @@ private module Lemmas (p : P n) where opaque
   check-type′-sound (just (Unit _)) eq ⊢γ ⊢Γ
     with inv->>= eq
   … | inv _ eq₁ ok! =
-    let Unit-ok = inv-require ⊢γ eq₁ in
+    let Unit-ok = inv-require⁺ ⊢γ eq₁ in
     refl (⊢Unit ⊢Γ Unit-ok)
   check-type′-sound (just (ΠΣ _ _ _ _ _)) eq ⊢γ ⊢Γ
     with inv->>= eq
@@ -4465,7 +4465,7 @@ private module Lemmas (p : P n) where opaque
     let A₁≡A₁′   = check-type-sound eq₁ ⊢γ ⊢Γ
         _ , ⊢A₁′ = wf-⊢≡ A₁≡A₁′
         A₂≡A₂′   = check-type-sound eq₂ ⊢γ (∙ ⊢A₁′)
-        ΠΣ-ok    = inv-require ⊢γ eq₃
+        ΠΣ-ok    = inv-require⁺ ⊢γ eq₃
     in
     sym (ΠΣ-cong (sym A₁≡A₁′) (sym A₂≡A₂′) ΠΣ-ok)
   check-type′-sound (just ℕ) ok! _ ⊢Γ =
@@ -4502,7 +4502,7 @@ private module Lemmas (p : P n) where opaque
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l ⌝ γ ≡ ⌜ l″ ⌝ γ ∷Level
   check-level′-sound l≡l′ nothing eq ⊢γ ⊢Γ =
     let inv _ eq₁ eq₂ = inv->>= eq
-        L.lift okᴸ    = inv-require ⊢γ eq₁
+        L.lift okᴸ    = inv-require⁰ ⊢γ level-allowed eq₁
         l′≡           = check-sound eq₂ ⊢γ (Levelⱼ′ okᴸ ⊢Γ)
     in
     PE.subst (flip (_⊢_≡_∷Level _) _) (l≡l′ (level-allowed okᴸ)) $
@@ -4536,7 +4536,9 @@ private module Lemmas (p : P n) where opaque
         ass = case PE.singleton b of λ where
           (true  , eq) → literal-free-or-iff eq
           (false , eq) →
-            let L.lift okᴸ = inv-require ⊢γ (inv-unless eq eq₁) in
+            let L.lift okᴸ =
+                  inv-require⁰ ⊢γ level-allowed (inv-unless eq eq₁)
+            in
             level-allowed okᴸ
     in
     PE.subst (flip (_⊢_≡_∷Level _) _) (l≡l′ ass) l′≡
@@ -4615,18 +4617,18 @@ private module Lemmas (p : P n) where opaque
     infer′-sound Level eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ ok! =
-      let L.lift Level-small = inv-require ⊢γ eq₁ in
+      let L.lift Level-small = inv-require⁰ ⊢γ level-is-small eq₁ in
       Levelⱼ ⊢Γ Level-small
     infer′-sound zeroᵘ eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ ok! =
-      let L.lift okᴸ = inv-require ⊢γ eq₁ in
+      let L.lift okᴸ = inv-require⁰ ⊢γ level-allowed eq₁ in
       zeroᵘⱼ okᴸ ⊢Γ
     infer′-sound (sucᵘ _) eq ⊢γ ⊢Γ
       using inv _ eq₁ eq ← inv->>= eq
       with inv->>= eq
     … | inv _ eq₂ ok! =
-      let L.lift okᴸ = inv-require ⊢γ eq₁
+      let L.lift okᴸ = inv-require⁰ ⊢γ level-allowed eq₁
           l≡l′       = check-sound eq₂ ⊢γ (Levelⱼ′ okᴸ ⊢Γ)
           _ , ⊢l , _ = wf-⊢≡∷ l≡l′
       in
@@ -4638,7 +4640,7 @@ private module Lemmas (p : P n) where opaque
     … | inv _ eq₂ eq
       with inv->>= eq
     … | inv _ eq₃ ok! =
-      let L.lift okᴸ  = inv-require ⊢γ eq₁
+      let L.lift okᴸ  = inv-require⁰ ⊢γ level-allowed eq₁
           ⊢Level      = Levelⱼ′ okᴸ ⊢Γ
           l₁≡         = check-sound eq₂ ⊢γ ⊢Level
           _ , ⊢l₁ , _ = wf-⊢≡∷ l₁≡
@@ -4689,12 +4691,12 @@ private module Lemmas (p : P n) where opaque
     infer′-sound (Unit _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ ok! =
-      let Unit-ok = inv-require ⊢γ eq₁ in
+      let Unit-ok = inv-require⁺ ⊢γ eq₁ in
       Unitⱼ ⊢Γ Unit-ok
     infer′-sound (star _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ ok! =
-      let Unit-ok = inv-require ⊢γ eq₁ in
+      let Unit-ok = inv-require⁺ ⊢γ eq₁ in
       starⱼ ⊢Γ Unit-ok
     infer′-sound (unitrec A _ _) eq ⊢γ ⊢Γ
       with inv->>= eq
@@ -4704,7 +4706,7 @@ private module Lemmas (p : P n) where opaque
       using inv _ eq₃ eq ← inv->>= eq
       with inv->>= eq
     … | inv _ eq₄ ok! =
-      let Unit-ok = inv-require ⊢γ eq₄
+      let Unit-ok = inv-require⁺ ⊢γ eq₄
           ⊢Unit   = ⊢Unit ⊢Γ Unit-ok
           A≡A′    = check-type-sound eq₁ ⊢γ (∙ ⊢Unit)
           _ , ⊢A′ = wf-⊢≡ A≡A′
@@ -4739,7 +4741,7 @@ private module Lemmas (p : P n) where opaque
           A₂≡         = check-sound eq₂ ⊢γ
                           (⊢U (W.wkLevel₁ (univ ⊢A₁) ⊢l))
           _ , ⊢A₂ , _ = wf-⊢≡∷ A₂≡
-          ΠΣ-ok       = inv-require ⊢γ eq₃
+          ΠΣ-ok       = inv-require⁺ ⊢γ eq₃
       in
       ΠΣⱼ ⊢l ⊢A₁ ⊢A₂ ΠΣ-ok
     infer′-sound (lam _ _ _ _) eq ⊢γ ⊢Γ
@@ -4752,7 +4754,7 @@ private module Lemmas (p : P n) where opaque
       let A₁≡A₁′   = check-type-sound eq₁ ⊢γ ⊢Γ
           _ , ⊢A₁′ = wf-⊢≡ A₁≡A₁′
           ⊢t       = infer-sound eq₂ ⊢γ (∙ ⊢A₁′)
-          Π-ok     = inv-require ⊢γ eq₃
+          Π-ok     = inv-require⁺ ⊢γ eq₃
       in
       lamⱼ′ Π-ok ⊢t
     infer′-sound (app _ _ _) eq ⊢γ ⊢Γ
@@ -4780,7 +4782,7 @@ private module Lemmas (p : P n) where opaque
           A₂≡A₂′   = check-type-sound eq₂ ⊢γ (∙ ⊢A₁)
           _ , ⊢A₂′ = wf-⊢≡ A₂≡A₂′
           t₂≡t₂′   = check-sound eq₃ ⊢γ (substType ⊢A₂′ ⊢t₁)
-          Σ-ok     = inv-require ⊢γ eq₄
+          Σ-ok     = inv-require⁺ ⊢γ eq₄
       in
       wf-⊢≡∷ (prod-cong ⊢A₂′ (refl ⊢t₁) t₂≡t₂′ Σ-ok) .proj₂ .proj₁
     infer′-sound (fst _ _) eq ⊢γ ⊢Γ
@@ -4913,7 +4915,7 @@ private module Lemmas (p : P n) where opaque
           _ , ⊢A₂′     = wf-⊢≡ A₂≡A₂′
           t₂≡t₂′       = check-sound eq₄ ⊢γ (substType ⊢A₂′ (rflⱼ ⊢t₁′))
           t₃≡t₃′       = check-sound eq₅ ⊢γ ⊢Id
-          K-ok         = inv-require ⊢γ eq₆
+          K-ok         = inv-require⁰ ⊢γ k-allowed eq₆
       in
       wf-⊢≡∷
         (K-cong (sym A₁≡A₁′) (sym′ t₁≡t₁′) (sym A₂≡A₂′) (sym′ t₂≡t₂′)
@@ -4939,7 +4941,7 @@ private module Lemmas (p : P n) where opaque
           t₂≡t₂′       = check-sound eq₄ ⊢γ ⊢A′
           _ , _ , ⊢t₂′ = wf-⊢≡∷ t₂≡t₂′
           t₃≡t₃′       = check-sound eq₅ ⊢γ (Idⱼ′ ⊢t₁′ ⊢t₂′)
-          okᵇᶜ         = inv-require ⊢γ eq₆
+          okᵇᶜ         = inv-require⁺ ⊢γ eq₆
       in
       wf-⊢≡∷
         ([]-cong-cong (sym-⊢≡∷L l≡l′) (sym A≡A′) (sym′ t₁≡t₁′)
@@ -4985,7 +4987,7 @@ private module Lemmas (p : P n) where opaque
   normalise-level′-sound {b = false} nothing eq ⊢γ ⊢l =
     let inv _ eq₁ eq  = inv->>= eq
         inv _ eq₂ eq₃ = inv->>= eq
-        L.lift okᴸ    = inv-require ⊢γ eq₁
+        L.lift okᴸ    = inv-require⁰ ⊢γ level-allowed eq₁
         ⊢l            = ⊢∷Level→⊢∷Level okᴸ ⊢l
         l≡l′          = red-tm-sound eq₂ ⊢γ ⊢l
         _ , _ , ⊢l′   = wf-⊢≡∷ l≡l′
@@ -5031,7 +5033,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₂ ok! =
       let _ , ⊔≡⊔    = check-and-equal-level-sound eq₁ ⊢γ ⊢Γ
-          L.lift okᴸ = inv-require ⊢γ eq₂
+          L.lift okᴸ = inv-require⁰ ⊢γ level-allowed eq₂
       in
       ⊢≡∷Level→⊢≡∷Level okᴸ ⊔≡⊔
     equal-ne-inf′-sound (lower _ _ PE.refl) eq ⊢γ ⊢Γ
@@ -5056,7 +5058,7 @@ private module Lemmas (p : P n) where opaque
           | inv _ eq₃ eq ← inv->>= eq
       with inv->>= eq
     … | inv _ eq₄ ok! =
-      let Unit-ok      = inv-require ⊢γ eq₄
+      let Unit-ok      = inv-require⁺ ⊢γ eq₄
           ⊢Unit        = ⊢Unit ⊢Γ Unit-ok
           ⊢⋆           = starⱼ ⊢Γ Unit-ok
           A₁≡A , A₁≡A₂ = check-and-equal-ty-sound eq₁ ⊢γ (∙ ⊢Unit)
@@ -5208,7 +5210,7 @@ private module Lemmas (p : P n) where opaque
           t₁₃≡t₂₃          = equal-ne-red-sound eq₅ ⊢γ ⊢Id
           _ , ⊢t₁₃ , _     = wf-⊢≡∷ t₁₃≡t₂₃
           t₁₃≡t₂₃          = conv t₁₃≡t₂₃ Id≡Id
-          K-ok             = inv-require ⊢γ eq₆
+          K-ok             = inv-require⁰ ⊢γ k-allowed eq₆
       in
       conv (K-cong A₁₁≡A₂₁ t₁₁≡t₂₁ A₁₂≡A₂₂ t₁₂≡t₂₂ t₁₃≡t₂₃ K-ok)
         (substTypeEq A₁₂≡A₂ (refl ⊢t₁₃))
@@ -5238,7 +5240,7 @@ private module Lemmas (p : P n) where opaque
           t₁₃≡t₂₃          = conv t₁₃≡t₂₃ $
                              Id-cong (sym A₁≡A) (sym′ t₁₁≡t₁)
                                (sym′ t₁₂≡t₂)
-          okᵇᶜ             = inv-require ⊢γ eq₆
+          okᵇᶜ             = inv-require⁺ ⊢γ eq₆
           okᴱ              = []-cong→Erased okᵇᶜ
       in
       _⊢_≡_∷_.conv
@@ -5819,13 +5821,13 @@ opaque
   check-dcon-sound′ :
     (∇ : DCon c m) →
     OK (check-dcon n ∇) tt γ st →
-    All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints) →
+    Constraints-satisfied γ →
     » γ .⌜base⌝ .defs →
     » ⌜ ∇ ⌝ᶜᵈ γ
   check-dcon-sound′ (base nothing) _ _ ⊢base =
     ⊢base
   check-dcon-sound′ (base (just _)) eq ⊢cs ⊢base =
-    let L.lift eq = inv-require′ ⊢cs eq in
+    let L.lift eq = inv-require′⁰ ⊢cs unfolding-mode-transitive eq in
     Transitive.unfold-» eq ⊢base
   check-dcon-sound′ ε _ _ _ =
     ε
@@ -5849,8 +5851,9 @@ opaque
         inv _    eq₃ eq  = inv->>= eq
         inv _    eq₄ eq₅ = inv->>= eq
 
-        opacity-ok             = inv-require′ ⊢cs eq₄
-        L.lift unfolding≡trans = inv-require′ ⊢cs eq₅
+        opacity-ok             = inv-require′⁰ ⊢cs opacity-allowed eq₄
+        L.lift unfolding≡trans =
+          inv-require′⁰ ⊢cs unfolding-mode-transitive eq₅
 
         ⊢γ′ = record
           { metas-wf       = Meta-con-wf-empty ms≡0
@@ -5884,7 +5887,7 @@ opaque
   check-dcon-sound :
     ∀ γ (∇ : DCon c m) n →
     check-dcon n ∇ .run (γ # []) PE.≡ inj₂ tt →
-    All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints) →
+    Constraints-satisfied γ →
     » γ .⌜base⌝ .defs →
     » ⌜ ∇ ⌝ᶜᵈ γ
   check-dcon-sound _ ∇ _ eq = check-dcon-sound′ ∇ (ok eq)

@@ -217,7 +217,8 @@ private
     γ _ .I.⌜base⌝              = Γ
     γ Μ .I.metas .I.bindings   = Μ
     γ _ .I.metas .I.equalities = L.[]
-    γ _ .I.constraints         =
+    γ _ .I.constraints⁰        = I.emptyᶜ⁰
+    γ _ .I.constraints⁺        =
       I.unit-allowed I.𝕤         L.∷
       I.unit-allowed I.𝕨         L.∷
       I.π-allowed xboolrecᵍ-Π xp L.∷

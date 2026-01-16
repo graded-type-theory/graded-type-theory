@@ -232,7 +232,8 @@ opaque
       γ′ .I.strengths    = V.ε
       γ′ .I.binder-modes = V.ε
       γ′ .I.⌜base⌝       = Γ
-      γ′ .I.constraints  =
+      γ′ .I.constraints⁰ = I.emptyᶜ⁰
+      γ′ .I.constraints⁺ =
         I.π-allowed xp  xq  L.∷
         I.π-allowed xp′ xq′ L.∷
         L.[]
@@ -477,7 +478,8 @@ opaque
       γ′ .I.strengths    = V.ε
       γ′ .I.binder-modes = b V.∷ V.ε
       γ′ .I.⌜base⌝       = Γ
-      γ′ .I.constraints  =
+      γ′ .I.constraints⁰ = I.emptyᶜ⁰
+      γ′ .I.constraints⁺ =
         I.πσ-allowed xb xp xq L.∷
         I.π-allowed xp′ xq′   L.∷
         I.π-allowed xp″ xq″   L.∷
@@ -661,7 +663,8 @@ opaque
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
-      γ′ .I.constraints         = I.π-allowed xp xq L.∷ L.[]
+      γ′ .I.constraints⁰        = I.emptyᶜ⁰
+      γ′ .I.constraints⁺        = I.π-allowed xp xq L.∷ L.[]
       γ′ .I.metas .I.equalities = L.[]
       γ′ .I.metas .I.bindings   = λ where
         (I.var! x0) → I.base , I.level l
@@ -799,7 +802,8 @@ opaque
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
-      γ′ .I.constraints         = I.π-allowed xp xq L.∷ L.[]
+      γ′ .I.constraints⁰        = I.emptyᶜ⁰
+      γ′ .I.constraints⁺        = I.π-allowed xp xq L.∷ L.[]
       γ′ .I.metas .I.equalities = L.[]
       γ′ .I.metas .I.bindings   = λ where
         (I.var! x0) → I.base , I.level l₁

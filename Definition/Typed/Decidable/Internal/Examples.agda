@@ -72,7 +72,7 @@ opaque
   let-α≡zero-in-λλ0∘zero≡λα ok₁ ok₂ =
     check-and-equal-cons-type-and-terms-sound
       (record (I.empty-Contexts false)
-         { constraints =
+         { constraints⁺ =
              I.π-allowed I.ω I.ω L.∷
              I.unit-allowed I.𝕤  L.∷
              L.[]
@@ -122,7 +122,8 @@ opaque
          ; binder-modes = V.ε
          ; metas        = I.emptyᶜᵐ
          ; ⌜base⌝       = ε » Δ
-         ; constraints  =
+         ; constraints⁰ = I.emptyᶜ⁰
+         ; constraints⁺ =
              I.π-allowed I.ω I.ω L.∷
              I.unit-allowed I.𝕤  L.∷
              L.[]
@@ -143,7 +144,7 @@ opaque
       (flip defn-wk′ ⊢Δ $ »⊇ε $
        check-dcon-sound
          (record (I.empty-Contexts false)
-            { constraints =
+            { constraints⁺ =
                 I.π-allowed I.ω I.ω L.∷
                 L.[]
             })
@@ -205,7 +206,8 @@ opaque
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
-      γ′ .I.constraints         = L.[]
+      γ′ .I.constraints⁰        = I.emptyᶜ⁰
+      γ′ .I.constraints⁺        = L.[]
       γ′ .I.metas .I.equalities = L.[]
       γ′ .I.metas .I.bindings   = λ where
         (I.var! x0) → I.base , I.type A
@@ -276,7 +278,8 @@ opaque
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
-      γ′ .I.constraints         = L.[]
+      γ′ .I.constraints⁰        = I.emptyᶜ⁰
+      γ′ .I.constraints⁺        = L.[]
       γ′ .I.metas .I.equalities = L.[]
       γ′ .I.metas .I.bindings   = λ where
         (I.var! x0) → I.base , I.type A
@@ -389,7 +392,8 @@ opaque
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
-      γ′ .I.constraints         = L.[]
+      γ′ .I.constraints⁰        = I.emptyᶜ⁰
+      γ′ .I.constraints⁺        = L.[]
       γ′ .I.metas .I.equalities =
         (_ , T.meta xA₁ , T.meta xA₂) L.∷
         (_ , T.meta xB₁ , T.meta xB₂) L.∷

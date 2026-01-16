@@ -81,7 +81,7 @@ private
     xr₂ = I.var x6
 
     γ :
-      L.List (I.Constraint c) →
+      L.List (I.Constraint⁺ c) →
       (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
       I.Contexts c
     γ _  _ .I.grades              = pₕ V.∷ pₗ V.∷ p₁ V.∷ p₂ V.∷ q V.∷
@@ -91,7 +91,8 @@ private
     γ _  _ .I.⌜base⌝              = Γ
     γ _  Μ .I.metas .I.bindings   = Μ
     γ _  _ .I.metas .I.equalities = L.[]
-    γ cs _ .I.constraints         =
+    γ _  _ .I.constraints⁰        = I.emptyᶜ⁰
+    γ cs _ .I.constraints⁺        =
       cs L.++
       I.unit-allowed I.𝕨   L.∷
       I.σʷ-allowed xpₕ I.𝟘 L.∷
@@ -99,7 +100,7 @@ private
       L.[]
 
     γ′ :
-      L.List (I.Constraint c) →
+      L.List (I.Constraint⁺ c) →
       I.Meta-con c →
       I.Contexts c
     γ′ cs Μ = record (γ cs (Μ .I.bindings)) { metas = Μ }

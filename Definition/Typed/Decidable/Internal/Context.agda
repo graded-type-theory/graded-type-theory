@@ -12,7 +12,7 @@ module Definition.Typed.Decidable.Internal.Context
   (TR : Type-restrictions 𝕄)
   where
 
-open Type-restrictions TR
+open Type-restrictions TR using (No-equality-reflection)
 
 open import Definition.Typed TR as T hiding (Trans)
 open import Definition.Typed.Decidable.Internal.Constraint TR
@@ -36,6 +36,7 @@ open Wk
 open _↦∷_∈_
 open _↦_∷_∈_
 
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -52,11 +53,10 @@ import Tools.Vec as V
 
 private variable
   B         : Set _
-  x y z     : B
+  C x y z   : B
   P         : B → Set _
   α m n     : Nat
   c         : Constants
-  C         : Constraint _
   ∇         : DCon _ _
   γ         : Contexts _
   st        : Stack-trace _
@@ -298,6 +298,11 @@ opaque
 ------------------------------------------------------------------------
 -- Well-formed contexts
 
+-- The constraints are satisfied.
+
+Constraints-satisfied : Contexts c → Set a
+Constraints-satisfied γ = All (λ C → ⟦ C ⟧ᶜ γ) (constraints γ)
+
 -- The contexts are well-formed.
 
 record Contexts-wf (∇ : DCon c n) (γ : Contexts c) : Set a where
@@ -305,27 +310,116 @@ record Contexts-wf (∇ : DCon c n) (γ : Contexts c) : Set a where
     -- The meta-variable context is well-formed.
     metas-wf : Meta-con-wf ∇ γ
 
-    -- The constraints hold.
-    constraints-wf : All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints)
+    -- The constraints are satisfied.
+    constraints-wf : Constraints-satisfied γ
 
 open Contexts-wf public
+
+private opaque
+
+  -- Some lemmas used below.
+
+  constraints⁰-satisfied :
+    Constraints-satisfied γ →
+    All (λ C → T (satisfied?⁰ C γ) → ⟦ C ⟧ᶜ⁰) all-nullary-constraints
+  constraints⁰-satisfied {γ} =
+    L.All-filterᵇ .proj₁ ∘→ All.map⁻ ∘→
+    All.++⁻ˡ (constraints⁰-as-list γ)
+
+  constraints⁺-satisfied :
+    Constraints-satisfied γ →
+    All (λ C → ⟦ constr⁺ C ⟧ᶜ γ) (γ .constraints⁺)
+  constraints⁺-satisfied {γ} =
+    All.map⁻ ∘→ All.++⁻ʳ (constraints⁰-as-list γ)
+
+opaque
+
+  -- Soundness for satisfied?⁰.
+
+  satisfied?⁰-sound :
+    Constraints-satisfied γ →
+    ∀ C → T (satisfied?⁰ C γ) → ⟦ constr⁰ C ⟧ᶜ γ
+  satisfied?⁰-sound sat k-allowed =
+    L.lookup (constraints⁰-satisfied sat) (L.here PE.refl)
+  satisfied?⁰-sound sat level-allowed =
+    L.lookup (constraints⁰-satisfied sat) (L.there (L.here PE.refl))
+  satisfied?⁰-sound sat level-is-small =
+    L.lookup (constraints⁰-satisfied sat)
+      (L.there (L.there (L.here PE.refl)))
+  satisfied?⁰-sound sat no-equality-reflection =
+    L.lookup (constraints⁰-satisfied sat)
+      (L.there (L.there (L.there (L.here PE.refl))))
+  satisfied?⁰-sound sat opacity-allowed =
+    L.lookup (constraints⁰-satisfied sat)
+      (L.there (L.there (L.there (L.there (L.here PE.refl)))))
+  satisfied?⁰-sound sat unfolding-mode-transitive =
+    L.lookup (constraints⁰-satisfied sat)
+      (L.there (L.there (L.there (L.there (L.there (L.here PE.refl))))))
+
+opaque
+
+  -- Soundness for satisfied?⁺.
+
+  satisfied?⁺-sound :
+    Constraints-satisfied γ → T (satisfied?⁺ C γ) → ⟦ C ⟧ᶜ⁺ γ
+  satisfied?⁺-sound {γ} {C} wf sat
+    with L.member? _≟ᶜ_ C (γ .constraints⁺)
+  satisfied?⁺-sound _  () | nothing
+  satisfied?⁺-sound wf _  | just C∈ =
+    L.lookup (constraints⁺-satisfied wf) C∈
+
+opaque
+
+  -- Soundness for satisfied?.
+
+  satisfied?-sound :
+    Constraints-satisfied γ → ∀ C → T (satisfied? C γ) → ⟦ C ⟧ᶜ γ
+  satisfied?-sound wf (constr⁰ C) = satisfied?⁰-sound wf C
+  satisfied?-sound wf (constr⁺ _) = satisfied?⁺-sound wf
 
 opaque
 
   -- An inversion lemma for require.
 
   inv-require′ :
-    All (λ C → ⟦ C ⟧ᶜ γ) (γ .constraints) →
-    OK (require C) tt γ st → ⟦ C ⟧ᶜ γ
-  inv-require′ constraints-wf eq =
-    L.lookup constraints-wf (inv-require-∈ eq)
+    Constraints-satisfied γ →
+    ∀ C → OK (require C) tt γ st → ⟦ C ⟧ᶜ γ
+  inv-require′ wf C = satisfied?-sound wf C ∘→ inv-require-T C
+
+opaque
+
+  -- A variant of inv-require′.
+
+  inv-require′⁰ :
+    Constraints-satisfied γ →
+    ∀ C → OK (require⁰ C) tt γ st → ⟦ C ⟧ᶜ⁰
+  inv-require′⁰ wf = inv-require′ wf ∘→ constr⁰
 
 opaque
 
   -- An inversion lemma for require.
 
-  inv-require : Contexts-wf ∇ γ → OK (require C) tt γ st → ⟦ C ⟧ᶜ γ
+  inv-require :
+    Contexts-wf ∇ γ → ∀ C → OK (require C) tt γ st → ⟦ C ⟧ᶜ γ
   inv-require ⊢γ = inv-require′ (⊢γ .constraints-wf)
+
+opaque
+
+  -- A variant of inv-require.
+
+  inv-require⁰ :
+    Contexts-wf ∇ γ →
+    ∀ C → OK (require (constr⁰ C)) tt γ st → ⟦ constr⁰ C ⟧ᶜ γ
+  inv-require⁰ ⊢γ = inv-require ⊢γ ∘→ constr⁰
+
+opaque
+
+  -- A variant of inv-require.
+
+  inv-require⁺ :
+    Contexts-wf ∇ γ →
+    OK (require (constr⁺ C)) tt γ st → ⟦ constr⁺ C ⟧ᶜ γ
+  inv-require⁺ ⊢γ = inv-require ⊢γ (constr⁺ _)
 
 opaque
 
@@ -336,5 +430,9 @@ opaque
     OK (if-no-equality-reflection x y) z γ st →
     No-equality-reflection × OK x z γ st ⊎ OK y z γ st
   inv-if-no-equality-reflection ⊢γ =
-    ⊎.map (Σ.map (L.lookup (⊢γ .constraints-wf)) idᶠ) idᶠ ∘→
+    ⊎.map
+      (Σ.map
+         (satisfied?⁰-sound (⊢γ .constraints-wf) no-equality-reflection)
+         idᶠ)
+      idᶠ ∘→
     inv-if-no-equality-reflection-∈

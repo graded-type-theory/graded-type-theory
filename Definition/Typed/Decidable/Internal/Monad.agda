@@ -194,29 +194,36 @@ any : (A → Check c ⊤) → List A → Check c ⊤
 any _ []       = fail "Empty list."
 any f (x ∷ xs) = f x catch any f xs
 
--- Checking a constraint.
+-- Checks a constraint.
 
 require : Constraint c → Check c ⊤
 require C = do
-  Μ ← ask
-  case member? _≟ᶜ_ C (Μ .constraints) of λ where
-    (just _) → return tt
-    nothing  → fail "Failed to verify constraint."
+  γ ← ask
+  unless (satisfied? C γ) (fail "Failed to verify constraint.")
+
+-- Checks a nullary constraint.
+
+require⁰ : Constraint⁰ → Check c ⊤
+require⁰ = require ∘→ constr⁰
+
+-- Checks a non-nullary constraint.
+
+require⁺ : Constraint⁺ c → Check c ⊤
+require⁺ = require ∘→ constr⁺
 
 -- Checks if equality reflection is disallowed.
 
-no-equality-reflection? : Check c Bool
-no-equality-reflection? =
-  (require no-equality-reflection >> return true)
-    catch
-  return false
+equality-reflection-disallowed? : Check c Bool
+equality-reflection-disallowed? = do
+  γ ← ask
+  return (satisfied?⁰ no-equality-reflection γ)
 
 -- Does one thing if equality reflection is definitely disallowed, and
 -- another thing if equality reflection is possibly allowed.
 
 if-no-equality-reflection : Check c A → Check c A → Check c A
 if-no-equality-reflection x y = do
-  disallowed ← no-equality-reflection?
+  disallowed ← equality-reflection-disallowed?
   if disallowed then x else y
 
 -- Converts from Maybe to the monad.
@@ -438,31 +445,31 @@ opaque
 
   -- An inversion lemma for require.
 
-  inv-require-∈ : OK (require C) tt γ st → C ∈ γ .constraints
-  inv-require-∈ {C} {γ} (ok eq) with member? _≟ᶜ_ C (γ .constraints)
-  inv-require-∈ not-ok | nothing
-  inv-require-∈ ok!    | just C∈ = C∈
+  inv-require-T : ∀ C → OK (require C) tt γ st → T (satisfied? C γ)
+  inv-require-T {γ} C (ok _) with satisfied? C γ
+  inv-require-T     _ not-ok | false
+  inv-require-T     _ ok!    | true = tt
 
 opaque
 
-  -- The computation no-equality-reflection? always succeeds.
+  -- The computation equality-reflection-disallowed? always succeeds.
 
-  OK-no-equality-reflection? :
-    ∃ λ b → OK no-equality-reflection? b γ st
-  OK-no-equality-reflection? = OK-catch (inj₂ (_ , ok!))
+  OK-equality-reflection-disallowed? :
+    ∃ λ b → OK equality-reflection-disallowed? b γ st
+  OK-equality-reflection-disallowed? =
+    _ , OK->>= ok! ok!
 
 opaque
 
-  -- An inversion lemma for no-equality-reflection?.
+  -- An inversion lemma for equality-reflection-disallowed?.
 
-  inv-no-equality-reflection?-∈ :
-    OK no-equality-reflection? true γ st →
-    no-equality-reflection ∈ γ .constraints
-  inv-no-equality-reflection?-∈ eq with inv-catch eq
-  … | inj₂ not-ok
-  … | inj₁ eq     =
-    let inv _ eq _ = inv->>= eq in
-    inv-require-∈ eq
+  inv-equality-reflection-disallowed?-T :
+    OK equality-reflection-disallowed? true γ st →
+    T (γ .constraints⁰ .no-equality-reflection?)
+  inv-equality-reflection-disallowed?-T eq
+    with inv->>= eq
+  … | inv _ ok! (ok eq) =
+    T-true .proj₂ (inj₂-injective eq)
 
 opaque
 
@@ -474,7 +481,7 @@ opaque
     OK x z γ st → OK y z γ st →
     OK (if-no-equality-reflection x y) z γ st
   OK-if-no-equality-reflection {γ} {st} eq₁ eq₂
-    with OK-no-equality-reflection? {γ = γ} {st = st}
+    with OK-equality-reflection-disallowed? {γ = γ} {st = st}
   … | true  , eq = OK->>= eq eq₁
   … | false , eq = OK->>= eq eq₂
 
@@ -484,8 +491,9 @@ opaque
 
   inv-if-no-equality-reflection-∈ :
     OK (if-no-equality-reflection x y) z γ st →
-    no-equality-reflection ∈ γ .constraints × OK x z γ st ⊎
+    T (γ .constraints⁰ .no-equality-reflection?) × OK x z γ st ⊎
     OK y z γ st
   inv-if-no-equality-reflection-∈ eq with inv->>= eq
-  … | inv true  eq₁ eq₂ = inj₁ (inv-no-equality-reflection?-∈ eq₁ , eq₂)
   … | inv false _   eq₂ = inj₂ eq₂
+  … | inv true  eq₁ eq₂ =
+    inj₁ (inv-equality-reflection-disallowed?-T eq₁ , eq₂)

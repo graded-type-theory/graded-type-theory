@@ -87,7 +87,7 @@ private
     xs = I.var x0
 
     γ :
-      List (I.Constraint c) →
+      List (I.Constraint⁺ c) →
       (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
       I.Contexts c
     γ _  _ .I.grades              = p V.∷ p₁ V.∷ p₂ V.∷ q₁ V.∷ q₂ V.∷
@@ -97,11 +97,12 @@ private
     γ _  _ .I.⌜base⌝              = Γ
     γ _  Μ .I.metas .I.bindings   = Μ
     γ _  _ .I.metas .I.equalities = L.[]
-    γ cs _ .I.constraints         =
+    γ _  _ .I.constraints⁰        = I.emptyᶜ⁰
+    γ cs _ .I.constraints⁺        =
       cs L.++ I.unit-allowed xs L.∷ I.σ-allowed xs xp I.𝟘 L.∷ L.[]
 
     γ′ :
-      List (I.Constraint c) →
+      List (I.Constraint⁺ c) →
       I.Meta-con c →
       I.Contexts c
     γ′ cs Μ = record (γ cs (Μ .I.bindings)) { metas = Μ }
@@ -177,7 +178,8 @@ opaque
       γ .I.strengths    = s V.∷ V.ε
       γ .I.binder-modes = V.ε
       γ .I.⌜base⌝       = Γ
-      γ .I.constraints  =
+      γ .I.constraints⁰ = I.emptyᶜ⁰
+      γ .I.constraints⁺ =
         I.unit-allowed xs     L.∷
         I.σ-allowed xs xp I.𝟘 L.∷
         L.[]
@@ -562,7 +564,8 @@ opaque
       γ .I.strengths    = s V.∷ V.ε
       γ .I.binder-modes = V.ε
       γ .I.⌜base⌝       = Γ
-      γ .I.constraints  =
+      γ .I.constraints⁰ = I.emptyᶜ⁰
+      γ .I.constraints⁺ =
         I.unit-allowed xs     L.∷
         I.σ-allowed xs xp I.𝟘 L.∷
         L.[]
@@ -672,7 +675,7 @@ opaque
     PE.refl Π-ok ⊢A ⊢B ⊢t ⊢u ⊢v ⊢w =
     check-type-and-term-sound
       (record (γ′ L.[] Μ)
-         { constraints =
+         { constraints⁺ =
              I.π-allowed xr xq₂     L.∷
              I.unit-allowed I.𝕨     L.∷
              I.σ-allowed I.𝕨 xp I.𝟘 L.∷
@@ -763,7 +766,7 @@ opaque
     PE.refl Π-ok ⊢A ⊢B ⊢t ⊢u =
     check-and-equal-type-and-terms-sound
       (record (γ′ L.[] Μ)
-         { constraints =
+         { constraints⁺ =
              I.π-allowed xr xq₂     L.∷
              I.unit-allowed I.𝕨     L.∷
              I.σ-allowed I.𝕨 xp I.𝟘 L.∷
@@ -854,7 +857,7 @@ opaque
     PE.refl Π-ok ⊢A ⊢B ⊢t₁ ⊢t₂ ⊢t₃ ⊢t₄ ⊢t₅ =
     check-and-equal-type-and-terms-sound
       (record (γ′ L.[] Μ)
-         { constraints =
+         { constraints⁺ =
              I.π-allowed xr xq₂     L.∷
              I.unit-allowed I.𝕨     L.∷
              I.σ-allowed I.𝕨 xp I.𝟘 L.∷
