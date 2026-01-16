@@ -158,7 +158,6 @@ import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Properties.Admissible.Unit
 import Definition.Typed.Properties.Admissible.Empty
 import Definition.Typed.Properties.Admissible.Identity
-import Definition.Typed.Properties.Admissible.Nat
 import Definition.Typed.Properties.Admissible.Sigma
 import Definition.Typed.Properties.Admissible.Non-dependent
 import Definition.Typed.Properties.Admissible.Erased.Eta
