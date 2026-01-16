@@ -1236,7 +1236,7 @@ mutual
     equal-ne-inf′ n Γ (meta-var x₁ σ₁ x₂ σ₂ _) = do
       Δ₁      ← context-of x₁
       Δ₂ , A  ← is-term x₂
-      PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
+      PE.refl ← equal-sub′ n false Γ σ₁ Δ₁ σ₂ Δ₂
       are-equal-meta-vars x₁ x₂
       return (subst A σ₁)
     equal-ne-inf′ _ Γ (var x _) =
@@ -1341,7 +1341,7 @@ mutual
   … | just (meta-var x₁ σ₁ x₂ σ₂ _) = do
     Δ₁ ← context-of x₁
     Δ₂ ← is-type n (Γ .defs) x₂
-    PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
+    PE.refl ← equal-sub′ n false Γ σ₁ Δ₁ σ₂ Δ₂
     are-equal-meta-vars x₁ x₂
     return tt
   … | just (Level _) =
@@ -1382,7 +1382,7 @@ mutual
   … | just (meta-var x₁ σ₁ x₂ σ₂ _) = do
     Δ₁      ← context-of x₁
     Δ₂ , A  ← is-term x₂
-    PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
+    PE.refl ← equal-sub′ n false Γ σ₁ Δ₁ σ₂ Δ₂
     are-equal-meta-vars x₁ x₂
     equal-ty n Γ (subst A σ₁) (U l)
   … | just (Level _) =
@@ -1480,12 +1480,9 @@ mutual
         -- The first case is included because Level might not be
         -- allowed.
         (just (_ , x₁ , σ₁ , _ , x₂ , σ₂ , _)) → do
-          Δ₁     ← context-of x₁
-          Δ₂ , _ ← is-level n Γ x₂ σ₂
-          -- Note that if the previous line succeeds, then σ₂ is
-          -- well-formed. The computation on the following line does
-          -- not (at the time of writing) make use of this fact.
-          PE.refl ← equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂
+          Δ₁      ← context-of x₁
+          Δ₂ , _  ← is-level n Γ x₂ σ₂
+          PE.refl ← equal-sub′ n true Γ σ₁ Δ₁ σ₂ Δ₂
           are-equal-meta-vars x₁ x₂
         nothing → do
           require level-allowed
@@ -1493,8 +1490,11 @@ mutual
 
   -- An equality checker for substitutions. This variant, unlike
   -- equal-sub below, is supposed to work for (at least some)
-  -- substitutions that are not already known to be type-correct. It
+  -- substitutions that are not already known to be well-formed. It
   -- does this by invoking the type-checker.
+  --
+  -- If the boolean is true, then the second substitution is known to
+  -- be well-formed.
   --
   -- This procedure is used by equal-ty-red and equal-ne-inf in the
   -- cases for meta-variables. Note that, even though x, x[σ₁] and
@@ -1538,18 +1538,26 @@ mutual
   --   constructors to a substitution.
 
   equal-sub′ :
-    Fuel → Cons c m n₃ → Subst c n₃ n₁ → Con c n₁ → Subst c n₃ n₂ →
-    Con c n₂ → Check c (n₁ PE.≡ n₂)
-  equal-sub′ n Γ σ₁ Δ₁ σ₂ Δ₂ = do
+    Fuel → Bool → Cons c m n₃ → Subst c n₃ n₁ → Con c n₁ →
+    Subst c n₃ n₂ → Con c n₂ → Check c (n₁ PE.≡ n₂)
+  equal-sub′ n σ₂-ok Γ σ₁ Δ₁ σ₂ Δ₂ = do
     eq ← equal-con-constructors Δ₁ Δ₂
     case eq of λ where
       ε →
         return PE.refl
       (ext Δ₁ _ Δ₂ A) → do
         σ₁₊     ← return (tailₛ σ₁)
-        PE.refl ← equal-sub′ n Γ σ₁₊ Δ₁ (tailₛ σ₂) Δ₂
-        check-and-equal-tm n Γ (headₛ σ₁) (headₛ σ₂) (subst A σ₁₊)
-        return PE.refl
+        PE.refl ← equal-sub′ n σ₂-ok Γ σ₁₊ Δ₁ (tailₛ σ₂) Δ₂
+        if σ₂-ok
+          then
+            (do A[σ₁₊] ← return (subst A σ₁₊)
+                σ₁₀    ← check n Γ (headₛ σ₁) A[σ₁₊]
+                equal-tm n Γ σ₁₀ (headₛ σ₂) A[σ₁₊]
+                return PE.refl)
+          else
+            (do check-and-equal-tm n Γ (headₛ σ₁) (headₛ σ₂)
+                  (subst A σ₁₊)
+                return PE.refl)
       base → do
         both k _ ← both-wk1-id σ₁ σ₂
         equal-sub″ k (Γ .vars)
@@ -2341,6 +2349,7 @@ private module Lemmas (p : P n) where opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     Is-level x σ γ Γ Δ ×
     ⌜ Γ .defs ⌝ᶜᵈ γ »⊢ ⌜ Δ ⌝ᶜᵛ γ ×
+    ⌜ Γ ⌝ᶜ γ ⊢ˢʷ ⌜ σ ⌝ˢ γ ∷ ⌜ Δ ⌝ᶜᵛ γ ×
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ meta-var x σ ⌝ γ ≡ ⌜ l′ ⌝ γ ∷Level
   is-level-sound {x} {γ} eq ⊢γ _
     with inv->>= eq
@@ -2353,9 +2362,12 @@ private module Lemmas (p : P n) where opaque
     rewrite ⌜meta-var⌝ {γ = γ} {x = x} σ
           | ⌜meta-var⌝ {γ = γ} {x = x} σ′
           | γx≡ =
-    let σ≡σ′ = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wfLevel ⊢l) in
+    let σ≡σ′       = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wfLevel ⊢l)
+        _ , ⊢σ , _ = wf-⊢ˢʷ≡∷ σ≡σ′
+    in
     level γx≡ ,
     wfLevel ⊢l ,
+    ⊢σ ,
     subst-⊢≡∷L (refl-⊢≡∷L ⊢l) σ≡σ′
   is-level-sound {x} {σ} {γ} _ ⊢γ ⊢Γ | inv _ _ eq | _ , term _ A | ⊢t
     with inv->>= eq
@@ -2369,12 +2381,12 @@ private module Lemmas (p : P n) where opaque
           | γx≡ =
     let open TyR
 
-        σ≡σ′        = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wfTerm ⊢t)
-        _ , _ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
-        ⊢A          = wf-⊢∷ ⊢t
-        ⊢A[σ′]      = subst-⊢ ⊢A ⊢σ′
-        ≡A[σ′]      = PE.sym (⌜[]⌝ A (type₂ ⊢A[σ′]))
-        A[σ]≡Level  =
+        σ≡σ′         = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wfTerm ⊢t)
+        _ , ⊢σ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
+        ⊢A           = wf-⊢∷ ⊢t
+        ⊢A[σ′]       = subst-⊢ ⊢A ⊢σ′
+        ≡A[σ′]       = PE.sym (⌜[]⌝ A (type₂ ⊢A[σ′]))
+        A[σ]≡Level   =
           ⌜ A ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]   ≡⟨ subst-⊢≡ (refl ⊢A) σ≡σ′ ⟩⊢
           ⌜ A ⌝ γ U.[ ⌜ σ′ ⌝ˢ γ ]  ≡⟨ ≡A[σ′] ⟩⊢≡
           ⌜ A [ σ′ ] ⌝ γ           ≡⟨ red-ty-sound eq₂ ⊢γ $
@@ -2383,6 +2395,7 @@ private module Lemmas (p : P n) where opaque
     in
     term γx≡ ⊢A A[σ]≡Level ,
     wfTerm ⊢t ,
+    ⊢σ ,
     term-⊢≡∷ (conv (subst-⊢≡∷ (refl ⊢t) σ≡σ′) A[σ]≡Level)
 
   -- Soundness for check-and-equal-ty.
@@ -2448,8 +2461,9 @@ private module Lemmas (p : P n) where opaque
     -- Soundness for equal-sub′.
 
     equal-sub′-sound :
-      OK (equal-sub′ n (∇ » Δ) σ₁ Η₁ σ₂ Η₂) PE.refl γ st →
+      OK (equal-sub′ n b (∇ » Δ) σ₁ Η₁ σ₂ Η₂) PE.refl γ st →
       Contexts-wf ∇ γ →
+      (T b → ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ ⌝ᶜᵛ γ ⊢ˢʷ ⌜ σ₂ ⌝ˢ γ ∷ ⌜ Η₂ ⌝ᶜᵛ γ) →
       ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ ⌝ᶜᵛ γ →
       ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Η₂ ⌝ᶜᵛ γ →
       ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ ⌝ᶜᵛ γ ⊢ˢʷ ⌜ σ₁ ⌝ˢ γ ≡ ⌜ σ₂ ⌝ˢ γ ∷ ⌜ Η₂ ⌝ᶜᵛ γ
@@ -2461,28 +2475,70 @@ private module Lemmas (p : P n) where opaque
 
       equal-sub′-sound′ :
         (n₁≡n₂ : n₁ PE.≡ n₂) →
-        OK (equal-sub′ n (∇ » Δ) σ₁ Η₁ σ₂ Η₂) n₁≡n₂ γ st →
+        OK (equal-sub′ n b (∇ » Δ) σ₁ Η₁ σ₂ Η₂) n₁≡n₂ γ st →
         Contexts-wf ∇ γ →
+        (T b → ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ ⌝ᶜᵛ γ ⊢ˢʷ ⌜ σ₂ ⌝ˢ γ ∷ ⌜ Η₂ ⌝ᶜᵛ γ) →
         ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Δ ⌝ᶜᵛ γ →
         ⌜ ∇ ⌝ᶜᵈ γ »⊢ ⌜ Η₂ ⌝ᶜᵛ γ →
         ⌜ ∇ ⌝ᶜᵈ γ » ⌜ Δ ⌝ᶜᵛ γ ⊢ˢʷ
           PE.subst (U.Subst _) n₁≡n₂ (⌜ σ₁ ⌝ˢ γ) ≡
           ⌜ σ₂ ⌝ˢ γ ∷ ⌜ Η₂ ⌝ᶜᵛ γ
-      equal-sub′-sound′ _ eq _ _ _
+      equal-sub′-sound′ _ eq _ _ _ _
         with inv->>= eq
-      equal-sub′-sound′ _ _ _ ⊢Δ _ | inv ε _ ok! =
+      equal-sub′-sound′ _ _ _ _ ⊢Δ _ | inv ε _ ok! =
         ⊢ˢʷ≡∷ε⇔ .proj₂ ⊢Δ
-      equal-sub′-sound′ {σ₁} {σ₂} _ _ ⊢γ ⊢Δ (∙ ⊢A)
+      equal-sub′-sound′ {σ₁} {σ₂} _ _ ⊢γ ⊢σ₂ ⊢Δ (∙ ⊢A)
         | inv (ext Δ₁ _ Δ₂ A) _ eq
         with inv->>= eq
       … | inv _ ok! eq
         with inv->>= eq
-      … | inv PE.refl eq₁ eq
+      equal-sub′-sound′ {b = true} {σ₁} {σ₂} {γ} _ _ ⊢γ ⊢σ₂ ⊢Δ (∙ ⊢A)
+        | inv (ext _ _ _ A) _ _ | inv _ ok! _ | inv PE.refl eq₁ eq
+        with inv->>= eq
+      … | inv _ ok! eq
+        with inv->>= eq
+      … | inv σ₁₀ eq₂ eq
+        with inv->>= eq
+      … | inv _ eq₃ ok! =
+        let ⊢σ₂₊ =
+              cast-⊢ˢʷ∷ (PE.sym ∘→ ⌜tailₛ⌝ˢ σ₂) $
+              ⊢ˢʷ∷∙⇔ .proj₁ (⊢σ₂ _) .proj₁
+            σ₁₊≡σ₂₊ =
+              cast-⊢ˢʷ≡∷ (⌜tailₛ⌝ˢ σ₁) (⌜tailₛ⌝ˢ σ₂) $
+              equal-sub′-sound eq₁ ⊢γ (λ _ → ⊢σ₂₊) ⊢Δ (wf ⊢A)
+            _ , ⊢σ₁₊ , _ =
+              wf-⊢ˢʷ≡∷ σ₁₊≡σ₂₊
+            σ₁₀≡σ₁₀ =
+              check-sound eq₂ ⊢γ
+                (subst-⊢ ⊢A (cast-⊢ˢʷ∷ (PE.sym ∘→ ⌜tailₛ⌝ˢ σ₁) ⊢σ₁₊))
+            _ , _ , ⊢σ₁₀ =
+              wf-⊢≡∷ σ₁₀≡σ₁₀
+            A[]≡A[] =
+              substVar-to-subst (⌜tailₛ⌝ˢ σ₁) (⌜ A ⌝ _)
+            ⊢σ₂₀ =
+              PE.subst₂ (_⊢_∷_ _)
+                (PE.sym (⌜headₛ⌝ σ₂)) (PE.sym A[]≡A[]) $
+              conv (⊢ˢʷ∷∙⇔ .proj₁ (⊢σ₂ _) .proj₂)
+                (sym (subst-⊢≡ (refl ⊢A) σ₁₊≡σ₂₊))
+
+            open TmR
+        in
+        ⊢ˢʷ≡∷∙⇔′ ⊢A .proj₂
+          ( σ₁₊≡σ₂₊
+          , (U.head (⌜ σ₁ ⌝ˢ γ) ∷ ⌜ A ⌝ γ U.[ U.tail (⌜ σ₁ ⌝ˢ γ) ]  ≡˘⟨ ⌜headₛ⌝ σ₁ ⟩⊢∷≡
+                                                                     ˘⟨ A[]≡A[] ⟩≡≡
+             ⌜ headₛ σ₁ ⌝ γ     ∷ ⌜ subst A (tailₛ σ₁) ⌝ γ          ≡⟨ σ₁₀≡σ₁₀ ⟩⊢∷
+             ⌜ σ₁₀ ⌝ γ                                              ≡⟨ equal-tm-sound eq₃ ⊢γ ⊢σ₁₀ ⊢σ₂₀ ⟩⊢∎≡
+             ⌜ headₛ σ₂ ⌝ γ                                         ≡⟨ ⌜headₛ⌝ σ₂ ⟩
+             U.head (⌜ σ₂ ⌝ˢ γ)                                     ∎)
+          )
+      equal-sub′-sound′ {b = false} {σ₁} {σ₂} _ _ ⊢γ _ ⊢Δ (∙ ⊢A)
+        | inv (ext _ _ _ A) _ _ | inv _ ok! _ | inv PE.refl eq₁ eq
         with inv->>= eq
       … | inv _ eq₂ ok! =
         let σ₁₊≡σ₂₊ =
               cast-⊢ˢʷ≡∷ (⌜tailₛ⌝ˢ σ₁) (⌜tailₛ⌝ˢ σ₂) $
-              equal-sub′-sound eq₁ ⊢γ ⊢Δ (wf ⊢A)
+              equal-sub′-sound eq₁ ⊢γ (λ ()) ⊢Δ (wf ⊢A)
             _ , ⊢σ₁₊ , _ =
               wf-⊢ˢʷ≡∷ σ₁₊≡σ₂₊
             A[]≡A[] = substVar-to-subst (⌜tailₛ⌝ˢ σ₁) (⌜ A ⌝ _)
@@ -2494,7 +2550,7 @@ private module Lemmas (p : P n) where opaque
                  (PE.subst (_⊢_ _) (PE.sym A[]≡A[]) (subst-⊢ ⊢A ⊢σ₁₊))
                  .proj₂)
           )
-      equal-sub′-sound′ {∇} _ _ _ ⊢Δ _ | inv base _ eq
+      equal-sub′-sound′ {∇} _ _ _ _ ⊢Δ _ | inv base _ eq
         with inv->>= eq
       … | inv (both _ PE.refl) _ eq
         with inv->>= eq
@@ -2530,11 +2586,12 @@ private module Lemmas (p : P n) where opaque
     … | inv _ eq₁ eq
       with inv->>= eq
     … | inv PE.refl eq₂ eq₃ =
-      let ⊢Γ                 = wfLevel ⊢l₁
-          x₂-level , ⊢Δ₂ , _ = is-level-sound eq₁ ⊢γ ⊢Γ
-          σ₁≡σ₂              = equal-sub′-sound eq₂ ⊢γ ⊢Γ ⊢Δ₂
-          x₁[σ₁]≡x₂[σ₂]      = are-equal-meta-vars-sound-level σ₁ eq₃ ⊢γ
-                                 x₂-level σ₁≡σ₂
+      let ⊢Γ                       = wfLevel ⊢l₁
+          x₂-level , ⊢Δ₂ , ⊢σ₂ , _ = is-level-sound eq₁ ⊢γ ⊢Γ
+          σ₁≡σ₂                    = equal-sub′-sound eq₂ ⊢γ (λ _ → ⊢σ₂)
+                                       ⊢Γ ⊢Δ₂
+          x₁[σ₁]≡x₂[σ₂]            = are-equal-meta-vars-sound-level σ₁
+                                       eq₃ ⊢γ x₂-level σ₁≡σ₂
       in
       sucᵘᵏ-mono n₁≤n₂ (reflexive-⊢≤ₗ∷L x₁[σ₁]≡x₂[σ₂])
 
@@ -2730,7 +2787,8 @@ private module Lemmas (p : P n) where opaque
   … | inv PE.refl eq₂ eq =
     let inv _ eq₃ _ = inv->>= eq
         x₂-type , ⊢x₂ = is-type-sound eq₁ ⊢γ
-        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (wf ⊢x₁[σ₁]) (wf ⊢x₂)
+        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (λ ()) (wf ⊢x₁[σ₁])
+                          (wf ⊢x₂)
         Δ₁≡Δ₂ , _     = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         x₁≡x₂         = are-equal-meta-vars-sound-ty eq₃ ⊢γ x₂-type ⊢x₂
     in
@@ -2807,7 +2865,7 @@ private module Lemmas (p : P n) where opaque
   … | inv PE.refl eq₂ eq =
     let inv _ eq₃ eq₄ = inv->>= eq
         x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
-        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (wfTerm ⊢x₁[σ₁])
+        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (λ ()) (wfTerm ⊢x₁[σ₁])
                           (wfTerm ⊢x₂)
         _ , ⊢σ₁ , _   = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term ⊢x₂
@@ -3663,7 +3721,7 @@ private module Lemmas (p : P n) where opaque
   check-level′-sound l≡l′ (just (meta-var _ _)) eq ⊢γ ⊢Γ
     with inv-<$> eq
   … | inv _ eq₁ PE.refl =
-    let _ , _ , l′≡l″ = is-level-sound eq₁ ⊢γ ⊢Γ in
+    let _ , _ , _ , l′≡l″ = is-level-sound eq₁ ⊢γ ⊢Γ in
     PE.subst (flip (_⊢_≡_∷Level _) _)
       (l≡l′ (not-supᵘₗ (λ { (_ , _ , ()) } )))
       l′≡l″
@@ -4168,7 +4226,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₃ ok! =
       let x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
-          σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ ⊢Γ (wfTerm ⊢x₂)
+          σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (λ ()) ⊢Γ (wfTerm ⊢x₂)
           x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term
                             ⊢x₂
       in
