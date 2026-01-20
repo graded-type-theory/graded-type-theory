@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Typed.Restrictions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Restrictions on typing derivations</a>
+<a id="112" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="186" class="Keyword">open</a> <a id="191" class="Keyword">import</a> <a id="198" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="215" class="Keyword">module</a> <a id="222" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+  <a id="254" class="Symbol">{</a><a id="255" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a><a id="256" class="Symbol">}</a> <a id="258" class="Symbol">{</a><a id="259" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="261" class="Symbol">:</a> <a id="263" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="267" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a><a id="268" class="Symbol">}</a>
+  <a id="272" class="Symbol">(</a><a id="273" href="Definition.Typed.Restrictions.html#273" class="Bound">𝕄</a> <a id="275" class="Symbol">:</a> <a id="277" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="286" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a><a id="287" class="Symbol">)</a>
+  <a id="291" class="Keyword">where</a>
+
+<a id="298" class="Keyword">open</a> <a id="303" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="312" href="Definition.Typed.Restrictions.html#273" class="Bound">𝕄</a>
+
+<a id="315" class="Keyword">open</a> <a id="320" class="Keyword">import</a> <a id="327" href="Definition.Typed.Variant.html" class="Module">Definition.Typed.Variant</a>
+<a id="352" class="Keyword">open</a> <a id="357" class="Keyword">import</a> <a id="364" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="383" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a>
+<a id="385" class="Keyword">open</a> <a id="390" class="Keyword">import</a> <a id="397" href="Definition.Untyped.Properties.html" class="Module">Definition.Untyped.Properties</a> <a id="427" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a>
+
+<a id="430" class="Keyword">open</a> <a id="435" class="Keyword">import</a> <a id="442" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="457" class="Keyword">open</a> <a id="462" class="Keyword">import</a> <a id="469" href="Tools.Level.html" class="Module">Tools.Level</a>
+<a id="481" class="Keyword">open</a> <a id="486" class="Keyword">import</a> <a id="493" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="507" class="Keyword">open</a> <a id="512" class="Keyword">import</a> <a id="519" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="534" class="Keyword">open</a> <a id="539" class="Keyword">import</a> <a id="546" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="574" class="Keyword">open</a> <a id="579" class="Keyword">import</a> <a id="586" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+
+<a id="597" class="Keyword">private</a> <a id="605" class="Keyword">variable</a>
+  <a id="616" href="Definition.Typed.Restrictions.html#616" class="Generalizable">Γ</a> <a id="618" class="Symbol">:</a> <a id="620" href="Definition.Untyped.NotParametrised.html#957" class="Datatype">Con</a> <a id="624" href="Definition.Untyped.html#1590" class="Datatype">Term</a> <a id="629" class="Symbol">_</a>
+
+<a id="632" class="Comment">-- This type specifies what variant of the type system should be used.</a>
+<a id="703" class="Comment">-- Various things can be disallowed, and one can also choose between</a>
+<a id="772" class="Comment">-- different sets of rules.</a>
+
+<a id="801" class="Keyword">record</a> <a id="Type-restrictions"></a><a id="808" href="Definition.Typed.Restrictions.html#808" class="Record">Type-restrictions</a> <a id="826" class="Symbol">:</a> <a id="828" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="832" class="Symbol">(</a><a id="833" href="Agda.Primitive.html#931" class="Primitive">lsuc</a> <a id="838" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a><a id="839" class="Symbol">)</a> <a id="841" class="Keyword">where</a>
+  <a id="849" class="Keyword">no-eta-equality</a>
+  <a id="867" class="Keyword">field</a>
+    <a id="877" class="Comment">-- What variant of the type system should be used?</a>
+    <a id="Type-restrictions.type-variant"></a><a id="932" href="Definition.Typed.Restrictions.html#932" class="Field">type-variant</a> <a id="945" class="Symbol">:</a> <a id="947" href="Definition.Typed.Variant.html#632" class="Record">Type-variant</a>
+
+  <a id="963" class="Keyword">open</a> <a id="968" href="Definition.Typed.Variant.html#632" class="Module">Type-variant</a> <a id="981" href="Definition.Typed.Restrictions.html#932" class="Field">type-variant</a> <a id="994" class="Keyword">public</a>
+
+  <a id="1004" class="Keyword">field</a>
+    <a id="1014" class="Comment">-- Unit types of either variant are only allowed if the given</a>
+    <a id="1080" class="Comment">-- predicate holds.</a>
+    <a id="Type-restrictions.Unit-allowed"></a><a id="1104" href="Definition.Typed.Restrictions.html#1104" class="Field">Unit-allowed</a> <a id="1117" class="Symbol">:</a> <a id="1119" href="Definition.Untyped.NotParametrised.html#2039" class="Datatype">Strength</a> <a id="1128" class="Symbol">→</a> <a id="1130" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1134" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+
+    <a id="1141" class="Comment">-- Restrictions imposed upon Π- and Σ-types.</a>
+    <a id="Type-restrictions.ΠΣ-allowed"></a><a id="1190" href="Definition.Typed.Restrictions.html#1190" class="Field">ΠΣ-allowed</a> <a id="1201" class="Symbol">:</a> <a id="1203" href="Definition.Untyped.NotParametrised.html#2102" class="Datatype">BinderMode</a> <a id="1214" class="Symbol">→</a> <a id="1216" class="Symbol">(</a><a id="1217" href="Definition.Typed.Restrictions.html#1217" class="Bound">p</a> <a id="1219" href="Definition.Typed.Restrictions.html#1219" class="Bound">q</a> <a id="1221" class="Symbol">:</a> <a id="1223" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a><a id="1224" class="Symbol">)</a> <a id="1226" class="Symbol">→</a> <a id="1228" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1232" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+
+  <a id="1237" class="Comment">-- The strong unit types are only allowed if the following predicate</a>
+  <a id="1308" class="Comment">-- holds.</a>
+
+  <a id="Type-restrictions.Unitˢ-allowed"></a><a id="1321" href="Definition.Typed.Restrictions.html#1321" class="Function">Unitˢ-allowed</a> <a id="1335" class="Symbol">:</a> <a id="1337" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1341" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+  <a id="1345" href="Definition.Typed.Restrictions.html#1321" class="Function">Unitˢ-allowed</a> <a id="1359" class="Symbol">=</a> <a id="1361" href="Definition.Typed.Restrictions.html#1104" class="Field">Unit-allowed</a> <a id="1374" href="Definition.Untyped.NotParametrised.html#2062" class="InductiveConstructor">𝕤</a>
+
+  <a id="1379" class="Comment">-- The weak unit types are only allowed if the following predicate</a>
+  <a id="1448" class="Comment">-- holds.</a>
+
+  <a id="Type-restrictions.Unitʷ-allowed"></a><a id="1461" href="Definition.Typed.Restrictions.html#1461" class="Function">Unitʷ-allowed</a> <a id="1475" class="Symbol">:</a> <a id="1477" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1481" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+  <a id="1485" href="Definition.Typed.Restrictions.html#1461" class="Function">Unitʷ-allowed</a> <a id="1499" class="Symbol">=</a> <a id="1501" href="Definition.Typed.Restrictions.html#1104" class="Field">Unit-allowed</a> <a id="1514" href="Definition.Untyped.NotParametrised.html#2064" class="InductiveConstructor">𝕨</a>
+
+  <a id="1519" class="Comment">-- Restrictions imposed upon Π-types.</a>
+
+  <a id="Type-restrictions.Π-allowed"></a><a id="1560" href="Definition.Typed.Restrictions.html#1560" class="Function">Π-allowed</a> <a id="1570" class="Symbol">:</a> <a id="1572" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="1574" class="Symbol">→</a> <a id="1576" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="1578" class="Symbol">→</a> <a id="1580" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1584" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+  <a id="1588" href="Definition.Typed.Restrictions.html#1560" class="Function">Π-allowed</a> <a id="1598" class="Symbol">=</a> <a id="1600" href="Definition.Typed.Restrictions.html#1190" class="Field">ΠΣ-allowed</a> <a id="1611" href="Definition.Untyped.NotParametrised.html#2127" class="InductiveConstructor">BMΠ</a>
+
+  <a id="1618" class="Comment">-- Restrictions imposed upon Σ-types.</a>
+
+  <a id="Type-restrictions.Σ-allowed"></a><a id="1659" href="Definition.Typed.Restrictions.html#1659" class="Function">Σ-allowed</a> <a id="1669" class="Symbol">:</a> <a id="1671" href="Definition.Untyped.NotParametrised.html#2039" class="Datatype">Strength</a> <a id="1680" class="Symbol">→</a> <a id="1682" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="1684" class="Symbol">→</a> <a id="1686" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="1688" class="Symbol">→</a> <a id="1690" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1694" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+  <a id="1698" href="Definition.Typed.Restrictions.html#1659" class="Function">Σ-allowed</a> <a id="1708" class="Symbol">=</a> <a id="1710" href="Definition.Typed.Restrictions.html#1190" class="Field">ΠΣ-allowed</a> <a id="1721" href="Function.Base.html#1134" class="Function Operator">∘→</a> <a id="1724" href="Definition.Untyped.NotParametrised.html#2146" class="InductiveConstructor">BMΣ</a>
+
+  <a id="1731" class="Comment">-- Restrictions imposed upon strong Σ-types.</a>
+
+  <a id="Type-restrictions.Σˢ-allowed"></a><a id="1779" href="Definition.Typed.Restrictions.html#1779" class="Function">Σˢ-allowed</a> <a id="1790" class="Symbol">:</a> <a id="1792" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="1794" class="Symbol">→</a> <a id="1796" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="1798" class="Symbol">→</a> <a id="1800" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1804" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+  <a id="1808" href="Definition.Typed.Restrictions.html#1779" class="Function">Σˢ-allowed</a> <a id="1819" class="Symbol">=</a> <a id="1821" href="Definition.Typed.Restrictions.html#1659" class="Function">Σ-allowed</a> <a id="1831" href="Definition.Untyped.NotParametrised.html#2062" class="InductiveConstructor">𝕤</a>
+
+  <a id="1836" class="Comment">-- Restrictions imposed upon weak Σ-types.</a>
+
+  <a id="Type-restrictions.Σʷ-allowed"></a><a id="1882" href="Definition.Typed.Restrictions.html#1882" class="Function">Σʷ-allowed</a> <a id="1893" class="Symbol">:</a> <a id="1895" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="1897" class="Symbol">→</a> <a id="1899" href="Definition.Typed.Restrictions.html#259" class="Bound">M</a> <a id="1901" class="Symbol">→</a> <a id="1903" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1907" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+  <a id="1911" href="Definition.Typed.Restrictions.html#1882" class="Function">Σʷ-allowed</a> <a id="1922" class="Symbol">=</a> <a id="1924" href="Definition.Typed.Restrictions.html#1659" class="Function">Σ-allowed</a> <a id="1934" href="Definition.Untyped.NotParametrised.html#2064" class="InductiveConstructor">𝕨</a>
+
+  <a id="1939" class="Keyword">field</a>
+    <a id="1949" class="Comment">-- Opaque definitions are only allowed if the given predicate</a>
+    <a id="2015" class="Comment">-- holds.</a>
+    <a id="Type-restrictions.Opacity-allowed"></a><a id="2029" href="Definition.Typed.Restrictions.html#2029" class="Field">Opacity-allowed</a> <a id="2045" class="Symbol">:</a> <a id="2047" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2051" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+
+    <a id="2058" class="Comment">-- Opacity-allowed is decided.</a>
+    <a id="Type-restrictions.Opacity-allowed?"></a><a id="2093" href="Definition.Typed.Restrictions.html#2093" class="Field">Opacity-allowed?</a> <a id="2110" class="Symbol">:</a> <a id="2112" href="Relation.Nullary.Decidable.Core.html#1966" class="Record">Dec</a> <a id="2116" href="Definition.Typed.Restrictions.html#2029" class="Field">Opacity-allowed</a>
+
+  <a id="2135" class="Comment">-- The type Erased A is only allowed if Erased-allowed holds.</a>
+  <a id="2199" class="Comment">-- Note that the Erased type can be defined using either a</a>
+  <a id="2260" class="Comment">-- weak or strong unit type.</a>
+
+  <a id="Type-restrictions.Erased-allowed"></a><a id="2292" href="Definition.Typed.Restrictions.html#2292" class="Function">Erased-allowed</a> <a id="2307" class="Symbol">:</a> <a id="2309" href="Definition.Untyped.NotParametrised.html#2039" class="Datatype">Strength</a> <a id="2318" class="Symbol">→</a> <a id="2320" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2324" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+  <a id="2328" href="Definition.Typed.Restrictions.html#2292" class="Function">Erased-allowed</a> <a id="2343" href="Definition.Typed.Restrictions.html#2343" class="Bound">s</a> <a id="2345" class="Symbol">=</a> <a id="2347" href="Definition.Typed.Restrictions.html#1104" class="Field">Unit-allowed</a> <a id="2360" href="Definition.Typed.Restrictions.html#2343" class="Bound">s</a> <a id="2362" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="2364" href="Definition.Typed.Restrictions.html#1659" class="Function">Σ-allowed</a> <a id="2374" href="Definition.Typed.Restrictions.html#2343" class="Bound">s</a> <a id="2376" href="Graded.Modality.html#896" class="Field">𝟘</a> <a id="2378" href="Graded.Modality.html#896" class="Field">𝟘</a>
+
+  <a id="Type-restrictions.Erasedˢ-allowed"></a><a id="2383" href="Definition.Typed.Restrictions.html#2383" class="Function">Erasedˢ-allowed</a> <a id="2399" class="Symbol">=</a> <a id="2401" href="Definition.Typed.Restrictions.html#2292" class="Function">Erased-allowed</a> <a id="2416" href="Definition.Untyped.NotParametrised.html#2062" class="InductiveConstructor">𝕤</a>
+  <a id="Type-restrictions.Erasedʷ-allowed"></a><a id="2420" href="Definition.Typed.Restrictions.html#2420" class="Function">Erasedʷ-allowed</a> <a id="2436" class="Symbol">=</a> <a id="2438" href="Definition.Typed.Restrictions.html#2292" class="Function">Erased-allowed</a> <a id="2453" href="Definition.Untyped.NotParametrised.html#2064" class="InductiveConstructor">𝕨</a>
+
+  <a id="2458" class="Keyword">field</a>
+    <a id="2468" class="Comment">-- The K rule is only allowed if the given predicate holds.</a>
+    <a id="Type-restrictions.K-allowed"></a><a id="2532" href="Definition.Typed.Restrictions.html#2532" class="Field">K-allowed</a> <a id="2542" class="Symbol">:</a> <a id="2544" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2548" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+
+    <a id="2555" class="Comment">-- []-cong is only allowed if the given predicate holds.</a>
+    <a id="2616" class="Comment">-- Note that []-cong can be used with the Erased type</a>
+    <a id="2674" class="Comment">-- defined using either a weak or a strong unit type.</a>
+    <a id="Type-restrictions.[]-cong-allowed"></a><a id="2732" href="Definition.Typed.Restrictions.html#2732" class="Field">[]-cong-allowed</a> <a id="2748" class="Symbol">:</a> <a id="2750" href="Definition.Untyped.NotParametrised.html#2039" class="Datatype">Strength</a> <a id="2759" class="Symbol">→</a> <a id="2761" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2765" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+
+    <a id="2772" class="Comment">-- If []-cong is allowed, then Erased is allowed.</a>
+    <a id="Type-restrictions.[]-cong→Erased"></a><a id="2826" href="Definition.Typed.Restrictions.html#2826" class="Field">[]-cong→Erased</a> <a id="2841" class="Symbol">:</a> <a id="2843" class="Symbol">∀</a> <a id="2845" class="Symbol">{</a><a id="2846" href="Definition.Typed.Restrictions.html#2846" class="Bound">s</a><a id="2847" class="Symbol">}</a> <a id="2849" class="Symbol">→</a> <a id="2851" href="Definition.Typed.Restrictions.html#2732" class="Field">[]-cong-allowed</a> <a id="2867" href="Definition.Typed.Restrictions.html#2846" class="Bound">s</a> <a id="2869" class="Symbol">→</a> <a id="2871" href="Definition.Typed.Restrictions.html#2292" class="Function">Erased-allowed</a> <a id="2886" href="Definition.Typed.Restrictions.html#2846" class="Bound">s</a>
+
+    <a id="2893" class="Comment">-- If []-cong is allowed, then the modality is not trivial.</a>
+    <a id="Type-restrictions.[]-cong→¬Trivial"></a><a id="2957" href="Definition.Typed.Restrictions.html#2957" class="Field">[]-cong→¬Trivial</a> <a id="2974" class="Symbol">:</a> <a id="2976" class="Symbol">∀</a> <a id="2978" class="Symbol">{</a><a id="2979" href="Definition.Typed.Restrictions.html#2979" class="Bound">s</a><a id="2980" class="Symbol">}</a> <a id="2982" class="Symbol">→</a> <a id="2984" href="Definition.Typed.Restrictions.html#2732" class="Field">[]-cong-allowed</a> <a id="3000" href="Definition.Typed.Restrictions.html#2979" class="Bound">s</a> <a id="3002" class="Symbol">→</a> <a id="3004" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="3006" href="Graded.Modality.html#1977" class="Function">Trivial</a>
+
+  <a id="Type-restrictions.[]-congˢ-allowed"></a><a id="3017" href="Definition.Typed.Restrictions.html#3017" class="Function">[]-congˢ-allowed</a> <a id="3034" class="Symbol">=</a> <a id="3036" href="Definition.Typed.Restrictions.html#2732" class="Field">[]-cong-allowed</a> <a id="3052" href="Definition.Untyped.NotParametrised.html#2062" class="InductiveConstructor">𝕤</a>
+  <a id="Type-restrictions.[]-congʷ-allowed"></a><a id="3056" href="Definition.Typed.Restrictions.html#3056" class="Function">[]-congʷ-allowed</a> <a id="3073" class="Symbol">=</a> <a id="3075" href="Definition.Typed.Restrictions.html#2732" class="Field">[]-cong-allowed</a> <a id="3091" href="Definition.Untyped.NotParametrised.html#2064" class="InductiveConstructor">𝕨</a>
+
+  <a id="3096" class="Keyword">field</a>
+    <a id="3106" class="Comment">-- Equality reflection is only allowed if the given predicate</a>
+    <a id="3172" class="Comment">-- holds.</a>
+    <a id="Type-restrictions.Equality-reflection"></a><a id="3186" href="Definition.Typed.Restrictions.html#3186" class="Field">Equality-reflection</a> <a id="3206" class="Symbol">:</a> <a id="3208" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3212" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+
+    <a id="3219" class="Comment">-- Equality-reflection is decided.</a>
+    <a id="Type-restrictions.Equality-reflection?"></a><a id="3258" href="Definition.Typed.Restrictions.html#3258" class="Field">Equality-reflection?</a> <a id="3279" class="Symbol">:</a> <a id="3281" href="Relation.Nullary.Decidable.Core.html#1966" class="Record">Dec</a> <a id="3285" href="Definition.Typed.Restrictions.html#3186" class="Field">Equality-reflection</a>
+
+    <a id="3310" class="Comment">-- Equality reflection is incompatible with opaque definitions.</a>
+    <a id="Type-restrictions.no-opaque-equality-reflection"></a><a id="3378" href="Definition.Typed.Restrictions.html#3378" class="Field">no-opaque-equality-reflection</a> <a id="3408" class="Symbol">:</a>
+      <a id="3416" href="Definition.Typed.Restrictions.html#2029" class="Field">Opacity-allowed</a> <a id="3432" class="Symbol">→</a> <a id="3434" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="3436" href="Definition.Typed.Restrictions.html#3186" class="Field">Equality-reflection</a>
+
+  <a id="3459" class="Comment">-- No-equality-reflection holds if equality reflection is not</a>
+  <a id="3523" class="Comment">-- allowed.</a>
+
+  <a id="3538" class="Keyword">data</a> <a id="Type-restrictions.No-equality-reflection"></a><a id="3543" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a> <a id="3566" class="Symbol">:</a> <a id="3568" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3572" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a> <a id="3574" class="Keyword">where</a>
+    <a id="Type-restrictions.No-equality-reflection.no-equality-reflection"></a><a id="3584" href="Definition.Typed.Restrictions.html#3584" class="InductiveConstructor">no-equality-reflection</a> <a id="3607" class="Symbol">:</a>
+      <a id="3615" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="3617" href="Definition.Typed.Restrictions.html#3186" class="Field">Equality-reflection</a> <a id="3637" class="Symbol">→</a> <a id="3639" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a>
+
+  <a id="3665" class="Keyword">opaque</a>
+
+    <a id="3677" class="Comment">-- A characterisation lemma for No-equality-reflection.</a>
+
+    <a id="Type-restrictions.No-equality-reflection⇔"></a><a id="3738" href="Definition.Typed.Restrictions.html#3738" class="Function">No-equality-reflection⇔</a> <a id="3762" class="Symbol">:</a>
+      <a id="3770" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a> <a id="3793" href="Tools.Function.html#1253" class="Function Operator">⇔</a> <a id="3795" class="Symbol">(</a><a id="3796" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="3798" href="Definition.Typed.Restrictions.html#3186" class="Field">Equality-reflection</a><a id="3817" class="Symbol">)</a>
+    <a id="3823" href="Definition.Typed.Restrictions.html#3738" class="Function">No-equality-reflection⇔</a> <a id="3847" class="Symbol">=</a>
+        <a id="3857" class="Symbol">(λ</a> <a id="3860" class="Symbol">{</a> <a id="3862" class="Symbol">(</a><a id="3863" href="Definition.Typed.Restrictions.html#3584" class="InductiveConstructor">no-equality-reflection</a> <a id="3886" href="Definition.Typed.Restrictions.html#3886" class="Bound">not-ok</a><a id="3892" class="Symbol">)</a> <a id="3894" class="Symbol">→</a> <a id="3896" href="Definition.Typed.Restrictions.html#3886" class="Bound">not-ok</a> <a id="3903" class="Symbol">})</a>
+      <a id="3912" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="3914" href="Definition.Typed.Restrictions.html#3584" class="InductiveConstructor">no-equality-reflection</a>
+
+  <a id="3940" class="Keyword">opaque</a>
+
+    <a id="3952" class="Comment">-- No-equality-reflection is decided.</a>
+
+    <a id="Type-restrictions.No-equality-reflection?"></a><a id="3995" href="Definition.Typed.Restrictions.html#3995" class="Function">No-equality-reflection?</a> <a id="4019" class="Symbol">:</a> <a id="4021" href="Relation.Nullary.Decidable.Core.html#1966" class="Record">Dec</a> <a id="4025" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a>
+    <a id="4052" href="Definition.Typed.Restrictions.html#3995" class="Function">No-equality-reflection?</a> <a id="4076" class="Symbol">=</a>
+      <a id="4084" href="Tools.Function.html#5412" class="Function">Dec-map</a> <a id="4092" class="Symbol">(</a><a id="4093" href="Tools.Function.html#1416" class="Function">sym⇔</a> <a id="4098" href="Definition.Typed.Restrictions.html#3738" class="Function">No-equality-reflection⇔</a><a id="4121" class="Symbol">)</a> <a id="4123" class="Symbol">(</a><a id="4124" href="Relation.Nullary.Decidable.Core.html#3277" class="Function">¬?</a> <a id="4127" href="Definition.Typed.Restrictions.html#3258" class="Field">Equality-reflection?</a><a id="4147" class="Symbol">)</a>
+
+  <a id="4152" class="Keyword">opaque</a>
+
+    <a id="4164" class="Comment">-- No-equality-reflection holds if opacity is allowed.</a>
+
+    <a id="Type-restrictions.Opacity-allowed→No-equality-reflection"></a><a id="4224" href="Definition.Typed.Restrictions.html#4224" class="Function">Opacity-allowed→No-equality-reflection</a> <a id="4263" class="Symbol">:</a>
+      <a id="4271" href="Definition.Typed.Restrictions.html#2029" class="Field">Opacity-allowed</a> <a id="4287" class="Symbol">→</a> <a id="4289" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a>
+    <a id="4316" href="Definition.Typed.Restrictions.html#4224" class="Function">Opacity-allowed→No-equality-reflection</a> <a id="4355" class="Symbol">=</a>
+      <a id="4363" href="Definition.Typed.Restrictions.html#3584" class="InductiveConstructor">no-equality-reflection</a> <a id="4386" href="Function.Base.html#1134" class="Function Operator">∘→</a> <a id="4389" href="Definition.Typed.Restrictions.html#3378" class="Field">no-opaque-equality-reflection</a>
+
+  <a id="4422" class="Keyword">opaque</a>
+
+    <a id="4434" class="Comment">-- A characterisation lemma for No-equality-reflection or-empty_.</a>
+
+    <a id="Type-restrictions.No-equality-reflection-or-empty⇔"></a><a id="4505" href="Definition.Typed.Restrictions.html#4505" class="Function">No-equality-reflection-or-empty⇔</a> <a id="4538" class="Symbol">:</a>
+      <a id="4546" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a> <a id="4569" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="4578" href="Definition.Typed.Restrictions.html#616" class="Generalizable">Γ</a> <a id="4580" href="Tools.Function.html#1253" class="Function Operator">⇔</a>
+      <a id="4588" class="Symbol">(</a><a id="4589" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="4591" href="Definition.Typed.Restrictions.html#3186" class="Field">Equality-reflection</a> <a id="4611" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="4613" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="4623" href="Definition.Typed.Restrictions.html#616" class="Generalizable">Γ</a><a id="4624" class="Symbol">)</a>
+    <a id="4630" href="Definition.Typed.Restrictions.html#4505" class="Function">No-equality-reflection-or-empty⇔</a> <a id="4663" class="Symbol">{</a><a id="4664" href="Definition.Typed.Restrictions.html#4664" class="Bound">Γ</a><a id="4665" class="Symbol">}</a> <a id="4667" class="Symbol">=</a>
+      <a id="4675" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a> <a id="4698" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="4707" href="Definition.Typed.Restrictions.html#4664" class="Bound">Γ</a>     <a id="4713" href="Tools.Function.html#1735" class="Function">⇔⟨</a> <a id="4716" href="Definition.Untyped.Properties.NotParametrised.html#10425" class="Function">or-empty⇔</a> <a id="4726" href="Tools.Function.html#1735" class="Function">⟩</a>
+      <a id="4734" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a> <a id="4757" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="4759" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="4769" href="Definition.Typed.Restrictions.html#4664" class="Bound">Γ</a>  <a id="4772" href="Tools.Function.html#1735" class="Function">⇔⟨</a> <a id="4775" href="Definition.Typed.Restrictions.html#3738" class="Function">No-equality-reflection⇔</a> <a id="4799" href="Tools.Function.html#4549" class="Function Operator">⊎-cong-⇔</a> <a id="4808" href="Tools.Function.html#1352" class="Function">id⇔</a> <a id="4812" href="Tools.Function.html#1735" class="Function">⟩</a>
+      <a id="4820" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="4822" href="Definition.Typed.Restrictions.html#3186" class="Field">Equality-reflection</a> <a id="4842" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="4844" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="4854" href="Definition.Typed.Restrictions.html#4664" class="Bound">Γ</a>   <a id="4858" href="Tools.Function.html#2454" class="Function Operator">□⇔</a>
+
+  <a id="4864" class="Keyword">opaque</a>
+
+    <a id="4876" class="Comment">-- No-equality-reflection or-empty_ is decidable.</a>
+
+    <a id="Type-restrictions.No-equality-reflection-or-empty?"></a><a id="4931" href="Definition.Typed.Restrictions.html#4931" class="Function">No-equality-reflection-or-empty?</a> <a id="4964" class="Symbol">:</a>
+      <a id="4972" href="Relation.Nullary.Decidable.Core.html#1966" class="Record">Dec</a> <a id="4976" class="Symbol">(</a><a id="4977" href="Definition.Typed.Restrictions.html#3543" class="Datatype">No-equality-reflection</a> <a id="5000" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="5009" href="Definition.Typed.Restrictions.html#616" class="Generalizable">Γ</a><a id="5010" class="Symbol">)</a>
+    <a id="5016" href="Definition.Typed.Restrictions.html#4931" class="Function">No-equality-reflection-or-empty?</a> <a id="5049" class="Symbol">=</a>
+      <a id="5057" href="Definition.Typed.Restrictions.html#3995" class="Function">No-equality-reflection?</a> <a id="5081" href="Definition.Untyped.Properties.NotParametrised.html#10765" class="Function Operator">or-empty?</a>
+
+  <a id="5094" class="Comment">-- A variant of ΠΣ-allowed for BindingType.</a>
+
+  <a id="Type-restrictions.BindingType-allowed"></a><a id="5141" href="Definition.Typed.Restrictions.html#5141" class="Function">BindingType-allowed</a> <a id="5161" class="Symbol">:</a> <a id="5163" href="Definition.Untyped.html#3658" class="Datatype">BindingType</a> <a id="5175" class="Symbol">→</a> <a id="5177" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="5181" href="Definition.Typed.Restrictions.html#255" class="Bound">a</a>
+  <a id="5185" href="Definition.Typed.Restrictions.html#5141" class="Function">BindingType-allowed</a> <a id="5205" class="Symbol">(</a><a id="5206" href="Definition.Untyped.html#3686" class="InductiveConstructor">BM</a> <a id="5209" href="Definition.Typed.Restrictions.html#5209" class="Bound">b</a> <a id="5211" href="Definition.Typed.Restrictions.html#5211" class="Bound">p</a> <a id="5213" href="Definition.Typed.Restrictions.html#5213" class="Bound">q</a><a id="5214" class="Symbol">)</a> <a id="5216" class="Symbol">=</a> <a id="5218" href="Definition.Typed.Restrictions.html#1190" class="Field">ΠΣ-allowed</a> <a id="5229" href="Definition.Typed.Restrictions.html#5209" class="Bound">b</a> <a id="5231" href="Definition.Typed.Restrictions.html#5211" class="Bound">p</a> <a id="5233" href="Definition.Typed.Restrictions.html#5213" class="Bound">q</a>
+
+  <a id="5238" class="Comment">-- Some typing rules use the following condition.</a>
+
+  <a id="Type-restrictions.Unit-with-η"></a><a id="5291" href="Definition.Typed.Restrictions.html#5291" class="Function">Unit-with-η</a> <a id="5303" class="Symbol">:</a> <a id="5305" href="Definition.Untyped.NotParametrised.html#2039" class="Datatype">Strength</a> <a id="5314" class="Symbol">→</a> <a id="5316" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+  <a id="5322" href="Definition.Typed.Restrictions.html#5291" class="Function">Unit-with-η</a> <a id="5334" href="Definition.Typed.Restrictions.html#5334" class="Bound">s</a> <a id="5336" class="Symbol">=</a> <a id="5338" href="Definition.Typed.Restrictions.html#5334" class="Bound">s</a> <a id="5340" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="5342" href="Definition.Untyped.NotParametrised.html#2062" class="InductiveConstructor">𝕤</a> <a id="5344" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="5346" href="Definition.Typed.Variant.html#1110" class="Function">Unitʷ-η</a>
+
+  <a id="5357" class="Keyword">opaque</a>
+
+    <a id="5369" class="Comment">-- A decision procedure related to Unit-with-η.</a>
+
+    <a id="Type-restrictions.Unit-with-η?"></a><a id="5422" href="Definition.Typed.Restrictions.html#5422" class="Function">Unit-with-η?</a> <a id="5435" class="Symbol">:</a> <a id="5437" class="Symbol">∀</a> <a id="5439" href="Definition.Typed.Restrictions.html#5439" class="Bound">s</a> <a id="5441" class="Symbol">→</a> <a id="5443" href="Definition.Typed.Restrictions.html#5291" class="Function">Unit-with-η</a> <a id="5455" href="Definition.Typed.Restrictions.html#5439" class="Bound">s</a> <a id="5457" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="5459" href="Definition.Typed.Restrictions.html#5439" class="Bound">s</a> <a id="5461" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="5463" href="Definition.Untyped.NotParametrised.html#2064" class="InductiveConstructor">𝕨</a> <a id="5465" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="5467" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="5469" href="Definition.Typed.Variant.html#1110" class="Function">Unitʷ-η</a>
+    <a id="5481" href="Definition.Typed.Restrictions.html#5422" class="Function">Unit-with-η?</a> <a id="5494" href="Definition.Untyped.NotParametrised.html#2062" class="InductiveConstructor">𝕤</a> <a id="5496" class="Symbol">=</a> <a id="5498" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="5503" class="Symbol">(</a><a id="5504" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="5509" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a><a id="5513" class="Symbol">)</a>
+    <a id="5519" href="Definition.Typed.Restrictions.html#5422" class="Function">Unit-with-η?</a> <a id="5532" href="Definition.Untyped.NotParametrised.html#2064" class="InductiveConstructor">𝕨</a> <a id="5534" class="Symbol">=</a> <a id="5536" href="Function.Base.html#4061" class="Function Operator">case</a> <a id="5541" href="Definition.Typed.Variant.html#1193" class="Function">Unitʷ-η?</a> <a id="5550" href="Function.Base.html#4061" class="Function Operator">of</a> <a id="5553" class="Symbol">λ</a> <a id="5555" class="Keyword">where</a>
+      <a id="5567" class="Symbol">(</a><a id="5568" href="Relation.Nullary.Decidable.Core.html#2099" class="InductiveConstructor">yes</a> <a id="5572" href="Definition.Typed.Restrictions.html#5572" class="Bound">η</a><a id="5573" class="Symbol">)</a>   <a id="5577" class="Symbol">→</a> <a id="5579" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="5584" class="Symbol">(</a><a id="5585" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="5590" href="Definition.Typed.Restrictions.html#5572" class="Bound">η</a><a id="5591" class="Symbol">)</a>
+      <a id="5599" class="Symbol">(</a><a id="5600" href="Relation.Nullary.Decidable.Core.html#2136" class="InductiveConstructor">no</a> <a id="5603" href="Definition.Typed.Restrictions.html#5603" class="Bound">no-η</a><a id="5607" class="Symbol">)</a> <a id="5609" class="Symbol">→</a> <a id="5611" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="5616" class="Symbol">(</a><a id="5617" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a> <a id="5622" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="5624" href="Definition.Typed.Restrictions.html#5603" class="Bound">no-η</a><a id="5628" class="Symbol">)</a>
+
+  <a id="5633" class="Keyword">opaque</a>
+
+    <a id="5645" class="Comment">-- Unit-with-η 𝕨 implies Unitʷ-η.</a>
+
+    <a id="Type-restrictions.Unit-with-η-𝕨→Unitʷ-η"></a><a id="5684" href="Definition.Typed.Restrictions.html#5684" class="Function">Unit-with-η-𝕨→Unitʷ-η</a> <a id="5706" class="Symbol">:</a> <a id="5708" href="Definition.Typed.Restrictions.html#5291" class="Function">Unit-with-η</a> <a id="5720" href="Definition.Untyped.NotParametrised.html#2064" class="InductiveConstructor">𝕨</a> <a id="5722" class="Symbol">→</a> <a id="5724" href="Definition.Typed.Variant.html#1110" class="Function">Unitʷ-η</a>
+    <a id="5736" href="Definition.Typed.Restrictions.html#5684" class="Function">Unit-with-η-𝕨→Unitʷ-η</a> <a id="5758" class="Symbol">(</a><a id="5759" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="5764" href="Definition.Typed.Restrictions.html#5764" class="Bound">η</a><a id="5765" class="Symbol">)</a>  <a id="5768" class="Symbol">=</a> <a id="5770" href="Definition.Typed.Restrictions.html#5764" class="Bound">η</a>
+    <a id="5776" href="Definition.Typed.Restrictions.html#5684" class="Function">Unit-with-η-𝕨→Unitʷ-η</a> <a id="5798" class="Symbol">(</a><a id="5799" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="5804" class="Symbol">())</a>
+
+<a id="5809" class="Keyword">open</a> <a id="5814" href="Definition.Typed.Restrictions.html#808" class="Module">Type-restrictions</a>
+</pre></body></html>
