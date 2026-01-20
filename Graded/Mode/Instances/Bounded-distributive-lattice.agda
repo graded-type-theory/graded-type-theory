@@ -62,8 +62,8 @@ bounded-distributive-lattice-isMode = record
    ; ⌞⌜⌝⌟ = λ _ → PE.refl
    ; ⌜·ᵐ⌝ = λ _ → PE.refl
    ; ⌞⌟·ᵐ = PE.refl
-   ; ⌜⌝-·-comm = λ m → ∨-comm m _
    ; ·⌜⌞⌟⌝ = ∨-idem _
+   ; ⌜⌞⌟⌝· = ∨-idem _
    ; ≤⌜⌝· = λ {p _ m} _ _ → begin
        p           ≡˘⟨ ∧-absorbs-∨ _ _ ⟩
        p ∧ (p ∨ m) ≡⟨ cong (p ∧_) (∨-comm _ _) ⟩
