@@ -112,11 +112,11 @@ record IsMode : Set (a ⊔ b) where
     -- ⌞_⌟ commutes with _·ᵐ_/_·_.
     ⌞⌟·ᵐ : ⌞ p ⌟ ·ᵐ ⌞ q ⌟ ≡ ⌞ p · q ⌟
 
-    -- A form of commutativity.
-    ⌜⌝-·-comm : ∀ m → ⌜ m ⌝ · p ≡ p · ⌜ m ⌝
-
     -- The value p · ⌜ ⌞ p ⌟ ⌝ is equal to p.
     ·⌜⌞⌟⌝ : p · ⌜ ⌞ p ⌟ ⌝ ≡ p
+
+    -- The value p · ⌜ ⌞ p ⌟ ⌝ is equal to p.
+    ⌜⌞⌟⌝· : ⌜ ⌞ p ⌟ ⌝ · p ≡ p
 
     -- If p ≤ q and q ≤ ⌜ m ⌝ · q then p ≤ ⌜ m ⌝ · p.
     ≤⌜⌝· : p ≤ q → q ≤ ⌜ m ⌝ · q → p ≤ ⌜ m ⌝ · p
@@ -778,14 +778,29 @@ record IsMode : Set (a ⊔ b) where
 
   opaque
 
-    ⌜⌞⌟⌝· : ⌜ ⌞ p ⌟ ⌝ · p ≡ p
-    ⌜⌞⌟⌝· {p} = begin
-      ⌜ ⌞ p ⌟ ⌝ · p ≡⟨ ⌜⌝-·-comm _ ⟩
-      p · ⌜ ⌞ p ⌟ ⌝ ≡⟨ ·⌜⌞⌟⌝ ⟩
-      p             ∎
+    -- A form of commutativity.
+
+    ⌜⌝-·-comm : ∀ m → ⌜ m ⌝ · p ≡ p · ⌜ m ⌝
+    ⌜⌝-·-comm {p} m = begin
+      ⌜ m ⌝ · p                          ≡˘⟨ ·⌜⌞⌟⌝ ⟩
+      (⌜ m ⌝ · p) · ⌜ ⌞ ⌜ m ⌝ · p ⌟ ⌝    ≡⟨ ·-assoc _ _ _ ⟩
+      ⌜ m ⌝ · p · ⌜ ⌞ ⌜ m ⌝ · p ⌟ ⌝      ≡˘⟨ ·-congˡ (·-congˡ (⌜⌝-cong ⌞⌟·ᵐ)) ⟩
+      ⌜ m ⌝ · p · ⌜ ⌞ ⌜ m ⌝ ⌟ ·ᵐ ⌞ p ⌟ ⌝ ≡⟨ ·-congˡ (·-congˡ (⌜⌝-cong (·ᵐ-congʳ (⌞⌜⌝⌟ _)))) ⟩
+      ⌜ m ⌝ · p · ⌜ m ·ᵐ ⌞ p ⌟ ⌝         ≡⟨ ·-congˡ (·-congˡ (⌜⌝-cong (·ᵐ-comm _ _))) ⟩
+      ⌜ m ⌝ · p · ⌜ ⌞ p ⌟ ·ᵐ m ⌝         ≡⟨ ·-congˡ (·-congˡ (⌜·ᵐ⌝ _)) ⟩
+      ⌜ m ⌝ · p · (⌜ ⌞ p ⌟ ⌝ · ⌜ m ⌝)    ≡˘⟨ ·-congˡ (·-assoc _ _ _) ⟩
+      ⌜ m ⌝ · (p · ⌜ ⌞ p ⌟ ⌝) · ⌜ m ⌝    ≡⟨ ·-congˡ (·-congʳ ·⌜⌞⌟⌝) ⟩
+      ⌜ m ⌝ · p · ⌜ m ⌝                  ≡˘⟨ ·-congˡ (·-congʳ ⌜⌞⌟⌝·) ⟩
+      ⌜ m ⌝ · (⌜ ⌞ p ⌟ ⌝ · p) · ⌜ m ⌝    ≡⟨ ·-congˡ (·-assoc _ _ _) ⟩
+      ⌜ m ⌝ · ⌜ ⌞ p ⌟ ⌝ · p · ⌜ m ⌝      ≡˘⟨ ·-assoc _ _ _ ⟩
+      (⌜ m ⌝ · ⌜ ⌞ p ⌟ ⌝) · p · ⌜ m ⌝    ≡˘⟨ ·-congʳ (⌜·ᵐ⌝ _) ⟩
+      ⌜ m ·ᵐ ⌞ p ⌟ ⌝ · p · ⌜ m ⌝         ≡⟨ ·-congʳ (⌜⌝-cong (·ᵐ-comm _ _)) ⟩
+      ⌜ ⌞ p ⌟ ·ᵐ m ⌝ · p · ⌜ m ⌝         ≡˘⟨ ·-congʳ (⌜⌝-cong (·ᵐ-congˡ (⌞⌜⌝⌟ _))) ⟩
+      ⌜ ⌞ p ⌟ ·ᵐ ⌞ ⌜ m ⌝ ⌟ ⌝ · p · ⌜ m ⌝ ≡⟨ ·-congʳ (⌜⌝-cong ⌞⌟·ᵐ) ⟩
+      ⌜ ⌞ p · ⌜ m ⌝ ⌟ ⌝ · p · ⌜ m ⌝      ≡⟨ ⌜⌞⌟⌝· ⟩
+      p · ⌜ m ⌝                          ∎
       where
       open Tools.Reasoning.PropositionalEquality
-
 
   opaque
 
