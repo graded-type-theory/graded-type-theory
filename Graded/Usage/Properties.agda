@@ -63,8 +63,6 @@ private
     γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     p q r s z : M
     m m₁ m₂ m₃ m′ : Mode
-    -- b : Bool
-    ok : T _
     x : Fin n
     sem : Some-erased-matches
     nm : Natrec-mode

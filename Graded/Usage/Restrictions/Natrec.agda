@@ -134,23 +134,3 @@ opaque
   natrec-mode? Nr = does-have-nr ⦃ Nr ⦄
   natrec-mode? No-nr = does-not-have-nr ⦃ No-nr ⦄
   natrec-mode? No-nr-glb = does-not-have-nr-glb ⦃ No-nr-glb ⦄
-
--- A view corresponding to Natrec-mode-supports-usage-inference
-
--- data Natrec-inference-view (nm : Natrec-mode) : Set a where
---   does-have-nr :
---     ⦃ has-nr : Natrec-mode-has-nr nm ⦄ →
---     Natrec-inference-view nm
---   does-no-have-nr-glb :
---     ⦃ no-nr : Natrec-mode-no-nr-glb nm ⦄ →
---     ⦃ ok : Has-well-behaved-GLBs 𝕄 ⦄ →
---     (∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s)) →
---     Natrec-inference-view nm
-
--- opaque
-
---   natrec-inference-view :
---     Natrec-mode-supports-usage-inference nm →
---     Natrec-inference-view nm
---   natrec-inference-view Nr = does-have-nr ⦃ Nr ⦄
---   natrec-inference-view (No-nr-glb x) = does-no-have-nr-glb ⦃ No-nr-glb ⦄ x
