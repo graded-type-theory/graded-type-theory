@@ -1999,6 +1999,23 @@ opaque
     ⊢funext ok Π-ok Π-ok′ ⊢l₁ ⊢l₂
 
 opaque
+  unfolding Poly-funext poly-funext
+
+  -- A typing rule for poly-funext.
+
+  ⊢poly-funext :
+    Equality-reflection →
+    Level-allowed →
+    Π-allowed p q →
+    Π-allowed p′ q′ →
+    ⊢ Γ →
+    Γ ⊢ poly-funext p p′ ∷ Poly-funext p q p′ q′
+  ⊢poly-funext ok okᴸ Π-ok Π-ok′ ⊢Γ =
+    let L⊢L = Levelⱼ′ okᴸ (∙ Levelⱼ′ okᴸ ⊢Γ) in
+    lamⱼ′ Π-ok $ lamⱼ′ Π-ok $
+    ⊢funext ok Π-ok Π-ok′ (term-⊢∷ (var₁ L⊢L)) (term-⊢∷ (var₀ L⊢L))
+
+opaque
 
   -- In the presence of equality reflection one can prove a
   -- definitional variant of UIP.

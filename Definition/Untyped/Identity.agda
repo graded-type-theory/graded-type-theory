@@ -425,6 +425,40 @@ opaque
 
 opaque
 
+  -- A certain formulation of universe-polymorphic function
+  -- extensionality.
+
+  Poly-funext : M → M → M → M → Term n
+  Poly-funext p q p′ q′ =
+    Π p , q ▷ Level ▹
+    Π p , q ▷ Level ▹
+    Funext p q p′ q′ (var x1) (var x0)
+
+opaque
+  unfolding Poly-funext
+
+  -- A substitution lemma for Poly-funext.
+
+  Poly-funext-[] : Poly-funext p q p′ q′ [ σ ] ≡ Poly-funext p q p′ q′
+  Poly-funext-[] {p} {q} =
+    PE.cong (Π p , q ▷_▹_ _) $
+    PE.cong (Π p , q ▷_▹_ _) $
+    Funext-[]
+
+opaque
+
+  -- A weakening lemma for Poly-funext.
+
+  wk-Poly-funext :
+    wk ρ (Poly-funext p q p′ q′) ≡
+    Poly-funext p q p′ q′
+  wk-Poly-funext {ρ} {p} {q} {p′} {q′} =
+    wk ρ (Poly-funext p q p′ q′)         ≡⟨ wk≡subst _ _ ⟩
+    Poly-funext p q p′ q′ [ toSubst ρ ]  ≡⟨ Poly-funext-[] ⟩
+    Poly-funext p q p′ q′                ∎
+
+opaque
+
   -- A variant of function extensionality that works in the presence
   -- of equality reflection (see
   -- Definition.Typed.Properties.Admissible.Identity.⊢funext).
@@ -439,6 +473,23 @@ opaque
 
   funext-[] : funext p p′ [ σ ] ≡ funext p p′
   funext-[] = refl
+
+opaque
+
+  -- A variant of universe-polymorphic function extensionality that
+  -- works in the presence of equality reflection (see
+  -- Definition.Typed.Properties.Admissible.Identity.⊢poly-funext).
+
+  poly-funext : M → M → Term n
+  poly-funext p p′ = lam p $ lam p $ funext p p′
+
+opaque
+  unfolding poly-funext
+
+  -- A substitution lemma for poly-funext.
+
+  poly-funext-[] : poly-funext p p′ [ σ ] ≡ poly-funext p p′
+  poly-funext-[] = PE.cong (lam _ ∘→ lam _) funext-[]
 
 ------------------------------------------------------------------------
 -- Variants of some of the term formers, intended to be used with the

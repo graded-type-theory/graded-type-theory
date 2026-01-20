@@ -173,3 +173,19 @@ opaque
       𝟘ᶜ                                                                  ∎
     where
     open ≤ᶜ-reasoning
+
+opaque
+  unfolding poly-funext
+
+  -- A usage rule for poly-funext.
+
+  ▸poly-funext :
+    ⌜ m ⌝ · p ≤ 𝟘 →
+    ⌜ m ⌝ · p′ ≤ 𝟘 →
+    𝟘ᶜ {n = n} ▸[ m ] poly-funext p p′
+  ▸poly-funext {m} {p} hyp hyp′ =
+    lamₘ $ lamₘ $ sub (▸funext hyp hyp′) $ begin
+      𝟘ᶜ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · p  ≤⟨ ≤ᶜ-refl ∙ hyp ∙ hyp ⟩
+      𝟘ᶜ                          ∎
+    where
+    open ≤ᶜ-reasoning
