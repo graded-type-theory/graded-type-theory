@@ -459,48 +459,46 @@ opaque
   unfolding
     Extended-type-theory-with-equality-reflection
     Funext
+    Level-allowed
     turn-on-equality-reflection
 
   -- A variant of the soundness theorem for erasure for natural
   -- numbers that shows that it is, in some sense, safe to "postulate"
-  -- erased function extensionality (for certain grades and levels,
-  -- given certain assumptions).
+  -- erased function extensionality (for certain grades, given certain
+  -- assumptions).
 
   soundness-ℕ-with-function-extensionality :
     let module Ext = Definition.Typed (with-equality-reflection TR) in
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    Level-allowed →
     Π-allowed p q →
     Π-allowed p′ q′ →
     ⌜ 𝟘ᵐ? ⌝ · p ≤ 𝟘 →
     ⌜ 𝟘ᵐ? ⌝ · p′ ≤ 𝟘 →
-    ∇ » ε ∙ Funext p q p′ q′ l₁ l₂ ⊢ t ∷ ℕ →
+    ∇ » ε ∙ Poly-funext p q p′ q′ ⊢ t ∷ ℕ →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-      glassify ∇ » ε Ext.⊢ t [ funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
+      glassify ∇ » ε Ext.⊢ t [ poly-funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
       eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-  soundness-ℕ-with-function-extensionality Π-ok Π-ok′ ·p≤𝟘 ·p′≤𝟘 ⊢t =
-    let ⊢U , ⊢Π , _ = inversion-ΠΣ (DP.⊢∙→⊢ (DP.wfTerm ⊢t))
-        ⊢l₁         = inversion-U-Level ⊢U
-        ⊢l₂         = inversion-U-Level $
-                      inversion-ΠΣ (inversion-ΠΣ ⊢Π .proj₁)
-                        .proj₂ .proj₁
-    in
+  soundness-ℕ-with-function-extensionality ok Π-ok Π-ok′ ·p≤𝟘 ·p′≤𝟘 ⊢t =
     soundness-ℕ-using-equality-reflection
       (⊢ˢʷ∷-sgSubst $
-       DP′.⊢funext′ _ Π-ok Π-ok′ (tr-⊢∷L ⊢l₁) (tr-⊢∷L ⊢l₂))
-      (λ { x0 → ▸funext ·p≤𝟘 ·p′≤𝟘; (() +1) })
+       DP′.⊢poly-funext _ ok Π-ok Π-ok′ $
+       tr-⊢ (ε (DP.defn-wf (DP.wfTerm ⊢t))))
+      (λ { x0 → ▸poly-funext ·p≤𝟘 ·p′≤𝟘; (() +1) })
       ⊢t
     where
     open Extended-type-theory-with-equality-reflection
 
     open Definition.Typed.Inversion TR
+    open Definition.Typed.Properties TR
     open Definition.Typed.Substitution Conf.TRₜ
     open Extended-type-theory
            Extended-type-theory-with-equality-reflection
 
-    tr-⊢∷L : Γ ⊢ t ∷Level → tr-Cons Γ DT.⊢ t ∷Level
-    tr-⊢∷L = PE.subst₂ DT._⊢_∷Level tr-Cons≡ tr-id ∘→ GM.tr-⊢∷L
+    tr-⊢ : ⊢ Γ → DT.⊢ tr-Cons Γ
+    tr-⊢ = PE.subst DT.⊢_ tr-Cons≡ ∘→ GM.tr-⊢′
 
 opaque
 
@@ -510,17 +508,18 @@ opaque
   soundness-ℕ-with-function-extensionality-𝟘ᵐ :
     let module Ext = Definition.Typed (with-equality-reflection TR) in
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
+    Level-allowed →
     Π-allowed p q →
     Π-allowed p′ q′ →
-    ∇ » ε ∙ Funext p q p′ q′ l₁ l₂ ⊢ t ∷ ℕ →
+    ∇ » ε ∙ Poly-funext p q p′ q′ ⊢ t ∷ ℕ →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-      glassify ∇ » ε Ext.⊢ t [ funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
+      glassify ∇ » ε Ext.⊢ t [ poly-funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
       eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-  soundness-ℕ-with-function-extensionality-𝟘ᵐ ⦃ ok ⦄ Π-ok Π-ok′ =
+  soundness-ℕ-with-function-extensionality-𝟘ᵐ ⦃ ok ⦄ okᴸ Π-ok Π-ok′ =
     soundness-ℕ-with-function-extensionality
-      ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ Π-ok Π-ok′ lemma lemma
+      ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ okᴸ Π-ok Π-ok′ lemma lemma
     where
     lemma : ⌜ 𝟘ᵐ? ⌝ · p ≤ 𝟘
     lemma {p} = ≤-reflexive
