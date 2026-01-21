@@ -183,7 +183,7 @@ well-scoped):
 <a id="5634" class="Keyword">import</a> <a id="5641" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="5660" class="Keyword">using</a>
   <a id="5668" class="Symbol">(</a> <a id="5670" href="Definition.Untyped.html#13313" class="Function">wk</a>    <a id="5676" class="Comment">-- Weakening operation</a>
   <a id="5701" class="Symbol">;</a> <a id="5703" href="Definition.Untyped.html#16149" class="Function">Subst</a> <a id="5709" class="Comment">-- Substitutions</a>
-  <a id="5728" class="Symbol">;</a> <a id="5730" href="Definition.Untyped.html#18368" class="Function Operator">_[_]</a>  <a id="5736" class="Comment">-- Substitution operation</a>
+  <a id="5728" class="Symbol">;</a> <a id="5730" href="Definition.Untyped.html#18498" class="Function Operator">_[_]</a>  <a id="5736" class="Comment">-- Substitution operation</a>
   <a id="5764" class="Symbol">)</a>
 <a id="5766" class="Markup">```
 </a><a id="5770" class="Background">Note that the `Con` type former is more general than in the paper.
@@ -801,14 +801,14 @@ Theorem 5.12 states that with transitive unfolding (using the bitwise disjuncti
 definition contexts (among other things) is preserved under transparentization by any unfolding vector:
 </a><a id="31431" class="Markup">```
 </a><a id="31435" class="Keyword">import</a> <a id="31442" href="Definition.Typed.Properties.Transparentisation.html" class="Module">Definition.Typed.Properties.Transparentisation</a>
-<a id="31489" href="README.Opaque-definitions.html#31489" class="Function">_</a> <a id="31491" class="Symbol">=</a> <a id="31493" href="Definition.Typed.Properties.Transparentisation.html#17766" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-»</a>
-<a id="31560" href="README.Opaque-definitions.html#31560" class="Function">_</a> <a id="31562" class="Symbol">=</a> <a id="31564" href="Definition.Typed.Properties.Transparentisation.html#2870" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢′</a>
-<a id="31632" href="README.Opaque-definitions.html#31632" class="Function">_</a> <a id="31634" class="Symbol">=</a> <a id="31636" href="Definition.Typed.Properties.Transparentisation.html#3069" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢</a>
-<a id="31703" href="README.Opaque-definitions.html#31703" class="Function">_</a> <a id="31705" class="Symbol">=</a> <a id="31707" href="Definition.Typed.Properties.Transparentisation.html#3507" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢∷</a>
-<a id="31775" href="README.Opaque-definitions.html#31775" class="Function">_</a> <a id="31777" class="Symbol">=</a> <a id="31779" href="Definition.Typed.Properties.Transparentisation.html#6435" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢≡</a>
-<a id="31847" href="README.Opaque-definitions.html#31847" class="Function">_</a> <a id="31849" class="Symbol">=</a> <a id="31851" href="Definition.Typed.Properties.Transparentisation.html#7171" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢≡∷</a>
-<a id="31920" href="README.Opaque-definitions.html#31920" class="Function">_</a> <a id="31922" class="Symbol">=</a> <a id="31924" href="Definition.Typed.Properties.Transparentisation.html#13046" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⇒∷</a>
-<a id="31992" href="README.Opaque-definitions.html#31992" class="Function">_</a> <a id="31994" class="Symbol">=</a> <a id="31996" href="Definition.Typed.Properties.Transparentisation.html#16601" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⇒</a>
+<a id="31489" href="README.Opaque-definitions.html#31489" class="Function">_</a> <a id="31491" class="Symbol">=</a> <a id="31493" href="Definition.Typed.Properties.Transparentisation.html#17756" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-»</a>
+<a id="31560" href="README.Opaque-definitions.html#31560" class="Function">_</a> <a id="31562" class="Symbol">=</a> <a id="31564" href="Definition.Typed.Properties.Transparentisation.html#2860" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢′</a>
+<a id="31632" href="README.Opaque-definitions.html#31632" class="Function">_</a> <a id="31634" class="Symbol">=</a> <a id="31636" href="Definition.Typed.Properties.Transparentisation.html#3059" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢</a>
+<a id="31703" href="README.Opaque-definitions.html#31703" class="Function">_</a> <a id="31705" class="Symbol">=</a> <a id="31707" href="Definition.Typed.Properties.Transparentisation.html#3497" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢∷</a>
+<a id="31775" href="README.Opaque-definitions.html#31775" class="Function">_</a> <a id="31777" class="Symbol">=</a> <a id="31779" href="Definition.Typed.Properties.Transparentisation.html#6425" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢≡</a>
+<a id="31847" href="README.Opaque-definitions.html#31847" class="Function">_</a> <a id="31849" class="Symbol">=</a> <a id="31851" href="Definition.Typed.Properties.Transparentisation.html#7161" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢≡∷</a>
+<a id="31920" href="README.Opaque-definitions.html#31920" class="Function">_</a> <a id="31922" class="Symbol">=</a> <a id="31924" href="Definition.Typed.Properties.Transparentisation.html#13036" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⇒∷</a>
+<a id="31992" href="README.Opaque-definitions.html#31992" class="Function">_</a> <a id="31994" class="Symbol">=</a> <a id="31996" href="Definition.Typed.Properties.Transparentisation.html#16591" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⇒</a>
 <a id="32063" class="Markup">```
 </a><a id="32067" class="Background">(The last seven definitions above are given in a module with an extra assumption that is instantiated in the module
 `Transitive`; see `open Unconditional`.)
