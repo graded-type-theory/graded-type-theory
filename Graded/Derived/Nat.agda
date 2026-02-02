@@ -266,6 +266,22 @@ opaque
     open ≤ᶜ-reasoning
 
 opaque
+  unfolding natcase
+
+  -- A usage lemma for natcase.
+
+  ▸natcase-glb :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    γ ▸[ m ] t →
+    δ ∙ ⌜ m ⌝ · p ▸[ m ] u →
+    η ▸[ m ] v →
+    θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+    (𝟙 ∧ p) ·ᶜ η +ᶜ γ ∧ᶜ δ ▸[ m ] natcase p q A t u v
+  ▸natcase-glb ▸t ▸u ▸v ▸A =
+    let ▸u′ = sub-≈ᶜ (wkUsage (step id) ▸u) (≈ᶜ-refl ∙ ·-zeroʳ _)
+    in  natrec-no-nr-glbₘ ▸t ▸u′ ▸v ▸A nrᵢ-𝟘-GLB nrᵢᶜ-𝟘-GLB
+
+opaque
   unfolding strict-const
 
   -- A usage lemma for strict-const.
@@ -287,3 +303,20 @@ opaque
          γ ∙ 𝟘            ∎)
     where
     open ≤ᶜ-reasoning
+
+opaque
+  unfolding strict-const
+
+  -- A usage lemma for strict-const.
+
+  ▸strict-const-glb :
+    ⦃ no-nr : Nr-not-available-GLB ⦄ →
+    γ ▸[ 𝟘ᵐ? ] A →
+    δ ▸[ m ] t →
+    η ▸[ m ] u →
+    η +ᶜ δ ▸[ m ] strict-const A t u
+  ▸strict-const-glb ▸A ▸t ▸u =
+    let ▸x0 = sub-≈ᶜ var (≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-identityʳ _)
+        ▸A₁ = sub-≈ᶜ (wkUsage (step id) ▸A) (≈ᶜ-refl ∙ ·-zeroʳ _)
+    in  sub-≈ᶜ (natrec-no-nr-glbₘ ▸t ▸x0 ▸u ▸A₁ nrᵢ-const-GLB₁ nrᵢᶜ-const-GLBᶜ₁)
+          (≈ᶜ-sym (+ᶜ-congʳ (·ᶜ-identityˡ _)))
