@@ -26,7 +26,7 @@ import Definition.Typed.Decidable.Internal.Weakening
 open import Definition.Typed.Restrictions
 
 open import Definition.Untyped M hiding (_[_]′)
-open import Definition.Untyped.Bool 𝕄 as B
+open import Definition.Untyped.Bool.Nr 𝕄 as B
   using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Empty 𝕄 as UE hiding (module Internal)
 open import Definition.Untyped.Erased 𝕄 𝕨 as E

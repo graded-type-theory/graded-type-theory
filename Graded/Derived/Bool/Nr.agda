@@ -1,11 +1,12 @@
 ------------------------------------------------------------------------
--- Some properties related to usage and Bool
+-- Some properties related to usage and Bool for the theory with nr
+-- functions
 ------------------------------------------------------------------------
 
 import Graded.Modality
 open import Graded.Usage.Restrictions
 
-module Graded.Derived.Bool
+module Graded.Derived.Bool.Nr
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
@@ -32,7 +33,7 @@ open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Weakening 𝕄 R
 
 open import Definition.Untyped M
-open import Definition.Untyped.Bool 𝕄
+open import Definition.Untyped.Bool.Nr 𝕄
 
 open import Tools.Fin
 open import Tools.Function
