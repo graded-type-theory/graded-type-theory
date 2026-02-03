@@ -39,7 +39,6 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Canonicity TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
-open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
@@ -139,13 +138,12 @@ opaque
              → (k PE.≢ 0 →
                 No-erased-matches′ type-variant UR ×
                 Has-well-behaved-zero M semiring-with-meet)
-             → No-namesₛ s
              → ε » Δ ⊩ℕ n ∷ℕ → n PE.≡ ⦅ s ⦆ → Δ ⊢ₛ s ∷ ℕ → ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
                Numeral t × ε » Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
                ▸ ⟨ H , t , ρ , ε ⟩
-  redNumeral′ consistent prop s-nn (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
-    case whBisim consistent prop s-nn ⊢s ▸s (d , sucₙ) of λ
+  redNumeral′ consistent prop (ℕₜ _ d n≡n (sucᵣ x)) PE.refl ⊢s ▸s =
+    case whBisim consistent prop ⊢s ▸s (d , sucₙ) of λ
       (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
     case subst-suc {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -169,8 +167,7 @@ opaque
       (_ , _ , _ , _ , ∣ε∣≡ , ▸H , ▸t , ▸ε , γ≤) →
     case inv-usage-suc ▸t of λ
       (invUsageSuc ▸n″ δ≤)  →
-    case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent prop
-           (⊢ₛ→No-namesₛ′ (⊢ₛ ⊢H ⊢n″ ε) , ε) x
+    case redNumeral′ {s = ⟨ H , n″ , ρ , ε ⟩} consistent prop x
           (PE.sym (PE.trans (PE.cong (_[ H ]ₕ) ≡n′) ≡n))
           (⊢ₛ ⊢H ⊢n″ ε)
           (▸ₛ ∣ε∣≡ ▸H ▸n″ ▸ε (≤ᶜ-trans γ≤ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤))))) of λ
@@ -183,8 +180,8 @@ opaque
       , sucₙ n , trans s≡ (suc-cong s′≡)
       , ▸ₛ ∣ε∣≡ ▸H (sucₘ ▸t) ▸S γ≤ }}}
 
-  redNumeral′ consistent prop s-nn (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
-    case whBisim consistent prop s-nn ⊢s ▸s (d , zeroₙ) of λ
+  redNumeral′ consistent prop (ℕₜ _ d n≡n zeroᵣ) PE.refl ⊢s ▸s =
+    case whBisim consistent prop ⊢s ▸s (d , zeroₙ) of λ
       (_ , _ , H , t , ρ , (d′ , _) , ≡u , v) →
     case subst-zero {t = wk ρ t} ≡u of λ {
       (inj₁ (x , ≡x)) →
@@ -197,9 +194,9 @@ opaque
     _ , _ , _ , _ , _ , ⇾*→↠* d′ , zeroₙ , ⇾*→≡ ⊢s d′ , ▸-⇾* ▸s d′ }}
 
   redNumeral′
-    consistent prop s-nn (ℕₜ _ d _ (ne (neNfₜ neK _))) PE.refl ⊢s ▸s =
+    consistent prop (ℕₜ _ d _ (ne (neNfₜ neK _))) PE.refl ⊢s ▸s =
     let neK = ne→ _ (ne⁻ neK) in
-    case whBisim consistent prop s-nn ⊢s ▸s (d , ne neK) of λ {
+    case whBisim consistent prop ⊢s ▸s (d , ne neK) of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
     ⊥-elim $
     Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK }
@@ -207,8 +204,7 @@ opaque
 opaque
 
   -- If the definition context is empty, then a well-resourced state
-  -- of type ℕ that does not contain any names reduces to a numeral
-  -- (given certain assumptions).
+  -- of type ℕ reduces to a numeral (given certain assumptions).
 
   redNumeral : {Δ : Con Term k}
                ⦃ ok : No-equality-reflection or-empty Δ ⦄
@@ -216,24 +212,23 @@ opaque
              → (k PE.≢ 0 →
                 No-erased-matches′ type-variant UR ×
                 Has-well-behaved-zero M semiring-with-meet)
-             → No-namesₛ s
              → Δ ⊢ₛ s ∷ ℕ
              → ▸ s
              → ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
                Numeral t × ε » Δ ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
                ▸ ⟨ H , t , ρ , ε ⟩
-  redNumeral {s} consistent prop s-nn ⊢s ▸s =
-    redNumeral′ consistent prop s-nn
+  redNumeral {s} consistent prop ⊢s ▸s =
+    redNumeral′ consistent prop
       (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ {s = s} ⊢s) .proj₂))
       PE.refl ⊢s ▸s
 
 opaque
 
-  -- All closed, well-resourced, well-typed states of type ℕ that do
-  -- not contain names reduce to numerals.
+  -- All closed, well-resourced, well-typed states of type ℕ reduce
+  -- to numerals.
 
   redNumeral-closed :
-    No-namesₛ s → ε ⊢ₛ s ∷ ℕ → ▸ s →
+    ε ⊢ₛ s ∷ ℕ → ▸ s →
     ∃₅ λ m n H (ρ : Wk m n) t → s ↠* ⟨ H , t , ρ , ε ⟩ ×
     Numeral t × ε » ε ⊢ ⦅ s ⦆ ≡ wk ρ t [ H ]ₕ ∷ ℕ ×
     ▸ ⟨ H , t , ρ , ε ⟩
@@ -264,7 +259,7 @@ opaque
   soundness-ε {k} {t} {Δ} consistent prop ⊢t ▸t =
     case ▸initial ▸t of λ
       ▸s →
-    case redNumeral consistent prop (No-namesₛ-initial (⊢∷→Names< ⊢t))
+    case redNumeral consistent prop
            (⊢initial ⊢t) ▸s of λ
       (_ , _ , H , ρ , t , d , num , s≡ , ▸s′) →
     case ▸ₛ-inv ▸s′ of λ

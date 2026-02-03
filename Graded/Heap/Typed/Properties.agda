@@ -60,8 +60,8 @@ private variable
   n : Nat
   x : Fin _
   y : Nat ⊎ Fin _
-  ρ : Wk _ _
-  σ : Subst _ _
+  ρ ρ′ : Wk _ _
+  σ σ′ : Subst _ _
   V : Set a
   p : M
 
@@ -425,6 +425,33 @@ private opaque
     ∇ » Γ ⊢ wk ρ t [ σ ] ∷ A → Names< n t
   ⊢∷→Names<′ = Names<-wk→ ∘→ Names<-[]→ ∘→ ⊢∷→Names<
 
+private opaque
+
+  -- A variant of ⊢→Names<.
+
+  ⊢→Names<′ :
+    {∇ : DCon (Term 0) n} →
+    ∇ » Γ ⊢ wk ρ A [ σ ] → Names< n A
+  ⊢→Names<′ = Names<-wk→ ∘→ Names<-[]→ ∘→ ⊢→Names<
+
+private opaque
+
+  -- A variant of ⊢→Names<′.
+
+  ⊢→Names<″ :
+    {∇ : DCon (Term 0) n} →
+    ∇ » Γ ⊢ (wk ρ A [ σ ]) [ σ′ ] → Names< n A
+  ⊢→Names<″ = Names<-wk→ ∘→ Names<-[]→ ∘→ Names<-[]→ ∘→ ⊢→Names<
+
+private opaque
+
+  -- A variant of ⊢∷L→Names<
+
+  ⊢∷L→Names<′ :
+    {∇ : DCon (Term 0) n} →
+    ∇ » Γ ⊢ wk ρ t [ σ ] ∷Level → Names< n t
+  ⊢∷L→Names<′ = Names<-wk→ ∘→ Names<-[]→ ∘→ ⊢∷L→Names<
+
 opaque
 
   -- Well-formed heaps do not contain names.
@@ -444,3 +471,62 @@ opaque
   ⊢ₛ→No-namesₛ′ : Δ ⊢ₛ s ∷ A → No-namesₛ′ s
   ⊢ₛ→No-namesₛ′ (⊢ₛ ⊢H ⊢t _) =
     ⊢ʰ→No-namesʰ ⊢H , ⊢∷→Names<′ ⊢t
+
+opaque
+
+  -- If Δ ⨾ H ⊢ᶜ c ⟨ t ⟩∷ A ↝ B and ε » Δ ⊢ t [ H ]ₕ ∷ A hold, then No-namesᶜ c holds.
+
+  ⊢ᶜ⟨⟩↝→No-nameᶜ :
+    Δ ⨾ H ⊢ᶜ c ⟨ t ⟩∷ A ↝ B →
+    ε » Δ ⊢ t [ H ]ₕ ∷ A →
+    No-namesᶜ c
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (∘ₑ ⊢u _) _ =
+    ∘ₑ (⊢∷→Names<′ ⊢u)
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (fstₑ _) _ =
+    fstₑ
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (sndₑ _) _ =
+    sndₑ
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (prodrecₑ ⊢u ⊢A) _ =
+    prodrecₑ (⊢→Names<′ ⊢A) (⊢∷→Names<′ ⊢u)
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (natrecₑ ⊢z ⊢s) _ =
+    natrecₑ (⊢→Names<″ (syntacticTerm ⊢z)) (⊢∷→Names<′ ⊢z) (⊢∷→Names<′ ⊢s)
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (unitrecₑ ⊢u ⊢A _) _ =
+    unitrecₑ (⊢→Names<′ ⊢A) (⊢∷→Names<′ ⊢u)
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (emptyrecₑ ⊢A) _ =
+    emptyrecₑ (⊢→Names<′ ⊢A)
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (Jₑ {A} {t} {v} ⊢u ⊢B) ⊢t =
+    case ⊢→Names<′ {A = Id A t v} (syntacticTerm ⊢t) of λ {
+      (Id nn-A nn-t nn-v) →
+    Jₑ nn-A nn-t (⊢→Names<′ ⊢B) (⊢∷→Names<′ ⊢u) nn-v}
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (Kₑ {A} {t} ⊢u ⊢B _) _ =
+    case ⊢→Names<′ {A = Id A t t} (⊢∙→⊢ (wf ⊢B)) of
+      λ{ (Id nn-A nn-t _) →
+    Kₑ nn-A nn-t (⊢→Names<′ ⊢B) (⊢∷→Names<′ ⊢u)}
+  ⊢ᶜ⟨⟩↝→No-nameᶜ ([]-congₑ {A} {t} {u} _ ⊢l) ⊢t =
+    case ⊢→Names<′ {A = Id A t u} (syntacticTerm ⊢t) of λ {
+      (Id nn-A nn-t nn-u) →
+    []-congₑ (⊢∷L→Names<′ ⊢l) nn-A nn-t nn-u}
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (lowerₑ _) ⊢t =
+    lowerₑ
+  ⊢ᶜ⟨⟩↝→No-nameᶜ (conv ⊢c x) ⊢t =
+    ⊢ᶜ⟨⟩↝→No-nameᶜ ⊢c ⊢t
+
+opaque
+
+  -- If Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B and ε » Δ ⊢ t [ H ]ₕ ∷ A hold, then No-namesˢ S holds.
+
+  ⊢⟨⟩↝→No-nameˢ :
+    Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B →
+    ε » Δ ⊢ t [ H ]ₕ ∷ A →
+    No-namesˢ S
+  ⊢⟨⟩↝→No-nameˢ ε _ = ε
+  ⊢⟨⟩↝→No-nameˢ (⊢c ∙ ⊢S) ⊢t =
+    ⊢ᶜ⟨⟩↝→No-nameᶜ ⊢c ⊢t ∙ ⊢⟨⟩↝→No-nameˢ ⊢S (⊢⦅⦆ᶜ ⊢c ⊢t)
+
+opaque
+
+  -- If Δ ⊢ₛ s ∷ A holds, then No-namesₛ s holds.
+
+  ⊢ₛ→No-namesₛ : Δ ⊢ₛ s ∷ A → No-namesₛ s
+  ⊢ₛ→No-namesₛ ⊢s@(⊢ₛ ⊢H ⊢t ⊢S) =
+    ⊢ₛ→No-namesₛ′ ⊢s , ⊢⟨⟩↝→No-nameˢ ⊢S ⊢t
