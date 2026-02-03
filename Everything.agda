@@ -393,6 +393,8 @@ import Definition.Typed.Decidable.Internal.Examples
 import Definition.Typed.Consequences.Admissible.Identity
 import Definition.Typed.Consequences.Admissible.Bool
 import Definition.Typed.Consequences.Admissible.Bool.Erased
+import Definition.Typed.Consequences.Admissible.Bool.Nr
+import Definition.Typed.Consequences.Admissible.Bool.Greatest-lower-bound
 import Definition.Typed.Consequences.Admissible.Vec
 import Definition.Typed.Consequences.Admissible.List
 import Definition.Typed.Consequences.Admissible
