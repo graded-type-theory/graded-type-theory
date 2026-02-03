@@ -90,7 +90,7 @@ opaque
     let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s in
     case ▸Final-reasons′ subtraction-ok prop ▸s f of λ where
       (inj₁ (inj₁ (_ , _  , _ , er∈S , ok))) →
-        ⊥-elim (⊢emptyrec₀∉S (consistent ok) ⊢s er∈S)
+        ⊥-elim (⊢emptyrec∉S (consistent ok) ⊢s er∈S)
       (inj₁ (inj₂ (_ , _ , refl))) →
         let _ , _ , _ , ⊢supᵘ , _ = ⊢ₛ-inv ⊢s in
         ⊥-elim $ Level-not-allowed $
