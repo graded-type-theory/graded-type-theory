@@ -3,25 +3,21 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
-import Definition.Untyped.Bool
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Admissible.Bool
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (open Definition.Untyped.Bool 𝕄)
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
+   -- The three grades used in the Σ-type used to encode the type Bool
+  (Boolᵍ₁ Boolᵍ₂ OKᵍ : M)
   (open Type-restrictions R)
-  -- It is assumed that the modality has an nr function.
-  ⦃ has-nr : Has-nr M semiring-with-meet ⦄
   -- It is assumed that certain Σ-types are allowed.
-  (Σ-ok : Σʷ-allowed ω Boolᵍ)
+  (Σ-ok : Σʷ-allowed Boolᵍ₁ Boolᵍ₂)
   -- It is assumed that weak unit types are allowed.
   (Unitʷ-ok : Unitʷ-allowed)
   where
-
-open Internal R
 
 open import Definition.Typed R
 open import Definition.Typed.Decidable.Internal R
@@ -30,7 +26,7 @@ import Definition.Typed.Decidable.Internal.Term R as I
 import Definition.Typed.Decidable.Internal.Tests R as IT
 import Definition.Typed.Decidable.Internal.Substitution R as IS
 open import Definition.Typed.Properties.Admissible.Bool.OK
-  R Unitʷ-ok
+  OKᵍ R Unitʷ-ok
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Var R
@@ -42,6 +38,8 @@ open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Bool 𝕄 Boolᵍ₁ Boolᵍ₂ OKᵍ
+open Internal R
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Nat 𝕄
 
@@ -62,7 +60,9 @@ private variable
   Δ                                 : Con Term _
   Γ                                 : Cons _ _
   A A₁ A₂ B t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
-  p                                 : M
+  p boolrecᵍ-pr boolrecᵍ-nc₁
+    boolrecᵍ-nc₂ boolrecᵍ-nc₃
+    boolrecᵍ-Π                      : M
 
 ------------------------------------------------------------------------
 -- Typing rules for Bool, true and false
@@ -170,10 +170,12 @@ opaque
 -- Some definitions used below.
 
 private
-  module Defs (p : M) (Γ : Cons m n) (meta-con-size : V.Vec Nat ms)
+  module Defs
+    (p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr : M)
+    (Γ : Cons m n) (meta-con-size : V.Vec Nat ms)
     where
     c : I.Constants
-    c .I.gs               = 7
+    c .I.gs               = 9
     c .I.ss               = 0
     c .I.bms              = 0
     c .I.ms               = ms
@@ -182,36 +184,38 @@ private
     c .I.base-con-allowed = Bool.true
     c .I.meta-con-size    = meta-con-size
 
-    xp xBoolᵍ xOKᵍ xboolrecᵍ-Π xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
-      xboolrecᵍ-pr : I.Termᵍ 7
+    xp xBoolᵍ₁ xBoolᵍ₂ xOKᵍ xboolrecᵍ-Π xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
+      xboolrecᵍ-nc₃ xboolrecᵍ-pr : I.Termᵍ 9
     xp            = I.var x0
-    xBoolᵍ        = I.var x1
-    xOKᵍ          = I.var x2
-    xboolrecᵍ-Π   = I.var x3
-    xboolrecᵍ-nc₁ = I.var x4
-    xboolrecᵍ-nc₂ = I.var x5
-    xboolrecᵍ-pr  = I.var x6
+    xBoolᵍ₁       = I.var x1
+    xBoolᵍ₂       = I.var x2
+    xOKᵍ          = I.var x3
+    xboolrecᵍ-Π   = I.var x4
+    xboolrecᵍ-nc₁ = I.var x5
+    xboolrecᵍ-nc₂ = I.var x6
+    xboolrecᵍ-nc₃ = I.var x7
+    xboolrecᵍ-pr  = I.var x8
 
     Boolᵢ′ : I.Term c n
-    Boolᵢ′ = Boolᵢ xBoolᵍ xOKᵍ
+    Boolᵢ′ = Boolᵢ xBoolᵍ₁ xBoolᵍ₂ xOKᵍ
 
     trueᵢ′ : I.Term c n
-    trueᵢ′ = trueᵢ xBoolᵍ xOKᵍ
+    trueᵢ′ = trueᵢ xBoolᵍ₁ xBoolᵍ₂ xOKᵍ
 
     falseᵢ′ : I.Term c n
-    falseᵢ′ = falseᵢ xBoolᵍ xOKᵍ
+    falseᵢ′ = falseᵢ xBoolᵍ₁ xBoolᵍ₂ xOKᵍ
 
     boolrecᵢ′ : I.Term c (1+ n) → (_ _ _ : I.Term c n) → I.Term c n
     boolrecᵢ′ =
-      boolrecᵢ xBoolᵍ xOKᵍ xboolrecᵍ-Π xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
-        xboolrecᵍ-pr xp
+      boolrecᵢ xBoolᵍ₁ xOKᵍ xboolrecᵍ-pr xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
+        xboolrecᵍ-nc₃ xboolrecᵍ-Π xp
 
     γ :
       (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
       I.Contexts c
     γ _ .I.grades =
-      p V.∷ Boolᵍ V.∷ OKᵍ V.∷ boolrecᵍ-Π V.∷ boolrecᵍ-nc₁ V.∷
-      boolrecᵍ-nc₂ V.∷ boolrecᵍ-pr V.∷ V.ε
+      p V.∷ Boolᵍ₁ V.∷ Boolᵍ₂ V.∷ OKᵍ V.∷ boolrecᵍ-Π V.∷ boolrecᵍ-nc₁ V.∷
+      boolrecᵍ-nc₂ V.∷ boolrecᵍ-nc₃ V.∷ boolrecᵍ-pr V.∷ V.ε
     γ _ .I.strengths           = V.ε
     γ _ .I.binder-modes        = V.ε
     γ _ .I.⌜base⌝              = Γ
@@ -219,11 +223,11 @@ private
     γ _ .I.metas .I.equalities = L.[]
     γ _ .I.constraints⁰        = I.emptyᶜ⁰
     γ _ .I.constraints⁺        =
-      I.unit-allowed I.𝕤         L.∷
-      I.unit-allowed I.𝕨         L.∷
-      I.π-allowed xboolrecᵍ-Π xp L.∷
-      I.π-allowed I.𝟙 I.𝟘        L.∷
-      I.σʷ-allowed I.ω xBoolᵍ    L.∷
+      I.unit-allowed I.𝕤           L.∷
+      I.unit-allowed I.𝕨           L.∷
+      I.π-allowed xboolrecᵍ-Π xp   L.∷
+      I.π-allowed I.𝟙 I.𝟘          L.∷
+      I.σʷ-allowed xBoolᵍ₁ xBoolᵍ₂ L.∷
       L.[]
 
     γ′ :
@@ -233,7 +237,7 @@ private
 
 opaque
   unfolding
-    Bool OK Target boolrec boolrecᵍ-nc₃ emptyrec-sink false natcase true
+    Bool OK Target boolrec emptyrec-sink false natcase true
 
   -- An equality rule for boolrec.
 
@@ -246,9 +250,11 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ [ true ]₀ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ [ false ]₀ →
     Γ ⊢ v₁ ≡ v₂ ∷ Bool →
-    Γ ⊢ boolrec p A₁ t₁ u₁ v₁ ≡ boolrec p A₂ t₂ u₂ v₂ ∷ A₁ [ v₁ ]₀
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A₁ t₁ u₁ v₁
+      ≡ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A₂ t₂ u₂ v₂ ∷ A₁ [ v₁ ]₀
   boolrec-cong
-    {n} {p} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂} {Γ}
+    {n} {boolrecᵍ-Π} {p} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂}
+    {boolrecᵍ-pr} {boolrecᵍ-nc₁} {boolrecᵍ-nc₂} {boolrecᵍ-nc₃} {Γ}
     Π-ok Π-𝟙-𝟘-ok Unitˢ-ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
     let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
         _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
@@ -258,13 +264,13 @@ opaque
     in
     check-and-equal-type-and-terms-sound
       (γ′ λ where
-         .I.equalities →
-           (_ , IT.meta xA₁ , IT.meta xA₂) L.∷
-           (_ , IT.meta xt₁ , IT.meta xt₂) L.∷
-           (_ , IT.meta xu₁ , IT.meta xu₂) L.∷
-           (_ , IT.meta xv₁ , IT.meta xv₂) L.∷
-           L.[]
-         .I.bindings → λ where
+        .I.equalities →
+          (_ , IT.meta xA₁ , IT.meta xA₂) L.∷
+          (_ , IT.meta xt₁ , IT.meta xt₂) L.∷
+          (_ , IT.meta xu₁ , IT.meta xu₂) L.∷
+          (_ , IT.meta xv₁ , IT.meta xv₂) L.∷
+          L.[]
+        .I.bindings → λ where
            (I.var! x0) → I.base I.∙ Boolᵢ′ , I.type A₁
            (I.var! x1) → I.base I.∙ Boolᵢ′ , I.type A₂
            (I.var! x2) →
@@ -307,7 +313,7 @@ opaque
            (I.var  not-x8 _))
       ⊢Γ
       where
-      open Defs p Γ
+      open Defs p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr Γ
              (1+ n V.∷ 1+ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ V.ε)
 
       xt₁ xt₂ xu₁ xu₂ xv₁ xv₂ : I.Term c n
@@ -334,7 +340,7 @@ opaque
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
     Γ ⊢ v ∷ Bool →
-    Γ ⊢ boolrec p A t u v ∷ A [ v ]₀
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u v ∷ A [ v ]₀
   ⊢boolrec Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u ⊢v =
     syntacticEqTerm
       (boolrec-cong Π-ok Π-𝟙-𝟘-ok Unitˢ-ok (refl ⊢A) (refl ⊢t) (refl ⊢u)
@@ -343,7 +349,7 @@ opaque
 
 opaque
   unfolding
-    Bool OK Target boolrec boolrecᵍ-nc₃ emptyrec-sink false natcase true
+    Bool OK Target boolrec emptyrec-sink false natcase true
 
   -- An equality rule for boolrec.
 
@@ -355,9 +361,9 @@ opaque
     Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
-    Γ ⊢ boolrec p A t u true ≡ t ∷ A [ true ]₀
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u true ≡ t ∷ A [ true ]₀
   boolrec-true-≡
-    {n} {p} {A} {t} {u} {Γ} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
+    {n} {boolrecᵍ-Π} {p} {A} {t} {u} {boolrecᵍ-pr} {boolrecᵍ-nc₁} {boolrecᵍ-nc₂} {boolrecᵍ-nc₃} {Γ} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
     check-and-equal-type-and-terms-sound
       (γ λ where
          (I.var! x0) → I.base I.∙ Boolᵢ′ , I.type A
@@ -383,7 +389,7 @@ opaque
            (I.var  not-x3 _))
       (wfTerm ⊢t)
       where
-      open Defs p Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
+      open Defs p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
 
       xt xu : I.Term c n
       xt = I.varᵐ x1
@@ -394,7 +400,7 @@ opaque
 
 opaque
   unfolding
-    Bool OK Target boolrec boolrecᵍ-nc₃ emptyrec-sink false natcase true
+    Bool OK Target boolrec emptyrec-sink false natcase true
 
   -- An equality rule for boolrec.
 
@@ -406,9 +412,9 @@ opaque
     Γ »∙ Bool ⊢ A →
     Γ ⊢ t ∷ A [ true ]₀ →
     Γ ⊢ u ∷ A [ false ]₀ →
-    Γ ⊢ boolrec p A t u false ≡ u ∷ A [ false ]₀
+    Γ ⊢ boolrec boolrecᵍ-pr boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-Π p A t u false ≡ u ∷ A [ false ]₀
   boolrec-false-≡
-    {n} {p} {A} {t} {u} {Γ} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
+    {n} {boolrecᵍ-Π} {p} {A} {t} {u} {boolrecᵍ-pr} {boolrecᵍ-nc₁} {boolrecᵍ-nc₂} {boolrecᵍ-nc₃} {Γ} Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u =
     check-and-equal-type-and-terms-sound
       (γ λ where
          (I.var! x0) → I.base I.∙ Boolᵢ′ , I.type A
@@ -434,7 +440,7 @@ opaque
            (I.var  not-x3 _))
       (wfTerm ⊢t)
       where
-      open Defs p Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
+      open Defs p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
 
       xt xu : I.Term c n
       xt = I.varᵐ x1

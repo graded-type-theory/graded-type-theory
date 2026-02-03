@@ -18,7 +18,7 @@ module Graded.Derived.Bool.Erased
 open Modality 𝕄
 
 open import Definition.Untyped M
-open import Definition.Untyped.Bool 𝕄
+open import Definition.Untyped.Bool.Nr 𝕄
   using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Bool.Erased 𝕄
 open import Definition.Untyped.Erased 𝕄 𝕨 as E
@@ -26,7 +26,7 @@ open import Definition.Untyped.Erased 𝕄 𝕨 as E
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-import Graded.Derived.Bool R as B
+import Graded.Derived.Bool.Nr R as B
 open import Graded.Derived.Empty R
 open import Graded.Derived.Erased.Usage 𝕄 R 𝕨
 open import Graded.Derived.Nat 𝕄 R

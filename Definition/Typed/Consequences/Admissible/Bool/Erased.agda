@@ -42,7 +42,7 @@ open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
-open import Definition.Untyped.Bool 𝕄 as B using (OK)
+open import Definition.Untyped.Bool.Nr 𝕄 as B using (OK; OKᵍ)
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Erased 𝕄 𝕨
 open import Definition.Untyped.Nat 𝕄
@@ -78,7 +78,7 @@ private opaque
   Σʷ-𝟘-𝟘-ok : Σʷ-allowed 𝟘 𝟘
   Σʷ-𝟘-𝟘-ok = Erased-ok .proj₂
 
-open Definition.Typed.Properties.Admissible.Bool.OK R Unitʷ-ok
+open Definition.Typed.Properties.Admissible.Bool.OK OKᵍ R Unitʷ-ok
 
 private opaque
 

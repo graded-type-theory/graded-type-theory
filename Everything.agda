@@ -110,7 +110,10 @@ import Definition.Untyped.Non-dependent
 import Definition.Untyped.Unit
 import Definition.Untyped.Nat
 import Definition.Untyped.Empty
+import Definition.Untyped.Bool.OK
 import Definition.Untyped.Bool
+import Definition.Untyped.Bool.Nr
+import Definition.Untyped.Bool.Greatest-lower-bound
 import Definition.Untyped.Erased.Eta
 import Definition.Untyped.Erased.No-eta
 import Definition.Untyped.Erased
@@ -211,10 +214,11 @@ import Graded.Derived.Lift
 import Graded.Derived.Pi-Sigma
 import Graded.Derived.Pi
 import Graded.Derived.Sigma
-import Graded.Derived.Bool
 import Graded.Derived.Erased.Usage.Eta
 import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage
+import Graded.Derived.Bool.Nr
+import Graded.Derived.Bool.Greatest-lower-bound
 import Graded.Derived.Bool.Erased
 import Graded.Derived.Unrestricted.Eta.Usage
 import Graded.Derived.Omega
