@@ -63,6 +63,7 @@ private variable
   ρ : Wk _ _
   σ : Subst _ _
   V : Set a
+  p : M
 
 opaque
 
@@ -373,26 +374,26 @@ opaque
 opaque
 
   -- In a constistent context, there is no well-typed stack and head of
-  -- matching type containing emptyrec 𝟘
+  -- matching type containing emptyrec p
 
-  ⊢ˢemptyrec₀∉S :
+  ⊢ˢemptyrec∉S :
     Consistent (ε » Δ) → Δ ⨾ H ⊢ S ⟨ t ⟩∷ A ↝ B → ε » Δ ⊢ t [ H ]ₕ ∷ A →
-    emptyrec 𝟘 ∈ S → ⊥
-  ⊢ˢemptyrec₀∉S _          ε        _  ()
-  ⊢ˢemptyrec₀∉S consistent (⊢c ∙ _) ⊢t here =
+    emptyrec p ∈ S → ⊥
+  ⊢ˢemptyrec∉S _          ε        _  ()
+  ⊢ˢemptyrec∉S consistent (⊢c ∙ _) ⊢t here =
     case inversion-emptyrecₑ ⊢c of λ {
       (_ , PE.refl , _) →
     consistent _ ⊢t}
-  ⊢ˢemptyrec₀∉S consistent (⊢c ∙ ⊢S) ⊢t (there d) =
-    ⊢ˢemptyrec₀∉S consistent ⊢S (⊢⦅⦆ᶜ ⊢c ⊢t) d
+  ⊢ˢemptyrec∉S consistent (⊢c ∙ ⊢S) ⊢t (there d) =
+    ⊢ˢemptyrec∉S consistent ⊢S (⊢⦅⦆ᶜ ⊢c ⊢t) d
 
 opaque
 
   -- A version of the property above for well-typed states
 
-  ⊢emptyrec₀∉S :
-    Consistent (ε » Δ) → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec 𝟘 ∈ S → ⊥
-  ⊢emptyrec₀∉S consistent (⊢ₛ _ ⊢t ⊢S) x = ⊢ˢemptyrec₀∉S consistent ⊢S ⊢t x
+  ⊢emptyrec∉S :
+    Consistent (ε » Δ) → Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A → emptyrec p ∈ S → ⊥
+  ⊢emptyrec∉S consistent (⊢ₛ _ ⊢t ⊢S) x = ⊢ˢemptyrec∉S consistent ⊢S ⊢t x
 
 opaque
 
