@@ -187,6 +187,17 @@ module _ (As : Assumptions) where
           _ , d′ , H~H′ = ⇢ₑ*→⇾ₑ* ~ʰ-refl ▸s d
       in  _ , _ , ~ʰ-Normal H~H′ n , d′
 
+  opaque
+
+    -- A variant of the above
+
+    ▸⊢normalize :
+      ∀ {k m n} {Δ : Con Term k} {A : Term k} →
+      (s : State k m n) → ▸ s → Δ ⊢ₛ s ∷ A →
+      ∃₂ λ n′ (s′ : State _ _ n′) → Normal s′ × s ⇾ₑ* s′
+    ▸⊢normalize s ▸s ⊢s =
+      ▸normalize s (⊢ₛ→No-namesₛ′ ⊢s) ▸s
+
 ------------------------------------------------------------------------
 -- Bisimilarity between the weak head call-by-name reduction and
 -- the abstract machine (with tracking).
@@ -275,7 +286,7 @@ module _ (As : Assumptions) where
       ▸ s →
       ∃₃ λ m n (s′ : State _ m n) → s ⇾* s′ × u PE.≡ ⦅ s′ ⦆
     ⊢⇒→⇾* {s} d ⊢s ▸s =
-      case ▸normalize As s (⊢ₛ→No-namesₛ′ ⊢s) ▸s of λ {
+      case ▸⊢normalize As s ▸s ⊢s of λ {
         (_ , record{} , n , d′) →
       let d″ = PE.subst (_ ⊢_⇒ _ ∷ _) (⇾ₑ*-⦅⦆-≡ d′) d
           ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
