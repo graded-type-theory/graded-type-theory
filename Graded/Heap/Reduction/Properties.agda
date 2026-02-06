@@ -10,7 +10,7 @@ open import Tools.Relation
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Reduction.Properties
-   {a b} {M : Set a} {Mode : Set b}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
   (type-variant : Type-variant)
