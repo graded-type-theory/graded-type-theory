@@ -97,7 +97,7 @@ private variable
   s : State _ _ _
   γ δ η : Conₘ _
   Γ Δ : Con Term _
-  H H′ H″ : Heap _ _
+  H H′ H″ H₁ H₂ : Heap _ _
   ρ ρ′ ρ″ : Wk _ _
   S S′ : Stack _
   c : Cont _
@@ -559,24 +559,24 @@ opaque
     No-secret-matches →
     γ ▸[ ℓ₀ ] t →
     ε » Δ ⊢ t ∷ ℕ →
-    γ ▸ʰ H →
-    ε ⊢ʰ H ∷ Δ →
-    H ~⟨ ℓ₀ ⟩ H′ →
-    ∃₆ λ m n H″ H‴ (ρ′ : Wk m n) t′ →
-      ⟨ H  , t , id , ε ⟩ ↠* ⟨ H″ , t′ , ρ′ , ε ⟩ ×
-      ⟨ H′ , t , id , ε ⟩ ↠* ⟨ H‴ , t′ , ρ′ , ε ⟩ ×
-      Numeral t′ × H″ ~⟨ ℓ₀ ⟩ H‴
-  non-interference {γ} ok ▸t ⊢t ▸H ⊢H H~H′ =
+    γ ▸ʰ H₁ →
+    ε ⊢ʰ H₁ ∷ Δ →
+    H₁ ~⟨ ℓ₀ ⟩ H₂ →
+    ∃₆ λ m n H₁′ H₂′ (ρ : Wk m n) t′ →
+      ⟨ H₁ , t , id , ε ⟩ ↠* ⟨ H₁′ , t′ , ρ , ε ⟩ ×
+      ⟨ H₂ , t , id , ε ⟩ ↠* ⟨ H₂′ , t′ , ρ , ε ⟩ ×
+      Numeral t′ × H₁′ ~⟨ ℓ₀ ⟩ H₂′
+  non-interference {γ} ok ▸t ⊢t ▸H₁ ⊢H₁ H₁~H₂ =
     let open ≤ᶜ-reasoning
-        ▸s = ▸ₛ ε ▸H ▸t ε $ begin
+        ▸s = ▸ₛ ε ▸H₁ ▸t ε $ begin
           γ             ≤⟨ ·ᶜ-increasing (·-increasingʳ _ _) ⟩
           ℓ₀ ·ᶜ γ       ≈˘⟨ +ᶜ-identityʳ _ ⟩
           ℓ₀ ·ᶜ γ +ᶜ 𝟘ᶜ ∎
-        ⊢t′ = substHeapTerm ⊢H (⊢∷-cong ⊢t (PE.sym (wk-id _)))
-        ⊢s = ⊢ₛ ⊢H ⊢t′ ε
-        _ , _ , _ , _ , _ , _ , d₁ , d₂ , num , H″~H‴ =
-          non-interference′ ok ▸s ⊢s H~H′
+        ⊢t′ = substHeapTerm ⊢H₁ (⊢∷-cong ⊢t (PE.sym (wk-id _)))
+        ⊢s = ⊢ₛ ⊢H₁ ⊢t′ ε
+        _ , _ , _ , _ , _ , _ , d₁ , d₂ , num , H₁′~H₂′ =
+          non-interference′ ok ▸s ⊢s H₁~H₂
             (⊩∷ℕ⇔ .proj₁ (reducible-⊩∷ (⊢⦅⦆ ⊢s) .proj₂) )
             PE.refl
     in  _ , _ , _ , _ , _ , _
-          , d₁ , d₂ , num , H″~H‴
+          , d₁ , d₂ , num , H₁′~H₂′
