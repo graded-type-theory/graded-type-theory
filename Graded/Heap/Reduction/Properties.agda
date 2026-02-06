@@ -19,6 +19,7 @@ module Graded.Heap.Reduction.Properties
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open Type-variant type-variant
@@ -35,10 +36,10 @@ open import Tools.Sum
 open import Definition.Untyped M
 open import Definition.Untyped.Names-below M as B using (No-names)
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr ∣ε∣
 open import Graded.Modality.Properties 𝕄
 
 private variable
@@ -537,7 +538,7 @@ opaque
   ++sucₛ-⇾ₑ : (d : ⟨ H , t , ρ , S ⟩ ⇾ₑ ⟨ H′ , t′ , ρ′ , S′ ⟩)
             → ⟨ H , t , ρ , S ++ sucₛ k ⟩ ⇾ₑ ⟨ H′ , t′ , ρ′ , S′ ++ sucₛ k ⟩
   ++sucₛ-⇾ₑ {S} (var ∣S∣≡ d) =
-    var (∣S++sucₛ∣≡∣S∣ ∣S∣≡) d
+    var (∣S++sucₛ∣≡∣S∣ ∣S∣≡ ) d
   ++sucₛ-⇾ₑ (⇒ₑ x) = ⇒ₑ (++-⇒ₑ _ x)
 
 opaque
@@ -560,7 +561,7 @@ opaque
       (λ x →
          ⟨ H , prodʷ p t₁ t₂ , ρ , (prodrecₑ r p q A u ρ′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ
          ⟨ H ∙ (_ · r · p , t₁ , ρ) ∙ (_ · r , t₂ , step ρ) , u , liftn ρ′ 2 , x ⟩)
-      (wk-++sucₛ (step (step id)) S) (prodʷₕ (∣S++sucₛ∣≡∣S∣ ∣S∣≡ ))
+      (wk-++sucₛ (step (step id)) S) (prodʷₕ (∣S++sucₛ∣≡∣S∣ ∣S∣≡))
   ++sucₛ-⇒ᵥ zeroₕ = zeroₕ
   ++sucₛ-⇒ᵥ {k} (sucₕ {S} {r} {H} {t} {ρ} {A} {z} {s} {ρ′} ∣S∣≡ ∣nr∣≡) =
     subst

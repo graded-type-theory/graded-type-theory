@@ -18,6 +18,7 @@ module Graded.Heap.Usage.Inversion
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open import Definition.Untyped M
@@ -32,9 +33,9 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Usage.Restrictions.Instance UR
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin

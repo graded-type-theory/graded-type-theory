@@ -18,6 +18,7 @@ module Graded.Heap.Typed.Inversion
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open Type-restrictions TR
@@ -30,8 +31,8 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Well-formed TR
 
-open import Graded.Heap.Typed UR TR factoring-nr
-open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin

@@ -41,13 +41,13 @@ import Tools.Reasoning.Equivalence as REq
 
 open import Definition.Untyped M
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Properties.Zero-one type-variant UR factoring-nr
-open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties 𝕄

@@ -18,6 +18,7 @@ module Graded.Heap.Untyped.Properties
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open Type-variant type-variant
@@ -45,7 +46,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
 
 private variable
   k n n′ n″ m m′ m″ : Nat
@@ -524,6 +525,14 @@ opaque
 
 opaque
 
+  -- The empty stack is a right identity for _++_
+
+  ++-identityʳ : S ++ ε ≡ S
+  ++-identityʳ {S = ε} = refl
+  ++-identityʳ {S = c ∙ S} = cong (c ∙_) ++-identityʳ
+
+opaque
+
   -- An inversion lemma for multiplicity of non-empty stacks
 
   ∣∣∙-inv : ∣ c ∙ S ∣≡ p → ∃₂ λ q r → ∣ c ∣ᶜ[ ⌞ r ⌟ ]≡ q × ∣ S ∣≡ r × p ≡ r · q
@@ -694,7 +703,7 @@ opaque
   -- functions is used.
 
   ∣∣≡ : (∀ {p r} → natrec p , r ∈ S → Nr-available) → ∃ ∣ S ∣≡_
-  ∣∣≡ {S = ε} _ = 𝟙 , ε
+  ∣∣≡ {S = ε} _ = ∣ε∣ , ε
   ∣∣≡ {S = e ∙ S} has-nr =
     let _ , ∣S∣≡ = ∣∣≡ (has-nr ∘→ there)
         _ , ∣e∣≡ = ∣∣ᶜ≡ λ { refl → has-nr here}
@@ -826,15 +835,18 @@ opaque
 
 opaque
 
-  ∣sucₛ∣≡𝟙 : ∀ k → ∣ sucₛ {m} k ∣≡ 𝟙
-  ∣sucₛ∣≡𝟙 0 = ε
-  ∣sucₛ∣≡𝟙 (1+ k) =
-    subst (∣ _ ∙ sucₛ k ∣≡_) (·-identityʳ 𝟙) (sucₑ ∙ ∣sucₛ∣≡𝟙 k)
+  -- The mupltiplicity of the stack sucₛ k is ∣ε∣.
+
+  ∣sucₛ∣≡∣ε∣ : ∀ k → ∣ sucₛ {m} k ∣≡ ∣ε∣
+  ∣sucₛ∣≡∣ε∣ 0 = ε
+  ∣sucₛ∣≡∣ε∣ (1+ k) =
+    subst (∣ _ ∙ sucₛ k ∣≡_) (·-identityʳ _) (sucₑ ∙ ∣sucₛ∣≡∣ε∣ k)
+
 
 opaque
 
   ∣S++sucₛ∣≡∣S∣ : ∣ S ∣≡ p → ∣ S ++ sucₛ k ∣≡ p
-  ∣S++sucₛ∣≡∣S∣ ε = ∣sucₛ∣≡𝟙 _
+  ∣S++sucₛ∣≡∣S∣ ε = ∣sucₛ∣≡∣ε∣ _
   ∣S++sucₛ∣≡∣S∣ (e ∙ S) = e ∙ ∣S++sucₛ∣≡∣S∣ S
 
 opaque
@@ -909,10 +921,11 @@ opaque
 
   ∣∣≡𝟘→erased-match :
     ⦃ Has-well-behaved-zero _ semiring-with-meet ⦄ →
+    ∣ε∣ ≢ 𝟘 →
     ∣ S ∣≡ 𝟘 →
     (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
     (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)
-  ∣∣≡𝟘→erased-match = lemma refl
+  ∣∣≡𝟘→erased-match ∣ε∣≢𝟘 = lemma refl
     where
     there′ :
       (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
@@ -929,7 +942,6 @@ opaque
       q ≡ 𝟘 → ∣ c ∣ᶜ[ mo ]≡ q →
       (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
       (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
-    here′ q≡ lowerₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ ∘ₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ fstₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ sndₑ = ⊥-elim (non-trivial q≡)
@@ -940,12 +952,13 @@ opaque
     here′ q≡ (Jₑ x) = inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , here))))
     here′ q≡ (Kₑ x) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , here)))))
     here′ q≡ []-congₑ = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ here))))
+    here′ q≡ lowerₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ sucₑ = ⊥-elim (non-trivial q≡)
     lemma :
       q ≡ 𝟘 → ∣ S ∣≡ q →
       (∃ λ p → prodrec 𝟘 , p ∈ S) ⊎ (unitrec 𝟘 ∈ S) ⊎ (emptyrec 𝟘 ∈ S) ⊎
       (∃₂ λ p q → J p , q ∈ S) ⊎ (∃ λ p → K p ∈ S) ⊎ ([]-cong∈ S)
-    lemma q≡ ε = ⊥-elim (non-trivial q≡)
+    lemma q≡ ε = ⊥-elim (∣ε∣≢𝟘 q≡)
     lemma q≡ (∣e∣≡ ∙ ∣S∣≡) =
       case zero-product q≡ of λ where
         (inj₁ x) → there′ (lemma x ∣S∣≡)

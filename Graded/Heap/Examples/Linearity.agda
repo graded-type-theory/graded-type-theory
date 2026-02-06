@@ -15,7 +15,7 @@ module Graded.Heap.Examples.Linearity
   (open Graded.Mode.Instances.Zero-one variant)
   (UR : Usage-restrictions linearityModality Zero-one-isMode)
   (TR : Type-restrictions linearityModality)
-  (As : Assumptions UR TR)
+  (As : Assumptions UR TR 𝟙)
   where
 
 private
@@ -34,8 +34,8 @@ open import Definition.Untyped Linearity
 
 open import Graded.Context 𝕄
 open import Graded.Usage UR
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Reduction type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
 import Graded.Heap.Examples UR TR As as Ex
 
 opaque

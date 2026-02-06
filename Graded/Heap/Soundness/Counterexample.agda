@@ -12,15 +12,15 @@ open import Definition.Typed.Restrictions
 
 module Graded.Heap.Soundness.Counterexample
   {a} {M : Set a} {𝕄 : Modality M}
-   {mode-variant : Mode-variant 𝕄}
-   (open Graded.Mode.Instances.Zero-one mode-variant)
+  {mode-variant : Mode-variant 𝕄}
+  (open Modality 𝕄)
+  (open Graded.Mode.Instances.Zero-one mode-variant)
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (TR : Type-restrictions 𝕄)
-  (As : Assumptions UR TR)
+  (As : Assumptions UR TR 𝟙)
   where
 
 open Assumptions As
-open Modality 𝕄
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -44,13 +44,13 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
-open import Graded.Heap.Reduction type-variant UR factoring-nr
-open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr
+  type-variant UR factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
+open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr 𝟙
 
 private variable
   Δ : Con Term _

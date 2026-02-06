@@ -18,6 +18,7 @@ module Graded.Heap.Usage
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open Type-variant type-variant
@@ -31,7 +32,7 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Definition.Untyped M
-open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
