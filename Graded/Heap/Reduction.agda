@@ -18,6 +18,7 @@ module Graded.Heap.Reduction
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open import Tools.Empty
@@ -28,7 +29,7 @@ open import Tools.Product
 open import Tools.Relation
 
 open import Definition.Untyped M
-open import Graded.Heap.Untyped type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
 
 open Type-variant type-variant
 open Modality 𝕄

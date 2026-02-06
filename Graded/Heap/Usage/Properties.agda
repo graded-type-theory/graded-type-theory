@@ -18,6 +18,7 @@ module Graded.Heap.Usage.Properties
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
+  (∣ε∣ : M)
   where
 
 open Modality 𝕄
@@ -35,10 +36,10 @@ open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin
@@ -79,9 +80,9 @@ opaque
 
   -- Well-usage for the initial state
 
-  ▸initial : 𝟘ᶜ {n} ▸ t → ▸ initial t
+  ▸initial : 𝟘ᶜ {n} ▸[ ⌞ ∣ε∣ ⌟ ] t → ▸ initial t
   ▸initial ▸t =
-    ▸ₛ ε ▸erasedHeap (▸-cong (sym ⌞𝟙⌟) ▸t) ε
+    ▸ₛ ε ▸erasedHeap ▸t ε
       (≤ᶜ-reflexive (≈ᶜ-sym (≈ᶜ-trans (+ᶜ-identityʳ _) (·ᶜ-zeroʳ _))))
 
 opaque

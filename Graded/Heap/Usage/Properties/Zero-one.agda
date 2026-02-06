@@ -30,9 +30,9 @@ open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Restrictions.Zero-one 𝕄 mode-variant
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
-open import Graded.Heap.Usage type-variant UR factoring-nr
+open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
 
 open import Tools.Empty
 open import Tools.Fin

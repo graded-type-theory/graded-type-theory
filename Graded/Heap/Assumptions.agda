@@ -14,6 +14,7 @@ module Graded.Heap.Assumptions
   {𝐌 : IsMode Mode 𝕄}
   (UR : Usage-restrictions 𝕄 𝐌)
   (TR : Type-restrictions 𝕄)
+  (∣ε∣ : M)
   where
 
 open Modality 𝕄
@@ -85,10 +86,10 @@ record Assumptions : Set (a ⊔ b) where
             refl → factoring
         (inj₂ no-nr) → ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
 
-  open Graded.Heap.Reduction type-variant UR factoring-nr
-  open Graded.Heap.Typed UR TR factoring-nr
-  open Graded.Heap.Untyped type-variant UR factoring-nr
-  open Graded.Heap.Usage type-variant UR factoring-nr
+  open Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
+  open Graded.Heap.Typed UR TR factoring-nr ∣ε∣
+  open Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+  open Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
 
   -- A type that is used as an assumption in some proofs
 
