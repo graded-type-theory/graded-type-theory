@@ -163,14 +163,13 @@ opaque
   -- A usage lemma for prodrecˢ.
 
   prodrecˢₘ :
-    (⌜ m ᵐ· r · p ⌝ PE.≢ 𝟘 → p ≤ 𝟙) →
+    ⌜ m ᵐ· r · p ⌝ · p ≤ ⌜ m ᵐ· r · p ⌝ →
     γ ▸[ m ᵐ· r ] t →
     δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
     (⌜ m ⌝ · r · (𝟙 + p)) ·ᶜ γ +ᶜ δ ▸[ m ] prodrecˢ p t u
-  prodrecˢₘ {m = m} {r = r} {p = p} {γ = γ} {δ = δ} mrp≢𝟘→p≤𝟙 ▸t ▸u = sub
+  prodrecˢₘ {m = m} {r = r} {p = p} {γ = γ} {δ = δ} mp-cond ▸t ▸u = sub
     (doubleSubstₘ-lemma₁ ▸u
-       (sndₘ ▸t)
-       (fstₘ (m ᵐ· r) (▸-cong (·ᵐ-comm _ _) (▸-· ▸t)) (ᵐ·-·-assoc m) mrp≢𝟘→p≤𝟙))
+       (sndₘ ▸t) (fstₘ (▸-cong (PE.trans (·ᵐ-comm _ _) (PE.trans (·ᵐ-assoc _ _ _) (·ᵐ-congˡ ⌞⌟·ᵐ))) (▸-· ▸t)) mp-cond))
       (begin
          (⌜ m ⌝ · r · (𝟙 + p)) ·ᶜ γ +ᶜ δ                             ≈⟨ +ᶜ-comm _ _ ⟩
          δ +ᶜ (⌜ m ⌝ · r · (𝟙 + p)) ·ᶜ γ                             ≈⟨ +ᶜ-congˡ $
@@ -193,7 +192,7 @@ opaque
                                                                          ·⌜⌞⌟⌝ ⟩
          δ +ᶜ (⌜ m ⌝ · r) ·ᶜ γ +ᶜ (⌜ m ⌝ · r · p) ·ᶜ ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ  ∎)
     where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+    open ≤ᶜ-reasoning
 
 opaque
 
@@ -207,7 +206,7 @@ opaque
     δ ▸[ 𝟘ᵐ ] prodrecˢ p t u
   prodrecˢₘ-𝟘ᵐ {γ} {δ} {p} 𝟙ᵐ≢𝟘ᵐ ▸t ▸u = sub
     (prodrecˢₘ
-       (λ ≢𝟘 → ⊥-elim (𝟙ᵐ≢𝟘ᵐ (⌜𝟘ᵐ⌝≢𝟘→ (PE.subst (λ m → ⌜ m ⌝ ≢ 𝟘) ᵐ·-zeroˡ ≢𝟘))))
+       lemma
        (▸-cong (PE.sym ᵐ·-zeroˡ) ▸t)
        (sub ▸u $ begin
           δ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘 · p ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-congˡ (·-zeroˡ _) ∙ ·-zeroʳ _ ⟩
@@ -220,6 +219,14 @@ opaque
        (⌜ 𝟘ᵐ ⌝ · 𝟘) ·ᶜ γ +ᶜ δ            ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-congˡ (·-zeroˡ _))) ⟩
        (⌜ 𝟘ᵐ ⌝ · 𝟘 · (𝟙 + p)) ·ᶜ γ +ᶜ δ  ∎)
     where
+    lemma : ⌜ 𝟘ᵐ ᵐ· 𝟘 · p ⌝ · p ≤ ⌜ 𝟘ᵐ ᵐ· 𝟘 · p ⌝
+    lemma = let open ≤-reasoning in begin
+      ⌜ 𝟘ᵐ ᵐ· 𝟘 · p ⌝ · p ≈⟨ ·-congʳ (⌜⌝-cong ᵐ·-zeroˡ) ⟩
+      ⌜ 𝟘ᵐ ⌝ · p          ≈⟨ ·-congʳ (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ) ⟩
+      𝟘 · p               ≈⟨ ·-zeroˡ _ ⟩
+      𝟘                   ≈˘⟨ ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ ⟩
+      ⌜ 𝟘ᵐ ⌝              ≈˘⟨ ⌜⌝-cong ᵐ·-zeroˡ ⟩
+      ⌜ 𝟘ᵐ ᵐ· 𝟘 · p ⌝     ∎
     open ≤ᶜ-reasoning
 
 opaque
@@ -233,16 +240,13 @@ opaque
     δ ∙ 𝟘 ∙ r ▸[ 𝟙ᵐ ] u →
     r ·ᶜ γ +ᶜ δ ▸[ 𝟙ᵐ ] prodrecˢ 𝟘 t u
   prodrecˢₘ-𝟙ᵐ-𝟘 {γ = γ} {r = r} {δ = δ} ok ▸t ▸u = sub-≈ᶜ
-    (prodrecˢₘ
-       (λ ⌞r𝟘⌟≢𝟘 → case ok of λ where
-         (inj₁ 𝟘≤𝟙) → 𝟘≤𝟙
-         (inj₂ 𝟙ᵐ≢𝟘ᵐ) →
-           let open Tools.Reasoning.PropositionalEquality in
-           ⊥-elim (𝟙ᵐ≢𝟘ᵐ (⌜𝟘ᵐ⌝≢𝟘→ (PE.subst (λ m → ⌜ m ⌝ ≢ 𝟘) (begin
-               𝟙ᵐ ᵐ· r · 𝟘 ≡⟨ ᵐ·-congˡ (·-zeroʳ _) ⟩
-               𝟙ᵐ ᵐ· 𝟘     ≡⟨ ᵐ·-zeroʳ _ ⟩
-               𝟘ᵐ          ∎)
-             ⌞r𝟘⌟≢𝟘))))
+    (prodrecˢₘ (let open ≤-reasoning in begin
+      ⌜ 𝟙ᵐ ᵐ· r · 𝟘 ⌝ · 𝟘 ≈⟨ ·-zeroʳ _ ⟩
+      𝟘                   ≤⟨ lemma ⟩
+      ⌜ 𝟘ᵐ ⌝              ≈˘⟨ ⌜⌝-cong ⌞𝟘⌟ ⟩
+      ⌜ ⌞ 𝟘 ⌟ ⌝           ≈˘⟨ ⌜⌞⌟⌝-cong (·-zeroʳ _) ⟩
+      ⌜ ⌞ r · 𝟘 ⌟ ⌝       ≈˘⟨ ⌜⌝-cong ᵐ·-identityˡ ⟩
+      ⌜ 𝟙ᵐ ᵐ· r · 𝟘 ⌝     ∎)
        (▸-cong (PE.sym ᵐ·-identityˡ) ▸t)
        (let open ≤ᶜ-reasoning in
         sub ▸u $ begin
@@ -254,6 +258,18 @@ opaque
       (r · 𝟙) ·ᶜ γ +ᶜ δ                ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-identityˡ _)) ⟩
       (𝟙 · r · 𝟙) ·ᶜ γ +ᶜ δ            ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-cong ⌜𝟙ᵐ⌝ (·-congˡ (+-identityʳ _)))) ⟩
       (⌜ 𝟙ᵐ ⌝ · r · (𝟙 + 𝟘)) ·ᶜ γ +ᶜ δ ∎)
+    where
+    lemma : 𝟘 ≤ ⌜ 𝟘ᵐ ⌝
+    lemma =
+      case trivialᵐ? of λ where
+        (no 𝟙ᵐ≢𝟘ᵐ) →
+          ≤-reflexive (PE.sym (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ))
+        (yes 𝟙ᵐ≡𝟘ᵐ) →
+          case ok of λ where
+            (inj₁ 𝟘≤𝟙) →
+              ≤-trans 𝟘≤𝟙 (≤-reflexive (PE.sym (⌜𝟘ᵐ⌝′ 𝟙ᵐ≡𝟘ᵐ)))
+            (inj₂ 𝟙ᵐ≢𝟘ᵐ) →
+              ⊥-elim (𝟙ᵐ≢𝟘ᵐ 𝟙ᵐ≡𝟘ᵐ)
 
 opaque
 
@@ -268,7 +284,7 @@ opaque
     (r + r) ·ᶜ γ +ᶜ δ ▸[ 𝟙ᵐ ] prodrecˢ 𝟙 t u
   prodrecˢₘ-𝟙ᵐ-𝟙 {γ = γ} {r = r} {δ = δ} ▸t ▸u = sub-≈ᶜ
     (prodrecˢₘ
-       (λ _ → ≤-refl)
+       (≤-reflexive (·-identityʳ _))
        (▸-cong (PE.sym ᵐ·-identityˡ) ▸t)
        (sub-≈ᶜ ▸u $ begin
           δ ∙ ⌜ 𝟙ᵐ ⌝ · r · 𝟙 ∙ ⌜ 𝟙ᵐ ⌝ · r  ≈⟨ ≈ᶜ-refl ∙ ·-cong ⌜𝟙ᵐ⌝ (·-identityʳ _) ∙ ·-congʳ ⌜𝟙ᵐ⌝ ⟩
@@ -350,7 +366,7 @@ opaque
     in  case prodrecˢₘ′ {η = 𝟘ᶜ} γ▸t δ▸u η▸A ok of λ ▸pr′ →
         case inv-usage-prodʷ ▸pr′ of λ {
           (invUsageProdʷ {δ = ε ∙ a} {ε ∙ b} a▸fstt b▸sndt 𝟙≤a+b) → case inv-usage-fst a▸fstt of λ {
-          (invUsageFst {δ = ε ∙ c} m′ eq c▸t a≤c _) → case inv-usage-snd b▸sndt of λ {
+          (invUsageFst {δ = ε ∙ c} c▸t a≤c _) → case inv-usage-snd b▸sndt of λ {
           (invUsageSnd {δ = ε ∙ d} d▸t b≤d) → case inv-usage-prodˢ c▸t of λ {
           (invUsageProdˢ {δ = ε ∙ e} {η = ε ∙ f} e▸x₀ f▸x₀ c≤e∧f) → case inv-usage-prodˢ d▸t of λ {
           (invUsageProdˢ {δ = ε ∙ g} {η = ε ∙ h} g▸x₀ h▸x₀ d≤g∧h) →
@@ -390,7 +406,7 @@ opaque
   -- A usage lemma for prodrec⟨_⟩.
 
   ▸prodrec⟨⟩ :
-    (s PE.≡ 𝕤 → ⌜ m ᵐ· r · p ⌝ PE.≢ 𝟘 → p ≤ 𝟙) →
+    (s PE.≡ 𝕤 → ⌜ m ᵐ· r · p ⌝ · p ≤ ⌜ m ᵐ· r · p ⌝) →
     (s PE.≡ 𝕤 → r′ ≤ ⌜ m ⌝ · r · (𝟙 + p)) →
     (s PE.≡ 𝕨 → r′ ≤ r) →
     (s PE.≡ 𝕨 → Prodrec-allowed m r p q) →
@@ -1116,13 +1132,12 @@ opaque
   ▸fst⟨⟩ :
     (s PE.≡ 𝕨 → m PE.≡ m ᵐ· (𝟘 ∧ 𝟙)) →
     (s PE.≡ 𝕨 → Prodrec-allowed m (𝟘 ∧ 𝟙) p 𝟘) →
-    (⌜ m ⌝ PE.≢ 𝟘 → p ≤ 𝟙) →
-    (s PE.≡ 𝕤 → ⌜ m ⌝ PE.≢ 𝟘 → m ᵐ· p PE.≡ m) →
-    (s PE.≡ 𝕤 → ⌜ m ⌝ PE.≢ 𝟘 → 𝟙 ≤ ⌜ ⌞ p ⌟ ⌝) →
+    (s PE.≡ 𝕨 → ⌜ m ⌝ PE.≢ 𝟘 → p ≤ 𝟙) →
+    (s PE.≡ 𝕤 → ⌜ m ⌝ · p ≤ ⌜ m ⌝) →
     γ ▸[ m ] t →
     (s PE.≡ 𝕨 → δ ▸[ 𝟘ᵐ ] A) →
     𝟘ᶜ ∧ᶜ γ ▸[ m ] fst⟨ s ⟩ p A t
-  ▸fst⟨⟩ {s = 𝕨} {m} {p} hyp₁ hyp₂ hyp₃ _ _ ▸t ▸A =
+  ▸fst⟨⟩ {s = 𝕨} {m} {p} hyp₁ hyp₂ hyp₃ _ ▸t ▸A =
     fstʷₘ (hyp₁ PE.refl)
       (begin
          𝟘 ∧ ⌜ m ⌝ · p ≤⟨ ∧-decreasingʳ _ _ ⟩
@@ -1140,23 +1155,11 @@ opaque
           𝟘          ≡˘⟨ ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ ⟩
           ⌜ 𝟘ᵐ ⌝     ∎)
         (λ ⌜m⌝≢𝟘 → begin
-          ⌜ m ⌝ · p ≤⟨ ·-monotoneʳ (hyp₃ ⌜m⌝≢𝟘) ⟩
+          ⌜ m ⌝ · p ≤⟨ ·-monotoneʳ (hyp₃ PE.refl ⌜m⌝≢𝟘) ⟩
           ⌜ m ⌝ · 𝟙 ≡⟨ ·-identityʳ _ ⟩
           ⌜ m ⌝     ∎)
-  ▸fst⟨⟩ {s = 𝕤} {m} {p} {γ} {t} {A} _ _ hyp₃ hyp₄ hyp₅ ▸t ▸A =
-    ⌜⌝≡𝟘-elim {m′ = 𝟙ᵐ} (λ m → 𝟘ᶜ ∧ᶜ γ ▸[ m ] fst⟨ 𝕤 ⟩ p A t) m
-      (λ 𝟙≡𝟘 → fstₘ _ (sub (▸-ᵐ· ▸t) (≈ᶜ-trivial 𝟙≡𝟘))
-                 (≡-trivialᵐ (Trivial→Trivialᵐ 𝟙≡𝟘)) (λ _ → ≡-trivial 𝟙≡𝟘))
-      (λ { 𝟙ᵐ≢𝟘ᵐ PE.refl →
-        sub (fstₘ 𝟘ᵐ (▸-cong (PE.sym ᵐ·-zeroˡ) ▸t) ᵐ·-zeroˡ (⊥-elim ∘→ (_$ ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ)))
-          (∧ᶜ-decreasingʳ _ _) })
-      λ ⌜m⌝≡𝟘 →
-        let open ≤ᶜ-reasoning in
-        sub (fstₘ _ (▸-ᵐ· ▸t) (hyp₄ PE.refl ⌜m⌝≡𝟘) hyp₃) $ begin
-          𝟘ᶜ ∧ᶜ γ        ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-          γ              ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-          𝟙 ·ᶜ γ         ≤⟨ ·ᶜ-monotoneˡ (hyp₅ PE.refl ⌜m⌝≡𝟘) ⟩
-          ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ ∎
+  ▸fst⟨⟩ {s = 𝕤} {m} {p} {γ} {t} {A} _ _ _ hyp₄ ▸t ▸A =
+    fstₘ (sub ▸t (∧ᶜ-decreasingʳ _ _)) (hyp₄ PE.refl)
 
 opaque
   unfolding fst⟨_⟩ snd⟨_⟩
@@ -1201,10 +1204,10 @@ opaque
 
   ▸fstʰ :
     ∀ m →
-    (⌜ m ᵐ· p ⌝ ≢ 𝟘 → p ≤ 𝟙) →
+    ⌜ m ᵐ· p ⌝ · p ≤ ⌜ m ᵐ· p ⌝ →
     γ ▸[ m ᵐ· p ] t →
     γ ▸[ m ᵐ· p ] fstʰ p t
-  ▸fstʰ m ok ▸t = lowerₘ (fstₘ m ▸t PE.refl ok)
+  ▸fstʰ m ok ▸t = lowerₘ (fstₘ ▸t ok)
 
 opaque
   unfolding sndʰ
@@ -1233,7 +1236,7 @@ opaque
   -- A usage lemma for prodrecʰ⟨_⟩.
 
   ▸prodrecʰ⟨⟩ :
-    (s PE.≡ 𝕤 → ⌜ m ᵐ· r · p ⌝ PE.≢ 𝟘 → p ≤ 𝟙) →
+    (s PE.≡ 𝕤 → ⌜ m ᵐ· r · p ⌝ · p ≤ ⌜ m ᵐ· r · p ⌝) →
     (s PE.≡ 𝕤 → r′ ≤ ⌜ m ⌝ · r · (𝟙 + p)) →
     (s PE.≡ 𝕨 → r′ ≤ r) →
     (s PE.≡ 𝕨 → Prodrec-allowed m r p q) →

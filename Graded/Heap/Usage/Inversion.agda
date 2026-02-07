@@ -203,7 +203,7 @@ opaque
   -- Inversion of fst
 
   ▸-inv-fstₑ :
-    γ ▸ᶜ[ m ] fstₑ p → (⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟙) × γ ≈ᶜ 𝟘ᶜ
+    γ ▸ᶜ[ m ] fstₑ p → (⌜ m ⌝ · p ≤ ⌜ m ⌝) × γ ≈ᶜ 𝟘ᶜ
   ▸-inv-fstₑ (fstₑ x) = x , ≈ᶜ-refl
 
 opaque

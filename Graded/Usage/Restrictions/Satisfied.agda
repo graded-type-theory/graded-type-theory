@@ -37,11 +37,7 @@ open import Tools.Function
 open import Tools.Nat hiding (_≤_)
 open import Tools.Product
 open import Tools.PropositionalEquality
-import Tools.Reasoning.PartialOrder
 open import Tools.Relation
-
-private
-  module CR {n} = Tools.Reasoning.PartialOrder (≤ᶜ-poset {n = n})
 
 private variable
   α n           : Nat
@@ -538,7 +534,7 @@ opaque
       prodrecᵤ ok (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸u)
-    (fstₘ _ ▸t refl _) →
+    (fstₘ ▸t _) →
       fstᵤ (▸→Usage-restrictions-satisfied ▸t)
     (sndₘ ▸t) →
       sndᵤ (▸→Usage-restrictions-satisfied ▸t)
@@ -656,7 +652,16 @@ opaque
     Usage-restrictions-satisfied 𝟘ᵐ t → 𝟘ᶜ ▸[ 𝟘ᵐ ] t
   Usage-restrictions-satisfied→▸[𝟘ᵐ] 𝟙ᵐ≢𝟘ᵐ = lemma
     where
-    open CR
+
+    fst-lemma : ⌜ 𝟘ᵐ ⌝ · p ≤ ⌜ 𝟘ᵐ ⌝
+    fst-lemma {p} =
+      let open ≤-reasoning in begin
+        ⌜ 𝟘ᵐ ⌝ · p ≈⟨ ·-congʳ (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ) ⟩
+        𝟘 · p      ≈⟨ ·-zeroˡ _ ⟩
+        𝟘          ≈˘⟨ ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ ⟩
+        ⌜ 𝟘ᵐ ⌝     ∎
+
+    open ≤ᶜ-reasoning
 
     ⌜𝟘ᵐ⌝p≡𝟘 : ⌜ 𝟘ᵐ ⌝ · p ≡ 𝟘
     ⌜𝟘ᵐ⌝p≡𝟘 =
@@ -714,8 +719,7 @@ opaque
           𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
           p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
       (fstᵤ t-ok) →
-        fstₘ 𝟘ᵐ (▸-cong (sym (·ᵐ-zeroˡ _)) (lemma t-ok)) (·ᵐ-zeroˡ _)
-          (⊥-elim ∘→ (_$ ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ))
+        fstₘ (lemma t-ok) fst-lemma
       (sndᵤ t-ok) →
         sndₘ (lemma t-ok)
       (sucᵤ t-ok) →
@@ -1027,9 +1031,7 @@ opaque
       (prodᵤ {s = 𝕨} t-ok u-ok) →
         sub (prodʷₘ (lemma₀ t-ok) (lemma₀ u-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
       (fstᵤ t-ok) →
-        fstₘ 𝟙ᵐ (▸-trivial 𝟙≡𝟘 (lemma t-ok))
-          (≡-trivialᵐ (Trivial→Trivialᵐ 𝟙≡𝟘))
-          (λ _ → ≡-trivial 𝟙≡𝟘)
+        fstₘ (lemma t-ok) (≡-trivial 𝟙≡𝟘)
       (sndᵤ t-ok) →
         sndₘ (lemma t-ok)
       (sucᵤ t-ok) →

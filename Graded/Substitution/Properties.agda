@@ -1183,8 +1183,8 @@ opaque mutual
       p ·ᶜ (⌜ ⌞ p ⌟ ⌝ ·ᶜ γ) <* Ψ ∧ᶜ δ <* Ψ ∎
     where
     open ≤ᶜ-reasoning
-  substₘ-lemma ▶σ (fstₘ m ▸t eq mp-cong) =
-    fstₘ m (substₘ-lemma ▶σ ▸t) eq mp-cong
+  substₘ-lemma ▶σ (fstₘ ▸t mp-cond) =
+    fstₘ (substₘ-lemma ▶σ ▸t) mp-cond
   substₘ-lemma ▶σ (sndₘ ▸t) =
     sndₘ (substₘ-lemma ▶σ ▸t)
   substₘ-lemma {Ψ} ▶σ (prodʷₘ {γ} {p} {t} {δ} ▸t ▸u) =

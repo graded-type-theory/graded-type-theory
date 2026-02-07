@@ -187,11 +187,11 @@ opaque
       (erase-[] (x◂𝟘∈pγ refl p≢𝟘 ∘→ x◂𝟘∈γ∧δˡ refl ∘→ ok)
          (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t₁))
       (erase-[] (x◂𝟘∈γ∧δʳ refl ∘→ ok) ▸t₂)
-  erase-[] ok (fstₘ {p} _ ▸t eq _) with is-𝟘? p
+  erase-[] ok (fstₘ {p} ▸t _) with is-𝟘? p
   … | yes _ =
     refl
   … | no _ =
-    cong fst (erase-[] ok (▸-cong eq ▸t))
+    cong fst (erase-[] ok ▸t)
   erase-[] ok (sndₘ {p} ▸t) with is-𝟘? p
   … | yes _ =
     erase-[] ok ▸t

@@ -204,9 +204,8 @@ opaque mutual
         ⌜ m′ ⌝ ·ᶜ (p ·ᶜ γ ∧ᶜ δ)         ≈⟨ ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
         ⌜ m′ ⌝ ·ᶜ p ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ δ ≈⟨ ∧ᶜ-congʳ (⌜⌝·ᶜ-comm _ _ _) ⟩
         p ·ᶜ ⌜ m′ ⌝ ·ᶜ γ ∧ᶜ ⌜ m′ ⌝ ·ᶜ δ ∎
-      (fstₘ m″ ▸t refl ok) →
-        fstₘ _ (▸-cong (sym (·ᵐ-ᵐ·-assoc m′)) (▸-· ▸t))
-          (·ᵐ-ᵐ·-assoc m′) (ok ∘→ ⌜⌝-·ᵐ-𝟘ʳ)
+      (fstₘ ▸t ok) →
+        fstₘ (▸-· ▸t) (fst-lemma ok)
       (sndₘ ▸t) →
         sndₘ (▸-· ▸t)
       (prodʷₘ {γ} {p} {δ} ▸t ▸u) →
@@ -365,6 +364,13 @@ opaque mutual
       ⌜ 𝟘ᵐ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ 𝟘ᵐ) ⟩
       (⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
       ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p   ∎
+    fst-lemma : ⌜ m ⌝ · p ≤ ⌜ m ⌝ → ⌜ m′ ·ᵐ m ⌝ · p ≤ ⌜ m′ ·ᵐ m ⌝
+    fst-lemma {p} mp≤m = let open ≤-reasoning in begin
+       ⌜ m′ ·ᵐ m ⌝ · p      ≈⟨ ·-congʳ (⌜·ᵐ⌝ _) ⟩
+       (⌜ m′ ⌝ · ⌜ m ⌝) · p ≈⟨ ·-assoc _ _ _ ⟩
+       ⌜ m′ ⌝ · ⌜ m ⌝ · p   ≤⟨ ·-monotoneʳ mp≤m ⟩
+       ⌜ m′ ⌝ · ⌜ m ⌝       ≈˘⟨ ⌜·ᵐ⌝ _ ⟩
+       ⌜ m′ ·ᵐ m ⌝          ∎
     open ≤ᶜ-reasoning
     open Graded.Usage.Restrictions.Instance R
 
@@ -522,7 +528,7 @@ opaque mutual
         p ·ᶜ γ ∧ᶜ δ                   ≤⟨ ∧ᶜ-monotone (▸ᵐ-ᵐ· ▸t) (▸ᵐ ▸u) ⟩
         ⌜ m ⌝ ·ᶜ p ·ᶜ γ ∧ᶜ ⌜ m ⌝ ·ᶜ δ ≈˘⟨ ·ᶜ-distribˡ-∧ᶜ _ _ _ ⟩
         ⌜ m ⌝ ·ᶜ (p ·ᶜ γ ∧ᶜ δ)        ∎
-      (fstₘ _ ▸t refl _) →
+      (fstₘ ▸t _) →
         ▸ᵐ ▸t
       (sndₘ ▸t) →
         ▸ᵐ ▸t
@@ -995,10 +1001,10 @@ opaque
     where
     open CR
 
-  Conₘ-interchange {δ} (fstₘ {γ} m ▸t PE.refl ok) ▸fst x =
+  Conₘ-interchange {δ} (fstₘ {γ} ▸t ok) ▸fst x =
     case inv-usage-fst ▸fst of λ
-      (invUsageFst {δ = γ′} _ _ ▸t′ δ≤γ′ _) → sub
-    (fstₘ m (Conₘ-interchange ▸t ▸t′ x) PE.refl ok)
+      (invUsageFst {δ = γ′} ▸t′ δ≤γ′ _) → sub
+    (fstₘ (Conₘ-interchange ▸t ▸t′ x) ok)
     (begin
        γ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ′ ⟩
        γ , x ≔ γ′ ⟨ x ⟩  ∎)
@@ -1996,7 +2002,7 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   usage-upper-bound′ (prodˢₘ t u) =
     ∧ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
       (usage-upper-bound′ u)
-  usage-upper-bound′ (fstₘ _ t PE.refl _) = usage-upper-bound′ t
+  usage-upper-bound′ (fstₘ t _) = usage-upper-bound′ t
   usage-upper-bound′ (sndₘ t) = usage-upper-bound′ t
   usage-upper-bound′ (prodrecₘ t u A _) =
     +ᶜ-monotone (·ᶜ-monotoneʳ (usage-upper-bound′ t))
@@ -2160,8 +2166,8 @@ opaque
   usage-inf (γ▸t ∘ₘ γ▸t₁) = usage-inf γ▸t ∘ₘ usage-inf γ▸t₁
   usage-inf (prodʷₘ γ▸t γ▸t₁) = prodʷₘ (usage-inf γ▸t) (usage-inf γ▸t₁)
   usage-inf (prodˢₘ γ▸t γ▸t₁) = prodˢₘ (usage-inf γ▸t) (usage-inf γ▸t₁)
-  usage-inf (fstₘ m γ▸t PE.refl ok) =
-    fstₘ m (usage-inf γ▸t) PE.refl ok
+  usage-inf (fstₘ γ▸t ok) =
+    fstₘ (usage-inf γ▸t) ok
   usage-inf (sndₘ γ▸t) = sndₘ (usage-inf γ▸t)
   usage-inf {m = m} (prodrecₘ {r = r} {δ = δ} {p = p} {u = u} γ▸t δ▸u η▸A ok) =
     prodrecₘ (usage-inf γ▸t)
@@ -2320,8 +2326,8 @@ opaque
     ▸inline ▸ξ ▸t ∘ₘ ▸inline (▸-ᵐ·-DCon ▸ξ) ▸u
   ▸inline ▸ξ (prodˢₘ ▸t ▸u) =
     prodˢₘ (▸inline (▸-ᵐ·-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸u)
-  ▸inline ▸ξ (fstₘ m ▸t refl ok) =
-    fstₘ m (▸inline ▸ξ ▸t) refl ok
+  ▸inline ▸ξ (fstₘ ▸t ok) =
+    fstₘ (▸inline ▸ξ ▸t) ok
   ▸inline ▸ξ (sndₘ ▸t) =
     sndₘ (▸inline ▸ξ ▸t)
   ▸inline ▸ξ (prodʷₘ ▸t ▸u) =

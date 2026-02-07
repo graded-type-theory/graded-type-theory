@@ -149,19 +149,12 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (▸t , ▸u)
 
 ⌈⌉▸[ m ]? fst p t =
-  case Dec→Dec-∀ (p-ok m ×-dec ᵐ·-split? m p) ×-Dec-∀ ⌈⌉▸[ m ]? t of λ where
-    (inj₁ ((p-ok , (m′ , m′-ok)) , ▸t)) →
-      inj₁ (fstₘ m′ (▸-cong (sym m′-ok) ▸t) m′-ok p-ok)
+  case Dec→Dec-∀ (⌜ m ⌝ · p ≤? ⌜ m ⌝) ×-Dec-∀ ⌈⌉▸[ m ]? t of λ where
+    (inj₁ (p-ok , ▸t)) →
+      inj₁ (fstₘ ▸t p-ok)
     (inj₂ problem) → inj₂ λ _ ▸fst →
-      let invUsageFst m′ m′-ok ▸t _ p-ok = inv-usage-fst ▸fst in
-      problem _ ((p-ok , m′ , sym m′-ok) , ▸t)
-  where
-  p-ok : ∀ m → Dec (⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟙)
-  p-ok m = case p ≤? 𝟙 of λ where
-    (yes p≤𝟙) → yes λ _ → p≤𝟙
-    (no p≰𝟙) → case is-𝟘? ⌜ m ⌝ of λ where
-      (yes m≡𝟘) → yes (λ m≢𝟘 → ⊥-elim (m≢𝟘 m≡𝟘))
-      (no m≢𝟘) → no (λ p≤𝟙 → p≰𝟙 (p≤𝟙 m≢𝟘))
+      let invUsageFst ▸t _ p-ok = inv-usage-fst ▸fst in
+      problem _ (p-ok , ▸t)
 
 ⌈⌉▸[ m ]? ΠΣ⟨ b ⟩ p , q ▷ A ▹ B =
   case ⌈⌉▸[ m ᵐ· p ]? A ×-Dec-∀ ⌈⌉▸[ m ]? B ×-Dec-∀

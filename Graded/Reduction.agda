@@ -171,38 +171,39 @@ module _
                (+ᶜ-monotone δ′≤δ
                   (·ᶜ-monotoneˡ (≤-reflexive (PE.sym x₄)))))
   usagePresTerm ▸∇ γ▸t (fst-subst x₁ t⇒u) =
-    let invUsageFst m m≡ ▸t γ≤ ok = inv-usage-fst γ▸t in
-    sub (fstₘ m (▸-cong m≡ (usagePresTerm ▸∇ ▸t t⇒u)) (PE.sym m≡) ok) γ≤
+    let invUsageFst ▸t γ≤ ok = inv-usage-fst γ▸t in
+    sub (fstₘ (usagePresTerm ▸∇ ▸t t⇒u) ok) γ≤
   usagePresTerm ▸∇ γ▸t (snd-subst x₁ t⇒u) =
     let invUsageSnd ▸t γ≤ = inv-usage-snd γ▸t
     in  sub (sndₘ (usagePresTerm ▸∇ ▸t t⇒u)) γ≤
   usagePresTerm {m = m′} {γ} _ ▸t′ (Σ-β₁ {t} {p} _ _ _ PE.refl _) =
     case inv-usage-fst ▸t′ of λ where
-      (invUsageFst {δ = δ} m PE.refl ▸tu γ≤δ fst-ok) →
+      (invUsageFst {δ = δ} ▸tu γ≤δ fst-ok) →
         case inv-usage-prodˢ ▸tu of λ where
           (invUsageProdˢ {δ = ζ} {η = η} ▸t ▸u δ≤pζ∧η) →
-           let γ≤pζ =
+           let γ≤m′ζ = let open ≤ᶜ-reasoning in
                   begin
-                    γ            ≤⟨ γ≤δ ⟩
-                    δ            ≤⟨ δ≤pζ∧η ⟩
-                    p ·ᶜ ζ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
-                    p ·ᶜ ζ       ∎
-           in  ⌜⌝≡𝟘-elim {m′ = m} (λ m → γ ▸[ m ] t) (m ᵐ· p)
-             (λ 𝟙≡𝟘 → sub (▸-trivial 𝟙≡𝟘 ▸t) (≈ᶜ-trivial 𝟙≡𝟘))
-             (λ 𝟙ᵐ≢𝟘ᵐ mp≡𝟘ᵐ →
-               let ▸t′ = ▸-cong (PE.trans (ᵐ·-congʳ mp≡𝟘ᵐ) ᵐ·-zeroˡ) ▸t
-               in  sub (▸-𝟘′ 𝟙ᵐ≢𝟘ᵐ ▸t) (begin
-                     γ        ≤⟨ γ≤pζ ⟩
-                     p ·ᶜ ζ   ≤⟨ (·ᶜ-monotoneʳ $ ▸-𝟘ᵐ 𝟙ᵐ≢𝟘ᵐ ▸t′) ⟩
-                     p ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
-                     𝟘ᶜ       ∎))
-             λ mp≢𝟘 → sub (▸-cong (ᵐ·-idem _) ▸t) $ begin
-                        γ      ≤⟨ γ≤pζ ⟩
-                        p ·ᶜ ζ ≤⟨ ·ᶜ-monotoneˡ (fst-ok mp≢𝟘) ⟩
-                        𝟙 ·ᶜ ζ ≈⟨ ·ᶜ-identityˡ _ ⟩
-                        ζ      ∎
-           where
-           open ≤ᶜ-reasoning
+                    γ                                ≤⟨ γ≤δ ⟩
+                    δ                                ≤⟨ δ≤pζ∧η ⟩
+                    p ·ᶜ ζ ∧ᶜ η                      ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
+                    p ·ᶜ ζ                           ≤⟨ ·ᶜ-monotoneʳ (▸ᵐ ▸t) ⟩
+                    p ·ᶜ ⌜ m′ ᵐ· p ⌝ ·ᶜ ζ            ≈⟨ ·ᶜ-congˡ (·ᶜ-congʳ (⌜⌝-cong (·ᵐ-comm _ _))) ⟩
+                    p ·ᶜ ⌜ ⌞ p ⌟ ·ᵐ m′ ⌝ ·ᶜ ζ        ≈⟨ ·ᶜ-congˡ (·ᶜ-congʳ (⌜·ᵐ⌝ _)) ⟩
+                    p ·ᶜ (⌜ ⌞ p ⌟ ⌝ · ⌜ m′ ⌝) ·ᶜ ζ   ≈˘⟨ ·ᶜ-assoc _ _ _ ⟩
+                    (p · ⌜ ⌞ p ⌟ ⌝ · ⌜ m′ ⌝) ·ᶜ ζ    ≈˘⟨ ·ᶜ-congʳ (·-assoc _ _ _) ⟩
+                    ((p · ⌜ ⌞ p ⌟ ⌝) · ⌜ m′ ⌝) ·ᶜ ζ  ≈⟨ ·ᶜ-congʳ (·-congʳ ·⌜⌞⌟⌝) ⟩
+                    (p · ⌜ m′ ⌝) ·ᶜ ζ                ≈˘⟨ ·ᶜ-congʳ (⌜⌝-·-comm _) ⟩
+                    (⌜ m′ ⌝ · p) ·ᶜ ζ                ≤⟨ ·ᶜ-monotoneˡ fst-ok ⟩
+                    ⌜ m′ ⌝ ·ᶜ ζ                      ∎
+               m′p≤m′ = let open ≤ᵐ-reasoning in
+                 begin
+                   m′ ᵐ· p             ≈˘⟨ ᵐ·-congʳ (⌞⌜⌝⌟ _) ⟩
+                   ⌞ ⌜ m′ ⌝ ⌟ ·ᵐ ⌞ p ⌟ ≈⟨ ⌞⌟·ᵐ ⟩
+                   ⌞ ⌜ m′ ⌝ · p ⌟      ≤⟨ ⌞⌟-monotone fst-ok ⟩
+                   ⌞ ⌜ m′ ⌝ ⌟          ≈⟨ ⌞⌜⌝⌟ _ ⟩
+                   m′                  ∎
+
+           in sub (▸-≤ᵐ ▸t m′p≤m′) γ≤m′ζ
 
   usagePresTerm {γ} _ ▸t′ (Σ-β₂ {p} _ _ _ PE.refl _) =
     case inv-usage-snd ▸t′ of λ where

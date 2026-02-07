@@ -101,10 +101,10 @@ opaque
         case inversion-app ⊢∘ of λ {
           (_ , _ , _ , ⊢t , _) →
         helper t-n ⊢t ▸t ∘→ proj₁ ∘→ +ᶜ-positive }
-      (fstₙ t-n) ⊢fst (fstₘ _ ▸t mp≡𝟙ᵐ _) →
+      (fstₙ t-n) ⊢fst (fstₘ ▸t _) →
         case inversion-fst ⊢fst of λ {
           (_ , _ , _ , _ , _ , ⊢t , _) →
-        helper t-n ⊢t (▸-cong mp≡𝟙ᵐ ▸t) }
+        helper t-n ⊢t ▸t }
       (sndₙ t-n) ⊢snd (sndₘ ▸t) →
         case inversion-snd ⊢snd of λ {
           (_ , _ , _ , _ , _ , ⊢t , _) →

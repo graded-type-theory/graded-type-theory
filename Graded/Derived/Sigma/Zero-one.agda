@@ -38,6 +38,7 @@ import Graded.Derived.Sigma UR as Σ
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
 open import Graded.Usage.Properties UR
+open import Graded.Usage.Properties.Zero-one mode-variant UR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Sigma 𝕄
@@ -117,7 +118,7 @@ opaque
     δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
     (⌜ m ⌝ · r · (𝟙 + p)) ·ᶜ γ +ᶜ δ ▸[ m ] prodrecˢ p t u
   prodrecˢₘ mrp≡𝟙→p≤𝟙 =
-    Σ.prodrecˢₘ (mrp≡𝟙→p≤𝟙 ∘→ ⌜⌝≢𝟘→≡𝟙ᵐ)
+    Σ.prodrecˢₘ (fst-alt-mp-cond .proj₂ mrp≡𝟙→p≤𝟙)
 
 opaque
 
@@ -165,7 +166,7 @@ opaque
     δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u →
     r′ ·ᶜ γ +ᶜ δ ▸[ m ] prodrec⟨ s ⟩ r p q A t u
   ▸prodrec⟨⟩ hyp =
-    Σ.▸prodrec⟨⟩ (λ s≡𝕤 ≢𝟘 → hyp s≡𝕤 (⌜⌝≢𝟘→≡𝟙ᵐ ≢𝟘))
+    Σ.▸prodrec⟨⟩ λ s≡𝕤 → fst-alt-mp-cond .proj₂ (hyp s≡𝕤)
 
 ------------------------------------------------------------------------
 -- An investigation of different potential implementations of a first
@@ -386,39 +387,8 @@ opaque
     𝟘ᶜ ∧ᶜ γ ▸[ m ] fst⟨ s ⟩ p A t
   ▸fst⟨⟩ {m} {p} hyp₁ hyp₂ hyp₃ =
     Σ.▸fst⟨⟩ (PE.sym ∘→ 𝟘≰𝟙⊎𝟙≡𝟘⊎≢𝟙ᵐ→ᵐ·[𝟘∧𝟙]≡ _ ∘→ hyp₁) hyp₂
-      (hyp₃ ∘→ ⌜⌝≢𝟘→≡𝟙ᵐ)
-      (λ _ _ → hyp₄)
-      λ _ → hyp₅
-    where
-    hyp₄ : m ᵐ· p PE.≡ m
-    hyp₄ =
-      case is-𝟘? p of λ where
-        (no p≢𝟘) → ≢𝟘→ᵐ·≡ p≢𝟘
-        (yes PE.refl) → 𝟘ᵐ-allowed-elim
-          (λ ok → case PE.singleton m of λ where
-            (𝟘ᵐ , PE.refl) →
-              PE.refl
-            (𝟙ᵐ , PE.refl) →
-              ⊥-elim (𝟘≰𝟙 ⦃ 𝟘-well-behaved ok ⦄ (hyp₃ PE.refl)))
-          Mode-propositional-without-𝟘ᵐ
-    hyp₅ : ⌜ m ⌝ ≢ 𝟘 → 𝟙 ≤ ⌜ ⌞ p ⌟ ⌝
-    hyp₅ ⌜m⌝≢𝟘 = let open ≤-reasoning in
-      case is-𝟘? p of λ where
-        (no p≢𝟘) → begin
-          𝟙         ≡⟨⟩
-          ⌜ 𝟙ᵐ ⌝    ≡˘⟨ ⌜⌝-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ⟩
-          ⌜ ⌞ p ⌟ ⌝ ∎
-        (yes PE.refl) → 𝟘ᵐ-allowed-elim
-          (λ ok → case PE.singleton m of λ where
-            (𝟘ᵐ , PE.refl) →
-              ⊥-elim (⌜m⌝≢𝟘 PE.refl)
-            (𝟙ᵐ , PE.refl) →
-              ⊥-elim (𝟘≰𝟙 ⦃ 𝟘-well-behaved ok ⦄ (hyp₃ PE.refl)))
-          λ not-ok → begin
-            𝟙         ≡⟨⟩
-            ⌜ 𝟙ᵐ ⌝    ≡⟨ ⌜⌝-cong {m₁ = 𝟙ᵐ} {m₂ = ⌞ 𝟘 ⌟}
-                           (Mode-propositional-without-𝟘ᵐ not-ok) ⟩
-            ⌜ ⌞ 𝟘 ⌟ ⌝ ∎
+      (λ _ m≢𝟘 → hyp₃ (⌜⌝≢𝟘→≡𝟙ᵐ m≢𝟘))
+      λ _ → fst-alt-mp-cond .proj₂ hyp₃
 
 opaque
   unfolding fst⟨_⟩ snd⟨_⟩

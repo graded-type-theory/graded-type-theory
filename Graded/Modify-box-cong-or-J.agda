@@ -711,8 +711,8 @@ opaque
       tr-▸ t Uₜ.∘ₘ tr-▸ u
     (Uₛ.prodˢₘ t u) →
       Uₜ.prodˢₘ (tr-▸ t) (tr-▸ u)
-    (Uₛ.fstₘ m t ≡m mp-cond) →
-      Uₜ.fstₘ m (tr-▸ t) ≡m mp-cond
+    (Uₛ.fstₘ t ok) →
+      Uₜ.fstₘ (tr-▸ t) ok
     (Uₛ.sndₘ t) →
       Uₜ.sndₘ (tr-▸ t)
     (Uₛ.prodʷₘ t u) →
