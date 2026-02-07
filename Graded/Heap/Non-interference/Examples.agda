@@ -41,15 +41,10 @@ open import Tools.Relation
 
 open import Graded.Usage.Restrictions.Natrec modality
 
-private opaque
-
-  factoring-nr :
-    ⦃ has-nr : Nr-available ⦄ →
-    Is-factoring-nr _ (Natrec-mode-Has-nr has-nr)
-  factoring-nr ⦃ has-nr ⦄ =
-    ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
-
 open import Graded.Heap.Non-interference L is-⊤? UR TR Level-not-allowed ℓ₀
+
+open Assumptions non-interference-assumptions
+
 open import Graded.Heap.Reduction type-variant UR factoring-nr ℓ₀
 import Graded.Heap.Reduction.Reasoning type-variant UR factoring-nr ℓ₀ as R
 open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
@@ -70,6 +65,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
+open import Definition.Typed.Syntactic TR
 
 private variable
   m n : Nat
@@ -77,6 +73,7 @@ private variable
   p q : M
   ρ : Wk _ _
   γ : Conₘ _
+  H₁ H₂ : Heap _ _
 
 private opaque
 
@@ -86,6 +83,67 @@ private opaque
   𝟘≰ℓ₀ : ℓ₀ ≢ 𝟘 → ¬ 𝟘 ≤ ℓ₀
   𝟘≰ℓ₀ ℓ₀≢𝟘 =
     ℓ₀≢𝟘 ∘→ ≤-antisym (≤⊤ _)
+
+------------------------------------------------------------------------
+-- An example of a non-interferent program
+
+module Example₁
+  (Σ-ok : Σʷ-allowed 𝟘 𝟘)
+  (Prodrec-ok : Prodrec-allowed ℓ₀ 𝟙 𝟘 𝟘)
+  (no-secret-matches : No-secret-matches)
+  where
+
+  -- A non-interferent program
+  -- t essentially corresponds to
+  -- case (x, n) of
+  --   (y1, y2) -> y2
+  -- where x is a secret variable and n is a public variable
+
+  t : Term 2
+  t = prodrec 𝟙 𝟘 𝟘 ℕ (prodʷ 𝟘 (var x1) (var x0)) (var x0)
+
+  -- t is well-typed
+
+  ⊢t : (ε » ε) »∙ ℕ »∙ ℕ ⊢ t ∷ ℕ
+  ⊢t =
+    let ⊢ℕ = ∙ univ (ℕⱼ (∙ univ (ℕⱼ εε)))
+        ⊢ℕ′ = univ (ℕⱼ (∙ univ (ℕⱼ ⊢ℕ)))
+        ⊢p = prodⱼ ⊢ℕ′ (var ⊢ℕ (there here)) (var ⊢ℕ here) Σ-ok
+    in  prodrecⱼ′ (univ (ℕⱼ (∙ syntacticTerm ⊢p))) ⊢p
+          (var (∙ ⊢ℕ′) here)
+
+  -- t is well-resourced
+
+  ▸t : ε ∙ 𝟘 ∙ ℓ₀ ▸[ ℓ₀ ] t
+  ▸t =
+    let ▸x0 = sub-≈ᶜ var $ begin
+          𝟘ᶜ ∙ ℓ₀ · (𝟙 · 𝟘) ∙ ℓ₀ · 𝟙 ≈⟨ (≈ᶜ-refl ∙ ·-congˡ (·-zeroʳ _) ∙ ·-identityʳ _) ⟩
+          𝟘ᶜ ∙ ℓ₀ · 𝟘 ∙ ℓ₀           ≈⟨ (≈ᶜ-refl ∙ ·-zeroʳ _ ∙ refl) ⟩
+          𝟘ᶜ ∙ 𝟘 ∙ ℓ₀                ≡⟨⟩
+          𝟘ᶜ , x0 ≔ ℓ₀               ∎
+
+        ▸ℕ = sub-≈ᶜ ℕₘ (≈ᶜ-refl ∙ ·-zeroʳ _)
+    in sub-≈ᶜ (prodrecₘ (prodʷₘ var var) ▸x0 ▸ℕ Prodrec-ok) $ begin
+         ε ∙ 𝟘 ∙ ℓ₀                                                   ≈˘⟨ +ᶜ-identityˡ _ ⟩
+         𝟘ᶜ +ᶜ (ε ∙ 𝟘 ∙ ℓ₀)                                           ≈˘⟨ +ᶜ-cong (·ᶜ-zeroˡ _) (≈ᶜ-refl ∙ ·-identityʳ _) ⟩
+         𝟘 ·ᶜ (ε ∙ (ℓ₀ · 𝟙) · 𝟘 ∙ 𝟘) +ᶜ (ε ∙ 𝟘 ∙ ℓ₀ · 𝟙)              ≈˘⟨ ·ᶜ-identityˡ _ ⟩
+         𝟙 ·ᶜ (𝟘 ·ᶜ (ε ∙ (ℓ₀ · 𝟙) · 𝟘 ∙ 𝟘) +ᶜ (ε ∙ 𝟘 ∙ ℓ₀ · 𝟙))       ≈˘⟨ +ᶜ-identityʳ _ ⟩
+         𝟙 ·ᶜ (𝟘 ·ᶜ (ε ∙ (ℓ₀ · 𝟙) · 𝟘 ∙ 𝟘) +ᶜ (ε ∙ 𝟘 ∙ ℓ₀ · 𝟙)) +ᶜ 𝟘ᶜ ∎
+    where
+    open ≈ᶜ-reasoning
+
+  -- t is non-interferent
+
+  t-non-interferent :
+    ε ∙ 𝟘 ∙ ℓ₀ ▸ʰ H₁ →
+    ε ⊢ʰ H₁ ∷ ε ∙ ℕ ∙ ℕ →
+    H₁ ~⟨ ℓ₀ ⟩ H₂ →
+    ∃₆ λ m n H₁′ H₂′ (ρ : Wk m n) t′ →
+      ⟨ H₁ , t , id , ε ⟩ ↠* ⟨ H₁′ , t′ , ρ , ε ⟩ ×
+      ⟨ H₂ , t , id , ε ⟩ ↠* ⟨ H₂′ , t′ , ρ , ε ⟩ ×
+      Numeral t′ × H₁′ ~⟨ ℓ₀ ⟩ H₂′
+  t-non-interferent =
+    non-interference no-secret-matches ▸t ⊢t
 
 ------------------------------------------------------------------------
 -- The assumption that there are no secret matches is not necessary.
