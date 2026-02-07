@@ -131,56 +131,32 @@ opaque
         mp-cond , θ≈𝟘 = ▸-inv-fstₑ ▸e
         invUsageProdˢ {δ = δ₁} {η = δ₂} ▸t ▸u δ≤ = inv-usage-prodˢ ▸t
         p′≡𝟙 = ∣∣ᶜ-functional ∣e∣≡ fstₑ
-        mp-cond′ = case is-𝟘? ⌜ ⌞ q′ ⌟ ⌝ of λ where
-          (yes q′≡𝟘) → inj₁ q′≡𝟘
-          (no q′≢𝟘) → inj₂ (mp-cond q′≢𝟘)
-    in  ▸ₛ ∣S∣≡ ▸H (▸-cong (lemma₁ mp-cond′ p′≡𝟙) ▸t) ▸S $ begin
-      γ                                        ≤⟨ γ≤ ⟩
-      (q′ · p′) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q′ ·ᶜ θ  ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·-congˡ p′≡𝟙)) (+ᶜ-congˡ (·ᶜ-congˡ θ≈𝟘)) ⟩
-      (q′ · 𝟙) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q′ ·ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·-identityʳ _)) (+ᶜ-congˡ (·ᶜ-zeroʳ _)) ⟩
-      q′ ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ 𝟘ᶜ              ≈⟨ +ᶜ-congˡ (+ᶜ-identityʳ _) ⟩
-      q′ ·ᶜ wkConₘ ρ δ +ᶜ η                    ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)) ⟩
-      q′ ·ᶜ wkConₘ ρ (p ·ᶜ δ₁ ∧ᶜ δ₂) +ᶜ η      ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ (∧ᶜ-decreasingˡ _ _))) ⟩
-      q′ ·ᶜ wkConₘ ρ (p ·ᶜ δ₁) +ᶜ η            ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (wk-·ᶜ ρ)) ⟩
-      q′ ·ᶜ p ·ᶜ wkConₘ ρ δ₁ +ᶜ η              ≈˘⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
-      (q′ · p) ·ᶜ wkConₘ ρ δ₁ +ᶜ η             ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (lemma₂ mp-cond′)) ⟩
-      q′ ·ᶜ wkConₘ ρ δ₁ +ᶜ η                   ∎
+        open ≤ᶜ-reasoning
+    in  ▸ₛ ∣S∣≡ ▸H (▸-≤ᵐ ▸t (lemma p′≡𝟙 mp-cond)) ▸S $ begin
+      γ                                           ≤⟨ γ≤ ⟩
+      (q′ · p′) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q′ ·ᶜ θ     ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·-congˡ p′≡𝟙)) (+ᶜ-congˡ (·ᶜ-congˡ θ≈𝟘)) ⟩
+      (q′ · 𝟙) ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ q′ ·ᶜ 𝟘ᶜ     ≈⟨ +ᶜ-cong (·ᶜ-congʳ (·-identityʳ _)) (+ᶜ-congˡ (·ᶜ-zeroʳ _)) ⟩
+      q′ ·ᶜ wkConₘ ρ δ +ᶜ η +ᶜ 𝟘ᶜ                 ≈⟨ +ᶜ-congˡ (+ᶜ-identityʳ _) ⟩
+      q′ ·ᶜ wkConₘ ρ δ +ᶜ η                       ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ δ≤)) ⟩
+      q′ ·ᶜ wkConₘ ρ (p ·ᶜ δ₁ ∧ᶜ δ₂) +ᶜ η         ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (wk-≤ᶜ ρ (∧ᶜ-decreasingˡ _ _))) ⟩
+      q′ ·ᶜ wkConₘ ρ (p ·ᶜ δ₁) +ᶜ η               ≈⟨ +ᶜ-congʳ (·ᶜ-congˡ (wk-·ᶜ ρ)) ⟩
+      q′ ·ᶜ p ·ᶜ wkConₘ ρ δ₁ +ᶜ η                 ≈˘⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
+      (q′ · p) ·ᶜ wkConₘ ρ δ₁ +ᶜ η                ≈˘⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-congʳ ·⌜⌞⌟⌝)) ⟩
+      ((q′ · ⌜ ⌞ q′ ⌟ ⌝) · p) ·ᶜ wkConₘ ρ δ₁ +ᶜ η ≈⟨ +ᶜ-congʳ (·ᶜ-congʳ (·-assoc _ _ _)) ⟩
+      (q′ · ⌜ ⌞ q′ ⌟ ⌝ · p) ·ᶜ wkConₘ ρ δ₁ +ᶜ η   ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneˡ (·-monotoneʳ mp-cond)) ⟩
+      (q′ · ⌜ ⌞ q′ ⌟ ⌝) ·ᶜ wkConₘ ρ δ₁ +ᶜ η       ≈⟨ +ᶜ-congʳ (·ᶜ-assoc _ _ _) ⟩
+      q′ ·ᶜ ⌜ ⌞ q′ ⌟ ⌝ ·ᶜ wkConₘ ρ δ₁ +ᶜ η        ≈˘⟨ +ᶜ-congʳ (·ᶜ-congˡ (wk-·ᶜ ρ)) ⟩
+      q′ ·ᶜ wkConₘ ρ (⌜ ⌞ q′ ⌟ ⌝ ·ᶜ δ₁) +ᶜ η      ∎
     where
-    lemma : ⌜ ⌞ q′ ⌟ ⌝ ≡ 𝟘 → q′ ≡ 𝟘
-    lemma {q′} q′≡𝟘 =
-      let open RPe in begin
-        q′              ≡˘⟨ ·⌜⌞⌟⌝ ⟩
-        q′ · ⌜ ⌞ q′ ⌟ ⌝ ≡⟨ ·-congˡ q′≡𝟘 ⟩
-        q′ · 𝟘          ≡⟨ ·-zeroʳ _ ⟩
-        𝟘               ∎
-    lemma₁ : (⌜ ⌞ q′ ⌟ ⌝ ≡ 𝟘 ⊎ p ≤ 𝟙) → p′ ≡ 𝟙 → ⌞ q′ · p′ ⌟ ᵐ· p ≡ ⌞ q′ ⌟
-    lemma₁ {q′} (inj₁ q′≡𝟘) refl =
-      let open RPe in begin
-        ⌞ q′ · 𝟙 ⌟ ᵐ· p ≡⟨ ᵐ·-congʳ (⌞⌟-cong (·-identityʳ _)) ⟩
-        ⌞ q′ ⌟ ᵐ· p     ≡⟨ ᵐ·-congʳ (⌞⌟-cong (lemma q′≡𝟘)) ⟩
-        ⌞ 𝟘 ⌟ ᵐ· p      ≡⟨ ᵐ·-congʳ ⌞𝟘⌟  ⟩
-        𝟘ᵐ ᵐ· p         ≡⟨ ᵐ·-zeroˡ ⟩
-        𝟘ᵐ              ≡˘⟨ ⌞𝟘⌟ ⟩
-        ⌞ 𝟘 ⌟           ≡˘⟨ ⌞⌟-cong (lemma q′≡𝟘) ⟩
-        ⌞ q′ ⌟          ∎
-    lemma₁ {q′} (inj₂ p≤𝟙) refl =
-      let open RPe in begin
-        ⌞ q′ · 𝟙 ⌟ ᵐ· p ≡⟨ ᵐ·-identityʳ-≤𝟙 p≤𝟙 ⟩
-        ⌞ q′ · 𝟙 ⌟      ≡⟨ ⌞⌟-cong (·-identityʳ _) ⟩
-        ⌞ q′ ⌟          ∎
-    lemma₂ : (⌜ ⌞ q′ ⌟ ⌝ ≡ 𝟘 ⊎ p ≤ 𝟙) → q′ · p ≤ q′
-    lemma₂ {q′} (inj₁ q′≡𝟘) =
-      let open ≤-reasoning in begin
-        q′ · p ≡⟨ ·-congʳ (lemma q′≡𝟘) ⟩
-        𝟘 · p  ≡⟨ ·-zeroˡ _ ⟩
-        𝟘      ≡˘⟨ lemma q′≡𝟘 ⟩
-        q′     ∎
-    lemma₂ {q′} (inj₂ p≤𝟙) =
-      let open ≤-reasoning in begin
-        q′ · p ≤⟨ ·-monotoneʳ p≤𝟙 ⟩
-        q′ · 𝟙 ≡⟨ ·-identityʳ _ ⟩
-        q′     ∎
-    open ≤ᶜ-reasoning
+    lemma : p′ ≡ 𝟙 → ⌜ ⌞ q′ ⌟ ⌝ · p ≤ ⌜ ⌞ q′ ⌟ ⌝ → ⌞ q′ · p′ ⌟ ᵐ· p ≤ᵐ ⌞ q′ ⌟
+    lemma {q′} refl q′p≤q =
+      let open ≤ᵐ-reasoning in begin
+        ⌞ q′ · 𝟙 ⌟ ᵐ· p         ≈⟨ ᵐ·-congʳ (⌞⌟-cong (·-identityʳ _)) ⟩
+        ⌞ q′ ⌟ ᵐ· p             ≈˘⟨ ·ᵐ-congʳ (⌞⌜⌝⌟ _) ⟩
+        ⌞ ⌜ ⌞ q′ ⌟ ⌝ ⌟ ·ᵐ ⌞ p ⌟ ≈⟨ ⌞⌟·ᵐ ⟩
+        ⌞ ⌜ ⌞ q′ ⌟ ⌝ · p ⌟      ≤⟨ ⌞⌟-monotone q′p≤q ⟩
+        ⌞ ⌜ ⌞ q′ ⌟ ⌝ ⌟          ≈⟨ ⌞⌜⌝⌟ _ ⟩
+        ⌞ q′ ⌟                  ∎
 
   ▸-⇒ᵥ ▸s (prodˢₕ₂ {p} {ρ}) =
     let q′ , p′ , γ , δ , η , θ
@@ -510,7 +486,7 @@ opaque
 
   ▸-⇒ₑ ▸s (fstₕ {ρ} {S}) =
     let q , γ , δ , η , ∣S∣≡ , ▸H , ▸t , ▸S , γ≤ = ▸ₛ-inv ▸s
-        invUsageFst {(δ′)} m eq ▸t δ≤ mp-cond = inv-usage-fst ▸t
+        invUsageFst {(δ′)} ▸t δ≤ mp-cond = inv-usage-fst ▸t
     in  ▸ₛ (fstₑ ∙ ∣S∣≡) ▸H (▸-cong (⌞⌟-cong (sym (·-identityʳ _))) ▸t)
            (▸ˢ∙ ∣S∣≡ (fstₑ mp-cond) ▸S) $ begin
            γ                                      ≤⟨ γ≤ ⟩

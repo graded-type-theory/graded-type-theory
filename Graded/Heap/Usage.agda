@@ -81,7 +81,7 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set (a ⊔ b) where
 data _▸ᶜ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (c : Cont n) → Set (a ⊔ b) where
   lowerₑ : 𝟘ᶜ ▸ᶜ[ m ] lowerₑ
   ∘ₑ : γ ▸[ m ᵐ· p ] u → p ·ᶜ wkConₘ ρ γ ▸ᶜ[ m ] ∘ₑ p u ρ
-  fstₑ : (⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟙) → 𝟘ᶜ ▸ᶜ[ m ] fstₑ p
+  fstₑ : (⌜ m ⌝ · p ≤ ⌜ m ⌝) → 𝟘ᶜ ▸ᶜ[ m ] fstₑ p
   sndₑ : 𝟘ᶜ ▸ᶜ[ m ] sndₑ p
   prodrecₑ : γ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u → Prodrec-allowed m r p q
            → wkConₘ ρ γ ▸ᶜ[ m ] prodrecₑ r p q A u ρ

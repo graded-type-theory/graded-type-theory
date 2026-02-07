@@ -96,17 +96,14 @@ opaque
     where
     open ≤ᶜ-reasoning
 
+
 opaque
   unfolding unbox
 
   -- A usage rule for unbox.
 
   ▸unbox : γ ▸[ m ] t → γ ▸[ m ] unbox t
-  ▸unbox {m} ▸t = fstₘ
-    m
-    (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸t)
-    ᵐ·-identityʳ-ω
-    (λ _ → ω≤𝟙)
+  ▸unbox {m = m} ▸t = fstₘ ▸t ·ω-decreasing
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
@@ -158,5 +155,5 @@ opaque
 
   inv-usage-unbox : γ ▸[ m ] unbox t → γ ▸[ m ] t
   inv-usage-unbox ▸[] =
-    let invUsageFst _ _ ▸t γ≤ _ = inv-usage-fst ▸[] in
-    sub ▸t γ≤
+    let invUsageFst ▸t γ≤ _ = inv-usage-fst ▸[]
+    in  sub ▸t γ≤

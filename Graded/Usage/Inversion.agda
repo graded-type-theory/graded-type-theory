@@ -281,21 +281,19 @@ record InvUsageFst
   constructor invUsageFst
   field
     {δ}          : Conₘ n
-    m′           : Mode
-    m≡m′ᵐ·p      : m ≡ m′ ᵐ· p
     δ▸t          : δ ▸[ m ] t
     γ≤δ          : γ ≤ᶜ δ
-    mp-condition : ⌜ m ⌝ PE.≢ 𝟘 → p ≤ 𝟙
+    mp-condition : ⌜ m ⌝ · p ≤ ⌜ m ⌝
 
--- If γ ▸[ m ] fst t then m ≡ m′ ᵐ· p, δ ▸[ m ] t and γ ≤ᶜ δ, and
--- furthermore if ⌜ m ⌝ ≢ 𝟘 then p ≤ 𝟙.
+-- If γ ▸[ m ] fst t then δ ▸[ m ] t and γ ≤ᶜ δ, and
+-- ⌜ m ⌝ · p ≤ ⌜ m ⌝.
 
 inv-usage-fst : γ ▸[ m ] fst p t → InvUsageFst γ m p t
-inv-usage-fst (fstₘ m ▸t PE.refl ok) =
-  invUsageFst m PE.refl ▸t ≤ᶜ-refl ok
+inv-usage-fst (fstₘ ▸t ok) =
+  invUsageFst ▸t ≤ᶜ-refl ok
 inv-usage-fst (sub ▸t γ≤γ′) with inv-usage-fst ▸t
-... | invUsageFst m m≡ ▸t γ′≤ ok =
-  invUsageFst m m≡ ▸t (≤ᶜ-trans γ≤γ′ γ′≤) ok
+... | invUsageFst ▸t γ′≤ ok =
+  invUsageFst ▸t (≤ᶜ-trans γ≤γ′ γ′≤) ok
 
 record InvUsageSnd
          {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set (a ⊔ a′) where

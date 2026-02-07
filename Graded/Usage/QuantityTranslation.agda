@@ -213,11 +213,13 @@ module Is-morphism
          tr-Σ p C₂.·ᶜ tr-Conₘ γ C₂.∧ᶜ tr-Conₘ δ  ∎)
       where
       open CR₂
-    tr-▸ (fstₘ {p = p} m ▸t refl ok) = fstₘ₀₁
-      (tr-Mode m)
-      (▸-cong (tr-Mode-ᵐ· m (BMΣ 𝕤)) (tr-▸ ▸t))
-      (sym (tr-Mode-ᵐ· m (BMΣ 𝕤)))
-      (λ mp≡𝟙 → tr-Σ-≤-𝟙 (UP′₁.fst-alt-mp-cond .proj₁ ok (tr-Mode-injective mp≡𝟙)))
+    tr-▸ ▸fst@(fstₘ {p = p} _ _) =
+      case UP′₁.inv-usage-fst₀₁ ▸fst of λ where
+        (_ , m , refl , ▸t , γ≤ , ok) →
+          fstₘ₀₁ (tr-Mode m)
+            (sub (▸-cong (tr-Mode-ᵐ· m (BMΣ 𝕤)) (tr-▸ ▸t)) (tr-Conₘ-monotone γ≤))
+            (sym (tr-Mode-ᵐ· _ (BMΣ 𝕤)))
+            (λ mp≡𝟙 → tr-Σ-≤-𝟙 (ok (tr-Mode-injective mp≡𝟙)))
     tr-▸ (sndₘ ▸t) =
       sndₘ (tr-▸ ▸t)
     tr-▸
@@ -1170,16 +1172,18 @@ module Is-order-embedding
       where
       open CR₁
 
-    tr-▸⁻¹′ {m = m} (fst p _) (fstₘ m′ ▸t ≡tr-m′ ok) refl ≤γ′ =
-      case tr-Mode-≡-ᵐ· {m = m′} ≡tr-m′ of λ (m″ , ≡m′ , ≡m) →
-      UP′₁.fstₘ₀₁ m″
-        (tr-▸⁻¹′ _ ▸t
-           (let open Tools.Reasoning.PropositionalEquality in
-              m′ Mo₂.ᵐ· tr-Σ p          ≡˘⟨ cong (Mo₂._ᵐ· _) ≡m′ ⟩
-              tr-Mode m″ Mo₂.ᵐ· tr-Σ p  ≡˘⟨ tr-Mode-ᵐ· m″ (BMΣ 𝕤) ⟩
-              tr-Mode (m″ Mo₁.ᵐ· p)     ∎)
-           ≤γ′)
-        ≡m λ {refl → tr-Σ-≤-𝟙-→ tr-emb (fst-alt-mp-cond .proj₁ ok refl)}
+    tr-▸⁻¹′ {m = m} (fst p _) ▸fst@(fstₘ _ _) refl ≤γ′ =
+      let δ , m′ , ≡tr-m′ , ▸t , γ′≤ , ok = inv-usage-fst₀₁ ▸fst
+          m″ , ≡m′ , ≡m = tr-Mode-≡-ᵐ· (sym ≡tr-m′)
+      in  UP′₁.fstₘ₀₁ m″
+            (tr-▸⁻¹′ _ ▸t
+               (let open Tools.Reasoning.PropositionalEquality in
+                  tr-Mode m                 ≡⟨ ≡tr-m′ ⟩
+                  m′ Mo₂.ᵐ· tr-Σ p          ≡˘⟨ cong (Mo₂._ᵐ· _) ≡m′ ⟩
+                  tr-Mode m″ Mo₂.ᵐ· tr-Σ p  ≡˘⟨ tr-Mode-ᵐ· m″ (BMΣ 𝕤) ⟩
+                  tr-Mode (m″ Mo₁.ᵐ· p)     ∎)
+               (CP₂.≤ᶜ-trans ≤γ′ γ′≤))
+            ≡m (λ {refl → tr-Σ-≤-𝟙-→ tr-emb (ok refl)})
 
     tr-▸⁻¹′
       {m = m} {γ = γ} (prodrec r p _ _ _ _)

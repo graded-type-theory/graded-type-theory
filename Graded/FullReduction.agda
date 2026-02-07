@@ -206,8 +206,8 @@ module _ (as : Full-reduction-assumptions) where
           γ≤ }
       (fst-cong t~) ▸∇ ▸fst-t →
         case inv-usage-fst ▸fst-t of λ {
-          (invUsageFst m′ PE.refl ▸t γ≤ ok) →
-        sub (fstₘ m′ (fullRedNe~↓ t~ ▸∇ ▸t) PE.refl ok) γ≤ }
+          (invUsageFst ▸t γ≤ ok) →
+        sub (fstₘ (fullRedNe~↓ t~ ▸∇ ▸t) ok) γ≤ }
       (snd-cong t~) ▸∇ ▸snd-t →
         case inv-usage-snd ▸snd-t of λ {
           (invUsageSnd ▸t γ≤) →

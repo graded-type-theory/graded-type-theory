@@ -39,6 +39,7 @@ open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
 private variable
@@ -58,18 +59,30 @@ opaque
   -- An alternative formulation of the mode condition in the usage rule
   -- for fst
 
-  fst-alt-mp-cond : (⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟙) ⇔ (m ≡ 𝟙ᵐ → p ≤ 𝟙)
-  fst-alt-mp-cond = lemma₁ _ , lemma₂ _
+  fst-alt-mp-cond : ⌜ m ⌝ · p ≤ ⌜ m ⌝ ⇔ (m ≡ 𝟙ᵐ → p ≤ 𝟙)
+  fst-alt-mp-cond {p} = lemma₁ _ , lemma₂ _
     where
-    lemma₁ : ∀ m → (⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟙) → m ≡ 𝟙ᵐ → p ≤ 𝟙
-    lemma₁ 𝟘ᵐ p≤𝟙 ()
-    lemma₁ 𝟙ᵐ p≤𝟙 refl =
-      case trivial? of λ where
-        (yes 𝟙≡𝟘) → ≡-trivial 𝟙≡𝟘
-        (no 𝟙≢𝟘) → p≤𝟙 𝟙≢𝟘
-    lemma₂ : ∀ m → (m ≡ 𝟙ᵐ → p ≤ 𝟙) → ⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟙
-    lemma₂ 𝟘ᵐ p≤𝟙 ≢𝟘 = ⊥-elim (≢𝟘 refl)
-    lemma₂ 𝟙ᵐ p≤𝟙 ≢𝟘 = p≤𝟙 refl
+    open ≤-reasoning
+    lemma₁ : ∀ m → (⌜ m ⌝ · p ≤ ⌜ m ⌝) → m ≡ 𝟙ᵐ → p ≤ 𝟙
+    lemma₁ 𝟘ᵐ mp≤m ()
+    lemma₁ 𝟙ᵐ mp≤m refl = begin
+      p           ≈˘⟨ ·-identityˡ _ ⟩
+      𝟙 · p       ≈˘⟨ ·-congʳ ⌜𝟙ᵐ⌝ ⟩
+      ⌜ 𝟙ᵐ ⌝ · p  ≤⟨ mp≤m ⟩
+      ⌜ 𝟙ᵐ ⌝      ≈⟨ ⌜𝟙ᵐ⌝ ⟩
+      𝟙           ∎
+    lemma₂ : ∀ m → (m ≡ 𝟙ᵐ → p ≤ 𝟙) → ⌜ m ⌝ · p ≤ ⌜ m ⌝
+    lemma₂ 𝟘ᵐ p≤𝟙 = begin
+      ⌜ 𝟘ᵐ ⌝ · p  ≡⟨⟩
+      𝟘 · p       ≈⟨ ·-zeroˡ _ ⟩
+      𝟘           ≡⟨⟩
+      ⌜ 𝟘ᵐ ⌝      ∎
+    lemma₂ 𝟙ᵐ p≤𝟙 = begin
+      ⌜ 𝟙ᵐ ⌝ · p  ≈⟨ ·-congʳ ⌜𝟙ᵐ⌝ ⟩
+      𝟙 · p       ≈⟨ ·-identityˡ _ ⟩
+      p           ≤⟨ p≤𝟙 refl ⟩
+      𝟙           ≈˘⟨ ⌜𝟙ᵐ⌝ ⟩
+      ⌜ 𝟙ᵐ ⌝      ∎
 
 opaque
 
@@ -81,8 +94,8 @@ opaque
     m ᵐ· p ≡ m′ →
     (m′ ≡ 𝟙ᵐ → p ≤ 𝟙) →
     γ ▸[ m′ ] fst p t
-  fstₘ₀₁ m ▸t mp≡m′ mp-cond =
-    fstₘ m ▸t mp≡m′ (fst-alt-mp-cond .proj₂ mp-cond)
+  fstₘ₀₁ m ▸t refl mp-cond =
+    fstₘ ▸t (fst-alt-mp-cond .proj₂ mp-cond)
 
 opaque
 
@@ -91,9 +104,23 @@ opaque
   inv-usage-fst₀₁ :
     γ ▸[ m ] fst p t →
     ∃₂ λ δ m′ → m ≡ m′ ᵐ· p × δ ▸[ m ] t × γ ≤ᶜ δ × (m ≡ 𝟙ᵐ → p ≤ 𝟙)
-  inv-usage-fst₀₁ ▸t =
-    let invUsageFst _ m≡ ▸t γ≤ mp-cond = inv-usage-fst ▸t
-    in  _ , _ , m≡ , ▸t , γ≤ , fst-alt-mp-cond .proj₁ mp-cond
+  inv-usage-fst₀₁ {m} ▸t =
+    let invUsageFst ▸t γ≤ mp-cond = inv-usage-fst ▸t
+        mp-cond′ = fst-alt-mp-cond .proj₁ mp-cond
+        m≡ = lemma m mp-cond′
+    in  _ , _ , m≡ , ▸t , γ≤ , mp-cond′
+    where
+    open Tools.Reasoning.PropositionalEquality
+    lemma : ∀ m → (m ≡ 𝟙ᵐ → p ≤ 𝟙) → m ≡ m ᵐ· p
+    lemma {p} 𝟘ᵐ _ =  begin
+      𝟘ᵐ       ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ ⟩
+      𝟘ᵐ?      ≡˘⟨ ᵐ·-zeroˡ ⟩
+      𝟘ᵐ? ᵐ· p ≡⟨ ᵐ·-congʳ 𝟘ᵐ?≡𝟘ᵐ ⟩
+      𝟘ᵐ ᵐ· p  ∎
+    lemma {p} 𝟙ᵐ p≤𝟙 =
+      𝟙ᵐ      ≡˘⟨ 𝟘ᵐ-allowed-elim (λ ok → ≢𝟘→⌞⌟≡𝟙ᵐ (λ { refl → 𝟘ᵐ.𝟘≰𝟙 ok (p≤𝟙 refl)})) only-𝟙ᵐ-without-𝟘ᵐ ⟩
+      ⌞ p ⌟   ≡˘⟨ ᵐ·-identityˡ ⟩
+      𝟙ᵐ ᵐ· p ∎
 
 opaque
 

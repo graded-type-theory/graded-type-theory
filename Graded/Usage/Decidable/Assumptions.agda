@@ -52,11 +52,6 @@ record Assumptions : Set (a ⊔ b) where
     -- decidable.
     []-cong-allowed-mode? : ∀ s m → Dec ([]-cong-allowed-mode s m)
 
-    -- For every mode m and grade p it is decidable if there is a
-    -- mode m′ such that m′ ᵐ· p ≡ m.
-
-    ᵐ·-split? : ∀ m p → Dec (∃ λ m′ → m′ ᵐ· p ≡ m)
-
     instance
       -- The inference function is supported
       ⦃ inference-ok ⦄ : Natrec-mode-supports-usage-inference natrec-mode

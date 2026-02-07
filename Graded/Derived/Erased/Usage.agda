@@ -149,15 +149,7 @@ opaque
     δ +ᶜ η ▸[ m ] erasedrec p B t u
   ▸erasedrec {m} {p} {δ} {η} hyp₁ P-ok U-ok ▸B ▸t ▸u = sub
     (▸prodrec⟨⟩
-       (λ where
-         PE.refl →
-           ⌜ m ᵐ· 𝟘 · 𝟘 ⌝ ≢ 𝟘 →⟨ ⌜⌝-·ᵐ-𝟘ʳ ⟩
-           ⌜ ⌞ 𝟘 · 𝟘 ⌟ ⌝ ≢ 𝟘  →⟨ PE.subst (λ m → ⌜ ⌞ m ⌟ ⌝ ≢ 𝟘) (·-zeroʳ _) ⟩
-           ⌜ ⌞ 𝟘 ⌟ ⌝ ≢ 𝟘      →⟨ PE.subst (λ m → ⌜ m ⌝ ≢ 𝟘) ⌞𝟘⌟ ⟩
-           ⌜ 𝟘ᵐ ⌝ ≢ 𝟘         →⟨ ⌜𝟘ᵐ⌝≢𝟘→ ⟩
-           Trivialᵐ           →⟨ hyp₁ PE.refl ⟩
-           Trivial            →⟨ ≡-trivial ⟩
-           𝟘 ≤ 𝟙              □)
+      lemma₅
        (λ { PE.refl → lemma₁ })
        (λ _ → ≤-refl)
        (λ { PE.refl → P-ok PE.refl })
@@ -245,6 +237,21 @@ opaque
       ⌜ 𝟘ᵐ ⌝ · p            ∎
       where
       open Tools.Reasoning.PropositionalEquality
+
+    lemma₅ : s PE.≡ 𝕤 → ⌜ m ᵐ· is-𝕨 · 𝟘 ⌝ · 𝟘 ≤ ⌜ m ᵐ· is-𝕨 · 𝟘 ⌝
+    lemma₅ s≡𝕤 = begin
+      ⌜ m ᵐ· is-𝕨 · 𝟘 ⌝ · 𝟘 ≈⟨ ·-zeroʳ _ ⟩
+      𝟘 ≈˘⟨ lemma ⟩
+      ⌜ 𝟘ᵐ ⌝ ≈˘⟨ ⌜⌝-cong (ᵐ·-zeroʳ _) ⟩
+      ⌜ m ᵐ· 𝟘 ⌝ ≈˘⟨ ⌜⌝-cong (ᵐ·-congˡ (·-zeroʳ _)) ⟩
+      ⌜ m ᵐ· is-𝕨 · 𝟘 ⌝ ∎
+      where
+      lemma : ⌜ 𝟘ᵐ ⌝ ≡ 𝟘
+      lemma =
+        case trivialᵐ? of λ where
+          (yes 𝟙ᵐ≡𝟘ᵐ) → ≡-trivial (hyp₁ s≡𝕤 𝟙ᵐ≡𝟘ᵐ)
+          (no 𝟙ᵐ≢𝟘ᵐ) → ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ
+      open ≤-reasoning
 
     open ≤ᶜ-reasoning
 
@@ -455,10 +462,13 @@ opaque
             (𝕤 , PE.refl) → λ _ → 𝟘≤𝟙 PE.refl 𝟙ᵐ≡𝟘ᵐ
             (𝕨 , PE.refl) → λ _ → ≡-trivial (trivial PE.refl 𝟙ᵐ≡𝟘ᵐ)
           (no 𝟙ᵐ≢𝟘ᵐ) → ⊥-elim ∘→ 𝟙ᵐ≢𝟘ᵐ ∘→ ⌜𝟘ᵐ⌝≢𝟘→
-        ok″ : s ≡ 𝕤 → ⌜ 𝟘ᵐ ⌝ ≢ 𝟘 → 𝟙 ≤ ⌜ ⌞ 𝟘 ⌟ ⌝
-        ok″ s≡𝕤 ⌜𝟘ᵐ⌝≢𝟘 = case trivialᵐ? of λ where
-          (yes 𝟙ᵐ≡𝟘ᵐ) → ≤-reflexive (PE.sym (PE.trans (⌜⌝-cong ⌞𝟘⌟) (⌜𝟘ᵐ⌝′ 𝟙ᵐ≡𝟘ᵐ)))
-          (no 𝟙ᵐ≢𝟘ᵐ) → ⊥-elim (𝟙ᵐ≢𝟘ᵐ (⌜𝟘ᵐ⌝≢𝟘→ ⌜𝟘ᵐ⌝≢𝟘))
+        ok″ : s ≡ 𝕤 → ⌜ 𝟘ᵐ ⌝ · 𝟘 ≤ ⌜ 𝟘ᵐ ⌝
+        ok″ s≡𝕤 = case trivialᵐ? of λ where
+          (yes 𝟙ᵐ≡𝟘ᵐ) →
+            ≤-trans (≤-reflexive (·-zeroʳ _))
+              (≤-trans (𝟘≤𝟙 s≡𝕤 𝟙ᵐ≡𝟘ᵐ) (≤-reflexive (PE.sym (⌜𝟘ᵐ⌝′ 𝟙ᵐ≡𝟘ᵐ))))
+          (no 𝟙ᵐ≢𝟘ᵐ) →
+            ≤-reflexive (PE.trans (·-zeroʳ _) (PE.sym (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ)))
     in
     ▸substᵉ trivial P-ok 𝟘≤𝟙 ok ▸Singleton
       (sub
@@ -470,7 +480,8 @@ opaque
                (_ +1 +1) → PE.refl) $
           wf-consSubstₘ
             (wf-consSubstₘ (wf-wk1Substₘ _ _ wf-idSubstₘ) $
-             sub (▸fst⟨⟩ (λ _ → PE.sym ᵐ·-zeroˡ) P-ok ok′ (λ _ _ → ᵐ·-zeroˡ) ok″ var (λ _ → wkUsage _ ▸A))
+             sub (▸fst⟨⟩ (λ _ → PE.sym ᵐ·-zeroˡ) P-ok (λ _ → ok′)
+                    ok″ var (λ _ → wkUsage _ ▸A))
                (begin
                   ⌜ 𝟘ᵐ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟙)  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·[𝟘∧𝟙]≡𝟘∧ ⟩
                   𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝         ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
@@ -483,7 +494,7 @@ opaque
                      wkUsage _ ▸A)
                     (PE.subst (_▸[_]_ _ _) (PE.sym wk[]′-[]↑) $
                      wkUsage _ ▸t)
-                    (▸fst⟨⟩ (λ _ → PE.sym ᵐ·-zeroˡ) P-ok ok′ (λ _ _ → ᵐ·-zeroˡ) ok″ var
+                    (▸fst⟨⟩ (λ _ → PE.sym ᵐ·-zeroˡ) P-ok (λ _ → ok′) ok″ var
                        (λ _ → wkUsage _ $ wkUsage _ ▸A))
                     (λ _ → begin
                        (((γ₁ +ᶜ γ₂) ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩

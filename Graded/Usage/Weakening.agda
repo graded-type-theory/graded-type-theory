@@ -97,7 +97,7 @@ wkUsage ρ (prodʷₘ γ▸t δ▸u) =
 wkUsage ρ (prodˢₘ γ▸t γ▸u) =
   sub-≈ᶜ (prodˢₘ (wkUsage ρ γ▸t) (wkUsage ρ γ▸u))
     (≈ᶜ-trans (wk-∧ᶜ ρ) (∧ᶜ-congʳ (wk-·ᶜ ρ)))
-wkUsage ρ (fstₘ m γ▸t PE.refl ok) = fstₘ m (wkUsage ρ γ▸t) PE.refl ok
+wkUsage ρ (fstₘ γ▸t ok) = fstₘ (wkUsage ρ γ▸t) ok
 wkUsage ρ (sndₘ γ▸t) = sndₘ (wkUsage ρ γ▸t)
 wkUsage ρ (prodrecₘ γ▸t δ▸u η▸A ok) =
   sub-≈ᶜ (prodrecₘ (wkUsage ρ γ▸t) (wkUsage (liftn ρ 2) δ▸u)
@@ -344,10 +344,10 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           wkConₘ⁻¹ ρ (p ·ᶜ γ ∧ᶜ δ)             ≈⟨ wkConₘ⁻¹-∧ᶜ ρ ⟩
           wkConₘ⁻¹ ρ (p ·ᶜ γ) ∧ᶜ wkConₘ⁻¹ ρ δ  ≈⟨ ∧ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ) ⟩
           p ·ᶜ wkConₘ⁻¹ ρ γ ∧ᶜ wkConₘ⁻¹ ρ δ    ∎) }
-      (fstₘ m ▸t refl ok) eq →
+      (fstₘ ▸t ok) eq →
         case wk-fst eq of λ {
           (_ , refl , refl) →
-        fstₘ m (wkUsage⁻¹ ▸t) refl ok }
+        fstₘ (wkUsage⁻¹ ▸t) ok }
       (sndₘ ▸t) eq →
         case wk-snd eq of λ {
           (_ , refl , refl) →

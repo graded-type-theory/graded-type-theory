@@ -18,6 +18,7 @@ open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Properties 𝕄
 open import Graded.Usage R
 open import Graded.Usage.Inversion R
 open import Graded.Usage.Properties R
@@ -52,9 +53,15 @@ opaque
     (Trivialᵐ → 𝟘 ≤ 𝟙) →
     γ ▸[ 𝟘ᵐ ] t → 𝟘ᶜ ▸[ 𝟘ᵐ ] erased t
   ▸erased′ {γ} {t} hyp ▸t =
-    sub (fstₘ 𝟙ᵐ (▸-cong (PE.sym (ᵐ·-zeroʳ _)) (▸-𝟘 ▸t) ) (ᵐ·-zeroʳ _)
-          (hyp ∘→ ⌜𝟘ᵐ⌝≢𝟘→)) 𝟘≤
+    sub (fstₘ (▸-𝟘 ▸t) (≤-trans (≤-reflexive (·-zeroʳ _)) 𝟘≤⌜𝟘ᵐ⌝)) 𝟘≤
     where
+    𝟘≤⌜𝟘ᵐ⌝ : 𝟘 ≤ ⌜ 𝟘ᵐ ⌝
+    𝟘≤⌜𝟘ᵐ⌝ =
+      case trivialᵐ? of λ where
+        (yes 𝟙ᵐ≡𝟘ᵐ) →
+          ≤-trans (hyp 𝟙ᵐ≡𝟘ᵐ) (≤-reflexive (PE.sym (⌜𝟘ᵐ⌝′ 𝟙ᵐ≡𝟘ᵐ)))
+        (no 𝟙ᵐ≢𝟘ᵐ) →
+          ≤-reflexive (PE.sym (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ))
     open ≤ᶜ-reasoning
     𝟘≤ : 𝟘ᶜ ≤ᶜ ⌜ 𝟘ᵐ ⌝ ·ᶜ γ
     𝟘≤ = case trivialᵐ? of λ where
@@ -86,18 +93,28 @@ opaque
   inv-usage-erased′ :
     γ ▸[ m ] erased t →
     ∃ λ δ → ⌜ 𝟘ᵐ ⌝ ·ᶜ δ ▸[ 𝟘ᵐ ] t × γ ≤ᶜ ⌜ 𝟘ᵐ ⌝ ·ᶜ δ × m PE.≡ 𝟘ᵐ
-  inv-usage-erased′ {γ = γ} ▸[] =
+  inv-usage-erased′ {γ} {m} ▸[] =
     case inv-usage-fst ▸[] of λ where
-      (invUsageFst {δ = δ} m PE.refl ▸t γ≤ _) →
+      (invUsageFst {δ = δ} ▸t γ≤ ok) →
           _
         , ▸-𝟘 ▸t
          , (begin
              γ           ≤⟨ γ≤ ⟩
-             δ           ≤⟨ ▸ᵐ (▸-cong (ᵐ·-zeroʳ _) ▸t) ⟩
+             δ           ≤⟨ ▸ᵐ ▸t ⟩
+             ⌜ m ⌝ ·ᶜ δ  ≈⟨ ·ᶜ-congʳ (⌜⌝-cong (lemma ok)) ⟩
              ⌜ 𝟘ᵐ ⌝ ·ᶜ δ ∎)
-        , ᵐ·-zeroʳ _
+        , lemma ok
     where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+    lemma : ⌜ m ⌝ · 𝟘 ≤ ⌜ m ⌝ → m PE.≡ 𝟘ᵐ
+    lemma ok =
+      let open ≤ᵐ-reasoning in
+        ≤ᵐ-antisym ≤𝟘ᵐ $ begin
+          𝟘ᵐ            ≈˘⟨ ⌞𝟘⌟ ⟩
+          ⌞ 𝟘 ⌟         ≈˘⟨ ⌞⌟-cong (·-zeroʳ _) ⟩
+          ⌞ ⌜ m ⌝ · 𝟘 ⌟ ≤⟨ ⌞⌟-monotone ok ⟩
+          ⌞ ⌜ m ⌝ ⌟     ≈⟨ ⌞⌜⌝⌟ _ ⟩
+          m             ∎
+    open ≤ᶜ-reasoning
 
 opaque
 

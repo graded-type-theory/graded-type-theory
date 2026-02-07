@@ -343,7 +343,6 @@ opaque
       .Emptyrec-allowed? _ _     → yes _
       .[]-cong-allowed-mode? _ _ → yes _
       .no-sink-or-≤𝟘             → inj₁ idᶠ
-      .ᵐ·-split? _ _             → ᵐ·-split-dec _
     where
     open UD.Assumptions
 
@@ -360,7 +359,6 @@ opaque
       .Emptyrec-allowed?     → A.Emptyrec-allowed?
       .[]-cong-allowed-mode? → A.[]-cong-allowed-mode?
       .no-sink-or-≤𝟘         → A.no-sink-or-≤𝟘
-      .ᵐ·-split?             → A.ᵐ·-split?
     where
     module A = UD.Assumptions as
     open UD.Assumptions
@@ -385,7 +383,6 @@ opaque
       .Emptyrec-allowed?      → A.Emptyrec-allowed?
       .[]-cong-allowed-mode?  → A.[]-cong-allowed-mode?
       .no-sink-or-≤𝟘          → A.no-sink-or-≤𝟘
-      .ᵐ·-split?               → A.ᵐ·-split?
     where
     module A = UD.Assumptions as
     open UD.Assumptions
@@ -413,7 +410,6 @@ opaque
       .Emptyrec-allowed?     → A.Emptyrec-allowed?
       .[]-cong-allowed-mode? → A.[]-cong-allowed-mode?
       .no-sink-or-≤𝟘         → A.no-sink-or-≤𝟘
-      .ᵐ·-split?              → A.ᵐ·-split?
     where
     module A = UD.Assumptions (Assumptions-only-some-erased-matches as)
     open UD.Assumptions

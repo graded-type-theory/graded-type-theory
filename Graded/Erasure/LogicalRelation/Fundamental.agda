@@ -264,7 +264,7 @@ module Fundamental
         (fundamental′ ⊢u ▸u <n₂)
     fundamental′ (fstⱼ _ ⊢t) ▸fst (fst <n) =
       case inv-usage-fst ▸fst of λ
-        (invUsageFst _ _ ▸t γ≤δ _) →
+        (invUsageFst ▸t γ≤δ _) →
       fstʳ ⊢t (fundamental′ ⊢t (sub ▸t γ≤δ) <n) ▸fst
     fundamental′ (sndⱼ _ ⊢t) ▸snd (snd <n) =
       case inv-usage-snd ▸snd of λ
