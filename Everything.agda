@@ -81,9 +81,12 @@ import Graded.Context.Weakening
 -- Usage modes
 
 import Graded.Mode
+
+------------------------------------------------------------------------
+-- The mode instance Zero-one
+
 import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-import Graded.Mode.Instances.Bounded-distributive-lattice
 
 ------------------------------------------------------------------------
 -- The type theory's syntax (as well as type restrictions)
@@ -255,7 +258,6 @@ import Graded.Modality.Instances.Recursive
 import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Zero-one-many
 import Graded.Modality.Instances.Bounded-distributive-lattice
-import Graded.Modality.Instances.Bounded-distributive-lattice.Usage
 import Graded.Modality.Instances.Set.Interval
 
 -- Modality instances.
@@ -279,6 +281,12 @@ import
   Graded.Modality.Instances.Bounded-distributive-lattice.Downward-closed
 import Graded.Modality.Instances.Set.Interval.Implementation
 import Graded.Modality.Instances.Relevancy
+
+------------------------------------------------------------------------
+-- The mode instance Bounded-distributive-lattice
+
+import Graded.Mode.Instances.Bounded-distributive-lattice
+import Graded.Modality.Instances.Bounded-distributive-lattice.Usage
 
 ------------------------------------------------------------------------
 -- A combination of typing and usage
@@ -458,16 +466,16 @@ import Definition.Untyped.QuantityTranslation
 import Definition.Untyped.QuantityTranslation.Identity
 import Graded.Modality.Morphism
 import Graded.Modality.Morphism.Examples
+import Graded.Context.QuantityTranslation
+import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
 import Graded.Modality.Morphism.Type-restrictions
 import Graded.Modality.Morphism.Type-restrictions.Examples
 import Graded.Modality.Morphism.Usage-restrictions
 import Graded.Modality.Morphism.Usage-restrictions.Examples
+import Graded.Mode.Instances.Zero-one.QuantityTranslation
 import Graded.Modality.Morphism.Forward-instances
 import Graded.Modality.Morphism.Backward-instances
 import Definition.Typed.QuantityTranslation
-import Graded.Context.QuantityTranslation
-import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
-import Graded.Mode.Instances.Zero-one.QuantityTranslation
 import Graded.Usage.QuantityTranslation
 
 ------------------------------------------------------------------------
