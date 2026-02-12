@@ -107,6 +107,16 @@ opaque
 
 opaque
 
+  -- There is no least element
+
+  no-least : ¬ (∃ λ p → ∀ q → p ≤ q)
+  no-least (p , p≤) =
+    case ≤-antisym (p≤ (1+ p)) (≤⇔≥ .proj₂ (N.n≤1+n _)) of λ ()
+    where
+    open Graded.Modality.Properties.PartialOrder Nat-modality
+
+opaque
+
   -- 1+ p is less than p
 
   1+-decreasing : ∀ p → 1+ p ≤ p
