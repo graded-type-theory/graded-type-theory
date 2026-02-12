@@ -196,6 +196,19 @@ opaque
   supports-subtraction =
     MP.Addition≡Meet.supports-subtraction +≡∧
 
+opaque
+
+  -- 𝟘 is the greatest element
+
+  ≤𝟘 : p ≤ 𝕄.𝟘
+  ≤𝟘 = ≤⊤ _
+
+opaque
+
+  -- 𝟙 is the least element
+
+  𝟙≤ : 𝕄.𝟙 ≤ p
+  𝟙≤ = ⊥≤ _
 
 opaque
 

@@ -245,6 +245,13 @@ module Addition≡Meet (+≡∧ : ∀ p q → p + q ≡ p ∧ q) where
     supports-subtraction : Supports-subtraction
     supports-subtraction {p} p-q≤r = p , p-q≡p (p-q≤r→p≤q p-q≤r)
 
+  opaque
+
+    -- An alternative representation of subtraction
+
+    p-q≡r⇔ : (p - q ≡ r) ⇔ (p ≤ q × r ≡ p)
+    p-q≡r⇔ = p-q≡r→p≤q∧r≡p , (λ {(p≤q , refl) → p-q≡p p≤q})
+
 ------------------------------------------------------------------------
 -- Properties of _-_≤_ and _-_≡_ that hold for well-behaved zeros.
 
