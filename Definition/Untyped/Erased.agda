@@ -167,6 +167,7 @@ opaque
     inline ξ (Id (Erased l A) [ t ] [ u ])                               ∎
 
 opaque
+  unfolding Eta.erased NoEta.erased
 
   -- The "projection" erased.
 
@@ -181,8 +182,8 @@ opaque
   -- A substitution lemma for erased.
 
   erased-[] : erased A t U.[ σ ] ≡ erased (A U.[ σ ]) (t U.[ σ ])
-  erased-[] = case singleton s of λ where
-    (𝕤 , refl) → Eta.erased-[]
+  erased-[] {t} = case singleton s of λ where
+    (𝕤 , refl) → Eta.erased-[] {t = t}
     (𝕨 , refl) → NoEta.erased-[]
 
 opaque
