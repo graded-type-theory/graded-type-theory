@@ -13,6 +13,7 @@ open Modality 𝕄
 
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
+import Definition.Typed.Decidable.Internal.Weakening
 open import Definition.Typed.Restrictions
 
 open import Definition.Untyped M
@@ -339,8 +340,8 @@ opaque
     prodrecʰ⟨ s ⟩ r p q (wk (lift ρ) A) (wk ρ t) (wk (liftn ρ 2) u)  ∎
 
 ------------------------------------------------------------------------
--- A variant of one term former, intended to be used with the internal
--- type-checker
+-- Variants of some term formers, intended to be used with the
+-- internal type-checker
 
 module Internal (R : Type-restrictions 𝕄) where
 
@@ -349,12 +350,35 @@ module Internal (R : Type-restrictions 𝕄) where
       Definition.Typed.Decidable.Internal.Term R
     module IS =
       Definition.Typed.Decidable.Internal.Substitution.Primitive R
+    module IW =
+      Definition.Typed.Decidable.Internal.Weakening R
 
   private variable
     c        : I.Constants
     pᵢ qᵢ rᵢ : I.Termᵍ _
     Aᵢ tᵢ uᵢ : I.Term _ _
     γ        : I.Contexts _
+
+  -- A variant of fst⟨_⟩, intended to be used with the internal
+  -- type-checker.
+
+  fst⟨_⟩ᵢ :
+    Strength → I.Termᵍ (c .I.gs) → (_ _ : I.Term c n) → I.Term c n
+  fst⟨ 𝕤 ⟩ᵢ p _ t = I.fst p t
+  fst⟨ 𝕨 ⟩ᵢ p A t =
+    I.prodrec (I.𝟘 I.∧ I.𝟙) p I.𝟘 (IW.wk[ 1 ] A) t (I.var x1)
+
+  opaque
+    unfolding fst⟨_⟩
+
+    -- A translation lemma for fst⟨_⟩ᵢ.
+
+    ⌜fst⟨⟩ᵢ⌝ :
+      ∀ s →
+      I.⌜ fst⟨ s ⟩ᵢ pᵢ Aᵢ tᵢ ⌝ γ ≡
+      fst⟨ s ⟩ (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+    ⌜fst⟨⟩ᵢ⌝ 𝕤 = refl
+    ⌜fst⟨⟩ᵢ⌝ 𝕨 = refl
 
   -- A variant of prodrec⟨_⟩, intended to be used with the internal
   -- type-checker.

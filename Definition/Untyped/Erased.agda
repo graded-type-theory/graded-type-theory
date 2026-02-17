@@ -524,8 +524,8 @@ opaque
       (u U.[ σ ])                                                         ∎
 
 ------------------------------------------------------------------------
--- A variant of one term former, intended to be used with the internal
--- type-checker
+-- Variants of some term formers, intended to be used with the
+-- internal type-checker
 
 module Internal (R : Type-restrictions 𝕄) where
 
@@ -541,10 +541,28 @@ module Internal (R : Type-restrictions 𝕄) where
       Definition.Typed.Decidable.Internal.Weakening R
 
   private variable
-    c        : I.Constants
-    pᵢ       : I.Termᵍ _
-    Bᵢ tᵢ uᵢ : I.Term _ _
-    γ        : I.Contexts _
+    c              : I.Constants
+    pᵢ             : I.Termᵍ _
+    Aᵢ Bᵢ lᵢ tᵢ uᵢ : I.Term _ _
+    γ              : I.Contexts _
+
+  -- A variant of erased, intended to be used with the internal
+  -- type-checker.
+
+  erasedᵢ : (_ _ : I.Term c n) → I.Term c n
+  erasedᵢ A t = fst⟨ s ⟩ᵢ I.𝟘 A t
+
+  opaque
+    unfolding erased fst⟨_⟩
+
+    -- A translation lemma for erasedᵢ.
+
+    ⌜erasedᵢ⌝ :
+      I.⌜ erasedᵢ Aᵢ tᵢ ⌝ γ ≡
+      erased (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
+    ⌜erasedᵢ⌝ with PE.singleton s
+    … | 𝕨 , refl = refl
+    … | 𝕤 , refl = refl
 
   -- A variant of erasedrec, intended to be used with the internal
   -- type-checker.
@@ -577,5 +595,27 @@ module Internal (R : Type-restrictions 𝕄) where
       I.⌜ erasedrecᵢ pᵢ Bᵢ tᵢ uᵢ ⌝ γ ≡
       erasedrec (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Bᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
     ⌜erasedrecᵢ⌝ with PE.singleton s
+    … | 𝕨 , refl = refl
+    … | 𝕤 , refl = refl
+
+  -- A variant of mapᴱ, intended to be used with the internal
+  -- type-checker.
+
+  mapᴱᵢ : (_ _ : I.Term c n) → I.Term c (1+ n) → I.Term c n → I.Term c n
+  mapᴱᵢ l A t u = I.box s′ l (I.subst t (IS.sgSubst (erasedᵢ A u)))
+    where
+    s′ = case s of λ where
+      𝕨 → I.𝕨
+      𝕤 → I.𝕤
+
+  opaque
+    unfolding erased fst⟨_⟩ mapᴱ [_]
+
+    -- A translation lemma for mapᴱᵢ.
+
+    ⌜mapᴱᵢ⌝ :
+      I.⌜ mapᴱᵢ lᵢ Aᵢ tᵢ uᵢ ⌝ γ ≡
+      mapᴱ (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
+    ⌜mapᴱᵢ⌝ with PE.singleton s
     … | 𝕨 , refl = refl
     … | 𝕤 , refl = refl
