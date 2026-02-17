@@ -545,7 +545,7 @@ module Internal (R : Type-restrictions 𝕄) where
     Bᵢ tᵢ uᵢ : I.Term _ _
     γ        : I.Contexts _
 
-  -- A variant of natcase, intended to be used with the internal
+  -- A variant of erasedrec, intended to be used with the internal
   -- type-checker.
 
   erasedrecᵢ :
