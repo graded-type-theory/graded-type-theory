@@ -91,7 +91,8 @@ private variable
 --   that is type- and usage-preserving in a certain sense. Extraction
 --   is not affected by translation, and the application of a
 --   substitution to the translation of ℕ is equal to the translation
---   of ℕ.
+--   of ℕ. There is also an assumption related to translation of
+--   definition contexts.
 --
 -- Given those assumptions one can prove a soundness theorem for
 -- *open* terms for the basic theory, assuming that the (translation
