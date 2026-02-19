@@ -2698,9 +2698,10 @@ opaque
   -- the []-cong primitive) are not allowed, equality reflection is
   -- not allowed, and η-equality is not allowed for weak unit types
   -- unless a certain condition is satisfied, then []-cong is not
-  -- supported for the mode 𝟙ᵐ and a "consistent" well-formed type A
-  -- (in an empty definition context) without η-equality that is
-  -- distinct from Level, if the "p" grades are 𝟘.
+  -- supported for the mode 𝟙ᵐ and a well-formed type A (in an empty
+  -- definition context) without η-equality that is distinct from
+  -- Level, if the "p" grades are 𝟘 and, if erased matches are allowed
+  -- for the empty type, then A is "consistent".
 
   ¬-[]-cong-for-type :
     {Γ : Con Term n}
@@ -2713,7 +2714,7 @@ opaque
     No-η-equality ε A →
     A ≢ Level →
     ε » Γ ⊢ A →
-    Consistent (ε » Γ ∙ A) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Γ ∙ A)) →
     ¬ Has-[]-cong-for-type s 𝟙ᵐ Γ l A 𝟘 q₁ 𝟘 q₂ q₃
   ¬-[]-cong-for-type
     {n} {A} {Γ} nem Unitʷ-η→ no-η A≢Level ⊢A consistent (_ , hyp) =
@@ -2728,7 +2729,7 @@ opaque
         of λ ()
       (_ , ne u-ne , []-cong′⇒*u) →
         neutral-not-well-resourced nem
-          (λ _ → subst-Consistent ⊢σ consistent)
+          (subst-Consistent ⊢σ ∘→ consistent)
           PE.refl (ne→ _ u-ne)
           (wf-⊢≡∷ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
           (usagePres*Term Unitʷ-η→ (λ ()) ▸[]-cong′ []-cong′⇒*u)
@@ -2778,7 +2779,8 @@ opaque
   -- the []-cong primitive) are not allowed, equality reflection is
   -- not allowed, and η-equality is not allowed for weak unit types
   -- unless a certain condition is satisfied, then []-cong is not
-  -- supported for the mode 𝟙ᵐ, the consistent variable context Γ, the
+  -- supported for the mode 𝟙ᵐ, the variable context Γ (which must be
+  -- consistent if erased matches are allowed for the empty type), the
   -- well-resourced level l, and certain grades.
 
   ¬-[]-cong-for-level :
@@ -2790,7 +2792,7 @@ opaque
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
     γ ▸[ 𝟘ᵐ? ] l →
-    Consistent (ε » Γ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Γ)) →
     ¬ Has-[]-cong-for-level s 𝟙ᵐ Γ l p₁ q₁ 𝟘 q₂ 𝟘 q₃ q₄
   ¬-[]-cong-for-level
     {n} {l} {s} {p₁} {q₁} {q₂} {q₃} {q₄} {Γ}
@@ -2798,7 +2800,7 @@ opaque
                                                        $⟨ has-[]-cong ⟩
     Has-[]-cong-for-level s 𝟙ᵐ Γ l p₁ q₁ 𝟘 q₂ 𝟘 q₃ q₄  →⟨ Has-[]-cong-for-level→Has-[]-cong-for-type ⊢A ▸A ⟩
     Has-[]-cong-for-type s 𝟙ᵐ Γ l A′ 𝟘 q₂ 𝟘 q₃ q₄      →⟨ ¬-[]-cong-for-type nem Unitʷ-η→ No-η-equality-A A≢Level (univ ⊢A)
-                                                            (subst-Consistent (⊢ˢʷ∷-sgSubst ⊢t) consistent) ⟩
+                                                            (subst-Consistent (⊢ˢʷ∷-sgSubst ⊢t) ∘→ consistent) ⟩
     ⊥                                                  □
     where
     ⊢l : ε » Γ ⊢ l ∷Level
@@ -2868,7 +2870,7 @@ opaque
     (Π-allowed p₃ q₃ → Π-allowed 𝟘 q₃′) →
     p₁ ≤ 𝟘 →
     γ ▸[ 𝟘ᵐ? ] l →
-    Consistent (ε » Δ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     ¬ Has-[]-cong-for-level s 𝟙ᵐ Δ l p₁ q₁ p₂ q₂ p₃ q₃ q₄
   ¬-[]-cong-for-level′
     {s} {p₂} {q₂} {q₂′} {p₃} {q₃} {q₃′} {p₁} {l} {Δ} {q₁} {q₄}
@@ -2885,8 +2887,9 @@ opaque
   -- the []-cong primitive) are not allowed, equality reflection is
   -- not allowed, and η-equality is not allowed for weak unit types
   -- unless a certain condition is satisfied, then []-cong is not
-  -- supported for the mode 𝟙ᵐ, a consistent variable context Γ, and
-  -- certain grades.
+  -- supported for the mode 𝟙ᵐ, a consistent variable context Γ (which
+  -- must be consistent if erased matches are allowed for the empty
+  -- type), and certain grades.
 
   ¬-[]-cong :
     {Γ : Con Term n}
@@ -2896,7 +2899,7 @@ opaque
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
-    Consistent (ε » Γ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Γ)) →
     ¬ Has-[]-cong s 𝟙ᵐ Γ p₁ q₁ p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅
   ¬-[]-cong
     {n} {s} {p₁} {q₁} {p₂} {q₂} {q₃} {q₄} {q₅} {Γ}
@@ -2941,7 +2944,7 @@ opaque
     (Π-allowed p₄ q₄ → Π-allowed 𝟘 q₄′) →
     p₁ ≤ ω · p₁ →
     p₂ ≤ 𝟘 →
-    Consistent (ε » Δ) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
     ¬ Has-[]-cong s 𝟙ᵐ Δ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅
   ¬-[]-cong′
     {s} {p₃} {q₃} {q₃′} {p₄} {q₄} {q₄′} {p₁} {p₂} {Δ} {q₁} {q₂} {q₅}
