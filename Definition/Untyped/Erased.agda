@@ -323,6 +323,19 @@ opaque
 
 opaque
 
+  -- A weakening lemma for mapᴱ.
+
+  wk-mapᴱ :
+    wk ρ (mapᴱ A t u) ≡
+    mapᴱ (wk ρ A) (wk (lift ρ) t) (wk ρ u)
+  wk-mapᴱ {ρ} {A} {t} {u} =
+    wk ρ (mapᴱ A t u)                                                   ≡⟨ wk≡subst _ _ ⟩
+    mapᴱ A t u U.[ toSubst ρ ]                                          ≡⟨ mapᴱ-[] ⟩
+    mapᴱ (A U.[ toSubst ρ ]) (t U.[ toSubst ρ ⇑ ]) (u U.[ toSubst ρ ])  ≡˘⟨ cong₃ mapᴱ (wk≡subst _ _) (wk-liftn 1) (wk≡subst _ _) ⟩
+    mapᴱ (wk ρ A) (wk (lift ρ) t) (wk ρ u)                              ∎
+
+opaque
+
   -- Substitutivity.
   --
   -- This variant of subst is an alternative to subst 𝟘.

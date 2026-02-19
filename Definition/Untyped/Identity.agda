@@ -252,6 +252,23 @@ opaque
 
 opaque
 
+  -- A weakening lemma for cong.
+
+  wk-cong :
+    wk ρ (cong p A t u B v w) ≡
+    cong p (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ B) (wk (lift ρ) v) (wk ρ w)
+  wk-cong {ρ} {p} {A} {t} {u} {B} {v} {w} =
+    wk ρ (cong p A t u B v w)                                            ≡⟨ wk≡subst _ _ ⟩
+
+    cong p A t u B v w [ toSubst ρ ]                                     ≡⟨ cong-[] ⟩
+
+    cong p (A [ toSubst ρ ]) (t [ toSubst ρ ]) (u [ toSubst ρ ])
+      (B [ toSubst ρ ]) (v [ toSubst ρ ⇑ ]) (w [ toSubst ρ ])            ≡˘⟨ cong₆ (cong _) (wk≡subst _ _) (wk≡subst _ _) (wk≡subst _ _)
+                                                                               (wk≡subst _ _) (wk-liftn 1) (wk≡subst _ _) ⟩
+    cong p (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ B) (wk (lift ρ) v) (wk ρ w)  ∎
+
+opaque
+
   -- Binary congruence.
 
   cong₂ :
