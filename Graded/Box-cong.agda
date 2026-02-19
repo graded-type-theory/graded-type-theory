@@ -714,7 +714,8 @@ opaque
   -- not allowed, and η-equality is not allowed for weak unit types
   -- unless a certain condition is satisfied, then []-cong is not
   -- supported for the mode 𝟙ᵐ and a "consistent" well-formed type A
-  -- without η-equality that is distinct from Level.
+  -- (in an empty definition context) without η-equality that is
+  -- distinct from Level.
 
   ¬-[]-cong-for :
     {Γ : Con Term n}
