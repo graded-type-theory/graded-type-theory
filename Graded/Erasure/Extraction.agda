@@ -43,9 +43,8 @@ loop? strict     = ↯
 erase-prodrecω :
   Strictness → M → T.Term n → T.Term (2+ n) → T.Term n
 erase-prodrecω s p t u = case is-𝟘? p of λ where
-    (yes p≡𝟘) → T.lam (u T.[ T.liftSubst (T.sgSubst (loop s)) ])
-                  T.∘⟨ s ⟩ t
-    (no p≢𝟘) → T.prodrec t u
+    (yes _) → (T.lam u T.[ loop s ]₀) T.∘⟨ s ⟩ t
+    (no _)  → T.prodrec t u
 
 -- A function application that is used when the grade is 𝟘.
 --
