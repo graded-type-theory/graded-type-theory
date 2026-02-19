@@ -61,7 +61,7 @@ private variable
   k l n     : Nat
   ∇         : DCon _ _
   Δ Η       : Con _ _
-  Γ         : Cons _ _
+  Γ         : Context-pair _ _ _
   A l₁ l₂ t : Term _
   γ         : Conₘ _
   m         : Mode
@@ -83,14 +83,15 @@ private variable
 -- * Soundness of erasure for closed terms of type ℕ holds (expressed
 --   using judgemental equality rather than reduction).
 --
--- * There are substitution lemmas for typing and usage, and a lemma
+-- * There is a substitution lemma for typing and usage, and a lemma
 --   about how (roughly) extraction is not affected if anything is
 --   substituted for erasable variables.
 --
--- * There is a type- and usage-preserving translation from the basic
---   theory to the extended one. Extraction is not affected by
---   translation, and the application of a substitution to the
---   translation of ℕ is equal to the translation of ℕ.
+-- * There is a translation from the basic theory to the extended one
+--   that is type- and usage-preserving in a certain sense. Extraction
+--   is not affected by translation, and the application of a
+--   substitution to the translation of ℕ is equal to the translation
+--   of ℕ.
 --
 -- Given those assumptions one can prove a soundness theorem for
 -- *open* terms for the basic theory, assuming that the (translation
@@ -110,26 +111,19 @@ private variable
 
 record Extended-type-theory : Set (lsuc a) where
   infix 25 _[_]ᴱ
-  infix  4 _⊢ᴱ_∷_ _⊢ᴱ_≡_∷_ _▸ᴱ[_]_ ▸ᴱ[_]_ _⊢ˢᴱ_∷_
+  infix  4 _▸_⊢ᴱ_∷[_]_ _⊢ᴱ_≡_∷_ _▸_⊢ˢᴱ_∷[_]_
 
   field
     -- "Extended" terms.
     Termᴱ : Nat → Set a
 
-    -- A typing relation for extended terms.
-    _⊢ᴱ_∷_ : Context-pair Termᴱ k n → Termᴱ n → Termᴱ n → Set a
+    -- A typing and usage relation for extended terms.
+    _▸_⊢ᴱ_∷[_]_ :
+      Conₘ n → Context-pair Termᴱ k n → Termᴱ n → Mode → Termᴱ n → Set a
 
     -- Judgemental equality for extended terms.
     _⊢ᴱ_≡_∷_ :
       Context-pair Termᴱ k n → Termᴱ n → Termᴱ n → Termᴱ n → Set a
-
-    -- A usage relation for extended terms.
-    _▸ᴱ[_]_ : Conₘ n → Mode → Termᴱ n → Set a
-
-  -- A usage relation for definition contexts.
-
-  ▸ᴱ[_]_ : Mode → DCon (Termᴱ 0) n → Set a
-  ▸ᴱ[ m ] ∇ = ∀ {α t A} → α ↦ t ∷ A ∈ ∇ → ε ▸ᴱ[ m ] t
 
   -- Extended term substitutions.
 
@@ -141,18 +135,16 @@ record Extended-type-theory : Set (lsuc a) where
     _[_]ᴱ : Termᴱ n → Substᴱ l n → Termᴱ l
 
     -- Substitution well-formedness for extended terms.
-    _⊢ˢᴱ_∷_ : Context-pair Termᴱ k l → Substᴱ l n → Con Termᴱ n → Set a
+    _▸_⊢ˢᴱ_∷[_]_ :
+      Conₘ l → Context-pair Termᴱ k l → Substᴱ l n → Mode →
+      Con Termᴱ n → Set a
 
     -- A substitution lemma for the extended theory.
     subst-⊢∷ᴱ :
-      {A t : Termᴱ n} {σ : Substᴱ l n} →
-      ∇ » Δ ⊢ᴱ t ∷ A → ∇ » Η ⊢ˢᴱ σ ∷ Δ → ∇ » Η ⊢ᴱ t [ σ ]ᴱ ∷ A [ σ ]ᴱ
-
-    -- Another substitution lemma for the extended theory.
-    subst-▸ᴱ :
-      {t : Termᴱ n} {σ : Substᴱ 0 n} →
-      ((x : Fin n) → ε ▸ᴱ[ 𝟘ᵐ? ] σ x) →
-      𝟘ᶜ ▸ᴱ[ m ] t → ε ▸ᴱ[ m ] t [ σ ]ᴱ
+      {A t : Termᴱ n} {σ : Substᴱ 0 n} →
+      𝟘ᶜ ▸ ∇ » Δ ⊢ᴱ t ∷[ m ] A →
+      ε ▸ ∇ » ε ⊢ˢᴱ σ ∷[ 𝟘ᵐ? ] Δ →
+      ε ▸ ∇ » ε ⊢ᴱ t [ σ ]ᴱ ∷[ m ] A [ σ ]ᴱ
 
     -- A function translating from terms to extended terms.
     tr : Term n → Termᴱ n
@@ -176,11 +168,11 @@ record Extended-type-theory : Set (lsuc a) where
     glassify-tr-DCon :
       glassify (tr-DCon ∇) PE.≡ glassify (map-DCon tr ∇)
 
-    -- The translation is type-preserving.
-    tr-⊢∷ : Γ ⊢ t ∷ A → tr-Cons Γ ⊢ᴱ tr t ∷ tr A
-
-    -- The translation is usage-preserving.
-    tr-▸ : γ ▸[ m ] t → γ ▸ᴱ[ m ] tr t
+    -- The translation is, in a certain sense, type- and
+    -- usage-preserving.
+    tr-⊢∷ :
+      Γ ⊢ t ∷ A → γ ▸[ m ] t → ▸[ m ] glassify (Γ .defs) →
+      γ ▸ tr-Cons Γ ⊢ᴱ tr t ∷[ m ] tr A
 
     -- Extraction for the target language.
     eraseᴱ : Strictness → Termᴱ n → T.Term n
@@ -192,9 +184,9 @@ record Extended-type-theory : Set (lsuc a) where
     -- closing substitution does not affect the result of extraction
     -- (except for the application of a weakening).
     eraseᴱ-[]ᴱ :
-      {σ : Substᴱ 0 n} {t : Termᴱ n}
+      {σ : Substᴱ 0 n} {t A : Termᴱ n}
       ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-      𝟘ᶜ ▸ᴱ[ 𝟙ᵐ ] t →
+      𝟘ᶜ ▸ Γ ⊢ᴱ t ∷[ 𝟙ᵐ ] A →
       T.wk wk₀ (eraseᴱ str (t [ σ ]ᴱ)) PE.≡ eraseᴱ str t
 
   -- Erasure for definition contexts.
@@ -204,14 +196,11 @@ record Extended-type-theory : Set (lsuc a) where
 
   field
     -- Soundness of erasure for closed terms of type ℕ for the
-    -- extended theory. The assumptions are based on those of
-    -- Graded.Erasure.Consequences.Soundness.Soundness₀.soundness-ℕ.
+    -- extended theory.
     soundness-ℕᴱ :
       {t : Termᴱ 0}
       ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-      ∇ » ε ⊢ᴱ t ∷ tr ℕ →
-      ▸ᴱ[ 𝟙ᵐ ] glassify ∇ →
-      ε ▸ᴱ[ 𝟙ᵐ ] t →
+      ε ▸ ∇ » ε ⊢ᴱ t ∷[ 𝟙ᵐ ] tr ℕ →
       ∃ λ n →
         glassify ∇ » ε ⊢ᴱ t ≡ tr (sucᵏ n) ∷ tr ℕ ×
         eraseDConᴱ str ∇ ⊢ eraseᴱ str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
@@ -252,8 +241,7 @@ record Extended-type-theory : Set (lsuc a) where
     soundness-ℕ :
       {σ : Substᴱ 0 n}
       ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-      tr-DCon ∇ » ε ⊢ˢᴱ σ ∷ map-Con tr Δ →
-      ((x : Fin n) → ε ▸ᴱ[ 𝟘ᵐ? ] σ x) →
+      ε ▸ tr-DCon ∇ » ε ⊢ˢᴱ σ ∷[ 𝟘ᵐ? ] map-Con tr Δ →
       ∇ » Δ ⊢ t ∷ ℕ →
       ▸[ 𝟙ᵐ ] glassify ∇ →
       𝟘ᶜ ▸[ 𝟙ᵐ ] t →
@@ -261,30 +249,25 @@ record Extended-type-theory : Set (lsuc a) where
         map-DCon tr (glassify ∇) » ε ⊢ᴱ
           tr t [ σ ]ᴱ ≡ tr (sucᵏ n) ∷ tr ℕ ×
         eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
-    soundness-ℕ {∇} {t} {str} {σ} ⊢σ ▸σ ⊢t ▸∇ ▸t =
-      let lemma =
-            glassify (tr-DCon ∇)      ≡⟨ glassify-tr-DCon ⟩
-            glassify (map-DCon tr ∇)  ≡⟨ glassify-map-DCon ⟩
-            map-DCon tr (glassify ∇)  ∎
+    soundness-ℕ {∇} {t} {str} {σ} ⊢σ ⊢t ▸∇ ▸t =
+      let ⊢tr-t = tr-⊢∷ ⊢t ▸t ▸∇
 
           n , eq , red =
-            soundness-ℕᴱ
-              (PE.subst (_⊢ᴱ_∷_ _ _) tr-ℕ-[]ᴱ $
-               subst-⊢∷ᴱ (tr-⊢∷ ⊢t) ⊢σ)
-              (λ α↦ →
-                 case ↦∷∈-map-DCon $
-                      PE.subst (_↦_∷_∈_ _ _ _) lemma α↦ of λ {
-                   (_ , _ , PE.refl , _ , α↦) →
-                 tr-▸ (▸∇ α↦) })
-              (subst-▸ᴱ ▸σ (tr-▸ ▸t))
+            soundness-ℕᴱ $
+            PE.subst (_▸_⊢ᴱ_∷[_]_ _ _ _ _) tr-ℕ-[]ᴱ $
+            subst-⊢∷ᴱ ⊢tr-t ⊢σ
       in
       n ,
       PE.subst₄ _⊢ᴱ_≡_∷_
-        (PE.cong (flip _»_ _) lemma) PE.refl PE.refl PE.refl
+        (PE.cong (flip _»_ _)
+           (glassify (tr-DCon ∇)      ≡⟨ glassify-tr-DCon ⟩
+            glassify (map-DCon tr ∇)  ≡⟨ glassify-map-DCon ⟩
+            map-DCon tr (glassify ∇)  ∎))
+        PE.refl PE.refl PE.refl
         eq ,
       PE.subst₄ _⊢_⇒ˢ⟨_⟩*_
         eraseDConᴱ-tr-DCon
-        (T.wk wk₀ (eraseᴱ str (tr t [ σ ]ᴱ))  ≡⟨ eraseᴱ-[]ᴱ (tr-▸ ▸t) ⟩
+        (T.wk wk₀ (eraseᴱ str (tr t [ σ ]ᴱ))  ≡⟨ eraseᴱ-[]ᴱ ⊢tr-t ⟩
          eraseᴱ str (tr t)                    ≡⟨ eraseᴱ-tr ⟩
          erase str t                          ∎)
         PE.refl TP.wk-sucᵏ
@@ -301,32 +284,30 @@ opaque
 
   Trivial-extended-type-theory : Extended-type-theory
   Trivial-extended-type-theory = λ where
-      .Termᴱ     → Term
-      .tr        → idᶠ
-      .tr-DCon   → idᶠ
-      .eraseᴱ    → erase
-      ._⊢ᴱ_∷_    → _⊢_∷_
-      ._⊢ᴱ_≡_∷_  → _⊢_≡_∷_
-      ._▸ᴱ[_]_   → _▸[_]_
-      ._[_]ᴱ     → _[_]
-      ._⊢ˢᴱ_∷_   → _⊢ˢʷ_∷_
-      .subst-⊢∷ᴱ →
-        subst-⊢∷
-      .subst-▸ᴱ →
-        substₘ-lemma-closed
+      .Termᴱ                 → Term
+      ._[_]ᴱ                 → _[_]
+      .tr                    → idᶠ
+      .tr-DCon               → idᶠ
+      .eraseᴱ                → erase
+      ._⊢ᴱ_≡_∷_              → _⊢_≡_∷_
+      ._▸_⊢ᴱ_∷[_]_ γ Γ t m A →
+        Γ ⊢ t ∷ A × γ ▸[ m ] t × ▸[ m ] glassify (Γ .defs)
+      ._▸_⊢ˢᴱ_∷[_]_ δ Δ σ m Γ →
+        Δ ⊢ˢʷ σ ∷ Γ × (∀ x → δ ▸[ m ] σ x)
+      .subst-⊢∷ᴱ (⊢t , ▸t , ▸∇) (⊢σ , ▸σ) →
+        subst-⊢∷ ⊢t ⊢σ , substₘ-lemma-closed ▸σ ▸t , ▸∇
       .tr-ℕ-[]ᴱ →
         PE.refl
       .glassify-tr-DCon →
         PE.cong glassify $ PE.sym map-DCon-id
-      .tr-⊢∷ →
-        PE.subst (_⊢ _ ∷ _) $ PE.cong (_»_ _) $ PE.sym map-Con-id
-      .tr-▸ →
-        idᶠ
+      .tr-⊢∷ ⊢t ▸t ▸∇ →
+        PE.subst (_⊢ _ ∷ _) (PE.cong (_»_ _) (PE.sym map-Con-id)) ⊢t ,
+        ▸t , ▸∇
       .eraseᴱ-tr →
         PE.refl
-      .eraseᴱ-[]ᴱ →
-        hasX.wk₀-erase-[] UR
-      .soundness-ℕᴱ ⊢t ▸∇ ▸t →
+      .eraseᴱ-[]ᴱ (_ , ▸t , _) →
+        hasX.wk₀-erase-[] UR ▸t
+      .soundness-ℕᴱ (⊢t , ▸t , ▸∇) →
         let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ ⊢t ▸t in
         _ , subset*Termˢ t⇒n , erase-t⇒n _
     where
@@ -358,6 +339,12 @@ private module Extended-type-theory-with-equality-reflection where
     tr-id = GM.tr-id PE.refl PE.refl
 
   opaque
+    unfolding turn-on-equality-reflection
+
+    map-DCon-tr-id : map-DCon GM.tr ∇ PE.≡ ∇
+    map-DCon-tr-id = GM.map-DCon-tr-id PE.refl PE.refl
+
+  opaque
     unfolding
       turn-on-equality-reflection
       Graded.Modify-box-cong-or-J.tr-DCon
@@ -366,7 +353,7 @@ private module Extended-type-theory-with-equality-reflection where
     tr-Cons≡ : GM.tr-Cons (∇ » Δ) PE.≡ glassify ∇ » map-Con idᶠ Δ
     tr-Cons≡ {∇} {Δ} =
       PE.cong₂ _»_
-        (glassify (map-DCon GM.tr ∇)  ≡⟨ PE.cong glassify $ GM.map-DCon-tr-id PE.refl PE.refl ⟩
+        (glassify (map-DCon GM.tr ∇)  ≡⟨ PE.cong glassify map-DCon-tr-id ⟩
          glassify ∇                   ∎)
         (map-Con GM.tr Δ  ≡⟨ GM.map-Con-tr-id PE.refl PE.refl ⟩
          Δ                ≡˘⟨ map-Con-id ⟩
@@ -379,29 +366,34 @@ opaque
 
   Extended-type-theory-with-equality-reflection : Extended-type-theory
   Extended-type-theory-with-equality-reflection = λ where
-      .Termᴱ                → Term
-      .tr                   → idᶠ
-      .tr-DCon              → glassify
-      .eraseᴱ               → erase
-      ._⊢ᴱ_∷_               → DT._⊢_∷_
-      ._⊢ᴱ_≡_∷_             → DT._⊢_≡_∷_
-      ._▸ᴱ[_]_              → GU._▸[_]_
-      ._[_]ᴱ                → _[_]
-      ._⊢ˢᴱ_∷_              → _⊢ˢʷ_∷_
-      .subst-⊢∷ᴱ            → subst-⊢∷
-      .subst-▸ᴱ             → substₘ-lemma-closed
+      .Termᴱ                 → Term
+      ._[_]ᴱ                 → _[_]
+      .tr                    → idᶠ
+      .tr-DCon               → glassify
+      .eraseᴱ                → erase
+      ._⊢ᴱ_≡_∷_              → DT._⊢_≡_∷_
+      ._▸_⊢ᴱ_∷[_]_ γ Γ t m A →
+        Γ DT.⊢ t ∷ A × γ GU.▸[ m ] t × GU.▸[ m ] glassify (Γ .defs)
+      ._▸_⊢ˢᴱ_∷[_]_ δ Δ σ m Γ →
+        Δ ⊢ˢʷ σ ∷ Γ × (∀ x → δ GU.▸[ m ] σ x)
+      .subst-⊢∷ᴱ (⊢t , ▸t , ▸∇) (⊢σ , ▸σ) →
+        subst-⊢∷ ⊢t ⊢σ , substₘ-lemma-closed ▸σ ▸t , ▸∇
       .tr-ℕ-[]ᴱ             → PE.refl
       .glassify-tr-DCon {∇} →
         glassify (glassify ∇)      ≡⟨ DD.glassify-idem _ ⟩
         glassify ∇                 ≡˘⟨ PE.cong glassify map-DCon-id ⟩
         glassify (map-DCon idᶠ ∇)  ∎
-      .eraseᴱ-tr  → PE.refl
-      .eraseᴱ-[]ᴱ → hasX.wk₀-erase-[] _
-      .tr-⊢∷      →
-        PE.subst₃ DT._⊢_∷_ tr-Cons≡ tr-id tr-id ∘→ GM.tr-⊢∷
-      .tr-▸ →
-        PE.subst (GU._▸[_]_ _ _) tr-id ∘→ GM.tr-▸
-      .soundness-ℕᴱ ⊢t ▸∇ ▸t →
+      .eraseᴱ-tr               → PE.refl
+      .eraseᴱ-[]ᴱ (_ , ▸t , _) → hasX.wk₀-erase-[] _ ▸t
+      .tr-⊢∷ {Γ} ⊢t ▸t ▸∇      →
+        PE.subst₃ DT._⊢_∷_ tr-Cons≡ tr-id tr-id (GM.tr-⊢∷ ⊢t) ,
+        PE.subst (GU._▸[_]_ _ _) tr-id (GM.tr-▸ ▸t) ,
+        PE.subst (GU.▸[_]_ _)
+          (map-DCon GM.tr (glassify (Γ .defs))  ≡⟨ map-DCon-tr-id ⟩
+           glassify (Γ .defs)                   ≡˘⟨ DD.glassify-idem _ ⟩
+           glassify (glassify (Γ .defs))        ∎)
+          (GM.tr-▸-DCon ▸∇)
+      .soundness-ℕᴱ (⊢t , ▸t , ▸∇) →
         let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ ⊢t ▸t in
         _ , GS.subset*Termˢ t⇒n , erase-t⇒n _
     where
@@ -443,8 +435,8 @@ opaque
   soundness-ℕ-using-equality-reflection {∇} ⊢σ ▸σ ⊢t ▸∇ ▸t =
     let _ , eq , d =
           soundness-ℕ
-            (PE.subst (_⊢ˢᴱ_∷_ _ _) (PE.sym map-Con-id) ⊢σ)
-            ▸σ ⊢t ▸∇ ▸t
+            (PE.subst (_⊢ˢʷ_∷_ _ _ _) (PE.sym map-Con-id) ⊢σ , ▸σ)
+            ⊢t ▸∇ ▸t
     in
     _ ,
     PE.subst₄ _⊢ᴱ_≡_∷_
@@ -454,6 +446,7 @@ opaque
     where
     open Extended-type-theory
            Extended-type-theory-with-equality-reflection
+    open Definition.Typed.Substitution
 
 opaque
   unfolding
