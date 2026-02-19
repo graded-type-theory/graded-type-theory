@@ -49,7 +49,7 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  α m n                                   : Nat
+  α k m n                                 : Nat
   x                                       : Fin _
   ∇ ∇′                                    : DCon _ _
   φ                                       : Unfolding _
@@ -529,3 +529,15 @@ mutual
               Γ ⊢ l₁ ≡ l₂ ∷Level
 
 pattern literal! not-ok ⊢Γ l-lit = literal not-ok ⊢Γ l-lit PE.refl
+
+opaque
+
+  -- Well-formed substitutions.
+
+  infix 4 _▸_⊢ˢʷ_∷[_]_
+
+  _▸_⊢ˢʷ_∷[_]_ :
+    Conₘ m → Cons k m → Subst m n → Erasure → Con Term n → Set
+  _ ▸ Δ ⊢ˢʷ _ ∷[ _ ] ε     = ⊢ Δ
+  δ ▸ Δ ⊢ˢʷ σ ∷[ p ] Γ ∙ A =
+    δ ▸ Δ ⊢ˢʷ tail σ ∷[ p ] Γ × δ ▸ Δ ⊢ head σ ∷[ p ] A [ tail σ ]

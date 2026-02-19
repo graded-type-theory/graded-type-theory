@@ -63,10 +63,12 @@ open import Definition.Typed TR as T
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Size TR
+open import Definition.Typed.Substitution TR
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped Erasure
 
 open import Tools.Empty
+open import Tools.Fin
 open import Tools.Function
 open import Tools.Product
 import Tools.PropositionalEquality as PE
@@ -78,8 +80,10 @@ open import Tools.Size.Instances
 
 private variable
   ∇                       : DCon _ _
-  Γ                       : Cons _ _
+  Γ Η                     : Cons _ _
+  Δ                       : Con _ _
   A A₁ A₂ l l₁ l₂ t t₁ t₂ : Term _
+  σ                       : Subst _ _
   γ δ                     : Conₘ _
   p q r                   : Erasure
   m                       : Mode
@@ -503,6 +507,16 @@ opaque
   »→▸ (∙ᵗ _ ⊢t)     here       = ⊢∷[]→▸ ⊢t
   »→▸ (∙ᵗ »∇ _)     (there α∈) = »→▸ »∇ α∈
 
+opaque
+  unfolding _▸_⊢ˢʷ_∷[_]_
+
+  -- If σ is well-formed and well-resourced, then σ is well-resourced.
+
+  ⊢ˢʷ∷[]→▸ : δ ▸ Η ⊢ˢʷ σ ∷[ p ] Δ → ∀ x → δ ▸[ ⌞ p ⌟ ] σ x
+  ⊢ˢʷ∷[]→▸ {Δ = ε}     _           ()
+  ⊢ˢʷ∷[]→▸ {Δ = _ ∙ _} (_   , ⊢σ₀) x0     = ⊢∷[]→▸ ⊢σ₀
+  ⊢ˢʷ∷[]→▸ {Δ = _ ∙ _} (⊢σ₊ , _)   (x +1) = ⊢ˢʷ∷[]→▸ ⊢σ₊ x
+
 opaque mutual
 
   -- If ∇ is well-formed, then ∇ is well-formed.
@@ -741,6 +755,16 @@ opaque mutual
     term ok (⊢≡∷→⊢≡∷ l₁≡l₂)
   ⊢≡∷L→⊢≡∷L (literal! not-ok ⊢Γ l-lit) =
     literal not-ok (⊢→⊢ ⊢Γ) l-lit
+
+opaque
+  unfolding _▸_⊢ˢʷ_∷[_]_
+
+  -- If σ is well-formed and well-resourced, then σ is well-formed.
+
+  ⊢ˢʷ∷[]→⊢ˢʷ∷ : δ ▸ Η ⊢ˢʷ σ ∷[ p ] Δ → Η ⊢ˢʷ σ ∷ Δ
+  ⊢ˢʷ∷[]→⊢ˢʷ∷ {Δ = ε}     ⊢Η          = ⊢ˢʷ∷ε⇔ .proj₂ (⊢→⊢ ⊢Η)
+  ⊢ˢʷ∷[]→⊢ˢʷ∷ {Δ = _ ∙ _} (⊢σ₊ , ⊢σ₀) =
+    ⊢ˢʷ∷∙⇔ .proj₂ (⊢ˢʷ∷[]→⊢ˢʷ∷ ⊢σ₊ , ⊢∷[]→⊢∷ ⊢σ₀)
 
 ------------------------------------------------------------------------
 -- From the other systems to the combined one, part 1: lemmas that do
@@ -1770,6 +1794,19 @@ opaque mutual
       []-cong ok ok′ (⊢∷L←⊢∷L ⊢l) (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u)
         (⊢∷←⊢∷ ⊢v)
 
+opaque
+  unfolding _▸_⊢ˢʷ_∷[_]_
+
+  -- If σ is well-formed and well-resourced, then σ is well-formed and
+  -- well-resourced.
+
+  ⊢ˢʷ∷[]←⊢ˢʷ∷▸ :
+    Η ⊢ˢʷ σ ∷ Δ → (∀ x → δ ▸[ ⌞ p ⌟ ] σ x) → δ ▸ Η ⊢ˢʷ σ ∷[ p ] Δ
+  ⊢ˢʷ∷[]←⊢ˢʷ∷▸ {Δ = ε}     ⊢σ _  = ⊢←⊢′ (⊢ˢʷ∷ε⇔ .proj₁ ⊢σ)
+  ⊢ˢʷ∷[]←⊢ˢʷ∷▸ {Δ = _ ∙ _} ⊢σ ▸σ =
+    let ⊢σ₊ , ⊢σ₀ = ⊢ˢʷ∷∙⇔ .proj₁ ⊢σ in
+    ⊢ˢʷ∷[]←⊢ˢʷ∷▸ ⊢σ₊ (▸σ ∘→ _+1) , ⊢∷[]←⊢∷▸ ⊢σ₀ (▸σ x0)
+
 ------------------------------------------------------------------------
 -- Logical equivalences
 
@@ -1841,3 +1878,23 @@ opaque
 
   ⊢≡∷L⇔⊢≡∷L : Γ C.⊢ l₁ ≡ l₂ ∷Level ⇔ Γ T.⊢ l₁ ≡ l₂ ∷Level
   ⊢≡∷L⇔⊢≡∷L = ⊢≡∷L→⊢≡∷L , ⊢≡∷L←⊢≡∷L
+
+opaque
+
+  -- A logical equivalence for "is a well-formed substitution".
+
+  ⊢ˢʷ∷[]⇔⊢ˢʷ∷▸ :
+    δ ▸ Η ⊢ˢʷ σ ∷[ p ] Δ ⇔ (Η ⊢ˢʷ σ ∷ Δ × ∀ x → δ ▸[ ⌞ p ⌟ ] σ x)
+  ⊢ˢʷ∷[]⇔⊢ˢʷ∷▸ =
+    (λ ⊢σ → ⊢ˢʷ∷[]→⊢ˢʷ∷ ⊢σ , ⊢ˢʷ∷[]→▸ ⊢σ) , uncurry ⊢ˢʷ∷[]←⊢ˢʷ∷▸
+
+opaque
+
+  -- A variant of ⊢ˢʷ∷[]⇔⊢ˢʷ∷▸.
+
+  ⊢ˢʷ∷[]⇔⊢ˢʷ∷▸′ :
+    δ ▸ Η ⊢ˢʷ σ ∷[ ⌜ m ⌝ ] Δ ⇔ (Η ⊢ˢʷ σ ∷ Δ × ∀ x → δ ▸[ m ] σ x)
+  ⊢ˢʷ∷[]⇔⊢ˢʷ∷▸′ =
+    PE.subst (_⇔_ _)
+      (PE.cong (_×_ _) (PE.cong (λ m → ∀ _ → _ ▸[ m ] _) (⌞⌜⌝⌟ _)))
+      ⊢ˢʷ∷[]⇔⊢ˢʷ∷▸
