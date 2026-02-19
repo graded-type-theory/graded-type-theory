@@ -2163,6 +2163,20 @@ opaque
                                                wk-comp _ _ _ ⟩
     wk[ 2+ k ]′ t                           ∎
 
+opaque
+
+  -- The function wk[ n ]′ commutes, in a certain sense, with
+  -- weakening.
+
+  wk⇑[]-wk[]≡ :
+    ∀ n → wk (liftn ρ n) (wk[ n ]′ t) PE.≡ wk[ n ]′ (wk ρ t)
+  wk⇑[]-wk[]≡ {ρ} {t} n =
+    wk (liftn ρ n) (wk[ n ]′ t)    ≡⟨ wk-comp _ _ _ ⟩
+    wk (liftn ρ n • stepn id n) t  ≡˘⟨ cong (flip wk _) (liftn-stepn-comp n) ⟩
+    wk (stepn ρ n) t               ≡˘⟨ cong (flip wk _) (stepn-id-• n) ⟩
+    wk (stepn id n • ρ) t          ≡˘⟨ wk-comp _ _ _ ⟩
+    wk[ n ]′ (wk ρ t)              ∎
+
 ------------------------------------------------------------------------
 -- Some lemmas related to _[_][_]↑
 

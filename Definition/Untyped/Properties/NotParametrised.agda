@@ -123,7 +123,15 @@ opaque
 
 opaque
 
-  -- A generalisation of lift-step-comp (which is defined below).
+  -- A composition lemma for stepn id.
+
+  stepn-id-• : ∀ n → stepn id n • ρ ≡ stepn ρ n
+  stepn-id-• 0      = refl
+  stepn-id-• (1+ n) = cong step (stepn-id-• n)
+
+opaque
+
+  -- Another composition lemma for stepn id.
 
   liftn-stepn-comp : ∀ n → stepn ρ n ≡ liftn ρ n • stepn id n
   liftn-stepn-comp 0      = sym •-id
