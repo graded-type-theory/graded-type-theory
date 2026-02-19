@@ -142,6 +142,14 @@ opaque
   ⊢↓ᵘ : ⊢ Γ → Γ ⊢ ↓ᵘ n ∷Level
   ⊢↓ᵘ ⊢Γ = ⊢sucᵘᵏ (⊢zeroᵘ ⊢Γ)
 
+opaque
+
+  -- Level literals are well-formed levels in well-formed contexts.
+
+  Level-literal→⊢∷L : ⊢ Γ → Level-literal l → Γ ⊢ l ∷Level
+  Level-literal→⊢∷L ⊢Γ zeroᵘ        = ⊢zeroᵘ ⊢Γ
+  Level-literal→⊢∷L ⊢Γ (sucᵘ l-lit) = ⊢sucᵘ (Level-literal→⊢∷L ⊢Γ l-lit)
+
 ------------------------------------------------------------------------
 -- Some lemmas related to _supᵘ_
 
