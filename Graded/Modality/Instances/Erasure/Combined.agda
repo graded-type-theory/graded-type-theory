@@ -57,6 +57,7 @@ private variable
   A A′ A₁ A₂ A₃ B B₁ B₂ C C₁ C₂
     l l₁ l₁₁ l₁₂ l₂ l₂₁ l₂₂ l₃
     t t′ t₁ t₂ t₃ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  σ                                       : Subst _ _
   s                                       : Strength
   b                                       : BinderMode
   δ δ₁ δ₂                                 : Conₘ _
@@ -530,14 +531,14 @@ mutual
 
 pattern literal! not-ok ⊢Γ l-lit = literal not-ok ⊢Γ l-lit PE.refl
 
-opaque
+-- Well-formed substitutions.
 
-  -- Well-formed substitutions.
+infixl 24 _∙_
+infix   4 _▸_⊢ˢʷ_∷[_]_
 
-  infix 4 _▸_⊢ˢʷ_∷[_]_
-
-  _▸_⊢ˢʷ_∷[_]_ :
-    Conₘ m → Cons k m → Subst m n → Erasure → Con Term n → Set
-  _ ▸ Δ ⊢ˢʷ _ ∷[ _ ] ε     = ⊢ Δ
-  δ ▸ Δ ⊢ˢʷ σ ∷[ p ] Γ ∙ A =
-    δ ▸ Δ ⊢ˢʷ tail σ ∷[ p ] Γ × δ ▸ Δ ⊢ head σ ∷[ p ] A [ tail σ ]
+data _▸_⊢ˢʷ_∷[_]_ (δ : Conₘ m) (Δ : Cons k m) :
+       Subst m n → Erasure → Con Term n → Set where
+  ε   : ⊢ Δ → δ ▸ Δ ⊢ˢʷ σ ∷[ p ] ε
+  _∙_ : ∀ {Γ} → δ ▸ Δ ⊢ˢʷ tail σ ∷[ p ] Γ →
+        δ ▸ Δ ⊢ head σ ∷[ p ] A [ tail σ ] →
+        δ ▸ Δ ⊢ˢʷ σ ∷[ p ] Γ ∙ A
