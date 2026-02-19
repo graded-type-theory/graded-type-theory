@@ -253,7 +253,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
-    Γ ⊢ snd p (prodˢ p t u) ⇒ u ∷ B [ fst p (prodˢ p t u) ]₀
+    Γ ⊢ snd p (prodˢ p t u) ⇒ u ∷ B [ t ]₀
   Σ-β₂-⇒ ⊢B ⊢t ⊢u =
     Σ-β₂ ⊢B ⊢t ⊢u PE.refl
 
@@ -266,7 +266,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σˢ-allowed p q →
-    Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀
+    Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀
   Σ-β₂-≡ ⊢B ⊢t ⊢u ok =
     subsetTerm (Σ-β₂-⇒ ⊢B ⊢t ⊢u ok)
 
@@ -311,8 +311,9 @@ opaque
         ⊢fst        = fstⱼ′ ⊢t
         ⊢snd        = sndⱼ′ ⊢t
     in
-    Σ-η′ (prodⱼ ⊢B ⊢fst ⊢snd ok) ⊢t (Σ-β₁-≡ ⊢B ⊢fst ⊢snd ok)
-      (Σ-β₂-≡ ⊢B ⊢fst ⊢snd ok)
+    sym′ $
+    Σ-η′ ⊢t (prodⱼ ⊢B ⊢fst ⊢snd ok) (sym′ (Σ-β₁-≡ ⊢B ⊢fst ⊢snd ok))
+      (sym′ (Σ-β₂-≡ ⊢B ⊢fst ⊢snd ok))
 
 ------------------------------------------------------------------------
 -- Some private definitions
@@ -444,9 +445,6 @@ opaque
     let ⊢B = ⊢∙→⊢ (wfTerm ⊢v) in                                         $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
                                                                           , Σ-β₂-≡ ⊢B ⊢t ⊢u ok
                                                                           ⟩
-    Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A ×
-    Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀             →⟨ (λ (hyp₁ , hyp₂) →
-                                                                               hyp₁ , conv hyp₂ (substTypeEq (refl ⊢B) hyp₁)) ⟩
     Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A ×
     Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀                               →⟨ (λ (hyp₁ , hyp₂) →
                                                                                →⊢ˢʷ≡∷∙ ⊢B (⊢ˢʷ≡∷-sgSubst (sym′ hyp₁)) (sym′ hyp₂)) ⟩
@@ -877,7 +875,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σʷ-allowed p q →
-    Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷ B [ fstʷ p A (prodʷ p t u) ]₀
+    Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷ B [ t ]₀
   sndʷ-β-⇒ {Γ} {A} {B} {t} {u} {p} {q} ⊢B ⊢t ⊢u ok =
                                                        $⟨ prodrec-β (⊢[fstʷ-0]↑ {q = q} ⊢B ok)
                                                             ⊢t ⊢u (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) PE.refl ok ⟩
@@ -885,7 +883,9 @@ opaque
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p t u ]₀  →⟨ flip conv (⊢≡[fstʷ] (prodⱼ ⊢B ⊢t ⊢u ok)) ⟩
 
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷
-      B [ fstʷ p A (prodʷ p t u) ]₀                    □
+      B [ fstʷ p A (prodʷ p t u) ]₀                    →⟨ flip conv (substTypeEq (refl ⊢B) (fstʷ-β-≡ ⊢B ⊢t ⊢u ok)) ⟩
+
+    Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷ B [ t ]₀      □
 
 opaque
 
@@ -913,7 +913,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σʷ-allowed p q →
-    Γ ⊢ sndʷ p q A B (prodʷ p t u) ≡ u ∷ B [ fstʷ p A (prodʷ p t u) ]₀
+    Γ ⊢ sndʷ p q A B (prodʷ p t u) ≡ u ∷ B [ t ]₀
   sndʷ-β-≡ ⊢B ⊢t ⊢u ok = subsetTerm (sndʷ-β-⇒ ⊢B ⊢t ⊢u ok)
 
 opaque
@@ -1039,7 +1039,8 @@ opaque
                                                                           (PE.sym $ PE.cong₂ (Σʷ _ , _ ▷_▹_) eq₁ eq₂) $
                                                                         prod-cong ⊢B′
                                                                           (fstʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
-                                                                          (sndʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
+                                                                          (conv (sndʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
+                                                                             (sym (substTypeEq (refl ⊢B′) (fstʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok))))
                                                                           ok ⟩⊢∎
 
           pair                                                       ∎))
@@ -1183,8 +1184,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σ-allowed s p q →
-    Γ ⊢ snd⟨ s ⟩ p q A B (prod s p t u) ⇒ u ∷
-      B [ fst⟨ s ⟩ p A (prod s p t u) ]₀
+    Γ ⊢ snd⟨ s ⟩ p q A B (prod s p t u) ⇒ u ∷ B [ t ]₀
   snd⟨⟩-β-⇒ {s = 𝕤} = Σ-β₂-⇒
   snd⟨⟩-β-⇒ {s = 𝕨} = sndʷ-β-⇒
 
@@ -1210,8 +1210,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Σ-allowed s p q →
-    Γ ⊢ snd⟨ s ⟩ p q A B (prod s p t u) ≡ u ∷
-      B [ fst⟨ s ⟩ p A (prod s p t u) ]₀
+    Γ ⊢ snd⟨ s ⟩ p q A B (prod s p t u) ≡ u ∷ B [ t ]₀
   snd⟨⟩-β-≡ {s = 𝕤} = Σ-β₂-≡
   snd⟨⟩-β-≡ {s = 𝕨} = sndʷ-β-≡
 
@@ -1400,16 +1399,17 @@ opaque
     Γ »∙ A ⊢ B →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ B [ fstʰ p (prodʰˢ p t u) ]₀
+    Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ B [ t ]₀
   Σʰ-β₂ {p} {B} {t} {u} ok ⊢B ⊢t ⊢u =
     let ⊢0 = ⊢zeroᵘ (wfTerm ⊢t) in
-    lower (snd p (prodˢ p (lift t) (lift u)))  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([]↑-[]₀ B) $
-                                                  lower-cong $
-                                                  Σ-β₂-≡ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢0 (⊢∙→⊢ (wf ⊢B))) ⊢0) (lower₀Type ⊢0 ⊢B))
-                                                    (liftⱼ′ ⊢0 ⊢t)
-                                                    (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
-                                                    ok ⟩⊢
-    lower (lift u)                             ≡⟨ Lift-β′ $ conv ⊢u (substTypeEq (refl ⊢B) (sym′ (Σʰ-β₁ ok ⊢B ⊢t ⊢u))) ⟩⊢∎
+    lower (snd p (prodˢ p (lift t) (lift u)))  ≡⟨ conv
+                                                    (lower-cong $
+                                                     Σ-β₂-≡ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢0 (⊢∙→⊢ (wf ⊢B))) ⊢0) (lower₀Type ⊢0 ⊢B))
+                                                       (liftⱼ′ ⊢0 ⊢t)
+                                                       (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
+                                                       ok)
+                                                    (lower₀[lift]₀ ⊢B ⊢t) ⟩⊢
+    lower (lift u)                             ≡⟨ Lift-β′ ⊢u ⟩⊢∎
     u                                          ∎
     where
     open TmR

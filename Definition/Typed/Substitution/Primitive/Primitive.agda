@@ -1559,19 +1559,10 @@ private module Inhabited where
             ⊢u[σ₁]      = PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
                           subst-⊢∷ ⊢u ⊢σ₁
         in
-        snd p (prodˢ p t u) [ σ₁ ] ∷ B [ fst p (prodˢ p t u) ]₀ [ σ₁ ]  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
-                                                                           Σ-β₂ ⊢B[σ₁⇑] ⊢t[σ₁] ⊢u[σ₁] PE.refl ok ⟩⊢∷
-                                                                         ⟨ PE.subst₂ (_⊢_≡_ _)
-                                                                             (PE.sym $ substCompEq B) (PE.sym $ substCompEq B) $
-                                                                           subst-⊢→⊢≡ ⊢B $
-                                                                           ⊢ˢʷ≡∷∙⇔ .proj₂
-                                                                             ( refl-⊢ˢʷ≡∷ ⊢σ₁
-                                                                             , fstⱼ ⊢B[σ₁⇑] (prodⱼ ⊢B[σ₁⇑] ⊢t[σ₁] ⊢u[σ₁] ok)
-                                                                             , ⊢t[σ₁]
-                                                                             , Σ-β₁ ⊢B[σ₁⇑] ⊢t[σ₁] ⊢u[σ₁] PE.refl ok
-                                                                             ) ⟩≡
-        u [ σ₁ ] ∷ B [ t ]₀ [ σ₁ ]                                      ≡⟨ subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂ ⟩⊢∷∎
-        u [ σ₂ ]                                                        ∎
+        snd p (prodˢ p t u) [ σ₁ ]  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
+                                       Σ-β₂ ⊢B[σ₁⇑] ⊢t[σ₁] ⊢u[σ₁] PE.refl ok ⟩⊢
+        u [ σ₁ ]                    ≡⟨ subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂ ⟩⊢∎
+        u [ σ₂ ]                    ∎
       (Σ-η {G = B} ⊢B ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂ snd-t₁≡snd-t₂ ok) PE.refl →
         let _ , ⊢A        = ∙⊢→⊢-<ˢ ⊢B
             _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂

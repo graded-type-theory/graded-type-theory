@@ -443,7 +443,7 @@ mutual
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Σˢ-allowed p q
-                  → Γ ⊢ snd p (prodˢ p′ t u) ≡ u ∷ G [ fst p (prodˢ p′ t u) ]₀
+                  → Γ ⊢ snd p (prodˢ p′ t u) ≡ u ∷ G [ t ]₀
     Σ-η           : Γ »∙ F ⊢ G
                   → Γ ⊢ t ∷ Σˢ p , q ▷ F ▹ G
                   → Γ ⊢ u ∷ Σˢ p , q ▷ F ▹ G
@@ -642,7 +642,7 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set ℓ wh
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Σˢ-allowed p q
-                 → Γ ⊢ snd p (prodˢ p′ t u) ⇒ u ∷ G [ fst p (prodˢ p′ t u) ]₀
+                 → Γ ⊢ snd p (prodˢ p′ t u) ⇒ u ∷ G [ t ]₀
 
   prodrec-subst  : Γ »∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                  → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²

@@ -432,7 +432,7 @@ mutual
                Γ »∙ A ⊢ B →
                Γ ⊢ t ∷ A →
                Γ ⊢ u ∷ B [ t ]₀ →
-               Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀
+               Γ ⊢ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀
     Σ-η      : Γ ⊢ t₁ ∷ Σˢ p , q ▷ A ▹ B →
                Γ ⊢ t₂ ∷ Σˢ p , q ▷ A ▹ B →
                Γ ⊢ fst p t₁ ≡ fst p t₂ ∷ A →

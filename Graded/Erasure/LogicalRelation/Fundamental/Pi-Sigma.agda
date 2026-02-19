@@ -562,9 +562,10 @@ opaque
                                                                           ®∷-⇐*
                                                                             (
       snd p (t [ σ ])       ∷ B [ σ ⇑ ] [ fst p (t [ σ ]) ]₀                   ⇛⟨ snd-⇛ t[σ]⇛t₁,t₂ ⟩∷
-                                                                                ⟨ subst-⊢≡ (refl ⊢B[σ⇑]) $
-                                                                                  ⊢ˢʷ≡∷-sgSubst (⇛→⊢≡ (fst-⇛ t[σ]⇛t₁,t₂)) ⟩⇛
-      snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ fst p (prodˢ p t₁ t₂) ]₀             ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎⇛∷
+                                                                                ⟨ substTypeEq (refl ⊢B[σ⇑]) $ ⇛→⊢≡ $
+                                                                                  trans-⇛ (fst-⇛ t[σ]⇛t₁,t₂) $
+                                                                                  ⇒*→⇛ (redMany (Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok)) ⟩⇛
+      snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ t₁ ]₀                                ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎⇛∷
       t₂                                                                       ∎)
                                                                             (let open Graded.Erasure.Target.Reasoning in
                                                                              case is-𝟘? p of λ {

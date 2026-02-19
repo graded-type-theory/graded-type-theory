@@ -2273,11 +2273,10 @@ opaque mutual
       ⌜ snd p t                   ⌝ γ ∷ C U.[ ⌜ fst p t  ⌝ γ ]₀  ≡⟨ snd-cong′ t≡t′ ⟩⊢∷
       ⌜ snd p t′                  ⌝ γ                            ≡⟨ PE.cong (U.snd _) ≡prod ⟩⊢≡
                                                                   ⟨ substTypeEq (refl ⊢C) (fst-cong′ t≡t′) ⟩≡
-                                      ∷ C U.[ ⌜ fst p t′ ⌝ γ ]₀   ⟨ PE.cong (C U.[_]₀ ∘→ U.fst _) ≡prod ⟩≡∷≡
-      ⌜ snd p (prod 𝕤 p qC t₁ t₂) ⌝ γ ∷
-        C U.[ ⌜ fst p (prod 𝕤 p qC t₁ t₂) ⌝ γ ]₀                 ≡⟨ Σ-β₂-≡ ⊢C ⊢t₁ ⊢t₂ Σ-ok ⟩⊢∷
-                                                                  ⟨ substTypeEq (refl ⊢C) (Σ-β₁-≡ ⊢C ⊢t₁ ⊢t₂ Σ-ok) ⟩≡
-      ⌜ t₂ ⌝ γ                        ∷ C U.[ ⌜ t₁ ⌝ γ ]₀        ≡⟨ red-sound-⊢∷ n eq₂ ⊢t₂ ⟩⊢∷∎
+                     ∷ C U.[ ⌜ fst p t′ ⌝ γ ]₀                    ⟨ PE.cong (C U.[_]₀ ∘→ U.fst _) ≡prod ⟩≡∷≡
+                     ∷ C U.[ ⌜ fst p (prod 𝕤 p qC t₁ t₂) ⌝ γ ]₀   ⟨ substTypeEq (refl ⊢C) (Σ-β₁-≡ ⊢C ⊢t₁ ⊢t₂ Σ-ok) ⟩≡∷
+      ⌜ snd p (prod 𝕤 p qC t₁ t₂) ⌝ γ ∷ C U.[ ⌜ t₁ ⌝ γ ]₀        ≡⟨ Σ-β₂-≡ ⊢C ⊢t₁ ⊢t₂ Σ-ok ⟩⊢∷
+      ⌜ t₂ ⌝ γ                                                   ≡⟨ red-sound-⊢∷ n eq₂ ⊢t₂ ⟩⊢∎
       ⌜ u ⌝ γ                                                    ∎
     … | nothing | ok! =
       let open TmR in
@@ -4187,10 +4186,10 @@ private module Lemmas (p : P n) where opaque
                                                                         ⟨ substTypeEq (refl ⊢B₂) (fst-cong′ t≡t′) ⟩≡
     ⌜ snd p t′                   ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ fst p t′ ⌝ γ ]₀  ≡⟨ PE.cong (U.snd _ ∘→ flip ⌜_⌝ _) ≡prod ⟩⊢∷≡
                                                                         ⟨ PE.cong (⌜ B₂ ⌝ γ U.[_]₀ ∘→ flip ⌜_⌝ _ ∘→ fst p) ≡prod ⟩≡≡
-    ⌜ snd p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ ∷
-      ⌜ B₂ ⌝ γ U.[ ⌜ fst p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ ]₀                 ≡⟨ Σ-β₂-≡ ⊢B₂ ⊢t₁ ⊢t₂ Σ-ok ⟩⊢∷
-                                                                        ⟨ substTypeEq (refl ⊢B₂) (Σ-β₁-≡ ⊢B₂ ⊢t₁ ⊢t₂ Σ-ok) ⟩≡
-                                     ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₁  ⌝ γ ]₀        ⟨ substTypeEq (refl ⊢B₂) t₁≡t₁′ ⟩≡∷
+                   ∷ ⌜ B₂ ⌝ γ U.[ ⌜ fst p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ ]₀   ⟨ substTypeEq (refl ⊢B₂) (Σ-β₁-≡ ⊢B₂ ⊢t₁ ⊢t₂ Σ-ok) ⟩≡∷
+
+    ⌜ snd p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₁  ⌝ γ ]₀       ≡⟨ Σ-β₂-≡ ⊢B₂ ⊢t₁ ⊢t₂ Σ-ok ⟩⊢∷
+                                                                        ⟨ substTypeEq (refl ⊢B₂) t₁≡t₁′ ⟩≡
     ⌜ t₂ ⌝ γ                         ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀       ≡⟨ t₂≡t₂′ ⟩⊢∷
     ⌜ t₂′ ⌝ γ                                                          ≡⟨ red-tm-sound eq₆ ⊢γ ⊢t₂′ ⟩⊢∎
     ⌜ u  ⌝ γ                                                           ∎

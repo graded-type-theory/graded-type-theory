@@ -306,14 +306,12 @@ opaque mutual
       wf-⊢∷ ⊢t₁ , fstⱼ ⊢B (prodⱼ ⊢B ⊢t₁ ⊢t₂ ok) , ⊢t₁
     (Σ-β₂ ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
       let ⊢prod                = prodⱼ ⊢B ⊢t₁ ⊢t₂ ok
-          [t]₀≡[fst[t,u]]₀     = ⊢ˢʷ≡∷-sgSubst ⊢t₁ (fstⱼ ⊢B ⊢prod)
-                                   (_⊢_≡_∷_.sym (⊢∙→⊢ (wf ⊢B)) $
-                                    Σ-β₁ ⊢B ⊢t₁ ⊢t₂ PE.refl ok)
-          _ , _ , ⊢[fst[t,u]]₀ = wf-⊢ˢʷ≡∷ [t]₀≡[fst[t,u]]₀
+          [fst[t,u]]₀≡[t]₀     = ⊢ˢʷ≡∷-sgSubst (fstⱼ ⊢B ⊢prod) ⊢t₁
+                                   (Σ-β₁ ⊢B ⊢t₁ ⊢t₂ PE.refl ok)
       in
-      subst-⊢ ⊢B ⊢[fst[t,u]]₀ ,
-      sndⱼ ⊢B ⊢prod ,
-      conv ⊢t₂ (subst-⊢≡ (refl ⊢B) [t]₀≡[fst[t,u]]₀)
+      substType ⊢B ⊢t₁ ,
+      conv (sndⱼ ⊢B ⊢prod) (subst-⊢≡ (refl ⊢B) [fst[t,u]]₀≡[t]₀) ,
+      ⊢t₂
     (Σ-η ⊢B ⊢t₁ ⊢t₂ _ _ ok) →
       ΠΣⱼ ⊢B ok , ⊢t₁ , ⊢t₂
     (prod-cong ⊢B t₁≡t₂ u₁≡u₂ ok) →

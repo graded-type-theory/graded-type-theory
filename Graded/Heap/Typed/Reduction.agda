@@ -28,7 +28,8 @@ import Definition.Untyped.Whnf M type-variant as WHNF
 open import Definition.Typed TR as T
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Reasoning.Term TR
+import Definition.Typed.Reasoning.Term TR as TmR
+import Definition.Typed.Reasoning.Type TR as TyR
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Well-formed TR
@@ -239,6 +240,8 @@ opaque
                (wk (lift ρ) t [ H ]⇑ₕ) [ wk ρ′ u [ H ]ₕ ]₀                  ≡⟨ singleSubstComp (wk ρ′ u [ H ]ₕ) (toSubstₕ H) (wk (lift ρ) t) ⟩
                wk (lift ρ) t [ H ∙ (p , u , ρ′) ]ₕ                          ∎)
                (sym (trans B≡Gu (sym ≡G[u]₀))))) }
+    where
+    open TmR
 
   ⊢ₛ-⇒ᵥ ⊢s liftₕ =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -258,15 +261,20 @@ opaque
     in  ⊢ₛ ⊢H (conv ⊢t₁ (sym B≡F))
            (⊢ˢ-convₜ ⊢S (conv (Σ-β₁-≡ ⊢G ⊢t₁ ⊢t₂ ok) (sym B≡F))) }
 
-  ⊢ₛ-⇒ᵥ ⊢s prodˢₕ₂ =
+  ⊢ₛ-⇒ᵥ ⊢s (prodˢₕ₂ {H} {p} {t₁} {t₂} {ρ}) =
     case ⊢ₛ-inv′ ⊢s of λ
-      (_ , _ , _ , ⊢H , ⊢t , ⊢c , ⊢S) →
+      (_ , _ , B , ⊢H , ⊢t , ⊢c , ⊢S) →
     case inversion-sndₑ ⊢c of λ {
       (F , G , q , ⊢G , PE.refl , B≡G₊) →
     let ⊢t₁ , ⊢t₂ , _ , _ , ok = inversion-prod-Σ ⊢t
-        fstt≡t₁ = Σ-β₁-≡ ⊢G ⊢t₁ ⊢t₂ ok
-    in  ⊢ₛ ⊢H (conv ⊢t₂ (sym (trans (B≡G₊ ⊢t) (substTypeEq (refl ⊢G) fstt≡t₁))))
-           (⊢ˢ-convₜ ⊢S (conv (Σ-β₂-≡ ⊢G ⊢t₁ ⊢t₂ ok) (sym (B≡G₊ ⊢t)))) }
+        G₊≡B                   =
+          G [ wk ρ t₁ [ toSubstₕ H ] ]₀                ≡˘⟨ substTypeEq (refl ⊢G) (Σ-β₁-≡ ⊢G ⊢t₁ ⊢t₂ ok) ⟩⊢
+          G [ fst p (wk ρ (prod 𝕤 p t₁ t₂)) [ H ]ₕ ]₀  ≡˘⟨ B≡G₊ ⊢t ⟩⊢∎
+          B                                            ∎
+    in  ⊢ₛ ⊢H (conv ⊢t₂ G₊≡B)
+           (⊢ˢ-convₜ ⊢S (conv (Σ-β₂-≡ ⊢G ⊢t₁ ⊢t₂ ok) G₊≡B)) }
+    where
+    open TyR
 
   ⊢ₛ-⇒ᵥ ⊢s (prodʷₕ {S} {q′} {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -316,6 +324,8 @@ opaque
                ≡⟨ u≡u′ ⟩
              wk (liftn ρ′ 2) u [ H₂ ]ₕ ∎)
              (sym (B≡A₊ ⊢t))))}
+    where
+    open TmR
 
   ⊢ₛ-⇒ᵥ ⊢s zeroₕ =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -380,6 +390,8 @@ opaque
                ≡⟨ conv (J-β-≡ ⊢t ⊢B ⊢u) (J-motive-rfl-cong (refl ⊢B) t≡v) ⟩⊢∎
              wk ρ′ u [ H ]ₕ ∎)
              (sym (B′≡ ⊢rfl))))}
+    where
+    open TmR
 
   ⊢ₛ-⇒ᵥ ⊢s rflₕₖ =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -605,7 +617,7 @@ opaque
       (F′ , G′ , q′ , ⊢G′ , PE.refl , C≡G′₊) →
     let F , G , q , ⊢F , ⊢G , ⊢t₁ , ⊢t₂ , B≡Σ , ok = inversion-prod ⊢t
         F≡F′ , G≡G′ , _ = ΠΣ-injectivity (sym B≡Σ)
-        G₊≡G′₊ = G≡G′ (refl (conv (fstⱼ′ ⊢t) (sym F≡F′)))
+        G₊≡G′₊ = G≡G′ (sym′ (Σ-β₁-≡ ⊢G ⊢t₁ ⊢t₂ ok))
     in  ⊢⦅⦆ˢ-subst ⊢S (conv (Σ-β₂-⇒ ⊢G ⊢t₁ ⊢t₂ ok) (trans G₊≡G′₊ (sym (C≡G′₊ ⊢t)))) }
   ⇒ᵥ→⇒ {(k)} {(_)} {(m)} ⊢s (prodʷₕ {S} {q′} {H} {p} {t₁} {t₂} {ρ} {r} {q} {A} {u} {ρ′} _) =
     case ⊢ₛ-inv′ ⊢s of λ

@@ -1064,9 +1064,9 @@ module _ (ok : []-cong-allowed s) where
                                                                                PE.refl) ⟩⊢≡
       B [ fst⟨ s ⟩ 𝟘 A (prod s 𝟘 u v)
         , snd⟨ s ⟩ 𝟘 𝟘 A (Id (wk1 A) (wk1 t) (var x0)) (prod s 𝟘 u v)
-        ]₁₀                                                            ≡⟨ substTypeEq₂ (refl ⊢B)
-                                                                            (fst⟨⟩-β-≡ (J-motive-context-type ⊢t) ⊢u ⊢v′ Σ-ok)
-                                                                            (snd⟨⟩-β-≡ (J-motive-context-type ⊢t) ⊢u ⊢v′ Σ-ok) ⟩⊢∎
+        ]₁₀                                                            ≡˘⟨ substTypeEq₂ (refl ⊢B)
+                                                                             (sym′ (fst⟨⟩-β-≡ (J-motive-context-type ⊢t) ⊢u ⊢v′ Σ-ok))
+                                                                             (sym′ (snd⟨⟩-β-≡ (J-motive-context-type ⊢t) ⊢u ⊢v′ Σ-ok)) ⟩⊢∎
       B [ u , v ]₁₀                                                    ∎
       where
       open TypeR

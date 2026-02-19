@@ -1742,8 +1742,10 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
           (B≡ , C≡ , PE.refl , _ , PE.refl) →
         case ΠΣ-injectivity-no-equality-reflection (sym Σ≡₂) of λ {
           (D≡ , E≡ , PE.refl , _ , PE.refl) →
-        let fst-t,u⇒t = Σ-β₁ ⊢C (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) PE.refl ok₁
-            B≡D       = trans B≡ (sym D≡)
+        let B≡D        = trans B≡ (sym D≡)
+            fst-t,u⇒t  = Σ-β₁ ⊢C (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) PE.refl ok₁
+            t≡fst-t,u  = sym′ (subsetTerm fst-t,u⇒t)
+            t≡fst-t,u′ = conv t≡fst-t,u B≡D
         in
         case
           normal-terms-unique-[conv↑]∷′
@@ -1758,17 +1760,13 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
         PE.cong (prod _ _ _)
           (normal-terms-unique-[conv↑]∷′
              (convₙ ⊢u (substTypeEq C≡ (sym′ (subsetTerm fst-t,u⇒t))))
-             (convₙ ⊢w
-                (substTypeEq E≡
-                   (conv (sym′ (subsetTerm fst-t,u⇒t)) B≡D)))
+             (convₙ ⊢w (substTypeEq E≡ t≡fst-t,u′))
              (redMany
                 (conv (Σ-β₂ ⊢C (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) PE.refl ok₁)
-                   (substTypeEq C≡ (refl (redFirstTerm fst-t,u⇒t)))))
+                   (substTypeEq C≡ t≡fst-t,u)))
              (redMany
                 (conv (Σ-β₂ ⊢E (⊢nf∷→⊢∷ ⊢v) (⊢nf∷→⊢∷ ⊢w) PE.refl ok₂)
-                   (substTypeEq E≡
-                      (fst-cong ⊢E
-                         (sym′ (conv (soundnessConv↓Term ,≡,) Σ≡₂))))))
+                   (substTypeEq E≡ t≡fst-t,u′)))
              snd≡snd) }}}
       (Σ-η _ _ (ne u-ne) _ _ _) →
         ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⦃ ok = included ⦄ ⊢u u-ne)

@@ -324,7 +324,7 @@ opaque
     Γ ⊩ᵛ⟨ l′ ⟩ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ⊩ᵛ⟨ l″ ⟩ u ∷ B [ t ]₀ →
-    Γ ⊩ᵛ⟨ l ⟩ snd p (prodˢ p t u) ≡ u ∷ B [ fst p (prodˢ p t u) ]₀
+    Γ ⊩ᵛ⟨ l″ ⟩ snd p (prodˢ p t u) ≡ u ∷ B [ t ]₀
   Σ-β₂ᵛ {B} ok ⊢B ⊩B ⊩t ⊢u ⊩u =
     ⊩ᵛ∷-⇐
       (λ ξ⊇ ⊩σ →
@@ -335,11 +335,7 @@ opaque
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             subst-⊢∷-⇑ (defn-wkTerm ξ⊇ ⊢u) ⊢σ)
            ok)
-      (conv-⊩ᵛ∷
-         (sym-⊩ᵛ≡ $
-          ⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩B) $
-          Σ-β₁ᵛ ok ⊢B ⊩t ⊢u)
-         ⊩u)
+      ⊩u
 
 opaque
 
@@ -454,17 +450,14 @@ opaque
     of λ
       fst≡fst →
     case
-      snd p (prodˢ p t₁ u₁) ∷ B [ fst p (prodˢ p t₁ u₁) ]₀  ⇒⟨ Σ-β₂ ⊢B ⊢t₁ ⊢u₁ PE.refl ok ⟩⊩∷∷
-                                                             ⟨ ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
-                                                               ⊩Σ-β₁ ok ⊢B ⊩t₁ ⊢u₁ ⟩⊩∷
-      u₁                    ∷ B [ t₁ ]₀                     ≡⟨ u₁≡u₂ ⟩⊩∷∷⇐*
+                            ∷ B [ fst p (prodˢ p t₁ u₁) ]₀   ⟨ ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
+                                                               ⊩Σ-β₁ ok ⊢B ⊩t₁ ⊢u₁ ⟩⊩∷∷
+      snd p (prodˢ p t₁ u₁) ∷ B [ t₁ ]₀                     ⇒⟨ Σ-β₂ ⊢B ⊢t₁ ⊢u₁ PE.refl ok ⟩⊩∷∷
+
+      u₁                                                    ≡⟨ u₁≡u₂ ⟩⊩∷⇐*
                                                              ⟨ ≅-eq $ escape-⊩≡ $
                                                                ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) t₁≡t₂ ⟩⇒
-      u₂                    ∷ B [ t₂ ]₀                     ⇐⟨ conv (Σ-β₂ ⊢B ⊢t₂ ⊢u₂ PE.refl ok) $
-                                                               ≅-eq $ escape-⊩≡ $
-                                                               ⊩ΠΣ≡ΠΣ→⊩≡∷→⊩[]₀≡[]₀ (refl-⊩≡ ⊩ΣAB) $
-                                                               ⊩Σ-β₁ ok ⊢B ⊩t₂ ⊢u₂
-                                                             ⟩∎∷
+      u₂                    ∷ B [ t₂ ]₀                     ⇐⟨ Σ-β₂ ⊢B ⊢t₂ ⊢u₂ PE.refl ok ⟩∎∷
       snd p (prodˢ p t₂ u₂)                                 ∎
     of λ
       snd≡snd →
