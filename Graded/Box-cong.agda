@@ -507,6 +507,9 @@ Has-computing-[]-cong {n} s m Γ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅ =
   Δ ⊢ wk ρ []-cong′ ∘⟨ p₁ ⟩ l ∘⟨ p₂ ⟩ A ∘⟨ p₃ ⟩ t ∘⟨ p₄ ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡
     rfl ∷ Id (Erased l A) [ t ] ([ t ])
 
+------------------------------------------------------------------------
+-- Some simple lemmas
+
 opaque
 
   -- If Has-[]-cong holds, then Level is allowed.
@@ -516,173 +519,6 @@ opaque
   Has-[]-cong→Level-allowed (_ , _ , ⊢[]-cong) =
     let ⊢Level , _ = inversion-ΠΣ (wf-⊢∷ ⊢[]-cong) in
     inversion-Level-⊢ ⊢Level
-
-opaque
-
-  -- []-cong is supported for the strength s, the mode m, and a
-  -- well-formed variable context, for certain grades that satisfy
-  -- certain assumptions, if Level is allowed and
-  --
-  -- * []-cong is allowed for s, or
-  -- * Erased is allowed for s and
-  --   * erased matches are available for J and 𝟘ᵐ is allowed, or
-  --   * m is 𝟘ᵐ, or
-  --   * the modality is trivial, or
-  --   * equality reflection is allowed.
-
-  []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong :
-    {Γ : Con Term n} →
-    Level-allowed →
-    ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
-    Erased-allowed s ×
-    (erased-matches-for-J m ≢ none × T 𝟘ᵐ-allowed ⊎
-     (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
-     Trivial ⊎
-     Equality-reflection) →
-    ε »⊢ Γ →
-    Π-allowed 𝟘 q₁ →
-    Π-allowed 𝟘 q₂ →
-    Π-allowed 𝟘 q₃ →
-    Π-allowed 𝟘 q₄ →
-    Π-allowed 𝟘 q₅ →
-    Has-computing-[]-cong s m Γ 𝟘 q₁ 𝟘 q₂ 𝟘 q₃ 𝟘 q₄ q₅
-  []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong
-    {n} {s} {m} Level-ok ok ⊢Γ ok₁ ok₂ ok₃ ok₄ ok₅ =
-    let ⊢Id       = ⊢Id-2-1-0 Level-ok ⊢Γ
-        ⊢[]-cong″ = ⊢[]-cong″ ok′ (term Level-ok (var₄ ⊢Id)) (var₀ ⊢Id)
-    in
-      ( []-cong′
-      , (lamₘ $ lamₘ $ lamₘ $ lamₘ $ lamₘ $
-         sub (▸[]-cong″ ok′ var var var var var) $ begin
-           𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙
-             ⌜ m ⌝ · 𝟘                                           ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-
-           𝟘ᶜ                                                    ∎)
-      , (lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
-         lamⱼ′ ok₅ ⊢[]-cong″)
-      )
-    , λ _ _ _ l A t ρ Δ⊇Γ ⊢A ⊢t →
-        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
-        wk ρ []-cong′ ∘⟨ 𝟘 ⟩ l ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl   ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _)
-                                                                             (PE.sym $
-                                                                              PE.trans (Erased.Id-Erased-[] _) $
-                                                                              PE.cong
-                                                                                _[ consSubst (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
-                                                                                     rfl ] $
-                                                                              Erased.wk-Id-Erased _) $
-                                                                           β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
-                                                                             (W.wkTerm (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε ⊢Γ))) $
-                                                                              WD.defn-wkTerm ⊇ε ⊢[]-cong″)
-                                                                             (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
-                                                                             ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
-        wk (liftn ρ 5)
-          ([]-cong″ ok′ (var x4) (var x3) (var x2) (var x1) (var x0))
-          [ consSubst
-              (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
-              rfl ]                                                    ≡⟨ PE.trans (subst-wk ([]-cong″ ok′ _ _ _ _ _)) $
-                                                                          []-cong″-[] ok′ ⟩⊢≡
-
-        []-cong″ ok′ l A t t rfl                                       ⇒*⟨ []-cong″-β-⇒* ok′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢t ⟩⊢∎
-
-        rfl                                                            ∎
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-
-    Erased-ok : Erased-allowed s
-    Erased-ok = case ok of λ where
-      (inj₁ (ok , _)) → []-cong→Erased ok
-      (inj₂ (ok , _)) → ok
-
-    OK : Set a
-    OK =
-      ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
-      Equality-reflection ⊎
-      (∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ×
-        T 𝟘ᵐ-allowed ⊎
-      (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
-      Trivial
-
-    ok′ : OK
-    ok′ = case ok of λ where
-      (inj₁ ok) →
-        inj₁ ok
-      (inj₂ (_ , inj₂ (inj₂ (inj₂ ok)))) →
-        inj₂ (inj₁ ok)
-      (inj₂ (_ , inj₂ (inj₂ (inj₁ trivial)))) →
-        inj₂ (inj₂ (inj₂ (inj₂ trivial)))
-      (inj₂ (_ , inj₂ (inj₁ ok))) →
-        inj₂ (inj₂ (inj₂ (inj₁ ok)))
-      (inj₂ (_ , inj₁ (≢none , ok))) →
-        inj₂ $ inj₂ $ inj₁ $
-        case PE.singleton $ erased-matches-for-J m of λ where
-          (not-none _ , ≡not-none) → (_ , ≡not-none) , ok
-          (none       , ≡none)     → ⊥-elim $ ≢none ≡none
-
-    []-cong″ :
-      OK → Term n′ → Term n′ → Term n′ → Term n′ → Term n′ → Term n′
-    []-cong″ (inj₁ _)        = []-cong s
-    []-cong″ (inj₂ (inj₁ _)) = λ _ _ _ _ _ → rfl
-    []-cong″ (inj₂ (inj₂ _)) = []-cong-J s
-
-    ▸[]-cong″ :
-      ∀ ok →
-      γ₁ ▸[ 𝟘ᵐ? ] l →
-      γ₂ ▸[ 𝟘ᵐ? ] A →
-      γ₃ ▸[ 𝟘ᵐ? ] t →
-      γ₄ ▸[ 𝟘ᵐ? ] u →
-      γ₅ ▸[ 𝟘ᵐ? ] v →
-      𝟘ᶜ ▸[ m ] []-cong″ ok l A t u v
-    ▸[]-cong″ (inj₁ (_ , ok)) ▸l ▸A ▸t ▸u ▸v =
-      []-congₘ ▸l ▸A ▸t ▸u ▸v ok
-    ▸[]-cong″ (inj₂ (inj₁ ok)) _ _ _ _ _ =
-      rflₘ
-    ▸[]-cong″
-      (inj₂ (inj₂ (inj₁ ((_ , ≡not-none) , ok)))) ▸l ▸A ▸t ▸u ▸v =
-      ▸[]-cong-J {ok = ok} ≡not-none (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸l)
-        (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u)
-        (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
-    ▸[]-cong″ (inj₂ (inj₂ (inj₂ (inj₁ (_ , PE.refl))))) ▸l ▸A ▸t ▸u ▸v =
-      ▸[]-cong-J-𝟘ᵐ (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸l) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A)
-        (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
-    ▸[]-cong″ (inj₂ (inj₂ (inj₂ (inj₂ trivial)))) =
-      ▸[]-cong-J-trivial trivial
-
-    ⊢[]-cong″ :
-      let open Erased s in
-      ∀ ok →
-      Γ ⊢ l ∷Level →
-      Γ ⊢ v ∷ Id A t u →
-      Γ ⊢ []-cong″ ok l A t u v ∷ Id (Erased l A) [ t ] ([ u ])
-    ⊢[]-cong″ (inj₁ (ok , _))  = []-congⱼ′ ok
-    ⊢[]-cong″ (inj₂ (inj₂ _))  = []-cong-Jⱼ Erased-ok
-    ⊢[]-cong″ (inj₂ (inj₁ ok)) = λ ⊢v →
-      []-cong-with-equality-reflection ok Erased-ok ⊢v
-
-    []-cong″-[] :
-      ∀ ok →
-      []-cong″ ok l A t u v [ σ ] PE.≡
-      []-cong″ ok (l [ σ ]) (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
-    []-cong″-[] (inj₁ _)         = PE.refl
-    []-cong″-[] (inj₂ (inj₁ ok)) = PE.refl
-    []-cong″-[] (inj₂ (inj₂ _))  = []-cong-J-[]
-
-    []-cong″-β-⇒* :
-      let open Erased s in
-      ∀ ok →
-      Γ ⊢ l ∷Level →
-      Γ ⊢ t ∷ A →
-      Γ ⊢ []-cong″ ok l A t t rfl ⇒* rfl ∷ Id (Erased l A) [ t ] ([ t ])
-    []-cong″-β-⇒* (inj₁ (ok , _)) ⊢l ⊢t =
-      redMany ([]-cong-β ⊢l (refl ⊢t) ok)
-    []-cong″-β-⇒* (inj₂ (inj₂ _)) ⊢l ⊢t =
-      redMany ([]-cong-J-β-⇒ Erased-ok ⊢l ⊢t)
-    []-cong″-β-⇒* (inj₂ (inj₁ ok)) ⊢l ⊢t =
-      id ([]-cong-with-equality-reflection ok Erased-ok ⊢l (rflⱼ ⊢t))
-
-    []-cong′ : Term n
-    []-cong′ =
-      lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
-      []-cong″ ok′ (var x4) (var x3) (var x2) (var x1) (var x0)
 
 opaque
 
@@ -730,146 +566,9 @@ opaque
     open ≤ᶜ-reasoning
     open Erased s
 
-opaque
-
-  -- If the modality's zero is well-behaved, erased matches (including
-  -- the []-cong primitive) are not allowed, equality reflection is
-  -- not allowed, and η-equality is not allowed for weak unit types
-  -- unless a certain condition is satisfied, then []-cong is not
-  -- supported for the mode 𝟙ᵐ and a "consistent" well-formed type A
-  -- (in an empty definition context) without η-equality that is
-  -- distinct from Level, if the "p" grades are 𝟘.
-
-  ¬-[]-cong-for :
-    {Γ : Con Term n}
-    ⦃ not-ok : No-equality-reflection ⦄
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-    No-erased-matches TR UR →
-    (∀ {p q} →
-     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
-     p ≤ 𝟘) →
-    No-η-equality ε A →
-    A ≢ Level →
-    ε » Γ ⊢ A →
-    Consistent (ε » Γ ∙ A) →
-    ¬ Has-[]-cong-for s 𝟙ᵐ Γ l A 𝟘 q₁ 𝟘 q₂ q₃
-  ¬-[]-cong-for
-    {n} {A} {Γ} nem Unitʷ-η→ no-η A≢Level ⊢A consistent (_ , hyp) =
-    let ▸[]-cong′ , ⊢[]-cong′ = lemma (lemma (lemma hyp)) in
-    case red-Id ⦃ ok = included ⦄ ⊢[]-cong′ of λ where
-      (_ , rflₙ , ⇒*rfl) →
-        case var-only-equal-to-itself (wk-No-η-equality no-η)
-               (A≢Level ∘→ wk-Level) (ne (var _ _)) $
-             []-cong′⁻¹ ⦃ ok = included ⦄
-               (inversion-rfl-Id ⦃ ok = included ⦄ $
-                wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
-        of λ ()
-      (_ , ne u-ne , []-cong′⇒*u) →
-        neutral-not-well-resourced nem
-          (λ _ → subst-Consistent ⊢σ consistent)
-          PE.refl (ne→ _ u-ne)
-          (wf-⊢≡∷ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
-          (usagePres*Term Unitʷ-η→ (λ ()) ▸[]-cong′ []-cong′⇒*u)
-    where
-    ⊢Γ : ε »⊢ Γ
-    ⊢Γ = wfTerm (hyp .proj₂)
-
-    σ′ : Subst (1+ n) (3+ n)
-    σ′ = consSubst (sgSubst (var x0)) rfl
-
-    ⊢σ :
-      ε » Γ ∙ A ⊢ˢʷ σ′ ∷
-        Γ ∙ A ∙ wk1 A ∙ Id (wk[ 2 ]′ A) (var x1) (var x0)
-    ⊢σ =
-      let ⊢0 = PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-id _) (var₀ ⊢A) in
-      →⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst (∙ ⊢A)) ⊢0)
-        (rflⱼ $
-         PE.subst (_⊢_∷_ _ _)
-           (wk1 A [ idSubst ]       ≡⟨ subst-id _ ⟩
-            wk1 A                   ≡˘⟨ wk[1+]′-[]₀≡ ⟩
-            wk[ 2 ]′ A [ var x0 ]₀  ∎)
-           ⊢0)
-      where
-      open Tools.Reasoning.PropositionalEquality
-
-    opaque
-
-      lemma :
-        𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ⊢ t ∷ Π 𝟘 , p ▷ B ▹ C →
-        let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
-        𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × ε » Δ ∙ B ⊢ t0 ∷ C
-      lemma (▸t , ⊢t) =
-        let ⊢B , _ = inversion-ΠΣ (wf-⊢∷ ⊢t) in
-        sub (wkUsage (step id) ▸t ∘ₘ var)
-          (begin
-             𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-             𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-             𝟘ᶜ +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎) ,
-        PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _)
-          (W.wkTerm₁ ⊢B ⊢t ∘ⱼ var₀ ⊢B)
-        where
-        open ≤ᶜ-reasoning
-
-opaque
-
-  -- If the modality's zero is well-behaved, erased matches (including
-  -- the []-cong primitive) are not allowed, equality reflection is
-  -- not allowed, and η-equality is not allowed for weak unit types
-  -- unless a certain condition is satisfied, then []-cong is not
-  -- supported for the mode 𝟙ᵐ, a consistent variable context Γ, and
-  -- certain grades.
-
-  ¬-[]-cong :
-    {Γ : Con Term n}
-    ⦃ not-ok : No-equality-reflection ⦄
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-    No-erased-matches TR UR →
-    (∀ {p q} →
-     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
-     p ≤ 𝟘) →
-    Consistent (ε » Γ) →
-    ¬ Has-[]-cong s 𝟙ᵐ Γ p₁ q₁ p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅
-  ¬-[]-cong
-    {n} {s} {p₁} {q₁} {p₂} {q₂} {q₃} {q₄} {q₅} {Γ}
-    nem Unitʷ-η→ consistent has-[]-cong@(_ , hyp) =
-                                                 $⟨ has-[]-cong ⟩
-    Has-[]-cong s 𝟙ᵐ Γ p₁ q₁ p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅  →⟨ Has-[]-cong→Has-[]-cong-for ▸l ▸A ⊢A ⟩
-    Has-[]-cong-for s 𝟙ᵐ Γ l′ A′ 𝟘 q₃ 𝟘 q₄ q₅    →⟨ ¬-[]-cong-for nem Unitʷ-η→ No-η-equality-A A≢Level (univ ⊢A)
-                                                      (subst-Consistent (⊢ˢʷ∷-sgSubst ⊢t) consistent) ⟩
-    ⊥                                            □
-    where
-    ⊢Γ : ε »⊢ Γ
-    ⊢Γ = wfTerm (hyp .proj₂)
-
-    l′ : Term n
-    l′ = zeroᵘ
-
-    A′ : Term n
-    A′ = ℕ
-
-    t″ : Term n
-    t″ = zero
-
-    ⊢l : ε » Γ ⊢ l′ ∷ Level
-    ⊢l = zeroᵘⱼ (Has-[]-cong→Level-allowed has-[]-cong) ⊢Γ
-
-    ⊢A : ε » Γ ⊢ A′ ∷ U l′
-    ⊢A = ℕⱼ ⊢Γ
-
-    ⊢t : ε » Γ ⊢ t″ ∷ A′
-    ⊢t = zeroⱼ ⊢Γ
-
-    ▸l : 𝟘ᶜ ▸[ m ᵐ· p₁ ] l′
-    ▸l = zeroᵘₘ
-
-    ▸A : 𝟘ᶜ ▸[ m ᵐ· p₂ ] A′
-    ▸A = ℕₘ
-
-    No-η-equality-A : No-η-equality ε A′
-    No-η-equality-A = ℕₙ
-
-    A≢Level : A′ ≢ Level
-    A≢Level ()
+------------------------------------------------------------------------
+-- Some instances of Has-[]-cong/Has-computing-[]-cong are logically
+-- equivalent
 
 -- Some definitions/lemmas used below.
 
@@ -1676,6 +1375,320 @@ opaque
           Erased l (Erased l A)                                          ∎
           where
           open Tools.Reasoning.PropositionalEquality
+
+------------------------------------------------------------------------
+-- []-cong can sometimes be defined
+
+opaque
+
+  -- []-cong is supported for the strength s, the mode m, and a
+  -- well-formed variable context, for certain grades that satisfy
+  -- certain assumptions, if Level is allowed and
+  --
+  -- * []-cong is allowed for s, or
+  -- * Erased is allowed for s and
+  --   * erased matches are available for J and 𝟘ᵐ is allowed, or
+  --   * m is 𝟘ᵐ, or
+  --   * the modality is trivial, or
+  --   * equality reflection is allowed.
+
+  []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong :
+    {Γ : Con Term n} →
+    Level-allowed →
+    ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
+    Erased-allowed s ×
+    (erased-matches-for-J m ≢ none × T 𝟘ᵐ-allowed ⊎
+     (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
+     Trivial ⊎
+     Equality-reflection) →
+    ε »⊢ Γ →
+    Π-allowed 𝟘 q₁ →
+    Π-allowed 𝟘 q₂ →
+    Π-allowed 𝟘 q₃ →
+    Π-allowed 𝟘 q₄ →
+    Π-allowed 𝟘 q₅ →
+    Has-computing-[]-cong s m Γ 𝟘 q₁ 𝟘 q₂ 𝟘 q₃ 𝟘 q₄ q₅
+  []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong
+    {n} {s} {m} Level-ok ok ⊢Γ ok₁ ok₂ ok₃ ok₄ ok₅ =
+    let ⊢Id       = ⊢Id-2-1-0 Level-ok ⊢Γ
+        ⊢[]-cong″ = ⊢[]-cong″ ok′ (term Level-ok (var₄ ⊢Id)) (var₀ ⊢Id)
+    in
+      ( []-cong′
+      , (lamₘ $ lamₘ $ lamₘ $ lamₘ $ lamₘ $
+         sub (▸[]-cong″ ok′ var var var var var) $ begin
+           𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘 ∙
+             ⌜ m ⌝ · 𝟘                                           ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+
+           𝟘ᶜ                                                    ∎)
+      , (lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
+         lamⱼ′ ok₅ ⊢[]-cong″)
+      )
+    , λ _ _ _ l A t ρ Δ⊇Γ ⊢A ⊢t →
+        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
+        wk ρ []-cong′ ∘⟨ 𝟘 ⟩ l ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl   ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _)
+                                                                             (PE.sym $
+                                                                              PE.trans (Erased.Id-Erased-[] _) $
+                                                                              PE.cong
+                                                                                _[ consSubst (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
+                                                                                     rfl ] $
+                                                                              Erased.wk-Id-Erased _) $
+                                                                           β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
+                                                                             (W.wkTerm (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε ⊢Γ))) $
+                                                                              WD.defn-wkTerm ⊇ε ⊢[]-cong″)
+                                                                             (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
+                                                                             ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
+        wk (liftn ρ 5)
+          ([]-cong″ ok′ (var x4) (var x3) (var x2) (var x1) (var x0))
+          [ consSubst
+              (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
+              rfl ]                                                    ≡⟨ PE.trans (subst-wk ([]-cong″ ok′ _ _ _ _ _)) $
+                                                                          []-cong″-[] ok′ ⟩⊢≡
+
+        []-cong″ ok′ l A t t rfl                                       ⇒*⟨ []-cong″-β-⇒* ok′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢t ⟩⊢∎
+
+        rfl                                                            ∎
+    where
+    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
+
+    Erased-ok : Erased-allowed s
+    Erased-ok = case ok of λ where
+      (inj₁ (ok , _)) → []-cong→Erased ok
+      (inj₂ (ok , _)) → ok
+
+    OK : Set a
+    OK =
+      ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
+      Equality-reflection ⊎
+      (∃ λ sem → erased-matches-for-J m PE.≡ not-none sem) ×
+        T 𝟘ᵐ-allowed ⊎
+      (∃ λ ok → m PE.≡ 𝟘ᵐ[ ok ]) ⊎
+      Trivial
+
+    ok′ : OK
+    ok′ = case ok of λ where
+      (inj₁ ok) →
+        inj₁ ok
+      (inj₂ (_ , inj₂ (inj₂ (inj₂ ok)))) →
+        inj₂ (inj₁ ok)
+      (inj₂ (_ , inj₂ (inj₂ (inj₁ trivial)))) →
+        inj₂ (inj₂ (inj₂ (inj₂ trivial)))
+      (inj₂ (_ , inj₂ (inj₁ ok))) →
+        inj₂ (inj₂ (inj₂ (inj₁ ok)))
+      (inj₂ (_ , inj₁ (≢none , ok))) →
+        inj₂ $ inj₂ $ inj₁ $
+        case PE.singleton $ erased-matches-for-J m of λ where
+          (not-none _ , ≡not-none) → (_ , ≡not-none) , ok
+          (none       , ≡none)     → ⊥-elim $ ≢none ≡none
+
+    []-cong″ :
+      OK → Term n′ → Term n′ → Term n′ → Term n′ → Term n′ → Term n′
+    []-cong″ (inj₁ _)        = []-cong s
+    []-cong″ (inj₂ (inj₁ _)) = λ _ _ _ _ _ → rfl
+    []-cong″ (inj₂ (inj₂ _)) = []-cong-J s
+
+    ▸[]-cong″ :
+      ∀ ok →
+      γ₁ ▸[ 𝟘ᵐ? ] l →
+      γ₂ ▸[ 𝟘ᵐ? ] A →
+      γ₃ ▸[ 𝟘ᵐ? ] t →
+      γ₄ ▸[ 𝟘ᵐ? ] u →
+      γ₅ ▸[ 𝟘ᵐ? ] v →
+      𝟘ᶜ ▸[ m ] []-cong″ ok l A t u v
+    ▸[]-cong″ (inj₁ (_ , ok)) ▸l ▸A ▸t ▸u ▸v =
+      []-congₘ ▸l ▸A ▸t ▸u ▸v ok
+    ▸[]-cong″ (inj₂ (inj₁ ok)) _ _ _ _ _ =
+      rflₘ
+    ▸[]-cong″
+      (inj₂ (inj₂ (inj₁ ((_ , ≡not-none) , ok)))) ▸l ▸A ▸t ▸u ▸v =
+      ▸[]-cong-J {ok = ok} ≡not-none (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸l)
+        (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u)
+        (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
+    ▸[]-cong″ (inj₂ (inj₂ (inj₂ (inj₁ (_ , PE.refl))))) ▸l ▸A ▸t ▸u ▸v =
+      ▸[]-cong-J-𝟘ᵐ (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸l) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A)
+        (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v)
+    ▸[]-cong″ (inj₂ (inj₂ (inj₂ (inj₂ trivial)))) =
+      ▸[]-cong-J-trivial trivial
+
+    ⊢[]-cong″ :
+      let open Erased s in
+      ∀ ok →
+      Γ ⊢ l ∷Level →
+      Γ ⊢ v ∷ Id A t u →
+      Γ ⊢ []-cong″ ok l A t u v ∷ Id (Erased l A) [ t ] ([ u ])
+    ⊢[]-cong″ (inj₁ (ok , _))  = []-congⱼ′ ok
+    ⊢[]-cong″ (inj₂ (inj₂ _))  = []-cong-Jⱼ Erased-ok
+    ⊢[]-cong″ (inj₂ (inj₁ ok)) = λ ⊢v →
+      []-cong-with-equality-reflection ok Erased-ok ⊢v
+
+    []-cong″-[] :
+      ∀ ok →
+      []-cong″ ok l A t u v [ σ ] PE.≡
+      []-cong″ ok (l [ σ ]) (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+    []-cong″-[] (inj₁ _)         = PE.refl
+    []-cong″-[] (inj₂ (inj₁ ok)) = PE.refl
+    []-cong″-[] (inj₂ (inj₂ _))  = []-cong-J-[]
+
+    []-cong″-β-⇒* :
+      let open Erased s in
+      ∀ ok →
+      Γ ⊢ l ∷Level →
+      Γ ⊢ t ∷ A →
+      Γ ⊢ []-cong″ ok l A t t rfl ⇒* rfl ∷ Id (Erased l A) [ t ] ([ t ])
+    []-cong″-β-⇒* (inj₁ (ok , _)) ⊢l ⊢t =
+      redMany ([]-cong-β ⊢l (refl ⊢t) ok)
+    []-cong″-β-⇒* (inj₂ (inj₂ _)) ⊢l ⊢t =
+      redMany ([]-cong-J-β-⇒ Erased-ok ⊢l ⊢t)
+    []-cong″-β-⇒* (inj₂ (inj₁ ok)) ⊢l ⊢t =
+      id ([]-cong-with-equality-reflection ok Erased-ok ⊢l (rflⱼ ⊢t))
+
+    []-cong′ : Term n
+    []-cong′ =
+      lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
+      []-cong″ ok′ (var x4) (var x3) (var x2) (var x1) (var x0)
+
+------------------------------------------------------------------------
+-- Sometimes []-cong cannot be defined
+
+opaque
+
+  -- If the modality's zero is well-behaved, erased matches (including
+  -- the []-cong primitive) are not allowed, equality reflection is
+  -- not allowed, and η-equality is not allowed for weak unit types
+  -- unless a certain condition is satisfied, then []-cong is not
+  -- supported for the mode 𝟙ᵐ and a "consistent" well-formed type A
+  -- (in an empty definition context) without η-equality that is
+  -- distinct from Level, if the "p" grades are 𝟘.
+
+  ¬-[]-cong-for :
+    {Γ : Con Term n}
+    ⦃ not-ok : No-equality-reflection ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    No-erased-matches TR UR →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     p ≤ 𝟘) →
+    No-η-equality ε A →
+    A ≢ Level →
+    ε » Γ ⊢ A →
+    Consistent (ε » Γ ∙ A) →
+    ¬ Has-[]-cong-for s 𝟙ᵐ Γ l A 𝟘 q₁ 𝟘 q₂ q₃
+  ¬-[]-cong-for
+    {n} {A} {Γ} nem Unitʷ-η→ no-η A≢Level ⊢A consistent (_ , hyp) =
+    let ▸[]-cong′ , ⊢[]-cong′ = lemma (lemma (lemma hyp)) in
+    case red-Id ⦃ ok = included ⦄ ⊢[]-cong′ of λ where
+      (_ , rflₙ , ⇒*rfl) →
+        case var-only-equal-to-itself (wk-No-η-equality no-η)
+               (A≢Level ∘→ wk-Level) (ne (var _ _)) $
+             []-cong′⁻¹ ⦃ ok = included ⦄
+               (inversion-rfl-Id ⦃ ok = included ⦄ $
+                wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
+        of λ ()
+      (_ , ne u-ne , []-cong′⇒*u) →
+        neutral-not-well-resourced nem
+          (λ _ → subst-Consistent ⊢σ consistent)
+          PE.refl (ne→ _ u-ne)
+          (wf-⊢≡∷ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
+          (usagePres*Term Unitʷ-η→ (λ ()) ▸[]-cong′ []-cong′⇒*u)
+    where
+    ⊢Γ : ε »⊢ Γ
+    ⊢Γ = wfTerm (hyp .proj₂)
+
+    σ′ : Subst (1+ n) (3+ n)
+    σ′ = consSubst (sgSubst (var x0)) rfl
+
+    ⊢σ :
+      ε » Γ ∙ A ⊢ˢʷ σ′ ∷
+        Γ ∙ A ∙ wk1 A ∙ Id (wk[ 2 ]′ A) (var x1) (var x0)
+    ⊢σ =
+      let ⊢0 = PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-id _) (var₀ ⊢A) in
+      →⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-idSubst (∙ ⊢A)) ⊢0)
+        (rflⱼ $
+         PE.subst (_⊢_∷_ _ _)
+           (wk1 A [ idSubst ]       ≡⟨ subst-id _ ⟩
+            wk1 A                   ≡˘⟨ wk[1+]′-[]₀≡ ⟩
+            wk[ 2 ]′ A [ var x0 ]₀  ∎)
+           ⊢0)
+      where
+      open Tools.Reasoning.PropositionalEquality
+
+    opaque
+
+      lemma :
+        𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ⊢ t ∷ Π 𝟘 , p ▷ B ▹ C →
+        let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
+        𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × ε » Δ ∙ B ⊢ t0 ∷ C
+      lemma (▸t , ⊢t) =
+        let ⊢B , _ = inversion-ΠΣ (wf-⊢∷ ⊢t) in
+        sub (wkUsage (step id) ▸t ∘ₘ var)
+          (begin
+             𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+             𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+             𝟘ᶜ +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎) ,
+        PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _)
+          (W.wkTerm₁ ⊢B ⊢t ∘ⱼ var₀ ⊢B)
+        where
+        open ≤ᶜ-reasoning
+
+opaque
+
+  -- If the modality's zero is well-behaved, erased matches (including
+  -- the []-cong primitive) are not allowed, equality reflection is
+  -- not allowed, and η-equality is not allowed for weak unit types
+  -- unless a certain condition is satisfied, then []-cong is not
+  -- supported for the mode 𝟙ᵐ, a consistent variable context Γ, and
+  -- certain grades.
+
+  ¬-[]-cong :
+    {Γ : Con Term n}
+    ⦃ not-ok : No-equality-reflection ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    No-erased-matches TR UR →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     p ≤ 𝟘) →
+    Consistent (ε » Γ) →
+    ¬ Has-[]-cong s 𝟙ᵐ Γ p₁ q₁ p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅
+  ¬-[]-cong
+    {n} {s} {p₁} {q₁} {p₂} {q₂} {q₃} {q₄} {q₅} {Γ}
+    nem Unitʷ-η→ consistent has-[]-cong@(_ , hyp) =
+                                                 $⟨ has-[]-cong ⟩
+    Has-[]-cong s 𝟙ᵐ Γ p₁ q₁ p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅  →⟨ Has-[]-cong→Has-[]-cong-for ▸l ▸A ⊢A ⟩
+    Has-[]-cong-for s 𝟙ᵐ Γ l′ A′ 𝟘 q₃ 𝟘 q₄ q₅    →⟨ ¬-[]-cong-for nem Unitʷ-η→ No-η-equality-A A≢Level (univ ⊢A)
+                                                      (subst-Consistent (⊢ˢʷ∷-sgSubst ⊢t) consistent) ⟩
+    ⊥                                            □
+    where
+    ⊢Γ : ε »⊢ Γ
+    ⊢Γ = wfTerm (hyp .proj₂)
+
+    l′ : Term n
+    l′ = zeroᵘ
+
+    A′ : Term n
+    A′ = ℕ
+
+    t″ : Term n
+    t″ = zero
+
+    ⊢l : ε » Γ ⊢ l′ ∷ Level
+    ⊢l = zeroᵘⱼ (Has-[]-cong→Level-allowed has-[]-cong) ⊢Γ
+
+    ⊢A : ε » Γ ⊢ A′ ∷ U l′
+    ⊢A = ℕⱼ ⊢Γ
+
+    ⊢t : ε » Γ ⊢ t″ ∷ A′
+    ⊢t = zeroⱼ ⊢Γ
+
+    ▸l : 𝟘ᶜ ▸[ m ᵐ· p₁ ] l′
+    ▸l = zeroᵘₘ
+
+    ▸A : 𝟘ᶜ ▸[ m ᵐ· p₂ ] A′
+    ▸A = ℕₘ
+
+    No-η-equality-A : No-η-equality ε A′
+    No-η-equality-A = ℕₙ
+
+    A≢Level : A′ ≢ Level
+    A≢Level ()
 
 opaque
 
