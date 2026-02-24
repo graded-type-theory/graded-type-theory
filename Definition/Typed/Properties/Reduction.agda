@@ -835,6 +835,13 @@ opaque
   univ* (id ⊢A)     = id (univ ⊢A)
   univ* (A⇒B ⇨ B⇒C) = univ A⇒B ⇨ univ* B⇒C
 
+opaque
+
+  -- A variant of univ for _⊢_↘_.
+
+  univ↘ : Γ ⊢ A ↘ B ∷ U l → Γ ⊢ A ↘ B
+  univ↘ (A⇒*B , B-whnf) = univ* A⇒*B , B-whnf
+
 ------------------------------------------------------------------------
 -- Some lemmas related to supᵘ
 
