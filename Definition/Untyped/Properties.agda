@@ -33,6 +33,7 @@ private
     Δ : Cons _ _
     φ : Unfolding _
     A A₁ A₂ B₁ B₂ E F G H l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+    ts₁ ts₂ : GenTs _ _ _
     ρ ρ′ : Wk m n
     η : Wk n ℓ
     σ σ₁ σ₂ σ′ : Subst m n
@@ -391,6 +392,28 @@ opaque
       (fromTerm∘toTerm l) (fromTerm∘toTerm A) (fromTerm∘toTerm t)
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
 
+opaque
+
+  -- The function toTerm is injective.
+
+  toTerm-injective : {t₁ t₂ : Term′ n} → toTerm t₁ ≡ toTerm t₂ → t₁ ≡ t₂
+  toTerm-injective {t₁} {t₂} eq =
+    t₁                    ≡˘⟨ fromTerm∘toTerm _ ⟩
+    fromTerm (toTerm t₁)  ≡⟨ cong fromTerm eq ⟩
+    fromTerm (toTerm t₂)  ≡⟨ fromTerm∘toTerm _ ⟩
+    t₂                    ∎
+
+opaque
+
+  -- The function fromTerm is injective.
+
+  fromTerm-injective : fromTerm t₁ ≡ fromTerm t₂ → t₁ ≡ t₂
+  fromTerm-injective {t₁} {t₂} eq =
+    t₁                    ≡˘⟨ toTerm∘fromTerm _ ⟩
+    toTerm (fromTerm t₁)  ≡⟨ cong toTerm eq ⟩
+    toTerm (fromTerm t₂)  ≡⟨ toTerm∘fromTerm _ ⟩
+    t₂                    ∎
+
 ------------------------------------------------------------------------
 -- No-confusion lemmas
 
@@ -643,6 +666,38 @@ lift-wk1 pr A = trans (wk-comp (lift pr) (step id) A)
 
 wk1-wk≡lift-wk1 : (ρ : Wk m n) (t : Term n) → wk1 (wk ρ t) ≡ wk (lift ρ) (wk1 t)
 wk1-wk≡lift-wk1 ρ t = trans (wk1-wk ρ t) (sym (lift-wk1 ρ t))
+
+opaque mutual
+
+  -- The function wk′ ρ is injective.
+
+  wk′-injective : {t₁ t₂ : Term′ n} → wk′ ρ t₁ ≡ wk′ ρ t₂ → t₁ ≡ t₂
+  wk′-injective {t₁ = var x₁} {t₂ = var x₂} eq =
+    cong var (wkVar-injective (var-cong⁻¹ eq))
+  wk′-injective {t₁ = var _}      {t₂ = gen _ _}    ()
+  wk′-injective {t₁ = gen _ _}    {t₂ = var _}      ()
+  wk′-injective {t₁ = gen k₁ ts₁} {t₂ = gen k₂ ts₂} eq
+    with gen-cong⁻¹ eq
+  … | refl , refl , eq = cong (gen _) (wkGen-injective eq)
+
+  -- The function wkGen ρ is injective.
+
+  wkGen-injective : wkGen ρ ts₁ ≡ wkGen ρ ts₂ → ts₁ ≡ ts₂
+  wkGen-injective {ts₁ = []}     {ts₂ = []}     _  = refl
+  wkGen-injective {ts₁ = _ ∷ₜ _} {ts₂ = _ ∷ₜ _} eq with ∷-cong⁻¹ eq
+  … | eq₁ , eq₂ = cong₂ _∷ₜ_ (wk′-injective eq₁) (wkGen-injective eq₂)
+
+opaque
+
+  -- The function wk ρ is injective.
+
+  wk-injective : wk ρ t₁ ≡ wk ρ t₂ → t₁ ≡ t₂
+  wk-injective {ρ} {t₁} {t₂} =
+    wk ρ t₁ ≡ wk ρ t₂                                            →⟨ (λ eq → trans (sym (wk≡wk′ _)) (trans eq (wk≡wk′ _))) ⟩
+    toTerm (wk′ ρ (fromTerm t₁)) ≡ toTerm (wk′ ρ (fromTerm t₂))  →⟨ toTerm-injective ⟩
+    wk′ ρ (fromTerm t₁) ≡ wk′ ρ (fromTerm t₂)                    →⟨ wk′-injective ⟩
+    fromTerm t₁ ≡ fromTerm t₂                                    →⟨ fromTerm-injective ⟩
+    t₁ ≡ t₂                                                      □
 
 ------------------------------------------------------------------------
 -- Substitution properties.

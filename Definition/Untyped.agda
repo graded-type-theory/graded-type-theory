@@ -21,6 +21,7 @@ open import Definition.Untyped.NotParametrised public
 private
   variable
     l m n o : Nat
+    x₁ x₂ : Fin _
     bs bs′ : List _
     ts ts′ : GenTs _ _ _
 
@@ -930,6 +931,11 @@ opaque
 
 ------------------------------------------------------------------------
 -- Some inversion lemmas
+
+-- Inversion of equality for Term′.var.
+
+var-cong⁻¹ : Term′.var x₁ ≡ var x₂ → x₁ ≡ x₂
+var-cong⁻¹ refl = refl
 
 -- Inversion of equality for gen.
 
