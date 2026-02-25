@@ -53,9 +53,6 @@ var-only-equal-to-itself =
   ~↓-lemma : ∇ » Γ ⊢ var x ~ t ↓ A → var x PE.≡ t
   ~↓-lemma x≡t = ~↑-lemma (_⊢_~_↓_.k~l x≡t)
 
-  ~∷-lemma : ∇ » Γ ⊢ var x ~ t ∷ A → var x PE.≡ t
-  ~∷-lemma (↑ A≡B k~↑l) = ~↑-lemma k~↑l
-
   [conv↓]-lemma : ∇ » Γ ⊢ var x [conv↓] A → var x PE.≡ A
   [conv↓]-lemma (ne x≡A) = ~↓-lemma x≡A
 
