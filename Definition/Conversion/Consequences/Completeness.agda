@@ -19,18 +19,19 @@ open import Definition.Typed R
 open import Definition.Conversion R
 
 open import Definition.Conversion.EqRelInstance R
+open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
+open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 
-private
-  variable
-    m n     : Nat
-    Γ       : Cons m n
-    A B t u : Term n
+private variable
+  m n           : Nat
+  Γ             : Cons m n
+  A B l₁ l₂ t u : Term n
 
 opaque
 
@@ -53,3 +54,13 @@ opaque
     Γ ⊢ t ≡ u ∷ A                 →⟨ reducible-⊩≡∷ ⟩
     (∃ λ l → Γ ⊩⟨ l ⟩ t ≡ u ∷ A)  →⟨ escape-⊩≡∷ ∘→ proj₂ ⟩
     Γ ⊢ t [conv↑] u ∷ A           □
+
+opaque
+
+  -- A completeness lemma for level equality.
+
+  completeEqLevel : Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ l₁ [conv↑] l₂ ∷Level
+  completeEqLevel {Γ} {l₁} {l₂} =
+    Γ ⊢ l₁ ≡ l₂ ∷Level        →⟨ reducible-⊩≡∷L ⟩
+    Γ ⊩Level l₁ ≡ l₂ ∷Level   →⟨ escapeLevelEq ⟩
+    Γ ⊢ l₁ [conv↑] l₂ ∷Level  □
