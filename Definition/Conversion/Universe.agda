@@ -1,6 +1,5 @@
 ------------------------------------------------------------------------
--- Equal terms of type U are equal types (in the absence of equality
--- reflection)
+-- Equal terms of type U are equal types
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -18,8 +17,6 @@ open import Definition.Untyped M
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed.Properties R
 open import Definition.Conversion R
-open import Definition.Conversion.Reduction R
-open import Definition.Conversion.Lift R
 
 open import Tools.Nat
 open import Tools.Product
@@ -38,13 +35,13 @@ univConv↓ : ∀ {A B}
 univConv↓ (ne-ins t u () x)
 univConv↓ (univ x x₁ x₂) = x₂
 
--- The relation _⊢_[conv↑]_∷ U l is contained in _⊢_[conv↑]_ (if
--- equality reflection is not allowed).
+opaque
 
-univConv↑ :
-  ⦃ no-equality-reflection : No-equality-reflection ⦄ →
-  Γ ⊢ A [conv↑] B ∷ U l →
-  Γ ⊢ A [conv↑] B
-univConv↑ ([↑]ₜ _ _ _ (D , _) (d , _) (d′ , _) t<>u)
-      rewrite PE.sym (whnfRed* D Uₙ) =
-  reductionConv↑ (univ* d) (univ* d′) (liftConv (univConv↓ t<>u))
+  -- The relation _⊢_[conv↑]_∷ U l is contained in _⊢_[conv↑]_.
+
+  univConv↑ :
+    Γ ⊢ A [conv↑] B ∷ U l →
+    Γ ⊢ A [conv↑] B
+  univConv↑ ([↑]ₜ _ _ _ (U⇒* , _) A↘A′ B↘B′ A′≡B′)
+    rewrite PE.sym (whnfRed* U⇒* Uₙ) =
+    [↑] _ _ (univ↘ A↘A′) (univ↘ B↘B′) (univConv↓ A′≡B′)
