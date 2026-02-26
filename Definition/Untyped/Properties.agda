@@ -1456,35 +1456,6 @@ wk2-tail {σ = σ} t = begin
   wk1 t [ tail σ ]     ≡⟨ wk1-tail t ⟩
   t [ tail (tail σ) ]  ∎
 
-wk2-tail-B′ : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
-           → ⟦ W ⟧ wk1 (wk1 F) [ σ ] ▹ (wk (lift (step (step id))) G [ liftSubst σ ])
-           ≡ ⟦ W ⟧ F [ tail (tail σ) ] ▹ (G [ liftSubst (tail (tail σ)) ])
-wk2-tail-B′ {n} {σ = σ} W F G = begin
-  ⟦ W ⟧ wk1 (wk1 F) [ σ ] ▹ (wk (lift (step (step id))) G [ liftSubst σ ])
-    ≡⟨ cong₂ (⟦ W ⟧_▹_) (wk1-tail (wk1 F)) (subst-wk G) ⟩
-  ⟦ W ⟧ wk1 F [ tail σ ] ▹ (G [ liftSubst σ ₛ• lift (step (step id)) ])
-    ≡⟨ cong₂ (⟦ W ⟧_▹_) (wk1-tail F) (substVar-to-subst eq′ G) ⟩
-  ⟦ W ⟧ F [ tail (tail σ) ] ▹ (G [ liftSubst (tail (tail σ)) ]) ∎
-  where
-  eq′ :
-    (x : Fin (1+ n)) →
-    (liftSubst σ ₛ• lift (step (step id))) x ≡
-    liftSubst (tail (tail σ)) x
-  eq′ x0 = refl
-  eq′ (x +1) = refl
-
-wk2-tail-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
-           → ⟦ W ⟧ wk1 (wk1 F) [ σ ] ▹ (wk (lift (step (step id))) G [ liftSubst σ ])
-           ≡ ⟦ W ⟧ F ▹ G [ tail (tail σ) ]
-wk2-tail-B (BΠ p q)   F G = wk2-tail-B′ (BΠ p q)   F G
-wk2-tail-B (BΣ m p q) F G = wk2-tail-B′ (BΣ m p q) F G
-
-wk2-B : ∀ (W : BindingType) (F : Term n) (G : Term (1+ n))
-      → ⟦ W ⟧ wk1 (wk1 F) ▹ wk (lift (step (step id))) G
-      ≡ wk1 (wk1 (⟦ W ⟧ F ▹ G))
-wk2-B (BΠ p q) F G = cong (Π p , q ▷ _ ▹_) (sym (wk-comp _ _ G))
-wk2-B (BΣ s p q) F G = cong (Σ⟨ s ⟩ p , q ▷ _ ▹_) (sym (wk-comp _ _ G))
-
 opaque
 
   -- The function tail[_] could (up to pointwise equality) have been
