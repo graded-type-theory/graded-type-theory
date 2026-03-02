@@ -55,7 +55,7 @@ applications also take grades. The derived notation k + t is denoted
 by `sucᵘᵏ k t`, and ↓ k is denoted by `↓ᵘ k`.
 </a><a id="2069" class="Markup">```agda
 </a><a id="2077" class="Keyword">import</a> <a id="2084" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="2105" class="Keyword">using</a> <a id="2111" class="Symbol">(</a><a id="2112" href="Definition.Untyped.html#1623" class="Datatype">Term</a><a id="2116" class="Symbol">;</a> <a id="2118" href="Definition.Untyped.html#6251" class="Function">sucᵘᵏ</a><a id="2123" class="Symbol">;</a> <a id="2125" href="Definition.Untyped.html#6407" class="Function Operator">↓ᵘ_</a><a id="2128" class="Symbol">)</a>
+  <a id="2105" class="Keyword">using</a> <a id="2111" class="Symbol">(</a><a id="2112" href="Definition.Untyped.html#1641" class="Datatype">Term</a><a id="2116" class="Symbol">;</a> <a id="2118" href="Definition.Untyped.html#6269" class="Function">sucᵘᵏ</a><a id="2123" class="Symbol">;</a> <a id="2125" href="Definition.Untyped.html#6425" class="Function Operator">↓ᵘ_</a><a id="2128" class="Symbol">)</a>
 <a id="2130" class="Markup">```
 </a><a id="2134" class="Background">
 Contexts. The type is more general than in the paper: the
@@ -72,7 +72,7 @@ are used in addition to the variable contexts in the paper.
 Substitution.
 </a><a id="2595" class="Markup">```agda
 </a><a id="2603" class="Keyword">import</a> <a id="2610" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="2631" class="Keyword">using</a> <a id="2637" class="Symbol">(</a><a id="2638" href="Definition.Untyped.html#18498" class="Function Operator">_[_]</a><a id="2642" class="Symbol">)</a>
+  <a id="2631" class="Keyword">using</a> <a id="2637" class="Symbol">(</a><a id="2638" href="Definition.Untyped.html#18516" class="Function Operator">_[_]</a><a id="2642" class="Symbol">)</a>
 <a id="2644" class="Markup">```
 </a><a id="2648" class="Background">
 Weakening. The notation `wk ρ t` is used instead of t[ρ], and the
@@ -85,7 +85,7 @@ lemmas `wk₁` and `wkTerm₁` show that this operation is
 type-preserving.
 </a><a id="3128" class="Markup">```agda
 </a><a id="3136" class="Keyword">import</a> <a id="3143" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="3164" class="Keyword">using</a> <a id="3170" class="Symbol">(</a><a id="3171" href="Definition.Untyped.html#13313" class="Function">wk</a><a id="3173" class="Symbol">;</a> <a id="3175" href="Definition.Untyped.NotParametrised.html#3260" class="InductiveConstructor">step</a><a id="3179" class="Symbol">;</a> <a id="3181" href="Definition.Untyped.NotParametrised.html#3196" class="InductiveConstructor">id</a><a id="3183" class="Symbol">;</a> <a id="3185" href="Definition.Untyped.html#15152" class="Function">wk1</a><a id="3188" class="Symbol">)</a>
+  <a id="3164" class="Keyword">using</a> <a id="3170" class="Symbol">(</a><a id="3171" href="Definition.Untyped.html#13331" class="Function">wk</a><a id="3173" class="Symbol">;</a> <a id="3175" href="Definition.Untyped.NotParametrised.html#3260" class="InductiveConstructor">step</a><a id="3179" class="Symbol">;</a> <a id="3181" href="Definition.Untyped.NotParametrised.html#3196" class="InductiveConstructor">id</a><a id="3183" class="Symbol">;</a> <a id="3185" href="Definition.Untyped.html#15170" class="Function">wk1</a><a id="3188" class="Symbol">)</a>
 <a id="3190" class="Keyword">import</a> <a id="3197" href="Definition.Typed.Weakening.html" class="Module">Definition.Typed.Weakening</a>
   <a id="3226" class="Keyword">using</a> <a id="3232" class="Symbol">(</a><a id="3233" href="Definition.Typed.Weakening.html#3002" class="Function Operator">_»_∷ʷ_⊇_</a><a id="3241" class="Symbol">;</a> <a id="3243" href="Definition.Typed.Weakening.html#33905" class="Function">wk₁</a><a id="3246" class="Symbol">;</a> <a id="3248" href="Definition.Typed.Weakening.html#34173" class="Function">wkTerm₁</a><a id="3255" class="Symbol">)</a>
 <a id="3257" class="Markup">```
@@ -150,15 +150,15 @@ is logically equivalent to `Γ ⊢ t ∷ Level`, and similarly for
 </a><a id="5700" class="Markup">```agda
 </a><a id="5708" class="Keyword">import</a> <a id="5715" href="Definition.Typed.html" class="Module">Definition.Typed</a>
   <a id="5734" class="Keyword">using</a>
-    <a id="5744" class="Symbol">(</a><a id="5745" href="Definition.Typed.html#2412" class="Function Operator">⊢_</a><a id="5747" class="Symbol">;</a> <a id="5749" href="Definition.Typed.html#2501" class="Datatype Operator">_⊢_</a><a id="5752" class="Symbol">;</a> <a id="5754" href="Definition.Typed.html#7062" class="Datatype Operator">_⊢_≡_</a><a id="5759" class="Symbol">;</a> <a id="5761" href="Definition.Typed.html#2965" class="Datatype Operator">_⊢_∷_</a><a id="5766" class="Symbol">;</a> <a id="5768" href="Definition.Typed.html#7840" class="Datatype Operator">_⊢_≡_∷_</a><a id="5775" class="Symbol">;</a> <a id="5777" href="Definition.Typed.html#1146" class="Datatype Operator">_∷_∈_</a><a id="5782" class="Symbol">;</a> <a id="5784" href="Definition.Typed.html#24593" class="Function Operator">_⊢_≤_∷Level</a><a id="5795" class="Symbol">;</a>
-     <a id="5802" href="Definition.Typed.html#6780" class="Datatype Operator">_⊢_∷Level</a><a id="5811" class="Symbol">;</a> <a id="5813" href="Definition.Typed.html#17320" class="Datatype Operator">_⊢_≡_∷Level</a><a id="5824" class="Symbol">)</a>
+    <a id="5744" class="Symbol">(</a><a id="5745" href="Definition.Typed.html#2412" class="Function Operator">⊢_</a><a id="5747" class="Symbol">;</a> <a id="5749" href="Definition.Typed.html#2501" class="Datatype Operator">_⊢_</a><a id="5752" class="Symbol">;</a> <a id="5754" href="Definition.Typed.html#7062" class="Datatype Operator">_⊢_≡_</a><a id="5759" class="Symbol">;</a> <a id="5761" href="Definition.Typed.html#2965" class="Datatype Operator">_⊢_∷_</a><a id="5766" class="Symbol">;</a> <a id="5768" href="Definition.Typed.html#7840" class="Datatype Operator">_⊢_≡_∷_</a><a id="5775" class="Symbol">;</a> <a id="5777" href="Definition.Typed.html#1146" class="Datatype Operator">_∷_∈_</a><a id="5782" class="Symbol">;</a> <a id="5784" href="Definition.Typed.html#24555" class="Function Operator">_⊢_≤_∷Level</a><a id="5795" class="Symbol">;</a>
+     <a id="5802" href="Definition.Typed.html#6780" class="Datatype Operator">_⊢_∷Level</a><a id="5811" class="Symbol">;</a> <a id="5813" href="Definition.Typed.html#17301" class="Datatype Operator">_⊢_≡_∷Level</a><a id="5824" class="Symbol">)</a>
 <a id="5826" class="Markup">```
 </a><a id="5830" class="Background">
 The ordering of levels induced by `_supᵘ_` is reflexive, transitive and
 antisymmetric, and the right identity rule can be derived.
 </a><a id="5962" class="Markup">```agda
 </a><a id="5970" class="Keyword">import</a> <a id="5977" href="Definition.Typed.Properties.Admissible.Level.html" class="Module">Definition.Typed.Properties.Admissible.Level</a>
-  <a id="6024" class="Keyword">using</a> <a id="6030" class="Symbol">(</a><a id="6031" href="Definition.Typed.Properties.Admissible.Level.html#14376" class="Function">⊢≤-refl</a><a id="6038" class="Symbol">;</a> <a id="6040" href="Definition.Typed.Properties.Admissible.Level.html#14593" class="Function">⊢≤-trans</a><a id="6048" class="Symbol">;</a> <a id="6050" href="Definition.Typed.Properties.Admissible.Level.html#14863" class="Function">⊢≤-antisymmetric</a><a id="6066" class="Symbol">;</a> <a id="6068" href="Definition.Typed.Properties.Admissible.Level.html#4175" class="Function">supᵘ-zeroʳⱼ</a><a id="6079" class="Symbol">)</a>
+  <a id="6024" class="Keyword">using</a> <a id="6030" class="Symbol">(</a><a id="6031" href="Definition.Typed.Properties.Admissible.Level.html#14634" class="Function">⊢≤-refl</a><a id="6038" class="Symbol">;</a> <a id="6040" href="Definition.Typed.Properties.Admissible.Level.html#14851" class="Function">⊢≤-trans</a><a id="6048" class="Symbol">;</a> <a id="6050" href="Definition.Typed.Properties.Admissible.Level.html#15121" class="Function">⊢≤-antisymmetric</a><a id="6066" class="Symbol">;</a> <a id="6068" href="Definition.Typed.Properties.Admissible.Level.html#4433" class="Function">supᵘ-zeroʳⱼ</a><a id="6079" class="Symbol">)</a>
 <a id="6081" class="Markup">```
 </a><a id="6085" class="Background">
 The typing rule for `Lift` that uses the ordering of levels is
@@ -183,9 +183,9 @@ Admissible typing rules for heterogeneous Π- and Σ-types.
   <a id="6707" class="Keyword">using</a> <a id="6713" class="Symbol">(</a><a id="6714" href="Definition.Typed.Properties.Admissible.Pi.html#10914" class="Function">⊢lamʰ</a><a id="6719" class="Symbol">;</a> <a id="6721" href="Definition.Typed.Properties.Admissible.Pi.html#11627" class="Function">⊢∘ʰ</a><a id="6724" class="Symbol">;</a> <a id="6726" href="Definition.Typed.Properties.Admissible.Pi.html#11229" class="Function">app-congʰ</a><a id="6735" class="Symbol">;</a> <a id="6737" href="Definition.Typed.Properties.Admissible.Pi.html#11865" class="Function">β-redʰ</a><a id="6743" class="Symbol">;</a> <a id="6745" href="Definition.Typed.Properties.Admissible.Pi.html#12827" class="Function">η-eqʰ</a><a id="6750" class="Symbol">)</a>
 <a id="6752" class="Keyword">import</a> <a id="6759" href="Definition.Typed.Properties.Admissible.Sigma.html" class="Module">Definition.Typed.Properties.Admissible.Sigma</a>
   <a id="6806" class="Keyword">using</a>
-    <a id="6816" class="Symbol">(</a><a id="6817" href="Definition.Typed.Properties.Admissible.Sigma.html#45310" class="Function">⊢prodʰ</a><a id="6823" class="Symbol">;</a> <a id="6825" href="Definition.Typed.Properties.Admissible.Sigma.html#44697" class="Function">prodʰ-cong</a><a id="6835" class="Symbol">;</a>
-     <a id="6842" href="Definition.Typed.Properties.Admissible.Sigma.html#45825" class="Function">⊢fstʰ</a><a id="6847" class="Symbol">;</a> <a id="6849" href="Definition.Typed.Properties.Admissible.Sigma.html#46259" class="Function">⊢sndʰ</a><a id="6854" class="Symbol">;</a> <a id="6856" href="Definition.Typed.Properties.Admissible.Sigma.html#45651" class="Function">fstʰ-cong</a><a id="6865" class="Symbol">;</a> <a id="6867" href="Definition.Typed.Properties.Admissible.Sigma.html#46019" class="Function">sndʰ-cong</a><a id="6876" class="Symbol">;</a> <a id="6878" href="Definition.Typed.Properties.Admissible.Sigma.html#46449" class="Function">Σʰ-β₁</a><a id="6883" class="Symbol">;</a> <a id="6885" href="Definition.Typed.Properties.Admissible.Sigma.html#47277" class="Function">Σʰ-β₂</a><a id="6890" class="Symbol">;</a> <a id="6892" href="Definition.Typed.Properties.Admissible.Sigma.html#48267" class="Function">Σʰ-η</a><a id="6896" class="Symbol">;</a>
-     <a id="6903" href="Definition.Typed.Properties.Admissible.Sigma.html#55904" class="Function">⊢prodrecʰ⟨⟩</a><a id="6914" class="Symbol">;</a> <a id="6916" href="Definition.Typed.Properties.Admissible.Sigma.html#55024" class="Function">prodrecʰ⟨⟩-cong</a><a id="6931" class="Symbol">;</a> <a id="6933" href="Definition.Typed.Properties.Admissible.Sigma.html#56273" class="Function">prodrecʰ⟨⟩-β</a><a id="6945" class="Symbol">)</a>
+    <a id="6816" class="Symbol">(</a><a id="6817" href="Definition.Typed.Properties.Admissible.Sigma.html#45189" class="Function">⊢prodʰ</a><a id="6823" class="Symbol">;</a> <a id="6825" href="Definition.Typed.Properties.Admissible.Sigma.html#44576" class="Function">prodʰ-cong</a><a id="6835" class="Symbol">;</a>
+     <a id="6842" href="Definition.Typed.Properties.Admissible.Sigma.html#45704" class="Function">⊢fstʰ</a><a id="6847" class="Symbol">;</a> <a id="6849" href="Definition.Typed.Properties.Admissible.Sigma.html#46138" class="Function">⊢sndʰ</a><a id="6854" class="Symbol">;</a> <a id="6856" href="Definition.Typed.Properties.Admissible.Sigma.html#45530" class="Function">fstʰ-cong</a><a id="6865" class="Symbol">;</a> <a id="6867" href="Definition.Typed.Properties.Admissible.Sigma.html#45898" class="Function">sndʰ-cong</a><a id="6876" class="Symbol">;</a> <a id="6878" href="Definition.Typed.Properties.Admissible.Sigma.html#46328" class="Function">Σʰ-β₁</a><a id="6883" class="Symbol">;</a> <a id="6885" href="Definition.Typed.Properties.Admissible.Sigma.html#47156" class="Function">Σʰ-β₂</a><a id="6890" class="Symbol">;</a> <a id="6892" href="Definition.Typed.Properties.Admissible.Sigma.html#48124" class="Function">Σʰ-η</a><a id="6896" class="Symbol">;</a>
+     <a id="6903" href="Definition.Typed.Properties.Admissible.Sigma.html#55761" class="Function">⊢prodrecʰ⟨⟩</a><a id="6914" class="Symbol">;</a> <a id="6916" href="Definition.Typed.Properties.Admissible.Sigma.html#54881" class="Function">prodrecʰ⟨⟩-cong</a><a id="6931" class="Symbol">;</a> <a id="6933" href="Definition.Typed.Properties.Admissible.Sigma.html#56130" class="Function">prodrecʰ⟨⟩-β</a><a id="6945" class="Symbol">)</a>
 <a id="6947" class="Markup">```
 </a><a id="6951" class="Background">
 The type of natural numbers does not have type `U (sucᵘ l)`.
@@ -199,7 +199,7 @@ The type of natural numbers does not have type `U (sucᵘ l)`.
 Single-step reduction and reduction for terms and types.
 </a><a id="7178" class="Markup">```agda
 </a><a id="7186" class="Keyword">import</a> <a id="7193" href="Definition.Typed.html" class="Module">Definition.Typed</a>
-  <a id="7212" class="Keyword">using</a> <a id="7218" class="Symbol">(</a><a id="7219" href="Definition.Typed.html#17621" class="Datatype Operator">_⊢_⇒_∷_</a><a id="7226" class="Symbol">;</a> <a id="7228" href="Definition.Typed.html#23868" class="Datatype Operator">_⊢_⇒*_∷_</a><a id="7236" class="Symbol">;</a> <a id="7238" href="Definition.Typed.html#23687" class="Datatype Operator">_⊢_⇒_</a><a id="7243" class="Symbol">;</a> <a id="7245" href="Definition.Typed.html#24125" class="Datatype Operator">_⊢_⇒*_</a><a id="7251" class="Symbol">)</a>
+  <a id="7212" class="Keyword">using</a> <a id="7218" class="Symbol">(</a><a id="7219" href="Definition.Typed.html#17602" class="Datatype Operator">_⊢_⇒_∷_</a><a id="7226" class="Symbol">;</a> <a id="7228" href="Definition.Typed.html#23830" class="Datatype Operator">_⊢_⇒*_∷_</a><a id="7236" class="Symbol">;</a> <a id="7238" href="Definition.Typed.html#23649" class="Datatype Operator">_⊢_⇒_</a><a id="7243" class="Symbol">;</a> <a id="7245" href="Definition.Typed.html#24087" class="Datatype Operator">_⊢_⇒*_</a><a id="7251" class="Symbol">)</a>
 <a id="7253" class="Markup">```
 </a><a id="7257" class="Background">
 Neutral terms and WHNFs. The types `Neutral` and `Neutralᵃ` are not
@@ -624,7 +624,7 @@ Theorem 4.2: Algorithmic equality is complete with respect to
 judgemental equality.
 </a><a id="18347" class="Markup">```agda
 </a><a id="18355" class="Keyword">import</a> <a id="18362" href="Definition.Conversion.Consequences.Completeness.html" class="Module">Definition.Conversion.Consequences.Completeness</a>
-  <a id="18412" class="Keyword">using</a> <a id="18418" class="Symbol">(</a><a id="18419" href="Definition.Conversion.Consequences.Completeness.html#1032" class="Function">completeEq</a><a id="18429" class="Symbol">;</a> <a id="18431" href="Definition.Conversion.Consequences.Completeness.html#1325" class="Function">completeEqTerm</a><a id="18445" class="Symbol">)</a>
+  <a id="18412" class="Keyword">using</a> <a id="18418" class="Symbol">(</a><a id="18419" href="Definition.Conversion.Consequences.Completeness.html#1135" class="Function">completeEq</a><a id="18429" class="Symbol">;</a> <a id="18431" href="Definition.Conversion.Consequences.Completeness.html#1428" class="Function">completeEqTerm</a><a id="18445" class="Symbol">)</a>
 <a id="18447" class="Markup">```
 </a><a id="18451" class="Background">
 Corollary 4.3: Judgemental equality of well-formed types and terms is
@@ -710,7 +710,7 @@ context: ⇒ corresponds to `_⊢_⇒_`, ⇒ˢᵘᶜ corresponds to `_⊢_⇒ˢ_
 </a><a id="20853" class="Keyword">import</a> <a id="20860" href="Graded.Erasure.Target.html" class="Module">Graded.Erasure.Target</a>
   <a id="20884" class="Keyword">using</a> <a id="20890" class="Symbol">(</a><a id="20891" href="Graded.Erasure.Target.html#1322" class="Datatype">Term</a><a id="20895" class="Symbol">;</a> <a id="20897" href="Graded.Erasure.Target.html#708" class="Datatype">Strictness</a><a id="20907" class="Symbol">;</a> <a id="20909" href="Graded.Erasure.Target.html#6329" class="Datatype">Value</a><a id="20914" class="Symbol">;</a> <a id="20916" href="Graded.Erasure.Target.html#6573" class="Function Operator">Value⟨_⟩</a><a id="20924" class="Symbol">;</a> <a id="20926" href="Graded.Erasure.Target.html#7364" class="Datatype Operator">_⊢_⇒_</a><a id="20931" class="Symbol">;</a> <a id="20933" href="Graded.Erasure.Target.html#1976" class="Function Operator">suc⟨_⟩</a><a id="20939" class="Symbol">;</a> <a id="20941" href="Graded.Erasure.Target.html#7107" class="Function">sucᵏ</a><a id="20945" class="Symbol">)</a>
 <a id="20947" class="Keyword">import</a> <a id="20954" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="20975" class="Keyword">using</a> <a id="20981" class="Symbol">(</a><a id="20982" href="Definition.Untyped.html#4361" class="Function">sucᵏ</a><a id="20986" class="Symbol">)</a>
+  <a id="20975" class="Keyword">using</a> <a id="20981" class="Symbol">(</a><a id="20982" href="Definition.Untyped.html#4379" class="Function">sucᵏ</a><a id="20986" class="Symbol">)</a>
 <a id="20988" class="Keyword">import</a> <a id="20995" href="Graded.Erasure.Target.Non-terminating.html" class="Module">Graded.Erasure.Target.Non-terminating</a>
   <a id="21035" class="Keyword">using</a> <a id="21041" class="Symbol">(</a><a id="21042" href="Graded.Erasure.Target.Non-terminating.html#796" class="Function">loop</a><a id="21046" class="Symbol">)</a>
 <a id="21048" class="Keyword">import</a> <a id="21055" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
@@ -722,7 +722,7 @@ context: ⇒ corresponds to `_⊢_⇒_`, ⇒ˢᵘᶜ corresponds to `_⊢_⇒ˢ_
 The extraction function.
 </a><a id="21206" class="Markup">```agda
 </a><a id="21214" class="Keyword">import</a> <a id="21221" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
-  <a id="21249" class="Keyword">using</a> <a id="21255" class="Symbol">(</a><a id="21256" href="Graded.Erasure.Extraction.html#2158" class="Function">erase</a><a id="21261" class="Symbol">)</a>
+  <a id="21249" class="Keyword">using</a> <a id="21255" class="Symbol">(</a><a id="21256" href="Graded.Erasure.Extraction.html#2112" class="Function">erase</a><a id="21261" class="Symbol">)</a>
 <a id="21263" class="Markup">```
 </a><a id="21267" class="Background">
 Complete removal of all arguments can, in the strict setting, lead to
