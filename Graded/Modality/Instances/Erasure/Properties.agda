@@ -5,30 +5,20 @@
 open import Tools.Level
 
 open import Graded.Modality.Instances.Erasure
-open import Graded.Modality.Variant lzero
 
-module Graded.Modality.Instances.Erasure.Properties
-  (variant : Modality-variant)
-  where
+module Graded.Modality.Instances.Erasure.Properties where
 
-open Modality-variant variant
 
 open import Graded.Modality.Instances.Erasure.Modality
 
-open import Graded.Context (ErasureModality variant)
-open import Graded.Context.Properties (ErasureModality variant) as C
+open import Graded.Context ErasureModality
+open import Graded.Context.Properties ErasureModality as C
   public
   hiding (+ᶜ-decreasingˡ; +ᶜ-decreasingʳ)
+open import Graded.Mode.Instances.Zero-one.Variant ErasureModality
 
-open import Graded.FullReduction.Assumptions
-
-open import Graded.Modality.Properties (ErasureModality variant) as P
+open import Graded.Modality.Properties ErasureModality as P
   public
-
-open import Graded.Usage.Restrictions (ErasureModality variant)
-open import Graded.Mode (ErasureModality variant)
-
-open import Definition.Typed.Restrictions (ErasureModality variant)
 
 open import Definition.Untyped Erasure
 
@@ -46,7 +36,7 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
 private
-  module EM = Modality (ErasureModality variant)
+  module EM = Modality ErasureModality
 
 private
   variable
@@ -56,9 +46,6 @@ private
     t u a : Term n
     x : Fin n
     p q r s z z′ s′ : Erasure
-    mo : Mode
-    rs : Type-restrictions
-    us : Usage-restrictions
 
 -- Addition on the left is a decreasing function
 -- γ +ᶜ δ ≤ᶜ γ
@@ -86,18 +73,6 @@ opaque
   ·-comm 𝟘 ω = PE.refl
   ·-comm ω 𝟘 = PE.refl
   ·-comm ω ω = PE.refl
-
-opaque
-
-  -- For the erasure modality, if 𝟘ᵐ is allowed, then ⌜ ⌞ p ⌟ ⌝ is
-  -- equal to p.
-
-  ⌜⌞⌟⌝ : T 𝟘ᵐ-allowed → ⌜ ⌞ p ⌟ ⌝ PE.≡ p
-  ⌜⌞⌟⌝ {p}     ok with ⌞ p ⌟ | ⌞⌟-view-total p
-  ⌜⌞⌟⌝         ok | _   | 𝟘ᵐ-not-allowed not-ok _ = ⊥-elim (not-ok ok)
-  ⌜⌞⌟⌝ {p = 𝟘} _  | _   | 𝟙ᵐ 𝟘≢𝟘 _                = ⊥-elim (𝟘≢𝟘 PE.refl)
-  ⌜⌞⌟⌝ {p = ω} _  | .𝟙ᵐ | 𝟙ᵐ _ PE.refl            = PE.refl
-  ⌜⌞⌟⌝         _  | .𝟘ᵐ | 𝟘ᵐ PE.refl PE.refl      = PE.refl
 
 -- ⊛ᵣ is a decreasing function on its first argument
 -- p ⊛ q ▷ r ≤ p
@@ -214,11 +189,6 @@ opaque
 ∧ᶜ≈ᶜ+ᶜ {γ = ε}     {δ = ε}     = ≈ᶜ-refl
 ∧ᶜ≈ᶜ+ᶜ {γ = _ ∙ _} {δ = _ ∙ _} = ∧ᶜ≈ᶜ+ᶜ ∙ PE.refl
 
--- The mode corresponding to ω is 𝟙ᵐ.
-
-⌞ω⌟≡𝟙ᵐ : ⌞ ω ⌟ ≡ 𝟙ᵐ
-⌞ω⌟≡𝟙ᵐ = ≢𝟘→⌞⌟≡𝟙ᵐ (λ ())
-
 -- If p is not equal to 𝟘, then p is equal to ω.
 
 ≢𝟘→≡ω : p ≢ 𝟘 → p ≡ ω
@@ -269,63 +239,6 @@ opaque
   ω 𝟘 → PE.refl , λ _ → idᶠ
   𝟘 ω → PE.refl , λ _ → idᶠ
   ω ω → PE.refl , λ _ → idᶠ
-
--- An instance of Type-restrictions is suitable for the full reduction
--- theorem if Σˢ-allowed 𝟘 p implies that 𝟘ᵐ is allowed.
-
-Suitable-for-full-reduction :
-  Type-restrictions → Set
-Suitable-for-full-reduction rs =
-  ∀ p → Σˢ-allowed 𝟘 p → T 𝟘ᵐ-allowed
-  where
-  open Type-restrictions rs
-
--- Given an instance of Type-restrictions one can create a "suitable"
--- instance.
-
-suitable-for-full-reduction :
-  Type-restrictions → ∃ Suitable-for-full-reduction
-suitable-for-full-reduction rs =
-    record rs
-      { ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
-      ; []-cong-allowed = λ s →
-          []-cong-allowed s × T 𝟘ᵐ-allowed
-      ; []-cong→Erased = λ (ok₁ , ok₂) →
-            []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
-          , (λ _ → ok₂)
-      ; []-cong→¬Trivial =
-          𝟘ᵐ.non-trivial ∘→ proj₂
-      }
-  , (λ _ → (_$ (PE.refl , PE.refl)) ∘→ proj₂)
-  where
-  open Type-restrictions rs
-
--- The full reduction assumptions hold for ErasureModality variant and
--- any "suitable" Type-restrictions.
-
-full-reduction-assumptions :
-  Suitable-for-full-reduction rs →
-  Full-reduction-assumptions rs us
-full-reduction-assumptions {rs = rs} 𝟘→𝟘ᵐ = record
-  { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ PE.refl
-  ; ≡𝟙⊎𝟙≤𝟘   = λ where
-      {p = ω} _  → inj₁ PE.refl
-      {p = 𝟘} ok → inj₂ (PE.refl , 𝟘→𝟘ᵐ _ ok , PE.refl)
-  }
-
-
--- Type and usage restrictions that satisfy the full reduction
--- assumptions are "suitable".
-
-full-reduction-assumptions-suitable :
-  Full-reduction-assumptions rs us → Suitable-for-full-reduction rs
-full-reduction-assumptions-suitable as =
-    λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-      (inj₁ ())
-      (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
-  where
-  open Full-reduction-assumptions as
 
 -- If _∧_ is defined in the given way and 𝟘 is the additive unit, then
 -- there is only one lawful way to define addition (up to pointwise
@@ -698,3 +611,100 @@ opaque
       η +ᶜ ω ·ᶜ η ≈⟨ +ᶜ-congˡ (·ᶜ-identityˡ _) ⟩
       η +ᶜ η      ≡⟨ +ᶜ-idem _ ⟩
       η           ∎
+
+------------------------------------------------------------------------
+-- Properties relating to the mode structure Zero-one
+
+module _ {𝟘ᵐ-allowed : Bool} where
+
+  private
+    variant : Mode-variant
+    variant = record
+      { 𝟘ᵐ-allowed = 𝟘ᵐ-allowed
+      ; 𝟘-well-behaved = λ _ → erasure-has-well-behaved-zero
+      }
+
+  open import Graded.FullReduction.Assumptions variant
+  open import Graded.Mode.Instances.Zero-one variant
+  open import Graded.Usage.Restrictions ErasureModality Zero-one-isMode
+  open import Definition.Typed.Restrictions ErasureModality
+
+  private variable
+    TR : Type-restrictions
+    UR : Usage-restrictions
+
+  opaque
+
+    -- For the erasure modality, if 𝟘ᵐ is allowed, then ⌜ ⌞ p ⌟ ⌝ is
+    -- equal to p.
+
+    ⌜⌞⌟⌝ : T 𝟘ᵐ-allowed → ⌜ ⌞ p ⌟ ⌝ PE.≡ p
+    ⌜⌞⌟⌝ {p}     ok with ⌞ p ⌟ | ⌞⌟-view-total p
+    ⌜⌞⌟⌝         ok | _   | 𝟘ᵐ-not-allowed not-ok _ = ⊥-elim (not-ok ok)
+    ⌜⌞⌟⌝ {p = 𝟘} _  | _   | 𝟙ᵐ 𝟘≢𝟘 _                = ⊥-elim (𝟘≢𝟘 PE.refl)
+    ⌜⌞⌟⌝ {p = ω} _  | .𝟙ᵐ | 𝟙ᵐ _ PE.refl            = PE.refl
+    ⌜⌞⌟⌝         _  | .𝟘ᵐ | 𝟘ᵐ PE.refl PE.refl      = PE.refl
+
+  opaque
+
+    -- The mode corresponding to ω is 𝟙ᵐ.
+
+    ⌞ω⌟≡𝟙ᵐ : ⌞ ω ⌟ ≡ 𝟙ᵐ
+    ⌞ω⌟≡𝟙ᵐ = ≢𝟘→⌞⌟≡𝟙ᵐ (λ ())
+
+  -- Instances of Type-restrictions and Usage-restrictions are suitable for
+  -- the full reduction theorem if Σˢ-allowed 𝟘 p implies that 𝟘ᵐ is allowed.
+
+  Suitable-for-full-reduction :
+    Type-restrictions → Usage-restrictions → Set
+  Suitable-for-full-reduction TR UR =
+    ∀ p → Σˢ-allowed 𝟘 p → T 𝟘ᵐ-allowed
+    where
+    open Type-restrictions TR
+    open Usage-restrictions UR
+
+  -- Given an instance of Type-restrictions one can create a "suitable"
+  -- instance for any Usage-restrictions.
+
+  suitable-for-full-reduction :
+    Type-restrictions → ∃ λ TR → Suitable-for-full-reduction TR UR
+  suitable-for-full-reduction {UR} TR =
+      record TR
+        { ΠΣ-allowed = λ b p q →
+            ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
+        ; []-cong-allowed = λ s →
+            []-cong-allowed s × T 𝟘ᵐ-allowed
+        ; []-cong→Erased = λ (ok₁ , ok₂) →
+              []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+            , (λ _ → ok₂)
+        ; []-cong→¬Trivial = λ _ → non-trivial ⦃ erasure-has-well-behaved-zero ⦄
+        }
+    , (λ _ → (_$ (PE.refl , PE.refl)) ∘→ proj₂)
+    where
+    open Type-restrictions TR
+    open Usage-restrictions UR
+
+  -- The full reduction assumptions hold for ErasureModality and
+  -- any "suitable" Type-restrictions and Usage-restrictions.
+
+  full-reduction-assumptions :
+    Suitable-for-full-reduction TR UR →
+    Full-reduction-assumptions TR UR
+  full-reduction-assumptions 𝟘→𝟘ᵐ = record
+    { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ PE.refl
+    ; ≡𝟙⊎𝟙≤𝟘   = λ where
+        {p = ω} _  → inj₁ PE.refl
+        {p = 𝟘} ok → inj₂ (PE.refl , 𝟘→𝟘ᵐ _ ok , PE.refl)
+    }
+
+  -- Type and usage restrictions that satisfy the full reduction
+  -- assumptions are "suitable".
+
+  full-reduction-assumptions-suitable :
+    Full-reduction-assumptions TR UR → Suitable-for-full-reduction TR UR
+  full-reduction-assumptions-suitable as =
+      λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+        (inj₁ ())
+        (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
+    where
+    open Full-reduction-assumptions _ _ as

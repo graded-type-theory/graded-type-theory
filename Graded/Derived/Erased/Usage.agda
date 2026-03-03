@@ -3,37 +3,39 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Untyped.NotParametrised using (Strength)
 
 module Graded.Derived.Erased.Usage
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   (s : Strength)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution 𝕄 R
-open import Graded.Substitution.Properties 𝕄 R
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Inversion 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
-open import Graded.Usage.Weakening 𝕄 R
-open import Graded.Mode 𝕄
+open import Graded.Substitution R
+open import Graded.Substitution.Properties R
+open import Graded.Usage R
+open import Graded.Usage.Inversion R
+open import Graded.Usage.Properties R
+open import Graded.Usage.Weakening R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 s
 open import Definition.Untyped.Properties M
-import Graded.Derived.Erased.Usage.Eta 𝕄 R as Eta
-import Graded.Derived.Erased.Usage.No-eta 𝕄 R as NoEta
+import Graded.Derived.Erased.Usage.Eta R as Eta
+import Graded.Derived.Erased.Usage.No-eta R as NoEta
 open import Graded.Derived.Identity R
-open import Graded.Derived.Sigma 𝕄 R
+open import Graded.Derived.Sigma R
 open import Graded.Derived.Unit R
 
 open import Tools.Bool using (T)
@@ -63,24 +65,24 @@ opaque
   -- A usage rule for Erased.
 
   ▸Erased :
-    γ ▸[ 𝟘ᵐ? ] l →
-    δ ▸[ 𝟘ᵐ? ] A →
-    δ ▸[ m ] Erased l A
+    γ ▸[ 𝟘ᵐ ] l →
+    δ ▸[ 𝟘ᵐ ] A →
+    𝟘ᶜ ▸[ m ] Erased l A
   ▸Erased {δ} {m} ▸l ▸A = sub
-    (ΠΣₘ
-       (▸-cong (PE.sym (ᵐ·-zeroʳ m)) ▸A)
-       (sub (Liftₘ (wkUsage (step id) ▸l) Unitₘ)
+    (ΠΣₘ (▸-cong (PE.sym (ᵐ·-zeroʳ _)) ▸A)
+       (sub (Liftₘ (wkUsage _ ▸l) Unitₘ)
           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
              𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
              𝟘ᶜ              ∎)))
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-       δ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       δ +ᶜ 𝟘ᶜ  ∎)
+       𝟘ᶜ            ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘ᶜ      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+       𝟘 ·ᶜ δ +ᶜ 𝟘ᶜ  ∎)
 
 opaque
   unfolding [_]
 
-  ▸[] : γ ▸[ 𝟘ᵐ? ] t → 𝟘ᶜ ▸[ m ] [ t ]
+  ▸[] : γ ▸[ 𝟘ᵐ ] t → 𝟘ᶜ ▸[ m ] [ t ]
   ▸[] {(n)} {γ} {t} {m} ▸t = lemma s PE.refl
     where
     open Tools.Reasoning.PartialOrder (≤ᶜ-poset {n})
@@ -104,27 +106,18 @@ opaque
   -- A usage rule for erased.
 
   ▸erased′ :
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
-    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
-    γ ▸[ 𝟘ᵐ? ] t →
-    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ? ] A) →
-    𝟘ᶜ ▸[ 𝟘ᵐ? ] erased A t
-  ▸erased′ {γ} trivial 𝟘≤𝟙 ▸t ▸A =
+    (s ≡ 𝕨 → Trivialᵐ → Trivial) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕤 → Trivialᵐ → 𝟘 ≤ 𝟙) →
+    γ ▸[ 𝟘ᵐ ] t →
+    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ ] A) →
+    𝟘ᶜ ▸[ 𝟘ᵐ ] erased A t
+  ▸erased′ {γ} trivial ok 𝟘≤𝟙 ▸t ▸A =
     case PE.singleton s of λ where
       (𝕨 , PE.refl) →
-        NoEta.▸erased′ (trivial PE.refl) ▸t (▸A PE.refl .proj₂)
+        NoEta.▸erased′ (trivial PE.refl) ▸t (▸A PE.refl .proj₂) (ok PE.refl)
       (𝕤 , PE.refl) →
-        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
-        sub (Eta.▸erased′ (𝟘≤𝟙 PE.refl) ▸t) $
-        𝟘ᵐ?-elim
-          (λ m → 𝟘ᶜ ≤ᶜ ⌜ m ⌝ ·ᶜ γ)
-          (begin
-             𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-             𝟘 ·ᶜ γ  ∎)
-          (λ not-ok → begin
-             𝟘ᶜ      ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-             𝟘 ·ᶜ γ  ≤⟨ ·ᶜ-monotoneˡ $ 𝟘≤𝟙 PE.refl not-ok ⟩
-             𝟙 ·ᶜ γ  ∎)
+        Eta.▸erased′ (𝟘≤𝟙 PE.refl) ▸t
 
 opaque
   unfolding erased
@@ -132,12 +125,14 @@ opaque
   -- Another usage rule for erased.
 
   ▸erased :
-    γ ▸[ 𝟘ᵐ[ ok ] ] t →
-    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ[ ok ] ] A) →
-    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] erased A t
-  ▸erased ▸t ▸A = case PE.singleton s of λ where
-    (𝕤 , PE.refl) → Eta.▸erased ▸t
-    (𝕨 , PE.refl) → NoEta.▸erased ▸t (▸A PE.refl .proj₂)
+    ¬ Trivialᵐ →
+    γ ▸[ 𝟘ᵐ ] t →
+    (s ≡ 𝕨 → ∃ λ δ → δ ▸[ 𝟘ᵐ ] A) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    𝟘ᶜ ▸[ 𝟘ᵐ ] erased A t
+  ▸erased 𝟙ᵐ≢𝟘ᵐ ▸t ▸A ok = case PE.singleton s of λ where
+    (𝕤 , PE.refl) → Eta.▸erased 𝟙ᵐ≢𝟘ᵐ ▸t
+    (𝕨 , PE.refl) → NoEta.▸erased 𝟙ᵐ≢𝟘ᵐ ▸t (▸A PE.refl .proj₂) (ok PE.refl)
 
 opaque
   unfolding erasedrec is-𝕨
@@ -145,21 +140,24 @@ opaque
   -- A usage rule for erasedrec.
 
   ▸erasedrec :
-    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s ≡ 𝕤 → Trivialᵐ → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed m 𝟙 𝟘 p) →
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 p) →
-    (s ≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B) →
+    (s ≡ 𝕨 → ∃ λ γ → γ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] B) →
     δ ∙ 𝟘 ▸[ m ] t →
     η ▸[ m ᵐ· is-𝕨 ] u →
     δ +ᶜ η ▸[ m ] erasedrec p B t u
   ▸erasedrec {m} {p} {δ} {η} hyp₁ P-ok U-ok ▸B ▸t ▸u = sub
     (▸prodrec⟨⟩
        (λ where
-          PE.refl →
-            m ᵐ· 𝟘 · 𝟘 ≡ 𝟙ᵐ  →⟨ PE.trans (PE.sym $ PE.trans (PE.cong (_ᵐ·_ m) (·-zeroʳ _)) (ᵐ·-zeroʳ m)) ⟩
-            𝟘ᵐ? ≡ 𝟙ᵐ         →⟨ 𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ ⟩
-            ¬ T 𝟘ᵐ-allowed   →⟨ ≡-trivial ∘→ hyp₁ PE.refl ⟩
-            𝟘 ≤ 𝟙            □)
+         PE.refl →
+           ⌜ m ᵐ· 𝟘 · 𝟘 ⌝ ≢ 𝟘 →⟨ ⌜⌝-·ᵐ-𝟘ʳ ⟩
+           ⌜ ⌞ 𝟘 · 𝟘 ⌟ ⌝ ≢ 𝟘  →⟨ PE.subst (λ m → ⌜ ⌞ m ⌟ ⌝ ≢ 𝟘) (·-zeroʳ _) ⟩
+           ⌜ ⌞ 𝟘 ⌟ ⌝ ≢ 𝟘      →⟨ PE.subst (λ m → ⌜ m ⌝ ≢ 𝟘) ⌞𝟘⌟ ⟩
+           ⌜ 𝟘ᵐ ⌝ ≢ 𝟘         →⟨ ⌜𝟘ᵐ⌝≢𝟘→ ⟩
+           Trivialᵐ           →⟨ hyp₁ PE.refl ⟩
+           Trivial            →⟨ ≡-trivial ⟩
+           𝟘 ≤ 𝟙              □)
        (λ { PE.refl → lemma₁ })
        (λ _ → ≤-refl)
        (λ { PE.refl → P-ok PE.refl })
@@ -169,7 +167,7 @@ opaque
              let γ , ▸B = ▸B s≡𝕨 in
                γ ∙ 𝟘 ∙ 𝟘
              , sub
-                 (substₘ-lemma _
+                 (substₘ-lemma
                     (▶-cong _
                        (λ where
                           x0     → PE.refl
@@ -179,22 +177,22 @@ opaque
                         wf-wk1Substₘ _ _ wf-idSubstₘ) $
                      prodₘ var (liftₘ var)
                        (λ _ → begin
-                          ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)         ≈⟨ ·ᶜ-congʳ lemma₂ ⟩
+                          ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)         ≈⟨ ·ᶜ-congʳ lemma₂ ⟩
 
-                          ⌜ 𝟘ᵐ? ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)                     ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-idem-⌜⌝ 𝟘ᵐ? ⟩
+                          ⌜ 𝟘ᵐ ⌝ ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)                     ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-idem-⌜⌝ 𝟘ᵐ ⟩
 
-                          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝                                  ≈˘⟨ ≈ᶜ-refl ∙ lemma₂ ⟩
+                          𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝                                  ≈˘⟨ ≈ᶜ-refl ∙ lemma₂ ⟩
 
-                          𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝                      ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
+                          𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝                      ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
                                                                             +ᶜ-identityˡ _ ⟩
-                          𝟘 ·ᶜ (𝟘ᶜ , x2 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ᵐ· 𝟘 ⌝) +ᶜ
-                          (𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝)               ∎)
+                          𝟘 ·ᶜ (𝟘ᶜ , x2 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ᵐ· 𝟘 ⌝) +ᶜ
+                          (𝟘ᶜ , x0 ≔ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝)               ∎)
                        (λ s≡𝕤 → case PE.trans (PE.sym s≡𝕤) s≡𝕨 of λ ()))
                     ▸B)
                  (begin
-                    γ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · p                          ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
+                    γ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · p                          ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
 
-                    (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · p) +ᶜ (γ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)            ≈˘⟨ +ᶜ-cong
+                    (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · p) +ᶜ (γ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)            ≈˘⟨ +ᶜ-cong
                                                                            (·ᶜ-zeroʳ _ ∙ lemma₃)
                                                                            (≈ᶜ-trans (wk1Substₘ-app _ γ)
                                                                               (≈ᶜ-trans (wk1Substₘ-app _ γ)
@@ -203,7 +201,7 @@ opaque
                                                                                      PE.refl) ∙
                                                                                   PE.refl) ∙
                                                                               PE.refl)) ⟩
-                    (⌜ 𝟘ᵐ? ⌝ · p) ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) +ᶜ
+                    (⌜ 𝟘ᵐ ⌝ · p) ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝) +ᶜ
                     γ <* wk1Substₘ (wk1Substₘ (wk1Substₘ idSubstₘ))  ∎))
           (λ where
              PE.refl →
@@ -231,26 +229,20 @@ opaque
       where
       open Tools.Reasoning.PartialOrder ≤-poset
 
-    lemma₂ : ⌜ ⌞ ⌜ 𝟘ᵐ? ⌝ · p ⌟ ⌝ ≡ ⌜ 𝟘ᵐ? ⌝
-    lemma₂ = 𝟘ᵐ?-elim
-      (λ m → ⌜ ⌞ ⌜ m ⌝ · p ⌟ ⌝ ≡ ⌜ m ⌝)
-      (λ ⦃ ok = ok ⦄ →
-         ⌜ ⌞ 𝟘 · p ⌟ ⌝  ≡⟨ PE.cong (⌜_⌝ ∘→ ⌞_⌟) $ ·-zeroˡ _ ⟩
-         ⌜ ⌞ 𝟘 ⌟ ⌝      ≡⟨ PE.cong ⌜_⌝ $ ⌞𝟘⌟ {ok = ok} ⟩
-         𝟘              ∎)
-      (PE.cong ⌜_⌝ {x = ⌞ _ ⌟} ∘→ only-𝟙ᵐ-without-𝟘ᵐ)
+    lemma₂ : ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ≡ ⌜ 𝟘ᵐ ⌝
+    lemma₂ = ⌜⌝-cong (⌜𝟘ᵐ⌝≡𝟘→ (λ ⌜𝟘ᵐ⌝ → begin
+      ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ≡⟨ ⌞⌟-cong (·-congʳ ⌜𝟘ᵐ⌝) ⟩
+      ⌞ 𝟘 · p ⌟      ≡⟨ ⌞⌟-cong (·-zeroˡ _) ⟩
+      ⌞ 𝟘 ⌟          ≡⟨ ⌞𝟘⌟ ⟩
+      𝟘ᵐ             ∎))
       where
       open Tools.Reasoning.PropositionalEquality
 
-    lemma₃ : (⌜ 𝟘ᵐ? ⌝ · p) · ⌜ 𝟘ᵐ? ⌝ ≡ ⌜ 𝟘ᵐ? ⌝ · p
-    lemma₃ = 𝟘ᵐ?-elim
-      (λ m → (⌜ m ⌝ · p) · ⌜ m ⌝ ≡ ⌜ m ⌝ · p)
-      ((𝟘 · p) · 𝟘  ≡⟨ ·-zeroʳ _ ⟩
-       𝟘            ≡˘⟨ ·-zeroˡ _ ⟩
-       𝟘 · p        ∎)
-      (λ _ →
-         (𝟙 · p) · 𝟙  ≡⟨ ·-identityʳ _ ⟩
-         𝟙 · p        ∎)
+    lemma₃ : (⌜ 𝟘ᵐ ⌝ · p) · ⌜ 𝟘ᵐ ⌝ ≡ ⌜ 𝟘ᵐ ⌝ · p
+    lemma₃ = begin
+      (⌜ 𝟘ᵐ ⌝ · p) · ⌜ 𝟘ᵐ ⌝ ≡˘⟨ ⌜⌝-·-comm _ ⟩
+      ⌜ 𝟘ᵐ ⌝ · ⌜ 𝟘ᵐ ⌝ · p   ≡⟨ ·-idem-⌜⌝′ ⟩
+      ⌜ 𝟘ᵐ ⌝ · p            ∎
       where
       open Tools.Reasoning.PropositionalEquality
 
@@ -262,11 +254,9 @@ opaque
       δ +ᶜ η       ≈⟨ +ᶜ-comm _ _ ⟩
       η +ᶜ δ       ≈˘⟨ +ᶜ-congʳ $ ·ᶜ-identityˡ _ ⟩
       𝟙 ·ᶜ η +ᶜ δ  ∎
-    … | 𝕤 , PE.refl = case PE.singleton m of λ where
-        (𝟘ᵐ , PE.refl) → lemma $ ▸-𝟘ᵐ ▸u
-        (𝟙ᵐ , PE.refl) → 𝟘ᵐ-allowed-elim
-          (λ ok → lemma $ ▸-𝟘ᵐ $ ▸-cong (⌞𝟘⌟ {ok = ok}) ▸u)
-          (≈ᶜ-trivial ∘→ hyp₁ PE.refl)
+    … | 𝕤 , PE.refl = case trivialᵐ? of λ where
+        (yes 𝟙ᵐ≡𝟘ᵐ) → ≈ᶜ-trivial (hyp₁ PE.refl 𝟙ᵐ≡𝟘ᵐ)
+        (no 𝟙ᵐ≢𝟘ᵐ) → lemma $ ▸-𝟘ᵐ 𝟙ᵐ≢𝟘ᵐ (▸-cong (ᵐ·-zeroʳ _) ▸u)
       where
       lemma : η ≤ᶜ 𝟘ᶜ → δ +ᶜ η ≤ᶜ 𝟘 ·ᶜ η +ᶜ δ
       lemma hyp = begin
@@ -281,12 +271,12 @@ opaque
   -- A usage rule for Erased-η.
 
   ▸Erased-η :
-    (¬ T 𝟘ᵐ-allowed → Trivial) →
+    (Trivialᵐ → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed m 𝟙 𝟘 𝟙) →
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕨 → Unitrec-allowed m 𝟙 𝟙) →
-    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] l) →
-    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ? ] A) →
+    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ ] l) →
+    (s ≡ 𝕨 → ∃ λ γ → γ ▸[ 𝟘ᵐ ] A) →
     δ ▸[ m ᵐ· is-𝕨 ] t →
     δ ▸[ m ] Erased-η l A t
   ▸Erased-η {A} {δ} trivial P-ok₁ P-ok₂ U-ok ▸l ▸A ▸t = sub
@@ -295,23 +285,23 @@ opaque
             𝟘ᶜ
           , Idₘ-generalised
               (▸Erased (wkUsage _ (▸l s≡𝕨 .proj₂))
-                 (wkUsage _ (▸A′ s≡𝕨)))
-              (▸[] $
-               ▸erased′
-                 (λ s≡𝕨 not-ok → trivial not-ok , P-ok₂ s≡𝕨 not-ok)
-                 (λ s≡𝕤 → case PE.trans (PE.sym s≡𝕤) s≡𝕨 of λ ()) var
+                (wkUsage _ (▸A′ s≡𝕨)))
+              (▸[] $ ▸erased′
+                 (λ s≡𝕨 → trivial)
+                 P-ok₂
+                 (λ s≡𝕤 → ≡-trivial ∘→ trivial) var
                  (Σ.map _ (wkUsage _) ∘→ ▸A))
               var
-              (λ _ → 𝟘ᵐ?-elim
-                 (λ m → 𝟘ᶜ ∙ ⌜ m ⌝ · 𝟙 ≤ᶜ 𝟘ᶜ)
-                 (begin
-                    𝟘ᶜ ∙ 𝟘 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
-                    𝟘ᶜ          ∎)
-                 (≈ᶜ-trivial ∘→ trivial))
+              (λ _ → case trivialᵐ? of λ where
+                (yes 𝟙ᵐ≡𝟘ᵐ) → ≈ᶜ-trivial (trivial 𝟙ᵐ≡𝟘ᵐ)
+                (no 𝟙ᵐ≢𝟘ᵐ) → begin
+                  𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟙 ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+                  𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝     ≈⟨ ≈ᶜ-refl ∙ ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ ⟩
+                  𝟘ᶜ ∙ 𝟘          ∎)
               (λ _ → begin
-                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟙                 ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
-                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝                     ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
-                 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎))
+                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟙                 ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+                 𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝                     ≈˘⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
+                 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ ⌝)  ∎))
        rflₘ
        ▸t)
     (begin
@@ -320,13 +310,10 @@ opaque
     where
     open ≤ᶜ-reasoning
 
-    ▸A′ : s ≡ 𝕨 → 𝟘ᶜ ▸[ 𝟘ᵐ? ] A
-    ▸A′ s≡𝕨 = 𝟘ᵐ?-elim
-      (flip (_▸[_]_ _) _)
-      (▸-𝟘 (▸A s≡𝕨 .proj₂))
-      (λ not-ok →
-         let trivial = trivial not-ok in
-         sub (▸-trivial trivial (▸A s≡𝕨 .proj₂)) (≈ᶜ-trivial trivial))
+    ▸A′ : s ≡ 𝕨 → 𝟘ᶜ ▸[ 𝟘ᵐ ] A
+    ▸A′ s≡𝕨 = case trivialᵐ? of λ where
+      (yes 𝟙ᵐ≡𝟘ᵐ) → sub (▸A s≡𝕨 .proj₂) (≈ᶜ-trivial (trivial 𝟙ᵐ≡𝟘ᵐ))
+      (no 𝟙ᵐ≢𝟘ᵐ) → ▸-𝟘′ 𝟙ᵐ≢𝟘ᵐ (▸A s≡𝕨 .proj₂)
 
 opaque
   unfolding mapᴱ
@@ -334,15 +321,16 @@ opaque
   -- A usage rule for mapᴱ.
 
   ▸mapᴱ′ :
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
-    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
-    (s ≡ 𝕨 → ∃ λ γ₁ → γ₁ ▸[ 𝟘ᵐ? ] A) →
-    γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] t →
-    γ₃ ▸[ 𝟘ᵐ? ] u →
+    (s ≡ 𝕨 → Trivialᵐ → Trivial) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕤 → Trivialᵐ → 𝟘 ≤ 𝟙) →
+    (s ≡ 𝕨 → ∃ λ γ₁ → γ₁ ▸[ 𝟘ᵐ ] A) →
+    γ₂ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] t →
+    γ₃ ▸[ 𝟘ᵐ ] u →
     𝟘ᶜ ▸[ m ] mapᴱ A t u
-  ▸mapᴱ′ trivial 𝟘≤𝟙 ▸A ▸t ▸u =
+  ▸mapᴱ′ trivial ok 𝟘≤𝟙 ▸A ▸t ▸u =
     ▸[] $ sgSubstₘ-lemma₃ ▸t $
-    ▸erased′ trivial 𝟘≤𝟙 ▸u ▸A
+      ▸erased′ trivial ok 𝟘≤𝟙 ▸u ▸A
 
 opaque
   unfolding mapᴱ
@@ -350,17 +338,18 @@ opaque
   -- Another usage rule for mapᴱ.
 
   ▸mapᴱ :
-    (s ≡ 𝕨 → ∃ λ γ₁ → γ₁ ▸[ 𝟘ᵐ[ ok ] ] A) →
-    γ₂ ∙ 𝟘 ▸[ 𝟘ᵐ[ ok ] ] t →
-    γ₃ ▸[ 𝟘ᵐ[ ok ] ] u →
+    ¬ Trivialᵐ →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕨 → ∃ λ γ₁ → γ₁ ▸[ 𝟘ᵐ ] A) →
+    γ₂ ∙ 𝟘 ▸[ 𝟘ᵐ ] t →
+    γ₃ ▸[ 𝟘ᵐ ] u →
     𝟘ᶜ ▸[ m ] mapᴱ A t u
-  ▸mapᴱ {ok} {γ₂} ▸A ▸t ▸u =
-    ▸mapᴱ′ (λ _ → ⊥-elim ∘→ (_$ ok)) (λ _ → ⊥-elim ∘→ (_$ ok))
-      (Σ.map _ (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ)) ∘→ ▸A)
-      (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) $ sub ▸t $ begin
-         γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-         γ₂ ∙ 𝟘            ∎)
-      (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸u)
+  ▸mapᴱ {γ₂} 𝟙ᵐ≢𝟘ᵐ ok ▸A ▸t ▸u =
+    ▸mapᴱ′ (λ _ → ⊥-elim ∘→ 𝟙ᵐ≢𝟘ᵐ) ok (λ _ → ⊥-elim ∘→ 𝟙ᵐ≢𝟘ᵐ)
+      ▸A (sub ▸t $ begin
+         γ₂ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+         γ₂ ∙ 𝟘           ∎)
+      ▸u
     where
     open ≤ᶜ-reasoning
 
@@ -370,28 +359,28 @@ opaque
   -- A usage rule for substᵉ.
 
   ▸substᵉ :
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
-    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    (s ≡ 𝕨 → Trivialᵐ → Trivial) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕤 → Trivialᵐ → 𝟘 ≤ 𝟙) →
     []-cong-allowed-mode s m →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ∙ 𝟘 ▸[ m ] B →
-    γ₃ ▸[ 𝟘ᵐ? ] t →
-    γ₄ ▸[ 𝟘ᵐ? ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₃ ▸[ 𝟘ᵐ ] t →
+    γ₄ ▸[ 𝟘ᵐ ] u →
+    γ₅ ▸[ 𝟘ᵐ ] v →
     γ₆ ▸[ m ] w →
     ω ·ᶜ (γ₂ +ᶜ γ₆) ▸[ m ] substᵉ A B t u v w
-  ▸substᵉ {m} {γ₂} {γ₆} trivial 𝟘≤𝟙 ok ▸A ▸B ▸t ▸u ▸v ▸w = sub
+  ▸substᵉ {m} {γ₂} {γ₆} trivial P-ok 𝟘≤𝟙 ok ▸A ▸B ▸t ▸u ▸v ▸w = sub
     (▸subst (▸Erased zeroᵘₘ ▸A)
        (sub
-          (substₘ-lemma _
+          (substₘ-lemma
              (▶-cong _
                 (λ where
                    x0     → PE.refl
                    (_ +1) → PE.refl) $
               wf-consSubstₘ (wf-wk1Substₘ _ _ wf-idSubstₘ) $
-              sub
-                (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) $
-                 ▸erased′ trivial 𝟘≤𝟙 var
+              sub (▸-cong (PE.sym ⌞𝟘⌟) $
+                 ▸erased′ trivial P-ok 𝟘≤𝟙 var
                    (λ _ → _ , wkUsage (step id) ▸A))
                 (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
                    ⌜ ⌞ 𝟘 ⌟ ⌝ ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
@@ -418,36 +407,37 @@ opaque
   -- A usage rule for Jᵉ.
 
   ▸Jᵉ :
-    (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
-    (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    (s ≡ 𝕨 → Trivialᵐ → Trivial) →
+    (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s ≡ 𝕤 → Trivialᵐ → 𝟘 ≤ 𝟙) →
     []-cong-allowed-mode s m →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₁ ▸[ 𝟘ᵐ ] A →
+    γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
     γ₄ ▸[ m ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] v →
-    γ₆ ▸[ 𝟘ᵐ? ] w →
+    γ₅ ▸[ 𝟘ᵐ ] v →
+    γ₆ ▸[ 𝟘ᵐ ] w →
     ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] Jᵉ A t B u v w
-  ▸Jᵉ {γ₁} {γ₂} {γ₃} {γ₅} {γ₆} trivial 𝟘≤𝟙 ok ▸A ▸t ▸B ▸u ▸v ▸w =
+  ▸Jᵉ {γ₁} {γ₂} {γ₃} {γ₅} {γ₆} trivial P-ok 𝟘≤𝟙 ok ▸A ▸t ▸B ▸u ▸v ▸w =
+    let 𝟘≤⌜𝟘ᵐ⌝ = case trivialᵐ? of λ where
+      (yes 𝟙ᵐ≡𝟘ᵐ) →
+        case PE.singleton s of λ where
+          (𝕤 , PE.refl) → PE.trans (𝟘≤𝟙 _≡_.refl 𝟙ᵐ≡𝟘ᵐ) (∧-congˡ (PE.sym (⌜𝟘ᵐ⌝′ 𝟙ᵐ≡𝟘ᵐ)))
+          (𝕨 , PE.refl) → ≡-trivial (trivial PE.refl 𝟙ᵐ≡𝟘ᵐ)
+      (no 𝟙ᵐ≢𝟘ᵐ) → PE.sym (PE.trans (∧-congˡ (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ)) (∧-idem _))
+    in
     case
-      𝟘ᵐ?-elim (λ m → 𝟘 ≤ ⌜ m ⌝) ≤-refl
-        (λ not-ok →
-           case PE.singleton s of λ where
-             (𝕤 , s≡𝕤) → 𝟘≤𝟙 s≡𝕤 not-ok
-             (𝕨 , s≡𝕨) → ≡-trivial $ trivial s≡𝕨 not-ok .proj₁) of λ
-      𝟘≤⌜𝟘ᵐ?⌝ →
-    case
-      (ΠΣₘ (▸-cong (PE.sym ᵐ·-zeroˡ) ▸A) $
+      (ΠΣₘ (▸-cong (PE.sym (ᵐ·-zeroʳ _)) ▸A) $
        Idₘ-generalised (wkUsage _ ▸A) (wkUsage _ ▸t) var
          (λ _ → begin
-            ((γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            ((γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
             ((γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ) ∙ 𝟘            ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙ ≤-refl ⟩
             𝟘ᶜ                                ∎)
          (λ _ → begin
-            ((γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘        ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-            ((γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ) ∙ 𝟘                  ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙ 𝟘≤⌜𝟘ᵐ?⌝ ⟩
-            γ₁ +ᶜ γ₂ ∙ ⌜ 𝟘ᵐ? ⌝                      ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityʳ _) ∙ PE.trans (+-identityˡ _) (+-identityˡ _) ⟩
-            (γ₁ ∙ 𝟘) +ᶜ (γ₂ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)  ∎)) of λ
+            ((γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘        ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            ((γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ) ∙ 𝟘                  ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙ 𝟘≤⌜𝟘ᵐ⌝ ⟩
+            γ₁ +ᶜ γ₂ ∙ ⌜ 𝟘ᵐ ⌝                      ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityʳ _) ∙ PE.trans (+-identityˡ _) (+-identityˡ _) ⟩
+            (γ₁ ∙ 𝟘) +ᶜ (γ₂ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)  ∎)) of λ
       ▸Singleton →
     case (prodₘ (▸-cong (PE.sym ᵐ·-zeroˡ) ▸t) rflₘ
             (λ _ → begin
@@ -459,56 +449,48 @@ opaque
                𝟘ᶜ ∧ᶜ 𝟘ᶜ       ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
                𝟘 ·ᶜ γ₂ ∧ᶜ 𝟘ᶜ  ∎)) of λ
       ▸t,rfl →
-    let ok′ : s ≡ 𝕨 → ¬ 𝟘 ≤ 𝟙 ⊎ Trivial ⊎ 𝟘ᵐ? ≢ 𝟙ᵐ
-        ok′ = λ s≡𝕨 →
-                𝟘ᵐ-allowed-elim (inj₁ ∘→ 𝟘ᵐ.𝟘≰𝟙)
-                  (inj₂ ∘→ inj₁ ∘→ proj₁ ∘→ trivial s≡𝕨)
-        ok″ : s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘
-        ok″ = λ s≡𝕨 → 𝟘ᵐ?-elim
-                (λ m → Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘)
-                _
-                (λ not-ok →
-                   let trivial , ok = trivial s≡𝕨 not-ok in
-                   PE.subst (λ p → Prodrec-allowed-𝟙ᵐ p 𝟘 𝟘)
-                     (≡-trivial trivial) ok)
+    let ok′ : ⌜ 𝟘ᵐ ⌝ ≢ 𝟘 → 𝟘 ≤ 𝟙
+        ok′ = case trivialᵐ? of λ where
+          (yes 𝟙ᵐ≡𝟘ᵐ) → case PE.singleton s of λ where
+            (𝕤 , PE.refl) → λ _ → 𝟘≤𝟙 PE.refl 𝟙ᵐ≡𝟘ᵐ
+            (𝕨 , PE.refl) → λ _ → ≡-trivial (trivial PE.refl 𝟙ᵐ≡𝟘ᵐ)
+          (no 𝟙ᵐ≢𝟘ᵐ) → ⊥-elim ∘→ 𝟙ᵐ≢𝟘ᵐ ∘→ ⌜𝟘ᵐ⌝≢𝟘→
+        ok″ : s ≡ 𝕤 → ⌜ 𝟘ᵐ ⌝ ≢ 𝟘 → 𝟙 ≤ ⌜ ⌞ 𝟘 ⌟ ⌝
+        ok″ s≡𝕤 ⌜𝟘ᵐ⌝≢𝟘 = case trivialᵐ? of λ where
+          (yes 𝟙ᵐ≡𝟘ᵐ) → ≤-reflexive (PE.sym (PE.trans (⌜⌝-cong ⌞𝟘⌟) (⌜𝟘ᵐ⌝′ 𝟙ᵐ≡𝟘ᵐ)))
+          (no 𝟙ᵐ≢𝟘ᵐ) → ⊥-elim (𝟙ᵐ≢𝟘ᵐ (⌜𝟘ᵐ⌝≢𝟘→ ⌜𝟘ᵐ⌝≢𝟘))
     in
-    case
-      (case PE.singleton s of λ where
-         (𝕤 , s≡𝕤) → 𝟘≤𝟙 s≡𝕤
-         (𝕨 , s≡𝕨) → ≡-trivial ∘→ proj₁ ∘→ trivial s≡𝕨) ∘→
-      𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ of λ
-      𝟘≤𝟙′ →
-    ▸substᵉ trivial 𝟘≤𝟙 ok ▸Singleton
+    ▸substᵉ trivial P-ok 𝟘≤𝟙 ok ▸Singleton
       (sub
-         (flip (substₘ-lemma _) ▸B $
+         (flip substₘ-lemma ▸B $
           ▶-cong _
             (λ where
-               x0        → PE.sym ⌞𝟘⌟≡𝟘ᵐ?
-               (x0 +1)   → PE.sym ⌞𝟘⌟≡𝟘ᵐ?
+               x0        → PE.sym ⌞𝟘⌟
+               (x0 +1)   → PE.sym ⌞𝟘⌟
                (_ +1 +1) → PE.refl) $
           wf-consSubstₘ
             (wf-consSubstₘ (wf-wk1Substₘ _ _ wf-idSubstₘ) $
-             sub (▸fst⟨⟩ ok′ ok″ 𝟘≤𝟙′ var (λ _ → wkUsage _ ▸A))
+             sub (▸fst⟨⟩ (λ _ → PE.sym ᵐ·-zeroˡ) P-ok ok′ (λ _ _ → ᵐ·-zeroˡ) ok″ var (λ _ → wkUsage _ ▸A))
                (begin
-                  ⌜ 𝟘ᵐ? ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟙)  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·[𝟘∧𝟙]≡𝟘∧ ⟩
-                  𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝         ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
-                  𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)     ∎)) $
+                  ⌜ 𝟘ᵐ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟙)  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·[𝟘∧𝟙]≡𝟘∧ ⟩
+                  𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝         ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
+                  𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)     ∎)) $
           sub
-            (▸snd⟨⟩ ok′ ok″ var
+            (▸snd⟨⟩ (λ _ → ᵐ·-zeroˡ) P-ok var
                (λ _ →
                   Idₘ-generalised
                     (PE.subst (_▸[_]_ _ _) (PE.sym wk[]′-[]↑) $
                      wkUsage _ ▸A)
                     (PE.subst (_▸[_]_ _ _) (PE.sym wk[]′-[]↑) $
                      wkUsage _ ▸t)
-                    (▸fst⟨⟩ ok′ ok″ 𝟘≤𝟙′ var
+                    (▸fst⟨⟩ (λ _ → PE.sym ᵐ·-zeroˡ) P-ok ok′ (λ _ _ → ᵐ·-zeroˡ) ok″ var
                        (λ _ → wkUsage _ $ wkUsage _ ▸A))
                     (λ _ → begin
-                       (((γ₁ +ᶜ γ₂) ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+                       (((γ₁ +ᶜ γ₂) ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                        (((γ₁ +ᶜ γ₂) ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ 𝟘            ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙ ≤-refl ⟩
                        𝟘ᶜ                                      ∎)
                     (λ _ → begin
-                       (((γ₁ +ᶜ γ₂) ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘        ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+                       (((γ₁ +ᶜ γ₂) ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘        ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
 
                        (((γ₁ +ᶜ γ₂) ∙ 𝟘) ∧ᶜ 𝟘ᶜ) ∙ 𝟘                  ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙ ≤-refl ⟩
 
@@ -516,20 +498,20 @@ opaque
 
                        (γ₁ +ᶜ γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ 𝟘ᶜ                      ≈˘⟨ +ᶜ-congˡ $ ∧ᶜ-idem _ ⟩
 
-                       (γ₁ +ᶜ γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)              ≤⟨ +ᶜ-monotoneʳ (∧ᶜ-monotoneʳ (≤ᶜ-refl ∙ 𝟘≤⌜𝟘ᵐ?⌝)) ⟩
+                       (γ₁ +ᶜ γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∧ᶜ 𝟘ᶜ)              ≤⟨ +ᶜ-monotoneʳ (∧ᶜ-monotoneʳ (≤ᶜ-refl ∙ 𝟘≤⌜𝟘ᵐ⌝)) ⟩
 
-                       (γ₁ +ᶜ γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝))  ≈˘⟨ +ᶜ-congʳ (≈ᶜ-refl ∙ +-identityˡ _ ∙ +-identityˡ _) ⟩
+                       (γ₁ +ᶜ γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝))  ≈˘⟨ +ᶜ-congʳ (≈ᶜ-refl ∙ +-identityˡ _ ∙ +-identityˡ _) ⟩
 
                        ((γ₁ ∙ 𝟘 ∙ 𝟘) +ᶜ (γ₂ ∙ 𝟘 ∙ 𝟘)) +ᶜ
-                       (𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝))                        ≈⟨ +ᶜ-assoc _ _ _ ⟩
+                       (𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝))                        ≈⟨ +ᶜ-assoc _ _ _ ⟩
 
                        (γ₁ ∙ 𝟘 ∙ 𝟘) +ᶜ (γ₂ ∙ 𝟘 ∙ 𝟘) +ᶜ
-                       (𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝))                        ∎)))
+                       (𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝))                        ∎)))
           (begin
-             ⌜ 𝟘ᵐ? ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝)         ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-distribˡ-∧ _ _ _ ⟩
-             𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝ · ⌜ 𝟘ᵐ? ⌝  ≈⟨ ≈ᶜ-refl ∙ ∧-cong (·-zeroʳ _) (·-idem-⌜⌝ 𝟘ᵐ?) ⟩
-             𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝                      ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
-             𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)                  ∎))
+             ⌜ 𝟘ᵐ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝)         ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-distribˡ-∧ _ _ _ ⟩
+             𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘 ∧ ⌜ 𝟘ᵐ ⌝ · ⌜ 𝟘ᵐ ⌝  ≈⟨ ≈ᶜ-refl ∙ ∧-cong (·-zeroʳ _) (·-idem-⌜⌝ 𝟘ᵐ) ⟩
+             𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝                      ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
+             𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)                  ∎))
        (begin
           γ₃ ∙ 𝟘                                             ≈˘⟨ <*-identityˡ _ ∙ PE.refl ⟩
 
@@ -538,7 +520,7 @@ opaque
 
           𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ (γ₃ <* idSubstₘ ∙ 𝟘)                   ≈˘⟨ +ᶜ-cong (·ᶜ-zeroˡ _) $
                                                                  +ᶜ-cong (·ᶜ-zeroˡ _) (wk1Substₘ-app _ γ₃) ⟩
-          (𝟘 ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝)) +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟙) +ᶜ
+          (𝟘 ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝)) +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟙) +ᶜ
           γ₃ <* wk1Substₘ idSubstₘ                           ∎))
       ▸t,rfl
       (prodₘ (▸-cong (PE.sym ᵐ·-zeroˡ) ▸v) ▸w
@@ -555,38 +537,39 @@ opaque
             (Idₘ-generalised (wkUsage _ ▸Singleton) (wkUsage _ ▸t,rfl)
                (prodₘ var var
                   (λ _ → begin
-                     𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝                                ≤⟨ ≤ᶜ-refl ∙ ∧-decreasingʳ _ _ ⟩
-                     𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝                                    ≈˘⟨ +ᶜ-identityˡ _ ⟩
-                     𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)                            ≈˘⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
-                     𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ᵐ· 𝟘 ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)  ∎)
+                     𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝                                ≤⟨ ≤ᶜ-refl ∙ ∧-decreasingʳ _ _ ⟩
+                     𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝                                    ≈˘⟨ +ᶜ-identityˡ _ ⟩
+                     𝟘ᶜ +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)                            ≈˘⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
+                     𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ᵐ· 𝟘 ⌝ ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)  ∎)
                   (λ _ → begin
-                     𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝                                ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
-                     𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)                            ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
-                     𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ᵐ· 𝟘 ⌝ ∙ 𝟘) ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝)  ∎))
+                     𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝                                ≈˘⟨ ∧ᶜ-idem _ ∙ PE.refl ⟩
+                     𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)                            ≈˘⟨ ∧ᶜ-congʳ $ ·ᶜ-zeroˡ _ ⟩
+                     𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ᵐ· 𝟘 ⌝ ∙ 𝟘) ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝)  ∎))
                (λ _ → begin
                   γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘  ≤⟨ +ᶜ-monotone (∧ᶜ-decreasingʳ _ _) (∧ᶜ-decreasingʳ _ _) ∙ ≤-refl ∙ ≤-refl ⟩
                   𝟘ᶜ +ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘                      ≈⟨ +ᶜ-identityˡ _ ∙ PE.refl ∙ PE.refl ⟩
                   𝟘ᶜ                                    ∎)
                (λ _ → begin
-                  γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘                    ≤⟨ +ᶜ-monotoneˡ (∧ᶜ-decreasingˡ _ _) ∙ ≤-refl ∙ ≤-refl ⟩
+                  γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘                        ≤⟨ +ᶜ-monotoneˡ (∧ᶜ-decreasingʳ _ _) ∙ ≤-refl ∙ ≤-refl ⟩
 
-                  γ₁ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘                          ≈˘⟨ +ᶜ-identityʳ _ ⟩
+                  𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘                              ≈˘⟨ +ᶜ-identityʳ _ ⟩
 
-                  (γ₁ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘) +ᶜ 𝟘ᶜ                  ≈˘⟨ +ᶜ-congˡ (≈ᶜ-refl ∙ ∧-idem _) ⟩
+                  (𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘) +ᶜ 𝟘ᶜ                      ≈˘⟨ +ᶜ-cong (+ᶜ-congʳ (·ᶜ-zeroˡ _) ∙ PE.refl ∙ PE.refl)
+                                                                                   (≈ᶜ-refl ∙ ∧-idem _) ⟩
 
-                  (γ₁ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟘)        ≤⟨ +ᶜ-monotoneʳ (≤ᶜ-refl ∙ ∧-monotoneʳ 𝟘≤⌜𝟘ᵐ?⌝) ⟩
+                  ((𝟘 ·ᶜ γ₁) +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ 𝟘 ∧ 𝟘)     ≤⟨ +ᶜ-monotoneʳ (≤ᶜ-refl ∙ ∧-monotoneʳ 𝟘≤⌜𝟘ᵐ⌝) ⟩
 
-                  (γ₁ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝)  ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
+                  (𝟘 ·ᶜ γ₁ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝)  ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
 
-                  (γ₁ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘) +ᶜ
-                  𝟘ᶜ +ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝)                                ∎)) $
+                  (𝟘 ·ᶜ γ₁ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘) +ᶜ
+                  𝟘ᶜ +ᶜ (𝟘ᶜ ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝)                                     ∎)) $
           (begin
              γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙
-             ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · (𝟘 ∧ 𝟙)                           ≈⟨ ≈ᶜ-refl ∙ ·[𝟘∧𝟙]≡𝟘∧ ⟩
+             ⌜ 𝟘ᵐ ⌝ · 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · (𝟘 ∧ 𝟙)                           ≈⟨ ≈ᶜ-refl ∙ ·[𝟘∧𝟙]≡𝟘∧ ⟩
 
-             γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘 ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ PE.refl ⟩
+             γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘 ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ PE.refl ⟩
 
-             γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘 ∧ ⌜ 𝟘ᵐ? ⌝            ≤⟨ ≤ᶜ-refl ∙ ∧-decreasingˡ _ _ ⟩
+             γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘 ∧ ⌜ 𝟘ᵐ ⌝            ≤⟨ ≤ᶜ-refl ∙ ∧-decreasingˡ _ _ ⟩
 
              γ₁ ∧ᶜ 𝟘ᶜ +ᶜ (γ₁ +ᶜ γ₂) ∧ᶜ 𝟘ᶜ ∙ 𝟘 ∙ 𝟘                      ∎))
          rflₘ ▸v ▸w)
@@ -603,19 +586,18 @@ opaque
   -- An inversion lemma for Erased.
 
   inv-usage-Erased :
-    γ ▸[ m ] Erased l A → γ ▸[ 𝟘ᵐ? ] A × ∃ λ δ → δ ▸[ 𝟘ᵐ? ] l
+    γ ▸[ m ] Erased l A → ∃₂ λ δ η → δ ▸[ 𝟘ᵐ ] A × η ▸[ 𝟘ᵐ ] l × γ ≤ᶜ 𝟘ᶜ
   inv-usage-Erased {γ} {m} ▸Erased =
     let invUsageΠΣ {δ} {η} ▸A ▸Lift-Unit γ≤ =
           inv-usage-ΠΣ ▸Erased
         (_ , ▸wk1-l) , ▸Unit =
           inv-usage-Lift ▸Lift-Unit
-    in
-    sub (▸-cong (ᵐ·-zeroʳ m) ▸A) (begin
-      γ        ≤⟨ γ≤ ⟩
-      δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ (tailₘ-monotone (inv-usage-Unit ▸Unit)) ⟩
-      δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-      δ        ∎) ,
-    (_ , wkUsage⁻¹ ▸wk1-l)
+    in _ , _ , ▸-cong (ᵐ·-zeroʳ _) ▸A , wkUsage⁻¹ ▸wk1-l , (begin
+      γ           ≤⟨ γ≤ ⟩
+      𝟘 ·ᶜ δ +ᶜ η ≈⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
+      𝟘ᶜ +ᶜ η     ≈⟨ +ᶜ-identityˡ _ ⟩
+      η           ≤⟨ tailₘ-monotone (inv-usage-Unit ▸Unit) ⟩
+      𝟘ᶜ          ∎)
     where
     open ≤ᶜ-reasoning
 
@@ -624,11 +606,11 @@ opaque
 
   -- An inversion lemma for [_].
 
-  inv-usage-[] : γ ▸[ m ] [ t ] → (∃ λ δ → δ ▸[ 𝟘ᵐ? ] t) × γ ≤ᶜ 𝟘ᶜ
+  inv-usage-[] : γ ▸[ m ] [ t ] → (∃ λ δ → δ ▸[ 𝟘ᵐ ] t) × γ ≤ᶜ 𝟘ᶜ
   inv-usage-[] {(n)} {γ} {m} {t} ▸[] = lemma s PE.refl
     where
     open Tools.Reasoning.PartialOrder (≤ᶜ-poset {n})
-    lemma : ∀ s′ → s PE.≡ s′ → (∃ λ δ → δ ▸[ 𝟘ᵐ? ] t) × γ ≤ᶜ 𝟘ᶜ
+    lemma : ∀ s′ → s PE.≡ s′ → (∃ λ δ → δ ▸[ 𝟘ᵐ ] t) × γ ≤ᶜ 𝟘ᶜ
     lemma 𝕤 PE.refl =
       case inv-usage-prodˢ ▸[] of λ {
         (invUsageProdˢ {δ = δ} {η = η} ▸t ▸star γ≤) →
@@ -658,17 +640,19 @@ opaque
   -- An inversion lemma for erased.
 
   inv-usage-erased :
+    ¬ Trivialᵐ →
     γ ▸[ m ] erased A t →
-    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t ×
+    𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
     γ ≤ᶜ 𝟘ᶜ ×
-    m ≡ 𝟘ᵐ[ ok ] ×
-    (s ≡ 𝕨 → 𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] A × Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘)
-  inv-usage-erased ▸erased = case PE.singleton s of λ where
+    (s ≡ 𝕤 → m ≡ 𝟘ᵐ) ×
+    (s ≡ 𝕨 → 𝟘 ≤ ⌜ m ⌝ × 𝟘ᶜ ▸[ 𝟘ᵐ ] A × Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘)
+  inv-usage-erased 𝟙ᵐ≢𝟘ᵐ ▸erased = case PE.singleton s of λ where
     (𝕤 , PE.refl) →
-      case Eta.inv-usage-erased ▸erased of λ
+      case Eta.inv-usage-erased 𝟙ᵐ≢𝟘ᵐ ▸erased of λ
         (▸t , γ≤𝟘 , m≡𝟘ᵐ) →
-          ▸t , γ≤𝟘 , m≡𝟘ᵐ , (λ ())
+          ▸t , γ≤𝟘 , (λ _ → m≡𝟘ᵐ) , λ ()
     (𝕨 , PE.refl) →
       case NoEta.inv-usage-erased ▸erased of λ
-        (▸t , ▸A , γ≤𝟘 , m≡𝟘ᵐ , ok) →
-          ▸t , γ≤𝟘 , m≡𝟘ᵐ , λ _ → ▸A , ok
+        (_ , ▸t , ▸A , γ≤𝟘 , 𝟘≤m , ok) →
+          ▸t , γ≤𝟘 , (λ ()) , λ _ →
+            𝟘≤m , (sub-≈ᶜ ▸A (≈ᶜ-sym (≈ᶜ-trans (·ᶜ-congʳ (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ)) (·ᶜ-zeroˡ _)))) , ok

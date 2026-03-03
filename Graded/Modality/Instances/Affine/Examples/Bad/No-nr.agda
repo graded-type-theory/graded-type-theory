@@ -3,17 +3,16 @@
 -- dedicated nr function
 ------------------------------------------------------------------------
 
-open import Tools.Level
-
-import Graded.Modality.Instances.Affine
-open import Graded.Modality.Variant lzero
+open import Graded.Modality.Instances.Affine
 open import Graded.Usage.Restrictions
+open import Graded.Mode
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant affineModality
 
 module Graded.Modality.Instances.Affine.Examples.Bad.No-nr
-  -- The modality variant.
-  (variant : Modality-variant)
-  (open Graded.Modality.Instances.Affine variant)
-  (UR : Usage-restrictions affineModality)
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions affineModality Zero-one-isMode)
   (open Usage-restrictions UR)
   -- There is no dedicated nr function.
   ⦃ no-nr : Nr-not-available ⦄
@@ -25,8 +24,7 @@ import Tools.Reasoning.PartialOrder
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
 open import Graded.Modality Affine
-open import Graded.Mode affineModality
-open import Graded.Usage affineModality UR
+open import Graded.Usage UR
 
 open import Definition.Untyped.Nat affineModality
 
@@ -47,7 +45,7 @@ opaque
          𝟘ᶜ                ∎)
       ≤ᶜ-refl
       (λ _ → ≤ᶜ-refl)
-      ≤ᶜ-refl
+      (λ _ → ≤ᶜ-refl)
       ≤ᶜ-refl
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
@@ -66,7 +64,7 @@ opaque
          𝟘ᶜ                ∎)
       ≤ᶜ-refl
       (λ _ → ≤ᶜ-refl)
-      ≤ᶜ-refl
+      (λ _ → ≤ᶜ-refl)
       ≤ᶜ-refl
     where
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset

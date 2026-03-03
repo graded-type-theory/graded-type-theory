@@ -5,10 +5,12 @@
 open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Consequences.Admissible.List
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (open Definition.Untyped M)
   (pₕ pₗ : M)
   (open Modality 𝕄)
@@ -22,19 +24,19 @@ module Definition.Typed.Consequences.Admissible.List
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal R
-import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Substitution R as IS
-import Definition.Typed.Decidable.Internal.Term R as I
-import Definition.Typed.Decidable.Internal.Tests R as IT
-import Definition.Typed.Decidable.Internal.Weakening R as IW
+open import Definition.Typed.Decidable.Internal 𝐌 R
+import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
+import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
+import Definition.Typed.Decidable.Internal.Tests 𝐌 R as IT
+import Definition.Typed.Decidable.Internal.Weakening 𝐌 R as IW
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Well-formed R
 
-open import Definition.Untyped.List 𝕄 pₕ pₗ as List
-import Definition.Untyped.Vec 𝕄 𝕨 pₕ as UV
+open import Definition.Untyped.List 𝕄 𝐌 pₕ pₗ as List
+import Definition.Untyped.Vec 𝕄 𝐌 𝕨 pₕ as UV
 
 open List.Internal R
 private module UVI = UV.Internal R

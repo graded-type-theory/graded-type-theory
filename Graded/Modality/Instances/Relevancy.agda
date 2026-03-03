@@ -5,6 +5,7 @@
 module Graded.Modality.Instances.Relevancy where
 
 import Tools.Algebra
+open import Tools.Bool using (Bool)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
@@ -16,8 +17,9 @@ import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 open import Tools.Sum
 
-open import Graded.FullReduction.Assumptions
-open import Graded.Modality.Variant lzero
+import Graded.FullReduction.Assumptions
+import Graded.Usage.Restrictions
+import Definition.Typed.Restrictions
 open import Definition.Untyped.NotParametrised
 
 import Graded.Modality
@@ -26,6 +28,8 @@ import Graded.Modality.Properties.Greatest-lower-bound as GLB
 import Graded.Modality.Properties.Natrec as Natrec
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Subtraction as Subtraction
+import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 
 ------------------------------------------------------------------------
 -- The type
@@ -426,13 +430,11 @@ instance
     ∧-positive ≥𝟙 ω ()
     ∧-positive ω q ()
 
--- A modality for any variant
+-- A modality
 
-relevancy-modality : Modality-variant → Modality
-relevancy-modality variant = record
-  { variant            = variant
-  ; semiring-with-meet = relevancy-semiring-with-meet
-  ; 𝟘-well-behaved     = λ _ → relevancy-has-well-behaved-zero
+relevancy-modality : Modality
+relevancy-modality = record
+  { semiring-with-meet = relevancy-semiring-with-meet
   }
 
 ------------------------------------------------------------------------
@@ -776,14 +778,24 @@ opaque
 ------------------------------------------------------------------------
 -- Full reduction
 
-module _ (variant : Modality-variant) where
+module _ {𝟘ᵐ-allowed : Bool} where
+
+  open Graded.Mode.Instances.Zero-one.Variant relevancy-modality
 
   private
     𝕄 : Modality
-    𝕄 = relevancy-modality variant
+    𝕄 = relevancy-modality
 
-  open import Graded.Usage.Restrictions 𝕄
-  open import Definition.Typed.Restrictions 𝕄
+    variant : Mode-variant
+    variant = record
+      { 𝟘ᵐ-allowed = 𝟘ᵐ-allowed
+      ; 𝟘-well-behaved = λ _ → relevancy-has-well-behaved-zero
+      }
+
+  open Graded.FullReduction.Assumptions variant
+  open Graded.Mode.Instances.Zero-one variant
+  open Graded.Usage.Restrictions 𝕄 Zero-one-isMode
+  open Definition.Typed.Restrictions 𝕄
 
   private variable
     TR : Type-restrictions
@@ -873,5 +885,5 @@ module _ (variant : Modality-variant) where
         (inj₁ ())
         (inj₂ (() , _)))
     where
-    open Full-reduction-assumptions as
+    open Full-reduction-assumptions _ _ as
     open Usage-restrictions UR

@@ -3,28 +3,32 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Substitution
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
-  (𝕄 : Modality)
-  (R : Usage-restrictions 𝕄)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
 open import Graded.Context 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Usage 𝕄 R
+open import Graded.Usage R
 open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat as N using (Nat; 1+; 2+)
 
 infixl 50 _<*_
@@ -80,7 +84,7 @@ _<*>_ : (Ψ : Substₘ m k) (Φ : Substₘ k n) → Substₘ m n
 -- γ_x is the x-th row vector of Ψ, multiplied by ⌜ γ x ⌝, then
 -- Ψ ▶[ γ ] σ.
 
-_▶[_]_ : Substₘ m n → Mode-vector n → Subst m n → Set a
+_▶[_]_ : Substₘ m n → Mode-vector n → Subst m n → Set (a ⊔ b)
 _▶[_]_ {n = n} Ψ γ σ =
   (x : Fin n) → ((𝟘ᶜ , x ≔ ⌜ γ x ⌝) <* Ψ) ▸[ γ x ] σ x
 
@@ -124,7 +128,7 @@ wkSubstₘ (lift ρ) = liftSubstₘ (wkSubstₘ ρ)
 -- Modality substitutions corresponding to (term) substitutions --
 ------------------------------------------------------------------
 
--- Extend a  substitution matrix with a single term substitution
+-- Extend a substitution matrix with a single term substitution
 
 consSubstₘ : (Ψ : Substₘ m n) → (γ : Conₘ m) → Substₘ m (1+ n)
 consSubstₘ = _⊙_
@@ -143,7 +147,7 @@ wkSubstₘ′ (1+ k) = wk1Substₘ ∘→ wkSubstₘ′ k
 
 opaque
 
-  -- A fmaily of substitution matrices corresponding to
+  -- A family of substitution matrices corresponding to
   -- Definition.Untyped.replace₁.
 
   replace₁ₘ : ∀ k → Conₘ (k N.+ n) → Substₘ (k N.+ n) (1+ n)
@@ -151,7 +155,7 @@ opaque
 
 opaque
 
-  -- A fmaily of substitution matrices corresponding to
+  -- A family of substitution matrices corresponding to
   -- Definition.Untyped.replace₂.
 
   replace₂ₘ : Conₘ (2+ n) → Conₘ (2+ n) → Substₘ (2+ n) (2+ n)

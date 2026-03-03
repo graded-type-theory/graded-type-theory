@@ -4,25 +4,36 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Heap.Assumptions
-  {a} {M : Set a} {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (UR : Usage-restrictions 𝕄 𝐌)
   (TR : Type-restrictions 𝕄)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Type-restrictions TR
 open Usage-restrictions UR
 
-open import Graded.Mode 𝕄
 open import Graded.Modality.Properties.Subtraction semiring-with-meet
+import Graded.Heap.Reduction
+import Graded.Heap.Typed
+import Graded.Heap.Untyped
+import Graded.Heap.Usage
 open import Graded.Usage.Restrictions.Natrec 𝕄
+
+open import Definition.Untyped M
+open import Definition.Typed TR
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Level
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
@@ -31,7 +42,7 @@ open import Tools.Sum
 -- Assumptions that are used to prove some bisimilarity properties
 -- as well as some properties elsewhere that follow from them
 
-record Assumptions : Set a where
+record Assumptions : Set (a ⊔ b) where
   field
     -- The type Level is not allowed.
     Level-not-allowed : ¬ Level-allowed
@@ -39,7 +50,7 @@ record Assumptions : Set a where
     subtraction-ok : Supports-subtraction
     -- An assumption related to the weak unit type when η-equality is
     -- enabled.
-    Unitʷ-η→ : ∀ {p q} → Unitʷ-η → Unitrec-allowed 𝟙ᵐ p q → p ≤ 𝟘
+    Unitʷ-η→ : ∀ {m p q} → Unitʷ-η → Unitrec-allowed m p q → ⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟘
     -- Either the usage rule for natrec with an nr function is used
     -- (in which case it is assumed to be factoring) or the usage rule
     -- using greatest lower bounds is used.
@@ -73,3 +84,18 @@ record Assumptions : Set a where
           case Nr-available-propositional has-nr has-nr′ of λ where
             refl → factoring
         (inj₂ no-nr) → ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
+
+  open Graded.Heap.Reduction type-variant UR factoring-nr
+  open Graded.Heap.Typed UR TR factoring-nr
+  open Graded.Heap.Untyped type-variant UR factoring-nr
+  open Graded.Heap.Usage type-variant UR factoring-nr
+
+  -- A type that is used as an assumption in some proofs
+
+  ⊢▸Final-Reasons : ∀ {k m n} → Con Term k → Heap k m → Term n → Wk m n → Stack m → Set _
+  ⊢▸Final-Reasons {k} Δ H t ρ S =
+    ∀ {A : Term k} →
+    Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
+    ▸ ⟨ H , t , ρ , S ⟩ →
+    Final ⟨ H , t , ρ , S ⟩ →
+    Value t × S ≡ ε

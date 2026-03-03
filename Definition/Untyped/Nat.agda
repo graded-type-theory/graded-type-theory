@@ -22,6 +22,8 @@ open import Definition.Typed.Restrictions
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
+open import Graded.Mode
+
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)
@@ -165,11 +167,15 @@ opaque
 -- A variant of one term former, intended to be used with the internal
 -- type-checker
 
-module Internal (R : Type-restrictions 𝕄) where
+module Internal
+  {b} {Mode : Set b}
+  (𝐌 : IsMode Mode 𝕄)
+  (R : Type-restrictions 𝕄)
+  where
 
   private
-    module I  = Definition.Typed.Decidable.Internal.Term R
-    module IW = Definition.Typed.Decidable.Internal.Weakening R
+    module I  = Definition.Typed.Decidable.Internal.Term 𝐌 R
+    module IW = Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
     c           : I.Constants

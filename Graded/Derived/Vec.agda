@@ -3,36 +3,39 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 import Definition.Untyped
 
 module Graded.Derived.Vec
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
   {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
   (open Definition.Untyped M)
   (s : Strength)
   (p : M)
-  (R : Usage-restrictions 𝕄)
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Mode 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Inversion 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
+open import Graded.Usage R
+open import Graded.Usage.Inversion R
+open import Graded.Usage.Properties R
 import Graded.Usage.Restrictions.Instance
-open import Graded.Usage.Weakening 𝕄 R
-open import Graded.Substitution 𝕄 R
-open import Graded.Substitution.Properties 𝕄 R
+open import Graded.Usage.Weakening R
+open import Graded.Substitution R
+open import Graded.Substitution.Properties R
 
-open import Definition.Untyped.Vec 𝕄 s p
+open import Definition.Untyped.Vec 𝕄 𝐌 s p
 
 open import Tools.Fin
 open import Tools.Function
@@ -59,22 +62,24 @@ opaque
 
   ▸Vec′ :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    γ ▸[ 𝟘ᵐ? ] l →
+    γ ▸[ 𝟘ᵐ ] l →
     δ ▸[ m ᵐ· p ] A →
     η ▸[ m ] k →
-    Greatest-lower-boundᶜ θ (nrᵢᶜ 𝟙 𝟘ᶜ δ) →
+    Greatest-lower-boundᶜ θ (nrᵢᶜ 𝟙 𝟘ᶜ (p ·ᶜ δ)) →
     η +ᶜ θ ▸[ m ] Vec′ l A k
-  ▸Vec′ {δ} ▸l ▸A ▸k η-GLB =
+  ▸Vec′ {δ} {m} ▸l ▸A ▸k θ-GLB =
     let ▸wk₂A = wkUsage (step (step id)) ▸A
-        ▸Σ = sub-≈ᶜ {δ = δ ∙ _ ∙ _}
-              (ΠΣₘ ▸wk₂A (sub var (≤ᶜ-refl ∙ ≤-reflexive (·-zeroʳ _))))
-              (≈ᶜ-sym (+ᶜ-identityʳ _) ∙
-                trans (·-zeroʳ _) (sym (+-identityʳ _)) ∙
-                trans (·-identityʳ _) (sym (+-identityˡ _)))
+        open ≈ᶜ-reasoning
+        ▸Σ = sub-≈ᶜ -- {δ = p ·ᶜ δ ∙ _ ∙ _}
+              (ΠΣₘ ▸wk₂A (sub-≈ᶜ var (≈ᶜ-refl ∙ ·-zeroʳ _))) $ begin
+              p ·ᶜ δ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟙   ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-identityʳ _ ⟩
+              p ·ᶜ δ ∙ 𝟘 ∙ ⌜ m ⌝               ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ +-identityˡ _ ⟩
+              p ·ᶜ δ ∙ p · 𝟘 ∙ 𝟘 + ⌜ m ⌝       ≈˘⟨ +ᶜ-identityʳ _ ∙ +-congʳ (·-zeroʳ _)  ⟩
+              p ·ᶜ (δ ∙ 𝟘 ∙ 𝟘) +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝) ∎
         ▸U = sub-≈ᶜ (Uₘ (wkUsage _ ▸l)) (≈ᶜ-refl ∙ ·-zeroʳ _)
     in
     sub-≈ᶜ
-      (natrec-no-nr-glbₘ (Liftₘ ▸l Unitₘ) ▸Σ ▸k ▸U nrᵢ-const-GLB₁ η-GLB)
+      (natrec-no-nr-glbₘ (Liftₘ ▸l Unitₘ) ▸Σ ▸k ▸U nrᵢ-const-GLB₁ θ-GLB)
       (+ᶜ-congʳ (≈ᶜ-sym (·ᶜ-identityˡ _)))
 
 opaque
@@ -116,7 +121,7 @@ opaque
 
   ▸vecrec-nil :
     γ ▸[ m ] nl →
-    δ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
+    δ ∙ ⌜ 𝟘ᵐ ⌝ · q₁ ∙ ⌜ 𝟘ᵐ ⌝ · q₂ ▸[ 𝟘ᵐ ] P →
     Unitrec-allowed m r q₂ →
     γ ▸[ m ] vecrec-nil r q₂ P nl
   ▸vecrec-nil {γ} {m} {δ} {q₁} {q₂} {r} ▸nl ▸P ok =
@@ -125,17 +130,17 @@ opaque
                (λ { x0 → refl ; (x0 +1) → refl ; (x +2) → refl})
                (wf-replace₂ₘ (sub-≈ᶜ zeroₘ (·ᶜ-zeroʳ _))
                   (sub-≈ᶜ (liftₘ var) (·ᶜ-zeroʳ _ ∙ ·-identityʳ _)))
-        ▸P′ = substₘ-lemma _ Ψ▶σ ▸P
+        ▸P′ = substₘ-lemma Ψ▶σ ▸P
         δ≤ = begin
-          δ ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · q₂                                        ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _))
+          δ ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · q₂                                       ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _))
                                                                             (+ᶜ-identityˡ _ ∙ +-identityʳ _) ⟩
 
-          (⌜ 𝟘ᵐ? ⌝ · q₂) ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)                   ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroʳ _)) $
+          (⌜ 𝟘ᵐ ⌝ · q₂) ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ (δ ∙ 𝟘 ∙ 𝟘)                  ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ (·ᶜ-zeroʳ _)) $
                                                                           +ᶜ-identityˡ _ ⟩
-          (⌜ 𝟘ᵐ? ⌝ · q₁) ·ᶜ 𝟘ᶜ +ᶜ (⌜ 𝟘ᵐ? ⌝ · q₂) ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ
-          (δ ∙ 𝟘 ∙ 𝟘)                                                 ≈˘⟨ <*-replace₂ₘ ⟩
+          (⌜ 𝟘ᵐ ⌝ · q₁) ·ᶜ 𝟘ᶜ +ᶜ (⌜ 𝟘ᵐ ⌝ · q₂) ·ᶜ (𝟘ᶜ ∙ 𝟙) +ᶜ
+          (δ ∙ 𝟘 ∙ 𝟘)                                               ≈˘⟨ <*-replace₂ₘ ⟩
 
-          (δ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂) <* replace₂ₘ 𝟘ᶜ (𝟘ᶜ ∙ 𝟙)  ∎
+          (δ ∙ ⌜ 𝟘ᵐ ⌝ · q₁ ∙ ⌜ 𝟘ᵐ ⌝ · q₂) <* replace₂ₘ 𝟘ᶜ (𝟘ᶜ ∙ 𝟙)  ∎
         ▸P″ = sub ▸P′ δ≤
         γ≤ = begin
           γ ∙ ⌜ m ⌝ · r                      ≈⟨ ≈ᶜ-refl ∙ ⌜⌝-·-comm m ⟩
@@ -143,7 +148,7 @@ opaque
           γ ∙ r · ⌜ m ᵐ· r ⌝                ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
           (𝟘ᶜ ∙ r · ⌜ m ᵐ· r ⌝) +ᶜ (γ ∙ 𝟘)  ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ refl) ⟩
           r ·ᶜ (𝟘ᶜ ∙ ⌜ m ᵐ· r ⌝) +ᶜ (γ ∙ 𝟘) ∎
-    in  lamₘ (sub (unitrecₘ ▸P″ (lowerₘ var) ▸wk1nl ok) γ≤)
+    in  lamₘ (sub (unitrecₘ (lowerₘ var) ▸wk1nl ▸P″ ok) γ≤)
     where
     open ≤ᶜ-reasoning
 
@@ -155,7 +160,7 @@ opaque
   ▸vecrec-cons :
     ⦃ Has-well-behaved-GLBs semiring-with-meet ⦄ →
     γ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₂ · p ∙ ⌜ m ⌝ · p₃ ∙ ⌜ m ⌝ · p₄ ▸[ m ] cs →
-    δ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
+    δ ∙ ⌜ 𝟘ᵐ ⌝ · q₁ ∙ ⌜ 𝟘ᵐ ⌝ · q₂ ▸[ 𝟘ᵐ ] P →
     Greatest-lower-bound r (nrᵢ p₄ p₂ p₃) →
     Prodrec-allowed m r p q₂ →
     γ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₄ ▸[ m ] vecrec-cons r q₂ P cs
@@ -169,7 +174,7 @@ opaque
                   ; (x0 +1 +2) → refl ; ((x +2) +2) → refl})
                (wf-consSubstₘ (wf-consSubstₘ (wf-consSubstₘ
                  (wf-consSubstₘ (wf-wkSubstₘ′ {k = 5} wf-idSubstₘ) ▸x4) ▸x1) ▸x0) ▸x3x0)
-        ▸cs′ = substₘ-lemma _ Ψ▶σ ▸cs
+        ▸cs′ = substₘ-lemma Ψ▶σ ▸cs
         open ≤ᶜ-reasoning
         γ≤′ = begin
           γ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₄ ∙ 𝟘 ∙ ⌜ m ⌝ · r · p
@@ -228,21 +233,21 @@ opaque
         Ψ▶σ′ = ▶-cong {σ = consSubst (wkSubst 3 idSubst) (suc (var x2)) ⇑} _
                 (λ { x0 → refl ; (_+1 x0) → refl ; (x +2) → refl})
                 (wf-liftSubstₘ (wf-consSubstₘ (wf-wkSubstₘ′ wf-idSubstₘ) ▸x2))
-        ▸P′ = substₘ-lemma _ Ψ▶σ′ ▸P
+        ▸P′ = substₘ-lemma Ψ▶σ′ ▸P
         δ≤ = begin
-          δ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ⟩
-          (𝟘ᶜ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · q₂) +ᶜ
-          (δ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)          ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ∙ +-identityʳ _) ⟩
-          (𝟘ᶜ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · q₂) +ᶜ
-          (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘) +ᶜ
+          δ ∙ ⌜ 𝟘ᵐ ⌝ · q₁ ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · q₂ ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityˡ _ ∙ +-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ⟩
+          (𝟘ᶜ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · q₂) +ᶜ
+          (δ ∙ ⌜ 𝟘ᵐ ⌝ · q₁ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)          ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityˡ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ∙ +-identityʳ _ ∙ +-identityʳ _) ⟩
+          (𝟘ᶜ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ ⌝ · q₂) +ᶜ
+          (𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · q₁ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘) +ᶜ
           (δ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)                     ≈˘⟨ +ᶜ-cong (·ᶜ-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-identityʳ _)
                                                       (+ᶜ-congʳ (·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ∙ ·-zeroʳ _)) ⟩
-          (⌜ 𝟘ᵐ? ⌝ · q₂) ·ᶜ (𝟘ᶜ , x0 ≔ 𝟙) +ᶜ
-          (⌜ 𝟘ᵐ? ⌝ · q₁) ·ᶜ (𝟘ᶜ , x3 ≔ 𝟙) +ᶜ
+          (⌜ 𝟘ᵐ ⌝ · q₂) ·ᶜ (𝟘ᶜ , x0 ≔ 𝟙) +ᶜ
+          (⌜ 𝟘ᵐ ⌝ · q₁) ·ᶜ (𝟘ᶜ , x3 ≔ 𝟙) +ᶜ
           (δ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ 𝟘)                     ≈˘⟨ +ᶜ-congˡ (+ᶜ-congˡ (≈ᶜ-trans (<*-wkSubstₘ′ {k = 4} δ)
                                                         (<*-identityˡ _ ∙ refl ∙ refl ∙ refl ∙ refl))) ⟩
-          (⌜ 𝟘ᵐ? ⌝ · q₂) ·ᶜ (𝟘ᶜ , x0 ≔ 𝟙) +ᶜ
-          (⌜ 𝟘ᵐ? ⌝ · q₁) ·ᶜ (𝟘ᶜ , x3 ≔ 𝟙) +ᶜ
+          (⌜ 𝟘ᵐ ⌝ · q₂) ·ᶜ (𝟘ᶜ , x0 ≔ 𝟙) +ᶜ
+          (⌜ 𝟘ᵐ ⌝ · q₁) ·ᶜ (𝟘ᶜ , x3 ≔ 𝟙) +ᶜ
           δ <* wkSubstₘ′ 4 idSubstₘ                ∎
         ▸P″ = sub ▸P′ δ≤
         γ≤ = begin
@@ -306,7 +311,7 @@ opaque
   -- q₁ represents the uses of the length in the motive P
   -- q₂ represents the uses of the vector in the motive P
   -- r₁ represents the total uses of the length
-  -- r₂ represents the total of the vector
+  -- r₂ represents the total uses of the vector
 
   ▸vecrec′ :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
@@ -314,13 +319,13 @@ opaque
     γ₂ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₂ · p ∙ ⌜ m ⌝ · p₃ ∙ ⌜ m ⌝ · p₄ ▸[ m ] cs →
     δ₁ ▸[ m ] k →
     δ₂ ▸[ m ᵐ· r₂ ] xs →
-    η₁ ▸[ 𝟘ᵐ? ] l →
-    η₂ ▸[ 𝟘ᵐ? ] A →
-    η₃ ∙ ⌜ 𝟘ᵐ? ⌝ · q₁ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P →
+    η₁ ▸[ 𝟘ᵐ ] l →
+    η₂ ▸[ 𝟘ᵐ ] A →
+    η₃ ∙ ⌜ 𝟘ᵐ ⌝ · q₁ ∙ ⌜ 𝟘ᵐ ⌝ · q₂ ▸[ 𝟘ᵐ ] P →
     Greatest-lower-bound r₁ (nrᵢ p₄ 𝟙 p₁) →
     Greatest-lower-bound r₂ (nrᵢ p₄ p₂ p₃) →
     Greatest-lower-boundᶜ θ₁ (nrᵢᶜ p₄ γ₁ γ₂) →
-    Greatest-lower-boundᶜ θ₂ (nrᵢᶜ 𝟙 𝟘ᶜ η₂) →
+    Greatest-lower-boundᶜ θ₂ (nrᵢᶜ 𝟙 𝟘ᶜ (p ·ᶜ η₂)) →
     Unitrec-allowed m r₂ q₂ →
     Prodrec-allowed m r₂ p q₂ →
     θ₁ +ᶜ r₁ ·ᶜ δ₁ +ᶜ r₂ ·ᶜ δ₂ ▸[ m ]
@@ -329,16 +334,19 @@ opaque
     ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P r₁-GLB r₂-GLB θ₁-GLB θ₂-GLB ok₁ ok₂ =
     let open Graded.Usage.Restrictions.Instance R
         open ≈ᶜ-reasoning
-        ▸wk1A = wkUsage (step id) (▸-cong (sym (trans (cong (_ᵐ· p) ᵐ·-zeroˡ) ᵐ·-zeroˡ)) ▸A)
-        θ₂-GLB′ = GLBᶜ-congˡ (λ i → ≈ᶜ-refl ∙ sym (nrᵢ-𝟘 i))
+        ▸wk1A = wkUsage (step id) (▸-cong (sym (trans (ᵐ·-congʳ ᵐ·-zeroˡ) ᵐ·-zeroˡ)) ▸A)
+        θ₂-GLB′ = GLBᶜ-congˡ (λ i → ≈ᶜ-refl ∙ sym (trans (cong (λ x → nrᵢ 𝟙 𝟘 x i) (·-zeroʳ _)) (nrᵢ-𝟘 i)))
                    (wk-GLBᶜ (step id) θ₂-GLB)
-        ▸Π = ΠΣₘ (▸Vec′ (wkUsage _ ▸l) ▸wk1A var θ₂-GLB′) ▸P
+        ▸Π = ΠΣₘ (▸Vec′ (wkUsage (step id) ▸l) ▸wk1A var θ₂-GLB′) ▸P
         ▸Π′ = sub-≈ᶜ ▸Π $ begin
-          θ₂ +ᶜ η₃ ∙ (⌜ 𝟘ᵐ? ⌝ · (⌜ ⌞ r₂ ⌟ ⌝ + q₁))               ≈⟨ ≈ᶜ-refl ∙ ·-distribˡ-+ _ _ _ ⟩
-          θ₂ +ᶜ η₃ ∙ (⌜ 𝟘ᵐ? ⌝ · ⌜ ⌞ r₂ ⌟ ⌝ + ⌜ 𝟘ᵐ? ⌝ · q₁)       ≈˘⟨ ≈ᶜ-refl ∙ +-congʳ (⌜ᵐ·⌝ 𝟘ᵐ?) ⟩
-          θ₂ +ᶜ η₃ ∙ ⌜ 𝟘ᵐ? ᵐ· r₂ ⌝ + ⌜ 𝟘ᵐ? ⌝ · q₁                ≈˘⟨ +ᶜ-congʳ (+ᶜ-identityˡ _) ∙
-                                                                     +-congʳ (+-identityʳ _) ⟩
-          (𝟘ᶜ +ᶜ θ₂) +ᶜ η₃ ∙ (⌜ 𝟘ᵐ? ᵐ· r₂ ⌝ + 𝟘) + ⌜ 𝟘ᵐ? ⌝ · q₁  ∎
+          r₂ ·ᶜ θ₂ +ᶜ η₃ ∙ (⌜ 𝟘ᵐ ⌝ · (r₂ + q₁))                          ≈⟨ ≈ᶜ-refl ∙ ·-distribˡ-+ _ _ _ ⟩
+          r₂ ·ᶜ θ₂ +ᶜ η₃ ∙ ⌜ 𝟘ᵐ ⌝ · r₂ + ⌜ 𝟘ᵐ ⌝ · q₁                     ≈˘⟨ ≈ᶜ-refl ∙ +-congʳ (·-congˡ ⌜⌞⌟⌝·) ⟩
+          r₂ ·ᶜ θ₂ +ᶜ η₃ ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ ⌞ r₂ ⌟ ⌝ · r₂ + ⌜ 𝟘ᵐ ⌝ · q₁        ≈˘⟨ ≈ᶜ-refl ∙ +-congʳ (·-assoc _ _ _) ⟩
+          r₂ ·ᶜ θ₂ +ᶜ η₃ ∙ (⌜ 𝟘ᵐ ⌝ · ⌜ ⌞ r₂ ⌟ ⌝) · r₂ + ⌜ 𝟘ᵐ ⌝ · q₁      ≈˘⟨ ≈ᶜ-refl ∙ +-congʳ (·-congʳ (⌜ᵐ·⌝ _)) ⟩
+          r₂ ·ᶜ θ₂ +ᶜ η₃ ∙ ⌜ 𝟘ᵐ ᵐ· r₂ ⌝ · r₂ + ⌜ 𝟘ᵐ ⌝ · q₁               ≈⟨ ≈ᶜ-refl ∙ +-congʳ (⌜⌝-·-comm _) ⟩
+          r₂ ·ᶜ θ₂ +ᶜ η₃ ∙ r₂ · ⌜ 𝟘ᵐ ᵐ· r₂ ⌝ + ⌜ 𝟘ᵐ ⌝ · q₁               ≈˘⟨ +ᶜ-congʳ (·ᶜ-congˡ (+ᶜ-identityˡ _)) ∙ +-congʳ (·-congˡ (+-identityʳ _)) ⟩
+          r₂ ·ᶜ (𝟘ᶜ +ᶜ θ₂) +ᶜ η₃ ∙ r₂ · (⌜ 𝟘ᵐ ᵐ· r₂ ⌝ + 𝟘) + ⌜ 𝟘ᵐ ⌝ · q₁ ≡⟨⟩
+          r₂ ·ᶜ ((𝟘ᶜ ∙ ⌜ 𝟘ᵐ ᵐ· r₂ ⌝) +ᶜ (θ₂ ∙ 𝟘)) +ᶜ (η₃ ∙ ⌜ 𝟘ᵐ ⌝ · q₁)  ∎
     in  sub-≈ᶜ (natrec-no-nr-glbₘ
               (▸vecrec-nil ▸nl ▸P ok₁)
               (▸vecrec-cons ▸cs ▸P r₂-GLB ok₂)
@@ -361,13 +369,13 @@ opaque
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     γ ▸[ m ] Vec′ l A k →
     ∃₆ λ δ₁ δ₂ δ₃ δ₄ δ₅ δ₆ →
-      δ₁ ▸[ 𝟘ᵐ? ] l ×
+      δ₁ ▸[ 𝟘ᵐ ] l ×
       δ₂ ▸[ m ᵐ· p ] A ×
       δ₃ ▸[ m ] k ×
       Greatest-lower-boundᶜ δ₄ (nrᵢᶜ 𝟙 δ₅ δ₆) ×
       γ ≤ᶜ δ₃ +ᶜ δ₄ ×
       δ₅ ≤ᶜ 𝟘ᶜ ×
-      δ₆ ≤ᶜ δ₂
+      δ₆ ≤ᶜ p ·ᶜ δ₂
   inv-usage-Vec′ {γ} {m} ▸Vec =
     let δ , η , θ , φ , q , χ , ▸⊤ , ▸Σ , ▸k , ▸U
           , γ≤ , q-GLB , χ-GLB = inv-usage-natrec-no-nr-glb ▸Vec
@@ -383,15 +391,17 @@ opaque
               θ +ᶜ χ ∎)
           , inv-usage-Unit (inv-usage-Lift ▸⊤ .proj₂)
           , (begin
-              η                                  ≤⟨ tailₘ-monotone (tailₘ-monotone η≤) ⟩
-              tailₘ (tailₘ (δ′ +ᶜ η′))           ≤⟨ tailₘ-monotone (tailₘ-monotone (+ᶜ-monotoneʳ {η = δ′}
-                                                     (tailₘ-monotone (inv-usage-var ▸x1)))) ⟩
-              tailₘ (tailₘ (δ′ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝))) ≈⟨ tailₘ-cong (tailₘ-distrib-+ᶜ δ′ (𝟘ᶜ ∙ ⌜ m ⌝)) ⟩
-              tailₘ (tailₘ δ′ +ᶜ 𝟘ᶜ)             ≈⟨ tailₘ-cong (+ᶜ-identityʳ (tailₘ δ′)) ⟩
-              tailₘ (tailₘ δ′)                   ≡⟨⟩
-              wkConₘ⁻¹ id (tailₘ (tailₘ δ′))     ≈˘⟨ wkConₘ⁻¹-step (tailₘ δ′) ⟩
-              wkConₘ⁻¹ (step id) (tailₘ δ′)      ≈˘⟨ wkConₘ⁻¹-step δ′ ⟩
-              wkConₘ⁻¹ (step (step id)) δ′       ∎)
+              η                                       ≤⟨ tailₘ-monotone (tailₘ-monotone η≤) ⟩
+              tailₘ (tailₘ (p ·ᶜ δ′ +ᶜ η′))           ≤⟨ tailₘ-monotone (tailₘ-monotone (+ᶜ-monotoneʳ {η = p ·ᶜ δ′}
+                                                          (tailₘ-monotone (inv-usage-var ▸x1)))) ⟩
+              tailₘ (tailₘ (p ·ᶜ δ′ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝))) ≈⟨ tailₘ-cong (tailₘ-distrib-+ᶜ (p ·ᶜ δ′) (𝟘ᶜ ∙ ⌜ m ⌝)) ⟩
+              tailₘ (tailₘ (p ·ᶜ δ′) +ᶜ 𝟘ᶜ)           ≈⟨ tailₘ-cong (+ᶜ-identityʳ (tailₘ (p ·ᶜ δ′))) ⟩
+              tailₘ (tailₘ (p ·ᶜ δ′))                 ≈⟨ tailₘ-cong (tailₘ-distrib-·ᶜ p δ′) ⟩
+              tailₘ (p ·ᶜ tailₘ δ′)                   ≈⟨ tailₘ-distrib-·ᶜ p (tailₘ δ′) ⟩
+              p ·ᶜ tailₘ (tailₘ δ′)                   ≡⟨⟩
+              p ·ᶜ wkConₘ⁻¹ id (tailₘ (tailₘ δ′))     ≈˘⟨ ·ᶜ-congˡ (wkConₘ⁻¹-step (tailₘ δ′)) ⟩
+              p ·ᶜ wkConₘ⁻¹ (step id) (tailₘ δ′)      ≈˘⟨ ·ᶜ-congˡ (wkConₘ⁻¹-step δ′) ⟩
+              p ·ᶜ wkConₘ⁻¹ (step (step id)) δ′       ∎)
 
 opaque
   unfolding nil′
@@ -446,11 +456,11 @@ opaque
   inv-usage-vecrec-nil :
     γ ▸[ m ] vecrec-nil r q P nl →
     ∃₂ λ δ η →
-      δ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P [ replace₂ zero (lift (var x0)) ] ×
+      δ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] P [ replace₂ zero (lift (var x0)) ] ×
       η ▸[ m ] nl × Unitrec-allowed m r q × γ ≤ᶜ η
   inv-usage-vecrec-nil {γ} {r} ▸λur =
     let invUsageLam {δ} ▸ur γ≤ = inv-usage-lam ▸λur
-        invUsageUnitrec {γ₃ = η′} {γ₄ = η} ▸P ▸x0 ▸nl ok δ≤ =
+        invUsageUnitrec {δ = η′} {η = η} ▸x0 ▸nl ▸P ok δ≤ =
           inv-usage-unitrec ▸ur
         open ≤ᶜ-reasoning
     in _ , _ , ▸P , wkUsage⁻¹ ▸nl , ok , (begin
@@ -472,7 +482,7 @@ opaque
     ∃₂ λ δ₁ δ₂ →
     δ₁ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] cs [ consSubst (consSubst (consSubst (consSubst (wkSubst 5 idSubst)
                                                 (var x4)) (var x1)) (var x0)) (var x3 ∘⟨ r ⟩ var x0) ] ×
-    δ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P [ consSubst (wkSubst 3 idSubst) (suc (var x2)) ⇑ ] ×
+    δ₂ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] P [ consSubst (wkSubst 3 idSubst) (suc (var x2)) ⇑ ] ×
     Prodrec-allowed m r p q ×
     γ ∙ ⌜ m ⌝ · r ≤ᶜ δ₁ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ · r)
   inv-usage-vecrec-cons {γ} {m} {r} ▸λpr =
@@ -500,9 +510,9 @@ opaque
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
     s ≡ 𝕨 → γ ▸[ m ] vecrec′ p₁ p₄ r₁ q₁ q₂ l A P nl cs k xs →
     ∃₆ λ δ₁ δ₁′ δ₂ δ₂′ η₁ η₂ → ∃₈ λ θ₀ θ₁ θ₁′ θ₁″ θ₂ x χ φ →
-      θ₀ ▸[ 𝟘ᵐ? ] l ×
-      tailₘ θ₁ ▸[ 𝟘ᵐ? ] A ×
-      θ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ▸[ 𝟘ᵐ? ] P ×
+      θ₀ ▸[ 𝟘ᵐ ] l ×
+      tailₘ θ₁ ▸[ 𝟘ᵐ ] A ×
+      θ₂ ∙ ⌜ 𝟘ᵐ ⌝ · q₂ ▸[ 𝟘ᵐ ] P ×
       δ₁ ▸[ m ] nl ×
       δ₂ ∙ ⌜ m ⌝ · r₁ · p ∙ ⌜ m ⌝ · r₁ ▸[ m ]
         cs [ consSubst (consSubst (consSubst (consSubst (wkSubst 5 idSubst)
@@ -518,7 +528,7 @@ opaque
       δ₁′ ≤ᶜ δ₁ ×
       δ₂′ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₄ ∙ ⌜ m ⌝ · r₁ ≤ᶜ δ₂ +ᶜ (𝟘ᶜ ∙ ⌜ m ⌝ · r₁) ×
       θ₁′ ≤ᶜ 𝟘ᶜ ×
-      θ₁″ ≤ᶜ θ₁
+      θ₁″ ≤ᶜ p ·ᶜ θ₁
   inv-usage-vecrec′ {γ} {r₁} refl ▸vr =
     let invUsageApp {δ} {η = η₂} ▸nr ▸xs γ≤ = inv-usage-app ▸vr
         _ , _ , θ , _ , x , χ
@@ -530,10 +540,11 @@ opaque
         _ , _ , _ , ▸nl , ok₁ , le₄ = inv-usage-vecrec-nil ▸vrn
         _ , _ , ▸cs[] , _ , ok₂ , le₅ = inv-usage-vecrec-cons ▸vrc
         open ≤ᶜ-reasoning
+
     in  _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _
           , wkUsage⁻¹ ▸l
-          , ▸-cong (trans (cong (_ᵐ· p) ᵐ·-zeroˡ) ᵐ·-zeroˡ)
-              (sub-≈ᶜ (wkUsage⁻¹ ▸A) (≈ᶜ-sym (wkConₘ⁻¹-step φ)))
+          , sub-≈ᶜ (wkUsage⁻¹ (▸-cong (trans (ᵐ·-congʳ ᵐ·-zeroˡ) ᵐ·-zeroˡ) ▸A))
+              (≈ᶜ-sym (wkConₘ⁻¹-step φ))
           , ▸P , ▸nl , ▸cs[] , ▸k , ▸xs
           , ok₁ , ok₂ , x-GLB , χ-GLB , θ′-GLB
           , (begin

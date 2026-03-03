@@ -20,8 +20,6 @@ open import Graded.Modality
 open import Graded.Modality.Nr-instances
 import Graded.Modality.Properties
 
-open import Graded.Mode as Mode hiding (module Mode)
-
 private variable
   a₁ a₂                  : Level
   M M₁ M₂                : Set _
@@ -56,21 +54,12 @@ record Is-morphism
     -- trivial.
     first-trivial-if-second-trivial : M₂.Trivial → M₁.Trivial
 
-    -- If 𝟘ᵐ is allowed in the source modality, then it is allowed in
-    -- the target modality.
-    𝟘ᵐ-in-second-if-in-first : T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed
-
     -- The translation of 𝟘 is bounded by 𝟘.
     tr-𝟘-≤ : tr M₁.𝟘 ≤ M₂.𝟘
 
     -- Either the source modality is trivial, or a quantity p is
     -- mapped to 𝟘 exactly when p itself is 𝟘.
     trivial-⊎-tr-≡-𝟘-⇔ : M₁.Trivial ⊎ (∀ {p} → tr p ≡ M₂.𝟘 ⇔ p ≡ M₁.𝟘)
-
-    -- If 𝟘ᵐ is allowed in the target modality but not the source
-    -- modality, then quantities are translated to quantities that are
-    -- strictly below 𝟘.
-    tr-<-𝟘 : ∀ {p} → ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → tr p < M₂.𝟘
 
     -- The translation of 𝟙 is bounded by 𝟙.
     tr-𝟙 : tr M₁.𝟙 ≤ M₂.𝟙
@@ -107,12 +96,6 @@ record Is-morphism
 
   tr-𝟘-≡ : ¬ M₁.Trivial → tr M₁.𝟘 ≡ M₂.𝟘
   tr-𝟘-≡ ok = tr-≡-𝟘-⇔ ok .proj₂ refl
-
-  -- If 𝟘ᵐ is allowed in the source modality, then 𝟘 is translated
-  -- to 𝟘.
-
-  tr-𝟘-≡-𝟘ᵐ : T M₁.𝟘ᵐ-allowed → tr M₁.𝟘 ≡ M₂.𝟘
-  tr-𝟘-≡-𝟘ᵐ = tr-𝟘-≡ ∘→ MP₁.𝟘ᵐ.non-trivial
 
   opaque
 
@@ -189,9 +172,6 @@ record Is-order-embedding
     -- The translation is order-reflecting.
     tr-order-reflecting : ∀ {p q} → tr p M₂.≤ tr q → p M₁.≤ q
 
-    -- If 𝟘ᵐ is allowed in the target modality but not the source
-    -- modality, then the source modality is trivial.
-    trivial : ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → M₁.Trivial
 
     -- For every target quantity p there is a source quantity p′ such
     -- that the translation of p′ is bounded by p.
@@ -300,33 +280,12 @@ record Is-Σ-morphism
     -- to 𝟘.
     tr-Σ-𝟘-≡ : ¬ M₁.Trivial → tr-Σ M₁.𝟘 ≡ M₂.𝟘
 
-    -- If 𝟘ᵐ is allowed in the target modality and tr-Σ p is equal
-    -- to 𝟘, then 𝟘ᵐ is allowed in the source modality and p is equal
-    -- to 𝟘.
-    tr-Σ-≡-𝟘-→ :
-      ∀ {p} →
-      T M₂.𝟘ᵐ-allowed → tr-Σ p ≡ M₂.𝟘 → T M₁.𝟘ᵐ-allowed × p ≡ M₁.𝟘
-
     -- If p is bounded by 𝟙, then tr-Σ p is bounded by 𝟙.
     tr-Σ-≤-𝟙 : ∀ {p} → p M₁.≤ M₁.𝟙 → tr-Σ p M₂.≤ M₂.𝟙
 
     -- The quantity tr p · tr-Σ q is bounded by the translation of
     -- p · q.
     tr-·-tr-Σ-≤ : ∀ {p q} → tr p M₂.· tr-Σ q M₂.≤ tr (p M₁.· q)
-
-  -- If 𝟘ᵐ is allowed in the source modality, then tr-Σ translates 𝟘
-  -- to 𝟘.
-
-  tr-Σ-𝟘-≡-𝟘ᵐ : T M₁.𝟘ᵐ-allowed → tr-Σ M₁.𝟘 ≡ M₂.𝟘
-  tr-Σ-𝟘-≡-𝟘ᵐ = tr-Σ-𝟘-≡ ∘→ MP₁.𝟘ᵐ.non-trivial
-
-  -- If 𝟘ᵐ is allowed in the target modality but not the source
-  -- modality, then tr-Σ translates quantities to quantities that are
-  -- not equal to 𝟘.
-
-  tr-Σ-≢-𝟘 :
-    ∀ {p} → ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → tr-Σ p ≢ M₂.𝟘
-  tr-Σ-≢-𝟘 not-ok ok tr-p≡𝟘 = not-ok (tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 .proj₁)
 
   -- If tr-Σ p is bounded by 𝟙, then p is bounded by 𝟙 (assuming that
   -- tr is an order embedding from 𝕄₁ to 𝕄₂).
@@ -411,33 +370,6 @@ record Is-nr-preserving-morphism
       ∀ {p r z s n} →
       tr (nr p r z s n) ≤ nr (tr p) (tr r) (tr z) (tr s) (tr n)
 
--- The property of being a "no-nr-preserving" morphism (related to
--- the usage rule for natrec without an nr function).
-
-record Is-no-nr-preserving-morphism
-  {M₁ : Set a₁} {M₂ : Set a₂}
-  (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
-  (tr : M₁ → M₂) : Set (a₁ ⊔ a₂) where
-
-  no-eta-equality
-
-  private
-    module M₁ = Modality 𝕄₁
-    module M₂ = Modality 𝕄₂
-
-  field
-
-    -- If 𝟘ᵐ is allowed in the target modality, then 𝟘ᵐ is allowed in
-    -- the source modality or the source modality is trivial.
-    𝟘ᵐ-in-first-if-in-second :
-      T M₂.𝟘ᵐ-allowed → T M₁.𝟘ᵐ-allowed ⊎ M₁.Trivial
-
-    -- If the target modality has a well-behaved zero, then the source
-    -- modality has a well-behaved zero or is trivial.
-    𝟘-well-behaved-in-first-if-in-second :
-      Has-well-behaved-zero M₂ M₂.semiring-with-meet →
-      Has-well-behaved-zero M₁ M₁.semiring-with-meet ⊎ M₁.Trivial
-
 -- The property of being a "no-nr-glb-preserving" morphism (related to
 -- the usage rule for natrec with greatest lower bounds.
 
@@ -498,48 +430,6 @@ record Is-nr-reflecting-morphism
          tr z₂ M₂.≤ z₁ × tr s₂ M₂.≤ s₁ × tr n₂ M₂.≤ n₁ ×
          q M₁.≤ nr p r z₂ s₂ n₂
 
--- The property of being a "no-nr-reflecting" morphism (related to
--- the usage rule for natrec without an nr function).
-
-record Is-no-nr-reflecting-morphism
-  {M₁ : Set a₁} {M₂ : Set a₂}
-  (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
-  (tr : M₁ → M₂) : Set (a₁ ⊔ a₂) where
-
-  no-eta-equality
-
-  private
-    module M₁ = Modality 𝕄₁
-    module M₂ = Modality 𝕄₂
-
-  field
-
-    -- A variant of the properties of order embeddings for the
-    -- alternative usage rule for natrec.
-
-    tr-≤-no-nr :
-      ∀ {p q₁ q₂ q₃ q₄ r s} →
-      tr p M₂.≤ q₁ →
-      q₁ M₂.≤ q₂ →
-      (T M₂.𝟘ᵐ-allowed →
-       q₁ M₂.≤ q₃) →
-      (⦃ 𝟘-well-behaved :
-           Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
-       q₁ M₂.≤ q₄) →
-      q₁ M₂.≤ q₃ M₂.+ tr r M₂.· q₄ M₂.+ tr s M₂.· q₁ →
-      ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
-         tr q₂′ M₂.≤ q₂ ×
-         tr q₃′ M₂.≤ q₃ ×
-         tr q₄′ M₂.≤ q₄ ×
-         p M₁.≤ q₁′ ×
-         q₁′ M₁.≤ q₂′ ×
-         (T M₁.𝟘ᵐ-allowed →
-          q₁′ M₁.≤ q₃′) ×
-         (⦃ 𝟘-well-behaved :
-              Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
-          q₁′ M₁.≤ q₄′) ×
-         q₁′ M₁.≤ q₃′ M₁.+ r M₁.· q₄′ M₁.+ s M₁.· q₁′
-
 -- The property of being a "no-nr-glb-reflecting" morphism (related to
 -- the usage rule for natrec with greatest lower bounds.
 
@@ -588,10 +478,6 @@ Is-morphism→Is-Σ-morphism {𝕄₁ = 𝕄₁} {𝕄₂ = 𝕄₂} {tr = tr} m
       MP₂.≤-refl
     .Is-Σ-morphism.tr-Σ-𝟘-≡ →
       tr-𝟘-≡
-    .Is-Σ-morphism.tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 →
-      𝟘ᵐ-allowed-elim 𝕄₁
-        (λ ok → ok , tr-≡-𝟘-⇔ (MP₁.𝟘ᵐ.non-trivial ok) .proj₁ tr-p≡𝟘)
-        (λ not-ok → ⊥-elim (tr-<-𝟘 not-ok ok .proj₂ tr-p≡𝟘))
     .Is-Σ-morphism.tr-Σ-≤-𝟙 {p = p} p≤𝟙 → begin
       tr p     ≤⟨ tr-monotone p≤𝟙 ⟩
       tr M₁.𝟙  ≤⟨ tr-𝟙 ⟩
@@ -629,7 +515,6 @@ Is-order-embedding→Is-Σ-order-embedding m = λ where
 Is-order-embedding-id : Is-order-embedding 𝕄 𝕄 idᶠ
 Is-order-embedding-id {𝕄 = 𝕄} = λ where
     .tr-order-reflecting → idᶠ
-    .trivial not-ok ok   → ⊥-elim (not-ok ok)
     .tr-≤                → _ , ≤-refl
     .tr-≤-𝟙              → idᶠ
     .tr-ω                → refl
@@ -637,7 +522,6 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
     .tr-≤-· hyp          → _ , ≤-refl , hyp
     .tr-≤-∧ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-morphism         → λ where
-      .tr-<-𝟘 not-ok ok                        → ⊥-elim (not-ok ok)
       .tr-𝟙                                    → ≤-refl
       .tr-ω                                    → ≤-refl
       .tr-𝟘-≤                                  → ≤-refl
@@ -646,7 +530,6 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
       .tr-·                                    → refl
       .tr-∧                                    → ≤-refl
       .first-trivial-if-second-trivial         → idᶠ
-      .𝟘ᵐ-in-second-if-in-first                → idᶠ
   where
   open Graded.Modality.Properties 𝕄
   open Is-morphism
@@ -660,15 +543,6 @@ Is-nr-preserving-morphism-id {𝕄} = λ where
   where
   open Is-nr-preserving-morphism
   open Graded.Modality.Properties 𝕄
-
-
-Is-no-nr-preserving-morphism-id :
-  Is-no-nr-preserving-morphism 𝕄 𝕄 idᶠ
-Is-no-nr-preserving-morphism-id = λ where
-    .𝟘ᵐ-in-first-if-in-second → inj₁
-    .𝟘-well-behaved-in-first-if-in-second → inj₁
-  where
-  open Is-no-nr-preserving-morphism
 
 Is-no-nr-glb-preserving-morphism-id :
   Is-no-nr-glb-preserving-morphism 𝕄 𝕄 idᶠ
@@ -686,16 +560,6 @@ Is-nr-reflecting-morphism-id {𝕄} = λ where
       _ , _ , _ , ≤-refl , ≤-refl , ≤-refl , hyp
   where
   open Is-nr-reflecting-morphism
-  open Graded.Modality.Properties 𝕄
-
-Is-no-nr-reflecting-morphism-id :
-  Is-no-nr-reflecting-morphism 𝕄 𝕄 idᶠ
-Is-no-nr-reflecting-morphism-id {𝕄} = λ where
-    .tr-≤-no-nr p≤q₁ q₁≤q₂ q₁≤q₃ q₁≤q₄ fix →
-      _ , _ , _ , _ , ≤-refl , ≤-refl , ≤-refl
-        , p≤q₁ , q₁≤q₂ , q₁≤q₃ , q₁≤q₄ , fix
-  where
-  open Is-no-nr-reflecting-morphism
   open Graded.Modality.Properties 𝕄
 
 Is-no-nr-glb-reflecting-morphism-id :
@@ -723,8 +587,6 @@ Is-morphism-∘
     .Is-morphism.first-trivial-if-second-trivial →
       G.first-trivial-if-second-trivial ∘→
       F.first-trivial-if-second-trivial
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first →
-      F.𝟘ᵐ-in-second-if-in-first ∘→ G.𝟘ᵐ-in-second-if-in-first
     .Is-morphism.tr-𝟘-≤ → let open R in begin
        tr₁ (tr₂ M₁.𝟘)  ≤⟨ F.tr-monotone G.tr-𝟘-≤ ⟩
        tr₁ M₂.𝟘        ≤⟨ F.tr-𝟘-≤ ⟩
@@ -736,21 +598,6 @@ Is-morphism-∘
         (inj₂ tr-≡-𝟘-⇔₂) → case G.trivial-⊎-tr-≡-𝟘-⇔ of λ where
           (inj₁ trivial₁)  → inj₁ trivial₁
           (inj₂ tr-≡-𝟘-⇔₁) → inj₂ (λ {_} → tr-≡-𝟘-⇔₁ ∘⇔ tr-≡-𝟘-⇔₂)
-    .Is-morphism.tr-<-𝟘 {p = p} not-ok₁ ok₃ →
-      let open R in
-      Mo₂.𝟘ᵐ-allowed-elim
-        (λ ok₂ →
-             (begin
-                tr₁ (tr₂ p)  ≤⟨ F.tr-monotone (G.tr-<-𝟘 not-ok₁ ok₂ .proj₁) ⟩
-                tr₁ M₂.𝟘     ≤⟨ F.tr-𝟘-≤ ⟩
-                M₃.𝟘         ∎)
-           , G.tr-<-𝟘 not-ok₁ ok₂ .proj₂ ∘→
-             F.tr-≡-𝟘-⇔ (MP₂.𝟘ᵐ.non-trivial ok₂) .proj₁)
-        (λ not-ok₂ →
-             (begin
-                tr₁ (tr₂ p)  ≤⟨ F.tr-<-𝟘 not-ok₂ ok₃ .proj₁ ⟩
-                M₃.𝟘         ∎)
-           , F.tr-<-𝟘 not-ok₂ ok₃ .proj₂)
     .Is-morphism.tr-𝟙 → let open R in begin
        tr₁ (tr₂ M₁.𝟙)  ≤⟨ F.tr-monotone G.tr-𝟙 ⟩
        tr₁ M₂.𝟙        ≤⟨ F.tr-𝟙 ⟩
@@ -774,7 +621,6 @@ Is-morphism-∘
       tr₁ (tr₂ p M₂.∧ tr₂ q)        ≤⟨ F.tr-∧ ⟩
       tr₁ (tr₂ p) M₃.∧ tr₁ (tr₂ q)  ∎
   where
-  module Mo₂ = Mode 𝕄₂
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
   module M₃  = Modality 𝕄₃
@@ -796,13 +642,6 @@ Is-order-embedding-∘
       Is-morphism-∘ F.tr-morphism G.tr-morphism
     .Is-order-embedding.tr-order-reflecting →
       G.tr-order-reflecting ∘→ F.tr-order-reflecting
-    .Is-order-embedding.trivial not-ok₁ ok₃ →
-      let open Tools.Reasoning.PropositionalEquality in
-      𝟘ᵐ-allowed-elim 𝕄₂
-        (λ ok₂     → G.trivial not-ok₁ ok₂)
-        (λ not-ok₂ → G.tr-injective (
-           tr₂ M₁.𝟙  ≡⟨ MP₂.≡-trivial (F.trivial not-ok₂ ok₃) ⟩
-           tr₂ M₁.𝟘  ∎))
     .Is-order-embedding.tr-≤ {p = p} →
       let open Tools.Reasoning.PartialOrder MP₃.≤-poset in
       case F.tr-≤ of λ (p′ , tr₁-p′≤p) →
@@ -892,8 +731,6 @@ Is-Σ-morphism-∘
       tr-Σ₁ (tr-Σ₂ M₁.𝟘)  ≡⟨ cong tr-Σ₁ (G.tr-Σ-𝟘-≡ not-trivial) ⟩
       tr-Σ₁ M₂.𝟘          ≡⟨ F.tr-Σ-𝟘-≡ (Is-morphism.second-not-trivial-if-first-not m₂ not-trivial) ⟩
       M₃.𝟘                ∎
-  ; tr-Σ-≡-𝟘-→ =
-      curry (uncurry G.tr-Σ-≡-𝟘-→ ∘→ uncurry F.tr-Σ-≡-𝟘-→)
   ; tr-Σ-≤-𝟙 =
       F.tr-Σ-≤-𝟙 ∘→ G.tr-Σ-≤-𝟙
   ; tr-·-tr-Σ-≤ = λ {p = p} {q = q} →
@@ -960,28 +797,6 @@ Is-nr-preserving-morphism-∘ {𝕄₃} {tr₁} {tr₂} m f g = λ where
   open Graded.Modality.Properties 𝕄₃
   open Tools.Reasoning.PartialOrder ≤-poset
 
-Is-no-nr-preserving-morphism-∘ :
-  Is-morphism 𝕄₁ 𝕄₂ tr₂ →
-  Is-no-nr-preserving-morphism 𝕄₂ 𝕄₃ tr₁ →
-  Is-no-nr-preserving-morphism 𝕄₁ 𝕄₂ tr₂ →
-  Is-no-nr-preserving-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂)
-Is-no-nr-preserving-morphism-∘ m f g = λ where
-    .𝟘ᵐ-in-first-if-in-second ok →
-      case F.𝟘ᵐ-in-first-if-in-second ok of λ where
-        (inj₁ ok) → G.𝟘ᵐ-in-first-if-in-second ok
-        (inj₂ trivial) →
-          inj₂ (first-trivial-if-second-trivial trivial)
-    .𝟘-well-behaved-in-first-if-in-second ok →
-      case F.𝟘-well-behaved-in-first-if-in-second ok of λ where
-        (inj₁ ok) → G.𝟘-well-behaved-in-first-if-in-second ok
-        (inj₂ trivial) →
-          inj₂ (first-trivial-if-second-trivial trivial)
-  where
-  module F = Is-no-nr-preserving-morphism f
-  module G = Is-no-nr-preserving-morphism g
-  open Is-morphism m
-  open Is-no-nr-preserving-morphism
-
 Is-no-nr-glb-preserving-morphism-∘ :
   Is-no-nr-glb-preserving-morphism 𝕄₂ 𝕄₃ tr₁ →
   Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr₂ →
@@ -1020,45 +835,6 @@ Is-nr-reflecting-morphism-∘ {𝕄₃} m f g = λ where
   open Graded.Modality.Properties 𝕄₃
   open Is-nr-reflecting-morphism
 
-
-Is-no-nr-reflecting-morphism-∘ :
-  Is-morphism 𝕄₂ 𝕄₃ tr₁ →
-  Is-no-nr-reflecting-morphism 𝕄₂ 𝕄₃ tr₁ →
-  Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr₂ →
-  Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂)
-Is-no-nr-reflecting-morphism-∘ {𝕄₃} {tr₁} {tr₂} m f g = λ where
-    .tr-≤-no-nr {q₁} {q₂} {q₃} {q₄}
-      p≤q₁ q₁≤q₂ q₁≤q₃ q₁≤q₄ fix →
-      let open Tools.Reasoning.PartialOrder ≤-poset in
-          case F.tr-≤-no-nr p≤q₁ q₁≤q₂ q₁≤q₃ q₁≤q₄ fix of λ {
-        (q₁′ , q₂′ , q₃′ , q₄′ , q₂′≤q₂ , q₃′≤q₃ , q₄′≤q₄ ,
-         p≤q₁′ , q₁′≤q₂′ , q₁′≤q₃′ , q₁′≤q₄′ , fix′) →
-      case G.tr-≤-no-nr p≤q₁′ q₁′≤q₂′ q₁′≤q₃′ q₁′≤q₄′ fix′ of λ {
-        (q₁″ , q₂″ , q₃″ , q₄″ , q₂″≤q₂′ , q₃″≤q₃′ , q₄″≤q₄′ ,
-         p≤q₁″ , q₁″≤q₂″ , q₁″≤q₃″ , q₁″≤q₄″ , fix″) →
-        q₁″ , q₂″ , q₃″ , q₄″
-      , (begin
-           tr₁ (tr₂ q₂″)  ≤⟨ tr-monotone q₂″≤q₂′ ⟩
-           tr₁ q₂′        ≤⟨ q₂′≤q₂ ⟩
-           q₂             ∎)
-      , (begin
-           tr₁ (tr₂ q₃″)  ≤⟨ tr-monotone q₃″≤q₃′ ⟩
-           tr₁ q₃′        ≤⟨ q₃′≤q₃ ⟩
-           q₃             ∎)
-      , (begin
-           tr₁ (tr₂ q₄″)  ≤⟨ tr-monotone q₄″≤q₄′ ⟩
-           tr₁ q₄′        ≤⟨ q₄′≤q₄ ⟩
-           q₄             ∎)
-      , p≤q₁″ , q₁″≤q₂″ , q₁″≤q₃″ , (λ ⦃ _ ⦄ → q₁″≤q₄″) , fix″ }}
-
-  where
-  open Is-no-nr-reflecting-morphism
-  module F = Is-no-nr-reflecting-morphism f
-  module G = Is-no-nr-reflecting-morphism g
-  open Graded.Modality.Properties 𝕄₃
-  open Is-morphism m
-
-
 Is-no-nr-glb-reflecting-morphism-∘ :
   Is-morphism 𝕄₂ 𝕄₃ tr₁ →
   Is-no-nr-glb-reflecting-morphism 𝕄₂ 𝕄₃ tr₁ →
@@ -1083,73 +859,3 @@ Is-no-nr-glb-reflecting-morphism-∘ {𝕄₃} m f g = λ where
   open Is-no-nr-glb-reflecting-morphism
   open Graded.Modality.Properties 𝕄₃
   open Is-morphism m
-
-------------------------------------------------------------------------
--- A lemma
-
--- The property tr-≤-no-nr follows from other properties.
-
-→tr-≤-no-nr :
-  (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) →
-  let
-    module M₁ = Modality 𝕄₁
-    module M₂ = Modality 𝕄₂
-  in
-  (T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed) →
-  (⦃ 𝟘-well-behaved :
-       Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
-   Has-well-behaved-zero M₂ M₂.semiring-with-meet) →
-  (tr : M₁ → M₂)
-  (tr⁻¹ : M₂ → M₁) →
-  (∀ p q → p M₂.≤ q → tr⁻¹ p M₁.≤ tr⁻¹ q) →
-  (∀ p q → tr p M₂.≤ q → p M₁.≤ tr⁻¹ q) →
-  (∀ p → tr (tr⁻¹ p) M₂.≤ p) →
-  (∀ p q → tr⁻¹ (p M₂.+ q) M₁.≤ tr⁻¹ p M₁.+ tr⁻¹ q) →
-  (∀ p q → tr⁻¹ (p M₂.∧ q) M₁.≤ tr⁻¹ p M₁.∧ tr⁻¹ q) →
-  (∀ p q → tr⁻¹ (tr p M₂.· q) M₁.≤ p M₁.· tr⁻¹ q) →
-  tr p M₂.≤ q₁ →
-  q₁ M₂.≤ q₂ →
-  (T M₂.𝟘ᵐ-allowed →
-   q₁ M₂.≤ q₃) →
-  (⦃ 𝟘-well-behaved : Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
-   q₁ M₂.≤ q₄) →
-  q₁ M₂.≤ q₃ M₂.+ tr r M₂.· q₄ M₂.+ tr s M₂.· q₁ →
-  ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
-     tr q₂′ M₂.≤ q₂ ×
-     tr q₃′ M₂.≤ q₃ ×
-     tr q₄′ M₂.≤ q₄ ×
-     p M₁.≤ q₁′ ×
-     q₁′ M₁.≤ q₂′ ×
-     (T M₁.𝟘ᵐ-allowed →
-      q₁′ M₁.≤ q₃′) ×
-     (⦃ 𝟘-well-behaved :
-          Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
-      q₁′ M₁.≤ q₄′) ×
-     q₁′ M₁.≤ q₃′ M₁.+ r M₁.· q₄′ M₁.+ s M₁.· q₁′
-→tr-≤-no-nr
-  {q₁ = q₁} {q₂ = q₂} {q₃ = q₃} {q₄ = q₄} {r = r} {s = s}
-  𝕄₁ 𝕄₂ 𝟘ᵐ-in-second-if-in-first 𝟘-well-behaved-in-second-if-in-first
-  tr tr⁻¹ tr⁻¹-monotone tr≤→≤tr⁻¹ tr-tr⁻¹≤ tr⁻¹-+ tr⁻¹-∧ tr⁻¹-·
-  hyp₁ hyp₂ hyp₃ hyp₄ hyp₅ =
-    tr⁻¹ q₁
-  , tr⁻¹ q₂
-  , tr⁻¹ q₃
-  , tr⁻¹ q₄
-  , tr-tr⁻¹≤ _
-  , tr-tr⁻¹≤ _
-  , tr-tr⁻¹≤ _
-  , tr≤→≤tr⁻¹ _ _ hyp₁
-  , tr⁻¹-monotone _ _ hyp₂
-  , tr⁻¹-monotone _ _ ∘→ hyp₃ ∘→ 𝟘ᵐ-in-second-if-in-first
-  , tr⁻¹-monotone _ _
-      (hyp₄ ⦃ 𝟘-well-behaved = 𝟘-well-behaved-in-second-if-in-first ⦄)
-  , (begin
-       tr⁻¹ q₁                                                    ≤⟨ tr⁻¹-monotone _ _ hyp₅ ⟩
-       tr⁻¹ (q₃ M₂.+ tr r M₂.· q₄ M₂.+ tr s M₂.· q₁)              ≤⟨ ≤-trans (tr⁻¹-+ _ _) $ +-monotoneʳ $ tr⁻¹-+ _ _ ⟩
-       tr⁻¹ q₃ M₁.+ tr⁻¹ (tr r M₂.· q₄) M₁.+ tr⁻¹ (tr s M₂.· q₁)  ≤⟨ +-monotoneʳ $ +-monotone (tr⁻¹-· _ _) (tr⁻¹-· _ _) ⟩
-       tr⁻¹ q₃ M₁.+ r M₁.· tr⁻¹ q₄ M₁.+ s M₁.· tr⁻¹ q₁            ∎)
-  where
-  module M₁ = Modality 𝕄₁
-  module M₂ = Modality 𝕄₂
-  open Graded.Modality.Properties 𝕄₁
-  open Tools.Reasoning.PartialOrder ≤-poset

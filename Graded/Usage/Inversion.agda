@@ -3,30 +3,34 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Inversion
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   (open Graded.Modality M)
-  (𝕄 : Modality)
-  (R : Usage-restrictions 𝕄)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Usage 𝕄 R
+open import Graded.Usage R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Mode 𝕄
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Level using (_⊔_)
 open import Tools.Nat using (Nat; 1+; 2+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
@@ -75,7 +79,7 @@ inv-usage-supᵘ (sub δ▸supᵘ γ≤δ) =
 
 -- A usage inversion lemma for U.
 
-inv-usage-U : γ ▸[ m ] U t → γ ≤ᶜ 𝟘ᶜ × ∃ λ δ → δ ▸[ 𝟘ᵐ? ] t
+inv-usage-U : γ ▸[ m ] U t → γ ≤ᶜ 𝟘ᶜ × ∃ λ δ → δ ▸[ 𝟘ᵐ ] t
 inv-usage-U (Uₘ ▸t)       = ≤ᶜ-refl , _ , ▸t
 inv-usage-U (sub δ▸U γ≤δ) =
   let δ≤𝟘 , _ , η▸t = inv-usage-U δ▸U in
@@ -85,7 +89,7 @@ inv-usage-U (sub δ▸U γ≤δ) =
 
 inv-usage-Lift :
   γ ▸[ m ] Lift t A →
-  (∃ λ δ → δ ▸[ 𝟘ᵐ? ] t) × γ ▸[ m ] A
+  (∃ λ δ → δ ▸[ 𝟘ᵐ ] t) × γ ▸[ m ] A
 inv-usage-Lift (Liftₘ ▸t ▸A)   = (_ , ▸t) , ▸A
 inv-usage-Lift (sub ▸Lift γ≤δ) =
   let ▸t , ▸A = inv-usage-Lift ▸Lift in
@@ -128,7 +132,7 @@ inv-usage-Unit (sub δ▸U γ≤δ) =
   ≤ᶜ-trans γ≤δ δ≤𝟘
 
 record InvUsageΠΣ {n} (γ : Conₘ n) (m : Mode) (b : BinderMode) (p q : M)
-                 (F : Term n) (G : Term (1+ n)) : Set a where
+                 (F : Term n) (G : Term (1+ n)) : Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageΠΣ
@@ -136,10 +140,10 @@ record InvUsageΠΣ {n} (γ : Conₘ n) (m : Mode) (b : BinderMode) (p q : M)
     {δ η} : Conₘ n
     δ▸F   : δ ▸[ m ᵐ· p ] F
     η▸G   : η ∙ ⌜ m ⌝ · q ▸[ m ] G
-    γ≤δ+η : γ ≤ᶜ δ +ᶜ η
+    γ≤δ+η : γ ≤ᶜ p ·ᶜ δ +ᶜ η
 
 -- If γ ▸[ m ] ⟨ b ⟩ p , q ▷ F ▹ G then δ ▸[ m ᵐ· p ] F,
--- η ∙ ⌜ m ⌝ · q ▸[ m ] G and γ ≤ᶜ δ +ᶜ η.
+-- η ∙ ⌜ m ⌝ · q ▸[ m ] G and γ ≤ᶜ p ·ᶜ δ +ᶜ η.
 
 inv-usage-ΠΣ : γ ▸[ m ] ΠΣ⟨ b ⟩ p , q ▷ F ▹ G → InvUsageΠΣ γ m b p q F G
 inv-usage-ΠΣ (ΠΣₘ γ▸F δ▸G) = invUsageΠΣ γ▸F δ▸G ≤ᶜ-refl
@@ -163,7 +167,7 @@ inv-usage-defn (sub ▸defn γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-defn ▸d
 
 record InvUsageLam
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term (1+ n)) :
-         Set a where
+         Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageLam
@@ -182,7 +186,7 @@ inv-usage-lam (sub γ′▸λpt γ≤γ′) with inv-usage-lam γ′▸λpt
 
 record InvUsageApp
          {n} (γ : Conₘ n) (t : Term n) (m : Mode) (p : M) (u : Term n) :
-         Set a where
+         Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageApp
@@ -203,7 +207,7 @@ inv-usage-app (sub γ▸t∘p▷u γ′≤γ) with inv-usage-app γ▸t∘p▷u
 
 record InvUsageProdʷ
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t u : Term n) :
-         Set a where
+         Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageProdʷ
@@ -224,7 +228,7 @@ inv-usage-prodʷ (sub γ▸tu γ≤γ′) with inv-usage-prodʷ γ▸tu
 
 record InvUsageProdˢ
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t u : Term n) :
-         Set a where
+         Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageProdˢ
@@ -247,7 +251,7 @@ inv-usage-prodˢ (sub δ▸tu γ≤γ′) with inv-usage-prodˢ δ▸tu
 record InvUsageProd
          {n}
          (γ : Conₘ n) (m : Mode) (s : Strength) (p : M) (t u : Term n) :
-         Set a where
+         Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageProd
@@ -271,7 +275,7 @@ inv-usage-prod (sub δ▸tu γ≤γ′) with inv-usage-prod δ▸tu
 
 record InvUsageFst
          {n} (γ : Conₘ n) (m : Mode) (p : M) (t : Term n) :
-         Set a where
+         Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageFst
@@ -281,10 +285,10 @@ record InvUsageFst
     m≡m′ᵐ·p      : m ≡ m′ ᵐ· p
     δ▸t          : δ ▸[ m ] t
     γ≤δ          : γ ≤ᶜ δ
-    mp-condition : m PE.≡ 𝟙ᵐ → p ≤ 𝟙
+    mp-condition : ⌜ m ⌝ PE.≢ 𝟘 → p ≤ 𝟙
 
 -- If γ ▸[ m ] fst t then m ≡ m′ ᵐ· p, δ ▸[ m ] t and γ ≤ᶜ δ, and
--- furthermore if m ≡ 𝟙 then p ≤ 𝟙.
+-- furthermore if ⌜ m ⌝ ≢ 𝟘 then p ≤ 𝟙.
 
 inv-usage-fst : γ ▸[ m ] fst p t → InvUsageFst γ m p t
 inv-usage-fst (fstₘ m ▸t PE.refl ok) =
@@ -294,7 +298,7 @@ inv-usage-fst (sub ▸t γ≤γ′) with inv-usage-fst ▸t
   invUsageFst m m≡ ▸t (≤ᶜ-trans γ≤γ′ γ′≤) ok
 
 record InvUsageSnd
-         {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set a where
+         {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageSnd
@@ -312,7 +316,7 @@ inv-usage-snd (sub ▸t γ≤γ′) with inv-usage-snd ▸t
 
 record InvUsageProdrec
          {n} (γ : Conₘ n) (m : Mode) (r p q : M) (A : Term (1+ n))
-         (t : Term n) (u : Term (2+ n)) : Set a where
+         (t : Term n) (u : Term (2+ n)) : Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageProdrec
@@ -320,12 +324,12 @@ record InvUsageProdrec
     {δ η θ} : Conₘ n
     δ▸t : δ ▸[ m ᵐ· r ] t
     η▸u : η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u
-    θ▸A : θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
+    θ▸A : θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A
     P : Prodrec-allowed m r p q
     γ≤γ′ : γ ≤ᶜ r ·ᶜ δ +ᶜ η
 
 -- If γ ▸[ m ] prodrec r p q A t u then δ ▸[ m ᵐ· r ] t,
--- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, θ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A,
+-- η ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸[ m ] u, θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A,
 -- Prodrec-allowed m r p q and γ ≤ᶜ r ·ᶜ δ +ᶜ η.
 
 inv-usage-prodrec :
@@ -342,7 +346,7 @@ inv-usage-zero (sub  δ▸zero γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-zero �
 
 
 record InvUsageSuc
-         {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set a where
+         {n} (γ : Conₘ n) (m : Mode) (t : Term n) : Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageSuc
@@ -369,17 +373,16 @@ opaque
       (invUsageSuc ▸t′ γ≤) →
     ≤ᶜ-trans γ≤ (inv-usage-numeral ▸t′ n)
 
-data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a where
+data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set (a ⊔ a′) where
   invUsageNatrecNr :
     ⦃ has-nr : Nr-available ⦄ →
     InvUsageNatrec′ p r γ δ η (nrᶜ p r γ δ η)
   invUsageNatrecNoNr :
     ⦃ no-nr : Nr-not-available ⦄ →
     χ ≤ᶜ γ →
-    (T 𝟘ᵐ-allowed →
+    (¬ Trivialᵐ →
      χ ≤ᶜ δ) →
-    (⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
-     χ ≤ᶜ η) →
+    ((Trivialᵐ → Has-well-behaved-zero semiring-with-meet) → χ ≤ᶜ η) →
     χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ →
     InvUsageNatrec′ p r γ δ η χ
   invUsageNatrecNoNrGLB :
@@ -391,13 +394,13 @@ data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set a wher
 
 data InvUsageNatrec
        (γ : Conₘ k) (m : Mode) (p q r : M) (A : Term (1+ k))
-       (z : Term k) (s : Term (2+ k)) (n : Term k) : Set a where
+       (z : Term k) (s : Term (2+ k)) (n : Term k) : Set (a ⊔ a′) where
   invUsageNatrec :
     {δ η θ φ χ : Conₘ k} →
     δ ▸[ m ] z →
     η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s →
     θ ▸[ m ] n →
-    φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A →
+    φ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A →
     γ ≤ᶜ χ →
     InvUsageNatrec′ p r δ η θ χ →
     InvUsageNatrec γ m p q r A z s n
@@ -429,7 +432,7 @@ opaque
     γ ▸[ m ] natrec p q r G z s n →
     ∃₄ λ δ η θ φ → δ ▸[ m ] z ×
     η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
-    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] G ×
+    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] G ×
     γ ≤ᶜ nrᶜ p r δ η θ
   inv-usage-natrec-has-nr ⦃ has-nr ⦄ ▸nr =
     case inv-usage-natrec ▸nr of λ where
@@ -451,15 +454,16 @@ opaque
     γ ▸[ m ] natrec p q r G z s n →
     ∃₅ λ δ η θ φ χ → δ ▸[ m ] z ×
     η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
-    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] G ×
-    γ ≤ᶜ χ × χ ≤ᶜ δ × (T 𝟘ᵐ-allowed → χ ≤ᶜ η) ×
-    (⦃ _ : Has-well-behaved-zero semiring-with-meet ⦄ → χ ≤ᶜ θ) × χ ≤ᶜ η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ
+    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] G ×
+    γ ≤ᶜ χ × χ ≤ᶜ δ × (¬ Trivialᵐ → χ ≤ᶜ η) ×
+    ((Trivialᵐ → Has-well-behaved-zero semiring-with-meet) → χ ≤ᶜ θ)
+    × χ ≤ᶜ η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ
   inv-usage-natrec-no-nr ⦃ no-nr ⦄ ▸nr =
     case inv-usage-natrec ▸nr of λ where
       (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNr ⦃ (has-nr) ⦄)) →
         ⊥-elim (¬[Nr∧No-nr] has-nr no-nr)
       (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNr χ≤δ χ≤η χ≤θ fix)) →
-        _ , _ , _ , _ , _ , ▸z , ▸s , ▸n , ▸A , γ≤ , χ≤δ , χ≤η , (λ ⦃ x ⦄ → χ≤θ) , fix
+        _ , _ , _ , _ , _ , ▸z , ▸s , ▸n , ▸A , γ≤ , χ≤δ , χ≤η , χ≤θ , fix
       (invUsageNatrec ▸z ▸s ▸n ▸A γ≤ (invUsageNatrecNoNrGLB ⦃ (no-nr′) ⦄ x x₁)) →
         ⊥-elim (¬[No-nr∧No-nr-glb] no-nr no-nr′)
 
@@ -473,7 +477,7 @@ opaque
     γ ▸[ m ] natrec p q r G z s n →
     ∃₆ λ δ η θ φ x χ → δ ▸[ m ] z ×
     η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
-    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] G ×
+    θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] G ×
     γ ≤ᶜ x ·ᶜ θ +ᶜ χ ×
     Greatest-lower-bound x (nrᵢ r 𝟙 p) ×
     Greatest-lower-boundᶜ χ (nrᵢᶜ r δ η)
@@ -488,14 +492,14 @@ opaque
 
 record InvUsageEmptyrec
          {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n) :
-         Set a where
+         Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageEmptyrec
   field
     {δ η}   : Conₘ n
     δ▸t     : δ ▸[ m ᵐ· p ] t
-    η▸A     : η ▸[ 𝟘ᵐ? ] A
+    η▸A     : η ▸[ 𝟘ᵐ ] A
     allowed : Emptyrec-allowed m p
     γ≤pδ    : γ ≤ᶜ p ·ᶜ δ
 
@@ -536,19 +540,19 @@ inv-usage-starˢ (sub γ▸star γ≤γ′) with inv-usage-starˢ γ▸star
 … | invUsageStarˢ ≤⌜⌝· 𝟘ᶜ≈ =
   invUsageStarˢ (≤ᶜ-trans γ≤γ′ ≤⌜⌝·) 𝟘ᶜ≈
 
-record InvUsageUnitrec
-         {n} (γ : Conₘ n) (m : Mode) (p q : M)
-         (A : Term (1+ n)) (u v : Term n) : Set a where
+record InvUsageUnitrec {n} (γ : Conₘ n) (m : Mode) (p q : M)
+                       (A : Term (1+ n)) (t u : Term n) : Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsageUnitrec
   field
-    {γ₂ γ₃ γ₄} : Conₘ n
-    γ₂▸           : γ₂ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] A
-    γ₃▸           : γ₃ ▸[ m ᵐ· p ] u
-    γ₄▸           : γ₄ ▸[ m ] v
-    P             : Unitrec-allowed m p q
-    ≤·γ₃+γ₄       : γ ≤ᶜ p ·ᶜ γ₃ +ᶜ γ₄
+    {δ η θ} : Conₘ n
+    δ▸t : δ ▸[ m ᵐ· p ] t
+    η▸u : η ▸[ m ] u
+    θ▸A : θ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A
+    P : Unitrec-allowed m p q
+    γ≤δ+η : γ ≤ᶜ p ·ᶜ δ +ᶜ η
+
 
 -- A usage inversion lemma for unitrec.
 
@@ -563,7 +567,7 @@ inv-usage-unitrec (sub γ′▸ur γ≤γ′) with inv-usage-unitrec γ′▸ur
 -- A type used to state inv-usage-Id.
 
 data InvUsageId
-       {n} (γ : Conₘ n) (m : Mode) (A t u : Term n) : Set a where
+       {n} (γ : Conₘ n) (m : Mode) (A t u : Term n) : Set (a ⊔ a′) where
   invUsageId :
     {δ η θ : Conₘ n} →
     ¬ Id-erased →
@@ -575,9 +579,9 @@ data InvUsageId
   invUsageId₀ :
     {δ η θ : Conₘ n} →
     Id-erased →
-    θ ▸[ 𝟘ᵐ? ] A →
-    δ ▸[ 𝟘ᵐ? ] t →
-    η ▸[ 𝟘ᵐ? ] u →
+    θ ▸[ 𝟘ᵐ ] A →
+    δ ▸[ 𝟘ᵐ ] t →
+    η ▸[ 𝟘ᵐ ] u →
     γ ≤ᶜ 𝟘ᶜ →
     InvUsageId γ m A t u
 
@@ -602,12 +606,12 @@ inv-usage-rfl (sub δ▸ γ≤δ) = ≤ᶜ-trans γ≤δ (inv-usage-rfl δ▸)
 
 data InvUsageJ
        {n} (γ : Conₘ n) (m : Mode) (p q : M) (A t : Term n)
-       (B : Term (2+ n)) (u t′ v : Term n) : Set a where
+       (B : Term (2+ n)) (u t′ v : Term n) : Set (a ⊔ a′) where
   invUsageJ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
     erased-matches-for-J m ≤ᵉᵐ some →
     (erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘)) →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
     γ₄ ▸[ m ] u →
@@ -620,23 +624,23 @@ data InvUsageJ
     erased-matches-for-J m ≡ some →
     p ≡ 𝟘 →
     q ≡ 𝟘 →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₁ ▸[ 𝟘ᵐ ] A →
+    γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
     γ₄ ▸[ m ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] t′ →
-    γ₆ ▸[ 𝟘ᵐ? ] v →
+    γ₅ ▸[ 𝟘ᵐ ] t′ →
+    γ₆ ▸[ 𝟘ᵐ ] v →
     γ ≤ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) →
     InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀₂ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
     erased-matches-for-J m ≡ all →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
-    γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B →
+    γ₁ ▸[ 𝟘ᵐ ] A →
+    γ₂ ▸[ 𝟘ᵐ ] t →
+    γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] B →
     γ₄ ▸[ m ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] t′ →
-    γ₆ ▸[ 𝟘ᵐ? ] v →
+    γ₅ ▸[ 𝟘ᵐ ] t′ →
+    γ₆ ▸[ 𝟘ᵐ ] v →
     γ ≤ᶜ γ₄ →
     InvUsageJ γ m p q A t B u t′ v
 
@@ -662,12 +666,12 @@ inv-usage-J (sub γ′▸ γ≤γ′) with inv-usage-J γ′▸
 
 data InvUsageK
        {n} (γ : Conₘ n) (m : Mode) (p : M) (A t : Term n)
-       (B : Term (1+ n)) (u v : Term n) : Set a where
+       (B : Term (1+ n)) (u v : Term n) : Set (a ⊔ a′) where
   invUsageK :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
     erased-matches-for-K m ≤ᵉᵐ some →
     (erased-matches-for-K m ≡ some → p ≢ 𝟘) →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
+    γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
     γ₄ ▸[ m ] u →
@@ -678,21 +682,21 @@ data InvUsageK
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
     erased-matches-for-K m ≡ some →
     p ≡ 𝟘 →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
+    γ₁ ▸[ 𝟘ᵐ ] A →
+    γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ∙ 𝟘 ▸[ m ] B →
     γ₄ ▸[ m ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₅ ▸[ 𝟘ᵐ ] v →
     γ ≤ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) →
     InvUsageK γ m p A t B u v
   invUsageK₀₂ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
     erased-matches-for-K m ≡ all →
-    γ₁ ▸[ 𝟘ᵐ? ] A →
-    γ₂ ▸[ 𝟘ᵐ? ] t →
-    γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ▸[ 𝟘ᵐ? ] B →
+    γ₁ ▸[ 𝟘ᵐ ] A →
+    γ₂ ▸[ 𝟘ᵐ ] t →
+    γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] B →
     γ₄ ▸[ m ] u →
-    γ₅ ▸[ 𝟘ᵐ? ] v →
+    γ₅ ▸[ 𝟘ᵐ ] v →
     γ ≤ᶜ γ₄ →
     InvUsageK γ m p A t B u v
 
@@ -717,17 +721,17 @@ inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
 
 record InvUsage-[]-cong
          {n} (γ : Conₘ n) (m : Mode) (s : Strength)
-         (l A t u v : Term n) : Set a where
+         (l A t u v : Term n) : Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsage-[]-cong
   field
     {γ₁ γ₂ γ₃ γ₄ γ₅} : Conₘ n
-    ▸l               : γ₁ ▸[ 𝟘ᵐ? ] l
-    ▸A               : γ₂ ▸[ 𝟘ᵐ? ] A
-    ▸t               : γ₃ ▸[ 𝟘ᵐ? ] t
-    ▸u               : γ₄ ▸[ 𝟘ᵐ? ] u
-    ▸v               : γ₅ ▸[ 𝟘ᵐ? ] v
+    ▸l               : γ₁ ▸[ 𝟘ᵐ ] l
+    ▸A               : γ₂ ▸[ 𝟘ᵐ ] A
+    ▸t               : γ₃ ▸[ 𝟘ᵐ ] t
+    ▸u               : γ₄ ▸[ 𝟘ᵐ ] u
+    ▸v               : γ₅ ▸[ 𝟘ᵐ ] v
     P                : []-cong-allowed-mode s m
     ≤𝟘               : γ ≤ᶜ 𝟘ᶜ
 

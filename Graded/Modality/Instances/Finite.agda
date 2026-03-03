@@ -25,7 +25,6 @@ private
 open Semiring-with-meet 𝕄
 
 import Graded.Modality.Instances.LowerBounded 𝕄 as LB
-open import Graded.Modality.Variant a
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 
@@ -91,12 +90,7 @@ opaque
       (cong f⁻¹)
       (f⁻¹ p ≟ⱽ f⁻¹ q)
 
--- If certain properties hold, then 𝕄 can be turned into a certain
--- kind of modality.
+-- 𝕄 can be turned into a modality.
 
-isModality :
-  (variant : Modality-variant) →
-  let open Modality-variant variant in
-  (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
-  Modality
+isModality : Modality
 isModality = LB.isModality ∞ ∞-min

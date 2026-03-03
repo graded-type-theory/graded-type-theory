@@ -6,12 +6,14 @@ open import Definition.Typed.Restrictions
 import Definition.Untyped
 import Definition.Untyped.Bool.Erased
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Consequences.Admissible.Bool.Erased
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Definition.Untyped M hiding (_[_]))
   {𝕄 : Modality M}
-  (open Definition.Untyped.Bool.Erased 𝕄)
+  (𝐌 : IsMode Mode 𝕄)
+  (open Definition.Untyped.Bool.Erased 𝕄 𝐌)
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
@@ -26,11 +28,11 @@ module Definition.Typed.Consequences.Admissible.Bool.Erased
 open Internal R
 
 open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal R
-import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Substitution R as IS
-import Definition.Typed.Decidable.Internal.Term R as I
-import Definition.Typed.Decidable.Internal.Tests R as IT
+open import Definition.Typed.Decidable.Internal 𝐌 R
+import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
+import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
+import Definition.Typed.Decidable.Internal.Tests 𝐌 R as IT
 import Definition.Typed.Properties.Admissible.Bool.OK
 open import Definition.Typed.Properties.Admissible.Erased R
 open import Definition.Typed.Properties.Admissible.Level R
@@ -42,7 +44,7 @@ open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
-open import Definition.Untyped.Bool.Nr 𝕄 as B using (OK; OKᵍ)
+open import Definition.Untyped.Bool.Nr 𝕄 𝐌 as B using (OK; OKᵍ)
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Erased 𝕄 𝕨
 open import Definition.Untyped.Nat 𝕄

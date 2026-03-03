@@ -9,13 +9,17 @@ import Definition.Typed.Restrictions
 import Graded.Modality
 import Graded.Modify-box-cong-or-J.Configuration
 import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant
 
 module Graded.Modify-box-cong-or-J
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (open Definition.Typed.Restrictions 𝕄)
-  (open Graded.Usage.Restrictions 𝕄)
+  (open Graded.Usage.Restrictions 𝕄 Zero-one-isMode)
   {TRₛ : Type-restrictions}
   {URₛ : Usage-restrictions}
   (open Graded.Modify-box-cong-or-J.Configuration TRₛ URₛ)
@@ -39,7 +43,6 @@ open import Graded.Context 𝕄
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.SucRed
 import Graded.Erasure.Target as T
-open import Graded.Mode 𝕄
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Natrec 𝕄
 
@@ -708,8 +711,8 @@ opaque
       tr-▸ t Uₜ.∘ₘ tr-▸ u
     (Uₛ.prodˢₘ t u) →
       Uₜ.prodˢₘ (tr-▸ t) (tr-▸ u)
-    (Uₛ.fstₘ m t PE.refl ok) →
-      Uₜ.fstₘ m (tr-▸ t) PE.refl ok
+    (Uₛ.fstₘ m t ≡m mp-cond) →
+      Uₜ.fstₘ m (tr-▸ t) ≡m mp-cond
     (Uₛ.sndₘ t) →
       Uₜ.sndₘ (tr-▸ t)
     (Uₛ.prodʷₘ t u) →

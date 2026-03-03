@@ -12,10 +12,12 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Decidable.Internal
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (TR : Type-restrictions 𝕄)
   where
 
@@ -27,14 +29,14 @@ open import Definition.Typed TR hiding (Trans)
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Injectivity TR
 open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Decidable.Internal.Constraint TR
-open import Definition.Typed.Decidable.Internal.Context TR
-open import Definition.Typed.Decidable.Internal.Equality TR
-open import Definition.Typed.Decidable.Internal.Monad TR
-open import Definition.Typed.Decidable.Internal.Substitution TR
-open import Definition.Typed.Decidable.Internal.Term TR
-open import Definition.Typed.Decidable.Internal.Tests TR
-open import Definition.Typed.Decidable.Internal.Weakening TR
+open import Definition.Typed.Decidable.Internal.Constraint 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Context 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Equality 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Monad 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Substitution 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Term 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Tests 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Weakening 𝐌 TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties.Admissible.Empty TR
 open import Definition.Typed.Properties.Admissible.Equality TR

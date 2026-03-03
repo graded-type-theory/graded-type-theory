@@ -5,10 +5,12 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Decidable.Internal.Term
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (R : Type-restrictions 𝕄)
   where
 
@@ -19,8 +21,6 @@ import Definition.Untyped.Sup R as S
 
 open U.Con
 open U.DCon
-
-import Graded.Mode 𝕄 as Mode
 
 open import Tools.Bool using (Bool; false; T)
 open import Tools.Empty
@@ -36,6 +36,7 @@ open import Tools.Vec as Vec using (Vec)
 
 private
   module M = Modality 𝕄
+  module Mode = IsMode 𝐌
 
 private variable
   b                     : Bool

@@ -3,14 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Untyped.Properties
-  {a} {M : Set a} {𝕄 : Modality M}
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (type-variant : Type-variant)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
@@ -19,6 +22,7 @@ module Graded.Heap.Untyped.Properties
 
 open Type-variant type-variant
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Tools.Empty
 open import Tools.Fin
@@ -58,7 +62,8 @@ private variable
   c c′ c″ : Cont _
   s s′ : State _ _ _
   σ : Subst _ _
-  em : Erased-matches
+  em em′ : Erased-matches
+  mo mo′ : Mode
   V : Set a
 
 ------------------------------------------------------------------------
@@ -521,14 +526,14 @@ opaque
 
   -- An inversion lemma for multiplicity of non-empty stacks
 
-  ∣∣∙-inv : ∣ c ∙ S ∣≡ p → ∃₂ λ q r → ∣ c ∣ᶜ≡ q × ∣ S ∣≡ r × p ≡ r · q
+  ∣∣∙-inv : ∣ c ∙ S ∣≡ p → ∃₂ λ q r → ∣ c ∣ᶜ[ ⌞ r ⌟ ]≡ q × ∣ S ∣≡ r × p ≡ r · q
   ∣∣∙-inv (e ∙ S) = _ , _ , e , S , refl
 
 opaque
 
   -- Continuation weakening preserves multiplicity
 
-  wk-∣∣ᶜ : ∣ c ∣ᶜ≡ p → ∣ wkᶜ ρ c ∣ᶜ≡ p
+  wk-∣∣ᶜ : ∣ c ∣ᶜ[ mo ]≡ p → ∣ wkᶜ ρ c ∣ᶜ[ mo ]≡ p
   wk-∣∣ᶜ lowerₑ = lowerₑ
   wk-∣∣ᶜ ∘ₑ = ∘ₑ
   wk-∣∣ᶜ fstₑ = fstₑ
@@ -599,7 +604,7 @@ opaque
 
   -- The multiplicity relation for continuations is functional
 
-  ∣∣ᶜ-functional : ∣ c ∣ᶜ≡ p → ∣ c ∣ᶜ≡ q → p ≡ q
+  ∣∣ᶜ-functional : ∣ c ∣ᶜ[ mo ]≡ p → ∣ c ∣ᶜ[ mo ]≡ q → p ≡ q
   ∣∣ᶜ-functional lowerₑ lowerₑ = refl
   ∣∣ᶜ-functional ∘ₑ ∘ₑ = refl
   ∣∣ᶜ-functional fstₑ fstₑ = refl
@@ -621,7 +626,9 @@ opaque
   ∣∣-functional : ∣ S ∣≡ p → ∣ S ∣≡ q → p ≡ q
   ∣∣-functional ε ε = refl
   ∣∣-functional (e ∙ S) (e′ ∙ S′) =
-    ·-cong (∣∣-functional S S′) (∣∣ᶜ-functional e e′)
+    let ∣S∣≡∣S∣′ = ∣∣-functional S S′
+    in  ·-cong ∣S∣≡∣S∣′
+         (∣∣ᶜ-functional e (subst (λ p → ∣ _ ∣ᶜ[ ⌞ p ⌟ ]≡ _) (sym ∣S∣≡∣S∣′) e′))
 
 opaque
 
@@ -633,7 +640,7 @@ opaque
 
 opaque
 
-  -- The multiplicity relation for Jₑ always inhabited
+  -- The multiplicity relation for Jₑ is always inhabited
 
   ∣J∣≡ : ∃ λ r → ∣J em , p , q ∣≡ r
   ∣J∣≡ {em = none} = _ , J-none
@@ -648,7 +655,7 @@ opaque
 
 opaque
 
-  -- The multiplicity relation for Kₑ always inhabited
+  -- The multiplicity relation for Kₑ is always inhabited
 
   ∣K∣≡ : ∃ λ r → ∣K em , p ∣≡ r
   ∣K∣≡ {em = none} = _ , K-none
@@ -665,7 +672,7 @@ opaque
 
   ∣∣ᶜ≡ :
     (∀ {n p q r A u v ρ} → c ≡ natrecₑ {n = n} p q r A u v ρ → Nr-available) →
-    ∃ ∣ c ∣ᶜ≡_
+    ∃ ∣ c ∣ᶜ[ mo ]≡_
   ∣∣ᶜ≡ {c = lowerₑ} _ = 𝟙 , lowerₑ
   ∣∣ᶜ≡ {c = ∘ₑ p u ρ} _ = 𝟙 , ∘ₑ
   ∣∣ᶜ≡ {c = fstₑ x} _ = 𝟙 , fstₑ
@@ -730,6 +737,92 @@ opaque
   ∣K∣≡ω {(none)} _ _ = K-none
   ∣K∣≡ω {(all)} () _
   ∣K∣≡ω {(some)} _ ≢𝟘 = K-some (≢𝟘 refl)
+
+opaque
+
+  -- The multiplicity of Kₑ is either 𝟘 or ω
+
+  ∣K∣≡𝟘⊎ω : ∣K em , p ∣≡ q → q ≡ 𝟘 ⊎ q ≡ ω
+  ∣K∣≡𝟘⊎ω K-all = inj₁ refl
+  ∣K∣≡𝟘⊎ω (K-some₀ x) = inj₁ refl
+  ∣K∣≡𝟘⊎ω (K-some x) = inj₂ refl
+  ∣K∣≡𝟘⊎ω K-none = inj₂ refl
+
+opaque
+
+  -- The multiplicity of Jₑ is either 𝟘 or ω
+
+  ∣J∣≡𝟘⊎ω : ∣J em , p , q ∣≡ r → r ≡ 𝟘 ⊎ r ≡ ω
+  ∣J∣≡𝟘⊎ω J-all = inj₁ refl
+  ∣J∣≡𝟘⊎ω (J-some₀ x x₁) = inj₁ refl
+  ∣J∣≡𝟘⊎ω (J-some x) = inj₂ refl
+  ∣J∣≡𝟘⊎ω J-none = inj₂ refl
+
+opaque
+
+  -- The multiplicity of Jₑ respects _≤ᵉᵐ_
+
+  ∣J∣-≤ᵉᵐ : em ≤ᵉᵐ em′ → ∣J em , p , q ∣≡ r → ∣J em′ , p , q ∣≡ r′ → r ≤ r′
+  ∣J∣-≤ᵉᵐ _ J-all J-all = ≤-refl
+  ∣J∣-≤ᵉᵐ _ J-all (J-some₀ _ _) = ≤-refl
+  ∣J∣-≤ᵉᵐ () J-all (J-some _)
+  ∣J∣-≤ᵉᵐ () J-all J-none
+  ∣J∣-≤ᵉᵐ _ (J-some₀ x₁ x₂) J-all = ≤-refl
+  ∣J∣-≤ᵉᵐ _ (J-some₀ x₁ x₂) (J-some₀ x₃ x₄) = ≤-refl
+  ∣J∣-≤ᵉᵐ _ (J-some₀ p≡𝟘 q≡𝟘) (J-some pq≢𝟘) = ⊥-elim (pq≢𝟘 (p≡𝟘 , q≡𝟘))
+  ∣J∣-≤ᵉᵐ () (J-some₀ _ _) J-none
+  ∣J∣-≤ᵉᵐ _ (J-some _) ∣J∣≡r =
+    case ∣J∣≡𝟘⊎ω ∣J∣≡r of λ where
+      (inj₁ refl) → ω≤𝟘
+      (inj₂ refl) → ≤-refl
+  ∣J∣-≤ᵉᵐ _ J-none ∣J∣≡r =
+    case ∣J∣≡𝟘⊎ω ∣J∣≡r of λ where
+      (inj₁ refl) → ω≤𝟘
+      (inj₂ refl) → ≤-refl
+
+opaque
+
+  -- The multiplicity of Kₑ respects _≤ᵉᵐ_
+
+  ∣K∣-≤ᵉᵐ : em ≤ᵉᵐ em′ → ∣K em , p ∣≡ q → ∣K em′ , p ∣≡ r → q ≤ r
+  ∣K∣-≤ᵉᵐ _ K-all K-all = ≤-refl
+  ∣K∣-≤ᵉᵐ _ K-all (K-some₀ _) = ≤-refl
+  ∣K∣-≤ᵉᵐ () K-all (K-some _)
+  ∣K∣-≤ᵉᵐ () K-all K-none
+  ∣K∣-≤ᵉᵐ _ (K-some₀ _) K-all = ≤-refl
+  ∣K∣-≤ᵉᵐ _ (K-some₀ _) (K-some₀ _) = ≤-refl
+  ∣K∣-≤ᵉᵐ _ (K-some₀ p≡𝟘) (K-some p≢𝟘) = ⊥-elim (p≢𝟘 p≡𝟘)
+  ∣K∣-≤ᵉᵐ () (K-some₀ _) K-none
+  ∣K∣-≤ᵉᵐ _ (K-some _) ∣K∣≡r =
+    case ∣K∣≡𝟘⊎ω ∣K∣≡r of λ where
+      (inj₁ refl) → ω≤𝟘
+      (inj₂ refl) → ≤-refl
+  ∣K∣-≤ᵉᵐ _ K-none ∣K∣≡r =
+    case ∣K∣≡𝟘⊎ω ∣K∣≡r of λ where
+      (inj₁ refl) → ω≤𝟘
+      (inj₂ refl) → ≤-refl
+
+opaque
+
+  -- The multiplicity of Jₑ respects _≤ᵐ_
+
+  ∣J∣-≤ᵐ :
+    mo ≤ᵐ mo′ →
+    ∣J erased-matches-for-J mo , p , q ∣≡ r →
+    ∣J erased-matches-for-J mo′ , p , q ∣≡ r′ →
+    r ≤ r′
+  ∣J∣-≤ᵐ m≤m′ = ∣J∣-≤ᵉᵐ (erased-matches-for-J-≤ᵉᵐ m≤m′)
+
+opaque
+
+  -- The multiplicity of Kₑ respects _≤ᵐ_
+
+  ∣K∣-≤ᵐ :
+    mo ≤ᵐ mo′ →
+    ∣K erased-matches-for-K mo , p ∣≡ r →
+    ∣K erased-matches-for-K mo′ , p ∣≡ r′ →
+    r ≤ r′
+  ∣K∣-≤ᵐ m≤m′ = ∣K∣-≤ᵉᵐ (erased-matches-for-K-≤ᵉᵐ m≤m′)
 
 opaque
 
@@ -833,7 +926,7 @@ opaque
     there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , x)))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , there x)))))
     there′ (inj₂ (inj₂ (inj₂ (inj₂ (inj₂ x))))) = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ (there x)))))
     here′ :
-      q ≡ 𝟘 → ∣ c ∣ᶜ≡ q →
+      q ≡ 𝟘 → ∣ c ∣ᶜ[ mo ]≡ q →
       (∃ λ p → prodrec 𝟘 , p ∈ (c ∙ S)) ⊎ (unitrec 𝟘 ∈ c ∙ S) ⊎ (emptyrec 𝟘 ∈ c ∙ S) ⊎
       (∃₂ λ p q → J p , q ∈ c ∙ S) ⊎ (∃ λ p → K p ∈ c ∙ S) ⊎ ([]-cong∈ c ∙ S)
     here′ q≡ lowerₑ = ⊥-elim (non-trivial q≡)

@@ -11,7 +11,6 @@ open import Tools.Sum
 
 open import Graded.Modality.Instances.Erasure
 import Graded.Modality.Properties.Star as Star
-open import Graded.Modality.Variant lzero
 
 open import Graded.Modality Erasure public
 
@@ -98,11 +97,9 @@ instance
     nr-factoring {z = 𝟘} {n = ω} = refl
     nr-factoring {z = ω} {n = ω} = refl
 
--- Erasure modality instances (for different modality variants).
+-- Erasure modality instance.
 
-ErasureModality : Modality-variant → Modality
-ErasureModality variant = record
-  { variant            = variant
-  ; semiring-with-meet = erasure-semiring-with-meet
-  ; 𝟘-well-behaved     = λ _ → erasure-has-well-behaved-zero
+ErasureModality : Modality
+ErasureModality = record
+  { semiring-with-meet = erasure-semiring-with-meet
   }

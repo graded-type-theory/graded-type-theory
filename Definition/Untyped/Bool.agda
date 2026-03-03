@@ -14,12 +14,12 @@
 -- found in Graded/Derived/Bool.
 
 import Graded.Modality
+import Graded.Mode
 
 module Definition.Untyped.Bool
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)
-  -- The three grades used in the Σ-type used to encode the type Bool
   (Boolᵍ₁ Boolᵍ₂ OKᵍ : M)
   where
 
@@ -31,10 +31,15 @@ import Definition.Typed.Decidable.Internal.Weakening
 open import Definition.Typed.Restrictions
 
 import Definition.Untyped.Bool.OK 𝕄 OKᵍ as B-OK
+
 open import Definition.Untyped M
 open import Definition.Untyped.Empty 𝕄 as UE hiding (module Internal)
 open import Definition.Untyped.Nat 𝕄 as UN hiding (module Internal)
 open import Definition.Untyped.Properties M
+
+open import Graded.Modality.Nr-instances
+open import Graded.Modality.Properties 𝕄 hiding (has-nr)
+open import Graded.Mode
 
 open import Tools.Empty
 open import Tools.Fin
@@ -175,18 +180,22 @@ opaque
 -- Variants of the term formers, intended to be used with the internal
 -- type-checker
 
-module Internal (R : Type-restrictions 𝕄) where
+module Internal
+  {b} {Mode : Set b}
+  (𝐌 : IsMode Mode 𝕄)
+  (R : Type-restrictions 𝕄)
+  where
 
-  open UE.Internal R
-  open UN.Internal R
+  open UE.Internal 𝐌 R
+  open UN.Internal 𝐌 R
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term R
+      Definition.Typed.Decidable.Internal.Term 𝐌 R
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
     c                                              : I.Constants

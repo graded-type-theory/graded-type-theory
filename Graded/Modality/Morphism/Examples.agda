@@ -36,13 +36,9 @@ open import Graded.Modality.Instances.Zero-one-many as ZOM
   using (Zero-one-many; 𝟘; 𝟙; ω; zero-one-many-modality)
 open import Graded.Modality.Morphism
 import Graded.Modality.Properties
-open import Graded.Modality.Variant
-
-open Modality-variant
 
 private variable
   𝟙≤𝟘             : Bool
-  v₁ v₂           : Modality-variant _
   A M             : Set _
   v₁-ok v₂-ok     : A
   p q₁ q₂ q₃ q₄ r : M
@@ -150,13 +146,12 @@ linearity→affine =
 -- modality to an erasure modality if a certain assumption holds.
 
 unit⇨erasure :
-  let 𝕄₁ = UnitModality v₁ v₁-ok
-      𝕄₂ = ErasureModality v₂
+  let 𝕄₁ = UnitModality
+      𝕄₂ = ErasureModality
   in
   Is-order-embedding 𝕄₁ 𝕄₂ unit→erasure
-unit⇨erasure {v₁-ok} = λ where
+unit⇨erasure = λ where
     .tr-order-reflecting _ → refl
-    .trivial _ _           → refl
     .tr-≤                  → _ , refl
     .tr-≤-𝟙 _              → refl
     .tr-ω                  → refl
@@ -166,10 +161,8 @@ unit⇨erasure {v₁-ok} = λ where
     .tr-morphism           → λ where
       .first-trivial-if-second-trivial
         ()
-      .𝟘ᵐ-in-second-if-in-first             → ⊥-elim ∘→ v₁-ok
       .tr-𝟘-≤                               → refl
       .trivial-⊎-tr-≡-𝟘-⇔                   → inj₁ refl
-      .tr-<-𝟘 _ _                           → refl , λ ()
       .tr-𝟙                                 → refl
       .tr-ω                                 → refl
       .tr-+                                 → refl
@@ -183,7 +176,7 @@ unit⇨erasure {v₁-ok} = λ where
 -- modality to a unit modality.
 
 ¬erasure⇨unit :
-  ¬ Is-morphism (ErasureModality v₁) (UnitModality v₂ v₂-ok)
+  ¬ Is-morphism ErasureModality UnitModality
       erasure→unit
 ¬erasure⇨unit m =
   case Is-morphism.first-trivial-if-second-trivial m refl of λ ()
@@ -194,14 +187,12 @@ unit⇨erasure {v₁-ok} = λ where
 -- defined with either 𝟙 ≤ 𝟘 or 𝟙 ≰ 𝟘.
 
 erasure⇨zero-one-many :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = ErasureModality v₁
-      𝕄₂ = zero-one-many-modality 𝟙≤𝟘 v₂
+  let 𝕄₁ = ErasureModality
+      𝕄₂ = zero-one-many-modality 𝟙≤𝟘
   in
   Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
-erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘} refl =
+erasure⇨zero-one-many {𝟙≤𝟘} =
   λ where
-    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
     .Is-order-embedding.tr-ω                → refl
@@ -217,17 +208,15 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
       .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                     , λ { refl → refl }
                                                     )
-      .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
       .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-· {p = p}              → tr-· p _
       .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
-  module P₁ = Graded.Modality.Properties (ErasureModality v₁)
-  open Graded.Modality.Properties (zero-one-many-modality 𝟙≤𝟘 v₂)
+  module P₁ = Graded.Modality.Properties ErasureModality
+  open Graded.Modality.Properties (zero-one-many-modality 𝟙≤𝟘)
   open Tools.Reasoning.PartialOrder ≤-poset
 
   tr′  = erasure→zero-one-many
@@ -310,28 +299,25 @@ erasure⇨zero-one-many {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘 = 𝟙≤𝟘
 -- defined with either 𝟙 ≤ 𝟘 or 𝟙 ≰ 𝟘.
 
 zero-one-many⇨erasure :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = zero-one-many-modality 𝟙≤𝟘 v₁
-      𝕄₂ = ErasureModality v₂
+  let 𝕄₁ = zero-one-many-modality 𝟙≤𝟘
+      𝕄₂ = ErasureModality
   in
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
-zero-one-many⇨erasure {v₂ = v₂@record{}} {𝟙≤𝟘 = 𝟙≤𝟘} refl = λ where
+zero-one-many⇨erasure {𝟙≤𝟘} = λ where
     .Is-morphism.first-trivial-if-second-trivial
       ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
                                                   )
-    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-· {p = p}              → tr-· p _
     .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
   where
   module 𝟘𝟙ω = ZOM 𝟙≤𝟘
-  open Graded.Modality.Properties (ErasureModality v₂)
+  open Graded.Modality.Properties ErasureModality
 
   tr′ = zero-one-many→erasure
 
@@ -387,8 +373,8 @@ zero-one-many⇨erasure {v₂ = v₂@record{}} {𝟙≤𝟘 = 𝟙≤𝟘} refl 
 
 ¬zero-one-many⇨erasure :
   ¬ Is-order-embedding
-      (zero-one-many-modality 𝟙≤𝟘 v₁)
-      (ErasureModality v₂)
+      (zero-one-many-modality 𝟙≤𝟘)
+      ErasureModality
       zero-one-many→erasure
 ¬zero-one-many⇨erasure m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ω} refl of λ ()
@@ -398,9 +384,8 @@ zero-one-many⇨erasure {v₂ = v₂@record{}} {𝟙≤𝟘 = 𝟙≤𝟘} refl 
 -- hold.
 
 erasure⇨linearity :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = ErasureModality v₁
-      𝕄₂ = linearityModality v₂
+  let 𝕄₁ = ErasureModality
+      𝕄₂ = linearityModality
   in
   Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
 erasure⇨linearity = erasure⇨zero-one-many
@@ -409,9 +394,8 @@ erasure⇨linearity = erasure⇨zero-one-many
 -- types modality to an erasure modality if certain assumptions hold.
 
 linearity⇨erasure :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = linearityModality v₁
-      𝕄₂ = ErasureModality v₂
+  let 𝕄₁ = linearityModality
+      𝕄₂ = ErasureModality
   in
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 linearity⇨erasure = zero-one-many⇨erasure
@@ -420,7 +404,7 @@ linearity⇨erasure = zero-one-many⇨erasure
 -- linear types modality to an erasure modality.
 
 ¬linearity⇨erasure :
-  ¬ Is-order-embedding (linearityModality v₁) (ErasureModality v₂)
+  ¬ Is-order-embedding linearityModality ErasureModality
       zero-one-many→erasure
 ¬linearity⇨erasure = ¬zero-one-many⇨erasure
 
@@ -429,9 +413,8 @@ linearity⇨erasure = zero-one-many⇨erasure
 -- hold.
 
 erasure⇨affine :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = ErasureModality v₁
-      𝕄₂ = affineModality v₂
+  let 𝕄₁ = ErasureModality
+      𝕄₂ = affineModality
   in
   Is-order-embedding 𝕄₁ 𝕄₂ erasure→zero-one-many
 erasure⇨affine = erasure⇨zero-one-many
@@ -440,9 +423,8 @@ erasure⇨affine = erasure⇨zero-one-many
 -- types modality to an erasure modality if certain assumptions hold.
 
 affine⇨erasure :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = affineModality v₁
-      𝕄₂ = ErasureModality v₂
+  let 𝕄₁ = affineModality
+      𝕄₂ = ErasureModality
   in
   Is-morphism 𝕄₁ 𝕄₂ zero-one-many→erasure
 affine⇨erasure = zero-one-many⇨erasure
@@ -451,7 +433,7 @@ affine⇨erasure = zero-one-many⇨erasure
 -- an affine types modality to an erasure modality.
 
 ¬affine⇨erasure :
-  ¬ Is-order-embedding (affineModality v₁) (ErasureModality v₂)
+  ¬ Is-order-embedding affineModality ErasureModality
       zero-one-many→erasure
 ¬affine⇨erasure = ¬zero-one-many⇨erasure
 
@@ -460,13 +442,11 @@ affine⇨erasure = zero-one-many⇨erasure
 -- certain assumptions hold.
 
 linearity⇨linear-or-affine :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = linearityModality v₁
-      𝕄₂ = linear-or-affine v₂
+  let 𝕄₁ = linearityModality
+      𝕄₂ = linear-or-affine
   in
   Is-order-embedding 𝕄₁ 𝕄₂ linearity→linear-or-affine
-linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl = λ where
-    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
+linearity⇨linear-or-affine = λ where
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
     .Is-order-embedding.tr-ω                → refl
@@ -481,16 +461,14 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl = λ where
       .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                     , λ { refl → refl }
                                                     )
-      .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
       .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-·                      → tr-· _ _
       .Is-morphism.tr-∧                      → tr-∧ _ _
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
   where
-  module P₁ = Graded.Modality.Properties (linearityModality v₁)
-  open Graded.Modality.Properties (linear-or-affine v₂)
+  module P₁ = Graded.Modality.Properties linearityModality
+  open Graded.Modality.Properties linear-or-affine
 
   tr′  = linearity→linear-or-affine
 
@@ -661,27 +639,24 @@ linearity⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl = λ where
 -- assumptions hold.
 
 linear-or-affine⇨linearity :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = linear-or-affine v₁
-      𝕄₂ = linearityModality v₂
+  let 𝕄₁ = linear-or-affine
+      𝕄₂ = linearityModality
   in
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→linearity
-linear-or-affine⇨linearity {v₂ = v₂@record{}} refl = λ where
+linear-or-affine⇨linearity = λ where
     .Is-morphism.first-trivial-if-second-trivial
       ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
                                                   )
-    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
   where
-  open Graded.Modality.Properties (linearityModality v₂)
+  open Graded.Modality.Properties linearityModality
 
   tr′ = linear-or-affine→linearity
 
@@ -750,7 +725,7 @@ linear-or-affine⇨linearity {v₂ = v₂@record{}} refl = λ where
 -- from a linear or affine types modality to a linear types modality.
 
 ¬linear-or-affine⇨linearity :
-  ¬ Is-order-embedding (linear-or-affine v₁) (linearityModality v₂)
+  ¬ Is-order-embedding linear-or-affine linearityModality
       linear-or-affine→linearity
 ¬linear-or-affine⇨linearity m =
   case Is-order-embedding.tr-injective m {p = ≤𝟙} {q = ≤ω} refl of λ ()
@@ -760,13 +735,11 @@ linear-or-affine⇨linearity {v₂ = v₂@record{}} refl = λ where
 -- certain assumptions hold.
 
 affine⇨linear-or-affine :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = affineModality v₁
-      𝕄₂ = linear-or-affine v₂
+  let 𝕄₁ = affineModality
+      𝕄₂ = linear-or-affine
   in
   Is-order-embedding 𝕄₁ 𝕄₂ affine→linear-or-affine
-affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl = λ where
-    .Is-order-embedding.trivial not-ok ok   → ⊥-elim (not-ok ok)
+affine⇨linear-or-affine = λ where
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
     .Is-order-embedding.tr-ω                → refl
@@ -781,16 +754,14 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl = λ where
       .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                     , λ { refl → refl }
                                                     )
-      .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
       .Is-morphism.tr-𝟙                      → refl
       .Is-morphism.tr-ω                      → refl
       .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-·                      → tr-· _ _
       .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
-      .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
   where
-  module P₁ = Graded.Modality.Properties (affineModality v₁)
-  open Graded.Modality.Properties (linear-or-affine v₂)
+  module P₁ = Graded.Modality.Properties affineModality
+  open Graded.Modality.Properties linear-or-affine
 
   tr′  = affine→linear-or-affine
 
@@ -962,27 +933,24 @@ affine⇨linear-or-affine {v₁ = v₁@record{}} {v₂} refl = λ where
 -- assumptions hold.
 
 linear-or-affine⇨affine :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = linear-or-affine v₁
-      𝕄₂ = affineModality v₂
+  let 𝕄₁ = linear-or-affine
+      𝕄₂ = affineModality
   in
   Is-morphism 𝕄₁ 𝕄₂ linear-or-affine→affine
-linear-or-affine⇨affine {v₂ = v₂@record{}} refl = λ where
+linear-or-affine⇨affine = λ where
     .Is-morphism.first-trivial-if-second-trivial
       ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
                                                   )
-    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
   where
-  open Graded.Modality.Properties (affineModality v₂)
+  open Graded.Modality.Properties affineModality
 
   tr′ = linear-or-affine→affine
 
@@ -1050,7 +1018,7 @@ linear-or-affine⇨affine {v₂ = v₂@record{}} refl = λ where
 -- a linear or affine types modality to an affine types modality.
 
 ¬linear-or-affine⇨affine :
-  ¬ Is-order-embedding (linear-or-affine v₁) (affineModality v₂)
+  ¬ Is-order-embedding linear-or-affine affineModality
       linear-or-affine→affine
 ¬linear-or-affine⇨affine m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ≤𝟙} refl of λ ()
@@ -1059,27 +1027,24 @@ linear-or-affine⇨affine {v₂ = v₂@record{}} refl = λ where
 -- modality to a linear types modality if certain assumptions hold.
 
 affine⇨linearity :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = affineModality v₁
-      𝕄₂ = linearityModality v₂
+  let 𝕄₁ = affineModality
+      𝕄₂ = linearityModality
   in
   Is-morphism 𝕄₁ 𝕄₂ affine→linearity
-affine⇨linearity {v₁ = v₁@record{}} {v₂} refl = λ where
+affine⇨linearity = λ where
     .Is-morphism.first-trivial-if-second-trivial
       ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
                                                   )
-    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
   where
-  open Graded.Modality.Properties (linearityModality v₂)
+  open Graded.Modality.Properties linearityModality
 
   tr′ = affine→linearity
 
@@ -1125,7 +1090,7 @@ affine⇨linearity {v₁ = v₁@record{}} {v₂} refl = λ where
 -- affine types modality to a linear types modality.
 
 ¬affine⇨linearity :
-  ¬ Is-order-embedding (affineModality v₁) (linearityModality v₂)
+  ¬ Is-order-embedding affineModality linearityModality
       affine→linearity
 ¬affine⇨linearity m =
   case Is-order-embedding.tr-injective m {p = 𝟙} {q = ω} refl of λ ()
@@ -1134,27 +1099,24 @@ affine⇨linearity {v₁ = v₁@record{}} {v₂} refl = λ where
 -- modality to an affine types modality if certain assumptions hold.
 
 linearity⇨affine :
-  𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-  let 𝕄₁ = linearityModality v₁
-      𝕄₂ = affineModality v₂
+  let 𝕄₁ = linearityModality
+      𝕄₂ = affineModality
   in
   Is-morphism 𝕄₁ 𝕄₂ linearity→affine
-linearity⇨affine {v₁ = v₁@record{}} {v₂} refl = λ where
+linearity⇨affine = λ where
     .Is-morphism.first-trivial-if-second-trivial
       ()
     .Is-morphism.tr-𝟘-≤                    → refl
     .Is-morphism.trivial-⊎-tr-≡-𝟘-⇔        → inj₂ ( tr-≡-𝟘 _
                                                   , λ { refl → refl }
                                                   )
-    .Is-morphism.tr-<-𝟘 not-ok ok          → ⊥-elim (not-ok ok)
     .Is-morphism.tr-𝟙                      → refl
     .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧ {p = p}              → tr-∧ p _
-    .Is-morphism.𝟘ᵐ-in-second-if-in-first  → idᶠ
   where
-  open Graded.Modality.Properties (affineModality v₂)
+  open Graded.Modality.Properties affineModality
 
   tr′ = linearity→affine
 
@@ -1200,7 +1162,7 @@ linearity⇨affine {v₁ = v₁@record{}} {v₂} refl = λ where
 -- linear types modality to an affine types modality.
 
 ¬linearity⇨affine :
-  ¬ Is-order-embedding (linearityModality v₁) (affineModality v₂)
+  ¬ Is-order-embedding linearityModality affineModality
       linearity→affine
 ¬linearity⇨affine m =
   case Is-order-embedding.tr-order-reflecting m {p = 𝟙} {q = 𝟘} refl of
@@ -1217,22 +1179,18 @@ linearity⇨affine {v₁ = v₁@record{}} {v₂} refl = λ where
 -- 𝟙 ≰ 𝟘.
 
 erasure⇨zero-one-many-Σ :
-  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
   Is-Σ-order-embedding
-    (ErasureModality v₁)
-    (zero-one-many-modality 𝟙≤𝟘 v₂)
+    ErasureModality
+    (zero-one-many-modality 𝟙≤𝟘)
     erasure→zero-one-many
     erasure→zero-one-many-Σ
-erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
+erasure⇨zero-one-many-Σ {𝟙≤𝟘} = record
   { tr-Σ-morphism = record
     { tr-≤-tr-Σ = λ where
         {p = 𝟘} → refl
         {p = ω} → refl
     ; tr-Σ-𝟘-≡ =
         λ _ → refl
-    ; tr-Σ-≡-𝟘-→ = λ where
-        {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
-        {p = ω} _   ()
     ; tr-Σ-≤-𝟙 = λ where
         {p = ω} _ → refl
         {p = 𝟘} ()
@@ -1257,8 +1215,7 @@ erasure⇨zero-one-many-Σ {𝟙≤𝟘 = 𝟙≤𝟘} ok₂₁ = record
 -- 𝟘ᵐ, then the first also does this.
 
 erasure⇨linearity-Σ :
-  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
-  Is-Σ-order-embedding (ErasureModality v₁) (linearityModality v₂)
+  Is-Σ-order-embedding ErasureModality linearityModality
     erasure→zero-one-many erasure→zero-one-many-Σ
 erasure⇨linearity-Σ = erasure⇨zero-one-many-Σ
 
@@ -1278,8 +1235,7 @@ erasure⇨linearity-Σ-not-monotone mono =
 -- 𝟘ᵐ, then the first also does this.
 
 erasure⇨affine-Σ :
-  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
-  Is-Σ-order-embedding (ErasureModality v₁) (affineModality v₂)
+  Is-Σ-order-embedding ErasureModality affineModality
     erasure→zero-one-many erasure→zero-one-many-Σ
 erasure⇨affine-Σ = erasure⇨zero-one-many-Σ
 
@@ -1289,10 +1245,9 @@ erasure⇨affine-Σ = erasure⇨zero-one-many-Σ
 -- second modality allows 𝟘ᵐ, then the first also does this.
 
 affine⇨linear-or-affine-Σ :
-  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
-  Is-Σ-order-embedding (affineModality v₁) (linear-or-affine v₂)
+  Is-Σ-order-embedding affineModality linear-or-affine
     affine→linear-or-affine affine→linear-or-affine-Σ
-affine⇨linear-or-affine-Σ ok₂₁ = record
+affine⇨linear-or-affine-Σ = record
   { tr-Σ-morphism = record
     { tr-≤-tr-Σ = λ where
         {p = 𝟘} → refl
@@ -1300,10 +1255,6 @@ affine⇨linear-or-affine-Σ ok₂₁ = record
         {p = ω} → refl
     ; tr-Σ-𝟘-≡ =
         λ _ → refl
-    ; tr-Σ-≡-𝟘-→ = λ where
-        {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
-        {p = 𝟙} _   ()
-        {p = ω} _   ()
     ; tr-Σ-≤-𝟙 = λ where
         {p = 𝟙} _ → refl
         {p = ω} _ → refl
@@ -1365,17 +1316,15 @@ affine→linear-or-affine-Σ-not-monotone mono =
   ¬ Is-order-embedding 𝕄₁ 𝕄₂ tr-Σ
 Σ-order-embedding-but-not-order-embedding =
     Affine , Linear-or-affine
-  , affineModality variant
-  , linear-or-affine variant
+  , affineModality
+  , linear-or-affine
   , affine→linear-or-affine , affine→linear-or-affine-Σ
-  , affine⇨linear-or-affine refl
-  , Is-Σ-order-embedding.tr-Σ-morphism (affine⇨linear-or-affine-Σ _)
-  , affine⇨linear-or-affine-Σ _
+  , affine⇨linear-or-affine
+  , Is-Σ-order-embedding.tr-Σ-morphism affine⇨linear-or-affine-Σ
+  , affine⇨linear-or-affine-Σ
   , affine→linear-or-affine-Σ-not-monotone ∘→ Is-morphism.tr-monotone
   , affine→linear-or-affine-Σ-not-monotone ∘→
     Is-order-embedding.tr-monotone
-  where
-  variant = 𝟘ᵐ-allowed-if _ true
 
 -- The function affine→linearity-Σ is a Σ-morphism (with respect to
 -- affine→linearity) from an affine types modality to a linear types
@@ -1383,20 +1332,15 @@ affine→linear-or-affine-Σ-not-monotone mono =
 -- first also does this.
 
 affine⇨linearity-Σ :
-  (T (𝟘ᵐ-allowed v₂) → T (𝟘ᵐ-allowed v₁)) →
-  Is-Σ-morphism (affineModality v₁) (linearityModality v₂)
+  Is-Σ-morphism affineModality linearityModality
     affine→linearity affine→linearity-Σ
-affine⇨linearity-Σ ok₂₁ = record
+affine⇨linearity-Σ = record
   { tr-≤-tr-Σ = λ where
       {p = 𝟘} → refl
       {p = 𝟙} → refl
       {p = ω} → refl
   ; tr-Σ-𝟘-≡ =
       λ _ → refl
-  ; tr-Σ-≡-𝟘-→ = λ where
-      {p = 𝟘} ok₂ _ → ok₂₁ ok₂ , refl
-      {p = 𝟙} _   ()
-      {p = ω} _   ()
   ; tr-Σ-≤-𝟙 = λ where
       {p = 𝟙} _ → refl
       {p = ω} _ → refl
@@ -1427,8 +1371,8 @@ affine→linearity-Σ-not-monotone mono =
 
 ¬affine⇨linearity-Σ :
   ¬ Is-Σ-order-embedding
-      (affineModality v₁)
-      (linearityModality v₂)
+      affineModality
+      linearityModality
       affine→linearity affine→linearity-Σ
 ¬affine⇨linearity-Σ m =
   case
@@ -1447,8 +1391,8 @@ opaque
 
   unit⇒erasure-nr-preserving :
     Is-nr-preserving-morphism
-      (UnitModality v₁ v₁-ok)
-      (ErasureModality v₂)
+      UnitModality
+      ErasureModality
       ⦃ unit-has-nr ⦄
       unit→erasure
   unit⇒erasure-nr-preserving = λ where
@@ -1458,36 +1402,21 @@ opaque
 
 opaque
 
-  -- The function unit→erasure is no-nr preserving
-
-  unit⇒erasure-no-nr-preserving :
-    Is-no-nr-preserving-morphism
-      (UnitModality v₁ v₁-ok)
-      (ErasureModality v₂)
-      unit→erasure
-  unit⇒erasure-no-nr-preserving = λ where
-      .𝟘ᵐ-in-first-if-in-second _ → inj₂ refl
-      .𝟘-well-behaved-in-first-if-in-second _ → inj₂ refl
-    where
-    open Is-no-nr-preserving-morphism
-
-opaque
-
   -- The function unit→erasure is no-nr-glb preserving
 
   unit⇒erasure-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (UnitModality v₁ v₁-ok)
-      (ErasureModality v₂)
+      UnitModality
+      ErasureModality
       unit→erasure
-  unit⇒erasure-no-nr-glb-preserving {v₂} = λ where
+  unit⇒erasure-no-nr-glb-preserving = λ where
       .tr-nrᵢ-GLB _ →
         _ , GLB-const (λ { 0 → refl ; (1+ i) → refl})
       .tr-nrᵢ-𝟙-GLB _ →
         _ , GLB-const (λ { 0 → refl ; (1+ i) → refl})
     where
     open Is-no-nr-glb-preserving-morphism
-    open Graded.Modality.Properties (ErasureModality v₂)
+    open Graded.Modality.Properties ErasureModality
 
 opaque
 
@@ -1495,15 +1424,15 @@ opaque
 
   erasure⇨zero-one-many-nr-preserving :
     Is-nr-preserving-morphism
-      (ErasureModality v₁)
-      (zero-one-many-modality 𝟙≤𝟘 v₂)
+      ErasureModality
+      (zero-one-many-modality 𝟙≤𝟘)
       ⦃ has-nr₂ = ZOM.zero-one-many-has-nr 𝟙≤𝟘 ⦄
       erasure→zero-one-many
-  erasure⇨zero-one-many-nr-preserving {𝟙≤𝟘} {v₂} = λ where
+  erasure⇨zero-one-many-nr-preserving {𝟙≤𝟘} = λ where
       .tr-nr {r} {z} → ≤-reflexive (tr-nr′ 𝟙≤𝟘 _ r z _ _)
     where
     open Is-nr-preserving-morphism
-    open Graded.Modality.Properties (zero-one-many-modality 𝟙≤𝟘 v₂)
+    open Graded.Modality.Properties (zero-one-many-modality 𝟙≤𝟘)
     tr-nr′ :
       ∀ 𝟙≤𝟘 →
       let module 𝟘𝟙ω′ = ZOM 𝟙≤𝟘
@@ -1577,33 +1506,14 @@ opaque
       true  ω ω ω ω 𝟘 → refl
       true  ω ω ω ω ω → refl
 
-
-opaque
-
-  -- The function erasure→zero-one-many is no-nr preserving
-
-  erasure⇨zero-one-many-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (ErasureModality v₁)
-      (zero-one-many-modality 𝟙≤𝟘 v₂)
-      erasure→zero-one-many
-  erasure⇨zero-one-many-no-nr-preserving {v₁ = record{}} refl = λ where
-      .𝟘ᵐ-in-first-if-in-second ok → inj₁ ok
-      .𝟘-well-behaved-in-first-if-in-second ok →
-        inj₁ E.erasure-has-well-behaved-zero
-    where
-    open Is-no-nr-preserving-morphism
-
-
 opaque
 
   -- The function erasure→zero-one-many is no-nr-glb preserving
 
   erasure⇨zero-one-many-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (ErasureModality v₁)
-      (zero-one-many-modality 𝟙≤𝟘 v₂)
+      ErasureModality
+      (zero-one-many-modality 𝟙≤𝟘)
       erasure→zero-one-many
   erasure⇨zero-one-many-no-nr-glb-preserving {𝟙≤𝟘} = λ where
       .tr-nrᵢ-GLB p-glb → _ , ZOM.nr-nrᵢ-GLB 𝟙≤𝟘 _
@@ -1617,16 +1527,16 @@ opaque
 
   zero-one-many⇒erasure-nr-preserving :
     Is-nr-preserving-morphism
-      (zero-one-many-modality 𝟙≤𝟘 v₁)
-      (ErasureModality v₂)
+      (zero-one-many-modality 𝟙≤𝟘)
+      ErasureModality
       ⦃ ZOM.zero-one-many-has-nr 𝟙≤𝟘 ⦄
       ⦃ E.erasure-has-nr ⦄
       zero-one-many→erasure
-  zero-one-many⇒erasure-nr-preserving {𝟙≤𝟘} {v₂} = λ where
+  zero-one-many⇒erasure-nr-preserving {𝟙≤𝟘} = λ where
       .tr-nr {r} → ≤-reflexive (tr-nr′ 𝟙≤𝟘 _ r _ _ _)
     where
     open Is-nr-preserving-morphism
-    open Graded.Modality.Properties (ErasureModality v₂)
+    open Graded.Modality.Properties ErasureModality
     tr-nr′ :
       ∀ 𝟙≤𝟘 →
       let module 𝟘𝟙ω′ = ZOM 𝟙≤𝟘
@@ -2125,33 +2035,16 @@ opaque
 
 opaque
 
-  -- The function zero-one-many→erasure is no-nr preserving
-
-  zero-one-many⇒erasure-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (zero-one-many-modality 𝟙≤𝟘 v₁)
-      (ErasureModality v₂)
-      zero-one-many→erasure
-  zero-one-many⇒erasure-no-nr-preserving {v₂ = record{}} {𝟙≤𝟘} refl = λ where
-      .𝟘ᵐ-in-first-if-in-second → inj₁
-      .𝟘-well-behaved-in-first-if-in-second _ →
-        inj₁ (ZOM.zero-one-many-has-well-behaved-zero 𝟙≤𝟘)
-    where
-    open Is-no-nr-preserving-morphism
-
-opaque
-
   -- The function zero-one-many→erasure is no-nr-glb preserving
 
   zero-one-many⇒erasure-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (zero-one-many-modality 𝟙≤𝟘 v₁)
-      (ErasureModality v₂)
+      (zero-one-many-modality 𝟙≤𝟘)
+      ErasureModality
       zero-one-many→erasure
-  zero-one-many⇒erasure-no-nr-glb-preserving {v₂} = λ where
-      .tr-nrᵢ-GLB _ → EP.Erasure-nrᵢ-glb v₂ _ _ _
-      .tr-nrᵢ-𝟙-GLB _ → EP.Erasure-nrᵢ-glb v₂ _ _ _
+  zero-one-many⇒erasure-no-nr-glb-preserving = λ where
+      .tr-nrᵢ-GLB _ → EP.Erasure-nrᵢ-glb _ _ _
+      .tr-nrᵢ-𝟙-GLB _ → EP.Erasure-nrᵢ-glb _ _ _
     where
     open Is-no-nr-glb-preserving-morphism
 
@@ -2162,8 +2055,8 @@ opaque
 
   erasure⇒linearity-nr-preserving :
     Is-nr-preserving-morphism
-      (ErasureModality v₁)
-      (linearityModality v₂)
+      ErasureModality
+      linearityModality
       ⦃ E.erasure-has-nr ⦄
       ⦃ L.zero-one-many-has-nr ⦄
       erasure→zero-one-many
@@ -2176,38 +2069,12 @@ opaque
 
   erasure⇒affine-nr-preserving :
     Is-nr-preserving-morphism
-      (ErasureModality v₁)
-      (affineModality v₂)
+      ErasureModality
+      affineModality
       ⦃ E.erasure-has-nr ⦄
       ⦃ A.zero-one-many-has-nr ⦄
       erasure→zero-one-many
   erasure⇒affine-nr-preserving = erasure⇨zero-one-many-nr-preserving
-
-opaque
-
-  -- The function erasure→zero-one-many is no-nr preserving from an
-  -- erasure modality to a linear types modality
-
-  erasure⇒linearity-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (ErasureModality v₁)
-      (linearityModality v₂)
-      erasure→zero-one-many
-  erasure⇒linearity-no-nr-preserving = erasure⇨zero-one-many-no-nr-preserving
-
-opaque
-
-  -- The function erasure→zero-one-many is no-nr preserving from an
-  -- erasure modality to a affine types modality
-
-  erasure⇒affine-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (ErasureModality v₁)
-      (affineModality v₂)
-      erasure→zero-one-many
-  erasure⇒affine-no-nr-preserving = erasure⇨zero-one-many-no-nr-preserving
 
 opaque
 
@@ -2216,8 +2083,8 @@ opaque
 
   erasure⇒linearity-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (ErasureModality v₁)
-      (linearityModality v₂)
+      ErasureModality
+      linearityModality
       erasure→zero-one-many
   erasure⇒linearity-no-nr-glb-preserving = erasure⇨zero-one-many-no-nr-glb-preserving
 
@@ -2228,8 +2095,8 @@ opaque
 
   erasure⇒affine-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (ErasureModality v₁)
-      (affineModality v₂)
+      ErasureModality
+      affineModality
       erasure→zero-one-many
   erasure⇒affine-no-nr-glb-preserving = erasure⇨zero-one-many-no-nr-glb-preserving
 
@@ -2240,8 +2107,8 @@ opaque
 
   linearity⇒erasure-nr-preserving :
     Is-nr-preserving-morphism
-      (linearityModality v₂)
-      (ErasureModality v₁)
+      linearityModality
+      ErasureModality
       ⦃ L.zero-one-many-has-nr ⦄
       ⦃ E.erasure-has-nr ⦄
       zero-one-many→erasure
@@ -2254,8 +2121,8 @@ opaque
 
   affine⇒erasure-nr-preserving :
     Is-nr-preserving-morphism
-      (affineModality v₂)
-      (ErasureModality v₁)
+      affineModality
+      ErasureModality
       ⦃ A.zero-one-many-has-nr ⦄
       ⦃ E.erasure-has-nr ⦄
       zero-one-many→erasure
@@ -2264,28 +2131,14 @@ opaque
 opaque
 
  -- The function zero-one-many→erasure is no-nr preserving from a
- -- linear types modality to an erasure modality
-
-  linearity⇒erasure-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (linearityModality v₁)
-      (ErasureModality v₂)
-      zero-one-many→erasure
-  linearity⇒erasure-no-nr-preserving = zero-one-many⇒erasure-no-nr-preserving
-
-opaque
-
- -- The function zero-one-many→erasure is no-nr preserving from a
  -- affine types modality to an erasure modality
 
-  affine⇒erasure-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (affineModality v₁)
-      (ErasureModality v₂)
+  affine⇒erasure-no-nr-glb-preserving :
+    Is-no-nr-glb-preserving-morphism
+      affineModality
+      ErasureModality
       zero-one-many→erasure
-  affine⇒erasure-no-nr-preserving = zero-one-many⇒erasure-no-nr-preserving
+  affine⇒erasure-no-nr-glb-preserving = zero-one-many⇒erasure-no-nr-glb-preserving
 
 opaque
 
@@ -2294,22 +2147,10 @@ opaque
 
   linearity⇒erasure-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (linearityModality v₁)
-      (ErasureModality v₂)
+      linearityModality
+      ErasureModality
       zero-one-many→erasure
   linearity⇒erasure-no-nr-glb-preserving = zero-one-many⇒erasure-no-nr-glb-preserving
-
-opaque
-
- -- The function zero-one-many→erasure is no-nr preserving from a
- -- affine types modality to an erasure modality
-
-  affine⇒erasure-no-nr-glb-preserving :
-    Is-no-nr-glb-preserving-morphism
-      (affineModality v₁)
-      (ErasureModality v₂)
-      zero-one-many→erasure
-  affine⇒erasure-no-nr-glb-preserving = zero-one-many⇒erasure-no-nr-glb-preserving
 
 opaque
 
@@ -2317,8 +2158,8 @@ opaque
 
   linearity⇨linear-or-affine-nr-preserving :
     Is-nr-preserving-morphism
-      (linearityModality v₁)
-      (linear-or-affine v₂)
+      linearityModality
+      linear-or-affine
       ⦃ L.zero-one-many-has-nr ⦄
       ⦃ LA.linear-or-affine-has-nr ⦄
       linearity→linear-or-affine
@@ -2579,29 +2420,12 @@ opaque
 
 opaque
 
-  -- The function linearity→linear-or-affine is no-nr preserving
-
-  linearity⇨linear-or-affine-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (linearityModality v₁)
-      (linear-or-affine v₂)
-      linearity→linear-or-affine
-  linearity⇨linear-or-affine-no-nr-preserving {v₁ = v₁@record{}} refl = λ where
-      .𝟘ᵐ-in-first-if-in-second → inj₁
-      .𝟘-well-behaved-in-first-if-in-second _ →
-        inj₁ (L.linearity-has-well-behaved-zero v₁)
-    where
-    open Is-no-nr-preserving-morphism
-
-opaque
-
   -- The function linearity→linear-or-affine is no-nr-glb preserving
 
   linearity⇨linear-or-affine-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (linearityModality v₁)
-      (linear-or-affine v₂)
+      linearityModality
+      linear-or-affine
       linearity→linear-or-affine
   linearity⇨linear-or-affine-no-nr-glb-preserving = λ where
       .tr-nrᵢ-GLB _ → _ , LA.nr-nrᵢ-GLB _
@@ -2615,16 +2439,16 @@ opaque
 
   linear-or-affine⇨linearity-nr-preserving :
     Is-nr-preserving-morphism
-      (linear-or-affine v₁)
-      (linearityModality v₂)
+      linear-or-affine
+      linearityModality
       ⦃ LA.linear-or-affine-has-nr ⦄
       ⦃ L.zero-one-many-has-nr ⦄
       linear-or-affine→linearity
-  linear-or-affine⇨linearity-nr-preserving {v₂} = λ where
+  linear-or-affine⇨linearity-nr-preserving = λ where
       .tr-nr {r} → ≤-reflexive (tr-nr′ _ r _ _ _)
     where
     open Is-nr-preserving-morphism
-    open Graded.Modality.Properties (linearityModality v₂)
+    open Graded.Modality.Properties linearityModality
     tr : Linear-or-affine → Linearity
     tr = linear-or-affine→linearity
     tr-nr′ :
@@ -3659,29 +3483,12 @@ opaque
 
 opaque
 
-  -- The function linear-or-affine→linearity is no-nr preserving
-
-  linear-or-affine⇨linearity-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (linear-or-affine v₁)
-      (linearityModality v₂)
-      linear-or-affine→linearity
-  linear-or-affine⇨linearity-no-nr-preserving {v₁ = record{}} refl = λ where
-      .𝟘ᵐ-in-first-if-in-second → inj₁
-      .𝟘-well-behaved-in-first-if-in-second _ →
-        inj₁ LA.linear-or-affine-has-well-behaved-zero
-    where
-    open Is-no-nr-preserving-morphism
-
-opaque
-
   -- The function linear-or-affine→linearity is no-nr-glb preserving
 
   linear-or-affine⇨linearity-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (linear-or-affine v₁)
-      (linearityModality v₂)
+      linear-or-affine
+      linearityModality
       linear-or-affine→linearity
   linear-or-affine⇨linearity-no-nr-glb-preserving = λ where
       .tr-nrᵢ-GLB _ → _ , L.nr-nrᵢ-GLB _
@@ -3695,16 +3502,16 @@ opaque
 
   affine⇨linear-or-affine-nr-preserving :
     Is-nr-preserving-morphism
-      (affineModality v₁)
-      (linear-or-affine v₂)
+      affineModality
+      linear-or-affine
       ⦃ A.zero-one-many-has-nr ⦄
       ⦃ LA.linear-or-affine-has-nr ⦄
       affine→linear-or-affine
-  affine⇨linear-or-affine-nr-preserving {v₂} = λ where
+  affine⇨linear-or-affine-nr-preserving = λ where
       .tr-nr {r} → ≤-reflexive (tr-nr′ _ r _ _ _)
     where
     open Is-nr-preserving-morphism
-    open Graded.Modality.Properties (linear-or-affine v₂)
+    open Graded.Modality.Properties linear-or-affine
     tr : Affine → Linear-or-affine
     tr = affine→linear-or-affine
     tr-nr′ :
@@ -3958,30 +3765,12 @@ opaque
 
 opaque
 
-  -- The function affine→linear-or-affine is no-nr preserving
-
-  affine⇨linear-or-affine-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (affineModality v₁)
-      (linear-or-affine v₂)
-      affine→linear-or-affine
-  affine⇨linear-or-affine-no-nr-preserving {v₁ = v₁@record{}} refl = λ where
-      .𝟘ᵐ-in-first-if-in-second → inj₁
-      .𝟘-well-behaved-in-first-if-in-second _ →
-        inj₁ (A.affine-has-well-behaved-zero v₁)
-    where
-    open Is-no-nr-preserving-morphism
-
-
-opaque
-
   -- The function affine→linear-or-affine is no-nr-glb preserving
 
   affine⇨linear-or-affine-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (affineModality v₁)
-      (linear-or-affine v₂)
+      affineModality
+      linear-or-affine
       affine→linear-or-affine
   affine⇨linear-or-affine-no-nr-glb-preserving = λ where
       .tr-nrᵢ-GLB _ → _ , LA.nr-nrᵢ-GLB _
@@ -3995,16 +3784,16 @@ opaque
 
   linear-or-affine⇨affine-nr-preserving :
     Is-nr-preserving-morphism
-      (linear-or-affine v₁)
-      (affineModality v₂)
+      linear-or-affine
+      affineModality
       ⦃ LA.linear-or-affine-has-nr ⦄
       ⦃ A.zero-one-many-has-nr ⦄
       linear-or-affine→affine
-  linear-or-affine⇨affine-nr-preserving {v₂} = λ where
+  linear-or-affine⇨affine-nr-preserving = λ where
       .tr-nr {r} → ≤-reflexive (tr-nr′ _ r _ _ _)
     where
     open Is-nr-preserving-morphism
-    open Graded.Modality.Properties (affineModality v₂)
+    open Graded.Modality.Properties affineModality
     tr : Linear-or-affine → Affine
     tr = linear-or-affine→affine
     tr-nr′ :
@@ -5039,29 +4828,12 @@ opaque
 
 opaque
 
-  -- The function linear-or-affine→affine is no-nr preserving
-
-  linear-or-affine⇨affine-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (linear-or-affine v₁)
-      (affineModality v₂)
-      linear-or-affine→affine
-  linear-or-affine⇨affine-no-nr-preserving {v₁ = record{}} refl = λ where
-      .𝟘ᵐ-in-first-if-in-second → inj₁
-      .𝟘-well-behaved-in-first-if-in-second _ →
-        inj₁ LA.linear-or-affine-has-well-behaved-zero
-    where
-    open Is-no-nr-preserving-morphism
-
-opaque
-
   -- The function linear-or-affine→affine is no-nr-glb preserving
 
   linear-or-affine⇨affine-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (linear-or-affine v₁)
-      (affineModality v₂)
+      linear-or-affine
+      affineModality
       linear-or-affine→affine
   linear-or-affine⇨affine-no-nr-glb-preserving = λ where
       .tr-nrᵢ-GLB _ → _ , A.nr-nrᵢ-GLB _
@@ -5075,16 +4847,16 @@ opaque
 
   affine⇨linearity-nr-preserving :
     Is-nr-preserving-morphism
-      (affineModality v₁)
-      (linearityModality v₂)
+      affineModality
+      linearityModality
       ⦃ A.zero-one-many-has-nr ⦄
       ⦃ L.zero-one-many-has-nr ⦄
       affine→linearity
-  affine⇨linearity-nr-preserving {v₂} = λ where
+  affine⇨linearity-nr-preserving = λ where
       .tr-nr {r} → ≤-reflexive (tr-nr′ _ r _ _ _)
     where
     open Is-nr-preserving-morphism
-    open Graded.Modality.Properties (linearityModality v₂)
+    open Graded.Modality.Properties linearityModality
     tr : Affine → Linearity
     tr = affine→linearity
     tr-nr′ :
@@ -5338,29 +5110,12 @@ opaque
 
 opaque
 
-  -- The function affine→linearity is no-nr preserving
-
-  affine⇨linearity-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (affineModality v₁)
-      (linearityModality v₂)
-      affine→linearity
-  affine⇨linearity-no-nr-preserving {v₁ = v₁@record{}} refl = λ where
-      .𝟘ᵐ-in-first-if-in-second → inj₁
-      .𝟘-well-behaved-in-first-if-in-second _ →
-        inj₁ (A.affine-has-well-behaved-zero v₁)
-    where
-    open Is-no-nr-preserving-morphism
-
-opaque
-
   -- The function affine→linearity is no-nr-glb preserving
 
   affine⇨linearity-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (affineModality v₁)
-      (linearityModality v₂)
+      affineModality
+      linearityModality
       affine→linearity
   affine⇨linearity-no-nr-glb-preserving = λ where
       .tr-nrᵢ-GLB _ → _ , L.nr-nrᵢ-GLB _
@@ -5370,12 +5125,12 @@ opaque
 
 opaque
 
-  -- The function linearity→affine is no-nr preserving
+  -- The function linearity→affine is nr preserving
 
   linearity⇨affine-nr-preserving :
     Is-nr-preserving-morphism
-      (linearityModality v₂)
-      (affineModality v₁)
+      linearityModality
+      affineModality
       ⦃ L.zero-one-many-has-nr ⦄
       ⦃ A.zero-one-many-has-nr ⦄
       linearity→affine
@@ -5636,29 +5391,12 @@ opaque
 
 opaque
 
-  -- The function linearity→affine is no-nr preserving
-
-  linearity⇨affine-no-nr-preserving :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-preserving-morphism
-      (linearityModality v₂)
-      (affineModality v₁)
-      linearity→affine
-  linearity⇨affine-no-nr-preserving {v₁ = v₁@record{}} refl = λ where
-      .𝟘ᵐ-in-first-if-in-second → inj₁
-      .𝟘-well-behaved-in-first-if-in-second _ →
-        inj₁ (L.linearity-has-well-behaved-zero v₁)
-    where
-    open Is-no-nr-preserving-morphism
-
-opaque
-
   -- The function linearity→affine is no-nr-glb preserving
 
   linearity⇨affine-no-nr-glb-preserving :
     Is-no-nr-glb-preserving-morphism
-      (linearityModality v₂)
-      (affineModality v₁)
+      linearityModality
+      affineModality
       linearity→affine
   linearity⇨affine-no-nr-glb-preserving = λ where
       .tr-nrᵢ-GLB _ → _ , A.nr-nrᵢ-GLB _
@@ -5667,7 +5405,7 @@ opaque
     open Is-no-nr-glb-preserving-morphism
 
 ------------------------------------------------------------------------
--- nr-reflecting, no-nr-reflecting and no-nr-reflecting morphisms
+-- nr-reflecting and no-nr-glb-reflecting morphisms
 
 opaque
 
@@ -5675,8 +5413,8 @@ opaque
 
   unit⇒erasure-nr-reflecting :
     Is-nr-reflecting-morphism
-      (UnitModality v₁ v₁-ok)
-      (ErasureModality v₂)
+      UnitModality
+      ErasureModality
       ⦃ unit-has-nr ⦄
       unit→erasure
   unit⇒erasure-nr-reflecting = λ where
@@ -5687,30 +5425,14 @@ opaque
 
 opaque
 
-  -- The function unit→erasure is no-nr reflecting
-
-  unit⇒erasure-no-nr-reflecting :
-    Is-no-nr-reflecting-morphism
-      (UnitModality v₁ v₁-ok)
-      (ErasureModality v₂)
-      unit→erasure
-  unit⇒erasure-no-nr-reflecting = λ where
-      .tr-≤-no-nr _ _ _ _ _ →
-        _ , _ , _ , _ , refl , refl , refl , refl
-          , refl , (λ _ → refl) , refl , refl
-    where
-    open Is-no-nr-reflecting-morphism
-
-opaque
-
   -- The function unit→erasure is no-nr-glb reflecting
 
   unit⇒erasure-no-nr-glb-reflecting :
     Is-no-nr-glb-reflecting-morphism
-      (UnitModality v₁ v₁-ok)
-      (ErasureModality v₂)
+      UnitModality
+      ErasureModality
       unit→erasure
-  unit⇒erasure-no-nr-glb-reflecting {v₁} {v₁-ok} = λ where
+  unit⇒erasure-no-nr-glb-reflecting = λ where
       .tr-≤-no-nr _ _ _ →
         _ , _ , _ , _ , _ , refl , refl , refl
           , GLB-const′ , GLB-const′ , refl
@@ -5718,7 +5440,7 @@ opaque
         _ , GLB-const′
     where
     open Is-no-nr-glb-reflecting-morphism
-    open Graded.Modality.Properties (UnitModality v₁ v₁-ok)
+    open Graded.Modality.Properties UnitModality
 
 opaque
 
@@ -5726,8 +5448,8 @@ opaque
 
   erasure⇨zero-one-many-nr-reflecting :
     Is-nr-reflecting-morphism
-      (ErasureModality v₁)
-      (zero-one-many-modality 𝟙≤𝟘 v₂)
+      ErasureModality
+      (zero-one-many-modality 𝟙≤𝟘)
       ⦃ has-nr₂ = ZOM.zero-one-many-has-nr 𝟙≤𝟘 ⦄
       erasure→zero-one-many
   erasure⇨zero-one-many-nr-reflecting = λ where
@@ -5885,104 +5607,13 @@ opaque
 
 opaque
 
-  -- The function erasure→zero-one-many is no-nr reflecting
-
-  erasure⇨zero-one-many-no-nr-reflecting :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-reflecting-morphism
-      (ErasureModality v₁)
-      (zero-one-many-modality 𝟙≤𝟘 v₂)
-      erasure→zero-one-many
-  erasure⇨zero-one-many-no-nr-reflecting
-      {v₁ = v₁@record{}} {v₂} {𝟙≤𝟘} refl = λ where
-      .tr-≤-no-nr {r} {s} → →tr-≤-no-nr {r = r} {s = s}
-        (ErasureModality v₁)
-        (zero-one-many-modality 𝟙≤𝟘 v₂)
-        idᶠ
-        𝟘𝟙ω.zero-one-many-has-well-behaved-zero
-        tr tr⁻¹ tr⁻¹-monotone tr≤→≤tr⁻¹ tr-tr⁻¹≤
-        (λ p q → ≤-reflexive (tr⁻¹-+ p q))
-        (λ p q → ≤-reflexive (tr⁻¹-∧ p q))
-        λ p q → ≤-reflexive (tr⁻¹-· p q)
-    where
-    open Is-no-nr-reflecting-morphism
-    module 𝟘𝟙ω = ZOM 𝟙≤𝟘
-    open Graded.Modality.Properties (ErasureModality v₁)
-    tr : Erasure → Zero-one-many 𝟙≤𝟘
-    tr = erasure→zero-one-many
-    tr⁻¹ : Zero-one-many 𝟙≤𝟘 → Erasure
-    tr⁻¹ = zero-one-many→erasure
-    tr⁻¹-monotone :
-      ∀ p q → p 𝟘𝟙ω.≤ q →
-      tr⁻¹ p E.≤ tr⁻¹ q
-    tr⁻¹-monotone = λ where
-      𝟘 𝟘 _     → refl
-      𝟘 𝟙 𝟘≡𝟘∧𝟙 → ⊥-elim (𝟘𝟙ω.𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
-      𝟙 𝟘 _     → refl
-      𝟙 𝟙 _     → refl
-      ω 𝟘 _     → refl
-      ω 𝟙 _     → refl
-      ω ω _     → refl
-      𝟘 ω ()
-      𝟙 ω ()
-    tr≤→≤tr⁻¹ : ∀ p q → tr p 𝟘𝟙ω.≤ q → p E.≤ tr⁻¹ q
-    tr≤→≤tr⁻¹ = λ where
-      𝟘 𝟘 _     → refl
-      𝟘 𝟙 𝟘≡𝟘∧𝟙 → ⊥-elim (𝟘𝟙ω.𝟘∧𝟙≢𝟘 (sym 𝟘≡𝟘∧𝟙))
-      ω 𝟘 _     → refl
-      ω 𝟙 _     → refl
-      ω ω _     → refl
-      𝟘 ω ()
-    tr-tr⁻¹≤ : ∀ p → tr (tr⁻¹ p) 𝟘𝟙ω.≤ p
-    tr-tr⁻¹≤ = λ where
-      𝟘 → refl
-      𝟙 → refl
-      ω → refl
-    tr⁻¹-𝟘∧𝟙 : tr⁻¹ 𝟘𝟙ω.𝟘∧𝟙 ≡ ω
-    tr⁻¹-𝟘∧𝟙 = 𝟘𝟙ω.𝟘∧𝟙-elim
-      (λ p → tr⁻¹ p ≡ ω)
-      (λ _ → refl)
-      (λ _ → refl)
-    tr⁻¹-∧ : ∀ p q → tr⁻¹ (p 𝟘𝟙ω.∧ q) ≡ tr⁻¹ p E.∧ tr⁻¹ q
-    tr⁻¹-∧ = λ where
-      𝟘 𝟘 → refl
-      𝟘 𝟙 → tr⁻¹-𝟘∧𝟙
-      𝟘 ω → refl
-      𝟙 𝟘 → tr⁻¹-𝟘∧𝟙
-      𝟙 𝟙 → refl
-      𝟙 ω → refl
-      ω 𝟘 → refl
-      ω 𝟙 → refl
-      ω ω → refl
-    tr⁻¹-+ : ∀ p q → tr⁻¹ (p 𝟘𝟙ω.+ q) ≡ tr⁻¹ p E.+ tr⁻¹ q
-    tr⁻¹-+ = λ where
-      𝟘 𝟘 → refl
-      𝟘 𝟙 → refl
-      𝟘 ω → refl
-      𝟙 𝟘 → refl
-      𝟙 𝟙 → refl
-      𝟙 ω → refl
-      ω 𝟘 → refl
-      ω 𝟙 → refl
-      ω ω → refl
-    tr⁻¹-· : ∀ p q → tr⁻¹ (tr p 𝟘𝟙ω.· q) ≡ p E.· tr⁻¹ q
-    tr⁻¹-· = λ where
-      𝟘 𝟘 → refl
-      𝟘 𝟙 → refl
-      𝟘 ω → refl
-      ω 𝟘 → refl
-      ω 𝟙 → refl
-      ω ω → refl
-
-opaque
-
   -- The function erasure→zero-one-many is nr reflecting from an
   -- erasure modality to a linear types modality
 
   erasure⇒linearity-nr-reflecting :
     Is-nr-reflecting-morphism
-      (ErasureModality v₁)
-      (linearityModality v₂)
+      ErasureModality
+      linearityModality
       ⦃ E.erasure-has-nr ⦄
       ⦃ L.zero-one-many-has-nr ⦄
       erasure→zero-one-many
@@ -5995,8 +5626,8 @@ opaque
 
   erasure⇒affine-nr-reflecting :
     Is-nr-reflecting-morphism
-      (ErasureModality v₁)
-      (affineModality v₂)
+      ErasureModality
+      affineModality
       ⦃ E.erasure-has-nr ⦄
       ⦃ A.zero-one-many-has-nr ⦄
       erasure→zero-one-many
@@ -6004,38 +5635,12 @@ opaque
 
 opaque
 
-  -- The function erasure→zero-one-many is no-nr reflecting from an
-  -- erasure modality to a linear types modality
-
-  erasure⇒linearity-no-nr-reflecting :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-reflecting-morphism
-      (ErasureModality v₁)
-      (linearityModality v₂)
-      erasure→zero-one-many
-  erasure⇒linearity-no-nr-reflecting = erasure⇨zero-one-many-no-nr-reflecting
-
-opaque
-
-  -- The function erasure→zero-one-many is no-nr reflecting from an
-  -- erasure modality to a affinetypes modality
-
-  erasure⇒affine-no-nr-reflecting :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-reflecting-morphism
-      (ErasureModality v₁)
-      (affineModality v₂)
-      erasure→zero-one-many
-  erasure⇒affine-no-nr-reflecting = erasure⇨zero-one-many-no-nr-reflecting
-
-opaque
-
   -- The function linearity→linear-or-affine is nr reflecting
 
   linearity⇨linear-or-affine-nr-reflecting :
     Is-nr-reflecting-morphism
-      (linearityModality v₁)
-      (linear-or-affine v₂)
+      linearityModality
+      linear-or-affine
       ⦃ L.zero-one-many-has-nr ⦄
       ⦃ LA.linear-or-affine-has-nr ⦄
       linearity→linear-or-affine
@@ -7208,152 +6813,12 @@ opaque
 
 opaque
 
-  -- The function linearity→linear-or-affine is no-nr reflecting
-
-  linearity⇨linear-or-affine-no-nr-reflecting :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-reflecting-morphism
-      (linearityModality v₁)
-      (linear-or-affine v₂)
-      linearity→linear-or-affine
-  linearity⇨linear-or-affine-no-nr-reflecting {v₁} {v₂ = v₂@record{}} refl = λ where
-      .tr-≤-no-nr {s} → tr-≤-no-nr′ s
-    where
-    open Is-no-nr-reflecting-morphism
-    open Graded.Modality.Properties (linearityModality v₁)
-    tr : Linearity → Linear-or-affine
-    tr = linearity→linear-or-affine
-    tr⁻¹ : Linear-or-affine → Linearity
-    tr⁻¹ = linear-or-affine→linearity
-    tr⁻¹-monotone : ∀ p q → p LA.≤ q → tr⁻¹ p L.≤ tr⁻¹ q
-    tr⁻¹-monotone = λ where
-      𝟘  𝟘  refl → refl
-      𝟙  𝟙  refl → refl
-      ≤𝟙 𝟘  refl → refl
-      ≤𝟙 𝟙  refl → refl
-      ≤𝟙 ≤𝟙 refl → refl
-      ≤ω _  _    → refl
-      𝟘  𝟙  ()
-      𝟘  ≤𝟙 ()
-      𝟘  ≤ω ()
-      𝟙  𝟘  ()
-      𝟙  ≤𝟙 ()
-      𝟙  ≤ω ()
-      ≤𝟙 ≤ω ()
-    tr-tr⁻¹≤ : ∀ p → tr (tr⁻¹ p) LA.≤ p
-    tr-tr⁻¹≤ = λ where
-      𝟘  → refl
-      𝟙  → refl
-      ≤𝟙 → refl
-      ≤ω → refl
-
-    tr≤→≤tr⁻¹ : ∀ p q → tr p LA.≤ q → p L.≤ tr⁻¹ q
-    tr≤→≤tr⁻¹ = λ where
-      𝟘 𝟘 refl → refl
-      𝟙 𝟙 refl → refl
-      ω _ _    → refl
-      𝟘 𝟙  ()
-      𝟘 ≤𝟙 ()
-      𝟘 ≤ω ()
-      𝟙 𝟘  ()
-      𝟙 ≤𝟙 ()
-      𝟙 ≤ω ()
-
-    tr⁻¹-∧ : ∀ p q → tr⁻¹ (p LA.∧ q) ≡ tr⁻¹ p L.∧ tr⁻¹ q
-    tr⁻¹-∧ = λ where
-      𝟘  𝟘  → refl
-      𝟘  𝟙  → refl
-      𝟘  ≤𝟙 → refl
-      𝟘  ≤ω → refl
-      𝟙  𝟘  → refl
-      𝟙  𝟙  → refl
-      𝟙  ≤𝟙 → refl
-      𝟙  ≤ω → refl
-      ≤𝟙 𝟘  → refl
-      ≤𝟙 𝟙  → refl
-      ≤𝟙 ≤𝟙 → refl
-      ≤𝟙 ≤ω → refl
-      ≤ω _  → refl
-
-    tr⁻¹-+ : ∀ p q → tr⁻¹ (p LA.+ q) ≡ tr⁻¹ p L.+ tr⁻¹ q
-    tr⁻¹-+ = λ where
-      𝟘  𝟘  → refl
-      𝟘  𝟙  → refl
-      𝟘  ≤𝟙 → refl
-      𝟘  ≤ω → refl
-      𝟙  𝟘  → refl
-      𝟙  𝟙  → refl
-      𝟙  ≤𝟙 → refl
-      𝟙  ≤ω → refl
-      ≤𝟙 𝟘  → refl
-      ≤𝟙 𝟙  → refl
-      ≤𝟙 ≤𝟙 → refl
-      ≤𝟙 ≤ω → refl
-      ≤ω 𝟘  → refl
-      ≤ω 𝟙  → refl
-      ≤ω ≤𝟙 → refl
-      ≤ω ≤ω → refl
-
-    tr⁻¹-· : ∀ p q → tr⁻¹ (tr p LA.· q) ≡ p L.· tr⁻¹ q
-    tr⁻¹-· = λ where
-      𝟘 𝟘  → refl
-      𝟘 𝟙  → refl
-      𝟘 ≤𝟙 → refl
-      𝟘 ≤ω → refl
-      𝟙 𝟘  → refl
-      𝟙 𝟙  → refl
-      𝟙 ≤𝟙 → refl
-      𝟙 ≤ω → refl
-      ω 𝟘  → refl
-      ω 𝟙  → refl
-      ω ≤𝟙 → refl
-      ω ≤ω → refl
-    tr-≤-no-nr′ :
-      ∀ s →
-      tr p LA.≤ q₁ →
-      q₁ LA.≤ q₂ →
-      (T (Modality-variant.𝟘ᵐ-allowed v₁) →
-       q₁ LA.≤ q₃) →
-      (⦃ 𝟘-well-behaved :
-           Has-well-behaved-zero Linear-or-affine
-             LA.linear-or-affine-semiring-with-meet ⦄ →
-       q₁ LA.≤ q₄) →
-      q₁ LA.≤ q₃ LA.+ tr r LA.· q₄ LA.+ tr s LA.· q₁ →
-      ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
-         tr q₂′ LA.≤ q₂ ×
-         tr q₃′ LA.≤ q₃ ×
-         tr q₄′ LA.≤ q₄ ×
-         p L.≤ q₁′ ×
-         q₁′ L.≤ q₂′ ×
-         (T (Modality-variant.𝟘ᵐ-allowed v₂) →
-          q₁′ L.≤ q₃′) ×
-         (⦃ 𝟘-well-behaved :
-              Has-well-behaved-zero Linearity
-                (Modality.semiring-with-meet (linearityModality v₂)) ⦄ →
-          q₁′ L.≤ q₄′) ×
-         q₁′ L.≤ q₃′ L.+ r L.· q₄′ L.+ s L.· q₁′
-    tr-≤-no-nr′ s = →tr-≤-no-nr {s = s}
-      (linearityModality v₁)
-      (linear-or-affine v₂)
-      idᶠ
-      LA.linear-or-affine-has-well-behaved-zero
-      tr
-      tr⁻¹
-      tr⁻¹-monotone
-      tr≤→≤tr⁻¹
-      tr-tr⁻¹≤
-      (λ p q → ≤-reflexive (tr⁻¹-+ p q))
-      (λ p q → ≤-reflexive (tr⁻¹-∧ p q))
-      (λ p q → ≤-reflexive (tr⁻¹-· p q))
-
-opaque
-
   -- The function affine→linear-or-affine is nr reflecting
 
   affine⇨linear-or-affine-nr-reflecting :
     Is-nr-reflecting-morphism
-      (affineModality v₁)
-      (linear-or-affine v₂)
+      affineModality
+      linear-or-affine
       ⦃ A.zero-one-many-has-nr ⦄
       ⦃ LA.linear-or-affine-has-nr ⦄
       affine→linear-or-affine
@@ -8523,145 +7988,3 @@ opaque
       𝟙 ω ω ≤ω ≤ω 𝟙  ()
       𝟙 ω ω ≤ω ≤ω ≤𝟙 ()
       𝟙 ω ω ≤ω ≤ω ≤ω ()
-
-opaque
-
-  -- The function affine→linear-or-affine is no-nr reflecting
-
-  affine⇨linear-or-affine-no-nr-reflecting :
-    𝟘ᵐ-allowed v₁ ≡ 𝟘ᵐ-allowed v₂ →
-    Is-no-nr-reflecting-morphism
-      (affineModality v₁)
-      (linear-or-affine v₂)
-      affine→linear-or-affine
-  affine⇨linear-or-affine-no-nr-reflecting {v₁ = v₁@record{}} {v₂} refl = λ where
-      .tr-≤-no-nr {s} → tr-≤-no-nr′ s
-    where
-    open Is-no-nr-reflecting-morphism
-    open Graded.Modality.Properties (affineModality v₁)
-    tr : Affine → Linear-or-affine
-    tr = affine→linear-or-affine
-    tr⁻¹ : Linear-or-affine → Affine
-    tr⁻¹ = linear-or-affine→affine
-    tr⁻¹-monotone : ∀ p q → p LA.≤ q → tr⁻¹ p A.≤ tr⁻¹ q
-    tr⁻¹-monotone = λ where
-      𝟘  𝟘  refl → refl
-      𝟙  𝟙  refl → refl
-      ≤𝟙 𝟘  refl → refl
-      ≤𝟙 𝟙  refl → refl
-      ≤𝟙 ≤𝟙 refl → refl
-      ≤ω _  _    → refl
-      𝟘  𝟙  ()
-      𝟘  ≤𝟙 ()
-      𝟘  ≤ω ()
-      𝟙  𝟘  ()
-      𝟙  ≤𝟙 ()
-      𝟙  ≤ω ()
-      ≤𝟙 ≤ω ()
-
-    tr-tr⁻¹≤ : ∀ p → tr (tr⁻¹ p) LA.≤ p
-    tr-tr⁻¹≤ = λ where
-      𝟘  → refl
-      𝟙  → refl
-      ≤𝟙 → refl
-      ≤ω → refl
-
-    tr≤→≤tr⁻¹ : ∀ p q → tr p LA.≤ q → p A.≤ tr⁻¹ q
-    tr≤→≤tr⁻¹ = λ where
-      𝟘 𝟘  refl → refl
-      𝟙 𝟘  refl → refl
-      𝟙 𝟙  refl → refl
-      𝟙 ≤𝟙 refl → refl
-      ω _  _    → refl
-      𝟘 𝟙  ()
-      𝟘 ≤𝟙 ()
-      𝟘 ≤ω ()
-      𝟙 ≤ω ()
-
-    tr⁻¹-∧ : ∀ p q → tr⁻¹ (p LA.∧ q) ≡ tr⁻¹ p A.∧ tr⁻¹ q
-    tr⁻¹-∧ = λ where
-      𝟘  𝟘  → refl
-      𝟘  𝟙  → refl
-      𝟘  ≤𝟙 → refl
-      𝟘  ≤ω → refl
-      𝟙  𝟘  → refl
-      𝟙  𝟙  → refl
-      𝟙  ≤𝟙 → refl
-      𝟙  ≤ω → refl
-      ≤𝟙 𝟘  → refl
-      ≤𝟙 𝟙  → refl
-      ≤𝟙 ≤𝟙 → refl
-      ≤𝟙 ≤ω → refl
-      ≤ω _  → refl
-
-    tr⁻¹-+ : ∀ p q → tr⁻¹ (p LA.+ q) ≡ tr⁻¹ p A.+ tr⁻¹ q
-    tr⁻¹-+ = λ where
-      𝟘  𝟘  → refl
-      𝟘  𝟙  → refl
-      𝟘  ≤𝟙 → refl
-      𝟘  ≤ω → refl
-      𝟙  𝟘  → refl
-      𝟙  𝟙  → refl
-      𝟙  ≤𝟙 → refl
-      𝟙  ≤ω → refl
-      ≤𝟙 𝟘  → refl
-      ≤𝟙 𝟙  → refl
-      ≤𝟙 ≤𝟙 → refl
-      ≤𝟙 ≤ω → refl
-      ≤ω 𝟘  → refl
-      ≤ω 𝟙  → refl
-      ≤ω ≤𝟙 → refl
-      ≤ω ≤ω → refl
-
-    tr⁻¹-· : ∀ p q → tr⁻¹ (tr p LA.· q) ≡ p A.· tr⁻¹ q
-    tr⁻¹-· = λ where
-      𝟘 𝟘  → refl
-      𝟘 𝟙  → refl
-      𝟘 ≤𝟙 → refl
-      𝟘 ≤ω → refl
-      𝟙 𝟘  → refl
-      𝟙 𝟙  → refl
-      𝟙 ≤𝟙 → refl
-      𝟙 ≤ω → refl
-      ω 𝟘  → refl
-      ω 𝟙  → refl
-      ω ≤𝟙 → refl
-      ω ≤ω → refl
-
-    tr-≤-no-nr′ :
-      ∀ s →
-      tr p LA.≤ q₁ →
-      q₁ LA.≤ q₂ →
-      (T (Modality-variant.𝟘ᵐ-allowed v₁) →
-       q₁ LA.≤ q₃) →
-      (⦃ 𝟘-well-behaved :
-           Has-well-behaved-zero Linear-or-affine
-             LA.linear-or-affine-semiring-with-meet ⦄ →
-       q₁ LA.≤ q₄) →
-      q₁ LA.≤ q₃ LA.+ tr r LA.· q₄ LA.+ tr s LA.· q₁ →
-      ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
-         tr q₂′ LA.≤ q₂ ×
-         tr q₃′ LA.≤ q₃ ×
-         tr q₄′ LA.≤ q₄ ×
-         p A.≤ q₁′ ×
-         q₁′ A.≤ q₂′ ×
-         (T (Modality-variant.𝟘ᵐ-allowed v₂) →
-          q₁′ A.≤ q₃′) ×
-         (⦃ 𝟘-well-behaved :
-              Has-well-behaved-zero Affine
-                (Modality.semiring-with-meet (affineModality v₂)) ⦄ →
-          q₁′ A.≤ q₄′) ×
-         q₁′ A.≤ q₃′ A.+ r A.· q₄′ A.+ s A.· q₁′
-    tr-≤-no-nr′ s = →tr-≤-no-nr {s = s}
-      (affineModality v₁)
-      (linear-or-affine v₂)
-      idᶠ
-      LA.linear-or-affine-has-well-behaved-zero
-      tr
-      tr⁻¹
-      tr⁻¹-monotone
-      tr≤→≤tr⁻¹
-      tr-tr⁻¹≤
-      (λ p q → ≤-reflexive (tr⁻¹-+ p q))
-      (λ p q → ≤-reflexive (tr⁻¹-∧ p q))
-      (λ p q → ≤-reflexive (tr⁻¹-· p q))

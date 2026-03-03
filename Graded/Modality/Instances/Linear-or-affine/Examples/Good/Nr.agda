@@ -6,13 +6,14 @@
 open import Tools.Level
 
 open import Graded.Modality.Instances.Linear-or-affine
-open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant linear-or-affine
 
 module Graded.Modality.Instances.Linear-or-affine.Examples.Good.Nr
-  -- The modality variant.
-  (variant : Modality-variant)
-  (UR : Usage-restrictions (linear-or-affine variant))
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions linear-or-affine Zero-one-isMode)
   where
 
 open import Tools.Function
@@ -22,18 +23,13 @@ open import Tools.Product
 open import Tools.Relation
 
 open import Graded.Modality Linear-or-affine
-open import Graded.Usage.Restrictions.Natrec (linear-or-affine variant)
+open import Graded.Usage.Restrictions.Natrec linear-or-affine
 
 private
 
-  -- The modality that is used in this file.
+  module M = Modality linear-or-affine
 
-  linear-or-affine′ : Modality
-  linear-or-affine′ = linear-or-affine variant
-
-  module M = Modality linear-or-affine′
-
-  open import Graded.Restrictions linear-or-affine′
+  open import Graded.Restrictions.Zero-one linear-or-affine variant
 
   -- The nr function is used
   UR′ = nr-available-UR linear-or-affine-has-nr UR
@@ -42,17 +38,16 @@ private
     has-nr : Nr-available
     has-nr = Natrec-mode-has-nr.Nr ⦃ linear-or-affine-has-nr ⦄
 
-open import Graded.Context linear-or-affine′
-open import Graded.Context.Properties linear-or-affine′
-open import Graded.Modality.Properties linear-or-affine′
-open import Graded.Mode linear-or-affine′
-open import Graded.Usage linear-or-affine′ UR′
-open import Graded.Usage.Inversion linear-or-affine′ UR′
-open import Graded.Usage.Properties linear-or-affine′ UR′
-open import Graded.Usage.Weakening linear-or-affine′ UR′
+open import Graded.Context linear-or-affine
+open import Graded.Context.Properties linear-or-affine
+open import Graded.Modality.Properties linear-or-affine
+open import Graded.Usage UR′
+open import Graded.Usage.Inversion UR′
+open import Graded.Usage.Properties UR′
+open import Graded.Usage.Weakening UR′
 
 open import Definition.Untyped Linear-or-affine
-open import Definition.Untyped.Nat linear-or-affine′
+open import Definition.Untyped.Nat linear-or-affine
 
 private variable
   n   : Nat

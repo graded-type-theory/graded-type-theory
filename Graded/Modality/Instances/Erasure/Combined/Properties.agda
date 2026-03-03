@@ -7,35 +7,30 @@ open import Tools.Level using (lzero)
 
 open import Definition.Typed.Restrictions
 
-open import Graded.Modality.Variant lzero
 open import Graded.Modality.Instances.Erasure.Modality
 open import Graded.Usage.Restrictions
+open import Graded.Mode.Instances.Zero-one.Variant ErasureModality
+open import Graded.Mode.Instances.Zero-one 𝟘ᵐ-Allowed
 
 module Graded.Modality.Instances.Erasure.Combined.Properties
-  (TR : Type-restrictions (ErasureModality (𝟘ᵐ-allowed-if true)))
-  (UR : Usage-restrictions (ErasureModality (𝟘ᵐ-allowed-if true)))
+  (TR : Type-restrictions ErasureModality)
+  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
   where
 
 open Usage-restrictions UR
 
 private
 
-  -- The modality variant used in this module.
-
-  variant : Modality-variant
-  variant = 𝟘ᵐ-allowed-if true
-
   -- The modality used in this module.
 
   𝕄 : Modality
-  𝕄 = ErasureModality variant
+  𝕄 = ErasureModality
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Instances.Erasure
 open import Graded.Modality.Instances.Erasure.Combined TR UR
-open import Graded.Modality.Instances.Erasure.Properties variant
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Modality.Instances.Erasure.Properties
+open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 
 open import Definition.Untyped Erasure

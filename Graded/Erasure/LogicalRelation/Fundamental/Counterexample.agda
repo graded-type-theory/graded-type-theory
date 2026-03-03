@@ -5,6 +5,8 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
@@ -12,9 +14,11 @@ open import Definition.Typed.Restrictions
 module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
   {a} {M : Set a}
   {𝕄 : Modality M}
+  {variant : Mode-variant 𝕄}
   (open Modality 𝕄)
+   (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
@@ -22,10 +26,9 @@ open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Graded.Context 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
-open import Graded.Mode 𝕄
-open import Graded.Restrictions 𝕄
+open import Graded.Restrictions.Zero-one 𝕄 variant
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -81,7 +84,7 @@ private
       as = assumptions ⊢Δ str is-reduction-relation
 
     open Graded.Erasure.LogicalRelation as public
-    open Graded.Erasure.LogicalRelation.Hidden as public
+    open Graded.Erasure.LogicalRelation.Hidden variant as public
 
   -- A variant of LR.
 
@@ -107,7 +110,7 @@ private
         }
 
     open Graded.Erasure.LogicalRelation as public
-    open Graded.Erasure.LogicalRelation.Hidden as public
+    open Graded.Erasure.LogicalRelation.Hidden variant as public
 
 -- Below negations of variants of the statement of the fundamental
 -- lemma are proved. In each case the variants are given for the

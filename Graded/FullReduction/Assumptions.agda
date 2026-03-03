@@ -3,24 +3,28 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant
 open import Definition.Typed.Restrictions
 open import Graded.Usage.Restrictions
 
 module Graded.FullReduction.Assumptions
   {a} {M : Set a}
   {𝕄 : Modality M}
+  (mode-variant : Mode-variant 𝕄)
+  (open Graded.Mode.Instances.Zero-one mode-variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Type-restrictions TR
 open Usage-restrictions UR
+open Mode-variant mode-variant
 
 open import Definition.Untyped M
 
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 
 open import Tools.Bool
 open import Tools.Function

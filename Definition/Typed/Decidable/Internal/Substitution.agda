@@ -4,20 +4,22 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Decidable.Internal.Substitution
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (R : Type-restrictions 𝕄)
   where
 
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal.Monad R
+open import Definition.Typed.Decidable.Internal.Monad 𝐌 R
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
-open import Definition.Typed.Decidable.Internal.Term R
-open import Definition.Typed.Decidable.Internal.Weakening R
+open import Definition.Typed.Decidable.Internal.Term 𝐌 R
+open import Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Well-formed R
 
@@ -40,7 +42,7 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
 
-open Definition.Typed.Decidable.Internal.Substitution.Primitive R public
+open Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R public
 
 private variable
   b b₁ b₂                         : Bool

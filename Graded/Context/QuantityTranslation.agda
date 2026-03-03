@@ -45,6 +45,7 @@ private variable
   x                            : Fin _
   γ γ₁ δ δ₁ δ₂ δ₃ δ₄ δ₅ η η₁ θ : Conₘ _ _
   p q r                        : M₁
+  𝟘ᵐ-allowed₁ 𝟘ᵐ-allowed₂      : Bool
 
 ------------------------------------------------------------------------
 -- Translation
@@ -98,16 +99,6 @@ module Is-morphism (m : Is-morphism 𝕄₁ 𝕄₂ tr) where
   tr-Conₘ-monotone {γ = ε}     {δ = ε}     ε       = ε
   tr-Conₘ-monotone {γ = _ ∙ _} {δ = _ ∙ _} (γ ∙ p) =
     tr-Conₘ-monotone γ ∙ tr-monotone p
-
-  -- If 𝟘ᵐ is allowed in the target modality but not the source
-  -- modality, then usage contexts are translated to contexts that are
-  -- bounded by 𝟘ᶜ.
-
-  tr-Conₘ-≤ᶜ-𝟘ᶜ :
-    ¬ T M₁.𝟘ᵐ-allowed → T M₂.𝟘ᵐ-allowed → tr-Conₘ γ ≤ᶜ C₂.𝟘ᶜ
-  tr-Conₘ-≤ᶜ-𝟘ᶜ {γ = ε}     _      _  = ε
-  tr-Conₘ-≤ᶜ-𝟘ᶜ {γ = _ ∙ _} not-ok ok =
-    tr-Conₘ-≤ᶜ-𝟘ᶜ not-ok ok ∙ tr-<-𝟘 not-ok ok .proj₁
 
   -- Translation commutes with 𝟘ᶜ up to _≤_.
 
@@ -212,66 +203,6 @@ module Is-nr-reflecting-morphism
     case tr-Conₘ-≤ᶜ-nrᶜ hyp₁ of λ (_ , _ , _ , ≤γ₁ , ≤δ₁ , ≤η₁ , θ≤) →
     case tr-≤-nr hyp₂ of λ (_ , _ , _ , ≤z₁ , ≤s₁ , ≤n₁ , q≤) →
     _ , _ , _ , ≤γ₁ ∙ ≤z₁ , ≤δ₁ ∙ ≤s₁ , ≤η₁ ∙ ≤n₁ , θ≤ ∙ q≤
-
-module Is-no-nr-reflecting-morphism
-  (m : M.Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₂ tr) where
-
-  open M.Is-no-nr-reflecting-morphism m
-
-  opaque
-
-    -- A variant of tr-≤-no-nr for usage contexts.
-
-    tr-≤ᶜ-no-nr :
-      tr-Conₘ γ C₂.≤ᶜ δ₁ →
-      δ₁ C₂.≤ᶜ δ₂ →
-      (T M₂.𝟘ᵐ-allowed →
-       δ₁ C₂.≤ᶜ δ₃) →
-      (⦃ 𝟘-well-behaved :
-           Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
-       δ₁ C₂.≤ᶜ δ₄) →
-      δ₁ C₂.≤ᶜ δ₃ C₂.+ᶜ tr p C₂.·ᶜ δ₄ C₂.+ᶜ tr q C₂.·ᶜ δ₁ →
-      ∃₄ λ δ₁′ δ₂′ δ₃′ δ₄′ →
-         tr-Conₘ δ₂′ C₂.≤ᶜ δ₂ ×
-         tr-Conₘ δ₃′ C₂.≤ᶜ δ₃ ×
-         tr-Conₘ δ₄′ C₂.≤ᶜ δ₄ ×
-         γ C₁.≤ᶜ δ₁′ ×
-         δ₁′ C₁.≤ᶜ δ₂′ ×
-         (T M₁.𝟘ᵐ-allowed →
-          δ₁′ C₁.≤ᶜ δ₃′) ×
-         (⦃ 𝟘-well-behaved :
-              Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
-          δ₁′ C₁.≤ᶜ δ₄′) ×
-         δ₁′ C₁.≤ᶜ δ₃′ C₁.+ᶜ p C₁.·ᶜ δ₄′ C₁.+ᶜ q C₁.·ᶜ δ₁′
-    tr-≤ᶜ-no-nr {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} {δ₄ = ε} _ _ _ _ _ =
-      _ , _ , _ , _ , ε , ε , ε , ε , ε , (λ _ → ε) , ε , ε
-    tr-≤ᶜ-no-nr
-      {γ = _ ∙ _} {δ₁ = _ ∙ _} {δ₂ = _ ∙ _} {δ₃ = _ ∙ _} {δ₄ = _ ∙ _}
-      (hyp₁₁ ∙ hyp₁₂) (hyp₂₁ ∙ hyp₂₂) hyp₃ hyp₄ (hyp₅₁ ∙ hyp₅₂) =
-      case tr-≤ᶜ-no-nr
-             hyp₁₁ hyp₂₁
-             (λ ok → case hyp₃ ok of λ {
-                (le ∙ _) → le })
-             (case hyp₄ of λ {
-                (le ∙ _) → le })
-             hyp₅₁ of λ {
-        (_ , _ , _ , _ ,
-         le₁₁ , le₂₁ , le₃₁ , le₄₁ , le₅₁ , le₆₁ , le₇₁ , le₈₁) →
-      case tr-≤-no-nr
-             hyp₁₂ hyp₂₂
-             (λ ok → case hyp₃ ok of λ {
-                (_ ∙ le) → le })
-             (case hyp₄ of λ {
-                (_ ∙ le) → le })
-             hyp₅₂ of λ {
-        (_ , _ , _ , _ ,
-         le₁₂ , le₂₂ , le₃₂ , le₄₂ , le₅₂ , le₆₂ , le₇₂ , le₈₂) →
-        _ , _ , _ , _
-      , le₁₁ ∙ le₁₂ , le₂₁ ∙ le₂₂ , le₃₁ ∙ le₃₂ , le₄₁ ∙ le₄₂
-      , le₅₁ ∙ le₅₂
-      , (λ ok → le₆₁ ok ∙ le₆₂ ok)
-      , (λ ⦃ _ ⦄ → le₇₁ ∙ le₇₂)
-      , le₈₁ ∙ le₈₂ }}
 
 module Is-no-nr-glb-reflecting-morphism
   (m : M.Is-no-nr-glb-reflecting-morphism 𝕄₁ 𝕄₂ tr) where

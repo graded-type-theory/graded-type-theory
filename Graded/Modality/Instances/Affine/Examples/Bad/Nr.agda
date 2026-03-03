@@ -3,21 +3,20 @@
 -- function.
 ------------------------------------------------------------------------
 
-open import Tools.Level
-
-import Graded.Modality.Instances.Affine
-open import Graded.Modality.Variant lzero
+open import Graded.Modality.Instances.Affine
 open import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant affineModality
 
 module Graded.Modality.Instances.Affine.Examples.Bad.Nr
-  -- The modality variant.
-  (variant : Modality-variant)
-  (open Graded.Modality.Instances.Affine variant)
-  (UR : Usage-restrictions affineModality)
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions affineModality Zero-one-isMode)
   where
 
-open import Graded.Restrictions affineModality
+open import Graded.Restrictions.Zero-one affineModality variant
 open import Graded.Modality Affine
+open import Graded.Mode Mode affineModality
 open import Graded.Usage.Restrictions.Natrec affineModality
 
 private
@@ -35,8 +34,7 @@ import Tools.Reasoning.PartialOrder
 
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
-open import Graded.Mode affineModality
-open import Graded.Usage affineModality UR′
+open import Graded.Usage UR′
 
 open import Definition.Untyped.Nat affineModality
 

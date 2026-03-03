@@ -7,6 +7,7 @@ module Graded.Usage.Erased-matches where
 open import Tools.Empty
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Sum
 open import Tools.Unit
 
 -- The three values of the type Erased-matches correspond to the three
@@ -123,3 +124,10 @@ opaque
   ≤ᵉᵐ→≡all→≡all {em₁ = some} {em₂ = not-none _} _  ()
   ≤ᵉᵐ→≡all→≡all {em₁ = all}  {em₂ = none}       ()
   ≤ᵉᵐ→≡all→≡all {em₁ = all}  {em₂ = some}       ()
+
+opaque
+
+  some≤ᵉᵐ→ : some ≤ᵉᵐ em → em ≡ all ⊎ em ≡ some
+  some≤ᵉᵐ→ {(none)} ()
+  some≤ᵉᵐ→ {(all)}  _ = inj₁ refl
+  some≤ᵉᵐ→ {(some)} _ = inj₂ refl

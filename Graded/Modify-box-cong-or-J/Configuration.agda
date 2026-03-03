@@ -6,13 +6,17 @@
 import Definition.Typed.Restrictions
 import Graded.Modality
 import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant
 
 module Graded.Modify-box-cong-or-J.Configuration
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (open Definition.Typed.Restrictions 𝕄)
-  (open Graded.Usage.Restrictions 𝕄)
+  (open Graded.Usage.Restrictions 𝕄 Zero-one-isMode)
   -- The type and usage restrictions used for the source of the
   -- translation.
   (TRₛ : Type-restrictions)
@@ -20,6 +24,7 @@ module Graded.Modify-box-cong-or-J.Configuration
   where
 
 open Modality 𝕄
+open Mode-variant variant
 
 import Definition.Typed
 import Definition.Typed.Inversion
@@ -37,13 +42,13 @@ import Graded.Derived.Erased.Usage
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
 import Graded.Erasure.Target as T
-open import Graded.Mode 𝕄
-open import Graded.Restrictions 𝕄
+open import Graded.Restrictions.Zero-one 𝕄 variant
 import Graded.Usage
 open import Graded.Usage.Erased-matches
 import Graded.Usage.Properties
+import Graded.Usage.Properties.Zero-one
 
-open import Tools.Bool
+open import Tools.Bool hiding (_∧_)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -100,8 +105,8 @@ record Configuration : Set (lsuc a) where
   module Tₜ  = Definition.Typed TRₜ
   module TRₛ = Type-restrictions TRₛ
   module TRₜ = Type-restrictions TRₜ
-  module Uₛ  = Graded.Usage 𝕄 URₛ
-  module Uₜ  = Graded.Usage 𝕄 URₜ
+  module Uₛ  = Graded.Usage URₛ
+  module Uₜ  = Graded.Usage URₜ
   module URₛ = Usage-restrictions URₛ
   module URₜ = Usage-restrictions URₜ
 
@@ -127,15 +132,14 @@ record Configuration : Set (lsuc a) where
       TRₛ.Equality-reflection → TRₜ.Equality-reflection
 
     -- Some assumptions related to usage restrictions.
-
-    Emptyrec-allowed-𝟙ᵐ-→ :
-      URₛ.Emptyrec-allowed-𝟙ᵐ p → URₜ.Emptyrec-allowed-𝟙ᵐ p
-    Unitrec-allowed-𝟙ᵐ-→ :
-      URₛ.Unitrec-allowed-𝟙ᵐ p q → URₜ.Unitrec-allowed-𝟙ᵐ p q
+    Emptyrec-allowed-→ :
+      ∀ m → URₛ.Emptyrec-allowed m p → URₜ.Emptyrec-allowed m p
+    Unitrec-allowed-→ :
+      ∀ m → URₛ.Unitrec-allowed m p q → URₜ.Unitrec-allowed m p q
     Starˢ-sink-→ :
       URₛ.Starˢ-sink → URₜ.Starˢ-sink
-    Prodrec-allowed-𝟙ᵐ-→ :
-      URₛ.Prodrec-allowed-𝟙ᵐ r p q → URₜ.Prodrec-allowed-𝟙ᵐ r p q
+    Prodrec-allowed-→ :
+      ∀ m → URₛ.Prodrec-allowed m r p q → URₜ.Prodrec-allowed m r p q
     natrec-mode-≡ :
       URₛ.natrec-mode PE.≡ URₜ.natrec-mode
     Id-erased-⇔ :
@@ -325,36 +329,6 @@ record Configuration : Set (lsuc a) where
 
     Unit-with-η-⇔ : TRₛ.Unit-with-η s ⇔ TRₜ.Unit-with-η s
     Unit-with-η-⇔ = id⇔ ⊎-cong-⇔ Unitʷ-η-⇔
-
-  ----------------------------------------------------------------------
-  -- Some admissible results related to usage restrictions
-
-  opaque
-
-    -- Emptyrec-allowed is preserved.
-
-    Emptyrec-allowed-→ :
-      ∀ m → URₛ.Emptyrec-allowed m p → URₜ.Emptyrec-allowed m p
-    Emptyrec-allowed-→ 𝟘ᵐ = _
-    Emptyrec-allowed-→ 𝟙ᵐ = Emptyrec-allowed-𝟙ᵐ-→
-
-  opaque
-
-    -- Unitrec-allowed is preserved.
-
-    Unitrec-allowed-→ :
-      ∀ m → URₛ.Unitrec-allowed m p q → URₜ.Unitrec-allowed m p q
-    Unitrec-allowed-→ 𝟘ᵐ = _
-    Unitrec-allowed-→ 𝟙ᵐ = Unitrec-allowed-𝟙ᵐ-→
-
-  opaque
-
-    -- Prodrec-allowed is preserved.
-
-    Prodrec-allowed-→ :
-      ∀ m → URₛ.Prodrec-allowed m r p q → URₜ.Prodrec-allowed m r p q
-    Prodrec-allowed-→ 𝟘ᵐ = _
-    Prodrec-allowed-→ 𝟙ᵐ = Prodrec-allowed-𝟙ᵐ-→
 
   ----------------------------------------------------------------------
   -- Some admissible weakening lemmas
@@ -557,10 +531,10 @@ opaque
       .ΠΣ-allowed-→                    → idᶠ
       .K-allowed-→                     → idᶠ
       .Equality-reflection-→           → idᶠ
-      .Emptyrec-allowed-𝟙ᵐ-→           → idᶠ
-      .Unitrec-allowed-𝟙ᵐ-→            → idᶠ
+      .Emptyrec-allowed-→ _            → idᶠ
+      .Unitrec-allowed-→ _             → idᶠ
       .Starˢ-sink-→                    → idᶠ
-      .Prodrec-allowed-𝟙ᵐ-→            → idᶠ
+      .Prodrec-allowed-→ _             → idᶠ
       .natrec-mode-≡                   → PE.refl
       .Id-erased-⇔                     → id⇔
       .erased-matches-for-K-≡          → PE.refl
@@ -603,8 +577,9 @@ opaque
     open Definition.Typed TRₜ
     open Definition.Typed.Properties TRₜ hiding ([]-cong′)
     open Graded.Box-cong TRₜ URₜ
-    open Graded.Usage 𝕄 URₜ
-    open Graded.Usage.Properties 𝕄 URₜ
+    open Graded.Usage URₜ
+    open Graded.Usage.Properties URₜ
+    open Graded.Usage.Properties.Zero-one variant URₜ
 
     some-erased-matches-allowed :
       ∃ λ sem → URₜ .erased-matches-for-J m PE.≡ not-none sem
@@ -631,9 +606,10 @@ opaque
 
   remove-J-𝟘-𝟘 :
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
+    Prodrec-allowed URₛ 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘 →
     Usage-restrictions.erased-matches-for-J URₛ 𝟙ᵐ ≤ᵉᵐ some →
     Configuration
-  remove-J-𝟘-𝟘 ⦃ ok = 𝟘ᵐ-ok ⦄ ≤some = λ where
+  remove-J-𝟘-𝟘 ⦃ ok = 𝟘ᵐ-ok ⦄ P-ok ≤some = λ where
       .preservation-of-reduction            → false
       .glassification                       → false
       .Configuration.TRₜ                    → TRₜ
@@ -647,19 +623,17 @@ opaque
       .ΠΣ-allowed-→ {bm = BMΠ}              → idᶠ
       .K-allowed-→                          → idᶠ
       .Equality-reflection-→                → idᶠ
-      .Emptyrec-allowed-𝟙ᵐ-→                → idᶠ
-      .Unitrec-allowed-𝟙ᵐ-→                 → idᶠ
+      .Emptyrec-allowed-→ _                 → idᶠ
+      .Unitrec-allowed-→ _                  → idᶠ
       .Starˢ-sink-→                         → idᶠ
-      .Prodrec-allowed-𝟙ᵐ-→                 → idᶠ
+      .Prodrec-allowed-→ _                  → idᶠ
       .natrec-mode-≡                        → PE.refl
       .Id-erased-⇔                          → id⇔
       .erased-matches-for-K-≡               → PE.refl
       .[]-cong′                             → []-cong
       .[]-cong′-[]                          → PE.refl
-      .▸[]-cong′ {m = 𝟙ᵐ} ok ▸l ▸A ▸t ▸u ▸v →
+      .▸[]-cong′ ok ▸l ▸A ▸t ▸u ▸v →
         []-congₘ ▸l ▸A ▸t ▸u ▸v (inj₁ ok)
-      .▸[]-cong′ {m = 𝟘ᵐ} _ ▸l ▸A ▸t ▸u ▸v →
-        []-congₘ ▸l ▸A ▸t ▸u ▸v _
       .[]-cong′-cong _ l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ →
         []-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ non-trivial
       .[]-cong′-subst _ _ ⊢l v⇒v′ →
@@ -689,9 +663,10 @@ opaque
     open Configuration hiding (TRₜ; URₜ)
     open Definition.Typed TRₜ
     open Definition.Typed.Properties TRₜ hiding ([]-cong′)
-    open Graded.Derived.Erased.Usage 𝕄 URₜ 𝕨
-    open Graded.Usage 𝕄 URₜ
-    open Graded.Usage.Properties 𝕄 URₜ
+    open Graded.Derived.Erased.Usage URₜ 𝕨
+    open Graded.Usage URₜ
+    open Graded.Usage.Properties URₜ
+    open Graded.Usage.Properties.Zero-one variant URₜ
     open ≤ᶜ-reasoning
 
     opaque
@@ -703,8 +678,7 @@ opaque
     opaque
 
       []-cong-ok : ∀ m → []-cong-allowed-mode URₜ 𝕨 m
-      []-cong-ok 𝟘ᵐ = _
-      []-cong-ok 𝟙ᵐ = inj₂ non-trivial
+      []-cong-ok _ = inj₂ non-trivial
 
     J″ :
       Dec (p PE.≡ 𝟘 × q PE.≡ 𝟘) → Term n → Term n → Term (2+ n) →
@@ -739,8 +713,8 @@ opaque
           Jₘ-generalised
         (yes (PE.refl , PE.refl)) ▸A ▸t ▸B ▸u ▸v ▸w →
           sub
-            (▸Jᵉ (λ _ → ⊥-elim ∘→ (_$ 𝟘ᵐ-ok)) (λ ()) ([]-cong-ok m) ▸A
-               (▸-𝟘ᵐ? ▸t .proj₂)
+            (▸Jᵉ (λ _ → ⊥-elim ∘→ 𝟘ᵐ-allowed→¬Trivialᵐ 𝟘ᵐ-ok)
+               (λ _ → P-ok) (λ ()) ([]-cong-ok m) ▸A (▸-𝟘ᵐ? ▸t .proj₂)
                (sub ▸B $ begin
                   γ₃ ∙ 𝟘 ∙ 𝟘                  ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
                   γ₃ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘  ∎)
@@ -765,7 +739,7 @@ opaque
         ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] J″ d A t B u v w
       ▸J″₀₁ {m} = λ where
         (yes _) →
-          ▸Jᵉ (λ _ → ⊥-elim ∘→ (_$ 𝟘ᵐ-ok)) (λ ()) ([]-cong-ok m)
+          ▸Jᵉ (λ _ → ⊥-elim ∘→ 𝟘ᵐ-allowed→¬Trivialᵐ 𝟘ᵐ-ok) (λ _ → P-ok) (λ ()) ([]-cong-ok m)
         (no not-equal) →
           ⊥-elim $ not-equal (PE.refl , PE.refl)
 
@@ -794,8 +768,7 @@ opaque
               𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] J″ d A t B u v w
             ▸J″ = λ where
               (yes _) →
-                ▸-𝟘 $
-                ▸Jᵉ (λ _ → ⊥-elim ∘→ (_$ ok)) (λ ())
+                ▸-𝟘₀₁ $ ▸Jᵉ (λ _ → ⊥-elim ∘→ 𝟘ᵐ-allowed→¬Trivialᵐ 𝟘ᵐ-ok) (λ _ → P-ok) (λ ())
                   ([]-cong-ok 𝟘ᵐ[ ok ]) ▸A ▸t
                   (sub (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸B) $ begin
                      γ₃ ∙ 𝟘 ∙ 𝟘                      ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
@@ -803,13 +776,13 @@ opaque
                      γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ∎)
                   ▸u ▸v ▸w
               (no _) →
-                ▸-𝟘 $
+                ▸-𝟘₀₁ $
                 Jₘ-generalised (▸-𝟘ᵐ? ▸A .proj₂) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t)
                   (sub (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸B) 𝟘·∙𝟘·-lemma) ▸u
                   (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸w)
         in
         sub (▸J″ d) $ begin
-          γ₄  ≤⟨ ▸-𝟘ᵐ ▸u ⟩
+          γ₄  ≤⟨ ▸-𝟘ᵐ₀₁ ▸u ⟩
           𝟘ᶜ  ∎
 
     opaque
@@ -880,10 +853,10 @@ opaque
       .ΠΣ-allowed-→                       → idᶠ
       .K-allowed-→                        → idᶠ
       .Equality-reflection-→              → _
-      .Emptyrec-allowed-𝟙ᵐ-→              → idᶠ
-      .Unitrec-allowed-𝟙ᵐ-→               → idᶠ
+      .Emptyrec-allowed-→ _               → idᶠ
+      .Unitrec-allowed-→ _                → idᶠ
       .Starˢ-sink-→                       → idᶠ
-      .Prodrec-allowed-𝟙ᵐ-→               → idᶠ
+      .Prodrec-allowed-→ _                → idᶠ
       .natrec-mode-≡                      → PE.refl
       .Id-erased-⇔                        → id⇔
       .erased-matches-for-K-≡             → PE.refl
@@ -928,8 +901,8 @@ opaque
     open Definition.Typed TRₜ
     open Definition.Typed.Properties TRₜ hiding ([]-cong′)
     open Definition.Typed.Well-formed TRₜ
-    open Graded.Usage 𝕄 URₜ
-    open Graded.Usage.Properties 𝕄 URₜ
+    open Graded.Usage URₜ
+    open Graded.Usage.Properties URₜ
 
 opaque
 
@@ -950,10 +923,10 @@ opaque
       .ΠΣ-allowed-→                → idᶠ
       .K-allowed-→                 → idᶠ
       .Equality-reflection-→       → _
-      .Emptyrec-allowed-𝟙ᵐ-→       → idᶠ
-      .Unitrec-allowed-𝟙ᵐ-→        → idᶠ
+      .Emptyrec-allowed-→ _        → idᶠ
+      .Unitrec-allowed-→ _         → idᶠ
       .Starˢ-sink-→                → idᶠ
-      .Prodrec-allowed-𝟙ᵐ-→        → idᶠ
+      .Prodrec-allowed-→ _         → idᶠ
       .natrec-mode-≡               → PE.refl
       .Id-erased-⇔                 → id⇔
       .erased-matches-for-K-≡      → PE.refl
@@ -984,4 +957,4 @@ opaque
     open Configuration hiding (TRₜ; URₜ)
     open Definition.Typed TRₜ
     open Definition.Typed.Properties TRₜ hiding ([]-cong′)
-    open Graded.Usage 𝕄 URₛ
+    open Graded.Usage URₛ

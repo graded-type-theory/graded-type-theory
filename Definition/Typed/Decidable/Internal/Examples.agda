@@ -5,10 +5,12 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Decidable.Internal.Examples
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (TR : Type-restrictions 𝕄)
   where
 
@@ -16,12 +18,12 @@ open Modality 𝕄
 open Type-restrictions TR
 
 open import Definition.Typed TR
-open import Definition.Typed.Decidable.Internal TR
-import Definition.Typed.Decidable.Internal.Context TR as C
-import Definition.Typed.Decidable.Internal.Term TR as I
-import Definition.Typed.Decidable.Internal.Tests TR as T
-import Definition.Typed.Decidable.Internal.Substitution TR as S
-import Definition.Typed.Decidable.Internal.Weakening TR as W
+open import Definition.Typed.Decidable.Internal 𝐌 TR
+import Definition.Typed.Decidable.Internal.Context 𝐌 TR as C
+import Definition.Typed.Decidable.Internal.Term 𝐌 TR as I
+import Definition.Typed.Decidable.Internal.Tests 𝐌 TR as T
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 TR as S
+import Definition.Typed.Decidable.Internal.Weakening 𝐌 TR as W
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
 open import Definition.Typed.Properties.Well-formed TR
@@ -35,7 +37,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄 as Id
 open import Definition.Untyped.Properties M
 
-open Id.Internal TR
+open Id.Internal 𝐌 TR
 
 open import Tools.Bool
 open import Tools.Fin

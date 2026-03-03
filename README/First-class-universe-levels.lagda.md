@@ -682,7 +682,7 @@ import Graded.Context
 Modes. The development supports modalities with or without the zero
 mode.
 ```agda
-import Graded.Mode
+import Graded.Mode.Instances.Zero-one
   using (Mode)
 ```
 

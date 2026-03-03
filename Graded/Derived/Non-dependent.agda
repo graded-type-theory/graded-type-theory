@@ -3,25 +3,27 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Non-dependent
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {𝐌 : IsMode Mode 𝕄}
+  (UR : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Definition.Untyped M
 open import Definition.Untyped.Non-dependent 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Weakening 𝕄 UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Weakening UR
 
 open import Tools.Function
 open import Tools.Product
@@ -43,7 +45,7 @@ opaque
   ▸⟶× :
     γ ▸[ m ᵐ· p ] A →
     δ ▸[ m ] B →
-    γ +ᶜ δ ▸[ m ] A ⟶×⟨ b ⟩[ p ] B
+    p ·ᶜ γ +ᶜ δ ▸[ m ] A ⟶×⟨ b ⟩[ p ] B
   ▸⟶× {m} {δ} ▸A ▸B =
     ΠΣₘ ▸A $
     sub (wkUsage _ ▸B) $ begin
@@ -58,7 +60,7 @@ opaque
   inv-usage-⟶× :
     γ ▸[ m ] A ⟶×⟨ b ⟩[ p ] B →
     ∃₂ λ δ η →
-      γ ≤ᶜ δ +ᶜ η ×
+      γ ≤ᶜ p ·ᶜ δ +ᶜ η ×
       δ ▸[ m ᵐ· p ] A ×
       η ▸[ m ] B
   inv-usage-⟶× ▸⟶× =

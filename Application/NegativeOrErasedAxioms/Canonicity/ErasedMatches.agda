@@ -35,38 +35,39 @@ import Graded.Context.Properties
 import Graded.Erasure.SucRed
 import Graded.Modality
 import Graded.Modality.Properties
-open import Graded.Modality.Variant lzero
-import Graded.Mode
-import Graded.Restrictions
+import Graded.Mode.Instances.Zero-one
+import Graded.Restrictions.Zero-one
 import Graded.Usage
 open import Graded.Usage.Restrictions
 open import Graded.Usage.Restrictions.Natrec
+open import Graded.Mode.Instances.Zero-one.Variant
 
 open import Graded.Modality.Instances.Erasure as E using (Erasure)
 import Graded.Modality.Instances.Erasure.Modality as EM
 
 module Counterexample
-  (variant : Modality-variant)
+  (variant : Mode-variant EM.ErasureModality)
   where
 
   open Graded.Modality Erasure
+  open Graded.Mode.Instances.Zero-one variant
 
   private
 
     -- The modality used in this local module.
 
-    𝕄 = EM.ErasureModality variant
+    𝕄 = EM.ErasureModality
 
     module M = Modality 𝕄
 
-    open Graded.Restrictions 𝕄
+    open Graded.Restrictions.Zero-one 𝕄 variant
 
     -- The type and usage restrictions used in this local module.
 
     TR : Type-restrictions 𝕄
     TR = no-type-restrictions true false
 
-    UR : Usage-restrictions 𝕄
+    UR : Usage-restrictions 𝕄 Zero-one-isMode
     UR = no-usage-restrictions Nr true true
 
   open Type-restrictions TR
@@ -96,8 +97,7 @@ module Counterexample
   open Graded.Context.Properties 𝕄
   open Graded.Erasure.SucRed TR
   open Graded.Modality.Properties 𝕄
-  open Graded.Mode 𝕄
-  open Graded.Usage 𝕄 UR
+  open Graded.Usage UR
 
   private variable
     t : Term _
@@ -198,9 +198,10 @@ not-canonicityEq :
        open Definition.Untyped M
    in
    {𝕄 : Modality} →
-   let open Graded.Mode 𝕄
-       open Graded.Restrictions 𝕄
+   {variant : Mode-variant 𝕄} →
+   let open Graded.Restrictions.Zero-one 𝕄 variant
        open Modality 𝕄
+       open Graded.Mode.Instances.Zero-one variant
    in
    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
    (TR : Type-restrictions 𝕄) →
@@ -209,9 +210,9 @@ not-canonicityEq :
          Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
        open Definition.Typed TR
    in
-   (UR : Usage-restrictions 𝕄) →
+   (UR : Usage-restrictions 𝕄 Zero-one-isMode) →
    let open Usage-restrictions UR
-       open Graded.Usage 𝕄 UR
+       open Graded.Usage UR
    in
    ∀ {m n} {Γ : Cons m n} →
    Consistent Γ →
@@ -224,7 +225,7 @@ not-canonicityEq :
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
   ⊥
 not-canonicityEq hyp =
-  case Counterexample.cEx (𝟘ᵐ-allowed-if true) of λ {
+  case Counterexample.cEx (𝟘ᵐ-Allowed _) of λ {
     (_ , _ , _ , _ , _ ,
      ⊢t , ▸Γ , ▸t , _ , nec , con , ok₁ , ok₂ , not-numeral , _) →
   not-numeral $

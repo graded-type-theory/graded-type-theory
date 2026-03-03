@@ -3,15 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Reduction
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (type-variant : Type-variant)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
@@ -20,7 +22,8 @@ module Graded.Heap.Reduction
 
 open import Tools.Empty
 open import Tools.Fin
-open import Tools.Nat
+open import Tools.Level
+open import Tools.Nat hiding (_⊔_)
 open import Tools.Product
 open import Tools.Relation
 
@@ -87,7 +90,7 @@ data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
 infix 28 _⇾ₑ_
 infix 30 ⇒ₑ_
 
-data _⇾ₑ_ {k m n} : State k m n → State k m n′ → Set a where
+data _⇾ₑ_ {k m n} : State k m n → State k m n′ → Set (a ⊔ b) where
   var : ∣ S ∣≡ p →
         H ⊢ wkVar ρ x ↦[ p ] (t , ρ′) ⨾ H′ →
         ⟨ H , var x , ρ , S ⟩ ⇾ₑ ⟨ H′ , t , ρ′ , S ⟩
@@ -98,7 +101,7 @@ data _⇾ₑ_ {k m n} : State k m n → State k m n′ → Set a where
 infix 28 _⇾ₑ*_
 infixr 29 _⇨_
 
-data _⇾ₑ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
+data _⇾ₑ*_ (s : State k m n) : (s′ : State k m n′) → Set (a ⊔ b) where
   id : s ⇾ₑ* s
   _⇨_ : ∀ {n″} {s′ : State k m n′} {s″ : State k m n″}
       → s ⇾ₑ s′ → s′ ⇾ₑ* s″ → s ⇾ₑ* s″
@@ -127,7 +130,7 @@ data _⇢ₑ*_ (s : State k m n) : (s′ : State k m n′) → Set a where
 
 infix 28 _⇒ᵥ_
 
-data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set a where
+data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set (a ⊔ b) where
   liftₕ : ⟨ H , lift t , ρ , lowerₑ ∙ S ⟩ ⇒ᵥ
           ⟨ H , t      , ρ , S          ⟩
   lamₕ : ∣ S ∣≡ q
@@ -186,13 +189,13 @@ infix 30 ⇢ₑ_
 
 -- Evaluation to WHNF with resource tracking.
 
-data _⇾_ (s₁ : State k m n) : State k m′ n′ → Set a where
+data _⇾_ (s₁ : State k m n) : State k m′ n′ → Set (a ⊔ b) where
   ⇾ₑ_ : s₁ ⇾ₑ s₂ → s₁ ⇾ s₂
   ⇒ᵥ_ : s₁ ⇒ᵥ s₂ → s₁ ⇾ s₂
 
 -- Evaluation of natural numbers to numerals with resource tracking.
 
-data _↠_ (s₁ : State k m n) : State k m′ n′ → Set a where
+data _↠_ (s₁ : State k m n) : State k m′ n′ → Set (a ⊔ b) where
   ⇾ₑ_ : s₁ ⇾ₑ s₂ → s₁ ↠ s₂
   ⇒ᵥ_ : s₁ ⇒ᵥ s₂ → s₁ ↠ s₂
   ⇒ₙ_ : s₁ ⇒ₙ s₂ → s₁ ↠ s₂
@@ -201,7 +204,7 @@ pattern ⇾ₑ′ d = ⇾ₑ (⇒ₑ d)
 
 -- Evaluation to WHNF without resource tracking.
 
-data _⇢_ (s₁ : State k m n) : State k m′ n′ → Set a where
+data _⇢_ (s₁ : State k m n) : State k m′ n′ → Set (a ⊔ b) where
   ⇢ₑ_ : s₁ ⇢ₑ s₂ → s₁ ⇢ s₂
   ⇒ᵥ_ : s₁ ⇒ᵥ s₂ → s₁ ⇢ s₂
 
@@ -211,24 +214,24 @@ infix 28 _⇢*_
 
 -- Reflexive, transitive closure of _⇾_.
 
-data _⇾*_ (s₁ : State k m n) : State k m′ n′ → Set a where
+data _⇾*_ (s₁ : State k m n) : State k m′ n′ → Set (a ⊔ b) where
   id  : s₁ ⇾* s₁
   _⇨_ : s₁ ⇾ s₂ → s₂ ⇾* s₃ → s₁ ⇾* s₃
 
 -- Reflexive, transitive closure of _↠_.
 
-data _↠*_ (s₁ : State k m n) : State k m′ n′ → Set a where
+data _↠*_ (s₁ : State k m n) : State k m′ n′ → Set (a ⊔ b) where
   id  : s₁ ↠* s₁
   _⇨_ : s₁ ↠ s₂ → s₂ ↠* s₃ → s₁ ↠* s₃
 
 -- Reflexive, transitive closure of _⇢_.
 
-data _⇢*_ (s₁ : State k m n) : State k m′ n′ → Set a where
+data _⇢*_ (s₁ : State k m n) : State k m′ n′ → Set (a ⊔ b) where
   id  : s₁ ⇢* s₁
   _⇨_ : s₁ ⇢ s₂ → s₂ ⇢* s₃ → s₁ ⇢* s₃
 
-Final : State k m n → Set a
+Final : State k m n → Set (a ⊔ b)
 Final s = ∀ {m n} {s′ : State _ m n} → s ⇾ s′ → ⊥
 
-_⇘_ : State k m n → State k m′ n′ → Set a
+_⇘_ : State k m n → State k m′ n′ → Set (a ⊔ b)
 s ⇘ s′ = s ⇾* s′ × Final s′

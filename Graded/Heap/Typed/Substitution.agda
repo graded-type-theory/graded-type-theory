@@ -3,13 +3,16 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed.Substitution
-  {a} {M : Set a} {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (UR : Usage-restrictions 𝕄 𝐌)
   (TR : Type-restrictions 𝕄)
   (open Usage-restrictions UR)
   (factoring-nr :

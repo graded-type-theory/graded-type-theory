@@ -5,11 +5,13 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
 
 module Graded.Erasure.LogicalRelation.Value
   {a} {M : Set a}
   {𝕄 : Modality M}
   {R : Type-restrictions 𝕄}
+  (variant : Mode-variant 𝕄)
   (as : Assumptions R)
   where
 
@@ -19,7 +21,7 @@ open import Definition.LogicalRelation.Simplified R
 open import Definition.Untyped M
 
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden as
+open import Graded.Erasure.LogicalRelation.Hidden variant as
 open import Graded.Erasure.Target as T using (strict)
 open import Graded.Erasure.Target.Properties
 

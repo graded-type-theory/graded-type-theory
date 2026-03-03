@@ -23,7 +23,8 @@ open import Algebra.Definitions (_≡_ {A = A}) public
 open import Algebra.Structures (_≡_ {A = A}) public
      using (IsBand; IsCommutativeMonoid; IsMagma; IsMonoid;
             IsSemigroup; IsSemiring;
-            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring)
+            IsSemiringWithoutAnnihilatingZero; IsCommutativeSemiring;
+            IsIdempotentCommutativeMonoid)
 open import Algebra.Lattice.Structures (_≡_ {A = A}) public
      using (IsMeetSemilattice; IsDistributiveLattice)
 open import Algebra.Bundles public

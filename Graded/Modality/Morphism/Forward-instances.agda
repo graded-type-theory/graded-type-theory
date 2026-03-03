@@ -3,14 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+open import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Graded.Modality.Morphism.Usage-restrictions
 
 module Graded.Modality.Morphism.Forward-instances
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
-  {R₁ : Usage-restrictions 𝕄₁}
-  {R₂ : Usage-restrictions 𝕄₂}
+  {v₁ : Mode-variant 𝕄₁} {v₂ : Mode-variant 𝕄₂}
+  {R₁ : Usage-restrictions 𝕄₁ (Zero-one-isMode v₁)}
+  {R₂ : Usage-restrictions 𝕄₂ (Zero-one-isMode v₂)}
   (cp : Common-properties R₁ R₂)
   where
 

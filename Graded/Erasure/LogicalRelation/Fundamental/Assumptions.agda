@@ -8,12 +8,16 @@ open import Graded.Modality
 open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 open import Definition.Typed.Restrictions
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 
 module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
   {a} {M : Set a}
   {𝕄 : Modality M}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Modality 𝕄
@@ -26,9 +30,8 @@ open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Restrictions 𝕄
+open import Graded.Usage UR
+open import Graded.Restrictions.Zero-one 𝕄 variant
 
 open import Tools.Nat
 open import Tools.Sum

@@ -28,14 +28,18 @@
 -- terminate.
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Extraction.Non-terminating
   {a} {M : Set a}
   {𝕄 : Modality M}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Modality 𝕄
@@ -56,9 +60,9 @@ open import Graded.Erasure.Target as T using (Strictness; strict)
 open import Graded.Erasure.Target.Non-terminating
 open import Graded.Erasure.Target.Properties
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage UR
+open import Graded.Usage.Properties UR
+open import Graded.Usage.Properties.Zero-one variant UR
 
 open import Tools.Bool using (Bool; true)
 open import Tools.Empty
@@ -103,14 +107,15 @@ opaque
   -- Another lemma used below.
 
   ▸Πℕℕ : q ≤ 𝟘 → 𝟘ᶜ {n = n} ▸[ 𝟙ᵐ ] Π p , q ▷ ℕ ▹ ℕ
-  ▸Πℕℕ {q} q≤𝟘 = sub
+  ▸Πℕℕ {q} {p} q≤𝟘 = sub
     (ΠΣₘ ℕₘ $ sub ℕₘ $ begin
         𝟘ᶜ ∙ 𝟙 · q  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
         𝟘ᶜ ∙ q      ≤⟨ ≤ᶜ-refl ∙ q≤𝟘 ⟩
         𝟘ᶜ          ∎)
     (begin
-       𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
+       𝟘ᶜ             ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘ᶜ       ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+       p ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ∎)
     where
     open ≤ᶜ-reasoning
 

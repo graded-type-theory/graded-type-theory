@@ -3,25 +3,26 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Unrestricted.Eta.Usage
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Inversion 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
-open import Graded.Usage.Weakening 𝕄 R
-
-open import Graded.Mode 𝕄
+open import Graded.Usage R
+open import Graded.Usage.Inversion R
+open import Graded.Usage.Properties R
+open import Graded.Usage.Weakening R
 
 open import Definition.Untyped M
 open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄
@@ -65,9 +66,9 @@ opaque
   -- A usage rule for Unrestricted.
 
   ▸Unrestricted :
-    δ ▸[ 𝟘ᵐ? ] l →
+    δ ▸[ 𝟘ᵐ ] l →
     γ ▸[ m ] A →
-    γ ▸[ m ] Unrestricted l A
+    ω ·ᶜ γ ▸[ m ] Unrestricted l A
   ▸Unrestricted {γ} {m} ▸l ▸A = sub
     (ΠΣₘ
        (▸-cong (PE.sym ᵐ·-identityʳ-ω) ▸A)
@@ -76,8 +77,8 @@ opaque
            𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
            𝟘ᶜ              ∎))
     (begin
-       γ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
-       γ +ᶜ 𝟘ᶜ  ∎)
+       ω ·ᶜ γ       ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       ω ·ᶜ γ +ᶜ 𝟘ᶜ ∎)
     where
     open ≤ᶜ-reasoning
 
@@ -117,7 +118,7 @@ opaque
 
   inv-usage-Unrestricted :
     γ ▸[ m ] Unrestricted l A →
-    (∃ λ δ → δ ▸[ 𝟘ᵐ? ] l) × γ ▸[ m ] A
+    (∃ λ δ → δ ▸[ 𝟘ᵐ ] l) × γ ▸[ m ] A
   inv-usage-Unrestricted {γ} {m} ▸Unrestricted =
     let invUsageΠΣ {δ} {η} ▸A ▸Lift γ≤ = inv-usage-ΠΣ ▸Unrestricted
         (_ , ▸wk1-l) , ▸Unit           = inv-usage-Lift ▸Lift
@@ -126,10 +127,10 @@ opaque
       (η≤𝟘 ∙ _) →
     (_ , wkUsage⁻¹ ▸wk1-l) ,
     (sub (▸-cong ᵐ·-identityʳ-ω ▸A) $ begin
-       γ        ≤⟨ γ≤ ⟩
-       δ +ᶜ η   ≤⟨ +ᶜ-monotoneʳ η≤𝟘 ⟩
-       δ +ᶜ 𝟘ᶜ  ≈⟨ +ᶜ-identityʳ _ ⟩
-       δ        ∎) }
+       γ            ≤⟨ γ≤ ⟩
+       ω ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-monotone ω·ᶜ-decreasing η≤𝟘 ⟩
+       δ +ᶜ 𝟘ᶜ      ≈⟨ +ᶜ-identityʳ _ ⟩
+       δ            ∎) }
     where
     open ≤ᶜ-reasoning
 

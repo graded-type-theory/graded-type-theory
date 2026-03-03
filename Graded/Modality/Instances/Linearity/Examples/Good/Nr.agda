@@ -3,20 +3,18 @@
 -- function.
 ------------------------------------------------------------------------
 
-open import Tools.Level
-
-import Graded.Modality.Instances.Linearity
-open import Graded.Modality.Variant lzero
+open import Graded.Modality.Instances.Linearity
 open import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant linearityModality
 
 module Graded.Modality.Instances.Linearity.Examples.Good.Nr
-  -- The modality variant.
-  (variant : Modality-variant)
-  (open Graded.Modality.Instances.Linearity variant)
-  (UR : Usage-restrictions linearityModality)
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions linearityModality Zero-one-isMode)
   where
 
-open import Graded.Restrictions linearityModality
+open import Graded.Restrictions.Zero-one linearityModality variant
 open import Graded.Usage.Restrictions.Natrec linearityModality
 open import Graded.Modality Linearity
 
@@ -42,11 +40,10 @@ open import Definition.Untyped Linearity
 open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
 open import Graded.Modality.Properties linearityModality hiding (has-nr)
-open import Graded.Mode linearityModality
-open import Graded.Usage linearityModality UR′
-open import Graded.Usage.Inversion linearityModality UR′
-open import Graded.Usage.Properties linearityModality UR′
-open import Graded.Usage.Weakening linearityModality UR′
+open import Graded.Usage UR′
+open import Graded.Usage.Inversion UR′
+open import Graded.Usage.Properties UR′
+open import Graded.Usage.Weakening UR′
 
 private variable
   n   : Nat

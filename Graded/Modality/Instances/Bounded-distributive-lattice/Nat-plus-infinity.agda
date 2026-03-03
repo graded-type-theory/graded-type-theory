@@ -25,7 +25,6 @@ open import Tools.Unit
 
 open import Graded.Modality ℕ⊎∞
 import Graded.Modality.Instances.Bounded-distributive-lattice ℕ⊎∞ as BDL
-open import Graded.Modality.Variant lzero
 
 private
   module R = Semiring-with-meet ℕ⊎∞.ℕ⊎∞-semiring-with-meet
@@ -285,9 +284,7 @@ has-well-behaved-zero = record
 -- A modality (of any kind) for Set-ℕ defined using the construction
 -- in Graded.Modality.Instances.BoundedStar.
 
-modality : Modality-variant → Modality
-modality variant = BDL.modality
+modality : Modality
+modality = BDL.modality
   bounded-distributive-lattice
   (Semiring-with-meet.is-𝟘? ℕ⊎∞.ℕ⊎∞-semiring-with-meet)
-  variant
-  (λ _ → has-well-behaved-zero)

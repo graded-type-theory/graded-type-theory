@@ -4,11 +4,13 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Consequences.Admissible.Bool
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   (open Modality 𝕄)
+  (𝐌 : IsMode Mode 𝕄)
   (R : Type-restrictions 𝕄)
    -- The three grades used in the Σ-type used to encode the type Bool
   (Boolᵍ₁ Boolᵍ₂ OKᵍ : M)
@@ -20,11 +22,11 @@ module Definition.Typed.Consequences.Admissible.Bool
   where
 
 open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal R
-import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Term R as I
-import Definition.Typed.Decidable.Internal.Tests R as IT
-import Definition.Typed.Decidable.Internal.Substitution R as IS
+open import Definition.Typed.Decidable.Internal 𝐌 R
+import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
+import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
+import Definition.Typed.Decidable.Internal.Tests 𝐌 R as IT
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
 open import Definition.Typed.Properties.Admissible.Bool.OK
   OKᵍ R Unitʷ-ok
 open import Definition.Typed.Properties.Admissible.Level R
@@ -39,7 +41,7 @@ open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool 𝕄 Boolᵍ₁ Boolᵍ₂ OKᵍ
-open Internal R
+open Internal 𝐌 R
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Nat 𝕄
 

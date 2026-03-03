@@ -4,17 +4,22 @@
 
 open import Definition.Typed.Restrictions
 import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 
 module Graded.Erasure.Consequences.Resurrectable
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Modality 𝕄
+open Mode-variant variant
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -31,8 +36,8 @@ open import Definition.Untyped.Unit 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Usage 𝕄 UR
-open import Graded.Derived.Sigma 𝕄 UR
+open import Graded.Derived.Erased.Usage UR
+open import Graded.Derived.Sigma UR
 open import Graded.Derived.Unit UR
 open import Graded.Erasure.Consequences.Identity TR UR
 import Graded.Erasure.LogicalRelation as L
@@ -43,11 +48,11 @@ import Graded.Erasure.LogicalRelation.Hidden as H
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Reduction TR UR
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Reduction.Zero-one variant TR UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
+open import Graded.Usage.Properties.Zero-one variant UR
 
 open import Tools.Bool using (T)
 open import Tools.Fin
@@ -95,7 +100,7 @@ opaque
     Π-allowed 𝟘 q₁ →
     Σ-allowed s 𝟙 q₂ →
     Erased-allowed s →
-    (¬ T 𝟘ᵐ-allowed → Id-erased → q₂ ≤ 𝟘) →
+    (¬ T 𝟘ᵐ-allowed → q₂ ≤ 𝟘) →
     (¬ T 𝟘ᵐ-allowed → ¬ Id-erased → q₂ ≤ 𝟙) →
     ⊢ Γ →
     Resurrectable s q₁ q₂ Γ zeroᵘ Empty
@@ -107,28 +112,39 @@ opaque
           Erased s zeroᵘ (Id Empty (var x0) (var x1)))
          (var x0))
     , (lamₘ $
-       sub
-         (emptyrecₘ var
-            (ΠΣₘ Emptyₘ $ ▸Erased _ zeroᵘₘ $
-             Idₘ-generalised Emptyₘ var var
-               (λ erased → begin
-                  𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)  ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙
-                                                            𝟘ᵐ?-elim (λ m → ⌜ m ⌝ · q₂ ≤ 𝟘)
-                                                              (≤-reflexive (·-zeroˡ _))
-                                                              (λ not-ok →
-                                                                 ≤-trans (≤-reflexive (·-identityˡ _)) $
-                                                                 hyp₁ not-ok erased) ⟩
-                  𝟘ᶜ                                     ∎)
-               (λ not-erased → begin
-                  𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)             ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙
-                                                                       𝟘ᵐ?-elim (λ m → ⌜ m ⌝ · q₂ ≤ ⌜ m ⌝)
-                                                                         (≤-reflexive (·-zeroˡ _))
-                                                                         (λ not-ok →
-                                                                            ≤-trans (≤-reflexive (·-identityˡ _)) $
-                                                                            hyp₂ not-ok not-erased) ⟩
-                  𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ ⌜ 𝟘ᵐ? ⌝                            ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
-                  (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟘ᵐ? ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-                  𝟘ᶜ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎))
+        sub
+          (emptyrecₘ var
+            (sub
+              (ΠΣₘ Emptyₘ $
+                sub
+                  (▸Erased _ zeroᵘₘ (Idₘ-generalised Emptyₘ var var
+                    (λ erased → begin
+                       𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)  ≤⟨ ∧ᶜ-decreasingˡ _ _ ∙
+                                                                 𝟘ᵐ?-elim (λ m → ⌜ m ⌝ · q₂ ≤ 𝟘)
+                                                                   (≤-reflexive (·-zeroˡ _))
+                                                                   (λ not-ok →
+                                                                      ≤-trans (≤-reflexive (·-identityˡ _)) $
+                                                                      hyp₁ not-ok) ⟩
+                       𝟘ᶜ                                     ∎)
+                   (λ not-erased → begin
+                      𝟘ᶜ ∧ᶜ (𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝) ∙ (⌜ 𝟘ᵐ? ⌝ · q₂)             ≤⟨ ∧ᶜ-decreasingʳ _ _ ∙
+                                                                           𝟘ᵐ?-elim (λ m → ⌜ m ⌝ · q₂ ≤ ⌜ m ⌝)
+                                                                             (≤-reflexive (·-zeroˡ _))
+                                                                             (λ not-ok →
+                                                                                ≤-trans (≤-reflexive (·-identityˡ _)) $
+                                                                                hyp₂ not-ok not-erased) ⟩
+                      𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ ⌜ 𝟘ᵐ? ⌝                            ≈˘⟨ +ᶜ-identityˡ _ ∙ +-identityʳ _ ⟩
+                      (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟘ᵐ? ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+                      𝟘ᶜ +ᶜ (𝟘ᶜ , x0 ≔ ⌜ 𝟘ᵐ? ⌝) +ᶜ (𝟘ᶜ , x1 ≔ ⌜ 𝟘ᵐ? ⌝)  ∎)))
+                  (begin
+                    𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · q₂ ≤⟨ ≤ᶜ-refl ∙ 𝟘ᵐ-allowed-elim
+                                          (λ ok → ≤-reflexive (PE.trans (·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok)) (·-zeroˡ _)))
+                                          (λ not-ok → ≤-trans (·-monotoneʳ (hyp₁ not-ok)) (≤-reflexive (·-zeroʳ _))) ⟩
+                    𝟘ᶜ ∎))
+              (begin
+                𝟘ᶜ            ≈˘⟨ +ᶜ-identityˡ _ ⟩
+                𝟘ᶜ +ᶜ 𝟘ᶜ      ≈˘⟨ +ᶜ-congʳ (·ᶜ-identityˡ _) ⟩
+                𝟙 ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∎))
             emptyrec-ok)
          (begin
             𝟘ᶜ ∙ 𝟙 · 𝟘                  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
@@ -156,7 +172,7 @@ opaque
     Σ-allowed s₁ 𝟙 q₂ →
     Erased-allowed s₁ →
     Unit-allowed s₂ →
-    (s₂ PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Unitrec-allowed 𝟙ᵐ 𝟙 Unit-η-grade) →
+    (s₂ PE.≡ 𝕨 → Unitrec-allowed 𝟘ᵐ? 𝟙 Unit-η-grade) →
     ⊢ Γ →
     Resurrectable s₁ q₁ q₂ Γ zeroᵘ (Unit s₂)
   Unit-resurrectable
@@ -167,8 +183,7 @@ opaque
        prodₘ starₘ
          (▸[] _ $
           ▸Unit-η′
-            (𝟘ᵐ?-elim (λ m → Unitrec-allowed m _ Unit-η-grade) _ ∘→
-             ur-ok)
+             ur-ok
             (λ _ → _ , var) .proj₂)
          (λ _ → begin
             𝟘ᶜ ∙ 𝟙 · 𝟘     ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
@@ -311,7 +326,7 @@ opaque
     as : Assumptions
     as = record { ⊢Δ = well-formed; str = T.non-strict }
 
-    open H as
+    open H variant as
     open L as
 
 opaque
@@ -333,15 +348,15 @@ opaque
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
+    (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     []-cong-allowed s →
     []-cong-allowed-mode s 𝟙ᵐ →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     Fundamental-assumptions⁻ (glassify ∇ » Δ) →
     ¬ Resurrectable s q₁ q₂ (glassify ∇ » Δ) zeroᵘ ℕ
   ¬-ℕ-resurrectable
-    {∇} {Δ} ⦃ ok ⦄ Unitʷ-η→ []-cong-ok []-cong-ok′ ▸∇ as (_ , ▸t , ⊢t) =
+    {∇} {Δ} ⦃ ok ⦄ Unitʷ-η→ P-ok []-cong-ok []-cong-ok′ ▸∇ as (_ , ▸t , ⊢t) =
     let ⊢0 = ⊢zeroᵘ (wfTerm ⊢t) in
-
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
@@ -359,10 +374,10 @@ opaque
 
     -- The term t₁ is definitionally equal to zero.
     case inv-usage-prod
-           (usagePres*Term Unitʷ-η→ ▸∇ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
+           (usagePres*Term₀₁ Unitʷ-η→ ▸∇ (▸t ∘ₘ zeroₘ) t∘0⇒t₁,t₂) of λ {
       (invUsageProd ▸t₁ ▸t₂ _ _) →
-    case Id→≡″ []-cong-ok []-cong-ok′ as zeroᵘₘ ℕₘ (▸-𝟘 ▸t₁) zeroₘ
-           (▸-𝟘 ▸t₂) ⊢0 $
+    case Id→≡″ []-cong-ok []-cong-ok′ P-ok as zeroᵘₘ ℕₘ (▸-𝟘₀₁ ▸t₁) zeroₘ
+           (▸-𝟘₀₁ ▸t₂) ⊢0 $
          PE.subst (_⊢_∷_ _ _)
            (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
             Erased.Erased-[] _) $
@@ -392,11 +407,11 @@ opaque
 
         -- The term t₁′ is definitionally equal to suc zero.
         case inv-usage-prod
-               (usagePres*Term Unitʷ-η→ ▸∇ (▸t ∘ₘ sucₘ zeroₘ)
+               (usagePres*Term₀₁ Unitʷ-η→ ▸∇ (▸t ∘ₘ sucₘ zeroₘ)
                   t∘1⇒t₁′,t₂′) of λ {
           (invUsageProd ▸t₁′ ▸t₂′ _ _) →
-        case Id→≡″ []-cong-ok []-cong-ok′ as zeroᵘₘ ℕₘ (▸-𝟘 ▸t₁′)
-               (sucₘ zeroₘ) (▸-𝟘 ▸t₂′) ⊢0 $
+        case Id→≡″ []-cong-ok []-cong-ok′ P-ok as zeroᵘₘ ℕₘ (▸-𝟘₀₁ ▸t₁′)
+               (sucₘ zeroₘ) (▸-𝟘₀₁ ▸t₂′) ⊢0 $
              PE.subst (_⊢_∷_ _ _)
                (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
                 Erased.Erased-[] _) $
@@ -441,7 +456,7 @@ opaque
     as′ : Assumptions
     as′ = record { ⊢Δ = wfTerm ⊢t; str = T.non-strict }
 
-    open H as′
+    open H variant as′
     open L as′
 
     instance

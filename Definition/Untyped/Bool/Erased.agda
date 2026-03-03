@@ -9,16 +9,20 @@
 -- usage rules can be found in Graded.Derived.Bool.Erased.
 
 import Graded.Modality
+import Graded.Mode
 
 module Definition.Untyped.Bool.Erased
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
   (𝕄 : Modality)
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr (Modality.semiring-with-meet 𝕄) ⦄
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
@@ -26,7 +30,7 @@ import Definition.Typed.Decidable.Internal.Weakening
 open import Definition.Typed.Restrictions
 
 open import Definition.Untyped M hiding (_[_]′)
-open import Definition.Untyped.Bool.Nr 𝕄 as B
+open import Definition.Untyped.Bool.Nr 𝕄 𝐌 as B
   using (OK; OKᵍ; boolrecᵍ-nc₁; boolrecᵍ-nc₂)
 open import Definition.Untyped.Empty 𝕄 as UE hiding (module Internal)
 open import Definition.Untyped.Erased 𝕄 𝕨 as E
@@ -38,7 +42,6 @@ open import Definition.Untyped.Unit 𝕄 hiding (module Internal)
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
-open import Graded.Mode 𝕄
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -146,7 +149,7 @@ opaque
   -- A grade used in the implementation of Bool.
 
   Boolᵍ : M
-  Boolᵍ = nr OKᵍ 𝟘 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝
+  Boolᵍ = 𝟘
 
 opaque
 
@@ -157,36 +160,6 @@ opaque
 
 ------------------------------------------------------------------------
 -- Some lemmas about the grades
-
-opaque
-  unfolding Boolᵍ
-
-  -- If 𝟘ᵐ is allowed, then Boolᵍ is equal to 𝟘.
-
-  Boolᵍ≡𝟘 : T 𝟘ᵐ-allowed → Boolᵍ ≡ 𝟘
-  Boolᵍ≡𝟘 ok =
-    nr OKᵍ 𝟘 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝  ≡⟨ cong (nr _ _ _ _) $ ⌜𝟘ᵐ?⌝≡𝟘 ok ⟩
-    nr OKᵍ 𝟘 𝟘 𝟘 𝟘        ≡⟨ nr-𝟘 ⟩
-    𝟘                     ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
-
-opaque
-  unfolding Boolᵍ B.Boolᵍ
-
-  -- If 𝟘ᵐ is not allowed and the nr function satisfies
-  -- Linearity-like-nr-for-𝟘, then Boolᵍ is equal to 𝟘 ∧ 𝟙.
-
-  Boolᵍ≡𝟘∧𝟙 :
-    ¬ T 𝟘ᵐ-allowed →
-    Has-nr.Linearity-like-nr-for-𝟘 has-nr →
-    Boolᵍ ≡ 𝟘 ∧ 𝟙
-  Boolᵍ≡𝟘∧𝟙 not-ok hyp =
-    nr OKᵍ 𝟘 𝟘 𝟘 ⌜ 𝟘ᵐ? ⌝  ≡⟨ cong (nr _ _ _ _) $ ⌜𝟘ᵐ?⌝≡𝟙 not-ok ⟩
-    nr OKᵍ 𝟘 𝟘 𝟘 𝟙        ≡⟨ B.Boolᵍ≡ hyp ⟩
-    𝟘 ∧ 𝟙                 ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
 
 opaque
   unfolding boolrecᵍ-pr
@@ -293,18 +266,18 @@ opaque
 
 module Internal (R : Type-restrictions 𝕄) where
 
-  open B.Internal R using (OKᵢ)
-  open E.Internal R
-  open UE.Internal R
-  open UN.Internal R
+  open B.Internal 𝐌 R using (OKᵢ)
+  open E.Internal 𝐌 R
+  open UE.Internal 𝐌 R
+  open UN.Internal 𝐌 R
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term R
+      Definition.Typed.Decidable.Internal.Term 𝐌 R
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
     c                              : I.Constants
