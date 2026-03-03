@@ -5,22 +5,27 @@
 
 open import Definition.Typed.Restrictions
 import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 
 module Graded.Erasure.Consequences.Identity
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Modality 𝕄
+open Mode-variant variant
 open Type-restrictions TR
 open Usage-restrictions UR
 
 open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible TR
+open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Syntactic TR
@@ -29,16 +34,16 @@ import Definition.Untyped.Erased 𝕄 as Erased
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Usage 𝕄 UR
+open import Graded.Derived.Erased.Usage.Zero-one UR
 import Graded.Erasure.LogicalRelation as L
 open import Graded.Erasure.LogicalRelation.Assumptions TR
 open import Graded.Erasure.LogicalRelation.Fundamental TR UR
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
 import Graded.Erasure.LogicalRelation.Hidden as H
 import Graded.Erasure.Target as T
-open import Graded.Mode 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage UR
+open import Graded.Usage.Properties UR
+open import Graded.Usage.Properties.Zero-one variant UR
 
 open import Tools.Bool using (T)
 open import Tools.Function
@@ -84,7 +89,7 @@ opaque
     as : Assumptions
     as = record { ⊢Δ = wfTerm ⊢v; str = T.non-strict }
 
-    open H as
+    open H variant as
     open L as
 
 opaque
@@ -136,6 +141,7 @@ opaque
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
     []-cong-allowed s₁ →
     []-cong-allowed-mode s₁ 𝟙ᵐ →
+    (s₂ PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     Fundamental-assumptions⁻ (glassify ∇ » Γ) →
     γ₁ ▸[ 𝟘ᵐ ] l →
     γ₂ ▸[ 𝟘ᵐ ] A →
@@ -146,8 +152,8 @@ opaque
     glassify ∇ » Γ ⊢ v ∷ Erased.Erased s₂ l (Id A t u) →
     glassify ∇ » Γ ⊢ t ≡ u ∷ A
   Id→≡″
-    {∇} {Γ} {l} {γ₂} {A} {γ₃} {t} {γ₄} {u} {v} {s₂} ⦃ ok ⦄
-    []-cong-ok []-cong-ok′ as ▸l ▸A ▸t ▸u ▸v ⊢l =
+    {s₂} {∇} {Γ} {l} {γ₂} {A} {γ₃} {t} {γ₄} {u} {v} ⦃ ok ⦄
+    []-cong-ok []-cong-ok′ P-ok as ▸l ▸A ▸t ▸u ▸v ⊢l =
     glassify ∇ » Γ ⊢ v ∷ Erased l (Id A t u)         →⟨ erasedⱼ ⟩
     glassify ∇ » Γ ⊢ erased (Id A t u) v ∷ Id A t u  →⟨ Id→≡′ ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ []-cong-ok []-cong-ok′ as
                                                           (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸l) (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A)
@@ -158,10 +164,10 @@ opaque
                                                                   _
                                                                 , Idₘ-generalised ▸A ▸t ▸u
                                                                     (λ _ → begin
-                                                                       γ₂ +ᶜ γ₃ +ᶜ γ₄  ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ ▸A) $ +ᶜ-monotone (▸-𝟘ᵐ ▸t) (▸-𝟘ᵐ ▸u) ⟩
+                                                                       γ₂ +ᶜ γ₃ +ᶜ γ₄  ≤⟨ +ᶜ-monotone (▸-𝟘ᵐ₀₁ ▸A) (+ᶜ-monotone (▸-𝟘ᵐ₀₁ ▸t) (▸-𝟘ᵐ₀₁ ▸u)) ⟩
                                                                        𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ  ≈⟨ ≈ᶜ-trans (+ᶜ-identityˡ _) (+ᶜ-identityˡ _) ⟩
                                                                        𝟘ᶜ              ∎)
-                                                                    (λ _ → ≤ᶜ-refl)))
+                                                                    (λ _ → ≤ᶜ-refl)) P-ok)
                                                           ⊢l ⟩
     glassify ∇ » Γ ⊢ t ≡ u ∷ A                       □
     where

@@ -5,7 +5,7 @@
 module Graded.Modality.Instances.Information-flow where
 
 import Tools.Algebra
-open import Tools.Bool using (T)
+open import Tools.Bool using (T; Bool)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level using (lzero)
@@ -14,17 +14,18 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
 
-open import Graded.FullReduction.Assumptions
+import Graded.FullReduction.Assumptions
 import Graded.Modality
 import Graded.Modality.Properties.Division
 open import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Star as Star
-open import Graded.Modality.Variant lzero
+import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 
 open import Definition.Untyped hiding (Level)
 
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions
+import Definition.Typed.Restrictions
+import Graded.Usage.Restrictions
 
 -- Three information levels: low (public), medium (private), and high
 -- (more private).
@@ -37,9 +38,6 @@ open Tools.Algebra   Level
 
 private variable
   p q r   : Level
-  variant : Modality-variant
-  trs     : Type-restrictions _
-  urs     : Usage-restrictions _
 
 ------------------------------------------------------------------------
 -- Operators
@@ -659,11 +657,9 @@ L≤M≤H-has-star = record
 
 -- A three-point information flow modality (of any kind).
 
-L≤M≤H : Modality-variant → Modality
-L≤M≤H variant = record
-  { variant            = variant
-  ; semiring-with-meet = L≤M≤H-semiring-with-meet
-  ; 𝟘-well-behaved     = λ _ → L≤M≤H-has-well-behaved-zero
+L≤M≤H : Modality
+L≤M≤H = record
+  { semiring-with-meet = L≤M≤H-semiring-with-meet
   }
 
 ------------------------------------------------------------------------
@@ -734,75 +730,93 @@ L/≡L {p = p} = /≡→/≡ {q = p} $ D.𝟙/≡𝟙 {p = p} L≤
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- An instance of Type-restrictions (L≤M≤H variant) is suitable for
--- the full reduction theorem if
--- * Σˢ-allowed M p does not hold, and
--- * Σˢ-allowed H p implies that 𝟘ᵐ is allowed.
+module _ {𝟘ᵐ-allowed : Bool} where
 
-Suitable-for-full-reduction :
-  ∀ variant → Type-restrictions (L≤M≤H variant) → Set
-Suitable-for-full-reduction variant trs =
-  (∀ p → ¬ Σˢ-allowed M p) ×
-  (∀ p → Σˢ-allowed H p → T 𝟘ᵐ-allowed)
-  where
-  open Modality-variant variant
-  open Type-restrictions trs
+  open Graded.Mode.Instances.Zero-one.Variant L≤M≤H
 
--- Given an instance of Type-restrictions (L≤M≤H variant) one can
--- create a "suitable" instance of Type-restrictions.
-
-suitable-for-full-reduction :
-  Type-restrictions (L≤M≤H variant) →
-  ∃ (Suitable-for-full-reduction variant)
-suitable-for-full-reduction {variant = variant} trs =
-    record trs
-      { ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q ×
-          ¬ (b ≡ BMΣ 𝕤 × p ≡ M) ×
-          (b ≡ BMΣ 𝕤 × p ≡ H → T 𝟘ᵐ-allowed)
-      ; []-cong-allowed = λ s →
-          []-cong-allowed s × T 𝟘ᵐ-allowed
-      ; []-cong→Erased = λ (ok₁ , ok₂) →
-            []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
-          , (λ { (_ , ()) }) , (λ _ → ok₂)
-      ; []-cong→¬Trivial =
-          λ _ ()
+  private
+    variant : Mode-variant
+    variant = record
+      { 𝟘ᵐ-allowed = 𝟘ᵐ-allowed
+      ; 𝟘-well-behaved = λ _ → L≤M≤H-has-well-behaved-zero
       }
-  , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
-  , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
-  where
-  open Modality-variant variant
-  open Type-restrictions trs
 
--- The full reduction assumptions hold for L≤M≤H variant and any
--- "suitable" instance of Type-restrictions.
+  open Graded.Mode.Instances.Zero-one variant
+  open Graded.FullReduction.Assumptions variant
+  open Graded.Usage.Restrictions L≤M≤H Zero-one-isMode
+  open Definition.Typed.Restrictions L≤M≤H
 
-full-reduction-assumptions :
-  Suitable-for-full-reduction variant trs →
-  Full-reduction-assumptions trs urs
-full-reduction-assumptions (¬M , H→𝟘ᵐ) = record
-  { sink⊎𝟙≤𝟘    = λ _ _ → inj₂ refl
-  ; ≡𝟙⊎𝟙≤𝟘 = λ where
-      {p = L} _  → inj₁ refl
-      {p = M} ok → ⊥-elim (¬M _ ok)
-      {p = H} ok → inj₂ (refl , H→𝟘ᵐ _ ok , refl)
-  }
+  private variable
+    trs : Type-restrictions
+    urs : Usage-restrictions
 
--- Type and usage restrictions that satisfy the full reduction
--- assumptions are "suitable".
+  -- An instance of Type-restrictions L≤M≤H is suitable for
+  -- the full reduction theorem if
+  -- * Σˢ-allowed M p does not hold, and
+  -- * Σˢ-allowed H p implies that 𝟘ᵐ is allowed.
 
-full-reduction-assumptions-suitable :
-  Full-reduction-assumptions trs urs →
-  Suitable-for-full-reduction variant trs
-full-reduction-assumptions-suitable as =
-    (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-      (inj₁ ())
-      (inj₂ (() , _)))
-  , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-      (inj₁ ())
-      (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
-  where
-  open Full-reduction-assumptions as
+  Suitable-for-full-reduction :
+    Type-restrictions → Set
+  Suitable-for-full-reduction trs =
+    (∀ p → ¬ Σˢ-allowed M p) ×
+    (∀ p → Σˢ-allowed H p → T 𝟘ᵐ-allowed)
+    where
+    open Type-restrictions trs
+
+  -- Given an instance of Type-restrictions L≤M≤H one can
+  -- create a "suitable" instance of Type-restrictions.
+
+  suitable-for-full-reduction :
+    Type-restrictions →
+    ∃ Suitable-for-full-reduction
+  suitable-for-full-reduction trs =
+      record trs
+        { ΠΣ-allowed = λ b p q →
+            ΠΣ-allowed b p q ×
+            ¬ (b ≡ BMΣ 𝕤 × p ≡ M) ×
+            (b ≡ BMΣ 𝕤 × p ≡ H → T 𝟘ᵐ-allowed)
+        ; []-cong-allowed = λ s →
+            []-cong-allowed s × T 𝟘ᵐ-allowed
+        ; []-cong→Erased = λ (ok₁ , ok₂) →
+              []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+            , (λ { (_ , ()) }) , (λ _ → ok₂)
+        ; []-cong→¬Trivial =
+            λ _ ()
+        }
+    , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
+    , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
+    where
+    open Type-restrictions trs
+
+  -- The full reduction assumptions hold for L≤M≤H and any
+  -- "suitable" instance of Type-restrictions.
+
+  full-reduction-assumptions :
+    Suitable-for-full-reduction trs →
+    Full-reduction-assumptions trs urs
+  full-reduction-assumptions (¬M , H→𝟘ᵐ) = record
+    { sink⊎𝟙≤𝟘    = λ _ _ → inj₂ refl
+    ; ≡𝟙⊎𝟙≤𝟘 = λ where
+        {p = L} _  → inj₁ refl
+        {p = M} ok → ⊥-elim (¬M _ ok)
+        {p = H} ok → inj₂ (refl , H→𝟘ᵐ _ ok , refl)
+    }
+
+  -- Type and usage restrictions that satisfy the full reduction
+  -- assumptions are "suitable".
+
+  full-reduction-assumptions-suitable :
+    Full-reduction-assumptions trs urs →
+    Suitable-for-full-reduction trs
+  full-reduction-assumptions-suitable as =
+      (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+        (inj₁ ())
+        (inj₂ (() , _)))
+    , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+        (inj₁ ())
+        (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
+    where
+    open Full-reduction-assumptions _ _ as
 
 open import Graded.Modality.Properties.Subtraction L≤M≤H-semiring-with-meet
 

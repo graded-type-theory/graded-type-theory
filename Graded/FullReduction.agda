@@ -1,20 +1,27 @@
 ------------------------------------------------------------------------
 -- A well-resourced term has a well-resourced η-long normal form
 -- (given certain assumptions)
+-- Note that the proofs in this module currently are done for the
+-- "Zero-one" mode structure.
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.FullReduction
   {a} {M : Set a}
   {𝕄 : Modality M}
+  (mode-variant : Mode-variant 𝕄)
+  (open Graded.Mode.Instances.Zero-one mode-variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Modality 𝕄
+open Mode-variant mode-variant
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -43,15 +50,15 @@ import Definition.Conversion.FullReduction TR as FR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.FullReduction.Assumptions TR UR
+open import Graded.FullReduction.Assumptions mode-variant TR UR
 open import Graded.Modality.Properties 𝕄
 open import Graded.Reduction TR UR
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
-open import Graded.Usage.Weakening 𝕄 UR
-
-open import Graded.Mode 𝕄
+open import Graded.Reduction.Zero-one mode-variant TR UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
+open import Graded.Usage.Properties.Zero-one mode-variant UR
+open import Graded.Usage.Weakening UR
 
 private
   variable
@@ -119,7 +126,7 @@ module _ (as : Full-reduction-assumptions) where
           (𝟘ᵐ , PE.refl) →
               𝟘ᶜ , (λ _ → ≈ᶜ-refl)
             , (begin
-                 γ        ≤⟨ ▸-𝟘ᵐ ▸t ⟩
+                 γ        ≤⟨ ▸-𝟘ᵐ₀₁ ▸t ⟩
                  𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
                  𝟘 ·ᶜ 𝟘ᶜ  ∎)
           (𝟙ᵐ , PE.refl) → case sink⊎≤𝟘 ok η of λ where
@@ -155,14 +162,14 @@ module _ (as : Full-reduction-assumptions) where
     Σ-η-lemma {p = p} {γ = γ} = λ where
       𝟘ᵐ[ ok ] _ ▸t →
           𝟘ᶜ
-        , fstₘ 𝟘ᵐ[ ok ] (▸-𝟘 ▸t) PE.refl (λ ())
+        , fstₘ₀₁ 𝟘ᵐ[ ok ] (▸-𝟘₀₁ ▸t) PE.refl (λ ())
         , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-             γ        ≤⟨ ▸-𝟘ᵐ ▸t ⟩
+             γ        ≤⟨ ▸-𝟘ᵐ₀₁ ▸t ⟩
              𝟘ᶜ       ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
              p ·ᶜ 𝟘ᶜ  ∎)
       𝟙ᵐ ok ▸t →
           ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ
-        , fstₘ 𝟙ᵐ
+        , fstₘ₀₁ 𝟙ᵐ
             (▸-cong
                (let open Tools.Reasoning.PropositionalEquality in
                   ⌞ p ⌟ ·ᵐ 𝟙ᵐ  ≡⟨ ·ᵐ-identityʳ _ ⟩
@@ -238,10 +245,10 @@ module _ (as : Full-reduction-assumptions) where
           γ≤ }
       (unitrec-cong A↑ t~ u↑ _) ▸∇ ▸unitrec →
         case inv-usage-unitrec ▸unitrec of λ {
-          (invUsageUnitrec ▸A ▸t ▸u ok γ≤) →
-        sub (unitrecₘ (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
-               (fullRedNe~↓ t~ (▸-ᵐ· ∘→ ▸∇) ▸t)
-               (fullRedTermConv↑ u↑ ▸∇ ▸u) ok)
+          (invUsageUnitrec ▸t ▸u ▸A ok γ≤) →
+        sub (unitrecₘ (fullRedNe~↓ t~ (▸-ᵐ· ∘→ ▸∇) ▸t)
+               (fullRedTermConv↑ u↑ ▸∇ ▸u)
+               (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A) ok)
             γ≤ }
       (J-cong A↑ t↑ B↑ u↑ v↑ w~ _) ▸∇ ▸J →
         case inv-usage-J ▸J of λ where
@@ -315,7 +322,7 @@ module _ (as : Full-reduction-assumptions) where
       (⊢A : Γ ⊢ A [conv↑] A′) → ▸[ m ] Γ .defs → γ ▸[ m ] A →
       γ ▸[ m ] FR.fullRedConv↑ ⊢A .proj₁
     fullRedConv↑ ([↑] _ _ (D , _) _ A′<>B′) ▸∇ γ▸A =
-      fullRedConv↓ A′<>B′ ▸∇ (usagePres* Unitʷ-η→ ▸∇ γ▸A D)
+      fullRedConv↓ A′<>B′ ▸∇ (usagePres*₀₁ Unitʷ-η→ ▸∇ γ▸A D)
 
     fullRedConv↓ :
       ⦃ not-ok : No-equality-reflection ⦄ →
@@ -360,7 +367,7 @@ module _ (as : Full-reduction-assumptions) where
       (⊢t : Γ ⊢ t [conv↑] t′ ∷ A) → ▸[ m ] Γ .defs → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↑ ⊢t .proj₁
     fullRedTermConv↑ ([↑]ₜ _ _ _ _ (d , _) _ t<>u) ▸∇ γ▸t =
-      fullRedTermConv↓ t<>u ▸∇ (usagePres*Term Unitʷ-η→ ▸∇ γ▸t d)
+      fullRedTermConv↓ t<>u ▸∇ (usagePres*Term₀₁ Unitʷ-η→ ▸∇ γ▸t d)
 
     fullRedTermConv↑Level :
       ⦃ not-ok : No-equality-reflection ⦄ →
@@ -376,7 +383,7 @@ module _ (as : Full-reduction-assumptions) where
       ∀ {tᵛ} (⊢t : Γ ⊢ t ↑ᵛ tᵛ) → ▸[ m ] Γ .defs → γ ▸[ m ] t →
       γ ▸[ m ] FR.fullRedTermConv↑ᵛ ⊢t .proj₁
     fullRedTermConv↑ᵛ ([↑]ᵛ (d , _) t↓v) ▸∇ ▸t =
-      fullRedTermConv↓ᵛ t↓v ▸∇ (usagePres*Term Unitʷ-η→ ▸∇ ▸t d)
+      fullRedTermConv↓ᵛ t↓v ▸∇ (usagePres*Term₀₁ Unitʷ-η→ ▸∇ ▸t d)
 
     fullRedTermConv~ᵛ :
       ⦃ not-ok : No-equality-reflection ⦄ →

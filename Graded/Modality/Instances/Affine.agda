@@ -6,20 +6,16 @@ open import Tools.Bool
 open import Tools.Level
 
 open import Graded.Modality.Instances.Zero-one-many true as 𝟘𝟙ω
-open import Graded.Modality.Variant lzero
 
-module Graded.Modality.Instances.Affine
-  -- The modality variant.
-  (variant : Modality-variant)
-  where
-
-open Modality-variant variant
+module Graded.Modality.Instances.Affine where
 
 open 𝟘𝟙ω renaming (Zero-one-many to Affine) public
 
 open import Graded.Modality Affine
+import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 import Graded.Modality.Properties
-open import Graded.FullReduction.Assumptions
+import Graded.FullReduction.Assumptions
 import Graded.Usage.Restrictions
 
 import Definition.Typed.Restrictions
@@ -40,15 +36,11 @@ private variable
 -- An "affine types" modality.
 
 affineModality : Modality
-affineModality = zero-one-many-modality variant
+affineModality = zero-one-many-modality
 
-open Definition.Typed.Restrictions affineModality
-open Graded.Modality.Properties    affineModality
-open Graded.Usage.Restrictions     affineModality
+open Graded.Mode.Instances.Zero-one.Variant affineModality
+open Graded.Modality.Properties             affineModality
 
-private variable
-  rs : Type-restrictions
-  us : Usage-restrictions
 
 -- The nr function obtained from zero-one-many-greatest-star-nr is
 -- strictly greater than the one obtained from zero-one-many-has-nr.
@@ -321,72 +313,6 @@ instance
 ≤𝟘 {p = 𝟙} = refl
 ≤𝟘 {p = ω} = refl
 
--- An instance of Type-restrictions is suitable for the full reduction
--- theorem if
--- * Σˢ-allowed 𝟘 p implies that 𝟘ᵐ is allowed, and
--- * Σˢ-allowed ω p does not hold.
-
-Suitable-for-full-reduction :
-  Type-restrictions → Set
-Suitable-for-full-reduction rs =
-  (∀ p → Σˢ-allowed 𝟘 p → T 𝟘ᵐ-allowed) ×
-  (∀ p → ¬ Σˢ-allowed ω p)
-  where
-  open Type-restrictions rs
-
--- Given an instance of Type-restrictions one can create a "suitable"
--- instance.
-
-suitable-for-full-reduction :
-  Type-restrictions → ∃ Suitable-for-full-reduction
-suitable-for-full-reduction rs =
-    record rs
-      { ΠΣ-allowed = λ b p q →
-          ΠΣ-allowed b p q ×
-          (b ≡ BMΣ 𝕤 × p ≡ 𝟘 → T 𝟘ᵐ-allowed) ×
-          ¬ (b ≡ BMΣ 𝕤 × p ≡ ω)
-      ; []-cong-allowed = λ s →
-          []-cong-allowed s × T 𝟘ᵐ-allowed
-      ; []-cong→Erased = λ (ok₁ , ok₂) →
-            []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
-          , (λ _ → ok₂) , λ ()
-      ; []-cong→¬Trivial =
-          𝟘ᵐ.non-trivial ∘→ proj₂
-      }
-  , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
-  , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
-  where
-  open Type-restrictions rs
-
--- The full reduction assumptions hold for affineModality and any
--- "suitable" Type-restrictions.
-
-full-reduction-assumptions :
-  Suitable-for-full-reduction rs →
-  Full-reduction-assumptions rs us
-full-reduction-assumptions (𝟘→𝟘ᵐ , ¬ω) = record
-  { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
-  ; ≡𝟙⊎𝟙≤𝟘   = λ where
-      {p = ω} ok → ⊥-elim (¬ω _ ok)
-      {p = 𝟙} _  → inj₁ refl
-      {p = 𝟘} ok → inj₂ (refl , 𝟘→𝟘ᵐ _ ok , refl)
-  }
-
--- Type and usage restrictions that satisfy the full reduction
--- assumptions are "suitable".
-
-full-reduction-assumptions-suitable :
-  Full-reduction-assumptions rs us → Suitable-for-full-reduction rs
-full-reduction-assumptions-suitable as =
-    (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-      (inj₁ ())
-      (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok)
-  , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-      (inj₁ ())
-      (inj₂ (() , _))
-  where
-  open Full-reduction-assumptions as
-
 opaque
 
   -- If 𝟙 is the greatest lower bounds of a sequence then all its entries
@@ -467,3 +393,90 @@ opaque
       (inj₂ (inj₁ (r≡𝟘 , _ , p≡𝟙))) → inj₂ (inj₁ (p≡𝟙 , r≡𝟘))
       (inj₂ (inj₂ (inj₁ (_ , () , _))))
       (inj₂ (inj₂ (inj₂ (r≡𝟘 , _ , p≡𝟘)))) → inj₂ (inj₂ (p≡𝟘 , r≡𝟘))
+
+------------------------------------------------------------------------
+-- Properties relating to the Zero-one mode structure
+
+module _ {𝟘ᵐ-allowed : Bool} where
+
+  private
+    variant : Mode-variant
+    variant = record
+      { 𝟘ᵐ-allowed = 𝟘ᵐ-allowed
+      ; 𝟘-well-behaved = λ _ → affine-has-well-behaved-zero
+      }
+
+  open Graded.Mode.Instances.Zero-one   variant
+  open Definition.Typed.Restrictions    affineModality
+  open Graded.Usage.Restrictions        affineModality Zero-one-isMode
+  open Graded.FullReduction.Assumptions variant
+
+  private variable
+    rs : Type-restrictions
+    us : Usage-restrictions
+
+  -- An instance of Type-restrictions is suitable for the full reduction
+  -- theorem if
+  -- * Σˢ-allowed 𝟘 p implies that 𝟘ᵐ is allowed, and
+  -- * Σˢ-allowed ω p does not hold.
+
+  Suitable-for-full-reduction :
+    Type-restrictions → Set
+  Suitable-for-full-reduction rs =
+    (∀ p → Σˢ-allowed 𝟘 p → T 𝟘ᵐ-allowed) ×
+    (∀ p → ¬ Σˢ-allowed ω p)
+    where
+    open Type-restrictions rs
+
+  -- Given an instance of Type-restrictions one can create a "suitable"
+  -- instance.
+
+  suitable-for-full-reduction :
+    Type-restrictions → ∃ Suitable-for-full-reduction
+  suitable-for-full-reduction rs =
+      record rs
+        { ΠΣ-allowed = λ b p q →
+            ΠΣ-allowed b p q ×
+            (b ≡ BMΣ 𝕤 × p ≡ 𝟘 → T 𝟘ᵐ-allowed) ×
+            ¬ (b ≡ BMΣ 𝕤 × p ≡ ω)
+        ; []-cong-allowed = λ s →
+            []-cong-allowed s × T 𝟘ᵐ-allowed
+        ; []-cong→Erased = λ (ok₁ , ok₂) →
+              []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+            , (λ _ → ok₂) , λ ()
+        ; []-cong→¬Trivial =
+            λ _ → non-trivial ⦃ affine-has-well-behaved-zero ⦄
+        }
+    , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
+    , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
+    where
+    open Type-restrictions rs
+
+  -- The full reduction assumptions hold for affineModality and any
+  -- "suitable" Type-restrictions.
+
+  full-reduction-assumptions :
+    Suitable-for-full-reduction rs →
+    Full-reduction-assumptions rs us
+  full-reduction-assumptions (𝟘→𝟘ᵐ , ¬ω) = record
+    { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
+    ; ≡𝟙⊎𝟙≤𝟘   = λ where
+        {p = ω} ok → ⊥-elim (¬ω _ ok)
+        {p = 𝟙} _  → inj₁ refl
+        {p = 𝟘} ok → inj₂ (refl , 𝟘→𝟘ᵐ _ ok , refl)
+    }
+
+  -- Type and usage restrictions that satisfy the full reduction
+  -- assumptions are "suitable".
+
+  full-reduction-assumptions-suitable :
+    Full-reduction-assumptions rs us → Suitable-for-full-reduction rs
+  full-reduction-assumptions-suitable as =
+      (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+        (inj₁ ())
+        (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok)
+    , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+        (inj₁ ())
+        (inj₂ (() , _))
+    where
+    open Full-reduction-assumptions _ _ as

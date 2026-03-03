@@ -3,24 +3,24 @@
 -- without a dedicated nr function
 ------------------------------------------------------------------------
 
-open import Tools.Bool using (T; T-not⇔¬-T)
-open import Tools.Level
-
 open import Graded.Modality.Instances.Linear-or-affine
-open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
+open import Graded.Mode
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant linear-or-affine
 
 module Graded.Modality.Instances.Linear-or-affine.Examples.Bad.No-nr
-  -- The modality variant.
-  (variant : Modality-variant)
-  (UR : Usage-restrictions (linear-or-affine variant))
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions linear-or-affine Zero-one-isMode)
   (open Usage-restrictions UR)
   -- There is no dedicated nr function.
   ⦃ no-nr : Nr-not-available ⦄
   where
 
-open Modality-variant variant
+open Mode-variant variant
 
+open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
@@ -31,22 +31,16 @@ open import Tools.Relation
 open import Graded.Modality Linear-or-affine
 
 private
+  module M = Modality linear-or-affine
 
-  -- The modality that is used in this file.
+open import Graded.Context linear-or-affine
+open import Graded.Context.Properties linear-or-affine
+open import Graded.Modality.Properties linear-or-affine
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties.Zero-one variant UR
 
-  linear-or-affine′ : Modality
-  linear-or-affine′ = linear-or-affine variant
-
-  module M = Modality linear-or-affine′
-
-open import Graded.Context linear-or-affine′
-open import Graded.Context.Properties linear-or-affine′
-open import Graded.Modality.Properties linear-or-affine′
-open import Graded.Mode linear-or-affine′
-open import Graded.Usage linear-or-affine′ UR
-open import Graded.Usage.Inversion linear-or-affine′ UR
-
-open import Definition.Untyped.Nat linear-or-affine′
+open import Definition.Untyped.Nat linear-or-affine
 
 -- The term double is well-resourced (even though it can be given a
 -- linear type) if and only if 𝟘ᵐ is not allowed.
@@ -56,7 +50,7 @@ open import Definition.Untyped.Nat linear-or-affine′
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
      λ not-ok →
        lamₘ $
-       natrec-no-nrₘ var (sucₘ var) var
+       natrec-no-nrₘ₀₁ var (sucₘ var) var
          (sub ℕₘ $ begin
             𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ ⌜ 𝟘ᵐ? ⌝ ⟩
             𝟘ᶜ                ∎)
@@ -68,7 +62,7 @@ open import Definition.Untyped.Nat linear-or-affine′
      λ ▸λ+ ok →
        case inv-usage-lam ▸λ+ of λ {
          (invUsageLam ▸+ _) →
-       case inv-usage-natrec-no-nr ▸+ of λ {
+       case inv-usage-natrec-no-nr₀₁ ▸+ of λ {
          (_ , _ ∙ p , _ ∙ q , _ , _ ∙ r , _ , _ , _ , _
             , _ ∙ 𝟙≤r , _ , r≤₁ , _ , _ ∙ r≤₂) →
        case r≤₁ ok of λ {

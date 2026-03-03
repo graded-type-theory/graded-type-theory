@@ -23,7 +23,6 @@ open import Tools.Sum as ⊎ using (_⊎_)
 import Graded.Modality
 import Graded.Modality.Instances.Bounded-distributive-lattice as
   Bounded-distributive-lattice
-open import Graded.Modality.Variant lzero
 
 private variable
   m n : Nat
@@ -286,9 +285,7 @@ module _ (fe : Function-extensionality lzero lzero) where
 
   -- Modalities for Set-ℕ.
 
-  modality : Modality-variant → Modality
-  modality variant = BDL.modality
+  modality : Modality
+  modality = BDL.modality
     bounded-distributive-lattice
     (Semiring-with-meet.is-𝟘? semiring-with-meet)
-    variant
-    (λ _ → has-well-behaved-zero)

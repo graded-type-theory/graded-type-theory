@@ -4,13 +4,16 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Bisimilarity
-  {a} {M : Set a} {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (UR : Usage-restrictions 𝕄 𝐌)
   (TR : Type-restrictions 𝕄)
   where
 
@@ -32,6 +35,7 @@ open import Graded.Heap.Assumptions UR TR
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed TR
 open import Definition.Typed.Inversion TR
@@ -315,3 +319,27 @@ module _ (As : Assumptions) where
       case ⊢⇒*→⇾* d ⊢s′ ▸s′ of λ
         (_ , _ , s′ , d′ , u≡) →
       _ , _ , s′ , x′ ⇨* d′ , u≡ }
+
+  opaque
+
+    -- A variant of the above for reduction to Whnf
+
+    ↘→⇘ :
+      ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
+      Δ ⊢ₛ s ∷ B →
+      ▸ s →
+      ε » Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
+      ∃₃ λ m n (s′ : State _ m n) → s ⇘ s′ × u ≡ ⦅ s′ ⦆
+    ↘→⇘ ⊢s ▸s (d , w) =
+      let _ , _ , s′ , d₁ , u≡ = ⊢⇒*→⇾* d ⊢s ▸s
+          ▸s′ = ▸-⇾* ▸s d₁
+          ⊢s′ = ⊢ₛ-⇾* ⊢s d₁
+          _ , s″ , n , d₂ =
+            ▸⊢normalize As s′ ▸s′ ⊢s′
+          d′ = d₁ ⇨* ⇾ₑ* d₂
+          ⊢s″ = ⊢ₛ-⇾* ⊢s d′
+          u≡′ = PE.trans u≡ (⇾ₑ*-⦅⦆-≡ d₂)
+          w′ = subst (Whnf _) u≡′ w
+      in  _ , _ , s″
+            , (d′ , λ d″ → whnfRedTerm (⇒ᵥ→⇒ ⊢s″ (Normal-⇾→⇒ᵥ n d″)) w′)
+            , u≡′

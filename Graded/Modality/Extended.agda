@@ -17,6 +17,8 @@ open import Graded.Modality.Morphism
 open import Graded.Modality.Morphism.Type-restrictions
 open import Graded.Modality.Morphism.Usage-restrictions
 open import Graded.Modality.Properties.Subtraction
+open import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Restrictions
 open import Graded.Usage.Restrictions.Natrec
@@ -36,17 +38,20 @@ record Extended-modality a : Set (lsuc a) where
     -- M is a modality.
     𝕄  : Modality M
 
+    -- The mode variant.
+    MV : Mode-variant 𝕄
+
   open Modality 𝕄 public
 
   field
     -- Type restrictions for 𝕄.
     TR : Type-restrictions 𝕄
 
-    -- Usage restrictions for 𝕄.
-    UR : Usage-restrictions 𝕄
+    -- Usage restrictions for 𝕄 and Zero-one-isMode.
+    UR : Usage-restrictions 𝕄 (Zero-one-isMode MV)
 
     -- The full reduction assumptions hold for TR and UR.
-    FA : Full-reduction-assumptions TR UR
+    FA : Full-reduction-assumptions MV TR UR
 
     -- The assumptions used to prove decidability of type-checking
     -- (for certain contexts, types and terms) hold for TR.

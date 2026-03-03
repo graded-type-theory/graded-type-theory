@@ -8,18 +8,18 @@ open import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Erasure.Modality as GMIEM
   hiding (nr; erasure-has-nr)
 open GMIEM
-open import Graded.Modality.Variant lzero
-import Graded.Mode
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Examples
   {p q r s}
-  (variant : Modality-variant)
-  (open Graded.Mode (ErasureModality variant))
-  (TR : Type-restrictions (ErasureModality variant))
+  (variant : Mode-variant ErasureModality)
+  (open Graded.Mode.Instances.Zero-one variant)
+  (TR : Type-restrictions ErasureModality)
   (open Type-restrictions TR)
-  (UR : Usage-restrictions (ErasureModality variant))
+  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
   (open Usage-restrictions UR)
   -- It is assumed that "Π 𝟘 , p" is allowed.
   (Π-𝟘-ok : Π-allowed 𝟘 p)
@@ -38,7 +38,7 @@ private
   -- The modality that is used in this module.
 
   𝕄 : Modality
-  𝕄 = ErasureModality variant
+  𝕄 = ErasureModality
 
 open import Tools.Empty
 open import Tools.Fin
@@ -71,12 +71,12 @@ open import Definition.Untyped.Properties Erasure
 private
 
   EM : Modality
-  EM = ErasureModality variant
+  EM = ErasureModality
 
   module EM = Modality EM
 
 open import Graded.Context EM
-open import Graded.Derived.Nat EM UR
+open import Graded.Derived.Nat UR
 open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Extraction EM
 import Graded.Erasure.SucRed TR as S
@@ -84,14 +84,14 @@ open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
 open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
-open import Graded.Modality.Instances.Erasure.Properties variant
 open import Graded.Modality.Nr-instances
-open import Graded.Usage EM UR
-open import Graded.Usage.Inversion EM UR
-open import Graded.Usage.Properties EM UR
 open import Graded.Usage.Restrictions.Instance UR
+open import Graded.Modality.Instances.Erasure.Properties
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
 open import Graded.Usage.Restrictions.Natrec EM
-open import Graded.Usage.Weakening EM UR
+open import Graded.Usage.Weakening UR
 
 private variable
   n         : Nat
@@ -370,6 +370,7 @@ opaque
   Vec : Term 0
   Vec = lam 𝟘 (lam ω Vec-body₁)
 
+
 opaque
   unfolding Vec
 
@@ -393,7 +394,7 @@ opaque
       (begin
          ε ∙ 𝟘            ∙ ω ∙ ω  ≈˘⟨ ε ∙ nr-𝟘 ∙ PE.refl ∙ PE.refl ⟩
          ε ∙ nr 𝟘 ω 𝟘 𝟘 𝟘 ∙ ω ∙ ω  ∎)
-      (≤ᶜ-refl , (λ _ → ≤ᶜ-refl) , ≤ᶜ-refl , ≤ᶜ-refl)
+      (≤ᶜ-refl , (λ _ → ≤ᶜ-refl) , (λ _ → ≤ᶜ-refl) , ≤ᶜ-refl)
       (let x , x-glb = Erasure-nrᵢ-glb ω ω 𝟘
            χ , χ-glb = ∃nrᵢ-GLB→∃nrᵢᶜ-GLB (Erasure-nrᵢ-glb _) 𝟘ᶜ _
        in
@@ -603,7 +604,7 @@ opaque
        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ EM.·-zeroʳ _ ⟩
          𝟘ᶜ                ∎)
-      ≤ᶜ-refl (≤ᶜ-refl , (λ _ → ≤ᶜ-refl) , ≤ᶜ-refl , ≤ᶜ-refl) ≤ᶜ-refl
+      ≤ᶜ-refl (≤ᶜ-refl , (λ _ → ≤ᶜ-refl) , (λ _ → ≤ᶜ-refl) , ≤ᶜ-refl) ≤ᶜ-refl
 
 opaque
   unfolding Non-zero
@@ -763,19 +764,16 @@ opaque
             (ΠΣₘ (𝟘ᶜ▸[𝟙ᵐ]→ (wkUsage wk₀ ▸Non-zero) ∘ₘ var) $
              sub var $ begin
                ε ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · p  ≤⟨ ≤ᶜ-refl ∙ greatest-elem _ ⟩
-               ε ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ 𝟘            ∎) $
-          begin
-            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝     ∙ ⌜ 𝟘ᵐ? ⌝ · q  ≤⟨ ≤ᶜ-refl ∙ ≤-reflexive (PE.sym (EM.+-identityʳ _)) ∙ greatest-elem _ ⟩
-            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝ + 𝟘 ∙ 𝟘            ∎) $
-       begin
-         𝟘ᶜ ∙ (⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘) + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · ω  ≈⟨ ≈ᶜ-refl ∙ lemma ⟩
-
-         𝟘ᶜ ∙ (⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘) + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙
-         ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝                   ∎)
+               ε ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ 𝟘 ∙ 𝟘 ∙ 𝟘            ∎) $ begin
+               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝ ∙ ⌜ 𝟘ᵐ? ⌝ · q ≤⟨ ≤ᶜ-refl ∙ greatest-elem _ ∙ greatest-elem _ ⟩
+               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ 𝟘                   ∙ 𝟘      ∎) $ begin
+               𝟘ᶜ ∙ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘 + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙ ⌜ 𝟘ᵐ? ⌝ · ω  ≈⟨ ≈ᶜ-refl ∙ lemma ⟩
+               𝟘ᶜ ∙ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + 𝟘 + ⌜ 𝟘ᵐ? ⌝ ∙ 𝟘 ∙
+               ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝                 ∎)
       (begin
          𝟘ᶜ ∙ ω                  ≤⟨ ≤ᶜ-reflexive (≈ᶜ-sym nrᶜ-𝟘ᶜ) ∙ ≤-refl ⟩
          nrᶜ 𝟘 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ω)  ∎)
-      (≤ᶜ-refl , (λ _ → ≤ᶜ-refl) , ≤ᶜ-refl , ≤ᶜ-refl)
+      (≤ᶜ-refl , (λ _ → ≤ᶜ-refl) , (λ _ → ≤ᶜ-refl) , ≤ᶜ-refl)
       ≤ᶜ-refl
     where
     lemma : ⌜ 𝟘ᵐ? ⌝ · ω PE.≡ ⌜ (𝟘ᵐ? ᵐ· ω) ᵐ· ω ⌝ + ⌜ (𝟘ᵐ? ᵐ· 𝟘) ᵐ· ω ⌝
@@ -791,7 +789,6 @@ opaque
          ⌜ ⌞ ω ⌟ ᵐ· ω ⌝ + ⌜ ⌞ 𝟘 ⌟ ᵐ· ω ⌝  ∎)
       where
       open Tools.Reasoning.PropositionalEquality
-
     open ≤ᶜ-reasoning
 
 private opaque

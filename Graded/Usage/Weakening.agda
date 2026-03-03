@@ -2,23 +2,27 @@
 -- The usage relation is closed under weakening.
 ------------------------------------------------------------------------
 
-open import Graded.Modality using (Modality)
+import Graded.Mode
+import Graded.Modality
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Weakening
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  (open Graded.Modality M)
+  {𝕄 : Modality}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Usage 𝕄 R
+open import Graded.Usage R
 open import Graded.Usage.Restrictions.Instance R
-open import Graded.Mode 𝕄
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
 
@@ -78,7 +82,7 @@ wkUsage ρ Unitₘ =
   PE.subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) Unitₘ
 wkUsage ρ (ΠΣₘ γ▸F δ▸G) =
   sub-≈ᶜ (ΠΣₘ (wkUsage ρ γ▸F) (wkUsage (lift ρ) δ▸G))
-    (wk-+ᶜ ρ)
+    (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ)))
 wkUsage ρ var =
   PE.subst (λ γ → γ ▸[ _ ] wk ρ (var _)) (PE.sym (wkUsageVar ρ _)) var
 wkUsage ρ defn =
@@ -118,7 +122,7 @@ wkUsage
     (wkUsage (lift ρ) ▸A)
     (wk-≤ᶜ ρ χ≤γ)
     (wk-≤ᶜ ρ ∘→ χ≤δ)
-    (wk-≤ᶜ ρ χ≤η)
+    (wk-≤ᶜ ρ ∘→ χ≤η)
     (begin
        wkConₘ ρ χ                                        ≤⟨ wk-≤ᶜ _ fix ⟩
 
@@ -146,9 +150,9 @@ wkUsage ρ starʷₘ = subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) starʷₘ
 wkUsage ρ (starˢₘ prop) =
   sub-≈ᶜ (starˢₘ (λ ns → subst (λ γ → γ ≈ᶜ wkConₘ ρ _) (wk-𝟘ᶜ ρ) (wk-≈ᶜ ρ (prop ns))))
       (wk-·ᶜ ρ)
-wkUsage ρ (unitrecₘ η▸A γ▸t δ▸u ok) =
+wkUsage ρ (unitrecₘ γ▸t δ▸u η▸A ok) =
   sub-≈ᶜ
-    (unitrecₘ (wkUsage (lift ρ) η▸A) (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) ok)
+    (unitrecₘ (wkUsage ρ γ▸t) (wkUsage ρ δ▸u) (wkUsage (lift ρ) η▸A) ok)
     (≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congʳ (wk-·ᶜ ρ)))
 wkUsage ρ (Idₘ {γ} {δ} {η} ok ▸A ▸t ▸u) = sub
   (Idₘ ok (wkUsage _ ▸A) (wkUsage _ ▸t) (wkUsage _ ▸u))
@@ -293,14 +297,17 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
         case wk-Unit eq of λ {
           refl →
         sub-≈ᶜ Unitₘ (wkConₘ⁻¹-𝟘ᶜ ρ) }
-      (ΠΣₘ ▸A ▸B) eq →
+      (ΠΣₘ {γ} {p} {δ} ▸A ▸B) eq →
         case wk-ΠΣ eq of λ {
           (_ , _ , refl , refl , refl) →
         case wkUsage⁻¹ ▸A of λ {
           ▸A →
         case wkUsage⁻¹ ▸B of λ {
           ▸B →
-        sub-≈ᶜ (ΠΣₘ ▸A ▸B) (wkConₘ⁻¹-+ᶜ ρ) }}}
+        sub (ΠΣₘ ▸A ▸B) (begin
+          wkConₘ⁻¹ ρ (p ·ᶜ γ +ᶜ δ)             ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
+          wkConₘ⁻¹ ρ (p ·ᶜ γ) +ᶜ wkConₘ⁻¹ ρ δ  ≈⟨ +ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ) ⟩
+          p ·ᶜ wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ δ    ∎) }}}
       (var {m = m}) eq →
         case wk-var eq of λ {
           (x , refl , refl) →
@@ -382,7 +389,7 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           (wkUsage⁻¹ ▸A)
           (wkConₘ⁻¹-monotone ρ χ≤γ)
           (wkConₘ⁻¹-monotone ρ ∘→ χ≤δ)
-          (wkConₘ⁻¹-monotone ρ χ≤η)
+          (wkConₘ⁻¹-monotone ρ ∘→ χ≤η)
           (begin
              wkConₘ⁻¹ ρ χ                                            ≤⟨ wkConₘ⁻¹-monotone ρ fix ⟩
 
@@ -420,12 +427,12 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
                 ≈ᶜ-trans (≈ᶜ-sym (wkConₘ⁻¹-𝟘ᶜ ρ))
                   (wkConₘ⁻¹-≈ᶜ ρ (prop ns))))
           (wkConₘ⁻¹-·ᶜ ρ)  }
-      (unitrecₘ ▸A ▸u ▸v ok) eq →
+      (unitrecₘ ▸u ▸v ▸A ok) eq →
         case wk-unitrec eq of λ {
           (_ , _ , _ , refl , refl , refl , refl) →
         sub
-          (unitrecₘ (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸u)
-             (wkUsage⁻¹ ▸v) ok)
+          (unitrecₘ (wkUsage⁻¹ ▸u)
+             (wkUsage⁻¹ ▸v) (wkUsage⁻¹ ▸A) ok)
           (≤ᶜ-reflexive $
            ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) (+ᶜ-congʳ (wkConₘ⁻¹-·ᶜ ρ))) }
       (Idₘ {γ} {δ} {η} ok ▸A ▸t ▸u) eq →

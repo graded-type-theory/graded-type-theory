@@ -27,6 +27,8 @@ open import Definition.Untyped.Unit 𝕄 as UU hiding (module Internal)
 
 import Definition.Untyped.Erased.No-eta 𝕄 as NoEta
 
+open import Graded.Mode
+
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Maybe
@@ -540,18 +542,22 @@ opaque
 -- Variants of some term formers, intended to be used with the
 -- internal type-checker
 
-module Internal (R : Type-restrictions 𝕄) where
+module Internal
+  {b} {Mode : Set b}
+  (𝐌 : IsMode Mode 𝕄)
+  (R : Type-restrictions 𝕄)
+  where
 
-  open US.Internal R
-  open UU.Internal R
+  open US.Internal 𝐌 R
+  open UU.Internal 𝐌 R
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term R
+      Definition.Typed.Decidable.Internal.Term 𝐌 R
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
     c              : I.Constants

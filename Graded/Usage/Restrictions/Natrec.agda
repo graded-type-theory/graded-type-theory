@@ -17,9 +17,6 @@ open import Tools.Product
 
 open Modality 𝕄
 
-private variable
-  p p′ q r z₁ z₂ s₁ s₂ : M
-
 -- The type Natrec-mode corresponds to the different (mutually exclusive)
 -- usage rules for natrec.
 --
@@ -56,14 +53,15 @@ data Natrec-mode-no-nr-glb : Natrec-mode → Set a where
 
 -- Does the natrec mode support usage inference?
 
-data Natrec-mode-supports-usage-inference : Natrec-mode → Set a where
+data Natrec-mode-supports-usage-inference (nm : Natrec-mode) : Set a where
   Nr :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
-    Natrec-mode-supports-usage-inference Nr
+    ⦃ has-nr : Natrec-mode-has-nr nm ⦄ →
+    Natrec-mode-supports-usage-inference nm
   No-nr-glb :
+    ⦃ no-nr : Natrec-mode-no-nr-glb nm ⦄ →
     ⦃ ok : Has-well-behaved-GLBs semiring-with-meet ⦄ →
     (∀ r z s → ∃ λ p → Greatest-lower-bound p (nrᵢ r z s)) →
-    Natrec-mode-supports-usage-inference No-nr-glb
+    Natrec-mode-supports-usage-inference nm
 
 -- If a natrec-mode corresponds to the usage rule using an nr function
 -- then the modality has an nr function.

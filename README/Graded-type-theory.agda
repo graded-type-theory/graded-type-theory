@@ -53,7 +53,7 @@ import Graded.Erasure.Consequences.Non-interference
 import Graded.Erasure.Consequences.Soundness
 import Graded.Erasure.Examples
 import Graded.Erasure.Extraction
-import Graded.Erasure.Extraction.Properties
+import Graded.Erasure.Extraction.Properties.Usage
 import Graded.Erasure.LogicalRelation
 import Graded.Erasure.LogicalRelation.Fundamental
 import Graded.Erasure.LogicalRelation.Fundamental.Counterexample
@@ -89,10 +89,11 @@ import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Division
 import Graded.Modality.Properties.Multiplication
 import Graded.Modality.Properties.Star
-import Graded.Modality.Variant
 import Graded.Mode
-import Graded.Reduction
-import Graded.Restrictions
+import Graded.Mode.Instances.Zero-one
+import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Reduction.Zero-one
+import Graded.Restrictions.Zero-one
 import Graded.Substitution
 import Graded.Substitution.Properties
 import Graded.Usage
@@ -152,6 +153,10 @@ import Graded.Usage.Restrictions.Satisfied
 --
 -- * Some "superfluous" assumptions have been removed from the typing
 --   and definitional equality relations.
+--
+-- * The theory now supports modes in a more general sense than is
+--   described in the paper in the form of a "mode structure" for a
+--   given modality structure.
 
 -- Another notable change is related to the natrec-star operators. The
 -- paper does not focus on linearity, but some modalities for linear
@@ -313,9 +318,20 @@ plus-not-ok₄ =
 -- whether certain features should be included or not (in addition to
 -- the possibility to choose what modality to use):
 
--- * One can have a theory with a single mode, or two modes.
+-- * One can choose which modes the theory supports in the form of a
+--   "mode structure" with respect to a given modality structure.
 
-Modality-variant  = Graded.Modality.Variant.Modality-variant
+Mode-structure = Graded.Mode.IsMode
+
+-- In the paper the theory with either a single mode or two modes is
+-- discussed.
+
+Zero-one-mode  = Graded.Mode.Instances.Zero-one.Zero-one-isMode
+
+-- In the formalization, the choice of allowing one or two modes is done
+-- through the type Mode-variant.
+
+Mode-variant = Graded.Mode.Instances.Zero-one.Variant.Mode-variant
 
 -- * One can choose whether to allow strong unit types. Furthermore
 --   one can choose whether to allow binders of the form B_p^q, where
@@ -344,7 +360,7 @@ prodrec-allowed = Graded.Usage.Inversion.inv-usage-prodrec
 --   One can use this parameter to rule out erased matches for weak
 --   Σ-types:
 
-no-erased-matches = Graded.Restrictions.no-erased-matches-UR
+no-erased-matches = Graded.Restrictions.Zero-one.no-erased-matches-UR
 
 -- * One can choose which usage rule to use for natrec, either
 --   using the one defined using natrec-star, or the alternative
@@ -746,7 +762,7 @@ main-substitution-lemma = Graded.Substitution.Properties.substₘ-lemma
 
 -- Theorem 5.4: Subject reduction for the usage relation.
 
-Theorem-5-4 = Graded.Reduction.usagePresTerm
+Theorem-5-4 = Graded.Reduction.Zero-one.usagePresTerm₀₁
 
 ------------------------------------------------------------------------
 -- 6: Erasure Case Study
@@ -842,7 +858,7 @@ erase-non-strict-id-ℕ-zero =
 
 -- Theorem 6.4.
 
-Theorem-6-4 = Graded.Erasure.Extraction.Properties.hasX.erased-hasX
+Theorem-6-4 = Graded.Erasure.Extraction.Properties.Usage.erased-hasX
 
 -- The term id-ℕ-zero reduces to zero.
 
@@ -1122,23 +1138,23 @@ L≤M≤H = Graded.Modality.Instances.Information-flow.L≤M≤H
 -- Note that for the definitions and theorems in Section 8 a modality
 -- for which 0_M is allowed should be used.
 
-Mode = Graded.Mode.Mode
+Mode = Graded.Mode.Instances.Zero-one.Mode
 
 -- Translating modes to grades.
 --
 -- In the paper this function is denoted by an overline.
 
-⌜_⌝ = Graded.Mode.⌜_⌝
+⌜_⌝ = Graded.Mode.Instances.Zero-one.⌜_⌝
 
 -- Translating grades to modes.
 --
 -- In the paper this function is denoted by an underline.
 
-⌞_⌟ = Graded.Mode.⌞_⌟
+⌞_⌟ = Graded.Mode.Instances.Zero-one.⌞_⌟
 
 -- Scaling modes by grades.
 
-_⊙_ = Graded.Mode._ᵐ·_
+_⊙_ = Graded.Mode.Instances.Zero-one._ᵐ·_
 
 -- The syntax, the type system, and the reduction relations.
 
@@ -1170,7 +1186,7 @@ _▸[_]_ = Graded.Usage._▸[_]_
 
 -- Theorem 8.2: Subject reduction for the usage relation with modes.
 
-Theorem-8-2 = Graded.Reduction.usagePresTerm
+Theorem-8-2 = Graded.Reduction.Zero-one.usagePresTerm₀₁
 
 -- The extraction function.
 
@@ -1199,7 +1215,7 @@ _⊢nf_∷_ = Definition.Typed.Eta-long-normal-form._⊢nf_∷_
 -- this η-long normal form is well-resourced in the empty context if
 -- and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and 𝟙 ≤ 𝟘.
 
-η-long-nf-for-id⇔≡𝟙⊎≡𝟘 = Graded.Reduction.η-long-nf-for-id⇔≡𝟙⊎≡𝟘
+η-long-nf-for-id⇔≡𝟙⊎≡𝟘 = Graded.Reduction.Zero-one.η-long-nf-for-id⇔≡𝟙⊎≡𝟘
 
 -- A type- and resource-preserving procedure that takes a well-typed,
 -- well-resourced term to one of its η-long normal forms.

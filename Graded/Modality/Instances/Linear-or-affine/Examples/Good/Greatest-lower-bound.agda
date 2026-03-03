@@ -3,16 +3,15 @@
 -- usage rule for natrec using greatest lower bounds.
 ------------------------------------------------------------------------
 
-open import Tools.Level
-
 open import Graded.Modality.Instances.Linear-or-affine
-open import Graded.Modality.Variant lzero
 open import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant linear-or-affine
 
 module Graded.Modality.Instances.Linear-or-affine.Examples.Good.Greatest-lower-bound
-  -- The modality variant.
-  (variant : Modality-variant)
-  (UR : Usage-restrictions (linear-or-affine variant))
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions linear-or-affine Zero-one-isMode)
   where
 
 open import Tools.Fin
@@ -24,17 +23,13 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Graded.Modality Linear-or-affine
-open import Graded.Usage.Restrictions.Natrec (linear-or-affine variant)
+open import Graded.Usage.Restrictions.Natrec linear-or-affine
 
 private
-  -- The modality that is used in this file.
 
-  linear-or-affine′ : Modality
-  linear-or-affine′ = linear-or-affine variant
+  module M = Modality linear-or-affine
 
-  module M = Modality linear-or-affine′
-
-  open import Graded.Restrictions linear-or-affine′
+  open import Graded.Restrictions.Zero-one linear-or-affine variant
 
   UR′ = nr-not-available-glb-UR linear-or-affine-supports-glb-for-natrec UR
   open Usage-restrictions UR′
@@ -42,19 +37,18 @@ private
     no-nr : Nr-not-available-GLB
     no-nr = No-nr-glb ⦃ linear-or-affine-supports-glb-for-natrec ⦄
 
-open import Graded.Context linear-or-affine′
-open import Graded.Context.Properties linear-or-affine′
-import Graded.Derived.Nat linear-or-affine′ UR′ as N
-open import Graded.Modality.Properties linear-or-affine′
+open import Graded.Context linear-or-affine
+open import Graded.Context.Properties linear-or-affine
+import Graded.Derived.Nat UR′ as N
+open import Graded.Modality.Properties linear-or-affine
   hiding (nrᵢ-𝟘-GLB)
-open import Graded.Mode linear-or-affine′
-open import Graded.Usage linear-or-affine′ UR′
-open import Graded.Usage.Inversion linear-or-affine′ UR′
-open import Graded.Usage.Properties linear-or-affine′ UR′
-open import Graded.Usage.Weakening linear-or-affine′ UR′
+open import Graded.Usage UR′
+open import Graded.Usage.Inversion UR′
+open import Graded.Usage.Properties UR′
+open import Graded.Usage.Weakening UR′
 
 open import Definition.Untyped Linear-or-affine
-open import Definition.Untyped.Nat linear-or-affine′
+open import Definition.Untyped.Nat linear-or-affine
 
 private variable
   n : Nat

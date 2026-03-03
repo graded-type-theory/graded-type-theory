@@ -7,14 +7,16 @@
 -- rules can be found in Graded.Derived.List
 
 import Graded.Modality
+import Graded.Mode
 import Definition.Untyped
-open import Tools.Bool
 
 module Definition.Untyped.List
-  {ℓ} {M : Set ℓ}
+  {ℓ ℓ′} {M : Set ℓ} {Mode : Set ℓ′}
   (open Graded.Modality M)
   (open Definition.Untyped M)
   (𝕄 : Modality)
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   -- The grade of the "heads" and grade of the length component
   (pₕ pₗ : M)
   where
@@ -25,11 +27,9 @@ import Definition.Typed.Decidable.Internal.Weakening
 open import Definition.Typed.Restrictions
 
 -- Use vectors defined using weak Unit and Σ-types.
-import Definition.Untyped.Vec 𝕄 𝕨 pₕ as V
+import Definition.Untyped.Vec 𝕄 𝐌 𝕨 pₕ as V
 
 open import Definition.Untyped.Properties M
-
-open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
@@ -218,11 +218,11 @@ module Internal (R : Type-restrictions 𝕄) where
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term R
+      Definition.Typed.Decidable.Internal.Term 𝐌 R
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
     module IV = V.Internal R
 
   private variable

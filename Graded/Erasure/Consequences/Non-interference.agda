@@ -3,6 +3,8 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 import Definition.Untyped
 open import Definition.Typed.Restrictions
@@ -14,9 +16,11 @@ module Graded.Erasure.Consequences.Non-interference
   {a} {M : Set a}
   (open Definition.Untyped M)
   {𝕄 : Modality M}
+  {variant : Mode-variant 𝕄}
   (open Modality 𝕄)
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   {kᵈ k : Nat}
   {∇ : DCon (Term 0) kᵈ}
@@ -33,9 +37,8 @@ open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
 
 open import Graded.Context 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Usage UR
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation.Assumptions TR
@@ -47,7 +50,7 @@ private
   as = assumptions well-formed str ⇒*-is-reduction-relation
 
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden as
+open import Graded.Erasure.LogicalRelation.Hidden variant as
 
 open Fundamental FA
 

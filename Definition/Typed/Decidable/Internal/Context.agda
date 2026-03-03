@@ -5,20 +5,22 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Decidable.Internal.Context
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (TR : Type-restrictions 𝕄)
   where
 
 open Type-restrictions TR using (No-equality-reflection)
 
 open import Definition.Typed TR as T hiding (Trans)
-open import Definition.Typed.Decidable.Internal.Constraint TR
-open import Definition.Typed.Decidable.Internal.Monad TR
-open import Definition.Typed.Decidable.Internal.Term TR
-open import Definition.Typed.Decidable.Internal.Weakening TR
+open import Definition.Typed.Decidable.Internal.Constraint 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Monad 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Term 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Weakening 𝐌 TR
 open import Definition.Typed.Properties.Definition TR
 open import Definition.Typed.Reasoning.Type TR
 open import Definition.Typed.Stability TR

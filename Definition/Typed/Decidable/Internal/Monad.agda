@@ -7,15 +7,17 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Decidable.Internal.Monad
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (TR : Type-restrictions 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Constraint TR
-open import Definition.Typed.Decidable.Internal.Term TR
+open import Definition.Typed.Decidable.Internal.Constraint 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Term 𝐌 TR
 
 open import Tools.Bool
 open import Tools.Function

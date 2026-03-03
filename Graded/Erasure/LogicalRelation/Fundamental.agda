@@ -3,6 +3,8 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
@@ -13,9 +15,11 @@ import Tools.PropositionalEquality as PE
 module Graded.Erasure.LogicalRelation.Fundamental
   {a} {M : Set a}
   {𝕄 : Modality M}
+  {variant : Mode-variant 𝕄}
   (open Modality 𝕄)
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
   where
 
@@ -29,11 +33,11 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties.Zero-one variant UR
 open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Weakening 𝕄 UR
-open import Graded.Mode 𝕄
+open import Graded.Usage.Weakening UR
 
 open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Properties M
@@ -112,7 +116,7 @@ module _
   where
 
   open Graded.Erasure.LogicalRelation.Hidden
-         (assumptions ⊢Δ s is-reduction-relation)
+         variant (assumptions ⊢Δ s is-reduction-relation)
 
   opaque
 
@@ -163,14 +167,14 @@ module Fundamental
     as = assumptions well-formed s is-reduction-relation
 
   open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
-  open Graded.Erasure.LogicalRelation.Fundamental.Identity as
-  open Graded.Erasure.LogicalRelation.Fundamental.Level as
-  open Graded.Erasure.LogicalRelation.Fundamental.Lift as
-  open Graded.Erasure.LogicalRelation.Fundamental.Nat as
+  open Graded.Erasure.LogicalRelation.Fundamental.Identity variant as
+  open Graded.Erasure.LogicalRelation.Fundamental.Level variant as
+  open Graded.Erasure.LogicalRelation.Fundamental.Lift variant as
+  open Graded.Erasure.LogicalRelation.Fundamental.Nat variant as
   open Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Unit as
-  open Graded.Erasure.LogicalRelation.Fundamental.Universe as
-  open Graded.Erasure.LogicalRelation.Hidden as
+  open Graded.Erasure.LogicalRelation.Fundamental.Unit variant as
+  open Graded.Erasure.LogicalRelation.Fundamental.Universe variant as
+  open Graded.Erasure.LogicalRelation.Hidden variant as
 
   -- A lemma used to prove the fundamental lemma.
   --
@@ -284,7 +288,7 @@ module Fundamental
       subsumption-▸⊩ʳ∷[]-≤ γ≤δ $
       sucʳ ⊢t (fundamental′ ⊢t δ▸t <n)
     fundamental′ (natrecⱼ {p} {r} ⊢t ⊢u ⊢v) γ▸nr (natrec _ <n₂ <n₃ <n₄) =
-      case inv-usage-natrec γ▸nr of λ {
+      case inv-usage-natrec₀₁ γ▸nr of λ {
         (invUsageNatrec {δ} {η} {θ} δ▸t η▸u θ▸v _ γ≤χ extra) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤χ $
       natrecʳ ⊢t ⊢u ⊢v (fundamental′ ⊢t δ▸t <n₂)
@@ -326,7 +330,7 @@ module Fundamental
     fundamental′
       {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u ok) γ▸ur (unitrec _ <n₂ <n₃) =
       case inv-usage-unitrec γ▸ur of λ
-        (invUsageUnitrec _ δ▸t η▸u ok′ γ≤pδ+η) →
+        (invUsageUnitrec δ▸t η▸u _ ok′ γ≤pδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
       unitrecʳ ⊢A ⊢t ⊢u (fundamental′ ⊢t δ▸t <n₂)
         (fundamental′ ⊢u η▸u <n₃)

@@ -6,14 +6,16 @@
 open import Definition.Typed.Restrictions
 import Definition.Untyped.Bool.Nr
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Consequences.Admissible.Bool.Nr
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   (open Modality 𝕄)
-  (open Definition.Untyped.Bool.Nr 𝕄)
+  (open Definition.Untyped.Bool.Nr 𝕄 𝐌)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr _ (Modality.semiring-with-meet 𝕄) ⦄
   -- It is assumed that certain Σ-types are allowed.
@@ -26,7 +28,7 @@ open import Definition.Typed R
 open import Definition.Untyped M
 
 import Definition.Typed.Consequences.Admissible.Bool
-  R ω Boolᵍ OKᵍ Σ-ok Unitʷ-ok as B
+  𝐌 R ω Boolᵍ OKᵍ Σ-ok Unitʷ-ok as B
 
 private variable
   Γ                                 : Cons _ _

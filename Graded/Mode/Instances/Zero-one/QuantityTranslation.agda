@@ -6,28 +6,35 @@ open import Graded.Modality
 open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding; Is-Σ-morphism)
   hiding (module Is-morphism; module Is-order-embedding)
+open import Graded.Mode.Instances.Zero-one.Variant
 
-module Graded.Mode.QuantityTranslation
+module Graded.Mode.Instances.Zero-one.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
+  (v₁ : Mode-variant 𝕄₁) (v₂ : Mode-variant 𝕄₂)
   (tr tr-Σ : M₁ → M₂)
   where
 
 open import Graded.Modality.Morphism.Usage-restrictions
 import Graded.Modality.Properties
-open import Graded.Mode
+open import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
+  as Q hiding (module Is-morphism)
 open import Definition.Untyped
 open import Definition.Untyped.QuantityTranslation tr tr-Σ
 
 open Graded.Modality.Properties 𝕄₂
 
 private
-  module Mo₁ = Graded.Mode 𝕄₁
-  module Mo₂ = Graded.Mode 𝕄₂
+  module Mo₁ = Graded.Mode.Instances.Zero-one v₁
+  module Mo₂ = Graded.Mode.Instances.Zero-one v₂
   module MP₁ = Graded.Modality.Properties 𝕄₁
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
+  module V₁ = Mode-variant v₁
+  module V₂ = Mode-variant v₂
 
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
@@ -41,21 +48,26 @@ private variable
   b          : BinderMode
 
 ------------------------------------------------------------------------
--- Definitions that are made under the assumptions that tr is a
--- morphism and that tr-Σ is a Σ-morphism with respect to tr
+-- Definitions that are made under the assumptions that tr is an order
+-- embedding and that tr-Σ is a Σ-morphism with respect to tr who are
+-- mode respecting
 
 module Is-morphism
   (tr-morphism   : Is-morphism 𝕄₁ 𝕄₂ tr)
   (tr-Σ-morphism : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ)
+  (mode-respecting : Are-mode-respecting-morphisms v₁ v₂ tr tr-Σ)
   where
 
   open M.Is-morphism tr-morphism
+  open Q.Is-morphism v₁ v₂ tr-morphism tr-Σ-morphism
+  open Q.Are-mode-respecting-morphisms mode-respecting
   private
     module ΣM = M.Is-Σ-morphism tr-Σ-morphism
 
   open Modality 𝕄₂ using (_≤_)
 
   open import Graded.Context.QuantityTranslation 𝕄₁ 𝕄₂ tr
+    hiding (module Is-morphism)
   import Graded.Context 𝕄₁ as MC₁
   import Graded.Context 𝕄₂ as MC₂
 
@@ -91,11 +103,11 @@ module Is-morphism
     … | .𝟙ᵐ | 𝟘ᵐ-not-allowed not-ok refl | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ tr-p≡𝟘 refl =
       ⊥-elim $ tr-<-𝟘 not-ok ok .proj₂ tr-p≡𝟘
     … | .𝟙ᵐ | 𝟙ᵐ ⦃ ok ⦄ p≢𝟘 refl | .𝟘ᵐ | 𝟘ᵐ tr-p≡𝟘 refl =
-      ⊥-elim $ p≢𝟘 $ tr-≡-𝟘-⇔ (MP₁.𝟘ᵐ.non-trivial ok) .proj₁ tr-p≡𝟘
+      ⊥-elim $ p≢𝟘 $ tr-≡-𝟘-⇔ (Mo₁.𝟘ᵐ.non-trivial ok) .proj₁ tr-p≡𝟘
     … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ _ refl | .𝟙ᵐ | 𝟘ᵐ-not-allowed not-ok refl =
       ⊥-elim $ not-ok (𝟘ᵐ-in-second-if-in-first ok)
     … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ p≡𝟘 refl | .𝟙ᵐ | 𝟙ᵐ tr-p≢𝟘 refl =
-      ⊥-elim $ tr-p≢𝟘 $ tr-≡-𝟘-⇔ (MP₁.𝟘ᵐ.non-trivial ok) .proj₂ p≡𝟘
+      ⊥-elim $ tr-p≢𝟘 $ tr-≡-𝟘-⇔ (Mo₁.𝟘ᵐ.non-trivial ok) .proj₂ p≡𝟘
     … | _ | _ | 𝟙ᵐ | 𝟘ᵐ _ ()
     … | _ | _ | 𝟘ᵐ | 𝟘ᵐ-not-allowed _ ()
     … | _ | _ | 𝟘ᵐ | 𝟙ᵐ _ ()
@@ -112,15 +124,15 @@ module Is-morphism
     … | 𝟘ᵐ | _ | 𝟘ᵐ | _ = 𝟘ᵐ
 
     … | .𝟙ᵐ | 𝟘ᵐ-not-allowed not-ok refl | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ tr-p≡𝟘 refl =
-      ⊥-elim $ not-ok (ΣM.tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 .proj₁)
+      ⊥-elim $ not-ok (tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 .proj₁)
     … | .𝟙ᵐ | 𝟙ᵐ ⦃ ok ⦄ p≢𝟘 refl | .𝟘ᵐ | 𝟘ᵐ tr-p≡𝟘 refl =
       ⊥-elim $
-      p≢𝟘 $ ΣM.tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) tr-p≡𝟘 .proj₂
+      p≢𝟘 $ tr-Σ-≡-𝟘-→ (𝟘ᵐ-in-second-if-in-first ok) tr-p≡𝟘 .proj₂
     … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ _ refl | .𝟙ᵐ | 𝟘ᵐ-not-allowed not-ok refl =
       ⊥-elim $ not-ok (𝟘ᵐ-in-second-if-in-first ok)
     … | .𝟘ᵐ | 𝟘ᵐ ⦃ ok ⦄ p≡𝟘 refl | .𝟙ᵐ | 𝟙ᵐ tr-p≢𝟘 refl =
       ⊥-elim $ tr-p≢𝟘 $ subst (λ p → tr-Σ p ≡ _) (PE.sym p≡𝟘) $
-      ΣM.tr-Σ-𝟘-≡ (MP₁.𝟘ᵐ.non-trivial ok)
+      ΣM.tr-Σ-𝟘-≡ (Mo₁.𝟘ᵐ.non-trivial ok)
     … | _ | _ | 𝟙ᵐ | 𝟘ᵐ _ ()
     … | _ | _ | 𝟘ᵐ | 𝟘ᵐ-not-allowed _ ()
     … | _ | _ | 𝟘ᵐ | 𝟙ᵐ _ ()
@@ -239,16 +251,22 @@ module Is-morphism
   tr-Mode-ᵐ·         𝟘ᵐ = λ _ → refl
   tr-Mode-ᵐ· {p = p} 𝟙ᵐ = λ where
       BMΠ     → lemma (M.Is-morphism→Is-Σ-morphism tr-morphism)
+                  (λ ok₂ tr-p≡𝟘 → 𝟘ᵐ-allowed-elim v₁
+                    (λ ok → ok , tr-≡-𝟘-⇔ (𝟘ᵐ.non-trivial v₁ ok) .proj₁ tr-p≡𝟘)
+                    λ not-ok → ⊥-elim (tr-<-𝟘 not-ok ok₂ .proj₂ tr-p≡𝟘))
                   _ _ refl refl
-      (BMΣ _) → lemma tr-Σ-morphism _ _ refl refl
+      (BMΣ _) → lemma tr-Σ-morphism tr-Σ-≡-𝟘-→ _ _ refl refl
     where
     module _
       {tr′ : M₁ → M₂}
       (m′ : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr′)
+      (tr-Σ-≡-𝟘-→ :
+        ∀ {p} →
+        T V₂.𝟘ᵐ-allowed → tr′ p ≡ M₂.𝟘 → T V₁.𝟘ᵐ-allowed × p ≡ M₁.𝟘)
       where
 
-      open Is-Σ-morphism m′
       open Tools.Reasoning.PropositionalEquality
+      module P = Q.Is-morphism v₁ v₂ tr-morphism m′
 
       lemma :
         ∀ m₁ m₂ → Mo₁.⌞ p ⌟ ≡ m₁ → Mo₂.⌞ tr′ p ⌟ ≡ m₂ → tr-Mode m₁ ≡ m₂
@@ -257,7 +275,7 @@ module Is-morphism
       lemma 𝟘ᵐ[ ok ] 𝟙ᵐ p≡ tr-p≡ =
         ⊥-elim (Mo₂.⌞⌟≡𝟙ᵐ→≢𝟘 (𝟘ᵐ-in-second-if-in-first ok) tr-p≡ (
           tr′ p     ≡⟨ cong tr′ (Mo₁.⌞⌟≡𝟘ᵐ→≡𝟘 p≡) ⟩
-          tr′ M₁.𝟘  ≡⟨ tr-Σ-𝟘-≡-𝟘ᵐ ok ⟩
+          tr′ M₁.𝟘  ≡⟨ P.tr-Σ-𝟘-≡-𝟘ᵐ ok ⟩
           M₂.𝟘      ∎))
       lemma 𝟙ᵐ 𝟘ᵐ[ ok ] p≡ tr-p≡ = Mo₁.𝟘ᵐ-allowed-elim
         (λ ok →
@@ -268,7 +286,7 @@ module Is-morphism
            Mo₂.⌞⌟≡𝟘ᵐ→≡𝟘 tr-p≡)
         (λ not-ok →
            case
-             Mo₂.𝟙ᵐ         ≡˘⟨ Mo₂.≢𝟘→⌞⌟≡𝟙ᵐ (tr-Σ-≢-𝟘 not-ok ok) ⟩
+             Mo₂.𝟙ᵐ         ≡˘⟨ Mo₂.≢𝟘→⌞⌟≡𝟙ᵐ (λ tr-p≡𝟘 → not-ok (tr-Σ-≡-𝟘-→ ok tr-p≡𝟘 .proj₁)) ⟩
              Mo₂.⌞ tr′ p ⌟  ≡⟨ tr-p≡ ⟩
              Mo₂.𝟘ᵐ         ∎
            of λ ())
@@ -290,24 +308,27 @@ module Is-morphism
   -- Translation is injective
 
   tr-Mode-injective : ∀ {m m′} → tr-Mode m ≡ tr-Mode m′ → m ≡ m′
-  tr-Mode-injective {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} _  = 𝟘ᵐ-cong 𝕄₁
+  tr-Mode-injective {m = 𝟘ᵐ} {m′ = 𝟘ᵐ} _  = 𝟘ᵐ-cong v₁
   tr-Mode-injective {m = 𝟙ᵐ} {m′ = 𝟙ᵐ} _  = refl
   tr-Mode-injective {m = 𝟘ᵐ} {m′ = 𝟙ᵐ} ()
   tr-Mode-injective {m = 𝟙ᵐ} {m′ = 𝟘ᵐ} ()
 
 ------------------------------------------------------------------------
 -- Definitions that are made under the assumptions that tr is an order
--- embedding and that tr-Σ is a Σ-morphism with respect to tr
+-- embedding and that tr-Σ is a Σ-morphism with respect to tr who are
+-- mode respecting
 
 module Is-order-embedding
   (tr-emb : Is-order-embedding 𝕄₁ 𝕄₂ tr)
   (tr-Σ-m : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ)
+  (mode-respecting : Are-mode-respecting-morphisms v₁ v₂ tr tr-Σ)
   where
 
   open M.Is-order-embedding tr-emb
-  open M.Is-Σ-morphism tr-Σ-m
+  open Q.Is-morphism v₁ v₂ tr-morphism tr-Σ-m
+  open Are-mode-respecting-morphisms mode-respecting
 
-  open Is-morphism tr-morphism tr-Σ-m public
+  open Is-morphism tr-morphism tr-Σ-m mode-respecting public
 
   -- If the translation of p is bounded by Mo₂.⌜ tr-Mode m ⌝, then p
   -- is bounded by Mo₁.⌜ m ⌝.

@@ -3,24 +3,27 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Lift
-  {a} {M : Set a} {𝕄 : Modality M}
-  (UR : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
-
-open import Definition.Untyped M
-open import Definition.Untyped.Lift M
+open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Substitution 𝕄 UR
-open import Graded.Substitution.Properties 𝕄 UR
-open import Graded.Usage 𝕄 UR
+open import Graded.Substitution R
+open import Graded.Substitution.Properties R
+open import Graded.Usage R
+
+open import Definition.Untyped M hiding (lift)
+open import Definition.Untyped.Lift M
 
 open import Tools.Fin
 open import Tools.Function
@@ -41,7 +44,7 @@ opaque
     γ ▸[ m ] lower₀ t
   ▸lower₀ {γ = γ ∙ p} ▸t =
     sub
-      (substₘ-lemma _
+      (substₘ-lemma
          (▶-cong _ (λ { x0 → refl; (_ +1) → refl }) $
           wf-replace₁ₘ $ lowerₘ $ sub var $ begin
             ⌜ ⌞ p ⌟ ⌝ ·ᶜ 𝟘ᶜ ∙ ⌜ ⌞ p ⌟ ⌝ · 𝟙  ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ⟩

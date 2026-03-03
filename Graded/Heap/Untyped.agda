@@ -3,15 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Untyped
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (type-variant : Type-variant)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   -- If the usage rules use an nr function is assumed to be factoring
   -- This is used to get the quantity representing the uses of the
@@ -23,11 +25,13 @@ module Graded.Heap.Untyped
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Type-variant type-variant
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat hiding (_≤_)
+open import Tools.Level using (_⊔_)
+open import Tools.Nat hiding (_≤_; _⊔_)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
@@ -49,6 +53,7 @@ private variable
   s : Strength
   b : BinderMode
   ρ ρ′ : Wk _ _
+  mo : Mode
 
 opaque instance
   factoring-nr′ :
@@ -174,25 +179,25 @@ data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
 -- Multiplicity of an continuation, representing how many copies need to
 -- be evaluated.
 
-data ∣_∣ᶜ≡_ {m} : Cont m → M → Set a where
-  lowerₑ : ∣ lowerₑ ∣ᶜ≡ 𝟙
-  ∘ₑ : ∣ ∘ₑ p u ρ ∣ᶜ≡ 𝟙
-  fstₑ : ∣ fstₑ p ∣ᶜ≡ 𝟙
-  sndₑ : ∣ sndₑ p ∣ᶜ≡ 𝟙
-  prodrecₑ : ∣ prodrecₑ r p q A u ρ ∣ᶜ≡ r
+data ∣_∣ᶜ[_]≡_ {m} : Cont m → Mode → M → Set (a ⊔ a′) where
+  lowerₑ : ∣ lowerₑ ∣ᶜ[ mo ]≡ 𝟙
+  ∘ₑ : ∣ ∘ₑ p u ρ ∣ᶜ[ mo ]≡ 𝟙
+  fstₑ : ∣ fstₑ p ∣ᶜ[ mo ]≡ 𝟙
+  sndₑ : ∣ sndₑ p ∣ᶜ[ mo ]≡ 𝟙
+  prodrecₑ : ∣ prodrecₑ r p q A u ρ ∣ᶜ[ mo ]≡ r
   natrecₑ :
     ∣natrec p , r ∣≡ q′ →
-    ∣ natrecₑ p q r A u v ρ ∣ᶜ≡ q′
-  unitrecₑ : ∣ unitrecₑ p q A u ρ ∣ᶜ≡ p
-  emptyrecₑ : ∣ emptyrecₑ p A ρ ∣ᶜ≡ p
+    ∣ natrecₑ p q r A u v ρ ∣ᶜ[ mo ]≡ q′
+  unitrecₑ : ∣ unitrecₑ p q A u ρ ∣ᶜ[ mo ]≡ p
+  emptyrecₑ : ∣ emptyrecₑ p A ρ ∣ᶜ[ mo ]≡ p
   Jₑ :
-    ∣J erased-matches-for-J 𝟙ᵐ , p , q ∣≡ r →
-    ∣ Jₑ p q A t B u v ρ ∣ᶜ≡ r
+    ∣J erased-matches-for-J mo , p , q ∣≡ r →
+    ∣ Jₑ p q A t B u v ρ ∣ᶜ[ mo ]≡ r
   Kₑ :
-    ∣K erased-matches-for-K 𝟙ᵐ , p ∣≡ r →
-    ∣ Kₑ p A t B u ρ ∣ᶜ≡ r
-  []-congₑ : ∣ []-congₑ s l A t u ρ ∣ᶜ≡ 𝟘
-  sucₑ : ∣ sucₑ ∣ᶜ≡ 𝟙
+    ∣K erased-matches-for-K mo , p ∣≡ r →
+    ∣ Kₑ p A t B u ρ ∣ᶜ[ mo ]≡ r
+  []-congₑ : ∣ []-congₑ s l A t u ρ ∣ᶜ[ mo ]≡ 𝟘
+  sucₑ : ∣ sucₑ ∣ᶜ[ mo ]≡ 𝟙
 
 -- Evaluation stacks, indexed by the size of the heap
 
@@ -206,9 +211,9 @@ private variable
 -- Multiplicity of a stack, representing how many copies are currently
 -- being evaluated.
 
-data ∣_∣≡_ {m} : Stack m → M → Set a where
+data ∣_∣≡_ {m} : Stack m → M → Set (a ⊔ a′) where
   ε   : ∣ ε ∣≡ 𝟙
-  _∙_ : ∣ c ∣ᶜ≡ q → ∣ S ∣≡ p → ∣ c ∙ S ∣≡ p · q
+  _∙_ : ∣ c ∣ᶜ[ ⌞ p ⌟ ]≡ q → ∣ S ∣≡ p → ∣ c ∙ S ∣≡ p · q
 
 -- Weakening of stacks
 
@@ -285,7 +290,7 @@ data suc∈_ {m} : (S : Stack m) → Set a where
 -- A predicate stating that all sub-stacks have multiplicity bounded by
 -- some grade.
 
-data _≥∣_∣ {m} (p : M) : Stack m → Set a where
+data _≥∣_∣ {m} (p : M) : Stack m → Set (a ⊔ a′) where
   ε : 𝟙 ≤ p → p ≥∣ ε ∣
   _∙⟨_⟩_ : q ≤ p  → ∣ c ∙ S ∣≡ q → p ≥∣ S ∣ → p ≥∣ c ∙ S ∣
 

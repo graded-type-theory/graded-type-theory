@@ -3,25 +3,23 @@
 -- nr function
 ------------------------------------------------------------------------
 
-open import Tools.Bool using (T; T-not⇔¬-T)
-open import Tools.Level
-
-import Graded.Modality.Instances.Linearity
-open import Graded.Modality.Variant lzero
+open import Graded.Modality.Instances.Linearity
 open import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant linearityModality
 
 module Graded.Modality.Instances.Linearity.Examples.Bad.No-nr
-  -- The modality variant.
-  (variant : Modality-variant)
-  (open Graded.Modality.Instances.Linearity variant)
-  (UR : Usage-restrictions linearityModality)
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions linearityModality Zero-one-isMode)
   (open Usage-restrictions UR)
   -- There is no dedicated nr function.
   ⦃ no-nr : Nr-not-available ⦄
   where
 
-open Modality-variant variant
+open Mode-variant variant
 
+open import Tools.Bool using (T; T-not⇔¬-T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
@@ -32,9 +30,9 @@ open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
 open import Graded.Modality Linearity
 open import Graded.Modality.Properties linearityModality
-open import Graded.Mode linearityModality
-open import Graded.Usage linearityModality UR
-open import Graded.Usage.Inversion linearityModality UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties.Zero-one variant UR
 
 open import Definition.Untyped.Nat linearityModality
 
@@ -51,7 +49,7 @@ opaque
       (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
        λ not-ok →
          lamₘ $
-         natrec-no-nrₘ var (sucₘ var) var
+         natrec-no-nrₘ₀₁ var (sucₘ var) var
            (sub ℕₘ $ begin
               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ M.·-zeroʳ _ ⟩
               𝟘ᶜ                ∎)
@@ -63,7 +61,7 @@ opaque
        λ ▸λ+ ok →
          case inv-usage-lam ▸λ+ of λ {
            (invUsageLam ▸+ _) →
-         case inv-usage-natrec-no-nr ▸+ of λ {
+         case inv-usage-natrec-no-nr₀₁ ▸+ of λ {
            (_ , _ ∙ q , _ , _ , _ ∙ p , _ , ▸suc , _
               , _ , (_ ∙ 𝟙≤p) , _ , p≤q , _ , _) →
          case p≤q ok of λ {

@@ -35,7 +35,6 @@ import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
 import Graded.Modality.Properties.Natrec as Natrec
 import Graded.Modality.Properties.Subtraction as Subtraction
-open import Graded.Modality.Variant lzero
 import Graded.Context
 import Graded.Context.Properties
 
@@ -1979,11 +1978,9 @@ opaque
 
 -- A modality defined using zero-one-many-has-nr.
 
-zero-one-many-modality : Modality-variant → Modality
-zero-one-many-modality variant = record
-  { variant            = variant
-  ; semiring-with-meet = zero-one-many-semiring-with-meet
-  ; 𝟘-well-behaved     = λ _ → zero-one-many-has-well-behaved-zero
+zero-one-many-modality : Modality
+zero-one-many-modality = record
+  { semiring-with-meet = zero-one-many-semiring-with-meet
   }
 
 ------------------------------------------------------------------------
@@ -2292,77 +2289,75 @@ opaque
 ------------------------------------------------------------------------
 -- Some properties lifted to contexts
 
-module _ {v : Modality-variant} where
+open Graded.Context zero-one-many-modality
+open Graded.Context.Properties zero-one-many-modality
 
-  open Graded.Context (zero-one-many-modality v)
-  open Graded.Context.Properties (zero-one-many-modality v)
+private variable
+  γ δ η : Conₘ _
 
-  private variable
-    γ δ η : Conₘ _
+opaque
 
-  opaque
+  -- Evaluation of nrᶜ for r = 𝟘.
 
-    -- Evaluation of nrᶜ for r = 𝟘.
+  nrᶜ-𝟘-≈ᶜ :
+    nrᶜ ⦃ zero-one-many-has-nr ⦄ p 𝟘 γ δ η ≈ᶜ (((𝟙 ∧ p) ·ᶜ η +ᶜ δ) ∧ᶜ (η +ᶜ γ))
+  nrᶜ-𝟘-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
+  nrᶜ-𝟘-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
+    nrᶜ-𝟘-≈ᶜ ∙ refl
 
-    nrᶜ-𝟘-≈ᶜ :
-      nrᶜ ⦃ zero-one-many-has-nr ⦄ p 𝟘 γ δ η ≈ᶜ (((𝟙 ∧ p) ·ᶜ η +ᶜ δ) ∧ᶜ (η +ᶜ γ))
-    nrᶜ-𝟘-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
-    nrᶜ-𝟘-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
-      nrᶜ-𝟘-≈ᶜ ∙ refl
+opaque
 
-  opaque
+  -- Evaluation of nrᶜ for r = 𝟙.
 
-    -- Evaluation of nrᶜ for r = 𝟙.
+  nrᶜ-𝟙-≈ᶜ :
+    nrᶜ ⦃ zero-one-many-has-nr ⦄ p 𝟙 γ δ η ≈ᶜ (𝟙 + p) ·ᶜ η +ᶜ ω ·ᶜ δ +ᶜ γ
+  nrᶜ-𝟙-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
+  nrᶜ-𝟙-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
+    nrᶜ-𝟙-≈ᶜ ∙ refl
 
-    nrᶜ-𝟙-≈ᶜ :
-      nrᶜ ⦃ zero-one-many-has-nr ⦄ p 𝟙 γ δ η ≈ᶜ (𝟙 + p) ·ᶜ η +ᶜ ω ·ᶜ δ +ᶜ γ
-    nrᶜ-𝟙-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
-    nrᶜ-𝟙-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
-      nrᶜ-𝟙-≈ᶜ ∙ refl
+opaque
 
-  opaque
+  -- Evaluation of nrᶜ for r = ω.
 
-    -- Evaluation of nrᶜ for r = ω.
+  nrᶜ-ω-≈ᶜ :
+    nrᶜ ⦃ zero-one-many-has-nr ⦄ p ω γ δ η ≈ᶜ ω ·ᶜ (η +ᶜ δ +ᶜ γ)
+  nrᶜ-ω-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
+  nrᶜ-ω-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
+    nrᶜ-ω-≈ᶜ ∙ refl
 
-    nrᶜ-ω-≈ᶜ :
-      nrᶜ ⦃ zero-one-many-has-nr ⦄ p ω γ δ η ≈ᶜ ω ·ᶜ (η +ᶜ δ +ᶜ γ)
-    nrᶜ-ω-≈ᶜ {γ = ε} {δ = ε} {η = ε} = ε
-    nrᶜ-ω-≈ᶜ {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} =
-      nrᶜ-ω-≈ᶜ ∙ refl
+opaque
 
-  opaque
+  -- The greatest lower bound for certain nrᵢᶜ sequences
 
-    -- The greatest lower bound for certain nrᵢᶜ sequences
+  nrᵢᶜ-𝟘-GLBᶜ : Greatest-lower-boundᶜ (γ ∧ᶜ δ) (nrᵢᶜ 𝟘 γ δ)
+  nrᵢᶜ-𝟘-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
+  nrᵢᶜ-𝟘-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
+    GLBᶜ-pointwise′ nrᵢᶜ-𝟘-GLBᶜ (nrᵢ-𝟘-GLB p q)
 
-    nrᵢᶜ-𝟘-GLBᶜ : Greatest-lower-boundᶜ (γ ∧ᶜ δ) (nrᵢᶜ 𝟘 γ δ)
-    nrᵢᶜ-𝟘-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
-    nrᵢᶜ-𝟘-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
-      GLBᶜ-pointwise′ nrᵢᶜ-𝟘-GLBᶜ (nrᵢ-𝟘-GLB p q)
+opaque
 
-  opaque
+  -- The greatest lower bound for certain nrᵢᶜ sequences
 
-    -- The greatest lower bound for certain nrᵢᶜ sequences
+  nrᵢᶜ-𝟙-GLBᶜ : Greatest-lower-boundᶜ (γ +ᶜ ω ·ᶜ δ) (nrᵢᶜ 𝟙 γ δ)
+  nrᵢᶜ-𝟙-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
+  nrᵢᶜ-𝟙-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
+    GLBᶜ-pointwise′ nrᵢᶜ-𝟙-GLBᶜ (nrᵢ-𝟙-GLB p q)
 
-    nrᵢᶜ-𝟙-GLBᶜ : Greatest-lower-boundᶜ (γ +ᶜ ω ·ᶜ δ) (nrᵢᶜ 𝟙 γ δ)
-    nrᵢᶜ-𝟙-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
-    nrᵢᶜ-𝟙-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
-      GLBᶜ-pointwise′ nrᵢᶜ-𝟙-GLBᶜ (nrᵢ-𝟙-GLB p q)
+opaque
 
-  opaque
+  -- The greatest lower bound for certain nrᵢᶜ sequences
 
-    -- The greatest lower bound for certain nrᵢᶜ sequences
+  nrᵢᶜ-ω-GLBᶜ : Greatest-lower-boundᶜ (ω ·ᶜ (γ +ᶜ δ)) (nrᵢᶜ ω γ δ)
+  nrᵢᶜ-ω-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
+  nrᵢᶜ-ω-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
+    GLBᶜ-pointwise′ nrᵢᶜ-ω-GLBᶜ (nrᵢ-ω-GLB p q)
 
-    nrᵢᶜ-ω-GLBᶜ : Greatest-lower-boundᶜ (ω ·ᶜ (γ +ᶜ δ)) (nrᵢᶜ ω γ δ)
-    nrᵢᶜ-ω-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
-    nrᵢᶜ-ω-GLBᶜ {γ = γ ∙ p} {δ = δ ∙ q} =
-      GLBᶜ-pointwise′ nrᵢᶜ-ω-GLBᶜ (nrᵢ-ω-GLB p q)
+opaque
 
-  opaque
+  -- nrᶜ 𝟘 r γ δ 𝟘ᶜ is the greatest lower bound of nrᵢᶜ r γ δ
 
-    -- nrᶜ 𝟘 r γ δ 𝟘ᶜ is the greatest lower bound of nrᵢᶜ r γ δ
-
-    nrᶜ-nrᵢᶜ-GLBᶜ :
-      Greatest-lower-boundᶜ (nrᶜ ⦃ zero-one-many-has-nr ⦄ 𝟘 r γ δ 𝟘ᶜ) (nrᵢᶜ r γ δ)
-    nrᶜ-nrᵢᶜ-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
-    nrᶜ-nrᵢᶜ-GLBᶜ {γ = _ ∙ _} {δ = _ ∙ _} =
-      GLBᶜ-pointwise′ nrᶜ-nrᵢᶜ-GLBᶜ (nr-nrᵢ-GLB _)
+  nrᶜ-nrᵢᶜ-GLBᶜ :
+    Greatest-lower-boundᶜ (nrᶜ ⦃ zero-one-many-has-nr ⦄ 𝟘 r γ δ 𝟘ᶜ) (nrᵢᶜ r γ δ)
+  nrᶜ-nrᵢᶜ-GLBᶜ {γ = ε} {δ = ε} = ε-GLB
+  nrᶜ-nrᵢᶜ-GLBᶜ {γ = _ ∙ _} {δ = _ ∙ _} =
+    GLBᶜ-pointwise′ nrᶜ-nrᵢᶜ-GLBᶜ (nr-nrᵢ-GLB _)

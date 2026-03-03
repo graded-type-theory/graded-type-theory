@@ -8,6 +8,7 @@
 module Graded.Modality.Instances.Linear-or-affine where
 
 import Tools.Algebra
+open import Tools.Bool using (Bool)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
@@ -20,7 +21,7 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 import Graded.Modality
-open import Graded.FullReduction.Assumptions
+import Graded.FullReduction.Assumptions
 import Graded.Modality.Properties.Addition as Addition
 import Graded.Modality.Properties.Greatest-lower-bound as GLB
 import Graded.Modality.Properties.Meet as Meet
@@ -29,16 +30,12 @@ import Graded.Modality.Properties.Natrec as Natrec
 import Graded.Modality.Properties.PartialOrder as PartialOrder
 import Graded.Modality.Properties.Star as Star
 import Graded.Modality.Properties.Subtraction as Subtraction
-open import Graded.Modality.Variant lzero
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
+import Definition.Typed.Restrictions
+import Graded.Usage.Restrictions
 
 open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
-
-private variable
-  variant : Modality-variant
-  trs     : Type-restrictions _
-  urs     : Usage-restrictions _
 
 ------------------------------------------------------------------------
 -- The type
@@ -1547,11 +1544,9 @@ linear-or-affine-has-star = record
 
 -- A modality for Linear-or-affine.
 
-linear-or-affine : Modality-variant → Modality
-linear-or-affine variant = record
-  { variant            = variant
-  ; semiring-with-meet = linear-or-affine-semiring-with-meet
-  ; 𝟘-well-behaved     = λ _ → linear-or-affine-has-well-behaved-zero
+linear-or-affine : Modality
+linear-or-affine = record
+  { semiring-with-meet = linear-or-affine-semiring-with-meet
   }
 
 ------------------------------------------------------------------------
@@ -4387,108 +4382,127 @@ opaque
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- Instances of Type-restrictions and Usage-restrictions are suitable
--- for the full reduction theorem if
--- * whenever Unitˢ-allowed holds, then Starˢ-sink holds,
--- * Unitʷ-allowed and Unitʷ-η do not both hold,
--- * Σˢ-allowed 𝟘 p does not hold,
--- * Σˢ-allowed ≤𝟙 p does not hold, and
--- * Σˢ-allowed ≤ω p does not hold.
+module _ {𝟘ᵐ-allowed : Bool} where
 
-Suitable-for-full-reduction :
-  ∀ variant →
-  Type-restrictions (linear-or-affine variant) →
-  Usage-restrictions (linear-or-affine variant) →
-  Set
-Suitable-for-full-reduction variant rs us =
-  (Unitˢ-allowed → Starˢ-sink) ×
-  (Unitʷ-allowed → ¬ Unitʷ-η) ×
-  (∀ p → ¬ Σˢ-allowed 𝟘 p) ×
-  (∀ p → ¬ Σˢ-allowed ≤𝟙 p) ×
-  (∀ p → ¬ Σˢ-allowed ≤ω p)
-  where
-  open Type-restrictions  rs
-  open Usage-restrictions us
+  open Graded.Mode.Instances.Zero-one.Variant linear-or-affine
 
--- Given an instance of Type-restrictions (linear-or-affine variant)
--- one can create a "suitable" instance.
-
-suitable-for-full-reduction :
-  Type-restrictions (linear-or-affine variant) →
-  ∃ λ rs → Suitable-for-full-reduction variant rs urs
-suitable-for-full-reduction {urs} rs =
-    record rs
-      { Unit-allowed = λ where
-          𝕤 → Unitˢ-allowed × Starˢ-sink
-          𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
-      ; ΠΣ-allowed   = λ b p q →
-          ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
-      ; []-cong-allowed = λ where
-          𝕤 → ⊥
-          𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
-      ; []-cong→Erased = λ where
-          {s = 𝕤} ()
-          {s = 𝕨} (ok , no-η) →
-            case []-cong→Erased ok of λ
-              (ok₁ , ok₂) →
-            (ok₁ , no-η) , ok₂ , (λ ())
-      ; []-cong→¬Trivial = λ where
-          {s = 𝕤} ()
-          {s = 𝕨}    → []-cong→¬Trivial ∘→ proj₁
+  private
+    variant : Mode-variant
+    variant = record
+      { 𝟘ᵐ-allowed = 𝟘ᵐ-allowed
+      ; 𝟘-well-behaved = λ _ → linear-or-affine-has-well-behaved-zero
       }
-  , proj₂
-  , proj₂
-  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
-  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
-  , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
-  where
-  open Type-restrictions rs
-  open Usage-restrictions urs
 
--- The full reduction assumptions hold for any instance of
--- linear-or-affine and any "suitable" Type-restrictions and
--- Usage-restrictions.
+  open Graded.Mode.Instances.Zero-one variant
+  open Graded.Usage.Restrictions linear-or-affine Zero-one-isMode
+  open Graded.FullReduction.Assumptions variant
+  open Definition.Typed.Restrictions linear-or-affine
 
-full-reduction-assumptions :
-  Suitable-for-full-reduction variant trs urs →
-  Full-reduction-assumptions trs urs
-full-reduction-assumptions (sink , no-η , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
-  { sink⊎𝟙≤𝟘 = λ where
-      {s = 𝕤} ok _         → inj₁ (refl , sink ok)
-      {s = 𝕨} _  (inj₁ ())
-      {s = 𝕨} ok (inj₂ η)  → ⊥-elim (no-η ok η)
-  ; ≡𝟙⊎𝟙≤𝟘 = λ where
-      {p = 𝟘}  ok → ⊥-elim (¬𝟘 _ ok)
-      {p = ≤𝟙} ok → ⊥-elim (¬≤𝟙 _ ok)
-      {p = ≤ω} ok → ⊥-elim (¬≤ω _ ok)
-      {p = 𝟙}  _  → inj₁ refl
-  }
+  private variable
+    trs     : Type-restrictions
+    urs     : Usage-restrictions
 
--- Type and usage restrictions that satisfy the full reduction
--- assumptions are "suitable".
+  -- Instances of Type-restrictions and Usage-restrictions are suitable
+  -- for the full reduction theorem if
+  -- * whenever Unitˢ-allowed holds, then Starˢ-sink holds,
+  -- * Unitʷ-allowed and Unitʷ-η do not both hold,
+  -- * Σˢ-allowed 𝟘 p does not hold,
+  -- * Σˢ-allowed ≤𝟙 p does not hold, and
+  -- * Σˢ-allowed ≤ω p does not hold.
 
-full-reduction-assumptions-suitable :
-  Full-reduction-assumptions trs urs →
-  Suitable-for-full-reduction variant trs urs
-full-reduction-assumptions-suitable {urs = urs} as =
-     (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
-        (inj₁ (_ , sink)) → sink
-        (inj₂ ()))
-   , (λ ok η → case sink⊎𝟙≤𝟘 ok (inj₂ η) of λ where
-        (inj₁ (() , _))
-        (inj₂ ()))
-   , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-        (inj₁ ())
-        (inj₂ (_ , _ , ())))
-   , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-        (inj₁ ())
-        (inj₂ (() , _)))
-   , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-        (inj₁ ())
-        (inj₂ (() , _))
-  where
-  open Full-reduction-assumptions as
-  open Usage-restrictions urs
+  Suitable-for-full-reduction :
+    Type-restrictions →
+    Usage-restrictions →
+    Set
+  Suitable-for-full-reduction rs us =
+    (Unitˢ-allowed → Starˢ-sink) ×
+    (Unitʷ-allowed → ¬ Unitʷ-η) ×
+    (∀ p → ¬ Σˢ-allowed 𝟘 p) ×
+    (∀ p → ¬ Σˢ-allowed ≤𝟙 p) ×
+    (∀ p → ¬ Σˢ-allowed ≤ω p)
+    where
+    open Type-restrictions  rs
+    open Usage-restrictions us
+
+  -- Given an instance of Type-restrictions linear-or-affine
+  -- one can create a "suitable" instance.
+
+  suitable-for-full-reduction :
+    Type-restrictions →
+    ∃ λ rs → Suitable-for-full-reduction rs urs
+  suitable-for-full-reduction {urs} rs =
+      record rs
+        { Unit-allowed = λ where
+            𝕤 → Unitˢ-allowed × Starˢ-sink
+            𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
+        ; ΠΣ-allowed   = λ b p q →
+            ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
+        ; []-cong-allowed = λ where
+            𝕤 → ⊥
+            𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
+        ; []-cong→Erased = λ where
+            {s = 𝕤} ()
+            {s = 𝕨} (ok , no-η) →
+              case []-cong→Erased ok of λ
+                (ok₁ , ok₂) →
+              (ok₁ , no-η) , ok₂ , (λ ())
+        ; []-cong→¬Trivial = λ where
+            {s = 𝕤} ()
+            {s = 𝕨}    → []-cong→¬Trivial ∘→ proj₁
+        }
+    , proj₂
+    , proj₂
+    , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
+    , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
+    , (λ _ → ((λ ()) ∘→ (_$ PE.refl)) ∘→ proj₂)
+    where
+    open Type-restrictions rs
+    open Usage-restrictions urs
+
+  -- The full reduction assumptions hold for any instance of
+  -- linear-or-affine and any "suitable" Type-restrictions and
+  -- Usage-restrictions.
+
+  full-reduction-assumptions :
+    Suitable-for-full-reduction trs urs →
+    Full-reduction-assumptions trs urs
+  full-reduction-assumptions (sink , no-η , ¬𝟘 , ¬≤𝟙 , ¬≤ω) = record
+    { sink⊎𝟙≤𝟘 = λ where
+        {s = 𝕤} ok _         → inj₁ (refl , sink ok)
+        {s = 𝕨} _  (inj₁ ())
+        {s = 𝕨} ok (inj₂ η)  → ⊥-elim (no-η ok η)
+    ; ≡𝟙⊎𝟙≤𝟘 = λ where
+        {p = 𝟘}  ok → ⊥-elim (¬𝟘 _ ok)
+        {p = ≤𝟙} ok → ⊥-elim (¬≤𝟙 _ ok)
+        {p = ≤ω} ok → ⊥-elim (¬≤ω _ ok)
+        {p = 𝟙}  _  → inj₁ refl
+    }
+
+  -- Type and usage restrictions that satisfy the full reduction
+  -- assumptions are "suitable".
+
+  full-reduction-assumptions-suitable :
+    Full-reduction-assumptions trs urs →
+    Suitable-for-full-reduction trs urs
+  full-reduction-assumptions-suitable {urs = urs} as =
+       (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
+          (inj₁ (_ , sink)) → sink
+          (inj₂ ()))
+     , (λ ok η → case sink⊎𝟙≤𝟘 ok (inj₂ η) of λ where
+          (inj₁ (() , _))
+          (inj₂ ()))
+     , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+          (inj₁ ())
+          (inj₂ (_ , _ , ())))
+     , (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+          (inj₁ ())
+          (inj₂ (() , _)))
+     , λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+          (inj₁ ())
+          (inj₂ (() , _))
+    where
+    open Full-reduction-assumptions _ _ as
+    open Usage-restrictions urs
 
 ------------------------------------------------------------------------
 -- Subtraction

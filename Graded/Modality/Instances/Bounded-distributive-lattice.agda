@@ -17,7 +17,6 @@ module Graded.Modality.Instances.Bounded-distributive-lattice
 
 open import Graded.Modality M
 import Graded.Modality.Instances.LowerBounded as L
-open import Graded.Modality.Variant a
 open import Graded.Modality.Properties.Subtraction
 import Graded.Modality.Properties.Star as Star
 
@@ -145,17 +144,11 @@ opaque
 -- Bounded, distributive lattices for which equality with ⊤ is
 -- decidable can be turned into modalities.
 
-modality :
-  (variant : Modality-variant) →
-  let open Modality-variant variant
-  in
-  (T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet) →
-  Modality
-modality variant = L.isModality
+modality : Modality
+modality = L.isModality
   semiring-with-meet
   ⊥
   ⊥≤
-  variant
 
 opaque
 

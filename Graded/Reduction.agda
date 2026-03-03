@@ -1,20 +1,23 @@
-------------------------------------------------------------------------
+-----------------------------------------------------------------------
 -- Properties related to the usage relation and reduction.
 -- Notably, subject reduction.
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
 module Graded.Reduction
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Type-restrictions TR
 open Usage-restrictions UR
 
@@ -22,14 +25,13 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution.Properties 𝕄 UR
-open import Graded.Usage 𝕄 UR
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Substitution.Properties UR
+open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
 open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Restrictions.Satisfied 𝕄 UR
-open import Graded.Usage.Weakening 𝕄 UR
-open import Graded.Mode 𝕄
+open import Graded.Usage.Restrictions.Satisfied UR
+open import Graded.Usage.Weakening UR
 open import Definition.Typed TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Properties TR
@@ -41,10 +43,12 @@ open import Tools.Bool using (T; true; false)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Level
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
+import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
@@ -103,15 +107,16 @@ opaque
     ▸t′ : γ′ ▸[ 𝟙ᵐ ] t′
     ▸t′ = sub
       (unitrecₘ
-         (sub ℕₘ $ begin
-            𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-            𝟘ᶜ                ∎)
          var zeroₘ
+         (sub ℕₘ $ begin
+            𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+            𝟘ᶜ               ∎)
          unitrec-ok)
       (begin
-         ε ∙ 𝟙                  ≈˘⟨ ε ∙ ·⌜⌞⌟⌝ ⟩
-         ε ∙ 𝟙 · ⌜ ⌞ 𝟙 ⌟ ⌝      ≈˘⟨ ε ∙ +-identityʳ _ ⟩
-         ε ∙ 𝟙 · ⌜ ⌞ 𝟙 ⌟ ⌝ + 𝟘  ∎)
+         ε ∙ 𝟙                   ≈˘⟨ ε ∙ ·⌜⌞⌟⌝ ⟩
+         ε ∙ 𝟙 · ⌜ ⌞ 𝟙 ⌟ ⌝       ≈˘⟨ ε ∙ ·-congˡ (⌜⌝-cong ᵐ·-identityˡ) ⟩
+         ε ∙ 𝟙 · ⌜ 𝟙ᵐ ᵐ· 𝟙 ⌝     ≈˘⟨ ε ∙ +-identityʳ _ ⟩
+         ε ∙ 𝟙 · ⌜ 𝟙ᵐ ᵐ· 𝟙 ⌝ + 𝟘 ∎)
 
     ¬▸u′ : ¬ γ′ ▸[ 𝟙ᵐ ] u′
     ¬▸u′ =
@@ -125,16 +130,17 @@ opaque
 
 -- These results are proved under the assumption that, if weak unit
 -- types are allowed, η-equality is allowed for them, and
--- Unitrec-allowed 𝟙ᵐ p q holds for some p and q, then p ≤ 𝟘.
+-- Unitrec-allowed m p q holds for some p and q, and ⌜ m ⌝ ≢ 𝟘 then
+-- p ≤ 𝟘.
 --
 -- Maybe things could be changed so that, if Unitʷ-η holds, then
--- η-equality for weak unit types is not allowed for 𝟙ᵐ, but only
--- for 𝟘ᵐ. In that case this assumption could perhaps be removed.
+-- η-equality for weak unit types is only allowed for 𝟘ᵐ. In that
+-- case this assumption could perhaps be removed.
 
 module _
   (Unitʷ-η→ :
-     ∀ {p q} →
-     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     ∀ {m p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed m p q → ⌜ m ⌝ PE.≢ 𝟘 →
      p ≤ 𝟘)
   where
 
@@ -160,7 +166,7 @@ module _
   usagePresTerm {m} _ γ▸λta (β-red x₁ x₂ x₃ x₄ _) =
     let invUsageApp δ▸λt η▸a γ≤δ′+pη = inv-usage-app γ▸λta
         invUsageLam δ▸t δ′≤δ = inv-usage-lam δ▸λt
-    in  sub (sgSubstₘ-lemma₂ δ▸t (▸-cong (ᵐ·-cong m (PE.sym x₄)) η▸a))
+    in sub (sgSubstₘ-lemma₂ δ▸t (▸-cong (ᵐ·-congˡ (PE.sym x₄)) η▸a))
             (≤ᶜ-trans γ≤δ′+pη
                (+ᶜ-monotone δ′≤δ
                   (·ᶜ-monotoneˡ (≤-reflexive (PE.sym x₄)))))
@@ -181,26 +187,22 @@ module _
                     δ            ≤⟨ δ≤pζ∧η ⟩
                     p ·ᶜ ζ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
                     p ·ᶜ ζ       ∎
-           in  lemma (m ᵐ· p) (▸-cong (ᵐ·-idem m) ▸t) γ≤pζ fst-ok
+           in  ⌜⌝≡𝟘-elim {m′ = m} (λ m → γ ▸[ m ] t) (m ᵐ· p)
+             (λ 𝟙≡𝟘 → sub (▸-trivial 𝟙≡𝟘 ▸t) (≈ᶜ-trivial 𝟙≡𝟘))
+             (λ 𝟙ᵐ≢𝟘ᵐ mp≡𝟘ᵐ →
+               let ▸t′ = ▸-cong (PE.trans (ᵐ·-congʳ mp≡𝟘ᵐ) ᵐ·-zeroˡ) ▸t
+               in  sub (▸-𝟘′ 𝟙ᵐ≢𝟘ᵐ ▸t) (begin
+                     γ        ≤⟨ γ≤pζ ⟩
+                     p ·ᶜ ζ   ≤⟨ (·ᶜ-monotoneʳ $ ▸-𝟘ᵐ 𝟙ᵐ≢𝟘ᵐ ▸t′) ⟩
+                     p ·ᶜ 𝟘ᶜ  ≈⟨ ·ᶜ-zeroʳ _ ⟩
+                     𝟘ᶜ       ∎))
+             λ mp≢𝟘 → sub (▸-cong (ᵐ·-idem _) ▸t) $ begin
+                        γ      ≤⟨ γ≤pζ ⟩
+                        p ·ᶜ ζ ≤⟨ ·ᶜ-monotoneˡ (fst-ok mp≢𝟘) ⟩
+                        𝟙 ·ᶜ ζ ≈⟨ ·ᶜ-identityˡ _ ⟩
+                        ζ      ∎
            where
-           open Tools.Reasoning.PartialOrder ≤ᶜ-poset
-           lemma : ∀ {γ δ} m → δ ▸[ m ] t
-                 → γ ≤ᶜ p ·ᶜ δ
-                 → (m PE.≡ 𝟙ᵐ → p ≤ 𝟙)
-                 → γ ▸[ m ] t
-           lemma {γ = γ} {δ} 𝟘ᵐ δ▸t γ≤pδ fst-ok =
-             sub (▸-𝟘 δ▸t)
-                 (begin
-                   γ       ≤⟨ γ≤pδ ⟩
-                   p ·ᶜ δ  ≤⟨ ·ᶜ-monotoneʳ (▸-𝟘ᵐ δ▸t) ⟩
-                   p ·ᶜ 𝟘ᶜ ≈⟨ ·ᶜ-zeroʳ p ⟩
-                   𝟘ᶜ ∎)
-           lemma {γ = γ} {δ} 𝟙ᵐ δ▸t γ≤pδ fst-ok =
-             sub δ▸t (begin
-               γ      ≤⟨ γ≤pδ ⟩
-               p ·ᶜ δ ≤⟨ ·ᶜ-monotoneˡ (fst-ok PE.refl) ⟩
-               𝟙 ·ᶜ δ ≈⟨ ·ᶜ-identityˡ δ ⟩
-               δ ∎)
+           open ≤ᶜ-reasoning
 
   usagePresTerm {γ} _ ▸t′ (Σ-β₂ {p} _ _ _ PE.refl _) =
     case inv-usage-snd ▸t′ of λ where
@@ -334,13 +336,13 @@ module _
     in  sub (emptyrecₘ (usagePresTerm (▸-ᵐ· ∘→ ▸∇) δ▸t t⇒u) η▸A ok) γ≤δ
 
   usagePresTerm ▸∇ γ▸ur (unitrec-subst x x₁ t⇒t′ _ _) =
-    let invUsageUnitrec θ▸A δ▸t η▸u ok γ≤γ′ = inv-usage-unitrec γ▸ur
+    let invUsageUnitrec δ▸t η▸u θ▸A ok γ≤γ′ = inv-usage-unitrec γ▸ur
         δ▸t′ = usagePresTerm (▸-ᵐ· ∘→ ▸∇) δ▸t t⇒t′
-    in  sub (unitrecₘ θ▸A δ▸t′ η▸u ok) γ≤γ′
+    in  sub (unitrecₘ δ▸t′ η▸u θ▸A ok) γ≤γ′
 
 
   usagePresTerm {γ} _ γ▸ur (unitrec-β {p = p} x x₁ _ _) =
-    let invUsageUnitrec {γ₃ = δ} {γ₄ = η} θ▸A δ▸t η▸u ok γ≤γ′ =
+    let invUsageUnitrec {δ} {η} δ▸t η▸u θ▸A ok γ≤γ′ =
           inv-usage-unitrec γ▸ur
         δ≤𝟘 = inv-usage-starʷ δ▸t
     in  sub η▸u (begin
@@ -355,20 +357,25 @@ module _
   usagePresTerm
     {m} {γ} _ γ▸ur (unitrec-β-η {u} {p} _ _ _ Unit-ok η-ok) =
     case inv-usage-unitrec γ▸ur of λ
-      (invUsageUnitrec {γ₃ = δ} {γ₄ = η} _ _ η▸u unitrec-ok γ≤pδ+η) →
-    case PE.singleton m of λ where
-      (𝟘ᵐ , PE.refl) →                               $⟨ η▸u ⟩
-        η ▸[ 𝟘ᵐ ] u                                  →⟨ proj₂ ∘→ ▸[𝟘ᵐ]⇔ .proj₁ ⟩
-        Usage-restrictions-satisfied 𝟘ᵐ u            →⟨ ▸[𝟘ᵐ]⇔ .proj₁ γ▸ur .proj₁ ,_ ⟩
-        γ ≤ᶜ 𝟘ᶜ × Usage-restrictions-satisfied 𝟘ᵐ u  →⟨ ▸[𝟘ᵐ]⇔ .proj₂ ⟩
-        γ ▸[ 𝟘ᵐ ] u                                  □
-      (𝟙ᵐ , PE.refl) →
-        sub η▸u $ begin
-          γ            ≤⟨ γ≤pδ+η ⟩
-          p ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-monotoneˡ $ ·ᶜ-monotoneˡ $ Unitʷ-η→ η-ok Unit-ok unitrec-ok ⟩
-          𝟘 ·ᶜ δ +ᶜ η  ≈⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ δ ⟩
-          𝟘ᶜ +ᶜ η      ≈⟨ +ᶜ-identityˡ η ⟩
-          η            ∎
+      (invUsageUnitrec {δ} {η} δ▸t η▸u _ unitrec-ok γ≤pδ+η) →
+        ⌜⌝≡𝟘-elim (λ m → γ ▸[ m ] u) m
+          (λ 𝟙≡𝟘 → sub η▸u (≈ᶜ-trivial 𝟙≡𝟘))
+          (λ 𝟙ᵐ≢𝟘ᵐ m≡𝟘ᵐ →
+                sub (▸-cong m≡𝟘ᵐ η▸u) $ begin
+                  γ             ≤⟨ γ≤pδ+η ⟩
+                  p ·ᶜ δ +ᶜ η   ≤⟨ +ᶜ-monotoneˡ $ ·ᶜ-monotoneʳ $
+                                    ▸-𝟘ᵐ 𝟙ᵐ≢𝟘ᵐ (▸-cong (PE.trans (ᵐ·-congʳ m≡𝟘ᵐ) ᵐ·-zeroˡ) δ▸t) ⟩
+                  p ·ᶜ 𝟘ᶜ +ᶜ η  ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
+                  𝟘ᶜ +ᶜ η       ≈⟨ +ᶜ-identityˡ _ ⟩
+                  η             ∎)
+          λ m≢𝟘 →
+            sub η▸u $ begin
+              γ            ≤⟨ γ≤pδ+η ⟩
+              p ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-monotoneˡ $ ·ᶜ-monotoneˡ $
+                               Unitʷ-η→ η-ok Unit-ok unitrec-ok m≢𝟘 ⟩
+              𝟘 ·ᶜ δ +ᶜ η  ≈⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ δ ⟩
+              𝟘ᶜ +ᶜ η      ≈⟨ +ᶜ-identityˡ η ⟩
+              η            ∎
     where
     open ≤ᶜ-reasoning
 
@@ -379,11 +386,11 @@ module _
         γ≤
       (invUsageJ₀₁ ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
         (J₀ₘ₁ ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′
-           (usagePresTerm (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v v⇒v′))
+           (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
         γ≤
       (invUsageJ₀₂ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
         (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸t′
-           (usagePresTerm (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v v⇒v′))
+           (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
         γ≤
 
   usagePresTerm ▸∇ γ▸ (K-subst _ _ v⇒v′ _) =
@@ -393,17 +400,17 @@ module _
         γ≤
       (invUsageK₀₁ ok p≡𝟘 ▸A ▸t ▸B ▸u ▸v γ≤) → sub
         (K₀ₘ₁ ok p≡𝟘 ▸A ▸t ▸B ▸u
-           (usagePresTerm (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v v⇒v′))
+           (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
         γ≤
       (invUsageK₀₂ ok ▸A ▸t ▸B ▸u ▸v γ≤) → sub
-        (K₀ₘ₂ ok ▸A ▸t ▸B ▸u (usagePresTerm (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v v⇒v′))
+        (K₀ₘ₂ ok ▸A ▸t ▸B ▸u (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
         γ≤
 
   usagePresTerm ▸∇ γ▸ ([]-cong-subst _ v⇒v′ _) =
     case inv-usage-[]-cong γ▸ of
       λ (invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok γ≤) →
     sub
-      ([]-congₘ ▸l ▸A ▸t ▸u (usagePresTerm (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v v⇒v′) ok)
+      ([]-congₘ ▸l ▸A ▸t ▸u (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′) ok)
       γ≤
 
   usagePresTerm {γ} _ γ▸ (J-β _ _ _ _ _ _) =
@@ -527,7 +534,7 @@ module _
 -- definition context), but t does not have any (closed)
 -- well-resourced η-long normal form.
 
-Well-resourced-normal-form-without-η-long-normal-form : Set a
+Well-resourced-normal-form-without-η-long-normal-form : Set (a ⊔ b)
 Well-resourced-normal-form-without-η-long-normal-form =
   ∃₂ λ A t →
     ε » ε ⊢ t ∷ A × Nf ε t × ε ▸[ 𝟙ᵐ ] t ×
@@ -557,7 +564,7 @@ Well-resourced-normal-form-without-η-long-normal-form =
   (γ ▸[ 𝟙ᵐ ] u ⇔ (s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘))
 η-long-nf-for-0⇔sink⊎𝟙≤𝟘 {s} ok η =
     ⊢0
-  , var
+  , sub-≈ᶜ var (≈ᶜ-refl ∙ PE.sym ⌜𝟙ᵐ⌝)
   , starₙ (∙ ε⊢Unit) ok
   , sym′ (Unit-η-≡ η ⊢0)
   , (λ ▸* →
@@ -572,10 +579,11 @@ Well-resourced-normal-form-without-η-long-normal-form =
                case 𝟘ᶜ≈ not-sink of λ {
                  (_ ∙ 𝟘≡p) →
                inj₂ $ begin
-                 𝟙      ≤⟨ 𝟙≤𝟙p ⟩
-                 𝟙 · p  ≡˘⟨ PE.cong (_·_ _) 𝟘≡p ⟩
-                 𝟙 · 𝟘  ≡⟨ ·-zeroʳ _ ⟩
-                 𝟘      ∎ }}
+                 𝟙          ≤⟨ 𝟙≤𝟙p ⟩
+                 ⌜ 𝟙ᵐ ⌝ · p ≡⟨ ·-congʳ ⌜𝟙ᵐ⌝ ⟩
+                 𝟙 · p      ≡˘⟨ PE.cong (_·_ _) 𝟘≡p ⟩
+                 𝟙 · 𝟘      ≡⟨ ·-zeroʳ _ ⟩
+                 𝟘          ∎ }}
          (𝕨 , PE.refl) →
            case inv-usage-starʷ ▸* of λ {
              (_ ∙ 𝟙≤𝟘) →
@@ -584,8 +592,9 @@ Well-resourced-normal-form-without-η-long-normal-form =
      λ where
        (inj₁ (PE.refl , sink)) →
          sub (starˢₘ (⊥-elim ∘→ not-sink-and-no-sink sink)) $ begin
-           ε ∙ 𝟙         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-           𝟙 ·ᶜ (ε ∙ 𝟙)  ∎
+           ε ∙ 𝟙             ≈˘⟨ ·ᶜ-identityˡ _ ⟩
+           𝟙 ·ᶜ (ε ∙ 𝟙)      ≈˘⟨ ·ᶜ-congʳ ⌜𝟙ᵐ⌝ ⟩
+           ⌜ 𝟙ᵐ ⌝ ·ᶜ (ε ∙ 𝟙) ∎
        (inj₂ 𝟙≤𝟘) →
          sub starₘ $ begin
            ε ∙ 𝟙  ≤⟨ ε ∙ 𝟙≤𝟘 ⟩
@@ -621,15 +630,17 @@ Well-resourced-normal-form-without-η-long-normal-form =
     lamⱼ′ ok₁ ⊢t
   , lamₘ (sub ▸t $
           let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-            𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
-            𝟘ᶜ ∙ 𝟙      ∎)
+            𝟘ᶜ ∙ ⌜ 𝟙ᵐ ⌝ · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
+            𝟘ᶜ ∙ ⌜ 𝟙ᵐ ⌝      ≈⟨ ≈ᶜ-refl ∙ ⌜𝟙ᵐ⌝ ⟩
+            𝟘ᶜ ∙ 𝟙           ∎)
   , lamₙ ⊢u ok₁
   , lam-cong t≡u ok₁
   , (ε ▸[ 𝟙ᵐ ] lam 𝟙 star!          ⇔⟨ (λ ▸λ* → case inv-usage-lam ▸λ* of λ where
                                          (invUsageLam {δ = ε} ▸* _) → ▸*)
                                      , lamₘ
                                      ⟩
-     ε ∙ 𝟙 · 𝟙 ▸[ 𝟙ᵐ ] star!        ≡⟨ PE.cong (λ p → _ ∙ p ▸[ _ ] _) (·-identityˡ _) ⟩⇔
+     ε ∙ ⌜ 𝟙ᵐ ⌝ · 𝟙 ▸[ 𝟙ᵐ ] star!   ≡⟨ PE.cong (λ p → _ ∙ p ▸[ _ ] _) (·-identityʳ _) ⟩⇔
+     ε ∙ ⌜ 𝟙ᵐ ⌝ ▸[ 𝟙ᵐ ] star!       ≡⟨ PE.cong (λ p → _ ∙ p ▸[ _ ] _) ⌜𝟙ᵐ⌝ ⟩⇔
      ε ∙ 𝟙 ▸[ 𝟙ᵐ ] star!            ⇔⟨ ▸u⇔ ⟩
      s PE.≡ 𝕤 × Starˢ-sink ⊎ 𝟙 ≤ 𝟘  □⇔) }
 
@@ -668,155 +679,3 @@ well-resourced-normal-form-without-η-long-normal-form-Unit
                                                (inj₁ ())
                                                (inj₂ ¬sink) → not-sink-and-no-sink sink ¬sink) ⟩
       ⊥                              □
-
--- If "Σˢ p , q" is allowed, then variable 0 is well-typed and
--- well-resourced (with respect to the usage context ε ∙ 𝟙), and is
--- definitionally equal to the η-long normal form
--- prodˢ p (fst p (var x0)) (snd p (var x0)). However, this η-long
--- normal form is well-resourced with respect to the usage context
--- ε ∙ 𝟙 if and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and
--- 𝟙 ≤ 𝟘.
-
-η-long-nf-for-0⇔≡𝟙⊎≡𝟘 :
-  Σˢ-allowed p q →
-  let Γ = ε ∙ (Σˢ p , q ▷ ℕ ▹ ℕ)
-      γ = ε ∙ 𝟙
-      A = Σˢ p , q ▷ ℕ ▹ ℕ
-      t = var x0
-      u = prodˢ p (fst p (var x0)) (snd p (var x0))
-  in
-  ε » Γ ⊢ t ∷ A ×
-  γ ▸[ 𝟙ᵐ ] t ×
-  ε » Γ ⊢nf u ∷ A ×
-  ε » Γ ⊢ t ≡ u ∷ A ×
-  (γ ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘))
-η-long-nf-for-0⇔≡𝟙⊎≡𝟘 {p = p} ok =
-    ⊢0
-  , var
-  , prodₙ (⊢ℕ ε∙Σℕℕ∙ℕ)
-      (neₙ ℕₙ (fstₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here)))
-      (neₙ ℕₙ (sndₙ Σℕℕ∙ℕ⊢ℕ (varₙ (∙ ⊢Σℕℕ) here)))
-      ok
-  , sym′ (Σ-η-prod-fst-snd ⊢0)
-  , (ε ∙ 𝟙 ▸[ 𝟙ᵐ ] u′                              ⇔⟨ lemma₁ ⟩
-     (𝟙 ≤ p × (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙))             ⇔⟨ id⇔ ×-cong-⇔ ⌞⌟≡𝟙→⇔⊎𝟘ᵐ×≡𝟘 ⟩
-     (𝟙 ≤ p × (p ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘))   ⇔⟨ lemma₂ ⟩
-     (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)  □⇔)
-  where
-  u′      = prodˢ p (fst p (var x0)) (snd p (var x0))
-  ⊢Σℕℕ    = ΠΣⱼ (⊢ℕ (∙ ⊢ℕ εε)) ok
-  ε∙Σℕℕ∙ℕ = ∙ ⊢ℕ (∙ ⊢Σℕℕ)
-  Σℕℕ∙ℕ⊢ℕ = ⊢ℕ ε∙Σℕℕ∙ℕ
-  ⊢0      = var₀ ⊢Σℕℕ
-
-  lemma₁ : ε ∙ 𝟙 ▸[ 𝟙ᵐ ] u′ ⇔ (𝟙 ≤ p × (⌞ p ⌟ PE.≡ 𝟙ᵐ → p ≤ 𝟙))
-  lemma₁ =
-      (λ ▸1,2 →
-         let open Tools.Reasoning.PartialOrder ≤-poset in
-         case inv-usage-prodˢ ▸1,2 of λ {
-           (invUsageProdˢ {δ = _ ∙ q₁} {η = _ ∙ q₂} ▸1 _ (_ ∙ 𝟙≤pq₁∧q₂)) →
-         case inv-usage-fst ▸1 of λ {
-           (invUsageFst {δ = _ ∙ q₃} _ _ ▸0 (_ ∙ q₁≤q₃) ⌞p⌟≡𝟙ᵐ→p≤𝟙) →
-         case inv-usage-var ▸0 of λ {
-           (_ ∙ q₃≤⌜⌞p⌟⌝) →
-           (begin
-              𝟙              ≤⟨ 𝟙≤pq₁∧q₂ ⟩
-              p · q₁ ∧ q₂    ≤⟨ ∧-decreasingˡ _ _ ⟩
-              p · q₁         ≤⟨ ·-monotoneʳ q₁≤q₃ ⟩
-              p · q₃         ≤⟨ ·-monotoneʳ q₃≤⌜⌞p⌟⌝ ⟩
-              p · ⌜ ⌞ p ⌟ ⌝  ≡⟨ ·⌜⌞⌟⌝ ⟩
-              p              ∎)
-         , ⌞p⌟≡𝟙ᵐ→p≤𝟙 }}})
-    , (λ (𝟙≤p , ⌞p⌟≡𝟙→≤𝟙) →
-         sub
-           (prodˢₘ (fstₘ 𝟙ᵐ var PE.refl ⌞p⌟≡𝟙→≤𝟙) (sndₘ var))
-           (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-              ε ∙ 𝟙                  ≤⟨ ε ∙ ∧-greatest-lower-bound 𝟙≤p ≤-refl ⟩
-              ε ∙ p ∧ 𝟙              ≈˘⟨ ε ∙ ∧-congʳ ·⌜⌞⌟⌝ ⟩
-              ε ∙ p · ⌜ ⌞ p ⌟ ⌝ ∧ 𝟙  ∎))
-
-  lemma₂ :
-    (𝟙 ≤ p × (p ≤ 𝟙 ⊎ T 𝟘ᵐ-allowed × p PE.≡ 𝟘)) ⇔
-    (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)
-  lemma₂ =
-      (λ where
-         (𝟙≤p , inj₁ p≤𝟙) →
-           inj₁ (≤-antisym p≤𝟙 𝟙≤p)
-         (𝟙≤𝟘 , inj₂ (ok , PE.refl)) →
-           inj₂ (PE.refl , ok , 𝟙≤𝟘))
-    , (λ where
-         (inj₁ PE.refl) →
-           ≤-refl , inj₁ ≤-refl
-         (inj₂ (PE.refl , ok , 𝟙≤𝟘)) →
-           𝟙≤𝟘 , inj₂ (ok , PE.refl))
-
--- If "Π 𝟙 , r" and "Σˢ p , q" are allowed, then the identity function
--- lam 𝟙 (var x0) has type
--- Π 𝟙 , r ▷ Σˢ p , q ▷ ℕ ▹ ℕ ▹ Σˢ p , q ▷ ℕ ▹ ℕ, is well-resourced in
--- the empty context, and is definitionally equal to the η-long normal
--- form lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0))), however,
--- this η-long normal form is well-resourced in the empty context if
--- and only if either p is 𝟙, or p is 𝟘, 𝟘ᵐ is allowed, and 𝟙 ≤ 𝟘.
-
-η-long-nf-for-id⇔≡𝟙⊎≡𝟘 :
-  Π-allowed 𝟙 r →
-  Σˢ-allowed p q →
-  let A = Π 𝟙 , r ▷ Σˢ p , q ▷ ℕ ▹ ℕ ▹ Σˢ p , q ▷ ℕ ▹ ℕ
-      t = lam 𝟙 (var x0)
-      u = lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))
-  in
-  ε » ε ⊢ t ∷ A ×
-  ε ▸[ 𝟙ᵐ ] t ×
-  ε » ε ⊢nf u ∷ A ×
-  ε » ε ⊢ t ≡ u ∷ A ×
-  (ε ▸[ 𝟙ᵐ ] u ⇔ (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘))
-η-long-nf-for-id⇔≡𝟙⊎≡𝟘 {r = r} {p = p} {q = q} ok₁ ok₂ =
-  case η-long-nf-for-0⇔≡𝟙⊎≡𝟘 ok₂ of λ {
-    (⊢t , ▸t , ⊢u , t≡u , ▸u⇔) →
-    lamⱼ′ ok₁ ⊢t
-  , lamₘ (sub ▸t
-            (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-               𝟘ᶜ ∙ 𝟙 · 𝟙  ≈⟨ ≈ᶜ-refl ∙ ·-identityˡ _ ⟩
-               𝟘ᶜ ∙ 𝟙      ∎))
-  , lamₙ ⊢u ok₁
-  , lam-cong t≡u ok₁
-  , (ε ▸[ 𝟙ᵐ ] lam 𝟙 u′                            ⇔⟨ (λ ▸λ* → case inv-usage-lam ▸λ* of λ where
-                                                         (invUsageLam {δ = ε} ▸* _) → ▸*)
-                                                    , lamₘ
-                                                    ⟩
-     ε ∙ 𝟙 · 𝟙 ▸[ 𝟙ᵐ ] u′                          ≡⟨ PE.cong (λ p → _ ∙ p ▸[ _ ] _) (·-identityˡ _) ⟩⇔
-     ε ∙ 𝟙 ▸[ 𝟙ᵐ ] u′                              ⇔⟨ ▸u⇔ ⟩
-     (p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘)  □⇔) }
-  where
-  u′ = prodˢ p (fst p (var x0)) (snd p (var x0))
-
--- The type Well-resourced-normal-form-without-η-long-normal-form is
--- inhabited if Level and equality reflection are not allowed and
--- there are quantities p, q and r such that
--- * p is distinct from 𝟙,
--- * "p is 𝟘 and 𝟘ᵐ is allowed and 𝟙 ≤ 𝟘" does not hold,
--- * Σˢ-allowed p q holds, and
--- * Π-allowed 𝟙 r holds.
-
-well-resourced-normal-form-without-η-long-normal-form-Σˢ :
-  ⦃ not-ok : No-equality-reflection ⦄ →
-  ¬ Level-allowed →
-  p ≢ 𝟙 →
-  ¬ (p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘) →
-  Σˢ-allowed p q →
-  Π-allowed 𝟙 r →
-  Well-resourced-normal-form-without-η-long-normal-form
-well-resourced-normal-form-without-η-long-normal-form-Σˢ
-  {p} not-ok p≢𝟙 ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] ok₁ ok₂ =
-  case η-long-nf-for-id⇔≡𝟙⊎≡𝟘 ok₂ ok₁ of λ {
-    (⊢t , ▸t , ⊢u , t≡u , ▸u→ , _) →
-    _ , _
-  , ⊢t
-  , lamₙ (ne (var _))
-  , ▸t
-  , λ (v , ⊢v , t≡v , ▸v) →                                        $⟨ ▸v ⟩
-      ε ▸[ 𝟙ᵐ ] v                                                  →⟨ PE.subst (_▸[_]_ _ _) $
-                                                                      normal-terms-unique not-ok ⊢v ⊢u (trans (sym′ t≡v) t≡u) ⟩
-      ε ▸[ 𝟙ᵐ ] lam 𝟙 (prodˢ p (fst p (var x0)) (snd p (var x0)))  →⟨ ▸u→ ⟩
-      p PE.≡ 𝟙 ⊎ p PE.≡ 𝟘 × T 𝟘ᵐ-allowed × 𝟙 ≤ 𝟘                   →⟨ (λ { (inj₁ p≡𝟙) → p≢𝟙 p≡𝟙; (inj₂ hyp) → ¬[p≡𝟘×𝟘ᵐ×𝟙≤𝟘] hyp }) ⟩
-      ⊥                                                            □ }

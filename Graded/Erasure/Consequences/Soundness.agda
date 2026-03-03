@@ -3,6 +3,8 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
@@ -10,8 +12,10 @@ module Graded.Erasure.Consequences.Soundness
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Type-restrictions TR
@@ -41,14 +45,13 @@ open import Definition.Typed.Weakening.Definition TR
 open import Definition.Typed.Well-formed TR
 
 open import Graded.Context 𝕄
-open import Graded.Derived.Erased.Usage 𝕄 UR
+open import Graded.Derived.Erased.Usage UR
 open import Graded.Derived.Omega UR
-open import Graded.Usage 𝕄 UR
+open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Properties UR
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
@@ -127,7 +130,7 @@ module _
 
       open Fundamental FA public
       open Graded.Erasure.LogicalRelation as public
-      open Graded.Erasure.LogicalRelation.Hidden as public
+      open Graded.Erasure.LogicalRelation.Hidden variant as public
       open Graded.Erasure.LogicalRelation.Irrelevance as public
 
     private opaque
@@ -444,8 +447,8 @@ opaque
     , Jⱼ′ (⊢ℕ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
     , (λ ())
     , sub
-        (J₀ₘ₁-generalised ≡not-none PE.refl PE.refl ℕₘ zeroₘ ℕₘ zeroₘ
-           zeroₘ var)
+        (J₀ₘ₁-generalised {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ} {m₄ = 𝟙ᵐ}
+          ≡not-none PE.refl PE.refl ℕₘ zeroₘ ℕₘ zeroₘ zeroₘ var)
         (begin
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
@@ -494,7 +497,8 @@ opaque
         K-ok
     , (λ ())
     , sub
-        (K₀ₘ₁-generalised ≡not-none PE.refl ℕₘ zeroₘ ℕₘ zeroₘ var)
+        (K₀ₘ₁-generalised {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ}
+          ≡not-none PE.refl ℕₘ zeroₘ ℕₘ zeroₘ var)
         (begin
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
@@ -544,11 +548,12 @@ opaque
     , (λ ())
     , sub
         (unitrecₘ
+           var zeroₘ
            (sub ℕₘ $
             let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
               𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
               𝟘ᶜ                ∎)
-           var zeroₘ unitrec-ok)
+           unitrec-ok)
         (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
            𝟘ᶜ                                ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
            𝟘 ·ᶜ (𝟘ᶜ , x0 ≔ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityʳ _ ⟩

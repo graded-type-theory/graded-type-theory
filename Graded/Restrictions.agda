@@ -3,14 +3,18 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+import Graded.Mode
 
 module Graded.Restrictions
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   (open Graded.Modality M)
   (𝕄 : Modality)
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Tools.Bool
 open import Tools.Empty
@@ -23,10 +27,9 @@ open import Tools.Sum
 open import Tools.Unit
 
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄 as Mode hiding (_≟_)
 import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions 𝕄
+open import Graded.Usage.Restrictions 𝕄 𝐌
 open import Graded.Usage.Restrictions.Natrec 𝕄
 
 import Definition.Typechecking.Decidable.Assumptions as TD
@@ -242,108 +245,44 @@ with-equality-reflection TR = record TR
 -- Id-erased is inhabited if the first boolean is true, and starˢ
 -- is treated as a sink if the second boolean is true.
 
-no-usage-restrictions : Natrec-mode → Bool → Bool → Usage-restrictions
-no-usage-restrictions nm erased sink = λ where
-    .natrec-mode              → nm
-    .Prodrec-allowed-𝟙ᵐ       → λ _ _ _ → Lift _ ⊤
-    .Unitrec-allowed-𝟙ᵐ       → λ _ _ → Lift _ ⊤
-    .Emptyrec-allowed-𝟙ᵐ      → λ _ → Lift _ ⊤
-    .[]-cong-allowed-mode-𝟙ᵐ  → λ _ → Lift _ ⊤
-    .starˢ-sink               → sink
-    .Id-erased                → Lift _ (T erased)
-    .Id-erased?               → Dec.map lift Lift.lower $
-                                T? erased
-    .erased-matches-for-J     → λ _ → all
-    .erased-matches-for-J-≤ᵉᵐ → _
-    .erased-matches-for-K     → λ _ → all
-    .erased-matches-for-K-≤ᵉᵐ → _
+no-usage-restrictions :
+  (nm : Natrec-mode) →
+  (⦃ has-nr : Natrec-mode-has-nr nm ⦄ →
+     Mode-supports-nr ⦃ Natrec-mode-Has-nr has-nr ⦄ 𝐌) →
+  Bool → Bool → Usage-restrictions
+no-usage-restrictions nm nr-ok erased sink = λ where
+    .natrec-mode                             → nm
+    .Prodrec-allowed                         → λ _ _ _ _ → Lift _ ⊤
+    .Prodrec-allowed-upwards-closed          → λ _ _ → _
+    .Unitrec-allowed                         → λ _ _ _ → Lift _ ⊤
+    .Unitrec-allowed-upwards-closed          → λ _ _ → _
+    .Emptyrec-allowed                        → λ _ _ → Lift _ ⊤
+    .Emptyrec-allowed-upwards-closed         → λ _ _ → _
+    .[]-cong-allowed-mode                    → λ _ _ → Lift _ ⊤
+    .[]-cong-allowed-mode-upwards-closed     → λ _ _ → _
+    .starˢ-sink                              → sink
+    .Id-erased                               → Lift _ (T erased)
+    .Id-erased?                              → Dec.map lift Lift.lower $
+                                                T? erased
+    .erased-matches-for-J                    → λ _ → all
+    .erased-matches-for-J-≤ᵉᵐ                → _
+    .erased-matches-for-K                    → λ _ → all
+    .erased-matches-for-K-≤ᵉᵐ                → _
+    .mode-supports-nr                        → nr-ok
   where
   open Usage-restrictions
-
--- A function used to define not-all-erased-matches-JK.
-
-not-all-for-𝟙ᵐ : (Mode → Erased-matches) → Mode → Erased-matches
-not-all-for-𝟙ᵐ f 𝟘ᵐ = f 𝟘ᵐ
-not-all-for-𝟙ᵐ f 𝟙ᵐ with f 𝟙ᵐ
-… | all = some
-… | em  = em
-
--- The function adds the restriction that, for the mode 𝟙ᵐ, "all"
--- erased matches are not allowed for J and K.
-
-not-all-erased-matches-JK : Usage-restrictions → Usage-restrictions
-not-all-erased-matches-JK UR = record UR
-  { erased-matches-for-J =
-      not-all-for-𝟙ᵐ erased-matches-for-J
-  ; erased-matches-for-J-≤ᵉᵐ =
-      not-all-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-J erased-matches-for-J-≤ᵉᵐ
-  ; erased-matches-for-K =
-      not-all-for-𝟙ᵐ erased-matches-for-K
-  ; erased-matches-for-K-≤ᵉᵐ =
-      not-all-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-K erased-matches-for-K-≤ᵉᵐ
-  }
-  where
-  open Usage-restrictions UR
-
-  opaque
-
-    not-all-for-𝟙ᵐ-≤ᵉᵐ :
-      (f : Mode → Erased-matches) →
-      f 𝟙ᵐ ≤ᵉᵐ f 𝟘ᵐ[ ok ] →
-      not-all-for-𝟙ᵐ f 𝟙ᵐ ≤ᵉᵐ not-all-for-𝟙ᵐ f 𝟘ᵐ[ ok ]
-    not-all-for-𝟙ᵐ-≤ᵉᵐ f f-≤ᵉᵐ with f 𝟙ᵐ
-    … | all  = ≤ᵉᵐ-transitive _ f-≤ᵉᵐ
-    … | some = f-≤ᵉᵐ
-    … | none = f-≤ᵉᵐ
-
--- The function adds the restriction that certain erased matches are
--- not allowed for the mode 𝟙ᵐ. No restriction is added for emptyrec
--- or unitrec. For prodrec the added restriction only applies to
--- non-trivial modalities.
-
-only-some-erased-matches : Usage-restrictions → Usage-restrictions
-only-some-erased-matches UR = record UR
-  { Prodrec-allowed-𝟙ᵐ = λ r p q →
-      Prodrec-allowed-𝟙ᵐ r p q ×
-      (¬ Trivial → r ≢ 𝟘)
-  ; erased-matches-for-J = λ where
-      𝟙ᵐ → none
-      𝟘ᵐ → erased-matches-for-J 𝟘ᵐ
-  ; erased-matches-for-J-≤ᵉᵐ =
-      _
-  ; erased-matches-for-K = λ where
-      𝟙ᵐ → none
-      𝟘ᵐ → erased-matches-for-K 𝟘ᵐ
-  ; erased-matches-for-K-≤ᵉᵐ =
-      _
-  }
-  where
-  open Usage-restrictions UR
-
--- The function adds the restriction that certain erased matches are
--- not allowed for the mode 𝟙ᵐ. No restriction is added for emptyrec.
--- For prodrec and unitrec the added restriction only applies to
--- non-trivial modalities, and for unitrec the added restriction only
--- applies if η-equality is not allowed for weak unit types.
-
-no-erased-matches-UR :
-  Type-restrictions → Usage-restrictions → Usage-restrictions
-no-erased-matches-UR TR UR = record (only-some-erased-matches UR)
-  { Unitrec-allowed-𝟙ᵐ = λ p q →
-      Unitrec-allowed-𝟙ᵐ p q ×
-      (¬ Trivial → p ≡ 𝟘 → Unitʷ-η)
-  }
-  where
-  open Type-restrictions TR
-  open Usage-restrictions UR
 
 -- The function updates the usage restrictions to use the usage rule
 -- natrecₘ for natrec using a given nr function.
 
 nr-available-UR :
-  Has-nr semiring-with-meet → Usage-restrictions → Usage-restrictions
-nr-available-UR has-nr UR =
-  record UR { natrec-mode = Nr ⦃ has-nr ⦄ }
+  (has-nr : Has-nr semiring-with-meet) →
+  Mode-supports-nr ⦃ has-nr ⦄ 𝐌 →
+  Usage-restrictions → Usage-restrictions
+nr-available-UR has-nr nr-ok UR = record UR
+  { natrec-mode      = Nr ⦃ has-nr ⦄
+  ; mode-supports-nr = λ { ⦃ (Nr) ⦄ → nr-ok}
+  }
 
 -- The function updates the usage restrictions to use the usage rule
 -- natrec-no-nr-glbₘ for natrec, assuming that the rule is supported.
@@ -352,93 +291,52 @@ nr-not-available-glb-UR :
   Has-well-behaved-GLBs semiring-with-meet →
   Usage-restrictions → Usage-restrictions
 nr-not-available-glb-UR ok UR =
-  record UR { natrec-mode = No-nr-glb ⦃ ok ⦄ }
+  record UR
+    { natrec-mode = No-nr-glb ⦃ ok ⦄
+    ; mode-supports-nr = λ { ⦃ () ⦄}
+    }
 
 -- The function enables support for []-cong (if the modality is
 -- non-trivial), but disables support for erased matches for J.
 
 []-cong-UR : Usage-restrictions → Usage-restrictions
 []-cong-UR UR = record UR
-  { []-cong-allowed-mode-𝟙ᵐ  = λ s → []-cong-allowed-mode-𝟙ᵐ s ⊎
+  { []-cong-allowed-mode     = λ m s → []-cong-allowed-mode m s ⊎
                                      ¬ Trivial
+  ; []-cong-allowed-mode-upwards-closed = λ where
+      (inj₁ ok) m≤m′ → inj₁ ([]-cong-allowed-mode-upwards-closed ok m≤m′)
+      (inj₂ 𝟙≢𝟘) _   → inj₂ 𝟙≢𝟘
   ; erased-matches-for-J     = λ _ → none
   ; erased-matches-for-J-≤ᵉᵐ = _
   }
   where
   open Usage-restrictions UR
 
--- A function used to define no-[]-cong-UR.
-
-at-least-some : (Mode → Erased-matches) → Mode → Erased-matches
-at-least-some f m = case f m of λ where
-  none → some
-  em   → em
-
--- The function no-[]-cong-UR disables support for []-cong but enables
--- "some" erased matches for J.
-
-no-[]-cong-UR : Usage-restrictions → Usage-restrictions
-no-[]-cong-UR UR = record UR
-  { []-cong-allowed-mode-𝟙ᵐ  = λ _ → Lift _ ⊥
-  ; erased-matches-for-J     = at-least-some erased-matches-for-J
-  ; erased-matches-for-J-≤ᵉᵐ = at-least-some-≤ᵉᵐ
-
-  }
-  where
-  open Usage-restrictions UR
-
-  at-least-some-≤ᵉᵐ :
-    at-least-some erased-matches-for-J 𝟙ᵐ ≤ᵉᵐ
-    at-least-some erased-matches-for-J 𝟘ᵐ[ ok ]
-  at-least-some-≤ᵉᵐ {ok}
-    with erased-matches-for-J 𝟙ᵐ
-       | erased-matches-for-J 𝟘ᵐ[ ok ]
-       | erased-matches-for-J-≤ᵉᵐ ⦃ ok = ok ⦄
-  … | none       | none       | _  = _
-  … | none       | some       | _  = _
-  … | none       | all        | _  = _
-  … | all        | none       | ()
-  … | some       | none       | ()
-  … | not-none _ | not-none _ | r  = r
-
 ------------------------------------------------------------------------
--- Only-some-erased-matches
+-- No-secret-matches
 
--- The property of not allowing certain erased matches:
--- * Erased matches are allowed for emptyrec and unitrec.
--- * "Erased" matches are allowed for trivial modalities.
--- * Erased matches are allowed when the mode is not 𝟙ᵐ, except for
---   []-cong.
+-- The property of not allowing (certain) secret matches (matches on
+-- data that is "more secret" than a given grade).
 
-Only-some-erased-matches :
-  Type-restrictions → Usage-restrictions → Set a
-Only-some-erased-matches TR UR =
-  ¬ Trivial →
-  (∀ {r p q} → Prodrec-allowed-𝟙ᵐ r p q → r ≢ 𝟘) ×
-  (∀ {s} → ¬ ([]-cong-allowed s)) ×
-  erased-matches-for-J 𝟙ᵐ ≡ none ×
-  erased-matches-for-K 𝟙ᵐ ≡ none
-  where
-  open Type-restrictions TR
-  open Usage-restrictions UR
+-- record No-secret-matches
+--   (p₀ : M) (TV : Type-variant) (UR : Usage-restrictions) : Set (a ⊔ a′) where
 
-opaque
+--   no-eta-equality
 
-  -- Certain restrictions obtained from no-erased-matches-TR and
-  -- only-some-erased-matches satisfy Only-some-erased-matches.
+--   open Usage-restrictions UR
+--   open Type-variant TV
 
-  Only-some-erased-matches-only-some-erased-matches :
-    ∀ TR UR →
-    Only-some-erased-matches
-      (no-erased-matches-TR 𝕤 (no-erased-matches-TR 𝕨 TR))
-      (only-some-erased-matches UR)
-  Only-some-erased-matches-only-some-erased-matches _ _ 𝟙≢𝟘 =
-      (_$ 𝟙≢𝟘) ∘→ proj₂
-    , (λ where
-         {s = 𝕤} → (_$ refl) ∘→ proj₂
-         {s = 𝕨} → (_$ refl) ∘→ proj₂ ∘→ proj₁)
-    , refl
-    , refl
+--   field
+--     no-secret-prodrec :
+--       ∀ {m p q r} → m ≤ᵐ ⌞ p₀ ⌟ → Prodrec-allowed m r p q → r ≤ p₀
+--     no-secret-unitrec :
+--       ∀ {m p q} → m ≤ᵐ ⌞ p₀ ⌟ → ¬ Unitʷ-η → Unitrec-allowed ⌞ m ⌟ p q → p ≤ p₀
+--     no-secret-J :
+--       erased-matches-for-J ⌞ p₀ ⌟ ≡ none
+--     no-secret-K :
+--       m ≤ᵐ ⌞ p₀ ⌟ → erased-matches-for-K m ≡ none
+--     no-secret-[]-cong :
+--       ∀ {s m} → m ≤ p₀ → []-cong-allowed-mode s ⌞ m ⌟ → 𝟘 ≤ p₀
 
 ------------------------------------------------------------------------
 -- No-erased-matches
@@ -453,11 +351,11 @@ opaque
 --   is not 𝟙ᵐ can be defined without the use of []-cong, see
 --   Graded.Box-cong.▸[]-cong-J-𝟘ᵐ.)
 
-No-erased-matches : Type-restrictions → Usage-restrictions → Set a
+No-erased-matches : Type-restrictions → Usage-restrictions → Set (a ⊔ a′)
 No-erased-matches TR UR =
   ¬ Trivial →
-  (∀ {r p q} → Prodrec-allowed-𝟙ᵐ r p q → r ≢ 𝟘) ×
-  (∀ {p q}   → Unitrec-allowed-𝟙ᵐ p q   → p ≡ 𝟘 → Unitʷ-η) ×
+  (∀ {m r p q} → Prodrec-allowed m r p q → r ≡ 𝟘 → ⌜ m ⌝ ≡ 𝟘) ×
+  (∀ {m p q}   → Unitrec-allowed m p q   → p ≡ 𝟘 → ⌜ m ⌝ ≢ 𝟘 → Unitʷ-η) ×
   (∀ {s} → ¬ ([]-cong-allowed s)) ×
   erased-matches-for-J 𝟙ᵐ ≡ none ×
   erased-matches-for-K 𝟙ᵐ ≡ none
@@ -465,41 +363,15 @@ No-erased-matches TR UR =
   open Type-restrictions TR
   open Usage-restrictions UR
 
--- Certain restrictions obtained from no-erased-matches-TR and
--- no-erased-matches-UR satisfy No-erased-matches.
-
-No-erased-matches-no-erased-matches :
-  ∀ TR UR →
-  let TR′ = no-erased-matches-TR 𝕤 (no-erased-matches-TR 𝕨 TR) in
-  No-erased-matches TR′ (no-erased-matches-UR TR′ UR)
-No-erased-matches-no-erased-matches TR UR 𝟙≢𝟘 =
-  case Only-some-erased-matches-only-some-erased-matches TR UR 𝟙≢𝟘 of λ
-    (pr , rest) →
-    (λ {_ _ _} → pr)
-  , (λ {_ _} → (_$ 𝟙≢𝟘) ∘→ proj₂)
-  , rest
-
-opaque
-
-  -- If Unitʷ-η holds for TR, then Only-some-erased-matches TR UR
-  -- implies No-erased-matches TR UR.
-
-  Only-some-erased-matches→No-erased-matches :
-    ∀ TR UR →
-    Type-restrictions.Unitʷ-η TR →
-    Only-some-erased-matches TR UR → No-erased-matches TR UR
-  Only-some-erased-matches→No-erased-matches _ _ η =
-    Σ.map idᶠ ((λ {_ _} _ _ → η) ,_) ∘→_
-
 -- An alternative to No-erased-matches that refers to
 -- Type-variant instead of Type-restrictions
 
-No-erased-matches′ : Type-variant → Usage-restrictions → Set a
+No-erased-matches′ : Type-variant → Usage-restrictions → Set (a ⊔ a′)
 No-erased-matches′ TV UR =
   ¬ Trivial →
-  (∀ {r p q} → Prodrec-allowed 𝟙ᵐ r p q → r ≢ 𝟘) ×
-  (∀ {p q}   → Unitrec-allowed 𝟙ᵐ p q   → p ≡ 𝟘 → Unitʷ-η) ×
-  (∀ {s} → ¬ ([]-cong-allowed-mode s 𝟙ᵐ)) ×
+  (∀ {m r p q} → Prodrec-allowed m r p q → r ≡ 𝟘 → ⌜ m ⌝ ≡ 𝟘) ×
+  (∀ {m p q}   → Unitrec-allowed m p q   → p ≡ 𝟘 → ⌜ m ⌝ ≢ 𝟘 → Unitʷ-η) ×
+  (∀ {m s} → []-cong-allowed-mode s m → ⌜ m ⌝ ≡ 𝟘) ×
   erased-matches-for-J 𝟙ᵐ ≡ none ×
   erased-matches-for-K 𝟙ᵐ ≡ none
   where
@@ -659,89 +531,3 @@ opaque
     where
     module A = TD.Assumptions as
     open TD.Assumptions
-
-------------------------------------------------------------------------
--- Some lemmas related to UD.Assumptions
-
-opaque
-
-  -- If grade equality is decidable and the modality supports usage
-  -- inference for a given natrec-mode nm, UD.Assumptions holds for
-  -- no-usage-restrictions nm b false.
-
-  Assumptions-no-usage-restrictions :
-    ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
-    Decidable (_≡_ {A = M}) →
-    UD.Assumptions (no-usage-restrictions nm b false)
-  Assumptions-no-usage-restrictions dec = λ where
-      ._≟_                        → dec
-      .Prodrec-allowed-𝟙ᵐ? _ _ _  → yes _
-      .Unitrec-allowed-𝟙ᵐ? _ _    → yes _
-      .Emptyrec-allowed-𝟙ᵐ? _     → yes _
-      .[]-cong-allowed-mode-𝟙ᵐ? _ → yes _
-      .no-sink-or-≤𝟘              → inj₁ idᶠ
-    where
-    open UD.Assumptions
-
-opaque
-
-  -- The function not-all-erased-matches-JK preserves UD.Assumptions.
-
-  Assumptions-not-all-erased-matches-JK :
-    UD.Assumptions UR → UD.Assumptions (not-all-erased-matches-JK UR)
-  Assumptions-not-all-erased-matches-JK as = λ where
-      ._≟_                      → A._≟_
-      .Prodrec-allowed-𝟙ᵐ?      → A.Prodrec-allowed-𝟙ᵐ?
-      .Unitrec-allowed-𝟙ᵐ?      → A.Unitrec-allowed-𝟙ᵐ?
-      .Emptyrec-allowed-𝟙ᵐ?     → A.Emptyrec-allowed-𝟙ᵐ?
-      .[]-cong-allowed-mode-𝟙ᵐ? → A.[]-cong-allowed-mode-𝟙ᵐ?
-      .no-sink-or-≤𝟘            → A.no-sink-or-≤𝟘
-    where
-    module A = UD.Assumptions as
-    open UD.Assumptions
-
-opaque
-
-  -- The function only-some-erased-matches preserves UD.Assumptions.
-
-  Assumptions-only-some-erased-matches :
-    UD.Assumptions UR → UD.Assumptions (only-some-erased-matches UR)
-  Assumptions-only-some-erased-matches as = λ where
-      ._≟_                       → A._≟_
-      .Prodrec-allowed-𝟙ᵐ? r p q → A.Prodrec-allowed-𝟙ᵐ? r p q
-                                     ×-dec
-                                   (¬? trivial?
-                                      →-dec
-                                    ¬? (r A.≟ 𝟘))
-      .Unitrec-allowed-𝟙ᵐ?       → A.Unitrec-allowed-𝟙ᵐ?
-      .Emptyrec-allowed-𝟙ᵐ?      → A.Emptyrec-allowed-𝟙ᵐ?
-      .[]-cong-allowed-mode-𝟙ᵐ?  → A.[]-cong-allowed-mode-𝟙ᵐ?
-      .no-sink-or-≤𝟘             → A.no-sink-or-≤𝟘
-    where
-    module A = UD.Assumptions as
-    open UD.Assumptions
-
-opaque
-
-  -- The function no-erased-matches-UR TR preserves UD.Assumptions.
-
-  Assumptions-no-erased-matches-UR :
-    ∀ TR → UD.Assumptions UR →
-    UD.Assumptions (no-erased-matches-UR TR UR)
-  Assumptions-no-erased-matches-UR TR as = λ where
-      ._≟_                      → A._≟_
-      .Prodrec-allowed-𝟙ᵐ?      → A.Prodrec-allowed-𝟙ᵐ?
-      .Unitrec-allowed-𝟙ᵐ? p q  → A.Unitrec-allowed-𝟙ᵐ? p q
-                                    ×-dec
-                                  (¬? trivial?
-                                    →-dec
-                                   p A.≟ 𝟘
-                                    →-dec
-                                   Unitʷ-η?)
-      .Emptyrec-allowed-𝟙ᵐ?     → A.Emptyrec-allowed-𝟙ᵐ?
-      .[]-cong-allowed-mode-𝟙ᵐ? → A.[]-cong-allowed-mode-𝟙ᵐ?
-      .no-sink-or-≤𝟘            → A.no-sink-or-≤𝟘
-    where
-    module A = UD.Assumptions (Assumptions-only-some-erased-matches as)
-    open UD.Assumptions
-    open Type-restrictions TR

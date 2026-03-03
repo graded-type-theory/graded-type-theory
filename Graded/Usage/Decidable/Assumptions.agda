@@ -3,24 +3,28 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Usage.Decidable.Assumptions
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
-  (R : Usage-restrictions 𝕄)
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
-open import Graded.Mode 𝕄 using (𝟘ᵐ; 𝟙ᵐ)
 open import Graded.Usage.Restrictions.Natrec 𝕄
 
+open import Tools.Level
 open import Tools.Nat using (Nat)
+open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
@@ -28,25 +32,30 @@ open import Tools.Sum
 private variable
   n : Nat
 
-record Assumptions : Set a where
+record Assumptions : Set (a ⊔ b) where
   no-eta-equality
   infix 10 _≟_ _≤?_ _≤ᶜ?_
   field
     -- Equality is assumed to be decidable for M.
     _≟_ : Decidable (_≡_ {A = M})
 
-    -- The relation Prodrec-allowed-𝟙ᵐ is assumed to be decidable.
-    Prodrec-allowed-𝟙ᵐ? : ∀ r p q → Dec (Prodrec-allowed-𝟙ᵐ r p q)
+    -- The relation Prodrec-allowed is assumed to be decidable.
+    Prodrec-allowed? : ∀ m r p q → Dec (Prodrec-allowed m r p q)
 
-    -- The relation Unitrec-allowed-𝟙ᵐ is assumed to be decidable.
-    Unitrec-allowed-𝟙ᵐ? : ∀ p q → Dec (Unitrec-allowed-𝟙ᵐ p q)
+    -- The relation Unitrec-allowed is assumed to be decidable.
+    Unitrec-allowed? : ∀ m p q → Dec (Unitrec-allowed m p q)
 
-    -- The relation Emptyrec-allowed-𝟙ᵐ is assumed to be decidable.
-    Emptyrec-allowed-𝟙ᵐ? : ∀ p → Dec (Emptyrec-allowed-𝟙ᵐ p)
+    -- The relation Emptyrec-allowed is assumed to be decidable.
+    Emptyrec-allowed? : ∀ m p → Dec (Emptyrec-allowed m p)
 
-    -- The relation []-cong-allowed-mode-𝟙ᵐ is assumed to be
+    -- The relation []-cong-allowed-mode is assumed to be
     -- decidable.
-    []-cong-allowed-mode-𝟙ᵐ? : ∀ s → Dec ([]-cong-allowed-mode-𝟙ᵐ s)
+    []-cong-allowed-mode? : ∀ s m → Dec ([]-cong-allowed-mode s m)
+
+    -- For every mode m and grade p it is decidable if there is a
+    -- mode m′ such that m′ ᵐ· p ≡ m.
+
+    ᵐ·-split? : ∀ m p → Dec (∃ λ m′ → m′ ᵐ· p ≡ m)
 
     instance
       -- The inference function is supported
@@ -65,35 +74,3 @@ record Assumptions : Set a where
 
   _≤ᶜ?_ : Decidable (_≤ᶜ_ {n = n})
   _≤ᶜ?_ = ≤ᶜ-decidable _≤?_
-
-  opaque
-
-    -- The relation Prodrec-allowed is decidable.
-
-    Prodrec-allowed? : ∀ m r p q → Dec (Prodrec-allowed m r p q)
-    Prodrec-allowed? 𝟘ᵐ = λ _ _ _ → yes _
-    Prodrec-allowed? 𝟙ᵐ = Prodrec-allowed-𝟙ᵐ?
-
-  opaque
-
-    -- The relation Unitrec-allowed is decidable.
-
-    Unitrec-allowed? : ∀ m p q → Dec (Unitrec-allowed m p q)
-    Unitrec-allowed? 𝟘ᵐ = λ _ _ → yes _
-    Unitrec-allowed? 𝟙ᵐ = Unitrec-allowed-𝟙ᵐ?
-
-  opaque
-
-    -- The relation Emptyrec-allowed is decidable.
-
-    Emptyrec-allowed? : ∀ m p → Dec (Emptyrec-allowed m p)
-    Emptyrec-allowed? 𝟘ᵐ = λ _ → yes _
-    Emptyrec-allowed? 𝟙ᵐ = Emptyrec-allowed-𝟙ᵐ?
-
-  opaque
-
-    -- The relation []-cong-allowed-mode is decidable.
-
-    []-cong-allowed-mode? : ∀ s m → Dec ([]-cong-allowed-mode s m)
-    []-cong-allowed-mode? _ 𝟘ᵐ = yes _
-    []-cong-allowed-mode? s 𝟙ᵐ = []-cong-allowed-mode-𝟙ᵐ? s

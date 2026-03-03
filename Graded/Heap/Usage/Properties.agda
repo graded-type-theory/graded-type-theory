@@ -3,14 +3,17 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Variant
 open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage.Properties
-  {a} {M : Set a} {𝕄 : Modality M}
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
   (type-variant : Type-variant)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
@@ -18,6 +21,7 @@ module Graded.Heap.Usage.Properties
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Definition.Untyped M
 open import Graded.Context 𝕄
@@ -25,12 +29,11 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
-open import Graded.Restrictions 𝕄
-open import Graded.Usage 𝕄 UR
+open import Graded.Restrictions 𝕄 𝐌
+open import Graded.Usage UR
 open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Inversion 𝕄 UR
-open import Graded.Usage.Properties 𝕄 UR
+open import Graded.Usage.Inversion UR
+open import Graded.Usage.Properties UR
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr
@@ -117,96 +120,39 @@ opaque
     let _ , _ , ▸t , ▸H′ , p′≤p , η≤ = ▸ʰ∙-inv ▸H
     in  lemma ▸t ▸H′ p′≤p η≤
     where
+
     lemma :
       δ ▸[ ⌞ p′ ⌟ ] t → η ▸ʰ H → p′ ≤ p → η ≤ᶜ γ +ᶜ p′ ·ᶜ wkConₘ ρ δ →
       ∃ λ δ′ → δ′ ▸[ ⌞ q ⌟ ] t × ((γ ∙ r) +ᶜ q ·ᶜ wkConₘ (step ρ) δ′) ▸ʰ H ∙ (r′ , t , ρ)
     lemma {δ} {η} ▸t ▸H p′≤p η≤ =
-      case is-𝟘? p′ of λ where
-        (yes refl) →
-          _ , ▸-cong (mode-eq refl .proj₁) ▸t
-            , sub (sub ▸H η≤′ ∙ ▸-cong (mode-eq refl .proj₂) ▸t) (≤ᶜ-refl ∙ r′≤r+q·𝟘)
-        (no p′≢𝟘) →
-          case ▸-𝟘ᵐ? ▸t of λ
-            (δ′ , ▸⁰t) →
-          case ▸-cong (sym ⌞𝟘⌟≡𝟘ᵐ?) ▸⁰t of λ
-            ▸⁰t′ →
-          case is-𝟘? q of λ where
-            (yes refl) →
-              case is-𝟘? r′ of λ where
-                (yes refl) →
-                  _ , ▸⁰t′
-                    , sub (sub ▸H (η≤″ refl) ∙ ▸⁰t′)
-                       (lemma′ ∙ r′≤r+q·𝟘)
-                (no r′≢𝟘) →
-                  _ , ▸⁰t′
-                    , sub (sub ▸H η≤′ ∙ ▸-cong (trans (≢𝟘→⌞⌟≡𝟙ᵐ p′≢𝟘) (sym (≢𝟘→⌞⌟≡𝟙ᵐ r′≢𝟘))) ▸t)
-                       (lemma′ ∙ r′≤r+q·𝟘)
-            (no q≢𝟘) →
-              case ▸-cong (trans (≢𝟘→⌞⌟≡𝟙ᵐ p′≢𝟘) (sym (≢𝟘→⌞⌟≡𝟙ᵐ q≢𝟘))) ▸t of λ
-                ▸t′ →
-              case is-𝟘? r′ of λ where
-                (yes refl) →
-                  _ , ▸t′ , sub (sub ▸H (η≤″ refl) ∙ ▸⁰t′) (≤ᶜ-refl ∙ r′≤r+q·𝟘)
-                (no r′≢𝟘) →
-                  _ , ▸t′
-                    , sub (sub ▸H η≤′
-                          ∙ ▸-cong (trans (≢𝟘→⌞⌟≡𝟙ᵐ q≢𝟘) (sym (≢𝟘→⌞⌟≡𝟙ᵐ r′≢𝟘))) ▸t′)
-                        (≤ᶜ-refl ∙ r′≤r+q·𝟘)
-      where
-      r′≤r : r′ ≤ r
-      r′≤r = p′-q≡r′ .proj₂ r (≤-trans p′≤p p-q≤r)
-      mode-eq′ : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ → p′ ≡ 𝟘 → ⌞ p′ ⌟ ≡ ⌞ q ⌟ × ⌞ p′ ⌟ ≡ ⌞ r′ ⌟
-      mode-eq′ refl =
-        case 𝟘≮ p′≤p of λ {
-          refl →
-        case 𝟘-p≤q p-q≤r of λ {
-          (refl , refl) →
-        case 𝟘-p≡q p′-q≡r′ .proj₁ of λ {
-          refl →
-        refl , refl }}}
-      mode-eq : p′ ≡ 𝟘 → ⌞ p′ ⌟ ≡ ⌞ q ⌟ × ⌞ p′ ⌟ ≡ ⌞ r′ ⌟
-      mode-eq p′≡𝟘 = 𝟘ᵐ-allowed-elim
-        (λ x → mode-eq′ ⦃ 𝟘-well-behaved x ⦄ p′≡𝟘)
-        (λ x → Mode-propositional-without-𝟘ᵐ x , Mode-propositional-without-𝟘ᵐ x)
-      r≡r+q·𝟘 : r ≡ r + q · 𝟘
-      r≡r+q·𝟘 = begin
-        r          ≡˘⟨ +-identityʳ r ⟩
-        r + 𝟘      ≡˘⟨ +-congˡ (·-zeroʳ q) ⟩
-        r + q · 𝟘 ∎
-        where
-        open RPe
-      r′≤r+q·𝟘 : r′ ≤ r + q · 𝟘
-      r′≤r+q·𝟘 = begin
-        r′        ≤⟨ -≡≤-monotoneˡ p′≤p p′-q≡r′ p-q≤r ⟩
-        r         ≈⟨ r≡r+q·𝟘 ⟩
-        r + q · 𝟘 ∎
-        where
-        open RPo ≤-poset
-      η≤′ : η ≤ᶜ (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ r′ ·ᶜ wkConₘ ρ δ
-      η≤′ = begin
-        η                                          ≤⟨ η≤ ⟩
-        γ +ᶜ p′ ·ᶜ wkConₘ ρ δ                      ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneˡ (p′-q≡r′ .proj₁)) ⟩
-        γ +ᶜ (r′ + q) ·ᶜ wkConₘ ρ δ                ≈⟨ +ᶜ-congˡ (·ᶜ-congʳ (+-comm _ _)) ⟩
-        γ +ᶜ (q + r′) ·ᶜ wkConₘ ρ δ                ≈⟨ +ᶜ-congˡ (·ᶜ-distribʳ-+ᶜ _ _ _) ⟩
-        γ +ᶜ q ·ᶜ wkConₘ ρ δ +ᶜ r′ ·ᶜ wkConₘ ρ δ   ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
-        (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ r′ ·ᶜ wkConₘ ρ δ ∎
-        where
-        open ≤ᶜ-reasoning
-      η≤″ : ∀ {δ′} → r′ ≡ 𝟘 → η ≤ᶜ (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ r′ ·ᶜ δ′
-      η≤″ {δ′} refl = begin
-        η                                         ≤⟨ η≤′ ⟩
-        (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ 𝟘 ·ᶜ wkConₘ ρ δ ≈⟨ +ᶜ-congˡ (·ᶜ-zeroˡ _) ⟩
-        (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ 𝟘ᶜ              ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroˡ _) ⟩
-        (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ 𝟘 ·ᶜ δ′         ∎
-        where
-        open ≤ᶜ-reasoning
-      lemma′ : ∀ {δ′} → γ +ᶜ 𝟘 ·ᶜ wkConₘ ρ δ ≤ᶜ γ +ᶜ 𝟘 ·ᶜ δ′
-      lemma′ {δ′} = begin
-        γ +ᶜ 𝟘 ·ᶜ wkConₘ ρ δ ≈⟨ +ᶜ-congˡ (·ᶜ-zeroˡ _) ⟩
-        γ +ᶜ 𝟘ᶜ              ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroˡ _) ⟩
-        γ +ᶜ 𝟘 ·ᶜ δ′         ∎
-        where
-        open ≤ᶜ-reasoning
+      let ▸t′ = let open ≤ᵐ-reasoning in ▸-≤ᵐ ▸t $ begin
+            ⌞ p′ ⌟    ≤⟨ ⌞⌟-monotone p′≤p ⟩
+            ⌞ p ⌟     ≤⟨ ⌞⌟-monotone p-q≤r ⟩
+            ⌞ r + q ⌟ ≤⟨ ⌞+⌟-decreasingʳ ⟩
+            ⌞ q ⌟     ∎
+          ▸t″ = let open ≤ᵐ-reasoning in ▸-≤ᵐ ▸t $ begin
+            ⌞ p′ ⌟     ≤⟨ ⌞⌟-monotone (p′-q≡r′ .proj₁) ⟩
+            ⌞ r′ + q ⌟ ≤⟨ ⌞+⌟-decreasingˡ ⟩
+            ⌞ r′ ⌟     ∎
+          open ≤ᶜ-reasoning
+          ▸H′ = sub ▸H $ begin
+            η                                                         ≤⟨ η≤ ⟩
+            γ +ᶜ p′ ·ᶜ wkConₘ ρ δ                                      ≤⟨ +ᶜ-monotoneʳ (·ᶜ-monotoneˡ (p′-q≡r′ .proj₁)) ⟩
+            γ +ᶜ (r′ + q) ·ᶜ wkConₘ ρ δ                                ≈⟨ +ᶜ-congˡ (·ᶜ-congʳ (+-comm _ _)) ⟩
+            γ +ᶜ (q + r′) ·ᶜ wkConₘ ρ δ                                ≈⟨ +ᶜ-congˡ (·ᶜ-distribʳ-+ᶜ _ _ _) ⟩
+            γ +ᶜ q ·ᶜ wkConₘ ρ δ +ᶜ r′ ·ᶜ wkConₘ ρ δ                   ≈˘⟨ +ᶜ-assoc _ _ _ ⟩
+            (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ r′ ·ᶜ wkConₘ ρ δ                 ≈˘⟨ +ᶜ-congˡ (·ᶜ-congʳ ·⌜⌞⌟⌝) ⟩
+            (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ (r′ · ⌜ ⌞ r′ ⌟ ⌝) ·ᶜ wkConₘ ρ δ  ≈⟨ +ᶜ-congˡ (·ᶜ-assoc _ _ _) ⟩
+            (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ r′ ·ᶜ ⌜ ⌞ r′ ⌟ ⌝ ·ᶜ wkConₘ ρ δ   ≈˘⟨ +ᶜ-congˡ (·ᶜ-congˡ (wk-·ᶜ ρ)) ⟩
+            (γ +ᶜ q ·ᶜ wkConₘ ρ δ) +ᶜ r′ ·ᶜ wkConₘ ρ (⌜ ⌞ r′ ⌟ ⌝ ·ᶜ δ) ∎
+      in  _ , ▸t′ , sub (▸H′ ∙ ▸t″) (begin
+            γ +ᶜ q ·ᶜ wkConₘ ρ δ ∙ r′                        ≤⟨ ≤ᶜ-refl ∙ p′-q≡r′ .proj₂ r (≤-trans p′≤p p-q≤r) ⟩
+            γ +ᶜ q ·ᶜ wkConₘ ρ δ ∙ r                         ≈˘⟨ +ᶜ-congˡ (·ᶜ-congʳ ·⌜⌞⌟⌝) ∙ +-identityʳ _ ⟩
+            γ +ᶜ (q · ⌜ ⌞ q ⌟ ⌝) ·ᶜ wkConₘ ρ δ ∙ r + 𝟘       ≈⟨ +ᶜ-congˡ (·ᶜ-assoc _ _ _) ∙ refl ⟩
+            γ +ᶜ q ·ᶜ ⌜ ⌞ q ⌟ ⌝ ·ᶜ wkConₘ ρ δ ∙ r + 𝟘        ≈˘⟨ +ᶜ-congˡ (·ᶜ-congˡ (wk-·ᶜ ρ)) ∙ +-congˡ (·-zeroʳ _) ⟩
+            γ +ᶜ q ·ᶜ wkConₘ ρ (⌜ ⌞ q ⌟ ⌝ ·ᶜ δ) ∙ r + q · 𝟘  ≡⟨⟩
+            (γ ∙ r) +ᶜ q ·ᶜ wkConₘ (step ρ) (⌜ ⌞ q ⌟ ⌝ ·ᶜ δ) ∎)
+
   ▸-heapLookup
     {q} {γ = γ ∙ p} {r}
     (there {y} {e = (t , ρ′)} {e′ = (p′ , u , ρ)} d) ▸H γ⟨y⟩-q≤r =
@@ -269,78 +215,6 @@ opaque
       wkConₘ ρ δ +ᶜ r ·ᶜ wkConₘ ρ χ   ∎
       where
       open ≤ᶜ-reasoning
-
--- Some properties proven under some assumptions about erased matches
-
-module _ (nem : No-erased-matches′ type-variant UR) where
-
-  opaque
-
-    -- The multiplicity of a well-resourced continuation is not zero
-    -- unless it is an erased emptyrec
-
-    ▸∣∣ᶜ≢𝟘 :
-      ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ →
-      γ ▸ᶜ[ 𝟙ᵐ ] c →
-      ¬ ∣ c ∣ᶜ≡ 𝟘 ⊎
-      ∃₃ λ n (A : Term n) ρ → c ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
-    ▸∣∣ᶜ≢𝟘 (∘ₑ _) = inj₁ λ ∣e∣≡𝟘 → non-trivial (∣∣ᶜ-functional ∘ₑ ∣e∣≡𝟘)
-    ▸∣∣ᶜ≢𝟘 = λ where
-        lowerₑ → inj₁ (lemma non-trivial lowerₑ)
-        (∘ₑ _) → inj₁ (lemma non-trivial ∘ₑ)
-        (fstₑ _) → inj₁ (lemma non-trivial fstₑ)
-        sndₑ → inj₁ (lemma non-trivial sndₑ)
-        (prodrecₑ _ ok) →
-          inj₁ (lemma (nem non-trivial .proj₁ ok) prodrecₑ)
-        (natrecₑ _ _ _) →
-          inj₁ (lemma nr₂≢𝟘 (natrecₑ has-nrₑ))
-        (natrec-no-nrₑ _ _ _ _) →
-          inj₁ λ { (natrecₑ x) → lemma-nr x refl}
-        (unitrecₑ _ ok no-η) →
-          inj₁ (lemma (no-η ∘→ nem non-trivial .proj₂ .proj₁ ok) unitrecₑ)
-        (emptyrecₑ {p} ok) →
-          case is-𝟘? p of λ where
-            (yes refl) → inj₂ (_ , _ , _ , refl , ok)
-            (no p≢𝟘) → inj₁ (lemma p≢𝟘 emptyrecₑ)
-        (Jₑ _) →
-          inj₁ (lemma ω≢𝟘
-            (Jₑ (subst (∣J_, _ , _ ∣≡ _)
-                  (sym (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁))
-                  J-none)))
-        (Kₑ _) →
-          inj₁ (lemma ω≢𝟘
-            (Kₑ (subst (∣K_, _ ∣≡ _)
-                  (sym (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂))
-                  K-none)))
-        ([]-congₑ ok) →
-          inj₁ λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
-      where
-      lemma :  p ≢ r → ∣ c ∣ᶜ≡ p → ∣ c ∣ᶜ≡ r → ⊥
-      lemma p≢r ≡p ≡r = p≢r (∣∣ᶜ-functional ≡p ≡r)
-      lemma-nr : ∣natrec p , r ∣≡ q → q ≢ 𝟘
-      lemma-nr has-nrₑ nr₂≡𝟘 = nr₂≢𝟘 nr₂≡𝟘
-      lemma-nr (no-nrₑ x) refl = 𝟘≰𝟙 (x .proj₁ 0)
-
-  opaque
-
-    -- The multiplicity of a well-resourced stack is either not zero
-    -- or contains an erased application of emptyrec
-
-    ▸∣∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
-           → γ ▸ˢ S → ¬ ∣ S ∣≡ 𝟘 ⊎ (emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
-    ▸∣∣≢𝟘 ε = inj₁ λ ≡𝟘 → non-trivial (∣∣-functional ε ≡𝟘)
-    ▸∣∣≢𝟘 (▸ˢ∙ ∣S∣≡ ▸c ▸S) =
-      case ▸∣∣≢𝟘 ▸S of λ where
-        (inj₂ (x , ok)) → inj₂ (there x , ok)
-        (inj₁ ∣S∣≢𝟘) →
-          case ▸∣∣ᶜ≢𝟘 (subst (_ ▸ᶜ[_] _)
-                        (≢𝟘→⌞⌟≡𝟙ᵐ (λ {refl → ∣S∣≢𝟘 ∣S∣≡})) ▸c) of λ where
-            (inj₂ (_ , _ , _ , refl , ok)) → inj₂ (here , ok)
-            (inj₁ ∣c∣≢𝟘) → inj₁ λ ∣cS∣≡ →
-              let q , r , ∣c∣≡q , ∣S∣≡r , 𝟘≡rq = ∣∣∙-inv ∣cS∣≡
-              in  case zero-product (sym 𝟘≡rq) of λ where
-                    (inj₁ r≡𝟘) → ∣S∣≢𝟘 (subst (∣ _ ∣≡_) r≡𝟘 ∣S∣≡r)
-                    (inj₂ q≡𝟘) → ∣c∣≢𝟘 (subst (∣ _ ∣ᶜ≡_) q≡𝟘 ∣c∣≡q)
 
 -- Some properties proven under the assumption that the modality
 -- supports subtraction.

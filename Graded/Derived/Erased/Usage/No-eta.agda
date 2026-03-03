@@ -3,29 +3,31 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+open import Graded.Mode
 open import Graded.Usage.Restrictions
 
 module Graded.Derived.Erased.Usage.No-eta
-  {a} {M : Set a}
-  (𝕄 : Modality M)
-  (R : Usage-restrictions 𝕄)
+  {a b} {M : Set a} {Mode : Set b}
+  {𝕄 : Modality M}
+  {𝐌 : IsMode Mode 𝕄}
+  (R : Usage-restrictions 𝕄 𝐌)
   where
 
 open Modality 𝕄
+open IsMode 𝐌
 open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Usage 𝕄 R
-open import Graded.Usage.Properties 𝕄 R
+open import Graded.Usage R
+open import Graded.Usage.Properties R
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased.No-eta 𝕄
 open import Definition.Untyped.Sigma 𝕄
 
-open import Graded.Derived.Sigma 𝕄 R
+open import Graded.Derived.Sigma R
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -52,33 +54,33 @@ opaque
   -- A usage rule for erased.
 
   ▸erased′ :
-    (¬ T 𝟘ᵐ-allowed → Trivial × Prodrec-allowed 𝟙ᵐ 𝟘 𝟘 𝟘) →
-    γ ▸[ 𝟘ᵐ? ] t →
-    δ ▸[ 𝟘ᵐ? ] A →
-    𝟘ᶜ ▸[ 𝟘ᵐ? ] erased A t
-  ▸erased′ {γ} {t} {δ} {A} hyp = 𝟘ᵐ?-elim
-    (λ m → γ ▸[ m ] t → δ ▸[ m ] A → 𝟘ᶜ ▸[ m ] erased A t)
-    (λ ▸t ▸A → ▸-𝟘 (fstʷₘ-𝟘ᵐ ▸t ▸A))
-    (λ not-ok ▸t ▸A →
-       let (trivial , ok) = hyp not-ok in
-       sub
-         (fstʷₘ-𝟙ᵐ (inj₂ trivial) (≡-trivial trivial)
-            (PE.subst (λ p → Prodrec-allowed 𝟙ᵐ p 𝟘 𝟘)
-               (≡-trivial trivial) ok)
-            ▸t (▸-cong (Mode-propositional-without-𝟘ᵐ not-ok) ▸A))
-         (≤ᶜ-reflexive (≈ᶜ-trivial trivial)))
+    (Trivialᵐ → Trivial) →
+    γ ▸[ 𝟘ᵐ ] t →
+    δ ▸[ 𝟘ᵐ ] A →
+    Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘 →
+    𝟘ᶜ ▸[ 𝟘ᵐ ] erased A t
+  ▸erased′ {γ} {t} {δ} {A} hyp ▸t ▸A ok =
+    case trivialᵐ? of λ where
+      (yes 𝟙ᵐ≡𝟘ᵐ) →
+        ▸-trivialᵐ 𝟙ᵐ≡𝟘ᵐ
+          (sub (fstʷₘ (≡-trivialᵐ 𝟙ᵐ≡𝟘ᵐ)
+                  (≡-trivial (hyp 𝟙ᵐ≡𝟘ᵐ)) ok ▸t ▸A)
+               (≈ᶜ-trivial (hyp 𝟙ᵐ≡𝟘ᵐ)))
+      (no 𝟙ᵐ≢𝟘ᵐ) →
+        fstʷₘ-𝟘ᵐ 𝟙ᵐ≢𝟘ᵐ ok (▸-𝟘′ 𝟙ᵐ≢𝟘ᵐ ▸t) ▸A
 
--- Another usage rule for erased.
+opaque
 
-▸erased : γ ▸[ 𝟘ᵐ[ ok ] ] t →
-          δ ▸[ 𝟘ᵐ[ ok ] ] A →
-          𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] erased A t
-▸erased {ok} ▸t ▸A =
-  ▸-cong 𝟘ᵐ?≡𝟘ᵐ $
-  ▸erased′
-    (⊥-elim ∘→ (_$ ok))
-    (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
-    (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A)
+  -- Another usage rule for erased.
+
+  ▸erased :
+    ¬ Trivialᵐ →
+    γ ▸[ 𝟘ᵐ ] t →
+    δ ▸[ 𝟘ᵐ ] A →
+    Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘 →
+    𝟘ᶜ ▸[ 𝟘ᵐ ] erased A t
+  ▸erased 𝟙ᵐ≢𝟘ᵐ ▸t ▸A ok =
+    ▸erased′ (⊥-elim ∘→ 𝟙ᵐ≢𝟘ᵐ) ▸t ▸A ok
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for usage
@@ -90,31 +92,26 @@ opaque
 
   inv-usage-erased :
     γ ▸[ m ] erased A t →
-    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] t ×
-    𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] A ×
+    ∃ λ δ →
+    𝟘ᶜ ▸[ 𝟘ᵐ ] t ×
+    ⌜ 𝟘ᵐ ⌝ ·ᶜ δ ▸[ 𝟘ᵐ ] A ×
     γ ≤ᶜ 𝟘ᶜ ×
-    m ≡ 𝟘ᵐ[ ok ] ×
+    𝟘 ≤ ⌜ m ⌝ ×
     Prodrec-allowed m (𝟘 ∧ 𝟙) 𝟘 𝟘
-  inv-usage-erased {γ} {m} {ok} ▸erased =
-    case inv-usage-fstʷ (inj₁ $ 𝟘ᵐ.𝟘≰𝟙 ok) ▸erased of λ
-      (η , _ , γ≤ , ▸t , ▸A , 𝟘∧⌜m⌝𝟘≤⌜m⌝ , P-ok) →
-    case
-      (let open Tools.Reasoning.PartialOrder ≤-poset in begin
-         𝟘              ≡˘⟨ ∧-idem _ ⟩
-         𝟘 ∧ 𝟘          ≡˘⟨ ∧-congˡ $ ·-zeroʳ _ ⟩
-         𝟘 ∧ ⌜ m ⌝ · 𝟘  ≤⟨ 𝟘∧⌜m⌝𝟘≤⌜m⌝ ⟩
-         ⌜ m ⌝          ∎)
-    of λ
-      𝟘≤⌜m⌝ →
-    case PE.singleton m of λ where
-      (𝟙ᵐ , PE.refl) →
-        ⊥-elim $ 𝟘ᵐ.𝟘≰𝟙 ok 𝟘≤⌜m⌝
-      (𝟘ᵐ , PE.refl) →
-          ▸-𝟘 ▸t
-        , ▸-𝟘 ▸A
-        , (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
-             γ        ≤⟨ γ≤ ⟩
-             𝟘ᶜ ∧ᶜ η  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
-             𝟘ᶜ       ∎)
-        , 𝟘ᵐ-cong
-        , P-ok
+  inv-usage-erased {γ} {m} {A} {t} ▸erased =
+    let η , _ , γ≤ , ▸t , ▸A , 𝟘∧⌜m⌝𝟘≤⌜m⌝ , P-ok =
+          inv-usage-fstʷ (ᵐ·-identityʳ-≤𝟙 (∧-decreasingʳ _ _)) ▸erased
+        𝟘≤⌜m⌝ = let open ≤-reasoning in begin
+          𝟘             ≡˘⟨ ∧-idem _ ⟩
+          𝟘 ∧ 𝟘         ≡˘⟨ ∧-congˡ (·-zeroʳ _) ⟩
+          𝟘 ∧ ⌜ m ⌝ · 𝟘 ≤⟨ 𝟘∧⌜m⌝𝟘≤⌜m⌝ ⟩
+          ⌜ m ⌝ ∎
+        open ≤ᶜ-reasoning
+    in  _ , sub (▸-𝟘 (▸-·′ ▸t)) (begin
+              𝟘ᶜ                   ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
+              ⌜ 𝟘ᵐ ⌝ ·ᶜ 𝟘ᶜ         ≈˘⟨ ·ᶜ-congˡ (·ᶜ-zeroˡ _) ⟩
+              ⌜ 𝟘ᵐ ⌝ ·ᶜ 𝟘 ·ᶜ η     ≤⟨ ·ᶜ-monotoneʳ (·ᶜ-monotoneˡ 𝟘≤⌜m⌝) ⟩
+              ⌜ 𝟘ᵐ ⌝ ·ᶜ ⌜ m ⌝ ·ᶜ η ∎)
+          , ▸-𝟘 ▸A
+          , ≤ᶜ-trans γ≤ (∧ᶜ-decreasingˡ _ _)
+          , 𝟘≤⌜m⌝ , P-ok

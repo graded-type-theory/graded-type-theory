@@ -3,22 +3,21 @@
 -- rule for natrec using greatest lower bounds.
 ------------------------------------------------------------------------
 
-open import Tools.Level
-
-import Graded.Modality.Instances.Affine
-open import Graded.Modality.Variant lzero
+open import Graded.Modality.Instances.Affine
 open import Graded.Usage.Restrictions
+import Graded.Mode.Instances.Zero-one
+open import Graded.Mode.Instances.Zero-one.Variant affineModality
 
 module Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound
-  -- The modality variant.
-  (variant : Modality-variant)
-  (open Graded.Modality.Instances.Affine variant)
-  (UR : Usage-restrictions affineModality)
+  {variant : Mode-variant}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions affineModality Zero-one-isMode)
   where
 
-open import Graded.Restrictions affineModality
+open import Graded.Restrictions affineModality Zero-one-isMode
 open import Graded.Usage.Restrictions.Natrec affineModality
 open import Graded.Modality Affine
+open import Graded.Mode Mode affineModality
 
 private
   module M = Modality affineModality
@@ -40,14 +39,14 @@ open import Tools.Relation
 
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
-import Graded.Derived.Nat affineModality UR′ as N
+import Graded.Derived.Nat UR′ as N
 open import Graded.Modality.Properties affineModality
   hiding (nrᵢ-𝟘-GLB)
-open import Graded.Mode affineModality
-open import Graded.Usage affineModality UR′
-open import Graded.Usage.Inversion affineModality UR′
-open import Graded.Usage.Properties affineModality UR′
-open import Graded.Usage.Weakening affineModality UR′
+open import Graded.Mode Mode affineModality
+open import Graded.Usage UR′
+open import Graded.Usage.Inversion UR′
+open import Graded.Usage.Properties UR′
+open import Graded.Usage.Weakening UR′
 
 open import Definition.Untyped Affine
 open import Definition.Untyped.Nat affineModality
@@ -148,7 +147,8 @@ module Vec
   (p : Affine)
   where
 
-  open import Definition.Untyped.Vec affineModality s p
+  open import Definition.Untyped.Vec
+    affineModality Zero-one-isMode s p
   import Graded.Derived.Vec s p UR′ as ▸V
 
   opaque
@@ -159,11 +159,11 @@ module Vec
       γ ▸[ 𝟘ᵐ? ] l →
       δ ▸[ m ᵐ· p ] A →
       η ▸[ m ] k →
-      η +ᶜ ω ·ᶜ δ ▸[ m ] Vec′ l A k
+      η +ᶜ ω ·ᶜ p ·ᶜ δ ▸[ m ] Vec′ l A k
     ▸Vec′ {δ} {η} ▸l ▸A ▸k =
       sub-≈ᶜ (▸V.▸Vec′ ▸l ▸A ▸k nrᵢᶜ-𝟙-GLBᶜ) $ begin
-        η +ᶜ ω ·ᶜ δ        ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
-        η +ᶜ 𝟘ᶜ +ᶜ ω ·ᶜ δ  ∎
+        η +ᶜ ω ·ᶜ p ·ᶜ δ        ≈˘⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
+        η +ᶜ 𝟘ᶜ +ᶜ ω ·ᶜ p ·ᶜ δ  ∎
       where
       open ≈ᶜ-reasoning
 
@@ -289,7 +289,8 @@ module List
   (pₕ pₗ : Affine)
   where
 
-  open import Definition.Untyped.List affineModality pₕ pₗ
+  open import Definition.Untyped.List
+    affineModality Zero-one-isMode pₕ pₗ
   import Graded.Derived.List pₕ pₗ UR′ as ▸L
 
   opaque
@@ -299,10 +300,10 @@ module List
     ▸List :
       γ ▸[ 𝟘ᵐ? ] l →
       δ ▸[ m ᵐ· pₕ ] A →
-      ω ·ᶜ δ ▸[ m ] List l A
+      ω ·ᶜ pₕ ·ᶜ δ ▸[ m ] List l A
     ▸List {δ} ▸l ▸A = sub-≈ᶜ (▸L.▸List ▸l ▸A nrᵢᶜ-𝟙-GLBᶜ) $ begin
-      ω ·ᶜ δ       ≈˘⟨ +ᶜ-identityˡ _ ⟩
-      𝟘ᶜ +ᶜ ω ·ᶜ δ ∎
+      ω ·ᶜ pₕ ·ᶜ δ       ≈˘⟨ +ᶜ-identityˡ _ ⟩
+      𝟘ᶜ +ᶜ ω ·ᶜ pₕ ·ᶜ δ ∎
       where
       open ≈ᶜ-reasoning
 
@@ -425,7 +426,8 @@ module List-pₗ≡𝟙
   (pₕ : Affine)
   where
 
-  open import Definition.Untyped.List affineModality pₕ 𝟙
+  open import Definition.Untyped.List
+    affineModality Zero-one-isMode pₕ 𝟙
   module ▸L = List pₕ 𝟙
 
   opaque

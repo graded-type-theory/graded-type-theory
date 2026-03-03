@@ -4,29 +4,32 @@
 ------------------------------------------------------------------------
 
 open import Graded.Modality
+import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Graded.Usage.Decidable.Assumptions
 
 module Graded.Substitution.Decidable
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
-  {R : Usage-restrictions 𝕄}
+  (open Graded.Mode Mode 𝕄)
+  {𝐌 : IsMode}
+  {R : Usage-restrictions 𝕄 𝐌}
   (as : Assumptions R)
   where
 
 open Assumptions as
 open Modality 𝕄
+open IsMode 𝐌
 
 open import Definition.Untyped M
 
 open import Graded.Context 𝕄
-open import Graded.Substitution 𝕄 R
-open import Graded.Substitution.Properties 𝕄 R
+open import Graded.Substitution R
+open import Graded.Substitution.Properties R
 open import Graded.Context.Properties 𝕄
-open import Graded.Usage 𝕄 R
+open import Graded.Usage R
 open import Graded.Usage.Decidable as
-open import Graded.Usage.Properties 𝕄 R
-open import Graded.Mode 𝕄 hiding (_≟_)
+open import Graded.Usage.Properties R
 
 open import Tools.Fin
 open import Tools.Function

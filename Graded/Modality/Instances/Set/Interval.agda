@@ -18,7 +18,6 @@ import Graded.Modality
 import Graded.Modality.Instances.LowerBounded as LowerBounded
 open import Graded.Modality.Instances.Set.Non-empty
   using (Is-non-empty-set-[])
-import Graded.Modality.Variant
 
 private variable
   a     : Level
@@ -1009,7 +1008,6 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
     -- Modalities
 
     open Graded.Modality S
-    open Graded.Modality.Variant a
 
     -- A "semiring with meet" for S.
 
@@ -1064,7 +1062,5 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
     -- A modality (of any kind) for S defined using the construction
     -- in Graded.Modality.Instances.BoundedStar.
 
-    modality : Modality-variant → Modality
-    modality variant = LB.isModality
-      variant
-      (λ _ → has-well-behaved-zero)
+    modality : Modality
+    modality = LB.isModality

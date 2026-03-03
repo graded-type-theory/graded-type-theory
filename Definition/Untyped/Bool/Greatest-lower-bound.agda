@@ -27,7 +27,6 @@ import Definition.Untyped.Bool
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
-open import Graded.Mode 𝕄
 
 open import Tools.Empty
 open import Tools.Fin

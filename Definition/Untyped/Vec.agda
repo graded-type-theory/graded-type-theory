@@ -7,13 +7,16 @@
 -- rules can be found in Graded.Derived.Vec.
 
 import Graded.Modality
+import Graded.Mode
 import Definition.Untyped
 
 module Definition.Untyped.Vec
-  {ℓ} {M : Set ℓ}
+  {ℓ ℓ′} {M : Set ℓ} {Mode : Set ℓ′}
   (open Graded.Modality M)
   (open Definition.Untyped M)
   (𝕄 : Modality)
+  (open Graded.Mode Mode 𝕄)
+  (𝐌 : IsMode)
   -- Which Σ and Unit types should be used to define vectors?
   (s : Strength)
   -- The grade of the "heads"
@@ -25,8 +28,9 @@ import Definition.Typed.Decidable.Internal.Substitution.Primitive
 import Definition.Typed.Decidable.Internal.Weakening
 open import Definition.Typed.Restrictions
 
+open IsMode 𝐌
+
 open import Definition.Untyped.Properties M
-open import Graded.Mode 𝕄
 
 open import Tools.Fin
 open import Tools.Function
@@ -128,7 +132,7 @@ opaque
     (cs : Term (4+ n))
     (k xs : Term n) → Term n
   vecrec′ p₁ p₂ r q₁ q₂ l A P nl cs k xs =
-    natrec p₁ (⌜ ⌞ r ⌟ ⌝ + q₁) p₂
+    natrec p₁ (r + q₁) p₂
       (Π r , q₂ ▷ Vec′ (wk1 l) (wk1 A) (var x0) ▹ P)
       (vecrec-nil r q₂ P nl)
       (vecrec-cons r q₂ P cs)
@@ -267,11 +271,11 @@ module Internal (R : Type-restrictions 𝕄) where
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term R
+      Definition.Typed.Decidable.Internal.Term 𝐌 R
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
     c : I.Constants
@@ -400,7 +404,7 @@ module Internal (R : Type-restrictions 𝕄) where
     I.Term c (2+ n) → I.Term c n → I.Term c (4+ n) →
     (_ _ : I.Term c n) → I.Term c n
   vecrecᵢ s p₁ p₂ p₃ p₄ p₅ p₆ l A₁ A₂ t₁ t₂ t₃ t₄ =
-    I.natrec p₂ (I.⌜⌞ p₄ ⌟⌝ I.+ p₅) p₃
+    I.natrec p₂ (p₄ I.+ p₅) p₃
       (I.Π p₄ , p₆ ▷
          Vec′ᵢ s p₁ (IW.wk[ 1 ] l) (IW.wk[ 1 ] A₁) (I.var x0) ▹ A₂)
       (I.lam p₄ nothing $

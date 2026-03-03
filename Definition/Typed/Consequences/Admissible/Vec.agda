@@ -5,10 +5,12 @@
 open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Consequences.Admissible.Vec
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (open Definition.Untyped M)
   (s : Strength)
   (p : M)
@@ -23,20 +25,19 @@ module Definition.Typed.Consequences.Admissible.Vec
 
 private module M = Modality 𝕄
 
-open import Graded.Mode 𝕄
 open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal R
-import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Substitution R as IS
-import Definition.Typed.Decidable.Internal.Term R as I
-import Definition.Typed.Decidable.Internal.Tests R as IT
-import Definition.Typed.Decidable.Internal.Weakening R as IW
+open import Definition.Typed.Decidable.Internal 𝐌 R
+import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
+import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
+import Definition.Typed.Decidable.Internal.Tests 𝐌 R as IT
+import Definition.Typed.Decidable.Internal.Weakening 𝐌 R as IW
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Well-formed R
 
-open import Definition.Untyped.Vec 𝕄 s p as Vec
+open import Definition.Untyped.Vec 𝕄 𝐌 s p as Vec
 
 open Vec.Internal R
 

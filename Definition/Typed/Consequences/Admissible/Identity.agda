@@ -4,10 +4,12 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Consequences.Admissible.Identity
-  {a} {M : Set a}
+  {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (R : Type-restrictions 𝕄)
   where
 
@@ -15,11 +17,11 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal R
-import Definition.Typed.Decidable.Internal.Context R as IC
-import Definition.Typed.Decidable.Internal.Term R as I
-import Definition.Typed.Decidable.Internal.Substitution R as IS
-import Definition.Typed.Decidable.Internal.Weakening R as IW
+open import Definition.Typed.Decidable.Internal 𝐌 R
+import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
+import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
+import Definition.Typed.Decidable.Internal.Weakening 𝐌 R as IW
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Level R
@@ -36,7 +38,7 @@ open import Definition.Untyped.Identity 𝕄 as Id
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sup R
 
-open Id.Internal R
+open Id.Internal 𝐌 R
 
 open import Tools.Bool
 open import Tools.Fin

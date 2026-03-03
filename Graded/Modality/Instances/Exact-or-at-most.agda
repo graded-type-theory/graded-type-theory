@@ -23,9 +23,9 @@ import Tools.Reasoning.PartialOrder as RPo
 open import Tools.Sum
 
 open import Definition.Untyped.NotParametrised
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions
-open import Graded.FullReduction.Assumptions
+import Definition.Typed.Restrictions
+import Graded.Usage.Restrictions
+import Graded.FullReduction.Assumptions
 
 import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Has-well-behaved-zero
@@ -33,6 +33,8 @@ import Graded.Modality.Properties.Meet
 import Graded.Modality.Properties.Multiplication
 import Graded.Modality.Properties.Natrec
 import Graded.Modality.Properties.PartialOrder
+import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 
 infixr 40 _+_
 infixr 43 _∧_
@@ -57,15 +59,11 @@ pattern ≤𝟙 = ≤1+ 0
 
 open import Tools.Algebra Exact-or-at-most
 open import Graded.Modality Exact-or-at-most
-open import Graded.Modality.Variant ℓ₀
 
 private variable
   p q r z z₁ z₂ s s₁ s₂ n n₁ n₂ : Exact-or-at-most
   k m : Nat
   b b′ : Bool
-  variant : Modality-variant
-  TR : Type-restrictions _
-  UR : Usage-restrictions _
 
 opaque
 
@@ -1166,113 +1164,132 @@ opaque
 
 opaque
 
-  -- A modality instance (for any variant) of the exact-or-at-most-semiring-with-meet
+  -- A modality instance of the exact-or-at-most-semiring-with-meet
 
-  exact-or-at-most-modality : Modality-variant → Modality
-  exact-or-at-most-modality variant = record
-    { variant = variant
-    ; semiring-with-meet = exact-or-at-most-semiring-with-meet
-    ; 𝟘-well-behaved = λ _ → exact-or-at-most-has-well-behaved-zero
+  exact-or-at-most-modality : Modality
+  exact-or-at-most-modality = record
+    {  semiring-with-meet = exact-or-at-most-semiring-with-meet
     }
 
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
--- Instances of Type-restrictions and Usage-restrictions are suitable
--- for the full reduction theorem if
--- * whenever Unitˢ-allowed holds, then Starˢ-sink holds,
--- * Unitʷ-allowed and Unitʷ-η do not both hold,
--- * Σˢ-allowed p q holds only if p ≡ 𝟙.
+module _ {𝟘ᵐ-allowed : Bool} where
 
-Suitable-for-full-reduction :
-  ∀ variant →
-  Type-restrictions (exact-or-at-most-modality variant) →
-  Usage-restrictions (exact-or-at-most-modality variant) →
-  Set
-Suitable-for-full-reduction variant TR UR =
-  (Unitˢ-allowed → Starˢ-sink) ×
-  (Unitʷ-allowed → ¬ Unitʷ-η) ×
-  (∀ p q → Σˢ-allowed p q → p ≡ 𝟙)
-  where
-  open Type-restrictions  TR
-  open Usage-restrictions UR
+  open Graded.Mode.Instances.Zero-one.Variant exact-or-at-most-modality
 
-opaque
-  unfolding exact-or-at-most-modality
+  private opaque
+    unfolding exact-or-at-most-modality
 
-  -- Given an instance of Type-restrictions (exact-or-at-most-modality variant)
-  -- one can create a "suitable" instance.
+    variant : Mode-variant
+    variant = record
+      { 𝟘ᵐ-allowed = 𝟘ᵐ-allowed
+      ; 𝟘-well-behaved = λ _ → exact-or-at-most-has-well-behaved-zero
+      }
 
-  suitable-for-full-reduction :
-    Type-restrictions (exact-or-at-most-modality variant) →
-    ∃ λ TR → Suitable-for-full-reduction variant TR UR
-  suitable-for-full-reduction {UR} TR =
-      record TR
-        { Unit-allowed = λ where
-            𝕤 → Unitˢ-allowed × Starˢ-sink
-            𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
-        ; ΠΣ-allowed = λ b p q →
-            ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
-        ; []-cong-allowed = λ where
-            𝕤 → ⊥
-            𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
-        ; []-cong→Erased = λ where
-            {s = 𝕤} ()
-            {s = 𝕨} (ok , no-η) →
-              case []-cong→Erased ok of λ
-                (ok₁ , ok₂) →
-              (ok₁ , no-η) , ok₂ , λ ()
-        ; []-cong→¬Trivial = λ where
-            {s = 𝕤} ()
-            {s = 𝕨} (ok , no-η) → []-cong→¬Trivial ok
-        }
-    , proj₂
-    , proj₂
-    , λ _ _ ok → proj₂ ok refl
+  open Graded.Mode.Instances.Zero-one   variant
+  open Definition.Typed.Restrictions    exact-or-at-most-modality
+  open Graded.Usage.Restrictions        exact-or-at-most-modality Zero-one-isMode
+  open Graded.FullReduction.Assumptions variant
+
+  private variable
+    TR : Type-restrictions
+    UR : Usage-restrictions
+
+  -- Instances of Type-restrictions and Usage-restrictions are suitable
+  -- for the full reduction theorem if
+  -- * whenever Unitˢ-allowed holds, then Starˢ-sink holds,
+  -- * Unitʷ-allowed and Unitʷ-η do not both hold,
+  -- * Σˢ-allowed p q holds only if p ≡ 𝟙.
+
+  Suitable-for-full-reduction :
+    Type-restrictions →
+    Usage-restrictions →
+    Set
+  Suitable-for-full-reduction TR UR =
+    (Unitˢ-allowed → Starˢ-sink) ×
+    (Unitʷ-allowed → ¬ Unitʷ-η) ×
+    (∀ p q → Σˢ-allowed p q → p ≡ 𝟙)
     where
     open Type-restrictions  TR
     open Usage-restrictions UR
 
-opaque
-  unfolding exact-or-at-most-modality
+  opaque
+    unfolding exact-or-at-most-modality
 
-  -- The full reduction assumptions hold for any instance of
-  -- exact-or-at-most-modality and any "suitable" Type-restrictions and
-  -- Usage-restrictions.
+    -- Given an instance of Type-restrictions exact-or-at-most-modality
+    -- one can create a "suitable" instance.
 
-  full-reduction-assumptions :
-    Suitable-for-full-reduction variant TR UR →
-    Full-reduction-assumptions TR UR
-  full-reduction-assumptions (sink , no-η , Σ-ok) = record
-    { sink⊎𝟙≤𝟘 = λ where
-        {s = 𝕤} ok η-ok → inj₁ (refl , sink ok)
-        {s = 𝕨} ok (inj₁ ())
-        {s = 𝕨} ok (inj₂ η) → ⊥-elim (no-η ok η)
-    ; ≡𝟙⊎𝟙≤𝟘 = λ where
-        {p} ok → inj₁ (Σ-ok p _ ok)
-    }
+    suitable-for-full-reduction :
+      Type-restrictions →
+      ∃ λ TR → Suitable-for-full-reduction TR UR
+    suitable-for-full-reduction {UR} TR =
+        record TR
+          { Unit-allowed = λ where
+              𝕤 → Unitˢ-allowed × Starˢ-sink
+              𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
+          ; ΠΣ-allowed = λ b p q →
+              ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
+          ; []-cong-allowed = λ where
+              𝕤 → ⊥
+              𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
+          ; []-cong→Erased = λ where
+              {s = 𝕤} ()
+              {s = 𝕨} (ok , no-η) →
+                case []-cong→Erased ok of λ
+                  (ok₁ , ok₂) →
+                (ok₁ , no-η) , ok₂ , λ ()
+          ; []-cong→¬Trivial = λ where
+              {s = 𝕤} ()
+              {s = 𝕨} (ok , no-η) → []-cong→¬Trivial ok
+          }
+      , proj₂
+      , proj₂
+      , λ _ _ ok → proj₂ ok refl
+      where
+      open Type-restrictions  TR
+      open Usage-restrictions UR
 
-opaque
-  unfolding exact-or-at-most-modality
+  opaque
+    unfolding exact-or-at-most-modality
 
-  -- Type and usage restrictions that satisfy the full reduction
-  -- assumptions are "suitable".
+    -- The full reduction assumptions hold for any instance of
+    -- exact-or-at-most-modality and any "suitable" Type-restrictions and
+    -- Usage-restrictions.
 
-  full-reduction-assumptions-suitable :
-    Full-reduction-assumptions TR UR →
-    Suitable-for-full-reduction variant TR UR
-  full-reduction-assumptions-suitable as =
-      (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
-         (inj₁ (_ , sink)) → sink
-         (inj₂ ()))
-    , (λ ok η → case sink⊎𝟙≤𝟘 ok (inj₂ η) of λ where
-         (inj₁ ())
-         (inj₂ ()))
-    , λ _ _ Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
-        (inj₁ p≡𝟙) → p≡𝟙
-        (inj₂ ())
-    where
-    open Full-reduction-assumptions as
+    full-reduction-assumptions :
+      Suitable-for-full-reduction TR UR →
+      Full-reduction-assumptions TR UR
+    full-reduction-assumptions (sink , no-η , Σ-ok) = record
+      { sink⊎𝟙≤𝟘 = λ where
+          {s = 𝕤} ok η-ok → inj₁ (refl , sink ok)
+          {s = 𝕨} ok (inj₁ ())
+          {s = 𝕨} ok (inj₂ η) → ⊥-elim (no-η ok η)
+      ; ≡𝟙⊎𝟙≤𝟘 = λ where
+          {p} ok → inj₁ (Σ-ok p _ ok)
+      }
+
+  opaque
+    unfolding exact-or-at-most-modality
+
+    -- Type and usage restrictions that satisfy the full reduction
+    -- assumptions are "suitable".
+
+    full-reduction-assumptions-suitable :
+      Full-reduction-assumptions TR UR →
+      Suitable-for-full-reduction TR UR
+    full-reduction-assumptions-suitable as =
+        (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
+           (inj₁ (_ , sink)) → sink
+           (inj₂ ()))
+      , (λ ok η → case sink⊎𝟙≤𝟘 ok (inj₂ η) of λ where
+           (inj₁ ())
+           (inj₂ ()))
+      , λ _ _ Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
+          (inj₁ p≡𝟙) → p≡𝟙
+          (inj₂ ())
+      where
+      open Full-reduction-assumptions _ _ as
 
 ------------------------------------------------------------------------
 -- Subtraction

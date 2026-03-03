@@ -7,18 +7,20 @@ open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
-import Graded.Mode
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Empty
   {a} {M : Set a}
   (open Definition.Untyped M)
   {𝕄 : Modality M}
-  (open Graded.Mode 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (open Modality 𝕄)
   {R : Type-restrictions 𝕄}
   (open Definition.Typed R)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (open Usage-restrictions UR)
   (as : Assumptions R)
   (open Assumptions as)
@@ -27,7 +29,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Empty
   where
 
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden as
+open import Graded.Erasure.LogicalRelation.Hidden variant as
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄
 

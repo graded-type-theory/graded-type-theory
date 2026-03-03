@@ -3,6 +3,8 @@
 ------------------------------------------------------------------------
 
 import Graded.Modality
+open import Graded.Mode.Instances.Zero-one.Variant
+import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 
@@ -10,11 +12,14 @@ module Graded.Erasure.Consequences.Soundness.Extended-type-theory
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
 open Modality 𝕄
+open Mode-variant variant
 open Type-restrictions TR
 
 import Definition.Typed
@@ -33,17 +38,17 @@ open import Graded.Derived.Identity UR
 import Graded.Erasure.Consequences.Soundness
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
+import Graded.Erasure.Extraction.Properties.Usage
 import Graded.Erasure.SucRed
 open Graded.Erasure.SucRed TR
 open import Graded.Erasure.Target as T using (Strictness)
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode 𝕄
 import Graded.Modify-box-cong-or-J
 open import Graded.Modify-box-cong-or-J.Configuration TR UR
-open import Graded.Restrictions 𝕄
+open import Graded.Restrictions.Zero-one 𝕄 variant
 import Graded.Usage
-open Graded.Usage 𝕄 UR
+open Graded.Usage UR
 import Graded.Substitution.Properties
 
 open import Tools.Bool
@@ -307,7 +312,7 @@ opaque
       .eraseᴱ-tr →
         PE.refl
       .eraseᴱ-[]ᴱ (_ , ▸t , _) →
-        hasX.wk₀-erase-[] UR ▸t
+        wk₀-erase-[] ▸t
       .soundness-ℕᴱ (⊢t , ▸t , ▸∇) →
         let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ ⊢t ▸t in
         _ , subset*Termˢ t⇒n , erase-t⇒n _
@@ -315,7 +320,8 @@ opaque
     open Definition.Typed.Substitution TR
     open Extended-type-theory
     open Graded.Erasure.Consequences.Soundness TR UR
-    open Graded.Substitution.Properties 𝕄 UR
+    open Graded.Substitution.Properties UR
+    open Graded.Erasure.Extraction.Properties.Usage UR
 
 ------------------------------------------------------------------------
 -- An instance that uses equality reflection
@@ -331,7 +337,7 @@ private module Extended-type-theory-with-equality-reflection where
   module DD   = Definition.Typed.Properties.Definition Conf.TRₜ
   module GS   = Graded.Erasure.SucRed Conf.TRₜ
   module GM   = Graded.Modify-box-cong-or-J turn-on-equality-reflection
-  module GU   = Graded.Usage 𝕄 Conf.URₜ
+  module GU   = Graded.Usage Conf.URₜ
 
   opaque
     unfolding turn-on-equality-reflection
@@ -385,7 +391,7 @@ opaque
         glassify ∇                 ≡˘⟨ PE.cong glassify map-DCon-id ⟩
         glassify (map-DCon idᶠ ∇)  ∎
       .eraseᴱ-tr               → PE.refl
-      .eraseᴱ-[]ᴱ (_ , ▸t , _) → hasX.wk₀-erase-[] _ ▸t
+      .eraseᴱ-[]ᴱ (_ , ▸t , _) → wk₀-erase-[] ▸t
       .tr-⊢∷ {Γ} ⊢t ▸t ▸∇      →
         PE.subst₃ DT._⊢_∷_ tr-Cons≡ tr-id tr-id (GM.tr-⊢∷ ⊢t) ,
         PE.subst (GU._▸[_]_ _ _) tr-id (GM.tr-▸ ▸t) ,
@@ -402,7 +408,8 @@ opaque
     open Extended-type-theory-with-equality-reflection
     open Definition.Typed.Substitution Conf.TRₜ
     open Graded.Erasure.Consequences.Soundness Conf.TRₜ Conf.URₜ
-    open Graded.Substitution.Properties 𝕄 Conf.URₜ
+    open Graded.Substitution.Properties Conf.URₜ
+    open Graded.Erasure.Extraction.Properties.Usage Conf.URₜ
 
 opaque
   unfolding

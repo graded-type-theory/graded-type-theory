@@ -4,15 +4,17 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Decidable.Internal.Substitution.Primitive
-  {a} {M : Set a}
+  {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
+  (𝐌 : IsMode Mode 𝕄)
   (R : Type-restrictions 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Term R
-open import Definition.Typed.Decidable.Internal.Weakening R
+open import Definition.Typed.Decidable.Internal.Term 𝐌 R
+open import Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
 open import Definition.Untyped M as U using (Wk)
 open import Definition.Untyped.Properties M

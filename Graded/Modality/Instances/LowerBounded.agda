@@ -18,7 +18,6 @@ open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 import Graded.Modality.Properties.Star 𝕄 as Star
-open import Graded.Modality.Variant a
 
 open import Tools.Algebra M
 open import Tools.Bool using (T)
@@ -132,16 +131,9 @@ has-star = record
 has-nr : Has-nr 𝕄
 has-nr = Star.has-nr ⦃ has-star = has-star ⦄
 
--- If a certain property holds, then 𝕄 can be turned into a certain
--- kind of modality.
+-- 𝕄 can be turned into a modality.
 
-isModality :
-  (variant : Modality-variant) →
-  let open Modality-variant variant in
-  (T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄) →
-  Modality
-isModality variant 𝟘-well-behaved = record
-  { variant            = variant
-  ; semiring-with-meet = 𝕄
-  ; 𝟘-well-behaved     = 𝟘-well-behaved
+isModality : Modality
+isModality = record
+  { semiring-with-meet = 𝕄
   }

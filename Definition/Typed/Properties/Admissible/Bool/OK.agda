@@ -4,13 +4,14 @@
 
 open import Definition.Typed.Restrictions
 open import Graded.Modality
+open import Graded.Mode
 
 module Definition.Typed.Properties.Admissible.Bool.OK
   {a} {M : Set a}
   {𝕄 : Modality M}
   (OKᵍ : M)
-  (R : Type-restrictions 𝕄)
   (open Modality 𝕄)
+  (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- It is assumed that weak unit types are allowed.
   (Unitʷ-ok : Unitʷ-allowed)
