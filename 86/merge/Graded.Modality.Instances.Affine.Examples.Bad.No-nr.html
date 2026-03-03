@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Modality.Instances.Affine.Examples.Bad.No-nr</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Some examples related to an &quot;affine types&quot; modality without a</a>
+<a id="139" class="Comment">-- dedicated nr function</a>
+<a id="164" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="238" class="Keyword">open</a> <a id="243" class="Keyword">import</a> <a id="250" href="Graded.Modality.Instances.Affine.html" class="Module">Graded.Modality.Instances.Affine</a>
+<a id="283" class="Keyword">open</a> <a id="288" class="Keyword">import</a> <a id="295" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+<a id="321" class="Keyword">open</a> <a id="326" class="Keyword">import</a> <a id="333" href="Graded.Mode.html" class="Module">Graded.Mode</a>
+<a id="345" class="Keyword">import</a> <a id="352" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a>
+<a id="383" class="Keyword">open</a> <a id="388" class="Keyword">import</a> <a id="395" href="Graded.Mode.Instances.Zero-one.Variant.html" class="Module">Graded.Mode.Instances.Zero-one.Variant</a> <a id="434" href="Graded.Modality.Instances.Affine.html#981" class="Function">affineModality</a>
+
+<a id="450" class="Keyword">module</a> <a id="457" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html" class="Module">Graded.Modality.Instances.Affine.Examples.Bad.No-nr</a>
+  <a id="511" class="Symbol">{</a><a id="512" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#512" class="Bound">variant</a> <a id="520" class="Symbol">:</a> <a id="522" href="Graded.Mode.Instances.Zero-one.Variant.html#522" class="Record">Mode-variant</a><a id="534" class="Symbol">}</a>
+  <a id="538" class="Symbol">(</a><a id="539" class="Keyword">open</a> <a id="544" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a> <a id="575" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#512" class="Bound">variant</a><a id="582" class="Symbol">)</a>
+  <a id="586" class="Symbol">(</a><a id="587" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#587" class="Bound">UR</a> <a id="590" class="Symbol">:</a> <a id="592" href="Graded.Usage.Restrictions.html#974" class="Record">Usage-restrictions</a> <a id="611" href="Graded.Modality.Instances.Affine.html#981" class="Function">affineModality</a> <a id="626" href="Graded.Mode.Instances.Zero-one.html#18686" class="Function">Zero-one-isMode</a><a id="641" class="Symbol">)</a>
+  <a id="645" class="Symbol">(</a><a id="646" class="Keyword">open</a> <a id="651" href="Graded.Usage.Restrictions.html#974" class="Module">Usage-restrictions</a> <a id="670" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#587" class="Bound">UR</a><a id="672" class="Symbol">)</a>
+  <a id="676" class="Comment">-- There is no dedicated nr function.</a>
+  <a id="716" class="Symbol">⦃</a> <a id="718" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#718" class="Bound">no-nr</a> <a id="724" class="Symbol">:</a> <a id="726" href="Graded.Usage.Restrictions.html#3587" class="Function">Nr-not-available</a> <a id="743" class="Symbol">⦄</a>
+  <a id="747" class="Keyword">where</a>
+
+<a id="754" class="Keyword">open</a> <a id="759" class="Keyword">import</a> <a id="766" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="781" class="Keyword">import</a> <a id="788" href="Tools.Reasoning.PartialOrder.html" class="Module">Tools.Reasoning.PartialOrder</a>
+
+<a id="818" class="Keyword">open</a> <a id="823" class="Keyword">import</a> <a id="830" href="Graded.Context.html" class="Module">Graded.Context</a> <a id="845" href="Graded.Modality.Instances.Affine.html#981" class="Function">affineModality</a>
+<a id="860" class="Keyword">open</a> <a id="865" class="Keyword">import</a> <a id="872" href="Graded.Context.Properties.html" class="Module">Graded.Context.Properties</a> <a id="898" href="Graded.Modality.Instances.Affine.html#981" class="Function">affineModality</a>
+<a id="913" class="Keyword">open</a> <a id="918" class="Keyword">import</a> <a id="925" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="941" href="Graded.Modality.Instances.Zero-one-many.html#1552" class="Datatype">Affine</a>
+<a id="948" class="Keyword">open</a> <a id="953" class="Keyword">import</a> <a id="960" href="Graded.Usage.html" class="Module">Graded.Usage</a> <a id="973" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#587" class="Bound">UR</a>
+
+<a id="977" class="Keyword">open</a> <a id="982" class="Keyword">import</a> <a id="989" href="Definition.Untyped.Nat.html" class="Module">Definition.Untyped.Nat</a> <a id="1012" href="Graded.Modality.Instances.Affine.html#981" class="Function">affineModality</a>
+
+<a id="1028" class="Keyword">private</a>
+  <a id="1038" class="Keyword">module</a> <a id="M"></a><a id="1045" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1045" class="Module">M</a> <a id="1047" class="Symbol">=</a> <a id="1049" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="1058" href="Graded.Modality.Instances.Affine.html#981" class="Function">affineModality</a>
+
+<a id="1074" class="Keyword">opaque</a>
+
+  <a id="1084" class="Comment">-- The term double is well-resourced (even though it can be given the</a>
+  <a id="1156" class="Comment">-- type Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ).</a>
+
+  <a id="▸double"></a><a id="1185" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1185" class="Function">▸double</a> <a id="1193" class="Symbol">:</a> <a id="1195" class="InductiveConstructor">ε</a> <a id="1197" href="Graded.Usage.html#8916" class="Datatype Operator">▸[</a> <a id="1200" class="InductiveConstructor">𝟙ᵐ</a> <a id="1203" href="Graded.Usage.html#8916" class="Datatype Operator">]</a> <a id="1205" href="Definition.Untyped.Nat.html#1301" class="Function">double</a>
+  <a id="1214" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1185" class="Function">▸double</a> <a id="1222" class="Symbol">=</a>
+    <a id="1228" href="Graded.Usage.html#10276" class="InductiveConstructor">lamₘ</a> <a id="1233" href="Function.Base.html#1993" class="Function Operator">$</a>
+    <a id="1239" href="Graded.Usage.html#12793" class="InductiveConstructor">natrec-no-nrₘ</a> <a id="1253" href="Graded.Usage.html#9059" class="InductiveConstructor">var</a> <a id="1257" class="Symbol">(</a><a id="1258" href="Graded.Usage.html#11061" class="InductiveConstructor">sucₘ</a> <a id="1263" href="Graded.Usage.html#9059" class="InductiveConstructor">var</a><a id="1266" class="Symbol">)</a> <a id="1268" href="Graded.Usage.html#9059" class="InductiveConstructor">var</a>
+      <a id="1278" class="Symbol">(</a><a id="1279" href="Graded.Usage.html#8987" class="InductiveConstructor">sub</a> <a id="1283" href="Graded.Usage.html#11004" class="InductiveConstructor">ℕₘ</a> <a id="1286" href="Function.Base.html#1993" class="Function Operator">$</a> <a id="1288" href="Relation.Binary.Reasoning.Syntax.html#1572" class="Function Operator">begin</a>
+         <a id="1303" href="Graded.Context.html#2656" class="Function">𝟘ᶜ</a> <a id="1306" href="Graded.Context.html#771" class="InductiveConstructor Operator">∙</a> <a id="1308" href="Graded.Mode.Instances.Zero-one.html#5739" class="Function Operator">⌜</a> <a id="1310" href="Graded.Mode.Instances.Zero-one.html#4200" class="Function">𝟘ᵐ?</a> <a id="1314" href="Graded.Mode.Instances.Zero-one.html#5739" class="Function Operator">⌝</a> <a id="1316" href="Graded.Modality.Instances.Zero-one-many.html#9708" class="Function Operator">·</a> <a id="1318" href="Graded.Modality.Instances.Zero-one-many.html#1580" class="InductiveConstructor">𝟘</a>  <a id="1321" href="Relation.Binary.Reasoning.Syntax.html#7111" class="Function">≈⟨</a> <a id="1324" href="Graded.Context.Properties.Equivalence.html#572" class="Function">≈ᶜ-refl</a> <a id="1332" href="Graded.Context.html#922" class="InductiveConstructor Operator">∙</a> <a id="1334" href="Graded.Modality.html#4031" class="Function">M.·-zeroʳ</a> <a id="1344" class="Symbol">_</a> <a id="1346" href="Relation.Binary.Reasoning.Syntax.html#7111" class="Function">⟩</a>
+         <a id="1357" href="Graded.Context.html#2656" class="Function">𝟘ᶜ</a>                <a id="1375" href="Relation.Binary.Reasoning.Syntax.html#12345" class="Function Operator">∎</a><a id="1376" class="Symbol">)</a>
+      <a id="1384" href="Graded.Context.Properties.PartialOrder.html#656" class="Function">≤ᶜ-refl</a>
+      <a id="1398" class="Symbol">(λ</a> <a id="1401" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1401" class="Bound">_</a> <a id="1403" class="Symbol">→</a> <a id="1405" href="Graded.Context.Properties.PartialOrder.html#656" class="Function">≤ᶜ-refl</a><a id="1412" class="Symbol">)</a>
+      <a id="1420" class="Symbol">(λ</a> <a id="1423" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1423" class="Bound">_</a> <a id="1425" class="Symbol">→</a> <a id="1427" href="Graded.Context.Properties.PartialOrder.html#656" class="Function">≤ᶜ-refl</a><a id="1434" class="Symbol">)</a>
+      <a id="1442" href="Graded.Context.Properties.PartialOrder.html#656" class="Function">≤ᶜ-refl</a>
+    <a id="1454" class="Keyword">where</a>
+    <a id="1464" class="Keyword">open</a> <a id="1469" href="Tools.Reasoning.PartialOrder.html" class="Module">Tools.Reasoning.PartialOrder</a> <a id="1498" href="Graded.Context.Properties.PartialOrder.html#1875" class="Function">≤ᶜ-poset</a>
+
+<a id="1508" class="Keyword">opaque</a>
+
+  <a id="1518" class="Comment">-- The term plus is well-resourced.</a>
+
+  <a id="▸plus"></a><a id="1557" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1557" class="Function">▸plus</a> <a id="1563" class="Symbol">:</a> <a id="1565" class="InductiveConstructor">ε</a> <a id="1567" href="Graded.Usage.html#8916" class="Datatype Operator">▸[</a> <a id="1570" class="InductiveConstructor">𝟙ᵐ</a> <a id="1573" href="Graded.Usage.html#8916" class="Datatype Operator">]</a> <a id="1575" href="Definition.Untyped.Nat.html#1611" class="Function">plus</a>
+  <a id="1582" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1557" class="Function">▸plus</a> <a id="1588" class="Symbol">=</a>
+    <a id="1594" href="Graded.Usage.html#10276" class="InductiveConstructor">lamₘ</a> <a id="1599" href="Function.Base.html#1993" class="Function Operator">$</a>
+    <a id="1605" href="Graded.Usage.html#10276" class="InductiveConstructor">lamₘ</a> <a id="1610" href="Function.Base.html#1993" class="Function Operator">$</a>
+    <a id="1616" href="Graded.Usage.html#12793" class="InductiveConstructor">natrec-no-nrₘ</a> <a id="1630" href="Graded.Usage.html#9059" class="InductiveConstructor">var</a> <a id="1634" class="Symbol">(</a><a id="1635" href="Graded.Usage.html#11061" class="InductiveConstructor">sucₘ</a> <a id="1640" href="Graded.Usage.html#9059" class="InductiveConstructor">var</a><a id="1643" class="Symbol">)</a> <a id="1645" href="Graded.Usage.html#9059" class="InductiveConstructor">var</a>
+      <a id="1655" class="Symbol">(</a><a id="1656" href="Graded.Usage.html#8987" class="InductiveConstructor">sub</a> <a id="1660" href="Graded.Usage.html#11004" class="InductiveConstructor">ℕₘ</a> <a id="1663" href="Function.Base.html#1993" class="Function Operator">$</a> <a id="1665" href="Relation.Binary.Reasoning.Syntax.html#1572" class="Function Operator">begin</a>
+         <a id="1680" href="Graded.Context.html#2656" class="Function">𝟘ᶜ</a> <a id="1683" href="Graded.Context.html#771" class="InductiveConstructor Operator">∙</a> <a id="1685" href="Graded.Mode.Instances.Zero-one.html#5739" class="Function Operator">⌜</a> <a id="1687" href="Graded.Mode.Instances.Zero-one.html#4200" class="Function">𝟘ᵐ?</a> <a id="1691" href="Graded.Mode.Instances.Zero-one.html#5739" class="Function Operator">⌝</a> <a id="1693" href="Graded.Modality.Instances.Zero-one-many.html#9708" class="Function Operator">·</a> <a id="1695" href="Graded.Modality.Instances.Zero-one-many.html#1580" class="InductiveConstructor">𝟘</a>  <a id="1698" href="Relation.Binary.Reasoning.Syntax.html#7111" class="Function">≈⟨</a> <a id="1701" href="Graded.Context.Properties.Equivalence.html#572" class="Function">≈ᶜ-refl</a> <a id="1709" href="Graded.Context.html#922" class="InductiveConstructor Operator">∙</a> <a id="1711" href="Graded.Modality.html#4031" class="Function">M.·-zeroʳ</a> <a id="1721" class="Symbol">_</a> <a id="1723" href="Relation.Binary.Reasoning.Syntax.html#7111" class="Function">⟩</a>
+         <a id="1734" href="Graded.Context.html#2656" class="Function">𝟘ᶜ</a>                <a id="1752" href="Relation.Binary.Reasoning.Syntax.html#12345" class="Function Operator">∎</a><a id="1753" class="Symbol">)</a>
+      <a id="1761" href="Graded.Context.Properties.PartialOrder.html#656" class="Function">≤ᶜ-refl</a>
+      <a id="1775" class="Symbol">(λ</a> <a id="1778" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1778" class="Bound">_</a> <a id="1780" class="Symbol">→</a> <a id="1782" href="Graded.Context.Properties.PartialOrder.html#656" class="Function">≤ᶜ-refl</a><a id="1789" class="Symbol">)</a>
+      <a id="1797" class="Symbol">(λ</a> <a id="1800" href="Graded.Modality.Instances.Affine.Examples.Bad.No-nr.html#1800" class="Bound">_</a> <a id="1802" class="Symbol">→</a> <a id="1804" href="Graded.Context.Properties.PartialOrder.html#656" class="Function">≤ᶜ-refl</a><a id="1811" class="Symbol">)</a>
+      <a id="1819" href="Graded.Context.Properties.PartialOrder.html#656" class="Function">≤ᶜ-refl</a>
+    <a id="1831" class="Keyword">where</a>
+    <a id="1841" class="Keyword">open</a> <a id="1846" href="Tools.Reasoning.PartialOrder.html" class="Module">Tools.Reasoning.PartialOrder</a> <a id="1875" href="Graded.Context.Properties.PartialOrder.html#1875" class="Function">≤ᶜ-poset</a>
+</pre></body></html>
