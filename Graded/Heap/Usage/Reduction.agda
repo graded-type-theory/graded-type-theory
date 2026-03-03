@@ -845,7 +845,7 @@ opaque
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
     ((∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● ×
-        (Has-well-behaved-zero M semiring-with-meet → ∣ S ∣≡ 𝟘)) ⊎
+        (Has-well-behaved-zero M 𝕄 → ∣ S ∣≡ 𝟘)) ⊎
       (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
     Value t × S ≡ ε ⊎
@@ -875,7 +875,7 @@ opaque
     ▸ s →
     s ⇘ ⟨ H , t , ρ , S ⟩ →
     ((∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● ×
-       (Has-well-behaved-zero M semiring-with-meet → ∣ S ∣≡ 𝟘)) ⊎
+       (Has-well-behaved-zero M 𝕄 → ∣ S ∣≡ 𝟘)) ⊎
       (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
     (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × (Matching t S → ⊥)) ⊎
     Value t × S ≡ ε ⊎

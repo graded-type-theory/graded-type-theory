@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- A natrec-star operator can be defined for a "semiring with meet"
+-- A natrec-star operator can be defined for a modality
 -- with a unary operator _* which satisfies p * ≡ 𝟙 + p p*, and p* ≤ 𝟘
 -- or p* ≤ 𝟙, for all p
 ------------------------------------------------------------------------
@@ -13,8 +13,8 @@ open import Tools.Bool using (T)
 module Graded.Modality.Instances.BoundedStar
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Semiring-with-meet)
-  (open Semiring-with-meet 𝕄)
+  (𝕄 : Modality)
+  (open Modality 𝕄)
   (_* : A.Op₁ M)
   (*-rec : (p : M) → ((p *) ≡ 𝟙 + p · (p *)))
   (bounds : (p : M) → (p *) ≤ 𝟘 ⊎ (p *) ≤ 𝟙)
@@ -149,13 +149,6 @@ has-star = record
   ; +-sub-interchangeable-⊛ = +-sub-interchangeable-⊛
   ; ·-sub-distribʳ-⊛ = ·-sub-distribʳ-⊛
   ; ⊛-sub-distrib-∧ = λ r → ⊛-sub-distribˡ-∧ r , ⊛-sub-distribʳ-∧ r
-  }
-
--- 𝕄 can be turned into a modality.
-
-isModality : Modality
-isModality = record
-  { semiring-with-meet = 𝕄
   }
 
 -- For an instance with a least element the solution given by _⊛_▷_ is

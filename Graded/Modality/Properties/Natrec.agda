@@ -5,10 +5,10 @@
 open import Graded.Modality
 
 module Graded.Modality.Properties.Natrec
-  {a} {M : Set a} (𝕄 : Semiring-with-meet M)
+  {a} {M : Set a} (𝕄 : Modality M)
   where
 
-open Semiring-with-meet 𝕄
+open Modality 𝕄
 
 open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Greatest-lower-bound 𝕄

@@ -2694,7 +2694,7 @@ opaque
   ¬-[]-cong-for-type :
     {Γ : Con Term n}
     ⦃ not-ok : No-equality-reflection ⦄
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
@@ -2774,7 +2774,7 @@ opaque
   ¬-[]-cong-for-level :
     {Γ : Con Term n}
     ⦃ not-ok : No-equality-reflection ⦄
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
@@ -2847,7 +2847,7 @@ opaque
 
   ¬-[]-cong-for-level′ :
     ⦃ not-ok : No-equality-reflection ⦄
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
@@ -2883,7 +2883,7 @@ opaque
   ¬-[]-cong :
     {Γ : Con Term n}
     ⦃ not-ok : No-equality-reflection ⦄
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
@@ -2922,7 +2922,7 @@ opaque
 
   ¬-[]-cong′ :
     ⦃ not-ok : No-equality-reflection ⦄
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →

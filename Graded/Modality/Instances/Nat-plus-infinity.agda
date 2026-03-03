@@ -482,10 +482,10 @@ opaque
 ------------------------------------------------------------------------
 -- The modality
 
--- A "semiring with meet" for ℕ⊎∞.
+-- A modality structure for ℕ⊎∞.
 
-ℕ⊎∞-semiring-with-meet : Semiring-with-meet
-ℕ⊎∞-semiring-with-meet = record
+ℕ⊎∞-modality : Modality
+ℕ⊎∞-modality = record
   { _+_          = _+_
   ; _·_          = _·_
   ; _∧_          = _∧_
@@ -754,10 +754,10 @@ opaque
 
 instance
 
-  -- The semiring has a well-behaved zero.
+  -- The modality has a well-behaved zero.
 
   ℕ⊎∞-has-well-behaved-zero :
-    Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
+    Has-well-behaved-zero ℕ⊎∞-modality
   ℕ⊎∞-has-well-behaved-zero = record
     { non-trivial  = λ ()
     ; zero-product = λ where
@@ -797,20 +797,20 @@ instance
 private
   module BS =
     BoundedStar
-      ℕ⊎∞-semiring-with-meet _* (λ _ → *≡+·*) (λ _ → inj₂ n*≤1)
+      ℕ⊎∞-modality _* (λ _ → *≡+·*) (λ _ → inj₂ n*≤1)
 
 -- A natrec-star operator for ℕ⊎∞ defined using the construction in
 -- Graded.Modality.Instances.BoundedStar.
 
-ℕ⊎∞-has-star-bounded-star : Has-star ℕ⊎∞-semiring-with-meet
+ℕ⊎∞-has-star-bounded-star : Has-star ℕ⊎∞-modality
 ℕ⊎∞-has-star-bounded-star = BS.has-star
 
 -- A natrec-star operator for ℕ⊎∞ defined using the construction in
 -- Graded.Modality.Instances.LowerBounded.
 
-ℕ⊎∞-has-star-lower-bounded : Has-star ℕ⊎∞-semiring-with-meet
+ℕ⊎∞-has-star-lower-bounded : Has-star ℕ⊎∞-modality
 ℕ⊎∞-has-star-lower-bounded =
-  LowerBounded.has-star ℕ⊎∞-semiring-with-meet ∞ ∞≤
+  LowerBounded.has-star ℕ⊎∞-modality ∞ ∞≤
 
 -- The _⊛_▷_ operator of the second modality is equal to the _⊛_▷_
 -- operator of the first modality for non-zero last arguments.
@@ -848,7 +848,7 @@ private
 -- Properties related to division
 
 private
-  module D = Graded.Modality.Properties.Division ℕ⊎∞-semiring-with-meet
+  module D = Graded.Modality.Properties.Division ℕ⊎∞-modality
 
 opaque
 
@@ -881,7 +881,7 @@ opaque
             o N.≤ m N./ 1+ n          →⟨ ⌞⌟-antitone _ ⟩
             ⌞ m N./ 1+ n ⌟ ≤ ⌞ o ⌟    □
       where
-      open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+      open Graded.Modality.Properties.PartialOrder ℕ⊎∞-modality
       open Tools.Reasoning.PartialOrder ≤-poset
 
 opaque
@@ -900,7 +900,7 @@ opaque
 module _ where
 
   open Graded.Modality.Instances.Recursive.Sequences
-         ℕ⊎∞-semiring-with-meet
+         ℕ⊎∞-modality
 
   -- The family of sequences that Graded.Modality.Instances.Recursive is
   -- about does not have the required fixpoints.
@@ -908,8 +908,8 @@ module _ where
   ¬-Has-fixpoints-nr : T total → ¬ Has-fixpoints-nr
   ¬-Has-fixpoints-nr x = lemma (proj₁ T-true x)
     where
-    open module S = Semiring-with-meet ℕ⊎∞-semiring-with-meet using (𝟘; 𝟙)
-    open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
+    open module S = Modality ℕ⊎∞-modality using (𝟘; 𝟙)
+    open Graded.Modality.Properties.Meet ℕ⊎∞-modality
     open Tools.Reasoning.PropositionalEquality
 
     r = 𝟙
@@ -985,7 +985,7 @@ opaque
           (inj₁ ())
           (inj₂ z+s≡𝟘) → +-positive z+s≡𝟘
       where
-      open Graded.Modality.Properties.Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
+      open Graded.Modality.Properties.Has-well-behaved-zero ℕ⊎∞-modality
 
 opaque
 
@@ -1017,11 +1017,11 @@ opaque
       s + (∞ · ∞) · (z + s) ≡⟨ +-congˡ (·-assoc _ _ _) ⟩
       s + ∞ · ∞ · (z + s)   ∎
       where
-      open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+      open Modality ℕ⊎∞-modality
         using (+-congˡ; +-identityʳ; +-identityˡ; +-assoc; +-comm;
                ·-congʳ; ·-identityˡ; ·-assoc; ·-distribʳ-+)
-      open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
-      open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+      open Graded.Modality.Properties.Meet ℕ⊎∞-modality
+      open Graded.Modality.Properties.PartialOrder ℕ⊎∞-modality
       open Tools.Reasoning.PartialOrder ≤-poset
       lemma : ∀ z s → ∞ · (z + s) ≡ s + ∞ · (z + s)
       lemma z ⌞ 0 ⌟ = sym (+-identityˡ _)
@@ -1036,7 +1036,7 @@ opaque
 
   nr₃-𝟘 : ∀ r → nr₃ r ⌞ 0 ⌟ ⌞ 0 ⌟ ≡ ⌞ 0 ⌟
   nr₃-𝟘 ⌞ 0 ⌟ =
-    Semiring-with-meet.∧-idem ℕ⊎∞-semiring-with-meet ⌞ 0 ⌟
+    Modality.∧-idem ℕ⊎∞-modality ⌞ 0 ⌟
   nr₃-𝟘 ⌞ 1+ 0 ⌟ = refl
   nr₃-𝟘 ⌞ 2+ x ⌟ = refl
   nr₃-𝟘 ∞ = refl
@@ -1059,9 +1059,9 @@ opaque
     ⌞ 2+ r ⌟ → lemma
     ∞ → lemma
      where
-     open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
-     open Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
-     open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+     open Graded.Modality.Properties.PartialOrder ℕ⊎∞-modality
+     open Graded.Modality.Properties.Addition ℕ⊎∞-modality
+     open Modality ℕ⊎∞-modality
        hiding (_≤_; _·_; _+_)
      open Tools.Reasoning.PartialOrder ≤-poset
      lemma : ∞ · (z₁ + s₁) + ∞ · (z₂ + s₂) ≤ ∞ · ((z₁ + z₂) + (s₁ + s₂))
@@ -1081,7 +1081,7 @@ opaque
 
   nr₂→has-nr : (nr₂ : Op₂ ℕ⊎∞) → (∀ {p r} → nr₂ p r ≢ ⌞ 0 ⌟)
              → (∀ {p r} → nr₂ p r ≤ p + r · nr₂ p r)
-             → Has-nr ℕ⊎∞-semiring-with-meet
+             → Has-nr ℕ⊎∞-modality
   nr₂→has-nr nr₂ nr₂≢𝟘 nr₂≤ = record
     { nr = nr
     ; nr-monotone = λ {p = p} {r} → nr-monotone p r
@@ -1092,13 +1092,13 @@ opaque
     ; nr-suc = λ {p} {r} {z} {s} {n} → nr-suc p r z s n
     }
     where
-    open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+    open Modality ℕ⊎∞-modality
       hiding (_≤_; _+_; _·_; _∧_)
-    open Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
-    open Graded.Modality.Properties.Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
-    open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
-    open Graded.Modality.Properties.Multiplication ℕ⊎∞-semiring-with-meet
-    open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+    open Graded.Modality.Properties.Addition ℕ⊎∞-modality
+    open Graded.Modality.Properties.Has-well-behaved-zero ℕ⊎∞-modality
+    open Graded.Modality.Properties.Meet ℕ⊎∞-modality
+    open Graded.Modality.Properties.Multiplication ℕ⊎∞-modality
+    open Graded.Modality.Properties.PartialOrder ℕ⊎∞-modality
 
     nr : (p r z s n : ℕ⊎∞) → ℕ⊎∞
     nr p r z s n = nr₂ p r · n + nr₃ r z s
@@ -1226,7 +1226,7 @@ opaque
     }
     where
     open Tools.Reasoning.PropositionalEquality
-    open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+    open Modality ℕ⊎∞-modality
       using (+-congʳ; +-congˡ; +-identityˡ; ·-zeroʳ)
     open Has-nr (nr₂→has-nr nr₂ nr₂≢𝟘 nr₂≤)
 
@@ -1234,7 +1234,7 @@ instance
 
   -- An instance of Has-nr using nr₂ to define nr₃.
 
-  ℕ⊎∞-has-nr : Has-nr ℕ⊎∞-semiring-with-meet
+  ℕ⊎∞-has-nr : Has-nr ℕ⊎∞-modality
   ℕ⊎∞-has-nr =
    nr₂→has-nr (λ p r → nr₃ r ⌞ 1 ⌟ p)
      (λ {_} {r} nr₃≡𝟘 → case nr₃-positive r nr₃≡𝟘 of λ ())
@@ -1272,7 +1272,7 @@ opaque
   nr₂p𝟘≤𝟙 : ∀ {p} → nr₃ ⌞ 0 ⌟ ⌞ 1 ⌟ p ≤ ⌞ 1 ⌟
   nr₂p𝟘≤𝟙 = ∧-decreasingˡ _ _
     where
-    open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
+    open Graded.Modality.Properties.Meet ℕ⊎∞-modality
 
 opaque
 
@@ -1281,9 +1281,9 @@ opaque
   nr₂𝟘𝟙≤𝟙 : nr₃ ⌞ 1 ⌟ ⌞ 1 ⌟ ⌞ 0 ⌟ ≤ ⌞ 1 ⌟
   nr₂𝟘𝟙≤𝟙 = ≤-refl
     where
-    open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
+    open Graded.Modality.Properties.PartialOrder ℕ⊎∞-modality
 
-open Graded.Modality.Properties.Natrec ℕ⊎∞-semiring-with-meet
+open Graded.Modality.Properties.Natrec ℕ⊎∞-modality
 
 opaque
   unfolding nr₂→has-nr
@@ -1318,12 +1318,12 @@ opaque
 
   -- The nr function returns results that are at least as large as those
   -- of any other factoring nr function with nr₂ p ⌞ 0 ⌟ ≤ ⌞ 1 ⌟ and
-  -- nr₂ ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟ for ℕ⊎∞-semiring-with-meet.
+  -- nr₂ ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟ for ℕ⊎∞-modality.
   -- (Note that the nr₂ function used by nr has these properties,
   -- see nr₂p𝟘≤𝟙 and nr₂𝟘𝟙≤𝟙 above)
 
   nr-greatest-factoring :
-    (has-nr : Has-nr ℕ⊎∞-semiring-with-meet)
+    (has-nr : Has-nr ℕ⊎∞-modality)
     (is-factoring-nr : Is-factoring-nr has-nr)
     (nr₂p𝟘≤𝟙 : ∀ {p} → Is-factoring-nr.nr₂ is-factoring-nr p ⌞ 0 ⌟ ≤ ⌞ 1 ⌟)
     (nr₂𝟘𝟙≤𝟙 : Is-factoring-nr.nr₂ is-factoring-nr ⌞ 0 ⌟ ⌞ 1 ⌟ ≤ ⌞ 1 ⌟) →
@@ -1393,11 +1393,11 @@ opaque
       renaming (nr to nr′; nr-positive to nr′-positive)
     open Is-factoring-nr is-factoring-nr
       renaming (nr₂ to nr₂′)
-    open Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
-    open Graded.Modality.Properties.Meet ℕ⊎∞-semiring-with-meet
-    open Graded.Modality.Properties.Multiplication ℕ⊎∞-semiring-with-meet
-    open Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
-    open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+    open Graded.Modality.Properties.Addition ℕ⊎∞-modality
+    open Graded.Modality.Properties.Meet ℕ⊎∞-modality
+    open Graded.Modality.Properties.Multiplication ℕ⊎∞-modality
+    open Graded.Modality.Properties.PartialOrder ℕ⊎∞-modality
+    open Modality ℕ⊎∞-modality
       hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
     open Tools.Reasoning.PartialOrder ≤-poset
     lemma : ∀ {p r z s n} → nr′ p r z s n ≤ ∞ → nr′ p r z s n ≤ nr p r z s n
@@ -1461,12 +1461,12 @@ opaque
 opaque
 
   -- The nr function returns results that are at least as large as those
-  -- of any other factoring nr function for ℕ⊎∞-semiring-with-meet
+  -- of any other factoring nr function for ℕ⊎∞-modality
   -- when the total order is used.
 
   nr-greatest-factoringₐ :
     T total →
-    (has-nr : Has-nr ℕ⊎∞-semiring-with-meet)
+    (has-nr : Has-nr ℕ⊎∞-modality)
     (has-factoring-nr : Is-factoring-nr has-nr) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≤ nr p r z s n
   nr-greatest-factoringₐ x has-nr is-factoring-nr = lemma _ refl x
@@ -1478,13 +1478,6 @@ opaque
     lemma true refl _ =
       nr-greatest-factoring has-nr is-factoring-nr
         (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘) (≢𝟘→≤ᵗ𝟙 nr₂≢𝟘)
-
--- A modality (of any kind) for ℕ⊎∞.
-
-ℕ⊎∞-modality : Modality
-ℕ⊎∞-modality = record
-  { semiring-with-meet = ℕ⊎∞-semiring-with-meet
-  }
 
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
@@ -1617,7 +1610,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
 ------------------------------------------------------------------------
 -- Subtraction
 
-open Graded.Modality.Properties.Subtraction ℕ⊎∞-semiring-with-meet
+open Graded.Modality.Properties.Subtraction ℕ⊎∞-modality
 
 opaque
 
@@ -1743,13 +1736,13 @@ opaque
 ------------------------------------------------------------------------
 -- Greatest-lower-bounds
 
-open Semiring-with-meet ℕ⊎∞-semiring-with-meet
+open Modality ℕ⊎∞-modality
   hiding (_+_; _·_; _≤_; _∧_)
-open import Graded.Modality.Properties.Greatest-lower-bound ℕ⊎∞-semiring-with-meet
-open import Graded.Modality.Properties.Multiplication ℕ⊎∞-semiring-with-meet
-open import Graded.Modality.Properties.Addition ℕ⊎∞-semiring-with-meet
-open import Graded.Modality.Properties.PartialOrder ℕ⊎∞-semiring-with-meet
-open import Graded.Modality.Properties.Has-well-behaved-zero ℕ⊎∞-semiring-with-meet
+open import Graded.Modality.Properties.Greatest-lower-bound ℕ⊎∞-modality
+open import Graded.Modality.Properties.Multiplication ℕ⊎∞-modality
+open import Graded.Modality.Properties.Addition ℕ⊎∞-modality
+open import Graded.Modality.Properties.PartialOrder ℕ⊎∞-modality
+open import Graded.Modality.Properties.Has-well-behaved-zero ℕ⊎∞-modality
 
 opaque
 
@@ -1930,7 +1923,7 @@ opaque
   -- The modality has well-behaved GLBs.
 
   ℕ⊎∞-supports-glb-for-natrec :
-    Has-well-behaved-GLBs ℕ⊎∞-semiring-with-meet
+    Has-well-behaved-GLBs ℕ⊎∞-modality
   ℕ⊎∞-supports-glb-for-natrec = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = ·-GLBˡ

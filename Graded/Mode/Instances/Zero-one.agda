@@ -48,7 +48,7 @@ private variable
 private opaque instance
 
   𝟘ᵐ-allowed→𝟘-well-behaved :
-    ⦃ ok : T 𝟘ᵐ-allowed ⦄ → Has-well-behaved-zero semiring-with-meet
+    ⦃ ok : T 𝟘ᵐ-allowed ⦄ → Has-well-behaved-zero 𝕄
   𝟘ᵐ-allowed→𝟘-well-behaved ⦃ ok ⦄ = 𝟘-well-behaved ok
 
 ------------------------------------------------------------------------
@@ -57,7 +57,7 @@ private opaque instance
 
 module 𝟘ᵐ (ok : T 𝟘ᵐ-allowed) where
   open import Graded.Modality.Properties.Has-well-behaved-zero
-    semiring-with-meet
+    𝕄
     ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ public
 
 ------------------------------------------------------------------------
@@ -356,7 +356,7 @@ opaque
   -- ⌜ m ⌝ ·_ distributes over _⊛_▷ r from the left.
 
   ⌜⌝-·-distribˡ-⊛ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-star : Has-star 𝕄 ⦄ →
     ∀ m → ⌜ m ⌝ · p ⊛ q ▷ r ≡ (⌜ m ⌝ · p) ⊛ ⌜ m ⌝ · q ▷ r
   ⌜⌝-·-distribˡ-⊛ {p = p} {q = q} {r = r} 𝟙ᵐ = begin
     𝟙 · p ⊛ q ▷ r        ≡⟨ ·-identityˡ _ ⟩
@@ -376,7 +376,7 @@ opaque
   -- ⌜ m ⌝ ·ᶜ_ distributes over _⊛ᶜ_▷ r from the left.
 
   ⌜⌝-·ᶜ-distribˡ-⊛ᶜ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-star : Has-star 𝕄 ⦄ →
     ∀ m → ⌜ m ⌝ ·ᶜ γ ⊛ᶜ δ ▷ r ≈ᶜ (⌜ m ⌝ ·ᶜ γ) ⊛ᶜ ⌜ m ⌝ ·ᶜ δ ▷ r
   ⌜⌝-·ᶜ-distribˡ-⊛ᶜ {γ = ε}     {δ = ε}     _ = ε
   ⌜⌝-·ᶜ-distribˡ-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} m =
@@ -388,7 +388,7 @@ opaque
   -- distributes over nr p r.
 
   ⌜⌝-·-distribˡ-nr :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr 𝕄 ⦄ →
     ∀ {n} m →
     ⌜ m ⌝ · nr p r z s n ≡ nr p r (⌜ m ⌝ · z) (⌜ m ⌝ · s) (⌜ m ⌝ · n)
   ⌜⌝-·-distribˡ-nr {p = p} {r = r} {z = z} {s = s} {n = n} 𝟙ᵐ =
@@ -413,7 +413,7 @@ opaque
   -- distributes over nrᶜ p r.
 
   ⌜⌝ᶜ-·ᶜ-distribˡ-nrᶜ :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr 𝕄 ⦄ →
     ∀ m →
     ⌜ m ⌝ ·ᶜ nrᶜ p r γ δ η ≈ᶜ
     nrᶜ p r (⌜ m ⌝ ·ᶜ γ) (⌜ m ⌝ ·ᶜ δ) (⌜ m ⌝ ·ᶜ η)
@@ -426,7 +426,7 @@ opaque
   -- A variant of ⌜⌝-·-distribˡ-nr.
 
   ≡nr-𝟘-𝟘-⌜⌝ :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr 𝕄 ⦄ →
     ∀ m → ⌜ m ⌝ · nr p r 𝟘 𝟘 𝟙 ≡ nr p r 𝟘 𝟘 ⌜ m ⌝
   ≡nr-𝟘-𝟘-⌜⌝ {p} {r} m =
     ⌜ m ⌝ · nr p r 𝟘 𝟘 𝟙                        ≡⟨ ⌜⌝-·-distribˡ-nr m ⟩
@@ -888,7 +888,7 @@ opaque
 -- The Zero-one mode structure supports nr functions.
 
 Zero-one-supports-nr :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ → Mode-supports-nr _ _ Zero-one-isMode
+  ⦃ has-nr : Has-nr 𝕄 ⦄ → Mode-supports-nr _ _ Zero-one-isMode
 Zero-one-supports-nr = record
   { ⌜⌝-·-nr = λ {m} → ⌜⌝-·-distribˡ-nr m
   ; ⌞nr⌟-decreasing₁ = ⌞nr⌟-decreasing₁

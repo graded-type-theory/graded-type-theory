@@ -382,7 +382,7 @@ data InvUsageNatrec′ (p r : M) (γ δ η : Conₘ n) : Conₘ n → Set (a ⊔
     χ ≤ᶜ γ →
     (¬ Trivialᵐ →
      χ ≤ᶜ δ) →
-    ((Trivialᵐ → Has-well-behaved-zero semiring-with-meet) → χ ≤ᶜ η) →
+    ((Trivialᵐ → Has-well-behaved-zero 𝕄) → χ ≤ᶜ η) →
     χ ≤ᶜ δ +ᶜ p ·ᶜ η +ᶜ r ·ᶜ χ →
     InvUsageNatrec′ p r γ δ η χ
   invUsageNatrecNoNrGLB :
@@ -456,7 +456,7 @@ opaque
     η ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · r ▸[ m ] s ×
     θ ▸[ m ] n × φ ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] G ×
     γ ≤ᶜ χ × χ ≤ᶜ δ × (¬ Trivialᵐ → χ ≤ᶜ η) ×
-    ((Trivialᵐ → Has-well-behaved-zero semiring-with-meet) → χ ≤ᶜ θ)
+    ((Trivialᵐ → Has-well-behaved-zero 𝕄) → χ ≤ᶜ θ)
     × χ ≤ᶜ η +ᶜ p ·ᶜ θ +ᶜ r ·ᶜ χ
   inv-usage-natrec-no-nr ⦃ no-nr ⦄ ▸nr =
     case inv-usage-natrec ▸nr of λ where

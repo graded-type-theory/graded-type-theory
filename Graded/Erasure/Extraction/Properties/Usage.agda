@@ -82,7 +82,7 @@ private opaque
   -- Some lemmas used in the proof of erase-[].
 
   ¬◂𝟘∈,≔𝟙 :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     ¬ x ◂ 𝟘 ∈ (γ , x ≔ 𝟙)
   ¬◂𝟘∈,≔𝟙 {x} {γ} =
     x ◂ 𝟘 ∈ (γ , x ≔ 𝟙)    ⇔⟨ ◂∈⇔ ⟩→
@@ -91,7 +91,7 @@ private opaque
     ⊥                      □
 
   erase-[]-var :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
     (y : Fin n) →
     OK σ (𝟘ᶜ , y ≔ 𝟙) →
     erase′ b s (σ y) ≡ var y
@@ -117,7 +117,7 @@ opaque
 
   erase-[] :
     {σ : U.Subst n n}
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     (∀ {x} → σ x ≢ var x → x ◂ 𝟘 ∈ γ) →
     γ ▸[ 𝟙ᵐ ] t →
     erase′ b s (t U.[ σ ]) ≡ erase′ b s t
@@ -315,7 +315,7 @@ opaque
 
   wk₀-erase-[] :
     {σ : U.Subst 0 n}
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     T.wk wk₀ (erase′ b s (t U.[ σ ])) ≡ erase′ b s t
   wk₀-erase-[] {t} {b} {s} {σ} ▸t =
@@ -331,7 +331,7 @@ opaque
   -- A variant of erase-[] stated using ⟨_≔_⟩↑.
 
   erase-≔↑ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t →
     erase′ b s (t U.[ ⟨ x ≔ u ⟩↑ ]) ≡ erase′ b s t
   erase-≔↑ x◂ ▸t = erase-[] (flip (lemma _ _) x◂) ▸t
@@ -354,7 +354,7 @@ opaque
   -- A special case of erase-≔↑.
 
   erase-[]↑ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     x0 ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t →
     erase′ b s (t U.[ u ]↑) ≡ erase′ b s t
   erase-[]↑ = erase-≔↑
@@ -364,7 +364,7 @@ opaque
   -- A variant of erase-≔↑.
 
   erase-≔ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t →
     wk (step-at x) (erase′ b s (t U.[ ⟨ x ≔ u ⟩ ])) ≡ erase′ b s t
   erase-≔ {x} {t} {b} {s} {u} x◂ ▸t =
@@ -382,7 +382,7 @@ opaque
   -- A special case of erase-≔.
 
   erase-[]₀ :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     x0 ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t →
     T.wk1 (erase′ b s (t U.[ u ]₀)) ≡ erase′ b s t
   erase-[]₀ = erase-≔
@@ -393,7 +393,7 @@ opaque
   -- not occur after extraction.
 
   erased-hasX :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     x ◂ 𝟘 ∈ γ → γ ▸[ 𝟙ᵐ ] t → ¬ HasX x (erase′ b s t)
   erased-hasX {x} {t} {b} {s} x∈ ▸t =
     HasX x (erase′ b s t)                                     →⟨ PE.subst (HasX _) (sym $ erase-≔ x∈ ▸t) ⟩

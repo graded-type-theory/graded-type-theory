@@ -7,10 +7,10 @@ import Graded.Modality
 module Graded.Modality.Properties.Division
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Semiring-with-meet)
+  (𝕄 : Modality)
   where
 
-open Semiring-with-meet 𝕄
+open Modality 𝕄
 
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄

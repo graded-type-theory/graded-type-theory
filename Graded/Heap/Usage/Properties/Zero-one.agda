@@ -71,7 +71,7 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- unless it is an erased emptyrec
 
     ▸∣∣ᶜ≢𝟘 :
-      ⦃ Has-well-behaved-zero M semiring-with-meet ⦄ →
+      ⦃ Has-well-behaved-zero M 𝕄 ⦄ →
       γ ▸ᶜ[ 𝟙ᵐ ] c →
       ¬ ∣ c ∣ᶜ[ 𝟙ᵐ ]≡ 𝟘 ⊎
       ∃₃ λ n (A : Term n) ρ → c ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
@@ -117,7 +117,7 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- The multiplicity of a well-resourced stack is either not zero
     -- or contains an erased application of emptyrec
 
-    ▸∣∣≢𝟘 : ⦃ Has-well-behaved-zero M semiring-with-meet ⦄
+    ▸∣∣≢𝟘 : ⦃ Has-well-behaved-zero M 𝕄 ⦄
            → γ ▸ˢ S → ¬ ∣ S ∣≡ 𝟘 ⊎ (emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
     ▸∣∣≢𝟘 ε = inj₁ λ ≡𝟘 → non-trivial (∣∣-functional ε ≡𝟘)
     ▸∣∣≢𝟘 (▸ˢ∙ ∣S∣≡ ▸c ▸S) =

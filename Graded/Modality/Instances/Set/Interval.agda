@@ -1009,10 +1009,10 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
 
     open Graded.Modality S
 
-    -- A "semiring with meet" for S.
+    -- A modality structure for S.
 
-    semiring-with-meet : Semiring-with-meet
-    semiring-with-meet = record
+    modality : Modality
+    modality = record
       { _∧_     = _∪_
       ; _+_     = _+_
       ; _·_     = _·_
@@ -1039,9 +1039,9 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
       ; ·-distrib-∧ = ·-distrib-∪
       }
 
-    -- The "semiring with meet" has a well-behaved zero.
+    -- The modality has a well-behaved zero.
 
-    has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
+    has-well-behaved-zero : Has-well-behaved-zero modality
     has-well-behaved-zero = record
       { non-trivial  = 𝟙≢𝟘
       ; ∧-positiveˡ  = proj₁ ∘→ ∪-positive
@@ -1050,17 +1050,11 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
       }
 
     private
-      module LB = LowerBounded semiring-with-meet ℕ (λ _ → ℕ-least)
+      module LB = LowerBounded modality ℕ (λ _ → ℕ-least)
 
     -- A natrec-star operator for S.
     --
     -- Other definitions might also work.
 
-    has-star : Has-star semiring-with-meet
+    has-star : Has-star modality
     has-star = LB.has-star
-
-    -- A modality (of any kind) for S defined using the construction
-    -- in Graded.Modality.Instances.BoundedStar.
-
-    modality : Modality
-    modality = LB.isModality

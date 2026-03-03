@@ -245,14 +245,14 @@ data _≈ⁿᵐ_
        {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂} :
        Natrec-mode 𝕄₁ → Natrec-mode 𝕄₂ → Set (a₁ ⊔ a₂) where
   Nr :
-    ⦃ has-nr₁ : Has-nr M₁ (Modality.semiring-with-meet 𝕄₁) ⦄ →
-    ⦃ has-nr₂ : Has-nr M₂ (Modality.semiring-with-meet 𝕄₂) ⦄ →
+    ⦃ has-nr₁ : Has-nr M₁ 𝕄₁ ⦄ →
+    ⦃ has-nr₂ : Has-nr M₂ 𝕄₂ ⦄ →
     Nr ≈ⁿᵐ Nr
   No-nr :
     No-nr ≈ⁿᵐ No-nr
   No-nr-glb :
-    ⦃ ok₁ : Has-well-behaved-GLBs M₁ (Modality.semiring-with-meet 𝕄₁) ⦄ →
-    ⦃ ok₂ : Has-well-behaved-GLBs M₂ (Modality.semiring-with-meet 𝕄₂) ⦄ →
+    ⦃ ok₁ : Has-well-behaved-GLBs M₁ 𝕄₁ ⦄ →
+    ⦃ ok₂ : Has-well-behaved-GLBs M₂ 𝕄₂ ⦄ →
     No-nr-glb ≈ⁿᵐ No-nr-glb
 
 opaque

@@ -175,7 +175,7 @@ no-erased-matches-UR TR UR = record (only-some-erased-matches UR)
 -- natrecₘ for natrec using a given nr function.
 
 nr-available-UR :
-  (has-nr : Has-nr semiring-with-meet) →
+  (has-nr : Has-nr 𝕄) →
   Usage-restrictions → Usage-restrictions
 nr-available-UR has-nr UR = record UR
   { natrec-mode      = Nr ⦃ has-nr ⦄

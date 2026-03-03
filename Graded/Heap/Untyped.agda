@@ -46,7 +46,7 @@ open import Definition.Untyped.Names-below M using (No-names)
 
 open import Graded.Modality.Nr-instances
 open import Graded.Mode
-open import Graded.Modality.Properties.Subtraction semiring-with-meet
+open import Graded.Modality.Properties.Subtraction 𝕄
 open import Graded.Usage.Erased-matches
 
 private variable

@@ -14,14 +14,13 @@ module Graded.Erasure.LogicalRelation.Fundamental.Unit
   {R : Type-restrictions 𝕄}
   (variant : Mode-variant 𝕄)
   (as : Assumptions R)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open Assumptions as
 open Type-restrictions R
 
-open import Graded.Modality.Properties.Has-well-behaved-zero
-  semiring-with-meet
+open import Graded.Modality.Properties.Has-well-behaved-zero 𝕄
 
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning

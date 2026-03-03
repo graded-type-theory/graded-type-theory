@@ -19,7 +19,7 @@ private variable
   pᵢ : Sequence M
 
 -- Semiring with meet
-record Semiring-with-meet : Set a where
+record Modality : Set a where
   no-eta-equality
   pattern
 
@@ -30,16 +30,17 @@ record Semiring-with-meet : Set a where
 
 
   field
-    -- A semiring with meet consists of a type M with three binary
+    -- A modality structure consists of a type M with three binary
     -- operations (addition, multiplication and meet), and three
     -- special elements.
     _+_ _·_ _∧_ : Op₂ M
     𝟘 𝟙 ω       : M
 
-    -- + and · form a semiring with 𝟙 as multiplicative unit and 𝟘 as zero
+    -- + and · form a semiring with 𝟙 as multiplicative unit and 𝟘 as
+    -- zero
     +-·-Semiring  : IsSemiring _+_ _·_ 𝟘 𝟙
     -- ∧ forms a semilattice
-    ∧-Semilattice       : IsMeetSemilattice _∧_
+    ∧-Semilattice : IsMeetSemilattice _∧_
 
     -- Multiplation distributes over meet
     ·-distrib-∧         : _·_ DistributesOver _∧_
@@ -65,7 +66,7 @@ record Semiring-with-meet : Set a where
     -- It is decidable whether a grade is equal to 𝟘.
     is-𝟘? : (p : M) → Dec (p ≡ 𝟘)
 
-  -- A semiring with meet is said to be trivial if 𝟙 ≡ 𝟘.
+  -- A modality structure is said to be trivial if 𝟙 ≡ 𝟘.
   --
   -- This implies that all values of type M are equal, see
   -- Graded.Modality.Properties.Equivalence.≡-trivial.
@@ -156,11 +157,11 @@ record Semiring-with-meet : Set a where
               assoc to ∧-assoc
              )
 
--- Meet-Semirings with well-behaved zero
-record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
+-- Modality structures with well-behaved zero
+record Has-well-behaved-zero (𝕄 : Modality) : Set a where
   no-eta-equality
   pattern
-  open Semiring-with-meet 𝕄
+  open Modality 𝕄
   field
     -- 𝕄 is non-trivial.
     non-trivial : ¬ Trivial
@@ -188,11 +189,11 @@ record Has-well-behaved-zero (𝕄 : Semiring-with-meet) : Set a where
 -- The property of having an nr function (a "natrec usage function").
 -- Such a function is used in one of the usage rules for natrec.
 
-record Has-nr (𝕄 : Semiring-with-meet) : Set a where
+record Has-nr (𝕄 : Modality) : Set a where
   no-eta-equality
   pattern
 
-  open Semiring-with-meet 𝕄
+  open Modality 𝕄
 
   field
     -- The nr function.
@@ -243,26 +244,27 @@ record Has-nr (𝕄 : Semiring-with-meet) : Set a where
 
 -- The property of having an nr function that factors in a certain way
 
-record Is-factoring-nr {𝕄 : Semiring-with-meet} (has-nr : Has-nr 𝕄)  : Set a where
+record Is-factoring-nr {𝕄 : Modality} (has-nr : Has-nr 𝕄)  : Set a where
   no-eta-equality
   pattern
 
-  open Semiring-with-meet 𝕄
+  open Modality 𝕄
   open Has-nr has-nr
 
   field
     nr₂ : (p r : M) → M
 
     nr₂≢𝟘 : {p r : M} → nr₂ p r ≢ 𝟘
-    nr-factoring : {p r z s n : M} → nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
+    nr-factoring :
+      {p r z s n : M} → nr p r z s n ≡ nr₂ p r · n + nr p r z s 𝟘
 
 -- A bundling of properties that the modality is required to satisfy
 -- when a certain usage rule for natrec is used.
 
-record Has-well-behaved-GLBs (𝕄 : Semiring-with-meet) : Set a where
+record Has-well-behaved-GLBs (𝕄 : Modality) : Set a where
   no-eta-equality
 
-  open Semiring-with-meet 𝕄
+  open Modality 𝕄
 
   field
     +-GLBˡ :
@@ -284,11 +286,11 @@ record Has-well-behaved-GLBs (𝕄 : Semiring-with-meet) : Set a where
 
 
 -- The property of having a natrec-star operator.
-record Has-star (r : Semiring-with-meet) : Set a where
+record Has-star (r : Modality) : Set a where
   no-eta-equality
   pattern
 
-  open Semiring-with-meet r
+  open Modality r
 
   infix 50 _⊛_▷_
 
@@ -318,12 +320,3 @@ record Has-star (r : Semiring-with-meet) : Set a where
 
   ⊛-sub-distribʳ-∧ : (r : M) → (_⊛_▷ r) SubDistributesOverʳ _∧_ by _≤_
   ⊛-sub-distribʳ-∧ r = proj₂ (⊛-sub-distrib-∧ r)
-
--- The modality structure
-record Modality : Set (lsuc a) where
-  no-eta-equality
-  pattern
-  field
-    semiring-with-meet : Semiring-with-meet
-
-  open Semiring-with-meet semiring-with-meet public

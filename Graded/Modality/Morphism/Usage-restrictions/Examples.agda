@@ -1877,8 +1877,8 @@ opaque
     in
     (T (Mode-variant.𝟘ᵐ-allowed v₁) → T (Mode-variant.𝟘ᵐ-allowed v₂)) →
     (⦃ 𝟘-well-behaved :
-         Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
-     Has-well-behaved-zero M₂ M₂.semiring-with-meet) →
+         Has-well-behaved-zero M₁ 𝕄₁ ⦄ →
+     Has-well-behaved-zero M₂ 𝕄₂) →
     (tr : M₁ → M₂)
     (tr⁻¹ : M₂ → M₁) →
     (∀ p q → p M₂.≤ q → tr⁻¹ p M₁.≤ tr⁻¹ q) →
@@ -1891,7 +1891,7 @@ opaque
     q₁ M₂.≤ q₂ →
     (T (Mode-variant.𝟘ᵐ-allowed v₂) →
      q₁ M₂.≤ q₃) →
-    (⦃ 𝟘-well-behaved : Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
+    (⦃ 𝟘-well-behaved : Has-well-behaved-zero M₂ 𝕄₂ ⦄ →
      q₁ M₂.≤ q₄) →
     q₁ M₂.≤ q₃ M₂.+ tr r M₂.· q₄ M₂.+ tr s M₂.· q₁ →
     ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -1903,7 +1903,7 @@ opaque
        (T (Mode-variant.𝟘ᵐ-allowed v₁) →
         q₁′ M₁.≤ q₃′) ×
        (⦃ 𝟘-well-behaved :
-            Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
+            Has-well-behaved-zero M₁ 𝕄₁ ⦄ →
         q₁′ M₁.≤ q₄′) ×
        q₁′ M₁.≤ q₃′ M₁.+ r M₁.· q₄′ M₁.+ s M₁.· q₁′
   →tr-≤-no-nr
@@ -2184,7 +2184,7 @@ opaque
        q₁ LA.≤ q₃) →
       (⦃ 𝟘-well-behaved :
            Has-well-behaved-zero Linear-or-affine
-             LA.linear-or-affine-semiring-with-meet ⦄ →
+             LA.linear-or-affine ⦄ →
        q₁ LA.≤ q₄) →
       q₁ LA.≤ q₃ LA.+ tr′ r LA.· q₄ LA.+ tr′ s LA.· q₁ →
       ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -2196,8 +2196,7 @@ opaque
          (T (Mode-variant.𝟘ᵐ-allowed v₁) →
           q₁′ L.≤ q₃′) ×
          (⦃ 𝟘-well-behaved :
-              Has-well-behaved-zero Linearity
-                (Modality.semiring-with-meet linearityModality) ⦄ →
+              Has-well-behaved-zero Linearity linearityModality ⦄ →
           q₁′ L.≤ q₄′) ×
          q₁′ L.≤ q₃′ L.+ r L.· q₄′ L.+ s L.· q₁′
     tr-≤-no-nr′ s = →tr-≤-no-nr {s = s}
@@ -2330,7 +2329,7 @@ opaque
        q₁ LA.≤ q₃) →
       (⦃ 𝟘-well-behaved :
            Has-well-behaved-zero Linear-or-affine
-             LA.linear-or-affine-semiring-with-meet ⦄ →
+             LA.linear-or-affine ⦄ →
        q₁ LA.≤ q₄) →
       q₁ LA.≤ q₃ LA.+ tr′ r LA.· q₄ LA.+ tr′ s LA.· q₁ →
       ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -2342,8 +2341,7 @@ opaque
          (T (Mode-variant.𝟘ᵐ-allowed v₁) →
           q₁′ A.≤ q₃′) ×
          (⦃ 𝟘-well-behaved :
-              Has-well-behaved-zero Affine
-                (Modality.semiring-with-meet affineModality) ⦄ →
+              Has-well-behaved-zero Affine affineModality ⦄ →
           q₁′ A.≤ q₄′) ×
          q₁′ A.≤ q₃′ A.+ r A.· q₄′ A.+ s A.· q₁′
     tr-≤-no-nr′ s = →tr-≤-no-nr {s = s}

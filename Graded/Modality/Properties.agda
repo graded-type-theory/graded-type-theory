@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Properties of the modality semiring.
+-- Properties of the modality structure.
 ------------------------------------------------------------------------
 
 import Graded.Modality
@@ -10,23 +10,21 @@ module Graded.Modality.Properties
   (𝕄 : Modality)
   where
 
-open Modality 𝕄
-
-open import Graded.Modality.Properties.Addition semiring-with-meet public
-open import Graded.Modality.Properties.Division semiring-with-meet
+open import Graded.Modality.Properties.Addition 𝕄 public
+open import Graded.Modality.Properties.Division 𝕄
   public
-open import Graded.Modality.Properties.Equivalence semiring-with-meet
+open import Graded.Modality.Properties.Equivalence 𝕄
   public
-open import Graded.Modality.Properties.Greatest-lower-bound semiring-with-meet
+open import Graded.Modality.Properties.Greatest-lower-bound 𝕄
   public
 open import
-  Graded.Modality.Properties.Has-well-behaved-zero semiring-with-meet as H
+  Graded.Modality.Properties.Has-well-behaved-zero 𝕄 as H
   public
-open import Graded.Modality.Properties.Meet semiring-with-meet public
-open import Graded.Modality.Properties.Multiplication semiring-with-meet public
-open import Graded.Modality.Properties.Natrec semiring-with-meet public
-open import Graded.Modality.Properties.PartialOrder semiring-with-meet public
-open import Graded.Modality.Properties.Star semiring-with-meet public
-open import Graded.Modality.Properties.Subtraction semiring-with-meet public
+open import Graded.Modality.Properties.Meet 𝕄 public
+open import Graded.Modality.Properties.Multiplication 𝕄 public
+open import Graded.Modality.Properties.Natrec 𝕄 public
+open import Graded.Modality.Properties.PartialOrder 𝕄 public
+open import Graded.Modality.Properties.Star 𝕄 public
+open import Graded.Modality.Properties.Subtraction 𝕄 public
 
 open import Tools.Bool

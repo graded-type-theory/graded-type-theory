@@ -60,8 +60,8 @@ record Is-no-nr-preserving
     -- If the target modality has a well-behaved zero, then the source
     -- modality has a well-behaved zero or is trivial.
     𝟘-well-behaved-in-first-if-in-second :
-      Has-well-behaved-zero M₂ M₂.semiring-with-meet →
-      Has-well-behaved-zero M₁ M₁.semiring-with-meet ⊎ M₁.Trivial
+      Has-well-behaved-zero M₂ 𝕄₂ →
+      Has-well-behaved-zero M₁ 𝕄₁ ⊎ M₁.Trivial
 
 opaque
 
@@ -136,7 +136,7 @@ record Is-no-nr-reflecting-morphism
       (T V₂.𝟘ᵐ-allowed →
        q₁ M₂.≤ q₃) →
       (⦃ 𝟘-well-behaved :
-           Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
+           Has-well-behaved-zero M₂ 𝕄₂ ⦄ →
        q₁ M₂.≤ q₄) →
       q₁ M₂.≤ q₃ M₂.+ tr r M₂.· q₄ M₂.+ tr s M₂.· q₁ →
       ∃₄ λ q₁′ q₂′ q₃′ q₄′ →
@@ -148,7 +148,7 @@ record Is-no-nr-reflecting-morphism
          (T V₁.𝟘ᵐ-allowed →
           q₁′ M₁.≤ q₃′) ×
          (⦃ 𝟘-well-behaved :
-              Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
+              Has-well-behaved-zero M₁ 𝕄₁ ⦄ →
           q₁′ M₁.≤ q₄′) ×
          q₁′ M₁.≤ q₃′ M₁.+ r M₁.· q₄′ M₁.+ s M₁.· q₁′
 
@@ -166,7 +166,7 @@ record Is-no-nr-reflecting-morphism
       δ₁ C₂.≤ᶜ δ₂ →
       (T V₂.𝟘ᵐ-allowed → δ₁ C₂.≤ᶜ δ₃) →
       (⦃ 𝟘-well-behaved :
-           Has-well-behaved-zero M₂ M₂.semiring-with-meet ⦄ →
+           Has-well-behaved-zero M₂ 𝕄₂ ⦄ →
        δ₁ C₂.≤ᶜ δ₄) →
       δ₁ C₂.≤ᶜ δ₃ C₂.+ᶜ tr p C₂.·ᶜ δ₄ C₂.+ᶜ tr q C₂.·ᶜ δ₁ →
       ∃₄ λ δ₁′ δ₂′ δ₃′ δ₄′ →
@@ -177,7 +177,7 @@ record Is-no-nr-reflecting-morphism
          δ₁′ C₁.≤ᶜ δ₂′ ×
          (T V₁.𝟘ᵐ-allowed → δ₁′ C₁.≤ᶜ δ₃′) ×
          (⦃ 𝟘-well-behaved :
-              Has-well-behaved-zero M₁ M₁.semiring-with-meet ⦄ →
+              Has-well-behaved-zero M₁ 𝕄₁ ⦄ →
           δ₁′ C₁.≤ᶜ δ₄′) ×
          δ₁′ C₁.≤ᶜ δ₃′ C₁.+ᶜ p C₁.·ᶜ δ₄′ C₁.+ᶜ q C₁.·ᶜ δ₁′
     tr-≤ᶜ-no-nr {γ = ε} {δ₁ = ε} {δ₂ = ε} {δ₃ = ε} {δ₄ = ε} _ _ _ _ _ =

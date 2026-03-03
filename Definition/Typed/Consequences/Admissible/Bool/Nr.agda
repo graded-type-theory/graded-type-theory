@@ -17,7 +17,7 @@ module Definition.Typed.Consequences.Admissible.Bool.Nr
   (open Modality 𝕄)
   (open Definition.Untyped.Bool.Nr 𝕄 𝐌)
   -- It is assumed that the modality has an nr function.
-  ⦃ has-nr : Has-nr _ (Modality.semiring-with-meet 𝕄) ⦄
+  ⦃ has-nr : Has-nr _ 𝕄 ⦄
   -- It is assumed that certain Σ-types are allowed.
   (Σ-ok : Σʷ-allowed ω Boolᵍ)
   -- It is assumed that weak unit types are allowed.

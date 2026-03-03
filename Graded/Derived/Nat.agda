@@ -220,7 +220,7 @@ opaque
      χ ≤ᶜ γ ×
      (¬ Trivialᵐ →
       χ ≤ᶜ δ) ×
-     ((Trivialᵐ → Has-well-behaved-zero _ semiring-with-meet) →
+     ((Trivialᵐ → Has-well-behaved-zero _ 𝕄) →
       χ ≤ᶜ η) ×
      χ ≤ᶜ δ +ᶜ p ·ᶜ η) →
     (⦃ no-nr : Nr-not-available-GLB ⦄ →

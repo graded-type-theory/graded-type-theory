@@ -17,7 +17,7 @@ open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.Natrec 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
 open import Graded.Modality.Nr-instances
-open import Graded.Modality.Properties.PartialOrder semiring-with-meet
+open import Graded.Modality.Properties.PartialOrder 𝕄
 
 open import Tools.Fin
 open import Tools.Function
@@ -89,7 +89,7 @@ lookup-distrib-∧ᶜ (γ ∙ p) (δ ∙ q) (x +1) = lookup-distrib-∧ᶜ γ δ
 -- (γ ⊛ᶜ δ ▷ r)⟨x⟩ ≡ γ⟨x⟩ ⊛ δ⟨x⟩ ▷ r
 
 lookup-distrib-⊛ᶜ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-star : Has-star 𝕄 ⦄ →
   (γ δ : Conₘ n) (r : M) (x : Fin n) →
   (γ ⊛ᶜ δ ▷ r) ⟨ x ⟩ ≡ (γ ⟨ x ⟩) ⊛ (δ ⟨ x ⟩) ▷ r
 lookup-distrib-⊛ᶜ ε       _       _ ()

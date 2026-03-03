@@ -34,12 +34,11 @@ private variable
   p q r : M
   γ δ : Graded.Context.Conₘ _ _
 
+-- Bounded, distributive lattices for which equality with ⊤ is
+-- decidable can be turned into modalities.
 
--- Bounded, distributive lattices can be turned into "semirings with
--- meet" (if equality with ⊤ is decidable).
-
-semiring-with-meet : Semiring-with-meet
-semiring-with-meet = record
+modality : Modality
+modality = record
   { _+_           = _∧_
   ; _·_           = _∨_
   ; _∧_           = _∧_
@@ -115,7 +114,7 @@ semiring-with-meet = record
 -- One can define natrec-star operators for bounded, distributive
 -- lattices (if equality with ⊤ is decidable).
 
-has-star : Has-star semiring-with-meet
+has-star : Has-star modality
 has-star = L.has-star _ ⊥ ⊥≤
 
 opaque
@@ -123,8 +122,8 @@ opaque
   -- One can define an nr function for bounded, distributive
   -- lattices (if equality with ⊤ is decidable).
 
-  has-nr : Has-nr semiring-with-meet
-  has-nr = Star.has-nr semiring-with-meet ⦃ has-star ⦄
+  has-nr : Has-nr modality
+  has-nr = Star.has-nr modality ⦃ has-star ⦄
 
 opaque
   unfolding has-nr
@@ -146,15 +145,6 @@ opaque
      z ∧ s ∧ n                     ∎
     where
     open Tools.Reasoning.PropositionalEquality
-
--- Bounded, distributive lattices for which equality with ⊤ is
--- decidable can be turned into modalities.
-
-modality : Modality
-modality = L.isModality
-  semiring-with-meet
-  ⊥
-  ⊥≤
 
 private
   module 𝕄 = Modality modality

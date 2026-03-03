@@ -303,7 +303,7 @@ instance
   -- The "affine types" modality has a well-behaved zero.
 
   affine-has-well-behaved-zero :
-    Has-well-behaved-zero (Modality.semiring-with-meet affineModality)
+    Has-well-behaved-zero affineModality
   affine-has-well-behaved-zero = zero-one-many-has-well-behaved-zero
 
 -- 𝟘 is the largest element.
@@ -319,7 +319,7 @@ opaque
   -- are either 𝟘 or 𝟙
 
   𝟙-GLB-inv :
-    Semiring-with-meet.Greatest-lower-bound zero-one-many-semiring-with-meet 𝟙 pᵢ →
+    Modality.Greatest-lower-bound zero-one-many-modality 𝟙 pᵢ →
     ∀ i → pᵢ i ≡ 𝟙 ⊎ pᵢ i ≡ 𝟘
   𝟙-GLB-inv 𝟙-glb i = lemma _ (𝟙-glb .proj₁ i)
     where
@@ -333,9 +333,9 @@ opaque
   -- If the greatest lower bound of nrᵢ r z s is 𝟘 then z = s 𝟘.
 
   nrᵢ-GLB-𝟘-inv :
-   let 𝕄 = zero-one-many-semiring-with-meet in
+   let 𝕄 = zero-one-many-modality in
     ∀ r z s →
-    Semiring-with-meet.Greatest-lower-bound 𝕄 𝟘 (Semiring-with-meet.nrᵢ 𝕄 r z s) →
+    Modality.Greatest-lower-bound 𝕄 𝟘 (Modality.nrᵢ 𝕄 r z s) →
     z ≡ 𝟘 × s ≡ 𝟘
   nrᵢ-GLB-𝟘-inv r 𝟘 𝟘 (𝟘≤ , _) = refl , refl
   nrᵢ-GLB-𝟘-inv 𝟘 𝟘 𝟙 (𝟘≤ , _) = case 𝟘≤ 1 of λ ()
@@ -354,9 +354,9 @@ opaque
   -- r≡𝟘, z≡𝟙, s≡𝟘
 
   nrᵢ-GLB-𝟙-inv :
-   let 𝕄 = zero-one-many-semiring-with-meet in
+   let 𝕄 = zero-one-many-modality in
     ∀ r z s →
-    Semiring-with-meet.Greatest-lower-bound 𝕄 𝟙 (Semiring-with-meet.nrᵢ 𝕄 r z s) →
+    Modality.Greatest-lower-bound 𝕄 𝟙 (Modality.nrᵢ 𝕄 r z s) →
     r ≡ 𝟙 × z ≡ 𝟙 × s ≡ 𝟘 ⊎ r ≡ 𝟘 × z ≡ 𝟙 × s ≡ 𝟙 ⊎
     r ≡ 𝟘 × z ≡ 𝟘 × s ≡ 𝟙 ⊎ r ≡ 𝟘 × z ≡ 𝟙 × s ≡ 𝟘
   nrᵢ-GLB-𝟙-inv 𝟘 𝟘 𝟘 (𝟙≤ , glb) = case glb 𝟘 (λ i → ≤-reflexive (sym (nrᵢ-𝟘 i))) of λ ()
@@ -383,9 +383,9 @@ opaque
   -- p ≡ 𝟘 and r ≡ 𝟘
 
   nrᵢ-r𝟙p-GLB-𝟙-inv :
-    let 𝕄 = zero-one-many-semiring-with-meet in
+    let 𝕄 = zero-one-many-modality in
       ∀ p r →
-    Semiring-with-meet.Greatest-lower-bound 𝕄 𝟙 (Semiring-with-meet.nrᵢ 𝕄 r 𝟙 p) →
+    Modality.Greatest-lower-bound 𝕄 𝟙 (Modality.nrᵢ 𝕄 r 𝟙 p) →
     p ≡ 𝟘 × r ≡ 𝟙 ⊎ p ≡ 𝟙 × r ≡ 𝟘 ⊎ p ≡ 𝟘 × r ≡ 𝟘
   nrᵢ-r𝟙p-GLB-𝟙-inv p r glb =
     case nrᵢ-GLB-𝟙-inv r 𝟙 p glb of λ where

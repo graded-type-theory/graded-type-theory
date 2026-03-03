@@ -129,10 +129,10 @@ _≟_ = λ where
 ------------------------------------------------------------------------
 -- The modality
 
--- A "semiring with meet" for Grade.
+-- A modality structure for Grade.
 
-𝟘≤𝟙-semiring-with-meet : Semiring-with-meet
-𝟘≤𝟙-semiring-with-meet = record
+𝟘≤𝟙 : Modality
+𝟘≤𝟙 = record
   { _+_     = _+_
   ; _·_     = _·_
   ; _∧_     = _∧_
@@ -297,7 +297,7 @@ _≟_ = λ where
 
 -- A natrec-star operator can be defined for Grade.
 
-𝟘≤𝟙-has-star : Has-star 𝟘≤𝟙-semiring-with-meet
+𝟘≤𝟙-has-star : Has-star 𝟘≤𝟙
 𝟘≤𝟙-has-star = record
   { _⊛_▷_                   = _⊛_▷_
   ; ⊛-ineq                  = (λ _ _ _ → refl) , (λ _ _ _ → refl)
@@ -306,22 +306,15 @@ _≟_ = λ where
   ; ⊛-sub-distrib-∧         = λ _ → (λ _ _ _ → refl) , (λ _ _ _ → refl)
   }
 
--- The semiring does not have a well-behaved zero.
+-- The modality does not have a well-behaved zero.
 
 ¬-𝟘≤𝟙-has-well-behaved-zero :
-  ¬ Has-well-behaved-zero 𝟘≤𝟙-semiring-with-meet
+  ¬ Has-well-behaved-zero 𝟘≤𝟙
 ¬-𝟘≤𝟙-has-well-behaved-zero well-behaved =
   ⊥-elim (𝟘≰𝟙 refl)
   where
   open Graded.Modality.Properties.Has-well-behaved-zero
-         𝟘≤𝟙-semiring-with-meet ⦃ 𝟘-well-behaved = well-behaved ⦄
-
--- A modality for Grade.
-
-𝟘≤𝟙 : Modality
-𝟘≤𝟙 = record
-  { semiring-with-meet = 𝟘≤𝟙-semiring-with-meet
-  }
+         𝟘≤𝟙 ⦃ 𝟘-well-behaved = well-behaved ⦄
 
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions

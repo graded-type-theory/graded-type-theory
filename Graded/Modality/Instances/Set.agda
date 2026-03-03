@@ -92,20 +92,6 @@ module ∅-𝟘
       (∃₂ λ l m → l ℕ.* m ≡ n × ⊥ × m ∈ zero)      ⇔⟨ ⊥-elim ∘→ proj₁ ∘→ proj₂ ∘→ proj₂ ∘→ proj₂ , ⊥-elim ⟩
       ⊥                                            □⇔
 
-  -- There is no "semiring with meet" for which the semiring's
-  -- implementations of addition and multiplication match those of the
-  -- set.
-
-  no-semiring-with-meet :
-    (semiring : Semiring-with-meet S) →
-    Semiring-with-meet._+_ semiring ≡ _+_ →
-    Semiring-with-meet._·_ semiring ≡ _·_ →
-    ⊥
-  no-semiring-with-meet semiring@record{} refl refl =
-    no-right-zero (_ , +-identityʳ , ·-zeroʳ)
-    where
-    open Semiring-with-meet semiring
-
   -- There is no modality for which the modality's implementations of
   -- addition and multiplication match those of the set.
 
@@ -114,8 +100,10 @@ module ∅-𝟘
     Modality._+_ modality ≡ _+_ →
     Modality._·_ modality ≡ _·_ →
     ⊥
-  no-modality modality =
-    no-semiring-with-meet (Modality.semiring-with-meet modality)
+  no-modality modality@record{} refl refl =
+    no-right-zero (_ , +-identityʳ , ·-zeroʳ)
+    where
+    open Modality modality
 
 -- Some lemmas that apply to instances of Is-set-+· with the sets {1}
 -- and {1, 2}.
@@ -221,20 +209,6 @@ module 𝟙-𝟚
     3 ∈ 𝟙∪𝟚 · 𝟚            →⟨ 3∉𝟙∪𝟚·𝟚 ⟩
     ⊥                      □
 
-  -- There is no "semiring with meet" for which the semiring's
-  -- implementations of addition and multiplication match those of the
-  -- set.
-
-  no-semiring-with-meet :
-    (semiring : Semiring-with-meet S) →
-    Semiring-with-meet._+_ semiring ≡ _+_ →
-    Semiring-with-meet._·_ semiring ≡ _·_ →
-    ⊥
-  no-semiring-with-meet semiring@record{} refl refl =
-    ¬-·-distribˡ-+ ·-distribˡ-+
-    where
-    open Semiring-with-meet semiring
-
   -- There is no modality for which the modality's implementations of
   -- addition and multiplication match those of the set.
 
@@ -243,8 +217,9 @@ module 𝟙-𝟚
     Modality._+_ modality ≡ _+_ →
     Modality._·_ modality ≡ _·_ →
     ⊥
-  no-modality modality =
-    no-semiring-with-meet (Modality.semiring-with-meet modality)
+  no-modality modality@record{} refl refl = ¬-·-distribˡ-+ ·-distribˡ-+
+    where
+    open Modality modality
 
 -- Some lemmas that apply to instances of Is-set-+· with a union
 -- operation and the set {1}.

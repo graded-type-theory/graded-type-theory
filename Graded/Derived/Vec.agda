@@ -158,7 +158,7 @@ opaque
   -- A usage lemma for vecrec-cons
 
   ▸vecrec-cons :
-    ⦃ Has-well-behaved-GLBs semiring-with-meet ⦄ →
+    ⦃ Has-well-behaved-GLBs 𝕄 ⦄ →
     γ ∙ ⌜ m ⌝ · p₁ ∙ ⌜ m ⌝ · p₂ · p ∙ ⌜ m ⌝ · p₃ ∙ ⌜ m ⌝ · p₄ ▸[ m ] cs →
     δ ∙ ⌜ 𝟘ᵐ ⌝ · q₁ ∙ ⌜ 𝟘ᵐ ⌝ · q₂ ▸[ 𝟘ᵐ ] P →
     Greatest-lower-bound r (nrᵢ p₄ p₂ p₃) →

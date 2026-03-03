@@ -226,7 +226,7 @@ opaque
   -- transparent definition context and an empty variable context.
 
   ¬-ℕ-resurrectable-ε :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     Erased-allowed s →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     ¬ Resurrectable s q₁ q₂ (glassify ∇ » ε) l ℕ
@@ -461,5 +461,5 @@ opaque
 
     instance
 
-      _ : Has-well-behaved-zero semiring-with-meet
+      _ : Has-well-behaved-zero 𝕄
       _ = 𝟘-well-behaved ok
