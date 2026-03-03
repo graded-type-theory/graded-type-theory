@@ -44,7 +44,7 @@ private variable
   x                     : Fin _
 
 ------------------------------------------------------------------------
--- Terms for grades, universe levels, strengths and binder modes
+-- Terms for grades, strengths and binder modes
 
 -- Grade terms.
 
