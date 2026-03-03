@@ -206,7 +206,7 @@ opaque
   -- An extraction lemma for λx∙xx.
 
   erase-λx∙xx :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     erase′ b s (λx∙xx {n = n} p) ≡
     T.lam (T.var x0 T.∘⟨ s ⟩ T.var x0)
   erase-λx∙xx {b} {s} {p} =
@@ -287,7 +287,7 @@ opaque
   -- An extraction lemma for extracts-to-loop.
 
   erase-extracts-to-loop :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     erase′ true s (extracts-to-loop {n = n} p) ≡ loop s
   erase-extracts-to-loop {s} {p} =
     erase′ true s (extracts-to-loop p)                       ≡⟨ lam-𝟘-remove ⟩
@@ -337,7 +337,7 @@ opaque
   -- A usage rule for extracts-to-loop.
 
   ▸extracts-to-loop :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     p ≤ 𝟘 →
     𝟘ᶜ ▸[ 𝟙ᵐ ] extracts-to-loop {n = n} p
@@ -379,7 +379,7 @@ opaque
   -- An extraction lemma for loops.
 
   erase-loops :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     erase′ true s (loops {n = n} p) ≡
     T.lam T.zero T.∘⟨ s ⟩ loop s
   erase-loops {s} {p} =
@@ -399,7 +399,7 @@ opaque
   -- "reduces forever" (if the modality's zero is well-behaved).
 
   loops-reduces-forever :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     T.Reduces-forever {n = n} vs (erase′ true strict (loops p))
   loops-reduces-forever =
     lemma ∘→ PE.subst (flip (T._⊢_⇒*_ _) _) erase-loops
@@ -421,7 +421,7 @@ opaque
   -- reduce to a value (if the modality's zero is well-behaved).
 
   loops-does-not-reduce-to-a-value :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     T.Value v →
     ¬ vs T.⊢ erase′ true strict (loops p) ⇒* v
   loops-does-not-reduce-to-a-value =
@@ -450,7 +450,7 @@ opaque
   -- A usage rule for loops.
 
   ▸loops :
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     p ≤ 𝟘 →
     𝟘ᶜ ▸[ 𝟙ᵐ ] loops {n = n} p

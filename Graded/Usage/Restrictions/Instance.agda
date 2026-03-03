@@ -22,7 +22,7 @@ instance
 
   Nr-available-Has-nr :
     ⦃ has-nr : Nr-available ⦄ →
-    Has-nr M semiring-with-meet
+    Has-nr M 𝕄
   Nr-available-Has-nr ⦃ has-nr ⦄ =
     Natrec-mode-Has-nr has-nr
 
@@ -30,6 +30,6 @@ instance
 
   Nr-not-available-Has-well-behaved-GLBs :
     ⦃ no-nr : Nr-not-available-GLB ⦄ →
-    Has-well-behaved-GLBs M semiring-with-meet
+    Has-well-behaved-GLBs M 𝕄
   Nr-not-available-Has-well-behaved-GLBs ⦃ no-nr ⦄ =
     Natrec-mode-Has-well-behaved-GLBs no-nr

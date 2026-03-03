@@ -6,7 +6,7 @@ open import Tools.PropositionalEquality
 import Graded.Modality
 import Graded.Modality.Instances.Recursive.Sequences
 
--- A "semiring with meet" with the following recursively defined
+-- A modality structure with the following recursively defined
 -- function nr (not to be confused with the nr function in the
 -- definition of a modality) can be turned into a modality:
 --
@@ -17,8 +17,8 @@ import Graded.Modality.Instances.Recursive.Sequences
 module Graded.Modality.Instances.Recursive
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Semiring-with-meet)
-  (open Semiring-with-meet 𝕄)
+  (𝕄 : Modality)
+  (open Modality 𝕄)
   (open Graded.Modality.Instances.Recursive.Sequences 𝕄)
   (nr-fix : Has-fixpoints-nr)
   where
@@ -179,13 +179,6 @@ has-star = record
   ; ⊛-sub-distrib-∧  = λ r →
         nr-sub-distribˡ-∧ (nr-fix r .proj₁) r
       , nr-sub-distribʳ-∧ (nr-fix r .proj₁) r
-  }
-
--- 𝕄 can be turned into a modality.
-
-isModality : Modality
-isModality = record
-  { semiring-with-meet = 𝕄
   }
 
 module 𝟘-bound (𝟘-max : (p : M) → p ≤ 𝟘) where

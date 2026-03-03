@@ -7,10 +7,10 @@ import Graded.Modality
 module Graded.Modality.Properties.Subtraction
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Semiring-with-meet)
+  (𝕄 : Modality)
   where
 
-open Semiring-with-meet 𝕄
+open Modality 𝕄
 
 open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Meet 𝕄

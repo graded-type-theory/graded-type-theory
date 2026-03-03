@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Properties of the modality semiring that hold if 𝟘 is well-behaved.
+-- Properties of the modality structure that hold if 𝟘 is well-behaved.
 ------------------------------------------------------------------------
 
 import Graded.Modality
@@ -7,8 +7,8 @@ import Graded.Modality
 module Graded.Modality.Properties.Has-well-behaved-zero
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Semiring-with-meet)
-  (open Semiring-with-meet 𝕄)
+  (𝕄 : Modality)
+  (open Modality 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
   where
 

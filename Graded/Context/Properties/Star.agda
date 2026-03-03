@@ -9,7 +9,7 @@ module Graded.Context.Properties.Star
   (open Graded.Modality M)
   (𝕄 : Modality)
   (open Modality 𝕄)
-  ⦃ has-star : Has-star semiring-with-meet ⦄
+  ⦃ has-star : Has-star 𝕄 ⦄
   where
 
 open import Graded.Context 𝕄

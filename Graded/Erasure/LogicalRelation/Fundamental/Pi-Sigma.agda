@@ -18,7 +18,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
   {TR : Type-restrictions 𝕄}
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (as : Assumptions TR)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open Assumptions as

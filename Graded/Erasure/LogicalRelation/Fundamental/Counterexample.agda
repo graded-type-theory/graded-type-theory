@@ -19,7 +19,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
    (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open Type-restrictions TR

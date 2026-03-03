@@ -80,7 +80,7 @@ wk-∧ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-∧ᶜ ρ ∙ refl
 -- wkConₘ ρ (γ ⊛ᵣ δ) ≈ᶜ (wkConₘ ρ γ) ⊛ᵣ (wkConₘ ρ δ)
 
 wk-⊛ᶜ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-star : Has-star 𝕄 ⦄ →
   (ρ : Wk m n) → wkConₘ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ (wkConₘ ρ γ) ⊛ᶜ (wkConₘ ρ δ) ▷ r
 wk-⊛ᶜ id = ≈ᶜ-refl
 wk-⊛ᶜ (step ρ) = wk-⊛ᶜ ρ ∙ PE.sym (⊛-idem-𝟘 _)
@@ -89,7 +89,7 @@ wk-⊛ᶜ {γ = γ ∙ p} {δ ∙ q} (lift ρ) = wk-⊛ᶜ ρ ∙ refl
 -- The function wkConₘ ρ commutes with nrᶜ p r.
 
 wk-nrᶜ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr 𝕄 ⦄ →
   (ρ : Wk m n) →
   wkConₘ ρ (nrᶜ p r γ δ η) ≈ᶜ
   nrᶜ p r (wkConₘ ρ γ) (wkConₘ ρ δ) (wkConₘ ρ η)
@@ -265,7 +265,7 @@ wkConₘ⁻¹-·ᶜ {γ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-·ᶜ ρ ∙ refl
 -- The function wkConₘ⁻¹ ρ commutes with _⊛ᶜ_▷ r.
 
 wkConₘ⁻¹-⊛ᶜ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄
+  ⦃ has-star : Has-star 𝕄 ⦄
   (ρ : Wk m n) →
   wkConₘ⁻¹ ρ (γ ⊛ᶜ δ ▷ r) ≈ᶜ wkConₘ⁻¹ ρ γ ⊛ᶜ wkConₘ⁻¹ ρ δ ▷ r
 wkConₘ⁻¹-⊛ᶜ                         id       = ≈ᶜ-refl
@@ -275,7 +275,7 @@ wkConₘ⁻¹-⊛ᶜ {γ = _ ∙ _} {δ = _ ∙ _} (lift ρ) = wkConₘ⁻¹-⊛
 -- The function wkConₘ⁻¹ ρ commutes with nrᶜ p r.
 
 wkConₘ⁻¹-nrᶜ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄
+  ⦃ has-nr : Has-nr 𝕄 ⦄
   (ρ : Wk m n) →
   wkConₘ⁻¹ ρ (nrᶜ p r γ δ η) ≈ᶜ
   nrᶜ p r (wkConₘ⁻¹ ρ γ) (wkConₘ⁻¹ ρ δ) (wkConₘ⁻¹ ρ η)
@@ -396,7 +396,7 @@ wkConₘ-,-wkVar-≔
 -- assumption that the zero is well-behaved.
 
 module _
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
   where
 
   -- An inversion lemma for wkConₘ and _+ᶜ_.
@@ -477,7 +477,7 @@ module _
   -- An inversion lemma for wkConₘ and _⊛ᶜ_▷_.
 
   wkConₘ-⊛ᶜ :
-    ⦃ has-star : Has-star semiring-with-meet ⦄ →
+    ⦃ has-star : Has-star 𝕄 ⦄ →
     ∀ ρ → wkConₘ ρ γ ≤ᶜ δ ⊛ᶜ η ▷ r →
     ∃₂ λ δ′ η′ → γ ≤ᶜ δ′ ⊛ᶜ η′ ▷ r × wkConₘ ρ δ′ ≤ᶜ δ × wkConₘ ρ η′ ≤ᶜ η
   wkConₘ-⊛ᶜ id leq =
@@ -497,7 +497,7 @@ module _
   -- An inversion lemma for wkConₘ and nrᶜ.
 
   wkConₘ-nrᶜ :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr 𝕄 ⦄ →
     ∀ ρ → wkConₘ ρ γ ≤ᶜ nrᶜ p r δ η θ →
     ∃₃ λ δ′ η′ θ′ →
       γ ≤ᶜ nrᶜ p r δ′ η′ θ′ ×

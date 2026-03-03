@@ -336,10 +336,10 @@ opaque
 opaque
 
   -- There is only one lawful way to define the nr function for
-  -- erasure-semiring-with-meet.
+  -- ErasureModality.
 
   nr-unique :
-    (has-nr : Has-nr erasure-semiring-with-meet) →
+    (has-nr : Has-nr ErasureModality) →
     ∀ p r z s n → Has-nr.nr has-nr p r z s n ≡ nr p r z s n
   nr-unique has-nr = λ where
       p r ω s n → nr′ω≡nrω λ ()
@@ -366,10 +366,10 @@ opaque
 opaque
 
   -- There is only one lawful way to define the nr function for
-  -- erasure-semiring-with-meet.
+  -- ErasureModality.
 
   nrᶜ-unique :
-    {has-nr : Has-nr erasure-semiring-with-meet} →
+    {has-nr : Has-nr ErasureModality} →
     nrᶜ ⦃ has-nr = has-nr ⦄ p r γ δ η ≈ᶜ nrᶜ p r γ δ η
   nrᶜ-unique {γ = ε}     {δ = ε}     {η = ε}              = ε
   nrᶜ-unique {γ = _ ∙ _} {δ = _ ∙ _} {η = _ ∙ _} {has-nr} =
@@ -476,9 +476,9 @@ opaque
 
   Erasure-nrᵢ-glb-∧ :
     ∀ r z s →
-    Semiring-with-meet.Greatest-lower-bound
-        erasure-semiring-with-meet (z ∧ s)
-         (Semiring-with-meet.nrᵢ erasure-semiring-with-meet r z s)
+    Modality.Greatest-lower-bound
+        ErasureModality (z ∧ s)
+         (Modality.nrᵢ ErasureModality r z s)
   Erasure-nrᵢ-glb-∧ r 𝟘 𝟘 =
     ≤-reflexive ∘→ PE.sym ∘→ nrᵢ-𝟘
       , λ { 𝟘 q≤ → ≤-refl ; ω q≤ → least-elem 𝟘}
@@ -496,9 +496,9 @@ opaque
 
   Erasure-nrᵢ-glb :
     ∀ r z s → ∃ λ x →
-      Semiring-with-meet.Greatest-lower-bound
-        erasure-semiring-with-meet x
-         (Semiring-with-meet.nrᵢ erasure-semiring-with-meet r z s)
+      Modality.Greatest-lower-bound
+        ErasureModality x
+         (Modality.nrᵢ ErasureModality r z s)
   Erasure-nrᵢ-glb r z s = z ∧ s , Erasure-nrᵢ-glb-∧ r z s
 
 opaque
@@ -515,7 +515,7 @@ opaque instance
   -- The modality has well-behaved GLBs.
 
   Erasure-supports-factoring-nr-rule :
-    Has-well-behaved-GLBs erasure-semiring-with-meet
+    Has-well-behaved-GLBs ErasureModality
   Erasure-supports-factoring-nr-rule = record
     { +-GLBˡ = +-GLBˡ′
     ; ·-GLBˡ = ·-GLBˡ′
@@ -524,7 +524,7 @@ opaque instance
         nrᵢ+-GLB {r = r} {s = s} {s′ = s′} x x₁
     }
     where
-    open Semiring-with-meet erasure-semiring-with-meet
+    open Modality ErasureModality
       hiding (_+_; _·_; _≤_; 𝟘; ω)
 
     +-GLBˡ′ : {p q : Erasure} {pᵢ : Sequence Erasure} →
@@ -575,7 +575,7 @@ opaque
   -- the natrec-star operator and with greatest lower bounds are the same
 
   ▸⊛≈GLB :
-    let open Semiring-with-meet erasure-semiring-with-meet in
+    let open Modality ErasureModality in
     Greatest-lower-bound q (nrᵢ r 𝟙 p) →
     Greatest-lower-boundᶜ χ (nrᵢᶜ r γ δ) →
     ((γ ∧ᶜ η) ⊛ᶜ p ·ᶜ η +ᶜ δ ▷ r) ≈ᶜ (q ·ᶜ η +ᶜ χ)

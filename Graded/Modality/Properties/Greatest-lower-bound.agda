@@ -5,9 +5,9 @@
 open import Graded.Modality
 
 module Graded.Modality.Properties.Greatest-lower-bound
-  {a} {M : Set a} (𝕄 : Semiring-with-meet M) where
+  {a} {M : Set a} (𝕄 : Modality M) where
 
-open Semiring-with-meet 𝕄
+open Modality 𝕄
 
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄

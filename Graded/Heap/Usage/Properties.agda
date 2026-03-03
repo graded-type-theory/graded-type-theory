@@ -288,7 +288,7 @@ module _ (subtraction-ok : Supports-subtraction) where
     -- If a pointer points to a dummy entry in a well-resource heap then
     -- the corresponding entry in the usage context is 𝟘.
 
-    ▸H● : ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ▸H● : ⦃ _ : Has-well-behaved-zero M 𝕄 ⦄ →
           H ⊢ y ↦● → γ ▸ʰ H → γ ⟨ y ⟩ ≡ 𝟘
     ▸H● {γ = ε} ()
     ▸H● {γ = _ ∙ _} here ▸H =
@@ -311,7 +311,7 @@ module _ (subtraction-ok : Supports-subtraction) where
     -- corresponding dummy entry in the heap, the stack multiplicity and usage
     -- context of the stack are both 𝟘.
 
-    ▸s● : ⦃ _ : Has-well-behaved-zero M semiring-with-meet ⦄ →
+    ▸s● : ⦃ _ : Has-well-behaved-zero M 𝕄 ⦄ →
           H ⊢ wkVar ρ x ↦● → ▸ ⟨ H , var x , ρ , S ⟩ → ∣ S ∣≡ 𝟘
     ▸s● d ▸s =
       let _ , _ , _ , ∣S∣≡ , ▸H , ▸S , γ⟨x⟩≤ = ▸ₛ-var-inv′ ▸s

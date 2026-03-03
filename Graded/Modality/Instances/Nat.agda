@@ -46,10 +46,10 @@ private variable
 
 opaque
 
-  -- A "semiring with meet" for Nat.
+  -- A modality structure for Nat.
 
-  Nat-semiring-with-meet : Semiring-with-meet
-  Nat-semiring-with-meet = record
+  Nat-modality : Modality
+  Nat-modality = record
     { _+_ = _+_
     ; _·_ = _*_
     ; _∧_ = _⊔_
@@ -69,16 +69,16 @@ opaque
     where
     open N
 
-open Semiring-with-meet Nat-semiring-with-meet
+open Modality Nat-modality
 
 opaque
-  unfolding Nat-semiring-with-meet
+  unfolding Nat-modality
 
   instance
-    -- The semiring has a well-behaved zero.
+    -- The modality has a well-behaved zero.
 
     Nat-has-well-behaved-zero :
-      Has-well-behaved-zero Nat-semiring-with-meet
+      Has-well-behaved-zero Nat-modality
     Nat-has-well-behaved-zero = record
       { non-trivial = λ ()
       ; zero-product = m*n≡0⇒m≡0∨n≡0 _
@@ -91,16 +91,7 @@ opaque
       open N
 
 opaque
-
-  -- A modality (of any kind) for Nat defined using the nr function
-
-  Nat-modality : Modality
-  Nat-modality = record
-    { semiring-with-meet = Nat-semiring-with-meet
-    }
-
-opaque
-  unfolding Nat-semiring-with-meet
+  unfolding Nat-modality
 
   -- The order for the modality is the reverse order for Nat
 
@@ -125,11 +116,11 @@ opaque
 -- Nr functions for Nat
 
 opaque
-  unfolding Nat-semiring-with-meet
+  unfolding Nat-modality
 
   -- The modality does not have an nr function
 
-  ¬Nat-Has-nr : ¬ Has-nr Nat-semiring-with-meet
+  ¬Nat-Has-nr : ¬ Has-nr Nat-modality
   ¬Nat-Has-nr has-nr = lemma _ (nr-suc {0} {1} {0} {1} {0})
     where
     open Has-nr has-nr
@@ -175,7 +166,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
     open Type-restrictions TRs
 
   opaque
-    unfolding Nat-modality Nat-semiring-with-meet
+    unfolding Nat-modality Nat-modality
 
     -- Given an instance of Type-restrictions ℕ⊎∞-modality one
     -- can create a "suitable" instance.
@@ -199,7 +190,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
       open Type-restrictions TR
 
   opaque
-    unfolding Nat-modality Nat-semiring-with-meet variant
+    unfolding Nat-modality Nat-modality variant
 
     -- The full reduction assumptions hold for Nat-modality and
     -- any "suitable" instance of Type-restrictions.
@@ -216,7 +207,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
       }
 
   opaque
-    unfolding Nat-modality Nat-semiring-with-meet variant
+    unfolding Nat-modality Nat-modality variant
 
     -- Type and usage restrictions that satisfy the full reduction
     -- assumptions are "suitable".
@@ -234,16 +225,16 @@ module _ {𝟘ᵐ-allowed : Bool} where
 ------------------------------------------------------------------------
 -- Subtraction
 
-open Graded.Modality.Properties.Addition Nat-semiring-with-meet
-open Graded.Modality.Properties.Greatest-lower-bound Nat-semiring-with-meet
-open Graded.Modality.Properties.Has-well-behaved-zero Nat-semiring-with-meet
-open Graded.Modality.Properties.Natrec Nat-semiring-with-meet
-open Graded.Modality.Properties.PartialOrder Nat-semiring-with-meet
-open Graded.Modality.Properties.Subtraction Nat-semiring-with-meet
+open Graded.Modality.Properties.Addition Nat-modality
+open Graded.Modality.Properties.Greatest-lower-bound Nat-modality
+open Graded.Modality.Properties.Has-well-behaved-zero Nat-modality
+open Graded.Modality.Properties.Natrec Nat-modality
+open Graded.Modality.Properties.PartialOrder Nat-modality
+open Graded.Modality.Properties.Subtraction Nat-modality
 
 opaque
 
-  unfolding Nat-semiring-with-meet
+  unfolding Nat-modality
 
   -- An inversion lemma for Subtraction
 
@@ -258,7 +249,7 @@ opaque
     in  (+-monotoneʳ p≤q) , p∸q≤r
 
 opaque
-  unfolding Nat-semiring-with-meet
+  unfolding Nat-modality
 
   -- If p ≤ q then p - q ≡ p ∸ q
 
@@ -270,7 +261,7 @@ opaque
 
 opaque
 
-  -- The semiring supports subtraction with
+  -- The modality supports subtraction with
   --   p - q ≡ p ∸ q whenever p ≤ q
   -- and not defined otherwise
 
@@ -308,7 +299,7 @@ opaque
 -- Greatest-lower-bounds
 
 opaque
-  unfolding Nat-semiring-with-meet
+  unfolding Nat-modality
 
   -- An inversion lemma for greatest lower bounds of nrᵢ sequences
 
@@ -361,7 +352,7 @@ opaque
       nrᵢ (1+ r) z (1+ s) (1+ i)              ∎
 
 opaque
-  unfolding Nat-semiring-with-meet
+  unfolding Nat-modality
 
   -- The existence of a greatest lower bound to the sequence nrᵢ r z s
   -- is decidable.
@@ -394,12 +385,12 @@ opaque
       { (inj₁ ()) ; (inj₂ (inj₁ ())) ; (inj₂ (inj₂ ()))}
 
 opaque
-  unfolding Nat-semiring-with-meet
+  unfolding Nat-modality
 
   -- The modality has well-behaved greatest lower bounds.
 
   Nat-has-well-behaved-GLBs :
-    Has-well-behaved-GLBs Nat-semiring-with-meet
+    Has-well-behaved-GLBs Nat-modality
   Nat-has-well-behaved-GLBs = record
     { +-GLBˡ = +-GLBˡ
     ; ·-GLBˡ = λ {_} {_} {q} → ·-GLBˡ {q = q}

@@ -10,7 +10,7 @@ module Graded.Context.Properties.Has-well-behaved-zero
   (open Graded.Modality M)
   (𝕄 : Modality)
   (open Modality 𝕄)
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
   where
 
 open import Tools.Fin
@@ -27,7 +27,7 @@ open import Graded.Context.Properties.Lookup 𝕄
 open import Graded.Context.Properties.Natrec 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-import Graded.Modality.Properties.Star semiring-with-meet as Star
+import Graded.Modality.Properties.Star 𝕄 as Star
 
 private variable
   n       : Nat
@@ -132,7 +132,7 @@ opaque
 -- are all 𝟘.
 
 nrᶜ-positive-⟨⟩ :
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+  ⦃ has-nr : Has-nr 𝕄 ⦄ →
   ∀ γ →
   nrᶜ p r γ δ η ⟨ x ⟩ ≡ 𝟘 →
   γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘 × η ⟨ x ⟩ ≡ 𝟘
@@ -146,7 +146,7 @@ opaque
   -- The value of nrᶜ p r is only 𝟘ᶜ for 𝟘ᶜ, 𝟘ᶜ and 𝟘ᶜ.
 
   nrᶜ-positive :
-    ⦃ has-nr : Has-nr semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr 𝕄 ⦄ →
     nrᶜ p r γ δ η ≈ᶜ 𝟘ᶜ → γ ≈ᶜ 𝟘ᶜ × δ ≈ᶜ 𝟘ᶜ × η ≈ᶜ 𝟘ᶜ
   nrᶜ-positive {p} {r} {γ} {δ} {η} =
     nrᶜ p r γ δ η ≈ᶜ 𝟘ᶜ                                              →⟨ ≈ᶜ𝟘ᶜ⇔⟨⟩≡𝟘 .proj₁ ⟩
@@ -159,7 +159,7 @@ opaque
 -- and η ⟨ x ⟩ are all 𝟘.
 
 ⟨⟩≡𝟘→⟨⟩≡𝟘-⊛ :
-  ⦃ has-star : Has-star semiring-with-meet ⦄ →
+  ⦃ has-star : Has-star 𝕄 ⦄ →
   ∀ γ (x : Fin n) →
   ((γ ∧ᶜ η) ⊛ᶜ δ +ᶜ p ·ᶜ η ▷ r) ⟨ x ⟩ ≡ 𝟘 →
   γ ⟨ x ⟩ ≡ 𝟘 × δ ⟨ x ⟩ ≡ 𝟘 × η ⟨ x ⟩ ≡ 𝟘
@@ -172,7 +172,7 @@ opaque
 
   instance
 
-    has-nr′ : Has-nr semiring-with-meet
+    has-nr′ : Has-nr 𝕄
     has-nr′ = Star.has-nr
 
   lemma =

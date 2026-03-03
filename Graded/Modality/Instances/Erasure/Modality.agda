@@ -14,10 +14,10 @@ import Graded.Modality.Properties.Star as Star
 
 open import Graded.Modality Erasure public
 
--- Erasure annotations forms a semiring with meet
+-- Erasure modality instance
 
-erasure-semiring-with-meet : Semiring-with-meet
-erasure-semiring-with-meet = record
+ErasureModality : Modality
+ErasureModality = record
   { _+_ = _+_
   ; _·_ = _·_
   ; _∧_ = _∧_
@@ -35,10 +35,10 @@ erasure-semiring-with-meet = record
 
 instance
 
-  -- The zero of the erasure semiring is well-behaved.
+  -- The zero of the erasure modality is well-behaved.
 
   erasure-has-well-behaved-zero :
-    Has-well-behaved-zero erasure-semiring-with-meet
+    Has-well-behaved-zero ErasureModality
   erasure-has-well-behaved-zero = record
     { non-trivial = λ ()
     ; zero-product = λ where
@@ -59,7 +59,7 @@ instance
 
   -- A natrec-star operator can be defined for Erasure.
 
-  erasure-has-star : Has-star erasure-semiring-with-meet
+  erasure-has-star : Has-star ErasureModality
   erasure-has-star = record
     { _⊛_▷_ = _⊛_▷_
     ; ⊛-ineq = ⊛-ineq₁ , ⊛-ineq₂
@@ -70,8 +70,8 @@ instance
 
   -- An nr function can be defined for Erasure.
 
-  erasure-has-nr : Has-nr erasure-semiring-with-meet
-  erasure-has-nr = Star.has-nr erasure-semiring-with-meet
+  erasure-has-nr : Has-nr ErasureModality
+  erasure-has-nr = Star.has-nr ErasureModality
 
 -- The nr function.
 
@@ -96,10 +96,3 @@ instance
     nr-factoring {n = 𝟘} = refl
     nr-factoring {z = 𝟘} {n = ω} = refl
     nr-factoring {z = ω} {n = ω} = refl
-
--- Erasure modality instance.
-
-ErasureModality : Modality
-ErasureModality = record
-  { semiring-with-meet = erasure-semiring-with-meet
-  }

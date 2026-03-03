@@ -20,7 +20,7 @@ module Definition.Typed.Properties.Admissible.Bool.Erased
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
   -- It is assumed that modality has an nr function.
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄
+  ⦃ has-nr : Has-nr 𝕄 ⦄
   -- It is assumed that certain Σ-types are allowed.
   (Σ-ok : Σʷ-allowed 𝟙 Boolᵍ)
   -- It is assumed that Erased is allowed for the strength 𝕨.

@@ -145,11 +145,11 @@ NegativeErasedContext-𝟘
     (PE.sym (ok x0 PE.refl))
     (NegativeErasedContext-𝟘 (ok ∘→ _+1) neΓγ ∙𝟘)
 
--- If semiring-with-meet has a well-behaved zero, then
+-- If the modality has a well-behaved zero, then
 -- NegativeErasedContext is upwards closed in its second argument.
 
 NegativeErasedContext-upwards-closed :
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
   γ ≤ᶜ δ →
   NegativeErasedContext Γ γ →
   NegativeErasedContext Γ δ

@@ -7,11 +7,11 @@ import Graded.Modality
 module Graded.Modality.Properties.Star
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Semiring-with-meet)
+  (𝕄 : Modality)
   ⦃ has-star : Has-star 𝕄 ⦄
   where
 
-open Semiring-with-meet 𝕄
+open Modality 𝕄
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties.PartialOrder 𝕄

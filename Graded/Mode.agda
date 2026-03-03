@@ -227,7 +227,7 @@ record IsMode : Set (a ⊔ b) where
 
   opaque
 
-    -- If the semiring with meet is trivial, then every value is equal
+    -- If the mode structure is trivial, then every value is equal
     -- to 𝟘.
 
     ≡𝟘ᵐ : Trivialᵐ → m ≡ 𝟘ᵐ
@@ -1070,7 +1070,7 @@ record IsMode : Set (a ⊔ b) where
 -- The property of being a mode structure supporting nr functions
 
 record Mode-supports-nr
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄
+  ⦃ has-nr : Has-nr 𝕄 ⦄
   (𝐌 : IsMode) : Set (a ⊔ b) where
   no-eta-equality
 

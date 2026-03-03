@@ -16,7 +16,7 @@ open Modality 𝕄
 instance
 
   Nr-has-nr :
-    ⦃ has-nr : Has-nr _ semiring-with-meet ⦄ →
+    ⦃ has-nr : Has-nr _ 𝕄 ⦄ →
     Natrec-mode-has-nr Nr
   Nr-has-nr = Nr
 
@@ -25,6 +25,6 @@ instance
   No-nr-no-nr = No-nr
 
   No-nr-glb-no-nr-glb :
-   ⦃ ok : Has-well-behaved-GLBs _ semiring-with-meet ⦄ →
+   ⦃ ok : Has-well-behaved-GLBs _ 𝕄 ⦄ →
    Natrec-mode-no-nr-glb No-nr-glb
   No-nr-glb-no-nr-glb = No-nr-glb

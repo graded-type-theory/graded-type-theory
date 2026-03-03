@@ -229,11 +229,12 @@ module _ (fe : Function-extensionality lzero lzero) where
          predicates-equal→sets-equal $ ext fe λ n →
          ¬-T .proj₁ $ ¬-T .proj₂ eq ∘→ closed 0 n z≤n)
 
-  -- A "semiring with meet" for Set-ℕ.
+  -- A modality for Set-ℕ.
 
-  semiring-with-meet : Semiring-with-meet
-  semiring-with-meet =
-    BDL.semiring-with-meet bounded-distributive-lattice is-𝟘?
+  modality : Modality
+  modality = BDL.modality
+    bounded-distributive-lattice
+    is-𝟘?
     where
     is-𝟘? : (xs : Set-ℕ) → Dec (xs ≡ ∅)
     is-𝟘? xs@(p , _) = lemma _ refl
@@ -250,18 +251,18 @@ module _ (fe : Function-extensionality lzero lzero) where
 
   ∪-decreasingˡ :
     (xs : Set-ℕ) →
-    Semiring-with-meet._≤_ semiring-with-meet (xs ∪ ys) xs
+    Modality._≤_ modality (xs ∪ ys) xs
   ∪-decreasingˡ {ys = ys} xs =
     xs ∪ ys         ≡˘⟨ cong (_∪ _) (R.∧-idem xs) ⟩
     (xs ∪ xs) ∪ ys  ≡⟨ R.+-assoc xs _ _ ⟩
     xs ∪ (xs ∪ ys)  ≡⟨ R.+-comm xs _ ⟩
     (xs ∪ ys) ∪ xs  ∎
     where
-    module R = Semiring-with-meet semiring-with-meet
+    module R = Modality modality
 
-  -- The "semiring with meet" has a well-behaved zero.
+  -- The modality has a well-behaved zero.
 
-  has-well-behaved-zero : Has-well-behaved-zero semiring-with-meet
+  has-well-behaved-zero : Has-well-behaved-zero modality
   has-well-behaved-zero = record
     { non-trivial =
       ℕ ≡ ∅         →⟨ cong (λ xs → xs .proj₁ 0) ⟩
@@ -282,10 +283,3 @@ module _ (fe : Function-extensionality lzero lzero) where
       xs .proj₁ 0 ∨ ys .proj₁ 0 ≡ false  →⟨ ∨-positiveˡ ⟩
       xs .proj₁ 0 ≡ false                →⟨ ≡∅⇔0∉ .proj₂ ⟩
       xs ≡ ∅                             □
-
-  -- Modalities for Set-ℕ.
-
-  modality : Modality
-  modality = BDL.modality
-    bounded-distributive-lattice
-    (Semiring-with-meet.is-𝟘? semiring-with-meet)

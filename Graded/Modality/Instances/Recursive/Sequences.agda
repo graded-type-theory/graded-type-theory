@@ -7,10 +7,10 @@ open import Graded.Modality
 
 module Graded.Modality.Instances.Recursive.Sequences
   {a} {M : Set a}
-  (𝕄 : Semiring-with-meet M)
+  (𝕄 : Modality M)
   where
 
-open Semiring-with-meet 𝕄
+open Modality 𝕄
 
 open import Tools.Nat using (Nat; 1+)
 open import Tools.Product

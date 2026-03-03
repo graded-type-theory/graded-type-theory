@@ -14,7 +14,7 @@ module Graded.Context.Properties.Natrec
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Modality.Nr-instances
-open import Graded.Modality.Properties.Natrec semiring-with-meet
+open import Graded.Modality.Properties.Natrec 𝕄
 
 open import Tools.Fin
 open import Tools.Nat using (Nat; 1+; Sequence)
@@ -28,7 +28,7 @@ private variable
   n p q r s z             : M
   γ γ₁ γ₂ δ δ₁ δ₂ η η₁ η₂ : Conₘ _
 
-module _  ⦃ has-nr : Has-nr semiring-with-meet ⦄ where
+module _  ⦃ has-nr : Has-nr 𝕄 ⦄ where
 
   -- The function nrᶜ p r preserves context equality.
 
@@ -158,7 +158,7 @@ module _  ⦃ has-nr : Has-nr semiring-with-meet ⦄ where
       nrᶜ-linearity-like-for-𝟙 hyp ∙ hyp
 
 module _
-  ⦃ has-nr : Has-nr semiring-with-meet ⦄
+  ⦃ has-nr : Has-nr 𝕄 ⦄
   ⦃ is-factoring-nr : Is-factoring-nr has-nr ⦄ where
 
   opaque

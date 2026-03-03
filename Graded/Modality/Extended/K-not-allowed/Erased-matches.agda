@@ -138,7 +138,7 @@ private
   UR′ :
     {M : Set} {𝕄 : Modality M}
     {v : Mode-variant 𝕄} →
-    Has-nr M (Modality.semiring-with-meet 𝕄) →
+    Has-nr M 𝕄 →
     Usage-restrictions 𝕄 (Zero-one-isMode v)
   UR′ has-nr =
     not-all-erased-matches-JK _ _ $
@@ -149,7 +149,7 @@ private
     Assumptions-UR′ :
       {M : Set} {𝕄 : Modality M}
       {v : Mode-variant 𝕄} →
-      {has-nr : Has-nr _ (Modality.semiring-with-meet 𝕄)} →
+      {has-nr : Has-nr _ 𝕄} →
       Decidable (_≡_ {A = M}) →
       UD.Assumptions (UR′ {𝕄 = 𝕄} {v = v} has-nr)
     Assumptions-UR′ {has-nr} =

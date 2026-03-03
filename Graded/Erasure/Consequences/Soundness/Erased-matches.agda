@@ -47,7 +47,7 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   -- Equality reflection is not allowed or Δ is empty.
   ⦃ ok : No-equality-reflection or-empty Δ ⦄
   -- The modality's zero is well-behaved.
-  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M semiring-with-meet ⦄
+  ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 import Definition.Typed.QuantityTranslation as QT

@@ -25,7 +25,7 @@ record Mode-variant : Set a where
     -- If mode 𝟘ᵐ exists the modality is assumed to have a well-behaved
     -- zero.
     𝟘-well-behaved :
-      T 𝟘ᵐ-allowed → Has-well-behaved-zero semiring-with-meet
+      T 𝟘ᵐ-allowed → Has-well-behaved-zero 𝕄
 
 ------------------------------------------------------------------------
 -- Mode variant instances
@@ -33,13 +33,13 @@ record Mode-variant : Set a where
 
 -- A mode variant for which 𝟘ᵐ is allowed if the boolean is true.
 
-𝟘ᵐ-allowed-if : (b : Bool) → (T b → Has-well-behaved-zero semiring-with-meet) → Mode-variant
+𝟘ᵐ-allowed-if : (b : Bool) → (T b → Has-well-behaved-zero 𝕄) → Mode-variant
 𝟘ᵐ-allowed-if b ok = record
   { 𝟘ᵐ-allowed = b ; 𝟘-well-behaved = ok }
 
 -- A mode variant for which 𝟘ᵐ is allowed.
 
-𝟘ᵐ-Allowed : ⦃ ok : Has-well-behaved-zero semiring-with-meet ⦄ → Mode-variant
+𝟘ᵐ-Allowed : ⦃ ok : Has-well-behaved-zero 𝕄 ⦄ → Mode-variant
 𝟘ᵐ-Allowed ⦃ ok ⦄ = 𝟘ᵐ-allowed-if true λ _ → ok
 
 -- A mode variant for which 𝟘ᵐ is not allowed.

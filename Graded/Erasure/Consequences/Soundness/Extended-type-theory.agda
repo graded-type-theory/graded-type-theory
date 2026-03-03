@@ -191,7 +191,7 @@ record Extended-type-theory : Set (lsuc a) where
     -- (except for the application of a weakening).
     eraseᴱ-[]ᴱ :
       {σ : Substᴱ 0 n} {t A : Termᴱ n}
-      ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
       𝟘ᶜ ▸ Γ ⊢ᴱ t ∷[ 𝟙ᵐ ] A →
       T.wk wk₀ (eraseᴱ str (t [ σ ]ᴱ)) PE.≡ eraseᴱ str t
 
@@ -205,7 +205,7 @@ record Extended-type-theory : Set (lsuc a) where
     -- extended theory.
     soundness-ℕᴱ :
       {t : Termᴱ 0}
-      ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
       ε ▸ ∇ » ε ⊢ᴱ t ∷[ 𝟙ᵐ ] tr ℕ →
       ∃ λ n →
         glassify ∇ » ε ⊢ᴱ t ≡ tr (sucᵏ n) ∷ tr ℕ ×
@@ -246,7 +246,7 @@ record Extended-type-theory : Set (lsuc a) where
 
     soundness-ℕ :
       {σ : Substᴱ 0 n}
-      ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+      ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
       ε ▸ tr-DCon ∇ » ε ⊢ˢᴱ σ ∷[ 𝟘ᵐ? ] map-Con tr Δ →
       ∇ » Δ ⊢ t ∷ ℕ →
       ▸[ 𝟙ᵐ ] glassify ∇ →
@@ -431,7 +431,7 @@ opaque
         module Extˢ = Definition.Typed.Substitution TR′
     in
     {σ : Subst 0 n}
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     glassify ∇ » ε Extˢ.⊢ˢʷ σ ∷ Δ →
     ((x : Fin n) → ε ▸[ 𝟘ᵐ? ] σ x) →
     ∇ » Δ ⊢ t ∷ ℕ →
@@ -470,7 +470,7 @@ opaque
 
   soundness-ℕ-with-function-extensionality :
     let module Ext = Definition.Typed (with-equality-reflection TR) in
-    ⦃ 𝟘-well-behaved : Has-well-behaved-zero semiring-with-meet ⦄ →
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     Level-allowed →
     Π-allowed p q →
     Π-allowed p′ q′ →

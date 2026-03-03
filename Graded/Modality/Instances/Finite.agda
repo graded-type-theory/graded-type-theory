@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- A finite semiring is a modality instance.
+-- Some properties of finite modality structures
 ------------------------------------------------------------------------
 
 open import Tools.Bool hiding (_∧_; ∧-decreasingˡ; ∧-decreasingʳ)
@@ -12,7 +12,7 @@ import Graded.Modality
 module Graded.Modality.Instances.Finite
   {a} {M : Set a}
   (open Graded.Modality M)
-  (𝕄 : Semiring-with-meet)
+  (𝕄 : Modality)
   (fin : ∃ λ n → Σ (Fin (1+ n) → M)
                  λ f → Σ (M → Fin (1+ n))
                  λ f⁻¹ → ((p : M) → f (f⁻¹ p) ≡ p))
@@ -22,7 +22,7 @@ private
   variable
     n : Nat
 
-open Semiring-with-meet 𝕄
+open Modality 𝕄
 
 import Graded.Modality.Instances.LowerBounded 𝕄 as LB
 open import Graded.Modality.Properties.Meet 𝕄
@@ -89,8 +89,3 @@ opaque
          q          ∎)
       (cong f⁻¹)
       (f⁻¹ p ≟ⱽ f⁻¹ q)
-
--- 𝕄 can be turned into a modality.
-
-isModality : Modality
-isModality = LB.isModality ∞ ∞-min
