@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Derived.Omega.Zero-one</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Properties related to usage, ω and Ω for the Zero-one mode structure</a>
+<a id="146" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="220" class="Keyword">open</a> <a id="225" class="Keyword">import</a> <a id="232" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="248" class="Keyword">open</a> <a id="253" class="Keyword">import</a> <a id="260" href="Graded.Mode.Instances.Zero-one.Variant.html" class="Module">Graded.Mode.Instances.Zero-one.Variant</a>
+<a id="299" class="Keyword">import</a> <a id="306" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a>
+<a id="337" class="Keyword">open</a> <a id="342" class="Keyword">import</a> <a id="349" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+
+<a id="376" class="Keyword">module</a> <a id="383" href="Graded.Derived.Omega.Zero-one.html" class="Module">Graded.Derived.Omega.Zero-one</a>
+  <a id="415" class="Symbol">{</a><a id="416" href="Graded.Derived.Omega.Zero-one.html#416" class="Bound">a</a><a id="417" class="Symbol">}</a> <a id="419" class="Symbol">{</a><a id="420" href="Graded.Derived.Omega.Zero-one.html#420" class="Bound">M</a> <a id="422" class="Symbol">:</a> <a id="424" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="428" href="Graded.Derived.Omega.Zero-one.html#416" class="Bound">a</a><a id="429" class="Symbol">}</a>
+  <a id="433" class="Symbol">{</a><a id="434" href="Graded.Derived.Omega.Zero-one.html#434" class="Bound">𝕄</a> <a id="436" class="Symbol">:</a> <a id="438" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="447" href="Graded.Derived.Omega.Zero-one.html#420" class="Bound">M</a><a id="448" class="Symbol">}</a>
+  <a id="452" class="Symbol">{</a><a id="453" href="Graded.Derived.Omega.Zero-one.html#453" class="Bound">mode-variant</a> <a id="466" class="Symbol">:</a> <a id="468" href="Graded.Mode.Instances.Zero-one.Variant.html#522" class="Record">Mode-variant</a> <a id="481" href="Graded.Derived.Omega.Zero-one.html#434" class="Bound">𝕄</a><a id="482" class="Symbol">}</a>
+  <a id="486" class="Symbol">(</a><a id="487" class="Keyword">open</a> <a id="492" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a> <a id="523" href="Graded.Derived.Omega.Zero-one.html#453" class="Bound">mode-variant</a><a id="535" class="Symbol">)</a>
+  <a id="539" class="Symbol">(</a><a id="540" href="Graded.Derived.Omega.Zero-one.html#540" class="Bound">UR</a> <a id="543" class="Symbol">:</a> <a id="545" href="Graded.Usage.Restrictions.html#974" class="Record">Usage-restrictions</a> <a id="564" href="Graded.Derived.Omega.Zero-one.html#434" class="Bound">𝕄</a> <a id="566" href="Graded.Mode.Instances.Zero-one.html#18686" class="Function">Zero-one-isMode</a><a id="581" class="Symbol">)</a>
+  <a id="585" class="Keyword">where</a>
+
+<a id="592" class="Keyword">open</a> <a id="597" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="606" href="Graded.Derived.Omega.Zero-one.html#434" class="Bound">𝕄</a> <a id="608" class="Keyword">hiding</a> <a id="615" class="Symbol">(</a><a id="616" href="Graded.Modality.html#900" class="Field">ω</a><a id="617" class="Symbol">)</a>
+
+<a id="620" class="Keyword">open</a> <a id="625" class="Keyword">import</a> <a id="632" href="Graded.Context.html" class="Module">Graded.Context</a> <a id="647" href="Graded.Derived.Omega.Zero-one.html#434" class="Bound">𝕄</a>
+<a id="649" class="Keyword">import</a> <a id="656" href="Graded.Derived.Omega.html" class="Module">Graded.Derived.Omega</a> <a id="677" href="Graded.Derived.Omega.Zero-one.html#540" class="Bound">UR</a> <a id="680" class="Symbol">as</a> <a id="O"></a><a id="683" href="Graded.Derived.Omega.Zero-one.html#683" class="Module">O</a>
+<a id="685" class="Keyword">open</a> <a id="690" class="Keyword">import</a> <a id="697" href="Graded.Usage.html" class="Module">Graded.Usage</a> <a id="710" href="Graded.Derived.Omega.Zero-one.html#540" class="Bound">UR</a>
+
+<a id="714" class="Keyword">open</a> <a id="719" class="Keyword">import</a> <a id="726" href="Definition.Untyped.Omega.html" class="Module">Definition.Untyped.Omega</a> <a id="751" href="Graded.Derived.Omega.Zero-one.html#420" class="Bound">M</a>
+
+<a id="754" class="Keyword">open</a> <a id="759" class="Keyword">import</a> <a id="766" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="781" class="Keyword">open</a> <a id="786" class="Keyword">import</a> <a id="793" href="Tools.Nat.html" class="Module">Tools.Nat</a> <a id="803" class="Keyword">using</a> <a id="809" class="Symbol">(</a><a id="810" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="813" class="Symbol">)</a>
+<a id="815" class="Keyword">open</a> <a id="820" class="Keyword">import</a> <a id="827" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="855" class="Keyword">import</a> <a id="862" href="Tools.Reasoning.PartialOrder.html" class="Module">Tools.Reasoning.PartialOrder</a>
+
+<a id="892" class="Keyword">private</a> <a id="900" class="Keyword">variable</a>
+  <a id="911" href="Graded.Derived.Omega.Zero-one.html#911" class="Generalizable">n</a> <a id="913" class="Symbol">:</a> <a id="915" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+  <a id="921" href="Graded.Derived.Omega.Zero-one.html#921" class="Generalizable">m</a> <a id="923" class="Symbol">:</a> <a id="925" href="Graded.Mode.Instances.Zero-one.html#1900" class="Datatype">Mode</a>
+  <a id="932" href="Graded.Derived.Omega.Zero-one.html#932" class="Generalizable">p</a> <a id="934" class="Symbol">:</a> <a id="936" href="Graded.Derived.Omega.Zero-one.html#420" class="Bound">M</a>
+
+<a id="939" class="Keyword">opaque</a>
+  <a id="948" class="Keyword">unfolding</a> <a id="958" href="Definition.Untyped.Omega.html#817" class="Function">ω</a>
+
+  <a id="963" class="Comment">-- A usage lemma for ω.</a>
+
+  <a id="▸ω"></a><a id="990" href="Graded.Derived.Omega.Zero-one.html#990" class="Function">▸ω</a> <a id="993" class="Symbol">:</a>
+    <a id="999" class="Symbol">(</a><a id="1000" href="Graded.Derived.Omega.Zero-one.html#921" class="Generalizable">m</a> <a id="1002" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="1004" class="InductiveConstructor">𝟙ᵐ</a> <a id="1007" class="Symbol">→</a> <a id="1009" href="Graded.Derived.Omega.Zero-one.html#932" class="Generalizable">p</a> <a id="1011" href="Graded.Modality.html#1336" class="Function Operator">≤</a> <a id="1013" href="Graded.Modality.html#898" class="Function">𝟙</a> <a id="1015" href="Graded.Modality.html#872" class="Function Operator">+</a> <a id="1017" href="Graded.Derived.Omega.Zero-one.html#932" class="Generalizable">p</a><a id="1018" class="Symbol">)</a> <a id="1020" class="Symbol">→</a>
+    <a id="1026" href="Graded.Context.html#2656" class="Function">𝟘ᶜ</a> <a id="1029" href="Graded.Usage.html#8916" class="Datatype Operator">▸[</a> <a id="1032" href="Graded.Derived.Omega.Zero-one.html#921" class="Generalizable">m</a> <a id="1034" href="Graded.Usage.html#8916" class="Datatype Operator">]</a> <a id="1036" href="Definition.Untyped.Omega.html#817" class="Function">ω</a> <a id="1038" class="Symbol">{</a><a id="1039" class="Argument">n</a> <a id="1041" class="Symbol">=</a> <a id="1043" href="Graded.Derived.Omega.Zero-one.html#911" class="Generalizable">n</a><a id="1044" class="Symbol">}</a> <a id="1046" href="Graded.Derived.Omega.Zero-one.html#932" class="Generalizable">p</a>
+  <a id="1050" href="Graded.Derived.Omega.Zero-one.html#990" class="Function">▸ω</a> <a id="1053" href="Graded.Derived.Omega.Zero-one.html#1053" class="Bound">hyp</a> <a id="1057" class="Symbol">=</a> <a id="1059" href="Graded.Derived.Omega.html#944" class="Function">O.▸ω</a> <a id="1064" class="Symbol">(</a><a id="1065" href="Graded.Derived.Omega.Zero-one.html#1053" class="Bound">hyp</a> <a id="1069" href="Function.Base.html#1134" class="Function Operator">∘→</a> <a id="1072" href="Graded.Mode.Instances.Zero-one.html#12503" class="Function">⌜⌝≢𝟘→≡𝟙ᵐ</a><a id="1080" class="Symbol">)</a>
+
+<a id="1083" class="Keyword">opaque</a>
+  <a id="1092" class="Keyword">unfolding</a> <a id="1102" href="Definition.Untyped.Omega.html#905" class="Function">Ω</a>
+
+  <a id="1107" class="Comment">-- A usage lemma for Ω.</a>
+
+  <a id="▸Ω"></a><a id="1134" href="Graded.Derived.Omega.Zero-one.html#1134" class="Function">▸Ω</a> <a id="1137" class="Symbol">:</a>
+    <a id="1143" class="Symbol">(</a><a id="1144" href="Graded.Derived.Omega.Zero-one.html#921" class="Generalizable">m</a> <a id="1146" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="1148" class="InductiveConstructor">𝟙ᵐ</a> <a id="1151" class="Symbol">→</a> <a id="1153" href="Graded.Derived.Omega.Zero-one.html#932" class="Generalizable">p</a> <a id="1155" href="Graded.Modality.html#1336" class="Function Operator">≤</a> <a id="1157" href="Graded.Modality.html#898" class="Function">𝟙</a> <a id="1159" href="Graded.Modality.html#872" class="Function Operator">+</a> <a id="1161" href="Graded.Derived.Omega.Zero-one.html#932" class="Generalizable">p</a><a id="1162" class="Symbol">)</a> <a id="1164" class="Symbol">→</a>
+    <a id="1170" href="Graded.Context.html#2656" class="Function">𝟘ᶜ</a> <a id="1173" href="Graded.Usage.html#8916" class="Datatype Operator">▸[</a> <a id="1176" href="Graded.Derived.Omega.Zero-one.html#921" class="Generalizable">m</a> <a id="1178" href="Graded.Usage.html#8916" class="Datatype Operator">]</a> <a id="1180" href="Definition.Untyped.Omega.html#905" class="Function">Ω</a> <a id="1182" class="Symbol">{</a><a id="1183" class="Argument">n</a> <a id="1185" class="Symbol">=</a> <a id="1187" href="Graded.Derived.Omega.Zero-one.html#911" class="Generalizable">n</a><a id="1188" class="Symbol">}</a> <a id="1190" href="Graded.Derived.Omega.Zero-one.html#932" class="Generalizable">p</a>
+  <a id="1194" href="Graded.Derived.Omega.Zero-one.html#1134" class="Function">▸Ω</a> <a id="1197" href="Graded.Derived.Omega.Zero-one.html#1197" class="Bound">hyp</a> <a id="1201" class="Symbol">=</a> <a id="1203" href="Graded.Derived.Omega.html#2138" class="Function">O.▸Ω</a> <a id="1208" class="Symbol">(</a><a id="1209" href="Graded.Derived.Omega.Zero-one.html#1197" class="Bound">hyp</a> <a id="1213" href="Function.Base.html#1134" class="Function Operator">∘→</a> <a id="1216" href="Graded.Mode.Instances.Zero-one.html#12503" class="Function">⌜⌝≢𝟘→≡𝟙ᵐ</a><a id="1224" class="Symbol">)</a>
+</pre></body></html>

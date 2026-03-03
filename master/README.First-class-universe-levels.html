@@ -44,7 +44,7 @@ in the paper. If one does not care about grades, then one can use a
 unit type or a trivial modality:
 </a><a id="1607" class="Markup">```agda
 </a><a id="1615" class="Keyword">import</a> <a id="1622" href="Graded.Modality.Instances.Unit.html" class="Module">Graded.Modality.Instances.Unit</a>
-  <a id="1655" class="Keyword">using</a> <a id="1661" class="Symbol">(</a><a id="1662" href="Graded.Modality.Instances.Unit.html#5327" class="Function">UnitModality</a><a id="1674" class="Symbol">)</a>
+  <a id="1655" class="Keyword">using</a> <a id="1661" class="Symbol">(</a><a id="1662" href="Graded.Modality.Instances.Unit.html#3643" class="Function">UnitModality</a><a id="1674" class="Symbol">)</a>
 <a id="1676" class="Markup">```
 </a><a id="1680" class="Background">
 Terms. The notation does not match the paper exactly. The notation
@@ -669,9 +669,9 @@ The usage relation. This relation is parametrised by a value of type
 several forms of erased matches.
 </a><a id="19680" class="Markup">```agda
 </a><a id="19688" class="Keyword">import</a> <a id="19695" href="Graded.Usage.html" class="Module">Graded.Usage</a>
-  <a id="19710" class="Keyword">using</a> <a id="19716" class="Symbol">(</a><a id="19717" href="Graded.Usage.html#8785" class="Datatype Operator">_▸[_]_</a><a id="19723" class="Symbol">)</a>
+  <a id="19710" class="Keyword">using</a> <a id="19716" class="Symbol">(</a><a id="19717" href="Graded.Usage.html#8916" class="Datatype Operator">_▸[_]_</a><a id="19723" class="Symbol">)</a>
 <a id="19725" class="Keyword">import</a> <a id="19732" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
-  <a id="19760" class="Keyword">using</a> <a id="19766" class="Symbol">(</a><a id="19767" href="Graded.Usage.Restrictions.html#835" class="Record">Usage-restrictions</a><a id="19785" class="Symbol">)</a>
+  <a id="19760" class="Keyword">using</a> <a id="19766" class="Symbol">(</a><a id="19767" href="Graded.Usage.Restrictions.html#974" class="Record">Usage-restrictions</a><a id="19785" class="Symbol">)</a>
 <a id="19787" class="Markup">```
 </a><a id="19791" class="Background">
 Usage contexts.
@@ -683,21 +683,21 @@ Usage contexts.
 Modes. The development supports modalities with or without the zero
 mode.
 </a><a id="19932" class="Markup">```agda
-</a><a id="19940" class="Keyword">import</a> <a id="19947" href="Graded.Mode.html" class="Module">Graded.Mode</a>
-  <a id="19961" class="Keyword">using</a> <a id="19967" class="Symbol">(</a><a id="19968" href="Graded.Mode.html#1039" class="Datatype">Mode</a><a id="19972" class="Symbol">)</a>
-<a id="19974" class="Markup">```
-</a><a id="19978" class="Background">
+</a><a id="19940" class="Keyword">import</a> <a id="19947" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a>
+  <a id="19980" class="Keyword">using</a> <a id="19986" class="Symbol">(</a><a id="19987" href="Graded.Mode.Instances.Zero-one.html#1900" class="Datatype">Mode</a><a id="19991" class="Symbol">)</a>
+<a id="19993" class="Markup">```
+</a><a id="19997" class="Background">
 The erasure modality. The development supports two variants of the
 erasure modality: with or without support for the zero mode. When the
 paper refers to &quot;the erasure modality&quot; it is the one with support for
 the zero mode that is meant.
-</a><a id="20215" class="Markup">```agda
-</a><a id="20223" class="Keyword">import</a> <a id="20230" href="Graded.Modality.Instances.Erasure.html" class="Module">Graded.Modality.Instances.Erasure</a>
-  <a id="20266" class="Keyword">using</a> <a id="20272" class="Symbol">(</a><a id="20273" href="Graded.Modality.Instances.Erasure.html#442" class="InductiveConstructor">𝟘</a><a id="20274" class="Symbol">;</a> <a id="20276" href="Graded.Modality.Instances.Erasure.html#444" class="InductiveConstructor">ω</a><a id="20277" class="Symbol">)</a>
-<a id="20279" class="Keyword">import</a> <a id="20286" href="Graded.Modality.Instances.Erasure.Modality.html" class="Module">Graded.Modality.Instances.Erasure.Modality</a>
-  <a id="20331" class="Keyword">using</a> <a id="20337" class="Symbol">(</a><a id="20338" href="Graded.Modality.Instances.Erasure.Modality.html#2775" class="Function">ErasureModality</a><a id="20353" class="Symbol">)</a>
-<a id="20355" class="Markup">```
-</a><a id="20359" class="Background">
+</a><a id="20234" class="Markup">```agda
+</a><a id="20242" class="Keyword">import</a> <a id="20249" href="Graded.Modality.Instances.Erasure.html" class="Module">Graded.Modality.Instances.Erasure</a>
+  <a id="20285" class="Keyword">using</a> <a id="20291" class="Symbol">(</a><a id="20292" href="Graded.Modality.Instances.Erasure.html#442" class="InductiveConstructor">𝟘</a><a id="20293" class="Symbol">;</a> <a id="20295" href="Graded.Modality.Instances.Erasure.html#444" class="InductiveConstructor">ω</a><a id="20296" class="Symbol">)</a>
+<a id="20298" class="Keyword">import</a> <a id="20305" href="Graded.Modality.Instances.Erasure.Modality.html" class="Module">Graded.Modality.Instances.Erasure.Modality</a>
+  <a id="20350" class="Keyword">using</a> <a id="20356" class="Symbol">(</a><a id="20357" href="Graded.Modality.Instances.Erasure.Modality.html#511" class="Function">ErasureModality</a><a id="20372" class="Symbol">)</a>
+<a id="20374" class="Markup">```
+</a><a id="20378" class="Background">
 The target language. The term appˢ t u is denoted by `t ∘⟨ s ⟩ u`, the
 predicate Valueˢ is called `Value⟨ s ⟩`, sucˢ is called `suc⟨ s ⟩`, ↯ˢ
 is called `loop? s`, \_⊢\_⟶ˢᵘᶜ\_:ℕ is called `_⊢_⇒ˢ_∷ℕ`,
@@ -706,32 +706,32 @@ reduction relations for the target language include a definition
 context: ⇒ corresponds to `_⊢_⇒_`, ⇒ˢᵘᶜ corresponds to `_⊢_⇒ˢ_`, and
 ⇒\*ₛ corresponds to `_⊢_⇒ˢ⟨_⟩*_`. The term loop corresponds to
 `loop non-strict`.
-</a><a id="20845" class="Markup">```agda
-</a><a id="20853" class="Keyword">import</a> <a id="20860" href="Graded.Erasure.Target.html" class="Module">Graded.Erasure.Target</a>
-  <a id="20884" class="Keyword">using</a> <a id="20890" class="Symbol">(</a><a id="20891" href="Graded.Erasure.Target.html#1322" class="Datatype">Term</a><a id="20895" class="Symbol">;</a> <a id="20897" href="Graded.Erasure.Target.html#708" class="Datatype">Strictness</a><a id="20907" class="Symbol">;</a> <a id="20909" href="Graded.Erasure.Target.html#6329" class="Datatype">Value</a><a id="20914" class="Symbol">;</a> <a id="20916" href="Graded.Erasure.Target.html#6573" class="Function Operator">Value⟨_⟩</a><a id="20924" class="Symbol">;</a> <a id="20926" href="Graded.Erasure.Target.html#7364" class="Datatype Operator">_⊢_⇒_</a><a id="20931" class="Symbol">;</a> <a id="20933" href="Graded.Erasure.Target.html#1976" class="Function Operator">suc⟨_⟩</a><a id="20939" class="Symbol">;</a> <a id="20941" href="Graded.Erasure.Target.html#7107" class="Function">sucᵏ</a><a id="20945" class="Symbol">)</a>
-<a id="20947" class="Keyword">import</a> <a id="20954" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="20975" class="Keyword">using</a> <a id="20981" class="Symbol">(</a><a id="20982" href="Definition.Untyped.html#4379" class="Function">sucᵏ</a><a id="20986" class="Symbol">)</a>
-<a id="20988" class="Keyword">import</a> <a id="20995" href="Graded.Erasure.Target.Non-terminating.html" class="Module">Graded.Erasure.Target.Non-terminating</a>
-  <a id="21035" class="Keyword">using</a> <a id="21041" class="Symbol">(</a><a id="21042" href="Graded.Erasure.Target.Non-terminating.html#796" class="Function">loop</a><a id="21046" class="Symbol">)</a>
-<a id="21048" class="Keyword">import</a> <a id="21055" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
-  <a id="21083" class="Keyword">using</a> <a id="21089" class="Symbol">(</a><a id="21090" href="Graded.Erasure.Extraction.html#893" class="Function">loop?</a><a id="21095" class="Symbol">)</a>
-<a id="21097" class="Keyword">import</a> <a id="21104" href="Graded.Erasure.SucRed.html" class="Module">Graded.Erasure.SucRed</a>
-  <a id="21128" class="Keyword">using</a> <a id="21134" class="Symbol">(</a><a id="21135" href="Graded.Erasure.SucRed.html#6069" class="Datatype Operator">_⊢_⇒ˢ_</a><a id="21141" class="Symbol">;</a> <a id="21143" href="Graded.Erasure.SucRed.html#1447" class="Datatype Operator">_⊢_⇒ˢ_∷ℕ</a><a id="21151" class="Symbol">;</a> <a id="21153" href="Graded.Erasure.SucRed.html#1707" class="Datatype Operator">_⊢_⇒ˢ*_∷ℕ</a><a id="21162" class="Symbol">;</a> <a id="21164" href="Graded.Erasure.SucRed.html#12249" class="Function Operator">_⊢_⇒ˢ⟨_⟩*_</a><a id="21174" class="Symbol">)</a>
-<a id="21176" class="Markup">```
-</a><a id="21180" class="Background">
+</a><a id="20864" class="Markup">```agda
+</a><a id="20872" class="Keyword">import</a> <a id="20879" href="Graded.Erasure.Target.html" class="Module">Graded.Erasure.Target</a>
+  <a id="20903" class="Keyword">using</a> <a id="20909" class="Symbol">(</a><a id="20910" href="Graded.Erasure.Target.html#1322" class="Datatype">Term</a><a id="20914" class="Symbol">;</a> <a id="20916" href="Graded.Erasure.Target.html#708" class="Datatype">Strictness</a><a id="20926" class="Symbol">;</a> <a id="20928" href="Graded.Erasure.Target.html#6329" class="Datatype">Value</a><a id="20933" class="Symbol">;</a> <a id="20935" href="Graded.Erasure.Target.html#6573" class="Function Operator">Value⟨_⟩</a><a id="20943" class="Symbol">;</a> <a id="20945" href="Graded.Erasure.Target.html#7364" class="Datatype Operator">_⊢_⇒_</a><a id="20950" class="Symbol">;</a> <a id="20952" href="Graded.Erasure.Target.html#1976" class="Function Operator">suc⟨_⟩</a><a id="20958" class="Symbol">;</a> <a id="20960" href="Graded.Erasure.Target.html#7107" class="Function">sucᵏ</a><a id="20964" class="Symbol">)</a>
+<a id="20966" class="Keyword">import</a> <a id="20973" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
+  <a id="20994" class="Keyword">using</a> <a id="21000" class="Symbol">(</a><a id="21001" href="Definition.Untyped.html#4379" class="Function">sucᵏ</a><a id="21005" class="Symbol">)</a>
+<a id="21007" class="Keyword">import</a> <a id="21014" href="Graded.Erasure.Target.Non-terminating.html" class="Module">Graded.Erasure.Target.Non-terminating</a>
+  <a id="21054" class="Keyword">using</a> <a id="21060" class="Symbol">(</a><a id="21061" href="Graded.Erasure.Target.Non-terminating.html#796" class="Function">loop</a><a id="21065" class="Symbol">)</a>
+<a id="21067" class="Keyword">import</a> <a id="21074" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
+  <a id="21102" class="Keyword">using</a> <a id="21108" class="Symbol">(</a><a id="21109" href="Graded.Erasure.Extraction.html#893" class="Function">loop?</a><a id="21114" class="Symbol">)</a>
+<a id="21116" class="Keyword">import</a> <a id="21123" href="Graded.Erasure.SucRed.html" class="Module">Graded.Erasure.SucRed</a>
+  <a id="21147" class="Keyword">using</a> <a id="21153" class="Symbol">(</a><a id="21154" href="Graded.Erasure.SucRed.html#6069" class="Datatype Operator">_⊢_⇒ˢ_</a><a id="21160" class="Symbol">;</a> <a id="21162" href="Graded.Erasure.SucRed.html#1447" class="Datatype Operator">_⊢_⇒ˢ_∷ℕ</a><a id="21170" class="Symbol">;</a> <a id="21172" href="Graded.Erasure.SucRed.html#1707" class="Datatype Operator">_⊢_⇒ˢ*_∷ℕ</a><a id="21181" class="Symbol">;</a> <a id="21183" href="Graded.Erasure.SucRed.html#12249" class="Function Operator">_⊢_⇒ˢ⟨_⟩*_</a><a id="21193" class="Symbol">)</a>
+<a id="21195" class="Markup">```
+</a><a id="21199" class="Background">
 The extraction function.
-</a><a id="21206" class="Markup">```agda
-</a><a id="21214" class="Keyword">import</a> <a id="21221" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
-  <a id="21249" class="Keyword">using</a> <a id="21255" class="Symbol">(</a><a id="21256" href="Graded.Erasure.Extraction.html#2112" class="Function">erase</a><a id="21261" class="Symbol">)</a>
-<a id="21263" class="Markup">```
-</a><a id="21267" class="Background">
+</a><a id="21225" class="Markup">```agda
+</a><a id="21233" class="Keyword">import</a> <a id="21240" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
+  <a id="21268" class="Keyword">using</a> <a id="21274" class="Symbol">(</a><a id="21275" href="Graded.Erasure.Extraction.html#2112" class="Function">erase</a><a id="21280" class="Symbol">)</a>
+<a id="21282" class="Markup">```
+</a><a id="21286" class="Background">
 Complete removal of all arguments can, in the strict setting, lead to
 non-termination for the extracted program.
-</a><a id="21381" class="Markup">```agda
-</a><a id="21389" class="Keyword">import</a> <a id="21396" href="Graded.Erasure.Extraction.Non-terminating.html" class="Module">Graded.Erasure.Extraction.Non-terminating</a>
-  <a id="21440" class="Keyword">using</a> <a id="21446" class="Symbol">(</a><a id="21447" href="Graded.Erasure.Extraction.Non-terminating.html#12459" class="Function">loops-reduces-forever</a><a id="21468" class="Symbol">;</a> <a id="21470" href="Graded.Erasure.Extraction.Non-terminating.html#13512" class="Function">⊢loops</a><a id="21476" class="Symbol">;</a> <a id="21478" href="Graded.Erasure.Extraction.Non-terminating.html#13825" class="Function">▸loops</a><a id="21484" class="Symbol">)</a>
-<a id="21486" class="Markup">```
-</a><a id="21490" class="Background">
+</a><a id="21400" class="Markup">```agda
+</a><a id="21408" class="Keyword">import</a> <a id="21415" href="Graded.Erasure.Extraction.Non-terminating.html" class="Module">Graded.Erasure.Extraction.Non-terminating</a>
+  <a id="21459" class="Keyword">using</a> <a id="21465" class="Symbol">(</a><a id="21466" href="Graded.Erasure.Extraction.Non-terminating.html#12663" class="Function">loops-reduces-forever</a><a id="21487" class="Symbol">;</a> <a id="21489" href="Graded.Erasure.Extraction.Non-terminating.html#13682" class="Function">⊢loops</a><a id="21495" class="Symbol">;</a> <a id="21497" href="Graded.Erasure.Extraction.Non-terminating.html#13995" class="Function">▸loops</a><a id="21503" class="Symbol">)</a>
+<a id="21505" class="Markup">```
+</a><a id="21509" class="Background">
 Theorem 5.1: Soundness of erasure. The paper uses the formulation
 &quot;erased matches are disallowed for weak Σ and unit types&quot;, but the
 code uses the formulation &quot;if the modality is non-trivial, then erased
@@ -740,50 +740,50 @@ identity type&quot;: the paper focuses on the erasure modality, which is
 non-trivial, and identity types are mostly ignored in the text. The
 statement in the code also has the condition &quot;equality reflection is
 disallowed or the context is empty&quot;.
-</a><a id="22001" class="Markup">```agda
-</a><a id="22009" class="Keyword">open</a> <a id="22014" class="Keyword">import</a> <a id="22021" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
-<a id="22059" class="Keyword">open</a> <a id="22064" href="Graded.Erasure.Consequences.Soundness.html#3430" class="Module">Soundness</a>
-  <a id="22076" class="Keyword">using</a> <a id="22082" class="Symbol">(</a><a id="22083" href="Graded.Erasure.Consequences.Soundness.html#5867" class="Function">soundness-ℕ</a><a id="22094" class="Symbol">)</a>
-<a id="22096" class="Markup">```
-</a><a id="22100" class="Background">
+</a><a id="22020" class="Markup">```agda
+</a><a id="22028" class="Keyword">open</a> <a id="22033" class="Keyword">import</a> <a id="22040" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
+<a id="22078" class="Keyword">open</a> <a id="22083" href="Graded.Erasure.Consequences.Soundness.html#3563" class="Module">Soundness</a>
+  <a id="22095" class="Keyword">using</a> <a id="22101" class="Symbol">(</a><a id="22102" href="Graded.Erasure.Consequences.Soundness.html#6008" class="Function">soundness-ℕ</a><a id="22113" class="Symbol">)</a>
+<a id="22115" class="Markup">```
+</a><a id="22119" class="Background">
 Corollary 5.2: Soundness of erasure for closed terms.
-</a><a id="22155" class="Markup">```agda
-</a><a id="22163" class="Keyword">open</a> <a id="22168" href="Graded.Erasure.Consequences.Soundness.html#8207" class="Module">Soundness₀</a>
-  <a id="22181" class="Keyword">using</a> <a id="22187" class="Symbol">(</a><a id="22188" href="Graded.Erasure.Consequences.Soundness.html#8409" class="Function">soundness-ℕ</a><a id="22199" class="Symbol">)</a>
-<a id="22201" class="Markup">```
-</a><a id="22205" class="Background">
+</a><a id="22174" class="Markup">```agda
+</a><a id="22182" class="Keyword">open</a> <a id="22187" href="Graded.Erasure.Consequences.Soundness.html#8348" class="Module">Soundness₀</a>
+  <a id="22200" class="Keyword">using</a> <a id="22206" class="Symbol">(</a><a id="22207" href="Graded.Erasure.Consequences.Soundness.html#8550" class="Function">soundness-ℕ</a><a id="22218" class="Symbol">)</a>
+<a id="22220" class="Markup">```
+</a><a id="22224" class="Background">
 Some counterexamples to variants of Theorem 5.1, one for the case
 where erased matches are allowed for weak Σ-types, and one for the
 case where erased matches are allowed for the empty type and the
 context is allowed to be inconsistent.
-</a><a id="22443" class="Markup">```agda
-</a><a id="22451" class="Keyword">import</a> <a id="22458" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a> <a id="22496" class="Keyword">using</a>
-  <a id="22504" class="Symbol">(</a><a id="22505" href="Graded.Erasure.Consequences.Soundness.html#9928" class="Function">soundness-ℕ-only-source-counterexample₁</a><a id="22544" class="Symbol">;</a> <a id="22546" href="Graded.Erasure.Consequences.Soundness.html#20572" class="Function">soundness-ℕ-counterexample₆</a><a id="22573" class="Symbol">)</a>
-<a id="22575" class="Markup">```
-</a><a id="22579" class="Background">
+</a><a id="22462" class="Markup">```agda
+</a><a id="22470" class="Keyword">import</a> <a id="22477" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a> <a id="22515" class="Keyword">using</a>
+  <a id="22523" class="Symbol">(</a><a id="22524" href="Graded.Erasure.Consequences.Soundness.html#10069" class="Function">soundness-ℕ-only-source-counterexample₁</a><a id="22563" class="Symbol">;</a> <a id="22565" href="Graded.Erasure.Consequences.Soundness.html#20803" class="Function">soundness-ℕ-counterexample₆</a><a id="22592" class="Symbol">)</a>
+<a id="22594" class="Markup">```
+</a><a id="22598" class="Background">
 ### 6: Discussion and Future Work
 
 The algorithmic η-equality rule for Lift, stability of algorithmic
 equality under conversion, and lifting of algorithmic equality of
 atomic neutrals with types in WHNF (`Γ ⊢ t ~ u ↓ A`) to algorithmic
 equality of terms in WHNF (`Γ ⊢ t [conv↓] u ∷ A`).
-</a><a id="22867" class="Markup">```agda
-</a><a id="22875" class="Keyword">open</a> <a id="22880" class="Keyword">import</a> <a id="22887" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
-  <a id="22911" class="Keyword">using</a> <a id="22917" class="Symbol">(</a><a id="22918" class="Keyword">module</a> <a id="22925" href="Definition.Conversion.html#7141" class="Module Operator">_⊢_[conv↓]_∷_</a><a id="22938" class="Symbol">)</a>
-<a id="22940" class="Keyword">open</a> <a id="22945" href="Definition.Conversion.html#7141" class="Module Operator">_⊢_[conv↓]_∷_</a>
-  <a id="22961" class="Keyword">using</a> <a id="22967" class="Symbol">(</a><a id="22968" href="Definition.Conversion.html#8105" class="InductiveConstructor">Lift-η</a><a id="22974" class="Symbol">)</a>
-<a id="22976" class="Keyword">import</a> <a id="22983" href="Definition.Conversion.Conversion.html" class="Module">Definition.Conversion.Conversion</a>
-  <a id="23018" class="Keyword">using</a> <a id="23024" class="Symbol">(</a><a id="23025" href="Definition.Conversion.Conversion.html#6481" class="Function">convConv↑Term</a><a id="23038" class="Symbol">;</a> <a id="23040" href="Definition.Conversion.Conversion.html#6666" class="Function">convConv↓Term</a><a id="23053" class="Symbol">)</a>
-<a id="23055" class="Keyword">import</a> <a id="23062" href="Definition.Conversion.Lift.html" class="Module">Definition.Conversion.Lift</a>
-  <a id="23091" class="Keyword">using</a> <a id="23097" class="Symbol">(</a><a id="23098" href="Definition.Conversion.Lift.html#8833" class="Function">lift~toConv↓</a><a id="23110" class="Symbol">)</a>
-<a id="23112" class="Markup">```
-</a><a id="23116" class="Background">
+</a><a id="22886" class="Markup">```agda
+</a><a id="22894" class="Keyword">open</a> <a id="22899" class="Keyword">import</a> <a id="22906" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
+  <a id="22930" class="Keyword">using</a> <a id="22936" class="Symbol">(</a><a id="22937" class="Keyword">module</a> <a id="22944" href="Definition.Conversion.html#7141" class="Module Operator">_⊢_[conv↓]_∷_</a><a id="22957" class="Symbol">)</a>
+<a id="22959" class="Keyword">open</a> <a id="22964" href="Definition.Conversion.html#7141" class="Module Operator">_⊢_[conv↓]_∷_</a>
+  <a id="22980" class="Keyword">using</a> <a id="22986" class="Symbol">(</a><a id="22987" href="Definition.Conversion.html#8105" class="InductiveConstructor">Lift-η</a><a id="22993" class="Symbol">)</a>
+<a id="22995" class="Keyword">import</a> <a id="23002" href="Definition.Conversion.Conversion.html" class="Module">Definition.Conversion.Conversion</a>
+  <a id="23037" class="Keyword">using</a> <a id="23043" class="Symbol">(</a><a id="23044" href="Definition.Conversion.Conversion.html#6481" class="Function">convConv↑Term</a><a id="23057" class="Symbol">;</a> <a id="23059" href="Definition.Conversion.Conversion.html#6666" class="Function">convConv↓Term</a><a id="23072" class="Symbol">)</a>
+<a id="23074" class="Keyword">import</a> <a id="23081" href="Definition.Conversion.Lift.html" class="Module">Definition.Conversion.Lift</a>
+  <a id="23110" class="Keyword">using</a> <a id="23116" class="Symbol">(</a><a id="23117" href="Definition.Conversion.Lift.html#8833" class="Function">lift~toConv↓</a><a id="23129" class="Symbol">)</a>
+<a id="23131" class="Markup">```
+</a><a id="23135" class="Background">
 ## More pointers to code
 
 Some examples, including a universe-polymorphic identity function and
 a universe-polymorphic encoding of vectors (lists of a given length).
-</a><a id="23283" class="Markup">```agda
-</a><a id="23291" class="Keyword">import</a> <a id="23298" href="Graded.Erasure.Examples.html" class="Module">Graded.Erasure.Examples</a>
-  <a id="23324" class="Keyword">using</a> <a id="23330" class="Symbol">(</a><a id="23331" href="Graded.Erasure.Examples.html#5059" class="Function">⊢id</a><a id="23334" class="Symbol">;</a> <a id="23336" href="Graded.Erasure.Examples.html#13205" class="Function">⊢Vec</a><a id="23340" class="Symbol">;</a> <a id="23342" href="Graded.Erasure.Examples.html#23904" class="Function">⊢head</a><a id="23347" class="Symbol">)</a>
-<a id="23349" class="Markup">```
+</a><a id="23302" class="Markup">```agda
+</a><a id="23310" class="Keyword">import</a> <a id="23317" href="Graded.Erasure.Examples.html" class="Module">Graded.Erasure.Examples</a>
+  <a id="23343" class="Keyword">using</a> <a id="23349" class="Symbol">(</a><a id="23350" href="Graded.Erasure.Examples.html#5057" class="Function">⊢id</a><a id="23353" class="Symbol">;</a> <a id="23355" href="Graded.Erasure.Examples.html#13212" class="Function">⊢Vec</a><a id="23359" class="Symbol">;</a> <a id="23361" href="Graded.Erasure.Examples.html#23841" class="Function">⊢head</a><a id="23366" class="Symbol">)</a>
+<a id="23368" class="Markup">```
 </a></pre></body></html>
