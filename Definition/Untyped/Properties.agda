@@ -1059,7 +1059,7 @@ opaque
 
 opaque
 
-  -- Applying liftSubst σ to wk2 t amounts to the same thing as first
+  -- Applying σ ⇑[ 2 ] to wk2 t amounts to the same thing as first
   -- applying σ and then weakening the result two steps.
 
   wk2-liftSubst : ∀ t → wk2 t [ σ ⇑ ⇑ ] ≡ wk2 (t [ σ ])
