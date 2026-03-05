@@ -15,12 +15,13 @@ module Definition.Typed.Decidable.Internal.Term
   where
 
 open import Definition.Untyped M as U
-  using (BinderMode; Opacity; Strength; Unfolding; Wk; _»_)
+  using (BinderMode; Opacity; Strength; Term-kind; Unfolding; Wk; _»_)
 open import Definition.Untyped.Properties M
 import Definition.Untyped.Sup R as S
 
 open U.Con
 open U.DCon
+open Term-kind
 
 open import Tools.Bool using (Bool; false; T)
 open import Tools.Empty
@@ -42,6 +43,7 @@ private variable
   b                     : Bool
   m n n₁ n₂ n₃ n₄ n₅ n₆ : Nat
   x                     : Fin _
+  k                     : Term-kind
 
 ------------------------------------------------------------------------
 -- Terms for grades, strengths and binder modes
@@ -93,6 +95,9 @@ record Constants : Set where
     -- The lengths of the contexts for each of the meta-variables.
     meta-con-size : Vec Nat ms
 
+    -- The Term-kinds for each of the meta-variables.
+    meta-con-term-kind : Vec Term-kind ms
+
     -- The length of the base definition context (see below).
     base-dcon-size : Nat
 
@@ -114,7 +119,17 @@ private variable
 
 mutual
 
-  -- Terms:
+  -- Terms.
+
+  Term : Constants → Nat → Set a
+  Term c = Term[ c , tm ]
+
+  -- Levels.
+
+  Lvl : Constants → Nat → Set a
+  Lvl c = Term[ c , lvl ]
+
+  -- Terms and universe levels:
   --
   -- * Regular term constructors. These take grade terms, universe
   --   level terms, etc., so that one can check equality of, say,
@@ -147,19 +162,23 @@ mutual
   infixr 30 _supᵘₗ_
   infixl 30 _∘⟨_⟩_
 
-  data Term (c : Constants) (n : Nat) : Set a where
-    meta-var     : (x : Meta-var c m) (σ : Subst c n m) → Term c n
-    weaken       : (ρ : Wk n m) (t : Term c m) → Term c n
-    subst        : (t : Term c m) (σ : Subst c n m) → Term c n
+  data Term[_,_] (c : Constants) : Term-kind → Nat → Set a where
+    meta-var     : (x : Meta-var c k m) (σ : Subst c n m) →
+                   Term[ c , k ] n
+    weaken       : (ρ : Wk n m) (t : Term[ c , k ] m) → Term[ c , k ] n
+    subst        : (t : Term[ c , k ] m) (σ : Subst c n m) →
+                   Term[ c , k ] n
     var          : (x : Fin n) → Term c n
     defn         : (α : Nat) → Term c n
     Level        : Term c n
     zeroᵘ        : Term c n
-    sucᵘ         : (l : Term c n) → Term c n
-    _supᵘₗ_      : (l₁ l₂ : Term c n) → Term c n
-    U            : (l : Term c n) → Term c n
-    Lift         : (l A : Term c n) → Term c n
-    lift         : (l : Maybe (Term c n)) (t : Term c n) → Term c n
+    1ᵘ+          : (t : Term[ c , k ] n) → Term[ c , k ] n
+    _supᵘₗ_      : (t₁ t₂ : Term[ c , k ] n) → Term[ c , k ] n
+    ωᵘ+          : (m : Nat) → Lvl c n
+    level        : (t : Term c n) → Lvl c n
+    U            : (l : Lvl c n) → Term c n
+    Lift         : (l : Lvl c n) (A : Term c n) → Term c n
+    lift         : (l : Maybe (Lvl c n)) (t : Term c n) → Term c n
     lower        : (t : Term c n) → Term c n
     Empty        : Term c n
     emptyrec     : (p : Termᵍ (c .gs)) (A t : Term c n) → Term c n
@@ -193,7 +212,8 @@ mutual
                    (B : Term c (2+ n)) (u v w : Term c n) → Term c n
     K            : (p : Termᵍ (c .gs)) (A t : Term c n)
                    (B : Term c (1+ n)) (u v : Term c n) → Term c n
-    []-cong      : (s : Termˢ (c .ss)) (l A t u v : Term c n) → Term c n
+    []-cong      : (s : Termˢ (c .ss)) (l : Lvl c n)
+                   (A t u v : Term c n) → Term c n
 
   -- Substitutions.
   --
@@ -211,11 +231,16 @@ mutual
 
   -- The type Meta-var c n represents meta-variables.
 
-  data Meta-var (c : Constants) (n : Nat) : Set where
-    var : (x : Fin (c .ms)) → Vec.lookup (c .meta-con-size) x ≡ n →
-          Meta-var c n
+  data Meta-var (c : Constants) (k : Term-kind) (n : Nat) : Set where
+    var : (x : Fin (c .ms)) →
+          Vec.lookup (c .meta-con-size) x ≡ n →
+          Vec.lookup (c .meta-con-term-kind) x ≡ k →
+          Meta-var c k n
 
-pattern var! x = var x refl
+pattern var! x = var x refl refl
+
+private variable
+  σ : Subst _ _ _
 
 ------------------------------------------------------------------------
 -- Constraints that can be imposed by the type-checker and other
@@ -224,8 +249,9 @@ pattern var! x = var x refl
 -- Nullary constraints.
 
 data Constraint⁰ : Set where
-  k-allowed level-allowed level-is-small no-equality-reflection
-    opacity-allowed unfolding-mode-transitive : Constraint⁰
+  k-allowed level-allowed level-is-small omega-plus-allowed
+    no-equality-reflection opacity-allowed unfolding-mode-transitive :
+    Constraint⁰
 
 -- Non-nullary constraints.
 
@@ -251,8 +277,9 @@ pattern σʷ-allowed p q  = σ-allowed 𝕨 p q
 record Constraints⁰ : Set where
   no-eta-equality
   field
-    k-allowed? level-allowed? level-is-small? no-equality-reflection?
-      opacity-allowed? unfolding-mode-transitive? : Bool
+    k-allowed? level-allowed? level-is-small? omega-plus-allowed?
+      no-equality-reflection? opacity-allowed?
+      unfolding-mode-transitive? : Bool
 
 open Constraints⁰ public
 
@@ -262,6 +289,7 @@ emptyᶜ⁰ : Constraints⁰
 emptyᶜ⁰ .Constraints⁰.k-allowed?                 = false
 emptyᶜ⁰ .Constraints⁰.level-allowed?             = false
 emptyᶜ⁰ .Constraints⁰.level-is-small?            = false
+emptyᶜ⁰ .Constraints⁰.omega-plus-allowed?        = false
 emptyᶜ⁰ .Constraints⁰.no-equality-reflection?    = false
 emptyᶜ⁰ .Constraints⁰.opacity-allowed?           = false
 emptyᶜ⁰ .Constraints⁰.unfolding-mode-transitive? = false
@@ -302,10 +330,10 @@ data Con (c : Constants) : Nat → Set a where
 
 -- Types, terms with types, or levels.
 
-data Type-or-term (c : Constants) (n : Nat) : Set a where
-  type  : (A : U.Term n) → Type-or-term c n
-  term  : (t : U.Term n) (A : Term c n) → Type-or-term c n
-  level : (l : U.Term n) → Type-or-term c n
+data Type-or-term (c : Constants) : Term-kind → Nat → Set a where
+  type  : (A : U.Term n) → Type-or-term c tm n
+  term  : (t : U.Term n) (A : Term c n) → Type-or-term c tm n
+  level : (l : U.Lvl n) → Type-or-term c lvl n
 
 -- Meta-variable contexts.
 --
@@ -322,32 +350,34 @@ record Meta-con (c : Constants) : Set a where
   no-eta-equality
   field
     bindings :
-      ∀ {n} (x : Meta-var c n) →
-      Con c n × Type-or-term c n
+      Meta-var c k n → Con c n × Type-or-term c k n
     equalities :
-      List (∃ λ n → Meta-var c n × Meta-var c n)
+      List
+        (∃ λ ((k ,  n) : Term-kind × Nat) →
+           Meta-var c k n × Meta-var c k n)
 
 open Meta-con public
 
 -- If the number of meta-variables is zero, then there are no
 -- meta-variables.
 
-¬-Meta-var : c .ms ≡ 0 → ¬ Meta-var c n
-¬-Meta-var refl (var () _)
+¬-Meta-var : c .ms ≡ 0 → ¬ Meta-var c k n
+¬-Meta-var refl (var () _ _)
 
 -- An empty meta-variable context.
 
 emptyᶜᵐ :
   Meta-con
     (record
-       { gs               = n₁
-       ; ss               = n₃
-       ; bms              = n₄
-       ; ms               = 0
-       ; meta-con-size    = Vec.[]
-       ; base-dcon-size   = n₅
-       ; base-con-allowed = b
-       ; base-con-size    = n₆
+       { gs                 = n₁
+       ; ss                 = n₃
+       ; bms                = n₄
+       ; ms                 = 0
+       ; meta-con-size      = Vec.[]
+       ; meta-con-term-kind = Vec.[]
+       ; base-dcon-size     = n₅
+       ; base-con-allowed   = b
+       ; base-con-size      = n₆
        })
 emptyᶜᵐ .bindings   = ⊥-elim ∘→ ¬-Meta-var refl
 emptyᶜᵐ .equalities = L.[]
@@ -468,9 +498,9 @@ is-id? _  = nothing
 
 mutual
 
-  -- Turns terms into regular terms.
+  -- Turns terms into terms.
 
-  ⌜_⌝ : Term c n → Contexts c → U.Term n
+  ⌜_⌝ : Term[ c , k ] n → Contexts c → U.Term[ k ] n
   ⌜ meta-var x σ ⌝ γ with is-id? σ
   … | just id = ⌜ x ⌝ᵐ γ
   … | nothing = ⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ ]
@@ -480,8 +510,10 @@ mutual
   ⌜ defn α                  ⌝ _ = U.defn α
   ⌜ Level                   ⌝ _ = U.Level
   ⌜ zeroᵘ                   ⌝ _ = U.zeroᵘ
-  ⌜ sucᵘ l                  ⌝ γ = U.sucᵘ (⌜ l ⌝ γ)
+  ⌜ 1ᵘ+ l                   ⌝ γ = U.1ᵘ+ (⌜ l ⌝ γ)
   ⌜ l₁ supᵘₗ l₂             ⌝ γ = ⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ
+  ⌜ ωᵘ+ m                   ⌝ _ = U.ωᵘ+ m
+  ⌜ level t                 ⌝ γ = U.level (⌜ t ⌝ γ)
   ⌜ Lift l A                ⌝ γ = U.Lift (⌜ l ⌝ γ) (⌜ A ⌝ γ)
   ⌜ lift _ t                ⌝ γ = U.lift (⌜ t ⌝ γ)
   ⌜ lower t                 ⌝ γ = U.lower (⌜ t ⌝ γ)
@@ -531,7 +563,7 @@ mutual
 
   -- Turns meta-variables into regular terms.
 
-  ⌜_⌝ᵐ : Meta-var c n → Contexts c → U.Term n
+  ⌜_⌝ᵐ : Meta-var c k n → Contexts c → U.Term[ k ] n
   ⌜ x ⌝ᵐ γ with γ .metas .bindings x
   … | _ , type A   = A
   … | _ , term t _ = t
@@ -544,7 +576,7 @@ opaque
   -- That special case does not affect the function's result.
 
   ⌜meta-var⌝ :
-    {x : Meta-var c n₁} (σ : Subst c n₂ n₁) →
+    {x : Meta-var c k n₁} (σ : Subst c n₂ n₁) →
     ⌜ meta-var x σ ⌝ γ ≡ ⌜ x ⌝ᵐ γ U.[ ⌜ σ ⌝ˢ γ ]
   ⌜meta-var⌝ σ with is-id? σ
   … | just id = sym (subst-id _)
@@ -555,7 +587,10 @@ opaque
 
 -- A variant of the constructor meta-var.
 
-varᵐ : (x : Fin (c .ms)) → Term c (Vec.lookup (c .meta-con-size) x)
+varᵐ :
+  (x : Fin (c .ms)) →
+  Term[ c , Vec.lookup (c .meta-con-term-kind) x ]
+    (Vec.lookup (c .meta-con-size) x)
 varᵐ x = meta-var (var! x) id
 
 opaque
@@ -564,11 +599,73 @@ opaque
 
   ⌜varᵐ⌝ :
     (γ : Contexts c) →
-    ⌜ varᵐ x ⌝ γ ≡ ⌜ var x refl ⌝ᵐ γ
+    ⌜ varᵐ x ⌝ γ ≡ ⌜ var x refl refl ⌝ᵐ γ
   ⌜varᵐ⌝ _ = refl
 
 ------------------------------------------------------------------------
+-- The function Term[]→Lvl
+
+-- Turns terms into levels.
+
+Term[]→Lvl : Term[ c , k ] n → Lvl c n
+Term[]→Lvl {k = tm}  t = level t
+Term[]→Lvl {k = lvl} l = l
+
+opaque
+
+  -- A kind of congruence lemma for Term[]→Lvl.
+
+  Term[]→Lvl-cong :
+    {t u : Term[ c , k ] n} →
+    ⌜ t ⌝ γ ≡ ⌜ u ⌝ γ →
+    ⌜ Term[]→Lvl t ⌝ γ ≡ ⌜ Term[]→Lvl u ⌝ γ
+  Term[]→Lvl-cong {k = tm}  = cong U.level
+  Term[]→Lvl-cong {k = lvl} = idᶠ
+
+opaque
+
+  -- A lemma related to subst and Term[]→Lvl.
+
+  ⌜subst-Term[]→Lvl⌝ :
+    (t : Term[ c , k ] n) →
+    ⌜ subst (Term[]→Lvl t) σ ⌝ γ ≡ ⌜ Term[]→Lvl (subst t σ) ⌝ γ
+  ⌜subst-Term[]→Lvl⌝ {k = tm}  _ = refl
+  ⌜subst-Term[]→Lvl⌝ {k = lvl} _ = refl
+
+opaque
+
+  -- A lemma related to 1ᵘ+ and Term[]→Lvl.
+
+  1ᵘ+-⌜Term[]→Lvl⌝ :
+    (t : Term[ c , k ] n) →
+    U.1ᵘ+ (⌜ Term[]→Lvl t ⌝ γ) ≡ ⌜ Term[]→Lvl (1ᵘ+ t) ⌝ γ
+  1ᵘ+-⌜Term[]→Lvl⌝ {k = tm}  _ = refl
+  1ᵘ+-⌜Term[]→Lvl⌝ {k = lvl} _ = refl
+
+opaque
+  unfolding S._supᵘₗ_
+
+  -- A lemma related to supᵘₗ and Term[]→Lvl.
+
+  supᵘₗ-⌜Term[]→Lvl⌝ :
+    (t₁ t₂ : Term[ c , k ] n) →
+    ⌜ Term[]→Lvl t₁ ⌝ γ S.supᵘₗ ⌜ Term[]→Lvl t₂ ⌝ γ ≡
+    ⌜ Term[]→Lvl (t₁ supᵘₗ t₂) ⌝ γ
+  supᵘₗ-⌜Term[]→Lvl⌝ {k = tm}  _ _ = refl
+  supᵘₗ-⌜Term[]→Lvl⌝ {k = lvl} _ _ = refl
+
+------------------------------------------------------------------------
 -- Some abbreviations
+
+-- The lowest level.
+
+zeroᵘₗ : Lvl c n
+zeroᵘₗ = level zeroᵘ
+
+-- The lowest universe.
+
+U₀ : Term c n
+U₀ = U zeroᵘₗ
 
 -- Π-types.
 
@@ -593,13 +690,13 @@ infix 30 Σʷ_,_▷_▹_
 
 -- The type constructor Erased.
 
-Erased : Termˢ (c .ss) → (_ _ : Term c n) → Term c n
+Erased : Termˢ (c .ss) → Lvl c n → Term c n → Term c n
 Erased s l A =
   ΠΣ⟨ BMΣ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Lift (weaken (U.step U.id) l) (Unit s)
 
 -- The term constructor [_].
 
-box : Termˢ (c .ss) → (_ _ : Term c n) → Term c n
+box : Termˢ (c .ss) → Lvl c n → Term c n → Term c n
 box s l t =
   prod s 𝟘 (just (𝟘 , Lift (weaken (U.step U.id) l) (Unit s))) t
     (lift (just l) (star s))

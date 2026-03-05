@@ -15,6 +15,7 @@ module Definition.Conversion.EqRelInstance
   where
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
@@ -70,7 +71,8 @@ private
     ∇ ∇′ : DCon (Term 0) κ
     Η : Con Term _
     Γ : Cons _ _
-    A₁ A₂ B₁ B₂ l l′ l₁ l₂ t t′ t₁ t₂ u u′ u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
+    A₁ A₂ B₁ B₂ t t′ t₁ t₂ u u′ u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
+    l l′ l₁ l₂ : Lvl _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
     s : Strength
@@ -462,8 +464,8 @@ private opaque
     .Equality-relations.⊢≅∷L→⊢≡∷L          → soundnessConv↑Level
     .Equality-relations.Level-literal→⊢≅∷L → literal!
     .Equality-relations.⊢≅∷L→⊢≅∷           → λ where
-      _  (term _ l₁≡l₂)         → l₁≡l₂
-      ok (literal not-ok _ _ _) → ⊥-elim (not-ok ok)
+      _   (term _ l₁≡l₂)   → l₁≡l₂
+      okᴸ (literal ok _ _) → Level-allowed→Allowed-literal→ okᴸ ok
     .Equality-relations.≅-univ     → univConv↑
     .Equality-relations.≅-sym      → symConv
     .Equality-relations.≅ₜ-sym     → symConvTerm
@@ -512,8 +514,7 @@ private opaque
         in
         liftConvTerm $
         univ (Uⱼ ⊢l)
-          (conv (Uⱼ ⊢l′) $
-           U-cong-⊢≡ (sucᵘ-cong-⊢≡∷L (sym-⊢≡∷L ⊢l≡l′)))
+          (conv (Uⱼ ⊢l′) (U-cong-⊢≡ (1ᵘ+-cong (sym-⊢≡∷L ⊢l≡l′))))
           (U-cong l≡l′)
     .Equality-relations.≅-Lift-cong →
       λ l₁≡l₂ A≡B → liftConv (Lift-cong l₁≡l₂ A≡B)

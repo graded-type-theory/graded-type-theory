@@ -65,12 +65,12 @@ private
     n : Nat
     Γ : Cons _ _
     A A′ t t′ : Term n
+    l l′ : Lvl _
     p : M
     γ : Conₘ n
     m : Mode
     q r : M
     s : Strength
-    l : Universe-level
 
 ------------------------------------------------------------------------
 -- Some lemmas
@@ -371,12 +371,12 @@ module _ (as : Full-reduction-assumptions) where
 
     fullRedTermConv↑Level :
       ⦃ not-ok : No-equality-reflection ⦄ →
-      (⊢t : Γ ⊢ t [conv↑] t′ ∷Level) → ▸[ m ] Γ .defs → γ ▸[ m ] t →
-      γ ▸[ m ] FR.fullRedTermConv↑Level ⊢t .proj₁
-    fullRedTermConv↑Level (term _ ⊢t) ▸∇ ▸t =
-      fullRedTermConv↑ ⊢t ▸∇ ▸t
-    fullRedTermConv↑Level (literal! _ _ _) _ ▸t =
-      ▸t
+      (⊢l : Γ ⊢ l [conv↑] l′ ∷Level) → ▸[ m ] Γ .defs → γ ▸[ m ] l →
+      γ ▸[ m ] FR.fullRedTermConv↑Level ⊢l .proj₁
+    fullRedTermConv↑Level (term _ ⊢t) ▸∇ ▸l =
+      level (fullRedTermConv↑ ⊢t ▸∇ (inv-usage-level ▸l))
+    fullRedTermConv↑Level (literal! _ _) _ ▸l =
+      ▸l
 
     fullRedTermConv↑ᵛ :
       ⦃ not-ok : No-equality-reflection ⦄ →

@@ -73,11 +73,11 @@ opaque
 
 opaque
 
-  -- A typing rule for sucᵏ.
+  -- A typing rule for sucⁿ.
 
-  ⊢sucᵏ : ⊢ Γ → Γ ⊢ sucᵏ k ∷ ℕ
-  ⊢sucᵏ {k = 0} ⊢Γ = zeroⱼ ⊢Γ
-  ⊢sucᵏ {k = 1+ k} ⊢Γ = sucⱼ (⊢sucᵏ ⊢Γ)
+  ⊢sucⁿ : ⊢ Γ → Γ ⊢ sucⁿ k ∷ ℕ
+  ⊢sucⁿ {k = 0} ⊢Γ = zeroⱼ ⊢Γ
+  ⊢sucⁿ {k = 1+ k} ⊢Γ = sucⱼ (⊢sucⁿ ⊢Γ)
 
 opaque
 

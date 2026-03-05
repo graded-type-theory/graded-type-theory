@@ -42,11 +42,11 @@ open import Tools.Nat as N using (Nat)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
-private
-  variable
-    Γ         : Cons _ _
-    A B l₁ l₂ : Term _
-    d         : Bool
+private variable
+  Γ     : Cons _ _
+  A B   : Term _
+  l₁ l₂ : Lvl _
+  d     : Bool
 
 mutual
   -- Algorithmic equality of neutrals is well-formed.
@@ -143,8 +143,8 @@ mutual
 
   -- Soundness for _⊢_[conv↑]_∷Level.
   soundnessConv↑Level : Γ ⊢ l₁ [conv↑] l₂ ∷Level → Γ ⊢ l₁ ≡ l₂ ∷Level
-  soundnessConv↑Level (literal! not-ok ⊢Γ l-lit) =
-    literal not-ok ⊢Γ l-lit
+  soundnessConv↑Level (literal! ok ⊢Γ) =
+    literal ok ⊢Γ
   soundnessConv↑Level (term ok l₁≡l₂) =
     term ok (soundnessConv↑Term l₁≡l₂)
 
@@ -219,9 +219,9 @@ mutual
   soundnessConv↓-U {l₁} {l₂} ⊢Level₁ ⊢Level₂ (Level-refl _ _) =
       refl ⊢Level₁
     , U-injectivity
-        (U l₁     ≡⟨ inversion-Level ⊢Level₁ .proj₁ ⟩⊢
-         U zeroᵘ  ≡˘⟨ inversion-Level ⊢Level₂ .proj₁ ⟩⊢∎
-         U l₂     ∎)
+        (U l₁  ≡⟨ inversion-Level ⊢Level₁ .proj₁ ⟩⊢
+         U₀    ≡˘⟨ inversion-Level ⊢Level₂ .proj₁ ⟩⊢∎
+         U l₂  ∎)
     where
     open TyR
   soundnessConv↓-U
@@ -233,8 +233,8 @@ mutual
       conv (U-cong-⊢≡∷ l₃≡l₄) (sym U≡U₁)
     , U-injectivity
         (U l₁        ≡⟨ inversion-U ⊢U₁ ⟩⊢
-         U (sucᵘ l₃) ≡⟨ U-cong-⊢≡ (sucᵘ-cong-⊢≡∷L l₃≡l₄) ⟩⊢
-         U (sucᵘ l₄) ≡˘⟨ inversion-U ⊢U₂ ⟩⊢∎
+         U (1ᵘ+ l₃)  ≡⟨ U-cong-⊢≡ (1ᵘ+-cong l₃≡l₄) ⟩⊢
+         U (1ᵘ+ l₄)  ≡˘⟨ inversion-U ⊢U₂ ⟩⊢∎
          U l₂        ∎)
     where
     open TyR
@@ -271,9 +271,9 @@ mutual
   soundnessConv↓-U {l₁} {l₂} ⊢Empty₁ ⊢Empty₂ (Empty-refl _) =
       refl ⊢Empty₁
     , U-injectivity
-        (U l₁    ≡⟨ inversion-Empty ⊢Empty₁ ⟩⊢
-         U zeroᵘ ≡˘⟨ inversion-Empty ⊢Empty₂ ⟩⊢∎
-         U l₂    ∎)
+        (U l₁  ≡⟨ inversion-Empty ⊢Empty₁ ⟩⊢
+         U₀    ≡˘⟨ inversion-Empty ⊢Empty₂ ⟩⊢∎
+         U l₂  ∎)
     where
     open TyR
   soundnessConv↓-U {l₁} {l₂} ⊢Unit₁ ⊢Unit₂ (Unit-refl ⊢Γ ok) =
@@ -282,17 +282,17 @@ mutual
     in
       refl (conv (Unitⱼ ⊢Γ ok) (sym U≡U₁))
     , U-injectivity
-        (U l₁     ≡⟨ U≡U₁ ⟩⊢
-         U zeroᵘ  ≡˘⟨ U≡U₂ ⟩⊢∎
-         U l₂     ∎)
+        (U l₁  ≡⟨ U≡U₁ ⟩⊢
+         U₀    ≡˘⟨ U≡U₂ ⟩⊢∎
+         U l₂  ∎)
     where
     open TyR
   soundnessConv↓-U {l₁} {l₂} ⊢ℕ₁ ⊢ℕ₂ (ℕ-refl _) =
       refl ⊢ℕ₁
     , U-injectivity
-        (U l₁     ≡⟨ inversion-ℕ ⊢ℕ₁ ⟩⊢
-         U zeroᵘ  ≡˘⟨ inversion-ℕ ⊢ℕ₂ ⟩⊢∎
-         U l₂     ∎)
+        (U l₁  ≡⟨ inversion-ℕ ⊢ℕ₁ ⟩⊢
+         U₀    ≡˘⟨ inversion-ℕ ⊢ℕ₂ ⟩⊢∎
+         U l₂  ∎)
     where
     open TyR
   soundnessConv↓-U
@@ -394,7 +394,8 @@ mutual
     Level-allowed → ⊢ Γ → (x : Level⁺ Γ) →
     Γ ⊢ Level⁺→Term (suc⁺ x) ∷ Level
   ⊢suc⁺ ok ⊢Γ (n , a) =
-    sucᵘⱼ (⊢∷Level→⊢∷Level ok (⊢sucᵘᵏ (term-⊢∷ (⊢LevelAtom ok ⊢Γ a))))
+    sucᵘⱼ $ ⊢∷Level→⊢∷Level ok $
+    ⊢1ᵘ+ⁿ-level n (term-⊢∷ (⊢LevelAtom ok ⊢Γ a))
 
   ⊢map-suc⁺ :
     Level-allowed → ⊢ Γ → (l : Levelᵛ Γ) →
@@ -495,10 +496,10 @@ mutual
     → Γ ⊢ LevelAtom→Term t ≤ LevelAtom→Term u ∷Level
   soundness-≤ᵃ ok ⊢Γ t u zeroᵘ≤ =
     supᵘ-zeroˡ (⊢LevelAtom ok ⊢Γ u)
-  soundness-≤ᵃ _ ⊢Γ t u (ne≤ (ne≡ x)) =
-    supᵘ-subᵏ (⊢≤-refl (soundness~↓ x))
-  soundness-≤ᵃ _ ⊢Γ t u (ne≤ (ne≡' x)) =
-    supᵘ-subᵏ (⊢≤-refl (sym′ (soundness~↓ x)))
+  soundness-≤ᵃ _ _ _ _ (ne≤ (ne≡ x)) =
+    ⊢≤-refl (soundness~↓ x)
+  soundness-≤ᵃ _ _ _ _ (ne≤ (ne≡' x)) =
+    ⊢≤-refl (sym′ (soundness~↓ x))
 
   soundness-≤⁺
     : Level-allowed
@@ -507,7 +508,7 @@ mutual
     → ≤⁺ d t u
     → Γ ⊢ Level⁺→Term t ≤ Level⁺→Term u ∷Level
   soundness-≤⁺ ok ⊢Γ (n , t) (m , u) (n≤m , t≤u) =
-    ≤-sucᵘᵏ n≤m (soundness-≤ᵃ ok ⊢Γ _ _ t≤u)
+    ≤-1ᵘ+ⁿ n≤m (soundness-≤ᵃ ok ⊢Γ _ _ t≤u)
 
   soundness-≤⁺ᵛ
     : Level-allowed

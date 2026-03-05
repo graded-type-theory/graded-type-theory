@@ -40,14 +40,15 @@ private
 
 private variable
   α m n                    : Nat
-  bs                       : List _
+  as                       : List _
   x                        : Fin _
   p q r                    : M₂
   s                        : Strength
   b                        : BinderMode
-  ts us                    : GenTs _ _ _
-  k₁ k₂                    : Kind _ _
-  A B j l l′ l₁ l₂ t u v w : Term _ _
+  k                        : Term-kind
+  c₁ c₂                    : Constructor _ _ _
+  ts us                    : Args _ _ _
+  A B j l l′ l₁ l₂ t u v w : Term[ _ ] _ _
   ∇                        : DCon _ _
   ρ                        : Wk _ _
   σ                        : Subst _ _ _
@@ -63,57 +64,59 @@ tr-BinderMode : BinderMode → M₁ → M₂
 tr-BinderMode BMΠ     = tr
 tr-BinderMode (BMΣ _) = tr-Σ
 
--- Translation of kinds.
+-- Translation of constructors.
 
-tr-Kind : U₁.Kind bs → U₂.Kind bs
-tr-Kind (Defnkind α)        = Defnkind α
-tr-Kind Ukind               = Ukind
-tr-Kind (Binderkind b p q)  = Binderkind b (tr-BinderMode b p) (tr q)
-tr-Kind (Lamkind p)         = Lamkind (tr p)
-tr-Kind (Appkind p)         = Appkind (tr p)
-tr-Kind (Prodkind s p)      = Prodkind s (tr-Σ p)
-tr-Kind (Fstkind p)         = Fstkind (tr-Σ p)
-tr-Kind (Sndkind p)         = Sndkind (tr-Σ p)
-tr-Kind (Prodreckind r p q) = Prodreckind (tr r) (tr-Σ p) (tr q)
-tr-Kind Natkind             = Natkind
-tr-Kind Zerokind            = Zerokind
-tr-Kind Suckind             = Suckind
-tr-Kind (Natreckind p q r)  = Natreckind (tr p) (tr q) (tr r)
-tr-Kind (Unitkind s)        = Unitkind s
-tr-Kind (Starkind s)        = Starkind s
-tr-Kind (Unitreckind p q)   = Unitreckind (tr p) (tr q)
-tr-Kind Emptykind           = Emptykind
-tr-Kind (Emptyreckind p)    = Emptyreckind (tr p)
-tr-Kind Idkind              = Idkind
-tr-Kind Reflkind            = Reflkind
-tr-Kind (Jkind p q)         = Jkind (tr p) (tr q)
-tr-Kind (Kkind p)           = Kkind (tr p)
-tr-Kind (Boxcongkind s)     = Boxcongkind s
-tr-Kind Levelkind           = Levelkind
-tr-Kind Zeroᵘkind           = Zeroᵘkind
-tr-Kind Sucᵘkind            = Sucᵘkind
-tr-Kind Supᵘkind            = Supᵘkind
-tr-Kind Liftkind            = Liftkind
-tr-Kind liftkind            = liftkind
-tr-Kind lowerkind           = lowerkind
+tr-Constructor : U₁.Constructor k as → U₂.Constructor k as
+tr-Constructor (defnᵏ α)        = defnᵏ α
+tr-Constructor Levelᵏ           = Levelᵏ
+tr-Constructor zeroᵘᵏ           = zeroᵘᵏ
+tr-Constructor sucᵘᵏ            = sucᵘᵏ
+tr-Constructor supᵘᵏ            = supᵘᵏ
+tr-Constructor (ωᵘ+ᵏ m)         = ωᵘ+ᵏ m
+tr-Constructor levelᵏ           = levelᵏ
+tr-Constructor Uᵏ               = Uᵏ
+tr-Constructor Liftᵏ            = Liftᵏ
+tr-Constructor liftᵏ            = liftᵏ
+tr-Constructor lowerᵏ           = lowerᵏ
+tr-Constructor Emptyᵏ           = Emptyᵏ
+tr-Constructor (emptyrecᵏ p)    = emptyrecᵏ (tr p)
+tr-Constructor (Unitᵏ s)        = Unitᵏ s
+tr-Constructor (starᵏ s)        = starᵏ s
+tr-Constructor (unitrecᵏ p q)   = unitrecᵏ (tr p) (tr q)
+tr-Constructor (ΠΣᵏ b p q)      = ΠΣᵏ b (tr-BinderMode b p) (tr q)
+tr-Constructor (lamᵏ p)         = lamᵏ (tr p)
+tr-Constructor (appᵏ p)         = appᵏ (tr p)
+tr-Constructor (prodᵏ s p)      = prodᵏ s (tr-Σ p)
+tr-Constructor (fstᵏ p)         = fstᵏ (tr-Σ p)
+tr-Constructor (sndᵏ p)         = sndᵏ (tr-Σ p)
+tr-Constructor (prodrecᵏ r p q) = prodrecᵏ (tr r) (tr-Σ p) (tr q)
+tr-Constructor ℕᵏ               = ℕᵏ
+tr-Constructor zeroᵏ            = zeroᵏ
+tr-Constructor sucᵏ             = sucᵏ
+tr-Constructor (natrecᵏ p q r)  = natrecᵏ (tr p) (tr q) (tr r)
+tr-Constructor Idᵏ              = Idᵏ
+tr-Constructor rflᵏ             = rflᵏ
+tr-Constructor (Jᵏ p q)         = Jᵏ (tr p) (tr q)
+tr-Constructor (Kᵏ p)           = Kᵏ (tr p)
+tr-Constructor ([]-congᵏ s)     = []-congᵏ s
 
 mutual
 
   -- Translation of the alternative term representation.
 
-  tr-Term′ : U₁.Term′ n → U₂.Term′ n
+  tr-Term′ : U₁.Term[ k ]′ n → U₂.Term[ k ]′ n
   tr-Term′ (var x)    = var x
-  tr-Term′ (gen k ts) = gen (tr-Kind k) (tr-GenTs ts)
+  tr-Term′ (con c ts) = con (tr-Constructor c) (tr-Args ts)
 
-  -- Translation for GenTs.
+  -- Translation for Args.
 
-  tr-GenTs : U₁.GenTs U₁.Term′ n bs → U₂.GenTs U₂.Term′ n bs
-  tr-GenTs []        = []
-  tr-GenTs (t ∷ₜ ts) = tr-Term′ t ∷ₜ tr-GenTs ts
+  tr-Args : U₁.Args n as → U₂.Args n as
+  tr-Args []        = []
+  tr-Args (t ∷ₜ ts) = tr-Term′ t ∷ₜ tr-Args ts
 
 -- Translation of terms.
 
-tr-Term : U₁.Term n → U₂.Term n
+tr-Term : U₁.Term[ k ] n → U₂.Term[ k ] n
 tr-Term t = U₂.toTerm (tr-Term′ (U₁.fromTerm t))
 
 -- Translation of contexts.
@@ -234,20 +237,33 @@ module _
 ------------------------------------------------------------------------
 -- Translation commutes with various things
 
+opaque
+
+  -- The function 1ᵘ+ commutes with translation.
+
+  tr-Term-1ᵘ+ :
+    {l : U₁.Term[ k ] n} →
+    tr-Term (U₁.1ᵘ+ l) ≡ U₂.1ᵘ+ (tr-Term l)
+  tr-Term-1ᵘ+ {k = tm}                = refl
+  tr-Term-1ᵘ+ {k = lvl} {l = ωᵘ+ _}   = refl
+  tr-Term-1ᵘ+ {k = lvl} {l = level _} = refl
+
 mutual
 
   -- Weakening commutes with translation of the alternative term
   -- representation.
 
-  tr-Term′-wk′ : ∀ {t} → U₂.wk′ ρ (tr-Term′ t) ≡ tr-Term′ (U₁.wk′ ρ t)
+  tr-Term′-wk′ :
+    {t : U₁.Term[ k ]′ n} →
+    U₂.wk′ ρ (tr-Term′ t) ≡ tr-Term′ (U₁.wk′ ρ t)
   tr-Term′-wk′ {t = var _}   = refl
-  tr-Term′-wk′ {t = gen _ _} = cong (gen _) tr-GenTs-wkGen
+  tr-Term′-wk′ {t = con _ _} = cong (con _) tr-Args-wkArgs
 
   -- Weakening commutes with translation.
 
-  tr-GenTs-wkGen : U₂.wkGen ρ (tr-GenTs ts) ≡ tr-GenTs (U₁.wkGen ρ ts)
-  tr-GenTs-wkGen {ts = []}     = refl
-  tr-GenTs-wkGen {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term′-wk′ tr-GenTs-wkGen
+  tr-Args-wkArgs : U₂.wkArgs ρ (tr-Args ts) ≡ tr-Args (U₁.wkArgs ρ ts)
+  tr-Args-wkArgs {ts = []}     = refl
+  tr-Args-wkArgs {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term′-wk′ tr-Args-wkArgs
 
 -- Weakening commutes with translation.
 
@@ -311,25 +327,27 @@ mutual
   -- representation.
 
   tr-Term′-subst′ :
-    ∀ t → tr-Term′ t U₂.[ tr-Subst σ ]′ ≡ tr-Term′ (t U₁.[ σ ]′)
+    (t : U₁.Term[ k ]′ n) →
+    tr-Term′ t U₂.[ tr-Subst σ ]′ ≡ tr-Term′ (t U₁.[ σ ]′)
   tr-Term′-subst′ (var _)   = UP₂.fromTerm∘toTerm _
-  tr-Term′-subst′ (gen _ _) = cong (gen _) tr-GenTs-substGen
+  tr-Term′-subst′ (con _ _) = cong (con _) tr-Args-substArgs
 
   -- Substitution commutes with translation.
 
-  tr-GenTs-substGen :
-    U₂.substGen (tr-Subst σ) (tr-GenTs ts) ≡ tr-GenTs (U₁.substGen σ ts)
-  tr-GenTs-substGen         {ts = []}               = refl
-  tr-GenTs-substGen {σ = σ} {ts = _∷ₜ_ {b = b} t _} = cong₂ _∷ₜ_
-    (tr-Term′ t U₂.[ U₂.liftSubstn (tr-Subst σ) b ]′  ≡⟨ UP₂.substVar-to-subst′ (λ _ → tr-Subst-liftSubstn b) (tr-Term′ t) ⟩
-     tr-Term′ t U₂.[ tr-Subst (U₁.liftSubstn σ b) ]′  ≡⟨ tr-Term′-subst′ t ⟩
-     tr-Term′ (t U₁.[ U₁.liftSubstn σ b ]′)           ∎)
-    tr-GenTs-substGen
+  tr-Args-substArgs :
+    U₂.substArgs (tr-Args ts) (tr-Subst σ) ≡ tr-Args (U₁.substArgs ts σ)
+  tr-Args-substArgs {ts = []}               = refl
+  tr-Args-substArgs {ts = _∷ₜ_ {m} t _} {σ} = cong₂ _∷ₜ_
+    (tr-Term′ t U₂.[ U₂.liftSubstn (tr-Subst σ) m ]′  ≡⟨ UP₂.substVar-to-subst′ (λ _ → tr-Subst-liftSubstn m) (tr-Term′ t) ⟩
+     tr-Term′ t U₂.[ tr-Subst (U₁.liftSubstn σ m) ]′  ≡⟨ tr-Term′-subst′ t ⟩
+     tr-Term′ (t U₁.[ U₁.liftSubstn σ m ]′)           ∎)
+    tr-Args-substArgs
 
 -- Substitution commutes with translation.
 
 tr-Term-subst :
-  ∀ t → tr-Term t U₂.[ tr-Subst σ ] ≡ tr-Term (t U₁.[ σ ])
+  (t : U₁.Term[ k ] n) →
+  tr-Term t U₂.[ tr-Subst σ ] ≡ tr-Term (t U₁.[ σ ])
 tr-Term-subst {σ} t = begin
   U₂.toTerm (tr-Term′ (U₁.fromTerm t)) U₂.[ tr-Subst σ ]                   ≡⟨ UP₂.subst≡subst′ (U₂.toTerm (tr-Term′ (U₁.fromTerm t))) ⟩
   U₂.toTerm (U₂.fromTerm (U₂.toTerm (tr-Term′ (U₁.fromTerm t)))
@@ -342,7 +360,9 @@ tr-Term-subst {σ} t = begin
 
 -- Substitution commutes with translation.
 
-tr-Term-[] : ∀ t → tr-Term t U₂.[ tr-Term u ]₀ ≡ tr-Term (t U₁.[ u ]₀)
+tr-Term-[] :
+  (t : U₁.Term[ k ] (1+ n)) →
+  tr-Term t U₂.[ tr-Term u ]₀ ≡ tr-Term (t U₁.[ u ]₀)
 tr-Term-[] {u = u} t =
   tr-Term t U₂.[ U₂.sgSubst (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst tr-Subst-sgSubst (tr-Term t) ⟩
   tr-Term t U₂.[ tr-Subst (U₁.sgSubst u) ]  ≡⟨ tr-Term-subst t ⟩
@@ -364,7 +384,7 @@ private
 -- Substitution commutes with translation.
 
 tr-Term-[,] :
-  ∀ t →
+  (t : U₁.Term[ k ] (2+ n)) →
   tr-Term t U₂.[ tr-Term u , tr-Term v ]₁₀ ≡ tr-Term (t U₁.[ u , v ]₁₀)
 tr-Term-[,] {u = u} {v = v} t =
   tr-Term t
@@ -390,7 +410,9 @@ private
 
 -- Substitution commutes with translation.
 
-tr-Term-[]↑ : ∀ t → tr-Term t U₂.[ tr-Term u ]↑ ≡ tr-Term (t U₁.[ u ]↑)
+tr-Term-[]↑ :
+  (t : U₁.Term[ k ] (1+ n)) →
+  tr-Term t U₂.[ tr-Term u ]↑ ≡ tr-Term (t U₁.[ u ]↑)
 tr-Term-[]↑ {u = u} t =
   tr-Term t
     U₂.[ U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst []↑-lemma (tr-Term t) ⟩
@@ -422,7 +444,8 @@ private
 -- Substitution commutes with translation.
 
 tr-Term-[]↑² :
-  ∀ t → tr-Term t U₂.[ tr-Term u ]↑² ≡ tr-Term (t U₁.[ u ]↑²)
+  (t : U₁.Term[ k ] (1+ n)) →
+  tr-Term t U₂.[ tr-Term u ]↑² ≡ tr-Term (t U₁.[ u ]↑²)
 tr-Term-[]↑² {u = u} t =
   tr-Term t
     U₂.[ U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst []↑²-lemma (tr-Term t) ⟩
@@ -582,8 +605,8 @@ tr-Term-zeroᵘ {t = []-cong _ _ _ _ _ _}   ()
 -- Inversion for sucᵘ.
 
 tr-Term-sucᵘ :
-  tr-Term t ≡ sucᵘ l →
-  ∃ λ l′ → t ≡ sucᵘ l′ × tr-Term l′ ≡ l
+  tr-Term t ≡ sucᵘ u →
+  ∃ λ u′ → t ≡ sucᵘ u′ × tr-Term u′ ≡ u
 tr-Term-sucᵘ {t = sucᵘ _}                refl = _ # refl # refl
 tr-Term-sucᵘ {t = var _}                 ()
 tr-Term-sucᵘ {t = defn _}                ()
@@ -619,9 +642,8 @@ tr-Term-sucᵘ {t = []-cong _ _ _ _ _ _}   ()
 -- Inversion for _supᵘ_.
 
 tr-Term-supᵘ :
-  tr-Term t ≡ l₁ supᵘ l₂ →
-  ∃₂ λ l₁′ l₂′ →
-     t ≡ l₁′ supᵘ l₂′ × tr-Term l₁′ ≡ l₁ × tr-Term l₂′ ≡ l₂
+  tr-Term t ≡ u supᵘ v →
+  ∃₂ λ u′ v′ → t ≡ u′ supᵘ v′ × tr-Term u′ ≡ u × tr-Term v′ ≡ v
 tr-Term-supᵘ {t = _ supᵘ _} refl =
   _ # _ # refl # refl # refl
 tr-Term-supᵘ {t = var _}                 ()
@@ -654,6 +676,22 @@ tr-Term-supᵘ {t = rfl}                   ()
 tr-Term-supᵘ {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-supᵘ {t = K _ _ _ _ _ _}         ()
 tr-Term-supᵘ {t = []-cong _ _ _ _ _ _}   ()
+
+-- Inversion for ωᵘ+.
+
+tr-Term-ωᵘ+ :
+  tr-Term l ≡ ωᵘ+ m →
+  l ≡ ωᵘ+ m
+tr-Term-ωᵘ+ {l = ωᵘ+ _}   refl = refl
+tr-Term-ωᵘ+ {l = level _} ()
+
+-- Inversion for level.
+
+tr-Term-level :
+  tr-Term l ≡ level t →
+  ∃ λ t′ → l ≡ level t′ × tr-Term t′ ≡ t
+tr-Term-level {l = level _} refl = _ # refl # refl
+tr-Term-level {l = ωᵘ+ _}   ()
 
 -- Inversion for U.
 
@@ -1616,28 +1654,28 @@ mutual
   -- Inversion for wk′.
 
   tr-Term′-wk′⁻¹ :
-    ∀ {t u} →
+    ∀ {t : U₁.Term[ k ]′ n} {u} →
     tr-Term′ t ≡ U₂.wk′ ρ u →
     ∃ λ t′ → tr-Term′ t′ ≡ u × t ≡ U₁.wk′ ρ t′
   tr-Term′-wk′⁻¹ {t = var _}   {u = var x}   refl = var x # refl # refl
-  tr-Term′-wk′⁻¹ {t = var _}   {u = gen _ _} ()
-  tr-Term′-wk′⁻¹ {t = gen _ _} {u = var _}   ()
-  tr-Term′-wk′⁻¹ {t = gen k _} {u = gen _ _} eq   =
-    case U₂.gen-cong⁻¹ eq of λ where
+  tr-Term′-wk′⁻¹ {t = var _}   {u = con _ _} ()
+  tr-Term′-wk′⁻¹ {t = con _ _} {u = var _}   ()
+  tr-Term′-wk′⁻¹ {t = con k _} {u = con _ _} eq   =
+    case U₂.con-cong⁻¹ eq of λ where
       (refl # refl # eq) →
-        case tr-GenTs-wkGen⁻¹ eq of λ (ts′ # eq₁ # eq₂) →
-        gen k ts′ # cong (gen _) eq₁ # cong (gen _) eq₂
+        case tr-Args-wkArgs⁻¹ eq of λ (ts′ # eq₁ # eq₂) →
+        con k ts′ # cong (con _) eq₁ # cong (con _) eq₂
 
-  -- Inversion for wkGen.
+  -- Inversion for wkArgs.
 
-  tr-GenTs-wkGen⁻¹ :
-    tr-GenTs ts ≡ U₂.wkGen ρ us →
-    ∃ λ ts′ → tr-GenTs ts′ ≡ us × ts ≡ U₁.wkGen ρ ts′
-  tr-GenTs-wkGen⁻¹ {ts = []}     {us = []}     refl = [] # refl # refl
-  tr-GenTs-wkGen⁻¹ {ts = _ ∷ₜ _} {us = _ ∷ₜ _} eq   =
+  tr-Args-wkArgs⁻¹ :
+    tr-Args ts ≡ U₂.wkArgs ρ us →
+    ∃ λ ts′ → tr-Args ts′ ≡ us × ts ≡ U₁.wkArgs ρ ts′
+  tr-Args-wkArgs⁻¹ {ts = []}     {us = []}     refl = [] # refl # refl
+  tr-Args-wkArgs⁻¹ {ts = _ ∷ₜ _} {us = _ ∷ₜ _} eq   =
     case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
     case tr-Term′-wk′⁻¹ eq₁ of λ (t′ # eq₃ # eq₄) →
-    case tr-GenTs-wkGen⁻¹ eq₂ of λ (ts′ # eq₅ # eq₆) →
+    case tr-Args-wkArgs⁻¹ eq₂ of λ (ts′ # eq₅ # eq₆) →
     t′ ∷ₜ ts′ # cong₂ _∷ₜ_ eq₃ eq₅ # cong₂ _∷ₜ_ eq₄ eq₆
 
 -- Inversion for wk.
@@ -1652,10 +1690,10 @@ tr-Term-wk⁻¹ {t} {ρ} {u} eq =
           tr-Term (U₁.toTerm t′)                            ≡⟨⟩
           U₂.toTerm (tr-Term′ (U₁.fromTerm (U₁.toTerm t′))) ≡⟨ cong (U₂.toTerm ∘→ tr-Term′) (UP₁.fromTerm∘toTerm t′) ⟩
           U₂.toTerm (tr-Term′ t′)                           ≡⟨ cong U₂.toTerm ≡u ⟩
-          U₂.toTerm (U₂.fromTerm u)                         ≡⟨ UP₂.toTerm∘fromTerm u ⟩
+          U₂.toTerm (U₂.fromTerm u)                         ≡⟨ UP₂.toTerm∘fromTerm _ ⟩
           u ∎)
       # (begin
-          t                                                 ≡˘⟨ UP₁.toTerm∘fromTerm t ⟩
+          t                                                 ≡˘⟨ UP₁.toTerm∘fromTerm _ ⟩
           U₁.toTerm (U₁.fromTerm t)                         ≡⟨ cong U₁.toTerm t≡ ⟩
           U₁.toTerm (U₁.wk′ ρ t′)                           ≡˘⟨ cong (U₁.toTerm ∘→ U₁.wk′ ρ) (UP₁.fromTerm∘toTerm t′) ⟩
           U₁.toTerm (U₁.wk′ ρ (U₁.fromTerm (U₁.toTerm t′))) ≡˘⟨ UP₁.wk≡wk′ (U₁.toTerm t′) ⟩
@@ -1680,18 +1718,25 @@ opaque
   tr-Level-literal = to # flip from refl
     where
     to : U₁.Level-literal l → U₂.Level-literal (tr-Term l)
-    to zeroᵘ    = zeroᵘ
-    to (sucᵘ l) = sucᵘ (to l)
+    to zeroᵘ     = zeroᵘ
+    to (sucᵘ t)  = sucᵘ (to t)
+    to ωᵘ+       = ωᵘ+
+    to (level t) = level (to t)
 
     from : U₂.Level-literal l′ → tr-Term l ≡ l′ → U₁.Level-literal l
     from zeroᵘ eq =
       case tr-Term-zeroᵘ eq of λ {
         refl →
       zeroᵘ }
-    from (sucᵘ l) eq =
+    from (sucᵘ t) eq =
       case tr-Term-sucᵘ eq of λ {
         (_ # refl # eq) →
-      sucᵘ (from l eq) }
+      sucᵘ (from t eq) }
+    from ωᵘ+ eq rewrite tr-Term-ωᵘ+ eq =
+      ωᵘ+
+    from (level t) eq with tr-Term-level eq
+    … | _ # refl # eq =
+      level (from t eq)
 
 opaque
   unfolding size-of-Level tr-Level-literal
@@ -1708,12 +1753,13 @@ opaque
     cong 1+ size-of-Level-tr-Level-literal
 
 opaque
+  unfolding Definition.Untyped.↓ᵘ_
 
   -- The function tr-Term commutes with ↓ᵘ_.
 
   tr-Term-↓ᵘ : tr-Term {n = n} (U₁.↓ᵘ m) ≡ U₂.↓ᵘ m
   tr-Term-↓ᵘ {m = 0}    = refl
-  tr-Term-↓ᵘ {m = 1+ _} = cong sucᵘ tr-Term-↓ᵘ
+  tr-Term-↓ᵘ {m = 1+ m} = cong sucᵘ (tr-Term-↓ᵘ {m = m})
 
 opaque
   unfolding Definition.Untyped._supᵘₗ′_
@@ -1760,244 +1806,228 @@ module Injective
   tr-BinderMode-injective BMΠ     = tr-injective
   tr-BinderMode-injective (BMΣ _) = tr-Σ-injective
 
-  -- The function tr-Kind is injective.
+  -- The function tr-Constructor is injective.
 
-  tr-Kind-injective : tr-Kind k₁ ≡ tr-Kind k₂ → k₁ ≡ k₂
-  tr-Kind-injective {k₁ = Defnkind _}    {k₂ = Defnkind _}    refl = refl
-  tr-Kind-injective {k₁ = Levelkind}     {k₂ = Levelkind}     refl = refl
-  tr-Kind-injective {k₁ = Zeroᵘkind}     {k₂ = Zeroᵘkind}     refl = refl
-  tr-Kind-injective {k₁ = Sucᵘkind}      {k₂ = Sucᵘkind}     refl = refl
-  tr-Kind-injective {k₁ = Supᵘkind}      {k₂ = Supᵘkind}     refl = refl
-  tr-Kind-injective {k₁ = Liftkind}      {k₂ = Liftkind}     refl = refl
-  tr-Kind-injective {k₁ = liftkind}      {k₂ = liftkind}     refl = refl
-  tr-Kind-injective {k₁ = lowerkind}     {k₂ = lowerkind}     refl = refl
-  tr-Kind-injective {k₁ = Ukind}         {k₂ = Ukind}         refl = refl
-  tr-Kind-injective {k₁ = Natkind}       {k₂ = Natkind}       refl = refl
-  tr-Kind-injective {k₁ = Zerokind}      {k₂ = Zerokind}      refl = refl
-  tr-Kind-injective {k₁ = Suckind}       {k₂ = Suckind}       refl = refl
-  tr-Kind-injective {k₁ = Unitkind _}    {k₂ = Unitkind _}    refl = refl
-  tr-Kind-injective {k₁ = Starkind _}    {k₂ = Starkind _}    refl = refl
-  tr-Kind-injective {k₁ = Emptykind}     {k₂ = Emptykind}     refl = refl
-  tr-Kind-injective {k₁ = Idkind}        {k₂ = Idkind}        refl = refl
-  tr-Kind-injective {k₁ = Reflkind}      {k₂ = Reflkind}      refl = refl
-  tr-Kind-injective {k₁ = Boxcongkind _} {k₂ = Boxcongkind _} refl =
+  tr-Constructor-injective :
+    tr-Constructor c₁ ≡ tr-Constructor c₂ → c₁ ≡ c₂
+  tr-Constructor-injective {c₁ = defnᵏ _}    {c₂ = defnᵏ _}    refl = refl
+  tr-Constructor-injective {c₁ = Levelᵏ}     {c₂ = Levelᵏ}     refl = refl
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}     {c₂ = zeroᵘᵏ}     refl = refl
+  tr-Constructor-injective {c₁ = sucᵘᵏ}      {c₂ = sucᵘᵏ}      refl = refl
+  tr-Constructor-injective {c₁ = supᵘᵏ}      {c₂ = supᵘᵏ}      refl = refl
+  tr-Constructor-injective {c₁ = ωᵘ+ᵏ _}     {c₂ = ωᵘ+ᵏ _}     refl = refl
+  tr-Constructor-injective {c₁ = levelᵏ}     {c₂ = levelᵏ}     refl = refl
+  tr-Constructor-injective {c₁ = Liftᵏ}      {c₂ = Liftᵏ}      refl = refl
+  tr-Constructor-injective {c₁ = liftᵏ}      {c₂ = liftᵏ}      refl = refl
+  tr-Constructor-injective {c₁ = lowerᵏ}     {c₂ = lowerᵏ}     refl = refl
+  tr-Constructor-injective {c₁ = Uᵏ}         {c₂ = Uᵏ}         refl = refl
+  tr-Constructor-injective {c₁ = ℕᵏ}         {c₂ = ℕᵏ}         refl = refl
+  tr-Constructor-injective {c₁ = zeroᵏ}      {c₂ = zeroᵏ}      refl = refl
+  tr-Constructor-injective {c₁ = sucᵏ}       {c₂ = sucᵏ}       refl = refl
+  tr-Constructor-injective {c₁ = Unitᵏ _}    {c₂ = Unitᵏ _}    refl = refl
+  tr-Constructor-injective {c₁ = starᵏ _}    {c₂ = starᵏ _}    refl = refl
+  tr-Constructor-injective {c₁ = Emptyᵏ}     {c₂ = Emptyᵏ}     refl = refl
+  tr-Constructor-injective {c₁ = Idᵏ}        {c₂ = Idᵏ}        refl = refl
+  tr-Constructor-injective {c₁ = rflᵏ}       {c₂ = rflᵏ}       refl = refl
+  tr-Constructor-injective {c₁ = []-congᵏ _} {c₂ = []-congᵏ _} refl =
     refl
-  tr-Kind-injective {k₁ = Binderkind b p q} {k₂ = Binderkind _ _ _} eq
+  tr-Constructor-injective {c₁ = ΠΣᵏ b p q} {c₂ = ΠΣᵏ _ _ _} eq
     with tr-BinderMode b p in tr-p≡ | tr q in tr-q≡
-  tr-Kind-injective {k₁ = Binderkind b _ _} refl | _ | _ =
-    cong₂ (Binderkind _)
+  tr-Constructor-injective {c₁ = ΠΣᵏ b _ _} refl | _ | _ =
+    cong₂ (ΠΣᵏ _)
       (tr-BinderMode-injective b tr-p≡)
       (tr-injective tr-q≡)
-  tr-Kind-injective {k₁ = Lamkind p} {k₂ = Lamkind _} eq
+  tr-Constructor-injective {c₁ = lamᵏ p} {c₂ = lamᵏ _} eq
     with tr p in tr-p≡
-  tr-Kind-injective refl | _ =
-    cong Lamkind (tr-injective tr-p≡)
-  tr-Kind-injective {k₁ = Appkind p} {k₂ = Appkind _} eq
+  tr-Constructor-injective refl | _ =
+    cong lamᵏ (tr-injective tr-p≡)
+  tr-Constructor-injective {c₁ = appᵏ p} {c₂ = appᵏ _} eq
     with tr p in tr-p≡
-  tr-Kind-injective refl | _ =
-    cong Appkind (tr-injective tr-p≡)
-  tr-Kind-injective {k₁ = Prodkind s p} {k₂ = Prodkind _ _} eq
+  tr-Constructor-injective refl | _ =
+    cong appᵏ (tr-injective tr-p≡)
+  tr-Constructor-injective {c₁ = prodᵏ s p} {c₂ = prodᵏ _ _} eq
     with tr-Σ p in tr-p≡
-  tr-Kind-injective refl | _ =
-    cong (Prodkind _) (tr-Σ-injective tr-p≡)
-  tr-Kind-injective {k₁ = Fstkind p} {k₂ = Fstkind _} eq
+  tr-Constructor-injective refl | _ =
+    cong (prodᵏ _) (tr-Σ-injective tr-p≡)
+  tr-Constructor-injective {c₁ = fstᵏ p} {c₂ = fstᵏ _} eq
     with tr-Σ p in tr-p≡
-  tr-Kind-injective refl | _ =
-    cong Fstkind (tr-Σ-injective tr-p≡)
-  tr-Kind-injective {k₁ = Sndkind p} {k₂ = Sndkind _} eq
+  tr-Constructor-injective refl | _ =
+    cong fstᵏ (tr-Σ-injective tr-p≡)
+  tr-Constructor-injective {c₁ = sndᵏ p} {c₂ = sndᵏ _} eq
     with tr-Σ p in tr-p≡
-  tr-Kind-injective refl | _ =
-    cong Sndkind (tr-Σ-injective tr-p≡)
-  tr-Kind-injective {k₁ = Prodreckind r p q} {k₂ = Prodreckind _ _ _} eq
+  tr-Constructor-injective refl | _ =
+    cong sndᵏ (tr-Σ-injective tr-p≡)
+  tr-Constructor-injective {c₁ = prodrecᵏ r p q} {c₂ = prodrecᵏ _ _ _} eq
     with tr r in tr-r≡ | tr-Σ p in tr-p≡ | tr q in tr-q≡
-  tr-Kind-injective refl | _ | _ | _ =
-    cong₃ Prodreckind (tr-injective tr-r≡) (tr-Σ-injective tr-p≡)
+  tr-Constructor-injective refl | _ | _ | _ =
+    cong₃ prodrecᵏ (tr-injective tr-r≡) (tr-Σ-injective tr-p≡)
       (tr-injective tr-q≡)
-  tr-Kind-injective {k₁ = Natreckind p q r} {k₂ = Natreckind _ _ _} eq
+  tr-Constructor-injective {c₁ = natrecᵏ p q r} {c₂ = natrecᵏ _ _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡ | tr r in tr-r≡
-  tr-Kind-injective refl | _ | _ | _ =
-    cong₃ Natreckind (tr-injective tr-p≡) (tr-injective tr-q≡)
+  tr-Constructor-injective refl | _ | _ | _ =
+    cong₃ natrecᵏ (tr-injective tr-p≡) (tr-injective tr-q≡)
       (tr-injective tr-r≡)
-  tr-Kind-injective {k₁ = Emptyreckind p} {k₂ = Emptyreckind _} eq
+  tr-Constructor-injective {c₁ = emptyrecᵏ p} {c₂ = emptyrecᵏ _} eq
     with tr p in tr-p≡
-  tr-Kind-injective refl | _ =
-    cong Emptyreckind (tr-injective tr-p≡)
-  tr-Kind-injective {k₁ = Unitreckind p q} {k₂ = Unitreckind _ _} eq
+  tr-Constructor-injective refl | _ =
+    cong emptyrecᵏ (tr-injective tr-p≡)
+  tr-Constructor-injective {c₁ = unitrecᵏ p q} {c₂ = unitrecᵏ _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡
-  tr-Kind-injective refl | _ | _ =
-    cong₂ Unitreckind (tr-injective tr-p≡) (tr-injective tr-q≡)
-  tr-Kind-injective {k₁ = Jkind p q} {k₂ = Jkind _ _} eq
+  tr-Constructor-injective refl | _ | _ =
+    cong₂ unitrecᵏ (tr-injective tr-p≡) (tr-injective tr-q≡)
+  tr-Constructor-injective {c₁ = Jᵏ p q} {c₂ = Jᵏ _ _} eq
     with tr p in tr-p≡ | tr q in tr-q≡
-  tr-Kind-injective refl | _ | _ =
-    cong₂ Jkind (tr-injective tr-p≡) (tr-injective tr-q≡)
-  tr-Kind-injective {k₁ = Kkind p}     {k₂ = Kkind _} eq
+  tr-Constructor-injective refl | _ | _ =
+    cong₂ Jᵏ (tr-injective tr-p≡) (tr-injective tr-q≡)
+  tr-Constructor-injective {c₁ = Kᵏ p}     {c₂ = Kᵏ _} eq
     with tr p in tr-p≡
-  tr-Kind-injective refl | _ =
-    cong Kkind (tr-injective tr-p≡)
-  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Levelkind}      ()
-  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Zeroᵘkind}      ()
-  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Natkind}        ()
-  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Zerokind}       ()
-  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Unitkind _}     ()
-  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Starkind _}     ()
-  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Emptykind}      ()
-  tr-Kind-injective {k₁ = Defnkind _}     {k₂ = Reflkind}       ()
-  tr-Kind-injective {k₁ = Levelkind}      {k₂ = Defnkind _}     ()
-  tr-Kind-injective {k₁ = Levelkind}      {k₂ = Zeroᵘkind}      ()
-  tr-Kind-injective {k₁ = Levelkind}      {k₂ = Emptykind}      ()
-  tr-Kind-injective {k₁ = Levelkind}      {k₂ = Unitkind _}     ()
-  tr-Kind-injective {k₁ = Levelkind}      {k₂ = Starkind _}     ()
-  tr-Kind-injective {k₁ = Levelkind}      {k₂ = Natkind}        ()
-  tr-Kind-injective {k₁ = Levelkind}      {k₂ = Zerokind}       ()
-  tr-Kind-injective {k₁ = Levelkind}      {k₂ = Reflkind}       ()
-  tr-Kind-injective {k₁ = Zeroᵘkind}      {k₂ = Defnkind _}     ()
-  tr-Kind-injective {k₁ = Zeroᵘkind}      {k₂ = Levelkind}      ()
-  tr-Kind-injective {k₁ = Zeroᵘkind}      {k₂ = Emptykind}      ()
-  tr-Kind-injective {k₁ = Zeroᵘkind}      {k₂ = Unitkind _}     ()
-  tr-Kind-injective {k₁ = Zeroᵘkind}      {k₂ = Starkind _}     ()
-  tr-Kind-injective {k₁ = Zeroᵘkind}      {k₂ = Natkind}        ()
-  tr-Kind-injective {k₁ = Zeroᵘkind}      {k₂ = Zerokind}       ()
-  tr-Kind-injective {k₁ = Zeroᵘkind}      {k₂ = Reflkind}       ()
-  tr-Kind-injective {k₁ = Sucᵘkind}       {k₂ = Ukind}          ()
-  tr-Kind-injective {k₁ = Sucᵘkind}       {k₂ = liftkind}       ()
-  tr-Kind-injective {k₁ = Sucᵘkind}       {k₂ = lowerkind}      ()
-  tr-Kind-injective {k₁ = Sucᵘkind}       {k₂ = Fstkind _}      ()
-  tr-Kind-injective {k₁ = Sucᵘkind}       {k₂ = Sndkind _}      ()
-  tr-Kind-injective {k₁ = Sucᵘkind}       {k₂ = Suckind}        ()
-  tr-Kind-injective {k₁ = Supᵘkind}       {k₂ = Liftkind}       ()
-  tr-Kind-injective {k₁ = Supᵘkind}       {k₂ = Emptyreckind _} ()
-  tr-Kind-injective {k₁ = Supᵘkind}       {k₂ = Appkind _}      ()
-  tr-Kind-injective {k₁ = Supᵘkind}       {k₂ = Prodkind _ _}   ()
-  tr-Kind-injective {k₁ = Ukind}          {k₂ = Sucᵘkind}       ()
-  tr-Kind-injective {k₁ = Ukind}          {k₂ = liftkind}       ()
-  tr-Kind-injective {k₁ = Ukind}          {k₂ = lowerkind}      ()
-  tr-Kind-injective {k₁ = Ukind}          {k₂ = Fstkind _}      ()
-  tr-Kind-injective {k₁ = Ukind}          {k₂ = Sndkind _}      ()
-  tr-Kind-injective {k₁ = Ukind}          {k₂ = Suckind}        ()
-  tr-Kind-injective {k₁ = Liftkind}       {k₂ = Supᵘkind}       ()
-  tr-Kind-injective {k₁ = Liftkind}       {k₂ = Emptyreckind _} ()
-  tr-Kind-injective {k₁ = Liftkind}       {k₂ = Appkind _}      ()
-  tr-Kind-injective {k₁ = Liftkind}       {k₂ = Prodkind _ _}   ()
-  tr-Kind-injective {k₁ = liftkind}       {k₂ = Sucᵘkind}       ()
-  tr-Kind-injective {k₁ = liftkind}       {k₂ = Ukind}          ()
-  tr-Kind-injective {k₁ = liftkind}       {k₂ = lowerkind}      ()
-  tr-Kind-injective {k₁ = liftkind}       {k₂ = Fstkind _}      ()
-  tr-Kind-injective {k₁ = liftkind}       {k₂ = Sndkind _}      ()
-  tr-Kind-injective {k₁ = liftkind}       {k₂ = Suckind}        ()
-  tr-Kind-injective {k₁ = lowerkind}      {k₂ = Sucᵘkind}       ()
-  tr-Kind-injective {k₁ = lowerkind}      {k₂ = Ukind}          ()
-  tr-Kind-injective {k₁ = lowerkind}      {k₂ = liftkind}       ()
-  tr-Kind-injective {k₁ = lowerkind}      {k₂ = Fstkind _}      ()
-  tr-Kind-injective {k₁ = lowerkind}      {k₂ = Sndkind _}      ()
-  tr-Kind-injective {k₁ = lowerkind}      {k₂ = Suckind}        ()
-  tr-Kind-injective {k₁ = Appkind _}      {k₂ = Supᵘkind}       ()
-  tr-Kind-injective {k₁ = Appkind _}      {k₂ = Liftkind}       ()
-  tr-Kind-injective {k₁ = Appkind _}      {k₂ = Prodkind _ _}   ()
-  tr-Kind-injective {k₁ = Appkind _}      {k₂ = Emptyreckind _} ()
-  tr-Kind-injective {k₁ = Prodkind _ _}   {k₂ = Supᵘkind}       ()
-  tr-Kind-injective {k₁ = Prodkind _ _}   {k₂ = Liftkind}       ()
-  tr-Kind-injective {k₁ = Prodkind _ _}   {k₂ = Appkind _}      ()
-  tr-Kind-injective {k₁ = Prodkind _ _}   {k₂ = Emptyreckind _} ()
-  tr-Kind-injective {k₁ = Fstkind _}      {k₂ = Sucᵘkind}       ()
-  tr-Kind-injective {k₁ = Fstkind _}      {k₂ = Ukind}          ()
-  tr-Kind-injective {k₁ = Fstkind _}      {k₂ = liftkind}       ()
-  tr-Kind-injective {k₁ = Fstkind _}      {k₂ = lowerkind}      ()
-  tr-Kind-injective {k₁ = Fstkind _}      {k₂ = Sndkind _}      ()
-  tr-Kind-injective {k₁ = Fstkind _}      {k₂ = Suckind}        ()
-  tr-Kind-injective {k₁ = Sndkind _}      {k₂ = Sucᵘkind}       ()
-  tr-Kind-injective {k₁ = Sndkind _}      {k₂ = Ukind}          ()
-  tr-Kind-injective {k₁ = Sndkind _}      {k₂ = liftkind}       ()
-  tr-Kind-injective {k₁ = Sndkind _}      {k₂ = lowerkind}      ()
-  tr-Kind-injective {k₁ = Sndkind _}      {k₂ = Fstkind _}      ()
-  tr-Kind-injective {k₁ = Sndkind _}      {k₂ = Suckind}        ()
-  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Defnkind _}     ()
-  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Levelkind}      ()
-  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Zeroᵘkind}      ()
-  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Unitkind _}     ()
-  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Starkind _}     ()
-  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Natkind}        ()
-  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Zerokind}       ()
-  tr-Kind-injective {k₁ = Emptykind}      {k₂ = Reflkind}       ()
-  tr-Kind-injective {k₁ = Emptyreckind _} {k₂ = Supᵘkind}       ()
-  tr-Kind-injective {k₁ = Emptyreckind _} {k₂ = Liftkind}       ()
-  tr-Kind-injective {k₁ = Emptyreckind _} {k₂ = Appkind _}      ()
-  tr-Kind-injective {k₁ = Emptyreckind _} {k₂ = Prodkind _ _}   ()
-  tr-Kind-injective {k₁ = Unitkind _}     {k₂ = Defnkind _}     ()
-  tr-Kind-injective {k₁ = Unitkind _}     {k₂ = Levelkind}      ()
-  tr-Kind-injective {k₁ = Unitkind _}     {k₂ = Zeroᵘkind}      ()
-  tr-Kind-injective {k₁ = Unitkind _}     {k₂ = Emptykind}      ()
-  tr-Kind-injective {k₁ = Unitkind _}     {k₂ = Starkind _}     ()
-  tr-Kind-injective {k₁ = Unitkind _}     {k₂ = Natkind}        ()
-  tr-Kind-injective {k₁ = Unitkind _}     {k₂ = Zerokind}       ()
-  tr-Kind-injective {k₁ = Unitkind _}     {k₂ = Reflkind}       ()
-  tr-Kind-injective {k₁ = Starkind _}     {k₂ = Defnkind _}     ()
-  tr-Kind-injective {k₁ = Starkind _}     {k₂ = Levelkind}      ()
-  tr-Kind-injective {k₁ = Starkind _}     {k₂ = Zeroᵘkind}      ()
-  tr-Kind-injective {k₁ = Starkind _}     {k₂ = Emptykind}      ()
-  tr-Kind-injective {k₁ = Starkind _}     {k₂ = Unitkind _}     ()
-  tr-Kind-injective {k₁ = Starkind _}     {k₂ = Natkind}        ()
-  tr-Kind-injective {k₁ = Starkind _}     {k₂ = Zerokind}       ()
-  tr-Kind-injective {k₁ = Starkind _}     {k₂ = Reflkind}       ()
-  tr-Kind-injective {k₁ = Natkind}        {k₂ = Defnkind _}     ()
-  tr-Kind-injective {k₁ = Natkind}        {k₂ = Levelkind}      ()
-  tr-Kind-injective {k₁ = Natkind}        {k₂ = Zeroᵘkind}      ()
-  tr-Kind-injective {k₁ = Natkind}        {k₂ = Emptykind}      ()
-  tr-Kind-injective {k₁ = Natkind}        {k₂ = Unitkind _}     ()
-  tr-Kind-injective {k₁ = Natkind}        {k₂ = Starkind _}     ()
-  tr-Kind-injective {k₁ = Natkind}        {k₂ = Zerokind}       ()
-  tr-Kind-injective {k₁ = Natkind}        {k₂ = Reflkind}       ()
-  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Defnkind _}     ()
-  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Levelkind}      ()
-  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Zeroᵘkind}      ()
-  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Emptykind}      ()
-  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Unitkind _}     ()
-  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Starkind _}     ()
-  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Natkind}        ()
-  tr-Kind-injective {k₁ = Zerokind}       {k₂ = Reflkind}       ()
-  tr-Kind-injective {k₁ = Suckind}        {k₂ = Sucᵘkind}       ()
-  tr-Kind-injective {k₁ = Suckind}        {k₂ = Ukind}          ()
-  tr-Kind-injective {k₁ = Suckind}        {k₂ = liftkind}       ()
-  tr-Kind-injective {k₁ = Suckind}        {k₂ = lowerkind}      ()
-  tr-Kind-injective {k₁ = Suckind}        {k₂ = Fstkind _}      ()
-  tr-Kind-injective {k₁ = Suckind}        {k₂ = Sndkind _}      ()
-  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Defnkind _}     ()
-  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Levelkind}      ()
-  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Zeroᵘkind}      ()
-  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Emptykind}      ()
-  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Unitkind _}     ()
-  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Starkind _}     ()
-  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Natkind}        ()
-  tr-Kind-injective {k₁ = Reflkind}       {k₂ = Zerokind}       ()
+  tr-Constructor-injective refl | _ =
+    cong Kᵏ (tr-injective tr-p≡)
+  tr-Constructor-injective {c₁ = defnᵏ _}     {c₂ = Levelᵏ}      ()
+  tr-Constructor-injective {c₁ = defnᵏ _}     {c₂ = zeroᵘᵏ}      ()
+  tr-Constructor-injective {c₁ = defnᵏ _}     {c₂ = ℕᵏ}          ()
+  tr-Constructor-injective {c₁ = defnᵏ _}     {c₂ = zeroᵏ}       ()
+  tr-Constructor-injective {c₁ = defnᵏ _}     {c₂ = Unitᵏ _}     ()
+  tr-Constructor-injective {c₁ = defnᵏ _}     {c₂ = starᵏ _}     ()
+  tr-Constructor-injective {c₁ = defnᵏ _}     {c₂ = Emptyᵏ}      ()
+  tr-Constructor-injective {c₁ = defnᵏ _}     {c₂ = rflᵏ}        ()
+  tr-Constructor-injective {c₁ = Levelᵏ}      {c₂ = defnᵏ _}     ()
+  tr-Constructor-injective {c₁ = Levelᵏ}      {c₂ = zeroᵘᵏ}      ()
+  tr-Constructor-injective {c₁ = Levelᵏ}      {c₂ = Emptyᵏ}      ()
+  tr-Constructor-injective {c₁ = Levelᵏ}      {c₂ = Unitᵏ _}     ()
+  tr-Constructor-injective {c₁ = Levelᵏ}      {c₂ = starᵏ _}     ()
+  tr-Constructor-injective {c₁ = Levelᵏ}      {c₂ = ℕᵏ}          ()
+  tr-Constructor-injective {c₁ = Levelᵏ}      {c₂ = zeroᵏ}       ()
+  tr-Constructor-injective {c₁ = Levelᵏ}      {c₂ = rflᵏ}        ()
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}      {c₂ = defnᵏ _}     ()
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}      {c₂ = Levelᵏ}      ()
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}      {c₂ = Emptyᵏ}      ()
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}      {c₂ = Unitᵏ _}     ()
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}      {c₂ = starᵏ _}     ()
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}      {c₂ = ℕᵏ}          ()
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}      {c₂ = zeroᵏ}       ()
+  tr-Constructor-injective {c₁ = zeroᵘᵏ}      {c₂ = rflᵏ}        ()
+  tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = liftᵏ}       ()
+  tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = lowerᵏ}      ()
+  tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = fstᵏ _}      ()
+  tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = sndᵏ _}      ()
+  tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = supᵘᵏ}       {c₂ = emptyrecᵏ _} ()
+  tr-Constructor-injective {c₁ = supᵘᵏ}       {c₂ = appᵏ _}      ()
+  tr-Constructor-injective {c₁ = supᵘᵏ}       {c₂ = prodᵏ _ _}   ()
+  tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = sucᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = lowerᵏ}      ()
+  tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = fstᵏ _}      ()
+  tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = sndᵏ _}      ()
+  tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = sucᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = liftᵏ}       ()
+  tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = fstᵏ _}      ()
+  tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = sndᵏ _}      ()
+  tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = appᵏ _}      {c₂ = supᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = appᵏ _}      {c₂ = prodᵏ _ _}   ()
+  tr-Constructor-injective {c₁ = appᵏ _}      {c₂ = emptyrecᵏ _} ()
+  tr-Constructor-injective {c₁ = prodᵏ _ _}   {c₂ = supᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = prodᵏ _ _}   {c₂ = appᵏ _}      ()
+  tr-Constructor-injective {c₁ = prodᵏ _ _}   {c₂ = emptyrecᵏ _} ()
+  tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = sucᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = liftᵏ}       ()
+  tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = lowerᵏ}      ()
+  tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = sndᵏ _}      ()
+  tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = sucᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = liftᵏ}       ()
+  tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = lowerᵏ}      ()
+  tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = fstᵏ _}      ()
+  tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = defnᵏ _}     ()
+  tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = Levelᵏ}      ()
+  tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = zeroᵘᵏ}      ()
+  tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = Unitᵏ _}     ()
+  tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = starᵏ _}     ()
+  tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = ℕᵏ}          ()
+  tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = zeroᵏ}       ()
+  tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = rflᵏ}        ()
+  tr-Constructor-injective {c₁ = emptyrecᵏ _} {c₂ = supᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = emptyrecᵏ _} {c₂ = appᵏ _}      ()
+  tr-Constructor-injective {c₁ = emptyrecᵏ _} {c₂ = prodᵏ _ _}   ()
+  tr-Constructor-injective {c₁ = Unitᵏ _}     {c₂ = defnᵏ _}     ()
+  tr-Constructor-injective {c₁ = Unitᵏ _}     {c₂ = Levelᵏ}      ()
+  tr-Constructor-injective {c₁ = Unitᵏ _}     {c₂ = zeroᵘᵏ}      ()
+  tr-Constructor-injective {c₁ = Unitᵏ _}     {c₂ = Emptyᵏ}      ()
+  tr-Constructor-injective {c₁ = Unitᵏ _}     {c₂ = starᵏ _}     ()
+  tr-Constructor-injective {c₁ = Unitᵏ _}     {c₂ = ℕᵏ}          ()
+  tr-Constructor-injective {c₁ = Unitᵏ _}     {c₂ = zeroᵏ}       ()
+  tr-Constructor-injective {c₁ = Unitᵏ _}     {c₂ = rflᵏ}        ()
+  tr-Constructor-injective {c₁ = starᵏ _}     {c₂ = defnᵏ _}     ()
+  tr-Constructor-injective {c₁ = starᵏ _}     {c₂ = Levelᵏ}      ()
+  tr-Constructor-injective {c₁ = starᵏ _}     {c₂ = zeroᵘᵏ}      ()
+  tr-Constructor-injective {c₁ = starᵏ _}     {c₂ = Emptyᵏ}      ()
+  tr-Constructor-injective {c₁ = starᵏ _}     {c₂ = Unitᵏ _}     ()
+  tr-Constructor-injective {c₁ = starᵏ _}     {c₂ = ℕᵏ}          ()
+  tr-Constructor-injective {c₁ = starᵏ _}     {c₂ = zeroᵏ}       ()
+  tr-Constructor-injective {c₁ = starᵏ _}     {c₂ = rflᵏ}        ()
+  tr-Constructor-injective {c₁ = ℕᵏ}          {c₂ = defnᵏ _}     ()
+  tr-Constructor-injective {c₁ = ℕᵏ}          {c₂ = Levelᵏ}      ()
+  tr-Constructor-injective {c₁ = ℕᵏ}          {c₂ = zeroᵘᵏ}      ()
+  tr-Constructor-injective {c₁ = ℕᵏ}          {c₂ = Emptyᵏ}      ()
+  tr-Constructor-injective {c₁ = ℕᵏ}          {c₂ = Unitᵏ _}     ()
+  tr-Constructor-injective {c₁ = ℕᵏ}          {c₂ = starᵏ _}     ()
+  tr-Constructor-injective {c₁ = ℕᵏ}          {c₂ = zeroᵏ}       ()
+  tr-Constructor-injective {c₁ = ℕᵏ}          {c₂ = rflᵏ}        ()
+  tr-Constructor-injective {c₁ = zeroᵏ}       {c₂ = defnᵏ _}     ()
+  tr-Constructor-injective {c₁ = zeroᵏ}       {c₂ = Levelᵏ}      ()
+  tr-Constructor-injective {c₁ = zeroᵏ}       {c₂ = zeroᵘᵏ}      ()
+  tr-Constructor-injective {c₁ = zeroᵏ}       {c₂ = Emptyᵏ}      ()
+  tr-Constructor-injective {c₁ = zeroᵏ}       {c₂ = Unitᵏ _}     ()
+  tr-Constructor-injective {c₁ = zeroᵏ}       {c₂ = starᵏ _}     ()
+  tr-Constructor-injective {c₁ = zeroᵏ}       {c₂ = ℕᵏ}          ()
+  tr-Constructor-injective {c₁ = zeroᵏ}       {c₂ = rflᵏ}        ()
+  tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = sucᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = liftᵏ}       ()
+  tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = lowerᵏ}      ()
+  tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = fstᵏ _}      ()
+  tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = sndᵏ _}      ()
+  tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = defnᵏ _}     ()
+  tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = Levelᵏ}      ()
+  tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = zeroᵘᵏ}      ()
+  tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = Emptyᵏ}      ()
+  tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = Unitᵏ _}     ()
+  tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = starᵏ _}     ()
+  tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = ℕᵏ}          ()
+  tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = zeroᵏ}       ()
 
   mutual
 
     -- The function tr-Term′ is injective.
 
-    tr-Term′-injective : {t u : U₁.Term′ n} → tr-Term′ t ≡ tr-Term′ u → t ≡ u
+    tr-Term′-injective :
+      {t u : U₁.Term[ k ]′ n} → tr-Term′ t ≡ tr-Term′ u → t ≡ u
     tr-Term′-injective {t = var _}   {u = var _}   refl = refl
-    tr-Term′-injective {t = var _}   {u = gen _ _} ()
-    tr-Term′-injective {t = gen _ _} {u = var _}   ()
-    tr-Term′-injective {t = gen _ _} {u = gen _ _} eq   =
-      case U₂.gen-cong⁻¹ eq of λ where
+    tr-Term′-injective {t = var _}   {u = con _ _} ()
+    tr-Term′-injective {t = con _ _} {u = var _}   ()
+    tr-Term′-injective {t = con _ _} {u = con _ _} eq   =
+      case U₂.con-cong⁻¹ eq of λ where
         (refl # eq₁ # eq₂) →
-          case tr-Kind-injective eq₁ of λ where
-            refl → cong (gen _) (tr-GenTs-injective eq₂)
+          case tr-Constructor-injective eq₁ of λ where
+            refl → cong (con _) (tr-Args-injective eq₂)
 
-    -- The function tr-GenTs is injective.
+    -- The function tr-Args is injective.
 
-    tr-GenTs-injective : tr-GenTs ts ≡ tr-GenTs us → ts ≡ us
-    tr-GenTs-injective {ts = []}     {us = []}     _  = refl
-    tr-GenTs-injective {ts = _ ∷ₜ _} {us = _ ∷ₜ _} eq =
+    tr-Args-injective : tr-Args ts ≡ tr-Args us → ts ≡ us
+    tr-Args-injective {ts = []}     {us = []}     _  = refl
+    tr-Args-injective {ts = _ ∷ₜ _} {us = _ ∷ₜ _} eq =
       case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
-      cong₂ _∷ₜ_ (tr-Term′-injective eq₁) (tr-GenTs-injective eq₂)
+      cong₂ _∷ₜ_ (tr-Term′-injective eq₁) (tr-Args-injective eq₂)
 
   -- The function tr-Term is injective.
 
   tr-Term-injective : tr-Term t ≡ tr-Term u → t ≡ u
   tr-Term-injective {t} {u} eq = begin
-    t                         ≡˘⟨ UP₁.toTerm∘fromTerm t ⟩
+    t                         ≡˘⟨ UP₁.toTerm∘fromTerm _ ⟩
     U₁.toTerm (U₁.fromTerm t) ≡⟨ cong U₁.toTerm (tr-Term′-injective eq′) ⟩
-    U₁.toTerm (U₁.fromTerm u) ≡⟨ UP₁.toTerm∘fromTerm u ⟩
+    U₁.toTerm (U₁.fromTerm u) ≡⟨ UP₁.toTerm∘fromTerm _ ⟩
     u                         ∎
     where
     eq′ : tr-Term′ (U₁.fromTerm t) ≡ tr-Term′ (U₁.fromTerm u)
@@ -2015,7 +2045,7 @@ module Injective
     -- Inversion for _[_]′.
 
     tr-Term′-subst′⁻¹ :
-      ∀ {t u} →
+      ∀ {t : U₁.Term[ k ]′ n} {u} →
       tr-Term′ t ≡ u U₂.[ tr-Subst σ ]′ →
       ∃ λ u′ → tr-Term′ u′ ≡ u × t ≡ u′ U₁.[ σ ]′
     tr-Term′-subst′⁻¹ {σ} {t} {u = var x} eq =
@@ -2023,29 +2053,28 @@ module Injective
         tr-Term′ t                  ≡⟨ eq ⟩
         var x U₂.[ tr-Subst σ ]′    ≡⟨ tr-Term′-subst′ {σ = σ} (var x) ⟩
         tr-Term′ (var x U₁.[ σ ]′)  ∎)
-    tr-Term′-subst′⁻¹ {t = gen k _} {u = gen _ _} eq =
-      case U₂.gen-cong⁻¹ eq of λ where
+    tr-Term′-subst′⁻¹ {t = con k _} {u = con _ _} eq =
+      case U₂.con-cong⁻¹ eq of λ where
         (refl # refl # eq) →
-          case tr-Term-substGen⁻¹ eq of λ where
-            (us′ # refl # refl) → gen k us′ # refl # refl
-    tr-Term′-subst′⁻¹ {t = var _} {u = gen _ _} ()
+          case tr-Term-substArgs⁻¹ eq of λ where
+            (us′ # refl # refl) → con k us′ # refl # refl
+    tr-Term′-subst′⁻¹ {t = var _} {u = con _ _} ()
 
-    -- Inversion for substGen.
+    -- Inversion for substArgs.
 
-    tr-Term-substGen⁻¹ :
-      tr-GenTs ts ≡ U₂.substGen (tr-Subst σ) us →
-      ∃ λ us′ → tr-GenTs us′ ≡ us × ts ≡ U₁.substGen σ us′
-    tr-Term-substGen⁻¹ {ts = []} {us = []} _ =
+    tr-Term-substArgs⁻¹ :
+      tr-Args ts ≡ U₂.substArgs us (tr-Subst σ) →
+      ∃ λ us′ → tr-Args us′ ≡ us × ts ≡ U₁.substArgs us′ σ
+    tr-Term-substArgs⁻¹ {ts = []} {us = []} _ =
       [] # refl # refl
-    tr-Term-substGen⁻¹
-      {ts = _∷ₜ_ {b = b} t _} {σ = σ} {us = u ∷ₜ _} eq =
+    tr-Term-substArgs⁻¹ {ts = _∷ₜ_ {m} t _} {us = u ∷ₜ _} {σ} eq =
       case U₂.∷-cong⁻¹ eq of λ (eq₁ # eq₂) →
       case
         tr-Term′ t                              ≡⟨ eq₁ ⟩
-        u U₂.[ U₂.liftSubstn (tr-Subst σ) b ]′  ≡⟨ UP₂.substVar-to-subst′ (λ _ → tr-Subst-liftSubstn b) u ⟩
-        u U₂.[ tr-Subst (U₁.liftSubstn σ b) ]′  ∎
+        u U₂.[ U₂.liftSubstn (tr-Subst σ) m ]′  ≡⟨ UP₂.substVar-to-subst′ (λ _ → tr-Subst-liftSubstn m) u ⟩
+        u U₂.[ tr-Subst (U₁.liftSubstn σ m) ]′  ∎
       of λ lemma →
-      case tr-Term-substGen⁻¹ eq₂ of λ where
+      case tr-Term-substArgs⁻¹ eq₂ of λ where
         (us′ # refl # refl) →
           case tr-Term′-subst′⁻¹ {u = u} lemma of λ where
             (u′ # refl # refl) → u′ ∷ₜ us′ # refl # refl
@@ -2061,10 +2090,10 @@ module Injective
         # (begin
             U₂.toTerm (tr-Term′ (U₁.fromTerm (U₁.toTerm u′))) ≡⟨ cong (U₂.toTerm ∘→ tr-Term′) (UP₁.fromTerm∘toTerm u′) ⟩
             U₂.toTerm (tr-Term′ u′)                           ≡⟨ cong U₂.toTerm eq₁ ⟩
-            U₂.toTerm (U₂.fromTerm u)                         ≡⟨ UP₂.toTerm∘fromTerm u ⟩
+            U₂.toTerm (U₂.fromTerm u)                         ≡⟨ UP₂.toTerm∘fromTerm _ ⟩
             u                                                 ∎)
         # (begin
-            t                                                ≡˘⟨ UP₁.toTerm∘fromTerm t ⟩
+            t                                                ≡˘⟨ UP₁.toTerm∘fromTerm _ ⟩
             U₁.toTerm (U₁.fromTerm t)                        ≡⟨ cong U₁.toTerm eq₂ ⟩
             U₁.toTerm (u′ U₁.[ σ ]′)                         ≡˘⟨ cong (λ x → U₁.toTerm (x U₁.[ σ ]′))
                                                                  (UP₁.fromTerm∘toTerm u′) ⟩

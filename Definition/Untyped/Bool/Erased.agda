@@ -203,7 +203,7 @@ opaque
   -- A type of booleans.
 
   Bool : Term n
-  Bool = Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘ (OK (var x0))
+  Bool = Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased (level zeroᵘ) (OK (var x0))
 
 opaque
 
@@ -235,7 +235,7 @@ opaque
   boolrec p A t u v =
     prodrec boolrecᵍ-pr 𝟙 p A v
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
-         (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
+         (Π 𝟙 , p ▷ Erased (level zeroᵘ) (OK (var x0)) ▹
           Target 4 A (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0))
@@ -243,7 +243,7 @@ opaque
                (wk[ 4 ]′ u))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
-            (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
+            (Π 𝟙 , p ▷ Erased (level zeroᵘ) (OK (suc (var x0))) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0))
@@ -289,7 +289,7 @@ module Internal (R : Type-restrictions 𝕄) where
 
   Boolᵢ : (_ _ : I.Termᵍ (c .I.gs)) → I.Term c n
   Boolᵢ Boolᵍ OKᵍ =
-    I.Σʷ I.𝟙 , Boolᵍ ▷ I.ℕ ▹ I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.var x0))
+    I.Σʷ I.𝟙 , Boolᵍ ▷ I.ℕ ▹ I.Erased I.𝕨 I.zeroᵘₗ (OKᵢ OKᵍ (I.var x0))
 
   opaque
     unfolding Bool Erased OK natcase
@@ -307,8 +307,8 @@ module Internal (R : Type-restrictions 𝕄) where
   trueᵢ : (_ _ : I.Termᵍ (c .I.gs)) → I.Term c n
   trueᵢ Boolᵍ OKᵍ =
     I.prod I.𝕨 I.𝟙
-      (just (Boolᵍ , I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.var x0))))
-      (I.suc I.zero) (I.box I.𝕨 I.zeroᵘ (I.star I.𝕨))
+      (just (Boolᵍ , I.Erased I.𝕨 I.zeroᵘₗ (OKᵢ OKᵍ (I.var x0))))
+      (I.suc I.zero) (I.box I.𝕨 I.zeroᵘₗ (I.star I.𝕨))
 
   opaque
     unfolding true E.[_]
@@ -323,8 +323,8 @@ module Internal (R : Type-restrictions 𝕄) where
   falseᵢ : (_ _ : I.Termᵍ (c .I.gs)) → I.Term c n
   falseᵢ Boolᵍ OKᵍ =
     I.prod I.𝕨 I.𝟙
-      (just (Boolᵍ , I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.var x0))))
-      I.zero (I.box I.𝕨 I.zeroᵘ (I.star I.𝕨))
+      (just (Boolᵍ , I.Erased I.𝕨 I.zeroᵘₗ (OKᵢ OKᵍ (I.var x0))))
+      I.zero (I.box I.𝕨 I.zeroᵘₗ (I.star I.𝕨))
 
   opaque
     unfolding false E.[_]
@@ -351,23 +351,23 @@ module Internal (R : Type-restrictions 𝕄) where
     I.prodrec boolrecᵍ-pr I.𝟙 p A v
       (natcaseᵢ boolrecᵍ-nc₂ (Boolᵍ I.+ p)
          (I.Π I.𝟙 , p ▷
-            I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.var x0)) ▹
+            I.Erased I.𝕨 I.zeroᵘₗ (OKᵢ OKᵍ (I.var x0)) ▹
           Targetᵢ 4 A (I.var x1) (I.var x0))
          (I.lam I.𝟙 nothing $
           erasedrecᵢ p (Targetᵢ 4 A I.zero (I.var x0))
             (I.unitrec I.𝟘 I.𝟘
-               (Targetᵢ 5 A I.zero (I.box I.𝕨 I.zeroᵘ (I.var x0)))
+               (Targetᵢ 5 A I.zero (I.box I.𝕨 I.zeroᵘₗ (I.var x0)))
                (I.var x0) (IW.wk[ 4 ] u))
             (I.var x0))
          (natcaseᵢ boolrecᵍ-nc₁ (Boolᵍ I.+ p)
             (I.Π I.𝟙 , p ▷
-               I.Erased I.𝕨 I.zeroᵘ (OKᵢ OKᵍ (I.suc (I.var x0))) ▹
+               I.Erased I.𝕨 I.zeroᵘₗ (OKᵢ OKᵍ (I.suc (I.var x0))) ▹
              Targetᵢ 5 A (I.suc (I.var x1)) (I.var x0))
             (I.lam I.𝟙 nothing $
              erasedrecᵢ p (Targetᵢ 5 A (I.suc I.zero) (I.var x0))
                (I.unitrec I.𝟘 I.𝟘
                   (Targetᵢ 6 A (I.suc I.zero)
-                     (I.box I.𝕨 I.zeroᵘ (I.var x0)))
+                     (I.box I.𝕨 I.zeroᵘₗ (I.var x0)))
                   (I.var x0) (IW.wk[ 5 ] t))
                (I.var x0))
             (I.lam I.𝟙 nothing $
@@ -375,7 +375,7 @@ module Internal (R : Type-restrictions 𝕄) where
                (Targetᵢ 6 A (I.suc (I.suc (I.var x2))) (I.var x0))
                (emptyrec-sinkᵢ
                   (Targetᵢ 6 A (I.suc (I.suc (I.var x2)))
-                     (I.box I.𝕨 I.zeroᵘ (I.var x0)))
+                     (I.box I.𝕨 I.zeroᵘₗ (I.var x0)))
                   (I.var x0))
                (I.var x0))
             (I.var x0))
@@ -422,9 +422,9 @@ opaque
 
   Bool-[] : Bool [ σ ] ≡ Bool
   Bool-[] {σ} =
-    (Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘ (OK (var x0))) [ σ ]  ≡⟨ cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Erased-[] ⟩
-    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘ (OK (var x0) [ σ ⇑ ])  ≡⟨ cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) $ cong (Erased _) B.OK-[] ⟩
-    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘ (OK (var x0))          ∎
+    (Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘₗ (OK (var x0))) [ σ ]  ≡⟨ cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) Erased-[] ⟩
+    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘₗ (OK (var x0) [ σ ⇑ ])  ≡⟨ cong (ΠΣ⟨_⟩_,_▷_▹_ _ _ _ _) $ cong (Erased _) B.OK-[] ⟩
+    Σʷ 𝟙 , Boolᵍ ▷ ℕ ▹ Erased zeroᵘₗ (OK (var x0))          ∎
 
 opaque
   unfolding true
@@ -530,7 +530,7 @@ opaque
   boolrec-[] {p} {A} {t} {u} {v} {σ} =
     prodrec boolrecᵍ-pr 𝟙 p A v
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
-         (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
+         (Π 𝟙 , p ▷ Erased zeroᵘₗ (OK (var x0)) ▹
           Target 4 A (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0))
@@ -538,7 +538,7 @@ opaque
                (wk[ 4 ]′ u))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
-            (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
+            (Π 𝟙 , p ▷ Erased zeroᵘₗ (OK (suc (var x0))) ▹
              Target 5 A (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0))
@@ -577,7 +577,7 @@ opaque
                                                                              refl ⟩
     prodrec boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
-         (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
+         (Π 𝟙 , p ▷ Erased zeroᵘₗ (OK (var x0)) ▹
           (Target 4 A (var x1) (var x0) [ σ ⇑[ 4 ] ]))
          (lam 𝟙 $
           erasedrec p (Target 4 A zero (var x0) [ σ ⇑[ 4 ] ])
@@ -585,7 +585,7 @@ opaque
                (var x0) (wk[ 4 ]′ u [ σ ⇑[ 4 ] ]))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
-            (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
+            (Π 𝟙 , p ▷ Erased zeroᵘₗ (OK (suc (var x0))) ▹
              (Target 5 A (suc (var x1)) (var x0) [ σ ⇑[ 5 ] ]))
             (lam 𝟙 $
              erasedrec p (Target 5 A (suc zero) (var x0) [ σ ⇑[ 5 ] ])
@@ -637,7 +637,7 @@ opaque
                                                                              refl) ⟩
     prodrec boolrecᵍ-pr 𝟙 p (A [ σ ⇑ ]) (v [ σ ])
       (natcase boolrecᵍ-nc₂ (Boolᵍ + p)
-         (Π 𝟙 , p ▷ Erased zeroᵘ (OK (var x0)) ▹
+         (Π 𝟙 , p ▷ Erased zeroᵘₗ (OK (var x0)) ▹
           Target 4 (A [ σ ⇑ ]) (var x1) (var x0))
          (lam 𝟙 $
           erasedrec p (Target 4 (A [ σ ⇑ ]) zero (var x0))
@@ -645,7 +645,7 @@ opaque
                (var x0) (wk[ 4 ]′ (u [ σ ])))
             (var x0))
          (natcase boolrecᵍ-nc₁ (Boolᵍ + p)
-            (Π 𝟙 , p ▷ Erased zeroᵘ (OK (suc (var x0))) ▹
+            (Π 𝟙 , p ▷ Erased zeroᵘₗ (OK (suc (var x0))) ▹
              Target 5 (A [ σ ⇑ ]) (suc (var x1)) (var x0))
             (lam 𝟙 $
              erasedrec p (Target 5 (A [ σ ⇑ ]) (suc zero) (var x0))

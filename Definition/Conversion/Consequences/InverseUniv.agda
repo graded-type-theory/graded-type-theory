@@ -29,8 +29,9 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ           : Cons _ _
-  A B l l₁ l₂ : Term _
+  Γ       : Cons _ _
+  A B     : Term _
+  l l₁ l₂ : Lvl _
 
 opaque
 

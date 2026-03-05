@@ -40,7 +40,7 @@ private
     ρ : Wk m n
     p : M
     γ : Conₘ n
-    t t′ : Term n
+    t t′ : Term[ _ ] _
     m′ : Mode
 
 
@@ -67,6 +67,10 @@ wkUsage ρ (sucᵘₘ ▸t) =
 wkUsage ρ (supᵘₘ ▸t ▸u) =
   sub (supᵘₘ (wkUsage ρ ▸t) (wkUsage ρ ▸u))
     (≤ᶜ-reflexive (wk-+ᶜ ρ))
+wkUsage ρ ωᵘ+ =
+  PE.subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) ωᵘ+
+wkUsage ρ (level ▸t) =
+  level (wkUsage ρ ▸t)
 wkUsage ρ (Uₘ ▸t) =
   PE.subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) (Uₘ (wkUsage ρ ▸t))
 wkUsage ρ (Liftₘ ▸t ▸A) =
@@ -269,6 +273,14 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
         sub (supᵘₘ (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)) (begin
           wkConₘ⁻¹ ρ (γ +ᶜ δ)           ≈⟨ wkConₘ⁻¹-+ᶜ ρ ⟩
           wkConₘ⁻¹ ρ γ +ᶜ wkConₘ⁻¹ ρ δ  ∎) }
+      ωᵘ+ eq →
+        case wk-ωᵘ+ eq of λ {
+          refl →
+        sub-≈ᶜ ωᵘ+ (wkConₘ⁻¹-𝟘ᶜ ρ) }
+      (level ▸t) eq →
+        case wk-level eq of λ {
+          (_ , refl , refl) →
+        level (wkUsage⁻¹ ▸t) }
       (Uₘ ▸t) eq →
         case wk-U eq of λ {
           (_ , refl , refl) →

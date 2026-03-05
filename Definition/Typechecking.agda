@@ -15,6 +15,7 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
@@ -39,7 +40,8 @@ private
     ∇ : DCon (Term 0) m
     Δ : Con Term n
     Γ : Cons m n
-    l l₁ l₂ t u v w A B C C₁ C₂ F G : Term n
+    t u v w A B C C₁ C₂ F G : Term n
+    l l₁ l₂ : Lvl _
     p q r p′ q′ : M
     b : BinderMode
     s : Strength
@@ -76,7 +78,7 @@ mutual
   infix 4 _⊢_⇉_
 
   data _⊢_⇉_ (Γ : Cons m n) : (_ _ : Term n) → Set a where
-    Levelᵢ : Level-is-small → Γ ⊢ Level ⇉ U zeroᵘ
+    Levelᵢ : Level-is-small → Γ ⊢ Level ⇉ U₀
     zeroᵘᵢ : Level-allowed
            → Γ ⊢ zeroᵘ ⇉ Level
     sucᵘᵢ : Γ ⊢ t ⇇ Level
@@ -84,7 +86,7 @@ mutual
     supᵘᵢ : Γ ⊢ t ⇇ Level
           → Γ ⊢ u ⇇ Level
           → Γ ⊢ t supᵘ u ⇉ Level
-    Uᵢ : Γ ⊢ l ⇇Level → Γ ⊢ U l ⇉ U (sucᵘ l)
+    Uᵢ : Γ ⊢ l ⇇Level → Γ ⊢ U l ⇉ U (1ᵘ+ l)
     Liftᵢ : Γ ⊢ l₂ ⇇Level
           → Γ ⊢ A ⇉ C
           → Γ ⊢ C ↘ U l₁
@@ -117,7 +119,7 @@ mutual
              → Γ ⊢ B ↘ Σʷ p , q ▷ F ▹ G
              → Γ »∙ F »∙ G ⊢ u ⇇ (A [ prodʷ p (var x1) (var x0) ]↑²)
              → Γ ⊢ prodrec r p q′ A t u ⇉ A [ t ]₀
-    ℕᵢ : Γ ⊢ ℕ ⇉ U zeroᵘ
+    ℕᵢ : Γ ⊢ ℕ ⇉ U₀
     zeroᵢ : Γ ⊢ zero ⇉ ℕ
     sucᵢ : Γ ⊢ t ⇇ ℕ
          → Γ ⊢ suc t ⇉ ℕ
@@ -128,14 +130,14 @@ mutual
             → Γ ⊢ n ⇇ ℕ
             → Γ ⊢ natrec p q r A z s n ⇉ A [ n ]₀
     Unitᵢ : Unit-allowed s
-          → Γ ⊢ Unit s ⇉ U zeroᵘ
+          → Γ ⊢ Unit s ⇉ U₀
     starᵢ : Unit-allowed s
           → Γ ⊢ star s ⇉ Unit s
     unitrecᵢ : Γ »∙ Unitʷ ⊢ A ⇇Type
              → Γ ⊢ t ⇇ Unitʷ
              → Γ ⊢ u ⇇ A [ starʷ ]₀
              → Γ ⊢ unitrec p q A t u ⇉ A [ t ]₀
-    Emptyᵢ : Γ ⊢ Empty ⇉ U zeroᵘ
+    Emptyᵢ : Γ ⊢ Empty ⇉ U₀
     emptyrecᵢ : Γ ⊢ A ⇇Type
               → Γ ⊢ t ⇇ Empty
               → Γ ⊢ emptyrec p A t ⇉ A
@@ -189,12 +191,11 @@ mutual
          → Γ ⊢ A ≡ B
          → Γ ⊢ t ⇇ B
 
-  data _⊢_⇇Level (Γ : Cons m n) (l : Term n) : Set a where
+  data _⊢_⇇Level (Γ : Cons m n) : Lvl n → Set a where
     term    : Level-allowed
-            → Γ ⊢ l ⇇ Level
-            → Γ ⊢ l ⇇Level
-    literal : ¬ Level-allowed
-            → Level-literal l
+            → Γ ⊢ t ⇇ Level
+            → Γ ⊢ level t ⇇Level
+    literal : Allowed-literal l
             → Γ ⊢ l ⇇Level
 
 opaque
@@ -280,9 +281,9 @@ mutual
 
   -- Checkable levels.
 
-  data Checkable-level (l : Term n) : Set a where
-    term    : Level-allowed → Checkable l → Checkable-level l
-    literal : ¬ Level-allowed → Checkable-level l
+  data Checkable-level {n} : Lvl n → Set a where
+    ωᵘ+   : Checkable-level (ωᵘ+ m)
+    level : (Level-allowed → Checkable t) → Checkable-level (level t)
 
 -- CheckableDCon ∇ means that the types and terms in ∇ are checkable.
 
@@ -320,7 +321,7 @@ opaque
     let t : Term 0
         t = lift zero
     in
-    ε » ε ⊢ t ∷ Lift zeroᵘ ℕ × Checkable t × ¬ Inferable t
+    ε » ε ⊢ t ∷ Lift zeroᵘₗ ℕ × Checkable t × ¬ Inferable t
   Checkable×¬Inferable =
     liftⱼ′ (⊢zeroᵘ εε) (zeroⱼ εε) ,
     liftᶜ (infᶜ zeroᵢ) ,
@@ -405,31 +406,30 @@ opaque
 
 opaque
 
-  -- If Level is allowed, then Checkable-level l is logically
-  -- equivalent to Checkable l.
+  -- If Level is allowed, then Checkable-level (level t) is logically
+  -- equivalent to Checkable t.
 
   Checkable-level⇔ :
     Level-allowed →
-    Checkable-level l ⇔ Checkable l
+    Checkable-level (level t) ⇔ Checkable t
   Checkable-level⇔ ok =
     (λ where
-       (term _ l)       → l
-       (literal not-ok) → ⊥-elim (not-ok ok)) ,
-    term ok
+       (level t) → t ok) ,
+    (λ t → level (λ _ → t))
 
 opaque
 
-  -- If Level is allowed, then Γ ⊢ l ⇇Level is logically
-  -- equivalent to Γ ⊢ l ⇇ Level.
+  -- If Level is allowed, then Γ ⊢ level t ⇇Level is logically
+  -- equivalent to Γ ⊢ t ⇇ Level.
 
   ⊢⇇Level⇔ :
     Level-allowed →
-    Γ ⊢ l ⇇Level ⇔ Γ ⊢ l ⇇ Level
-  ⊢⇇Level⇔ ok =
+    Γ ⊢ level t ⇇Level ⇔ Γ ⊢ t ⇇ Level
+  ⊢⇇Level⇔ okᴸ =
     (λ where
-       (term _ ⊢l)        → ⊢l
-       (literal not-ok _) → ⊥-elim (not-ok ok)) ,
-    term ok
+       (term _ ⊢t)  → ⊢t
+       (literal ok) → Level-allowed→Allowed-literal→ okᴸ ok) ,
+    term okᴸ
 
 mutual
 
@@ -499,7 +499,9 @@ mutual
   -- Γ ⊢ t ⇇Level implies that t is a checkable level.
 
   Checkable⇇Level : Γ ⊢ l ⇇Level → Checkable-level l
-  Checkable⇇Level (term ok l) =
-    term ok (Checkable⇇ l)
-  Checkable⇇Level (literal not-ok _) =
-    literal not-ok
+  Checkable⇇Level (term _ l) =
+    level (λ _ → Checkable⇇ l)
+  Checkable⇇Level {l = ωᵘ+ _} (literal ok) =
+    ωᵘ+
+  Checkable⇇Level {l = level _} (literal ok) =
+    level (flip Level-allowed→Allowed-literal→ ok)

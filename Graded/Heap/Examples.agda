@@ -114,7 +114,7 @@ opaque
         ▸s = sub (▸fstʷ (prodʷₘ zeroₘ zeroₘ) .proj₂) (ε≤ _)
         _ , _ , H , _ , _ , d , _ , H≤𝟘 = soundness-closed ⊢s (λ ()) ▸s
         m≡ , n≡ , s≡ = ↠*-det d (fstʷ⟨0,0⟩↠* 𝟙-𝟙≡𝟘)
-                        (λ _ → ↠-inv-sucᵏ) (λ _ → ↠-inv-sucᵏ)
+                        (λ _ → ↠-inv-sucⁿ) (λ _ → ↠-inv-sucⁿ)
     in  lemma m≡ n≡ s≡ H≤𝟘
     where
     ε≤ : ∀ δ → ε ≤ᶜ δ

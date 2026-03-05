@@ -41,7 +41,7 @@ LevelAtom→Term zeroᵘ = zeroᵘ
 LevelAtom→Term (ne {t} x) = t
 
 Level⁺→Term : ∀ {Γ : Cons m n} → Level⁺ Γ → Term n
-Level⁺→Term (n , a) = sucᵘᵏ n (LevelAtom→Term a)
+Level⁺→Term (n , a) = 1ᵘ+ⁿ n (LevelAtom→Term a)
 
 Levelᵛ→Term : ∀ {Γ : Cons m n} → Levelᵛ Γ → Term n
 Levelᵛ→Term L.[] = zeroᵘ

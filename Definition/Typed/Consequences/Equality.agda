@@ -39,13 +39,14 @@ open import Tools.Relation
 
 private
   variable
-    ∇           : DCon (Term 0) _
-    Γ           : Cons _ _
-    A B C l t u : Term _
-    V           : Set a
-    b           : BinderMode
-    p q         : M
-    s           : Strength
+    ∇         : DCon (Term 0) _
+    Γ         : Cons _ _
+    A B C t u : Term _
+    l         : Lvl _
+    V         : Set a
+    b         : BinderMode
+    p q       : M
+    s         : Strength
 
 opaque
 
@@ -75,7 +76,7 @@ opaque
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       ∇ » Γ ⊢ Level ≡ A × Whnf ∇ A × A PE.≢ Level
   whnf≢Level ok Level-ok »∇ =
-    ε ∙ Id (U zeroᵘ) Level Empty ,
+    ε ∙ Id U₀ Level Empty ,
     Empty ,
     univ
       (equality-reflection′ ok $
@@ -108,19 +109,20 @@ opaque
     Equality-reflection →
     Unitʷ-allowed →
     » ∇ →
-    ∃₃ λ (Γ : Con Term 1) (l : Term 1) (A : Term 1) →
+    ∃₃ λ (Γ : Con Term 1) (l : Lvl 1) (A : Term 1) →
       ∇ » Γ ⊢ U l ≡ A × Whnf ∇ A × ¬ ∃ λ l → A PE.≡ U l
   whnf≢U ok₁ ok₂ »∇ =
-    ε ∙ Id (U (sucᵘ zeroᵘ)) (U zeroᵘ) (Lift (sucᵘ zeroᵘ) Empty) ,
-    zeroᵘ ,
-    Lift (sucᵘ zeroᵘ) Empty ,
+    ε ∙
+      Id (U (level (sucᵘ zeroᵘ))) U₀ (Lift (level (sucᵘ zeroᵘ)) Empty) ,
+    zeroᵘₗ ,
+    Lift (level (sucᵘ zeroᵘ)) Empty ,
     univ
       (equality-reflection′ ok₁ $
        var₀ $
        Idⱼ′
          (Uⱼ (⊢zeroᵘ (ε »∇)))
-         (_⊢_∷_.conv (Liftⱼ′ (⊢sucᵘ (⊢zeroᵘ (ε »∇))) (Emptyⱼ (ε »∇))) $
-          U-cong-⊢≡ (supᵘₗ-zeroˡ (⊢sucᵘ (⊢zeroᵘ (ε »∇)))))) ,
+         (_⊢_∷_.conv (Liftⱼ′ (⊢1ᵘ+ (⊢zeroᵘ (ε »∇))) (Emptyⱼ (ε »∇))) $
+          U-cong-⊢≡ (supᵘₗ-zeroˡ (⊢1ᵘ+ (⊢zeroᵘ (ε »∇)))))) ,
     Liftₙ ,
     (λ ())
 
@@ -149,11 +151,11 @@ opaque
     Equality-reflection →
     Unitʷ-allowed →
     » ∇ →
-    ∃₄ λ (Γ : Con Term 1) (l : Term 1) (B : Term 1) (A : Term 1) →
+    ∃₄ λ (Γ : Con Term 1) (l : Lvl 1) (B : Term 1) (A : Term 1) →
       ∇ » Γ ⊢ Lift l B ≡ A × Whnf ∇ A × ¬ ∃₂ λ l B → A PE.≡ Lift l B
   whnf≢Lift ok₁ ok₂ »∇ =
-    ε ∙ Id (U (zeroᵘ supᵘₗ zeroᵘ)) (Lift zeroᵘ ℕ) Unitʷ ,
-    zeroᵘ ,
+    ε ∙ Id (U (zeroᵘₗ supᵘₗ zeroᵘₗ)) (Lift zeroᵘₗ ℕ) Unitʷ ,
+    zeroᵘₗ ,
     ℕ ,
     Unitʷ ,
     univ
@@ -191,7 +193,7 @@ opaque
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       ∇ » Γ ⊢ ℕ ≡ A × Whnf ∇ A × A PE.≢ ℕ
   whnf≢ℕ ok »∇ =
-    ε ∙ Id (U zeroᵘ) ℕ Empty ,
+    ε ∙ Id U₀ ℕ Empty ,
     Empty ,
     univ
       (equality-reflection′ ok $
@@ -226,7 +228,7 @@ opaque
     ∃₂ λ (Γ : Con Term 1) (A : Term 1) →
       ∇ » Γ ⊢ Empty ≡ A × Whnf ∇ A × A PE.≢ Empty
   whnf≢Empty ok »∇ =
-    ε ∙ Id (U zeroᵘ) Empty ℕ ,
+    ε ∙ Id U₀ Empty ℕ ,
     ℕ ,
     univ
       (equality-reflection′ ok $
@@ -266,7 +268,7 @@ opaque
       ∇ » Γ ⊢ Unit s ≡ A × Whnf ∇ A ×
       ¬ ∃ λ s → A PE.≡ Unit s
   whnf≢Unit {s} ok₁ ok₂ »∇ =
-    ε ∙ Id (U zeroᵘ) (Unit s) (Id (Unit s) (star s) (star s)) ,
+    ε ∙ Id U₀ (Unit s) (Id (Unit s) (star s) (star s)) ,
     Id (Unit s) (star s) (star s) ,
     univ
       (equality-reflection′ ok₁ $ var₀ $
@@ -306,7 +308,7 @@ opaque
     ∃₃ λ (Γ : Con Term 2) (A B : Term 2) →
       ∇ » Γ ⊢ A ≡ B × Neutral⁺ ∇ A × Whnf ∇ B × A PE.≢ B
   whnf≢ne ok »∇ =
-    ε ∙ U zeroᵘ ∙ Id (U zeroᵘ) (var x0) Empty ,
+    ε ∙ U₀ ∙ Id U₀ (var x0) Empty ,
     var x1 ,
     Empty ,
     univ
@@ -347,7 +349,7 @@ opaque
       ∇ » Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ≡ C × Whnf ∇ C ×
       ¬ ∃₅ λ b p q A B → C PE.≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
   whnf≢ΠΣ {b} {p} {q} ok₁ ok₂ »∇ =
-    ε ∙ Id (U zeroᵘ) (ΠΣ⟨ b ⟩ p , q ▷ ℕ ▹ ℕ) ℕ ,
+    ε ∙ Id U₀ (ΠΣ⟨ b ⟩ p , q ▷ ℕ ▹ ℕ) ℕ ,
     ℕ , ℕ , ℕ ,
     univ
       (equality-reflection′ ok₁ $
@@ -411,7 +413,7 @@ opaque
       ∇ » Γ ⊢ Id A t u ≡ B × Whnf ∇ B ×
       ¬ ∃₃ λ A t u → B PE.≡ Id A t u
   whnf≢Id ok »∇ =
-    ε ∙ Id (U zeroᵘ) (Id ℕ zero zero) ℕ ,
+    ε ∙ Id U₀ (Id ℕ zero zero) ℕ ,
     ℕ , zero , zero , ℕ ,
     univ
       (equality-reflection′ ok $

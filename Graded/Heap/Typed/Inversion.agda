@@ -44,7 +44,8 @@ open import Tools.Relation
 private variable
   H : Heap _ _
   Δ : Con Term _
-  A B C D F G l s t u v w z : Term _
+  A B C D F G s t u v w z : Term _
+  l : Lvl _
   p q q′ r : M
   ρ : Wk _ _
   S : Stack _

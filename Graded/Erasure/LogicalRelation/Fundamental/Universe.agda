@@ -22,6 +22,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Erasure.LogicalRelation as
@@ -37,7 +38,7 @@ import Tools.PropositionalEquality as PE
 private variable
   n : Nat
   Γ : Con Term _
-  t : Term _
+  l : Lvl _
   γ : Conₘ _
   m : Mode
 
@@ -46,12 +47,13 @@ opaque
   -- Validity for U.
 
   Uʳ :
-    ts » Γ ⊢ t ∷Level →
-    γ ▸ Γ ⊩ʳ U t ∷[ m ∣ n ] U (sucᵘ t)
-  Uʳ ⊢t =
+    ts » Γ ⊢ l ∷Level →
+    γ ▸ Γ ⊩ʳ U l ∷[ m ∣ n ] U (1ᵘ+ l)
+  Uʳ {l} ⊢l =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
+    PE.subst (flip (_®_∷_◂_ _ _) _) (PE.cong U (PE.sym (1ᵘ+-[] l))) $
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( ⊢sucᵘ (subst-⊢∷L ⊢t ⊢σ)
+      ( ⊢1ᵘ+ (subst-⊢∷L ⊢l ⊢σ)
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )

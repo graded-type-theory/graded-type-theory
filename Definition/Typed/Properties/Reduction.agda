@@ -37,12 +37,13 @@ open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                                 : Cons _ _
-  A A′ B B′ C l t t′ u u′ v v₁ v₂ w : Term _
-  V                                 : Set ℓ
-  n α                               : Nat
-  s                                 : Strength
-  p p′ q r                          : M
+  Γ                               : Cons _ _
+  A A′ B B′ C t t′ u u′ v v₁ v₂ w : Term _
+  l                               : Lvl _
+  V                               : Set ℓ
+  n α                             : Nat
+  s                               : Strength
+  p p′ q r                        : M
 
 ------------------------------------------------------------------------
 -- Inversion lemmas related to _⊢_⇒_∷_
@@ -875,7 +876,7 @@ opaque
   -- A variant of lower-subst.
 
   lower-subst* :
-    Γ ⊢ t ⇒* t′ ∷ Lift u A →
+    Γ ⊢ t ⇒* t′ ∷ Lift l A →
     Γ ⊢ lower t ⇒* lower t′ ∷ A
   lower-subst* (id ⊢t) = id (lowerⱼ ⊢t)
   lower-subst* (d ⇨ t⇒*t′) = lower-subst d ⇨ lower-subst* t⇒*t′

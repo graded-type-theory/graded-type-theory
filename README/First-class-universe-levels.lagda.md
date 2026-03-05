@@ -12,6 +12,8 @@ The paper is accompanied by a code artifact. This section describes
 some differences between that artifact and the present version of the
 code:
 
+* There is now optional support for the levels ω, ω + 1, and so on.
+
 * Atomic neutrals are now defined in a different way.
 
 * The definition of reducibility for neutral types no longer requires
@@ -46,15 +48,18 @@ import Graded.Modality.Instances.Unit
   using (UnitModality)
 ```
 
-Terms. The notation does not match the paper exactly. The notation
-`zeroᵘ` is used for 0, `sucᵘ` for \_⁺, and `_supᵘ_` for \_⊔\_. Instead
-of a constructor Π for Π-types there is a constructor `ΠΣ⟨_⟩_,_▷_▹_`
-for *graded* Π- and Σ-types, and the constructors for lambdas and
-applications also take grades. The derived notation k + t is denoted
-by `sucᵘᵏ k t`, and ↓ k is denoted by `↓ᵘ k`.
+Terms. Unlike in the paper there is a type of levels in addition to a
+type of terms: levels are either "ω + n" or terms. The notation does
+not match the paper exactly. The notation `zeroᵘ` is used for 0,
+`sucᵘ` for \_⁺, and `_supᵘ_` for \_⊔\_. Instead of a constructor Π for
+Π-types there is a constructor `ΠΣ⟨_⟩_,_▷_▹_` for *graded* Π- and
+Σ-types, and the constructors for lambdas and applications also take
+grades. The derived notation k + t is denoted by `1ᵘ+ⁿ k t` (this
+notation works for both terms and levels), and ↓ k is denoted by
+`↓ᵘ k`.
 ```agda
 import Definition.Untyped
-  using (Term; sucᵘᵏ; ↓ᵘ_)
+  using (Term; Lvl; 1ᵘ+ⁿ; ↓ᵘ_)
 ```
 
 Contexts. The type is more general than in the paper: the
@@ -124,17 +129,26 @@ open Definition.Typed.Restrictions.Type-restrictions
     (level-support; Level-is-small; Level-is-not-small; Level-allowed)
 ```
 
+One can also choose whether the levels ω, ω + 1 and so on are allowed
+or not. That is the case if the parameter `Omega-plus-allowed` is
+inhabited.
+```agda
+open Definition.Typed.Restrictions.Type-restrictions
+  using (Omega-plus-allowed)
+```
+
 The variant of the type theory in which `Level` is allowed but not
-small is similar to what one gets by enabling Agda's
-`--level-universe` flag, which makes `Level` an element of a separate
-universe `LevelUniv` instead of `Set`. A notable difference is that
-Agda disallows forming identity types of types in `LevelUniv`, whereas
-our type theory has identity type formation rules for every type. If
-`Level` is allowed, then `Id Level t u` is a well-formed type when `t`
-and `u` are well-typed levels, whether `Level` is small or not. No
-result in the paper depends on whether `Level` is small or not, except
-for the following one: if `Level` is not small, then `Id Level t u`
-does not live in a universe.
+small (and `Omega-plus-allowed` is inhabited) is similar to what one
+gets by enabling Agda's `--level-universe` flag, which makes `Level`
+an element of a separate universe `LevelUniv` instead of `Set`. A
+notable difference is that Agda disallows forming identity types of
+types in `LevelUniv`, whereas our type theory has identity type
+formation rules for every type. If `Level` is allowed, then
+`Id Level t u` is a well-formed type when `t` and `u` are well-typed
+levels, whether `Level` is small or not. No result in the paper
+depends on whether `Level` is small or not, except for the following
+one: if `Level` is not small, then `Id Level t u` does not live in a
+universe.
 ```agda
 import Definition.Typed.Properties.Admissible.Level
   using (⊢Id-Level; ¬Level-is-small→¬Level∷U)
@@ -143,9 +157,10 @@ import Definition.Typed.Properties.Admissible.Level
 The type system. Some typing rules have names that differ from those
 in the paper. Γ ∋ x : A is denoted by `x ∷ A ∈ Γ`. The definitions use
 the relations `_⊢_∷Level` and `_⊢_≡_∷Level` to support disallowing
-`Level` entirely: in the case where `Level` is allowed `Γ ⊢ t ∷Level`
-is logically equivalent to `Γ ⊢ t ∷ Level`, and similarly for
-`_⊢_≡_∷Level`.
+`Level` entirely (and to support the levels ω, ω + 1, and so on): in
+the case where `Level` is allowed `Γ ⊢ level t ∷Level` is logically
+equivalent to `Γ ⊢ t ∷ Level`, and similarly for `_⊢_≡_∷Level` (the
+constructor `level` takes terms to levels).
 ```agda
 import Definition.Typed
   using
@@ -160,18 +175,32 @@ import Definition.Typed.Properties.Admissible.Level
   using (⊢≤-refl; ⊢≤-trans; ⊢≤-antisymmetric; supᵘ-zeroʳⱼ)
 ```
 
-The typing rule for `Lift` that uses the ordering of levels is
-admissible.
+There is also an alternative definition of ordering of levels that
+works for ω, ω + 1 and so on, and that also works if the `Level` type
+is disallowed.
 ```agda
-import Definition.Typed.Properties.Admissible.Lift
-  using (Liftⱼ≤)
+import Definition.Typed
+  using (_⊢_≤ₗ_∷Level)
 ```
 
-The type of the universe-polymorphic identity function does not live
-in any universe, and "Π U₀ U₁" does not have a type.
+Typing rules for `Lift` that use either of the two ordering relations
+for levels are admissible.
+```agda
+import Definition.Typed.Properties.Admissible.Lift
+  using (Liftⱼ≤; ⊢Lift-≤ₗ)
+```
+
+A certain type of a certain universe-polymorphic identity function
+does not live in any universe, and "Π U₀ U₁" does not have a type,
+given certain assumptions. However, a certain universe-polymorphic
+identity function expressed using lifting has a type that has a type,
+assuming that Omega-plus-allowed is inhabited (and some other
+assumptions).
 ```agda
 import Definition.Typed.Consequences.Universe
-  using (the-type-of-id-does-not-have-a-type; type-without-type)
+  using (a-type-of-id-does-not-have-a-type; type-without-type)
+import Definition.Typed.Properties.Admissible.Pi
+  using (a-type-of-id-has-a-type)
 ```
 
 Admissible typing rules for heterogeneous Π- and Σ-types.
@@ -226,17 +255,19 @@ import Definition.Typed.Syntactic
 
 ### 3: A Logical Relation
 
-External universe levels (natural numbers or ω).
+External universe levels (natural numbers, ω, ω + 1, and so on, or
+ω · 2).
 ```agda
 import Definition.Untyped.NotParametrised
   using (Universe-level)
 ```
 
 The generic equality relations. Compared to the paper we include an
-extra relation for levels, to support disallowing `Level` entirely. We
-also include the type `Var-included`, which is used to handle equality
-reflection: in the absence of equality reflection one can instantiate
-this type with something inhabited.
+extra relation for levels, to support disallowing `Level` entirely and
+to support ω, ω + 1, and so on. We also include the type
+`Var-included`, which is used to handle equality reflection: in the
+absence of equality reflection one can instantiate this type with
+something inhabited.
 ```agda
 open import Definition.Typed.EqualityRelation
   using (EqRelSet)
@@ -277,7 +308,7 @@ holds, then `t` is neutral, and similarly for the corresponding binary
 predicates.
 ```agda
 import Definition.LogicalRelation.Properties.Whnf
-  using (level; nelevel; lsplit; nelsplit)
+  using (Level-prop→Whnf; nelevel; lsplit; nelsplit)
 ```
 
 The natural number realising a reducible level t is written `↑ⁿ [t]`,
@@ -285,12 +316,13 @@ where `[t]` is a witness that t is reducible. The corresponding
 external level is written `↑ᵘ [t]`.
 ```agda
 import Definition.LogicalRelation
-  using (↑ⁿ_; ↑ᵘ_)
+  using (↑ⁿ; ↑ᵘ)
 ```
 
 The natural number realiser satisfies the specification given in the
-paper, and any function that satisfies the specification is pointwise
-equal to the realiser.
+paper (adjusted in response to some of the changes mentioned above),
+and any function that satisfies the specification is pointwise equal
+to the realiser.
 ```agda
 import Definition.LogicalRelation.Properties.Primitive
   using (↑ⁿ-respects-⇒*; ↑ⁿ-zeroᵘ; ↑ⁿ-sucᵘ; ↑ⁿ-supᵘ′; ↑ⁿ-ne; ↑ⁿ-unique)
@@ -427,9 +459,10 @@ import Definition.LogicalRelation.Properties.Escape
 ```
 
 Validity judgements. In addition to the ones in the paper we also use
-`Γ ⊩ᵛ⟨ ℓ ⟩ t ∷Level` and `Γ ⊩ᵛ⟨ ℓ ⟩ t ≡ u ∷Level`, which are logically
-equivalent to `Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ Level` and `Γ ⊩ᵛ⟨ ℓ ⟩ t ≡ u ∷ Level`,
-respectively, when the `Level` type is allowed.
+`Γ ⊩ᵛ⟨ ℓ ⟩ l₁ ∷Level` and `Γ ⊩ᵛ⟨ ℓ ⟩ l₁ ≡ l₂ ∷Level`. When the `Level`
+type is allowed `Γ ⊩ᵛ⟨ ℓ ⟩ level t ∷Level` is logically equivalent to
+`Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ Level`, and `Γ ⊩ᵛ⟨ ℓ ⟩ level t ≡ level u ∷Level` is
+logically equivalent to `Γ ⊩ᵛ⟨ ℓ ⟩ t ≡ u ∷ Level`.
 ```agda
 import Definition.LogicalRelation.Substitution
   using
@@ -442,7 +475,9 @@ Lemma 3.3: Fundamental lemma.
 import Definition.LogicalRelation.Fundamental
   using
     (valid;
-     fundamental-⊩ᵛ; fundamental-⊩ᵛ≡; fundamental-⊩ᵛ∷; fundamental-⊩ᵛ≡∷)
+     fundamental-⊩ᵛ; fundamental-⊩ᵛ≡;
+     fundamental-⊩ᵛ∷; fundamental-⊩ᵛ≡∷;
+     fundamental-⊩ᵛ∷L; fundamental-⊩ᵛ≡∷L)
 ```
 
 Lemma 3.4: Validity for the term typing rule for U. The proof sketch
@@ -641,10 +676,12 @@ import Definition.Conversion.FullReduction
 
 Checkable types, checkable terms and inferable terms. The code also
 makes use of `Checkable-level`. If `Level` is allowed, then
-`Checkable-level t` is logically equivalent to `Checkable t`.
+`Checkable-level (level t)` is logically equivalent to `Checkable t`.
 ```agda
 import Definition.Typechecking
-  using (Checkable-type; Checkable; Inferable; Checkable-level)
+  using
+    (Checkable-type; Checkable; Inferable; Checkable-level;
+     Checkable-level⇔)
 ```
 
 The term Π (λ x₀) x₀ is a checkable type but not a checkable term.
@@ -700,16 +737,16 @@ import Graded.Modality.Instances.Erasure.Modality
 The target language. The term appˢ t u is denoted by `t ∘⟨ s ⟩ u`, the
 predicate Valueˢ is called `Value⟨ s ⟩`, sucˢ is called `suc⟨ s ⟩`, ↯ˢ
 is called `loop? s`, \_⊢\_⟶ˢᵘᶜ\_:ℕ is called `_⊢_⇒ˢ_∷ℕ`,
-\_⊢\_⟶ˢᵘᶜ\*\_:ℕ is called `_⊢_⇒ˢ*_∷ℕ`, and n̲ is called `sucᵏ n`. The
+\_⊢\_⟶ˢᵘᶜ\*\_:ℕ is called `_⊢_⇒ˢ*_∷ℕ`, and n̲ is called `sucⁿ n`. The
 reduction relations for the target language include a definition
 context: ⇒ corresponds to `_⊢_⇒_`, ⇒ˢᵘᶜ corresponds to `_⊢_⇒ˢ_`, and
 ⇒\*ₛ corresponds to `_⊢_⇒ˢ⟨_⟩*_`. The term loop corresponds to
 `loop non-strict`.
 ```agda
 import Graded.Erasure.Target
-  using (Term; Strictness; Value; Value⟨_⟩; _⊢_⇒_; suc⟨_⟩; sucᵏ)
+  using (Term; Strictness; Value; Value⟨_⟩; _⊢_⇒_; suc⟨_⟩; sucⁿ)
 import Definition.Untyped
-  using (sucᵏ)
+  using (sucⁿ)
 import Graded.Erasure.Target.Non-terminating
   using (loop)
 import Graded.Erasure.Extraction

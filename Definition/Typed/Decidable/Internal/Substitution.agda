@@ -23,10 +23,13 @@ open import Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Well-formed R
 
-open import Definition.Untyped M as U using (Level-literal; Wk)
+open import Definition.Untyped M as U
+  using (Infinite; Level-literal; Term-kind; Wk)
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Properties M hiding (is-var?)
 import Definition.Untyped.Sup R as S
 
+open Term-kind
 open Wk
 
 open import Tools.Bool
@@ -46,7 +49,7 @@ open Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R public
 
 private variable
   b b₁ b₂                         : Bool
-  α n n′ n₁ n₂                    : Nat
+  α m n n′ n₁ n₂                  : Nat
   x                               : Fin _
   st                              : List _
   c                               : Constants
@@ -56,7 +59,8 @@ private variable
   p q r                           : Termᵍ _
   s                               : Termˢ _
   bm                              : Termᵇᵐ _ _
-  A A₁ A₂ l l₁ l₂ t t₁ t₂ t₃ t₄ u : Term _ _
+  A A₁ A₂ l l₁ l₂ t t₁ t₂ t₃ t₄ u : Term[ _ , _ ] _
+  k                               : Term-kind
   ρ                               : Wk _ _
   σ σ₁ σ₂                         : Subst _ _ _
 
@@ -69,7 +73,7 @@ private variable
 
 infix 25 _[_]
 
-_[_] : Term c n₁ → Subst c n₂ n₁ → Term c n₂
+_[_] : Term[ c , k ] n₁ → Subst c n₂ n₁ → Term[ c , k ] n₂
 meta-var x σ′         [ σ ] = meta-var x (σ ₛ•ₛ σ′)
 weaken ρ t            [ σ ] = subst t (σ ₛ• ρ)
 subst t σ′            [ σ ] = subst t (σ ₛ•ₛ σ′)
@@ -77,8 +81,10 @@ var x                 [ σ ] = x [ σ ]ᵛ
 defn α                [ σ ] = defn α
 Level                 [ _ ] = Level
 zeroᵘ                 [ _ ] = zeroᵘ
-sucᵘ l                [ σ ] = sucᵘ (subst l σ)
+1ᵘ+ t                 [ σ ] = 1ᵘ+ (subst t σ)
 l₁ supᵘₗ l₂           [ σ ] = subst l₁ σ supᵘₗ subst l₂ σ
+ωᵘ+ m                 [ _ ] = ωᵘ+ m
+level t               [ σ ] = level (subst t σ)
 U l                   [ σ ] = U (subst l σ)
 Lift l A              [ σ ] = Lift (subst l σ) (subst A σ)
 lift l t              [ σ ] = lift (flip subst σ M.<$> l) (subst t σ)
@@ -124,7 +130,7 @@ opaque
   -- level literal.
 
   Level-literal-⌜[]⌝ :
-    (t : Term c n) →
+    (t : Term[ c , k ] n) →
     Level-literal (⌜ subst t σ ⌝ γ) → Level-literal (⌜ t [ σ ] ⌝ γ)
   Level-literal-⌜[]⌝ {σ} {γ} (meta-var x σ′) =
     Level-literal (⌜ meta-var x σ′ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])       ≡⟨ PE.cong (Level-literal ∘→ U._[ _ ]) (⌜meta-var⌝ σ′) ⟩→
@@ -145,21 +151,18 @@ opaque
     Level-literal (⌜ x [ σ ]ᵛ ⌝ γ)  □
   Level-literal-⌜[]⌝ zeroᵘ =
     idᶠ
-  Level-literal-⌜[]⌝ (sucᵘ _) =
-    idᶠ
+  Level-literal-⌜[]⌝ {σ} {γ} (1ᵘ+ l) =
+    Level-literal (U.1ᵘ+ (⌜ l ⌝ γ) U.[ ⌜ σ ⌝ˢ γ ])  ≡⟨ PE.cong Level-literal (1ᵘ+-[] (⌜ l ⌝ _)) ⟩→
+    Level-literal (U.1ᵘ+ (⌜ l ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]))  □
   Level-literal-⌜[]⌝ {σ} {γ} (l₁ supᵘₗ l₂) =
-    Level-literal (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])         →⟨ S.Level-literal-supᵘₗ-[] ⟩
-
-    Level-literal (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ)                        →⟨ S.Level-literal-supᵘₗ→ ⟩
-
-    ¬ Level-allowed × Level-literal (⌜ l₁ ⌝ γ) ×
-    Level-literal (⌜ l₂ ⌝ γ)                                         →⟨ Σ.map idᶠ (Σ.map Level-literal-[] Level-literal-[]) ⟩
-
-    ¬ Level-allowed × Level-literal (⌜ l₁ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) ×
-    Level-literal (⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])                          →⟨ (λ (not-okᴸ , lits) → S.Level-literal-supᵘₗ⇔ not-okᴸ .proj₂ lits) ⟩
+    Level-literal (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])         →⟨ S.Level-literal-supᵘₗ-[]₂ ⟩
 
     Level-literal
       ((⌜ l₁ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]))  □
+  Level-literal-⌜[]⌝ (ωᵘ+ _) =
+    idᶠ
+  Level-literal-⌜[]⌝ (level _) =
+    idᶠ
   Level-literal-⌜[]⌝ (defn _)                ()
   Level-literal-⌜[]⌝ Level                   ()
   Level-literal-⌜[]⌝ (U _)                   ()
@@ -189,17 +192,35 @@ opaque
   Level-literal-⌜[]⌝ ([]-cong _ _ _ _ _ _)   ()
 
 ------------------------------------------------------------------------
--- Literal-iff, Not-level-literal and Literal-free
+-- Not-infinite, Literal-iff, Not-level-literal and Literal-free
+
+-- Not-infinite l implies that the translation of l is definitely
+-- not ωᵘ+ something.
+
+data Not-infinite-level {c n} : Lvl c n → Set a where
+  weaken   : Not-infinite-level l → Not-infinite-level (weaken ρ l)
+  subst    : Not-infinite-level l → Not-infinite-level (subst l σ)
+  1ᵘ+      : Not-infinite-level l → Not-infinite-level (1ᵘ+ l)
+  sup      : Not-infinite-level l₁ → Not-infinite-level l₂ →
+             Not-infinite-level (l₁ supᵘₗ l₂)
+  level    : Not-infinite-level (level t)
+
+-- Not-infinite l implies that the translation of l is definitely
+-- not ωᵘ+ something.
+
+data Not-infinite {c n} : Term[ c , k ] n → Set a where
+  term  : Not-infinite {k = tm} t
+  level : Not-infinite-level l → Not-infinite l
 
 mutual
 
   -- Literal-iff t σ implies that, for any γ, ⌜ t ⌝ γ is a level
   -- literal if and only if ⌜ subst t σ ⌝ γ is a level literal.
 
-  data Literal-iff : Term c n₁ → Subst c n₂ n₁ → Set a where
+  data Literal-iff : Term[ c , k ] n₁ → Subst c n₂ n₁ → Set a where
     literal-free : Literal-free σ → Literal-iff t σ
     meta-var     : ∀ {x} → Literal-free (σ₂ ₛ•ₛ σ₁) →
-                   Literal-iff (meta-var x σ₁) σ₂
+                   Literal-iff {k = k} (meta-var x σ₁) σ₂
     weaken       : Literal-iff t (σ ₛ• ρ) → Literal-iff (weaken ρ t) σ
     subst        : Literal-iff t (σ₂ ₛ•ₛ σ₁) →
                    Literal-iff (subst t σ₁) σ₂
@@ -207,8 +228,10 @@ mutual
     defn         : Literal-iff (defn α) σ
     Level        : Literal-iff Level σ
     zeroᵘ        : Literal-iff zeroᵘ σ
-    sucᵘ         : Literal-iff l σ → Literal-iff (sucᵘ l) σ
+    1ᵘ+          : Literal-iff l σ → Literal-iff (1ᵘ+ l) σ
     sup          : Literal-iff (l₁ supᵘₗ l₂) σ
+    ωᵘ+          : Literal-iff (ωᵘ+ m) σ
+    level        : Literal-iff t σ → Literal-iff (level t) σ
     U            : Literal-iff (U l) σ
     Lift         : Literal-iff (Lift l A) σ
     lift         : ∀ {l} → Literal-iff (lift l t) σ
@@ -238,7 +261,7 @@ mutual
   -- Not-level-literal t implies that the translation of t is
   -- definitely not a level literal.
 
-  data Not-level-literal {c n} : Term c n → Set a where
+  data Not-level-literal {c n} : Term[ c , k ] n → Set a where
     weaken   : Not-level-literal t →
                Not-level-literal (weaken ρ t)
     subst    : Literal-iff t σ → Not-level-literal t →
@@ -246,9 +269,12 @@ mutual
     var      : Not-level-literal (var x)
     defn     : Not-level-literal (defn α)
     Level    : Not-level-literal Level
-    sucᵘ     : Not-level-literal l → Not-level-literal (sucᵘ l)
-    supᵘₗˡ   : Not-level-literal l₁ → Not-level-literal (l₁ supᵘₗ l₂)
-    supᵘₗʳ   : Not-level-literal l₂ → Not-level-literal (l₁ supᵘₗ l₂)
+    1ᵘ+      : Not-level-literal l → Not-level-literal (1ᵘ+ l)
+    supᵘₗˡ   : Not-level-literal l₁ → Not-infinite l₂ →
+               Not-level-literal (l₁ supᵘₗ l₂)
+    supᵘₗʳ   : Not-infinite l₁ → Not-level-literal l₂ →
+               Not-level-literal (l₁ supᵘₗ l₂)
+    level    : Not-level-literal t → Not-level-literal (level t)
     U        : Not-level-literal (U l)
     Lift     : Not-level-literal (Lift l A)
     lift     : ∀ {l} → Not-level-literal (lift l t)
@@ -286,6 +312,43 @@ mutual
     _⇑   : Literal-free σ → Literal-free (σ ⇑)
     cons : Literal-free σ → Not-level-literal t →
            Literal-free (cons σ t)
+
+opaque
+
+  -- If Not-infinite-level l holds, then ⌜ l ⌝ γ is not infinite.
+
+  Not-infinite-level→¬Infinite :
+    Not-infinite-level l → ¬ Infinite (⌜ l ⌝ γ)
+  Not-infinite-level→¬Infinite {γ} = λ where
+    (weaken {l} {ρ} nω) →
+      Infinite (U.wk ρ (⌜ l ⌝ γ))  ⇔⟨ Infinite-wk-⇔ ⟩→
+      Infinite (⌜ l ⌝ γ)           →⟨ Not-infinite-level→¬Infinite nω ⟩
+      ⊥                            □
+    (subst {l} {σ} nω) →
+      Infinite (⌜ l ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])  ⇔⟨ Infinite-[]-⇔ ⟩→
+      Infinite (⌜ l ⌝ γ)                 →⟨ Not-infinite-level→¬Infinite nω ⟩
+      ⊥                                  □
+    (1ᵘ+ {l} nω) →
+      Infinite (U.1ᵘ+ (⌜ l ⌝ γ))  ⇔⟨ Infinite-1ᵘ+-⇔ ⟩→
+      Infinite (⌜ l ⌝ γ)          →⟨ Not-infinite-level→¬Infinite nω ⟩
+      ⊥                           □
+    (sup {l₁} {l₂} nω₁ nω₂) →
+      Infinite (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ)       ⇔⟨ S.Infinite-supᵘₗ-⇔ ⟩→
+      Infinite (⌜ l₁ ⌝ γ) ⊎ Infinite (⌜ l₂ ⌝ γ)  →⟨ (λ where
+                                                       (inj₁ inf) → Not-infinite-level→¬Infinite nω₁ inf
+                                                       (inj₂ inf) → Not-infinite-level→¬Infinite nω₂ inf) ⟩
+      ⊥                                          □
+    (level {t}) →
+      Infinite (U.level (⌜ t ⌝ γ))  →⟨ (λ ()) ⟩
+      ⊥                             □
+
+opaque
+
+  -- If Not-infinite l holds, then ⌜ l ⌝ γ is not infinite.
+
+  Not-infinite→¬Infinite : Not-infinite l → ¬ Infinite (⌜ l ⌝ γ)
+  Not-infinite→¬Infinite term       = λ ()
+  Not-infinite→¬Infinite (level nω) = Not-infinite-level→¬Infinite nω
 
 opaque mutual
 
@@ -334,14 +397,23 @@ opaque mutual
     lemma zeroᵘ =
       Level-literal U.zeroᵘ  →⟨ (λ _ → U.zeroᵘ) ⟩
       Level-literal U.zeroᵘ  □
-    lemma (sucᵘ {l} {σ} iff) =
-      Level-literal (⌜ sucᵘ (subst l σ) ⌝ γ)  →⟨ (λ { (U.sucᵘ l) → l }) ⟩
-      Level-literal (⌜ subst l σ ⌝ γ)         →⟨ lemma iff ⟩
-      Level-literal (⌜ l ⌝ γ)                 →⟨ U.sucᵘ ⟩
-      Level-literal (⌜ sucᵘ l ⌝ γ)            □
+    lemma (1ᵘ+ {l} {σ} iff) =
+      Level-literal (U.1ᵘ+ (⌜ l ⌝ γ) U.[ ⌜ σ ⌝ˢ γ ])  ≡⟨ PE.cong Level-literal (1ᵘ+-[] (⌜ l ⌝ _)) ⟩→
+      Level-literal (U.1ᵘ+ (⌜ l ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]))  ⇔⟨ Level-literal-1ᵘ+-⇔ ⟩→
+      Level-literal (⌜ l ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])          →⟨ lemma iff ⟩
+      Level-literal (⌜ l ⌝ γ)                         ⇔˘⟨ Level-literal-1ᵘ+-⇔ ⟩→
+      Level-literal (U.1ᵘ+ (⌜ l ⌝ γ))                 □
     lemma (sup {l₁} {l₂} {σ}) =
-      Level-literal (⌜ subst (l₁ supᵘₗ l₂) σ ⌝ γ)  →⟨ S.Level-literal-supᵘₗ-[] ⟩
+      Level-literal (⌜ subst (l₁ supᵘₗ l₂) σ ⌝ γ)  →⟨ S.Level-literal-supᵘₗ-[]₁ ⟩
       Level-literal (⌜ l₁ supᵘₗ l₂ ⌝ γ)            □
+    lemma (ωᵘ+ {m}) =
+      Level-literal (U.ωᵘ+ m)  →⟨ (λ _ → U.ωᵘ+) ⟩
+      Level-literal (U.ωᵘ+ m)  □
+    lemma (level {t} {σ} iff) =
+      Level-literal (U.level (⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]))  ⇔⟨ Level-literal-level-⇔ ⟩→
+      Level-literal (⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])            →⟨ lemma iff ⟩
+      Level-literal (⌜ t ⌝ γ)                           ⇔˘⟨ Level-literal-level-⇔ ⟩→
+      Level-literal (U.level (⌜ t ⌝ γ))                 □
     lemma U        ()
     lemma Lift     ()
     lemma lift     ()
@@ -382,18 +454,46 @@ opaque mutual
       Level-literal (⌜ subst t σ ⌝ γ)  ⇔˘⟨ Literal-iff→⇔Level-literal-⌜subst⌝ iff ⟩→
       Level-literal (⌜ t ⌝ γ)          →⟨ Not-level-literal→¬Level-literal nl ⟩
       ⊥                                □
-    (sucᵘ {l} nl) →
-      Level-literal (U.sucᵘ (⌜ l ⌝ γ))  →⟨ (λ { (U.sucᵘ l-lit) → l-lit }) ⟩
-      Level-literal (⌜ l ⌝ γ)           →⟨ Not-level-literal→¬Level-literal nl ⟩
-      ⊥                                 □
-    (supᵘₗˡ {l₁} {l₂} nl) →
-      Level-literal (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ)  →⟨ proj₁ ∘→ proj₂ ∘→ S.Level-literal-supᵘₗ→ ⟩
-      Level-literal (⌜ l₁ ⌝ γ)                   →⟨ Not-level-literal→¬Level-literal nl ⟩
-      ⊥                                          □
-    (supᵘₗʳ {l₂} {l₁} nl) →
-      Level-literal (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ)  →⟨ proj₂ ∘→ proj₂ ∘→ S.Level-literal-supᵘₗ→ ⟩
-      Level-literal (⌜ l₂ ⌝ γ)                   →⟨ Not-level-literal→¬Level-literal nl ⟩
-      ⊥                                          □
+    (1ᵘ+ {l} nl) →
+      Level-literal (U.1ᵘ+ (⌜ l ⌝ γ))  ⇔⟨ Level-literal-1ᵘ+-⇔ ⟩→
+      Level-literal (⌜ l ⌝ γ)          →⟨ Not-level-literal→¬Level-literal nl ⟩
+      ⊥                                □
+    (supᵘₗˡ {l₁} {l₂} nl nω) →
+      Level-literal (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ)     ⇔⟨ S.Level-literal-supᵘₗ-⇔′ ⟩→
+
+      Infinite (⌜ l₁ ⌝ γ) ⊎ Infinite (⌜ l₂ ⌝ γ) ⊎
+      ¬ Level-allowed × Level-literal (⌜ l₁ ⌝ γ) ×
+      Level-literal (⌜ l₂ ⌝ γ)                      →⟨ (λ where
+                                                          (inj₁ inf₁) →
+                                                            Infinite→Level-literal inf₁
+                                                          (inj₂ (inj₁ inf₂)) →
+                                                            ⊥-elim (Not-infinite→¬Infinite nω inf₂)
+                                                          (inj₂ (inj₂ (_ , lit , _))) →
+                                                            lit) ⟩
+
+      Level-literal (⌜ l₁ ⌝ γ)                      →⟨ Not-level-literal→¬Level-literal nl ⟩
+
+      ⊥                                             □
+    (supᵘₗʳ {l₁} {l₂} nω nl) →
+      Level-literal (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ)     ⇔⟨ S.Level-literal-supᵘₗ-⇔′ ⟩→
+
+      Infinite (⌜ l₁ ⌝ γ) ⊎ Infinite (⌜ l₂ ⌝ γ) ⊎
+      ¬ Level-allowed × Level-literal (⌜ l₁ ⌝ γ) ×
+      Level-literal (⌜ l₂ ⌝ γ)                      →⟨ (λ where
+                                                          (inj₁ inf₁) →
+                                                            ⊥-elim (Not-infinite→¬Infinite nω inf₁)
+                                                          (inj₂ (inj₁ inf₂)) →
+                                                            Infinite→Level-literal inf₂
+                                                          (inj₂ (inj₂ (_ , _ , lit))) →
+                                                            lit) ⟩
+
+      Level-literal (⌜ l₂ ⌝ γ)                      →⟨ Not-level-literal→¬Level-literal nl ⟩
+
+      ⊥                                             □
+    (level {t} nl) →
+      Level-literal (U.level (⌜ t ⌝ γ))  ⇔⟨ Level-literal-level-⇔ ⟩→
+      Level-literal (⌜ t ⌝ γ)            →⟨ Not-level-literal→¬Level-literal nl ⟩
+      ⊥                                  □
 
     var      ()
     defn     ()
@@ -449,15 +549,15 @@ opaque mutual
   -- t U.[ ⌜ σ ⌝ˢ γ ] is.
 
   Literal-free→⇔Level-literal-[⌜⌝ˢ] :
-    ∀ {t} →
+    {t : U.Term[ k ] n} →
     Literal-free σ →
     Level-literal t ⇔ Level-literal (t U.[ ⌜ σ ⌝ˢ γ ])
-  Literal-free→⇔Level-literal-[⌜⌝ˢ] {σ} {γ} lf =
+  Literal-free→⇔Level-literal-[⌜⌝ˢ] {n} {σ} {γ} lf =
     Level-literal-[] , lemma _ lf
     where
     lemma :
-      ∀ t → Literal-free σ → Level-literal (t U.[ ⌜ σ ⌝ˢ γ ]) →
-      Level-literal t
+      (t : U.Term[ k ] n) → Literal-free σ →
+      Level-literal (t U.[ ⌜ σ ⌝ˢ γ ]) → Level-literal t
     lemma (U.var x) lf =
       Level-literal (⌜ σ ⌝ˢ γ x)  →⟨ Literal-free→¬Level-literal lf ⟩
       ⊥                           →⟨ ⊥-elim ⟩
@@ -470,6 +570,14 @@ opaque mutual
       Level-literal (l U.[ ⌜ σ ⌝ˢ γ ])           ⇔˘⟨ Literal-free→⇔Level-literal-[⌜⌝ˢ] lf ⟩→
       Level-literal l                            →⟨ U.sucᵘ ⟩
       Level-literal (U.sucᵘ l)                   □
+    lemma (U.ωᵘ+ m) _ =
+      Level-literal (U.ωᵘ+ m)  →⟨ (λ _ → U.ωᵘ+) ⟩
+      Level-literal (U.ωᵘ+ m)  □
+    lemma (U.level t) lf =
+      Level-literal (U.level (t U.[ ⌜ σ ⌝ˢ γ ]))  ⇔⟨ Level-literal-level-⇔ ⟩→
+      Level-literal (t U.[ ⌜ σ ⌝ˢ γ ])            ⇔˘⟨ Literal-free→⇔Level-literal-[⌜⌝ˢ] lf ⟩→
+      Level-literal t                             ⇔˘⟨ Level-literal-level-⇔ ⟩→
+      Level-literal (U.level t)                   □
 
     lemma (U.defn _)                _ ()
     lemma U.Level                   _ ()
@@ -510,6 +618,54 @@ opaque
   Literal-free-toSubst (step ρ) = wk1 (Literal-free-toSubst ρ)
   Literal-free-toSubst (lift ρ) = Literal-free-toSubst ρ ⇑
 
+-- Checks if Not-infinite l holds.
+
+not-infinite? : (l : Term[ c , k ] n) → Check c Bool
+not-infinite? {k = tm} _ =
+  return true
+not-infinite? (weaken _ l) =
+  not-infinite? l
+not-infinite? (subst l _) =
+  not-infinite? l
+not-infinite? (1ᵘ+ l) =
+  not-infinite? l
+not-infinite? (l₁ supᵘₗ l₂) =
+  and (not-infinite? l₁) (not-infinite? l₂)
+not-infinite? (level _) =
+  return true
+not-infinite? _ =
+  return false
+
+opaque
+
+  -- The function not-infinite? is sound.
+
+  not-infinite?-sound :
+    {l : Term[ c , k ] n} →
+    OK (not-infinite? l) true γ st →
+    Not-infinite l
+  not-infinite?-sound {k = tm} ok! =
+    term
+  not-infinite?-sound {k = lvl} eq =
+    level (not-infinite?-sound′ eq)
+    where
+    not-infinite?-sound′ :
+      OK (not-infinite? l) true γ st →
+      Not-infinite-level l
+    not-infinite?-sound′ {l = meta-var _ _} not-ok
+    not-infinite?-sound′ {l = weaken _ _}   eq     =
+      weaken (not-infinite?-sound′ eq)
+    not-infinite?-sound′ {l = subst _ _} eq =
+      subst (not-infinite?-sound′ eq)
+    not-infinite?-sound′ {l = 1ᵘ+ _} eq =
+      1ᵘ+ (not-infinite?-sound′ eq)
+    not-infinite?-sound′ {l = _ supᵘₗ _} eq =
+      let eq₁ , eq₂ = inv-and eq in
+      sup (not-infinite?-sound′ eq₁) (not-infinite?-sound′ eq₂)
+    not-infinite?-sound′ {l = ωᵘ+ _}   not-ok
+    not-infinite?-sound′ {l = level _} ok!    =
+      level
+
 mutual
 
   -- Checks if Literal-iff t σ holds.
@@ -524,7 +680,7 @@ mutual
   -- how the code computes at compile-time.
 
   literal-iff? :
-    Fuel → (t : Term c n₁) (σ : Subst c n₂ n₁) → Bool →
+    Fuel → (t : Term[ c , k ] n₁) (σ : Subst c n₂ n₁) → Bool →
     Check c Bool
   literal-iff? n (meta-var _ σ₁) σ₂ true =
     literal-free? n (σ₂ ₛ•ₛ σ₁)
@@ -538,14 +694,16 @@ mutual
     or (literal-iff? n t (σ₂ ₛ•ₛ σ₁) false) (literal-free? n σ₂)
   literal-iff? n (var x) σ _ =
     not-level-literal? n (x [ σ ]ᵛ)
-  literal-iff? n (sucᵘ l) σ already-checked =
+  literal-iff? n (1ᵘ+ l) σ already-checked =
     literal-iff? n l σ already-checked
+  literal-iff? n (level t) σ already-checked =
+    literal-iff? n t σ already-checked
   literal-iff? _ _ _ _ =
     return true
 
   -- Checks if Not-level-literal t holds.
 
-  not-level-literal? : Fuel → (t : Term c n) → Check c Bool
+  not-level-literal? : Fuel → (t : Term[ c , k ] n) → Check c Bool
   not-level-literal? _ (meta-var _ _) =
     return false
   not-level-literal? n (weaken _ t) =
@@ -556,10 +714,15 @@ mutual
     and (literal-iff? n t σ false) (not-level-literal? n t)
   not-level-literal? _ zeroᵘ =
     return false
-  not-level-literal? n (sucᵘ l) =
+  not-level-literal? n (1ᵘ+ l) =
     not-level-literal? n l
   not-level-literal? n (l₁ supᵘₗ l₂) =
-    or (not-level-literal? n l₁) (not-level-literal? n l₂)
+    or (and (not-infinite? l₂) (not-level-literal? n l₁))
+      (and (not-infinite? l₁) (not-level-literal? n l₂))
+  not-level-literal? _ (ωᵘ+ _) =
+    return false
+  not-level-literal? n (level t) =
+    not-level-literal? n t
   not-level-literal? _ _ =
     return true
 
@@ -594,12 +757,15 @@ opaque mutual
   … | inj₂ eq = literal-free (literal-free?-sound eq)
   literal-iff?-sound {t = var _} eq =
     var (not-level-literal?-sound eq)
-  literal-iff?-sound {t = sucᵘ _} eq =
-    sucᵘ (literal-iff?-sound eq)
+  literal-iff?-sound {t = 1ᵘ+ _} eq =
+    1ᵘ+ (literal-iff?-sound eq)
+  literal-iff?-sound {t = level _} eq =
+    level (literal-iff?-sound eq)
   literal-iff?-sound {t = defn _}                _ = defn
   literal-iff?-sound {t = Level}                 _ = Level
   literal-iff?-sound {t = zeroᵘ}                 _ = zeroᵘ
   literal-iff?-sound {t = _ supᵘₗ _}             _ = sup
+  literal-iff?-sound {t = ωᵘ+ _}                 _ = ωᵘ+
   literal-iff?-sound {t = Lift _ _}              _ = Lift
   literal-iff?-sound {t = lift _ _}              _ = lift
   literal-iff?-sound {t = lower _}               _ = lower
@@ -639,11 +805,18 @@ opaque mutual
     let eq₁ , eq₂ = inv-and eq in
     subst (literal-iff?-sound eq₁) (not-level-literal?-sound eq₂)
   not-level-literal?-sound {t = zeroᵘ}  not-ok
-  not-level-literal?-sound {t = sucᵘ _} eq     =
-    sucᵘ (not-level-literal?-sound eq)
+  not-level-literal?-sound {t = 1ᵘ+ _} eq     =
+    1ᵘ+ (not-level-literal?-sound eq)
   not-level-literal?-sound {t = _ supᵘₗ _} eq with inv-or eq
-  … | inj₁ eq = supᵘₗˡ (not-level-literal?-sound eq)
-  … | inj₂ eq = supᵘₗʳ (not-level-literal?-sound eq)
+  … | inj₁ eq =
+    let eq₁ , eq₂ = inv-and eq in
+    supᵘₗˡ (not-level-literal?-sound eq₂) (not-infinite?-sound eq₁)
+  … | inj₂ eq =
+    let eq₁ , eq₂ = inv-and eq in
+    supᵘₗʳ (not-infinite?-sound eq₁) (not-level-literal?-sound eq₂)
+  not-level-literal?-sound {t = ωᵘ+ _}   not-ok
+  not-level-literal?-sound {t = level _} eq     =
+    level (not-level-literal?-sound eq)
   not-level-literal?-sound {t = var _}                 _ = var
   not-level-literal?-sound {t = defn _}                _ = defn
   not-level-literal?-sound {t = Level}                 _ = Level
@@ -688,56 +861,58 @@ opaque mutual
 ------------------------------------------------------------------------
 -- Not-supᵘₗ
 
--- The term is not an application of _supᵘₗ_.
+-- The level is not an application of _supᵘₗ_.
 
-Not-supᵘₗ : Term c n → Set a
-Not-supᵘₗ t = ¬ (∃₂ λ l₁ l₂ → t PE.≡ l₁ supᵘₗ l₂)
+Not-supᵘₗ : Term[ c , k ] n → Set a
+Not-supᵘₗ l = ¬ (∃₂ λ l₁ l₂ → l PE.≡ l₁ supᵘₗ l₂)
 
 opaque
 
-  -- If t [ σ ] is not an application of _supᵘₗ_, then the same
-  -- applies to t.
+  -- If l [ σ ] is not an application of _supᵘₗ_, then the same
+  -- applies to l.
 
-  Not-supᵘₗ-[]→ : Not-supᵘₗ (t [ σ ]) → Not-supᵘₗ t
-  Not-supᵘₗ-[]→ {t = _ supᵘₗ _} hyp _ =
+  Not-supᵘₗ-[]→ : Not-supᵘₗ (l [ σ ]) → Not-supᵘₗ l
+  Not-supᵘₗ-[]→ {l = _ supᵘₗ _} hyp _ =
     hyp (_ , _ , PE.refl)
-  Not-supᵘₗ-[]→ {t = meta-var _ _}          _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = weaken _ _}            _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = subst _ _}             _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = var _}                 _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = defn _}                _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = Level}                 _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = zeroᵘ}                 _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = sucᵘ _}                _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = U _}                   _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = Lift _ _}              _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = lift _ _}              _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = lower _}               _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = Empty}                 _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = emptyrec _ _ _}        _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = Unit _}                _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = star _}                _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = unitrec _ _ _ _ _}     _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = lam _ _ _}             _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = _ ∘⟨ _ ⟩ _}            _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = prod _ _ _ _ _}        _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = fst _ _}               _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = snd _ _}               _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = prodrec _ _ _ _ _ _}   _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = ℕ}                     _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = zero}                  _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = suc _}                 _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = natrec _ _ _ _ _ _ _}  _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = Id _ _ _}              _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = rfl _}                 _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = J _ _ _ _ _ _ _ _}     _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = K _ _ _ _ _ _}         _ (_ , _ , ())
-  Not-supᵘₗ-[]→ {t = []-cong _ _ _ _ _ _}   _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = meta-var _ _}          _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = weaken _ _}            _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = subst _ _}             _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = var _}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = defn _}                _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = Level}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = zeroᵘ}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = 1ᵘ+ _}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = ωᵘ+ _}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = level _}               _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = U _}                   _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = Lift _ _}              _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = lift _ _}              _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = lower _}               _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = Empty}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = emptyrec _ _ _}        _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = Unit _}                _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = star _}                _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = unitrec _ _ _ _ _}     _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = lam _ _ _}             _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = _ ∘⟨ _ ⟩ _}            _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = prod _ _ _ _ _}        _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = fst _ _}               _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = snd _ _}               _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = prodrec _ _ _ _ _ _}   _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = ℕ}                     _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = zero}                  _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = suc _}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = natrec _ _ _ _ _ _ _}  _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = Id _ _ _}              _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = rfl _}                 _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = J _ _ _ _ _ _ _ _}     _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = K _ _ _ _ _ _}         _ (_ , _ , ())
+  Not-supᵘₗ-[]→ {l = []-cong _ _ _ _ _ _}   _ (_ , _ , ())
 
--- One can decide if a term is an application of _supᵘₗ_.
+-- One can decide if a level is an application of _supᵘₗ_.
 
-supᵘₗ? : (t : Term c n) → Dec (∃₂ λ l₁ l₂ → t PE.≡ l₁ supᵘₗ l₂)
+supᵘₗ? : (l : Term[ c , k ] n) → Dec (∃₂ λ l₁ l₂ → l PE.≡ l₁ supᵘₗ l₂)
 supᵘₗ? (meta-var _ _)          = no (λ ())
 supᵘₗ? (weaken _ _)            = no (λ ())
 supᵘₗ? (subst _ _)             = no (λ ())
@@ -745,8 +920,10 @@ supᵘₗ? (var _)                 = no (λ ())
 supᵘₗ? (defn _)                = no (λ ())
 supᵘₗ? Level                   = no (λ ())
 supᵘₗ? zeroᵘ                   = no (λ ())
-supᵘₗ? (sucᵘ _)                = no (λ ())
+supᵘₗ? (1ᵘ+ _)                 = no (λ ())
 supᵘₗ? (_ supᵘₗ _)             = yes (_ , _ , PE.refl)
+supᵘₗ? (ωᵘ+ _)                 = no (λ ())
+supᵘₗ? (level _)               = no (λ ())
 supᵘₗ? (U _)                   = no (λ ())
 supᵘₗ? (Lift _ _)              = no (λ ())
 supᵘₗ? (lift _ _)              = no (λ ())
@@ -778,23 +955,23 @@ supᵘₗ? ([]-cong _ _ _ _ _ _)   = no (λ ())
 
 -- The term is an application of weaken or subst.
 
-data Is-weaken-subst {c : Constants} {n} :
-       Term c n → Set a where
+data Is-weaken-subst {c : Constants} {k n} :
+       Term[ c , k ] n → Set a where
   weaken : ∀ (ρ : Wk n n′) t → Is-weaken-subst (weaken ρ t)
   subst  : ∀ t (σ : Subst c n n′) → Is-weaken-subst (subst t σ)
 
 opaque
 
-  -- If a term is an application of weaken or subst, then it is not an
-  -- application of _supᵘₗ_.
+  -- If a level is an application of weaken or subst, then it is not
+  -- an application of _supᵘₗ_.
 
-  Is-weaken-subst→Not-supᵘₗ : Is-weaken-subst t → Not-supᵘₗ t
+  Is-weaken-subst→Not-supᵘₗ : Is-weaken-subst l → Not-supᵘₗ l
   Is-weaken-subst→Not-supᵘₗ (weaken _ _) (_ , _ , ())
   Is-weaken-subst→Not-supᵘₗ (subst _ _)  (_ , _ , ())
 
 -- Is the term an application of weaken or subst?
 
-is-weaken-subst? : (t : Term c n) → Dec (Is-weaken-subst t)
+is-weaken-subst? : (t : Term[ c , k ] n) → Dec (Is-weaken-subst t)
 is-weaken-subst? (weaken _ _)            = yes (weaken _ _)
 is-weaken-subst? (subst _ _)             = yes (subst _ _)
 is-weaken-subst? (meta-var _ _)          = no (λ ())
@@ -802,8 +979,10 @@ is-weaken-subst? (var _)                 = no (λ ())
 is-weaken-subst? (defn _)                = no (λ ())
 is-weaken-subst? Level                   = no (λ ())
 is-weaken-subst? zeroᵘ                   = no (λ ())
-is-weaken-subst? (sucᵘ _)                = no (λ ())
+is-weaken-subst? (1ᵘ+ _)                 = no (λ ())
 is-weaken-subst? (_ supᵘₗ _)             = no (λ ())
+is-weaken-subst? (ωᵘ+ _)                 = no (λ ())
+is-weaken-subst? (level _)               = no (λ ())
 is-weaken-subst? (U _)                   = no (λ ())
 is-weaken-subst? (Lift _ _)              = no (λ ())
 is-weaken-subst? (lift _ _)              = no (λ ())
@@ -836,47 +1015,59 @@ is-weaken-subst? ([]-cong _ _ _ _ _ _)   = no (λ ())
 -- A type used to state ⌜[]⌝.
 
 data ⌜[]⌝-assumption
-       (t : Term c n₁) (σ : Subst c n₂ n₁) (γ : Contexts c) :
-       Set a where
-  literal-free : Literal-free σ → ⌜[]⌝-assumption t σ γ
+       (σ : Subst c n₂ n₁) (γ : Contexts c) :
+       Term[ c , k ] n₁ → Set a where
+  literal-free : Literal-free σ → ⌜[]⌝-assumption σ γ t
 
   literal-iff :
-    Literal-iff l₁ σ → Literal-iff l₂ σ → t PE.≡ l₁ supᵘₗ l₂ →
-    ⌜[]⌝-assumption t σ γ
+    Literal-iff l₁ σ → Literal-iff l₂ σ →
+    ⌜[]⌝-assumption σ γ (l₁ supᵘₗ l₂)
 
-  not-supᵘₗ : Not-supᵘₗ t → ⌜[]⌝-assumption t σ γ
+  not-supᵘₗ : Not-supᵘₗ l → ⌜[]⌝-assumption σ γ l
 
-  level-allowed : Level-allowed → ⌜[]⌝-assumption t σ γ
+  level-allowed : Level-allowed → ⌜[]⌝-assumption σ γ t
 
-  type₁ : Γ ⊢ ⌜ t [ σ ] ⌝ γ                 → ⌜[]⌝-assumption t σ γ
-  type₂ : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]        → ⌜[]⌝-assumption t σ γ
-  level : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ] ∷Level → ⌜[]⌝-assumption t σ γ
-  term₁ : Γ ⊢ ⌜ t [ σ ] ⌝ γ          ∷ A′   → ⌜[]⌝-assumption t σ γ
-  term₂ : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ] ∷ A′   → ⌜[]⌝-assumption t σ γ
+  type₁ : Γ ⊢ ⌜ t [ σ ] ⌝ γ               → ⌜[]⌝-assumption σ γ t
+  type₂ : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]      → ⌜[]⌝-assumption σ γ t
+  term₁ : Γ ⊢ ⌜ t [ σ ] ⌝ γ          ∷ A′ → ⌜[]⌝-assumption σ γ t
+  term₂ : Γ ⊢ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ] ∷ A′ → ⌜[]⌝-assumption σ γ t
+
+  level :
+    {l : Term[ c , k ] n₁} →
+    Γ ⊢ ⌜ Term[]→Lvl l ⌝ γ U.[ ⌜ σ ⌝ˢ γ ] ∷Level → ⌜[]⌝-assumption σ γ l
 
 opaque
-  unfolding U.size-of-Level
+  unfolding U.size-of-Level U.↓ᵘ_
 
   -- If Level is not allowed, then translation does not necessarily
   -- commute with _[_]/U._[_].
 
   ¬⌜[]⌝ :
     ¬ Level-allowed →
-    let t = var {n = 1+ n} x0 supᵘₗ var x0
+    let l = level (var {n = 1+ n} x0) supᵘₗ level (var x0)
         σ = sgSubst zeroᵘ
     in
-    ¬ ⌜ t [ σ ] ⌝ γ PE.≡ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
+    ¬ ⌜ l [ σ ] ⌝ γ PE.≡ ⌜ l ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
   ¬⌜[]⌝ {γ} not-okᴸ hyp =
     case
-      U.zeroᵘ                                               ≡˘⟨ supᵘₗ′≡↓ᵘ⊔ U.zeroᵘ U.zeroᵘ ⟩
-      U.zeroᵘ U.supᵘₗ′ U.zeroᵘ                              ≡˘⟨ S.supᵘₗ≡supᵘₗ′ not-okᴸ ⟩
-      U.zeroᵘ S.supᵘₗ U.zeroᵘ                               ≡⟨⟩
-      ⌜ var x0 supᵘₗ var x0 [ sgSubst zeroᵘ ] ⌝ γ           ≡⟨ hyp ⟩
-      ⌜ var x0 supᵘₗ var x0 ⌝ γ U.[ ⌜ sgSubst zeroᵘ ⌝ˢ γ ]  ≡⟨⟩
-      (U.var x0 S.supᵘₗ U.var x0) U.[ U.zeroᵘ ]₀            ≡⟨ PE.cong U._[ _ ]₀ (S.supᵘₗ≡supᵘₗ′ not-okᴸ) ⟩
-      (U.var x0 U.supᵘₗ′ U.var x0) U.[ U.zeroᵘ ]₀           ≡⟨ PE.cong U._[ _ ]₀ (supᵘₗ′≡supᵘ (λ { (() , _) })) ⟩
-      (U.var x0 U.supᵘ U.var x0) U.[ U.zeroᵘ ]₀             ≡⟨⟩
-      U.zeroᵘ U.supᵘ U.zeroᵘ                                ∎
+      U.zeroᵘₗ                                                        ≡˘⟨ PE.cong U.level (supᵘₗ′≡↓ᵘ⊔ U.zeroᵘ U.zeroᵘ) ⟩
+
+      U.level (U.zeroᵘ U.supᵘₗ′ U.zeroᵘ)                              ≡˘⟨ S.supᵘₗ≡supᵘₗ′ not-okᴸ ⟩
+
+      U.zeroᵘₗ S.supᵘₗ U.zeroᵘₗ                                       ≡⟨⟩
+
+      ⌜ level (var x0) supᵘₗ level (var x0) [ sgSubst zeroᵘ ] ⌝ γ     ≡⟨ hyp ⟩
+
+      ⌜ level (var x0) supᵘₗ level (var x0) ⌝ γ
+        U.[ ⌜ sgSubst zeroᵘ ⌝ˢ γ ]                                    ≡⟨⟩
+
+      (U.level (U.var x0) S.supᵘₗ U.level (U.var x0)) U.[ U.zeroᵘ ]₀  ≡⟨ PE.cong U._[ _ ]₀ (S.supᵘₗ≡supᵘₗ′ not-okᴸ) ⟩
+
+      U.level (U.var x0 U.supᵘₗ′ U.var x0) U.[ U.zeroᵘ ]₀             ≡⟨ PE.cong (U._[ U.zeroᵘ ]₀ ∘→ U.level) (supᵘₗ′≡supᵘ (λ { (() , _) })) ⟩
+
+      U.level (U.var x0 U.supᵘ U.var x0) U.[ U.zeroᵘ ]₀               ≡⟨⟩
+
+      U.level (U.zeroᵘ U.supᵘ U.zeroᵘ)                                ∎
     of λ ()
 
 opaque
@@ -885,8 +1076,8 @@ opaque
   -- assumption.
 
   ⌜[]⌝ :
-    (t : Term c n) →
-    ⌜[]⌝-assumption t σ γ →
+    (t : Term[ c , k ] n) →
+    ⌜[]⌝-assumption σ γ t →
     ⌜ t [ σ ] ⌝ γ PE.≡ ⌜ t ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
   ⌜[]⌝ {σ} {γ} (meta-var x σ′) _ =
     ⌜ meta-var x (σ ₛ•ₛ σ′) ⌝ γ              ≡⟨ ⌜meta-var⌝ (σ ₛ•ₛ _) ⟩
@@ -910,8 +1101,9 @@ opaque
     PE.refl
   ⌜[]⌝ zeroᵘ _ =
     PE.refl
-  ⌜[]⌝ (sucᵘ _) _ =
-    PE.refl
+  ⌜[]⌝ {σ} {γ} (1ᵘ+ l) _ =
+    U.1ᵘ+ (⌜ l ⌝ γ U.[ ⌜ σ ⌝ˢ γ ])  ≡˘⟨ 1ᵘ+-[] (⌜ l ⌝ _) ⟩
+    U.1ᵘ+ (⌜ l ⌝ γ) U.[ ⌜ σ ⌝ˢ γ ]  ∎
   ⌜[]⌝ {σ} {γ} (l₁ supᵘₗ l₂) hyp =
     case hyp of λ where
       (literal-free lf) →
@@ -922,7 +1114,7 @@ opaque
                                                                  Literal-free→⇔Level-literal-[⌜⌝ˢ] lf ⟩→
 
         Level-literal (⌜ l₁ ⌝ γ) × Level-literal (⌜ l₂ ⌝ γ)  □
-      (literal-iff iff₁ iff₂ PE.refl) →
+      (literal-iff iff₁ iff₂) →
         PE.sym $ S.supᵘₗ-[]′ λ _ →
         Level-literal (⌜ subst l₁ σ ⌝ γ) ×
         Level-literal (⌜ subst l₂ σ ⌝ γ)                     ⇔˘⟨ Literal-iff→⇔Level-literal-⌜subst⌝ iff₁
@@ -933,10 +1125,10 @@ opaque
       (not-supᵘₗ not-sup) →
         ⊥-elim (not-sup (_ , _ , PE.refl))
       (level-allowed okᴸ) →
-        lemma′ okᴸ
+        lemma₁ okᴸ
       (type₁ ⊢⊔) →
         let _ , _ , _ , ≡Level = inversion-supᵘₗ-⊢ ⊢⊔ in
-        lemma ≡Level
+        lemma₂ ≡Level
       (type₂ ⊢⊔) →
         case S.supᵘₗ≡ (⌜ l₁ ⌝ γ) (⌜ l₂ ⌝ γ) of λ where
           (inj₁ (n , eq)) →
@@ -945,24 +1137,16 @@ opaque
                   PE.subst (_⊢_ _)
                     (PE.trans (PE.cong U._[ _ ] eq) ↓ᵘ-[]) ⊢⊔
             in
-            lemma ≡Level
+            lemma₂ ≡Level
           (inj₂ eq) →
             let _ , _ , _ , ≡Level =
                   inversion-supᵘ-⊢ $
                   PE.subst (_⊢_ _) (PE.cong U._[ _ ] eq) ⊢⊔
             in
-            lemma ≡Level
-      (level (term okᴸ _)) →
-        lemma′ okᴸ
-      (level (literal _ _ ⊔-lit)) →
-        PE.sym $ S.supᵘₗ-[]′ λ not-okᴸ _ →
-          (                                                     $⟨ ⊔-lit ⟩
-           Level-literal (⌜ subst (l₁ supᵘₗ l₂) σ ⌝ γ)          →⟨ S.Level-literal-supᵘₗ-[] ⟩
-           Level-literal (⌜ l₁ supᵘₗ l₂ ⌝ γ)                    ⇔⟨ S.Level-literal-supᵘₗ⇔ not-okᴸ ⟩→
-           Level-literal (⌜ l₁ ⌝ γ) × Level-literal (⌜ l₂ ⌝ γ)  □)
+            lemma₂ ≡Level
       (term₁ ⊢⊔) →
         let _ , _ , ≡Level = inversion-supᵘₗ-⊢∷ ⊢⊔ in
-        lemma ≡Level
+        lemma₂ ≡Level
       (term₂ ⊢⊔) →
         case S.supᵘₗ≡ (⌜ l₁ ⌝ γ) (⌜ l₂ ⌝ γ) of λ where
           (inj₁ (n , eq)) →
@@ -971,25 +1155,66 @@ opaque
                   PE.subst (flip (_⊢_∷_ _) _)
                     (PE.trans (PE.cong U._[ _ ] eq) ↓ᵘ-[]) ⊢⊔
             in
-            lemma ≡Level
+            lemma₂ ≡Level
           (inj₂ eq) →
             let _ , _ , ≡Level =
                   inversion-supᵘ $
                   PE.subst (flip (_⊢_∷_ _) _) (PE.cong U._[ _ ] eq) ⊢⊔
             in
-            lemma ≡Level
+            lemma₂ ≡Level
+      (level {k = tm} ⊢sup[]) →
+        lemma₃ ⊢sup[]
+      (level {k = lvl} ⊢sup[]) →
+        lemma₄ ⊢sup[]
     where
-    lemma′ :
+    lemma₁ :
+      {l₁ l₂ : U.Term[ k ] _} →
       Level-allowed →
-      (⌜ l₁ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) PE.≡
-      ⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
-    lemma′ okᴸ = PE.sym (S.supᵘₗ-[]′ (⊥-elim ∘→ (_$ okᴸ)))
+      (l₁ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (l₂ U.[ ⌜ σ ⌝ˢ γ ]) PE.≡
+      l₁ S.supᵘₗ l₂ U.[ ⌜ σ ⌝ˢ γ ]
+    lemma₁ okᴸ = PE.sym (S.supᵘₗ-[]′ (⊥-elim ∘→ (_$ okᴸ)))
 
-    lemma :
+    lemma₂ :
       Γ ⊢ A′ ≡ U.Level →
       (⌜ l₁ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) PE.≡
       ⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
-    lemma ≡Level = lemma′ (inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂))
+    lemma₂ ≡Level = lemma₁ (inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂))
+
+    lemma₃ :
+      {t₁ t₂ : U.Term _} →
+      Γ ⊢ U.level (t₁ S.supᵘₗ t₂ U.[ ⌜ σ ⌝ˢ γ ]) ∷Level →
+      (t₁ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (t₂ U.[ ⌜ σ ⌝ˢ γ ]) PE.≡
+      t₁ S.supᵘₗ t₂ U.[ ⌜ σ ⌝ˢ γ ]
+    lemma₃ (term okᴸ _) =
+      lemma₁ okᴸ
+    lemma₃ {t₁} {t₂} (literal ⊔-ok _) =
+      PE.sym $ S.supᵘₗ-[]′ λ _ _ →
+                                                              $⟨ Allowed-literal→Level-literal ⊔-ok ⟩
+      Level-literal (U.level (t₁ S.supᵘₗ t₂ U.[ ⌜ σ ⌝ˢ γ ]))  ⇔⟨ Level-literal-level-⇔ ⟩→
+      Level-literal (t₁ S.supᵘₗ t₂ U.[ ⌜ σ ⌝ˢ γ ])            →⟨ S.Level-literal-supᵘₗ-[]₁ ⟩
+      Level-literal (t₁ S.supᵘₗ t₂)                           →⟨ proj₂ ∘→ S.Level-literal-supᵘₗ-→-tm ⟩
+      Level-literal t₁ × Level-literal t₂                     □
+
+    opaque
+      unfolding S._supᵘₗ_
+
+      lemma₄ :
+        {l₁ l₂ : U.Lvl _} →
+        Γ ⊢ l₁ S.supᵘₗ l₂ U.[ ⌜ σ ⌝ˢ γ ] ∷Level →
+        (l₁ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (l₂ U.[ ⌜ σ ⌝ˢ γ ]) PE.≡
+        l₁ S.supᵘₗ l₂ U.[ ⌜ σ ⌝ˢ γ ]
+      lemma₄ {l₁ = U.ωᵘ+ _} {l₂ = U.ωᵘ+ _} _ =
+        PE.refl
+      lemma₄ {l₁ = U.ωᵘ+ _} {l₂ = U.level _} _ =
+        PE.refl
+      lemma₄ {l₁ = U.level _} {l₂ = U.ωᵘ+ _} _ =
+        PE.refl
+      lemma₄ {l₁ = U.level _} {l₂ = U.level _} ⊢sup[] =
+        PE.cong U.level (lemma₃ ⊢sup[])
+  ⌜[]⌝ (ωᵘ+ _) _ =
+    PE.refl
+  ⌜[]⌝ (level _) _ =
+    PE.refl
   ⌜[]⌝ (U _) _ =
     PE.refl
   ⌜[]⌝ (Lift _ _) _ =
@@ -1041,10 +1266,10 @@ opaque
   ⌜[]⌝ ([]-cong _ _ _ _ _ _) _ =
     PE.refl
 
--- A partial check of if ⌜[]⌝-assumption t σ γ holds for all γ.
+-- A partial check of if ⌜[]⌝-assumption σ γ t holds for all γ.
 
 ⌜[]⌝-assumption? :
-  Fuel → (t : Term c n₁) (σ : Subst c n₂ n₁) → Check c Bool
+  Fuel → (t : Term[ c , k ] n₁) (σ : Subst c n₂ n₁) → Check c Bool
 ⌜[]⌝-assumption? n t σ with supᵘₗ? t
 … | no _              = return true
 … | yes (l₁ , l₂ , _) =
@@ -1056,16 +1281,16 @@ opaque
   -- The function ⌜[]⌝-assumption? is sound.
 
   ⌜[]⌝-assumption?-sound :
+    {t : Term[ c , k ] n₁} →
     OK (⌜[]⌝-assumption? n t σ) true γ st →
-    ⌜[]⌝-assumption t σ γ′
+    ⌜[]⌝-assumption σ γ′ t
   ⌜[]⌝-assumption?-sound {t} eq with supᵘₗ? t
-  … | no not                 = not-supᵘₗ not
-  … | yes (l₁ , l₂ , ≡supᵘₗ) with inv-or eq
+  … | no not                = not-supᵘₗ not
+  … | yes (_ , _ , PE.refl) with inv-or eq
   … | inj₁ eq = literal-free (literal-free?-sound eq)
   … | inj₂ eq =
       let eq₁ , eq₂ = inv-and eq in
       literal-iff (literal-iff?-sound eq₁) (literal-iff?-sound eq₂)
-        ≡supᵘₗ
 
 ------------------------------------------------------------------------
 -- Removing weaken and subst
@@ -1073,7 +1298,7 @@ opaque
 -- Removes top-level weaken and subst constructors.
 
 remove-weaken-subst′ :
-  Term c n → ∃ λ n′ → Subst c n n′ × Term c n′
+  Term[ c , k ] n → ∃ λ n′ → Subst c n n′ × Term[ c , k ] n′
 remove-weaken-subst′ t with is-weaken-subst? t
 remove-weaken-subst′ t | no _             = _ , id , t
 remove-weaken-subst′ _ | yes (weaken ρ t) with remove-weaken-subst′ t
@@ -1086,7 +1311,7 @@ opaque
   -- The function remove-weaken-subst′ is correctly implemented.
 
   remove-weaken-subst′-correct :
-    (t : Term c n) →
+    (t : Term[ c , k ] n) →
     let n , σ , u = remove-weaken-subst′ t in
     ¬ Is-weaken-subst u ×
     ⌜ t ⌝ γ PE.≡ ⌜ subst u σ ⌝ γ
@@ -1117,19 +1342,23 @@ opaque
 -- A type used to state remove-weaken-subst.
 
 data Remove-weaken-subst-assumption
-       (t u : Term c n) (b : Bool) (γ : Contexts c) : Set a where
+       (b : Bool) (γ : Contexts c) :
+       (_ _ : Term[ c , k ] n) → Set a where
   literal-free-or-iff :
-    b PE.≡ true → Remove-weaken-subst-assumption t u b γ
+    b PE.≡ true → Remove-weaken-subst-assumption b γ t u
 
-  not-supᵘₗ : Not-supᵘₗ u → Remove-weaken-subst-assumption t u b γ
+  not-supᵘₗ : Not-supᵘₗ u → Remove-weaken-subst-assumption b γ t u
 
-  level-allowed : Level-allowed → Remove-weaken-subst-assumption t u b γ
+  level-allowed : Level-allowed → Remove-weaken-subst-assumption b γ t u
 
-  type₁ : Γ ⊢ ⌜ t ⌝ γ        → Remove-weaken-subst-assumption t u b γ
-  type₂ : Γ ⊢ ⌜ u ⌝ γ        → Remove-weaken-subst-assumption t u b γ
-  level : Γ ⊢ ⌜ t ⌝ γ ∷Level → Remove-weaken-subst-assumption t u b γ
-  term₁ : Γ ⊢ ⌜ t ⌝ γ ∷ A′   → Remove-weaken-subst-assumption t u b γ
-  term₂ : Γ ⊢ ⌜ u ⌝ γ ∷ A′   → Remove-weaken-subst-assumption t u b γ
+  type₁ : Γ ⊢ ⌜ t ⌝ γ      → Remove-weaken-subst-assumption b γ t u
+  type₂ : Γ ⊢ ⌜ u ⌝ γ      → Remove-weaken-subst-assumption b γ t u
+  term₁ : Γ ⊢ ⌜ t ⌝ γ ∷ A′ → Remove-weaken-subst-assumption b γ t u
+  term₂ : Γ ⊢ ⌜ u ⌝ γ ∷ A′ → Remove-weaken-subst-assumption b γ t u
+
+  level :
+    Γ ⊢ ⌜ Term[]→Lvl l₁ ⌝ γ ∷Level →
+    Remove-weaken-subst-assumption b γ l₁ l₂
 
 opaque
 
@@ -1137,8 +1366,8 @@ opaque
 
   cast-Remove-weaken-subst-assumption :
     ⌜ t₁ ⌝ γ PE.≡ ⌜ t₂ ⌝ γ →
-    Remove-weaken-subst-assumption t₁ u b γ →
-    Remove-weaken-subst-assumption t₂ u b γ
+    Remove-weaken-subst-assumption b γ t₁ u →
+    Remove-weaken-subst-assumption b γ t₂ u
   cast-Remove-weaken-subst-assumption eq = λ where
     (literal-free-or-iff hyp) →
       literal-free-or-iff hyp
@@ -1150,12 +1379,12 @@ opaque
       type₁ (PE.subst (_⊢_ _) eq ⊢t)
     (type₂ ⊢u) →
       type₂ ⊢u
-    (level ⊢t) →
-      level (PE.subst (_⊢_∷Level _) eq ⊢t)
     (term₁ ⊢t) →
       term₁ (PE.subst (flip (_⊢_∷_ _) _) eq ⊢t)
     (term₂ ⊢u) →
       term₂ ⊢u
+    (level ⊢t) →
+      level (PE.subst (_⊢_∷Level _) (Term[]→Lvl-cong eq) ⊢t)
 
 -- Removes top-level weaken and subst constructors.
 --
@@ -1167,7 +1396,7 @@ opaque
 -- subst (var x0) (cons id (subst ℕ id))).
 
 remove-weaken-subst :
-  Fuel → Term c n → Bool → Check c (Term c n × Bool)
+  Fuel → Term[ c , k ] n → Bool → Check c (Term[ c , k ] n × Bool)
 remove-weaken-subst n t run-check with remove-weaken-subst′ t
 … | _ , σ , u = do
   b ← and (return run-check) (⌜[]⌝-assumption? n u σ)
@@ -1179,7 +1408,7 @@ opaque
 
   remove-weaken-subst-sound :
     OK (remove-weaken-subst n t b₁) (u , b₂) γ st →
-    Remove-weaken-subst-assumption t u b₂ γ′ →
+    Remove-weaken-subst-assumption b₂ γ′ t u →
     ⌜ t ⌝ γ′ PE.≡ ⌜ u ⌝ γ′
   remove-weaken-subst-sound {t} {γ′} eq hyp
     with remove-weaken-subst′ t
@@ -1192,7 +1421,7 @@ opaque
     ⌜ u ⌝ γ′ U.[ ⌜ σ ⌝ˢ γ′ ]  ≡˘⟨ ⌜[]⌝ _ ass ⟩
     ⌜ u [ σ ] ⌝ γ′            ∎
     where
-    ass : ⌜[]⌝-assumption u σ γ′
+    ass : ⌜[]⌝-assumption σ γ′ u
     ass = case hyp of λ where
       (literal-free-or-iff PE.refl) →
         let _ , eq = inv-and eq in
@@ -1205,12 +1434,17 @@ opaque
         type₂ (PE.subst (_⊢_ _) correct ⊢t)
       (type₂ ⊢u[σ]) →
         type₁ ⊢u[σ]
-      (level ⊢t) →
-        level (PE.subst (_⊢_∷Level _) correct ⊢t)
       (term₁ ⊢t) →
         term₂ (PE.subst (flip (_⊢_∷_ _) _) correct ⊢t)
       (term₂ ⊢u[σ]) →
         term₁ ⊢u[σ]
+      (level ⊢t) →
+        level $
+        PE.subst (_⊢_∷Level _)
+          (⌜ Term[]→Lvl t ⌝ γ′            ≡⟨ Term[]→Lvl-cong correct ⟩
+           ⌜ Term[]→Lvl (subst u σ) ⌝ γ′  ≡˘⟨ ⌜subst-Term[]→Lvl⌝ u ⟩
+           ⌜ subst (Term[]→Lvl u) σ ⌝ γ′  ∎)
+          ⊢t
 
 -- The result of remove-weaken-subst can have top-level weaken or
 -- subst constructors.

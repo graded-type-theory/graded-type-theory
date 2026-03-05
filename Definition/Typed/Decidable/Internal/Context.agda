@@ -28,7 +28,8 @@ open import Definition.Typed.Weakening.Definition TR
 open import Definition.Typed.Well-formed TR
 
 open import Definition.Untyped M as U
-  using (Opacity; Unfolding; Wk; _⁰; _¹; _⊔ᵒ_; _»_; _↦∷_∈_; _↦_∷_∈_)
+  using (Opacity; Term-kind; Unfolding; Wk;
+         _⁰; _¹; _⊔ᵒ_; _»_; _↦∷_∈_; _↦_∷_∈_)
 open import Definition.Untyped.Properties M
 
 open U.Con
@@ -64,6 +65,7 @@ private variable
   st        : Stack-trace _
   φ         : Unfolding _
   A A₁ A₂ t : Term _ _
+  k         : Term-kind
 
 ------------------------------------------------------------------------
 -- Translation of contexts
@@ -240,7 +242,7 @@ opaque
 
 -- The "type or term" is well-formed.
 
-Type-or-term-wf : Cons c m n → Type-or-term c n → Contexts c → Set a
+Type-or-term-wf : Cons c m n → Type-or-term c k n → Contexts c → Set a
 Type-or-term-wf Γ (type A)   γ = ⌜ Γ ⌝ᶜ γ ⊢ A
 Type-or-term-wf Γ (term t A) γ = ⌜ Γ ⌝ᶜ γ ⊢ t ∷ ⌜ A ⌝ γ
 Type-or-term-wf Γ (level l)  γ = ⌜ Γ ⌝ᶜ γ ⊢ l ∷Level
@@ -248,7 +250,7 @@ Type-or-term-wf Γ (level l)  γ = ⌜ Γ ⌝ᶜ γ ⊢ l ∷Level
 -- The equality is well-formed.
 
 data Equality-wf (Γ : Cons c m n) (γ : Contexts c) :
-       (_ _ : Type-or-term c n) → Set a where
+       (_ _ : Type-or-term c k n) → Set a where
   type  : ∀ {A₁ A₂} →
           ⌜ Γ ⌝ᶜ γ ⊢ A₁ ≡ A₂ →
           Equality-wf Γ γ (type A₁) (type A₂)
@@ -267,7 +269,7 @@ record Meta-con-wf (∇ : DCon c n) (γ : Contexts c) : Set a where
   no-eta-equality
   field
     bindings-wf :
-      ∀ {n} (x : Meta-var c n) →
+      ∀ {n} (x : Meta-var c k n) →
       let Δ , T = γ .metas .bindings x in
       Type-or-term-wf (∇ » Δ) T γ
     equalities-wf :
@@ -292,7 +294,9 @@ opaque
     vacuously-true _
     where
     vacuously-true :
-      (xs : List (∃ λ n → Meta-var c n × Meta-var c n)) →
+      (xs : List
+              (∃ λ ((k , n) : Term-kind × Nat) →
+                 Meta-var c k n × Meta-var c k n)) →
       All P xs
     vacuously-true L.[]                = L.[]
     vacuously-true ((_ , x , _) L.∷ _) = ⊥-elim (¬-Meta-var ms≡0 x)
@@ -348,15 +352,19 @@ opaque
   satisfied?⁰-sound sat level-is-small =
     L.lookup (constraints⁰-satisfied sat)
       (L.there (L.there (L.here PE.refl)))
-  satisfied?⁰-sound sat no-equality-reflection =
+  satisfied?⁰-sound sat omega-plus-allowed =
     L.lookup (constraints⁰-satisfied sat)
       (L.there (L.there (L.there (L.here PE.refl))))
-  satisfied?⁰-sound sat opacity-allowed =
+  satisfied?⁰-sound sat no-equality-reflection =
     L.lookup (constraints⁰-satisfied sat)
       (L.there (L.there (L.there (L.there (L.here PE.refl)))))
-  satisfied?⁰-sound sat unfolding-mode-transitive =
+  satisfied?⁰-sound sat opacity-allowed =
     L.lookup (constraints⁰-satisfied sat)
       (L.there (L.there (L.there (L.there (L.there (L.here PE.refl))))))
+  satisfied?⁰-sound sat unfolding-mode-transitive =
+    L.lookup (constraints⁰-satisfied sat)
+      (L.there $
+       L.there (L.there (L.there (L.there (L.there (L.here PE.refl))))))
 
 opaque
 

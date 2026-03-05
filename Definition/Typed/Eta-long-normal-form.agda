@@ -32,6 +32,7 @@ open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Normal-form M type-variant
@@ -49,16 +50,17 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  m n α                 : Nat
-  x                     : Fin _
-  ∇                     : DCon _ _
-  Δ Η                   : Con _ _
-  Γ                     : Cons _ _
-  A B C l l₁ l₂ t u v w : Term _
-  V                     : Set a
-  b                     : BinderMode
-  s                     : Strength
-  p q q′ r              : M
+  m n α         : Nat
+  x             : Fin _
+  ∇             : DCon _ _
+  Δ Η           : Con _ _
+  Γ             : Cons _ _
+  A B C t u v w : Term _
+  l l₁ l₂       : Lvl _
+  V             : Set a
+  b             : BinderMode
+  s             : Strength
+  p q q′ r      : M
 
 ------------------------------------------------------------------------
 -- Definitions of η-long normal types and terms and some associated
@@ -100,14 +102,14 @@ mutual
              Γ ⊢nf t ∷ B
     Levelₙ : ⊢ Γ →
              Level-is-small →
-             Γ ⊢nf Level ∷ U zeroᵘ
+             Γ ⊢nf Level ∷ U₀
     zeroᵘₙ : Level-allowed →
              ⊢ Γ →
              Γ ⊢nf zeroᵘ ∷ Level
     sucᵘₙ  : Γ ⊢nf t ∷ Level →
              Γ ⊢nf sucᵘ t ∷ Level
     Uₙ     : Γ ⊢nf l ∷Level →
-             Γ ⊢nf U l ∷ U (sucᵘ l)
+             Γ ⊢nf U l ∷ U (1ᵘ+ l)
     Liftₙ  : Γ ⊢nf l₂ ∷Level →
              Γ ⊢nf A ∷ U l₁ →
              Γ ⊢nf Lift l₂ A ∷ U (l₁ supᵘₗ l₂)
@@ -127,15 +129,15 @@ mutual
              Σ-allowed s p q →
              Γ ⊢nf prod s p t u ∷ Σ⟨ s ⟩ p , q ▷ A ▹ B
     Emptyₙ : ⊢ Γ →
-             Γ ⊢nf Empty ∷ U zeroᵘ
+             Γ ⊢nf Empty ∷ U₀
     Unitₙ  : ⊢ Γ →
              Unit-allowed s →
-             Γ ⊢nf Unit s ∷ U zeroᵘ
+             Γ ⊢nf Unit s ∷ U₀
     starₙ  : ⊢ Γ →
              Unit-allowed s →
              Γ ⊢nf star s ∷ Unit s
     ℕₙ     : ⊢ Γ →
-             Γ ⊢nf ℕ ∷ U zeroᵘ
+             Γ ⊢nf ℕ ∷ U₀
     zeroₙ  : ⊢ Γ →
              Γ ⊢nf zero ∷ ℕ
     sucₙ   : Γ ⊢nf t ∷ ℕ →
@@ -155,9 +157,9 @@ mutual
 
   infix 4 _⊢nf_∷Level
 
-  data _⊢nf_∷Level (Γ : Cons m n) (l : Term n) : Set a where
-    term    : Level-allowed → Γ ⊢nf l ∷ Level → Γ ⊢nf l ∷Level
-    literal : ¬ Level-allowed → ⊢ Γ → Level-literal l → Γ ⊢nf l ∷Level
+  data _⊢nf_∷Level (Γ : Cons m n) : Lvl n → Set a where
+    term    : Level-allowed → Γ ⊢nf t ∷ Level → Γ ⊢nf level t ∷Level
+    literal : Allowed-literal l → ⊢ Γ → Γ ⊢nf l ∷Level
 
   -- Γ ⊢ne t ∷ A holds if t is a neutral term (with respect to the
   -- context Γ and the type A) for which the "non-neutral parts" are
@@ -278,8 +280,8 @@ mutual
 
   ⊢nf∷L→⊢∷L : Γ ⊢nf l ∷Level → Γ ⊢ l ∷Level
   ⊢nf∷L→⊢∷L = λ where
-    (term ok ⊢l)              → term ok (⊢nf∷→⊢∷ ⊢l)
-    (literal not-ok ⊢Γ l-lit) → literal not-ok ⊢Γ l-lit
+    (term ok ⊢l)    → term ok (⊢nf∷→⊢∷ ⊢l)
+    (literal ok ⊢Γ) → literal ok ⊢Γ
 
   -- If Γ ⊢ne t ∷ A holds, then t is well-typed.
 
@@ -347,8 +349,8 @@ mutual
 
   ⊢nf∷L→Nf : Γ ⊢nf l ∷Level → Nf (Γ .defs) l
   ⊢nf∷L→Nf = λ where
-    (term _ ⊢l)         → ⊢nf∷→Nf ⊢l
-    (literal _ _ l-lit) → Level-literal→Nf l-lit
+    (term _ ⊢l)    → level (⊢nf∷→Nf ⊢l)
+    (literal ok _) → Level-literal→Nf (Allowed-literal→Level-literal ok)
 
   -- If Γ ⊢ne t ∷ A holds, then t is "NfNeutral".
 
@@ -492,10 +494,10 @@ mutual
 
   ⊢nf∷L-stable : ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢nf l ∷Level → ∇ » Η ⊢nf l ∷Level
   ⊢nf∷L-stable Δ≡Η = λ where
-    (term ok ⊢l)             → term ok (⊢nf∷-stable Δ≡Η ⊢l)
-    (literal not-ok _ l-lit) →
+    (term ok ⊢l)   → term ok (⊢nf∷-stable Δ≡Η ⊢l)
+    (literal ok _) →
       let _ , ⊢Δ , _ = contextConvSubst Δ≡Η in
-      literal not-ok ⊢Δ l-lit
+      literal ok ⊢Δ
 
   -- If t is a neutral term (according to _⊢ne_∷_) with respect to the
   -- context Δ, and Δ is judgmentally equal to Η, then t is also a
@@ -1372,8 +1374,8 @@ opaque
   normal-types-not-unique :
     Level-allowed →
     let Γ = ε » ε ∙ Level
-        A = U (var x0)
-        B = U (var x0 supᵘ var x0)
+        A = U (level (var x0))
+        B = U (level (var x0 supᵘ var x0))
     in
     Γ ⊢nf A × Γ ⊢nf B × Γ ⊢ A ≡ B × A PE.≢ B
   normal-types-not-unique ok =
@@ -1811,8 +1813,8 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
       l₁ PE.≡ l₂
     levels-unique l₁≡l₂ =
       case soundnessConv↑Level l₁≡l₂ of λ where
-        (term ok _)     → ⊥-elim (Level-not-allowed ok)
-        (literal _ _ _) → PE.refl
+        (term ok _)   → ⊥-elim (Level-not-allowed ok)
+        (literal _ _) → PE.refl
 
 opaque
 

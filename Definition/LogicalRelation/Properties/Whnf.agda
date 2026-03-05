@@ -42,10 +42,10 @@ opaque
 
   -- If t satisfies Level-prop Γ, then it is a WHNF.
 
-  level : Level-prop Γ t → Whnf (Γ .defs) t
-  level (zeroᵘᵣ _)  = zeroᵘₙ
-  level (sucᵘᵣ _ _) = sucᵘₙ
-  level (neLvl ⊩t)  = ne-whnf (nelevel ⊩t)
+  Level-prop→Whnf : Level-prop Γ t → Whnf (Γ .defs) t
+  Level-prop→Whnf (zeroᵘᵣ _)  = zeroᵘₙ
+  Level-prop→Whnf (sucᵘᵣ _ _) = sucᵘₙ
+  Level-prop→Whnf (neLvl ⊩t)  = ne-whnf (nelevel ⊩t)
 
 opaque
 

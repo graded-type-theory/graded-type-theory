@@ -131,11 +131,11 @@ opaque
 
 opaque
 
-  -- A weakening lemma for sucᵏ.
+  -- A weakening lemma for sucⁿ.
 
-  wk-sucᵏ : wk ρ (sucᵏ n) ≡ sucᵏ n
-  wk-sucᵏ {n = 0}    = refl
-  wk-sucᵏ {n = 1+ _} = cong suc wk-sucᵏ
+  wk-sucⁿ : wk ρ (sucⁿ n) ≡ sucⁿ n
+  wk-sucⁿ {n = 0}    = refl
+  wk-sucⁿ {n = 1+ _} = cong suc wk-sucⁿ
 
 ------------------------------------------------------------------------
 -- Some lemmas related to HasX
@@ -531,15 +531,15 @@ opaque
 
 opaque
 
-  -- Inversion for sucᵏ.
+  -- Inversion for sucⁿ.
 
-  inv-wk-sucᵏ : wk ρ t ≡ sucᵏ n → t ≡ sucᵏ n
-  inv-wk-sucᵏ {n = 0} =
+  inv-wk-sucⁿ : wk ρ t ≡ sucⁿ n → t ≡ sucⁿ n
+  inv-wk-sucⁿ {n = 0} =
     inv-wk-zero
-  inv-wk-sucᵏ {n = 1+ _} eq =
+  inv-wk-sucⁿ {n = 1+ _} eq =
     case inv-wk-suc eq of λ {
       (_ , refl , eq) →
-    cong suc (inv-wk-sucᵏ eq) }
+    cong suc (inv-wk-sucⁿ eq) }
 
 opaque
 

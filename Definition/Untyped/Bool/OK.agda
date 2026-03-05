@@ -40,9 +40,7 @@ opaque
   -- A definition that is used in the implementation of Bool.
 
   OK : Term n → Term n
-  OK t =
-    natcase OKᵍ 𝟘 (U zeroᵘ) Unitʷ
-      (natcase 𝟘 𝟘 (U zeroᵘ) Unitʷ Empty (var x0)) t
+  OK t = natcase OKᵍ 𝟘 U₀ Unitʷ (natcase 𝟘 𝟘 U₀ Unitʷ Empty (var x0)) t
 
 ------------------------------------------------------------------------
 -- Substitution and weakening lemmas

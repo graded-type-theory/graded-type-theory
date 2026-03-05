@@ -115,30 +115,30 @@ private
 
   module _ (ok : Level-allowed) where
 
-    ⊢U0 : » ∇ → ∇ » ε ∙ Level ⊢ U (var x0)
+    ⊢U0 : » ∇ → ∇ » ε ∙ Level ⊢ U (level (var x0))
     ⊢U0 »∇ = ⊢U′ (var (∙ Levelⱼ′ ok (ε »∇)) here)
 
-    U⊢ℕ : ε » ε ∙ Level ∙ U (var x0) ⊢ ℕ
+    U⊢ℕ : ε » ε ∙ Level ∙ U (level (var x0)) ⊢ ℕ
     U⊢ℕ = ⊢ℕ (∙ ⊢U0 ε)
 
-    ⊢Uℕ : ε »⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ
+    ⊢Uℕ : ε »⊢ ε ∙ Level ∙ U (level (var x0)) ∙ ℕ
     ⊢Uℕ = ∙ U⊢ℕ
 
-    U⊢0 : » ∇ → ∇ » ε ∙ Level ∙ U (var x0) ⊢ var x0
+    U⊢0 : » ∇ → ∇ » ε ∙ Level ∙ U (level (var x0)) ⊢ var x0
     U⊢0 »∇ = univ (var (∙ ⊢U0 »∇) here)
 
-    ⊢U∙0 : » ∇ → ∇ »⊢ ε ∙ Level ∙ U (var x0) ∙ var x0
+    ⊢U∙0 : » ∇ → ∇ »⊢ ε ∙ Level ∙ U (level (var x0)) ∙ var x0
     ⊢U∙0 »∇ = ∙ U⊢0 »∇
 
     U⊢id :
       » ∇ →
-      ∇ » ε ∙ Level ∙ U (var x0) ⊢ lam ω (var x0) ∷
+      ∇ » ε ∙ Level ∙ U (level (var x0)) ⊢ lam ω (var x0) ∷
         Π ω , q ▷ var x0 ▹ var x1
     U⊢id »∇ = lamⱼ′ Π-ω-ok (var (⊢U∙0 »∇) here)
 
     ΓU⊢id :
       ⊢ Γ →
-      Γ »∙ Level »∙ U (var x0) ⊢ lam ω (var x0) ∷
+      Γ »∙ Level »∙ U (level (var x0)) ⊢ lam ω (var x0) ∷
         Π ω , q ▷ var x0 ▹ var x1
     ΓU⊢id (ε »∇) = U⊢id »∇
     ΓU⊢id (∙ ⊢A) =
@@ -148,11 +148,14 @@ private
         (ΓU⊢id (wf ⊢A))
 
     UℕℕU⊢3 :
-      ε » ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ⊢ var x3 ∷
-        U (var x4)
+      ε » ε ∙ Level ∙ U (level (var x0)) ∙ ℕ ∙ ℕ ∙ U (level (var x3)) ⊢
+        var x3 ∷ U (level (var x4))
     UℕℕU⊢3 = var₃ (⊢U′ (var₃ (⊢ℕ ⊢Uℕ)))
 
-    ⊢UℕℕU3 : ε »⊢ ε ∙ Level ∙ U (var x0) ∙ ℕ ∙ ℕ ∙ U (var x3) ∙ var x3
+    ⊢UℕℕU3 :
+      ε »⊢
+        ε ∙ Level ∙ U (level (var x0)) ∙ ℕ ∙ ℕ ∙ U (level (var x3)) ∙
+        var x3
     ⊢UℕℕU3 = ∙ univ UℕℕU⊢3
 
 ------------------------------------------------------------------------
@@ -169,7 +172,8 @@ id = lam 𝟘 (lam 𝟘 (lam ω (var x0)))
 ⊢id :
   Level-allowed → ⊢ Γ →
   Γ ⊢ id ∷
-    Π 𝟘 , p ▷ Level ▹ Π 𝟘 , p ▷ U (var x0) ▹ Π ω , q ▷ var x0 ▹ var x1
+    Π 𝟘 , p ▷ Level ▹ Π 𝟘 , p ▷ U (level (var x0)) ▹
+    Π ω , q ▷ var x0 ▹ var x1
 ⊢id ok ⊢Γ = lamⱼ′ Π-𝟘-ok (lamⱼ′ Π-𝟘-ok (ΓU⊢id ok ⊢Γ))
 
 -- The universe-polymorphic identity function is well-resourced (with respect
@@ -189,7 +193,7 @@ id-generic = id ∘⟨ 𝟘 ⟩ var x2 ∘⟨ 𝟘 ⟩ var x1 ∘⟨ ω ⟩ var 
 
 ⊢id-generic :
   Level-allowed →
-  ε » ε ∙ Level ∙ U (var x0) ∙ var x0 ⊢ id-generic ∷ var x1
+  ε » ε ∙ Level ∙ U (level (var x0)) ∙ var x0 ⊢ id-generic ∷ var x1
 ⊢id-generic ok =
   ((⊢id ok ⊢Γ ∘ⱼ var ⊢Γ (there (there here))) ∘ⱼ var ⊢Γ (there here)) ∘ⱼ
   var ⊢Γ here
@@ -357,8 +361,8 @@ opaque
     Vec-body₂ : Term (3+ n)
     Vec-body₂ =
       natrec 𝟘 𝟘 ω
-        (U (var x3))
-        (Lift (var x2) (Unit s))
+        (U (level (var x3)))
+        (Lift (level (var x2)) (Unit s))
         (Σˢ ω , r ▷ var x3 ▹ var x1)
         (var x0)
 
@@ -381,14 +385,14 @@ opaque
     lamₘ $
     lamₘ $
     lamₘ $
-    natrec-nr-or-no-nrₘ (Liftₘ var Unitₘ)
+    natrec-nr-or-no-nrₘ (Liftₘ (level var) Unitₘ)
       (ΠΣₘ var $ sub var $ begin
          𝟘ᶜ ∙ ω ∙ r  ≤⟨ ≤ᶜ-refl ∙ greatest-elem _ ⟩
          𝟘ᶜ ∙ ω ∙ 𝟘  ∎)
       (sub (var {x = x0} {m = 𝟙ᵐ}) $ begin
          ε ∙ 𝟘 ∙ ω ∙ ω  ≤⟨ ≤ᶜ-refl ⟩
          ε ∙ 𝟘 ∙ 𝟘 ∙ ω  ∎)
-      (sub (Uₘ var) $ begin
+      (sub (Uₘ (level var)) $ begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ EM.·-zeroʳ _ ⟩
          𝟘ᶜ                ∎)
       (begin
@@ -417,7 +421,8 @@ private opaque
 
   ⊢Vec-body₂ :
     Level-allowed →
-    ε » ε ∙ Level ∙ U (var x0) ∙ ℕ ⊢ Vec-body₂ ∷ U (var x2)
+    ε » ε ∙ Level ∙ U (level (var x0)) ∙ ℕ ⊢ Vec-body₂ ∷
+      U (level (var x2))
   ⊢Vec-body₂ ok =
     natrecⱼ
       (Liftⱼ≤ (supᵘ-zeroˡ (var (⊢Uℕ ok) (there (there here))))
@@ -432,7 +437,8 @@ private opaque
 
   ⊢Vec-body₁ :
     Level-allowed →
-    ε » ε ∙ Level ∙ U (var x0) ⊢ Vec-body₁ ∷ Π ω , q ▷ ℕ ▹ U (var x2)
+    ε » ε ∙ Level ∙ U (level (var x0)) ⊢ Vec-body₁ ∷
+      Π ω , q ▷ ℕ ▹ U (level (var x2))
   ⊢Vec-body₁ ok = lamⱼ′ Π-ω-ok (⊢Vec-body₂ ok)
 
 opaque
@@ -443,12 +449,18 @@ opaque
   ⊢Vec :
     Level-allowed →
     ε » ε ⊢ Vec ∷
-      Π 𝟘 , p ▷ Level ▹ Π ω , q ▷ U (var x0) ▹ Π ω , q ▷ ℕ ▹ U (var x2)
+      Π 𝟘 , p ▷ Level ▹ Π ω , q ▷ U (level (var x0)) ▹
+      Π ω , q ▷ ℕ ▹ U (level (var x2))
   ⊢Vec ok = lamⱼ′ Π-𝟘-ok (lamⱼ′ Π-ω-ok (⊢Vec-body₁ ok))
 
 -- Some lemmas used below.
 
-private module Vec-lemmas (ok : Level-allowed) (⊢A : Γ ⊢ A ∷ U l) where
+private
+ module Vec-lemmas
+   {l : Term n} (ok : Level-allowed) (⊢A : Γ ⊢ A ∷ U (level l)) where
+
+  l′ : Lvl n
+  l′ = level l
 
   opaque
     unfolding Vec
@@ -459,32 +471,32 @@ private module Vec-lemmas (ok : Level-allowed) (⊢A : Γ ⊢ A ∷ U l) where
     »Γ : » Γ .defs
     »Γ = defn-wf ⊢Γ
 
-    ⊢l : Γ ⊢ l ∷Level
+    ⊢l : Γ ⊢ l′ ∷Level
     ⊢l = inversion-U-Level (wf-⊢∷ ⊢A)
 
     ⊢l∷ : Γ ⊢ l ∷ Level
     ⊢l∷ = ⊢∷Level→⊢∷Level ok ⊢l
 
-    ΓLU⊢ℕ : Γ »∙ Level »∙ U (var x0) ⊢ ℕ
+    ΓLU⊢ℕ : Γ »∙ Level »∙ U (level (var x0)) ⊢ ℕ
     ΓLU⊢ℕ = ⊢ℕ (∙ ⊢U′ (var₀ (Levelⱼ′ ok ⊢Γ)))
 
-    Γℕ⊢Ul : Γ »∙ ℕ ⊢ U (wk1 l)
+    Γℕ⊢Ul : Γ »∙ ℕ ⊢ U (wk1 l′)
     Γℕ⊢Ul = ⊢U (W.wkLevel₁ (⊢ℕ ⊢Γ) ⊢l)
 
     ΓℕUl⊢A∷ :
-      Γ »∙ ℕ »∙ U (wk1 l) ⊢ wk[ 2 ] A ∷
-        U (wk1 l [ 2 ][ suc (var x1 ) ]↑)
+      Γ »∙ ℕ »∙ U (wk1 l′) ⊢ wk[ 2 ] A ∷
+        U (wk1 l′ [ 2 ][ suc (var x1 ) ]↑)
     ΓℕUl⊢A∷ =
       PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym $ wk1-[][]↑ 2) $
       W.wkTerm₁ Γℕ⊢Ul (W.wkTerm₁ (⊢ℕ ⊢Γ) ⊢A)
 
-    ΓℕUl⊢A : Γ »∙ ℕ »∙ U (wk1 l) ⊢ wk[ 2 ] A
+    ΓℕUl⊢A : Γ »∙ ℕ »∙ U (wk1 l′) ⊢ wk[ 2 ] A
     ΓℕUl⊢A = univ ΓℕUl⊢A∷
 
     Vec-step :
       Γ ⊢ t ∷ ℕ →
       Γ ⊢ wk wk₀ Vec ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ⇒*
-        Vec-body₂ [ consSubst (consSubst (sgSubst l) A) t ] ∷ U l
+        Vec-body₂ [ consSubst (consSubst (sgSubst l) A) t ] ∷ U l′
     Vec-step ⊢t =
       β-red-⇒₃′
         Π-𝟘-ok Π-ω-ok Π-ω-ok
@@ -493,7 +505,7 @@ private module Vec-lemmas (ok : Level-allowed) (⊢A : Γ ⊢ A ∷ U l) where
          ⊢Vec-body₂ ok)
         ⊢l∷ ⊢A ⊢t
 
-    ⊢Lift-Unit : Γ ⊢ Lift l (Unit s) ∷ U (wk1 l [ zero ]₀)
+    ⊢Lift-Unit : Γ ⊢ Lift l′ (Unit s) ∷ U (wk1 l′ [ zero ]₀)
     ⊢Lift-Unit =
       conv (Liftⱼ′ ⊢l (Unitⱼ ⊢Γ Unit-ok))
         (U-cong-⊢≡ $
@@ -501,8 +513,8 @@ private module Vec-lemmas (ok : Level-allowed) (⊢A : Γ ⊢ A ∷ U l) where
          supᵘₗ-identityˡ ⊢l)
 
     ⊢Σ1 :
-      Γ »∙ ℕ »∙ U (wk1 l) ⊢ Σˢ ω , r ▷ wk[ 2 ] A ▹ var x1 ∷
-        U (wk1 l [ 2 ][ suc (var x1 ) ]↑)
+      Γ »∙ ℕ »∙ U (wk1 l′) ⊢ Σˢ ω , r ▷ wk[ 2 ] A ▹ var x1 ∷
+        U (wk1 l′ [ 2 ][ suc (var x1 ) ]↑)
     ⊢Σ1 =
       ΠΣⱼ′ ΓℕUl⊢A∷
         (PE.subst (_⊢_∷_ _ _)
@@ -516,9 +528,9 @@ opaque
 
   ⊢Vec∘ :
     Level-allowed →
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ A ∷ U (level l) →
     Γ ⊢ t ∷ ℕ →
-    Γ ⊢ wk wk₀ Vec ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∷ U l
+    Γ ⊢ wk wk₀ Vec ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ t ∷ U (level l)
   ⊢Vec∘ ok ⊢A ⊢t =
     redFirst*Term (Vec-lemmas.Vec-step ok ⊢A ⊢t)
 
@@ -529,14 +541,14 @@ opaque
 
   Vec∘zero⇒* :
     Level-allowed →
-    Γ ⊢ A ∷ U l →
-    Γ ⊢ wk wk₀ Vec ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒* Lift l (Unit s) ∷
-      U l
+    Γ ⊢ A ∷ U (level l) →
+    Γ ⊢ wk wk₀ Vec ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero ⇒*
+      Lift (level l) (Unit s) ∷ U (level l)
   Vec∘zero⇒* {A} {l} ok ⊢A =
     wk wk₀ Vec ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ zero                ⇒*⟨ Vec-step (zeroⱼ ⊢Γ) ⟩
     Vec-body₂ [ consSubst (consSubst (sgSubst l) A) zero ]  ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.cong U $ wk1-sgSubst _ _) $
                                                                natrec-zero ⊢Lift-Unit ⊢Σ1 ⟩∎
-    Lift l (Unit s)                                         ∎
+    Lift (level l) (Unit s)                                 ∎
     where
     open RR
     open Vec-lemmas ok ⊢A
@@ -548,13 +560,13 @@ opaque
 
   Vec∘suc≡ :
     Level-allowed →
-    Γ ⊢ A ∷ U l →
+    Γ ⊢ A ∷ U (level l) →
     Γ ⊢ t ∷ ℕ →
     Γ ⊢
       wk wk₀ Vec ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ suc t ≡
       Σˢ ω , r ▷ A ▹
         (wk wk₀ Vec ∘⟨ 𝟘 ⟩ wk1 l ∘⟨ ω ⟩ wk1 A ∘⟨ ω ⟩ wk1 t) ∷
-      U l
+      U (level l)
   Vec∘suc≡ {A} {l} {t} ok ⊢A ⊢t =
     let σ = consSubst (consSubst (sgSubst l) A) in
     wk wk₀ Vec ∘⟨ 𝟘 ⟩ l ∘⟨ ω ⟩ A ∘⟨ ω ⟩ suc t                           ⇒*⟨ V₁.Vec-step (sucⱼ ⊢t) ⟩⊢
@@ -581,7 +593,7 @@ opaque
     Non-zero-body : Term (1+ n)
     Non-zero-body =
       natcase 𝟘 𝟘
-        (U zeroᵘ)
+        U₀
         Empty
         (Unit s)
         (var x0)
@@ -600,7 +612,7 @@ opaque
   ▸Non-zero =
     lamₘ $
     ▸natcase′ Emptyₘ Unitₘ var
-      (sub (Uₘ zeroᵘₘ) $
+      (sub (Uₘ (level zeroᵘₘ)) $
        let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ? ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ EM.·-zeroʳ _ ⟩
          𝟘ᶜ                ∎)
@@ -613,13 +625,13 @@ opaque
 
     -- A typing rule for Non-zero-body.
 
-    ⊢Non-zero-body : ε » ε ∙ ℕ ⊢ Non-zero-body ∷ U zeroᵘ
+    ⊢Non-zero-body : ε » ε ∙ ℕ ⊢ Non-zero-body ∷ U₀
     ⊢Non-zero-body =
       ⊢natcase (⊢U₀ ⊢ℕℕ) (Emptyⱼ ⊢εℕ) (Unitⱼ ⊢ℕℕ Unit-ok) (var ⊢εℕ here)
 
   -- A typing rule for Non-zero.
 
-  ⊢Non-zero : ε » ε ⊢ Non-zero ∷ Π ω , q ▷ ℕ ▹ U zeroᵘ
+  ⊢Non-zero : ε » ε ⊢ Non-zero ∷ Π ω , q ▷ ℕ ▹ U₀
   ⊢Non-zero = lamⱼ′ Π-ω-ok ⊢Non-zero-body
 
 private opaque
@@ -629,8 +641,7 @@ private opaque
 
   Non-zero-step :
     Γ ⊢ t ∷ ℕ →
-    Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ t ⇒
-      natcase 𝟘 𝟘 (U zeroᵘ) Empty (Unit s) t ∷ U zeroᵘ
+    Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ t ⇒ natcase 𝟘 𝟘 U₀ Empty (Unit s) t ∷ U₀
   Non-zero-step ⊢t =
     let ⊢Γ = wfTerm ⊢t in
     PE.subst₂ (_⊢_⇒_∷_ _ _)
@@ -648,7 +659,7 @@ opaque
 
   ⊢Non-zero∘ :
     Γ ⊢ t ∷ ℕ →
-    Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ t ∷ U zeroᵘ
+    Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ t ∷ U₀
   ⊢Non-zero∘ ⊢t =
     redFirstTerm (Non-zero-step ⊢t)
 
@@ -659,12 +670,12 @@ opaque
 
   Non-zero∘zero⇒* :
     ⊢ Γ →
-    Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ zero ⇒* Empty ∷ U zeroᵘ
+    Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ zero ⇒* Empty ∷ U₀
   Non-zero∘zero⇒* ⊢Γ =
     let ⊢Γℕ = ∙ ⊢ℕ ⊢Γ in
-    wk wk₀ Non-zero ∘⟨ ω ⟩ zero                ⇒⟨ Non-zero-step (zeroⱼ ⊢Γ) ⟩
-    natcase 𝟘 𝟘 (U zeroᵘ) Empty (Unit s) zero  ⇒⟨ natcase-zero-⇒ (⊢U₀ ⊢Γℕ) (Emptyⱼ ⊢Γ) (Unitⱼ ⊢Γℕ Unit-ok) ⟩∎
-    Empty                                      ∎
+    wk wk₀ Non-zero ∘⟨ ω ⟩ zero         ⇒⟨ Non-zero-step (zeroⱼ ⊢Γ) ⟩
+    natcase 𝟘 𝟘 U₀ Empty (Unit s) zero  ⇒⟨ natcase-zero-⇒ (⊢U₀ ⊢Γℕ) (Emptyⱼ ⊢Γ) (Unitⱼ ⊢Γℕ Unit-ok) ⟩∎
+    Empty                               ∎
     where
     open RR
 
@@ -675,14 +686,14 @@ opaque
 
   Non-zero∘suc⇒* :
     Γ ⊢ t ∷ ℕ →
-    Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s ∷ U zeroᵘ
+    Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s ∷ U₀
   Non-zero∘suc⇒* {t} ⊢t =
     let ⊢Γ  = wfTerm ⊢t
         ⊢Γℕ = ∙ ⊢ℕ ⊢Γ
     in
-    wk wk₀ Non-zero ∘⟨ ω ⟩ suc t                  ⇒⟨ Non-zero-step (sucⱼ ⊢t) ⟩
-    natcase 𝟘 𝟘 (U zeroᵘ) Empty (Unit s) (suc t)  ⇒⟨ natcase-suc-⇒ (⊢U₀ ⊢Γℕ) (Emptyⱼ ⊢Γ) (Unitⱼ ⊢Γℕ Unit-ok) ⊢t ⟩∎
-    Unit s                                        ∎
+    wk wk₀ Non-zero ∘⟨ ω ⟩ suc t           ⇒⟨ Non-zero-step (sucⱼ ⊢t) ⟩
+    natcase 𝟘 𝟘 U₀ Empty (Unit s) (suc t)  ⇒⟨ natcase-suc-⇒ (⊢U₀ ⊢Γℕ) (Emptyⱼ ⊢Γ) (Unitⱼ ⊢Γℕ Unit-ok) ⊢t ⟩∎
+    Unit s                                 ∎
     where
     open RR
 
@@ -818,7 +829,7 @@ opaque
     ε » ε ⊢
     head ∷
     Π 𝟘 , p ▷ Level ▹
-    Π 𝟘 , p ▷ U (var x0) ▹
+    Π 𝟘 , p ▷ U (level (var x0)) ▹
     Π ω , q ▷ ℕ ▹
     Π ω , q ▷ wk wk₀ Vec ∘⟨ 𝟘 ⟩ var x2 ∘⟨ ω ⟩ var x1 ∘⟨ ω ⟩ var x0 ▹
     Π 𝟘 , p ▷ wk wk₀ Non-zero ∘⟨ ω ⟩ var x1 ▹
@@ -882,7 +893,7 @@ opaque
             ∘⟨ 𝟘 ⟩ var x5 ∘⟨ ω ⟩ var x4 ∘⟨ ω ⟩ suc (var x2)           ≡⟨ PE.cong (flip _∘⟨ ω ⟩_ _) $
                                                                          PE.cong (flip _∘⟨ ω ⟩_ _) $
                                                                          PE.cong (_∘⟨ _ ⟩ _) $
-                                                                         PE.trans (wk[]≡wk[]′ {k = 2}) $
+                                                                         PE.trans (wk[]≡wk[]′ {n = 2}) $
                                                                          wk-comp _ _ _ ⟩⊢≡
 
           wk wk₀ Vec ∘⟨ 𝟘 ⟩ var x5 ∘⟨ ω ⟩ var x4 ∘⟨ ω ⟩ suc (var x2)  ≡⟨ univ (Vec∘suc≡ ok (var₄ ⊢Non-zero-1+) (var₂ ⊢Non-zero-1+)) ⟩⊢∎

@@ -179,14 +179,14 @@ opaque
   Unitᵗᵛ :
     ⊩ᵛ Γ →
     Unit-allowed s →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ Unit s ∷ U zeroᵘ
+    Γ ⊩ᵛ⟨ ωᵘ·2 ⟩ Unit s ∷ U₀
   Unitᵗᵛ ⊩Γ ok =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU (zeroᵘᵛ′ ⊩Γ)
       , λ _ σ₁≡σ₂ →
           let ⊢Δ , _ = escape-⊩ˢ≡∷ σ₁≡σ₂
           in Type→⊩≡∷U⇔ Unitₙ Unitₙ .proj₂
-            ( ⊩zeroᵘ ⊢Δ , <ᵘ-ωᵘ
+            ( ⊩zeroᵘ ⊢Δ , ↑ᵘ<ᵘωᵘ·2
             , ⊩Unit≡Unit⇔ .proj₂ (⊢Δ , ok , PE.refl)
             , ≅ₜ-Unit-refl ⊢Δ ok
             )
@@ -199,7 +199,7 @@ opaque
   Unitᵛ :
     ⊩ᵛ Γ →
     Unit-allowed s →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ Unit s
+    Γ ⊩ᵛ⟨ ωᵘ·2 ⟩ Unit s
   Unitᵛ ⊩Γ ok = ⊩ᵛ∷U→⊩ᵛ (Unitᵗᵛ ⊩Γ ok)
 
 ------------------------------------------------------------------------
@@ -225,12 +225,13 @@ opaque
   starᵛ :
     ⊩ᵛ Γ →
     Unit-allowed s →
-    Γ ⊩ᵛ⟨ ωᵘ ⟩ star s ∷ Unit s
+    Γ ⊩ᵛ⟨ ωᵘ·2 ⟩ star s ∷ Unit s
   starᵛ ⊩Γ ok =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( Unitᵛ ⊩Γ ok
       , λ ∇′⊇∇ σ₁≡σ₂ →
-          emb-⊩≡∷ ≤ᵘ-ωᵘ $ refl-⊩≡∷ (⊩star (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) ok)
+          emb-⊩≡∷ ≤ᵘωᵘ·2 $
+          refl-⊩≡∷ (⊩star (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁) ok)
       )
 
 ------------------------------------------------------------------------
@@ -308,8 +309,7 @@ opaque
     let
       ⋆≡⋆ = refl-⊩ᵛ≡∷ (starᵛ ⊩Γ ok)
       A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] =
-        PE.subst₂ (_⊢_≡_ _) (substConsId {t = star!} A₁)
-          (substConsId {t = star!} A₂) $
+        PE.subst₂ (_⊢_≡_ _) (substConsId A₁) (substConsId A₂) $
         ≅-eq $ R.escape-⊩≡ $
         ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[,]≡[,] A₁≡A₂ σ₁≡σ₂ $
         ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ ⋆≡⋆ σ₁≡σ₂

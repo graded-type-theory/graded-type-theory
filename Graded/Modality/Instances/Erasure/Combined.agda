@@ -49,19 +49,19 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  α k m n                                 : Nat
-  x                                       : Fin _
-  ∇ ∇′                                    : DCon _ _
-  φ                                       : Unfolding _
-  Γ                                       : Cons _ _
+  α k m n                                                 : Nat
+  x                                                       : Fin _
+  ∇ ∇′                                                    : DCon _ _
+  φ                                                       : Unfolding _
+  Γ                                                       : Cons _ _
   A A′ A₁ A₂ A₃ B B₁ B₂ C C₁ C₂
-    l l₁ l₁₁ l₁₂ l₂ l₂₁ l₂₂ l₃
-    t t′ t₁ t₂ t₃ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  σ                                       : Subst _ _
-  s                                       : Strength
-  b                                       : BinderMode
-  δ δ₁ δ₂                                 : Conₘ _
-  o p p′ q q′ r r′ r₁ r₂                  : Erasure
+    t t′ t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ t₃ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  l l₁ l₂ l₂₁ l₂₂                                         : Lvl _
+  σ                                                       : Subst _ _
+  s                                                       : Strength
+  b                                                       : BinderMode
+  δ δ₁ δ₂                                                 : Conₘ _
+  o p p′ q q′ r r′ r₁ r₂                                  : Erasure
 
 mutual
 
@@ -140,18 +140,18 @@ mutual
 
     Level : Level-is-small →
             ⊢ Γ →
-            γ ▸ Γ ⊢ Level ∷[ p ] U zeroᵘ
+            γ ▸ Γ ⊢ Level ∷[ p ] U₀
     zeroᵘ : Level-allowed →
             ⊢ Γ →
             γ ▸ Γ ⊢ zeroᵘ ∷[ p ] Level
-    sucᵘ  : γ ▸ Γ ⊢ l ∷[ p ] Level →
-            γ ▸ Γ ⊢ sucᵘ l ∷[ p ] Level
-    ⊢supᵘ : γ ▸ Γ ⊢ l₁ ∷[ p ] Level →
-            γ ▸ Γ ⊢ l₂ ∷[ p ] Level →
-            γ ▸ Γ ⊢ l₁ supᵘ l₂ ∷[ p ] Level
+    sucᵘ  : γ ▸ Γ ⊢ t ∷[ p ] Level →
+            γ ▸ Γ ⊢ sucᵘ t ∷[ p ] Level
+    ⊢supᵘ : γ ▸ Γ ⊢ t₁ ∷[ p ] Level →
+            γ ▸ Γ ⊢ t₂ ∷[ p ] Level →
+            γ ▸ Γ ⊢ t₁ supᵘ t₂ ∷[ p ] Level
 
     U : Γ ⊢ l ∷Level →
-        γ ▸ Γ ⊢ U l ∷[ p ] U (sucᵘ l)
+        γ ▸ Γ ⊢ U l ∷[ p ] U (1ᵘ+ l)
 
     Lift  : Γ ⊢ l₂ ∷Level →
             γ ▸ Γ ⊢ A ∷[ p ] U l₁ →
@@ -163,7 +163,7 @@ mutual
             γ ▸ Γ ⊢ lower t ∷[ p ] A
 
     Empty    : ⊢ Γ →
-               γ ▸ Γ ⊢ Empty ∷[ p ] U zeroᵘ
+               γ ▸ Γ ⊢ Empty ∷[ p ] U₀
     emptyrec : Emptyrec-allowed ⌞ q ⌟ p →
                Γ ⊢ A →
                γ ▸ Γ ⊢ t ∷[ q · p ] Empty →
@@ -171,7 +171,7 @@ mutual
 
     Unit     : Unit-allowed s →
                ⊢ Γ →
-               γ ▸ Γ ⊢ Unit s ∷[ p ] U zeroᵘ
+               γ ▸ Γ ⊢ Unit s ∷[ p ] U₀
     star     : Unit-allowed s →
                ⊢ Γ →
                γ ▸ Γ ⊢ star s ∷[ p ] Unit s
@@ -211,7 +211,7 @@ mutual
                γ ▸ Γ ⊢ prodrec r p q C t u ∷[ o ] C [ t ]₀
 
     ℕ        : ⊢ Γ →
-               γ ▸ Γ ⊢ ℕ ∷[ p ] U zeroᵘ
+               γ ▸ Γ ⊢ ℕ ∷[ p ] U₀
     zero     : ⊢ Γ →
                γ ▸ Γ ⊢ zero ∷[ p ] ℕ
     suc      : γ ▸ Γ ⊢ t ∷[ p ] ℕ →
@@ -280,9 +280,9 @@ mutual
 
   -- Well-typed levels.
 
-  data _⊢_∷Level (Γ : Cons m n) (l : Term n) : Set where
-    term    : Level-allowed → Γ ⊢ l ∷ Level → Γ ⊢ l ∷Level
-    literal : ¬ Level-allowed → ⊢ Γ → Level-literal l → Γ ⊢ l ∷Level
+  data _⊢_∷Level (Γ : Cons m n) : Lvl n → Set where
+    term    : Level-allowed → Γ ⊢ t ∷ Level → Γ ⊢ level t ∷Level
+    literal : Allowed-literal l → ⊢ Γ → Γ ⊢ l ∷Level
 
   -- Type equality.
 
@@ -294,8 +294,8 @@ mutual
     trans     : Γ ⊢ A₁ ≡ A₂ →
                 Γ ⊢ A₂ ≡ A₃ →
                 Γ ⊢ A₁ ≡ A₃
-    U-cong    : Γ ⊢ l₁ ≡ l₂ ∷ Level →
-                Γ ⊢ U l₁ ≡ U l₂
+    U-cong    : Γ ⊢ t₁ ≡ t₂ ∷ Level →
+                Γ ⊢ U (level t₁) ≡ U (level t₂)
     univ      : Γ ⊢ A₁ ≡ A₂ ∷ U l →
                 Γ ⊢ A₁ ≡ A₂
     Lift-cong : Γ ⊢ l₁ ≡ l₂ ∷Level →
@@ -331,30 +331,30 @@ mutual
             t PE.≡ wk wk₀ t′ →
             Γ ⊢ defn α ≡ t ∷ A
 
-    sucᵘ-cong  : Γ ⊢ l₁ ≡ l₂ ∷ Level →
-                 Γ ⊢ sucᵘ l₁ ≡ sucᵘ l₂ ∷ Level
-    supᵘ-cong  : Γ ⊢ l₁₁ ≡ l₂₁ ∷ Level →
-                 Γ ⊢ l₁₂ ≡ l₂₂ ∷ Level →
-                 Γ ⊢ l₁₁ supᵘ l₁₂ ≡ l₂₁ supᵘ l₂₂ ∷ Level
-    supᵘ-zeroˡ : Γ ⊢ l ∷ Level →
-                 Γ ⊢ zeroᵘ supᵘ l ≡ l ∷ Level
-    supᵘ-sucᵘ  : Γ ⊢ l₁ ∷ Level →
-                 Γ ⊢ l₂ ∷ Level →
-                 Γ ⊢ sucᵘ l₁ supᵘ sucᵘ l₂ ≡ sucᵘ (l₁ supᵘ l₂) ∷ Level
-    supᵘ-assoc : Γ ⊢ l₁ ∷ Level →
-                 Γ ⊢ l₂ ∷ Level →
-                 Γ ⊢ l₃ ∷ Level →
-                 Γ ⊢ (l₁ supᵘ l₂) supᵘ l₃ ≡ l₁ supᵘ (l₂ supᵘ l₃) ∷ Level
-    supᵘ-comm  : Γ ⊢ l₁ ∷ Level →
-                 Γ ⊢ l₂ ∷ Level →
-                 Γ ⊢ l₁ supᵘ l₂ ≡ l₂ supᵘ l₁ ∷ Level
-    supᵘ-idem  : Γ ⊢ l ∷ Level →
-                 Γ ⊢ l supᵘ l ≡ l ∷ Level
-    supᵘ-sub   : Γ ⊢ l ∷ Level →
-                 Γ ⊢ l supᵘ sucᵘ l ≡ sucᵘ l ∷ Level
+    sucᵘ-cong  : Γ ⊢ t₁ ≡ t₂ ∷ Level →
+                 Γ ⊢ sucᵘ t₁ ≡ sucᵘ t₂ ∷ Level
+    supᵘ-cong  : Γ ⊢ t₁₁ ≡ t₂₁ ∷ Level →
+                 Γ ⊢ t₁₂ ≡ t₂₂ ∷ Level →
+                 Γ ⊢ t₁₁ supᵘ t₁₂ ≡ t₂₁ supᵘ t₂₂ ∷ Level
+    supᵘ-zeroˡ : Γ ⊢ t ∷ Level →
+                 Γ ⊢ zeroᵘ supᵘ t ≡ t ∷ Level
+    supᵘ-sucᵘ  : Γ ⊢ t₁ ∷ Level →
+                 Γ ⊢ t₂ ∷ Level →
+                 Γ ⊢ sucᵘ t₁ supᵘ sucᵘ t₂ ≡ sucᵘ (t₁ supᵘ t₂) ∷ Level
+    supᵘ-assoc : Γ ⊢ t₁ ∷ Level →
+                 Γ ⊢ t₂ ∷ Level →
+                 Γ ⊢ t₃ ∷ Level →
+                 Γ ⊢ (t₁ supᵘ t₂) supᵘ t₃ ≡ t₁ supᵘ (t₂ supᵘ t₃) ∷ Level
+    supᵘ-comm  : Γ ⊢ t₁ ∷ Level →
+                 Γ ⊢ t₂ ∷ Level →
+                 Γ ⊢ t₁ supᵘ t₂ ≡ t₂ supᵘ t₁ ∷ Level
+    supᵘ-idem  : Γ ⊢ t ∷ Level →
+                 Γ ⊢ t supᵘ t ≡ t ∷ Level
+    supᵘ-sub   : Γ ⊢ t ∷ Level →
+                 Γ ⊢ t supᵘ sucᵘ t ≡ sucᵘ t ∷ Level
 
-    U-cong : Γ ⊢ l₁ ≡ l₂ ∷ Level →
-             Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
+    U-cong : Γ ⊢ t₁ ≡ t₂ ∷ Level →
+             Γ ⊢ U (level t₁) ≡ U (level t₂) ∷ U (level (sucᵘ t₁))
 
     Lift-cong  : Γ ⊢ l₂₁ ≡ l₂₂ ∷Level →
                  Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
@@ -524,12 +524,16 @@ mutual
 
   -- Level equality.
 
-  data _⊢_≡_∷Level (Γ : Cons m n) (l₁ l₂ : Term n) : Set where
-    term    : Level-allowed → Γ ⊢ l₁ ≡ l₂ ∷ Level → Γ ⊢ l₁ ≡ l₂ ∷Level
-    literal : ¬ Level-allowed → ⊢ Γ → Level-literal l₁ → l₁ PE.≡ l₂ →
+  data _⊢_≡_∷Level (Γ : Cons m n) : (_ _ : Lvl n) → Set where
+    term    : Level-allowed →
+              Γ ⊢ t₁ ≡ t₂ ∷ Level →
+              Γ ⊢ level t₁ ≡ level t₂ ∷Level
+    literal : Allowed-literal l₁ →
+              ⊢ Γ →
+              l₁ PE.≡ l₂ →
               Γ ⊢ l₁ ≡ l₂ ∷Level
 
-pattern literal! not-ok ⊢Γ l-lit = literal not-ok ⊢Γ l-lit PE.refl
+pattern literal! ok ⊢Γ = literal ok ⊢Γ PE.refl
 
 -- Well-formed substitutions.
 

@@ -51,6 +51,11 @@ record Are-preserving-type-restrictions
     level-support-preserved :
       R₁.level-support ≤LS R₂.level-support
 
+    -- If R₁.Omega-plus-allowed holds, then R₂.Omega-plus-allowed
+    -- holds.
+    Omega-plus-preserved :
+      R₁.Omega-plus-allowed → R₂.Omega-plus-allowed
+
     -- R₁.Unitʷ-η implies R₂.Unitʷ-η.
     Unitʷ-η-preserved :
       R₁.Unitʷ-η → R₂.Unitʷ-η
@@ -185,6 +190,7 @@ Are-preserving-type-restrictions-id :
 Are-preserving-type-restrictions-id {R = R} = λ where
     .unfolding-mode-preserved      → refl
     .level-support-preserved       → refl-≤LS
+    .Omega-plus-preserved          → idᶠ
     .Unitʷ-η-preserved             → idᶠ
     .Unit-preserved                → idᶠ
     .ΠΣ-preserved {b = BMΠ}        → idᶠ
@@ -232,6 +238,8 @@ Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
        trans M₂.unfolding-mode-preserved M₁.unfolding-mode-preserved
     .level-support-preserved →
       trans-≤LS M₂.level-support-preserved M₁.level-support-preserved
+    .Omega-plus-preserved →
+      M₁.Omega-plus-preserved ∘→ M₂.Omega-plus-preserved
     .Unitʷ-η-preserved →
       M₁.Unitʷ-η-preserved ∘→ M₂.Unitʷ-η-preserved
     .Unit-preserved →

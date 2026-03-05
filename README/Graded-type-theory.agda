@@ -122,7 +122,8 @@ import Graded.Usage.Restrictions.Satisfied
 --
 -- * Instead of a single universe there is now a countably infinite
 --   universe hierarchy, with optional support for a level type and
---   universe polymorphism.
+--   universe polymorphism, and optional support for the levels ω,
+--   ω + 1, and so on.
 --
 -- * Top-level definitions with optional support for opacity have been
 --   added.

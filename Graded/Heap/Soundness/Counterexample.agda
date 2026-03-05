@@ -80,7 +80,7 @@ opaque
     initial t ↠* ⟨ H , u , ρ , S ⟩ ×
     (∀ {m′ n′} (s : State _ m′ n′) → ⟨ H , u , ρ , S ⟩ ↠ s → ⊥) ×
     S PE.≢ ε ×
-    ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
+    ¬ (∃ λ k → u PE.≡ sucⁿ k) ×
     ((p ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
   ¬soundness-ε-inconsistent {p} ok₁ ok₂ =
     let Δ = ε ∙ Empty
@@ -144,7 +144,7 @@ opaque
     initial t ↠* ⟨ H , u , ρ , S ⟩ ×
     (∀ {m′ n′} (s : State _ m′ n′) → ⟨ H , u , ρ , S ⟩ ↠ s → ⊥) ×
     S PE.≢ ε ×
-    ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
+    ¬ (∃ λ k → u PE.≡ sucⁿ k) ×
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
   ¬soundness-ε-erased-matches-unitrec ok₁ ok₂ ok₃ no-η =
     let Δ = ε ∙ Unitʷ
@@ -213,7 +213,7 @@ opaque
     initial t ↠* ⟨ H , u , ρ , S ⟩ ×
     (∀ {m′ n′} (s : State _ m′ n′) → ⟨ H , u , ρ , S ⟩ ↠ s → ⊥) ×
     S PE.≢ ε ×
-    ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
+    ¬ (∃ λ k → u PE.≡ sucⁿ k) ×
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
   ¬soundness-ε-erased-matches-prodrec {p} ok₁ ok₂ ok₃ =
     let Δ = ε ∙ Σʷ p , 𝟘 ▷ ℕ ▹ ℕ
@@ -281,7 +281,7 @@ opaque
     initial t ↠* ⟨ H , u , ρ , S ⟩ ×
     (∀ {m′ n′} (s : State _ m′ n′) → ⟨ H , u , ρ , S ⟩ ↠ s → ⊥) ×
     S PE.≢ ε ×
-    ¬ (∃ λ k → u PE.≡ sucᵏ k) ×
+    ¬ (∃ λ k → u PE.≡ sucⁿ k) ×
     ((𝟙 ≤ 𝟘 → ⊥) → ¬ H ≤ʰ 𝟘)
   ¬soundness-ε-not-erased ok =
     let Δ = ε ∙ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ

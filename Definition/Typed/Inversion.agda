@@ -24,27 +24,32 @@ import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sup R
 
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
-open import Tools.Product
+open import Tools.Nat as N
+open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum as ⊎
 
 open I public
 
 private variable
-  α n                   : Nat
-  x                     : Fin _
-  Γ                     : Cons _ _
-  A B C l l₁ l₂ t u v w : Term _
-  b                     : BinderMode
-  s                     : Strength
-  p q q′ r              : M
+  α m n               : Nat
+  x                   : Fin _
+  Γ                   : Cons _ _
+  A B C t t₁ t₂ u v w : Term _
+  l l₁ l₂             : Lvl _
+  b                   : BinderMode
+  s                   : Strength
+  p q q′ r            : M
 
 ------------------------------------------------------------------------
 -- Inversion for variables
@@ -83,48 +88,57 @@ opaque
   -- Inversion for sucᵘ.
 
   inversion-sucᵘ :
-    Γ ⊢ sucᵘ l ∷ A →
-    Γ ⊢ l ∷ Level × Γ ⊢ A ≡ Level
-  inversion-sucᵘ (sucᵘⱼ ⊢l) =
-    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l) in
-    ⊢l , refl (Levelⱼ′ ok (wfTerm ⊢l))
+    Γ ⊢ sucᵘ t ∷ A →
+    Γ ⊢ t ∷ Level × Γ ⊢ A ≡ Level
+  inversion-sucᵘ (sucᵘⱼ ⊢t) =
+    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢t) in
+    ⊢t , refl (Levelⱼ′ ok (wfTerm ⊢t))
   inversion-sucᵘ (conv ⊢sucᵘ eq) =
-    let ⊢l , A≡ = inversion-sucᵘ ⊢sucᵘ in
-    ⊢l , trans (sym eq) A≡
+    let ⊢t , A≡ = inversion-sucᵘ ⊢sucᵘ in
+    ⊢t , trans (sym eq) A≡
 
 opaque
 
   -- Inversion for sucᵘ.
 
   inversion-sucᵘ-⊢ :
-    Γ ⊢ sucᵘ l →
-    Γ ⊢ l ∷ Level × ∃ λ l′ → Γ ⊢ U l′ ≡ Level
+    Γ ⊢ sucᵘ t →
+    Γ ⊢ t ∷ Level × ∃ λ l → Γ ⊢ U l ≡ Level
   inversion-sucᵘ-⊢ (univ ⊢sucᵘ) =
-    let ⊢l , U≡Level = inversion-sucᵘ ⊢sucᵘ in
-    ⊢l , _ , U≡Level
+    let ⊢t , U≡Level = inversion-sucᵘ ⊢sucᵘ in
+    ⊢t , _ , U≡Level
 
 opaque
 
-  -- Inversion for sucᵘ.
+  -- Inversion for 1ᵘ+.
 
-  inversion-sucᵘ-⊢∷L :
-    Γ ⊢ sucᵘ l ∷Level →
+  inversion-1ᵘ+-⊢∷L :
+    Γ ⊢ 1ᵘ+ l ∷Level →
     Γ ⊢ l ∷Level
-  inversion-sucᵘ-⊢∷L (term ok ⊢sucᵘ) =
+  inversion-1ᵘ+-⊢∷L {l = level _} (term ok ⊢sucᵘ) =
     term ok (inversion-sucᵘ ⊢sucᵘ .proj₁)
-  inversion-sucᵘ-⊢∷L (literal not-ok ⊢Γ (sucᵘ l-lit)) =
-    literal not-ok ⊢Γ l-lit
+  inversion-1ᵘ+-⊢∷L {l = level _} (literal ok ⊢Γ) =
+    literal
+      (Allowed-literal-level-⇔ .proj₂ $
+       Σ.map (Level-literal-1ᵘ+-⇔ .proj₁) idᶠ $
+       Allowed-literal-level-⇔ .proj₁ ok)
+      ⊢Γ
+  inversion-1ᵘ+-⊢∷L {l = ωᵘ+ _} (literal ok ⊢Γ) =
+    literal
+      (Allowed-literal-ωᵘ+-⇔ .proj₂ $
+       Allowed-literal-ωᵘ+-⇔ .proj₁ ok)
+      ⊢Γ
 
 opaque
 
-  -- Inversion for sucᵘᵏ.
+  -- Inversion for 1ᵘ+ⁿ.
 
-  inversion-sucᵘᵏ-⊢∷L : Γ ⊢ sucᵘᵏ n l ∷Level → Γ ⊢ l ∷Level
-  inversion-sucᵘᵏ-⊢∷L {n = 0}    = idᶠ
-  inversion-sucᵘᵏ-⊢∷L {n = 1+ _} =
-    inversion-sucᵘᵏ-⊢∷L ∘→ inversion-sucᵘ-⊢∷L
+  inversion-1ᵘ+ⁿ : ∀ n → Γ ⊢ 1ᵘ+ⁿ n l ∷Level → Γ ⊢ l ∷Level
+  inversion-1ᵘ+ⁿ 0      = idᶠ
+  inversion-1ᵘ+ⁿ (1+ n) = inversion-1ᵘ+ⁿ n ∘→ inversion-1ᵘ+-⊢∷L
 
 opaque
+  unfolding ↓ᵘ_
 
   -- Inversion for ↓ᵘ_.
 
@@ -133,6 +147,7 @@ opaque
   inversion-↓ᵘ {n = 1+ _} = proj₂ ∘→ inversion-sucᵘ
 
 opaque
+  unfolding ↓ᵘ_
 
   -- Inversion for ↓ᵘ_.
 
@@ -145,25 +160,25 @@ opaque
   -- Inversion for supᵘ.
 
   inversion-supᵘ :
-    Γ ⊢ l₁ supᵘ l₂ ∷ A →
-    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × Γ ⊢ A ≡ Level
-  inversion-supᵘ (supᵘⱼ ⊢l₁ ⊢l₂) =
-    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l₁) in
-    ⊢l₁ , ⊢l₂ , refl (Levelⱼ′ ok (wfTerm ⊢l₁))
+    Γ ⊢ t₁ supᵘ t₂ ∷ A →
+    Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level × Γ ⊢ A ≡ Level
+  inversion-supᵘ (supᵘⱼ ⊢t₁ ⊢t₂) =
+    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢t₁) in
+    ⊢t₁ , ⊢t₂ , refl (Levelⱼ′ ok (wfTerm ⊢t₁))
   inversion-supᵘ (conv ⊢supᵘ eq) =
-    let ⊢l₁ , ⊢l₂ , A≡ = inversion-supᵘ ⊢supᵘ in
-    ⊢l₁ , ⊢l₂ , trans (sym eq) A≡
+    let ⊢t₁ , ⊢t₂ , A≡ = inversion-supᵘ ⊢supᵘ in
+    ⊢t₁ , ⊢t₂ , trans (sym eq) A≡
 
 opaque
 
   -- Inversion for supᵘ.
 
   inversion-supᵘ-⊢ :
-    Γ ⊢ l₁ supᵘ l₂ →
-    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × ∃ λ l → Γ ⊢ U l ≡ Level
+    Γ ⊢ t₁ supᵘ t₂ →
+    Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level × ∃ λ l → Γ ⊢ U l ≡ Level
   inversion-supᵘ-⊢ (univ eq) =
-    let ⊢l₁ , ⊢l₂ , U≡Level = inversion-supᵘ eq in
-    ⊢l₁ , ⊢l₂ , _ , U≡Level
+    let ⊢t₁ , ⊢t₂ , U≡Level = inversion-supᵘ eq in
+    ⊢t₁ , ⊢t₂ , _ , U≡Level
 
 opaque
   unfolding _supᵘₗ′_
@@ -171,19 +186,19 @@ opaque
   -- Inversion for _supᵘₗ′_.
 
   inversion-supᵘₗ′-⊢∷ :
-    Γ ⊢ l₁ supᵘₗ′ l₂ ∷ A →
-    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × Γ ⊢ A ≡ Level
-  inversion-supᵘₗ′-⊢∷ {l₁} {l₂} ⊢sup
-    with Level-literal? l₁ ×-dec Level-literal? l₂
+    Γ ⊢ t₁ supᵘₗ′ t₂ ∷ A →
+    Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level × Γ ⊢ A ≡ Level
+  inversion-supᵘₗ′-⊢∷ {t₁} {t₂} ⊢sup
+    with Level-literal? t₁ ×-dec Level-literal? t₂
   … | no _ =
     inversion-supᵘ ⊢sup
-  … | yes (l₁-lit , l₂-lit) =
+  … | yes (t₁-lit , t₂-lit) =
     let ≡Level = inversion-↓ᵘ ⊢sup
         ok     = inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂)
         ⊢Γ     = wfEq ≡Level
     in
-    ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷Level ⊢Γ l₁-lit) ,
-    ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷Level ⊢Γ l₂-lit) ,
+    ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷L ⊢Γ (level t₁-lit) (λ ())) ,
+    ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷L ⊢Γ (level t₂-lit) (λ ())) ,
     ≡Level
 
 opaque
@@ -192,8 +207,8 @@ opaque
   -- Inversion for _supᵘₗ_.
 
   inversion-supᵘₗ-⊢∷ :
-    Γ ⊢ l₁ supᵘₗ l₂ ∷ A →
-    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × Γ ⊢ A ≡ Level
+    Γ ⊢ t₁ supᵘₗ t₂ ∷ A →
+    Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level × Γ ⊢ A ≡ Level
   inversion-supᵘₗ-⊢∷ ⊢sup with level-support
   … | only-literals = inversion-supᵘₗ′-⊢∷ ⊢sup
   … | level-type _  = inversion-supᵘ ⊢sup
@@ -203,18 +218,18 @@ opaque
   -- Inversion for _supᵘₗ_.
 
   inversion-supᵘₗ-⊢ :
-    Γ ⊢ l₁ supᵘₗ l₂ →
-    Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × (∃ λ l → Γ ⊢ U l ≡ Level)
+    Γ ⊢ t₁ supᵘₗ t₂ →
+    Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level × (∃ λ l → Γ ⊢ U l ≡ Level)
   inversion-supᵘₗ-⊢ ⊢sup = inversion-supᵘₗ-⊢′ ⊢sup PE.refl
     where
     inversion-supᵘₗ-⊢′ :
-      Γ ⊢ A → l₁ supᵘₗ l₂ PE.≡ A →
-      Γ ⊢ l₁ ∷ Level × Γ ⊢ l₂ ∷ Level × (∃ λ l → Γ ⊢ U l ≡ Level)
+      Γ ⊢ A → t₁ supᵘₗ t₂ PE.≡ A →
+      Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level × (∃ λ l → Γ ⊢ U l ≡ Level)
     inversion-supᵘₗ-⊢′ (Levelⱼ _ _) eq =
       ⊥-elim (supᵘₗ≢Level eq)
     inversion-supᵘₗ-⊢′ (univ ⊢sup) PE.refl =
-      let ⊢l₁ , ⊢l₂ , ≡Level = inversion-supᵘₗ-⊢∷ ⊢sup in
-      ⊢l₁ , ⊢l₂ , _ , ≡Level
+      let ⊢t₁ , ⊢t₂ , ≡Level = inversion-supᵘₗ-⊢∷ ⊢sup in
+      ⊢t₁ , ⊢t₂ , _ , ≡Level
     inversion-supᵘₗ-⊢′ (Liftⱼ _ _) eq =
       ⊥-elim (supᵘₗ≢Lift eq)
     inversion-supᵘₗ-⊢′ (ΠΣⱼ _ _) eq =
@@ -223,21 +238,84 @@ opaque
       ⊥-elim (supᵘₗ≢Id eq)
 
 opaque
+  unfolding _supᵘₗ_
 
-  -- Inversion for supᵘₗ.
+  -- An inversion lemma for _supᵘₗ_ for terms.
+  --
+  -- Full inversion does not necessarily hold for _supᵘₗ_, see
+  -- Definition.Typed.Consequences.Inversion.¬-inversion-supᵘₗ.
+
+  inversion-supᵘₗ-level :
+    Γ ⊢ level (t₁ supᵘₗ t₂) ∷Level →
+    Γ ⊢ level t₁ ∷Level × Γ ⊢ level t₂ ∷Level
+  inversion-supᵘₗ-level {t₁} {t₂} (term {t} ok ⊢t) =
+    let ⊢t₁ , ⊢t₂ , _ =
+          inversion-supᵘ $
+          PE.subst (flip (_⊢_∷_ _) _)
+            (level-PE-injectivity
+               (level t                  ≡⟨⟩
+                level t₁ supᵘₗ level t₂  ≡⟨ supᵘₗ≡supᵘ ok ⟩
+                level (t₁ supᵘ t₂)       ∎))
+            ⊢t
+    in
+    term ok ⊢t₁ , term ok ⊢t₂
+  inversion-supᵘₗ-level (literal ok ⊢Γ) =
+    let not-ok , t₁-lit , t₂-lit =
+          Level-literal-supᵘₗ-level-→ (Allowed-literal→Level-literal ok)
+    in
+    literal (Allowed-literal-level-⇔ .proj₂ (t₁-lit , not-ok)) ⊢Γ ,
+    literal (Allowed-literal-level-⇔ .proj₂ (t₂-lit , not-ok)) ⊢Γ
+
+opaque
+  unfolding _supᵘₗ_
+
+  -- An inversion lemma for _supᵘₗ_.
+  --
+  -- Full inversion does not necessarily hold for _supᵘₗ_, see
+  -- Definition.Typed.Consequences.Inversion.¬-inversion-supᵘₗ.
 
   inversion-supᵘₗ :
     Γ ⊢ l₁ supᵘₗ l₂ ∷Level →
+    l₁ supᵘₗ l₂ PE.≡ l₁ × Γ ⊢ l₁ ∷Level ⊎
+    l₁ supᵘₗ l₂ PE.≡ l₂ × Γ ⊢ l₂ ∷Level ⊎
     Γ ⊢ l₁ ∷Level × Γ ⊢ l₂ ∷Level
-  inversion-supᵘₗ (term ok ⊢sup) =
-    let ⊢l₁ , ⊢l₂ , _ =
-          inversion-supᵘ $
-          PE.subst (flip (_⊢_∷_ _) _) (supᵘₗ≡supᵘ ok) ⊢sup
-    in
-    term ok ⊢l₁ , term ok ⊢l₂
-  inversion-supᵘₗ (literal not-ok ⊢Γ sup-lit) =
-    let l₁-lit , l₂-lit = Level-literal-supᵘₗ⇔ not-ok .proj₁ sup-lit in
-    literal not-ok ⊢Γ l₁-lit , literal not-ok ⊢Γ l₂-lit
+  inversion-supᵘₗ {l₁ = ωᵘ+ m₁} {l₂ = ωᵘ+ m₂} ⊢⊔ with N.≤-total m₁ m₂
+  … | inj₁ m₁≤m₂ =
+    let eq = PE.cong ωᵘ+ (m≤n⇒m⊔n≡n m₁≤m₂) in
+    inj₂ (inj₁ (eq , PE.subst (_⊢_∷Level _) eq ⊢⊔))
+  … | inj₂ m₂≤m₁ =
+    let eq = PE.cong ωᵘ+ (m≥n⇒m⊔n≡m m₂≤m₁) in
+    inj₁ (eq , PE.subst (_⊢_∷Level _) eq ⊢⊔)
+  inversion-supᵘₗ {l₁ = ωᵘ+ _} {l₂ = level _} ⊢⊔ =
+    inj₁ (PE.refl , ⊢⊔)
+  inversion-supᵘₗ {l₁ = level _} {l₂ = ωᵘ+ _} ⊢⊔ =
+    inj₂ (inj₁ (PE.refl , ⊢⊔))
+  inversion-supᵘₗ {l₁ = level _} {l₂ = level _} ⊢⊔ =
+    inj₂ (inj₂ (inversion-supᵘₗ-level ⊢⊔))
+
+opaque
+
+  -- Inversion for ωᵘ+.
+
+  inversion-ωᵘ+ :
+    Γ ⊢ ωᵘ+ m ∷Level →
+    Omega-plus-allowed × ⊢ Γ
+  inversion-ωᵘ+ (literal ok ⊢Γ) =
+    Allowed-literal-ωᵘ+-⇔ .proj₁ ok , ⊢Γ
+
+opaque
+
+  -- Inversion for level.
+
+  inversion-level :
+    Γ ⊢ level t ∷Level →
+    Level-allowed × Γ ⊢ t ∷ Level ⊎
+    ¬ Level-allowed × Level-literal t × ⊢ Γ
+  inversion-level (term ok ⊢t) =
+    inj₁ (ok , ⊢t)
+  inversion-level (literal ok ⊢Γ) =
+    let not-ok , lit = Allowed-literal-level-⇔ .proj₁ ok in
+    inj₂ (lit , not-ok , ⊢Γ)
 
 ------------------------------------------------------------------------
 -- Inversion for Lift

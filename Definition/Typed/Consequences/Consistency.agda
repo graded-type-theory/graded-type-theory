@@ -169,68 +169,64 @@ opaque
        ∃₂ λ m′ (∇′ : DCon (Term 0) m′) →
          » ∇′ ⊇ ∇ × ¬ Consistent (∇′ » Γ)
   consistency-is-not-preserved ok =
-    _ , _ , Opaque[ Empty ∷ U zeroᵘ ] , ε ∙ defn 0 , ∙ ⊢0 , consistent ,
+    _ , _ , Opaque[ Empty ∷ U₀ ] , ε ∙ defn 0 , ∙ ⊢0 , consistent ,
     (λ hyp → hyp _ inconsistent₁) ,
     (λ hyp → hyp _ inconsistent₂) ,
     _ , _ , ∙⊇ ,
     (λ hyp → hyp _ inconsistent₃)
     where
-    ⊢ε : Opaque[ Empty ∷ U zeroᵘ ] »⊢ ε
+    ⊢ε : Opaque[ Empty ∷ U₀ ] »⊢ ε
     ⊢ε = ε (»Opaque ok (Emptyⱼ εε))
 
-    ⊢0∷U : Opaque[ Empty ∷ U zeroᵘ ] » ε ⊢ defn 0 ∷ U zeroᵘ
+    ⊢0∷U : Opaque[ Empty ∷ U₀ ] » ε ⊢ defn 0 ∷ U₀
     ⊢0∷U = defn ⊢ε here PE.refl
 
-    ⊢0 : Opaque[ Empty ∷ U zeroᵘ ] » ε ⊢ defn 0
+    ⊢0 : Opaque[ Empty ∷ U₀ ] » ε ⊢ defn 0
     ⊢0 = univ ⊢0∷U
 
-    ⊢0′ : glassify Opaque[ Empty ∷ U zeroᵘ ] » ε ⊢ defn 0
+    ⊢0′ : glassify Opaque[ Empty ∷ U₀ ] » ε ⊢ defn 0
     ⊢0′ = glassify-⊢ ⊢0
 
     inconsistent₁ :
-      glassify Opaque[ Empty ∷ U zeroᵘ ] » ε ∙ defn 0 ⊢ var x0 ∷ Empty
+      glassify Opaque[ Empty ∷ U₀ ] » ε ∙ defn 0 ⊢ var x0 ∷ Empty
     inconsistent₁ =
       conv (var₀ ⊢0′) (univ (δ-red (∙ ⊢0′) here PE.refl PE.refl))
 
     inconsistent₂ :
-      ε » inline-Conᵈ Opaque[ Empty ∷ U zeroᵘ ] (ε ∙ defn 0) ⊢
-        var x0 ∷ Empty
+      ε » inline-Conᵈ Opaque[ Empty ∷ U₀ ] (ε ∙ defn 0) ⊢ var x0 ∷ Empty
     inconsistent₂ =
       var₀ (⊢Empty εε)
 
     ∙⊇ :
-      » Opaque[ Empty ∷ U zeroᵘ ]
-          ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id (U zeroᵘ) (defn 0) Empty ] ⊇
-        Opaque[ Empty ∷ U zeroᵘ ]
+      » Opaque[ Empty ∷ U₀ ]
+          ∙⟨ opa (ε ¹) ⟩[ rfl ∷ Id (U₀) (defn 0) Empty ] ⊇
+        Opaque[ Empty ∷ U₀ ]
     ∙⊇ =
       stepᵒ₁ ok (Idⱼ′ ⊢0∷U (Emptyⱼ ⊢ε))
         (rflⱼ′ (δ-red (glassify-⊢′ ⊢ε) here PE.refl PE.refl))
 
     ⊢0″ :
-      Opaque[ Empty ∷ U zeroᵘ ]
-        ∙⟨ opa ones ⟩[ rfl ∷ Id (U zeroᵘ) (defn 0) Empty ] »
+      Opaque[ Empty ∷ U₀ ] ∙⟨ opa ones ⟩[ rfl ∷ Id U₀ (defn 0) Empty ] »
       ε ⊢ defn 0
     ⊢0″ = defn-wk ∙⊇ ⊢0
 
     inconsistent₃ :
-      Opaque[ Empty ∷ U zeroᵘ ]
-        ∙⟨ opa ones ⟩[ rfl ∷ Id (U zeroᵘ) (defn 0) Empty ] »
+      Opaque[ Empty ∷ U₀ ] ∙⟨ opa ones ⟩[ rfl ∷ Id U₀ (defn 0) Empty ] »
       ε ∙ defn 0 ⊢
-      subst 𝟙 (U zeroᵘ) (var x0) (defn 0) Empty (defn 1) (var x0) ∷
-      Empty
+      subst 𝟙 U₀ (var x0) (defn 0) Empty (defn 1) (var x0) ∷ Empty
     inconsistent₃ =
       ⊢subst (univ (var₀ (⊢U₀ (∙ ⊢0″)))) (defn (∙ ⊢0″) here PE.refl)
         (var₀ ⊢0″)
 
-    consistent : Consistent (Opaque[ Empty ∷ U zeroᵘ ] » ε ∙ defn 0)
+    consistent : Consistent (Opaque[ Empty ∷ U₀ ] » ε ∙ defn 0)
     consistent t =
       let ⊢ε = ε ∙ᵗ[ ℕⱼ εε ] in
-      Opaque[ Empty ∷ U zeroᵘ ]      » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ definition-irrelevant-⊢∷ ok (ℕⱼ εε) ⟩
-      Opaque[ ℕ ∷ U zeroᵘ ]          » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ glassify-⊢∷ ⟩
-      glassify Opaque[ ℕ ∷ U zeroᵘ ] » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ inhabited-consistent {σ = sgSubst _}
-                                                                    (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢ε)
-                                                                       (conv (zeroⱼ ⊢ε) (univ (sym′ (δ-red ⊢ε here PE.refl PE.refl))))) _ ⟩
-      ⊥                                                        □
+      Opaque[ Empty ∷ U₀ ]      » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ definition-irrelevant-⊢∷ ok (ℕⱼ εε) ⟩
+      Opaque[ ℕ ∷ U₀ ]          » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ glassify-⊢∷ ⟩
+      glassify Opaque[ ℕ ∷ U₀ ] » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ inhabited-consistent {σ = sgSubst _}
+                                                               (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢ε)
+                                                                  (conv (zeroⱼ ⊢ε) (univ (sym′ (δ-red ⊢ε here PE.refl PE.refl))))) _ ⟩
+      ⊥                                                   □
 
 opaque
 
@@ -245,10 +241,10 @@ opaque
        Consistent (∇ » Γ) →
        Consistent (glassify ∇ » Γ))
   ¬Consistent→Consistent-glassify ok hyp =
-    let _ , _ , _ , _ , ⊢Γ , con , not-con , _ =
+    let _ , _ , _ , _ , ⊢Γ , cons , not-cons , _ =
           consistency-is-not-preserved ok
     in
-    not-con (hyp ⊢Γ con)
+    not-cons (hyp ⊢Γ cons)
 
 opaque
 
@@ -263,10 +259,10 @@ opaque
        Consistent (∇ » Γ) →
        Consistent (ε » inline-Conᵈ ∇ Γ))
   ¬Consistent→Consistent-inline-Con ok hyp =
-    let _ , _ , _ , _ , ⊢Γ , con , _ , not-con , _ =
+    let _ , _ , _ , _ , ⊢Γ , cons , _ , not-cons , _ =
           consistency-is-not-preserved ok
     in
-    not-con (hyp ⊢Γ con)
+    not-cons (hyp ⊢Γ cons)
 
 opaque
 
@@ -282,10 +278,10 @@ opaque
        Consistent (∇ » Γ) →
        Consistent (∇′ » Γ))
   ¬Consistent→Consistent-⊇ ok hyp =
-    let _ , _ , _ , _ , ⊢Γ , con , _ , _ , _ , _ , ∇′⊇∇ , not-con =
+    let _ , _ , _ , _ , ⊢Γ , cons , _ , _ , _ , _ , ∇′⊇∇ , not-cons =
           consistency-is-not-preserved ok
     in
-    not-con (hyp ⊢Γ ∇′⊇∇ con)
+    not-cons (hyp ⊢Γ ∇′⊇∇ cons)
 
 ------------------------------------------------------------------------
 -- An alternative notion of consistency
@@ -473,10 +469,10 @@ opaque
     ¬ (∀ {m n} {Γ : Cons m n} →
        ⊢ Γ → Consistent Γ → All-extensions-consistent Γ)
   ¬Consistent→All-extensions-consistent ok hyp =
-    let _ , _ , _ , _ , ⊢Γ , con , _ , _ , _ , _ , ∇′⊇∇ , not-con =
+    let _ , _ , _ , _ , ⊢Γ , cons , _ , _ , _ , _ , ∇′⊇∇ , not-cons =
           consistency-is-not-preserved ok
     in
-    not-con (hyp ⊢Γ con ∇′⊇∇)
+    not-cons (hyp ⊢Γ cons ∇′⊇∇)
 
 opaque
   unfolding All-extensions-consistent

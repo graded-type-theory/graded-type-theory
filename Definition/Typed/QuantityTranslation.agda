@@ -26,6 +26,7 @@ open Are-preserving-type-restrictions pres
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -36,11 +37,14 @@ open import Definition.Typed
 import Definition.Typed.Properties
 import Definition.Typed.Substitution
 open import Definition.Untyped
+import Definition.Untyped.Allowed-literal
 import Definition.Untyped.Erased
 open import Definition.Untyped.QuantityTranslation tr tr-Σ
 import Definition.Untyped.Sup
 
 private
+  module A₁  = Definition.Untyped.Allowed-literal R₁
+  module A₂  = Definition.Untyped.Allowed-literal R₂
   module E₁  = Definition.Untyped.Erased 𝕄₁
   module E₂  = Definition.Untyped.Erased 𝕄₂
   module R₁  = Type-restrictions R₁
@@ -57,38 +61,66 @@ private
   module US₂ = Definition.Untyped.Sup R₂
 
 private variable
-  x               : Fin _
-  ∇ ∇′            : DCon _ _
-  Δ               : Con _ _
-  Γ               : Cons _ _ _
-  A B l l₁ l₂ t u : Term _ _
-  σ σ′            : Subst _ _ _
-  p q             : M₁
-  s               : Strength
-  φ               : Unfolding _
+  n             : Nat
+  x             : Fin _
+  ∇ ∇′          : DCon _ _
+  Δ             : Con _ _
+  Γ             : Cons _ _ _
+  A B t t₁ t₂ u : Term _ _
+  l l₁ l₂       : Lvl _ _
+  k             : Term-kind
+  σ σ′          : Subst _ _ _
+  p q           : M₁
+  s             : Strength
+  φ             : Unfolding _
 
 opaque
+
+  -- Translation preserves Allowed-literal.
+
+  tr-Term-Allowed-literal :
+    R₁.Allowed-literal l → R₂.Allowed-literal (tr-Term l)
+  tr-Term-Allowed-literal {l = ωᵘ+ m} =
+    R₁.Allowed-literal (U₁.ωᵘ+ m)            ⇔⟨ A₁.Allowed-literal-ωᵘ+-⇔ ⟩→
+    R₁.Omega-plus-allowed                    →⟨ Omega-plus-preserved ⟩
+    R₂.Omega-plus-allowed                    ⇔˘⟨ A₂.Allowed-literal-ωᵘ+-⇔ ⟩→
+    R₂.Allowed-literal (tr-Term (U₁.ωᵘ+ m))  □
+  tr-Term-Allowed-literal {l = level t} =
+    R₁.Allowed-literal (U₁.level t)                    ⇔⟨ A₁.Allowed-literal-level-⇔ ⟩→
+    U₁.Level-literal t × ¬ R₁.Level-allowed            ⇔⟨ tr-Level-literal ×-cong-⇔ Level-allowed⇔ →-cong-⇔ id⇔ ⟩→
+    U₂.Level-literal (tr-Term t) × ¬ R₂.Level-allowed  ⇔˘⟨ A₂.Allowed-literal-level-⇔ ⟩→
+    R₂.Allowed-literal (U₂.level (tr-Term t))          □
+
+opaque
+  unfolding Definition.Untyped.Sup._supᵘₗ_
 
   -- The function tr-Term commutes with _supᵘₗ_.
 
   tr-Term-supᵘₗ :
+    {l₁ l₂ : U₁.Term[ k ] n} →
     tr-Term l₁ US₂.supᵘₗ tr-Term l₂ PE.≡
     tr-Term (l₁ US₁.supᵘₗ l₂)
-  tr-Term-supᵘₗ {l₁} {l₂} with R₁.Level-allowed? | R₂.Level-allowed?
+  tr-Term-supᵘₗ {l₁ = ωᵘ+ _}   {l₂ = ωᵘ+ _}   = PE.refl
+  tr-Term-supᵘₗ {l₁ = ωᵘ+ _}   {l₂ = level _} = PE.refl
+  tr-Term-supᵘₗ {l₁ = level _} {l₂ = ωᵘ+ _}   = PE.refl
+  tr-Term-supᵘₗ {l₁ = level _} {l₂ = level _} =
+    PE.cong level tr-Term-supᵘₗ
+  tr-Term-supᵘₗ {k = tm} {l₁ = t₁} {l₂ = t₂}
+    with R₁.Level-allowed? | R₂.Level-allowed?
   … | yes ok₁ | yes ok₂ =
-    tr-Term l₁ US₂.supᵘₗ tr-Term l₂  ≡⟨ US₂.supᵘₗ≡supᵘ ok₂ ⟩
-    tr-Term l₁ supᵘ tr-Term l₂       ≡⟨⟩
-    tr-Term (l₁ supᵘ l₂)             ≡˘⟨ PE.cong tr-Term $ US₁.supᵘₗ≡supᵘ ok₁ ⟩
-    tr-Term (l₁ US₁.supᵘₗ l₂)        ∎
+    tr-Term t₁ US₂.supᵘₗ tr-Term t₂  ≡⟨ US₂.supᵘₗ≡supᵘ-tm ok₂ ⟩
+    tr-Term t₁ supᵘ tr-Term t₂       ≡⟨⟩
+    tr-Term (t₁ supᵘ t₂)             ≡˘⟨ PE.cong tr-Term $ US₁.supᵘₗ≡supᵘ-tm ok₁ ⟩
+    tr-Term (t₁ US₁.supᵘₗ t₂)        ∎
   … | yes ok  | no not-ok =
     ⊥-elim (not-ok (Level-allowed⇔ .proj₁ ok))
   … | no not-ok | yes ok =
     ⊥-elim (not-ok (Level-allowed⇔ .proj₂ ok))
   … | no not-ok₁ | no not-ok₂ =
-    tr-Term l₁ US₂.supᵘₗ tr-Term l₂  ≡⟨ US₂.supᵘₗ≡supᵘₗ′ not-ok₂ ⟩
-    tr-Term l₁ U₂.supᵘₗ′ tr-Term l₂  ≡⟨ tr-Term-supᵘₗ′ ⟩
-    tr-Term (l₁ U₁.supᵘₗ′ l₂)        ≡˘⟨ PE.cong tr-Term $ US₁.supᵘₗ≡supᵘₗ′ not-ok₁ ⟩
-    tr-Term (l₁ US₁.supᵘₗ l₂)        ∎
+    tr-Term t₁ US₂.supᵘₗ tr-Term t₂  ≡⟨ US₂.supᵘₗ≡supᵘₗ′-tm not-ok₂ ⟩
+    tr-Term t₁ U₂.supᵘₗ′ tr-Term t₂  ≡⟨ tr-Term-supᵘₗ′ ⟩
+    tr-Term (t₁ U₁.supᵘₗ′ t₂)        ≡˘⟨ PE.cong tr-Term $ US₁.supᵘₗ≡supᵘₗ′-tm not-ok₁ ⟩
+    tr-Term (t₁ US₁.supᵘₗ t₂)        ∎
 
 opaque
   unfolding Definition.Untyped.Erased.Erased
@@ -213,6 +245,7 @@ mutual
   tr-⊢∷ (lowerⱼ t) =
     lowerⱼ (tr-⊢∷ t)
   tr-⊢∷ (Uⱼ l) =
+    PE.subst (T₂._⊢_∷_ _ _) (PE.cong U (PE.sym tr-Term-1ᵘ+)) $
     Uⱼ (tr-⊢∷L l)
   tr-⊢∷ (ΠΣⱼ {l = l} ⊢l A P ok) =
     ΠΣⱼ (tr-⊢∷L ⊢l) (tr-⊢∷ A)
@@ -298,9 +331,8 @@ mutual
   tr-⊢∷L : Γ T₁.⊢ l ∷Level → tr-Cons Γ T₂.⊢ tr-Term l ∷Level
   tr-⊢∷L (term ok ⊢l) =
     term (Level-allowed⇔ .proj₁ ok) (tr-⊢∷ ⊢l)
-  tr-⊢∷L (literal not-ok ⊢Γ l-lit) =
-    literal (not-ok ∘→ Level-allowed⇔ .proj₂) (tr-⊢ ⊢Γ)
-      (tr-Level-literal .proj₁ l-lit)
+  tr-⊢∷L (literal ok ⊢Γ) =
+    literal (tr-Term-Allowed-literal ok) (tr-⊢ ⊢Γ)
 
   -- Preservation of _⊢_≡_.
 
@@ -370,7 +402,7 @@ mutual
   tr-⊢≡∷ (app-cong {G = P} t≡u v≡w) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] P)
       (app-cong (tr-⊢≡∷ t≡u) (tr-⊢≡∷ v≡w))
-  tr-⊢≡∷ (β-red {G = P} {t} ⊢P ⊢t u PE.refl ok) =
+  tr-⊢≡∷ (β-red {B = P} {t} ⊢P ⊢t u PE.refl ok) =
     PE.subst₂ (T₂._⊢_≡_∷_ _ _)
       (tr-Term-[] t)
       (tr-Term-[] P)
@@ -519,9 +551,8 @@ mutual
     tr-Cons Γ T₂.⊢ tr-Term l₁ ≡ tr-Term l₂ ∷Level
   tr-⊢≡∷L (term ok l₁≡l₂) =
     term (Level-allowed⇔ .proj₁ ok) (tr-⊢≡∷ l₁≡l₂)
-  tr-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
-    literal (not-ok ∘→ Level-allowed⇔ .proj₂) (tr-⊢ ⊢Γ)
-      (tr-Level-literal .proj₁ l-lit)
+  tr-⊢≡∷L (literal ok ⊢Γ) =
+    literal (tr-Term-Allowed-literal ok) (tr-⊢ ⊢Γ)
 
 -- Preservation of _⊢ˢ_∷_.
 
@@ -589,10 +620,10 @@ module _
     lower-subst (tr-⊢⇒∷ t⇒u)
   tr-⊢⇒∷ (Lift-β A u) =
     Lift-β (tr-⊢′ A) (tr-⊢∷ u)
-  tr-⊢⇒∷ (app-subst {G = P} t⇒u v) =
+  tr-⊢⇒∷ (app-subst {B = P} t⇒u v) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] P)
       (app-subst (tr-⊢⇒∷ t⇒u) (tr-⊢∷ v))
-  tr-⊢⇒∷ (β-red {G = P} {t} ⊢P ⊢t u PE.refl ok) =
+  tr-⊢⇒∷ (β-red {B = P} {t} ⊢P ⊢t u PE.refl ok) =
     PE.subst₂ (T₂._⊢_⇒_∷_ _ _) (tr-Term-[] t) (tr-Term-[] P)
       (β-red (tr-⊢′ ⊢P) (tr-⊢∷ ⊢t) (tr-⊢∷ u) PE.refl (ΠΣ-preserved ok))
   tr-⊢⇒∷ (fst-subst P t⇒u) =

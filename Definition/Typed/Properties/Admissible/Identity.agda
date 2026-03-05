@@ -53,9 +53,10 @@ private variable
   Δ Δ₁ Δ₂                                              : Con Term _
   Γ Η                                                  : Cons _ _
   A A₁ A₁₁ A₁₂ A₂ A₂₁ A₂₂ A′ B B₁ B₂ C
-    eq eq₁ eq₁₁ eq₁₂ eq₂ eq₂₁ eq₂₂ l l₁ l₂
+    eq eq₁ eq₁₁ eq₁₂ eq₂ eq₂₁ eq₂₂
     t t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ t′ u u₁ u₁₁ u₁₂ u₂ u₂₁ u₂₂
     v v₁ v₂ w w₁ w₁₁ w₁₂ w₂ w₂₁ w₂₂                    : Term _
+  l l₁ l₂                                              : Lvl _
   p p′ q q′                                            : M
   s                                                    : Strength
 
@@ -795,8 +796,8 @@ opaque
             (singleSubstComp _ _ v₁) (singleSubstComp _ _ v₁)) $
        cong-cong A₂₁≡A₂₂ t₂₁≡t₂₂ u₂₁≡u₂₂ B₁≡B₂
          (PE.subst₄ _⊢_≡_∷_
-            (PE.cong (_»_ _) (PE.cong (_∙_ _) (wk1-sgSubst _ _)))
-            PE.refl PE.refl wk[+1]′-[₀⇑]≡ $
+             (PE.cong (_»_ _) (PE.cong (_∙_ _) (wk1-sgSubst _ _)))
+             PE.refl PE.refl wk[+1]′-[₀⇑]≡ $
           subst-⊢≡∷-⇑ v₁≡v₂ (⊢ˢʷ≡∷-sgSubst u₁₁≡u₁₂))
          w₂₁≡w₂₂)
       where
@@ -1778,7 +1779,7 @@ opaque
   -- the context pair Γ.
 
   Is-function-extensionality :
-    M → M → M → M → Term n → Term n → Cons m n → Term n → Set a
+    M → M → M → M → Lvl n → Lvl n → Cons m n → Term n → Set a
   Is-function-extensionality p q p′ q′ l₁ l₂ Γ t =
     Γ ⊢ t ∷ Funext p q p′ q′ l₁ l₂
 
@@ -1789,7 +1790,7 @@ opaque
   -- context pair Γ.
 
   Has-function-extensionality :
-    M → M → M → M → Term n → Term n → Cons m n → Set a
+    M → M → M → M → Lvl n → Lvl n → Cons m n → Set a
   Has-function-extensionality p q p′ q′ l₁ l₂ Γ =
     ∃ (Is-function-extensionality p q p′ q′ l₁ l₂ Γ)
 
@@ -1799,7 +1800,7 @@ opaque
   -- instance of function extensionality holds.
 
   with-function-extensionality-assumption :
-    M → M → M → M → Term n → Term n → Cons m n → Cons m (1+ n)
+    M → M → M → M → Lvl n → Lvl n → Cons m n → Cons m (1+ n)
   with-function-extensionality-assumption p q p′ q′ l₁ l₂ Γ =
     Γ »∙ Funext p q p′ q′ l₁ l₂
 

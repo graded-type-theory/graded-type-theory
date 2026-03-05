@@ -33,7 +33,8 @@ private
   variable
     m n : Nat
     Γ : Cons m n
-    A l t : Term n
+    A t : Term n
+    l : Lvl _
 
 soundness⇉-var :
   ∀ {x} → ⊢ Γ → x ∷ A ∈ Γ .vars → (Γ ⊢ A) × (Γ ⊢ var x ∷ A)
@@ -78,7 +79,7 @@ mutual
     Levelⱼ′ ok ⊢Γ , supᵘⱼ ⊢t (soundness⇇ u⇇Level)
   soundness⇉ ⊢Γ (Uᵢ ⊢l) =
     let ⊢l = soundness⇇Level ⊢Γ ⊢l in
-    ⊢U (⊢sucᵘ ⊢l) , Uⱼ ⊢l
+    ⊢U (⊢1ᵘ+ ⊢l) , Uⱼ ⊢l
   soundness⇉ ⊢Γ (Liftᵢ x y ↘U) =
     let _ , ⊢A = soundness⇉ ⊢Γ y
         ⊢l₂ = soundness⇇Level ⊢Γ x
@@ -219,5 +220,5 @@ mutual
   soundness⇇Level : ⊢ Γ → Γ ⊢ l ⇇Level → Γ ⊢ l ∷Level
   soundness⇇Level _ (term ok ⊢l) =
     term ok (soundness⇇ ⊢l)
-  soundness⇇Level ⊢Γ (literal not-ok l-lit) =
-    literal not-ok ⊢Γ l-lit
+  soundness⇇Level ⊢Γ (literal ok) =
+    literal ok ⊢Γ

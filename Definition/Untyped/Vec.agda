@@ -44,7 +44,8 @@ open Modality 𝕄
 
 private variable
   n : Nat
-  A P k l h t nl cs xs : Term _
+  A P k h t nl cs xs : Term _
+  l : Lvl _
   σ : Subst _ _
   ρ : Wk _ _
   p₁ p₂ r q q₁ q₂ : M
@@ -54,7 +55,7 @@ private variable
 
 opaque
 
-  Vec′ : (l A k : Term n) → Term n
+  Vec′ : Lvl n → (_ _ : Term n) → Term n
   Vec′ l A k =
     natrec 𝟘 𝟘 𝟙
       (U (wk1 l))
@@ -64,7 +65,7 @@ opaque
 
 opaque
 
-  Vec : Term n → Term n
+  Vec : Lvl n → Term n
   Vec l = lam 𝟙 (lam 𝟙 (Vec′ (wk[ 2 ]′ l) (var x1) (var x0)))
 
 opaque
@@ -126,7 +127,8 @@ opaque
   vecrec′ :
     {n : Nat} →
     (p₁ p₂ r q₁ q₂ : M)
-    (l A : Term n)
+    (l : Lvl n)
+    (A : Term n)
     (P : Term (2+ n))
     (nl : Term n)
     (cs : Term (4+ n))
@@ -281,14 +283,15 @@ module Internal (R : Type-restrictions 𝕄) where
     c : I.Constants
     pᵢ p₁ᵢ p₂ᵢ p₃ᵢ p₄ᵢ p₅ᵢ p₆ᵢ q₁ᵢ q₂ᵢ : I.Termᵍ _
     sᵢ : I.Termˢ _
-    Aᵢ A₁ᵢ A₂ᵢ lᵢ tᵢ t₁ᵢ t₂ᵢ t₃ᵢ t₄ᵢ uᵢ vᵢ : I.Term _ _
+    Aᵢ A₁ᵢ A₂ᵢ tᵢ t₁ᵢ t₂ᵢ t₃ᵢ t₄ᵢ uᵢ vᵢ : I.Term _ _
+    lᵢ : I.Lvl _ _
     γ : I.Contexts _
 
   -- A variant of Vec′.
 
   Vec′ᵢ :
-    I.Termˢ (c .I.ss) → I.Termᵍ (c .I.gs) → (_ _ _ : I.Term c n) →
-    I.Term c n
+    I.Termˢ (c .I.ss) → I.Termᵍ (c .I.gs) → I.Lvl c n →
+    (_ _ : I.Term c n) → I.Term c n
   Vec′ᵢ s p l A t =
     I.natrec I.𝟘 I.𝟘 I.𝟙
       (I.U (IW.wk[ 1 ] l))
@@ -311,7 +314,7 @@ module Internal (R : Type-restrictions 𝕄) where
   -- A variant of Vec.
 
   Vecᵢ :
-    I.Termˢ (c .I.ss) → (_ _ _ : I.Termᵍ (c .I.gs)) → I.Term c n →
+    I.Termˢ (c .I.ss) → (_ _ _ : I.Termᵍ (c .I.gs)) → I.Lvl c n →
     I.Term c n
   Vecᵢ s p q₁ q₂ l =
     I.lam I.𝟙 (just (q₁ , I.U l)) $
@@ -400,7 +403,7 @@ module Internal (R : Type-restrictions 𝕄) where
 
   vecrecᵢ :
     I.Termˢ (c .I.ss) →
-    (_ _ _ _ _ _ : I.Termᵍ (c .I.gs)) (_ _ : I.Term c n) →
+    (_ _ _ _ _ _ : I.Termᵍ (c .I.gs)) → I.Lvl c n → I.Term c n →
     I.Term c (2+ n) → I.Term c n → I.Term c (4+ n) →
     (_ _ : I.Term c n) → I.Term c n
   vecrecᵢ s p₁ p₂ p₃ p₄ p₅ p₆ l A₁ A₂ t₁ t₂ t₃ t₄ =

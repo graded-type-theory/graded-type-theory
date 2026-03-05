@@ -24,12 +24,13 @@ import Definition.LogicalRelation.Weakening R as LW
 open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Definition.Typed R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R using (_»_∷ʷ_⊇_)
 open import Definition.Typed.Weakening.Definition R as W
   hiding (defn-wk; defn-wkTerm; defn-wkEq; defn-wkEqTerm)
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
@@ -43,14 +44,16 @@ open import Tools.Reasoning.PropositionalEquality
 
 private
   variable
-    ℓ : L.Level
+    p : L.Level
     ∇ ∇′ : DCon (Term 0) _
     Γ Δ : Con Term _
     Η : Cons _ _
     A B t t′ u : Term _
+    l l′ l₁ l₂ : Lvl _
     ρ : Wk _ _
-    l l₁ l₂ : Universe-level
+    ℓ ℓ₁ ℓ₂ : Universe-level
     s : Strength
+    ok₁ ok₂ : Level-allowed
 
 opaque
 
@@ -141,12 +144,12 @@ opaque mutual
   -- Weakening for _⊩Level_∷Level.
 
   defn-wk-⊩∷L :
-    » ∇′ ⊇ ∇ → ∇ » Γ ⊩Level t ∷Level → ∇′ » Γ ⊩Level t ∷Level
+    » ∇′ ⊇ ∇ → ∇ » Γ ⊩Level l ∷Level → ∇′ » Γ ⊩Level l ∷Level
   defn-wk-⊩∷L ∇′⊇∇ = λ where
     (term l⇒l′ l′-prop) →
       term (defn-wkRed*Term ∇′⊇∇ l⇒l′) (defn-wk-Level-prop ∇′⊇∇ l′-prop)
-    (literal not-ok ⊢Γ l-lit) →
-      literal not-ok (defn-wk′ ∇′⊇∇ ⊢Γ) l-lit
+    (literal ok ⊢Γ) →
+      literal ok (defn-wk′ ∇′⊇∇ ⊢Γ)
 
   -- Weakening for Level-prop.
 
@@ -177,13 +180,14 @@ opaque mutual
   -- Weakening for _⊩Level_≡_∷Level.
 
   defn-wk-⊩≡∷L :
-    » ∇′ ⊇ ∇ → ∇ » Γ ⊩Level t ≡ u ∷Level → ∇′ » Γ ⊩Level t ≡ u ∷Level
+    » ∇′ ⊇ ∇ → ∇ » Γ ⊩Level l₁ ≡ l₂ ∷Level →
+    ∇′ » Γ ⊩Level l₁ ≡ l₂ ∷Level
   defn-wk-⊩≡∷L ∇′⊇∇ = λ where
     (term l₁⇒l₁′ l₂⇒l₂′ l₁′≡l₂′) →
       term (defn-wkRed*Term ∇′⊇∇ l₁⇒l₁′) (defn-wkRed*Term ∇′⊇∇ l₂⇒l₂′)
         (defn-wk-[Level]-prop ∇′⊇∇ l₁′≡l₂′)
-    (literal! not-ok ⊢Γ l-lit) →
-      literal! not-ok (defn-wk′ ∇′⊇∇ ⊢Γ) l-lit
+    (literal! ok ⊢Γ) →
+      literal! ok (defn-wk′ ∇′⊇∇ ⊢Γ)
 
   -- Weakening for [Level]-prop.
 
@@ -241,26 +245,26 @@ opaque mutual
       ne (defn-wkEqTermNe ∇′⊇∇ l₁≡l₂)
 
 opaque
- unfolding ↑ⁿ_ defn-wk-⊩∷L
+ unfolding ↑ⁿ defn-wk-⊩∷L
  mutual
 
   -- The function defn-wk-⊩∷L does not affect the result of ↑ⁿ.
 
   ↑ⁿ-defn-wk-⊩∷L :
-    (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩t : ∇ » Γ ⊩Level t ∷Level) →
-    ↑ⁿ ⊩t PE.≡ ↑ⁿ (defn-wk-⊩∷L ∇′⊇∇ ⊩t)
-  ↑ⁿ-defn-wk-⊩∷L ∇′⊇∇ = λ where
+    (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩t : ∇ » Γ ⊩Level level t ∷Level) →
+    ↑ⁿ ok₁ ⊩t PE.≡ ↑ⁿ ok₂ (defn-wk-⊩∷L ∇′⊇∇ ⊩t)
+  ↑ⁿ-defn-wk-⊩∷L {ok₁} ∇′⊇∇ = λ where
     (term _ l′-prop) →
       ↑ⁿ-prop-defn-wk-Level-prop ∇′⊇∇ l′-prop
-    (literal _ _ _) →
-      PE.refl
+    (literal ok _) →
+      Level-allowed→Allowed-literal→ ok₁ ok
 
   -- The function defn-wk-Level-prop does not affect the result of
   -- ↑ⁿ-prop.
 
   ↑ⁿ-prop-defn-wk-Level-prop :
     (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩t : Level-prop (∇ » Γ) t) →
-    ↑ⁿ-prop ⊩t PE.≡ ↑ⁿ-prop (defn-wk-Level-prop ∇′⊇∇ ⊩t)
+    ↑ⁿ-prop ok₁ ⊩t PE.≡ ↑ⁿ-prop ok₂ (defn-wk-Level-prop ∇′⊇∇ ⊩t)
   ↑ⁿ-prop-defn-wk-Level-prop ∇′⊇∇ = λ where
     (zeroᵘᵣ _) →
       PE.refl
@@ -274,7 +278,7 @@ opaque
 
   ↑ⁿ-neprop-defn-wk-neLevel-prop :
     (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩t : neLevel-prop (∇ » Γ) t) →
-    ↑ⁿ-neprop ⊩t PE.≡ ↑ⁿ-neprop (defn-wk-neLevel-prop ∇′⊇∇ ⊩t)
+    ↑ⁿ-neprop ok₁ ⊩t PE.≡ ↑ⁿ-neprop ok₂ (defn-wk-neLevel-prop ∇′⊇∇ ⊩t)
   ↑ⁿ-neprop-defn-wk-neLevel-prop ∇′⊇∇ = λ where
     (supᵘˡᵣ ⊩l₁ ⊩l₂) →
       PE.cong₂ _⊔_ (↑ⁿ-neprop-defn-wk-neLevel-prop ∇′⊇∇ ⊩l₁)
@@ -286,63 +290,67 @@ opaque
       PE.refl
 
 opaque
+  unfolding ↑ᵘ defn-wk-⊩∷L
 
   -- The function defn-wk-⊩∷L does not affect the result of ↑ᵘ.
 
   ↑ᵘ-defn-wk-⊩∷L :
-    {⊩t : ∇ » Γ ⊩Level t ∷Level}
+    {⊩l : ∇ » Γ ⊩Level l ∷Level}
     (∇′⊇∇ : » ∇′ ⊇ ∇) →
-    ↑ᵘ ⊩t PE.≡ ↑ᵘ (defn-wk-⊩∷L ∇′⊇∇ ⊩t)
-  ↑ᵘ-defn-wk-⊩∷L ∇′⊇∇ = PE.cong 0ᵘ+_ (↑ⁿ-defn-wk-⊩∷L ∇′⊇∇ _)
+    ↑ᵘ ⊩l PE.≡ ↑ᵘ (defn-wk-⊩∷L ∇′⊇∇ ⊩l)
+  ↑ᵘ-defn-wk-⊩∷L {⊩l = term _ _} ∇′⊇∇ =
+    PE.cong 0ᵘ+ (↑ⁿ-defn-wk-⊩∷L ∇′⊇∇ _)
+  ↑ᵘ-defn-wk-⊩∷L {⊩l = literal _ _} _ =
+    PE.refl
 
 opaque
 
   -- A variant of ↑ᵘ-irrelevance.
 
   ↑ᵘ-irrelevance-»⊇ :
-    {⊩t : ∇′ » Γ ⊩Level t ∷Level}
-    {⊩t′ : ∇ » Γ ⊩Level t ∷Level} →
+    {⊩l : ∇′ » Γ ⊩Level l ∷Level}
+    {⊩l′ : ∇ » Γ ⊩Level l ∷Level} →
     » ∇′ ⊇ ∇ →
-    ↑ᵘ ⊩t PE.≡ ↑ᵘ ⊩t′
-  ↑ᵘ-irrelevance-»⊇ {⊩t} {⊩t′} ∇′⊇∇ =
-    ↑ᵘ ⊩t                      ≡⟨ ↑ᵘ-irrelevance ⟩
-    ↑ᵘ (defn-wk-⊩∷L ∇′⊇∇ ⊩t′)  ≡˘⟨ ↑ᵘ-defn-wk-⊩∷L ∇′⊇∇ ⟩
-    ↑ᵘ ⊩t′                     ∎
+    ↑ᵘ ⊩l PE.≡ ↑ᵘ ⊩l′
+  ↑ᵘ-irrelevance-»⊇ {⊩l} {⊩l′} ∇′⊇∇ =
+    ↑ᵘ ⊩l                      ≡⟨ ↑ᵘ-irrelevance ⟩
+    ↑ᵘ (defn-wk-⊩∷L ∇′⊇∇ ⊩l′)  ≡˘⟨ ↑ᵘ-defn-wk-⊩∷L ∇′⊇∇ ⟩
+    ↑ᵘ ⊩l′                     ∎
 
 opaque
 
   -- A combination of LW.wk-↑ᵘ and ↑ᵘ-irrelevance-»⊇.
 
   ↑ᵘ-irrelevance-»∷ʷ⊇-»⊇ :
-    {⊩t : ∇ » Γ ⊩Level t ∷Level}
-    {⊩t′ : ∇′ » Δ ⊩Level t′ ∷Level} →
+    {⊩l : ∇ » Γ ⊩Level l ∷Level}
+    {⊩l′ : ∇′ » Δ ⊩Level l′ ∷Level} →
     » ∇′ ⊇ ∇ →
     ∇′ » ρ ∷ʷ Δ ⊇ Γ →
-    wk ρ t PE.≡ t′ →
-    ↑ᵘ ⊩t′ PE.≡ ↑ᵘ ⊩t
-  ↑ᵘ-irrelevance-»∷ʷ⊇-»⊇ {⊩t} {⊩t′} ∇′⊇∇ Δ⊇Γ PE.refl =
-    ↑ᵘ ⊩t′                  ≡⟨ LW.wk-↑ᵘ Δ⊇Γ PE.refl ⟩
-    ↑ᵘ defn-wk-⊩∷L ∇′⊇∇ ⊩t  ≡⟨ ↑ᵘ-irrelevance-»⊇ ∇′⊇∇ ⟩
-    ↑ᵘ ⊩t                   ∎
+    wk ρ l PE.≡ l′ →
+    ↑ᵘ ⊩l′ PE.≡ ↑ᵘ ⊩l
+  ↑ᵘ-irrelevance-»∷ʷ⊇-»⊇ {⊩l} {⊩l′} ∇′⊇∇ Δ⊇Γ PE.refl =
+    ↑ᵘ ⊩l′                    ≡⟨ LW.wk-↑ᵘ Δ⊇Γ PE.refl ⟩
+    ↑ᵘ (defn-wk-⊩∷L ∇′⊇∇ ⊩l)  ≡⟨ ↑ᵘ-irrelevance-»⊇ ∇′⊇∇ ⟩
+    ↑ᵘ ⊩l                     ∎
 
 private opaque
 
   -- A lemma used below.
 
   cast-⊩↑ᵘ≡/ :
-    (⊩t : ∇ » Γ ⊩Level t ∷Level)
+    (⊩l : ∇ » Γ ⊩Level l ∷Level)
     (∇′⊇∇ : » ∇′ ⊇ ∇)
-    (⊩A : ∇′ » Γ ⊩⟨ ↑ᵘ ⊩t ⟩ A) →
-    ∇′ » Γ ⊩⟨ ↑ᵘ ⊩t ⟩ A ≡ B / ⊩A →
-    ∇′ » Γ ⊩⟨ ↑ᵘ defn-wk-⊩∷L ∇′⊇∇ ⊩t ⟩ A ≡ B /
+    (⊩A : ∇′ » Γ ⊩⟨ ↑ᵘ ⊩l ⟩ A) →
+    ∇′ » Γ ⊩⟨ ↑ᵘ ⊩l ⟩ A ≡ B / ⊩A →
+    ∇′ » Γ ⊩⟨ ↑ᵘ (defn-wk-⊩∷L ∇′⊇∇ ⊩l) ⟩ A ≡ B /
       PE.subst (flip (_⊩⟨_⟩_ _) _) (↑ᵘ-defn-wk-⊩∷L ∇′⊇∇) ⊩A
-  cast-⊩↑ᵘ≡/ ⊩t ∇′⊇∇ ⊩A A≡B = lemma _ _ A≡B
+  cast-⊩↑ᵘ≡/ ⊩l ∇′⊇∇ ⊩A A≡B = lemma _ _ A≡B
     where
     lemma :
-      (l₁≡l₂ : l₁ PE.≡ l₂)
-      (⊩A : Η ⊩⟨ l₁ ⟩ A) →
-      Η ⊩⟨ l₁ ⟩ A ≡ B / ⊩A →
-      Η ⊩⟨ l₂ ⟩ A ≡ B / PE.subst (flip (_⊩⟨_⟩_ _) _) l₁≡l₂ ⊩A
+      (ℓ₁≡ℓ₂ : ℓ₁ PE.≡ ℓ₂)
+      (⊩A : Η ⊩⟨ ℓ₁ ⟩ A) →
+      Η ⊩⟨ ℓ₁ ⟩ A ≡ B / ⊩A →
+      Η ⊩⟨ ℓ₂ ⟩ A ≡ B / PE.subst (flip (_⊩⟨_⟩_ _) _) ℓ₁≡ℓ₂ ⊩A
     lemma PE.refl _ A≡B = A≡B
 
 private
@@ -350,7 +358,7 @@ private
   _•ᵈ→_ :
     ∀ {κ} {∇ : DCon (Term 0) κ} →
     {P : ∀ {κ′} {∇′ : DCon (Term 0) κ′}
-       → ([ξ] : » ∇′ ⊇ ∇) → Set ℓ} →
+       → ([ξ] : » ∇′ ⊇ ∇) → Set p} →
     ∀ {κ*} {∇* : DCon (Term 0) κ*} →
     ([ξ*] : » ∇* ⊇ ∇) →
     (∀ {κ′} {∇′ : DCon (Term 0) κ′}
@@ -364,21 +372,21 @@ private
   -- Types and lemmas used to implement defn-wk, defn-wkEq and
   -- defn-wkEqTerm.
 
-  record Defn-wk (l : Universe-level) : Set a where
+  record Defn-wk (ℓ : Universe-level) : Set a where
     field
-      defn-wk       : » ∇′ ⊇ ∇ → ∇ » Γ ⊩⟨ l ⟩ A → ∇′ » Γ ⊩⟨ l ⟩ A
+      defn-wk       : » ∇′ ⊇ ∇ → ∇ » Γ ⊩⟨ ℓ ⟩ A → ∇′ » Γ ⊩⟨ ℓ ⟩ A
 
-      defn-wkEq     : (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-                      ∇ » Γ ⊩⟨ l ⟩ A ≡ B / ⊩A →
-                      ∇′ » Γ ⊩⟨ l ⟩ A ≡ B / defn-wk ∇′⊇∇ ⊩A
+      defn-wkEq     : (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+                      ∇ » Γ ⊩⟨ ℓ ⟩ A ≡ B / ⊩A →
+                      ∇′ » Γ ⊩⟨ ℓ ⟩ A ≡ B / defn-wk ∇′⊇∇ ⊩A
 
-      defn-wkEqTerm : (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-                      ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
-                      ∇′ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / defn-wk ∇′⊇∇ ⊩A
+      defn-wkEqTerm : (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+                      ∇ » Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A / ⊩A →
+                      ∇′ » Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A / defn-wk ∇′⊇∇ ⊩A
 
-  module Defn-wk-inhabited (rec : ∀ {l′} → l′ <ᵘ l → Defn-wk l′) where
+  module Defn-wk-inhabited (rec : ∀ {ℓ′} → ℓ′ <ᵘ ℓ → Defn-wk ℓ′) where
 
-    module Rec {l′} (<l : l′ <ᵘ l) = Defn-wk (rec <l)
+    module Rec {ℓ′} (<ℓ : ℓ′ <ᵘ ℓ) = Defn-wk (rec <ℓ)
 
     opaque
      unfolding »⊇-trans
@@ -386,8 +394,8 @@ private
 
       defn-wk :
         » ∇′ ⊇ ∇ →
-        ∇ » Γ ⊩⟨ l ⟩ A →
-        ∇′ » Γ ⊩⟨ l ⟩ A
+        ∇ » Γ ⊩⟨ ℓ ⟩ A →
+        ∇′ » Γ ⊩⟨ ℓ ⟩ A
       defn-wk ξ⊇ (Levelᵣ ⇒*Level) =
         Levelᵣ (defn-wkRed* ξ⊇ ⇒*Level)
       defn-wk ξ⊇ (Uᵣ′ _ ⊩k k< D) =
@@ -417,16 +425,16 @@ private
 
       defn-wkTerm :
         (ξ⊇ : » ∇′ ⊇ ∇) →
-        ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-        ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A] →
-        ∇′ » Γ ⊩⟨ l ⟩ t ∷ A / defn-wk ξ⊇ [A]
+        ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+        ∇ » Γ ⊩⟨ ℓ ⟩ t ∷ A / [A] →
+        ∇′ » Γ ⊩⟨ ℓ ⟩ t ∷ A / defn-wk ξ⊇ [A]
       defn-wkTerm = defn-wkEqTerm
 
       defn-wkEq :
         (ξ⊇ : » ∇′ ⊇ ∇) →
-        ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-        ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A] →
-        ∇′ » Γ ⊩⟨ l ⟩ A ≡ B / defn-wk ξ⊇ [A]
+        ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+        ∇ » Γ ⊩⟨ ℓ ⟩ A ≡ B / [A] →
+        ∇′ » Γ ⊩⟨ ℓ ⟩ A ≡ B / defn-wk ξ⊇ [A]
       defn-wkEq ξ⊇ (Levelᵣ _) ⇒*Level =
         defn-wkRed* ξ⊇ ⇒*Level
       defn-wkEq ξ⊇ (Uᵣ′ _ _ _ _) (U₌ _ ⇒*U l₁≡l₂) =
@@ -457,29 +465,29 @@ private
 
       defn-wkEqTerm :
         (ξ⊇ : » ∇′ ⊇ ∇) →
-        ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-        ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] →
-        ∇′ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / defn-wk ξ⊇ [A]
+        ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+        ∇ » Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A / [A] →
+        ∇′ » Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A / defn-wk ξ⊇ [A]
       defn-wkEqTerm ξ⊇ (Levelᵣ _) t≡u =
         defn-wk-⊩≡∷L ξ⊇ t≡u
       defn-wkEqTerm
-        ∇′⊇∇ (Uᵣ′ _ ⊩l′ l′<l _)
+        ∇′⊇∇ (Uᵣ′ _ ⊩l′ l′<ℓ _)
         (Uₜ₌ _ _ d d′ A-type B-type A≅B ⊩t ⊩u t≡u) =
-        let l′<l′ =
-              PE.subst (flip _<ᵘ_ _) (↑ᵘ-defn-wk-⊩∷L ∇′⊇∇) l′<l
+        let l′<ℓ′ =
+              PE.subst (flip _<ᵘ_ _) (↑ᵘ-defn-wk-⊩∷L ∇′⊇∇) l′<ℓ
         in
         Uₜ₌ _ _ (defn-wkRed*Term ∇′⊇∇ d) (defn-wkRed*Term ∇′⊇∇ d′)
           (defn-wkType ∇′⊇∇ A-type) (defn-wkType ∇′⊇∇ B-type)
           (≅ₜ-defn-wk ∇′⊇∇ A≅B)
-          (⊩<⇔⊩ l′<l′ .proj₂ $
+          (⊩<⇔⊩ l′<ℓ′ .proj₂ $
            PE.subst (flip (_⊩⟨_⟩_ _) _) (↑ᵘ-defn-wk-⊩∷L ∇′⊇∇) $
-           Rec.defn-wk l′<l ∇′⊇∇ (⊩<⇔⊩ l′<l .proj₁ ⊩t))
-          (⊩<⇔⊩ l′<l′ .proj₂ $
+           Rec.defn-wk l′<ℓ ∇′⊇∇ (⊩<⇔⊩ l′<ℓ .proj₁ ⊩t))
+          (⊩<⇔⊩ l′<ℓ′ .proj₂ $
            PE.subst (flip (_⊩⟨_⟩_ _) _) (↑ᵘ-defn-wk-⊩∷L ∇′⊇∇) $
-           Rec.defn-wk l′<l ∇′⊇∇ (⊩<⇔⊩ l′<l .proj₁ ⊩u))
-          (⊩<≡⇔⊩≡ l′<l′ .proj₂ $
+           Rec.defn-wk l′<ℓ ∇′⊇∇ (⊩<⇔⊩ l′<ℓ .proj₁ ⊩u))
+          (⊩<≡⇔⊩≡ l′<ℓ′ .proj₂ $
            irrelevanceEq _ _ $ cast-⊩↑ᵘ≡/ ⊩l′ ∇′⊇∇ _ $
-           Rec.defn-wkEq l′<l ∇′⊇∇ _ (⊩<≡⇔⊩≡ l′<l .proj₁ t≡u))
+           Rec.defn-wkEq l′<ℓ ∇′⊇∇ _ (⊩<≡⇔⊩≡ l′<ℓ .proj₁ t≡u))
       defn-wkEqTerm ξ⊇ (Liftᵣ′ _ _ ⊩A) (_ , _ , t↘t′ , u↘u′ , t′≡u′) =
         _ , _ , defn-wkRed↘Term ξ⊇ t↘t′ , defn-wkRed↘Term ξ⊇ u↘u′ ,
         defn-wkEqTerm ξ⊇ ⊩A t′≡u′
@@ -576,7 +584,7 @@ private
 
   opaque
 
-    defn-wk-inhabited : Defn-wk l
+    defn-wk-inhabited : Defn-wk ℓ
     defn-wk-inhabited =
       <ᵘ-rec _ (λ _ rec → record { Defn-wk-inhabited rec }) _
 
@@ -584,7 +592,7 @@ opaque
 
   -- Weakening for _⊩⟨_⟩_.
 
-  defn-wk : » ∇′ ⊇ ∇ → ∇ » Γ ⊩⟨ l ⟩ A → ∇′ » Γ ⊩⟨ l ⟩ A
+  defn-wk : » ∇′ ⊇ ∇ → ∇ » Γ ⊩⟨ ℓ ⟩ A → ∇′ » Γ ⊩⟨ ℓ ⟩ A
   defn-wk = Defn-wk-inhabited.defn-wk (λ _ → defn-wk-inhabited)
 
 opaque
@@ -593,8 +601,8 @@ opaque
   -- Weakening for _⊩⟨_⟩_≡_/_.
 
   defn-wkEq :
-    (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B / ⊩A → ∇′ » Γ ⊩⟨ l ⟩ A ≡ B / defn-wk ∇′⊇∇ ⊩A
+    (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+    ∇ » Γ ⊩⟨ ℓ ⟩ A ≡ B / ⊩A → ∇′ » Γ ⊩⟨ ℓ ⟩ A ≡ B / defn-wk ∇′⊇∇ ⊩A
   defn-wkEq = Defn-wk-inhabited.defn-wkEq (λ _ → defn-wk-inhabited)
 
 opaque
@@ -603,9 +611,9 @@ opaque
   -- Weakening for _⊩⟨_⟩_≡_∷_/_.
 
   defn-wkEqTerm :
-    (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / ⊩A →
-    ∇′ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / defn-wk ∇′⊇∇ ⊩A
+    (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+    ∇ » Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A / ⊩A →
+    ∇′ » Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A / defn-wk ∇′⊇∇ ⊩A
   defn-wkEqTerm =
     Defn-wk-inhabited.defn-wkEqTerm (λ _ → defn-wk-inhabited)
 
@@ -614,7 +622,7 @@ opaque
   -- Weakening for _⊩⟨_⟩_∷_/_.
 
   defn-wkTerm :
-    (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ l ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A / ⊩A →
-    ∇′ » Γ ⊩⟨ l ⟩ t ∷ A / defn-wk ∇′⊇∇ ⊩A
+    (∇′⊇∇ : » ∇′ ⊇ ∇) (⊩A : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+    ∇ » Γ ⊩⟨ ℓ ⟩ t ∷ A / ⊩A →
+    ∇′ » Γ ⊩⟨ ℓ ⟩ t ∷ A / defn-wk ∇′⊇∇ ⊩A
   defn-wkTerm = defn-wkEqTerm

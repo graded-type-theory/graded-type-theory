@@ -57,7 +57,8 @@ private variable
   H : Heap _ _
   ∇ : DCon (Term 0) _
   Γ Δ : Con Term _
-  A B l t u : Term _
+  A B t u : Term _
+  l : Lvl _
   c : Cont _
   S : Stack _
   s : State _ _ _
@@ -453,7 +454,7 @@ private opaque
 
   ⊢∷L→Names<′ :
     {∇ : DCon (Term 0) n} →
-    ∇ » Γ ⊢ wk ρ t [ σ ] ∷Level → Names< n t
+    ∇ » Γ ⊢ wk ρ l [ σ ] ∷Level → Names< n l
   ⊢∷L→Names<′ = Names<-wk→ ∘→ Names<-[]→ ∘→ ⊢∷L→Names<
 
 opaque

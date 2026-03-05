@@ -30,11 +30,12 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n n₁ n₂ n₃ : Nat
-  c          : Constants
-  γ          : Contexts _
-  ρ          : Wk _ _
-  σ          : Subst _ _ _
+  m n n₁ n₂ n₃ : Nat
+  c            : Constants
+  γ            : Contexts _
+  ρ            : Wk _ _
+  σ            : Subst _ _ _
+  k            : U.Term-kind
 
 ------------------------------------------------------------------------
 -- Composition
@@ -103,7 +104,7 @@ opaque mutual
 -- Weakening (lazy): This operation applies the weakening by pushing
 -- it just below the term's top-level constructor.
 
-wk : Wk n₂ n₁ → Term c n₁ → Term c n₂
+wk : Wk n₂ n₁ → Term[ c , k ] n₁ → Term[ c , k ] n₂
 wk ρ (meta-var x σ)          = meta-var x (ρ •ₛ σ)
 wk ρ (weaken ρ′ t)           = weaken (ρ U.• ρ′) t
 wk ρ (subst t σ)             = subst t (ρ •ₛ σ)
@@ -113,8 +114,10 @@ wk ρ Empty                   = Empty
 wk ρ (emptyrec p A t)        = emptyrec p (weaken ρ A) (weaken ρ t)
 wk _ Level                   = Level
 wk _ zeroᵘ                   = zeroᵘ
-wk ρ (sucᵘ l)                = sucᵘ (weaken ρ l)
+wk ρ (1ᵘ+ l)                 = 1ᵘ+ (weaken ρ l)
 wk ρ (l₁ supᵘₗ l₂)           = weaken ρ l₁ supᵘₗ weaken ρ l₂
+wk _ (ωᵘ+ m)                 = ωᵘ+ m
+wk ρ (level l)               = level (weaken ρ l)
 wk ρ (U l)                   = U (weaken ρ l)
 wk ρ (Lift l A)              = Lift (weaken ρ l) (weaken ρ A)
 wk ρ (lift l t)              = lift (weaken ρ <$> l) (weaken ρ t)
@@ -156,7 +159,7 @@ opaque
 
   -- The function ⌜_⌝ commutes with weakening.
 
-  ⌜wk⌝ : (t : Term c n) → ⌜ wk ρ t ⌝ γ PE.≡ U.wk ρ (⌜ t ⌝ γ)
+  ⌜wk⌝ : (t : Term[ c , k ] n) → ⌜ wk ρ t ⌝ γ PE.≡ U.wk ρ (⌜ t ⌝ γ)
   ⌜wk⌝ {ρ} {γ} (meta-var x σ) =
     ⌜ meta-var x (ρ •ₛ σ) ⌝ γ         ≡⟨ ⌜meta-var⌝ (ρ •ₛ _) ⟩
     ⌜ x ⌝ᵐ γ U.[ ⌜ ρ •ₛ σ ⌝ˢ γ ]      ≡⟨ substVar-to-subst ⌜•ₛ⌝ˢ (⌜ x ⌝ᵐ γ) ⟩
@@ -179,11 +182,16 @@ opaque
     PE.refl
   ⌜wk⌝ zeroᵘ =
     PE.refl
-  ⌜wk⌝ (sucᵘ _) =
-    PE.refl
+  ⌜wk⌝ {ρ} {γ} (1ᵘ+ t) =
+    U.1ᵘ+ (U.wk ρ (⌜ t ⌝ γ))  ≡˘⟨ wk-1ᵘ+ ⟩
+    U.wk ρ (U.1ᵘ+ (⌜ t ⌝ γ))  ∎
   ⌜wk⌝ {ρ} {γ} (l₁ supᵘₗ l₂) =
     U.wk ρ (⌜ l₁ ⌝ γ) S.supᵘₗ U.wk ρ (⌜ l₂ ⌝ γ)  ≡˘⟨ S.wk-supᵘₗ ⟩
     U.wk ρ (⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ)           ∎
+  ⌜wk⌝ (ωᵘ+ _) =
+    PE.refl
+  ⌜wk⌝ (level _) =
+    PE.refl
   ⌜wk⌝ (U _) =
     PE.refl
   ⌜wk⌝ (Lift _ _) =
@@ -240,5 +248,5 @@ opaque
 
 -- Weakens a term the given number of steps.
 
-wk[_] : ∀ k → Term c n → Term c (k N.+ n)
-wk[ k ] t = weaken (U.stepn id k) t
+wk[_] : ∀ m → Term[ c , k ] n → Term[ c , k ] (m N.+ n)
+wk[ m ] t = weaken (U.stepn id m) t

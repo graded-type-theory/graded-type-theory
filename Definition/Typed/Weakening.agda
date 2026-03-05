@@ -16,6 +16,7 @@ module Definition.Typed.Weakening
 open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk; wk′)
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Erased 𝕄
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
@@ -36,15 +37,44 @@ open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Size
 open import Tools.Size.Instances
+open import Tools.Sum as ⊎
 
 private
   variable
     ∇ : DCon (Term 0) _
     k ℓ n n′ m : Nat
     s s₂ : Size
-    A A′ A₁ A₂ B C l l₁ l₂ t t′ t₁ t₂ u : Term n
+    A A′ A₁ A₂ B C t t′ t₁ t₂ u : Term n
+    l l₁ l₂ : Lvl _
     Γ Δ Δ′ Η : Con Term _
     ρ ρ′ ρ₁ ρ₂ : Wk _ _
+
+------------------------------------------------------------------------
+-- Some lemmas related to Allowed-literal
+
+opaque
+  unfolding Allowed-literal
+
+  -- A weakening lemma for Allowed-literal.
+
+  Allowed-literal-wk-⇔ :
+    Allowed-literal (U.wk ρ l) ⇔ Allowed-literal l
+  Allowed-literal-wk-⇔ {l = ωᵘ+ _}   = id⇔
+  Allowed-literal-wk-⇔ {l = level _} =
+    sym⇔ wk-Level-literal ×-cong-⇔ id⇔
+
+opaque
+  unfolding Allowed-literal→Universe-level Allowed-literal-wk-⇔
+
+  Allowed-literal→Universe-level-Allowed-literal-wk-⇔ :
+    {ok : Allowed-literal l} →
+    Allowed-literal→Universe-level
+      (Allowed-literal-wk-⇔ {ρ = ρ} .proj₂ ok) PE.≡
+    Allowed-literal→Universe-level ok
+  Allowed-literal→Universe-level-Allowed-literal-wk-⇔ {l = ωᵘ+ _} =
+    PE.refl
+  Allowed-literal→Universe-level-Allowed-literal-wk-⇔ {l = level _} =
+    PE.cong 0ᵘ+ size-of-Level-wk-Level-literal
 
 ------------------------------------------------------------------------
 -- The type _∷_⊇_
@@ -389,6 +419,7 @@ private module Inhabited where
         (supᵘⱼ ⊢t ⊢u) PE.refl →
           supᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
         (Uⱼ l) PE.refl →
+          PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym wk-1ᵘ+) $
           Uⱼ (wkLevel ρ⊇ ⊢Δ l)
         (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
           PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
@@ -540,9 +571,9 @@ private module Inhabited where
       size-⊢∷L ⊢l PE.≡ s₂ →
       ∇ » Δ ⊢ U.wk ρ l ∷Level
     wkLevel′ hyp ρ⊇ ⊢Δ = λ where
-        (term ok ⊢l)             PE.refl → term ok (wkTerm ρ⊇ ⊢Δ ⊢l)
-        (literal not-ok _ l-lit) _       →
-          literal not-ok ⊢Δ (wk-Level-literal .proj₁ l-lit)
+        (term ok ⊢l)   PE.refl → term ok (wkTerm ρ⊇ ⊢Δ ⊢l)
+        (literal ok _) _       →
+          literal (Allowed-literal-wk-⇔ .proj₂ ok) ⊢Δ
       where
       open Variants hyp
 
@@ -644,7 +675,7 @@ private module Inhabited where
         (app-cong {G = B} t₁≡t₂ u₁≡u₂) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β B) $
           app-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
-        (β-red {G = B} {t} ⊢B ⊢t ⊢u eq ok) PE.refl →
+        (β-red {B} {t} ⊢B ⊢t ⊢u eq ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
@@ -909,8 +940,8 @@ private module Inhabited where
     wkEqLevel′ hyp ρ⊇ ⊢Δ = λ where
         (term ok l₁≡l₂) PE.refl →
           term ok (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
-        (literal not-ok _ l-lit) _ →
-          literal not-ok ⊢Δ (wk-Level-literal .proj₁ l-lit)
+        (literal ok _) _ →
+          literal (Allowed-literal-wk-⇔ .proj₂ ok) ⊢Δ
       where
       open Variants hyp
 
@@ -987,6 +1018,18 @@ opaque
     P.wkEqLevel Inhabited.P-inhabited ρ⊇ ⊢Δ l₁≡l₂ PE.refl
 
 opaque
+  unfolding _⊢_≤ₗ_∷Level
+
+  -- A weakening lemma for _⊢_≤ₗ_∷Level.
+
+  wk-≤ₗ∷L :
+    ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
+    ∇ » Δ ⊢ U.wk ρ l₁ ≤ₗ U.wk ρ l₂ ∷Level
+  wk-≤ₗ∷L ρ⊇ (⊢l₁ , l₁⊔l₂≡l₂) =
+    wkLevel ρ⊇ ⊢l₁ ,
+    PE.subst (flip (_⊢_≡_∷Level _) _) wk-supᵘₗ (wkEqLevel ρ⊇ l₁⊔l₂≡l₂)
+
+opaque
 
   -- A special case of wk.
 
@@ -1046,18 +1089,13 @@ mutual
   wkRedTerm {ρ} [ρ] (supᵘ-substʳ ⊢t u⇒u′) = supᵘ-substʳ (wkTerm [ρ] ⊢t) (wkRedTerm [ρ] u⇒u′)
   wkRedTerm ρ (lower-subst x) = lower-subst (wkRedTerm ρ x)
   wkRedTerm ρ (Lift-β ⊢A x₁) = Lift-β (wk ρ ⊢A) (wkTerm ρ x₁)
-  wkRedTerm ρ (app-subst {G = B} t⇒u a) =
+  wkRedTerm ρ (app-subst {B} t⇒u a) =
     PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x) (PE.sym (wk-β B))
              (app-subst (wkRedTerm ρ t⇒u) (wkTerm ρ a))
-  wkRedTerm ρ (β-red {F = A} {G = B} {t} {a} ⊢B ⊢t ⊢a p≡q ok) =
-    let ⊢ρA = wk ρ (⊢∙→⊢ (wf ⊢B))
-        ρ⇑  = liftʷʷ ρ ⊢ρA
-        ⊢ρB = wk ρ⇑ ⊢B
-    in  PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x) (PE.sym (wk-β B))
-                 (PE.subst (λ x → _ ⊢ U.wk _ (lam _ t ∘ a) ⇒ x ∷ _)
-                           (PE.sym (wk-β t))
-                           (β-red ⊢ρB (wkTerm ρ⇑ ⊢t)
-                              (wkTerm ρ ⊢a) p≡q ok))
+  wkRedTerm ρ (β-red {B} {t} ⊢B ⊢t ⊢u p≡q ok) =
+    let ρ⇑ = liftʷʷ ρ (wk ρ (⊢∙→⊢ (wf ⊢B))) in
+    PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym (wk-β t)) (PE.sym (wk-β B)) $
+    β-red (wk ρ⇑ ⊢B) (wkTerm ρ⇑ ⊢t) (wkTerm ρ ⊢u) p≡q ok
   wkRedTerm ρ (fst-subst ⊢G t⇒) =
     let ρF = wk ρ (⊢∙→⊢ (wf ⊢G))
         ρG = wk (liftʷʷ ρ ρF) ⊢G

@@ -57,18 +57,18 @@ open import Tools.Relation
 open import Tools.Unit
 
 private variable
-  n                : Nat
-  Γ                : Con Term _
-  A B t t′ t₁ t₂ u : Term _
-  v v′             : T.Term _
-  σ                : Subst _ _
-  σ′               : T.Subst _ _
-  γ δ              : Conₘ _
-  p q              : M
-  m                : Mode
-  s                : Strength
-  l l′             : Universe-level
-  ok               : T _
+  n              : Nat
+  Γ              : Con Term _
+  A B t t′ t₁ t₂ : Term _
+  l              : Lvl _
+  v v′           : T.Term _
+  σ              : Subst _ _
+  σ′             : T.Subst _ _
+  γ δ            : Conₘ _
+  p q            : M
+  m              : Mode
+  s              : Strength
+  ok             : T _
 
 ------------------------------------------------------------------------
 -- The type former
@@ -109,15 +109,15 @@ opaque
 
   -- A characterisation lemma for U.
 
-  ®∷U⇔ : t ® v ∷ U u ⇔ (ts » Δ ⊢ u ∷Level × t ® v ∷U/Level)
-  ®∷U⇔ {t} {v} {u} =
-    t ® v ∷ U u                                   ⇔⟨ id⇔ ⟩
-    (∃ λ (⊨U : ts » Δ ⊨ U u) → t ® v ∷ U u / ⊨U)  ⇔⟨ (λ (⊨U , t®v) → ⊨U , irrelevanceTerm ⊨U (U-intro (inversion-U-Level (⊨→⊢ ⊨U))) t®v)
+  ®∷U⇔ : t ® v ∷ U l ⇔ (ts » Δ ⊢ l ∷Level × t ® v ∷U/Level)
+  ®∷U⇔ {t} {v} {l} =
+    t ® v ∷ U l                                   ⇔⟨ id⇔ ⟩
+    (∃ λ (⊨U : ts » Δ ⊨ U l) → t ® v ∷ U l / ⊨U)  ⇔⟨ (λ (⊨U , t®v) → ⊨U , irrelevanceTerm ⊨U (U-intro (inversion-U-Level (⊨→⊢ ⊨U))) t®v)
                                                    , (λ (⊨U , t®v) → ⊨U , irrelevanceTerm (U-intro (inversion-U-Level (⊨→⊢ ⊨U))) ⊨U t®v)
                                                    ⟩
-    ts » Δ ⊨ U u × t ® v ∷U/Level                 ⇔⟨ (⊨→⊢ , ⊢→⊨) ×-cong-⇔ id⇔ ⟩
-    (ts » Δ ⊢ U u) × t ® v ∷U/Level               ⇔⟨ (inversion-U-Level , ⊢U) ×-cong-⇔ id⇔ ⟩
-    ts » Δ ⊢ u ∷Level × t ® v ∷U/Level            □⇔
+    ts » Δ ⊨ U l × t ® v ∷U/Level                 ⇔⟨ (⊨→⊢ , ⊢→⊨) ×-cong-⇔ id⇔ ⟩
+    (ts » Δ ⊢ U l) × t ® v ∷U/Level               ⇔⟨ (inversion-U-Level , ⊢U) ×-cong-⇔ id⇔ ⟩
+    ts » Δ ⊢ l ∷Level × t ® v ∷U/Level            □⇔
 
 opaque
   unfolding _®_∷_
@@ -125,11 +125,11 @@ opaque
   -- A characterisation lemma for Lift.
 
   ®∷Lift⇔ :
-    t ® v ∷ Lift u A ⇔
-    (ts » Δ ⊢ u ∷Level × lower t ® v ∷ A)
-  ®∷Lift⇔ {t} {v} {u} {A} =
-    t ® v ∷ Lift u A                                        ⇔⟨ id⇔ ⟩
-    (∃ λ (⊨L : ts » Δ ⊨ Lift u A) → t ® v ∷ Lift u A / ⊨L)  ⇔⟨ (λ (⊨L , t®v) →
+    t ® v ∷ Lift l A ⇔
+    (ts » Δ ⊢ l ∷Level × lower t ® v ∷ A)
+  ®∷Lift⇔ {t} {v} {l} {A} =
+    t ® v ∷ Lift l A                                        ⇔⟨ id⇔ ⟩
+    (∃ λ (⊨L : ts » Δ ⊨ Lift l A) → t ® v ∷ Lift l A / ⊨L)  ⇔⟨ (λ (⊨L , t®v) →
                                                                   let ⊢u , ⊢A = inversion-Lift (⊨→⊢ ⊨L)
                                                                       ⊨A      = ⊢→⊨ ⊢A
                                                                   in
@@ -137,7 +137,7 @@ opaque
                                                              , (λ (⊢u , ⊨A , lower-t®v) →
                                                                   Lift-intro ⊢u ⊨A , lower-t®v)
                                                              ⟩
-    ts » Δ ⊢ u ∷Level × lower t ® v ∷ A                     □⇔
+    ts » Δ ⊢ l ∷Level × lower t ® v ∷ A                     □⇔
 
 opaque
   unfolding _®_∷_

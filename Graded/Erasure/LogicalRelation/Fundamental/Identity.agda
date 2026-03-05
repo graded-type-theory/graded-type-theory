@@ -52,21 +52,22 @@ open import Tools.PropositionalEquality as PE using (_≡_)
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n             : Nat
-  Γ             : Con Term _
-  γ δ           : Conₘ _
-  A B l t u v w : Term _
-  m             : Mode
-  p q           : M
-  s             : Strength
+  n           : Nat
+  Γ           : Con Term _
+  γ δ         : Conₘ _
+  A B t u v w : Term _
+  l           : Lvl _
+  m           : Mode
+  p q         : M
+  s           : Strength
 
 opaque
 
   -- Validity of Id.
 
   Idʳ :
-    ts » Γ ⊢ v ∷Level →
-    γ ▸ Γ ⊩ʳ Id A t u ∷[ m ∣ n ] U v
+    ts » Γ ⊢ l ∷Level →
+    γ ▸ Γ ⊩ʳ Id A t u ∷[ m ∣ n ] U l
   Idʳ ⊢v =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
     ®∷→®∷◂ $

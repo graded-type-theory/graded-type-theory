@@ -52,7 +52,9 @@ open import Graded.Usage.Erased-matches
 private variable
   n n′ m m′ m″ n″ k : Nat
   Γ : Con Term _
-  A B C l t t′ t₁ t₂ u v : Term _
+  A B C t t′ t₁ t₂ u v : Term _
+  l : Lvl _
+  kₜ : Term-kind
   x : Fin _
   p q r q′ q″ : M
   s : Strength
@@ -120,7 +122,8 @@ data Cont (m : Nat) : Set a where
               (u v : Term n) (ρ : Wk m n) → Cont m
   Kₑ        : (p : M) (A t : Term n) (B : Term (1+ n))
               (u : Term n) (ρ : Wk m n) → Cont m
-  []-congₑ  : (s : Strength) (l A t u : Term n) (ρ : Wk m n) → Cont m
+  []-congₑ  : (s : Strength) (l : Lvl n) (A t u : Term n) (ρ : Wk m n) →
+              Cont m
   sucₑ      : Cont m
 
 private variable
@@ -407,13 +410,13 @@ infix 25 _[_]ₕ
 infix 25 _[_]⇑ₕ
 infix 25 _[_]⇑²ₕ
 
-_[_]ₕ : Term m → Heap k m → Term k
+_[_]ₕ : Term[ kₜ ] m → Heap k m → Term[ kₜ ] k
 t [ H ]ₕ = t [ toSubstₕ H ]
 
-_[_]⇑ₕ : Term (1+ m) → Heap k m → Term (1+ k)
+_[_]⇑ₕ : Term[ kₜ ] (1+ m) → Heap k m → Term[ kₜ ] (1+ k)
 t [ H ]⇑ₕ = t [ liftSubst (toSubstₕ H) ]
 
-_[_]⇑²ₕ : Term (2+ m) → Heap k m → Term (2+ k)
+_[_]⇑²ₕ : Term[ kₜ ] (2+ m) → Heap k m → Term[ kₜ ] (2+ k)
 t [ H ]⇑²ₕ = t [ liftSubstn (toSubstₕ H) 2 ]
 
 -- A weakening that acts as an "inverse" to a heap substitution
@@ -548,7 +551,7 @@ data Value {n : Nat} : (t : Term n) → Set a where
   Levelᵥ : Value Level
   zeroᵘᵥ : Value zeroᵘ
   sucᵘᵥ : Value (sucᵘ t)
-  Liftᵥ : Value (Lift t A)
+  Liftᵥ : Value (Lift l A)
   liftᵥ : Value (lift t)
   lamᵥ : Value (lam p t)
   zeroᵥ : Value zero
@@ -556,7 +559,7 @@ data Value {n : Nat} : (t : Term n) → Set a where
   starᵥ : Value (star s)
   prodᵥ : Value (prod s p u t)
   rflᵥ : Value rfl
-  Uᵥ : Value (U t)
+  Uᵥ : Value (U l)
   ΠΣᵥ : Value (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
   ℕᵥ : Value ℕ
   Unitᵥ : Value (Unit s)

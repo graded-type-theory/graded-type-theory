@@ -30,11 +30,12 @@ open import Tools.Nat
 open import Tools.Product as Σ
 
 private variable
-  ∇               : DCon (Term 0) _
-  m n             : Nat
-  Γ Δ Η           : Con Term _
-  A B l l₁ l₂ t u : Term _
-  σ σ₁ σ₂         : Subst _ _
+  ∇       : DCon (Term 0) _
+  m n     : Nat
+  Γ Δ Η   : Con Term _
+  A B t u : Term _
+  l l₁ l₂ : Lvl _
+  σ σ₁ σ₂ : Subst _ _
 
 -- Equality of contexts.
 

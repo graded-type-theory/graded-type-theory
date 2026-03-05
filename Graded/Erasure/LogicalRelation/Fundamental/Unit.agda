@@ -76,7 +76,7 @@ opaque
 
   -- Validity of Unit.
 
-  Unitʳ : γ ▸ Γ ⊩ʳ Unit s ∷[ m ∣ n ] U zeroᵘ
+  Unitʳ : γ ▸ Γ ⊩ʳ Unit s ∷[ m ∣ n ] U₀
   Unitʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
     ®∷→®∷◂ $

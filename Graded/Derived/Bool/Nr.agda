@@ -70,7 +70,7 @@ opaque
                𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ              ∎)
             var
-            (sub (Uₘ zeroᵘₘ) $ begin
+            (sub (Uₘ (level zeroᵘₘ)) $ begin
                𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ                ∎))
          (begin
@@ -78,7 +78,7 @@ opaque
             𝟘ᶜ ∙ nr 𝟘 𝟘 𝟘 𝟘 ⌜ m ⌝       ≈˘⟨ nrᶜ-𝟘ᶜ ∙ PE.refl ⟩
             nrᶜ 𝟘 𝟘 𝟘ᶜ 𝟘ᶜ (𝟘ᶜ ∙ ⌜ m ⌝)  ∎))
       ▸t
-      (sub (Uₘ zeroᵘₘ) $ begin
+      (sub (Uₘ (level zeroᵘₘ)) $ begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          𝟘ᶜ                ∎)
     where

@@ -23,9 +23,10 @@ open import Definition.Typed.Well-formed R
 open import Tools.Product
 
 private variable
-  Γ         : Cons _ _
-  A l t u v : Term _
-  s         : Strength
+  Γ       : Cons _ _
+  A t u v : Term _
+  l       : Lvl _
+  s       : Strength
 
 opaque
 

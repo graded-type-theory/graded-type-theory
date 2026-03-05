@@ -44,7 +44,7 @@ private
     ∇ : DCon (Term 0) _
     m n : Nat
     Δ Γ : Con Term n
-    l₁ l₂ : Term _
+    l₁ l₂ : Lvl _
     ρ : Wk m n
     p r : M
     d : Bool
@@ -211,8 +211,8 @@ mutual
     ∇ » Δ ⊢ U.wk ρ l₁ [conv↑] U.wk ρ l₂ ∷Level
   wkConv↑Level ρ∷ (term ok l₁≡l₂) =
     term ok (wkConv↑Term ρ∷ l₁≡l₂)
-  wkConv↑Level ρ (literal! not-ok _ l-lit) =
-    literal! not-ok (wf-∷ʷ⊇ ρ) (wk-Level-literal .proj₁ l-lit)
+  wkConv↑Level ρ (literal! ok _) =
+    literal! (Allowed-literal-wk-⇔ .proj₂ ok) (wf-∷ʷ⊇ ρ)
 
   -- Weakening of algorithmic equality of terms in WHNF.
   wkConv↓Term : ∀ {t u A Γ Δ} ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
@@ -306,8 +306,8 @@ mutual
     ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ) (t : Level⁺ (∇ » Γ)) →
     Level⁺→Term (wkLevel⁺ [ρ] t) PE.≡ U.wk ρ (Level⁺→Term t)
   wkLevel⁺→Term [ρ] (n , a) =
-    PE.trans (PE.cong (sucᵘᵏ n) (wkLevelAtom→Term [ρ] a))
-      (PE.sym (wk-sucᵘᵏ n))
+    PE.trans (PE.cong (1ᵘ+ⁿ n) (wkLevelAtom→Term [ρ] a))
+      (PE.sym (wk-1ᵘ+ⁿ n))
 
   wkLevelᵛ→Term :
     ∀ {t} ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ) →

@@ -18,12 +18,14 @@ open Type-restrictions R
 
 open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 open import Definition.Untyped Mod as U hiding (K)
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Properties Mod
 open import Definition.Untyped.Neutral Mod type-variant
 open import Definition.Untyped.Neutral.Atomic Mod type-variant
 open import Definition.Untyped.Whnf Mod type-variant
 open import Definition.Typed.Properties R
 open import Definition.Typed R
+open import Definition.Typed.Inversion R
 -- The imported operator _,_ is not "supposed" to be used below, but
 -- "," is used in some pattern synonyms, and if this import statement
 -- is removed, then some code in
@@ -31,6 +33,7 @@ open import Definition.Typed R
 -- (at the time of writing).
 open import Definition.Typed.Substitution R using (_,_)
 open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed.Well-formed R
 
 open import Tools.Empty
 open import Tools.Fin
@@ -172,22 +175,22 @@ mutual
 
   infix 4 _⊩Level_∷Level
 
-  data _⊩Level_∷Level (Γ : Cons κ ℓ) (l : Term ℓ) : Set a where
+  data _⊩Level_∷Level (Γ : Cons κ ℓ) : Lvl ℓ → Set a where
     term :
-      {l′ : Term ℓ}
-      (l⇒l′ : Γ ⊢ l ⇒* l′ ∷ Level)
-      (l′-prop : Level-prop Γ l′) →
-      Γ ⊩Level l ∷Level
+      {t′ : Term ℓ}
+      (t⇒t′ : Γ ⊢ t ⇒* t′ ∷ Level)
+      (t′-prop : Level-prop Γ t′) →
+      Γ ⊩Level level t ∷Level
     literal :
-      (not-ok : ¬ Level-allowed)
-      (⊢Γ : ⊢ Γ)
-      (l-lit : Level-literal l) →
+      {l : Lvl ℓ}
+      (ok : Allowed-literal l)
+      (⊢Γ : ⊢ Γ) →
       Γ ⊩Level l ∷Level
 
   -- WHNF property of level terms
   data Level-prop (Γ : Cons κ ℓ) : (k : Term ℓ) → Set a where
     zeroᵘᵣ : Level-allowed → Level-prop Γ zeroᵘ
-    sucᵘᵣ  : ∀ {k} → Level-allowed → Γ ⊩Level k ∷Level →
+    sucᵘᵣ  : ∀ {k} → Level-allowed → Γ ⊩Level level k ∷Level →
              Level-prop Γ (sucᵘ k)
     neLvl : ∀ {k} → neLevel-prop Γ k → Level-prop Γ k
 
@@ -196,11 +199,11 @@ mutual
     supᵘˡᵣ
       : ∀ {k₁ k₂}
       → neLevel-prop Γ k₁
-      → Γ ⊩Level k₂ ∷Level
+      → Γ ⊩Level level k₂ ∷Level
       → neLevel-prop Γ (k₁ supᵘ k₂)
     supᵘʳᵣ
       : ∀ {k₁ k₂}
-      → Γ ⊩Level k₁ ∷Level
+      → Γ ⊩Level level k₁ ∷Level
       → neLevel-prop Γ k₂
       → neLevel-prop Γ (sucᵘ k₁ supᵘ k₂)
     ne : ∀ {k} → Γ ⊩neNf k ≡ k ∷ Level → neLevel-prop Γ k
@@ -210,17 +213,17 @@ mutual
 
   infix 4 _⊩Level_≡_∷Level
 
-  data _⊩Level_≡_∷Level (Γ : Cons κ ℓ) (l₁ l₂ : Term ℓ) : Set a where
+  data _⊩Level_≡_∷Level (Γ : Cons κ ℓ) : (_ _ : Lvl ℓ) → Set a where
     term :
-      {l₁′ l₂′ : Term ℓ}
-      (l₁⇒l₁′ : Γ ⊢ l₁ ⇒* l₁′ ∷ Level)
-      (l₂⇒l₂′ : Γ ⊢ l₂ ⇒* l₂′ ∷ Level)
-      (l₁′≡l₂′ : [Level]-prop Γ l₁′ l₂′) →
-      Γ ⊩Level l₁ ≡ l₂ ∷Level
+      {t₁ t₁′ t₂ t₂′ : Term ℓ}
+      (t₁⇒t₁′ : Γ ⊢ t₁ ⇒* t₁′ ∷ Level)
+      (t₂⇒t₂′ : Γ ⊢ t₂ ⇒* t₂′ ∷ Level)
+      (t₁′≡t₂′ : [Level]-prop Γ t₁′ t₂′) →
+      Γ ⊩Level level t₁ ≡ level t₂ ∷Level
     literal :
-      (not-ok : ¬ Level-allowed)
-      (⊢Γ : ⊢ Γ)
-      (l-lit : Level-literal l₁) →
+      {l₁ l₂ : Lvl ℓ}
+      (ok : Allowed-literal l₁)
+      (⊢Γ : ⊢ Γ) →
       l₁ PE.≡ l₂ →
       Γ ⊩Level l₁ ≡ l₂ ∷Level
 
@@ -232,12 +235,12 @@ mutual
     sucᵘᵣ
       : ∀ {k k′}
       → Level-allowed
-      → Γ ⊩Level k ≡ k′ ∷Level
+      → Γ ⊩Level level k ≡ level k′ ∷Level
       → [Level]-prop Γ (sucᵘ k) (sucᵘ k′)
     supᵘ-subᵣ
       : ∀ {k k′}
       → neLevel-prop Γ k
-      → Γ ⊩Level k supᵘ k′ ≡ k′ ∷Level
+      → Γ ⊩Level level (k supᵘ k′) ≡ level k′ ∷Level
       → [Level]-prop Γ (k supᵘ sucᵘ k′) (sucᵘ k′)
     neLvl
       : ∀ {k k′}
@@ -258,11 +261,11 @@ mutual
     supᵘˡᵣ
       : ∀ {k₁ k₂ k₁′ k₂′}
       → [neLevel]-prop Γ k₁ k₁′
-      → Γ ⊩Level k₂ ≡ k₂′ ∷Level
+      → Γ ⊩Level level k₂ ≡ level k₂′ ∷Level
       → [neLevel]-prop Γ (k₁ supᵘ k₂) (k₁′ supᵘ k₂′)
     supᵘʳᵣ
       : ∀ {k₁ k₂ k₁′ k₂′}
-      → Γ ⊩Level k₁ ≡ k₁′ ∷Level
+      → Γ ⊩Level level k₁ ≡ level k₁′ ∷Level
       → [neLevel]-prop Γ k₂ k₂′
       → [neLevel]-prop Γ (sucᵘ k₁ supᵘ k₂) (sucᵘ k₁′ supᵘ k₂′)
     supᵘ-zeroʳᵣ
@@ -272,42 +275,42 @@ mutual
     supᵘ-assoc¹ᵣ
       : ∀ {t u v}
       → neLevel-prop Γ t
-      → Γ ⊩Level u ∷Level
-      → Γ ⊩Level v ∷Level
+      → Γ ⊩Level level u ∷Level
+      → Γ ⊩Level level v ∷Level
       → [neLevel]-prop Γ ((t supᵘ u) supᵘ v) (t supᵘ (u supᵘ v))
     supᵘ-assoc²ᵣ
       : ∀ {t u v}
-      → Γ ⊩Level t ∷Level
+      → Γ ⊩Level level t ∷Level
       → neLevel-prop Γ u
-      → Γ ⊩Level v ∷Level
+      → Γ ⊩Level level v ∷Level
       → [neLevel]-prop Γ ((sucᵘ t supᵘ u) supᵘ v) (sucᵘ t supᵘ (u supᵘ v))
     supᵘ-assoc³ᵣ
       : ∀ {t u v}
-      → Γ ⊩Level t ∷Level
-      → Γ ⊩Level u ∷Level
+      → Γ ⊩Level level t ∷Level
+      → Γ ⊩Level level u ∷Level
       → neLevel-prop Γ v
       → [neLevel]-prop Γ (sucᵘ (t supᵘ u) supᵘ v) (sucᵘ t supᵘ (sucᵘ u supᵘ v))
     supᵘ-comm¹ᵣ
       : ∀ {t₁ t₂ u₁ u₂}
       → neLevel-prop Γ t₁
-      → Γ ⊩Level t₁ ≡ t₂ ∷Level
+      → Γ ⊩Level level t₁ ≡ level t₂ ∷Level
       → neLevel-prop Γ u₂
-      → Γ ⊩Level u₁ ≡ u₂ ∷Level
+      → Γ ⊩Level level u₁ ≡ level u₂ ∷Level
       → [neLevel]-prop Γ (t₁ supᵘ u₁) (u₂ supᵘ t₂)
     supᵘ-comm²ᵣ
       : ∀ {t₁ t₂ u}
-      → Γ ⊩Level t₁ ∷Level
-      → Γ ⊩Level sucᵘ t₁ ≡ t₂ ∷Level
+      → Γ ⊩Level level t₁ ∷Level
+      → Γ ⊩Level level (sucᵘ t₁) ≡ level t₂ ∷Level
       → neLevel-prop Γ u
       → [neLevel]-prop Γ (sucᵘ t₁ supᵘ u) (u supᵘ t₂)
     supᵘ-idemᵣ
       : ∀ {t₁ t₂}
       → neLevel-prop Γ t₁
-      → Γ ⊩Level t₁ ≡ t₂ ∷Level
+      → Γ ⊩Level level t₁ ≡ level t₂ ∷Level
       → [neLevel]-prop Γ (t₁ supᵘ t₂) t₁
     ne : ∀ {k k′} → Γ ⊩neNf k ≡ k′ ∷ Level → [neLevel]-prop Γ k k′
 
-pattern literal! not-ok ⊢Γ l-lit = literal not-ok ⊢Γ l-lit PE.refl
+pattern literal! ok ⊢Γ = literal ok ⊢Γ PE.refl
 
 -- Level realisation
 
@@ -319,11 +322,11 @@ abstract
   ↑ᵘ-neutral : Nat
   ↑ᵘ-neutral = 0
 
-opaque mutual
+module _ (okᴸ : Level-allowed) where opaque mutual
 
-  ↑ⁿ_ : Η ⊩Level t ∷Level → Nat
-  ↑ⁿ term _ l′-prop    = ↑ⁿ-prop l′-prop
-  ↑ⁿ literal _ _ l-lit = size-of-Level l-lit
+  ↑ⁿ : {t : Term ℓ} → Η ⊩Level level t ∷Level → Nat
+  ↑ⁿ (term _ l′-prop) = ↑ⁿ-prop l′-prop
+  ↑ⁿ (literal ok _)   = Level-allowed→Allowed-literal→ okᴸ ok
 
   ↑ⁿ-prop : Level-prop Η t → Nat
   ↑ⁿ-prop (zeroᵘᵣ _)  = 0
@@ -335,8 +338,14 @@ opaque mutual
   ↑ⁿ-neprop (supᵘʳᵣ x₁ x₂) = 1+ (↑ⁿ x₁) ⊔ ↑ⁿ-neprop x₂
   ↑ⁿ-neprop (ne _)         = ↑ᵘ-neutral
 
-↑ᵘ_ : Η ⊩Level t ∷Level → Universe-level
-↑ᵘ [t] = 0ᵘ+ ↑ⁿ [t]
+opaque
+
+  ↑ᵘ : {l : Lvl ℓ} → Η ⊩Level l ∷Level → Universe-level
+  ↑ᵘ ⊩t@(term ⇒∷Level _) =
+    let ok = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁) in
+    0ᵘ+ (↑ⁿ ok ⊩t)
+  ↑ᵘ (literal ok _) =
+    Allowed-literal→Universe-level ok
 
 -- Reducibility of natural numbers:
 
@@ -506,7 +515,7 @@ module LogRel
     pattern
     constructor Uᵣ
     field
-      k   : Term ℓ
+      k   : Lvl ℓ
       [k] : Γ ⊩Level k ∷Level
       k<  : ↑ᵘ [k] <ᵘ l
       ⇒*U : Γ ⊢ A ⇒* U k
@@ -515,12 +524,12 @@ module LogRel
 
   infix 4 _⊩₁U≡_/_
 
-  record _⊩₁U≡_/_ (Γ : Cons κ ℓ) (B : Term ℓ) (k : Term ℓ) : Set a where
+  record _⊩₁U≡_/_ (Γ : Cons κ ℓ) (B : Term ℓ) (k : Lvl ℓ) : Set a where
     no-eta-equality
     pattern
     constructor U₌
     field
-      k′   : Term ℓ
+      k′   : Lvl ℓ
       ⇒*U′ : Γ ⊢ B ⇒* U k′
       k≡k′ : Γ ⊩Level k ≡ k′ ∷Level
 
@@ -560,9 +569,10 @@ module LogRel
       pattern
       constructor Liftᵣ
       field
-        {k₂} {F} : Term ℓ
+        {k₂}   : Lvl ℓ
+        {F}    : Term ℓ
         ⇒*Lift : Γ ⊢ A ⇒* Lift k₂ F
-        [k₂]    : Γ ⊩Level k₂ ∷Level
+        [k₂]   : Γ ⊩Level k₂ ∷Level
         [F]    : Γ ⊩ₗ F
 
     -- Lift type equality
@@ -578,10 +588,11 @@ module LogRel
       constructor Lift₌
       open _⊩ₗLift_ [A]
       field
-        {k₂′} {F′} : Term ℓ
+        {k₂′}   : Lvl ℓ
+        {F′}    : Term ℓ
         ⇒*Lift′ : Γ ⊢ B ⇒* Lift k₂′ F′
-        k≡k′ : Γ ⊩Level k₂ ≡ k₂′ ∷Level
-        F≡F′ : Γ ⊩ₗ F ≡ F′ / [F]
+        k≡k′    : Γ ⊩Level k₂ ≡ k₂′ ∷Level
+        F≡F′    : Γ ⊩ₗ F ≡ F′ / [F]
 
     -- Lift term equality
 
@@ -842,7 +853,7 @@ module LogRel
     infix 4 _⊩ₗ_≡_∷_/_
 
     _⊩ₗ_≡_∷_/_ : (Γ : Cons κ ℓ) (t u A : Term ℓ) → Γ ⊩ₗ A → Set a
-    Γ ⊩ₗ t ≡ u ∷ A / Levelᵣ D = Γ ⊩Level t ≡ u ∷Level
+    Γ ⊩ₗ t ≡ u ∷ A / Levelᵣ D = Γ ⊩Level level t ≡ level u ∷Level
     Γ ⊩ₗ t ≡ u ∷ A / Uᵣ ⊩A = Γ ⊩₁U t ≡ u ∷U/ ⊩A
     Γ ⊩ₗ t ≡ u ∷ A / Liftᵣ ⊩A = Γ ⊩ₗLift t ≡ u ∷ A / ⊩A
     Γ ⊩ₗ t ≡ u ∷ A / ℕᵣ D = Γ ⊩ℕ t ≡ u ∷ℕ

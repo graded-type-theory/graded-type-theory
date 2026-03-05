@@ -89,21 +89,22 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 import Tools.Vec as V
 
 private variable
-  b                                                : Bool
-  n n′ n₁ n₂                                       : Nat
-  Δ                                                : Con Term _
-  Γ                                                : Cons _ _
-  A A₁ A₂ B C l l₁ l₂ t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w : Term _
-  sᵢ                                               : I.Termˢ _
-  σ                                                : Subst _ _
+  b                                        : Bool
+  n n′ n₁ n₂                               : Nat
+  Δ                                        : Con Term _
+  Γ                                        : Cons _ _
+  A A₁ A₂ B C t t₁ t₂ t′ u u₁ u₂ v v₁ v₂ w : Term _
+  l l₁ l₂                                  : Lvl _
+  sᵢ                                       : I.Termˢ _
+  σ                                        : Subst _ _
   p p₁ p₁′ p₂ p₂′ p₃ p₃′ p₄ p₄′
-    q q₁ q₁′ q₂ q₂′ q₃ q₃′ q₄ q₄′ q₅ q₅′           : M
-  γ γ₁ γ₂ γ₃ γ₄ γ₅                                 : Conₘ _
-  m                                                : Mode
-  s                                                : Strength
-  sem                                              : Some-erased-matches
-  str                                              : T.Strictness
-  ok                                               : T _
+    q q₁ q₁′ q₂ q₂′ q₃ q₃′ q₄ q₄′ q₅ q₅′   : M
+  γ γ₁ γ₂ γ₃ γ₄ γ₅                         : Conₘ _
+  m                                        : Mode
+  s                                        : Strength
+  sem                                      : Some-erased-matches
+  str                                      : T.Strictness
+  ok                                       : T _
 
 ------------------------------------------------------------------------
 -- Some lemmas
@@ -123,7 +124,7 @@ private opaque
   ⊢Id-2-1-0 :
     Level-allowed →
     ⊢ Γ →
-    Γ »∙ Level »∙ U (var x0) »∙ var x0 »∙ var x1 ⊢
+    Γ »∙ Level »∙ U (level (var x0)) »∙ var x0 »∙ var x1 ⊢
       Id (var x2) (var x1) (var x0)
   ⊢Id-2-1-0 ok ⊢Γ = ⊢Id-2-1-0′ (term-⊢∷ (var₀ (Levelⱼ′ ok ⊢Γ)))
 
@@ -173,7 +174,7 @@ opaque
   -- "[]-cong-allowed s".
 
   []-cong-J :
-    Strength → Term n → Term n → Term n → Term n → Term n → Term n
+    Strength → Lvl n → Term n → Term n → Term n → Term n → Term n
   []-cong-J s l A t u v =
     subst 𝟘 A (Id (Erased (wk1 l) (wk1 A)) [ wk1 t ] ([ var x0 ])) t u v
       rfl
@@ -483,7 +484,7 @@ opaque
 -- and certain grades.
 
 Has-[]-cong-for-type :
-  Strength → Mode → Con Term n → Term n → Term n → (_ _ _ _ _ : M) →
+  Strength → Mode → Con Term n → Lvl n → Term n → (_ _ _ _ _ : M) →
   Set a
 Has-[]-cong-for-type {n} s m Γ l A p₁ q₁ p₂ q₂ q₃ =
   let open Erased s in
@@ -503,7 +504,7 @@ Has-[]-cong-for-type {n} s m Γ l A p₁ q₁ p₂ q₂ q₃ =
 -- a type in U l.
 
 Has-[]-cong-for-level :
-  Strength → Mode → Con Term n → Term n → (_ _ _ _ _ _ _ : M) → Set a
+  Strength → Mode → Con Term n → Lvl n → (_ _ _ _ _ _ _ : M) → Set a
 Has-[]-cong-for-level {n} s m Γ l p₁ q₁ p₂ q₂ p₃ q₃ q₄ =
   let open Erased s in
   ∃ λ ([]-cong : Term n) →
@@ -529,17 +530,17 @@ Has-[]-cong {n} s m Γ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅ =
   𝟘ᶜ ▸[ m ] []-cong ×
   ε » Γ ⊢ []-cong ∷
     Π p₁ , q₁ ▷ Level ▹
-    Π p₂ , q₂ ▷ U (var x0) ▹
+    Π p₂ , q₂ ▷ U (level (var x0)) ▹
     Π p₃ , q₃ ▷ var x0 ▹
     Π p₄ , q₄ ▷ var x1 ▹
     Π 𝟘  , q₅ ▷ Id (var x2) (var x1) (var x0) ▹
-    Id (Erased (var x4) (var x3)) ([ var x2 ]) ([ var x1 ])
+    Id (Erased (level (var x4)) (var x3)) ([ var x2 ]) ([ var x1 ])
 
 -- The property of supporting a []-cong combinator that "computes"
 -- correctly (stated in terms of definitional equality).
 
 Has-computing-[]-cong-for-level :
-  Strength → Mode → Con Term n → Term n → (_ _ _ _ _ _ _ : M) → Set a
+  Strength → Mode → Con Term n → Lvl n → (_ _ _ _ _ _ _ : M) → Set a
 Has-computing-[]-cong-for-level {n} s m Γ l p₁ q₁ p₂ q₂ p₃ q₃ p₄ =
   let open Erased s in
   ∃ λ (([]-cong′ , _) :
@@ -561,10 +562,10 @@ Has-computing-[]-cong {n} s m Γ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅ =
   ∃ λ (([]-cong′ , _) : Has-[]-cong s m Γ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅) →
   ∀ m n′ (Δ : Cons m n′) (l A t : Term n′) (ρ : Wk n′ n) →
   Δ .defs » ρ ∷ʷ Δ .vars ⊇ Γ →
-  Δ ⊢ A ∷ U l →
+  Δ ⊢ A ∷ U (level l) →
   Δ ⊢ t ∷ A →
   Δ ⊢ wk ρ []-cong′ ∘⟨ p₁ ⟩ l ∘⟨ p₂ ⟩ A ∘⟨ p₃ ⟩ t ∘⟨ p₄ ⟩ t ∘⟨ 𝟘 ⟩ rfl ≡
-    rfl ∷ Id (Erased l A) [ t ] ([ t ])
+    rfl ∷ Id (Erased (level l) A) [ t ] ([ t ])
 
 ------------------------------------------------------------------------
 -- Some simple lemmas
@@ -616,17 +617,17 @@ opaque
   -- assumptions.
 
   Has-[]-cong→Has-[]-cong-for-level :
-    ε » Δ ⊢ l ∷Level →
-    𝟘ᶜ ▸[ m ᵐ· p₁ ] l →
+    ε » Δ ⊢ level t ∷Level →
+    𝟘ᶜ ▸[ m ᵐ· p₁ ] t →
     Has-[]-cong s m Δ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅ →
-    Has-[]-cong-for-level s m Δ l p₂ q₂ p₃ q₃ p₄ q₄ q₅
+    Has-[]-cong-for-level s m Δ (level t) p₂ q₂ p₃ q₃ p₄ q₄ q₅
   Has-[]-cong→Has-[]-cong-for-level
-    {l} {p₁} {s} {p₂} {q₂} {p₃} {q₃} {p₄} {q₄} {q₅}
-    ⊢l ▸l has-[]-cong@([]-cong′ , ▸[]-cong′ , ⊢[]-cong′) =
+    {t} {p₁} {s} {p₂} {q₂} {p₃} {q₃} {p₄} {q₄} {q₅}
+    ⊢t ▸t has-[]-cong@([]-cong′ , ▸[]-cong′ , ⊢[]-cong′) =
     let ok = Has-[]-cong→Level-allowed has-[]-cong in
-    []-cong′ ∘⟨ p₁ ⟩ l ,
+    []-cong′ ∘⟨ p₁ ⟩ t ,
     (sub
-       (▸[]-cong′ ∘ₘ ▸l) $ begin
+       (▸[]-cong′ ∘ₘ ▸t) $ begin
        𝟘ᶜ              ≈˘⟨ +ᶜ-identityʳ _ ⟩
        𝟘ᶜ +ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
        𝟘ᶜ +ᶜ p₁ ·ᶜ 𝟘ᶜ  ∎) ,
@@ -638,7 +639,7 @@ opaque
         PE.trans (PE.sym Id-Erased-[]) $
         PE.cong₃ Id
           (PE.cong (flip Erased _) wk[]≡wk[]′) PE.refl PE.refl) $
-     ⊢[]-cong′ ∘ⱼ ⊢∷Level→⊢∷Level ok ⊢l)
+     ⊢[]-cong′ ∘ⱼ ⊢∷Level→⊢∷Level ok ⊢t)
     where
     open ≤ᶜ-reasoning
     open Erased s
@@ -685,14 +686,14 @@ opaque
   -- assumptions.
 
   Has-[]-cong→Has-[]-cong-for-type :
-    𝟘ᶜ ▸[ m ᵐ· p₁ ] l →
+    𝟘ᶜ ▸[ m ᵐ· p₁ ] t →
     𝟘ᶜ ▸[ m ᵐ· p₂ ] A →
-    ε » Δ ⊢ A ∷ U l →
+    ε » Δ ⊢ A ∷ U (level t) →
     Has-[]-cong s m Δ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅ →
-    Has-[]-cong-for-type s m Δ l A p₃ q₃ p₄ q₄ q₅
-  Has-[]-cong→Has-[]-cong-for-type ▸l ▸A ⊢A =
+    Has-[]-cong-for-type s m Δ (level t) A p₃ q₃ p₄ q₄ q₅
+  Has-[]-cong→Has-[]-cong-for-type ▸t ▸A ⊢A =
     Has-[]-cong-for-level→Has-[]-cong-for-type ⊢A ▸A ∘→
-    Has-[]-cong→Has-[]-cong-for-level (inversion-U-Level (wf-⊢∷ ⊢A)) ▸l
+    Has-[]-cong→Has-[]-cong-for-level (inversion-U-Level (wf-⊢∷ ⊢A)) ▸t
 
 ------------------------------------------------------------------------
 -- Some instances of
@@ -937,8 +938,7 @@ private
       Erased-ok = Has-[]-cong-for-level→Erased-allowed has-[]-cong
 
     module Box-cong-internal
-      (Δ : Cons n₁ n₂)
-      (l []-cong′ A t : Term n₂)
+      (Δ : Cons n₁ n₂) (l : Lvl n₂) ([]-cong′ A t : Term n₂)
       (⊢l : Δ ⊢ l ∷Level)
       (⊢[]-cong′ :
          Δ ⊢ []-cong′ ∷
@@ -952,14 +952,15 @@ private
       where
 
       c : I.Constants
-      c .I.gs               = 14
-      c .I.ss               = 0
-      c .I.bms              = 0
-      c .I.ms               = 4
-      c .I.base-dcon-size   = n₁
-      c .I.base-con-size    = n₂
-      c .I.base-con-allowed = true
-      c .I.meta-con-size    = V.replicate 4 n₂
+      c .I.gs                 = 14
+      c .I.ss                 = 0
+      c .I.bms                = 0
+      c .I.ms                 = 4
+      c .I.base-dcon-size     = n₁
+      c .I.base-con-size      = n₂
+      c .I.base-con-allowed   = true
+      c .I.meta-con-size      = V.replicate 4 n₂
+      c .I.meta-con-term-kind = lvl V.∷ V.replicate 3 tm
 
       xp₁ xp₁′ xp₂ xp₂′ xp₃ xp₃′ xq₁ xq₁′ xq₂ xq₂′ xq₃ xq₃′ xq₄ xq₄′ :
         I.Termᵍ 14
@@ -978,11 +979,13 @@ private
       xq₄  = I.var (x11 +1)
       xq₄′ = I.var (x11 +1 +1)
 
-      xl : I.Term c n₂
-      xl       = I.varᵐ x0
-      x[]-cong = I.varᵐ {c = c} x1
-      xA       = I.varᵐ {c = c} x2
-      xt       = I.varᵐ {c = c} x3
+      xl : I.Lvl c n₂
+      xl = I.varᵐ x0
+
+      x[]-cong xA xt : I.Term c n₂
+      x[]-cong = I.varᵐ x1
+      xA       = I.varᵐ x2
+      xt       = I.varᵐ x3
 
       γ′ : I.Termˢ 0 → I.Contexts c
       γ′ _ .I.grades =
@@ -1014,9 +1017,9 @@ private
              I.Id (I.Erased s (IW.wk[ 4 ] xl) (I.var x3))
                (I.box s (IW.wk[ 4 ] xl) (I.var x2))
                (I.box s (IW.wk[ 4 ] xl) (I.var x1)))
-        (I.var! x2)      → I.base , I.term A (I.U xl)
-        (I.var! x3)      → I.base , I.term t xA
-        (I.var not-x4 _)
+        (I.var! x2)        → I.base , I.term A (I.U xl)
+        (I.var! x3)        → I.base , I.term t xA
+        (I.var not-x4 _ _)
 
       []-cong″ᵢ : I.Termˢ 0 → I.Term c n₂
       []-cong″ᵢ s =
@@ -1080,9 +1083,9 @@ private
                         (prod s 𝟘 (var x1) (lift (star s))))
                    (PE.sym eq)) $
               ⊢[]-cong′
-            (I.var! x2)       → ⊢A
-            (I.var! x3)       → ⊢t
-            (I.var  not-x4 _)
+            (I.var! x2)         → ⊢A
+            (I.var! x3)         → ⊢t
+            (I.var  not-x4 _ _)
 
     opaque
 
@@ -1569,10 +1572,10 @@ private
       unfolding Erased [_]
 
       ⊢[]-cong″ :
-        ε » Γ ∙ Level ∙ U (var x0) ∙ var x0 ∙ var x1 ∙
+        ε » Γ ∙ Level ∙ U (level (var x0)) ∙ var x0 ∙ var x1 ∙
           Id (var x2) (var x1) (var x0) ⊢
           []-cong″ ∷
-          Id (Erased (var x4) (var x3)) [ var x2 ] ([ var x1 ])
+          Id (Erased (level (var x4)) (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong″ =
         flip _∘ⱼ_ (var₀ ⊢Id) $
         flip _∘ⱼ_ (var₁ ⊢Id) $
@@ -1583,7 +1586,7 @@ private
         W.wkTerm (W.ʷ⊇-drop (∙ ⊢Id)) ⊢[]-cong′
         where
         ⊢Id :
-          ε » Γ ∙ Level ∙ U (var x0) ∙ var x0 ∙ var x1 ⊢
+          ε » Γ ∙ Level ∙ U (level (var x0)) ∙ var x0 ∙ var x1 ⊢
           Id (var x2) (var x1) (var x0)
         ⊢Id =
           ⊢Id-2-1-0 (Has-[]-cong→Level-allowed has-[]-cong)
@@ -1680,11 +1683,11 @@ opaque
     ⊢[]-cong‴ :
       ε » Γ ⊢ []-cong‴ ∷
         Π p₁′ , q₁′ ▷ Level ▹
-        Π p₂′ , q₂′ ▷ U (var x0) ▹
+        Π p₂′ , q₂′ ▷ U (level (var x0)) ▹
         Π p₃′ , q₃′ ▷ var x0 ▹
         Π p₄′ , q₄′ ▷ var x1 ▹
         Π 𝟘   , q₅′ ▷ Id (var x2) (var x1) (var x0) ▹
-        Id (Erased (var x4) (var x3)) ([ var x2 ]) ([ var x1 ])
+        Id (Erased (level (var x4)) (var x3)) ([ var x2 ]) ([ var x1 ])
     ⊢[]-cong‴ =
       let ok₁ , ok₂ , ok₃ , ok₄ , ok₅ = oks in
       lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
@@ -1769,15 +1772,17 @@ private
 
     []-cong″ : Term (5+ n)
     []-cong″ =
-      cong 𝟘 (Erased (var x4) (Erased (var x4) (var x3))) [ [ var x2 ] ]
-        [ [ var x1 ] ] (Erased (var x4) (var x3))
-        (mapᴱ (Erased (var x5) (var x4))
+      cong 𝟘
+        (Erased (level (var x4)) (Erased (level (var x4)) (var x3)))
+        [ [ var x2 ] ] [ [ var x1 ] ] (Erased (level (var x4)) (var x3))
+        (mapᴱ (Erased (level (var x5)) (var x4))
            (erased (var x5) (var x0)) (var x0))
         (wk (stepn id 5) []-cong′ ∘⟨ p₁ ⟩ var x4
-           ∘⟨ p₂ ⟩ Erased (var x4) (var x3) ∘⟨ p₃ ⟩ [ var x2 ]
+           ∘⟨ p₂ ⟩ Erased (level (var x4)) (var x3) ∘⟨ p₃ ⟩ [ var x2 ]
            ∘⟨ p₄ ⟩ [ var x1 ]
            ∘⟨ 𝟘 ⟩ cong 𝟘 (var x3) (var x2) (var x1)
-                    (Erased (var x4) (var x3)) [ var x0 ] (var x0))
+                    (Erased (level (var x4)) (var x3)) [ var x0 ]
+                    (var x0))
 
     opaque
       unfolding Erased [_]
@@ -1787,10 +1792,10 @@ private
         Π-allowed p₃′ q₃′ × Π-allowed p₄′ q₄′ ×
         Π-allowed 𝟘 q₅′ ×
         ε »
-        Γ ∙ Level ∙ U (var x0) ∙ var x0 ∙ var x1 ∙
+        Γ ∙ Level ∙ U (level (var x0)) ∙ var x0 ∙ var x1 ∙
           Id (var x2) (var x1) (var x0) ⊢
         []-cong″ ∷
-        Id (Erased (var x4) (var x3)) [ var x2 ] ([ var x1 ])
+        Id (Erased (level (var x4)) (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong″ =
         let ok               = Has-[]-cong→Level-allowed has-[]-cong
             _ , ⊢Π  , ok₁    = inversion-ΠΣ $ syntacticTerm ⊢[]-cong′
@@ -1810,28 +1815,28 @@ private
             lemma :
               ∀ t →
               ε »
-                Γ ∙ Level ∙ U (var x0) ∙ var x0 ∙ var x1 ∙
+                Γ ∙ Level ∙ U (level (var x0)) ∙ var x0 ∙ var x1 ∙
                   Id (var x2) (var x1) (var x0) ⊢
                 t ∷ var x3 →
               ε »
-                Γ ∙ Level ∙ U (var x0) ∙ var x0 ∙ var x1 ∙
+                Γ ∙ Level ∙ U (level (var x0)) ∙ var x0 ∙ var x1 ∙
                   Id (var x2) (var x1) (var x0) ⊢
-                mapᴱ (Erased (var x5) (var x4))
+                mapᴱ (Erased (level (var x5)) (var x4))
                   (erased (var x5) (var x0)) (var x0) [ [ [ t ] ] ]₀ ≡
-                [ t ] ∷ Erased (var x4) (var x3)
+                [ t ] ∷ Erased (level (var x4)) (var x3)
             lemma t ⊢t =
-              mapᴱ (Erased (var x5) (var x4)) (erased (var x5) (var x0))
-                (var x0) [ [ [ t ] ] ]₀                                   ≡⟨ PE.trans mapᴱ-[] $
-                                                                             PE.cong₂ (mapᴱ _) erased-[] PE.refl ⟩⊢≡
-              mapᴱ (Erased (var x4) (var x3)) (erased (var x4) (var x0))
-                ([ [ t ] ])                                               ≡⟨ mapᴱ-β Erased-ok ⊢4 (erasedⱼ (var₀ (univ ⊢Erased-3)))
-                                                                               ([]ⱼ Erased-ok ⊢4 ⊢t) ⟩⊢
+              mapᴱ (Erased (level (var x5)) (var x4))
+                (erased (var x5) (var x0)) (var x0) [ [ [ t ] ] ]₀  ≡⟨ PE.trans mapᴱ-[] $
+                                                                       PE.cong₂ (mapᴱ _) erased-[] PE.refl ⟩⊢≡
+              mapᴱ (Erased (level (var x4)) (var x3))
+                (erased (var x4) (var x0)) ([ [ t ] ])              ≡⟨ mapᴱ-β Erased-ok ⊢4 (erasedⱼ (var₀ (univ ⊢Erased-3)))
+                                                                         ([]ⱼ Erased-ok ⊢4 ⊢t) ⟩⊢
 
-              [ erased (var x4) (var x0) [ [ t ] ]₀ ]                     ≡⟨ PE.cong [_] erased-[] ⟩⊢≡
+              [ erased (var x4) (var x0) [ [ t ] ]₀ ]               ≡⟨ PE.cong [_] erased-[] ⟩⊢≡
 
-              [ erased (var x3) ([ t ]) ]                                 ≡⟨ P.[]-cong′ Erased-ok ⊢4 $
-                                                                             Erased-β Erased-ok ⊢t ⟩⊢∎
-              [ t ]                                                       ∎
+              [ erased (var x3) ([ t ]) ]                           ≡⟨ P.[]-cong′ Erased-ok ⊢4 $
+                                                                       Erased-β Erased-ok ⊢t ⟩⊢∎
+              [ t ]                                                 ∎
         in
         hyp₁ ok₁ , hyp₂ ok₂ , hyp₃ ok₃ , hyp₄ ok₄ , hyp₅ ok₅ ,
         _⊢_∷_.conv
@@ -1899,11 +1904,11 @@ opaque
       ⊢[]-cong‴ :
         ε » Γ ⊢ []-cong‴ ∷
         Π p₁′ , q₁′ ▷ Level ▹
-        Π p₂′ , q₂′ ▷ U (var x0) ▹
+        Π p₂′ , q₂′ ▷ U (level (var x0)) ▹
         Π p₃′ , q₃′ ▷ var x0 ▹
         Π p₄′ , q₄′ ▷ var x1 ▹
         Π 𝟘   , q₅′ ▷ Id (var x2) (var x1) (var x0) ▹
-        Id (Erased (var x4) (var x3)) [ var x2 ] ([ var x1 ])
+        Id (Erased (level (var x4)) (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong‴ =
         let ok₁ , ok₂ , ok₃ , ok₄ , ok₅ , ⊢[]-cong″ = ⊢[]-cong″ in
         lamⱼ′ ok₁ $ lamⱼ′ ok₂ $ lamⱼ′ ok₃ $ lamⱼ′ ok₄ $
@@ -1913,10 +1918,11 @@ opaque
       ▸[]-cong‴ =
         lamₘ $ lamₘ $ lamₘ $ lamₘ $ lamₘ $
         sub
-          (▸cong (▸Erased var (▸Erased var var)) (▸[] (▸[] var))
-             (▸[] (▸[] var)) (▸Erased var var)
+          (▸cong (▸Erased (level var) (▸Erased (level var) var))
+             (▸[] (▸[] var)) (▸[] (▸[] var)) (▸Erased (level var) var)
              (sub
-                (▸mapᴱ′ trivial P-ok 𝟘≤𝟙 (λ _ → _ , ▸Erased var var)
+                (▸mapᴱ′ trivial P-ok 𝟘≤𝟙
+                   (λ _ → _ , ▸Erased (level var) var)
                    (sub
                       (▸erased′ trivial P-ok 𝟘≤𝟙 var (λ _ → _ , var))
                       (begin
@@ -1927,7 +1933,7 @@ opaque
                    𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                    𝟘ᶜ              ∎))
              (flip _∘ₘ_
-                (▸cong var var var (▸Erased var var)
+                (▸cong var var var (▸Erased (level var) var)
                    (sub (▸[] var) $ begin
                       𝟘ᶜ ∙ ⌜ m ᵐ· 𝟘 ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                       𝟘ᶜ                   ∎)
@@ -1946,7 +1952,7 @@ opaque
                       𝟘ᶜ +ᶜ (𝟙 + 𝟙) ·ᶜ 𝟘ᶜ                            ∎)) $
               flip _∘ₘ_ (▸[] var) $
               flip _∘ₘ_ (▸[] var) $
-              flip _∘ₘ_ (▸Erased var var) $
+              flip _∘ₘ_ (▸Erased (level var) var) $
               flip _∘ₘ_ var $
               wkUsage _ ▸[]-cong′)
              (λ _ → begin
@@ -2116,12 +2122,12 @@ opaque
       []-cong″-computes :
         ∀ m n′ (Δ : Cons m n′) (l A t : Term n′) (ρ : Wk n′ n) →
         Δ .defs » ρ ∷ʷ Δ .vars ⊇ Γ →
-        Δ ⊢ A ∷ U l →
+        Δ ⊢ A ∷ U (level l) →
         Δ ⊢ t ∷ A →
         Δ ⊢
           wk ρ []-cong″ ∘⟨ p₁′ ⟩ l ∘⟨ p₂′ ⟩ A ∘⟨ p₃′ ⟩ t ∘⟨ p₄′ ⟩ t
             ∘⟨ 𝟘 ⟩ rfl ≡
-          rfl ∷ Id (Erased l A) [ t ] ([ t ])
+          rfl ∷ Id (Erased (level l) A) [ t ] ([ t ])
       []-cong″-computes _ _ Δ l A t ρ Δ⊇Γ ⊢A ⊢t =
         let open Has-[]-cong-stronger
                    hyp₁ hyp₂ hyp₃ hyp₄ hyp₅ has-[]-cong
@@ -2132,93 +2138,104 @@ opaque
         in
         wk ρ
           (lam p₁′ $ lam p₂′ $ lam p₃′ $ lam p₄′ $ lam 𝟘 $
-           cong 𝟘 (Erased (var x4) (Erased (var x4) (var x3)))
-             [ [ var x2 ] ] [ [ var x1 ] ] (Erased (var x4) (var x3))
-             (mapᴱ (Erased (var x5) (var x4)) (erased (var x5) (var x0))
-                (var x0))
+           cong 𝟘
+             (Erased (level (var x4))
+                (Erased (level (var x4)) (var x3)))
+             [ [ var x2 ] ] [ [ var x1 ] ]
+             (Erased (level (var x4)) (var x3))
+             (mapᴱ (Erased (level (var x5)) (var x4))
+                (erased (var x5) (var x0)) (var x0))
              (wk (stepn id 5) []-cong′ ∘⟨ p₁ ⟩ var x4
-                ∘⟨ p₂ ⟩ Erased (var x4) (var x3) ∘⟨ p₃ ⟩ [ var x2 ]
+                ∘⟨ p₂ ⟩ Erased (level (var x4)) (var x3)
+                ∘⟨ p₃ ⟩ [ var x2 ]
                 ∘⟨ p₄ ⟩ [ var x1 ]
                 ∘⟨ 𝟘 ⟩ cong 𝟘 (var x3) (var x2) (var x1)
-                         (Erased (var x4) (var x3)) [ var x0 ]
+                         (Erased (level (var x4)) (var x3)) [ var x0 ]
                          (var x0)))
           ∘⟨ p₁′ ⟩ l ∘⟨ p₂′ ⟩ A ∘⟨ p₃′ ⟩ t ∘⟨ p₄′ ⟩ t ∘⟨ 𝟘 ⟩ rfl ∷
-          Id (Erased l A) [ t ] ([ t ])                                   ⇒*⟨ β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
-                                                                                (W.wkTerm
-                                                                                   (W.liftnʷ Δ⊇Γ $
-                                                                                    ∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε (wfTerm ⊢[]-cong′))) $
-                                                                                 WD.defn-wkTerm ⊇ε ⊢[]-cong″)
-                                                                                ⊢l ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢∷
-                                                                           ˘⟨ Id-cong (refl (univ ⊢Erased-A)) mapᴱ-lemma mapᴱ-lemma ⟩≡
+          Id (Erased (level l) A) [ t ] ([ t ])                         ⇒*⟨ β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
+                                                                              (W.wkTerm
+                                                                                 (W.liftnʷ Δ⊇Γ $
+                                                                                  ∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε (wfTerm ⊢[]-cong′))) $
+                                                                               WD.defn-wkTerm ⊇ε ⊢[]-cong″)
+                                                                              ⊢l ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢∷
+                                                                         ˘⟨ Id-cong (refl (univ ⊢Erased-A)) mapᴱ-lemma mapᴱ-lemma ⟩≡
         wk (liftn ρ 5)
-          (cong 𝟘 (Erased (var x4) (Erased (var x4) (var x3)))
-             [ [ var x2 ] ] [ [ var x1 ] ] (Erased (var x4) (var x3))
-             (mapᴱ (Erased (var x5) (var x4)) (erased (var x5) (var x0))
-                (var x0))
+          (cong 𝟘
+             (Erased (level (var x4))
+                (Erased (level (var x4)) (var x3)))
+             [ [ var x2 ] ] [ [ var x1 ] ]
+             (Erased (level (var x4)) (var x3))
+             (mapᴱ (Erased (level (var x5)) (var x4))
+                (erased (var x5) (var x0)) (var x0))
              (wk (stepn id 5) []-cong′ ∘⟨ p₁ ⟩ var x4
-                ∘⟨ p₂ ⟩ Erased (var x4) (var x3) ∘⟨ p₃ ⟩ [ var x2 ]
+                ∘⟨ p₂ ⟩ Erased (level (var x4)) (var x3)
+                ∘⟨ p₃ ⟩ [ var x2 ]
                 ∘⟨ p₄ ⟩ [ var x1 ]
                 ∘⟨ 𝟘 ⟩ cong 𝟘 (var x3) (var x2) (var x1)
-                         (Erased (var x4) (var x3)) [ var x0 ]
+                         (Erased (level (var x4)) (var x3)) [ var x0 ]
                          (var x0)))
           U.[ consSubst
                 (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
                 rfl ] ∷
-          Id (Erased l A)
-            (mapᴱ (Erased (wk1 l) (wk1 A)) (erased (wk2 A) (var x0))
-               (var x0) [ [ [ t ] ] ]₀)
-            (mapᴱ (Erased (wk1 l) (wk1 A)) (erased (wk2 A) (var x0))
-               (var x0) [ [ [ t ] ] ]₀)                                   ≡⟨ PE.trans (subst-wk (cong _ _ _ _ _ _ _)) $
-                                                                             PE.trans cong-[] $
-                                                                             PE.cong₂ (cong _ _ _ _ _)
-                                                                               (PE.trans mapᴱ-[] $
-                                                                                PE.cong₂ (mapᴱ _) erased-[] PE.refl)
-                                                                               (PE.cong₂ _∘⟨ 𝟘 ⟩_
-                                                                                  (PE.cong (_∘⟨ p₄ ⟩ [ t ]) $
-                                                                                   PE.cong (_∘⟨ p₃ ⟩ [ t ]) $
-                                                                                   PE.cong (_∘⟨ p₂ ⟩ Erased l A) $
-                                                                                   PE.cong (_∘⟨ _ ⟩ _) $
-                                                                                   lemma _ _ _ _ _)
-                                                                                  cong-[]) ⟩⊢∷≡
-        cong 𝟘 (Erased l (Erased l A)) [ [ t ] ] [ [ t ] ] (Erased l A)
-          (mapᴱ (Erased (wk1 l) (wk1 A)) (erased (wk2 A) (var x0))
-             (var x0))
-          (wk ρ []-cong′ ∘⟨ p₁ ⟩ l ∘⟨ p₂ ⟩ Erased l A ∘⟨ p₃ ⟩ [ t ]
-             ∘⟨ p₄ ⟩ [ t ]
-             ∘⟨ 𝟘 ⟩ cong 𝟘 A t t (Erased l A) [ var x0 ] rfl)             ≡⟨ cong-cong (refl ⊢Erased-Erased-A) (refl ⊢[[t]]) (refl ⊢[[t]])
-                                                                               (refl (univ ⊢Erased-A)) (refl ⊢mapᴱ-0) $
-                                                                             PE.subst (_⊢_≡_∷_ _ _ _)
-                                                                               (PE.cong₃ Id ≡Erased-Erased wk2-[]₁[]₀ (wk1-sgSubst _ _)) $
-                                                                             _⊢_≡_∷_.app-cong
-                                                                               (_⊢_≡_∷_.refl $
-                                                                                PE.subst (_⊢_∷_ _ _)
-                                                                                  (PE.cong₂ (Π_,_▷_▹_ 𝟘 q₅)
-                                                                                     (PE.cong₃ Id wk2-[]₁[]₀ (wk1-sgSubst _ _) PE.refl) $
-                                                                                   PE.refl) $
-                                                                                flip _∘ⱼ_ ⊢[t] $
-                                                                                PE.subst (_⊢_∷_ _ _)
-                                                                                  (PE.cong₂ (Π_,_▷_▹_ p₄ q₄) (wk1-sgSubst _ _) PE.refl) $
-                                                                                flip _∘ⱼ_ ⊢[t] $
-                                                                                flip _∘ⱼ_ ⊢Erased-A∷U $
-                                                                                flip _∘ⱼ_ ⊢l $
-                                                                                W.wkTerm Δ⊇Γ $
-                                                                                WD.defn-wkTerm ⊇ε ⊢[]-cong′) $
-                                                                             cong-≡ ⊢t $
-                                                                             PE.subst (_⊢_∷_ _ _) (PE.sym wk-Erased) $
-                                                                             []ⱼ Erased-ok (W.wkLevel₁ (univ ⊢A) ⊢l∷L) (var₀ (univ ⊢A)) ⟩⊢
-        cong 𝟘 (Erased l (Erased l A)) [ [ t ] ] [ [ t ] ] (Erased l A)
-          (mapᴱ (Erased (wk1 l) (wk1 A)) (erased (wk2 A) (var x0))
-             (var x0))
-          (wk ρ []-cong′ ∘⟨ p₁ ⟩ l ∘⟨ p₂ ⟩ Erased l A ∘⟨ p₃ ⟩ [ t ]
-             ∘⟨ p₄ ⟩ [ t ] ∘⟨ 𝟘 ⟩ rfl)                                    ≡⟨ cong-cong (refl ⊢Erased-Erased-A) (refl ⊢[[t]]) (refl ⊢[[t]])
-                                                                               (refl (univ ⊢Erased-A)) (refl ⊢mapᴱ-0) $
-                                                                             []-cong′≡ _ _ _ _ _ _ _ Δ⊇Γ ⊢Erased-A∷U ⊢[t] ⟩⊢
-        cong 𝟘 (Erased l (Erased l A)) [ [ t ] ] [ [ t ] ] (Erased l A)
-          (mapᴱ (Erased (wk1 l) (wk1 A)) (erased (wk2 A) (var x0))
-             (var x0))
-          rfl                                                             ⇒⟨ cong-⇒ ⊢[[t]] ⊢mapᴱ-0 ⟩⊢∎
+          Id (Erased (level l) A)
+            (mapᴱ (Erased (level (wk1 l)) (wk1 A))
+               (erased (wk2 A) (var x0)) (var x0) [ [ [ t ] ] ]₀)
+            (mapᴱ (Erased (level (wk1 l)) (wk1 A))
+               (erased (wk2 A) (var x0)) (var x0) [ [ [ t ] ] ]₀)       ≡⟨ PE.trans (subst-wk (cong _ _ _ _ _ _ _)) $
+                                                                           PE.trans cong-[] $
+                                                                           PE.cong₂ (cong _ _ _ _ _)
+                                                                             (PE.trans mapᴱ-[] $
+                                                                              PE.cong₂ (mapᴱ _) erased-[] PE.refl)
+                                                                             (PE.cong₂ _∘⟨ 𝟘 ⟩_
+                                                                                (PE.cong (_∘⟨ p₄ ⟩ [ t ]) $
+                                                                                 PE.cong (_∘⟨ p₃ ⟩ [ t ]) $
+                                                                                 PE.cong (_∘⟨ p₂ ⟩ Erased (level l) A) $
+                                                                                 PE.cong (_∘⟨ _ ⟩ _) $
+                                                                                 lemma _ _ _ _ _)
+                                                                                cong-[]) ⟩⊢∷≡
+        cong 𝟘 (Erased (level l) (Erased (level l) A)) [ [ t ] ]
+          [ [ t ] ] (Erased (level l) A)
+          (mapᴱ (Erased (level (wk1 l)) (wk1 A))
+             (erased (wk2 A) (var x0)) (var x0))
+          (wk ρ []-cong′ ∘⟨ p₁ ⟩ l ∘⟨ p₂ ⟩ Erased (level l) A
+             ∘⟨ p₃ ⟩ [ t ] ∘⟨ p₄ ⟩ [ t ]
+             ∘⟨ 𝟘 ⟩ cong 𝟘 A t t (Erased (level l) A) [ var x0 ] rfl)   ≡⟨ cong-cong (refl ⊢Erased-Erased-A) (refl ⊢[[t]]) (refl ⊢[[t]])
+                                                                             (refl (univ ⊢Erased-A)) (refl ⊢mapᴱ-0) $
+                                                                           PE.subst (_⊢_≡_∷_ _ _ _)
+                                                                             (PE.cong₃ Id ≡Erased-Erased wk2-[]₁[]₀ (wk1-sgSubst _ _)) $
+                                                                           _⊢_≡_∷_.app-cong
+                                                                             (_⊢_≡_∷_.refl $
+                                                                              PE.subst (_⊢_∷_ _ _)
+                                                                                (PE.cong₂ (Π_,_▷_▹_ 𝟘 q₅)
+                                                                                   (PE.cong₃ Id wk2-[]₁[]₀ (wk1-sgSubst _ _) PE.refl) $
+                                                                                 PE.refl) $
+                                                                              flip _∘ⱼ_ ⊢[t] $
+                                                                              PE.subst (_⊢_∷_ _ _)
+                                                                                (PE.cong₂ (Π_,_▷_▹_ p₄ q₄) (wk1-sgSubst _ _) PE.refl) $
+                                                                              flip _∘ⱼ_ ⊢[t] $
+                                                                              flip _∘ⱼ_ ⊢Erased-A∷U $
+                                                                              flip _∘ⱼ_ ⊢l $
+                                                                              W.wkTerm Δ⊇Γ $
+                                                                              WD.defn-wkTerm ⊇ε ⊢[]-cong′) $
+                                                                           cong-≡ ⊢t $
+                                                                           PE.subst (_⊢_∷_ _ _) (PE.sym wk-Erased) $
+                                                                           []ⱼ Erased-ok (W.wkLevel₁ (univ ⊢A) ⊢l∷L) (var₀ (univ ⊢A)) ⟩⊢
+        cong 𝟘 (Erased (level l) (Erased (level l) A)) [ [ t ] ]
+          [ [ t ] ] (Erased (level l) A)
+          (mapᴱ (Erased (level (wk1 l)) (wk1 A))
+             (erased (wk2 A) (var x0)) (var x0))
+          (wk ρ []-cong′ ∘⟨ p₁ ⟩ l ∘⟨ p₂ ⟩ Erased (level l) A
+             ∘⟨ p₃ ⟩ [ t ] ∘⟨ p₄ ⟩ [ t ] ∘⟨ 𝟘 ⟩ rfl)                    ≡⟨ cong-cong (refl ⊢Erased-Erased-A) (refl ⊢[[t]]) (refl ⊢[[t]])
+                                                                             (refl (univ ⊢Erased-A)) (refl ⊢mapᴱ-0) $
+                                                                           []-cong′≡ _ _ _ _ _ _ _ Δ⊇Γ ⊢Erased-A∷U ⊢[t] ⟩⊢
+        cong 𝟘 (Erased (level l) (Erased (level l) A)) [ [ t ] ]
+          [ [ t ] ] (Erased (level l) A)
+          (mapᴱ (Erased (level (wk1 l)) (wk1 A))
+             (erased (wk2 A) (var x0)) (var x0))
+          rfl                                                           ⇒⟨ cong-⇒ ⊢[[t]] ⊢mapᴱ-0 ⟩⊢∎
 
-        rfl                                                               ∎
+        rfl                                                             ∎
         where
         Level-ok : Level-allowed
         Level-ok = Has-[]-cong→Level-allowed has-[]-cong
@@ -2234,32 +2251,32 @@ opaque
           proj₁ $ proj₂ $ inversion-ΠΣ $
           syntacticTerm $ has-[]-cong′ .proj₂ .proj₂
 
-        ⊢l∷L : Δ ⊢ l ∷Level
+        ⊢l∷L : Δ ⊢ level l ∷Level
         ⊢l∷L = inversion-U-Level (wf-⊢∷ ⊢A)
 
         ⊢l : Δ ⊢ l ∷ Level
         ⊢l = ⊢∷Level→⊢∷Level Level-ok ⊢l∷L
 
-        ⊢[t] : Δ ⊢ [ t ] ∷ Erased l A
+        ⊢[t] : Δ ⊢ [ t ] ∷ Erased (level l) A
         ⊢[t] = []ⱼ Erased-ok ⊢l∷L ⊢t
 
-        ⊢Erased-A : Δ ⊢ Erased l A ∷ U l
+        ⊢Erased-A : Δ ⊢ Erased (level l) A ∷ U (level l)
         ⊢Erased-A = Erasedⱼ-U Erased-ok ⊢A
 
-        ⊢[[t]] : Δ ⊢ [ [ t ] ] ∷ Erased l (Erased l A)
+        ⊢[[t]] : Δ ⊢ [ [ t ] ] ∷ Erased (level l) (Erased (level l) A)
         ⊢[[t]] = []ⱼ Erased-ok ⊢l∷L ⊢[t]
 
-        ⊢Erased-Erased-A : Δ ⊢ Erased l (Erased l A)
+        ⊢Erased-Erased-A : Δ ⊢ Erased (level l) (Erased (level l) A)
         ⊢Erased-Erased-A = syntacticTerm ⊢[[t]]
 
-        ⊢Erased-A∷U : Δ ⊢ Erased l A ∷ U l
+        ⊢Erased-A∷U : Δ ⊢ Erased (level l) A ∷ U (level l)
         ⊢Erased-A∷U = Erasedⱼ-U Erased-ok ⊢A
 
         ⊢mapᴱ-0 :
-          Δ »∙ Erased l (Erased l A) ⊢
-            mapᴱ (Erased (wk1 l) (wk1 A)) (erased (wk2 A) (var x0))
-              (var x0) ∷
-            wk1 (Erased l A)
+          Δ »∙ Erased (level l) (Erased (level l) A) ⊢
+            mapᴱ (Erased (level (wk1 l)) (wk1 A))
+              (erased (wk2 A) (var x0)) (var x0) ∷
+            wk1 (Erased (level l) A)
         ⊢mapᴱ-0 =
           PE.subst (_⊢_∷_ _ _) (PE.sym wk-Erased) $
           ⊢mapᴱ (W.wkLevel₁ ⊢Erased-Erased-A ⊢l∷L)
@@ -2272,72 +2289,82 @@ opaque
 
         mapᴱ-lemma :
           Δ ⊢
-            mapᴱ (Erased (wk1 l) (wk1 A)) (erased (wk2 A) (var x0))
-              (var x0) [ [ [ t ] ] ]₀ ≡
+            mapᴱ (Erased (level (wk1 l)) (wk1 A))
+              (erased (wk2 A) (var x0)) (var x0) [ [ [ t ] ] ]₀ ≡
             [ t ] ∷
-            Erased l A
+            Erased (level l) A
         mapᴱ-lemma =
-          mapᴱ (Erased (wk1 l) (wk1 A)) (erased (wk2 A) (var x0))
-            (var x0) [ [ [ t ] ] ]₀                                 ≡⟨ PE.trans mapᴱ-[] $
-                                                                       PE.cong₃ mapᴱ
-                                                                         (PE.trans
-                                                                            (PE.cong _[ [ [ t ] ] ]₀ $ PE.sym $
-                                                                             wk-Erased {l = l} {A = A}) $
-                                                                          wk1-sgSubst _ _)
-                                                                         (PE.trans erased-[] $
-                                                                          PE.cong₂ erased wk2-[]₁ PE.refl)
-                                                                         PE.refl ⟩⊢≡
+          mapᴱ (Erased (level (wk1 l)) (wk1 A))
+            (erased (wk2 A) (var x0)) (var x0) [ [ [ t ] ] ]₀  ≡⟨ PE.trans mapᴱ-[] $
+                                                                  PE.cong₃ mapᴱ
+                                                                    (PE.trans
+                                                                       (PE.cong _[ [ [ t ] ] ]₀ $ PE.sym $
+                                                                        wk-Erased {l = level l} {A = A}) $
+                                                                     wk1-sgSubst _ _)
+                                                                    (PE.trans erased-[] $
+                                                                     PE.cong₂ erased wk2-[]₁ PE.refl)
+                                                                    PE.refl ⟩⊢≡
 
-          mapᴱ (Erased l A) (erased (wk1 A) (var x0)) ([ [ t ] ])   ≡⟨ mapᴱ-β Erased-ok ⊢l∷L
-                                                                         (erasedⱼ $
-                                                                          PE.subst (_⊢_∷_ _ _) wk-Erased $
-                                                                          var₀ (univ ⊢Erased-A))
-                                                                         ([]ⱼ Erased-ok ⊢l∷L ⊢t) ⟩⊢
+          mapᴱ (Erased (level l) A) (erased (wk1 A) (var x0))
+            ([ [ t ] ])                                        ≡⟨ mapᴱ-β Erased-ok ⊢l∷L
+                                                                    (erasedⱼ $
+                                                                     PE.subst (_⊢_∷_ _ _) wk-Erased $
+                                                                     var₀ (univ ⊢Erased-A))
+                                                                    ([]ⱼ Erased-ok ⊢l∷L ⊢t) ⟩⊢
 
-          [ erased (wk1 A) (var x0) [ [ t ] ]₀ ]                    ≡⟨ PE.cong ([_]) $
-                                                                       PE.trans erased-[] $
-                                                                       PE.cong₂ erased (wk1-sgSubst _ _) PE.refl ⟩⊢≡
+          [ erased (wk1 A) (var x0) [ [ t ] ]₀ ]               ≡⟨ PE.cong ([_]) $
+                                                                  PE.trans erased-[] $
+                                                                  PE.cong₂ erased (wk1-sgSubst _ _) PE.refl ⟩⊢≡
 
-          [ erased A ([ t ]) ]                                      ≡⟨ P.[]-cong′ Erased-ok ⊢l∷L $
-                                                                       Erased-β Erased-ok ⊢t ⟩⊢∎
-          [ t ]                                                     ∎
+          [ erased A ([ t ]) ]                                 ≡⟨ P.[]-cong′ Erased-ok ⊢l∷L $
+                                                                  Erased-β Erased-ok ⊢t ⟩⊢∎
+          [ t ]                                                ∎
 
         ≡Erased-Erased :
           (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷
-           wk[ 3 ] (Erased l A) ▹
-           Lift (wk[ 5 ] l U.[ sgSubst (Erased l A) ⇑[ 4 ] ]) (Unit s))
+           wk[ 3 ] (Erased (level l) A) ▹
+           Lift
+             (wk[ 5 ] (level l)
+                U.[ sgSubst (Erased (level l) A) ⇑[ 4 ] ])
+             (Unit s))
             U.[ sgSubst ([ t ]) ⇑[ 2 ] ] [ sgSubst ([ t ]) ⇑ ]
-            [ cong 𝟘 A t t (Erased l A) [ var x0 ] rfl ]₀ PE.≡
-          Erased l (Erased l A)
+            [ cong 𝟘 A t t (Erased (level l) A) [ var x0 ] rfl ]₀ PE.≡
+          Erased (level l) (Erased (level l) A)
         ≡Erased-Erased =
-          let u = cong 𝟘 A t t (Erased l A) [ var x0 ] rfl
+          let u = cong 𝟘 A t t (Erased (level l) A) [ var x0 ] rfl
 
               lemma =
-                wk[ 5 ] l U.[ sgSubst (Erased l A) ⇑[ 4 ] ]   ≡⟨ PE.cong _[ sgSubst (Erased l A) ⇑[ 4 ] ] $ wk[]≡wk[]′ {t = l} ⟩
-                wk[ 5 ]′ l U.[ sgSubst (Erased l A) ⇑[ 4 ] ]  ≡⟨ wk[+1]′-[₀⇑]≡ ⟩
-                wk[ 4 ]′ l                                    ≡˘⟨ wk[]≡wk[]′ ⟩
-                wk[ 4 ] l                                     ∎
+                wk[ 5 ] (level l)
+                  U.[ sgSubst (Erased (level l) A) ⇑[ 4 ] ]  ≡⟨ PE.cong _[ sgSubst (Erased (level l) A) ⇑[ 4 ] ] $ wk[]≡wk[]′ {t = level l} ⟩
+
+                wk[ 5 ]′ (level l)
+                  U.[ sgSubst (Erased (level l) A) ⇑[ 4 ] ]  ≡⟨ wk[+1]′-[₀⇑]≡ ⟩
+
+                wk[ 4 ]′ (level l)                           ≡˘⟨ wk[]≡wk[]′ ⟩
+
+                wk[ 4 ] (level l)                            ∎
           in
 
           (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷
-           wk[ 3 ] (Erased l A) ▹
-           Lift (wk[ 5 ] l U.[ sgSubst (Erased l A) ⇑[ 4 ] ]) (Unit s))
-            U.[ sgSubst ([ t ]) ⇑[ 2 ] ] [ sgSubst ([ t ]) ⇑ ] [ u ]₀    ≡⟨ PE.cong
-                                                                              (_[ u ]₀ ∘→ _[ sgSubst ([ t ]) ⇑ ] ∘→
-                                                                               _[ sgSubst ([ t ]) ⇑[ 2 ] ] ∘→
-                                                                               Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ wk[ 3 ] (Erased l A) ▹_ ∘→
-                                                                               flip Lift (Unit s))
-                                                                              lemma ⟩
-          Erased (wk[ 3 ] l) (wk[ 3 ] (Erased l A))
-            U.[ sgSubst ([ t ]) ⇑[ 2 ] ] [ sgSubst ([ t ]) ⇑ ] [ u ]₀    ≡˘⟨ PE.cong (_[ u ]₀ ∘→ _[ sgSubst ([ t ]) ⇑ ]) $
-                                                                             PE.cong _[ sgSubst ([ t ]) ⇑[ 2 ] ] $
-                                                                             PE.trans wk[]≡wk[]′ $
-                                                                             PE.trans (wk-Erased {l = l} {A = Erased l A}) $
-                                                                             PE.sym $ PE.cong₂ Erased wk[]≡wk[]′ wk[]≡wk[]′ ⟩
-          wk[ 3 ] (Erased l (Erased l A))
-            U.[ sgSubst ([ t ]) ⇑[ 2 ] ] [ sgSubst ([ t ]) ⇑ ] [ u ]₀    ≡⟨ wk3-[]₂[]₁[]₀ ⟩
+           wk[ 3 ] (Erased (level l) A) ▹
+           Lift
+             (wk[ 5 ] (level l)
+                U.[ sgSubst (Erased (level l) A) ⇑[ 4 ] ])
+             (Unit s))
+            U.[ sgSubst ([ t ]) ⇑[ 2 ] ] [ sgSubst ([ t ]) ⇑ ] [ u ]₀  ≡⟨ PE.cong _[ u ]₀ $ PE.cong _[ sgSubst ([ t ]) ⇑ ] $
+                                                                          PE.cong _[ sgSubst ([ t ]) ⇑[ 2 ] ] $
+                                                                          PE.cong (Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ wk[ 3 ] (Erased (level l) A) ▹_) $
+                                                                          PE.cong (flip Lift (Unit s)) lemma ⟩
+          Erased (wk[ 3 ] (level l)) (wk[ 3 ] (Erased (level l) A))
+            U.[ sgSubst ([ t ]) ⇑[ 2 ] ] [ sgSubst ([ t ]) ⇑ ] [ u ]₀  ≡˘⟨ PE.cong (_[ u ]₀ ∘→ _[ sgSubst ([ t ]) ⇑ ]) $
+                                                                           PE.cong _[ sgSubst ([ t ]) ⇑[ 2 ] ] $
+                                                                           PE.trans wk[]≡wk[]′ $
+                                                                           PE.trans (wk-Erased {l = level l} {A = Erased (level l) A}) $
+                                                                           PE.sym $ PE.cong₂ Erased wk[]≡wk[]′ wk[]≡wk[]′ ⟩
+          wk[ 3 ] (Erased (level l) (Erased (level l) A))
+            U.[ sgSubst ([ t ]) ⇑[ 2 ] ] [ sgSubst ([ t ]) ⇑ ] [ u ]₀  ≡⟨ wk3-[]₂[]₁[]₀ ⟩
 
-          Erased l (Erased l A)                                          ∎
+          Erased (level l) (Erased (level l) A)                        ∎
           where
           open Tools.Reasoning.PropositionalEquality
 
@@ -2397,7 +2424,7 @@ private
             (none       , ≡none)     → ⊥-elim $ ≢none ≡none
 
     []-cong′ :
-      OK → Term n′ → Term n′ → Term n′ → Term n′ → Term n′ → Term n′
+      OK → Lvl n′ → Term n′ → Term n′ → Term n′ → Term n′ → Term n′
     []-cong′ (inj₁ _)        = []-cong s
     []-cong′ (inj₂ (inj₁ _)) = λ _ _ _ _ _ → rfl
     []-cong′ (inj₂ (inj₂ _)) = []-cong-J s
@@ -2460,10 +2487,11 @@ private
         let open Erased s in
         Level-allowed →
         ⊢ Γ →
-        Γ »∙ Level »∙ U (var x0) »∙ var x0 »∙ var x1 »∙
+        Γ »∙ Level »∙ U (level (var x0)) »∙ var x0 »∙ var x1 »∙
           Id (var x2) (var x1) (var x0) ⊢
-          []-cong′ ok′ (var x4) (var x3) (var x2) (var x1) (var x0) ∷
-          Id (Erased (var x4) (var x3)) [ var x2 ] ([ var x1 ])
+          []-cong′ ok′ (level (var x4)) (var x3) (var x2) (var x1)
+            (var x0) ∷
+          Id (Erased (level (var x4)) (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong′-4-3-2-1-0 Level-ok ⊢Γ =
         ⊢[]-cong′-3-2-1-0 (term-⊢∷ (var₀ (Levelⱼ′ Level-ok ⊢Γ)))
 
@@ -2493,7 +2521,7 @@ private
       []-cong′-β-⇒* (inj₂ (inj₁ ok)) ⊢l ⊢t =
         id ([]-cong-with-equality-reflection ok Erased-ok ⊢l (rflⱼ ⊢t))
 
-    []-cong₁ : Term n → Term n
+    []-cong₁ : Lvl n → Term n
     []-cong₁ l =
       lam 𝟘 $ lam 𝟘 $ lam 𝟘 $ lam 𝟘 $
       []-cong′ ok′ (wk[ 4 ]′ l) (var x3) (var x2) (var x1) (var x0)
@@ -2526,13 +2554,13 @@ private
         ⊢[]-cong′-3-2-1-0 ⊢l
 
     []-cong₂ : Term n
-    []-cong₂ = lam 𝟘 ([]-cong₁ (var x0))
+    []-cong₂ = lam 𝟘 ([]-cong₁ (level (var x0)))
 
     opaque
 
       ▸[]-cong₂ : 𝟘ᶜ ▸[ m ] []-cong₂ {n = n}
       ▸[]-cong₂ =
-        lamₘ $ sub (▸[]-cong₁ var) $ begin
+        lamₘ $ sub (▸[]-cong₁ (level var)) $ begin
           𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
 
           𝟘ᶜ              ∎
@@ -2548,11 +2576,11 @@ private
         ⊢ Γ →
         Γ ⊢ []-cong₂ ∷
         Π 𝟘 , q₁ ▷ Level ▹
-        Π 𝟘 , q₂ ▷ U (var x0) ▹
+        Π 𝟘 , q₂ ▷ U (level (var x0)) ▹
         Π 𝟘 , q₃ ▷ var x0 ▹
         Π 𝟘 , q₄ ▷ var (x0 +1) ▹
         Π 𝟘 , q₅ ▷ Id (var ((x0 +1) +1)) (var (x0 +1)) (var x0) ▹
-        Id (Erased (var x4) (var x3)) [ var x2 ] ([ var x1 ])
+        Id (Erased (level (var x4)) (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong₂ Level-ok ok₁ ⊢Γ =
         lamⱼ′ ok₁ (⊢[]-cong₁ (term-⊢∷ (var₀ (Levelⱼ′ Level-ok ⊢Γ))))
 
@@ -2651,28 +2679,29 @@ opaque
       ([]-cong₂ , ▸[]-cong₂ , ⊢[]-cong₂ Level-ok ok₁ ⊢Γ)
     , λ _ _ _ l A t ρ Δ⊇Γ ⊢A ⊢t →
         let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
-        wk ρ []-cong₂ ∘⟨ 𝟘 ⟩ l ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl   ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _)
-                                                                             (PE.sym $
-                                                                              PE.trans (Erased.Id-Erased-[] _) $
-                                                                              PE.cong
-                                                                                _[ consSubst (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
-                                                                                     rfl ] $
-                                                                              Erased.wk-Id-Erased _) $
-                                                                           β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
-                                                                             (W.wkTerm (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε ⊢Γ))) $
-                                                                              WD.defn-wkTerm ⊇ε (⊢[]-cong′-4-3-2-1-0 Level-ok ⊢Γ))
-                                                                             (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
-                                                                             ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
+        wk ρ []-cong₂ ∘⟨ 𝟘 ⟩ l ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl  ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _)
+                                                                            (PE.sym $
+                                                                             PE.trans (Erased.Id-Erased-[] _) $
+                                                                             PE.cong
+                                                                               _[ consSubst (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
+                                                                                    rfl ] $
+                                                                             Erased.wk-Id-Erased _) $
+                                                                          β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
+                                                                            (W.wkTerm (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε ⊢Γ))) $
+                                                                             WD.defn-wkTerm ⊇ε (⊢[]-cong′-4-3-2-1-0 Level-ok ⊢Γ))
+                                                                            (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
+                                                                            ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         wk (liftn ρ 5)
-          ([]-cong′ ok′ (var x4) (var x3) (var x2) (var x1) (var x0))
+          ([]-cong′ ok′ (level (var x4)) (var x3) (var x2) (var x1)
+             (var x0))
           [ consSubst
               (consSubst (consSubst (consSubst (sgSubst l) A) t) t)
-              rfl ]                                                    ≡⟨ PE.trans (subst-wk ([]-cong′ ok′ _ _ _ _ _)) $
-                                                                          []-cong′-[] ok′ ⟩⊢≡
+              rfl ]                                                   ≡⟨ PE.trans (subst-wk ([]-cong′ ok′ _ _ _ _ _)) $
+                                                                         []-cong′-[] ok′ ⟩⊢≡
 
-        []-cong′ ok′ l A t t rfl                                       ⇒*⟨ []-cong′-β-⇒* ok′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢t ⟩⊢∎
+        []-cong′ ok′ (level l) A t t rfl                              ⇒*⟨ []-cong′-β-⇒* ok′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢t ⟩⊢∎
 
-        rfl                                                            ∎
+        rfl                                                           ∎
     where
     open []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong
            ok ok₂ ok₃ ok₄ ok₅
@@ -2893,10 +2922,10 @@ opaque
   ¬-[]-cong
     {n} {s} {p₁} {q₁} {p₂} {q₂} {q₃} {q₄} {q₅} {Γ}
     nem Unitʷ-η→ consistent has-[]-cong@(_ , hyp) =
-                                                        $⟨ has-[]-cong ⟩
-    Has-[]-cong s 𝟙ᵐ Γ p₁ q₁ p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅         →⟨ Has-[]-cong→Has-[]-cong-for-level ⊢l ▸l ⟩
-    Has-[]-cong-for-level s 𝟙ᵐ Γ l′ p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅  →⟨ ¬-[]-cong-for-level nem Unitʷ-η→ ▸l consistent ⟩
-    ⊥                                                   □
+                                                                $⟨ has-[]-cong ⟩
+    Has-[]-cong s 𝟙ᵐ Γ p₁ q₁ p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅                 →⟨ Has-[]-cong→Has-[]-cong-for-level ⊢l ▸l ⟩
+    Has-[]-cong-for-level s 𝟙ᵐ Γ (level l′) p₂ q₂ 𝟘 q₃ 𝟘 q₄ q₅  →⟨ ¬-[]-cong-for-level nem Unitʷ-η→ (level ▸l) consistent ⟩
+    ⊥                                                           □
     where
     ⊢Γ : ε »⊢ Γ
     ⊢Γ = wfTerm (hyp .proj₂)
@@ -2904,7 +2933,7 @@ opaque
     l′ : Term n
     l′ = zeroᵘ
 
-    ⊢l : ε » Γ ⊢ l′ ∷Level
+    ⊢l : ε » Γ ⊢ level l′ ∷Level
     ⊢l = ⊢zeroᵘ ⊢Γ
 
     ▸l : 𝟘ᶜ ▸[ m ] l′

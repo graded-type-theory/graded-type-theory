@@ -43,7 +43,8 @@ open Modality 𝕄
 
 private variable
   n : Nat
-  A P k l h t nl cs xs : Term _
+  A P k h t nl cs xs : Term _
+  l : Lvl _
   σ : Subst _ _
   ρ : Wk _ _
   p₁ p₂ p₃ q r₁ r₂ : M
@@ -58,7 +59,7 @@ opaque
   -- represents the length (assigned grade pₗ) and the second
   -- is a vector (of that length).
 
-  List : (l A : Term n) → Term n
+  List : Lvl n → Term n → Term n
   List l A =
     Σʷ pₗ , 𝟙 ▷ Lift l ℕ ▹ V.Vec′ (wk1 l) (wk1 A) (lower (var x0))
 
@@ -114,7 +115,7 @@ opaque
 
   -- cons as a term former
 
-  cons : (l A h t : Term n) → Term n
+  cons : Lvl n → (_ _ _ : Term n) → Term n
   cons l A h t =
     prodrec 𝟙 pₗ 𝟘 (wk1 (List l A)) t
       (prodʷ pₗ (lift (suc (lower (var x1))))
@@ -176,7 +177,8 @@ opaque
   listrec :
     ∀ {n} →
     (r₁ r₂ p₁ p₂ q : M)
-    (l A : Term n)
+    (l : Lvl n)
+    (A : Term n)
     (P : Term (1+ n))
     (nl : Term n)
     (cs : Term (3+ n))
@@ -228,12 +230,14 @@ module Internal (R : Type-restrictions 𝕄) where
   private variable
     c : I.Constants
     p₁ᵢ p₂ᵢ p₃ᵢ p₄ᵢ p₅ᵢ pₕᵢ pₗᵢ : I.Termᵍ _
-    Aᵢ A₁ᵢ A₂ᵢ lᵢ t₁ᵢ t₂ᵢ t₃ᵢ : I.Term _ _
+    Aᵢ A₁ᵢ A₂ᵢ t₁ᵢ t₂ᵢ t₃ᵢ : I.Term _ _
+    lᵢ : I.Lvl _ _
     γ : I.Contexts _
 
   -- A variant of List.
 
-  Listᵢ : (_ _ : I.Termᵍ (c .I.gs)) (_ _ : I.Term c n) → I.Term c n
+  Listᵢ :
+    (_ _ : I.Termᵍ (c .I.gs)) → I.Lvl c n → I.Term c n → I.Term c n
   Listᵢ pₕ pₗ l A =
     I.Σʷ pₗ , I.𝟙 ▷ I.Lift l I.ℕ ▹
     IV.Vec′ᵢ I.𝕨 pₕ (IW.wk[ 1 ] l) (IW.wk[ 1 ] A) (I.lower (I.var x0))
@@ -252,7 +256,7 @@ module Internal (R : Type-restrictions 𝕄) where
 
   -- A variant of nil.
 
-  nilᵢ : (_ _ : I.Termᵍ (c .I.gs)) (_ _ : I.Term c n) → I.Term c n
+  nilᵢ : (_ _ : I.Termᵍ (c .I.gs)) → I.Lvl c n → I.Term c n → I.Term c n
   nilᵢ pₗ pₕ l A =
     I.prod I.𝕨 pₗ
       (just
@@ -273,7 +277,9 @@ module Internal (R : Type-restrictions 𝕄) where
 
   -- A variant of cons.
 
-  consᵢ : (_ _ : I.Termᵍ (c .I.gs)) (_ _ _ _ : I.Term c n) → I.Term c n
+  consᵢ :
+    (_ _ : I.Termᵍ (c .I.gs)) → I.Lvl c n → (_ _ _ : I.Term c n) →
+    I.Term c n
   consᵢ pₕ pₗ l A t₁ t₂ =
     I.prodrec I.𝟙 pₗ I.𝟘 (IW.wk[ 1 ] (Listᵢ pₕ pₗ l A)) t₂
       (I.prod I.𝕨 pₗ nothing
@@ -295,7 +301,7 @@ module Internal (R : Type-restrictions 𝕄) where
   -- A variant of listrec.
 
   listrecᵢ :
-    (_ _ _ _ _ _ _ : I.Termᵍ (c .I.gs)) (_ _ : I.Term c n) →
+    (_ _ _ _ _ _ _ : I.Termᵍ (c .I.gs)) → I.Lvl c n → I.Term c n →
     I.Term c (1+ n) → I.Term c n → I.Term c (3+ n) → I.Term c n →
     I.Term c n
   listrecᵢ pₕ pₗ p₁ p₂ p₃ p₄ p₅ l A₁ A₂ t₁ t₂ t₃ =

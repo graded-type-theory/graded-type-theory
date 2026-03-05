@@ -76,12 +76,12 @@ private variable
   σ         : Subst _ _
   σ′        : T.Subst _ _
   A B C t u : Term _
+  l         : Lvl _
   γ δ       : Conₘ _
   p q q′ r  : M
   m         : Mode
   b         : BinderMode
   s         : Strength
-  l         : Universe-level
 
 ------------------------------------------------------------------------
 -- A lemma related to Π and Σ
@@ -91,13 +91,13 @@ opaque
   -- Validity of Π and Σ.
 
   ΠΣʳ :
-    ts » Γ ⊢ t ∷Level →
-    γ ▸ Γ ⊩ʳ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ∣ n ] U t
-  ΠΣʳ ⊢t =
+    ts » Γ ⊢ l ∷Level →
+    γ ▸ Γ ⊩ʳ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷[ m ∣ n ] U l
+  ΠΣʳ ⊢l =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷L ⊢t ⊢σ
+      ( subst-⊢∷L ⊢l ⊢σ
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 

@@ -37,13 +37,14 @@ open import Tools.Size.Instances
 open import Tools.Sum
 
 private variable
-  α                 : Nat
-  Γ                 : Cons _ _
-  A B C t u l l₁ l₂ : Term _
-  b                 : BinderMode
-  s                 : Strength
-  p q               : M
-  sz                : Size
+  α         : Nat
+  Γ         : Cons _ _
+  A B C t u : Term _
+  l l₁ l₂   : Lvl _
+  b         : BinderMode
+  s         : Strength
+  p q       : M
+  sz        : Size
 
 ------------------------------------------------------------------------
 -- Inversion for Level
@@ -54,18 +55,16 @@ opaque
 
   inversion-∷Level :
     Γ ⊢ l ∷Level →
-    (Level-allowed → Γ ⊢ l ∷ Level) ×
-    (¬ Level-allowed → ⊢ Γ × Level-literal l)
-  inversion-∷Level (term ok ⊢l) =
-     (λ _ → ⊢l) , ⊥-elim ∘→ (_$ ok)
-  inversion-∷Level (literal not-ok ⊢Γ l-lit) =
-    ⊥-elim ∘→ not-ok , (λ _ → ⊢Γ , l-lit)
+    (Level-allowed × ∃ λ t → l PE.≡ level t × Γ ⊢ t ∷ Level) ⊎
+    (Allowed-literal l × ⊢ Γ)
+  inversion-∷Level (term ok ⊢l)    = inj₁ (ok , _ , PE.refl , ⊢l)
+  inversion-∷Level (literal ok ⊢Γ) = inj₂ (ok , ⊢Γ)
 
 opaque
 
   -- Inversion for Level.
 
-  inversion-Level : Γ ⊢ Level ∷ A → Γ ⊢ A ≡ U zeroᵘ × Level-is-small
+  inversion-Level : Γ ⊢ Level ∷ A → Γ ⊢ A ≡ U₀ × Level-is-small
   inversion-Level (Levelⱼ ⊢Γ ok)    = refl (⊢U₀ ⊢Γ) , ok
   inversion-Level (conv ⊢Level eq) =
     let a , ok = inversion-Level ⊢Level
@@ -104,8 +103,8 @@ opaque
 
   -- Inversion for U.
 
-  inversion-U : Γ ⊢ U t ∷ A → Γ ⊢ A ≡ U (sucᵘ t)
-  inversion-U (Uⱼ ⊢t)        = refl (⊢U (⊢sucᵘ ⊢t))
+  inversion-U : Γ ⊢ U l ∷ A → Γ ⊢ A ≡ U (1ᵘ+ l)
+  inversion-U (Uⱼ ⊢t)        = refl (⊢U (⊢1ᵘ+ ⊢t))
   inversion-U (conv ⊢U B≡A) = trans (sym B≡A) (inversion-U ⊢U)
 
   inversion-U∷-Level : Γ ⊢ U l ∷ A → Γ ⊢ l ∷Level
@@ -121,15 +120,15 @@ opaque
 opaque
 
   inversion-Lift∷ :
-    Γ ⊢ Lift t A ∷ B →
-    ∃ λ k₁ → Γ ⊢ t ∷Level × Γ ⊢ A ∷ U k₁ × Γ ⊢ B ≡ U (k₁ supᵘₗ t)
+    Γ ⊢ Lift l A ∷ B →
+    ∃ λ l′ → Γ ⊢ l ∷Level × Γ ⊢ A ∷ U l′ × Γ ⊢ B ≡ U (l′ supᵘₗ l)
   inversion-Lift∷ (conv x x₁) =
     let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
     in _ , ⊢t , ⊢A , trans (sym x₁) B≡
   inversion-Lift∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
     _ , ⊢l₂ , ⊢A , refl (⊢U (⊢supᵘₗ ⊢l₁ ⊢l₂))
 
-  inversion-Lift : Γ ⊢ Lift t A → Γ ⊢ t ∷Level × Γ ⊢ A
+  inversion-Lift : Γ ⊢ Lift l A → Γ ⊢ l ∷Level × Γ ⊢ A
   inversion-Lift (univ x) =
     let _ , ⊢t , ⊢A , B≡ = inversion-Lift∷ x
     in ⊢t , univ ⊢A
@@ -148,7 +147,7 @@ opaque
 
   -- Inversion for Empty.
 
-  inversion-Empty : Γ ⊢ Empty ∷ A → Γ ⊢ A ≡ U zeroᵘ
+  inversion-Empty : Γ ⊢ Empty ∷ A → Γ ⊢ A ≡ U₀
   inversion-Empty (Emptyⱼ ⊢Γ)      = refl (⊢U₀ ⊢Γ)
   inversion-Empty (conv ⊢Empty eq) =
     trans (sym eq) (inversion-Empty ⊢Empty)
@@ -173,7 +172,7 @@ opaque
 
   -- Inversion for Unit.
 
-  inversion-Unit-U : Γ ⊢ Unit s ∷ A → Γ ⊢ A ≡ U zeroᵘ × Unit-allowed s
+  inversion-Unit-U : Γ ⊢ Unit s ∷ A → Γ ⊢ A ≡ U₀ × Unit-allowed s
   inversion-Unit-U (Unitⱼ ⊢Γ ok)    = refl (⊢U₀ ⊢Γ) , ok
   inversion-Unit-U (conv ⊢Unit B≡A) =
     let B≡U , ok = inversion-Unit-U ⊢Unit in
@@ -207,7 +206,7 @@ opaque
 
   -- Inversion for ℕ.
 
-  inversion-ℕ : Γ ⊢ ℕ ∷ A → Γ ⊢ A ≡ U zeroᵘ
+  inversion-ℕ : Γ ⊢ ℕ ∷ A → Γ ⊢ A ≡ U₀
   inversion-ℕ (ℕⱼ ⊢Γ)      = refl (⊢U₀ ⊢Γ)
   inversion-ℕ (conv ⊢ℕ eq) = trans (sym eq) (inversion-ℕ ⊢ℕ)
 

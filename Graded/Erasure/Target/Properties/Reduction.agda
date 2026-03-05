@@ -384,11 +384,11 @@ opaque
   -- If wk ρ t reduces to a numeral, then t reduces to the same
   -- numeral.
 
-  strengthen-⇒*-sucᵏ : ∇ ⊢ wk ρ t ⇒* sucᵏ n → ∇ ⊢ t ⇒* sucᵏ n
-  strengthen-⇒*-sucᵏ d =
+  strengthen-⇒*-sucⁿ : ∇ ⊢ wk ρ t ⇒* sucⁿ n → ∇ ⊢ t ⇒* sucⁿ n
+  strengthen-⇒*-sucⁿ d =
     case strengthen-⇒* d of λ {
       (_ , eq , d) →
-    case inv-wk-sucᵏ eq of λ {
+    case inv-wk-sucⁿ eq of λ {
       PE.refl →
     d }}
 
@@ -444,8 +444,8 @@ opaque
 
 opaque
 
-  -- The term sucᵏ k is a value.
+  -- The term sucⁿ k is a value.
 
-  Value-sucᵏ : Value (sucᵏ {n = n} k)
-  Value-sucᵏ {k = 0}    = zero
-  Value-sucᵏ {k = 1+ _} = suc
+  Value-sucⁿ : Value (sucⁿ {n = n} k)
+  Value-sucⁿ {k = 0}    = zero
+  Value-sucⁿ {k = 1+ _} = suc

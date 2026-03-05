@@ -37,8 +37,9 @@ import Tools.PropositionalEquality as PE
 open import Tools.Sum
 
 private variable
-  Γ         : Cons _ _
-  A B l t u : Term _
+  Γ       : Cons _ _
+  A B t u : Term _
+  l       : Lvl _
 
 opaque
   unfolding erased [_]

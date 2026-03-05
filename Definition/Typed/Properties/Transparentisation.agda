@@ -42,7 +42,8 @@ private
     n α : Nat
     ∇ ∇′ ∇″ : DCon (Term 0) _
     Γ : Con Term _
-    A B l l₁ l₂ t u : Term _
+    A B t u : Term _
+    l l₁ l₂ : Lvl _
     V : Set a
     φ φ′ : Unfolding _
 
@@ -198,8 +199,8 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
     unfold-⊢∷L : ∇ » Γ ⊢ l ∷Level → Trans φ ∇ » Γ ⊢ l ∷Level
     unfold-⊢∷L (term ok ⊢l) =
       term ok (unfold-⊢∷ ⊢l)
-    unfold-⊢∷L (literal not-ok ⊢Γ l-lit) =
-      literal not-ok (unfold-⊢′ ⊢Γ) l-lit
+    unfold-⊢∷L (literal ok ⊢Γ) =
+      literal ok (unfold-⊢′ ⊢Γ)
 
     -- Type equalities that hold under ∇ hold under Trans φ ∇.
 
@@ -380,8 +381,8 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
       ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → Trans φ ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level
     unfold-⊢≡∷L (term ok l₁≡l₂) =
       term ok (unfold-⊢≡∷ l₁≡l₂)
-    unfold-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
-      literal not-ok (unfold-⊢′ ⊢Γ) l-lit
+    unfold-⊢≡∷L (literal ok ⊢Γ) =
+      literal ok (unfold-⊢′ ⊢Γ)
 
   opaque
 

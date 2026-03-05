@@ -44,8 +44,9 @@ private variable
   x y                               : Fin _
   ∇                                 : DCon (Term 0) _
   Γ                                 : Cons _ _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ l l₁ l₂
+  A A₁ A₂ B B₁ B₂ C C₁ C₂
     t t₁ t₂ t₃ t₄ u u₁ u₂ u₃ u₄ v w : Term _
+  l l₁ l₂                           : Lvl _
   V                                 : Set a
   b                                 : BinderMode
   s                                 : Strength
@@ -948,20 +949,20 @@ opaque
 
   inv-[]-cong~ :
     let open Erased s in
-    Γ ⊢ []-cong s t₁ B t₂ t₃ t₄ ~ u ↑ A →
-    ∃₆ λ C D u₁ u₂ u₃ u₄ →
-    A PE.≡ Id (Erased t₁ B) [ t₂ ] ([ t₃ ]) ×
-    u PE.≡ []-cong s u₁ C u₂ u₃ u₄ ×
-    Γ ⊢ t₁ [conv↑] u₁ ∷Level ×
+    Γ ⊢ []-cong s l B t₁ t₂ t₃ ~ u ↑ A →
+    ∃₆ λ C D l′ u₁ u₂ u₃ →
+    A PE.≡ Id (Erased l B) [ t₁ ] ([ t₂ ]) ×
+    u PE.≡ []-cong s l′ C u₁ u₂ u₃ ×
+    Γ ⊢ l [conv↑] l′ ∷Level ×
     (Γ ⊢ B [conv↑] C) ×
+    Γ ⊢ t₁ [conv↑] u₁ ∷ B ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B ×
-    Γ ⊢ t₃ [conv↑] u₃ ∷ B ×
-    Γ ⊢ t₄ ~ u₄ ↓ D ×
-    Γ ⊢ D ≡ Id B t₂ t₃ ×
+    Γ ⊢ t₃ ~ u₃ ↓ D ×
+    Γ ⊢ D ≡ Id B t₁ t₂ ×
     []-cong-allowed s
-  inv-[]-cong~ ([]-cong-cong t₁≡u₁ B≡C t₂≡u₂ t₃≡u₃ t₄~u₄ D≡ ok) =
+  inv-[]-cong~ ([]-cong-cong l≡l′ B≡C t₁≡u₁ t₂≡u₂ t₃~u₃ D≡ ok) =
     _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
-    t₁≡u₁ , B≡C , t₂≡u₂ , t₃≡u₃ , t₄~u₄ , D≡ , ok
+    l≡l′ , B≡C , t₁≡u₁ , t₂≡u₂ , t₃~u₃ , D≡ , ok
 
 opaque
 
@@ -969,20 +970,20 @@ opaque
 
   inv-~[]-cong :
     let open Erased s in
-    Γ ⊢ t ~ []-cong s u₁ C u₂ u₃ u₄ ↑ A →
-    ∃₆ λ B D t₁ t₂ t₃ t₄ →
-    A PE.≡ Id (Erased t₁ B) [ t₂ ] ([ t₃ ]) ×
-    t PE.≡ []-cong s t₁ B t₂ t₃ t₄ ×
-    Γ ⊢ t₁ [conv↑] u₁ ∷Level ×
+    Γ ⊢ t ~ []-cong s l C u₁ u₂ u₃ ↑ A →
+    ∃₆ λ B D l′ t₁ t₂ t₃ →
+    A PE.≡ Id (Erased l′ B) [ t₁ ] ([ t₂ ]) ×
+    t PE.≡ []-cong s l′ B t₁ t₂ t₃ ×
+    Γ ⊢ l′ [conv↑] l ∷Level ×
     (Γ ⊢ B [conv↑] C) ×
+    Γ ⊢ t₁ [conv↑] u₁ ∷ B ×
     Γ ⊢ t₂ [conv↑] u₂ ∷ B ×
-    Γ ⊢ t₃ [conv↑] u₃ ∷ B ×
-    Γ ⊢ t₄ ~ u₄ ↓ D ×
-    Γ ⊢ D ≡ Id B t₂ t₃ ×
+    Γ ⊢ t₃ ~ u₃ ↓ D ×
+    Γ ⊢ D ≡ Id B t₁ t₂ ×
     []-cong-allowed s
-  inv-~[]-cong ([]-cong-cong t₁≡u₁ B≡C t₂≡u₂ t₃≡u₃ t₄~u₄ D≡ ok) =
+  inv-~[]-cong ([]-cong-cong l′≡l B≡C t₁≡u₁ t₂≡u₂ t₃~u₃ D≡ ok) =
     _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
-    t₁≡u₁ , B≡C , t₂≡u₂ , t₃≡u₃ , t₄~u₄ , D≡ , ok
+    l′≡l , B≡C , t₁≡u₁ , t₂≡u₂ , t₃~u₃ , D≡ , ok
 
 ------------------------------------------------------------------------
 -- Inversion and similar lemmas for _⊢_[conv↓]_

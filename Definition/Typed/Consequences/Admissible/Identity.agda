@@ -25,17 +25,14 @@ import Definition.Typed.Decidable.Internal.Weakening 𝐌 R as IW
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄 as Id
-open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sup R
 
 open Id.Internal 𝐌 R
@@ -52,11 +49,12 @@ import Tools.PropositionalEquality as PE
 import Tools.Vec as V
 
 private variable
-  m n                                                   : Nat
-  Γ                                                     : Cons _ _
-  A A₁ A₂ B B₁ B₂ ext l l₁ l₁′ l₂ l₂′ t t₁ t₂ u u₁ u₂ v : Term _
-  p p′ p″ q q′ q″                                       : M
-  b                                                     : BinderMode
+  m n                                   : Nat
+  Γ                                     : Cons _ _
+  A A₁ A₂ B B₁ B₂ ext t t₁ t₂ u u₁ u₂ v : Term _
+  l l₁ l₁′ l₂ l₂′                       : Lvl _
+  p p′ p″ q q′ q″                       : M
+  b                                     : BinderMode
 
 ------------------------------------------------------------------------
 -- Some lemmas related to function extensionality
@@ -103,7 +101,7 @@ opaque
   -- A definition that is used to state
   -- Is-function-extensionality-lower-ext below.
 
-  lower-ext : M → M → M → Term n → Term n → Term n → Term n
+  lower-ext : M → M → M → Lvl n → Lvl n → Term n → Term n
   lower-ext p q p′ l₁′ l₂′ ext =
     lam p $ lam p′ $ lam p′ $ lam p′ $ lam p′ $
     cong ω
@@ -129,31 +127,24 @@ opaque
   unfolding Funext Is-function-extensionality lower-ext
 
   -- If function extensionality holds for l₁ supᵘₗ l₁′ and
-  -- l₂ supᵘₗ l₂′, then it also holds for l₁ and l₂.
+  -- l₂ supᵘₗ l₂′, then it also holds for l₁ and l₂ (if all the levels
+  -- are well-formed).
 
   Is-function-extensionality-lower-ext :
     {Γ : Cons m n} →
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₁′ ∷Level →
+    Γ ⊢ l₂ ∷Level →
+    Γ ⊢ l₂′ ∷Level →
     Is-function-extensionality
       p q p′ q′ (l₁ supᵘₗ l₁′) (l₂ supᵘₗ l₂′) Γ ext →
     Is-function-extensionality
       p q p′ q′ l₁ l₂ Γ (lower-ext p q p′ l₁′ l₂′ ext)
   Is-function-extensionality-lower-ext
-    {m} {n} {p} {q} {p′} {q′} {l₁} {l₁′} {l₂} {l₂′} {ext} {Γ} ⊢ext =
-    let ⊢Γ                    = wfTerm ⊢ext
-        ⊢U[l₁⊔l₁′] , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
-        ⊢Π , _ , ok₂          = inversion-ΠΣ ⊢Π
-        ⊢l₁⊔l₁′               = inversion-U-Level ⊢U[l₁⊔l₁′]
-        ⊢l₁ , ⊢l₁′            = inversion-supᵘₗ ⊢l₁⊔l₁′
-        ⊢l₂ , ⊢l₂′            =
-          inversion-supᵘₗ $
-          PE.subst (_⊢_∷Level _) wk₂-[,] $
-          subst-⊢∷L
-            (inversion-U-Level (inversion-ΠΣ ⊢Π .proj₂ .proj₁)) $
-          →⊢ˢʷ∷∙
-            (⊢ˢʷ∷-sgSubst $
-             conv (Liftⱼ′ ⊢l₁⊔l₁′ (ℕⱼ ⊢Γ))
-               (U-cong-⊢≡ (supᵘₗ-zeroˡ ⊢l₁⊔l₁′))) $
-          liftⱼ′ ⊢l₁⊔l₁′ (zeroⱼ ⊢Γ)
+    {m} {n} {l₁} {l₁′} {l₂} {l₂′} {p} {q} {p′} {q′} {ext} {Γ}
+    ⊢l₁ ⊢l₁′ ⊢l₂ ⊢l₂′ ⊢ext =
+    let _ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
+        _ , _  , ok₂ = inversion-ΠΣ ⊢Π
     in
     check-type-and-term-sound
       γ′
@@ -198,23 +189,25 @@ opaque
          .IC.constraints-wf             → ok₁ L.∷ ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢l₁
-           (I.var! x1)       → ⊢l₁′
-           (I.var! x2)       → ⊢l₂
-           (I.var! x3)       → ⊢l₂′
-           (I.var! x4)       → ⊢ext
-           (I.var  not-x5 _))
+           (I.var! x0)         → ⊢l₁
+           (I.var! x1)         → ⊢l₁′
+           (I.var! x2)         → ⊢l₂
+           (I.var! x3)         → ⊢l₂′
+           (I.var! x4)         → ⊢ext
+           (I.var  not-x5 _ _))
       (wfTerm ⊢ext)
       where
       c′ : I.Constants
-      c′ .I.gs               = 4
-      c′ .I.ss               = 0
-      c′ .I.bms              = 0
-      c′ .I.ms               = 5
-      c′ .I.base-dcon-size   = m
-      c′ .I.base-con-size    = n
-      c′ .I.base-con-allowed = true
-      c′ .I.meta-con-size    = V.replicate 5 n
+      c′ .I.gs                 = 4
+      c′ .I.ss                 = 0
+      c′ .I.bms                = 0
+      c′ .I.ms                 = 5
+      c′ .I.base-dcon-size     = m
+      c′ .I.base-con-size      = n
+      c′ .I.base-con-allowed   = true
+      c′ .I.meta-con-size      = V.replicate 5 n
+      c′ .I.meta-con-term-kind =
+        lvl V.∷ lvl V.∷ lvl V.∷ lvl V.∷ tm V.∷ V.ε
 
       xp xp′ xq xq′ : I.Termᵍ 4
       xp  = I.var x0
@@ -222,11 +215,13 @@ opaque
       xq  = I.var x2
       xq′ = I.var x3
 
-      xl₁ xl₁′ xl₂ xl₂′ xext : I.Term c′ n
+      xl₁ xl₁′ xl₂ xl₂′ : I.Lvl c′ n
       xl₁  = I.varᵐ x0
       xl₁′ = I.varᵐ x1
       xl₂  = I.varᵐ x2
       xl₂′ = I.varᵐ x3
+
+      xext : I.Term c′ n
       xext = I.varᵐ x4
 
       γ′ : I.Contexts c′
@@ -250,20 +245,25 @@ opaque
           I.term ext
             (Funextᵢ xp xq xp′ xq′ (xl₁ I.supᵘₗ xl₁′)
                (xl₂ I.supᵘₗ xl₂′))
-        (I.var not-x5 _)
+        (I.var not-x5 _ _)
 
 opaque
   unfolding Has-function-extensionality
 
   -- If function extensionality holds for l₁ supᵘₗ l₁′ and
-  -- l₂ supᵘₗ l₂′, then it also holds for l₁ and l₂.
+  -- l₂ supᵘₗ l₂′, then it also holds for l₁ and l₂ (if all the levels
+  -- are well-formed).
 
   Has-function-extensionality-supᵘₗ :
+    Γ ⊢ l₁ ∷Level →
+    Γ ⊢ l₁′ ∷Level →
+    Γ ⊢ l₂ ∷Level →
+    Γ ⊢ l₂′ ∷Level →
     Has-function-extensionality p q p′ q′
       (l₁ supᵘₗ l₁′) (l₂ supᵘₗ l₂′) Γ →
     Has-function-extensionality p q p′ q′ l₁ l₂ Γ
-  Has-function-extensionality-supᵘₗ (_ , ⊢ext) =
-    _ , Is-function-extensionality-lower-ext ⊢ext
+  Has-function-extensionality-supᵘₗ ⊢l₁ ⊢l₁′ ⊢l₂ ⊢l₂′ (_ , ⊢ext) =
+    _ , Is-function-extensionality-lower-ext ⊢l₁ ⊢l₁′ ⊢l₂ ⊢l₂′ ⊢ext
 
 opaque
   unfolding
@@ -279,17 +279,20 @@ opaque
     Has-function-extensionality p q p′ q′ l₁ l₂ Γ
   Has-function-extensionality-downwards-closed
     l₁≤l₁′ l₂≤l₂′ (ext , ⊢ext) =
-    let ⊢Ul₁′ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
+    let ⊢l₁ , ⊢l₁′       = wf-⊢≤ₗ∷L l₁≤l₁′
+        ⊢l₂ , ⊢l₂′       = wf-⊢≤ₗ∷L l₂≤l₂′
+        ⊢Ul₁′ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
         _     , ⊢Π , ok₂ = inversion-ΠΣ ⊢Π
     in
-    Has-function-extensionality-supᵘₗ
+    Has-function-extensionality-supᵘₗ ⊢l₁ ⊢l₁′ ⊢l₂ ⊢l₂′
       (ext ,
        conv ⊢ext
-         (ΠΣ-cong (U-cong-⊢≡ (sym-⊢≡∷L l₁≤l₁′))
+         (ΠΣ-cong (U-cong-⊢≡ (sym-⊢≡∷L (⊢≤ₗ∷L→⊢≡∷L l₁≤l₁′)))
             (ΠΣ-cong
                (ΠΣ-cong (refl (univ (var₀ ⊢Ul₁′)))
                   (U-cong-⊢≡ $ sym-⊢≡∷L $
-                   wkEqLevel (ʷ⊇-drop (∙ univ (var₀ ⊢Ul₁′))) l₂≤l₂′)
+                   wkEqLevel (ʷ⊇-drop (∙ univ (var₀ ⊢Ul₁′))) $
+                   ⊢≤ₗ∷L→⊢≡∷L l₂≤l₂′)
                   ok₁)
                (refl ⊢Π) ok₂)
             ok₁))
@@ -336,7 +339,7 @@ opaque
   -- A term used to state ⊢ΠΣ-cong-Idˡ.
 
   ΠΣ-cong-Idˡ :
-    BinderMode → M → M → M → M → M → M → Term n → Term n → Term n →
+    BinderMode → M → M → M → M → M → M → Lvl n → Term n → Term n →
     Term (1+ n) → Term n → Term (1+ n) → Term n → Term (1+ n) → Term n
   ΠΣ-cong-Idˡ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u =
     J ω ω (U l) A₁
@@ -373,7 +376,7 @@ opaque
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Π-allowed p″ q″ →
-    Is-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Γ ext →
+    Is-function-extensionality p′ q′ p″ q″ l (1ᵘ+ l) Γ ext →
     Γ »∙ A₂ ⊢ B₂ ∷ U (wk1 l) →
     Γ ⊢ t ∷ Id (U l) A₁ A₂ →
     Γ »∙ A₁ ⊢ u ∷
@@ -430,26 +433,27 @@ opaque
          .IC.constraints-wf             → ok₁ L.∷ ok₂ L.∷ ok₃ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢l
-           (I.var! x1)       → ⊢A₁
-           (I.var! x2)       → ⊢B₁
-           (I.var! x3)       → ⊢A₂
-           (I.var! x4)       → ⊢B₂
-           (I.var! x5)       → ⊢t
-           (I.var! x6)       → ⊢u
-           (I.var! x7)       → ⊢ext
-           (I.var  not-x8 _))
+           (I.var! x0)         → ⊢l
+           (I.var! x1)         → ⊢A₁
+           (I.var! x2)         → ⊢B₁
+           (I.var! x3)         → ⊢A₂
+           (I.var! x4)         → ⊢B₂
+           (I.var! x5)         → ⊢t
+           (I.var! x6)         → ⊢u
+           (I.var! x7)         → ⊢ext
+           (I.var  not-x8 _ _))
       (wfTerm ⊢A₁)
       where
       c′ : I.Constants
-      c′ .I.gs               = 6
-      c′ .I.ss               = 0
-      c′ .I.bms              = 1
-      c′ .I.ms               = 8
-      c′ .I.base-dcon-size   = m
-      c′ .I.base-con-size    = n
-      c′ .I.base-con-allowed = true
-      c′ .I.meta-con-size    =
+      c′ .I.gs                 = 6
+      c′ .I.ss                 = 0
+      c′ .I.bms                = 1
+      c′ .I.ms                 = 8
+      c′ .I.base-dcon-size     = m
+      c′ .I.base-con-size      = n
+      c′ .I.base-con-allowed   = true
+      c′ .I.meta-con-term-kind = lvl V.∷ V.replicate 7 tm
+      c′ .I.meta-con-size      =
         n V.∷ n V.∷ 1+ n V.∷ n V.∷ 1+ n V.∷ n V.∷ 1+ n V.∷ n V.∷ V.ε
 
       xb : I.Termᵇᵐ 0 1
@@ -463,8 +467,10 @@ opaque
       xq′ = I.var x4
       xq″ = I.var x5
 
-      xl xA₁ xA₂ xt xfunext : I.Term c′ n
-      xl      = I.varᵐ x0
+      xl : I.Lvl c′ n
+      xl = I.varᵐ x0
+
+      xA₁ xA₂ xt xfunext : I.Term c′ n
       xA₁     = I.varᵐ x1
       xA₂     = I.varᵐ x3
       xt      = I.varᵐ x5
@@ -504,8 +510,8 @@ opaque
                         (IW.wk[ 1 ] (I.var x0)) (I.var x0)
                         (IW.wk[ 1 ] xA₂) (IW.wk[ 1 ] xt)))))
         (I.var! x7) →
-          I.base , I.term ext (Funextᵢ xp′ xq′ xp″ xq″ xl (I.sucᵘ xl))
-        (I.var not-x8 _)
+          I.base , I.term ext (Funextᵢ xp′ xq′ xp″ xq″ xl (I.1ᵘ+ xl))
+        (I.var not-x8 _ _)
 
 opaque
   unfolding ΠΣ-cong-Idˡ
@@ -513,7 +519,7 @@ opaque
   -- A term used to state ⊢ΠΣ-cong-Idʳ.
 
   ΠΣ-cong-Idʳ :
-    BinderMode → M → M → M → M → M → M → Term n → Term n → Term n →
+    BinderMode → M → M → M → M → M → M → Lvl n → Term n → Term n →
     Term (1+ n) → Term n → Term (1+ n) → Term n → Term (1+ n) → Term n
   ΠΣ-cong-Idʳ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u =
     symmetry (U l) (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁)
@@ -531,7 +537,7 @@ opaque
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Π-allowed p″ q″ →
-    Is-function-extensionality p′ q′ p″ q″ l (sucᵘ l) Γ ext →
+    Is-function-extensionality p′ q′ p″ q″ l (1ᵘ+ l) Γ ext →
     Γ »∙ A₁ ⊢ B₁ ∷ U (wk1 l) →
     Γ ⊢ t ∷ Id (U l) A₂ A₁ →
     Γ »∙ A₂ ⊢ u ∷
@@ -621,35 +627,38 @@ opaque
          .IC.constraints-wf             → ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)        → ⊢l
-           (I.var! x1)        → ⊢A₁
-           (I.var! x2)        → ⊢A₂
-           (I.var! x3)        → ⊢t
-           (I.var! x4)        → ⊢t₁
-           (I.var! x5)        → ⊢t₂
-           (I.var! x6)        → ⊢u
-           (I.var! x7)        → ⊢u₁
-           (I.var! x8)        → ⊢u₂
-           (I.var! x9)        → ⊢v
-           (I.var  not-x10 _))
+           (I.var! x0)          → ⊢l
+           (I.var! x1)          → ⊢A₁
+           (I.var! x2)          → ⊢A₂
+           (I.var! x3)          → ⊢t
+           (I.var! x4)          → ⊢t₁
+           (I.var! x5)          → ⊢t₂
+           (I.var! x6)          → ⊢u
+           (I.var! x7)          → ⊢u₁
+           (I.var! x8)          → ⊢u₂
+           (I.var! x9)          → ⊢v
+           (I.var  not-x10 _ _))
       (wfTerm ⊢A₁)
       where
       c′ : I.Constants
-      c′ .I.gs               = 2
-      c′ .I.ss               = 0
-      c′ .I.bms              = 0
-      c′ .I.ms               = 10
-      c′ .I.base-dcon-size   = m
-      c′ .I.base-con-size    = n
-      c′ .I.base-con-allowed = true
-      c′ .I.meta-con-size    = V.replicate 10 n
+      c′ .I.gs                 = 2
+      c′ .I.ss                 = 0
+      c′ .I.bms                = 0
+      c′ .I.ms                 = 10
+      c′ .I.base-dcon-size     = m
+      c′ .I.base-con-size      = n
+      c′ .I.base-con-allowed   = true
+      c′ .I.meta-con-size      = V.replicate 10 n
+      c′ .I.meta-con-term-kind = lvl V.∷ V.replicate 9 tm
 
       xp xq : I.Termᵍ 2
       xp = I.var x0
       xq = I.var x1
 
-      xl xA₁ xA₂ xt xt₁ xt₂ xu xu₁ xu₂ xv : I.Term c′ n
-      xl  = I.varᵐ x0
+      xl : I.Lvl c′ n
+      xl = I.varᵐ x0
+
+      xA₁ xA₂ xt xt₁ xt₂ xu xu₁ xu₂ xv : I.Term c′ n
       xA₁ = I.varᵐ x1
       xA₂ = I.varᵐ x2
       xt  = I.varᵐ x3
@@ -681,7 +690,7 @@ opaque
         (I.var! x8) → I.base , I.term u₂ xA₂
         (I.var! x9) →
           I.base , I.term v (I.Id xA₂ (castᵢ xl xA₁ xA₂ xt xu₁) xu₂)
-        (I.var not-x10 _)
+        (I.var not-x10 _ _)
 
 opaque
 
@@ -759,26 +768,27 @@ opaque
          .IC.constraints-wf             → ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢l₁
-           (I.var! x1)       → ⊢l₂
-           (I.var! x2)       → ⊢A
-           (I.var! x3)       → ⊢B
-           (I.var! x4)       → ⊢t₁
-           (I.var! x5)       → ⊢t₂
-           (I.var! x6)       → ⊢t
-           (I.var! x7)       → ⊢ext
-           (I.var  not-x8 _))
+           (I.var! x0)         → ⊢l₁
+           (I.var! x1)         → ⊢l₂
+           (I.var! x2)         → ⊢A
+           (I.var! x3)         → ⊢B
+           (I.var! x4)         → ⊢t₁
+           (I.var! x5)         → ⊢t₂
+           (I.var! x6)         → ⊢t
+           (I.var! x7)         → ⊢ext
+           (I.var  not-x8 _ _))
       (wfTerm ⊢A)
       where
       c′ : I.Constants
-      c′ .I.gs               = 4
-      c′ .I.ss               = 0
-      c′ .I.bms              = 0
-      c′ .I.ms               = 8
-      c′ .I.base-dcon-size   = m
-      c′ .I.base-con-size    = n
-      c′ .I.base-con-allowed = true
-      c′ .I.meta-con-size    =
+      c′ .I.gs                 = 4
+      c′ .I.ss                 = 0
+      c′ .I.bms                = 0
+      c′ .I.ms                 = 8
+      c′ .I.base-dcon-size     = m
+      c′ .I.base-con-size      = n
+      c′ .I.base-con-allowed   = true
+      c′ .I.meta-con-term-kind = lvl V.∷ lvl V.∷ V.replicate 6 tm
+      c′ .I.meta-con-size      =
         n V.∷ n V.∷ n V.∷ 1+ n V.∷ 1+ n V.∷ 1+ n V.∷ 1+ n V.∷ n V.∷ V.ε
 
       xp xp′ xq xq′ : I.Termᵍ 4
@@ -787,9 +797,11 @@ opaque
       xq  = I.var x2
       xq′ = I.var x3
 
-      xl₁ xl₂ xA xext : I.Term c′ n
-      xl₁  = I.varᵐ x0
-      xl₂  = I.varᵐ x1
+      xl₁ xl₂ : I.Lvl c′ n
+      xl₁ = I.varᵐ x0
+      xl₂ = I.varᵐ x1
+
+      xA xext : I.Term c′ n
       xA   = I.varᵐ x2
       xext = I.varᵐ x7
 
@@ -817,4 +829,4 @@ opaque
         (I.var! x6) → I.base I.∙ xA , I.term t (I.Id xB xt₁ xt₂)
         (I.var! x7) →
           I.base , I.term ext (Funextᵢ xp xq xp′ xq′ xl₁ xl₂)
-        (I.var not-x8 _)
+        (I.var not-x8 _ _)

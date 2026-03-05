@@ -44,6 +44,7 @@ private variable
   m n : Nat
   s : Strength
   t u A A′ B : Term _
+  l : Lvl _
   p q : Mod
   b : BinderMode
 
@@ -59,8 +60,8 @@ record _⊨U_ (Γ : Cons m n) (A : Term n) : Set a where
   pattern
   constructor Uᵣ
   field
-    {l} : Term n
-    ⇒*U : Γ ⊢ A ⇒* U l
+    {lv} : Lvl n
+    ⇒*U  : Γ ⊢ A ⇒* U lv
 
 -- Neutral type
 
@@ -87,9 +88,10 @@ mutual
     pattern
     constructor Liftᵣ
     field
-      {level Ty} : Term n
-      ⇒*Lift     : Γ ⊢ A ⇒* Lift level Ty
-      ⊨Ty        : Γ ⊨ Ty
+      {lv}   : Lvl n
+      {Ty}   : Term n
+      ⇒*Lift : Γ ⊢ A ⇒* Lift lv Ty
+      ⊨Ty    : Γ ⊨ Ty
 
   -- ΠΣ-type
 
@@ -146,7 +148,7 @@ pattern Bᵣ′ a b c d e f g h = Bᵣ a b c (Bᵣ d e f g h)
 pattern Idᵣ′ a b c d e f g = Idᵣ (Idᵣ a b c d e f g)
 
 private variable
-  l : Universe-level
+  ℓ : Universe-level
 
 opaque
 
@@ -167,7 +169,7 @@ opaque
 
   -- Types in the reducibility logical relation are in the relation.
 
-  ⊩→⊨ : ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊩⟨ l ⟩ A → Γ ⊨ A
+  ⊩→⊨ : ⦃ inc : Var-included or-empty (Γ .vars) ⦄ → Γ ⊩⟨ ℓ ⟩ A → Γ ⊨ A
   ⊩→⊨ (Levelᵣ ⇒*Level) = Levelᵣ ⇒*Level
   ⊩→⊨ (L.Uᵣ′ _ _ _ ⇒*U) = Uᵣ′ ⇒*U
   ⊩→⊨ (L.Liftᵣ′ ⇒*Lift _ ⊩A) = Liftᵣ′ ⇒*Lift (⊩→⊨ ⊩A)
@@ -490,15 +492,14 @@ opaque
 Level-intro : Level-allowed → ⊢ Γ → Γ ⊨ Level
 Level-intro ok ⊢Γ = Levelᵣ (id (Levelⱼ′ ok ⊢Γ))
 
--- An introduction lemma for U t.
+-- An introduction lemma for U l.
 
-U-intro : Γ ⊢ t ∷Level → Γ ⊨ U t
+U-intro : Γ ⊢ l ∷Level → Γ ⊨ U l
 U-intro ⊢t = Uᵣ′ (id (⊢U ⊢t))
 
 -- An introduction lemma for Lift.
 
-Lift-intro :
-  Γ ⊢ t ∷Level → Γ ⊨ A → Γ ⊨ Lift t A
+Lift-intro : Γ ⊢ l ∷Level → Γ ⊨ A → Γ ⊨ Lift l A
 Lift-intro ⊢t ⊨A = Liftᵣ′ (id (Liftⱼ ⊢t (⊨→⊢ ⊨A))) ⊨A
 
 -- An introduction lemma for ℕ.

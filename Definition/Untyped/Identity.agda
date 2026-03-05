@@ -33,11 +33,12 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                                                      : Nat
-  A A₁ A₂ B eq eq₁ eq₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ v w w₁ w₂ : Term _
-  σ                                                      : Subst _ _
-  ρ                                                      : Wk _ _
-  p p′ q q′                                              : M
+  n                                              : Nat
+  A A₁ A₂ B eq eq₁ eq₂ t t₁ t₂ u u₁ u₂ v w w₁ w₂ : Term _
+  l l₁ l₂                                        : Lvl _
+  σ                                              : Subst _ _
+  ρ                                              : Wk _ _
+  p p′ q q′                                      : M
 
 opaque
 
@@ -138,7 +139,7 @@ opaque
 
   -- A cast lemma.
 
-  cast : Term n → Term n → Term n → Term n → Term n → Term n
+  cast : Lvl n → Term n → Term n → Term n → Term n → Term n
   cast l A B t u =
     subst 𝟙 (U l) (var x0) A B t u
 
@@ -175,7 +176,7 @@ opaque
 
   -- An inverse of cast.
 
-  cast⁻¹ : Term n → Term n → Term n → Term n → Term n → Term n
+  cast⁻¹ : Lvl n → Term n → Term n → Term n → Term n → Term n
   cast⁻¹ l A B t u =
     cast l B A (symmetry (U l) A B t) u
 
@@ -400,7 +401,7 @@ opaque
 
   -- A certain formulation of function extensionality.
 
-  Funext : M → M → M → M → Term n → Term n → Term n
+  Funext : M → M → M → M → Lvl n → Lvl n → Term n
   Funext p q p′ q′ l₁ l₂ =
     Π p , q ▷ U l₁ ▹
     Π p′ , q′ ▷ (Π p , q ▷ var x0 ▹ U (wk[ 2 ]′ l₂)) ▹
@@ -451,7 +452,7 @@ opaque
   Poly-funext p q p′ q′ =
     Π p , q ▷ Level ▹
     Π p , q ▷ Level ▹
-    Funext p q p′ q′ (var x1) (var x0)
+    Funext p q p′ q′ (level (var x1)) (level (var x0))
 
 opaque
   unfolding Poly-funext
@@ -529,11 +530,12 @@ module Internal
       Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
-    c                                                : I.Constants
-    pᵢ p′ᵢ qᵢ q′ᵢ                                    : I.Termᵍ _
+    c                                     : I.Constants
+    pᵢ p′ᵢ qᵢ q′ᵢ                         : I.Termᵍ _
     Aᵢ A₁ᵢ A₂ᵢ Bᵢ eq₁ᵢ eq₂ᵢ
-      lᵢ l₁ᵢ l₂ᵢ tᵢ t₁ᵢ t₂ᵢ uᵢ u₁ᵢ u₂ᵢ vᵢ wᵢ w₁ᵢ w₂ᵢ : I.Term _ _
-    γ                                                : I.Contexts _
+      tᵢ t₁ᵢ t₂ᵢ uᵢ u₁ᵢ u₂ᵢ vᵢ wᵢ w₁ᵢ w₂ᵢ : I.Term _ _
+    lᵢ l₁ᵢ l₂ᵢ                            : I.Lvl _ _
+    γ                                     : I.Contexts _
 
   -- A variant of subst, intended to be used with the internal
   -- type-checker.
@@ -558,9 +560,7 @@ module Internal
   -- A variant of cast, intended to be used with the internal
   -- type-checker.
 
-  castᵢ :
-    I.Term c n → I.Term c n → I.Term c n → I.Term c n → I.Term c n →
-    I.Term c n
+  castᵢ : I.Lvl c n → (_ _ _ _ : I.Term c n) → I.Term c n
   castᵢ l A B t u =
     substᵢ I.𝟙 (I.U l) (I.var x0) A B t u
 
@@ -649,8 +649,7 @@ module Internal
 
   Funextᵢ :
     I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) → I.Termᵍ (c .I.gs) →
-    I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n →
-    I.Term c n
+    I.Termᵍ (c .I.gs) → (_ _ : I.Lvl c n) → I.Term c n
   Funextᵢ p q p′ q′ l₁ l₂ =
     I.Π p , q ▷ I.U l₁ ▹
     I.Π p′ , q′ ▷ (I.Π p , q ▷ I.var x0 ▹ I.U (IW.wk[ 2 ] l₂)) ▹

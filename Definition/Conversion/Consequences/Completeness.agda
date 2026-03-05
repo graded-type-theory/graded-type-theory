@@ -29,9 +29,10 @@ open import Tools.Nat
 open import Tools.Product
 
 private variable
-  m n           : Nat
-  Γ             : Cons m n
-  A B l₁ l₂ t u : Term n
+  m n     : Nat
+  Γ       : Cons m n
+  A B t u : Term n
+  l₁ l₂   : Lvl _
 
 opaque
 

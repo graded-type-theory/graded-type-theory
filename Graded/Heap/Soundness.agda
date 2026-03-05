@@ -261,8 +261,8 @@ opaque
     ε » Δ ⊢ t ∷ ℕ →
     𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial t ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » Δ ⊢ t ≡ sucᵏ k ∷ ℕ) ×
+    initial t ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » Δ ⊢ t ≡ sucⁿ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-ε {k} {t} {Δ} consistent prop ⊢t ▸t =
     case ▸initial (▸-cong (PE.sym ⌞𝟙⌟) ▸t) of λ
@@ -272,17 +272,17 @@ opaque
       (_ , _ , H , ρ , t , d , num , s≡ , ▸s′) →
     case ▸ₛ-inv ▸s′ of λ
       (p , γ , δ , η , ∣ε∣≡ , ▸H , ▸n , ▸ε , γ≤) →
-    case Numeral→sucᵏ num of λ
-      (k , ≡sucᵏ) →
-    case PE.subst (λ x → _ ↠* ⟨ _ , x , _ , _ ⟩) ≡sucᵏ d of λ
+    case Numeral→sucⁿ num of λ
+      (k , ≡sucⁿ) →
+    case PE.subst (λ x → _ ↠* ⟨ _ , x , _ , _ ⟩) ≡sucⁿ d of λ
       d′ →
     let open RPo ≤ᶜ-poset in
     _ , _ , _ , _ , _
       , d′
       , PE.subst₂ (_ ⊢_≡_∷ ℕ)
           (PE.trans (erasedHeap-subst (wk id _)) (wk-id _))
-          (PE.trans (PE.cong (λ x → wk ρ x [ H ]ₕ) ≡sucᵏ)
-            (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucᵏ k)) (subst-sucᵏ k)))
+          (PE.trans (PE.cong (λ x → wk ρ x [ H ]ₕ) ≡sucⁿ)
+            (PE.trans (PE.cong (_[ H ]ₕ) (wk-sucⁿ k)) (subst-sucⁿ k)))
           s≡
       , 𝟘▸H→H≤𝟘 (sub ▸H $ begin
           γ                      ≤⟨ γ≤ ⟩
@@ -314,8 +314,8 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucⁿ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness {t} consistent prop ⊢t ▸∇ ▸t =
     soundness-ε ⦃ ok = or-empty-inline-Conᵈ ⦄ consistent prop
@@ -335,8 +335,8 @@ opaque
   soundness-closed :
     glassify ∇ » ε ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → ε ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » ε ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » ε ⊢ inlineᵈ ∇ t ≡ sucⁿ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-closed =
     soundness ⦃ ok = ε ⦄ (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 PE.refl))
@@ -354,8 +354,8 @@ opaque
     Has-well-behaved-zero M 𝕄 →
     glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucⁿ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-open consistent erased 𝟘-wb = soundness consistent λ _ → erased , 𝟘-wb
 
@@ -370,8 +370,8 @@ opaque
     Has-well-behaved-zero M 𝕄 →
     glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucⁿ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-open-consistent consistent = soundness-open (λ _ → consistent)
 
@@ -386,8 +386,8 @@ opaque
     Has-well-behaved-zero M 𝕄 →
     glassify ∇ » Δ ⊢ t ∷ ℕ → ▸[ 𝟙ᵐ ] glassify ∇ → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H k (ρ : Wk m n) →
-    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucᵏ k , ρ , ε ⟩ ×
-    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucᵏ k ∷ ℕ) ×
+    initial (inlineᵈ ∇ t) ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » inline-Conᵈ ∇ Δ ⊢ inlineᵈ ∇ t ≡ sucⁿ k ∷ ℕ) ×
     H ≤ʰ 𝟘
   soundness-open-¬emptyrec₀ ¬ok =
     soundness-open (⊥-elim ∘→ ¬ok)

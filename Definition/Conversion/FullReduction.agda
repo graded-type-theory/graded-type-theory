@@ -45,6 +45,7 @@ private variable
   Γ    : Cons _ _
   A A′ : Term _
   t t′ : Term _
+  l l′ : Lvl _
   s    : Strength
 
 mutual
@@ -361,13 +362,13 @@ mutual
     fullRedNe~↓ [t]
 
   fullRedTermConv↑Level :
-    Γ ⊢ t [conv↑] t′ ∷Level →
-    ∃ λ u → Γ ⊢nf u ∷Level × Γ ⊢ t ≡ u ∷Level
+    Γ ⊢ l [conv↑] l′ ∷Level →
+    ∃ λ l′ → Γ ⊢nf l′ ∷Level × Γ ⊢ l ≡ l′ ∷Level
   fullRedTermConv↑Level (term ok ⊢t) =
     let u , ⊢u , t≡u = fullRedTermConv↑ ⊢t in
-    u , term ok ⊢u , term ok t≡u
-  fullRedTermConv↑Level {t} (literal! not-ok ⊢Γ t-lit) =
-    t , literal not-ok ⊢Γ t-lit , literal not-ok ⊢Γ t-lit
+    level u , term ok ⊢u , term ok t≡u
+  fullRedTermConv↑Level {l} (literal! ok ⊢Γ) =
+    l , literal ok ⊢Γ , literal ok ⊢Γ
 
   fullRedTermConv↓Level :
     Γ ⊢ t [conv↓] t′ ∷Level →

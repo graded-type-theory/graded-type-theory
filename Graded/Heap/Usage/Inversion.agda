@@ -50,7 +50,8 @@ open Type-variant type-variant
 
 private variable
   H : Heap _ _
-  A B l s t u v z : Term _
+  A B s t u v z : Term _
+  l : Lvl _
   ρ : Wk _ _
   c : Cont _
   S : Stack _

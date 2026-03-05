@@ -39,7 +39,7 @@ private
   variable
     m n : Nat
     Γ : Cons m n
-    A B C K t u : Term n
+    A B C K t u : Term[ _ ] n
     V : Set a
     p q : M
     s : Strength

@@ -326,7 +326,7 @@ opaque
 
   ¬prodrecₘ : Prodrec-allowed 𝟙ᵐ 𝟙 𝟙 𝟘
             → ¬ (𝟙 ≤ 𝟙 + 𝟙)
-            → ¬ (∀ {n} {γ η : Conₘ n} {δ m r p q t u A}
+            → ¬ (∀ {n} {γ η : Conₘ n} {δ m r p q t u} {A : Term (1+ n)}
                  → γ ▸[ m ᵐ· r ] t
                  → δ ∙ ⌜ m ⌝ · r  · p ∙ ⌜ m ⌝ · r ▸[ m ] u
                  → η ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] A

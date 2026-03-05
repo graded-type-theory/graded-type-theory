@@ -36,7 +36,8 @@ private variable
   ∇       : DCon (Term 0) _
   x       : Fin _
   Γ Δ Η   : Con Term _
-  A B l l₁ l₂ t u : Term _
+  A B t u : Term _
+  l l₁ l₂ : Lvl _
   σ σ₁ σ₂ : Subst _ _
   s s₂    : Size
 
@@ -413,8 +414,8 @@ private module Inhabited where
     stability-⊢∷L′ hyp Γ≡Δ = let open Variants hyp in λ where
       (term ok ⊢l) PE.refl →
         term ok (stability-⊢∷ Γ≡Δ ⊢l)
-      (literal not-ok _ l-lit) _ →
-        literal not-ok (wf-⊢≡ʳ Γ≡Δ) l-lit
+      (literal ok _) _ →
+        literal ok (wf-⊢≡ʳ Γ≡Δ)
 
   opaque
     unfolding size-⊢≡∷
@@ -667,8 +668,8 @@ private module Inhabited where
     stability-⊢≡∷L′ hyp Γ≡Δ = let open Variants hyp in λ where
       (term ok l₁≡l₂) PE.refl →
         term ok (stability-⊢≡∷ Γ≡Δ l₁≡l₂)
-      (literal not-ok _ l-lit) _ →
-        literal not-ok (wf-⊢≡ʳ Γ≡Δ) l-lit
+      (literal ok _) _ →
+        literal ok (wf-⊢≡ʳ Γ≡Δ)
 
   opaque
 

@@ -39,11 +39,12 @@ infix 10 _▸[_]_ ▸[_]_
 
 private
   variable
-    α n : Nat
+    α n o : Nat
     p q r : M
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
-    A B F G : Term n
-    l t u v w z : Term n
+    A B F G : Term[ _ ] n
+    l t u v w z : Term[ _ ] n
+    k : Term-kind
     x : Fin n
     m m′ : Mode
     b : BinderMode
@@ -100,13 +101,15 @@ infix 50 ⌈_⌉
 mutual
   ⌈_⌉ :
     ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
-    Term n → Mode → Conₘ n
+    Term[ k ] n → Mode → Conₘ n
   ⌈ var x ⌉ m = 𝟘ᶜ , x ≔ ⌜ m ⌝
   ⌈ defn _ ⌉ _ = 𝟘ᶜ
   ⌈ Level ⌉ _ = 𝟘ᶜ
   ⌈ zeroᵘ ⌉ _ = 𝟘ᶜ
   ⌈ sucᵘ t ⌉ m = ⌈ t ⌉ m
   ⌈ t supᵘ u ⌉ m = ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
+  ⌈ ωᵘ+ _ ⌉ _ = 𝟘ᶜ
+  ⌈ level t ⌉ m = ⌈ t ⌉ m
   ⌈ U _ ⌉ _ = 𝟘ᶜ
   ⌈ Lift _ A ⌉ m = ⌈ A ⌉ m
   ⌈ lift u ⌉ m = ⌈ u ⌉ m
@@ -277,7 +280,7 @@ data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
 -- The "some" variants of the usage rules for K were included to
 -- mirror the rules for J, but if the K rule is available, then it
 -- might be a better idea to use the "all" rules.
-data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set (a ⊔ a′) where
+data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′) where
   sub       : γ ▸[ m ] t
             → δ ≤ᶜ γ
             → δ ▸[ m ] t
@@ -297,11 +300,16 @@ data _▸[_]_ {n : Nat} : (γ : Conₘ n) → Mode → Term n → Set (a ⊔ a�
             → δ ▸[ m ] u
             → γ +ᶜ δ ▸[ m ] t supᵘ u
 
-  Uₘ        : γ ▸[ 𝟘ᵐ ] t → 𝟘ᶜ ▸[ m ] U t
+  ωᵘ+       : 𝟘ᶜ ▸[ m ] ωᵘ+ o
 
-  Liftₘ     : δ ▸[ 𝟘ᵐ ] t
+  level     : γ ▸[ m ] t
+            → γ ▸[ m ] level t
+
+  Uₘ        : γ ▸[ 𝟘ᵐ ] l → 𝟘ᶜ ▸[ m ] U l
+
+  Liftₘ     : δ ▸[ 𝟘ᵐ ] l
             → γ ▸[ m ] A
-            → γ ▸[ m ] Lift t A
+            → γ ▸[ m ] Lift l A
 
   liftₘ     : γ ▸[ m ] u
             → γ ▸[ m ] lift u

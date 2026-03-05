@@ -32,8 +32,9 @@ open import Definition.Untyped.Sigma 𝕄
 open import Tools.Product
 
 private variable
-  Γ                   : Cons _ _
-  A A₁ A₂ C l t t₁ t₂ : Term _
+  Γ                 : Cons _ _
+  A A₁ A₂ C t t₁ t₂ : Term _
+  l                 : Lvl _
 
 opaque
   unfolding Erased erased

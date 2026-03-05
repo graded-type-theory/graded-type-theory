@@ -19,8 +19,9 @@ open import Tools.Function
 import Tools.PropositionalEquality as PE
 
 private variable
-  B C l : Term _
-  Γ     : Cons _ _
+  B C : Term _
+  l   : Lvl _
+  Γ   : Cons _ _
 
 infix  -1 _∎⟨_⟩⊢ finally finally-˘
           finally-⇒ finally-⇒∷ finally-⇒* finally-⇒*∷

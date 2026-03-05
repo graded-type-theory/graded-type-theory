@@ -42,6 +42,7 @@ open import Tools.Unit
 
 private variable
   n : Nat
+  k : Term-kind
 
 -- A given term is either well-resourced with respect to a given mode
 -- and the usage context computed by ⌈_⌉, or it is not well-resourced
@@ -49,7 +50,8 @@ private variable
 
 infix 10 ⌈⌉▸[_]?_
 
-⌈⌉▸[_]?_ : ∀ m (t : Term n) → (⌈ t ⌉ m ▸[ m ] t) ⊎ (∀ γ → ¬ γ ▸[ m ] t)
+⌈⌉▸[_]?_ :
+  ∀ m (t : Term[ k ] n) → (⌈ t ⌉ m ▸[ m ] t) ⊎ (∀ γ → ¬ γ ▸[ m ] t)
 ⌈⌉▸[ m ]? Level = inj₁ Levelₘ
 
 ⌈⌉▸[ m ]? zeroᵘ = inj₁ zeroᵘₘ
@@ -64,6 +66,13 @@ infix 10 ⌈⌉▸[_]?_
   (inj₂ problem)   → inj₂ λ _ ▸supᵘ →
     let _ , _ , _ , ▸t , ▸u = inv-usage-supᵘ ▸supᵘ in
     problem _ (▸t , ▸u)
+
+⌈⌉▸[ _ ]? ωᵘ+ _ =
+  inj₁ ωᵘ+
+
+⌈⌉▸[ m ]? level t with ⌈⌉▸[ m ]? t
+… | inj₁ ▸t  = inj₁ (level ▸t)
+… | inj₂ ¬▸t = inj₂ (λ _ → ¬▸t _ ∘→ inv-usage-level)
 
 ⌈⌉▸[ m ]? U t = case ⌈⌉▸[ 𝟘ᵐ ]? t of λ where
   (inj₁ ▸t)  → inj₁ (Uₘ ▸t)
@@ -500,7 +509,7 @@ infix 10 ⌈⌉▸[_]?′_
 -- It is decidable whether a term is well-resourced under the inferred
 -- context.
 
-⌈⌉▸[_]?′_ : ∀ m (t : Term n) → Dec (⌈ t ⌉ m ▸[ m ] t)
+⌈⌉▸[_]?′_ : ∀ m (t : Term[ k ] n) → Dec (⌈ t ⌉ m ▸[ m ] t)
 ⌈⌉▸[ m ]?′ t = case ⌈⌉▸[ m ]? t of λ where
   (inj₁ ▸t) → yes ▸t
   (inj₂ ¬▸t) → no (λ ▸t → ¬▸t _ ▸t)
@@ -513,7 +522,7 @@ infix 10 ⌈⌉▸[_]?′_
 infix 10 ▸[_]?_
 
 ▸[_]?_ :
-  ∀ m (t : Term n) →
+  ∀ m (t : Term[ k ] n) →
   ∃ λ (d : Dec (∃ λ γ → γ ▸[ m ] t)) →
     case d of λ where
       (yes (γ , _)) → ∀ δ → δ ▸[ m ] t → δ ≤ᶜ γ
@@ -528,7 +537,7 @@ infix 10 ▸[_]?_
 
 infix 10 _▸[_]?_
 
-_▸[_]?_ : ∀ γ m (t : Term n) → Dec (γ ▸[ m ] t)
+_▸[_]?_ : ∀ γ m (t : Term[ k ] n) → Dec (γ ▸[ m ] t)
 γ ▸[ m ]? t = case ▸[ m ]? t of λ where
   (no ¬▸t , _)        → no λ ▸t → ¬▸t (_ , ▸t)
   (yes (δ , δ▸) , ≤δ) → case γ ≤ᶜ? δ of λ where

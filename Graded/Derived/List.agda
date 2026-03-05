@@ -46,7 +46,8 @@ import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
 
 private variable
-  A P k l t h xs nl cs : Term _
+  A P k t h xs nl cs : Term _
+  l : Lvl _
   γ δ η θ χ γ₁ γ₂ γ₃ γ₄ γ₅ δ₁ δ₂ η₁ η₂ η₃ θ₁ θ₂ : Conₘ _
   m : Mode
   p₁ p₂ p₃ p₄ q r r₁ r₂ : M

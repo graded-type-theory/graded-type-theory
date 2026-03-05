@@ -51,7 +51,7 @@ private
     x y : Fin n
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     Ψ : Substₘ m n
-    A B t u u′ v w : Term n
+    A B t u u′ v w : Term[ _ ] n
     σ : Subst m n
     p q r : M
     mo mo₁ mo₂ mo₃ mo₄ mo′ : Mode
@@ -1121,6 +1121,10 @@ opaque mutual
       (supᵘₘ (substₘ-lemma (▶-⌞+ᶜ⌟ˡ γ ▶σ) ▸t)
         (substₘ-lemma (▶-⌞+ᶜ⌟ʳ γ ▶σ) ▸u))
       (<*-distrib-+ᶜ Ψ γ _)
+  substₘ-lemma {Ψ} _ ωᵘ+ =
+    sub-≈ᶜ ωᵘ+ (<*-zeroˡ Ψ)
+  substₘ-lemma ▶σ (level ▸t) =
+    level (substₘ-lemma ▶σ ▸t)
   substₘ-lemma ▶σ (Liftₘ ▸t ▸A) =
     Liftₘ (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
       (substₘ-lemma ▶σ ▸A)

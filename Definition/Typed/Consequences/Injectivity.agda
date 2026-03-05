@@ -34,7 +34,8 @@ private
   variable
     m n : Nat
     Γ : Cons m n
-    A A₁ A₂ B B₁ B₂ l l₁ l₂ t₁ t₂ u₁ u₂ : Term _
+    A A₁ A₂ B B₁ B₂ t₁ t₂ u₁ u₂ : Term _
+    l l₁ l₂ : Lvl _
     p₁ p₂ q₁ q₂ : M
     b₁ b₂ : BinderMode
     s₁ s₂ : Strength

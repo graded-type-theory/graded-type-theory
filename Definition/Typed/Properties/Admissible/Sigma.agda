@@ -45,10 +45,12 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  Γ                                               : Cons _ _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ l₁ l₂ t t₁ t₂ u u₁ u₂ v : Term _
-  p q q′ r                                        : M
-  s                                               : Strength
+  n                                         : Nat
+  Γ                                         : Cons _ _
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
+  l₁ l₂                                     : Lvl _
+  p q q′ r                                  : M
+  s                                         : Strength
 
 ------------------------------------------------------------------------
 -- Simple variants of typing, equality and reduction rules
@@ -690,7 +692,8 @@ private opaque
     wk1 A                            ∎
 
   [fstʷ] :
-    ∀ B → B [ fstʷ p A t ]₀ PE.≡ B [ fstʷ p (wk1 A) (var x0) ]↑ [ t ]₀
+    (B : Term (1+ n)) →
+    B [ fstʷ p A t ]₀ PE.≡ B [ fstʷ p (wk1 A) (var x0) ]↑ [ t ]₀
   [fstʷ] {p} {A} {t} B =
     B [ fstʷ p A t ]₀                                            ≡˘⟨ (flip substVar-to-subst B λ where
                                                                         x0     → fstʷ-0[]
@@ -710,7 +713,7 @@ private opaque
     (Γ ⊢ B [ fstʷ p (wk1 A) (var x0) ]↑ [ t ]₀ ≡ B [ fstʷ p A t ]₀)  □
 
   [fstʷ-0]↑[1,0]↑² :
-    ∀ B →
+    (B : Term (1+ n)) →
     B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p (var x1) (var x0) ]↑²
       PE.≡
     B [ fstʷ p (wk1 (wk1 A)) (prodʷ p (var x1) (var x0)) ]↑²
@@ -1588,7 +1591,7 @@ private
          var₁ ⊢Lift-lower₀-B)
         (lowerⱼ $
          PE.subst (_⊢_∷_ _ _)
-           (PE.cong₂ Lift (wk[]≡wk[]′ {k = 2}) wk1-lower₀) $
+           (PE.cong₂ Lift (wk[]≡wk[]′ {n = 2}) wk1-lower₀) $
          var₀ ⊢Lift-lower₀-B)
 
 opaque

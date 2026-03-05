@@ -26,11 +26,15 @@ open import Definition.Typed.Stability R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inequality R as I
 
+open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Sup R
+
 open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 private
   variable
@@ -38,7 +42,40 @@ private
     Γ : Cons m n
     p p′ q : M
     s s′ s₁ s₂ : Strength
-    A B l l₁ l₂ t u : Term _
+    A B t u : Term _
+    l : Lvl _
+
+opaque
+  unfolding _supᵘₗ_
+
+  -- A certain inversion lemma does not hold for supᵘₗ, assuming that
+  -- Omega-plus-allowed holds.
+
+  ¬-inversion-supᵘₗ :
+    Omega-plus-allowed →
+    ¬ (∀ {m n} {Γ : Cons m n} {l₁ l₂} →
+       Γ ⊢ l₁ supᵘₗ l₂ ∷Level → Γ ⊢ l₁ ∷Level × Γ ⊢ l₂ ∷Level)
+  ¬-inversion-supᵘₗ ok inv =
+    U≢Level ⦃ ok = ε ⦄ (sym ⊢Level≡U)
+    where
+    l₁′ l₂′ : Lvl 0
+    l₁′ = ωᵘ+ 0
+    l₂′ = level ℕ
+
+    ⊢sup : ε » ε ⊢ l₁′ supᵘₗ l₂′ ∷Level
+    ⊢sup = literal (Allowed-literal-ωᵘ+-⇔ .proj₂ ok) εε
+
+    ⊢ℕ∷L : ε » ε ⊢ level ℕ ∷Level
+    ⊢ℕ∷L = inv {l₁ = ωᵘ+ _} ⊢sup .proj₂
+
+    ⊢ℕ∷ : ε » ε ⊢ ℕ ∷ Level
+    ⊢ℕ∷ = case ⊢ℕ∷L of λ where
+      (term _ ⊢ℕ)    → ⊢ℕ
+      (literal ok _) →
+        case Allowed-literal→Level-literal ok of λ { (level ()) }
+
+    ⊢Level≡U : ε » ε ⊢ Level ≡ U₀
+    ⊢Level≡U = inversion-ℕ ⊢ℕ∷
 
 opaque
 
@@ -46,7 +83,7 @@ opaque
 
   inversion-lift-Lift :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    Γ ⊢ lift t ∷ Lift u A →
+    Γ ⊢ lift t ∷ Lift l A →
     Γ ⊢ t ∷ A
   inversion-lift-Lift ⊢lift =
     case inversion-lift ⊢lift of λ

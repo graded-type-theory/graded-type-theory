@@ -203,10 +203,10 @@ opaque
     Δ = ε » ε ∙ Id ℕ zero zero
 
     t : Term 1
-    t = []-cong s zeroᵘ ℕ zero zero (var x0)
+    t = []-cong s zeroᵘₗ ℕ zero zero (var x0)
 
     A : Term 1
-    A = Id (Erased zeroᵘ ℕ) [ zero ] ([ zero ])
+    A = Id (Erased zeroᵘₗ ℕ) [ zero ] ([ zero ])
 
     ⊢Δ : ⊢ Δ
     ⊢Δ = ∙ Idⱼ′ (zeroⱼ εε) (zeroⱼ εε)
@@ -218,7 +218,7 @@ opaque
     ⊢t = []-congⱼ′ ok (⊢zeroᵘ ⊢Δ) (var ⊢Δ here)
 
     ▸t : 𝟘ᶜ ▸[ 𝟙ᵐ ] t
-    ▸t = []-congₘ zeroᵘₘ ℕₘ zeroₘ zeroₘ var ok′
+    ▸t = []-congₘ (level zeroᵘₘ) ℕₘ zeroₘ zeroₘ var ok′
 
     open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
 

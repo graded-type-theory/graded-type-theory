@@ -103,7 +103,7 @@ opaque
 
   -- A definition that is used in the implemenation of Sum.
 
-  Sum′ : (a b A B t : Term n) → Term n
+  Sum′ : (a b : Lvl n) (A B t : Term n) → Term n
   Sum′ a b A B t =
     boolrec 𝟘
       (wk1 $ U (a supᵘₗ b))
@@ -120,7 +120,7 @@ opaque
   -- these are used by boolrec, which is linear in that argument, 𝟙
   -- should be a reasonable choice.
 
-  Sum : (a b A B : Term n) → Term n
+  Sum : (a b : Lvl n) (A B : Term n) → Term n
   Sum a b A B =
     Σʷ 𝟙 , 𝟙 ▷ Lift (a supᵘₗ b) Bool ▹
       Sum′ (wk1 a) (wk1 b) (wk1 A) (wk1 B) (lower (var x0))
@@ -153,7 +153,8 @@ opaque
 
   sumrec :
     (q p : M)
-    (a b A B : Term n)
+    (a b : Lvl n)
+    (A B : Term n)
     (P l r : Term (1+ n)) → Term n → Term n
   sumrec q p a b A B P l r t =
     prodrec p 𝟙 q P t
@@ -186,13 +187,14 @@ module Internal
 
   private variable
     c : I.Constants
-    aᵢ bᵢ Aᵢ Bᵢ tᵢ lᵢ rᵢ Pᵢ : I.Term _ _
+    Aᵢ Bᵢ tᵢ lᵢ rᵢ Pᵢ : I.Term _ _
+    aᵢ bᵢ : I.Lvl _ _
     p₁ᵢ p₂ᵢ p₃ᵢ p₄ᵢ : I.Termᵍ _
     γ : I.Contexts _
 
   -- A variant of Sum′.
 
-  Sum′ᵢ : (a b A B t : I.Term c n) → I.Term c n
+  Sum′ᵢ : (a b : I.Lvl c n) (A B t : I.Term c n) → I.Term c n
   Sum′ᵢ a b A B t =
     boolrecᵢ I.𝟘
       (IW.wk[ 1 ] (I.U (a I.supᵘₗ b)))
@@ -217,7 +219,7 @@ module Internal
 
   -- A variant of Sum
 
-  Sumᵢ : (a b A B : I.Term c n) → I.Term c n
+  Sumᵢ : (a b : I.Lvl c n) (A B : I.Term c n) → I.Term c n
   Sumᵢ a b A B =
     I.Σʷ I.𝟙 , I.𝟙 ▷ I.Lift (a I.supᵘₗ b) Boolᵢ ▹
     Sum′ᵢ (IW.wk[ 1 ] a) (IW.wk[ 1 ] b) (IW.wk[ 1 ] A) (IW.wk[ 1 ] B) (I.lower (I.var x0))
@@ -236,7 +238,7 @@ module Internal
 
   -- A variant of inl.
 
-  inlᵢ : (_ _ _ _ _ : I.Term c n) → I.Term c n
+  inlᵢ : (_ _ : I.Lvl c n) (_ _ _ : I.Term c n) → I.Term c n
   inlᵢ a b A B t =
     I.prod I.𝕨 I.𝟙
       (just (I.𝟙 , Sum′ᵢ (IW.wk (step id) a) (IW.wk (step id) b) (IW.wk (step id) A) (IW.wk (step id) B) (I.lower (I.var x0))))
@@ -254,7 +256,7 @@ module Internal
 
   -- A variant of inr.
 
-  inrᵢ : (_ _ _ _ _ : I.Term c n) → I.Term c n
+  inrᵢ : (_ _ : I.Lvl c n) (_ _ _ : I.Term c n) → I.Term c n
   inrᵢ a b A B t =
     I.prod I.𝕨 I.𝟙
       (just (I.𝟙 , Sum′ᵢ (IW.wk (step id) a) (IW.wk (step id) b) (IW.wk (step id) A) (IW.wk (step id) B) (I.lower (I.var x0))))
@@ -282,7 +284,8 @@ module Internal
 
   sumrecᵢ :
     (_ _ : I.Termᵍ (c .I.gs)) →
-    (a b A B : I.Term c n) →
+    (a b : I.Lvl c n) →
+    (A B : I.Term c n) →
     (P l r : I.Term c (1+ n)) →
     I.Term c n → I.Term c n
   sumrecᵢ q p a b A B P l r t =

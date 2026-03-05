@@ -70,7 +70,7 @@ opaque
                𝟘ᶜ ∙ ⌜ m ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ              ∎)
             var
-            (sub-≈ᶜ (Uₘ zeroᵘₘ) $ begin
+            (sub-≈ᶜ (Uₘ (level zeroᵘₘ)) $ begin
                𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
                𝟘ᶜ                ∎))
           (begin
@@ -79,7 +79,7 @@ opaque
                                                                     +-cong (PE.sym (⌜⌝-·-comm m)) (∧-idem _) ⟩
             (𝟙 ∧ 𝟘) ·ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ ∧ᶜ 𝟘ᶜ ∙ (𝟙 ∧ 𝟘) · ⌜ m ⌝ + 𝟘 ∧ 𝟘 ∎))
       ▸t
-      (sub-≈ᶜ (Uₘ zeroᵘₘ) $ begin
+      (sub-≈ᶜ (Uₘ (level zeroᵘₘ)) $ begin
          𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
          𝟘ᶜ                ∎))
     (begin

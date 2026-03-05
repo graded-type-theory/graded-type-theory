@@ -63,7 +63,7 @@ opaque
 
   -- Validity of ℕ.
 
-  ℕʳ : γ ▸ Γ ⊩ʳ ℕ ∷[ m ∣ n ] U zeroᵘ
+  ℕʳ : γ ▸ Γ ⊩ʳ ℕ ∷[ m ∣ n ] U₀
   ℕʳ =
     ▸⊩ʳ∷⇔ .proj₂ λ _ _ →
     ®∷→®∷◂ (®∷U⇔ .proj₂ (⊢zeroᵘ ⊢Δ , U/Levelᵣ (λ { PE.refl → T.refl })))

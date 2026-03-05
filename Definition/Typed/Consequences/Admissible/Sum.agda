@@ -53,7 +53,8 @@ import Tools.Vec as V
 
 private variable
   m n ms k : Nat
-  a a₁ a₂ b b₁ b₂ A A₁ A₂ B B₁ B₂ : Term _
+  a a₁ a₂ b b₁ b₂ : Lvl _
+  A A₁ A₂ B B₁ B₂ : Term _
   t t₁ t₂ P P₁ P₂ l l₁ l₂ r r₁ r₂ : Term _
   Γ : Cons _ _
   q p : M
@@ -65,6 +66,7 @@ private variable
 private
   module Defs
     (Γ : Cons m n) (meta-con-size : V.Vec Nat ms)
+    (meta-con-term-kind : V.Vec Term-kind ms)
     where
     c : I.Constants
     c .I.gs = 0
@@ -72,12 +74,14 @@ private
     c .I.bms = 0
     c .I.ms = ms
     c .I.meta-con-size = meta-con-size
+    c .I.meta-con-term-kind = meta-con-term-kind
     c .I.base-dcon-size = m
     c .I.base-con-allowed = B.true
     c .I.base-con-size = n
 
     γ :
-      (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
+      (∀ {k n} (x : I.Meta-var c k n) →
+       I.Con c n × I.Type-or-term c k n) →
       I.Contexts c
     γ _ .I.grades = V.ε
     γ _ .I.strengths = V.ε
@@ -134,7 +138,7 @@ opaque
           (I.var! x5) → I.base , I.term A₂ (I.U xa₂)
           (I.var! x6) → I.base , I.term B₁ (I.U xb₁)
           (I.var! x7) → I.base , I.term B₂ (I.U xb₂)
-          (I.var not-x8 _))
+          (I.var not-x8 _ _))
       (I.base nothing I.» I.base)
       (Sumᵢ xa₁ xb₁ xA₁ xB₁)
       (Sumᵢ xa₂ xb₂ xA₂ xB₂)
@@ -158,7 +162,7 @@ opaque
             (I.var! x5) → conv ⊢A₂ (U-cong-⊢≡ a₁≡a₂)
             (I.var! x6) → ⊢B₁
             (I.var! x7) → conv ⊢B₂ (U-cong-⊢≡ b₁≡b₂)
-            (I.var  not-x8 _)
+            (I.var  not-x8 _ _)
           .IC.metas-wf .IC.equalities-wf →
             (reflConEq ⊢Γ , IC.level a₁≡a₂) L.∷
             (reflConEq ⊢Γ , IC.level b₁≡b₂) L.∷
@@ -167,14 +171,16 @@ opaque
             L.[])
       ⊢Γ
     where
-    open Defs Γ
-      (V.replicate 8 n)
+    open Defs Γ (V.replicate 8 n)
+           (V.replicate 4 lvl V.++ V.replicate 4 tm)
 
-    xa₁ xa₂ xb₁ xb₂ xA₁ xA₂ xB₁ xB₂ : I.Term c n
+    xa₁ xa₂ xb₁ xb₂ : I.Lvl c n
     xa₁ = I.varᵐ x0
     xa₂ = I.varᵐ x1
     xb₁ = I.varᵐ x2
     xb₂ = I.varᵐ x3
+
+    xA₁ xA₂ xB₁ xB₂ : I.Term c n
     xA₁ = I.varᵐ x4
     xA₂ = I.varᵐ x5
     xB₁ = I.varᵐ x6
@@ -235,7 +241,7 @@ opaque
           (I.var! x3) → I.base , I.term B (I.U xb)
           (I.var! x4) → I.base , I.term t₁ xA
           (I.var! x5) → I.base , I.term t₂ xA
-          (I.var not-x6 _))
+          (I.var not-x6 _ _))
       (I.base nothing I.» I.base)
       (inlᵢ xa xb xA xB xt₁)
       (inlᵢ xa xb xA xB xt₂)
@@ -257,17 +263,19 @@ opaque
             (I.var! x3) → ⊢B
             (I.var! x4) → ⊢t₁
             (I.var! x5) → ⊢t₂
-            (I.var  not-x6 _)
+            (I.var  not-x6 _ _)
           .IC.metas-wf .IC.equalities-wf →
             (reflConEq ⊢Γ , IC.term (refl (univ ⊢A)) t₁≡t₂) L.∷ L.[])
       ⊢Γ
     where
-    open Defs Γ
-      (V.replicate 6 n)
+    open Defs Γ (V.replicate 6 n)
+           (V.replicate 2 lvl V.++ V.replicate 4 tm)
 
-    xa xb xA xB xt₁ xt₂ : I.Term c n
+    xa xb : I.Lvl c n
     xa = I.varᵐ x0
     xb = I.varᵐ x1
+
+    xA xB xt₁ xt₂ : I.Term c n
     xA = I.varᵐ x2
     xB = I.varᵐ x3
     xt₁ = I.varᵐ x4
@@ -314,7 +322,7 @@ opaque
           (I.var! x3) → I.base , I.term B (I.U xb)
           (I.var! x4) → I.base , I.term t₁ xB
           (I.var! x5) → I.base , I.term t₂ xB
-          (I.var not-x6 _))
+          (I.var not-x6 _ _))
       (I.base nothing I.» I.base)
       (inrᵢ xa xb xA xB xt₁)
       (inrᵢ xa xb xA xB xt₂)
@@ -336,17 +344,19 @@ opaque
             (I.var! x3) → ⊢B
             (I.var! x4) → ⊢t₁
             (I.var! x5) → ⊢t₂
-            (I.var  not-x6 _)
+            (I.var  not-x6 _ _)
           .IC.metas-wf .IC.equalities-wf →
             (reflConEq ⊢Γ , IC.term (refl (univ ⊢B)) t₁≡t₂) L.∷ L.[])
       ⊢Γ
     where
-    open Defs Γ
-      (V.replicate 6 n)
+    open Defs Γ (V.replicate 6 n)
+           (V.replicate 2 lvl V.++ V.replicate 4 tm)
 
-    xa xb xA xB xt₁ xt₂ : I.Term c n
+    xa xb : I.Lvl c n
     xa = I.varᵐ x0
     xb = I.varᵐ x1
+
+    xA xB xt₁ xt₂ : I.Term c n
     xA = I.varᵐ x2
     xB = I.varᵐ x3
     xt₁ = I.varᵐ x4
@@ -370,6 +380,7 @@ private
   module Defs′
     (q p : M)
     (Γ : Cons m n) (meta-con-size : V.Vec Nat ms)
+    (meta-con-term-kind : V.Vec Term-kind ms)
     where
     c : I.Constants
     c .I.gs = 2
@@ -377,6 +388,7 @@ private
     c .I.bms = 0
     c .I.ms = ms
     c .I.meta-con-size = meta-con-size
+    c .I.meta-con-term-kind = meta-con-term-kind
     c .I.base-dcon-size = m
     c .I.base-con-allowed = B.true
     c .I.base-con-size = n
@@ -386,13 +398,15 @@ private
     xp = I.var x1
 
     sumrecᵢ′ :
-      (a b A B : I.Term c k) →
+      (a b : I.Lvl c k)
+      (A B : I.Term c k)
       (P l r : I.Term c (1+ k)) →
       I.Term c k → I.Term c k
     sumrecᵢ′ = sumrecᵢ xq xp
 
     γ :
-      (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
+      (∀ {k n} (x : I.Meta-var c k n) →
+       I.Con c n × I.Type-or-term c k n) →
       I.Contexts c
     γ _ .I.grades = q V.∷ p V.∷ V.ε
     γ _ .I.strengths = V.ε
@@ -456,7 +470,7 @@ opaque
                 (inrᵢ (IW.wk (step id) xa) (IW.wk (step id) xb)
                   (IW.wk (step id) xA) (IW.wk (step id) xB) (I.var x0))))
             (I.var! x7) → I.base , I.term t Sumᵢ′
-            (I.var not-x8 _))
+            (I.var not-x8 _ _))
         (I.base nothing I.» I.base)
         (sumrecᵢ′ xa xb xA xB xP xl xr xt)
         (I.subst xP (IS.sgSubst xt))
@@ -477,16 +491,19 @@ opaque
             (I.var! x5) → ⊢l
             (I.var! x6) → ⊢r
             (I.var! x7) → ⊢t
-            (I.var  not-x8 _))
+            (I.var  not-x8 _ _))
         ⊢Γ
     where
     open Defs′ q p Γ
-      (n V.∷ n V.∷ n V.∷ n V.∷ (1+ n) V.∷
-      (1+ n) V.∷ (1+ n) V.∷ n V.∷ V.ε)
+           (V.replicate 4 n V.++ V.replicate 3 (1+ n) V.++
+            V.replicate 1 n)
+           (V.replicate 2 lvl V.++ V.replicate 6 tm)
 
-    xa xb xA xB xt : I.Term c n
+    xa xb : I.Lvl c n
     xa = I.varᵐ x0
     xb = I.varᵐ x1
+
+    xA xB xt : I.Term c n
     xA = I.varᵐ x2
     xB = I.varᵐ x3
     xt = I.varᵐ x7
@@ -533,7 +550,7 @@ opaque
             (I.var! x6) → I.base I.∙ xB , I.term r (I.subst xP (I.cons (IS.wkSubst 1 I.id)
               (inrᵢ (IW.wk (step id) xa) (IW.wk (step id) xb) (IW.wk (step id) xA) (IW.wk (step id) xB) (I.var x0))))
             (I.var! x7) → I.base , I.term t xA
-            (I.var not-x8 _))
+            (I.var not-x8 _ _))
          (I.base nothing I.» I.base)
          (sumrecᵢ′ xa xb xA xB xP xl xr (inlᵢ xa xb xA xB xt))
          (I.subst xl (IS.sgSubst xt))
@@ -555,17 +572,20 @@ opaque
              (I.var! x5) → ⊢l
              (I.var! x6) → ⊢r
              (I.var! x7) → ⊢t
-             (I.var not-x8 _))
+             (I.var not-x8 _ _))
          ⊢Γ
 
     where
     open Defs′ q p Γ
-      (n V.∷ n V.∷ n V.∷ n V.∷ (1+ n) V.∷
-      (1+ n) V.∷ (1+ n) V.∷ n V.∷ V.ε)
+           (V.replicate 4 n V.++ V.replicate 3 (1+ n) V.++
+            V.replicate 1 n)
+           (V.replicate 2 lvl V.++ V.replicate 6 tm)
 
-    xa xb xA xB xt : I.Term c n
+    xa xb : I.Lvl c n
     xa = I.varᵐ x0
     xb = I.varᵐ x1
+
+    xA xB xt : I.Term c n
     xA = I.varᵐ x2
     xB = I.varᵐ x3
     xt = I.varᵐ x7
@@ -614,7 +634,7 @@ opaque
               I.base I.∙ xB , I.term r (I.subst xP (I.cons (IS.wkSubst 1 I.id)
                 (inrᵢ (IW.wk (step id) xa) (IW.wk (step id) xb) (IW.wk (step id) xA) (IW.wk (step id) xB) (I.var x0))))
             (I.var! x7) → I.base , I.term t xB
-            (I.var not-x8 _))
+            (I.var not-x8 _ _))
          (I.base nothing I.» I.base)
          (sumrecᵢ′ xa xb xA xB xP xl xr (inrᵢ xa xb xA xB xt))
          (I.subst xr (IS.sgSubst xt))
@@ -636,17 +656,20 @@ opaque
              (I.var! x5) → ⊢l
              (I.var! x6) → ⊢r
              (I.var! x7) → ⊢t
-             (I.var not-x8 _))
+             (I.var not-x8 _ _))
          ⊢Γ
 
     where
     open Defs′ q p Γ
-      (n V.∷ n V.∷ n V.∷ n V.∷ (1+ n) V.∷
-      (1+ n) V.∷ (1+ n) V.∷ n V.∷ V.ε)
+           (V.replicate 4 n V.++ V.replicate 3 (1+ n) V.++
+            V.replicate 1 n)
+           (V.replicate 2 lvl V.++ V.replicate 6 tm)
 
-    xa xb xA xB xt : I.Term c n
+    xa xb : I.Lvl c n
     xa = I.varᵐ x0
     xb = I.varᵐ x1
+
+    xA xB xt : I.Term c n
     xA = I.varᵐ x2
     xB = I.varᵐ x3
     xt = I.varᵐ x7

@@ -49,14 +49,10 @@ data _or-empty_ {P : Nat → Set a} (A : Set a) : Con P n → Set a where
   possibly-nonempty : ⦃ ok : A ⦄ → A or-empty Γ
   ε                 : A or-empty ε
 
--- Representation of sub terms using a list of binding levels
+-- Term kinds.
 
-infixr 5 _∷ₜ_
-
-data GenTs (A : Nat → Set a) : Nat → List Nat → Set a where
-  []   : {n : Nat} → GenTs A n []
-  _∷ₜ_ : {n b : Nat} {bs : List Nat}
-         (t : A (b + n)) (ts : GenTs A n bs) → GenTs A n (b ∷ bs)
+data Term-kind : Set where
+  tm lvl : Term-kind
 
 -- Sigma and Unit types have two modes, allowing either projections
 -- and η-equality (strong) or elimination by prodrec/unitrec (weak).
@@ -158,8 +154,8 @@ wk₀ {n = 1+ n} = step wk₀
 -- Universe levels.
 
 data Universe-level : Set where
-  0ᵘ+_ : Nat → Universe-level
-  ωᵘ : Universe-level
+  0ᵘ+ ωᵘ+ : (n : Nat) → Universe-level
+  ωᵘ·2    : Universe-level
 
 0ᵘ : Universe-level
 0ᵘ = 0ᵘ+ 0
@@ -167,37 +163,54 @@ data Universe-level : Set where
 1ᵘ : Universe-level
 1ᵘ = 0ᵘ+ 1
 
+-- A successor function for (most) universe levels. Note that
+-- sucᵘₗ ωᵘ·2 is defined to be ωᵘ·2.
+
+sucᵘₗ : Universe-level → Universe-level
+sucᵘₗ (0ᵘ+ n) = 0ᵘ+ (1+ n)
+sucᵘₗ (ωᵘ+ n) = ωᵘ+ (1+ n)
+sucᵘₗ ωᵘ·2    = ωᵘ·2
+
 -- The maximum of two universe levels.
 
 infixl 6 _⊔ᵘ_
 
 _⊔ᵘ_ : (_ _ : Universe-level) → Universe-level
-(0ᵘ+ m) ⊔ᵘ (0ᵘ+ n) = 0ᵘ+ (m Tools.Nat.⊔ n)
-(0ᵘ+ m) ⊔ᵘ ωᵘ      = ωᵘ
-ωᵘ      ⊔ᵘ n       = ωᵘ
+0ᵘ+ m ⊔ᵘ 0ᵘ+ n = 0ᵘ+ (m Tools.Nat.⊔ n)
+0ᵘ+ _ ⊔ᵘ ωᵘ+ n = ωᵘ+ n
+ωᵘ+ m ⊔ᵘ 0ᵘ+ _ = ωᵘ+ m
+ωᵘ+ m ⊔ᵘ ωᵘ+ n = ωᵘ+ (m Tools.Nat.⊔ n)
+ωᵘ·2  ⊔ᵘ _     = ωᵘ·2
+_     ⊔ᵘ ωᵘ·2  = ωᵘ·2
 
 -- Ordering of universe levels.
 
 infix 4 _≤ᵘ_
 
 data _≤ᵘ_ : Universe-level → Universe-level → Set where
-  ≤ᵘ-fin : ∀ {l l′} → l ≤′ l′ → 0ᵘ+ l ≤ᵘ 0ᵘ+ l′
-  ≤ᵘ-ωᵘ  : ∀ {l} → l ≤ᵘ ωᵘ
+  0ᵘ+≤ᵘ0ᵘ+  : m ≤′ n → 0ᵘ+ m ≤ᵘ 0ᵘ+ n
+  0ᵘ+≤ᵘωᵘ+  : 0ᵘ+ m ≤ᵘ ωᵘ+ n
+  ωᵘ+≤ᵘωᵘ+  : m ≤′ n → ωᵘ+ m ≤ᵘ ωᵘ+ n
+  ≤ᵘωᵘ·2    : ∀ {l} → l ≤ᵘ ωᵘ·2
 
 ≤ᵘ-refl : ∀ {l} → l ≤ᵘ l
-≤ᵘ-refl {0ᵘ+ x} = ≤ᵘ-fin ≤′-refl
-≤ᵘ-refl {(ωᵘ)} = ≤ᵘ-ωᵘ
+≤ᵘ-refl {l = 0ᵘ+ _} = 0ᵘ+≤ᵘ0ᵘ+ ≤′-refl
+≤ᵘ-refl {l = ωᵘ+ _} = ωᵘ+≤ᵘωᵘ+ ≤′-refl
+≤ᵘ-refl {l = ωᵘ·2}  = ≤ᵘωᵘ·2
 
 -- Strict ordering of universe levels.
 
 infix 4 _<ᵘ_
 
 data _<ᵘ_ : Universe-level → Universe-level → Set where
-  <ᵘ-fin : ∀ {l l′} → l <′ l′ → 0ᵘ+ l <ᵘ 0ᵘ+ l′
-  <ᵘ-ωᵘ  : ∀ {l} → 0ᵘ+ l <ᵘ ωᵘ
+  0ᵘ+<ᵘ0ᵘ+  : m <′ n → 0ᵘ+ m <ᵘ 0ᵘ+ n
+  0ᵘ+<ᵘωᵘ+  : 0ᵘ+ m <ᵘ ωᵘ+ n
+  0ᵘ+<ᵘωᵘ·2 : 0ᵘ+ m <ᵘ ωᵘ·2
+  ωᵘ+<ᵘωᵘ+  : m <′ n → ωᵘ+ m <ᵘ ωᵘ+ n
+  ωᵘ+<ᵘωᵘ·2 : ωᵘ+ m <ᵘ ωᵘ·2
 
 0ᵘ<ᵘ1ᵘ : 0ᵘ <ᵘ 1ᵘ
-0ᵘ<ᵘ1ᵘ = <ᵘ-fin ≤′-refl
+0ᵘ<ᵘ1ᵘ = 0ᵘ+<ᵘ0ᵘ+ ≤′-refl
 
 ------------------------------------------------------------------------
 -- Level-support

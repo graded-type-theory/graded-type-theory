@@ -25,6 +25,9 @@ record Assumptions : Set a where
     -- Equality is assumed to be decidable for M.
     _≟_ : Decidable (_≡_ {A = M})
 
+    -- Is Omega-plus-allowed inhabited?
+    Omega-plus-allowed? : Dec Omega-plus-allowed
+
     -- It is decidable whether the Unit types are allowed.
     Unit-allowed? : ∀ s → Dec (Unit-allowed s)
 

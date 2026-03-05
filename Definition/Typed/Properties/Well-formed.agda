@@ -25,9 +25,10 @@ open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  Γ                   : Cons _ _
-  A B C D l l₁ l₂ t u : Term _
-  s s₁ s₂             : Size
+  Γ           : Cons _ _
+  A B C D t u : Term _
+  l l₁ l₂     : Lvl _
+  s s₁ s₂     : Size
 
 private opaque
 
@@ -219,8 +220,8 @@ private module Lemmas where
       size-⊢∷L ⊢l PE.≡ s₂ →
       ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢∷L ⊢l
     wfLevel-<ˢ′ hyp = λ where
-        (term _ ⊢l)      PE.refl → fix (wfTerm-<ˢ ⊢l)
-        (literal _ ⊢Γ _) _       → ⊢Γ , !
+        (term _ ⊢l)    PE.refl → fix (wfTerm-<ˢ ⊢l)
+        (literal _ ⊢Γ) _       → ⊢Γ , !
       where
       open Variants hyp
 
@@ -394,8 +395,8 @@ opaque
   wfEqLevel-<ˢ :
     (l₁≡l₂ : Γ ⊢ l₁ ≡ l₂ ∷Level) →
     ∃ λ (⊢Γ : ⊢ Γ) → size-⊢′ ⊢Γ <ˢ size-⊢≡∷L l₁≡l₂
-  wfEqLevel-<ˢ (term _ l₁≡l₂)   = fix (wfEqTerm-<ˢ l₁≡l₂)
-  wfEqLevel-<ˢ (literal _ ⊢Γ _) = ⊢Γ , !
+  wfEqLevel-<ˢ (term _ l₁≡l₂) = fix (wfEqTerm-<ˢ l₁≡l₂)
+  wfEqLevel-<ˢ (literal _ ⊢Γ) = ⊢Γ , !
 
 opaque
 

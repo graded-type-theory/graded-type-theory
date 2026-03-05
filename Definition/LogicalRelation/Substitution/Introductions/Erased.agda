@@ -51,12 +51,13 @@ open import Tools.Function
 import Tools.PropositionalEquality as PE
 
 private variable
-  ∇ ∇′                : DCon _ _
-  Δ Η                 : Con _ _
-  Γ                   : Cons _ _
-  A A₁ A₂ l l₁ l₂ t u : Term _
-  ρ                   : Wk _ _
-  ℓ ℓ′                : Universe-level
+  ∇ ∇′        : DCon _ _
+  Δ Η         : Con _ _
+  Γ           : Cons _ _
+  A A₁ A₂ t u : Term _
+  l l₁ l₂     : Lvl _
+  ρ           : Wk _ _
+  ℓ ℓ′        : Universe-level
 
 private opaque
 

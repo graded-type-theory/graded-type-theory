@@ -37,6 +37,7 @@ private variable
   m n                           : Nat
   Γ                             : Cons _ _
   A B C t t₁ t₂ u v v₁ v₂ w₁ w₂ : Term _
+  l                             : Lvl _
   p q q′ r                      : M
 
 ------------------------------------------------------------------------
@@ -73,7 +74,7 @@ record Is-reduction-relation
     -- Some congruence properties.
 
     lower-⇛ :
-      t₁ ⇛ t₂ ∷ Lift u A →
+      t₁ ⇛ t₂ ∷ Lift l A →
       lower t₁ ⇛ lower t₂ ∷ A
 
     app-⇛ :

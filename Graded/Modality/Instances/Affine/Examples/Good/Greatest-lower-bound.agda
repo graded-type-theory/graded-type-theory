@@ -57,7 +57,8 @@ open import Definition.Typed.Restrictions affineModality
 private variable
   n : Nat
   γ γ₁ γ₂ γ₃ γ₄ γ₅ δ δ₁ δ₂ η η₁ η₂ η₃ θ : Conₘ _
-  a b A B k l h t t₁ t₂ t₃ u nl cs P xs : Term _
+  A B k h t t₁ t₂ t₃ u nl cs P xs : Term _
+  a b l : Lvl _
   m : Mode
   p p₁ p₂ p₃ p₄ q q₁ q₂ q₃ r r₁ r₂ : Affine
 

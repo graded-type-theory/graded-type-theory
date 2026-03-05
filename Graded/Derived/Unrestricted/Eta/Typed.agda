@@ -44,8 +44,9 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  Γ                     : Cons _ _
-  A A₁ A₂ B l l₁ l₂ t u : Term _
+  Γ             : Cons _ _
+  A A₁ A₂ B t u : Term _
+  l l₁ l₂       : Lvl _
 
 ------------------------------------------------------------------------
 -- Typing rules
@@ -219,11 +220,11 @@ opaque
         U≡U₂ , _                       = inversion-Unit-U ⊢Unit
     in
     _ , ⊢A , B≡ , ⊢wk1-l ,
-    (wk1 l′             ≡⟨ U-injectivity ⦃ ok = included ⦄ U≡U₁ ⟩⊢
-     l″ supᵘₗ wk1 l     ≡⟨ supᵘₗ-cong (U-injectivity ⦃ ok = included ⦄ U≡U₂)
-                             (refl-⊢≡∷L ⊢wk1-l) ⟩⊢
-     zeroᵘ supᵘₗ wk1 l  ≡⟨ supᵘₗ-zeroˡ ⊢wk1-l ⟩⊢∎
-     wk1 l              ∎)
+    (wk1 l′              ≡⟨ U-injectivity ⦃ ok = included ⦄ U≡U₁ ⟩⊢
+     l″ supᵘₗ wk1 l      ≡⟨ supᵘₗ-cong (U-injectivity ⦃ ok = included ⦄ U≡U₂)
+                              (refl-⊢≡∷L ⊢wk1-l) ⟩⊢
+     zeroᵘₗ supᵘₗ wk1 l  ≡⟨ supᵘₗ-zeroˡ ⊢wk1-l ⟩⊢∎
+     wk1 l               ∎)
 
 opaque
   unfolding Unrestricted
@@ -299,16 +300,16 @@ opaque
     t′ A′ : Term 0
     t′ = zero
     A′ = Σˢ ω , ω ▷ ℕ ▹
-         natrec 𝟙 𝟙 𝟙 (U zeroᵘ) (Lift zeroᵘ Unitˢ) ℕ (var x0)
+         natrec 𝟙 𝟙 𝟙 U₀ (Lift zeroᵘₗ Unitˢ) ℕ (var x0)
 
     ⊢Γ′∙ℕ : ε »⊢ Γ′ ∙ ℕ
     ⊢Γ′∙ℕ = ∙ ⊢ℕ εε
 
-    ⊢Γ′∙ℕ∙U : ε »⊢ Γ′ ∙ ℕ ∙ U zeroᵘ
+    ⊢Γ′∙ℕ∙U : ε »⊢ Γ′ ∙ ℕ ∙ U₀
     ⊢Γ′∙ℕ∙U = ∙ ⊢U₀ ⊢Γ′∙ℕ
 
     ⊢Lift-Unit :
-      ⊢ Γ → Γ ⊢ Lift zeroᵘ Unitˢ ∷ U zeroᵘ
+      ⊢ Γ → Γ ⊢ Lift zeroᵘₗ Unitˢ ∷ U₀
     ⊢Lift-Unit ⊢Γ =
       conv (Liftⱼ′ (⊢zeroᵘ ⊢Γ) (Unitⱼ ⊢Γ Unit-ok))
         (U-cong-⊢≡ (supᵘₗ-zeroˡ (⊢zeroᵘ ⊢Γ)))

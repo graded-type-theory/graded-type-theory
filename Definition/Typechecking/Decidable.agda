@@ -37,6 +37,7 @@ open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Decidable.Equality R _≟_
 open import Definition.Typed.Decidable.Reduction R _≟_
 open import Definition.Untyped M as U
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
@@ -56,7 +57,8 @@ private
     m n : Nat
     Δ : Con Term n
     Γ : Cons m n
-    l t u v w A B : Term n
+    t u v w A B : Term n
+    l : Lvl _
     p q r : M
 
 dec⇉-var : (x : Fin n) → ∃ λ A → x ∷ A ∈ Δ
@@ -431,14 +433,15 @@ mutual
 
   -- It is decidable whether Checkable-level l holds.
 
-  dec-Checkable-level : (l : Term n) → Dec (Checkable-level l)
-  dec-Checkable-level l =
+  dec-Checkable-level : (l : Lvl n) → Dec (Checkable-level l)
+  dec-Checkable-level (ωᵘ+ _)   = yes ωᵘ+
+  dec-Checkable-level (level t) =
     case Level-allowed? of λ where
       (yes ok) →
         Dec-map (sym⇔ $ Checkable-level⇔ ok) $
-        dec-Checkable l
+        dec-Checkable t
       (no not-ok) →
-        yes (literal not-ok)
+        yes (level (⊥-elim ∘→ not-ok))
 
 private opaque
 
@@ -931,7 +934,7 @@ mutual
 
   dec⇉ : ⊢ Γ → Inferable t → Dec (∃ λ A → Γ ⊢ t ⇉ A)
   dec⇉ ⊢Γ Levelᵢ = case Level-is-small? of λ where
-    (yes ok) → yes (U zeroᵘ , Levelᵢ ok)
+    (yes ok) → yes (U₀ , Levelᵢ ok)
     (no ¬ok) → no λ where
       (_ , Levelᵢ ok) → ¬ok ok
   dec⇉ ⊢Γ zeroᵘᵢ =
@@ -992,7 +995,7 @@ mutual
   dec⇉ ⊢Γ (fstᵢ t) = dec⇉-fst ⊢Γ t
   dec⇉ ⊢Γ (sndᵢ t) = dec⇉-snd ⊢Γ t
   dec⇉ ⊢Γ (prodrecᵢ A t u) = dec⇉-prodrec ⊢Γ A t u
-  dec⇉ ⊢Γ ℕᵢ = yes (U zeroᵘ , ℕᵢ)
+  dec⇉ ⊢Γ ℕᵢ = yes (U₀ , ℕᵢ)
   dec⇉ ⊢Γ zeroᵢ = yes (ℕ , zeroᵢ)
   dec⇉ ⊢Γ (sucᵢ t) = case dec⇇ t (⊢ℕ ⊢Γ) of λ where
     (yes t⇇ℕ) → yes (_ , sucᵢ t⇇ℕ)
@@ -1010,7 +1013,7 @@ mutual
       (no not-ok) → no λ where
         (_ , starᵢ ok) → not-ok ok
   dec⇉ ⊢Γ (unitrecᵢ A t u) = dec⇉-unitrec ⊢Γ A t u
-  dec⇉ ⊢Γ Emptyᵢ = yes (U zeroᵘ , Emptyᵢ)
+  dec⇉ ⊢Γ Emptyᵢ = yes (U₀ , Emptyᵢ)
   dec⇉ ⊢Γ (emptyrecᵢ A t) = dec⇉-emptyrec ⊢Γ A t
   dec⇉ ⊢Γ (Idᵢ A t u) =
     case
@@ -1118,13 +1121,21 @@ mutual
   -- Decidability of bi-directional type-checking for levels.
 
   dec⇇Level : Checkable-level l → ⊢ Γ → Dec (Γ ⊢ l ⇇Level)
-  dec⇇Level (term ok l) ⊢Γ =
-    Dec-map (sym⇔ $ ⊢⇇Level⇔ ok) (dec⇇ l (Levelⱼ′ ok ⊢Γ))
-  dec⇇Level {l} (literal not-ok) _ =
-    case Level-literal? l of λ where
-      (yes l-lit) →
-        yes (literal not-ok l-lit)
-      (no not-lit) →
-        no λ where
-          (term ok _)       → not-ok ok
-          (literal _ l-lit) → not-lit l-lit
+  dec⇇Level ωᵘ+ _ =
+    Dec-map
+      ( literal ∘→ Allowed-literal-ωᵘ+-⇔ .proj₂
+      , (λ { (literal ok) → Allowed-literal-ωᵘ+-⇔ .proj₁ ok })
+      )
+      Omega-plus-allowed?
+  dec⇇Level (level {t} t-c) ⊢Γ with Level-allowed?
+  … | yes ok =
+    Dec-map (sym⇔ $ ⊢⇇Level⇔ ok) (dec⇇ (t-c ok) (Levelⱼ′ ok ⊢Γ))
+  … | no not-ok =
+    Dec-map
+      ( (λ lit →
+           literal (Allowed-literal-level-⇔ .proj₂ (lit , not-ok)))
+      , (λ where
+           (term ok _)  → ⊥-elim (not-ok ok)
+           (literal ok) → Allowed-literal-level-⇔ .proj₁ ok .proj₁)
+      )
+      (Level-literal? t)

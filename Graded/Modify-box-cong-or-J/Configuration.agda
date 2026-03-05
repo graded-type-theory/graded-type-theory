@@ -67,8 +67,9 @@ private variable
   b                                          : Bool
   n                                          : Nat
   Γ                                          : Cons _ _
-  A A₁ A₂ B B₁ B₂ l l₁ l₂
+  A A₁ A₂ B B₁ B₂
     t t′ t₁ t₂ u u₁ u₂ v v′ v₁ v₂ w w′ w₁ w₂ : Term _
+  l l₁ l₂                                    : Lvl _
   ρ                                          : Wk _ _
   σ                                          : Subst _ _
   bm                                         : BinderMode
@@ -118,6 +119,8 @@ record Configuration : Set (lsuc a) where
       TRₛ.Opacity-allowed → TRₜ.Opacity-allowed
     level-support-≤ :
       TRₛ.level-support ≤LS TRₜ.level-support
+    Omega-plus-allowed-→ :
+      TRₛ.Omega-plus-allowed → TRₜ.Omega-plus-allowed
     unfolding-mode-≡ :
       TRₛ.unfolding-mode PE.≡ TRₜ.unfolding-mode
     Unit-allowed-→ :
@@ -154,7 +157,7 @@ record Configuration : Set (lsuc a) where
     -- How []-cong should be translated.
 
     []-cong′ :
-      Strength → (_ _ _ _ _ : Term n) → Term n
+      Strength → Lvl n → (_ _ _ _ : Term n) → Term n
 
     -- Assumptions related to []-cong′.
 
@@ -525,6 +528,7 @@ opaque
       .Configuration.URₜ               → URₜ
       .Opacity-allowed-→ _             → idᶠ
       .level-support-≤                 → refl-≤LS
+      .Omega-plus-allowed-→            → idᶠ
       .unfolding-mode-≡                → PE.refl
       .Unit-allowed-→                  → idᶠ
       .η-for-Unitʷ-≡                   → PE.refl
@@ -616,6 +620,7 @@ opaque
       .Configuration.URₜ                    → URₜ
       .Opacity-allowed-→ _                  → idᶠ
       .level-support-≤                      → refl-≤LS
+      .Omega-plus-allowed-→                 → idᶠ
       .unfolding-mode-≡                     → PE.refl
       .Unit-allowed-→                       → inj₁
       .η-for-Unitʷ-≡                        → PE.refl
@@ -847,6 +852,7 @@ opaque
       .Configuration.URₜ                  → URₜ
       .Opacity-allowed-→ ¬⊤               → ⊥-elim (¬⊤ _)
       .level-support-≤                    → refl-≤LS
+      .Omega-plus-allowed-→               → idᶠ
       .unfolding-mode-≡                   → PE.refl
       .Unit-allowed-→                     → idᶠ
       .η-for-Unitʷ-≡                      → PE.refl
@@ -917,6 +923,7 @@ opaque
       .Configuration.URₜ           → URₛ
       .Opacity-allowed-→ ¬⊤        → ⊥-elim (¬⊤ _)
       .level-support-≤             → refl-≤LS
+      .Omega-plus-allowed-→        → idᶠ
       .unfolding-mode-≡            → PE.refl
       .Unit-allowed-→              → idᶠ
       .η-for-Unitʷ-≡               → PE.refl

@@ -70,6 +70,7 @@ opaque
   Are-preserving-type-restrictions-no-type-restrictions hyp = λ where
       .unfolding-mode-preserved      → refl
       .level-support-preserved       → level-type small≤small
+      .Omega-plus-preserved          → _
       .Unitʷ-η-preserved ()
       .Unit-preserved                → _
       .ΠΣ-preserved                  → _
@@ -122,6 +123,7 @@ Are-preserving-type-restrictions-equal-binder-quantities {tr = tr} r =
   record
     { unfolding-mode-preserved = R.unfolding-mode-preserved
     ; level-support-preserved  = R.level-support-preserved
+    ; Omega-plus-preserved     = R.Omega-plus-preserved
     ; Unitʷ-η-preserved        = R.Unitʷ-η-preserved
     ; Unit-preserved           = R.Unit-preserved
     ; ΠΣ-preserved             = λ {b = b} → λ where
@@ -185,6 +187,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 :
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   { unfolding-mode-preserved = unfolding-mode-preserved
   ; level-support-preserved  = level-support-preserved
+  ; Omega-plus-preserved     = Omega-plus-preserved
   ; Unitʷ-η-preserved        = Unitʷ-η-preserved
   ; Unit-preserved           = Unit-preserved
   ; ΠΣ-preserved             = λ where
@@ -241,6 +244,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   {𝕄₁} {tr} {𝕄₂} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
   { unfolding-mode-preserved = unfolding-mode-preserved
   ; level-support-preserved  = level-support-preserved
+  ; Omega-plus-preserved     = Omega-plus-preserved
   ; Unitʷ-η-preserved        = Unitʷ-η-preserved
   ; Unit-preserved           = Unit-preserved
   ; ΠΣ-preserved             = λ {b = b} (bn , is-𝟘 , not-𝟘) →
@@ -372,6 +376,8 @@ opaque
        unfolding-mode-preserved
    ; level-support-preserved =
        level-support-preserved
+   ; Omega-plus-preserved =
+       Omega-plus-preserved
    ; Unitʷ-η-preserved =
        Unitʷ-η-preserved
    ; Unit-preserved =
@@ -456,6 +462,8 @@ opaque
        unfolding-mode-preserved
    ; level-support-preserved =
        level-support-preserved
+   ; Omega-plus-preserved =
+       Omega-plus-preserved
    ; Unitʷ-η-preserved =
        Unitʷ-η-preserved
    ; Unit-preserved =
@@ -532,6 +540,7 @@ Are-preserving-type-restrictions-no-erased-matches-TR :
 Are-preserving-type-restrictions-no-erased-matches-TR r = record
   { unfolding-mode-preserved      = unfolding-mode-preserved
   ; level-support-preserved       = level-support-preserved
+  ; Omega-plus-preserved          = Omega-plus-preserved
   ; Unitʷ-η-preserved             = Unitʷ-η-preserved
   ; Unit-preserved                = Unit-preserved
   ; ΠΣ-preserved                  = ΠΣ-preserved
@@ -599,6 +608,8 @@ opaque
         unfolding-mode-preserved
     ; level-support-preserved =
         level-support-preserved
+    ; Omega-plus-preserved =
+        Omega-plus-preserved
     ; Unitʷ-η-preserved =
         Unitʷ-η-preserved
     ; Unit-preserved =
@@ -699,6 +710,7 @@ opaque
   Are-preserving-type-restrictions-no-[]-cong-TR r = record
     { unfolding-mode-preserved      = unfolding-mode-preserved
     ; level-support-preserved       = level-support-preserved
+    ; Omega-plus-preserved          = Omega-plus-preserved
     ; Unitʷ-η-preserved             = Unitʷ-η-preserved
     ; Unit-preserved                = Unit-preserved
     ; ΠΣ-preserved                  = ΠΣ-preserved
@@ -759,6 +771,7 @@ opaque
   Are-preserving-type-restrictions-with-equality-reflection r = record
     { unfolding-mode-preserved      = unfolding-mode-preserved
     ; level-support-preserved       = level-support-preserved
+    ; Omega-plus-preserved          = Omega-plus-preserved
     ; Unitʷ-η-preserved             = Unitʷ-η-preserved
     ; Unit-preserved                = Unit-preserved
     ; ΠΣ-preserved                  = ΠΣ-preserved
@@ -889,6 +902,7 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
   record
     { unfolding-mode-preserved = unfolding-mode-preserved
     ; level-support-preserved  = level-support-preserved
+    ; Omega-plus-preserved     = Omega-plus-preserved
     ; Unitʷ-η-preserved        = Unitʷ-η-preserved
     ; Unit-preserved           = Unit-preserved
     ; ΠΣ-preserved             = λ (b , _) →

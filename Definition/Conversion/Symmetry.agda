@@ -50,7 +50,7 @@ private
     ∇ : DCon (Term 0) m
     Δ Η : Con Term n
     Γ : Cons _ _
-    l₁ l₂ : Term _
+    l₁ l₂ : Lvl _
     d : Bool
 
 mutual
@@ -304,9 +304,9 @@ mutual
     ∇ » Η ⊢ l₂ [conv↑] l₁ ∷Level
   symConv↑Level Γ≡Δ (term ok l₁≡l₂) =
     term ok (symConv↑Term Γ≡Δ l₁≡l₂)
-  symConv↑Level Γ≡Δ (literal! not-ok _ l-lit) =
+  symConv↑Level Γ≡Δ (literal! ok _) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
-    literal! not-ok ⊢Δ l-lit
+    literal! ok ⊢Δ
 
   -- Symmetry of algorithmic equality of terms in WHNF.
   symConv↓Term : ∀ {t u A} → ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ t [conv↓] u ∷ A → ∇ » Η ⊢ u [conv↓] t ∷ A

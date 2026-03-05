@@ -39,24 +39,25 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  n     : Nat
-  Γ     : Con Term _
-  A t u : Term _
-  γ     : Conₘ _
-  m     : Mode
+  n       : Nat
+  Γ       : Con Term _
+  A t     : Term _
+  l l₁ l₂ : Lvl _
+  γ       : Conₘ _
+  m       : Mode
 
 opaque
 
   -- Validity for Lift.
 
   Liftʳ :
-    ts » Γ ⊢ u ∷Level →
-    γ ▸ Γ ⊩ʳ Lift t A ∷[ m ∣ n ] U u
-  Liftʳ ⊢u =
+    ts » Γ ⊢ l₁ ∷Level →
+    γ ▸ Γ ⊩ʳ Lift l₂ A ∷[ m ∣ n ] U l₁
+  Liftʳ ⊢l₁ =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷L ⊢u ⊢σ
+      ( subst-⊢∷L ⊢l₁ ⊢σ
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 
@@ -65,21 +66,21 @@ opaque
   -- Validity for lift.
 
   liftʳ :
-    ts » Γ ⊢ t ∷Level →
-    ts » Γ ⊢ u ∷ A →
-    γ ▸ Γ ⊩ʳ u ∷[ m ∣ n ] A →
-    γ ▸ Γ ⊩ʳ lift u ∷[ m ∣ n ] Lift t A
+    ts » Γ ⊢ l ∷Level →
+    ts » Γ ⊢ t ∷ A →
+    γ ▸ Γ ⊩ʳ t ∷[ m ∣ n ] A →
+    γ ▸ Γ ⊩ʳ lift t ∷[ m ∣ n ] Lift l A
   liftʳ {m = 𝟘ᵐ} _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
-  liftʳ {Γ} {t} {u} {A} {γ} {m = 𝟙ᵐ} {n} ⊢t ⊢u ⊩ʳu =
+  liftʳ {Γ} {l} {t} {A} {γ} {m = 𝟙ᵐ} {n} ⊢l ⊢t ⊩ʳt =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     ®∷→®∷◂ $
     ®∷Lift⇔ .proj₂
-      ( subst-⊢∷L ⊢t ⊢σ
+      ( subst-⊢∷L ⊢l ⊢σ
       , (                                                         $⟨ σ®σ′ ⟩
-         σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ γ                                 →⟨ ®∷→®∷◂ω non-trivial ∘→ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳu ⊢σ ⟩
-         u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ σ ]                 →⟨ ®∷-⇐* (⇒*→⇛ (redMany (Lift-β⇒ (subst-⊢∷ ⊢u ⊢σ)))) T.refl ⟩
-         lower (lift u) [ σ ] ® erase str u T.[ σ′ ] ∷ A [ σ ]    □)
+         σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ γ                                 →⟨ ®∷→®∷◂ω non-trivial ∘→ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊢σ ⟩
+         t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ]                 →⟨ ®∷-⇐* (⇒*→⇛ (redMany (Lift-β⇒ (subst-⊢∷ ⊢t ⊢σ)))) T.refl ⟩
+         lower (lift t) [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ]    □)
       )
 
 opaque
@@ -87,15 +88,15 @@ opaque
   -- Validity for lower.
 
   lowerʳ :
-    γ ▸ Γ ⊩ʳ t ∷[ m ∣ n ] Lift u A →
+    γ ▸ Γ ⊩ʳ t ∷[ m ∣ n ] Lift l A →
     γ ▸ Γ ⊩ʳ lower t ∷[ m ∣ n ] A
   lowerʳ {m = 𝟘ᵐ} _ =
     ▸⊩ʳ∷[𝟘ᵐ]
-  lowerʳ {γ} {Γ} {t} {m = 𝟙ᵐ} {n} {u} {A} ⊩ʳt =
+  lowerʳ {γ} {Γ} {t} {m = 𝟙ᵐ} {n} {l} {A} ⊩ʳt =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     ®∷→®∷◂ $
     ®∷Lift⇔ .proj₁
       (                                                 $⟨ σ®σ′ ⟩
        σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ γ                         →⟨ ®∷→®∷◂ω non-trivial ∘→ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊢σ ⟩
-       t [ σ ] ® erase str t T.[ σ′ ] ∷ Lift u A [ σ ]  □)
+       t [ σ ] ® erase str t T.[ σ′ ] ∷ Lift l A [ σ ]  □)
       .proj₂

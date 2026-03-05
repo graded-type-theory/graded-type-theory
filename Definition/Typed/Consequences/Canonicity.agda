@@ -49,6 +49,7 @@ private
     x       : Fin _
     V       : Set _
     A t u v : Term _
+    l       : Lvl _
     Δ       : Con _ _
     Γ       : Cons _ _
 
@@ -56,14 +57,14 @@ opaque
 
   -- Canonicity for natural numbers.
 
-  canonicity : ∇ » ε ⊢ t ∷ ℕ → ∃ λ n → glassify ∇ » ε ⊢ t ≡ sucᵏ n ∷ ℕ
+  canonicity : ∇ » ε ⊢ t ∷ ℕ → ∃ λ n → glassify ∇ » ε ⊢ t ≡ sucⁿ n ∷ ℕ
   canonicity {t} ⊢t = $⟨ ⊢t ⟩
     ∇ » ε ⊢ t ∷ ℕ                              →⟨ glassify-⊢∷ ⟩
     glassify ∇ » ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⦃ inc = ε ⦄ ⟩
     glassify ∇ » ε ⊩ℕ t ∷ℕ                     →⟨ lemma ⟩
-    (∃ λ n → glassify ∇ » ε ⊢ t ≡ sucᵏ n ∷ ℕ)  □
+    (∃ λ n → glassify ∇ » ε ⊢ t ≡ sucⁿ n ∷ ℕ)  □
     where
-    lemma : glassify ∇ » ε ⊩ℕ u ∷ℕ → ∃ λ n → glassify ∇ » ε ⊢ u ≡ sucᵏ n ∷ ℕ
+    lemma : glassify ∇ » ε ⊩ℕ u ∷ℕ → ∃ λ n → glassify ∇ » ε ⊢ u ≡ sucⁿ n ∷ ℕ
     lemma (ℕₜ v u⇒*v _ ⊩v) =
       Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where
@@ -78,7 +79,7 @@ opaque
 data Only-Level-or-U : Con Term n → Set a where
   ε       : Only-Level-or-U ε
   _∙Level : Only-Level-or-U Δ → Only-Level-or-U (Δ ∙ Level)
-  _∙U     : Only-Level-or-U Δ → Only-Level-or-U (Δ ∙ U t)
+  _∙U     : Only-Level-or-U Δ → Only-Level-or-U (Δ ∙ U l)
 
 opaque
 
@@ -253,12 +254,12 @@ opaque
   canonicity-Only-Level-or-U :
     ⦃ ok : No-equality-reflection ⦄ →
     Transparent (Γ .defs) → Only-Level-or-U (Γ .vars) →
-    Γ ⊢ t ∷ ℕ → ∃ λ n → Γ ⊢ t ≡ sucᵏ n ∷ ℕ
+    Γ ⊢ t ∷ ℕ → ∃ λ n → Γ ⊢ t ≡ sucⁿ n ∷ ℕ
   canonicity-Only-Level-or-U {Γ} tr only ⊢t =
     lemma $ ⊩∷ℕ⇔ .proj₁ $
     reducible-⊩∷ ⦃ inc = possibly-nonempty ⦄ ⊢t .proj₂
     where
-    lemma : Γ ⊩ℕ u ∷ℕ → ∃ λ n → Γ ⊢ u ≡ sucᵏ n ∷ ℕ
+    lemma : Γ ⊩ℕ u ∷ℕ → ∃ λ n → Γ ⊢ u ≡ sucⁿ n ∷ ℕ
     lemma (ℕₜ v u⇒*v _ ⊩v) =
       Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where

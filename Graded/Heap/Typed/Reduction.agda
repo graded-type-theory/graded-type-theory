@@ -591,7 +591,7 @@ opaque
       (F , G , q , ⊢u , PE.refl , C≡Gu) →
     let β-⇒ = PE.subst (_ ⊢ (wk ρ (lam p t) ∘⟨ p ⟩ wk ρ′ u) [ H ]ₕ ⇒_∷ _)
                 (PE.trans (singleSubstComp (wk ρ′ u [ H ]ₕ) (toSubstₕ H) (wk (lift ρ) t))
-                  (substConsId {t = wk ρ′ u} (wk (lift ρ) t)))
+                  (substConsId (wk (lift ρ) t)))
                 (β-red-⇒₁ ⊢t ⊢u)
     in  PE.subst (_ ⊢ ⦅ S ⦆ˢ wk ρ (lam p t) ∘ wk ρ′ u [ H ]ₕ ⇒_∷ A)
           lemma (⊢⦅⦆ˢ-subst ⊢S (conv β-⇒ (sym C≡Gu))) }

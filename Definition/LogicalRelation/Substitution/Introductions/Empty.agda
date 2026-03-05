@@ -126,7 +126,7 @@ opaque
 
   -- Validity for Empty, seen as a term former.
 
-  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ωᵘ ⟩ Empty ∷ U zeroᵘ
+  Emptyᵗᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ ωᵘ·2 ⟩ Empty ∷ U₀
   Emptyᵗᵛ ⊩Γ =
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU (zeroᵘᵛ′ ⊩Γ)
@@ -135,7 +135,7 @@ opaque
             (⊢Δ , _) →
           Type→⊩≡∷U⇔ Emptyₙ Emptyₙ .proj₂
             ( ⊩zeroᵘ ⊢Δ
-            , <ᵘ-ωᵘ
+            , ↑ᵘ<ᵘωᵘ·2
             , refl-⊩≡ (⊩Empty ⊢Δ)
             , ≅ₜ-Emptyrefl ⊢Δ
             )

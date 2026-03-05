@@ -26,15 +26,16 @@ open import Tools.Sum renaming (map to ⊎-map)
 open import Tools.Unit
 
 private variable
-  α m n               : Nat
-  x                   : Fin _
-  y                   : Nat ⊎ Fin _
-  V V′                : Set a
-  ∇                   : DCon (Term 0) _
-  A B C F G l t u v w : Term _
-  s                   : Strength
-  b                   : BinderMode
-  p q r               : M
+  α m n             : Nat
+  x                 : Fin _
+  y                 : Nat ⊎ Fin _
+  V V′              : Set a
+  ∇                 : DCon (Term 0) _
+  A B C F G t u v w : Term _
+  l                 : Lvl _
+  s                 : Strength
+  b                 : BinderMode
+  p q r             : M
 
 ------------------------------------------------------------------------
 -- Neutral terms
@@ -138,7 +139,7 @@ opaque
   -- Level literals are not neutral.
 
   ¬-Neutral-Level-literal :
-    Level-literal l → ¬ Neutral V ∇ l
+    Level-literal t → ¬ Neutral V ∇ t
   ¬-Neutral-Level-literal zeroᵘ    ()
   ¬-Neutral-Level-literal (sucᵘ _) ()
 

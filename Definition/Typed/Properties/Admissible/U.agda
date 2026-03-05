@@ -23,13 +23,13 @@ open UP public
 
 private variable
   Γ : Cons _ _
-  l : Term _
+  t : Term _
 
 opaque
 
   -- A variant of Uⱼ.
 
-  ⊢U′ : Γ ⊢ l ∷ Level → Γ ⊢ U l
-  ⊢U′ ⊢l =
-    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l) in
-    ⊢U (term ok ⊢l)
+  ⊢U′ : Γ ⊢ t ∷ Level → Γ ⊢ U (level t)
+  ⊢U′ ⊢t =
+    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢t) in
+    ⊢U (term ok ⊢t)

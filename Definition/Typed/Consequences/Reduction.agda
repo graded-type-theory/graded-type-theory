@@ -14,6 +14,7 @@ module Definition.Typed.Consequences.Reduction
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Omega M
@@ -55,7 +56,8 @@ private
     ∇ : DCon (Term 0) _
     Δ : Con Term _
     Γ : Cons _ _
-    A B C l t u v w : Term _
+    A B C t u v w : Term _
+    l : Lvl _
     p q : M
     b : BinderMode
     m s : Strength
@@ -65,8 +67,8 @@ private
 
 data Is-level {m n} (∇ : DCon (Term 0) m) : Term n → Set a where
   zeroᵘ : Is-level ∇ zeroᵘ
-  sucᵘ  : Is-level ∇ (sucᵘ l)
-  ne    : Neutral⁺ ∇ l → Is-level ∇ l
+  sucᵘ  : Is-level ∇ (sucᵘ t)
+  ne    : Neutral⁺ ∇ t → Is-level ∇ t
 
 opaque
 
@@ -75,18 +77,18 @@ opaque
 
   red-Level :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    Γ ⊢ l ∷ Level → ∃ λ l′ → Is-level (Γ .defs) l′ × Γ ⊢ l ⇒* l′ ∷ Level
+    Γ ⊢ t ∷ Level → ∃ λ u → Is-level (Γ .defs) u × Γ ⊢ t ⇒* u ∷ Level
   red-Level ⊢t =
     case ⊩∷Level⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ where
-      (ok , literal not-ok _ _) →
-        ⊥-elim (not-ok ok)
-      (_ , term l⇒l′ l′-prop) →
+      (okᴸ , literal ok _) →
+        Level-allowed→Allowed-literal→ okᴸ ok
+      (_ , term t⇒u u-prop) →
         _ ,
-        (case l′-prop of λ where
+        (case u-prop of λ where
            (zeroᵘᵣ _)  → zeroᵘ
            (sucᵘᵣ _ _) → sucᵘ
            (neLvl n)   → ne (ne→ _ (nelevel n))) ,
-        l⇒l′
+        t⇒u
 
 opaque
 
@@ -425,9 +427,8 @@ whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ 
 whNormTerm′ (Levelᵣ x) (term d d′ prop) =
   let w , _ = lsplit prop
   in _ , w , conv* d (sym (subset* x))
-whNormTerm′ (Levelᵣ A⇒*Level) (literal not-ok _ _ _) =
-  ⊥-elim $ not-ok $
-  inversion-Level-⊢ (wf-⊢≡ (subset* A⇒*Level) .proj₂)
+whNormTerm′ (Levelᵣ A⇒*Level) (literal ok _ _) =
+  ⇒*Level→Allowed-literal→ A⇒*Level ok
 whNormTerm′ (Uᵣ′ _ _ _ A⇒*U) ⊩a =
   let Uₜ C B⇒*C C-type C≅C ⊩B = ⊩U∷U⇔⊩U≡∷U .proj₂ ⊩a in
   C , typeWhnf C-type , conv* B⇒*C (sym (subset* A⇒*U))

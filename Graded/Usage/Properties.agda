@@ -59,8 +59,9 @@ private
     ∇ : DCon (Term 0) n
     ξ : DExt _ _ _
     Γ : Con Term n
-    A B F t u v w : Term n
-    G : Term (1+ n)
+    A B F t u v w : Term[ _ ] n
+    G : Term[ _ ] (1+ n)
+    k : Term-kind
     γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
     p q r s z : M
     m m₁ m₂ m₃ m₄ m′ : Mode
@@ -163,6 +164,10 @@ opaque mutual
       (supᵘₘ ▸t ▸u) →
         sub-≈ᶜ (supᵘₘ (▸-· ▸t) (▸-· ▸u))
           (·ᶜ-distribˡ-+ᶜ _ _ _)
+      ωᵘ+ →
+        sub-≈ᶜ ωᵘ+ (·ᶜ-zeroʳ _)
+      (level ▸t) →
+        level (▸-· ▸t)
       (Liftₘ ▸t ▸A) →
         Liftₘ ▸t (▸-· ▸A)
       (liftₘ ▸t) →
@@ -500,6 +505,10 @@ opaque mutual
         ▸ᵐ ▸t
       (supᵘₘ ▸t ▸u) →
         lemma (▸ᵐ ▸t) (▸ᵐ ▸u)
+      ωᵘ+ →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      (level ▸t) →
+        ▸ᵐ ▸t
       (Liftₘ ▸t ▸A) →
         ▸ᵐ ▸A
       (liftₘ ▸t) →
@@ -912,6 +921,18 @@ opaque
        (γ , x ≔ γ′ ⟨ x ⟩) +ᶜ (δ , x ≔ δ′ ⟨ x ⟩)  ∎)
     where
     open CR
+
+  Conₘ-interchange {δ} ωᵘ+ ▸ωᵘ+ x = sub
+    ωᵘ+
+    (begin
+       𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ $ lookup-monotone _ $ inv-usage-ωᵘ+ ▸ωᵘ+ ⟩
+       𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+       𝟘ᶜ                 ∎)
+    where
+    open ≤ᶜ-reasoning
+
+  Conₘ-interchange (level ▸t) ▸level x =
+    level (Conₘ-interchange ▸t (inv-usage-level ▸level) x)
 
   Conₘ-interchange {δ} (Uₘ γ▸t) ▸U x =
     let δ≤𝟘 , _ = inv-usage-U ▸U in
@@ -1659,8 +1680,10 @@ opaque
   -- Level literals are well-resourced with respect to 𝟘ᵐ.
 
   Level-literal→▸ : Level-literal t → 𝟘ᶜ ▸[ m ] t
-  Level-literal→▸ zeroᵘ        = zeroᵘₘ
-  Level-literal→▸ (sucᵘ t-lit) = sucᵘₘ (Level-literal→▸ t-lit)
+  Level-literal→▸ zeroᵘ         = zeroᵘₘ
+  Level-literal→▸ (sucᵘ t-lit)  = sucᵘₘ (Level-literal→▸ t-lit)
+  Level-literal→▸ ωᵘ+           = ωᵘ+
+  Level-literal→▸ (level t-lit) = level (Level-literal→▸ t-lit)
 
 ------------------------------------------------------------------------
 -- Lemmas related to ⌈_⌉
@@ -1717,7 +1740,7 @@ opaque
 
   ·-⌈⌉ :
     ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
-    (t : Term n) → ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m ≈ᶜ ⌈ t ⌉ m
+    (t : Term[ k ] n) → ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m ≈ᶜ ⌈ t ⌉ m
   ·-⌈⌉ {m} ⦃ ok ⦄ = λ where
       (var x) → begin
         ⌜ m ⌝ ·ᶜ (𝟘ᶜ , x ≔ ⌜ m ⌝)       ≡˘⟨ update-distrib-·ᶜ _ _ _ _ ⟩
@@ -1737,6 +1760,10 @@ opaque
         ⌜ m ⌝ ·ᶜ (⌈ t ⌉ m +ᶜ ⌈ u ⌉ m)        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
         ⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m ≈⟨ +ᶜ-cong (·-⌈⌉ t) (·-⌈⌉ u) ⟩
         ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m                   ∎
+      (ωᵘ+ _) →
+        ·ᶜ-zeroʳ _
+      (level t) →
+        ·-⌈⌉ t
       (Lift t A) →
         ·-⌈⌉ A
       (lift t) →
@@ -1807,7 +1834,7 @@ opaque
     open Graded.Usage.Restrictions.Instance R
 
     ·-⌈⌉-natrec :
-      ∀ {k} (z : Term k) s n →
+      ∀ {k} (z : Term k) (s : Term _) (n : Term _) →
       Natrec-mode? natrec-mode →
       ⌜ m ⌝ ·ᶜ ⌈⌉-natrec ⦃ ok = ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m) ≈ᶜ
       ⌈⌉-natrec ⦃ ok = ok ⦄ p r (⌈ z ⌉ m) (tailₘ (tailₘ (⌈ s ⌉ m))) (⌈ n ⌉ m)
@@ -1915,7 +1942,7 @@ opaque
   ⌈⌉-𝟘ᵐ :
     ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
     ¬ Trivialᵐ →
-    (t : Term n) → ⌈ t ⌉ 𝟘ᵐ ≈ᶜ 𝟘ᶜ
+    (t : Term[ k ] n) → ⌈ t ⌉ 𝟘ᵐ ≈ᶜ 𝟘ᶜ
   ⌈⌉-𝟘ᵐ not-trivial t = begin
     ⌈ t ⌉ 𝟘ᵐ           ≈˘⟨ ·-⌈⌉ t ⟩
     ⌜ 𝟘ᵐ ⌝ ·ᶜ ⌈ t ⌉ 𝟘ᵐ ≈⟨ ·ᶜ-congʳ (⌜𝟘ᵐ⌝ not-trivial) ⟩
@@ -1943,6 +1970,10 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
     usage-upper-bound′ ▸t
   usage-upper-bound′ (supᵘₘ ▸t ▸u) =
     +ᶜ-monotone (usage-upper-bound′ ▸t) (usage-upper-bound′ ▸u)
+  usage-upper-bound′ ωᵘ+ =
+    ≤ᶜ-refl
+  usage-upper-bound′ (level ▸t) =
+    usage-upper-bound′ ▸t
 
   usage-upper-bound′ (Uₘ ▸t) =
     ≤ᶜ-refl
@@ -2150,6 +2181,8 @@ opaque
   usage-inf zeroᵘₘ = zeroᵘₘ
   usage-inf (sucᵘₘ ▸t) = sucᵘₘ (usage-inf ▸t)
   usage-inf (supᵘₘ ▸t ▸u) = supᵘₘ (usage-inf ▸t) (usage-inf ▸u)
+  usage-inf ωᵘ+ = ωᵘ+
+  usage-inf (level ▸t) = level (usage-inf ▸t)
   usage-inf (Uₘ ▸t) = Uₘ (usage-inf ▸t)
   usage-inf (Liftₘ ▸t ▸A) = Liftₘ ▸t (usage-inf ▸A)
   usage-inf (liftₘ ▸u) = liftₘ (usage-inf ▸u)
@@ -2296,6 +2329,10 @@ opaque
     sucᵘₘ (▸inline ▸ξ ▸l)
   ▸inline ▸ξ (supᵘₘ ▸l₁ ▸l₂) =
     supᵘₘ (▸inline ▸ξ ▸l₁) (▸inline ▸ξ ▸l₂)
+  ▸inline ▸ξ ωᵘ+ =
+    ωᵘ+
+  ▸inline ▸ξ (level ▸t) =
+    level (▸inline ▸ξ ▸t)
   ▸inline ▸ξ (Uₘ ▸l) =
     Uₘ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸l)
   ▸inline ▸ξ (Liftₘ ▸l ▸A) =
@@ -2416,12 +2453,12 @@ module _ (TR : Type-restrictions) where
       (ε ∙ 𝟘≤𝟙 ∙ 𝟙≤𝟘) →
     PE.trans (PE.sym ⌜𝟙ᵐ⌝) (≤-antisym 𝟙≤𝟘 𝟘≤𝟙) }
     where
-    Γ′ = ε ∙ U zeroᵘ ∙ var x0
+    Γ′ = ε ∙ U₀ ∙ var x0
     t′ = var x0
     A′ = var x1
     γ′ = ε ∙ 𝟘 ∙ ⌜ 𝟙ᵐ ⌝
 
-    ⊢∙U : ε »⊢ ε ∙ U zeroᵘ
+    ⊢∙U : ε »⊢ ε ∙ U₀
     ⊢∙U = ∙ ⊢U₀ εε
 
     ⊢Γ : ε »⊢ Γ′

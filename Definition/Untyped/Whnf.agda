@@ -32,7 +32,8 @@ private
     n : Nat
     ∇ ∇′ : DCon (Term 0) _
     ξ : DExt _ _ _
-    A B F G l t u v w : Term _
+    A B F G t u v w : Term _
+    l : Lvl _
     V V′ : Set a
     ρ : Wk _ _
     σ : Subst _ _

@@ -22,10 +22,10 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 
-private
-  variable
-    Γ     : Cons _ _
-    A B l : Term _
+private variable
+  Γ   : Cons _ _
+  A B : Term _
+  l   : Lvl _
 
 -- The relation _⊢_[conv↓]_∷ U l is contained in _⊢_[conv↓]_.
 

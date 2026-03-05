@@ -36,7 +36,8 @@ private
     ∇ ∇′ ∇″ : DCon (Term 0) _
     ξ : DExt _ _ _
     Γ Δ : Con Term _
-    A A′ l l₁ l₂ t t′ : Term _
+    A A′ t t′ : Term _
+    l l₁ l₂ : Lvl _
     V : Set a
     φ : Unfolding _
     ω : Opacity _
@@ -336,8 +337,8 @@ opaque mutual
   defn-wkLevel : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ l ∷Level → ∇′ » Γ ⊢ l ∷Level
   defn-wkLevel ∇′⊇∇ (term ok ⊢l) =
     term ok (defn-wkTerm ∇′⊇∇ ⊢l)
-  defn-wkLevel ∇′⊇∇ (literal not-ok ⊢Γ l-lit) =
-    literal not-ok (defn-wk′ ∇′⊇∇ ⊢Γ) l-lit
+  defn-wkLevel ∇′⊇∇ (literal ok ⊢Γ) =
+    literal ok (defn-wk′ ∇′⊇∇ ⊢Γ)
 
   defn-wkEq : » ∇′ ⊇ ∇ → ∇ » Γ ⊢ A ≡ A′ → ∇′ » Γ ⊢ A ≡ A′
   defn-wkEq ξ⊇ (univ A≡A′) = univ (defn-wkEqTerm ξ⊇ A≡A′)
@@ -518,8 +519,8 @@ opaque mutual
     » ∇′ ⊇ ∇ → ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → ∇′ » Γ ⊢ l₁ ≡ l₂ ∷Level
   defn-wkEqLevel ∇′⊇∇ (term ok l₁≡l₂) =
     term ok (defn-wkEqTerm ∇′⊇∇ l₁≡l₂)
-  defn-wkEqLevel ∇′⊇∇ (literal not-ok ⊢Γ l-lit) =
-    literal not-ok (defn-wk′ ∇′⊇∇ ⊢Γ) l-lit
+  defn-wkEqLevel ∇′⊇∇ (literal ok ⊢Γ) =
+    literal ok (defn-wk′ ∇′⊇∇ ⊢Γ)
 
 ------------------------------------------------------------------------
 -- Weakening for weakenings

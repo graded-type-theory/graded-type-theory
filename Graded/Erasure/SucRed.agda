@@ -385,11 +385,11 @@ opaque
   -- If T.wk ρ v reduces to a numeral, then v reduces to the same
   -- numeral.
 
-  strengthen-⇒ˢ*-sucᵏ : ∇ ⊢ T.wk ρ v ⇒ˢ* T.sucᵏ n → ∇ ⊢ v ⇒ˢ* T.sucᵏ n
-  strengthen-⇒ˢ*-sucᵏ d =
+  strengthen-⇒ˢ*-sucⁿ : ∇ ⊢ T.wk ρ v ⇒ˢ* T.sucⁿ n → ∇ ⊢ v ⇒ˢ* T.sucⁿ n
+  strengthen-⇒ˢ*-sucⁿ d =
     case strengthen-⇒ˢ* d of λ {
       (_ , eq , d) →
-    case TP.inv-wk-sucᵏ eq of λ {
+    case TP.inv-wk-sucⁿ eq of λ {
       PE.refl →
     d }}
 
@@ -461,7 +461,7 @@ opaque
   -- If T.wk ρ v reduces to a numeral, then v reduces to the same
   -- numeral.
 
-  strengthen-⇒ˢ⟨⟩*-sucᵏ :
-    ∇ ⊢ T.wk ρ v ⇒ˢ⟨ s ⟩* T.sucᵏ n → ∇ ⊢ v ⇒ˢ⟨ s ⟩* T.sucᵏ n
-  strengthen-⇒ˢ⟨⟩*-sucᵏ {s = strict}     = TP.strengthen-⇒*-sucᵏ
-  strengthen-⇒ˢ⟨⟩*-sucᵏ {s = non-strict} = strengthen-⇒ˢ*-sucᵏ
+  strengthen-⇒ˢ⟨⟩*-sucⁿ :
+    ∇ ⊢ T.wk ρ v ⇒ˢ⟨ s ⟩* T.sucⁿ n → ∇ ⊢ v ⇒ˢ⟨ s ⟩* T.sucⁿ n
+  strengthen-⇒ˢ⟨⟩*-sucⁿ {s = strict}     = TP.strengthen-⇒*-sucⁿ
+  strengthen-⇒ˢ⟨⟩*-sucⁿ {s = non-strict} = strengthen-⇒ˢ*-sucⁿ

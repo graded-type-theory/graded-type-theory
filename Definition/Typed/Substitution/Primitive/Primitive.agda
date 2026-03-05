@@ -28,10 +28,12 @@ open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sup R
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
@@ -41,18 +43,31 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Size
 open import Tools.Size.Instances
-open import Tools.Sum using (inj₁; inj₂)
+open import Tools.Sum as ⊎ using (inj₁; inj₂)
 
 private variable
-  ∇ ∇′                              : DCon (Term 0) _
-  k m n n′                          : Nat
-  x                                 : Fin _
-  Γ Δ Η                             : Con Term _
-  A A₁ A₂ B C D l l₁ l₂ t t₁ t₂ u v : Term _
-  σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃        : Subst _ _
-  ρ                                 : Wk _ _
-  s s₂                              : Size
-  p q                               : M
+  ∇ ∇′                       : DCon (Term 0) _
+  k m n n′                   : Nat
+  x                          : Fin _
+  Γ Δ Η                      : Con Term _
+  A A₁ A₂ B C D t t₁ t₂ u v  : Term _
+  l l₁ l₂                    : Lvl _
+  σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃ : Subst _ _
+  ρ                          : Wk _ _
+  s s₂                       : Size
+  p q                        : M
+
+------------------------------------------------------------------------
+-- A lemma related to Allowed-literal
+
+opaque
+  unfolding Allowed-literal
+
+  -- A substitution lemma for Allowed-literal.
+
+  Allowed-literal-[] : Allowed-literal l → Allowed-literal (l [ σ ])
+  Allowed-literal-[] {l = ωᵘ+ _}   = idᶠ
+  Allowed-literal-[] {l = level _} = Σ.map Level-literal-[] idᶠ
 
 ------------------------------------------------------------------------
 -- Some admissible equality rules
@@ -622,8 +637,12 @@ opaque
   supᵘₗ-[] ⊢l₁ ⊢l₂ =
     supᵘₗ-[]′
       (λ not-ok _ →
-         inversion-∷Level ⊢l₁ .proj₂ not-ok .proj₂ ,
-         inversion-∷Level ⊢l₂ .proj₂ not-ok .proj₂)
+         (case inversion-∷Level ⊢l₁ of λ where
+            (inj₁ (ok , _)) → ⊥-elim (not-ok ok)
+            (inj₂ (ok , _)) → Allowed-literal→Level-literal ok) ,
+         (case inversion-∷Level ⊢l₂ of λ where
+            (inj₁ (ok , _)) → ⊥-elim (not-ok ok)
+            (inj₂ (ok , _)) → Allowed-literal→Level-literal ok))
 
 opaque
 
@@ -1095,7 +1114,8 @@ private module Inhabited where
         sucᵘⱼ (subst-⊢∷ ⊢t ⊢σ)
       (supᵘⱼ ⊢t ⊢u) PE.refl →
         supᵘⱼ (subst-⊢∷ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
-      (Uⱼ ⊢l) PE.refl →
+      (Uⱼ {l} ⊢l) PE.refl →
+        PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym $ 1ᵘ+-[] l) $
         Uⱼ (subst-⊢∷L ⊢l ⊢σ)
       (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
         PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym $ supᵘₗ-[] ⊢l₁ ⊢l₂) $
@@ -1200,8 +1220,8 @@ private module Inhabited where
     subst-⊢∷L′ hyp ⊢σ = let open Lemmas hyp in λ where
       (term ok ⊢l) PE.refl →
         term ok (subst-⊢∷ ⊢l ⊢σ)
-      (literal not-ok _ l-lit) _ →
-        literal not-ok (wf-⊢ˢʷ∷ ⊢σ) (Level-literal-[] l-lit)
+      (literal ok _) _ →
+        literal (Allowed-literal-[] ok) (wf-⊢ˢʷ∷ ⊢σ)
 
   opaque
     unfolding size-⊢∷
@@ -1232,7 +1252,8 @@ private module Inhabited where
         sucᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
       (supᵘⱼ ⊢t ⊢u) PE.refl →
         supᵘ-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
-      (Uⱼ ⊢l) PE.refl →
+      (Uⱼ {l} ⊢l) PE.refl →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U $ PE.sym $ 1ᵘ+-[] l) $
         U-cong-⊢≡∷ (subst-⊢∷L→⊢≡∷L ⊢l σ₁≡σ₂)
       (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
         let ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ in
@@ -1409,10 +1430,10 @@ private module Inhabited where
       let open Lemmas hyp in λ where
         (term ok ⊢l) PE.refl →
           term ok (subst-⊢∷→⊢≡∷ ⊢l σ₁≡σ₂)
-        (literal not-ok _ l-lit) _ →
-          PE.subst (_⊢_≡_∷Level _ _) (Level-literal→[]≡[] l-lit) $
-          literal not-ok (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁)
-            (Level-literal-[] l-lit)
+        (literal ok _) _ →
+          PE.subst (_⊢_≡_∷Level _ _)
+            (Level-literal→[]≡[] (Allowed-literal→Level-literal ok)) $
+          literal (Allowed-literal-[] ok) (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁)
 
   opaque
     unfolding size-⊢≡∷
@@ -1512,7 +1533,7 @@ private module Inhabited where
       (app-cong {G = B} t₁≡t₂ u₁≡u₂) PE.refl →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
         app-cong (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂) (subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
-      (β-red {G = B} {t} {a = u} {p} ⊢B ⊢t ⊢u PE.refl ok) PE.refl →
+      (β-red {B} {t} {u} {p} ⊢B ⊢t ⊢u PE.refl ok) PE.refl →
         let _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
                                              ∷ B [ u ]₀ [ σ₁ ]            ⟨ singleSubstLift B _ ⟩≡∷≡
         lam p (t [ σ₁ ⇑ ]) ∘⟨ p ⟩ (u [ σ₁ ]) ∷ B [ σ₁ ⇑ ] [ u [ σ₁ ] ]₀  ≡⟨ β-red (subst-⊢-⇑ ⊢B ⊢σ₁) (subst-⊢∷-⇑ ⊢t ⊢σ₁)
@@ -1810,9 +1831,10 @@ private module Inhabited where
     subst-⊢≡∷L′ {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (term ok l₁≡l₂) PE.refl →
         term ok (subst-⊢≡∷ l₁≡l₂ σ₁≡σ₂)
-      (literal not-ok _ l-lit) _ →
-        PE.subst (_⊢_≡_∷Level _ _) (Level-literal→[]≡[] l-lit) $
-        literal not-ok (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁) (Level-literal-[] l-lit)
+      (literal ok _) _ →
+        PE.subst (_⊢_≡_∷Level _ _)
+          (Level-literal→[]≡[] (Allowed-literal→Level-literal ok)) $
+        literal (Allowed-literal-[] ok) (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁)
 
   opaque
 

@@ -22,7 +22,7 @@ opaque
 
   -- The type constructor Unrestricted.
 
-  Unrestricted : Term n → Term n → Term n
+  Unrestricted : Lvl n → Term n → Term n
   Unrestricted l A = Σˢ ω , ω ▷ A ▹ Lift (wk1 l) Unitˢ
 
 opaque

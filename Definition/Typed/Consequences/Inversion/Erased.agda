@@ -36,8 +36,9 @@ import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
 private variable
-  Γ     : Cons _ _
-  A l t : Term _
+  Γ   : Cons _ _
+  A t : Term _
+  l   : Lvl _
 
 opaque
   unfolding Erased [_]
@@ -82,9 +83,7 @@ opaque
     t′ = zero
 
     A′ : Term 0
-    A′ =
-      Σ 𝟘 , 𝟘 ▷ ℕ ▹
-      natrec 𝟙 𝟙 𝟙 (U zeroᵘ) (Lift zeroᵘ (Unit s)) ℕ (var x0)
+    A′ = Σ 𝟘 , 𝟘 ▷ ℕ ▹ natrec 𝟙 𝟙 𝟙 U₀ (Lift zeroᵘₗ (Unit s)) ℕ (var x0)
 
     ⊢Γ′∙ℕ : ε »⊢ Γ′ ∙ ℕ
     ⊢Γ′∙ℕ = ∙ ⊢ℕ εε
@@ -92,10 +91,10 @@ opaque
     ⊢Γ′∙ℕ∙ℕ : ε »⊢ Γ′ ∙ ℕ ∙ ℕ
     ⊢Γ′∙ℕ∙ℕ = ∙ ⊢ℕ ⊢Γ′∙ℕ
 
-    ⊢Γ′∙ℕ∙U : ε »⊢ Γ′ ∙ ℕ ∙ U zeroᵘ
+    ⊢Γ′∙ℕ∙U : ε »⊢ Γ′ ∙ ℕ ∙ U₀
     ⊢Γ′∙ℕ∙U = ∙ ⊢U₀ ⊢Γ′∙ℕ
 
-    ⊢Lift-Unit : ε » ε ⊢ Lift zeroᵘ (Unit s) ∷ U zeroᵘ
+    ⊢Lift-Unit : ε » ε ⊢ Lift zeroᵘₗ (Unit s) ∷ U₀
     ⊢Lift-Unit =
       conv (Liftⱼ′ (⊢zeroᵘ εε) (Unitⱼ εε Unit-ok))
         (U-cong-⊢≡ (supᵘₗ-zeroˡ (⊢zeroᵘ εε)))

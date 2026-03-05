@@ -80,7 +80,7 @@ opaque
   ▸Bool : 𝟘ᶜ ▸[ m ] Bool {n = n}
   ▸Bool {m} = sub
     (ΠΣₘ ℕₘ $
-     sub-≈ᶜ (▸Erased zeroᵘₘ (B.▸OK var)) $ ≈ᶜ-refl ∙ ·-zeroʳ _)
+     sub-≈ᶜ (▸Erased (level zeroᵘₘ) (B.▸OK var)) $ ≈ᶜ-refl ∙ ·-zeroʳ _)
     (begin
        𝟘ᶜ             ≈˘⟨ ·ᶜ-zeroʳ _ ⟩
        𝟙 ·ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-identityʳ _ ⟩
@@ -305,9 +305,9 @@ opaque
         𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ ▸[ 𝟘ᵐ ] t →
         𝟘ᶜ ∙ ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ∙ 𝟘 ▸[ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ] u →
         wkConₘ (stepn id k) γ₁ ∙ ⌜ 𝟘ᵐ ⌝ · (Boolᵍ + p) ▸[ 𝟘ᵐ ]
-          Π 𝟙 , p ▷ Erased zeroᵘ (OK t) ▹ Target (2+ k) A u (var x0)
+          Π 𝟙 , p ▷ Erased zeroᵘₗ (OK t) ▹ Target (2+ k) A u (var x0)
       Π-lemma {k} ▸t ▸u = sub
-        (ΠΣₘ (▸Erased zeroᵘₘ (B.▸OK ▸t)) $
+        (ΠΣₘ (▸Erased (level zeroᵘₘ) (B.▸OK ▸t)) $
          sub
            (▸Target ▸A ▸u var $ begin
               ⌜ ⌞ ⌜ 𝟘ᵐ ⌝ · p ⌟ ⌝ ·ᶜ (𝟘ᶜ ∙ 𝟙 ∙ 𝟙)             ≈⟨ ·ᶜ-zeroʳ _ ∙ ·-identityʳ _ ∙ ·-identityʳ _ ⟩

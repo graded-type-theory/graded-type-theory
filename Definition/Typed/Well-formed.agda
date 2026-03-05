@@ -38,13 +38,14 @@ import Tools.PropositionalEquality as PE
 open import Tools.Sum using (inj₂)
 
 private variable
-  ∇                   : DCon (Term 0) _
-  α                   : Nat
-  x                   : Fin _
-  Δ Η                 : Con Term _
-  Γ                   : Cons _ _
-  A B l₁ l₂ t t₁ t₂ u : Term _
-  σ₁ σ₂               : Subst _ _
+  ∇             : DCon (Term 0) _
+  α             : Nat
+  x             : Fin _
+  Δ Η           : Con Term _
+  Γ             : Cons _ _
+  A B t t₁ t₂ u : Term _
+  l₁ l₂         : Lvl _
+  σ₁ σ₂         : Subst _ _
 
 ------------------------------------------------------------------------
 -- Well-formedness lemmas
@@ -103,7 +104,7 @@ opaque mutual
     (supᵘⱼ ⊢l ⊢u) →
       wf-⊢∷ ⊢l
     (Uⱼ ⊢l) →
-      ⊢U (⊢sucᵘ ⊢l)
+      ⊢U (⊢1ᵘ+ ⊢l)
     (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) →
       ⊢U (⊢supᵘₗ ⊢l₁ ⊢l₂)
     (liftⱼ x x₁ x₂) →
@@ -551,8 +552,8 @@ opaque mutual
   wf-⊢≡∷L (term ok l₁≡l₂) =
     let ⊢L , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
     term ok ⊢l₁ , term ok ⊢l₂
-  wf-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
-    literal not-ok ⊢Γ l-lit , literal not-ok ⊢Γ l-lit
+  wf-⊢≡∷L (literal ok ⊢Γ) =
+    literal ok ⊢Γ , literal ok ⊢Γ
 
   ⊢≡→⊢ : Γ ⊢ t ≡ t ∷ A → Γ ⊢ t ∷ A
   ⊢≡→⊢ t≡t = wf-⊢≡∷ t≡t .proj₂ .proj₁

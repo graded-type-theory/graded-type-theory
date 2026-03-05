@@ -20,7 +20,8 @@ open import Definition.Typed.Decidable.Internal.Monad 𝐌 TR as M
 open import Definition.Typed.Decidable.Internal.Term 𝐌 TR
 open import Definition.Typed.Decidable.Internal.Substitution 𝐌 TR
 
-open import Definition.Untyped M using (Wk)
+open import Definition.Untyped M using (Term-kind; Wk)
+open import Definition.Untyped.Properties M
 
 open import Tools.Fin
 open import Tools.Function using (case_of_; _∘→_)
@@ -40,7 +41,8 @@ private variable
   s                    : Termˢ _
   b                    : Termᵇᵐ _ _
   p q r                : Termᵍ _
-  t                    : Term _ _
+  l t                  : Term[ _ , _ ] _
+  k                    : Term-kind
 
 ------------------------------------------------------------------------
 -- A simple test involving the Constants
@@ -103,7 +105,7 @@ data Inferable {c : Constants} {n} : Term c n → Set a where
   defn     : ∀ α → Inferable (defn α)
   Level    : Inferable Level
   zeroᵘ    : Inferable zeroᵘ
-  sucᵘ     : ∀ l → Inferable (sucᵘ l)
+  1ᵘ+      : ∀ l → Inferable (1ᵘ+ l)
   _supᵘₗ_  : ∀ l₁ l₂ → Inferable (l₁ supᵘₗ l₂)
   U        : ∀ l → Inferable (U l)
   Lift     : ∀ l A → Inferable (Lift l A)
@@ -142,7 +144,7 @@ inferable (var _)                 = return (var _)
 inferable (defn _)                = return (defn _)
 inferable Level                   = return Level
 inferable zeroᵘ                   = return zeroᵘ
-inferable (sucᵘ _)                = return (sucᵘ _)
+inferable (1ᵘ+ _)                 = return (1ᵘ+ _)
 inferable (_ supᵘₗ _)             = return (_ supᵘₗ _)
 inferable (U _)                   = return (U _)
 inferable (Lift _ _)              = return (Lift _ _)
@@ -177,7 +179,8 @@ inferable _                       = fail "Expected an inferable term."
 -- The two terms are applications of equal eliminators (or equal
 -- variables, or equal names).
 
-data Are-equal-eliminators (t : Term c n) : Term c n → Set a where
+data Are-equal-eliminators {c n} :
+       (_ _ : Term[ c , k ] n) → Set a where
   meta-var : ∀ x₁ (σ₁ : Subst c n n′₁) x₂ (σ₂ : Subst c n n′₂) →
              t PE.≡ meta-var x₁ σ₁ →
              Are-equal-eliminators t (meta-var x₂ σ₂)
@@ -185,8 +188,8 @@ data Are-equal-eliminators (t : Term c n) : Term c n → Set a where
              Are-equal-eliminators t (var x)
   defn     : ∀ α → t PE.≡ defn α →
              Are-equal-eliminators t (defn α)
-  sup      : ∀ l₁₁ l₂₁ l₁₂ l₂₂ → t PE.≡ l₁₁ supᵘₗ l₂₁ →
-             Are-equal-eliminators t (l₁₂ supᵘₗ l₂₂)
+  sup      : ∀ l₁₁ l₂₁ l₁₂ l₂₂ → l PE.≡ l₁₁ supᵘₗ l₂₁ →
+             Are-equal-eliminators l (l₁₂ supᵘₗ l₂₂)
   lower    : ∀ t₁ t₂ → t PE.≡ lower t₁ →
              Are-equal-eliminators t (lower t₂)
   emptyrec : ∀ A₁ t₁ A₂ t₂ → t PE.≡ emptyrec p A₁ t₁ →
@@ -220,13 +223,13 @@ data Are-equal-eliminators (t : Term c n) : Term c n → Set a where
 -- equal names).
 
 are-equal-eliminators :
-  (t₁ t₂ : Term c n) → Check c (Are-equal-eliminators t₁ t₂)
+  (t₁ t₂ : Term[ c , k ] n) → Check c (Are-equal-eliminators t₁ t₂)
 are-equal-eliminators t₁ t₂ =
   [ are-equal-eliminators? t₁ t₂ ]with-message
     "Expected applications of equal eliminators."
   where
   are-equal-eliminators? :
-    (t₁ t₂ : Term c n) → Maybe (Are-equal-eliminators t₁ t₂)
+    (t₁ t₂ : Term[ c , k ] n) → Maybe (Are-equal-eliminators t₁ t₂)
   are-equal-eliminators? (meta-var _ _) (meta-var _ _) =
     just (meta-var _ _ _ _ PE.refl)
   are-equal-eliminators? (var x₁) (var x₂) =
@@ -427,27 +430,27 @@ are-equal-type-constructors? _ _ =
 
 -- The term is a meta-variable.
 
-data Is-meta-var {c : Constants} {n} : Term c n → Set a where
-  meta-var : (x : Meta-var c m) (σ : Subst c n m) →
+data Is-meta-var {c : Constants} {k n} : Term[ c , k ] n → Set a where
+  meta-var : (x : Meta-var c k m) (σ : Subst c n m) →
              Is-meta-var (meta-var x σ)
 
 -- Is the term a meta-variable?
 
-is-meta-var? : (t : Term c n) → Maybe (Is-meta-var t)
+is-meta-var? : (t : Term[ c , k ] n) → Maybe (Is-meta-var t)
 is-meta-var? (meta-var _ _) = just (meta-var _ _)
 is-meta-var? _              = nothing
 
 -- A function that is used to state meta.
 
-Meta-type : Term c n → Set
-Meta-type {c} t with is-meta-var? t
-… | just (meta-var {m} _ _) = Meta-var c m
+Meta-type : Term[ c , k ] n → Set
+Meta-type {c} {k} t with is-meta-var? t
+… | just (meta-var {m} _ _) = Meta-var c k m
 … | nothing                 = ⊤
 
 -- Extracts the meta-variable from a term that is a meta-variable. For
 -- other terms the result is trivial.
 
-meta : (t : Term c n) → Meta-type t
+meta : (t : Term[ c , k ] n) → Meta-type t
 meta t with is-meta-var? t
 … | just (meta-var x _) = x
 … | nothing             = _
@@ -455,13 +458,23 @@ meta t with is-meta-var? t
 -- Are the two terms both applications of meta-variables?
 
 are-meta-variables? :
-  (l₁ l₂ : Term c n) →
+  (t₁ t₂ : Term[ c , k ] n) →
   Maybe
-    (∃₆ λ m₁ (x₁ : Meta-var c m₁) σ₁ m₂ (x₂ : Meta-var c m₂) σ₂ →
-     l₁ PE.≡ meta-var x₁ σ₁ × l₂ PE.≡ meta-var x₂ σ₂)
+    (∃₆ λ m₁ (x₁ : Meta-var c k m₁) σ₁ m₂ (x₂ : Meta-var c k m₂) σ₂ →
+     t₁ PE.≡ meta-var x₁ σ₁ × t₂ PE.≡ meta-var x₂ σ₂)
 are-meta-variables? (meta-var _ _) (meta-var _ _) =
   just (_ , _ , _ , _ , _ , _ , PE.refl , PE.refl)
 are-meta-variables? _ _ =
+  nothing
+
+-- Are the two levels both applications of level?
+
+are-level? :
+  (l₁ l₂ : Lvl c n) →
+  Maybe (∃₂ λ t₁ t₂ → l₁ PE.≡ level t₁ × l₂ PE.≡ level t₂)
+are-level? (level _) (level _) =
+  just (_ , _ , PE.refl , PE.refl)
+are-level? _ _ =
   nothing
 
 opaque
@@ -469,18 +482,20 @@ opaque
   -- A lemma related to equality of meta-variables.
 
   var-cong :
-    {eq₁ : Vec.lookup (c .meta-con-size) x₁ PE.≡ n}
-    {eq₂ : Vec.lookup (c .meta-con-size) x₂ PE.≡ n} →
+    {eq₁₁ : Vec.lookup (c .meta-con-size) x₁ PE.≡ n}
+    {eq₁₂ : Vec.lookup (c .meta-con-size) x₂ PE.≡ n} →
+    {eq₂₁ : Vec.lookup (c .meta-con-term-kind) x₁ PE.≡ k}
+    {eq₂₂ : Vec.lookup (c .meta-con-term-kind) x₂ PE.≡ k} →
     x₁ PE.≡ x₂ →
-    Meta-var.var {c = c} x₁ eq₁ PE.≡ var x₂ eq₂
-  var-cong PE.refl = PE.cong (var _) N.Nat-set
+    Meta-var.var {c = c} x₁ eq₁₁ eq₂₁ PE.≡ var x₂ eq₁₂ eq₂₂
+  var-cong PE.refl = PE.cong₂ (var _) N.Nat-set Term-kind-set
 
 -- Are the two meta-variables equal?
 
 infix 4 _≟ᵐᵛ_
 
-_≟ᵐᵛ_ : (x₁ x₂ : Meta-var c n) → Maybe (x₁ PE.≡ x₂)
-var x₁ _ ≟ᵐᵛ var x₂ _ = var-cong <$> dec⇒maybe (x₁ ≟ⱽ x₂)
+_≟ᵐᵛ_ : (x₁ x₂ : Meta-var c k n) → Maybe (x₁ PE.≡ x₂)
+var x₁ _ _ ≟ᵐᵛ var x₂ _ _ = var-cong <$> dec⇒maybe (x₁ ≟ⱽ x₂)
 
 -- A procedure that checks that the term is the type Level.
 
@@ -488,58 +503,58 @@ is-Level : (A : Term c n) → Check c (A PE.≡ Level)
 is-Level Level = return PE.refl
 is-Level _     = fail "Expected Level."
 
--- A procedure that checks that the term is the level zeroᵘ.
-
-is-zeroᵘ : (l : Term c n) → Check c (l PE.≡ zeroᵘ)
-is-zeroᵘ zeroᵘ = return PE.refl
-is-zeroᵘ _     = fail "Expected the level zeroᵘ."
-
 -- The term is a level constructor.
 
 data Level-con {c n} : Term c n → Set a where
   zeroᵘ : Level-con zeroᵘ
-  sucᵘ  : ∀ l → Level-con (sucᵘ l)
+  1ᵘ+   : ∀ t → Level-con (1ᵘ+ t)
 
 -- Is the term a level constructor?
 
 level-con? : (l : Term c n) → Maybe (Level-con l)
-level-con? zeroᵘ    = just zeroᵘ
-level-con? (sucᵘ _) = just (sucᵘ _)
-level-con? _        = nothing
+level-con? zeroᵘ   = just zeroᵘ
+level-con? (1ᵘ+ _) = just (1ᵘ+ _)
+level-con? _       = nothing
 
 -- The terms are applications of equal level constructors.
 
 data Equal-level-cons {c n} : Term c n → Term c n → Set a where
   zeroᵘ : Equal-level-cons zeroᵘ zeroᵘ
-  sucᵘ  : ∀ l₁ l₂ → Equal-level-cons (sucᵘ l₁) (sucᵘ l₂)
+  1ᵘ+   : ∀ l₁ l₂ → Equal-level-cons (1ᵘ+ l₁) (1ᵘ+ l₂)
 
 -- Are the terms applications of equal level constructors?
 
 equal-level-cons? : (l₁ l₂ : Term c n) → Maybe (Equal-level-cons l₁ l₂)
-equal-level-cons? zeroᵘ    zeroᵘ    = just zeroᵘ
-equal-level-cons? (sucᵘ _) (sucᵘ _) = just (sucᵘ _ _)
-equal-level-cons? _        _        = nothing
+equal-level-cons? zeroᵘ   zeroᵘ   = just zeroᵘ
+equal-level-cons? (1ᵘ+ _) (1ᵘ+ _) = just (1ᵘ+ _ _)
+equal-level-cons? _       _       = nothing
 
 -- The top-level constructor of the term indicates that it is
 -- something that could possibly be a level, even if Level is not
 -- allowed. Weakenings and substitutions are assumed to have been
 -- removed.
 
-data Is-perhaps-level {c n} : Term c n → Set a where
-  meta-var : ∀ (x : Meta-var c m) σ → Is-perhaps-level (meta-var x σ)
+data Is-perhaps-level {c n} : Term[ c , k ] n → Set a where
+  meta-var : ∀ (x : Meta-var c k m) σ →
+             Is-perhaps-level (meta-var x σ)
   zeroᵘ    : Is-perhaps-level zeroᵘ
-  sucᵘ     : ∀ l → Is-perhaps-level (sucᵘ l)
-  _supᵘₗ_  : ∀ l₁ l₂ → Is-perhaps-level (l₁ supᵘₗ l₂)
+  1ᵘ+      : (l : Term[ c , k ] n) → Is-perhaps-level (1ᵘ+ l)
+  _supᵘₗ_  : (l₁ l₂ : Term[ c , k ] n) → Is-perhaps-level (l₁ supᵘₗ l₂)
+  ωᵘ+      : ∀ m → Is-perhaps-level (ωᵘ+ m)
+  level    : ∀ t → Is-perhaps-level (level t)
 
 -- Does the top-level constructor of the term indicate that it is
 -- something that could possibly be a level, even if Level is not
 -- allowed?
 
-is-perhaps-level? : (l : Term c n) → Maybe (Is-perhaps-level l)
+is-perhaps-level? :
+  (l : Term[ c , k ] n) → Maybe (Is-perhaps-level l)
 is-perhaps-level? (meta-var _ _) = just (meta-var _ _)
 is-perhaps-level? zeroᵘ          = just zeroᵘ
-is-perhaps-level? (sucᵘ _)       = just (sucᵘ _)
+is-perhaps-level? (1ᵘ+ _)        = just (1ᵘ+ _)
 is-perhaps-level? (_ supᵘₗ _)    = just (_ supᵘₗ _)
+is-perhaps-level? (ωᵘ+ _)        = just (ωᵘ+ _)
+is-perhaps-level? (level _)      = just (level _)
 is-perhaps-level? _              = nothing
 
 -- A procedure that checks that the term is an application of U.

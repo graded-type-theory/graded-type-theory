@@ -62,6 +62,7 @@ private variable
 no-type-restrictions : Bool → Bool → Type-restrictions
 no-type-restrictions k equality-reflection = λ where
     .level-support                 → level-type small
+    .Omega-plus-allowed            → Lift _ ⊤
     .Unit-allowed                  → λ _ → Lift _ ⊤
     .ΠΣ-allowed                    → λ _ _ _ → Lift _ ⊤
     .Opacity-allowed               → Lift _ (¬ T equality-reflection)
@@ -390,10 +391,11 @@ opaque
     Decidable (_≡_ {A = M}) →
     TD.Assumptions (no-type-restrictions b false)
   Assumptions-no-type-restrictions {b} dec = λ where
-      ._≟_                → dec
-      .Unit-allowed? _    → yes _
-      .ΠΣ-allowed? _ _ _  → yes _
-      .K-allowed?         → case singleton b of λ where
+      ._≟_                 → dec
+      .Omega-plus-allowed? → yes _
+      .Unit-allowed? _     → yes _
+      .ΠΣ-allowed? _ _ _   → yes _
+      .K-allowed?          → case singleton b of λ where
         (true  , refl) → yes _
         (false , refl) → no (λ ())
       .[]-cong-allowed? _ → case trivial? of λ where
@@ -411,6 +413,7 @@ opaque
     TD.Assumptions TR → TD.Assumptions (equal-binder-quantities TR)
   Assumptions-equal-binder-quantities as = λ where
       ._≟_                    → A._≟_
+      .Omega-plus-allowed?    → A.Omega-plus-allowed?
       .Unit-allowed?          → A.Unit-allowed?
       .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q ×-dec p A.≟ q
       .K-allowed?             → A.K-allowed?
@@ -428,6 +431,7 @@ opaque
     TD.Assumptions TR → TD.Assumptions (second-ΠΣ-quantities-𝟘 TR)
   Assumptions-second-ΠΣ-quantities-𝟘 as = λ where
       ._≟_                    → A._≟_
+      .Omega-plus-allowed?    → A.Omega-plus-allowed?
       .Unit-allowed?          → A.Unit-allowed?
       .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q ×-dec q A.≟ 𝟘
       .K-allowed?             → A.K-allowed?
@@ -446,6 +450,7 @@ opaque
     TD.Assumptions TR → TD.Assumptions (second-ΠΣ-quantities-𝟘-or-ω TR)
   Assumptions-second-ΠΣ-quantities-𝟘-or-ω as = λ where
       ._≟_                    → A._≟_
+      .Omega-plus-allowed?    → A.Omega-plus-allowed?
       .Unit-allowed?          → A.Unit-allowed?
       .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q
                                   ×-dec
@@ -472,6 +477,7 @@ opaque
     TD.Assumptions (strong-types-restricted′ P ok TR)
   Assumptions-strong-types-restricted′ P-dec as = λ where
       ._≟_                    → A._≟_
+      .Omega-plus-allowed?    → A.Omega-plus-allowed?
       .Unit-allowed? s        → A.Unit-allowed? s
                                   ×-dec
                                 ¬? (decStrength s 𝕤)
@@ -521,6 +527,7 @@ opaque
     TD.Assumptions TR → TD.Assumptions (no-erased-matches-TR s TR)
   Assumptions-no-erased-matches-TR {s} as = λ where
       ._≟_                    → A._≟_
+      .Omega-plus-allowed?    → A.Omega-plus-allowed?
       .Unit-allowed?          → A.Unit-allowed?
       .ΠΣ-allowed?            → A.ΠΣ-allowed?
       .K-allowed?             → A.K-allowed?

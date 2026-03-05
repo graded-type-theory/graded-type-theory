@@ -22,9 +22,10 @@ import Definition.Untyped.Erased 𝕄 as Erased
 open import Tools.Product
 
 private variable
-  Γ         : Cons _ _
-  A l t₁ t₂ : Term _
-  s         : Strength
+  Γ       : Cons _ _
+  A t₁ t₂ : Term _
+  l       : Lvl _
+  s       : Strength
 
 opaque
   unfolding Erased.Erased Erased.[_]

@@ -35,6 +35,7 @@ open import Definition.Typed.Inversion TRₛ
 import Definition.Typed.Properties
 
 open import Definition.Untyped M
+import Definition.Untyped.Allowed-literal
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
 import Definition.Untyped.Sup
@@ -62,12 +63,14 @@ private
   module Sₜ  = Graded.Erasure.SucRed TRₜ
   module TPₛ = Definition.Typed.Properties TRₛ
   module TPₜ = Definition.Typed.Properties TRₜ
+  module UAₛ = Definition.Untyped.Allowed-literal TRₛ
+  module UAₜ = Definition.Untyped.Allowed-literal TRₜ
   module USₛ = Definition.Untyped.Sup TRₛ
   module USₜ = Definition.Untyped.Sup TRₜ
 
 private variable
   b                 : Bool
-  α k n             : Nat
+  α n n′ n₁ n₂      : Nat
   x                 : Fin _
   ∇ ∇₁ ∇₂           : DCon _ _
   φ φ₁ φ₂           : Unfolding _
@@ -75,7 +78,8 @@ private variable
   Γ                 : Cons _ _
   ρ                 : Wk _ _
   σ                 : Subst _ _
-  A B l l₁ l₂ t u v : Term _
+  A B l l₁ l₂ t u v : Term[ _ ] _
+  k                 : Term-kind
   s                 : Strength
   γ                 : Conₘ _
   m                 : Mode
@@ -88,7 +92,7 @@ opaque
 
   -- The translation.
 
-  tr : Term n → Term n
+  tr : Term[ k ] n → Term[ k ] n
   tr (var x) =
     var x
   tr (defn α) =
@@ -101,6 +105,10 @@ opaque
     sucᵘ (tr l)
   tr (l₁ supᵘ l₂) =
     tr l₁ supᵘ tr l₂
+  tr (ωᵘ+ m) =
+    ωᵘ+ m
+  tr (level t) =
+    level (tr t)
   tr (U l) =
     U (tr l)
   tr (Lift l A) =
@@ -173,7 +181,7 @@ opaque
 
   -- Translation of context pairs.
 
-  tr-Cons : Cons k n → Cons k n
+  tr-Cons : Cons n₁ n₂ → Cons n₁ n₂
   tr-Cons (∇ » Γ) = tr-DCon ∇ » map-Con tr Γ
 
 ------------------------------------------------------------------------
@@ -182,11 +190,21 @@ opaque
 opaque
   unfolding tr
 
-  -- The translation of sucᵏ n is sucᵏ n.
+  -- The translation of sucⁿ n is sucⁿ n.
 
-  tr-sucᵏ : tr {n = k} (sucᵏ n) PE.≡ sucᵏ n
-  tr-sucᵏ {n = 0}    = PE.refl
-  tr-sucᵏ {n = 1+ _} = PE.cong suc tr-sucᵏ
+  tr-sucⁿ : tr {n = n′} (sucⁿ n) PE.≡ sucⁿ n
+  tr-sucⁿ {n = 0}    = PE.refl
+  tr-sucⁿ {n = 1+ _} = PE.cong suc tr-sucⁿ
+
+opaque
+  unfolding tr
+
+  -- The translation function commutes with 1ᵘ+.
+
+  tr-1ᵘ+ : (t : Term[ k ] n) → tr (1ᵘ+ t) PE.≡ 1ᵘ+ (tr t)
+  tr-1ᵘ+ {k = tm}  _         = PE.refl
+  tr-1ᵘ+ {k = lvl} (ωᵘ+ _)   = PE.refl
+  tr-1ᵘ+ {k = lvl} (level _) = PE.refl
 
 opaque
   unfolding tr
@@ -197,6 +215,9 @@ opaque
   Level-literal→tr-id zeroᵘ        = PE.refl
   Level-literal→tr-id (sucᵘ l-lit) =
     PE.cong sucᵘ (Level-literal→tr-id l-lit)
+  Level-literal→tr-id ωᵘ+           = PE.refl
+  Level-literal→tr-id (level t-lit) =
+    PE.cong level (Level-literal→tr-id t-lit)
 
 opaque
 
@@ -205,6 +226,25 @@ opaque
   tr-Level-literal : Level-literal l → Level-literal (tr l)
   tr-Level-literal l-lit =
     PE.subst Level-literal (PE.sym $ Level-literal→tr-id l-lit) l-lit
+
+opaque
+  unfolding tr
+
+  -- The translation of an allowed level literal is an allowed level
+  -- literal.
+
+  tr-Allowed-literal :
+    TRₛ.Allowed-literal l → TRₜ.Allowed-literal (tr l)
+  tr-Allowed-literal {l = ωᵘ+ m} =
+    TRₛ.Allowed-literal (ωᵘ+ m)  ⇔⟨ UAₛ.Allowed-literal-ωᵘ+-⇔ ⟩→
+    TRₛ.Omega-plus-allowed       →⟨ Omega-plus-allowed-→ ⟩
+    TRₜ.Omega-plus-allowed       ⇔˘⟨ UAₜ.Allowed-literal-ωᵘ+-⇔ ⟩→
+    TRₜ.Allowed-literal (ωᵘ+ m)  □
+  tr-Allowed-literal {l = level t} =
+    TRₛ.Allowed-literal (level t)               ⇔⟨ UAₛ.Allowed-literal-level-⇔ ⟩→
+    Level-literal t × ¬ TRₛ.Level-allowed       →⟨ Σ.map tr-Level-literal (_∘→ Level-allowed-⇔ .proj₂) ⟩
+    Level-literal (tr t) × ¬ TRₜ.Level-allowed  ⇔˘⟨ UAₜ.Allowed-literal-level-⇔ ⟩→
+    TRₜ.Allowed-literal (level (tr t))          □
 
 opaque
   unfolding tr
@@ -222,41 +262,52 @@ opaque
     open Tools.Reasoning.PropositionalEquality
 
 opaque
-  unfolding tr
+  unfolding tr Definition.Untyped.Sup._supᵘₗ_
 
   -- Translation commutes with _supᵘₗ_ for well-typed levels.
 
   tr-supᵘₗ :
     Γ Tₛ.⊢ l₁ ∷Level → Γ Tₛ.⊢ l₂ ∷Level →
     tr (l₁ USₛ.supᵘₗ l₂) PE.≡ tr l₁ USₜ.supᵘₗ tr l₂
-  tr-supᵘₗ {l₁} {l₂} ⊢l₁ ⊢l₂
+  tr-supᵘₗ {l₁ = level t₁} {l₂ = level t₂} ⊢t₁ ⊢t₂
     with TRₛ.Level-allowed? | TRₜ.Level-allowed?
   … | yes ok₁ | yes ok₂ =
-    tr (l₁ USₛ.supᵘₗ l₂)   ≡⟨ PE.cong tr $ USₛ.supᵘₗ≡supᵘ ok₁ ⟩
-    tr (l₁ supᵘ l₂)        ≡⟨⟩
-    tr l₁ supᵘ tr l₂       ≡˘⟨ USₜ.supᵘₗ≡supᵘ ok₂ ⟩
-    tr l₁ USₜ.supᵘₗ tr l₂  ∎
+    PE.cong level
+      (tr (t₁ USₛ.supᵘₗ t₂)   ≡⟨ PE.cong tr $ USₛ.supᵘₗ≡supᵘ-tm ok₁ ⟩
+       tr (t₁ supᵘ t₂)        ≡⟨⟩
+       tr t₁ supᵘ tr t₂       ≡˘⟨ USₜ.supᵘₗ≡supᵘ-tm ok₂ ⟩
+       tr t₁ USₜ.supᵘₗ tr t₂  ∎)
     where
     open Tools.Reasoning.PropositionalEquality
   … | no not-ok₁ | no not-ok₂ =
-    tr (l₁ USₛ.supᵘₗ l₂)   ≡⟨ PE.cong tr $ USₛ.supᵘₗ≡supᵘₗ′ not-ok₁ ⟩
-    tr (l₁ supᵘₗ′ l₂)      ≡⟨ tr-supᵘₗ′ (inversion-∷Level ⊢l₁ .proj₂ not-ok₁ .proj₂)
-                                (inversion-∷Level ⊢l₂ .proj₂ not-ok₁ .proj₂) ⟩
-    tr l₁ supᵘₗ′ tr l₂     ≡˘⟨ USₜ.supᵘₗ≡supᵘₗ′ not-ok₂ ⟩
-    tr l₁ USₜ.supᵘₗ tr l₂  ∎
+    let lit : Γ Tₛ.⊢ level t ∷Level → Level-literal t
+        lit ⊢t = case inversion-∷Level ⊢t of λ where
+          (inj₁ (ok , _)) → ⊥-elim (not-ok₁ ok)
+          (inj₂ (ok , _)) →
+            Level-literal-level-⇔ .proj₁ $
+            UAₛ.Allowed-literal→Level-literal ok
+    in
+    PE.cong level
+      (tr (t₁ USₛ.supᵘₗ t₂)   ≡⟨ PE.cong tr $ USₛ.supᵘₗ≡supᵘₗ′-tm not-ok₁ ⟩
+       tr (t₁ supᵘₗ′ t₂)      ≡⟨ tr-supᵘₗ′ (lit ⊢t₁) (lit ⊢t₂) ⟩
+       tr t₁ supᵘₗ′ tr t₂     ≡˘⟨ USₜ.supᵘₗ≡supᵘₗ′-tm not-ok₂ ⟩
+       tr t₁ USₜ.supᵘₗ tr t₂  ∎)
     where
     open Tools.Reasoning.PropositionalEquality
   … | yes ok₁ | no not-ok₂ =
     ⊥-elim (not-ok₂ (Level-allowed-⇔ .proj₁ ok₁))
   … | no not-ok₁ | yes ok₂ =
     ⊥-elim (not-ok₁ (Level-allowed-⇔ .proj₂ ok₂))
+  tr-supᵘₗ {l₁ = level _} {l₂ = ωᵘ+ _}   _ _ = PE.refl
+  tr-supᵘₗ {l₁ = ωᵘ+ _}   {l₂ = level _} _ _ = PE.refl
+  tr-supᵘₗ {l₁ = ωᵘ+ _}   {l₂ = ωᵘ+ _}   _ _ = PE.refl
 
 -- Some lemmas proved under the assumption that []-cong and J are both
 -- replaced by themselves.
 
 module _
   ([]-cong′≡[]-cong :
-     ∀ {n s} {l A t u v : Term n} →
+     ∀ {n s} {l : Lvl n} {A t u v : Term n} →
      []-cong′ s l A t u v PE.≡ []-cong s l A t u v)
   (J′≡J :
      ∀ {n p q} {A t : Term n} {B u v w} →
@@ -271,7 +322,7 @@ module _
     tr-id : tr t PE.≡ t
     tr-id = tr-id′ _
       where
-      tr-id′ : (t : Term n) → tr t PE.≡ t
+      tr-id′ : (t : Term[ k ] n) → tr t PE.≡ t
       tr-id′ = λ where
         (var _) →
           PE.refl
@@ -285,6 +336,10 @@ module _
           PE.cong sucᵘ tr-id
         (l₁ supᵘ l₂) →
           PE.cong₂ _supᵘ_ tr-id tr-id
+        (ωᵘ+ _) →
+          PE.refl
+        (level t) →
+          PE.cong level (tr-id′ t)
         (U l) →
           PE.cong U (tr-id′ l)
         (Lift l A) →
@@ -346,10 +401,10 @@ module _
 
   opaque
 
-    -- The function map-Con (λ {n = n} → tr {n = n}) does not change
+    -- The function map-Con {P = Term[ k ]} tr does not change
     -- anything.
 
-    map-Con-tr-id : map-Con (λ {n = n} → tr {n = n}) Δ PE.≡ Δ
+    map-Con-tr-id : map-Con {P = Term[ k ]} tr Δ PE.≡ Δ
     map-Con-tr-id {Δ = ε} =
       PE.refl
     map-Con-tr-id {Δ = _ ∙ _} =
@@ -395,7 +450,7 @@ opaque
 
   -- Translation commutes with weakening.
 
-  tr-wk : ∀ t → tr (wk ρ t) PE.≡ wk ρ (tr t)
+  tr-wk : (t : Term[ k ] n) → tr (wk ρ t) PE.≡ wk ρ (tr t)
   tr-wk {ρ} = λ where
     (var _) →
       PE.refl
@@ -409,6 +464,10 @@ opaque
       PE.cong sucᵘ (tr-wk l)
     (l₁ supᵘ l₂) →
       PE.cong₂ _supᵘ_ (tr-wk l₁) (tr-wk l₂)
+    (ωᵘ+ _) →
+      PE.refl
+    (level t) →
+      PE.cong level (tr-wk t)
     (U l) →
       PE.cong U (tr-wk l)
     (Lift l A) →
@@ -499,7 +558,7 @@ opaque
 
   -- Translation commutes with substitution.
 
-  tr-[] : ∀ t → tr (t [ σ ]) PE.≡ tr t [ tr ∘→ σ ]
+  tr-[] : (t : Term[ k ] n) → tr (t [ σ ]) PE.≡ tr t [ tr ∘→ σ ]
   tr-[] {σ} = λ where
     (var _) →
       PE.refl
@@ -513,6 +572,10 @@ opaque
       PE.cong sucᵘ (tr-[] l)
     (l₁ supᵘ l₂) →
       PE.cong₂ _supᵘ_ (tr-[] l₁) (tr-[] l₂)
+    (ωᵘ+ _) →
+      PE.refl
+    (level t) →
+      PE.cong level (tr-[] t)
     (U l) →
       PE.cong U (tr-[] l)
     (Lift l A) →
@@ -584,7 +647,8 @@ opaque
 
   -- A variant of tr-[].
 
-  tr-[⇑] : ∀ t → tr (t [ σ ⇑ ]) PE.≡ tr t [ (tr ∘→ σ) ⇑ ]
+  tr-[⇑] :
+    (t : Term[ k ] (1+ n)) → tr (t [ σ ⇑ ]) PE.≡ tr t [ (tr ∘→ σ) ⇑ ]
   tr-[⇑] {σ} t =
     tr (t [ σ ⇑ ])        ≡⟨ tr-[] t ⟩
     tr t [ tr ∘→ σ ⇑ ]    ≡⟨ (flip substVar-to-subst (tr t) λ where
@@ -596,7 +660,9 @@ opaque
 
   -- A variant of tr-[].
 
-  tr-[⇑²] : ∀ t → tr (t [ σ ⇑[ 2 ] ]) PE.≡ tr t [ (tr ∘→ σ) ⇑[ 2 ] ]
+  tr-[⇑²] :
+    (t : Term[ k ] (2+ n)) →
+    tr (t [ σ ⇑[ 2 ] ]) PE.≡ tr t [ (tr ∘→ σ) ⇑[ 2 ] ]
   tr-[⇑²] {σ} t =
     tr (t [ σ ⇑[ 2 ] ])        ≡⟨ tr-[] t ⟩
 
@@ -618,7 +684,8 @@ opaque
 
   -- A variant of tr-[].
 
-  tr-[]₀ : ∀ t → tr (t [ u ]₀) PE.≡ tr t [ tr u ]₀
+  tr-[]₀ :
+    (t : Term[ k ] (1+ n)) → tr (t [ u ]₀) PE.≡ tr t [ tr u ]₀
   tr-[]₀ {u} t =
     tr (t [ sgSubst u ])      ≡⟨ tr-[] t ⟩
     tr t [ tr ∘→ sgSubst u ]  ≡⟨ (flip substVar-to-subst (tr t) λ where
@@ -633,7 +700,9 @@ opaque
 
   -- A variant of tr-[].
 
-  tr-[]₁₀ : ∀ t → tr (t [ u , v ]₁₀) PE.≡ tr t [ tr u , tr v ]₁₀
+  tr-[]₁₀ :
+    (t : Term[ k ] (2+ n)) →
+    tr (t [ u , v ]₁₀) PE.≡ tr t [ tr u , tr v ]₁₀
   tr-[]₁₀ {u} {v} t =
     tr (t [ consSubst (sgSubst u) v ])          ≡⟨ tr-[] t ⟩
     tr t [ tr ∘→ consSubst (sgSubst u) v ]      ≡⟨ (flip substVar-to-subst (tr t) λ where
@@ -649,7 +718,8 @@ opaque
 
   -- A variant of tr-[].
 
-  tr-[]↑² : ∀ t → tr (t [ u ]↑²) PE.≡ tr t [ tr u ]↑²
+  tr-[]↑² :
+    (t : Term[ k ] (1+ n)) → tr (t [ u ]↑²) PE.≡ tr t [ tr u ]↑²
   tr-[]↑² {u} t =
     tr (t [ consSubst (wkSubst 2 idSubst) u ])      ≡⟨ tr-[] t ⟩
     tr t [ tr ∘→ consSubst (wkSubst 2 idSubst) u ]  ≡⟨ (flip substVar-to-subst (tr t) λ where
@@ -683,6 +753,10 @@ opaque
       Uₜ.sucᵘₘ (tr-▸ l)
     (Uₛ.supᵘₘ l₁ l₂) →
       Uₜ.supᵘₘ (tr-▸ l₁) (tr-▸ l₂)
+    Uₛ.ωᵘ+ →
+      Uₜ.ωᵘ+
+    (Uₛ.level t) →
+      Uₜ.level (tr-▸ t)
     (Uₛ.Uₘ l) →
       Uₜ.Uₘ (tr-▸ l)
     (Uₛ.Liftₘ l A) →
@@ -935,7 +1009,8 @@ opaque
       Tₜ.sucᵘⱼ (tr-⊢∷ ⊢l)
     (Tₛ.supᵘⱼ ⊢l₁ ⊢l₂) →
       Tₜ.supᵘⱼ (tr-⊢∷ ⊢l₁) (tr-⊢∷ ⊢l₂)
-    (Tₛ.Uⱼ ⊢l) →
+    (Tₛ.Uⱼ {l} ⊢l) →
+      PE.subst (Tₜ._⊢_∷_ _ _) (PE.cong U (PE.sym (tr-1ᵘ+ l))) $
       Tₜ.Uⱼ (tr-⊢∷L ⊢l)
     (Tₛ.Liftⱼ ⊢l₁ ⊢l₂ ⊢A) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.cong U $ PE.sym $ tr-supᵘₗ ⊢l₁ ⊢l₂) $
@@ -1026,9 +1101,8 @@ opaque
   tr-⊢∷L = λ where
     (Tₛ.term ok ⊢l) →
       Tₜ.term (Level-allowed-⇔ .proj₁ ok) (tr-⊢∷ ⊢l)
-    (Tₛ.literal not-ok ⊢Γ l-lit) →
-      Tₜ.literal (not-ok ∘→ Level-allowed-⇔ .proj₂) (tr-⊢′ ⊢Γ)
-        (tr-Level-literal l-lit)
+    (Tₛ.literal ok ⊢Γ) →
+      Tₜ.literal (tr-Allowed-literal ok) (tr-⊢′ ⊢Γ)
 
   -- A preservation lemma for _⊢_≡_.
 
@@ -1121,7 +1195,7 @@ opaque
     (Tₛ.app-cong {G = B} t₁≡t₂ u₁≡u₂) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
       Tₜ.app-cong (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡∷ u₁≡u₂)
-    (Tₛ.β-red {G = B} {t} _ ⊢t ⊢u PE.refl ok) →
+    (Tₛ.β-red {B} {t} _ ⊢t ⊢u PE.refl ok) →
       PE.subst₂ (Tₜ._⊢_≡_∷_ _ _)
         (PE.sym $ tr-[]₀ t) (PE.sym $ tr-[]₀ B) $
       TPₜ.β-red-≡ (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u) (ΠΣ-allowed-→ ok)
@@ -1246,9 +1320,8 @@ opaque
   tr-⊢≡∷L = λ where
     (Tₛ.term ok l₁≡l₂) →
       Tₜ.term (Level-allowed-⇔ .proj₁ ok) (tr-⊢≡∷ l₁≡l₂)
-    (Tₛ.literal not-ok ⊢Γ l-lit) →
-      Tₜ.literal (not-ok ∘→ Level-allowed-⇔ .proj₂) (tr-⊢′ ⊢Γ)
-        (tr-Level-literal l-lit)
+    (Tₛ.literal ok ⊢Γ) →
+      Tₜ.literal (tr-Allowed-literal ok) (tr-⊢′ ⊢Γ)
 
 ------------------------------------------------------------------------
 -- The translation might preserve reduction
@@ -1309,10 +1382,10 @@ module _ (pres : T preservation-of-reduction) where
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢u)
           (Unit-allowed-→ ok) (Unitʷ-η-⇔ .proj₁ η)
-      (Tₛ.app-subst {G = B} t⇒t′ ⊢u) →
+      (Tₛ.app-subst {B} t⇒t′ ⊢u) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
         TPₜ.app-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢∷ ⊢u)
-      (Tₛ.β-red {G = B} {t} _ ⊢t ⊢u PE.refl ok) →
+      (Tₛ.β-red {B} {t} _ ⊢t ⊢u PE.refl ok) →
         PE.subst₂ (Tₜ._⊢_⇒*_∷_ _ _)
           (PE.sym $ tr-[]₀ t) (PE.sym $ tr-[]₀ B) $
         TPₜ.redMany $

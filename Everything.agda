@@ -97,6 +97,7 @@ import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
 import Definition.Typed.Variant
 import Definition.Typed.Restrictions
+import Definition.Untyped.Allowed-literal
 import Definition.Untyped.Sup
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Weakening
@@ -405,6 +406,7 @@ import Definition.Conversion.FullReduction
 import Definition.Typed.Decidable.Internal.Constraint
 import Definition.Typed.Decidable.Internal.Monad
 import Definition.Typed.Decidable.Internal.Substitution
+import Definition.Typed.Decidable.Internal.Universe-level
 import Definition.Typed.Decidable.Internal.Tests
 import Definition.Typed.Decidable.Internal.Context
 import Definition.Typed.Decidable.Internal

@@ -54,7 +54,8 @@ open import Definition.Typed.Restrictions linearityModality
 private variable
   n : Nat
   γ γ₁ γ₂ γ₃ γ₄ γ₅ δ δ₁ δ₂ η η₁ η₂ η₃ θ : Conₘ _
-  a b t t₁ t₂ t₃ u k l h A B P xs nl cs : Term _
+  t t₁ t₂ t₃ u k h A B P xs nl cs : Term _
+  a b l : Lvl _
   m : Mode
   p p₁ p₂ p₃ p₄ q q₁ q₂ r r₁ r₂ : Linearity
 

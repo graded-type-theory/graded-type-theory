@@ -17,6 +17,7 @@ open EqRelSet {{...}}
 open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk; K)
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Inversion M
@@ -46,8 +47,10 @@ private
     ∇ : DCon (Term 0) κ
     Γ Δ : Con Term m
     A B t t′ u u′ : Term m
-    l : Universe-level
+    l l′ l₁ l₂ : Lvl _
+    ℓ : Universe-level
     s : Strength
+    ok₁ ok₂ : Level-allowed
 
 -- Weakening of neutral terms in WHNF
 
@@ -60,12 +63,12 @@ wkEqTermNe [ρ] (neNfₜ₌ neK neM k≡m) =
 
 mutual
   wkTermLevel : ∇ » ρ ∷ʷ Δ ⊇ Γ
-              → ∇ » Γ ⊩Level t ∷Level
-              → ∇ » Δ ⊩Level U.wk ρ t ∷Level
+              → ∇ » Γ ⊩Level l ∷Level
+              → ∇ » Δ ⊩Level U.wk ρ l ∷Level
   wkTermLevel [ρ] (term d prop) =
     term (wkRed*Term [ρ] d) (wkLevel-prop [ρ] prop)
-  wkTermLevel [ρ] (literal not-ok _ t-lit) =
-    literal not-ok (wf-∷ʷ⊇ [ρ]) (wk-Level-literal .proj₁ t-lit)
+  wkTermLevel [ρ] (literal ok _) =
+    literal (Allowed-literal-wk-⇔ .proj₂ ok) (wf-∷ʷ⊇ [ρ])
 
   wkLevel-prop : ∇ » ρ ∷ʷ Δ ⊇ Γ
                → Level-prop (∇ » Γ) t
@@ -83,13 +86,13 @@ mutual
 
 mutual
   wkEqTermLevel : ∇ » ρ ∷ʷ Δ ⊇ Γ
-                → ∇ » Γ ⊩Level t ≡ u ∷Level
-                → ∇ » Δ ⊩Level U.wk ρ t ≡ U.wk ρ u ∷Level
+                → ∇ » Γ ⊩Level l₁ ≡ l₂ ∷Level
+                → ∇ » Δ ⊩Level U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
   wkEqTermLevel [ρ] (term d d′ prop) =
     term (wkRed*Term [ρ] d) (wkRed*Term [ρ] d′)
       (wk[Level]-prop [ρ] prop)
-  wkEqTermLevel [ρ] (literal! not-ok _ t-lit) =
-    literal! not-ok (wf-∷ʷ⊇ [ρ]) (wk-Level-literal .proj₁ t-lit)
+  wkEqTermLevel [ρ] (literal! ok _) =
+    literal! (Allowed-literal-wk-⇔ .proj₂ ok) (wf-∷ʷ⊇ [ρ])
 
   wk[Level]-prop : ∇ » ρ ∷ʷ Δ ⊇ Γ
                  → [Level]-prop (∇ » Γ) t u
@@ -116,38 +119,33 @@ mutual
   wk[neLevel]-prop [ρ] (ne x) = ne (wkEqTermNe [ρ] x)
 
 opaque
-  unfolding ↑ⁿ_
+  unfolding ↑ⁿ
 
   -- Weakening preserves level realisation.
 
   mutual
     wk-↑ⁿ
       : ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
-      → (t≡u : ∇ » Γ ⊩Level t ∷Level)
-      → (wk-t≡u′ : ∇ » Δ ⊩Level t′ ∷Level)
+      → (t≡u : ∇ » Γ ⊩Level level t ∷Level)
+      → (wk-t≡u′ : ∇ » Δ ⊩Level level t′ ∷Level)
       → t′ PE.≡ U.wk ρ t
-      → ↑ⁿ wk-t≡u′ PE.≡ ↑ⁿ t≡u
+      → ↑ⁿ ok₁ wk-t≡u′ PE.≡ ↑ⁿ ok₂ t≡u
     wk-↑ⁿ {ρ} [ρ] (term d prop) (term d′ prop′) PE.refl =
-      case whrDet*Term (d′ , level prop′) (wkRed*Term [ρ] d , wkWhnf ρ (level prop)) of λ {
+      case whrDet*Term (d′ , Level-prop→Whnf prop′)
+             (wkRed*Term [ρ] d , wkWhnf ρ (Level-prop→Whnf prop)) of λ {
         PE.refl →
       wk-↑ⁿ-prop [ρ] prop prop′ PE.refl }
-    wk-↑ⁿ _ (literal _ _ t-lit) (literal _ _ t′-lit) PE.refl =
-      size-of-Level t′-lit                           ≡⟨ PE.cong size-of-Level Level-literal-propositional ⟩
-      size-of-Level (wk-Level-literal .proj₁ t-lit)  ≡⟨ size-of-Level-wk-Level-literal ⟩
-      size-of-Level t-lit                            ∎
-    wk-↑ⁿ _ (literal not-ok _ _) (term ⇒∷Level _) _ =
-      ⊥-elim $ not-ok $
-      inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁)
-    wk-↑ⁿ _ (term ⇒∷Level _) (literal not-ok _ _) _ =
-      ⊥-elim $ not-ok $
-      inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁)
+    wk-↑ⁿ {ok₁} _ (literal ok _) _ _ =
+      Level-allowed→Allowed-literal→ ok₁ ok
+    wk-↑ⁿ {ok₁} _ _ (literal ok _) _ =
+      Level-allowed→Allowed-literal→ ok₁ ok
 
     wk-↑ⁿ-prop
       : ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
       → (t≡u : Level-prop (∇ » Γ) t)
       → (wk-t≡u : Level-prop (∇ » Δ) t′)
       → t′ PE.≡ U.wk ρ t
-      → ↑ⁿ-prop wk-t≡u PE.≡ ↑ⁿ-prop t≡u
+      → ↑ⁿ-prop ok₁ wk-t≡u PE.≡ ↑ⁿ-prop ok₂ t≡u
     wk-↑ⁿ-prop [ρ] (zeroᵘᵣ _) ⊩t′ PE.refl = ↑ⁿ-prop-zeroᵘ ⊩t′
     wk-↑ⁿ-prop [ρ] (sucᵘᵣ _ ⊩t) ⊩t′ PE.refl =
       let ⊩wk-t , ↑t′≡ = ↑ⁿ-prop-sucᵘ ⊩t′
@@ -169,7 +167,7 @@ opaque
       → (t≡u : neLevel-prop (∇ » Γ) t)
       → (wk-t≡u : neLevel-prop (∇ » Δ) t′)
       → t′ PE.≡ U.wk ρ t
-      → ↑ⁿ-neprop wk-t≡u PE.≡ ↑ⁿ-neprop t≡u
+      → ↑ⁿ-neprop ok₁ wk-t≡u PE.≡ ↑ⁿ-neprop ok₂ t≡u
     wk-↑ⁿ-neprop [ρ] (supᵘˡᵣ t≡u x) (supᵘˡᵣ wk-t≡u x₁) PE.refl =
       PE.cong₂ _⊔_ (wk-↑ⁿ-neprop [ρ] t≡u wk-t≡u PE.refl) (wk-↑ⁿ [ρ] x x₁ PE.refl)
     wk-↑ⁿ-neprop [ρ] (supᵘʳᵣ x t≡u) (supᵘʳᵣ x₁ wk-t≡u) PE.refl =
@@ -192,13 +190,29 @@ opaque
       case wk-supᵘ (PE.sym p) of λ { (_ , _ , PE.refl , _ , _) →
       Neutralᵃ-supᵘ→ neK }
 
+opaque
+  unfolding ↑ᵘ
+
   wk-↑ᵘ
     : ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
-    → {t≡u : ∇ » Γ ⊩Level t ∷Level}
-    → {wk-t≡u′ : ∇ » Δ ⊩Level t′ ∷Level}
-    → t′ PE.≡ U.wk ρ t
-    → ↑ᵘ wk-t≡u′ PE.≡ ↑ᵘ t≡u
-  wk-↑ᵘ [ρ] {t≡u} {wk-t≡u′} eq = PE.cong 0ᵘ+_ (wk-↑ⁿ [ρ] t≡u wk-t≡u′ eq)
+    → {⊩l : ∇ » Γ ⊩Level l ∷Level}
+    → {⊩l′ : ∇ » Δ ⊩Level l′ ∷Level}
+    → l′ PE.≡ U.wk ρ l
+    → ↑ᵘ ⊩l′ PE.≡ ↑ᵘ ⊩l
+  wk-↑ᵘ [ρ] {⊩l = term _ _} {⊩l′ = term _ _} eq =
+    PE.cong 0ᵘ+ (wk-↑ⁿ [ρ] _ _ (level-PE-injectivity eq))
+  wk-↑ᵘ _ {⊩l = term ⇒∷L _} {⊩l′ = literal ok _} eq
+    using okᴸ ← inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷L) .proj₁)
+    with Allowed-literal→Infinite okᴸ ok
+  … | ωᵘ+ = case eq of λ ()
+  wk-↑ᵘ _ {⊩l = literal ok _} {⊩l′ = term ⇒∷L _} eq
+    using okᴸ ← inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷L) .proj₁)
+    with Allowed-literal→Infinite okᴸ ok
+  … | ωᵘ+ = case eq of λ ()
+  wk-↑ᵘ _ {⊩l = literal ok₁ _} {⊩l′ = literal ok₂ _} PE.refl =
+    Allowed-literal→Universe-level ok₂                                ≡⟨ Allowed-literal→Universe-level-irrelevance ⟩
+    Allowed-literal→Universe-level (Allowed-literal-wk-⇔ .proj₂ ok₁)  ≡⟨ Allowed-literal→Universe-level-Allowed-literal-wk-⇔ ⟩
+    Allowed-literal→Universe-level ok₁                                ∎
 
 -- Weakening of reducible natural numbers
 
@@ -268,59 +282,59 @@ wkEqTermUnit {ρ} [ρ] (Unitₜ₌ u₁ u₂ ↘u₁ ↘u₂ prop) =
 
 -- U
 wkU : ∀ ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
-    → ∇ » Γ ⊩′⟨ l ⟩U A
-    → ∇ » Δ ⊩′⟨ l ⟩U U.wk ρ A
-wkU {ρ} {l} [ρ] (Uᵣ l′ [l′] l′< D) = Uᵣ (U.wk ρ l′)
+    → ∇ » Γ ⊩′⟨ ℓ ⟩U A
+    → ∇ » Δ ⊩′⟨ ℓ ⟩U U.wk ρ A
+wkU {ρ} {ℓ} [ρ] (Uᵣ l′ [l′] l′< D) = Uᵣ (U.wk ρ l′)
   (wkTermLevel [ρ] [l′])
-  (PE.subst (_<ᵘ l) (PE.sym (wk-↑ᵘ [ρ] PE.refl)) l′<)
+  (PE.subst (_<ᵘ ℓ) (PE.sym (wk-↑ᵘ [ρ] PE.refl)) l′<)
   (wkRed* [ρ] D)
 
 -- Weakening of the logical relation
 
-record WkKit (l : Universe-level) : Set a where
+record WkKit (ℓ : Universe-level) : Set a where
   field
     wk :
       {ρ : Wk m n} →
-      ∇ » ρ ∷ʷʳ Δ ⊇ Γ → ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Δ ⊩⟨ l ⟩ U.wk ρ A
+      ∇ » ρ ∷ʷʳ Δ ⊇ Γ → ∇ » Γ ⊩⟨ ℓ ⟩ A → ∇ » Δ ⊩⟨ ℓ ⟩ U.wk ρ A
 
     wkEq :
-      ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-      ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A] →
-      ∇ » Δ ⊩⟨ l ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] [A]
+      ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+      ∇ » Γ ⊩⟨ ℓ ⟩ A ≡ B / [A] →
+      ∇ » Δ ⊩⟨ ℓ ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] [A]
 
     wkEqTerm :
-      ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-      ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] →
-      ∇ » Δ ⊩⟨ l ⟩ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A / wk [ρ] [A]
+      ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+      ∇ » Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A / [A] →
+      ∇ » Δ ⊩⟨ ℓ ⟩ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A / wk [ρ] [A]
 
   wkTerm :
-    ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A] →
-    ∇ » Δ ⊩⟨ l ⟩ U.wk ρ t ∷ U.wk ρ A / wk [ρ] [A]
+    ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+    ∇ » Γ ⊩⟨ ℓ ⟩ t ∷ A / [A] →
+    ∇ » Δ ⊩⟨ ℓ ⟩ U.wk ρ t ∷ U.wk ρ A / wk [ρ] [A]
   wkTerm ⊩A ⊩t = wkEqTerm ⊩A ⊩t
 
-private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → WkKit l′) where
+private module Weakening (ℓ : Universe-level) (rec : ∀ {ℓ′} → ℓ′ <ᵘ ℓ → WkKit ℓ′) where
 
-  module Rec {l′} (l′< : l′ <ᵘ l) = WkKit (rec l′<)
+  module Rec {ℓ′} (ℓ′< : ℓ′ <ᵘ ℓ) = WkKit (rec ℓ′<)
 
   wk :
     {ρ : Wk m n} →
-    ∇ » ρ ∷ʷʳ Δ ⊇ Γ → ∇ » Γ ⊩⟨ l ⟩ A → ∇ » Δ ⊩⟨ l ⟩ U.wk ρ A
+    ∇ » ρ ∷ʷʳ Δ ⊇ Γ → ∇ » Γ ⊩⟨ ℓ ⟩ A → ∇ » Δ ⊩⟨ ℓ ⟩ U.wk ρ A
 
   wkEq :
-    ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ A ≡ B / [A] →
-    ∇ » Δ ⊩⟨ l ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] [A]
+    ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+    ∇ » Γ ⊩⟨ ℓ ⟩ A ≡ B / [A] →
+    ∇ » Δ ⊩⟨ ℓ ⟩ U.wk ρ A ≡ U.wk ρ B / wk [ρ] [A]
 
   wkEqTerm :
-    ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ t ≡ u ∷ A / [A] →
-    ∇ » Δ ⊩⟨ l ⟩ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A / wk [ρ] [A]
+    ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+    ∇ » Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A / [A] →
+    ∇ » Δ ⊩⟨ ℓ ⟩ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A / wk [ρ] [A]
 
   wkTerm :
-    ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ l ⟩ A) →
-    ∇ » Γ ⊩⟨ l ⟩ t ∷ A / [A] →
-    ∇ » Δ ⊩⟨ l ⟩ U.wk ρ t ∷ U.wk ρ A / wk [ρ] [A]
+    ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ) ([A] : ∇ » Γ ⊩⟨ ℓ ⟩ A) →
+    ∇ » Γ ⊩⟨ ℓ ⟩ t ∷ A / [A] →
+    ∇ » Δ ⊩⟨ ℓ ⟩ U.wk ρ t ∷ U.wk ρ A / wk [ρ] [A]
   wkTerm ⊩A ⊩t = wkEqTerm ⊩A ⊩t
 
   wk ρ (Levelᵣ D) = Levelᵣ (wkRed* (∷ʷʳ⊇→∷ʷ⊇ ρ) D)
@@ -339,16 +353,16 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
         [F]′ : ∀ {κ′} {∇′ : DCon (Term 0) κ′} ([ξ] : » ∇′ ⊇ ∇)
                  {k} {ρ : Wk k m} {ρ′ E}
                ([ρ] : ∇′ » ρ ∷ʷʳ E ⊇ Δ) ([ρ′] : ∇′ » ρ′ ∷ʷʳ Δ ⊇ Γ)
-             → ∇′ » E ⊩⟨ l ⟩ U.wk ρ (U.wk ρ′ F)
+             → ∇′ » E ⊩⟨ ℓ ⟩ U.wk ρ (U.wk ρ′ F)
         [F]′ [ξ] {_} {ρ} {ρ′} [ρ] [ρ′] =
           irrelevance′ (PE.sym (wk-comp ρ ρ′ F))
             ([F] [ξ] ([ρ] •ₜʷʳ [ρ′]))
         [a]′ : ∀ {κ′} {∇′ : DCon (Term 0) κ′} ([ξ] : » ∇′ ⊇ ∇)
                  {k} {ρ : Wk k m} {ρ′ E a}
                ([ρ] : ∇′ » ρ ∷ʷʳ E ⊇ Δ) ([ρ′] : ∇′ » ρ′ ∷ʷʳ Δ ⊇ Γ)
-               ([a] : ∇′ » E ⊩⟨ l ⟩ a ∷ U.wk ρ (U.wk ρ′ F) /
+               ([a] : ∇′ » E ⊩⟨ ℓ ⟩ a ∷ U.wk ρ (U.wk ρ′ F) /
                         [F]′ [ξ] [ρ] [ρ′])
-             → ∇′ » E ⊩⟨ l ⟩ a ∷ U.wk (ρ • ρ′) F /
+             → ∇′ » E ⊩⟨ ℓ ⟩ a ∷ U.wk (ρ • ρ′) F /
                  [F] [ξ] ([ρ] •ₜʷʳ [ρ′])
         [a]′ [ξ] {_} {ρ} {ρ′} [ρ] [ρ′] [a] =
           irrelevanceTerm′ (wk-comp ρ ρ′ F) ([F]′ [ξ] [ρ] [ρ′])
@@ -356,9 +370,9 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
         [G]′ : ∀ {κ′} {∇′ : DCon (Term 0) κ′} ([ξ] : » ∇′ ⊇ ∇)
                  {k} {ρ : Wk k m} {ρ′} {E} {a}
                ([ρ] : ∇′ » ρ ∷ʷʳ E ⊇ Δ) ([ρ′] : ∇′ » ρ′ ∷ʷʳ Δ ⊇ Γ)
-               ([a] : ∇′ » E ⊩⟨ l ⟩ a ∷ U.wk ρ (U.wk ρ′ F) /
+               ([a] : ∇′ » E ⊩⟨ ℓ ⟩ a ∷ U.wk ρ (U.wk ρ′ F) /
                         [F]′ [ξ] [ρ] [ρ′])
-             → ∇′ » E ⊩⟨ l ⟩ U.wk (lift (ρ • ρ′)) G [ a ]₀
+             → ∇′ » E ⊩⟨ ℓ ⟩ U.wk (lift (ρ • ρ′)) G [ a ]₀
         [G]′ [ξ] {_} η η′ [a] = [G] [ξ] _ ([a]′ [ξ] η η′ [a])
     in  Πᵣ′ (U.wk ρ F) (U.wk (lift ρ) G) (T.wkRed* [ρ]′ D)
              (≅-wk [ρ]′ A≡A)
@@ -387,16 +401,16 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
         [F]′ : ∀ {κ′} {∇′ : DCon (Term 0) κ′} ([ξ] : » ∇′ ⊇ ∇)
                  {k} {ρ : Wk k m} {ρ′ E}
                ([ρ] : ∇′ » ρ ∷ʷʳ E ⊇ Δ) ([ρ′] : ∇′ » ρ′ ∷ʷʳ Δ ⊇ Γ)
-             → ∇′ » E ⊩⟨ l ⟩ U.wk ρ (U.wk ρ′ F)
+             → ∇′ » E ⊩⟨ ℓ ⟩ U.wk ρ (U.wk ρ′ F)
         [F]′ [ξ] {_} {ρ} {ρ′} [ρ] [ρ′] =
           irrelevance′ (PE.sym (wk-comp ρ ρ′ F))
             ([F] [ξ] ([ρ] •ₜʷʳ [ρ′]))
         [a]′ : ∀ {κ′} {∇′ : DCon (Term 0) κ′} ([ξ] : » ∇′ ⊇ ∇)
                  {k} {ρ : Wk k m} {ρ′ E a}
                ([ρ] : ∇′ » ρ ∷ʷʳ E ⊇ Δ) ([ρ′] : ∇′ » ρ′ ∷ʷʳ Δ ⊇ Γ)
-               ([a] : ∇′ » E ⊩⟨ l ⟩ a ∷ U.wk ρ (U.wk ρ′ F) /
+               ([a] : ∇′ » E ⊩⟨ ℓ ⟩ a ∷ U.wk ρ (U.wk ρ′ F) /
                         [F]′ [ξ] [ρ] [ρ′])
-             → ∇′ » E ⊩⟨ l ⟩ a ∷ U.wk (ρ • ρ′) F /
+             → ∇′ » E ⊩⟨ ℓ ⟩ a ∷ U.wk (ρ • ρ′) F /
                  [F] [ξ] ([ρ] •ₜʷʳ [ρ′])
         [a]′ [ξ] {_} {ρ} {ρ′} [ρ] [ρ′] [a] =
           irrelevanceTerm′ (wk-comp ρ ρ′ F) ([F]′ [ξ] [ρ] [ρ′])
@@ -404,9 +418,9 @@ private module Weakening (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l 
         [G]′ : ∀ {κ′} {∇′ : DCon (Term 0) κ′} ([ξ] : » ∇′ ⊇ ∇)
                  {k} {ρ : Wk k m} {ρ′ E a}
                ([ρ] : ∇′ » ρ ∷ʷʳ E ⊇ Δ) ([ρ′] : ∇′ » ρ′ ∷ʷʳ Δ ⊇ Γ)
-               ([a] : ∇′ » E ⊩⟨ l ⟩ a ∷ U.wk ρ (U.wk ρ′ F) /
+               ([a] : ∇′ » E ⊩⟨ ℓ ⟩ a ∷ U.wk ρ (U.wk ρ′ F) /
                         [F]′ [ξ] [ρ] [ρ′])
-             → ∇′ » E ⊩⟨ l ⟩ U.wk (lift (ρ • ρ′)) G [ a ]₀
+             → ∇′ » E ⊩⟨ ℓ ⟩ U.wk (lift (ρ • ρ′)) G [ a ]₀
         [G]′ [ξ] {_} η η′ [a] = [G] [ξ] _ ([a]′ [ξ] η η′ [a])
     in  Σᵣ′ (U.wk ρ F) (U.wk (lift ρ) G) (T.wkRed* [ρ]′ D)
              (≅-wk [ρ]′ A≡A)

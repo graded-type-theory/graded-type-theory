@@ -29,6 +29,7 @@ open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
@@ -40,7 +41,8 @@ private
   variable
     m n : Nat
     Γ : Cons m n
-    l t u A B : Term n
+    t u A B : Term n
+    l : Lvl _
 
   univᶜ′ : (∃ λ A → Γ ⊢ t ⇉ A × Γ ⊢ U l ≡ A) → Γ ⊢ t ⇇Type
   univᶜ′ (_ , t⇉ , U≡A) = univᶜ t⇉ (U-norm (sym U≡A) .proj₂ , Uₙ)
@@ -330,12 +332,8 @@ mutual
 
   -- Completeness for _⊢_⇇Level.
 
-  completeness⇇Level : Checkable-level t → Γ ⊢ t ∷Level → Γ ⊢ t ⇇Level
-  completeness⇇Level (term ok t) (term _ ⊢t) =
-    term ok (completeness⇇ t ⊢t)
-  completeness⇇Level (term ok _) (literal not-ok _ _) =
-    ⊥-elim (not-ok ok)
-  completeness⇇Level (literal not-ok) (term ok _) =
-    ⊥-elim (not-ok ok)
-  completeness⇇Level (literal not-ok) (literal _ _ l-lit) =
-    literal not-ok l-lit
+  completeness⇇Level : Checkable-level l → Γ ⊢ l ∷Level → Γ ⊢ l ⇇Level
+  completeness⇇Level _ (literal ok _) =
+    literal ok
+  completeness⇇Level (level t) (term ok ⊢t) =
+    term ok (completeness⇇ (t ok) ⊢t)

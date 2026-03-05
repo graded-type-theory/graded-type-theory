@@ -52,11 +52,12 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ                                                       : Cons _ _
-  A A₁ A₂ B B₁ B₂ l l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  γ                                                       : Conₘ _
-  p q                                                     : Erasure
-  s                                                       : Strength
+  Γ                                               : Cons _ _
+  A A₁ A₂ B B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  l l₁ l₂                                         : Lvl _
+  γ                                               : Conₘ _
+  p q                                             : Erasure
+  s                                               : Strength
 
 -- The following properties are proven under the asuumption that certain
 -- things must always be allowed when the mode is 𝟘ᵐ[ ok ].

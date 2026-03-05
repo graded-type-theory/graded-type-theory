@@ -46,7 +46,7 @@ private variable
   mos mos₁ mos₂ : Mode-vector _
   σ : Subst _ _
   p : M
-  t : Term _
+  t : Term[ _ ] _
   γ : Conₘ _
 
 ------------------------------------------------------------------------

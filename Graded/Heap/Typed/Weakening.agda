@@ -44,13 +44,14 @@ private variable
   Δ : Con Term _
   H H′ : Heap _ _
   t A B : Term _
+  kₜ : Term-kind
   c : Cont _
   S : Stack _
   p : M
 
 private opaque
 
-  wk-liftₕ : (k : Nat) → ρ ∷ H ⊇ʰ H′ → (A : Term _)
+  wk-liftₕ : (k : Nat) → ρ ∷ H ⊇ʰ H′ → (A : Term[ kₜ ] _)
            → wk (liftn ρ′ k) A [ liftSubstn (toSubstₕ H′) k ] ≡ wk (liftn (ρ • ρ′) k) A [ liftSubstn (toSubstₕ H) k ]
   wk-liftₕ {ρ} {H} {H′} {ρ′} k [ρ] A = begin
     wk (liftn ρ′ k) A [ liftSubstn (toSubstₕ H′) k ]      ≡⟨ subst-wk A ⟩

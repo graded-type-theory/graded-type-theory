@@ -71,7 +71,8 @@ module Sum
 
     ¬▸sumrec :
       ¬ T total →
-      ¬ (∀ {n} {a : Term n} {b A B P l r t m p p₁ p₂ q γ₁ γ₂ γ₃ γ₄ γ₅ δ₁ δ₂ η} →
+      ¬ (∀ {n} {a : Lvl n}
+           {b A B P l r t m p p₁ p₂ q γ₁ γ₂ γ₃ γ₄ γ₅ δ₁ δ₂ η} →
         γ₁ ▸[ 𝟘ᵐ? ] a →
         γ₂ ▸[ 𝟘ᵐ? ] b →
         γ₃ ▸[ 𝟘ᵐ? ] A →
@@ -88,8 +89,8 @@ module Sum
       let lr : Term 1
           lr = prodʷ ⌞ 1 ⌟ (var x0) (var x0)
           t : Term 0
-          t = sumrec ⌞ 0 ⌟ ⌞ 2 ⌟ zeroᵘ zeroᵘ ℕ ℕ (Σʷ ⌞ 1 ⌟ , ⌞ 0 ⌟ ▷ ℕ ▹ ℕ)
-                 lr lr (inl zero)
+          t = sumrec ⌞ 0 ⌟ ⌞ 2 ⌟ zeroᵘₗ zeroᵘₗ ℕ ℕ
+                (Σʷ ⌞ 1 ⌟ , ⌞ 0 ⌟ ▷ ℕ ▹ ℕ) lr lr (inl zero)
           ▸lr : ε ∙ ⌜ 𝟙ᵐ ⌝ · ⌞ 2 ⌟ ▸[ 𝟙ᵐ ] lr
           ▸lr = sub (prodʷₘ var var) (ε ∙ (begin
             ⌜ 𝟙ᵐ ⌝ · ⌞ 2 ⌟                   ≡⟨⟩
@@ -104,7 +105,8 @@ module Sum
             ⌞ 1 ⌟ · ⌞ 0 ⌟ + ⌞ 0 ⌟ ∎))
           ▸t : ε ▸[ 𝟙ᵐ ] t
           ▸t = ▸sumrec {l = lr} {r = lr} {p₁ = ⌞ 2 ⌟} {p₂ = ⌞ 2 ⌟}
-                 zeroᵘₘ zeroᵘₘ ℕₘ ℕₘ ▸P ▸lr ▸lr (S.▸inl zeroₘ) ≤-refl ≤-refl (λ ())
+                 (level zeroᵘₘ) (level zeroᵘₘ) ℕₘ ℕₘ ▸P ▸lr ▸lr
+                 (S.▸inl zeroₘ) ≤-refl ≤-refl (λ ())
       in  case S.inv-usage-sumrec {l = lr} {r = lr} ▸t of λ {
             (_ , _ , _ , _ , _ , _ ∙ q₁ ∙ q₂ , _ ∙ q₃ ∙ q₄ , _ , _ , _ , _ , _ , _
                , ▸l , ▸r , _ , _ , _ , _ , _ , _ , _ , _ , _ , mp≤ , _) →

@@ -14,6 +14,7 @@ module Definition.Typed.Consequences.Inequality
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Neutral M type-variant as U
   using (Neutral)
 open import Definition.Untyped.Neutral.Atomic M type-variant
@@ -50,7 +51,8 @@ private
     m n : Nat
     ∇ : DCon (Term 0) _
     Γ : Cons _ _
-    A B C D l l₁ l₂ t u v : Term _
+    A B C D t u v : Term _
+    l l₁ l₂ : Lvl _
     V : Set a
     p p′ q q′ : M
     b : BinderMode
@@ -225,7 +227,7 @@ opaque
     » ∇ →
     ∃ λ (Γ : Con Term 1) → ∇ » Γ ⊢ ℕ ≡ Empty
   ℕ≡Empty ok »∇ =
-    ε ∙ Id (U zeroᵘ) ℕ Empty ,
+    ε ∙ Id U₀ ℕ Empty ,
     univ
       (equality-reflection′ ok $
        var₀ (Idⱼ′ (ℕⱼ (ε »∇)) (Emptyⱼ (ε »∇))))
@@ -813,15 +815,15 @@ suc≢ne →V = whnf≢ne →V ℕₙ (λ ()) sucₙ (λ ())
 
 opaque
 
-  -- The term sucᵏ n is not definitionally equal (at type ℕ) to any
+  -- The term sucⁿ n is not definitionally equal (at type ℕ) to any
   -- neutral term (given a certain assumption).
 
-  sucᵏ≢ne :
+  sucⁿ≢ne :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     (No-equality-reflection → V) → Neutral V (Γ .defs) t →
-    ¬ Γ ⊢ sucᵏ n ≡ t ∷ ℕ
-  sucᵏ≢ne {n = 0}    = zero≢ne
-  sucᵏ≢ne {n = 1+ _} = suc≢ne
+    ¬ Γ ⊢ sucⁿ n ≡ t ∷ ℕ
+  sucⁿ≢ne {n = 0}    = zero≢ne
+  sucⁿ≢ne {n = 1+ _} = suc≢ne
 
 -- The term starʷ l is not definitionally equal (at type Unitʷ l) to
 -- any neutral term (given certain assumptions).
@@ -851,51 +853,53 @@ rfl≢ne :
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
 rfl≢ne →V = whnf≢ne →V Idₙ (λ ()) rflₙ (λ ())
 
--- For any level t, t is not equal to sucᵘ t (given a certain assumption).
-
 opaque
-  unfolding ⊩sucᵘ ↑ⁿ_
+  unfolding ⊩1ᵘ+ ↑ⁿ
 
-  t≢sucᵘt :
+  -- The level l is not equal to 1ᵘ+ l (given a certain assumption).
+
+  ≢1ᵘ+ :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    ¬ Γ ⊢ t ≡ sucᵘ t ∷Level
-  t≢sucᵘt (term ok t≡sucᵘt) =
-    let l , ⊩t≡sucᵘt = reducible-⊩≡∷ t≡sucᵘt
+    ¬ Γ ⊢ l ≡ 1ᵘ+ l ∷Level
+  ≢1ᵘ+ (term okᴸ t≡sucᵘt) =
+    let _ , ⊩t≡sucᵘt = reducible-⊩≡∷ t≡sucᵘt
         _ , ⊩t≡sucᵘt = ⊩≡∷Level⇔ .proj₁ ⊩t≡sucᵘt
     in
     case wf-Level-eq ⊩t≡sucᵘt of λ where
       (⊩t@(term _ _) , _) →
-        1+n≢n (PE.sym (↑ⁿ-cong ⊩t (⊩sucᵘ ⊩t) ⊩t≡sucᵘt))
-      (literal not-ok _ _ , _) →
-        not-ok ok
+        1+n≢n (PE.sym (↑ⁿ-cong {ok₁ = okᴸ} ⊩t (⊩1ᵘ+ ⊩t) ⊩t≡sucᵘt))
+      (literal ok _ , _) →
+        Level-allowed→Allowed-literal→ okᴸ ok
+  ≢1ᵘ+ {l = ωᵘ+ _} ()
 
 opaque
 
-  -- The level zeroᵘ is not equal to sucᵘ l (given a certain
+  -- The level zeroᵘₗ is not equal to 1ᵘ+ l (given a certain
   -- assumption).
 
-  zeroᵘ≢sucᵘ :
+  zeroᵘ≢1ᵘ+ :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    ¬ Γ ⊢ zeroᵘ ≡ sucᵘ l ∷Level
-  zeroᵘ≢sucᵘ (term ok 0≡1+) =
+    ¬ Γ ⊢ zeroᵘₗ ≡ 1ᵘ+ l ∷Level
+  zeroᵘ≢1ᵘ+ {l = level _} (term ok 0≡1+) =
     let _ , 0≡1+  = ⊩≡∷Level⇔ .proj₁ (reducible-⊩≡∷ 0≡1+ .proj₂)
         ⊩0 , ⊩1+l = wf-Level-eq 0≡1+
-        ⊩l        = ⊩sucᵘ⇔ .proj₁ ⊩1+l
+        ⊩l        = ⊩1ᵘ+⇔ .proj₁ ⊩1+l
     in
     case
-      0              ≡˘⟨ ↑ⁿ-zeroᵘ ⊩0 ⟩
-      ↑ⁿ ⊩0          ≡⟨ ↑ⁿ-cong ⊩0 (⊩sucᵘ ⊩l) 0≡1+ ⟩
-      ↑ⁿ (⊩sucᵘ ⊩l)  ≡⟨ ↑ⁿ-sucᵘ ⊩l (⊩sucᵘ ⊩l) ⟩
-      1+ (↑ⁿ ⊩l)     ∎
+      0                ≡˘⟨ ↑ⁿ-zeroᵘ ⊩0 ⟩
+      ↑ⁿ ok ⊩0         ≡⟨ ↑ⁿ-cong ⊩0 (⊩1ᵘ+ ⊩l) 0≡1+ ⟩
+      ↑ⁿ ok (⊩1ᵘ+ ⊩l)  ≡⟨ ↑ⁿ-sucᵘ ⊩l (⊩1ᵘ+ ⊩l) ⟩
+      1+ (↑ⁿ ok ⊩l)    ∎
     of λ ()
     where
     open Tools.Reasoning.PropositionalEquality
+  zeroᵘ≢1ᵘ+ {l = ωᵘ+ _} ()
 
 opaque
 
-  -- ℕ does not have type U (sucᵘ l) (given a certain assumption).
+  -- ℕ does not have type U (1ᵘ+ l) (given a certain assumption).
 
   ¬ℕ∷U-sucᵘ :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    ¬ Γ ⊢ ℕ ∷ U (sucᵘ l)
-  ¬ℕ∷U-sucᵘ = zeroᵘ≢sucᵘ ∘→ sym-⊢≡∷L ∘→ U-injectivity ∘→ inversion-ℕ
+    ¬ Γ ⊢ ℕ ∷ U (1ᵘ+ l)
+  ¬ℕ∷U-sucᵘ = zeroᵘ≢1ᵘ+ ∘→ sym-⊢≡∷L ∘→ U-injectivity ∘→ inversion-ℕ

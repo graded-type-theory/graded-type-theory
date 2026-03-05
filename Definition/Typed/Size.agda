@@ -20,6 +20,7 @@ private variable
   ∇       : DCon (Term 0) _
   Γ       : Cons _ _
   A B t u : Term _
+  l l₁ l₂ : Lvl _
 
 opaque mutual
 
@@ -117,9 +118,9 @@ opaque mutual
 
   -- The size of a derivation.
 
-  size-⊢∷L : Γ ⊢ t ∷Level → Size
-  size-⊢∷L (term _ ⊢t)      = node (size-⊢∷ ⊢t)
-  size-⊢∷L (literal _ ⊢Γ _) = node (size-⊢′ ⊢Γ)
+  size-⊢∷L : Γ ⊢ l ∷Level → Size
+  size-⊢∷L (term _ ⊢t)    = node (size-⊢∷ ⊢t)
+  size-⊢∷L (literal _ ⊢Γ) = node (size-⊢′ ⊢Γ)
 
   -- The size of a derivation.
 
@@ -247,6 +248,6 @@ opaque mutual
 
   -- The size of a derivation.
 
-  size-⊢≡∷L : Γ ⊢ t ≡ u ∷Level → Size
-  size-⊢≡∷L (term _ t≡u)     = node (size-⊢≡∷ t≡u)
-  size-⊢≡∷L (literal _ ⊢Γ _) = node (size-⊢′ ⊢Γ)
+  size-⊢≡∷L : Γ ⊢ l₁ ≡ l₂ ∷Level → Size
+  size-⊢≡∷L (term _ t≡u)   = node (size-⊢≡∷ t≡u)
+  size-⊢≡∷L (literal _ ⊢Γ) = node (size-⊢′ ⊢Γ)

@@ -117,9 +117,8 @@ escapeTermEq (Levelᵣ D) (term d d′ prop) =
   let lk , lk′ = lsplit prop
   in ≅ₜ-red (D , Levelₙ) (d , lk) (d′ , lk′)
       (escape-[Level]-prop (wf (redFirst* D)) prop)
-escapeTermEq (Levelᵣ D) (literal! not-ok _ _) =
-  let ok = inversion-Level-⊢ (wf-⊢≡ (subset* D) .proj₂) in
-  ⊥-elim (not-ok ok)
+escapeTermEq (Levelᵣ D) (literal ok _ _) =
+  ⇒*Level→Allowed-literal→ D ok
 escapeTermEq (Uᵣ′ _ _ _ D) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
   ≅ₜ-red (D , Uₙ) (d , typeWhnf typeA) (d′ , typeWhnf typeB)  A≡B
 escapeTermEq (Liftᵣ′ D _ [F]) (Liftₜ₌ _ _ t↘@(t⇒* , wt) u↘@(u⇒* , wu) t≡u) =

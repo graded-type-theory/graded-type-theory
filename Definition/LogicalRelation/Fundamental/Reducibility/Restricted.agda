@@ -30,6 +30,7 @@ open import Tools.Product
 private variable
   Γ       : Cons _ _
   A B t u : Term _
+  l l₁ l₂ : Lvl _
 
 opaque
 
@@ -67,9 +68,9 @@ opaque
 
   reducible-⊩∷L :
     ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
-    Γ ⊢ t ∷Level → Γ ⊩Level t ∷Level
-  reducible-⊩∷L ⊢t =
-    ⊩ᵛ∷L→⊩∷L (fundamental-⊩ᵛ∷L ⊢t .proj₂)
+    Γ ⊢ l ∷Level → Γ ⊩Level l ∷Level
+  reducible-⊩∷L ⊢l =
+    ⊩ᵛ∷L→⊩∷L (fundamental-⊩ᵛ∷L ⊢l .proj₂)
 
 opaque
 
@@ -77,6 +78,6 @@ opaque
 
   reducible-⊩≡∷L :
     ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
-    Γ ⊢ t ≡ u ∷Level → Γ ⊩Level t ≡ u ∷Level
-  reducible-⊩≡∷L t≡u =
-    ⊩ᵛ≡∷L→⊩≡∷L (fundamental-⊩ᵛ≡∷L t≡u .proj₂)
+    Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊩Level l₁ ≡ l₂ ∷Level
+  reducible-⊩≡∷L l₁≡l₂ =
+    ⊩ᵛ≡∷L→⊩≡∷L (fundamental-⊩ᵛ≡∷L l₁≡l₂ .proj₂)

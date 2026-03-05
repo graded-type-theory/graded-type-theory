@@ -50,7 +50,8 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  A B l t u v w           : Term _
+  A B t u v w             : Term _
+  l                       : Lvl _
   γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η : Conₘ _
   p                       : M
   m                       : Mode
@@ -378,7 +379,7 @@ opaque
     γ₆ ▸[ m ] w →
     ω ·ᶜ (γ₂ +ᶜ γ₆) ▸[ m ] substᵉ A B t u v w
   ▸substᵉ {m} {γ₂} {γ₆} trivial P-ok 𝟘≤𝟙 ok ▸A ▸B ▸t ▸u ▸v ▸w = sub
-    (▸subst (▸Erased zeroᵘₘ ▸A)
+    (▸subst (▸Erased (level zeroᵘₘ) ▸A)
        (sub
           (substₘ-lemma
              (▶-cong _
@@ -400,7 +401,7 @@ opaque
              γ₂ <* wk1Substₘ idSubstₘ             ≈˘⟨ ≈ᶜ-trans (+ᶜ-congʳ $ ·ᶜ-zeroˡ _) $
                                                       +ᶜ-identityˡ _ ⟩
              𝟘 ·ᶜ 𝟘ᶜ +ᶜ γ₂ <* wk1Substₘ idSubstₘ  ∎))
-       (▸[] ▸t) (▸[] ▸u) ([]-congₘ zeroᵘₘ ▸A ▸t ▸u ▸v ok) ▸w)
+       (▸[] ▸t) (▸[] ▸u) ([]-congₘ (level zeroᵘₘ) ▸A ▸t ▸u ▸v ok) ▸w)
     (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in begin
        ω ·ᶜ (γ₂ +ᶜ γ₆)                    ≈˘⟨ ·ᶜ-congˡ $ +ᶜ-congˡ $
                                               ≈ᶜ-trans (+ᶜ-identityˡ _) $

@@ -43,7 +43,8 @@ private
     ρ : Wk n′ n
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
-    k l l₁ l₂ l′ m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
+    k m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
+    l l₀ l₁ l₂ : Lvl _
     s : Strength
     bm : BinderMode
 
@@ -57,7 +58,7 @@ record Equality-relations
   -- Equality of terms.
   (_⊢_≅_∷_ : ∀ {δ n} → Cons δ n → (_ _ _ : Term n) → Set ℓ)
   -- Equality of levels.
-  (_⊢_≅_∷Level : ∀ {δ n} → Cons δ n → (_ _ : Term n) → Set ℓ)
+  (_⊢_≅_∷Level : ∀ {δ n} → Cons δ n → (_ _ : Lvl n) → Set ℓ)
   -- Equality of atomic neutral terms.
   (_⊢_~_∷_ : ∀ {δ n} → Cons δ n → (t u A : Term n) → Set ℓ)
   -- Are neutral cases included in the logical relation?
@@ -108,8 +109,8 @@ record Equality-relations
     -- Generic equality compatibility
     ~-to-≅ₜ  : Γ ⊢ t ~ u ∷ A
              → Γ ⊢ t ≅ u ∷ A
-    ⊢≅∷→⊢≅∷L : Γ ⊢ l₁ ≅ l₂ ∷ Level
-             → Γ ⊢ l₁ ≅ l₂ ∷Level
+    ⊢≅∷→⊢≅∷L : Γ ⊢ t₁ ≅ t₂ ∷ Level
+             → Γ ⊢ level t₁ ≅ level t₂ ∷Level
 
     -- Judgmental conversion compatibility
     ≅-eq      : Γ ⊢ A ≅ B
@@ -119,18 +120,17 @@ record Equality-relations
     ⊢≅∷L→⊢≡∷L : Γ ⊢ l₁ ≅ l₂ ∷Level
               → Γ ⊢ l₁ ≡ l₂ ∷Level
 
-    -- Level literals are related to themselves in well-formed
-    -- contexts if Level is not allowed.
-    Level-literal→⊢≅∷L : ¬ Level-allowed
+    -- Allowed level literals are related to themselves in well-formed
+    -- contexts.
+    Level-literal→⊢≅∷L : Allowed-literal l
                        → ⊢ Γ
-                       → Level-literal l
                        → Γ ⊢ l ≅ l ∷Level
 
-    -- If Level is allowed, then _⊢_≅_∷Level is contained in
-    -- _⊢_≅_∷ Level.
+    -- If Level is allowed, then Γ ⊢ level t₁ ≅ level t₂ ∷Level
+    -- implies Γ ⊢ t₁ ≅ t₂ ∷ Level.
     ⊢≅∷L→⊢≅∷ : Level-allowed
-             → Γ ⊢ l₁ ≅ l₂ ∷Level
-             → Γ ⊢ l₁ ≅ l₂ ∷ Level
+             → Γ ⊢ level t₁ ≅ level t₂ ∷Level
+             → Γ ⊢ t₁ ≅ t₂ ∷ Level
 
     -- Universe
     ≅-univ : Γ ⊢ A ≅ B ∷ U l
@@ -158,8 +158,8 @@ record Equality-relations
             → (∇ » Δ) ⊢ t ≅ u ∷ A
             → (∇ » Η) ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
     wk-⊢≅∷L : ∇ » ρ ∷ʷ Η ⊇ Δ
-            → (∇ » Δ) ⊢ t ≅ u ∷Level
-            → (∇ » Η) ⊢ wk ρ t ≅ wk ρ u ∷Level
+            → (∇ » Δ) ⊢ l₁ ≅ l₂ ∷Level
+            → (∇ » Η) ⊢ wk ρ l₁ ≅ wk ρ l₂ ∷Level
     ~-wk    : ∇ » ρ ∷ʷ Η ⊇ Δ
             → (∇ » Δ) ⊢ t ~ u ∷ A
             → (∇ » Η) ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
@@ -188,7 +188,7 @@ record Equality-relations
            → Γ ⊢ a  ≅ b  ∷ A
 
     -- Level type reflexivity
-    ≅ₜ-Levelrefl : ⊢ Γ → Level-is-small → Γ ⊢≅ Level ∷ U zeroᵘ
+    ≅ₜ-Levelrefl : ⊢ Γ → Level-is-small → Γ ⊢≅ Level ∷ U₀
 
     ≅-Levelrefl : Level-allowed → ⊢ Γ → Γ ⊢≅ Level
 
@@ -233,35 +233,35 @@ record Equality-relations
       → Γ ⊢ t supᵘ sucᵘ t ≅ sucᵘ t ∷ Level
 
     -- Universe congruence
-    ≅ₜ-U-cong : Γ ⊢ l ≅ k ∷Level → Γ ⊢ U l ≅ U k ∷ U (sucᵘ l)
+    ≅ₜ-U-cong : Γ ⊢ l₁ ≅ l₂ ∷Level → Γ ⊢ U l₁ ≅ U l₂ ∷ U (1ᵘ+ l₁)
 
     -- Lift congruence
     ≅-Lift-cong
-      : Γ ⊢ l ≅ k ∷Level
-      → Γ ⊢ A ≅ B
-      → Γ ⊢ Lift l A ≅ Lift k B
+      : Γ ⊢ l₁ ≅ l₂ ∷Level
+      → Γ ⊢ A₁ ≅ A₂
+      → Γ ⊢ Lift l₁ A₁ ≅ Lift l₂ A₂
 
     ≅ₜ-Lift-cong
-      : Γ ⊢ l ≅ k ∷Level
-      → Γ ⊢ A ≅ B ∷ U l₁
-      → Γ ⊢ Lift l A ≅ Lift k B ∷ U (l₁ supᵘₗ l)
+      : Γ ⊢ l₁ ≅ l₂ ∷Level
+      → Γ ⊢ A₁ ≅ A₂ ∷ U l₀
+      → Γ ⊢ Lift l₁ A₁ ≅ Lift l₂ A₂ ∷ U (l₀ supᵘₗ l₁)
 
     -- η for Lift
-    ≅-Lift-η : Γ ⊢ t ∷ Lift k A
-             → Γ ⊢ u ∷ Lift k A
+    ≅-Lift-η : Γ ⊢ t ∷ Lift l A
+             → Γ ⊢ u ∷ Lift l A
              → Whnf (Γ .defs) t
              → Whnf (Γ .defs) u
              → Γ ⊢ lower t ≅ lower u ∷ A
-             → Γ ⊢ t ≅ u ∷ Lift k A
+             → Γ ⊢ t ≅ u ∷ Lift l A
 
     -- Natural number type reflexivity
-    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ ∷ U zeroᵘ
+    ≅ₜ-ℕrefl : ⊢ Γ → Γ ⊢≅ ℕ ∷ U₀
 
     -- Empty type reflexivity
-    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty ∷ U zeroᵘ
+    ≅ₜ-Emptyrefl : ⊢ Γ → Γ ⊢≅ Empty ∷ U₀
 
     -- Unit type congruence
-    ≅ₜ-Unit-refl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s ∷ U zeroᵘ
+    ≅ₜ-Unit-refl : ⊢ Γ → Unit-allowed s → Γ ⊢≅ Unit s ∷ U₀
 
     -- Unit η-equality
     ≅ₜ-η-unit : Γ ⊢ e ∷ Unit s
@@ -467,7 +467,7 @@ record Equality-relations
 
     -- A variant of ≅ₜ-U-cong.
 
-    ≅-U-cong : Γ ⊢ l ≅ k ∷Level → Γ ⊢ U l ≅ U k
+    ≅-U-cong : Γ ⊢ l₁ ≅ l₂ ∷Level → Γ ⊢ U l₁ ≅ U l₂
     ≅-U-cong l≡k = ≅-univ (≅ₜ-U-cong l≡k)
 
   opaque
@@ -605,7 +605,7 @@ record EqRelSet : Set (lsuc ℓ) where
     _⊢_≅_∷_ : Cons δ n → (t u A : Term n) → Set ℓ
 
     -- Equality of levels
-    _⊢_≅_∷Level : Cons δ n → (t u : Term n) → Set ℓ
+    _⊢_≅_∷Level : Cons δ n → (t u : Lvl n) → Set ℓ
 
     -- Equality of neutral terms
     _⊢_~_∷_ : Cons δ n → (t u A : Term n) → Set ℓ

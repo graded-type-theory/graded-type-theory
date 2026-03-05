@@ -47,7 +47,8 @@ import Tools.Reasoning.PropositionalEquality
 
 private variable
   n : Nat
-  A P k l t h xs nl cs : Term _
+  A P k t h xs nl cs : Term _
+  l : Lvl _
   γ δ η γ₁ γ₂ δ₁ δ₂ η₁ η₂ η₃ θ θ₁ θ₂ : Conₘ _
   m : Mode
   p₁ p₂ p₃ p₄ q q₁ q₂ r r₁ r₂ : M

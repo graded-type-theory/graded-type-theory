@@ -52,6 +52,7 @@ open import Definition.Typed.Size TR
 open import Definition.Typed.Substitution TR as S
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped Erasure
+open import Definition.Untyped.Allowed-literal TR
 
 open import Tools.Empty
 open import Tools.Fin
@@ -65,15 +66,16 @@ open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  ∇                       : DCon _ _
-  Γ Η                     : Cons _ _
-  Δ                       : Con _ _
-  A A₁ A₂ l l₁ l₂ t t₁ t₂ : Term _
-  σ                       : Subst _ _
-  γ δ                     : Conₘ _
-  p q r                   : Erasure
-  m                       : Mode
-  s s₂                    : Size
+  ∇               : DCon _ _
+  Γ Η             : Cons _ _
+  Δ               : Con _ _
+  A A₁ A₂ t t₁ t₂ : Term _
+  l l₁ l₂         : Lvl _
+  σ               : Subst _ _
+  γ δ             : Conₘ _
+  p q r           : Erasure
+  m               : Mode
+  s s₂            : Size
 
 private
 
@@ -483,9 +485,9 @@ opaque mutual
 
   ⊢∷L→▸ : Γ C.⊢ l ∷Level → 𝟘ᶜ ▸[ 𝟘ᵐ ] l
   ⊢∷L→▸ (term _ ⊢l) =
-    ⊢∷→▸ ⊢l
-  ⊢∷L→▸ (literal _ _ l-lit) =
-    Level-literal→▸ l-lit
+    level (⊢∷→▸ ⊢l)
+  ⊢∷L→▸ (literal ok _) =
+    Level-literal→▸ (Allowed-literal→Level-literal ok)
 
   private
 
@@ -619,8 +621,8 @@ opaque mutual
   ⊢∷L→⊢∷L : Γ C.⊢ l ∷Level → Γ T.⊢ l ∷Level
   ⊢∷L→⊢∷L (term ok ⊢l) =
     term ok (⊢∷[]→⊢∷ ⊢l)
-  ⊢∷L→⊢∷L (literal not-ok ⊢Γ l-lit) =
-    literal not-ok (⊢→⊢ ⊢Γ) l-lit
+  ⊢∷L→⊢∷L (literal ok ⊢Γ) =
+    literal ok (⊢→⊢ ⊢Γ)
 
   -- Definitional equality implies definitional equality.
 
@@ -750,8 +752,8 @@ opaque mutual
   ⊢≡∷L→⊢≡∷L : Γ C.⊢ l₁ ≡ l₂ ∷Level → Γ T.⊢ l₁ ≡ l₂ ∷Level
   ⊢≡∷L→⊢≡∷L (term ok l₁≡l₂) =
     term ok (⊢≡∷→⊢≡∷ l₁≡l₂)
-  ⊢≡∷L→⊢≡∷L (literal! not-ok ⊢Γ l-lit) =
-    literal not-ok (⊢→⊢ ⊢Γ) l-lit
+  ⊢≡∷L→⊢≡∷L (literal! ok ⊢Γ) =
+    literal ok (⊢→⊢ ⊢Γ)
 
 opaque
 
@@ -1092,8 +1094,8 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       ⊢∷L←⊢∷Lₛ hyp = let open Variants hyp in λ where
         (term ok ⊢l) PE.refl →
           term ok (⊢∷←⊢∷ ⊢l)
-        (literal not-ok ⊢Γ l-lit) PE.refl →
-          literal not-ok (⊢←⊢′ ⊢Γ) l-lit
+        (literal ok ⊢Γ) PE.refl →
+          literal ok (⊢←⊢′ ⊢Γ)
 
       -- Definitional equality implies definitional equality.
 
@@ -1239,8 +1241,8 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       ⊢≡∷L←⊢≡∷Lₛ hyp = let open Variants hyp in λ where
         (term ok l₁≡l₂) PE.refl →
           term ok (⊢≡∷←⊢≡∷ l₁≡l₂)
-        (literal not-ok ⊢Γ l-lit) PE.refl →
-          literal! not-ok (⊢←⊢′ ⊢Γ) l-lit
+        (literal ok ⊢Γ) PE.refl →
+          literal! ok (⊢←⊢′ ⊢Γ)
 
     opaque
 

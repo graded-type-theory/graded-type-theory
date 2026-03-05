@@ -32,11 +32,12 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ                                           : Cons _ _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ l t t₁ t₂ u u₁ u₂ v : Term _
-  b                                           : BinderMode
-  s                                           : Strength
-  p q r                                       : M
+  Γ                                         : Cons _ _
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ t t₁ t₂ u u₁ u₂ v : Term _
+  l                                         : Lvl _
+  b                                         : BinderMode
+  s                                         : Strength
+  p q r                                     : M
 
 ------------------------------------------------------------------------
 -- Rules for _⟶×⟨_⟩[_]_

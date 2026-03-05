@@ -60,13 +60,13 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  k n                                          : Nat
-  Γ                                            : Cons _ _
-  A A₁ A₂ B B₁ B₂ C
-    l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  σ                                            : Subst _ _
-  s                                            : Strength
-  p                                            : M
+  k n                                                  : Nat
+  Γ                                                    : Cons _ _
+  A A₁ A₂ B B₁ B₂ C t t′ t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  l l₁ l₂                                              : Lvl _
+  σ                                                    : Subst _ _
+  s                                                    : Strength
+  p                                                    : M
 
 ------------------------------------------------------------------------
 -- Lemmas about Erased, [_] and erased
@@ -228,7 +228,7 @@ opaque
     Erased-allowed s ×
     ∃ λ l₁ → Γ ⊢ A ∷ U l₁ × Γ ⊢ B ≡ U l₁ ×
     ∃ λ l₂ →
-      Γ »∙ A ⊢ U (wk1 l₁) ≡ U (l₂ supᵘₗ wk1 l) × Γ »∙ A ⊢ U l₂ ≡ U zeroᵘ
+      Γ »∙ A ⊢ U (wk1 l₁) ≡ U (l₂ supᵘₗ wk1 l) × Γ »∙ A ⊢ U l₂ ≡ U₀
   inversion-Erased-∷ ⊢Erased =
     let l₁ , _ , ⊢A , ⊢Lift-Unit , B≡U[l₁] , Σ-ok =
            inversion-ΠΣ-U ⊢Erased
@@ -329,7 +329,7 @@ private
            (subst-⊢∷L ⊢wk1-l-[wk3⇑]
               (PE.subst (_⊢ˢʷ_∷_ _ _)
                  (PE.cong (_∙_ _) $
-                  PE.trans (wk[]≡wk[]′ {k = 3}) $ wk≡subst _ _) $
+                  PE.trans (wk[]≡wk[]′ {n = 3}) $ wk≡subst _ _) $
                ⊢ˢʷ∷-sgSubst (var₂ ⊢Unit′)))
            (var₀ ⊢Unit′))
         Σ-ok
@@ -383,14 +383,14 @@ private
                                                                              (Liftⱼ (W.wkLevel (liftʷ ⊇-drop ⊢wk-A) ⊢wk1-l)
                                                                                 (⊢Unit (∙ ⊢wk-A) Unit-ok))
                                                                              (refl $
-                                                                              PE.subst (_⊢_∷_ _ _) (wk[]≡wk[]′ {k = k})
+                                                                              PE.subst (_⊢_∷_ _ _) (wk[]≡wk[]′ {n = k})
                                                                                 ⊢t)
                                                                              (⊢lift-lower≡∷ $
                                                                               PE.subst (_⊢_∷_ _ _)
                                                                                 (PE.cong (flip Lift _) $ PE.sym $
                                                                                  PE.trans (PE.cong U._[ _ ]₀ $ lift-wk1 _ l) $
                                                                                  PE.trans (step-sgSubst _ _) $
-                                                                                 PE.sym $ wk[]≡wk[]′ {k = k})
+                                                                                 PE.sym $ wk[]≡wk[]′ {n = k})
                                                                                 ⊢u)
                                                                              Σ-ok ⟩⊢∎
       B U.[ k ][ prod s 𝟘 t u ]↑                                        ∎
@@ -676,7 +676,7 @@ module _ (ok : []-cong-allowed s) where
 
     ⊢[erased-0]↑ :
       Γ »∙ A ⊢ B →
-      Γ »∙ Erased zeroᵘ A ⊢ B [ erased (wk1 A) (var x0) ]↑
+      Γ »∙ Erased zeroᵘₗ A ⊢ B [ erased (wk1 A) (var x0) ]↑
     ⊢[erased-0]↑ ⊢B =
       let ⊢A = ⊢∙→⊢ (wf ⊢B) in
       subst-⊢ ⊢B $ ⊢ˢʷ∷-[][]↑ $ erasedⱼ $
@@ -722,13 +722,13 @@ module _ (ok : []-cong-allowed s) where
           ⊢u          = conv ⊢u (sym ≡B[t]₀)
       in
       conv*
-        (subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑)
-           [ t ] [ t′ ] ([]-cong s zeroᵘ A t t′ rfl) u              ⇒⟨ conv (subst-subst ⊢B[]↑ ([]-cong-β ⊢0 t≡t′ ok) ⊢u) $
-                                                                       substTypeEq (refl ⊢B[]↑) (sym′ [t]≡[t′]) ⟩
-         subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑)
-           [ t ] [ t′ ] rfl u                                       ⇒⟨ subst-⇒′ ⊢B[]↑ [t]≡[t′] ⊢u ⟩∎
+        (subst 𝟘 (Erased zeroᵘₗ A) (B [ erased (wk1 A) (var x0) ]↑)
+           [ t ] [ t′ ] ([]-cong s zeroᵘₗ A t t′ rfl) u              ⇒⟨ conv (subst-subst ⊢B[]↑ ([]-cong-β ⊢0 t≡t′ ok) ⊢u) $
+                                                                        substTypeEq (refl ⊢B[]↑) (sym′ [t]≡[t′]) ⟩
+         subst 𝟘 (Erased zeroᵘₗ A) (B [ erased (wk1 A) (var x0) ]↑)
+           [ t ] [ t′ ] rfl u                                        ⇒⟨ subst-⇒′ ⊢B[]↑ [t]≡[t′] ⊢u ⟩∎
 
-         u                                                          ∎)
+         u                                                           ∎)
         ≡B[t]₀
 
   opaque
@@ -779,7 +779,7 @@ module _ (ok : []-cong-allowed s) where
       conv
         (subst-cong (Erased-cong Erased-ok (refl-⊢≡∷L ⊢0) A₁≡A₂)
            (subst-⊢≡ B₁≡B₂ $ ⊢ˢʷ≡∷-[][]↑ $
-            erased-cong {l = zeroᵘ} (wkEq₁ ⊢Erased-A₁ A₁≡A₂) $
+            erased-cong {l = zeroᵘₗ} (wkEq₁ ⊢Erased-A₁ A₁≡A₂) $
             refl $ PE.subst (_⊢_∷_ _ _) wk-Erased $
             var₀ ⊢Erased-A₁)
            ([]-cong′ Erased-ok ⊢0 t₁≡t₂)
@@ -860,7 +860,8 @@ module _ (ok : []-cong-allowed s) where
       t                                                              ∎
 
     lemma₄ :
-      ∀ t → wk₂ t [ u ]₀ PE.≡ wk1 t U.[ consSubst (wk1Subst idSubst) v ]
+      (t : Term n) →
+      wk₂ t [ u ]₀ PE.≡ wk1 t U.[ consSubst (wk1Subst idSubst) v ]
     lemma₄ {u} {v} t =
       wk₂ t [ u ]₀                                ≡⟨ subst-wk t ⟩
       t U.[ wk1Subst idSubst ]                    ≡˘⟨ wk1-tail t ⟩

@@ -208,8 +208,8 @@ record Extended-type-theory : Set (lsuc a) where
       ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
       ε ▸ ∇ » ε ⊢ᴱ t ∷[ 𝟙ᵐ ] tr ℕ →
       ∃ λ n →
-        glassify ∇ » ε ⊢ᴱ t ≡ tr (sucᵏ n) ∷ tr ℕ ×
-        eraseDConᴱ str ∇ ⊢ eraseᴱ str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+        glassify ∇ » ε ⊢ᴱ t ≡ tr (sucⁿ n) ∷ tr ℕ ×
+        eraseDConᴱ str ∇ ⊢ eraseᴱ str t ⇒ˢ⟨ str ⟩* T.sucⁿ n
 
   opaque
     unfolding eraseDCon′
@@ -253,8 +253,8 @@ record Extended-type-theory : Set (lsuc a) where
       𝟘ᶜ ▸[ 𝟙ᵐ ] t →
       ∃ λ n →
         map-DCon tr (glassify ∇) » ε ⊢ᴱ
-          tr t [ σ ]ᴱ ≡ tr (sucᵏ n) ∷ tr ℕ ×
-        eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+          tr t [ σ ]ᴱ ≡ tr (sucⁿ n) ∷ tr ℕ ×
+        eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucⁿ n
     soundness-ℕ {∇} {t} {str} {σ} ⊢σ ⊢t ▸∇ ▸t =
       let ⊢tr-t = tr-⊢∷ ⊢t ▸t ▸∇
 
@@ -276,7 +276,7 @@ record Extended-type-theory : Set (lsuc a) where
         (T.wk wk₀ (eraseᴱ str (tr t [ σ ]ᴱ))  ≡⟨ eraseᴱ-[]ᴱ ⊢tr-t ⟩
          eraseᴱ str (tr t)                    ≡⟨ eraseᴱ-tr ⟩
          erase str t                          ∎)
-        PE.refl TP.wk-sucᵏ
+        PE.refl TP.wk-sucⁿ
         (wk-⇒ˢ⟨⟩* red)
 
 ------------------------------------------------------------------------
@@ -438,8 +438,8 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-      glassify ∇ » ε Ext.⊢ t [ σ ] ≡ sucᵏ n ∷ ℕ ×
-      eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+      glassify ∇ » ε Ext.⊢ t [ σ ] ≡ sucⁿ n ∷ ℕ ×
+      eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucⁿ n
   soundness-ℕ-using-equality-reflection {∇} ⊢σ ▸σ ⊢t ▸∇ ▸t =
     let _ , eq , d =
           soundness-ℕ
@@ -480,8 +480,8 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-      glassify ∇ » ε Ext.⊢ t [ poly-funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
-      eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+      glassify ∇ » ε Ext.⊢ t [ poly-funext p p′ ]₀ ≡ sucⁿ n ∷ ℕ ×
+      eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucⁿ n
   soundness-ℕ-with-function-extensionality ok Π-ok Π-ok′ ·p≤𝟘 ·p′≤𝟘 ⊢t =
     soundness-ℕ-using-equality-reflection
       (⊢ˢʷ∷-sgSubst $
@@ -516,8 +516,8 @@ opaque
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-      glassify ∇ » ε Ext.⊢ t [ poly-funext p p′ ]₀ ≡ sucᵏ n ∷ ℕ ×
-      eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n
+      glassify ∇ » ε Ext.⊢ t [ poly-funext p p′ ]₀ ≡ sucⁿ n ∷ ℕ ×
+      eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucⁿ n
   soundness-ℕ-with-function-extensionality-𝟘ᵐ ⦃ ok ⦄ okᴸ Π-ok Π-ok′ =
     soundness-ℕ-with-function-extensionality
       ⦃ 𝟘-well-behaved = 𝟘-well-behaved ok ⦄ okᴸ Π-ok Π-ok′ lemma lemma

@@ -118,6 +118,7 @@ opaque
       (record
          { unfolding-mode-preserved = refl
          ; level-support-preserved  = refl-≤LS
+         ; Omega-plus-preserved     = idᶠ
          ; Unit-preserved           = idᶠ
          ; ΠΣ-preserved             =
              λ {b = b} →
@@ -141,8 +142,8 @@ opaque
   soundness-ℕ :
     ∇ » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     ∃ λ n →
-    glassify ∇ » Δ SR-η.⊢ t ⇒ˢ* sucᵏ n ∷ℕ ×
-    (∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucᵏ n)
+    glassify ∇ » Δ SR-η.⊢ t ⇒ˢ* sucⁿ n ∷ℕ ×
+    (∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucⁿ n)
   soundness-ℕ = Soundness-η.soundness-ℕ ∘→ ⊢∷→⊢∷-η
 
 opaque

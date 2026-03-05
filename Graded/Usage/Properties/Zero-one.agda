@@ -47,7 +47,7 @@ private variable
   γ δ η θ χ : Conₘ _
   m m′ m₁ m₂ : Mode
   p q r : M
-  t A z s n : Term _
+  t A z s n : Term[ _ ] _
   ok : T _
   ∇ : DCon _ _
 

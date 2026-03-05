@@ -40,9 +40,10 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 private variable
-  α n           : Nat
+  α n o         : Nat
   x             : Fin _
-  A B l t u v w : Term _
+  A B l t u v w : Term[ _ ] _
+  k             : Term-kind
   p q r         : M
   γ             : Conₘ _
   s             : Strength
@@ -59,7 +60,8 @@ private variable
 -- for every subterm in t, and that a certain condition holds for
 -- every application of natrec in t.
 
-data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
+data Usage-restrictions-satisfied {n} (m : Mode) :
+       Term[ k ] n → Set a where
   varᵤ :
     Usage-restrictions-satisfied m (var x)
   defnᵤ :
@@ -134,6 +136,11 @@ data Usage-restrictions-satisfied {n} (m : Mode) : Term n → Set a where
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m u →
     Usage-restrictions-satisfied m (t supᵘ u)
+  ωᵘ+ :
+    Usage-restrictions-satisfied m (ωᵘ+ o)
+  level :
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m (level t)
   Uᵤ :
     Usage-restrictions-satisfied 𝟘ᵐ t →
     Usage-restrictions-satisfied m (U t)
@@ -402,6 +409,10 @@ opaque mutual
       sucᵘᵤ (Usage-restrictions-satisfied-≤ᵐ m≤m′ t)
     (supᵘᵤ t u) →
       supᵘᵤ (Usage-restrictions-satisfied-≤ᵐ m≤m′ t) (Usage-restrictions-satisfied-≤ᵐ m≤m′ u)
+    ωᵘ+ →
+      ωᵘ+
+    (level t) →
+      level (Usage-restrictions-satisfied-≤ᵐ m≤m′ t)
     (Uᵤ t) →
       Uᵤ t
     (Liftᵤ t A) →
@@ -573,6 +584,10 @@ opaque
     (supᵘₘ ▸t ▸u) →
       supᵘᵤ (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸u)
+    ωᵘ+ →
+      ωᵘ+
+    (level ▸t) →
+      level (▸→Usage-restrictions-satisfied ▸t)
     (Uₘ ▸t) →
       Uᵤ (▸→Usage-restrictions-satisfied ▸t)
     (Liftₘ ▸t ▸A) →
@@ -861,6 +876,10 @@ opaque
         sub (supᵘₘ (lemma t-ok) (lemma u-ok)) $ begin
           𝟘ᶜ        ≈˘⟨ +ᶜ-identityˡ _ ⟩
           𝟘ᶜ +ᶜ 𝟘ᶜ  ∎
+      ωᵘ+ →
+        ωᵘ+
+      (level t-ok) →
+        level (lemma t-ok)
       (Uᵤ t-ok) →
         Uₘ (lemma t-ok)
       (Liftᵤ t-ok A-ok) →
@@ -929,7 +948,7 @@ opaque
         subst (λ m → Usage-restrictions-satisfied m _)
           (sym ᵐ·-zeroˡ) (lemma _)
 
-      lemma : (t : Term n) → Usage-restrictions-satisfied 𝟘ᵐ t
+      lemma : (t : Term[ k ] n) → Usage-restrictions-satisfied 𝟘ᵐ t
       lemma (var _) =
         varᵤ
       lemma (defn _) =
@@ -942,6 +961,10 @@ opaque
         sucᵘᵤ (lemma _)
       lemma (_ supᵘ _) =
         supᵘᵤ (lemma _) (lemma _)
+      lemma (ωᵘ+ _) =
+        ωᵘ+
+      lemma (level _) =
+        level (lemma _)
       lemma (U _) =
         Uᵤ (lemma _)
       lemma (Lift _ _) =
@@ -1114,6 +1137,10 @@ opaque
       (supᵘᵤ t-ok u-ok) →
         sub (supᵘₘ {γ = 𝟘ᶜ} {δ = 𝟘ᶜ} (lemma t-ok) (lemma u-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
+      ωᵘ+ →
+        sub ωᵘ+ (≈ᶜ-trivial 𝟙≡𝟘)
+      (level t-ok) →
+        level (lemma t-ok)
       (Uᵤ t-ok) →
         sub (Uₘ (lemma₀ t-ok)) (≈ᶜ-trivial 𝟙≡𝟘)
       (Liftᵤ t-ok A-ok) →

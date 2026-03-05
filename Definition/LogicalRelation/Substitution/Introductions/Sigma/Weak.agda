@@ -349,7 +349,7 @@ private opaque
   -- A lemma used below.
 
   [1,0]↑²[⇑⇑][]₁₀≡[⇑][,]₀ :
-    ∀ A →
+    (A : Term (1+ n)) →
     A [ prodʷ p (var x1) (var x0) ]↑² [ σ ⇑ ⇑ ] [ t , u ]₁₀ PE.≡
     A [ σ ⇑ ] [ prodʷ p t u ]₀
   [1,0]↑²[⇑⇑][]₁₀≡[⇑][,]₀ {p} {σ} {t} {u} A =

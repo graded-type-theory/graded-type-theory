@@ -42,6 +42,7 @@ private
     Γ : Cons m n
     σ σ₁ σ₂ σ′ : Subst m n
     A A₁ A₂ B t t₁ t₂ u : Term _
+    l l₁ l₂ : Lvl _
     ⊩Γ : _ »⊩ᵛ _
 
 opaque mutual
@@ -65,7 +66,7 @@ opaque mutual
 
 
   -- Fundamental theorem for types.
-  fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A
+  fundamental-⊩ᵛ : Γ ⊢ A → ∃ λ ℓ → Γ ⊩ᵛ⟨ ℓ ⟩ A
   fundamental-⊩ᵛ (Levelⱼ ok ⊢Γ) =
     0ᵘ , Levelᵛ (Level-allowed⇔⊎ .proj₂ (inj₂ ok)) (valid ⊢Γ)
   fundamental-⊩ᵛ (Liftⱼ ⊢l ⊢A) =
@@ -81,7 +82,7 @@ opaque mutual
     _ , ⊩ᵛ∷U→⊩ᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂)
 
   -- Fundamental theorem for type equality.
-  fundamental-⊩ᵛ≡ : Γ ⊢ A ≡ B → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ A ≡ B
+  fundamental-⊩ᵛ≡ : Γ ⊢ A ≡ B → ∃ λ ℓ → Γ ⊩ᵛ⟨ ℓ ⟩ A ≡ B
   fundamental-⊩ᵛ≡ (univ A≡B) =
     let a = ⊩ᵛ≡∷U→⊩ᵛ≡ (proj₂ (fundamental-⊩ᵛ≡∷ A≡B))
     in _ , a
@@ -115,7 +116,7 @@ opaque mutual
                    (proj₂ (fundamental-⊩ᵛ≡∷ u₁≡u₂)))
 
   -- Fundamental theorem for terms.
-  fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷ A
+  fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → ∃ λ ℓ → Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A
   fundamental-⊩ᵛ∷ (Levelⱼ ⊢Γ ok) =
     _ , Levelᵗᵛ (valid ⊢Γ) ok
   fundamental-⊩ᵛ∷ (zeroᵘⱼ ok ⊢Γ) =
@@ -184,15 +185,15 @@ opaque mutual
     natrecᵛ (wf-∙-⊩ᵛ (wf-⊩ᵛ∷ ⊩u) .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊢u
       ⊩u (fundamental-⊩ᵛ∷ ⊢v .proj₂)
   fundamental-⊩ᵛ∷ (emptyrecⱼ ⊢A ⊢t) =
-    let l , ⊩A = fundamental-⊩ᵛ ⊢A
+    let ℓ , ⊩A = fundamental-⊩ᵛ ⊢A
         _ , ⊩t = fundamental-⊩ᵛ∷ ⊢t
     in
-    l , emptyrecᵛ ⊩A ⊩t
+    ℓ , emptyrecᵛ ⊩A ⊩t
   fundamental-⊩ᵛ∷ (starⱼ ⊢Γ ok) =
     _ , starᵛ (valid ⊢Γ) ok
   fundamental-⊩ᵛ∷ (conv ⊢t A≡B) =
-    let l , A≡B = fundamental-⊩ᵛ≡ A≡B in
-    l , conv-⊩ᵛ∷ A≡B (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+    let ℓ , A≡B = fundamental-⊩ᵛ≡ A≡B in
+    ℓ , conv-⊩ᵛ∷ A≡B (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ∷ (prodrecⱼ ⊢C ⊢t ⊢u _) =
     _ ,
     prodrecᵛ ⊢C (fundamental-⊩ᵛ ⊢C .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
@@ -223,21 +224,21 @@ opaque mutual
     _ , ⊩ᵛU∷U (fundamental-⊩ᵛ∷L ⊢l .proj₂)
 
   -- The fundamental theorem for levels.
-  fundamental-⊩ᵛ∷L : Γ ⊢ t ∷Level → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ∷Level
+  fundamental-⊩ᵛ∷L : Γ ⊢ l ∷Level → ∃ λ ℓ → Γ ⊩ᵛ⟨ ℓ ⟩ l ∷Level
   fundamental-⊩ᵛ∷L (term ok ⊢t) =
     _ , term-⊩ᵛ∷L ok (fundamental-⊩ᵛ∷ ⊢t .proj₂)
-  fundamental-⊩ᵛ∷L (literal not-ok ⊢Γ t-lit) =
-    0ᵘ , literal-⊩ᵛ∷L not-ok (valid ⊢Γ) t-lit
+  fundamental-⊩ᵛ∷L (literal ok ⊢Γ) =
+    0ᵘ , literal-⊩ᵛ∷L ok (valid ⊢Γ)
 
   -- Fundamental theorem for term equality.
-  fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
+  fundamental-⊩ᵛ≡∷ : Γ ⊢ t ≡ u ∷ A → ∃ λ ℓ → Γ ⊩ᵛ⟨ ℓ ⟩ t ≡ u ∷ A
   fundamental-⊩ᵛ≡∷ (refl ⊢t) =
     _ , refl-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ∷ ⊢t))
   fundamental-⊩ᵛ≡∷ (sym _ t≡u) =
     _ , sym-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
   fundamental-⊩ᵛ≡∷ (trans t≡u u≡v) =
-    let l , [u≡v] = fundamental-⊩ᵛ≡∷ u≡v
-    in l , trans-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡∷ t≡u)) [u≡v]
+    let ℓ , [u≡v] = fundamental-⊩ᵛ≡∷ u≡v
+    in ℓ , trans-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡∷ t≡u)) [u≡v]
   fundamental-⊩ᵛ≡∷ (conv t≡u A≡B) =
     _ , conv-⊩ᵛ≡∷ (proj₂ (fundamental-⊩ᵛ≡ A≡B)) (proj₂ (fundamental-⊩ᵛ≡∷ t≡u))
   fundamental-⊩ᵛ≡∷ (δ-red ⊢Γ α↦t PE.refl PE.refl) =
@@ -398,11 +399,12 @@ opaque mutual
     _ , equality-reflectionᵛ ok (fundamental-⊩ᵛ∷ ⊢v .proj₂)
 
   -- The fundamental theorem for level equality.
-  fundamental-⊩ᵛ≡∷L : Γ ⊢ t ≡ u ∷Level → ∃ λ l → Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷Level
+  fundamental-⊩ᵛ≡∷L :
+    Γ ⊢ l₁ ≡ l₂ ∷Level → ∃ λ ℓ → Γ ⊩ᵛ⟨ ℓ ⟩ l₁ ≡ l₂ ∷Level
   fundamental-⊩ᵛ≡∷L (term ok t≡u) =
     _ , term ok (fundamental-⊩ᵛ≡∷ t≡u .proj₂)
-  fundamental-⊩ᵛ≡∷L (literal not-ok ⊢Γ t-lit) =
-    0ᵘ , literal! not-ok (valid ⊢Γ) t-lit
+  fundamental-⊩ᵛ≡∷L (literal ok ⊢Γ) =
+    0ᵘ , literal! ok (valid ⊢Γ)
 
 opaque
 

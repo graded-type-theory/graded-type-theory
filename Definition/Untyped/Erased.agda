@@ -38,18 +38,19 @@ open import Tools.PropositionalEquality as PE hiding (subst; cong)
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n             : Nat
-  ξ             : DExt _ _ _
-  A B l t u v w : Term _
-  σ             : Subst _ _
-  ρ             : Wk _ _
-  p             : M
+  n           : Nat
+  ξ           : DExt _ _ _
+  A B t u v w : Term _
+  l           : Lvl _
+  σ           : Subst _ _
+  ρ           : Wk _ _
+  p           : M
 
 opaque
 
   -- The type constructor Erased.
 
-  Erased : Term n → Term n → Term n
+  Erased : Lvl n → Term n → Term n
   Erased l A = Σ⟨ s ⟩ 𝟘 , 𝟘 ▷ A ▹ Lift (wk1 l) (Unit s)
 
 opaque
@@ -260,7 +261,7 @@ opaque
 
   -- A propositional η-rule for Erased.
 
-  Erased-η : Term n → Term n → Term n → Term n
+  Erased-η : Lvl n → Term n → Term n → Term n
   Erased-η l A t =
     erasedrec 𝟙
       (Id (Erased (wk1 l) (wk1 A)) [ erased (wk1 A) (var x0) ] (var x0))
@@ -345,8 +346,8 @@ opaque
   substᵉ :
     Term n → Term (1+ n) → Term n → Term n → Term n → Term n → Term n
   substᵉ A B t u v w =
-    subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑)
-      [ t ] [ u ] ([]-cong s zeroᵘ A t u v) w
+    subst 𝟘 (Erased zeroᵘₗ A) (B [ erased (wk1 A) (var x0) ]↑) [ t ]
+      [ u ] ([]-cong s zeroᵘₗ A t u v) w
 
 opaque
   unfolding substᵉ
@@ -358,17 +359,17 @@ opaque
     substᵉ (A U.[ σ ]) (B U.[ liftSubst σ ]) (t U.[ σ ])
       (u U.[ σ ]) (v U.[ σ ]) (w U.[ σ ])
   substᵉ-[] {A} {B} {t} {u} {v} {w} {σ} =
-    subst 𝟘 (Erased zeroᵘ A) (B [ erased (wk1 A) (var x0) ]↑) [ t ]
-      [ u ] ([]-cong s zeroᵘ A t u v) w U.[ σ ]                           ≡⟨ subst-[] ⟩
+    subst 𝟘 (Erased zeroᵘₗ A) (B [ erased (wk1 A) (var x0) ]↑) [ t ]
+      [ u ] ([]-cong s zeroᵘₗ A t u v) w U.[ σ ]                          ≡⟨ subst-[] ⟩
 
-    subst 𝟘 (Erased zeroᵘ A U.[ σ ])
-      (B [ erased (wk1 A) (var x0) ]↑ U.[ liftSubst σ ]) ([ t ] U.[ σ ])
-      ([ u ] U.[ σ ]) ([]-cong s zeroᵘ A t u v U.[ σ ]) (w U.[ σ ])       ≡⟨ cong₆ (subst _) Erased-[] lemma []-[] []-[] refl refl ⟩
+    subst 𝟘 (Erased zeroᵘₗ A U.[ σ ])
+      (B [ erased (wk1 A) (var x0) ]↑ U.[ σ ⇑ ]) ([ t ] U.[ σ ])
+      ([ u ] U.[ σ ]) ([]-cong s zeroᵘₗ A t u v U.[ σ ]) (w U.[ σ ])      ≡⟨ cong₆ (subst _) Erased-[] lemma []-[] []-[] refl refl ⟩
 
-    subst 𝟘 (Erased zeroᵘ (A U.[ σ ]))
-      (B U.[ liftSubst σ ] [ erased (wk1 (A U.[ σ ])) (var x0) ]↑)
-      [ t U.[ σ ] ] [ u U.[ σ ] ]
-      ([]-cong s zeroᵘ (A U.[ σ ]) (t U.[ σ ]) (u U.[ σ ]) (v U.[ σ ]))
+    subst 𝟘 (Erased zeroᵘₗ (A U.[ σ ]))
+      (B U.[ σ ⇑ ] [ erased (wk1 (A U.[ σ ])) (var x0) ]↑) [ t U.[ σ ] ]
+      [ u U.[ σ ] ]
+      ([]-cong s zeroᵘₗ (A U.[ σ ]) (t U.[ σ ]) (u U.[ σ ]) (v U.[ σ ]))
       (w U.[ σ ])                                                         ∎
     where
     lemma :
@@ -560,10 +561,11 @@ module Internal
       Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
-    c              : I.Constants
-    pᵢ             : I.Termᵍ _
-    Aᵢ Bᵢ lᵢ tᵢ uᵢ : I.Term _ _
-    γ              : I.Contexts _
+    c           : I.Constants
+    pᵢ          : I.Termᵍ _
+    Aᵢ Bᵢ tᵢ uᵢ : I.Term _ _
+    lᵢ          : I.Lvl _ _
+    γ           : I.Contexts _
 
   -- A variant of erased, intended to be used with the internal
   -- type-checker.
@@ -620,7 +622,8 @@ module Internal
   -- A variant of mapᴱ, intended to be used with the internal
   -- type-checker.
 
-  mapᴱᵢ : (_ _ : I.Term c n) → I.Term c (1+ n) → I.Term c n → I.Term c n
+  mapᴱᵢ :
+    I.Lvl c n → I.Term c n → I.Term c (1+ n) → I.Term c n → I.Term c n
   mapᴱᵢ l A t u = I.box s′ l (I.subst t (IS.sgSubst (erasedᵢ A u)))
     where
     s′ = case s of λ where

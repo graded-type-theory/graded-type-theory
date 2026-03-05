@@ -80,6 +80,7 @@ private variable
 -- * Opaque definitions are allowed.
 -- * Equality reflection is not allowed.
 -- * Level is small.
+-- * Omega-plus-allowed is inhabited.
 -- * 𝟘ᵐ is allowed exactly when the modality is non-trivial.
 
 All-properties-hold-for : Extended-modality a → Set a
@@ -104,6 +105,7 @@ All-properties-hold-for M =
   Opacity-allowed ×
   ¬ Equality-reflection ×
   Level-is-small ×
+  Omega-plus-allowed ×
   (T 𝟘ᵐ-allowed ⇔ (¬ Trivial))
   where
   open Extended-modality M
@@ -211,6 +213,7 @@ opaque
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
+    , _
     , ((λ ()) , (_$ refl))
     where
     open Extended-modality Trivial
@@ -274,6 +277,7 @@ opaque
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
+    , _
     , ((λ _ ()) , _)
     where
     open Extended-modality Erasure
@@ -348,6 +352,7 @@ opaque
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
+    , _
     , ((λ _ ()) , _)
     where
     open Extended-modality Affine-types
@@ -426,6 +431,7 @@ opaque
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
+    , _
     , ((λ _ ()) , _)
     where
     open Extended-modality Linearity
@@ -505,6 +511,7 @@ opaque
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
+    , _
     , ((λ _ ()) , _)
     where
     open Extended-modality Linear-or-affine-types

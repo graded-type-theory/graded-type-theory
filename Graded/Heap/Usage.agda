@@ -47,7 +47,8 @@ private variable
   ρ ρ′ : Wk _ _
   γ δ η θ χ : Conₘ _
   p q q′ r : M
-  A B l t t′ u u′ v z s : Term _
+  A B t t′ u u′ v z s : Term _
+  l : Lvl _
   S S′ : Stack _
   c : Cont _
   m : Mode

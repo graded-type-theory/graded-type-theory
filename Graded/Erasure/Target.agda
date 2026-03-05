@@ -266,9 +266,9 @@ Numeral⟨ strict     ⟩ t = Numeral t
 
 -- The canonical term corresponding to the given natural number.
 
-sucᵏ : (k : Nat) → Term n
-sucᵏ 0      = zero
-sucᵏ (1+ n) = suc (sucᵏ n)
+sucⁿ : (k : Nat) → Term n
+sucⁿ 0      = zero
+sucⁿ (1+ n) = suc (sucⁿ n)
 
 -- List indexing.
 

@@ -59,10 +59,10 @@ opaque
     lower-subst (subst-⊢⇒∷ x ⊢σ)
   subst-⊢⇒∷ (Lift-β x₁ x₂) ⊢σ =
     Lift-β (subst-⊢ x₁ ⊢σ) (subst-⊢∷ x₂ ⊢σ)
-  subst-⊢⇒∷ (app-subst {G = B} t⇒u ⊢v) ⊢σ =
+  subst-⊢⇒∷ (app-subst {B} t⇒u ⊢v) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (singleSubstLift B _))
       (app-subst (subst-⊢⇒∷ t⇒u ⊢σ) (subst-⊢∷ ⊢v ⊢σ))
-  subst-⊢⇒∷ (β-red {G = B} {t} ⊢B ⊢t ⊢u PE.refl ok) ⊢σ =
+  subst-⊢⇒∷ (β-red {B} {t} ⊢B ⊢t ⊢u PE.refl ok) ⊢σ =
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym (singleSubstLift t _))
       (PE.sym (singleSubstLift B _)) $

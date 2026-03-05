@@ -18,9 +18,10 @@ open import Definition.Untyped.QuantityTranslation {M₁ = M} idᶠ idᶠ
 
 private variable
   p  : M
-  k  : Kind _
-  t  : Term _
-  ts : GenTs _ _ _
+  c  : Constructor _ _
+  t  : Term[ _ ] _
+  k  : Term-kind
+  ts : Args _ _
   ∇  : DCon (Term 0) _
   Δ  : Con Term _
   Γ  : Cons _ _
@@ -38,61 +39,65 @@ opaque
 
 opaque
 
-  -- The function tr-Kind is pointwise equal to an identity function.
+  -- The function tr-Constructor is pointwise equal to an identity
+  -- function.
 
-  tr-Kind-id : tr-Kind k ≡ k
-  tr-Kind-id {k = Defnkind _}        = refl
-  tr-Kind-id {k = Ukind}           = refl
-  tr-Kind-id {k = Binderkind b _ _}  = cong (flip (Binderkind _) _) $
-                                       tr-BinderMode-id b
-  tr-Kind-id {k = Lamkind _}         = refl
-  tr-Kind-id {k = Appkind _}         = refl
-  tr-Kind-id {k = Prodkind _ _}      = refl
-  tr-Kind-id {k = Fstkind _}         = refl
-  tr-Kind-id {k = Sndkind _}         = refl
-  tr-Kind-id {k = Prodreckind _ _ _} = refl
-  tr-Kind-id {k = Natkind}           = refl
-  tr-Kind-id {k = Zerokind}          = refl
-  tr-Kind-id {k = Suckind}           = refl
-  tr-Kind-id {k = Natreckind _ _ _}  = refl
-  tr-Kind-id {k = Unitkind _}      = refl
-  tr-Kind-id {k = Starkind _}      = refl
-  tr-Kind-id {k = Unitreckind _ _} = refl
-  tr-Kind-id {k = Emptykind}         = refl
-  tr-Kind-id {k = Emptyreckind _}    = refl
-  tr-Kind-id {k = Idkind}            = refl
-  tr-Kind-id {k = Reflkind}          = refl
-  tr-Kind-id {k = Jkind _ _}         = refl
-  tr-Kind-id {k = Kkind _}           = refl
-  tr-Kind-id {k = Boxcongkind _}     = refl
-  tr-Kind-id {k = Levelkind} = refl
-  tr-Kind-id {k = Zeroᵘkind} = refl
-  tr-Kind-id {k = Sucᵘkind} = refl
-  tr-Kind-id {k = Supᵘkind} = refl
-  tr-Kind-id {k = Liftkind} = refl
-  tr-Kind-id {k = liftkind} = refl
-  tr-Kind-id {k = lowerkind} = refl
+  tr-Constructor-id : tr-Constructor c ≡ c
+  tr-Constructor-id {c = defnᵏ _}        = refl
+  tr-Constructor-id {c = Levelᵏ}         = refl
+  tr-Constructor-id {c = zeroᵘᵏ}         = refl
+  tr-Constructor-id {c = sucᵘᵏ}          = refl
+  tr-Constructor-id {c = supᵘᵏ}          = refl
+  tr-Constructor-id {c = ωᵘ+ᵏ _}         = refl
+  tr-Constructor-id {c = levelᵏ}         = refl
+  tr-Constructor-id {c = Uᵏ}             = refl
+  tr-Constructor-id {c = Liftᵏ}          = refl
+  tr-Constructor-id {c = liftᵏ}          = refl
+  tr-Constructor-id {c = lowerᵏ}         = refl
+  tr-Constructor-id {c = Emptyᵏ}         = refl
+  tr-Constructor-id {c = emptyrecᵏ _}    = refl
+  tr-Constructor-id {c = Unitᵏ _}        = refl
+  tr-Constructor-id {c = starᵏ _}        = refl
+  tr-Constructor-id {c = unitrecᵏ _ _}   = refl
+  tr-Constructor-id {c = ΠΣᵏ b _ _}      = cong (flip (ΠΣᵏ _) _) $
+                                           tr-BinderMode-id b
+  tr-Constructor-id {c = lamᵏ _}         = refl
+  tr-Constructor-id {c = appᵏ _}         = refl
+  tr-Constructor-id {c = prodᵏ _ _}      = refl
+  tr-Constructor-id {c = fstᵏ _}         = refl
+  tr-Constructor-id {c = sndᵏ _}         = refl
+  tr-Constructor-id {c = prodrecᵏ _ _ _} = refl
+  tr-Constructor-id {c = ℕᵏ}             = refl
+  tr-Constructor-id {c = zeroᵏ}          = refl
+  tr-Constructor-id {c = sucᵏ}           = refl
+  tr-Constructor-id {c = natrecᵏ _ _ _}  = refl
+  tr-Constructor-id {c = Idᵏ}            = refl
+  tr-Constructor-id {c = rflᵏ}           = refl
+  tr-Constructor-id {c = Jᵏ _ _}         = refl
+  tr-Constructor-id {c = Kᵏ _}           = refl
+  tr-Constructor-id {c = []-congᵏ _}     = refl
 
 opaque mutual
 
   -- The function tr-Term′ is pointwise equal to an identity function.
 
-  tr-Term′-id : ∀ {n} {t : Term′ n} → tr-Term′ t ≡ t
+  tr-Term′-id : ∀ {n} {t : Term[ k ]′ n} → tr-Term′ t ≡ t
   tr-Term′-id {t = var _}   = refl
-  tr-Term′-id {t = gen _ _} = cong₂ gen tr-Kind-id tr-GenTs-id
+  tr-Term′-id {t = con _ _} = cong₂ con tr-Constructor-id tr-Args-id
 
-  -- The function tr-GenTs is pointwise equal to an identity function.
+  -- The function tr-Args is pointwise equal to an identity function.
 
-  tr-GenTs-id : tr-GenTs ts ≡ ts
-  tr-GenTs-id {ts = []}     = refl
-  tr-GenTs-id {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term′-id tr-GenTs-id
+  tr-Args-id : tr-Args ts ≡ ts
+  tr-Args-id {ts = []}     = refl
+  tr-Args-id {ts = _ ∷ₜ _} = cong₂ _∷ₜ_ tr-Term′-id tr-Args-id
 
 opaque
 
   -- The function tr-Term is pointwise equal to an identity function.
 
   tr-Term-id : tr-Term t ≡ t
-  tr-Term-id {t} rewrite tr-Term′-id {t = fromTerm t} = toTerm∘fromTerm t
+  tr-Term-id {t} rewrite tr-Term′-id {t = fromTerm t} =
+    toTerm∘fromTerm _
 
 opaque
 

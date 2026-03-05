@@ -44,7 +44,7 @@ open import Tools.PropositionalEquality
 
 private variable
   k                          : Nat
-  a b A B P t u l r          : Term _
+  a b A B P t u l r          : Term[ _ ] _
   γ γ₁ γ₂ γ₃ γ₄ γ₅ δ δ₁ δ₂ η : Conₘ _
   p p′ p₁ p₂ p₃ p₄ q r₁ r₂   : M
   m                          : Mode
@@ -81,7 +81,8 @@ opaque
     γ₅ +ᶜ γ₃ ∧ᶜ γ₄ ▸[ m ] Sum′ a b A B t
   ▸Sum′ ▸a ▸b ▸A ▸B ▸t ok =
     ▸boolrec Prodrec-ok Unitrec-ok Emptyrec-ok Sink-ok
-      (sub-≈ᶜ (Uₘ (wkUsage _ (▸supᵘₗ ▸a ▸b))) (≈ᶜ-refl ∙ ·-zeroʳ _))
+      (sub-≈ᶜ (Uₘ (wkUsage _ (▸supᵘₗ ▸a ▸b .proj₂)))
+         (≈ᶜ-refl ∙ ·-zeroʳ _))
       (Liftₘ ▸b ▸A) (Liftₘ ▸a ▸B) ▸t
     where
     open Sum-allowed ok
@@ -121,7 +122,9 @@ opaque
     Sum-allowed m →
     γ₃ ∧ᶜ γ₄ ▸[ m ] Sum a b A B
   ▸Sum {γ₃} {γ₄} ▸a ▸b ▸A ▸B ok =
-    sub-≈ᶜ (ΠΣₘ (Liftₘ (▸supᵘₗ ▸a ▸b) ▸Bool) (▸Sum′₀ ▸a ▸b ▸A ▸B ok)) $ begin
+    sub-≈ᶜ
+      (ΠΣₘ (Liftₘ (▸supᵘₗ ▸a ▸b .proj₂) ▸Bool)
+         (▸Sum′₀ ▸a ▸b ▸A ▸B ok)) $ begin
       γ₃ ∧ᶜ γ₄                ≈˘⟨ +ᶜ-identityˡ _ ⟩
       𝟘ᶜ +ᶜ γ₃ ∧ᶜ γ₄          ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
       𝟙 ·ᶜ 𝟘ᶜ +ᶜ γ₃ ∧ᶜ γ₄     ∎

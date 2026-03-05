@@ -19,6 +19,8 @@ module Definition.Typed.Decidable.Internal.Monad
 open import Definition.Typed.Decidable.Internal.Constraint 𝐌 TR
 open import Definition.Typed.Decidable.Internal.Term 𝐌 TR
 
+open import Definition.Untyped M using (Term-kind)
+
 open import Tools.Bool
 open import Tools.Function
 open import Tools.Level as L
@@ -44,6 +46,7 @@ private variable
   c         : Constants
   γ         : Contexts _
   C         : Constraint _
+  k         : Term-kind
 
 ------------------------------------------------------------------------
 -- The monad, along with some basic operations
@@ -51,12 +54,13 @@ private variable
 -- Stack trace entries.
 
 data Call (c : Constants) : Set a where
-  [red] [red-ty] [check-type] [check-level] [infer] [normalise-level] :
-    Cons c m n → Term c n → Call c
+  [red] [red-ty] [red-level] [check-type] [check-level] [infer]
+    [normalise-level] :
+    Cons c m n → Term[ c , k ] n → Call c
   [red-tm] [check] [equal-ty] [equal-ne-inf] :
-    Cons c m n → (_ _ : Term c n) → Call c
+    Cons c m n → (_ _ : Term[ c , k ] n) → Call c
   [equal-tm] :
-    Cons c m n → (_ _ _ : Term c n) → Call c
+    Cons c m n → (_ _ _ : Term[ c , k ] n) → Call c
   [check-sub] :
     DCon c m → Con c n₂ → Subst c n₂ n₁ → Con c n₁ → Call c
 

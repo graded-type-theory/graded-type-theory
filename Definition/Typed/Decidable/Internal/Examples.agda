@@ -183,24 +183,25 @@ opaque
          .C.constraints-wf            → L.[]
          .C.metas-wf .C.equalities-wf → L.[]
          .C.metas-wf .C.bindings-wf   → λ where
-           (I.var! x0)       → ⊢A
-           (I.var! x1)       → ⊢B
-           (I.var! x2)       → ⊢t
-           (I.var! x3)       → ⊢u
-           (I.var! x4)       → ⊢v
-           (I.var! x5)       → ⊢w
-           (I.var  not-x6 _))
+           (I.var! x0)         → ⊢A
+           (I.var! x1)         → ⊢B
+           (I.var! x2)         → ⊢t
+           (I.var! x3)         → ⊢u
+           (I.var! x4)         → ⊢v
+           (I.var! x5)         → ⊢w
+           (I.var  not-x6 _ _))
       (wfTerm ⊢v)
       where
       c′ : I.Constants
-      c′ .I.gs               = 1
-      c′ .I.ss               = 0
-      c′ .I.bms              = 0
-      c′ .I.ms               = 6
-      c′ .I.base-dcon-size   = m
-      c′ .I.base-con-allowed = true
-      c′ .I.base-con-size    = n
-      c′ .I.meta-con-size    =
+      c′ .I.gs                 = 1
+      c′ .I.ss                 = 0
+      c′ .I.bms                = 0
+      c′ .I.ms                 = 6
+      c′ .I.base-dcon-size     = m
+      c′ .I.base-con-allowed   = true
+      c′ .I.base-con-size      = n
+      c′ .I.meta-con-term-kind = V.replicate 6 tm
+      c′ .I.meta-con-size      =
         n V.∷ 1+ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ V.ε
 
       γ′ : I.Contexts c′
@@ -221,7 +222,7 @@ opaque
         (I.var! x5) →
           I.base ,
           I.term w (I.subst (I.varᵐ x1) (S.sgSubst (I.varᵐ x2)))
-        (I.var not-x6 _)
+        (I.var not-x6 _ _)
 
 opaque
   unfolding cong subst
@@ -255,24 +256,25 @@ opaque
          .C.constraints-wf            → L.[]
          .C.metas-wf .C.equalities-wf → L.[]
          .C.metas-wf .C.bindings-wf   → λ where
-           (I.var! x0)       → ⊢A
-           (I.var! x1)       → ⊢t
-           (I.var! x2)       → ⊢u
-           (I.var! x3)       → ⊢B
-           (I.var! x4)       → ⊢v
-           (I.var! x5)       → ⊢w
-           (I.var  not-x6 _))
+           (I.var! x0)         → ⊢A
+           (I.var! x1)         → ⊢t
+           (I.var! x2)         → ⊢u
+           (I.var! x3)         → ⊢B
+           (I.var! x4)         → ⊢v
+           (I.var! x5)         → ⊢w
+           (I.var  not-x6 _ _))
       (wfTerm ⊢w)
       where
       c′ : I.Constants
-      c′ .I.gs               = 1
-      c′ .I.ss               = 0
-      c′ .I.bms              = 0
-      c′ .I.ms               = 6
-      c′ .I.base-dcon-size   = m
-      c′ .I.base-con-allowed = true
-      c′ .I.base-con-size    = n
-      c′ .I.meta-con-size    =
+      c′ .I.gs                 = 1
+      c′ .I.ss                 = 0
+      c′ .I.bms                = 0
+      c′ .I.ms                 = 6
+      c′ .I.base-dcon-size     = m
+      c′ .I.base-con-allowed   = true
+      c′ .I.base-con-size      = n
+      c′ .I.meta-con-term-kind = V.replicate 6 tm
+      c′ .I.meta-con-size      =
         n V.∷ n V.∷ n V.∷ n V.∷ 1+ n V.∷ n V.∷ V.ε
 
       γ′ : I.Contexts c′
@@ -293,7 +295,7 @@ opaque
           I.term v (W.wk[ 1 ] (I.varᵐ x3))
         (I.var! x5) →
           I.base , I.term w (I.Id (I.varᵐ x0) (I.varᵐ x1) (I.varᵐ x2))
-        (I.var not-x6 _)
+        (I.var not-x6 _ _)
 
 opaque
   unfolding cong subst
@@ -343,30 +345,31 @@ opaque
            (reflConEq ⊢Γ      , C.term (refl (Idⱼ′ ⊢t₁ ⊢u₁)) w₁≡w₂) L.∷
            L.[]
          .C.metas-wf .C.bindings-wf → λ where
-           (I.var! x0)        → ⊢A₁
-           (I.var! x1)        → ⊢A₂
-           (I.var! x2)        → ⊢B₁
-           (I.var! x3)        → ⊢B₂
-           (I.var! x4)        → ⊢t₁
-           (I.var! x5)        → ⊢t₂
-           (I.var! x6)        → ⊢u₁
-           (I.var! x7)        → ⊢u₂
-           (I.var! x8)        → ⊢v₁
-           (I.var! x9)        → ⊢v₂
-           (I.var! x10)       → ⊢w₁
-           (I.var! x11)       → ⊢w₂
-           (I.var  not-x12 _))
+           (I.var! x0)          → ⊢A₁
+           (I.var! x1)          → ⊢A₂
+           (I.var! x2)          → ⊢B₁
+           (I.var! x3)          → ⊢B₂
+           (I.var! x4)          → ⊢t₁
+           (I.var! x5)          → ⊢t₂
+           (I.var! x6)          → ⊢u₁
+           (I.var! x7)          → ⊢u₂
+           (I.var! x8)          → ⊢v₁
+           (I.var! x9)          → ⊢v₂
+           (I.var! x10)         → ⊢w₁
+           (I.var! x11)         → ⊢w₂
+           (I.var  not-x12 _ _))
       ⊢Γ
       where
       c′ : I.Constants
-      c′ .I.gs               = 1
-      c′ .I.ss               = 0
-      c′ .I.bms              = 0
-      c′ .I.ms               = 12
-      c′ .I.base-dcon-size   = m
-      c′ .I.base-con-allowed = true
-      c′ .I.base-con-size    = n
-      c′ .I.meta-con-size    =
+      c′ .I.gs                 = 1
+      c′ .I.ss                 = 0
+      c′ .I.bms                = 0
+      c′ .I.ms                 = 12
+      c′ .I.base-dcon-size     = m
+      c′ .I.base-con-allowed   = true
+      c′ .I.base-con-size      = n
+      c′ .I.meta-con-term-kind = V.replicate 12 tm
+      c′ .I.meta-con-size      =
         n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷
         1+ n V.∷ 1+ n V.∷ n V.∷ n V.∷ V.ε
 
@@ -417,4 +420,4 @@ opaque
         (I.var! x9)  → I.base I.∙ xA₁ , I.term v₂ (W.wk[ 1 ] xB₁)
         (I.var! x10) → I.base         , I.term w₁ (I.Id xA₁ xt₁ xu₁)
         (I.var! x11) → I.base         , I.term w₂ (I.Id xA₁ xt₁ xu₁)
-        (I.var not-x12 _)
+        (I.var not-x12 _ _)

@@ -86,7 +86,7 @@ private opaque
 
   ⊢Erased-OK :
     Γ ⊢ t ∷ ℕ →
-    Γ ⊢ Erased zeroᵘ (OK t)
+    Γ ⊢ Erased zeroᵘₗ (OK t)
   ⊢Erased-OK ⊢t = Erasedⱼ Erased-ok (⊢zeroᵘ (wfTerm ⊢t)) (⊢OK ⊢t)
 
 ------------------------------------------------------------------------
@@ -99,7 +99,7 @@ opaque
 
   ⊢Bool∷U :
     ⊢ Γ →
-    Γ ⊢ Bool ∷ U zeroᵘ
+    Γ ⊢ Bool ∷ U₀
   ⊢Bool∷U ⊢Γ =
     ΠΣⱼ (⊢zeroᵘ ⊢Γ) (ℕⱼ ⊢Γ)
      (Erasedⱼ-U Erased-ok (⊢OK∷U (var₀ (⊢ℕ ⊢Γ))))
@@ -162,7 +162,7 @@ opaque
   Target-cong :
     ∇ » drop k Δ ∙ Bool ⊢ A₁ ≡ A₂ →
     ∇ » Δ ⊢ t₁ ≡ t₂ ∷ ℕ →
-    ∇ » Δ ⊢ u₁ ≡ u₂ ∷ Erased zeroᵘ (OK t₁) →
+    ∇ » Δ ⊢ u₁ ≡ u₂ ∷ Erased zeroᵘₗ (OK t₁) →
     ∇ » Δ ⊢ Target k A₁ t₁ u₁ ≡ Target k A₂ t₂ u₂
   Target-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     [][]↑-cong A₁≡A₂ $
@@ -186,7 +186,7 @@ private opaque
   Target-cong′ :
     ∇ » drop k Δ ∙ Bool ⊢ A₁ ≡ A₂ →
     ∇ » Δ ⊢ t ∷ ℕ →
-    ∇ » Δ ⊢ u ∷ Erased zeroᵘ (OK t) →
+    ∇ » Δ ⊢ u ∷ Erased zeroᵘₗ (OK t) →
     ∇ » Δ ⊢ Target k A₁ t u ≡ Target k A₂ t u
   Target-cong′ A₁≡A₂ ⊢t ⊢u =
     Target-cong A₁≡A₂ (refl ⊢t) (refl ⊢u)
@@ -198,7 +198,7 @@ opaque
   ⊢Target :
     ∇ » drop k Δ ∙ Bool ⊢ A →
     ∇ » Δ ⊢ t ∷ ℕ →
-    ∇ » Δ ⊢ u ∷ Erased zeroᵘ (OK t) →
+    ∇ » Δ ⊢ u ∷ Erased zeroᵘₗ (OK t) →
     ∇ » Δ ⊢ Target k A t u
   ⊢Target ⊢A ⊢t ⊢u =
     syntacticEq (Target-cong′ (refl ⊢A) ⊢t ⊢u) .proj₁
@@ -212,14 +212,15 @@ private
   module Defs (p : M) (Γ : Cons m n) (meta-con-size : V.Vec Nat ms)
     where
     c : I.Constants
-    c .I.gs               = 6
-    c .I.ss               = 0
-    c .I.bms              = 0
-    c .I.ms               = ms
-    c .I.base-dcon-size   = m
-    c .I.base-con-size    = n
-    c .I.base-con-allowed = Bool.true
-    c .I.meta-con-size    = meta-con-size
+    c .I.gs                 = 6
+    c .I.ss                 = 0
+    c .I.bms                = 0
+    c .I.ms                 = ms
+    c .I.base-dcon-size     = m
+    c .I.base-con-size      = n
+    c .I.base-con-allowed   = Bool.true
+    c .I.meta-con-term-kind = V.replicate ms tm
+    c .I.meta-con-size      = meta-con-size
 
     xp xBoolᵍ xOKᵍ xboolrecᵍ-nc₁ xboolrecᵍ-nc₂ xboolrecᵍ-pr : I.Termᵍ 6
     xp            = I.var x0
@@ -243,7 +244,8 @@ private
       boolrecᵢ xBoolᵍ xOKᵍ xboolrecᵍ-nc₁ xboolrecᵍ-nc₂ xboolrecᵍ-pr xp
 
     γ :
-      (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
+      (∀ {k n} (x : I.Meta-var c k n) →
+       I.Con c n × I.Type-or-term c k n) →
       I.Contexts c
     γ _ .I.grades =
       p V.∷ Boolᵍ V.∷ B.OKᵍ V.∷ B.boolrecᵍ-nc₁ V.∷ B.boolrecᵍ-nc₂ V.∷
@@ -315,7 +317,7 @@ opaque
              I.base , I.term u₂ (I.subst xA₁ (IS.sgSubst falseᵢ′))
            (I.var! x6) → I.base , I.term v₁ Boolᵢ′
            (I.var! x7) → I.base , I.term v₂ Boolᵢ′
-           (I.var not-x8 _))
+           (I.var not-x8 _ _))
       (I.base nothing I.» I.base)
       (boolrecᵢ′ xA₁ xt₁ xu₁ xv₁)
       (boolrecᵢ′ xA₂ xt₂ xu₂ xv₂)
@@ -335,15 +337,15 @@ opaque
            (reflConEq ⊢Γ , IC.term (refl (⊢Bool ⊢Γ)) v₁≡v₂) L.∷
            L.[]
          .IC.metas-wf .IC.bindings-wf → λ where
-           (I.var! x0)       → ⊢A₁
-           (I.var! x1)       → ⊢A₂
-           (I.var! x2)       → ⊢t₁
-           (I.var! x3)       → ⊢t₂
-           (I.var! x4)       → ⊢u₁
-           (I.var! x5)       → ⊢u₂
-           (I.var! x6)       → ⊢v₁
-           (I.var! x7)       → ⊢v₂
-           (I.var  not-x8 _))
+           (I.var! x0)         → ⊢A₁
+           (I.var! x1)         → ⊢A₂
+           (I.var! x2)         → ⊢t₁
+           (I.var! x3)         → ⊢t₂
+           (I.var! x4)         → ⊢u₁
+           (I.var! x5)         → ⊢u₂
+           (I.var! x6)         → ⊢v₁
+           (I.var! x7)         → ⊢v₂
+           (I.var  not-x8 _ _))
       ⊢Γ
       where
       open Defs p Γ
@@ -405,7 +407,7 @@ opaque
            I.base , I.term t (I.subst xA (IS.sgSubst trueᵢ′))
          (I.var! x2) →
            I.base , I.term u (I.subst xA (IS.sgSubst falseᵢ′))
-         (I.var not-x3 _))
+         (I.var not-x3 _ _))
       (I.base nothing I.» I.base)
       (boolrecᵢ′ xA xt xu trueᵢ′)
       xt
@@ -418,10 +420,10 @@ opaque
            Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢A
-           (I.var! x1)       → ⊢t
-           (I.var! x2)       → ⊢u
-           (I.var  not-x3 _))
+           (I.var! x0)         → ⊢A
+           (I.var! x1)         → ⊢t
+           (I.var! x2)         → ⊢u
+           (I.var  not-x3 _ _))
       (wfTerm ⊢t)
       where
       open Defs p Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
@@ -458,7 +460,7 @@ opaque
            I.base , I.term t (I.subst xA (IS.sgSubst trueᵢ′))
          (I.var! x2) →
            I.base , I.term u (I.subst xA (IS.sgSubst falseᵢ′))
-         (I.var not-x3 _))
+         (I.var not-x3 _ _))
       (I.base nothing I.» I.base)
       (boolrecᵢ′ xA xt xu falseᵢ′)
       xu
@@ -471,10 +473,10 @@ opaque
            Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢A
-           (I.var! x1)       → ⊢t
-           (I.var! x2)       → ⊢u
-           (I.var  not-x3 _))
+           (I.var! x0)         → ⊢A
+           (I.var! x1)         → ⊢t
+           (I.var! x2)         → ⊢u
+           (I.var  not-x3 _ _))
       (wfTerm ⊢t)
       where
       open Defs p Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)

@@ -36,11 +36,12 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n                                     : Nat
-  Γ                                     : Cons _ _
-  A B B₁ B₂ l l₁ l₂ l₂′ t t₁ t₂ u u₁ u₂ : Term n
-  s                                     : Strength
-  q r                                   : M
+  n                               : Nat
+  Γ                               : Cons _ _
+  A A₁ A₂ B B₁ B₂ t t₁ t₂ u u₁ u₂ : Term n
+  l l₁ l₂ l₂′                     : Lvl _
+  s                               : Strength
+  q r                             : M
 
 ------------------------------------------------------------------------
 -- Simple variants of typing, equality and reduction rules
@@ -57,18 +58,21 @@ opaque
     Liftⱼ ok ⊢l₂ ⊢A
 
 opaque
+  unfolding _supᵘₗ_
 
   -- An admissible typing rule for Lift using _⊢_≤_∷Level.
 
-  Liftⱼ≤ : Γ ⊢ l₁ ≤ l₂ ∷Level
-         → Γ ⊢ A ∷ U l₁
-         → Γ ⊢ Lift l₂ A ∷ U l₂
-  Liftⱼ≤ l₁≤l₂ ⊢A =
-    let _ , ⊢l₂ = wf-⊢≤ l₁≤l₂
-        ok      = inversion-Level-⊢ (wf-⊢∷ ⊢l₂)
+  Liftⱼ≤ :
+    Γ ⊢ t₁ ≤ t₂ ∷Level →
+    Γ ⊢ A ∷ U (level t₁) →
+    Γ ⊢ Lift (level t₂) A ∷ U (level t₂)
+  Liftⱼ≤ t₁≤t₂ ⊢A =
+    let _ , ⊢t₂ = wf-⊢≤ t₁≤t₂
+        ok      = inversion-Level-⊢ (wf-⊢∷ ⊢t₂)
     in
-    _⊢_∷_.conv (Liftⱼ′ (term-⊢∷ ⊢l₂) ⊢A) $ U-cong $
-    PE.subst₃ (_⊢_≡_∷_ _) (PE.sym (supᵘₗ≡supᵘ ok)) PE.refl PE.refl l₁≤l₂
+    _⊢_∷_.conv (Liftⱼ′ (term-⊢∷ ⊢t₂) ⊢A) $
+    PE.subst (flip (_⊢_≡_ _) _) (PE.sym (PE.cong U (supᵘₗ≡supᵘ ok))) $
+    U-cong t₁≤t₂
 
 opaque
 
@@ -94,6 +98,32 @@ opaque
         ⊢l₂ , _ = wf-⊢≡∷L l₂≡l₂′
     in
     Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B
+
+opaque
+
+  -- An admissible equality rule for Lift.
+
+  Lift-cong-≤ₗ :
+    Γ ⊢ l ≤ₗ l₁ ∷Level →
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l →
+    Γ ⊢ Lift l₁ A₁ ≡ Lift l₂ A₂ ∷ U l₁
+  Lift-cong-≤ₗ l≤l₁ l₁≡l₂ A₁≡A₂ =
+    conv (Lift-cong′ l₁≡l₂ A₁≡A₂)
+      (U-cong-⊢≡ (⊢≤ₗ∷L→⊢≡∷L l≤l₁))
+
+opaque
+
+  -- An admissible typing rule for Lift.
+
+  ⊢Lift-≤ₗ :
+    Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
+    Γ ⊢ A ∷ U l₁ →
+    Γ ⊢ Lift l₂ A ∷ U l₂
+  ⊢Lift-≤ₗ l₁≤l₂ ⊢A =
+    wf-⊢≡∷
+      (Lift-cong-≤ₗ l₁≤l₂ (refl-⊢≡∷L (wf-⊢≤ₗ∷L l₁≤l₂ .proj₂)) (refl ⊢A))
+      .proj₂ .proj₁
 
 opaque
 

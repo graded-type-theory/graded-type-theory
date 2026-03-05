@@ -52,7 +52,8 @@ private
     m n α β : Nat
     Γ : Cons _ _
     A₁ A₂ B₁ B₂ C F G E : Term n
-    g h k l l′ l₁ l₂ t t₁ t₂ t₃ u u₁ u₂ u₃ v v₁ v₂ w₁ w₂ : Term n
+    g h t t₁ t₂ t₃ u u₁ u₂ u₃ v v₁ v₂ w₁ w₂ : Term n
+    l l′ l₁ l₂ : Lvl _
     x y : Fin n
     p p′ p″ p₁ p₂ q q′ q″ q₁ q₂ r r′ : M
     b : BinderMode
@@ -73,7 +74,7 @@ mutual
                   → Γ ⊢ defn α ~ defn β ↑ C
 
     lower-cong    : ∀ {A}
-                  → Γ ⊢ t₁ ~ t₂ ↓ Lift k A
+                  → Γ ⊢ t₁ ~ t₂ ↓ Lift l A
                   → Γ ⊢ lower t₁ ~ lower t₂ ↑ A
 
     app-cong      : ∀ {A B}
@@ -266,12 +267,12 @@ mutual
               → Γ ⊢ A [conv↓] B ∷ U l
 
     Lift-η    : ∀ {A}
-              → Γ ⊢ t₁ ∷ Lift k A
-              → Γ ⊢ t₂ ∷ Lift k A
+              → Γ ⊢ t₁ ∷ Lift l A
+              → Γ ⊢ t₂ ∷ Lift l A
               → Whnf (Γ .defs) t₁
               → Whnf (Γ .defs) t₂
               → Γ ⊢ lower t₁ [conv↑] lower t₂ ∷ A
-              → Γ ⊢ t₁ [conv↓] t₂ ∷ Lift k A
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Lift l A
 
     zero-refl : ⊢ Γ → Γ ⊢ zero [conv↓] zero ∷ ℕ
 
@@ -441,16 +442,16 @@ mutual
       t↓v  : Γ ⊢ t′ ↓ᵛ v
 
   -- Algorithmic equality of levels.
-  data _⊢_[conv↑]_∷Level (Γ : Cons m n) (l₁ l₂ : Term n) : Set a where
+  data _⊢_[conv↑]_∷Level (Γ : Cons m n) : (_ _ : Lvl n) → Set a where
     term    : Level-allowed →
-              Γ ⊢ l₁ [conv↑] l₂ ∷ Level →
-              Γ ⊢ l₁ [conv↑] l₂ ∷Level
-    literal : ¬ Level-allowed → ⊢ Γ → Level-literal l₁ → l₁ PE.≡ l₂ →
+              Γ ⊢ t₁ [conv↑] t₂ ∷ Level →
+              Γ ⊢ level t₁ [conv↑] level t₂ ∷Level
+    literal : Allowed-literal l₁ → ⊢ Γ → l₁ PE.≡ l₂ →
               Γ ⊢ l₁ [conv↑] l₂ ∷Level
 
-  pattern literal! not-ok ⊢Γ t-lit = literal not-ok ⊢Γ t-lit PE.refl
+  pattern literal! ok ⊢Γ = literal ok ⊢Γ PE.refl
 
-  -- Algorithmic equality of levels in whnf.
+  -- Algorithmic equality of terms, in WHNF, that are levels.
   record _⊢_[conv↓]_∷Level (Γ : Cons m n) (t u : Term n) : Set a where
     inductive
     no-eta-equality

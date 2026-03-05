@@ -37,7 +37,8 @@ private variable
   ∇ ∇′ ∇″ ∇₁ ∇₂ ∇₃ : DCon _ _
   ξ                : DExt _ _ _
   Γ                : Con _ _
-  A B l l₁ l₂ t u  : Term _
+  A B t u          : Term _
+  l l₁ l₂          : Lvl _
   V                : Set a
   φ φ₁ φ₂ φ₃       : Unfolding _
 
@@ -574,8 +575,8 @@ opaque mutual
   glassify-⊢∷L : ∇ » Γ ⊢ l ∷Level → glassify ∇ » Γ ⊢ l ∷Level
   glassify-⊢∷L (term ok ⊢l) =
     term ok (glassify-⊢∷ ⊢l)
-  glassify-⊢∷L (literal not-ok ⊢Γ l-lit) =
-    literal not-ok (glassify-⊢′ ⊢Γ) l-lit
+  glassify-⊢∷L (literal ok ⊢Γ) =
+    literal ok (glassify-⊢′ ⊢Γ)
 
   glassify-⊢≡ : ∇ » Γ ⊢ A ≡ B → glassify ∇ » Γ ⊢ A ≡ B
   glassify-⊢≡ (univ A≡A′) = univ (glassify-⊢≡∷ A≡A′)
@@ -755,8 +756,8 @@ opaque mutual
     ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → glassify ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level
   glassify-⊢≡∷L (term ok l₁≡l₂) =
     term ok (glassify-⊢≡∷ l₁≡l₂)
-  glassify-⊢≡∷L (literal not-ok ⊢Γ l-lit) =
-    literal not-ok (glassify-⊢′ ⊢Γ) l-lit
+  glassify-⊢≡∷L (literal ok ⊢Γ) =
+    literal ok (glassify-⊢′ ⊢Γ)
 
 opaque
 

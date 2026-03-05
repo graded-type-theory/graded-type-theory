@@ -18,6 +18,7 @@ module Definition.Conversion.Decidable
   where
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
@@ -62,8 +63,8 @@ private
     ∇ : DCon (Term 0) κ
     Δ Η : Con Term ℓ
     Γ : Cons _ _
-    A A₁ A₂ A′ B B₁ B₂ B′ C₁ C₂
-      l l′ l₁ l₁′ l₂ l₂′ l₃ t t₁ t₂ t′ u u₁ u₂ v₁ v₂ w₁ w₂ : Term _
+    A A₁ A₂ A′ B B₁ B₂ B′ C₁ C₂ t t₁ t₂ t′ u u₁ u₂ v₁ v₂ w₁ w₂ : Term _
+    l l′ l₁ l₁′ l₂ l₂′ l₃ : Lvl _
     b₁ b₂ : BinderMode
     s₁ s₂ : Strength
     p p₁ p₂ p′ q q₁ q₂ q′ q′₁ q′₂ r₁ r₂ : M
@@ -1027,23 +1028,28 @@ mutual
   decConv↑Level :
     Γ ⊢ l₁ [conv↑] l₁′ ∷Level → Γ ⊢ l₂ [conv↑] l₂′ ∷Level →
     Dec (Γ ⊢ l₁ [conv↑] l₂ ∷Level)
-  decConv↑Level (term ok l₁≡) (term _ l₂≡) =
+  decConv↑Level (term okᴸ l₁≡) (term _ l₂≡) =
     case decConv↑Term l₁≡ l₂≡ of λ where
-      (yes l₁≡l₂) → yes (term ok l₁≡l₂)
+      (yes l₁≡l₂) → yes (term okᴸ l₁≡l₂)
       (no l₁≢l₂)  → no λ where
-        (term _ l₁≡l₂)         → l₁≢l₂ l₁≡l₂
-        (literal not-ok _ _ _) → not-ok ok
-  decConv↑Level (term ok _) (literal not-ok _ _ _) =
-    ⊥-elim (not-ok ok)
-  decConv↑Level (literal not-ok _ _ _) (term ok _) =
-    ⊥-elim (not-ok ok)
-  decConv↑Level (literal! not-ok ⊢Γ l₁-lit) (literal! _ _ l₂-lit) =
+        (term _ l₁≡l₂)   → l₁≢l₂ l₁≡l₂
+        (literal ok _ _) → Level-allowed→Allowed-literal→ okᴸ ok
+  decConv↑Level (term okᴸ _) (literal ok _ _)
+    with Allowed-literal→Infinite okᴸ ok
+  … | ωᵘ+ = no (λ { (literal _ _ ()) })
+  decConv↑Level (literal ok _ _) (term okᴸ _)
+    with Allowed-literal→Infinite okᴸ ok
+  … | ωᵘ+ = no (λ { (literal _ _ ()) })
+  decConv↑Level (literal! ok₁ ⊢Γ) (literal! ok₂ _) =
+    let l₁-lit = Allowed-literal→Level-literal ok₁
+        l₂-lit = Allowed-literal→Level-literal ok₂
+    in
     case l₁-lit ≟L l₂-lit of λ where
       (yes PE.refl) →
-        yes (literal! not-ok ⊢Γ l₁-lit)
+        yes (literal! ok₁ ⊢Γ)
       (no l₁≢l₂) → no λ where
-        (literal! _ _ _) → l₁≢l₂ PE.refl
-        (term ok _)      → not-ok ok
+        (literal! _ _) → l₁≢l₂ PE.refl
+        (term okᴸ _)   → Level-allowed→Allowed-literal→ okᴸ ok₁
 
   -- Decidability of algorithmic equality of terms in WHNF.
   decConv↓Term : ∀ {t u A t′ u′}

@@ -51,6 +51,7 @@ open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
 private variable
   k n n′ n″ m m′ m″ : Nat
   t t′ t″ u v A z : Term _
+  kₜ : Term-kind
   H H′ H″ : Heap _ _
   ρ ρ′ ρ″ : Wk _ _
   S S′ S″ : Stack _
@@ -1248,7 +1249,7 @@ opaque
 
   -- A collorary to the above property
 
-  erasedHeap-subst : ∀ t → t [ erasedHeap n ]ₕ ≡ t
+  erasedHeap-subst : (t : Term[ kₜ ] n) → t [ erasedHeap n ]ₕ ≡ t
   erasedHeap-subst t = trans (substVar-to-subst erasedHeap≡idsubst t) (subst-id t)
 
 opaque

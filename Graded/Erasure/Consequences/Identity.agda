@@ -55,7 +55,8 @@ private variable
   ∇              : DCon (Term 0) _
   Γ              : Con Term _
   γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ _
-  A l t u v      : Term _
+  A t u v        : Term _
+  l              : Lvl _
   s s₁ s₂        : Strength
 
 opaque

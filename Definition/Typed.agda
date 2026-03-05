@@ -6,7 +6,7 @@ open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed
-  {ℓ} {M : Set ℓ}
+  {a} {M : Set a}
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
   where
@@ -25,20 +25,22 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
+open import Tools.Sum
 import Tools.Vec as Vec
 
 infix 24 ∙_
 
 private
   variable
-    m n α : Nat
+    α ℓ m n : Nat
     ∇ ∇′ : DCon (Term 0) _
     φ φ′ : Unfolding _
     ω : Opacity _
     Γ : Con Term _
     A A₁ A₂ A′ B B₁ B₂ C E F F′ G H : Term _
-    a f g l l₁ l₂ l₂′ l₃ l′ n′ s s′ t t₁ t₂ t′ u u₁ u₂ u′ v v₁ v₂ v′ w w₁ w₂ w′ z z′ :
+    f g n′ s s′ t t′ t₁ t₂ t₃ u u′ u₁ u₂ v v′ v₁ v₂ w w′ w₁ w₂ z z′ :
       Term _
+    l l′ l₁ l₂ l₂′ : Lvl _
     σ σ′ : Subst _ _
     x : Fin _
     p p′ q q′ r : M
@@ -46,7 +48,7 @@ private
     k : Strength
 
 -- Well-typed variables
-data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set ℓ where
+data _∷_∈_ : (x : Fin n) (A : Term n) (Γ : Con Term n) → Set a where
   here  :                 x0 ∷ wk1 A ∈ Γ ∙ A
   there : x ∷ A ∈ Γ → (x +1) ∷ wk1 A ∈ Γ ∙ B
 
@@ -82,7 +84,7 @@ mutual
 
   infix 4 »_
 
-  data »_ : DCon (Term 0) m → Set ℓ where
+  data »_ : DCon (Term 0) m → Set a where
     ε          : » ε
     ∙ᵒ⟨_⟩[_∷_] : Opacity-allowed
                → Trans φ ∇ » ε ⊢ t ∷ A
@@ -95,7 +97,7 @@ mutual
 
   infix 4 _»⊢_
 
-  data _»⊢_ (∇ : DCon (Term 0) m) : Con Term n → Set ℓ where
+  data _»⊢_ (∇ : DCon (Term 0) m) : Con Term n → Set a where
     ε  : » ∇       → ∇ »⊢ ε
     ∙_ : ∇ » Γ ⊢ A → ∇ »⊢ Γ ∙ A
 
@@ -105,14 +107,14 @@ mutual
 
   infix 4 ⊢_
 
-  ⊢_ : Cons m n → Set ℓ
+  ⊢_ : Cons m n → Set a
   ⊢ ∇ » Γ = ∇ »⊢ Γ
 
   -- Well-formed types.
 
   infix 4 _⊢_
 
-  data _⊢_ (Γ : Cons m n) : Term n → Set ℓ where
+  data _⊢_ (Γ : Cons m n) : Term n → Set a where
     Levelⱼ : Level-is-not-small
            → ⊢ Γ
            → Γ ⊢ Level
@@ -133,7 +135,7 @@ mutual
 
   infix 4 _⊢_∷_
 
-  data _⊢_∷_ (Γ : Cons m n) : Term n → Term n → Set ℓ where
+  data _⊢_∷_ (Γ : Cons m n) : Term n → Term n → Set a where
     conv      : Γ ⊢ t ∷ A
               → Γ ⊢ A ≡ B
               → Γ ⊢ t ∷ B
@@ -146,18 +148,18 @@ mutual
               → A PE.≡ wk wk₀ A′
               → Γ ⊢ defn α ∷ A
 
-    Levelⱼ    : ⊢ Γ → Level-is-small → Γ ⊢ Level ∷ U zeroᵘ
+    Levelⱼ    : ⊢ Γ → Level-is-small → Γ ⊢ Level ∷ U₀
     zeroᵘⱼ    : Level-allowed
               → ⊢ Γ
               → Γ ⊢ zeroᵘ ∷ Level
-    sucᵘⱼ     : Γ ⊢ l ∷ Level
-              → Γ ⊢ sucᵘ l ∷ Level
-    supᵘⱼ     : Γ ⊢ l₁ ∷ Level
-              → Γ ⊢ l₂ ∷ Level
-              → Γ ⊢ l₁ supᵘ l₂ ∷ Level
+    sucᵘⱼ     : Γ ⊢ t ∷ Level
+              → Γ ⊢ sucᵘ t ∷ Level
+    supᵘⱼ     : Γ ⊢ t₁ ∷ Level
+              → Γ ⊢ t₂ ∷ Level
+              → Γ ⊢ t₁ supᵘ t₂ ∷ Level
 
     Uⱼ        : Γ ⊢ l ∷Level
-              → Γ ⊢ U l ∷ U (sucᵘ l)
+              → Γ ⊢ U l ∷ U (1ᵘ+ l)
 
     Liftⱼ     : Γ ⊢ l₁ ∷Level
               → Γ ⊢ l₂ ∷Level
@@ -170,10 +172,10 @@ mutual
     lowerⱼ    : Γ ⊢ t ∷ Lift l₂ A
               → Γ ⊢ lower t ∷ A
 
-    Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U zeroᵘ
+    Emptyⱼ    : ⊢ Γ → Γ ⊢ Empty ∷ U₀
     emptyrecⱼ : Γ ⊢ A → Γ ⊢ t ∷ Empty → Γ ⊢ emptyrec p A t ∷ A
 
-    Unitⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k ∷ U zeroᵘ
+    Unitⱼ     : ⊢ Γ → Unit-allowed k → Γ ⊢ Unit k ∷ U₀
     starⱼ     : ⊢ Γ
               → Unit-allowed k
               → Γ ⊢ star k ∷ Unit k
@@ -214,7 +216,7 @@ mutual
               → Σʷ-allowed p q′
               → Γ ⊢ prodrec r p q A t u ∷ A [ t ]₀
 
-    ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U zeroᵘ
+    ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U₀
     zeroⱼ     : ⊢ Γ
               → Γ ⊢ zero ∷ ℕ
     sucⱼ      : ∀ {n}
@@ -253,24 +255,23 @@ mutual
                 Γ ⊢ []-cong k l A t u v ∷
                   Id (Erased l A) ([ t ]) ([ u ])
 
-  -- Well-formed level terms.
+  -- Well-formed levels.
 
   infix 4 _⊢_∷Level
 
-  data _⊢_∷Level (Γ : Cons m n) : Term n → Set ℓ where
+  data _⊢_∷Level (Γ : Cons m n) : Lvl n → Set a where
     term    : Level-allowed
             → Γ ⊢ t ∷ Level
-            → Γ ⊢ t ∷Level
-    literal : ¬ Level-allowed
+            → Γ ⊢ level t ∷Level
+    literal : Allowed-literal l
             → ⊢ Γ
-            → Level-literal t
-            → Γ ⊢ t ∷Level
+            → Γ ⊢ l ∷Level
 
   -- Type equality.
 
   infix 4 _⊢_≡_
 
-  data _⊢_≡_ (Γ : Cons m n) : Term n → Term n → Set ℓ where
+  data _⊢_≡_ (Γ : Cons m n) : Term n → Term n → Set a where
     refl   : Γ ⊢ A
            → Γ ⊢ A ≡ A
     sym    : Γ ⊢ A ≡ B
@@ -278,8 +279,8 @@ mutual
     trans  : Γ ⊢ A ≡ B
            → Γ ⊢ B ≡ C
            → Γ ⊢ A ≡ C
-    U-cong : Γ ⊢ l₁ ≡ l₂ ∷ Level
-           → Γ ⊢ U l₁ ≡ U l₂
+    U-cong : Γ ⊢ t₁ ≡ t₂ ∷ Level
+           → Γ ⊢ U (level t₁) ≡ U (level t₂)
     univ   : Γ ⊢ A ≡ B ∷ U l
            → Γ ⊢ A ≡ B
     Lift-cong
@@ -301,7 +302,7 @@ mutual
 
   infix 4 _⊢_≡_∷_
 
-  data _⊢_≡_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set ℓ where
+  data _⊢_≡_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a where
     conv          : Γ ⊢ t ≡ u ∷ A
                   → Γ ⊢ A ≡ B
                   → Γ ⊢ t ≡ u ∷ B
@@ -328,25 +329,27 @@ mutual
                   → Γ ⊢ t ≡ t' ∷ Level
                   → Γ ⊢ u ≡ u' ∷ Level
                   → Γ ⊢ t supᵘ u ≡ t' supᵘ u' ∷ Level
-    supᵘ-zeroˡ    : Γ ⊢ l ∷ Level
-                  → Γ ⊢ zeroᵘ supᵘ l ≡ l ∷ Level
-    supᵘ-sucᵘ     : Γ ⊢ l₁ ∷ Level
-                  → Γ ⊢ l₂ ∷ Level
-                  → Γ ⊢ sucᵘ l₁ supᵘ sucᵘ l₂ ≡ sucᵘ (l₁ supᵘ l₂) ∷ Level
-    supᵘ-assoc    : Γ ⊢ l₁ ∷ Level
-                  → Γ ⊢ l₂ ∷ Level
-                  → Γ ⊢ l₃ ∷ Level
-                  → Γ ⊢ (l₁ supᵘ l₂) supᵘ l₃ ≡ l₁ supᵘ (l₂ supᵘ l₃) ∷ Level
-    supᵘ-comm     : Γ ⊢ l₁ ∷ Level
-                  → Γ ⊢ l₂ ∷ Level
-                  → Γ ⊢ l₁ supᵘ l₂ ≡ l₂ supᵘ l₁ ∷ Level
-    supᵘ-idem     : Γ ⊢ l ∷ Level
-                  → Γ ⊢ l supᵘ l ≡ l ∷ Level
-    supᵘ-sub      : Γ ⊢ l ∷ Level
-                  → Γ ⊢ l supᵘ sucᵘ l ≡ sucᵘ l ∷ Level
+    supᵘ-zeroˡ    : Γ ⊢ t ∷ Level
+                  → Γ ⊢ zeroᵘ supᵘ t ≡ t ∷ Level
+    supᵘ-sucᵘ     : Γ ⊢ t₁ ∷ Level
+                  → Γ ⊢ t₂ ∷ Level
+                  → Γ ⊢ sucᵘ t₁ supᵘ sucᵘ t₂ ≡ sucᵘ (t₁ supᵘ t₂) ∷ Level
+    supᵘ-assoc    : Γ ⊢ t₁ ∷ Level
+                  → Γ ⊢ t₂ ∷ Level
+                  → Γ ⊢ t₃ ∷ Level
+                  → Γ ⊢ (t₁ supᵘ t₂) supᵘ t₃ ≡ t₁ supᵘ (t₂ supᵘ t₃) ∷
+                      Level
+    supᵘ-comm     : Γ ⊢ t₁ ∷ Level
+                  → Γ ⊢ t₂ ∷ Level
+                  → Γ ⊢ t₁ supᵘ t₂ ≡ t₂ supᵘ t₁ ∷ Level
+    supᵘ-idem     : Γ ⊢ t ∷ Level
+                  → Γ ⊢ t supᵘ t ≡ t ∷ Level
+    supᵘ-sub      : Γ ⊢ t ∷ Level
+                  → Γ ⊢ t supᵘ sucᵘ t ≡ sucᵘ t ∷ Level
 
-    U-cong        : Γ ⊢ l₁ ≡ l₂ ∷ Level
-                  → Γ ⊢ U l₁ ≡ U l₂ ∷ U (sucᵘ l₁)
+    U-cong        : Γ ⊢ t₁ ≡ t₂ ∷ Level
+                  → Γ ⊢ U (level t₁) ≡ U (level t₂) ∷
+                      U (level (sucᵘ t₁))
 
     Lift-cong     : Γ ⊢ l₁ ∷Level
                   → Γ ⊢ l₂ ∷Level
@@ -400,17 +403,16 @@ mutual
                   → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡
                       ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U l
 
-    app-cong      : ∀ {b}
-                  → Γ ⊢ f ≡ g ∷ Π p , q ▷ F ▹ G
-                  → Γ ⊢ a ≡ b ∷ F
-                  → Γ ⊢ f ∘⟨ p ⟩ a ≡ g ∘⟨ p ⟩ b ∷ G [ a ]₀
-    β-red         : Γ »∙ F ⊢ G
-                  → Γ »∙ F ⊢ t ∷ G
-                  → Γ ⊢ a ∷ F
+    app-cong      : Γ ⊢ t₁ ≡ t₂ ∷ Π p , q ▷ F ▹ G
+                  → Γ ⊢ u₁ ≡ u₂ ∷ F
+                  → Γ ⊢ t₁ ∘⟨ p ⟩ u₁ ≡ t₂ ∘⟨ p ⟩ u₂ ∷ G [ u₁ ]₀
+    β-red         : Γ »∙ A ⊢ B
+                  → Γ »∙ A ⊢ t ∷ B
+                  → Γ ⊢ u ∷ A
                   → p PE.≡ p′
                   → -- Note that q can be chosen arbitrarily.
                     Π-allowed p q
-                  → Γ ⊢ lam p t ∘⟨ p′ ⟩ a ≡ t [ a ]₀ ∷ G [ a ]₀
+                  → Γ ⊢ lam p t ∘⟨ p′ ⟩ u ≡ t [ u ]₀ ∷ B [ u ]₀
     η-eq          : Γ »∙ F ⊢ G
                   → Γ ⊢ f ∷ Π p , q ▷ F ▹ G
                   → Γ ⊢ g ∷ Π p , q ▷ F ▹ G
@@ -540,24 +542,23 @@ mutual
                   → Γ ⊢ v ∷ Id A t u
                   → Γ ⊢ t ≡ u ∷ A
 
-  -- Level term equality.
+  -- Level equality.
 
   infix 4 _⊢_≡_∷Level
 
-  data _⊢_≡_∷Level (Γ : Cons m n) : (_ _ : Term n) → Set ℓ where
+  data _⊢_≡_∷Level (Γ : Cons m n) : (_ _ : Lvl n) → Set a where
     term    : Level-allowed
-            → Γ ⊢ t ≡ u ∷ Level
-            → Γ ⊢ t ≡ u ∷Level
-    literal : ¬ Level-allowed
+            → Γ ⊢ t₁ ≡ t₂ ∷ Level
+            → Γ ⊢ level t₁ ≡ level t₂ ∷Level
+    literal : Allowed-literal l
             → ⊢ Γ
-            → Level-literal t
-            → Γ ⊢ t ≡ t ∷Level
+            → Γ ⊢ l ≡ l ∷Level
 
 -- Term reduction.
 
 infix 4 _⊢_⇒_∷_
 
-data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set ℓ where
+data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a where
   conv           : Γ ⊢ t ⇒ u ∷ A
                  → Γ ⊢ A ≡ B
                  → Γ ⊢ t ⇒ u ∷ B
@@ -574,13 +575,13 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set ℓ wh
   supᵘ-substʳ    : Γ ⊢ t ∷ Level
                  → Γ ⊢ u ⇒ u′ ∷ Level
                  → Γ ⊢ sucᵘ t supᵘ u ⇒ sucᵘ t supᵘ u′ ∷ Level
-  supᵘ-zeroˡ     : Γ ⊢ l ∷ Level
-                 → Γ ⊢ zeroᵘ supᵘ l ⇒ l ∷ Level
-  supᵘ-zeroʳ     : Γ ⊢ l ∷ Level
-                 → Γ ⊢ sucᵘ l supᵘ zeroᵘ ⇒ sucᵘ l ∷ Level
-  supᵘ-sucᵘ      : Γ ⊢ l₁ ∷ Level
-                 → Γ ⊢ l₂ ∷ Level
-                 → Γ ⊢ sucᵘ l₁ supᵘ sucᵘ l₂ ⇒ sucᵘ (l₁ supᵘ l₂) ∷ Level
+  supᵘ-zeroˡ     : Γ ⊢ t ∷ Level
+                 → Γ ⊢ zeroᵘ supᵘ t ⇒ t ∷ Level
+  supᵘ-zeroʳ     : Γ ⊢ t ∷ Level
+                 → Γ ⊢ sucᵘ t supᵘ zeroᵘ ⇒ sucᵘ t ∷ Level
+  supᵘ-sucᵘ      : Γ ⊢ t₁ ∷ Level
+                 → Γ ⊢ t₂ ∷ Level
+                 → Γ ⊢ sucᵘ t₁ supᵘ sucᵘ t₂ ⇒ sucᵘ (t₁ supᵘ t₂) ∷ Level
 
   lower-subst    : Γ ⊢ t ⇒ u ∷ Lift l₂ A
                  → Γ ⊢ lower t ⇒ lower u ∷ A
@@ -612,16 +613,16 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set ℓ wh
                 → Unitʷ-η
                 → Γ ⊢ unitrec p q A t u ⇒ u ∷ A [ t ]₀
 
-  app-subst      : Γ ⊢ t ⇒ u ∷ Π p , q ▷ F ▹ G
-                 → Γ ⊢ a ∷ F
-                 → Γ ⊢ t ∘⟨ p ⟩ a ⇒ u ∘⟨ p ⟩ a ∷ G [ a ]₀
-  β-red          : Γ »∙ F ⊢ G
-                 → Γ »∙ F ⊢ t ∷ G
-                 → Γ ⊢ a ∷ F
+  app-subst      : Γ ⊢ t₁ ⇒ t₂ ∷ Π p , q ▷ A ▹ B
+                 → Γ ⊢ u ∷ A
+                 → Γ ⊢ t₁ ∘⟨ p ⟩ u ⇒ t₂ ∘⟨ p ⟩ u ∷ B [ u ]₀
+  β-red          : Γ »∙ A ⊢ B
+                 → Γ »∙ A ⊢ t ∷ B
+                 → Γ ⊢ u ∷ A
                  → p PE.≡ p′
                  → -- Note that q can be chosen arbitrarily.
                    Π-allowed p q
-                 → Γ ⊢ lam p t ∘⟨ p′ ⟩ a ⇒ t [ a ]₀ ∷ G [ a ]₀
+                 → Γ ⊢ lam p t ∘⟨ p′ ⟩ u ⇒ t [ u ]₀ ∷ B [ u ]₀
 
   fst-subst      : Γ »∙ F ⊢ G
                  → Γ ⊢ t ⇒ u ∷ Σˢ p , q ▷ F ▹ G
@@ -714,7 +715,7 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set ℓ wh
 
 infix 4 _⊢_⇒_
 
-data _⊢_⇒_ (Γ : Cons m n) : Term n → Term n → Set ℓ where
+data _⊢_⇒_ (Γ : Cons m n) : Term n → Term n → Set a where
   univ   : Γ ⊢ A ⇒ B ∷ U l
          → Γ ⊢ A ⇒ B
 
@@ -722,7 +723,7 @@ data _⊢_⇒_ (Γ : Cons m n) : Term n → Term n → Set ℓ where
 
 infix 4 _⊢_⇒*_∷_
 
-data _⊢_⇒*_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set ℓ where
+data _⊢_⇒*_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a where
   id  : Γ ⊢ t ∷ A
       → Γ ⊢ t ⇒* t ∷ A
   _⇨_ : Γ ⊢ t  ⇒  t′ ∷ A
@@ -733,7 +734,7 @@ data _⊢_⇒*_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set ℓ w
 
 infix 4 _⊢_⇒*_
 
-data _⊢_⇒*_ (Γ : Cons m n) : Term n → Term n → Set ℓ where
+data _⊢_⇒*_ (Γ : Cons m n) : Term n → Term n → Set a where
   id  : Γ ⊢ A
       → Γ ⊢ A ⇒* A
   _⇨_ : Γ ⊢ A  ⇒  A′
@@ -744,30 +745,34 @@ data _⊢_⇒*_ (Γ : Cons m n) : Term n → Term n → Set ℓ where
 
 infix 4 _⊢_↘_
 
-_⊢_↘_ : Cons m n → Term n → Term n → Set ℓ
+_⊢_↘_ : Cons m n → Term n → Term n → Set a
 Γ ⊢ A ↘ B = Γ ⊢ A ⇒* B × Whnf (Γ .defs) B
 
 -- Reduction of terms to WHNF.
 
 infix 4 _⊢_↘_∷_
 
-_⊢_↘_∷_ : Cons m n → Term n → Term n → Term n → Set ℓ
+_⊢_↘_∷_ : Cons m n → Term n → Term n → Term n → Set a
 Γ ⊢ t ↘ u ∷ A = Γ ⊢ t ⇒* u ∷ A × Whnf (Γ .defs) u
 
 -- The natural order on levels
 
-_⊢_≤_∷Level : (Γ : Cons m n) (t u : Term n) → Set ℓ
+_⊢_≤_∷Level : (Γ : Cons m n) (t u : Term n) → Set a
 Γ ⊢ t ≤ u ∷Level = Γ ⊢ t supᵘ u ≡ u ∷ Level
 
--- A variant of _⊢_≤_∷Level, expressed using _supᵘₗ_ and _⊢_≡_∷Level.
+opaque
 
-infix 4 _⊢_≤ₗ_∷Level
+  -- A variant of _⊢_≤_∷Level, expressed using _supᵘₗ_ and _⊢_≡_∷Level
+  -- (and _⊢_∷Level).
 
-_⊢_≤ₗ_∷Level : Cons m n → (_ _ : Term n) → Set ℓ
-Γ ⊢ l₁ ≤ₗ l₂ ∷Level = Γ ⊢ l₁ supᵘₗ l₂ ≡ l₂ ∷Level
+  infix 4 _⊢_≤ₗ_∷Level
+
+  _⊢_≤ₗ_∷Level : Cons m n → (_ _ : Lvl n) → Set a
+  Γ ⊢ l₁ ≤ₗ l₂ ∷Level =
+    Γ ⊢ l₁ ∷Level × Γ ⊢ l₁ supᵘₗ l₂ ≡ l₂ ∷Level
 
 -- A context pair Γ is consistent if the empty type is not inhabited
 -- in Γ.
 
-Consistent : Cons m n → Set ℓ
+Consistent : Cons m n → Set a
 Consistent Γ = ∀ t → ¬ Γ ⊢ t ∷ Empty

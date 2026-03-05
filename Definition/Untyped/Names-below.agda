@@ -12,12 +12,13 @@ open import Tools.Nat
 open import Tools.Relation
 
 private variable
-  α k m n               : Nat
+  α ℓ m n               : Nat
   x                     : Fin _
   ∇                     : DCon (Term 0) _
   ρ                     : Wk _ _
   σ                     : Subst _ _
-  A B C l l₁ l₂ t u v w : Term _
+  k                     : Term-kind
+  A B C l t t₁ t₂ u v w : Term[ _ ] _
   b                     : BinderMode
   s                     : Strength
   p q r                 : M
@@ -27,7 +28,7 @@ private variable
 
 -- Names< m t holds if every name α in t satisfies α < m.
 
-data Names< (m : Nat) : Term n → Set a where
+data Names< (m : Nat) : Term[ k ] n → Set a where
   var :
     Names< m (var x)
   defn :
@@ -37,9 +38,13 @@ data Names< (m : Nat) : Term n → Set a where
   zeroᵘ :
     Names< m {n = n} zeroᵘ
   sucᵘ :
-    Names< m l → Names< m (sucᵘ l)
+    Names< m t → Names< m (sucᵘ t)
   supᵘ :
-    Names< m l₁ → Names< m l₂ → Names< m (l₁ supᵘ l₂)
+    Names< m t₁ → Names< m t₂ → Names< m (t₁ supᵘ t₂)
+  ωᵘ+ :
+    Names< m {n = n} (ωᵘ+ ℓ)
+  level :
+    Names< m t → Names< m (level t)
   U :
     Names< m l → Names< m (U l)
   Lift :
@@ -99,7 +104,7 @@ data Names< (m : Nat) : Term n → Set a where
 
 -- No-names t means that there are no names in t.
 
-No-names : Term n → Set a
+No-names : Term[ k ] n → Set a
 No-names = Names< 0
 
 -- A variant of Names< for substitutions.
@@ -127,6 +132,10 @@ opaque
     sucᵘ (Names<-wk <n)
   Names<-wk (supᵘ <n₁ <n₂) =
     supᵘ (Names<-wk <n₁) (Names<-wk <n₂)
+  Names<-wk ωᵘ+ =
+    ωᵘ+
+  Names<-wk (level <n) =
+    level (Names<-wk <n)
   Names<-wk (U <n) =
     U (Names<-wk <n)
   Names<-wk (Lift <n₁ <n₂) =
@@ -199,6 +208,10 @@ opaque
     sucᵘ (Names<-wk→ <n)
   Names<-wk→ {t = _ supᵘ _} (supᵘ <n₁ <n₂) =
     supᵘ (Names<-wk→ <n₁) (Names<-wk→ <n₂)
+  Names<-wk→ {t = ωᵘ+ _} ωᵘ+ =
+    ωᵘ+
+  Names<-wk→ {t = level _} (level <n) =
+    level (Names<-wk→ <n)
   Names<-wk→ {t = U _} (U <n) =
     U (Names<-wk→ <n)
   Names<-wk→ {t = Lift _ _} (Lift <n₁ <n₂) =
@@ -285,10 +298,10 @@ opaque
 
   -- Names<ˢ n is closed under lifting.
 
-  Names<ˢ-⇑ : Names<ˢ n σ → Names<ˢ n (σ ⇑[ k ])
-  Names<ˢ-⇑ {k = Nat.zero}  <n x      = <n x
-  Names<ˢ-⇑ {k = Nat.suc _} _  x0     = var
-  Names<ˢ-⇑ {k = Nat.suc k} <n (x +1) = Names<-wk (Names<ˢ-⇑ <n x)
+  Names<ˢ-⇑ : Names<ˢ m σ → Names<ˢ m (σ ⇑[ n ])
+  Names<ˢ-⇑ {n = Nat.zero}  <m x      = <m x
+  Names<ˢ-⇑ {n = Nat.suc _} _  x0     = var
+  Names<ˢ-⇑ {n = Nat.suc k} <m (x +1) = Names<-wk (Names<ˢ-⇑ <m x)
 
 opaque
 
@@ -307,6 +320,10 @@ opaque
     sucᵘ (Names<-[] l-<n σ-<n)
   Names<-[] (supᵘ l₁-<n l₂-<n) σ-<n =
     supᵘ (Names<-[] l₁-<n σ-<n) (Names<-[] l₂-<n σ-<n)
+  Names<-[] ωᵘ+ _ =
+    ωᵘ+
+  Names<-[] (level t-<n) σ-<n =
+    level (Names<-[] t-<n σ-<n)
   Names<-[] (U l-<n) σ-<n =
     U (Names<-[] l-<n σ-<n)
   Names<-[] (Lift l-<n A-<n) σ-<n =
@@ -401,6 +418,10 @@ opaque
     sucᵘ (Names<-[]→ <n)
   Names<-[]→ {t = _ supᵘ _} (supᵘ <n₁ <n₂) =
     supᵘ (Names<-[]→ <n₁) (Names<-[]→ <n₂)
+  Names<-[]→ {t = ωᵘ+ _} ωᵘ+ =
+    ωᵘ+
+  Names<-[]→ {t = level _} (level <n) =
+    level (Names<-[]→ <n)
   Names<-[]→ {t = U _} (U <n) =
     U (Names<-[]→ <n)
   Names<-[]→ {t = Lift _ _} (Lift <n₁ <n₂) =
@@ -464,5 +485,8 @@ opaque
   -- If l is a level literal, then Names< n holds for l.
 
   Level-literal→Names< : Level-literal l → Names< n l
-  Level-literal→Names< zeroᵘ        = zeroᵘ
-  Level-literal→Names< (sucᵘ l-lit) = sucᵘ (Level-literal→Names< l-lit)
+  Level-literal→Names< zeroᵘ         = zeroᵘ
+  Level-literal→Names< (sucᵘ t-lit)  = sucᵘ (Level-literal→Names< t-lit)
+  Level-literal→Names< ωᵘ+           = ωᵘ+
+  Level-literal→Names< (level t-lit) =
+    level (Level-literal→Names< t-lit)

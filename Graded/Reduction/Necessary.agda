@@ -87,7 +87,7 @@ record Usage-relation : Set (lsuc (a ⊔ b)) where
     sucₘ : γ ▸[ m ] t → γ ▸[ m ] suc t
     starʷₘ : 𝟘ᶜ {n = n} ▸[ m ] starʷ
     prodʷₘ : γ ▸[ m ᵐ· p ] t → δ ▸[ m ] u → p ·ᶜ γ +ᶜ δ ▸[ m ] prodʷ p t u
-    Uₘ : 𝟘ᶜ {n = n} ▸[ m ] U zeroᵘ
+    Uₘ : 𝟘ᶜ {n = n} ▸[ m ] U₀
     ℕₘ : 𝟘ᶜ {n = n} ▸[ m ] ℕ
     Unitʷₘ : 𝟘ᶜ {n = n} ▸[ m ] Unitʷ
     Σʷₘ : γ ▸[ m ᵐ· p ] A → δ ∙ ⌜ m ⌝ · q ▸[ m ] B → p ·ᶜ γ +ᶜ δ ▸[ m ] Σʷ p , q ▷ A ▹ B
@@ -241,7 +241,7 @@ module _
       ; sucₘ = U.sucₘ
       ; starʷₘ = U.starʷₘ
       ; prodʷₘ = U.prodʷₘ
-      ; Uₘ = U.Uₘ U.zeroᵘₘ
+      ; Uₘ = U.Uₘ (U.level U.zeroᵘₘ)
       ; ℕₘ = U.ℕₘ
       ; Unitʷₘ = U.Unitₘ
       ; Σʷₘ = U.ΠΣₘ
@@ -419,9 +419,9 @@ private
   opaque
     unfolding Sink-allowed
 
-    -- Sink is a well-formed term of type U zeroᵘ under Γᴺ.
+    -- Sink is a well-formed term of type U₀ under Γᴺ.
 
-    ⊢∷-Sink-Γᴺ : Sink-allowed γ → Γᴺ ⊢ Sink Δᴺ γ ∷ U zeroᵘ
+    ⊢∷-Sink-Γᴺ : Sink-allowed γ → Γᴺ ⊢ Sink Δᴺ γ ∷ U₀
     ⊢∷-Sink-Γᴺ {γ = ε} ok =
       ⊢∷-cong (Unitⱼ εε ok) (PE.sym Sink-ε-≡)
     ⊢∷-Sink-Γᴺ {γ = γ ∙ p} (ok₁ , ok₂) =
@@ -439,22 +439,22 @@ module Usage (usage : Usage-relation) where
 
   opaque
 
-    -- A usage rule for sucᵏ.
+    -- A usage rule for sucⁿ.
 
-    ▸sucᵏ : ∀ i → 𝟘ᶜ {n = n} ▸[ m ] sucᵏ i
-    ▸sucᵏ 0 = zeroₘ
-    ▸sucᵏ (1+ i) = sucₘ (▸sucᵏ i)
+    ▸sucⁿ : ∀ i → 𝟘ᶜ {n = n} ▸[ m ] sucⁿ i
+    ▸sucⁿ 0 = zeroₘ
+    ▸sucⁿ (1+ i) = sucₘ (▸sucⁿ i)
 
   opaque
 
-    -- A usage inversion lemma for sucᵏ.
+    -- A usage inversion lemma for sucⁿ.
 
-    inv-usage-sucᵏ : γ ▸[ m ] sucᵏ i → γ ≤ᶜ 𝟘ᶜ
-    inv-usage-sucᵏ {i = 0} ▸i =
+    inv-usage-sucⁿ : γ ▸[ m ] sucⁿ i → γ ≤ᶜ 𝟘ᶜ
+    inv-usage-sucⁿ {i = 0} ▸i =
       inv-usage-zero ▸i
-    inv-usage-sucᵏ {i = 1+ i} ▸i =
+    inv-usage-sucⁿ {i = 1+ i} ▸i =
       let _ , ▸j , γ≤ = inv-usage-suc ▸i
-      in  ≤ᶜ-trans γ≤ (inv-usage-sucᵏ ▸j)
+      in  ≤ᶜ-trans γ≤ (inv-usage-sucⁿ ▸j)
 
   opaque
 
@@ -608,7 +608,7 @@ module Natrec₁
     opaque
       unfolding Z
 
-      ⊢Z : Γᴺ ⊢ Z γ ∷ U zeroᵘ
+      ⊢Z : Γᴺ ⊢ Z γ ∷ U₀
       ⊢Z = ⊢∷-Sink-Γᴺ Sink-ok
 
     opaque
@@ -665,7 +665,7 @@ module Natrec₁
     opaque
       unfolding S
 
-      ⊢S : Γᴺ »∙ U zeroᵘ ⊢ S p r δ ∷ U zeroᵘ
+      ⊢S : Γᴺ »∙ U₀ ⊢ S p r δ ∷ U₀
       ⊢S =
         let ⊢x0 = var₀ (⊢U₀ ⊢Γᴺ)
             ⊢U0 = ⊢U₀ (∙ ⊢ℕ (∙ ⊢ℕ ⊢Γᴺ))
@@ -680,22 +680,22 @@ module Natrec₁
     opaque
 
       ⊢S₀ :
-        Γᴺ »∙ U zeroᵘ ⊢
+        Γᴺ »∙ U₀ ⊢
         Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 4 ]′ (Sink Δᴺ δ)) ∷
-        U zeroᵘ
+        U₀
       ⊢S₀ =
-        PE.subst (Γᴺ »∙ U zeroᵘ ⊢_∷ U zeroᵘ) S₀≡
+        PE.subst (Γᴺ »∙ U₀ ⊢_∷ U₀) S₀≡
           (subst-⊢∷-⇑ {k = 2} ⊢S (⊢ˢʷ∷-sgSubst (zeroⱼ ⊢Γᴺ)))
 
     opaque
 
       ⊢S₊ :
         Γᴺ ⊢ A →
-        Γᴺ »∙ A »∙ ℕ »∙ U zeroᵘ ⊢
+        Γᴺ »∙ A »∙ ℕ »∙ U₀ ⊢
         Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ)) ∷
-        U zeroᵘ
+        U₀
       ⊢S₊ {A} ⊢A =
-        PE.subst (Γᴺ »∙ A »∙ ℕ »∙ U zeroᵘ ⊢_∷ _) S₊≡
+        PE.subst (Γᴺ »∙ A »∙ ℕ »∙ U₀ ⊢_∷ _) S₊≡
           (subst-⊢∷-⇑ {k = 2} ⊢S (→⊢ˢʷ∷∙ (⊢ˢʷ∷-wkSubst (∙ ⊢A) (⊢ˢʷ∷-idSubst ⊢Γᴺ))
             (sucⱼ (var₁ ⊢A))))
 
@@ -728,17 +728,17 @@ module Natrec₁
       -- A term used in the proofs below.
 
       α : (p r : M) (γ δ : Conₘ n) → Term (1+ n)
-      α p r γ δ = natrec 𝟘 𝟘 r (U zeroᵘ) (wk1 (Z γ)) (S p r δ) (var x0)
+      α p r γ δ = natrec 𝟘 𝟘 r U₀ (wk1 (Z γ)) (S p r δ) (var x0)
 
     opaque
       unfolding α
 
       α₀≡ :
         α p r γ δ [ zero ]₀ PE.≡
-        natrec 𝟘 𝟘 r (U zeroᵘ) (Sink Δᴺ γ)
+        natrec 𝟘 𝟘 r U₀ (Sink Δᴺ γ)
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 4 ]′ (Sink Δᴺ δ))) zero
       α₀≡ {p} {r} {γ} {δ} =
-        PE.cong₂ (λ x y → natrec 𝟘 𝟘 r (U zeroᵘ) x y zero)
+        PE.cong₂ (λ x y → natrec 𝟘 𝟘 r U₀ x y zero)
           Z₀≡ S₀≡
 
     opaque
@@ -746,21 +746,21 @@ module Natrec₁
 
       α₊≡ :
         α p r γ δ [ suc (var x1) ]↑² PE.≡
-        natrec 𝟘 𝟘 r (U zeroᵘ) (wk₂ (Sink Δᴺ γ))
+        natrec 𝟘 𝟘 r U₀ (wk₂ (Sink Δᴺ γ))
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ))) (suc (var x1))
       α₊≡ {r} =
-        PE.cong₂ (λ x y → natrec 𝟘 𝟘 r (U zeroᵘ) x y (suc (var x1))) Z₊≡ S₊≡
+        PE.cong₂ (λ x y → natrec 𝟘 𝟘 r U₀ x y (suc (var x1))) Z₊≡ S₊≡
 
     opaque
       unfolding α Z S
 
       wk1α≡ :
         wk1 (α p r γ δ) PE.≡
-        natrec 𝟘 𝟘 r (U zeroᵘ) (wk₂ (Sink Δᴺ γ))
+        natrec 𝟘 𝟘 r U₀ (wk₂ (Sink Δᴺ γ))
           (Σʷ r , 𝟘 ▷ var x0 ▹ (Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ)))
           (var x1)
       wk1α≡ {r} =
-        PE.cong₂ (λ z s → natrec 𝟘 𝟘 r (U zeroᵘ) z s (var x1))
+        PE.cong₂ (λ z s → natrec 𝟘 𝟘 r U₀ z s (var x1))
           (wk-comp _ _ _)
           (PE.cong (λ x → Σʷ r , 𝟘 ▷ _ ▹ (Σʷ _ , 𝟘 ▷ _ ▹ x)) (wk-comp _ _ _))
 
@@ -850,7 +850,7 @@ module Natrec₁
             ≡⟨ PE.cong₂ (λ x y → Σʷ r , 𝟘 ▷ x ▹ Σʷ p , 𝟘 ▷ ℕ ▹ y) wk1α≡ lemma ⟩⊢≡
           Σʷ r , 𝟘 ▷ _ ▹ Σʷ p , 𝟘 ▷ ℕ ▹ _
             ≡˘⟨ univ (natrec-suc ⊢Z₊ (⊢S₊ ⊢α′) (var₁ ⊢α′))  ⟩⊢∎≡
-          natrec 𝟘 𝟘 _ (U zeroᵘ) (wk₂ (Sink Δᴺ γ))
+          natrec 𝟘 𝟘 _ U₀ (wk₂ (Sink Δᴺ γ))
             (Σʷ r , 𝟘 ▷ var x0 ▹ Σʷ p , 𝟘 ▷ ℕ ▹ wk[ 6 ]′ (Sink Δᴺ δ)) (suc (var x1))
               ≡˘⟨ α₊≡ ⟩
           α p r γ δ [ suc (var x1) ]↑² ∎)
@@ -861,14 +861,14 @@ module Natrec₁
            wk[ 3 ]′ t                 ≡˘⟨ wk[]≡wk[]′ ⟩
            wk[ 3 ] t                  ≡˘⟨ PE.cong wk1 (wk1-sgSubst _ _) ⟩
            wk1 (wk[ 3 ] t [ u ]₀)     ≡˘⟨ wk[]-⇑[] {t = wk[ 3 ] t} 1 ⟩
-           wk[ 4 ] t [ sgSubst u ⇑ ]  ≡⟨ PE.cong (_[ sgSubst u ⇑ ]) (wk[]≡wk[]′ {k = 4} {t = t}) ⟩
+           wk[ 4 ] t [ sgSubst u ⇑ ]  ≡⟨ PE.cong (_[ sgSubst u ⇑ ]) (wk[]≡wk[]′ {t = t}) ⟩
            wk[ 4 ]′ t [ sgSubst u ⇑ ] ∎
         lemma : wk[ 4 ]′ t PE.≡ wk[ 6 ]′ t [ consSubst (sgSubst u) v ⇑[ 2 ] ]
         lemma {t} {u} {v} = begin
           wk[ 4 ]′ t                                     ≡˘⟨ wk[]≡wk[]′ ⟩
           wk[ 4 ] t                                      ≡˘⟨ PE.cong wk2 wk2-[,] ⟩
          wk2 (wk[ 4 ] t [ consSubst (sgSubst u) v ])     ≡˘⟨ wk[]-⇑[] {t = wk[ 4 ] t} 2 ⟩
-          wk[ 6 ] t [ consSubst (sgSubst u) v ⇑[ 2 ] ]   ≡⟨ PE.cong (_[ consSubst (sgSubst u) v ⇑[ 2 ] ]) (wk[]≡wk[]′ {k = 6} {t = t}) ⟩
+          wk[ 6 ] t [ consSubst (sgSubst u) v ⇑[ 2 ] ]   ≡⟨ PE.cong (_[ consSubst (sgSubst u) v ⇑[ 2 ] ]) (wk[]≡wk[]′ {t = t}) ⟩
           wk[ 6 ]′ t [ consSubst (sgSubst u) v ⇑[ 2 ] ]  ∎
 
     opaque
@@ -926,7 +926,7 @@ module Natrec₁
       τ : (p r : M) (γ δ : Conₘ n) → Nat → Term n
       τ {n} p r γ δ i =
         natrec p (f 𝟘 r + headₘ {n = n} (g 𝟘 r 𝟘ᶜ 𝟘ᶜ)) r
-          (α p r γ δ) (ζ γ) (σ p r δ) (sucᵏ i)
+          (α p r γ δ) (ζ γ) (σ p r δ) (sucⁿ i)
 
     opaque
       unfolding τ
@@ -935,7 +935,7 @@ module Natrec₁
 
       ▸τ : g p r γ δ ▸[ 𝟙ᵐ ] τ p r γ δ i
       ▸τ {p} {r} {γ} {δ} {i} =
-        sub (natrecₘ ▸ζ ▸σ (▸sucᵏ i) ▸α) $ begin
+        sub (natrecₘ ▸ζ ▸σ (▸sucⁿ i) ▸α) $ begin
           g p r γ δ                ≈˘⟨ +ᶜ-identityˡ _ ⟩
           𝟘ᶜ +ᶜ g p r γ δ          ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
           f p r ·ᶜ 𝟘ᶜ +ᶜ g p r γ δ ∎
@@ -959,7 +959,7 @@ module Natrec₁
                   ⌜ m ⌝ ·ᶜ δ ∎)
               , (begin
                   η                          ≤⟨ η≤ ⟩
-                  f p r ·ᶜ η₃ +ᶜ g p r η₁ η₂ ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (inv-usage-sucᵏ ▸i)) ⟩
+                  f p r ·ᶜ η₃ +ᶜ g p r η₁ η₂ ≤⟨ +ᶜ-monotoneˡ (·ᶜ-monotoneʳ (inv-usage-sucⁿ ▸i)) ⟩
                   f p r ·ᶜ 𝟘ᶜ +ᶜ g p r η₁ η₂ ≈⟨ +ᶜ-congʳ (·ᶜ-zeroʳ _) ⟩
                   𝟘ᶜ +ᶜ g p r η₁ η₂          ≈⟨ +ᶜ-identityˡ _ ⟩
                   g p r η₁ η₂                ∎)
@@ -993,13 +993,13 @@ module Natrec₁
       unfolding σ
 
       inv-usage-σ[k,τ] :
-        η ▸[ m ] σ p r δ [ sucᵏ i , τ p r γ δ i ]₁₀ →
+        η ▸[ m ] σ p r δ [ sucⁿ i , τ p r γ δ i ]₁₀ →
         ∃ λ θ → θ ▸[ m ᵐ· r ] τ p r γ δ i × η ≤ᶜ ⌜ m ⌝ ·ᶜ (δ +ᶜ r ·ᶜ θ)
       inv-usage-σ[k,τ] {η} {p} {r} {δ} ▸σ =
         let η₁ , η₂ , ▸i , ▸τ , η≤ = inv-usage-σ[,] ▸σ
             open ≤ᶜ-reasoning
         in  _ , ▸τ , ≤ᶜ-trans η≤ (·ᶜ-monotoneʳ (begin
-          r ·ᶜ η₂ +ᶜ p ·ᶜ η₁ +ᶜ δ ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (inv-usage-sucᵏ ▸i))) ⟩
+          r ·ᶜ η₂ +ᶜ p ·ᶜ η₁ +ᶜ δ ≤⟨ +ᶜ-monotoneʳ (+ᶜ-monotoneˡ (·ᶜ-monotoneʳ (inv-usage-sucⁿ ▸i))) ⟩
           r ·ᶜ η₂ +ᶜ p ·ᶜ 𝟘ᶜ +ᶜ δ ≈⟨ +ᶜ-congˡ (+ᶜ-congʳ (·ᶜ-zeroʳ _)) ⟩
           r ·ᶜ η₂ +ᶜ 𝟘ᶜ +ᶜ δ      ≈⟨ +ᶜ-congˡ (+ᶜ-identityˡ _) ⟩
           r ·ᶜ η₂ +ᶜ δ            ≈⟨ +ᶜ-comm _ _ ⟩
@@ -1018,7 +1018,7 @@ module Natrec₁
           ⌜ m ⌝ ·ᶜ γ            ≈˘⟨ ·ᶜ-congˡ nrᵢᶜ-zero ⟩
           ⌜ m ⌝ ·ᶜ nrᵢᶜ r γ δ 0 ∎
       ≤-nrᵢᶜ {η} {m} {p} {r} {γ} {δ} (1+ i) ▸nr =
-        let ▸s = usagePresTerm (λ ()) ▸nr (natrec-suc ⊢ζ ⊢σ (⊢sucᵏ ⊢Γᴺ))
+        let ▸s = usagePresTerm (λ ()) ▸nr (natrec-suc ⊢ζ ⊢σ (⊢sucⁿ ⊢Γᴺ))
             θ , ▸IH , η≤ = inv-usage-σ[k,τ] ▸s
             open ≤ᶜ-reasoning
         in  begin
@@ -1325,7 +1325,7 @@ module Prodrec
         lemma : wk₂ A [ consSubst (wkSubst 2 idSubst) t ⇑ ] PE.≡ wk[ 3 ]′ A
         lemma {A} {t} = begin
           wk₂ A [ consSubst (wkSubst 2 idSubst) t ⇑ ]
-            ≡˘⟨ PE.cong (_[ consSubst (wkSubst 2 idSubst) t ⇑ ]) (wk[]≡wk[]′ {k = 2} {t = A}) ⟩
+            ≡˘⟨ PE.cong (_[ consSubst (wkSubst 2 idSubst) t ⇑ ]) (wk[]≡wk[]′ {t = A}) ⟩
           wk1 (wk1 A) [ consSubst (wkSubst 2 idSubst) t ⇑ ]
             ≡⟨ wk[]-⇑[] {t = wk1 A} 1 ⟩
           wk1 (wk1 A [ consSubst (wkSubst 2 idSubst) t ])

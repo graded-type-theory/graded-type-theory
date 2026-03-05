@@ -21,11 +21,11 @@ open import Definition.Untyped.Sup R
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Reasoning.Term R
+open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
-open import Definition.Typed.Properties.Admissible.Level.Primitive R
+open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
@@ -37,12 +37,13 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  n     : Nat
-  Γ     : Cons _ _
-  A A₁ A₂ B B₁ B₂ C E F G H a f g l l₁ l₁₁ l₁₂ l₂ l₂₁ l₂₂ t u : Term n
-  p p′ q : M
-  s     : Strength
-  b     : BinderMode
+  n                                   : Nat
+  Γ                                   : Cons _ _
+  A A₁ A₂ B B₁ B₂ C E F G H a f g t u : Term n
+  l l₁ l₁₁ l₁₂ l₂ l₂₁ l₂₂             : Lvl _
+  p p′ p₁ p₂ p₃ q q₁ q₂ q₃            : M
+  s                                   : Strength
+  b                                   : BinderMode
 
 ------------------------------------------------------------------------
 -- Simple variants of typing, equality and reduction rules
@@ -195,6 +196,85 @@ opaque
          (refl-⊢≡∷L ⊢l₂) (refl ⊢A) (refl ⊢B))
       .proj₂ .proj₁
 
+opaque
+  unfolding ΠΣʰ lower₀
+
+  -- An alternative equality rule for ΠΣʰ.
+
+  ΠΣʰ-cong-≤ₗ′ :
+    ΠΣ-allowed b p q →
+    Γ ⊢ l₁₁ ≤ₗ l₁ ∷Level →
+    Γ »∙ Lift l₁ A₁ ⊢ wk1 l₁₂ ≤ₗ wk1 l₁ ∷Level →
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l₁₁ →
+    Γ »∙ A₁ ⊢ B₁ ≡ B₂ ∷ U (wk1 l₁₂) →
+    Γ ⊢ ΠΣʰ b p q l₁ l₁ A₁ B₁ ≡ ΠΣʰ b p q l₂ l₂ A₂ B₂ ∷ U l₁
+  ΠΣʰ-cong-≤ₗ′ ok l₁₁≤l₁ l₁₂≤l₁ l₁≡l₂ A₁≡A₂ B₁≡B₂ =
+    let _ , ⊢l₁       = wf-⊢≤ₗ∷L l₁₁≤l₁
+        Lift≡Lift     = Lift-cong-≤ₗ l₁₁≤l₁ l₁≡l₂ A₁≡A₂
+        _ , ⊢Lift , _ = wf-⊢≡∷ Lift≡Lift
+    in
+    ΠΣ-cong ⊢l₁ Lift≡Lift
+      (Lift-cong-≤ₗ
+         (PE.subst (flip (_⊢_≤ₗ_∷Level _) _) (PE.sym (wk1-[][]↑ 1))
+            l₁₂≤l₁)
+         (wkEqLevel (stepʷ id (univ ⊢Lift)) l₁≡l₂)
+         (lower₀TermEq ⊢l₁ B₁≡B₂))
+      ok
+
+opaque
+
+  -- An alternative equality rule for ΠΣʰ.
+
+  ΠΣʰ-cong-≤ₗ :
+    ΠΣ-allowed b p q →
+    Γ ⊢ l₁₁ ≤ₗ l₁ ∷Level →
+    Γ ⊢ l₁₂ ≤ₗ l₁ ∷Level →
+    Γ ⊢ l₁ ≡ l₂ ∷Level →
+    Γ ⊢ A₁ ≡ A₂ ∷ U l₁₁ →
+    Γ »∙ A₁ ⊢ B₁ ≡ B₂ ∷ U (wk1 l₁₂) →
+    Γ ⊢ ΠΣʰ b p q l₁ l₁ A₁ B₁ ≡ ΠΣʰ b p q l₂ l₂ A₂ B₂ ∷ U l₁
+  ΠΣʰ-cong-≤ₗ ok l₁₁≤l₁ l₁₂≤l₁ l₁≡l₂ A₁≡A₂ B₁≡B₂ =
+    let _ , ⊢l₁       = wf-⊢≤ₗ∷L l₁₁≤l₁
+        Lift≡Lift     = Lift-cong-≤ₗ l₁₁≤l₁ l₁≡l₂ A₁≡A₂
+        _ , ⊢Lift , _ = wf-⊢≡∷ Lift≡Lift
+    in
+    ΠΣʰ-cong-≤ₗ′ ok l₁₁≤l₁ (wk-≤ₗ∷L (stepʷ id (univ ⊢Lift)) l₁₂≤l₁)
+      l₁≡l₂ A₁≡A₂ B₁≡B₂
+
+opaque
+
+  -- An alternative typing rule for ΠΣʰ.
+
+  ⊢ΠΣʰ∷-≤ₗ′ :
+    ΠΣ-allowed b p q →
+    Γ ⊢ l₁ ≤ₗ l ∷Level →
+    Γ »∙ Lift l A ⊢ wk1 l₂ ≤ₗ wk1 l ∷Level →
+    Γ ⊢ A ∷ U l₁ →
+    Γ »∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ ΠΣʰ b p q l l A B ∷ U l
+  ⊢ΠΣʰ∷-≤ₗ′ ok l₁≤l l₂≤l ⊢A ⊢B =
+    let _ , ⊢l = wf-⊢≤ₗ∷L l₁≤l in
+    wf-⊢≡∷
+      (ΠΣʰ-cong-≤ₗ′ ok l₁≤l l₂≤l (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢B))
+      .proj₂ .proj₁
+
+opaque
+
+  -- An alternative typing rule for ΠΣʰ.
+
+  ⊢ΠΣʰ∷-≤ₗ :
+    ΠΣ-allowed b p q →
+    Γ ⊢ l₁ ≤ₗ l ∷Level →
+    Γ ⊢ l₂ ≤ₗ l ∷Level →
+    Γ ⊢ A ∷ U l₁ →
+    Γ »∙ A ⊢ B ∷ U (wk1 l₂) →
+    Γ ⊢ ΠΣʰ b p q l l A B ∷ U l
+  ⊢ΠΣʰ∷-≤ₗ ok l₁≤l l₂≤l ⊢A ⊢B =
+    let _ , ⊢l = wf-⊢≤ₗ∷L l₁≤l in
+    wf-⊢≡∷ (ΠΣʰ-cong-≤ₗ ok l₁≤l l₂≤l (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢B))
+      .proj₂ .proj₁
+
 private opaque
   unfolding lower₀
 
@@ -242,16 +322,11 @@ opaque
     ΠΣ-allowed b p q
   inversion-ΠΣʰ-⊢∷ {l₁} {l₂} {B} {C} ⊢ΠΣ =
     let _ , _ , ⊢Lift-A , ⊢Lift-B , C≡U , ok = inversion-ΠΣ-U ⊢ΠΣ
-        _ , _ , ⊢A , U[l₃]≡U[l₄⊔l₂]          = inversion-Lift∷ ⊢Lift-A
-        _ , _ , ⊢B , U[l₃]≡U[l₅⊔l₁]          = inversion-Lift∷ ⊢Lift-B
-        _ , ⊢l₂                              =
-          inversion-supᵘₗ $
-          inversion-U-Level (wf-⊢≡ U[l₃]≡U[l₄⊔l₂] .proj₂)
-        _ , ⊢l₁ =
-          inversion-supᵘₗ $
-          inversion-U-Level (wf-⊢≡ U[l₃]≡U[l₅⊔l₁] .proj₂)
-        ⊢A′ = univ ⊢A
-        ⊢σ  = ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A′ ⊢l₂) (var₀ ⊢A′))
+        _ , ⊢l₂ , ⊢A , U[l₃]≡U[l₄⊔l₂]        = inversion-Lift∷ ⊢Lift-A
+        _ , ⊢l₁ , ⊢B , U[l₃]≡U[l₅⊔l₁]        = inversion-Lift∷ ⊢Lift-B
+        ⊢A′                                  = univ ⊢A
+        ⊢σ                                   =
+          ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A′ ⊢l₂) (var₀ ⊢A′))
     in
     PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) (subst-⊢∷L ⊢l₁ ⊢σ) ,
     ⊢l₂ , (_ , ⊢A) , (_ , inversion-lower₀-⊢∷ {t = B} ⊢B .proj₂) ,

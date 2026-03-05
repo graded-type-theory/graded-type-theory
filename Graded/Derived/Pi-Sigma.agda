@@ -25,7 +25,8 @@ open import Graded.Usage UR
 open import Graded.Usage.Weakening UR
 
 private variable
-  A B l₁ l₂   : Term _
+  A B         : Term _
+  l₁ l₂       : Lvl _
   γ₁ γ₂ γ₃ γ₄ : Conₘ _
   p q         : M
   m           : Mode

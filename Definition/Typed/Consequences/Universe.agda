@@ -22,12 +22,11 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Well-formed R
 open import Definition.Typed.Consequences.Injectivity R
 
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -35,7 +34,7 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  l                     : Term _
+  l                     : Lvl _
   Γ                     : Cons _ _
   p p₁ p₂ p₃ q q₁ q₂ q₃ : M
 
@@ -47,8 +46,7 @@ opaque
   ¬U∷U :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     ¬ Γ ⊢ U l ∷ U l
-  ¬U∷U U∷U =
-    t≢sucᵘt (U-injectivity (inversion-U U∷U))
+  ¬U∷U U∷U = ≢1ᵘ+ (U-injectivity (inversion-U U∷U))
 
 opaque
 
@@ -66,11 +64,11 @@ opaque
 
 opaque
 
-  -- For any context Γ, the type of the universe-polymorphic identity
-  -- function (with certain grades)
+  -- For any context Γ a certain type
   --
-  -- * is well-formed if Γ is, Level is allowed, and certain forms of
-  --   Π-types are also allowed,
+  -- * is the type of a universe-polymorphic identity function if Γ is
+  --   well-formed, Level is allowed, and certain forms of Π-types are
+  --   allowed,
   --
   -- * does not have a type, and
   --
@@ -79,41 +77,47 @@ opaque
   -- (assuming that Γ .vars is empty or equality reflection is not
   -- allowed).
 
-  the-type-of-id-does-not-have-a-type :
+  a-type-of-id-does-not-have-a-type :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     let A = Π p₁ , q₁ ▷ Level ▹
-            Π p₂ , q₂ ▷ U (var x0) ▹
+            Π p₂ , q₂ ▷ U (level (var x0)) ▹
             Π p₃ , q₃ ▷ var x0 ▹ var x1
+        t = lam p₁ (lam p₂ (lam p₃ (var x0)))
     in
     (Level-allowed →
      Π-allowed p₁ q₁ → Π-allowed p₂ q₂ → Π-allowed p₃ q₃ → ⊢ Γ →
-     Γ ⊢ A) ×
+     (Γ ⊢ A) × Γ ⊢ t ∷ A) ×
     (¬ ∃ λ B → Γ ⊢ A ∷ B) ×
     (¬ ∃ λ l → Γ ⊢ A ∷ U l)
-  the-type-of-id-does-not-have-a-type =
+  a-type-of-id-does-not-have-a-type =
     let ¬⊢∷ = λ (_ , ⊢A) →
-          let l , ⊢l , ⊢Level , ⊢ΠU , _ , _  = inversion-ΠΣ-U ⊢A
-              l′ , _ , ⊢U , _ , U≡U , _      = inversion-ΠΣ-U ⊢ΠU
-              ⊢l                             =
-                ⊢∷Level→⊢∷Level
-                  (Level-allowed⇔⊎ .proj₂ $ inj₁ $
-                   inversion-Level ⊢Level .proj₂)
-                  ⊢l
-          in
-          ¬U∷U $
-          conv (substTerm ⊢U ⊢l)
-            (U (l′ [ l ]₀)     ≡˘⟨ substTypeEq U≡U (refl ⊢l) ⟩⊢∎≡
-             U (wk1 l [ l ]₀)  ≡⟨ PE.cong U $ wk1-sgSubst _ _ ⟩
-             U l               ∎)
+          case inversion-ΠΣ-U ⊢A of λ where
+            (ωᵘ+ _ , _ , ⊢Level , _) →
+              level≢ωᵘ+ $ U-injectivity $ _⊢_≡_.sym $
+              inversion-Level ⊢Level .proj₁
+            (level l , ⊢l , ⊢Level , ⊢ΠU , _) →
+              let l′ , _ , ⊢U , _ , U≡U , _ = inversion-ΠΣ-U ⊢ΠU
+                  ⊢l                        =
+                    ⊢∷Level→⊢∷Level
+                      (Level-allowed⇔⊎ .proj₂ $ inj₁ $
+                       inversion-Level ⊢Level .proj₂)
+                      ⊢l
+              in
+              ¬U∷U $
+              conv (substTerm ⊢U ⊢l)
+                (U (l′ [ l ]₀)             ≡˘⟨ substTypeEq U≡U (refl ⊢l) ⟩⊢∎≡
+                 U (wk1 (level l) [ l ]₀)  ≡⟨ PE.cong U $ wk1-sgSubst _ _ ⟩
+                 U (level l)               ∎)
     in
     (λ ok ok₁ ok₂ ok₃ ⊢Γ →
-       ΠΣⱼ
-         (ΠΣⱼ
-            (ΠΣⱼ
-               (univ (var₁ (univ (var₀ (⊢U′ (var₀ (Levelⱼ′ ok ⊢Γ)))))))
-               ok₃)
-            ok₂)
-         ok₁) ,
+       let ⊢t =
+             lamⱼ′ ok₁ $
+             lamⱼ′ ok₂ $
+             lamⱼ′ ok₃ $
+             var₀ (univ (var₀ (⊢U′ (var₀ (Levelⱼ′ ok ⊢Γ)))))
+       in
+       wf-⊢∷ ⊢t ,
+       ⊢t) ,
     ¬⊢∷ ,
     ¬⊢∷ ∘→ Σ.map _ idᶠ
 
@@ -138,7 +142,7 @@ opaque
 
   type-without-type :
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
-    let A = Π p , q ▷ U zeroᵘ ▹ U (sucᵘ zeroᵘ) in
+    let A = Π p , q ▷ U₀ ▹ U (level (sucᵘ zeroᵘ)) in
     (Π-allowed p q → ⊢ Γ → Γ ⊢ A) ×
     (¬ ∃ λ B → Γ ⊢ A ∷ B) ×
     (¬ ∃ λ l → Γ ⊢ A ∷ U l)
@@ -150,6 +154,6 @@ opaque
             (PE.subst (flip (_⊢_≡_ _) _) (PE.sym $ wk1-sgSubst _ _) $
              inversion-U ⊢U₀)
     in
-    (λ ok ⊢Γ → ΠΣⱼ (⊢U (⊢sucᵘ (⊢zeroᵘ (∙ ⊢U₀ ⊢Γ)))) ok) ,
+    (λ ok ⊢Γ → ΠΣⱼ (⊢U (⊢1ᵘ+ (⊢zeroᵘ (∙ ⊢U₀ ⊢Γ)))) ok) ,
     ¬⊢∷ ,
     ¬⊢∷ ∘→ Σ.map _ idᶠ

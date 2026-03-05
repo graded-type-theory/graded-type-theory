@@ -207,8 +207,8 @@ module Internal
 
   OKᵢ : I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n
   OKᵢ p t =
-    natcaseᵢ p I.𝟘 (I.U I.zeroᵘ) (I.Unit I.𝕨)
-      (natcaseᵢ I.𝟘 I.𝟘 (I.U I.zeroᵘ) (I.Unit I.𝕨) I.Empty (I.var x0)) t
+    natcaseᵢ p I.𝟘 I.U₀ (I.Unit I.𝕨)
+      (natcaseᵢ I.𝟘 I.𝟘 I.U₀ (I.Unit I.𝕨) I.Empty (I.var x0)) t
 
   opaque
     unfolding OK natcase

@@ -38,7 +38,8 @@ private variable
   Γ Δ   : Con Term m
   Η     : Cons _ _
   A B C : Term m
-  t u l : Term m
+  t u   : Term m
+  l     : Lvl _
   s     : Strength
   p q   : M
 

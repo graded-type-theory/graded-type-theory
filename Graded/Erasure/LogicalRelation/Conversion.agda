@@ -57,8 +57,8 @@ private opaque
   convTermʳ′ A≡B (Uᵥ UA UB) t®v = t®v
   convTermʳ′
     {A} {B} A≡B
-    (Liftᵥ (Liftᵣ {level = l₁} {Ty = A′} A⇒*Lift ⊩A′)
-       (Liftᵣ {level = l₂} {Ty = B′} B⇒*Lift ⊩B′))
+    (Liftᵥ (Liftᵣ {lv = l₁} {Ty = A′} A⇒*Lift ⊩A′)
+       (Liftᵣ {lv = l₂} {Ty = B′} B⇒*Lift ⊩B′))
     t®v =
     let _ , A′≡B′ =
           Lift-injectivity

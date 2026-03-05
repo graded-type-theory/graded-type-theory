@@ -92,7 +92,8 @@ private variable
   p′         : M₂
   γ γ′ δ     : Conₘ _ _
   m m₁ m₂ m′ : Mode _
-  t          : Term _ _
+  t          : Term[ _ ] _ _
+  k          : Term-kind
   ok₂        : T _
 
 ------------------------------------------------------------------------
@@ -145,6 +146,10 @@ module Is-morphism
       sucᵘₘ (tr-▸ ▸t)
     tr-▸ (supᵘₘ ▸t ▸u) =
       sub (supᵘₘ (tr-▸ ▸t) (tr-▸ ▸u)) (≤ᶜ-reflexive tr-Conₘ-+ᶜ)
+    tr-▸ ωᵘ+ =
+      sub ωᵘ+ tr-Conₘ-𝟘ᶜ-≤ᶜ
+    tr-▸ (level ▸t) =
+      level (tr-▸ ▸t)
     tr-▸ (Liftₘ ▸A ▸t) =
       Liftₘ (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
     tr-▸ (liftₘ ▸t) =
@@ -772,7 +777,7 @@ module Is-order-embedding
       where
       lemma :
         m₁ ≳ᵐ m₂ →
-        (t : Term M₁ n) →
+        (t : Term[_] M₁ k n) →
         RS₂.Usage-restrictions-satisfied m₂ (tr-Term t) →
         RS₁.Usage-restrictions-satisfied m₁ t
 
@@ -821,6 +826,10 @@ module Is-order-embedding
           RS₁.sucᵘᵤ (lemma m₁≳m₂ _ t)
         (_ supᵘ _) (supᵘᵤ t u) →
           RS₁.supᵘᵤ (lemma m₁≳m₂ _ t) (lemma m₁≳m₂ _ u)
+        (ωᵘ+ _) ωᵘ+ →
+          RS₁.ωᵘ+
+        (level _) (level t) →
+          RS₁.level (lemma m₁≳m₂ _ t)
         (Lift _ _) (Liftᵤ t A) →
           RS₁.Liftᵤ (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma m₁≳m₂ _ A)
         (lift _) (liftᵤ t) →
@@ -984,7 +993,7 @@ module Is-order-embedding
   tr-▸⁻¹ = λ ▸t → tr-▸⁻¹′ _ ▸t refl CP₂.≤ᶜ-refl
     where mutual
     tr-▸⁻¹′ :
-      ∀ t → γ′ U₂.▸[ m′ ] tr-Term t →
+      (t : Term[_] M₁ k n) → γ′ U₂.▸[ m′ ] tr-Term t →
       m′ ≡ tr-Mode m → tr-Conₘ γ C₂.≤ᶜ γ′ → γ U₁.▸[ m ] t
     tr-▸⁻¹′ (defn _) defn refl ≤𝟘 =
       sub defn (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
@@ -1001,6 +1010,12 @@ module Is-order-embedding
     tr-▸⁻¹′ (_ supᵘ _) (supᵘₘ ▸t ▸u) refl ≤γ =
       case tr-Conₘ-≤ᶜ-+ᶜ ≤γ of λ (δ′ , η′ , ≤₁ , ≤₂ , γ≤) →
         sub (supᵘₘ (tr-▸⁻¹′ _ ▸t refl ≤₁) (tr-▸⁻¹′ _ ▸u refl ≤₂)) γ≤
+
+    tr-▸⁻¹′ (ωᵘ+ _) ωᵘ+ refl ≤𝟘 =
+      sub ωᵘ+ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
+
+    tr-▸⁻¹′ (level _) (level ▸t) refl ≤γ =
+      level (tr-▸⁻¹′ _ ▸t refl ≤γ)
 
     tr-▸⁻¹′ (Lift _ _) (Liftₘ ▸t ▸A) refl ≤γ =
       Liftₘ (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂) (tr-▸⁻¹′ _ ▸A refl ≤γ)

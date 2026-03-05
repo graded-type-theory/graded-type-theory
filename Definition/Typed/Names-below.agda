@@ -18,6 +18,7 @@ open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Properties M
 
@@ -27,10 +28,11 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 private variable
-  α n             : Nat
-  ∇ ∇₁ ∇₂         : DCon (Term 0) _
-  Γ               : Con Term _
-  A B C l t u v w : Term _
+  α n           : Nat
+  ∇ ∇₁ ∇₂       : DCon (Term 0) _
+  Γ             : Con Term _
+  A B C t u v w : Term _
+  l             : Lvl _
 
 opaque mutual
 
@@ -134,9 +136,9 @@ opaque mutual
     {∇ : DCon (Term 0) n} →
     ∇ » Γ ⊢ l ∷Level → Names< n l
   ⊢∷L→Names< (term _ ⊢l) =
-    ⊢∷→Names< ⊢l
-  ⊢∷L→Names< (literal _ _ l-lit) =
-    Level-literal→Names< l-lit
+    level (⊢∷→Names< ⊢l)
+  ⊢∷L→Names< (literal ok _) =
+    Level-literal→Names< (Allowed-literal→Level-literal ok)
 
 opaque
 

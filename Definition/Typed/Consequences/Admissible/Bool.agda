@@ -76,7 +76,7 @@ opaque
 
   ⊢Bool∷U :
     ⊢ Γ →
-    Γ ⊢ Bool ∷ U zeroᵘ
+    Γ ⊢ Bool ∷ U₀
   ⊢Bool∷U ⊢Γ =
     ΠΣⱼ (⊢zeroᵘ ⊢Γ) (ℕⱼ ⊢Γ) (⊢OK∷U (var₀ (⊢ℕ ⊢Γ))) Σ-ok
 
@@ -177,14 +177,15 @@ private
     (Γ : Cons m n) (meta-con-size : V.Vec Nat ms)
     where
     c : I.Constants
-    c .I.gs               = 9
-    c .I.ss               = 0
-    c .I.bms              = 0
-    c .I.ms               = ms
-    c .I.base-dcon-size   = m
-    c .I.base-con-size    = n
-    c .I.base-con-allowed = Bool.true
-    c .I.meta-con-size    = meta-con-size
+    c .I.gs                 = 9
+    c .I.ss                 = 0
+    c .I.bms                = 0
+    c .I.ms                 = ms
+    c .I.base-dcon-size     = m
+    c .I.base-con-size      = n
+    c .I.base-con-allowed   = Bool.true
+    c .I.meta-con-term-kind = V.replicate ms tm
+    c .I.meta-con-size      = meta-con-size
 
     xp xBoolᵍ₁ xBoolᵍ₂ xOKᵍ xboolrecᵍ-Π xboolrecᵍ-nc₁ xboolrecᵍ-nc₂
       xboolrecᵍ-nc₃ xboolrecᵍ-pr : I.Termᵍ 9
@@ -213,7 +214,8 @@ private
         xboolrecᵍ-nc₃ xboolrecᵍ-Π xp
 
     γ :
-      (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
+      (∀ {k n} (x : I.Meta-var c k n) →
+       I.Con c n × I.Type-or-term c k n) →
       I.Contexts c
     γ _ .I.grades =
       p V.∷ Boolᵍ₁ V.∷ Boolᵍ₂ V.∷ OKᵍ V.∷ boolrecᵍ-Π V.∷ boolrecᵍ-nc₁ V.∷
@@ -285,7 +287,7 @@ opaque
              I.base , I.term u₂ (I.subst xA₁ (IS.sgSubst falseᵢ′))
            (I.var! x6) → I.base , I.term v₁ Boolᵢ′
            (I.var! x7) → I.base , I.term v₂ Boolᵢ′
-           (I.var not-x8 _))
+           (I.var not-x8 _ _))
       (I.base nothing I.» I.base)
       (boolrecᵢ′ xA₁ xt₁ xu₁ xv₁)
       (boolrecᵢ′ xA₂ xt₂ xu₂ xv₂)
@@ -304,15 +306,15 @@ opaque
            (reflConEq ⊢Γ , IC.term (refl (⊢Bool ⊢Γ)) v₁≡v₂) L.∷
            L.[]
          .IC.metas-wf .IC.bindings-wf → λ where
-           (I.var! x0)       → ⊢A₁
-           (I.var! x1)       → ⊢A₂
-           (I.var! x2)       → ⊢t₁
-           (I.var! x3)       → ⊢t₂
-           (I.var! x4)       → ⊢u₁
-           (I.var! x5)       → ⊢u₂
-           (I.var! x6)       → ⊢v₁
-           (I.var! x7)       → ⊢v₂
-           (I.var  not-x8 _))
+           (I.var! x0)         → ⊢A₁
+           (I.var! x1)         → ⊢A₂
+           (I.var! x2)         → ⊢t₁
+           (I.var! x3)         → ⊢t₂
+           (I.var! x4)         → ⊢u₁
+           (I.var! x5)         → ⊢u₂
+           (I.var! x6)         → ⊢v₁
+           (I.var! x7)         → ⊢v₂
+           (I.var  not-x8 _ _))
       ⊢Γ
       where
       open Defs p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr Γ
@@ -373,7 +375,7 @@ opaque
            I.base , I.term t (I.subst xA (IS.sgSubst trueᵢ′))
          (I.var! x2) →
            I.base , I.term u (I.subst xA (IS.sgSubst falseᵢ′))
-         (I.var not-x3 _))
+         (I.var not-x3 _ _))
       (I.base nothing I.» I.base)
       (boolrecᵢ′ xA xt xu trueᵢ′)
       xt
@@ -385,10 +387,10 @@ opaque
            Unitˢ-ok L.∷ Unitʷ-ok L.∷ Π-ok L.∷ Π-𝟙-𝟘-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢A
-           (I.var! x1)       → ⊢t
-           (I.var! x2)       → ⊢u
-           (I.var  not-x3 _))
+           (I.var! x0)         → ⊢A
+           (I.var! x1)         → ⊢t
+           (I.var! x2)         → ⊢u
+           (I.var  not-x3 _ _))
       (wfTerm ⊢t)
       where
       open Defs p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
@@ -424,7 +426,7 @@ opaque
            I.base , I.term t (I.subst xA (IS.sgSubst trueᵢ′))
          (I.var! x2) →
            I.base , I.term u (I.subst xA (IS.sgSubst falseᵢ′))
-         (I.var not-x3 _))
+         (I.var not-x3 _ _))
       (I.base nothing I.» I.base)
       (boolrecᵢ′ xA xt xu falseᵢ′)
       xu
@@ -436,10 +438,10 @@ opaque
            Unitˢ-ok L.∷ Unitʷ-ok L.∷ Π-ok L.∷ Π-𝟙-𝟘-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢A
-           (I.var! x1)       → ⊢t
-           (I.var! x2)       → ⊢u
-           (I.var  not-x3 _))
+           (I.var! x0)         → ⊢A
+           (I.var! x1)         → ⊢t
+           (I.var! x2)         → ⊢u
+           (I.var  not-x3 _ _))
       (wfTerm ⊢t)
       where
       open Defs p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)

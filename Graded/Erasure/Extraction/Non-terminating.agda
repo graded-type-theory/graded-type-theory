@@ -90,16 +90,16 @@ private variable
 
 private module Lemmas (⊢Γ : ⊢ Γ) where opaque
 
-  Empty⊢ℕ∷U : Γ »∙ Empty ⊢ ℕ ∷ U zeroᵘ
+  Empty⊢ℕ∷U : Γ »∙ Empty ⊢ ℕ ∷ U₀
   Empty⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ])
 
   Empty⊢ℕ : Γ »∙ Empty ⊢ ℕ
   Empty⊢ℕ = univ Empty⊢ℕ∷U
 
-  Empty∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ ⊢ ℕ ∷ U zeroᵘ
+  Empty∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ ⊢ ℕ ∷ U₀
   Empty∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢ℕ ])
 
-  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ »∙ ℕ ⊢ ℕ ∷ U zeroᵘ
+  Empty∙ℕ∙ℕ⊢ℕ∷U : Γ »∙ Empty »∙ ℕ »∙ ℕ ⊢ ℕ ∷ U₀
   Empty∙ℕ∙ℕ⊢ℕ∷U = ℕⱼ (⊢Γ ∙[ ⊢Empty ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ])
 
 opaque
@@ -128,7 +128,7 @@ opaque
 
   cast : Term n → Term n → Term n → Term n → Term n
   cast t A B u =
-    subst 𝟙 (U zeroᵘ) (var x0) A B (emptyrec 𝟘 (Id (U zeroᵘ) A B) t) u
+    subst 𝟙 U₀ (var x0) A B (emptyrec 𝟘 (Id U₀ A B) t) u
 
 opaque
   unfolding cast subst
@@ -145,8 +145,8 @@ opaque
 
   ⊢cast :
     Γ ⊢ t ∷ Empty →
-    Γ ⊢ A ∷ U zeroᵘ →
-    Γ ⊢ B ∷ U zeroᵘ →
+    Γ ⊢ A ∷ U₀ →
+    Γ ⊢ B ∷ U₀ →
     Γ ⊢ u ∷ A →
     Γ ⊢ cast t A B u ∷ B
   ⊢cast ⊢t ⊢A ⊢B =
@@ -165,13 +165,13 @@ opaque
     γ₄ ▸[ 𝟙ᵐ ] u →
     ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄) ▸[ 𝟙ᵐ ] cast t A B u
   ▸cast {γ₁} {γ₂} {γ₃} {γ₄} ok ▸t ▸A ▸B ▸u =
-    sub (▸subst (Uₘ zeroᵘₘ)
+    sub (▸subst (Uₘ (level zeroᵘₘ))
            (sub var $ begin
               𝟘ᶜ ∙ 𝟙 · 𝟙   ≈⟨ ≈ᶜ-refl ∙ ·-identityʳ _ ⟩
               𝟘ᶜ , x0 ≔ 𝟙  ∎)
            ▸A ▸B
            (emptyrecₘ (▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) ▸t)
-              (Idₘ-generalised (Uₘ zeroᵘₘ) (▸-𝟘ᵐ? ▸A .proj₂)
+              (Idₘ-generalised (Uₘ (level zeroᵘₘ)) (▸-𝟘ᵐ? ▸A .proj₂)
                  (▸-𝟘ᵐ? ▸B .proj₂)
                  (λ _ → ∧ᶜ-decreasingˡ 𝟘ᶜ _)
                  (λ _ → ∧ᶜ-decreasingʳ _ _))

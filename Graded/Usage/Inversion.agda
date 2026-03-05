@@ -41,8 +41,8 @@ private
     α k n : Nat
     γ χ : Conₘ n
     p q r : M
-    A B F l t t′ u v z n' : Term n
-    G : Term (1+ n)
+    A B F l t t′ u v z n' : Term[ _ ] n
+    G : Term[ _ ] (1+ n)
     m : Mode
     b : BinderMode
     s : Strength
@@ -67,16 +67,6 @@ inv-usage-sucᵘ : γ ▸[ m ] sucᵘ t → γ ▸[ m ] t
 inv-usage-sucᵘ (sucᵘₘ ▸t)       = ▸t
 inv-usage-sucᵘ (sub δ▸sucᵘ γ≤δ) = sub (inv-usage-sucᵘ δ▸sucᵘ) γ≤δ
 
-opaque
-
-  -- A kind of inversion lemma for level literals
-
-  inv-usage-level-literal : Level-literal t → γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
-  inv-usage-level-literal zeroᵘ ▸t =
-    inv-usage-zeroᵘ ▸t
-  inv-usage-level-literal (sucᵘ lit) ▸t =
-    inv-usage-level-literal lit (inv-usage-sucᵘ ▸t)
-
 -- A usage inversion lemma for _supᵘ_.
 
 inv-usage-supᵘ :
@@ -86,6 +76,38 @@ inv-usage-supᵘ (supᵘₘ ▸t ▸u)    = _ , _ , ≤ᶜ-refl , ▸t , ▸u
 inv-usage-supᵘ (sub δ▸supᵘ γ≤δ) =
   let _ , _ , δ≤η+θ , η▸t , θ▸u = inv-usage-supᵘ δ▸supᵘ in
   _ , _ , ≤ᶜ-trans γ≤δ δ≤η+θ , η▸t , θ▸u
+
+opaque
+
+  -- A usage inversion lemma for ωᵘ+.
+
+  inv-usage-ωᵘ+ : γ ▸[ m ] ωᵘ+ n → γ ≤ᶜ 𝟘ᶜ
+  inv-usage-ωᵘ+ ωᵘ+             = ≤ᶜ-refl
+  inv-usage-ωᵘ+ (sub δ▸ωᵘ+ γ≤δ) =
+    ≤ᶜ-trans γ≤δ (inv-usage-ωᵘ+ δ▸ωᵘ+)
+
+opaque
+
+  -- A usage inversion lemma for level.
+
+  inv-usage-level : γ ▸[ m ] level t → γ ▸[ m ] t
+  inv-usage-level (level ▸t)        = ▸t
+  inv-usage-level (sub δ▸level γ≤δ) =
+    sub (inv-usage-level δ▸level) γ≤δ
+
+opaque
+
+  -- A kind of inversion lemma for level literals.
+
+  inv-usage-level-literal : Level-literal t → γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
+  inv-usage-level-literal zeroᵘ ▸t =
+    inv-usage-zeroᵘ ▸t
+  inv-usage-level-literal (sucᵘ lit) ▸t =
+    inv-usage-level-literal lit (inv-usage-sucᵘ ▸t)
+  inv-usage-level-literal ωᵘ+ ▸t =
+    inv-usage-ωᵘ+ ▸t
+  inv-usage-level-literal (level lit) ▸t =
+    inv-usage-level-literal lit (inv-usage-level ▸t)
 
 -- A usage inversion lemma for U.
 
@@ -729,7 +751,7 @@ inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
 
 record InvUsage-[]-cong
          {n} (γ : Conₘ n) (m : Mode) (s : Strength)
-         (l A t u v : Term n) : Set (a ⊔ a′) where
+         (l : Lvl n) (A t u v : Term n) : Set (a ⊔ a′) where
   no-eta-equality
   pattern
   constructor invUsage-[]-cong

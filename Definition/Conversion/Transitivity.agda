@@ -15,6 +15,7 @@ module Definition.Conversion.Transitivity
   where
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
@@ -53,7 +54,8 @@ private
     ∇ : DCon (Term 0) m
     Δ Η : Con Term n
     Γ : Cons _ _
-    A l₁ l₂ l₃ t u v : Term _
+    A t u v : Term _
+    l₁ l₂ l₃ : Lvl _
     d : Bool
 
 mutual
@@ -436,12 +438,12 @@ mutual
     Γ ⊢ l₁ [conv↑] l₃ ∷Level
   transConvLevel (term ok l₁≡l₂) (term _ l₂≡l₃) =
     term ok (transConvTerm l₁≡l₂ l₂≡l₃)
-  transConvLevel (term ok _) (literal not-ok _ _ _) =
-    ⊥-elim (not-ok ok)
-  transConvLevel (literal not-ok _ _ _) (term ok _) =
-    ⊥-elim (not-ok ok)
-  transConvLevel (literal! not-ok ⊢Γ l-lit) (literal! _ _ _) =
-    literal! not-ok ⊢Γ l-lit
+  transConvLevel (term okᴸ _) (literal ok _ _) =
+    Level-allowed→Allowed-literal→ okᴸ ok
+  transConvLevel (literal! ok _) (term okᴸ _) =
+    Level-allowed→Allowed-literal→ okᴸ ok
+  transConvLevel (literal! ok ⊢Γ) (literal! _ _) =
+    literal! ok ⊢Γ
 
   -- Transitivity of algorithmic equality of levels.
 

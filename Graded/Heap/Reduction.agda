@@ -38,7 +38,8 @@ private variable
   m m′ n n′ k ℓ : Nat
   H H′ : Heap _ _
   ρ ρ′ : Wk _ _
-  A B l s t t′ t₁ t₂ u v w z : Term _
+  A B s t t′ t₁ t₂ u v w z : Term _
+  l : Lvl _
   x : Fin _
   S S′ : Stack _
   p p′ q q′ r : M

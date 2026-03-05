@@ -38,6 +38,7 @@ private variable
   n   : Nat
   Γ   : Con Term _
   t u : Term _
+  l   : Lvl _
   γ   : Conₘ _
   m   : Mode
 
@@ -46,13 +47,13 @@ opaque
   -- Validity for Level.
 
   Levelʳ :
-    ts » Γ ⊢ t ∷Level →
-    γ ▸ Γ ⊩ʳ Level ∷[ m ∣ n ] U t
-  Levelʳ ⊢t =
+    ts » Γ ⊢ l ∷Level →
+    γ ▸ Γ ⊩ʳ Level ∷[ m ∣ n ] U l
+  Levelʳ ⊢l =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷L ⊢t ⊢σ
+      ( subst-⊢∷L ⊢l ⊢σ
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 

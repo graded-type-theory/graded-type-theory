@@ -20,21 +20,24 @@ open import Tools.Nat
 open import Tools.Relation
 
 private variable
-  ∇                        : DCon _ _
-  A B C c g k l n t t′ u v : Term _
-  p q r                    : M
-  b                        : BinderMode
-  s                        : Strength
-  α                        : Nat
+  ∇                  : DCon _ _
+  A B C c l t t′ u v : Term[ _ ] _
+  k                  : Term-kind
+  p q r              : M
+  b                  : BinderMode
+  s                  : Strength
+  α m                : Nat
 
 mutual
 
   -- Normal forms.
 
-  data Nf {κ m : Nat} : DCon (Term 0) κ → Term m → Set a where
+  data Nf {n₁ n₂ : Nat} : DCon (Term 0) n₁ → Term[ k ] n₂ → Set a where
     Levelₙ : Nf ∇ Level
     zeroᵘₙ : Nf ∇ zeroᵘ
     sucᵘₙ  : Nf ∇ t → Nf ∇ (sucᵘ t)
+    ωᵘ+    : Nf ∇ (ωᵘ+ m)
+    level  : Nf ∇ t → Nf ∇ (level t)
     Uₙ     : Nf ∇ l → Nf ∇ (U l)
     Liftₙ  : Nf ∇ l → Nf ∇ A → Nf ∇ (Lift l A)
     liftₙ  : Nf ∇ t → Nf ∇ (lift t)
@@ -51,7 +54,7 @@ mutual
     starₙ  : Nf ∇ (star s)
     rflₙ   : Nf ∇ rfl
 
-    ne     : NfNeutral ∇ n → Nf ∇ n
+    ne     : NfNeutral ∇ t → Nf ∇ t
 
   -- Neutral terms for which the "non-neutral parts" are in normal
   -- form.
@@ -62,14 +65,14 @@ mutual
     supᵘˡₙ    : NfNeutral ∇ t → Nf ∇ u → NfNeutral ∇ (t supᵘ u)
     supᵘʳₙ    : Nf ∇ t → NfNeutral ∇ u → NfNeutral ∇ (sucᵘ t supᵘ u)
     lowerₙ    : NfNeutral ∇ t → NfNeutral ∇ (lower t)
-    ∘ₙ        : NfNeutral ∇ k → Nf ∇ u → NfNeutral ∇ (k ∘⟨ q ⟩ u)
+    ∘ₙ        : NfNeutral ∇ t → Nf ∇ u → NfNeutral ∇ (t ∘⟨ q ⟩ u)
     fstₙ      : NfNeutral ∇ t → NfNeutral ∇ (fst p t)
     sndₙ      : NfNeutral ∇ t → NfNeutral ∇ (snd p t)
-    natrecₙ   : Nf ∇ C → Nf ∇ c → Nf ∇ g → NfNeutral ∇ k →
-                NfNeutral ∇ (natrec p q r C c g k)
+    natrecₙ   : Nf ∇ A → Nf ∇ t → Nf ∇ u → NfNeutral ∇ v →
+                NfNeutral ∇ (natrec p q r A t u v)
     prodrecₙ  : Nf ∇ C → NfNeutral ∇ t → Nf ∇ u →
                 NfNeutral ∇ (prodrec r p q C t u)
-    emptyrecₙ : Nf ∇ C → NfNeutral ∇ k → NfNeutral ∇ (emptyrec p C k)
+    emptyrecₙ : Nf ∇ A → NfNeutral ∇ t → NfNeutral ∇ (emptyrec p A t)
     unitrecₙ  : ¬ Unitʷ-η → Nf ∇ C → NfNeutral ∇ t → Nf ∇ u →
                 NfNeutral ∇ (unitrec p q A t u)
     Jₙ        : Nf ∇ A → Nf ∇ t → Nf ∇ B → Nf ∇ u → Nf ∇ t′ → NfNeutral ∇ v →
@@ -79,9 +82,9 @@ mutual
     []-congₙ  : Nf ∇ l → Nf ∇ A → Nf ∇ t → Nf ∇ u → NfNeutral ∇ v →
                 NfNeutral ∇ ([]-cong s l A t u v)
 
--- If NfNeutral ∇ n holds, then n is neutral.
+-- If NfNeutral ∇ t holds, then t is neutral.
 
-nfNeutral : NfNeutral ∇ n → Neutral⁺ ∇ n
+nfNeutral : NfNeutral ∇ t → Neutral⁺ ∇ t
 nfNeutral = λ where
   (var _)                 → var⁺ _
   (defn α↦⊘)              → defn α↦⊘
@@ -101,7 +104,7 @@ nfNeutral = λ where
 
 -- Normal forms are in WHNF.
 
-nfWhnf : Nf ∇ n → Whnf ∇ n
+nfWhnf : Nf ∇ t → Whnf ∇ t
 nfWhnf = λ where
   Levelₙ      → Levelₙ
   zeroᵘₙ      → zeroᵘₙ
@@ -128,5 +131,7 @@ opaque
 
   Level-literal→Nf : Level-literal l → Nf ∇ l
   Level-literal→Nf = λ where
-    zeroᵘ    → zeroᵘₙ
-    (sucᵘ l) → sucᵘₙ (Level-literal→Nf l)
+    zeroᵘ     → zeroᵘₙ
+    (sucᵘ l)  → sucᵘₙ (Level-literal→Nf l)
+    ωᵘ+       → ωᵘ+
+    (level t) → level (Level-literal→Nf t)

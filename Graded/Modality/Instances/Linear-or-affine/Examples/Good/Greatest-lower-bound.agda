@@ -55,7 +55,8 @@ open import Definition.Typed.Restrictions linear-or-affine
 private variable
   n : Nat
   γ γ₁ γ₂ γ₃ γ₄ γ₅ δ δ₁ δ₂ η : Conₘ _
-  t u a b A B t₁ t₂ t₃ P : Term _
+  t u A B t₁ t₂ t₃ P : Term _
+  a b : Lvl _
   m : Mode
   p p₁ p₂ q : Linear-or-affine
 

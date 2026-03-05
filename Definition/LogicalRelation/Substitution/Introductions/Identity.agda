@@ -55,16 +55,16 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
 private variable
-  ∇                                         : DCon (Term 0) _
-  Δ Η                                       : Con Term _
-  Γ                                         : Cons _ _
-  A A₁ A₂ B B₁ B₂
-    k k₁ k₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  σ σ₁ σ₂                                   : Subst _ _
-  l l′ l′₁ l′₂ l′₃ l′₄ l′₅ l″ l‴ l⁗         : Universe-level
-  m n                                       : Nat
-  p q                                       : M
-  s                                         : Strength
+  ∇                                               : DCon (Term 0) _
+  Δ Η                                             : Con Term _
+  Γ                                               : Cons _ _
+  A A₁ A₂ B B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  l l₁ l₂                                         : Lvl _
+  σ σ₁ σ₂                                         : Subst _ _
+  ℓ ℓ′ ℓ′₁ ℓ′₂ ℓ′₃ ℓ′₄ ℓ′₅ ℓ″ ℓ‴ ℓ⁗               : Universe-level
+  m n                                             : Nat
+  p q                                             : M
+  s                                               : Strength
 
 private
 
@@ -85,8 +85,8 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_.
 
   ⊩Id⇔ :
-    Γ ⊩⟨ l ⟩ Id A t u ⇔
-    (Γ ⊩⟨ l ⟩ t ∷ A × Γ ⊩⟨ l ⟩ u ∷ A)
+    Γ ⊩⟨ ℓ ⟩ Id A t u ⇔
+    (Γ ⊩⟨ ℓ ⟩ t ∷ A × Γ ⊩⟨ ℓ ⟩ u ∷ A)
   ⊩Id⇔ {A} {t} {u} =
       (λ ⊩Id →
         case Id-view ⊩Id of λ {
@@ -108,28 +108,28 @@ opaque
   -- A corollary.
 
   →⊩Id∷U :
-    Γ ⊩⟨ l′ ⟩ A ∷ U k →
-    Γ ⊩⟨ l″ ⟩ t ∷ A →
-    Γ ⊩⟨ l‴ ⟩ u ∷ A →
-    Γ ⊩⟨ l′ ⟩ Id A t u ∷ U k
-  →⊩Id∷U {Γ} {l′} {A} {k} {l″} {t} {l‴} {u} ⊩A ⊩t ⊩u =
-                                                   $⟨ ⊩A , ⊩t , ⊩u ⟩
-    Γ ⊩⟨ l′ ⟩ A ∷ U k ×
-    Γ ⊩⟨ l″ ⟩ t ∷ A ×
-    Γ ⊩⟨ l‴ ⟩ u ∷ A                                →⟨ (λ (⊩A∷U , ⊩t , ⊩u) →
-                                                         let [k] , k< , ⊩A , _ = ⊩∷U⇔ .proj₁ ⊩A∷U in
-                                                           [k] , k<
-                                                         , (level-⊩∷ ⊩A ⊩t , level-⊩∷ ⊩A ⊩u)
-                                                         , ≅ₜ-Id-cong (escape-⊩≡∷ (refl-⊩≡∷ ⊩A∷U))
-                                                             (escape-⊩≡∷ (refl-⊩≡∷ ⊩t)) (escape-⊩≡∷ (refl-⊩≡∷ ⊩u)))
-                                                   ⟩
-    (∃ λ [k] → ↑ᵘ [k] <ᵘ l′ × (Γ ⊩⟨ ↑ᵘ [k] ⟩ t ∷ A × Γ ⊩⟨ ↑ᵘ [k] ⟩ u ∷ A) ×
-    Γ ⊢≅ Id A t u ∷ U k)                           ⇔˘⟨ (Σ-cong-⇔ λ _ → id⇔ ×-cong-⇔ ⊩Id⇔ ×-cong-⇔ id⇔) ⟩→
+    Γ ⊩⟨ ℓ′ ⟩ A ∷ U l →
+    Γ ⊩⟨ ℓ″ ⟩ t ∷ A →
+    Γ ⊩⟨ ℓ‴ ⟩ u ∷ A →
+    Γ ⊩⟨ ℓ′ ⟩ Id A t u ∷ U l
+  →⊩Id∷U {Γ} {ℓ′} {A} {l} {ℓ″} {t} {ℓ‴} {u} ⊩A ⊩t ⊩u =
+                                                                         $⟨ ⊩A , ⊩t , ⊩u ⟩
+    Γ ⊩⟨ ℓ′ ⟩ A ∷ U l ×
+    Γ ⊩⟨ ℓ″ ⟩ t ∷ A ×
+    Γ ⊩⟨ ℓ‴ ⟩ u ∷ A                                                      →⟨ (λ (⊩A∷U , ⊩t , ⊩u) →
+                                                                               let ⊩l , l< , ⊩A , _ = ⊩∷U⇔ .proj₁ ⊩A∷U in
+                                                                                 ⊩l , l<
+                                                                               , (level-⊩∷ ⊩A ⊩t , level-⊩∷ ⊩A ⊩u)
+                                                                               , ≅ₜ-Id-cong (escape-⊩≡∷ (refl-⊩≡∷ ⊩A∷U))
+                                                                                   (escape-⊩≡∷ (refl-⊩≡∷ ⊩t)) (escape-⊩≡∷ (refl-⊩≡∷ ⊩u)))
+                                                                         ⟩
+    (∃ λ ⊩l → ↑ᵘ ⊩l <ᵘ ℓ′ × (Γ ⊩⟨ ↑ᵘ ⊩l ⟩ t ∷ A × Γ ⊩⟨ ↑ᵘ ⊩l ⟩ u ∷ A) ×
+     Γ ⊢≅ Id A t u ∷ U l)                                                ⇔˘⟨ (Σ-cong-⇔ λ _ → id⇔ ×-cong-⇔ ⊩Id⇔ ×-cong-⇔ id⇔) ⟩→
 
-    (∃ λ [k] → ↑ᵘ [k] <ᵘ l′ × (Γ ⊩⟨ ↑ᵘ [k] ⟩ Id A t u) ×
-    Γ ⊢≅ Id A t u ∷ U k)                           ⇔˘⟨ Type→⊩∷U⇔ Idₙ ⟩→
+    (∃ λ ⊩l → ↑ᵘ ⊩l <ᵘ ℓ′ × (Γ ⊩⟨ ↑ᵘ ⊩l ⟩ Id A t u) ×
+     Γ ⊢≅ Id A t u ∷ U l)                                                ⇔˘⟨ Type→⊩∷U⇔ Idₙ ⟩→
 
-    Γ ⊩⟨ l′ ⟩ Id A t u ∷ U k                       □
+    Γ ⊩⟨ ℓ′ ⟩ Id A t u ∷ U l                                             □
 
 opaque
   unfolding _⊩⟨_⟩_≡_ _⊩⟨_⟩_≡_∷_ wf-⊩≡∷
@@ -137,13 +137,13 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩Id≡⇔ :
-    Γ ⊩⟨ l ⟩ Id A t u ≡ B ⇔
-    (Γ ⊩⟨ l ⟩ Id A t u ×
+    Γ ⊩⟨ ℓ ⟩ Id A t u ≡ B ⇔
+    (Γ ⊩⟨ ℓ ⟩ Id A t u ×
      ∃₃ λ A′ t′ u′ →
      (Γ ⊢ B ⇒* Id A′ t′ u′) ×
-     (Γ ⊩⟨ l ⟩ A ≡ A′) ×
-     Γ ⊩⟨ l ⟩ t ≡ t′ ∷ A ×
-     Γ ⊩⟨ l ⟩ u ≡ u′ ∷ A)
+     (Γ ⊩⟨ ℓ ⟩ A ≡ A′) ×
+     Γ ⊩⟨ ℓ ⟩ t ≡ t′ ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ≡ u′ ∷ A)
   ⊩Id≡⇔ =
       (λ (⊩Id , ⊩B , Id≡B) →
         case Id-view ⊩Id of λ {
@@ -196,19 +196,19 @@ opaque
   -- Another characterisation lemma for _⊩⟨_⟩_≡_.
 
   ⊩Id≡Id⇔ :
-    Γ ⊩⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ⇔
-    ((Γ ⊩⟨ l ⟩ A₁ ≡ A₂) ×
-     Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ ×
-     Γ ⊩⟨ l ⟩ u₁ ≡ u₂ ∷ A₁)
-  ⊩Id≡Id⇔ {Γ} {l} {A₁} {t₁} {u₁} {A₂} {t₂} {u₂} =
-    (Γ ⊩⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂)  ⇔⟨ ⊩Id≡⇔ ⟩
+    Γ ⊩⟨ ℓ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ⇔
+    ((Γ ⊩⟨ ℓ ⟩ A₁ ≡ A₂) ×
+     Γ ⊩⟨ ℓ ⟩ t₁ ≡ t₂ ∷ A₁ ×
+     Γ ⊩⟨ ℓ ⟩ u₁ ≡ u₂ ∷ A₁)
+  ⊩Id≡Id⇔ {Γ} {ℓ} {A₁} {t₁} {u₁} {A₂} {t₂} {u₂} =
+    (Γ ⊩⟨ ℓ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂)  ⇔⟨ ⊩Id≡⇔ ⟩
 
-    (Γ ⊩⟨ l ⟩ Id A₁ t₁ u₁ ×
+    (Γ ⊩⟨ ℓ ⟩ Id A₁ t₁ u₁ ×
      ∃₃ λ A′ t′ u′ →
      (Γ ⊢ Id A₂ t₂ u₂ ⇒* Id A′ t′ u′) ×
-     (Γ ⊩⟨ l ⟩ A₁ ≡ A′) ×
-     Γ ⊩⟨ l ⟩ t₁ ≡ t′ ∷ A₁ ×
-     Γ ⊩⟨ l ⟩ u₁ ≡ u′ ∷ A₁)               ⇔⟨ (λ (_ , _ , _ , _ , Id⇒*Id , A₁≡ , t₁≡ , u₁≡) →
+     (Γ ⊩⟨ ℓ ⟩ A₁ ≡ A′) ×
+     Γ ⊩⟨ ℓ ⟩ t₁ ≡ t′ ∷ A₁ ×
+     Γ ⊩⟨ ℓ ⟩ u₁ ≡ u′ ∷ A₁)               ⇔⟨ (λ (_ , _ , _ , _ , Id⇒*Id , A₁≡ , t₁≡ , u₁≡) →
                                                 case whnfRed* Id⇒*Id Idₙ of λ {
                                                   PE.refl →
                                                 A₁≡ , t₁≡ , u₁≡ })
@@ -221,26 +221,28 @@ opaque
                                                        (escape-⊩∷ (conv-⊩∷ A₁≡A₂ (wf-⊩≡∷ u₁≡u₂ .proj₂))))
                                                 , A₁≡A₂ , t₁≡t₂ , u₁≡u₂)
                                            ⟩
-    (Γ ⊩⟨ l ⟩ A₁ ≡ A₂) ×
-    Γ ⊩⟨ l ⟩ t₁ ≡ t₂ ∷ A₁ ×
-    Γ ⊩⟨ l ⟩ u₁ ≡ u₂ ∷ A₁                 □⇔
+    (Γ ⊩⟨ ℓ ⟩ A₁ ≡ A₂) ×
+    Γ ⊩⟨ ℓ ⟩ t₁ ≡ t₂ ∷ A₁ ×
+    Γ ⊩⟨ ℓ ⟩ u₁ ≡ u₂ ∷ A₁                 □⇔
 
 opaque
 
   -- A corollary.
 
   →⊩Id≡Id∷U :
-    Γ ⊩⟨ l′ ⟩ A₁ ≡ A₂ ∷ U k →
-    Γ ⊩⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
-    Γ ⊩⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊩⟨ l′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U k
-  →⊩Id≡Id∷U {Γ} {l′} {A₁} {A₂} {k} {l″} {t₁} {t₂} {l‴} {u₁} {u₂} A₁≡A₂∷U t₁≡t₂ u₁≡u₂ =
+    Γ ⊩⟨ ℓ′ ⟩ A₁ ≡ A₂ ∷ U l →
+    Γ ⊩⟨ ℓ″ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩⟨ ℓ‴ ⟩ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊩⟨ ℓ′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U l
+  →⊩Id≡Id∷U
+    {Γ} {ℓ′} {A₁} {A₂} {l} {ℓ″} {t₁} {t₂} {ℓ‴} {u₁} {u₂}
+    A₁≡A₂∷U t₁≡t₂ u₁≡u₂ =
                                                                      $⟨ A₁≡A₂∷U , t₁≡t₂ , u₁≡u₂ ⟩
-    Γ ⊩⟨ l′ ⟩ A₁ ≡ A₂ ∷ U k ×
-    Γ ⊩⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ ×
-    Γ ⊩⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁                                           →⟨ (λ (A₁≡A₂∷U , t₁≡t₂ , u₁≡u₂) →
+    Γ ⊩⟨ ℓ′ ⟩ A₁ ≡ A₂ ∷ U l ×
+    Γ ⊩⟨ ℓ″ ⟩ t₁ ≡ t₂ ∷ A₁ ×
+    Γ ⊩⟨ ℓ‴ ⟩ u₁ ≡ u₂ ∷ A₁                                           →⟨ (λ (A₁≡A₂∷U , t₁≡t₂ , u₁≡u₂) →
                                                                            case ⊩≡∷U⇔ .proj₁ A₁≡A₂∷U of λ
-                                                                             ([k] , k<l , A₁≡A₂ , _) →
+                                                                             (⊩l , l<ℓ , A₁≡A₂ , _) →
                                                                            case escape-⊩≡∷ A₁≡A₂∷U of λ
                                                                              A₁≅A₂∷U →
                                                                            case escape-⊩≡∷ t₁≡t₂ of λ
@@ -251,31 +253,31 @@ opaque
                                                                              (⊢A₁∷U , ⊢A₂∷U) →
                                                                            case wf-⊩≡ A₁≡A₂ .proj₁ of λ
                                                                              ⊩A₁ →
-                                                                             [k] , k<l
+                                                                             ⊩l , l<ℓ
                                                                            , (A₁≡A₂ , level-⊩≡∷ ⊩A₁ t₁≡t₂ , level-⊩≡∷ ⊩A₁ u₁≡u₂)
                                                                            , ≅ₜ-Id-cong A₁≅A₂∷U t₁≅t₂ u₁≅u₂) ⟩
-    (∃ λ [k] → ↑ᵘ [k] <ᵘ l′ ×
-    ((Γ ⊩⟨ ↑ᵘ [k] ⟩ A₁ ≡ A₂) ×
-     Γ ⊩⟨ ↑ᵘ [k] ⟩ t₁ ≡ t₂ ∷ A₁ ×
-     Γ ⊩⟨ ↑ᵘ [k] ⟩ u₁ ≡ u₂ ∷ A₁) ×
-    Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U k)                             ⇔˘⟨ (Σ-cong-⇔ λ _ → id⇔ ×-cong-⇔
+    (∃ λ ⊩l → ↑ᵘ ⊩l <ᵘ ℓ′ ×
+     ((Γ ⊩⟨ ↑ᵘ ⊩l ⟩ A₁ ≡ A₂) ×
+      Γ ⊩⟨ ↑ᵘ ⊩l ⟩ t₁ ≡ t₂ ∷ A₁ ×
+      Γ ⊩⟨ ↑ᵘ ⊩l ⟩ u₁ ≡ u₂ ∷ A₁) ×
+     Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l)                            ⇔˘⟨ (Σ-cong-⇔ λ _ → id⇔ ×-cong-⇔
                                                                           ⊩Id≡Id⇔ ×-cong-⇔ id⇔) ⟩→
-    (∃ λ [k] → ↑ᵘ [k] <ᵘ l′ ×
-    (Γ ⊩⟨ ↑ᵘ [k] ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂) ×
-    Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U k)                             ⇔˘⟨ Type→⊩≡∷U⇔ Idₙ Idₙ ⟩→
+    (∃ λ ⊩l → ↑ᵘ ⊩l <ᵘ ℓ′ ×
+     (Γ ⊩⟨ ↑ᵘ ⊩l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂) ×
+     Γ ⊢ Id A₁ t₁ u₁ ≅ Id A₂ t₂ u₂ ∷ U l)                            ⇔˘⟨ Type→⊩≡∷U⇔ Idₙ Idₙ ⟩→
 
 
-    Γ ⊩⟨ l′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U k                        □
+    Γ ⊩⟨ ℓ′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U l                        □
 
 -- A variant of ⊩Id≡∷-view.
 
-data ⊩Id≡∷-view′ (Γ : Cons m n) (l : Universe-level) (A t u : Term n) :
+data ⊩Id≡∷-view′ (Γ : Cons m n) (ℓ : Universe-level) (A t u : Term n) :
        Term n → Term n → Set a where
-  rfl₌ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-         ⊩Id≡∷-view′ Γ l A t u rfl rfl
+  rfl₌ : Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A →
+         ⊩Id≡∷-view′ Γ ℓ A t u rfl rfl
   ne   : Neutralᵃₗ (Γ .defs) v → Neutralᵃₗ (Γ .defs) w →
          Γ ⊢ v ~ w ∷ Id A t u →
-         ⊩Id≡∷-view′ Γ l A t u v w
+         ⊩Id≡∷-view′ Γ ℓ A t u v w
 
 opaque
 
@@ -283,7 +285,7 @@ opaque
   -- Identityᵃ w both hold.
 
   ⊩Id≡∷-view′→Identityᵃ :
-    ⊩Id≡∷-view′ Γ l A t u v w →
+    ⊩Id≡∷-view′ Γ ℓ A t u v w →
     Identityᵃₗ (Γ .defs) v × Identityᵃₗ (Γ .defs) w
   ⊩Id≡∷-view′→Identityᵃ (rfl₌ _)         = rflₙ , rflₙ
   ⊩Id≡∷-view′→Identityᵃ (ne v-ne w-ne _) = ne v-ne , ne w-ne
@@ -294,13 +296,13 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_≡_∷_.
 
   ⊩≡∷Id⇔ :
-    Γ ⊩⟨ l ⟩ v ≡ w ∷ Id A t u ⇔
+    Γ ⊩⟨ ℓ ⟩ v ≡ w ∷ Id A t u ⇔
     (∃₂ λ v′ w′ →
      Γ ⊢ v ⇒* v′ ∷ Id A t u ×
      Γ ⊢ w ⇒* w′ ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id≡∷-view′ Γ l A t u v′ w′)
+     Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+     ⊩Id≡∷-view′ Γ ℓ A t u v′ w′)
   ⊩≡∷Id⇔ =
       (λ (⊩Id , v≡w) →
         case Id-view ⊩Id of λ {
@@ -336,21 +338,21 @@ opaque
 
   Identityᵃ→⊩≡∷Id⇔ :
     Identityᵃₗ (Γ .defs) v → Identityᵃₗ (Γ .defs) w →
-    Γ ⊩⟨ l ⟩ v ≡ w ∷ Id A t u ⇔
+    Γ ⊩⟨ ℓ ⟩ v ≡ w ∷ Id A t u ⇔
     (Γ ⊢ v ∷ Id A t u ×
      Γ ⊢ w ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id≡∷-view′ Γ l A t u v w)
-  Identityᵃ→⊩≡∷Id⇔ {Γ} {v} {w} {l} {A} {t} {u} v-id w-id =
-    Γ ⊩⟨ l ⟩ v ≡ w ∷ Id A t u      ⇔⟨ ⊩≡∷Id⇔ ⟩
+     Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+     ⊩Id≡∷-view′ Γ ℓ A t u v w)
+  Identityᵃ→⊩≡∷Id⇔ {Γ} {v} {w} {ℓ} {A} {t} {u} v-id w-id =
+    Γ ⊩⟨ ℓ ⟩ v ≡ w ∷ Id A t u      ⇔⟨ ⊩≡∷Id⇔ ⟩
 
     (∃₂ λ v′ w′ →
      Γ ⊢ v ⇒* v′ ∷ Id A t u ×
      Γ ⊢ w ⇒* w′ ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id≡∷-view′ Γ l A t u v′ w′)  ⇔⟨ (λ (_ , _ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
+     Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+     ⊩Id≡∷-view′ Γ ℓ A t u v′ w′)  ⇔⟨ (λ (_ , _ , v⇒*v′ , w⇒*w′ , ⊩t , ⊩u , rest) →
                                          case whnfRed*Term v⇒*v′ (Identityᵃ→Whnf v-id) of λ {
                                            PE.refl →
                                          case whnfRed*Term w⇒*w′ (Identityᵃ→Whnf w-id) of λ {
@@ -362,19 +364,19 @@ opaque
                                     ⟩
     Γ ⊢ v ∷ Id A t u ×
     Γ ⊢ w ∷ Id A t u ×
-    Γ ⊩⟨ l ⟩ t ∷ A ×
-    Γ ⊩⟨ l ⟩ u ∷ A ×
-    ⊩Id≡∷-view′ Γ l A t u v w      □⇔
+    Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+    Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+    ⊩Id≡∷-view′ Γ ℓ A t u v w      □⇔
 
 -- A variant of ⊩Id∷-view.
 
-data ⊩Id∷-view′ (Γ : Cons m n) (l : Universe-level) (A t u : Term n) :
+data ⊩Id∷-view′ (Γ : Cons m n) (ℓ : Universe-level) (A t u : Term n) :
        Term n → Set a where
-  rflᵣ : Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-         ⊩Id∷-view′ Γ l A t u rfl
+  rflᵣ : Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A →
+         ⊩Id∷-view′ Γ ℓ A t u rfl
   ne   : Neutralᵃₗ (Γ .defs) v →
          Γ ⊢~ v ∷ Id A t u →
-         ⊩Id∷-view′ Γ l A t u v
+         ⊩Id∷-view′ Γ ℓ A t u v
 
 opaque
 
@@ -382,7 +384,7 @@ opaque
   -- ⊩Id≡∷-view′.
 
   ⊩Id∷-view′⇔⊩Id≡∷-view′ :
-    ⊩Id∷-view′ Γ l A t u v ⇔ ⊩Id≡∷-view′ Γ l A t u v v
+    ⊩Id∷-view′ Γ ℓ A t u v ⇔ ⊩Id≡∷-view′ Γ ℓ A t u v v
   ⊩Id∷-view′⇔⊩Id≡∷-view′ =
       (λ where
          (rflᵣ t≡u)   → rfl₌ t≡u
@@ -396,23 +398,23 @@ opaque
   -- A characterisation lemma for _⊩⟨_⟩_∷_.
 
   ⊩∷Id⇔ :
-    Γ ⊩⟨ l ⟩ v ∷ Id A t u ⇔
+    Γ ⊩⟨ ℓ ⟩ v ∷ Id A t u ⇔
     (∃ λ w →
      Γ ⊢ v ⇒* w ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id∷-view′ Γ l A t u w)
-  ⊩∷Id⇔ {Γ} {l} {v} {A} {t} {u} =
-    Γ ⊩⟨ l ⟩ v ∷ Id A t u          ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
+     Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+     ⊩Id∷-view′ Γ ℓ A t u w)
+  ⊩∷Id⇔ {Γ} {ℓ} {v} {A} {t} {u} =
+    Γ ⊩⟨ ℓ ⟩ v ∷ Id A t u          ⇔⟨ ⊩∷⇔⊩≡∷ ⟩
 
-    Γ ⊩⟨ l ⟩ v ≡ v ∷ Id A t u      ⇔⟨ ⊩≡∷Id⇔ ⟩
+    Γ ⊩⟨ ℓ ⟩ v ≡ v ∷ Id A t u      ⇔⟨ ⊩≡∷Id⇔ ⟩
 
     (∃₂ λ v′ v″ →
      Γ ⊢ v ⇒* v′ ∷ Id A t u ×
      Γ ⊢ v ⇒* v″ ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id≡∷-view′ Γ l A t u v′ v″)  ⇔⟨ (λ (_ , _ , v⇒*v′ , v⇒*v″ , ⊩t , ⊩u , rest) →
+     Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+     ⊩Id≡∷-view′ Γ ℓ A t u v′ v″)  ⇔⟨ (λ (_ , _ , v⇒*v′ , v⇒*v″ , ⊩t , ⊩u , rest) →
                                          let v′-id , v″-id = ⊩Id≡∷-view′→Identityᵃ rest in
                                          case whrDet*Term (v⇒*v′ , Identityᵃ→Whnf v′-id)
                                                 (v⇒*v″ , Identityᵃ→Whnf v″-id) of λ {
@@ -425,9 +427,9 @@ opaque
                                     ⟩
     (∃ λ w →
      Γ ⊢ v ⇒* w ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id∷-view′ Γ l A t u w)       □⇔
+     Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+     ⊩Id∷-view′ Γ ℓ A t u w)       □⇔
 
 opaque
 
@@ -435,19 +437,19 @@ opaque
 
   Identityᵃ→⊩∷Id⇔ :
     Identityᵃₗ (Γ .defs) v →
-    Γ ⊩⟨ l ⟩ v ∷ Id A t u ⇔
+    Γ ⊩⟨ ℓ ⟩ v ∷ Id A t u ⇔
     (Γ ⊢ v ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id∷-view′ Γ l A t u v)
-  Identityᵃ→⊩∷Id⇔ {Γ} {v} {l} {A} {t} {u} v-id =
-    Γ ⊩⟨ l ⟩ v ∷ Id A t u     ⇔⟨ ⊩∷Id⇔ ⟩
+     Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+     ⊩Id∷-view′ Γ ℓ A t u v)
+  Identityᵃ→⊩∷Id⇔ {Γ} {v} {ℓ} {A} {t} {u} v-id =
+    Γ ⊩⟨ ℓ ⟩ v ∷ Id A t u     ⇔⟨ ⊩∷Id⇔ ⟩
 
     (∃ λ w →
      Γ ⊢ v ⇒* w ∷ Id A t u ×
-     Γ ⊩⟨ l ⟩ t ∷ A ×
-     Γ ⊩⟨ l ⟩ u ∷ A ×
-     ⊩Id∷-view′ Γ l A t u w)  ⇔⟨ (λ (_ , v⇒*w , ⊩t , ⊩u , rest) →
+     Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+     Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+     ⊩Id∷-view′ Γ ℓ A t u w)  ⇔⟨ (λ (_ , v⇒*w , ⊩t , ⊩u , rest) →
                                     case whnfRed*Term v⇒*w (Identityᵃ→Whnf v-id) of λ {
                                       PE.refl →
                                     redFirst*Term v⇒*w , ⊩t , ⊩u , rest })
@@ -455,26 +457,26 @@ opaque
                                     _ , id ⊢v , ⊩t , ⊩u , rest)
                                ⟩
     Γ ⊢ v ∷ Id A t u ×
-    Γ ⊩⟨ l ⟩ t ∷ A ×
-    Γ ⊩⟨ l ⟩ u ∷ A ×
-    ⊩Id∷-view′ Γ l A t u v    □⇔
+    Γ ⊩⟨ ℓ ⟩ t ∷ A ×
+    Γ ⊩⟨ ℓ ⟩ u ∷ A ×
+    ⊩Id∷-view′ Γ ℓ A t u v    □⇔
 
 opaque
 
   -- A characterisation lemma for _⊩ᵛ⟨_⟩_.
 
   ⊩ᵛId⇔ :
-    Γ ⊩ᵛ⟨ l ⟩ Id A t u ⇔
-    (Γ ⊩ᵛ⟨ l ⟩ t ∷ A × Γ ⊩ᵛ⟨ l ⟩ u ∷ A)
-  ⊩ᵛId⇔ {Γ} {l} {A} {t} {u} =
-    (Γ ⊩ᵛ⟨ l ⟩ Id A t u)                                     ⇔⟨ ⊩ᵛ⇔ʰ ⟩
+    Γ ⊩ᵛ⟨ ℓ ⟩ Id A t u ⇔
+    (Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A × Γ ⊩ᵛ⟨ ℓ ⟩ u ∷ A)
+  ⊩ᵛId⇔ {Γ} {ℓ} {A} {t} {u} =
+    (Γ ⊩ᵛ⟨ ℓ ⟩ Id A t u)                                     ⇔⟨ ⊩ᵛ⇔ʰ ⟩
 
     ⊩ᵛ Γ ×
     (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
      ∀ {m Δ} {σ₁ σ₂ : Subst m _}
        ⦃ inc : Var-included or-empty Δ ⦄ →
      ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars →
-     ∇ » Δ ⊩⟨ l ⟩ Id A t u U.[ σ₁ ] ≡ Id A t u U.[ σ₂ ])     ⇔⟨ id⇔
+     ∇ » Δ ⊩⟨ ℓ ⟩ Id A t u U.[ σ₁ ] ≡ Id A t u U.[ σ₂ ])     ⇔⟨ id⇔
                                                                    ×-cong-⇔
                                                                  (implicit-Π-cong-⇔ λ _ →
                                                                   implicit-Π-cong-⇔ λ _ → Π-cong-⇔ λ _ →
@@ -487,9 +489,9 @@ opaque
      ∀ {m Δ} {σ₁ σ₂ : Subst m _} →
        ⦃ inc : Var-included or-empty Δ ⦄ →
      ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars →
-     (∇ » Δ ⊩⟨ l ⟩ A U.[ σ₁ ] ≡ A U.[ σ₂ ]) ×
-     ∇ » Δ ⊩⟨ l ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ] ×
-     ∇ » Δ ⊩⟨ l ⟩ u U.[ σ₁ ] ≡ u U.[ σ₂ ] ∷ A U.[ σ₁ ])      ⇔⟨ (λ (⊩Γ , A≡A×t≡t×u≡u) →
+     (∇ » Δ ⊩⟨ ℓ ⟩ A U.[ σ₁ ] ≡ A U.[ σ₂ ]) ×
+     ∇ » Δ ⊩⟨ ℓ ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ] ×
+     ∇ » Δ ⊩⟨ ℓ ⟩ u U.[ σ₁ ] ≡ u U.[ σ₂ ] ∷ A U.[ σ₁ ])      ⇔⟨ (λ (⊩Γ , A≡A×t≡t×u≡u) →
                                                                   let ⊩A = ⊩ᵛ⇔ʰ .proj₂ (⊩Γ , λ ∇′⊇∇ σ₁≡σ₂ → A≡A×t≡t×u≡u ∇′⊇∇ σ₁≡σ₂ .proj₁) in
                                                                     ( ⊩A
                                                                     , λ ∇′⊇∇ σ₁≡σ₂ → A≡A×t≡t×u≡u ∇′⊇∇ σ₁≡σ₂ .proj₂ .proj₁
@@ -503,20 +505,20 @@ opaque
                                                                          ⊩ᵛ⇔ʰ .proj₁ ⊩A .proj₂ ∇′⊇∇ σ₁≡σ₂
                                                                        , t≡t ∇′⊇∇ σ₁≡σ₂ , u≡u ∇′⊇∇ σ₁≡σ₂))
                                                              ⟩
-    (Γ ⊩ᵛ⟨ l ⟩ A ×
+    (Γ ⊩ᵛ⟨ ℓ ⟩ A ×
      (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
       ∀ {m Δ} {σ₁ σ₂ : Subst m _}
         ⦃ inc : Var-included or-empty Δ ⦄ →
       ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars →
-      ∇ » Δ ⊩⟨ l ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ])) ×
-    (Γ ⊩ᵛ⟨ l ⟩ A ×
+      ∇ » Δ ⊩⟨ ℓ ⟩ t U.[ σ₁ ] ≡ t U.[ σ₂ ] ∷ A U.[ σ₁ ])) ×
+    (Γ ⊩ᵛ⟨ ℓ ⟩ A ×
      (∀ {κ′} {∇ : DCon (Term 0) κ′} → » ∇ ⊇ Γ .defs →
       ∀ {m Δ} {σ₁ σ₂ : Subst m _}
         ⦃ inc : Var-included or-empty Δ ⦄ →
       ∇ » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars →
-      ∇ » Δ ⊩⟨ l ⟩ u U.[ σ₁ ] ≡ u U.[ σ₂ ] ∷ A U.[ σ₁ ]))    ⇔˘⟨ ⊩ᵛ∷⇔ʰ ×-cong-⇔ ⊩ᵛ∷⇔ʰ ⟩
+      ∇ » Δ ⊩⟨ ℓ ⟩ u U.[ σ₁ ] ≡ u U.[ σ₂ ] ∷ A U.[ σ₁ ]))    ⇔˘⟨ ⊩ᵛ∷⇔ʰ ×-cong-⇔ ⊩ᵛ∷⇔ʰ ⟩
 
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A × Γ ⊩ᵛ⟨ l ⟩ u ∷ A                        □⇔
+    Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A × Γ ⊩ᵛ⟨ ℓ ⟩ u ∷ A                        □⇔
 
 ------------------------------------------------------------------------
 -- Id
@@ -526,10 +528,10 @@ opaque
   -- Validity of equality preservation for Id, seen as a type former.
 
   Id-congᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′ ⟩ t₁ ≡ t₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂
+    Γ ⊩ᵛ⟨ ℓ ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ″ ⟩ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂
   Id-congᵛ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     let ⊩A₁ , _ , A₁≡A₂ = ⊩ᵛ≡⇔″ .proj₁ A₁≡A₂ in
     ⊩ᵛ≡⇔ʰ .proj₂
@@ -553,9 +555,9 @@ opaque
   -- Validity of Id, seen as a type former.
 
   Idᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ Id A t u
+    Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ u ∷ A →
+    Γ ⊩ᵛ⟨ ℓ ⟩ Id A t u
   Idᵛ ⊩t ⊩u =
     ⊩ᵛ⇔⊩ᵛ≡ .proj₂ $
     Id-congᵛ (refl-⊩ᵛ≡ $ wf-⊩ᵛ∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
@@ -565,10 +567,10 @@ opaque
   -- Validity of equality preservation for Id, seen as a term former.
 
   Id-congᵗᵛ :
-    Γ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ ∷ U k →
-    Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U k
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ ∷ U l →
+    Γ ⊩ᵛ⟨ ℓ″ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ‴ ⟩ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂ ∷ U l
   Id-congᵗᵛ A₁≡A₂∷U t₁≡t₂ u₁≡u₂ =
     let ⊩U , A₁≡A₂∷U = ⊩ᵛ≡∷⇔ʰ .proj₁ A₁≡A₂∷U in
     ⊩ᵛ≡∷⇔ʰ .proj₂
@@ -584,10 +586,10 @@ opaque
   -- Validity of Id, seen as a term former.
 
   Idᵗᵛ :
-    Γ ⊩ᵛ⟨ l′ ⟩ A ∷ U k →
-    Γ ⊩ᵛ⟨ l″ ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l‴ ⟩ u ∷ A →
-    Γ ⊩ᵛ⟨ l′ ⟩ Id A t u ∷ U k
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A ∷ U l →
+    Γ ⊩ᵛ⟨ ℓ″ ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ ℓ‴ ⟩ u ∷ A →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ Id A t u ∷ U l
   Idᵗᵛ ⊩A∷U ⊩t ⊩u =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
     Id-congᵗᵛ (refl-⊩ᵛ≡∷ ⊩A∷U) (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u)
@@ -600,8 +602,8 @@ opaque
   -- Reducibility of reflexivity.
 
   ⊩rfl′ :
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    Γ ⊩⟨ l ⟩ rfl ∷ Id A t u
+    Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ ℓ ⟩ rfl ∷ Id A t u
   ⊩rfl′ t≡u =
     let ⊩t , ⊩u = wf-⊩≡∷ t≡u
         ⊢t      = escape-⊩∷ ⊩t
@@ -618,8 +620,8 @@ opaque
   -- Reducibility of reflexivity.
 
   ⊩rfl :
-    Γ ⊩⟨ l ⟩ t ∷ A →
-    Γ ⊩⟨ l ⟩ rfl ∷ Id A t t
+    Γ ⊩⟨ ℓ ⟩ t ∷ A →
+    Γ ⊩⟨ ℓ ⟩ rfl ∷ Id A t t
   ⊩rfl ⊩t = ⊩rfl′ (refl-⊩≡∷ ⊩t)
 
 opaque
@@ -627,8 +629,8 @@ opaque
   -- Reducibility of equality between rfl and rfl.
 
   ⊩rfl≡rfl :
-    Γ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    Γ ⊩⟨ l ⟩ rfl ≡ rfl ∷ Id A t u
+    Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A →
+    Γ ⊩⟨ ℓ ⟩ rfl ≡ rfl ∷ Id A t u
   ⊩rfl≡rfl t≡u =
     let ⊩t , ⊩u = wf-⊩≡∷ t≡u
         ⊢rfl    = escape-⊩∷ (⊩rfl′ t≡u)
@@ -641,8 +643,8 @@ opaque
   -- Validity of equality for rfl.
 
   rfl-congᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ rfl ≡ rfl ∷ Id A t t
+    Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ ℓ ⟩ rfl ≡ rfl ∷ Id A t t
   rfl-congᵛ ⊩t =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( Idᵛ ⊩t ⊩t
@@ -655,8 +657,8 @@ opaque
   -- Validity of reflexivity.
 
   rflᵛ :
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ rfl ∷ Id A t t
+    Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ ℓ ⟩ rfl ∷ Id A t t
   rflᵛ = ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ ∘→ rfl-congᵛ
 
 ------------------------------------------------------------------------
@@ -668,8 +670,8 @@ opaque
 
   equality-reflectionᵛ :
     Equality-reflection →
-    Γ ⊩ᵛ⟨ l ⟩ v ∷ Id A t u →
-    Γ ⊩ᵛ⟨ l ⟩ t ≡ u ∷ A
+    Γ ⊩ᵛ⟨ ℓ ⟩ v ∷ Id A t u →
+    Γ ⊩ᵛ⟨ ℓ ⟩ t ≡ u ∷ A
   equality-reflectionᵛ ok ⊩v =
     let ⊩Id , v≡v = ⊩ᵛ∷⇔ʰ .proj₁ ⊩v
         ⊩t , ⊩u   = ⊩ᵛId⇔ .proj₁ ⊩Id
@@ -701,18 +703,18 @@ opaque
   ⊩[]-cong≡[]-cong :
     (ok : []-cong-allowed s) →
     let open E ok in
-    Γ ⊩Level k₁ ≡ k₂ ∷Level →
-    Γ ⊩⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩⟨ l′ ⟩ t₁ ≡ t₂ ∷ A₁ →
-    Γ ⊩⟨ l″ ⟩ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊩⟨ l‴ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
-    Γ ⊩⟨ l ⟩ []-cong s k₁ A₁ t₁ u₁ v₁ ≡ []-cong s k₂ A₂ t₂ u₂ v₂ ∷
-      Id (Erased k₁ A₁) [ t₁ ] [ u₁ ]
+    Γ ⊩Level l₁ ≡ l₂ ∷Level →
+    Γ ⊩⟨ ℓ ⟩ A₁ ≡ A₂ →
+    Γ ⊩⟨ ℓ′ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩⟨ ℓ″ ⟩ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊩⟨ ℓ‴ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
+    Γ ⊩⟨ ℓ ⟩ []-cong s l₁ A₁ t₁ u₁ v₁ ≡ []-cong s l₂ A₂ t₂ u₂ v₂ ∷
+      Id (Erased l₁ A₁) [ t₁ ] [ u₁ ]
   ⊩[]-cong≡[]-cong
-    {s} {k₁} {k₂} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂}
-    ok k₁≡k₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    let ⊩k₁ , _   = wf-Level-eq k₁≡k₂
-        k₁≅k₂     = escapeLevelEq k₁≡k₂
+    {s} {l₁} {l₂} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂}
+    ok l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
+    let ⊩l₁ , _   = wf-Level-eq l₁≡l₂
+        l₁≅l₂     = escapeLevelEq l₁≡l₂
         ⊩A₁ , _   = wf-⊩≡ A₁≡A₂
         A₁≅A₂     = escape-⊩≡ A₁≡A₂
         t₁≡t₂     = level-⊩≡∷ ⊩A₁ t₁≡t₂
@@ -722,21 +724,21 @@ opaque
         u₁≅u₂     = escape-⊩≡∷ u₁≡u₂
         ⊩u₁ , _   = wf-⊩≡∷ u₁≡u₂
         v₁≡v₂     = level-⊩≡∷ (⊩Id⇔ .proj₂ (⊩t₁ , ⊩u₁)) v₁≡v₂
-        ⊢k₁≡k₂    = ⊢≅∷L→⊢≡∷L k₁≅k₂
-        ⊢k₁ , ⊢k₂ = wf-⊢≡∷L ⊢k₁≡k₂
+        ⊢l₁≡l₂    = ⊢≅∷L→⊢≡∷L l₁≅l₂
+        ⊢l₁ , ⊢l₂ = wf-⊢≡∷L ⊢l₁≡l₂
         ⊢A₁≡A₂    = ≅-eq A₁≅A₂
         ⊢t₁≡t₂    = ≅ₜ-eq t₁≅t₂
         ⊢u₁≡u₂    = ≅ₜ-eq u₁≅u₂
         ⊢Id≡Id    =
           let ok = []-cong→Erased ok in
-          Id-cong (Erased-cong ok ⊢k₁≡k₂ ⊢A₁≡A₂)
-            ([]-cong′ ok ⊢k₁ ⊢t₁≡t₂) ([]-cong′ ok ⊢k₁ ⊢u₁≡u₂)
+          Id-cong (Erased-cong ok ⊢l₁≡l₂ ⊢A₁≡A₂)
+            ([]-cong′ ok ⊢l₁ ⊢t₁≡t₂) ([]-cong′ ok ⊢l₁ ⊢u₁≡u₂)
     in
     case ⊩≡∷Id⇔ .proj₁ v₁≡v₂ of λ
       (v₁′ , v₂′ , v₁⇒*v₁′ , v₂⇒*v₂′ , ⊩t , ⊩u , rest) →
-    let []-cong⇒*[]-cong₁ = []-cong-subst* ⊢k₁ v₁⇒*v₁′ ok
+    let []-cong⇒*[]-cong₁ = []-cong-subst* ⊢l₁ v₁⇒*v₁′ ok
         []-cong⇒*[]-cong₂ =
-          []-cong-subst* ⊢k₂
+          []-cong-subst* ⊢l₂
             (conv* v₂⇒*v₂′ (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂)) ok
     in
     case rest of λ where
@@ -748,22 +750,22 @@ opaque
               u₁  ≡⟨ u₁≡u₂ ⟩⊩∷∎
               u₂  ∎
         in
-        []-cong s k₁ A₁ t₁ u₁ v₁               ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
-        []-cong s k₁ A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β ⊢k₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
-        rfl ∷ Id (Erased k₁ A₁) [ t₁ ] [ u₁ ]  ≡⟨ refl-⊩≡∷ (⊩rfl′ (⊩[]≡[] ⊩k₁ t₁≡u₁)) ⟩⊩∷∷⇐*
+        []-cong s l₁ A₁ t₁ u₁ v₁               ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
+        []-cong s l₁ A₁ t₁ u₁ rfl              ⇒⟨ []-cong-β ⊢l₁ (≅ₜ-eq (escape-⊩≡∷ t₁≡u₁)) ok ⟩⊩∷
+        rfl ∷ Id (Erased l₁ A₁) [ t₁ ] [ u₁ ]  ≡⟨ refl-⊩≡∷ (⊩rfl′ (⊩[]≡[] ⊩l₁ t₁≡u₁)) ⟩⊩∷∷⇐*
                                                 ⟨ ⊢Id≡Id ⟩⇒
-        rfl ∷ Id (Erased k₂ A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β ⊢k₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
-        []-cong s k₂ A₂ t₂ u₂ rfl              ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎
-        []-cong s k₂ A₂ t₂ u₂ v₂               ∎
+        rfl ∷ Id (Erased l₂ A₂) [ t₂ ] [ u₂ ]  ⇐⟨ []-cong-β ⊢l₂ (≅ₜ-eq (escape-⊩≡∷ t₂≡u₂)) ok ⟩∷
+        []-cong s l₂ A₂ t₂ u₂ rfl              ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎
+        []-cong s l₂ A₂ t₂ u₂ v₂               ∎
 
       (ne v₁′-ne v₂′-ne v₁′~v₂′) →
-        []-cong s k₁ A₁ t₁ u₁ v₁                                     ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
-        []-cong s k₁ A₁ t₁ u₁ v₁′ ∷ Id (Erased k₁ A₁) [ t₁ ] [ u₁ ]  ≡⟨ neutral-⊩≡∷ (⊩Id⇔ .proj₂ (⊩[] ⊩k₁ ⊩t₁ , ⊩[] ⊩k₁ ⊩u₁))
+        []-cong s l₁ A₁ t₁ u₁ v₁                                     ⇒*⟨ []-cong⇒*[]-cong₁ ⟩⊩∷
+        []-cong s l₁ A₁ t₁ u₁ v₁′ ∷ Id (Erased l₁ A₁) [ t₁ ] [ u₁ ]  ≡⟨ neutral-⊩≡∷ (⊩Id⇔ .proj₂ (⊩[] ⊩l₁ ⊩t₁ , ⊩[] ⊩l₁ ⊩u₁))
                                                                           ([]-congₙᵃ v₁′-ne) ([]-congₙᵃ v₂′-ne)
-                                                                          (~-[]-cong k₁≅k₂ A₁≅A₂ t₁≅t₂ u₁≅u₂ v₁′~v₂′ ok) ⟩⊩∷∷⇐*
+                                                                          (~-[]-cong l₁≅l₂ A₁≅A₂ t₁≅t₂ u₁≅u₂ v₁′~v₂′ ok) ⟩⊩∷∷⇐*
                                                                        ⟨ ⊢Id≡Id ⟩⇒
-        []-cong s k₂ A₂ t₂ u₂ v₂′ ∷ Id (Erased k₂ A₂) [ t₂ ] [ u₂ ]  ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎∷
-        []-cong s k₂ A₂ t₂ u₂ v₂                                     ∎
+        []-cong s l₂ A₂ t₂ u₂ v₂′ ∷ Id (Erased l₂ A₂) [ t₂ ] [ u₂ ]  ⇐*⟨ []-cong⇒*[]-cong₂ ⟩∎∷
+        []-cong s l₂ A₂ t₂ u₂ v₂                                     ∎
     where
     open E ok
 
@@ -774,13 +776,13 @@ opaque
   ⊩[]-cong :
     (ok : []-cong-allowed s) →
     let open E ok in
-    Γ ⊩Level k ∷Level →
-    Γ ⊩⟨ l ⟩ v ∷ Id A t u →
-    Γ ⊩⟨ l ⟩ []-cong s k A t u v ∷ Id (Erased k A) [ t ] [ u ]
-  ⊩[]-cong ok ⊩k ⊩v =
+    Γ ⊩Level l ∷Level →
+    Γ ⊩⟨ ℓ ⟩ v ∷ Id A t u →
+    Γ ⊩⟨ ℓ ⟩ []-cong s l A t u v ∷ Id (Erased l A) [ t ] [ u ]
+  ⊩[]-cong ok ⊩l ⊩v =
     let _ , _ , ⊩t , ⊩u , _ = ⊩∷Id⇔ .proj₁ ⊩v in
     ⊩∷⇔⊩≡∷ .proj₂ $
-    ⊩[]-cong≡[]-cong ok (reflLevel ⊩k) (refl-⊩≡ (wf-⊩∷ ⊩t))
+    ⊩[]-cong≡[]-cong ok (reflLevel ⊩l) (refl-⊩≡ (wf-⊩∷ ⊩t))
       (refl-⊩≡∷ ⊩t) (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v)
 
 opaque
@@ -790,24 +792,24 @@ opaque
   []-cong-congᵛ :
     (ok : []-cong-allowed s) →
     let open E ok in
-    Γ ⊩ᵛ⟨ l′ ⟩ k₁ ≡ k₂ ∷Level →
-    Γ ⊩ᵛ⟨ l ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
-    Γ ⊩ᵛ⟨ l ⟩ []-cong s k₁ A₁ t₁ u₁ v₁ ≡ []-cong s k₂ A₂ t₂ u₂ v₂ ∷
-      Id (Erased k₁ A₁) [ t₁ ] [ u₁ ]
-  []-cong-congᵛ ok k₁≡k₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    let ⊩k₁ , _ = wf-⊩ᵛ≡∷L k₁≡k₂ in
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ l₁ ≡ l₂ ∷Level →
+    Γ ⊩ᵛ⟨ ℓ ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ ℓ″ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ‴ ⟩ u₁ ≡ u₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ u₁ →
+    Γ ⊩ᵛ⟨ ℓ ⟩ []-cong s l₁ A₁ t₁ u₁ v₁ ≡ []-cong s l₂ A₂ t₂ u₂ v₂ ∷
+      Id (Erased l₁ A₁) [ t₁ ] [ u₁ ]
+  []-cong-congᵛ ok l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
+    let ⊩l₁ , _ = wf-⊩ᵛ≡∷L l₁≡l₂ in
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( wf-⊩ᵛ≡
-          (Id-congᵛ (Erased-congᵛ k₁≡k₂ A₁≡A₂)
-             ([]-congᵛ′ ⊩k₁ t₁≡t₂) ([]-congᵛ′ ⊩k₁ u₁≡u₂))
+          (Id-congᵛ (Erased-congᵛ l₁≡l₂ A₁≡A₂)
+             ([]-congᵛ′ ⊩l₁ t₁≡t₂) ([]-congᵛ′ ⊩l₁ u₁≡u₂))
           .proj₁
       , λ ξ⊇ σ₁≡σ₂ →
           PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) Id-Erased-[] $
           ⊩[]-cong≡[]-cong ok
-            (⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L (defn-wk-⊩ᵛ≡∷L ξ⊇ k₁≡k₂) σ₁≡σ₂)
+            (⊩ᵛ≡∷L→⊩ˢ≡∷→⊩[]≡[]∷L (defn-wk-⊩ᵛ≡∷L ξ⊇ l₁≡l₂) σ₁≡σ₂)
             (R.⊩≡→ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] (defn-wk-⊩ᵛ≡ ξ⊇ A₁≡A₂) σ₁≡σ₂)
             (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂) σ₁≡σ₂)
             (R.⊩≡∷→ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ (defn-wk-⊩ᵛ≡∷ ξ⊇ u₁≡u₂) σ₁≡σ₂)
@@ -823,13 +825,13 @@ opaque
   []-congᵛ :
     (ok : []-cong-allowed s) →
     let open E ok in
-    Γ ⊩ᵛ⟨ l′ ⟩ k ∷Level →
-    Γ ⊩ᵛ⟨ l ⟩ v ∷ Id A t u →
-    Γ ⊩ᵛ⟨ l ⟩ []-cong s k A t u v ∷ Id (Erased k A) [ t ] [ u ]
-  []-congᵛ ok ⊩k ⊩v =
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ l ∷Level →
+    Γ ⊩ᵛ⟨ ℓ ⟩ v ∷ Id A t u →
+    Γ ⊩ᵛ⟨ ℓ ⟩ []-cong s l A t u v ∷ Id (Erased l A) [ t ] [ u ]
+  []-congᵛ ok ⊩l ⊩v =
     let ⊩t , ⊩u = ⊩ᵛId⇔ .proj₁ $ wf-⊩ᵛ∷ ⊩v in
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
-    []-cong-congᵛ ok (refl-⊩ᵛ≡∷L ⊩k) (refl-⊩ᵛ≡ (wf-⊩ᵛ∷ ⊩t))
+    []-cong-congᵛ ok (refl-⊩ᵛ≡∷L ⊩l) (refl-⊩ᵛ≡ (wf-⊩ᵛ∷ ⊩t))
       (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ᵛ≡∷ ⊩u) (refl-⊩ᵛ≡∷ ⊩v)
 
 opaque
@@ -839,19 +841,19 @@ opaque
   []-cong-βᵛ :
     (ok : []-cong-allowed s) →
     let open E ok in
-    Γ ⊩ᵛ⟨ l′ ⟩ k ∷Level →
-    Γ ⊩ᵛ⟨ l ⟩ t ∷ A →
-    Γ ⊩ᵛ⟨ l ⟩ []-cong s k A t t rfl ≡ rfl ∷ Id (Erased k A) [ t ] [ t ]
-  []-cong-βᵛ ok ⊩k ⊩t =
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ l ∷Level →
+    Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A →
+    Γ ⊩ᵛ⟨ ℓ ⟩ []-cong s l A t t rfl ≡ rfl ∷ Id (Erased l A) [ t ] [ t ]
+  []-cong-βᵛ ok ⊩l ⊩t =
     ⊩ᵛ∷-⇐
       (λ ∇′⊇∇ ⊩σ →
          PE.subst (_⊢_⇒_∷_ _ _ _) Id-Erased-[] $
-         let ⊢k[σ] = escapeLevel $
-                     ⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L (defn-wk-⊩ᵛ∷L ∇′⊇∇ ⊩k) ⊩σ
+         let ⊢l[σ] = escapeLevel $
+                     ⊩ᵛ∷L→⊩ˢ∷→⊩[]∷L (defn-wk-⊩ᵛ∷L ∇′⊇∇ ⊩l) ⊩σ
              ⊢t[σ] = R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ∇′⊇∇ ⊩t) ⊩σ
          in
-         []-cong-β ⊢k[σ] (refl ⊢t[σ]) ok)
-      (rflᵛ ([]ᵛ ⊩k ⊩t))
+         []-cong-β ⊢l[σ] (refl ⊢t[σ]) ok)
+      (rflᵛ ([]ᵛ ⊩l ⊩t))
     where
     open E ok
 
@@ -864,15 +866,15 @@ opaque
 
   ⊩K≡K :
     K-allowed →
-    ∇ » Δ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
-    ∇ » Δ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ″ ⟩ t₁ ≡ t₂ ∷ A₁ →
     ∇ » Δ ∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂ →
-    ∇ » Δ ∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
-    ∇ » Δ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
-    ∇ » Δ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
+    ∇ » Δ ∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ ℓ ⟩ B₁ ≡ B₂ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
     ⦃ inc : Var-included or-empty Η ⦄ →
     ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
-    ∇ » Η ⊩⟨ l ⟩ K p A₁ t₁ B₁ u₁ v₁ U.[ σ₁ ] ≡ K p A₂ t₂ B₂ u₂ v₂ U.[ σ₂ ] ∷
+    ∇ » Η ⊩⟨ ℓ ⟩ K p A₁ t₁ B₁ u₁ v₁ U.[ σ₁ ] ≡ K p A₂ t₂ B₂ u₂ v₂ U.[ σ₂ ] ∷
       B₁ [ v₁ ]₀ U.[ σ₁ ]
   ⊩K≡K
     {A₁} {A₂} {t₁} {t₂} {B₁} {B₂} {u₁} {u₂} {v₁} {v₂} {σ₁} {σ₂} {p}
@@ -1000,13 +1002,13 @@ opaque
 
   K-congᵛ :
     K-allowed →
-    Γ ⊩ᵛ⟨ l′ ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l″ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ ℓ″ ⟩ t₁ ≡ t₂ ∷ A₁ →
     Γ »∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂ →
-    Γ »∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
-    Γ ⊩ᵛ⟨ l‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
-    Γ ⊩ᵛ⟨ l⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
-    Γ ⊩ᵛ⟨ l ⟩ K p A₁ t₁ B₁ u₁ v₁ ≡ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
+    Γ »∙ Id A₁ t₁ t₁ ⊩ᵛ⟨ ℓ ⟩ B₁ ≡ B₂ →
+    Γ ⊩ᵛ⟨ ℓ‴ ⟩ u₁ ≡ u₂ ∷ B₁ [ rfl ]₀ →
+    Γ ⊩ᵛ⟨ ℓ⁗ ⟩ v₁ ≡ v₂ ∷ Id A₁ t₁ t₁ →
+    Γ ⊩ᵛ⟨ ℓ ⟩ K p A₁ t₁ B₁ u₁ v₁ ≡ K p A₂ t₂ B₂ u₂ v₂ ∷ B₁ [ v₁ ]₀
   K-congᵛ ok A₁≡A₂ t₁≡t₂ ⊢B₁≡B₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ B₁≡B₂ .proj₁) (wf-⊩ᵛ≡∷ v₁≡v₂ .proj₁)
@@ -1026,10 +1028,10 @@ opaque
   Kᵛ :
     K-allowed →
     Γ »∙ Id A t t ⊢ B →
-    Γ »∙ Id A t t ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ rfl ]₀ →
-    Γ ⊩ᵛ⟨ l″ ⟩ v ∷ Id A t t →
-    Γ ⊩ᵛ⟨ l ⟩ K p A t B u v ∷ B [ v ]₀
+    Γ »∙ Id A t t ⊩ᵛ⟨ ℓ ⟩ B →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ u ∷ B [ rfl ]₀ →
+    Γ ⊩ᵛ⟨ ℓ″ ⟩ v ∷ Id A t t →
+    Γ ⊩ᵛ⟨ ℓ ⟩ K p A t B u v ∷ B [ v ]₀
   Kᵛ ok ⊢B ⊩B ⊩u ⊩v =
     let ⊩t , _ = ⊩ᵛId⇔ .proj₁ $ wf-⊩ᵛ∷ ⊩v
         ⊩A     = wf-⊩ᵛ∷ ⊩t
@@ -1045,8 +1047,8 @@ opaque
   K-βᵛ :
     K-allowed →
     Γ »∙ Id A t t ⊢ B →
-    Γ ⊩ᵛ⟨ l ⟩ u ∷ B [ rfl ]₀ →
-    Γ ⊩ᵛ⟨ l ⟩ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
+    Γ ⊩ᵛ⟨ ℓ ⟩ u ∷ B [ rfl ]₀ →
+    Γ ⊩ᵛ⟨ ℓ ⟩ K p A t B u rfl ≡ u ∷ B [ rfl ]₀
   K-βᵛ {B} ok ⊢B ⊩u =
     ⊩ᵛ∷-⇐
       (λ ξ⊇ ⊩σ →
@@ -1082,16 +1084,16 @@ opaque
   -- Reducibility of equality between applications of J.
 
   ⊩J≡J :
-    ∇ » Δ ⊩ᵛ⟨ l′₁ ⟩ A₁ ≡ A₂ →
-    ∇ » Δ ⊩ᵛ⟨ l′₂ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ′₁ ⟩ A₁ ≡ A₂ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ′₂ ⟩ t₁ ≡ t₂ ∷ A₁ →
     ∇ » Δ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
-    ∇ » Δ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
-    ∇ » Δ ⊩ᵛ⟨ l′₃ ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
-    ∇ » Δ ⊩ᵛ⟨ l′₄ ⟩ v₁ ≡ v₂ ∷ A₁ →
-    ∇ » Δ ⊩ᵛ⟨ l′₅ ⟩ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
+    ∇ » Δ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊩ᵛ⟨ ℓ ⟩ B₁ ≡ B₂ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ′₃ ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ′₄ ⟩ v₁ ≡ v₂ ∷ A₁ →
+    ∇ » Δ ⊩ᵛ⟨ ℓ′₅ ⟩ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
     ⦃ inc : Var-included or-empty Η ⦄ →
     ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
-    ∇ » Η ⊩⟨ l ⟩ J p q A₁ t₁ B₁ u₁ v₁ w₁ U.[ σ₁ ] ≡
+    ∇ » Η ⊩⟨ ℓ ⟩ J p q A₁ t₁ B₁ u₁ v₁ w₁ U.[ σ₁ ] ≡
       J p q A₂ t₂ B₂ u₂ v₂ w₂ U.[ σ₂ ] ∷ B₁ [ v₁ , w₁ ]₁₀ U.[ σ₁ ]
   ⊩J≡J
     {A₁} {A₂} {t₁} {t₂} {B₁} {B₂} {u₁} {u₂} {v₁} {v₂} {w₁} {w₂} {σ₁}
@@ -1276,14 +1278,14 @@ opaque
   -- Validity of equality preservation for J.
 
   J-congᵛ :
-    Γ ⊩ᵛ⟨ l′₁ ⟩ A₁ ≡ A₂ →
-    Γ ⊩ᵛ⟨ l′₂ ⟩ t₁ ≡ t₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ′₁ ⟩ A₁ ≡ A₂ →
+    Γ ⊩ᵛ⟨ ℓ′₂ ⟩ t₁ ≡ t₂ ∷ A₁ →
     Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊢ B₁ ≡ B₂ →
-    Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊩ᵛ⟨ l ⟩ B₁ ≡ B₂ →
-    Γ ⊩ᵛ⟨ l′₃ ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
-    Γ ⊩ᵛ⟨ l′₄ ⟩ v₁ ≡ v₂ ∷ A₁ →
-    Γ ⊩ᵛ⟨ l′₅ ⟩ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
-    Γ ⊩ᵛ⟨ l ⟩ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
+    Γ »∙ A₁ »∙ Id (wk1 A₁) (wk1 t₁) (var x0) ⊩ᵛ⟨ ℓ ⟩ B₁ ≡ B₂ →
+    Γ ⊩ᵛ⟨ ℓ′₃ ⟩ u₁ ≡ u₂ ∷ B₁ [ t₁ , rfl ]₁₀ →
+    Γ ⊩ᵛ⟨ ℓ′₄ ⟩ v₁ ≡ v₂ ∷ A₁ →
+    Γ ⊩ᵛ⟨ ℓ′₅ ⟩ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
+    Γ ⊩ᵛ⟨ ℓ ⟩ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
       B₁ [ v₁ , w₁ ]₁₀
   J-congᵛ A₁≡A₂ t₁≡t₂ ⊢B₁≡B₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
@@ -1305,10 +1307,10 @@ opaque
 
   Jᵛ :
     Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
-    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊩ᵛ⟨ l ⟩ B →
-    Γ ⊩ᵛ⟨ l′ ⟩ u ∷ B [ t , rfl ]₁₀ →
-    Γ ⊩ᵛ⟨ l″ ⟩ w ∷ Id A t v →
-    Γ ⊩ᵛ⟨ l ⟩ J p q A t B u v w ∷ B [ v , w ]₁₀
+    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊩ᵛ⟨ ℓ ⟩ B →
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ u ∷ B [ t , rfl ]₁₀ →
+    Γ ⊩ᵛ⟨ ℓ″ ⟩ w ∷ Id A t v →
+    Γ ⊩ᵛ⟨ ℓ ⟩ J p q A t B u v w ∷ B [ v , w ]₁₀
   Jᵛ ⊢B ⊩B ⊩u ⊩w =
     case ⊩ᵛId⇔ .proj₁ (wf-⊩ᵛ∷ ⊩w) of λ
       (⊩t , ⊩v) →
@@ -1325,8 +1327,8 @@ opaque
   J-βᵛ :
     Γ ⊢ t ∷ A →
     Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
-    Γ ⊩ᵛ⟨ l ⟩ u ∷ B [ t , rfl ]₁₀ →
-    Γ ⊩ᵛ⟨ l ⟩ J p q A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
+    Γ ⊩ᵛ⟨ ℓ ⟩ u ∷ B [ t , rfl ]₁₀ →
+    Γ ⊩ᵛ⟨ ℓ ⟩ J p q A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
   J-βᵛ {t} {A} {B} ⊢t ⊢B ⊩u =
     ⊩ᵛ∷-⇐
       (λ {_ _} ξ⊇ {_ _} {σ} ⊩σ →

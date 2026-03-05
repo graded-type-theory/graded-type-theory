@@ -42,7 +42,8 @@ private variable
   ρ : Wk _ _
   c : Cont _
   S : Stack _
-  A B B′ C l s t u v w z : Term _
+  A B B′ C s t u v w z : Term _
+  l : Lvl _
   p q q′ r : M
   s′ : Strength
 
@@ -59,7 +60,7 @@ data _⊢ʰ_∷_ : (Δ : Con Term k) (H : Heap k m) (Γ : Con Term m) → Set a 
 data _⨾_⊢ᶜ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
                   (c : Cont m) (t : Term m) (A B : Term k) → Set a where
   lowerₑ : ε » Δ ⊢ A
-         → Δ ⨾ H ⊢ᶜ lowerₑ ⟨ t ⟩∷ Lift u A ↝ A
+         → Δ ⨾ H ⊢ᶜ lowerₑ ⟨ t ⟩∷ Lift l A ↝ A
   ∘ₑ : ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ A
      → ε » Δ ∙ A ⊢ B
      → Δ ⨾ H ⊢ᶜ ∘ₑ p u ρ ⟨ t ⟩∷ Π p , q ▷ A ▹ B ↝ B [ wk ρ u [ H ]ₕ ]₀

@@ -37,8 +37,9 @@ open import Tools.Function
 import Tools.PropositionalEquality as PE
 
 private variable
-  Γ                       : Cons _ _
-  A A₁ A₂ l l₁ l₂ t t₁ t₂ : Term _
+  Γ               : Cons _ _
+  A A₁ A₂ t t₁ t₂ : Term _
+  l l₁ l₂         : Lvl _
 
 opaque
   unfolding Erased

@@ -14,10 +14,12 @@ module Definition.Typed.Properties.Admissible.Pi
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Lift M
 open import Definition.Untyped.Pi M
 open import Definition.Untyped.Pi-Sigma M
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Sup R
 
 open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
@@ -25,11 +27,13 @@ open import Definition.Typed.Properties.Admissible.Equality R
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
+open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Reasoning.Term R
+import Definition.Typed.Reasoning.Term R as TmR
+import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Substitution.Primitive R
 import Definition.Typed.Substitution.Primitive.Primitive R as S
 open import Definition.Typed.Weakening R as W
@@ -41,14 +45,16 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Sum
 
 private variable
-  n                                                       : Nat
-  ∇                                                       : DCon _ _
-  Δ                                                       : Con _ _
-  Γ                                                       : Cons _ _
-  A B C D E F a f g l l₁ l₂ t t′ t₁ t₂ u u₁ u₂ u₃ u₄ u₅ v : Term _
-  p p′ p₁ p₂ p₃ p₄ p₅ q q₁ q₂ q₃ q₄ q₅                    : M
+  n                                               : Nat
+  ∇                                               : DCon _ _
+  Δ                                               : Con _ _
+  Γ                                               : Cons _ _
+  A B C D E F a f g t t′ t₁ t₂ u u₁ u₂ u₃ u₄ u₅ v : Term _
+  l l₁ l₂                                         : Lvl _
+  p p′ p₁ p₂ p₃ p₄ p₅ q q₁ q₂ q₃ q₄ q₅            : M
 
 opaque
 
@@ -375,6 +381,8 @@ opaque
     lower (lift (lower₀ t) [ lift u ]₀)            ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢u)) ⟩⊢
     lower (lift (t [ u ]₀))                        ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢u) ⟩⊢∎
     t [ u ]₀                                       ∎
+    where
+    open TmR
 
 opaque
   unfolding ΠΣʰ ∘ʰ lower₀
@@ -421,3 +429,93 @@ opaque
        lower₀ (lower (wk1 t ∘⟨ p ⟩ lift (var x0)))  ≡⟨ lower₀TermEq ⊢l₂ t≡u ⟩⊢
        lower₀ (lower (wk1 u ∘⟨ p ⟩ lift (var x0)))  ≡⟨ lemma ⊢u ⟩⊢∎
        lower (wk1 u ∘⟨ p ⟩ var x0)                  ∎)
+    where
+    open TmR
+
+------------------------------------------------------------------------
+-- Some lemmas related to a type of a universe-polymorphic identity
+-- function
+
+opaque
+  unfolding _supᵘₗ_
+
+  -- A certain type of a certain universe-polymorphic identity
+  -- function, expressed using lifting in a certain way (and using
+  -- certain grades), lives in some universe, assuming that the
+  -- context is well-formed, Level is small, Omega-plus-allowed holds,
+  -- and certain forms of Π-types are allowed.
+
+  a-type-of-id-has-a-type :
+    Omega-plus-allowed →
+    Level-is-small →
+    Π-allowed p₁ q₁ →
+    Π-allowed p₂ q₂ →
+    Π-allowed p₃ q₃ →
+    ⊢ Γ →
+    let A =
+          Π p₁ , q₁ ▷ Lift (ωᵘ+ 0) Level ▹
+          Lift (ωᵘ+ 0)
+            (Π p₂ , q₂ ▷ U (level (lower (var x0))) ▹
+             Lift (level (sucᵘ (lower (var x1))))
+               (Π p₃ , q₃ ▷ var x0 ▹ var x1))
+        t = lam p₁ (lift (lam p₂ (lift (lam p₃ (var x0)))))
+    in
+    Γ ⊢ t ∷ A ×
+    Γ ⊢ A ∷ U (ωᵘ+ 0)
+  a-type-of-id-has-a-type ok-ω okᴸ ok₁ ok₂ ok₃ ⊢Γ =
+    let ⊢ω     = literal (Allowed-literal-ωᵘ+-⇔ .proj₂ ok-ω) ⊢Γ
+        ⊢Level = Liftⱼ′ ⊢ω (Levelⱼ ⊢Γ okᴸ)
+        okᴸ    = Level-allowed⇔⊎ .proj₂ (inj₁ okᴸ)
+        ⊢U     = Uⱼ (term okᴸ (lowerⱼ (var₀ (univ ⊢Level))))
+        ⊢0     = var₀ (univ ⊢U)
+        l      = level (lower (var x1))
+        ⊢l     = term okᴸ (lowerⱼ (var₁ (univ ⊢U)))
+    in
+    (lamⱼ′ ok₁ $ liftⱼ′ (wkLevel₁ (univ ⊢Level) ⊢ω) $
+     lamⱼ′ ok₂ $ liftⱼ′ (⊢1ᵘ+ ⊢l) $
+     lamⱼ′ ok₃ $ var₀ (univ ⊢0)) ,
+    ΠΣⱼ′ ⊢Level
+      (Liftⱼ′ (wkLevel₁ (univ ⊢Level) ⊢ω) $
+       ΠΣⱼ′ ⊢U
+         (conv (Liftⱼ′ (⊢1ᵘ+ ⊢l) (ΠΣⱼ′ ⊢0 (var₁ (univ ⊢0)) ok₃))
+            (U (l supᵘₗ 1ᵘ+ l)  ≡⟨ U-cong-⊢≡ (⊢≤ₗ∷L→⊢≡∷L (supᵘₗ-sub ⊢l)) ⟩⊢∎
+             U (1ᵘ+ l)          ∎))
+         ok₂)
+      ok₁
+    where
+    open TyR
+
+opaque
+
+  -- A variant of a-type-of-id-has-a-type that is stated using Πʰ.
+
+  a-type-of-id-has-a-type-Πʰ :
+    Omega-plus-allowed →
+    Level-is-small →
+    Π-allowed p₁ q₁ →
+    Π-allowed p₂ q₂ →
+    Π-allowed p₃ q₃ →
+    ⊢ Γ →
+    let A =
+          Πʰ p₁ q₁ (ωᵘ+ 0) (ωᵘ+ 0) Level $
+          Πʰ p₂ q₂ (ωᵘ+ 0) (ωᵘ+ 0) (U (level (var x0))) $
+          Π p₃ , q₃ ▷ var x0 ▹ var x1
+        t = lamʰ p₁ (lamʰ p₂ (lam p₃ (var x0)))
+    in
+    Γ ⊢ t ∷ A ×
+    Γ ⊢ A ∷ U (ωᵘ+ 0)
+  a-type-of-id-has-a-type-Πʰ ok-ω okᴸ ok₁ ok₂ ok₃ ⊢Γ =
+    let ⊢ω     = literal (Allowed-literal-ωᵘ+-⇔ .proj₂ ok-ω) ⊢Γ
+        ⊢Level = Levelⱼ ⊢Γ okᴸ
+        ⊢ω′    = wkLevel₁ (univ ⊢Level) ⊢ω
+        ⊢l     = term (Level-allowed⇔⊎ .proj₂ (inj₁ okᴸ))
+                   (var₀ (univ ⊢Level))
+        ⊢U     = Uⱼ ⊢l
+        ⊢0     = var₀ (univ ⊢U)
+    in
+    (⊢lamʰ ok₁ ⊢ω ⊢ω $
+     ⊢lamʰ ok₂ ⊢ω′ ⊢ω′ $
+     lamⱼ′ ok₃ (var₀ (univ ⊢0))) ,
+    (⊢ΠΣʰ∷-≤ₗ ok₁ (zeroᵘₗ≤ₗ ⊢ω) (refl-⊢≤ₗ∷L ⊢ω) ⊢Level $
+     ⊢ΠΣʰ∷-≤ₗ ok₂ (level≤ₗωᵘ+ ok-ω (⊢1ᵘ+ ⊢l)) (level≤ₗωᵘ+ ok-ω ⊢l) ⊢U $
+     ΠΣⱼ′ ⊢0 (var₁ (univ ⊢0)) ok₃)

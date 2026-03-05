@@ -43,7 +43,8 @@ private variable
   m n m′ n′ n″ k : Nat
   H : Heap _ _
   x : Fin _
-  A B l t u v w : Term _
+  A B t u v w : Term _
+  l : Lvl _
   ρ ρ′ : Wk _ _
   S : Stack _
   s : State _ _ _
@@ -578,14 +579,14 @@ opaque
 
 opaque
 
-  -- Inversion of sucᵏ
+  -- Inversion for sucⁿ.
 
-  ↠-inv-sucᵏ : ⟨ H , sucᵏ k , ρ , ε ⟩ ↠ s → ⊥
-  ↠-inv-sucᵏ {k = 0} (⇾ₑ′ x) = ⇒ₑ-inv-zero x
-  ↠-inv-sucᵏ {k = 1+ k} (⇾ₑ′ x) = ⇒ₑ-inv-suc x
-  ↠-inv-sucᵏ {k = 0} (⇒ᵥ ())
-  ↠-inv-sucᵏ {k = 1+ k} (⇒ᵥ ())
-  ↠-inv-sucᵏ {k = 0} (⇒ₙ ())
-  ↠-inv-sucᵏ {k = 1+ k} (⇒ₙ x) =
-    case ⇒ₙ-inv-num (sucᵏ-Numeral _) x of λ where
+  ↠-inv-sucⁿ : ⟨ H , sucⁿ k , ρ , ε ⟩ ↠ s → ⊥
+  ↠-inv-sucⁿ {k = 0} (⇾ₑ′ x) = ⇒ₑ-inv-zero x
+  ↠-inv-sucⁿ {k = 1+ k} (⇾ₑ′ x) = ⇒ₑ-inv-suc x
+  ↠-inv-sucⁿ {k = 0} (⇒ᵥ ())
+  ↠-inv-sucⁿ {k = 1+ k} (⇒ᵥ ())
+  ↠-inv-sucⁿ {k = 0} (⇒ₙ ())
+  ↠-inv-sucⁿ {k = 1+ k} (⇒ₙ x) =
+    case ⇒ₙ-inv-num (sucⁿ-Numeral _) x of λ where
       (_ , () , _)

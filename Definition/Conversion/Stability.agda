@@ -37,7 +37,7 @@ private
     m n : Nat
     ∇ : DCon (Term 0) m
     Γ Δ : Con Term n
-    l₁ l₂ : Term _
+    l₁ l₂ : Lvl _
     d : Bool
 
 mutual
@@ -177,9 +177,9 @@ mutual
     ∇ » Δ ⊢ l₁ [conv↑] l₂ ∷Level
   stabilityConv↑Level Γ≡Δ (term ok l₁≡l₂) =
     term ok (stabilityConv↑Term Γ≡Δ l₁≡l₂)
-  stabilityConv↑Level Γ≡Δ (literal! not-ok _ l-lit) =
+  stabilityConv↑Level Γ≡Δ (literal! ok _) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ in
-    literal! not-ok ⊢Δ l-lit
+    literal! ok ⊢Δ
 
   -- Stability of algorithmic equality of terms in WHNF.
   stabilityConv↓Term : ∀ {t u A}
@@ -262,7 +262,8 @@ mutual
   stabilityLevel⁺→Term :
     (Γ≡Δ : ∇ »⊢ Γ ≡ Δ) (t : Level⁺ (∇ » Γ)) →
     Level⁺→Term (stabilityLevel⁺ Γ≡Δ t) PE.≡ Level⁺→Term t
-  stabilityLevel⁺→Term Γ≡Δ (n , a) = PE.cong (sucᵘᵏ n) (stabilityLevelAtom→Term Γ≡Δ a)
+  stabilityLevel⁺→Term Γ≡Δ (n , a) =
+    PE.cong (1ᵘ+ⁿ n) (stabilityLevelAtom→Term Γ≡Δ a)
 
   stabilityLevelᵛ→Term :
     ∀ {t} (Γ≡Δ : ∇ »⊢ Γ ≡ Δ) →

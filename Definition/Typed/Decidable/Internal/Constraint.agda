@@ -36,6 +36,7 @@ private variable
 ⟦ k-allowed                 ⟧ᶜ⁰ = K-allowed
 ⟦ level-allowed             ⟧ᶜ⁰ = L.Lift _ Level-allowed
 ⟦ level-is-small            ⟧ᶜ⁰ = L.Lift _ Level-is-small
+⟦ omega-plus-allowed        ⟧ᶜ⁰ = Omega-plus-allowed
 ⟦ no-equality-reflection    ⟧ᶜ⁰ = No-equality-reflection
 ⟦ opacity-allowed           ⟧ᶜ⁰ = Opacity-allowed
 ⟦ unfolding-mode-transitive ⟧ᶜ⁰ = L.Lift _
@@ -65,6 +66,8 @@ satisfied?⁰ level-allowed γ =
   γ .constraints⁰ .level-allowed?
 satisfied?⁰ level-is-small γ =
   γ .constraints⁰ .level-is-small?
+satisfied?⁰ omega-plus-allowed γ =
+  γ .constraints⁰ .omega-plus-allowed?
 satisfied?⁰ no-equality-reflection γ =
   γ .constraints⁰ .no-equality-reflection?
 satisfied?⁰ opacity-allowed γ =
@@ -108,6 +111,7 @@ all-nullary-constraints =
   k-allowed L.∷
   level-allowed L.∷
   level-is-small L.∷
+  omega-plus-allowed L.∷
   no-equality-reflection L.∷
   opacity-allowed L.∷
   unfolding-mode-transitive L.∷

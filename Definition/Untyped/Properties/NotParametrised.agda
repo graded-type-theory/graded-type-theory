@@ -193,10 +193,15 @@ opaque
   infix 4 _≟ᵘ_
 
   _≟ᵘ_ : Decidable (_≡_ {A = Universe-level})
-  0ᵘ+ l₁ ≟ᵘ 0ᵘ+ l₂ = Dec-map (cong 0ᵘ+_ , λ { refl → refl }) (l₁ ≟ l₂)
-  0ᵘ+ l₁ ≟ᵘ ωᵘ     = no (λ ())
-  ωᵘ     ≟ᵘ 0ᵘ+ l₂ = no (λ ())
-  ωᵘ     ≟ᵘ ωᵘ     = yes refl
+  0ᵘ+ m ≟ᵘ 0ᵘ+ n = Dec-map (cong 0ᵘ+ , λ { refl → refl }) (m ≟ n)
+  0ᵘ+ _ ≟ᵘ ωᵘ+ _ = no (λ ())
+  0ᵘ+ _ ≟ᵘ ωᵘ·2  = no (λ ())
+  ωᵘ+ _ ≟ᵘ 0ᵘ+ _ = no (λ ())
+  ωᵘ+ m ≟ᵘ ωᵘ+ n = Dec-map (cong ωᵘ+ , λ { refl → refl }) (m ≟ n)
+  ωᵘ+ _ ≟ᵘ ωᵘ·2  = no (λ ())
+  ωᵘ·2  ≟ᵘ 0ᵘ+ _ = no (λ ())
+  ωᵘ·2  ≟ᵘ ωᵘ+ _ = no (λ ())
+  ωᵘ·2  ≟ᵘ ωᵘ·2  = yes refl
 
 ------------------------------------------------------------------------
 -- Properties related to _≤ᵘ_ and _<ᵘ_
@@ -206,59 +211,90 @@ opaque
   -- The level 0 is the lowest level.
 
   0≤ᵘ : 0ᵘ ≤ᵘ l
-  0≤ᵘ {0ᵘ+ x} = ≤ᵘ-fin z≤′n
-  0≤ᵘ {(ωᵘ)}  = ≤ᵘ-ωᵘ
+  0≤ᵘ {l = 0ᵘ+ _} = 0ᵘ+≤ᵘ0ᵘ+ z≤′n
+  0≤ᵘ {l = ωᵘ+ _} = 0ᵘ+≤ᵘωᵘ+
+  0≤ᵘ {l = ωᵘ·2}  = ≤ᵘωᵘ·2
 
 opaque
 
   -- The relation _≤ᵘ_ is transitive.
 
   ≤ᵘ-trans : l₁ ≤ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ ≤ᵘ l₃
-  ≤ᵘ-trans (≤ᵘ-fin p) (≤ᵘ-fin q) = ≤ᵘ-fin (≤′-trans p q)
-  ≤ᵘ-trans _          ≤ᵘ-ωᵘ      = ≤ᵘ-ωᵘ
+  ≤ᵘ-trans (0ᵘ+≤ᵘ0ᵘ+ p) (0ᵘ+≤ᵘ0ᵘ+ q) = 0ᵘ+≤ᵘ0ᵘ+ (≤′-trans p q)
+  ≤ᵘ-trans (0ᵘ+≤ᵘ0ᵘ+ p) 0ᵘ+≤ᵘωᵘ+     = 0ᵘ+≤ᵘωᵘ+
+  ≤ᵘ-trans 0ᵘ+≤ᵘωᵘ+     (ωᵘ+≤ᵘωᵘ+ q) = 0ᵘ+≤ᵘωᵘ+
+  ≤ᵘ-trans (ωᵘ+≤ᵘωᵘ+ p) (ωᵘ+≤ᵘωᵘ+ q) = ωᵘ+≤ᵘωᵘ+ (≤′-trans p q)
+  ≤ᵘ-trans _            ≤ᵘωᵘ·2       = ≤ᵘωᵘ·2
 
 opaque
 
   -- The relation _<ᵘ_ is transitive.
 
   <ᵘ-trans : l₁ <ᵘ l₂ → l₂ <ᵘ l₃ → l₁ <ᵘ l₃
-  <ᵘ-trans (<ᵘ-fin p) (<ᵘ-fin q) = <ᵘ-fin (<′-trans p q)
-  <ᵘ-trans (<ᵘ-fin _) <ᵘ-ωᵘ      = <ᵘ-ωᵘ
-  <ᵘ-trans <ᵘ-ωᵘ      ()
+  <ᵘ-trans (0ᵘ+<ᵘ0ᵘ+ p) (0ᵘ+<ᵘ0ᵘ+ q) = 0ᵘ+<ᵘ0ᵘ+ (<′-trans p q)
+  <ᵘ-trans (0ᵘ+<ᵘ0ᵘ+ p) 0ᵘ+<ᵘωᵘ+     = 0ᵘ+<ᵘωᵘ+
+  <ᵘ-trans (0ᵘ+<ᵘ0ᵘ+ _) 0ᵘ+<ᵘωᵘ·2    = 0ᵘ+<ᵘωᵘ·2
+  <ᵘ-trans 0ᵘ+<ᵘωᵘ+     (ωᵘ+<ᵘωᵘ+ q) = 0ᵘ+<ᵘωᵘ+
+  <ᵘ-trans 0ᵘ+<ᵘωᵘ+     ωᵘ+<ᵘωᵘ·2    = 0ᵘ+<ᵘωᵘ·2
+  <ᵘ-trans 0ᵘ+<ᵘωᵘ·2    ()
+  <ᵘ-trans (ωᵘ+<ᵘωᵘ+ p) (ωᵘ+<ᵘωᵘ+ q) = ωᵘ+<ᵘωᵘ+ (<′-trans p q)
+  <ᵘ-trans (ωᵘ+<ᵘωᵘ+ _) ωᵘ+<ᵘωᵘ·2    = ωᵘ+<ᵘωᵘ·2
+  <ᵘ-trans ωᵘ+<ᵘωᵘ·2    ()
 
 opaque
 
   <ᵘ-≤ᵘ-trans : l₁ <ᵘ l₂ → l₂ ≤ᵘ l₃ → l₁ <ᵘ l₃
-  <ᵘ-≤ᵘ-trans (<ᵘ-fin p) (≤ᵘ-fin q) = <ᵘ-fin (≤′-trans p q)
-  <ᵘ-≤ᵘ-trans (<ᵘ-fin _) ≤ᵘ-ωᵘ      = <ᵘ-ωᵘ
-  <ᵘ-≤ᵘ-trans <ᵘ-ωᵘ      ≤ᵘ-ωᵘ      = <ᵘ-ωᵘ
+  <ᵘ-≤ᵘ-trans (0ᵘ+<ᵘ0ᵘ+ p) (0ᵘ+≤ᵘ0ᵘ+ q) = 0ᵘ+<ᵘ0ᵘ+ (≤′-trans p q)
+  <ᵘ-≤ᵘ-trans (0ᵘ+<ᵘ0ᵘ+ p) 0ᵘ+≤ᵘωᵘ+     = 0ᵘ+<ᵘωᵘ+
+  <ᵘ-≤ᵘ-trans (0ᵘ+<ᵘ0ᵘ+ _) ≤ᵘωᵘ·2       = 0ᵘ+<ᵘωᵘ·2
+  <ᵘ-≤ᵘ-trans 0ᵘ+<ᵘωᵘ+     (ωᵘ+≤ᵘωᵘ+ q) = 0ᵘ+<ᵘωᵘ+
+  <ᵘ-≤ᵘ-trans 0ᵘ+<ᵘωᵘ+     ≤ᵘωᵘ·2       = 0ᵘ+<ᵘωᵘ·2
+  <ᵘ-≤ᵘ-trans 0ᵘ+<ᵘωᵘ·2    ≤ᵘωᵘ·2       = 0ᵘ+<ᵘωᵘ·2
+  <ᵘ-≤ᵘ-trans (ωᵘ+<ᵘωᵘ+ p) (ωᵘ+≤ᵘωᵘ+ q) = ωᵘ+<ᵘωᵘ+ (≤′-trans p q)
+  <ᵘ-≤ᵘ-trans (ωᵘ+<ᵘωᵘ+ _) ≤ᵘωᵘ·2       = ωᵘ+<ᵘωᵘ·2
+  <ᵘ-≤ᵘ-trans ωᵘ+<ᵘωᵘ·2    ≤ᵘωᵘ·2       = ωᵘ+<ᵘωᵘ·2
 
 opaque
 
   -- The relation _<ᵘ_ is contained in _≤ᵘ_.
 
   <ᵘ→≤ᵘ : l₁ <ᵘ l₂ → l₁ ≤ᵘ l₂
-  <ᵘ→≤ᵘ (<ᵘ-fin p) = ≤ᵘ-fin (<′→≤′ p)
-  <ᵘ→≤ᵘ <ᵘ-ωᵘ      = ≤ᵘ-ωᵘ
+  <ᵘ→≤ᵘ (0ᵘ+<ᵘ0ᵘ+ p) = 0ᵘ+≤ᵘ0ᵘ+ (<′→≤′ p)
+  <ᵘ→≤ᵘ 0ᵘ+<ᵘωᵘ+     = 0ᵘ+≤ᵘωᵘ+
+  <ᵘ→≤ᵘ 0ᵘ+<ᵘωᵘ·2    = ≤ᵘωᵘ·2
+  <ᵘ→≤ᵘ (ωᵘ+<ᵘωᵘ+ p) = ωᵘ+≤ᵘωᵘ+ (<′→≤′ p)
+  <ᵘ→≤ᵘ ωᵘ+<ᵘωᵘ·2    = ≤ᵘωᵘ·2
 
 -- The relation _<ᵘ_ is well-founded.
 
 private
-  nat-accessible : ∀ n → Acc _<ᵘ_ (0ᵘ+ n)
-  nat-accessible′ : ∀ n → WfRec _<ᵘ_ (Acc _<ᵘ_) (0ᵘ+ n)
-  nat-accessible n = acc (nat-accessible′ n)
-  nat-accessible′ .(1+ n) (<ᵘ-fin {l = n} (≤′-refl)) = nat-accessible n
-  nat-accessible′ .(1+ n) (<ᵘ-fin (≤′-step {n} p)) = nat-accessible′ n (<ᵘ-fin p)
 
-  ωᵘ-accessible′ : WfRec _<ᵘ_ (Acc _<ᵘ_) ωᵘ
-  ωᵘ-accessible′ <ᵘ-ωᵘ = nat-accessible _
+  0ᵘ+-accessible : ∀ n → Acc _<ᵘ_ (0ᵘ+ n)
+  0ᵘ+-accessible n = acc (helper n)
+    where
+    helper : ∀ n → WfRec _<ᵘ_ (Acc _<ᵘ_) (0ᵘ+ n)
+    helper .(1+ n) (0ᵘ+<ᵘ0ᵘ+ {m = n} ≤′-refl) = 0ᵘ+-accessible n
+    helper .(1+ n) (0ᵘ+<ᵘ0ᵘ+ (≤′-step {n} p)) = helper n (0ᵘ+<ᵘ0ᵘ+ p)
 
-  ωᵘ-accessible : Acc _<ᵘ_ ωᵘ
-  ωᵘ-accessible = acc ωᵘ-accessible′
+  ωᵘ+-accessible : ∀ n → Acc _<ᵘ_ (ωᵘ+ n)
+  ωᵘ+-accessible n = acc (helper n)
+    where
+    helper : ∀ n → WfRec _<ᵘ_ (Acc _<ᵘ_) (ωᵘ+ n)
+    helper _       (0ᵘ+<ᵘωᵘ+ {m})             = 0ᵘ+-accessible m
+    helper .(1+ n) (ωᵘ+<ᵘωᵘ+ {m = n} ≤′-refl) = ωᵘ+-accessible n
+    helper .(1+ n) (ωᵘ+<ᵘωᵘ+ (≤′-step {n} p)) = helper n (ωᵘ+<ᵘωᵘ+ p)
+
+  ωᵘ·2-accessible : Acc _<ᵘ_ ωᵘ·2
+  ωᵘ·2-accessible = acc helper
+    where
+    helper : WfRec _<ᵘ_ (Acc _<ᵘ_) ωᵘ·2
+    helper 0ᵘ+<ᵘωᵘ·2 = 0ᵘ+-accessible _
+    helper ωᵘ+<ᵘωᵘ·2 = ωᵘ+-accessible _
 
 <ᵘ-wellFounded : WellFounded _<ᵘ_
-<ᵘ-wellFounded (0ᵘ+ n) = nat-accessible n
-<ᵘ-wellFounded ωᵘ      = ωᵘ-accessible
+<ᵘ-wellFounded (0ᵘ+ n) = 0ᵘ+-accessible n
+<ᵘ-wellFounded (ωᵘ+ n) = ωᵘ+-accessible n
+<ᵘ-wellFounded ωᵘ·2    = ωᵘ·2-accessible
 
 <ᵘ-Rec : ∀ {ℓ} → RecStruct Universe-level ℓ ℓ
 <ᵘ-Rec = WfRec _<ᵘ_
@@ -278,43 +314,65 @@ opaque
   -- The level l₁ is bounded by the maximum of l₁ and l₂.
 
   ≤ᵘ⊔ᵘʳ : l₁ ≤ᵘ l₁ ⊔ᵘ l₂
-  ≤ᵘ⊔ᵘʳ {0ᵘ+ l₁} {0ᵘ+ l₂} = ≤ᵘ-fin ≤′⊔ʳ
-  ≤ᵘ⊔ᵘʳ {0ᵘ+ l₁} {(ωᵘ)}   = ≤ᵘ-ωᵘ
-  ≤ᵘ⊔ᵘʳ {(ωᵘ)}            = ≤ᵘ-ωᵘ
+  ≤ᵘ⊔ᵘʳ {l₁ = 0ᵘ+ _} {l₂ = 0ᵘ+ _} = 0ᵘ+≤ᵘ0ᵘ+ ≤′⊔ʳ
+  ≤ᵘ⊔ᵘʳ {l₁ = 0ᵘ+ _} {l₂ = ωᵘ+ _} = 0ᵘ+≤ᵘωᵘ+
+  ≤ᵘ⊔ᵘʳ {l₁ = 0ᵘ+ _} {l₂ = ωᵘ·2}  = ≤ᵘωᵘ·2
+  ≤ᵘ⊔ᵘʳ {l₁ = ωᵘ+ _} {l₂ = 0ᵘ+ _} = ωᵘ+≤ᵘωᵘ+ ≤′⊔ˡ
+  ≤ᵘ⊔ᵘʳ {l₁ = ωᵘ+ _} {l₂ = ωᵘ+ _} = ωᵘ+≤ᵘωᵘ+ ≤′⊔ʳ
+  ≤ᵘ⊔ᵘʳ {l₁ = ωᵘ+ _} {l₂ = ωᵘ·2}  = ≤ᵘωᵘ·2
+  ≤ᵘ⊔ᵘʳ {l₁ = ωᵘ·2}               = ≤ᵘωᵘ·2
 
 opaque
 
   -- The level l₂ is bounded by the maximum of l₁ and l₂.
 
   ≤ᵘ⊔ᵘˡ : l₂ ≤ᵘ l₁ ⊔ᵘ l₂
-  ≤ᵘ⊔ᵘˡ {0ᵘ+ l₂} {0ᵘ+ l₁} = ≤ᵘ-fin ≤′⊔ˡ
-  ≤ᵘ⊔ᵘˡ {(ωᵘ)}   {0ᵘ+ l₁} = ≤ᵘ-ωᵘ
-  ≤ᵘ⊔ᵘˡ {(l₂)}   {(ωᵘ)}   = ≤ᵘ-ωᵘ
+  ≤ᵘ⊔ᵘˡ {l₂ = 0ᵘ+ _} {l₁ = 0ᵘ+ _} = 0ᵘ+≤ᵘ0ᵘ+ ≤′⊔ˡ
+  ≤ᵘ⊔ᵘˡ {l₂ = ωᵘ+ _} {l₁ = 0ᵘ+ _} = ωᵘ+≤ᵘωᵘ+ ≤′⊔ˡ
+  ≤ᵘ⊔ᵘˡ {l₂ = ωᵘ·2}  {l₁ = 0ᵘ+ _} = ≤ᵘωᵘ·2
+  ≤ᵘ⊔ᵘˡ {l₂ = 0ᵘ+ _} {l₁ = ωᵘ+ _} = 0ᵘ+≤ᵘωᵘ+
+  ≤ᵘ⊔ᵘˡ {l₂ = ωᵘ+ _} {l₁ = ωᵘ+ _} = ωᵘ+≤ᵘωᵘ+ ≤′⊔ˡ
+  ≤ᵘ⊔ᵘˡ {l₂ = ωᵘ·2}  {l₁ = ωᵘ+ _} = ≤ᵘωᵘ·2
+  ≤ᵘ⊔ᵘˡ              {l₁ = ωᵘ·2}  = ≤ᵘωᵘ·2
 
 opaque
 
   -- The function _⊔ᵘ_ is monotone.
 
   ⊔ᵘ-mono : l₁ ≤ᵘ l₁′ → l₂ ≤ᵘ l₂′ → l₁ ⊔ᵘ l₂ ≤ᵘ l₁′ ⊔ᵘ l₂′
-  ⊔ᵘ-mono (≤ᵘ-fin l₁≤) (≤ᵘ-fin l₂≤) = ≤ᵘ-fin (⊔-mono l₁≤ l₂≤)
-  ⊔ᵘ-mono (≤ᵘ-fin l₁≤) ≤ᵘ-ωᵘ        = ≤ᵘ-ωᵘ
-  ⊔ᵘ-mono ≤ᵘ-ωᵘ        l₂≤          = ≤ᵘ-ωᵘ
+  ⊔ᵘ-mono (0ᵘ+≤ᵘ0ᵘ+ p) (0ᵘ+≤ᵘ0ᵘ+ q) = 0ᵘ+≤ᵘ0ᵘ+ (⊔-mono p q)
+  ⊔ᵘ-mono (0ᵘ+≤ᵘ0ᵘ+ _) 0ᵘ+≤ᵘωᵘ+     = 0ᵘ+≤ᵘωᵘ+
+  ⊔ᵘ-mono (0ᵘ+≤ᵘ0ᵘ+ _) (ωᵘ+≤ᵘωᵘ+ q) = ωᵘ+≤ᵘωᵘ+ q
+  ⊔ᵘ-mono (0ᵘ+≤ᵘ0ᵘ+ _) ≤ᵘωᵘ·2       = ≤ᵘωᵘ·2
+  ⊔ᵘ-mono 0ᵘ+≤ᵘωᵘ+     (0ᵘ+≤ᵘ0ᵘ+ _) = 0ᵘ+≤ᵘωᵘ+
+  ⊔ᵘ-mono 0ᵘ+≤ᵘωᵘ+     0ᵘ+≤ᵘωᵘ+     = 0ᵘ+≤ᵘωᵘ+
+  ⊔ᵘ-mono 0ᵘ+≤ᵘωᵘ+     (ωᵘ+≤ᵘωᵘ+ q) = ωᵘ+≤ᵘωᵘ+
+                                        (≤′-trans q (≤⇒≤′ (m≤n⊔m _ _)))
+  ⊔ᵘ-mono 0ᵘ+≤ᵘωᵘ+     ≤ᵘωᵘ·2       = ≤ᵘωᵘ·2
+  ⊔ᵘ-mono (ωᵘ+≤ᵘωᵘ+ p) (0ᵘ+≤ᵘ0ᵘ+ _) = ωᵘ+≤ᵘωᵘ+ p
+  ⊔ᵘ-mono (ωᵘ+≤ᵘωᵘ+ p) 0ᵘ+≤ᵘωᵘ+     = ωᵘ+≤ᵘωᵘ+
+                                        (≤′-trans p (≤⇒≤′ (m≤m⊔n _ _)))
+  ⊔ᵘ-mono (ωᵘ+≤ᵘωᵘ+ p) (ωᵘ+≤ᵘωᵘ+ q) = ωᵘ+≤ᵘωᵘ+ (⊔-mono p q)
+  ⊔ᵘ-mono (ωᵘ+≤ᵘωᵘ+ _) ≤ᵘωᵘ·2       = ≤ᵘωᵘ·2
+  ⊔ᵘ-mono ≤ᵘωᵘ·2       _            = ≤ᵘωᵘ·2
 
 opaque
 
   -- 0ᵘ is a left identity for _⊔ᵘ_.
 
   ⊔ᵘ-identityˡ : 0ᵘ ⊔ᵘ l ≡ l
-  ⊔ᵘ-identityˡ {0ᵘ+ l} = refl
-  ⊔ᵘ-identityˡ {(ωᵘ)}  = refl
+  ⊔ᵘ-identityˡ {l = 0ᵘ+ _} = refl
+  ⊔ᵘ-identityˡ {l = ωᵘ+ _} = refl
+  ⊔ᵘ-identityˡ {l = ωᵘ·2}  = refl
 
 opaque
 
   -- The function _⊔ᵘ_ is idempotent.
 
   ⊔ᵘ-idem : l ⊔ᵘ l ≡ l
-  ⊔ᵘ-idem {0ᵘ+ l} = cong 0ᵘ+_ (⊔-idem l)
-  ⊔ᵘ-idem {(ωᵘ)}  = refl
+  ⊔ᵘ-idem {l = 0ᵘ+ _} = cong 0ᵘ+ (⊔-idem _)
+  ⊔ᵘ-idem {l = ωᵘ+ _} = cong ωᵘ+ (⊔-idem _)
+  ⊔ᵘ-idem {l = ωᵘ·2}  = refl
 
 ------------------------------------------------------------------------
 -- Properties related to Level-support
@@ -598,6 +656,19 @@ opaque
     (A → B) → A or-empty Γ → B or-empty Γ
   or-empty-map f =
     or-empty⇔ .proj₂ ∘→ ⊎.map f idᶠ ∘→ or-empty⇔ .proj₁
+
+------------------------------------------------------------------------
+-- A property related to Term-kind
+
+opaque
+
+  -- Term-kind is a set.
+
+  Term-kind-set : Is-set Term-kind
+  Term-kind-set {x = tm}  {y = tm}  {x = refl} {y = refl} = refl
+  Term-kind-set {x = tm}  {y = lvl} {x = ()}
+  Term-kind-set {x = lvl} {y = tm}  {x = ()}
+  Term-kind-set {x = lvl} {y = lvl} {x = refl} {y = refl} = refl
 
 ------------------------------------------------------------------------
 -- Other properties

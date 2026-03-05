@@ -17,13 +17,15 @@ open import Definition.Untyped.Properties M
 
 open import Tools.Empty
 open import Tools.Function
-open import Tools.Level
+open import Tools.Level as L
+open import Tools.Nat
 open import Tools.Product
 open import Tools.Relation
 open import Tools.PropositionalEquality
 open import Tools.Sum
 
 private variable
+  n : Nat
   Γ : Con Term _
 
 ------------------------------------------------------------------------
@@ -44,6 +46,9 @@ record Type-restrictions : Set (lsuc a) where
   field
     -- Is Level a type, and in that case is the type small?
     level-support : Level-support
+
+    -- Are levels of the form "ω + n" allowed?
+    Omega-plus-allowed : Set a
 
     -- Unit types of either variant are only allowed if the given
     -- predicate holds.
@@ -290,6 +295,14 @@ record Type-restrictions : Set (lsuc a) where
       level-support ≡ level-type not-small  ⇔˘⟨ Level-is-small⇔ ⊎-cong-⇔ Level-is-not-small⇔ ⟩
 
       Level-is-small ⊎ Level-is-not-small   □⇔
+
+  opaque
+
+    -- Is the given level allowed to be used as a level literal?
+
+    Allowed-literal : Lvl n → Set a
+    Allowed-literal (ωᵘ+ _)   = Omega-plus-allowed
+    Allowed-literal (level t) = Level-literal t × ¬ Level-allowed
 
   -- A variant of ΠΣ-allowed for BindingType.
 

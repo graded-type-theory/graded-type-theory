@@ -30,7 +30,8 @@ private
     d : Bool
     ∇ ∇′ : DCon (Term 0) _
     Γ : Con Term _
-    A B l₁ l₂ t u : Term _
+    A B t t₁ t₂ u : Term _
+    l₁ l₂ : Lvl _
     v v′ v″ v₁ v₂ : Levelᵛ _
     v₁⁺ v₂⁺ : Level⁺ _
     ∇′⊇∇ : » _ ⊇ _
@@ -198,13 +199,13 @@ opaque mutual
     ∇′ » Γ ⊢ l₁ [conv↑] l₂ ∷Level
   defn-wkConv↑Level ∇′⊇∇ (term ok l₁≡l₂) =
     term ok (defn-wkConv↑Term ∇′⊇∇ l₁≡l₂)
-  defn-wkConv↑Level ∇′⊇∇ (literal! not-ok ⊢Γ l-lit) =
-    literal! not-ok (defn-wk′ ∇′⊇∇ ⊢Γ) l-lit
+  defn-wkConv↑Level ∇′⊇∇ (literal! ok ⊢Γ) =
+    literal! ok (defn-wk′ ∇′⊇∇ ⊢Γ)
 
   defn-wkConv↓Level :
     » ∇′ ⊇ ∇ →
-    ∇ » Γ ⊢ l₁ [conv↓] l₂ ∷Level →
-    ∇′ » Γ ⊢ l₁ [conv↓] l₂ ∷Level
+    ∇ » Γ ⊢ t₁ [conv↓] t₂ ∷Level →
+    ∇′ » Γ ⊢ t₁ [conv↓] t₂ ∷Level
   defn-wkConv↓Level ∇′⊇∇ ([↓]ˡ l₁ᵛ l₂ᵛ l₁↓l₁ᵛ l₂↓l₂ᵛ l₁ᵛ≡l₂ᵛ) =
     [↓]ˡ (defn-wkLevelᵛ ∇′⊇∇ l₁ᵛ) (defn-wkLevelᵛ ∇′⊇∇ l₂ᵛ)
       (defn-wk-↓ᵛ l₁↓l₁ᵛ) (defn-wk-↓ᵛ l₂↓l₂ᵛ) (defn-wk-≡ᵛ l₁ᵛ≡l₂ᵛ)

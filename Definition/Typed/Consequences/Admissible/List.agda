@@ -51,10 +51,11 @@ import Tools.PropositionalEquality as PE
 import Tools.Vec as V
 
 private variable
-  m ms n                              : Nat
-  A A₁ A₂ B l t t₁ t₂ u u₁ u₂ v w₁ w₂ : Term _
-  Γ                                   : Cons _ _
-  p₁ p₂ q r₁ r₂                       : M
+  m ms n                            : Nat
+  A A₁ A₂ B t t₁ t₂ u u₁ u₂ v w₁ w₂ : Term _
+  l                                 : Lvl _
+  Γ                                 : Cons _ _
+  p₁ p₂ q r₁ r₂                     : M
 
 -- Some definitions used below.
 
@@ -64,14 +65,15 @@ private
     (meta-con-size : V.Vec Nat ms)
     where
     c : I.Constants
-    c .I.gs               = 7
-    c .I.ss               = 0
-    c .I.bms              = 0
-    c .I.ms               = ms
-    c .I.base-dcon-size   = m
-    c .I.base-con-size    = n
-    c .I.base-con-allowed = true
-    c .I.meta-con-size    = meta-con-size
+    c .I.gs                 = 7
+    c .I.ss                 = 0
+    c .I.bms                = 0
+    c .I.ms                 = 1+ ms
+    c .I.base-dcon-size     = m
+    c .I.base-con-size      = n
+    c .I.base-con-allowed   = true
+    c .I.meta-con-size      = n V.∷ meta-con-size
+    c .I.meta-con-term-kind = lvl V.∷ V.replicate ms tm
 
     xpₕ xpₗ xp₁ xp₂ xq xr₁ xr₂ : I.Termᵍ 7
     xpₕ = I.var x0
@@ -82,9 +84,13 @@ private
     xr₁ = I.var x5
     xr₂ = I.var x6
 
+    xl : I.Lvl c n
+    xl = I.varᵐ x0
+
     γ :
       L.List (I.Constraint⁺ c) →
-      (∀ {n} (x : I.Meta-var c n) → I.Con c n × I.Type-or-term c n) →
+      (∀ {k n} (x : I.Meta-var c k n) →
+       I.Con c n × I.Type-or-term c k n) →
       I.Contexts c
     γ _  _ .I.grades              = pₕ V.∷ pₗ V.∷ p₁ V.∷ p₂ V.∷ q V.∷
                                     r₁ V.∷ r₂ V.∷ V.ε
@@ -130,10 +136,10 @@ opaque
            (_ , IT.meta xA₁ , IT.meta xA₂) L.∷
            L.[]
          .I.bindings → λ where
-           (I.var! x0)      → I.base , I.level l
-           (I.var! x1)      → I.base , I.term A₁ (I.U xl)
-           (I.var! x2)      → I.base , I.term A₂ (I.U xl)
-           (I.var not-x3 _))
+           (I.var! x0)        → I.base , I.level l
+           (I.var! x1)        → I.base , I.term A₁ (I.U xl)
+           (I.var! x2)        → I.base , I.term A₂ (I.U xl)
+           (I.var not-x3 _ _))
       (I.base nothing I.» I.base)
       (Listᵢ xpₕ xpₗ xl xA₁)
       (Listᵢ xpₕ xpₗ xl xA₂)
@@ -147,16 +153,15 @@ opaque
            (reflConEq ⊢Γ , IC.term (refl (⊢U ⊢l)) A₁≡A₂) L.∷
            L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢l
-           (I.var! x1)       → ⊢A₁
-           (I.var! x2)       → ⊢A₂
-           (I.var  not-x3 _))
+           (I.var! x0)         → ⊢l
+           (I.var! x1)         → ⊢A₁
+           (I.var! x2)         → ⊢A₂
+           (I.var  not-x3 _ _))
       ⊢Γ
       where
-      open Defs pₕ pₕ pₕ pₕ pₕ Γ (n V.∷ n V.∷ n V.∷ V.ε)
+      open Defs pₕ pₕ pₕ pₕ pₕ Γ (n V.∷ n V.∷ V.ε)
 
-      xl xA₁ xA₂ : I.Term c n
-      xl  = I.varᵐ x0
+      xA₁ xA₂ : I.Term c n
       xA₁ = I.varᵐ x1
       xA₂ = I.varᵐ x2
 
@@ -186,9 +191,9 @@ opaque
   ⊢nil {n} {A} {l} {Γ} ⊢A =
     check-type-and-term-sound
       (γ L.[] λ where
-         (I.var! x0)      → I.base , I.level l
-         (I.var! x1)      → I.base , I.term A (I.U xl)
-         (I.var not-x2 _))
+         (I.var! x0)        → I.base , I.level l
+         (I.var! x1)        → I.base , I.term A (I.U xl)
+         (I.var not-x2 _ _))
       (I.base nothing I.» I.base)
       (nilᵢ xpₗ xpₕ xl xA)
       (Listᵢ xpₕ xpₗ xl xA)
@@ -199,15 +204,14 @@ opaque
            Unit-ok L.∷ Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → inversion-U-Level (wf-⊢∷ ⊢A)
-           (I.var! x1)       → ⊢A
-           (I.var  not-x2 _))
+           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x1)         → ⊢A
+           (I.var  not-x2 _ _))
       (wfTerm ⊢A)
       where
-      open Defs pₕ pₕ pₕ pₕ pₕ Γ (n V.∷ n V.∷ V.ε)
+      open Defs pₕ pₕ pₕ pₕ pₕ Γ (n V.∷ V.ε)
 
-      xl xA : I.Term c n
-      xl = I.varᵐ x0
+      xA : I.Term c n
       xA = I.varᵐ x1
 
 ------------------------------------------------------------------------
@@ -240,14 +244,14 @@ opaque
            (_ , IT.meta xu₁ , IT.meta xu₂) L.∷
            L.[]
          .I.bindings → λ where
-           (I.var! x0)      → I.base , I.level l
-           (I.var! x1)      → I.base , I.term A₁ (I.U xl)
-           (I.var! x2)      → I.base , I.term A₂ (I.U xl)
-           (I.var! x3)      → I.base , I.term t₁ xA₁
-           (I.var! x4)      → I.base , I.term t₂ xA₁
-           (I.var! x5)      → I.base , I.term u₁ (Listᵢ xpₕ xpₗ xl xA₁)
-           (I.var! x6)      → I.base , I.term u₂ (Listᵢ xpₕ xpₗ xl xA₁)
-           (I.var not-x7 _))
+           (I.var! x0) → I.base , I.level l
+           (I.var! x1) → I.base , I.term A₁ (I.U xl)
+           (I.var! x2) → I.base , I.term A₂ (I.U xl)
+           (I.var! x3) → I.base , I.term t₁ xA₁
+           (I.var! x4) → I.base , I.term t₂ xA₁
+           (I.var! x5) → I.base , I.term u₁ (Listᵢ xpₕ xpₗ xl xA₁)
+           (I.var! x6) → I.base , I.term u₂ (Listᵢ xpₕ xpₗ xl xA₁)
+           (I.var not-x7 _ _))
       (I.base nothing I.» I.base)
       (consᵢ xpₕ xpₗ xl xA₁ xt₁ xu₁)
       (consᵢ xpₕ xpₗ xl xA₂ xt₂ xu₂)
@@ -263,21 +267,20 @@ opaque
            (reflConEq ⊢Γ , IC.term (refl (univ (⊢List ⊢A₁))) u₁≡u₂) L.∷
            L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → ⊢l
-           (I.var! x1)       → ⊢A₁
-           (I.var! x2)       → ⊢A₂
-           (I.var! x3)       → ⊢t₁
-           (I.var! x4)       → ⊢t₂
-           (I.var! x5)       → ⊢u₁
-           (I.var! x6)       → ⊢u₂
-           (I.var  not-x7 _))
+           (I.var! x0)         → ⊢l
+           (I.var! x1)         → ⊢A₁
+           (I.var! x2)         → ⊢A₂
+           (I.var! x3)         → ⊢t₁
+           (I.var! x4)         → ⊢t₂
+           (I.var! x5)         → ⊢u₁
+           (I.var! x6)         → ⊢u₂
+           (I.var  not-x7 _ _))
       ⊢Γ
       where
       open Defs pₕ pₕ pₕ pₕ pₕ Γ
-             (n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ V.ε)
+             (n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ n V.∷ V.ε)
 
-      xl xA₁ xA₂ xt₁ xt₂ xu₁ xu₂ : I.Term c n
-      xl  = I.varᵐ x0
+      xA₁ xA₂ xt₁ xt₂ xu₁ xu₂ : I.Term c n
       xA₁ = I.varᵐ x1
       xA₂ = I.varᵐ x2
       xt₁ = I.varᵐ x3
@@ -338,7 +341,7 @@ opaque
                    (consᵢ xpₕ xpₗ (IW.wk[ 3 ] xl) (IW.wk[ 3 ] xA)
                       (I.var x2) (I.var x1))))
          (I.var! x5) → I.base , I.term v (Listᵢ xpₕ xpₗ xl xA)
-         (I.var not-x6 _))
+         (I.var not-x6 _ _))
       (I.base nothing I.» I.base)
       (listrecᵢ xpₕ xpₗ xr₁ xr₂ xp₁ xp₂ xq xl xA xB xt xu xv)
       (I.subst xB (IS.sgSubst xv))
@@ -349,20 +352,19 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → inversion-U-Level (wf-⊢∷ ⊢A)
-           (I.var! x1)       → ⊢A
-           (I.var! x2)       → ⊢B
-           (I.var! x3)       → ⊢t
-           (I.var! x4)       → ⊢u
-           (I.var! x5)       → ⊢v
-           (I.var  not-x6 _))
+           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x1)         → ⊢A
+           (I.var! x2)         → ⊢B
+           (I.var! x3)         → ⊢t
+           (I.var! x4)         → ⊢u
+           (I.var! x5)         → ⊢v
+           (I.var  not-x6 _ _))
       (wfTerm ⊢A)
       where
       open Defs p₁ p₂ q r₁ r₂ Γ
-             (n V.∷ n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ n V.∷ V.ε)
+             (n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ n V.∷ V.ε)
 
-      xl xA xt xv : I.Term c n
-      xl = I.varᵐ x0
+      xA xt xv : I.Term c n
       xA = I.varᵐ x1
       xt = I.varᵐ x3
       xv = I.varᵐ x5
@@ -409,7 +411,7 @@ opaque
                 (I.cons (IS.wkSubst 3 I.id)
                    (consᵢ xpₕ xpₗ (IW.wk[ 3 ] xl) (IW.wk[ 3 ] xA)
                       (I.var x2) (I.var x1))))
-         (I.var not-x5 _))
+         (I.var not-x5 _ _))
       (I.base nothing I.» I.base)
       (listrecᵢ xpₕ xpₗ xr₁ xr₂ xp₁ xp₂ xq xl xA xB xt xu
          (nilᵢ xpₗ xpₕ xl xA))
@@ -422,19 +424,17 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → inversion-U-Level (wf-⊢∷ ⊢A)
-           (I.var! x1)       → ⊢A
-           (I.var! x2)       → ⊢B
-           (I.var! x3)       → ⊢t
-           (I.var! x4)       → ⊢u
-           (I.var  not-x5 _))
+           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x1)         → ⊢A
+           (I.var! x2)         → ⊢B
+           (I.var! x3)         → ⊢t
+           (I.var! x4)         → ⊢u
+           (I.var  not-x5 _ _))
       (wfTerm ⊢A)
       where
-      open Defs p₁ p₂ q r₁ r₂ Γ
-             (n V.∷ n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ V.ε)
+      open Defs p₁ p₂ q r₁ r₂ Γ (n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ V.ε)
 
-      xl xA xt : I.Term c n
-      xl = I.varᵐ x0
+      xA xt : I.Term c n
       xA = I.varᵐ x1
       xt = I.varᵐ x3
 
@@ -492,7 +492,7 @@ opaque
          (I.var! x5) → I.base , I.term v xA
          (I.var! x6) → I.base , I.term w₁ I.ℕ
          (I.var! x7) → I.base , I.term w₂ (UVI.Vec′ᵢ I.𝕨 xpₕ xl xA xw₁)
-         (I.var not-x8 _))
+         (I.var not-x8 _ _))
       (I.base nothing I.» I.base)
       (listrecᵢ xpₕ xpₗ xr₁ xr₂ xp₁ xp₂ xq xl xA xB xt xu
          (consᵢ xpₕ xpₗ xl xA xv xw))
@@ -507,22 +507,21 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)       → inversion-U-Level (wf-⊢∷ ⊢A)
-           (I.var! x1)       → ⊢A
-           (I.var! x2)       → ⊢B
-           (I.var! x3)       → ⊢t
-           (I.var! x4)       → ⊢u
-           (I.var! x5)       → ⊢v
-           (I.var! x6)       → ⊢w₁
-           (I.var! x7)       → ⊢w₂
-           (I.var  not-x8 _))
+           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x1)         → ⊢A
+           (I.var! x2)         → ⊢B
+           (I.var! x3)         → ⊢t
+           (I.var! x4)         → ⊢u
+           (I.var! x5)         → ⊢v
+           (I.var! x6)         → ⊢w₁
+           (I.var! x7)         → ⊢w₂
+           (I.var  not-x8 _ _))
       (wfTerm ⊢A)
       where
       open Defs p₁ p₂ q r₁ r₂ Γ
-             (n V.∷ n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ n V.∷ n V.∷ n V.∷ V.ε)
+             (n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ n V.∷ n V.∷ n V.∷ V.ε)
 
-      xl xA xt xv xw₁ xw₂ xw : I.Term c n
-      xl  = I.varᵐ x0
+      xA xt xv xw₁ xw₂ xw : I.Term c n
       xA  = I.varᵐ x1
       xt  = I.varᵐ x3
       xv  = I.varᵐ x5

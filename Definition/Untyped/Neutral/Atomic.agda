@@ -28,14 +28,15 @@ open import Tools.Relation
 open import Tools.Unit
 
 private variable
-  P V V₁ V₂     : Set _
-  α m n         : Nat
-  x             : Fin _
-  ∇             : DCon _ _
-  A B l t u v w : Term _
-  ρ             : Wk _ _
-  s             : Strength
-  p q r         : M
+  P V V₁ V₂   : Set _
+  α m n       : Nat
+  x           : Fin _
+  ∇           : DCon _ _
+  A B t u v w : Term _
+  l           : Lvl _
+  ρ           : Wk _ _
+  s           : Strength
+  p q r       : M
 
 ------------------------------------------------------------------------
 -- The type

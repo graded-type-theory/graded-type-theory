@@ -13,15 +13,14 @@ open import Tools.PropositionalEquality
 open import Tools.Sum
 
 private variable
-  l              : Term _
-  x              : Fin _
-  α              : Nat
-  ρ              : Wk _ _
-  A B t t′ u v w : Term _
-  p q r          : M
-  s              : Strength
-  b              : BinderMode
-  σ              : Subst _ _
+  x                : Fin _
+  α m              : Nat
+  ρ                : Wk _ _
+  A B l t t′ u v w : Term[ _ ] _
+  p q r            : M
+  s                : Strength
+  b                : BinderMode
+  σ                : Subst _ _
 
 -- Inversion for var.
 
@@ -375,6 +374,30 @@ subst-supᵘ {t = rfl}                   ()
 subst-supᵘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-supᵘ {t = K _ _ _ _ _ _}         ()
 subst-supᵘ {t = []-cong _ _ _ _ _ _}   ()
+
+-- Inversion for ωᵘ+.
+
+wk-ωᵘ+ : wk ρ l ≡ ωᵘ+ m → l ≡ ωᵘ+ m
+wk-ωᵘ+ {l = ωᵘ+ _}   refl = refl
+wk-ωᵘ+ {l = level _} ()
+
+subst-ωᵘ+ : l [ σ ] ≡ ωᵘ+ m → l ≡ ωᵘ+ m
+subst-ωᵘ+ {l = ωᵘ+ _}   refl = refl
+subst-ωᵘ+ {l = level _} ()
+
+-- Inversion for level.
+
+wk-level :
+  wk ρ l ≡ level t →
+  ∃ λ t′ → l ≡ level t′ × wk ρ t′ ≡ t
+wk-level {l = level _} refl = _ , refl , refl
+wk-level {l = ωᵘ+ _}   ()
+
+subst-level :
+  l [ σ ] ≡ level t →
+  ∃ λ t′ → l ≡ level t′ × t′ [ σ ] ≡ t
+subst-level {l = level _} refl = _ , refl , refl
+subst-level {l = ωᵘ+ _}   ()
 
 -- Inversion for defn.
 

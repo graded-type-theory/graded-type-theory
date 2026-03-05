@@ -31,6 +31,7 @@ open import Tools.Product as Σ
 
 private variable
   A B t u : Term _
+  l l₁ l₂ : Lvl _
 
 opaque
 
@@ -66,12 +67,12 @@ opaque
 
   -- A reducibility lemma for _⊢_∷Level.
 
-  reducible-⊩∷L : Γ ⊢ t ∷Level → Γ ⊩Level t ∷Level
+  reducible-⊩∷L : Γ ⊢ l ∷Level → Γ ⊩Level l ∷Level
   reducible-⊩∷L = RR.reducible-⊩∷L
 
 opaque
 
   -- A reducibility lemma for _⊢_≡_∷Level.
 
-  reducible-⊩≡∷L : Γ ⊢ t ≡ u ∷Level → Γ ⊩Level t ≡ u ∷Level
+  reducible-⊩≡∷L : Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊩Level l₁ ≡ l₂ ∷Level
   reducible-⊩≡∷L = RR.reducible-⊩≡∷L

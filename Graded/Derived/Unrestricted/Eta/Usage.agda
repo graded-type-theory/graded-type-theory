@@ -33,10 +33,11 @@ open import Tools.PropositionalEquality as PE using (_≡_)
 import Tools.Reasoning.PartialOrder
 
 private variable
-  A l t : Term _
-  p     : M
-  γ δ   : Conₘ _
-  m     : Mode
+  A t : Term _
+  l   : Lvl _
+  p   : M
+  γ δ : Conₘ _
+  m   : Mode
 
 private
 

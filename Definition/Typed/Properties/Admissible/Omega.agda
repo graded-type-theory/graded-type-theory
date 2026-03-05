@@ -36,11 +36,12 @@ open import Tools.Relation
 open import Tools.Sum
 
 private variable
-  n     : Nat
-  ∇     : DCon _ _
-  Γ     : Cons _ _
-  A l t : Term _
-  p q   : M
+  n   : Nat
+  ∇   : DCon _ _
+  Γ   : Cons _ _
+  A t : Term _
+  l   : Lvl _
+  p q : M
 
 private opaque
 
