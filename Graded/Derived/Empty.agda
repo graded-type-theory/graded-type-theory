@@ -24,11 +24,13 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
+open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
 open import Graded.Usage.Weakening UR
 
 open import Tools.Empty
 open import Tools.Function
+open import Tools.Product
 open import Tools.PropositionalEquality
 
 open ≤ᶜ-reasoning
@@ -57,3 +59,17 @@ opaque
         ⌜ m ᵐ· 𝟙 ⌝ ·ᶜ η                ≈˘⟨ +ᶜ-identityˡ _ ⟩
         𝟘ᶜ +ᶜ ⌜ m ᵐ· 𝟙 ⌝ ·ᶜ η          ≈˘⟨ +ᶜ-cong (·ᶜ-zeroˡ γ) (·ᶜ-identityˡ _) ⟩
         𝟘 ·ᶜ γ +ᶜ 𝟙 ·ᶜ ⌜ m ᵐ· 𝟙 ⌝ ·ᶜ η ∎)
+
+opaque
+  unfolding emptyrec-sink
+
+  -- A usage inversion lemma for emptyrec-sink.
+
+  inv-usage-emptyrec-sink :
+    γ ▸[ m ] emptyrec-sink A t →
+    ∃₂ λ δ η → δ ▸[ 𝟘ᵐ ] t × η ▸[ 𝟘ᵐ ] A × Emptyrec-allowed m 𝟘
+  inv-usage-emptyrec-sink {m} ▸ers =
+    let invUsageApp ▸er ▸s γ≤ = inv-usage-app ▸ers
+        invUsageEmptyrec ▸t ▸Π ok δ≤ = inv-usage-emptyrec ▸er
+        invUsageΠΣ ▸⊤ ▸A η≤ = inv-usage-ΠΣ ▸Π
+    in  _ , _ , ▸-cong (ᵐ·-zeroʳ m) ▸t , wkUsage⁻¹ ▸A , ok
