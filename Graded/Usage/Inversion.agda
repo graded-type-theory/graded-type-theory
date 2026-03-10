@@ -67,6 +67,16 @@ inv-usage-sucᵘ : γ ▸[ m ] sucᵘ t → γ ▸[ m ] t
 inv-usage-sucᵘ (sucᵘₘ ▸t)       = ▸t
 inv-usage-sucᵘ (sub δ▸sucᵘ γ≤δ) = sub (inv-usage-sucᵘ δ▸sucᵘ) γ≤δ
 
+opaque
+
+  -- A kind of inversion lemma for level literals
+
+  inv-usage-level-literal : Level-literal t → γ ▸[ m ] t → γ ≤ᶜ 𝟘ᶜ
+  inv-usage-level-literal zeroᵘ ▸t =
+    inv-usage-zeroᵘ ▸t
+  inv-usage-level-literal (sucᵘ lit) ▸t =
+    inv-usage-level-literal lit (inv-usage-sucᵘ ▸t)
+
 -- A usage inversion lemma for _supᵘ_.
 
 inv-usage-supᵘ :
