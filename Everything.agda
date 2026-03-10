@@ -222,6 +222,7 @@ import Graded.Derived.Pi-Sigma
 import Graded.Derived.Pi
 import Graded.Derived.Sigma
 import Graded.Derived.Sigma.Zero-one
+import Graded.Derived.Sup
 import Graded.Derived.Erased.Usage.Eta
 import Graded.Derived.Erased.Usage.No-eta
 import Graded.Derived.Erased.Usage.No-eta.Zero-one
