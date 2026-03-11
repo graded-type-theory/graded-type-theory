@@ -67,19 +67,19 @@ _+_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
 
 -- Meet.
 
+-- The meet operation used for the total order
+
+_∧ᵗ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
+∞ ∧ᵗ _ = ∞
+⌞ _ ⌟ ∧ᵗ ∞ = ∞
+⌞ m ⌟ ∧ᵗ ⌞ n ⌟ = ⌞ m N.⊔ n ⌟
+
 -- The meet operation used for the flat order
 
 _∧ᶠ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
 ∞ ∧ᶠ _ = ∞
 ⌞ _ ⌟ ∧ᶠ ∞ = ∞
-⌞ m ⌟ ∧ᶠ ⌞ n ⌟ = ⌞ m N.⊔ n ⌟
-
--- The meet operation used for the "exact" order
-
-_∧ᵗ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
-∞ ∧ᵗ _ = ∞
-⌞ _ ⌟ ∧ᵗ ∞ = ∞
-⌞ m ⌟ ∧ᵗ ⌞ n ⌟ =
+⌞ m ⌟ ∧ᶠ ⌞ n ⌟ =
   case m N.≟ n of λ where
     (yes _) → ⌞ m ⌟
     (no _) → ∞
@@ -93,14 +93,14 @@ _∧ᵗ_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
 infixr 43 _∧_
 
 _∧_ : ℕ⊎∞ → ℕ⊎∞ → ℕ⊎∞
-p ∧ q = if total then p ∧ᶠ q else p ∧ᵗ q
+p ∧ q = if total then p ∧ᵗ q else p ∧ᶠ q
 
 -- An "introduction rule" for predicates over _∧_
 
-∧-intro : (P : Op₂ ℕ⊎∞ → Set) (Pₐ : P _∧ᶠ_) (Pₑ : P _∧ᵗ_) → P _∧_
+∧-intro : (P : Op₂ ℕ⊎∞ → Set) (Pₐ : P _∧ᵗ_) (Pₑ : P _∧ᶠ_) → P _∧_
 ∧-intro P Pₐ Pₑ = lemma total
   where
-  lemma : ∀ b → P (λ p q → if b then p ∧ᶠ q else p ∧ᵗ q)
+  lemma : ∀ b → P (λ p q → if b then p ∧ᵗ q else p ∧ᶠ q)
   lemma false = Pₑ
   lemma true = Pₐ
 
@@ -146,14 +146,14 @@ m ≤ n = m ≡ m ∧ n
 infix 10 _≤ᵗ_
 
 _≤ᵗ_ : ℕ⊎∞ → ℕ⊎∞ → Set
-m ≤ᵗ n = m ≡ m ∧ᶠ n
+m ≤ᵗ n = m ≡ m ∧ᵗ n
 
 -- The inferred ordering relation for the "flat" order
 
 infix 10 _≤ᶠ_
 
 _≤ᶠ_ : ℕ⊎∞ → ℕ⊎∞ → Set
-m ≤ᶠ n = m ≡ m ∧ᵗ n
+m ≤ᶠ n = m ≡ m ∧ᶠ n
 
 opaque
 
@@ -162,7 +162,7 @@ opaque
   ≤-intro : m ≤ᵗ n → m ≤ᶠ n → m ≤ n
   ≤-intro {m} {n} ≤ᵗ ≤ᶠ = lemma total
     where
-    lemma : ∀ b → m ≡ (if b then m ∧ᶠ n else (m ∧ᵗ n))
+    lemma : ∀ b → m ≡ (if b then m ∧ᵗ n else (m ∧ᶠ n))
     lemma false = ≤ᶠ
     lemma true = ≤ᵗ
 
@@ -173,7 +173,7 @@ opaque
   ≤ᵗ-intro : T total → m ≤ᵗ n → m ≤ n
   ≤ᵗ-intro {m} {n} x ≤ᵗ = lemma total x
     where
-    lemma : ∀ b → T b → m ≡ (if b then m ∧ᶠ n else (m ∧ᵗ n))
+    lemma : ∀ b → T b → m ≡ (if b then m ∧ᵗ n else (m ∧ᶠ n))
     lemma true  _  = ≤ᵗ
     lemma false ()
 
@@ -295,7 +295,7 @@ opaque
   ⌞⌟-antitone⁻¹ : ∀ {m n} → ⌞ n ⌟ ≤ ⌞ m ⌟ → m N.≤ n
   ⌞⌟-antitone⁻¹ {m = m} {n = n} = lemma total
     where
-    lemma : ∀ b → ⌞ n ⌟ ≡ (if b then ⌞ n ⌟ ∧ᶠ ⌞ m ⌟ else ⌞ n ⌟ ∧ᵗ ⌞ m ⌟)
+    lemma : ∀ b → ⌞ n ⌟ ≡ (if b then ⌞ n ⌟ ∧ᵗ ⌞ m ⌟ else ⌞ n ⌟ ∧ᶠ ⌞ m ⌟)
           → m N.≤ n
     lemma false n≤m with n N.≟ m
     … | yes refl = N.≤-refl
@@ -443,8 +443,8 @@ opaque
 
 opaque
 
-  m≢n→m∧ᵗn≡∞ : ∀ {m n} → m ≢ n → ⌞ m ⌟ ∧ᵗ ⌞ n ⌟ ≡ ∞
-  m≢n→m∧ᵗn≡∞ {m} {n} m≢n with m N.≟ n
+  m≢n→m∧ᶠn≡∞ : ∀ {m n} → m ≢ n → ⌞ m ⌟ ∧ᶠ ⌞ n ⌟ ≡ ∞
+  m≢n→m∧ᶠn≡∞ {m} {n} m≢n with m N.≟ n
   … | yes m≡n = ⊥-elim (m≢n m≡n)
   … | no _ = refl
 
@@ -543,11 +543,11 @@ opaque
           { isEquivalence = PE.isEquivalence
           ; ∙-cong        = cong₂ _∧_
           }
-        ; assoc = ∧-intro Associative ∧ᶠ-assoc ∧ᵗ-assoc
+        ; assoc = ∧-intro Associative ∧ᵗ-assoc ∧ᶠ-assoc
         }
-      ; idem = ∧-intro Idempotent ∧ᶠ-idem ∧ᵗ-idem
+      ; idem = ∧-intro Idempotent ∧ᵗ-idem ∧ᶠ-idem
       }
-    ; comm = ∧-intro Commutative ∧ᶠ-comm ∧ᵗ-comm
+    ; comm = ∧-intro Commutative ∧ᵗ-comm ∧ᶠ-comm
     }
   ; ·-distrib-∧ = ·-distrib-∧
   ; +-distrib-∧ = +-distrib-∧
@@ -625,39 +625,39 @@ opaque
   ·-distrib-+ =
     ·-distribˡ-+ , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-+
 
-  ∧ᶠ-comm : Commutative _∧ᶠ_
-  ∧ᶠ-comm ⌞ m ⌟ ⌞ n ⌟ = cong ⌞_⌟ (N.⊔-comm m n)
-  ∧ᶠ-comm ⌞ m ⌟ ∞ = refl
-  ∧ᶠ-comm ∞ ⌞ n ⌟ = refl
-  ∧ᶠ-comm ∞ ∞ = refl
-
   ∧ᵗ-comm : Commutative _∧ᵗ_
-  ∧ᵗ-comm ⌞ m ⌟ ⌞ n ⌟ with m N.≟ n | n N.≟ m
-  … | yes refl | yes _ = refl
-  … | no m≢n | no n≢m = refl
-  … | yes m≡n | no n≢m = ⊥-elim (n≢m (sym m≡n))
-  … | no m≢n | yes n≡m = ⊥-elim (m≢n (sym n≡m))
+  ∧ᵗ-comm ⌞ m ⌟ ⌞ n ⌟ = cong ⌞_⌟ (N.⊔-comm m n)
   ∧ᵗ-comm ⌞ m ⌟ ∞ = refl
   ∧ᵗ-comm ∞ ⌞ n ⌟ = refl
   ∧ᵗ-comm ∞ ∞ = refl
 
-  ∧ᶠ-assoc : Associative _∧ᶠ_
-  ∧ᶠ-assoc = λ where
+  ∧ᶠ-comm : Commutative _∧ᶠ_
+  ∧ᶠ-comm ⌞ m ⌟ ⌞ n ⌟ with m N.≟ n | n N.≟ m
+  … | yes refl | yes _ = refl
+  … | no m≢n | no n≢m = refl
+  … | yes m≡n | no n≢m = ⊥-elim (n≢m (sym m≡n))
+  … | no m≢n | yes n≡m = ⊥-elim (m≢n (sym n≡m))
+  ∧ᶠ-comm ⌞ m ⌟ ∞ = refl
+  ∧ᶠ-comm ∞ ⌞ n ⌟ = refl
+  ∧ᶠ-comm ∞ ∞ = refl
+
+  ∧ᵗ-assoc : Associative _∧ᵗ_
+  ∧ᵗ-assoc = λ where
     ⌞ m ⌟ ⌞ _ ⌟ ⌞ _ ⌟ → cong ⌞_⌟ (N.⊔-assoc m _ _)
     ⌞ _ ⌟ ⌞ _ ⌟ ∞     → refl
     ⌞ _ ⌟ ∞     _     → refl
     ∞     _     _     → refl
 
-  ∧ᵗ-assoc : Associative _∧ᵗ_
-  ∧ᵗ-assoc = λ where
+  ∧ᶠ-assoc : Associative _∧ᶠ_
+  ∧ᶠ-assoc = λ where
     ⌞ m ⌟ ⌞ n ⌟ ⌞ o ⌟ → lemma m n o
-    ⌞ m ⌟ ⌞ n ⌟ ∞ → ∧ᵗ-comm (⌞ m ⌟ ∧ᵗ ⌞ n ⌟) ∞
+    ⌞ m ⌟ ⌞ n ⌟ ∞ → ∧ᶠ-comm (⌞ m ⌟ ∧ᶠ ⌞ n ⌟) ∞
     ⌞ _ ⌟ ∞ _ → refl
     ∞ _ _ → refl
       where
       lemma : ∀ m n o
-            → (⌞ m ⌟ ∧ᵗ ⌞ n ⌟) ∧ᵗ ⌞ o ⌟
-            ≡ ⌞ m ⌟ ∧ᵗ (⌞ n ⌟ ∧ᵗ ⌞ o ⌟)
+            → (⌞ m ⌟ ∧ᶠ ⌞ n ⌟) ∧ᶠ ⌞ o ⌟
+            ≡ ⌞ m ⌟ ∧ᶠ (⌞ n ⌟ ∧ᶠ ⌞ o ⌟)
       lemma m n o with n N.≟ o
       lemma m n o | yes n≡o with m N.≟ n
       lemma m n o | yes n≡o | no m≢n = refl
@@ -670,83 +670,83 @@ opaque
       lemma m n o | no n≢o | yes m≡n | yes m≡o = ⊥-elim (n≢o (trans (sym m≡n) m≡o))
       lemma m n o | no n≢o | yes m≡n | no m≢o = refl
 
-  ∧ᶠ-idem : Idempotent _∧ᶠ_
-  ∧ᶠ-idem = λ where
+  ∧ᵗ-idem : Idempotent _∧ᵗ_
+  ∧ᵗ-idem = λ where
     ∞     → refl
     ⌞ _ ⌟ → cong ⌞_⌟ (N.⊔-idem _)
 
-  ∧ᵗ-idem : Idempotent _∧ᵗ_
-  ∧ᵗ-idem ⌞ m ⌟ with m N.≟ m
+  ∧ᶠ-idem : Idempotent _∧ᶠ_
+  ∧ᶠ-idem ⌞ m ⌟ with m N.≟ m
   … | yes _ = refl
   … | no m≢m = ⊥-elim (m≢m refl)
-  ∧ᵗ-idem ∞ = refl
-
-  ·-distribˡ-∧ᶠ : _·_ DistributesOverˡ _∧ᶠ_
-  ·-distribˡ-∧ᶠ ⌞ 0 ⌟ _ _ = refl
-  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ⌞ 1+ _ ⌟ = refl
-  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ∞ = refl
-  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ᶠ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 1+ _ ⌟ = cong ⌞_⌟ $
-                                             N.*-distribˡ-⊔ (1+ m) (1+ n) (1+ _)
-  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ ∞ = refl
-  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ∞ _ = refl
-  ·-distribˡ-∧ᶠ ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ᶠ ∞ ⌞ 0 ⌟ ⌞ 1+ _ ⌟ = refl
-  ·-distribˡ-∧ᶠ ∞ ⌞ 0 ⌟ ∞ = refl
-  ·-distribˡ-∧ᶠ ∞ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ᶠ ∞ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ = refl
-  ·-distribˡ-∧ᶠ ∞ ⌞ 1+ _ ⌟ ∞ = refl
-  ·-distribˡ-∧ᶠ ∞ ∞ _ = refl
+  ∧ᶠ-idem ∞ = refl
 
   ·-distribˡ-∧ᵗ : _·_ DistributesOverˡ _∧ᵗ_
   ·-distribˡ-∧ᵗ ⌞ 0 ⌟ _ _ = refl
-  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 0 ⌟ ⌞ 1+ o ⌟ = refl
-  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 0 ⌟ = refl
-  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 1+ o ⌟
+  ·-distribˡ-∧ᵗ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ⌞ 1+ _ ⌟ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ ∞ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 1+ _ ⌟ = cong ⌞_⌟ $
+                                             N.*-distribˡ-⊔ (1+ m) (1+ n) (1+ _)
+  ·-distribˡ-∧ᵗ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ ∞ = refl
+  ·-distribˡ-∧ᵗ ⌞ 1+ _ ⌟ ∞ _ = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ 0 ⌟ ⌞ 1+ _ ⌟ = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ 0 ⌟ ∞ = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ 1+ _ ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ 1+ _ ⌟ ⌞ 1+ _ ⌟ = refl
+  ·-distribˡ-∧ᵗ ∞ ⌞ 1+ _ ⌟ ∞ = refl
+  ·-distribˡ-∧ᵗ ∞ ∞ _ = refl
+
+  ·-distribˡ-∧ᶠ : _·_ DistributesOverˡ _∧ᶠ_
+  ·-distribˡ-∧ᶠ ⌞ 0 ⌟ _ _ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ m ⌟ ⌞ 0 ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ m ⌟ ⌞ 0 ⌟ ⌞ 1+ o ⌟ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 0 ⌟ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ m ⌟ ⌞ 1+ n ⌟ ⌞ 1+ o ⌟
     with 1+ n N.≟ 1+ o | 1+ m N.* 1+ n N.≟ 1+ m N.* 1+ o
   … | yes refl | yes _ = refl
   … | yes refl | no ¬≡ = ⊥-elim (¬≡ refl)
   … | no n≢o | yes eq = ⊥-elim (n≢o (N.*-cancelˡ-≡ (1+ n) (1+ o) (1+ m) eq))
   … | no _ | no _ = refl
-  ·-distribˡ-∧ᵗ ⌞ 1+ m ⌟ ⌞ n ⌟ ∞ = sym (∧ᵗ-comm (⌞ 1+ m ⌟ · ⌞ n ⌟) ∞)
-  ·-distribˡ-∧ᵗ ⌞ 1+ _ ⌟ ∞ _ = refl
-  ·-distribˡ-∧ᵗ ∞ ⌞ n ⌟ ⌞ o ⌟ with n N.≟ o
-  … | yes refl = sym (∧ᵗ-idem (∞ · ⌞ n ⌟))
-  ·-distribˡ-∧ᵗ ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ | no n≢o = ⊥-elim (n≢o refl)
-  ·-distribˡ-∧ᵗ ∞ ⌞ 0 ⌟ ⌞ 1+ o ⌟ | no n≢o = refl
-  ·-distribˡ-∧ᵗ ∞ ⌞ 1+ n ⌟ ⌞ o ⌟ | no n≢o = refl
-  ·-distribˡ-∧ᵗ ∞ ⌞ n ⌟ ∞ = sym (∧ᵗ-comm (∞ · ⌞ n ⌟) ∞)
-  ·-distribˡ-∧ᵗ ∞ ∞ _ = refl
+  ·-distribˡ-∧ᶠ ⌞ 1+ m ⌟ ⌞ n ⌟ ∞ = sym (∧ᶠ-comm (⌞ 1+ m ⌟ · ⌞ n ⌟) ∞)
+  ·-distribˡ-∧ᶠ ⌞ 1+ _ ⌟ ∞ _ = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ n ⌟ ⌞ o ⌟ with n N.≟ o
+  … | yes refl = sym (∧ᶠ-idem (∞ · ⌞ n ⌟))
+  ·-distribˡ-∧ᶠ ∞ ⌞ 0 ⌟ ⌞ 0 ⌟ | no n≢o = ⊥-elim (n≢o refl)
+  ·-distribˡ-∧ᶠ ∞ ⌞ 0 ⌟ ⌞ 1+ o ⌟ | no n≢o = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ 1+ n ⌟ ⌞ o ⌟ | no n≢o = refl
+  ·-distribˡ-∧ᶠ ∞ ⌞ n ⌟ ∞ = sym (∧ᶠ-comm (∞ · ⌞ n ⌟) ∞)
+  ·-distribˡ-∧ᶠ ∞ ∞ _ = refl
 
   ·-distribˡ-∧ : _·_ DistributesOverˡ _∧_
   ·-distribˡ-∧ =
-    ∧-intro (_·_ DistributesOverˡ_) ·-distribˡ-∧ᶠ ·-distribˡ-∧ᵗ
+    ∧-intro (_·_ DistributesOverˡ_) ·-distribˡ-∧ᵗ ·-distribˡ-∧ᶠ
 
   ·-distrib-∧ : _·_ DistributesOver _∧_
   ·-distrib-∧ =
     ·-distribˡ-∧ , comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-∧
 
-  +-distribˡ-∧ᶠ : _+_ DistributesOverˡ _∧ᶠ_
-  +-distribˡ-∧ᶠ ⌞ m ⌟ ⌞ _ ⌟ ⌞ _ ⌟ = cong ⌞_⌟ (N.+-distribˡ-⊔ m _ _)
-  +-distribˡ-∧ᶠ ⌞ _ ⌟ ⌞ _ ⌟ ∞     = refl
-  +-distribˡ-∧ᶠ ⌞ _ ⌟ ∞     _     = refl
-  +-distribˡ-∧ᶠ ∞     _     _     = refl
-
   +-distribˡ-∧ᵗ : _+_ DistributesOverˡ _∧ᵗ_
-  +-distribˡ-∧ᵗ ⌞ m ⌟ ⌞ n ⌟ ⌞ o ⌟ with n N.≟ o | m N.+ n N.≟ m N.+ o
-  … | yes n≡o | yes m+n≡m+o = refl
-  … | yes refl | no m+n≢m+o = ⊥-elim (m+n≢m+o refl)
-  … | no n≢o | yes m+n≡m+o = ⊥-elim (n≢o (N.+-cancelˡ-≡ m n o m+n≡m+o))
-  … | no n≢o | no m+n≢m+o = refl
+  +-distribˡ-∧ᵗ ⌞ m ⌟ ⌞ _ ⌟ ⌞ _ ⌟ = cong ⌞_⌟ (N.+-distribˡ-⊔ m _ _)
   +-distribˡ-∧ᵗ ⌞ _ ⌟ ⌞ _ ⌟ ∞     = refl
   +-distribˡ-∧ᵗ ⌞ _ ⌟ ∞     _     = refl
   +-distribˡ-∧ᵗ ∞     _     _     = refl
 
+  +-distribˡ-∧ᶠ : _+_ DistributesOverˡ _∧ᶠ_
+  +-distribˡ-∧ᶠ ⌞ m ⌟ ⌞ n ⌟ ⌞ o ⌟ with n N.≟ o | m N.+ n N.≟ m N.+ o
+  … | yes n≡o | yes m+n≡m+o = refl
+  … | yes refl | no m+n≢m+o = ⊥-elim (m+n≢m+o refl)
+  … | no n≢o | yes m+n≡m+o = ⊥-elim (n≢o (N.+-cancelˡ-≡ m n o m+n≡m+o))
+  … | no n≢o | no m+n≢m+o = refl
+  +-distribˡ-∧ᶠ ⌞ _ ⌟ ⌞ _ ⌟ ∞     = refl
+  +-distribˡ-∧ᶠ ⌞ _ ⌟ ∞     _     = refl
+  +-distribˡ-∧ᶠ ∞     _     _     = refl
+
   +-distribˡ-∧ : _+_ DistributesOverˡ _∧_
   +-distribˡ-∧ =
-    ∧-intro (_+_ DistributesOverˡ_) +-distribˡ-∧ᶠ +-distribˡ-∧ᵗ
+    ∧-intro (_+_ DistributesOverˡ_) +-distribˡ-∧ᵗ +-distribˡ-∧ᶠ
 
   +-distrib-∧ : _+_ DistributesOver _∧_
   +-distrib-∧ =
@@ -789,7 +789,7 @@ instance
         {p = ∞}                       ())
     }
    where
-   lemma : ∀ m n → ⌞ 1+ m ⌟ ∧ᵗ ⌞ 1+ n ⌟ ≢ ⌞ 0 ⌟
+   lemma : ∀ m n → ⌞ 1+ m ⌟ ∧ᶠ ⌞ 1+ n ⌟ ≢ ⌞ 0 ⌟
    lemma m n 1+m∧1+n≡0 with 1+ m N.≟ 1+ n
    lemma m .m () | yes refl
    lemma m n () | no _
