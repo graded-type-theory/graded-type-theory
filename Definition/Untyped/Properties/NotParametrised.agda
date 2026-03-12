@@ -302,7 +302,7 @@ opaque
 
 opaque
 
-  -- 0 is a left identity for _⊔ᵘ_.
+  -- 0ᵘ is a left identity for _⊔ᵘ_.
 
   ⊔ᵘ-identityˡ : 0ᵘ ⊔ᵘ l ≡ l
   ⊔ᵘ-identityˡ {0ᵘ+ l} = refl
