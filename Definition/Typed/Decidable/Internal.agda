@@ -604,7 +604,7 @@ mutual
   -- A mutually recursive definition of reduction, type-checking and
   -- equality checking.
   --
-  -- Inputs that are not checked (or for which a type is infered) are
+  -- Inputs that are not checked (or for which a type is inferred) are
   -- assumed to be well-formed, unless otherwise noted.
   --
   -- Why is reduction defined mutually with type-checking? If equality
