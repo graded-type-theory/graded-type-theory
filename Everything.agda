@@ -138,6 +138,7 @@ import Definition.Typed.Reasoning.Term.Primitive
 import Definition.Typed.Properties.Admissible.Var
 import Definition.Typed.Properties.Well-formed
 import Definition.Typed.Properties.Admissible.Level.Primitive
+import Definition.Typed.Reasoning.Level
 import Definition.Typed.Properties.Admissible.U.Primitive
 import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Definition.Primitive

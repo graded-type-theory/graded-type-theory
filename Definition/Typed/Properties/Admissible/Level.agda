@@ -20,7 +20,7 @@ import Definition.Typed.Substitution.Primitive.Primitive R as S
 open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Level.Primitive R as LP
 open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Term R
+open import Definition.Typed.Reasoning.Level R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
@@ -205,8 +205,10 @@ opaque
   supᵘₗ-zeroʳ :
     Γ ⊢ l ∷Level →
     Γ ⊢ l supᵘₗ zeroᵘ ≡ l ∷Level
-  supᵘₗ-zeroʳ ⊢l =
-    trans-⊢≡∷L (supᵘₗ-comm ⊢l (⊢zeroᵘ (wfLevel ⊢l))) (supᵘₗ-zeroˡ ⊢l)
+  supᵘₗ-zeroʳ {l} ⊢l =
+    l supᵘₗ zeroᵘ  ≡⟨ supᵘₗ-comm ⊢l (⊢zeroᵘ (wfLevel ⊢l)) ⟩⊢
+    zeroᵘ supᵘₗ l  ≡⟨ supᵘₗ-zeroˡ ⊢l ⟩⊢∎
+    l              ∎
 
 opaque
   unfolding size-of-Level
@@ -310,9 +312,10 @@ opaque
     supᵘₗ-zeroˡ (⊢↓ᵘ ⊢Γ)
   supᵘₗ-↓ᵘ {n₁ = N.1+ _} {n₂ = 0} ⊢Γ =
     supᵘₗ-zeroʳ (⊢↓ᵘ ⊢Γ)
-  supᵘₗ-↓ᵘ {n₁ = N.1+ _} {n₂ = N.1+ _} ⊢Γ =
-    trans-⊢≡∷L (supᵘₗ-sucᵘ (⊢↓ᵘ ⊢Γ) (⊢↓ᵘ ⊢Γ))
-      (sucᵘ-cong-⊢≡∷L (supᵘₗ-↓ᵘ ⊢Γ))
+  supᵘₗ-↓ᵘ {n₁ = N.1+ n₁} {n₂ = N.1+ n₂} ⊢Γ =
+    (↓ᵘ N.1+ n₁) supᵘₗ (↓ᵘ N.1+ n₂)  ≡⟨ supᵘₗ-sucᵘ (⊢↓ᵘ ⊢Γ) (⊢↓ᵘ ⊢Γ) ⟩⊢
+    sucᵘ ((↓ᵘ n₁) supᵘₗ (↓ᵘ n₂))     ≡⟨ sucᵘ-cong-⊢≡∷L (supᵘₗ-↓ᵘ ⊢Γ) ⟩⊢∎
+    ↓ᵘ (N.1+ n₁ N.⊔ N.1+ n₂)         ∎
 
 opaque
   unfolding inline _supᵘₗ_
@@ -363,10 +366,11 @@ opaque
   reflexive-⊢≤ₗ∷L :
     Γ ⊢ l₁ ≡ l₂ ∷Level →
     Γ ⊢ l₁ ≤ₗ l₂ ∷Level
-  reflexive-⊢≤ₗ∷L l₁≡l₂ =
+  reflexive-⊢≤ₗ∷L {l₁} {l₂} l₁≡l₂ =
     let _ , ⊢l₂ = wf-⊢≡∷L l₁≡l₂ in
-    trans-⊢≡∷L (supᵘₗ-cong l₁≡l₂ (refl-⊢≡∷L ⊢l₂)) $
-    supᵘₗ-idem ⊢l₂
+    l₁ supᵘₗ l₂  ≡⟨ supᵘₗ-cong l₁≡l₂ (refl-⊢≡∷L ⊢l₂) ⟩⊢
+    l₂ supᵘₗ l₂  ≡⟨ supᵘₗ-idem ⊢l₂ ⟩⊢∎
+    l₂           ∎
 
 opaque
 
@@ -376,13 +380,15 @@ opaque
     Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
     Γ ⊢ l₂ ≤ₗ l₃ ∷Level →
     Γ ⊢ l₁ ≤ₗ l₃ ∷Level
-  trans-⊢≤ₗ∷L l₁≤l₂ l₂≤l₃ =
+  trans-⊢≤ₗ∷L {l₁} {l₂} {l₃} l₁≤l₂ l₂≤l₃ =
     let ⊢l₁ , ⊢l₂ = wf-⊢≤ₗ∷L l₁≤l₂
         _   , ⊢l₃ = wf-⊢≤ₗ∷L l₂≤l₃
     in
-    trans-⊢≡∷L (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (sym-⊢≡∷L l₂≤l₃)) $
-    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l₁ ⊢l₂ ⊢l₃)) $
-    trans-⊢≡∷L (supᵘₗ-cong l₁≤l₂ (refl-⊢≡∷L ⊢l₃)) l₂≤l₃
+    l₁ supᵘₗ l₃             ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (sym-⊢≡∷L l₂≤l₃) ⟩⊢
+    l₁ supᵘₗ l₂ supᵘₗ l₃    ≡˘⟨ supᵘₗ-assoc ⊢l₁ ⊢l₂ ⊢l₃ ⟩⊢
+    (l₁ supᵘₗ l₂) supᵘₗ l₃  ≡⟨ supᵘₗ-cong l₁≤l₂ (refl-⊢≡∷L ⊢l₃) ⟩⊢
+    l₂ supᵘₗ l₃             ≡⟨ l₂≤l₃ ⟩⊢∎
+    l₃                      ∎
 
 opaque
 
@@ -392,10 +398,12 @@ opaque
     Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
     Γ ⊢ l₂ ≤ₗ l₁ ∷Level →
     Γ ⊢ l₁ ≡ l₂ ∷Level
-  antisym-⊢≤ₗ∷L l₁≤l₂ l₂≤l₁ =
+  antisym-⊢≤ₗ∷L {l₁} {l₂} l₁≤l₂ l₂≤l₁ =
     let ⊢l₁ , ⊢l₂ = wf-⊢≤ₗ∷L l₁≤l₂ in
-    trans-⊢≡∷L (sym-⊢≡∷L l₂≤l₁) $
-    trans-⊢≡∷L (supᵘₗ-comm ⊢l₂ ⊢l₁) l₁≤l₂
+    l₁           ≡˘⟨ l₂≤l₁ ⟩⊢
+    l₂ supᵘₗ l₁  ≡⟨ supᵘₗ-comm ⊢l₂ ⊢l₁ ⟩⊢
+    l₁ supᵘₗ l₂  ≡⟨ l₁≤l₂ ⟩⊢∎
+    l₂           ∎
 
 opaque
 
@@ -404,10 +412,11 @@ opaque
   sucᵘ-mono :
     Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
     Γ ⊢ sucᵘ l₁ ≤ₗ sucᵘ l₂ ∷Level
-  sucᵘ-mono l₁≤l₂ =
+  sucᵘ-mono {l₁} {l₂} l₁≤l₂ =
     let ⊢l₁ , ⊢l₂ = wf-⊢≤ₗ∷L l₁≤l₂ in
-    trans-⊢≡∷L (supᵘₗ-sucᵘ ⊢l₁ ⊢l₂)
-      (sucᵘ-cong-⊢≡∷L l₁≤l₂)
+    sucᵘ l₁ supᵘₗ sucᵘ l₂  ≡⟨ supᵘₗ-sucᵘ ⊢l₁ ⊢l₂ ⟩⊢
+    sucᵘ (l₁ supᵘₗ l₂)     ≡⟨ sucᵘ-cong-⊢≡∷L l₁≤l₂ ⟩⊢∎
+    sucᵘ l₂                ∎
 
 opaque
 
@@ -417,18 +426,20 @@ opaque
     Γ ⊢ l₁₁ ≤ₗ l₂₁ ∷Level →
     Γ ⊢ l₁₂ ≤ₗ l₂₂ ∷Level →
     Γ ⊢ l₁₁ supᵘₗ l₁₂ ≤ₗ l₂₁ supᵘₗ l₂₂ ∷Level
-  supᵘₗ-mono l₁₁≤l₂₁ l₁₂≤l₂₂ =
+  supᵘₗ-mono {l₁₁} {l₂₁} {l₁₂} {l₂₂} l₁₁≤l₂₁ l₁₂≤l₂₂ =
     let ⊢l₁₁ , ⊢l₂₁ = wf-⊢≤ₗ∷L l₁₁≤l₂₁
         ⊢l₁₂ , ⊢l₂₂ = wf-⊢≤ₗ∷L l₁₂≤l₂₂
     in
-    trans-⊢≡∷L (supᵘₗ-assoc ⊢l₁₁ ⊢l₁₂ (⊢supᵘₗ ⊢l₂₁ ⊢l₂₂)) $
-    trans-⊢≡∷L
-      (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁₁) $
-       trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l₁₂ ⊢l₂₁ ⊢l₂₂)) $
-       trans-⊢≡∷L (supᵘₗ-cong (supᵘₗ-comm ⊢l₁₂ ⊢l₂₁) (refl-⊢≡∷L ⊢l₂₂)) $
-       supᵘₗ-assoc ⊢l₂₁ ⊢l₁₂ ⊢l₂₂) $
-    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l₁₁ ⊢l₂₁ (⊢supᵘₗ ⊢l₁₂ ⊢l₂₂))) $
-    supᵘₗ-cong l₁₁≤l₂₁ l₁₂≤l₂₂
+    (l₁₁ supᵘₗ l₁₂) supᵘₗ (l₂₁ supᵘₗ l₂₂)  ≡⟨ supᵘₗ-assoc ⊢l₁₁ ⊢l₁₂ (⊢supᵘₗ ⊢l₂₁ ⊢l₂₂) ⟩⊢
+    l₁₁ supᵘₗ (l₁₂ supᵘₗ (l₂₁ supᵘₗ l₂₂))  ≡˘⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁₁) $
+                                               supᵘₗ-assoc ⊢l₁₂ ⊢l₂₁ ⊢l₂₂ ⟩⊢
+    l₁₁ supᵘₗ ((l₁₂ supᵘₗ l₂₁) supᵘₗ l₂₂)  ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁₁) $
+                                              supᵘₗ-cong (supᵘₗ-comm ⊢l₁₂ ⊢l₂₁) (refl-⊢≡∷L ⊢l₂₂) ⟩⊢
+    l₁₁ supᵘₗ ((l₂₁ supᵘₗ l₁₂) supᵘₗ l₂₂)  ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁₁) $
+                                              supᵘₗ-assoc ⊢l₂₁ ⊢l₁₂ ⊢l₂₂ ⟩⊢
+    l₁₁ supᵘₗ (l₂₁ supᵘₗ (l₁₂ supᵘₗ l₂₂))  ≡˘⟨ supᵘₗ-assoc ⊢l₁₁ ⊢l₂₁ (⊢supᵘₗ ⊢l₁₂ ⊢l₂₂) ⟩⊢
+    (l₁₁ supᵘₗ l₂₁) supᵘₗ (l₁₂ supᵘₗ l₂₂)  ≡⟨ supᵘₗ-cong l₁₁≤l₂₁ l₁₂≤l₂₂ ⟩⊢∎
+    l₂₁ supᵘₗ l₂₂                          ∎
 
 opaque
   unfolding size-of-Level
@@ -456,16 +467,17 @@ opaque
   step-⊢≤ₗ∷L :
     Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
     Γ ⊢ l₁ ≤ₗ sucᵘ l₂ ∷Level
-  step-⊢≤ₗ∷L l₁≤l₂ =
+  step-⊢≤ₗ∷L {l₁} {l₂} l₁≤l₂ =
     let ⊢l₁ , ⊢l₂ = wf-⊢≤ₗ∷L l₁≤l₂ in
-    trans-⊢≡∷L
-      (supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) $
-       trans-⊢≡∷L (sucᵘ-cong-⊢≡∷L (sym-⊢≡∷L l₁≤l₂)) $
-       sym-⊢≡∷L (supᵘₗ-sucᵘ ⊢l₁ ⊢l₂)) $
-    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l₁ (⊢sucᵘ ⊢l₁) (⊢sucᵘ ⊢l₂))) $
-    trans-⊢≡∷L (supᵘₗ-cong (supᵘₗ-sub ⊢l₁) (refl-⊢≡∷L (⊢sucᵘ ⊢l₂))) $
-    trans-⊢≡∷L (supᵘₗ-sucᵘ ⊢l₁ ⊢l₂) $
-    sucᵘ-cong-⊢≡∷L l₁≤l₂
+    l₁ supᵘₗ sucᵘ l₂                  ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) $
+                                         sucᵘ-cong-⊢≡∷L (sym-⊢≡∷L l₁≤l₂) ⟩⊢
+    l₁ supᵘₗ sucᵘ (l₁ supᵘₗ l₂)       ≡˘⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) $
+                                          supᵘₗ-sucᵘ ⊢l₁ ⊢l₂ ⟩⊢
+    l₁ supᵘₗ (sucᵘ l₁ supᵘₗ sucᵘ l₂)  ≡˘⟨ supᵘₗ-assoc ⊢l₁ (⊢sucᵘ ⊢l₁) (⊢sucᵘ ⊢l₂) ⟩⊢
+    (l₁ supᵘₗ sucᵘ l₁) supᵘₗ sucᵘ l₂  ≡⟨ supᵘₗ-cong (supᵘₗ-sub ⊢l₁) (refl-⊢≡∷L (⊢sucᵘ ⊢l₂)) ⟩⊢
+    sucᵘ l₁ supᵘₗ sucᵘ l₂             ≡⟨ supᵘₗ-sucᵘ ⊢l₁ ⊢l₂ ⟩⊢
+    sucᵘ (l₁ supᵘₗ l₂)                ≡⟨ sucᵘ-cong-⊢≡∷L l₁≤l₂ ⟩⊢∎
+    sucᵘ l₂                           ∎
 
 opaque
 

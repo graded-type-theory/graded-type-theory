@@ -25,12 +25,14 @@ open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
   hiding ([]ⱼ; []-cong′; inversion-[])
+open import Definition.Typed.Reasoning.Level R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M hiding (_[_])
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Sup R
 open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄
 
 open import Tools.Empty
@@ -211,17 +213,17 @@ opaque
       Γ ⊢ A ∷ U l′ × (Γ ⊢ B ≡ U l′) × Γ »∙ A ⊢ wk1 l ∷Level ×
       (⦃ not-ok : No-equality-reflection ⦄ →
        Γ »∙ A ⊢ wk1 l′ ≡ wk1 l ∷Level)
-  inversion-Unrestricted-∷ ⊢Unrestricted =
+  inversion-Unrestricted-∷ {l} ⊢Unrestricted =
     let l′ , ⊢l′ , ⊢A , ⊢Lift , B≡ , _ = inversion-ΠΣ-U ⊢Unrestricted
         l″ , ⊢wk1-l , ⊢Unit , U≡U₁     = inversion-Lift∷ ⊢Lift
         U≡U₂ , _                       = inversion-Unit-U ⊢Unit
     in
     _ , ⊢A , B≡ , ⊢wk1-l ,
-    trans-⊢≡∷L (U-injectivity ⦃ ok = included ⦄ U≡U₁)
-      (trans-⊢≡∷L
-         (supᵘₗ-cong (U-injectivity ⦃ ok = included ⦄ U≡U₂)
-            (refl-⊢≡∷L ⊢wk1-l)) $
-       supᵘₗ-zeroˡ ⊢wk1-l)
+    (wk1 l′             ≡⟨ U-injectivity ⦃ ok = included ⦄ U≡U₁ ⟩⊢
+     l″ supᵘₗ wk1 l     ≡⟨ supᵘₗ-cong (U-injectivity ⦃ ok = included ⦄ U≡U₂)
+                             (refl-⊢≡∷L ⊢wk1-l) ⟩⊢
+     zeroᵘ supᵘₗ wk1 l  ≡⟨ supᵘₗ-zeroˡ ⊢wk1-l ⟩⊢∎
+     wk1 l              ∎)
 
 opaque
   unfolding Unrestricted

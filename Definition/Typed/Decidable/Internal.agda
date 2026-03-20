@@ -53,6 +53,7 @@ open import Definition.Typed.Properties.Admissible.Var TR
 open import Definition.Typed.Properties.Reduction TR
 open import Definition.Typed.Properties.Transparentisation TR
 open import Definition.Typed.Properties.Well-formed TR
+import Definition.Typed.Reasoning.Level TR as LvlR
 import Definition.Typed.Reasoning.Term TR as TmR
 import Definition.Typed.Reasoning.Type TR as TyR
 open import Definition.Typed.Stability TR
@@ -192,14 +193,17 @@ opaque
       ∷Level
   ⌜⊔⌝ˡⁿ List.[] ⊢nf =
     sym-⊢≡∷L (supᵘₗ-↓ᵘ (wfLevel ⊢nf))
-  ⌜⊔⌝ˡⁿ (_ List.∷ nf) ⊢nf =
+  ⌜⊔⌝ˡⁿ {n₂} {γ} {n₁} ((n , l) List.∷ nf) ⊢nf =
     let ⊢n+l , ⊢nf = inversion-supᵘₗ ⊢nf
         ⊢↓         = ⊢↓ᵘ (wfLevel ⊢n+l)
     in
-    trans-⊢≡∷L (supᵘₗ-cong (refl-⊢≡∷L ⊢n+l) (⌜⊔⌝ˡⁿ nf ⊢nf)) $
-    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢n+l ⊢↓ ⊢nf)) $
-    trans-⊢≡∷L (supᵘₗ-cong (supᵘₗ-comm ⊢n+l ⊢↓) (refl-⊢≡∷L ⊢nf)) $
-    supᵘₗ-assoc ⊢↓ ⊢n+l ⊢nf
+    U.sucᵘᵏ n (⌜ l ⌝ γ) S.supᵘₗ ⌜ nf , n₁ N.⊔ n₂ ⌝ˡⁿ γ               ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢n+l) (⌜⊔⌝ˡⁿ nf ⊢nf) ⟩⊢
+    U.sucᵘᵏ n (⌜ l ⌝ γ) S.supᵘₗ ((U.↓ᵘ n₁) S.supᵘₗ ⌜ nf , n₂ ⌝ˡⁿ γ)  ≡˘⟨ supᵘₗ-assoc ⊢n+l ⊢↓ ⊢nf ⟩⊢
+    (U.sucᵘᵏ n (⌜ l ⌝ γ) S.supᵘₗ (U.↓ᵘ n₁)) S.supᵘₗ ⌜ nf , n₂ ⌝ˡⁿ γ  ≡⟨ supᵘₗ-cong (supᵘₗ-comm ⊢n+l ⊢↓) (refl-⊢≡∷L ⊢nf) ⟩⊢
+    ((U.↓ᵘ n₁) S.supᵘₗ U.sucᵘᵏ n (⌜ l ⌝ γ)) S.supᵘₗ ⌜ nf , n₂ ⌝ˡⁿ γ  ≡⟨ supᵘₗ-assoc ⊢↓ ⊢n+l ⊢nf ⟩⊢∎
+    (U.↓ᵘ n₁) S.supᵘₗ (U.sucᵘᵏ n (⌜ l ⌝ γ) S.supᵘₗ ⌜ nf , n₂ ⌝ˡⁿ γ)  ∎
+    where
+    open LvlR
 
 -- Below Γ γ nf₁ nf₂ means that nf₁ is bounded by nf₂.
 
@@ -226,16 +230,25 @@ private opaque
     Any (λ (n′ , l′) → Γ ⊢ l ≤ₗ U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) ∷Level)
       (nf .proj₁) →
     Γ ⊢ l ≤ₗ ⌜ nf ⌝ˡⁿ γ ∷Level
-  Below→≤-lemma ⊢l ⊢nf (List.here l≤n′+l′) =
+  Below→≤-lemma {nf = List.[] , _} _ _ ()
+  Below→≤-lemma
+    {nf = (n′ , l′) List.∷ nf , n} {γ} {l} ⊢l ⊢nf (List.here l≤n′+l′) =
     let ⊢n′+l′ , ⊢nf = inversion-supᵘₗ ⊢nf in
-    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l ⊢n′+l′ ⊢nf)) $
-    supᵘₗ-cong l≤n′+l′ (refl-⊢≡∷L ⊢nf)
-  Below→≤-lemma ⊢l ⊢nf (List.there below) =
+    l S.supᵘₗ (U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ)  ≡˘⟨ supᵘₗ-assoc ⊢l ⊢n′+l′ ⊢nf ⟩⊢
+    (l S.supᵘₗ U.sucᵘᵏ n′ (⌜ l′ ⌝ γ)) S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ  ≡⟨ supᵘₗ-cong l≤n′+l′ (refl-⊢≡∷L ⊢nf) ⟩⊢∎
+    U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ              ∎
+    where
+    open LvlR
+  Below→≤-lemma
+    {nf = (n′ , l′) List.∷ nf , n} {γ} {l} ⊢l ⊢nf (List.there below) =
     let ⊢n′+l′ , ⊢nf = inversion-supᵘₗ ⊢nf in
-    trans-⊢≡∷L (sym-⊢≡∷L (supᵘₗ-assoc ⊢l ⊢n′+l′ ⊢nf)) $
-    trans-⊢≡∷L (supᵘₗ-cong (supᵘₗ-comm ⊢l ⊢n′+l′) (refl-⊢≡∷L ⊢nf)) $
-    trans-⊢≡∷L (supᵘₗ-assoc ⊢n′+l′ ⊢l ⊢nf) $
-    supᵘₗ-cong (refl-⊢≡∷L ⊢n′+l′) (Below→≤-lemma ⊢l ⊢nf below)
+    l S.supᵘₗ (U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ)  ≡˘⟨ supᵘₗ-assoc ⊢l ⊢n′+l′ ⊢nf ⟩⊢
+    (l S.supᵘₗ U.sucᵘᵏ n′ (⌜ l′ ⌝ γ)) S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ  ≡⟨ supᵘₗ-cong (supᵘₗ-comm ⊢l ⊢n′+l′) (refl-⊢≡∷L ⊢nf) ⟩⊢
+    (U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) S.supᵘₗ l) S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ  ≡⟨ supᵘₗ-assoc ⊢n′+l′ ⊢l ⊢nf ⟩⊢
+    U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) S.supᵘₗ l S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ    ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢n′+l′) (Below→≤-lemma ⊢l ⊢nf below) ⟩⊢∎
+    U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ              ∎
+    where
+    open LvlR
 
 opaque
   unfolding ⌜_⌝ˡⁿ
@@ -254,13 +267,23 @@ opaque
       (PE.cong (λ n → ⌜ nf₂ , n ⌝ˡⁿ _) (N.m≤n⇒m⊔n≡n n₁≤n₂)) $
     sym-⊢≡∷L (⌜⊔⌝ˡⁿ nf₂ ⊢nf₂)
   Below→≤
-    {nf₁ = _ List.∷ _ , _} ⊢nf₁ ⊢nf₂ (n₁≤n₂ , below₁ List.∷ below₂) =
+    {nf₁ = (n , l) List.∷ nf₁ , n₁} {γ} {nf₂ = nf₂ , n₂}
+    ⊢nf₁ ⊢nf₂ (n₁≤n₂ , below₁ List.∷ below₂) =
     let ⊢n+l , ⊢nf₁ = inversion-supᵘₗ ⊢nf₁ in
-    trans-⊢≡∷L (supᵘₗ-assoc ⊢n+l ⊢nf₁ ⊢nf₂) $
-    trans-⊢≡∷L
-      (supᵘₗ-cong (refl-⊢≡∷L ⊢n+l) $
-       Below→≤ ⊢nf₁ ⊢nf₂ (n₁≤n₂ , below₂)) $
-    Below→≤-lemma ⊢n+l ⊢nf₂ below₁
+    (U.sucᵘᵏ n (⌜ l ⌝ γ) S.supᵘₗ ⌜ nf₁ , n₁ ⌝ˡⁿ γ)
+      S.supᵘₗ
+    ⌜ nf₂ , n₂ ⌝ˡⁿ γ                              ≡⟨ supᵘₗ-assoc ⊢n+l ⊢nf₁ ⊢nf₂ ⟩⊢
+
+    U.sucᵘᵏ n (⌜ l ⌝ γ)
+      S.supᵘₗ
+    (⌜ nf₁ , n₁ ⌝ˡⁿ γ S.supᵘₗ ⌜ nf₂ , n₂ ⌝ˡⁿ γ)   ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢n+l) $
+                                                     Below→≤ ⊢nf₁ ⊢nf₂ (n₁≤n₂ , below₂) ⟩⊢
+
+    U.sucᵘᵏ n (⌜ l ⌝ γ) S.supᵘₗ ⌜ nf₂ , n₂ ⌝ˡⁿ γ  ≡⟨ Below→≤-lemma ⊢n+l ⊢nf₂ below₁ ⟩⊢∎
+
+    ⌜ nf₂ , n₂ ⌝ˡⁿ γ                              ∎
+    where
+    open LvlR
 
 opaque
 
@@ -326,12 +349,14 @@ opaque
     Γ ⊢ ⌜ sucᵘˡⁿ nf ⌝ˡⁿ γ ≡ U.sucᵘ (⌜ nf ⌝ˡⁿ γ) ∷Level
   sucᵘˡⁿ-correct {nf = List.[] , _} ⊢nf =
     refl-⊢≡∷L (⊢↓ᵘ (wfLevel ⊢nf))
-  sucᵘˡⁿ-correct {nf = _ List.∷ nf′ , _} ⊢nf =
+  sucᵘˡⁿ-correct {nf = (n′ , l′) List.∷ nf , n} {γ} ⊢nf =
     let ⊢n+l , ⊢nf = inversion-supᵘₗ ⊢nf in
-    trans-⊢≡∷L
-      (supᵘₗ-cong (refl-⊢≡∷L (⊢sucᵘ ⊢n+l))
-         (sucᵘˡⁿ-correct {nf = nf′ , _} ⊢nf))
-      (supᵘₗ-sucᵘ ⊢n+l ⊢nf)
+    U.sucᵘᵏ (1+ n′) (⌜ l′ ⌝ γ) S.supᵘₗ ⌜ sucᵘˡⁿ (nf , n) ⌝ˡⁿ γ  ≡⟨ supᵘₗ-cong (refl-⊢≡∷L (⊢sucᵘ ⊢n+l)) $
+                                                                   sucᵘˡⁿ-correct {nf = nf , _} ⊢nf ⟩⊢
+    U.sucᵘᵏ (1+ n′) (⌜ l′ ⌝ γ) S.supᵘₗ U.sucᵘ (⌜ nf , n ⌝ˡⁿ γ)  ≡⟨ supᵘₗ-sucᵘ ⊢n+l ⊢nf ⟩⊢∎
+    U.sucᵘ (U.sucᵘᵏ n′ (⌜ l′ ⌝ γ) S.supᵘₗ ⌜ nf , n ⌝ˡⁿ γ)       ∎
+    where
+    open LvlR
 
 -- Max for Termˡⁿ.
 
@@ -350,12 +375,20 @@ opaque
     Γ ⊢ ⌜ supᵘₗˡⁿ nf₁ nf₂ ⌝ˡⁿ γ ≡ ⌜ nf₁ ⌝ˡⁿ γ S.supᵘₗ ⌜ nf₂ ⌝ˡⁿ γ ∷Level
   supᵘₗˡⁿ-correct {nf₁ = List.[] , _} {nf₂ = nf , _} ⊢nf₁ ⊢nf₂ =
     ⌜⊔⌝ˡⁿ nf ⊢nf₂
-  supᵘₗˡⁿ-correct {nf₁ = _ List.∷ nf₁ , _} ⊢nf₁ ⊢nf₂ =
+  supᵘₗˡⁿ-correct
+    {nf₁ = (n , l) List.∷ nf₁ , n₁} {γ} {nf₂ = nf₂ , n₂} ⊢nf₁ ⊢nf₂ =
     let ⊢n+l , ⊢nf₁ = inversion-supᵘₗ ⊢nf₁ in
-    trans-⊢≡∷L
-      (supᵘₗ-cong (refl-⊢≡∷L ⊢n+l)
-         (supᵘₗˡⁿ-correct {nf₁ = nf₁ , _} ⊢nf₁ ⊢nf₂))
-      (sym-⊢≡∷L (supᵘₗ-assoc ⊢n+l ⊢nf₁ ⊢nf₂))
+    ⌜ (n , l) List.∷ nf₁ List.++ nf₂ , n₁ N.⊔ n₂ ⌝ˡⁿ γ  ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢n+l) $
+                                                           supᵘₗˡⁿ-correct {nf₁ = nf₁ , _} ⊢nf₁ ⊢nf₂ ⟩⊢
+    U.sucᵘᵏ n (⌜ l ⌝ γ)
+      S.supᵘₗ
+    (⌜ nf₁ , n₁ ⌝ˡⁿ γ S.supᵘₗ ⌜ nf₂ , n₂ ⌝ˡⁿ γ)         ≡˘⟨ supᵘₗ-assoc ⊢n+l ⊢nf₁ ⊢nf₂ ⟩⊢∎
+
+    (U.sucᵘᵏ n (⌜ l ⌝ γ) S.supᵘₗ ⌜ nf₁ , n₁ ⌝ˡⁿ γ)
+      S.supᵘₗ
+    ⌜ nf₂ , n₂ ⌝ˡⁿ γ                                    ∎
+    where
+    open LvlR
 
 ------------------------------------------------------------------------
 -- Reduction
@@ -3401,11 +3434,11 @@ private module Lemmas (p : P n) where opaque
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ∷Level →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₂ ⌝ γ ∷Level →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l₂ ⌝ γ ∷Level
-  equal-level-sound eq ⊢γ ⊢l₁ ⊢l₂
+  equal-level-sound {l₁} {l₂} {γ} eq ⊢γ ⊢l₁ ⊢l₂
     with inv->>= eq
-  … | inv _ eq₁ eq
+  … | inv nf₁ eq₁ eq
     with inv->>= eq
-  … | inv _ eq₂ eq
+  … | inv nf₂ eq₂ eq
     with inv->>= eq
   … | inv PE.refl _ eq =
     let inv _ eq₃ eq₄ = inv->>= eq
@@ -3414,11 +3447,13 @@ private module Lemmas (p : P n) where opaque
         l₂≡nf₂        = normalise-level-sound eq₂ ⊢γ ⊢l₂
         _ , ⊢nf₂      = wf-⊢≡∷L l₂≡nf₂
     in
-    trans-⊢≡∷L l₁≡nf₁ $
-    trans-⊢≡∷L
-      (Below-antisymmetric ⊢nf₁ ⊢nf₂ (below-sound eq₃ ⊢γ ⊢nf₁ ⊢nf₂)
-         (below-sound eq₄ ⊢γ ⊢nf₂ ⊢nf₁)) $
-    sym-⊢≡∷L l₂≡nf₂
+    ⌜ l₁ ⌝ γ     ≡⟨ l₁≡nf₁ ⟩⊢
+    ⌜ nf₁ ⌝ˡⁿ γ  ≡⟨ Below-antisymmetric ⊢nf₁ ⊢nf₂ (below-sound eq₃ ⊢γ ⊢nf₁ ⊢nf₂)
+                      (below-sound eq₄ ⊢γ ⊢nf₂ ⊢nf₁) ⟩⊢
+    ⌜ nf₂ ⌝ˡⁿ γ  ≡˘⟨ l₂≡nf₂ ⟩⊢∎
+    ⌜ l₂ ⌝ γ     ∎
+    where
+    open LvlR
 
   -- Soundness for check-and-equal-level.
 
@@ -3428,11 +3463,11 @@ private module Lemmas (p : P n) where opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l ⌝ γ ∷Level ×
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ l₁ ⌝ γ ≡ ⌜ l₂ ⌝ γ ∷Level
-  check-and-equal-level-sound eq ⊢γ ⊢Γ
+  check-and-equal-level-sound {l₁} {l₂} {γ} eq ⊢γ ⊢Γ
     with inv->>= eq
-  … | inv _ eq₁ eq
+  … | inv l₁′ eq₁ eq
     with inv->>= eq
-  … | inv _ eq₂ eq
+  … | inv l₂′ eq₂ eq
     with inv->>= eq
   … | inv _ eq₃ ok! =
     let l₁≡l₁′   = check-level-sound eq₁ ⊢γ ⊢Γ
@@ -3442,7 +3477,12 @@ private module Lemmas (p : P n) where opaque
         l₁′≡l₂′  = equal-level-sound eq₃ ⊢γ ⊢l₁′ ⊢l₂′
     in
     l₁≡l₁′ ,
-    trans-⊢≡∷L l₁≡l₁′ (trans-⊢≡∷L l₁′≡l₂′ (sym-⊢≡∷L l₂≡l₂′))
+    (⌜ l₁ ⌝ γ   ≡⟨ l₁≡l₁′ ⟩⊢
+     ⌜ l₁′ ⌝ γ  ≡⟨ l₁′≡l₂′ ⟩⊢
+     ⌜ l₂′ ⌝ γ  ≡˘⟨ l₂≡l₂′ ⟩⊢∎
+     ⌜ l₂ ⌝ γ   ∎)
+    where
+    open LvlR
 
   -- Soundness for infer-red.
 
@@ -4961,40 +5001,51 @@ private module Lemmas (p : P n) where opaque
     sym-⊢≡∷L (⌞⌟ˡⁿ-correct ⊢x[σ])
   normalise-level′-sound (just zeroᵘ) ok! _ ⊢zeroᵘ =
     sym-⊢≡∷L (zeroᵘˡⁿ-correct (wfLevel ⊢zeroᵘ))
-  normalise-level′-sound (just (sucᵘ _)) eq ⊢γ ⊢sucᵘ
+  normalise-level′-sound {γ} (just (sucᵘ l)) eq ⊢γ ⊢sucᵘ
     with inv-<$> eq
-  … | inv _ eq₁ PE.refl =
+  … | inv l′ eq₁ PE.refl =
     let ⊢l      = inversion-sucᵘ-⊢∷L ⊢sucᵘ
         l≡l′    = normalise-level-sound eq₁ ⊢γ ⊢l
         _ , ⊢l′ = wf-⊢≡∷L l≡l′
     in
-    trans-⊢≡∷L (sucᵘ-cong-⊢≡∷L l≡l′) $
-    sym-⊢≡∷L (sucᵘˡⁿ-correct ⊢l′)
-  normalise-level′-sound (just (_ supᵘₗ _)) eq ⊢γ ⊢supᵘ
+    U.sucᵘ (⌜ l ⌝ γ)     ≡⟨ sucᵘ-cong-⊢≡∷L l≡l′ ⟩⊢
+    U.sucᵘ (⌜ l′ ⌝ˡⁿ γ)  ≡˘⟨ sucᵘˡⁿ-correct ⊢l′ ⟩⊢∎
+    ⌜ sucᵘˡⁿ l′ ⌝ˡⁿ γ    ∎
+    where
+    open LvlR
+  normalise-level′-sound {γ} (just (l₁ supᵘₗ l₂)) eq ⊢γ ⊢supᵘ
     with inv-⊛ eq
-  … | inv _ _ eq eq₂ PE.refl
+  … | inv _ l₂′ eq eq₂ PE.refl
     with inv-<$> eq
-  … | inv _ eq₁ PE.refl =
+  … | inv l₁′ eq₁ PE.refl =
     let ⊢l₁ , ⊢l₂ = inversion-supᵘₗ ⊢supᵘ
         l₁≡l₁′    = normalise-level-sound eq₁ ⊢γ ⊢l₁
         _ , ⊢l₁′  = wf-⊢≡∷L l₁≡l₁′
         l₂≡l₂′    = normalise-level-sound eq₂ ⊢γ ⊢l₂
         _ , ⊢l₂′  = wf-⊢≡∷L l₂≡l₂′
     in
-    trans-⊢≡∷L (supᵘₗ-cong l₁≡l₁′ l₂≡l₂′) $
-    sym-⊢≡∷L (supᵘₗˡⁿ-correct ⊢l₁′ ⊢l₂′)
+    ⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ        ≡⟨ supᵘₗ-cong l₁≡l₁′ l₂≡l₂′ ⟩⊢
+    ⌜ l₁′ ⌝ˡⁿ γ S.supᵘₗ ⌜ l₂′ ⌝ˡⁿ γ  ≡˘⟨ supᵘₗˡⁿ-correct ⊢l₁′ ⊢l₂′ ⟩⊢∎
+    ⌜ supᵘₗˡⁿ l₁′ l₂′ ⌝ˡⁿ γ          ∎
+    where
+    open LvlR
   normalise-level′-sound {b = true} nothing ok! _ ⊢l =
     sym-⊢≡∷L (⌞⌟ˡⁿ-correct ⊢l)
-  normalise-level′-sound {b = false} nothing eq ⊢γ ⊢l =
-    let inv _ eq₁ eq  = inv->>= eq
-        inv _ eq₂ eq₃ = inv->>= eq
-        L.lift okᴸ    = inv-require⁰ ⊢γ level-allowed eq₁
-        ⊢l            = ⊢∷Level→⊢∷Level okᴸ ⊢l
-        l≡l′          = red-tm-sound eq₂ ⊢γ ⊢l
-        _ , _ , ⊢l′   = wf-⊢≡∷ l≡l′
-        l′≡l″         = normalise-level-sound eq₃ ⊢γ (term-⊢∷ ⊢l′)
+  normalise-level′-sound
+    {l} {b = false} {nf = l″} {γ} nothing eq ⊢γ ⊢l =
+    let inv _  eq₁ eq  = inv->>= eq
+        inv l′ eq₂ eq₃ = inv->>= eq
+        L.lift okᴸ     = inv-require⁰ ⊢γ level-allowed eq₁
+        ⊢l             = ⊢∷Level→⊢∷Level okᴸ ⊢l
+        l≡l′           = red-tm-sound eq₂ ⊢γ ⊢l
+        _ , _ , ⊢l′    = wf-⊢≡∷ l≡l′
+        l′≡l″          = normalise-level-sound eq₃ ⊢γ (term-⊢∷ ⊢l′)
     in
-    trans-⊢≡∷L (term-⊢≡∷ l≡l′) l′≡l″
+    ⌜ l ⌝ γ     ≡⟨ term-⊢≡∷ l≡l′ ⟩⊢
+    ⌜ l′ ⌝ γ    ≡⟨ l′≡l″ ⟩⊢∎
+    ⌜ l″ ⌝ˡⁿ γ  ∎
+    where
+    open LvlR
 
   opaque
     unfolding Erased.Erased Erased.[_]
