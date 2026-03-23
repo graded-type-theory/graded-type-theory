@@ -258,9 +258,9 @@ module _
         lemma :
           Unitʷ-η → ε » Δ ⊢ (unitrec p q A u v) ⇒ w ∷ B → w PE.≡ v
         lemma η (conv d x) = lemma η d
-        lemma η (unitrec-subst _ _ _ _ no-η) = ⊥-elim (no-η η)
-        lemma η (unitrec-β _ _ _ no-η) = ⊥-elim (no-η η)
-        lemma η (unitrec-β-η _ _ _ _ _) = refl
+        lemma η (unitrec-subst _ _ _ no-η) = ⊥-elim (no-η η)
+        lemma η (unitrec-β _ _ no-η) = ⊥-elim (no-η η)
+        lemma _ (unitrec-β-η _ _ _ _) = refl
     ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , e ∙ S ⟩} d (val v) ⊢s ∣S∣≡ =
       case ⊢Value-⇒ᵥ ∣S∣≡ ⊢s v of λ
         (_ , _ , _ , d′) →

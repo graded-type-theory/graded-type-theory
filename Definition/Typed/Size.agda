@@ -86,7 +86,7 @@ opaque mutual
       size-⊢ ⊢B ⊕ size-⊢∷ ⊢t
     size-⊢∷ (sndⱼ ⊢B ⊢t) =
       size-⊢ ⊢B ⊕ size-⊢∷ ⊢t
-    size-⊢∷ (prodrecⱼ ⊢C ⊢t ⊢u _) =
+    size-⊢∷ (prodrecⱼ ⊢C ⊢t ⊢u) =
       size-⊢ ⊢C ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
     size-⊢∷ (Emptyⱼ ⊢Γ) =
       node (size-⊢′ ⊢Γ)
@@ -96,7 +96,7 @@ opaque mutual
       node (size-⊢′ ⊢Γ)
     size-⊢∷ (starⱼ ⊢Γ _) =
       node (size-⊢′ ⊢Γ)
-    size-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u _) =
+    size-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u) =
       size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
     size-⊢∷ (ℕⱼ ⊢Γ) =
       node (size-⊢′ ⊢Γ)
@@ -206,17 +206,17 @@ opaque mutual
       (size-⊢≡∷ fst-t≡fst-u ⊕ size-⊢≡∷ snd-t≡snd-u)
     size-⊢≡∷ (prod-cong ⊢B t₁≡u₁ t₂≡u₂ _) =
       size-⊢ ⊢B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
-    size-⊢≡∷ (prodrec-cong C≡D t₁≡u₁ t₂≡u₂ _) =
+    size-⊢≡∷ (prodrec-cong C≡D t₁≡u₁ t₂≡u₂) =
       size-⊢≡ C≡D ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
-    size-⊢≡∷ (prodrec-β ⊢C ⊢t ⊢u ⊢v _ _) =
+    size-⊢≡∷ (prodrec-β ⊢C ⊢t ⊢u ⊢v _) =
       (size-⊢ ⊢C ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
     size-⊢≡∷ (emptyrec-cong A≡B t≡u) =
       size-⊢≡ A≡B ⊕ size-⊢≡∷ t≡u
-    size-⊢≡∷ (unitrec-cong A≡B t₁≡u₁ t₂≡u₂ _ _) =
+    size-⊢≡∷ (unitrec-cong A≡B t₁≡u₁ t₂≡u₂ _) =
       size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
-    size-⊢≡∷ (unitrec-β ⊢A ⊢t _ _) =
+    size-⊢≡∷ (unitrec-β ⊢A ⊢t _) =
       size-⊢ ⊢A ⊕ size-⊢∷ ⊢t
-    size-⊢≡∷ (unitrec-β-η ⊢A ⊢t ⊢u _ _) =
+    size-⊢≡∷ (unitrec-β-η ⊢A ⊢t ⊢u _) =
       size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
     size-⊢≡∷ (η-unit ⊢t ⊢u _) =
       size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u

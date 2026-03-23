@@ -155,11 +155,8 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
       fstⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t)
     unfold-⊢∷ (sndⱼ ⊢A ⊢t) =
       sndⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t)
-    unfold-⊢∷ (prodrecⱼ ⊢A ⊢t ⊢t′ ok) =
-      prodrecⱼ (unfold-⊢ ⊢A)
-              (unfold-⊢∷ ⊢t)
-              (unfold-⊢∷ ⊢t′)
-              ok
+    unfold-⊢∷ (prodrecⱼ ⊢A ⊢t ⊢t′) =
+      prodrecⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢t′)
     unfold-⊢∷ (zeroⱼ ⊢Γ) = zeroⱼ (unfold-⊢′ ⊢Γ)
     unfold-⊢∷ (sucⱼ ⊢t) = sucⱼ (unfold-⊢∷ ⊢t)
     unfold-⊢∷ (natrecⱼ ⊢t₀ ⊢tₛ ⊢t) =
@@ -169,11 +166,8 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
     unfold-⊢∷ (emptyrecⱼ ⊢A ⊢t) =
       emptyrecⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t)
     unfold-⊢∷ (starⱼ ⊢Γ ok) = starⱼ (unfold-⊢′ ⊢Γ) ok
-    unfold-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢t′ ok) =
-      unitrecⱼ (unfold-⊢ ⊢A)
-              (unfold-⊢∷ ⊢t)
-              (unfold-⊢∷ ⊢t′)
-              ok
+    unfold-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢t′) =
+      unitrecⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢t′)
     unfold-⊢∷ (Idⱼ ⊢A ⊢t₁ ⊢t₂) =
       Idⱼ (unfold-⊢∷ ⊢A)
           (unfold-⊢∷ ⊢t₁)
@@ -301,17 +295,12 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
                 (unfold-⊢≡∷ t₁≡t₂)
                 (unfold-⊢≡∷ u₁≡u₂)
                 ok
-    unfold-⊢≡∷ (prodrec-cong A≡A′ t₁≡t₂ u₁≡u₂ ok) =
-      prodrec-cong (unfold-⊢≡ A≡A′)
-                  (unfold-⊢≡∷ t₁≡t₂)
-                  (unfold-⊢≡∷ u₁≡u₂)
-                  ok
-    unfold-⊢≡∷ (prodrec-β ⊢A ⊢t₁ ⊢t₂ ⊢tᵣ eq ok) =
-      prodrec-β (unfold-⊢ ⊢A)
-                (unfold-⊢∷ ⊢t₁)
-                (unfold-⊢∷ ⊢t₂)
-                (unfold-⊢∷ ⊢tᵣ)
-                eq ok
+    unfold-⊢≡∷ (prodrec-cong A≡A′ t₁≡t₂ u₁≡u₂) =
+      prodrec-cong (unfold-⊢≡ A≡A′) (unfold-⊢≡∷ t₁≡t₂)
+        (unfold-⊢≡∷ u₁≡u₂)
+    unfold-⊢≡∷ (prodrec-β ⊢A ⊢t₁ ⊢t₂ ⊢tᵣ eq) =
+      prodrec-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t₁) (unfold-⊢∷ ⊢t₂)
+        (unfold-⊢∷ ⊢tᵣ) eq
     unfold-⊢≡∷ (suc-cong t≡t′) =
       suc-cong (unfold-⊢≡∷ t≡t′)
     unfold-⊢≡∷ (natrec-cong A≡A′ 0≡ s≡ t≡t′) =
@@ -327,18 +316,13 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
                 (unfold-⊢∷ ⊢t)
     unfold-⊢≡∷ (emptyrec-cong A≡A′ t≡t′) =
       emptyrec-cong (unfold-⊢≡ A≡A′) (unfold-⊢≡∷ t≡t′)
-    unfold-⊢≡∷ (unitrec-cong A≡A′ t≡t′ r≡ ok no-η) =
-      unitrec-cong (unfold-⊢≡ A≡A′)
-                  (unfold-⊢≡∷ t≡t′)
-                  (unfold-⊢≡∷ r≡)
-                  ok no-η
-    unfold-⊢≡∷ (unitrec-β ⊢A ⊢t ok no-η) =
-      unitrec-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok no-η
-    unfold-⊢≡∷ (unitrec-β-η ⊢A ⊢t ⊢tᵣ ok η) =
-      unitrec-β-η (unfold-⊢ ⊢A)
-                  (unfold-⊢∷ ⊢t)
-                  (unfold-⊢∷ ⊢tᵣ)
-                  ok η
+    unfold-⊢≡∷ (unitrec-cong A≡A′ t≡t′ r≡ no-η) =
+      unitrec-cong (unfold-⊢≡ A≡A′) (unfold-⊢≡∷ t≡t′) (unfold-⊢≡∷ r≡)
+        no-η
+    unfold-⊢≡∷ (unitrec-β ⊢A ⊢t no-η) =
+      unitrec-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) no-η
+    unfold-⊢≡∷ (unitrec-β-η ⊢A ⊢t ⊢tᵣ η) =
+      unitrec-β-η (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢tᵣ) η
     unfold-⊢≡∷ (η-unit ⊢t ⊢t′ η) =
       η-unit (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢t′) η
     unfold-⊢≡∷ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
@@ -428,17 +412,11 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
           (unfold-⊢∷ ⊢t)
           (unfold-⊢∷ ⊢t′)
           eq ok
-    unfold-⇒∷ (prodrec-subst ⊢A ⊢a t⇒t′ ok) =
-      prodrec-subst (unfold-⊢ ⊢A)
-                    (unfold-⊢∷ ⊢a)
-                    (unfold-⇒∷ t⇒t′)
-                    ok
-    unfold-⇒∷ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq ok) =
-      prodrec-β (unfold-⊢ ⊢A)
-                (unfold-⊢∷ ⊢t)
-                (unfold-⊢∷ ⊢t₂)
-                (unfold-⊢∷ ⊢tᵣ)
-                eq ok
+    unfold-⇒∷ (prodrec-subst ⊢A ⊢a t⇒t′) =
+      prodrec-subst (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢a) (unfold-⇒∷ t⇒t′)
+    unfold-⇒∷ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq) =
+      prodrec-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢t₂)
+        (unfold-⊢∷ ⊢tᵣ) eq
     unfold-⇒∷ (natrec-subst ⊢t₀ ⊢tₛ t⇒t′) =
       natrec-subst (unfold-⊢∷ ⊢t₀)
                   (unfold-⊢∷ ⊢tₛ)
@@ -451,18 +429,12 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
                 (unfold-⊢∷ ⊢t)
     unfold-⇒∷ (emptyrec-subst ⊢A t⇒t′) =
       emptyrec-subst (unfold-⊢ ⊢A) (unfold-⇒∷ t⇒t′)
-    unfold-⇒∷ (unitrec-subst ⊢A ⊢a t⇒t′ ok no-η) =
-      unitrec-subst (unfold-⊢ ⊢A)
-                    (unfold-⊢∷ ⊢a)
-                    (unfold-⇒∷ t⇒t′)
-                    ok no-η
-    unfold-⇒∷ (unitrec-β ⊢A ⊢t ok no-η) =
-      unitrec-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok no-η
-    unfold-⇒∷ (unitrec-β-η ⊢A ⊢t ⊢tᵣ ok η) =
-      unitrec-β-η (unfold-⊢ ⊢A)
-                  (unfold-⊢∷ ⊢t)
-                  (unfold-⊢∷ ⊢tᵣ)
-                  ok η
+    unfold-⇒∷ (unitrec-subst ⊢A ⊢a t⇒t′ no-η) =
+      unitrec-subst (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢a) (unfold-⇒∷ t⇒t′) no-η
+    unfold-⇒∷ (unitrec-β ⊢A ⊢t no-η) =
+      unitrec-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) no-η
+    unfold-⇒∷ (unitrec-β-η ⊢A ⊢t ⊢tᵣ η) =
+      unitrec-β-η (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢tᵣ) η
     unfold-⇒∷ (J-subst ⊢t ⊢A ⊢r ⊢p w⇒w′) =
       J-subst (unfold-⊢∷ ⊢t)
               (unfold-⊢ ⊢A)

@@ -293,11 +293,8 @@ private opaque mutual
     fstⱼ (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t)
   defn-wkTerm ξ⊇ (sndⱼ ⊢A ⊢t) =
     sndⱼ (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t)
-  defn-wkTerm ξ⊇ (prodrecⱼ ⊢A ⊢t ⊢t′ ok) =
-    prodrecⱼ (defn-wk″ ξ⊇ ⊢A)
-             (defn-wkTerm ξ⊇ ⊢t)
-             (defn-wkTerm ξ⊇ ⊢t′)
-             ok
+  defn-wkTerm ξ⊇ (prodrecⱼ ⊢A ⊢t ⊢t′) =
+    prodrecⱼ (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t) (defn-wkTerm ξ⊇ ⊢t′)
   defn-wkTerm ξ⊇ (zeroⱼ ⊢Γ) = zeroⱼ (defn-wk′ ξ⊇ ⊢Γ)
   defn-wkTerm ξ⊇ (sucⱼ ⊢t) = sucⱼ (defn-wkTerm ξ⊇ ⊢t)
   defn-wkTerm ξ⊇ (natrecⱼ ⊢t₀ ⊢tₛ ⊢t) =
@@ -307,11 +304,8 @@ private opaque mutual
   defn-wkTerm ξ⊇ (emptyrecⱼ ⊢A ⊢t) =
     emptyrecⱼ (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t)
   defn-wkTerm ξ⊇ (starⱼ ⊢Γ ok) = starⱼ (defn-wk′ ξ⊇ ⊢Γ) ok
-  defn-wkTerm ξ⊇ (unitrecⱼ ⊢A ⊢t ⊢t′ ok) =
-    unitrecⱼ (defn-wk″ ξ⊇ ⊢A)
-             (defn-wkTerm ξ⊇ ⊢t)
-             (defn-wkTerm ξ⊇ ⊢t′)
-             ok
+  defn-wkTerm ξ⊇ (unitrecⱼ ⊢A ⊢t ⊢t′) =
+    unitrecⱼ (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t) (defn-wkTerm ξ⊇ ⊢t′)
   defn-wkTerm ξ⊇ (Idⱼ ⊢A ⊢t₁ ⊢t₂) =
     Idⱼ (defn-wkTerm ξ⊇ ⊢A)
         (defn-wkTerm ξ⊇ ⊢t₁)
@@ -439,17 +433,12 @@ private opaque mutual
               (defn-wkEqTerm ξ⊇ t₁≡t₂)
               (defn-wkEqTerm ξ⊇ u₁≡u₂)
               ok
-  defn-wkEqTerm ξ⊇ (prodrec-cong A≡A′ t₁≡t₂ u₁≡u₂ ok) =
-    prodrec-cong (defn-wkEq ξ⊇ A≡A′)
-                 (defn-wkEqTerm ξ⊇ t₁≡t₂)
-                 (defn-wkEqTerm ξ⊇ u₁≡u₂)
-                 ok
-  defn-wkEqTerm ξ⊇ (prodrec-β ⊢A ⊢t₁ ⊢t₂ ⊢tᵣ eq ok) =
-    prodrec-β (defn-wk″ ξ⊇ ⊢A)
-              (defn-wkTerm ξ⊇ ⊢t₁)
-              (defn-wkTerm ξ⊇ ⊢t₂)
-              (defn-wkTerm ξ⊇ ⊢tᵣ)
-              eq ok
+  defn-wkEqTerm ξ⊇ (prodrec-cong A≡A′ t₁≡t₂ u₁≡u₂) =
+    prodrec-cong (defn-wkEq ξ⊇ A≡A′) (defn-wkEqTerm ξ⊇ t₁≡t₂)
+      (defn-wkEqTerm ξ⊇ u₁≡u₂)
+  defn-wkEqTerm ξ⊇ (prodrec-β ⊢A ⊢t₁ ⊢t₂ ⊢tᵣ eq) =
+    prodrec-β (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t₁) (defn-wkTerm ξ⊇ ⊢t₂)
+      (defn-wkTerm ξ⊇ ⊢tᵣ) eq
   defn-wkEqTerm ξ⊇ (suc-cong t≡t′) =
     suc-cong (defn-wkEqTerm ξ⊇ t≡t′)
   defn-wkEqTerm ξ⊇ (natrec-cong A≡A′ 0≡ s≡ t≡t′) =
@@ -465,18 +454,14 @@ private opaque mutual
                (defn-wkTerm ξ⊇ ⊢t)
   defn-wkEqTerm ξ⊇ (emptyrec-cong A≡A′ t≡t′) =
     emptyrec-cong (defn-wkEq ξ⊇ A≡A′) (defn-wkEqTerm ξ⊇ t≡t′)
-  defn-wkEqTerm ξ⊇ (unitrec-cong A≡A′ t≡t′ r≡ ok no-η) =
-    unitrec-cong (defn-wkEq ξ⊇ A≡A′)
-                 (defn-wkEqTerm ξ⊇ t≡t′)
-                 (defn-wkEqTerm ξ⊇ r≡)
-                 ok no-η
-  defn-wkEqTerm ξ⊇ (unitrec-β ⊢A ⊢t ok no-η) =
-    unitrec-β (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t) ok no-η
-  defn-wkEqTerm ξ⊇ (unitrec-β-η ⊢A ⊢t ⊢tᵣ ok η) =
-    unitrec-β-η (defn-wk″ ξ⊇ ⊢A)
-                (defn-wkTerm ξ⊇ ⊢t)
-                (defn-wkTerm ξ⊇ ⊢tᵣ)
-                ok η
+  defn-wkEqTerm ξ⊇ (unitrec-cong A≡A′ t≡t′ r≡ no-η) =
+    unitrec-cong (defn-wkEq ξ⊇ A≡A′) (defn-wkEqTerm ξ⊇ t≡t′)
+      (defn-wkEqTerm ξ⊇ r≡) no-η
+  defn-wkEqTerm ξ⊇ (unitrec-β ⊢A ⊢t no-η) =
+    unitrec-β (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t) no-η
+  defn-wkEqTerm ξ⊇ (unitrec-β-η ⊢A ⊢t ⊢tᵣ η) =
+    unitrec-β-η (defn-wk″ ξ⊇ ⊢A) (defn-wkTerm ξ⊇ ⊢t)
+      (defn-wkTerm ξ⊇ ⊢tᵣ) η
   defn-wkEqTerm ξ⊇ (η-unit ⊢t ⊢t′ η) =
     η-unit (defn-wkTerm ξ⊇ ⊢t) (defn-wkTerm ξ⊇ ⊢t′) η
   defn-wkEqTerm ξ⊇ (Id-cong A≡A′ t₁≡t₂ u₁≡u₂) =
@@ -593,17 +578,12 @@ opaque
          (defn-wk ξ⊇ ⊢t)
          (defn-wk ξ⊇ ⊢t′)
          eq ok
-  defn-wkRedTerm ξ⊇ (prodrec-subst ⊢A ⊢a t⇒t′ ok) =
-    prodrec-subst (defn-wk ξ⊇ ⊢A)
-                  (defn-wk ξ⊇ ⊢a)
-                  (defn-wkRedTerm ξ⊇ t⇒t′)
-                  ok
-  defn-wkRedTerm ξ⊇ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq ok) =
-    prodrec-β (defn-wk ξ⊇ ⊢A)
-              (defn-wk ξ⊇ ⊢t)
-              (defn-wk ξ⊇ ⊢t₂)
-              (defn-wk ξ⊇ ⊢tᵣ)
-              eq ok
+  defn-wkRedTerm ξ⊇ (prodrec-subst ⊢A ⊢a t⇒t′) =
+    prodrec-subst (defn-wk ξ⊇ ⊢A) (defn-wk ξ⊇ ⊢a)
+      (defn-wkRedTerm ξ⊇ t⇒t′)
+  defn-wkRedTerm ξ⊇ (prodrec-β ⊢A ⊢t ⊢t₂ ⊢tᵣ eq) =
+    prodrec-β (defn-wk ξ⊇ ⊢A) (defn-wk ξ⊇ ⊢t) (defn-wk ξ⊇ ⊢t₂)
+      (defn-wk ξ⊇ ⊢tᵣ) eq
   defn-wkRedTerm ξ⊇ (natrec-subst ⊢t₀ ⊢tₛ t⇒t′) =
     natrec-subst (defn-wk ξ⊇ ⊢t₀)
                  (defn-wk ξ⊇ ⊢tₛ)
@@ -616,18 +596,13 @@ opaque
                (defn-wk ξ⊇ ⊢t)
   defn-wkRedTerm ξ⊇ (emptyrec-subst ⊢A t⇒t′) =
     emptyrec-subst (defn-wk ξ⊇ ⊢A) (defn-wkRedTerm ξ⊇ t⇒t′)
-  defn-wkRedTerm ξ⊇ (unitrec-subst ⊢A ⊢a t⇒t′ ok no-η) =
-    unitrec-subst (defn-wk ξ⊇ ⊢A)
-                  (defn-wk ξ⊇ ⊢a)
-                  (defn-wkRedTerm ξ⊇ t⇒t′)
-                  ok no-η
-  defn-wkRedTerm ξ⊇ (unitrec-β ⊢A ⊢t ok no-η) =
-    unitrec-β (defn-wk ξ⊇ ⊢A) (defn-wk ξ⊇ ⊢t) ok no-η
-  defn-wkRedTerm ξ⊇ (unitrec-β-η ⊢A ⊢t ⊢tᵣ ok η) =
-    unitrec-β-η (defn-wk ξ⊇ ⊢A)
-                (defn-wk ξ⊇ ⊢t)
-                (defn-wk ξ⊇ ⊢tᵣ)
-                ok η
+  defn-wkRedTerm ξ⊇ (unitrec-subst ⊢A ⊢a t⇒t′ no-η) =
+    unitrec-subst (defn-wk ξ⊇ ⊢A) (defn-wk ξ⊇ ⊢a)
+      (defn-wkRedTerm ξ⊇ t⇒t′) no-η
+  defn-wkRedTerm ξ⊇ (unitrec-β ⊢A ⊢t no-η) =
+    unitrec-β (defn-wk ξ⊇ ⊢A) (defn-wk ξ⊇ ⊢t) no-η
+  defn-wkRedTerm ξ⊇ (unitrec-β-η ⊢A ⊢t ⊢tᵣ η) =
+    unitrec-β-η (defn-wk ξ⊇ ⊢A) (defn-wk ξ⊇ ⊢t) (defn-wk ξ⊇ ⊢tᵣ) η
   defn-wkRedTerm ξ⊇ (J-subst ⊢t ⊢A ⊢r ⊢p w⇒w′) =
     J-subst (defn-wk ξ⊇ ⊢t)
             (defn-wk ξ⊇ ⊢A)

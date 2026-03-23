@@ -375,7 +375,7 @@ opaque
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         ⊢A , ⊢t , ⊢u , A≡ = inversion-unitrec ⊢t
     in  ⊢ₛ ⊢H (conv ⊢u (trans (subst-⊢≡₀ ⊢A (Unit-η-≡ (inj₂ η) ⊢t)) (sym A≡)))
-           (⊢ˢ-convₜ ⊢S (conv (unitrec-β-η-≡ ⊢A ⊢t ⊢u η) (sym A≡)))
+           (⊢ˢ-convₜ ⊢S (conv (unitrec-β-η ⊢A ⊢t ⊢u η) (sym A≡)))
 
   ⊢ₛ-⇒ᵥ ⊢s (rflₕⱼ {H} {p} {q} {A} {t} {B} {u} {v} {ρ′}) =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -691,7 +691,7 @@ opaque
   ⇒ᵥ→⇒ ⊢s (unitrec-ηₕ η) =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         ⊢A , ⊢t , ⊢u , A≡ = inversion-unitrec ⊢t
-    in  ⊢⦅⦆ˢ-subst ⊢S (conv (unitrec-β-η-⇒ ⊢A ⊢t ⊢u η) (sym A≡))
+    in  ⊢⦅⦆ˢ-subst ⊢S (conv (unitrec-β-η ⊢A ⊢t ⊢u η) (sym A≡))
   ⇒ᵥ→⇒ ⊢s rflₕⱼ =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢rfl , ⊢c , ⊢S) →

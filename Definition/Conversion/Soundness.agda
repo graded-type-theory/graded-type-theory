@@ -75,16 +75,14 @@ mutual
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        _ , _ , ok = inversion-ΠΣ (proj₁ (wf-⊢ g≡h))
-    in  prodrec-cong C≡E g≡h u≡v ok
+    in  prodrec-cong C≡E g≡h u≡v
   soundness~↑ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
   soundness~↑ (unitrec-cong x x₁ x₂ no-η) =
     let F≡H = soundnessConv↑ x
         k≡l = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        ok = inversion-Unit (proj₁ (wf-⊢ k≡l))
-    in  unitrec-cong F≡H k≡l u≡v ok no-η
+    in  unitrec-cong F≡H k≡l u≡v no-η
   soundness~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
     case soundnessConv↑ A₁≡A₂ of λ {
       A₁≡A₂ →

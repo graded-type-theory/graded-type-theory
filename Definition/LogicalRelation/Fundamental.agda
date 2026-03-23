@@ -195,11 +195,11 @@ opaque mutual
   fundamental-⊩ᵛ∷ (conv ⊢t A≡B) =
     let ℓ , A≡B = fundamental-⊩ᵛ≡ A≡B in
     ℓ , conv-⊩ᵛ∷ A≡B (fundamental-⊩ᵛ∷ ⊢t .proj₂)
-  fundamental-⊩ᵛ∷ (prodrecⱼ ⊢C ⊢t ⊢u _) =
+  fundamental-⊩ᵛ∷ (prodrecⱼ ⊢C ⊢t ⊢u) =
     _ ,
     prodrecᵛ ⊢C (fundamental-⊩ᵛ ⊢C .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       ⊢u (fundamental-⊩ᵛ∷ ⊢u .proj₂)
-  fundamental-⊩ᵛ∷ (unitrecⱼ ⊢A ⊢t ⊢u _) =
+  fundamental-⊩ᵛ∷ (unitrecⱼ ⊢A ⊢t ⊢u) =
     _ ,
     unitrecᵛ ⊢A (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
@@ -343,27 +343,27 @@ opaque mutual
     _ , Σ-ηᵛ (fundamental-⊩ᵛ∷ ⊢t₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢t₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ fst-t₁≡fst-t₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ snd-t₁≡snd-t₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ _) =
+  fundamental-⊩ᵛ≡∷ (prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂) =
     _ ,
     prodrec-congᵛ C₁≡C₂ (fundamental-⊩ᵛ≡ C₁≡C₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂) u₁≡u₂
       (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl _) =
+  fundamental-⊩ᵛ≡∷ (prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl) =
     _ ,
     prodrec-βᵛ ⊢C (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊢v (fundamental-⊩ᵛ∷ ⊢v .proj₂)
-  fundamental-⊩ᵛ≡∷ (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) =
+  fundamental-⊩ᵛ≡∷ (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _) =
     _ ,
     unitrec-congᵛ A₁≡A₂
       (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂)
       (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂) (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂)
-  fundamental-⊩ᵛ≡∷ (unitrec-β ⊢A ⊢t _ no-η) =
+  fundamental-⊩ᵛ≡∷ (unitrec-β ⊢A ⊢t no-η) =
     _ ,
     unitrec-βᵛ ⊢A
       (fundamental-⊩ᵛ ⊢A .proj₂)
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
       no-η
-  fundamental-⊩ᵛ≡∷ (unitrec-β-η ⊢A ⊢t ⊢u _ η) =
+  fundamental-⊩ᵛ≡∷ (unitrec-β-η ⊢A ⊢t ⊢u η) =
     _ ,
     unitrec-β-ηᵛ ⊢A
       (fundamental-⊩ᵛ ⊢A .proj₂)

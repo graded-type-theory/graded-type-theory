@@ -127,10 +127,9 @@ mutual
         B≡ΣFG = subset* B⇒ΣFG
         ⊢t′ = conv ⊢t B≡ΣFG
         _ , ⊢ΣFG = wf-⊢ B≡ΣFG
-        _ , _ , ok = inversion-ΠΣ ⊢ΣFG
         ⊢A = soundness⇇Type (∙ ⊢ΣFG) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
-    in  subst-⊢₀ ⊢A ⊢t′ , prodrecⱼ ⊢A ⊢t′ ⊢u ok
+    in  subst-⊢₀ ⊢A ⊢t′ , prodrecⱼ ⊢A ⊢t′ ⊢u
   soundness⇉ ⊢Γ ℕᵢ = ⊢U₀ ⊢Γ , ℕⱼ ⊢Γ
   soundness⇉ ⊢Γ zeroᵢ = ⊢ℕ ⊢Γ , zeroⱼ ⊢Γ
   soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = ⊢ℕ ⊢Γ , sucⱼ (soundness⇇ t⇇ℕ)
@@ -147,11 +146,9 @@ mutual
     ⊢Unit ⊢Γ ok , starⱼ ⊢Γ ok
   soundness⇉ _ (unitrecᵢ A⇇Type t⇇Unit u⇇A₊) =
     let ⊢t = soundness⇇ t⇇Unit
-        ⊢Unit = wf-⊢ ⊢t
-        ok = inversion-Unit ⊢Unit
-        ⊢A = soundness⇇Type (∙ ⊢Unit) A⇇Type
+        ⊢A = soundness⇇Type (∙ wf-⊢ ⊢t) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
-    in  subst-⊢₀ ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u ok
+    in  subst-⊢₀ ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u
   soundness⇉ ⊢Γ Emptyᵢ = ⊢U₀ ⊢Γ , Emptyⱼ ⊢Γ
   soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type

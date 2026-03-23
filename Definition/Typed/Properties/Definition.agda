@@ -350,7 +350,7 @@ opaque
     PE.refl
   inline-⊇-⊢∷ _ (starⱼ _ _) =
     PE.refl
-  inline-⊇-⊢∷ ∇′⊇∇ (unitrecⱼ ⊢A ⊢t ⊢u _) =
+  inline-⊇-⊢∷ ∇′⊇∇ (unitrecⱼ ⊢A ⊢t ⊢u) =
     PE.cong₃ (unitrec _ _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
       (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
   inline-⊇-⊢∷ ∇′⊇∇ (ΠΣⱼ _ ⊢A ⊢B _) =
@@ -366,7 +366,7 @@ opaque
     PE.cong (fst _) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
   inline-⊇-⊢∷ ∇′⊇∇ (sndⱼ _ ⊢t) =
     PE.cong (snd _) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
-  inline-⊇-⊢∷ ∇′⊇∇ (prodrecⱼ ⊢A ⊢t ⊢u _) =
+  inline-⊇-⊢∷ ∇′⊇∇ (prodrecⱼ ⊢A ⊢t ⊢u) =
     PE.cong₃ (prodrec _ _ _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
       (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
   inline-⊇-⊢∷ _ (ℕⱼ _) =
@@ -733,10 +733,10 @@ opaque
       Unitⱼ (⊢inline-Con ⊢Γ) ok
     ⊢inline∷ (starⱼ ⊢Γ ok) =
       starⱼ (⊢inline-Con ⊢Γ) ok
-    ⊢inline∷ (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) =
+    ⊢inline∷ (unitrecⱼ {A} ⊢A ⊢t ⊢u) =
       PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
       unitrecⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) ok
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u))
     ⊢inline∷ (ΠΣⱼ {l} _ ⊢A ⊢B ok) =
       ΠΣⱼ′ (⊢inline∷ ⊢A)
         (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-inline (U l)) $
@@ -755,10 +755,10 @@ opaque
     ⊢inline∷ (sndⱼ {G = B} ⊢B ⊢t) =
       PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
       sndⱼ (⊢inline′ ⊢B) (⊢inline∷ ⊢t)
-    ⊢inline∷ (prodrecⱼ {A} ⊢A ⊢t ⊢u ok) =
+    ⊢inline∷ (prodrecⱼ {A} ⊢A ⊢t ⊢u) =
       PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
       prodrecⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
-        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u)) ok
+        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
     ⊢inline∷ (ℕⱼ ⊢Γ) =
       ℕⱼ (⊢inline-Con ⊢Γ)
     ⊢inline∷ (zeroⱼ ⊢Γ) =
@@ -876,18 +876,18 @@ opaque
           (⊢inline≡inline∷ lower-t≡lower-u)
       (emptyrec-cong A₁≡A₂ t₁≡t₂) →
         emptyrec-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
-      (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
+      (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _) →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A₁) $
         unitrec-cong′ (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
           (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ A₁) $
            ⊢inline≡inline∷ u₁≡u₂)
-      (unitrec-β {A} ⊢A ⊢t _ _) →
+      (unitrec-β {A} ⊢A ⊢t _) →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
         unitrec-β-≡ (⊢inline′ ⊢A)
           (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
-      (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) →
+      (unitrec-β-η {A} ⊢A ⊢t ⊢u η) →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-        unitrec-β-η-≡ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
+        unitrec-β-η (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
           (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) η
       (η-unit ⊢t₁ ⊢t₂ η) →
         η-unit (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂) η
@@ -930,12 +930,12 @@ opaque
           (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B) $
            ⊢inline≡inline∷ u₁≡u₂)
           ok
-      (prodrec-cong {G = B} {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
+      (prodrec-cong {G = B} {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂) →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ C₁) $
-        prodrec-cong′ (⊢inline≡inline C₁≡C₂) (⊢inline≡inline∷ t₁≡t₂)
+        prodrec-cong (⊢inline≡inline C₁≡C₂) (⊢inline≡inline∷ t₁≡t₂)
           (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ C₁) $
            ⊢inline≡inline∷ u₁≡u₂)
-      (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
+      (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl) →
         PE.subst₂ (_⊢_≡_∷_ _ _)
           (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
         prodrec-β-≡ (⊢inline′ ⊢C) (⊢inline∷ ⊢t)
@@ -1067,20 +1067,20 @@ opaque
     Lift-β⇒ (⊢inline ⊢t)
   ⊢inline⇒inline∷ (emptyrec-subst ⊢A t₁⇒t₂) =
     emptyrec-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢A)
-  ⊢inline⇒inline∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ _ no-η) =
+  ⊢inline⇒inline∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ no-η) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
     unitrec-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢A)
       (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u))
       no-η
-  ⊢inline⇒inline∷ (unitrec-β {A} ⊢A ⊢u _ _) =
+  ⊢inline⇒inline∷ (unitrec-β {A} ⊢A ⊢u _) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
     unitrec-β-⇒ (⊢inline ⊢A)
       (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u))
-  ⊢inline⇒inline∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) =
+  ⊢inline⇒inline∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u η) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-    unitrec-β-η-⇒ (⊢inline ⊢A) (⊢inline ⊢t)
+    unitrec-β-η (⊢inline ⊢A) (⊢inline ⊢t)
       (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u)) η
   ⊢inline⇒inline∷ (app-subst {B} t₁⇒t₂ ⊢u) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
@@ -1104,12 +1104,12 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
     Σ-β₂-⇒ (⊢inline ⊢B) (⊢inline ⊢t)
       (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline ⊢u)) ok
-  ⊢inline⇒inline∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂ _) =
+  ⊢inline⇒inline∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ C) $
     prodrec-subst* (⊢inline ⊢C) (⊢inline⇒inline∷ t₁⇒t₂)
       (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline ⊢u))
   ⊢inline⇒inline∷
-    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl _) =
+    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl) =
     redMany $
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
@@ -1472,8 +1472,9 @@ opaque
     refl (Unitⱼ (glassify-⊢ ⊢Γ) ok)
   ⊢inline≡∷ (starⱼ ⊢Γ ok) =
     refl (starⱼ (glassify-⊢ ⊢Γ) ok)
-  ⊢inline≡∷ (unitrecⱼ ⊢A ⊢t ⊢u ok) =
-    let ≡A = ⊢inline≡ ⊢A
+  ⊢inline≡∷ (unitrecⱼ ⊢A ⊢t ⊢u) =
+    let ok = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+        ≡A = ⊢inline≡ ⊢A
         ≡t = ⊢inline≡∷ ⊢t
     in
     conv
@@ -1506,12 +1507,12 @@ opaque
     let ≡t = ⊢inline≡∷ ⊢t in
     conv (snd-cong′ ≡t)
       (subst-⊢≡₀ (glassify-⊢ ⊢B) (fst-cong′ ≡t))
-  ⊢inline≡∷ (prodrecⱼ ⊢A ⊢t ⊢u _) =
+  ⊢inline≡∷ (prodrecⱼ ⊢A ⊢t ⊢u) =
     let ≡A = ⊢inline≡ ⊢A
         ≡t = ⊢inline≡∷ ⊢t
     in
     conv
-      (prodrec-cong′ ≡A ≡t
+      (prodrec-cong ≡A ≡t
          (conv (⊢inline≡∷ ⊢u) (subst↑²TypeEq-prod (sym ≡A))))
       (subst-⊢≡₀ ≡A ≡t)
   ⊢inline≡∷ (ℕⱼ ⊢Γ) =
@@ -1848,9 +1849,9 @@ module _
       Unitⱼ (definition-irrelevant-»⊢ ⊢Γ) ok
     definition-irrelevant-⊢∷ (starⱼ ⊢Γ ok) =
       starⱼ (definition-irrelevant-»⊢ ⊢Γ) ok
-    definition-irrelevant-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u ok) =
+    definition-irrelevant-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u) =
       unitrecⱼ (definition-irrelevant-⊢ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
-        (definition-irrelevant-⊢∷ ⊢u) ok
+        (definition-irrelevant-⊢∷ ⊢u)
     definition-irrelevant-⊢∷ (ΠΣⱼ _ ⊢A ⊢B ok) =
       ΠΣⱼ′ (definition-irrelevant-⊢∷ ⊢A) (definition-irrelevant-⊢∷ ⊢B)
         ok
@@ -1865,9 +1866,9 @@ module _
       fstⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢t)
     definition-irrelevant-⊢∷ (sndⱼ ⊢B ⊢t) =
       sndⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢t)
-    definition-irrelevant-⊢∷ (prodrecⱼ ⊢A ⊢t ⊢u ok) =
+    definition-irrelevant-⊢∷ (prodrecⱼ ⊢A ⊢t ⊢u) =
       prodrecⱼ (definition-irrelevant-⊢ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
-        (definition-irrelevant-⊢∷ ⊢u) ok
+        (definition-irrelevant-⊢∷ ⊢u)
     definition-irrelevant-⊢∷ (ℕⱼ ⊢Γ) =
       ℕⱼ (definition-irrelevant-»⊢ ⊢Γ)
     definition-irrelevant-⊢∷ (zeroⱼ ⊢Γ) =
@@ -1989,15 +1990,15 @@ module _
       (emptyrec-cong A₁≡A₂ t₁≡t₂) →
         emptyrec-cong (definition-irrelevant-⊢≡ A₁≡A₂)
          (definition-irrelevant-⊢≡∷ t₁≡t₂)
-      (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
+      (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _) →
         unitrec-cong′ (definition-irrelevant-⊢≡ A₁≡A₂)
           (definition-irrelevant-⊢≡∷ t₁≡t₂)
           (definition-irrelevant-⊢≡∷ u₁≡u₂)
-      (unitrec-β ⊢A ⊢t _ _) →
+      (unitrec-β ⊢A ⊢t _) →
         unitrec-β-≡ (definition-irrelevant-⊢ ⊢A)
           (definition-irrelevant-⊢∷ ⊢t)
-      (unitrec-β-η ⊢A ⊢t ⊢u _ η) →
-        unitrec-β-η-≡ (definition-irrelevant-⊢ ⊢A)
+      (unitrec-β-η ⊢A ⊢t ⊢u η) →
+        unitrec-β-η (definition-irrelevant-⊢ ⊢A)
           (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢∷ ⊢u) η
       (η-unit ⊢t₁ ⊢t₂ η) →
         η-unit (definition-irrelevant-⊢∷ ⊢t₁)
@@ -2037,11 +2038,11 @@ module _
         prod-cong (definition-irrelevant-⊢ ⊢B)
           (definition-irrelevant-⊢≡∷ t₁≡t₂)
           (definition-irrelevant-⊢≡∷ u₁≡u₂) ok
-      (prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
-        prodrec-cong′ (definition-irrelevant-⊢≡ C₁≡C₂)
+      (prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂) →
+        prodrec-cong (definition-irrelevant-⊢≡ C₁≡C₂)
           (definition-irrelevant-⊢≡∷ t₁≡t₂)
           (definition-irrelevant-⊢≡∷ u₁≡u₂)
-      (prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
+      (prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl) →
         prodrec-β-≡ (definition-irrelevant-⊢ ⊢C)
           (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢∷ ⊢u)
           (definition-irrelevant-⊢∷ ⊢v)

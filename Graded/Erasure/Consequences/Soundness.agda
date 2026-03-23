@@ -326,7 +326,7 @@ opaque
   soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
       inhabited-consistent
         (⊢ˢʷ∷-sgSubst (prodⱼ ℕ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok))
-    , prodrecⱼ′ (⊢ℕ (∙ ΠΣⱼ Σℕ⊢ℕ Σʷ-ok)) (var₀ ⊢Σ) (zeroⱼ (∙ Σℕ⊢ℕ))
+    , prodrecⱼ (⊢ℕ (∙ ΠΣⱼ Σℕ⊢ℕ Σʷ-ok)) (var₀ ⊢Σ) (zeroⱼ (∙ Σℕ⊢ℕ))
     , (λ ())
     , sub
         (prodrecₘ var
@@ -545,7 +545,7 @@ opaque
     let ε⊢Unit = ⊢Unit εε Unit-ok in
       inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ εε Unit-ok))
     , unitrecⱼ (⊢ℕ (∙ ⊢Unit (∙ ε⊢Unit) Unit-ok)) (var₀ ε⊢Unit)
-        (zeroⱼ (∙ ε⊢Unit)) Unit-ok
+        (zeroⱼ (∙ ε⊢Unit))
     , (λ ())
     , sub
         (unitrecₘ
@@ -796,7 +796,7 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
 
   ⊢pr : Δ′ »∙ ℕ² ⊢ pr ∷ ℕ
   ⊢pr =
-    prodrecⱼ′ (⊢ℕ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
+    prodrecⱼ (⊢ℕ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
       (var₀ (⊢ℕ² (εε ∙[ ⊢ℕ² ])))
       (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ]))
 
@@ -979,7 +979,7 @@ opaque
            (unitrecⱼ
               (⊢ℕ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
               (var₀ (⊢Unitʷ (εε ∙[ ⊢Unitʷ ])))
-              (zeroⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)
+              (zeroⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
            (zeroⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
         (⊢Unit-η (var₀ (⊢Unitʷ εε)))
         (rflⱼ′

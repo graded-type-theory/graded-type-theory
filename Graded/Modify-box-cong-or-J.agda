@@ -1027,9 +1027,9 @@ opaque
       Tₜ.Unitⱼ (tr-⊢′ ⊢Γ) (Unit-allowed-→ ok)
     (Tₛ.starⱼ ⊢Γ ok) →
       Tₜ.starⱼ (tr-⊢′ ⊢Γ) (Unit-allowed-→ ok)
-    (Tₛ.unitrecⱼ {A} ⊢A ⊢t ⊢u _) →
+    (Tₛ.unitrecⱼ {A} ⊢A ⊢t ⊢u) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym $ tr-[]₀ A) $
-      TPₜ.unitrecⱼ′ (tr-⊢ ⊢A) (tr-⊢∷ ⊢t)
+      Tₜ.unitrecⱼ (tr-⊢ ⊢A) (tr-⊢∷ ⊢t)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
          tr-⊢∷ ⊢u)
     (Tₛ.ΠΣⱼ {l} ⊢l ⊢A ⊢B ok) →
@@ -1052,9 +1052,9 @@ opaque
     (Tₛ.sndⱼ {G = B} _ ⊢t) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym $ tr-[]₀ B) $
       TPₜ.sndⱼ′ (tr-⊢∷ ⊢t)
-    (Tₛ.prodrecⱼ {A = C} ⊢C ⊢t ⊢u _) →
+    (Tₛ.prodrecⱼ {A = C} ⊢C ⊢t ⊢u) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym $ tr-[]₀ C) $
-      TPₜ.prodrecⱼ′ (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
+      Tₜ.prodrecⱼ (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
          tr-⊢∷ ⊢u)
     (Tₛ.ℕⱼ ⊢Γ) →
@@ -1171,22 +1171,22 @@ opaque
       Tₜ.emptyrec-cong (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
     (Tₛ.η-unit ⊢t₁ ⊢t₂ ok) →
       Tₜ.η-unit (tr-⊢∷ ⊢t₁) (tr-⊢∷ ⊢t₂) (Unit-with-η-⇔ .proj₁ ok)
-    (Tₛ.unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
+    (Tₛ.unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ A₁) $
       TPₜ.unitrec-cong′ (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂)
         (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]₀ A₁) $
          tr-⊢≡∷ u₁≡u₂)
-    (Tₛ.unitrec-β {A} ⊢A ⊢t _ _) →
+    (Tₛ.unitrec-β {A} ⊢A ⊢t _) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
       TPₜ.unitrec-β-≡ (tr-⊢ ⊢A)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
          tr-⊢∷ ⊢t)
-    (Tₛ.unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) →
+    (Tₛ.unitrec-β-η {A} ⊢A ⊢t ⊢u η) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
       Tₜ.unitrec-β-η (tr-⊢ ⊢A) (tr-⊢∷ ⊢t)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
          tr-⊢∷ ⊢u)
-        (Unit-allowed-→ ok) (Unitʷ-η-⇔ .proj₁ η)
+        (Unitʷ-η-⇔ .proj₁ η)
     (Tₛ.ΠΣ-cong {l} ⊢l A₁≡A₂ B₁≡B₂ ok) →
       Tₜ.ΠΣ-cong (tr-⊢∷L ⊢l) (tr-⊢≡∷ A₁≡A₂)
         (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-wk (U l)) $
@@ -1230,12 +1230,12 @@ opaque
       TPₜ.Σ-η′ (tr-⊢∷ ⊢t₁) (tr-⊢∷ ⊢t₂) (tr-⊢≡∷ fst-t₁≡fst-t₂)
         (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]₀ B) $
          tr-⊢≡∷ snd-t₁≡snd-t₂)
-    (Tₛ.prodrec-cong {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ _) →
+    (Tₛ.prodrec-cong {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ C₁) $
-      TPₜ.prodrec-cong′ (tr-⊢≡ C₁≡C₂) (tr-⊢≡∷ t₁≡t₂)
+      Tₜ.prodrec-cong (tr-⊢≡ C₁≡C₂) (tr-⊢≡∷ t₁≡t₂)
         (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]↑² C₁) $
          tr-⊢≡∷ u₁≡u₂)
-    (Tₛ.prodrec-β {G = B} {A = C} {u} ⊢C ⊢t ⊢u ⊢v eq ok) →
+    (Tₛ.prodrec-β {G = B} {A = C} {u} ⊢C ⊢t ⊢u ⊢v eq) →
       PE.subst₂ (Tₜ._⊢_≡_∷_ _ _)
         (PE.sym $ tr-[]₁₀ u) (PE.sym $ tr-[]₀ C) $
       Tₜ.prodrec-β (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
@@ -1243,7 +1243,7 @@ opaque
          tr-⊢∷ ⊢u)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
          tr-⊢∷ ⊢v)
-        eq (ΠΣ-allowed-→ ok)
+        eq
     (Tₛ.suc-cong t₁≡t₂) →
       Tₜ.suc-cong (tr-⊢≡∷ t₁≡t₂)
     (Tₛ.natrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
@@ -1363,25 +1363,25 @@ module _ (pres : T preservation-of-reduction) where
         TPₜ.Lift-β⇒ (tr-⊢∷ ⊢t)
       (Tₛ.emptyrec-subst ⊢A t⇒t′) →
         TPₜ.emptyrec-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢ ⊢A)
-      (Tₛ.unitrec-subst {A} ⊢A ⊢u t⇒t′ _ no-η) →
+      (Tₛ.unitrec-subst {A} ⊢A ⊢u t⇒t′ no-η) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
         TPₜ.unitrec-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢ ⊢A)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢u)
           (no-η ∘→ Unitʷ-η-⇔ .proj₂)
-      (Tₛ.unitrec-β {A} ⊢A ⊢u _ _) →
+      (Tₛ.unitrec-β {A} ⊢A ⊢u _) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
         TPₜ.redMany $
         TPₜ.unitrec-β-⇒ (tr-⊢ ⊢A)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢u)
-      (Tₛ.unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) →
+      (Tₛ.unitrec-β-η {A} ⊢A ⊢t ⊢u η) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
         TPₜ.redMany $
         Tₜ.unitrec-β-η (tr-⊢ ⊢A) (tr-⊢∷ ⊢t)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢u)
-          (Unit-allowed-→ ok) (Unitʷ-η-⇔ .proj₁ η)
+          (Unitʷ-η-⇔ .proj₁ η)
       (Tₛ.app-subst {B} t⇒t′ ⊢u) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ B) $
         TPₜ.app-subst* (tr-⊢⇒∷ t⇒t′) (tr-⊢∷ ⊢u)
@@ -1408,12 +1408,12 @@ module _ (pres : T preservation-of-reduction) where
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
            tr-⊢∷ ⊢u)
           eq (ΠΣ-allowed-→ ok)
-      (Tₛ.prodrec-subst {A = C} ⊢C ⊢u t⇒t′ _) →
+      (Tₛ.prodrec-subst {A = C} ⊢C ⊢u t⇒t′) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ C) $
         TPₜ.prodrec-subst* (tr-⊢ ⊢C) (tr-⊢⇒∷ t⇒t′)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
            tr-⊢∷ ⊢u)
-      (Tₛ.prodrec-β {G = B} {A = C} {u} ⊢C ⊢t ⊢u ⊢v PE.refl _) →
+      (Tₛ.prodrec-β {G = B} {A = C} {u} ⊢C ⊢t ⊢u ⊢v PE.refl) →
         PE.subst₂ (Tₜ._⊢_⇒*_∷_ _ _)
           (PE.sym $ tr-[]₁₀ u) (PE.sym $ tr-[]₀ C) $
         TPₜ.redMany $

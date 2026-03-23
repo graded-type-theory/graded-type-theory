@@ -2122,11 +2122,11 @@ opaque
     let ⊢Unit′ = ⊢Unit εε okᵘ
         ⊢Unit″ = ⊢Unit (∙ ⊢Unit′) okᵘ
         ⊢ℕ     = ⊢ℕ (∙ ⊢Unit″)
-        ⊢ur    = unitrecⱼ′ (⊢Unit (∙ ⊢Unit″) okᵘ) (starⱼ (∙ ⊢Unit′) okᵘ)
+        ⊢ur    = unitrecⱼ (⊢Unit (∙ ⊢Unit″) okᵘ) (starⱼ (∙ ⊢Unit′) okᵘ)
                    (var₀ ⊢Unit′)
         ⊢0     = zeroⱼ (∙ ⊢Unit′)
     in
-    unitrecⱼ′ ⊢ℕ ⊢ur ⊢0 ,
+    unitrecⱼ ⊢ℕ ⊢ur ⊢0 ,
     ok! ,
     OK-register
       (OK-if-no-equality-reflection ok! $
@@ -2140,7 +2140,7 @@ opaque
     (λ { (ne (unitrecₙ no-η _)) → no-η η }) ,
     (λ where
        (t⇒u ⇨ u⇒*v) →
-         case whrDetTerm t⇒u (unitrec-β-η ⊢ℕ ⊢ur ⊢0 okᵘ η) of λ {
+         case whrDetTerm t⇒u (unitrec-β-η ⊢ℕ ⊢ur ⊢0 η) of λ {
            PE.refl →
          case whnfRed*Term u⇒*v zeroₙ of λ () })
 
@@ -2482,7 +2482,7 @@ opaque
           open TmR
       in
                                    ∷ A                          ⟨ A≡ ⟩≡∷
-      ⌜ prodrec r p q D t₁ t₂ ⌝ γ  ∷ ⌜ D ⌝ γ U.[ ⌜ t₁  ⌝ γ ]₀  ≡⟨ prodrec-cong′ (refl ⊢D) t₁≡t₁′ (refl ⊢t₂) ⟩⊢∷
+      ⌜ prodrec r p q D t₁ t₂ ⌝ γ  ∷ ⌜ D ⌝ γ U.[ ⌜ t₁  ⌝ γ ]₀  ≡⟨ prodrec-cong (refl ⊢D) t₁≡t₁′ (refl ⊢t₂) ⟩⊢∷
       ⌜ prodrec r p q D t₁′ t₂ ⌝ γ                             ≡⟨ PE.cong (flip (U.prodrec _ _ _ _) _) ≡prod ⟩⊢≡
                                                                 ⟨ subst-⊢≡₀ ⊢D t₁≡t₁′ ⟩≡
                                    ∷ ⌜ D ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀   ⟨ PE.cong (⌜ D ⌝ _ U.[_]₀) ≡prod ⟩≡∷≡
@@ -2495,7 +2495,7 @@ opaque
     … | nothing | ok! =
       let open TmR in
                                    ∷ A                          ⟨ A≡ ⟩≡∷
-      ⌜ prodrec r p q D t₁ t₂ ⌝ γ  ∷ ⌜ D ⌝ γ U.[ ⌜ t₁  ⌝ γ ]₀  ≡⟨ prodrec-cong′ (refl ⊢D) t₁≡t₁′ (refl ⊢t₂) ⟩⊢∷∎≡
+      ⌜ prodrec r p q D t₁ t₂ ⌝ γ  ∷ ⌜ D ⌝ γ U.[ ⌜ t₁  ⌝ γ ]₀  ≡⟨ prodrec-cong (refl ⊢D) t₁≡t₁′ (refl ⊢t₂) ⟩⊢∷∎≡
       ⌜ prodrec r p q D t₁′ t₂ ⌝ γ                             ≡⟨⟩
       ⌜ u ⌝ γ                                                  ∎
     red′-sound-⊢∷ _ ℕ ok! ⊢ℕ =
@@ -4310,7 +4310,7 @@ private module Lemmas (p : P n) where opaque
           | t₂≡t₂′           ← check-sound eq₅ ⊢γ
                                  (subst-⊢-↑ ⊢B′ (⊢1,0 ⊢Σ))
           | _ , _ , ⊢t₂′     ← wf-⊢ t₂≡t₂′
-          | pr≡pr            ← prodrec-cong′ (sym B≡B′) (sym′ t₁≡t₁′)
+          | pr≡pr            ← prodrec-cong (sym B≡B′) (sym′ t₁≡t₁′)
                                  (sym′ t₂≡t₂′)
       with is-prod⟨ 𝕨 , p ⟩? t₁′ | eq
     … | just (qC , t₁₁ , t₁₂ , ≡prod) | eq =
@@ -4921,15 +4921,14 @@ private module Lemmas (p : P n) where opaque
     … | inv _ eq₂ eq
       with inv->>= eq
     … | inv _ eq₃ ok! =
-      let ⊢t₁          = infer-red-sound eq₁ ⊢γ ⊢Γ
-          ⊢ΣB₁B₂       = wf-⊢ ⊢t₁
-          _ , _ , Σ-ok = inversion-ΠΣ ⊢ΣB₁B₂
-          A≡A′         = check-type-sound eq₂ ⊢γ (∙ ⊢ΣB₁B₂)
-          _ , ⊢A′      = wf-⊢ A≡A′
-          t₂≡t₂′       = check-sound eq₃ ⊢γ $
-                         subst-⊢ ⊢A′ (⊢ˢʷ∷-[][]↑ (⊢1,0 ⊢ΣB₁B₂))
+      let ⊢t₁     = infer-red-sound eq₁ ⊢γ ⊢Γ
+          ⊢ΣB₁B₂  = wf-⊢ ⊢t₁
+          A≡A′    = check-type-sound eq₂ ⊢γ (∙ ⊢ΣB₁B₂)
+          _ , ⊢A′ = wf-⊢ A≡A′
+          t₂≡t₂′  = check-sound eq₃ ⊢γ $
+                    subst-⊢ ⊢A′ (⊢ˢʷ∷-[][]↑ (⊢1,0 ⊢ΣB₁B₂))
       in
-      wf-⊢ (prodrec-cong (sym A≡A′) (refl ⊢t₁) (sym′ t₂≡t₂′) Σ-ok)
+      wf-⊢ (prodrec-cong (sym A≡A′) (refl ⊢t₁) (sym′ t₂≡t₂′))
         .proj₂ .proj₂
     infer′-sound ℕ ok! _ ⊢Γ =
       ℕⱼ ⊢Γ
@@ -5280,7 +5279,7 @@ private module Lemmas (p : P n) where opaque
           t₁₂≡t₂₂      = conv t₁₂≡t₂₂ $
                          subst-⊢≡-↑ (sym A₁≡A) (refl (⊢1,0 ⊢Σ))
       in
-      conv (prodrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
+      conv (prodrec-cong A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
         (subst-⊢≡₀ A₁≡A (refl ⊢t₁₁))
     equal-ne-inf′-sound (natrec _ _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
       with inv->>= eq

@@ -82,14 +82,13 @@ opaque
     Σ-β₂ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢ ⊢t ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢ ⊢u ⊢σ))
       eq ok
-  subst-⊢⇒∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂ _) ⊢σ =
+  subst-⊢⇒∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift C _)
-      (prodrec-subst′ (subst-⊢-⇑ ⊢C ⊢σ)
+      (prodrec-subst (subst-⊢-⇑ ⊢C ⊢σ)
         (PE.subst (_ ⊢ _ ∷_) (subst-β-prodrec C _) $
          subst-⊢-⇑ ⊢u ⊢σ)
         (subst-⊢⇒∷ t₁⇒t₂ ⊢σ))
-  subst-⊢⇒∷
-    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl _) ⊢σ =
+  subst-⊢⇒∷ (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl) ⊢σ =
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ [,]-[]-commute v)
       (PE.sym $ singleSubstLift C _) $
@@ -122,20 +121,19 @@ opaque
       (subst-⊢ ⊢v ⊢σ)
   subst-⊢⇒∷ (emptyrec-subst ⊢A t₁⇒t₂) ⊢σ =
     emptyrec-subst (subst-⊢ ⊢A ⊢σ) (subst-⊢⇒∷ t₁⇒t₂ ⊢σ)
-  subst-⊢⇒∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ ok no-η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-subst (subst-⊢-⇑ ⊢A ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢u ⊢σ))
-      (subst-⊢⇒∷ t₁⇒t₂ ⊢σ) ok no-η
-  subst-⊢⇒∷ (unitrec-β {A} ⊢A ⊢t ok no-η) ⊢σ =
+      (subst-⊢⇒∷ t₁⇒t₂ ⊢σ) no-η
+  subst-⊢⇒∷ (unitrec-β {A} ⊢A ⊢t no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-β (subst-⊢-⇑ ⊢A ⊢σ)
-      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢t ⊢σ)) ok
-      no-η
-  subst-⊢⇒∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) ⊢σ =
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢t ⊢σ)) no-η
+  subst-⊢⇒∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-β-η (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢ ⊢t ⊢σ)
-      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢u ⊢σ)) ok η
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢u ⊢σ)) η
   subst-⊢⇒∷ (J-subst {t} {A} {B} ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
     J-subst (subst-⊢ ⊢t ⊢σ)

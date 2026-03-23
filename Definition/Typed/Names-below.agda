@@ -89,7 +89,7 @@ opaque mutual
     Unit
   ⊢∷→Names< (starⱼ _ _) =
     star
-  ⊢∷→Names< (unitrecⱼ ⊢A ⊢t ⊢u _) =
+  ⊢∷→Names< (unitrecⱼ ⊢A ⊢t ⊢u) =
     unitrec (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
   ⊢∷→Names< (ΠΣⱼ _ ⊢A ⊢B _) =
     ΠΣ (⊢∷→Names< ⊢A) (⊢∷→Names< ⊢B)
@@ -103,7 +103,7 @@ opaque mutual
     fst (⊢∷→Names< ⊢t)
   ⊢∷→Names< (sndⱼ _ ⊢t) =
     snd (⊢∷→Names< ⊢t)
-  ⊢∷→Names< (prodrecⱼ ⊢C ⊢t ⊢u _) =
+  ⊢∷→Names< (prodrecⱼ ⊢C ⊢t ⊢u) =
     prodrec (⊢→Names< ⊢C) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
   ⊢∷→Names< (ℕⱼ _) =
     ℕ

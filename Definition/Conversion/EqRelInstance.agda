@@ -231,11 +231,10 @@ module Lemmas where
             → Γ »∙ Unitʷ ⊢ A [conv↑] A′
             → Γ ⊢ t ~ t′ ∷ Unitʷ
             → Γ ⊢ u [conv↑] u′ ∷ A [ starʷ ]₀
-            → Unitʷ-allowed
             → ¬ Unitʷ-η
             → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷
                 A [ t ]₀
-  ~-unitrec A<>A′ (↑ Unit≡B t~t′) u<>u′ ok no-η =
+  ~-unitrec A<>A′ (↑ Unit≡B t~t′) u<>u′ no-η =
     let ⊢A , _ = wf-⊢ (soundnessConv↑ A<>A′)
         _ , ⊢t , _ = wf-⊢ (soundness~↑ t~t′)
     in
@@ -586,9 +585,8 @@ private opaque
       λ _ x₂ → ~-fst x₂
     .Equality-relations.~-snd →
       λ _ x₂ → ~-snd x₂
-    .Equality-relations.~-natrec → ~-natrec
-    .Equality-relations.~-prodrec →
-      λ C↑D t₁~t₂ u₁↑u₂ _ → ~-prodrec C↑D t₁~t₂ u₁↑u₂
+    .Equality-relations.~-natrec   → ~-natrec
+    .Equality-relations.~-prodrec  → ~-prodrec
     .Equality-relations.~-emptyrec → ~-emptyrec
     .Equality-relations.~-unitrec  → ~-unitrec
     .Equality-relations.≅-Id-cong  →

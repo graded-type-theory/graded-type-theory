@@ -196,7 +196,6 @@ mutual
     prodrecₙ  : Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢nf C →
                 Γ ⊢ne t ∷ Σʷ p , q′ ▷ A ▹ B →
                 Γ »∙ A »∙ B ⊢nf u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-                Σʷ-allowed p q′ →
                 Γ ⊢ne prodrec r p q C t u ∷ C [ t ]₀
     emptyrecₙ : Γ ⊢nf A →
                 Γ ⊢ne t ∷ Empty →
@@ -209,7 +208,6 @@ mutual
     unitrecₙ  : Γ »∙ Unitʷ ⊢nf A →
                 Γ ⊢ne t ∷ Unitʷ →
                 Γ ⊢nf u ∷ A [ starʷ ]₀ →
-                Unitʷ-allowed →
                 ¬ Unitʷ-η →
                 Γ ⊢ne unitrec p q A t u ∷ A [ t ]₀
     Jₙ        : Γ ⊢nf A →
@@ -295,13 +293,13 @@ mutual
     (lowerₙ ⊢t)               → lowerⱼ (⊢ne∷→⊢∷ ⊢t)
     (fstₙ ⊢B ⊢t)              → fstⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
     (sndₙ ⊢B ⊢t)              → sndⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
-    (prodrecₙ ⊢C ⊢t ⊢u ok)    → prodrecⱼ (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢t)
-                                  (⊢nf∷→⊢∷ ⊢u) ok
+    (prodrecₙ ⊢C ⊢t ⊢u)       → prodrecⱼ (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢t)
+                                  (⊢nf∷→⊢∷ ⊢u)
     (emptyrecₙ ⊢A ⊢t)         → emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
     (natrecₙ _ ⊢t ⊢u ⊢v)      → natrecⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
                                   (⊢ne∷→⊢∷ ⊢v)
-    (unitrecₙ ⊢A ⊢t ⊢u ok _)  → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
-                                  (⊢nf∷→⊢∷ ⊢u) ok
+    (unitrecₙ ⊢A ⊢t ⊢u _)     → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
+                                  (⊢nf∷→⊢∷ ⊢u)
     (Jₙ _ ⊢t ⊢B ⊢u ⊢v ⊢w)     → Jⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u)
                                   (⊢nf∷→⊢∷ ⊢v) (⊢ne∷→⊢∷ ⊢w)
     (Kₙ _ _ ⊢B ⊢u ⊢v ok)      → Kⱼ (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
@@ -355,34 +353,34 @@ mutual
 
   ⊢ne∷→NfNeutral : Γ ⊢ne t ∷ A → NfNeutral (Γ .defs) t
   ⊢ne∷→NfNeutral = λ where
-    (convₙ ⊢t _)                 → ⊢ne∷→NfNeutral ⊢t
-    (varₙ _ _)                   → var _
-    (defnₙ _ α↦⊘)                → defn α↦⊘
-    (supᵘˡₙ ⊢t ⊢u)               → supᵘˡₙ (⊢ne∷→NfNeutral ⊢t)
-                                     (⊢nf∷→Nf ⊢u)
-    (supᵘʳₙ ⊢t ⊢u)               → supᵘʳₙ (⊢nf∷→Nf ⊢t)
-                                     (⊢ne∷→NfNeutral ⊢u)
-    (lowerₙ ⊢t)                  → lowerₙ (⊢ne∷→NfNeutral ⊢t)
-    (∘ₙ ⊢t ⊢u)                   → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (fstₙ _ ⊢t)                  → fstₙ (⊢ne∷→NfNeutral ⊢t)
-    (sndₙ _ ⊢t)                  → sndₙ (⊢ne∷→NfNeutral ⊢t)
-    (prodrecₙ ⊢C ⊢t ⊢u _)        → prodrecₙ (⊢nf→Nf ⊢C)
-                                     (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (emptyrecₙ ⊢A ⊢t)            → emptyrecₙ (⊢nf→Nf ⊢A)
-                                     (⊢ne∷→NfNeutral ⊢t)
-    (natrecₙ ⊢A ⊢t ⊢u ⊢v)        → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                     (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
-    (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) → unitrecₙ not-ok (⊢nf→Nf ⊢A)
-                                     (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)       → Jₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                     (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
-                                     (⊢nf∷→Nf ⊢v) (⊢ne∷→NfNeutral ⊢w)
-    (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)        → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                     (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
-                                     (⊢ne∷→NfNeutral ⊢v)
-    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf∷L→Nf ⊢l) (⊢nf→Nf ⊢A)
-                                     (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
-                                     (⊢ne∷→NfNeutral ⊢v)
+    (convₙ ⊢t _)                → ⊢ne∷→NfNeutral ⊢t
+    (varₙ _ _)                  → var _
+    (defnₙ _ α↦⊘)               → defn α↦⊘
+    (supᵘˡₙ ⊢t ⊢u)              → supᵘˡₙ (⊢ne∷→NfNeutral ⊢t)
+                                    (⊢nf∷→Nf ⊢u)
+    (supᵘʳₙ ⊢t ⊢u)              → supᵘʳₙ (⊢nf∷→Nf ⊢t)
+                                    (⊢ne∷→NfNeutral ⊢u)
+    (lowerₙ ⊢t)                 → lowerₙ (⊢ne∷→NfNeutral ⊢t)
+    (∘ₙ ⊢t ⊢u)                  → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (fstₙ _ ⊢t)                 → fstₙ (⊢ne∷→NfNeutral ⊢t)
+    (sndₙ _ ⊢t)                 → sndₙ (⊢ne∷→NfNeutral ⊢t)
+    (prodrecₙ ⊢C ⊢t ⊢u)         → prodrecₙ (⊢nf→Nf ⊢C)
+                                    (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (emptyrecₙ ⊢A ⊢t)           → emptyrecₙ (⊢nf→Nf ⊢A)
+                                    (⊢ne∷→NfNeutral ⊢t)
+    (natrecₙ ⊢A ⊢t ⊢u ⊢v)       → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                    (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
+    (unitrecₙ ⊢A ⊢t ⊢u not-ok)  → unitrecₙ not-ok (⊢nf→Nf ⊢A)
+                                    (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)      → Jₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                    (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
+                                    (⊢nf∷→Nf ⊢v) (⊢ne∷→NfNeutral ⊢w)
+    (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)       → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                    (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
+                                    (⊢ne∷→NfNeutral ⊢v)
+    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _) → []-congₙ (⊢nf∷L→Nf ⊢l) (⊢nf→Nf ⊢A)
+                                    (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
+                                    (⊢ne∷→NfNeutral ⊢v)
 
 ------------------------------------------------------------------------
 -- A lemma
@@ -529,11 +527,12 @@ mutual
       (sndₙ ⊢B ⊢t) → sndₙ
         (stability (Δ≡Η ∙ refl (⊢∙→⊢ (wf ⊢B))) ⊢B)
         (⊢ne∷-stable Δ≡Η ⊢t)
-      (prodrecₙ ⊢C ⊢t ⊢u ok) →
-        let ⊢B = ⊢∙→⊢ (wf (⊢nf∷→⊢∷ ⊢u)) in
-        prodrecₙ (⊢nf-stable (Δ≡Η ∙ refl (ΠΣⱼ ⊢B ok)) ⊢C)
-          (⊢ne∷-stable Δ≡Η ⊢t)
-          (⊢nf∷-stable (Δ≡Η ∙ refl (⊢∙→⊢ (wf ⊢B)) ∙ refl ⊢B) ⊢u) ok
+      (prodrecₙ ⊢C ⊢t ⊢u) →
+        let ⊢ΣAB         = ⊢∙→⊢ (wf (⊢nf→⊢ ⊢C))
+            ⊢A , ⊢B , ok = inversion-ΠΣ ⊢ΣAB
+        in
+        prodrecₙ (⊢nf-stable (Δ≡Η ∙ refl ⊢ΣAB) ⊢C) (⊢ne∷-stable Δ≡Η ⊢t)
+          (⊢nf∷-stable (Δ≡Η ∙ refl ⊢A ∙ refl ⊢B) ⊢u)
       (emptyrecₙ ⊢A ⊢t) → emptyrecₙ
         (⊢nf-stable Δ≡Η ⊢A)
         (⊢ne∷-stable Δ≡Η ⊢t)
@@ -544,12 +543,10 @@ mutual
         (⊢nf∷-stable Δ≡Η ⊢t)
         (⊢nf∷-stable (⊢Γℕ≡Δℕ ∙ refl (⊢nf→⊢ ⊢A)) ⊢u)
         (⊢ne∷-stable Δ≡Η ⊢v) }
-      (unitrecₙ ⊢A ⊢t ⊢u ok not-ok) →
-        case Δ≡Η ∙ refl (⊢Unit (wf (⊢nf∷→⊢∷ ⊢u)) ok) of λ {
-          ⊢Γ⊤≡Δ⊤ → unitrecₙ
-        (⊢nf-stable ⊢Γ⊤≡Δ⊤ ⊢A)
-        (⊢ne∷-stable Δ≡Η ⊢t)
-        (⊢nf∷-stable Δ≡Η ⊢u) ok not-ok }
+      (unitrecₙ ⊢A ⊢t ⊢u not-ok) →
+        let ⊢Γ⊤≡Δ⊤ = Δ≡Η ∙ refl (⊢∙→⊢ (wf (⊢nf→⊢ ⊢A))) in
+        unitrecₙ (⊢nf-stable ⊢Γ⊤≡Δ⊤ ⊢A) (⊢ne∷-stable Δ≡Η ⊢t)
+          (⊢nf∷-stable Δ≡Η ⊢u) not-ok
       (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) → Jₙ
         (⊢nf-stable Δ≡Η ⊢A)
         (⊢nf∷-stable Δ≡Η ⊢t)
@@ -840,7 +837,7 @@ inversion-ne-prodrec :
     Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
     Γ »∙ C »∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
     Γ ⊢ B ≡ A [ t ]₀
-inversion-ne-prodrec (prodrecₙ ⊢A ⊢t ⊢u _) =
+inversion-ne-prodrec (prodrecₙ ⊢A ⊢t ⊢u) =
   _ , _ , _ , ⊢A , ⊢t , ⊢u ,
   refl (subst-⊢₀ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t))
 inversion-ne-prodrec (convₙ ⊢pr B≡C) =
@@ -1152,7 +1149,7 @@ opaque
     Γ ⊢nf u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
-  inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) =
+  inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u not-ok) =
     ⊢A , ⊢t , ⊢u , refl (subst-⊢₀ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)) , not-ok
   inversion-ne-unitrec (convₙ ⊢ur B≡C) =
     case inversion-ne-unitrec ⊢ur of λ {

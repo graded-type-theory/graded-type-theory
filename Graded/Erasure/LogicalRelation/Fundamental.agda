@@ -271,7 +271,7 @@ module Fundamental
         (invUsageSnd ▸t γ≤δ) →
       sndʳ ⊢t (fundamental′ ⊢t (sub ▸t γ≤δ) <n)
     fundamental′
-      {m = 𝟙ᵐ} (prodrecⱼ ⊢C ⊢t ⊢u _) ▸prodrec (prodrec _ <n₂ <n₃) =
+      {m = 𝟙ᵐ} (prodrecⱼ ⊢C ⊢t ⊢u) ▸prodrec (prodrec _ <n₂ <n₃) =
       case inv-usage-prodrec ▸prodrec of λ
         (invUsageProdrec ▸t ▸u _ ok γ≤rδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤rδ+η $
@@ -328,14 +328,14 @@ module Fundamental
     fundamental′ (starⱼ _ ok) _ _ =
       starʳ ok
     fundamental′
-      {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u ok) γ▸ur (unitrec _ <n₂ <n₃) =
+      {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u) γ▸ur (unitrec _ <n₂ <n₃) =
       case inv-usage-unitrec γ▸ur of λ
-        (invUsageUnitrec δ▸t η▸u _ ok′ γ≤pδ+η) →
+        (invUsageUnitrec δ▸t η▸u _ ok γ≤pδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
       unitrecʳ ⊢A ⊢t ⊢u (fundamental′ ⊢t δ▸t <n₂)
         (fundamental′ ⊢u η▸u <n₃)
         (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
-           (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
+           (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok p≡𝟘)
            (inj₂ k≡0) → inj₁ (k≡0 , PE.sym (glassify-idem _)))
     fundamental′ (Idⱼ ⊢A _ _) _ _ =
       Idʳ (inversion-U-Level (wf-⊢ ⊢A))

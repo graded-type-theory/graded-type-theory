@@ -364,7 +364,6 @@ record Equality-relations
              → Γ »∙ Σʷ p , q ▷ F ▹ G ⊢ A ≅ A′
              → Γ ⊢ t ~ t′ ∷ Σʷ p , q ▷ F ▹ G
              → Γ »∙ F »∙ G ⊢ u ≅ u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑²
-             → Σʷ-allowed p q
              → Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷
                  A [ t ]₀
 
@@ -379,7 +378,6 @@ record Equality-relations
               → Γ »∙ Unitʷ ⊢ A ≅ A′
               → Γ ⊢ t ~ t′ ∷ Unitʷ
               → Γ ⊢ u ≅ u′ ∷ A [ starʷ ]₀
-              → Unitʷ-allowed
               → ¬ Unitʷ-η
               → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷
                   A [ t ]₀

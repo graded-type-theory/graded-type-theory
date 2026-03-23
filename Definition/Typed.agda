@@ -182,7 +182,6 @@ mutual
     unitrecⱼ  : Γ »∙ Unitʷ ⊢ A
               → Γ ⊢ t ∷ Unitʷ
               → Γ ⊢ u ∷ A [ starʷ ]₀
-              → Unitʷ-allowed
               → Γ ⊢ unitrec p q A t u ∷ A [ t ]₀
 
     ΠΣⱼ       : Γ ⊢ l ∷Level
@@ -213,7 +212,6 @@ mutual
     prodrecⱼ  : Γ »∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
               → Γ ⊢ t ∷ Σʷ p , q′ ▷ F ▹ G
               → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
-              → Σʷ-allowed p q′
               → Γ ⊢ prodrec r p q A t u ∷ A [ t ]₀
 
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U₀
@@ -380,19 +378,16 @@ mutual
     unitrec-cong  : Γ »∙ Unitʷ ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Unitʷ
                   → Γ ⊢ u ≡ u′ ∷ A [ starʷ ]₀
-                  → Unitʷ-allowed
                   → ¬ Unitʷ-η
                   → Γ ⊢ unitrec p q A t u ≡ unitrec p q A′ t′ u′ ∷
                       A [ t ]₀
     unitrec-β     : Γ »∙ Unitʷ ⊢ A
                   → Γ ⊢ u ∷ A [ starʷ ]₀
-                  → Unitʷ-allowed
                   → ¬ Unitʷ-η
                   → Γ ⊢ unitrec p q A starʷ u ≡ u ∷ A [ starʷ ]₀
     unitrec-β-η   : Γ »∙ Unitʷ ⊢ A
                   → Γ ⊢ t ∷ Unitʷ
                   → Γ ⊢ u ∷ A [ starʷ ]₀
-                  → Unitʷ-allowed
                   → Unitʷ-η
                   → Γ ⊢ unitrec p q A t u ≡ u ∷ A [ t ]₀
 
@@ -458,14 +453,12 @@ mutual
                   → Γ ⊢ t ≡ t′ ∷ Σʷ p , q′ ▷ F ▹ G
                   → Γ »∙ F »∙ G ⊢ u ≡ u′ ∷
                       A [ prodʷ p (var x1) (var x0) ]↑²
-                  → Σʷ-allowed p q′
                   → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]₀
     prodrec-β     : Γ »∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]₀
                   → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                   → p PE.≡ p′
-                  → Σʷ-allowed p q′
                   → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ≡
                         u [ t , t′ ]₁₀ ∷ A [ prodʷ p′ t t′ ]₀
 
@@ -597,19 +590,16 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a wher
   unitrec-subst : Γ »∙ Unitʷ ⊢ A
                 → Γ ⊢ u ∷ A [ starʷ ]₀
                 → Γ ⊢ t ⇒ t′ ∷ Unitʷ
-                → Unitʷ-allowed
                 → ¬ Unitʷ-η
                 → Γ ⊢ unitrec p q A t u ⇒ unitrec p q A t′ u ∷
                     A [ t ]₀
   unitrec-β     : Γ »∙ Unitʷ ⊢ A
                 → Γ ⊢ u ∷ A [ starʷ ]₀
-                → Unitʷ-allowed
                 → ¬ Unitʷ-η
                 → Γ ⊢ unitrec p q A starʷ u ⇒ u ∷ A [ starʷ ]₀
   unitrec-β-η   : Γ »∙ Unitʷ ⊢ A
                 → Γ ⊢ t ∷ Unitʷ
                 → Γ ⊢ u ∷ A [ starʷ ]₀
-                → Unitʷ-allowed
                 → Unitʷ-η
                 → Γ ⊢ unitrec p q A t u ⇒ u ∷ A [ t ]₀
 
@@ -648,14 +638,12 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a wher
   prodrec-subst  : Γ »∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                  → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σʷ p , q′ ▷ F ▹ G
-                 → Σʷ-allowed p q′
                  → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]₀
   prodrec-β      : Γ »∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]₀
                  → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                  → p PE.≡ p′
-                 → Σʷ-allowed p q′
                  → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ⇒
                        u [ t , t′ ]₁₀ ∷ A [ prodʷ p′ t t′ ]₀
 

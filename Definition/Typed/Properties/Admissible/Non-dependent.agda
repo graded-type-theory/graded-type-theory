@@ -401,7 +401,7 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ A ×ʷ[ p ] B →
     Γ »∙ A »∙ wk1 B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
-  prodrec-cong-⟶ = prodrec-cong′
+  prodrec-cong-⟶ = prodrec-cong
 
 opaque
 
@@ -425,7 +425,7 @@ opaque
     Γ ⊢ t₁ ⇒ t₂ ∷ A ×ʷ[ p ] B →
     Γ »∙ A »∙ wk1 B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C t₁ u ⇒ prodrec r p q C t₂ u ∷ C [ t₁ ]₀
-  prodrec-subst-⟶ = flip ∘→ prodrec-subst′
+  prodrec-subst-⟶ = flip ∘→ prodrec-subst
 
 opaque
   unfolding _⟶×⟨_⟩[_]_

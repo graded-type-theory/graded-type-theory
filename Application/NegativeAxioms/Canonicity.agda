@@ -84,14 +84,14 @@ module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
   neNeg (natrecⱼ _ _ d) (natrecₙ n) =
     let ⊢ℕ = refl (⊢ℕ (wf d))
     in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
-  neNeg (prodrecⱼ ⊢A d _ ok) (prodrecₙ n) =
+  neNeg (prodrecⱼ ⊢A d ok) (prodrecₙ n) =
     let ⊢Σ = refl (⊢∙→⊢ (wf ⊢A))
     in  ⊥-elim (¬negΣʷ (neNeg d n) ⊢Σ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent _ d)
-  neNeg (unitrecⱼ _ d _ ok) (unitrecₙ _ n) =
-    let ⊢Unit = refl (⊢Unit (wf d) ok)
-    in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
+  neNeg (unitrecⱼ ⊢A d _) (unitrecₙ _ n) =
+    let ≡Unit = refl (⊢∙→⊢ (wf ⊢A)) in
+    ⊥-elim (¬negUnit (neNeg d n) ≡Unit)
   neNeg (Jⱼ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
     ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ′ ⊢t ⊢v)))
   neNeg (Kⱼ _ _ ⊢v _) (Kₙ v-ne) =

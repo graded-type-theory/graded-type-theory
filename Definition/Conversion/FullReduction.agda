@@ -141,17 +141,15 @@ mutual
         (u′ , u′-ne , u≡u′) →
       case fullRedTermConv↑ v↑ of λ {
         (v′ , v′-nf , v≡v′) →
-      case inversion-ΠΣ (wf-⊢ u≡u′ .proj₁) of λ {
-        (_ , _ , ok) →
         prodrec r p q C′ u′ v′
       , (                                                         $⟨ v′-nf ⟩
          Γ »∙ A »∙ B ⊢nf v′ ∷ C [ prodʷ p (var x1) (var x0) ]↑²   →⟨ flip _⊢nf_∷_.convₙ $
                                                                      subst↑²TypeEq-prod C≡C′ ⟩
-         Γ »∙ A »∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ C′-nf u′-ne) ok ⟩
+         Γ »∙ A »∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ prodrecₙ C′-nf u′-ne ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀                →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                                      subst-⊢≡₀ C≡C′ u≡u′ ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                  □)
-      , prodrec-cong C≡C′ u≡u′ v≡v′ ok }}}}
+      , prodrec-cong C≡C′ u≡u′ v≡v′ }}}
     (emptyrec-cong {A₁ = A} {p} A↑ t~) →
       case fullRedConv↑ A↑ of λ {
         (A′ , A′-nf , A≡A′) →
@@ -175,7 +173,7 @@ mutual
       , (                                           $⟨ u′-nf ⟩
          Γ ⊢nf u′ ∷ A [ starʷ ]₀                  →⟨ flip _⊢nf_∷_.convₙ $
                                                        subst-⊢≡₀ A≡A′ (refl (starⱼ (wf t≡t′) ok)) ⟩
-         Γ ⊢nf u′ ∷ A′ [ starʷ ]₀                 →⟨ (λ ⊢u′ → unitrecₙ A′-nf t′-ne ⊢u′ ok no-η) ⟩
+         Γ ⊢nf u′ ∷ A′ [ starʷ ]₀                 →⟨ (λ ⊢u′ → unitrecₙ A′-nf t′-ne ⊢u′ no-η) ⟩
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A′ [ t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                        subst-⊢≡₀ A≡A′ t≡t′ ⟩
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A [ t ]₀    □)

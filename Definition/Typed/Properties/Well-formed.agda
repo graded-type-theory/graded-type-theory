@@ -192,12 +192,12 @@ private module Lemmas where
         (prodⱼ _ ⊢t _ _)        PE.refl → fix (wfTerm-<ˢ ⊢t)
         (fstⱼ _ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
         (sndⱼ _ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (prodrecⱼ _ ⊢t _ _)     PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodrecⱼ _ ⊢t _)       PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Emptyⱼ ⊢Γ)             _       → ⊢Γ , !
         (emptyrecⱼ ⊢A _)        PE.refl → fix (wf-<ˢ ⊢A)
         (Unitⱼ ⊢Γ _)            PE.refl → ⊢Γ , !
         (starⱼ ⊢Γ _)            PE.refl → ⊢Γ , !
-        (unitrecⱼ ⊢A ⊢t _ _)    PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (unitrecⱼ ⊢A ⊢t _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
         (ℕⱼ ⊢Γ)                 _       → ⊢Γ , !
         (zeroⱼ ⊢Γ)              _       → ⊢Γ , !
         (sucⱼ n)                PE.refl → fix (wfTerm-<ˢ n)
@@ -349,17 +349,17 @@ private module Lemmas where
         fix (wfTerm-<ˢ ⊢t)
       wfEqTerm-<ˢ (prod-cong _ t₁≡u₁ _ _) =
         fix (wfEqTerm-<ˢ t₁≡u₁)
-      wfEqTerm-<ˢ (prodrec-cong _ t₁≡u₁ _ _) =
+      wfEqTerm-<ˢ (prodrec-cong _ t₁≡u₁ _) =
         fix (wfEqTerm-<ˢ t₁≡u₁)
-      wfEqTerm-<ˢ (prodrec-β _ ⊢t _ _ _ _) =
+      wfEqTerm-<ˢ (prodrec-β _ ⊢t _ _ _) =
         fix (wfTerm-<ˢ ⊢t)
       wfEqTerm-<ˢ (emptyrec-cong A≡B _) =
         fix (wfEq-<ˢ A≡B)
-      wfEqTerm-<ˢ (unitrec-cong _ t₁≡u₁ _ _ _) =
+      wfEqTerm-<ˢ (unitrec-cong _ t₁≡u₁ _ _) =
         fix (wfEqTerm-<ˢ t₁≡u₁)
-      wfEqTerm-<ˢ (unitrec-β _ ⊢t _ _) =
+      wfEqTerm-<ˢ (unitrec-β _ ⊢t _) =
         fix (wfTerm-<ˢ ⊢t)
-      wfEqTerm-<ˢ (unitrec-β-η _ ⊢t _ _ _) =
+      wfEqTerm-<ˢ (unitrec-β-η _ ⊢t _ _) =
         fix (wfTerm-<ˢ ⊢t)
       wfEqTerm-<ˢ (η-unit ⊢t _ _) =
         fix (wfTerm-<ˢ ⊢t)

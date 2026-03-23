@@ -1147,24 +1147,22 @@ private module Inhabited where
       (sndⱼ {G = B} ⊢B ⊢t) PE.refl →
         PE.subst (∇ » _ ⊢ _ ∷_) (PE.sym $ singleSubstLift B _) $
         sndⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
-      (prodrecⱼ {A = C} ⊢C ⊢t ⊢u ok) PE.refl →
+      (prodrecⱼ {A = C} ⊢C ⊢t ⊢u) PE.refl →
         PE.subst (_⊢_∷_ _ _) (PE.sym $ singleSubstLift C _) $
         prodrecⱼ (subst-⊢-⇑ ⊢C ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
           (PE.subst (∇ » _ ⊢ _ ∷_) (subst-β-prodrec C _) $
            subst-⊢∷-⇑ ⊢u ⊢σ)
-          ok
       (Emptyⱼ _) _ →
         Emptyⱼ (wf-⊢ˢʷ∷ ⊢σ)
       (emptyrecⱼ ⊢A ⊢t) PE.refl →
         emptyrecⱼ (subst-⊢ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
       (starⱼ ⊢Γ ok) PE.refl →
         starⱼ (wf-⊢ˢʷ∷ ⊢σ) ok
-      (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) PE.refl →
+      (unitrecⱼ {A} ⊢A ⊢t ⊢u) PE.refl →
         PE.subst (_⊢_∷_ _ _) (PE.sym $ singleSubstLift A _) $
         unitrecⱼ (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
           (PE.subst (∇ » _ ⊢ _ ∷_) (singleSubstLift A _) $
            subst-⊢∷ ⊢u ⊢σ)
-          ok
       (Unitⱼ ⊢Γ ok) PE.refl →
         Unitⱼ (wf-⊢ˢʷ∷ ⊢σ) ok
       (ℕⱼ _) _ →
@@ -1306,12 +1304,11 @@ private module Inhabited where
         let _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift B _) $
         snd-cong (subst-⊢-⇑ ⊢B ⊢σ₁) (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
-      (prodrecⱼ {A = C} ⊢C ⊢t ⊢u ok) PE.refl →
+      (prodrecⱼ {A = C} ⊢C ⊢t ⊢u) PE.refl →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift C _) $
         prodrec-cong (subst-⊢→⊢≡-⇑ ⊢C σ₁≡σ₂) (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
           (PE.subst (_⊢_≡_∷_ _ _ _) (subst-β-prodrec C _) $
            subst-⊢∷→⊢≡∷-⇑ ⊢u σ₁≡σ₂)
-          ok
       (Emptyⱼ _) _ →
         refl (Emptyⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁))
       (emptyrecⱼ ⊢A ⊢t) PE.refl →
@@ -1319,8 +1316,9 @@ private module Inhabited where
           (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
       (starⱼ ⊢l ok) PE.refl →
         refl (starⱼ (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁) ok)
-      (unitrecⱼ {A} {t} {u} {p} {q} ⊢A ⊢t ⊢u ok) PE.refl →
-        let ⊢Δ , ⊢σ₁ , ⊢σ₂  = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+      (unitrecⱼ {A} {t} {u} {p} {q} ⊢A ⊢t ⊢u) PE.refl →
+        let ok              = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+            ⊢Δ , ⊢σ₁ , ⊢σ₂  = wf-⊢ˢʷ≡∷ σ₁≡σ₂
             ⊢Unit           = univ (Unitⱼ ⊢Δ ok)
             σ₁⇑≡σ₂⇑         = ⊢ˢʷ≡∷-⇑ ⊢Unit (refl ⊢Unit) σ₁≡σ₂
             _ , ⊢σ₁⇑ , ⊢σ₂⇑ = wf-⊢ˢʷ≡∷ σ₁⇑≡σ₂⇑
@@ -1332,13 +1330,13 @@ private module Inhabited where
         case Unitʷ-η? of λ where
           (no no-η) →
             unitrec-cong (subst-⊢→⊢≡ ⊢A σ₁⇑≡σ₂⇑) (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
-              u[σ₁]≡u[σ₂] ok no-η
+              u[σ₁]≡u[σ₂] no-η
           (yes η) →
             let ⊢t[σ₁] = subst-⊢∷ ⊢t ⊢σ₁ in
             unitrec p q A t u [ σ₁ ]  ≡⟨ unitrec-β-η (subst-⊢ ⊢A ⊢σ₁⇑) ⊢t[σ₁]
                                              (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
                                               subst-⊢∷ ⊢u ⊢σ₁)
-                                             ok η ⟩⊢
+                                             η ⟩⊢
             u [ σ₁ ]                    ≡⟨ _⊢_≡_∷_.conv u[σ₁]≡u[σ₂] $
                                            PE.subst₂ (_⊢_≡_ _)
                                              (PE.sym $ singleSubstComp _ _ A)
@@ -1356,7 +1354,7 @@ private module Inhabited where
                                               (subst-⊢ ⊢A (⊢ˢʷ∷-⇑ (univ (Unitⱼ ⊢Δ ok)) ⊢σ₂))
                                               (subst-⊢∷ ⊢t ⊢σ₂)
                                               (PE.subst (_ ⊢ _ ∷_) (singleSubstLift A _) $ subst-⊢∷ ⊢u ⊢σ₂)
-                                              ok η)
+                                              η)
                                              (PE.subst₂ (_⊢_≡_ _)
                                                 (PE.sym $ singleSubstComp _ _ A)
                                                 (PE.sym $ singleSubstComp _ _ A) $
@@ -1603,15 +1601,14 @@ private module Inhabited where
           (PE.subst (_⊢_≡_∷_ _ _ _) (singleSubstLift B _) $
            subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
           ok
-      (prodrec-cong {A = C} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) PE.refl →
+      (prodrec-cong {A = C} C₁≡C₂ t₁≡t₂ u₁≡u₂) PE.refl →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift C _) $
         prodrec-cong (subst-⊢≡-⇑ C₁≡C₂ σ₁≡σ₂) (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
           (PE.subst (_⊢_≡_∷_ _ _ _) (subst-β-prodrec C _) $
            subst-⊢≡∷-⇑ u₁≡u₂ σ₁≡σ₂)
-          ok
       (prodrec-β
          {p} {G = B} {A = C} {t} {t′ = u} {u = v} {r} {q}
-         ⊢C ⊢t ⊢u ⊢v PE.refl ok)
+         ⊢C ⊢t ⊢u ⊢v PE.refl)
         PE.refl →
         let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
           ∷ C [ prodʷ p t u ]₀ [ σ₁ ]                       ⟨ singleSubstLift C _ ⟩≡∷≡
@@ -1622,7 +1619,7 @@ private module Inhabited where
                                                                  subst-⊢∷ ⊢u ⊢σ₁)
                                                                 (PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
                                                                  subst-⊢∷-⇑ ⊢v ⊢σ₁)
-                                                                PE.refl ok ⟩⊢∷
+                                                                PE.refl ⟩⊢∷
 
         v [ σ₁ ⇑[ 2 ] ] [ t [ σ₁ ] , u [ σ₁ ] ]₁₀          ≡˘⟨ [,]-[]-commute v ⟩⊢≡
 
@@ -1642,8 +1639,9 @@ private module Inhabited where
         v [ t , u ]₁₀ [ σ₂ ]                               ∎
       (emptyrec-cong A₁≡A₂ t₁≡t₂) PE.refl →
         emptyrec-cong (subst-⊢≡ A₁≡A₂ σ₁≡σ₂) (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
-      (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η) PE.refl →
-        let ⊢Δ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁
+      (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ no-η) PE.refl →
+        let ok = inversion-Unit (⊢∙→⊢ (wf A₁≡A₂))
+            ⊢Δ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁
             ⊢Unit = univ (Unitⱼ ⊢Δ ok)
         in
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift A₁ _) $
@@ -1652,26 +1650,28 @@ private module Inhabited where
           (subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂)
           (PE.subst (_⊢_≡_∷_ _ _ _) (singleSubstLift A₁ _) $
            subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
-          ok no-η
-      (unitrec-β {A} {u = t} {p} {q} ⊢A ⊢t ok no-η) PE.refl →
-        let ⊢Δ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+          no-η
+      (unitrec-β {A} {u = t} {p} {q} ⊢A ⊢t no-η) PE.refl →
+        let ok           = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+            ⊢Δ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in
         unitrec p q A starʷ t [ σ₁ ]  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
                                          unitrec-β (subst-⊢ ⊢A (⊢ˢʷ∷-⇑ (univ (Unitⱼ ⊢Δ ok)) ⊢σ₁))
                                            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
                                             subst-⊢∷ ⊢t ⊢σ₁)
-                                           ok no-η ⟩⊢
+                                           no-η ⟩⊢
         t [ σ₁ ]                      ≡⟨ subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂ ⟩⊢∎
         t [ σ₂ ]                      ∎
-      (unitrec-β-η {A} {t} {u} {p} {q} ⊢A ⊢t ⊢u ok no-η) PE.refl →
-        let ⊢Δ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
+      (unitrec-β-η {A} {t} {u} {p} {q} ⊢A ⊢t ⊢u no-η) PE.refl →
+        let ok           = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+            ⊢Δ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
             ⊢t[σ₁]       = subst-⊢∷ ⊢t ⊢σ₁
         in
         unitrec p q A t u [ σ₁ ] ∷ A [ t ]₀ [ σ₁ ]  ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
                                                          unitrec-β-η (subst-⊢-⇑ ⊢A ⊢σ₁) ⊢t[σ₁]
                                                            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
                                                             subst-⊢∷ ⊢u ⊢σ₁)
-                                                           ok no-η ⟩⊢∷
+                                                           no-η ⟩⊢∷
                                                        ⟨ PE.subst₂ (_⊢_≡_ _)
                                                            (PE.sym $ substCompEq A) (PE.sym $ substCompEq A) $
                                                          subst-⊢→⊢≡ ⊢A $

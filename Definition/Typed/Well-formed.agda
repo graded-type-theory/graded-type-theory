@@ -128,7 +128,7 @@ opaque mutual
         ⊢∙→⊢ (wf ⊢B)
       (sndⱼ ⊢B ⊢t) →
         subst-⊢ ⊢B (⊢ˢʷ∷-sgSubst (fstⱼ ⊢B ⊢t))
-      (prodrecⱼ ⊢C ⊢t _ _) →
+      (prodrecⱼ ⊢C ⊢t _) →
         subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst ⊢t)
       (Emptyⱼ ⊢Γ) →
         ⊢U₀ ⊢Γ
@@ -136,7 +136,7 @@ opaque mutual
         ⊢A
       (starⱼ ⊢Γ ok) →
         univ (Unitⱼ ⊢Γ ok)
-      (unitrecⱼ ⊢A ⊢t _ _) →
+      (unitrecⱼ ⊢A ⊢t _) →
         subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t)
       (Unitⱼ ⊢Γ _) →
         ⊢U₀ ⊢Γ
@@ -327,8 +327,9 @@ opaque mutual
         prodⱼ ⊢B ⊢t₂
           (conv ⊢u₂ (subst-⊢≡ (refl ⊢B) (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂)))
           ok
-      (prodrec-cong {G = B} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
-        let ⊢C₁ , ⊢C₂     = wf-⊢≡ C₁≡C₂
+      (prodrec-cong {G = B} C₁≡C₂ t₁≡t₂ u₁≡u₂) →
+        let _ , _ , ok    = inversion-ΠΣ (⊢∙→⊢ (wf C₁≡C₂))
+            ⊢C₁ , ⊢C₂     = wf-⊢≡ C₁≡C₂
             _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
             _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
             ⊢B            = ⊢∙→⊢ (wf u₁≡u₂)
@@ -338,7 +339,7 @@ opaque mutual
                             ⊢ˢʷ∷-idSubst (wf ⊢A)
         in
         subst-⊢ ⊢C₁ (⊢ˢʷ∷-sgSubst ⊢t₁) ,
-        prodrecⱼ ⊢C₁ ⊢t₁ ⊢u₁ ok ,
+        prodrecⱼ ⊢C₁ ⊢t₁ ⊢u₁ ,
         conv
           (prodrecⱼ ⊢C₂ ⊢t₂
              (conv ⊢u₂ $
@@ -352,12 +353,12 @@ opaque mutual
                    (PE.trans (PE.sym [1]↑²) $
                     PE.sym $ singleSubstComp _ _ B) $
                  var₀ ⊢B)
-                ok)
-             ok)
+                ok))
           (sym (subst-⊢≡ C₁≡C₂ (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂)))
-      (prodrec-β {A = C} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
+      (prodrec-β {A = C} ⊢C ⊢t ⊢u ⊢v PE.refl) →
+        let _ , _ , ok = inversion-ΠΣ (⊢∙→⊢ (wf ⊢C)) in
         subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst (prodⱼ (⊢∙→⊢ (wf ⊢v)) ⊢t ⊢u ok)) ,
-        prodrecⱼ ⊢C (prodⱼ (⊢∙→⊢ (wf ⊢v)) ⊢t ⊢u ok) ⊢v ok ,
+        prodrecⱼ ⊢C (prodⱼ (⊢∙→⊢ (wf ⊢v)) ⊢t ⊢u ok) ⊢v ,
         PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] C)
           (subst-⊢ ⊢v (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u))
       (emptyrec-cong A₁≡A₂ t₁≡t₂) →
@@ -365,15 +366,16 @@ opaque mutual
             _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
         in
         ⊢A₁ , emptyrecⱼ ⊢A₁ ⊢t₁ , conv (emptyrecⱼ ⊢A₂ ⊢t₂) (sym A₁≡A₂)
-      (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ok _) →
-        let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
+      (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _) →
+        let ok            = inversion-Unit (⊢∙→⊢ (wf A₁≡A₂))
+            ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
             _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
             _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
             ⊢Γ            = wf t₁≡t₂
             Unit≡         = refl (univ (Unitⱼ ⊢Γ ok))
         in
         subst-⊢ ⊢A₁ (⊢ˢʷ∷-sgSubst ⊢t₁) ,
-        unitrecⱼ ⊢A₁ ⊢t₁ ⊢u₁ ok ,
+        unitrecⱼ ⊢A₁ ⊢t₁ ⊢u₁ ,
         conv
           (unitrecⱼ
             (stability-⊢ (reflConEq ⊢Γ ∙⟨ univ (Unitⱼ ⊢Γ ok) ∣ Unit≡ ⟩)
@@ -382,15 +384,17 @@ opaque mutual
             (conv ⊢u₂ $ subst-⊢≡ A₁≡A₂ $ ⊢ˢʷ≡∷-sgSubst
               (starⱼ ⊢Γ ok)
               (conv (starⱼ ⊢Γ ok) (sym Unit≡))
-              (refl (starⱼ ⊢Γ ok)))
-            ok)
+              (refl (starⱼ ⊢Γ ok))))
           (sym (subst-⊢≡ A₁≡A₂ (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂)))
-      (unitrec-β ⊢A ⊢t ok _) →
-        wf-⊢∷ ⊢t , unitrecⱼ ⊢A (starⱼ (wf ⊢t) ok) ⊢t ok , ⊢t
-      (unitrec-β-η ⊢A ⊢t ⊢u ok η) →
-        let ⊢star = starⱼ (wf ⊢t) ok in
+      (unitrec-β ⊢A ⊢t _) →
+        let ok = inversion-Unit (⊢∙→⊢ (wf ⊢A)) in
+        wf-⊢∷ ⊢t , unitrecⱼ ⊢A (starⱼ (wf ⊢t) ok) ⊢t , ⊢t
+      (unitrec-β-η ⊢A ⊢t ⊢u η) →
+        let ok    = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+            ⊢star = starⱼ (wf ⊢t) ok
+        in
         subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t) ,
-        unitrecⱼ ⊢A ⊢t ⊢u ok ,
+        unitrecⱼ ⊢A ⊢t ⊢u ,
         conv ⊢u
           (subst-⊢≡ (refl ⊢A) $
            ⊢ˢʷ≡∷-sgSubst ⊢star ⊢t (η-unit ⊢star ⊢t (inj₂ η)))

@@ -76,11 +76,11 @@ neTypeEq (sndₙ neP) (sndⱼ ⊢G ⊢t) (sndⱼ _ ⊢t′) with neTypeEq neP �
 neTypeEq (natrecₙ _) ⊢t@(natrecⱼ _ _ _) (natrecⱼ _ _ _) =
   refl (wf-⊢ ⊢t)
 neTypeEq
-  (prodrecₙ neT) (prodrecⱼ ⊢A ⊢t _ _) (prodrecⱼ _ _ _ _) =
+  (prodrecₙ neT) (prodrecⱼ ⊢A ⊢t _) (prodrecⱼ _ _ _) =
   refl (subst-⊢₀ ⊢A ⊢t)
 neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
-neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
+neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _) (unitrecⱼ _ _ _) =
   refl (subst-⊢₀ ⊢A ⊢t)
 neTypeEq (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   refl $

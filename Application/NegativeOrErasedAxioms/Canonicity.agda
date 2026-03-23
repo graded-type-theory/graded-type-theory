@@ -169,13 +169,16 @@ neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
   NegativeType Γ (A [ n ]₀)            □ }
 neNeg
   {γ = γ}
-  (prodrecⱼ {p} {q′ = q} {F = B} {G = C} {A} {t} {r} _ ⊢t ⊢u ok₁)
+  (prodrecⱼ {p} {q′ = q} {F = B} {G = C} {A} {t} {r} ⊢A ⊢t ⊢u)
   (prodrecₙ t-ne)
   γ▸prodrec =
-  case inv-usage-prodrec γ▸prodrec of λ {
-    (invUsageProdrec {δ = δ} {η = η} δ▸t _ _ ok₂ γ≤rδ+η) →
-  case no-erased-matches non-trivial .proj₁ ok₂ of λ {
-    r≢𝟘 →
+  let _ , _ , Σ-ok =
+        inversion-ΠΣ (⊢∙→⊢ (wf ⊢A))
+      invUsageProdrec {δ} {η} δ▸t _ _ ok γ≤rδ+η =
+        inv-usage-prodrec γ▸prodrec
+      r≢𝟘 =
+        no-erased-matches non-trivial .proj₁ ok
+  in
   NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed γ≤rδ+η ⟩
   NegativeErasedContext Γ (r ·ᶜ δ +ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ δ)) ⟩
   NegativeErasedContext Γ (r ·ᶜ δ)       →⟨ (NegativeErasedContext-𝟘 λ _ →
@@ -184,16 +187,19 @@ neNeg
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) δ▸t) ⟩
-  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ (⊢∙→⊢ (wf ⊢u)) ok₁)) ⟩
+  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ (⊢∙→⊢ (wf ⊢u)) Σ-ok)) ⟩
   ⊥                                      →⟨ ⊥-elim ⟩
-  NegativeType Γ (A [ t ]₀)              □ }}
+  NegativeType Γ (A [ t ]₀)              □
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
   ⊥-elim (consistent _ d)
 neNeg
-  {γ} (unitrecⱼ {A} {t} {p} _ d _ ok) (unitrecₙ no-η n) γ▸unitrec =
-  case inv-usage-unitrec γ▸unitrec of λ {
-   (invUsageUnitrec {δ} {η} δ▸t _ _ ok′ γ≤pδ+η) →
-  case no-η ∘→ no-erased-matches non-trivial .proj₂ .proj₁ ok′ of λ
+  {γ} (unitrecⱼ {A} {t} {p} ⊢A d _) (unitrecₙ no-η n) γ▸unitrec =
+  let Unit-ok =
+        inversion-Unit (⊢∙→⊢ (wf ⊢A))
+      invUsageUnitrec {δ} {η} δ▸t _ _ ok γ≤pδ+η =
+        inv-usage-unitrec γ▸unitrec
+  in
+  case no-η ∘→ no-erased-matches non-trivial .proj₂ .proj₁ ok of λ
     p≢𝟘 →
   NegativeErasedContext Γ γ               →⟨ NegativeErasedContext-upwards-closed γ≤pδ+η ⟩
   NegativeErasedContext Γ (p ·ᶜ δ +ᶜ η)   →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (p ·ᶜ δ)) ⟩
@@ -203,9 +209,9 @@ neNeg
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ               →⟨ neNeg d n (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸t) ⟩
-  NegativeType Γ Unitʷ                    →⟨ flip ¬negUnit (refl (⊢Unit (wf d) ok)) ⟩
+  NegativeType Γ Unitʷ                    →⟨ flip ¬negUnit (refl (⊢Unit (wf d) Unit-ok)) ⟩
   ⊥                                       →⟨ ⊥-elim ⟩
-  NegativeType Γ (A [ t ]₀)               □ }
+  NegativeType Γ (A [ t ]₀)               □
 neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
   case inv-usage-J ▸J of λ where
     (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ _ ▸w γ≤) →

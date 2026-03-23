@@ -337,7 +337,7 @@ opaque
         case starᵛ (wf-⊩ᵛ ⊩Unit) ok of λ
           ⊩⋆ →
         unitrec p q A₁ t₁ u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]  ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A₁ t₁) $
-                                                            unitrec-β-η ⊢A₁[σ₁⇑] (R.escape-⊩∷ ⊩t₁[σ₁]) ⊢u₁[σ₁] ok
+                                                            unitrec-β-η ⊢A₁[σ₁⇑] (R.escape-⊩∷ ⊩t₁[σ₁]) ⊢u₁[σ₁]
                                                               (Unit-with-η-𝕨→Unitʷ-η η) ⟩⊩∷∷
                                                           ⟨ R.⊩≡⇔ .proj₁ $
                                                             ⊩ᵛ≡→⊩≡∷→⊩ˢ≡∷→⊩[]₀[]≡[]₀[] (refl-⊩ᵛ≡ ⊩A₁)
@@ -348,7 +348,7 @@ opaque
                                                           ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
                    ∷ A₂ [ starʷ ]₀ [ σ₂ ]                 ⟨ singleSubstLift A₂ starʷ ⟩⇐≡
         u₂ [ σ₂ ]  ∷ A₂ [ σ₂ ⇑ ] [ starʷ [ σ₂ ] ]₀       ⇐⟨ conv
-                                                              (unitrec-β-η ⊢A₂[σ₂⇑] ⊢t₂[σ₂] ⊢u₂[σ₂] ok
+                                                              (unitrec-β-η ⊢A₂[σ₂⇑] ⊢t₂[σ₂] ⊢u₂[σ₂]
                                                                  (Unit-with-η-𝕨→Unitʷ-η η))
                                                               (≅-eq $ R.escape-⊩≡ $
                                                                ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ (refl-⊩ᵛ≡ ⊩A₂) (refl-⊩ˢ≡∷ ⊩σ₂) $
@@ -380,13 +380,13 @@ opaque
           starᵣ →
             unitrec p q A₁ t₁    u₁ [ σ₁ ] ∷ A₁ [ t₁ ]₀ [ σ₁ ]       ⇒*⟨ unitrec⇒*₁ ⟩⊩∷∷
                                                                        ⟨ A₁[t₁]₀[σ₁]≡A₁[σ₁⇑][t₁′]₀ ⟩⊩∷
-            unitrec p q A₁ starʷ u₁ [ σ₁ ] ∷ A₁ [ σ₁ ⇑ ] [ starʷ ]₀  ⇒⟨ unitrec-β ⊢A₁[σ₁⇑] ⊢u₁[σ₁] ok no-η ⟩⊩∷∷
+            unitrec p q A₁ starʷ u₁ [ σ₁ ] ∷ A₁ [ σ₁ ⇑ ] [ starʷ ]₀  ⇒⟨ unitrec-β ⊢A₁[σ₁⇑] ⊢u₁[σ₁] no-η ⟩⊩∷∷
                                                                      ˘⟨ singleSubstLift A₁ starʷ ⟩⊩∷≡
             u₁ [ σ₁ ]                      ∷ A₁ [ starʷ ]₀ [ σ₁ ]    ≡⟨ R.⊩≡∷→ $ u₁≡u₂ id⊇ σ₁≡σ₂ ⟩⊩∷∷⇐*
                                                                       ⟨ A₁[⋆]₀[σ₁]≡A₂[⋆]₀[σ₂] ⟩⇒
                                            ∷ A₂ [ starʷ ]₀ [ σ₂ ]     ⟨ singleSubstLift A₂ starʷ ⟩⇐≡
             u₂ [ σ₂ ]                      ∷ A₂ [ σ₂ ⇑ ] [ starʷ ]₀
-                                                                     ⇐⟨ unitrec-β ⊢A₂[σ₂⇑] ⊢u₂[σ₂] ok no-η ⟩∷
+                                                                     ⇐⟨ unitrec-β ⊢A₂[σ₂⇑] ⊢u₂[σ₂] no-η ⟩∷
                                            ∷ A₂ [ σ₂ ⇑ ] [ starʷ ]₀  ˘⟨ ⊢A₂[t₂]₀[σ₂]≡A₂[σ₂⇑][t₂′]₀ ⟩⇒
             unitrec p q A₂ starʷ u₂ [ σ₂ ] ∷ A₂ [ t₂ ]₀ [ σ₂ ]       ⇐*⟨ unitrec⇒*₂ ⟩∎∷
             unitrec p q A₂ t₂    u₂ [ σ₂ ]                           ∎
@@ -409,7 +409,7 @@ opaque
                                                                         t₁′~t₂′
                                                                         (PE.subst (_⊢_≅_∷_ _ _ _) (singleSubstLift A₁ _) $
                                                                          escape-⊩≡∷ (R.⊩≡∷→ $ u₁≡u₂ id⊇ σ₁≡σ₂))
-                                                                        ok no-η) ⟩⊩∷∷⇐*
+                                                                        no-η) ⟩⊩∷∷⇐*
                                                                   ⟨ ≅-eq $ escape-⊩≡ $ R.⊩≡→ $
                                                                     ⊩ᵛ≡→⊩ˢ≡∷→⊩≡∷→⊩[⇑][]₀≡[⇑][]₀ A₁≡A₂ σ₁≡σ₂ $ R.→⊩≡∷ $
                                                                     neutral-⊩≡∷ (R.⊩→ $ ⊩ᵛ→⊩ˢ∷→⊩[] ⊩Unit ⊩σ₁)
@@ -477,7 +477,7 @@ opaque
            (subst-⊢ ⊢A (⊢ˢʷ∷-⇑′ ⊢Unit (escape-⊩ˢ∷ ⊩σ .proj₂)))
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             R.escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ))
-           (inversion-Unit ⊢Unit) no-η)
+           no-η)
       ⊩t
 
 opaque
@@ -508,7 +508,7 @@ opaque
            (R.escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩t ⊩σ))
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             R.escape-⊩∷ (⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ))
-           ok η)
+           η)
       (conv-⊩ᵛ∷
          (⊩ᵛ≡→⊩ᵛ≡∷→⊩ᵛ[]₀≡[]₀ (refl-⊩ᵛ≡ ⊩A) $
           η-unitᵛ (starᵛ (wf-⊩ᵛ (wf-⊩ᵛ∷ ⊩t)) ok) ⊩t (inj₂ η))

@@ -352,7 +352,7 @@ opaque
     Γ ⊢ t ∷ Unitʷ ×
     Γ ⊢ u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀
-  inversion-unitrec (unitrecⱼ ⊢A ⊢t ⊢u _) =
+  inversion-unitrec (unitrecⱼ ⊢A ⊢t ⊢u) =
     ⊢A , ⊢t , ⊢u , refl (subst-⊢₀ ⊢A ⊢t)
   inversion-unitrec (conv ⊢ur eq) =
     let a , b , c , d = inversion-unitrec ⊢ur
@@ -432,7 +432,7 @@ opaque
       Γ ⊢ t ∷ Σʷ p , q ▷ C ▹ D ×
       Γ »∙ C »∙ D ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
       Γ ⊢ B ≡ A [ t ]₀
-  inversion-prodrec (prodrecⱼ ⊢A ⊢t ⊢u _) =
+  inversion-prodrec (prodrecⱼ ⊢A ⊢t ⊢u) =
     let ⊢D = ⊢∙→⊢ (wf ⊢u) in
     _ , _ , _ , ⊢∙→⊢ (wf ⊢D) , ⊢D , ⊢A , ⊢t , ⊢u ,
     refl (subst-⊢₀ ⊢A ⊢t)

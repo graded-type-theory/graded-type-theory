@@ -111,7 +111,7 @@ module Example₁
     let ⊢ℕ = ∙ univ (ℕⱼ (∙ univ (ℕⱼ εε)))
         ⊢ℕ′ = univ (ℕⱼ (∙ univ (ℕⱼ ⊢ℕ)))
         ⊢p = prodⱼ ⊢ℕ′ (var ⊢ℕ (there here)) (var ⊢ℕ here) Σ-ok
-    in  prodrecⱼ′ (univ (ℕⱼ (∙ wf-⊢ ⊢p))) ⊢p (var (∙ ⊢ℕ′) here)
+    in  prodrecⱼ (univ (ℕⱼ (∙ wf-⊢ ⊢p))) ⊢p (var (∙ ⊢ℕ′) here)
 
   -- t is well-resourced
 
@@ -217,7 +217,7 @@ opaque
           ⊢ℕ = univ (ℕⱼ (∙ univ (ℕⱼ ⊢ℕ′)))
       in  prodrecⱼ (univ (ℕⱼ (∙ ΠΣⱼ ⊢ℕ Σ-ok)))
             (prodⱼ ⊢ℕ (var ⊢ℕ′ (there here)) (var ⊢ℕ′ here) Σ-ok)
-            (zeroⱼ (∙ ⊢ℕ)) Σ-ok
+            (zeroⱼ (∙ ⊢ℕ))
 
     -- The program t evaluates to zero in the abstract machine (and the
     -- heap is extended in a certain way).

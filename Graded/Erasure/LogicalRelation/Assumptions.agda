@@ -159,7 +159,7 @@ opaque instance
     ; fst-⇛     = fst-cong′
     ; snd-⇛     = snd-cong′
     ; prodrec-⇛ = λ ⊢C t₁≡t₂ ⊢u →
-                    prodrec-cong′ (refl ⊢C) t₁≡t₂ (refl ⊢u)
+                    prodrec-cong (refl ⊢C) t₁≡t₂ (refl ⊢u)
     ; natrec-⇛  = λ ⊢t ⊢u v₁≡v₂ →
                     natrec-cong (refl (⊢∙→⊢ (wf ⊢u))) (refl ⊢t)
                       (refl ⊢u) v₁≡v₂
