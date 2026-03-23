@@ -96,7 +96,7 @@ mutual
           (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v) =
     let ⊢Γ = wf (proj₁ (syntacticEqTerm (soundness~↓ t~u)))
         A≡B = soundnessConv↑ A<>B
-        F[0]≡F₁[0] = substTypeEq A≡B (refl (zeroⱼ ⊢Γ))
+        F[0]≡F₁[0] = subst-⊢≡₀ A≡B (refl (zeroⱼ ⊢Γ))
         F↑̂²≡F₁↑² = sucCong A≡B
         A<>C = transConv↑ A<>B B<>C
         a₀<>c₀ = transConv↑Term F[0]≡F₁[0] a₀<>b₀ b₀<>c₀
@@ -104,7 +104,7 @@ mutual
                    (stabilityConv↑Term (refl-∙ (sym A≡B)) bₛ<>cₛ)
         t~v , _ = trans~↓ t~u u~v
     in  natrec-cong A<>C a₀<>c₀ aₛ<>cₛ t~v
-    ,   substTypeEq A≡B (soundness~↓ t~u)
+    ,   subst-⊢≡₀ A≡B (soundness~↓ t~u)
   trans~↑ {Γ = Γ} (prodrec-cong {F = F} {G} A<>B a~b t<>u)
                   (prodrec-cong B<>C b~c u<>v) =
     let a~c , Σ≡Σ′ = trans~↓ a~b b~c
@@ -122,7 +122,7 @@ mutual
         A₊≡B₊ = subst↑²TypeEq-prod A≡B
         t<>v = transConv↑Term A₊≡B₊ t<>u u<>v′
         a≡b = soundness~↓ a~b
-        Aa≡Bb = substTypeEq A≡B a≡b
+        Aa≡Bb = subst-⊢≡₀ A≡B a≡b
     in  prodrec-cong A<>C a~c t<>v , Aa≡Bb
   trans~↑ (emptyrec-cong A<>B t~u) (emptyrec-cong B<>C u~v) =
     let A≡B = soundnessConv↑ A<>B
@@ -137,8 +137,8 @@ mutual
         ⊢Γ = wf ⊢Unit
         A<>C = transConv↑ A<>B B<>C
         A≡B = soundnessConv↑ A<>B
-        A₊≡B₊ = substTypeEq A≡B (refl (starⱼ ⊢Γ ok))
-        Ak≡Ne = substTypeEq A≡B (soundness~↓ k~l)
+        A₊≡B₊ = subst-⊢≡₀ A≡B (refl (starⱼ ⊢Γ ok))
+        Ak≡Ne = subst-⊢≡₀ A≡B (soundness~↓ k~l)
         u<>w = transConv↑Term A₊≡B₊ u<>v v<>w
     in  unitrec-cong A<>C k~m u<>w no-η , Ak≡Ne
   trans~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C₁≡Id-t₁-v₁)
@@ -174,7 +174,7 @@ mutual
               B₂≡B₃))
         (transConv↑Term (K-motive-rfl-cong ⊢B₁≡B₂) u₁≡u₂ u₂≡u₃)
         (trans~↓ v₁~v₂ v₂~v₃ .proj₁) C₁≡Id-t₁-t₁ ok
-    , substTypeEq ⊢B₁≡B₂ (conv (soundness~↓ v₁~v₂) C₁≡Id-t₁-t₁) }}
+    , subst-⊢≡₀ ⊢B₁≡B₂ (conv (soundness~↓ v₁~v₂) C₁≡Id-t₁-t₁) }}
   trans~↑ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B₁≡Id-t₁-u₁ ok)
     ([]-cong-cong l₂≡l₃ A₂≡A₃ t₂≡t₃ u₂≡u₃ v₂~v₃ _ _) =
     let ⊢l₁≡l₂    = soundnessConv↑Level l₁≡l₂
@@ -341,7 +341,7 @@ mutual
     in
     Σ-η ⊢t ⊢v t-prod v-prod (transConvTerm fst-t≡fst-u fst-u≡fst-v)
       (transConv↑Term
-         (substTypeEq (refl ⊢B) (soundnessConv↑Term fst-t≡fst-u))
+         (subst-⊢≡₀ ⊢B (soundnessConv↑Term fst-t≡fst-u))
          snd-t≡snd-u snd-u≡snd-v)
   transConv↓Term (Σʷ-ins ⊢t _ t~u) u≡v =
     let _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v) in
@@ -360,7 +360,7 @@ mutual
           (_ , _ , PE.refl , PE.refl) →
         prod-cong ⊢B (transConvTerm t₁≡u₁ u₁≡v₁)
           (transConv↑Term
-             (substTypeEq (refl ⊢B) (soundnessConv↑Term t₁≡u₁))
+             (subst-⊢≡₀ ⊢B (soundnessConv↑Term t₁≡u₁))
              t₂≡u₂ u₂≡v₂)
           ok }
   transConv↓Term (Empty-ins t~u) u≡v =

@@ -254,7 +254,7 @@ opaque
     v [ σ ] ® erase str v T.[ σ′ ] ∷ ℕ ◂ 𝟙                         →⟨ ®∷ℕ⇔ .proj₁ ∘→ ®∷→®∷◂ω non-trivial ⟩
 
     v [ σ ] ® erase str v T.[ σ′ ] ∷ℕ                              →⟨ natrecʳ′
-                                                                       (substTypeEq (refl (subst-⊢-⇑ ⊢A ⊢σ)) ∘→ sym′ ∘→ ⇛→⊢≡)
+                                                                       (subst-⊢≡₀ (subst-⊢-⇑ ⊢A ⊢σ) ∘→ sym′ ∘→ ⇛→⊢≡)
                                                                        (subst-⊢-⇑ ⊢A ⊢σ)
                                                                        (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
                                                                        (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) (subst-⊢-⇑ ⊢u ⊢σ))

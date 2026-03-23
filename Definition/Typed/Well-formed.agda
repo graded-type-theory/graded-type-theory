@@ -311,7 +311,7 @@ opaque mutual
           [fst[t,u]]₀≡[t]₀     = ⊢ˢʷ≡∷-sgSubst (fstⱼ ⊢B ⊢prod) ⊢t₁
                                    (Σ-β₁ ⊢B ⊢t₁ ⊢t₂ PE.refl ok)
       in
-      substType ⊢B ⊢t₁ ,
+      subst-⊢₀ ⊢B ⊢t₁ ,
       conv (sndⱼ ⊢B ⊢prod) (subst-⊢≡ (refl ⊢B) [fst[t,u]]₀≡[t]₀) ,
       ⊢t₂
     (Σ-η ⊢B ⊢t₁ ⊢t₂ _ _ ok) →

@@ -1479,9 +1479,9 @@ opaque
     conv
       (unitrec-cong′ ≡A ≡t
          (conv (⊢inline≡∷ ⊢u) $
-          substTypeEq (sym ≡A) $
+          subst-⊢≡₀ (sym ≡A) $
           refl (starⱼ (glassify-⊢ (wf ⊢t)) ok)))
-      (substTypeEq ≡A ≡t)
+      (subst-⊢≡₀ ≡A ≡t)
   ⊢inline≡∷ (ΠΣⱼ _ ⊢A ⊢B ok) =
     let ≡A = ⊢inline≡∷ ⊢A in
     ΠΣ-cong′ ≡A
@@ -1493,19 +1493,19 @@ opaque
         ≡u         = ⊢inline≡∷ ⊢u
     in
     conv (app-cong (⊢inline≡∷ ⊢t) ≡u)
-      (substTypeEq (refl (glassify-⊢ ⊢B)) ≡u)
+      (subst-⊢≡₀ (glassify-⊢ ⊢B) ≡u)
   ⊢inline≡∷ (prodⱼ ⊢B ⊢t ⊢u ok) =
     let ⊢B = glassify-⊢ ⊢B
         ≡t = ⊢inline≡∷ ⊢t
     in
     prod-cong ⊢B ≡t
-      (conv (⊢inline≡∷ ⊢u) (substTypeEq (refl ⊢B) (sym′ ≡t))) ok
+      (conv (⊢inline≡∷ ⊢u) (subst-⊢≡₀ ⊢B (sym′ ≡t))) ok
   ⊢inline≡∷ (fstⱼ _ ⊢t) =
     fst-cong′ (⊢inline≡∷ ⊢t)
   ⊢inline≡∷ (sndⱼ ⊢B ⊢t) =
     let ≡t = ⊢inline≡∷ ⊢t in
     conv (snd-cong′ ≡t)
-      (substTypeEq (refl (glassify-⊢ ⊢B)) (fst-cong′ ≡t))
+      (subst-⊢≡₀ (glassify-⊢ ⊢B) (fst-cong′ ≡t))
   ⊢inline≡∷ (prodrecⱼ ⊢A ⊢t ⊢u _) =
     let ≡A = ⊢inline≡ ⊢A
         ≡t = ⊢inline≡∷ ⊢t
@@ -1513,7 +1513,7 @@ opaque
     conv
       (prodrec-cong′ ≡A ≡t
          (conv (⊢inline≡∷ ⊢u) (subst↑²TypeEq-prod (sym ≡A))))
-      (substTypeEq ≡A ≡t)
+      (subst-⊢≡₀ ≡A ≡t)
   ⊢inline≡∷ (ℕⱼ ⊢Γ) =
     refl (ℕⱼ (glassify-⊢ ⊢Γ))
   ⊢inline≡∷ (zeroⱼ ⊢Γ) =
@@ -1528,12 +1528,12 @@ opaque
     conv
       (natrec-cong ≡A
          (conv (⊢inline≡∷ ⊢t) $
-          substTypeEq (sym ≡A) (refl (zeroⱼ (glassify-⊢ (wf ⊢t)))))
+          subst-⊢≡₀ (sym ≡A) (refl (zeroⱼ (glassify-⊢ (wf ⊢t)))))
          (stability (refl-∙ (sym ≡A)) $
           conv (⊢inline≡∷ ⊢u) $
           subst-⊢≡-↑ (sym ≡A) (refl (sucⱼ (var₁ (glassify-⊢ ⊢A)))))
          ≡v)
-      (substTypeEq ≡A ≡v)
+      (subst-⊢≡₀ ≡A ≡v)
   ⊢inline≡∷ (Idⱼ ⊢A ⊢t ⊢u) =
     let ≡A  = ⊢inline≡∷ ⊢A
         ≡A′ = univ ≡A
@@ -1583,9 +1583,9 @@ opaque
       (K-cong ≡A (conv ≡t (sym ≡A))
          (stability (refl-∙ Id-A-t-t≡) ≡B)
          (conv (⊢inline≡∷ ⊢u) $
-          substTypeEq (sym ≡B) (refl (rflⱼ (glassify-⊢ ⊢t))))
+          subst-⊢≡₀ (sym ≡B) (refl (rflⱼ (glassify-⊢ ⊢t))))
          (conv ≡v Id-A-t-t≡) ok)
-      (substTypeEq ≡B ≡v)
+      (subst-⊢≡₀ ≡B ≡v)
   ⊢inline≡∷ ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) =
     let ≡l     = ⊢inline≡∷L ⊢l
         ⊢l , _ = wf-⊢≡∷L ≡l

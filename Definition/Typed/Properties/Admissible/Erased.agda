@@ -469,7 +469,7 @@ opaque
         ⊢Unit′                          = ⊢Unit ⊢Γ Unit-ok
         ⊢star                           = starⱼ ⊢Γ Unit-ok
         ⊢A′                             = wk₁ ⊢Unit′ ⊢A
-        ⊢wk1-l[u]₀                      = substLevel ⊢wk1-l ⊢u
+        ⊢wk1-l[u]₀                      = subst-⊢₀ ⊢wk1-l ⊢u
         ⊢l                              =
           PE.subst (_⊢_∷Level _) (wk1-sgSubst _ _) ⊢wk1-l[u]₀
     in
@@ -506,7 +506,7 @@ opaque
                                                                                      PE.sym $
                                                                                      PE.trans ([][]↑-[₀⇑] 0 B) $
                                                                                      PE.cong (B U.[_]₀ ∘→ [_]) $ wk1-sgSubst _ _) $
-                                                                                  substTerm ⊢t ⊢u))
+                                                                                  subst-⊢₀ ⊢t ⊢u))
                                                                               (erasedrec-lemma₃ ⊢B ⊢u (liftⱼ′ ⊢l ⊢star)) ⟩⊢
     unitrec⟨ s ⟩ 𝟙 p (B [ prod s 𝟘 (wk1 u) (lift (var x0)) ]↑) (star s)
       (t [ u ]₀)                                                         ≡⟨ (let lemma =
@@ -532,7 +532,7 @@ opaque
                                                                                      var₀ ⊢Unit′)
                                                                                     Σ-ok)
                                                                                (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
-                                                                                substTerm ⊢t ⊢u)) ⟩⊢∎
+                                                                                subst-⊢₀ ⊢t ⊢u)) ⟩⊢∎
     t [ u ]₀                                                             ∎
     where
     open Erased s
@@ -611,7 +611,7 @@ opaque
     let ok , _ = inversion-Erased $ wf-⊢≡∷ u₁≡u₂ .proj₁ in
     []-cong′ ok ⊢l₂ $
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
-    substTermEq t₁≡t₂ (erased-cong A₁≡A₂ u₁≡u₂)
+    subst-⊢≡₀ t₁≡t₂ (erased-cong A₁≡A₂ u₁≡u₂)
 
 opaque
 
@@ -642,7 +642,7 @@ opaque
   mapᴱ-β ok ⊢l ⊢t ⊢u =
     []-cong′ ok ⊢l $
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
-    substTermEq (refl ⊢t) (Erased-β ok ⊢u)
+    subst-⊢≡₀ ⊢t (Erased-β ok ⊢u)
 
 ------------------------------------------------------------------------
 -- Lemmas proved under the assumption that []-cong is allowed
@@ -669,7 +669,7 @@ module _ (ok : []-cong-allowed s) where
       B [ erased (wk1 A) (var x0) ]↑ [ [ t ] ]₀  ≡⟨ []↑-[]₀ B ⟩⊢≡
       B [ erased (wk1 A) (var x0) [ [ t ] ]₀ ]₀  ≡⟨ PE.cong (B [_]₀) erased-[] ⟩⊢≡
       B [ erased (wk1 A [ [ t ] ]₀) [ t ] ]₀     ≡⟨ PE.cong (λ A → B [ erased A _ ]₀) $ wk1-sgSubst _ _ ⟩⊢≡
-      B [ erased A [ t ] ]₀                      ≡⟨ substTypeEq (refl ⊢B) $ Erased-β Erased-ok ⊢t ⟩⊢∎
+      B [ erased A [ t ] ]₀                      ≡⟨ subst-⊢≡₀ ⊢B $ Erased-β Erased-ok ⊢t ⟩⊢∎
       B [ t ]₀                                   ∎
       where
       open TypeR
@@ -724,7 +724,7 @@ module _ (ok : []-cong-allowed s) where
       conv*
         (subst 𝟘 (Erased zeroᵘₗ A) (B [ erased (wk1 A) (var x0) ]↑)
            [ t ] [ t′ ] ([]-cong s zeroᵘₗ A t t′ rfl) u              ⇒⟨ conv (subst-subst ⊢B[]↑ ([]-cong-β ⊢0 t≡t′ ok) ⊢u) $
-                                                                        substTypeEq (refl ⊢B[]↑) (sym′ [t]≡[t′]) ⟩
+                                                                        subst-⊢≡₀ ⊢B[]↑ (sym′ [t]≡[t′]) ⟩
          subst 𝟘 (Erased zeroᵘₗ A) (B [ erased (wk1 A) (var x0) ]↑)
            [ t ] [ t′ ] rfl u                                        ⇒⟨ subst-⇒′ ⊢B[]↑ [t]≡[t′] ⊢u ⟩∎
 

@@ -172,7 +172,7 @@ opaque
          u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ starʷ ]₀ [ σ ] ◂ 𝟙        →⟨ conv-®∷◂ $
                                                                            PE.subst₂ (_⊢_≡_ _) (PE.sym $ singleSubstLift A _)
                                                                              (PE.sym $ singleSubstLift A _) $
-                                                                           substTypeEq (refl ⊢A[σ⇑]) (sym′ t[σ]≡⋆) ⟩
+                                                                           subst-⊢≡₀ ⊢A[σ⇑] (sym′ t[σ]≡⋆) ⟩
 
          u [ σ ] ® erase str u T.[ σ′ ] ∷ A [ t ]₀ [ σ ] ◂ 𝟙            →⟨ ®∷◂-⇐* unitrec⇛u[σ] unitrec⇒u[σ′] ⟩
 
@@ -203,7 +203,7 @@ opaque
             unitrec® (subset*Term t[σ]⇒⋆)
               (                            ∷ A [ t ]₀ [ σ ]           ⟨ singleSubstLift A _ ⟩⇛≡
               unitrec p q A t     u [ σ ] ∷ A [ σ ⇑ ] [ t [ σ ] ]₀  ⇒*⟨ unitrec-subst* t[σ]⇒⋆ ⊢A[σ⇑] ⊢u[σ] no-η ⟩⇛∷
-                                                                      ⟨ substTypeEq (refl ⊢A[σ⇑]) (subset*Term t[σ]⇒⋆) ⟩⇛
+                                                                      ⟨ subst-⊢≡₀ ⊢A[σ⇑] (subset*Term t[σ]⇒⋆) ⟩⇛
               unitrec p q A starʷ u [ σ ] ∷ A [ σ ⇑ ] [ starʷ ]₀    ⇒⟨ unitrec-β ⊢A[σ⇑] ⊢u[σ] ok no-η ⟩∎⇛∷
               u [ σ ]                                               ∎) }
           (t′ , ne t′-ne , t[σ]⇒t′) →

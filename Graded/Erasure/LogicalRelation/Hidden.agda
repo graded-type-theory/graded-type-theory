@@ -327,11 +327,11 @@ opaque
       , λ (⊢Σ , _ , _ , v₂ , t⇒*prod , (⊨B′ , t₂®v₂) , hyp₁ , hyp₂) →
         let ⊢A , ⊢B , ok = inversion-ΠΣ ⊢Σ
             ⊨A = ⊢→⊨ ⊢A
-            ⊨Σ = ΠΣ-intro′ ⊨A (λ ⊢t → ⊢→⊨ (substType ⊢B ⊢t)) ⊢B ok
+            ⊨Σ = ΠΣ-intro′ ⊨A (λ ⊢t → ⊢→⊨ (subst-⊢₀ ⊢B ⊢t)) ⊢B ok
             ⊢t₁ = inversion-prod-Σ (wf-⇛ t⇒*prod .proj₂) .proj₁
         in  ⊨Σ
           , _ , _ , t⇒*prod , ⊢t₁ , _
-          , irrelevanceTerm ⊨B′ (⊢→⊨ (substType ⊢B ⊢t₁)) t₂®v₂
+          , irrelevanceTerm ⊨B′ (⊢→⊨ (subst-⊢₀ ⊢B ⊢t₁)) t₂®v₂
           , (case is-𝟘? p of λ where
               (yes PE.refl) → Σ-®-intro-𝟘 (hyp₁ PE.refl) PE.refl
               (no p≢𝟘) →

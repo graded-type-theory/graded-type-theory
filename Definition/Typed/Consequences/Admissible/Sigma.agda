@@ -108,8 +108,8 @@ prod-cong⁻¹-Σˢ {Γ} {p} {t} {u} {v} {w} {q} {A} {B} prod≡prod =
     Γ ⊢ snd p (prodˢ p t u) ≡ snd p (prodˢ p v w) ∷
       B [ fst p (prodˢ p t u) ]₀                      →⟨ (λ hyp → trans
                                                             (sym′ (Σ-β₂-≡ ⊢B ⊢t ⊢u ok))
-                                                            (trans (conv hyp (substTypeEq (refl ⊢B) (Σ-β₁-≡ ⊢B ⊢t ⊢u ok)))
-                                                               (conv (Σ-β₂-≡ ⊢B ⊢v ⊢w ok) (substTypeEq (refl ⊢B) (sym′ t≡v))))) ⟩
+                                                            (trans (conv hyp (subst-⊢≡₀ ⊢B (Σ-β₁-≡ ⊢B ⊢t ⊢u ok)))
+                                                               (conv (Σ-β₂-≡ ⊢B ⊢v ⊢w ok) (subst-⊢≡₀ ⊢B (sym′ t≡v))))) ⟩
 
     Γ ⊢ u ≡ w ∷ B [ t ]₀                              □
 
@@ -148,8 +148,8 @@ prod-cong⁻¹-Σʷ {Γ} {p} {t} {u} {v} {w} {q} {A} {B} prod≡prod =
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ≡ sndʷ p q A B (prodʷ p v w) ∷
       B [ fstʷ p A (prodʷ p t u) ]₀                                →⟨ (λ hyp → trans
                                                                          (sym′ (sndʷ-β-≡ ⊢B ⊢t ⊢u ok))
-                                                                         (trans (conv hyp (substTypeEq (refl ⊢B) (fstʷ-β-≡ ⊢B ⊢t ⊢u ok)))
-                                                                            (conv (sndʷ-β-≡ ⊢B ⊢v ⊢w ok) (substTypeEq (refl ⊢B) (sym′ t≡v))))) ⟩
+                                                                         (trans (conv hyp (subst-⊢≡₀ ⊢B (fstʷ-β-≡ ⊢B ⊢t ⊢u ok)))
+                                                                            (conv (sndʷ-β-≡ ⊢B ⊢v ⊢w ok) (subst-⊢≡₀ ⊢B (sym′ t≡v))))) ⟩
 
     Γ ⊢ u ≡ w ∷ B [ t ]₀                                           □
 
@@ -228,4 +228,4 @@ prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
     in
     hyp (prodⱼ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok) ⊢t lemma
       (conv (sndʷ-β-≡ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok)
-         (substTypeEq (refl ⊢B) (sym′ lemma)))
+         (subst-⊢≡₀ ⊢B (sym′ lemma)))

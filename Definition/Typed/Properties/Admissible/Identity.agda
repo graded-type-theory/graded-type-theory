@@ -299,7 +299,7 @@ opaque
       (id ⊢v₁)                     → id (Kⱼ ⊢B ⊢u ⊢v₁ ok)
       (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
         K p A t B u v₁ ∷ B [ v₁ ]₀  ⇒⟨ K-subst ⊢B ⊢u v₁⇒v₃ ok ⟩∷
-                                    ˘⟨ substTypeEq (refl ⊢B) (sym′ (subsetTerm v₁⇒v₃)) ⟩⇒
+                                    ˘⟨ subst-⊢≡₀ ⊢B (sym′ (subsetTerm v₁⇒v₃)) ⟩⇒
         K p A t B u v₃ ∷ B [ v₃ ]₀  ⇒*⟨ K-subst* ⊢B ⊢u v₃⇒*v₂ ok ⟩∎∷
         K p A t B u v₂              ∎
 
@@ -313,7 +313,7 @@ opaque
   K-motive-rfl-cong B₁≡B₂ =
     case wf B₁≡B₂ of λ {
       (∙ ⊢Id) →
-    substTypeEq B₁≡B₂ (refl (rflⱼ (inversion-Id ⊢Id .proj₂ .proj₁))) }
+    subst-⊢≡₀ B₁≡B₂ (refl (rflⱼ (inversion-Id ⊢Id .proj₂ .proj₁))) }
 
 opaque
 
@@ -642,12 +642,12 @@ opaque
     ⊢subst
       (Idⱼ′
          (PE.subst (_⊢_∷_ _ _) (PE.cong wk1 $ wk1-sgSubst _ _) $
-          wk₁ ⊢A (substTerm ⊢v ⊢t))
+          wk₁ ⊢A (subst-⊢₀ ⊢v ⊢t))
          ⊢v)
       ⊢w
       (PE.subst (_⊢_∷_ _ _)
          (PE.sym $ PE.cong₃ Id PE.refl (wk1-sgSubst _ _) PE.refl) $
-       rflⱼ (substTerm ⊢v ⊢t))
+       rflⱼ (subst-⊢₀ ⊢v ⊢t))
 
 opaque
   unfolding cong
@@ -674,13 +674,13 @@ opaque
       (Id-cong (wk₁ ⊢A₁ B₁≡B₂)
          (wk₁ ⊢A₁ $
           PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
-          substTermEq v₁≡v₂ t₁≡t₂)
+          subst-⊢≡₀ v₁≡v₂ t₁≡t₂)
          v₁≡v₂)
       t₁≡t₂ u₁≡u₂ w₁≡w₂
       (_⊢_≡_∷_.refl $
        PE.subst (_⊢_∷_ _ _)
          (PE.cong₂ (Id _) (PE.sym $ wk1-sgSubst _ _) PE.refl) $
-       rflⱼ $ substTerm ⊢v₁ ⊢t₁)
+       rflⱼ $ subst-⊢₀ ⊢v₁ ⊢t₁)
 
 opaque
   unfolding cong
@@ -698,12 +698,12 @@ opaque
       (Idⱼ′
          (PE.subst (_⊢_∷_ _ _)
             (PE.cong wk1 $ wk1-sgSubst _ _) $
-          wk₁ (syntacticTerm ⊢t) (substTerm ⊢u ⊢t))
+          wk₁ (syntacticTerm ⊢t) (subst-⊢₀ ⊢u ⊢t))
          ⊢u)
       ⊢t
       (PE.subst (_⊢_∷_ _ _)
          (PE.sym $ PE.cong₃ Id PE.refl (wk1-sgSubst _ _) PE.refl) $
-       rflⱼ (substTerm ⊢u ⊢t))
+       rflⱼ (subst-⊢₀ ⊢u ⊢t))
 
 opaque
 
@@ -734,12 +734,12 @@ opaque
     subst-subst
       (Idⱼ′
          (PE.subst (_⊢_∷_ _ _) (PE.cong wk1 $ wk1-sgSubst _ _) $
-          wk₁ ⊢A (substTerm ⊢v ⊢t))
+          wk₁ ⊢A (subst-⊢₀ ⊢v ⊢t))
          ⊢v)
       w₁⇒w₂
       (PE.subst (_⊢_∷_ _ _)
          (PE.sym $ PE.cong₃ Id PE.refl (wk1-sgSubst _ _) PE.refl) $
-       rflⱼ (substTerm ⊢v ⊢t))
+       rflⱼ (subst-⊢₀ ⊢v ⊢t))
 
 opaque
 
@@ -789,7 +789,7 @@ opaque
           PE.cong₂ (Id _) ([,]≡[wk1]₀[]₀ v₁) ([,]≡[wk1]₀[]₀ v₁)) $
        cong-cong A₁₁≡A₁₂ t₁₁≡t₁₂ u₁₁≡u₁₂ B₁≡B₂
          (PE.subst (_⊢_≡_∷_ _ _ _) wk[1+]′-[]₀≡ $
-          substTermEq v₁≡v₂ (wk₁ ⊢A₁₁ t₂₁≡t₂₂))
+          subst-⊢≡₀ v₁≡v₂ (wk₁ ⊢A₁₁ t₂₁≡t₂₂))
          w₁₁≡w₁₂)
       (PE.subst (_⊢_≡_∷_ _ _ _)
          (PE.cong₂ (Id _)
@@ -861,7 +861,7 @@ opaque
                                                                                    PE.cong₂ (Id _) ([,]≡[wk1]₀[]₀ u) ([,]≡[wk1]₀[]₀ u)) $
                                                                                 cong-≡ ⊢t₁
                                                                                   (PE.subst (_⊢_∷_ _ _) wk[1+]′-[]₀≡ $
-                                                                                   substTerm ⊢u (wk₁ (wf-⊢∷ ⊢t₁) ⊢t₂)))
+                                                                                   subst-⊢₀ ⊢u (wk₁ (wf-⊢∷ ⊢t₁) ⊢t₂)))
                                                                                (PE.subst (_⊢_≡_∷_ _ _ _)
                                                                                   (PE.cong₂ (Id _)
                                                                                      (singleSubstComp _ _ u) (singleSubstComp _ _ u)) $

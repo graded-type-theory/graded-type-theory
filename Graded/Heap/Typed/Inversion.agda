@@ -77,7 +77,7 @@ opaque
                  × ε » Δ ⊢ B ≡ G [ wk ρ u [ H ]ₕ ]₀
   inversion-∘ₑ {H} (∘ₑ {ρ} {u} {A} {B} ⊢u ⊢B) =
     A , B , _ , ⊢u , PE.refl
-      , refl (substType ⊢B ⊢u)
+      , refl (subst-⊢₀ ⊢B ⊢u)
   inversion-∘ₑ (conv ⊢c B≡B′) =
     case inversion-∘ₑ ⊢c of λ
       (F , G , q , ⊢u , A≡Π , B≡) →
@@ -108,7 +108,7 @@ opaque
       (ε » Δ ⊢ t [ H ]ₕ ∷ A → ε » Δ ⊢ B ≡ G [ fst p t [ H ]ₕ ]₀)
   inversion-sndₑ (sndₑ ⊢B) =
     _ , _ , _ , ⊢B , PE.refl
-      , λ ⊢t → refl (substType ⊢B (fstⱼ′ ⊢t))
+      , λ ⊢t → refl (subst-⊢₀ ⊢B (fstⱼ′ ⊢t))
   inversion-sndₑ (conv ⊢c B≡B′) =
     case inversion-sndₑ ⊢c of λ
       (F , G , q , ⊢G , A≡Σ , B≡Gt) →
@@ -130,7 +130,7 @@ opaque
     × (ε » Δ ⊢ t [ H ]ₕ ∷ Σʷ p , q′ ▷ F ▹ G →
        ε » Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-prodrecₑ (prodrecₑ ⊢u ⊢A) =
-    _ , _ , _ , ⊢u , ⊢A , PE.refl , λ ⊢t → refl (substType ⊢A ⊢t)
+    _ , _ , _ , ⊢u , ⊢A , PE.refl , λ ⊢t → refl (subst-⊢₀ ⊢A ⊢t)
   inversion-prodrecₑ (conv ⊢c ≡C) =
     case inversion-prodrecₑ ⊢c of λ
       (_ , _ , _ , ⊢u , ⊢A , B≡ , C′≡) →
@@ -149,7 +149,7 @@ opaque
     × (ε » Δ ⊢ t [ H ]ₕ ∷ ℕ →
        ε » Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-natrecₑ (natrecₑ ⊢z ⊢s) =
-    ⊢z , ⊢s , PE.refl , λ ⊢t → refl (substType (⊢∙→⊢ (wf ⊢s)) ⊢t)
+    ⊢z , ⊢s , PE.refl , λ ⊢t → refl (subst-⊢₀ (⊢∙→⊢ (wf ⊢s)) ⊢t)
   inversion-natrecₑ (conv ⊢c ≡C) =
     case inversion-natrecₑ ⊢c of λ
       (⊢z , ⊢s , B≡ , C′≡) →
@@ -169,7 +169,7 @@ opaque
      ε » Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-unitrecₑ {A} (unitrecₑ ⊢u ⊢A no-η) =
     ⊢u , ⊢A , no-η , PE.refl
-       , λ ⊢t → refl (substType ⊢A ⊢t)
+       , λ ⊢t → refl (subst-⊢₀ ⊢A ⊢t)
   inversion-unitrecₑ (conv ⊢c ≡C) =
     case inversion-unitrecₑ ⊢c of λ
       (⊢u , ⊢A , no-η , B≡ , C≡) →
@@ -228,7 +228,7 @@ opaque
     × (ε » Δ ⊢ v [ H ]ₕ ∷ wk ρ (Id A t t) [ H ]ₕ →
        ε » Δ ⊢ D ≡ wk (lift ρ) B [ H ]⇑ₕ [ v [ H ]ₕ ]₀)
   inversion-Kₑ (Kₑ ⊢u ⊢B ok) =
-    ⊢u , ⊢B , ok , PE.refl , λ ⊢v → refl (substType ⊢B ⊢v)
+    ⊢u , ⊢B , ok , PE.refl , λ ⊢v → refl (subst-⊢₀ ⊢B ⊢v)
   inversion-Kₑ (conv ⊢c ≡D) =
     case inversion-Kₑ ⊢c of λ
       (⊢u , ⊢B , ok , C≡ , D′≡) →

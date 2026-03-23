@@ -241,7 +241,7 @@ opaque
   ⊢cong′ {m} {n} {A} {v} {B} {w} {t} {u} {p} {Γ} ⊢v ⊢w =
     let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢w)
         ⊢B           = PE.subst (_⊢_ _) (wk1-sgSubst B _) $
-                       substType (wf-⊢∷ ⊢v) ⊢t
+                       subst-⊢₀ (wf-⊢∷ ⊢v) ⊢t
     in
     check-type-and-term-sound
       γ′

@@ -164,7 +164,7 @@ opaque
       (t⇒v ⇨ v⇨*u) →
         snd-subst′ t⇒v ⇨
         conv* (snd-subst* v⇨*u)
-          (substTypeEq (refl ⊢B) (sym′ (fst-cong′ (subsetTerm t⇒v))))
+          (subst-⊢≡₀ ⊢B (sym′ (fst-cong′ (subsetTerm t⇒v))))
 
 opaque
 
@@ -205,7 +205,7 @@ opaque
       (t₁⇒t₃ ⇨ t₃⇒*t₂) →
         prodrec-subst′ ⊢C ⊢u t₁⇒t₃ ⇨
         conv* (prodrec-subst* ⊢C t₃⇒*t₂ ⊢u)
-          (substTypeEq (refl ⊢C) (sym′ (subsetTerm t₁⇒t₃)))
+          (subst-⊢≡₀ ⊢C (sym′ (subsetTerm t₁⇒t₃)))
 
 opaque
 
@@ -339,7 +339,7 @@ private opaque
     (id ⊢u)                      → id (⊢t[] ⊢u)
     (_⇨_ {t′ = u₃} u₁⇒u₃ u₃⇒*u₂) →
       t [ u₁ ]₀ ∷ B [ u₁ ]₀  ⇒⟨ t[]⇒t[] u₁⇒u₃ ⟩∷
-                              ⟨ substTypeEq (refl ⊢B) (subsetTerm u₁⇒u₃) ⟩⇒
+                              ⟨ subst-⊢≡₀ ⊢B (subsetTerm u₁⇒u₃) ⟩⇒
       t [ u₃ ]₀ ∷ B [ u₃ ]₀  ⇒*⟨ subst→subst* t ⊢B ⊢t[] t[]⇒t[] u₃⇒*u₂ ⟩∎∷
       t [ u₂ ]₀              ∎
 
@@ -401,7 +401,7 @@ private opaque
   ⊢[1,0]↑²[fst,snd]≡ {Γ} {p} {q} {A} {B} {C} {t} ⊢C =
     Γ ⊢ t ∷ Σˢ p , q ▷ A ▹ B                                         →⟨ Σ-η-prod-fst-snd ⟩
 
-    Γ ⊢ prodˢ p (fst p t) (snd p t) ≡ t ∷ Σˢ p , q ▷ A ▹ B           →⟨ substTypeEq (refl ⊢C) ⟩
+    Γ ⊢ prodˢ p (fst p t) (snd p t) ≡ t ∷ Σˢ p , q ▷ A ▹ B           →⟨ subst-⊢≡₀ ⊢C ⟩
 
     Γ ⊢ C [ prodˢ p (fst p t) (snd p t) ]₀ ≡ C [ t ]₀                →⟨ PE.subst (_ ⊢_≡ _) (PE.sym $ [1,0]↑²[,] C) ⟩
 
@@ -886,7 +886,7 @@ opaque
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p t u ]₀  →⟨ flip conv (⊢≡[fstʷ] (prodⱼ ⊢B ⊢t ⊢u ok)) ⟩
 
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷
-      B [ fstʷ p A (prodʷ p t u) ]₀                    →⟨ flip conv (substTypeEq (refl ⊢B) (fstʷ-β-≡ ⊢B ⊢t ⊢u ok)) ⟩
+      B [ fstʷ p A (prodʷ p t u) ]₀                    →⟨ flip conv (subst-⊢≡₀ ⊢B (fstʷ-β-≡ ⊢B ⊢t ⊢u ok)) ⟩
 
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷ B [ t ]₀      □
 
@@ -1043,7 +1043,7 @@ opaque
                                                                         prod-cong ⊢B′
                                                                           (fstʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
                                                                           (conv (sndʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok)
-                                                                             (sym (substTypeEq (refl ⊢B′) (fstʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok))))
+                                                                             (sym (subst-⊢≡₀ ⊢B′ (fstʷ-β-≡ ⊢B′ ⊢₁ ⊢₀ ok))))
                                                                           ok ⟩⊢∎
 
           pair                                                       ∎))
@@ -1432,7 +1432,7 @@ opaque
   Σʰ-η {B} {t} {p} {l₁} {u} ⊢B ⊢t ⊢u fstʰ≡fstʰ sndʰ≡sndʰ =
     let ⊢l₁ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢t)
         ⊢l₁           = PE.subst (_⊢_∷Level _) (wk1-sgSubst _ _) $
-                        substLevel ⊢l₁ (wf-⊢≡∷ fstʰ≡fstʰ .proj₂ .proj₁)
+                        subst-⊢₀ ⊢l₁ (wf-⊢≡∷ fstʰ≡fstʰ .proj₂ .proj₁)
         fst-t≡fst-u   = Lift-η′ (fstⱼ′ ⊢t) (fstⱼ′ ⊢u) fstʰ≡fstʰ
     in
     Σ-η′ ⊢t ⊢u fst-t≡fst-u
@@ -1440,7 +1440,7 @@ opaque
          (conv (sndⱼ′ ⊢u)
             (Lift (wk1 l₁ [ fst p u ]₀) (lower₀ B [ fst p u ]₀)  ≡⟨ PE.cong₂ Lift (wk1-sgSubst _ _) PE.refl ⟩⊢≡
              Lift l₁ (lower₀ B [ fst p u ]₀)                     ≡˘⟨ Lift-cong (refl-⊢≡∷L ⊢l₁) $
-                                                                     substTypeEq (refl (lower₀Type ⊢l₂ ⊢B)) fst-t≡fst-u ⟩⊢∎≡
+                                                                     subst-⊢≡₀ (lower₀Type ⊢l₂ ⊢B) fst-t≡fst-u ⟩⊢∎≡
              Lift l₁ (lower₀ B [ fst p t ]₀)                     ≡˘⟨ PE.cong (flip Lift _) (wk1-sgSubst _ _) ⟩
              Lift (wk1 l₁ [ fst p t ]₀) (lower₀ B [ fst p t ]₀)  ∎))
          (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym ([]↑-[]₀ B)) sndʰ≡sndʰ))
@@ -1560,12 +1560,12 @@ private
       C [ 2 ][ prodʰ s p (var x1) (var x0) ]↑
         [ lower (lift t) , lower (lift u) ]₁₀             ≡⟨ [][]↑-[,⇑] 0 C ⟩⊢≡
 
-      C [ prodʰ s p (lower (lift t)) (lower (lift u)) ]₀  ≡⟨ substTypeEq (refl ⊢C) $
+      C [ prodʰ s p (lower (lift t)) (lower (lift u)) ]₀  ≡⟨ subst-⊢≡₀ ⊢C $
                                                              prodʰ-cong ok ⊢l₁ ⊢l₂ ⊢B (Lift-β′ ⊢t) $
-                                                             conv (Lift-β (substType (lower₀Type ⊢l₂ ⊢B) (liftⱼ′ ⊢l₂ ⊢t)) ⊢u)
+                                                             conv (Lift-β (subst-⊢₀ (lower₀Type ⊢l₂ ⊢B) (liftⱼ′ ⊢l₂ ⊢t)) ⊢u)
                                                                (
         lower₀ B [ lift t ]₀                                    ≡⟨ lower₀[lift]₀ ⊢B ⊢t ⟩⊢
-        B [ t ]₀                                                ≡˘⟨ substTypeEq (refl ⊢B) (Lift-β′ ⊢t) ⟩⊢∎
+        B [ t ]₀                                                ≡˘⟨ subst-⊢≡₀ ⊢B (Lift-β′ ⊢t) ⟩⊢∎
         B [ lower (lift t) ]₀                                   ∎) ⟩⊢∎
 
       C [ prodʰ s p t u ]₀                                ∎
@@ -1611,7 +1611,7 @@ opaque
         ⊢l₁ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ ⊢Σ
         ⊢l₁                    = PE.subst (_⊢_∷Level _)
                                    (wk1-sgSubst _ _) $
-                                 substLevel ⊢l₁ (lowerⱼ (⊢fst⟨⟩ ⊢t₁))
+                                 subst-⊢₀ ⊢l₁ (lowerⱼ (⊢fst⟨⟩ ⊢t₁))
     in
     prodrec⟨⟩-cong C₁≡C₂ t₁≡t₂
       (conv
@@ -1648,7 +1648,7 @@ opaque
         ⊢l₁ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ (⊢∙→⊢ (wf ⊢C))
         ⊢l₁                    = PE.subst (_⊢_∷Level _)
                                    (wk1-sgSubst _ _) $
-                                 substLevel ⊢l₁ ⊢t
+                                 subst-⊢₀ ⊢l₁ ⊢t
         lower-lift-t≡t         = Lift-β′ ⊢t
         ⊢u′                    = conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))
     in
@@ -1664,7 +1664,7 @@ opaque
     v [ lower (lift t) , lower (lift u) ]₁₀               ≡⟨ conv
                                                                (subst-⊢≡∷ (refl ⊢v) $
                                                                 →⊢ˢʷ≡∷∙ ⊢B (⊢ˢʷ≡∷-sgSubst lower-lift-t≡t) $
-                                                                Lift-β′ (conv ⊢u (substTypeEq (refl ⊢B) (sym′ lower-lift-t≡t))))
+                                                                Lift-β′ (conv ⊢u (subst-⊢≡₀ ⊢B (sym′ lower-lift-t≡t))))
                                                                (prodrecʰ⟨⟩-eq₂ ok ⊢l₁ ⊢B ⊢C ⊢t ⊢u′) ⟩⊢∎
     v [ t , u ]₁₀                                         ∎
     where

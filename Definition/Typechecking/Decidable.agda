@@ -586,7 +586,7 @@ mutual
     dec⇉-natrec ⊢Γ A t u v =
       case
         (dec⇇Type-with-cont (⊢Γ ∙[ ⊢ℕ ]) A λ ⊢A →
-         dec⇇ t (substType ⊢A (zeroⱼ ⊢Γ)) ×-dec
+         dec⇇ t (subst-⊢₀ ⊢A (zeroⱼ ⊢Γ)) ×-dec
          dec⇇ u (subst-⊢-↑ ⊢A (sucⱼ (var₁ ⊢A))) ×-dec
          dec⇇ v (⊢ℕ ⊢Γ))
         of λ where
@@ -637,7 +637,7 @@ mutual
          let ⊢Unit = ⊢Unit ⊢Γ ok in
          dec⇇Type-with-cont (∙ ⊢Unit) A λ ⊢A →
          dec⇇ t ⊢Unit ×-dec
-         dec⇇ u (substType ⊢A (starⱼ ⊢Γ ok)))
+         dec⇇ u (subst-⊢₀ ⊢A (starⱼ ⊢Γ ok)))
         of λ where
         (yes (_ , A , t , u)) → yes (_ , unitrecᵢ A t u)
         (no not)              →
@@ -674,7 +674,7 @@ mutual
          dec⇇Type-with-cont ⊢Γ A λ ⊢A →
          dec⇇-with-cont t ⊢A λ ⊢t →
          dec⇇Type-with-cont (∙ Idⱼ′ ⊢t ⊢t) B λ ⊢B →
-         dec⇇ u (substType ⊢B (rflⱼ ⊢t)) ×-dec
+         dec⇇ u (subst-⊢₀ ⊢B (rflⱼ ⊢t)) ×-dec
          dec⇇ v (Idⱼ′ ⊢t ⊢t))
         of λ where
         (yes (ok , A , t , B , u , v)) → yes (_ , Kᵢ A t B u v ok)
@@ -1081,7 +1081,7 @@ mutual
        let ⊢B , ⊢C , _ = inversion-ΠΣ (syntacticRed A⇒*Σ .proj₂) in
        decStrength s s′ ×-dec p ≟ p′ ×-dec
        dec⇇-with-cont t ⊢B λ ⊢t →
-       dec⇇ u (substType ⊢C ⊢t))
+       dec⇇ u (subst-⊢₀ ⊢C ⊢t))
       of λ where
       (yes ((_ , _ , _ , _ , _ , A) , PE.refl , PE.refl , t , u)) →
         yes (prodᶜ (A , ΠΣₙ) t u)

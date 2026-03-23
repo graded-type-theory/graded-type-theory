@@ -230,7 +230,7 @@ opaque
       (F , G , q , ⊢u , PE.refl , B≡Gu) →
     let _ , ⊢t , ≡G , _ , ok = inversion-lam-Π ⊢λt
         ≡G[u]₀ = ≡G (refl ⊢u)
-        ⊢t′ = conv (substTerm ⊢t ⊢u) ≡G[u]₀
+        ⊢t′ = conv (subst-⊢₀ ⊢t ⊢u) ≡G[u]₀
         t≡t′ = singleSubstComp (wk ρ′ u [ H ]ₕ)
                  (toSubstₕ H) (wk (lift ρ) t)
     in  ⊢ₛ {Γ = Γ ∙ wk (toWkₕ H) F}
@@ -272,7 +272,7 @@ opaque
       (F , G , q , ⊢G , PE.refl , B≡G₊) →
     let ⊢t₁ , ⊢t₂ , _ , _ , ok = inversion-prod-Σ ⊢t
         G₊≡B                   =
-          G [ wk ρ t₁ [ toSubstₕ H ] ]₀                ≡˘⟨ substTypeEq (refl ⊢G) (Σ-β₁-≡ ⊢G ⊢t₁ ⊢t₂ ok) ⟩⊢
+          G [ wk ρ t₁ [ toSubstₕ H ] ]₀                ≡˘⟨ subst-⊢≡₀ ⊢G (Σ-β₁-≡ ⊢G ⊢t₁ ⊢t₂ ok) ⟩⊢
           G [ fst p (wk ρ (prod 𝕤 p t₁ t₂)) [ H ]ₕ ]₀  ≡˘⟨ B≡G₊ ⊢t ⟩⊢∎
           B                                            ∎
     in  ⊢ₛ ⊢H (conv ⊢t₂ G₊≡B)
@@ -375,7 +375,7 @@ opaque
   ⊢ₛ-⇒ᵥ ⊢s (unitrec-ηₕ η) =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         ⊢A , ⊢t , ⊢u , A≡ = inversion-unitrec ⊢t
-    in  ⊢ₛ ⊢H (conv ⊢u (trans (substTypeEq (refl ⊢A) (Unit-η-≡ (inj₂ η) ⊢t)) (sym A≡)))
+    in  ⊢ₛ ⊢H (conv ⊢u (trans (subst-⊢≡₀ ⊢A (Unit-η-≡ (inj₂ η) ⊢t)) (sym A≡)))
            (⊢ˢ-convₜ ⊢S (conv (unitrec-β-η-≡ ⊢A ⊢t ⊢u η) (sym A≡)))
 
   ⊢ₛ-⇒ᵥ ⊢s (rflₕⱼ {H} {p} {q} {A} {t} {B} {u} {v} {ρ′}) =

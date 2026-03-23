@@ -2351,7 +2351,7 @@ opaque
                                         ∷ A                          ⟨ A≡ ⟩≡∷
       ⌜ unitrec p q B t₁         t₂ ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₁ ⌝ γ ]₀   ≡⟨ ur≡ ⟩⊢∷
       ⌜ unitrec p q B t₁′        t₂ ⌝ γ                             ≡⟨ PE.cong (flip (U.unitrec _ _ _) _) ≡star ⟩⊢≡
-                                                                     ⟨ substTypeEq (refl ⊢B) t₁≡ ⟩≡
+                                                                     ⟨ subst-⊢≡₀ ⊢B t₁≡ ⟩≡
                                         ∷ ⌜ B ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀   ⟨ PE.cong (⌜ B ⌝ _ U.[_]₀) ≡star ⟩≡∷≡
       ⌜ unitrec p q B (star 𝕨) t₂ ⌝ γ   ∷ ⌜ B ⌝ γ U.[ U.starʷ ]₀    ⇒⟨ unitrec-β-⇒ ⊢B ⊢t₂ ⟩⊢∷
       ⌜ t₂ ⌝ γ                                                      ≡⟨ red-sound-⊢∷ n eq₂ ⊢t₂ ⟩⊢∎
@@ -2379,7 +2379,7 @@ opaque
             inversion-lam-Π $
             PE.subst (flip (_⊢_∷_ _) _) (PE.cong (flip ⌜_⌝ _) eq₃) ⊢t₁′
           ⌜t₁″⌝[]≡ =
-            ⌜[]⌝ t₁″ (term₂ (substTerm ⊢t₁″ ⊢t₂))
+            ⌜[]⌝ t₁″ (term₂ (subst-⊢₀ ⊢t₁″ ⊢t₂))
 
           open TmR
       in
@@ -2393,7 +2393,7 @@ opaque
       ⌜ t₁″ ⌝ γ U.[ ⌜ t₂ ⌝ γ ]₀                           ≡˘⟨ ⌜t₁″⌝[]≡ ⟩⊢≡
       ⌜ t₁″ [ sgSubst t₂ ] ⌝ γ                            ≡⟨ red-sound-⊢∷ n eq₂ $
                                                              PE.subst (flip (_⊢_∷_ _) _) (PE.sym ⌜t₁″⌝[]≡) $
-                                                             substTerm ⊢t₁″ ⊢t₂ ⟩⊢∎
+                                                             subst-⊢₀ ⊢t₁″ ⊢t₂ ⟩⊢∎
       ⌜ u ⌝ γ                                             ∎
     … | nothing | ok! =
       let open TmR in
@@ -2451,9 +2451,9 @@ opaque
                                       ∷ A                         ⟨ A≡ ⟩≡∷
       ⌜ snd p t                   ⌝ γ ∷ C U.[ ⌜ fst p t  ⌝ γ ]₀  ≡⟨ snd-cong′ t≡t′ ⟩⊢∷
       ⌜ snd p t′                  ⌝ γ                            ≡⟨ PE.cong (U.snd _) ≡prod ⟩⊢≡
-                                                                  ⟨ substTypeEq (refl ⊢C) (fst-cong′ t≡t′) ⟩≡
+                                                                  ⟨ subst-⊢≡₀ ⊢C (fst-cong′ t≡t′) ⟩≡
                      ∷ C U.[ ⌜ fst p t′ ⌝ γ ]₀                    ⟨ PE.cong (C U.[_]₀ ∘→ U.fst _) ≡prod ⟩≡∷≡
-                     ∷ C U.[ ⌜ fst p (prod 𝕤 p qC t₁ t₂) ⌝ γ ]₀   ⟨ substTypeEq (refl ⊢C) (Σ-β₁-≡ ⊢C ⊢t₁ ⊢t₂ Σ-ok) ⟩≡∷
+                     ∷ C U.[ ⌜ fst p (prod 𝕤 p qC t₁ t₂) ⌝ γ ]₀   ⟨ subst-⊢≡₀ ⊢C (Σ-β₁-≡ ⊢C ⊢t₁ ⊢t₂ Σ-ok) ⟩≡∷
       ⌜ snd p (prod 𝕤 p qC t₁ t₂) ⌝ γ ∷ C U.[ ⌜ t₁ ⌝ γ ]₀        ≡⟨ Σ-β₂-≡ ⊢C ⊢t₁ ⊢t₂ Σ-ok ⟩⊢∷
       ⌜ t₂ ⌝ γ                                                   ≡⟨ red-sound-⊢∷ n eq₂ ⊢t₂ ⟩⊢∎
       ⌜ u ⌝ γ                                                    ∎
@@ -2484,7 +2484,7 @@ opaque
                                    ∷ A                          ⟨ A≡ ⟩≡∷
       ⌜ prodrec r p q D t₁ t₂ ⌝ γ  ∷ ⌜ D ⌝ γ U.[ ⌜ t₁  ⌝ γ ]₀  ≡⟨ prodrec-cong′ (refl ⊢D) t₁≡t₁′ (refl ⊢t₂) ⟩⊢∷
       ⌜ prodrec r p q D t₁′ t₂ ⌝ γ                             ≡⟨ PE.cong (flip (U.prodrec _ _ _ _) _) ≡prod ⟩⊢≡
-                                                                ⟨ substTypeEq (refl ⊢D) t₁≡t₁′ ⟩≡
+                                                                ⟨ subst-⊢≡₀ ⊢D t₁≡t₁′ ⟩≡
                                    ∷ ⌜ D ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀   ⟨ PE.cong (⌜ D ⌝ _ U.[_]₀) ≡prod ⟩≡∷≡
       ⌜ prodrec r p q D (prod 𝕨 p qC t₁₁ t₁₂) t₂ ⌝ γ ∷
         ⌜ D ⌝ γ U.[ ⌜ prod 𝕨 p qC t₁₁ t₁₂ ⌝ γ ]₀               ⇒⟨ prodrec-β-⇒ ⊢D ⊢t₁₁ ⊢t₁₂ ⊢t₂ ⟩⊢∷
@@ -2520,7 +2520,7 @@ opaque
       in
                                       ∷ A                         ⟨ A≡ ⟩≡∷
       ⌜ natrec p q r B t₁ t₂ t₃   ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ natrec-cong (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡0 ⟩⊢∷
-                                                                  ⟨ substTypeEq (refl ⊢B) t₃≡0 ⟩≡
+                                                                  ⟨ subst-⊢≡₀ ⊢B t₃≡0 ⟩≡
       ⌜ natrec p q r B t₁ t₂ zero ⌝ γ ∷ ⌜ B ⌝ γ U.[ U.zero ]₀    ⇒⟨ natrec-zero ⊢t₁ ⊢t₂ ⟩⊢∷
       ⌜ t₁ ⌝ γ                                                   ≡⟨ red-sound-⊢∷ n eq₂ ⊢t₁ ⟩⊢∎
       ⌜ u ⌝ γ                                                    ∎
@@ -2536,7 +2536,7 @@ opaque
       in
                                            ∷ A                         ⟨ A≡ ⟩≡∷
       ⌜ natrec p q r B t₁ t₂ t₃        ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ natrec-cong (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡suc ⟩⊢∷
-                                                                       ⟨ substTypeEq (refl ⊢B) t₃≡suc ⟩≡
+                                                                       ⟨ subst-⊢≡₀ ⊢B t₃≡suc ⟩≡
       ⌜ natrec p q r B t₁ t₂ (suc t₃″) ⌝ γ ∷
         ⌜ B ⌝ γ U.[ ⌜ suc t₃″ ⌝ γ ]₀                                  ⇒⟨ natrec-suc ⊢t₁ ⊢t₂ ⊢t₃″ ⟩⊢∷
       ⌜ subst t₂ (cons (sgSubst t₃″) (natrec p q r B t₁ t₂ t₃″)) ⌝ γ  ≡⟨ red-sound-⊢∷ n eq₂ $
@@ -2575,7 +2575,7 @@ opaque
                                     ∷ A        ⟨ A≡ ⟩≡∷
       ⌜ J p q B₁ t₁ B₂ t₂ t₃ t₄ ⌝ γ ∷
         ⌜ B₂ ⌝ γ U.[ ⌜ t₃ ⌝ γ , ⌜ t₄ ⌝ γ ]₁₀  ≡⟨ J-cong′ (refl ⊢B₁) (refl ⊢t₁) (refl ⊢B₂) (refl ⊢t₂) (refl ⊢t₃) t₄≡rfl ⟩⊢∷
-                                               ⟨ subst-⊢≡₁₀ (refl ⊢B₂) (sym′ t₁≡t₃) (PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ t₄≡rfl) ⟩≡
+                                               ⟨ subst-⊢≡₁₀ ⊢B₂ (sym′ t₁≡t₃) (PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ t₄≡rfl) ⟩≡
       ⌜ J p q B₁ t₁ B₂ t₂ t₃ (rfl t₁?) ⌝ γ ∷
         ⌜ B₂ ⌝ γ U.[ ⌜ t₁ ⌝ γ , U.rfl ]₁₀     ⇒⟨ J-β-⇒ t₁≡t₃ ⊢B₂ ⊢t₂ ⟩⊢∷
       ⌜ t₂ ⌝ γ                                ≡⟨ red-sound-⊢∷ n eq₂ ⊢t₂ ⟩⊢∎
@@ -2605,7 +2605,7 @@ opaque
       in
                                       ∷ A                          ⟨ A≡ ⟩≡∷
       ⌜ K p B₁ t₁ B₂ t₂ t₃        ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ K-cong (refl ⊢B₁) (refl ⊢t₁) (refl ⊢B₂) (refl ⊢t₂) t₃≡rfl K-ok ⟩⊢∷
-                                                                   ⟨ substTypeEq (refl ⊢B₂) t₃≡rfl ⟩≡
+                                                                   ⟨ subst-⊢≡₀ ⊢B₂ t₃≡rfl ⟩≡
       ⌜ K p B₁ t₁ B₂ t₂ (rfl t₁?) ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ U.rfl ]₀     ⇒⟨ K-β ⊢B₂ ⊢t₂ K-ok ⟩⊢∷
       ⌜ t₂ ⌝ γ                                                    ≡⟨ red-sound-⊢∷ n eq₂ ⊢t₂ ⟩⊢∎
       ⌜ u ⌝ γ                                                     ∎
@@ -3894,7 +3894,7 @@ private module Lemmas (p : P n) where opaque
     Σ-η′ ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂
       (equal-tm-sound eq₂ ⊢γ (sndⱼ′ ⊢t₁)
          (conv (sndⱼ′ ⊢t₂) $
-          substTypeEq (refl ⊢A₂) (sym′ fst-t₁≡fst-t₂)))
+          subst-⊢≡₀ ⊢A₂ (sym′ fst-t₁≡fst-t₂)))
   … | nothing
     with inv-if-no-equality-reflection ⊢γ eq
   … | inj₁ (no-refl , eq)
@@ -3917,7 +3917,7 @@ private module Lemmas (p : P n) where opaque
           equal-tm-sound eq₁ ⊢γ ⊢t₁₁ ⊢t₂₁
         t₁₂≡t₂₂ =
           equal-tm-sound eq₂ ⊢γ ⊢t₁₂
-            (conv ⊢t₂₂ (sym (substTypeEq (refl ⊢A₂) t₁₁≡t₂₁)))
+            (conv ⊢t₂₂ (sym (subst-⊢≡₀ ⊢A₂ t₁₁≡t₂₁)))
 
         open TmR
     in
@@ -3937,9 +3937,9 @@ private module Lemmas (p : P n) where opaque
         t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound eq₁ ⊢γ ⊢A₁
         _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
         _ , t₁₂≡t₂₂      = check-and-equal-tm-sound eq₂ ⊢γ
-                             (substType ⊢A₂ ⊢t₁)
+                             (subst-⊢₀ ⊢A₂ ⊢t₁)
         t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
-                           substTypeEq (refl ⊢A₂) (sym′ t₁₁≡t₁)
+                           subst-⊢≡₀ ⊢A₂ (sym′ t₁₁≡t₁)
     in
     prod-cong ⊢A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ Σ-ok
   equal-tm-red-sound {t₁} {t₂} _ eq ⊢γ ⊢t₁ ⊢t₂
@@ -4142,7 +4142,7 @@ private module Lemmas (p : P n) where opaque
                                       ∷ ⌜ A ⌝ γ                    ⟨ A≡ ⟩≡∷
       ⌜ unitrec p q B t₁       t₂ ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₁ ⌝ γ ]₀   ≡⟨ ur≡ ⟩⊢∷
       ⌜ unitrec p q B t₁′      t₂ ⌝ γ                             ≡⟨ PE.cong (flip (U.unitrec _ _ _) _) ≡star ⟩⊢≡
-                                                                   ⟨ substTypeEq (refl ⊢B) t₁≡ ⟩≡
+                                                                   ⟨ subst-⊢≡₀ ⊢B t₁≡ ⟩≡
                                       ∷ ⌜ B ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀   ⟨ PE.cong (⌜ B ⌝ _ U.[_]₀) ≡star ⟩≡∷≡
       ⌜ unitrec p q B (star 𝕨) t₂ ⌝ γ ∷
         ⌜ B ⌝ γ U.[ U.starʷ ]₀                                    ⇒⟨ unitrec-β-⇒ ⊢B ⊢t₂ ⟩⊢∷
@@ -4174,7 +4174,7 @@ private module Lemmas (p : P n) where opaque
           | t₂≡t₂′           ← check-sound eq₂ ⊢γ ⊢B₁
           | _ , ⊢t₂ , ⊢t₂′   ← wf-⊢≡∷ t₂≡t₂′
           | A≡B₂[t₂′]        ← equal-ty-sound eq₃ ⊢γ ⊢A
-                                 (substType ⊢B₂ ⊢t₂′)
+                                 (subst-⊢₀ ⊢B₂ ⊢t₂′)
           | t₁≡t₁′           ← red-tm-sound eq₄ ⊢γ ⊢t₁
           | t₁′∘t₂′≡t₁∘t₂    ← app-cong (sym′ t₁≡t₁′) (sym′ t₂≡t₂′)
       with is-lam⟨ p ⟩? t₁′ | eq
@@ -4183,7 +4183,7 @@ private module Lemmas (p : P n) where opaque
           t₁″≡t₁‴         = check-sound eq₅ ⊢γ ⊢B₂
           _ , ⊢t₁″ , ⊢t₁‴ = wf-⊢≡∷ t₁″≡t₁‴
           ≡t₁‴[t₂′]       =
-            PE.sym (⌜[]⌝ t₁‴ (term₂ (substTerm ⊢t₁‴ ⊢t₂′)))
+            PE.sym (⌜[]⌝ t₁‴ (term₂ (subst-⊢₀ ⊢t₁‴ ⊢t₂′)))
 
           open TmR
       in
@@ -4191,11 +4191,11 @@ private module Lemmas (p : P n) where opaque
       ⌜ t₁            ∘⟨ p ⟩ t₂  ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₂′ ⌝ γ ]₀  ≡˘⟨ t₁′∘t₂′≡t₁∘t₂ ⟩⊢∷
       ⌜ t₁′           ∘⟨ p ⟩ t₂′ ⌝ γ                              ≡⟨ PE.cong (U._∘⟨ _ ⟩ _ ∘→ flip ⌜_⌝ _) ≡lam ⟩⊢≡
       ⌜ lam p qB₁ t₁″ ∘⟨ p ⟩ t₂′ ⌝ γ                              ⇒⟨ β-red-⇒ ⊢t₁″ ⊢t₂′ Π-ok ⟩⊢
-      ⌜ t₁″ ⌝ γ U.[ ⌜ t₂′ ⌝ γ ]₀                                  ≡⟨ substTermEq t₁″≡t₁‴ (refl ⊢t₂′) ⟩⊢
+      ⌜ t₁″ ⌝ γ U.[ ⌜ t₂′ ⌝ γ ]₀                                  ≡⟨ subst-⊢≡₀ t₁″≡t₁‴ (refl ⊢t₂′) ⟩⊢
       ⌜ t₁‴ ⌝ γ U.[ ⌜ t₂′ ⌝ γ ]₀                                  ≡⟨ ≡t₁‴[t₂′] ⟩⊢≡
       ⌜ t₁‴ [ sgSubst t₂′ ] ⌝ γ                                   ≡⟨ red-tm-sound eq₆ ⊢γ $
                                                                      PE.subst (flip (_⊢_∷_ _) _) ≡t₁‴[t₂′] $
-                                                                     substTerm ⊢t₁‴ ⊢t₂′ ⟩⊢∎
+                                                                     subst-⊢₀ ⊢t₁‴ ⊢t₂′ ⟩⊢∎
       ⌜ u ⌝ γ                                                     ∎
     … | nothing | ok! =
       let open TmR in
@@ -4225,14 +4225,14 @@ private module Lemmas (p : P n) where opaque
           t₁≡t₁′          = check-sound eq₄ ⊢γ ⊢B₁
           _ , ⊢t₁ , ⊢t₁′  = wf-⊢≡∷ t₁≡t₁′
           _ , ⊢t₂ , _     = wf-⊢≡∷ $
-                            check-sound eq₅ ⊢γ (substType ⊢B₂ ⊢t₁′)
+                            check-sound eq₅ ⊢γ (subst-⊢₀ ⊢B₂ ⊢t₁′)
 
           open TmR
       in
                                        ∷ ⌜ A ⌝ γ    ⟨ A≡B₁ ⟩≡∷
       ⌜ fst p t                    ⌝ γ ∷ ⌜ B₁ ⌝ γ  ≡⟨ fst-cong′ t≡t′ ⟩⊢∷
       ⌜ fst p t′                   ⌝ γ             ≡⟨ PE.cong (U.fst _ ∘→ flip ⌜_⌝ _) ≡prod ⟩⊢≡
-      ⌜ fst p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ             ≡⟨ Σ-β₁-≡ ⊢B₂ ⊢t₁ (conv ⊢t₂ (substTypeEq (refl ⊢B₂) (sym′ t₁≡t₁′))) Σ-ok ⟩⊢
+      ⌜ fst p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ             ≡⟨ Σ-β₁-≡ ⊢B₂ ⊢t₁ (conv ⊢t₂ (subst-⊢≡₀ ⊢B₂ (sym′ t₁≡t₁′))) Σ-ok ⟩⊢
       ⌜ t₁ ⌝ γ                                     ≡⟨ t₁≡t₁′ ⟩⊢
       ⌜ t₁′ ⌝ γ                                    ≡⟨ red-tm-sound eq₆ ⊢γ ⊢t₁′ ⟩⊢∎
       ⌜ u  ⌝ γ                                     ∎
@@ -4254,7 +4254,7 @@ private module Lemmas (p : P n) where opaque
           | ⊢t               ← infer-red-sound eq₁ ⊢γ (wf ⊢A)
           | ⊢B₁ , ⊢B₂ , Σ-ok ← inversion-ΠΣ (wf-⊢∷ ⊢t)
           | A≡B₂[fst-t]      ← equal-ty-sound eq₂ ⊢γ ⊢A
-                                 (substType ⊢B₂ (fstⱼ′ ⊢t))
+                                 (subst-⊢₀ ⊢B₂ (fstⱼ′ ⊢t))
           | t≡t′             ← red-tm-sound eq₃ ⊢γ ⊢t
       with is-prod⟨ 𝕤 , p ⟩? t′ | eq
     … | just (qB₂ , t₁ , t₂ , ≡prod) | eq =
@@ -4262,22 +4262,21 @@ private module Lemmas (p : P n) where opaque
           inv t₂′ eq₅ eq₆ = inv->>= eq
           t₁≡t₁′          = check-sound eq₄ ⊢γ ⊢B₁
           _ , ⊢t₁ , ⊢t₁′  = wf-⊢≡∷ t₁≡t₁′
-          t₂≡t₂′          = check-sound eq₅ ⊢γ (substType ⊢B₂ ⊢t₁′)
+          t₂≡t₂′          = check-sound eq₅ ⊢γ (subst-⊢₀ ⊢B₂ ⊢t₁′)
           _ , ⊢t₂ , ⊢t₂′  = wf-⊢≡∷ t₂≡t₂′
-          ⊢t₂             = conv ⊢t₂
-                              (substTypeEq (refl ⊢B₂) (sym′ t₁≡t₁′))
+          ⊢t₂             = conv ⊢t₂ (subst-⊢≡₀ ⊢B₂ (sym′ t₁≡t₁′))
 
           open TmR
       in
                                        ∷ ⌜ A ⌝ γ                          ⟨ A≡B₂[fst-t] ⟩≡∷
       ⌜ snd p t                    ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ fst p t ⌝ γ ]₀   ≡⟨ snd-cong′ t≡t′ ⟩⊢∷
-                                                                          ⟨ substTypeEq (refl ⊢B₂) (fst-cong′ t≡t′) ⟩≡
+                                                                          ⟨ subst-⊢≡₀ ⊢B₂ (fst-cong′ t≡t′) ⟩≡
       ⌜ snd p t′                   ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ fst p t′ ⌝ γ ]₀  ≡⟨ PE.cong (U.snd _ ∘→ flip ⌜_⌝ _) ≡prod ⟩⊢∷≡
                                                                           ⟨ PE.cong (⌜ B₂ ⌝ γ U.[_]₀ ∘→ flip ⌜_⌝ _ ∘→ fst p) ≡prod ⟩≡≡
-                     ∷ ⌜ B₂ ⌝ γ U.[ ⌜ fst p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ ]₀   ⟨ substTypeEq (refl ⊢B₂) (Σ-β₁-≡ ⊢B₂ ⊢t₁ ⊢t₂ Σ-ok) ⟩≡∷
+                     ∷ ⌜ B₂ ⌝ γ U.[ ⌜ fst p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ ]₀   ⟨ subst-⊢≡₀ ⊢B₂ (Σ-β₁-≡ ⊢B₂ ⊢t₁ ⊢t₂ Σ-ok) ⟩≡∷
 
       ⌜ snd p (prod 𝕤 p qB₂ t₁ t₂) ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₁  ⌝ γ ]₀       ≡⟨ Σ-β₂-≡ ⊢B₂ ⊢t₁ ⊢t₂ Σ-ok ⟩⊢∷
-                                                                          ⟨ substTypeEq (refl ⊢B₂) t₁≡t₁′ ⟩≡
+                                                                          ⟨ subst-⊢≡₀ ⊢B₂ t₁≡t₁′ ⟩≡
       ⌜ t₂ ⌝ γ                         ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₁′ ⌝ γ ]₀       ≡⟨ t₂≡t₂′ ⟩⊢∷
       ⌜ t₂′ ⌝ γ                                                          ≡⟨ red-tm-sound eq₆ ⊢γ ⊢t₂′ ⟩⊢∎
       ⌜ u  ⌝ γ                                                           ∎
@@ -4307,7 +4306,7 @@ private module Lemmas (p : P n) where opaque
           | t₁≡t₁′           ← red-tm-sound eq₃ ⊢γ ⊢t₁
           | _ , _ , ⊢t₁′     ← wf-⊢≡∷ t₁≡t₁′
           | A≡B′[t₁′]        ← equal-ty-sound eq₄ ⊢γ (wf-⊢∷ ⊢pr)
-                                 (substType ⊢B′ ⊢t₁′)
+                                 (subst-⊢₀ ⊢B′ ⊢t₁′)
           | t₂≡t₂′           ← check-sound eq₅ ⊢γ
                                  (subst-⊢-↑ ⊢B′ (⊢1,0 ⊢Σ))
           | _ , _ , ⊢t₂′     ← wf-⊢≡∷ t₂≡t₂′
@@ -4319,10 +4318,10 @@ private module Lemmas (p : P n) where opaque
           inv t₁₂′ eq₇ eq₈ = inv->>= eq
           t₁₁≡t₁₁′         = check-sound eq₆ ⊢γ ⊢C₁
           _ , ⊢t₁₁ , ⊢t₁₁′ = wf-⊢≡∷ t₁₁≡t₁₁′
-          t₁₂≡t₁₂′         = check-sound eq₇ ⊢γ (substType ⊢C₂ ⊢t₁₁′)
+          t₁₂≡t₁₂′         = check-sound eq₇ ⊢γ (subst-⊢₀ ⊢C₂ ⊢t₁₁′)
           _ , _ , ⊢t₁₂′    = wf-⊢≡∷ t₁₂≡t₁₂′
           t₁₂≡t₁₂′         = conv t₁₂≡t₁₂′
-                               (substTypeEq (refl ⊢C₂) (sym′ t₁₁≡t₁₁′))
+                               (subst-⊢≡₀ ⊢C₂ (sym′ t₁₁≡t₁₁′))
           _ , ⊢t₁₂ , _     = wf-⊢≡∷ t₁₂≡t₁₂′
 
           open TmR
@@ -4335,7 +4334,7 @@ private module Lemmas (p : P n) where opaque
         ⌜ B′ ⌝ γ U.[ ⌜ prod 𝕨 p qC t₁₁ t₁₂ ⌝ γ ]₀                 ⇒⟨ prodrec-β-⇒ ⊢B′ ⊢t₁₁ ⊢t₁₂ ⊢t₂′ ⟩⊢∷
       ⌜ subst t₂′ (cons (sgSubst t₁₁) t₁₂) ⌝ γ                    ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] (⌜ B′ ⌝ _)) $
                                                                      subst-⊢≡₁₀ ⊢t₂′ t₁₁≡t₁₁′ t₁₂≡t₁₂′ ⟩⊢
-                                                                   ⟨ substTypeEq (refl ⊢B′) (prod-cong ⊢C₂ t₁₁≡t₁₁′ t₁₂≡t₁₂′ Σ-ok) ⟩≡
+                                                                   ⟨ subst-⊢≡₀ ⊢B′ (prod-cong ⊢C₂ t₁₁≡t₁₁′ t₁₂≡t₁₂′ Σ-ok) ⟩≡
       ⌜ subst t₂′ (cons (sgSubst t₁₁′) t₁₂′) ⌝ γ ∷
         ⌜ B′ ⌝ γ U.[ ⌜ prod 𝕨 p qC t₁₁′ t₁₂′ ⌝ γ ]₀               ≡⟨ red-tm-sound eq₈ ⊢γ $
                                                                      PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] (⌜ B′ ⌝ _)) $
@@ -4369,7 +4368,7 @@ private module Lemmas (p : P n) where opaque
       in
                                       ∷ ⌜ A ⌝ γ                   ⟨ A≡ ⟩≡∷
       ⌜ natrec p q r B t₁ t₂ t₃   ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ natrec-cong (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡0 ⟩⊢∷
-                                                                  ⟨ substTypeEq (refl ⊢B) t₃≡0 ⟩≡
+                                                                  ⟨ subst-⊢≡₀ ⊢B t₃≡0 ⟩≡
       ⌜ natrec p q r B t₁ t₂ zero ⌝ γ ∷ ⌜ B ⌝ γ U.[ U.zero ]₀    ⇒⟨ natrec-zero ⊢t₁ ⊢t₂ ⟩⊢∷
       ⌜ t₁ ⌝ γ                                                   ≡⟨ red-tm-sound eq₂ ⊢γ ⊢t₁ ⟩⊢∎
       ⌜ u ⌝ γ                                                    ∎
@@ -4385,7 +4384,7 @@ private module Lemmas (p : P n) where opaque
       in
                                            ∷ ⌜ A ⌝ γ                   ⟨ A≡ ⟩≡∷
       ⌜ natrec p q r B t₁ t₂ t₃        ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ natrec-cong (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡suc ⟩⊢∷
-                                                                       ⟨ substTypeEq (refl ⊢B) t₃≡suc ⟩≡
+                                                                       ⟨ subst-⊢≡₀ ⊢B t₃≡suc ⟩≡
       ⌜ natrec p q r B t₁ t₂ (suc t₃″) ⌝ γ ∷
         ⌜ B ⌝ γ U.[ ⌜ suc t₃″ ⌝ γ ]₀                                  ⇒⟨ natrec-suc ⊢t₁ ⊢t₂ ⊢t₃″ ⟩⊢∷
       ⌜ subst t₂ (cons (sgSubst t₃″) (natrec p q r B t₁ t₂ t₃″)) ⌝ γ  ≡⟨ red-tm-sound eq₂ ⊢γ $
@@ -4453,7 +4452,7 @@ private module Lemmas (p : P n) where opaque
       in
                                       ∷ ⌜ A ⌝ γ                    ⟨ A≡ ⟩≡∷
       ⌜ K p B₁ t₁ B₂ t₂ t₃        ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ K-cong (refl ⊢B₁) (refl ⊢t₁) (refl ⊢B₂) (refl ⊢t₂) t₃≡rfl K-ok ⟩⊢∷
-                                                                   ⟨ substTypeEq (refl ⊢B₂) t₃≡rfl ⟩≡
+                                                                   ⟨ subst-⊢≡₀ ⊢B₂ t₃≡rfl ⟩≡
       ⌜ K p B₁ t₁ B₂ t₂ (rfl t₁?) ⌝ γ ∷ ⌜ B₂ ⌝ γ U.[ U.rfl ]₀     ⇒⟨ K-β ⊢B₂ ⊢t₂ K-ok ⟩⊢∷
       ⌜ t₂ ⌝ γ                                                    ≡⟨ red-tm-sound eq₂ ⊢γ ⊢t₂ ⟩⊢∎
       ⌜ u ⌝ γ                                                     ∎
@@ -4689,7 +4688,7 @@ private module Lemmas (p : P n) where opaque
     let ⊢B₁ , ⊢B₂ , Σ-ok = inversion-ΠΣ ⊢A
         t₁≡t₁′           = check-sound eq₁ ⊢γ ⊢B₁
         _ , _ , ⊢t₁′     = wf-⊢≡∷ t₁≡t₁′
-        t₂≡t₂′           = check-sound eq₂ ⊢γ (substType ⊢B₂ ⊢t₁′)
+        t₂≡t₂′           = check-sound eq₂ ⊢γ (subst-⊢₀ ⊢B₂ ⊢t₁′)
     in
     sym′ (prod-cong ⊢B₂ (sym′ t₁≡t₁′) (sym′ t₂≡t₂′) Σ-ok)
   check′-sound rfl eq ⊢γ ⊢A
@@ -4826,7 +4825,7 @@ private module Lemmas (p : P n) where opaque
           _ , ⊢A′ = wf-⊢≡ A≡A′
           t₁≡t₁′  = check-sound eq₂ ⊢γ ⊢Unit
           t₂≡t₂′  = check-sound eq₃ ⊢γ $
-                    substType ⊢A′ (starⱼ ⊢Γ Unit-ok)
+                    subst-⊢₀ ⊢A′ (starⱼ ⊢Γ Unit-ok)
       in
       wf-⊢≡∷ (unitrec-cong′ (sym A≡A′) (sym′ t₁≡t₁′) (sym′ t₂≡t₂′))
         .proj₂ .proj₂
@@ -4895,7 +4894,7 @@ private module Lemmas (p : P n) where opaque
           ⊢A₁      = wf-⊢∷ ⊢t₁
           A₂≡A₂′   = check-type-sound eq₂ ⊢γ (∙ ⊢A₁)
           _ , ⊢A₂′ = wf-⊢≡ A₂≡A₂′
-          t₂≡t₂′   = check-sound eq₃ ⊢γ (substType ⊢A₂′ ⊢t₁)
+          t₂≡t₂′   = check-sound eq₃ ⊢γ (subst-⊢₀ ⊢A₂′ ⊢t₁)
           Σ-ok     = inv-require⁺ ⊢γ eq₄
       in
       wf-⊢≡∷ (prod-cong ⊢A₂′ (refl ⊢t₁) t₂≡t₂′ Σ-ok) .proj₂ .proj₁
@@ -4952,7 +4951,7 @@ private module Lemmas (p : P n) where opaque
     … | inv _ eq₄ ok! =
       let A≡A′    = check-type-sound eq₁ ⊢γ (∙ ⊢ℕ ⊢Γ)
           _ , ⊢A′ = wf-⊢≡ A≡A′
-          t₁≡t₁′  = check-sound eq₂ ⊢γ (substType ⊢A′ (zeroⱼ ⊢Γ))
+          t₁≡t₁′  = check-sound eq₂ ⊢γ (subst-⊢₀ ⊢A′ (zeroⱼ ⊢Γ))
           t₂≡t₂′  = check-sound eq₃ ⊢γ $
                     subst-⊢ ⊢A′ (⊢ˢʷ∷-[][]↑ (sucⱼ (var₁ ⊢A′)))
           t₃≡t₃′  = check-sound eq₄ ⊢γ (⊢ℕ ⊢Γ)
@@ -5027,7 +5026,7 @@ private module Lemmas (p : P n) where opaque
           ⊢Id          = Idⱼ′ ⊢t₁′ ⊢t₁′
           A₂≡A₂′       = check-type-sound eq₃ ⊢γ (∙ ⊢Id)
           _ , ⊢A₂′     = wf-⊢≡ A₂≡A₂′
-          t₂≡t₂′       = check-sound eq₄ ⊢γ (substType ⊢A₂′ (rflⱼ ⊢t₁′))
+          t₂≡t₂′       = check-sound eq₄ ⊢γ (subst-⊢₀ ⊢A₂′ (rflⱼ ⊢t₁′))
           t₃≡t₃′       = check-sound eq₅ ⊢γ ⊢Id
           K-ok         = inv-require⁰ ⊢γ k-allowed eq₆
       in
@@ -5232,11 +5231,11 @@ private module Lemmas (p : P n) where opaque
           t₁₁≡t₂₁      = equal-ne-red-sound eq₂ ⊢γ ⊢Unit
           _ , ⊢t₁₁ , _ = wf-⊢≡∷ t₁₁≡t₂₁
           _ , t₁₂≡t₂₂  = check-and-equal-tm-sound eq₃ ⊢γ
-                           (substType ⊢A ⊢⋆)
-          t₁₂≡t₂₂      = conv t₁₂≡t₂₂ (substTypeEq (sym A₁≡A) (refl ⊢⋆))
+                           (subst-⊢₀ ⊢A ⊢⋆)
+          t₁₂≡t₂₂      = conv t₁₂≡t₂₂ (subst-⊢≡₀ (sym A₁≡A) (refl ⊢⋆))
       in
       conv (unitrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
-        (substTypeEq A₁≡A (refl ⊢t₁₁))
+        (subst-⊢≡₀ A₁≡A (refl ⊢t₁₁))
     equal-ne-inf′-sound (app _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -5249,7 +5248,7 @@ private module Lemmas (p : P n) where opaque
           ⊢A₁ , ⊢A₂ , _    = inversion-ΠΣ ⊢Π
           t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound eq₂ ⊢γ ⊢A₁
       in
-      conv (app-cong t₁₁≡t₂₁ t₁₂≡t₂₂) (substTypeEq (refl ⊢A₂) t₁₂≡t₂)
+      conv (app-cong t₁₁≡t₂₁ t₁₂≡t₂₂) (subst-⊢≡₀ ⊢A₂ t₁₂≡t₂)
     equal-ne-inf′-sound (fst _ _ _ PE.refl) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -5282,7 +5281,7 @@ private module Lemmas (p : P n) where opaque
                          subst-⊢≡-↑ (sym A₁≡A) (refl (⊢1,0 ⊢Σ))
       in
       conv (prodrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
-        (substTypeEq A₁≡A (refl ⊢t₁₁))
+        (subst-⊢≡₀ A₁≡A (refl ⊢t₁₁))
     equal-ne-inf′-sound (natrec _ _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -5295,8 +5294,8 @@ private module Lemmas (p : P n) where opaque
           ⊢0           = zeroⱼ ⊢Γ
           ⊢suc-1       = sucⱼ (var₁ ⊢A)
           _ , t₁₁≡t₂₁  = check-and-equal-tm-sound eq₂ ⊢γ
-                           (substType ⊢A ⊢0)
-          t₁₁≡t₂₁      = conv t₁₁≡t₂₁ (substTypeEq (sym A₁≡A) (refl ⊢0))
+                           (subst-⊢₀ ⊢A ⊢0)
+          t₁₁≡t₂₁      = conv t₁₁≡t₂₁ (subst-⊢≡₀ (sym A₁≡A) (refl ⊢0))
           _ , t₁₂≡t₂₂  = check-and-equal-tm-sound eq₃ ⊢γ
                            (subst-⊢-↑ ⊢A ⊢suc-1)
           t₁₂≡t₂₂      = stability (refl-∙ (sym A₁≡A)) $
@@ -5306,7 +5305,7 @@ private module Lemmas (p : P n) where opaque
           _ , ⊢t₁₃ , _ = wf-⊢≡∷ t₁₃≡t₂₃
       in
       conv (natrec-cong A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃)
-        (substTypeEq A₁≡A (refl ⊢t₁₃))
+        (subst-⊢≡₀ A₁≡A (refl ⊢t₁₃))
     equal-ne-inf′-sound (J _ _ _ _ _ _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -5370,16 +5369,16 @@ private module Lemmas (p : P n) where opaque
           _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
           A₁₂≡A₂₂          = stability (refl-∙ Id≡Id) A₁₂≡A₂₂
           _ , t₁₂≡t₂₂      = check-and-equal-tm-sound eq₄ ⊢γ $
-                             substType ⊢A₂ (rflⱼ ⊢t₁)
+                             subst-⊢₀ ⊢A₂ (rflⱼ ⊢t₁)
           t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
-                             substTypeEq (sym A₁₂≡A₂) (refl (rflⱼ ⊢t₁))
+                             subst-⊢≡₀ (sym A₁₂≡A₂) (refl (rflⱼ ⊢t₁))
           t₁₃≡t₂₃          = equal-ne-red-sound eq₅ ⊢γ ⊢Id
           _ , ⊢t₁₃ , _     = wf-⊢≡∷ t₁₃≡t₂₃
           t₁₃≡t₂₃          = conv t₁₃≡t₂₃ Id≡Id
           K-ok             = inv-require⁰ ⊢γ k-allowed eq₆
       in
       conv (K-cong A₁₁≡A₂₁ t₁₁≡t₂₁ A₁₂≡A₂₂ t₁₂≡t₂₂ t₁₃≡t₂₃ K-ok)
-        (substTypeEq A₁₂≡A₂ (refl ⊢t₁₃))
+        (subst-⊢≡₀ A₁₂≡A₂ (refl ⊢t₁₃))
     equal-ne-inf′-sound ([]-cong _ _ _ _ _ _ _ _ _ _ _ PE.refl) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq

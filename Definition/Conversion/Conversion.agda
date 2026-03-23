@@ -124,7 +124,7 @@ mutual
   ...   | F≡F′ , G≡G′ , _ , _ =
     let _ , ⊢G′ = syntacticEq G≡G′
         _ , ⊢t , _ = syntacticEqTerm (soundnessConv↑Term x₂)
-        Gt≡G′t = substTypeEq G≡G′ (refl ⊢t)
+        Gt≡G′t = subst-⊢≡₀ G≡G′ (refl ⊢t)
     in  prod-cong (stability (Δ≡Η ∙ F≡F′) ⊢G′)
           (convConv↑Term′ Δ≡Η F≡F′ x₂) (convConv↑Term′ Δ≡Η Gt≡G′t x₃) ok
   convConv↓Term′ Δ≡Η A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) with Π≡A A≡B whnfB
@@ -146,7 +146,7 @@ mutual
             pProd
             rProd
             (convConv↑Term′ Δ≡Η F≡ fstConv)
-            (convConv↑Term′ Δ≡Η (substTypeEq G≡ (refl ⊢fst)) sndConv)
+            (convConv↑Term′ Δ≡Η (subst-⊢≡₀ G≡ (refl ⊢fst)) sndConv)
   convConv↓Term′ Δ≡Η A≡B whnfB (η-unit [t] [u] tUnit uUnit ok)
     rewrite Unit≡A A≡B whnfB =
     let [t] = stability Δ≡Η [t]

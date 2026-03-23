@@ -804,7 +804,7 @@ inversion-ne-snd :
      Γ ⊢ A ≡ C [ fst p t ]₀
 inversion-ne-snd (sndₙ ⊢C ⊢t) =
   _ , _ , _ , ⊢C , ⊢t ,
-  refl (substType ⊢C (fstⱼ ⊢C (⊢ne∷→⊢∷ ⊢t)))
+  refl (subst-⊢₀ ⊢C (fstⱼ ⊢C (⊢ne∷→⊢∷ ⊢t)))
 inversion-ne-snd (convₙ ⊢snd A≡B) =
   case inversion-ne-snd ⊢snd of λ {
     (_ , _ , _ , ⊢C , ⊢t , A≡) →
@@ -843,7 +843,7 @@ inversion-ne-prodrec :
     Γ ⊢ B ≡ A [ t ]₀
 inversion-ne-prodrec (prodrecₙ ⊢A ⊢t ⊢u _) =
   _ , _ , _ , ⊢A , ⊢t , ⊢u ,
-  refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t))
+  refl (subst-⊢₀ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t))
 inversion-ne-prodrec (convₙ ⊢pr B≡C) =
   case inversion-ne-prodrec ⊢pr of λ {
     (_ , _ , _ , ⊢A , ⊢t , ⊢u , B≡) →
@@ -912,7 +912,7 @@ inversion-ne-natrec :
   Γ ⊢ B ≡ A [ v ]₀
 inversion-ne-natrec (natrecₙ ⊢A ⊢t ⊢u ⊢v) =
   ⊢A , ⊢t , ⊢u , ⊢v ,
-  refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢v))
+  refl (subst-⊢₀ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢v))
 inversion-ne-natrec (convₙ ⊢pr B≡C) =
   case inversion-ne-natrec ⊢pr of λ {
     (⊢A , ⊢t , ⊢u , ⊢v , B≡) →
@@ -1154,7 +1154,7 @@ opaque
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
   inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) =
-    ⊢A , ⊢t , ⊢u , refl (substType (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)) , not-ok
+    ⊢A , ⊢t , ⊢u , refl (subst-⊢₀ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)) , not-ok
   inversion-ne-unitrec (convₙ ⊢ur B≡C) =
     case inversion-ne-unitrec ⊢ur of λ {
       (⊢A , ⊢t , ⊢u , B≡ , not-ok) →
@@ -1564,7 +1564,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
             ⊢Unit , _          = syntacticEqTerm t≡t″
             ok                 = inversion-Unit ⊢Unit
             A₊≡B₊              =
-              substTypeEq (soundnessConv↑ A≡B) (refl (starⱼ ⊢Γ ok))
+              subst-⊢≡₀ (soundnessConv↑ A≡B) (refl (starⱼ ⊢Γ ok))
         in
         PE.cong₃ (unitrec _ _)
           (normal-types-unique-[conv↑] ⊢A ⊢B A≡B)
@@ -1761,14 +1761,14 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
           PE.refl →
         PE.cong (prod _ _ _)
           (normal-terms-unique-[conv↑]∷′
-             (convₙ ⊢u (substTypeEq C≡ (sym′ (subsetTerm fst-t,u⇒t))))
-             (convₙ ⊢w (substTypeEq E≡ t≡fst-t,u′))
+             (convₙ ⊢u (subst-⊢≡₀ C≡ (sym′ (subsetTerm fst-t,u⇒t))))
+             (convₙ ⊢w (subst-⊢≡₀ E≡ t≡fst-t,u′))
              (redMany
                 (conv (Σ-β₂ ⊢C (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) PE.refl ok₁)
-                   (substTypeEq C≡ t≡fst-t,u)))
+                   (subst-⊢≡₀ C≡ t≡fst-t,u)))
              (redMany
                 (conv (Σ-β₂ ⊢E (⊢nf∷→⊢∷ ⊢v) (⊢nf∷→⊢∷ ⊢w) PE.refl ok₂)
-                   (substTypeEq E≡ t≡fst-t,u′)))
+                   (subst-⊢≡₀ E≡ t≡fst-t,u′)))
              snd≡snd) }}}
       (Σ-η _ _ (ne u-ne) _ _ _) →
         ⊥-elim (⊢nf∷Σˢ→Neutral→⊥ ⦃ ok = included ⦄ ⊢u u-ne)

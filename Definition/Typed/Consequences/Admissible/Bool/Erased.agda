@@ -331,9 +331,9 @@ opaque
          .IC.metas-wf .IC.equalities-wf →
            (reflConEq (∙ ⊢Bool ⊢Γ) , IC.type A₁≡A₂) L.∷
            (reflConEq ⊢Γ ,
-            IC.term (refl (substType ⊢A₁ (⊢true ⊢Γ))) t₁≡t₂) L.∷
+            IC.term (refl (subst-⊢₀ ⊢A₁ (⊢true ⊢Γ))) t₁≡t₂) L.∷
            (reflConEq ⊢Γ ,
-            IC.term (refl (substType ⊢A₁ (⊢false ⊢Γ))) u₁≡u₂) L.∷
+            IC.term (refl (subst-⊢₀ ⊢A₁ (⊢false ⊢Γ))) u₁≡u₂) L.∷
            (reflConEq ⊢Γ , IC.term (refl (⊢Bool ⊢Γ)) v₁≡v₂) L.∷
            L.[]
          .IC.metas-wf .IC.bindings-wf → λ where

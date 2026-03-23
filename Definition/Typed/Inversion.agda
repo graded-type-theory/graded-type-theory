@@ -354,7 +354,7 @@ opaque
     Γ ⊢ u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀
   inversion-unitrec (unitrecⱼ ⊢A ⊢t ⊢u _) =
-    ⊢A , ⊢t , ⊢u , refl (substType ⊢A ⊢t)
+    ⊢A , ⊢t , ⊢u , refl (subst-⊢₀ ⊢A ⊢t)
   inversion-unitrec (conv ⊢ur eq) =
     let a , b , c , d = inversion-unitrec ⊢ur
     in  a , b , c , trans (sym eq) d
@@ -416,7 +416,7 @@ opaque
       Γ ⊢ A ≡ C [ fst p t ]₀
   inversion-snd (sndⱼ ⊢C ⊢t) =
     _ , _ , _ , ⊢∙→⊢ (wf ⊢C) , ⊢C , ⊢t ,
-    refl (substType ⊢C (fstⱼ ⊢C ⊢t))
+    refl (subst-⊢₀ ⊢C (fstⱼ ⊢C ⊢t))
   inversion-snd (conv ⊢snd eq) =
     let a , b , c , d , e , f , g = inversion-snd ⊢snd in
     a , b , c , d , e , f , trans (sym eq) g
@@ -436,7 +436,7 @@ opaque
   inversion-prodrec (prodrecⱼ ⊢A ⊢t ⊢u _) =
     let ⊢D = ⊢∙→⊢ (wf ⊢u) in
     _ , _ , _ , ⊢∙→⊢ (wf ⊢D) , ⊢D , ⊢A , ⊢t , ⊢u ,
-    refl (substType ⊢A ⊢t)
+    refl (subst-⊢₀ ⊢A ⊢t)
   inversion-prodrec (conv ⊢pr eq) =
     let a , b , c , d , e , f , g , h , i = inversion-prodrec ⊢pr in
     a , b , c , d , e , f , g , h , trans (sym eq) i
@@ -457,7 +457,7 @@ opaque
     Γ ⊢ B ≡ A [ v ]₀
   inversion-natrec (natrecⱼ ⊢t ⊢u ⊢v) =
     let ⊢A = ⊢∙→⊢ (wf ⊢u) in
-    ⊢A , ⊢t , ⊢u , ⊢v , refl (substType ⊢A ⊢v)
+    ⊢A , ⊢t , ⊢u , ⊢v , refl (subst-⊢₀ ⊢A ⊢v)
   inversion-natrec (conv ⊢nr eq) =
     let a , b , c , d , e = inversion-natrec ⊢nr in
     a , b , c , d , trans (sym eq) e

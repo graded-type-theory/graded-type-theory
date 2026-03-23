@@ -187,7 +187,7 @@ module Lemmas where
                         ([~] _ (D , whnfB′) x₄)
         ⊢F , _ = syntacticEq (soundnessConv↑ x)
         _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
-    in  ↑ (refl (substType ⊢F ⊢n))
+    in  ↑ (refl (subst-⊢₀ ⊢F ⊢n))
           (natrec-cong x x₁ x₂ k~l′)
 
   ~-prodrec :
@@ -208,7 +208,7 @@ module Lemmas where
                 ⊢A , _     = syntacticEq (soundnessConv↑ x₂)
                 _ , ⊢t , _ = syntacticEqTerm (soundness~↑ k~↑l)
             in
-            ↑ (refl (substType ⊢A (conv ⊢t (sym A≡B))))
+            ↑ (refl (subst-⊢₀ ⊢A (conv ⊢t (sym A≡B))))
               (prodrec-cong (stabilityConv↑ (refl-∙ Σ≡Σ′) x₂)
                  t~t′ (stabilityConv↑Term (refl-∙ F≡F′ ∙ G≡G′) x₄))
 
@@ -240,7 +240,7 @@ module Lemmas where
     let ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
         _ , ⊢t , _ = syntacticEqTerm (soundness~↑ t~t′)
     in
-    ↑ (refl (substType ⊢A (conv ⊢t (sym Unit≡B))))
+    ↑ (refl (subst-⊢₀ ⊢A (conv ⊢t (sym Unit≡B))))
       (unitrec-cong A<>A′ ([~] _ (Unit-norm (sym Unit≡B)) t~t′) u<>u′
          no-η)
 
@@ -281,7 +281,7 @@ module Lemmas where
       case Id-norm (sym Id-t₁-t₁≡C) of λ {
         (_ , _ , _ , C⇒*Id-t₃-t₄ , A₁≡A₃ , t₁≡t₃ , t₁≡t₄) →
       ↑ (refl $
-         substType (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁) $
+         subst-⊢₀ (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁) $
          _⊢_∷_.conv
            (syntacticEqTerm (soundness~↑ v₁~v₂) .proj₂ .proj₁) $
          sym Id-t₁-t₁≡C)

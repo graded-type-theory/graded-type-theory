@@ -377,9 +377,9 @@ opaque
     ∘ʰ p (lamʰ p t) u                              ≡⟨⟩⊢
     lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift u)  ≡⟨ lower-cong $
                                                       _⊢_≡_∷_.conv (β-red-≡ (liftⱼ′ ⊢wk-l₁ (lower₀Term ⊢0 ⊢t)) ⊢lift-u ok) $
-                                                      Lift-cong (refl-⊢≡∷L (substLevel ⊢wk-l₁ ⊢lift-u)) (lower₀[lift]₀ (wf-⊢∷ ⊢t) ⊢u) ⟩⊢
+                                                      Lift-cong (refl-⊢≡∷L (subst-⊢₀ ⊢wk-l₁ ⊢lift-u)) (lower₀[lift]₀ (wf-⊢∷ ⊢t) ⊢u) ⟩⊢
     lower (lift (lower₀ t) [ lift u ]₀)            ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢u)) ⟩⊢
-    lower (lift (t [ u ]₀))                        ⇒⟨ Lift-β⇒ (substTerm ⊢t ⊢u) ⟩⊢∎
+    lower (lift (t [ u ]₀))                        ⇒⟨ Lift-β⇒ (subst-⊢₀ ⊢t ⊢u) ⟩⊢∎
     t [ u ]₀                                       ∎
     where
     open TmR
@@ -413,7 +413,7 @@ opaque
                   (refl (wk₁ ⊢Lift-A ⊢t)))
                (sym′ (Lift-η-swap ⊢0 (refl (lowerⱼ ⊢0)))))
             (PE.subst (_⊢_≡_ _ _) (wkSingleSubstId _) $
-             substTypeEq
+             subst-⊢≡₀
                (_⊢_≡_.refl $
                 W.wk (liftʷ (step id) (wk₁ ⊢Lift-A ⊢Lift-A)) $
                 lower₀Type ⊢l₂ ⊢B)

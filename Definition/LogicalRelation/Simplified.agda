@@ -542,4 +542,4 @@ Id-intro ⊢A ⊢t ⊢u = Idᵣ′ _ _ _ (id (Idⱼ ⊢A ⊢t ⊢u)) (⊢→⊨ 
   Γ ⊨ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B
 ΠΣ-intro ⊢Π =
   let ⊢A , ⊢B , ok = inversion-ΠΣ ⊢Π
-  in  ΠΣ-intro′ (⊢→⊨ ⊢A) (λ ⊢t → ⊢→⊨ (substType ⊢B ⊢t)) ⊢B ok
+  in  ΠΣ-intro′ (⊢→⊨ ⊢A) (λ ⊢t → ⊢→⊨ (subst-⊢₀ ⊢B ⊢t)) ⊢B ok

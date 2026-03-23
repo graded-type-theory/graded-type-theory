@@ -173,11 +173,11 @@ opaque
     of λ
       v[σ]⇛rfl →
     case PE.subst₂ (_⊢_≡_ _) (PE.sym (singleSubstLift B _)) (PE.sym (singleSubstLift B _)) $
-         substTypeEq (refl ⊢B[σ⇑]) (sym′ (⇛→⊢≡ v[σ]⇛rfl)) of λ
+         subst-⊢≡₀ ⊢B[σ⇑] (sym′ (⇛→⊢≡ v[σ]⇛rfl)) of λ
       ⊢B[rfl]≡B[v] →
     case                  ∷ B [ v ]₀ [ σ ]           ⟨ singleSubstLift B _ ⟩⇛≡
       K p A t B u v [ σ ] ∷ B [ σ ⇑ ] [ v [ σ ] ]₀  ⇛⟨ K-⇛ ⊢B[σ⇑] ⊢u[σ] v[σ]⇛rfl ok ⟩∷
-                                                     ⟨ substTypeEq (refl ⊢B[σ⇑]) (⇛→⊢≡ v[σ]⇛rfl) ⟩⇛
+                                                     ⟨ subst-⊢≡₀ ⊢B[σ⇑] (⇛→⊢≡ v[σ]⇛rfl) ⟩⇛
       K p A t B u rfl [ σ ] ∷ B [ σ ⇑ ] [ rfl ]₀    ⇒⟨ K-β ⊢B[σ⇑] ⊢u[σ] ok ⟩∎⇛∷
       u [ σ ]                                       ∎
     of λ
@@ -245,7 +245,7 @@ opaque
     case PE.subst₂ (_⊢_≡_ _) (PE.sym ([,]-[]-commute B)) (PE.sym ([,]-[]-commute B)) $
           subst-⊢≡₁₀ ⊢B[σ⇑⇑] t[σ]≡v[σ] $
           conv (sym′ w[σ]≡rfl) $
-          substTypeEq (refl (⊢∙→⊢ (wf ⊢B[σ⇑⇑]))) (sym′ t[σ]≡v[σ])
+          subst-⊢≡₀ (⊢∙→⊢ (wf ⊢B[σ⇑⇑])) (sym′ t[σ]≡v[σ])
             of λ
       ⊢B[t,rfl]≡B[v,w] →
     case                      ∷ B [ v , w ]₁₀ [ σ ]                   ⟨ [,]-[]-commute B ⟩⇛≡

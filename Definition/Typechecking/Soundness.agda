@@ -110,7 +110,7 @@ mutual
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΠFG
         ⊢u = soundness⇇ u⇇F
         ⊢t′ = conv ⊢t A≡ΠFG
-    in  substType ⊢G ⊢u , ⊢t′ ∘ⱼ ⊢u
+    in  subst-⊢₀ ⊢G ⊢u , ⊢t′ ∘ⱼ ⊢u
   soundness⇉ ⊢Γ (fstᵢ t⇉A (A⇒ΣFG , _)) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΣFG = subset* A⇒ΣFG
@@ -122,7 +122,7 @@ mutual
         A≡ΣFG = subset* A⇒ΣFG
         _ , ⊢ΣFG = syntacticEq A≡ΣFG
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
-    in  substType ⊢G (fstⱼ ⊢G (conv ⊢t A≡ΣFG)) , sndⱼ ⊢G (conv ⊢t A≡ΣFG)
+    in  subst-⊢₀ ⊢G (fstⱼ ⊢G (conv ⊢t A≡ΣFG)) , sndⱼ ⊢G (conv ⊢t A≡ΣFG)
   soundness⇉ ⊢Γ (prodrecᵢ A⇇Type t⇉B (B⇒ΣFG , _) u⇇A₊) =
     let ⊢B , ⊢t = soundness⇉ ⊢Γ t⇉B
         B≡ΣFG = subset* B⇒ΣFG
@@ -131,7 +131,7 @@ mutual
         _ , _ , ok = inversion-ΠΣ ⊢ΣFG
         ⊢A = soundness⇇Type (∙ ⊢ΣFG) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
-    in  substType ⊢A ⊢t′ , prodrecⱼ ⊢A ⊢t′ ⊢u ok
+    in  subst-⊢₀ ⊢A ⊢t′ , prodrecⱼ ⊢A ⊢t′ ⊢u ok
   soundness⇉ ⊢Γ ℕᵢ = ⊢U₀ ⊢Γ , ℕⱼ ⊢Γ
   soundness⇉ ⊢Γ zeroᵢ = ⊢ℕ ⊢Γ , zeroⱼ ⊢Γ
   soundness⇉ ⊢Γ (sucᵢ t⇇ℕ) = ⊢ℕ ⊢Γ , sucⱼ (soundness⇇ t⇇ℕ)
@@ -141,7 +141,7 @@ mutual
         ⊢z = soundness⇇ z⇇A₀
         ⊢s = soundness⇇ s⇇A₊
         ⊢n = soundness⇇ n⇇ℕ
-    in  substType ⊢A ⊢n , natrecⱼ ⊢z ⊢s ⊢n
+    in  subst-⊢₀ ⊢A ⊢n , natrecⱼ ⊢z ⊢s ⊢n
   soundness⇉ ⊢Γ (Unitᵢ ok) =
     ⊢U₀ ⊢Γ , Unitⱼ ⊢Γ ok
   soundness⇉ ⊢Γ (starᵢ ok) =
@@ -152,7 +152,7 @@ mutual
         ok = inversion-Unit ⊢Unit
         ⊢A = soundness⇇Type (∙ ⊢Unit) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
-    in  substType ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u ok
+    in  subst-⊢₀ ⊢A ⊢t , unitrecⱼ ⊢A ⊢t ⊢u ok
   soundness⇉ ⊢Γ Emptyᵢ = ⊢U₀ ⊢Γ , Emptyⱼ ⊢Γ
   soundness⇉ ⊢Γ (emptyrecᵢ A⇇Type t⇇Empty) =
     let ⊢A = soundness⇇Type ⊢Γ A⇇Type
@@ -184,7 +184,7 @@ mutual
       ⊢B →
     case soundness⇇ ⊢v of λ {
       ⊢v →
-      substType ⊢B ⊢v
+      subst-⊢₀ ⊢B ⊢v
     , Kⱼ ⊢B (soundness⇇ ⊢u) ⊢v ok }}}}
   soundness⇉ ⊢Γ ([]-congᵢ ⊢l _ ⊢t ⊢u ⊢v ok) =
     let ⊢l = soundness⇇Level ⊢Γ ⊢l in

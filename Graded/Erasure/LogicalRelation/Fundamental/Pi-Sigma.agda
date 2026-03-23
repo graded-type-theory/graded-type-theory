@@ -565,7 +565,7 @@ opaque
                                                                           ®∷-⇐*
                                                                             (
       snd p (t [ σ ])       ∷ B [ σ ⇑ ] [ fst p (t [ σ ]) ]₀                   ⇛⟨ snd-⇛ t[σ]⇛t₁,t₂ ⟩∷
-                                                                                ⟨ substTypeEq (refl ⊢B[σ⇑]) $ ⇛→⊢≡ $
+                                                                                ⟨ subst-⊢≡₀ ⊢B[σ⇑] $ ⇛→⊢≡ $
                                                                                   trans-⇛ (fst-⇛ t[σ]⇛t₁,t₂) $
                                                                                   ⇒*→⇛ (redMany (Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok)) ⟩⇛
       snd p (prodˢ p t₁ t₂) ∷ B [ σ ⇑ ] [ t₁ ]₀                                ⇒⟨ Σ-β₂-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎⇛∷
@@ -584,7 +584,7 @@ opaque
       erase str (snd 𝟘 t) T.[ σ′ ]                                               ≡⟨ PE.cong T._[ _ ] $ snd-𝟘 PE.refl ⟩⇒
       erase str t T.[ σ′ ]                                                       ⇒*⟨ 𝟘-hyp PE.refl ⟩
       v₂                                                                         ∎⇒ }) $
-                                                                          conv-®∷ (substTypeEq (refl ⊢B[σ⇑]) $ sym′ $ ⇛→⊢≡ (
+                                                                          conv-®∷ (subst-⊢≡₀ ⊢B[σ⇑] $ sym′ $ ⇛→⊢≡ (
       fst p (t [ σ ])                                                          ⇛⟨ fst-⇛ t[σ]⇛t₁,t₂ ⟩
       fst p (prodˢ p t₁ t₂)                                                    ⇒⟨ Σ-β₁-⇒ ⊢B[σ⇑] ⊢t₁ ⊢t₂ ok ⟩∎⇛
       t₁                                                                       ∎))
@@ -978,7 +978,7 @@ opaque
           ts » Δ ⊢ C [ σ ⇑ ] [ t [ σ ] ]₀ ≡
             C [ σ ⇑ ] [ prodʷ p t₁ t₂ ]₀
         C[σ⇑][t[σ]]≡C[σ⇑][t₁,t₂] =
-          substTypeEq (refl ⊢C[σ⇑]) (⇛→⊢≡ t[σ]⇛t₁,t₂)
+          subst-⊢≡₀ ⊢C[σ⇑] (⇛→⊢≡ t[σ]⇛t₁,t₂)
 
       opaque
 

@@ -201,28 +201,12 @@ opaque
 
 opaque
 
-  -- A substitution lemma for _⊢_≡_.
-
-  substTypeEq : Γ »∙ A ⊢ B ≡ C → Γ ⊢ t ≡ u ∷ A → Γ ⊢ B [ t ]₀ ≡ C [ u ]₀
-  substTypeEq = subst-⊢≡₀
-
-opaque
-
-  -- A substitution lemma for _⊢_≡_∷_.
-
-  substTermEq :
-    Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B → Γ ⊢ u₁ ≡ u₂ ∷ A →
-    Γ ⊢ t₁ [ u₁ ]₀ ≡ t₂ [ u₂ ]₀ ∷ B [ u₁ ]₀
-  substTermEq = subst-⊢≡₀
-
-opaque
-
   -- A substitution lemma related to Π.
 
   substTypeΠ : Γ ⊢ Π p , q ▷ A ▹ B → Γ ⊢ t ∷ A → Γ ⊢ B [ t ]₀
   substTypeΠ ⊢ΠAB ⊢t =
     let _ , ⊢B , _ = inversion-ΠΣ ⊢ΠAB in
-    substType ⊢B ⊢t
+    subst-⊢₀ ⊢B ⊢t
 
 opaque
 

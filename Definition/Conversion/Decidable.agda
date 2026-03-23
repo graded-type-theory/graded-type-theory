@@ -377,7 +377,7 @@ private opaque
         ⊢Γ = wf ⊢t₁
     in case
       (dec₁ ×-dec′ λ A₁≡A₂ →
-       dec₂ (substTypeEq (soundnessConv↑ A₁≡A₂) (refl (starⱼ ⊢Γ ok))))
+       dec₂ (subst-⊢≡₀ (soundnessConv↑ A₁≡A₂) (refl (starⱼ ⊢Γ ok))))
       of λ where
       (yes (A₁≡A₂ , u₁≡u₂)) →
         let B≡Unit = uncurry Unit≡A (~↓→∷→Whnf×≡ t₁~t₂ ⊢t₁) in
@@ -427,7 +427,7 @@ private opaque
            ⊢Δ        = wf ⊢v₁
            ΔℕA₁≡ΔℕA₂ = refl-∙ (sym A₁≡A₂)
        in
-       dec₁ (substTypeEq A₁≡A₂ (refl (zeroⱼ ⊢Δ)))
+       dec₁ (subst-⊢≡₀ A₁≡A₂ (refl (zeroⱼ ⊢Δ)))
          ×-dec
        dec₂ ΔℕA₁≡ΔℕA₂
          (stability (symConEq ΔℕA₁≡ΔℕA₂) $ sym $ sucCong A₁≡A₂))
@@ -1088,8 +1088,7 @@ mutual
       (decConv↑Term fst-t≡ fst-u≡
          ×-dec′ λ fst-t≡fst-u →
        decConv↑TermConv
-         (substTypeEq
-            (refl (inversion-ΠΣ (syntacticTerm ⊢t) .proj₂ .proj₁))
+         (subst-⊢≡₀ (inversion-ΠΣ (syntacticTerm ⊢t) .proj₂ .proj₁)
             (soundnessConv↑Term fst-t≡fst-u))
          snd-t≡ snd-u≡)
       of λ where
@@ -1126,7 +1125,7 @@ mutual
           (decConv↑Term t₁≡ u₁≡
              ×-dec′ λ t₁≡u₁ →
            decConv↑TermConv
-             (substTypeEq (refl ⊢B) (soundnessConv↑Term t₁≡u₁))
+             (subst-⊢≡₀ ⊢B (soundnessConv↑Term t₁≡u₁))
              t₂≡ u₂≡)
           of λ where
           (yes (t₁≡u₁ , t₂≡u₂)) → yes (prod-cong ⊢B t₁≡u₁ t₂≡u₂ ok)

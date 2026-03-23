@@ -104,8 +104,8 @@ opaque
                       ⊢l
               in
               ¬U∷U $
-              conv (substTerm ⊢U ⊢l)
-                (U (l′ [ l ]₀)             ≡˘⟨ substTypeEq U≡U (refl ⊢l) ⟩⊢∎≡
+              conv (subst-⊢₀ ⊢U ⊢l)
+                (U (l′ [ l ]₀)             ≡˘⟨ subst-⊢≡₀ U≡U (refl ⊢l) ⟩⊢∎≡
                  U (wk1 (level l) [ l ]₀)  ≡⟨ PE.cong U $ wk1-sgSubst _ _ ⟩
                  U (level l)               ∎)
     in
@@ -150,7 +150,7 @@ opaque
     let ¬⊢∷ = λ (_ , ⊢A) →
           let _ , _ , ⊢U₀ , ⊢U₁ , _ = inversion-ΠΣ-U ⊢A in
           ¬U∷U $
-          conv (substTerm ⊢U₁ (Emptyⱼ (wf ⊢U₀)))
+          conv (subst-⊢₀ ⊢U₁ (Emptyⱼ (wf ⊢U₀)))
             (PE.subst (flip (_⊢_≡_ _) _) (PE.sym $ wk1-sgSubst _ _) $
              inversion-U ⊢U₀)
     in

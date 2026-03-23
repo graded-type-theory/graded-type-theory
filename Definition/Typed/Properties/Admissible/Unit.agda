@@ -111,14 +111,14 @@ opaque
           (_ , ⊢u₁ , ⊢u₂) →
         unitrec p q A₁ t₁ u₁  ≡⟨ unitrec-β-η ⊢A₁ ⊢t₁ ⊢u₁ ok η ⟩⊢
         u₁                      ≡⟨ conv u₁≡u₂
-                                     (substTypeEq (refl ⊢A₁) (Unit-η-≡ (inj₂ η) ⊢t₁)) ⟩⊢
+                                     (subst-⊢≡₀ ⊢A₁ (Unit-η-≡ (inj₂ η) ⊢t₁)) ⟩⊢
         u₂                      ≡˘⟨ conv
                                       (unitrec-β-η
                                         ⊢A₂
                                         ⊢t₂
-                                        (conv ⊢u₂ (substTypeEq A₁≡A₂ (refl (starⱼ ⊢Γ ok))))
+                                        (conv ⊢u₂ (subst-⊢≡₀ A₁≡A₂ (refl (starⱼ ⊢Γ ok))))
                                         ok η)
-                                      (sym (substTypeEq A₁≡A₂ t₁≡t₂)) ⟩⊢∎
+                                      (sym (subst-⊢≡₀ A₁≡A₂ t₁≡t₂)) ⟩⊢∎
         unitrec p q A₂ t₂ u₂  ∎
 
 opaque
@@ -227,7 +227,7 @@ opaque
     let ok = ⊢∷Unit→Unit-allowed (redFirstTerm t⇒t′) in
     unitrec-subst ⊢A ⊢u t⇒t′ ok not-ok ⇨
     conv* (unitrec-subst* t′⇒*t″ ⊢A ⊢u not-ok)
-      (substTypeEq (refl ⊢A) (sym′ (subsetTerm t⇒t′)))
+      (subst-⊢≡₀ ⊢A (sym′ (subsetTerm t⇒t′)))
 
 opaque
 
@@ -246,7 +246,7 @@ opaque
       (no no-η) →
         unitrec p q A t u      ⇒*⟨ unitrec-subst* t⇒⋆ ⊢A ⊢u no-η ⟩
         unitrec p q A starʷ u  ⇒⟨ conv (unitrec-β-⇒ ⊢A ⊢u)
-                                    (substTypeEq (refl ⊢A) (sym′ (subset*Term t⇒⋆))) ⟩∎
+                                    (subst-⊢≡₀ ⊢A (sym′ (subset*Term t⇒⋆))) ⟩∎
         u                      ∎
 
 ------------------------------------------------------------------------
@@ -265,7 +265,7 @@ opaque
   ⊢unitrec⟨⟩ {s = 𝕨} ⊢A ⊢t ⊢u =
     unitrecⱼ′ ⊢A ⊢t ⊢u
   ⊢unitrec⟨⟩ {s = 𝕤} ⊢A ⊢t ⊢u =
-    conv ⊢u (substTypeEq (refl ⊢A) (Unit-η-≡ (inj₁ PE.refl) ⊢t))
+    conv ⊢u (subst-⊢≡₀ ⊢A (Unit-η-≡ (inj₁ PE.refl) ⊢t))
 
 opaque
   unfolding unitrec⟨_⟩
@@ -330,7 +330,7 @@ opaque
     unitrec-cong′ A₁≡A₂ t₁≡t₂ u₁≡u₂
   unitrec⟨⟩-cong {s = 𝕤} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     conv u₁≡u₂ $
-    substTypeEq (refl (syntacticEq A₁≡A₂ .proj₁))
+    subst-⊢≡₀ (syntacticEq A₁≡A₂ .proj₁)
       (Unit-η-≡ (inj₁ PE.refl) $ syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)
 
 ------------------------------------------------------------------------

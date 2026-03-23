@@ -84,7 +84,7 @@ mutual
         t′ ∘ u′
       , (                           $⟨ ∘ₙ t′-ne u′-nf ⟩
          Γ ⊢ne t′ ∘ u′ ∷ B [ u′ ]₀  →⟨ flip convₙ $
-                                       substTypeEq (refl ⊢B) (sym′ u≡u′) ⟩
+                                       subst-⊢≡₀ ⊢B (sym′ u≡u′) ⟩
          Γ ⊢ne t′ ∘ u′ ∷ B [ u ]₀   □)
       , app-cong t≡t′ u≡u′ }}}
     (fst-cong {p = p} t~) →
@@ -103,7 +103,7 @@ mutual
         snd p t′
       , (                                  $⟨ sndₙ ⊢B t′-ne ⟩
          Γ ⊢ne snd p t′ ∷ B [ fst p t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $
-                                              substTypeEq (refl ⊢B) (fst-cong ⊢B (sym′ t≡t′)) ⟩
+                                              subst-⊢≡₀ ⊢B (fst-cong ⊢B (sym′ t≡t′)) ⟩
          Γ ⊢ne snd p t′ ∷ B [ fst p t ]₀   □)
       , snd-cong ⊢B t≡t′ }}
     (natrec-cong {A₁ = A} {v₁ = v} {p} {q} {r} A↑ t↑ u↑ v~) →
@@ -126,11 +126,11 @@ mutual
                                                          subst-⊢≡-↑ A≡A′ (refl (sucⱼ (var₁ ⊢A′))) ⟩
          Γ »∙ ℕ »∙ A′ ⊢nf u′ ∷ A′ [ suc (var x1) ]↑²  →⟨ (λ hyp → natrecₙ
                                                             A′-nf
-                                                            (convₙ t′-nf (substTypeEq A≡A′ (refl (zeroⱼ ⊢Γ))))
+                                                            (convₙ t′-nf (subst-⊢≡₀ A≡A′ (refl (zeroⱼ ⊢Γ))))
                                                             hyp
                                                             v′-ne) ⟩
          Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A′ [ v′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
-                                                         substTypeEq A≡A′ v≡v′ ⟩
+                                                         subst-⊢≡₀ A≡A′ v≡v′ ⟩
          Γ ⊢ne natrec p q r A′ t′ u′ v′ ∷ A [ v ]₀    □)
       , natrec-cong A≡A′ t≡t′ u≡u′ v≡v′ }}}}}}
     (prodrec-cong
@@ -150,7 +150,7 @@ mutual
                                                                      subst↑²TypeEq-prod C≡C′ ⟩
          Γ »∙ A »∙ B ⊢nf v′ ∷ C′ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ flip (prodrecₙ C′-nf u′-ne) ok ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C′ [ u′ ]₀                →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
-                                                                     substTypeEq C≡C′ u≡u′ ⟩
+                                                                     subst-⊢≡₀ C≡C′ u≡u′ ⟩
          Γ ⊢ne prodrec r p q C′ u′ v′ ∷ C [ u ]₀                  □)
       , prodrec-cong C≡C′ u≡u′ v≡v′ ok }}}}
     (emptyrec-cong {A₁ = A} {p} A↑ t~) →
@@ -175,10 +175,10 @@ mutual
         unitrec _ _ A′ t′ u′
       , (                                           $⟨ u′-nf ⟩
          Γ ⊢nf u′ ∷ A [ starʷ ]₀                  →⟨ flip _⊢nf_∷_.convₙ $
-                                                       substTypeEq A≡A′ (refl (starⱼ (wf t≡t′) ok)) ⟩
+                                                       subst-⊢≡₀ A≡A′ (refl (starⱼ (wf t≡t′) ok)) ⟩
          Γ ⊢nf u′ ∷ A′ [ starʷ ]₀                 →⟨ (λ ⊢u′ → unitrecₙ A′-nf t′-ne ⊢u′ ok no-η) ⟩
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A′ [ t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
-                                                       substTypeEq A≡A′ t≡t′ ⟩
+                                                       subst-⊢≡₀ A≡A′ t≡t′ ⟩
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A [ t ]₀    □)
       , unitrec-cong′ A≡A′ t≡t′ u≡u′ }}}}
     (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) →
@@ -227,7 +227,7 @@ mutual
              (convₙ ⊢v₁′
                 (trans C≡Id-t₁-t₁ (Id-cong A₁≡A₁′ t₁≡t₁′ t₁≡t₁′)))
              ok)
-          (sym (substTypeEq B₁≡B₁′ v₁≡v₁′))
+          (sym (subst-⊢≡₀ B₁≡B₁′ v₁≡v₁′))
       , K-cong A₁≡A₁′ t₁≡t₁′ B₁≡B₁′ u₁≡u₁′ v₁≡v₁′ ok }}}}}}
     ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) →
       let l₁′ , ⊢l₁′ , l₁≡l₁′ = fullRedTermConv↑Level l₁≡l₂
@@ -447,7 +447,7 @@ mutual
         prod! t′ u′
       , (                                      $⟨ u′-nf ⟩
          Γ ⊢nf u′ ∷ B [ t ]₀                   →⟨ flip _⊢nf_∷_.convₙ $
-                                                  substTypeEq (refl ⊢B) t≡t′ ⟩
+                                                  subst-⊢≡₀ ⊢B t≡t′ ⟩
          Γ ⊢nf u′ ∷ B [ t′ ]₀                  →⟨ flip (_⊢nf_∷_.prodₙ ⊢B t′-nf) ok ⟩
          Γ ⊢nf prod! t′ u′ ∷ Σʷ p , q ▷ A ▹ B  □)
       , prod-cong ⊢B t≡t′ u≡u′ ok }}
@@ -480,7 +480,7 @@ mutual
         prodˢ p u₁ u₂
       , (                                        $⟨ u₂-nf ⟩
          Γ ⊢nf u₂ ∷ B [ fst p t ]₀               →⟨ flip _⊢nf_∷_.convₙ $
-                                                    substTypeEq (refl ⊢B) fst-t≡u₁ ⟩
+                                                    subst-⊢≡₀ ⊢B fst-t≡u₁ ⟩
          Γ ⊢nf u₂ ∷ B [ u₁ ]₀                    →⟨ flip (prodₙ ⊢B u₁-nf) ok ⟩
          Γ ⊢nf prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B  □)
       , (                                                        $⟨ sym′ (Σ-η-prod-fst-snd ⊢t) ⟩

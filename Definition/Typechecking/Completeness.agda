@@ -208,7 +208,7 @@ mutual
         F′ , G′ , B⇒Π′ , F≡F′ , G≡G′ , _ = ΠΣNorm (sym ΠFG≡B)
         ⊢u′ = conv ⊢u F≡F′
         u⇇G = completeness⇇ u ⊢u′
-    in  _ , appᵢ t⇉B (B⇒Π′ , ΠΣₙ) u⇇G , trans A≡Gu (substTypeEq G≡G′ (refl ⊢u))
+    in  _ , appᵢ t⇉B (B⇒Π′ , ΠΣₙ) u⇇G , trans A≡Gu (subst-⊢≡₀ G≡G′ (refl ⊢u))
   completeness⇉ (fstᵢ t) ⊢t =
     let F , G , q , ⊢F , ⊢G , ⊢t , A≡F = inversion-fst ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
@@ -220,7 +220,7 @@ mutual
         F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ , _ = ΠΣNorm (sym ΣFG≡B)
     in
     _ , sndᵢ t⇉B (B⇒Σ′ , ΠΣₙ) ,
-    trans A≡Gt (substTypeEq G≡G′ (refl (fstⱼ ⊢G ⊢t)))
+    trans A≡Gt (subst-⊢≡₀ G≡G′ (refl (fstⱼ ⊢G ⊢t)))
   completeness⇉ (prodrecᵢ C t u) ⊢t =
     let F , G , q , _ , ⊢G , ⊢C , ⊢t , ⊢u , A≡Ct = inversion-prodrec ⊢t
         ok = ⊢∷ΠΣ→ΠΣ-allowed ⊢t
@@ -317,7 +317,7 @@ mutual
     let F , G , m , ⊢F , ⊢G , ⊢t , ⊢u , A≡ΣFG , _ = inversion-prod ⊢t
         F′ , G′ , A⇒ΣF′G′ , F≡F′ , G≡G′ , _ = ΠΣNorm A≡ΣFG
         t⇇F = completeness⇇ t (conv ⊢t F≡F′)
-        u⇇Gt = completeness⇇ u (conv ⊢u (substTypeEq G≡G′ (refl ⊢t)))
+        u⇇Gt = completeness⇇ u (conv ⊢u (subst-⊢≡₀ G≡G′ (refl ⊢t)))
     in  prodᶜ (A⇒ΣF′G′ , ΠΣₙ) t⇇F u⇇Gt
   completeness⇇ rflᶜ ⊢rfl =
     case inversion-rfl ⊢rfl of λ {

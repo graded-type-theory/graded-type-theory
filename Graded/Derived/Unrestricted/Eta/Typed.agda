@@ -184,7 +184,7 @@ opaque
          (PE.subst (_⊢_≡_∷Level _ _)
             (PE.trans (wk1-sgSubst l _) $
              PE.sym $ wk1-sgSubst _ _) $
-          refl-⊢≡∷L (substLevel ⊢wk1-l (fstⱼ′ ⊢u)))
+          refl-⊢≡∷L (subst-⊢₀ ⊢wk1-l (fstⱼ′ ⊢u)))
          (refl (⊢Unit (wf ⊢t) Unit-ok))) $
     η-unit (lowerⱼ (sndⱼ′ ⊢t)) (lowerⱼ (sndⱼ′ ⊢u)) (inj₁ PE.refl)
 

@@ -108,8 +108,8 @@ mutual
         B , whnfB , A≡B , u~t = sym~↓ Δ≡Η t~u
         B≡ℕ = ℕ≡A A≡B whnfB
         F≡G = stability (Δ≡Η ∙ refl (⊢ℕ ⊢Δ)) (soundnessConv↑ x)
-        F[0]≡G[0] = substTypeEq F≡G (refl (zeroⱼ ⊢Η))
-    in  _ , substTypeEq (soundnessConv↑ x) (soundness~↓ t~u)
+        F[0]≡G[0] = subst-⊢≡₀ F≡G (refl (zeroⱼ ⊢Η))
+    in  _ , subst-⊢≡₀ (soundnessConv↑ x) (soundness~↓ t~u)
     ,   natrec-cong
           (symConv↑ (Δ≡Η ∙ refl (⊢ℕ ⊢Δ)) x)
           (convConv↑Term F[0]≡G[0] (symConv↑Term Δ≡Η x₁))
@@ -137,7 +137,7 @@ mutual
                 ⊢ρG = W.wk (liftʷ (step (step id)) ⊢ρF) ⊢G′
                 C₊≡E₊ = subst↑²TypeEq-prod
                           (stability (Δ≡Η ∙ refl ⊢Σ) C≡E)
-            in  _ , substTypeEq C≡E g≡h
+            in  _ , subst-⊢≡₀ C≡E g≡h
               , prodrec-cong E↑C h~g
                   (convConv↑Term′ (refl-∙ ⊢F≡F′ ∙ ⊢G≡G′)
                      C₊≡E₊ v↑u)
@@ -160,8 +160,8 @@ mutual
         ⊢Δ , _ = contextConvSubst Δ≡Η
         v<>u = symConv↑Term Δ≡Η u<>v
         ⊢F≡H = soundnessConv↑ F<>H
-        ⊢F₊≡H₊ = substTypeEq ⊢F≡H (refl (starⱼ ⊢Δ (inversion-Unit ⊢Unit)))
-        ⊢Fk≡Hl = substTypeEq ⊢F≡H k≡l
+        ⊢F₊≡H₊ = subst-⊢≡₀ ⊢F≡H (refl (starⱼ ⊢Δ (inversion-Unit ⊢Unit)))
+        ⊢Fk≡Hl = subst-⊢≡₀ ⊢F≡H k≡l
         v<>u′ = convConv↑Term (stability Δ≡Η ⊢F₊≡H₊) v<>u
     in  _ , ⊢Fk≡Hl , unitrec-cong H<>F l~k′ v<>u′ no-η
   sym~↑ Δ≡Η (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ C≡Id-t₁-v₁) =
@@ -200,7 +200,7 @@ mutual
     case reflConEq (wf ⊢A₁≡A₂) of λ {
       Δ≡Δ →
       _
-    , substTypeEq ⊢B₁≡B₂
+    , subst-⊢≡₀ ⊢B₁≡B₂
         (conv (soundness~↓ v₁~v₂) C≡Id-t₁-t₁)
     , K-cong (symConv↑ Δ≡Η A₁≡A₂)
         (convConv↑Term′ Δ≡Η ⊢A₁≡A₂ (symConv↑Term Δ≡Δ t₁≡t₂))
@@ -346,8 +346,7 @@ mutual
     let Δ⊢G = stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁
         Δ⊢t′↑t = symConv↑Term Γ≡Δ x₂
         Δ⊢u′↑u = symConv↑Term Γ≡Δ x₃
-        Gt≡Gt′ = substTypeEq (refl Δ⊢G)
-                   (sym′ (soundnessConv↑Term Δ⊢t′↑t))
+        Gt≡Gt′ = subst-⊢≡₀ Δ⊢G (sym′ (soundnessConv↑Term Δ⊢t′↑t))
     in  prod-cong Δ⊢G Δ⊢t′↑t (convConv↑Term Gt≡Gt′ Δ⊢u′↑u) ok
   symConv↓Term Δ≡Η (η-eq x₁ x₂ y y₁ t<>u) =
     let ⊢F , _ , _ = inversion-ΠΣ (syntacticTerm x₁)
@@ -359,8 +358,8 @@ mutual
         _ , ⊢G , _ = inversion-ΠΣ (syntacticTerm ⊢p)
         Ηfst≡ = symConv↑Term Δ≡Η fstConv
         Ηsnd≡₁ = symConv↑Term Δ≡Η sndConv
-        ΗGfstt≡Gfstu = stability Δ≡Η (substTypeEq (refl ⊢G)
-                                                    (soundnessConv↑Term fstConv))
+        ΗGfstt≡Gfstu =
+          stability Δ≡Η (subst-⊢≡₀ ⊢G (soundnessConv↑Term fstConv))
         Ηsnd≡ = convConv↑Term ΗGfstt≡Gfstu Ηsnd≡₁
     in  Σ-η Η⊢r Η⊢p rProd pProd Ηfst≡ Ηsnd≡
   symConv↓Term Δ≡Η (η-unit [t] [u] tUnit uUnit ok) =

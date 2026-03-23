@@ -1946,29 +1946,6 @@ opaque
 
 opaque
 
-  -- Another substitution lemma for _⊢_.
-
-  substType : ∇ » Γ ∙ A ⊢ B → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ B [ t ]₀
-  substType = subst-⊢₀
-
-opaque
-
-  -- Another substitution lemma for _⊢_∷_.
-
-  substTerm :
-    ∇ » Γ ∙ A ⊢ t ∷ B → ∇ » Γ ⊢ u ∷ A → ∇ » Γ ⊢ t [ u ]₀ ∷ B [ u ]₀
-  substTerm = subst-⊢₀
-
-opaque
-
-  -- Another substitution lemma for _⊢_∷Level.
-
-  substLevel :
-    ∇ » Γ ∙ A ⊢ l ∷Level → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ l [ t ]₀ ∷Level
-  substLevel = subst-⊢₀
-
-opaque
-
   -- A substitution lemma related to _⇑[_].
 
   subst-⊢-⇑ :

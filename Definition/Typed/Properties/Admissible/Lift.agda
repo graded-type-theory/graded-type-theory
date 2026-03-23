@@ -282,7 +282,7 @@ opaque
   ⊢lower₀[lift]₀ {B} ⊢B ⊢t =
     let ⊢A = ⊢∙→⊢ (wf ⊢B) in
     PE.subst (_⊢_ _) (PE.sym ([]↑-[]₀ B)) $
-    substType ⊢B (lowerⱼ (liftⱼ (⊢zeroᵘ (wf ⊢A)) ⊢A ⊢t))
+    subst-⊢₀ ⊢B (lowerⱼ (liftⱼ (⊢zeroᵘ (wf ⊢A)) ⊢A ⊢t))
 
 opaque
   unfolding lower₀
@@ -306,4 +306,4 @@ opaque
     → Γ ⊢ lower₀ t [ lift u ]₀ ≡ t [ u ]₀ ∷ B [ u ]₀
   lower₀[lift]₀∷ {t} {B} ⊢t ⊢u =
     PE.subst₃ (_⊢_≡_∷_ _) (PE.sym ([]↑-[]₀ t)) PE.refl PE.refl
-      (sym′ (substTermEq (refl ⊢t) (sym′ (Lift-β′ ⊢u))))
+      (sym′ (subst-⊢≡₀ ⊢t (sym′ (Lift-β′ ⊢u))))

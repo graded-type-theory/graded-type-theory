@@ -92,8 +92,7 @@ opaque
     (id ⊢v₁)                     → id (natrecⱼ ⊢t ⊢u ⊢v₁)
     (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
       natrec p q r A t u v₁ ∷ A [ v₁ ]₀  ⇒⟨ natrec-subst ⊢t ⊢u v₁⇒v₃ ⟩∷
-                                         ˘⟨ substTypeEq (refl (⊢∙→⊢ (wf ⊢u)))
-                                              (sym′ (subsetTerm v₁⇒v₃)) ⟩⇒
+                                         ˘⟨ subst-⊢≡₀ (⊢∙→⊢ (wf ⊢u)) (sym′ (subsetTerm v₁⇒v₃)) ⟩⇒
       natrec p q r A t u v₃ ∷ A [ v₃ ]₀  ⇒*⟨ natrec-subst* ⊢t ⊢u v₃⇒*v₂ ⟩∎∷
       natrec p q r A t u v₂              ∎
 

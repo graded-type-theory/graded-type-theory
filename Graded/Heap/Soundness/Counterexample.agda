@@ -181,7 +181,7 @@ opaque
                   (ε ∙ eq₂ ∙ eq₁)) ∘ₘ
              zeroₘ)
             (ε ∙ eq₃)
-    in  _ , Δ , t , (λ _ x → ¬Empty (substTerm x (starⱼ εε ok₁))) , ⊢t
+    in  _ , Δ , t , (λ _ x → ¬Empty (subst-⊢₀ x (starⱼ εε ok₁))) , ⊢t
           , ▸t , _ , _ , H , var x1 , lift id , S
           , (⇾ₑ (⇒ₑ appₕ) ⇨ ⇒ᵥ (lamₕ ε) ⇨ ⇾ₑ (⇒ₑ unitrecₕ no-η) ⇨ id)
           , (λ { s (⇾ₑ d) → ¬↦∧↦● (↦[]→↦ (⇾ₑ-inv-var d .proj₂ .proj₂ .proj₂)) (there here)
@@ -248,7 +248,7 @@ opaque
                  (ε ∙ ≤-reflexive eq₃)
     in  _ , Δ , t
           , (λ _ x →
-               ¬Empty $ substTerm x $
+               ¬Empty $ subst-⊢₀ x $
                prodⱼ (⊢ℕ (∙ ⊢ℕ εε)) (zeroⱼ εε) (zeroⱼ εε) ok₁)
           , ⊢t , ▸t , _ , _ , H , var x1 , lift id , S
           , (⇾ₑ (⇒ₑ appₕ) ⇨ ⇒ᵥ (lamₕ ε) ⇨ ⇾ₑ (⇒ₑ prodrecₕ) ⇨ id)
@@ -303,7 +303,7 @@ opaque
                (ε ∙ ≤-reflexive eq₁)
     in  _ , Δ , _ , t
           , (λ _ x →
-               ¬Empty $ substTerm x $
+               ¬Empty $ subst-⊢₀ x $
                lamⱼ′ ok (var₀ (⊢ℕ εε)))
           , ≈ᶜ-refl , ⊢t , ▸t
           , _ , _ , H , var x1 , lift id , S

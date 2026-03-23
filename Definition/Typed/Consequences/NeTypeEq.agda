@@ -78,17 +78,17 @@ neTypeEq (natrecₙ _) ⊢t@(natrecⱼ _ _ _) (natrecⱼ _ _ _) =
   refl (syntacticTerm ⊢t)
 neTypeEq
   (prodrecₙ neT) (prodrecⱼ ⊢A ⊢t _ _) (prodrecⱼ _ _ _ _) =
-  refl (substType ⊢A ⊢t)
+  refl (subst-⊢₀ ⊢A ⊢t)
 neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
 neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
-  refl (substType ⊢A ⊢t)
+  refl (subst-⊢₀ ⊢A ⊢t)
 neTypeEq (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   refl $
   subst-⊢₁₀ ⊢B ⊢v $
   PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w
 neTypeEq (Kₙ _) (Kⱼ ⊢B _ ⊢v _) (Kⱼ _ _ _ _) =
-  refl (substType ⊢B ⊢v)
+  refl (subst-⊢₀ ⊢B ⊢v)
 neTypeEq
   ([]-congₙ _) ([]-congⱼ ⊢l _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _ _) =
   refl $
