@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Untyped.Allowed-literal</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Lemmas related to Allowed-literal</a>
+<a id="111" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="185" class="Keyword">open</a> <a id="190" class="Keyword">import</a> <a id="197" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+<a id="227" class="Keyword">open</a> <a id="232" class="Keyword">import</a> <a id="239" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="256" class="Keyword">module</a> <a id="263" href="Definition.Untyped.Allowed-literal.html" class="Module">Definition.Untyped.Allowed-literal</a>
+  <a id="300" class="Symbol">{</a><a id="301" href="Definition.Untyped.Allowed-literal.html#301" class="Bound">a</a><a id="302" class="Symbol">}</a> <a id="304" class="Symbol">{</a><a id="305" href="Definition.Untyped.Allowed-literal.html#305" class="Bound">M</a> <a id="307" class="Symbol">:</a> <a id="309" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="313" href="Definition.Untyped.Allowed-literal.html#301" class="Bound">a</a><a id="314" class="Symbol">}</a>
+  <a id="318" class="Symbol">{</a><a id="319" href="Definition.Untyped.Allowed-literal.html#319" class="Bound">𝕄</a> <a id="321" class="Symbol">:</a> <a id="323" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="332" href="Definition.Untyped.Allowed-literal.html#305" class="Bound">M</a><a id="333" class="Symbol">}</a>
+  <a id="337" class="Symbol">(</a><a id="338" href="Definition.Untyped.Allowed-literal.html#338" class="Bound">R</a> <a id="340" class="Symbol">:</a> <a id="342" href="Definition.Typed.Restrictions.html#964" class="Record">Type-restrictions</a> <a id="360" href="Definition.Untyped.Allowed-literal.html#319" class="Bound">𝕄</a><a id="361" class="Symbol">)</a>
+  <a id="365" class="Keyword">where</a>
+
+<a id="372" class="Keyword">open</a> <a id="377" href="Definition.Typed.Restrictions.html#964" class="Module">Type-restrictions</a> <a id="395" href="Definition.Untyped.Allowed-literal.html#338" class="Bound">R</a>
+
+<a id="398" class="Keyword">open</a> <a id="403" class="Keyword">import</a> <a id="410" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="429" href="Definition.Untyped.Allowed-literal.html#305" class="Bound">M</a>
+<a id="431" class="Keyword">open</a> <a id="436" class="Keyword">import</a> <a id="443" href="Definition.Untyped.Properties.html" class="Module">Definition.Untyped.Properties</a> <a id="473" href="Definition.Untyped.Allowed-literal.html#305" class="Bound">M</a>
+
+<a id="476" class="Keyword">open</a> <a id="481" class="Keyword">import</a> <a id="488" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="500" class="Keyword">open</a> <a id="505" class="Keyword">import</a> <a id="512" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="527" class="Keyword">open</a> <a id="532" class="Keyword">import</a> <a id="539" href="Tools.Nat.html" class="Module">Tools.Nat</a>
+<a id="549" class="Keyword">open</a> <a id="554" class="Keyword">import</a> <a id="561" href="Tools.Product.html" class="Module">Tools.Product</a> <a id="575" class="Symbol">as</a> <a id="578" class="Module">Σ</a>
+<a id="580" class="Keyword">open</a> <a id="585" class="Keyword">import</a> <a id="592" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="620" class="Keyword">open</a> <a id="625" class="Keyword">import</a> <a id="632" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="647" class="Keyword">open</a> <a id="652" class="Keyword">import</a> <a id="659" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+
+<a id="670" class="Keyword">private</a> <a id="678" class="Keyword">variable</a>
+  <a id="689" href="Definition.Untyped.Allowed-literal.html#689" class="Generalizable">m</a> <a id="691" href="Definition.Untyped.Allowed-literal.html#691" class="Generalizable">m₁</a> <a id="694" href="Definition.Untyped.Allowed-literal.html#694" class="Generalizable">m₂</a> <a id="697" href="Definition.Untyped.Allowed-literal.html#697" class="Generalizable">n</a> <a id="699" class="Symbol">:</a> <a id="701" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+  <a id="707" href="Definition.Untyped.Allowed-literal.html#707" class="Generalizable">X</a>         <a id="717" class="Symbol">:</a> <a id="719" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="723" class="Symbol">_</a>
+  <a id="727" href="Definition.Untyped.Allowed-literal.html#727" class="Generalizable">ξ</a>         <a id="737" class="Symbol">:</a> <a id="739" href="Definition.Untyped.NotParametrised.html#9166" class="Datatype">DExt</a> <a id="744" class="Symbol">_</a> <a id="746" class="Symbol">_</a> <a id="748" class="Symbol">_</a>
+  <a id="752" href="Definition.Untyped.Allowed-literal.html#752" class="Generalizable">t</a>         <a id="762" class="Symbol">:</a> <a id="764" href="Definition.Untyped.html#1198" class="Function">Term</a> <a id="769" class="Symbol">_</a>
+  <a id="773" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a>         <a id="783" class="Symbol">:</a> <a id="785" href="Definition.Untyped.html#1254" class="Function">Lvl</a> <a id="789" class="Symbol">_</a>
+
+<a id="792" class="Keyword">opaque</a>
+  <a id="801" class="Keyword">unfolding</a> <a id="811" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a>
+
+  <a id="830" class="Comment">-- If l is an allowed literal, then l is a literal.</a>
+
+  <a id="Allowed-literal→Level-literal"></a><a id="885" href="Definition.Untyped.Allowed-literal.html#885" class="Function">Allowed-literal→Level-literal</a> <a id="915" class="Symbol">:</a> <a id="917" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="933" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a> <a id="935" class="Symbol">→</a> <a id="937" href="Definition.Untyped.html#5367" class="Datatype">Level-literal</a> <a id="951" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a>
+  <a id="955" href="Definition.Untyped.Allowed-literal.html#885" class="Function">Allowed-literal→Level-literal</a> <a id="985" class="Symbol">{</a><a id="986" class="Argument">l</a> <a id="988" class="Symbol">=</a> <a id="990" href="Definition.Untyped.html#2151" class="InductiveConstructor">ωᵘ+</a> <a id="994" class="Symbol">_}</a>   <a id="999" class="Symbol">_</a>           <a id="1011" class="Symbol">=</a> <a id="1013" href="Definition.Untyped.html#5502" class="InductiveConstructor">ωᵘ+</a>
+  <a id="1019" href="Definition.Untyped.Allowed-literal.html#885" class="Function">Allowed-literal→Level-literal</a> <a id="1049" class="Symbol">{</a><a id="1050" class="Argument">l</a> <a id="1052" class="Symbol">=</a> <a id="1054" href="Definition.Untyped.html#2188" class="InductiveConstructor">level</a> <a id="1060" class="Symbol">_}</a> <a id="1063" class="Symbol">(</a><a id="1064" href="Definition.Untyped.Allowed-literal.html#1064" class="Bound">t-lit</a> <a id="1070" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1072" class="Symbol">_)</a> <a id="1075" class="Symbol">=</a> <a id="1077" href="Definition.Untyped.html#5534" class="InductiveConstructor">level</a> <a id="1083" href="Definition.Untyped.Allowed-literal.html#1064" class="Bound">t-lit</a>
+
+<a id="1090" class="Keyword">opaque</a>
+  <a id="1099" class="Keyword">unfolding</a> <a id="1109" href="Definition.Untyped.Allowed-literal.html#885" class="Function">Allowed-literal→Level-literal</a> <a id="1139" href="Definition.Untyped.html#7448" class="Function">Level-literal→Universe-level</a>
+
+  <a id="1171" class="Comment">-- A function that converts from Allowed-literal to Universe-level.</a>
+
+  <a id="Allowed-literal→Universe-level"></a><a id="1242" href="Definition.Untyped.Allowed-literal.html#1242" class="Function">Allowed-literal→Universe-level</a> <a id="1273" class="Symbol">:</a> <a id="1275" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="1291" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a> <a id="1293" class="Symbol">→</a> <a id="1295" href="Definition.Untyped.NotParametrised.html#4705" class="Datatype">Universe-level</a>
+  <a id="1312" href="Definition.Untyped.Allowed-literal.html#1242" class="Function">Allowed-literal→Universe-level</a> <a id="1343" class="Symbol">{</a><a id="1344" href="Definition.Untyped.Allowed-literal.html#1344" class="Bound">l</a><a id="1345" class="Symbol">}</a> <a id="1347" class="Symbol">=</a>
+    <a id="1353" href="Definition.Untyped.html#7448" class="Function">Level-literal→Universe-level</a> <a id="1382" class="Symbol">{</a><a id="1383" class="Argument">l</a> <a id="1385" class="Symbol">=</a> <a id="1387" href="Definition.Untyped.Allowed-literal.html#1344" class="Bound">l</a><a id="1388" class="Symbol">}</a> <a id="1390" href="Function.Base.html#1134" class="Function Operator">∘→</a>
+    <a id="1397" href="Definition.Untyped.Allowed-literal.html#885" class="Function">Allowed-literal→Level-literal</a>
+
+<a id="1428" class="Keyword">opaque</a>
+  <a id="1437" class="Keyword">unfolding</a> <a id="1447" href="Definition.Untyped.Allowed-literal.html#885" class="Function">Allowed-literal→Level-literal</a>
+
+  <a id="1480" class="Comment">-- Irrelevance for Allowed-literal→Level-literal.</a>
+
+  <a id="Allowed-literal→Level-literal-irrelevance"></a><a id="1533" href="Definition.Untyped.Allowed-literal.html#1533" class="Function">Allowed-literal→Level-literal-irrelevance</a> <a id="1575" class="Symbol">:</a>
+    <a id="1581" class="Symbol">{</a><a id="1582" href="Definition.Untyped.Allowed-literal.html#1582" class="Bound">l₁</a> <a id="1585" href="Definition.Untyped.Allowed-literal.html#1585" class="Bound">l₂</a> <a id="1588" class="Symbol">:</a> <a id="1590" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="1606" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a><a id="1607" class="Symbol">}</a> <a id="1609" class="Symbol">→</a>
+    <a id="1615" href="Definition.Untyped.Allowed-literal.html#885" class="Function">Allowed-literal→Level-literal</a> <a id="1645" href="Definition.Untyped.Allowed-literal.html#1582" class="Bound">l₁</a> <a id="1648" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a>
+    <a id="1654" href="Definition.Untyped.Allowed-literal.html#885" class="Function">Allowed-literal→Level-literal</a> <a id="1684" href="Definition.Untyped.Allowed-literal.html#1585" class="Bound">l₂</a>
+  <a id="1689" href="Definition.Untyped.Allowed-literal.html#1533" class="Function">Allowed-literal→Level-literal-irrelevance</a> <a id="1731" class="Symbol">{</a><a id="1732" class="Argument">l</a> <a id="1734" class="Symbol">=</a> <a id="1736" href="Definition.Untyped.html#2151" class="InductiveConstructor">ωᵘ+</a> <a id="1740" class="Symbol">_}</a>   <a id="1745" class="Symbol">=</a> <a id="1747" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+  <a id="1754" href="Definition.Untyped.Allowed-literal.html#1533" class="Function">Allowed-literal→Level-literal-irrelevance</a> <a id="1796" class="Symbol">{</a><a id="1797" class="Argument">l</a> <a id="1799" class="Symbol">=</a> <a id="1801" href="Definition.Untyped.html#2188" class="InductiveConstructor">level</a> <a id="1807" class="Symbol">_}</a> <a id="1810" class="Symbol">=</a>
+    <a id="1816" href="Relation.Binary.PropositionalEquality.Core.html#1481" class="Function">cong</a> <a id="1821" href="Definition.Untyped.html#5534" class="InductiveConstructor">level</a> <a id="1827" href="Definition.Untyped.Properties.html#124703" class="Function">Level-literal-propositional</a>
+
+<a id="1856" class="Keyword">opaque</a>
+  <a id="1865" class="Keyword">unfolding</a> <a id="1875" href="Definition.Untyped.Allowed-literal.html#1242" class="Function">Allowed-literal→Universe-level</a>
+
+  <a id="1909" class="Comment">-- Irrelevance for Allowed-literal→Universe-level.</a>
+
+  <a id="Allowed-literal→Universe-level-irrelevance"></a><a id="1963" href="Definition.Untyped.Allowed-literal.html#1963" class="Function">Allowed-literal→Universe-level-irrelevance</a> <a id="2006" class="Symbol">:</a>
+    <a id="2012" class="Symbol">{</a><a id="2013" href="Definition.Untyped.Allowed-literal.html#2013" class="Bound">l₁</a> <a id="2016" href="Definition.Untyped.Allowed-literal.html#2016" class="Bound">l₂</a> <a id="2019" class="Symbol">:</a> <a id="2021" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="2037" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a><a id="2038" class="Symbol">}</a> <a id="2040" class="Symbol">→</a>
+    <a id="2046" href="Definition.Untyped.Allowed-literal.html#1242" class="Function">Allowed-literal→Universe-level</a> <a id="2077" href="Definition.Untyped.Allowed-literal.html#2013" class="Bound">l₁</a> <a id="2080" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a>
+    <a id="2086" href="Definition.Untyped.Allowed-literal.html#1242" class="Function">Allowed-literal→Universe-level</a> <a id="2117" href="Definition.Untyped.Allowed-literal.html#2016" class="Bound">l₂</a>
+  <a id="2122" href="Definition.Untyped.Allowed-literal.html#1963" class="Function">Allowed-literal→Universe-level-irrelevance</a> <a id="2165" class="Symbol">=</a>
+    <a id="2171" href="Relation.Binary.PropositionalEquality.Core.html#1481" class="Function">cong</a> <a id="2176" href="Definition.Untyped.html#7448" class="Function">Level-literal→Universe-level</a>
+      <a id="2211" href="Definition.Untyped.Allowed-literal.html#1533" class="Function">Allowed-literal→Level-literal-irrelevance</a>
+
+<a id="2254" class="Keyword">opaque</a>
+  <a id="2263" class="Keyword">unfolding</a> <a id="2273" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a>
+
+  <a id="2292" class="Comment">-- The literal ωᵘ+ m is allowed if and only if Omega-plus-allowed</a>
+  <a id="2360" class="Comment">-- holds.</a>
+
+  <a id="Allowed-literal-ωᵘ+-⇔"></a><a id="2373" href="Definition.Untyped.Allowed-literal.html#2373" class="Function">Allowed-literal-ωᵘ+-⇔</a> <a id="2395" class="Symbol">:</a>
+    <a id="2401" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="2417" class="Symbol">{</a><a id="2418" class="Argument">n</a> <a id="2420" class="Symbol">=</a> <a id="2422" href="Definition.Untyped.Allowed-literal.html#697" class="Generalizable">n</a><a id="2423" class="Symbol">}</a> <a id="2425" class="Symbol">(</a><a id="2426" class="InductiveConstructor">ωᵘ+</a> <a id="2430" href="Definition.Untyped.Allowed-literal.html#689" class="Generalizable">m</a><a id="2431" class="Symbol">)</a> <a id="2433" href="Tools.Function.html#1267" class="Function Operator">⇔</a> <a id="2435" href="Definition.Typed.Restrictions.html#1312" class="Field">Omega-plus-allowed</a>
+  <a id="2456" href="Definition.Untyped.Allowed-literal.html#2373" class="Function">Allowed-literal-ωᵘ+-⇔</a> <a id="2478" class="Symbol">=</a> <a id="2480" href="Tools.Function.html#1366" class="Function">id⇔</a>
+
+<a id="2485" class="Keyword">opaque</a>
+
+  <a id="2495" class="Comment">-- The literal ωᵘ+ m₂ is allowed if ωᵘ+ m₁ is.</a>
+
+  <a id="Allowed-literal-ωᵘ+-→-Allowed-literal-ωᵘ+"></a><a id="2545" href="Definition.Untyped.Allowed-literal.html#2545" class="Function">Allowed-literal-ωᵘ+-→-Allowed-literal-ωᵘ+</a> <a id="2587" class="Symbol">:</a>
+    <a id="2593" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="2609" class="Symbol">{</a><a id="2610" class="Argument">n</a> <a id="2612" class="Symbol">=</a> <a id="2614" href="Definition.Untyped.Allowed-literal.html#697" class="Generalizable">n</a><a id="2615" class="Symbol">}</a> <a id="2617" class="Symbol">(</a><a id="2618" class="InductiveConstructor">ωᵘ+</a> <a id="2622" href="Definition.Untyped.Allowed-literal.html#691" class="Generalizable">m₁</a><a id="2624" class="Symbol">)</a> <a id="2626" class="Symbol">→</a> <a id="2628" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="2644" class="Symbol">{</a><a id="2645" class="Argument">n</a> <a id="2647" class="Symbol">=</a> <a id="2649" href="Definition.Untyped.Allowed-literal.html#697" class="Generalizable">n</a><a id="2650" class="Symbol">}</a> <a id="2652" class="Symbol">(</a><a id="2653" class="InductiveConstructor">ωᵘ+</a> <a id="2657" href="Definition.Untyped.Allowed-literal.html#694" class="Generalizable">m₂</a><a id="2659" class="Symbol">)</a>
+  <a id="2663" href="Definition.Untyped.Allowed-literal.html#2545" class="Function">Allowed-literal-ωᵘ+-→-Allowed-literal-ωᵘ+</a> <a id="2705" class="Symbol">{</a><a id="2706" href="Definition.Untyped.Allowed-literal.html#2706" class="Bound">m₁</a><a id="2708" class="Symbol">}</a> <a id="2710" class="Symbol">{</a><a id="2711" href="Definition.Untyped.Allowed-literal.html#2711" class="Bound">m₂</a><a id="2713" class="Symbol">}</a> <a id="2715" class="Symbol">=</a>
+    <a id="2721" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="2737" class="Symbol">(</a><a id="2738" href="Definition.Untyped.html#2151" class="InductiveConstructor">ωᵘ+</a> <a id="2742" href="Definition.Untyped.Allowed-literal.html#2706" class="Bound">m₁</a><a id="2744" class="Symbol">)</a>  <a id="2747" href="Tools.Function.html#1986" class="Function">⇔⟨</a> <a id="2750" href="Definition.Untyped.Allowed-literal.html#2373" class="Function">Allowed-literal-ωᵘ+-⇔</a> <a id="2772" href="Tools.Function.html#1986" class="Function">⟩→</a>
+    <a id="2779" href="Definition.Typed.Restrictions.html#1312" class="Field">Omega-plus-allowed</a>        <a id="2805" href="Tools.Function.html#2109" class="Function">⇔˘⟨</a> <a id="2809" href="Definition.Untyped.Allowed-literal.html#2373" class="Function">Allowed-literal-ωᵘ+-⇔</a> <a id="2831" href="Tools.Function.html#2109" class="Function">⟩→</a>
+    <a id="2838" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="2854" class="Symbol">(</a><a id="2855" href="Definition.Untyped.html#2151" class="InductiveConstructor">ωᵘ+</a> <a id="2859" href="Definition.Untyped.Allowed-literal.html#2711" class="Bound">m₂</a><a id="2861" class="Symbol">)</a>  <a id="2864" href="Tools.Function.html#1153" class="Function Operator">□</a>
+
+<a id="2867" class="Keyword">opaque</a>
+  <a id="2876" class="Keyword">unfolding</a> <a id="2886" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a>
+
+  <a id="2905" class="Comment">-- The level level t is allowed as a literal if and only if it is a</a>
+  <a id="2975" class="Comment">-- literal and Level is not allowed.</a>
+
+  <a id="Allowed-literal-level-⇔"></a><a id="3015" href="Definition.Untyped.Allowed-literal.html#3015" class="Function">Allowed-literal-level-⇔</a> <a id="3039" class="Symbol">:</a>
+    <a id="3045" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="3061" class="Symbol">(</a><a id="3062" class="InductiveConstructor">level</a> <a id="3068" href="Definition.Untyped.Allowed-literal.html#752" class="Generalizable">t</a><a id="3069" class="Symbol">)</a> <a id="3071" href="Tools.Function.html#1267" class="Function Operator">⇔</a> <a id="3073" class="Symbol">(</a><a id="3074" href="Definition.Untyped.html#5367" class="Datatype">Level-literal</a> <a id="3088" href="Definition.Untyped.Allowed-literal.html#752" class="Generalizable">t</a> <a id="3090" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="3092" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="3094" href="Definition.Typed.Restrictions.html#5471" class="Function">Level-allowed</a><a id="3107" class="Symbol">)</a>
+  <a id="3111" href="Definition.Untyped.Allowed-literal.html#3015" class="Function">Allowed-literal-level-⇔</a> <a id="3135" class="Symbol">=</a> <a id="3137" href="Tools.Function.html#1366" class="Function">id⇔</a>
+
+<a id="3142" class="Keyword">opaque</a>
+  <a id="3151" class="Keyword">unfolding</a> <a id="3161" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="3177" href="Definition.Untyped.Properties.html#128350" class="Function">Level-literal-1ᵘ+-⇔</a>
+
+  <a id="3200" class="Comment">-- The level 1ᵘ+ l is an allowed literal if and only if l is.</a>
+
+  <a id="Allowed-literal-1ᵘ+-⇔"></a><a id="3265" href="Definition.Untyped.Allowed-literal.html#3265" class="Function">Allowed-literal-1ᵘ+-⇔</a> <a id="3287" class="Symbol">:</a>
+    <a id="3293" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="3309" class="Symbol">(</a><a id="3310" href="Definition.Untyped.html#7676" class="Function">1ᵘ+</a> <a id="3314" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a><a id="3315" class="Symbol">)</a> <a id="3317" href="Tools.Function.html#1267" class="Function Operator">⇔</a> <a id="3319" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="3335" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a>
+  <a id="3339" href="Definition.Untyped.Allowed-literal.html#3265" class="Function">Allowed-literal-1ᵘ+-⇔</a> <a id="3361" class="Symbol">{</a><a id="3362" class="Argument">l</a> <a id="3364" class="Symbol">=</a> <a id="3366" href="Definition.Untyped.html#2151" class="InductiveConstructor">ωᵘ+</a> <a id="3370" class="Symbol">_}</a>   <a id="3375" class="Symbol">=</a> <a id="3377" href="Tools.Function.html#1366" class="Function">id⇔</a>
+  <a id="3383" href="Definition.Untyped.Allowed-literal.html#3265" class="Function">Allowed-literal-1ᵘ+-⇔</a> <a id="3405" class="Symbol">{</a><a id="3406" class="Argument">l</a> <a id="3408" class="Symbol">=</a> <a id="3410" href="Definition.Untyped.html#2188" class="InductiveConstructor">level</a> <a id="3416" class="Symbol">_}</a> <a id="3419" class="Symbol">=</a>
+    <a id="3425" href="Definition.Untyped.Properties.html#128350" class="Function">Level-literal-1ᵘ+-⇔</a> <a id="3445" href="Tools.Function.html#4350" class="Function Operator">×-cong-⇔</a> <a id="3454" href="Tools.Function.html#1366" class="Function">id⇔</a>
+
+<a id="3459" class="Keyword">opaque</a>
+  <a id="3468" class="Keyword">unfolding</a> <a id="3478" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="3494" href="Definition.Untyped.html#27286" class="Function">inline</a>
+
+  <a id="3504" class="Comment">-- The level inline ξ l is an allowed literal if l is.</a>
+
+  <a id="Allowed-literal-inline"></a><a id="3562" href="Definition.Untyped.Allowed-literal.html#3562" class="Function">Allowed-literal-inline</a> <a id="3585" class="Symbol">:</a>
+    <a id="3591" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="3607" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a> <a id="3609" class="Symbol">→</a> <a id="3611" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="3627" class="Symbol">(</a><a id="3628" href="Definition.Untyped.html#27286" class="Function">inline</a> <a id="3635" href="Definition.Untyped.Allowed-literal.html#727" class="Generalizable">ξ</a> <a id="3637" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a><a id="3638" class="Symbol">)</a>
+  <a id="3642" href="Definition.Untyped.Allowed-literal.html#3562" class="Function">Allowed-literal-inline</a> <a id="3665" class="Symbol">{</a><a id="3666" class="Argument">l</a> <a id="3668" class="Symbol">=</a> <a id="3670" href="Definition.Untyped.html#2151" class="InductiveConstructor">ωᵘ+</a> <a id="3674" class="Symbol">_}</a>   <a id="3679" class="Symbol">=</a> <a id="3681" href="Function.Base.html#704" class="Function">idᶠ</a>
+  <a id="3687" href="Definition.Untyped.Allowed-literal.html#3562" class="Function">Allowed-literal-inline</a> <a id="3710" class="Symbol">{</a><a id="3711" class="Argument">l</a> <a id="3713" class="Symbol">=</a> <a id="3715" href="Definition.Untyped.html#2188" class="InductiveConstructor">level</a> <a id="3721" class="Symbol">_}</a> <a id="3724" class="Symbol">=</a>
+    <a id="3730" href="Data.Product.Base.html#2173" class="Function">Σ.map</a> <a id="3736" href="Definition.Untyped.Properties.html#114999" class="Function">Level-literal-inline</a> <a id="3757" href="Function.Base.html#704" class="Function">idᶠ</a>
+
+<a id="3762" class="Keyword">opaque</a>
+
+  <a id="3772" class="Comment">-- If Level is allowed and l is allowed as a literal, then l is</a>
+  <a id="3838" class="Comment">-- infinite.</a>
+
+  <a id="Allowed-literal→Infinite"></a><a id="3854" href="Definition.Untyped.Allowed-literal.html#3854" class="Function">Allowed-literal→Infinite</a> <a id="3879" class="Symbol">:</a>
+    <a id="3885" href="Definition.Typed.Restrictions.html#5471" class="Function">Level-allowed</a> <a id="3899" class="Symbol">→</a> <a id="3901" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="3917" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a> <a id="3919" class="Symbol">→</a> <a id="3921" href="Definition.Untyped.html#5275" class="Datatype">Infinite</a> <a id="3930" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a>
+  <a id="3934" href="Definition.Untyped.Allowed-literal.html#3854" class="Function">Allowed-literal→Infinite</a> <a id="3959" class="Symbol">{</a><a id="3960" class="Argument">l</a> <a id="3962" class="Symbol">=</a> <a id="3964" href="Definition.Untyped.html#2151" class="InductiveConstructor">ωᵘ+</a> <a id="3968" class="Symbol">_}</a>   <a id="3973" class="Symbol">_</a>   <a id="3977" class="Symbol">_</a>   <a id="3981" class="Symbol">=</a> <a id="3983" href="Definition.Untyped.html#5318" class="InductiveConstructor">ωᵘ+</a>
+  <a id="3989" href="Definition.Untyped.Allowed-literal.html#3854" class="Function">Allowed-literal→Infinite</a> <a id="4014" class="Symbol">{</a><a id="4015" class="Argument">l</a> <a id="4017" class="Symbol">=</a> <a id="4019" href="Definition.Untyped.html#2188" class="InductiveConstructor">level</a> <a id="4025" class="Symbol">_}</a> <a id="4028" href="Definition.Untyped.Allowed-literal.html#4028" class="Bound">ok₁</a> <a id="4032" href="Definition.Untyped.Allowed-literal.html#4032" class="Bound">ok₂</a> <a id="4036" class="Symbol">=</a>
+    <a id="4042" href="Data.Empty.html#1069" class="Function">⊥-elim</a> <a id="4049" class="Symbol">(</a><a id="4050" href="Definition.Untyped.Allowed-literal.html#3015" class="Function">Allowed-literal-level-⇔</a> <a id="4074" class="Symbol">.</a><a id="4075" href="Data.Product.Base.html#636" class="Field">proj₁</a> <a id="4081" href="Definition.Untyped.Allowed-literal.html#4032" class="Bound">ok₂</a> <a id="4085" class="Symbol">.</a><a id="4086" href="Data.Product.Base.html#650" class="Field">proj₂</a> <a id="4092" href="Definition.Untyped.Allowed-literal.html#4028" class="Bound">ok₁</a><a id="4095" class="Symbol">)</a>
+
+<a id="4098" class="Keyword">opaque</a>
+
+  <a id="4108" class="Comment">-- If Level is allowed and Allowed-literal (level t) holds, then</a>
+  <a id="4175" class="Comment">-- anything can be derived.</a>
+
+  <a id="Level-allowed→Allowed-literal→"></a><a id="4206" href="Definition.Untyped.Allowed-literal.html#4206" class="Function">Level-allowed→Allowed-literal→</a> <a id="4237" class="Symbol">:</a>
+    <a id="4243" href="Definition.Typed.Restrictions.html#5471" class="Function">Level-allowed</a> <a id="4257" class="Symbol">→</a> <a id="4259" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="4275" class="Symbol">(</a><a id="4276" class="InductiveConstructor">level</a> <a id="4282" href="Definition.Untyped.Allowed-literal.html#752" class="Generalizable">t</a><a id="4283" class="Symbol">)</a> <a id="4285" class="Symbol">→</a> <a id="4287" href="Definition.Untyped.Allowed-literal.html#707" class="Generalizable">X</a>
+  <a id="4291" href="Definition.Untyped.Allowed-literal.html#4206" class="Function">Level-allowed→Allowed-literal→</a> <a id="4322" href="Definition.Untyped.Allowed-literal.html#4322" class="Bound">okᴸ</a> <a id="4326" href="Definition.Untyped.Allowed-literal.html#4326" class="Bound">ok</a> <a id="4329" class="Symbol">=</a>
+    <a id="4335" href="Function.Base.html#4061" class="Function Operator">case</a> <a id="4340" href="Definition.Untyped.Allowed-literal.html#3854" class="Function">Allowed-literal→Infinite</a> <a id="4365" href="Definition.Untyped.Allowed-literal.html#4322" class="Bound">okᴸ</a> <a id="4369" href="Definition.Untyped.Allowed-literal.html#4326" class="Bound">ok</a> <a id="4372" href="Function.Base.html#4061" class="Function Operator">of</a> <a id="4375" class="Symbol">λ</a> <a id="4377" class="Symbol">()</a>
+
+<a id="4381" class="Keyword">opaque</a>
+
+  <a id="4391" class="Comment">-- If l is an allowed literal, then either Level is not allowed or l</a>
+  <a id="4462" class="Comment">-- is infinite.</a>
+
+  <a id="Allowed-literal→¬Level-allowed⊎Infinite"></a><a id="4481" href="Definition.Untyped.Allowed-literal.html#4481" class="Function">Allowed-literal→¬Level-allowed⊎Infinite</a> <a id="4521" class="Symbol">:</a>
+    <a id="4527" href="Definition.Typed.Restrictions.html#8449" class="Function">Allowed-literal</a> <a id="4543" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a> <a id="4545" class="Symbol">→</a> <a id="4547" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="4549" href="Definition.Typed.Restrictions.html#5471" class="Function">Level-allowed</a> <a id="4563" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="4565" href="Definition.Untyped.html#5275" class="Datatype">Infinite</a> <a id="4574" href="Definition.Untyped.Allowed-literal.html#773" class="Generalizable">l</a>
+  <a id="4578" href="Definition.Untyped.Allowed-literal.html#4481" class="Function">Allowed-literal→¬Level-allowed⊎Infinite</a> <a id="4618" class="Symbol">{</a><a id="4619" class="Argument">l</a> <a id="4621" class="Symbol">=</a> <a id="4623" href="Definition.Untyped.html#2151" class="InductiveConstructor">ωᵘ+</a> <a id="4627" href="Definition.Untyped.Allowed-literal.html#4627" class="Bound">m</a><a id="4628" class="Symbol">}</a>   <a id="4632" class="Symbol">_</a>  <a id="4635" class="Symbol">=</a> <a id="4637" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="4642" href="Definition.Untyped.html#5318" class="InductiveConstructor">ωᵘ+</a>
+  <a id="4648" href="Definition.Untyped.Allowed-literal.html#4481" class="Function">Allowed-literal→¬Level-allowed⊎Infinite</a> <a id="4688" class="Symbol">{</a><a id="4689" class="Argument">l</a> <a id="4691" class="Symbol">=</a> <a id="4693" href="Definition.Untyped.html#2188" class="InductiveConstructor">level</a> <a id="4699" href="Definition.Untyped.Allowed-literal.html#4699" class="Bound">t</a><a id="4700" class="Symbol">}</a> <a id="4702" href="Definition.Untyped.Allowed-literal.html#4702" class="Bound">ok</a> <a id="4705" class="Symbol">=</a>
+    <a id="4711" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="4716" class="Symbol">(</a><a id="4717" href="Definition.Untyped.Allowed-literal.html#3015" class="Function">Allowed-literal-level-⇔</a> <a id="4741" class="Symbol">.</a><a id="4742" href="Data.Product.Base.html#636" class="Field">proj₁</a> <a id="4748" href="Definition.Untyped.Allowed-literal.html#4702" class="Bound">ok</a> <a id="4751" class="Symbol">.</a><a id="4752" href="Data.Product.Base.html#650" class="Field">proj₂</a><a id="4757" class="Symbol">)</a>
+</pre></body></html>
