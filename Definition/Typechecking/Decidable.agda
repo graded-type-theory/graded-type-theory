@@ -652,7 +652,7 @@ mutual
       case
         (dec⇇Type-with-cont ⊢Γ A λ ⊢A →
          dec⇇-with-cont t ⊢A λ ⊢t →
-         dec⇇Type-with-cont (∙ Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) B λ ⊢B →
+         dec⇇Type-with-cont (∙ Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)) B λ ⊢B →
          dec⇇ u
            (subst-⊢₁₀ ⊢B ⊢t $
             PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ $

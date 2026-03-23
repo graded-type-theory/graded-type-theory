@@ -667,7 +667,7 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ Σʷ p , q ▷ A₁ ▹ B₁ →
     Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ A₁
   fstʷ-cong {Γ} {A₁} {A₂} {t₁} {t₂} {p} {q} {B₁} A₁≡A₂ t₁≡t₂ =
-    let ⊢A₁ , ⊢B₁ , ok = inversion-ΠΣ (wf-⊢≡∷ t₁≡t₂ .proj₁) in       $⟨ W.wkEq₁ (ΠΣⱼ ⊢B₁ ok) A₁≡A₂
+    let ⊢A₁ , ⊢B₁ , ok = inversion-ΠΣ (wf-⊢≡∷ t₁≡t₂ .proj₁) in       $⟨ W.wk₁ (ΠΣⱼ ⊢B₁ ok) A₁≡A₂
                                                                       , 1∷wk1[1,0] ⊢B₁
                                                                       ⟩
     (Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢ wk1 A₁ ≡ wk1 A₂) ×
@@ -1305,7 +1305,7 @@ opaque
     let ⊢A          = ⊢∙→⊢ (wf ⊢B)
         _ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂
     in
-    prod-cong (Liftⱼ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
+    prod-cong (Liftⱼ (wk₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
       (lift-cong ⊢l₂ t₁≡t₂)
       (lift-cong
          (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l₁)
@@ -1383,7 +1383,7 @@ opaque
         ⊢0 = ⊢zeroᵘ (wf ⊢A)
     in
     lower (fst p (prodˢ p (lift t) (lift u)))  ≡⟨ lower-cong $
-                                                  Σ-β₁-≡ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢0 ⊢A) ⊢0) (lower₀Type ⊢0 ⊢B))
+                                                  Σ-β₁-≡ (Liftⱼ (wk₁ (Liftⱼ ⊢0 ⊢A) ⊢0) (lower₀Type ⊢0 ⊢B))
                                                     (liftⱼ′ ⊢0 ⊢t)
                                                     (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
                                                     ok ⟩⊢
@@ -1407,7 +1407,7 @@ opaque
     let ⊢0 = ⊢zeroᵘ (wf ⊢t) in
     lower (snd p (prodˢ p (lift t) (lift u)))  ≡⟨ conv
                                                     (lower-cong $
-                                                     Σ-β₂-≡ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢0 (⊢∙→⊢ (wf ⊢B))) ⊢0) (lower₀Type ⊢0 ⊢B))
+                                                     Σ-β₂-≡ (Liftⱼ (wk₁ (Liftⱼ ⊢0 (⊢∙→⊢ (wf ⊢B))) ⊢0) (lower₀Type ⊢0 ⊢B))
                                                        (liftⱼ′ ⊢0 ⊢t)
                                                        (liftⱼ′ ⊢0 (conv ⊢u (sym (lower₀[lift]₀ ⊢B ⊢t))))
                                                        ok)
@@ -1479,7 +1479,7 @@ private
           ⊢l₂ , ⊢A = inversion-Lift (wf-⊢∷ ⊢t)
       in
       prod-cong
-        (Liftⱼ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
+        (Liftⱼ (wk₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Type ⊢l₂ ⊢B))
         (⊢lift-lower≡∷ ⊢t)
         (⊢lift-lower≡∷ $
          conv ⊢u
@@ -1503,7 +1503,7 @@ private
     ⊢prodʰ-lower-1-lower-0≡∷ ok ⊢l₁ ⊢l₂ ⊢B =
       let ⊢A             = ⊢∙→⊢ (wf ⊢B)
           ⊢Lift-A        = Liftⱼ ⊢l₂ ⊢A
-          ⊢Lift-lower₀-B = Liftⱼ (wkLevel₁ ⊢Lift-A ⊢l₁) (lower₀Type ⊢l₂ ⊢B)
+          ⊢Lift-lower₀-B = Liftⱼ (wk₁ ⊢Lift-A ⊢l₁) (lower₀Type ⊢l₂ ⊢B)
       in
       PE.subst (_⊢_≡_∷_ _ _ _)
         (PE.sym $ PE.trans wk[]≡wk[]′ wk-ΠΣʰ) $
@@ -1583,7 +1583,7 @@ private
     ⊢ˢʷ∷-replace₂-lower-1-lower-0 ⊢l₁ ⊢l₂ ⊢B =
       let ⊢A             = ⊢∙→⊢ (wf ⊢B)
           ⊢Lift-A        = Liftⱼ ⊢l₂ ⊢A
-          ⊢Lift-lower₀-B = Liftⱼ (wkLevel₁ ⊢Lift-A ⊢l₁) (lower₀Type ⊢l₂ ⊢B)
+          ⊢Lift-lower₀-B = Liftⱼ (wk₁ ⊢Lift-A ⊢l₁) (lower₀Type ⊢l₂ ⊢B)
       in
       ⊢ˢʷ∷-replace₂
         (lowerⱼ $

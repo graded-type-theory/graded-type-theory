@@ -101,9 +101,9 @@ opaque
     ∃ λ B → ∇ » Δ ⊢ A ≡ B × x ∷ B ∈ Δ
   stability-⊢∈ (ε ⊢ε)              ()
   stability-⊢∈ (Γ≡Δ ∙⟨ ⊢B ∣ A≡B ⟩) here =
-    _ , wkEq₁ ⊢B A≡B , here
+    _ , wk₁ ⊢B A≡B , here
   stability-⊢∈ (Γ≡Δ ∙⟨ ⊢B ∣ _ ⟩) (there x∈) =
-    Σ.map wk1 (Σ.map (wkEq₁ ⊢B) there) $
+    Σ.map wk1 (Σ.map (wk₁ ⊢B) there) $
     stability-⊢∈ Γ≡Δ x∈
 
 private
@@ -382,7 +382,7 @@ private module Inhabited where
           (stability-⊢
              (Γ≡Δ
                 ∙⟨ ⊢A′ ⟩
-                ∙⟨ Idⱼ (wk₁ ⊢A′ ⊢A′) (wkTerm₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩)
+                ∙⟨ Idⱼ (wk₁ ⊢A′ ⊢A′) (wk₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩)
              ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) (stability-⊢∷ Γ≡Δ ⊢v)
           (stability-⊢∷ Γ≡Δ ⊢w)
@@ -606,7 +606,7 @@ private module Inhabited where
           (stability-⊢≡
              (Γ≡Δ
                 ∙⟨ ⊢A₁′ ⟩
-                ∙⟨ Idⱼ (wk₁ ⊢A₁′ ⊢A₁′) (wkTerm₁ ⊢A₁′ ⊢t₁′)
+                ∙⟨ Idⱼ (wk₁ ⊢A₁′ ⊢A₁′) (wk₁ ⊢A₁′ ⊢t₁′)
                      (var₀ ⊢A₁′) ⟩)
              B₁≡B₂)
           (stability-⊢≡∷ Γ≡Δ u₁≡u₂) (stability-⊢≡∷ Γ≡Δ v₁≡v₂)
@@ -621,7 +621,7 @@ private module Inhabited where
           (stability-⊢
              (Γ≡Δ
                 ∙⟨ ⊢A′ ⟩
-                ∙⟨ Idⱼ (wk₁ ⊢A′ ⊢A′) (wkTerm₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩)
+                ∙⟨ Idⱼ (wk₁ ⊢A′ ⊢A′) (wk₁ ⊢A′ ⊢t′) (var₀ ⊢A′) ⟩)
              ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) eq
       (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →

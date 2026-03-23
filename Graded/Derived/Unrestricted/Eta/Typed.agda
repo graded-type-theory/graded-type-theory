@@ -63,7 +63,7 @@ opaque
   Unrestricted-cong l₁≡l₂ A₁≡A₂ =
     let ⊢A₁ , _ = wf-⊢≡ A₁≡A₂ in
     ΠΣ-cong A₁≡A₂
-      (Lift-cong (wkEqLevel₁ ⊢A₁ l₁≡l₂) (refl (⊢Unit (∙ ⊢A₁) Unit-ok)))
+      (Lift-cong (wk₁ ⊢A₁ l₁≡l₂) (refl (⊢Unit (∙ ⊢A₁) Unit-ok)))
       Σˢ-ok
 
 opaque
@@ -91,9 +91,9 @@ opaque
     in
     ΠΣ-cong′ A₁≡A₂
       (conv
-         (Lift-cong′ (wkEqLevel₁ ⊢A₁′ l₁≡l₂)
+         (Lift-cong′ (wk₁ ⊢A₁′ l₁≡l₂)
             (refl (Unitⱼ (∙ ⊢A₁′) Unit-ok)))
-         (U-cong-⊢≡ (supᵘₗ-zeroˡ (wkLevel₁ ⊢A₁′ ⊢l₁))))
+         (U-cong-⊢≡ (supᵘₗ-zeroˡ (wk₁ ⊢A₁′ ⊢l₁))))
       Σˢ-ok
 
 opaque
@@ -116,7 +116,7 @@ opaque
     Γ ⊢ [ t ] ≡ [ u ] ∷ Unrestricted l A
   []-cong′ ⊢l t≡u =
     let ⊢A , _ = wf-⊢≡∷ t≡u in
-    prod-cong (Liftⱼ (wkLevel₁ ⊢A ⊢l) (⊢Unit (∙ ⊢A) Unit-ok)) t≡u
+    prod-cong (Liftⱼ (wk₁ ⊢A ⊢l) (⊢Unit (∙ ⊢A) Unit-ok)) t≡u
       (refl $
        liftⱼ′ (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
          (starⱼ (wf ⊢A) Unit-ok))

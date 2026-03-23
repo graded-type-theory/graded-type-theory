@@ -231,7 +231,7 @@ opaque
   J-motive-context-type ⊢t =
     case syntacticTerm ⊢t of λ {
       ⊢A →
-    Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) }
+    Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A) }
 
 opaque
 
@@ -254,7 +254,7 @@ opaque
       Id (wk1 A₂) (wk1 t₂) (var x0)
   J-motive-context-cong″ A₁≡A₂ t₁≡t₂ =
     let ⊢A₁ , _ = wf-⊢≡ A₁≡A₂ in
-    Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (wkEqTerm₁ ⊢A₁ t₁≡t₂) (refl (var₀ ⊢A₁))
+    Id-cong (wk₁ ⊢A₁ A₁≡A₂) (wk₁ ⊢A₁ t₁≡t₂) (refl (var₀ ⊢A₁))
 
 opaque
 
@@ -483,7 +483,7 @@ opaque
   subst-cong {B₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
     PE.subst (_⊢_≡_∷_ _ _ _) (subst-wk B₁) $
     J-cong′ A₁≡A₂ t₁≡t₂
-      (wkEq₁
+      (wk₁
          (J-motive-context-type (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁))
          B₁≡B₂)
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ subst-wk B₁) w₁≡w₂) u₁≡u₂
@@ -608,7 +608,7 @@ opaque
       Id≡Id →
     PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
     subst-⇒
-      (Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A))
+      (Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A))
       ⊢u
       (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) ⊢eq)
 
@@ -642,7 +642,7 @@ opaque
     ⊢subst
       (Idⱼ′
          (PE.subst (_⊢_∷_ _ _) (PE.cong wk1 $ wk1-sgSubst _ _) $
-          wkTerm₁ ⊢A (substTerm ⊢v ⊢t))
+          wk₁ ⊢A (substTerm ⊢v ⊢t))
          ⊢v)
       ⊢w
       (PE.subst (_⊢_∷_ _ _)
@@ -671,8 +671,8 @@ opaque
     PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
     subst-cong A₁≡A₂
-      (Id-cong (wkEq₁ ⊢A₁ B₁≡B₂)
-         (wkEqTerm₁ ⊢A₁ $
+      (Id-cong (wk₁ ⊢A₁ B₁≡B₂)
+         (wk₁ ⊢A₁ $
           PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
           substTermEq v₁≡v₂ t₁≡t₂)
          v₁≡v₂)
@@ -698,7 +698,7 @@ opaque
       (Idⱼ′
          (PE.subst (_⊢_∷_ _ _)
             (PE.cong wk1 $ wk1-sgSubst _ _) $
-          wkTerm₁ (syntacticTerm ⊢t) (substTerm ⊢u ⊢t))
+          wk₁ (syntacticTerm ⊢t) (substTerm ⊢u ⊢t))
          ⊢u)
       ⊢t
       (PE.subst (_⊢_∷_ _ _)
@@ -734,7 +734,7 @@ opaque
     subst-subst
       (Idⱼ′
          (PE.subst (_⊢_∷_ _ _) (PE.cong wk1 $ wk1-sgSubst _ _) $
-          wkTerm₁ ⊢A (substTerm ⊢v ⊢t))
+          wk₁ ⊢A (substTerm ⊢v ⊢t))
          ⊢v)
       w₁⇒w₂
       (PE.subst (_⊢_∷_ _ _)
@@ -789,7 +789,7 @@ opaque
           PE.cong₂ (Id _) ([,]≡[wk1]₀[]₀ v₁) ([,]≡[wk1]₀[]₀ v₁)) $
        cong-cong A₁₁≡A₁₂ t₁₁≡t₁₂ u₁₁≡u₁₂ B₁≡B₂
          (PE.subst (_⊢_≡_∷_ _ _ _) wk[1+]′-[]₀≡ $
-          substTermEq v₁≡v₂ (wkEqTerm₁ ⊢A₁₁ t₂₁≡t₂₂))
+          substTermEq v₁≡v₂ (wk₁ ⊢A₁₁ t₂₁≡t₂₂))
          w₁₁≡w₁₂)
       (PE.subst (_⊢_≡_∷_ _ _ _)
          (PE.cong₂ (Id _)
@@ -861,7 +861,7 @@ opaque
                                                                                    PE.cong₂ (Id _) ([,]≡[wk1]₀[]₀ u) ([,]≡[wk1]₀[]₀ u)) $
                                                                                 cong-≡ ⊢t₁
                                                                                   (PE.subst (_⊢_∷_ _ _) wk[1+]′-[]₀≡ $
-                                                                                   substTerm ⊢u (wkTerm₁ (wf-⊢∷ ⊢t₁) ⊢t₂)))
+                                                                                   substTerm ⊢u (wk₁ (wf-⊢∷ ⊢t₁) ⊢t₂)))
                                                                                (PE.subst (_⊢_≡_∷_ _ _ _)
                                                                                   (PE.cong₂ (Id _)
                                                                                      (singleSubstComp _ _ u) (singleSubstComp _ _ u)) $
@@ -897,7 +897,7 @@ opaque
          (PE.cong (_ ∘⟨ _ ⟩_) $ wk1-sgSubst _ _)) $
     ⊢cong
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β B) $
-       var₀ ⊢ΠAB ∘ⱼ wkTerm₁ ⊢ΠAB ⊢w)
+       var₀ ⊢ΠAB ∘ⱼ wk₁ ⊢ΠAB ⊢w)
       ⊢v
 
 opaque
@@ -920,7 +920,7 @@ opaque
          (PE.cong (_∘⟨_⟩_ _ _) $ wk1-sgSubst _ _)) $
     cong-⇒ ⊢t
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β B) $
-       var₀ ⊢ΠAB ∘ⱼ wkTerm₁ ⊢ΠAB ⊢u)
+       var₀ ⊢ΠAB ∘ⱼ wk₁ ⊢ΠAB ⊢u)
 
 opaque
 
@@ -953,8 +953,8 @@ opaque
     PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
     subst-cong A₁≡A₂
-      (Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (refl (var₀ ⊢A₁))
-         (wkEqTerm₁ ⊢A₁ t₁≡t₂))
+      (Id-cong (wk₁ ⊢A₁ A₁≡A₂) (refl (var₀ ⊢A₁))
+         (wk₁ ⊢A₁ t₁≡t₂))
       t₁≡t₂ u₁≡u₂ eq₁≡eq₂
       (PE.subst (_⊢_≡_∷_ _ _ _)
          (PE.sym $
@@ -988,7 +988,7 @@ opaque
     in
     PE.subst (_⊢_⇒_∷_ _ _ _) Id≡Id $
     subst-⇒′
-      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      (Idⱼ′ (var₀ ⊢A) (wk₁ ⊢A ⊢t))
       t≡t′
       (PE.subst (_⊢_∷_ _ _) (PE.sym Id≡Id) $
        rflⱼ ⊢t)
@@ -1027,7 +1027,7 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
     subst-subst
-      (Idⱼ′ (var₀ ⊢A) (wkTerm₁ ⊢A ⊢t))
+      (Idⱼ′ (var₀ ⊢A) (wk₁ ⊢A ⊢t))
       v₁⇒v₂
       (PE.subst (_⊢_∷_ _ _)
          (PE.sym $
@@ -1147,7 +1147,7 @@ opaque
   ⊢transitivity-symmetryˡ {eq} {A} {t} {u} ⊢eq =
     case inversion-Id (syntacticTerm ⊢eq) of λ
       (⊢A , ⊢t , _) →
-    case Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A) of λ
+    case Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A) of λ
       ⊢Id-t′-0 →
     PE.subst (_⊢_∷_ _ _)
       (PE.cong₃ Id
@@ -1583,7 +1583,7 @@ opaque
                                                                                PE.refl ⟩
        Id A₁ (cast⁻¹ l A₁ A₂ u t₁) t₂                                     ∎)
       (⊢transitivity
-         (⊢cong {p = ω} (⊢cast⁻¹ (wkTerm₁ ⊢A₂ ⊢u) (var₀ ⊢A₂)) ⊢v)
+         (⊢cong {p = ω} (⊢cast⁻¹ (wk₁ ⊢A₂ ⊢u) (var₀ ⊢A₂)) ⊢v)
          (PE.subst (_⊢_∷_ _ _)
             (Id A₁ (cast⁻¹ l A₁ A₂ u (cast l A₁ A₂ u t₂)) t₂       ≡˘⟨ PE.cong₂ (Id _)
                                                                            (PE.trans cast⁻¹-[] $
@@ -1666,11 +1666,11 @@ opaque
          (Idⱼ′
             (var₀ (J-motive-context-type ⊢t))
             (⊢transitivity
-               (wkTerm₁ (J-motive-context-type ⊢t) (wkTerm₁ ⊢A ⊢eq₂)) $
+               (wk₁ (J-motive-context-type ⊢t) (wk₁ ⊢A ⊢eq₂)) $
              ⊢transitivity
                (⊢symmetry
-                  (wkTerm₁ (J-motive-context-type ⊢t)
-                     (wkTerm₁ ⊢A ⊢eq₁))) $
+                  (wk₁ (J-motive-context-type ⊢t)
+                     (wk₁ ⊢A ⊢eq₁))) $
              var₀ (J-motive-context-type ⊢t)))
          (PE.subst (_⊢_∷_ _ _)
             (Id (wk1 (Id A t t)) rfl (var x0)
@@ -1688,7 +1688,7 @@ opaque
                      (var x0)))
                [ t , rfl ]₁₀                                             ∎) $
           Kⱼ
-            (Idⱼ′ (rflⱼ (wkTerm₁ ⊢Id-t-t ⊢t)) (var₀ ⊢Id-t-t))
+            (Idⱼ′ (rflⱼ (wk₁ ⊢Id-t-t ⊢t)) (var₀ ⊢Id-t-t))
             (rflⱼ $ rflⱼ $
              PE.subst₂ (_⊢_∷_ _)
                (PE.sym $ wk1-sgSubst _ _)
@@ -1700,7 +1700,7 @@ opaque
          ⊢eq₁)
       (conv
          (⊢cong
-            (⊢transitivity (wkTerm₁ ⊢Id-u-u ⊢eq₂) (var₀ ⊢Id-u-u))
+            (⊢transitivity (wk₁ ⊢Id-u-u ⊢eq₂) (var₀ ⊢Id-u-u))
             (⊢transitivity-symmetryˡ ⊢eq₁))
          (Id-cong
             (refl (Idⱼ′ ⊢t ⊢u))
@@ -1946,7 +1946,7 @@ opaque
          (wkSingleSubstId _)
          (PE.cong₃ _∘⟨_⟩_ (wkSingleSubstId _) PE.refl PE.refl)
          (PE.cong₃ _∘⟨_⟩_ (wkSingleSubstId _) PE.refl PE.refl))
-      (wkTerm₁ ⊢A ⊢v ∘ⱼ var₀ ⊢A)
+      (wk₁ ⊢A ⊢v ∘ⱼ var₀ ⊢A)
 
 opaque
   unfolding Funext funext
@@ -2032,7 +2032,7 @@ opaque
     lemma : Γ ⊢ eq ∷ Id A t u → Γ ⊢ eq ≡ rfl ∷ Id A t u
     lemma ⊢eq =
       let ⊢A , ⊢t , _ = inversion-Id (syntacticTerm ⊢eq)
-          ⊢Id         = var₀ $ Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)
+          ⊢Id         = var₀ $ Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)
       in
       equality-reflection′ ok $
       PE.subst (_⊢_∷_ _ _)

@@ -275,7 +275,7 @@ opaque
     case inversion-ΠΣ ⊢ΠAB .proj₁ of λ {
       ⊢A →                                                                $⟨ lam-t≡lam-u ⟩
 
-    Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                               →⟨ wkEqTerm₁ ⊢A ⟩
+    Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B                               →⟨ wk₁ ⊢A ⟩
 
     Γ »∙ A ⊢ wk1 (lam p t) ≡ wk1 (lam p u) ∷ wk1 (Π p , q ▷ A ▹ B)        →⟨ flip app-cong (refl (var₀ ⊢A)) ⟩
 
@@ -321,7 +321,7 @@ opaque
   Π-η {Γ} {t} {p} {q} {A} {B} ⊢t =
     case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
       (⊢A , _ , ok) →
-    case                                                                $⟨ wkTerm₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A ⟩
+    case                                                                $⟨ wk₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A ⟩
       Γ »∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩
       Γ »∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ B                                  →⟨ lamⱼ′ ok ⟩
       Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B                 □

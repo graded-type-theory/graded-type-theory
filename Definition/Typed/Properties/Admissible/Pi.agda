@@ -310,7 +310,7 @@ opaque
   ⊢apps {Δ = _ ∙ _} possibly-nonempty ⊢t =
     let ⊢A , _ = inversion-ΠΣ (inversion-Πs (wf-⊢∷ ⊢t)) in
     PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
-    wkTerm₁ ⊢A (⊢apps possibly-nonempty ⊢t) ∘ⱼ var₀ ⊢A
+    wk₁ ⊢A (⊢apps possibly-nonempty ⊢t) ∘ⱼ var₀ ⊢A
 
 ------------------------------------------------------------------------
 -- Some lemmas related to Πʰ
@@ -328,7 +328,7 @@ opaque
     Γ ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
   ⊢lamʰ ok ⊢l₁ ⊢l₂ ⊢t =
     let ⊢A = ⊢∙→⊢ (wf ⊢t) in
-    lamⱼ′ ok (liftⱼ′ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
+    lamⱼ′ ok (liftⱼ′ (wk₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
 
 opaque
   unfolding ΠΣʰ ∘ʰ
@@ -371,7 +371,7 @@ opaque
     Γ ⊢ ∘ʰ p (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
   β-redʰ {t} {u} {p} ⊢t ⊢u ok =
     let ⊢0      = ⊢zeroᵘ (wf ⊢u)
-        ⊢wk-l₁  = wkLevel₁ (Liftⱼ ⊢0 (wf-⊢∷ ⊢u)) ⊢0
+        ⊢wk-l₁  = wk₁ (Liftⱼ ⊢0 (wf-⊢∷ ⊢u)) ⊢0
         ⊢lift-u = liftⱼ′ ⊢0 ⊢u
     in
     ∘ʰ p (lamʰ p t) u                              ≡⟨⟩⊢
@@ -410,7 +410,7 @@ opaque
              app-cong
                (PE.subst₃ (_⊢_≡_∷_ _)
                   (PE.sym (wk1-[][]↑ 1)) PE.refl PE.refl
-                  (refl (wkTerm₁ ⊢Lift-A ⊢t)))
+                  (refl (wk₁ ⊢Lift-A ⊢t)))
                (sym′ (Lift-η-swap ⊢0 (refl (lowerⱼ ⊢0)))))
             (PE.subst (_⊢_≡_ _ _) (wkSingleSubstId _) $
              substTypeEq
@@ -422,9 +422,9 @@ opaque
     η-eq′ ⊢t ⊢u $
     Lift-η′
       (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
-       wkTerm₁ ⊢Lift-A ⊢t ∘ⱼ ⊢0)
+       wk₁ ⊢Lift-A ⊢t ∘ⱼ ⊢0)
       (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
-       wkTerm₁ ⊢Lift-A ⊢u ∘ⱼ ⊢0)
+       wk₁ ⊢Lift-A ⊢u ∘ⱼ ⊢0)
       (lower (wk1 t ∘⟨ p ⟩ var x0)                  ≡˘⟨ lemma ⊢t ⟩⊢
        lower₀ (lower (wk1 t ∘⟨ p ⟩ lift (var x0)))  ≡⟨ lower₀TermEq ⊢l₂ t≡u ⟩⊢
        lower₀ (lower (wk1 u ∘⟨ p ⟩ lift (var x0)))  ≡⟨ lemma ⊢u ⟩⊢∎
@@ -471,11 +471,11 @@ opaque
         l      = level (lower (var x1))
         ⊢l     = term okᴸ (lowerⱼ (var₁ (univ ⊢U)))
     in
-    (lamⱼ′ ok₁ $ liftⱼ′ (wkLevel₁ (univ ⊢Level) ⊢ω) $
+    (lamⱼ′ ok₁ $ liftⱼ′ (wk₁ (univ ⊢Level) ⊢ω) $
      lamⱼ′ ok₂ $ liftⱼ′ (⊢1ᵘ+ ⊢l) $
      lamⱼ′ ok₃ $ var₀ (univ ⊢0)) ,
     ΠΣⱼ′ ⊢Level
-      (Liftⱼ′ (wkLevel₁ (univ ⊢Level) ⊢ω) $
+      (Liftⱼ′ (wk₁ (univ ⊢Level) ⊢ω) $
        ΠΣⱼ′ ⊢U
          (conv (Liftⱼ′ (⊢1ᵘ+ ⊢l) (ΠΣⱼ′ ⊢0 (var₁ (univ ⊢0)) ok₃))
             (U (l supᵘₗ 1ᵘ+ l)  ≡⟨ U-cong-⊢≡ (⊢≤ₗ∷L→⊢≡∷L (supᵘₗ-sub ⊢l)) ⟩⊢∎
@@ -507,7 +507,7 @@ opaque
   a-type-of-id-has-a-type-Πʰ ok-ω okᴸ ok₁ ok₂ ok₃ ⊢Γ =
     let ⊢ω     = literal (Allowed-literal-ωᵘ+-⇔ .proj₂ ok-ω) ⊢Γ
         ⊢Level = Levelⱼ ⊢Γ okᴸ
-        ⊢ω′    = wkLevel₁ (univ ⊢Level) ⊢ω
+        ⊢ω′    = wk₁ (univ ⊢Level) ⊢ω
         ⊢l     = term (Level-allowed⇔⊎ .proj₂ (inj₁ okᴸ))
                    (var₀ (univ ⊢Level))
         ⊢U     = Uⱼ ⊢l

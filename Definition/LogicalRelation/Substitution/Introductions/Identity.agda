@@ -1146,8 +1146,8 @@ opaque
         ⊢B₂[σ₂⇑²] =
           stability
             (refl-∙ ⊢A₁[σ₁]≡A₂[σ₂] ∙
-             Id-cong (wkEq₁ ⊢A₁[σ₁] ⊢A₁[σ₁]≡A₂[σ₂])
-               (wkEqTerm₁ ⊢A₁[σ₁] (≅ₜ-eq $ escape-⊩≡∷ t₁[σ₁]≡t₂[σ₂]))
+             Id-cong (wk₁ ⊢A₁[σ₁] ⊢A₁[σ₁]≡A₂[σ₂])
+               (wk₁ ⊢A₁[σ₁] (≅ₜ-eq $ escape-⊩≡∷ t₁[σ₁]≡t₂[σ₂]))
                (refl (var₀ ⊢A₁[σ₁])))
             ⊢B₁[σ₂⇑²]
 

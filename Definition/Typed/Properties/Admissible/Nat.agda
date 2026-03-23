@@ -204,7 +204,7 @@ opaque
   ⊢natcase {A} ⊢A ⊢t ⊢u ⊢v =
     natrecⱼ ⊢t
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ [wk1]↑² A) $
-       wkTerm₁ ⊢A ⊢u)
+       wk₁ ⊢A ⊢u)
       ⊢v
 
 opaque
@@ -220,7 +220,7 @@ opaque
   natcase-zero-⇒ {A} ⊢A ⊢t ⊢u =
     natrec-zero ⊢t
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ [wk1]↑² A) $
-       wkTerm₁ ⊢A ⊢u)
+       wk₁ ⊢A ⊢u)
 
 opaque
 
@@ -249,7 +249,7 @@ opaque
     PE.subst (flip (_⊢_⇒_∷_ _ _) _) (subst-wk u) $
     natrec-suc ⊢t
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ [wk1]↑² A) $
-       wkTerm₁ ⊢A ⊢u)
+       wk₁ ⊢A ⊢u)
       ⊢v
 
 opaque
@@ -279,7 +279,7 @@ opaque
   natcase-subst {A} ⊢A ⊢t ⊢u v₁⇒v₂ =
     natrec-subst ⊢t
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ [wk1]↑² A) $
-       wkTerm₁ ⊢A ⊢u)
+       wk₁ ⊢A ⊢u)
       v₁⇒v₂
 
 opaque
@@ -298,7 +298,7 @@ opaque
       (⊢A₁ , _) →
     natrec-cong A₁≡A₂ t₁≡t₂
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ [wk1]↑² A₁) $
-       wkEqTerm₁ ⊢A₁ u₁≡u₂)
+       wk₁ ⊢A₁ u₁≡u₂)
       v₁≡v₂
 
 ------------------------------------------------------------------------
@@ -315,7 +315,7 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ ℕ →
     Γ ⊢ strict-const A₁ t₁ u₁ ≡ strict-const A₂ t₂ u₂ ∷ A₁
   strict-const-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    let A₁≡A₂′ = wkEq₁ (syntacticEqTerm u₁≡u₂ .proj₁) A₁≡A₂ in
+    let A₁≡A₂′ = wk₁ (syntacticEqTerm u₁≡u₂ .proj₁) A₁≡A₂ in
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-cong A₁≡A₂′
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) t₁≡t₂)

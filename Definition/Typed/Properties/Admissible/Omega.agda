@@ -55,7 +55,7 @@ private opaque
     Γ ⊢ Π p , q ▷ A ▹ wk1 A ≡ A
   Π≡ ok₁ ok₂ ⊢t ⊢A =
     _⊢_≡_.univ $
-    ⊢∷Empty→⊢≡∷ ok₁ ⊢t (ΠΣⱼ′ ⊢A (wkTerm₁ (univ ⊢A) ⊢A) ok₂) ⊢A
+    ⊢∷Empty→⊢≡∷ ok₁ ⊢t (ΠΣⱼ′ ⊢A (wk₁ (univ ⊢A) ⊢A) ok₂) ⊢A
 
 opaque
   unfolding ω
@@ -75,7 +75,7 @@ opaque
     conv
       (lamⱼ′ ok₂ $
        PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
-       conv (var₀ (univ ⊢A)) (sym (wkEq₁ (univ ⊢A) ΠAA≡A)) ∘ⱼ
+       conv (var₀ (univ ⊢A)) (sym (wk₁ (univ ⊢A) ΠAA≡A)) ∘ⱼ
        var₀ (univ ⊢A))
       ΠAA≡A
 

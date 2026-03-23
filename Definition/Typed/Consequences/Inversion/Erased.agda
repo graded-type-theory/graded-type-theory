@@ -102,7 +102,7 @@ opaque
     ⊢[t′] : ε » Γ′ ⊢ [ t′ ] ∷ A′
     ⊢[t′] = prodⱼ
       (_⊢_.univ $
-       natrecⱼ (wkTerm₁ (⊢ℕ εε) ⊢Lift-Unit) (ℕⱼ (∙ ⊢U₀ ⊢Γ′∙ℕ∙ℕ))
+       natrecⱼ (wk₁ (⊢ℕ εε) ⊢Lift-Unit) (ℕⱼ (∙ ⊢U₀ ⊢Γ′∙ℕ∙ℕ))
          (var ⊢Γ′∙ℕ here))
       (zeroⱼ εε)
       (conv (liftⱼ′ (⊢zeroᵘ εε) (starⱼ εε Unit-ok))

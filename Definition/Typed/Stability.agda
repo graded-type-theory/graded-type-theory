@@ -343,7 +343,7 @@ opaque
   stabilityRedTerm Γ≡Δ (J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
     let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in
     J-subst (stabilityTerm Γ≡Δ ⊢t)
-      (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)))
+      (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)))
          ⊢B)
       (stabilityTerm Γ≡Δ ⊢u) (stabilityTerm Γ≡Δ ⊢v)
       (stabilityRedTerm Γ≡Δ w₁⇒w₂)
@@ -359,7 +359,7 @@ opaque
     let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in
     J-β (stabilityTerm Γ≡Δ ⊢t) (stabilityTerm Γ≡Δ ⊢t′)
       (stabilityEqTerm Γ≡Δ t≡t′)
-      (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)))
+      (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)))
          ⊢B)
       (stabilityEq Γ≡Δ ⊢B[t,rfl]≡B[t′,rfl]) (stabilityTerm Γ≡Δ ⊢u)
   stabilityRedTerm Γ≡Δ (K-β ⊢B ⊢u ok) =

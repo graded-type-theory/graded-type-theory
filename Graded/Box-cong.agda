@@ -297,11 +297,11 @@ opaque
     Γ ⊢ []-cong-J s l A t u v ∷ Id (Erased l A) [ t ] ([ u ])
   []-cong-Jⱼ ok ⊢l ⊢v =
     let ⊢A , ⊢t , _ = inversion-Id (syntacticTerm ⊢v)
-        ⊢wk1-l      = W.wkLevel₁ ⊢A ⊢l
+        ⊢wk1-l      = W.wk₁ ⊢A ⊢l
     in
     PE.subst (_⊢_∷_ _ _) Id-[]₀≡ $
     ⊢subst
-      (Idⱼ′ ([]ⱼ ok ⊢wk1-l (W.wkTerm₁ ⊢A ⊢t))
+      (Idⱼ′ ([]ⱼ ok ⊢wk1-l (W.wk₁ ⊢A ⊢t))
          ([]ⱼ ok ⊢wk1-l (var₀ ⊢A)))
       ⊢v
       (PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
@@ -320,12 +320,12 @@ opaque
     Γ ⊢ []-cong-J s l A t t′ rfl ⇒ rfl ∷ Id (Erased l A) [ t ] ([ t′ ])
   []-cong-J-β-⇒′ {s} {t} {t′} ok ⊢l t≡t′ =
     let ⊢A , ⊢t , _ = syntacticEqTerm t≡t′
-        ⊢wk1-l      = W.wkLevel₁ ⊢A ⊢l
+        ⊢wk1-l      = W.wk₁ ⊢A ⊢l
     in
     PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
     conv
       (subst-⇒′
-         (Idⱼ′ ([]ⱼ ok ⊢wk1-l (W.wkTerm₁ ⊢A ⊢t))
+         (Idⱼ′ ([]ⱼ ok ⊢wk1-l (W.wk₁ ⊢A ⊢t))
             ([]ⱼ ok ⊢wk1-l (var₀ ⊢A)))
          t≡t′
          (PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
@@ -394,14 +394,14 @@ opaque
   []-cong-J-cong ok l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
     let ⊢l₁ , _ = wf-⊢≡∷L l₁≡l₂
         ⊢A₁ , _ = wf-⊢≡ A₁≡A₂
-        ⊢wk1-l₁ = W.wkLevel₁ ⊢A₁ ⊢l₁
+        ⊢wk1-l₁ = W.wk₁ ⊢A₁ ⊢l₁
     in
     PE.subst (_⊢_≡_∷_ _ _ _) Id-[]₀≡ $
     subst-cong A₁≡A₂
       (Id-cong
-         (Erased-cong ok (W.wkEqLevel₁ ⊢A₁ l₁≡l₂)
-            (W.wkEq₁ ⊢A₁ A₁≡A₂))
-         (P.[]-cong′ ok ⊢wk1-l₁ (W.wkEqTerm₁ ⊢A₁ t₁≡t₂))
+         (Erased-cong ok (W.wk₁ ⊢A₁ l₁≡l₂)
+            (W.wk₁ ⊢A₁ A₁≡A₂))
+         (P.[]-cong′ ok ⊢wk1-l₁ (W.wk₁ ⊢A₁ t₁≡t₂))
          (refl ([]ⱼ ok ⊢wk1-l₁ (var₀ ⊢A₁))))
       t₁≡t₂ u₁≡u₂ v₁≡v₂
       (_⊢_≡_∷_.refl $
@@ -422,11 +422,11 @@ opaque
       Id (Erased l A) [ t ] ([ u ])
   []-cong-J-subst ok ⊢l v₁⇒v₂ =
     let ⊢A , ⊢t , _ = inversion-Id (wf-⊢≡∷ (subsetTerm v₁⇒v₂) .proj₁)
-        ⊢wk1-l      = W.wkLevel₁ ⊢A ⊢l
+        ⊢wk1-l      = W.wk₁ ⊢A ⊢l
     in
     PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
     subst-subst
-      (Idⱼ′ ([]ⱼ ok ⊢wk1-l (W.wkTerm₁ ⊢A ⊢t))
+      (Idⱼ′ ([]ⱼ ok ⊢wk1-l (W.wk₁ ⊢A ⊢t))
          ([]ⱼ ok ⊢wk1-l (var₀ ⊢A)))
       v₁⇒v₂
       (PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
@@ -1444,7 +1444,7 @@ opaque
             wk1 (Erased (wk ρ l) A)
           ⊢mapᴱ-0 =
             PE.subst (_⊢_∷_ _ _) (PE.sym wk-Erased) $
-            ⊢mapᴱ (W.wkLevel₁ ⊢Erased-Erased-A ⊢wk-l)
+            ⊢mapᴱ (W.wk₁ ⊢Erased-Erased-A ⊢wk-l)
               (PE.subst (flip (_⊢_∷_ _) _)
                  (PE.cong (flip erased _) wk[]≡wk[]′) $
                erasedⱼ $ PE.subst (_⊢_∷_ _ _) wk-Erased $
@@ -2220,7 +2220,7 @@ opaque
                                                                               WD.defn-wkTerm ⊇ε ⊢[]-cong′) $
                                                                            cong-≡ ⊢t $
                                                                            PE.subst (_⊢_∷_ _ _) (PE.sym wk-Erased) $
-                                                                           []ⱼ Erased-ok (W.wkLevel₁ (univ ⊢A) ⊢l∷L) (var₀ (univ ⊢A)) ⟩⊢
+                                                                           []ⱼ Erased-ok (W.wk₁ (univ ⊢A) ⊢l∷L) (var₀ (univ ⊢A)) ⟩⊢
         cong 𝟘 (Erased (level l) (Erased (level l) A)) [ [ t ] ]
           [ [ t ] ] (Erased (level l) A)
           (mapᴱ (Erased (level (wk1 l)) (wk1 A))
@@ -2279,7 +2279,7 @@ opaque
             wk1 (Erased (level l) A)
         ⊢mapᴱ-0 =
           PE.subst (_⊢_∷_ _ _) (PE.sym wk-Erased) $
-          ⊢mapᴱ (W.wkLevel₁ ⊢Erased-Erased-A ⊢l∷L)
+          ⊢mapᴱ (W.wk₁ ⊢Erased-Erased-A ⊢l∷L)
             (erasedⱼ $ PE.subst (_⊢_∷_ _ _) wk-Erased $
              var₀ $ PE.subst (_⊢_ _) wk-Erased $
              W.wk₁ ⊢Erased-Erased-A (univ ⊢Erased-A))
@@ -2786,7 +2786,7 @@ opaque
              𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
              𝟘ᶜ +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎) ,
         PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _)
-          (W.wkTerm₁ ⊢B ⊢t ∘ⱼ var₀ ⊢B)
+          (W.wk₁ ⊢B ⊢t ∘ⱼ var₀ ⊢B)
         where
         open ≤ᶜ-reasoning
 

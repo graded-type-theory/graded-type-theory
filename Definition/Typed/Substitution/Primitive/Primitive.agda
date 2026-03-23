@@ -431,7 +431,7 @@ opaque
       (⊢ˢʷ≡∷-wk1Subst ⊢A[σ₁] σ₁≡σ₂ ,
        ⊢0 ,
        PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1Subst-wk1 A)
-         (conv (var₀ ⊢A[σ₁]) (wkEq₁ ⊢A[σ₁] A[σ₁]≡A[σ₂])) ,
+         (conv (var₀ ⊢A[σ₁]) (wk₁ ⊢A[σ₁] A[σ₁]≡A[σ₂])) ,
        refl ⊢0)
 
 opaque

@@ -104,7 +104,7 @@ opaque
     let ⊢l₂₁ , _ = wf-⊢≡∷L l₂₁≡l₂₂
         ⊢A₁  , _ = wf-⊢≡ A₁≡A₂
     in
-    ΠΣʰ-cong-⊢′ ok (wkEqLevel₁ (Liftⱼ ⊢l₂₁ ⊢A₁) l₁₁≡l₁₂) l₂₁≡l₂₂ A₁≡A₂
+    ΠΣʰ-cong-⊢′ ok (wk₁ (Liftⱼ ⊢l₂₁ ⊢A₁) l₁₁≡l₁₂) l₂₁≡l₂₂ A₁≡A₂
 
 opaque
 
@@ -177,7 +177,7 @@ opaque
     let ⊢l₂₁ , _    = wf-⊢≡∷L l₂₁≡l₂₂
         _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
     in
-    ΠΣʰ-cong-⊢∷′ ok (wkEqLevel₁ (Liftⱼ ⊢l₂₁ (univ ⊢A₁)) l₁₁≡l₁₂) l₂₁≡l₂₂
+    ΠΣʰ-cong-⊢∷′ ok (wk₁ (Liftⱼ ⊢l₂₁ (univ ⊢A₁)) l₁₁≡l₁₂) l₂₁≡l₂₂
       A₁≡A₂
 
 opaque
@@ -289,7 +289,7 @@ private opaque
     ⊢l ,
     PE.subst (flip (_⊢_∷_ _) _) ([][]↑-[↑⇑] 0 t)
       (subst-⊢∷ ⊢lower₀-t $
-       ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A ⊢l) (var₀ ⊢A)))
+       ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wk₁ ⊢A ⊢l) (var₀ ⊢A)))
 
 private opaque
   unfolding lower₀
@@ -305,7 +305,7 @@ private opaque
     ⊢l ,
     PE.subst (_⊢_ _) ([][]↑-[↑⇑] 0 B)
       (subst-⊢ ⊢lower₀-B $
-       ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A ⊢l) (var₀ ⊢A)))
+       ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wk₁ ⊢A ⊢l) (var₀ ⊢A)))
 
 opaque
   unfolding ΠΣʰ lower₀
@@ -326,7 +326,7 @@ opaque
         _ , ⊢l₁ , ⊢B , U[l₃]≡U[l₅⊔l₁]        = inversion-Lift∷ ⊢Lift-B
         ⊢A′                                  = univ ⊢A
         ⊢σ                                   =
-          ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A′ ⊢l₂) (var₀ ⊢A′))
+          ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wk₁ ⊢A′ ⊢l₂) (var₀ ⊢A′))
     in
     PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) (subst-⊢∷L ⊢l₁ ⊢σ) ,
     ⊢l₂ , (_ , ⊢A) , (_ , inversion-lower₀-⊢∷ {t = B} ⊢B .proj₂) ,
@@ -349,7 +349,7 @@ opaque
         ⊢l₂ , ⊢A               = inversion-Lift ⊢Lift-A
         ⊢l₁ , ⊢B               = inversion-Lift ⊢Lift-B
         ⊢σ                     =
-          ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wkLevel₁ ⊢A ⊢l₂) (var₀ ⊢A))
+          ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wk₁ ⊢A ⊢l₂) (var₀ ⊢A))
     in
     PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) (subst-⊢∷L ⊢l₁ ⊢σ) ,
     ⊢l₂ , ⊢A , inversion-lower₀-⊢ {B = B} ⊢B .proj₂ ,

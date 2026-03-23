@@ -53,7 +53,7 @@ opaque
     Γ ⊢ B₁ ≡ B₂ →
     Γ ⊢ A₁ ⟶×⟨ b ⟩[ p ] B₁ ≡ A₂ ⟶×⟨ b ⟩[ p ] B₂
   ⟶×-cong ok A₁≡A₂ B₁≡B₂ =
-    ΠΣ-cong A₁≡A₂ (wkEq₁ (wf-⊢≡ A₁≡A₂ .proj₁) B₁≡B₂) ok
+    ΠΣ-cong A₁≡A₂ (wk₁ (wf-⊢≡ A₁≡A₂ .proj₁) B₁≡B₂) ok
 
 opaque
 
@@ -78,7 +78,7 @@ opaque
     Γ ⊢ B₁ ≡ B₂ ∷ U l →
     Γ ⊢ A₁ ⟶×⟨ b ⟩[ p ] B₁ ≡ A₂ ⟶×⟨ b ⟩[ p ] B₂ ∷ U l
   ⟶×-cong-U ok A₁≡A₂ B₁≡B₂ =
-    ΠΣ-cong′ A₁≡A₂ (wkEqTerm₁ (univ (wf-⊢≡∷ A₁≡A₂ .proj₂ .proj₁)) B₁≡B₂)
+    ΠΣ-cong′ A₁≡A₂ (wk₁ (univ (wf-⊢≡∷ A₁≡A₂ .proj₂ .proj₁)) B₁≡B₂)
       ok
 
 opaque

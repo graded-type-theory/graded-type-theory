@@ -442,7 +442,7 @@ opaque mutual
           _ , ⊢u₁ , ⊢u₂    = wf-⊢≡∷ u₁≡u₂
           _ , ⊢v₁ , ⊢v₂    = wf-⊢≡∷ v₁≡v₂
           _ , ⊢w₁ , ⊢w₂    = wf-⊢≡∷ w₁≡w₂
-          A₁≡A₂′           = wkEq₁ ⊢A₂ A₁≡A₂
+          A₁≡A₂′           = wk₁ ⊢A₂ A₁≡A₂
           ⊢rfl             = PE.subst (_⊢_∷_ _ _)
                                (PE.sym $
                                 PE.cong₃ Id (wk1-sgSubst _ _)
@@ -475,8 +475,8 @@ opaque mutual
         (Jⱼ ⊢t₂′
            (stability-⊢
               (refl-∙⟨ ⊢A₂ ∣ A₁≡A₂ ⟩
-                 ∙⟨ Idⱼ (wk₁ ⊢A₂ ⊢A₂) (wkTerm₁ ⊢A₂ ⊢t₂′) (var₀ ⊢A₂)
-                  ∣ Id-cong A₁≡A₂′ (wkEqTerm₁ ⊢A₂ t₁≡t₂)
+                 ∙⟨ Idⱼ (wk₁ ⊢A₂ ⊢A₂) (wk₁ ⊢A₂ ⊢t₂′) (var₀ ⊢A₂)
+                  ∣ Id-cong A₁≡A₂′ (wk₁ ⊢A₂ t₁≡t₂)
                       (refl (conv (var₀ ⊢A₂) (sym A₁≡A₂′)))
                   ⟩)
               ⊢B₂)

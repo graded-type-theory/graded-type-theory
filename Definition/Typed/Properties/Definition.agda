@@ -1556,7 +1556,7 @@ opaque
       (J-cong′ ≡A (conv ≡t (sym ≡A))
          (stabilityEq
              (refl-∙ (sym ≡A) ∙
-              Id-cong (wkEq₁ ⊢A′ (sym ≡A)) (wkEqTerm₁ ⊢A′ (sym′ ≡t))
+              Id-cong (wk₁ ⊢A′ (sym ≡A)) (wk₁ ⊢A′ (sym′ ≡t))
                 (refl (var₀ ⊢A′)))
              ≡B)
          (conv (⊢inline≡∷ ⊢u) $

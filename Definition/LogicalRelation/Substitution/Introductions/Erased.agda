@@ -183,7 +183,7 @@ opaque
         ⊢Γ = wf ⊢A
     in
     ⊩prod≡prod
-      (Liftⱼ (wkLevel₁ ⊢A (escapeLevel ⊩l)) (⊢Unit (∙ ⊢A) Unit-ok))
+      (Liftⱼ (wk₁ ⊢A (escapeLevel ⊩l)) (⊢Unit (∙ ⊢A) Unit-ok))
       (⊩Erased ⊩l ⊩A) t≡u
       (refl-⊩≡∷ $
        ⊩lift

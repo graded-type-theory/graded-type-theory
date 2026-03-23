@@ -3878,9 +3878,9 @@ private module Lemmas (p : P n) where opaque
         t₁∘x0≡t₂∘x0 =
           equal-tm-sound eq ⊢γ
             (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
-             W.wkTerm₁ ⊢A₁ ⊢t₁ ∘ⱼ var₀ ⊢A₁)
+             W.wk₁ ⊢A₁ ⊢t₁ ∘ⱼ var₀ ⊢A₁)
             (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
-             W.wkTerm₁ ⊢A₁ ⊢t₂ ∘ⱼ var₀ ⊢A₁)
+             W.wk₁ ⊢A₁ ⊢t₂ ∘ⱼ var₀ ⊢A₁)
     in
     η-eq′ ⊢t₁ ⊢t₂ t₁∘x0≡t₂∘x0
   equal-tm-red-sound {t₁} {t₂} {γ} _ eq ⊢γ ⊢t₁ ⊢t₂
@@ -4853,7 +4853,7 @@ private module Lemmas (p : P n) where opaque
       let ⊢A₁         = infer-red-sound eq₁ ⊢γ ⊢Γ
           ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A₁)
           A₂≡         = check-sound eq₂ ⊢γ
-                          (⊢U (W.wkLevel₁ (univ ⊢A₁) ⊢l))
+                          (⊢U (W.wk₁ (univ ⊢A₁) ⊢l))
           _ , ⊢A₂ , _ = wf-⊢≡∷ A₂≡
           ΠΣ-ok       = inv-require⁺ ⊢γ eq₃
       in

@@ -60,7 +60,7 @@ opaque
     Γ ⊢ l ∷Level →
     Γ ⊢ A →
     Γ ⊢ Erased l A
-  Erasedⱼ ⊢l ⊢A = Erasedⱼ′ (wkLevel₁ ⊢A ⊢l)
+  Erasedⱼ ⊢l ⊢A = Erasedⱼ′ (wk₁ ⊢A ⊢l)
 
 opaque
   unfolding Erased
@@ -86,7 +86,7 @@ opaque
     Γ ⊢ A₁ ≡ A₂ →
     Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
   Erased-cong l₁≡l₂ ⊢A₁ =
-    Erased-cong′ (wkEqLevel₁ ⊢A₁ l₁≡l₂)
+    Erased-cong′ (wk₁ ⊢A₁ l₁≡l₂)
 
 opaque
   unfolding Erased
@@ -99,7 +99,7 @@ opaque
     Γ ⊢ Erased l A ∷ U l
   Erasedⱼ-U ⊢l ⊢A =
     let ⊢A′ = univ ⊢A
-        ⊢l′ = wkLevel₁ ⊢A′ ⊢l
+        ⊢l′ = wk₁ ⊢A′ ⊢l
     in
     ΠΣⱼ ⊢l ⊢A
       (conv
@@ -120,7 +120,7 @@ opaque
     Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
   Erased-cong-U′ ⊢l₁ l₁≡l₂ A₁≡A₂ =
     let ⊢∙A₁ = wf l₁≡l₂
-        ⊢l₁′ = wkLevel₁ (⊢∙→⊢ ⊢∙A₁) ⊢l₁
+        ⊢l₁′ = wk₁ (⊢∙→⊢ ⊢∙A₁) ⊢l₁
     in
     ΠΣ-cong ⊢l₁ A₁≡A₂
       (conv
@@ -140,7 +140,7 @@ opaque
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
     Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
   Erased-cong-U ⊢l₁ l₁≡l₂ ⊢A₁ =
-    Erased-cong-U′ ⊢l₁ (wkEqLevel₁ ⊢A₁ l₁≡l₂)
+    Erased-cong-U′ ⊢l₁ (wk₁ ⊢A₁ l₁≡l₂)
 
 opaque
   unfolding Erased [_]
@@ -156,7 +156,7 @@ opaque
     let ⊢Γ    = wf ⊢t
         ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
     in
-    prodⱼ (Liftⱼ (wkLevel₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) ⊢t
+    prodⱼ (Liftⱼ (wk₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) ⊢t
       (liftⱼ (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
          ⊢Unit (starⱼ ⊢Γ Unit-ok))
       Σ-ok
@@ -176,7 +176,7 @@ opaque
         ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
         ⊢star = starⱼ ⊢Γ Unit-ok
     in
-    prod-cong (Liftⱼ (wkLevel₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) t₁≡t₂
+    prod-cong (Liftⱼ (wk₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) t₁≡t₂
       (lift-cong
          (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
          ⊢Unit ⊢star ⊢star (refl ⊢star))

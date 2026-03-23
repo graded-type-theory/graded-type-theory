@@ -168,7 +168,7 @@ mutual
       ⊢A →
     case soundness⇇ ⊢t of λ {
       ⊢t →
-    case soundness⇇Type (∙ Idⱼ′ (W.wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) ⊢B of λ {
+    case soundness⇇Type (∙ Idⱼ′ (W.wk₁ ⊢A ⊢t) (var₀ ⊢A)) ⊢B of λ {
       ⊢B →
     case soundness⇇ ⊢w of λ {
       ⊢w →

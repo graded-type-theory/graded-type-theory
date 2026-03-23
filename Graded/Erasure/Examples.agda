@@ -481,14 +481,14 @@ private
     ΓLU⊢ℕ = ⊢ℕ (∙ ⊢U′ (var₀ (Levelⱼ′ ok ⊢Γ)))
 
     Γℕ⊢Ul : Γ »∙ ℕ ⊢ U (wk1 l′)
-    Γℕ⊢Ul = ⊢U (W.wkLevel₁ (⊢ℕ ⊢Γ) ⊢l)
+    Γℕ⊢Ul = ⊢U (W.wk₁ (⊢ℕ ⊢Γ) ⊢l)
 
     ΓℕUl⊢A∷ :
       Γ »∙ ℕ »∙ U (wk1 l′) ⊢ wk[ 2 ] A ∷
         U (wk1 l′ [ 2 ][ suc (var x1 ) ]↑)
     ΓℕUl⊢A∷ =
       PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym $ wk1-[][]↑ 2) $
-      W.wkTerm₁ Γℕ⊢Ul (W.wkTerm₁ (⊢ℕ ⊢Γ) ⊢A)
+      W.wk₁ Γℕ⊢Ul (W.wk₁ (⊢ℕ ⊢Γ) ⊢A)
 
     ΓℕUl⊢A : Γ »∙ ℕ »∙ U (wk1 l′) ⊢ wk[ 2 ] A
     ΓℕUl⊢A = univ ΓℕUl⊢A∷
@@ -576,13 +576,13 @@ opaque
                                                                               (PE.cong U $ wk1-sgSubst _ _) $
                                                                             natrec-suc ⊢Lift-Unit ⊢Σ1 ⊢t) ⟩⊢
     Σˢ ω , r ▷ A ▹ (Vec-body₂ [ wk1Subst (σ t) ])                       ≡˘⟨ ΠΣ-cong′ (refl ⊢A)
-                                                                              (subset*Term (V₂.Vec-step (W.wkTerm₁ (univ ⊢A) ⊢t))) Σˢ-ω-ok ⟩⊢∎
+                                                                              (subset*Term (V₂.Vec-step (W.wk₁ (univ ⊢A) ⊢t))) Σˢ-ω-ok ⟩⊢∎
     Σˢ ω , r ▷ A ▹ (wk wk₀ Vec ∘⟨ 𝟘 ⟩ wk1 l ∘⟨ ω ⟩ wk1 A ∘⟨ ω ⟩ wk1 t)  ∎
     where
     open Tools.Reasoning.PropositionalEquality
     open TmR
     module V₁ = Vec-lemmas ok ⊢A
-    module V₂ = Vec-lemmas ok (W.wkTerm₁ (univ ⊢A) ⊢A)
+    module V₂ = Vec-lemmas ok (W.wk₁ (univ ⊢A) ⊢A)
 
 opaque
 
@@ -935,7 +935,7 @@ opaque
        PE.cong (_∘⟨ _ ⟩ _) $
        wk-id _) $
     _⊢nf_∷_.convₙ
-      (prodₙ (Liftⱼ (W.wkLevel₁ (⊢ℕ εε) ⊢0) (⊢Unit (∙ ⊢ℕ εε) Unit-ok))
+      (prodₙ (Liftⱼ (W.wk₁ (⊢ℕ εε) ⊢0) (⊢Unit (∙ ⊢ℕ εε) Unit-ok))
          (zeroₙ εε) (liftₙ ⊢0 (starₙ εε Unit-ok)) Σˢ-ω-ok) $
     _⊢_≡_.univ $
     sym′ $

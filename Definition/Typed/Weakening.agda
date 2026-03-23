@@ -1004,43 +1004,6 @@ opaque
   wk₁ : ∇ » Γ ⊢ A → ∇ » Γ ⊢[ 𝓙 ] → ∇ » Γ ∙ A ⊢[ mapJ U.wk1 𝓙 ]
   wk₁ ⊢A = wk (stepʷ id ⊢A)
 
-opaque
-
-  -- A special case of wk₁.
-
-  wkEq₁ : ∇ » Γ ⊢ C → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ∙ C ⊢ wk1 A ≡ wk1 B
-  wkEq₁ = wk₁
-
-opaque
-
-  -- A special case of wk₁.
-
-  wkTerm₁ : ∇ » Γ ⊢ B → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ∙ B ⊢ wk1 t ∷ wk1 A
-  wkTerm₁ = wk₁
-
-opaque
-
-  -- A special case of wk₁.
-
-  wkLevel₁ : ∇ » Γ ⊢ A → ∇ » Γ ⊢ l ∷Level → ∇ » Γ ∙ A ⊢ wk1 l ∷Level
-  wkLevel₁ = wk₁
-
-opaque
-
-  -- A special case of wk₁.
-
-  wkEqTerm₁ : ∇ » Γ ⊢ B → ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Γ ∙ B ⊢ wk1 t ≡ wk1 u ∷ wk1 A
-  wkEqTerm₁ = wk₁
-
-opaque
-
-  -- A special case of wk₁.
-
-  wkEqLevel₁ :
-    ∇ » Γ ⊢ A → ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level →
-    ∇ » Γ ∙ A ⊢ wk1 l₁ ≡ wk1 l₂ ∷Level
-  wkEqLevel₁ = wk₁
-
 mutual
   wkRed : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ A ⇒ B → ∇ » Δ ⊢ U.wk ρ A ⇒ U.wk ρ B
   wkRed ρ (univ A⇒B) = univ (wkRedTerm ρ A⇒B)

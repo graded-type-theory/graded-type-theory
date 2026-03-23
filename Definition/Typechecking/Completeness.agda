@@ -185,7 +185,7 @@ mutual
         _ , B⇉D , U≡D              = completeness⇉ B ⊢B
         _ , ⇒U = U-norm (sym U≡D)
         U≡X = trans U≡D (subset* ⇒U)
-        C⇇E = completeness⇇ C (conv ⊢C (W.wkEq₁ (univ ⊢B) U≡X))
+        C⇇E = completeness⇇ C (conv ⊢C (W.wk₁ (univ ⊢B) U≡X))
     in
       _
     , ΠΣᵢ B⇉D (⇒U , Uₙ) C⇇E ok

@@ -347,7 +347,7 @@ private
         B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑ [ star s ]₀
     erasedrec-lemma₂ {s} B Unit-ok ⊢wk1-l t₁≡t₂ =
       flip (PE.subst (_⊢_≡_∷_ _ _ _))
-        (wkEqTerm₁ (Liftⱼ ⊢wk1-l (⊢Unit (wf t₁≡t₂) Unit-ok))
+        (wk₁ (Liftⱼ ⊢wk1-l (⊢Unit (wf t₁≡t₂) Unit-ok))
            t₁≡t₂) $
       wk1 (B [ [ var x0 ] ]↑)                                      ≡⟨ wk[]′[][]↑ 1 B ⟩
       B [ 2 ][ wk1 [ var x0 ] ]↑                                   ≡⟨⟩
@@ -493,10 +493,10 @@ opaque
                                                                               (unitrec⟨⟩-cong
                                                                                  (refl $
                                                                                   wf-⊢≡
-                                                                                    (erasedrec-lemma₃ ⊢B (wkTerm₁ ⊢Unit′ ⊢u) $
+                                                                                    (erasedrec-lemma₃ ⊢B (wk₁ ⊢Unit′ ⊢u) $
                                                                                      liftⱼ′
                                                                                        (PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) $
-                                                                                        subst-⊢∷L ⊢wk1-l (⊢ˢʷ∷-[][]↑ (wkTerm₁ ⊢Unit′ ⊢u)))
+                                                                                        subst-⊢∷L ⊢wk1-l (⊢ˢʷ∷-[][]↑ (wk₁ ⊢Unit′ ⊢u)))
                                                                                        (var₀ ⊢Unit′))
                                                                                     .proj₂)
                                                                                  (Lift-β′ ⊢star)
@@ -521,14 +521,14 @@ opaque
                                                                                   PE.subst (_⊢_∷_ _ _) (wk[]≡[] 1) $
                                                                                   prodⱼ
                                                                                     (Liftⱼ
-                                                                                       (W.wk (liftʷ (step id) ⊢A′) $ wkLevel₁ ⊢A ⊢l)
+                                                                                       (W.wk (liftʷ (step id) ⊢A′) $ wk₁ ⊢A ⊢l)
                                                                                        (⊢Unit (∙ ⊢A′) Unit-ok))
-                                                                                    (wkTerm₁ ⊢Unit′ ⊢u)
+                                                                                    (wk₁ ⊢Unit′ ⊢u)
                                                                                     (liftⱼ′
                                                                                        (PE.subst (_⊢_∷Level _)
                                                                                           (PE.trans (PE.sym $ PE.cong wk1 $ wk1-sgSubst _ _) $
                                                                                            wk-β (wk1 l)) $
-                                                                                        wkLevel₁ ⊢Unit′ ⊢l) $
+                                                                                        wk₁ ⊢Unit′ ⊢l) $
                                                                                      var₀ ⊢Unit′)
                                                                                     Σ-ok)
                                                                                (PE.subst (_⊢_∷_ _ _) (PE.trans ([]↑-[]₀ B) (PE.sym lemma)) $
@@ -779,7 +779,7 @@ module _ (ok : []-cong-allowed s) where
       conv
         (subst-cong (Erased-cong Erased-ok (refl-⊢≡∷L ⊢0) A₁≡A₂)
            (subst-⊢≡ B₁≡B₂ $ ⊢ˢʷ≡∷-[][]↑ $
-            erased-cong {l = zeroᵘₗ} (wkEq₁ ⊢Erased-A₁ A₁≡A₂) $
+            erased-cong {l = zeroᵘₗ} (wk₁ ⊢Erased-A₁ A₁≡A₂) $
             refl $ PE.subst (_⊢_∷_ _ _) wk-Erased $
             var₀ ⊢Erased-A₁)
            ([]-cong′ Erased-ok ⊢0 t₁≡t₂)
@@ -823,7 +823,7 @@ module _ (ok : []-cong-allowed s) where
 
     ⊢Singleton : Γ ⊢ A → Γ ⊢ t ∷ A → Γ ⊢ Singleton A t
     ⊢Singleton ⊢A ⊢t =
-      ΠΣⱼ (Idⱼ (wk₁ ⊢A ⊢A) (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) Σ-ok
+      ΠΣⱼ (Idⱼ (wk₁ ⊢A ⊢A) (wk₁ ⊢A ⊢t) (var₀ ⊢A)) Σ-ok
 
     lemma₁ :
       wk₂ t PE.≡ U.wk (lift (step (step id))) (wk1 t) [ u ]₀
@@ -892,9 +892,9 @@ module _ (ok : []-cong-allowed s) where
         (ΠΣ-cong
            (W.wk (stepʷ (step id) (J-motive-context-type ⊢t₁)) A₁≡A₂)
            (Id-cong
-              (W.wk (liftʷ (step (step id)) ⊢A₁′) (wkEq₁ ⊢A₁ A₁≡A₂))
+              (W.wk (liftʷ (step (step id)) ⊢A₁′) (wk₁ ⊢A₁ A₁≡A₂))
               (W.wk (liftʷ (step (step id)) ⊢A₁′)
-                 (wkEqTerm₁ ⊢A₁ t₁≡t₂))
+                 (wk₁ ⊢A₁ t₁≡t₂))
               (_⊢_≡_∷_.refl $
                PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
                var₀ ⊢A₁′))
@@ -975,11 +975,11 @@ module _ (ok : []-cong-allowed s) where
     lemma₈ {A₁} {t₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ =
       case syntacticEqTerm t₁≡t₂ of λ
         (⊢A₁ , ⊢t₁ , _) →
-      case Idⱼ′ (wkTerm₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁) of λ
+      case Idⱼ′ (wk₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁) of λ
         ⊢Id →
       case ΠΣⱼ ⊢Id Σ-ok of λ
         ⊢Singleton₁ →
-      case wkEq₁ ⊢Singleton₁ A₁≡A₂ of λ
+      case wk₁ ⊢Singleton₁ A₁≡A₂ of λ
         A₁≡A₂′ →
       case syntacticEq A₁≡A₂′ of λ
         (⊢A₁′ , _) →
@@ -1093,7 +1093,7 @@ module _ (ok : []-cong-allowed s) where
       conv
         (substᵉ-cong
            (ΠΣ-cong A₁≡A₂
-              (Id-cong (wkEq₁ ⊢A₁ A₁≡A₂) (wkEqTerm₁ ⊢A₁ t₁≡t₂)
+              (Id-cong (wk₁ ⊢A₁ A₁≡A₂) (wk₁ ⊢A₁ t₁≡t₂)
                  (refl (var₀ ⊢A₁)))
               Σ-ok)
            (lemma₈ A₁≡A₂ B₁≡B₂ t₁≡t₂)
