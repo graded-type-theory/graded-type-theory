@@ -432,7 +432,7 @@ private
 opaque
   unfolding sumrec Bool OK Target boolrec emptyrec-sink false natcase true Sum Sum′ inl inr Targetˢʳ
 
-  -- Congruence for sumrec
+  -- A typing rule for sumrec.
 
   ⊢sumrec :
     Γ ⊢ a ∷Level →
