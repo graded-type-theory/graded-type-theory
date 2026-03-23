@@ -59,7 +59,7 @@ opaque
 
   canonicity : ∇ » ε ⊢ t ∷ ℕ → ∃ λ n → glassify ∇ » ε ⊢ t ≡ sucⁿ n ∷ ℕ
   canonicity {t} ⊢t = $⟨ ⊢t ⟩
-    ∇ » ε ⊢ t ∷ ℕ                              →⟨ glassify-⊢∷ ⟩
+    ∇ » ε ⊢ t ∷ ℕ                              →⟨ glassify-⊢ ⟩
     glassify ∇ » ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⦃ inc = ε ⦄ ⟩
     glassify ∇ » ε ⊩ℕ t ∷ℕ                     →⟨ lemma ⟩
     (∃ λ n → glassify ∇ » ε ⊢ t ≡ sucⁿ n ∷ ℕ)  □
@@ -69,7 +69,7 @@ opaque
       Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where
            (ne (neNfₜ u-ne _)) → ⊥-elim (glass-closed-no-ne (ne⁻ u-ne))
-           zeroᵣ               → 0 , refl (zeroⱼ (wf (glassify-⊢∷ ⊢t)))
+           zeroᵣ               → 0 , refl (zeroⱼ (wf (glassify-⊢ ⊢t)))
            (sucᵣ ⊩u)           → Σ.map 1+ suc-cong (lemma ⊩u))
 
 -- Only-Level-or-U Δ holds if Δ is a context that only contains
@@ -291,7 +291,7 @@ opaque
   -- Canonicity for the empty type.
 
   ¬Empty : ¬ ∇ » ε ⊢ t ∷ Empty
-  ¬Empty = ¬Empty′ ∘→ glassify-⊢∷
+  ¬Empty = ¬Empty′ ∘→ glassify-⊢
 
 opaque
 
@@ -299,7 +299,7 @@ opaque
 
   ¬defn-Empty′ : » ∇ → α ↦∷ A ∈ ∇ → ¬ ∇ » ε ⊢ A ≡ Empty
   ¬defn-Empty′ »∇ α↦∷A A≡Empty = ¬Empty′ $
-      conv (wf-↦∷∈ (glassify-↦∈′ α↦∷A .proj₂) (glassify-» »∇)) (glassify-⊢≡ A≡Empty)
+      conv (wf-↦∷∈ (glassify-↦∈′ α↦∷A .proj₂) (glassify-» »∇)) (glassify-⊢ A≡Empty)
 
 opaque
 
@@ -316,7 +316,7 @@ opaque
   ε⊢⇒*rfl∷Id : ∇ » ε ⊢ v ∷ Id A t u → glassify ∇ » ε ⊢ v ⇒* rfl ∷ Id A t u
   ε⊢⇒*rfl∷Id ⊢v =
     case ⊩∷Id⇔ .proj₁ $
-         reducible-⊩∷ ⦃ inc = ε ⦄ (glassify-⊢∷ ⊢v) .proj₂ of λ
+         reducible-⊩∷ ⦃ inc = ε ⦄ (glassify-⊢ ⊢v) .proj₂ of λ
       (_ , v⇒*w , _ , _ , rest) →
     case rest of λ where
       (rflᵣ _)    → v⇒*w

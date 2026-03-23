@@ -90,7 +90,7 @@ opaque
   glassify-»⊢≡ (ε »∇) =
     ε (glassify-» »∇)
   glassify-»⊢≡ (Γ≡Δ ∙⟨ ⊢B ∣ A≡B ⟩) =
-    glassify-»⊢≡ Γ≡Δ ∙⟨ glassify-⊢ ⊢B ∣ glassify-⊢≡ A≡B ⟩
+    glassify-»⊢≡ Γ≡Δ ∙⟨ glassify-⊢ ⊢B ∣ glassify-⊢ A≡B ⟩
 
 opaque
 

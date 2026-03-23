@@ -123,7 +123,7 @@ opaque
     Consistent (glassify ∇ » Δ) →
     Consistent (∇ » Δ)
   Consistent-glassify→Consistent consistent _ =
-    consistent _ ∘→ glassify-⊢∷
+    consistent _ ∘→ glassify-⊢
 
 opaque
   unfolding inlineᵈ
@@ -203,7 +203,7 @@ opaque
         Opaque[ Empty ∷ U₀ ]
     ∙⊇ =
       stepᵒ₁ ok (Idⱼ′ ⊢0∷U (Emptyⱼ ⊢ε))
-        (rflⱼ′ (δ-red (glassify-⊢′ ⊢ε) here PE.refl PE.refl))
+        (rflⱼ′ (δ-red (glassify-⊢ ⊢ε) here PE.refl PE.refl))
 
     ⊢0″ :
       Opaque[ Empty ∷ U₀ ] ∙⟨ opa ones ⟩[ rfl ∷ Id U₀ (defn 0) Empty ] »
@@ -222,7 +222,7 @@ opaque
     consistent t =
       let ⊢ε = ε ∙ᵗ[ ℕⱼ εε ] in
       Opaque[ Empty ∷ U₀ ]      » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ definition-irrelevant-⊢∷ ok (ℕⱼ εε) ⟩
-      Opaque[ ℕ ∷ U₀ ]          » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ glassify-⊢∷ ⟩
+      Opaque[ ℕ ∷ U₀ ]          » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ glassify-⊢ ⟩
       glassify Opaque[ ℕ ∷ U₀ ] » ε ∙ defn 0 ⊢ t ∷ Empty  →⟨ inhabited-consistent {σ = sgSubst _}
                                                                (→⊢ˢʷ∷∙ (⊢ˢʷ∷ε⇔ .proj₂ ⊢ε)
                                                                   (conv (zeroⱼ ⊢ε) (univ (sym′ (δ-red ⊢ε here PE.refl PE.refl))))) _ ⟩

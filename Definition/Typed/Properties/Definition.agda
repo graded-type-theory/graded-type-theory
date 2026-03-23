@@ -609,7 +609,7 @@ opaque
     glassify ∇ » ε ⊢ inline-Nat ξ α ∷ inline ξ A
   ⊢inline-Nat∷ {n} {m} {α} {ξ} »ξ α↦ with m ≤? α
   … | no m≰α =
-    glassify-⊢∷ $
+    glassify-⊢ $
     defn (ε (»ᵈ•→» {ξ = ξ} »ξ))
       (PE.subst (flip (_↦∷_∈_ _) _) (PE.sym $ ≰→↦→inline≡ »ξ m≰α α↦)
          (≰→↦∈→↦∈ {ξ = ξ} m≰α α↦))
@@ -1350,7 +1350,7 @@ opaque
     ⊥-elim (n≮n _ (≤-trans (<′⇒< α<n) n≤α))
   ⊢inline-<≡defn∷ {α} {ξ = step ξ _ _ t} {α<n = ≤′-reflexive _}
     »ξ∙@(∙ᵗ[ ⊢t ]) here =
-    inline ξ t  ≡⟨ defn-wk (stepᵗ₁ (glassify-⊢∷ ⊢t)) (⊢inline≡∷ ⊢t) ⟩⊢
+    inline ξ t  ≡⟨ defn-wk (stepᵗ₁ (glassify-⊢ ⊢t)) (⊢inline≡∷ ⊢t) ⟩⊢
     t           ≡˘⟨ δ-red (ε (glassify-» »ξ∙)) here (PE.sym $ wk-id _) (PE.sym $ wk-id _) ⟩⊢∎
     defn α      ∎
     where
@@ -1361,7 +1361,7 @@ opaque
                      (stepᵗ₁ $
                       PE.subst₃ _⊢_∷_
                         (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
-                      glassify-⊢∷ ⊢t)
+                      glassify-⊢ ⊢t)
                      (PE.subst₄ _⊢_≡_∷_
                         (PE.cong (_» _)
                            (glassify
@@ -1384,7 +1384,7 @@ opaque
     ⊥-elim (n≮n _ (<′⇒< α<α))
   ⊢inline-<≡defn∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
     ∙ᵗ[ ⊢t ] (there α↦) =
-    defn-wk (stepᵗ₁ (glassify-⊢∷ ⊢t)) $
+    defn-wk (stepᵗ₁ (glassify-⊢ ⊢t)) $
     ⊢inline-<≡defn∷ {ξ = ξ} (defn-wf (wf ⊢t)) α↦
   ⊢inline-<≡defn∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
     ∙ᵒ⟨ _ ⟩[ ⊢t ∷ ⊢A ] (there α↦) =
@@ -1392,7 +1392,7 @@ opaque
       (stepᵗ₁ $
        PE.subst₃ _⊢_∷_
          (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
-       glassify-⊢∷ ⊢t) $
+       glassify-⊢ ⊢t) $
     ⊢inline-<≡defn∷ {ξ = ξ} (defn-wf (wf ⊢A)) α↦
 
   -- Inlining produces definitionally equal terms, given certain
@@ -1419,7 +1419,7 @@ opaque
     ∇ ᵈ• ξ » Γ ⊢ A →
     glassify (∇ ᵈ• ξ) » Γ ⊢ inline ξ A ≡ A
   ⊢inline≡ (Levelⱼ ok ⊢Γ) =
-    refl (Levelⱼ ok (glassify-⊢′ ⊢Γ))
+    refl (Levelⱼ ok (glassify-⊢ ⊢Γ))
   ⊢inline≡ (univ ⊢A) =
     univ (⊢inline≡∷ ⊢A)
   ⊢inline≡ (Liftⱼ ⊢l ⊢A) =
@@ -1439,16 +1439,16 @@ opaque
     ∇ ᵈ• ξ » Γ ⊢ t ∷ A →
     glassify (∇ ᵈ• ξ) » Γ ⊢ inline ξ t ≡ t ∷ A
   ⊢inline≡∷ (conv ⊢t B≡A) =
-    conv (⊢inline≡∷ ⊢t) (glassify-⊢≡ B≡A)
+    conv (⊢inline≡∷ ⊢t) (glassify-⊢ B≡A)
   ⊢inline≡∷ (var ⊢Γ x∈) =
-    refl (var (glassify-⊢′ ⊢Γ) x∈)
+    refl (var (glassify-⊢ ⊢Γ) x∈)
   ⊢inline≡∷ {ξ} (defn ⊢Γ α↦ PE.refl) =
-    W.wk (wk₀∷ʷ⊇ (glassify-⊢′ ⊢Γ)) $
+    W.wk (wk₀∷ʷ⊇ (glassify-⊢ ⊢Γ)) $
     ⊢inline-Nat≡defn∷ {ξ = ξ} (defn-wf ⊢Γ) α↦
   ⊢inline≡∷ (Levelⱼ ⊢Γ ok) =
-    refl (Levelⱼ (glassify-⊢′ ⊢Γ) ok)
+    refl (Levelⱼ (glassify-⊢ ⊢Γ) ok)
   ⊢inline≡∷ (zeroᵘⱼ ok ⊢Γ) =
-    refl (zeroᵘⱼ ok (glassify-⊢′ ⊢Γ))
+    refl (zeroᵘⱼ ok (glassify-⊢ ⊢Γ))
   ⊢inline≡∷ (sucᵘⱼ ⊢l) =
     sucᵘ-cong (⊢inline≡∷ ⊢l)
   ⊢inline≡∷ (supᵘⱼ ⊢l₁ ⊢l₂) =
@@ -1458,20 +1458,20 @@ opaque
   ⊢inline≡∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
     let ≡l₂ = ⊢inline≡∷L ⊢l₂ in
     conv (Lift-cong′ ≡l₂ (⊢inline≡∷ ⊢A))
-      (U-cong-⊢≡ (supᵘₗ-cong (refl-⊢≡∷L (glassify-⊢∷L ⊢l₁)) ≡l₂))
+      (U-cong-⊢≡ (supᵘₗ-cong (refl-⊢≡∷L (glassify-⊢ ⊢l₁)) ≡l₂))
   ⊢inline≡∷ (liftⱼ ⊢l _ ⊢t) =
-    lift-cong (glassify-⊢∷L ⊢l) (⊢inline≡∷ ⊢t)
+    lift-cong (glassify-⊢ ⊢l) (⊢inline≡∷ ⊢t)
   ⊢inline≡∷ (lowerⱼ ⊢t) =
     lower-cong (⊢inline≡∷ ⊢t)
   ⊢inline≡∷ (Emptyⱼ ⊢Γ) =
-    refl (Emptyⱼ (glassify-⊢′ ⊢Γ))
+    refl (Emptyⱼ (glassify-⊢ ⊢Γ))
   ⊢inline≡∷ (emptyrecⱼ ⊢A ⊢t) =
     let ≡A = ⊢inline≡ ⊢A in
     conv (emptyrec-cong ≡A (⊢inline≡∷ ⊢t)) ≡A
   ⊢inline≡∷ (Unitⱼ ⊢Γ ok) =
-    refl (Unitⱼ (glassify-⊢′ ⊢Γ) ok)
+    refl (Unitⱼ (glassify-⊢ ⊢Γ) ok)
   ⊢inline≡∷ (starⱼ ⊢Γ ok) =
-    refl (starⱼ (glassify-⊢′ ⊢Γ) ok)
+    refl (starⱼ (glassify-⊢ ⊢Γ) ok)
   ⊢inline≡∷ (unitrecⱼ ⊢A ⊢t ⊢u ok) =
     let ≡A = ⊢inline≡ ⊢A
         ≡t = ⊢inline≡∷ ⊢t
@@ -1480,7 +1480,7 @@ opaque
       (unitrec-cong′ ≡A ≡t
          (conv (⊢inline≡∷ ⊢u) $
           substTypeEq (sym ≡A) $
-          refl (starⱼ (glassify-⊢′ (wf ⊢t)) ok)))
+          refl (starⱼ (glassify-⊢ (wf ⊢t)) ok)))
       (substTypeEq ≡A ≡t)
   ⊢inline≡∷ (ΠΣⱼ _ ⊢A ⊢B ok) =
     let ≡A = ⊢inline≡∷ ⊢A in
@@ -1515,9 +1515,9 @@ opaque
          (conv (⊢inline≡∷ ⊢u) (subst↑²TypeEq-prod (sym ≡A))))
       (substTypeEq ≡A ≡t)
   ⊢inline≡∷ (ℕⱼ ⊢Γ) =
-    refl (ℕⱼ (glassify-⊢′ ⊢Γ))
+    refl (ℕⱼ (glassify-⊢ ⊢Γ))
   ⊢inline≡∷ (zeroⱼ ⊢Γ) =
-    refl (zeroⱼ (glassify-⊢′ ⊢Γ))
+    refl (zeroⱼ (glassify-⊢ ⊢Γ))
   ⊢inline≡∷ (sucⱼ ⊢t) =
     suc-cong (⊢inline≡∷ ⊢t)
   ⊢inline≡∷ (natrecⱼ ⊢t ⊢u ⊢v) =
@@ -1528,7 +1528,7 @@ opaque
     conv
       (natrec-cong ≡A
          (conv (⊢inline≡∷ ⊢t) $
-          substTypeEq (sym ≡A) (refl (zeroⱼ (glassify-⊢′ (wf ⊢t)))))
+          substTypeEq (sym ≡A) (refl (zeroⱼ (glassify-⊢ (wf ⊢t)))))
          (stability (refl-∙ (sym ≡A)) $
           conv (⊢inline≡∷ ⊢u) $
           subst-⊢≡-↑ (sym ≡A) (refl (sucⱼ (var₁ (glassify-⊢ ⊢A)))))
@@ -1541,11 +1541,11 @@ opaque
     Id-cong ≡A (conv (⊢inline≡∷ ⊢t) (sym ≡A′))
       (conv (⊢inline≡∷ ⊢u) (sym ≡A′))
   ⊢inline≡∷ (rflⱼ ⊢t) =
-    refl (rflⱼ (glassify-⊢∷ ⊢t))
+    refl (rflⱼ (glassify-⊢ ⊢t))
   ⊢inline≡∷ {ξ} (Jⱼ {t} {A} {v} ⊢t ⊢B ⊢u ⊢v ⊢w) =
     let ⊢A  = wf-⊢∷ ⊢t
         ⊢A′ = glassify-⊢ ⊢A
-        ⊢t′ = glassify-⊢∷ ⊢t
+        ⊢t′ = glassify-⊢ ⊢t
         ≡A  = ⊢inline≡ ⊢A
         ≡t  = ⊢inline≡∷ ⊢t
         ≡B  = ⊢inline≡ ⊢B
@@ -1583,7 +1583,7 @@ opaque
       (K-cong ≡A (conv ≡t (sym ≡A))
          (stability (refl-∙ Id-A-t-t≡) ≡B)
          (conv (⊢inline≡∷ ⊢u) $
-          substTypeEq (sym ≡B) (refl (rflⱼ (glassify-⊢∷ ⊢t))))
+          substTypeEq (sym ≡B) (refl (rflⱼ (glassify-⊢ ⊢t))))
          (conv ≡v Id-A-t-t≡) ok)
       (substTypeEq ≡B ≡v)
   ⊢inline≡∷ ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) =
@@ -1611,7 +1611,7 @@ opaque
   ⊢inline≡∷L (literal ok ⊢Γ) =
     PE.subst (_⊢_≡_∷Level _ _)
       (inline-Level-literal (Allowed-literal→Level-literal ok)) $
-    literal (Allowed-literal-inline ok) (glassify-⊢′ ⊢Γ)
+    literal (Allowed-literal-inline ok) (glassify-⊢ ⊢Γ)
 
 opaque
   unfolding inlineᵈ

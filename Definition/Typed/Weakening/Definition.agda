@@ -194,12 +194,12 @@ opaque
   glassify-»⊇ id⊇ =
     id⊇
   glassify-»⊇ (stepᵗ ξ⊇ ⊢t) =
-    stepᵗ (glassify-»⊇ ξ⊇) (glassify-⊢∷ ⊢t)
+    stepᵗ (glassify-»⊇ ξ⊇) (glassify-⊢ ⊢t)
   glassify-»⊇ (stepᵒ ξ⊇ _ _ ⊢t) =
     stepᵗ (glassify-»⊇ ξ⊇)
       (PE.subst₃ _⊢_∷_
          (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
-       glassify-⊢∷ ⊢t)
+       glassify-⊢ ⊢t)
 
 ------------------------------------------------------------------------
 -- Weakening for properties of definitions

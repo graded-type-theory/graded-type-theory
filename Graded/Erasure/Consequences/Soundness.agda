@@ -154,7 +154,7 @@ module _
          eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucⁿ n)  □
         where
         ⊢t′ : glassify ∇ » Δ ⊢ t ∷ ℕ
-        ⊢t′ = glassify-⊢∷ ⊢t
+        ⊢t′ = glassify-⊢ ⊢t
 
         open L str (wf ⊢t′)
 
@@ -229,7 +229,7 @@ module _
             erase-t⇒*star
         where
         ⊢t′ : glassify ∇ » Δ ⊢ t ∷ Unit s
-        ⊢t′ = glassify-⊢∷ ⊢t
+        ⊢t′ = glassify-⊢ ⊢t
 
         open L str (wf ⊢t′)
 
@@ -1001,7 +1001,7 @@ opaque
   soundness-ℕ-only-target-not-counterexample₇ ok =
     let ∇»⊢ε = ε ∙ᵒ⟨ ok ⟩[ zeroⱼ εε ∷ ⊢ℕ εε ]
         ⊢Id  = Idⱼ′ (defn ∇»⊢ε here PE.refl) (zeroⱼ ∇»⊢ε)
-        ⊢rfl = rflⱼ′ $ δ-red (glassify-⊢′ ∇»⊢ε) here PE.refl PE.refl
+        ⊢rfl = rflⱼ′ $ δ-red (glassify-⊢ ∇»⊢ε) here PE.refl PE.refl
     in
     0 ,
     (λ _ → ⇒*→⇒ˢ⟨⟩* (T.trans (T.δ-red T.here) T.refl)) ,
