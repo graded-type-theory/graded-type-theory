@@ -85,7 +85,7 @@ neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
   refl (substType ⊢A ⊢t)
 neTypeEq (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   refl $
-  substType₂ ⊢B ⊢v $
+  subst-⊢₁₀ ⊢B ⊢v $
   PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w
 neTypeEq (Kₙ _) (Kⱼ ⊢B _ ⊢v _) (Kⱼ _ _ _ _) =
   refl (substType ⊢B ⊢v)

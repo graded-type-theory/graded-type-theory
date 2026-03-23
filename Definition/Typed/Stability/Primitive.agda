@@ -36,6 +36,7 @@ private variable
   ∇       : DCon (Term 0) _
   x       : Fin _
   Γ Δ Η   : Con Term _
+  𝓙       : Judgement _
   A B t u : Term _
   l l₁ l₂ : Lvl _
   σ σ₁ σ₂ : Subst _ _
@@ -117,32 +118,32 @@ private
       stability-⊢ :
         ∇ »⊢ Γ ≡ Δ →
         (⊢A : ∇ » Γ ⊢ A) →
-        size-⊢ ⊢A PE.≡ s →
+        size ⊢A PE.≡ s →
         ∇ » Δ ⊢ A
       stability-⊢≡ :
         ∇ »⊢ Γ ≡ Δ →
         (A≡B : ∇ » Γ ⊢ A ≡ B) →
-        size-⊢≡ A≡B PE.≡ s →
+        size A≡B PE.≡ s →
         ∇ » Δ ⊢ A ≡ B
       stability-⊢∷ :
         ∇ »⊢ Γ ≡ Δ →
         (⊢t : ∇ » Γ ⊢ t ∷ A) →
-        size-⊢∷ ⊢t PE.≡ s →
+        size ⊢t PE.≡ s →
         ∇ » Δ ⊢ t ∷ A
       stability-⊢∷L :
         ∇ »⊢ Γ ≡ Δ →
         (⊢l : ∇ » Γ ⊢ l ∷Level) →
-        size-⊢∷L ⊢l PE.≡ s →
+        size ⊢l PE.≡ s →
         ∇ » Δ ⊢ l ∷Level
       stability-⊢≡∷ :
         ∇ »⊢ Γ ≡ Δ →
         (t≡u : ∇ » Γ ⊢ t ≡ u ∷ A) →
-        size-⊢≡∷ t≡u PE.≡ s →
+        size t≡u PE.≡ s →
         ∇ » Δ ⊢ t ≡ u ∷ A
       stability-⊢≡∷L :
         ∇ »⊢ Γ ≡ Δ →
         (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level) →
-        size-⊢≡∷L l₁≡l₂ PE.≡ s →
+        size l₁≡l₂ PE.≡ s →
         ∇ » Δ ⊢ l₁ ≡ l₂ ∷Level
 
 -- Variants of the fields of P.
@@ -156,14 +157,14 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     stability-⊢ :
       ∇ »⊢ Γ ≡ Δ →
       (⊢A : ∇ » Γ ⊢ A)
-      ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ A
     stability-⊢ Γ≡Δ ⊢A ⦃ lt ⦄ = P.stability-⊢ (hyp lt) Γ≡Δ ⊢A PE.refl
 
     stability-⊢≡ :
       ∇ »⊢ Γ ≡ Δ →
       (A≡B : ∇ » Γ ⊢ A ≡ B)
-      ⦃ lt : size-⊢≡ A≡B <ˢ s₂ ⦄ →
+      ⦃ lt : size A≡B <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ A ≡ B
     stability-⊢≡ Γ≡Δ A≡B ⦃ lt ⦄ =
       P.stability-⊢≡ (hyp lt) Γ≡Δ A≡B PE.refl
@@ -171,14 +172,14 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     stability-⊢∷ :
       ∇ »⊢ Γ ≡ Δ →
       (⊢t : ∇ » Γ ⊢ t ∷ A)
-      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ t ∷ A
     stability-⊢∷ Γ≡Δ ⊢t ⦃ lt ⦄ = P.stability-⊢∷ (hyp lt) Γ≡Δ ⊢t PE.refl
 
     stability-⊢∷L :
       ∇ »⊢ Γ ≡ Δ →
       (⊢l : ∇ » Γ ⊢ l ∷Level)
-      ⦃ lt : size-⊢∷L ⊢l <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢l <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ l ∷Level
     stability-⊢∷L Γ≡Δ ⊢l ⦃ lt ⦄ =
       P.stability-⊢∷L (hyp lt) Γ≡Δ ⊢l PE.refl
@@ -186,7 +187,7 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     stability-⊢≡∷ :
       ∇ »⊢ Γ ≡ Δ →
       (t≡u : ∇ » Γ ⊢ t ≡ u ∷ A)
-      ⦃ lt : size-⊢≡∷ t≡u <ˢ s₂ ⦄ →
+      ⦃ lt : size t≡u <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ t ≡ u ∷ A
     stability-⊢≡∷ Γ≡Δ t≡u ⦃ lt ⦄ =
       P.stability-⊢≡∷ (hyp lt) Γ≡Δ t≡u PE.refl
@@ -194,7 +195,7 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     stability-⊢≡∷L :
       ∇ »⊢ Γ ≡ Δ →
       (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level)
-      ⦃ lt : size-⊢≡∷L l₁≡l₂ <ˢ s₂ ⦄ →
+      ⦃ lt : size l₁≡l₂ <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ l₁ ≡ l₂ ∷Level
     stability-⊢≡∷L Γ≡Δ l₁≡l₂ ⦃ lt ⦄ =
       P.stability-⊢≡∷L (hyp lt) Γ≡Δ l₁≡l₂ PE.refl
@@ -204,7 +205,7 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 private module Inhabited where
 
   opaque
-    unfolding size-⊢
+    unfolding size
 
     -- Stability for _⊢_.
 
@@ -212,7 +213,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ »⊢ Γ ≡ Δ →
       (⊢A : ∇ » Γ ⊢ A) →
-      size-⊢ ⊢A PE.≡ s₂ →
+      size ⊢A PE.≡ s₂ →
       ∇ » Δ ⊢ A
     stability-⊢′ hyp Γ≡Δ = let open Variants hyp in λ where
       (Levelⱼ ok _) _ →
@@ -231,7 +232,7 @@ private module Inhabited where
           (stability-⊢∷ Γ≡Δ ⊢u)
 
   opaque
-    unfolding size-⊢≡
+    unfolding size
 
     -- Stability for _⊢_≡_.
 
@@ -239,7 +240,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ »⊢ Γ ≡ Δ →
       (A≡B : ∇ » Γ ⊢ A ≡ B) →
-      size-⊢≡ A≡B PE.≡ s₂ →
+      size A≡B PE.≡ s₂ →
       ∇ » Δ ⊢ A ≡ B
     stability-⊢≡′ hyp Γ≡Δ = let open Variants hyp in λ where
       (refl ⊢A) PE.refl →
@@ -255,7 +256,7 @@ private module Inhabited where
       (Lift-cong l₁≡l₂ A≡B) PE.refl →
         Lift-cong (stability-⊢≡∷L Γ≡Δ l₁≡l₂) (stability-⊢≡ Γ≡Δ A≡B)
       (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) PE.refl →
-        let _ , (⊢A₁ , A₁<) = ∙⊢≡→⊢-<ˢ A₂≡B₂
+        let _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ A₂≡B₂
             ⊢A₁′            = stability-⊢ Γ≡Δ ⊢A₁
                                 ⦃ lt = <ˢ-trans A₁< ! ⦄
         in
@@ -266,7 +267,7 @@ private module Inhabited where
           (stability-⊢≡∷ Γ≡Δ t₂≡u₂)
 
   opaque
-    unfolding size-⊢∷
+    unfolding size
 
     -- Stability for _⊢_∷_.
 
@@ -274,7 +275,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ »⊢ Γ ≡ Δ →
       (⊢t : ∇ » Γ ⊢ t ∷ A) →
-      size-⊢∷ ⊢t PE.≡ s₂ →
+      size ⊢t PE.≡ s₂ →
       ∇ » Δ ⊢ t ∷ A
     stability-⊢∷′ hyp Γ≡Δ = let open Variants hyp in λ where
       (conv ⊢t B≡A) PE.refl →
@@ -307,7 +308,7 @@ private module Inhabited where
         ΠΣⱼ (stability-⊢∷L Γ≡Δ l) ⊢A′
           (stability-⊢∷ (Γ≡Δ ∙⟨ univ ⊢A′ ⟩) ⊢B) ok
       (lamⱼ ⊢B ⊢t ok) PE.refl →
-        let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢t
+        let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢t
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
             Γ∙A≡Δ∙A       = Γ≡Δ ∙⟨ ⊢A′ ⟩
         in
@@ -331,7 +332,7 @@ private module Inhabited where
         in
         sndⱼ (stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B) (stability-⊢∷ Γ≡Δ ⊢t)
       (prodrecⱼ ⊢C ⊢t ⊢u ok) PE.refl →
-        let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢∷→⊢-<ˢ ⊢u
+        let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢u
             ⊢A′                       = stability-⊢ Γ≡Δ ⊢A
                                           ⦃ lt = <ˢ-trans A< ! ⦄
             ⊢B′                       = stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B
@@ -360,7 +361,7 @@ private module Inhabited where
         sucⱼ (stability-⊢∷ Γ≡Δ ⊢t)
       (natrecⱼ ⊢t ⊢u ⊢v) PE.refl →
         let ⊢ℕ            = univ (ℕⱼ (wf-⊢≡ʳ Γ≡Δ))
-            _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
+            _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
             ⊢A′           = stability-⊢ (Γ≡Δ ∙⟨ ⊢ℕ ⟩) ⊢A
                               ⦃ lt = <ˢ-trans A< ! ⦄
         in
@@ -401,7 +402,7 @@ private module Inhabited where
           (stability-⊢∷ Γ≡Δ ⊢v) ok
 
   opaque
-    unfolding size-⊢∷L
+    unfolding size
 
     -- Stability for _⊢_∷Level.
 
@@ -409,7 +410,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ »⊢ Γ ≡ Δ →
       (⊢l : ∇ » Γ ⊢ l ∷Level) →
-      size-⊢∷L ⊢l PE.≡ s₂ →
+      size ⊢l PE.≡ s₂ →
       ∇ » Δ ⊢ l ∷Level
     stability-⊢∷L′ hyp Γ≡Δ = let open Variants hyp in λ where
       (term ok ⊢l) PE.refl →
@@ -418,7 +419,7 @@ private module Inhabited where
         literal ok (wf-⊢≡ʳ Γ≡Δ)
 
   opaque
-    unfolding size-⊢≡∷
+    unfolding size
 
     -- Stability for _⊢_≡_∷_.
 
@@ -426,7 +427,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ »⊢ Γ ≡ Δ →
       (t≡u : ∇ » Γ ⊢ t ≡ u ∷ A) →
-      size-⊢≡∷ t≡u PE.≡ s₂ →
+      size t≡u PE.≡ s₂ →
       ∇ » Δ ⊢ t ≡ u ∷ A
     stability-⊢≡∷′ hyp Γ≡Δ = let open Variants hyp in λ where
       (refl ⊢t) PE.refl →
@@ -469,7 +470,7 @@ private module Inhabited where
           (stability-⊢∷ Γ≡Δ ⊢t) (stability-⊢∷ Γ≡Δ ⊢u)
           (stability-⊢≡∷ Γ≡Δ lower-t≡lower-u)
       (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
-        let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
+        let _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ B₁≡B₂
             ⊢A₁′            = stability-⊢ Γ≡Δ ⊢A₁
                                 ⦃ lt = <ˢ-trans A₁< ! ⦄
         in
@@ -484,7 +485,7 @@ private module Inhabited where
         β-red (stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B)
           (stability-⊢∷ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢t) (stability-⊢∷ Γ≡Δ ⊢u) eq ok
       (η-eq ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) PE.refl →
-        let _ , (⊢A , A<) = ∙⊢≡∷→⊢-<ˢ t₁0≡t₂0
+        let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ t₁0≡t₂0
             ⊢A′           = stability-⊢ Γ≡Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
             Γ∙A≡Δ∙A       = Γ≡Δ ∙⟨ ⊢A′ ⟩
         in
@@ -528,7 +529,7 @@ private module Inhabited where
         prod-cong (stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B)
           (stability-⊢≡∷ Γ≡Δ t₁≡t₂) (stability-⊢≡∷ Γ≡Δ u₁≡u₂) ok
       (prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) PE.refl →
-        let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢≡∷→⊢-<ˢ u₁≡u₂
+        let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ u₁≡u₂
             ⊢A′                       = stability-⊢ Γ≡Δ ⊢A
                                           ⦃ lt = <ˢ-trans A< ! ⦄
             ⊢B′                       = stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B
@@ -538,7 +539,7 @@ private module Inhabited where
           (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
           (stability-⊢≡∷ (Γ≡Δ ∙⟨ ⊢A′ ⟩ ∙⟨ ⊢B′ ⟩) u₁≡u₂) ok
       (prodrec-β ⊢C ⊢t ⊢u ⊢v eq ok) PE.refl →
-        let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢∷→⊢-<ˢ ⊢v
+        let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢v
             ⊢A′                       = stability-⊢ Γ≡Δ ⊢A
                                           ⦃ lt = <ˢ-trans A< ! ⦄
             ⊢B′                       = stability-⊢ (Γ≡Δ ∙⟨ ⊢A′ ⟩) ⊢B
@@ -567,7 +568,7 @@ private module Inhabited where
         suc-cong (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
       (natrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) PE.refl →
         let ⊢ℕ              = univ (ℕⱼ (wf-⊢≡ʳ Γ≡Δ))
-            _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ u₁≡u₂
+            _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ u₁≡u₂
             ⊢A₁′            = stability-⊢ (Γ≡Δ ∙⟨ ⊢ℕ ⟩) ⊢A₁
                                 ⦃ lt = <ˢ-trans A₁< ! ⦄
         in
@@ -577,7 +578,7 @@ private module Inhabited where
           (stability-⊢≡∷ Γ≡Δ v₁≡v₂)
       (natrec-zero ⊢t ⊢u) PE.refl →
         let ⊢ℕ            = univ (ℕⱼ (wf-⊢≡ʳ Γ≡Δ))
-            _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
+            _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
             ⊢A′           = stability-⊢ (Γ≡Δ ∙⟨ ⊢ℕ ⟩) ⊢A
                               ⦃ lt = <ˢ-trans A< ! ⦄
         in
@@ -585,7 +586,7 @@ private module Inhabited where
           (stability-⊢∷ (Γ≡Δ ∙⟨ ⊢ℕ ⟩ ∙⟨ ⊢A′ ⟩) ⊢u)
       (natrec-suc ⊢t ⊢u ⊢v) PE.refl →
         let ⊢ℕ            = univ (ℕⱼ (wf-⊢≡ʳ Γ≡Δ))
-            _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
+            _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
             ⊢A′           = stability-⊢ (Γ≡Δ ∙⟨ ⊢ℕ ⟩) ⊢A
                               ⦃ lt = <ˢ-trans A< ! ⦄
         in
@@ -595,7 +596,7 @@ private module Inhabited where
         Id-cong (stability-⊢≡∷ Γ≡Δ A₁≡A₂) (stability-⊢≡∷ Γ≡Δ t₁≡t₂)
           (stability-⊢≡∷ Γ≡Δ u₁≡u₂)
       (J-cong A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
-        let _ , (⊢A₁ , A₁<) , _ = ∙∙⊢≡→⊢-<ˢ B₁≡B₂
+        let _ , (⊢A₁ , A₁<) , _ = ∙∙⊢→⊢-<ˢ B₁≡B₂
             ⊢A₁′                = stability-⊢ Γ≡Δ ⊢A₁
                                     ⦃ lt = <ˢ-trans A₁< ! ⦄
             ⊢t₁′                = stability-⊢∷ Γ≡Δ ⊢t₁
@@ -624,7 +625,7 @@ private module Inhabited where
              ⊢B)
           (stability-⊢∷ Γ≡Δ ⊢u) eq
       (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
-        let _ , ⊢Id                       = ∙⊢≡→⊢-<ˢ B₁≡B₂
+        let _ , ⊢Id                       = ∙⊢→⊢-<ˢ B₁≡B₂
             (⊢A₁ , A₁<) , (⊢t₁ , t₁<) , _ = inversion-Id-⊢-<ˢ ⊢Id
             ⊢A₁′                          = stability-⊢ Γ≡Δ ⊢A₁
                                               ⦃ lt = <ˢ-trans A₁< ! ⦄
@@ -655,7 +656,7 @@ private module Inhabited where
           (stability-⊢∷ Γ≡Δ ⊢v)
 
   opaque
-    unfolding size-⊢≡∷L
+    unfolding size
 
     -- Stability for _⊢_≡_∷Level.
 
@@ -663,7 +664,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ »⊢ Γ ≡ Δ →
       (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level) →
-      size-⊢≡∷L l₁≡l₂ PE.≡ s₂ →
+      size l₁≡l₂ PE.≡ s₂ →
       ∇ » Δ ⊢ l₁ ≡ l₂ ∷Level
     stability-⊢≡∷L′ hyp Γ≡Δ = let open Variants hyp in λ where
       (term ok l₁≡l₂) PE.refl →
@@ -691,49 +692,20 @@ private module Inhabited where
 
 opaque
 
-  -- Stability for _⊢_.
+  -- Stability for several kinds of judgements.
 
-  stability-⊢ : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A → ∇ » Δ ⊢ A
-  stability-⊢ Γ≡Δ ⊢A =
-    P.stability-⊢ Inhabited.P-inhabited Γ≡Δ ⊢A PE.refl
-
-opaque
-
-  -- Stability for _⊢_≡_.
-
-  stability-⊢≡ : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ≡ B → ∇ » Δ ⊢ A ≡ B
-  stability-⊢≡ Γ≡Δ A≡B =
-    P.stability-⊢≡ Inhabited.P-inhabited Γ≡Δ A≡B PE.refl
-
-opaque
-
-  -- Stability for _⊢_∷_.
-
-  stability-⊢∷ : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ t ∷ A
-  stability-⊢∷ Γ≡Δ ⊢t =
-    P.stability-⊢∷ Inhabited.P-inhabited Γ≡Δ ⊢t PE.refl
-
-opaque
-
-  -- Stability for _⊢_∷Level.
-
-  stability-⊢∷L : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ l ∷Level → ∇ » Δ ⊢ l ∷Level
-  stability-⊢∷L Γ≡Δ ⊢l =
-    P.stability-⊢∷L Inhabited.P-inhabited Γ≡Δ ⊢l PE.refl
-
-opaque
-
-  -- Stability for _⊢_≡_∷_.
-
-  stability-⊢≡∷ : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Δ ⊢ t ≡ u ∷ A
-  stability-⊢≡∷ Γ≡Δ t≡u =
-    P.stability-⊢≡∷ Inhabited.P-inhabited Γ≡Δ t≡u PE.refl
-
-opaque
-
-  -- Stability for _⊢_≡_∷Level.
-
-  stability-⊢≡∷L :
-    ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → ∇ » Δ ⊢ l₁ ≡ l₂ ∷Level
-  stability-⊢≡∷L Γ≡Δ l₁≡l₂ =
-    P.stability-⊢≡∷L Inhabited.P-inhabited Γ≡Δ l₁≡l₂ PE.refl
+  stability-⊢ : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢[ 𝓙 ] → ∇ » Δ ⊢[ 𝓙 ]
+  stability-⊢ {𝓙 = [ctxt]} Γ≡Δ _ =
+    wf-⊢≡ʳ Γ≡Δ
+  stability-⊢ {𝓙 = [ _ type]} Γ≡Δ ⊢𝓙 =
+    P.stability-⊢ Inhabited.P-inhabited Γ≡Δ ⊢𝓙 PE.refl
+  stability-⊢ {𝓙 = [ _ ≡ _ type]} Γ≡Δ ⊢𝓙 =
+    P.stability-⊢≡ Inhabited.P-inhabited Γ≡Δ ⊢𝓙 PE.refl
+  stability-⊢ {𝓙 = [ _ ∷ _ ]} Γ≡Δ ⊢𝓙 =
+    P.stability-⊢∷ Inhabited.P-inhabited Γ≡Δ ⊢𝓙 PE.refl
+  stability-⊢ {𝓙 = [ _ ≡ _ ∷ _ ]} Γ≡Δ ⊢𝓙 =
+    P.stability-⊢≡∷ Inhabited.P-inhabited Γ≡Δ ⊢𝓙 PE.refl
+  stability-⊢ {𝓙 = [ _ ∷Level]} Γ≡Δ ⊢𝓙 =
+    P.stability-⊢∷L Inhabited.P-inhabited Γ≡Δ ⊢𝓙 PE.refl
+  stability-⊢ {𝓙 = [ _ ≡ _ ∷Level]} Γ≡Δ ⊢𝓙 =
+    P.stability-⊢≡∷L Inhabited.P-inhabited Γ≡Δ ⊢𝓙 PE.refl

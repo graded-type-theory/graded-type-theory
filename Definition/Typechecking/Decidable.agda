@@ -587,7 +587,7 @@ mutual
       case
         (dec⇇Type-with-cont (⊢Γ ∙[ ⊢ℕ ]) A λ ⊢A →
          dec⇇ t (substType ⊢A (zeroⱼ ⊢Γ)) ×-dec
-         dec⇇ u (subst↑²Type ⊢A (sucⱼ (var₁ ⊢A))) ×-dec
+         dec⇇ u (subst-⊢-↑ ⊢A (sucⱼ (var₁ ⊢A))) ×-dec
          dec⇇ v (⊢ℕ ⊢Γ))
         of λ where
         (yes (A , t , u , v)) → yes (_ , natrecᵢ A t u v)
@@ -654,7 +654,7 @@ mutual
          dec⇇-with-cont t ⊢A λ ⊢t →
          dec⇇Type-with-cont (∙ Idⱼ′ (wkTerm₁ ⊢A ⊢t) (var₀ ⊢A)) B λ ⊢B →
          dec⇇ u
-           (substType₂ ⊢B ⊢t $
+           (subst-⊢₁₀ ⊢B ⊢t $
             PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ $
             rflⱼ ⊢t) ×-dec
          dec⇇-with-cont v ⊢A λ ⊢v →

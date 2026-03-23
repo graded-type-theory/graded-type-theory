@@ -776,3 +776,16 @@ opaque
 
 Consistent : Cons m n → Set a
 Consistent Γ = ∀ t → ¬ Γ ⊢ t ∷ Empty
+
+-- A type that encompasses seven different typing judgements.
+
+infix 4 _⊢[_]
+
+_⊢[_] : Cons m n → Judgement n → Set a
+Γ ⊢[ [ctxt]            ] = ⊢ Γ
+Γ ⊢[ [ A type]         ] = Γ ⊢ A
+Γ ⊢[ [ A ≡ B type]     ] = Γ ⊢ A ≡ B
+Γ ⊢[ [ t ∷ A ]         ] = Γ ⊢ t ∷ A
+Γ ⊢[ [ t ≡ u ∷ A ]     ] = Γ ⊢ t ≡ u ∷ A
+Γ ⊢[ [ l ∷Level]       ] = Γ ⊢ l ∷Level
+Γ ⊢[ [ l₁ ≡ l₂ ∷Level] ] = Γ ⊢ l₁ ≡ l₂ ∷Level

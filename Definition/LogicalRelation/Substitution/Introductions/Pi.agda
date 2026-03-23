@@ -435,7 +435,7 @@ opaque
       (λ ξ⊇ ⊩σ →
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ singleSubstLift t _)
            (PE.sym $ singleSubstLift B _) $
-         β-red-⇒ (subst-⊢∷-⇑ (defn-wkTerm ξ⊇ ⊢t) (escape-⊩ˢ∷ ⊩σ .proj₂))
+         β-red-⇒ (subst-⊢-⇑ (defn-wkTerm ξ⊇ ⊢t) (escape-⊩ˢ∷ ⊩σ .proj₂))
            (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩u) ⊩σ) ok)
       (⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₀∷ ⊩t ⊩u)
 

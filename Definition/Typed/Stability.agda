@@ -33,6 +33,7 @@ private variable
   ∇       : DCon (Term 0) _
   m n     : Nat
   Γ Δ Η   : Con Term _
+  𝓙       : Judgement _
   A B t u : Term _
   l l₁ l₂ : Lvl _
   σ σ₁ σ₂ : Subst _ _
@@ -56,7 +57,7 @@ private opaque
   Γ≡Δ ∙⟨ A≡B ⟩′ =
     Γ≡Δ
       S.∙⟨ S.stability-⊢ Γ≡Δ (wf-⊢≡ A≡B .proj₂)
-         ∣ S.stability-⊢≡ Γ≡Δ A≡B
+         ∣ S.stability-⊢ Γ≡Δ A≡B
          ⟩
 
 private opaque
@@ -81,7 +82,7 @@ private opaque
     from : ∇ »⊢ᵖ Γ ≡ Δ → ∇ »⊢ Γ ≡ Δ
     from (S.ε ⊢ε)             = ε ⊢ε
     from (Γ≡Δ S.∙⟨ _ ∣ A≡B ⟩) =
-      from Γ≡Δ ∙ S.stability-⊢≡ (symConEq′ Γ≡Δ) A≡B
+      from Γ≡Δ ∙ S.stability-⊢ (symConEq′ Γ≡Δ) A≡B
 
 opaque
 
@@ -114,9 +115,9 @@ opaque
 
 opaque
 
-  -- Stability for _⊢_.
+  -- Stability for several kinds of judgements.
 
-  stability : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A → ∇ » Δ ⊢ A
+  stability : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢[ 𝓙 ] → ∇ » Δ ⊢[ 𝓙 ]
   stability = S.stability-⊢ ∘→ ⊢≡⇔⊢≡ .proj₁
 
 opaque
@@ -124,28 +125,28 @@ opaque
   -- Stability for _⊢_≡_.
 
   stabilityEq : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ≡ B → ∇ » Δ ⊢ A ≡ B
-  stabilityEq = S.stability-⊢≡ ∘→ ⊢≡⇔⊢≡ .proj₁
+  stabilityEq = stability
 
 opaque
 
   -- Stability for _⊢_∷_.
 
   stabilityTerm : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ t ∷ A
-  stabilityTerm = S.stability-⊢∷ ∘→ ⊢≡⇔⊢≡ .proj₁
+  stabilityTerm = stability
 
 opaque
 
   -- Stability for _⊢_∷Level.
 
   stabilityLevel : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ l ∷Level → ∇ » Δ ⊢ l ∷Level
-  stabilityLevel = S.stability-⊢∷L ∘→ ⊢≡⇔⊢≡ .proj₁
+  stabilityLevel = stability
 
 opaque
 
   -- Stability for _⊢_≡_∷_.
 
   stabilityEqTerm : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Δ ⊢ t ≡ u ∷ A
-  stabilityEqTerm = S.stability-⊢≡∷ ∘→ ⊢≡⇔⊢≡ .proj₁
+  stabilityEqTerm = stability
 
 opaque
 
@@ -153,7 +154,7 @@ opaque
 
   stabilityEqLevel :
     ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → ∇ » Δ ⊢ l₁ ≡ l₂ ∷Level
-  stabilityEqLevel = S.stability-⊢≡∷L ∘→ ⊢≡⇔⊢≡ .proj₁
+  stabilityEqLevel = stability
 
 opaque
 

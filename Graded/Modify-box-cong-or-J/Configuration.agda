@@ -490,7 +490,7 @@ record Configuration : Set (lsuc a) where
         in
         J′-subst pres ⊢B ⊢u w⇒w′ ⇨∷*
         conv* (J′-subst* pres ⊢B ⊢u w′⇒*w″)
-          (substTypeEq₂ (refl ⊢B) (refl ⊢v) $
+          (subst-⊢≡₁₀ ⊢B (refl ⊢v) $
            PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ $
            sym′ w≡w′)
 

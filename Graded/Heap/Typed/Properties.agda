@@ -278,8 +278,7 @@ opaque
            (PE.sym (PE.cong₂ (λ A t → Id A t _)
              (wk1-sgSubst _ _) (wk1-sgSubst _ _))) t≡u of λ
       t≡u′ →
-    conv (Jₑ ⊢u ⊢B)
-      (substTypeEq₂ (refl ⊢B) (refl ⊢v) (sym′ t≡u′))
+    conv (Jₑ ⊢u ⊢B) (subst-⊢≡₁₀ ⊢B (refl ⊢v) (sym′ t≡u′))
   ⊢ᶜ-convₜ {H} {t} {u} (Kₑ ⊢u ⊢B ok) t≡u =
     conv (Kₑ ⊢u ⊢B ok)
       (substTypeEq (refl ⊢B) (sym′ t≡u))

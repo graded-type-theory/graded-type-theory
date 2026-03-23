@@ -232,45 +232,45 @@ opaque
 -- Inversion for Id
 
 opaque
-  unfolding size-⊢∷
+  unfolding size
 
   -- An inversion lemma for Id.
 
   inversion-Id-⊢∷ :
     (⊢Id : Γ ⊢ Id A t u ∷ B) →
-    (∃ λ (⊢A : Γ ⊢ A ∷ B) → size-⊢∷ ⊢A <ˢ size-⊢∷ ⊢Id) ×
-    (∃ λ (⊢t : Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ size-⊢∷ ⊢Id) ×
-    (∃ λ (⊢u : Γ ⊢ u ∷ A) → size-⊢∷ ⊢u <ˢ size-⊢∷ ⊢Id)
+    (∃ λ (⊢A : Γ ⊢ A ∷ B) → size ⊢A <ˢ size ⊢Id) ×
+    (∃ λ (⊢t : Γ ⊢ t ∷ A) → size ⊢t <ˢ size ⊢Id) ×
+    (∃ λ (⊢u : Γ ⊢ u ∷ A) → size ⊢u <ˢ size ⊢Id)
   inversion-Id-⊢∷ (Idⱼ ⊢A ⊢t ⊢u) = (⊢A , !) , (⊢t , !) , (⊢u , !)
   inversion-Id-⊢∷ (conv ⊢Id ≡U)  =
     let (⊢A , A<) , (⊢t , t<) , (⊢u , u<) = inversion-Id-⊢∷ ⊢Id in
     (conv ⊢A ≡U , A< ↙⊕ ◻) , (⊢t , ↙ <ˢ→≤ˢ t<) , (⊢u , ↙ <ˢ→≤ˢ u<)
 
 opaque
-  unfolding size-⊢
+  unfolding size
 
   -- An inversion lemma for Id.
 
   inversion-Id-⊢ :
     (⊢Id : Γ ⊢ Id A t u) →
-    (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢ ⊢Id) ×
-    (∃ λ (⊢t : Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ size-⊢ ⊢Id) ×
-    (∃ λ (⊢u : Γ ⊢ u ∷ A) → size-⊢∷ ⊢u <ˢ size-⊢ ⊢Id)
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢Id) ×
+    (∃ λ (⊢t : Γ ⊢ t ∷ A) → size ⊢t <ˢ size ⊢Id) ×
+    (∃ λ (⊢u : Γ ⊢ u ∷ A) → size ⊢u <ˢ size ⊢Id)
   inversion-Id-⊢ (Idⱼ ⊢A ⊢t ⊢u) = (⊢A , !) , (⊢t , !) , (⊢u , !)
   inversion-Id-⊢ (univ ⊢Id)     =
     let (⊢A , A<) , (⊢t , t<) , (⊢u , u<) = inversion-Id-⊢∷ ⊢Id in
     (univ ⊢A , A< ↙⊕ ◻) , (⊢t , ↙ <ˢ→≤ˢ t<) , (⊢u , ↙ <ˢ→≤ˢ u<)
 
 opaque
-  unfolding size-⊢
+  unfolding size
 
   -- A variant of inversion-Id-⊢.
 
   inversion-Id-⊢-<ˢ :
-    (∃ λ (⊢Id : Γ ⊢ Id A t u) → size-⊢ ⊢Id <ˢ sz) →
-    (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ sz) ×
-    (∃ λ (⊢t : Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ sz) ×
-    (∃ λ (⊢u : Γ ⊢ u ∷ A) → size-⊢∷ ⊢u <ˢ sz)
+    (∃ λ (⊢Id : Γ ⊢ Id A t u) → size ⊢Id <ˢ sz) →
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ sz) ×
+    (∃ λ (⊢t : Γ ⊢ t ∷ A) → size ⊢t <ˢ sz) ×
+    (∃ λ (⊢u : Γ ⊢ u ∷ A) → size ⊢u <ˢ sz)
   inversion-Id-⊢-<ˢ (⊢Id , lt) =
     let (⊢A , A<) , (⊢t , t<) , (⊢u , u<) = inversion-Id-⊢ ⊢Id in
     (⊢A , <ˢ-trans A< lt) , (⊢t , <ˢ-trans t< lt) ,
@@ -291,7 +291,7 @@ opaque
 -- Inversion for Π and Σ
 
 opaque
-  unfolding size-⊢∷
+  unfolding size
 
   -- An inversion lemma for ΠΣ⟨_⟩_,_▷_▹_.
 
@@ -299,8 +299,8 @@ opaque
     (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ C) →
     ∃ λ l →
     Γ ⊢ l ∷Level ×
-    (∃ λ (⊢A : Γ ⊢ A ∷ U l) → size-⊢∷ ⊢A <ˢ size-⊢∷ ⊢ΠΣ) ×
-    (∃ λ (⊢B : Γ »∙ A ⊢ B ∷ U (wk1 l)) → size-⊢∷ ⊢B <ˢ size-⊢∷ ⊢ΠΣ) ×
+    (∃ λ (⊢A : Γ ⊢ A ∷ U l) → size ⊢A <ˢ size ⊢ΠΣ) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B ∷ U (wk1 l)) → size ⊢B <ˢ size ⊢ΠΣ) ×
     Γ ⊢ C ≡ U l ×
     ΠΣ-allowed b p q
   inversion-ΠΣ-⊢∷ (ΠΣⱼ ⊢l ⊢A ⊢B ok) =
@@ -327,14 +327,14 @@ opaque
     _ , ⊢l , ⊢A , ⊢B , C≡ , ok
 
 opaque
-  unfolding size-⊢
+  unfolding size
 
   -- An inversion lemma for ΠΣ⟨_⟩_,_▷_▹_.
 
   inversion-ΠΣ-⊢ :
     (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) →
-    (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ size-⊢ ⊢ΠΣ) ×
-    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size-⊢ ⊢B <ˢ size-⊢ ⊢ΠΣ) ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢ΠΣ) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ size ⊢ΠΣ) ×
     ΠΣ-allowed b p q
   inversion-ΠΣ-⊢ (ΠΣⱼ ⊢B ok) =
     let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B in
@@ -344,14 +344,14 @@ opaque
     (univ ⊢A , A< ↙⊕ ◻) , (univ ⊢B , B< ↙⊕ ◻) , ok
 
 opaque
-  unfolding size-⊢
+  unfolding size
 
   -- A variant of inversion-ΠΣ-⊢.
 
   inversion-ΠΣ-⊢-<ˢ :
-    (∃ λ (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) → size-⊢ ⊢ΠΣ <ˢ sz) →
-    (∃ λ (⊢A : Γ ⊢ A) → size-⊢ ⊢A <ˢ sz) ×
-    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size-⊢ ⊢B <ˢ sz) ×
+    (∃ λ (⊢ΠΣ : Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B) → size ⊢ΠΣ <ˢ sz) →
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ sz) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ sz) ×
     ΠΣ-allowed b p q
   inversion-ΠΣ-⊢-<ˢ (⊢ΠΣ , lt) =
     let (⊢A , A<) , (⊢B , B<) , ok = inversion-ΠΣ-⊢ ⊢ΠΣ in

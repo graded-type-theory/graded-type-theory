@@ -257,7 +257,7 @@ opaque
                                                                        (substTypeEq (refl (subst-⊢-⇑ ⊢A ⊢σ)) ∘→ sym′ ∘→ ⇛→⊢≡)
                                                                        (subst-⊢-⇑ ⊢A ⊢σ)
                                                                        (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
-                                                                       (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) (subst-⊢∷-⇑ ⊢u ⊢σ))
+                                                                       (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) (subst-⊢-⇑ ⊢u ⊢σ))
                                                                        t[σ]®t[σ′] u[σ⇑⇑]®u[σ′⇑⇑] ⟩
     (natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ]) ®
        T.natrec (erase str t T.[ σ′ ])

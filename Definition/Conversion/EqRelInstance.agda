@@ -260,7 +260,7 @@ module Lemmas where
       case Id-norm (sym Id-t₁-v₁≡C) of λ {
         (_ , _ , _ , C⇒*Id-t₃-v₃ , A₁≡A₃ , t₁≡t₃ , v₁≡v₃) →
       ↑ (refl $
-         substType₂ (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁)
+         subst-⊢₁₀ (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁)
            (syntacticEqTerm v₁≡v₃ .proj₂ .proj₁)
            (conv (syntacticEqTerm (soundness~↑ w₁~w₂) .proj₂ .proj₁) $
             PE.subst (_⊢_≡_ _ _) ≡Id-wk1-wk1-0[]₀ $

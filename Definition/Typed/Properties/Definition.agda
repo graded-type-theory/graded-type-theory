@@ -65,6 +65,7 @@ private variable
   ∇ ∇′                : DCon _ _
   ξ ξ′                : DExt _ _ _
   Γ                   : Con Term _
+  𝓙                   : Judgement _
   A B C t t₁ t₂ u v w : Term _
   l l₁ l₂             : Lvl _
   k                   : Term-kind
@@ -668,351 +669,368 @@ opaque
     glassify ∇ » ε ⊢ inline-Nat ξ α ≡ inline ξ t ∷ inline ξ A
   ⊢inline-Nat≡∷ »ξ α↦ = subset*Term (⊢inline-Nat⇒*∷ »ξ α↦)
 
-  -- Inlining preserves context well-formedness.
+  private
 
-  ⊢inline-Con :
-    ∇ ᵈ• ξ »⊢ Γ →
-    glassify ∇ »⊢ inline-Con ξ Γ
-  ⊢inline-Con {ξ} (ε »ξ) = ε (glassify-» (»ᵈ•→» {ξ = ξ} »ξ))
-  ⊢inline-Con     (∙ ⊢A) = ∙ ⊢inline ⊢A
+    -- Inlining preserves context well-formedness.
 
-  -- Inlining preserves type well-formedness.
+    ⊢inline-Con :
+      ∇ ᵈ• ξ »⊢ Γ →
+      glassify ∇ »⊢ inline-Con ξ Γ
+    ⊢inline-Con {ξ} (ε »ξ) = ε (glassify-» (»ᵈ•→» {ξ = ξ} »ξ))
+    ⊢inline-Con     (∙ ⊢A) = ∙ ⊢inline′ ⊢A
 
-  ⊢inline :
-    ∇ ᵈ• ξ » Γ ⊢ A →
-    glassify ∇ » inline-Con ξ Γ ⊢ inline ξ A
-  ⊢inline (Levelⱼ ok ⊢Γ) =
-    Levelⱼ ok (⊢inline-Con ⊢Γ)
-  ⊢inline (univ ⊢A) =
-    univ (⊢inline∷ ⊢A)
-  ⊢inline (Liftⱼ ⊢l ⊢A) =
-    Liftⱼ (⊢inline∷L ⊢l) (⊢inline ⊢A)
-  ⊢inline (ΠΣⱼ ⊢B ok) =
-    ΠΣⱼ (⊢inline ⊢B) ok
-  ⊢inline (Idⱼ ⊢A ⊢t ⊢u) =
-    Idⱼ (⊢inline ⊢A) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
+    -- Inlining preserves type well-formedness.
 
-  -- Inlining preserves well-typedness.
+    ⊢inline′ :
+      ∇ ᵈ• ξ » Γ ⊢ A →
+      glassify ∇ » inline-Con ξ Γ ⊢ inline ξ A
+    ⊢inline′ (Levelⱼ ok ⊢Γ) =
+      Levelⱼ ok (⊢inline-Con ⊢Γ)
+    ⊢inline′ (univ ⊢A) =
+      univ (⊢inline∷ ⊢A)
+    ⊢inline′ (Liftⱼ ⊢l ⊢A) =
+      Liftⱼ (⊢inline∷L ⊢l) (⊢inline′ ⊢A)
+    ⊢inline′ (ΠΣⱼ ⊢B ok) =
+      ΠΣⱼ (⊢inline′ ⊢B) ok
+    ⊢inline′ (Idⱼ ⊢A ⊢t ⊢u) =
+      Idⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
 
-  ⊢inline∷ :
-    ∇ ᵈ• ξ » Γ ⊢ t ∷ A →
-    glassify ∇ » inline-Con ξ Γ ⊢ inline ξ t ∷ inline ξ A
-  ⊢inline∷ (conv ⊢t B≡A) =
-    conv (⊢inline∷ ⊢t) (⊢inline≡inline B≡A)
-  ⊢inline∷ (var ⊢Γ x∈) =
-    var (⊢inline-Con ⊢Γ) (inline∈ x∈)
-  ⊢inline∷ (defn {A′} ⊢Γ α↦ PE.refl) =
-    PE.subst (_⊢_∷_ _ _) (wk-inline A′) $
-    wkTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) (⊢inline-Nat∷ (defn-wf ⊢Γ) α↦)
-  ⊢inline∷ (Levelⱼ ⊢Γ ok) =
-    Levelⱼ (⊢inline-Con ⊢Γ) ok
-  ⊢inline∷ (zeroᵘⱼ ok ⊢Γ) =
-    zeroᵘⱼ ok (⊢inline-Con ⊢Γ)
-  ⊢inline∷ (sucᵘⱼ ⊢l) =
-    sucᵘⱼ (⊢inline∷ ⊢l)
-  ⊢inline∷ (supᵘⱼ ⊢l₁ ⊢l₂) =
-    supᵘⱼ (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂)
-  ⊢inline∷ (Uⱼ {l} ⊢l) =
-    PE.subst (_⊢_∷_ _ _) (PE.cong U (PE.sym (inline-1ᵘ+ l))) $
-    Uⱼ (⊢inline∷L ⊢l)
-  ⊢inline∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
-    PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym $ inline-supᵘₗ ⊢l₁ ⊢l₂) $
-    Liftⱼ′ (⊢inline∷L ⊢l₂) (⊢inline∷ ⊢A)
-  ⊢inline∷ (liftⱼ ⊢l _ ⊢t) =
-    liftⱼ′ (⊢inline∷L ⊢l) (⊢inline∷ ⊢t)
-  ⊢inline∷ (lowerⱼ ⊢t) =
-    lowerⱼ (⊢inline∷ ⊢t)
-  ⊢inline∷ (Emptyⱼ ⊢Γ) =
-    Emptyⱼ (⊢inline-Con ⊢Γ)
-  ⊢inline∷ (emptyrecⱼ ⊢A ⊢t) =
-    emptyrecⱼ (⊢inline ⊢A) (⊢inline∷ ⊢t)
-  ⊢inline∷ (Unitⱼ ⊢Γ ok) =
-    Unitⱼ (⊢inline-Con ⊢Γ) ok
-  ⊢inline∷ (starⱼ ⊢Γ ok) =
-    starⱼ (⊢inline-Con ⊢Γ) ok
-  ⊢inline∷ (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) =
-    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
-    unitrecⱼ (⊢inline ⊢A) (⊢inline∷ ⊢t)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) ok
-  ⊢inline∷ (ΠΣⱼ {l} _ ⊢A ⊢B ok) =
-    ΠΣⱼ′ (⊢inline∷ ⊢A)
-      (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-inline (U l)) $
-       ⊢inline∷ ⊢B)
-      ok
-  ⊢inline∷ (lamⱼ ⊢B ⊢t ok) =
-    lamⱼ (⊢inline ⊢B) (⊢inline∷ ⊢t) ok
-  ⊢inline∷ (_∘ⱼ_ {G = B} ⊢t ⊢u) =
-    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
-    ⊢inline∷ ⊢t ∘ⱼ ⊢inline∷ ⊢u
-  ⊢inline∷ (prodⱼ {G = B} ⊢B ⊢t ⊢u ok) =
-    prodⱼ (⊢inline ⊢B) (⊢inline∷ ⊢t)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
-  ⊢inline∷ (fstⱼ ⊢B ⊢t) =
-    fstⱼ (⊢inline ⊢B) (⊢inline∷ ⊢t)
-  ⊢inline∷ (sndⱼ {G = B} ⊢B ⊢t) =
-    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
-    sndⱼ (⊢inline ⊢B) (⊢inline∷ ⊢t)
-  ⊢inline∷ (prodrecⱼ {A} ⊢A ⊢t ⊢u ok) =
-    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
-    prodrecⱼ (⊢inline ⊢A) (⊢inline∷ ⊢t)
-      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u)) ok
-  ⊢inline∷ (ℕⱼ ⊢Γ) =
-    ℕⱼ (⊢inline-Con ⊢Γ)
-  ⊢inline∷ (zeroⱼ ⊢Γ) =
-    zeroⱼ (⊢inline-Con ⊢Γ)
-  ⊢inline∷ (sucⱼ ⊢t) =
-    sucⱼ (⊢inline∷ ⊢t)
-  ⊢inline∷ (natrecⱼ {A} ⊢t ⊢u ⊢v) =
-    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
-    natrecⱼ (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
-      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
-      (⊢inline∷ ⊢v)
-  ⊢inline∷ (Idⱼ ⊢A ⊢t ⊢u) =
-    Idⱼ (⊢inline∷ ⊢A) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
-  ⊢inline∷ (rflⱼ ⊢t) =
-    rflⱼ (⊢inline∷ ⊢t)
-  ⊢inline∷ (Jⱼ {t} {A} {B} _ ⊢B ⊢u _ ⊢w) =
-    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₁₀ B) $
-    Jⱼ′
-      (PE.subst (flip _⊢_ _)
-         (PE.sym $ PE.cong (_»∙_ _) $
-          PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl) $
-       ⊢inline ⊢B)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
-      (⊢inline∷ ⊢w)
-  ⊢inline∷ (Kⱼ {B} ⊢B ⊢u ⊢v ok) =
-    PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
-    Kⱼ (⊢inline ⊢B)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
-      (⊢inline∷ ⊢v) ok
-  ⊢inline∷ ([]-congⱼ ⊢l _ _ _ ⊢v ok) =
-    PE.subst (_⊢_∷_ _ _) (inline-Id-Erased _) $
-    []-congⱼ′ ok (⊢inline∷L ⊢l) (⊢inline∷ ⊢v)
+    -- Inlining preserves well-typedness.
 
-  -- Inlining preserves well-formedness for levels.
-
-  ⊢inline∷L :
-    ∇ ᵈ• ξ » Γ ⊢ l ∷Level →
-    glassify ∇ » inline-Con ξ Γ ⊢ inline ξ l ∷Level
-  ⊢inline∷L = λ where
-    (term ok ⊢t) →
-      term ok (⊢inline∷ ⊢t)
-    (literal ok ⊢Γ) →
-      literal (Allowed-literal-inline ok) (⊢inline-Con ⊢Γ)
-
-  -- Inlining preserves definitional equality.
-
-  ⊢inline≡inline :
-    ∇ ᵈ• ξ » Γ ⊢ A ≡ B →
-    glassify ∇ » inline-Con ξ Γ ⊢ inline ξ A ≡ inline ξ B
-  ⊢inline≡inline = λ where
-    (refl ⊢A) →
-      refl (⊢inline ⊢A)
-    (sym B≡A) →
-      sym (⊢inline≡inline B≡A)
-    (trans A≡B B≡C) →
-      trans (⊢inline≡inline A≡B) (⊢inline≡inline B≡C)
-    (univ A≡B) →
-      univ (⊢inline≡inline∷ A≡B)
-    (U-cong l₁≡l₂) →
-      U-cong (⊢inline≡inline∷ l₁≡l₂)
-    (Lift-cong l₁≡l₂ A≡B) →
-      Lift-cong (⊢inline≡inline∷L l₁≡l₂) (⊢inline≡inline A≡B)
-    (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) →
-      ΠΣ-cong (⊢inline≡inline A₁≡B₁) (⊢inline≡inline A₂≡B₂) ok
-    (Id-cong A≡B t₁≡u₁ t₂≡u₂) →
-      Id-cong (⊢inline≡inline A≡B) (⊢inline≡inline∷ t₁≡u₁)
-        (⊢inline≡inline∷ t₂≡u₂)
-
-  -- Inlining preserves definitional equality.
-
-  ⊢inline≡inline∷ :
-    ∇ ᵈ• ξ » Γ ⊢ t ≡ u ∷ A →
-    glassify ∇ » inline-Con ξ Γ ⊢ inline ξ t ≡ inline ξ u ∷ inline ξ A
-  ⊢inline≡inline∷ = λ where
-    (refl ⊢t) →
-      refl (⊢inline∷ ⊢t)
-    (sym _ t₂≡t₁) →
-      sym′ (⊢inline≡inline∷ t₂≡t₁)
-    (trans t₁≡t₂ t₂≡t₃) →
-      trans (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ t₂≡t₃)
-    (conv t₁≡t₂ B≡A) →
-      conv (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline B≡A)
-    (δ-red {t′ = t} {A′ = A} ⊢Γ α↦t PE.refl PE.refl) →
-      PE.subst₂ (_⊢_≡_∷_ _ _) (wk-inline t) (wk-inline A) $
-      wkEqTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) $
-      ⊢inline-Nat≡∷ (defn-wf ⊢Γ) α↦t
-    (sucᵘ-cong l₁≡l₂) →
-      sucᵘ-cong (⊢inline≡inline∷ l₁≡l₂)
-    (supᵘ-cong l₁≡l₃ l₂≡l₄) →
-      supᵘ-cong (⊢inline≡inline∷ l₁≡l₃) (⊢inline≡inline∷ l₂≡l₄)
-    (supᵘ-zeroˡ ⊢l) →
-      supᵘ-zeroˡ (⊢inline∷ ⊢l)
-    (supᵘ-sucᵘ ⊢l₁ ⊢l₂) →
-      supᵘ-sucᵘ (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂)
-    (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) →
-      supᵘ-assoc (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂) (⊢inline∷ ⊢l₃)
-    (supᵘ-comm ⊢l₁ ⊢l₂) →
-      supᵘ-comm (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂)
-    (supᵘ-idem ⊢l) →
-      supᵘ-idem (⊢inline∷ ⊢l)
-    (supᵘ-sub ⊢l) →
-      supᵘ-sub (⊢inline∷ ⊢l)
-    (U-cong l₁≡l₂) →
-      U-cong (⊢inline≡inline∷ l₁≡l₂)
-    (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂) →
-      PE.subst (_⊢_≡_∷_ _ _ _)
-        (PE.cong U $ PE.sym $ inline-supᵘₗ ⊢l₁ ⊢l₂) $
-      Lift-cong′ (⊢inline≡inline∷L l₂≡l₃) (⊢inline≡inline∷ A₁≡A₂)
-    (lower-cong t₁≡t₂) →
-      lower-cong (⊢inline≡inline∷ t₁≡t₂)
-    (Lift-β ⊢A ⊢t) →
-      Lift-β (⊢inline ⊢A) (⊢inline∷ ⊢t)
-    (Lift-η _ _ ⊢t ⊢u lower-t≡lower-u) →
-      Lift-η′ (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
-        (⊢inline≡inline∷ lower-t≡lower-u)
-    (emptyrec-cong A₁≡A₂ t₁≡t₂) →
-      emptyrec-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
-    (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A₁) $
-      unitrec-cong′ (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ A₁) $
-         ⊢inline≡inline∷ u₁≡u₂)
-    (unitrec-β {A} ⊢A ⊢t _ _) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-      unitrec-β-≡ (⊢inline ⊢A)
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
-    (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-      unitrec-β-η-≡ (⊢inline ⊢A) (⊢inline∷ ⊢t)
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) η
-    (η-unit ⊢t₁ ⊢t₂ η) →
-      η-unit (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂) η
-    (ΠΣ-cong {l} _ A₁≡A₂ B₁≡B₂ ok) →
-      ΠΣ-cong′ (⊢inline≡inline∷ A₁≡A₂)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-inline (U l)) $
-         ⊢inline≡inline∷ B₁≡B₂)
+    ⊢inline∷ :
+      ∇ ᵈ• ξ » Γ ⊢ t ∷ A →
+      glassify ∇ » inline-Con ξ Γ ⊢ inline ξ t ∷ inline ξ A
+    ⊢inline∷ (conv ⊢t B≡A) =
+      conv (⊢inline∷ ⊢t) (⊢inline≡inline B≡A)
+    ⊢inline∷ (var ⊢Γ x∈) =
+      var (⊢inline-Con ⊢Γ) (inline∈ x∈)
+    ⊢inline∷ (defn {A′} ⊢Γ α↦ PE.refl) =
+      PE.subst (_⊢_∷_ _ _) (wk-inline A′) $
+      wkTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) (⊢inline-Nat∷ (defn-wf ⊢Γ) α↦)
+    ⊢inline∷ (Levelⱼ ⊢Γ ok) =
+      Levelⱼ (⊢inline-Con ⊢Γ) ok
+    ⊢inline∷ (zeroᵘⱼ ok ⊢Γ) =
+      zeroᵘⱼ ok (⊢inline-Con ⊢Γ)
+    ⊢inline∷ (sucᵘⱼ ⊢l) =
+      sucᵘⱼ (⊢inline∷ ⊢l)
+    ⊢inline∷ (supᵘⱼ ⊢l₁ ⊢l₂) =
+      supᵘⱼ (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂)
+    ⊢inline∷ (Uⱼ {l} ⊢l) =
+      PE.subst (_⊢_∷_ _ _) (PE.cong U (PE.sym (inline-1ᵘ+ l))) $
+      Uⱼ (⊢inline∷L ⊢l)
+    ⊢inline∷ (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) =
+      PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym $ inline-supᵘₗ ⊢l₁ ⊢l₂) $
+      Liftⱼ′ (⊢inline∷L ⊢l₂) (⊢inline∷ ⊢A)
+    ⊢inline∷ (liftⱼ ⊢l _ ⊢t) =
+      liftⱼ′ (⊢inline∷L ⊢l) (⊢inline∷ ⊢t)
+    ⊢inline∷ (lowerⱼ ⊢t) =
+      lowerⱼ (⊢inline∷ ⊢t)
+    ⊢inline∷ (Emptyⱼ ⊢Γ) =
+      Emptyⱼ (⊢inline-Con ⊢Γ)
+    ⊢inline∷ (emptyrecⱼ ⊢A ⊢t) =
+      emptyrecⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
+    ⊢inline∷ (Unitⱼ ⊢Γ ok) =
+      Unitⱼ (⊢inline-Con ⊢Γ) ok
+    ⊢inline∷ (starⱼ ⊢Γ ok) =
+      starⱼ (⊢inline-Con ⊢Γ) ok
+    ⊢inline∷ (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) =
+      PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
+      unitrecⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) ok
+    ⊢inline∷ (ΠΣⱼ {l} _ ⊢A ⊢B ok) =
+      ΠΣⱼ′ (⊢inline∷ ⊢A)
+        (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-inline (U l)) $
+         ⊢inline∷ ⊢B)
         ok
-    (app-cong {G = B} t₁≡t₂ u₁≡u₂) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
-      app-cong (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ u₁≡u₂)
-    (β-red {B} {t} _ ⊢t ⊢u PE.refl ok) →
-      PE.subst₂ (_⊢_≡_∷_ _ _)
-        (PE.sym $ inline-[]₀ t) (PE.sym $ inline-[]₀ B) $
-      β-red-≡ (⊢inline∷ ⊢t) (⊢inline∷ ⊢u) ok
-    (η-eq {f = t₁} {g = t₂} ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) →
-      η-eq′ (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂)
-        (PE.subst₃ (_⊢_≡_∷_ _)
-           (PE.cong (_∘⟨ _ ⟩ _) $ PE.sym $ wk-inline t₁)
-           (PE.cong (_∘⟨ _ ⟩ _) $ PE.sym $ wk-inline t₂) PE.refl $
-         ⊢inline≡inline∷ t₁0≡t₂0)
-    (fst-cong _ t₁≡t₂) →
-      fst-cong′ (⊢inline≡inline∷ t₁≡t₂)
-    (Σ-β₁ {G = B} ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
-      Σ-β₁-≡ (⊢inline ⊢B) (⊢inline∷ ⊢t₁)
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢t₂)) ok
-    (snd-cong {G = B} _ t₁≡t₂) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
-      snd-cong′ (⊢inline≡inline∷ t₁≡t₂)
-    (Σ-β₂ {G = B} ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
-      Σ-β₂-≡ (⊢inline ⊢B) (⊢inline∷ ⊢t₁)
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢t₂)) ok
-    (Σ-η {G = B} _ ⊢t₁ ⊢t₂ fst≡fst snd≡snd _) →
-      Σ-η′ (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂) (⊢inline≡inline∷ fst≡fst)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B) $
-         ⊢inline≡inline∷ snd≡snd)
-    (prod-cong {G = B} ⊢B t₁≡t₂ u₁≡u₂ ok) →
-      prod-cong (⊢inline ⊢B) (⊢inline≡inline∷ t₁≡t₂)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B) $
-         ⊢inline≡inline∷ u₁≡u₂)
-        ok
-    (prodrec-cong {G = B} {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ C₁) $
-      prodrec-cong′ (⊢inline≡inline C₁≡C₂) (⊢inline≡inline∷ t₁≡t₂)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ C₁) $
-         ⊢inline≡inline∷ u₁≡u₂)
-    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
-      PE.subst₂ (_⊢_≡_∷_ _ _)
-        (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
-      prodrec-β-≡ (⊢inline ⊢C) (⊢inline∷ ⊢t)
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
-        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline∷ ⊢v))
-    (suc-cong t₁≡t₂) →
-      suc-cong (⊢inline≡inline∷ t₁≡t₂)
-    (natrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A₁) $
-      natrec-cong (⊢inline≡inline A₁≡A₂)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ A₁) $
-         ⊢inline≡inline∷ t₁≡t₂)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ A₁) $
-         ⊢inline≡inline∷ u₁≡u₂)
-        (⊢inline≡inline∷ v₁≡v₂)
-    (natrec-zero {A} ⊢t ⊢u) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-      natrec-zero
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
-        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
-    (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) →
-      PE.subst₂ (_⊢_≡_∷_ _ _)
-        (PE.sym $ inline-[]₁₀ u) (PE.sym $ inline-[]₀ A) $
-      natrec-suc (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+    ⊢inline∷ (lamⱼ ⊢B ⊢t ok) =
+      lamⱼ (⊢inline′ ⊢B) (⊢inline∷ ⊢t) ok
+    ⊢inline∷ (_∘ⱼ_ {G = B} ⊢t ⊢u) =
+      PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
+      ⊢inline∷ ⊢t ∘ⱼ ⊢inline∷ ⊢u
+    ⊢inline∷ (prodⱼ {G = B} ⊢B ⊢t ⊢u ok) =
+      prodⱼ (⊢inline′ ⊢B) (⊢inline∷ ⊢t)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
+    ⊢inline∷ (fstⱼ ⊢B ⊢t) =
+      fstⱼ (⊢inline′ ⊢B) (⊢inline∷ ⊢t)
+    ⊢inline∷ (sndⱼ {G = B} ⊢B ⊢t) =
+      PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
+      sndⱼ (⊢inline′ ⊢B) (⊢inline∷ ⊢t)
+    ⊢inline∷ (prodrecⱼ {A} ⊢A ⊢t ⊢u ok) =
+      PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
+      prodrecⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
+        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u)) ok
+    ⊢inline∷ (ℕⱼ ⊢Γ) =
+      ℕⱼ (⊢inline-Con ⊢Γ)
+    ⊢inline∷ (zeroⱼ ⊢Γ) =
+      zeroⱼ (⊢inline-Con ⊢Γ)
+    ⊢inline∷ (sucⱼ ⊢t) =
+      sucⱼ (⊢inline∷ ⊢t)
+    ⊢inline∷ (natrecⱼ {A} ⊢t ⊢u ⊢v) =
+      PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
+      natrecⱼ (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
         (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
         (⊢inline∷ ⊢v)
-    (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
-      Id-cong (⊢inline≡inline∷ A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
-        (⊢inline≡inline∷ u₁≡u₂)
-    (J-cong {A₁} {t₁} {B₁} A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B₁) $
-      J-cong′ (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
-        (PE.subst₃ _⊢_≡_
-           (PE.sym $ PE.cong (_»∙_ _) $
-            PE.cong₃ Id (wk-inline A₁) (wk-inline t₁) PE.refl)
-           PE.refl PE.refl $
-         ⊢inline≡inline B₁≡B₂)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₁₀ B₁) $
-         ⊢inline≡inline∷ u₁≡u₂)
-        (⊢inline≡inline∷ v₁≡v₂) (⊢inline≡inline∷ w₁≡w₂)
-    (J-β {t} {A} {B} ⊢t ⊢B ⊢u PE.refl) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B) $
-      J-β-≡ (⊢inline∷ ⊢t)
+    ⊢inline∷ (Idⱼ ⊢A ⊢t ⊢u) =
+      Idⱼ (⊢inline∷ ⊢A) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
+    ⊢inline∷ (rflⱼ ⊢t) =
+      rflⱼ (⊢inline∷ ⊢t)
+    ⊢inline∷ (Jⱼ {t} {A} {B} _ ⊢B ⊢u _ ⊢w) =
+      PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₁₀ B) $
+      Jⱼ′
         (PE.subst (flip _⊢_ _)
            (PE.sym $ PE.cong (_»∙_ _) $
             PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl) $
-         ⊢inline ⊢B)
+         ⊢inline′ ⊢B)
         (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
-    (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B₁) $
-      K-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
-        (⊢inline≡inline B₁≡B₂)
-        (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B₁) $
-         ⊢inline≡inline∷ u₁≡u₂)
-        (⊢inline≡inline∷ v₁≡v₂) ok
-    (K-β {B} ⊢B ⊢u ok) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
-      K-β (⊢inline ⊢B)
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
-    ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (inline-Id-Erased _) $
-      []-cong-cong (⊢inline≡inline∷L l₁≡l₂) (⊢inline≡inline A₁≡A₂)
-        (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ u₁≡u₂)
-        (⊢inline≡inline∷ v₁≡v₂) ok
-    ([]-cong-β ⊢l ⊢t PE.refl ok) →
-      PE.subst (_⊢_≡_∷_ _ _ _) (inline-Id-Erased _) $
-      []-cong-β-≡ (⊢inline∷L ⊢l) (refl (⊢inline∷ ⊢t)) ok
-    (equality-reflection ok ⊢Id ⊢v) →
-      equality-reflection ok (⊢inline ⊢Id) (⊢inline∷ ⊢v)
+        (⊢inline∷ ⊢w)
+    ⊢inline∷ (Kⱼ {B} ⊢B ⊢u ⊢v ok) =
+      PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
+      Kⱼ (⊢inline′ ⊢B)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+        (⊢inline∷ ⊢v) ok
+    ⊢inline∷ ([]-congⱼ ⊢l _ _ _ ⊢v ok) =
+      PE.subst (_⊢_∷_ _ _) (inline-Id-Erased _) $
+      []-congⱼ′ ok (⊢inline∷L ⊢l) (⊢inline∷ ⊢v)
 
-  -- Inlining preserves definitional equality.
+    -- Inlining preserves well-formedness for levels.
 
-  ⊢inline≡inline∷L :
-    ∇ ᵈ• ξ » Γ ⊢ l₁ ≡ l₂ ∷Level →
-    glassify ∇ » inline-Con ξ Γ ⊢ inline ξ l₁ ≡ inline ξ l₂ ∷Level
-  ⊢inline≡inline∷L = λ where
-    (term ok t≡u) →
-      term ok (⊢inline≡inline∷ t≡u)
-    (literal ok ⊢Γ) →
-      literal (Allowed-literal-inline ok) (⊢inline-Con ⊢Γ)
+    ⊢inline∷L :
+      ∇ ᵈ• ξ » Γ ⊢ l ∷Level →
+      glassify ∇ » inline-Con ξ Γ ⊢ inline ξ l ∷Level
+    ⊢inline∷L = λ where
+      (term ok ⊢t) →
+        term ok (⊢inline∷ ⊢t)
+      (literal ok ⊢Γ) →
+        literal (Allowed-literal-inline ok) (⊢inline-Con ⊢Γ)
+
+    -- Inlining preserves definitional equality.
+
+    ⊢inline≡inline :
+      ∇ ᵈ• ξ » Γ ⊢ A ≡ B →
+      glassify ∇ » inline-Con ξ Γ ⊢ inline ξ A ≡ inline ξ B
+    ⊢inline≡inline = λ where
+      (refl ⊢A) →
+        refl (⊢inline′ ⊢A)
+      (sym B≡A) →
+        sym (⊢inline≡inline B≡A)
+      (trans A≡B B≡C) →
+        trans (⊢inline≡inline A≡B) (⊢inline≡inline B≡C)
+      (univ A≡B) →
+        univ (⊢inline≡inline∷ A≡B)
+      (U-cong l₁≡l₂) →
+        U-cong (⊢inline≡inline∷ l₁≡l₂)
+      (Lift-cong l₁≡l₂ A≡B) →
+        Lift-cong (⊢inline≡inline∷L l₁≡l₂) (⊢inline≡inline A≡B)
+      (ΠΣ-cong A₁≡B₁ A₂≡B₂ ok) →
+        ΠΣ-cong (⊢inline≡inline A₁≡B₁) (⊢inline≡inline A₂≡B₂) ok
+      (Id-cong A≡B t₁≡u₁ t₂≡u₂) →
+        Id-cong (⊢inline≡inline A≡B) (⊢inline≡inline∷ t₁≡u₁)
+          (⊢inline≡inline∷ t₂≡u₂)
+
+    -- Inlining preserves definitional equality.
+
+    ⊢inline≡inline∷ :
+      ∇ ᵈ• ξ » Γ ⊢ t ≡ u ∷ A →
+      glassify ∇ » inline-Con ξ Γ ⊢ inline ξ t ≡ inline ξ u ∷ inline ξ A
+    ⊢inline≡inline∷ = λ where
+      (refl ⊢t) →
+        refl (⊢inline∷ ⊢t)
+      (sym _ t₂≡t₁) →
+        sym′ (⊢inline≡inline∷ t₂≡t₁)
+      (trans t₁≡t₂ t₂≡t₃) →
+        trans (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ t₂≡t₃)
+      (conv t₁≡t₂ B≡A) →
+        conv (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline B≡A)
+      (δ-red {t′ = t} {A′ = A} ⊢Γ α↦t PE.refl PE.refl) →
+        PE.subst₂ (_⊢_≡_∷_ _ _) (wk-inline t) (wk-inline A) $
+        wkEqTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) $
+        ⊢inline-Nat≡∷ (defn-wf ⊢Γ) α↦t
+      (sucᵘ-cong l₁≡l₂) →
+        sucᵘ-cong (⊢inline≡inline∷ l₁≡l₂)
+      (supᵘ-cong l₁≡l₃ l₂≡l₄) →
+        supᵘ-cong (⊢inline≡inline∷ l₁≡l₃) (⊢inline≡inline∷ l₂≡l₄)
+      (supᵘ-zeroˡ ⊢l) →
+        supᵘ-zeroˡ (⊢inline∷ ⊢l)
+      (supᵘ-sucᵘ ⊢l₁ ⊢l₂) →
+        supᵘ-sucᵘ (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂)
+      (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) →
+        supᵘ-assoc (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂) (⊢inline∷ ⊢l₃)
+      (supᵘ-comm ⊢l₁ ⊢l₂) →
+        supᵘ-comm (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂)
+      (supᵘ-idem ⊢l) →
+        supᵘ-idem (⊢inline∷ ⊢l)
+      (supᵘ-sub ⊢l) →
+        supᵘ-sub (⊢inline∷ ⊢l)
+      (U-cong l₁≡l₂) →
+        U-cong (⊢inline≡inline∷ l₁≡l₂)
+      (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₃ A₁≡A₂) →
+        PE.subst (_⊢_≡_∷_ _ _ _)
+          (PE.cong U $ PE.sym $ inline-supᵘₗ ⊢l₁ ⊢l₂) $
+        Lift-cong′ (⊢inline≡inline∷L l₂≡l₃) (⊢inline≡inline∷ A₁≡A₂)
+      (lower-cong t₁≡t₂) →
+        lower-cong (⊢inline≡inline∷ t₁≡t₂)
+      (Lift-β ⊢A ⊢t) →
+        Lift-β (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
+      (Lift-η _ _ ⊢t ⊢u lower-t≡lower-u) →
+        Lift-η′ (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
+          (⊢inline≡inline∷ lower-t≡lower-u)
+      (emptyrec-cong A₁≡A₂ t₁≡t₂) →
+        emptyrec-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+      (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A₁) $
+        unitrec-cong′ (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ A₁) $
+           ⊢inline≡inline∷ u₁≡u₂)
+      (unitrec-β {A} ⊢A ⊢t _ _) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+        unitrec-β-≡ (⊢inline′ ⊢A)
+          (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+      (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+        unitrec-β-η-≡ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
+          (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) η
+      (η-unit ⊢t₁ ⊢t₂ η) →
+        η-unit (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂) η
+      (ΠΣ-cong {l} _ A₁≡A₂ B₁≡B₂ ok) →
+        ΠΣ-cong′ (⊢inline≡inline∷ A₁≡A₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-inline (U l)) $
+           ⊢inline≡inline∷ B₁≡B₂)
+          ok
+      (app-cong {G = B} t₁≡t₂ u₁≡u₂) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+        app-cong (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ u₁≡u₂)
+      (β-red {B} {t} _ ⊢t ⊢u PE.refl ok) →
+        PE.subst₂ (_⊢_≡_∷_ _ _)
+          (PE.sym $ inline-[]₀ t) (PE.sym $ inline-[]₀ B) $
+        β-red-≡ (⊢inline∷ ⊢t) (⊢inline∷ ⊢u) ok
+      (η-eq {f = t₁} {g = t₂} ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) →
+        η-eq′ (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂)
+          (PE.subst₃ (_⊢_≡_∷_ _)
+             (PE.cong (_∘⟨ _ ⟩ _) $ PE.sym $ wk-inline t₁)
+             (PE.cong (_∘⟨ _ ⟩ _) $ PE.sym $ wk-inline t₂) PE.refl $
+           ⊢inline≡inline∷ t₁0≡t₂0)
+      (fst-cong _ t₁≡t₂) →
+        fst-cong′ (⊢inline≡inline∷ t₁≡t₂)
+      (Σ-β₁ {G = B} ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
+        Σ-β₁-≡ (⊢inline′ ⊢B) (⊢inline∷ ⊢t₁)
+          (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢t₂)) ok
+      (snd-cong {G = B} _ t₁≡t₂) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+        snd-cong′ (⊢inline≡inline∷ t₁≡t₂)
+      (Σ-β₂ {G = B} ⊢B ⊢t₁ ⊢t₂ PE.refl ok) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+        Σ-β₂-≡ (⊢inline′ ⊢B) (⊢inline∷ ⊢t₁)
+          (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢t₂)) ok
+      (Σ-η {G = B} _ ⊢t₁ ⊢t₂ fst≡fst snd≡snd _) →
+        Σ-η′ (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂) (⊢inline≡inline∷ fst≡fst)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B) $
+           ⊢inline≡inline∷ snd≡snd)
+      (prod-cong {G = B} ⊢B t₁≡t₂ u₁≡u₂ ok) →
+        prod-cong (⊢inline′ ⊢B) (⊢inline≡inline∷ t₁≡t₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B) $
+           ⊢inline≡inline∷ u₁≡u₂)
+          ok
+      (prodrec-cong {G = B} {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ C₁) $
+        prodrec-cong′ (⊢inline≡inline C₁≡C₂) (⊢inline≡inline∷ t₁≡t₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ C₁) $
+           ⊢inline≡inline∷ u₁≡u₂)
+      (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
+        PE.subst₂ (_⊢_≡_∷_ _ _)
+          (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
+        prodrec-β-≡ (⊢inline′ ⊢C) (⊢inline∷ ⊢t)
+          (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+          (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline∷ ⊢v))
+      (suc-cong t₁≡t₂) →
+        suc-cong (⊢inline≡inline∷ t₁≡t₂)
+      (natrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A₁) $
+        natrec-cong (⊢inline≡inline A₁≡A₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ A₁) $
+           ⊢inline≡inline∷ t₁≡t₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ A₁) $
+           ⊢inline≡inline∷ u₁≡u₂)
+          (⊢inline≡inline∷ v₁≡v₂)
+      (natrec-zero {A} ⊢t ⊢u) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
+        natrec-zero
+          (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+          (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+      (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) →
+        PE.subst₂ (_⊢_≡_∷_ _ _)
+          (PE.sym $ inline-[]₁₀ u) (PE.sym $ inline-[]₀ A) $
+        natrec-suc (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
+          (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+          (⊢inline∷ ⊢v)
+      (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
+        Id-cong (⊢inline≡inline∷ A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+          (⊢inline≡inline∷ u₁≡u₂)
+      (J-cong {A₁} {t₁} {B₁} A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B₁) $
+        J-cong′ (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+          (PE.subst₃ _⊢_≡_
+             (PE.sym $ PE.cong (_»∙_ _) $
+              PE.cong₃ Id (wk-inline A₁) (wk-inline t₁) PE.refl)
+             PE.refl PE.refl $
+           ⊢inline≡inline B₁≡B₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₁₀ B₁) $
+           ⊢inline≡inline∷ u₁≡u₂)
+          (⊢inline≡inline∷ v₁≡v₂) (⊢inline≡inline∷ w₁≡w₂)
+      (J-β {t} {A} {B} ⊢t ⊢B ⊢u PE.refl) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B) $
+        J-β-≡ (⊢inline∷ ⊢t)
+          (PE.subst (flip _⊢_ _)
+             (PE.sym $ PE.cong (_»∙_ _) $
+              PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl) $
+           ⊢inline′ ⊢B)
+          (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
+      (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B₁) $
+        K-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
+          (⊢inline≡inline B₁≡B₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B₁) $
+           ⊢inline≡inline∷ u₁≡u₂)
+          (⊢inline≡inline∷ v₁≡v₂) ok
+      (K-β {B} ⊢B ⊢u ok) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
+        K-β (⊢inline′ ⊢B)
+          (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
+      ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (inline-Id-Erased _) $
+        []-cong-cong (⊢inline≡inline∷L l₁≡l₂) (⊢inline≡inline A₁≡A₂)
+          (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ u₁≡u₂)
+          (⊢inline≡inline∷ v₁≡v₂) ok
+      ([]-cong-β ⊢l ⊢t PE.refl ok) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (inline-Id-Erased _) $
+        []-cong-β-≡ (⊢inline∷L ⊢l) (refl (⊢inline∷ ⊢t)) ok
+      (equality-reflection ok ⊢Id ⊢v) →
+        equality-reflection ok (⊢inline′ ⊢Id) (⊢inline∷ ⊢v)
+
+    -- Inlining preserves definitional equality.
+
+    ⊢inline≡inline∷L :
+      ∇ ᵈ• ξ » Γ ⊢ l₁ ≡ l₂ ∷Level →
+      glassify ∇ » inline-Con ξ Γ ⊢ inline ξ l₁ ≡ inline ξ l₂ ∷Level
+    ⊢inline≡inline∷L = λ where
+      (term ok t≡u) →
+        term ok (⊢inline≡inline∷ t≡u)
+      (literal ok ⊢Γ) →
+        literal (Allowed-literal-inline ok) (⊢inline-Con ⊢Γ)
+
+opaque
+
+  -- Inlining preserves several judgements.
+
+  ⊢inline :
+    ∇ ᵈ• ξ » Γ ⊢[ 𝓙 ] →
+    glassify ∇ » inline-Con ξ Γ ⊢[ mapJ (inline ξ) 𝓙 ]
+  ⊢inline {𝓙 = [ctxt]}          = ⊢inline-Con
+  ⊢inline {𝓙 = [ _ type]}       = ⊢inline′
+  ⊢inline {𝓙 = [ _ ≡ _ type]}   = ⊢inline≡inline
+  ⊢inline {𝓙 = [ _ ∷ A ]}       = ⊢inline∷
+  ⊢inline {𝓙 = [ _ ≡ _ ∷ A ]}   = ⊢inline≡inline∷
+  ⊢inline {𝓙 = [ _ ∷Level]}     = ⊢inline∷L
+  ⊢inline {𝓙 = [ _ ≡ _ ∷Level]} = ⊢inline≡inline∷L
 
 opaque
   unfolding inline
@@ -1024,97 +1042,97 @@ opaque
     glassify ∇ » inline-Con ξ Γ ⊢
       inline ξ t₁ ⇒* inline ξ t₂ ∷ inline ξ A
   ⊢inline⇒inline∷ (conv t₁⇒t₂ A≡B) =
-    conv* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline≡inline A≡B)
+    conv* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline A≡B)
   ⊢inline⇒inline∷ (δ-red {t′ = t} {A′ = A} ⊢Γ α↦ PE.refl PE.refl) =
     PE.subst₂ (_⊢_⇒*_∷_ _ _) (wk-inline t) (wk-inline A) $
-    wkRed*Term (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) $
+    wkRed*Term (wk₀∷ʷ⊇ (⊢inline ⊢Γ)) $
     ⊢inline-Nat⇒*∷ (defn-wf ⊢Γ) α↦
   ⊢inline⇒inline∷ (supᵘ-substˡ l₁⇒l₂ ⊢l₃) =
-    supᵘ-substˡ* (⊢inline⇒inline∷ l₁⇒l₂) (⊢inline∷ ⊢l₃)
+    supᵘ-substˡ* (⊢inline⇒inline∷ l₁⇒l₂) (⊢inline ⊢l₃)
   ⊢inline⇒inline∷ (supᵘ-substʳ ⊢l₁ l₂⇒l₃) =
-    supᵘ-substʳ* (⊢inline∷ ⊢l₁) (⊢inline⇒inline∷ l₂⇒l₃)
+    supᵘ-substʳ* (⊢inline ⊢l₁) (⊢inline⇒inline∷ l₂⇒l₃)
   ⊢inline⇒inline∷ (supᵘ-zeroˡ ⊢l) =
     redMany $
-    supᵘ-zeroˡ (⊢inline∷ ⊢l)
+    supᵘ-zeroˡ (⊢inline ⊢l)
   ⊢inline⇒inline∷ (supᵘ-zeroʳ ⊢l) =
     redMany $
-    supᵘ-zeroʳ (⊢inline∷ ⊢l)
+    supᵘ-zeroʳ (⊢inline ⊢l)
   ⊢inline⇒inline∷ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
     redMany $
-    supᵘ-sucᵘ (⊢inline∷ ⊢l₁) (⊢inline∷ ⊢l₂)
+    supᵘ-sucᵘ (⊢inline ⊢l₁) (⊢inline ⊢l₂)
   ⊢inline⇒inline∷ (lower-subst t₁⇒t₂) =
     lower-subst* (⊢inline⇒inline∷ t₁⇒t₂)
   ⊢inline⇒inline∷ (Lift-β _ ⊢t) =
     redMany $
-    Lift-β⇒ (⊢inline∷ ⊢t)
+    Lift-β⇒ (⊢inline ⊢t)
   ⊢inline⇒inline∷ (emptyrec-subst ⊢A t₁⇒t₂) =
     emptyrec-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢A)
   ⊢inline⇒inline∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ _ no-η) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
     unitrec-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢A)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u))
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u))
       no-η
   ⊢inline⇒inline∷ (unitrec-β {A} ⊢A ⊢u _ _) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
     unitrec-β-⇒ (⊢inline ⊢A)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u))
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u))
   ⊢inline⇒inline∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-    unitrec-β-η-⇒ (⊢inline ⊢A) (⊢inline∷ ⊢t)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) η
+    unitrec-β-η-⇒ (⊢inline ⊢A) (⊢inline ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u)) η
   ⊢inline⇒inline∷ (app-subst {B} t₁⇒t₂ ⊢u) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
-    app-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline∷ ⊢u)
+    app-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢u)
   ⊢inline⇒inline∷ (β-red {B} {t} _ ⊢t ⊢u PE.refl ok) =
     redMany $
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ inline-[]₀ t) (PE.sym $ inline-[]₀ B) $
-    β-red-⇒ (⊢inline∷ ⊢t) (⊢inline∷ ⊢u) ok
+    β-red-⇒ (⊢inline ⊢t) (⊢inline ⊢u) ok
   ⊢inline⇒inline∷ (fst-subst _ t₁⇒t₂) =
     fst-subst* (⊢inline⇒inline∷ t₁⇒t₂)
   ⊢inline⇒inline∷ (Σ-β₁ {G = B} ⊢B ⊢t ⊢u PE.refl ok) =
     redMany $
-    Σ-β₁-⇒ (⊢inline ⊢B) (⊢inline∷ ⊢t)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
+    Σ-β₁-⇒ (⊢inline ⊢B) (⊢inline ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline ⊢u)) ok
   ⊢inline⇒inline∷ (snd-subst {G = B} _ t₁⇒t₂) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
     snd-subst* (⊢inline⇒inline∷ t₁⇒t₂)
   ⊢inline⇒inline∷ (Σ-β₂ {G = B} ⊢B ⊢t ⊢u PE.refl ok) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
-    Σ-β₂-⇒ (⊢inline ⊢B) (⊢inline∷ ⊢t)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u)) ok
+    Σ-β₂-⇒ (⊢inline ⊢B) (⊢inline ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline ⊢u)) ok
   ⊢inline⇒inline∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂ _) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ C) $
     prodrec-subst* (⊢inline ⊢C) (⊢inline⇒inline∷ t₁⇒t₂)
-      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline∷ ⊢u))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline ⊢u))
   ⊢inline⇒inline∷
     (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl _) =
     redMany $
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
-    prodrec-β-⇒ (⊢inline ⊢C) (⊢inline∷ ⊢t)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
-      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline∷ ⊢v))
+    prodrec-β-⇒ (⊢inline ⊢C) (⊢inline ⊢t)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline ⊢u))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline ⊢v))
   ⊢inline⇒inline∷ (natrec-subst {A} ⊢t ⊢u v₁⇒v₂) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-    natrec-subst* (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
-      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+    natrec-subst* (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢t))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline ⊢u))
       (⊢inline⇒inline∷ v₁⇒v₂)
   ⊢inline⇒inline∷ (natrec-zero {A} ⊢t ⊢u) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-    natrec-zero (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
-      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
+    natrec-zero (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢t))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline ⊢u))
   ⊢inline⇒inline∷ (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) =
     redMany $
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ inline-[]₁₀ u) (PE.sym $ inline-[]₀ A) $
-    natrec-suc (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
-      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
-      (⊢inline∷ ⊢v)
+    natrec-suc (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢t))
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline ⊢u))
+      (⊢inline ⊢v)
   ⊢inline⇒inline∷ (J-subst {t} {A} {B} ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B) $
     J-subst*
@@ -1123,35 +1141,35 @@ opaque
           PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl)
          PE.refl $
        ⊢inline ⊢B)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline ⊢u))
       (⊢inline⇒inline∷ w₁⇒w₂)
   ⊢inline⇒inline∷ (J-β {t} {A} {B} ⊢t ⊢t′ t≡t′ ⊢B B[]≡B[] ⊢u) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₁₀ B) $
-    J-β-⇒ (⊢inline≡inline∷ t≡t′)
+    J-β-⇒ (⊢inline t≡t′)
       (PE.subst₂ _⊢_
          (PE.sym $ PE.cong (_»_ _) $ PE.cong (_∙_ _) $
           PE.cong₃ Id (wk-inline A) (wk-inline t) PE.refl)
          PE.refl $
        ⊢inline ⊢B)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline∷ ⊢u))
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) (⊢inline ⊢u))
   ⊢inline⇒inline∷ (K-subst {B} ⊢B ⊢u v₁⇒v₂ ok) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
     K-subst* (⊢inline ⊢B)
-      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline ⊢u))
       (⊢inline⇒inline∷ v₁⇒v₂) ok
   ⊢inline⇒inline∷ (K-β {B} ⊢B ⊢u ok) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
-    K-β (⊢inline ⊢B) (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline∷ ⊢u))
+    K-β (⊢inline ⊢B) (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline ⊢u))
       ok
   ⊢inline⇒inline∷ ([]-cong-subst ⊢l v₁⇒v₂ ok) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (inline-Id-Erased _) $
-    []-cong-subst* (⊢inline∷L ⊢l) (⊢inline⇒inline∷ v₁⇒v₂) ok
+    []-cong-subst* (⊢inline ⊢l) (⊢inline⇒inline∷ v₁⇒v₂) ok
   ⊢inline⇒inline∷ ([]-cong-β ⊢l t≡t′ ok) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (inline-Id-Erased _) $
-    []-cong-β (⊢inline∷L ⊢l) (⊢inline≡inline∷ t≡t′) ok
+    []-cong-β (⊢inline ⊢l) (⊢inline t≡t′) ok
 
 opaque
 
@@ -1160,7 +1178,7 @@ opaque
   ⊢inline⇒*inline∷ :
     ∇ ᵈ• ξ » Γ ⊢ t ⇒* u ∷ A →
     glassify ∇ » inline-Con ξ Γ ⊢ inline ξ t ⇒* inline ξ u ∷ inline ξ A
-  ⊢inline⇒*inline∷ (id ⊢t)      = id (⊢inline∷ ⊢t)
+  ⊢inline⇒*inline∷ (id ⊢t)      = id (⊢inline ⊢t)
   ⊢inline⇒*inline∷ (t⇒u ⇨ u⇒*v) =
     ⊢inline⇒inline∷ t⇒u ⇨∷* ⊢inline⇒*inline∷ u⇒*v
 
@@ -1228,48 +1246,11 @@ opaque
   -- A variant of ⊢inline.
 
   ⊢inlineᵈ :
-    ∇ » Γ ⊢ A →
-    ε » inline-Conᵈ ∇ Γ ⊢ inlineᵈ ∇ A
+    ∇ » Γ ⊢[ 𝓙 ] →
+    ε » inline-Conᵈ ∇ Γ ⊢[ mapJ (inlineᵈ ∇) 𝓙 ]
   ⊢inlineᵈ =
     ⊢inline ∘→
-    PE.subst₂ _⊢_ (PE.cong (_» _) (PE.sym εᵈ•as-DExt)) PE.refl
-
-opaque
-  unfolding inline-Conᵈ
-
-  -- A variant of ⊢inline∷.
-
-  ⊢inlineᵈ∷ :
-    ∇ » Γ ⊢ t ∷ A →
-    ε » inline-Conᵈ ∇ Γ ⊢ inlineᵈ ∇ t ∷ inlineᵈ ∇ A
-  ⊢inlineᵈ∷ =
-    ⊢inline∷ ∘→
-    PE.subst₃ _⊢_∷_ (PE.cong (_» _) (PE.sym εᵈ•as-DExt)) PE.refl PE.refl
-
-opaque
-  unfolding inline-Conᵈ
-
-  -- A variant of ⊢inline≡inline.
-
-  ⊢inlineᵈ≡inlineᵈ :
-    ∇ » Γ ⊢ A ≡ B →
-    ε » inline-Conᵈ ∇ Γ ⊢ inlineᵈ ∇ A ≡ inlineᵈ ∇ B
-  ⊢inlineᵈ≡inlineᵈ =
-    ⊢inline≡inline ∘→
-    PE.subst₃ _⊢_≡_ (PE.cong (_» _) (PE.sym εᵈ•as-DExt)) PE.refl PE.refl
-
-opaque
-  unfolding inline-Conᵈ
-
-  -- A variant of ⊢inline≡inline∷.
-
-  ⊢inlineᵈ≡inlineᵈ∷ :
-    ∇ » Γ ⊢ t ≡ u ∷ A →
-    ε » inline-Conᵈ ∇ Γ ⊢ inlineᵈ ∇ t ≡ inlineᵈ ∇ u ∷ inlineᵈ ∇ A
-  ⊢inlineᵈ≡inlineᵈ∷ =
-    ⊢inline≡inline∷ ∘→
-    PE.subst₄ _⊢_≡_∷_
-      (PE.cong (_» _) (PE.sym εᵈ•as-DExt)) PE.refl PE.refl PE.refl
+    PE.subst₂ _⊢[_] (PE.cong (_» _) (PE.sym εᵈ•as-DExt)) PE.refl
 
 opaque
   unfolding inline-Conᵈ
@@ -1550,7 +1531,7 @@ opaque
           substTypeEq (sym ≡A) (refl (zeroⱼ (glassify-⊢′ (wfTerm ⊢t)))))
          (stabilityEqTerm (refl-∙ (sym ≡A)) $
           conv (⊢inline≡∷ ⊢u) $
-          subst↑²TypeEq (sym ≡A) (refl (sucⱼ (var₁ (glassify-⊢ ⊢A)))))
+          subst-⊢≡-↑ (sym ≡A) (refl (sucⱼ (var₁ (glassify-⊢ ⊢A)))))
          ≡v)
       (substTypeEq ≡A ≡v)
   ⊢inline≡∷ (Idⱼ ⊢A ⊢t ⊢u) =
@@ -1579,11 +1560,11 @@ opaque
                 (refl (var₀ ⊢A′)))
              ≡B)
          (conv (⊢inline≡∷ ⊢u) $
-          substTypeEq₂ (sym ≡B) (sym′ ≡t)
+          subst-⊢≡₁₀ (sym ≡B) (sym′ ≡t)
             (refl (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ (rflⱼ ⊢t′))))
          (conv ≡v (sym ≡A))
          (conv ≡w (Id-cong (sym ≡A) (sym′ ≡t) (sym′ ≡v))))
-      (substTypeEq₂ ≡B ≡v $
+      (subst-⊢≡₁₀ ≡B ≡v $
        conv ≡w
          (Id A t v                                     ≡⟨ Id-cong (refl ⊢A′) (refl ⊢t′) (sym′ ≡v) ⟩⊢∎≡
           Id A t (inline ξ v)                          ≡⟨ ≡Id-wk1-wk1-0[]₀ ⟩
@@ -1752,7 +1733,7 @@ opaque
       (inline ξ A    ≡˘⟨ inline-⊇-⊢ ∇′⊇∇ ⊢A ⟩
        inline idᵉ A  ≡⟨ inline-id _ ⟩
        A             ∎)
-      (⊢inline∷ ⊢t) }
+      (⊢inline ⊢t) }
 
 ------------------------------------------------------------------------
 -- Opaque[_∷_]

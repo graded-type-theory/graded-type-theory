@@ -66,7 +66,7 @@ opaque
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym (singleSubstLift t _))
       (PE.sym (singleSubstLift B _)) $
-    β-red-⇒ (subst-⊢∷-⇑ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ) ok
+    β-red-⇒ (subst-⊢-⇑ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ) ok
   subst-⊢⇒∷ (fst-subst _ t⇒u) ⊢σ =
     fst-subst′ (subst-⊢⇒∷ t⇒u ⊢σ)
   subst-⊢⇒∷ (snd-subst {G = B} _ t⇒u) ⊢σ =
@@ -86,7 +86,7 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift C _)
       (prodrec-subst′ (subst-⊢-⇑ ⊢C ⊢σ)
         (PE.subst (_ ⊢ _ ∷_) (subst-β-prodrec C _) $
-         subst-⊢∷-⇑ ⊢u ⊢σ)
+         subst-⊢-⇑ ⊢u ⊢σ)
         (subst-⊢⇒∷ t₁⇒t₂ ⊢σ))
   subst-⊢⇒∷
     (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl _) ⊢σ =
@@ -97,20 +97,20 @@ opaque
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
        subst-⊢∷ ⊢u ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
-       subst-⊢∷-⇑ ⊢v ⊢σ)
+       subst-⊢-⇑ ⊢v ⊢σ)
   subst-⊢⇒∷ (natrec-subst {A} ⊢t ⊢u v₁⇒v₂) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     natrec-subst
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
       (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-       subst-⊢∷-⇑ ⊢u ⊢σ)
+       subst-⊢-⇑ ⊢u ⊢σ)
       (subst-⊢⇒∷ v₁⇒v₂ ⊢σ)
   subst-⊢⇒∷ (natrec-zero {A} ⊢t ⊢u) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     natrec-zero
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
       (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-       subst-⊢∷-⇑ ⊢u ⊢σ)
+       subst-⊢-⇑ ⊢u ⊢σ)
   subst-⊢⇒∷ (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) ⊢σ =
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ [,]-[]-commute u)
@@ -118,7 +118,7 @@ opaque
     natrec-suc
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
       (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-       subst-⊢∷-⇑ ⊢u ⊢σ)
+       subst-⊢-⇑ ⊢u ⊢σ)
       (subst-⊢∷ ⊢v ⊢σ)
   subst-⊢⇒∷ (emptyrec-subst ⊢A t₁⇒t₂) ⊢σ =
     emptyrec-subst (subst-⊢ ⊢A ⊢σ) (subst-⊢⇒∷ t₁⇒t₂ ⊢σ)

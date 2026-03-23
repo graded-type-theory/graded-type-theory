@@ -182,7 +182,7 @@ opaque
       unitrec® →
 
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
-         subst-⊢∷-⇑ ⊢u ⊢σ of λ
+         subst-⊢-⇑ ⊢u ⊢σ of λ
       ⊢u[σ] →
     case subst-⊢∷ ⊢t ⊢σ of λ
       ⊢t[σ] →

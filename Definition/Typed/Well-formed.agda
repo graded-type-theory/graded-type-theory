@@ -39,10 +39,11 @@ open import Tools.Sum using (inj₂)
 
 private variable
   ∇             : DCon (Term 0) _
-  α             : Nat
+  α m n         : Nat
   x             : Fin _
   Δ Η           : Con Term _
   Γ             : Cons _ _
+  𝓙             : Judgement _
   A B t t₁ t₂ u : Term _
   l₁ l₂         : Lvl _
   σ₁ σ₂         : Subst _ _
@@ -274,7 +275,7 @@ opaque mutual
       in
       ⊢U ⊢l ,
       ΠΣⱼ ⊢l ⊢A₁ ⊢B₁ ok ,
-      ΠΣⱼ ⊢l ⊢A₂ (stability-⊢∷ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
+      ΠΣⱼ ⊢l ⊢A₂ (stability-⊢ refl-∙⟨ univ ⊢A₂ ∣ univ A₁≡A₂ ⟩ ⊢B₂) ok
     (app-cong t₁≡t₂ u₁≡u₂) →
       let ⊢Π , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂  = wf-⊢≡∷ u₁≡u₂
@@ -409,7 +410,7 @@ opaque mutual
         (natrecⱼ
            (conv ⊢t₂ $
             subst-⊢≡ A₁≡A₂ (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-sgSubst (zeroⱼ ⊢Γ))))
-           (stability-⊢∷ refl-∙⟨ ⊢A₂ ∣ A₁≡A₂ ⟩ $
+           (stability-⊢ refl-∙⟨ ⊢A₂ ∣ A₁≡A₂ ⟩ $
             conv ⊢u₂ $ subst-⊢≡ A₁≡A₂ $ refl-⊢ˢʷ≡∷ $
             →⊢ˢʷ∷∙
               (⊢ˢʷ∷-wk1Subst ⊢A₁ $
@@ -557,6 +558,30 @@ opaque mutual
 
   ⊢≡→⊢ : Γ ⊢ t ≡ t ∷ A → Γ ⊢ t ∷ A
   ⊢≡→⊢ t≡t = wf-⊢≡∷ t≡t .proj₂ .proj₁
+
+-- A function used to state wf-⊢.
+
+Well-formed : Cons m n → Judgement n → Set a
+Well-formed Γ [ctxt]            = » Γ .defs
+Well-formed Γ [ _ type]         = ⊢ Γ
+Well-formed Γ [ A ≡ B type]     = Γ ⊢ A × Γ ⊢ B
+Well-formed Γ [ _ ∷ A ]         = Γ ⊢ A
+Well-formed Γ [ t ≡ u ∷ A ]     = (Γ ⊢ A) × Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
+Well-formed Γ [ _ ∷Level]       = ⊢ Γ
+Well-formed Γ [ l₁ ≡ l₂ ∷Level] = Γ ⊢ l₁ ∷Level × Γ ⊢ l₂ ∷Level
+
+opaque
+
+  -- A lemma that encompasses four of the lemmas above (and more).
+
+  wf-⊢ : Γ ⊢[ 𝓙 ] → Well-formed Γ 𝓙
+  wf-⊢ {𝓙 = [ctxt]}          = defn-wf
+  wf-⊢ {𝓙 = [ _ type]}       = wf
+  wf-⊢ {𝓙 = [ _ ≡ _ type]}   = wf-⊢≡
+  wf-⊢ {𝓙 = [ _ ∷ _ ]}       = wf-⊢∷
+  wf-⊢ {𝓙 = [ _ ≡ _ ∷ _ ]}   = wf-⊢≡∷
+  wf-⊢ {𝓙 = [ _ ∷Level]}     = wf
+  wf-⊢ {𝓙 = [ _ ≡ _ ∷Level]} = wf-⊢≡∷L
 
 opaque
 

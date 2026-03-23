@@ -48,6 +48,7 @@ private
     l l₁ l₂ : Lvl _
     Γ Δ Δ′ Η : Con Term _
     ρ ρ′ ρ₁ ρ₂ : Wk _ _
+    𝓙 : Judgement _
 
 ------------------------------------------------------------------------
 -- Some lemmas related to Allowed-literal
@@ -281,32 +282,32 @@ private
       wk :
         ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
         (⊢A : ∇ » Γ ⊢ A) →
-        size-⊢ ⊢A PE.≡ s →
+        size ⊢A PE.≡ s →
         ∇ » Δ ⊢ U.wk ρ A
       wkTerm :
         ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
         (⊢t : ∇ » Γ ⊢ t ∷ A) →
-        size-⊢∷ ⊢t PE.≡ s →
+        size ⊢t PE.≡ s →
         ∇ » Δ ⊢ U.wk ρ t ∷ U.wk ρ A
       wkLevel :
         ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
         (⊢l : ∇ » Γ ⊢ l ∷Level) →
-        size-⊢∷L ⊢l PE.≡ s →
+        size ⊢l PE.≡ s →
         ∇ » Δ ⊢ U.wk ρ l ∷Level
       wkEq :
         ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
         (A≡B : ∇ » Γ ⊢ A ≡ B) →
-        size-⊢≡ A≡B PE.≡ s →
+        size A≡B PE.≡ s →
         ∇ » Δ ⊢ U.wk ρ A ≡ U.wk ρ B
       wkEqTerm :
         ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
         (t≡u : ∇ » Γ ⊢ t ≡ u ∷ A) →
-        size-⊢≡∷ t≡u PE.≡ s →
+        size t≡u PE.≡ s →
         ∇ » Δ ⊢ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A
       wkEqLevel :
         ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
         (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level) →
-        size-⊢≡∷L l₁≡l₂ PE.≡ s →
+        size l₁≡l₂ PE.≡ s →
         ∇ » Δ ⊢ U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
 
 -- Variants of the fields of P.
@@ -320,42 +321,42 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     wk :
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (⊢A : ∇ » Γ ⊢ A)
-      ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ U.wk ρ A
     wk ρ⊇ ⊢Δ ⊢A ⦃ lt ⦄ = P.wk (hyp lt) ρ⊇ ⊢Δ ⊢A PE.refl
 
     wkTerm :
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (⊢t : ∇ » Γ ⊢ t ∷ A)
-      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ U.wk ρ t ∷ U.wk ρ A
     wkTerm ρ⊇ ⊢Δ ⊢t ⦃ lt ⦄ = P.wkTerm (hyp lt) ρ⊇ ⊢Δ ⊢t PE.refl
 
     wkLevel :
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (⊢l : ∇ » Γ ⊢ l ∷Level) →
-      ⦃ lt : size-⊢∷L ⊢l <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢l <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ U.wk ρ l ∷Level
     wkLevel ρ⊇ ⊢Δ ⊢l ⦃ lt ⦄ = P.wkLevel (hyp lt) ρ⊇ ⊢Δ ⊢l PE.refl
 
     wkEq :
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (A≡B : ∇ » Γ ⊢ A ≡ B)
-      ⦃ lt : size-⊢≡ A≡B <ˢ s₂ ⦄ →
+      ⦃ lt : size A≡B <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ U.wk ρ A ≡ U.wk ρ B
     wkEq ρ⊇ ⊢Δ A≡B ⦃ lt ⦄ = P.wkEq (hyp lt) ρ⊇ ⊢Δ A≡B PE.refl
 
     wkEqTerm :
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (t≡u : ∇ » Γ ⊢ t ≡ u ∷ A)
-      ⦃ lt : size-⊢≡∷ t≡u <ˢ s₂ ⦄ →
+      ⦃ lt : size t≡u <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A
     wkEqTerm ρ⊇ ⊢Δ t≡u ⦃ lt ⦄ = P.wkEqTerm (hyp lt) ρ⊇ ⊢Δ t≡u PE.refl
 
     wkEqLevel :
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level) →
-      ⦃ lt : size-⊢≡∷L l₁≡l₂ <ˢ s₂ ⦄ →
+      ⦃ lt : size l₁≡l₂ <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
     wkEqLevel ρ⊇ ⊢Δ l₁≡l₂ ⦃ lt ⦄ =
       P.wkEqLevel (hyp lt) ρ⊇ ⊢Δ l₁≡l₂ PE.refl
@@ -365,7 +366,7 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 private module Inhabited where
 
   opaque
-    unfolding size-⊢
+    unfolding size
 
     -- A weakening lemma for _⊢_.
 
@@ -373,7 +374,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (⊢A : ∇ » Γ ⊢ A) →
-      size-⊢ ⊢A PE.≡ s₂ →
+      size ⊢A PE.≡ s₂ →
       ∇ » Δ ⊢ U.wk ρ A
     wk′ hyp ρ⊇ ⊢Δ = λ where
         (Levelⱼ ok _) _ →
@@ -393,7 +394,7 @@ private module Inhabited where
       open Variants hyp
 
   opaque
-    unfolding size-⊢∷
+    unfolding size
 
     -- A weakening lemma for _⊢_∷_.
 
@@ -401,7 +402,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (⊢t : ∇ » Γ ⊢ t ∷ A) →
-      size-⊢∷ ⊢t PE.≡ s₂ →
+      size ⊢t PE.≡ s₂ →
       ∇ » Δ ⊢ U.wk ρ t ∷ U.wk ρ A
     wkTerm′ hyp ρ⊇ ⊢Δ = λ where
         (conv ⊢t B≡A) PE.refl →
@@ -437,7 +438,7 @@ private module Inhabited where
               (wkTerm (lift ρ⊇) (∙ univ ⊢A′) ⊢B))
             ok
         (lamⱼ ⊢B ⊢t ok) PE.refl →
-          let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢t
+          let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢t
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           lamⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm (lift ρ⊇) (∙ ⊢A′) ⊢t)
@@ -466,7 +467,7 @@ private module Inhabited where
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β B) $
           sndⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm ρ⊇ ⊢Δ ⊢t)
         (prodrecⱼ {A = C} ⊢C ⊢t ⊢u ok) PE.refl →
-          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢∷→⊢-<ˢ ⊢u
+          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢u
               ⊢A′                       = wk ρ⊇ ⊢Δ ⊢A
                                             ⦃ lt = <ˢ-trans A< ! ⦄
               ⊢B′                       = wk (lift ρ⊇) (∙ ⊢A′) ⊢B
@@ -501,7 +502,7 @@ private module Inhabited where
         (sucⱼ ⊢t) PE.refl →
           sucⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
         (natrecⱼ {A} ⊢t ⊢u ⊢v) PE.refl →
-          let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
+          let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
               ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
                                 ⦃ lt = <ˢ-trans A< ! ⦄
           in
@@ -560,7 +561,7 @@ private module Inhabited where
       open Variants hyp
 
   opaque
-    unfolding size-⊢∷
+    unfolding size
 
     -- A weakening lemma for _⊢_∷_.
 
@@ -568,7 +569,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (⊢l : ∇ » Γ ⊢ l ∷Level) →
-      size-⊢∷L ⊢l PE.≡ s₂ →
+      size ⊢l PE.≡ s₂ →
       ∇ » Δ ⊢ U.wk ρ l ∷Level
     wkLevel′ hyp ρ⊇ ⊢Δ = λ where
         (term ok ⊢l)   PE.refl → term ok (wkTerm ρ⊇ ⊢Δ ⊢l)
@@ -578,7 +579,7 @@ private module Inhabited where
       open Variants hyp
 
   opaque
-    unfolding size-⊢≡
+    unfolding size
 
     -- A weakening lemma for _⊢_≡_.
 
@@ -586,7 +587,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂) →
-      size-⊢≡ A₁≡A₂ PE.≡ s₂ →
+      size A₁≡A₂ PE.≡ s₂ →
       ∇ » Δ ⊢ U.wk ρ A₁ ≡ U.wk ρ A₂
     wkEq′ hyp ρ⊇ ⊢Δ = λ where
         (univ A₁≡A₂) PE.refl →
@@ -602,7 +603,7 @@ private module Inhabited where
         (Lift-cong l₁≡l₂ A≡B) PE.refl →
           Lift-cong (wkEqLevel ρ⊇ ⊢Δ l₁≡l₂) (wkEq ρ⊇ ⊢Δ A≡B)
         (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) PE.refl →
-          let _ , (⊢A₁ , A₁<) = ∙⊢≡→⊢-<ˢ B₁≡B₂
+          let _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ B₁≡B₂
               ⊢A₁′            = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
           ΠΣ-cong (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkEq (lift ρ⊇) (∙ ⊢A₁′) B₁≡B₂) ok
@@ -613,7 +614,7 @@ private module Inhabited where
       open Variants hyp
 
   opaque
-    unfolding size-⊢≡∷
+    unfolding size
 
     -- A weakening lemma for _⊢_≡_∷_.
 
@@ -621,7 +622,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A) →
-      size-⊢≡∷ t₁≡t₂ PE.≡ s₂ →
+      size t₁≡t₂ PE.≡ s₂ →
       ∇ » Δ ⊢ U.wk ρ t₁ ≡ U.wk ρ t₂ ∷ U.wk ρ A
     wkEqTerm′ hyp ρ⊇ ⊢Δ = λ where
         (refl ⊢t) PE.refl →
@@ -664,7 +665,7 @@ private module Inhabited where
           Lift-η (wkLevel ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
             (wkTerm ρ⊇ ⊢Δ ⊢u) (wkEqTerm ρ⊇ ⊢Δ t≡u)
         (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
-          let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
+          let _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ B₁≡B₂
               ⊢A₁′            = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
           ΠΣ-cong (wkLevel ρ⊇ ⊢Δ ⊢l) (wkEqTerm ρ⊇ ⊢Δ A₁≡A₂)
@@ -683,7 +684,7 @@ private module Inhabited where
           β-red (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm (lift ρ⊇) (∙ ⊢A′) ⊢t)
             (wkTerm ρ⊇ ⊢Δ ⊢u) eq ok
         (η-eq {f = t₁} {g = t₂} ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) PE.refl →
-          let _ , (⊢A , A<) = ∙⊢≡∷→⊢-<ˢ t₁0≡t₂0
+          let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ t₁0≡t₂0
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           η-eq (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm ρ⊇ ⊢Δ ⊢t₁)
@@ -741,7 +742,7 @@ private module Inhabited where
              wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
             ok
         (prodrec-cong {A = C} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) PE.refl →
-          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢≡∷→⊢-<ˢ u₁≡u₂
+          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ u₁≡u₂
               ⊢A′                       = wk ρ⊇ ⊢Δ ⊢A
                                             ⦃ lt = <ˢ-trans A< ! ⦄
               ⊢B′                       = wk (lift ρ⊇) (∙ ⊢A′) ⊢B
@@ -754,7 +755,7 @@ private module Inhabited where
              wkEqTerm (lift (lift ρ⊇)) (∙ ⊢B′) u₁≡u₂)
             ok
         (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v eq ok) PE.refl →
-          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢∷→⊢-<ˢ ⊢v
+          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢v
               ⊢A′                       = wk ρ⊇ ⊢Δ ⊢A
                                             ⦃ lt = <ˢ-trans A< ! ⦄
               ⊢B′                       = wk (lift ρ⊇) (∙ ⊢A′) ⊢B
@@ -797,7 +798,7 @@ private module Inhabited where
         (suc-cong t₁≡t₂) PE.refl →
           suc-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
         (natrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) PE.refl →
-          let _ , (⊢A₁ , A₁<) = ∙⊢≡∷→⊢-<ˢ u₁≡u₂
+          let _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ u₁≡u₂
               ⊢A₁′            = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A₁
                                   ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
@@ -809,7 +810,7 @@ private module Inhabited where
              wkEqTerm (lift (lift ρ⊇)) (∙ ⊢A₁′) u₁≡u₂)
             (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂)
         (natrec-zero {A} ⊢t ⊢u) PE.refl →
-          let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
+          let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
               ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
                                 ⦃ lt = <ˢ-trans A< ! ⦄
           in
@@ -820,7 +821,7 @@ private module Inhabited where
             (PE.subst (_⊢_∷_ _ _) (wk-β-natrec _ A) $
              wkTerm (lift (lift ρ⊇)) (∙ ⊢A′) ⊢u)
         (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) PE.refl →
-          let _ , (⊢A , A<) = ∙⊢∷→⊢-<ˢ ⊢u
+          let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
               ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
                                 ⦃ lt = <ˢ-trans A< ! ⦄
           in
@@ -836,7 +837,7 @@ private module Inhabited where
           Id-cong (wkEqTerm ρ⊇ ⊢Δ A₁≡A₂) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
             (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
         (J-cong {B₁} A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
-          let _ , (⊢A₁ , A₁<) , _ = ∙∙⊢≡→⊢-<ˢ B₁≡B₂
+          let _ , (⊢A₁ , A₁<) , _ = ∙∙⊢→⊢-<ˢ B₁≡B₂
               ⊢A₁′                = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _)
@@ -886,7 +887,7 @@ private module Inhabited where
              wkTerm ρ⊇ ⊢Δ ⊢u)
             (PE.cong (U.wk _) eq)
         (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
-          let _ , ⊢Id                       = ∙⊢≡→⊢-<ˢ B₁≡B₂
+          let _ , ⊢Id                       = ∙⊢→⊢-<ˢ B₁≡B₂
               (⊢A₁ , A₁<) , (⊢t₁ , t₁<) , _ = inversion-Id-⊢-<ˢ ⊢Id
               ⊢A₁′                          = wk ρ⊇ ⊢Δ ⊢A₁
                                                 ⦃ lt = <ˢ-trans A₁< ! ⦄
@@ -927,7 +928,7 @@ private module Inhabited where
       open Variants hyp
 
   opaque
-    unfolding size-⊢≡∷L
+    unfolding size
 
     -- A weakening lemma for _⊢_≡_∷Level.
 
@@ -935,7 +936,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level) →
-      size-⊢≡∷L l₁≡l₂ PE.≡ s₂ →
+      size l₁≡l₂ PE.≡ s₂ →
       ∇ » Δ ⊢ U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
     wkEqLevel′ hyp ρ⊇ ⊢Δ = λ where
         (term ok l₁≡l₂) PE.refl →
@@ -966,56 +967,61 @@ private module Inhabited where
 opaque
   unfolding _»_∷ʷ_⊇_
 
-  -- A weakening lemma for _⊢_.
+  -- A weakening lemma for _⊢[_].
 
-  wk : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ A → ∇ » Δ ⊢ U.wk ρ A
-  wk (ρ⊇ , ⊢Δ) ⊢A = P.wk Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢A PE.refl
+  wk : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢[ 𝓙 ] → ∇ » Δ ⊢[ mapJ (U.wk ρ) 𝓙 ]
+  wk {𝓙 = [ctxt]} (_ , ⊢Δ) _ =
+    ⊢Δ
+  wk {𝓙 = [ _ type]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
+    P.wk Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+  wk {𝓙 = [ _ ≡ _ type]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
+    P.wkEq Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+  wk {𝓙 = [ _ ∷ A ]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
+    P.wkTerm Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+  wk {𝓙 = [ _ ≡ _ ∷ A ]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
+    P.wkEqTerm Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+  wk {𝓙 = [ _ ∷Level]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
+    P.wkLevel Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+  wk {𝓙 = [ _ ≡ _ ∷Level]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
+    P.wkEqLevel Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
 
 opaque
-  unfolding _»_∷ʷ_⊇_
 
   -- A weakening lemma for _⊢_∷_.
 
   wkTerm : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ U.wk ρ t ∷ U.wk ρ A
-  wkTerm (ρ⊇ , ⊢Δ) ⊢t = P.wkTerm Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢t PE.refl
+  wkTerm = wk
 
 opaque
-  unfolding _»_∷ʷ_⊇_
 
   -- A weakening lemma for _⊢_∷Level.
 
   wkLevel : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ l ∷Level → ∇ » Δ ⊢ U.wk ρ l ∷Level
-  wkLevel (ρ⊇ , ⊢Δ) ⊢l =
-    P.wkLevel Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢l PE.refl
+  wkLevel = wk
 
 opaque
-  unfolding _»_∷ʷ_⊇_
 
   -- A weakening lemma for _⊢_≡_.
 
   wkEq : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ A ≡ B → ∇ » Δ ⊢ U.wk ρ A ≡ U.wk ρ B
-  wkEq (ρ⊇ , ⊢Δ) A≡B = P.wkEq Inhabited.P-inhabited ρ⊇ ⊢Δ A≡B PE.refl
+  wkEq = wk
 
 opaque
-  unfolding _»_∷ʷ_⊇_
 
   -- A weakening lemma for _⊢_≡_∷_.
 
   wkEqTerm :
     ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Δ ⊢ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A
-  wkEqTerm (ρ⊇ , ⊢Δ) t≡u =
-    P.wkEqTerm Inhabited.P-inhabited ρ⊇ ⊢Δ t≡u PE.refl
+  wkEqTerm = wk
 
 opaque
-  unfolding _»_∷ʷ_⊇_
 
   -- A weakening lemma for _⊢_≡_∷Level.
 
   wkEqLevel :
     ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level →
     ∇ » Δ ⊢ U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
-  wkEqLevel (ρ⊇ , ⊢Δ) l₁≡l₂ =
-    P.wkEqLevel Inhabited.P-inhabited ρ⊇ ⊢Δ l₁≡l₂ PE.refl
+  wkEqLevel = wk
 
 opaque
   unfolding _⊢_≤ₗ_∷Level
@@ -1033,45 +1039,45 @@ opaque
 
   -- A special case of wk.
 
-  wk₁ : ∇ » Γ ⊢ B → ∇ » Γ ⊢ A → ∇ » Γ ∙ B ⊢ wk1 A
-  wk₁ ⊢B ⊢A = wk (stepʷ id ⊢B) ⊢A
+  wk₁ : ∇ » Γ ⊢ A → ∇ » Γ ⊢[ 𝓙 ] → ∇ » Γ ∙ A ⊢[ mapJ U.wk1 𝓙 ]
+  wk₁ ⊢A = wk (stepʷ id ⊢A)
 
 opaque
 
-  -- A special case of wkEq.
+  -- A special case of wk₁.
 
   wkEq₁ : ∇ » Γ ⊢ C → ∇ » Γ ⊢ A ≡ B → ∇ » Γ ∙ C ⊢ wk1 A ≡ wk1 B
-  wkEq₁ ⊢C A≡B = wkEq (stepʷ id ⊢C) A≡B
+  wkEq₁ = wk₁
 
 opaque
 
-  -- A special case of wkTerm.
+  -- A special case of wk₁.
 
   wkTerm₁ : ∇ » Γ ⊢ B → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ∙ B ⊢ wk1 t ∷ wk1 A
-  wkTerm₁ ⊢B ⊢t = wkTerm (stepʷ id ⊢B) ⊢t
+  wkTerm₁ = wk₁
 
 opaque
 
-  -- A special case of wkLevel.
+  -- A special case of wk₁.
 
   wkLevel₁ : ∇ » Γ ⊢ A → ∇ » Γ ⊢ l ∷Level → ∇ » Γ ∙ A ⊢ wk1 l ∷Level
-  wkLevel₁ ⊢A ⊢l = wkLevel (stepʷ id ⊢A) ⊢l
+  wkLevel₁ = wk₁
 
 opaque
 
-  -- A special case of wkEqTerm.
+  -- A special case of wk₁.
 
   wkEqTerm₁ : ∇ » Γ ⊢ B → ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Γ ∙ B ⊢ wk1 t ≡ wk1 u ∷ wk1 A
-  wkEqTerm₁ ⊢B t≡u = wkEqTerm (stepʷ id ⊢B) t≡u
+  wkEqTerm₁ = wk₁
 
 opaque
 
-  -- A special case of wkEqLevel.
+  -- A special case of wk₁.
 
   wkEqLevel₁ :
     ∇ » Γ ⊢ A → ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level →
     ∇ » Γ ∙ A ⊢ wk1 l₁ ≡ wk1 l₂ ∷Level
-  wkEqLevel₁ ⊢A l₁≡l₂ = wkEqLevel (stepʷ id ⊢A) l₁≡l₂
+  wkEqLevel₁ = wk₁
 
 mutual
   wkRed : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ A ⇒ B → ∇ » Δ ⊢ U.wk ρ A ⇒ U.wk ρ B

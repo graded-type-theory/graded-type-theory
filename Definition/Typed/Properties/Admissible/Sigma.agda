@@ -361,7 +361,7 @@ private opaque
       (_ , ⊢B , _) →
     PE.subst (_⊢_⇒*_∷_ _ _ _) ([]↑-[]₀ B) $
     subst→subst* (snd p (var x0))
-      (subst↑Type ⊢B (fstⱼ′ (var₀ ⊢ΣAB)))
+      (subst-⊢-↑ ⊢B (fstⱼ′ (var₀ ⊢ΣAB)))
       (λ ⊢u →
          PE.subst (_⊢_∷_ _ _) (PE.sym $ []↑-[]₀ B) $
          sndⱼ′ ⊢u)
@@ -1535,7 +1535,7 @@ private
       C [ 2 ][ prodʰ s p (var x1) (var x0) ]↑
         [ replace₂ (lower (var x1)) (lower (var x0)) ]     ≡⟨ [2][]↑-[replace₂] C ⟩⊢≡
 
-      C [ prodʰ s p (lower (var x1)) (lower (var x0)) ]↑²  ≡⟨ subst↑²TypeEq (refl ⊢C) $
+      C [ prodʰ s p (lower (var x1)) (lower (var x0)) ]↑²  ≡⟨ subst-⊢≡-↑ (refl ⊢C) $
                                                               ⊢prodʰ-lower-1-lower-0≡∷ ok ⊢l₁ ⊢l₂ ⊢B ⟩⊢∎
       C [ prod s p (var x1) (var x0) ]↑²                   ∎
       where

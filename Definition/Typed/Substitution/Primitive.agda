@@ -36,6 +36,7 @@ private variable
   k n                                           : Nat
   Δ Η Φ                                         : Con Term _
   Γ                                             : Cons _ _
+  𝓙                                             : Judgement _
   A B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v v₁ v₂ : Term _
   σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃                    : Subst _ _
   s                                             : Strength
@@ -191,10 +192,19 @@ opaque
 
 opaque
 
+  -- A substitution lemma for several kinds of judgements.
+
+  subst-⊢≡₀ :
+    Γ »∙ A ⊢[ 𝓙 ] → Γ ⊢ t ≡ u ∷ A →
+    Γ ⊢[ 𝓙 [ sgSubst t ≡ sgSubst u ]J ]
+  subst-⊢≡₀ ⊢𝓙 = subst-⊢≡ ⊢𝓙 ∘→ ⊢ˢʷ≡∷-sgSubst
+
+opaque
+
   -- A substitution lemma for _⊢_≡_.
 
   substTypeEq : Γ »∙ A ⊢ B ≡ C → Γ ⊢ t ≡ u ∷ A → Γ ⊢ B [ t ]₀ ≡ C [ u ]₀
-  substTypeEq ⊢B = subst-⊢≡ ⊢B ∘→ ⊢ˢʷ≡∷-sgSubst
+  substTypeEq = subst-⊢≡₀
 
 opaque
 
@@ -203,7 +213,7 @@ opaque
   substTermEq :
     Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B → Γ ⊢ u₁ ≡ u₂ ∷ A →
     Γ ⊢ t₁ [ u₁ ]₀ ≡ t₂ [ u₂ ]₀ ∷ B [ u₁ ]₀
-  substTermEq t₁≡t₂ = subst-⊢≡∷ t₁≡t₂ ∘→ ⊢ˢʷ≡∷-sgSubst
+  substTermEq = subst-⊢≡₀
 
 opaque
 
@@ -216,40 +226,21 @@ opaque
 
 opaque
 
-  -- A substitution lemma related to _[_]↑.
+  -- A substitution lemma related to _[_][_]↑.
 
-  subst↑Type : Γ »∙ B ⊢ C → Γ »∙ A ⊢ t ∷ wk1 B → Γ »∙ A ⊢ C [ t ]↑
-  subst↑Type ⊢C = subst-⊢ ⊢C ∘→ ⊢ˢʷ∷-[][]↑
-
-opaque
-
-  -- A substitution lemma related to _[_]↑.
-
-  subst↑TypeEq :
-    Γ »∙ A ⊢ B ≡ C →
-    Γ »∙ A ⊢ t ≡ u ∷ wk1 A →
-    Γ »∙ A ⊢ B [ t ]↑ ≡ C [ u ]↑
-  subst↑TypeEq B≡C = subst-⊢≡ B≡C ∘→ ⊢ˢʷ≡∷-[][]↑
+  subst-⊢-↑ :
+    ∇ » drop k Δ ∙ A ⊢[ 𝓙 ] → ∇ » Δ ⊢ t ∷ wk[ k ] A →
+    ∇ » Δ ⊢[ 𝓙 [ replace₁ k t ]J ]
+  subst-⊢-↑ ⊢𝓙 = subst-⊢ ⊢𝓙 ∘→ ⊢ˢʷ∷-[][]↑
 
 opaque
 
-  -- A substitution lemma related to _[_]↑².
+  -- A substitution lemma related to _[_][_]↑.
 
-  subst↑²Type :
-    Γ »∙ A ⊢ B →
-    Γ »∙ C »∙ D ⊢ t ∷ wk2 A →
-    Γ »∙ C »∙ D ⊢ B [ t ]↑²
-  subst↑²Type ⊢B = subst-⊢ ⊢B ∘→ ⊢ˢʷ∷-[][]↑
-
-opaque
-
-  -- A substitution lemma related to _[_]↑².
-
-  subst↑²TypeEq :
-    Γ »∙ A ⊢ B ≡ C →
-    Γ »∙ D »∙ E ⊢ t ≡ u ∷ wk2 A →
-    Γ »∙ D »∙ E ⊢ B [ t ]↑² ≡ C [ u ]↑²
-  subst↑²TypeEq B≡C = subst-⊢≡ B≡C ∘→ ⊢ˢʷ≡∷-[][]↑
+  subst-⊢≡-↑ :
+    ∇ » drop k Δ ∙ A ⊢[ 𝓙 ] → ∇ » Δ ⊢ t ≡ u ∷ wk[ k ] A →
+    ∇ » Δ ⊢[ 𝓙 [ replace₁ k t ≡ replace₁ k u ]J ]
+  subst-⊢≡-↑ ⊢𝓙 = subst-⊢≡ ⊢𝓙 ∘→ ⊢ˢʷ≡∷-[][]↑
 
 opaque
 
@@ -285,72 +276,49 @@ opaque
 
 opaque
 
-  -- A variant of substType for _[_,_]₁₀.
+  -- A substitution lemma related to _[_,_]₁₀.
 
-  substType₂ :
-    Γ »∙ A »∙ B ⊢ C →
+  subst-⊢₁₀ :
+    Γ »∙ A »∙ B ⊢[ 𝓙 ] →
     Γ ⊢ t ∷ A →
     Γ ⊢ u ∷ B [ t ]₀ →
-    Γ ⊢ C [ t , u ]₁₀
-  substType₂ ⊢C ⊢t ⊢u =
-    subst-⊢ ⊢C (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u)
+    Γ ⊢[ 𝓙 [ consSubst (sgSubst t) u ]J ]
+  subst-⊢₁₀ ⊢𝓙 ⊢t ⊢u = subst-⊢ ⊢𝓙 (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u)
 
 opaque
 
-  -- A variant of substTypeEq for _[_,_]₁₀.
+  -- A substitution lemma related to _[_,_]₁₀.
 
-  substTypeEq₂ :
-    Γ »∙ A »∙ B ⊢ C₁ ≡ C₂ →
+  subst-⊢≡₁₀ :
+    Γ »∙ A »∙ B ⊢[ 𝓙 ] →
     Γ ⊢ t₁ ≡ t₂ ∷ A →
     Γ ⊢ u₁ ≡ u₂ ∷ B [ t₁ ]₀ →
-    Γ ⊢ C₁ [ t₁ , u₁ ]₁₀ ≡ C₂ [ t₂ , u₂ ]₁₀
-  substTypeEq₂ C₁≡C₂ t₁≡t₂ u₁≡u₂ =
-    subst-⊢≡ C₁≡C₂ $
-    ⊢ˢʷ≡∷∙⇔′ (⊢∙→⊢ (wfEq C₁≡C₂)) .proj₂
+    Γ ⊢[ 𝓙 [ consSubst (sgSubst t₁) u₁ ≡ consSubst (sgSubst t₂) u₂ ]J ]
+  subst-⊢≡₁₀ ⊢𝓙 t₁≡t₂ u₁≡u₂ =
+    subst-⊢≡ ⊢𝓙 $
+    ⊢ˢʷ≡∷∙⇔′ (⊢∙→⊢ (wf ⊢𝓙)) .proj₂
       (⊢ˢʷ≡∷-sgSubst t₁≡t₂ , u₁≡u₂)
 
 opaque
 
-  -- A variant of substTerm for _[_,_]₁₀.
-
-  substTerm₂ :
-    Γ »∙ A »∙ B ⊢ t ∷ C → Γ ⊢ u ∷ A → Γ ⊢ v ∷ B [ u ]₀ →
-    Γ ⊢ t [ u , v ]₁₀ ∷ C [ u , v ]₁₀
-  substTerm₂ ⊢t ⊢u ⊢v =
-    subst-⊢∷ ⊢t (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u) ⊢v)
-
-opaque
-
-  -- A variant of substTermEq for _[_,_]₁₀.
-
-  substTermEq₂ :
-    Γ »∙ A »∙ B ⊢ t₁ ≡ t₂ ∷ C →
-    Γ ⊢ u₁ ≡ u₂ ∷ A →
-    Γ ⊢ v₁ ≡ v₂ ∷ B [ u₁ ]₀ →
-    Γ ⊢ t₁ [ u₁ , v₁ ]₁₀ ≡ t₂ [ u₂ , v₂ ]₁₀ ∷ C [ u₁ , v₁ ]₁₀
-  substTermEq₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    subst-⊢≡∷ t₁≡t₂ $
-    →⊢ˢʷ≡∷∙ (⊢∙→⊢ (wfEqTerm t₁≡t₂)) (⊢ˢʷ≡∷-sgSubst u₁≡u₂) v₁≡v₂
-
-opaque
-
-  -- A variant of substTypeEq for _[_][_]↑.
+  -- A variant of subst-⊢≡-↑.
 
   [][]↑-cong :
-    ∇ » drop k Δ ∙ A ⊢ B₁ ≡ B₂ →
+    ∇ » drop k Δ ∙ A ⊢[ 𝓙 ] →
     ∇ » Δ ⊢ t₁ ≡ t₂ ∷ A [ wkSubst k idSubst ] →
-    ∇ » Δ ⊢ B₁ [ k ][ t₁ ]↑ ≡ B₂ [ k ][ t₂ ]↑
+    ∇ » Δ ⊢[ 𝓙 [ replace₁ k t₁ ≡ replace₁ k t₂ ]J ]
   [][]↑-cong {k} B₁≡B₂ =
-    subst-⊢≡ B₁≡B₂ ∘→ ⊢ˢʷ≡∷-[][]↑ ∘→
+    subst-⊢≡-↑ B₁≡B₂ ∘→
     PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk[]≡[] k)
 
 opaque
 
-  -- A variant of substType for _[_][_]↑.
+  -- A variant of subst-⊢-↑.
 
   ⊢[][]↑ :
-    ∇ » drop k Δ ∙ A ⊢ B →
+    ∇ » drop k Δ ∙ A ⊢[ 𝓙 ] →
     ∇ » Δ ⊢ t ∷ A [ wkSubst k idSubst ] →
-    ∇ » Δ ⊢ B [ k ][ t ]↑
-  ⊢[][]↑ ⊢B ⊢t =
-    wf-⊢≡ ([][]↑-cong (refl ⊢B) (refl ⊢t)) .proj₁
+    ∇ » Δ ⊢[ 𝓙 [ replace₁ k t ]J ]
+  ⊢[][]↑ {k} ⊢B =
+    subst-⊢-↑ ⊢B ∘→
+    PE.subst (_⊢_∷_ _ _) (PE.sym $ wk[]≡[] k)

@@ -69,6 +69,7 @@ private variable
   ∇               : DCon _ _
   Γ Η             : Cons _ _
   Δ               : Con _ _
+  𝓙               : Judgement _
   A A₁ A₂ t t₁ t₂ : Term _
   l l₁ l₂         : Lvl _
   σ               : Subst _ _
@@ -796,17 +797,17 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       no-eta-equality
       field
         »←»       : (⊢∇ : T.» ∇) → size-» ⊢∇ PE.≡ s → C.» ∇
-        ⊢←⊢′      : (⊢Γ : T.⊢ Γ) → size-⊢′ ⊢Γ PE.≡ s → C.⊢ Γ
-        ⊢←⊢       : (⊢A : Γ T.⊢ A) → size-⊢ ⊢A PE.≡ s → Γ C.⊢ A
-        ⊢∷←⊢∷     : (⊢t : Γ T.⊢ t ∷ A) → size-⊢∷ ⊢t PE.≡ s → Γ C.⊢ t ∷ A
-        ⊢∷L←⊢∷L   : (⊢l : Γ T.⊢ l ∷Level) → size-⊢∷L ⊢l PE.≡ s →
+        ⊢←⊢′      : (⊢Γ : T.⊢ Γ) → size ⊢Γ PE.≡ s → C.⊢ Γ
+        ⊢←⊢       : (⊢A : Γ T.⊢ A) → size ⊢A PE.≡ s → Γ C.⊢ A
+        ⊢∷←⊢∷     : (⊢t : Γ T.⊢ t ∷ A) → size ⊢t PE.≡ s → Γ C.⊢ t ∷ A
+        ⊢∷L←⊢∷L   : (⊢l : Γ T.⊢ l ∷Level) → size ⊢l PE.≡ s →
                     Γ C.⊢ l ∷Level
-        ⊢≡←⊢≡     : (A₁≡A₂ : Γ T.⊢ A₁ ≡ A₂) → size-⊢≡ A₁≡A₂ PE.≡ s →
+        ⊢≡←⊢≡     : (A₁≡A₂ : Γ T.⊢ A₁ ≡ A₂) → size A₁≡A₂ PE.≡ s →
                     Γ C.⊢ A₁ ≡ A₂
-        ⊢≡∷←⊢≡∷   : (t₁≡t₂ : Γ T.⊢ t₁ ≡ t₂ ∷ A) → size-⊢≡∷ t₁≡t₂ PE.≡ s →
+        ⊢≡∷←⊢≡∷   : (t₁≡t₂ : Γ T.⊢ t₁ ≡ t₂ ∷ A) → size t₁≡t₂ PE.≡ s →
                     Γ C.⊢ t₁ ≡ t₂ ∷ A
         ⊢≡∷L←⊢≡∷L : (l₁≡l₂ : Γ T.⊢ l₁ ≡ l₂ ∷Level) →
-                    size-⊢≡∷L l₁≡l₂ PE.≡ s → Γ C.⊢ l₁ ≡ l₂ ∷Level
+                    size l₁≡l₂ PE.≡ s → Γ C.⊢ l₁ ≡ l₂ ∷Level
 
   -- Variants of the fields of P.
 
@@ -824,43 +825,43 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
 
       ⊢←⊢′ :
         (⊢Γ : T.⊢ Γ) →
-        ⦃ lt : size-⊢′ ⊢Γ <ˢ s₂ ⦄ →
+        ⦃ lt : size ⊢Γ <ˢ s₂ ⦄ →
         C.⊢ Γ
       ⊢←⊢′ ⊢Γ ⦃ lt ⦄ = P.⊢←⊢′ (hyp lt) ⊢Γ PE.refl
 
       ⊢←⊢ :
         (⊢A : Γ T.⊢ A) →
-        ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
+        ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
         Γ C.⊢ A
       ⊢←⊢ ⊢A ⦃ lt ⦄ = P.⊢←⊢ (hyp lt) ⊢A PE.refl
 
       ⊢∷←⊢∷ :
         (⊢t : Γ T.⊢ t ∷ A) →
-        ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+        ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
         Γ C.⊢ t ∷ A
       ⊢∷←⊢∷ ⊢t ⦃ lt ⦄ = P.⊢∷←⊢∷ (hyp lt) ⊢t PE.refl
 
       ⊢∷L←⊢∷L :
         (⊢l : Γ T.⊢ l ∷Level) →
-        ⦃ lt : size-⊢∷L ⊢l <ˢ s₂ ⦄ →
+        ⦃ lt : size ⊢l <ˢ s₂ ⦄ →
         Γ C.⊢ l ∷Level
       ⊢∷L←⊢∷L ⊢l ⦃ lt ⦄ = P.⊢∷L←⊢∷L (hyp lt) ⊢l PE.refl
 
       ⊢≡←⊢≡ :
         (A₁≡A₂ : Γ T.⊢ A₁ ≡ A₂) →
-        ⦃ lt : size-⊢≡ A₁≡A₂ <ˢ s₂ ⦄ →
+        ⦃ lt : size A₁≡A₂ <ˢ s₂ ⦄ →
         Γ C.⊢ A₁ ≡ A₂
       ⊢≡←⊢≡ A₁≡A₂ ⦃ lt ⦄ = P.⊢≡←⊢≡ (hyp lt) A₁≡A₂ PE.refl
 
       ⊢≡∷←⊢≡∷ :
         (t₁≡t₂ : Γ T.⊢ t₁ ≡ t₂ ∷ A) →
-        ⦃ lt : size-⊢≡∷ t₁≡t₂ <ˢ s₂ ⦄ →
+        ⦃ lt : size t₁≡t₂ <ˢ s₂ ⦄ →
         Γ C.⊢ t₁ ≡ t₂ ∷ A
       ⊢≡∷←⊢≡∷ t₁≡t₂ ⦃ lt ⦄ = P.⊢≡∷←⊢≡∷ (hyp lt) t₁≡t₂ PE.refl
 
       ⊢≡∷L←⊢≡∷L :
         (l₁≡l₂ : Γ T.⊢ l₁ ≡ l₂ ∷Level) →
-        ⦃ lt : size-⊢≡∷L l₁≡l₂ <ˢ s₂ ⦄ →
+        ⦃ lt : size l₁≡l₂ <ˢ s₂ ⦄ →
         Γ C.⊢ l₁ ≡ l₂ ∷Level
       ⊢≡∷L←⊢≡∷L l₁≡l₂ ⦃ lt ⦄ = P.⊢≡∷L←⊢≡∷L (hyp lt) l₁≡l₂ PE.refl
 
@@ -870,24 +871,24 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
 
       ▸⊢[𝟘]←⊢ :
         (⊢A : Γ T.⊢ A) →
-        ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
+        ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
         γ ▸ Γ ⊢[ 𝟘 ] A
       ▸⊢[𝟘]←⊢ ⊢A = sub-⊢ (⊢←⊢ ⊢A) (greatest-elemᶜ _)
 
       ▸⊢∷[𝟘]←⊢∷ :
         (⊢t : Γ T.⊢ t ∷ A) →
-        ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+        ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
         γ ▸ Γ ⊢ t ∷[ 𝟘 ] A
       ▸⊢∷[𝟘]←⊢∷ ⊢t = sub-⊢∷ (⊢∷←⊢∷ ⊢t) (greatest-elemᶜ _)
 
       ⊢←⊢-<ˢ :
-        (∃ λ (⊢A : Γ T.⊢ A) → size-⊢ ⊢A <ˢ s) →
+        (∃ λ (⊢A : Γ T.⊢ A) → size ⊢A <ˢ s) →
         ⦃ lt : s <ˢ s₂ ⦄ →
         Γ C.⊢ A
       ⊢←⊢-<ˢ (⊢A , lt) = ⊢←⊢ ⊢A ⦃ lt = <ˢ-trans lt ! ⦄
 
       ⊢∷←⊢∷-<ˢ :
-        (∃ λ (⊢t : Γ T.⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
+        (∃ λ (⊢t : Γ T.⊢ t ∷ A) → size ⊢t <ˢ s) →
         ⦃ lt : s <ˢ s₂ ⦄ →
         Γ C.⊢ t ∷ A
       ⊢∷←⊢∷-<ˢ (⊢t , lt) = ⊢∷←⊢∷ ⊢t ⦃ lt = <ˢ-trans lt ! ⦄
@@ -897,7 +898,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
   private module Inhabited where
 
     opaque
-      unfolding size-»
+      unfolding size
 
       -- If ∇ is well-formed, then ∇ is well-formed.
 
@@ -910,23 +911,24 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         ε _ →
           ε
         ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] PE.refl →
-          let ⊢Γ , Γ< = wf-<ˢ ⊢A
+          let ⊢Γ , Γ≤ = wf-≤ˢ ⊢A
               »∇ , ∇< = ⊢→»-<ˢ ⊢Γ
           in
-          ∙ᵒ ok (»←» »∇ ⦃ lt = <ˢ-trans ∇< (<ˢ-trans Γ< !) ⦄)
+          ∙ᵒ ok (»←» »∇ ⦃ lt = <ˢ-trans ∇< (<ˢ-trans-≤ˢˡ Γ≤ !) ⦄)
             (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢A)
         ∙ᵗ[ ⊢t ] PE.refl →
-          let ⊢Γ , Γ< = wfTerm-<ˢ ⊢t
+          let ⊢Γ , Γ≤ = wf-≤ˢ ⊢t
               »∇ , ∇< = ⊢→»-<ˢ ⊢Γ
           in
-          ∙ᵗ (»←» »∇ ⦃ lt = <ˢ-trans ∇< (<ˢ-trans Γ< !) ⦄) (⊢∷←⊢∷ ⊢t)
+          ∙ᵗ (»←» »∇ ⦃ lt = <ˢ-trans ∇< (<ˢ-trans-≤ˢˡ Γ≤ !) ⦄)
+            (⊢∷←⊢∷ ⊢t)
 
       -- If Γ is well-formed, then Γ is well-formed.
 
       ⊢←⊢′ₛ :
         (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
         (⊢Γ : T.⊢ Γ) →
-        size-⊢′ ⊢Γ PE.≡ s₂ →
+        size ⊢Γ PE.≡ s₂ →
         C.⊢ Γ
       ⊢←⊢′ₛ hyp = let open Variants hyp in λ where
         (ε »∇) PE.refl → ε (»←» »∇)
@@ -937,7 +939,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       ⊢←⊢ₛ :
         (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
         (⊢A : Γ T.⊢ A) →
-        size-⊢ ⊢A PE.≡ s₂ →
+        size ⊢A PE.≡ s₂ →
         Γ C.⊢ A
       ⊢←⊢ₛ hyp = let open Variants hyp in λ where
         (Levelⱼ ok ⊢Γ) PE.refl →
@@ -963,7 +965,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       ⊢∷←⊢∷ₛ :
         (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
         (⊢t : Γ T.⊢ t ∷ A) →
-        size-⊢∷ ⊢t PE.≡ s₂ →
+        size ⊢t PE.≡ s₂ →
         Γ C.⊢ t ∷ A
       ⊢∷←⊢∷ₛ hyp = let open Variants hyp in λ where
         (conv ⊢t A≡B) PE.refl →
@@ -1023,7 +1025,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         (sucⱼ ⊢t) PE.refl →
           suc (⊢∷←⊢∷ ⊢t)
         (natrecⱼ ⊢t ⊢u ⊢v) PE.refl →
-          let _ , ⊢A = ∙⊢∷→⊢-<ˢ ⊢u in
+          let _ , ⊢A = ∙⊢→⊢-<ˢ ⊢u in
           natrec (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷ ⊢t) (▸⊢∷[𝟘]←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
         (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
           case Id-erased? of λ where
@@ -1089,7 +1091,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       ⊢∷L←⊢∷Lₛ :
         (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
         (⊢l : Γ T.⊢ l ∷Level) →
-        size-⊢∷L ⊢l PE.≡ s₂ →
+        size ⊢l PE.≡ s₂ →
         Γ C.⊢ l ∷Level
       ⊢∷L←⊢∷Lₛ hyp = let open Variants hyp in λ where
         (term ok ⊢l) PE.refl →
@@ -1102,7 +1104,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       ⊢≡←⊢≡ₛ :
         (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
         (A₁≡A₂ : Γ T.⊢ A₁ ≡ A₂) →
-        size-⊢≡ A₁≡A₂ PE.≡ s₂ →
+        size A₁≡A₂ PE.≡ s₂ →
         Γ C.⊢ A₁ ≡ A₂
       ⊢≡←⊢≡ₛ hyp = let open Variants hyp in λ where
         (refl ⊢A) PE.refl →
@@ -1127,7 +1129,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       ⊢≡∷←⊢≡∷ₛ :
         (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
         (t₁≡t₂ : Γ T.⊢ t₁ ≡ t₂ ∷ A) →
-        size-⊢≡∷ t₁≡t₂ PE.≡ s₂ →
+        size t₁≡t₂ PE.≡ s₂ →
         Γ C.⊢ t₁ ≡ t₂ ∷ A
       ⊢≡∷←⊢≡∷ₛ hyp = let open Variants hyp in λ where
         (conv t₁≡t₂ A₁≡A₂) PE.refl →
@@ -1236,7 +1238,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       ⊢≡∷L←⊢≡∷Lₛ :
         (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
         (l₁≡l₂ : Γ T.⊢ l₁ ≡ l₂ ∷Level) →
-        size-⊢≡∷L l₁≡l₂ PE.≡ s₂ →
+        size l₁≡l₂ PE.≡ s₂ →
         Γ C.⊢ l₁ ≡ l₂ ∷Level
       ⊢≡∷L←⊢≡∷Lₛ hyp = let open Variants hyp in λ where
         (term ok l₁≡l₂) PE.refl →
@@ -1832,13 +1834,6 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
 
   opaque
 
-    -- A logical equivalence for "is a well-formed context".
-
-    ⊢⇔⊢ : C.⊢ Γ ⇔ T.⊢ Γ
-    ⊢⇔⊢ = ⊢→⊢ , ⊢←⊢′ ok
-
-  opaque
-
     -- A logical equivalence for "is a well-formed type".
 
     ⊢[]⇔⊢▸ : γ ▸ Γ ⊢[ p ] A ⇔ (Γ T.⊢ A × γ ▸[ ⌞ p ⌟ ] A)
@@ -1853,13 +1848,6 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       PE.subst (_⇔_ _)
         (PE.cong (_×_ _) (PE.cong (flip (_▸[_]_ _) _) (⌞⌜⌝⌟ _)))
         ⊢[]⇔⊢▸
-
-  opaque
-
-    -- A logical equivalence for "are definitionally equal types".
-
-    ⊢≡⇔⊢≡ : Γ C.⊢ A₁ ≡ A₂ ⇔ Γ T.⊢ A₁ ≡ A₂
-    ⊢≡⇔⊢≡ = ⊢≡→⊢≡ , ⊢≡←⊢≡ ok
 
   opaque
 
@@ -1880,27 +1868,6 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
 
   opaque
 
-    -- A logical equivalence for "are definitionally equal terms".
-
-    ⊢≡∷⇔⊢≡∷ : Γ C.⊢ t₁ ≡ t₂ ∷ A ⇔ Γ T.⊢ t₁ ≡ t₂ ∷ A
-    ⊢≡∷⇔⊢≡∷ = ⊢≡∷→⊢≡∷ , ⊢≡∷←⊢≡∷ ok
-
-  opaque
-
-    -- A logical equivalence for "is a well-formed level".
-
-    ⊢∷L⇔⊢∷L : Γ C.⊢ l ∷Level ⇔ Γ T.⊢ l ∷Level
-    ⊢∷L⇔⊢∷L = ⊢∷L→⊢∷L , ⊢∷L←⊢∷L ok
-
-  opaque
-
-    -- A logical equivalence for "are definitionally equal levels".
-
-    ⊢≡∷L⇔⊢≡∷L : Γ C.⊢ l₁ ≡ l₂ ∷Level ⇔ Γ T.⊢ l₁ ≡ l₂ ∷Level
-    ⊢≡∷L⇔⊢≡∷L = ⊢≡∷L→⊢≡∷L , ⊢≡∷L←⊢≡∷L ok
-
-  opaque
-
     -- A logical equivalence for "is a well-formed substitution".
 
     ⊢ˢʷ∷[]⇔⊢ˢʷ∷▸ :
@@ -1918,3 +1885,16 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       PE.subst (_⇔_ _)
         (PE.cong (_×_ _) (PE.cong (λ m → ∀ _ → _ ▸[ m ] _) (⌞⌜⌝⌟ _)))
         ⊢ˢʷ∷[]⇔⊢ˢʷ∷▸
+
+  opaque
+
+    -- Logical equivalences between judgements without grade contexts.
+
+    ⊢[]⇔⊢[] : Γ C.⊢[ 𝓙 ] ⇔ Γ T.⊢[ 𝓙 ]
+    ⊢[]⇔⊢[] {𝓙 = [ctxt]}          = ⊢→⊢       , ⊢←⊢′      ok
+    ⊢[]⇔⊢[] {𝓙 = [ _ type]}       = ⊢[]→⊢     , ⊢←⊢       ok
+    ⊢[]⇔⊢[] {𝓙 = [ _ ≡ _ type]}   = ⊢≡→⊢≡     , ⊢≡←⊢≡     ok
+    ⊢[]⇔⊢[] {𝓙 = [ _ ∷ _ ]}       = ⊢∷[]→⊢∷   , ⊢∷←⊢∷     ok
+    ⊢[]⇔⊢[] {𝓙 = [ _ ≡ _ ∷ _ ]}   = ⊢≡∷→⊢≡∷   , ⊢≡∷←⊢≡∷   ok
+    ⊢[]⇔⊢[] {𝓙 = [ _ ∷Level]}     = ⊢∷L→⊢∷L   , ⊢∷L←⊢∷L   ok
+    ⊢[]⇔⊢[] {𝓙 = [ _ ≡ _ ∷Level]} = ⊢≡∷L→⊢≡∷L , ⊢≡∷L←⊢≡∷L ok

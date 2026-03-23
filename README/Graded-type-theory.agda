@@ -601,7 +601,7 @@ Con = Definition.Untyped.Con
 
 -- A weakening lemma.
 
-wkEq = Definition.Typed.Weakening.wkEq
+wk = Definition.Typed.Weakening.wk
 
 -- One can define something like prodrec for the strong Σ-types.
 
@@ -650,10 +650,6 @@ substitutionAdmissible =
   Definition.Typed.Substitution.subst-⊢
 substitutionAdmissibleEq =
   Definition.Typed.Substitution.subst-⊢≡
-substitutionAdmissibleTerm =
-  Definition.Typed.Substitution.subst-⊢∷
-substitutionAdmissibleEqTerm =
-  Definition.Typed.Substitution.subst-⊢≡∷
 
 -- * Subject reduction. (These properties are no longer proved using
 --   the logical relation.)

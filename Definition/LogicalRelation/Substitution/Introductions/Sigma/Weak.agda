@@ -403,10 +403,10 @@ opaque
     case wf-⊢≡∷ ⊢u₁≡u₂ of λ
       (_ , ⊢u₁ , ⊢u₂) →
     case PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C₁ _) $
-         subst-⊢∷-⇑ ⊢u₁ ⊢σ₁ of λ
+         subst-⊢-⇑ ⊢u₁ ⊢σ₁ of λ
       ⊢u₁[σ₁⇑⇑] →
     case PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C₂ _) $
-         subst-⊢∷-⇑ (conv ⊢u₂ (subst↑²TypeEq-prod ⊢C₁≡C₂)) ⊢σ₂ of λ
+         subst-⊢-⇑ (conv ⊢u₂ (subst↑²TypeEq-prod ⊢C₁≡C₂)) ⊢σ₂ of λ
       ⊢u₂[σ₂⇑⇑] →
     case ⊩≡∷Σʷ⇔ .proj₁ $ R.⊩≡∷→ t₁[σ₁]≡t₂[σ₂] of λ
       (_ , v₁ , v₂ , t₁[σ₁]⇒*v₁ , t₂[σ₂]⇒*v₂ , _ , v₁≡v₂∷Σʷ) →
@@ -474,7 +474,7 @@ opaque
               ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑]≡[⇑] C₁≡C₂ σ₁≡σ₂)
              v₁~v₂
              (PE.subst (_⊢_≅_∷_ _ _ _) (subst-β-prodrec C₁ _) $
-              with-inc-⊢≅∷ (subst-⊢≡∷-⇑ ⊢u₁≡u₂ ⊢σ₁≡σ₂) $
+              with-inc-⊢≅∷ (subst-⊢≡-⇑ ⊢u₁≡u₂ ⊢σ₁≡σ₂) $
               R.escape-⊩≡∷ ⦃ inc = included ⦄ $
               ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂) ok)
     of λ
@@ -561,6 +561,6 @@ opaque
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
             R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ ⊩u ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
-            subst-⊢∷-⇑ ⊢v ⊢σ))
+            subst-⊢-⇑ ⊢v ⊢σ))
       (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) ([1,0]↑²[,] C) $
        ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀∷ ⊩v ⊩t ⊩u)

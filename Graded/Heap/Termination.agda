@@ -239,7 +239,7 @@ module Termination-inline {k} {Δ : Con Term k}
       initial (inlineᵈ ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
     initial-⇘  ⊢t ▸∇ ▸t =
       initial-⇘-ε ⦃ ok = or-empty-inline-Conᵈ ⦄
-        (⊢inlineᵈ∷ ⊢t) (▸inlineᵈ ▸∇ ▸t)
+        (⊢inlineᵈ ⊢t) (▸inlineᵈ ▸∇ ▸t)
 
 ------------------------------------------------------------------------
 -- Termination properties for closed states.
@@ -292,4 +292,4 @@ opaque
     ∃₅ λ m n H u (ρ : Wk m n) →
     initial (inlineᵈ ∇ t) ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-closed ⊢t ▸∇ ▸t =
-    initial-⇘-closed-ε (⊢inlineᵈ∷ ⊢t) (▸inlineᵈ ▸∇ ▸t)
+    initial-⇘-closed-ε (⊢inlineᵈ ⊢t) (▸inlineᵈ ▸∇ ▸t)

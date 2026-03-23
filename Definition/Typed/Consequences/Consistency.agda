@@ -135,7 +135,7 @@ opaque
     Consistent (ε » inline-Conᵈ ∇ Δ) →
     Consistent (∇ » Δ)
   Consistent-inline-Con→Consistent consistent _ =
-    consistent _ ∘→ ⊢inlineᵈ∷
+    consistent _ ∘→ ⊢inlineᵈ
 
 opaque
 
@@ -380,7 +380,7 @@ opaque
        consistent (wfTerm ⊢t) _ $
        PE.subst₃ _⊢_∷_
          (PE.cong (_»_ _) inline-Conᵈ-glassify) PE.refl PE.refl $
-       ⊢inlineᵈ∷ ⊢t) ,
+       ⊢inlineᵈ ⊢t) ,
     (λ consistent ⊢Δ _ →
        consistent _ ∘→
        stabilityTerm

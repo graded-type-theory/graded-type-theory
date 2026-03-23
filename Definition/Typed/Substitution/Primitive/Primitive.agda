@@ -50,6 +50,7 @@ private variable
   k m n n′                   : Nat
   x                          : Fin _
   Γ Δ Η                      : Con Term _
+  𝓙                          : Judgement _
   A A₁ A₂ B C D t t₁ t₂ u v  : Term _
   l l₁ l₂                    : Lvl _
   σ σ₁ σ₁₁ σ₁₂ σ₂ σ₂₁ σ₂₂ σ₃ : Subst _ _
@@ -680,53 +681,53 @@ private
     field
       sym-⊢ˢʷ≡∷ :
         (⊢Γ : ∇ »⊢ Γ) →
-        size-⊢′ ⊢Γ PE.≡ s →
+        size ⊢Γ PE.≡ s →
         ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
         ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
       subst-⊢ :
         ∇ » Δ ⊢ˢʷ σ ∷ Γ →
         (⊢A : ∇ » Γ ⊢ A) →
-        size-⊢ ⊢A PE.≡ s →
+        size ⊢A PE.≡ s →
         ∇ » Δ ⊢ A [ σ ]
       subst-⊢→⊢≡ :
         ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
         (⊢A : ∇ » Γ ⊢ A) →
-        size-⊢ ⊢A PE.≡ s →
+        size ⊢A PE.≡ s →
         ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
       subst-⊢≡ :
         ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
         (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂) →
-        size-⊢≡ A₁≡A₂ PE.≡ s →
+        size A₁≡A₂ PE.≡ s →
         ∇ » Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
       subst-⊢∷ :
         ∇ » Δ ⊢ˢʷ σ ∷ Γ →
         (⊢t : ∇ » Γ ⊢ t ∷ A) →
-        size-⊢∷ ⊢t PE.≡ s →
+        size ⊢t PE.≡ s →
         ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
       subst-⊢∷L :
         ∇ » Δ ⊢ˢʷ σ ∷ Γ →
         (⊢l : ∇ » Γ ⊢ l ∷Level) →
-        size-⊢∷L ⊢l PE.≡ s →
+        size ⊢l PE.≡ s →
         ∇ » Δ ⊢ l [ σ ] ∷Level
       subst-⊢∷→⊢≡∷ :
         ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
         (⊢t : ∇ » Γ ⊢ t ∷ A) →
-        size-⊢∷ ⊢t PE.≡ s →
+        size ⊢t PE.≡ s →
         ∇ » Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
       subst-⊢∷L→⊢≡∷L :
         ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
         (⊢l : ∇ » Γ ⊢ l ∷Level) →
-        size-⊢∷L ⊢l PE.≡ s →
+        size ⊢l PE.≡ s →
         ∇ » Δ ⊢ l [ σ₁ ] ≡ l [ σ₂ ] ∷Level
       subst-⊢≡∷ :
         ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
         (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A) →
-        size-⊢≡∷ t₁≡t₂ PE.≡ s →
+        size t₁≡t₂ PE.≡ s →
         ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
       subst-⊢≡∷L :
         ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
         (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level) →
-        size-⊢≡∷L l₁≡l₂ PE.≡ s →
+        size l₁≡l₂ PE.≡ s →
         ∇ » Δ ⊢ l₁ [ σ₁ ] ≡ l₂ [ σ₂ ] ∷Level
 
 -- Variants of the fields of P, along with some derived lemmas.
@@ -739,59 +740,59 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
     sym-⊢ˢʷ≡∷ :
       (⊢Γ : ∇ »⊢ Γ) →
-      ⦃ lt : size-⊢′ ⊢Γ <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢Γ <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
     sym-⊢ˢʷ≡∷ ⊢Γ ⦃ lt ⦄ = P.sym-⊢ˢʷ≡∷ (hyp lt) ⊢Γ PE.refl
 
     subst-⊢ :
       (⊢A : ∇ » Γ ⊢ A)
-      ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ A [ σ ]
     subst-⊢ ⊢A ⦃ lt ⦄ ⊢σ = P.subst-⊢ (hyp lt) ⊢σ ⊢A PE.refl
 
     subst-⊢→⊢≡ :
       (⊢A : ∇ » Γ ⊢ A)
-      ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
     subst-⊢→⊢≡ ⊢A ⦃ lt ⦄ σ₁≡σ₂ = P.subst-⊢→⊢≡ (hyp lt) σ₁≡σ₂ ⊢A PE.refl
 
     subst-⊢≡ :
       (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂)
-      ⦃ lt : size-⊢≡ A₁≡A₂ <ˢ s₂ ⦄ →
+      ⦃ lt : size A₁≡A₂ <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
     subst-⊢≡ A₁≡A₂ ⦃ lt ⦄ σ₁≡σ₂ =
       P.subst-⊢≡ (hyp lt) σ₁≡σ₂ A₁≡A₂ PE.refl
 
     subst-⊢∷ :
       (⊢t : ∇ » Γ ⊢ t ∷ A)
-      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
     subst-⊢∷ ⊢t ⦃ lt ⦄ ⊢σ = P.subst-⊢∷ (hyp lt) ⊢σ ⊢t PE.refl
 
     subst-⊢∷L :
       (⊢l : ∇ » Γ ⊢ l ∷Level)
-      ⦃ lt : size-⊢∷L ⊢l <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢l <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ l [ σ ] ∷Level
     subst-⊢∷L ⊢l ⦃ lt ⦄ ⊢σ = P.subst-⊢∷L (hyp lt) ⊢σ ⊢l PE.refl
 
     subst-⊢∷→⊢≡∷ :
       (⊢t : ∇ » Γ ⊢ t ∷ A)
-      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
     subst-⊢∷→⊢≡∷ ⊢t ⦃ lt ⦄ σ₁≡σ₂ =
       P.subst-⊢∷→⊢≡∷ (hyp lt) σ₁≡σ₂ ⊢t PE.refl
 
     subst-⊢∷L→⊢≡∷L :
       (⊢l : ∇ » Γ ⊢ l ∷Level)
-      ⦃ lt : size-⊢∷L ⊢l <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢l <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ l [ σ₁ ] ≡ l [ σ₂ ] ∷Level
     subst-⊢∷L→⊢≡∷L ⊢l ⦃ lt ⦄ σ₁≡σ₂ =
       P.subst-⊢∷L→⊢≡∷L (hyp lt) σ₁≡σ₂ ⊢l PE.refl
 
     subst-⊢≡∷ :
       (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A)
-      ⦃ lt : size-⊢≡∷ t₁≡t₂ <ˢ s₂ ⦄ →
+      ⦃ lt : size t₁≡t₂ <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
     subst-⊢≡∷ t₁≡t₂ ⦃ lt ⦄ σ₁≡σ₂ =
@@ -799,7 +800,7 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
     subst-⊢≡∷L :
       (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level)
-      ⦃ lt : size-⊢≡∷L l₁≡l₂ <ˢ s₂ ⦄ →
+      ⦃ lt : size l₁≡l₂ <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       ∇ » Δ ⊢ l₁ [ σ₁ ] ≡ l₂ [ σ₂ ] ∷Level
     subst-⊢≡∷L l₁≡l₂ ⦃ lt ⦄ σ₁≡σ₂ =
@@ -810,32 +811,32 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- Variants of some of the variants.
 
     sym-⊢ˢʷ≡∷-<ˢ :
-      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
+      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size ⊢Γ <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
     sym-⊢ˢʷ≡∷-<ˢ (⊢Γ , lt) = sym-⊢ˢʷ≡∷ ⊢Γ ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢-<ˢ :
-      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ A [ σ ]
     subst-⊢-<ˢ (⊢A , lt) = subst-⊢ ⊢A ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢→⊢≡-<ˢ :
-      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
     subst-⊢→⊢≡-<ˢ (⊢A , lt) = subst-⊢→⊢≡ ⊢A ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢∷-<ˢ :
-      (∃ λ (⊢t : ∇ » Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
+      (∃ λ (⊢t : ∇ » Γ ⊢ t ∷ A) → size ⊢t <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
     subst-⊢∷-<ˢ (⊢t , lt) = subst-⊢∷ ⊢t ⦃ lt = <ˢ-trans lt ! ⦄
 
     subst-⊢∷→⊢≡∷-<ˢ :
-      (∃ λ (⊢t : ∇ » Γ ⊢ t ∷ A) → size-⊢∷ ⊢t <ˢ s) →
+      (∃ λ (⊢t : ∇ » Γ ⊢ t ∷ A) → size ⊢t <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
     subst-⊢∷→⊢≡∷-<ˢ (⊢t , lt) = subst-⊢∷→⊢≡∷ ⊢t ⦃ lt = <ˢ-trans lt ! ⦄
@@ -845,7 +846,7 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- A variant of ⊢ˢʷ∷-⇑.
 
     ⊢ˢʷ∷-⇑-<ˢ :
-      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ →
       ∇ » Δ ∙ A [ σ ] ⊢ˢʷ σ ⇑ ∷ Γ ∙ A
@@ -856,7 +857,7 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     -- A variant of ⊢ˢʷ≡∷-⇑-<ˢ.
 
     ⊢ˢʷ≡∷-⇑-<ˢ :
-      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       ∇ » Δ ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Γ ∙ A
@@ -865,12 +866,12 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
       ⊢ˢʷ≡∷-⇑ (subst-⊢-<ˢ ⊢A ⊢σ₁) (subst-⊢→⊢≡-<ˢ ⊢A σ₁≡σ₂) σ₁≡σ₂
 
   opaque
-    unfolding size-⊢′
+    unfolding size
 
     -- A variant of ⊢ˢʷ≡∷-⇑.
 
     ⊢ˢʷ≡∷-⇑[]-<ˢ :
-      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
+      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size ⊢Γ <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ˢʷ σ₁ ⇑[ k ] ≡ σ₂ ⇑[ k ] ∷ Γ
@@ -878,14 +879,14 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     ⊢ˢʷ≡∷-⇑[]-<ˢ {k = 1+ _} (∙ ⊢A , lt) =
       let lt = ⊕≤ˢ→<ˢˡ (<ˢ→≤ˢ lt) in
       ⊢ˢʷ≡∷-⇑-<ˢ (⊢A , lt) ∘→
-      ⊢ˢʷ≡∷-⇑[]-<ˢ (wf-<ˢ ⊢A) ⦃ lt = <ˢ-trans lt ! ⦄
+      ⊢ˢʷ≡∷-⇑[]-<ˢ (wf-<ˢ (λ ()) ⊢A) ⦃ lt = <ˢ-trans lt ! ⦄
 
   opaque
 
     -- A variant of ⊢ˢʷ∷-⇑.
 
     ⊢ˢʷ∷-⇑[]-<ˢ :
-      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size-⊢′ ⊢Γ <ˢ s) →
+      (∃ λ (⊢Γ : ∇ »⊢ Γ) → size ⊢Γ <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ˢʷ σ ⇑[ k ] ∷ Γ
@@ -898,20 +899,20 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
     subst-⊢-⇑ :
       (⊢A : ∇ » Γ ⊢ A)
-      ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ A [ σ ⇑[ k ] ]
-    subst-⊢-⇑ ⊢A = subst-⊢ ⊢A ∘→ ⊢ˢʷ∷-⇑[]-<ˢ (wf-<ˢ ⊢A)
+    subst-⊢-⇑ ⊢A = subst-⊢ ⊢A ∘→ ⊢ˢʷ∷-⇑[]-<ˢ (wf-<ˢ (λ ()) ⊢A)
 
     subst-⊢→⊢≡-⇑ :
       (⊢A : ∇ » Γ ⊢ A)
-      ⦃ lt : size-⊢ ⊢A <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ A [ σ₂ ⇑[ k ] ]
-    subst-⊢→⊢≡-⇑ ⊢A = subst-⊢→⊢≡ ⊢A ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wf-<ˢ ⊢A)
+    subst-⊢→⊢≡-⇑ ⊢A = subst-⊢→⊢≡ ⊢A ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wf-<ˢ (λ ()) ⊢A)
 
     subst-⊢→⊢≡-⇑-<ˢ :
-      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size-⊢ ⊢A <ˢ s) →
+      (∃ λ (⊢A : ∇ » Γ ⊢ A) → size ⊢A <ˢ s) →
       ⦃ lt : s <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ A [ σ₂ ⇑[ k ] ]
@@ -919,34 +920,34 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
     subst-⊢≡-⇑ :
       (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂)
-      ⦃ lt : size-⊢≡ A₁≡A₂ <ˢ s₂ ⦄ →
+      ⦃ lt : size A₁≡A₂ <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A₁ [ σ₁ ⇑[ k ] ] ≡ A₂ [ σ₂ ⇑[ k ] ]
-    subst-⊢≡-⇑ A₁≡A₂ = subst-⊢≡ A₁≡A₂ ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wfEq-<ˢ A₁≡A₂)
+    subst-⊢≡-⇑ A₁≡A₂ = subst-⊢≡ A₁≡A₂ ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wf-<ˢ (λ ()) A₁≡A₂)
 
     subst-⊢∷-⇑ :
       (⊢t : ∇ » Γ ⊢ t ∷ A)
-      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ t [ σ ⇑[ k ] ] ∷ A [ σ ⇑[ k ] ]
-    subst-⊢∷-⇑ ⊢t = subst-⊢∷ ⊢t ∘→ ⊢ˢʷ∷-⇑[]-<ˢ (wfTerm-<ˢ ⊢t)
+    subst-⊢∷-⇑ ⊢t = subst-⊢∷ ⊢t ∘→ ⊢ˢʷ∷-⇑[]-<ˢ (wf-<ˢ (λ ()) ⊢t)
 
     subst-⊢∷→⊢≡∷-⇑ :
       (⊢t : ∇ » Γ ⊢ t ∷ A)
-      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t [ σ₁ ⇑[ k ] ] ≡ t [ σ₂ ⇑[ k ] ] ∷
         A [ σ₁ ⇑[ k ] ]
-    subst-⊢∷→⊢≡∷-⇑ ⊢t = subst-⊢∷→⊢≡∷ ⊢t ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wfTerm-<ˢ ⊢t)
+    subst-⊢∷→⊢≡∷-⇑ ⊢t = subst-⊢∷→⊢≡∷ ⊢t ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wf-<ˢ (λ ()) ⊢t)
 
     subst-⊢≡∷-⇑ :
       (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A)
-      ⦃ lt : size-⊢≡∷ t₁≡t₂ <ˢ s₂ ⦄ →
+      ⦃ lt : size t₁≡t₂ <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
       ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t₁ [ σ₁ ⇑[ k ] ] ≡ t₂ [ σ₂ ⇑[ k ] ] ∷
         A [ σ₁ ⇑[ k ] ]
     subst-⊢≡∷-⇑ t₁≡t₂ =
-      subst-⊢≡∷ t₁≡t₂ ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wfEqTerm-<ˢ t₁≡t₂)
+      subst-⊢≡∷ t₁≡t₂ ∘→ ⊢ˢʷ≡∷-⇑[]-<ˢ (wf-<ˢ (λ ()) t₁≡t₂)
 
   opaque
 
@@ -955,7 +956,7 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     ⊢ˢʷ≡∷-consSubst-[] :
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       (⊢t : ∇ » Γ ⊢ t ∷ A)
-      ⦃ lt : size-⊢∷ ⊢t <ˢ s₂ ⦄ →
+      ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
       ∇ » Δ ⊢ˢʷ consSubst σ₁ (t [ σ₁ ]) ≡ consSubst σ₂ (t [ σ₂ ]) ∷ Γ ∙ A
     ⊢ˢʷ≡∷-consSubst-[] σ₁≡σ₂ ⊢t =
       let _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ in
@@ -971,14 +972,14 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 private module Inhabited where
 
   opaque
-    unfolding size-⊢′
+    unfolding size
 
     -- Symmetry for _⊢ˢʷ_≡_∷_.
 
     sym-⊢ˢʷ≡∷′ :
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       (⊢Γ : ∇ »⊢ Γ) →
-      size-⊢′ ⊢Γ PE.≡ s₂ →
+      size ⊢Γ PE.≡ s₂ →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ Γ
     sym-⊢ˢʷ≡∷′ {∇} {Δ} {σ₁} {σ₂} _ (ε »∇) _ =
@@ -986,7 +987,7 @@ private module Inhabited where
       ∇ »⊢ Δ                 ⇔˘⟨ ⊢ˢʷ≡∷ε⇔ ⟩→
       ∇ » Δ ⊢ˢʷ σ₂ ≡ σ₁ ∷ ε  □
     sym-⊢ˢʷ≡∷′ {∇} {Γ = Γ ∙ A} {Δ} {σ₁} {σ₂} hyp (∙ ⊢A) PE.refl =
-      let ⊢Γ , Γ< = wf-<ˢ ⊢A in
+      let ⊢Γ , Γ< = wf-<ˢ (λ ()) ⊢A in
 
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ ∙ A                    ⇔⟨ ⊢ˢʷ≡∷∙⇔ ⟩→
 
@@ -1008,7 +1009,7 @@ private module Inhabited where
       open Lemmas hyp
 
   opaque
-    unfolding size-⊢
+    unfolding size
 
     -- A substitution lemma for _⊢_.
 
@@ -1016,7 +1017,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ →
       (⊢A : ∇ » Γ ⊢ A) →
-      size-⊢ ⊢A PE.≡ s₂ →
+      size ⊢A PE.≡ s₂ →
       ∇ » Δ ⊢ A [ σ ]
     subst-⊢′ hyp ⊢σ = let open Lemmas hyp in λ where
       (Levelⱼ ok _) _ →
@@ -1031,7 +1032,7 @@ private module Inhabited where
         Idⱼ (subst-⊢ ⊢A ⊢σ) (subst-⊢∷ ⊢t ⊢σ) (subst-⊢∷ ⊢u ⊢σ)
 
   opaque
-    unfolding size-⊢
+    unfolding size
 
     -- A substitution lemma for _⊢_ and _⊢_≡_.
 
@@ -1039,7 +1040,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       (⊢A : ∇ » Γ ⊢ A) →
-      size-⊢ ⊢A PE.≡ s₂ →
+      size ⊢A PE.≡ s₂ →
       ∇ » Δ ⊢ A [ σ₁ ] ≡ A [ σ₂ ]
     subst-⊢→⊢≡′ hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (Levelⱼ ok _) _ →
@@ -1056,7 +1057,7 @@ private module Inhabited where
           (subst-⊢∷→⊢≡∷ ⊢u σ₁≡σ₂)
 
   opaque
-    unfolding size-⊢≡
+    unfolding size
 
     -- A substitution lemma for _⊢_≡_.
 
@@ -1064,7 +1065,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       (A₁≡A₂ : ∇ » Γ ⊢ A₁ ≡ A₂) →
-      size-⊢≡ A₁≡A₂ PE.≡ s₂ →
+      size A₁≡A₂ PE.≡ s₂ →
       ∇ » Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
     subst-⊢≡′ hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (univ A₁≡A₂) PE.refl →
@@ -1072,7 +1073,7 @@ private module Inhabited where
       (refl ⊢A) PE.refl →
         subst-⊢→⊢≡ ⊢A σ₁≡σ₂
       (sym A₂≡A₁) PE.refl →
-        let ⊢Γ = wfEq-<ˢ A₂≡A₁ in
+        let ⊢Γ = wf-<ˢ (λ ()) A₂≡A₁ in
         sym (subst-⊢≡ A₂≡A₁ (sym-⊢ˢʷ≡∷-<ˢ ⊢Γ σ₁≡σ₂))
       (trans A₁≡A₂ A₂≡A₃) PE.refl →
         trans (subst-⊢≡ A₁≡A₂ σ₁≡σ₂)
@@ -1088,7 +1089,7 @@ private module Inhabited where
           (subst-⊢≡∷ u₁≡u₂ σ₁≡σ₂)
 
   opaque
-    unfolding size-⊢∷
+    unfolding size
 
     -- A substitution lemma for _⊢_∷_.
 
@@ -1096,7 +1097,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ →
       (⊢t : ∇ » Γ ⊢ t ∷ A) →
-      size-⊢∷ ⊢t PE.≡ s₂ →
+      size ⊢t PE.≡ s₂ →
       ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
     subst-⊢∷′ {∇} hyp ⊢σ = let open Lemmas hyp in λ where
       (conv ⊢t B≡A) PE.refl →
@@ -1207,7 +1208,7 @@ private module Inhabited where
           (subst-⊢∷ ⊢u ⊢σ) (subst-⊢∷ ⊢v ⊢σ) ok
 
   opaque
-    unfolding size-⊢∷L
+    unfolding size
 
     -- A substitution lemma for _⊢_∷Level.
 
@@ -1215,7 +1216,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ ∷ Γ →
       (⊢l : ∇ » Γ ⊢ l ∷Level) →
-      size-⊢∷L ⊢l PE.≡ s₂ →
+      size ⊢l PE.≡ s₂ →
       ∇ » Δ ⊢ l [ σ ] ∷Level
     subst-⊢∷L′ hyp ⊢σ = let open Lemmas hyp in λ where
       (term ok ⊢l) PE.refl →
@@ -1224,7 +1225,7 @@ private module Inhabited where
         literal (Allowed-literal-[] ok) (wf-⊢ˢʷ∷ ⊢σ)
 
   opaque
-    unfolding size-⊢∷
+    unfolding size
 
     -- A substitution lemma for _⊢_∷_ and _⊢_≡_∷_.
 
@@ -1232,7 +1233,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       (⊢t : ∇ » Γ ⊢ t ∷ A) →
-      size-⊢∷ ⊢t PE.≡ s₂ →
+      size ⊢t PE.≡ s₂ →
       ∇ » Δ ⊢ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ]
     subst-⊢∷→⊢≡∷′ {∇} {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (conv ⊢t B≡A) PE.refl →
@@ -1281,7 +1282,7 @@ private module Inhabited where
             (subst-⊢∷→⊢≡∷-⇑ ⊢B σ₁≡σ₂))
           ok
       (lamⱼ ⊢B ⊢t ok) PE.refl →
-        let _ , ⊢A      = ∙⊢∷→⊢-<ˢ ⊢t
+        let _ , ⊢A      = ∙⊢→⊢-<ˢ ⊢t
             _ , ⊢σ₁ , _ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
             _ , _ , σ₂⇑ = wf-⊢ˢʷ≡∷ (⊢ˢʷ≡∷-⇑-<ˢ ⊢A σ₁≡σ₂)
         in
@@ -1370,7 +1371,7 @@ private module Inhabited where
       (sucⱼ ⊢t) PE.refl →
         suc-cong (subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂)
       (natrecⱼ {A} ⊢t ⊢u ⊢v) PE.refl →
-        let _ , ⊢A = ∙⊢∷→⊢-<ˢ ⊢u in
+        let _ , ⊢A = ∙⊢→⊢-<ˢ ⊢u in
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
         natrec-cong (subst-⊢→⊢≡-⇑-<ˢ ⊢A σ₁≡σ₂)
           (PE.subst (_⊢_≡_∷_ _ _ _) (singleSubstLift A _) $
@@ -1416,7 +1417,7 @@ private module Inhabited where
           (subst-⊢∷→⊢≡∷ ⊢v σ₁≡σ₂) ok
 
   opaque
-    unfolding size-⊢∷L
+    unfolding size
 
     -- A substitution lemma for _⊢_∷Level and _⊢_≡_∷Level.
 
@@ -1424,7 +1425,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       (⊢l : ∇ » Γ ⊢ l ∷Level) →
-      size-⊢∷L ⊢l PE.≡ s₂ →
+      size ⊢l PE.≡ s₂ →
       ∇ » Δ ⊢ l [ σ₁ ] ≡ l [ σ₂ ] ∷Level
     subst-⊢∷L→⊢≡∷L′ {σ₁} {σ₂} hyp σ₁≡σ₂ =
       let open Lemmas hyp in λ where
@@ -1436,7 +1437,7 @@ private module Inhabited where
           literal (Allowed-literal-[] ok) (wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁)
 
   opaque
-    unfolding size-⊢≡∷
+    unfolding size
 
     -- A substitution lemma for _⊢_≡_∷_.
 
@@ -1444,13 +1445,13 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       (t₁≡t₂ : ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A) →
-      size-⊢≡∷ t₁≡t₂ PE.≡ s₂ →
+      size t₁≡t₂ PE.≡ s₂ →
       ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
     subst-⊢≡∷′ {∇} {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (refl ⊢t) PE.refl →
         subst-⊢∷→⊢≡∷ ⊢t σ₁≡σ₂
       (sym ⊢A t₂≡t₁) PE.refl →
-        let ⊢Γ    = wfEqTerm-<ˢ t₂≡t₁
+        let ⊢Γ    = wf-<ˢ (λ ()) t₂≡t₁
             σ₂≡σ₁ = sym-⊢ˢʷ≡∷-<ˢ ⊢Γ σ₁≡σ₂
         in
         conv
@@ -1523,7 +1524,7 @@ private module Inhabited where
           (subst-⊢≡∷ lower-t≡lower-u σ₁≡σ₂)
       (ΠΣ-cong {l} ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
         let ⊢σ₁ = wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₂ .proj₁
-            _ , ⊢A₁ = ∙⊢≡∷→⊢-<ˢ B₁≡B₂
+            _ , ⊢A₁ = ∙⊢→⊢-<ˢ B₁≡B₂
         in
         ΠΣ-cong (subst-⊢∷L ⊢l ⊢σ₁) (subst-⊢≡∷ A₁≡A₂ σ₁≡σ₂)
           (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ U x)
@@ -1545,7 +1546,7 @@ private module Inhabited where
         t [ consSubst σ₂ (u [ σ₂ ]) ]                                    ≡˘⟨ PE.trans (singleSubstLift t _) (singleSubstComp _ _ t) ⟩
         t [ u ]₀ [ σ₂ ]                                                  ∎
       (η-eq {f = t₁} {g = t₂} ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) PE.refl →
-        let _ , ⊢A        = ∙⊢≡∷→⊢-<ˢ t₁0≡t₂0
+        let _ , ⊢A        = ∙⊢→⊢-<ˢ t₁0≡t₂0
             _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         in
         η-eq (subst-⊢-⇑ ⊢B ⊢σ₁) (subst-⊢∷ ⊢t₁ ⊢σ₁)
@@ -1705,7 +1706,7 @@ private module Inhabited where
         t [ σ₂ ]                        ∎
       (natrec-suc {z = t} {A} {s = u} {p} {q} {r} {n = v} ⊢t ⊢u ⊢v)
         PE.refl →
-        let _ , ⊢A        = ∙⊢∷→⊢-<ˢ ⊢u
+        let _ , ⊢A        = ∙⊢→⊢-<ˢ ⊢u
             _ , ⊢σ₁ , ⊢σ₂ = wf-⊢ˢʷ≡∷ σ₁≡σ₂
             ⊢t[σ₁]        = PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
                             subst-⊢∷ ⊢t ⊢σ₁
@@ -1818,7 +1819,7 @@ private module Inhabited where
              (subst-⊢∷→⊢≡∷-<ˢ ⊢u σ₁≡σ₂))
 
   opaque
-    unfolding size-⊢≡∷L
+    unfolding size
 
     -- A substitution lemma for _⊢_≡_∷Level.
 
@@ -1826,7 +1827,7 @@ private module Inhabited where
       (∀ {s₁} → s₁ <ˢ s₂ → P s₁) →
       ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
       (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level) →
-      size-⊢≡∷L l₁≡l₂ PE.≡ s₂ →
+      size l₁≡l₂ PE.≡ s₂ →
       ∇ » Δ ⊢ l₁ [ σ₁ ] ≡ l₂ [ σ₂ ] ∷Level
     subst-⊢≡∷L′ {σ₁} {σ₂} hyp σ₁≡σ₂ = let open Lemmas hyp in λ where
       (term ok l₁≡l₂) PE.refl →
@@ -1863,40 +1864,30 @@ private
 
 opaque
 
-  -- A substitution lemma for _⊢_.
+  -- A substitution lemma for several kinds of judgements.
 
-  subst-⊢ : ∇ » Γ ⊢ A → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ A [ σ ]
-  subst-⊢ ⊢A ⊢σ = P.subst-⊢ Inhabited.P-inhabited ⊢σ ⊢A PE.refl
-
-opaque
-
-  -- Another substitution lemma for _⊢_.
-
-  substType : ∇ » Γ ∙ A ⊢ B → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ B [ t ]₀
-  substType ⊢B = subst-⊢ ⊢B ∘→ ⊢ˢʷ∷-sgSubst
-
-opaque
-
-  -- A substitution lemma for _⊢_≡_.
-
-  subst-⊢≡ : ∇ » Γ ⊢ A₁ ≡ A₂ → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢ A₁ [ σ₁ ] ≡ A₂ [ σ₂ ]
-  subst-⊢≡ A₁≡A₂ σ₁≡σ₂ =
-    P.subst-⊢≡ Inhabited.P-inhabited σ₁≡σ₂ A₁≡A₂ PE.refl
+  subst-⊢ : ∇ » Γ ⊢[ 𝓙 ] → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢[ 𝓙 [ σ ]J ]
+  subst-⊢ {𝓙 = [ctxt]} _ ⊢σ =
+    wf-⊢ˢʷ∷ ⊢σ
+  subst-⊢ {𝓙 = [ _ type]} ⊢𝓙 ⊢σ =
+    P.subst-⊢ Inhabited.P-inhabited ⊢σ ⊢𝓙 PE.refl
+  subst-⊢ {𝓙 = [ _ ≡ _ type]} ⊢𝓙 ⊢σ =
+    P.subst-⊢≡ Inhabited.P-inhabited (refl-⊢ˢʷ≡∷ ⊢σ) ⊢𝓙 PE.refl
+  subst-⊢ {𝓙 = [ _ ∷ _ ]} ⊢𝓙 ⊢σ =
+    P.subst-⊢∷ Inhabited.P-inhabited ⊢σ ⊢𝓙 PE.refl
+  subst-⊢ {𝓙 = [ _ ≡ _ ∷ _ ]} ⊢𝓙 ⊢σ =
+    P.subst-⊢≡∷ Inhabited.P-inhabited (refl-⊢ˢʷ≡∷ ⊢σ) ⊢𝓙 PE.refl
+  subst-⊢ {𝓙 = [ _ ∷Level]} ⊢𝓙 ⊢σ =
+    P.subst-⊢∷L Inhabited.P-inhabited ⊢σ ⊢𝓙 PE.refl
+  subst-⊢ {𝓙 = [ _ ≡ _ ∷Level]} ⊢𝓙 ⊢σ =
+    P.subst-⊢≡∷L Inhabited.P-inhabited (refl-⊢ˢʷ≡∷ ⊢σ) ⊢𝓙 PE.refl
 
 opaque
 
   -- A substitution lemma for _⊢_∷_.
 
   subst-⊢∷ : ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
-  subst-⊢∷ ⊢t ⊢σ = P.subst-⊢∷ Inhabited.P-inhabited ⊢σ ⊢t PE.refl
-
-opaque
-
-  -- Another substitution lemma for _⊢_∷_.
-
-  substTerm :
-    ∇ » Γ ∙ A ⊢ t ∷ B → ∇ » Γ ⊢ u ∷ A → ∇ » Γ ⊢ t [ u ]₀ ∷ B [ u ]₀
-  substTerm ⊢B = subst-⊢∷ ⊢B ∘→ ⊢ˢʷ∷-sgSubst
+  subst-⊢∷ = subst-⊢
 
 opaque
 
@@ -1904,15 +1895,28 @@ opaque
 
   subst-⊢∷L :
     ∇ » Γ ⊢ l ∷Level → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ l [ σ ] ∷Level
-  subst-⊢∷L ⊢l ⊢σ = P.subst-⊢∷L Inhabited.P-inhabited ⊢σ ⊢l PE.refl
+  subst-⊢∷L = subst-⊢
 
 opaque
 
-  -- Another substitution lemma for _⊢_∷Level.
+  -- A substitution lemma for several kinds of judgements.
 
-  substLevel :
-    ∇ » Γ ∙ A ⊢ l ∷Level → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ l [ t ]₀ ∷Level
-  substLevel ⊢l = subst-⊢∷L ⊢l ∘→ ⊢ˢʷ∷-sgSubst
+  subst-⊢≡ :
+    ∇ » Γ ⊢[ 𝓙 ] → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ → ∇ » Δ ⊢[ 𝓙 [ σ₁ ≡ σ₂ ]J ]
+  subst-⊢≡ {𝓙 = [ctxt]} _ σ₁≡σ₂ =
+    wf-⊢ˢʷ≡∷ σ₁≡σ₂ .proj₁
+  subst-⊢≡ {𝓙 = [ _ type]} ⊢𝓙 σ₁≡σ₂ =
+    P.subst-⊢→⊢≡ Inhabited.P-inhabited σ₁≡σ₂ ⊢𝓙 PE.refl
+  subst-⊢≡ {𝓙 = [ _ ≡ _ type]} ⊢𝓙 σ₁≡σ₂ =
+    P.subst-⊢≡ Inhabited.P-inhabited σ₁≡σ₂ ⊢𝓙 PE.refl
+  subst-⊢≡ {𝓙 = [ _ ∷ _ ]} ⊢𝓙 σ₁≡σ₂ =
+    P.subst-⊢∷→⊢≡∷ Inhabited.P-inhabited σ₁≡σ₂ ⊢𝓙 PE.refl
+  subst-⊢≡ {𝓙 = [ _ ≡ _ ∷ _ ]} ⊢𝓙 σ₁≡σ₂ =
+    P.subst-⊢≡∷ Inhabited.P-inhabited σ₁≡σ₂ ⊢𝓙 PE.refl
+  subst-⊢≡ {𝓙 = [ _ ∷Level]} ⊢𝓙 σ₁≡σ₂ =
+    P.subst-⊢∷L→⊢≡∷L Inhabited.P-inhabited σ₁≡σ₂ ⊢𝓙 PE.refl
+  subst-⊢≡ {𝓙 = [ _ ≡ _ ∷Level]} ⊢𝓙 σ₁≡σ₂ =
+    P.subst-⊢≡∷L Inhabited.P-inhabited σ₁≡σ₂ ⊢𝓙 PE.refl
 
 opaque
 
@@ -1921,8 +1925,7 @@ opaque
   subst-⊢≡∷ :
     ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
     ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
-  subst-⊢≡∷ t₁≡t₂ σ₁≡σ₂ =
-    P.subst-⊢≡∷ Inhabited.P-inhabited σ₁≡σ₂ t₁≡t₂ PE.refl
+  subst-⊢≡∷ = subst-⊢≡
 
 opaque
 
@@ -1931,44 +1934,62 @@ opaque
   subst-⊢≡∷L :
     ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
     ∇ » Δ ⊢ l₁ [ σ₁ ] ≡ l₂ [ σ₂ ] ∷Level
-  subst-⊢≡∷L l₁≡l₂ σ₁≡σ₂ =
-    P.subst-⊢≡∷L Inhabited.P-inhabited σ₁≡σ₂ l₁≡l₂ PE.refl
+  subst-⊢≡∷L = subst-⊢≡
+
+opaque
+
+  -- A substitution lemma for several kinds of judgements.
+
+  subst-⊢₀ :
+    ∇ » Γ ∙ A ⊢[ 𝓙 ] → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢[ 𝓙 [ sgSubst t ]J ]
+  subst-⊢₀ ⊢𝓙 = subst-⊢ ⊢𝓙 ∘→ ⊢ˢʷ∷-sgSubst
+
+opaque
+
+  -- Another substitution lemma for _⊢_.
+
+  substType : ∇ » Γ ∙ A ⊢ B → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ B [ t ]₀
+  substType = subst-⊢₀
+
+opaque
+
+  -- Another substitution lemma for _⊢_∷_.
+
+  substTerm :
+    ∇ » Γ ∙ A ⊢ t ∷ B → ∇ » Γ ⊢ u ∷ A → ∇ » Γ ⊢ t [ u ]₀ ∷ B [ u ]₀
+  substTerm = subst-⊢₀
+
+opaque
+
+  -- Another substitution lemma for _⊢_∷Level.
+
+  substLevel :
+    ∇ » Γ ∙ A ⊢ l ∷Level → ∇ » Γ ⊢ t ∷ A → ∇ » Γ ⊢ l [ t ]₀ ∷Level
+  substLevel = subst-⊢₀
 
 opaque
 
   -- A substitution lemma related to _⇑[_].
 
   subst-⊢-⇑ :
-    ∇ » Γ ⊢ A → ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ → ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ A [ σ ⇑[ k ] ]
-  subst-⊢-⇑ ⊢A = L.subst-⊢-⇑ ⊢A ⦃ lt = ∃-<ˢ .proj₂ ⦄
-
-opaque
-
-  -- A substitution lemma related to _⇑[_].
-
-  subst-⊢∷-⇑ :
-    ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
-    ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢ t [ σ ⇑[ k ] ] ∷ A [ σ ⇑[ k ] ]
-  subst-⊢∷-⇑ ⊢t = L.subst-⊢∷-⇑ ⊢t ⦃ lt = ∃-<ˢ .proj₂ ⦄
+    ∇ » Γ ⊢[ 𝓙 ] → ∇ » Δ ⊢ˢʷ σ ∷ drop k Γ →
+    ∇ » Δ ∙[ k ][ Γ ][ σ ] ⊢[ 𝓙 [ σ ⇑[ k ] ]J ]
+  subst-⊢-⇑ ⊢𝓙 =
+    subst-⊢ ⊢𝓙 ∘→
+    L.⊢ˢʷ∷-⇑[]-<ˢ {s = node (node (size ⊢𝓙))}
+      (Σ.map idᶠ ↙_ (wf-≤ˢ ⊢𝓙))
 
 opaque
 
   -- A substitution lemma related to _⇑[_].
 
   subst-⊢≡-⇑ :
-    ∇ » Γ ⊢ A ≡ B → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-    ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ A [ σ₁ ⇑[ k ] ] ≡ B [ σ₂ ⇑[ k ] ]
-  subst-⊢≡-⇑ A≡B = L.subst-⊢≡-⇑ A≡B ⦃ lt = ∃-<ˢ .proj₂ ⦄
-
-opaque
-
-  -- A substitution lemma related to _⇑[_].
-
-  subst-⊢≡∷-⇑ :
-    ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
-    ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢ t [ σ₁ ⇑[ k ] ] ≡ u [ σ₂ ⇑[ k ] ] ∷
-      A [ σ₁ ⇑[ k ] ]
-  subst-⊢≡∷-⇑ t≡u = L.subst-⊢≡∷-⇑ t≡u ⦃ lt = ∃-<ˢ .proj₂ ⦄
+    ∇ » Γ ⊢[ 𝓙 ] → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ drop k Γ →
+    ∇ » Δ ∙[ k ][ Γ ][ σ₁ ] ⊢[ 𝓙 [ σ₁ ⇑[ k ] ≡ σ₂ ⇑[ k ] ]J ]
+  subst-⊢≡-⇑ ⊢𝓙 =
+    subst-⊢≡ ⊢𝓙 ∘→
+    L.⊢ˢʷ≡∷-⇑[]-<ˢ {s = node (node (size ⊢𝓙))}
+      (Σ.map idᶠ ↙_ (wf-≤ˢ ⊢𝓙))
 
 ------------------------------------------------------------------------
 -- More lemmas related to _⊢ˢʷ_∷_ and _⊢ˢʷ_≡_∷_

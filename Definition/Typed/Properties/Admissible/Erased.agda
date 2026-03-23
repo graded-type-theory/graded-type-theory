@@ -1065,7 +1065,7 @@ module _ (ok : []-cong-allowed s) where
                                                                                PE.refl) ⟩⊢≡
       B [ fst⟨ s ⟩ 𝟘 A (prod s 𝟘 u v)
         , snd⟨ s ⟩ 𝟘 𝟘 A (Id (wk1 A) (wk1 t) (var x0)) (prod s 𝟘 u v)
-        ]₁₀                                                            ≡˘⟨ substTypeEq₂ (refl ⊢B)
+        ]₁₀                                                            ≡˘⟨ subst-⊢≡₁₀ ⊢B
                                                                              (sym′ (fst⟨⟩-β-≡ (J-motive-context-type ⊢t) ⊢u ⊢v′ Σ-ok))
                                                                              (sym′ (snd⟨⟩-β-≡ (J-motive-context-type ⊢t) ⊢u ⊢v′ Σ-ok)) ⟩⊢∎
       B [ u , v ]₁₀                                                    ∎
@@ -1183,7 +1183,7 @@ module _ (ok : []-cong-allowed s) where
                                                                                      t,rfl≡t′,rfl))
                                                                               (conv ⊢u $ sym $ lemma₉ ⊢B (rflⱼ ⊢t))) $
                                                                          _⊢_≡_.trans (lemma₉ ⊢B (rflⱼ′ t≡t′)) $
-                                                                         substTypeEq₂ (refl ⊢B) (sym′ t≡t′) $
+                                                                         subst-⊢≡₁₀ ⊢B (sym′ t≡t′) $
                                                                          PE.subst (_⊢_≡_∷_ _ _ _)
                                                                            (PE.sym $ PE.cong₃ Id
                                                                               (wk1-sgSubst _ _)

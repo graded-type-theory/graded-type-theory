@@ -227,10 +227,7 @@ These are left implicit in the paper, but are used in some of the theorem statem
 Lemma 3.6 states that typing judgements are preserved under weakening:
 ```
 import Definition.Typed.Weakening using
-  ( wk        -- Well-formedness of types is preserved under weakening
-  ; wkTerm    -- Well-typedness of terms is preserved under weakening
-  ; wkEq      -- Equality of types is preserved under weakening
-  ; wkEqTerm  -- Equality of terms is preserved under weakening
+  ( wk        -- Seven basic typing judgements are preserved under weakening
   ; wkRed     -- Weak head reduction is preserved under weakening
   ; wkRedTerm -- Weak head reduction of terms is preserved under weakening
   )
@@ -239,10 +236,7 @@ import Definition.Typed.Weakening using
 Lemma 3.7 states that typing judgements are preserved under substitution:
 ```
 import Definition.Typed.Substitution using
-  ( subst-⊢   -- Well-formedness of types is preserved under substitution
-  ; subst-⊢∷  -- Well-typedness of terms is preserved under substitution
-  ; subst-⊢≡  -- Equality of types is preserved under substitution
-  ; subst-⊢≡∷ -- Equality of terms is preserved under substitution
+  ( subst-⊢   -- Seven basic typing judgements are preserved under substitution
   ; subst-⊢⇒  -- Weak head reduction is preserved under substitution
   ; subst-⊢⇒∷ -- Weak head reduction of terms is preserved under substitution
   )
@@ -423,11 +417,7 @@ no notion of reducibility for these entities.
 Theorem 3.17, the fundamental theorem, states that the normal typing judgements can be strengthened to validity:
 ```
 import Definition.LogicalRelation.Fundamental using
-  ( valid            -- Fundamental theorem for well-formedness of typing contexts
-  ; fundamental-⊩ᵛ   -- Fundamental theorem for well-formedness of types
-  ; fundamental-⊩ᵛ∷  -- Fundamental theorem for well-typedness of terms
-  ; fundamental-⊩ᵛ≡  -- Fundamental theorem for equality of well-formed types
-  ; fundamental-⊩ᵛ≡∷ -- Fundamental theorem for equality of well-typed terms
+  ( fundamental-⊩ᵛ   -- Fundamental theorem for seven basic typing judgements
   ; fundamental-⊩ˢ∷  -- Fundamental theorem for well-formedness of substitutions
   ; fundamental-⊩ˢ≡∷ -- Fundamental theorem for equality of well-formed substitutions
   )
@@ -549,10 +539,7 @@ Lemma 4.7 states that typing judgements are preserved under weakening of the de
 weakening"):
 ```
 import Definition.Typed.Weakening.Definition using
-  ( defn-wk        -- Well-formedness of types is preserved under definitional weakening
-  ; defn-wkTerm    -- Well-typedness of terms is preserved under definitional weakening
-  ; defn-wkEq      -- Equality of types is preserved under definitional weakening
-  ; defn-wkEqTerm  -- Equality of terms is preserved under definitional weakening
+  ( defn-wk        -- Preservation under definitional weakening for seven basic typing judgements
   ; defn-wkRed     -- Weak head reduction is preserved under definitional weakening
   ; defn-wkRedTerm -- Weak head reduction of terms is preserved under definitional weakening
   )
@@ -569,14 +556,8 @@ import Definition.Typed.Well-formed using
 Lemma 4.9 extends the well-formedness lemma with definition contexts and an additional case for well-formedness of the
 definition context:
 ```
-import Definition.Typed.Properties.Well-formed using
-  ( defn-wf -- ∇ »⊢ Γ implies » ∇
-  ; wf      -- ∇ » Γ ⊢ A implies ∇ »⊢ Γ
-  )
 import Definition.Typed.Well-formed using
-  ( wf-⊢∷  -- ∇ » Γ ⊢ t ∷ A implies ∇ » Γ ⊢ A
-  ; wf-⊢≡  -- ∇ » Γ ⊢ A ≡ B implies ∇ » Γ ⊢ A and ∇ » Γ ⊢ B
-  ; wf-⊢≡∷ -- ∇ » Γ ⊢ t ≡ u ∷ A implies ∇ » Γ ⊢ t ∷ A and ∇ » Γ ⊢ u ∷ A
+  ( wf-⊢ -- The first five cases (and more)
   )
 import Definition.Typed.Syntactic using
   ( syntacticRed     -- ∇ » Γ ⊢ A ⇒ B implies ∇ » Γ ⊢ A and ∇ » Γ ⊢ B
@@ -622,11 +603,7 @@ Theorem 4.13 updates the fundamental theorem, adding a case for definition cont
 ```
 import Definition.LogicalRelation.Fundamental using
   ( defn-valid       -- Fundamental theorem for well-formedness of definition contexts
-  ; valid            -- Fundamental theorem for well-formedness of typing contexts
-  ; fundamental-⊩ᵛ   -- Fundamental theorem for well-formedness of types
-  ; fundamental-⊩ᵛ∷  -- Fundamental theorem for well-typedness of terms
-  ; fundamental-⊩ᵛ≡  -- Fundamental theorem for equality of well-formed types
-  ; fundamental-⊩ᵛ≡∷ -- Fundamental theorem for equality of well-typed terms
+  ; fundamental-⊩ᵛ   -- Fundamental theorem for seven basic typing judgements
   ; fundamental-⊩ˢ∷  -- Fundamental theorem for well-formedness of substitutions
   ; fundamental-⊩ˢ≡∷ -- Fundamental theorem for equality of well-formed substitutions
   )
@@ -768,10 +745,7 @@ Lemma 5.9 states that typing judgements are preserved under definitional weaken
 above for Lemma 4.7):
 ```
 import Definition.Typed.Weakening.Definition using
-  ( defn-wk        -- Well-formedness of types is preserved under definitional weakening
-  ; defn-wkTerm    -- Well-typedness of terms is preserved under definitional weakening
-  ; defn-wkEq      -- Equality of types is preserved under definitional weakening
-  ; defn-wkEqTerm  -- Equality of terms is preserved under definitional weakening
+  ( defn-wk        -- Preservation under definitional weakening for seven basic typing judgements
   ; defn-wkRed     -- Weak head reduction is preserved under definitional weakening
   ; defn-wkRedTerm -- Weak head reduction of terms is preserved under definitional weakening
   )
@@ -780,14 +754,10 @@ import Definition.Typed.Weakening.Definition using
 Lemma 5.10 states that typing judgements are preserved under glassification of the definition context:
 ```
 import Definition.Typed.Properties.Definition using
-  ( glassify-»   -- Glassification for well-formedness of definition contexts
-  ; glassify-⊢′  -- Glassification for well-formedness of typing contexts
-  ; glassify-⊢   -- Glassification for well-formedness of types
-  ; glassify-⊢∷  -- Glassification for well-typedness of terms
-  ; glassify-⊢≡  -- Glassification for equality of types
-  ; glassify-⊢≡∷ -- Glassification for equality of terms
-  ; glassify-⇒   -- Glassification for weak head reduction of types
-  ; glassify-⇒∷  -- Glassification for weak head reduction of terms
+  ( glassify-»  -- Glassification for well-formedness of definition contexts
+  ; glassify-⊢  -- Glassification for seven basic typing judgements
+  ; glassify-⇒  -- Glassification for weak head reduction of types
+  ; glassify-⇒∷ -- Glassification for weak head reduction of terms
   )
 ```
 

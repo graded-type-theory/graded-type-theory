@@ -41,6 +41,7 @@ private
     Δ Η : Con Term m
     Γ : Cons m n
     σ σ₁ σ₂ σ′ : Subst m n
+    𝓙 : Judgement _
     A A₁ A₂ B t t₁ t₂ u : Term _
     l l₁ l₂ : Lvl _
     ⊩Γ : _ »⊩ᵛ _
@@ -405,6 +406,20 @@ opaque mutual
     _ , term ok (fundamental-⊩ᵛ≡∷ t≡u .proj₂)
   fundamental-⊩ᵛ≡∷L (literal ok ⊢Γ) =
     0ᵘ , literal! ok (valid ⊢Γ)
+
+opaque
+
+  -- A statement of the fundamental theorem for multiple kinds of
+  -- judgements.
+
+  fundamental : Γ ⊢[ 𝓙 ] → ∃ (Γ ⊩ᵛ[ 𝓙 ]_)
+  fundamental {𝓙 = [ctxt]}          = λ ⊢Γ → _ , valid ⊢Γ
+  fundamental {𝓙 = [ _ type]}       = fundamental-⊩ᵛ
+  fundamental {𝓙 = [ _ ≡ _ type]}   = fundamental-⊩ᵛ≡
+  fundamental {𝓙 = [ _ ∷ _ ]}       = fundamental-⊩ᵛ∷
+  fundamental {𝓙 = [ _ ≡ _ ∷ _ ]}   = fundamental-⊩ᵛ≡∷
+  fundamental {𝓙 = [ _ ∷Level]}     = fundamental-⊩ᵛ∷L
+  fundamental {𝓙 = [ _ ≡ _ ∷Level]} = fundamental-⊩ᵛ≡∷L
 
 opaque
 

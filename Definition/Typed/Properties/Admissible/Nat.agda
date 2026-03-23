@@ -61,7 +61,7 @@ opaque
           → Γ »∙ ℕ »∙ F ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
   sucCong F≡G =
     let ⊢F , ⊢G = syntacticEq F≡G
-    in subst↑²TypeEq F≡G (refl (sucⱼ (var (∙ ⊢F) (there here))))
+    in subst-⊢≡-↑ F≡G (refl (sucⱼ (var (∙ ⊢F) (there here))))
 
 opaque
 
@@ -69,7 +69,7 @@ opaque
           → Γ »∙ ℕ »∙ G ⊢ F [ suc (var x1) ]↑² ≡ G [ suc (var x1) ]↑²
   sucCong′ F≡G =
     let ⊢F , ⊢G = syntacticEq F≡G
-    in subst↑²TypeEq F≡G (refl (sucⱼ (var (∙ ⊢G) (there here))))
+    in subst-⊢≡-↑ F≡G (refl (sucⱼ (var (∙ ⊢G) (there here))))
 
 opaque
 

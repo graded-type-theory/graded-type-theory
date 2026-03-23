@@ -85,13 +85,12 @@ notation `∇ » ρ ∷ʷ Δ ⊇ Γ` means that ρ is a well-formed weaken
 Δ ⊢ ρ : Γ is used for the corresponding notion without a definition
 context). The single-step weakening p is written `step id`: in the
 code this weakening is often used via `wk1` = `wk (step id)`, and the
-lemmas `wk₁` and `wkTerm₁` show that this operation is
-type-preserving.
+lemma `wk₁` shows that this operation is type-preserving.
 ```agda
 import Definition.Untyped
   using (wk; step; id; wk1)
 import Definition.Typed.Weakening
-  using (_»_∷ʷ_⊇_; wk₁; wkTerm₁)
+  using (_»_∷ʷ_⊇_; wk₁)
 ```
 
 #### 2.2: Typing Rules

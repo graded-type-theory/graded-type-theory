@@ -144,7 +144,7 @@ opaque
     lam p₁ (lam p₂ t) ∘⟨ p₁ ⟩ u₁ ∘⟨ p₂ ⟩ u₂  ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (singleSubstComp _ _ C) $
                                                 app-subst (β-red-⇒ (lamⱼ′ ok₂ ⊢t) ⊢u₁ ok₁) ⊢u₂ ⟩
     lam p₂ (t [ sgSubst u₁ ⇑ ]) ∘⟨ p₂ ⟩ u₂   ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (singleSubstComp _ _ C) $
-                                                β-red-⇒ (subst-⊢∷-⇑ ⊢t (⊢ˢʷ∷-sgSubst ⊢u₁)) ⊢u₂ ok₂ ⟩∎≡
+                                                β-red-⇒ (subst-⊢-⇑ ⊢t (⊢ˢʷ∷-sgSubst ⊢u₁)) ⊢u₂ ok₂ ⟩∎≡
     t [ sgSubst u₁ ⇑ ] [ u₂ ]₀               ≡⟨ singleSubstComp _ _ t ⟩
     t [ u₁ , u₂ ]₁₀                          ∎
 
@@ -171,7 +171,7 @@ opaque
     lam p₁ (lam p₂ (lam p₃ t)) ∘⟨ p₁ ⟩ u₁ ∘⟨ p₂ ⟩ u₂ ∘⟨ p₃ ⟩ u₃  ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _) (singleSubstComp _ _ D) $
                                                                      app-subst* (β-red-⇒₂′ ok₁ ok₂ (lamⱼ′ ok₃ ⊢t) ⊢u₁ ⊢u₂) ⊢u₃ ⟩
     lam p₃ (t [ consSubst (sgSubst u₁) u₂ ⇑ ]) ∘⟨ p₃ ⟩ u₃        ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (singleSubstComp _ _ D) $
-                                                                    β-red-⇒ (subst-⊢∷-⇑ ⊢t (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u₁) ⊢u₂)) ⊢u₃ ok₃ ⟩∎≡
+                                                                    β-red-⇒ (subst-⊢-⇑ ⊢t (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u₁) ⊢u₂)) ⊢u₃ ok₃ ⟩∎≡
     t [ consSubst (sgSubst u₁) u₂ ⇑ ] [ u₃ ]₀                    ≡⟨ singleSubstComp _ _ t ⟩
     t [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ]               ∎
 
@@ -203,7 +203,7 @@ opaque
       ∘⟨ p₄ ⟩ u₄                                                          ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _) (singleSubstComp _ _ E) $
                                                                               app-subst* (β-red-⇒₃′ ok₁ ok₂ ok₃ (lamⱼ′ ok₄ ⊢t) ⊢u₁ ⊢u₂ ⊢u₃) ⊢u₄ ⟩
     lam p₄ (t [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ⇑ ]) ∘⟨ p₄ ⟩ u₄  ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (singleSubstComp _ _ E) $
-                                                                             β-red-⇒ (subst-⊢∷-⇑ ⊢t (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u₁) ⊢u₂) ⊢u₃))
+                                                                             β-red-⇒ (subst-⊢-⇑ ⊢t (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u₁) ⊢u₂) ⊢u₃))
                                                                                ⊢u₄ ok₄ ⟩∎≡
     t [ consSubst (consSubst (sgSubst u₁) u₂) u₃ ⇑ ] [ u₄ ]₀              ≡⟨ singleSubstComp _ _ t ⟩
     t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ]         ∎
@@ -247,7 +247,7 @@ opaque
       (t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ⇑ ])
       ∘⟨ p₅ ⟩ u₅                                                          ⇒⟨ PE.subst (_⊢_⇒_∷_ _ _ _) (singleSubstComp _ _ F) $
                                                                              β-red-⇒
-                                                                               (subst-⊢∷-⇑ ⊢t $
+                                                                               (subst-⊢-⇑ ⊢t $
                                                                                 →⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢u₁) ⊢u₂) ⊢u₃) ⊢u₄)
                                                                                ⊢u₅ ok₅ ⟩∎≡
     t [ consSubst (consSubst (consSubst (sgSubst u₁) u₂) u₃) u₄ ⇑ ]

@@ -160,6 +160,30 @@ opaque
   _⊩ᵛ⟨_⟩_∷Level : Cons m n → Universe-level → Lvl n → Set a
   Γ ⊩ᵛ⟨ ℓ ⟩ l ∷Level = Γ ⊩ᵛ⟨ ℓ ⟩ l ≡ l ∷Level
 
+-- A type used to state _⊩ᵛ[_].
+
+Validity-args : Judgement n → Set
+Validity-args [ctxt]          = ⊤
+Validity-args [ _ type]       = Universe-level
+Validity-args [ _ ≡ _ type]   = Universe-level
+Validity-args [ _ ∷ _ ]       = Universe-level
+Validity-args [ _ ≡ _ ∷ _ ]   = Universe-level
+Validity-args [ _ ∷Level]     = Universe-level
+Validity-args [ _ ≡ _ ∷Level] = Universe-level
+
+-- A combined validity judgement.
+
+infix 4 _⊩ᵛ[_]_
+
+_⊩ᵛ[_]_ : Cons m n → (𝓙 : Judgement n) → Validity-args 𝓙 → Set a
+Γ ⊩ᵛ[ [ctxt]            ] _ = ⊩ᵛ Γ
+Γ ⊩ᵛ[ [ A type]         ] ℓ = Γ ⊩ᵛ⟨ ℓ ⟩ A
+Γ ⊩ᵛ[ [ A ≡ B type]     ] ℓ = Γ ⊩ᵛ⟨ ℓ ⟩ A ≡ B
+Γ ⊩ᵛ[ [ t ∷ A ]         ] ℓ = Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A
+Γ ⊩ᵛ[ [ t ≡ u ∷ A ]     ] ℓ = Γ ⊩ᵛ⟨ ℓ ⟩ t ≡ u ∷ A
+Γ ⊩ᵛ[ [ l ∷Level]       ] ℓ = Γ ⊩ᵛ⟨ ℓ ⟩ l ∷Level
+Γ ⊩ᵛ[ [ l₁ ≡ l₂ ∷Level] ] ℓ = Γ ⊩ᵛ⟨ ℓ ⟩ l₁ ≡ l₂ ∷Level
+
 ------------------------------------------------------------------------
 -- Some characterisation lemmas
 

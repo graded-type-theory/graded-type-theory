@@ -685,7 +685,7 @@ module Natrec₁
         U₀
       ⊢S₀ =
         PE.subst (Γᴺ »∙ U₀ ⊢_∷ U₀) S₀≡
-          (subst-⊢∷-⇑ {k = 2} ⊢S (⊢ˢʷ∷-sgSubst (zeroⱼ ⊢Γᴺ)))
+          (subst-⊢-⇑ {k = 2} ⊢S (⊢ˢʷ∷-sgSubst (zeroⱼ ⊢Γᴺ)))
 
     opaque
 
@@ -696,7 +696,7 @@ module Natrec₁
         U₀
       ⊢S₊ {A} ⊢A =
         PE.subst (Γᴺ »∙ A »∙ ℕ »∙ U₀ ⊢_∷ _) S₊≡
-          (subst-⊢∷-⇑ {k = 2} ⊢S (→⊢ˢʷ∷∙ (⊢ˢʷ∷-wkSubst (∙ ⊢A) (⊢ˢʷ∷-idSubst ⊢Γᴺ))
+          (subst-⊢-⇑ {k = 2} ⊢S (→⊢ˢʷ∷∙ (⊢ˢʷ∷-wkSubst (∙ ⊢A) (⊢ˢʷ∷-idSubst ⊢Γᴺ))
             (sucⱼ (var₁ ⊢A))))
 
     opaque

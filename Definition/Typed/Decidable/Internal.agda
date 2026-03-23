@@ -2490,7 +2490,7 @@ opaque
         ⌜ D ⌝ γ U.[ ⌜ prod 𝕨 p qC t₁₁ t₁₂ ⌝ γ ]₀               ⇒⟨ prodrec-β-⇒ ⊢D ⊢t₁₁ ⊢t₁₂ ⊢t₂ ⟩⊢∷
       ⌜ subst t₂ (cons (sgSubst t₁₁) t₁₂) ⌝ γ                  ≡⟨ red-sound-⊢∷ n eq₂ $
                                                                   PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] (⌜ D ⌝ _)) $
-                                                                  substTerm₂ ⊢t₂ ⊢t₁₁ ⊢t₁₂ ⟩⊢∎
+                                                                  subst-⊢₁₀ ⊢t₂ ⊢t₁₁ ⊢t₁₂ ⟩⊢∎
       ⌜ u ⌝ γ                                                  ∎
     … | nothing | ok! =
       let open TmR in
@@ -2541,7 +2541,7 @@ opaque
         ⌜ B ⌝ γ U.[ ⌜ suc t₃″ ⌝ γ ]₀                                  ⇒⟨ natrec-suc ⊢t₁ ⊢t₂ ⊢t₃″ ⟩⊢∷
       ⌜ subst t₂ (cons (sgSubst t₃″) (natrec p q r B t₁ t₂ t₃″)) ⌝ γ  ≡⟨ red-sound-⊢∷ n eq₂ $
                                                                          PE.subst (_⊢_∷_ _ _) (PE.sym $ substComp↑² (⌜ B ⌝ _) _) $
-                                                                         substTerm₂ ⊢t₂ ⊢t₃″ (natrecⱼ ⊢t₁ ⊢t₂ ⊢t₃″) ⟩⊢∎
+                                                                         subst-⊢₁₀ ⊢t₂ ⊢t₃″ (natrecⱼ ⊢t₁ ⊢t₂ ⊢t₃″) ⟩⊢∎
       ⌜ u ⌝ γ                                                         ∎
     … | nothing | ok! =
       let open TmR in
@@ -2575,7 +2575,7 @@ opaque
                                     ∷ A        ⟨ A≡ ⟩≡∷
       ⌜ J p q B₁ t₁ B₂ t₂ t₃ t₄ ⌝ γ ∷
         ⌜ B₂ ⌝ γ U.[ ⌜ t₃ ⌝ γ , ⌜ t₄ ⌝ γ ]₁₀  ≡⟨ J-cong′ (refl ⊢B₁) (refl ⊢t₁) (refl ⊢B₂) (refl ⊢t₂) (refl ⊢t₃) t₄≡rfl ⟩⊢∷
-                                               ⟨ substTypeEq₂ (refl ⊢B₂) (sym′ t₁≡t₃) (PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ t₄≡rfl) ⟩≡
+                                               ⟨ subst-⊢≡₁₀ (refl ⊢B₂) (sym′ t₁≡t₃) (PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ t₄≡rfl) ⟩≡
       ⌜ J p q B₁ t₁ B₂ t₂ t₃ (rfl t₁?) ⌝ γ ∷
         ⌜ B₂ ⌝ γ U.[ ⌜ t₁ ⌝ γ , U.rfl ]₁₀     ⇒⟨ J-β-⇒ t₁≡t₃ ⊢B₂ ⊢t₂ ⟩⊢∷
       ⌜ t₂ ⌝ γ                                ≡⟨ red-sound-⊢∷ n eq₂ ⊢t₂ ⟩⊢∎
@@ -4309,7 +4309,7 @@ private module Lemmas (p : P n) where opaque
           | A≡B′[t₁′]        ← equal-ty-sound eq₄ ⊢γ (wf-⊢∷ ⊢pr)
                                  (substType ⊢B′ ⊢t₁′)
           | t₂≡t₂′           ← check-sound eq₅ ⊢γ
-                                 (subst↑²Type ⊢B′ (⊢1,0 ⊢Σ))
+                                 (subst-⊢-↑ ⊢B′ (⊢1,0 ⊢Σ))
           | _ , _ , ⊢t₂′     ← wf-⊢≡∷ t₂≡t₂′
           | pr≡pr            ← prodrec-cong′ (sym B≡B′) (sym′ t₁≡t₁′)
                                  (sym′ t₂≡t₂′)
@@ -4334,12 +4334,12 @@ private module Lemmas (p : P n) where opaque
       ⌜ prodrec r p q B′ (prod 𝕨 p qC t₁₁ t₁₂) t₂′ ⌝ γ ∷
         ⌜ B′ ⌝ γ U.[ ⌜ prod 𝕨 p qC t₁₁ t₁₂ ⌝ γ ]₀                 ⇒⟨ prodrec-β-⇒ ⊢B′ ⊢t₁₁ ⊢t₁₂ ⊢t₂′ ⟩⊢∷
       ⌜ subst t₂′ (cons (sgSubst t₁₁) t₁₂) ⌝ γ                    ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _) ([1,0]↑²[,] (⌜ B′ ⌝ _)) $
-                                                                     substTermEq₂ (refl ⊢t₂′) t₁₁≡t₁₁′ t₁₂≡t₁₂′ ⟩⊢
+                                                                     subst-⊢≡₁₀ ⊢t₂′ t₁₁≡t₁₁′ t₁₂≡t₁₂′ ⟩⊢
                                                                    ⟨ substTypeEq (refl ⊢B′) (prod-cong ⊢C₂ t₁₁≡t₁₁′ t₁₂≡t₁₂′ Σ-ok) ⟩≡
       ⌜ subst t₂′ (cons (sgSubst t₁₁′) t₁₂′) ⌝ γ ∷
         ⌜ B′ ⌝ γ U.[ ⌜ prod 𝕨 p qC t₁₁′ t₁₂′ ⌝ γ ]₀               ≡⟨ red-tm-sound eq₈ ⊢γ $
                                                                      PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] (⌜ B′ ⌝ _)) $
-                                                                     substTerm₂ ⊢t₂′ ⊢t₁₁′ ⊢t₁₂′ ⟩⊢∷∎
+                                                                     subst-⊢₁₀ ⊢t₂′ ⊢t₁₁′ ⊢t₁₂′ ⟩⊢∷∎
       ⌜ u ⌝ γ                                                     ∎
     … | nothing | ok! =
       let open TmR in
@@ -4390,7 +4390,7 @@ private module Lemmas (p : P n) where opaque
         ⌜ B ⌝ γ U.[ ⌜ suc t₃″ ⌝ γ ]₀                                  ⇒⟨ natrec-suc ⊢t₁ ⊢t₂ ⊢t₃″ ⟩⊢∷
       ⌜ subst t₂ (cons (sgSubst t₃″) (natrec p q r B t₁ t₂ t₃″)) ⌝ γ  ≡⟨ red-tm-sound eq₂ ⊢γ $
                                                                          PE.subst (_⊢_∷_ _ _) (PE.sym $ substComp↑² (⌜ B ⌝ _) _) $
-                                                                         substTerm₂ ⊢t₂ ⊢t₃″ (natrecⱼ ⊢t₁ ⊢t₂ ⊢t₃″) ⟩⊢∎
+                                                                         subst-⊢₁₀ ⊢t₂ ⊢t₃″ (natrecⱼ ⊢t₁ ⊢t₂ ⊢t₃″) ⟩⊢∎
       ⌜ u ⌝ γ                                                         ∎
     … | nothing | ok! =
       let open TmR in
@@ -4423,7 +4423,7 @@ private module Lemmas (p : P n) where opaque
                                     ∷ ⌜ A ⌝ γ   ⟨ A≡ ⟩≡∷
       ⌜ J p q B₁ t₁ B₂ t₂ t₃ t₄ ⌝ γ ∷
         ⌜ B₂ ⌝ γ U.[ ⌜ t₃ ⌝ γ , ⌜ t₄ ⌝ γ ]₁₀   ≡⟨ J-cong′ (refl ⊢B₁) (refl ⊢t₁) (refl ⊢B₂) (refl ⊢t₂) (refl ⊢t₃) t₄≡rfl ⟩⊢∷
-                                                ⟨ substTypeEq₂ (refl ⊢B₂) (sym′ t₁≡t₃) (PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ t₄≡rfl) ⟩≡
+                                                ⟨ subst-⊢≡₁₀ ⊢B₂ (sym′ t₁≡t₃) (PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ t₄≡rfl) ⟩≡
       ⌜ J p q B₁ t₁ B₂ t₂ t₃ (rfl t₁?) ⌝ γ ∷
         ⌜ B₂ ⌝ γ U.[ ⌜ t₁ ⌝ γ , U.rfl ]₁₀      ⇒⟨ J-β-⇒ t₁≡t₃ ⊢B₂ ⊢t₂ ⟩⊢∷
       ⌜ t₂ ⌝ γ                                 ≡⟨ red-tm-sound eq₃ ⊢γ ⊢t₂ ⟩⊢∎
@@ -5277,9 +5277,9 @@ private module Lemmas (p : P n) where opaque
           A₁≡A , A₁≡A₂ = check-and-equal-ty-sound eq₂ ⊢γ (∙ ⊢Σ)
           _ , ⊢A       = wf-⊢≡ A₁≡A
           _ , t₁₂≡t₂₂  = check-and-equal-tm-sound eq₃ ⊢γ
-                           (subst↑²Type ⊢A (⊢1,0 ⊢Σ))
+                           (subst-⊢-↑ ⊢A (⊢1,0 ⊢Σ))
           t₁₂≡t₂₂      = conv t₁₂≡t₂₂ $
-                         subst↑²TypeEq (sym A₁≡A) (refl (⊢1,0 ⊢Σ))
+                         subst-⊢≡-↑ (sym A₁≡A) (refl (⊢1,0 ⊢Σ))
       in
       conv (prodrec-cong′ A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂)
         (substTypeEq A₁≡A (refl ⊢t₁₁))
@@ -5298,10 +5298,10 @@ private module Lemmas (p : P n) where opaque
                            (substType ⊢A ⊢0)
           t₁₁≡t₂₁      = conv t₁₁≡t₂₁ (substTypeEq (sym A₁≡A) (refl ⊢0))
           _ , t₁₂≡t₂₂  = check-and-equal-tm-sound eq₃ ⊢γ
-                           (subst↑²Type ⊢A ⊢suc-1)
+                           (subst-⊢-↑ ⊢A ⊢suc-1)
           t₁₂≡t₂₂      = stabilityEqTerm (refl-∙ (sym A₁≡A)) $
                          conv t₁₂≡t₂₂ $
-                         subst↑²TypeEq (sym A₁≡A) (refl ⊢suc-1)
+                         subst-⊢≡-↑ (sym A₁≡A) (refl ⊢suc-1)
           t₁₃≡t₂₃      = equal-ne-red-sound eq₄ ⊢γ (⊢ℕ ⊢Γ)
           _ , ⊢t₁₃ , _ = wf-⊢≡∷ t₁₃≡t₂₃
       in

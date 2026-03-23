@@ -535,6 +535,19 @@ mutual
 
 pattern literal! ok ⊢Γ = literal ok ⊢Γ PE.refl
 
+-- A type that encompasses six different typing judgements.
+
+infix 4 _⊢[_]
+
+_⊢[_] : Cons m n → Judgement n → Set
+Γ ⊢[ [ctxt]            ] = ⊢ Γ
+Γ ⊢[ [ A type]         ] = Γ ⊢ A
+Γ ⊢[ [ A ≡ B type]     ] = Γ ⊢ A ≡ B
+Γ ⊢[ [ t ∷ A ]         ] = Γ ⊢ t ∷ A
+Γ ⊢[ [ t ≡ u ∷ A ]     ] = Γ ⊢ t ≡ u ∷ A
+Γ ⊢[ [ l ∷Level]       ] = Γ ⊢ l ∷Level
+Γ ⊢[ [ l₁ ≡ l₂ ∷Level] ] = Γ ⊢ l₁ ≡ l₂ ∷Level
+
 -- Well-formed substitutions.
 
 infixl 24 _∙_

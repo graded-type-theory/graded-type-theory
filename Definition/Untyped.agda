@@ -10,7 +10,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.List
-open import Tools.PropositionalEquality as PE hiding (subst)
+import Tools.PropositionalEquality as PE
 open import Tools.Relation as Dec
 
 -- Some definitions that do not depend on M are re-exported from
@@ -1038,22 +1038,68 @@ opaque
 
 -- Inversion of equality for Term[_]′.var.
 
-var-cong⁻¹ : Term[_]′.var x₁ ≡ var x₂ → x₁ ≡ x₂
-var-cong⁻¹ refl = refl
+var-cong⁻¹ : Term[_]′.var x₁ PE.≡ var x₂ → x₁ PE.≡ x₂
+var-cong⁻¹ PE.refl = PE.refl
 
 -- Inversion of equality for con.
 
 con-cong⁻¹ :
-  con {ks = ks} c ts ≡ con {ks = ks′} c′ ts′ →
-  ∃ λ (eq : ks ≡ ks′) →
-    PE.subst (Constructor k) eq c ≡ c′ ×
-    PE.subst (Args _) eq ts ≡ ts′
-con-cong⁻¹ refl = refl , refl , refl
+  con {ks = ks} c ts PE.≡ con {ks = ks′} c′ ts′ →
+  ∃ λ (eq : ks PE.≡ ks′) →
+    PE.subst (Constructor k) eq c PE.≡ c′ ×
+    PE.subst (Args _) eq ts PE.≡ ts′
+con-cong⁻¹ PE.refl = PE.refl , PE.refl , PE.refl
 
 -- Inversion of equality for _∷ₜ_.
 
 ∷-cong⁻¹ :
   {t t′ : Term[ k ]′ (m + n)} →
-  _∷ₜ_ {m = m} t ts ≡ t′ ∷ₜ ts′ →
-  t ≡ t′ × ts ≡ ts′
-∷-cong⁻¹ refl = refl , refl
+  _∷ₜ_ {m = m} t ts PE.≡ t′ ∷ₜ ts′ →
+  t PE.≡ t′ × ts PE.≡ ts′
+∷-cong⁻¹ PE.refl = PE.refl , PE.refl
+
+------------------------------------------------------------------------
+-- The type Judgement
+
+-- A type that combines some of the arguments of different kinds of
+-- judgements. See Definition.Typed._⊢[_].
+
+data Judgement (n : Nat) : Set a where
+  [ctxt]      :                    Judgement n
+  [_type]     : (A : Term n)     → Judgement n
+  [_≡_type]   : (A B : Term n)   → Judgement n
+  [_∷_]       : (t A : Term n)   → Judgement n
+  [_≡_∷_]     : (t u A : Term n) → Judgement n
+  [_∷Level]   : (l : Lvl n)      → Judgement n
+  [_≡_∷Level] : (l₁ l₂ : Lvl n)  → Judgement n
+
+-- A map function for Judgement.
+
+mapJ : (∀ {k} → Term[ k ] m → Term[ k ] n) → Judgement m → Judgement n
+mapJ _ [ctxt]            = [ctxt]
+mapJ f [ A type]         = [ f A type]
+mapJ f [ A ≡ B type]     = [ f A ≡ f B type]
+mapJ f [ t ∷ A ]         = [ f t ∷ f A ]
+mapJ f [ t ≡ u ∷ A ]     = [ f t ≡ f u ∷ f A ]
+mapJ f [ l ∷Level]       = [ f l ∷Level]
+mapJ f [ l₁ ≡ l₂ ∷Level] = [ f l₁ ≡ f l₂ ∷Level]
+
+-- Substitution for Judgement.
+
+infix 25 _[_]J
+
+_[_]J : Judgement n → Subst m n → Judgement m
+𝓙 [ σ ]J = mapJ _[ σ ] 𝓙
+
+-- A variant of _[_]J.
+
+infix 25 _[_≡_]J
+
+_[_≡_]J : Judgement n → Subst m n → Subst m n → Judgement m
+[ctxt]            [ _  ≡ _  ]J = [ctxt]
+[ A type]         [ σ₁ ≡ σ₂ ]J = [ A [ σ₁ ] ≡ A [ σ₂ ] type]
+[ A ≡ B type]     [ σ₁ ≡ σ₂ ]J = [ A [ σ₁ ] ≡ B [ σ₂ ] type]
+[ t ∷ A ]         [ σ₁ ≡ σ₂ ]J = [ t [ σ₁ ] ≡ t [ σ₂ ] ∷ A [ σ₁ ] ]
+[ t ≡ u ∷ A ]     [ σ₁ ≡ σ₂ ]J = [ t [ σ₁ ] ≡ u [ σ₂ ] ∷ A [ σ₁ ] ]
+[ l ∷Level]       [ σ₁ ≡ σ₂ ]J = [ l [ σ₁ ] ≡ l [ σ₂ ] ∷Level]
+[ l₁ ≡ l₂ ∷Level] [ σ₁ ≡ σ₂ ]J = [ l₁ [ σ₁ ] ≡ l₂ [ σ₂ ] ∷Level]

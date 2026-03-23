@@ -161,7 +161,7 @@ opaque
           _ , _ , ⊢v = inversion-Id (wf-⊢≡∷ w₁≡w₃ .proj₁)
       in
       J p q A t B u v w₁ ∷ B [ v , w₁ ]₁₀  ⇒⟨ J-subst′ ⊢B ⊢u w₁⇒w₃ ⟩∷
-                                           ˘⟨ substTypeEq₂ (refl ⊢B) (refl ⊢v)
+                                           ˘⟨ subst-⊢≡₁₀ ⊢B (refl ⊢v)
                                                 (PE.subst (_⊢_≡_∷_ _ _ _)
                                                    (PE.sym $
                                                     PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
@@ -180,7 +180,7 @@ opaque
   J-result ⊢B ⊢w =
     case inversion-Id (syntacticTerm ⊢w) of λ {
       (_ , _ , ⊢v) →
-    substType₂ ⊢B ⊢v (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w) }
+    subst-⊢₁₀ ⊢B ⊢v (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w) }
 
 opaque
 
@@ -192,7 +192,7 @@ opaque
     Γ ⊢ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
     Γ ⊢ B₁ [ v₁ , w₁ ]₁₀ ≡ B₂ [ v₂ , w₂ ]₁₀
   J-result-cong B₁≡B₂ v₁≡v₂ w₁≡w₂ =
-    substTypeEq₂ B₁≡B₂ v₁≡v₂
+    subst-⊢≡₁₀ B₁≡B₂ v₁≡v₂
       (PE.subst (_⊢_≡_∷_ _ _ _) ≡Id-wk1-wk1-0[]₀ w₁≡w₂)
 
 opaque
@@ -798,7 +798,7 @@ opaque
          (PE.subst₄ _⊢_≡_∷_
              (PE.cong (_»_ _) (PE.cong (_∙_ _) (wk1-sgSubst _ _)))
              PE.refl PE.refl wk[+1]′-[₀⇑]≡ $
-          subst-⊢≡∷-⇑ v₁≡v₂ (⊢ˢʷ≡∷-sgSubst u₁₁≡u₁₂))
+          subst-⊢≡-⇑ v₁≡v₂ (⊢ˢʷ≡∷-sgSubst u₁₁≡u₁₂))
          w₂₁≡w₂₂)
       where
       lemma :
@@ -807,7 +807,7 @@ opaque
         Γ ⊢ v₁ [ t₁ , u₁ ]₁₀ ≡ v₂ [ t₂ , u₂ ]₁₀ ∷ B₁
       lemma t₁≡t₂ u₁≡u₂ =
         PE.subst (_⊢_≡_∷_ _ _ _) wk₂-[,] $
-        substTermEq₂ v₁≡v₂ t₁≡t₂ $
+        subst-⊢≡₁₀ v₁≡v₂ t₁≡t₂ $
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) u₁≡u₂
 
 opaque
@@ -824,7 +824,7 @@ opaque
     let ⊢A₁ , ⊢t₁ , ⊢u₁ = inversion-Id (wf-⊢∷ ⊢w₁)
         ⊢A₂ , ⊢t₂ , ⊢u₂ = inversion-Id (wf-⊢∷ ⊢w₂)
         ⊢B              = PE.subst (_⊢_ _) wk₂-[,] $
-                          substType₂ (wf-⊢∷ ⊢v) ⊢t₁
+                          subst-⊢₁₀ (wf-⊢∷ ⊢v) ⊢t₁
                             (PE.subst (_⊢_∷_ _ _)
                                (PE.sym $ wk1-sgSubst _ _)
                              ⊢t₂)
@@ -848,9 +848,9 @@ opaque
   cong₂-β {t₁} {A₁} {t₂} {A₂} {u} {B} {p} ⊢t₁ ⊢t₂ ⊢u =
     let ⊢t₂′      = PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t₂
         ⊢B        = PE.subst (_⊢_ _) wk₂-[,] $
-                    substType₂ (wf-⊢∷ ⊢u) ⊢t₁ ⊢t₂′
+                    subst-⊢₁₀ (wf-⊢∷ ⊢u) ⊢t₁ ⊢t₂′
         ⊢u[,]     = PE.subst (_⊢_∷_ _ _) wk₂-[,] $
-                    substTerm₂ ⊢u ⊢t₁ ⊢t₂′
+                    subst-⊢₁₀ ⊢u ⊢t₁ ⊢t₂′
         u[,]≡u[,] = refl ⊢u[,]
     in
     transitivity B (u [ t₁ , t₂ ]₁₀) (u [ t₁ , t₂ ]₁₀)
@@ -869,7 +869,7 @@ opaque
                                                                                   (PE.subst₃ _⊢_∷_
                                                                                      (PE.cong (_»_ _) (PE.cong (_∙_ _) (wk1-sgSubst _ _)))
                                                                                      PE.refl wk[+1]′-[₀⇑]≡ $
-                                                                                   subst-⊢∷-⇑ ⊢u (⊢ˢʷ∷-sgSubst ⊢t₁))) ⟩⊢
+                                                                                   subst-⊢-⇑ ⊢u (⊢ˢʷ∷-sgSubst ⊢t₁))) ⟩⊢
     transitivity B (u [ t₁ , t₂ ]₁₀) (u [ t₁ , t₂ ]₁₀)
       (u [ t₁ , t₂ ]₁₀) rfl rfl                                           ≡⟨ transitivity-≡ (rflⱼ ⊢u[,]) ⟩⊢∎
 

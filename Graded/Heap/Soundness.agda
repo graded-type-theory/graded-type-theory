@@ -322,7 +322,7 @@ opaque
       (PE.subst₃ _⊢_∷_
          (PE.cong (_»_ _) inline-Conᵈ-glassify)
          (inlineᵈ-glassify {t = t}) PE.refl $
-       ⊢inlineᵈ∷ ⊢t)
+       ⊢inlineᵈ ⊢t)
       (▸inlineᵈ ▸∇ ▸t)
 
 opaque

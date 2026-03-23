@@ -309,7 +309,7 @@ opaque
          Σ-β₁-⇒ (subst-⊢-⇑ (defn-wk ξ⊇ ⊢B) ⊢σ)
            (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t) ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-            subst-⊢∷-⇑ (defn-wkTerm ξ⊇ ⊢u) ⊢σ)
+            subst-⊢-⇑ (defn-wkTerm ξ⊇ ⊢u) ⊢σ)
            ok)
       ⊩t
 
@@ -333,7 +333,7 @@ opaque
          Σ-β₂-⇒ (subst-⊢-⇑ (defn-wk ξ⊇ ⊢B) ⊢σ)
            (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t) ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-            subst-⊢∷-⇑ (defn-wkTerm ξ⊇ ⊢u) ⊢σ)
+            subst-⊢-⇑ (defn-wkTerm ξ⊇ ⊢u) ⊢σ)
            ok)
       ⊩u
 

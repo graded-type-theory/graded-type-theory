@@ -129,7 +129,7 @@ opaque
           case →⊢ˢʷ∷∙ ⊢σ ⊢t′ of λ
             ⊢σ,t′ →
           case redMany $
-               β-red-⇒ (subst-⊢∷-⇑ ⊢t ⊢σ) ⊢t′
+               β-red-⇒ (subst-⊢-⇑ ⊢t ⊢σ) ⊢t′
                  ok of λ
             lam-t[σ]∘t′⇒* →
 
@@ -970,7 +970,7 @@ opaque
             C [ σ ⇑ ] [ prodʷ p (var x1) (var x0) ]↑²
         ⊢u[σ⇑⇑] =
           PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C _) $
-          subst-⊢∷-⇑ ⊢u ⊢σ
+          subst-⊢-⇑ ⊢u ⊢σ
 
       private opaque
 

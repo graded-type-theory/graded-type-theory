@@ -243,15 +243,14 @@ opaque
     case inversion-rfl-Id (wf-⇛ w[σ]⇛rfl .proj₂) of λ
       t[σ]≡v[σ] →
     case PE.subst₂ (_⊢_≡_ _) (PE.sym ([,]-[]-commute B)) (PE.sym ([,]-[]-commute B)) $
-          substTypeEq₂ (refl ⊢B[σ⇑⇑]) t[σ]≡v[σ] $
+          subst-⊢≡₁₀ ⊢B[σ⇑⇑] t[σ]≡v[σ] $
           conv (sym′ w[σ]≡rfl) $
           substTypeEq (refl (⊢∙→⊢ (wf ⊢B[σ⇑⇑]))) (sym′ t[σ]≡v[σ])
             of λ
       ⊢B[t,rfl]≡B[v,w] →
     case                      ∷ B [ v , w ]₁₀ [ σ ]                   ⟨ [,]-[]-commute B ⟩⇛≡
       J p q A t B u v w [ σ ] ∷ B [ σ ⇑ ⇑ ] [ v [ σ ] , w [ σ ] ]₁₀  ⇛⟨ J-⇛ ⊢B[σ⇑⇑] ⊢u[σ] w[σ]⇛rfl ⟩∷
-                                                                      ⟨ substTypeEq₂ (refl ⊢B[σ⇑⇑]) (sym′ t[σ]≡v[σ])
-                                                                        w[σ]≡rfl ⟩⇛
+                                                                      ⟨ subst-⊢≡₁₀ ⊢B[σ⇑⇑] (sym′ t[σ]≡v[σ]) w[σ]≡rfl ⟩⇛
       J p q A t B u v rfl [ σ ] ∷ B [ σ ⇑ ⇑ ] [ t [ σ ] , rfl ]₁₀    ⇒⟨ J-β-⇒ t[σ]≡v[σ] ⊢B[σ⇑⇑] ⊢u[σ] ⟩∎⇛∷
       u [ σ ]                                                        ∎
     of λ
