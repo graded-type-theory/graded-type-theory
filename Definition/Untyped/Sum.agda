@@ -242,7 +242,7 @@ module Internal
   inlᵢ a b A B t =
     I.prod I.𝕨 I.𝟙
       (just (I.𝟙 , Sum′ᵢ (IW.wk (step id) a) (IW.wk (step id) b) (IW.wk (step id) A) (IW.wk (step id) B) (I.lower (I.var x0))))
-      (I.lift (just (a I.supᵘₗ b)) trueᵢ) (I.lift nothing t)
+      (I.lift (just (a I.supᵘₗ b)) trueᵢ) (I.lift (just b) t)
 
   opaque
     unfolding inl
@@ -260,7 +260,7 @@ module Internal
   inrᵢ a b A B t =
     I.prod I.𝕨 I.𝟙
       (just (I.𝟙 , Sum′ᵢ (IW.wk (step id) a) (IW.wk (step id) b) (IW.wk (step id) A) (IW.wk (step id) B) (I.lower (I.var x0))))
-      (I.lift (just (a I.supᵘₗ b)) falseᵢ) (I.lift nothing t)
+      (I.lift (just (a I.supᵘₗ b)) falseᵢ) (I.lift (just a) t)
 
   opaque
     unfolding inr

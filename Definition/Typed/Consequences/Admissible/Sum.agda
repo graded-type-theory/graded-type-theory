@@ -13,6 +13,8 @@ module Definition.Typed.Consequences.Admissible.Sum
   (𝐌 : IsMode Mode 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
+  -- It is assumed that equality reflection is not allowed.
+  ⦃ no-equality-reflection : No-equality-reflection ⦄
   -- It is assumed that certain Π- and Σ-types are allowed.
   (Σ-ok₁ : Σʷ-allowed 𝟙 𝟙)
   (Σ-ok₂ : Σʷ-allowed 𝟙 (𝟙 ∧ 𝟘))
@@ -88,7 +90,8 @@ private
     γ M .I.metas .I.bindings = M
     γ _ .I.metas .I.equalities = L.[]
     γ _ .I.⌜base⌝ = Γ
-    γ _ .I.constraints⁰ = I.emptyᶜ⁰
+    γ _ .I.constraints⁰ =
+      record I.emptyᶜ⁰ { no-equality-reflection? = B.true }
     γ _ .I.constraints⁺ =
       I.unit-allowed I.𝕤             L.∷
       I.unit-allowed I.𝕨             L.∷
@@ -142,10 +145,11 @@ opaque
       (Sumᵢ xa₁ xb₁ xA₁ xB₁)
       (Sumᵢ xa₂ xb₂ xA₂ xB₂)
       (I.U (xa₁ I.supᵘₗ xb₁))
-      30
+      29
       PE.refl
       (λ where
           .IC.constraints-wf →
+            no-equality-reflection L.∷
             Unit-ok L.∷
             Unit-ok L.∷
             Π-ok L.∷
@@ -245,10 +249,11 @@ opaque
       (inlᵢ xa xb xA xB xt₁)
       (inlᵢ xa xb xA xB xt₂)
       (Sumᵢ xa xb xA xB)
-      35
+      30
       PE.refl
       (λ where
           .IC.constraints-wf →
+            no-equality-reflection L.∷
             Unit-ok L.∷
             Unit-ok L.∷
             Π-ok L.∷
@@ -326,10 +331,11 @@ opaque
       (inrᵢ xa xb xA xB xt₁)
       (inrᵢ xa xb xA xB xt₂)
       (Sumᵢ xa xb xA xB)
-      35
+      30
       PE.refl
       (λ where
           .IC.constraints-wf →
+            no-equality-reflection L.∷
             Unit-ok L.∷
             Unit-ok L.∷
             Π-ok L.∷
@@ -413,7 +419,8 @@ private
     γ M .I.metas .I.bindings = M
     γ _ .I.metas .I.equalities = L.[]
     γ _ .I.⌜base⌝ = Γ
-    γ _ .I.constraints⁰ = I.emptyᶜ⁰
+    γ _ .I.constraints⁰ =
+      record I.emptyᶜ⁰ { no-equality-reflection? = B.true }
     γ _ .I.constraints⁺ =
       I.unit-allowed I.𝕤                     L.∷
       I.unit-allowed I.𝕨                     L.∷
@@ -473,10 +480,11 @@ opaque
         (I.base nothing I.» I.base)
         (sumrecᵢ′ xa xb xA xB xP xl xr xt)
         (I.subst xP (IS.sgSubst xt))
-        48
+        46
         PE.refl
         (λ where
           .IC.constraints-wf →
+            no-equality-reflection L.∷
             Unit-ok L.∷ Unit-ok L.∷
             Π-ok L.∷ Π-ok₂ L.∷ Π-ok₁ L.∷
             Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
@@ -554,10 +562,11 @@ opaque
          (sumrecᵢ′ xa xb xA xB xP xl xr (inlᵢ xa xb xA xB xt))
          (I.subst xl (IS.sgSubst xt))
          (I.subst xP (IS.sgSubst (inlᵢ xa xb xA xB xt)))
-         50
+         46
          PE.refl
          (λ where
            .IC.constraints-wf →
+             no-equality-reflection L.∷
              Unit-ok L.∷ Unit-ok L.∷
              Π-ok L.∷ Π-ok₂ L.∷ Π-ok₁ L.∷
              Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
@@ -638,10 +647,11 @@ opaque
          (sumrecᵢ′ xa xb xA xB xP xl xr (inrᵢ xa xb xA xB xt))
          (I.subst xr (IS.sgSubst xt))
          (I.subst xP (IS.sgSubst (inrᵢ xa xb xA xB xt)))
-         50
+         46
          PE.refl
          (λ where
            .IC.constraints-wf →
+             no-equality-reflection L.∷
              Unit-ok L.∷ Unit-ok L.∷
              Π-ok L.∷ Π-ok₂ L.∷ Π-ok₁ L.∷
              Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
