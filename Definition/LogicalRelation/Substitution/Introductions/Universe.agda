@@ -199,7 +199,7 @@ opaque
                                                            PE.refl →
                                                          (⊩l , l<ℓ , A≡B , A′≅B′)}})
                                                     , (λ (⊩l , l<ℓ , A≡B , A≅B) →
-                                                         let _ , ⊢A , ⊢B = wf-⊢≡∷ (≅ₜ-eq A≅B) in
+                                                         let _ , ⊢A , ⊢B = wf-⊢ (≅ₜ-eq A≅B) in
                                                          ⊩l , l<ℓ , A≡B , _ , _ , id ⊢A , id ⊢B , A-type , B-type , A≅B)
                                                     ⟩
     (∃ λ ⊩l → ↑ᵘ ⊩l <ᵘ ℓ × (Γ ⊩⟨ ↑ᵘ ⊩l ⟩ A ≡ B) ×
@@ -266,7 +266,7 @@ opaque
                                                                            case whnfRed*Term A⇒*B (typeWhnf A-type) of λ {
                                                                              PE.refl →
                                                                            B≅B })
-                                                                       , (λ ≅A → _ , id (wf-⊢≡∷ (≅ₜ-eq ≅A) .proj₂ .proj₁) , A-type , ≅A)
+                                                                       , (λ ≅A → _ , id (wf-⊢ (≅ₜ-eq ≅A) .proj₂ .proj₁) , A-type , ≅A)
                                                                        ))
                                                                      ⟩
 

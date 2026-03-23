@@ -158,7 +158,7 @@ opaque
     (id ⊢w₁)                     → id (Jⱼ′ ⊢B ⊢u ⊢w₁)
     (_⇨_ {t′ = w₃} w₁⇒w₃ w₃⇒*w₂) →
       let w₁≡w₃      = subsetTerm w₁⇒w₃
-          _ , _ , ⊢v = inversion-Id (wf-⊢≡∷ w₁≡w₃ .proj₁)
+          _ , _ , ⊢v = inversion-Id (wf-⊢ w₁≡w₃ .proj₁)
       in
       J p q A t B u v w₁ ∷ B [ v , w₁ ]₁₀  ⇒⟨ J-subst′ ⊢B ⊢u w₁⇒w₃ ⟩∷
                                            ˘⟨ subst-⊢≡₁₀ ⊢B (refl ⊢v)
@@ -253,7 +253,7 @@ opaque
       Id (wk1 A₁) (wk1 t₁) (var x0) ≡
       Id (wk1 A₂) (wk1 t₂) (var x0)
   J-motive-context-cong″ A₁≡A₂ t₁≡t₂ =
-    let ⊢A₁ , _ = wf-⊢≡ A₁≡A₂ in
+    let ⊢A₁ , _ = wf-⊢ A₁≡A₂ in
     Id-cong (wk₁ ⊢A₁ A₁≡A₂) (wk₁ ⊢A₁ t₁≡t₂) (refl (var₀ ⊢A₁))
 
 opaque
@@ -395,7 +395,7 @@ opaque
       Γ ⊢ []-cong s l A t t′ rfl ≡ rfl ∷
         Id (Erased l A) ([ t ]) ([ t′ ])
   []-cong-β-≡ ⊢l t≡t′ ok =
-    let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′ in
+    let ⊢A , ⊢t , _ = wf-⊢ t≡t′ in
     trans
       ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (refl (rflⱼ′ t≡t′)) ok)
@@ -585,10 +585,10 @@ opaque
     Γ ⊢ eq₂ ∷ Id A u v →
     Γ ⊢ transitivity A t u v eq₁ eq₂ ∷ Id A t v
   ⊢transitivity ⊢eq₁ ⊢eq₂ =
-    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢eq₁)
-        _  , _  , ⊢v = inversion-Id (wf-⊢∷ ⊢eq₂)
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢eq₁)
+        _  , _  , ⊢v = inversion-Id (wf-⊢ ⊢eq₂)
     in
-    wf-⊢≡∷
+    wf-⊢
       (transitivity-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢v)
          (refl ⊢eq₁) (refl ⊢eq₂))
       .proj₂ .proj₁
@@ -781,7 +781,7 @@ opaque
     {Γ} {A₁₁} {A₂₁} {B₁} {v₁} {v₂}
     A₁₁≡A₁₂ t₁₁≡t₁₂ u₁₁≡u₁₂ A₂₁≡A₂₂ t₂₁≡t₂₂ u₂₁≡u₂₂ B₁≡B₂ v₁≡v₂
     w₁₁≡w₁₂ w₂₁≡w₂₂ =
-    let ⊢A₁₁ , _ = wf-⊢≡ A₁₁≡A₁₂ in
+    let ⊢A₁₁ , _ = wf-⊢ A₁₁≡A₁₂ in
     transitivity-cong B₁≡B₂ (lemma t₁₁≡t₁₂ t₂₁≡t₂₂)
       (lemma u₁₁≡u₁₂ t₂₁≡t₂₂) (lemma u₁₁≡u₁₂ u₂₁≡u₂₂)
       (PE.subst (_⊢_≡_∷_ _ _ _)
@@ -821,15 +821,15 @@ opaque
     Γ ⊢ cong₂ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ ∷
       Id B (v [ t₁ , t₂ ]₁₀) (v [ u₁ , u₂ ]₁₀)
   ⊢cong₂ ⊢v ⊢w₁ ⊢w₂ =
-    let ⊢A₁ , ⊢t₁ , ⊢u₁ = inversion-Id (wf-⊢∷ ⊢w₁)
-        ⊢A₂ , ⊢t₂ , ⊢u₂ = inversion-Id (wf-⊢∷ ⊢w₂)
+    let ⊢A₁ , ⊢t₁ , ⊢u₁ = inversion-Id (wf-⊢ ⊢w₁)
+        ⊢A₂ , ⊢t₂ , ⊢u₂ = inversion-Id (wf-⊢ ⊢w₂)
         ⊢B              = PE.subst (_⊢_ _) wk₂-[,] $
-                          subst-⊢₁₀ (wf-⊢∷ ⊢v) ⊢t₁
+                          subst-⊢₁₀ (wf-⊢ ⊢v) ⊢t₁
                             (PE.subst (_⊢_∷_ _ _)
                                (PE.sym $ wk1-sgSubst _ _)
                              ⊢t₂)
     in
-    wf-⊢≡∷
+    wf-⊢
       (cong₂-cong (refl ⊢A₁) (refl ⊢t₁) (refl ⊢u₁) (refl ⊢A₂) (refl ⊢t₂)
          (refl ⊢u₂) (refl ⊢B) (refl ⊢v) (refl ⊢w₁) (refl ⊢w₂))
       .proj₂ .proj₁
@@ -848,7 +848,7 @@ opaque
   cong₂-β {t₁} {A₁} {t₂} {A₂} {u} {B} {p} ⊢t₁ ⊢t₂ ⊢u =
     let ⊢t₂′      = PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t₂
         ⊢B        = PE.subst (_⊢_ _) wk₂-[,] $
-                    subst-⊢₁₀ (wf-⊢∷ ⊢u) ⊢t₁ ⊢t₂′
+                    subst-⊢₁₀ (wf-⊢ ⊢u) ⊢t₁ ⊢t₂′
         ⊢u[,]     = PE.subst (_⊢_∷_ _ _) wk₂-[,] $
                     subst-⊢₁₀ ⊢u ⊢t₁ ⊢t₂′
         u[,]≡u[,] = refl ⊢u[,]
@@ -861,7 +861,7 @@ opaque
                                                                                    PE.cong₂ (Id _) ([,]≡[wk1]₀[]₀ u) ([,]≡[wk1]₀[]₀ u)) $
                                                                                 cong-≡ ⊢t₁
                                                                                   (PE.subst (_⊢_∷_ _ _) wk[1+]′-[]₀≡ $
-                                                                                   subst-⊢₀ ⊢u (wk₁ (wf-⊢∷ ⊢t₁) ⊢t₂)))
+                                                                                   subst-⊢₀ ⊢u (wk₁ (wf-⊢ ⊢t₁) ⊢t₂)))
                                                                                (PE.subst (_⊢_≡_∷_ _ _ _)
                                                                                   (PE.cong₂ (Id _)
                                                                                      (singleSubstComp _ _ u) (singleSubstComp _ _ u)) $
@@ -949,7 +949,7 @@ opaque
     Γ ⊢ eq₁ ≡ eq₂ ∷ Id A₁ t₁ u₁ →
     Γ ⊢ symmetry A₁ t₁ u₁ eq₁ ≡ symmetry A₂ t₂ u₂ eq₂ ∷ Id A₁ u₁ t₁
   symmetry-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ eq₁≡eq₂ =
-    let ⊢A₁ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂ in
+    let ⊢A₁ , ⊢t₁ , _ = wf-⊢ t₁≡t₂ in
     PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
     subst-cong A₁≡A₂
@@ -970,7 +970,7 @@ opaque
     Γ ⊢ symmetry A t u eq ∷ Id A u t
   ⊢symmetry ⊢eq =
     let ⊢A , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq) in
-    wf-⊢≡∷ (symmetry-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢eq))
+    wf-⊢ (symmetry-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢eq))
       .proj₂ .proj₁
 
 opaque
@@ -982,7 +982,7 @@ opaque
     Γ ⊢ t ≡ t′ ∷ A →
     Γ ⊢ symmetry A t t′ rfl ⇒ rfl ∷ Id A t t
   symmetry-⇒′ t≡t′ =
-    let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′
+    let ⊢A , ⊢t , _ = wf-⊢ t≡t′
         Id≡Id       = PE.cong₃ Id
                         (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)
     in
@@ -1022,7 +1022,7 @@ opaque
     Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
     Γ ⊢ symmetry A t u v₁ ⇒ symmetry A t u v₂ ∷ Id A u t
   symmetry-subst v₁⇒v₂ =
-    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢≡∷ (subsetTerm v₁⇒v₂) .proj₁)
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ (subsetTerm v₁⇒v₂) .proj₁)
     in
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) PE.refl (wk1-sgSubst _ _)) $
@@ -1069,7 +1069,7 @@ opaque
     ∃ λ eq →
       Γ ⊢ eq ∷ Id (Id A u t) (symmetry A t u v₁) (symmetry A t u v₂)
   symmetry-cong-Id {w} {A} {t} {u} {v₁} {v₂} ⊢w =
-    let ⊢Id , _ = inversion-Id (wf-⊢∷ ⊢w) in
+    let ⊢Id , _ = inversion-Id (wf-⊢ ⊢w) in
     cong ω (Id A t u) v₁ v₂ (Id A u t)
       (symmetry (wk1 A) (wk1 t) (wk1 u) (var x0)) w ,
     PE.subst (_⊢_∷_ _ _)
@@ -1093,7 +1093,7 @@ opaque
     Γ ⊢ v ∷ Id A t u →
     ∃ λ w → Γ ⊢ w ∷ Id (Id A t u) (symmetry A u t (symmetry A t u v)) v
   Id-symmetry-symmetry {v} {A} {t} {u} ⊢v =
-    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢∷ ⊢v)
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢v)
         ⊢0          = PE.subst (_⊢_∷_ _ _)
                         (PE.cong₃ Id wk[]≡wk[]′ wk[]≡wk[]′ PE.refl) $
                       var₀ (J-motive-context-type ⊢t)
@@ -1210,7 +1210,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast l A B t u ∷ B
   ⊢cast ⊢t ⊢u =
-    let ⊢l = inversion-U-Level (inversion-Id (wf-⊢∷ ⊢t) .proj₁) in
+    let ⊢l = inversion-U-Level (inversion-Id (wf-⊢ ⊢t) .proj₁) in
     ⊢subst (univ (var₀ (⊢U ⊢l))) ⊢t ⊢u
 
 opaque
@@ -1223,7 +1223,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ cast l A A′ rfl t ⇒ t ∷ A
   cast-⇒′ A≡A′ ⊢t =
-    let ⊢l = inversion-U-Level (wf-⊢≡∷ A≡A′ .proj₁) in
+    let ⊢l = inversion-U-Level (wf-⊢ A≡A′ .proj₁) in
     subst-⇒′ (univ (var₀ (⊢U ⊢l))) A≡A′ ⊢t
 
 opaque
@@ -1261,7 +1261,7 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
     Γ ⊢ cast l₁ A₁ B₁ t₁ u₁ ≡ cast l₂ A₂ B₂ t₂ u₂ ∷ B₁
   cast-cong l₁≡l₂ A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ =
-    let ⊢U , ⊢A₁ , ⊢B₁ = inversion-Id (wf-⊢≡∷ t₁≡t₂ .proj₁) in
+    let ⊢U , ⊢A₁ , ⊢B₁ = inversion-Id (wf-⊢ t₁≡t₂ .proj₁) in
     subst-cong (U-cong-⊢≡ l₁≡l₂) (refl (univ (var₀ ⊢U))) A₁≡A₂ B₁≡B₂
       t₁≡t₂ u₁≡u₂
 
@@ -1276,7 +1276,7 @@ opaque
     Γ ⊢ cast l A B t₁ u ⇒ cast l A B t₂ u ∷ B
   cast-subst t₁⇒t₂ ⊢u =
     let ⊢l = inversion-U-Level $
-             inversion-Id (wf-⊢≡∷ (subsetTerm t₁⇒t₂) .proj₁) .proj₁
+             inversion-Id (wf-⊢ (subsetTerm t₁⇒t₂) .proj₁) .proj₁
     in
     subst-subst (univ (var₀ (⊢U ⊢l))) t₁⇒t₂ ⊢u
 
@@ -1319,7 +1319,7 @@ opaque
     Γ ⊢ w ∷ Id A u₁ u₂ →
     ∃ λ eq → Γ ⊢ eq ∷ Id B (cast l A B t₁ u₁) (cast l A B t₂ u₂)
   cast-cong-Id {v} {l} {A} {B} {t₁} {t₂} {w} {u₁} {u₂} ⊢v ⊢w =
-    let ⊢Id , _    = inversion-Id (wf-⊢∷ ⊢v)
+    let ⊢Id , _    = inversion-Id (wf-⊢ ⊢v)
         _ , ⊢A , _ = inversion-Id ⊢Id
         ⊢A′        = wk₁ ⊢Id (univ ⊢A)
     in
@@ -1369,10 +1369,10 @@ opaque
     Γ ⊢ u ∷ B →
     Γ ⊢ cast⁻¹ l A B t u ∷ A
   ⊢cast⁻¹ ⊢t ⊢u =
-    let ⊢U , ⊢A , ⊢B = inversion-Id (wf-⊢∷ ⊢t)
+    let ⊢U , ⊢A , ⊢B = inversion-Id (wf-⊢ ⊢t)
         ⊢l           = inversion-U-Level ⊢U
     in
-    wf-⊢≡∷
+    wf-⊢
       (cast⁻¹-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢B) (refl ⊢t)
          (refl ⊢u))
       .proj₂ .proj₁
@@ -1387,7 +1387,7 @@ opaque
     Γ ⊢ t ∷ A′ →
     Γ ⊢ cast⁻¹ l A A′ rfl t ⇒* t ∷ A
   cast⁻¹-⇒′ {A} {A′} {l} {t} A≡A′ ⊢t =
-    let ⊢U , ⊢A , _ = wf-⊢≡∷ A≡A′ in
+    let ⊢U , ⊢A , _ = wf-⊢ A≡A′ in
     cast l A′ A (symmetry (U l) A A′ rfl) t  ⇒⟨ cast-subst (conv (symmetry-⇒′ A≡A′) (Id-cong (refl ⊢U) A≡A′ (refl ⊢A))) ⊢t ⟩
     cast l A′ A rfl t                        ⇒⟨ conv (cast-⇒′ (sym′ A≡A′) ⊢t) (sym (univ A≡A′)) ⟩∎
     t                                        ∎
@@ -1477,7 +1477,7 @@ opaque
     Γ ⊢ u ∷ A →
     ∃ λ v → Γ ⊢ v ∷ Id A (cast⁻¹ l A B t (cast l A B t u)) u
   Id-cast⁻¹-cast {t} {l} {A} {B} {u} ⊢t ⊢u =
-    let _ , ⊢A , _ = inversion-Id (wf-⊢∷ ⊢t)
+    let _ , ⊢A , _ = inversion-Id (wf-⊢ ⊢t)
         ⊢Id        = J-motive-context-type ⊢A
         ⊢0         = PE.subst (_⊢_∷_ _ _)
                        (PE.cong₃ Id wk[]≡wk[]′ wk[]≡wk[]′ PE.refl) $
@@ -1570,7 +1570,7 @@ opaque
     Γ ⊢ v ∷ Id A₂ t₁ (cast l A₁ A₂ u t₂) →
     ∃ λ v → Γ ⊢ v ∷ Id A₁ (cast⁻¹ l A₁ A₂ u t₁) t₂
   cast-right-left {u} {l} {A₁} {A₂} {t₁} {t₂} ⊢u ⊢v =
-    let ⊢A₂ , _ , ⊢cast-t₂  = inversion-Id (wf-⊢∷ ⊢v)
+    let ⊢A₂ , _ , ⊢cast-t₂  = inversion-Id (wf-⊢ ⊢v)
         _ , _ , _ , ⊢t₂ , _ = inversion-cast ⊢cast-t₂
     in
     _ ,
@@ -1606,7 +1606,7 @@ opaque
     Γ ⊢ v ∷ Id A₁ t₁ (cast⁻¹ l A₁ A₂ u t₂) →
     ∃ λ v → Γ ⊢ v ∷ Id A₂ (cast l A₁ A₂ u t₁) t₂
   cast-right-left′ ⊢u ⊢v =
-    let _ , ⊢t₁ , _ = inversion-Id (wf-⊢∷ ⊢v) in
+    let _ , ⊢t₁ , _ = inversion-Id (wf-⊢ ⊢v) in
     _ ,
     ⊢transitivity (⊢symmetry (Id-cast⁻¹-symmetry ⊢u ⊢t₁ .proj₂))
       (cast-right-left (⊢symmetry ⊢u) ⊢v .proj₂)
@@ -1634,7 +1634,7 @@ opaque
     Γ ⊢ v ∷ Id A₁ (cast⁻¹ l A₁ A₂ u t₁) t₂ →
     ∃ λ v → Γ ⊢ v ∷ Id A₂ t₁ (cast l A₁ A₂ u t₂)
   cast-left-right′ ⊢u ⊢v =
-    let _ , _ , ⊢t₂ = inversion-Id (wf-⊢∷ ⊢v) in
+    let _ , _ , ⊢t₂ = inversion-Id (wf-⊢ ⊢v) in
     _ ,
     ⊢transitivity (cast-left-right (⊢symmetry ⊢u) ⊢v .proj₂)
       (Id-cast⁻¹-symmetry ⊢u ⊢t₂ .proj₂)
@@ -1895,7 +1895,7 @@ opaque
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ t ≡ u ∷ A
   equality-reflection′ ok ⊢v =
-    equality-reflection ok (wf-⊢∷ ⊢v) ⊢v
+    equality-reflection ok (wf-⊢ ⊢v) ⊢v
 
 opaque
 

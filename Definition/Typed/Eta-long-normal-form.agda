@@ -592,7 +592,7 @@ opaque
     let _ , ⊢l , ⊢A , ≡U = inversion-nf-Lift-U ⊢Lift in
     _ , ⊢l , ⊢A , trans (sym ≡B) ≡U
   inversion-nf-Lift-U (Liftₙ ⊢l ⊢A) =
-    let ⊢l′ = inversion-U-Level (wf-⊢∷ (⊢nf∷→⊢∷ ⊢A)) in
+    let ⊢l′ = inversion-U-Level (wf-⊢ (⊢nf∷→⊢∷ ⊢A)) in
     _ , ⊢l , ⊢A , refl (⊢U (⊢supᵘₗ ⊢l′ (⊢nf∷L→⊢∷L ⊢l)))
   inversion-nf-Lift-U (neₙ _ ⊢Lift) =
     case ⊢ne∷→NfNeutral ⊢Lift of λ ()
@@ -621,7 +621,7 @@ opaque
     let _ , _ , ⊢t , ≡Lift = inversion-nf-lift ⊢lift in
     _ , _ , ⊢t , trans (sym ≡B) ≡Lift
   inversion-nf-lift (liftₙ ⊢l ⊢t) =
-    _ , _ , ⊢t , refl (Liftⱼ ⊢l (wf-⊢∷ (⊢nf∷→⊢∷ ⊢t)))
+    _ , _ , ⊢t , refl (Liftⱼ ⊢l (wf-⊢ (⊢nf∷→⊢∷ ⊢t)))
   inversion-nf-lift (neₙ _ ⊢lift) =
     case ⊢ne∷→NfNeutral ⊢lift of λ ()
 
@@ -634,7 +634,7 @@ opaque
     ∃ λ l → Γ ⊢ne t ∷ Lift l A
   inversion-ne-lower (convₙ ⊢lower ≡B) =
     let _ , ⊢t = inversion-ne-lower ⊢lower
-        ⊢l , _ = inversion-Lift (wf-⊢∷ (⊢ne∷→⊢∷ ⊢t))
+        ⊢l , _ = inversion-Lift (wf-⊢ (⊢ne∷→⊢∷ ⊢t))
     in
     _ , convₙ ⊢t (Lift-cong (refl-⊢≡∷L ⊢l) ≡B)
   inversion-ne-lower (lowerₙ ⊢t) =
@@ -645,7 +645,7 @@ opaque
     ∃ λ l → Γ ⊢ne t ∷ Lift l A
   inversion-nf-lower (convₙ ⊢lower ≡A) =
     let _ , ⊢t = inversion-nf-lower ⊢lower
-        ⊢l , _ = inversion-Lift (wf-⊢∷ (⊢ne∷→⊢∷ ⊢t))
+        ⊢l , _ = inversion-Lift (wf-⊢ (⊢ne∷→⊢∷ ⊢t))
     in
     _ , convₙ ⊢t (Lift-cong (refl-⊢≡∷L ⊢l) ≡A)
   inversion-nf-lower (neₙ _ ⊢lower) =
@@ -1301,7 +1301,7 @@ opaque
   ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢nf t ∷ Lift l A → ∃ λ t′ → t PE.≡ lift t′
 ⊢nf∷Lift→≡lift {Γ} ⊢t =
-  ⊢nf∷Lift→≡lift′ (refl (wf-⊢∷ (⊢nf∷→⊢∷ ⊢t))) ⊢t
+  ⊢nf∷Lift→≡lift′ (refl (wf-⊢ (⊢nf∷→⊢∷ ⊢t))) ⊢t
   where
   ⊢nf∷Lift→≡lift′ :
     Γ ⊢ A ≡ Lift l B → Γ ⊢nf t ∷ A → ∃ λ t′ → t PE.≡ lift t′
@@ -1485,7 +1485,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
       (app-cong t≡v u≡w) →
         let _ , _ , _ , ⊢t , ⊢u , _ = inversion-nf-ne-app ⊢u
             _ , _ , _ , ⊢v , ⊢w , _ = inversion-nf-ne-app ⊢v
-            _ , ⊢t′ , ⊢v′           = wf-⊢≡∷ (soundness~↓ t≡v)
+            _ , ⊢t′ , ⊢v′           = wf-⊢ (soundness~↓ t≡v)
             t-ne                    = nfNeutral (⊢ne∷→NfNeutral ⊢t)
             v-ne                    = nfNeutral (⊢ne∷→NfNeutral ⊢v)
             A≡ , _                  =
@@ -1525,7 +1525,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
         case inversion-nf-ne-prodrec ⊢u of λ
           (_ , _ , _ , ⊢A , ⊢t , ⊢v′ , _) →
         let _ , _ , _ , ⊢B , ⊢u , ⊢w , _ = inversion-nf-ne-prodrec ⊢v
-            _ , ⊢t′ , ⊢u′                = wf-⊢≡∷ (soundness~↓ t≡u)
+            _ , ⊢t′ , ⊢u′                = wf-⊢ (soundness~↓ t≡u)
             t-ne                         = nfNeutral (⊢ne∷→NfNeutral ⊢t)
             u-ne                         = nfNeutral (⊢ne∷→NfNeutral ⊢u)
             ok                           = ⊢∷ΠΣ→ΠΣ-allowed (⊢ne∷→⊢∷ ⊢t)
@@ -1656,7 +1656,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
     normal-terms-unique-[conv↓]∷ ⊢u ⊢v = λ where
       (Level-ins u≡v) →
         ⊥-elim $ Level-not-allowed $
-        inversion-Level-⊢ (wf-⊢≡∷ (soundnessConv↓Level u≡v) .proj₁)
+        inversion-Level-⊢ (wf-⊢ (soundnessConv↓Level u≡v) .proj₁)
       (ℕ-ins u≡v) →
         normal-terms-unique-~↓ ⊢u ⊢v u≡v
       (Empty-ins u≡v) →
@@ -1682,7 +1682,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
             ⊢v =
               convₙ ⊢v $
               sym (Lift-injectivity ⦃ ok = included ⦄ Lift≡₂ .proj₂)
-            ⊢A = wf-⊢∷ (⊢nf∷→⊢∷ ⊢u)
+            ⊢A = wf-⊢ (⊢nf∷→⊢∷ ⊢u)
         in
         PE.cong lift $
         normal-terms-unique-[conv↑]∷′ ⊢u ⊢v

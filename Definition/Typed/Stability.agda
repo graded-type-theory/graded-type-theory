@@ -56,7 +56,7 @@ private opaque
   _∙⟨_⟩′ : ∇ »⊢ᵖ Γ ≡ Δ → ∇ » Γ ⊢ A ≡ B → ∇ »⊢ᵖ Γ ∙ A ≡ Δ ∙ B
   Γ≡Δ ∙⟨ A≡B ⟩′ =
     Γ≡Δ
-      S.∙⟨ S.stability-⊢ Γ≡Δ (wf-⊢≡ A≡B .proj₂)
+      S.∙⟨ S.stability-⊢ Γ≡Δ (wf-⊢ A≡B .proj₂)
          ∣ S.stability-⊢ Γ≡Δ A≡B
          ⟩
 
@@ -111,7 +111,7 @@ opaque
 
   wf-⊢≡ˡ : ∇ »⊢ Γ ≡ Δ → ∇ »⊢ Γ
   wf-⊢≡ˡ (ε »∇)      = ε »∇
-  wf-⊢≡ˡ (Γ≡Δ ∙ A≡B) = ∙ wf-⊢≡ A≡B .proj₁
+  wf-⊢≡ˡ (Γ≡Δ ∙ A≡B) = ∙ wf-⊢ A≡B .proj₁
 
 opaque
 

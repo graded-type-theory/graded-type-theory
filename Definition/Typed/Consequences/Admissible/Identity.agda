@@ -143,7 +143,7 @@ opaque
   Is-function-extensionality-lower-ext
     {m} {n} {l₁} {l₁′} {l₂} {l₂′} {p} {q} {p′} {q′} {ext} {Γ}
     ⊢l₁ ⊢l₁′ ⊢l₂ ⊢l₂′ ⊢ext =
-    let _ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
+    let _ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢ ⊢ext)
         _ , _  , ok₂ = inversion-ΠΣ ⊢Π
     in
     check-type-and-term-sound
@@ -281,7 +281,7 @@ opaque
     l₁≤l₁′ l₂≤l₂′ (ext , ⊢ext) =
     let ⊢l₁ , ⊢l₁′       = wf-⊢≤ₗ∷L l₁≤l₁′
         ⊢l₂ , ⊢l₂′       = wf-⊢≤ₗ∷L l₂≤l₂′
-        ⊢Ul₁′ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢∷ ⊢ext)
+        ⊢Ul₁′ , ⊢Π , ok₁ = inversion-ΠΣ (wf-⊢ ⊢ext)
         _     , ⊢Π , ok₂ = inversion-ΠΣ ⊢Π
     in
     Has-function-extensionality-supᵘₗ ⊢l₁ ⊢l₁′ ⊢l₂ ⊢l₂′
@@ -388,9 +388,9 @@ opaque
     {m} {n} {b} {p} {q} {p′} {q′} {p″} {q″}
     {l} {ext} {A₂} {B₂} {t} {A₁} {u} {B₁} {Γ}
     ok₁ ok₂ ok₃ ⊢ext ⊢B₂ ⊢t ⊢u =
-    let _ , ⊢A₁ , ⊢A₂ = inversion-Id (wf-⊢∷ ⊢t)
-        _ , ⊢B₁ , _   = inversion-Id (wf-⊢∷ ⊢u)
-        ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
+    let _ , ⊢A₁ , ⊢A₂ = inversion-Id (wf-⊢ ⊢t)
+        _ , ⊢B₁ , _   = inversion-Id (wf-⊢ ⊢u)
+        ⊢l            = inversion-U-Level (wf-⊢ ⊢A₁)
     in
     check-type-and-term-sound
       γ′
@@ -585,12 +585,12 @@ opaque
   Id-cong-Idˡ
     {m} {n} {p} {q} {t} {l} {A₁} {A₂} {u} {t₁} {t₂} {v} {u₁} {u₂} {Γ}
     ok ⊢t ⊢u ⊢v =
-    let _ , ⊢A₁ , ⊢A₂       = inversion-Id (wf-⊢∷ ⊢t)
-        _ , ⊢cast-t₁ , ⊢t₂  = inversion-Id (wf-⊢∷ ⊢u)
-        _ , ⊢cast-u₁ , ⊢u₂  = inversion-Id (wf-⊢∷ ⊢v)
+    let _ , ⊢A₁ , ⊢A₂       = inversion-Id (wf-⊢ ⊢t)
+        _ , ⊢cast-t₁ , ⊢t₂  = inversion-Id (wf-⊢ ⊢u)
+        _ , ⊢cast-u₁ , ⊢u₂  = inversion-Id (wf-⊢ ⊢v)
         _ , _ , _ , ⊢t₁ , _ = inversion-cast ⊢cast-t₁
         _ , _ , _ , ⊢u₁ , _ = inversion-cast ⊢cast-u₁
-        ⊢l                  = inversion-U-Level (wf-⊢∷ ⊢A₁)
+        ⊢l                  = inversion-U-Level (wf-⊢ ⊢A₁)
     in
     _ ,
     check-type-and-term-sound
@@ -751,8 +751,8 @@ opaque
   ⊢lam-cong-Id
     {m} {n} {p} {q} {p′} {q′} {l₁} {l₂} {ext} {A} {B} {t} {t₁} {t₂} {Γ}
     ok ⊢ext ⊢l₂ ⊢A ⊢B ⊢t =
-    let ⊢l₁           = inversion-U-Level (wf-⊢∷ ⊢A)
-        _ , ⊢t₁ , ⊢t₂ = inversion-Id (wf-⊢∷ ⊢t)
+    let ⊢l₁           = inversion-U-Level (wf-⊢ ⊢A)
+        _ , ⊢t₁ , ⊢t₂ = inversion-Id (wf-⊢ ⊢t)
     in
     check-type-and-term-sound
       γ′

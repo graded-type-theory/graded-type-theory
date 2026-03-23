@@ -213,7 +213,7 @@ opaque
   subsetTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ≡ u ∷ A
   subsetTerm (supᵘ-zeroˡ ⊢l) = supᵘ-zeroˡ ⊢l
   subsetTerm (supᵘ-zeroʳ ⊢l) =
-    supᵘ-zeroʳⱼ (inversion-Level-⊢ (wf-⊢∷ ⊢l)) (sucᵘⱼ ⊢l)
+    supᵘ-zeroʳⱼ (inversion-Level-⊢ (wf-⊢ ⊢l)) (sucᵘⱼ ⊢l)
   subsetTerm (supᵘ-sucᵘ ⊢l₁ ⊢l₂) = supᵘ-sucᵘ ⊢l₁ ⊢l₂
   subsetTerm (supᵘ-substˡ t⇒t′ ⊢u) = supᵘ-cong (subsetTerm t⇒t′) (refl ⊢u)
   subsetTerm (supᵘ-substʳ ⊢t u⇒u′) = supᵘ-cong (refl (sucᵘⱼ ⊢t)) (subsetTerm u⇒u′)
@@ -247,7 +247,7 @@ opaque
     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (subsetTerm v⇒v′) ok
   subsetTerm ([]-cong-subst ⊢l v⇒v′ ok) =
     let v≡v′         = subsetTerm v⇒v′
-        ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢≡∷ v≡v′ .proj₁)
+        ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ v≡v′ .proj₁)
     in
     []-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (refl ⊢u) v≡v′ ok
   subsetTerm (J-β {t} {A} {t′} {B} {u} {p} {q} ⊢t _ t≡t′ ⊢B _ ⊢u) =
@@ -259,7 +259,7 @@ opaque
   subsetTerm (K-β ⊢B ⊢u ok) =
     K-β ⊢B ⊢u ok
   subsetTerm ([]-cong-β ⊢l t≡t′ ok) =
-    let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′ in
+    let ⊢A , ⊢t , _ = wf-⊢ t≡t′ in
     trans
       ([]-cong-cong (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (sym′ t≡t′)
          (_⊢_≡_∷_.conv (refl (rflⱼ ⊢t)) $
@@ -314,7 +314,7 @@ opaque
 
   redMany : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ⇒* u ∷ A
   redMany t⇒u =
-    let _ , _ , ⊢u = wf-⊢≡∷ (subsetTerm t⇒u) in
+    let _ , _ , ⊢u = wf-⊢ (subsetTerm t⇒u) in
     t⇒u ⇨ id ⊢u
 
 opaque
@@ -324,7 +324,7 @@ opaque
 
   redMany-⊢ : Γ ⊢ A ⇒ B → Γ ⊢ A ⇒* B
   redMany-⊢ A⇒B =
-    let _ , ⊢B = wf-⊢≡ (subset A⇒B) in
+    let _ , ⊢B = wf-⊢ (subset A⇒B) in
     A⇒B ⇨ id ⊢B
 
 ------------------------------------------------------------------------
@@ -335,28 +335,28 @@ opaque
   -- If t reduces to u, then t is well-typed.
 
   redFirstTerm : Γ ⊢ t ⇒ u ∷ A → Γ ⊢ t ∷ A
-  redFirstTerm = proj₁ ∘→ proj₂ ∘→ wf-⊢≡∷ ∘→ subsetTerm
+  redFirstTerm = proj₁ ∘→ proj₂ ∘→ wf-⊢ ∘→ subsetTerm
 
 opaque
 
   -- If A reduces to B, then A is well-formed.
 
   redFirst : Γ ⊢ A ⇒ B → Γ ⊢ A
-  redFirst = proj₁ ∘→ wf-⊢≡ ∘→ subset
+  redFirst = proj₁ ∘→ wf-⊢ ∘→ subset
 
 opaque
 
   -- If t reduces to u, then t is well-typed.
 
   redFirst*Term : Γ ⊢ t ⇒* u ∷ A → Γ ⊢ t ∷ A
-  redFirst*Term = proj₁ ∘→ proj₂ ∘→ wf-⊢≡∷ ∘→ subset*Term
+  redFirst*Term = proj₁ ∘→ proj₂ ∘→ wf-⊢ ∘→ subset*Term
 
 opaque
 
   -- If A reduces to B, then A is well-formed.
 
   redFirst* : Γ ⊢ A ⇒* B → Γ ⊢ A
-  redFirst* = proj₁ ∘→ wf-⊢≡ ∘→ subset*
+  redFirst* = proj₁ ∘→ wf-⊢ ∘→ subset*
 
 ------------------------------------------------------------------------
 -- Expansion and reduction lemmas

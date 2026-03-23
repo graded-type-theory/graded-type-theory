@@ -399,8 +399,8 @@ opaque
             ( ⊩ΣAB[σ]
             , u₁ , u₂ , t₁[σ]⇒*u₁ , t₂[σ]⇒*u₂ , u₁-prod , u₂-prod
             , ≅-Σ-η
-                (wf-⊢≡∷ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
-                (wf-⊢≡∷ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
+                (wf-⊢ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
+                (wf-⊢ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
                 (product↑ _ (Productᵃ→ u₁-prod))
                 (product↑ _ (Productᵃ→ u₂-prod))
                 (escape-⊩≡∷ fst-u₁≡fst-u₂) (escape-⊩≡∷ snd-u₁≡snd-u₂)

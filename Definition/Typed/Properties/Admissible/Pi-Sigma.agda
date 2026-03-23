@@ -55,7 +55,7 @@ opaque
        → ΠΣ-allowed b p q
        → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B ∷ U l
   ΠΣⱼ′ ⊢A ⊢B ok =
-    let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+    let ⊢l = inversion-U-Level (wf-⊢ ⊢A) in
     ΠΣⱼ ⊢l ⊢A ⊢B ok
 
 opaque
@@ -65,7 +65,7 @@ opaque
            → ΠΣ-allowed b p q
            → Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G ≡ ΠΣ⟨ b ⟩ p , q ▷ H ▹ E ∷ U l
   ΠΣ-cong′ F≡H G≡E ok =
-    let ⊢l = inversion-U-Level (wf-⊢≡∷ F≡H .proj₁) in
+    let ⊢l = inversion-U-Level (wf-⊢ F≡H .proj₁) in
     ΠΣ-cong ⊢l F≡H G≡E ok
 
 ------------------------------------------------------------------------
@@ -86,7 +86,7 @@ opaque
   ΠΣʰ-cong-⊢′ ok l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ B₁≡B₂ =
     let Lift≡Lift = Lift-cong l₂₁≡l₂₂ A₁≡A₂ in
     ΠΣ-cong Lift≡Lift
-      (Lift-cong l₁₁≡l₁₂ (lower₀TypeEq (wf-⊢≡∷L l₂₁≡l₂₂ .proj₁) B₁≡B₂))
+      (Lift-cong l₁₁≡l₁₂ (lower₀TypeEq (wf-⊢ l₂₁≡l₂₂ .proj₁) B₁≡B₂))
       ok
 
 opaque
@@ -101,8 +101,8 @@ opaque
     Γ »∙ A₁ ⊢ B₁ ≡ B₂ →
     Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂
   ΠΣʰ-cong-⊢ ok l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ =
-    let ⊢l₂₁ , _ = wf-⊢≡∷L l₂₁≡l₂₂
-        ⊢A₁  , _ = wf-⊢≡ A₁≡A₂
+    let ⊢l₂₁ , _ = wf-⊢ l₂₁≡l₂₂
+        ⊢A₁  , _ = wf-⊢ A₁≡A₂
     in
     ΠΣʰ-cong-⊢′ ok (wk₁ (Liftⱼ ⊢l₂₁ ⊢A₁) l₁₁≡l₁₂) l₂₁≡l₂₂ A₁≡A₂
 
@@ -117,7 +117,7 @@ opaque
     Γ ⊢ ΠΣʰ b p q l₁ l₂ A B
   ⊢ΠΣʰ′ ok ⊢l₁ ⊢B =
     let ⊢l₂ , _ = inversion-Lift (⊢∙→⊢ (wf ⊢l₁)) in
-    wf-⊢≡
+    wf-⊢
       (ΠΣʰ-cong-⊢′ ok (refl-⊢≡∷L ⊢l₁) (refl-⊢≡∷L ⊢l₂)
          (refl (⊢∙→⊢ (wf ⊢B))) (refl ⊢B))
       .proj₁
@@ -133,7 +133,7 @@ opaque
     Γ »∙ A ⊢ B →
     Γ ⊢ ΠΣʰ b p q l₁ l₂ A B
   ⊢ΠΣʰ ok ⊢l₁ ⊢l₂ ⊢B =
-    wf-⊢≡
+    wf-⊢
       (ΠΣʰ-cong-⊢ ok (refl-⊢≡∷L ⊢l₁) (refl-⊢≡∷L ⊢l₂)
          (refl (⊢∙→⊢ (wf ⊢B))) (refl ⊢B))
       .proj₁
@@ -152,7 +152,7 @@ opaque
     Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂ ∷
       U (l₁₁ supᵘₗ l₂₁)
   ΠΣʰ-cong-⊢∷′ ok l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ B₁≡B₂ =
-    let ⊢l₂₁ , _ = wf-⊢≡∷L l₂₁≡l₂₂ in
+    let ⊢l₂₁ , _ = wf-⊢ l₂₁≡l₂₂ in
     ΠΣ-cong′
       (Lift-cong′ l₂₁≡l₂₂ A₁≡A₂)
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
@@ -174,8 +174,8 @@ opaque
     Γ ⊢ ΠΣʰ b p q l₁₁ l₂₁ A₁ B₁ ≡ ΠΣʰ b p q l₁₂ l₂₂ A₂ B₂ ∷
       U (l₁₁ supᵘₗ l₂₁)
   ΠΣʰ-cong-⊢∷ ok l₁₁≡l₁₂ l₂₁≡l₂₂ A₁≡A₂ =
-    let ⊢l₂₁ , _    = wf-⊢≡∷L l₂₁≡l₂₂
-        _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
+    let ⊢l₂₁ , _    = wf-⊢ l₂₁≡l₂₂
+        _ , ⊢A₁ , _ = wf-⊢ A₁≡A₂
     in
     ΠΣʰ-cong-⊢∷′ ok (wk₁ (Liftⱼ ⊢l₂₁ (univ ⊢A₁)) l₁₁≡l₁₂) l₂₁≡l₂₂
       A₁≡A₂
@@ -191,8 +191,8 @@ opaque
     Γ »∙ A ⊢ B ∷ U (wk1 l₂) →
     Γ ⊢ ΠΣʰ b p q l₁ l₂ A B ∷ U (l₁ supᵘₗ l₂)
   ⊢ΠΣʰ∷ ok ⊢l₂ ⊢A ⊢B =
-    wf-⊢≡∷
-      (ΠΣʰ-cong-⊢∷ ok (refl-⊢≡∷L (inversion-U-Level (wf-⊢∷ ⊢A)))
+    wf-⊢
+      (ΠΣʰ-cong-⊢∷ ok (refl-⊢≡∷L (inversion-U-Level (wf-⊢ ⊢A)))
          (refl-⊢≡∷L ⊢l₂) (refl ⊢A) (refl ⊢B))
       .proj₂ .proj₁
 
@@ -212,7 +212,7 @@ opaque
   ΠΣʰ-cong-≤ₗ′ ok l₁₁≤l₁ l₁₂≤l₁ l₁≡l₂ A₁≡A₂ B₁≡B₂ =
     let _ , ⊢l₁       = wf-⊢≤ₗ∷L l₁₁≤l₁
         Lift≡Lift     = Lift-cong-≤ₗ l₁₁≤l₁ l₁≡l₂ A₁≡A₂
-        _ , ⊢Lift , _ = wf-⊢≡∷ Lift≡Lift
+        _ , ⊢Lift , _ = wf-⊢ Lift≡Lift
     in
     ΠΣ-cong ⊢l₁ Lift≡Lift
       (Lift-cong-≤ₗ
@@ -237,7 +237,7 @@ opaque
   ΠΣʰ-cong-≤ₗ ok l₁₁≤l₁ l₁₂≤l₁ l₁≡l₂ A₁≡A₂ B₁≡B₂ =
     let _ , ⊢l₁       = wf-⊢≤ₗ∷L l₁₁≤l₁
         Lift≡Lift     = Lift-cong-≤ₗ l₁₁≤l₁ l₁≡l₂ A₁≡A₂
-        _ , ⊢Lift , _ = wf-⊢≡∷ Lift≡Lift
+        _ , ⊢Lift , _ = wf-⊢ Lift≡Lift
     in
     ΠΣʰ-cong-≤ₗ′ ok l₁₁≤l₁ (wk-≤ₗ∷L (stepʷ id (univ ⊢Lift)) l₁₂≤l₁)
       l₁≡l₂ A₁≡A₂ B₁≡B₂
@@ -255,7 +255,7 @@ opaque
     Γ ⊢ ΠΣʰ b p q l l A B ∷ U l
   ⊢ΠΣʰ∷-≤ₗ′ ok l₁≤l l₂≤l ⊢A ⊢B =
     let _ , ⊢l = wf-⊢≤ₗ∷L l₁≤l in
-    wf-⊢≡∷
+    wf-⊢
       (ΠΣʰ-cong-≤ₗ′ ok l₁≤l l₂≤l (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢B))
       .proj₂ .proj₁
 
@@ -272,7 +272,7 @@ opaque
     Γ ⊢ ΠΣʰ b p q l l A B ∷ U l
   ⊢ΠΣʰ∷-≤ₗ ok l₁≤l l₂≤l ⊢A ⊢B =
     let _ , ⊢l = wf-⊢≤ₗ∷L l₁≤l in
-    wf-⊢≡∷ (ΠΣʰ-cong-≤ₗ ok l₁≤l l₂≤l (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢B))
+    wf-⊢ (ΠΣʰ-cong-≤ₗ ok l₁≤l l₂≤l (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢B))
       .proj₂ .proj₁
 
 private opaque

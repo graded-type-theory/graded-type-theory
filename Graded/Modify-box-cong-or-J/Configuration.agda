@@ -401,8 +401,8 @@ record Configuration : Set (lsuc a) where
       Γ ⊢ v ∷ Id A t u →
       Γ ⊢ []-cong′ s l A t u v ∷ Id (Erased l A) [ t ] ([ u ])
     ⊢[]-cong′ ok ⊢l ⊢v =
-      let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
-      wf-⊢≡∷
+      let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢v) in
+      wf-⊢
         ([]-cong′-cong ok (refl-⊢≡∷L ⊢l) (refl ⊢A) (refl ⊢t) (refl ⊢u)
            (refl ⊢v))
         .proj₂ .proj₁
@@ -451,8 +451,8 @@ record Configuration : Set (lsuc a) where
       Γ ⊢ w ∷ Id A t v →
       Γ ⊢ J′ p q A t B u v w ∷ B [ v , w ]₁₀
     ⊢J′ ⊢B ⊢u ⊢w =
-      let ⊢A , ⊢t , ⊢v = inversion-Id (wf-⊢∷ ⊢w) in
-      wf-⊢≡∷
+      let ⊢A , ⊢t , ⊢v = inversion-Id (wf-⊢ ⊢w) in
+      wf-⊢
         (J′-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (refl ⊢v)
            (refl ⊢w))
         .proj₂ .proj₁
@@ -486,7 +486,7 @@ record Configuration : Set (lsuc a) where
         id (⊢J′ ⊢B ⊢u ⊢w)
       (w⇒w′ ⇨ w′⇒*w″) →
         let w≡w′       = subsetTerm w⇒w′
-            _ , _ , ⊢v = inversion-Id (wf-⊢≡∷ w≡w′ .proj₁)
+            _ , _ , ⊢v = inversion-Id (wf-⊢ w≡w′ .proj₁)
         in
         J′-subst pres ⊢B ⊢u w⇒w′ ⇨∷*
         conv* (J′-subst* pres ⊢B ⊢u w′⇒*w″)
@@ -872,11 +872,11 @@ opaque
       .[]-cong′-cong ok l₁≡l₂ _ _ _ v₁≡v₂ →
         refl $
         []-cong-with-equality-reflection _ (TRₛ .[]-cong→Erased ok)
-          (wf-⊢≡∷L l₁≡l₂ .proj₁) (wf-⊢≡∷ v₁≡v₂ .proj₂ .proj₁)
+          (wf-⊢ l₁≡l₂ .proj₁) (wf-⊢ v₁≡v₂ .proj₂ .proj₁)
       .[]-cong′-subst _ ok ⊢l v⇒v′ →
         id $
         []-cong-with-equality-reflection _ (TRₛ .[]-cong→Erased ok) ⊢l
-          (wf-⊢≡∷ (subsetTerm v⇒v′) .proj₂ .proj₁)
+          (wf-⊢ (subsetTerm v⇒v′) .proj₂ .proj₁)
       .[]-cong′-β-≡′ ¬⊤ →
         ⊥-elim (¬⊤ _)
       .[]-cong′-β-⇒* _ ok ⊢l t≡t′ →

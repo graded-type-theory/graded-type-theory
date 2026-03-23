@@ -126,8 +126,8 @@ opaque
     Γ ⊢ A₁ ≡ A₂ ∷ U l →
     Γ ⊢ List l A₁ ≡ List l A₂ ∷ U l
   List-cong {n} {A₁} {A₂} {l} {Γ} A₁≡A₂ =
-    let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
-        ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
+    let _ , ⊢A₁ , ⊢A₂ = wf-⊢ A₁≡A₂
+        ⊢l            = inversion-U-Level (wf-⊢ ⊢A₁)
         ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound
@@ -174,7 +174,7 @@ opaque
     Γ ⊢ A ∷ U l →
     Γ ⊢ List l A ∷ U l
   ⊢List ⊢A =
-    wf-⊢≡∷ (List-cong (refl ⊢A)) .proj₂ .proj₁
+    wf-⊢ (List-cong (refl ⊢A)) .proj₂ .proj₁
 
 ------------------------------------------------------------------------
 -- An admissible typing rule for nil
@@ -204,7 +204,7 @@ opaque
            Unit-ok L.∷ Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var  not-x2 _ _))
       (wf ⊢A)
@@ -230,10 +230,10 @@ opaque
     Γ ⊢ cons l A₁ t₁ u₁ ≡ cons l A₂ t₂ u₂ ∷ List l A₁
   cons-cong
     {n} {A₁} {A₂} {l} {t₁} {t₂} {u₁} {u₂} {Γ} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
-        _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-        ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
+    let _ , ⊢A₁ , ⊢A₂ = wf-⊢ A₁≡A₂
+        _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂
+        _ , ⊢u₁ , ⊢u₂ = wf-⊢ u₁≡u₂
+        ⊢l            = inversion-U-Level (wf-⊢ ⊢A₁)
         ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound
@@ -298,7 +298,7 @@ opaque
     Γ ⊢ u ∷ List l A →
     Γ ⊢ cons l A t u ∷ List l A
   ⊢cons ⊢A ⊢t ⊢u =
-    wf-⊢≡∷ (cons-cong (refl ⊢A) (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
+    wf-⊢ (cons-cong (refl ⊢A) (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
 
 ------------------------------------------------------------------------
 -- Some admissible typing and equality rules for listrec
@@ -352,7 +352,7 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢B
            (I.var! x3)         → ⊢t
@@ -424,7 +424,7 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢B
            (I.var! x3)         → ⊢t
@@ -507,7 +507,7 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok₁ L.∷ Σ-ok₂ L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢B
            (I.var! x3)         → ⊢t

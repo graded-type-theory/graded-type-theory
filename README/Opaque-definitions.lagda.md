@@ -250,9 +250,9 @@ import Definition.Typed.Properties.Well-formed using
   ( wf -- Γ ⊢ A implies ⊢ Γ
   )
 import Definition.Typed.Well-formed using
-  ( wf-⊢∷  -- Γ ⊢ t ∷ A implies Γ ⊢ A
-  ; wf-⊢≡  -- Γ ⊢ A ≡ B implies Γ ⊢ A and Γ ⊢ B
-  ; wf-⊢≡∷ -- Γ ⊢ t ≡ u ∷ A implies Γ ⊢ t ∷ A and Γ ⊢ u ∷ A
+  ( wf-⊢ -- Γ ⊢ t ∷ A implies Γ ⊢ A,
+         -- Γ ⊢ A ≡ B implies Γ ⊢ A and Γ ⊢ B, and
+         -- Γ ⊢ t ≡ u ∷ A implies Γ ⊢ t ∷ A and Γ ⊢ u ∷ A
   )
 import Definition.Typed.Syntactic using
   ( syntacticRed     -- Γ ⊢ A ⇒* B implies Γ ⊢ A and Γ ⊢ B

@@ -116,10 +116,10 @@ opaque
     Γ ⊢ Sum a₁ b₁ A₁ B₁ ≡ Sum a₂ b₂ A₂ B₂ ∷ U (a₁ supᵘₗ b₁)
   Sum-cong {(m)} {(n)} {Γ} {a₁} {a₂} {b₁} {b₂} {A₁} {A₂} {B₁} {B₂}
     a₁≡a₂ b₁≡b₂ A₁≡A₂ B₁≡B₂ =
-    let ⊢a₁ , ⊢a₂ = wf-⊢≡∷L a₁≡a₂
-        ⊢b₁ , ⊢b₂ = wf-⊢≡∷L b₁≡b₂
-        _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
-        _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
+    let ⊢a₁ , ⊢a₂ = wf-⊢ a₁≡a₂
+        ⊢b₁ , ⊢b₂ = wf-⊢ b₁≡b₂
+        _ , ⊢A₁ , ⊢A₂ = wf-⊢ A₁≡A₂
+        _ , ⊢B₁ , ⊢B₂ = wf-⊢ B₁≡B₂
         ⊢Γ = wf ⊢A₁
     in  check-and-equal-type-and-terms-sound
       (γ′ λ where
@@ -227,7 +227,7 @@ opaque
   inl-cong {(m)} {(n)} {Γ} {A} {a} {B} {b} {t₁} {t₂} ⊢A ⊢B t₁≡t₂ =
     let ⊢a = inversion-U-Level (syntacticTerm ⊢A)
         ⊢b = inversion-U-Level (syntacticTerm ⊢B)
-        _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
+        _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂
         ⊢Γ = wf ⊢A
     in
     check-and-equal-type-and-terms-sound
@@ -308,7 +308,7 @@ opaque
   inr-cong {(m)} {(n)} {Γ} {A} {a} {B} {b} {t₁} {t₂} ⊢A ⊢B t₁≡t₂ =
     let ⊢a = inversion-U-Level (syntacticTerm ⊢A)
         ⊢b = inversion-U-Level (syntacticTerm ⊢B)
-        _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
+        _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂
         ⊢Γ = wf ⊢A
     in
     check-and-equal-type-and-terms-sound

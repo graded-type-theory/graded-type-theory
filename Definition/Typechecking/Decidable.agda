@@ -948,7 +948,7 @@ mutual
       (yes (_ , t⇇Level)) → yes (_ , sucᵘᵢ t⇇Level)
       (no not)            → no λ where
         (_ , sucᵘᵢ t) →
-          let ok = inversion-Level-⊢ (wf-⊢∷ (soundness⇇ t)) in
+          let ok = inversion-Level-⊢ (wf-⊢ (soundness⇇ t)) in
           not (ok , t)
   dec⇉ ⊢Γ (supᵘᵢ t u) =
     case (Level-allowed? ×-dec′ λ ok →
@@ -957,7 +957,7 @@ mutual
       (yes (_ , t⇇Level , u⇇Level)) → yes (_ , supᵘᵢ t⇇Level u⇇Level)
       (no not)                      → no λ where
         (_ , supᵘᵢ t u) →
-          let ok = inversion-Level-⊢ (wf-⊢∷ (soundness⇇ t)) in
+          let ok = inversion-Level-⊢ (wf-⊢ (soundness⇇ t)) in
           not (ok , t , u)
   dec⇉ ⊢Γ (Uᵢ l) =
     case dec⇇Level l ⊢Γ of λ where

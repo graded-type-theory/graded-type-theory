@@ -1521,7 +1521,7 @@ opaque
         in [↑]ˡ v v′ ([↑]ᵛ d t↓) ([↑]ᵛ d′ u↓) t≡u }})
     , λ ([↑]ˡ v v′ ([↑]ᵛ d t↓) ([↑]ᵛ d′ u↓) t≡u) →
         let ok = inversion-Level-⊢
-                   (wf-⊢≡∷ (subset*Term (d .proj₁)) .proj₁)
+                   (wf-⊢ (subset*Term (d .proj₁)) .proj₁)
         in
         [↑]ₜ _ _ _
           (id (Levelⱼ′ ok (wf (redFirst*Term (d .proj₁)))) , Levelₙ)

@@ -107,7 +107,7 @@ opaque
     γ ▸ Γ ⊩ʳ []-cong s l A t u v ∷[ m ∣ n ]
       Id (Erased l A) [ t ] ([ u ])
   []-congʳ {l} {v} {A} {t} {u} (ε , tr) ⊢l ⊢v ok =
-    let ⊢A , _ = inversion-Id (wf-⊢∷ ⊢v) in
+    let ⊢A , _ = inversion-Id (wf-⊢ ⊢v) in
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} ⊢σ _ →
     ®∷→®∷◂ $
     ®∷Id⇔ .proj₂

@@ -22,10 +22,16 @@ open import Tools.Product
 open W public
   using ()
   renaming
-    (wf-∷∈  to syntacticVar;
-     wf-⊢∷  to syntacticTerm;
-     wf-⊢≡  to syntacticEq;
-     wf-⊢≡∷ to syntacticEqTerm)
+    (wf-∷∈ to syntacticVar;
+     wf-⊢  to syntacticTerm)
+
+open W public
+  using ()
+  renaming (wf-⊢ to syntacticEq)
+
+open W public
+  using ()
+  renaming (wf-⊢ to syntacticEqTerm)
 
 private variable
   Γ       : Cons _ _

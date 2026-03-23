@@ -83,7 +83,7 @@ opaque
 
   »∙→⊢ : » ∇ ∙⟨ ω ⟩[ t ∷ A ] → ∇ » ε ⊢ A
   »∙→⊢ ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] = ⊢A
-  »∙→⊢ ∙ᵗ[ ⊢t ]          = wf-⊢∷ ⊢t
+  »∙→⊢ ∙ᵗ[ ⊢t ]          = wf-⊢ ⊢t
 
 opaque
 
@@ -384,11 +384,11 @@ opaque
   inline-⊇-⊢∷ _ (rflⱼ _) =
     PE.refl
   inline-⊇-⊢∷ ∇′⊇∇ (Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w) =
-    PE.cong₆ (J _ _) (inline-⊇-⊢ ∇′⊇∇ (wf-⊢∷ ⊢t)) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+    PE.cong₆ (J _ _) (inline-⊇-⊢ ∇′⊇∇ (wf-⊢ ⊢t)) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
       (inline-⊇-⊢ ∇′⊇∇ ⊢B) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
       (inline-⊇-⊢∷ ∇′⊇∇ ⊢w)
   inline-⊇-⊢∷ ∇′⊇∇ (Kⱼ ⊢B ⊢u ⊢v _) =
-    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢∷ ⊢v) in
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢v) in
     PE.cong₅ (K _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
       (inline-⊇-⊢ ∇′⊇∇ ⊢B) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
   inline-⊇-⊢∷ ∇′⊇∇ ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v _) =
@@ -526,7 +526,7 @@ opaque
 
     inline ξ t                     ≡⟨ inline-⊇-⊢∷ s $
                                       PE.subst₂ (_⊢_∷_ _) wk₀-closed wk₀-closed $
-                                      wf-⊢≡∷ (δ-red (wf ⊢B) α∈ PE.refl PE.refl) .proj₂ .proj₂ ⟩
+                                      wf-⊢ (_⊢_≡_∷_.δ-red (wf ⊢B) α∈ PE.refl PE.refl) .proj₂ .proj₂ ⟩
     inline (step ξ (opa φ) B u) t  ∎
   inline-<≡
     {t} {ξ = step ξ _ _ _} {m≤α} {α<n = ≤′-step α<n}
@@ -536,7 +536,7 @@ opaque
 
     inline ξ t                 ≡⟨ inline-⊇-⊢∷ s $
                                   PE.subst₂ (_⊢_∷_ _) wk₀-closed wk₀-closed $
-                                  wf-⊢≡∷ (δ-red (wf ⊢t) α∈ PE.refl PE.refl) .proj₂ .proj₂ ⟩
+                                  wf-⊢ (_⊢_≡_∷_.δ-red (wf ⊢t) α∈ PE.refl PE.refl) .proj₂ .proj₂ ⟩
     inline (step ξ tra B u) t  ∎
 
 opaque
@@ -571,7 +571,7 @@ opaque
     ⊥-elim (n≮n _ (<′⇒< α<α))
   ⊢inline-<∷ {ξ = step ξ _ _ _} {α<n = ≤′-reflexive _} ∙ᵗ[ ⊢t ] here =
     PE.subst (_⊢_∷_ _ _)
-      (inline-⊇-⊢ {ξ′ = step ξ _ _ _} {ξ = ξ} (stepᵗ₁ ⊢t) (wf-⊢∷ ⊢t)) $
+      (inline-⊇-⊢ {ξ′ = step ξ _ _ _} {ξ = ξ} (stepᵗ₁ ⊢t) (wf-⊢ ⊢t)) $
     ⊢inline∷ {ξ = ξ} ⊢t
   ⊢inline-<∷ {∇} {ξ = step ξ _ _ _} {α<n = ≤′-reflexive _}
     (∙ᵒ⟨_⟩[_∷_] {φ} {t} {A} ok ⊢t ⊢A) here =
@@ -590,14 +590,14 @@ opaque
     PE.subst (_⊢_∷_ _ _)
       (inline-⊇-⊢ (stepᵗ₁ ⊢t) $
        PE.subst (_⊢_ _) wk₀-closed $
-       wf-⊢∷ (defn (wf ⊢t) α↦ PE.refl)) $
+       wf-⊢ (defn (wf ⊢t) α↦ PE.refl)) $
     ⊢inline-<∷ {ξ = ξ} (defn-wf (wf ⊢t)) α↦
   ⊢inline-<∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
     ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] (there α↦) =
     PE.subst (_⊢_∷_ _ _)
       (inline-⊇-⊢ (stepᵒ₁ ok ⊢A ⊢t) $
        PE.subst (_⊢_ _) wk₀-closed $
-       wf-⊢∷ (defn (wf ⊢A) α↦ PE.refl)) $
+       wf-⊢ (defn (wf ⊢A) α↦ PE.refl)) $
     ⊢inline-<∷ {ξ = ξ} (defn-wf (wf ⊢A)) α↦
 
   -- The function inline-Nat produces well-typed terms, given certain
@@ -1489,7 +1489,7 @@ opaque
   ⊢inline≡∷ (lamⱼ _ ⊢t ok) =
     lam-cong (⊢inline≡∷ ⊢t) ok
   ⊢inline≡∷ (⊢t ∘ⱼ ⊢u) =
-    let _ , ⊢B , _ = inversion-ΠΣ (wf-⊢∷ ⊢t)
+    let _ , ⊢B , _ = inversion-ΠΣ (wf-⊢ ⊢t)
         ≡u         = ⊢inline≡∷ ⊢u
     in
     conv (app-cong (⊢inline≡∷ ⊢t) ≡u)
@@ -1543,7 +1543,7 @@ opaque
   ⊢inline≡∷ (rflⱼ ⊢t) =
     refl (rflⱼ (glassify-⊢ ⊢t))
   ⊢inline≡∷ {ξ} (Jⱼ {t} {A} {v} ⊢t ⊢B ⊢u ⊢v ⊢w) =
-    let ⊢A  = wf-⊢∷ ⊢t
+    let ⊢A  = wf-⊢ ⊢t
         ⊢A′ = glassify-⊢ ⊢A
         ⊢t′ = glassify-⊢ ⊢t
         ≡A  = ⊢inline≡ ⊢A
@@ -1588,7 +1588,7 @@ opaque
       (subst-⊢≡₀ ≡B ≡v)
   ⊢inline≡∷ ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) =
     let ≡l     = ⊢inline≡∷L ⊢l
-        ⊢l , _ = wf-⊢≡∷L ≡l
+        ⊢l , _ = wf-⊢ ≡l
         ≡A     = ⊢inline≡ ⊢A
         ≡t     = conv (⊢inline≡∷ ⊢t) (sym ≡A)
         ≡u     = conv (⊢inline≡∷ ⊢u) (sym ≡A)
@@ -1759,7 +1759,7 @@ opaque
   -- Opaque[ t ∷ A ] is well-formed.
 
   »Opaque : Opacity-allowed → ε » ε ⊢ t ∷ A → » Opaque[ t ∷ A ]
-  »Opaque ok ⊢t = ∙ᵒ⟨ ok ⟩[ ⊢t ∷ wf-⊢∷ ⊢t ]
+  »Opaque ok ⊢t = ∙ᵒ⟨ ok ⟩[ ⊢t ∷ wf-⊢ ⊢t ]
 
 -- Below it is assumed that opaque definitions are allowed, and that
 -- there are three closed terms A, t and u that satisfy ε » ε ⊢ u ∷ A

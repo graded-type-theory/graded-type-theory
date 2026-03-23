@@ -119,10 +119,10 @@ opaque mutual
   ⊢∷→Names< (rflⱼ ⊢t) =
     rfl
   ⊢∷→Names< (Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w) =
-    J (⊢→Names< (wf-⊢∷ ⊢t)) (⊢∷→Names< ⊢t) (⊢→Names< ⊢B) (⊢∷→Names< ⊢u)
+    J (⊢→Names< (wf-⊢ ⊢t)) (⊢∷→Names< ⊢t) (⊢→Names< ⊢B) (⊢∷→Names< ⊢u)
       (⊢∷→Names< ⊢v) (⊢∷→Names< ⊢w)
   ⊢∷→Names< (Kⱼ ⊢B ⊢u ⊢v _) =
-    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢∷ ⊢v) in
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢v) in
     K (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢→Names< ⊢B) (⊢∷→Names< ⊢u)
       (⊢∷→Names< ⊢v)
   ⊢∷→Names< ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v _) =
@@ -148,7 +148,7 @@ opaque
   ↦∷→Names< : » ∇ → α ↦∷ A ∈ ∇ → Names< α A
   ↦∷→Names< ε        ()
   ↦∷→Names< ∙ᵗ[ ⊢t ] here =
-    ⊢→Names< (wf-⊢∷ ⊢t)
+    ⊢→Names< (wf-⊢ ⊢t)
   ↦∷→Names< ∙ᵗ[ ⊢t ] (there α↦) =
     ↦∷→Names< (defn-wf (wf ⊢t)) α↦
   ↦∷→Names< ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] here =

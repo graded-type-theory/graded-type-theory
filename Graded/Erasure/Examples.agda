@@ -472,7 +472,7 @@ private
     »Γ = defn-wf ⊢Γ
 
     ⊢l : Γ ⊢ l′ ∷Level
-    ⊢l = inversion-U-Level (wf-⊢∷ ⊢A)
+    ⊢l = inversion-U-Level (wf-⊢ ⊢A)
 
     ⊢l∷ : Γ ⊢ l ∷ Level
     ⊢l∷ = ⊢∷Level→⊢∷Level ok ⊢l

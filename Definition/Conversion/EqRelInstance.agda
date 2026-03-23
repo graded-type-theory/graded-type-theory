@@ -303,7 +303,7 @@ module Lemmas where
       let _ , _ , _ , B⇒*Id-t₃-u₃ , _ , t₁≡t₃ , u₁≡u₃ =
             Id-norm (sym Id-t₁-u₁≡B)
           ⊢l₁ , _ =
-            wf-⊢≡∷L (soundnessConv↑Level l₁≡l₂)
+            wf-⊢ (soundnessConv↑Level l₁≡l₂)
       in
       ↑ (_⊢_≡_.refl $
          Idⱼ′
@@ -397,7 +397,7 @@ module Lemmas where
     Γ ⊢ t [conv↑] t ∷Level′ → Γ ⊢ t supᵘ zeroᵘ [conv↑] t ∷Level′
   ≅ₜ-supᵘ-zeroʳ ([↑]ˡ v _ t↑ _ _) =
     let ok         = inversion-Level-⊢ $
-                     wf-⊢≡∷ (subset*Term (t↑ ._⊢_↑ᵛ_.d .proj₁)) .proj₁
+                     wf-⊢ (subset*Term (t↑ ._⊢_↑ᵛ_.d .proj₁)) .proj₁
         v′ , x , y = supᵘ-↑ᵛ t↑ (zeroᵘ-↑ᵛ ok (wf (wf↑ᵛ t↑)))
     in
     [↑]ˡ _ _ x t↑ (trans-≡ᵛ y ≡ᵛ-supᵘ-zeroʳ)
@@ -456,7 +456,7 @@ private opaque
     .Equality-relations.~-to-≅ₜ        → ~-to-conv
     .Equality-relations.⊢≅∷→⊢≅∷L l₁≡l₂ →
       let ok = inversion-Level-⊢
-                 (wf-⊢≡∷ (soundnessConv↑Term l₁≡l₂) .proj₁)
+                 (wf-⊢ (soundnessConv↑Term l₁≡l₂) .proj₁)
       in
       term ok l₁≡l₂
     .Equality-relations.≅-eq               → soundnessConv↑
@@ -510,7 +510,7 @@ private opaque
     .Equality-relations.≅ₜ-U-cong →
       λ l≡l′ →
         let ⊢l≡l′    = soundnessConv↑Level l≡l′
-            ⊢l , ⊢l′ = wf-⊢≡∷L ⊢l≡l′
+            ⊢l , ⊢l′ = wf-⊢ ⊢l≡l′
         in
         liftConvTerm $
         univ (Uⱼ ⊢l)
@@ -521,7 +521,7 @@ private opaque
     .Equality-relations.≅ₜ-Lift-cong →
       λ l₁≡l₂ A≡B →
         let ⊢U , ⊢A , ⊢B = syntacticEqTerm (soundnessConv↑Term A≡B)
-            ⊢l₁ , ⊢l₂    = wf-⊢≡∷L (soundnessConv↑Level l₁≡l₂)
+            ⊢l₁ , ⊢l₂    = wf-⊢ (soundnessConv↑Level l₁≡l₂)
             ⊢l           = inversion-U-Level ⊢U
         in
         liftConvTerm $
@@ -542,8 +542,8 @@ private opaque
       λ [e] [e'] η →
         let u , uWhnf , uRed = whNormTerm [e]
             u' , u'Whnf , u'Red = whNormTerm [e']
-            _ , _ , [u] = wf-⊢≡∷ (subset*Term uRed)
-            _ , _ , [u'] = wf-⊢≡∷ (subset*Term u'Red)
+            _ , _ , [u] = wf-⊢ (subset*Term uRed)
+            _ , _ , [u'] = wf-⊢ (subset*Term u'Red)
         in  [↑]ₜ Unit! u u'
               (id (syntacticTerm [e]) , Unitₙ)
               (uRed , uWhnf)

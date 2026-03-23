@@ -53,7 +53,7 @@ opaque
     Γ ⊢ B₁ ≡ B₂ →
     Γ ⊢ A₁ ⟶×⟨ b ⟩[ p ] B₁ ≡ A₂ ⟶×⟨ b ⟩[ p ] B₂
   ⟶×-cong ok A₁≡A₂ B₁≡B₂ =
-    ΠΣ-cong A₁≡A₂ (wk₁ (wf-⊢≡ A₁≡A₂ .proj₁) B₁≡B₂) ok
+    ΠΣ-cong A₁≡A₂ (wk₁ (wf-⊢ A₁≡A₂ .proj₁) B₁≡B₂) ok
 
 opaque
 
@@ -65,7 +65,7 @@ opaque
     Γ ⊢ B →
     Γ ⊢ A ⟶×⟨ b ⟩[ p ] B
   ⊢⟶× ok ⊢A ⊢B =
-    wf-⊢≡ (⟶×-cong ok (refl ⊢A) (refl ⊢B)) .proj₁
+    wf-⊢ (⟶×-cong ok (refl ⊢A) (refl ⊢B)) .proj₁
 
 opaque
   unfolding _⟶×⟨_⟩[_]_
@@ -78,7 +78,7 @@ opaque
     Γ ⊢ B₁ ≡ B₂ ∷ U l →
     Γ ⊢ A₁ ⟶×⟨ b ⟩[ p ] B₁ ≡ A₂ ⟶×⟨ b ⟩[ p ] B₂ ∷ U l
   ⟶×-cong-U ok A₁≡A₂ B₁≡B₂ =
-    ΠΣ-cong′ A₁≡A₂ (wk₁ (univ (wf-⊢≡∷ A₁≡A₂ .proj₂ .proj₁)) B₁≡B₂)
+    ΠΣ-cong′ A₁≡A₂ (wk₁ (univ (wf-⊢ A₁≡A₂ .proj₂ .proj₁)) B₁≡B₂)
       ok
 
 opaque
@@ -91,7 +91,7 @@ opaque
     Γ ⊢ B ∷ U l →
     Γ ⊢ A ⟶×⟨ b ⟩[ p ] B ∷ U l
   ⊢⟶×-U ok ⊢A ⊢B =
-    wf-⊢≡∷ (⟶×-cong-U ok (refl ⊢A) (refl ⊢B)) .proj₂ .proj₁
+    wf-⊢ (⟶×-cong-U ok (refl ⊢A) (refl ⊢B)) .proj₂ .proj₁
 
 ------------------------------------------------------------------------
 -- Rules for _⟶[_]_
@@ -115,7 +115,7 @@ opaque
     Π-allowed p 𝟘 →
     Γ »∙ A ⊢ t ∷ wk1 B →
     Γ ⊢ lam p t ∷ A ⟶[ p ] B
-  ⊢lam-⟶ ok ⊢t = wf-⊢≡∷ (lam-cong-⟶ ok (refl ⊢t)) .proj₂ .proj₁
+  ⊢lam-⟶ ok ⊢t = wf-⊢ (lam-cong-⟶ ok (refl ⊢t)) .proj₂ .proj₁
 
 opaque
   unfolding _⟶×⟨_⟩[_]_
@@ -139,7 +139,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ t ∘⟨ p ⟩ u ∷ B
   ⊢app-⟶ ⊢t ⊢u =
-    wf-⊢≡∷ (app-cong-⟶ (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
+    wf-⊢ (app-cong-⟶ (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
 
 opaque
   unfolding _⟶×⟨_⟩[_]_
@@ -219,7 +219,7 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ B →
     Γ ⊢ prod s p t₁ u₁ ≡ prod s p t₂ u₂ ∷ A ×⟨ s ⟩[ p ] B
   prod-cong-⟶ ok t₁≡t₂ u₁≡u₂ =
-    prod-cong (wk₁ (wf-⊢≡∷ t₁≡t₂ .proj₁) (wf-⊢≡∷ u₁≡u₂ .proj₁)) t₁≡t₂
+    prod-cong (wk₁ (wf-⊢ t₁≡t₂ .proj₁) (wf-⊢ u₁≡u₂ .proj₁)) t₁≡t₂
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk1-sgSubst _ _) u₁≡u₂) ok
 
 opaque
@@ -232,7 +232,7 @@ opaque
     Γ ⊢ u ∷ B →
     Γ ⊢ prod s p t u ∷ A ×⟨ s ⟩[ p ] B
   ⊢prod-⟶ ok ⊢t ⊢u =
-    wf-⊢≡∷ (prod-cong-⟶ ok (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
+    wf-⊢ (prod-cong-⟶ ok (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
 
 ------------------------------------------------------------------------
 -- Rules for _×ˢ[_]_
@@ -254,7 +254,7 @@ opaque
   ⊢fst-⟶ :
     Γ ⊢ t ∷ A ×ˢ[ p ] B →
     Γ ⊢ fst p t ∷ A
-  ⊢fst-⟶ ⊢t = wf-⊢≡∷ (fst-cong-⟶ (refl ⊢t)) .proj₂ .proj₁
+  ⊢fst-⟶ ⊢t = wf-⊢ (fst-cong-⟶ (refl ⊢t)) .proj₂ .proj₁
 
 opaque
   unfolding _⟶×⟨_⟩[_]_
@@ -275,7 +275,7 @@ opaque
   ⊢snd-⟶ :
     Γ ⊢ t ∷ A ×ˢ[ p ] B →
     Γ ⊢ snd p t ∷ B
-  ⊢snd-⟶ ⊢t = wf-⊢≡∷ (snd-cong-⟶ (refl ⊢t)) .proj₂ .proj₁
+  ⊢snd-⟶ ⊢t = wf-⊢ (snd-cong-⟶ (refl ⊢t)) .proj₂ .proj₁
 
 opaque
   unfolding _⟶×⟨_⟩[_]_
@@ -331,7 +331,7 @@ opaque
     Γ ⊢ u ∷ B →
     Γ ⊢ fst p (prodˢ p t u) ⇒ t ∷ A
   Σ-β₁-⟶-⇒ ok ⊢t ⊢u =
-    Σ-β₁-⇒ (wk₁ (wf-⊢∷ ⊢t) (wf-⊢∷ ⊢u)) ⊢t
+    Σ-β₁-⇒ (wk₁ (wf-⊢ ⊢t) (wf-⊢ ⊢u)) ⊢t
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢u) ok
 
 opaque
@@ -357,7 +357,7 @@ opaque
     Γ ⊢ snd p (prodˢ p t u) ⇒ u ∷ B
   Σ-β₂-⟶-⇒ ok ⊢t ⊢u =
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
-    Σ-β₂-⇒ (wk₁ (wf-⊢∷ ⊢t) (wf-⊢∷ ⊢u)) ⊢t
+    Σ-β₂-⇒ (wk₁ (wf-⊢ ⊢t) (wf-⊢ ⊢u)) ⊢t
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢u) ok
 
 opaque
@@ -413,7 +413,7 @@ opaque
     Γ »∙ A »∙ wk1 B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C t u ∷ C [ t ]₀
   ⊢prodrec-⟶ ⊢C ⊢t ⊢u =
-    wf-⊢≡∷ (prodrec-cong-⟶ (refl ⊢C) (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
+    wf-⊢ (prodrec-cong-⟶ (refl ⊢C) (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
 
 opaque
   unfolding _⟶×⟨_⟩[_]_

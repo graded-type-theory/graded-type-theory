@@ -95,7 +95,7 @@ opaque
       (inj₁ (inj₂ (_ , _ , refl))) →
         let _ , _ , _ , ⊢supᵘ , _ = ⊢ₛ-inv ⊢s in
         ⊥-elim $ Level-not-allowed $
-        inversion-Level-⊢ (wf-⊢∷ (inversion-supᵘ ⊢supᵘ .proj₁))
+        inversion-Level-⊢ (wf-⊢ (inversion-supᵘ ⊢supᵘ .proj₁))
       (inj₂ (inj₁ (_ , _ , refl , v , ¬m))) →
         ⊥-elim (¬m (⊢Matching ∣S∣≡ ⊢s v))
       (inj₂ (inj₂ (inj₁ x))) →

@@ -51,7 +51,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ erased [ t ] ≡ t ∷ A
   Erased-β (Unit-ok , Σ-ok) ⊢t =
-    let ⊢A = wf-⊢∷ ⊢t
+    let ⊢A = wf-⊢ ⊢t
         ⊢Γ = wf ⊢A
     in
     Σ-β₁-≡ (Liftⱼ (⊢zeroᵘ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
@@ -103,7 +103,7 @@ opaque
     Γ ⊢ t ∷ Erased l A →
     Γ ⊢ [ erased t ] ≡ t ∷ Erased l A
   [erased] ⊢l ⊢t =
-    let ⊢A , ⊢Lift-Unit , Σ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t)
+    let ⊢A , ⊢Lift-Unit , Σ-ok = inversion-ΠΣ (wf-⊢ ⊢t)
         _ , ⊢Unit              = inversion-Lift ⊢Lift-Unit
         Erased-ok              = inversion-Unit ⊢Unit , Σ-ok
     in

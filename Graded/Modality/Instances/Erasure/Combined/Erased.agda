@@ -70,7 +70,7 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
 
     ∷U→▸ : γ ▸ Γ ⊢ A ∷[ p ] U l → 𝟘ᶜ ▸[ 𝟘ᵐ? ] l
     ∷U→▸ ⊢A =
-      let ⊢l = ⊢∷L←⊢∷L ok-𝟘ᵐ (inversion-U-Level (wf-⊢∷ (⊢∷[]→⊢∷ ⊢A))) in
+      let ⊢l = ⊢∷L←⊢∷L ok-𝟘ᵐ (inversion-U-Level (wf-⊢ (⊢∷[]→⊢∷ ⊢A))) in
       ▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) (⊢∷L→▸ ⊢l)
 
   opaque
@@ -168,7 +168,7 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
       Γ ⊢ erased A t ∷ A
     ⊢∷-erased ⊢t =
       let ⊢t′ = ⊢∷[]→⊢∷ ⊢t
-          ⊢A  = ⊢←⊢ ok-𝟘ᵐ (inversion-Erased (wf-⊢∷ ⊢t′) .proj₂ .proj₁)
+          ⊢A  = ⊢←⊢ ok-𝟘ᵐ (inversion-Erased (wf-⊢ ⊢t′) .proj₂ .proj₁)
       in
       ⊢∷[]←⊢∷▸ ok-𝟘ᵐ (erasedⱼ ⊢t′)
         (▸-cong (PE.sym ⌞𝟘⌟′) $
@@ -319,7 +319,7 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
       γ ▸ Γ ⊢ Jᵉ A t B u v w ∷[ p ] B [ v , w ]₁₀
     ⊢∷-Jᵉ {γ} ok₁ ok₂ ⊢B ⊢u ⊢w =
       let ⊢w′          = ⊢∷[]→⊢∷ ⊢w
-          ⊢A , ⊢t , ⊢v = inversion-Id (wf-⊢∷ ⊢w′)
+          ⊢A , ⊢t , ⊢v = inversion-Id (wf-⊢ ⊢w′)
           ⊢A           = ⊢←⊢ ok-𝟘ᵐ ⊢A
           ⊢t           = ⊢∷←⊢∷ ok-𝟘ᵐ ⊢t
           ⊢v           = ⊢∷←⊢∷ ok-𝟘ᵐ ⊢v

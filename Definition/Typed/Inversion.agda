@@ -91,7 +91,7 @@ opaque
     Γ ⊢ sucᵘ t ∷ A →
     Γ ⊢ t ∷ Level × Γ ⊢ A ≡ Level
   inversion-sucᵘ (sucᵘⱼ ⊢t) =
-    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢t) in
+    let ok = inversion-Level-⊢ (wf-⊢ ⊢t) in
     ⊢t , refl (Levelⱼ′ ok (wf ⊢t))
   inversion-sucᵘ (conv ⊢sucᵘ eq) =
     let ⊢t , A≡ = inversion-sucᵘ ⊢sucᵘ in
@@ -163,7 +163,7 @@ opaque
     Γ ⊢ t₁ supᵘ t₂ ∷ A →
     Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level × Γ ⊢ A ≡ Level
   inversion-supᵘ (supᵘⱼ ⊢t₁ ⊢t₂) =
-    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢t₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ ⊢t₁) in
     ⊢t₁ , ⊢t₂ , refl (Levelⱼ′ ok (wf ⊢t₁))
   inversion-supᵘ (conv ⊢supᵘ eq) =
     let ⊢t₁ , ⊢t₂ , A≡ = inversion-supᵘ ⊢supᵘ in
@@ -194,7 +194,7 @@ opaque
     inversion-supᵘ ⊢sup
   … | yes (t₁-lit , t₂-lit) =
     let ≡Level = inversion-↓ᵘ ⊢sup
-        ok     = inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂)
+        ok     = inversion-Level-⊢ (wf-⊢ ≡Level .proj₂)
         ⊢Γ     = wf ≡Level
     in
     ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷L ⊢Γ (level t₁-lit) (λ ())) ,
@@ -475,7 +475,7 @@ opaque
   inversion-Id-U = λ where
     (Idⱼ ⊢A ⊢t ⊢u) →
       _ , ⊢A , ⊢t , ⊢u ,
-      refl (⊢U (inversion-U-Level (wf-⊢∷ ⊢A)))
+      refl (⊢U (inversion-U-Level (wf-⊢ ⊢A)))
     (conv ⊢Id C≡B) →
       case inversion-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →

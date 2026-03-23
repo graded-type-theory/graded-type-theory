@@ -1655,7 +1655,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         rfl (⊢∷←⊢∷ ⊢t)
       (Jⱼ {p} {q} ⊢t ⊢B ⊢u ⊢v ⊢w) ▸J →
         let open ≤ᶜ-reasoning
-            ⊢A = ⊢←⊢ (wf-⊢∷ ⊢t)
+            ⊢A = ⊢←⊢ (wf-⊢ ⊢t)
         in
         case inv-usage-J ▸J of λ where
           (invUsageJ
@@ -1738,7 +1738,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
               (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
       (Kⱼ {p} ⊢B ⊢u ⊢v ok) ▸K →
         let open ≤ᶜ-reasoning
-            ⊢A , ⊢t , _ = inversion-Id (wf-⊢∷ ⊢v)
+            ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢v)
             ⊢A          = ⊢←⊢ ⊢A
         in
         case inv-usage-K ▸K of λ where

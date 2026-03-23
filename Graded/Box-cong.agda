@@ -392,8 +392,8 @@ opaque
     Γ ⊢ []-cong-J s l₁ A₁ t₁ u₁ v₁ ≡ []-cong-J s l₂ A₂ t₂ u₂ v₂ ∷
       Id (Erased l₁ A₁) [ t₁ ] ([ u₁ ])
   []-cong-J-cong ok l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    let ⊢l₁ , _ = wf-⊢≡∷L l₁≡l₂
-        ⊢A₁ , _ = wf-⊢≡ A₁≡A₂
+    let ⊢l₁ , _ = wf-⊢ l₁≡l₂
+        ⊢A₁ , _ = wf-⊢ A₁≡A₂
         ⊢wk1-l₁ = W.wk₁ ⊢A₁ ⊢l₁
     in
     PE.subst (_⊢_≡_∷_ _ _ _) Id-[]₀≡ $
@@ -406,7 +406,7 @@ opaque
       t₁≡t₂ u₁≡u₂ v₁≡v₂
       (_⊢_≡_∷_.refl $
        PE.subst (_⊢_∷_ _ _) (PE.sym Id-[]₀≡) $
-       rflⱼ ([]ⱼ ok ⊢l₁ (wf-⊢≡∷ t₁≡t₂ .proj₂ .proj₁)))
+       rflⱼ ([]ⱼ ok ⊢l₁ (wf-⊢ t₁≡t₂ .proj₂ .proj₁)))
 
 opaque
   unfolding []-cong-J
@@ -421,7 +421,7 @@ opaque
     Γ ⊢ []-cong-J s l A t u v₁ ⇒ []-cong-J s l A t u v₂ ∷
       Id (Erased l A) [ t ] ([ u ])
   []-cong-J-subst ok ⊢l v₁⇒v₂ =
-    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢≡∷ (subsetTerm v₁⇒v₂) .proj₁)
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ (subsetTerm v₁⇒v₂) .proj₁)
         ⊢wk1-l      = W.wk₁ ⊢A ⊢l
     in
     PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
@@ -577,7 +577,7 @@ opaque
   Has-[]-cong→Level-allowed :
     Has-[]-cong s m Δ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅ → Level-allowed
   Has-[]-cong→Level-allowed (_ , _ , ⊢[]-cong) =
-    let ⊢Level , _ = inversion-ΠΣ (wf-⊢∷ ⊢[]-cong) in
+    let ⊢Level , _ = inversion-ΠΣ (wf-⊢ ⊢[]-cong) in
     inversion-Level-⊢ ⊢Level
 
 opaque
@@ -588,7 +588,7 @@ opaque
     Has-[]-cong-for-level s m Δ l p₁ q₁ p₂ q₂ p₃ q₃ q₄ →
     ε » Δ ⊢ l ∷Level
   Has-[]-cong-for-level→⊢∷L (_ , _ , ⊢[]-cong) =
-    let ⊢U , _ = inversion-ΠΣ (wf-⊢∷ ⊢[]-cong) in
+    let ⊢U , _ = inversion-ΠΣ (wf-⊢ ⊢[]-cong) in
     inversion-U-Level ⊢U
 
 opaque
@@ -604,7 +604,7 @@ opaque
          (inversion-ΠΣ
             (inversion-ΠΣ
                (inversion-ΠΣ
-                  (inversion-ΠΣ (wf-⊢∷ ⊢[]-cong) .proj₂ .proj₁)
+                  (inversion-ΠΣ (wf-⊢ ⊢[]-cong) .proj₂ .proj₁)
                   .proj₂ .proj₁)
                .proj₂ .proj₁)
             .proj₂ .proj₁)
@@ -693,7 +693,7 @@ opaque
     Has-[]-cong-for-type s m Δ (level t) A p₃ q₃ p₄ q₄ q₅
   Has-[]-cong→Has-[]-cong-for-type ▸t ▸A ⊢A =
     Has-[]-cong-for-level→Has-[]-cong-for-type ⊢A ▸A ∘→
-    Has-[]-cong→Has-[]-cong-for-level (inversion-U-Level (wf-⊢∷ ⊢A)) ▸t
+    Has-[]-cong→Has-[]-cong-for-level (inversion-U-Level (wf-⊢ ⊢A)) ▸t
 
 ------------------------------------------------------------------------
 -- Some instances of
@@ -1734,7 +1734,7 @@ opaque
                                                                                   (W.liftnʷ Δ⊇Γ $ ∙_ $ ⊢Id-2-1-0 ok $ wf $
                                                                                    WD.defn-wk ⊇ε ⊢[]-cong′) $
                                                                                   WD.defn-wk ⊇ε ⊢[]-cong″)
-                                                                                (⊢∷Level→⊢∷Level ok (inversion-U-Level (wf-⊢∷ ⊢A)))
+                                                                                (⊢∷Level→⊢∷Level ok (inversion-U-Level (wf-⊢ ⊢A)))
                                                                                 ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         (wk (liftn ρ 5) (wk (stepn id 5) []-cong′)
            [ consSubst
@@ -2252,7 +2252,7 @@ opaque
           syntacticTerm $ has-[]-cong′ .proj₂ .proj₂
 
         ⊢l∷L : Δ ⊢ level l ∷Level
-        ⊢l∷L = inversion-U-Level (wf-⊢∷ ⊢A)
+        ⊢l∷L = inversion-U-Level (wf-⊢ ⊢A)
 
         ⊢l : Δ ⊢ l ∷ Level
         ⊢l = ⊢∷Level→⊢∷Level Level-ok ⊢l∷L
@@ -2638,7 +2638,7 @@ opaque
                                                                         PE.trans (subst-wk l) $
                                                                         PE.sym (wk≡subst _ _) ⟩⊢≡
 
-        []-cong′ ok′ (wk ρ l) A t t rfl                              ⇒*⟨ []-cong′-β-⇒* ok′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢t ⟩⊢∎
+        []-cong′ ok′ (wk ρ l) A t t rfl                              ⇒*⟨ []-cong′-β-⇒* ok′ (inversion-U-Level (wf-⊢ ⊢A)) ⊢t ⟩⊢∎
 
         rfl                                                          ∎
     where
@@ -2689,7 +2689,7 @@ opaque
                                                                           β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
                                                                             (W.wk (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk ⊇ε ⊢Γ))) $
                                                                              WD.defn-wk ⊇ε (⊢[]-cong′-4-3-2-1-0 Level-ok ⊢Γ))
-                                                                            (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
+                                                                            (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢ ⊢A)))
                                                                             ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         wk (liftn ρ 5)
           ([]-cong′ ok′ (level (var x4)) (var x3) (var x2) (var x1)
@@ -2699,7 +2699,7 @@ opaque
               rfl ]                                                   ≡⟨ PE.trans (subst-wk ([]-cong′ ok′ _ _ _ _ _)) $
                                                                          []-cong′-[] ok′ ⟩⊢≡
 
-        []-cong′ ok′ (level l) A t t rfl                              ⇒*⟨ []-cong′-β-⇒* ok′ (inversion-U-Level (wf-⊢∷ ⊢A)) ⊢t ⟩⊢∎
+        []-cong′ ok′ (level l) A t t rfl                              ⇒*⟨ []-cong′-β-⇒* ok′ (inversion-U-Level (wf-⊢ ⊢A)) ⊢t ⟩⊢∎
 
         rfl                                                           ∎
     where
@@ -2742,13 +2742,13 @@ opaque
                (A≢Level ∘→ wk-Level) (ne (var _ _)) $
              []-cong′⁻¹ ⦃ ok = included ⦄
                (inversion-rfl-Id ⦃ ok = included ⦄ $
-                wf-⊢≡∷ (subset*Term ⇒*rfl) .proj₂ .proj₂)
+                wf-⊢ (subset*Term ⇒*rfl) .proj₂ .proj₂)
         of λ ()
       (_ , ne u-ne , []-cong′⇒*u) →
         neutral-not-well-resourced nem
           (subst-Consistent ⊢σ ∘→ consistent)
           PE.refl (ne→ _ u-ne)
-          (wf-⊢≡∷ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
+          (wf-⊢ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
           (usagePres*Term₀₁ Unitʷ-η→ (λ ()) ▸[]-cong′ []-cong′⇒*u)
     where
     ⊢Γ : ε »⊢ Γ
@@ -2779,7 +2779,7 @@ opaque
         let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
         𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × ε » Δ ∙ B ⊢ t0 ∷ C
       lemma (▸t , ⊢t) =
-        let ⊢B , _ = inversion-ΠΣ (wf-⊢∷ ⊢t) in
+        let ⊢B , _ = inversion-ΠΣ (wf-⊢ ⊢t) in
         sub (wkUsage (step id) ▸t ∘ₘ var)
           (begin
              𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩

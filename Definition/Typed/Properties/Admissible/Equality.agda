@@ -29,4 +29,4 @@ opaque
   -- A variant of sym.
 
   sym′ : Γ ⊢ t ≡ u ∷ A → Γ ⊢ u ≡ t ∷ A
-  sym′ t≡u = sym (wf-⊢≡∷ t≡u .proj₁) t≡u
+  sym′ t≡u = sym (wf-⊢ t≡u .proj₁) t≡u

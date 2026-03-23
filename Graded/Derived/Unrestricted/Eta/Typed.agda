@@ -61,7 +61,7 @@ opaque
     Γ ⊢ A₁ ≡ A₂ →
     Γ ⊢ Unrestricted l₁ A₁ ≡ Unrestricted l₂ A₂
   Unrestricted-cong l₁≡l₂ A₁≡A₂ =
-    let ⊢A₁ , _ = wf-⊢≡ A₁≡A₂ in
+    let ⊢A₁ , _ = wf-⊢ A₁≡A₂ in
     ΠΣ-cong A₁≡A₂
       (Lift-cong (wk₁ ⊢A₁ l₁≡l₂) (refl (⊢Unit (∙ ⊢A₁) Unit-ok)))
       Σˢ-ok
@@ -73,7 +73,7 @@ opaque
 
   Unrestrictedⱼ : Γ ⊢ l ∷Level → Γ ⊢ A → Γ ⊢ Unrestricted l A
   Unrestrictedⱼ ⊢l ⊢A =
-    wf-⊢≡ (Unrestricted-cong (refl-⊢≡∷L ⊢l) (refl ⊢A)) .proj₁
+    wf-⊢ (Unrestricted-cong (refl-⊢≡∷L ⊢l) (refl ⊢A)) .proj₁
 
 opaque
   unfolding Unrestricted
@@ -85,9 +85,9 @@ opaque
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
     Γ ⊢ Unrestricted l₁ A₁ ≡ Unrestricted l₂ A₂ ∷ U l₁
   Unrestricted-cong-U l₁≡l₂ A₁≡A₂ =
-    let _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
+    let _ , ⊢A₁ , _ = wf-⊢ A₁≡A₂
         ⊢A₁′        = univ ⊢A₁
-        ⊢l₁         = inversion-U-Level (wf-⊢∷ ⊢A₁)
+        ⊢l₁         = inversion-U-Level (wf-⊢ ⊢A₁)
     in
     ΠΣ-cong′ A₁≡A₂
       (conv
@@ -102,8 +102,8 @@ opaque
 
   Unrestrictedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Unrestricted l A ∷ U l
   Unrestrictedⱼ-U ⊢A∷U =
-    let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A∷U) in
-    wf-⊢≡∷ (Unrestricted-cong-U (refl-⊢≡∷L ⊢l) (refl ⊢A∷U))
+    let ⊢l = inversion-U-Level (wf-⊢ ⊢A∷U) in
+    wf-⊢ (Unrestricted-cong-U (refl-⊢≡∷L ⊢l) (refl ⊢A∷U))
       .proj₂ .proj₁
 
 opaque
@@ -115,7 +115,7 @@ opaque
     Γ ⊢ l ∷Level → Γ ⊢ t ≡ u ∷ A →
     Γ ⊢ [ t ] ≡ [ u ] ∷ Unrestricted l A
   []-cong′ ⊢l t≡u =
-    let ⊢A , _ = wf-⊢≡∷ t≡u in
+    let ⊢A , _ = wf-⊢ t≡u in
     prod-cong (Liftⱼ (wk₁ ⊢A ⊢l) (⊢Unit (∙ ⊢A) Unit-ok)) t≡u
       (refl $
        liftⱼ′ (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l)
@@ -127,7 +127,7 @@ opaque
   -- A typing rule for [_].
 
   []ⱼ : Γ ⊢ l ∷Level → Γ ⊢ t ∷ A → Γ ⊢ [ t ] ∷ Unrestricted l A
-  []ⱼ ⊢l ⊢t = wf-⊢≡∷ ([]-cong′ ⊢l (refl ⊢t)) .proj₂ .proj₁
+  []ⱼ ⊢l ⊢t = wf-⊢ ([]-cong′ ⊢l (refl ⊢t)) .proj₂ .proj₁
 
 opaque
   unfolding Unrestricted unbox
@@ -136,7 +136,7 @@ opaque
 
   unbox-cong : Γ ⊢ t ≡ u ∷ Unrestricted l A → Γ ⊢ unbox t ≡ unbox u ∷ A
   unbox-cong t≡u =
-    let _ , ⊢Lift , _  = inversion-ΠΣ (wf-⊢≡∷ t≡u .proj₁)
+    let _ , ⊢Lift , _  = inversion-ΠΣ (wf-⊢ t≡u .proj₁)
         ⊢wk1-l , ⊢Unit = inversion-Lift ⊢Lift
     in
     fst-cong (Liftⱼ ⊢wk1-l ⊢Unit) t≡u
@@ -146,7 +146,7 @@ opaque
   -- A typing rule for unbox.
 
   unboxⱼ : Γ ⊢ t ∷ Unrestricted l A → Γ ⊢ unbox t ∷ A
-  unboxⱼ ⊢t = wf-⊢≡∷ (unbox-cong (refl ⊢t)) .proj₂ .proj₁
+  unboxⱼ ⊢t = wf-⊢ (unbox-cong (refl ⊢t)) .proj₂ .proj₁
 
 opaque
   unfolding [_] unbox
@@ -158,7 +158,7 @@ opaque
     Γ ⊢ unbox [ t ] ≡ t ∷ A
   Unrestricted-β ⊢t =
     let ⊢Γ = wf ⊢t
-        ⊢A = wf-⊢∷ ⊢t
+        ⊢A = wf-⊢ ⊢t
     in
     Σ-β₁-≡ (Liftⱼ (⊢zeroᵘ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
       (liftⱼ′ (⊢zeroᵘ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σˢ-ok
@@ -174,7 +174,7 @@ opaque
     Γ ⊢ unbox t ≡ unbox u ∷ A →
     Γ ⊢ t ≡ u ∷ Unrestricted l A
   Unrestricted-η {l} ⊢t ⊢u t≡u =
-    let _ , ⊢Lift , _ = inversion-ΠΣ (wf-⊢∷ ⊢t)
+    let _ , ⊢Lift , _ = inversion-ΠΣ (wf-⊢ ⊢t)
         ⊢wk1-l , _    = inversion-Lift ⊢Lift
     in
     Σ-η′ ⊢t ⊢u t≡u $
@@ -259,7 +259,7 @@ opaque
     let B , C , q , _ , _ , ⊢t , ⊢lift , A≡ , _ = inversion-prod ⊢[]
         l , D , ⊢star , C[t]₀≡                  = inversion-lift ⊢lift
         D≡ , _                                  = inversion-star ⊢star
-        _ , ⊢Lift                               = wf-⊢≡ C[t]₀≡
+        _ , ⊢Lift                               = wf-⊢ C[t]₀≡
         ⊢l , _                                  = inversion-Lift ⊢Lift
     in
     B , q , C , l , ⊢t , A≡ , trans C[t]₀≡ (Lift-cong (refl-⊢≡∷L ⊢l) D≡)
@@ -275,7 +275,7 @@ opaque
     Γ ⊢ t ∷ A × Γ »∙ A ⊢ wk1 l ∷Level
   inversion-[]′ ⊢[] =
     let _ , _ , _ , _ , ⊢t , Unrestricted≡ , _ = inversion-[] ⊢[]
-        ⊢Unrestricted , _                      = wf-⊢≡ Unrestricted≡
+        ⊢Unrestricted , _                      = wf-⊢ Unrestricted≡
         _ , ⊢wk1-l                             = inversion-Unrestricted
                                                    ⊢Unrestricted
         A≡ , _                                 = ΠΣ-injectivity
@@ -405,7 +405,7 @@ opaque
     ⊢snd-t′ : ∃ λ l → ε » Γ′ ⊢ snd ω t′ ∷ Lift l Unitˢ
     ⊢snd-t′ =
       let _ , _ , ⊢t′   = ⊢t′₂
-          _ , ⊢Lift , _ = inversion-ΠΣ (wf-⊢∷ ⊢t′)
+          _ , ⊢Lift , _ = inversion-ΠΣ (wf-⊢ ⊢t′)
       in
       _ , sndⱼ ⊢Lift ⊢t′
 

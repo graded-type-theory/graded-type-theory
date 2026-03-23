@@ -102,7 +102,7 @@ opaque
          in _ , _ , D′ , l≡l′ , (_ , [F′] , A≡A′) }})
     , (λ (l′ , A′ , D , l≡l′ , ([A] , [A′] , A≡A′)) →
          let [l] , [l′] = wf-Level-eq l≡l′
-             ⊢LA , ⊢LB = wf-⊢≡ (≅-eq (≅-Lift-cong (escapeLevelEq l≡l′) (escapeEq [A] A≡A′)))
+             ⊢LA , ⊢LB = wf-⊢ (≅-eq (≅-Lift-cong (escapeLevelEq l≡l′) (escapeEq [A] A≡A′)))
              Liftl≡Liftl′
               = Liftᵣ′ (id ⊢LA) [l] [A]
               , Liftᵣ′ (id ⊢LB) [l′] [A′]
@@ -282,7 +282,7 @@ opaque
     Γ ⊩⟨ ℓ ⟩ lift t₁ ≡ lift t₂ ∷ Lift l A
   ⊩lift≡lift {t₁} {t₂} ⊩l ⊩A t₁≡t₂ =
     let ⊢l             = escapeLevel ⊩l
-        ⊢A , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ (≅ₜ-eq (escape-⊩≡∷ t₁≡t₂))
+        ⊢A , ⊢t₁ , ⊢t₂ = wf-⊢ (≅ₜ-eq (escape-⊩≡∷ t₁≡t₂))
     in
     ⊩≡∷Lift⇔ .proj₂
       ( ⊩Lift⇔ .proj₂ (⊩l , ⊩A)

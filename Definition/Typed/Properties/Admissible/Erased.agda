@@ -118,7 +118,7 @@ module _ (Erased-ok : Erased-allowed s) where
       Γ ⊢ A₁ ≡ A₂ →
       Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
     Erased-cong l₁≡l₂ A₁≡A₂ =
-      let ⊢A₁ , _ = wf-⊢≡ A₁≡A₂ in
+      let ⊢A₁ , _ = wf-⊢ A₁≡A₂ in
       P′.Erased-cong l₁≡l₂ ⊢A₁ A₁≡A₂
 
   opaque
@@ -127,7 +127,7 @@ module _ (Erased-ok : Erased-allowed s) where
 
     Erasedⱼ-U : Γ ⊢ A ∷ U l → Γ ⊢ Erased l A ∷ U l
     Erasedⱼ-U ⊢A =
-      let ⊢l = inversion-U-Level (wf-⊢∷ ⊢A) in
+      let ⊢l = inversion-U-Level (wf-⊢ ⊢A) in
       P′.Erasedⱼ-U ⊢l ⊢A
 
   opaque
@@ -139,7 +139,7 @@ module _ (Erased-ok : Erased-allowed s) where
       Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
       Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
     Erased-cong-U′ wk1-l₁≡wk1-l₂ A₁≡A₂ =
-      let ⊢U , _ = wf-⊢≡∷ A₁≡A₂
+      let ⊢U , _ = wf-⊢ A₁≡A₂
           ⊢l₁    = inversion-U-Level ⊢U
       in
       P′.Erased-cong-U′ ⊢l₁ wk1-l₁≡wk1-l₂ A₁≡A₂
@@ -153,8 +153,8 @@ module _ (Erased-ok : Erased-allowed s) where
       Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
       Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
     Erased-cong-U l₁≡l₂ A₁≡A₂ =
-      let ⊢l₁ , _     = wf-⊢≡∷L l₁≡l₂
-          _ , ⊢A₁ , _ = wf-⊢≡∷ A₁≡A₂
+      let ⊢l₁ , _     = wf-⊢ l₁≡l₂
+          _ , ⊢A₁ , _ = wf-⊢ A₁≡A₂
       in
       P′.Erased-cong-U ⊢l₁ l₁≡l₂ (univ ⊢A₁) A₁≡A₂
 
@@ -166,7 +166,7 @@ module _ (Erased-ok : Erased-allowed s) where
       Γ ⊢ l ∷Level →
       Γ ⊢ t ∷ A →
       Γ ⊢ [ t ] ∷ Erased l A
-    []ⱼ ⊢l ⊢t = P′.[]ⱼ ⊢l (wf-⊢∷ ⊢t) ⊢t
+    []ⱼ ⊢l ⊢t = P′.[]ⱼ ⊢l (wf-⊢ ⊢t) ⊢t
 
   opaque
 
@@ -175,7 +175,7 @@ module _ (Erased-ok : Erased-allowed s) where
     []-cong′ :
       Γ ⊢ l ∷Level → Γ ⊢ t₁ ≡ t₂ ∷ A → Γ ⊢ [ t₁ ] ≡ [ t₂ ] ∷ Erased l A
     []-cong′ ⊢l t₁≡t₂ =
-      let ⊢A , _ = wf-⊢≡∷ t₁≡t₂ in
+      let ⊢A , _ = wf-⊢ t₁≡t₂ in
       P′.[]-cong′ ⊢l ⊢A t₁≡t₂
 
   opaque
@@ -288,7 +288,7 @@ opaque
         D≡ , Unit-ok =
           inversion-star ⊢star
         _ , ⊢Lift =
-          wf-⊢≡ C≡
+          wf-⊢ C≡
         ⊢l , _ =
           inversion-Lift ⊢Lift
     in
@@ -426,7 +426,7 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ Erased l A →
     Γ ⊢ erasedrec p B₁ t₁ u₁ ≡ erasedrec p B₂ t₂ u₂ ∷ B₁ [ u₁ ]₀
   erasedrec-cong {s} {l} {B₁} B₁≡B₂ t₁≡t₂ u₁≡u₂ =
-    let ⊢B₁ , _                     = wf-⊢≡ B₁≡B₂
+    let ⊢B₁ , _                     = wf-⊢ B₁≡B₂
         (Unit-ok , _) , ⊢A , ⊢wk1-l = inversion-Erased (⊢∙→⊢ (wf ⊢B₁))
     in
     prodrec⟨⟩-cong B₁≡B₂ u₁≡u₂ $
@@ -477,9 +477,9 @@ opaque
       (unitrec⟨ s ⟩ 𝟙 p (B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑)
          (lower (var x0)) (wk1 t))                                       ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u (liftⱼ′ ⊢wk1-l[u]₀ ⊢star)
                                                                               (conv
-                                                                                 (⊢unitrec⟨⟩ (wf-⊢≡ (erasedrec-lemma₁ (refl ⊢B)) .proj₁)
+                                                                                 (⊢unitrec⟨⟩ (wf-⊢ (erasedrec-lemma₁ (refl ⊢B)) .proj₁)
                                                                                     (lowerⱼ (var₀ (Liftⱼ ⊢wk1-l (⊢Unit (wf ⊢t) Unit-ok))))
-                                                                                    (wf-⊢≡∷ (erasedrec-lemma₂ B Unit-ok ⊢wk1-l (refl ⊢t))
+                                                                                    (wf-⊢ (erasedrec-lemma₂ B Unit-ok ⊢wk1-l (refl ⊢t))
                                                                                        .proj₂ .proj₁))
                                                                                  (erasedrec-lemma₃′ ⊢B))
                                                                               (λ _ → Σ-ok) ⟩⊢
@@ -492,7 +492,7 @@ opaque
       (lower (lift (star s))) (t [ u ]₀)                                 ≡⟨ conv
                                                                               (unitrec⟨⟩-cong
                                                                                  (refl $
-                                                                                  wf-⊢≡
+                                                                                  wf-⊢
                                                                                     (erasedrec-lemma₃ ⊢B (wk₁ ⊢Unit′ ⊢u) $
                                                                                      liftⱼ′
                                                                                        (PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) $
@@ -551,7 +551,7 @@ opaque
     Γ ⊢ t ∷ Erased l A →
     Γ ⊢ Erased-η l A t ∷ Id (Erased l A) [ erased A t ] t
   ⊢Erased-η {s} {l} {A} ⊢t =
-    let ⊢Erased-A           = wf-⊢∷ ⊢t
+    let ⊢Erased-A           = wf-⊢ ⊢t
         Erased-ok , ⊢A , ⊢l = inversion-Erased ⊢Erased-A
         ⊢0                  = PE.subst (_⊢_∷_ _ _) wk-Erased $
                               var₀ ⊢Erased-A
@@ -608,7 +608,7 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ Erased l₁ A₁ →
     Γ ⊢ mapᴱ A₁ t₁ u₁ ≡ mapᴱ A₂ t₂ u₂ ∷ Erased l₂ B
   mapᴱ-cong ⊢l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    let ok , _ = inversion-Erased $ wf-⊢≡∷ u₁≡u₂ .proj₁ in
+    let ok , _ = inversion-Erased $ wf-⊢ u₁≡u₂ .proj₁ in
     []-cong′ ok ⊢l₂ $
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $
     subst-⊢≡₀ t₁≡t₂ (erased-cong A₁≡A₂ u₁≡u₂)
@@ -624,7 +624,7 @@ opaque
     Γ ⊢ u ∷ Erased l₁ A →
     Γ ⊢ mapᴱ A t u ∷ Erased l₂ B
   ⊢mapᴱ ⊢l₂ ⊢t ⊢u =
-    wf-⊢≡∷ (mapᴱ-cong ⊢l₂ (refl (⊢∙→⊢ (wf ⊢t))) (refl ⊢t) (refl ⊢u))
+    wf-⊢ (mapᴱ-cong ⊢l₂ (refl (⊢∙→⊢ (wf ⊢t))) (refl ⊢t) (refl ⊢u))
       .proj₂ .proj₁
 
 opaque
@@ -697,7 +697,7 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ w ∷ B [ t ]₀ →
       Γ ⊢ substᵉ A B t u v w ∷ B [ u ]₀
     ⊢substᵉ ⊢B ⊢v ⊢w =
-      let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
+      let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢v) in
       conv
         (⊢subst (⊢[erased-0]↑ ⊢B) ([]-congⱼ′ ok (⊢zeroᵘ (wf ⊢A)) ⊢v)
            (conv ⊢w $ sym $ [erased-0]↑[[]]₀≡[]₀ ⊢B ⊢t))
@@ -714,7 +714,7 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ u ∷ B [ t ]₀ →
       Γ ⊢ substᵉ A B t t′ rfl u ⇒* u ∷ B [ t ]₀
     substᵉ-⇒*′ {A} {B} {t} {t′} {u} ⊢B t≡t′ ⊢u =
-      let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′
+      let ⊢A , ⊢t , _ = wf-⊢ t≡t′
           ⊢B[]↑       = ⊢[erased-0]↑ ⊢B
           ⊢0          = ⊢zeroᵘ (wf ⊢A)
           [t]≡[t′]    = []-cong′ Erased-ok ⊢0 t≡t′
@@ -769,10 +769,10 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ substᵉ A₁ B₁ t₁ u₁ v₁ w₁ ≡ substᵉ A₂ B₂ t₂ u₂ v₂ w₂ ∷
         B₁ [ u₁ ]₀
     substᵉ-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
-      let ⊢A₁ , _     = wf-⊢≡ A₁≡A₂
-          ⊢B₁ , _     = wf-⊢≡ B₁≡B₂
-          _ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₂
-          _ , ⊢u₁ , _ = wf-⊢≡∷ u₁≡u₂
+      let ⊢A₁ , _     = wf-⊢ A₁≡A₂
+          ⊢B₁ , _     = wf-⊢ B₁≡B₂
+          _ , ⊢t₁ , _ = wf-⊢ t₁≡t₂
+          _ , ⊢u₁ , _ = wf-⊢ u₁≡u₂
           ⊢0          = ⊢zeroᵘ (wf ⊢A₁)
           ⊢Erased-A₁  = Erasedⱼ Erased-ok ⊢0 ⊢A₁
       in
@@ -799,7 +799,7 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ w ∷ B [ t ]₀ →
       Γ ⊢ substᵉ A B t u v₁ w ⇒ substᵉ A B t u v₂ w ∷ B [ u ]₀
     substᵉ-subst ⊢B v₁⇒v₂ ⊢w =
-      let _ , ⊢t , ⊢u = inversion-Id (wf-⊢≡∷ (subsetTerm v₁⇒v₂) .proj₁)
+      let _ , ⊢t , ⊢u = inversion-Id (wf-⊢ (subsetTerm v₁⇒v₂) .proj₁)
       in
       conv
         (subst-subst (⊢[erased-0]↑ ⊢B)
@@ -1086,9 +1086,9 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ w₁ ≡ w₂ ∷ Id A₁ t₁ v₁ →
       Γ ⊢ Jᵉ A₁ t₁ B₁ u₁ v₁ w₁ ≡ Jᵉ A₂ t₂ B₂ u₂ v₂ w₂ ∷ B₁ [ v₁ , w₁ ]₁₀
     Jᵉ-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
-      let ⊢B₁ , _        = wf-⊢≡ B₁≡B₂
-          ⊢A₁ , ⊢t₁  , _ = wf-⊢≡∷ t₁≡t₂
-          _ , ⊢w₁  , _   = wf-⊢≡∷ w₁≡w₂
+      let ⊢B₁ , _        = wf-⊢ B₁≡B₂
+          ⊢A₁ , ⊢t₁  , _ = wf-⊢ t₁≡t₂
+          _ , ⊢w₁  , _   = wf-⊢ w₁≡w₂
       in
       conv
         (substᵉ-cong
@@ -1131,8 +1131,8 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ w ∷ Id A t v →
       Γ ⊢ Jᵉ A t B u v w ∷ B [ v , w ]₁₀
     ⊢Jᵉ ⊢B ⊢u ⊢w =
-      let ⊢A , ⊢t , ⊢v = inversion-Id (wf-⊢∷ ⊢w) in
-      wf-⊢≡∷
+      let ⊢A , ⊢t , ⊢v = inversion-Id (wf-⊢ ⊢w) in
+      wf-⊢
         (Jᵉ-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (refl ⊢v)
            (refl ⊢w))
         .proj₂ .proj₁
@@ -1148,7 +1148,7 @@ module _ (ok : []-cong-allowed s) where
       Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
       Γ ⊢ Jᵉ A t B u t′ rfl ⇒* u ∷ B [ t , rfl ]₁₀
     Jᵉ-⇒*′ {t} {t′} {A} {B} {u} t≡t′ ⊢B ⊢u =
-      let ⊢A , ⊢t , _ = wf-⊢≡∷ t≡t′
+      let ⊢A , ⊢t , _ = wf-⊢ t≡t′
           ⊢rfl        =
             PE.subst (_⊢_∷_ _ _)
               (PE.sym $ PE.cong₃ Id

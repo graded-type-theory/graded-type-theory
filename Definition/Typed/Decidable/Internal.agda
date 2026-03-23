@@ -422,7 +422,7 @@ opaque
     Γ ⊢ ⌜ 1ᵘ+ⁿ nf ⌝ⁿ γ ≡ U.1ᵘ+ (⌜ nf ⌝ⁿ γ) ∷Level
   1ᵘ+ⁿ-correct {nf = List.[] , _} (_ , ⊢ℓ) =
     let 1ᵘ+ℓ≡     = ⊢⌜1+⁻⌝⁻≡ ⊢ℓ
-        ⊢1ᵘ+ℓ , _ = wf-⊢≡∷L 1ᵘ+ℓ≡
+        ⊢1ᵘ+ℓ , _ = wf-⊢ 1ᵘ+ℓ≡
     in
     (_ , ⊢1ᵘ+ℓ) ,
     1ᵘ+ℓ≡
@@ -2229,7 +2229,7 @@ opaque
     … | inv l₁′ eq₁ eq
       using ⊢l₁ , ⊢l₂ , A≡Level ← inversion-supᵘₗ-⊢∷ ⊢sup
           | okᴸ                 ← inversion-Level-⊢
-                                    (wf-⊢≡ A≡Level .proj₂)
+                                    (wf-⊢ A≡Level .proj₂)
           | l₁≡l₁′              ← red-sound-⊢∷ n eq₁ ⊢l₁
           | l₁⊔l₂≡              ←
               ⊢≡∷Level→⊢≡∷Level okᴸ $
@@ -2252,7 +2252,7 @@ opaque
     … | just (1ᵘ+ l₁″) | eq
       with inv->>= eq
     … | inv l₂′ eq₂ eq
-      using _ , _ , ⊢l₁′ ← wf-⊢≡∷ l₁≡l₁′
+      using _ , _ , ⊢l₁′ ← wf-⊢ l₁≡l₁′
           | l₂≡l₂′       ← red-sound-⊢∷ n eq₂ ⊢l₂
           | l₁′⊔l₂≡      ←
               ⊢≡∷Level→⊢≡∷Level okᴸ $
@@ -2276,7 +2276,7 @@ opaque
       ⌜ u ⌝ γ                      ∎
     … | just (1ᵘ+ l₂″) | ok! =
       let ⊢l₁″ , _     = inversion-sucᵘ ⊢l₁′
-          _ , _ , ⊢l₂′ = wf-⊢≡∷ l₂≡l₂′
+          _ , _ , ⊢l₂′ = wf-⊢ l₂≡l₂′
           ⊢l₂″ , _     = inversion-sucᵘ ⊢l₂′
 
           open TmR
@@ -2302,7 +2302,7 @@ opaque
       with is-lift? t′ | eq
     … | just (l , t″ , PE.refl) | eq₂ =
       let _ , _ , ⊢lift , B≡C =
-            inversion-lower (wf-⊢≡∷ lower-t≡lower-t′ .proj₂ .proj₂)
+            inversion-lower (wf-⊢ lower-t≡lower-t′ .proj₂ .proj₂)
           ⊢t″ =
             conv (inversion-lift-Lift ⊢lift) (sym B≡C)
 
@@ -2341,7 +2341,7 @@ opaque
       let s≡𝕨 , _ =
             inversion-star-Unit $
             PE.subst (flip (_⊢_∷_ _) _) (PE.cong (flip ⌜_⌝ _) ≡star)
-              (wf-⊢≡∷ t₁≡ .proj₂ .proj₂)
+              (wf-⊢ t₁≡ .proj₂ .proj₂)
           ≡star =
             PE.trans (PE.cong (flip ⌜_⌝ _) ≡star) $
             PE.cong U.star s≡𝕨
@@ -2371,7 +2371,7 @@ opaque
     … | inv t₁′ eq₁ eq₂
       using _ , C , _ , ⊢t₁ , ⊢t₂ , A≡ ← inversion-app ⊢app
           | t₁≡t₁′                     ← red-sound-⊢∷ n eq₁ ⊢t₁
-          | _ , _ , ⊢t₁′               ← wf-⊢≡∷ t₁≡t₁′
+          | _ , _ , ⊢t₁′               ← wf-⊢ t₁≡t₁′
           | t₁∘t₂≡t₁′∘t₂               ← app-cong t₁≡t₁′ (refl ⊢t₂)
       with is-lam? t₁′ | eq₂
     … | just (_ , qC , t₁″ , eq₃) | eq₂ =
@@ -2413,7 +2413,7 @@ opaque
       let ⊢t₁ , ⊢t₂ , s≡𝕤 , p≡p′ , Σ-ok =
             inversion-prod-Σ $
             PE.subst (flip (_⊢_∷_ _) _) (PE.cong (flip ⌜_⌝ _) eq₃)
-              (wf-⊢≡∷ t≡t′ .proj₂ .proj₂)
+              (wf-⊢ t≡t′ .proj₂ .proj₂)
 
           open TmR
       in
@@ -2441,7 +2441,7 @@ opaque
       let ⊢t₁ , ⊢t₂ , s≡𝕤 , p≡p′ , Σ-ok =
             inversion-prod-Σ $
             PE.subst (flip (_⊢_∷_ _) _) (PE.cong (flip ⌜_⌝ _) eq₃)
-              (wf-⊢≡∷ t≡t′ .proj₂ .proj₂)
+              (wf-⊢ t≡t′ .proj₂ .proj₂)
           ≡prod =
             PE.trans (PE.cong (flip ⌜_⌝ _) eq₃) $
             PE.sym $ PE.cong₂ (λ s p → U.prod s p _ _) s≡𝕤 p≡p′
@@ -2474,7 +2474,7 @@ opaque
       let ⊢t₁₁ , ⊢t₁₂ , s≡𝕨 , p≡p′ , _ =
             inversion-prod-Σ $
             PE.subst (flip (_⊢_∷_ _) _) (PE.cong (flip ⌜_⌝ _) eq₃)
-              (wf-⊢≡∷ t₁≡t₁′ .proj₂ .proj₂)
+              (wf-⊢ t₁≡t₁′ .proj₂ .proj₂)
           ≡prod =
             PE.trans (PE.cong (flip ⌜_⌝ _) eq₃) $
             PE.sym $ PE.cong₂ (λ s p → U.prod s p _ _) s≡𝕨 p≡p′
@@ -2532,7 +2532,7 @@ opaque
             ⌜ t₃′     ⌝ γ  ≡⟨ PE.cong (flip ⌜_⌝ _) eq₃ ⟩
             ⌜ suc t₃″ ⌝ γ  ∎
           ⊢t₃″ , _ =
-            inversion-suc (wf-⊢≡∷ t₃≡suc .proj₂ .proj₂)
+            inversion-suc (wf-⊢ t₃≡suc .proj₂ .proj₂)
       in
                                            ∷ A                         ⟨ A≡ ⟩≡∷
       ⌜ natrec p q r B t₁ t₂ t₃        ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ natrec-cong (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡suc ⟩⊢∷
@@ -2570,7 +2570,7 @@ opaque
             U.rfl      ∎
 
           t₁≡t₃ =
-            inversion-rfl-Id (wf-⊢≡∷ t₄≡rfl .proj₂ .proj₂)
+            inversion-rfl-Id (wf-⊢ t₄≡rfl .proj₂ .proj₂)
       in
                                     ∷ A        ⟨ A≡ ⟩≡∷
       ⌜ J p q B₁ t₁ B₂ t₂ t₃ t₄ ⌝ γ ∷
@@ -2633,7 +2633,7 @@ opaque
             U.rfl      ∎
 
           t₁≡t₂ =
-            inversion-rfl-Id (wf-⊢≡∷ t₃≡rfl .proj₂ .proj₂)
+            inversion-rfl-Id (wf-⊢ t₃≡rfl .proj₂ .proj₂)
       in
                                    ∷ A        ⟨ A≡ ⟩≡∷
       ⌜ []-cong s l B t₁ t₂ t₃ ⌝ γ ∷
@@ -3155,7 +3155,7 @@ private module Lemmas (p : P n) where opaque
   … | inv _ eq₁ eq
     with inv->>= eq
   … | inv (_ , PE.refl) eq₂ ok! =
-    let A≡U = red-ty-sound eq₁ ⊢γ (wf-⊢∷ ⊢t) in
+    let A≡U = red-ty-sound eq₁ ⊢γ (wf-⊢ ⊢t) in
     term γx≡ A≡U , univ (conv ⊢t A≡U)
 
   -- Soundness for is-level.
@@ -3201,7 +3201,7 @@ private module Lemmas (p : P n) where opaque
 
         σ≡σ′         = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wf ⊢t)
         _ , ⊢σ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
-        ⊢A           = wf-⊢∷ ⊢t
+        ⊢A           = wf-⊢ ⊢t
         ⊢A[σ′]       = subst-⊢ ⊢A ⊢σ′
         ≡A[σ′]       = PE.sym (⌜[]⌝ A (type₂ ⊢A[σ′]))
         A[σ]≡Level   =
@@ -3232,9 +3232,9 @@ private module Lemmas (p : P n) where opaque
     with inv->>= eq
   … | inv _ eq₃ ok! =
     let A₁≡A₁′   = check-type-sound eq₁ ⊢γ ⊢Γ
-        _ , ⊢A₁′ = wf-⊢≡ A₁≡A₁′
+        _ , ⊢A₁′ = wf-⊢ A₁≡A₁′
         A₂≡A₂′   = check-type-sound eq₂ ⊢γ ⊢Γ
-        _ , ⊢A₂′ = wf-⊢≡ A₂≡A₂′
+        _ , ⊢A₂′ = wf-⊢ A₂≡A₂′
         A₁′≡A₂′  = equal-ty-sound eq₃ ⊢γ ⊢A₁′ ⊢A₂′
     in
     A₁≡A₁′ ,
@@ -3261,9 +3261,9 @@ private module Lemmas (p : P n) where opaque
     with inv->>= eq
   … | inv _ eq₃ ok! =
     let t₁≡t₁′       = check-sound eq₁ ⊢γ ⊢Γ
-        _ , _ , ⊢t₁′ = wf-⊢≡∷ t₁≡t₁′
+        _ , _ , ⊢t₁′ = wf-⊢ t₁≡t₁′
         t₂≡t₂′       = check-sound eq₂ ⊢γ ⊢Γ
-        _ , _ , ⊢t₂′ = wf-⊢≡∷ t₂≡t₂′
+        _ , _ , ⊢t₂′ = wf-⊢ t₂≡t₂′
         t₁′≡t₂′      = equal-tm-sound eq₃ ⊢γ ⊢t₁′ ⊢t₂′
     in
     t₁≡t₁′ ,
@@ -3330,7 +3330,7 @@ private module Lemmas (p : P n) where opaque
               check-sound eq₂ ⊢γ
                 (subst-⊢ ⊢A (cast-⊢ˢʷ∷ (PE.sym ∘→ ⌜tailₛ⌝ˢ σ₁) ⊢σ₁₊))
             _ , _ , ⊢σ₁₀ =
-              wf-⊢≡∷ σ₁₀≡σ₁₀
+              wf-⊢ σ₁₀≡σ₁₀
             A[]≡A[] =
               substVar-to-subst (⌜tailₛ⌝ˢ σ₁) (⌜ A ⌝ _)
             ⊢σ₂₀ =
@@ -3513,9 +3513,9 @@ private module Lemmas (p : P n) where opaque
     with inv->>= eq
   … | inv _ eq₃ ok! =
     let l₁≡l₁′   = check-level-sound eq₁ ⊢γ ⊢Γ
-        _ , ⊢l₁′ = wf-⊢≡∷L l₁≡l₁′
+        _ , ⊢l₁′ = wf-⊢ l₁≡l₁′
         l₂≡l₂′   = check-level-sound eq₂ ⊢γ ⊢Γ
-        _ , ⊢l₂′ = wf-⊢≡∷L l₂≡l₂′
+        _ , ⊢l₂′ = wf-⊢ l₂≡l₂′
         l₁′≡l₂′  = equal-level-sound eq₃ ⊢γ ⊢l₁′ ⊢l₂′
     in
     l₁≡l₁′ ,
@@ -3537,7 +3537,7 @@ private module Lemmas (p : P n) where opaque
     let inv _ eq₁ eq₂ = inv->>= eq
         ⊢t            = infer-sound eq₁ ⊢γ ⊢Γ
     in
-    conv ⊢t (red-ty-sound eq₂ ⊢γ (wf-⊢∷ ⊢t))
+    conv ⊢t (red-ty-sound eq₂ ⊢γ (wf-⊢ ⊢t))
 
   -- Soundness for infer-U.
 
@@ -3563,7 +3563,7 @@ private module Lemmas (p : P n) where opaque
   equal-ne-sound eq ⊢γ ⊢A =
     let inv _ eq₁ eq₂ = inv->>= eq
         t₁≡t₂         = equal-ne-inf-sound eq₁ ⊢γ (wf ⊢A)
-        ⊢A′ , _       = wf-⊢≡∷ t₁≡t₂
+        ⊢A′ , _       = wf-⊢ t₁≡t₂
     in
     conv t₁≡t₂ (equal-ty-sound eq₂ ⊢γ ⊢A′ ⊢A)
 
@@ -3577,7 +3577,7 @@ private module Lemmas (p : P n) where opaque
   equal-ne-inf-red-sound eq ⊢γ ⊢Γ =
     let inv _ eq₁ eq₂ = inv->>= eq
         t₁≡t₂         = equal-ne-inf-sound eq₁ ⊢γ ⊢Γ
-        ⊢A , _        = wf-⊢≡∷ t₁≡t₂
+        ⊢A , _        = wf-⊢ t₁≡t₂
     in
     conv t₁≡t₂ (red-ty-sound eq₂ ⊢γ ⊢A)
 
@@ -3687,7 +3687,7 @@ private module Lemmas (p : P n) where opaque
         _ , ⊢σ₁ , _   = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term ⊢x₂
         A[σ₁]≡Ul      = equal-ty-sound eq₄ ⊢γ
-                          (subst-⊢ (wf-⊢∷ ⊢x₂) ⊢σ₁) (wf-⊢∷ ⊢x₁[σ₁])
+                          (subst-⊢ (wf-⊢ ⊢x₂) ⊢σ₁) (wf-⊢ ⊢x₁[σ₁])
     in
     conv (subst-⊢≡ x₁≡x₂ σ₁≡σ₂) A[σ₁]≡Ul
   equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Level PE.refl) =
@@ -3709,13 +3709,13 @@ private module Lemmas (p : P n) where opaque
         _ , ⊢l₁ , _    = inversion-Lift∷ ⊢A₁
         _ , ⊢l₂ , _    = inversion-Lift∷ ⊢A₂
         l₁≡l₂          = equal-level-sound eq₁ ⊢γ ⊢l₁ ⊢l₂
-        ⊢l₁ , _        = wf-⊢≡∷L l₁≡l₂
+        ⊢l₁ , _        = wf-⊢ l₁≡l₂
         ⊢A₁            = infer-U-sound eq₂ ⊢γ (wf ⊢A₁)
-        ⊢l₃            = inversion-U-Level (wf-⊢∷ ⊢A₁)
+        ⊢l₃            = inversion-U-Level (wf-⊢ ⊢A₁)
         A₂≡A₂′         = check-sound eq₃ ⊢γ (⊢U ⊢l₃)
-        _ , _ , ⊢A₂′   = wf-⊢≡∷ A₂≡A₂′
+        _ , _ , ⊢A₂′   = wf-⊢ A₂≡A₂′
         A₁≡A₂′         = equal-tm-sound eq₄ ⊢γ ⊢A₁ ⊢A₂′
-        ⊢l             = inversion-U-Level (wf-⊢∷ ⊢A₂)
+        ⊢l             = inversion-U-Level (wf-⊢ ⊢A₂)
         ⊔≡l            = equal-level-sound eq₅ ⊢γ (⊢supᵘₗ ⊢l₃ ⊢l₁) ⊢l
         A₁≡A₂          =
           ⌜ A₁ ⌝ γ   ≡⟨ A₁≡A₂′ ⟩⊢
@@ -3731,10 +3731,10 @@ private module Lemmas (p : P n) where opaque
     let inv _ eq₁ eq              = inv->>= eq
         inv _ eq₂ _               = inv->>= eq
         _ , _ , _ , _ , _ , ΠΣ-ok = inversion-ΠΣ-U ⊢A₁
-        ⊢Ul                       = wf-⊢∷ ⊢A₁
+        ⊢Ul                       = wf-⊢ ⊢A₁
         ⊢l                        = inversion-U-Level ⊢Ul
         A₁₁≡A₁ , A₁₁≡A₂₁          = check-and-equal-tm-sound eq₁ ⊢γ ⊢Ul
-        _ , _ , ⊢A₁               = wf-⊢≡∷ A₁₁≡A₁
+        _ , _ , ⊢A₁               = wf-⊢ A₁₁≡A₁
         _ , A₁₂≡A₂₂               = check-and-equal-tm-sound eq₂ ⊢γ
                                       (W.wk₁ (univ ⊢A₁) ⊢Ul)
     in
@@ -3760,8 +3760,8 @@ private module Lemmas (p : P n) where opaque
     with inv->>= eq
   … | inv _ eq₂ _ =
     let A₁≡A₂  = equal-ne-inf-red-sound eq₁ ⊢γ (wf ⊢A₁)
-        ⊢B , _ = wf-⊢≡∷ A₁≡A₂
-        B≡Ul   = equal-ty-sound eq₂ ⊢γ ⊢B (wf-⊢∷ ⊢A₁)
+        ⊢B , _ = wf-⊢ A₁≡A₂
+        B≡Ul   = equal-ty-sound eq₂ ⊢γ ⊢B (wf-⊢ ⊢A₁)
     in
     conv A₁≡A₂ B≡Ul
 
@@ -3775,7 +3775,7 @@ private module Lemmas (p : P n) where opaque
   equal-ne-red-sound {A} eq ⊢γ ⊢A =
     let inv A′ eq₁ eq₂ = inv->>= eq
         t₁≡t₂          = equal-ne-inf-red-sound eq₁ ⊢γ (wf ⊢A)
-        ⊢A′ , _        = wf-⊢≡∷ t₁≡t₂
+        ⊢A′ , _        = wf-⊢ t₁≡t₂
     in
     conv t₁≡t₂ (equal-ty-red-sound A′ A eq₂ ⊢γ ⊢A′ ⊢A)
 
@@ -3792,11 +3792,11 @@ private module Lemmas (p : P n) where opaque
     with is-type-constructorˡ? A
   equal-tm-red-sound _ eq ⊢γ ⊢t₁ ⊢t₂
     | just (meta-var _ _) =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
   equal-tm-red-sound {t₁} {t₂} _ eq ⊢γ ⊢t₁ ⊢t₂
     | just Level
     using ⊢Γ  ← wf ⊢t₁
-        | okᴸ ← inversion-Level-⊢ (wf-⊢∷ ⊢t₁)
+        | okᴸ ← inversion-Level-⊢ (wf-⊢ ⊢t₁)
     with equal-level-cons? t₁ t₂ | eq
   … | just zeroᵘ | ok! =
     refl (zeroᵘⱼ okᴸ ⊢Γ)
@@ -3823,7 +3823,7 @@ private module Lemmas (p : P n) where opaque
     Lift-η′ ⊢t₁ ⊢t₂ lower-t₁≡lower-t₂
   equal-tm-red-sound _ eq ⊢γ ⊢t₁ ⊢t₂
     | just Empty =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
   equal-tm-red-sound {t₁} {t₂} {γ} _ eq ⊢γ ⊢t₁ ⊢t₂
     | just (Unit s)
     with s ≟ˢ 𝕤
@@ -3853,14 +3853,14 @@ private module Lemmas (p : P n) where opaque
                       refl ⊢t₂ ⟩⊢∎
     ⌜ star s₂ ⌝ γ  ∎
   … | nothing =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
   equal-tm-red-sound {t₁} {t₂} _ _ ⊢γ ⊢t₁ _
     | just (Unit s) | nothing | inj₁ _ | inj₂ eq
     with are-star⟨ s ⟩? t₁ t₂
   … | just (PE.refl , PE.refl) =
     refl ⊢t₁
   … | nothing =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
   equal-tm-red-sound {t₁} {t₂} _ eq ⊢γ ⊢t₁ ⊢t₂
     | just ℕ
     with are-zero-or-suc? t₁ t₂
@@ -3871,10 +3871,10 @@ private module Lemmas (p : P n) where opaque
     equal-tm-sound eq ⊢γ (inversion-suc ⊢t₁ .proj₁)
       (inversion-suc ⊢t₂ .proj₁)
   … | nothing =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
   equal-tm-red-sound _ eq ⊢γ ⊢t₁ ⊢t₂
     | just (ΠΣ BMΠ _ _ _ _) =
-    let ⊢A₁ , _     = inversion-ΠΣ (wf-⊢∷ ⊢t₁)
+    let ⊢A₁ , _     = inversion-ΠΣ (wf-⊢ ⊢t₁)
         t₁∘x0≡t₂∘x0 =
           equal-tm-sound eq ⊢γ
             (PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
@@ -3888,7 +3888,7 @@ private module Lemmas (p : P n) where opaque
     with s ≟ˢ 𝕤
   … | just PE.refl =
     let inv _ eq₁ eq₂ = inv->>= eq
-        _ , ⊢A₂ , _   = inversion-ΠΣ (wf-⊢∷ ⊢t₁)
+        _ , ⊢A₂ , _   = inversion-ΠΣ (wf-⊢ ⊢t₁)
         fst-t₁≡fst-t₂ = equal-tm-sound eq₁ ⊢γ (fstⱼ′ ⊢t₁) (fstⱼ′ ⊢t₂)
     in
     Σ-η′ ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂
@@ -3900,13 +3900,13 @@ private module Lemmas (p : P n) where opaque
   … | inj₁ (no-refl , eq)
     with are-prod? t₁ t₂
   … | nothing =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
   … | just (s₁ , p₁ , _ , t₁₁ , t₁₂ ,
             s₂ , p₂ , _ , t₂₁ , t₂₂ , PE.refl , PE.refl) =
     let inv _ eq₁ eq₂ =
           inv->>= eq
         _ , ⊢A₂ , Σ-ok =
-          inversion-ΠΣ (wf-⊢∷ ⊢t₁)
+          inversion-ΠΣ (wf-⊢ ⊢t₁)
         ⊢t₁₁ , ⊢t₁₂ , s≡s₁ , p≡p₁ , _ =
           inversion-prod-Σ ⦃ ok = possibly-nonempty ⦃ ok = no-refl ⦄ ⦄
             ⊢t₁
@@ -3929,13 +3929,13 @@ private module Lemmas (p : P n) where opaque
     | just (ΠΣ (BMΣ s) p _ _ _) | nothing | inj₂ eq
     with are-prod⟨ s , p ⟩? t₁ t₂
   … | nothing =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
   … | just (_ , _ , _ , _ , _ , _ , PE.refl , PE.refl) =
     let inv _ eq₁ eq     = inv->>= eq
         inv _ eq₂ _      = inv->>= eq
-        ⊢A₁ , ⊢A₂ , Σ-ok = inversion-ΠΣ (wf-⊢∷ ⊢t₁)
+        ⊢A₁ , ⊢A₂ , Σ-ok = inversion-ΠΣ (wf-⊢ ⊢t₁)
         t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound eq₁ ⊢γ ⊢A₁
-        _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
+        _ , _ , ⊢t₁      = wf-⊢ t₁₁≡t₁
         _ , t₁₂≡t₂₂      = check-and-equal-tm-sound eq₂ ⊢γ
                              (subst-⊢₀ ⊢A₂ ⊢t₁)
         t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
@@ -3948,10 +3948,10 @@ private module Lemmas (p : P n) where opaque
   … | just (_ , _ , PE.refl , PE.refl) =
     refl ⊢t₁
   … | nothing =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
   equal-tm-red-sound _ eq ⊢γ ⊢t₁ ⊢t₂
     | nothing =
-    equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
+    equal-ne-red-sound eq ⊢γ (wf-⊢ ⊢t₁)
 
   opaque
     unfolding S._supᵘₗ_
@@ -4015,9 +4015,9 @@ private module Lemmas (p : P n) where opaque
     … | inv l₁′ eq₁ eq
       using ⊢l₁ , ⊢l₂ , A≡Level ← inversion-supᵘₗ-⊢∷ ⊢sup
           | okᴸ                 ← inversion-Level-⊢
-                                    (wf-⊢≡ A≡Level .proj₂)
+                                    (wf-⊢ A≡Level .proj₂)
           | l₁≡l₁′              ← red-tm-sound eq₁ ⊢γ ⊢l₁
-          | _ , _ , ⊢l₁′        ← wf-⊢≡∷ l₁≡l₁′
+          | _ , _ , ⊢l₁′        ← wf-⊢ l₁≡l₁′
           | l₁⊔l₂≡              ←
               ⊢≡∷Level→⊢≡∷Level okᴸ $
               supᵘₗ-cong (term-⊢≡∷ l₁≡l₁′) (refl-⊢≡∷L (term-⊢∷ ⊢l₂))
@@ -4041,7 +4041,7 @@ private module Lemmas (p : P n) where opaque
     … | inv l₂′ eq₂ eq
       using ⊢l₁″ , _     ← inversion-sucᵘ ⊢l₁′
           | l₂≡l₂′       ← red-tm-sound eq₂ ⊢γ ⊢l₂
-          | _ , _ , ⊢l₂′ ← wf-⊢≡∷ l₂≡l₂′
+          | _ , _ , ⊢l₂′ ← wf-⊢ l₂≡l₂′
           | l₁′⊔l₂≡      ←
               ⊢≡∷Level→⊢≡∷Level okᴸ $
               supᵘₗ-cong (refl-⊢≡∷L (term-⊢∷ ⊢l₁′)) (term-⊢≡∷ l₂≡l₂′)
@@ -4088,17 +4088,17 @@ private module Lemmas (p : P n) where opaque
       using inv _ eq₂ eq ← inv->>= eq
       with inv->>= eq
     … | inv t′ eq₃ eq
-      using ⊢A               ← wf-⊢∷ ⊢lower
+      using ⊢A               ← wf-⊢ ⊢lower
           | ⊢Γ               ← wf ⊢A
           | ⊢t               ← infer-red-sound eq₁ ⊢γ ⊢Γ
-          | _ , ⊢C           ← inversion-Lift (wf-⊢∷ ⊢t)
+          | _ , ⊢C           ← inversion-Lift (wf-⊢ ⊢t)
           | A≡C              ← equal-ty-sound eq₂ ⊢γ ⊢A ⊢C
           | lower-t≡lower-t′ ← lower-cong (red-tm-sound eq₃ ⊢γ ⊢t)
       with is-lift? t′ | eq
     … | just (l , t″ , PE.refl) | eq =
       let inv t‴ eq₄ eq₅ = inv->>= eq
           t″≡t‴          = check-sound eq₄ ⊢γ ⊢C
-          _ , ⊢t″ , ⊢t‴  = wf-⊢≡∷ t″≡t‴
+          _ , ⊢t″ , ⊢t‴  = wf-⊢ t″≡t‴
 
           open TmR
       in
@@ -4168,11 +4168,11 @@ private module Lemmas (p : P n) where opaque
       using inv _ eq₃ eq ← inv->>= eq
       with inv->>= eq
     … | inv t₁′ eq₄ eq
-      using ⊢A               ← wf-⊢∷ ⊢app
+      using ⊢A               ← wf-⊢ ⊢app
           | ⊢t₁              ← infer-red-sound eq₁ ⊢γ (wf ⊢A)
-          | ⊢B₁ , ⊢B₂ , Π-ok ← inversion-ΠΣ (wf-⊢∷ ⊢t₁)
+          | ⊢B₁ , ⊢B₂ , Π-ok ← inversion-ΠΣ (wf-⊢ ⊢t₁)
           | t₂≡t₂′           ← check-sound eq₂ ⊢γ ⊢B₁
-          | _ , ⊢t₂ , ⊢t₂′   ← wf-⊢≡∷ t₂≡t₂′
+          | _ , ⊢t₂ , ⊢t₂′   ← wf-⊢ t₂≡t₂′
           | A≡B₂[t₂′]        ← equal-ty-sound eq₃ ⊢γ ⊢A
                                  (subst-⊢₀ ⊢B₂ ⊢t₂′)
           | t₁≡t₁′           ← red-tm-sound eq₄ ⊢γ ⊢t₁
@@ -4181,7 +4181,7 @@ private module Lemmas (p : P n) where opaque
     … | just (qB₁ , t₁″ , ≡lam) | eq =
       let inv t₁‴ eq₅ eq₆ = inv->>= eq
           t₁″≡t₁‴         = check-sound eq₅ ⊢γ ⊢B₂
-          _ , ⊢t₁″ , ⊢t₁‴ = wf-⊢≡∷ t₁″≡t₁‴
+          _ , ⊢t₁″ , ⊢t₁‴ = wf-⊢ t₁″≡t₁‴
           ≡t₁‴[t₂′]       =
             PE.sym (⌜[]⌝ t₁‴ (term₂ (subst-⊢₀ ⊢t₁‴ ⊢t₂′)))
 
@@ -4213,9 +4213,9 @@ private module Lemmas (p : P n) where opaque
       using inv _ eq₂ eq ← inv->>= eq
       with inv->>= eq
     … | inv t′ eq₃ eq
-      using ⊢A               ← wf-⊢∷ ⊢fst
+      using ⊢A               ← wf-⊢ ⊢fst
           | ⊢t               ← infer-red-sound eq₁ ⊢γ (wf ⊢A)
-          | ⊢B₁ , ⊢B₂ , Σ-ok ← inversion-ΠΣ (wf-⊢∷ ⊢t)
+          | ⊢B₁ , ⊢B₂ , Σ-ok ← inversion-ΠΣ (wf-⊢ ⊢t)
           | A≡B₁             ← equal-ty-sound eq₂ ⊢γ ⊢A ⊢B₁
           | t≡t′             ← red-tm-sound eq₃ ⊢γ ⊢t
       with is-prod⟨ 𝕤 , p ⟩? t′ | eq
@@ -4223,8 +4223,8 @@ private module Lemmas (p : P n) where opaque
       let inv t₁′ eq₄ eq  = inv->>= eq
           inv _   eq₅ eq₆ = inv->>= eq
           t₁≡t₁′          = check-sound eq₄ ⊢γ ⊢B₁
-          _ , ⊢t₁ , ⊢t₁′  = wf-⊢≡∷ t₁≡t₁′
-          _ , ⊢t₂ , _     = wf-⊢≡∷ $
+          _ , ⊢t₁ , ⊢t₁′  = wf-⊢ t₁≡t₁′
+          _ , ⊢t₂ , _     = wf-⊢ $
                             check-sound eq₅ ⊢γ (subst-⊢₀ ⊢B₂ ⊢t₁′)
 
           open TmR
@@ -4250,9 +4250,9 @@ private module Lemmas (p : P n) where opaque
       using inv _ eq₂ eq ← inv->>= eq
       with inv->>= eq
     … | inv t′ eq₃ eq
-      using ⊢A               ← wf-⊢∷ ⊢fst
+      using ⊢A               ← wf-⊢ ⊢fst
           | ⊢t               ← infer-red-sound eq₁ ⊢γ (wf ⊢A)
-          | ⊢B₁ , ⊢B₂ , Σ-ok ← inversion-ΠΣ (wf-⊢∷ ⊢t)
+          | ⊢B₁ , ⊢B₂ , Σ-ok ← inversion-ΠΣ (wf-⊢ ⊢t)
           | A≡B₂[fst-t]      ← equal-ty-sound eq₂ ⊢γ ⊢A
                                  (subst-⊢₀ ⊢B₂ (fstⱼ′ ⊢t))
           | t≡t′             ← red-tm-sound eq₃ ⊢γ ⊢t
@@ -4261,9 +4261,9 @@ private module Lemmas (p : P n) where opaque
       let inv t₁′ eq₄ eq  = inv->>= eq
           inv t₂′ eq₅ eq₆ = inv->>= eq
           t₁≡t₁′          = check-sound eq₄ ⊢γ ⊢B₁
-          _ , ⊢t₁ , ⊢t₁′  = wf-⊢≡∷ t₁≡t₁′
+          _ , ⊢t₁ , ⊢t₁′  = wf-⊢ t₁≡t₁′
           t₂≡t₂′          = check-sound eq₅ ⊢γ (subst-⊢₀ ⊢B₂ ⊢t₁′)
-          _ , ⊢t₂ , ⊢t₂′  = wf-⊢≡∷ t₂≡t₂′
+          _ , ⊢t₂ , ⊢t₂′  = wf-⊢ t₂≡t₂′
           ⊢t₂             = conv ⊢t₂ (subst-⊢≡₀ ⊢B₂ (sym′ t₁≡t₁′))
 
           open TmR
@@ -4299,17 +4299,17 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv t₂′ eq₅ eq
       using ⊢t₁              ← infer-red-sound eq₁ ⊢γ (wf ⊢pr)
-          | ⊢Σ               ← wf-⊢∷ ⊢t₁
+          | ⊢Σ               ← wf-⊢ ⊢t₁
           | ⊢C₁ , ⊢C₂ , Σ-ok ← inversion-ΠΣ ⊢Σ
           | B≡B′             ← check-type-sound eq₂ ⊢γ (∙ ⊢Σ)
-          | _ , ⊢B′          ← wf-⊢≡ B≡B′
+          | _ , ⊢B′          ← wf-⊢ B≡B′
           | t₁≡t₁′           ← red-tm-sound eq₃ ⊢γ ⊢t₁
-          | _ , _ , ⊢t₁′     ← wf-⊢≡∷ t₁≡t₁′
-          | A≡B′[t₁′]        ← equal-ty-sound eq₄ ⊢γ (wf-⊢∷ ⊢pr)
+          | _ , _ , ⊢t₁′     ← wf-⊢ t₁≡t₁′
+          | A≡B′[t₁′]        ← equal-ty-sound eq₄ ⊢γ (wf-⊢ ⊢pr)
                                  (subst-⊢₀ ⊢B′ ⊢t₁′)
           | t₂≡t₂′           ← check-sound eq₅ ⊢γ
                                  (subst-⊢-↑ ⊢B′ (⊢1,0 ⊢Σ))
-          | _ , _ , ⊢t₂′     ← wf-⊢≡∷ t₂≡t₂′
+          | _ , _ , ⊢t₂′     ← wf-⊢ t₂≡t₂′
           | pr≡pr            ← prodrec-cong′ (sym B≡B′) (sym′ t₁≡t₁′)
                                  (sym′ t₂≡t₂′)
       with is-prod⟨ 𝕨 , p ⟩? t₁′ | eq
@@ -4317,12 +4317,12 @@ private module Lemmas (p : P n) where opaque
       let inv t₁₁′ eq₆ eq  = inv->>= eq
           inv t₁₂′ eq₇ eq₈ = inv->>= eq
           t₁₁≡t₁₁′         = check-sound eq₆ ⊢γ ⊢C₁
-          _ , ⊢t₁₁ , ⊢t₁₁′ = wf-⊢≡∷ t₁₁≡t₁₁′
+          _ , ⊢t₁₁ , ⊢t₁₁′ = wf-⊢ t₁₁≡t₁₁′
           t₁₂≡t₁₂′         = check-sound eq₇ ⊢γ (subst-⊢₀ ⊢C₂ ⊢t₁₁′)
-          _ , _ , ⊢t₁₂′    = wf-⊢≡∷ t₁₂≡t₁₂′
+          _ , _ , ⊢t₁₂′    = wf-⊢ t₁₂≡t₁₂′
           t₁₂≡t₁₂′         = conv t₁₂≡t₁₂′
                                (subst-⊢≡₀ ⊢C₂ (sym′ t₁₁≡t₁₁′))
-          _ , ⊢t₁₂ , _     = wf-⊢≡∷ t₁₂≡t₁₂′
+          _ , ⊢t₁₂ , _     = wf-⊢ t₁₂≡t₁₂′
 
           open TmR
       in
@@ -4380,7 +4380,7 @@ private module Lemmas (p : P n) where opaque
             ⌜ t₃′     ⌝ γ  ≡⟨ PE.cong (flip ⌜_⌝ _) ≡suc ⟩
             ⌜ suc t₃″ ⌝ γ  ∎
           ⊢t₃″ , _ =
-            inversion-suc (wf-⊢≡∷ t₃≡suc .proj₂ .proj₂)
+            inversion-suc (wf-⊢ t₃≡suc .proj₂ .proj₂)
       in
                                            ∷ ⌜ A ⌝ γ                   ⟨ A≡ ⟩≡∷
       ⌜ natrec p q r B t₁ t₂ t₃        ⌝ γ ∷ ⌜ B ⌝ γ U.[ ⌜ t₃ ⌝ γ ]₀  ≡⟨ natrec-cong (refl ⊢B) (refl ⊢t₁) (refl ⊢t₂) t₃≡suc ⟩⊢∷
@@ -4549,7 +4549,7 @@ private module Lemmas (p : P n) where opaque
     with inv->>= eq
   … | inv _ eq₃ ok! =
     let A₁≡A₁′   = check-type-sound eq₁ ⊢γ ⊢Γ
-        _ , ⊢A₁′ = wf-⊢≡ A₁≡A₁′
+        _ , ⊢A₁′ = wf-⊢ A₁≡A₁′
         A₂≡A₂′   = check-type-sound eq₂ ⊢γ (∙ ⊢A₁′)
         ΠΣ-ok    = inv-require⁺ ⊢γ eq₃
     in
@@ -4564,7 +4564,7 @@ private module Lemmas (p : P n) where opaque
     with inv->>= eq
   … | inv _ eq₃ ok! =
     let A≡A′    = check-type-sound eq₁ ⊢γ ⊢Γ
-        _ , ⊢A′ = wf-⊢≡ A≡A′
+        _ , ⊢A′ = wf-⊢ A≡A′
         t₁≡t₁′  = check-sound eq₂ ⊢γ ⊢A′
         t₂≡t₂′  = check-sound eq₃ ⊢γ ⊢A′
     in
@@ -4687,7 +4687,7 @@ private module Lemmas (p : P n) where opaque
   … | inv _ eq₂ ok! =
     let ⊢B₁ , ⊢B₂ , Σ-ok = inversion-ΠΣ ⊢A
         t₁≡t₁′           = check-sound eq₁ ⊢γ ⊢B₁
-        _ , _ , ⊢t₁′     = wf-⊢≡∷ t₁≡t₁′
+        _ , _ , ⊢t₁′     = wf-⊢ t₁≡t₁′
         t₂≡t₂′           = check-sound eq₂ ⊢γ (subst-⊢₀ ⊢B₂ ⊢t₁′)
     in
     sym′ (prod-cong ⊢B₂ (sym′ t₁≡t₁′) (sym′ t₂≡t₂′) Σ-ok)
@@ -4720,7 +4720,7 @@ private module Lemmas (p : P n) where opaque
           ⊢Δ     = wf ⊢t
           σ≡σ′   = check-sub-sound σ eq₂ ⊢γ ⊢Γ ⊢Δ
       in
-      wf-⊢≡∷ (subst-⊢≡ (refl ⊢t) (sym-⊢ˢʷ≡∷ ⊢Δ σ≡σ′)) .proj₂ .proj₂
+      wf-⊢ (subst-⊢≡ (refl ⊢t) (sym-⊢ˢʷ≡∷ ⊢Δ σ≡σ′)) .proj₂ .proj₂
     infer′-sound {Γ} (var _) eq _ ⊢Γ =
       var ⊢Γ (index-sound (Γ .vars) eq .proj₁ PE.refl)
     infer′-sound {Γ} (defn _) eq _ ⊢Γ
@@ -4743,7 +4743,7 @@ private module Lemmas (p : P n) where opaque
     … | inv _ eq₂ ok! =
       let L.lift okᴸ = inv-require⁰ ⊢γ level-allowed eq₁
           l≡l′       = check-sound eq₂ ⊢γ (Levelⱼ′ okᴸ ⊢Γ)
-          _ , ⊢l , _ = wf-⊢≡∷ l≡l′
+          _ , ⊢l , _ = wf-⊢ l≡l′
       in
       sucᵘⱼ ⊢l
     infer′-sound (_ supᵘₗ _) eq ⊢γ ⊢Γ
@@ -4756,16 +4756,16 @@ private module Lemmas (p : P n) where opaque
       let L.lift okᴸ  = inv-require⁰ ⊢γ level-allowed eq₁
           ⊢Level      = Levelⱼ′ okᴸ ⊢Γ
           l₁≡         = check-sound eq₂ ⊢γ ⊢Level
-          _ , ⊢l₁ , _ = wf-⊢≡∷ l₁≡
+          _ , ⊢l₁ , _ = wf-⊢ l₁≡
           l₂≡         = check-sound eq₃ ⊢γ ⊢Level
-          _ , ⊢l₂ , _ = wf-⊢≡∷ l₂≡
+          _ , ⊢l₂ , _ = wf-⊢ l₂≡
       in
       ⊢∷Level→⊢∷Level okᴸ (⊢supᵘₗ (term-⊢∷ ⊢l₁) (term-⊢∷ ⊢l₂))
     infer′-sound (U _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ ok! =
       let l≡l′   = check-level-sound eq₁ ⊢γ ⊢Γ
-          ⊢l , _ = wf-⊢≡∷L l≡l′
+          ⊢l , _ = wf-⊢ l≡l′
       in
       conv (Uⱼ ⊢l) (U-cong-⊢≡ (1ᵘ+-cong l≡l′))
     infer′-sound {γ} (Lift l _) eq ⊢γ ⊢Γ
@@ -4776,9 +4776,9 @@ private module Lemmas (p : P n) where opaque
       let open TyR
 
           l≡l₁   = check-level-sound eq₁ ⊢γ ⊢Γ
-          ⊢l , _ = wf-⊢≡∷L l≡l₁
+          ⊢l , _ = wf-⊢ l≡l₁
           ⊢A     = infer-U-sound eq₂ ⊢γ ⊢Γ
-          ⊢l₂    = inversion-U-Level (wf-⊢∷ ⊢A)
+          ⊢l₂    = inversion-U-Level (wf-⊢ ⊢A)
           U≡U    =
             ⌜ U (l₂ supᵘₗ l) ⌝ γ   ≡⟨ U-cong-⊢≡ (supᵘₗ-comm ⊢l₂ ⊢l) ⟩⊢
             ⌜ U (l supᵘₗ l₂) ⌝ γ   ≡⟨ U-cong-⊢≡ (supᵘₗ-cong l≡l₁ (refl-⊢≡∷L ⊢l₂)) ⟩⊢∎
@@ -4791,7 +4791,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₂ ok! =
       let l≡l′    = check-level-sound eq₁ ⊢γ ⊢Γ
-          _ , ⊢l′ = wf-⊢≡∷L l≡l′
+          _ , ⊢l′ = wf-⊢ l≡l′
           ⊢t      = infer-sound eq₂ ⊢γ ⊢Γ
       in
       liftⱼ′ ⊢l′ ⊢t
@@ -4822,12 +4822,12 @@ private module Lemmas (p : P n) where opaque
       let Unit-ok = inv-require⁺ ⊢γ eq₄
           ⊢Unit   = ⊢Unit ⊢Γ Unit-ok
           A≡A′    = check-type-sound eq₁ ⊢γ (∙ ⊢Unit)
-          _ , ⊢A′ = wf-⊢≡ A≡A′
+          _ , ⊢A′ = wf-⊢ A≡A′
           t₁≡t₁′  = check-sound eq₂ ⊢γ ⊢Unit
           t₂≡t₂′  = check-sound eq₃ ⊢γ $
                     subst-⊢₀ ⊢A′ (starⱼ ⊢Γ Unit-ok)
       in
-      wf-⊢≡∷ (unitrec-cong′ (sym A≡A′) (sym′ t₁≡t₁′) (sym′ t₂≡t₂′))
+      wf-⊢ (unitrec-cong′ (sym A≡A′) (sym′ t₁≡t₁′) (sym′ t₂≡t₂′))
         .proj₂ .proj₂
     infer′-sound Empty ok! _ ⊢Γ =
       Emptyⱼ ⊢Γ
@@ -4839,7 +4839,7 @@ private module Lemmas (p : P n) where opaque
       let A≡A′ = check-type-sound eq₁ ⊢γ ⊢Γ
           t≡t′ = check-sound eq₂ ⊢γ (⊢Empty ⊢Γ)
       in
-      wf-⊢≡∷ (emptyrec-cong (sym A≡A′) (sym′ t≡t′)) .proj₂ .proj₂
+      wf-⊢ (emptyrec-cong (sym A≡A′) (sym′ t≡t′)) .proj₂ .proj₂
     infer′-sound (ΠΣ _ _ _ _ _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -4850,10 +4850,10 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₃ ok! =
       let ⊢A₁         = infer-red-sound eq₁ ⊢γ ⊢Γ
-          ⊢l          = inversion-U-Level (wf-⊢∷ ⊢A₁)
+          ⊢l          = inversion-U-Level (wf-⊢ ⊢A₁)
           A₂≡         = check-sound eq₂ ⊢γ
                           (⊢U (W.wk₁ (univ ⊢A₁) ⊢l))
-          _ , ⊢A₂ , _ = wf-⊢≡∷ A₂≡
+          _ , ⊢A₂ , _ = wf-⊢ A₂≡
           ΠΣ-ok       = inv-require⁺ ⊢γ eq₃
       in
       ΠΣⱼ ⊢l ⊢A₁ ⊢A₂ ΠΣ-ok
@@ -4865,7 +4865,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₃ ok! =
       let A₁≡A₁′   = check-type-sound eq₁ ⊢γ ⊢Γ
-          _ , ⊢A₁′ = wf-⊢≡ A₁≡A₁′
+          _ , ⊢A₁′ = wf-⊢ A₁≡A₁′
           ⊢t       = infer-sound eq₂ ⊢γ (∙ ⊢A₁′)
           Π-ok     = inv-require⁺ ⊢γ eq₃
       in
@@ -4878,10 +4878,10 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₂ ok! =
       let ⊢t₁     = infer-red-sound eq₁ ⊢γ ⊢Γ
-          ⊢A₁ , _ = inversion-ΠΣ (wf-⊢∷ ⊢t₁)
+          ⊢A₁ , _ = inversion-ΠΣ (wf-⊢ ⊢t₁)
           t₂≡t₂′  = check-sound eq₂ ⊢γ ⊢A₁
       in
-      wf-⊢≡∷ (app-cong (refl ⊢t₁) (sym′ t₂≡t₂′)) .proj₂ .proj₂
+      wf-⊢ (app-cong (refl ⊢t₁) (sym′ t₂≡t₂′)) .proj₂ .proj₂
     infer′-sound (prod _ _ _ _ _ _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -4891,13 +4891,13 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₄ ok! =
       let ⊢t₁      = infer-sound eq₁ ⊢γ ⊢Γ
-          ⊢A₁      = wf-⊢∷ ⊢t₁
+          ⊢A₁      = wf-⊢ ⊢t₁
           A₂≡A₂′   = check-type-sound eq₂ ⊢γ (∙ ⊢A₁)
-          _ , ⊢A₂′ = wf-⊢≡ A₂≡A₂′
+          _ , ⊢A₂′ = wf-⊢ A₂≡A₂′
           t₂≡t₂′   = check-sound eq₃ ⊢γ (subst-⊢₀ ⊢A₂′ ⊢t₁)
           Σ-ok     = inv-require⁺ ⊢γ eq₄
       in
-      wf-⊢≡∷ (prod-cong ⊢A₂′ (refl ⊢t₁) t₂≡t₂′ Σ-ok) .proj₂ .proj₁
+      wf-⊢ (prod-cong ⊢A₂′ (refl ⊢t₁) t₂≡t₂′ Σ-ok) .proj₂ .proj₁
     infer′-sound (fst _ _) eq ⊢γ ⊢Γ
       with inv->>= eq
     … | inv _ eq₁ eq
@@ -4922,14 +4922,14 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₃ ok! =
       let ⊢t₁          = infer-red-sound eq₁ ⊢γ ⊢Γ
-          ⊢ΣB₁B₂       = wf-⊢∷ ⊢t₁
+          ⊢ΣB₁B₂       = wf-⊢ ⊢t₁
           _ , _ , Σ-ok = inversion-ΠΣ ⊢ΣB₁B₂
           A≡A′         = check-type-sound eq₂ ⊢γ (∙ ⊢ΣB₁B₂)
-          _ , ⊢A′      = wf-⊢≡ A≡A′
+          _ , ⊢A′      = wf-⊢ A≡A′
           t₂≡t₂′       = check-sound eq₃ ⊢γ $
                          subst-⊢ ⊢A′ (⊢ˢʷ∷-[][]↑ (⊢1,0 ⊢ΣB₁B₂))
       in
-      wf-⊢≡∷ (prodrec-cong (sym A≡A′) (refl ⊢t₁) (sym′ t₂≡t₂′) Σ-ok)
+      wf-⊢ (prodrec-cong (sym A≡A′) (refl ⊢t₁) (sym′ t₂≡t₂′) Σ-ok)
         .proj₂ .proj₂
     infer′-sound ℕ ok! _ ⊢Γ =
       ℕⱼ ⊢Γ
@@ -4939,7 +4939,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq ok! =
       let t≡t′       = check-sound eq ⊢γ (⊢ℕ ⊢Γ)
-          _ , ⊢t , _ = wf-⊢≡∷ t≡t′
+          _ , ⊢t , _ = wf-⊢ t≡t′
       in
       sucⱼ ⊢t
     infer′-sound (natrec _ _ _ _) eq ⊢γ ⊢Γ
@@ -4950,13 +4950,13 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₄ ok! =
       let A≡A′    = check-type-sound eq₁ ⊢γ (∙ ⊢ℕ ⊢Γ)
-          _ , ⊢A′ = wf-⊢≡ A≡A′
+          _ , ⊢A′ = wf-⊢ A≡A′
           t₁≡t₁′  = check-sound eq₂ ⊢γ (subst-⊢₀ ⊢A′ (zeroⱼ ⊢Γ))
           t₂≡t₂′  = check-sound eq₃ ⊢γ $
                     subst-⊢ ⊢A′ (⊢ˢʷ∷-[][]↑ (sucⱼ (var₁ ⊢A′)))
           t₃≡t₃′  = check-sound eq₄ ⊢γ (⊢ℕ ⊢Γ)
       in
-      wf-⊢≡∷
+      wf-⊢
         (natrec-cong (sym A≡A′) (sym′ t₁≡t₁′) (sym′ t₂≡t₂′)
            (sym′ t₃≡t₃′))
         .proj₂ .proj₂
@@ -4970,9 +4970,9 @@ private module Lemmas (p : P n) where opaque
     … | inv _ eq₃ ok! =
       let ⊢A          = infer-red-sound eq₁ ⊢γ ⊢Γ
           t₁≡t₁′      = check-sound eq₂ ⊢γ (univ ⊢A)
-          _ , ⊢t₁ , _ = wf-⊢≡∷ t₁≡t₁′
+          _ , ⊢t₁ , _ = wf-⊢ t₁≡t₁′
           t₂≡t₂′      = check-sound eq₃ ⊢γ (univ ⊢A)
-          _ , ⊢t₂ , _ = wf-⊢≡∷ t₂≡t₂′
+          _ , ⊢t₂ , _ = wf-⊢ t₂≡t₂′
       in
       Idⱼ ⊢A ⊢t₁ ⊢t₂
     infer′-sound (rfl _) eq ⊢γ ⊢Γ
@@ -4992,18 +4992,18 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₆ ok! =
       let A₁≡A₁′       = check-type-sound eq₁ ⊢γ ⊢Γ
-          _ , ⊢A₁′     = wf-⊢≡ A₁≡A₁′
+          _ , ⊢A₁′     = wf-⊢ A₁≡A₁′
           t₁≡t₁′       = check-sound eq₂ ⊢γ ⊢A₁′
-          _ , _ , ⊢t₁′ = wf-⊢≡∷ t₁≡t₁′
+          _ , _ , ⊢t₁′ = wf-⊢ t₁≡t₁′
           A₂≡A₂′       = check-type-sound eq₃ ⊢γ
                            (J-motive-context ⊢t₁′)
-          _ , ⊢A₂′     = wf-⊢≡ A₂≡A₂′
+          _ , ⊢A₂′     = wf-⊢ A₂≡A₂′
           t₂≡t₂′       = check-sound eq₄ ⊢γ (J-result ⊢A₂′ (rflⱼ ⊢t₁′))
           t₃≡t₃′       = check-sound eq₅ ⊢γ ⊢A₁′
-          _ , _ , ⊢t₃′ = wf-⊢≡∷ t₃≡t₃′
+          _ , _ , ⊢t₃′ = wf-⊢ t₃≡t₃′
           t₄≡t₄′       = check-sound eq₆ ⊢γ (Idⱼ′ ⊢t₁′ ⊢t₃′)
       in
-      wf-⊢≡∷
+      wf-⊢
         (J-cong′ (sym A₁≡A₁′) (sym′ t₁≡t₁′) (sym A₂≡A₂′) (sym′ t₂≡t₂′)
            (sym′ t₃≡t₃′) (sym′ t₄≡t₄′))
         .proj₂ .proj₂
@@ -5020,17 +5020,17 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₆ ok! =
       let A₁≡A₁′       = check-type-sound eq₁ ⊢γ ⊢Γ
-          _ , ⊢A₁′     = wf-⊢≡ A₁≡A₁′
+          _ , ⊢A₁′     = wf-⊢ A₁≡A₁′
           t₁≡t₁′       = check-sound eq₂ ⊢γ ⊢A₁′
-          _ , _ , ⊢t₁′ = wf-⊢≡∷ t₁≡t₁′
+          _ , _ , ⊢t₁′ = wf-⊢ t₁≡t₁′
           ⊢Id          = Idⱼ′ ⊢t₁′ ⊢t₁′
           A₂≡A₂′       = check-type-sound eq₃ ⊢γ (∙ ⊢Id)
-          _ , ⊢A₂′     = wf-⊢≡ A₂≡A₂′
+          _ , ⊢A₂′     = wf-⊢ A₂≡A₂′
           t₂≡t₂′       = check-sound eq₄ ⊢γ (subst-⊢₀ ⊢A₂′ (rflⱼ ⊢t₁′))
           t₃≡t₃′       = check-sound eq₅ ⊢γ ⊢Id
           K-ok         = inv-require⁰ ⊢γ k-allowed eq₆
       in
-      wf-⊢≡∷
+      wf-⊢
         (K-cong (sym A₁≡A₁′) (sym′ t₁≡t₁′) (sym A₂≡A₂′) (sym′ t₂≡t₂′)
            (sym′ t₃≡t₃′) K-ok)
         .proj₂ .proj₂
@@ -5048,15 +5048,15 @@ private module Lemmas (p : P n) where opaque
     … | inv _ eq₆ ok! =
       let l≡l′         = check-level-sound eq₁ ⊢γ ⊢Γ
           A≡A′         = check-type-sound eq₂ ⊢γ ⊢Γ
-          _ , ⊢A′      = wf-⊢≡ A≡A′
+          _ , ⊢A′      = wf-⊢ A≡A′
           t₁≡t₁′       = check-sound eq₃ ⊢γ ⊢A′
-          _ , _ , ⊢t₁′ = wf-⊢≡∷ t₁≡t₁′
+          _ , _ , ⊢t₁′ = wf-⊢ t₁≡t₁′
           t₂≡t₂′       = check-sound eq₄ ⊢γ ⊢A′
-          _ , _ , ⊢t₂′ = wf-⊢≡∷ t₂≡t₂′
+          _ , _ , ⊢t₂′ = wf-⊢ t₂≡t₂′
           t₃≡t₃′       = check-sound eq₅ ⊢γ (Idⱼ′ ⊢t₁′ ⊢t₂′)
           okᵇᶜ         = inv-require⁺ ⊢γ eq₆
       in
-      wf-⊢≡∷
+      wf-⊢
         ([]-cong-cong (sym-⊢≡∷L l≡l′) (sym A≡A′) (sym′ t₁≡t₁′)
            (sym′ t₂≡t₂′) (sym′ t₃≡t₃′) okᵇᶜ)
         .proj₂ .proj₂
@@ -5106,10 +5106,10 @@ private module Lemmas (p : P n) where opaque
   … | inv l₁″ eq₃ PE.refl =
     let ⊢Γ                    = wf ⊢supᵘ
         l₁≡l₁′                = check-level-sound eq₁ ⊢γ ⊢Γ
-        _ , ⊢l₁′              = wf-⊢≡∷L l₁≡l₁′
+        _ , ⊢l₁′              = wf-⊢ l₁≡l₁′
         ⊢l₁″ , l₁′≡l₁″        = normalise-level-sound eq₃ ⊢γ ⊢l₁′
         l₂≡l₂′                = check-level-sound eq₂ ⊢γ ⊢Γ
-        _ , ⊢l₂′              = wf-⊢≡∷L l₂≡l₂′
+        _ , ⊢l₂′              = wf-⊢ l₂≡l₂′
         ⊢l₂″ , l₂′≡l₂″        = normalise-level-sound eq₄ ⊢γ ⊢l₂′
         ⊢⌜supᵘₗⁿ⌝ , ⌜supᵘₗⁿ⌝≡ = supᵘₗⁿ-correct ⊢l₁″ ⊢l₂″
     in
@@ -5150,7 +5150,7 @@ private module Lemmas (p : P n) where opaque
         L.lift okᴸ     = inv-require⁰ ⊢γ level-allowed eq₁
         ⊢l             = ⊢∷Level→⊢∷Level okᴸ ⊢l
         l≡l′           = red-tm-sound eq₂ ⊢γ ⊢l
-        _ , _ , ⊢l′    = wf-⊢≡∷ l≡l′
+        _ , _ , ⊢l′    = wf-⊢ l≡l′
         ⊢l″ , l′≡l″    = normalise-level-sound eq₃ ⊢γ (term-⊢∷ ⊢l′)
     in
     ⊢l″ ,
@@ -5227,9 +5227,9 @@ private module Lemmas (p : P n) where opaque
           ⊢Unit        = ⊢Unit ⊢Γ Unit-ok
           ⊢⋆           = starⱼ ⊢Γ Unit-ok
           A₁≡A , A₁≡A₂ = check-and-equal-ty-sound eq₁ ⊢γ (∙ ⊢Unit)
-          _ , ⊢A       = wf-⊢≡ A₁≡A
+          _ , ⊢A       = wf-⊢ A₁≡A
           t₁₁≡t₂₁      = equal-ne-red-sound eq₂ ⊢γ ⊢Unit
-          _ , ⊢t₁₁ , _ = wf-⊢≡∷ t₁₁≡t₂₁
+          _ , ⊢t₁₁ , _ = wf-⊢ t₁₁≡t₂₁
           _ , t₁₂≡t₂₂  = check-and-equal-tm-sound eq₃ ⊢γ
                            (subst-⊢₀ ⊢A ⊢⋆)
           t₁₂≡t₂₂      = conv t₁₂≡t₂₂ (subst-⊢≡₀ (sym A₁≡A) (refl ⊢⋆))
@@ -5244,7 +5244,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₂ ok! =
       let t₁₁≡t₂₁          = equal-ne-inf-red-sound eq₁ ⊢γ ⊢Γ
-          ⊢Π , _           = wf-⊢≡∷ t₁₁≡t₂₁
+          ⊢Π , _           = wf-⊢ t₁₁≡t₂₁
           ⊢A₁ , ⊢A₂ , _    = inversion-ΠΣ ⊢Π
           t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound eq₂ ⊢γ ⊢A₁
       in
@@ -5271,10 +5271,10 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₃ ok! =
       let t₁₁≡t₂₁      = equal-ne-inf-red-sound eq₁ ⊢γ ⊢Γ
-          _ , ⊢t₁₁ , _ = wf-⊢≡∷ t₁₁≡t₂₁
-          ⊢Σ , _       = wf-⊢≡∷ t₁₁≡t₂₁
+          _ , ⊢t₁₁ , _ = wf-⊢ t₁₁≡t₂₁
+          ⊢Σ , _       = wf-⊢ t₁₁≡t₂₁
           A₁≡A , A₁≡A₂ = check-and-equal-ty-sound eq₂ ⊢γ (∙ ⊢Σ)
-          _ , ⊢A       = wf-⊢≡ A₁≡A
+          _ , ⊢A       = wf-⊢ A₁≡A
           _ , t₁₂≡t₂₂  = check-and-equal-tm-sound eq₃ ⊢γ
                            (subst-⊢-↑ ⊢A (⊢1,0 ⊢Σ))
           t₁₂≡t₂₂      = conv t₁₂≡t₂₂ $
@@ -5290,7 +5290,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₄ ok! =
       let A₁≡A , A₁≡A₂ = check-and-equal-ty-sound eq₁ ⊢γ (∙ ⊢ℕ ⊢Γ)
-          _ , ⊢A       = wf-⊢≡ A₁≡A
+          _ , ⊢A       = wf-⊢ A₁≡A
           ⊢0           = zeroⱼ ⊢Γ
           ⊢suc-1       = sucⱼ (var₁ ⊢A)
           _ , t₁₁≡t₂₁  = check-and-equal-tm-sound eq₂ ⊢γ
@@ -5302,7 +5302,7 @@ private module Lemmas (p : P n) where opaque
                          conv t₁₂≡t₂₂ $
                          subst-⊢≡-↑ (sym A₁≡A) (refl ⊢suc-1)
           t₁₃≡t₂₃      = equal-ne-red-sound eq₄ ⊢γ (⊢ℕ ⊢Γ)
-          _ , ⊢t₁₃ , _ = wf-⊢≡∷ t₁₃≡t₂₃
+          _ , ⊢t₁₃ , _ = wf-⊢ t₁₃≡t₂₃
       in
       conv (natrec-cong A₁≡A₂ t₁₁≡t₂₁ t₁₂≡t₂₂ t₁₃≡t₂₃)
         (subst-⊢≡₀ A₁≡A (refl ⊢t₁₃))
@@ -5319,13 +5319,13 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₆ ok! =
       let A₁₁≡A₁ , A₁₁≡A₂₁ = check-and-equal-ty-sound eq₁ ⊢γ ⊢Γ
-          _ , ⊢A₁          = wf-⊢≡ A₁₁≡A₁
+          _ , ⊢A₁          = wf-⊢ A₁₁≡A₁
           t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound eq₂ ⊢γ ⊢A₁
-          _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
+          _ , _ , ⊢t₁      = wf-⊢ t₁₁≡t₁
           t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁₁≡A₁)
           A₁₂≡A₂ , A₁₂≡A₂₂ = check-and-equal-ty-sound eq₃ ⊢γ
                                (J-motive-context ⊢t₁)
-          _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
+          _ , ⊢A₂          = wf-⊢ A₁₂≡A₂
           A₁₂≡A₂₂          = stability
                                (J-motive-context-cong′ (sym A₁₁≡A₁)
                                   (sym′ t₁₁≡t₁))
@@ -5336,10 +5336,10 @@ private module Lemmas (p : P n) where opaque
                              J-motive-rfl-cong (sym A₁₂≡A₂)
                                (sym′ t₁₁≡t₁)
           t₁₃≡t₃ , t₁₃≡t₂₃ = check-and-equal-tm-sound eq₅ ⊢γ ⊢A₁
-          _ , _ , ⊢t₃      = wf-⊢≡∷ t₁₃≡t₃
+          _ , _ , ⊢t₃      = wf-⊢ t₁₃≡t₃
           t₁₃≡t₂₃          = conv t₁₃≡t₂₃ (sym A₁₁≡A₁)
           t₁₄≡t₂₄          = equal-ne-red-sound eq₆ ⊢γ (Idⱼ′ ⊢t₁ ⊢t₃)
-          _ , ⊢t₁₄ , _     = wf-⊢≡∷ t₁₄≡t₂₄
+          _ , ⊢t₁₄ , _     = wf-⊢ t₁₄≡t₂₄
           t₁₄≡t₂₄          = conv t₁₄≡t₂₄ $
                              Id-cong (sym A₁₁≡A₁) (sym′ t₁₁≡t₁)
                                (sym′ t₁₃≡t₃)
@@ -5358,22 +5358,22 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₆ ok! =
       let A₁₁≡A₁ , A₁₁≡A₂₁ = check-and-equal-ty-sound eq₁ ⊢γ ⊢Γ
-          _ , ⊢A₁          = wf-⊢≡ A₁₁≡A₁
+          _ , ⊢A₁          = wf-⊢ A₁₁≡A₁
           t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound eq₂ ⊢γ ⊢A₁
-          _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
+          _ , _ , ⊢t₁      = wf-⊢ t₁₁≡t₁
           t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁₁≡A₁)
-          Id≡Id            = Id-cong (sym A₁₁≡A₁) (sym′ t₁₁≡t₁)
+          Id≡Id            = _⊢_≡_.Id-cong (sym A₁₁≡A₁) (sym′ t₁₁≡t₁)
                                (sym′ t₁₁≡t₁)
-          ⊢Id , _          = wf-⊢≡ Id≡Id
+          ⊢Id , _          = wf-⊢ Id≡Id
           A₁₂≡A₂ , A₁₂≡A₂₂ = check-and-equal-ty-sound eq₃ ⊢γ (∙ ⊢Id)
-          _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
+          _ , ⊢A₂          = wf-⊢ A₁₂≡A₂
           A₁₂≡A₂₂          = stability (refl-∙ Id≡Id) A₁₂≡A₂₂
           _ , t₁₂≡t₂₂      = check-and-equal-tm-sound eq₄ ⊢γ $
                              subst-⊢₀ ⊢A₂ (rflⱼ ⊢t₁)
           t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
                              subst-⊢≡₀ (sym A₁₂≡A₂) (refl (rflⱼ ⊢t₁))
           t₁₃≡t₂₃          = equal-ne-red-sound eq₅ ⊢γ ⊢Id
-          _ , ⊢t₁₃ , _     = wf-⊢≡∷ t₁₃≡t₂₃
+          _ , ⊢t₁₃ , _     = wf-⊢ t₁₃≡t₂₃
           t₁₃≡t₂₃          = conv t₁₃≡t₂₃ Id≡Id
           K-ok             = inv-require⁰ ⊢γ k-allowed eq₆
       in
@@ -5392,14 +5392,14 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₆ ok! =
       let l₁≡l , l₁≡l₂     = check-and-equal-level-sound eq₁ ⊢γ ⊢Γ
-          _ , ⊢l           = wf-⊢≡∷L l₁≡l
+          _ , ⊢l           = wf-⊢ l₁≡l
           A₁≡A , A₁≡A₂     = check-and-equal-ty-sound eq₂ ⊢γ ⊢Γ
-          _ , ⊢A           = wf-⊢≡ A₁≡A
+          _ , ⊢A           = wf-⊢ A₁≡A
           t₁₁≡t₁ , t₁₁≡t₂₁ = check-and-equal-tm-sound eq₃ ⊢γ ⊢A
-          _ , _ , ⊢t₁      = wf-⊢≡∷ t₁₁≡t₁
+          _ , _ , ⊢t₁      = wf-⊢ t₁₁≡t₁
           t₁₁≡t₂₁          = conv t₁₁≡t₂₁ (sym A₁≡A)
           t₁₂≡t₂ , t₁₂≡t₂₂ = check-and-equal-tm-sound eq₄ ⊢γ ⊢A
-          _ , _ , ⊢t₂      = wf-⊢≡∷ t₁₂≡t₂
+          _ , _ , ⊢t₂      = wf-⊢ t₁₂≡t₂
           t₁₂≡t₂₂          = conv t₁₂≡t₂₂ (sym A₁≡A)
           t₁₃≡t₂₃          = equal-ne-red-sound eq₅ ⊢γ (Idⱼ′ ⊢t₁ ⊢t₂)
           t₁₃≡t₂₃          = conv t₁₃≡t₂₃ $
@@ -5476,7 +5476,7 @@ private module P-1+ (p : P n) where opaque
     with inv->>= (inv-register eq)
   … | inv (A″ , _) eq₁ eq₂ =
     let A″≡A′   = check-type′-sound (is-type-constructor? A″) eq₂ ⊢γ ⊢Γ
-        ⊢A″ , _ = wf-⊢≡ A″≡A′
+        ⊢A″ , _ = wf-⊢ A″≡A′
         A≡A″    = really-remove-weaken-subst-sound n eq₁ (type₂ ⊢A″)
     in
     ⌜ A ⌝ γ   ≡⟨ A≡A″ ⟩⊢≡
@@ -5517,7 +5517,7 @@ private module P-1+ (p : P n) where opaque
     with inv->>= eq
   … | inv _ eq₃ ok! =
     let ⊢t″ = infer-sound eq₂ ⊢γ (wf ⊢A)
-        B≡A = equal-ty-sound eq₃ ⊢γ (wf-⊢∷ ⊢t″) ⊢A
+        B≡A = equal-ty-sound eq₃ ⊢γ (wf-⊢ ⊢t″) ⊢A
     in
     PE.subst₃ (_⊢_≡_∷_ _) (PE.sym (t≡t″ (term₂ ⊢t″))) PE.refl PE.refl $
     refl (conv ⊢t″ B≡A)
@@ -5525,9 +5525,9 @@ private module P-1+ (p : P n) where opaque
     | inv (t″ , _) _ eq | just t″-c =
     let inv _ eq₂ eq₃ = inv->>= eq
         A≡A′          = red-ty-sound eq₂ ⊢γ ⊢A
-        _ , ⊢A′       = wf-⊢≡ A≡A′
+        _ , ⊢A′       = wf-⊢ A≡A′
         t″≡t′         = check′-sound t″-c eq₃ ⊢γ ⊢A′
-        _ , ⊢t″ , _   = wf-⊢≡∷ t″≡t′
+        _ , ⊢t″ , _   = wf-⊢ t″≡t′
     in
     ⌜ t ⌝ γ   ≡⟨ t≡t″ (term₂ ⊢t″) ⟩⊢≡
     ⌜ t″ ⌝ γ  ≡⟨ conv t″≡t′ (sym A≡A′) ⟩⊢∎
@@ -5571,7 +5571,7 @@ private module P-1+ (p : P n) where opaque
     in
     ⌜ A₁ ⌝ γ   ≡⟨ A₁≡A₁′ ⟩⊢
     ⌜ A₁′ ⌝ γ  ≡⟨ equal-ty-red-sound A₁′ A₂′ eq₃ ⊢γ
-                    (wf-⊢≡ A₁≡A₁′ .proj₂) (wf-⊢≡ A₂≡A₂′ .proj₂) ⟩⊢
+                    (wf-⊢ A₁≡A₁′ .proj₂) (wf-⊢ A₂≡A₂′ .proj₂) ⟩⊢
     ⌜ A₂′ ⌝ γ  ≡˘⟨ A₂≡A₂′ ⟩⊢∎
     ⌜ A₂ ⌝ γ   ∎
 
@@ -5590,15 +5590,15 @@ private module P-1+ (p : P n) where opaque
         inv t₁′ eq₂ eq  = inv->>= eq
         inv t₂′ eq₃ eq₄ = inv->>= eq
 
-        A≡A′   = red-ty-sound eq₁ ⊢γ (wf-⊢∷ ⊢t₁)
+        A≡A′   = red-ty-sound eq₁ ⊢γ (wf-⊢ ⊢t₁)
         t₁≡t₁′ = red-tm-sound eq₂ ⊢γ (conv ⊢t₁ A≡A′)
         t₂≡t₂′ = red-tm-sound eq₃ ⊢γ (conv ⊢t₂ A≡A′)
     in
              ∷ ⌜ A ⌝ γ    ⟨ A≡A′ ⟩≡∷
     ⌜ t₁ ⌝ γ ∷ ⌜ A′ ⌝ γ  ≡⟨ t₁≡t₁′ ⟩⊢∷
     ⌜ t₁′ ⌝ γ            ≡⟨ equal-tm-red-sound A′ eq₄ ⊢γ
-                              (wf-⊢≡∷ t₁≡t₁′ .proj₂ .proj₂)
-                              (wf-⊢≡∷ t₂≡t₂′ .proj₂ .proj₂) ⟩⊢
+                              (wf-⊢ t₁≡t₁′ .proj₂ .proj₂)
+                              (wf-⊢ t₂≡t₂′ .proj₂ .proj₂) ⟩⊢
     ⌜ t₂′ ⌝ γ            ≡˘⟨ t₂≡t₂′ ⟩⊢∎
     ⌜ t₂ ⌝ γ             ∎
 
@@ -5677,7 +5677,7 @@ opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ
   check-type-sound _ _ _ n eq ⊢γ ⊢Γ =
-    wf-⊢≡ (P.check-type-sound (P-inhabited n) (ok eq) ⊢γ ⊢Γ) .proj₁
+    wf-⊢ (P.check-type-sound (P-inhabited n) (ok eq) ⊢γ ⊢Γ) .proj₁
 
 opaque
 
@@ -5690,7 +5690,7 @@ opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ Term[]→Lvl l ⌝ γ ∷Level
   check-level-sound _ _ _ n eq ⊢γ ⊢Γ =
-    wf-⊢≡∷L (P.check-level-sound (P-inhabited n) (ok eq) ⊢γ ⊢Γ) .proj₁
+    wf-⊢ (P.check-level-sound (P-inhabited n) (ok eq) ⊢γ ⊢Γ) .proj₁
 
 opaque
 
@@ -5703,7 +5703,7 @@ opaque
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ A ⌝ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ
   check-sound _ _ _ _ n eq ⊢γ ⊢A =
-    wf-⊢≡∷ (P.check-sound (P-inhabited n) (ok eq) ⊢γ ⊢A) .proj₂ .proj₁
+    wf-⊢ (P.check-sound (P-inhabited n) (ok eq) ⊢γ ⊢A) .proj₂ .proj₁
 
 opaque
 
@@ -5793,7 +5793,7 @@ opaque
     with inv->>= eq
   … | inv _ eq₂ ok! =
     let A≡A′    = P.check-type-sound (P-inhabited n) eq₁ ⊢γ ⊢Γ
-        _ , ⊢A′ = wf-⊢≡ A≡A′
+        _ , ⊢A′ = wf-⊢ A≡A′
         t≡t′    = P.check-sound (P-inhabited n) eq₂ ⊢γ ⊢A′
     in
     A≡A′ , conv t≡t′ (sym A≡A′)
@@ -5809,7 +5809,7 @@ opaque
     ⊢ ⌜ Γ ⌝ᶜ γ →
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ
   check-type-and-term-sound _ _ _ _ n eq ⊢γ ⊢Γ =
-    wf-⊢≡∷ (check-type-and-term-sound′ n (ok eq) ⊢γ ⊢Γ .proj₂)
+    wf-⊢ (check-type-and-term-sound′ n (ok eq) ⊢γ ⊢Γ .proj₂)
       .proj₂ .proj₁
 
 opaque
@@ -5866,7 +5866,7 @@ opaque
     let inv _ eq₁ eq = inv->>= eq
         inv _ eq₂ _  = inv->>= eq
         A≡A′         = P.check-type-sound (P-inhabited n) eq₁ ⊢γ ⊢Γ
-        _ , ⊢A′      = wf-⊢≡ A≡A′
+        _ , ⊢A′      = wf-⊢ A≡A′
         _ , t₁≡t₂    = Lemmas.check-and-equal-tm-sound (P-inhabited n)
                          eq₂ ⊢γ ⊢A′
     in
@@ -6009,7 +6009,7 @@ opaque
                              }
         _ , t≡t′         = check-type-and-term-sound′ n eq₂ ⊢γ
                              (ε (check-dcon-sound′ ∇ eq₁ ⊢cs ⊢base))
-        _ , ⊢t , _       = wf-⊢≡∷ t≡t′
+        _ , ⊢t , _       = wf-⊢ t≡t′
     in
     ∙ᵗ[ ⊢t ]
   check-dcon-sound′ {n} (∇ ∙⟨ opa _ ⟩[ _ ∷ _ ]) eq ⊢cs ⊢base =
@@ -6035,11 +6035,11 @@ opaque
 
         »∇     = check-dcon-sound′ ∇ eq₁ ⊢cs ⊢base
         A≡A′   = P.check-type-sound (P-inhabited n) eq₂ ⊢γ′ (ε »∇)
-        ⊢A , _ = wf-⊢≡ A≡A′
+        ⊢A , _ = wf-⊢ A≡A′
         ⊢t     =
           PE.subst₃ _⊢_∷_
             (PE.cong (flip U._»_ _) (⌜Trans⌝ᶜᵈ ∇)) PE.refl PE.refl $
-          wf-⊢≡∷
+          wf-⊢
             (P.check-sound (P-inhabited n) eq₃ ⊢γ″
                (PE.subst (flip _⊢_ _)
                   (PE.cong (flip U._»_ _) (PE.sym (⌜Trans⌝ᶜᵈ ∇))) $
@@ -6114,7 +6114,7 @@ opaque
   … | PE.refl , Δ≡Δ′ =
     let _ , ⊢Δ′ , _ = contextConvSubst Δ≡Δ′
         _ , t≡t′    = check-type-and-term-sound′ n eq₂ ⊢γ ⊢Δ′
-        _ , ⊢t , _  = wf-⊢≡∷ t≡t′
+        _ , ⊢t , _  = wf-⊢ t≡t′
     in
     stability (symConEq Δ≡Δ′) ⊢t
 

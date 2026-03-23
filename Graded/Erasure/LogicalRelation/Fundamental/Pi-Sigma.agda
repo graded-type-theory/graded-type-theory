@@ -489,7 +489,7 @@ opaque
     ▸⊩ʳ∷[𝟘ᵐ]
   fstʳ {Γ} {t} {p} {q} {A} {B} {γ} {m = 𝟙ᵐ} {n} ⊢t ⊩ʳt ▸fst-t =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ →
-    case inversion-ΠΣ (wf-⊢∷ ⊢t) of λ
+    case inversion-ΠΣ (wf-⊢ ⊢t) of λ
       (_ , ⊢B , ok) →
     case
       (λ p≡𝟘 →
@@ -543,7 +543,7 @@ opaque
     ▸⊩ʳ∷[𝟘ᵐ]
   sndʳ {Γ} {t} {p} {q} {A} {B} {γ} {m = 𝟙ᵐ} {n} ⊢t ⊩ʳt =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ →
-    case inversion-ΠΣ (wf-⊢∷ ⊢t) of λ
+    case inversion-ΠΣ (wf-⊢ ⊢t) of λ
       (_ , ⊢B , ok) →
     case subst-⊢-⇑ ⊢B ⊢σ of λ
       ⊢B[σ⇑] →
@@ -737,7 +737,7 @@ opaque
               PE.subst (flip (Neutral _) _) tr n;
             (_ , prodₙ {t = t₁} {u = t₂} , t[σ]⇒*t₁,t₂) →
           case inversion-prod-Σ $
-               wf-⊢≡∷ (subset*Term t[σ]⇒*t₁,t₂) .proj₂ .proj₂ of λ {
+               wf-⊢ (subset*Term t[σ]⇒*t₁,t₂) .proj₂ .proj₂ of λ {
             (_ , _ , PE.refl , PE.refl , _) →
           record
             { t₁            = t₁

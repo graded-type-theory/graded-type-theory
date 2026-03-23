@@ -33,7 +33,7 @@ opaque
   -- A variant of Idⱼ.
 
   Idⱼ′ : Γ ⊢ t ∷ A → Γ ⊢ u ∷ A → Γ ⊢ Id A t u
-  Idⱼ′ ⊢t = Idⱼ (wf-⊢∷ ⊢t) ⊢t
+  Idⱼ′ ⊢t = Idⱼ (wf-⊢ ⊢t) ⊢t
 
 opaque
 
@@ -46,5 +46,5 @@ opaque
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ []-cong s l A t u v ∷ Id (Erased l A) ([ t ]) ([ u ])
   []-congⱼ′ ok ⊢l ⊢v =
-    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢v) in
     []-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok

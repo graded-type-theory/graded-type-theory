@@ -60,7 +60,7 @@ opaque
   ⇒*Level→Allowed-literal→ :
     Γ ⊢ A ⇒* Level → Allowed-literal (level t) → X
   ⇒*Level→Allowed-literal→ ⇒*Level ok =
-    let okᴸ = inversion-Level-⊢ (wf-⊢≡ (subset* ⇒*Level) .proj₂) in
+    let okᴸ = inversion-Level-⊢ (wf-⊢ (subset* ⇒*Level) .proj₂) in
     Level-allowed→Allowed-literal→ okᴸ ok
 
 opaque
@@ -71,7 +71,7 @@ opaque
   ⇒*∷Level→Allowed-literal→ :
     Γ ⊢ t ⇒* u ∷ Level → Allowed-literal (level v) → X
   ⇒*∷Level→Allowed-literal→ ⇒*∷L ok =
-    let okᴸ = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒*∷L) .proj₁) in
+    let okᴸ = inversion-Level-⊢ (wf-⊢ (subset*Term ⇒*∷L) .proj₁) in
     Level-allowed→Allowed-literal→ okᴸ ok
 
 ------------------------------------------------------------------------
@@ -119,14 +119,14 @@ opaque
   -- A variant of _⊢_∷Level.term.
 
   term-⊢∷ : Γ ⊢ t ∷ Level → Γ ⊢ level t ∷Level
-  term-⊢∷ ⊢t = term (inversion-Level-⊢ (wf-⊢∷ ⊢t)) ⊢t
+  term-⊢∷ ⊢t = term (inversion-Level-⊢ (wf-⊢ ⊢t)) ⊢t
 
 opaque
 
   -- A variant of _⊢_≡_∷Level.term.
 
   term-⊢≡∷ : Γ ⊢ t₁ ≡ t₂ ∷ Level → Γ ⊢ level t₁ ≡ level t₂ ∷Level
-  term-⊢≡∷ t₁≡t₂ = term (inversion-Level-⊢ (wf-⊢≡∷ t₁≡t₂ .proj₁)) t₁≡t₂
+  term-⊢≡∷ t₁≡t₂ = term (inversion-Level-⊢ (wf-⊢ t₁≡t₂ .proj₁)) t₁≡t₂
 
 opaque
   unfolding _⊢_≤ₗ_∷Level
@@ -136,7 +136,7 @@ opaque
 
   term-⊢≤∷L : Γ ⊢ t₁ ≤ t₂ ∷Level → Γ ⊢ level t₁ ≤ₗ level t₂ ∷Level
   term-⊢≤∷L l₁≤l₂ =
-    let ⊢Level , ⊢sup , _ = wf-⊢≡∷ l₁≤l₂
+    let ⊢Level , ⊢sup , _ = wf-⊢ l₁≤l₂
         ok                = inversion-Level-⊢ ⊢Level
         ⊢t₁ , _           = inversion-supᵘ ⊢sup
     in
@@ -195,7 +195,7 @@ opaque
     Γ ⊢ t ∷ Level →
     Γ ⊢ t supᵘ zeroᵘ ≡ t ∷ Level
   supᵘ-zeroʳⱼ ⊢t =
-    LP.supᵘ-zeroʳⱼ (inversion-Level-⊢ (wf-⊢∷ ⊢t)) ⊢t
+    LP.supᵘ-zeroʳⱼ (inversion-Level-⊢ (wf-⊢ ⊢t)) ⊢t
 
 -- A variant of supᵘ-comm
 
@@ -512,7 +512,7 @@ opaque
 
   wf-⊢≤ₗ∷L : Γ ⊢ l₁ ≤ₗ l₂ ∷Level → Γ ⊢ l₁ ∷Level × Γ ⊢ l₂ ∷Level
   wf-⊢≤ₗ∷L (⊢l₁ , ≡l₂) =
-    let _ , ⊢l₂ = wf-⊢≡∷L ≡l₂ in
+    let _ , ⊢l₂ = wf-⊢ ≡l₂ in
     ⊢l₁ , ⊢l₂
 
 opaque
@@ -532,7 +532,7 @@ opaque
     Γ ⊢ l₁ ≡ l₂ ∷Level →
     Γ ⊢ l₁ ≤ₗ l₂ ∷Level
   reflexive-⊢≤ₗ∷L {l₁} {l₂} l₁≡l₂ =
-    let ⊢l₁ , ⊢l₂ = wf-⊢≡∷L l₁≡l₂ in
+    let ⊢l₁ , ⊢l₂ = wf-⊢ l₁≡l₂ in
     ⊢≡∷L→⊢≤ₗ∷L ⊢l₁
       (l₁ supᵘₗ l₂  ≡⟨ supᵘₗ-cong l₁≡l₂ (refl-⊢≡∷L ⊢l₂) ⟩⊢
        l₂ supᵘₗ l₂  ≡⟨ supᵘₗ-idem ⊢l₂ ⟩⊢∎
@@ -548,7 +548,7 @@ opaque
     Γ ⊢ l₂ ≤ₗ l₃ ∷Level →
     Γ ⊢ l₁ ≤ₗ l₃ ∷Level
   trans-⊢≤ₗ∷L {l₁} {l₂} {l₃} (⊢l₁ , l₁⊔l₂≡l₂) (⊢l₂ , l₂⊔l₃≡l₃) =
-    let _ , ⊢l₃ = wf-⊢≡∷L l₂⊔l₃≡l₃ in
+    let _ , ⊢l₃ = wf-⊢ l₂⊔l₃≡l₃ in
     ⊢l₁ ,
     (l₁ supᵘₗ l₃             ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (sym-⊢≡∷L l₂⊔l₃≡l₃) ⟩⊢
      l₁ supᵘₗ l₂ supᵘₗ l₃    ≡˘⟨ supᵘₗ-assoc ⊢l₁ ⊢l₂ ⊢l₃ ⟩⊢
@@ -602,7 +602,7 @@ opaque
     Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
     Γ ⊢ 1ᵘ+ l₁ ≤ₗ 1ᵘ+ l₂ ∷Level
   1ᵘ+-mono {l₁} {l₂} (⊢l₁ , l₁⊔l₂≡l₂) =
-    let _ , ⊢l₂ = wf-⊢≡∷L l₁⊔l₂≡l₂ in
+    let _ , ⊢l₂ = wf-⊢ l₁⊔l₂≡l₂ in
     ⊢1ᵘ+ ⊢l₁ ,
     (1ᵘ+ l₁ supᵘₗ 1ᵘ+ l₂  ≡⟨ supᵘₗ-1ᵘ+ ⊢l₁ ⊢l₂ ⟩⊢
      1ᵘ+ (l₁ supᵘₗ l₂)    ≡⟨ 1ᵘ+-cong l₁⊔l₂≡l₂ ⟩⊢∎
@@ -667,7 +667,7 @@ opaque
     Γ ⊢ l₁ ≤ₗ l₂ ∷Level →
     Γ ⊢ l₁ ≤ₗ 1ᵘ+ l₂ ∷Level
   step-⊢≤ₗ∷L {l₁} {l₂} (⊢l₁ , l₁⊔l₂≡l₂) =
-    let _ , ⊢l₂ = wf-⊢≡∷L l₁⊔l₂≡l₂ in
+    let _ , ⊢l₂ = wf-⊢ l₁⊔l₂≡l₂ in
     ⊢l₁ ,
     (l₁ supᵘₗ 1ᵘ+ l₂                 ≡⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (1ᵘ+-cong (sym-⊢≡∷L l₁⊔l₂≡l₂)) ⟩⊢
      l₁ supᵘₗ 1ᵘ+ (l₁ supᵘₗ l₂)      ≡˘⟨ supᵘₗ-cong (refl-⊢≡∷L ⊢l₁) (supᵘₗ-1ᵘ+ ⊢l₁ ⊢l₂) ⟩⊢
@@ -701,7 +701,7 @@ opaque
 
   wf-⊢≤ : Γ ⊢ t₁ ≤ t₂ ∷Level → Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level
   wf-⊢≤ t₁≤t₂ =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ t₁≤t₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ t₁≤t₂ .proj₁) in
     Σ.map (⊢∷Level→⊢∷Level ok) (⊢∷Level→⊢∷Level ok)
       (wf-⊢≤ₗ∷L (term-⊢≤∷L t₁≤t₂))
 
@@ -711,7 +711,7 @@ opaque
 
   ⊢≤-refl : Γ ⊢ t₁ ≡ t₂ ∷ Level → Γ ⊢ t₁ ≤ t₂ ∷Level
   ⊢≤-refl t₁≡t₂ =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ t₁≡t₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ t₁≡t₂ .proj₁) in
     ⊢≤ₗ∷Level→⊢≤∷Level ok (reflexive-⊢≤ₗ∷L (term-⊢≡∷ t₁≡t₂))
 
 opaque
@@ -721,7 +721,7 @@ opaque
   ⊢≤-trans :
     Γ ⊢ t₁ ≤ t₂ ∷Level → Γ ⊢ t₂ ≤ t₃ ∷Level → Γ ⊢ t₁ ≤ t₃ ∷Level
   ⊢≤-trans t₁≤t₂ t₂≤t₃ =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ t₁≤t₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ t₁≤t₂ .proj₁) in
     ⊢≤ₗ∷Level→⊢≤∷Level ok
       (trans-⊢≤ₗ∷L (term-⊢≤∷L t₁≤t₂) (term-⊢≤∷L t₂≤t₃))
 
@@ -732,7 +732,7 @@ opaque
   ⊢≤-antisymmetric :
     Γ ⊢ t₁ ≤ t₂ ∷Level → Γ ⊢ t₂ ≤ t₁ ∷Level → Γ ⊢ t₁ ≡ t₂ ∷ Level
   ⊢≤-antisymmetric t₁≤t₂ t₂≤t₁ =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ t₁≤t₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ t₁≤t₂ .proj₁) in
     ⊢≡∷Level→⊢≡∷Level ok
       (antisym-⊢≤ₗ∷L (term-⊢≤∷L t₁≤t₂) (term-⊢≤∷L t₂≤t₁))
 
@@ -744,7 +744,7 @@ opaque
 
   supᵘ-sub′ : Γ ⊢ t₁ ≤ t₂ ∷Level → Γ ⊢ t₁ ≤ sucᵘ t₂ ∷Level
   supᵘ-sub′ t₁≤t₂ =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ t₁≤t₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ t₁≤t₂ .proj₁) in
     ⊢≤ₗ∷Level→⊢≤∷Level ok (step-⊢≤ₗ∷L (term-⊢≤∷L t₁≤t₂))
 
 opaque
@@ -763,7 +763,7 @@ opaque
     Γ ⊢ t₁ ≤ t₂ ∷Level →
     Γ ⊢ sucᵘ t₁ ≤ sucᵘ t₂ ∷Level
   ≤-sucᵘ t₁≤t₂ =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ t₁≤t₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ t₁≤t₂ .proj₁) in
     ⊢≤ₗ∷Level→⊢≤∷Level ok (1ᵘ+-mono (term-⊢≤∷L t₁≤t₂))
 
 opaque
@@ -775,7 +775,7 @@ opaque
     Γ ⊢ t₁ ≤ t₂ ∷Level →
     Γ ⊢ 1ᵘ+ⁿ n₁ t₁ ≤ 1ᵘ+ⁿ n₂ t₂ ∷Level
   ≤-1ᵘ+ⁿ {n₁} {n₂} n₁≤n₂ t₁≤t₂ =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ t₁≤t₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ t₁≤t₂ .proj₁) in
     ⊢≤ₗ∷Level→⊢≤∷Level ok $
     PE.subst₂ (_⊢_≤ₗ_∷Level _) (1ᵘ+ⁿ-level≡ n₁) (1ᵘ+ⁿ-level≡ n₂) $
     1ᵘ+ⁿ-mono n₁≤n₂ (term-⊢≤∷L t₁≤t₂)

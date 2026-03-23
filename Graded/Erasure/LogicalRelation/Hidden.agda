@@ -165,7 +165,7 @@ opaque
          let ok =
                case t®v of λ {
                  (starᵣ t⇛ _) →
-               inversion-Unit (wf-⊢∷ (wf-⇛ t⇛ .proj₁)) }
+               inversion-Unit (wf-⊢ (wf-⇛ t⇛ .proj₁)) }
          in
          Unit-intro ⊢Δ ok , t®v)
 
@@ -196,7 +196,7 @@ opaque
     , (λ (⊢A , t®v) →
          (case t®v of λ {
            (rflᵣ t⇒* _) →
-         let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ (wf-⇛ t⇒* .proj₁))
+         let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ (wf-⇛ t⇒* .proj₁))
          in  Id-intro ⊢A ⊢t ⊢u , t®v}))
 
 opaque

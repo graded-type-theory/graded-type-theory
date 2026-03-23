@@ -31,5 +31,5 @@ opaque
 
   ⊢U′ : Γ ⊢ t ∷ Level → Γ ⊢ U (level t)
   ⊢U′ ⊢t =
-    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢t) in
+    let ok = inversion-Level-⊢ (wf-⊢ ⊢t) in
     ⊢U (term ok ⊢t)

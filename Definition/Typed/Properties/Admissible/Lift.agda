@@ -54,7 +54,7 @@ opaque
          → Γ ⊢ A ∷ U l₁
          → Γ ⊢ Lift l₂ A ∷ U (l₁ supᵘₗ l₂)
   Liftⱼ′ ⊢l₂ ⊢A =
-    let ok = inversion-U-Level (wf-⊢∷ ⊢A) in
+    let ok = inversion-U-Level (wf-⊢ ⊢A) in
     Liftⱼ ok ⊢l₂ ⊢A
 
 opaque
@@ -68,7 +68,7 @@ opaque
     Γ ⊢ Lift (level t₂) A ∷ U (level t₂)
   Liftⱼ≤ t₁≤t₂ ⊢A =
     let _ , ⊢t₂ = wf-⊢≤ t₁≤t₂
-        ok      = inversion-Level-⊢ (wf-⊢∷ ⊢t₂)
+        ok      = inversion-Level-⊢ (wf-⊢ ⊢t₂)
     in
     _⊢_∷_.conv (Liftⱼ′ (term-⊢∷ ⊢t₂) ⊢A) $
     PE.subst (flip (_⊢_≡_ _) _) (PE.sym (PE.cong U (supᵘₗ≡supᵘ ok))) $
@@ -83,7 +83,7 @@ opaque
     → Γ ⊢ A ∷ U l₁
     → Γ ⊢ Lift l₂ A ∷ U (l₂ supᵘₗ l₁)
   Liftⱼ-comm ⊢l₂ ⊢A =
-    let ⊢l₁ = inversion-U-Level (wf-⊢∷ ⊢A) in
+    let ⊢l₁ = inversion-U-Level (wf-⊢ ⊢A) in
     conv (Liftⱼ′ ⊢l₂ ⊢A) (U-cong-⊢≡ (supᵘₗ-comm ⊢l₁ ⊢l₂))
 
 opaque
@@ -94,8 +94,8 @@ opaque
              → Γ ⊢ A ≡ B ∷ U l₁
              → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₁ supᵘₗ l₂)
   Lift-cong′ l₂≡l₂′ A≡B =
-    let ⊢l₁     = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
-        ⊢l₂ , _ = wf-⊢≡∷L l₂≡l₂′
+    let ⊢l₁     = inversion-U-Level (wf-⊢ A≡B .proj₁)
+        ⊢l₂ , _ = wf-⊢ l₂≡l₂′
     in
     Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B
 
@@ -121,7 +121,7 @@ opaque
     Γ ⊢ A ∷ U l₁ →
     Γ ⊢ Lift l₂ A ∷ U l₂
   ⊢Lift-≤ₗ l₁≤l₂ ⊢A =
-    wf-⊢≡∷
+    wf-⊢
       (Lift-cong-≤ₗ l₁≤l₂ (refl-⊢≡∷L (wf-⊢≤ₗ∷L l₁≤l₂ .proj₂)) (refl ⊢A))
       .proj₂ .proj₁
 
@@ -134,8 +134,8 @@ opaque
     → Γ ⊢ A ≡ B ∷ U l₁
     → Γ ⊢ Lift l₂ A ≡ Lift l₂′ B ∷ U (l₂ supᵘₗ l₁)
   Lift-cong-comm l₂≡l₂′ A≡B =
-    let ⊢l₁     = inversion-U-Level (wf-⊢≡∷ A≡B .proj₁)
-        ⊢l₂ , _ = wf-⊢≡∷L l₂≡l₂′
+    let ⊢l₁     = inversion-U-Level (wf-⊢ A≡B .proj₁)
+        ⊢l₂ , _ = wf-⊢ l₂≡l₂′
     in
     conv (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B)
       (U-cong-⊢≡ (supᵘₗ-comm ⊢l₁ ⊢l₂))
@@ -147,7 +147,7 @@ opaque
   liftⱼ′ : Γ ⊢ l₂ ∷Level
          → Γ ⊢ t ∷ A
          → Γ ⊢ lift t ∷ Lift l₂ A
-  liftⱼ′ ⊢l₂ ⊢t = liftⱼ ⊢l₂ (wf-⊢∷ ⊢t) ⊢t
+  liftⱼ′ ⊢l₂ ⊢t = liftⱼ ⊢l₂ (wf-⊢ ⊢t) ⊢t
 
 opaque
 
@@ -158,8 +158,8 @@ opaque
     Γ ⊢ t ≡ u ∷ A →
     Γ ⊢ lift t ≡ lift u ∷ Lift l₂ A
   lift-cong ⊢l₂ t≡u =
-    let _ , ⊢t , ⊢u = wf-⊢≡∷ t≡u
-    in S.lift-cong ⊢l₂ (wf-⊢≡∷ t≡u .proj₁) ⊢t ⊢u t≡u
+    let _ , ⊢t , ⊢u = wf-⊢ t≡u
+    in S.lift-cong ⊢l₂ (wf-⊢ t≡u .proj₁) ⊢t ⊢u t≡u
 
 opaque
 
@@ -167,7 +167,7 @@ opaque
 
   Lift-β′ : Γ ⊢ t ∷ A
           → Γ ⊢ lower (lift t) ≡ t ∷ A
-  Lift-β′ ⊢t = Lift-β (wf-⊢∷ ⊢t) ⊢t
+  Lift-β′ ⊢t = Lift-β (wf-⊢ ⊢t) ⊢t
 
 opaque
 
@@ -175,7 +175,7 @@ opaque
 
   Lift-β⇒ : Γ ⊢ t ∷ A
           → Γ ⊢ lower (lift t) ⇒ t ∷ A
-  Lift-β⇒ ⊢t = Lift-β (wf-⊢∷ ⊢t) ⊢t
+  Lift-β⇒ ⊢t = Lift-β (wf-⊢ ⊢t) ⊢t
 
 opaque
 
@@ -186,8 +186,8 @@ opaque
           → Γ ⊢ lower t ≡ lower u ∷ A
           → Γ ⊢ t ≡ u ∷ Lift l₂ A
   Lift-η′ ⊢t ⊢u lowert≡loweru =
-    let ⊢l₂ , _ = inversion-Lift (wf-⊢∷ ⊢t)
-    in Lift-η ⊢l₂ (wf-⊢≡∷ lowert≡loweru .proj₁) ⊢t ⊢u lowert≡loweru
+    let ⊢l₂ , _ = inversion-Lift (wf-⊢ ⊢t)
+    in Lift-η ⊢l₂ (wf-⊢ lowert≡loweru .proj₁) ⊢t ⊢u lowert≡loweru
 
 opaque
 
@@ -198,8 +198,8 @@ opaque
     → Γ ⊢ lower t ≡ u ∷ A
     → Γ ⊢ t ≡ lift u ∷ Lift l A
   Lift-η-swap ⊢t lowert≡u =
-    let _ , _ , ⊢u = wf-⊢≡∷ lowert≡u
-        ⊢l , ⊢A = inversion-Lift (wf-⊢∷ ⊢t)
+    let _ , _ , ⊢u = wf-⊢ lowert≡u
+        ⊢l , ⊢A = inversion-Lift (wf-⊢ ⊢t)
     in Lift-η′ ⊢t (liftⱼ′ ⊢l ⊢u) (trans lowert≡u (sym′ (Lift-β′ ⊢u)))
 
 opaque
@@ -210,7 +210,7 @@ opaque
     Γ ⊢ t ∷ Lift l A →
     Γ ⊢ lift (lower t) ≡ t ∷ Lift l A
   ⊢lift-lower≡∷ ⊢t =
-    let ⊢l , _ = inversion-Lift (wf-⊢∷ ⊢t) in
+    let ⊢l , _ = inversion-Lift (wf-⊢ ⊢t) in
     Lift-η′ (liftⱼ′ ⊢l (lowerⱼ ⊢t)) ⊢t
       (Lift-β′ (lowerⱼ ⊢t))
 

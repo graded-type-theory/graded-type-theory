@@ -78,7 +78,7 @@ opaque
     ∇ » Η ⊢ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]    ⇔⟨ (λ (σ₁₊≡σ₂₊ , _ , _ , σ₁₀≡σ₂₀) →
                                                         σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀)
                                                   , (λ (σ₁₊≡σ₂₊ , σ₁₀≡σ₂₀) →
-                                                        let _ , ⊢σ₁₀ , ⊢σ₂₀ = wf-⊢≡∷ σ₁₀≡σ₂₀ in
+                                                        let _ , ⊢σ₁₀ , ⊢σ₂₀ = wf-⊢ σ₁₀≡σ₂₀ in
                                                         σ₁₊≡σ₂₊ , ⊢σ₁₀ , conv ⊢σ₂₀ (subst-⊢≡ (refl ⊢A) σ₁₊≡σ₂₊) , σ₁₀≡σ₂₀)
                                                   ⟩
 
@@ -126,7 +126,7 @@ opaque
     ∇ » Η ⊢ˢʷ σ₁ ≡ σ₂ ∷ Δ →
     ∇ » Η ∙ A [ σ₁ ] ⊢ˢʷ σ₁ ⇑ ≡ σ₂ ⇑ ∷ Δ ∙ A
   ⊢ˢʷ≡∷-⇑ A[σ₁]≡A[σ₂] =
-    P.⊢ˢʷ≡∷-⇑ (wf-⊢≡ A[σ₁]≡A[σ₂] .proj₁) A[σ₁]≡A[σ₂]
+    P.⊢ˢʷ≡∷-⇑ (wf-⊢ A[σ₁]≡A[σ₂] .proj₁) A[σ₁]≡A[σ₂]
 
 opaque
 
@@ -139,7 +139,7 @@ opaque
     ∇ » Δ ⊢ t₁ ≡ t₂ ∷ A →
     ∇ » Δ ⊢ˢʷ sgSubst t₁ ≡ sgSubst t₂ ∷ Δ ∙ A
   ⊢ˢʷ≡∷-sgSubst t₁≡t₂ =
-    let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂ in
+    let _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂ in
     P.⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂
 
 opaque
@@ -184,7 +184,7 @@ opaque
     ∇ » Δ ⊢ˢʷ consSubst (wkSubst k idSubst) t₁ ≡
       consSubst (wkSubst k idSubst) t₂ ∷ drop k Δ ∙ A
   ⊢ˢʷ≡∷-[][]↑ t₁≡t₂ =
-    let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂ in
+    let _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂ in
     P.⊢ˢʷ≡∷-[][]↑ ⊢t₁ ⊢t₂ t₁≡t₂
 
 ------------------------------------------------------------------------
@@ -256,7 +256,7 @@ opaque
   subst↑²Type-prod :
     Γ »∙ Σ⟨ s ⟩ p , q ▷ A ▹ B ⊢ C →
     Γ »∙ A »∙ B ⊢ C [ prod s p (var x1) (var x0) ]↑²
-  subst↑²Type-prod = proj₁ ∘→ wf-⊢≡ ∘→ subst↑²TypeEq-prod ∘→ refl
+  subst↑²Type-prod = proj₁ ∘→ wf-⊢ ∘→ subst↑²TypeEq-prod ∘→ refl
 
 opaque
 

@@ -202,11 +202,11 @@ opaque
   wk-↑ᵘ [ρ] {⊩l = term _ _} {⊩l′ = term _ _} eq =
     PE.cong 0ᵘ+ (wk-↑ⁿ [ρ] _ _ (level-PE-injectivity eq))
   wk-↑ᵘ _ {⊩l = term ⇒∷L _} {⊩l′ = literal ok _} eq
-    using okᴸ ← inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷L) .proj₁)
+    using okᴸ ← inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷L) .proj₁)
     with Allowed-literal→Infinite okᴸ ok
   … | ωᵘ+ = case eq of λ ()
   wk-↑ᵘ _ {⊩l = literal ok _} {⊩l′ = term ⇒∷L _} eq
-    using okᴸ ← inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷L) .proj₁)
+    using okᴸ ← inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷L) .proj₁)
     with Allowed-literal→Infinite okᴸ ok
   … | ωᵘ+ = case eq of λ ()
   wk-↑ᵘ _ {⊩l = literal ok₁ _} {⊩l′ = literal ok₂ _} PE.refl =

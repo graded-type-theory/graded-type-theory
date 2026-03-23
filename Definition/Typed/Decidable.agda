@@ -125,7 +125,7 @@ decWfDCon (∇ ∙ᶜᵗ[ t ∷ A ]) =
         dec (ε »∇) A ×-dec′ λ ⊢A →
         decTermᶜ ⊢A t) of λ where
     (no not) → no λ where
-      ∙ᵗ[ ⊢t ] → not (defn-wf (wf ⊢t) , wf-⊢∷ ⊢t , ⊢t)
+      ∙ᵗ[ ⊢t ] → not (defn-wf (wf ⊢t) , wf-⊢ ⊢t , ⊢t)
     (yes (_ , _ , ⊢t)) → yes ∙ᵗ[ ⊢t ]
 
 -- If » ∇ and Δ is a checkable context, then ∇ »⊢ Δ is decidable.

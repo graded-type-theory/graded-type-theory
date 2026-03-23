@@ -116,7 +116,7 @@ opaque
              lamⱼ′ ok₃ $
              var₀ (univ (var₀ (⊢U′ (var₀ (Levelⱼ′ ok ⊢Γ)))))
        in
-       wf-⊢∷ ⊢t ,
+       wf-⊢ ⊢t ,
        ⊢t) ,
     ¬⊢∷ ,
     ¬⊢∷ ∘→ Σ.map _ idᶠ

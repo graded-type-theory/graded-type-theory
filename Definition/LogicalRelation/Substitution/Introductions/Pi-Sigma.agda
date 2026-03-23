@@ -101,7 +101,7 @@ opaque
                 , wk-B≡wk-B ξ⊇ ρ⊇ ⊩t ⊩u
                     (irrelevanceEqTerm ⊩wk-ρ-A′ ⊩wk-ρ-A t≡u) }})
     , (λ (ΠΣ≅ΠΣ , rest) →
-         let ⊢ΠΣ , _    = wf-⊢≡ (≅-eq ΠΣ≅ΠΣ)
+         let ⊢ΠΣ , _    = wf-⊢ (≅-eq ΠΣ≅ΠΣ)
              _ , _ , ok = inversion-ΠΣ ⊢ΠΣ
          in
          Bᵣ (BM b p q)
@@ -311,7 +311,7 @@ opaque
       (_ , ⊩A₁ , _) →
     case ⊩ΠΣ⇔ .proj₁ ⊩ΠΣ₁ of λ
       (ΠΣ≅ΠΣ , rest₁) →
-    case wf (wf-⊢≡ (≅-eq ΠΣ≅ΠΣ) .proj₁) of λ
+    case wf (wf-⊢ (≅-eq ΠΣ≅ΠΣ) .proj₁) of λ
       ⊢Γ →
     B₁ [ t₁ ]₀  ≡⟨ PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B₁)
@@ -409,7 +409,7 @@ opaque
       ⊩B₂ →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
-    case wf-⊢≡ ΠΣ≡ΠΣ of λ
+    case wf-⊢ ΠΣ≡ΠΣ of λ
       (⊢ΠΣ₁ , ⊢ΠΣ₂) →
     ⊩ΠΣ≡ΠΣ⇔ .proj₂
       ( ⊩ΠΣ ⊢ΠΣ₁ ⊩A₁ ⊩B₁ ⊩σ₁
@@ -613,7 +613,7 @@ opaque
     ∇ » Η ⊩⟨ ωᵘ·2 ⟩ (ΠΣ⟨ b ⟩ p , q ▷ A₁ ▹ B₁) [ σ₁ ] ≡
       (ΠΣ⟨ b ⟩ p , q ▷ A₂ ▹ B₂) [ σ₂ ] ∷ U l [ σ₁ ]
   ⊩ΠΣ≡ΠΣ∷U {A₁} {B₁} {A₂} {B₂} {l} {σ₁} ΠΣ≡ΠΣ ⊩l A₁≡A₂∷U B₁≡B₂∷U σ₁≡σ₂ =
-    case wf-⊢≡∷ ΠΣ≡ΠΣ of λ
+    case wf-⊢ ΠΣ≡ΠΣ of λ
       (_ , ⊢ΠΣ₁ , ⊢ΠΣ₂) →
     case wf-⊩ˢ≡∷ σ₁≡σ₂ of λ
       (⊩σ₁ , ⊩σ₂) →
@@ -634,7 +634,7 @@ opaque
         ⊩ΠΣ∷U ⊢ΠΣ₂ ⊩l (wf-⊩ᵛ≡∷ A₁≡A₂∷U .proj₂)
         (conv-∙-⊩ᵛ∷ A₁≡A₂ (wf-⊩ᵛ≡∷ B₁≡B₂∷U .proj₂)) ⊩σ₂ of λ
       (_ , _ , ⊩ΠΣ₂ , _) →
-    let _ , _ , ok = inversion-ΠΣ (wf-⊢≡ (univ ΠΣ≡ΠΣ) .proj₁)
+    let _ , _ , ok = inversion-ΠΣ (wf-⊢ (univ ΠΣ≡ΠΣ) .proj₁)
         ΠΣ[]≡ΠΣ[] = subst-⊢≡ ΠΣ≡ΠΣ (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂)
         ΠΣ[]≅ΠΣ[] = with-inc-⊢≅∷ ΠΣ[]≡ΠΣ[] $ ≅ₜ-ΠΣ-cong
             (escapeLevel ⊩l[σ₁])

@@ -235,7 +235,7 @@ mutual
           t₁′ , ⊢t₁′ , t₁≡t₁′ = fullRedTermConv↑ t₁≡t₂
           u₁′ , ⊢u₁′ , u₁≡u₁′ = fullRedTermConv↑ u₁≡u₂
           v₁′ , ⊢v₁′ , v₁≡v₁′ = fullRedNe~↓ v₁~v₂
-          ⊢l₁ , _             = wf-⊢≡∷L l₁≡l₁′
+          ⊢l₁ , _             = wf-⊢ l₁≡l₁′
           Erased-ok           = []-cong→Erased ok
       in
       []-cong _ l₁′ A₁′ t₁′ u₁′ v₁′ ,

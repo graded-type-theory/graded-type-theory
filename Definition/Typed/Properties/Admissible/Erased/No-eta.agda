@@ -55,7 +55,7 @@ opaque
     Γ ⊢ erased A [ t ] ≡ t ∷ A
   Erased-β (Unit-ok , Σ-ok) ⊢t =
     let ⊢Γ = wf ⊢t
-        ⊢A = wf-⊢∷ ⊢t
+        ⊢A = wf-⊢ ⊢t
     in
     fst⟨⟩-β-≡ (Liftⱼ (⊢zeroᵘ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
       (liftⱼ′ (⊢zeroᵘ ⊢Γ) (starⱼ ⊢Γ Unit-ok)) Σ-ok
@@ -88,6 +88,6 @@ opaque
     ∃₂ λ q B → Γ ⊢ t ∷ Σʷ 𝟘 , q ▷ A ▹ B × Σʷ-allowed 𝟘 q
   inversion-erased {C} {t} ⊢erased =
     let q , B , ⊢t , A≡C = inversion-fstʷ ⊢erased
-        _ , ⊢B , Σ-ok    = inversion-ΠΣ (wf-⊢∷ ⊢t)
+        _ , ⊢B , Σ-ok    = inversion-ΠΣ (wf-⊢ ⊢t)
     in
     q , B , conv ⊢t (ΠΣ-cong (sym A≡C) (refl ⊢B) Σ-ok) , Σ-ok

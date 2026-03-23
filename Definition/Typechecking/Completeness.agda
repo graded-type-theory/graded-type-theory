@@ -155,7 +155,7 @@ mutual
     in _ , Levelᵢ ok , A≡
   completeness⇉ zeroᵘᵢ ⊢t =
     let A≡Level = inversion-zeroᵘ ⊢t
-        ok      = inversion-Level-⊢ (wf-⊢≡ A≡Level .proj₂)
+        ok      = inversion-Level-⊢ (wf-⊢ A≡Level .proj₂)
     in
     _ , zeroᵘᵢ ok , A≡Level
   completeness⇉ (sucᵘᵢ t) ⊢t =

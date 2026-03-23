@@ -342,7 +342,7 @@ opaque
 
   ↑ᵘ : {l : Lvl ℓ} → Η ⊩Level l ∷Level → Universe-level
   ↑ᵘ ⊩t@(term ⇒∷Level _) =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁) in
     0ᵘ+ (↑ⁿ ok ⊩t)
   ↑ᵘ (literal ok _) =
     Allowed-literal→Universe-level ok

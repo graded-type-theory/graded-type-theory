@@ -1855,7 +1855,7 @@ opaque
     ⦃ inc : Var-included or-empty (Γ .vars) ⦄ →
     Γ ⊩ᵛ⟨ ℓ ⟩ l ∷Level → Γ ⊢ l ∷Level
   escape-⊩ᵛ∷L =
-    proj₁ ∘→ wf-⊢≡∷L ∘→ ⊢≅∷L→⊢≡∷L ∘→ escape-⊩ᵛ≡∷L ∘→ refl-⊩ᵛ≡∷L
+    proj₁ ∘→ wf-⊢ ∘→ ⊢≅∷L→⊢≡∷L ∘→ escape-⊩ᵛ≡∷L ∘→ refl-⊩ᵛ≡∷L
 
 opaque
 

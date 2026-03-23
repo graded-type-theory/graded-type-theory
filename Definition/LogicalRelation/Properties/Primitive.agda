@@ -163,7 +163,7 @@ opaque
     : Γ ⊩neNf t ≡ t ∷ A
     → Γ ⊢ t ∷ A
   escape-neNf (neNfₜ₌ neK neM k≡m) =
-    wf-⊢≡∷ (≅ₜ-eq (~-to-≅ₜ k≡m)) .proj₂ .proj₁
+    wf-⊢ (≅ₜ-eq (~-to-≅ₜ k≡m)) .proj₂ .proj₁
 
 opaque mutual
 
@@ -191,12 +191,12 @@ opaque mutual
     → Γ ⊢ t ∷ Level
   escape-neLevel-prop (supᵘˡᵣ ⊩t₁ ⊩t₂) =
     let ⊢t₁ = escape-neLevel-prop ⊩t₁
-        ok  = inversion-Level-⊢ (wf-⊢∷ ⊢t₁)
+        ok  = inversion-Level-⊢ (wf-⊢ ⊢t₁)
     in
     supᵘⱼ ⊢t₁ (⊢∷Level→⊢∷Level ok (escapeLevel ⊩t₂))
   escape-neLevel-prop (supᵘʳᵣ ⊩t₁ ⊩t₂) =
     let ⊢t₂ = escape-neLevel-prop ⊩t₂
-        ok  = inversion-Level-⊢ (wf-⊢∷ ⊢t₂)
+        ok  = inversion-Level-⊢ (wf-⊢ ⊢t₂)
     in
     supᵘⱼ (sucᵘⱼ (⊢∷Level→⊢∷Level ok (escapeLevel ⊩t₁))) ⊢t₂
   escape-neLevel-prop (ne x) = escape-neNf x
@@ -234,12 +234,12 @@ opaque mutual
     → Γ ⊢≅ t ∷ Level
   escape-neLevel-prop′ (supᵘˡᵣ ⊩t₁ ⊩t₂) =
     let ⊢t₁ = escape-neLevel-prop′ ⊩t₁
-        ok  = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢t₁) .proj₁)
+        ok  = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢t₁) .proj₁)
     in
     ≅ₜ-supᵘ-cong ⊢t₁ (escapeLevel′ ok ⊩t₂)
   escape-neLevel-prop′ (supᵘʳᵣ ⊩t₁ ⊩t₂) =
     let ⊢t₂ = escape-neLevel-prop′ ⊩t₂
-        ok  = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢t₂) .proj₁)
+        ok  = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢t₂) .proj₁)
     in
     ≅ₜ-supᵘ-cong (≅ₜ-sucᵘ-cong (escapeLevel′ ok ⊩t₁)) ⊢t₂
   escape-neLevel-prop′ (ne (neNfₜ₌ _ _ k≡m)) =
@@ -257,7 +257,7 @@ opaque mutual
     let t′-whnf , u′-whnf = lsplit t′≡u′
         ⊢t                = redFirst*Term t⇒t′
         ⊢Γ                = wf ⊢t
-        ok                = inversion-Level-⊢ (wf-⊢∷ ⊢t)
+        ok                = inversion-Level-⊢ (wf-⊢ ⊢t)
     in
     ⊢≅∷→⊢≅∷L $
     ≅ₜ-red (id (Levelⱼ′ ok ⊢Γ) , Levelₙ) (t⇒t′ , t′-whnf)
@@ -275,7 +275,7 @@ opaque mutual
     ≅ₜ-sucᵘ-cong (⊢≅∷L→⊢≅∷ ok $ escapeLevelEq ⊩t)
   escape-[Level]-prop ⊢Γ (supᵘ-subᵣ ⊩t ⊩u) =
     let ⊢t = escape-neLevel-prop′ ⊩t
-        ok = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢t) .proj₁)
+        ok = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢t) .proj₁)
     in
     ≅ₜ-supᵘ-sub′ ⊢t (⊢≅∷L→⊢≅∷ ok $ escapeLevelEq ⊩u)
   escape-[Level]-prop ⊢Γ (neLvl n) = escape-[neLevel]-prop n
@@ -288,12 +288,12 @@ opaque mutual
     → Γ ⊢ t ≅ u ∷ Level
   escape-[neLevel]-prop (supᵘˡᵣ ⊩t ⊩u) =
     let ⊢t = escape-[neLevel]-prop ⊩t
-        ok = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢t) .proj₁)
+        ok = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢t) .proj₁)
     in
     ≅ₜ-supᵘ-cong ⊢t (⊢≅∷L→⊢≅∷ ok $ escapeLevelEq ⊩u)
   escape-[neLevel]-prop (supᵘʳᵣ ⊩t ⊩u) =
     let ⊢u = escape-[neLevel]-prop ⊩u
-        ok = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢u) .proj₁)
+        ok = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢u) .proj₁)
     in
     ≅ₜ-supᵘ-cong (≅ₜ-sucᵘ-cong (⊢≅∷L→⊢≅∷ ok $ escapeLevelEq ⊩t)) ⊢u
   escape-[neLevel]-prop (supᵘ-zeroʳᵣ x) =
@@ -301,18 +301,18 @@ opaque mutual
     in ≅ₜ-supᵘ-zeroʳ ⊢t
   escape-[neLevel]-prop (supᵘ-assoc¹ᵣ ⊩t ⊩u ⊩v) =
     let ⊢t = escape-neLevel-prop′ ⊩t
-        ok = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢t) .proj₁)
+        ok = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢t) .proj₁)
     in
     ≅ₜ-supᵘ-assoc ⊢t (escapeLevel′ ok ⊩u) (escapeLevel′ ok ⊩v)
   escape-[neLevel]-prop (supᵘ-assoc²ᵣ ⊩t ⊩u ⊩v) =
     let ⊢u = escape-neLevel-prop′ ⊩u
-        ok = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢u) .proj₁)
+        ok = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢u) .proj₁)
     in
     ≅ₜ-supᵘ-assoc (≅ₜ-sucᵘ-cong (escapeLevel′ ok ⊩t)) ⊢u
       (escapeLevel′ ok ⊩v)
   escape-[neLevel]-prop (supᵘ-assoc³ᵣ ⊩t ⊩u ⊩v) =
     let ⊢v = escape-neLevel-prop′ ⊩v
-        ok = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢v) .proj₁)
+        ok = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢v) .proj₁)
         ⊢t = escapeLevel′ ok ⊩t
         ⊢u = escapeLevel′ ok ⊩u
     in
@@ -321,7 +321,7 @@ opaque mutual
       (≅ₜ-supᵘ-assoc (≅ₜ-sucᵘ-cong ⊢t) (≅ₜ-sucᵘ-cong ⊢u) ⊢v)
   escape-[neLevel]-prop (supᵘ-comm¹ᵣ ⊩t₁ t₁≡u₁ ⊩u₂ t₂≡u₂) =
     let ⊢t₁   = escape-neLevel-prop′ ⊩t₁
-        ok    = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢t₁) .proj₁)
+        ok    = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢t₁) .proj₁)
         t₁≡u₁ = ⊢≅∷L→⊢≅∷ ok $ escapeLevelEq t₁≡u₁
         t₂≡u₂ = ⊢≅∷L→⊢≅∷ ok $ escapeLevelEq t₂≡u₂
         ⊢t₂ , _ = wf-⊢≅∷ t₂≡u₂
@@ -329,14 +329,14 @@ opaque mutual
     ≅ₜ-trans (≅ₜ-supᵘ-comm ⊢t₁ ⊢t₂) (≅ₜ-supᵘ-cong t₂≡u₂ t₁≡u₁)
   escape-[neLevel]-prop (supᵘ-comm²ᵣ ⊩t₁ 1+t₁≡u₂ ⊩t₂) =
     let ⊢t₂     = escape-neLevel-prop′ ⊩t₂
-        ok      = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq ⊢t₂) .proj₁)
+        ok      = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq ⊢t₂) .proj₁)
         1+t₁≡u₂ = ⊢≅∷L→⊢≅∷ ok $ escapeLevelEq 1+t₁≡u₂
         _ , ⊢u₂ = wf-⊢≅∷ 1+t₁≡u₂
     in
     ≅ₜ-trans (≅ₜ-supᵘ-cong 1+t₁≡u₂ ⊢t₂) (≅ₜ-supᵘ-comm ⊢u₂ ⊢t₂)
   escape-[neLevel]-prop (supᵘ-idemᵣ ⊩t₁ t₁≡t₂) =
     let t₁≡t₁ = escape-neLevel-prop′ ⊩t₁
-        ok    = inversion-Level-⊢ (wf-⊢≡∷ (≅ₜ-eq t₁≡t₁) .proj₁)
+        ok    = inversion-Level-⊢ (wf-⊢ (≅ₜ-eq t₁≡t₁) .proj₁)
         t₁≡t₂ = ⊢≅∷L→⊢≅∷ ok $ escapeLevelEq t₁≡t₂
     in
     ≅ₜ-trans (≅ₜ-supᵘ-cong t₁≡t₁ (≅ₜ-sym t₁≡t₂)) (≅ₜ-supᵘ-idem t₁≡t₁)
@@ -354,12 +354,12 @@ opaque mutual
 
 ⊩[Lvl] : ⊢ Γ → [Level]-prop Γ t u → Γ ⊩Level level t ≡ level u ∷Level
 ⊩[Lvl] ⊢Γ t≡u =
-  let _ , ⊢t , ⊢u = wf-⊢≡∷ (≅ₜ-eq (escape-[Level]-prop ⊢Γ t≡u)) in
+  let _ , ⊢t , ⊢u = wf-⊢ (≅ₜ-eq (escape-[Level]-prop ⊢Γ t≡u)) in
   term (id ⊢t) (id ⊢u) t≡u
 
 ⊩[neLvl] : [neLevel]-prop Γ t u → Γ ⊩Level level t ≡ level u ∷Level
 ⊩[neLvl] t≡u =
-  let _ , ⊢t , ⊢u = wf-⊢≡∷ (≅ₜ-eq (escape-[neLevel]-prop t≡u)) in
+  let _ , ⊢t , ⊢u = wf-⊢ (≅ₜ-eq (escape-[neLevel]-prop t≡u)) in
   term (id ⊢t) (id ⊢u) (neLvl t≡u)
 
 opaque
@@ -379,7 +379,7 @@ opaque
   ⊩1ᵘ+ : Γ ⊩Level l ∷Level → Γ ⊩Level 1ᵘ+ l ∷Level
   ⊩1ᵘ+ ⊩t@(term t⇒*t′ _) =
     let ⊢t = redFirst*Term t⇒*t′
-        ok = inversion-Level-⊢ (wf-⊢∷ ⊢t)
+        ok = inversion-Level-⊢ (wf-⊢ ⊢t)
     in
     term
       (id (sucᵘⱼ (redFirst*Term t⇒*t′)))
@@ -390,7 +390,7 @@ opaque
   ⊩1ᵘ+≡1ᵘ+ : Γ ⊩Level l₁ ≡ l₂ ∷Level → Γ ⊩Level 1ᵘ+ l₁ ≡ 1ᵘ+ l₂ ∷Level
   ⊩1ᵘ+≡1ᵘ+ t≡u@(term t⇒*t′ u⇒*u′ t′≡u′) =
     let ⊢t = redFirst*Term t⇒*t′
-        ok = inversion-Level-⊢ (wf-⊢∷ ⊢t)
+        ok = inversion-Level-⊢ (wf-⊢ ⊢t)
     in
     term
       (id (sucᵘⱼ ⊢t))
@@ -487,11 +487,11 @@ opaque
   ⊩supᵘₗ {l₁ = level _} {l₂ = ωᵘ+ _} _ (literal ok ⊢Γ) =
     literal (Allowed-literal-ωᵘ+-→-Allowed-literal-ωᵘ+ ok) ⊢Γ
   ⊩supᵘₗ {l₂ = level _} ⊩l₁@(term ⇒∷Level _) ⊩l₂ =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁) in
     PE.subst (_⊩Level_∷Level _) (PE.sym $ supᵘₗ≡supᵘ ok) $
     ⊩supᵘ ok ⊩l₁ ⊩l₂
   ⊩supᵘₗ {l₁ = level _} ⊩l₁ ⊩l₂@(term ⇒∷Level _) =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁) in
     PE.subst (_⊩Level_∷Level _) (PE.sym $ supᵘₗ≡supᵘ ok) $
     ⊩supᵘ ok ⊩l₁ ⊩l₂
 
@@ -587,7 +587,7 @@ opaque
     Γ ⊢ u ⇒* zeroᵘ ∷ Level →
     Γ ⊩Level level (t supᵘ u) ≡ level t ∷Level
   ⊩supᵘ-zeroʳ′ (literal ok _) ⇒∷Level =
-    let okᴸ = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁) in
+    let okᴸ = inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁) in
     Level-allowed→Allowed-literal→ okᴸ ok
   ⊩supᵘ-zeroʳ′ ⊩t@(term t⇒ prop) u⇒ =
     let ⊢u = redFirst*Term u⇒
@@ -727,7 +727,7 @@ opaque
     Γ ⊩Level level (t supᵘ u) ≡ level u ∷Level
   ⊩supᵘ-sub′ u⇒ ⊩t@(term t⇒ propt) =
     let ⊢u  = redFirst*Term u⇒
-        ok  = inversion-Level-⊢ (wf-⊢∷ ⊢u)
+        ok  = inversion-Level-⊢ (wf-⊢ ⊢u)
         ⊢t  = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩t)
         ⊢Γ  = wf ⊢t
         ⊢t′ = escape-Level-prop ⊢Γ propt
@@ -748,7 +748,7 @@ opaque
           (trans (supᵘ-subᵣ x (⊩supᵘ-idem ok (⊩neLvl x)))
              (sucᵘᵣ ok (symLevel (redLevel t⇒ ⊩t))))
   ⊩supᵘ-sub′ ⇒∷Level (literal ok _) =
-    let okᴸ = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁) in
+    let okᴸ = inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁) in
     Level-allowed→Allowed-literal→ okᴸ ok
 
   ⊩supᵘ-sub :
@@ -793,7 +793,7 @@ opaque mutual
     sucᵘᵣ ok ⊩t , sucᵘᵣ ok ⊩u
   wf-[Level]-prop (supᵘ-subᵣ ⊩t ≡u) =
     let _ , ⊩u = wf-Level-eq ≡u
-        ok     = inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩t))
+        ok     = inversion-Level-⊢ (wf-⊢ (escape-neLevel-prop ⊩t))
     in
     neLvl (supᵘˡᵣ ⊩t (⊩1ᵘ+ ⊩u)) , sucᵘᵣ ok ⊩u
   wf-[Level]-prop (neLvl t≡u) = let [t] , [u] = wf-[neLevel]-prop t≡u in neLvl [t] , neLvl [u]
@@ -815,16 +815,16 @@ opaque mutual
         [k₂] , [k₂′] = wf-[neLevel]-prop k₂≡k₂′
     in supᵘʳᵣ [k₁] [k₂] , supᵘʳᵣ [k₁′] [k₂′]
   wf-[neLevel]-prop (supᵘ-zeroʳᵣ ⊩k) =
-    let ok = inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩k)) in
+    let ok = inversion-Level-⊢ (wf-⊢ (escape-neLevel-prop ⊩k)) in
     supᵘˡᵣ ⊩k (term (id (zeroᵘⱼ ok (wf-neLevel-prop ⊩k))) (zeroᵘᵣ ok)) ,
     ⊩k
   wf-[neLevel]-prop (supᵘ-assoc¹ᵣ ⊩t ⊩u ⊩v) =
-    let ok = inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩t)) in
+    let ok = inversion-Level-⊢ (wf-⊢ (escape-neLevel-prop ⊩t)) in
     supᵘˡᵣ (supᵘˡᵣ ⊩t ⊩u) ⊩v , supᵘˡᵣ ⊩t (⊩supᵘ ok ⊩u ⊩v)
   wf-[neLevel]-prop (supᵘ-assoc²ᵣ [t] [u] [v]) =
     supᵘˡᵣ (supᵘʳᵣ [t] [u]) [v] , supᵘʳᵣ [t] (supᵘˡᵣ [u] [v])
   wf-[neLevel]-prop (supᵘ-assoc³ᵣ ⊩t ⊩u ⊩v) =
-    let ok = inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩v)) in
+    let ok = inversion-Level-⊢ (wf-⊢ (escape-neLevel-prop ⊩v)) in
     supᵘʳᵣ (⊩supᵘ ok ⊩t ⊩u) ⊩v , supᵘʳᵣ ⊩t (supᵘʳᵣ ⊩u ⊩v)
   wf-[neLevel]-prop (supᵘ-comm¹ᵣ [t₁] d [u₂] d′) =
     let [u₁] , _ = wf-Level-eq d′
@@ -876,7 +876,7 @@ opaque
       Level-allowed→Allowed-literal→ okᴸ ok
     ⊩supᵘ-congˡ-prop (sucᵘᵣ ok t₁′≡t₂′) (term u⇒ propu) =
       let _ , ⊢t₁′ , ⊢t₂′ =
-            wf-⊢≡∷ (≅ₜ-eq (⊢≅∷L→⊢≅∷ ok $ escapeLevelEq t₁′≡t₂′))
+            wf-⊢ (≅ₜ-eq (⊢≅∷L→⊢≅∷ ok $ escapeLevelEq t₁′≡t₂′))
       in
       ⊩Level≡-⇒* (supᵘ-substʳ* ⊢t₁′ u⇒) (supᵘ-substʳ* ⊢t₂′ u⇒) $
       case propu of λ where
@@ -894,7 +894,7 @@ opaque
         (neLvl ⊩u′) →
           ⊩[neLvl] (supᵘʳᵣ t₁′≡t₂′ (reflneLevel-prop ⊩u′))
     ⊩supᵘ-congˡ-prop {Γ} {u} k≤1+k′@(supᵘ-subᵣ {k′} ⊩k k≤k′) ⊩u =
-      let okᴸ = inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩k)) in
+      let okᴸ = inversion-Level-⊢ (wf-⊢ (escape-neLevel-prop ⊩k)) in
       case ⊩u of λ where
         (literal ok _) →
           Level-allowed→Allowed-literal→ okᴸ ok
@@ -1258,9 +1258,9 @@ opaque
   ↑ᵘ-supᵘ {okᴸ} ⊩t@(term t⇒* t′-prop) ⊩u@(term u⇒* u′-prop)
     with ⊩supᵘ okᴸ ⊩t ⊩u
   … | ⊩t⊔u@(term t⊔u⇒* _) =
-    let ok  = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term t⊔u⇒*) .proj₁)
-        ok₁ = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term t⇒*) .proj₁)
-        ok₂ = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term u⇒*) .proj₁)
+    let ok  = inversion-Level-⊢ (wf-⊢ (subset*Term t⊔u⇒*) .proj₁)
+        ok₁ = inversion-Level-⊢ (wf-⊢ (subset*Term t⇒*) .proj₁)
+        ok₂ = inversion-Level-⊢ (wf-⊢ (subset*Term u⇒*) .proj₁)
     in
     0ᵘ+ (↑ⁿ ok ⊩t⊔u)             ≡⟨ PE.cong 0ᵘ+ (↑ⁿ-supᵘ′ ⊩t ⊩u ⊩t⊔u) ⟩
     0ᵘ+ (↑ⁿ ok₁ ⊩t ⊔ ↑ⁿ ok₂ ⊩u)  ∎
@@ -1281,7 +1281,7 @@ opaque
     {⊩l₂ : Γ ⊩Level l₂ ∷Level} →
     ↑ᵘ (⊩supᵘₗ ⊩l₁ ⊩l₂) PE.≡ ↑ᵘ ⊩l₁ ⊔ᵘ ↑ᵘ ⊩l₂
   ↑ᵘ-supᵘₗ {⊩l₁ = ⊩l₁@(term ⇒∷Level _)} {⊩l₂ = ⊩l₂@(term _ _)} =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁) in
     ↑ᵘ (PE.subst (_⊩Level_∷Level _) (PE.sym $ supᵘₗ≡supᵘ ok)
           (⊩supᵘ ok ⊩l₁ ⊩l₂))                                 ≡⟨ ↑ᵘ-subst {eq = PE.sym $ supᵘₗ≡supᵘ _} ⟩
 
@@ -1291,12 +1291,12 @@ opaque
   ↑ᵘ-supᵘₗ {⊩l₁ = literal _ _} {⊩l₂ = literal _ _} =
     Allowed-literal→Universe-level-Allowed-literal-supᵘₗ
   ↑ᵘ-supᵘₗ {l₂} {⊩l₁ = ⊩t₁@(term ⇒∷Level _)} {⊩l₂ = literal ok _}
-    using okᴸ ← inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁)
+    using okᴸ ← inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁)
     with Allowed-literal→Infinite {l = l₂} okᴸ ok
   … | ωᵘ+ =
     PE.refl
   ↑ᵘ-supᵘₗ {l₁} {⊩l₁ = literal ok _} {⊩l₂ = ⊩t₂@(term ⇒∷Level _)}
-    using okᴸ ← inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁)
+    using okᴸ ← inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁)
     with Allowed-literal→Infinite {l = l₁} okᴸ ok
   … | ωᵘ+ =
     PE.refl
@@ -1447,7 +1447,7 @@ opaque
     ↑ⁿ-neprop-cong
       (supᵘˡᵣ (supᵘˡᵣ ⊩t₁ ⊩t₂) ⊩t₃) (supᵘˡᵣ ⊩u₁ ⊩u₂)
       (supᵘ-assoc¹ᵣ _ _ _) =
-      let ok = inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩t₁)) in
+      let ok = inversion-Level-⊢ (wf-⊢ (escape-neLevel-prop ⊩t₁)) in
       PE.trans
         (⊔-assoc (↑ⁿ-neprop _ ⊩t₁) (↑ⁿ _ ⊩t₂) (↑ⁿ _ ⊩t₃))
         (PE.cong₂ _⊔_ (↑ⁿ-neprop-irrelevance ⊩t₁ ⊩u₁) (PE.trans
@@ -1462,7 +1462,7 @@ opaque
     ↑ⁿ-neprop-cong
       (supᵘʳᵣ ⊩t₁ ⊩t₂) (supᵘʳᵣ ⊩u₁ (supᵘʳᵣ ⊩u₂ ⊩u₃))
       (supᵘ-assoc³ᵣ _ _ _) =
-      let ok = inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩t₂)) in
+      let ok = inversion-Level-⊢ (wf-⊢ (escape-neLevel-prop ⊩t₂)) in
       PE.trans
         (PE.cong₂ _⊔_
           (PE.cong 1+ $
@@ -1568,12 +1568,12 @@ opaque
   ↑ᵘ-cong {⊩l₁ = term _ _} {⊩l₂ = term _ _} l₁≡l₂ =
     PE.cong 0ᵘ+ (↑ⁿ-cong _ _ l₁≡l₂)
   ↑ᵘ-cong {⊩l₁ = literal ok _} {⊩l₂ = term ⇒∷Level _} l₁≡l₂
-    using okᴸ ← inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁)
+    using okᴸ ← inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁)
     with Allowed-literal→Infinite okᴸ ok
   … | ωᵘ+ with l₁≡l₂
   ... | literal _ _ ()
   ↑ᵘ-cong {⊩l₁ = term ⇒∷Level _} {⊩l₂ = literal ok _} l₁≡l₂
-    using okᴸ ← inversion-Level-⊢ (wf-⊢≡∷ (subset*Term ⇒∷Level) .proj₁)
+    using okᴸ ← inversion-Level-⊢ (wf-⊢ (subset*Term ⇒∷Level) .proj₁)
     with Allowed-literal→Infinite okᴸ ok
   … | ωᵘ+ with l₁≡l₂
   ... | literal _ _ ()
@@ -1695,7 +1695,7 @@ opaque
         1+ (↑ⁿ okᴸ ⊩t′)  ≡⟨⟩
         ↑ⁿ-prop okᴸ ⊩t   ∎
       f′≡ {okᴸ} ⊩t@(neLvl ⊩t′) =
-        f′ ⊩t              ≡⟨ f-irrelevance (inversion-Level-⊢ (wf-⊢∷ (escape-neLevel-prop ⊩t′))) ⟩
+        f′ ⊩t              ≡⟨ f-irrelevance (inversion-Level-⊢ (wf-⊢ (escape-neLevel-prop ⊩t′))) ⟩
         f″ ⊩t′             ≡⟨ f″≡ _ ⟩
         ↑ⁿ-neprop okᴸ ⊩t′  ≡⟨⟩
         ↑ⁿ-prop okᴸ ⊩t     ∎

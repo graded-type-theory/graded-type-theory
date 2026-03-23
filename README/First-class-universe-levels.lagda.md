@@ -247,7 +247,7 @@ Lemma 2.1: Well-formedness.
 import Definition.Typed.Properties
   using (wf)
 import Definition.Typed.Well-formed
-  using (wf-⊢≡; wf-⊢∷; wf-⊢≡∷)
+  using (wf-⊢)
 import Definition.Typed.Syntactic
   using (syntacticRed; syntacticRedTerm)
 ```

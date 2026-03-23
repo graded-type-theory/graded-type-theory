@@ -196,9 +196,9 @@ module Fundamental
     fundamental′ (zeroᵘⱼ ok _) _ _ =
       zeroᵘʳ ok
     fundamental′ (sucᵘⱼ ⊢l) _ _ =
-      sucᵘʳ (inversion-Level-⊢ (wf-⊢∷ ⊢l))
+      sucᵘʳ (inversion-Level-⊢ (wf-⊢ ⊢l))
     fundamental′ (supᵘⱼ ⊢l _) _ _ =
-      supᵘʳ (inversion-Level-⊢ (wf-⊢∷ ⊢l))
+      supᵘʳ (inversion-Level-⊢ (wf-⊢ ⊢l))
     fundamental′ (Uⱼ ⊢t) _ _ =
       Uʳ ⊢t
     fundamental′ (Liftⱼ ⊢l₁ ⊢l₂ _) _ _ =
@@ -338,7 +338,7 @@ module Fundamental
            (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
            (inj₂ k≡0) → inj₁ (k≡0 , PE.sym (glassify-idem _)))
     fundamental′ (Idⱼ ⊢A _ _) _ _ =
-      Idʳ (inversion-U-Level (wf-⊢∷ ⊢A))
+      Idʳ (inversion-U-Level (wf-⊢ ⊢A))
     fundamental′ (rflⱼ ⊢t) _ _ =
       rflʳ ⊢t
     fundamental′ {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J (J _ _ _ <n₄ _ <n₆) =

@@ -99,7 +99,7 @@ opaque mutual
     in
     l₁ ⊔ᵘ l₂ , trans-⊩ᵛ≡ (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘʳ A≡B) (emb-⊩ᵛ≡ ≤ᵘ⊔ᵘˡ B≡C)
   fundamental-⊩ᵛ≡ (U-cong l₁≡l₂) =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≡l₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ l₁≡l₂ .proj₁) in
     _ , ⊩ᵛU≡U ok (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡ (Lift-cong l₁≡l₂ A≡B) =
     _ ,
@@ -123,7 +123,7 @@ opaque mutual
   fundamental-⊩ᵛ∷ (zeroᵘⱼ ok ⊢Γ) =
     0ᵘ , zeroᵘᵛ ok (valid ⊢Γ)
   fundamental-⊩ᵛ∷ (sucᵘⱼ ⊢l) =
-    let ok = inversion-Level-⊢ (wf-⊢∷ ⊢l) in
+    let ok = inversion-Level-⊢ (wf-⊢ ⊢l) in
     _ , sucᵘᵛ ok (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ∷ (supᵘⱼ ⊢l₁ ⊢l₂) =
     _ , supᵘᵛ (fundamental-⊩ᵛ∷ ⊢l₁ .proj₂) (fundamental-⊩ᵛ∷ ⊢l₂ .proj₂)
@@ -245,7 +245,7 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ (δ-red ⊢Γ α↦t PE.refl PE.refl) =
     _ , δ-redᵛ α↦t (defn-valid (defn-wf ⊢Γ)) (valid ⊢Γ) .proj₂
   fundamental-⊩ᵛ≡∷ (sucᵘ-cong l₁≡l₂) =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≡l₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ l₁≡l₂ .proj₁) in
     _ , sucᵘ-congᵛ ok (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (supᵘ-cong l₁≡l₂ l₃≡l₄) =
     _ , supᵘ-congᵛ (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂) (fundamental-⊩ᵛ≡∷ l₃≡l₄ .proj₂)
@@ -265,7 +265,7 @@ opaque mutual
   fundamental-⊩ᵛ≡∷ (supᵘ-sub ⊢l) =
     _ , supᵘ-subᵛ (fundamental-⊩ᵛ∷ ⊢l .proj₂)
   fundamental-⊩ᵛ≡∷ (U-cong l₁≡l₂) =
-    let ok = inversion-Level-⊢ (wf-⊢≡∷ l₁≡l₂ .proj₁) in
+    let ok = inversion-Level-⊢ (wf-⊢ l₁≡l₂ .proj₁) in
     _ , ⊩ᵛU≡U∷U ok (fundamental-⊩ᵛ≡∷ l₁≡l₂ .proj₂)
   fundamental-⊩ᵛ≡∷ (Lift-cong ⊢l₁ _ l₂≡l₂′ A≡B) =
     _ ,

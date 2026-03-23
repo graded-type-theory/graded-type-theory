@@ -134,7 +134,7 @@ opaque
     Γ ⊢ t ⇒ˢ* u ∷ℕ → Γ ⊢ t ⇒* u ∷ ℕ ⊎ ∃ λ v → Γ ⊢ t ⇒* suc v ∷ ℕ
   ⇒ˢ*∷ℕ→⇒*⊎⇒*suc (id ⊢t)           = inj₁ (id ⊢t)
   ⇒ˢ*∷ℕ→⇒*⊎⇒*suc (sucred t⇒v ⇨ˢ _) =
-    inj₂ (_ , id (sucⱼ (wf-⊢≡∷ (subsetTermˢ t⇒v) .proj₂ .proj₁)))
+    inj₂ (_ , id (sucⱼ (wf-⊢ (subsetTermˢ t⇒v) .proj₂ .proj₁)))
   ⇒ˢ*∷ℕ→⇒*⊎⇒*suc (whred t⇒v ⇨ˢ v⇒*u) =
     case ⇒ˢ*∷ℕ→⇒*⊎⇒*suc v⇒*u of λ where
       (inj₁ v⇒*u)           → inj₁ (t⇒v ⇨ v⇒*u)

@@ -550,8 +550,8 @@ record Equality-relations
       → Γ ⊢≅ u ∷ Level
       → Γ ⊢ sucᵘ t supᵘ sucᵘ u ≅ sucᵘ (t supᵘ u) ∷ Level
     ≅ₜ-supᵘ-sucᵘ ⊢≅t ⊢≅u =
-      let ⊢Level , ⊢t , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅t)
-          _ , ⊢u , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅u)
+      let ⊢Level , ⊢t , _ = wf-⊢ (≅ₜ-eq ⊢≅t)
+          _ , ⊢u , _ = wf-⊢ (≅ₜ-eq ⊢≅u)
       in ≅ₜ-red
         (id ⊢Level , Levelₙ)
         (redMany (supᵘ-sucᵘ ⊢t ⊢u) , sucᵘₙ)
@@ -567,8 +567,8 @@ record Equality-relations
       → Γ ⊢ t supᵘ u ≅ u ∷ Level
       → Γ ⊢ t supᵘ sucᵘ u ≅ sucᵘ u ∷ Level
     ≅ₜ-supᵘ-sub′ ⊢≅t t⊔u≡u =
-      let _ , ⊢t , _ = wf-⊢≡∷ (≅ₜ-eq ⊢≅t)
-          _ , ⊢t⊔u , ⊢u = wf-⊢≡∷ (≅ₜ-eq t⊔u≡u)
+      let _ , ⊢t , _ = wf-⊢ (≅ₜ-eq ⊢≅t)
+          _ , ⊢t⊔u , ⊢u = wf-⊢ (≅ₜ-eq t⊔u≡u)
           _ , ⊢≅u = wf-⊢≅∷ t⊔u≡u
       in
       -- t supᵘ sucᵘ u

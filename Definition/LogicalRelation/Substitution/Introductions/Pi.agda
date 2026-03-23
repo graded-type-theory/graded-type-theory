@@ -200,7 +200,7 @@ opaque
   ⊩lam≡lam
     {m} {p} {∇} {A} {t₁} {t₂} {B} {l} {Η} {σ₁} {σ₂}
     ok ⊢t₁≡t₂ ⊩A t₁≡t₂ σ₁≡σ₂ =
-    case wf-⊢≡∷ ⊢t₁≡t₂ of λ
+    case wf-⊢ ⊢t₁≡t₂ of λ
       (⊢B , ⊢t₁ , ⊢t₂) →
     case ⊢∙→⊢ (wf ⊢B) of λ
       ⊢A →
@@ -220,7 +220,7 @@ opaque
       ⊩A[σ₁] →
     case R.escape-⊩ ⊩A[σ₁] of λ
       ⊢A[σ₁] →
-    case wf-⊢≡∷ (subst-⊢≡ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂) of λ
+    case wf-⊢ (subst-⊢≡ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂) of λ
       (_ , ⊢lam-t₁[σ₁] , ⊢lam-t₂[σ₂]) →
     case
       (∀ κ′ (∇′ : DCon (Term 0) κ′) → » ∇′ ⊇ ∇ →
@@ -320,7 +320,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ lam p t₁ ≡ lam p t₂ ∷ Π p , q ▷ A ▹ B
   lam-congᵛ ok ⊢t₁≡t₂ ⊩A t₁≡t₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
-      ( ΠΣᵛ (ΠΣⱼ (wf-⊢≡∷ ⊢t₁≡t₂ .proj₁) ok) ⊩A
+      ( ΠΣᵛ (ΠΣⱼ (wf-⊢ ⊢t₁≡t₂ .proj₁) ok) ⊩A
           (wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
       , λ ξ⊇ → ⊩lam≡lam ok
                         (defn-wk ξ⊇ ⊢t₁≡t₂)
@@ -555,8 +555,8 @@ opaque
                      step-id =
                        ∷ʷ⊇→∷ʷʳ⊇ $ W.stepʷ W.id ⊢A[σ]
                  in
-                 ≅-η-eq (wf-⊢≡∷ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
-                   (wf-⊢≡∷ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
+                 ≅-η-eq (wf-⊢ (subset*Term t₁[σ]⇒*u₁) .proj₂ .proj₂)
+                   (wf-⊢ (subset*Term t₂[σ]⇒*u₂) .proj₂ .proj₂)
                    (function↑ _ (Functionᵃ→ u₁-fun))
                    (function↑ _ (Functionᵃ→ u₂-fun))
                    (PE.subst (_⊢_≅_∷_ _ _ _)

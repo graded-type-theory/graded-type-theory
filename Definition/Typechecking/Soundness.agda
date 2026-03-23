@@ -69,12 +69,12 @@ mutual
   soundness⇉ ⊢Γ (zeroᵘᵢ ok) = Levelⱼ′ ok ⊢Γ , zeroᵘⱼ ok ⊢Γ
   soundness⇉ ⊢Γ (sucᵘᵢ t⇇Level) =
     let ⊢t = soundness⇇ t⇇Level
-        ok = inversion-Level-⊢ (wf-⊢∷ ⊢t)
+        ok = inversion-Level-⊢ (wf-⊢ ⊢t)
     in
     Levelⱼ′ ok ⊢Γ , sucᵘⱼ ⊢t
   soundness⇉ ⊢Γ (supᵘᵢ t⇇Level u⇇Level) =
     let ⊢t = soundness⇇ t⇇Level
-        ok = inversion-Level-⊢ (wf-⊢∷ ⊢t)
+        ok = inversion-Level-⊢ (wf-⊢ ⊢t)
     in
     Levelⱼ′ ok ⊢Γ , supᵘⱼ ⊢t (soundness⇇ u⇇Level)
   soundness⇉ ⊢Γ (Uᵢ ⊢l) =

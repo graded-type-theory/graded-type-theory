@@ -120,7 +120,7 @@ record Is-reduction-relation
     -- If t reduces to u, then t and u are well-typed.
 
     wf-⇛ : t ⇛ u ∷ A → Γ ⊢ t ∷ A × Γ ⊢ u ∷ A
-    wf-⇛ = proj₂ ∘→ wf-⊢≡∷ ∘→ ⇛→⊢≡
+    wf-⇛ = proj₂ ∘→ wf-⊢ ∘→ ⇛→⊢≡
 
 opaque instance
 
@@ -165,13 +165,13 @@ opaque instance
                       (refl ⊢u) v₁≡v₂
     ; J-⇛       = λ ⊢B ⊢u w₁≡w₂ →
                     let ⊢A , ⊢t , ⊢v =
-                          inversion-Id (wf-⊢≡∷ w₁≡w₂ .proj₁)
+                          inversion-Id (wf-⊢ w₁≡w₂ .proj₁)
                     in
                     J-cong′ (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u)
                       (refl ⊢v) w₁≡w₂
     ; K-⇛       = λ ⊢B ⊢u v₁≡v₂ ok →
                     let ⊢A , ⊢t , _ =
-                          inversion-Id (wf-⊢≡∷ v₁≡v₂ .proj₁)
+                          inversion-Id (wf-⊢ v₁≡v₂ .proj₁)
                     in
                     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) v₁≡v₂
                       ok
@@ -189,7 +189,7 @@ opaque
     Is-reduction-relation Γ (λ t u A → ∃ λ v → Γ ⊢ v ∷ Id A t u)
   Id-is-reduction-relation {Γ} ok = record
     { conv-⇛    = λ (_ , ⊢v) A≡B →
-                    let _ , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
+                    let _ , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢v) in
                     _ , conv ⊢v (Id-cong A≡B (refl ⊢t) (refl ⊢u))
     ; ⇒*→⇛      = ⊢≡→⇛ ∘→ subset*Term
     ; ⇛→⊢≡      = ⇛→⊢≡

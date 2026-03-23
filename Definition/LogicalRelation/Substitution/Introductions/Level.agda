@@ -82,7 +82,7 @@ opaque
          Level≡A })
     , (λ Level≡A →
          let ok           = inversion-Level-⊢
-                              (wf-⊢≡ (subset* Level≡A) .proj₂)
+                              (wf-⊢ (subset* Level≡A) .proj₂)
              Level⇒*Level = id (Levelⱼ′ ok (wf (subset* Level≡A)))
              ⊩Level       = Levelᵣ Level⇒*Level in
            ⊩Level

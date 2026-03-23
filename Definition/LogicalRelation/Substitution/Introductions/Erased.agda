@@ -84,7 +84,7 @@ private opaque
       , id
           (Liftⱼ
              (W.wk (∷ʷʳ⊇→∷ʷ⊇ ρ∷) $
-              wf-⊢≡∷L (⊢≅∷L→⊢≡∷L (escapeLevelEq l₁≡l₂)) .proj₂)
+              wf-⊢ (⊢≅∷L→⊢≡∷L (escapeLevelEq l₁≡l₂)) .proj₂)
              (⊢Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
       , wkEqTermLevel (∷ʷʳ⊇→∷ʷ⊇ ρ∷) l₁≡l₂
       , refl-⊩≡ (emb-⊩ 0≤ᵘ (⊩Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))

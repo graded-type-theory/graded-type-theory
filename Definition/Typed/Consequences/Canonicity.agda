@@ -266,7 +266,7 @@ opaque
            zeroᵣ                 → 0 , refl (zeroⱼ (wf ⊢t))
            (sucᵣ ⊩u)             → Σ.map 1+ suc-cong (lemma ⊩u)
            (ne (neNfₜ u-ne u≡u)) →
-             let _ , ⊢u , _ = wf-⊢≡∷ u≡u in
+             let _ , ⊢u , _ = wf-⊢ u≡u in
              case Only-Level-or-U→Neutral→≡Level⊎≡U
                     tr only ⊢u (ne⁻ u-ne) .proj₁ of λ where
                (inj₁ ≡Level) →

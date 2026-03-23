@@ -76,7 +76,7 @@ opaque
     ⊢snd-t′ : ∃ λ l → ε » Γ′ ⊢ snd 𝟘 t′ ∷ Lift l Unitˢ
     ⊢snd-t′ =
       let _ , _ , ⊢t′        = ⊢t′₂
-          _ , ⊢Lift-Unit , _ = inversion-ΠΣ (wf-⊢∷ ⊢t′)
+          _ , ⊢Lift-Unit , _ = inversion-ΠΣ (wf-⊢ ⊢t′)
       in
       _ , sndⱼ ⊢Lift-Unit ⊢t′
 

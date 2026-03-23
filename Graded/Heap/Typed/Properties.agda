@@ -181,7 +181,7 @@ opaque
   ⊢⦅⦆ᶜ-cong ([]-congₑ ok ⊢l) t≡u =
     let _ , ⊢t , ⊢u = inversion-Id (syntacticEqTerm t≡u .proj₁) in
     PE.subst (_⊢_≡_∷_ _ _ _) (E.wk-Id-Erased-[]-[] _) $
-    []-cong-cong (refl-⊢≡∷L ⊢l) (refl (wf-⊢∷ ⊢t)) (refl ⊢t) (refl ⊢u)
+    []-cong-cong (refl-⊢≡∷L ⊢l) (refl (wf-⊢ ⊢t)) (refl ⊢t) (refl ⊢u)
       t≡u ok
   ⊢⦅⦆ᶜ-cong (conv ⊢c B≡B′) t≡u =
     conv (⊢⦅⦆ᶜ-cong ⊢c t≡u) B≡B′

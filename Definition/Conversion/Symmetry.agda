@@ -215,7 +215,7 @@ mutual
   sym~↑ Γ≡Δ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B≡Id-t₁-u₁ ok) =
     let _ , _ , B≡C , v₂~v₁ = sym~↓ Γ≡Δ v₁~v₂
         ⊢l₁≡l₂              = soundnessConv↑Level l₁≡l₂
-        ⊢l₁ , _             = wf-⊢≡∷L ⊢l₁≡l₂
+        ⊢l₁ , _             = wf-⊢ ⊢l₁≡l₂
         ⊢A₁≡A₂              = soundnessConv↑ A₁≡A₂
         ⊢t₁≡t₂              = soundnessConv↑Term t₁≡t₂
         ⊢u₁≡u₂              = soundnessConv↑Term u₁≡u₂

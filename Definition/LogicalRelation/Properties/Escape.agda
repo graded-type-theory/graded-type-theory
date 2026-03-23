@@ -72,7 +72,7 @@ escapeTermEq :
 escapeTerm : ∀ {l A t} → ([A] : Γ ⊩⟨ l ⟩ A)
               → Γ ⊩⟨ l ⟩ t ∷ A / [A]
               → Γ ⊢ t ∷ A
-escapeTerm ⊩A ⊩t = wf-⊢≡∷ (≅ₜ-eq (escapeTermEq ⊩A ⊩t)) .proj₂ .proj₁
+escapeTerm ⊩A ⊩t = wf-⊢ (≅ₜ-eq (escapeTermEq ⊩A ⊩t)) .proj₂ .proj₁
 
 -- If there is a well-formed equality between two identity types,
 -- then the corresponding reduced identity types are equal.
@@ -93,7 +93,7 @@ Id≅Id {⊩A = ⊩A} A≡B =
   open _⊩ₗId_≡_/_ A≡B
 
 escapeEq (Levelᵣ D) D′ =
-  let ok = inversion-Level-⊢ (wf-⊢≡ (subset* D) .proj₂) in
+  let ok = inversion-Level-⊢ (wf-⊢ (subset* D) .proj₂) in
   ≅-red (D , Levelₙ) (D′ , Levelₙ) (≅-Levelrefl ok (wf (redFirst* D)))
 escapeEq (Uᵣ′ _ _ _ D) (U₌ k′ D₁ k≡k′) =
   ≅-red (D , Uₙ) (D₁ , Uₙ) (≅-U-cong (escapeLevelEq k≡k′))
@@ -122,8 +122,8 @@ escapeTermEq (Levelᵣ D) (literal ok _ _) =
 escapeTermEq (Uᵣ′ _ _ _ D) (Uₜ₌ A B d d′ typeA typeB A≡B [A] [B] [A≡B]) =
   ≅ₜ-red (D , Uₙ) (d , typeWhnf typeA) (d′ , typeWhnf typeB)  A≡B
 escapeTermEq (Liftᵣ′ D _ [F]) (Liftₜ₌ _ _ t↘@(t⇒* , wt) u↘@(u⇒* , wu) t≡u) =
-  let _ , _ , ⊢t′ = wf-⊢≡∷ (subset*Term t⇒*)
-      _ , _ , ⊢u′ = wf-⊢≡∷ (subset*Term u⇒*)
+  let _ , _ , ⊢t′ = wf-⊢ (subset*Term t⇒*)
+      _ , _ , ⊢u′ = wf-⊢ (subset*Term u⇒*)
   in ≅ₜ-red (D , Liftₙ) t↘ u↘ (≅-Lift-η ⊢t′ ⊢u′ wt wu (escapeTermEq [F] t≡u))
 escapeTermEq (ℕᵣ D) (ℕₜ₌ _ _ d d′ k≡k′ prop) =
   let natK , natK′ = split prop
@@ -133,8 +133,8 @@ escapeTermEq (Emptyᵣ D) (Emptyₜ₌ k k′ d d′ k≡k′ prop) =
   let natK , natK′ = esplit prop
   in  ≅ₜ-red (D , Emptyₙ) (d , ne-whnf natK) (d′ , ne-whnf natK′) k≡k′
 escapeTermEq (Unitᵣ′ D ok) (Unitₜ₌ _ _ d d′ prop) =
-  let _ , _ , ⊢t′ = wf-⊢≡∷ (subset*Term (d .proj₁))
-      _ , _ , ⊢u′ = wf-⊢≡∷ (subset*Term (d′ .proj₁))
+  let _ , _ , ⊢t′ = wf-⊢ (subset*Term (d .proj₁))
+      _ , _ , ⊢u′ = wf-⊢ (subset*Term (d′ .proj₁))
   in
   ≅ₜ-red (D , Unitₙ) d d′
     (case prop of λ where

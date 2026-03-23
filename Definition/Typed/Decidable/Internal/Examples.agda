@@ -170,7 +170,7 @@ opaque
     Γ ⊢ w ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t u v w ∷ B [ u ]₀
   ⊢subst′ {m} {n} {A} {B} {v} {t} {u} {w} {p} {Γ} ⊢B ⊢v ⊢w =
-    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢v) in
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢v) in
     check-type-and-term-sound
       γ′
       (I.base nothing I.» I.base)
@@ -239,9 +239,9 @@ opaque
     Γ ⊢ w ∷ Id A t u →
     Γ ⊢ cong p A t u B v w ∷ Id B (v [ t ]₀) (v [ u ]₀)
   ⊢cong′ {m} {n} {A} {v} {B} {w} {t} {u} {p} {Γ} ⊢v ⊢w =
-    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢∷ ⊢w)
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢w)
         ⊢B           = PE.subst (_⊢_ _) (wk1-sgSubst B _) $
-                       subst-⊢₀ (wf-⊢∷ ⊢v) ⊢t
+                       subst-⊢₀ (wf-⊢ ⊢v) ⊢t
     in
     check-type-and-term-sound
       γ′
@@ -317,12 +317,12 @@ opaque
     {m} {n}
     {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {B₁} {B₂} {v₁} {v₂} {w₁} {w₂} {p} {Γ}
     A₁≡A₂ t₁≡t₂ u₁≡u₂ B₁≡B₂ v₁≡v₂ w₁≡w₂ =
-    let ⊢A₁ , ⊢A₂     = wf-⊢≡  A₁≡A₂
-        ⊢B₁ , ⊢B₂     = wf-⊢≡  B₁≡B₂
-        _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-        _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
-        _ , ⊢w₁ , ⊢w₂ = wf-⊢≡∷ w₁≡w₂
+    let ⊢A₁ , ⊢A₂     = wf-⊢ A₁≡A₂
+        ⊢B₁ , ⊢B₂     = wf-⊢ B₁≡B₂
+        _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂
+        _ , ⊢u₁ , ⊢u₂ = wf-⊢ u₁≡u₂
+        _ , ⊢v₁ , ⊢v₂ = wf-⊢ v₁≡v₂
+        _ , ⊢w₁ , ⊢w₂ = wf-⊢ w₁≡w₂
         ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound

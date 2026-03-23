@@ -153,7 +153,7 @@ opaque
     {γ} (_ ∙⟨ _ ⟩[ _ ∷ A ]) ok! ∙ᵗ[ ⊢t ] | yes PE.refl =
     here ,
     (λ {B = B} α↦ →
-       ⌜ A ⌝ γ  ≡⟨ refl (defn-wk (stepᵗ₁ ⊢t) (wf-⊢∷ ⊢t)) ⟩⊢∎≡
+       ⌜ A ⌝ γ  ≡⟨ refl (defn-wk (stepᵗ₁ ⊢t) (wf-⊢ ⊢t)) ⟩⊢∎≡
        ⌜ A ⌝ γ  ≡⟨ unique-↦∈ here α↦ PE.refl ⟩
        B        ∎)
   definition-of-sound (∇ ∙⟨ _ ⟩[ _ ∷ _ ]) eq »∙ | no _ =

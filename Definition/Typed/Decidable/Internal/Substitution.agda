@@ -1178,7 +1178,7 @@ opaque
       Γ ⊢ A′ ≡ U.Level →
       (⌜ l₁ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) S.supᵘₗ (⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]) PE.≡
       ⌜ l₁ ⌝ γ S.supᵘₗ ⌜ l₂ ⌝ γ U.[ ⌜ σ ⌝ˢ γ ]
-    lemma₂ ≡Level = lemma₁ (inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂))
+    lemma₂ ≡Level = lemma₁ (inversion-Level-⊢ (wf-⊢ ≡Level .proj₂))
 
     lemma₃ :
       {t₁ t₂ : U.Term _} →

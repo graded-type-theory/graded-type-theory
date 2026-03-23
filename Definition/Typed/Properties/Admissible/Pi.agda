@@ -64,7 +64,7 @@ opaque
     Π-allowed p q →
     Γ »∙ A ⊢ t ∷ B →
     Γ ⊢ lam p t ∷ Π p , q ▷ A ▹ B
-  lamⱼ′ ok ⊢t = lamⱼ (wf-⊢∷ ⊢t) ⊢t ok
+  lamⱼ′ ok ⊢t = lamⱼ (wf-⊢ ⊢t) ⊢t ok
 
 opaque
 
@@ -75,7 +75,7 @@ opaque
     Π-allowed p q →
     Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B
   lam-cong t≡u =
-    let ⊢B , ⊢t , ⊢u = wf-⊢≡∷ t≡u in
+    let ⊢B , ⊢t , ⊢u = wf-⊢ t≡u in
     S.lam-cong ⊢B ⊢t ⊢u t≡u
 
 opaque
@@ -88,7 +88,7 @@ opaque
     Γ »∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ≡ wk1 u ∘⟨ p ⟩ var x0 ∷ B →
     Γ ⊢ t ≡ u ∷ Π p , q ▷ A ▹ B
   η-eq′ ⊢t ⊢u t0≡u0 =
-    let _ , ⊢B , ok = inversion-ΠΣ (wf-⊢∷ ⊢t) in
+    let _ , ⊢B , ok = inversion-ΠΣ (wf-⊢ ⊢t) in
     η-eq ⊢B ⊢t ⊢u t0≡u0 ok
 
 opaque
@@ -112,7 +112,7 @@ opaque
     Π-allowed p q →
     Γ ⊢ lam p t ∘⟨ p ⟩ u ⇒ t [ u ]₀ ∷ B [ u ]₀
   β-red-⇒ ⊢t ⊢u =
-    β-red (wf-⊢∷ ⊢t) ⊢t ⊢u PE.refl
+    β-red (wf-⊢ ⊢t) ⊢t ⊢u PE.refl
 
 opaque
 
@@ -308,7 +308,7 @@ opaque
     ∇ » Δ ⊢ apps p Δ t ∷ A
   ⊢apps {Δ = ε}     _                 ⊢t = ⊢t
   ⊢apps {Δ = _ ∙ _} possibly-nonempty ⊢t =
-    let ⊢A , _ = inversion-ΠΣ (inversion-Πs (wf-⊢∷ ⊢t)) in
+    let ⊢A , _ = inversion-ΠΣ (inversion-Πs (wf-⊢ ⊢t)) in
     PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _) $
     wk₁ ⊢A (⊢apps possibly-nonempty ⊢t) ∘ⱼ var₀ ⊢A
 
@@ -341,8 +341,8 @@ opaque
     Γ ⊢ u₁ ≡ u₂ ∷ A →
     Γ ⊢ ∘ʰ p t₁ u₁ ≡ ∘ʰ p t₂ u₂ ∷ B [ u₁ ]₀
   app-congʰ ⊢B t₁≡t₂ u₁≡u₂ =
-    let ⊢A , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-        _ , ⊢l₂ , _    = inversion-ΠΣʰ-⊢ (wf-⊢≡∷ t₁≡t₂ .proj₁)
+    let ⊢A , ⊢u₁ , ⊢u₂ = wf-⊢ u₁≡u₂
+        _ , ⊢l₂ , _    = inversion-ΠΣʰ-⊢ (wf-⊢ t₁≡t₂ .proj₁)
     in
     conv (lower-cong (app-cong t₁≡t₂ (lift-cong ⊢l₂ u₁≡u₂)))
       (lower₀[lift]₀ ⊢B ⊢u₁)
@@ -357,7 +357,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ ∘ʰ p t u ∷ B [ u ]₀
   ⊢∘ʰ ⊢B ⊢t ⊢u =
-    wf-⊢≡∷ (app-congʰ ⊢B (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
+    wf-⊢ (app-congʰ ⊢B (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
 
 opaque
   unfolding lamʰ ∘ʰ
@@ -371,13 +371,13 @@ opaque
     Γ ⊢ ∘ʰ p (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
   β-redʰ {t} {u} {p} ⊢t ⊢u ok =
     let ⊢0      = ⊢zeroᵘ (wf ⊢u)
-        ⊢wk-l₁  = wk₁ (Liftⱼ ⊢0 (wf-⊢∷ ⊢u)) ⊢0
+        ⊢wk-l₁  = wk₁ (Liftⱼ ⊢0 (wf-⊢ ⊢u)) ⊢0
         ⊢lift-u = liftⱼ′ ⊢0 ⊢u
     in
     ∘ʰ p (lamʰ p t) u                              ≡⟨⟩⊢
     lower (lam p (lift (lower₀ t)) ∘⟨ p ⟩ lift u)  ≡⟨ lower-cong $
                                                       _⊢_≡_∷_.conv (β-red-≡ (liftⱼ′ ⊢wk-l₁ (lower₀Term ⊢0 ⊢t)) ⊢lift-u ok) $
-                                                      Lift-cong (refl-⊢≡∷L (subst-⊢₀ ⊢wk-l₁ ⊢lift-u)) (lower₀[lift]₀ (wf-⊢∷ ⊢t) ⊢u) ⟩⊢
+                                                      Lift-cong (refl-⊢≡∷L (subst-⊢₀ ⊢wk-l₁ ⊢lift-u)) (lower₀[lift]₀ (wf-⊢ ⊢t) ⊢u) ⟩⊢
     lower (lift (lower₀ t) [ lift u ]₀)            ≡⟨ lower-cong (lift-cong ⊢0 (lower₀[lift]₀∷ ⊢t ⊢u)) ⟩⊢
     lower (lift (t [ u ]₀))                        ⇒⟨ Lift-β⇒ (subst-⊢₀ ⊢t ⊢u) ⟩⊢∎
     t [ u ]₀                                       ∎
@@ -395,8 +395,8 @@ opaque
     Γ »∙ A ⊢ ∘ʰ p (wk1 t) (var x0) ≡ ∘ʰ p (wk1 u) (var x0) ∷ B →
     Γ ⊢ t ≡ u ∷ Πʰ p q l₁ l₂ A B
   η-eqʰ {Γ} {t} {p} {q} {l₁} {l₂} {A} {B} {u} ⊢t ⊢u t≡u =
-    let _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢∷ ⊢t)
-        ⊢B , _      = wf-⊢≡∷ t≡u
+    let _ , ⊢l₂ , _ = inversion-ΠΣʰ-⊢ {B = B} (wf-⊢ ⊢t)
+        ⊢B , _      = wf-⊢ t≡u
         ⊢Lift-A     = Liftⱼ ⊢l₂ (⊢∙→⊢ (wf ⊢B))
         ⊢0          = var₀ ⊢Lift-A
 

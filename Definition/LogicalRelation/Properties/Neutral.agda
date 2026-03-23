@@ -53,7 +53,7 @@ private
 opaque
 
   neu : Neutralₗ (Γ .defs) A → Γ ⊢≅ A → Γ ⊩⟨ l ⟩ A
-  neu neA A≅A = ne′ _ (id (wf-⊢≡ (≅-eq A≅A) .proj₁)) neA A≅A
+  neu neA A≅A = ne′ _ (id (wf-⊢ (≅-eq A≅A) .proj₁)) neA A≅A
 
 opaque
 
@@ -69,7 +69,7 @@ opaque
     case ne-view neA [A] of λ {
       (ne [A]′@(ne _ D neK K≡K)) →
     let A≡K = whnfRed* D (ne-whnf neA) in
-    ne₌ _ (id (wf-⊢≡ (≅-eq A~B) .proj₂)) neB
+    ne₌ _ (id (wf-⊢ (≅-eq A~B) .proj₂)) neB
       (PE.subst (λ x → _ ⊢ x ≅ _) A≡K A~B) }
 
 opaque
@@ -86,7 +86,7 @@ opaque
   neuTerm {Γ} {A} {t} ⊩A t-ne ~t = neuTerm′ ⊩A
     where
     ⊢t : Γ ⊢ t ∷ A
-    ⊢t = wf-⊢≡∷ (~-eq ~t) .proj₂ .proj₁
+    ⊢t = wf-⊢ (~-eq ~t) .proj₂ .proj₁
 
     neuTerm′ : (⊩A : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ t ∷ A / ⊩A
     neuTerm′ (Levelᵣ D) =
@@ -152,7 +152,7 @@ opaque
           ~t = ~-conv ~t A≡ΣFG
 
           [F] = [F] _ _
-          _ , ⊢G , _ = inversion-ΠΣ (wf-⊢≡ (≅-eq A≡A) .proj₁)
+          _ , ⊢G , _ = inversion-ΠΣ (wf-⊢ (≅-eq A≡A) .proj₁)
           [fst] = neuTerm [F] (fstₙᵃ t-ne)
                     (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
                        (~-fst ⊢G ~t))
@@ -195,10 +195,10 @@ opaque
     t≡t′ = ~-eq t~t′
 
     ⊢t : Γ ⊢ t ∷ A
-    ⊢t = wf-⊢≡∷ t≡t′ .proj₂ .proj₁
+    ⊢t = wf-⊢ t≡t′ .proj₂ .proj₁
 
     ⊢t′ : Γ ⊢ t′ ∷ A
-    ⊢t′ = wf-⊢≡∷ t≡t′ .proj₂ .proj₂
+    ⊢t′ = wf-⊢ t≡t′ .proj₂ .proj₂
 
     neuEqTerm′ :
       (⊩A : Γ ⊩⟨ l ⟩ A) →
@@ -281,7 +281,7 @@ opaque
           t′~t′Σ = ~-conv t′~t′ A≡ΣFG
 
           [F] = [F] _ _
-          _ , ⊢G , _ = inversion-ΠΣ (wf-⊢≡ (≅-eq A≡A) .proj₁)
+          _ , ⊢G , _ = inversion-ΠΣ (wf-⊢ (≅-eq A≡A) .proj₁)
           [fstt] = neuTerm [F] (fstₙᵃ t-ne)
                      (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
                         (~-fst ⊢G t~tΣ))

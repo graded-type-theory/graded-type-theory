@@ -376,12 +376,12 @@ private opaque
     A₁≅A₂ A₁≡A₁ A₂≡A₂ A₁≡A₂ ⊢t₁ ⊢t₂ t₁≡t₂ u₁≅u₂ u₁≡u₂
     ⊩ℕ-v₁≡v₂@(ℕₜ₌ v₁′ v₂′ v₁⇒*v₁′ v₂⇒*v₂′ v₁′≅v₂′ v₁′∼v₂′) =
     let ⊢A₁≡A₂        = ≅-eq A₁≅A₂
-        _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ (≅ₜ-eq u₁≅u₂)
+        _ , ⊢u₁ , ⊢u₂ = wf-⊢ (≅ₜ-eq u₁≅u₂)
         ⊢u₂           =
           S.stability (S.refl-∙ ⊢A₁≡A₂)
             (conv ⊢u₂ $
              subst-⊢≡ ⊢A₁≡A₂ $ refl-⊢ˢʷ≡∷ $
-             ⊢ˢʷ∷-[][]↑ (sucⱼ (var₁ (wf-⊢≡ ⊢A₁≡A₂ .proj₁))))
+             ⊢ˢʷ∷-[][]↑ (sucⱼ (var₁ (wf-⊢ ⊢A₁≡A₂ .proj₁))))
     in
 
     -- Some definitions related to v₁ and v₂.

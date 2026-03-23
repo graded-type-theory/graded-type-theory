@@ -178,7 +178,7 @@ mutual
   trans~↑ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ B₁≡Id-t₁-u₁ ok)
     ([]-cong-cong l₂≡l₃ A₂≡A₃ t₂≡t₃ u₂≡u₃ v₂~v₃ _ _) =
     let ⊢l₁≡l₂    = soundnessConv↑Level l₁≡l₂
-        ⊢l₁ , _   = wf-⊢≡∷L ⊢l₁≡l₂
+        ⊢l₁ , _   = wf-⊢ ⊢l₁≡l₂
         ⊢A₁≡A₂    = soundnessConv↑ A₁≡A₂
         Erased-ok = []-cong→Erased ok
     in

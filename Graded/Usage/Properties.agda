@@ -2440,7 +2440,7 @@ module _ (TR : Type-restrictions) where
   open Definition.Typed.Properties TR
 
   -- It is always the case that ∇ » Γ ⊢ t ∷ A implies ∇ » Γ ⊢ A (see
-  -- Definition.Typed.Well-formed.wf-⊢∷), but if ε » Γ ⊢ t ∷ A and
+  -- Definition.Typed.Well-formed.wf-⊢), but if ε » Γ ⊢ t ∷ A and
   -- γ ▸[ 𝟙ᵐ ] t always imply γ ▸[ 𝟙ᵐ ] A, then the modality is
   -- trivial.
 

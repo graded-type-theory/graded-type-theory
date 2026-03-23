@@ -374,7 +374,7 @@ opaque
   ⊩prodrec≡prodrec
     {∇} {p} {q′} {A} {B} {C₁} {C₂} {l} {t₁} {t₂} {u₁} {u₂} {Η} {σ₁} {σ₂}
     {r} {q} ⊢C₁≡C₂ C₁≡C₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ σ₁≡σ₂ =
-    case wf-⊢≡ ⊢C₁≡C₂ of λ
+    case wf-⊢ ⊢C₁≡C₂ of λ
       (⊢C₁ , ⊢C₂) →
     case wf-⊩ᵛ≡ C₁≡C₂ of λ
       (⊩C₁ , _) →
@@ -400,7 +400,7 @@ opaque
       (⊩t₁[σ₁] , ⊩t₂[σ₂]) →
     case conv-⊩∷ ΣAB[σ₁]≡ΣAB[σ₂] ⊩t₂[σ₂] of λ
       ⊩t₂[σ₂] →
-    case wf-⊢≡∷ ⊢u₁≡u₂ of λ
+    case wf-⊢ ⊢u₁≡u₂ of λ
       (_ , ⊢u₁ , ⊢u₂) →
     case PE.subst (_⊢_∷_ _ _) (subst-β-prodrec C₁ _) $
          subst-⊢-⇑ ⊢u₁ ⊢σ₁ of λ

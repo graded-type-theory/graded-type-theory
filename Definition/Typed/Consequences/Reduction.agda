@@ -148,7 +148,7 @@ opaque
     case ⊩∷Unit⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ {
       (_ , Unitₜ u (t⇒*u , u-whnf) _) →
       u
-    , (case whnfStar (wf-⊢≡∷ (subset*Term t⇒*u) .proj₂ .proj₂)
+    , (case whnfStar (wf-⊢ (subset*Term t⇒*u) .proj₂ .proj₂)
               u-whnf of λ where
          starₙ     → starₙ
          (ne u-ne) → ne (or-empty-Neutral u-ne))
@@ -239,7 +239,7 @@ opaque
   red-Id′ {Γ} ⊢t =
     let _ , w-id , t⇒*w = red-Id ⊢t in
     _ , t⇒*w , w-id ,
-    lemma (wf-⊢≡∷ (subset*Term t⇒*w) .proj₂ .proj₂) w-id
+    lemma (wf-⊢ (subset*Term t⇒*w) .proj₂ .proj₂) w-id
     where
     lemma :
       Γ ⊢ w ∷ Id A u v →
@@ -314,7 +314,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ A ≡ Unit s → Γ ⊢ A ↘ Unit s
   Unit-norm A≡Unit =
-    let ⊢A , _ = wf-⊢≡ A≡Unit in
+    let ⊢A , _ = wf-⊢ A≡Unit in
     case whNorm ⊢A of λ
       (_ , B-whnf , A⇒*B) →
     case Unit≡A (trans (sym A≡Unit) (subset* A⇒*B)) B-whnf of λ {
@@ -339,11 +339,11 @@ opaque
   … | _ , Levelₙ , D =
     ⊥-elim (Level≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
   … | _ , zeroᵘₙ , A⇒zeroᵘ =
-    case wf-⊢≡ (subset* A⇒zeroᵘ) of λ where
+    case wf-⊢ (subset* A⇒zeroᵘ) of λ where
       (_ , univ ⊢zeroᵘ) →
         ⊥-elim (U≢Level (inversion-zeroᵘ ⊢zeroᵘ))
   … | _ , sucᵘₙ , A⇒sucᵘ =
-    case wf-⊢≡ (subset* A⇒sucᵘ) of λ where
+    case wf-⊢ (subset* A⇒sucᵘ) of λ where
       (_ , univ ⊢sucᵘ) →
         ⊥-elim (U≢Level (proj₂ (inversion-sucᵘ ⊢sucᵘ)))
   … | _ , Uₙ , D =
@@ -351,7 +351,7 @@ opaque
   … | _ , Liftₙ , D =
     ⊥-elim (Lift≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
   … | _ , liftₙ , D =
-    case wf-⊢≡ (subset* D) of λ where
+    case wf-⊢ (subset* D) of λ where
       (fst₁ , univ x) →
         let _ , _ , _ , B≡Lift = inversion-lift x
         in ⊥-elim (U≢Liftⱼ B≡Lift)
@@ -371,29 +371,29 @@ opaque
   … | _ , Idₙ , A⇒*Id =
     ⊥-elim $ I.Id≢ΠΣ (trans (sym (subset* A⇒*Id)) A≡ΠΣ)
   … | _ , lamₙ , A⇒lam =
-    case wf-⊢≡ (subset* A⇒lam) of λ where
+    case wf-⊢ (subset* A⇒lam) of λ where
       (_ , univ ⊢lam) →
         let _ , _ , _ , _ , _ , U≡Π , _ = inversion-lam ⊢lam in
         ⊥-elim (U≢ΠΣⱼ U≡Π)
   … | _ , zeroₙ , A⇒zero =
-    case wf-⊢≡ (subset* A⇒zero) of λ where
+    case wf-⊢ (subset* A⇒zero) of λ where
       (_ , univ ⊢zero) →
         ⊥-elim (U≢ℕ (inversion-zero ⊢zero))
   … | _ , sucₙ , A⇒suc =
-    case wf-⊢≡ (subset* A⇒suc) of λ where
+    case wf-⊢ (subset* A⇒suc) of λ where
       (_ , univ ⊢suc) →
         ⊥-elim (U≢ℕ (proj₂ (inversion-suc ⊢suc)))
   … | _ , starₙ , A⇒star =
-    case wf-⊢≡ (subset* A⇒star) of λ where
+    case wf-⊢ (subset* A⇒star) of λ where
       (_ , univ ⊢star) →
         ⊥-elim (U≢Unitⱼ (inversion-star ⊢star .proj₁))
   … | _ , prodₙ , A⇒prod =
-    case wf-⊢≡ (subset* A⇒prod) of λ where
+    case wf-⊢ (subset* A⇒prod) of λ where
       (_ , univ ⊢prod) →
         let _ , _ , _ , _ , _ , _ , _ , U≡Σ , _ = inversion-prod ⊢prod in
         ⊥-elim (U≢ΠΣⱼ U≡Σ)
   … | _ , rflₙ , A⇒rfl =
-    case wf-⊢≡ (subset* A⇒rfl) of λ where
+    case wf-⊢ (subset* A⇒rfl) of λ where
       (_ , univ ⊢rfl) →
         ⊥-elim $ Id≢U $
         sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)

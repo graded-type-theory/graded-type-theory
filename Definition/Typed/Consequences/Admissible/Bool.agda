@@ -260,10 +260,10 @@ opaque
     {n} {boolrecᵍ-Π} {p} {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {v₁} {v₂}
     {boolrecᵍ-pr} {boolrecᵍ-nc₁} {boolrecᵍ-nc₂} {boolrecᵍ-nc₃} {Γ}
     Π-ok Π-𝟙-𝟘-ok Unitˢ-ok A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
-    let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
-        _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-        _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
+    let ⊢A₁ , ⊢A₂     = wf-⊢ A₁≡A₂
+        _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂
+        _ , ⊢u₁ , ⊢u₂ = wf-⊢ u₁≡u₂
+        _ , ⊢v₁ , ⊢v₂ = wf-⊢ v₁≡v₂
         ⊢Γ            = wf ⊢t₁
     in
     check-and-equal-type-and-terms-sound

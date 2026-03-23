@@ -128,9 +128,9 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ ℕ →
     Γ ⊢ Vec′ l A₁ t₁ ≡ Vec′ l A₂ t₂ ∷ U l
   Vec′-cong {m} {n} {A₁} {A₂} {l} {t₁} {t₂} {Γ} A₁≡A₂ t₁≡t₂ =
-    let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
-        _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
+    let _ , ⊢A₁ , ⊢A₂ = wf-⊢ A₁≡A₂
+        _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂
+        ⊢l            = inversion-U-Level (wf-⊢ ⊢A₁)
         ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound
@@ -215,7 +215,7 @@ opaque
     Γ ⊢ t ∷ ℕ →
     Γ ⊢ Vec′ l A t ∷ U l
   ⊢Vec′ ⊢A ⊢t =
-    wf-⊢≡∷ (Vec′-cong (refl ⊢A) (refl ⊢t)) .proj₂ .proj₁
+    wf-⊢ (Vec′-cong (refl ⊢A) (refl ⊢t)) .proj₂ .proj₁
 
 opaque
   unfolding Vec′
@@ -243,7 +243,7 @@ opaque
            Unit-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var  not-x2 _ _))
       (wf ⊢A)
@@ -282,7 +282,7 @@ opaque
            Unit-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢t
            (I.var  not-x3 _ _))
@@ -357,7 +357,7 @@ opaque
            Π-ok₁ L.∷ Π-ok₂ L.∷ Unit-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var  not-x2 _ _))
       (wf ⊢A)
@@ -399,7 +399,7 @@ opaque
            Π-ok₁ L.∷ Π-ok₂ L.∷ Unit-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢t
            (I.var  not-x3 _ _))
@@ -439,7 +439,7 @@ opaque
            Unit-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var  not-x2 _ _))
       (wf ⊢A)
@@ -500,9 +500,9 @@ opaque
     Γ ⊢ cons′ A₁ t₁ u₁ v₁ ≡ cons′ A₂ t₂ u₂ v₂ ∷ Vec′ l₁ A₁ (suc t₁)
   cons′-cong
     {m} {n} {A₁} {l₁} {t₁} {u₁} {u₂} {v₁} {v₂} {Γ} ⊢A₁ ⊢t₁ u₁≡u₂ v₁≡v₂ =
-    let _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-        _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
-        ⊢l₁           = inversion-U-Level (wf-⊢∷ ⊢A₁)
+    let _ , ⊢u₁ , ⊢u₂ = wf-⊢ u₁≡u₂
+        _ , ⊢v₁ , ⊢v₂ = wf-⊢ v₁≡v₂
+        ⊢l₁           = inversion-U-Level (wf-⊢ ⊢A₁)
         ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound
@@ -597,7 +597,7 @@ opaque
     Γ ⊢ v ∷ Vec′ l A t →
     Γ ⊢ cons′ A t u v ∷ Vec′ l A (suc t)
   ⊢cons′ ⊢A ⊢t ⊢u ⊢v =
-    wf-⊢≡∷ (cons′-cong {A₂ = ℕ} {t₂ = ℕ} ⊢A ⊢t (refl ⊢u) (refl ⊢v))
+    wf-⊢ (cons′-cong {A₂ = ℕ} {t₂ = ℕ} ⊢A ⊢t (refl ⊢u) (refl ⊢v))
       .proj₂ .proj₁
 
 opaque
@@ -690,7 +690,7 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢B
            (I.var! x3)         → ⊢t
@@ -782,7 +782,7 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢B
            (I.var! x3)         → ⊢t
@@ -875,7 +875,7 @@ opaque
            Π-ok L.∷ Unit-ok L.∷ Σ-ok L.∷ L.[]
          .IC.metas-wf .IC.equalities-wf → L.[]
          .IC.metas-wf .IC.bindings-wf   → λ where
-           (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
+           (I.var! x0)         → inversion-U-Level (wf-⊢ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢B
            (I.var! x3)         → ⊢t₁

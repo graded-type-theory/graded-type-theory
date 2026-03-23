@@ -1031,7 +1031,7 @@ opaque
                                                                    case whnfRed* B⇒*C (ne-whnf B-ne) of λ {
                                                                      PE.refl →
                                                                    A≅C })
-                                                              , (λ A≅B → _ , B-ne , id (wf-⊢≡ (≅-eq A≅B) .proj₂) , A≅B)
+                                                              , (λ A≅B → _ , B-ne , id (wf-⊢ (≅-eq A≅B) .proj₂) , A≅B)
                                                               ⟩
     Γ ⊢ A ≅ B                                                □⇔
 

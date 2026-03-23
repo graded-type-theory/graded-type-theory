@@ -90,7 +90,7 @@ mutual
   lift~toConv↓′ (Levelᵣ D) D₁ ([~] A (D₂ , whnfB) t~u)
                 rewrite PE.sym (whrDet* (D , Levelₙ) (D₁ , whnfB)) =
     let nt , nu = ne~↑ t~u
-        t≡u = conv (soundness~↑ t~u) (subset* D₂)
+        t≡u = _⊢_≡_∷_.conv (soundness~↑ t~u) (subset* D₂)
         ⊢Level , ⊢t , ⊢u = syntacticEqTerm t≡u
         ⊩t≡u = neNfₜ₌ (neᵃ→ (λ _ → no-equality-reflection) nt)
                  (neᵃ→ (λ _ → no-equality-reflection) nu) t≡u
@@ -103,7 +103,8 @@ mutual
   lift~toConv↓′ (Uᵣ′ _ _ _ A′⇒*U) A′⇒*A ([~] _ (B⇒*A , A-whnf) t~u)
     rewrite PE.sym (whrDet* (A′⇒*U , Uₙ) (A′⇒*A , A-whnf)) =
     let _ , ⊢t , ⊢u =
-          syntacticEqTerm (conv (soundness~↑ t~u) (subset* B⇒*A))
+          syntacticEqTerm
+            (_⊢_≡_∷_.conv (soundness~↑ t~u) (subset* B⇒*A))
     in
     univ ⊢t ⊢u (ne ([~] _ (B⇒*A , Uₙ) t~u))
   lift~toConv↓′ (Liftᵣ′ D [k] [F]) A′⇒*A ([~] _ (B⇒*A , A-whnf) t~u) =

@@ -321,8 +321,8 @@ mutual
   soundnessConv↑-U {A} {l₁} {B} {l₂} ⊢A ⊢B ([↑] A′ B′ A↘A′ B↘B′ A′≡B′) =
     let A″ , A″-type , A⇒*A″ = red-U ⊢A
         B″ , B″-type , B⇒*B″ = red-U ⊢B
-        _ , _ , ⊢A″ = wf-⊢≡∷ (subset*Term A⇒*A″)
-        _ , _ , ⊢B″ = wf-⊢≡∷ (subset*Term B⇒*B″)
+        _ , _ , ⊢A″ = wf-⊢ (subset*Term A⇒*A″)
+        _ , _ , ⊢B″ = wf-⊢ (subset*Term B⇒*B″)
         A′≡A″ = whrDet* A↘A′ (univ* A⇒*A″ , typeWhnf A″-type)
         B′≡B″ = whrDet* B↘B′ (univ* B⇒*B″ , typeWhnf B″-type)
         A′≡B′ , l₁≡l₂ =
@@ -459,7 +459,7 @@ mutual
   soundness↓ᵛ (zeroᵘₙ ok ⊢Γ) = refl (zeroᵘⱼ ok ⊢Γ)
   soundness↓ᵛ (sucᵘₙ {v′} PE.refl t≡v) =
     let ⊢t≡v = soundness↑ᵛ t≡v
-        ok   = inversion-Level-⊢ (wf-⊢≡∷ ⊢t≡v .proj₁)
+        ok   = inversion-Level-⊢ (wf-⊢ ⊢t≡v .proj₁)
     in
     trans (sucᵘ-cong ⊢t≡v) (Levelᵛ→Term-suc ok (wf (wf↑ᵛ t≡v)) v′)
   soundness↓ᵛ (neₙ x) = soundness~ᵛ x
@@ -467,7 +467,7 @@ mutual
   soundness~ᵛ : ∀ {t} {v : Levelᵛ Γ} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ≡ Levelᵛ→Term v ∷ Level
   soundness~ᵛ (supᵘˡₙ {v′} {v″} y t~ u↑) =
     let u↑ = soundness↑ᵛ u↑
-        ok = inversion-Level-⊢ (wf-⊢≡∷ u↑ .proj₁)
+        ok = inversion-Level-⊢ (wf-⊢ u↑ .proj₁)
     in
     trans (supᵘ-cong (soundness~ᵛ t~) u↑)
       (PE.subst (_ ⊢ _ ≡_∷ _) (PE.cong Levelᵛ→Term (PE.sym y))
@@ -475,7 +475,7 @@ mutual
   soundness~ᵛ (supᵘʳₙ {v′} {v″} PE.refl t↑ u~) =
     let ⊢Γ = wf (wf↑ᵛ t↑)
         t↑ = soundness↑ᵛ t↑
-        ok = inversion-Level-⊢ (wf-⊢≡∷ t↑ .proj₁)
+        ok = inversion-Level-⊢ (wf-⊢ t↑ .proj₁)
     in
     trans (supᵘ-cong (sucᵘ-cong t↑) (soundness~ᵛ u~))
       (trans

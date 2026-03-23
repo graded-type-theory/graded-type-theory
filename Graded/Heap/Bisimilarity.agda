@@ -271,7 +271,7 @@ module _
           toSubstₕ-NeutralAt d′ $ ⊢⦅⦆ˢ-NeutralAt ⊢S (var _)
     ⊢⇒→⇒ᵥ _ sup (⊢ₛ _ ⊢supᵘ _) - =
       ⊥-elim $ Level-not-allowed $
-      inversion-Level-⊢ (wf-⊢∷ (inversion-supᵘ ⊢supᵘ .proj₁))
+      inversion-Level-⊢ (wf-⊢ (inversion-supᵘ ⊢supᵘ .proj₁))
 
 -- The remaining properties are proven under some additional assumptions
 
