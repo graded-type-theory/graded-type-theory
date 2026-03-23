@@ -59,9 +59,9 @@ private opaque
       .≅ₜ-wk                     → wk
       .wk-⊢≅∷L                   → wk
       .~-wk                      → wk
-      .≅-defn-wk                 → defn-wkEq
-      .≅ₜ-defn-wk                → defn-wkEqTerm
-      .~-defn-wk                 → defn-wkEqTerm
+      .≅-defn-wk                 → defn-wk
+      .≅ₜ-defn-wk                → defn-wk
+      .~-defn-wk                 → defn-wk
       .≅-red (A⇒* , _) (B⇒* , _) →
         reduction A⇒* B⇒*
       .≅ₜ-red (A⇒* , _) (t⇒* , _) (u⇒* , _) →

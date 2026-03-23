@@ -567,7 +567,7 @@ opaque
 
   defn-wkSubst : » ∇′ ⊇ ∇ → ∇ » Δ ⊢ˢ σ ∷ Γ → ∇′ » Δ ⊢ˢ σ ∷ Γ
   defn-wkSubst ξ⊇ id        = id
-  defn-wkSubst ξ⊇ (⊢σ , ⊢t) = defn-wkSubst ξ⊇ ⊢σ , defn-wkTerm ξ⊇ ⊢t
+  defn-wkSubst ξ⊇ (⊢σ , ⊢t) = defn-wkSubst ξ⊇ ⊢σ , defn-wk ξ⊇ ⊢t
 
 opaque
 
@@ -576,7 +576,7 @@ opaque
   defn-wkSubstʷ : » ∇′ ⊇ ∇ → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇′ » Δ ⊢ˢʷ σ ∷ Γ
   defn-wkSubstʷ ξ⊇ ⊢ˢʷσ =
     let (⊢Δ , ⊢σ) = ⊢ˢʷ∷⇔ .proj₁ ⊢ˢʷσ
-    in  ⊢ˢʷ∷⇔ .proj₂ (defn-wk′ ξ⊇ ⊢Δ , defn-wkSubst ξ⊇ ⊢σ)
+    in  ⊢ˢʷ∷⇔ .proj₂ (defn-wk ξ⊇ ⊢Δ , defn-wkSubst ξ⊇ ⊢σ)
 
 opaque
 

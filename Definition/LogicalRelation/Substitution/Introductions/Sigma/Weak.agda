@@ -509,10 +509,10 @@ opaque
   prodrec-congᵛ ⊢C₁≡C₂ C₁≡C₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ C₁≡C₂ .proj₁) (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
-      , λ ξ⊇ → ⊩prodrec≡prodrec (defn-wkEq ξ⊇ ⊢C₁≡C₂)
+      , λ ξ⊇ → ⊩prodrec≡prodrec (defn-wk ξ⊇ ⊢C₁≡C₂)
                                 (defn-wk-⊩ᵛ≡ ξ⊇ C₁≡C₂)
                                 (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
-                                (defn-wkEqTerm ξ⊇ ⊢u₁≡u₂)
+                                (defn-wk ξ⊇ ⊢u₁≡u₂)
                                 (defn-wk-⊩ᵛ≡∷ ξ⊇ u₁≡u₂)
       )
 
@@ -551,7 +551,7 @@ opaque
              ⊢C = defn-wk ξ⊇ ⊢C
              ⊩t = defn-wk-⊩ᵛ∷ ξ⊇ ⊩t
              ⊩u = defn-wk-⊩ᵛ∷ ξ⊇ ⊩u
-             ⊢v = defn-wkTerm ξ⊇ ⊢v
+             ⊢v = defn-wk ξ⊇ ⊢v
              ⊩v = defn-wk-⊩ᵛ∷ ξ⊇ ⊩v
          in
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ [,]-[]-commute v)

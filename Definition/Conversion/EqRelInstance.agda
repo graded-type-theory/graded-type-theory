@@ -332,7 +332,7 @@ module Lemmas where
   ~-defn-wk : ∀ {k l A} →
         » ∇′ ⊇ ∇ →
         ∇ » Η ⊢ k ~ l ∷ A → ∇′ » Η ⊢ k ~ l ∷ A
-  ~-defn-wk ξ⊇ (↑ A≡B k~l) = ↑ (defn-wkEq ξ⊇ A≡B) (defn-wk~↑ ξ⊇ k~l)
+  ~-defn-wk ξ⊇ (↑ A≡B k~l) = ↑ (defn-wk ξ⊇ A≡B) (defn-wk~↑ ξ⊇ k~l)
 
   ~-conv : ∀ {k l A B} →
         Γ ⊢ k ~ l ∷ A → Γ ⊢ A ≡ B → Γ ⊢ k ~ l ∷ B

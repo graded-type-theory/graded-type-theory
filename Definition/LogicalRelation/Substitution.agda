@@ -808,7 +808,7 @@ opaque
     ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
     ∇′ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ
   defn-wk-⊩ˢ≡∷ {Δ = ε} ⦃ inc ⦄ ξ⊇ σ₁≡σ₂ =
-    ⊩ˢ≡∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ≡∷→» σ₁≡σ₂) , defn-wk′ ξ⊇ (⊩ˢ≡∷ε⇔ .proj₁ σ₁≡σ₂ .proj₂ ⦃ inc ⦄))
+    ⊩ˢ≡∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ≡∷→» σ₁≡σ₂) , defn-wk ξ⊇ (⊩ˢ≡∷ε⇔ .proj₁ σ₁≡σ₂ .proj₂ ⦃ inc ⦄))
   defn-wk-⊩ˢ≡∷ {Δ = Δ ∙ A} ξ⊇ σ₁≡σ₂ =
     let ((ℓ , ⊩A , h≡h) , t≡t) = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂
     in  ⊩ˢ≡∷∙⇔ .proj₂ $ (ℓ , defn-wk-⊩ᵛ ξ⊇ ⊩A , defn-wk-⊩≡∷ ξ⊇ h≡h)
@@ -820,7 +820,7 @@ opaque
 
   defn-wk-⊩ˢ∷ : » ∇′ ⊇ ∇ → ∇ » Η ⊩ˢ σ ∷ Δ → ∇′ » Η ⊩ˢ σ ∷ Δ
   defn-wk-⊩ˢ∷ {Δ = ε} ξ⊇ ⊩σ =
-    ⊩ˢ∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ∷→» ⊩σ) , defn-wk′ ξ⊇ (⊩ˢ∷ε⇔ .proj₁ ⊩σ .proj₂))
+    ⊩ˢ∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ∷→» ⊩σ) , defn-wk ξ⊇ (⊩ˢ∷ε⇔ .proj₁ ⊩σ .proj₂))
   defn-wk-⊩ˢ∷ {Δ = Δ ∙ A} ξ⊇ ⊩σ =
     let ((ℓ , ⊩A , ⊩h) , ⊩t) = ⊩ˢ∷∙⇔ .proj₁ ⊩σ
     in  ⊩ˢ∷∙⇔ .proj₂ $ (ℓ , defn-wk-⊩ᵛ ξ⊇ ⊩A , defn-wk-⊩∷ ξ⊇ ⊩h)

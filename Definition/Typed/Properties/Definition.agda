@@ -1350,14 +1350,14 @@ opaque
     ⊥-elim (n≮n _ (≤-trans (<′⇒< α<n) n≤α))
   ⊢inline-<≡defn∷ {α} {ξ = step ξ _ _ t} {α<n = ≤′-reflexive _}
     »ξ∙@(∙ᵗ[ ⊢t ]) here =
-    inline ξ t  ≡⟨ defn-wkEqTerm (stepᵗ₁ (glassify-⊢∷ ⊢t)) (⊢inline≡∷ ⊢t) ⟩⊢
+    inline ξ t  ≡⟨ defn-wk (stepᵗ₁ (glassify-⊢∷ ⊢t)) (⊢inline≡∷ ⊢t) ⟩⊢
     t           ≡˘⟨ δ-red (ε (glassify-» »ξ∙)) here (PE.sym $ wk-id _) (PE.sym $ wk-id _) ⟩⊢∎
     defn α      ∎
     where
     open TmR
   ⊢inline-<≡defn∷ {α} {∇} {ξ = step ξ _ _ t} {α<n = ≤′-reflexive _}
     »ξ∙@(∙ᵒ⟨_⟩[_∷_] {φ} _ ⊢t _) here =
-    inline ξ t  ≡⟨ defn-wkEqTerm
+    inline ξ t  ≡⟨ defn-wk
                      (stepᵗ₁ $
                       PE.subst₃ _⊢_∷_
                         (PE.cong (_» _) glassify-factor) PE.refl PE.refl $
@@ -1384,11 +1384,11 @@ opaque
     ⊥-elim (n≮n _ (<′⇒< α<α))
   ⊢inline-<≡defn∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
     ∙ᵗ[ ⊢t ] (there α↦) =
-    defn-wkEqTerm (stepᵗ₁ (glassify-⊢∷ ⊢t)) $
+    defn-wk (stepᵗ₁ (glassify-⊢∷ ⊢t)) $
     ⊢inline-<≡defn∷ {ξ = ξ} (defn-wf (wf ⊢t)) α↦
   ⊢inline-<≡defn∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
     ∙ᵒ⟨ _ ⟩[ ⊢t ∷ ⊢A ] (there α↦) =
-    defn-wkEqTerm
+    defn-wk
       (stepᵗ₁ $
        PE.subst₃ _⊢_∷_
          (PE.cong (_» _) glassify-factor) PE.refl PE.refl $

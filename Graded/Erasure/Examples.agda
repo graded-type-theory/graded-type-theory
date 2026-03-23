@@ -501,7 +501,7 @@ private
       β-red-⇒₃′
         Π-𝟘-ok Π-ω-ok Π-ω-ok
         (W.wk (W.liftʷ (W.lift (W.lift W.wk₀∷⊇)) ΓLU⊢ℕ) $
-         WD.defn-wkTerm (WD.»⊇ε »Γ) $
+         WD.defn-wk (WD.»⊇ε »Γ) $
          ⊢Vec-body₂ ok)
         ⊢l∷ ⊢A ⊢t
 
@@ -650,7 +650,7 @@ private opaque
       PE.refl $
     β-red (⊢U₀ (∙ ⊢ℕ ⊢Γ))
       (W.wk (W.liftʷ W.wk₀∷⊇ (⊢ℕ ⊢Γ)) $
-       WD.defn-wkTerm (WD.»⊇ε (defn-wf ⊢Γ)) ⊢Non-zero-body)
+       WD.defn-wk (WD.»⊇ε (defn-wf ⊢Γ)) ⊢Non-zero-body)
       ⊢t PE.refl Π-ω-ok
 
 opaque

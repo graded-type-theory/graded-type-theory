@@ -236,8 +236,8 @@ opaque
              ρ⊇ = ∷ʷʳ⊇→∷ʷ⊇ ρʳ⊇
              ⊢A[σ₁] = defn-wk ξ⊇ ⊢A[σ₁]
              ⊢B = defn-wk ξ⊇ ⊢B
-             ⊢t₁ = defn-wkTerm ξ⊇ ⊢t₁
-             ⊢t₂ = defn-wkTerm ξ⊇ ⊢t₂
+             ⊢t₁ = defn-wk ξ⊇ ⊢t₁
+             ⊢t₂ = defn-wk ξ⊇ ⊢t₂
              ⊢σ₁⇑ = defn-wkSubstʷ ξ⊇ ⊢σ₁⇑
              ⊢σ₂⇑ = defn-wkSubstʷ ξ⊇ ⊢σ₂⇑
              ⊩A = defn-wk-⊩ᵛ ξ⊇ ⊩A
@@ -323,7 +323,7 @@ opaque
       ( ΠΣᵛ (ΠΣⱼ (wf-⊢≡∷ ⊢t₁≡t₂ .proj₁) ok) ⊩A
           (wf-⊩ᵛ∷ $ wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
       , λ ξ⊇ → ⊩lam≡lam ok
-                        (defn-wkEqTerm ξ⊇ ⊢t₁≡t₂)
+                        (defn-wk ξ⊇ ⊢t₁≡t₂)
                         (defn-wk-⊩ᵛ ξ⊇ ⊩A)
                         (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
       )
@@ -435,7 +435,7 @@ opaque
       (λ ξ⊇ ⊩σ →
          PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym $ singleSubstLift t _)
            (PE.sym $ singleSubstLift B _) $
-         β-red-⇒ (subst-⊢-⇑ (defn-wkTerm ξ⊇ ⊢t) (escape-⊩ˢ∷ ⊩σ .proj₂))
+         β-red-⇒ (subst-⊢-⇑ (defn-wk ξ⊇ ⊢t) (escape-⊩ˢ∷ ⊩σ .proj₂))
            (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩u) ⊩σ) ok)
       (⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₀∷ ⊩t ⊩u)
 
@@ -543,9 +543,9 @@ opaque
             , u₁ , u₂ , t₁[σ]⇒*u₁ , t₂[σ]⇒*u₂ , u₁-fun , u₂-fun
             , with-inc-⊢≅∷
                 (u₁        ⇐*⟨ t₁[σ]⇒*u₁ ⟩⊢
-                 t₁ [ σ ]  ≡⟨ subst-⊢≡∷ (η-eq′ (defn-wkTerm ξ⊇ ⊢t₁)
-                                               (defn-wkTerm ξ⊇ ⊢t₂)
-                                               (defn-wkEqTerm ξ⊇ ⊢wk1-t₁∘0≡wk1-t₂∘0))
+                 t₁ [ σ ]  ≡⟨ subst-⊢≡∷ (η-eq′ (defn-wk ξ⊇ ⊢t₁)
+                                               (defn-wk ξ⊇ ⊢t₂)
+                                               (defn-wk ξ⊇ ⊢wk1-t₁∘0≡wk1-t₂∘0))
                                 (refl-⊢ˢʷ≡∷ $ escape-⊩ˢ∷ ⊩σ .proj₂) ⟩⊢
                  t₂ [ σ ]  ⇒*⟨ t₂[σ]⇒*u₂ ⟩⊢∎
                  u₂        ∎)

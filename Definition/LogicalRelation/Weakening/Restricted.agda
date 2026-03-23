@@ -124,4 +124,4 @@ opaque
 
   defn-wkWkʷʳ : » ∇′ ⊇ ∇ → ∇ » ρ ∷ʷʳ Δ ⊇ Γ → ∇′ » ρ ∷ʷʳ Δ ⊇ Γ
   defn-wkWkʷʳ ξ⊇ (includedʷʳ ρ) = includedʷʳ (defn-wkWkʷ ξ⊇ ρ)
-  defn-wkWkʷʳ ξ⊇ (id ⊢Δ)        = id (defn-wk′ ξ⊇ ⊢Δ)
+  defn-wkWkʷʳ ξ⊇ (id ⊢Δ)        = id (defn-wk ξ⊇ ⊢Δ)

@@ -27,7 +27,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R using (_»_∷ʷ_⊇_)
 open import Definition.Typed.Weakening.Definition R as W
-  hiding (defn-wk; defn-wkTerm; defn-wkEq; defn-wkEqTerm)
+  hiding (defn-wk)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal R
@@ -149,7 +149,7 @@ opaque mutual
     (term l⇒l′ l′-prop) →
       term (defn-wkRed*Term ∇′⊇∇ l⇒l′) (defn-wk-Level-prop ∇′⊇∇ l′-prop)
     (literal ok ⊢Γ) →
-      literal ok (defn-wk′ ∇′⊇∇ ⊢Γ)
+      literal ok (W.defn-wk ∇′⊇∇ ⊢Γ)
 
   -- Weakening for Level-prop.
 
@@ -187,7 +187,7 @@ opaque mutual
       term (defn-wkRed*Term ∇′⊇∇ l₁⇒l₁′) (defn-wkRed*Term ∇′⊇∇ l₂⇒l₂′)
         (defn-wk-[Level]-prop ∇′⊇∇ l₁′≡l₂′)
     (literal! ok ⊢Γ) →
-      literal! ok (defn-wk′ ∇′⊇∇ ⊢Γ)
+      literal! ok (W.defn-wk ∇′⊇∇ ⊢Γ)
 
   -- Weakening for [Level]-prop.
 

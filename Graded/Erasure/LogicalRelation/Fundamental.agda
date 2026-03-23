@@ -491,7 +491,7 @@ module Fundamental
                  ih (<→⊇→↦→↦ β<α ∇⊇∇′ β↦t′)
                    (TP.↦∈-deterministic (↦erase∈eraseDCon′ β↦t′) β↦v′))
               (fundamental′
-                 (W.wk (wk₀∷ʷ⊇ well-formed) (defn-wkTerm ∇⊇∇′ ⊢t))
+                 (W.wk (wk₀∷ʷ⊇ well-formed) (defn-wk ∇⊇∇′ ⊢t))
                  (PE.subst (_▸[ _ ] _) wkConₘ-ε $
                   wkUsage wk₀ (▸∇′∙ α↦t))
                  (Names<-wk (↦→Names< »∇′∙t α↦t)))

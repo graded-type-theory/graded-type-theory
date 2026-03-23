@@ -126,7 +126,7 @@ opaque
   defn-wkNeg _ level =
     level
   defn-wkNeg ∇′⊇∇ (conv ⊢A A≡B) =
-    conv (defn-wkNeg ∇′⊇∇ ⊢A) (defn-wkEq ∇′⊇∇ A≡B)
+    conv (defn-wkNeg ∇′⊇∇ ⊢A) (defn-wk ∇′⊇∇ A≡B)
 
 -- Negative types are closed under parallel substitution.
 

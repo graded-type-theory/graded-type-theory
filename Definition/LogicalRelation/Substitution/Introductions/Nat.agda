@@ -552,10 +552,10 @@ opaque
   natrec-congᵛ ⊢A₁≡A₂ A₁≡A₂ t₁≡t₂ ⊢u₁≡u₂ u₁≡u₂ v₁≡v₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁) (wf-⊩ᵛ≡∷ v₁≡v₂ .proj₁)
-      , λ ξ⊇ → ⊩natrec≡natrec (defn-wkEq ξ⊇ ⊢A₁≡A₂)
+      , λ ξ⊇ → ⊩natrec≡natrec (defn-wk ξ⊇ ⊢A₁≡A₂)
                               (defn-wk-⊩ᵛ≡ ξ⊇ A₁≡A₂)
                               (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
-                              (defn-wkEqTerm ξ⊇ ⊢u₁≡u₂)
+                              (defn-wk ξ⊇ ⊢u₁≡u₂)
                               (defn-wk-⊩ᵛ≡∷ ξ⊇ u₁≡u₂)
                               (defn-wk-⊩ᵛ≡∷ ξ⊇ v₁≡v₂)
       )
@@ -592,7 +592,7 @@ opaque
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t) ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-            subst-⊢-⇑ (defn-wkTerm ξ⊇ ⊢u) (escape-⊩ˢ∷ ⊩σ .proj₂)))
+            subst-⊢-⇑ (defn-wk ξ⊇ ⊢u) (escape-⊩ˢ∷ ⊩σ .proj₂)))
       ⊩t
 
 opaque
@@ -616,7 +616,7 @@ opaque
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) $
             R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩t) ⊩σ)
            (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) $
-            subst-⊢-⇑ (defn-wkTerm ξ⊇ ⊢u) (escape-⊩ˢ∷ ⊩σ .proj₂))
+            subst-⊢-⇑ (defn-wk ξ⊇ ⊢u) (escape-⊩ˢ∷ ⊩σ .proj₂))
            (R.escape-⊩∷ $ ⊩ᵛ∷→⊩ˢ∷→⊩[]∷ (defn-wk-⊩ᵛ∷ ξ⊇ ⊩v) ⊩σ))
       (PE.subst (_⊩ᵛ⟨_⟩_∷_ _ _ _) (PE.sym $ substComp↑² A _) $
        ⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ∷→⊩ᵛ[]₁₀∷ ⊩u ⊩v (natrecᵛ ⊩A ⊩t ⊢u ⊩u ⊩v))

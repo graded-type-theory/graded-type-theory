@@ -161,7 +161,7 @@ opaque
     there α↦ ,
     (λ where
        here       → ⊥-elim (N.n≮n _ (↦∷∈→< (↦∷∈⇒↦∈ α↦)))
-       (there α↦) → defn-wkEq (»∙→»∙⊇ »∙) (hyp α↦))
+       (there α↦) → defn-wk (»∙→»∙⊇ »∙) (hyp α↦))
 
 -- Variable context indexing.
 --

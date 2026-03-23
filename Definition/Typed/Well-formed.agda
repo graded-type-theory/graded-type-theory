@@ -65,11 +65,11 @@ opaque
 
   wf-↦∷∈ : α ↦ t ∷ A ∈ ∇ → » ∇ → ∇ » ε ⊢ t ∷ A
   wf-↦∷∈ here ∙ᵗ[ ⊢t ] =
-    defn-wkTerm (stepᵗ₁ ⊢t) ⊢t
+    defn-wk (stepᵗ₁ ⊢t) ⊢t
   wf-↦∷∈ (there α↦t) ∙ᵒ⟨ ok ⟩[ ⊢u ∷ ⊢B ] =
-    defn-wkTerm (stepᵒ₁ ok ⊢B ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢B)))
+    defn-wk (stepᵒ₁ ok ⊢B ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢B)))
   wf-↦∷∈ (there α↦t) ∙ᵗ[ ⊢u ] =
-    defn-wkTerm (stepᵗ₁ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢u)))
+    defn-wk (stepᵗ₁ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢u)))
 
 opaque mutual
 

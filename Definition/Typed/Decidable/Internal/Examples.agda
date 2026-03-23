@@ -143,7 +143,7 @@ opaque
          { metas-wf       = C.Meta-con-wf-empty PE.refl
          ; constraints-wf = ok₁ L.∷ ok₂ L.∷ L.[]
          })
-      (flip defn-wk′ ⊢Δ $ »⊇ε $
+      (flip defn-wk ⊢Δ $ »⊇ε $
        check-dcon-sound
          (record (I.empty-Contexts false)
             { constraints⁺ =

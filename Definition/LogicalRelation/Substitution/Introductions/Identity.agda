@@ -1015,7 +1015,7 @@ opaque
       , λ ξ⊇ → ⊩K≡K ok
                     (defn-wk-⊩ᵛ≡ ξ⊇ A₁≡A₂)
                     (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
-                    (defn-wkEq ξ⊇ ⊢B₁≡B₂)
+                    (defn-wk ξ⊇ ⊢B₁≡B₂)
                     (defn-wk-⊩ᵛ≡ ξ⊇ B₁≡B₂)
                     (defn-wk-⊩ᵛ≡∷ ξ⊇ u₁≡u₂)
                     (defn-wk-⊩ᵛ≡∷ ξ⊇ v₁≡v₂)
@@ -1294,7 +1294,7 @@ opaque
            wf-⊩ᵛ≡∷ w₁≡w₂ .proj₁)
       , λ ξ⊇ → ⊩J≡J (defn-wk-⊩ᵛ≡ ξ⊇ A₁≡A₂)
                     (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
-                    (defn-wkEq ξ⊇ ⊢B₁≡B₂)
+                    (defn-wk ξ⊇ ⊢B₁≡B₂)
                     (defn-wk-⊩ᵛ≡ ξ⊇ B₁≡B₂)
                     (defn-wk-⊩ᵛ≡∷ ξ⊇ u₁≡u₂)
                     (defn-wk-⊩ᵛ≡∷ ξ⊇ v₁≡v₂)
@@ -1334,7 +1334,7 @@ opaque
       (λ {_ _} ξ⊇ {_ _} {σ} ⊩σ →
          let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
-         J-β-⇒ (refl $ subst-⊢∷ (defn-wkTerm ξ⊇ ⊢t) ⊢σ)
+         J-β-⇒ (refl $ subst-⊢∷ (defn-wk ξ⊇ ⊢t) ⊢σ)
            (PE.subst₂ _⊢_
               (PE.cong (_»∙_ _) $ Id-wk1-wk1-0[⇑]≡ A t) PE.refl $
             subst-⊢-⇑ (defn-wk ξ⊇ ⊢B) ⊢σ)

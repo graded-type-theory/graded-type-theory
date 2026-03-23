@@ -463,7 +463,7 @@ opaque
   ΠΣ-congᵛ ΠΣ≡ΠΣ A₁≡A₂ B₁≡B₂ =
     ⊩ᵛ≡⇔ʰ .proj₂ $
       ( wf-⊩ᵛ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁)
-      , λ ξ⊇ → ⊩ΠΣ≡ΠΣ (defn-wkEq ξ⊇ ΠΣ≡ΠΣ)
+      , λ ξ⊇ → ⊩ΠΣ≡ΠΣ (defn-wk ξ⊇ ΠΣ≡ΠΣ)
                       (defn-wk-⊩ᵛ≡ ξ⊇ A₁≡A₂)
                       (defn-wk-⊩ᵛ≡ ξ⊇ B₁≡B₂)
       )
@@ -703,7 +703,7 @@ opaque
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩l
       , λ ∇′⊇∇ →
-          ⊩ΠΣ≡ΠΣ∷U (defn-wkEqTerm ∇′⊇∇ ΠΣ≡ΠΣ) (defn-wk-⊩ᵛ∷L ∇′⊇∇ ⊩l)
+          ⊩ΠΣ≡ΠΣ∷U (defn-wk ∇′⊇∇ ΠΣ≡ΠΣ) (defn-wk-⊩ᵛ∷L ∇′⊇∇ ⊩l)
             (defn-wk-⊩ᵛ≡∷ ∇′⊇∇ A₁≡A₂) (defn-wk-⊩ᵛ≡∷ ∇′⊇∇ B₁≡B₂)
       )
 
@@ -721,7 +721,7 @@ opaque
     ⊩ᵛ∷⇔ʰ .proj₂
       ( ⊩ᵛU ⊩l
       , λ ∇′⊇∇ →
-          ⊩ΠΣ≡ΠΣ∷U (refl (defn-wkTerm ∇′⊇∇ ⊢ΠΣ)) (defn-wk-⊩ᵛ∷L ∇′⊇∇ ⊩l)
+          ⊩ΠΣ≡ΠΣ∷U (refl (defn-wk ∇′⊇∇ ⊢ΠΣ)) (defn-wk-⊩ᵛ∷L ∇′⊇∇ ⊩l)
             (refl-⊩ᵛ≡∷ $ defn-wk-⊩ᵛ∷ ∇′⊇∇ ⊩A)
             (refl-⊩ᵛ≡∷ $ defn-wk-⊩ᵛ∷ ∇′⊇∇ ⊩B)
       )

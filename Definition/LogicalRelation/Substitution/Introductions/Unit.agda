@@ -435,7 +435,7 @@ opaque
   unitrec-congᵛ ⊢A₁≡A₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     ⊩ᵛ≡∷⇔ʰ .proj₂
       ( ⊩ᵛ→⊩ᵛ∷→⊩ᵛ[]₀ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁) (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)
-      , λ ξ⊇ → ⊩unitrec≡unitrec (defn-wkEq ξ⊇ ⊢A₁≡A₂)
+      , λ ξ⊇ → ⊩unitrec≡unitrec (defn-wk ξ⊇ ⊢A₁≡A₂)
                                 (defn-wk-⊩ᵛ≡ ξ⊇ A₁≡A₂)
                                 (defn-wk-⊩ᵛ≡∷ ξ⊇ t₁≡t₂)
                                 (defn-wk-⊩ᵛ≡∷ ξ⊇ u₁≡u₂)

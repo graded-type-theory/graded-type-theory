@@ -147,7 +147,7 @@ opaque
     Consistent (∇′ » Δ) →
     Consistent (∇ » Δ)
   Consistent-⊇→Consistent ∇′⊇∇ consistent _ =
-    consistent _ ∘→ defn-wkTerm ∇′⊇∇
+    consistent _ ∘→ defn-wk ∇′⊇∇
 
 opaque
   unfolding Trans ones inlineᵈ
@@ -387,7 +387,7 @@ opaque
          (PE.subst₃ _»⊢_≡_
             (glassify-idem _) inline-Conᵈ-glassify PE.refl $
           ⊢inline-Conᵈ≡ ⊢Δ) ∘→
-       defn-wkTerm (»⊇ε (defn-wf ⊢Δ)))
+       defn-wk (»⊇ε (defn-wf ⊢Δ)))
 
 opaque
   unfolding Consistentᵍ
