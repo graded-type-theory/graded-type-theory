@@ -23,7 +23,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Lift R
@@ -218,7 +218,7 @@ opaque
       (Lift-cong-≤ₗ
          (PE.subst (flip (_⊢_≤ₗ_∷Level _) _) (PE.sym (wk1-[][]↑ 1))
             l₁₂≤l₁)
-         (wkEqLevel (stepʷ id (univ ⊢Lift)) l₁≡l₂)
+         (W.wk (stepʷ id (univ ⊢Lift)) l₁≡l₂)
          (lower₀TermEq ⊢l₁ B₁≡B₂))
       ok
 

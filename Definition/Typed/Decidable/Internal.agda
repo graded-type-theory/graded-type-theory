@@ -2211,8 +2211,8 @@ opaque
       in
                ∷ A               ⟨ A≡A′ ⟩≡∷
       U.defn α ∷ U.wk U.wk₀ A′  ≡⟨ _⊢_≡_∷_.conv (δ-red ⊢Γ α↦t∷A″ PE.refl PE.refl) $
-                                   W.wkEq (W.wk₀∷ʷ⊇ ⊢Γ) A″≡A′ ⟩⊢∷
-      U.wk U.wk₀ (⌜ t ⌝ γ)      ≡⟨ W.wkEqTerm (W.wk₀∷ʷ⊇ ⊢Γ) $
+                                   W.wk (W.wk₀∷ʷ⊇ ⊢Γ) A″≡A′ ⟩⊢∷
+      U.wk U.wk₀ (⌜ t ⌝ γ)      ≡⟨ W.wk (W.wk₀∷ʷ⊇ ⊢Γ) $
                                    red-sound-⊢∷ ⦃ ok = ε ⦄ n eq₂ $
                                    conv (wf-↦∷∈ α↦t∷A″ (defn-wf ⊢Γ)) A″≡A′ ⟩⊢∎≡
       U.wk U.wk₀ (⌜ t′ ⌝ γ)     ≡˘⟨ ⌜wk⌝ t′ ⟩
@@ -3996,9 +3996,9 @@ private module Lemmas (p : P n) where opaque
           open TmR
       in
                ∷ ⌜ A ⌝ γ                ⟨ A≡A′ ⟩≡∷
-               ∷ U.wk U.wk₀ A′         ˘⟨ W.wkEq (W.wk₀∷ʷ⊇ ⊢Γ) B≡A′ ⟩≡∷
+               ∷ U.wk U.wk₀ A′         ˘⟨ W.wk (W.wk₀∷ʷ⊇ ⊢Γ) B≡A′ ⟩≡∷
       U.defn α ∷ U.wk U.wk₀ (⌜ B ⌝ γ)  ≡⟨ δ-red ⊢Γ α↦t∷B PE.refl PE.refl ⟩⊢∷
-      U.wk U.wk₀ (⌜ t ⌝ γ)             ≡⟨ W.wkEqTerm (W.wk₀∷ʷ⊇ ⊢Γ) $
+      U.wk U.wk₀ (⌜ t ⌝ γ)             ≡⟨ W.wk (W.wk₀∷ʷ⊇ ⊢Γ) $
                                           red-tm-sound eq₂ ⊢γ $
                                           wf-↦∷∈ α↦t∷B (defn-wf ⊢Γ) ⟩⊢∎≡
       U.wk U.wk₀ (⌜ t′ ⌝ γ)            ≡˘⟨ ⌜wk⌝ t′ ⟩

@@ -266,7 +266,7 @@ opaque
                 ) of λ
            ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ →
          lam p (wk (lift ρ) (t₁ [ σ₁ ⇑ ])) ∘⟨ p ⟩ v₁  ⇒⟨ β-red (W.wk (W.liftʷʷ ρ⊇ ⊢wk-ρ-A[σ₁]) (subst-⊢ ⊢B ⊢σ₁⇑))
-                                                           (W.wkTerm (W.liftʷʷ ρ⊇ ⊢wk-ρ-A[σ₁]) (subst-⊢∷ ⊢t₁ ⊢σ₁⇑))
+                                                           (W.wk (W.liftʷʷ ρ⊇ ⊢wk-ρ-A[σ₁]) (subst-⊢∷ ⊢t₁ ⊢σ₁⇑))
                                                            (escape-⊩∷ ⊩v₁) PE.refl ok ⟩⊩∷
          wk (lift ρ) (t₁ [ σ₁ ⇑ ]) [ v₁ ]₀ ∷
            wk (lift ρ) (B [ σ₁ ⇑ ]) [ v₁ ]₀           ≡⟨ singleSubstWkComp _ _ t₁ ⟩⊩∷∷≡
@@ -280,7 +280,7 @@ opaque
                                                        ˘⟨ singleSubstWkComp _ _ B ⟩⇒≡
          wk (lift ρ) (t₂ [ σ₂ ⇑ ]) [ v₂ ]₀ ∷
            wk (lift ρ) (B [ σ₂ ⇑ ]) [ v₂ ]₀           ⇐⟨ β-red (W.wk (W.liftʷʷ ρ⊇ (⊢wk-ρ-A[σ₂])) (subst-⊢ ⊢B ⊢σ₂⇑))
-                                                           (W.wkTerm (W.liftʷʷ ρ⊇ (⊢wk-ρ-A[σ₂])) (subst-⊢∷ ⊢t₂ ⊢σ₂⇑))
+                                                           (W.wk (W.liftʷʷ ρ⊇ (⊢wk-ρ-A[σ₂])) (subst-⊢∷ ⊢t₂ ⊢σ₂⇑))
                                                            (escape-⊩∷ ⊩v₂) PE.refl ok
                                                        ⟩∎∷
          lam p (wk (lift ρ) (t₂ [ σ₂ ⇑ ])) ∘⟨ p ⟩ v₂  ∎)

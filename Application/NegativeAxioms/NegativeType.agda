@@ -99,7 +99,7 @@ wkNeg _ universe = universe
 wkNeg _ level = level
 
 wkNeg w (conv n c)
-  = conv (wkNeg w n) (wkEq w c)
+  = conv (wkNeg w n) (T.wk w c)
 
 opaque
 

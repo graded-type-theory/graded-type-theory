@@ -29,7 +29,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
-open import Definition.Typed.Weakening R using (_»_∷ʷ_⊇_; wkEq)
+open import Definition.Typed.Weakening R using (_»_∷ʷ_⊇_)
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R

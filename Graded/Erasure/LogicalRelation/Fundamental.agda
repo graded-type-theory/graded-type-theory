@@ -45,7 +45,7 @@ open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Weakening TR hiding (wk)
+open import Definition.Typed.Weakening TR as W hiding (wk)
 open import Definition.Typed.Weakening.Definition TR
 open import Definition.Typed.Well-formed TR
 
@@ -491,7 +491,7 @@ module Fundamental
                  ih (<→⊇→↦→↦ β<α ∇⊇∇′ β↦t′)
                    (TP.↦∈-deterministic (↦erase∈eraseDCon′ β↦t′) β↦v′))
               (fundamental′
-                 (wkTerm (wk₀∷ʷ⊇ well-formed) (defn-wkTerm ∇⊇∇′ ⊢t))
+                 (W.wk (wk₀∷ʷ⊇ well-formed) (defn-wkTerm ∇⊇∇′ ⊢t))
                  (PE.subst (_▸[ _ ] _) wkConₘ-ε $
                   wkUsage wk₀ (▸∇′∙ α↦t))
                  (Names<-wk (↦→Names< »∇′∙t α↦t)))

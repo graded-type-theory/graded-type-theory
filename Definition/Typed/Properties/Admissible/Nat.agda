@@ -24,7 +24,7 @@ open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
 
 open import Tools.Fin
 open import Tools.Function
@@ -153,7 +153,7 @@ opaque
   ⊢f′ ⊢t ⊢u =
     let ⊢ℕ = ⊢ℕ (∙ ⊢ℕ (wf ⊢t)) in
     natrecⱼ ⊢t
-      (⊢plus′ (wkTerm (∷⊇→∷ʷ⊇ (step (step id)) (∙ ⊢ℕ)) ⊢t) (var₁ ⊢ℕ)) ⊢u
+      (⊢plus′ (W.wk (∷⊇→∷ʷ⊇ (step (step id)) (∙ ⊢ℕ)) ⊢t) (var₁ ⊢ℕ)) ⊢u
 
 opaque
   unfolding f

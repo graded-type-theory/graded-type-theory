@@ -380,7 +380,7 @@ private
       B U.[ k ][ prod s 𝟘 t (lift (lower u)) ]↑                         ≡⟨ subst-⊢≡ (refl ⊢B) $ ⊢ˢʷ≡∷-[][]↑ $
                                                                            PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wk[]≡wk[]′) $
                                                                            prod-cong
-                                                                             (Liftⱼ (W.wkLevel (liftʷ ⊇-drop ⊢wk-A) ⊢wk1-l)
+                                                                             (Liftⱼ (W.wk (liftʷ ⊇-drop ⊢wk-A) ⊢wk1-l)
                                                                                 (⊢Unit (∙ ⊢wk-A) Unit-ok))
                                                                              (refl $
                                                                               PE.subst (_⊢_∷_ _ _) (wk[]≡wk[]′ {n = k})
@@ -521,7 +521,7 @@ opaque
                                                                                   PE.subst (_⊢_∷_ _ _) (wk[]≡[] 1) $
                                                                                   prodⱼ
                                                                                     (Liftⱼ
-                                                                                       (wkLevel (liftʷ (step id) ⊢A′) $ wkLevel₁ ⊢A ⊢l)
+                                                                                       (W.wk (liftʷ (step id) ⊢A′) $ wkLevel₁ ⊢A ⊢l)
                                                                                        (⊢Unit (∙ ⊢A′) Unit-ok))
                                                                                     (wkTerm₁ ⊢Unit′ ⊢u)
                                                                                     (liftⱼ′
@@ -890,10 +890,10 @@ module _ (ok : []-cong-allowed s) where
         ⊢A₁′ →
       Id-cong
         (ΠΣ-cong
-           (wkEq (stepʷ (step id) (J-motive-context-type ⊢t₁)) A₁≡A₂)
+           (W.wk (stepʷ (step id) (J-motive-context-type ⊢t₁)) A₁≡A₂)
            (Id-cong
-              (wkEq (liftʷ (step (step id)) ⊢A₁′) (wkEq₁ ⊢A₁ A₁≡A₂))
-              (wkEqTerm (liftʷ (step (step id)) ⊢A₁′)
+              (W.wk (liftʷ (step (step id)) ⊢A₁′) (wkEq₁ ⊢A₁ A₁≡A₂))
+              (W.wk (liftʷ (step (step id)) ⊢A₁′)
                  (wkEqTerm₁ ⊢A₁ t₁≡t₂))
               (_⊢_≡_∷_.refl $
                PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
@@ -902,13 +902,13 @@ module _ (ok : []-cong-allowed s) where
         (prod-cong
            (W.wk (liftʷ (step (step id)) ⊢A₁′)
               (J-motive-context-type ⊢t₁))
-           (wkEqTerm (stepʷ (step id) (J-motive-context-type ⊢t₁))
+           (W.wk (stepʷ (step id) (J-motive-context-type ⊢t₁))
               t₁≡t₂)
            (_⊢_≡_∷_.refl $
             PE.subst (_⊢_∷_ _ _)
               (PE.cong₃ Id lemma₁ lemma₁ PE.refl) $
             rflⱼ $
-            wkTerm (stepʷ (step id) (J-motive-context-type ⊢t₁)) ⊢t₁)
+            W.wk (stepʷ (step id) (J-motive-context-type ⊢t₁)) ⊢t₁)
            Σ-ok)
         (prod-cong
            (W.wk (liftʷ (step (step id)) ⊢A₁′)
@@ -989,8 +989,8 @@ module _ (ok : []-cong-allowed s) where
         (PE.subst (_⊢_≡_∷_ _ _ _)
            (PE.cong₃ Id (lemma₄ A₁) (lemma₄ t₁) PE.refl)
            (snd⟨⟩-cong A₁≡A₂′
-              (Id-cong (wkEq (stepʷ (step id) ⊢A₁′) A₁≡A₂)
-                 (wkEqTerm (stepʷ (step id) ⊢A₁′) t₁≡t₂)
+              (Id-cong (W.wk (stepʷ (step id) ⊢A₁′) A₁≡A₂)
+                 (W.wk (stepʷ (step id) ⊢A₁′) t₁≡t₂)
                  (refl (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ $ var₀ ⊢A₁′))) $
             PE.subst (_⊢_≡_∷_ _ _ _)
               (PE.cong (Σ⟨_⟩_,_▷_▹_ s 𝟘 𝟘 (wk1 A₁)) $

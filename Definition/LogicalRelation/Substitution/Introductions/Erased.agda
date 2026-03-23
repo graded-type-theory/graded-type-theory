@@ -40,7 +40,7 @@ open import Definition.LogicalRelation.Weakening.Definition
 open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Weakening.Definition R using (»_⊇_)
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M as U
@@ -83,7 +83,7 @@ private opaque
       , _
       , id
           (Liftⱼ
-             (wkLevel (∷ʷʳ⊇→∷ʷ⊇ ρ∷) $
+             (W.wk (∷ʷʳ⊇→∷ʷ⊇ ρ∷) $
               wf-⊢≡∷L (⊢≅∷L→⊢≡∷L (escapeLevelEq l₁≡l₂)) .proj₂)
              (⊢Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
       , wkEqTermLevel (∷ʷʳ⊇→∷ʷ⊇ ρ∷) l₁≡l₂

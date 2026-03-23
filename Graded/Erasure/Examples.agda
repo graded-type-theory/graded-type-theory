@@ -142,7 +142,7 @@ private
         Π ω , q ▷ var x0 ▹ var x1
     ΓU⊢id (ε »∇) = U⊢id »∇
     ΓU⊢id (∙ ⊢A) =
-      W.wkTerm
+      W.wk
         (W.liftʷ (W.lift (W.step W.id))
            (⊢U′ (var (∙ Levelⱼ′ ok (∙ ⊢A)) here)))
         (ΓU⊢id (wf ⊢A))
@@ -500,7 +500,7 @@ private
     Vec-step ⊢t =
       β-red-⇒₃′
         Π-𝟘-ok Π-ω-ok Π-ω-ok
-        (W.wkTerm (W.liftʷ (W.lift (W.lift W.wk₀∷⊇)) ΓLU⊢ℕ) $
+        (W.wk (W.liftʷ (W.lift (W.lift W.wk₀∷⊇)) ΓLU⊢ℕ) $
          WD.defn-wkTerm (WD.»⊇ε »Γ) $
          ⊢Vec-body₂ ok)
         ⊢l∷ ⊢A ⊢t
@@ -649,7 +649,7 @@ private opaque
        natcase-[])
       PE.refl $
     β-red (⊢U₀ (∙ ⊢ℕ ⊢Γ))
-      (W.wkTerm (W.liftʷ W.wk₀∷⊇ (⊢ℕ ⊢Γ)) $
+      (W.wk (W.liftʷ W.wk₀∷⊇ (⊢ℕ ⊢Γ)) $
        WD.defn-wkTerm (WD.»⊇ε (defn-wf ⊢Γ)) ⊢Non-zero-body)
       ⊢t PE.refl Π-ω-ok
 
@@ -863,7 +863,7 @@ opaque
       (ΠΣⱼ
          (ΠΣⱼ
             (univ $ var₄ $ _⊢_.univ $
-             W.wkTerm (W.wk₀∷ʷ⊇ (∙ univ ⊢Vec320)) ⊢Non-zero ∘ⱼ
+             W.wk (W.wk₀∷ʷ⊇ (∙ univ ⊢Vec320)) ⊢Non-zero ∘ⱼ
              var₁ (univ ⊢Vec320))
             Π-𝟘-ok)
          Π-ω-ok)

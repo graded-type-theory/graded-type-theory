@@ -31,7 +31,7 @@ open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution.Primitive R
 open import Definition.Typed.Syntactic R
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
@@ -1482,7 +1482,7 @@ opaque
         ⊢0         = PE.subst (_⊢_∷_ _ _)
                        (PE.cong₃ Id wk[]≡wk[]′ wk[]≡wk[]′ PE.refl) $
                      var₀ ⊢Id
-        ⊢u′        = wkTerm (ʷ⊇-drop (∙ ⊢Id)) ⊢u
+        ⊢u′        = W.wk (ʷ⊇-drop (∙ ⊢Id)) ⊢u
     in
     J ω ω (U l) A
       (Id (wk[ 2 ]′ A)
@@ -1853,7 +1853,7 @@ private opaque
     Id (var x3 ∘⟨ p ⟩ var x0)
       (var x2 ∘⟨ p ⟩ var x0) (var x1 ∘⟨ p ⟩ var x0)
   ⊢Π3Id ok ⊢l₁ ⊢l₂ =
-    ⊢Π3Id′ ok ⊢l₁ (wkLevel (ʷ⊇-drop (∙ univ (var₀ (⊢U ⊢l₁)))) ⊢l₂)
+    ⊢Π3Id′ ok ⊢l₁ (W.wk (ʷ⊇-drop (∙ univ (var₀ (⊢U ⊢l₁)))) ⊢l₂)
 
 opaque
   unfolding
@@ -1979,7 +1979,7 @@ opaque
     Γ ⊢ funext p p′ ∷ Funext p q p′ q′ l₁ l₂
   ⊢funext ok Π-ok Π-ok′ ⊢l₁ ⊢l₂ =
     ⊢funext′ ok Π-ok Π-ok′ ⊢l₁
-      (wkLevel (ʷ⊇-drop (∙ univ (var₀ (⊢U ⊢l₁)))) ⊢l₂)
+      (W.wk (ʷ⊇-drop (∙ univ (var₀ (⊢U ⊢l₁)))) ⊢l₂)
 
 opaque
   unfolding Has-function-extensionality Is-function-extensionality

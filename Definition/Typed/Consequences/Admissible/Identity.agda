@@ -28,7 +28,7 @@ open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M as U
@@ -291,7 +291,7 @@ opaque
             (ΠΣ-cong
                (ΠΣ-cong (refl (univ (var₀ ⊢Ul₁′)))
                   (U-cong-⊢≡ $ sym-⊢≡∷L $
-                   wkEqLevel (ʷ⊇-drop (∙ univ (var₀ ⊢Ul₁′))) $
+                   W.wk (ʷ⊇-drop (∙ univ (var₀ ⊢Ul₁′))) $
                    ⊢≤ₗ∷L→⊢≡∷L l₂≤l₂′)
                   ok₁)
                (refl ⊢Π) ok₂)

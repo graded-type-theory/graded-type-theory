@@ -248,7 +248,7 @@ opaque
       (wkSingleSubstId _)
       (wkSingleSubstId _)
       (β-red-⇒
-         (wkTerm (liftʷ (step id) (W.wk (stepʷ id ⊢A) ⊢A)) ⊢t)
+         (W.wk (liftʷ (step id) (W.wk (stepʷ id ⊢A) ⊢A)) ⊢t)
          (var₀ ⊢A) ok) }}
 
 opaque

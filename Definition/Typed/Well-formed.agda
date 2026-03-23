@@ -225,7 +225,7 @@ opaque mutual
     (δ-red ⊢Γ α↦t PE.refl PE.refl) →
       W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ (↦∷∈⇒↦∈ α↦t) (defn-wf ⊢Γ)) ,
       defn ⊢Γ (↦∷∈⇒↦∈ α↦t) PE.refl ,
-      wkTerm (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∷∈ α↦t (defn-wf ⊢Γ))
+      W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∷∈ α↦t (defn-wf ⊢Γ))
     (sucᵘ-cong l₁≡l₂) →
       let ⊢Level , ⊢l₁ , ⊢l₂ = wf-⊢≡∷ l₁≡l₂ in
       ⊢Level , sucᵘⱼ ⊢l₁ , sucᵘⱼ ⊢l₂

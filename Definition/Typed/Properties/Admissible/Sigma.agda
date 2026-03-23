@@ -810,7 +810,7 @@ private opaque
     Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢
       var x0 ≡
       var x0 ∷
-      wk1 (Σʷ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstʷ-cong (W.wkEq (W.stepʷ id ⊢ΣA₁B₁) A₁≡A₂) ⟩
+      wk1 (Σʷ p , q ▷ A₁ ▹ B₁)                                   →⟨ fstʷ-cong (W.wk (W.stepʷ id ⊢ΣA₁B₁) A₁≡A₂) ⟩
 
     Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢
       fstʷ p (wk1 A₁) (var x0) ≡

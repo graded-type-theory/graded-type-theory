@@ -34,7 +34,7 @@ import Definition.Typed.Reasoning.Term R as TmR
 import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Weakening R hiding (wk)
+open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
@@ -706,7 +706,7 @@ opaque
       var (⊢inline-Con ⊢Γ) (inline∈ x∈)
     ⊢inline∷ (defn {A′} ⊢Γ α↦ PE.refl) =
       PE.subst (_⊢_∷_ _ _) (wk-inline A′) $
-      wkTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) (⊢inline-Nat∷ (defn-wf ⊢Γ) α↦)
+      W.wk (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) (⊢inline-Nat∷ (defn-wf ⊢Γ) α↦)
     ⊢inline∷ (Levelⱼ ⊢Γ ok) =
       Levelⱼ (⊢inline-Con ⊢Γ) ok
     ⊢inline∷ (zeroᵘⱼ ok ⊢Γ) =
@@ -843,7 +843,7 @@ opaque
         conv (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline B≡A)
       (δ-red {t′ = t} {A′ = A} ⊢Γ α↦t PE.refl PE.refl) →
         PE.subst₂ (_⊢_≡_∷_ _ _) (wk-inline t) (wk-inline A) $
-        wkEqTerm (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) $
+        W.wk (wk₀∷ʷ⊇ (⊢inline-Con ⊢Γ)) $
         ⊢inline-Nat≡∷ (defn-wf ⊢Γ) α↦t
       (sucᵘ-cong l₁≡l₂) →
         sucᵘ-cong (⊢inline≡inline∷ l₁≡l₂)
@@ -1443,7 +1443,7 @@ opaque
   ⊢inline≡∷ (var ⊢Γ x∈) =
     refl (var (glassify-⊢′ ⊢Γ) x∈)
   ⊢inline≡∷ {ξ} (defn ⊢Γ α↦ PE.refl) =
-    wkEqTerm (wk₀∷ʷ⊇ (glassify-⊢′ ⊢Γ)) $
+    W.wk (wk₀∷ʷ⊇ (glassify-⊢′ ⊢Γ)) $
     ⊢inline-Nat≡defn∷ {ξ = ξ} (defn-wf ⊢Γ) α↦
   ⊢inline≡∷ (Levelⱼ ⊢Γ ok) =
     refl (Levelⱼ (glassify-⊢′ ⊢Γ) ok)

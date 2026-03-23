@@ -755,7 +755,7 @@ private
           (PE.cong₂ (Π p₁ , q₁ ▷_▹_)
              (PE.cong U (PE.sym wk[]≡wk[]′)) PE.refl) $
         WD.defn-wkTerm (WD.»⊇ε ε) $
-        W.wkTerm (W.ʷ⊇-drop (∙ ⊢Id)) ⊢[]-cong′
+        W.wk (W.ʷ⊇-drop (∙ ⊢Id)) ⊢[]-cong′
         where
         ⊢Id :
           ε » Γ ∙ U l ∙ var x0 ∙ var x1 ⊢ Id (var x2) (var x1) (var x0)
@@ -888,7 +888,7 @@ opaque
                                                                                     wk≡subst _ _)
                                                                                    PE.refl PE.refl) $
                                                                               β-red-⇒₄′ ok₁ ok₂ ok₃ ok₄
-                                                                                (W.wkTerm (W.liftnʷ Δ⊇Γ (∙ (⊢Id-2-1-0′ (WD.defn-wkLevel ⊇ε ⊢l)))) $
+                                                                                (W.wk (W.liftnʷ Δ⊇Γ (∙ (⊢Id-2-1-0′ (WD.defn-wkLevel ⊇ε ⊢l)))) $
                                                                                  WD.defn-wkTerm ⊇ε ⊢[]-cong″)
                                                                                 ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         (wk (liftn ρ 4) (wk (stepn id 4) []-cong′)
@@ -1399,7 +1399,7 @@ opaque
         opaque
 
           ⊢wk-l : Δ ⊢ wk ρ l ∷Level
-          ⊢wk-l = W.wkLevel Δ⊇Γ (WD.defn-wkLevel Δ⊇ε ⊢l)
+          ⊢wk-l = W.wk Δ⊇Γ (WD.defn-wkLevel Δ⊇ε ⊢l)
 
         open Box-cong-internal Δ (wk ρ l) (wk ρ []-cong′) A t
                ⊢wk-l
@@ -1412,7 +1412,7 @@ opaque
                      (PE.trans wk-Erased $
                       PE.cong (flip Erased _) (wk⇑[]-wk[]≡ 4))
                      wk-[] wk-[]) $
-                W.wkTerm Δ⊇Γ (WD.defn-wkTerm Δ⊇ε ⊢[]-cong′))
+                W.wk Δ⊇Γ (WD.defn-wkTerm Δ⊇ε ⊢[]-cong′))
                ⊢A ⊢t
 
         opaque
@@ -1583,7 +1583,7 @@ private
         flip _∘ⱼ_ (var₃ ⊢Id) $
         flip _∘ⱼ_ (var₄ ⊢Id) $
         WD.defn-wkTerm (WD.»⊇ε ε) $
-        W.wkTerm (W.ʷ⊇-drop (∙ ⊢Id)) ⊢[]-cong′
+        W.wk (W.ʷ⊇-drop (∙ ⊢Id)) ⊢[]-cong′
         where
         ⊢Id :
           ε » Γ ∙ Level ∙ U (level (var x0)) ∙ var x0 ∙ var x1 ⊢
@@ -1730,7 +1730,7 @@ opaque
            wk (stepn id 5) []-cong′ ∘⟨ p₁ ⟩ var x4 ∘⟨ p₂ ⟩ var x3
              ∘⟨ p₃ ⟩ var x2 ∘⟨ p₄ ⟩ var x1 ∘⟨ 𝟘 ⟩ var x0)
           ∘⟨ p₁′ ⟩ l ∘⟨ p₂′ ⟩ A ∘⟨ p₃′ ⟩ t ∘⟨ p₄′ ⟩ t ∘⟨ 𝟘 ⟩ rfl          ⇒*⟨ β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
-                                                                                (W.wkTerm
+                                                                                (W.wk
                                                                                   (W.liftnʷ Δ⊇Γ $ ∙_ $ ⊢Id-2-1-0 ok $ wf $
                                                                                    WD.defn-wkTerm ⊇ε ⊢[]-cong′) $
                                                                                   WD.defn-wkTerm ⊇ε ⊢[]-cong″)
@@ -1854,7 +1854,7 @@ private
            flip _∘ⱼ_ ([]ⱼ Erased-ok ⊢4 $ var₂ ⊢Id) $
            flip _∘ⱼ_ (Erasedⱼ-U Erased-ok $ var₃ ⊢Id) $
            flip _∘ⱼ_ (var₄ ⊢Id) $
-            W.wkTerm (W.ʷ⊇-drop (∙ ⊢Id)) ⊢[]-cong′)
+            W.wk (W.ʷ⊇-drop (∙ ⊢Id)) ⊢[]-cong′)
           (Id-cong (refl (univ ⊢Erased-3)) (lemma _ (var₂ ⊢Id))
              (lemma _ (var₁ ⊢Id)))
 
@@ -2154,7 +2154,7 @@ opaque
                          (var x0)))
           ∘⟨ p₁′ ⟩ l ∘⟨ p₂′ ⟩ A ∘⟨ p₃′ ⟩ t ∘⟨ p₄′ ⟩ t ∘⟨ 𝟘 ⟩ rfl ∷
           Id (Erased (level l) A) [ t ] ([ t ])                         ⇒*⟨ β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
-                                                                              (W.wkTerm
+                                                                              (W.wk
                                                                                  (W.liftnʷ Δ⊇Γ $
                                                                                   ∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε (wf ⊢[]-cong′))) $
                                                                                WD.defn-wkTerm ⊇ε ⊢[]-cong″)
@@ -2216,7 +2216,7 @@ opaque
                                                                               flip _∘ⱼ_ ⊢[t] $
                                                                               flip _∘ⱼ_ ⊢Erased-A∷U $
                                                                               flip _∘ⱼ_ ⊢l $
-                                                                              W.wkTerm Δ⊇Γ $
+                                                                              W.wk Δ⊇Γ $
                                                                               WD.defn-wkTerm ⊇ε ⊢[]-cong′) $
                                                                            cong-≡ ⊢t $
                                                                            PE.subst (_⊢_∷_ _ _) (PE.sym wk-Erased) $
@@ -2479,7 +2479,7 @@ private
           Id (Erased (wk[ 4 ]′ l) (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong′-3-2-1-0 ⊢l =
         let ⊢Id = ⊢Id-2-1-0′ ⊢l in
-        ⊢[]-cong′ ok′ (W.wkLevel (W.ʷ⊇-drop (∙ ⊢Id)) ⊢l) (var₀ ⊢Id)
+        ⊢[]-cong′ ok′ (W.wk (W.ʷ⊇-drop (∙ ⊢Id)) ⊢l) (var₀ ⊢Id)
 
     opaque
 
@@ -2626,7 +2626,7 @@ opaque
                                                                                PE.sym (wk≡subst _ _))
                                                                               PE.refl PE.refl) $
                                                                          β-red-⇒₄′ ok₁ ok₂ ok₃ ok₄
-                                                                           (W.wkTerm (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0′ (WD.defn-wkLevel ⊇ε ⊢l))) $
+                                                                           (W.wk (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0′ (WD.defn-wkLevel ⊇ε ⊢l))) $
                                                                             WD.defn-wkTerm ⊇ε (⊢[]-cong′-3-2-1-0 ⊢l))
                                                                            ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢
         wk (liftn ρ 4)
@@ -2687,7 +2687,7 @@ opaque
                                                                                     rfl ] $
                                                                              Erased.wk-Id-Erased _) $
                                                                           β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
-                                                                            (W.wkTerm (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε ⊢Γ))) $
+                                                                            (W.wk (W.liftnʷ Δ⊇Γ (∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε ⊢Γ))) $
                                                                              WD.defn-wkTerm ⊇ε (⊢[]-cong′-4-3-2-1-0 Level-ok ⊢Γ))
                                                                             (⊢∷Level→⊢∷Level Level-ok (inversion-U-Level (wf-⊢∷ ⊢A)))
                                                                             ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢

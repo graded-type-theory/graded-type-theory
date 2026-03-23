@@ -55,10 +55,10 @@ private opaque
       .~-trans                   → trans
       .≅-conv                    → conv
       .~-conv                    → conv
-      .≅-wk                      → wkEq
-      .≅ₜ-wk                     → wkEqTerm
-      .wk-⊢≅∷L                   → wkEqLevel
-      .~-wk                      → wkEqTerm
+      .≅-wk                      → wk
+      .≅ₜ-wk                     → wk
+      .wk-⊢≅∷L                   → wk
+      .~-wk                      → wk
       .≅-defn-wk                 → defn-wkEq
       .≅ₜ-defn-wk                → defn-wkEqTerm
       .~-defn-wk                 → defn-wkEqTerm

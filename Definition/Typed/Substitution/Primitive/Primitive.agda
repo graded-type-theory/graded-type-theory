@@ -106,7 +106,7 @@ opaque
           ρ   = liftʷ (step id) ⊢A′
       in
       PE.subst (_ ⊢ _ ≡ _ ∷_) (wkSingleSubstId _) $
-      β-red (W.wk ρ ⊢B) (wkTerm ρ ⊢v) (var₀ ⊢A) PE.refl ok
+      β-red (W.wk ρ ⊢B) (W.wk ρ ⊢v) (var₀ ⊢A) PE.refl ok
 
 opaque
 
@@ -313,9 +313,9 @@ opaque
     let σ₁₊≡σ₂₊ , ⊢σ₁₀ , ⊢σ₂₀ , σ₁₀≡σ₂₀ = ⊢ˢʷ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
     ⊢ˢʷ≡∷∙⇔ .proj₂
       ( ⊢ˢʷ≡∷-•ₛ ρ⊇ σ₁₊≡σ₂₊
-      , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (wkTerm   ρ⊇ ⊢σ₁₀)
-      , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (wkTerm   ρ⊇ ⊢σ₂₀)
-      , PE.subst (_⊢_≡_∷_ _ _ _) (wk-subst A) (wkEqTerm ρ⊇ σ₁₀≡σ₂₀)
+      , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (W.wk ρ⊇ ⊢σ₁₀)
+      , PE.subst (_⊢_∷_ _ _)     (wk-subst A) (W.wk ρ⊇ ⊢σ₂₀)
+      , PE.subst (_⊢_≡_∷_ _ _ _) (wk-subst A) (W.wk ρ⊇ σ₁₀≡σ₂₀)
       )
 
 opaque

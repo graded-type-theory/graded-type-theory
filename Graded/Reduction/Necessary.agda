@@ -390,7 +390,7 @@ private
       ⊢∷-conv-PE (⊢∷-cong (starⱼ (ε »d) ok) (PE.sym sink-ε-≡))
         (PE.sym Sink-ε-≡)
     ⊢∷-sink {γ = γ ∙ p} (∙ ⊢A) (ok₁ , ok₂) =
-     let ⊢t = ⊢∷-conv-PE (wkTerm (stepʷ id ⊢A) (⊢∷-sink (wf ⊢A) ok₁))
+     let ⊢t = ⊢∷-conv-PE (W.wk (stepʷ id ⊢A) (⊢∷-sink (wf ⊢A) ok₁))
                 (PE.sym (step-sgSubst _ _))
          ⊢B = W.wk (stepʷ (step id) (W.wk (stepʷ id ⊢A) ⊢A))
                 (⊢-Sink (wf ⊢A) ok₁)
@@ -427,7 +427,7 @@ private
     ⊢∷-Sink-Γᴺ {γ = γ ∙ p} (ok₁ , ok₂) =
       ⊢∷-cong
         (ΠΣⱼ (⊢zeroᵘ ⊢Γᴺ) (ℕⱼ ⊢Γᴺ)
-           (wkTerm (stepʷ (step id) (⊢ℕ ⊢Γᴺ)) (⊢∷-Sink-Γᴺ ok₁)) ok₂)
+           (W.wk (stepʷ (step id) (⊢ℕ ⊢Γᴺ)) (⊢∷-Sink-Γᴺ ok₁)) ok₂)
         (PE.sym Sink-∙-≡)
 
 ------------------------------------------------------------------------
@@ -672,7 +672,7 @@ module Natrec₁
         in
         ΠΣⱼ (⊢zeroᵘ (∙ ⊢U0)) ⊢x0
              (ΠΣⱼ (⊢zeroᵘ (∙ univ (var₀ ⊢U0))) (ℕⱼ (∙ univ ⊢x0))
-               (wkTerm (ʷ⊇-drop (∙ ⊢ℕ (∙ (univ ⊢x0))))
+               (W.wk (ʷ⊇-drop (∙ ⊢ℕ (∙ (univ ⊢x0))))
                   (⊢∷-Sink-Γᴺ Sink-ok))
                Σ-ok)
              Σ-ok
@@ -769,7 +769,7 @@ module Natrec₁
 
       ⊢α : Γᴺ ⊢ α p r γ δ
       ⊢α =
-        univ (natrecⱼ (wkTerm (stepʷ id (⊢ℕ ⊢Γᴺ)) ⊢Z) ⊢S (var ⊢Γᴺ here))
+        univ (natrecⱼ (W.wk (stepʷ id (⊢ℕ ⊢Γᴺ)) ⊢Z) ⊢S (var ⊢Γᴺ here))
 
     opaque
       unfolding α
@@ -832,7 +832,7 @@ module Natrec₁
       ⊢σ : Γᴺ »∙ α p r γ δ ⊢ σ p r δ ∷ α p r γ δ [ suc (var x1) ]↑²
       ⊢σ {p} {r} {γ} {δ} =
         let ⊢α′ = ⊢α {p = p} {r = r} {γ = γ} {δ = δ}
-            ⊢δ = wkTerm (stepʷ (step id) ⊢α′) (⊢∷-sink ⊢Γᴺ Sink-ok)
+            ⊢δ = W.wk (stepʷ (step id) ⊢α′) (⊢∷-sink ⊢Γᴺ Sink-ok)
             ⊢δ′ = ⊢∷-conv-PE ⊢δ (PE.sym (step-sgSubst (Sink Δᴺ _) (var x1)))
             ⊢Sink = W.wk
                       (stepʷ (step (step (step id)))
@@ -840,7 +840,7 @@ module Natrec₁
                       (⊢-Sink ⊢Γᴺ Sink-ok)
             ⊢Sink′ = W.wk (stepʷ (step (step id)) (⊢ℕ (∙ ⊢α′)))
                        (⊢-Sink ⊢Γᴺ Sink-ok)
-            ⊢Z₊ = wkTerm (stepʷ (step id) ⊢α′) (⊢∷-Sink-Γᴺ Sink-ok)
+            ⊢Z₊ = W.wk (stepʷ (step id) ⊢α′) (⊢∷-Sink-Γᴺ Sink-ok)
             ⊢Σ = ΠΣⱼ ⊢Sink Σ-ok
             ⊢t = ⊢∷-conv-PE (prodⱼ ⊢Sink′ (var₁ ⊢α′) ⊢δ′ Σ-ok)
                    (PE.cong (Σ p , 𝟘 ▷ ℕ ▹_) lemma′)
@@ -1406,7 +1406,7 @@ module Prodrec
             ⊢x0 = ⊢∷-conv-PE (var₀ ⊢Sinkγ) (PE.trans wk[]≡wk[]′ (PE.sym (step-sgSubst (Sink Δᴺ γ) (var x1))))
             ⊢t₁ = ⊢∷-conv-PE (prodⱼ ⊢Sinkγ′ (var₁ ⊢Sinkγ) ⊢x0 Σ-ok)
                     (PE.cong (Σʷ p , 𝟘 ▷ ℕ ▹_) PE.refl)
-            ⊢t₂ = ⊢∷-conv-PE (wkTerm (stepʷ (step id) ⊢Sinkγ) (⊢∷-sink ⊢Γᴺ Sink-ok))
+            ⊢t₂ = ⊢∷-conv-PE (W.wk (stepʷ (step id) ⊢Sinkγ) (⊢∷-sink ⊢Γᴺ Sink-ok))
                    (PE.sym (step-sgSubst (Sink Δᴺ δ) (prodʷ p (var x1) (var x0))))
         in  ⊢∷-conv-PE (⊢∷-cong (prodⱼ ⊢Sinkδ ⊢t₁ ⊢t₂ Σ-ok) (PE.sym υ≡)) (PE.sym α[]↑²≡)
 

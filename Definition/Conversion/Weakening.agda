@@ -55,9 +55,9 @@ mutual
       → ∇ » Γ ⊢ t ~ u ↑ A
       → ∇ » Δ ⊢ U.wk ρ t ~ U.wk ρ u ↑ U.wk ρ A
   wk~↑ {ρ} [ρ] (var-refl x₁ x≡y) =
-    var-refl (wkTerm [ρ] x₁) (PE.cong (wkVar ρ) x≡y)
+    var-refl (wk [ρ] x₁) (PE.cong (wkVar ρ) x≡y)
   wk~↑ {ρ} [ρ] (defn-refl α α↦⊘ α≡β) =
-    defn-refl (wkTerm [ρ] α) α↦⊘ α≡β
+    defn-refl (wk [ρ] α) α↦⊘ α≡β
   wk~↑ [ρ] (lower-cong x) =
     lower-cong (wk~↓ [ρ] x)
   wk~↑ ρ (app-cong {B} t~u x) =
@@ -132,14 +132,14 @@ mutual
             (PE.subst₂ (_⊢_∷_ _)
                (PE.sym $ lift-wk1 _ _)
                (PE.sym $ lift-wk1 _ _) $
-             wkTerm (stepʷʷ [ρ] ⊢wk-ρ-A₁) ⊢t₁)
+             wk (stepʷʷ [ρ] ⊢wk-ρ-A₁) ⊢t₁)
             (PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
              var (∙ ⊢wk-ρ-A₁) here))
          B₁≡B₂)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
        wkConv↑Term [ρ] u₁≡u₂)
       (wkConv↑Term [ρ] v₁≡v₂) (wk~↓ [ρ] w₁~w₂)
-      (wkEq [ρ] ≡Id) }}}
+      (wk [ρ] ≡Id) }}}
   wk~↑ [ρ] (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
@@ -149,12 +149,12 @@ mutual
       (wkConv↑ (liftʷʷ [ρ] (wk [ρ] (Idⱼ′ ⊢t₁ ⊢t₁))) B₁≡B₂)
       (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β B₁) $
        wkConv↑Term [ρ] u₁≡u₂)
-      (wk~↓ [ρ] v₁~v₂) (wkEq [ρ] ≡Id) ok }
+      (wk~↓ [ρ] v₁~v₂) (wk [ρ] ≡Id) ok }
   wk~↑ [ρ] ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     PE.subst (_⊢_~_↑_ _ _ _) (wk-Id-Erased _) $
     []-cong-cong (wkConv↑Level [ρ] l₁≡l₂) (wkConv↑ [ρ] A₁≡A₂)
       (wkConv↑Term [ρ] t₁≡t₂) (wkConv↑Term [ρ] u₁≡u₂) (wk~↓ [ρ] v₁~v₂)
-      (wkEq [ρ] ≡Id) ok
+      (wk [ρ] ≡Id) ok
 
   -- Weakening of algorithmic equality of neutral terms in WHNF.
   wk~↓ : ∀ {t u A Γ Δ} ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
@@ -166,7 +166,7 @@ mutual
   wk~∷ : ∀ {t u A Γ Δ} ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
       → ∇ » Γ ⊢ t ~ u ∷ A
       → ∇ » Δ ⊢ U.wk ρ t ~ U.wk ρ u ∷ U.wk ρ A
-  wk~∷ [ρ] (↑ A≡B t~u) = ↑ (wkEq [ρ] A≡B) (wk~↑ [ρ] t~u)
+  wk~∷ [ρ] (↑ A≡B t~u) = ↑ (wk [ρ] A≡B) (wk~↑ [ρ] t~u)
 
   -- Weakening of algorithmic equality of types.
   wkConv↑ : ∀ {A B Γ Δ} ([ρ] : ∇ » ρ ∷ʷ Δ ⊇ Γ)
@@ -227,13 +227,13 @@ mutual
   wkConv↓Term ρ (Unitʷ-ins ok t~u) =
     Unitʷ-ins ok (wk~↓ ρ t~u)
   wkConv↓Term ρ (Σʷ-ins t u x) =
-    Σʷ-ins (wkTerm ρ t) (wkTerm ρ u) (wk~↓ ρ x)
+    Σʷ-ins (wk ρ t) (wk ρ u) (wk~↓ ρ x)
   wkConv↓Term {ρ} [ρ] (ne-ins t u x x₁) =
-    ne-ins (wkTerm [ρ] t) (wkTerm [ρ] u) (wkNeutral ρ x) (wk~↓ [ρ] x₁)
+    ne-ins (wk [ρ] t) (wk [ρ] u) (wkNeutral ρ x) (wk~↓ [ρ] x₁)
   wkConv↓Term ρ (univ x x₁ x₂) =
-    univ (wkTerm ρ x) (wkTerm ρ x₁) (wkConv↓ ρ x₂)
+    univ (wk ρ x) (wk ρ x₁) (wkConv↓ ρ x₂)
   wkConv↓Term {ρ} [ρ] (Lift-η ⊢t ⊢u wt wu lower≡lower) =
-    Lift-η (wkTerm [ρ] ⊢t) (wkTerm [ρ] ⊢u) (wkWhnf ρ wt) (wkWhnf ρ wu) (wkConv↑Term [ρ] lower≡lower)
+    Lift-η (wk [ρ] ⊢t) (wk [ρ] ⊢u) (wkWhnf ρ wt) (wkWhnf ρ wu) (wkConv↑Term [ρ] lower≡lower)
   wkConv↓Term ρ (zero-refl x) = zero-refl (wf-∷ʷ⊇ ρ)
   wkConv↓Term ρ (starʷ-refl y ok no-η) =
     starʷ-refl (wf-∷ʷ⊇ ρ) ok no-η
@@ -249,7 +249,7 @@ mutual
     let ⊢F , _ = inversion-ΠΣ (syntacticTerm x₁)
         ⊢ρF = wk [ρ] ⊢F
     in
-    η-eq (wkTerm [ρ] x₁) (wkTerm [ρ] x₂)
+    η-eq (wk [ρ] x₁) (wk [ρ] x₂)
       (wkFunction ρ y) (wkFunction ρ y₁) $
     PE.subst₃ (λ x y z → ∇ » Δ ∙ U.wk ρ F ⊢ x [conv↑] y ∷ z)
       (PE.cong₃ _∘⟨_⟩_ (PE.sym (wk1-wk≡lift-wk1 _ _)) PE.refl PE.refl)
@@ -257,8 +257,8 @@ mutual
       PE.refl $
     wkConv↑Term (liftʷʷ [ρ] ⊢ρF) t<>u
   wkConv↓Term {ρ} [ρ] (Σ-η {B} ⊢p ⊢r pProd rProd fstConv sndConv) =
-    Σ-η (wkTerm [ρ] ⊢p)
-        (wkTerm [ρ] ⊢r)
+    Σ-η (wk [ρ] ⊢p)
+        (wk [ρ] ⊢r)
         (wkProduct ρ pProd)
         (wkProduct ρ rProd)
         (wkConv↑Term [ρ] fstConv)
@@ -266,12 +266,12 @@ mutual
                   (wk-β B)
                   (wkConv↑Term [ρ] sndConv))
   wkConv↓Term {ρ} [ρ] (η-unit [t] [u] tWhnf uWhnf η) =
-    η-unit (wkTerm [ρ] [t]) (wkTerm [ρ] [u])
+    η-unit (wk [ρ] [t]) (wk [ρ] [u])
            (wkWhnf ρ tWhnf) (wkWhnf ρ uWhnf) η
   wkConv↓Term ρ (Id-ins ⊢v₁ v₁~v₂) =
-    Id-ins (wkTerm ρ ⊢v₁) (wk~↓ ρ v₁~v₂)
+    Id-ins (wk ρ ⊢v₁) (wk~↓ ρ v₁~v₂)
   wkConv↓Term ρ (rfl-refl t≡u) =
-    rfl-refl (wkEqTerm ρ t≡u)
+    rfl-refl (wk ρ t≡u)
 
   -- Weakening of algorithmic equality of levels.
 
