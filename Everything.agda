@@ -592,7 +592,6 @@ import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Weakening
 import Graded.Heap.Usage.Properties
 import Graded.Heap.Usage.Properties.Zero-one
-import Graded.Heap.Usage.Inversion
 import Graded.Heap.Usage.Reduction
 import Graded.Heap.Usage.Reduction.Zero-one
 
