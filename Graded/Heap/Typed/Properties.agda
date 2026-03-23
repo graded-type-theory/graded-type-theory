@@ -35,7 +35,6 @@ open import Definition.Typed.Inversion TR
 open import Definition.Typed.Names-below TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
-open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Well-formed TR
 open import Definition.Typed.Consequences.Inequality TR
 
@@ -171,15 +170,15 @@ opaque
   ⊢⦅⦆ᶜ-cong (emptyrecₑ ⊢A) t≡u =
     emptyrec-cong (refl ⊢A) t≡u
   ⊢⦅⦆ᶜ-cong (Jₑ ⊢u ⊢B) t≡u =
-    case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
+    case inversion-Id (wf-⊢ t≡u .proj₁) of λ
       (⊢A , ⊢t , ⊢v) →
     J-cong′ (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) (refl ⊢v) t≡u
   ⊢⦅⦆ᶜ-cong (Kₑ ⊢u ⊢B ok) t≡u =
-    case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
+    case inversion-Id (wf-⊢ t≡u .proj₁) of λ
       (⊢A , ⊢t , _) →
     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) t≡u ok
   ⊢⦅⦆ᶜ-cong ([]-congₑ ok ⊢l) t≡u =
-    let _ , ⊢t , ⊢u = inversion-Id (syntacticEqTerm t≡u .proj₁) in
+    let _ , ⊢t , ⊢u = inversion-Id (wf-⊢ t≡u .proj₁) in
     PE.subst (_⊢_≡_∷_ _ _ _) (E.wk-Id-Erased-[]-[] _) $
     []-cong-cong (refl-⊢≡∷L ⊢l) (refl (wf-⊢ ⊢t)) (refl ⊢t) (refl ⊢u)
       t≡u ok
@@ -267,7 +266,7 @@ opaque
   ⊢ᶜ-convₜ (emptyrecₑ ⊢A) t≡u =
     emptyrecₑ ⊢A
   ⊢ᶜ-convₜ {Δ} {H} {t} {u} (Jₑ ⊢u ⊢B) t≡u =
-    case inversion-Id (syntacticEqTerm t≡u .proj₁) of λ
+    case inversion-Id (wf-⊢ t≡u .proj₁) of λ
       (⊢A , ⊢t , ⊢v) →
     case PE.subst (_ ⊢ _ ∷_) (PE.sym (subst-id _)) ⊢v of λ
       ⊢v′ →
@@ -489,13 +488,13 @@ opaque
   ⊢ᶜ⟨⟩↝→No-nameᶜ (prodrecₑ ⊢u ⊢A) _ =
     prodrecₑ (⊢→Names<′ ⊢A) (⊢∷→Names<′ ⊢u)
   ⊢ᶜ⟨⟩↝→No-nameᶜ (natrecₑ ⊢z ⊢s) _ =
-    natrecₑ (⊢→Names<″ (syntacticTerm ⊢z)) (⊢∷→Names<′ ⊢z) (⊢∷→Names<′ ⊢s)
+    natrecₑ (⊢→Names<″ (wf-⊢ ⊢z)) (⊢∷→Names<′ ⊢z) (⊢∷→Names<′ ⊢s)
   ⊢ᶜ⟨⟩↝→No-nameᶜ (unitrecₑ ⊢u ⊢A _) _ =
     unitrecₑ (⊢→Names<′ ⊢A) (⊢∷→Names<′ ⊢u)
   ⊢ᶜ⟨⟩↝→No-nameᶜ (emptyrecₑ ⊢A) _ =
     emptyrecₑ (⊢→Names<′ ⊢A)
   ⊢ᶜ⟨⟩↝→No-nameᶜ (Jₑ {A} {t} {v} ⊢u ⊢B) ⊢t =
-    case ⊢→Names<′ {A = Id A t v} (syntacticTerm ⊢t) of λ {
+    case ⊢→Names<′ {A = Id A t v} (wf-⊢ ⊢t) of λ {
       (Id nn-A nn-t nn-v) →
     Jₑ nn-A nn-t (⊢→Names<′ ⊢B) (⊢∷→Names<′ ⊢u) nn-v}
   ⊢ᶜ⟨⟩↝→No-nameᶜ (Kₑ {A} {t} ⊢u ⊢B _) _ =
@@ -503,7 +502,7 @@ opaque
       λ{ (Id nn-A nn-t _) →
     Kₑ nn-A nn-t (⊢→Names<′ ⊢B) (⊢∷→Names<′ ⊢u)}
   ⊢ᶜ⟨⟩↝→No-nameᶜ ([]-congₑ {A} {t} {u} _ ⊢l) ⊢t =
-    case ⊢→Names<′ {A = Id A t u} (syntacticTerm ⊢t) of λ {
+    case ⊢→Names<′ {A = Id A t u} (wf-⊢ ⊢t) of λ {
       (Id nn-A nn-t nn-u) →
     []-congₑ (⊢∷L→Names<′ ⊢l) nn-A nn-t nn-u}
   ⊢ᶜ⟨⟩↝→No-nameᶜ (lowerₑ _) ⊢t =

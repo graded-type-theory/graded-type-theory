@@ -30,7 +30,6 @@ open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -71,7 +70,7 @@ opaque
     Γ ⊢ t ≡ u ∷ A →
     Γ ⊢ rfl ∷ Id A t u
   rflⱼ′ t≡u =
-    case syntacticEqTerm t≡u of λ {
+    case wf-⊢ t≡u of λ {
       (⊢A , ⊢t , _) →
     conv (rflⱼ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡u) }
 
@@ -88,7 +87,7 @@ opaque
     Γ ⊢ w ∷ Id A t v →
     Γ ⊢ J p q A t B u v w ∷ B [ v , w ]₁₀
   Jⱼ′ ⊢B ⊢u ⊢w =
-    case inversion-Id (syntacticTerm ⊢w) of λ {
+    case inversion-Id (wf-⊢ ⊢w) of λ {
       (_ , ⊢t , ⊢v) →
     Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w }
 
@@ -106,7 +105,7 @@ opaque
     Γ ⊢ J p q A₁ t₁ B₁ u₁ v₁ w₁ ≡ J p q A₂ t₂ B₂ u₂ v₂ w₂ ∷
       B₁ [ v₁ , w₁ ]₁₀
   J-cong′ A₁≡A₂ t₁≡t₂ =
-    J-cong A₁≡A₂ (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁) t₁≡t₂
+    J-cong A₁≡A₂ (wf-⊢ t₁≡t₂ .proj₂ .proj₁) t₁≡t₂
 
 opaque
 
@@ -141,7 +140,7 @@ opaque
     Γ ⊢ w₁ ⇒ w₂ ∷ Id A t v →
     Γ ⊢ J p q A t B u v w₁ ⇒ J p q A t B u v w₂ ∷ B [ v , w₁ ]₁₀
   J-subst′ ⊢B ⊢u w₁⇒w₂ =
-    case inversion-Id (syntacticTerm (redFirstTerm w₁⇒w₂)) of λ {
+    case inversion-Id (wf-⊢ (redFirstTerm w₁⇒w₂)) of λ {
       (_ , ⊢t , ⊢v) →
     J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂ }
 
@@ -178,7 +177,7 @@ opaque
     Γ ⊢ w ∷ Id A t v →
     Γ ⊢ B [ v , w ]₁₀
   J-result ⊢B ⊢w =
-    case inversion-Id (syntacticTerm ⊢w) of λ {
+    case inversion-Id (wf-⊢ ⊢w) of λ {
       (_ , _ , ⊢v) →
     subst-⊢₁₀ ⊢B ⊢v (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ ⊢w) }
 
@@ -205,7 +204,7 @@ opaque
     Γ ⊢ B₁ [ t₁ , rfl ]₁₀ ≡ B₂ [ t₂ , rfl ]₁₀
   J-motive-rfl-cong B₁≡B₂ t₁≡t₂ =
     J-result-cong B₁≡B₂ t₁≡t₂
-      (refl (rflⱼ (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)))
+      (refl (rflⱼ (wf-⊢ t₁≡t₂ .proj₂ .proj₁)))
 
 opaque
 
@@ -217,7 +216,7 @@ opaque
     Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
     Γ ⊢ J p q A t B u t′ rfl ⇒ u ∷ B [ t , rfl ]₁₀
   J-β-⇒ t≡t′ ⊢B =
-    case syntacticEqTerm t≡t′ of λ {
+    case wf-⊢ t≡t′ of λ {
       (_ , ⊢t , ⊢t′) →
     J-β ⊢t ⊢t′ t≡t′ ⊢B (J-motive-rfl-cong (refl ⊢B) t≡t′) }
 
@@ -229,7 +228,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ »∙ A ⊢ Id (wk1 A) (wk1 t) (var x0)
   J-motive-context-type ⊢t =
-    case syntacticTerm ⊢t of λ {
+    case wf-⊢ ⊢t of λ {
       ⊢A →
     Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A) }
 
@@ -419,7 +418,7 @@ opaque
     Γ ⊢ w ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t u v w ∷ B [ u ]₀
   ⊢subst {B} ⊢B ⊢v ⊢w =
-    case inversion-Id (syntacticTerm ⊢v) of λ {
+    case inversion-Id (wf-⊢ ⊢v) of λ {
       (_ , ⊢t , _) →
     PE.subst (_⊢_∷_ _ _) (subst-wk B) $
     Jⱼ′ (wk₁ (J-motive-context-type ⊢t) ⊢B)
@@ -437,7 +436,7 @@ opaque
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t t′ rfl u ⇒ u ∷ B [ t ]₀
   subst-⇒′ {B} ⊢B t≡t′ ⊢u =
-    case syntacticEqTerm t≡t′ of λ
+    case wf-⊢ t≡t′ of λ
       (_ , ⊢t , _) →
     PE.subst (_⊢_⇒_∷_ _ _ _) (subst-wk B) $
     J-β-⇒ t≡t′ (wk₁ (J-motive-context-type ⊢t) ⊢B)
@@ -483,9 +482,7 @@ opaque
   subst-cong {B₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
     PE.subst (_⊢_≡_∷_ _ _ _) (subst-wk B₁) $
     J-cong′ A₁≡A₂ t₁≡t₂
-      (wk₁
-         (J-motive-context-type (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁))
-         B₁≡B₂)
+      (wk₁ (J-motive-context-type (wf-⊢ t₁≡t₂ .proj₂ .proj₁)) B₁≡B₂)
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ subst-wk B₁) w₁≡w₂) u₁≡u₂
       v₁≡v₂
 
@@ -500,7 +497,7 @@ opaque
     Γ ⊢ w ∷ B [ t ]₀ →
     Γ ⊢ subst p A B t u v₁ w ⇒ subst p A B t u v₂ w ∷ B [ u ]₀
   subst-subst {B} ⊢B v₁⇒v₂ ⊢w =
-    case inversion-Id (syntacticEqTerm (subsetTerm v₁⇒v₂) .proj₁) of λ {
+    case inversion-Id (wf-⊢ (subsetTerm v₁⇒v₂) .proj₁) of λ {
       (_ , ⊢t , _) →
     PE.subst (_⊢_⇒_∷_ _ _ _) (subst-wk B) $
     J-subst′ (wk₁ (J-motive-context-type ⊢t) ⊢B)
@@ -602,7 +599,7 @@ opaque
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ transitivity A t u u eq rfl ⇒ eq ∷ Id A t u
   transitivity-⇒ ⊢eq =
-    case inversion-Id (syntacticTerm ⊢eq) of λ
+    case inversion-Id (wf-⊢ ⊢eq) of λ
       (⊢A , ⊢t , ⊢u) →
     case PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl of λ
       Id≡Id →
@@ -635,7 +632,7 @@ opaque
     Γ ⊢ w ∷ Id A t u →
     Γ ⊢ cong p A t u B v w ∷ Id B (v [ t ]₀) (v [ u ]₀)
   ⊢cong ⊢v ⊢w =
-    case inversion-Id (syntacticTerm ⊢w) of λ
+    case inversion-Id (wf-⊢ ⊢w) of λ
       (⊢A , ⊢t , _) →
     PE.subst (_⊢_∷_ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
@@ -664,9 +661,9 @@ opaque
     Γ ⊢ cong p A₁ t₁ u₁ B₁ v₁ w₁ ≡ cong p A₂ t₂ u₂ B₂ v₂ w₂ ∷
       Id B₁ (v₁ [ t₁ ]₀) (v₁ [ u₁ ]₀)
   cong-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ B₁≡B₂ v₁≡v₂ w₁≡w₂ =
-    case syntacticEqTerm t₁≡t₂ of λ
+    case wf-⊢ t₁≡t₂ of λ
       (⊢A₁ , ⊢t₁ , _) →
-    case syntacticEqTerm v₁≡v₂ of λ
+    case wf-⊢ v₁≡v₂ of λ
       (_ , ⊢v₁ , _) →
     PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
@@ -698,7 +695,7 @@ opaque
       (Idⱼ′
          (PE.subst (_⊢_∷_ _ _)
             (PE.cong wk1 $ wk1-sgSubst _ _) $
-          wk₁ (syntacticTerm ⊢t) (subst-⊢₀ ⊢u ⊢t))
+          wk₁ (wf-⊢ ⊢t) (subst-⊢₀ ⊢u ⊢t))
          ⊢u)
       ⊢t
       (PE.subst (_⊢_∷_ _ _)
@@ -727,7 +724,7 @@ opaque
     Γ ⊢ cong p A t u B v w₁ ⇒ cong p A t u B v w₂ ∷
       Id B (v [ t ]₀) (v [ u ]₀)
   cong-subst ⊢v w₁⇒w₂ =
-    case inversion-Id $ syntacticEqTerm (subsetTerm w₁⇒w₂) .proj₁ of λ
+    case inversion-Id $ wf-⊢ (subsetTerm w₁⇒w₂) .proj₁ of λ
       (⊢A , ⊢t , _) →
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.cong₃ Id (wk1-sgSubst _ _) (wk1-sgSubst _ _) PE.refl) $
@@ -889,7 +886,7 @@ opaque
     Γ ⊢ pointwise-equality p q A B t u v w ∷
       Id (B [ w ]₀) (t ∘⟨ p ⟩ w) (u ∘⟨ p ⟩ w)
   ⊢pointwise-equality {B} {w} ⊢v ⊢w =
-    case inversion-Id (syntacticTerm ⊢v) of λ
+    case inversion-Id (wf-⊢ ⊢v) of λ
       (⊢ΠAB , _ , _) →
     PE.subst (_⊢_∷_ _ _)
       (PE.cong₂ (Id (B [ w ]₀))
@@ -911,7 +908,7 @@ opaque
     Γ ⊢ pointwise-equality p q A B t t rfl u ⇒ rfl ∷
       Id (B [ u ]₀) (t ∘⟨ p ⟩ u) (t ∘⟨ p ⟩ u)
   pointwise-equality-⇒ {B} {u} ⊢t ⊢u =
-    case syntacticTerm ⊢t of λ
+    case wf-⊢ ⊢t of λ
       ⊢ΠAB →
     PE.subst (_⊢_⇒_∷_ _ _ _)
       (PE.cong₃ Id
@@ -969,7 +966,7 @@ opaque
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ symmetry A t u eq ∷ Id A u t
   ⊢symmetry ⊢eq =
-    let ⊢A , ⊢t , ⊢u = inversion-Id (syntacticTerm ⊢eq) in
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢eq) in
     wf-⊢ (symmetry-cong (refl ⊢A) (refl ⊢t) (refl ⊢u) (refl ⊢eq))
       .proj₂ .proj₁
 
@@ -1145,7 +1142,7 @@ opaque
     Γ ⊢ transitivity-symmetryˡ A t u eq ∷
       Id (Id A u u) (transitivity A u t u (symmetry A t u eq) eq) rfl
   ⊢transitivity-symmetryˡ {eq} {A} {t} {u} ⊢eq =
-    case inversion-Id (syntacticTerm ⊢eq) of λ
+    case inversion-Id (wf-⊢ ⊢eq) of λ
       (⊢A , ⊢t , _) →
     case Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A) of λ
       ⊢Id-t′-0 →
@@ -1654,7 +1651,7 @@ opaque
     Γ ⊢ eq₂ ∷ Id A t u →
     Γ ⊢ uip p q A t u eq₁ eq₂ ∷ Id (Id A t u) eq₁ eq₂
   ⊢uip {eq₁} {A} {t} {u} {eq₂} ok ⊢eq₁ ⊢eq₂ =
-    case inversion-Id (syntacticTerm ⊢eq₁) of λ
+    case inversion-Id (wf-⊢ ⊢eq₁) of λ
       (⊢A , ⊢t , ⊢u) →
     case Idⱼ′ ⊢t ⊢t of λ
       ⊢Id-t-t →
@@ -1939,7 +1936,7 @@ opaque
       Π p , q ▷ A ▹ Id B (wk1 t ∘⟨ p ⟩ var x0) (wk1 u ∘⟨ p ⟩ var x0) →
     Γ ⊢ rfl ∷ Id (Π p , q ▷ A ▹ B) t u
   function-extensionality-Π ok ⊢t ⊢u ⊢v =
-    let ⊢A , _ , _ = inversion-ΠΣ (syntacticTerm ⊢t) in
+    let ⊢A , _ , _ = inversion-ΠΣ (wf-⊢ ⊢t) in
     function-extensionality-∙ ok ⊢t ⊢u $
     PE.subst (_⊢_∷_ _ _)
       (PE.cong₃ Id
@@ -2031,7 +2028,7 @@ opaque
     where
     lemma : Γ ⊢ eq ∷ Id A t u → Γ ⊢ eq ≡ rfl ∷ Id A t u
     lemma ⊢eq =
-      let ⊢A , ⊢t , _ = inversion-Id (syntacticTerm ⊢eq)
+      let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢eq)
           ⊢Id         = var₀ $ Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)
       in
       equality-reflection′ ok $
@@ -2072,5 +2069,5 @@ opaque
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ rfl ∷ Id (Erased l A) [ t ] ([ u ])
   []-cong-with-equality-reflection ok₁ ok₂ ⊢l ⊢eq =
-    let ⊢A , _ = inversion-Id (syntacticTerm ⊢eq) in
+    let ⊢A , _ = inversion-Id (wf-⊢ ⊢eq) in
     rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A (equality-reflection′ ok₁ ⊢eq))

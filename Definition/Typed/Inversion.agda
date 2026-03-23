@@ -19,7 +19,6 @@ open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 
@@ -60,7 +59,7 @@ opaque
 
   inversion-var : Γ ⊢ var x ∷ A → ∃ λ B → x ∷ B ∈ Γ .vars × Γ ⊢ A ≡ B
   inversion-var ⊢x@(var _ x∈) =
-    _ , x∈ , refl (syntacticTerm ⊢x)
+    _ , x∈ , refl (wf-⊢ ⊢x)
   inversion-var (conv ⊢var eq) =
     let a , b , c = inversion-var ⊢var in
     a , b , trans (sym eq) c
@@ -328,7 +327,7 @@ opaque
   inversion-lower (conv x x₁) =
     let _ , _ , ⊢t , A≡B = inversion-lower x
     in _ , _ , ⊢t , trans (sym x₁) A≡B
-  inversion-lower (lowerⱼ x) = _ , _ , x , refl (inversion-Lift (syntacticTerm x) .proj₂)
+  inversion-lower (lowerⱼ x) = _ , _ , x , refl (inversion-Lift (wf-⊢ x) .proj₂)
 
 ------------------------------------------------------------------------
 -- Inversion for Unit
@@ -339,7 +338,7 @@ opaque
 
   ⊢∷Unit→Unit-allowed : Γ ⊢ t ∷ Unit s → Unit-allowed s
   ⊢∷Unit→Unit-allowed {Γ} {t} {s} =
-    Γ ⊢ t ∷ Unit s  →⟨ syntacticTerm ⟩
+    Γ ⊢ t ∷ Unit s  →⟨ wf-⊢ ⟩
     Γ ⊢ Unit s      →⟨ inversion-Unit ⟩
     Unit-allowed s  □
 
@@ -370,7 +369,7 @@ opaque
   ⊢∷ΠΣ→ΠΣ-allowed :
     Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B → ΠΣ-allowed b p q
   ⊢∷ΠΣ→ΠΣ-allowed {Γ} {t} {b} {p} {q} {A} {B} =
-    Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B  →⟨ syntacticTerm ⟩
+    Γ ⊢ t ∷ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B  →⟨ wf-⊢ ⟩
     Γ ⊢ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B      →⟨ proj₂ ∘→ proj₂ ∘→ inversion-ΠΣ ⟩
     ΠΣ-allowed b p q               □
 
@@ -385,7 +384,7 @@ opaque
       Γ ⊢ A ≡ Π p , q ▷ B ▹ C ×
       Π-allowed p q
   inversion-lam (lamⱼ _ ⊢t ok) =
-    let ⊢B = syntacticTerm ⊢t in
+    let ⊢B = wf-⊢ ⊢t in
     _ , _ , _ , ⊢∙→⊢ (wf ⊢B) , ⊢t , refl (ΠΣⱼ ⊢B ok) , ok
   inversion-lam (conv ⊢lam eq) =
     let a , b , c , d , e , f , g = inversion-lam ⊢lam in
@@ -399,7 +398,7 @@ opaque
     Γ ⊢ t ∘⟨ p ⟩ u ∷ A →
     ∃₃ λ B C q → Γ ⊢ t ∷ Π p , q ▷ B ▹ C × Γ ⊢ u ∷ B × Γ ⊢ A ≡ C [ u ]₀
   inversion-app (⊢t ∘ⱼ ⊢u) =
-    _ , _ , _ , ⊢t , ⊢u , refl (substTypeΠ (syntacticTerm ⊢t) ⊢u)
+    _ , _ , _ , ⊢t , ⊢u , refl (substTypeΠ (wf-⊢ ⊢t) ⊢u)
   inversion-app (conv ⊢app eq) =
     let a , b , c , d , e , f = inversion-app ⊢app in
     a , b , c , d , e , trans (sym eq) f
@@ -501,7 +500,7 @@ opaque
     ∃₂ λ B t → (Γ ⊢ B) × Γ ⊢ t ∷ B × Γ ⊢ A ≡ Id B t t
   inversion-rfl = λ where
     ⊢rfl@(rflⱼ ⊢t)  →
-      _ , _ , syntacticTerm ⊢t , ⊢t , refl (syntacticTerm ⊢rfl)
+      _ , _ , wf-⊢ ⊢t , ⊢t , refl (wf-⊢ ⊢rfl)
     (conv ⊢rfl eq) →
       let a , b , c , d , e = inversion-rfl ⊢rfl in
       a , b , c , d , trans (sym eq) e
@@ -522,7 +521,7 @@ opaque
   inversion-J = λ where
     ⊢J@(Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w) →
       ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w ,
-      refl (syntacticTerm ⊢J)
+      refl (wf-⊢ ⊢J)
     (conv ⊢J eq) →
       let a , b , c , d , e , f , g = inversion-J ⊢J in
       a , b , c , d , e , f , trans (sym eq) g
@@ -544,7 +543,7 @@ opaque
     ⊢K@(Kⱼ ⊢B ⊢u ⊢v ok) →
         let ⊢A , ⊢t , _ = inversion-Id (⊢∙→⊢ (wf ⊢B)) in
         ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok
-      , refl (syntacticTerm ⊢K)
+      , refl (wf-⊢ ⊢K)
     (conv ⊢K eq) →
       let a , b , c , d , e , f , g = inversion-K ⊢K in
       a , b , c , d , e , f , trans (sym eq) g
@@ -566,7 +565,7 @@ opaque
   inversion-[]-cong = λ where
     ⊢[]-cong@([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) →
         ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok
-      , refl (syntacticTerm ⊢[]-cong)
+      , refl (wf-⊢ ⊢[]-cong)
     (conv ⊢bc eq) →
       let a , b , c , d , e , f , g = inversion-[]-cong ⊢bc in
       a , b , c , d , e , f , trans (sym eq) g

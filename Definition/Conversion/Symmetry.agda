@@ -24,7 +24,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W hiding (wk)
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
@@ -59,12 +58,12 @@ mutual
         → ∇ » Δ ⊢ t ~ u ↑ A
         → ∃ λ B → ∇ » Δ ⊢ A ≡ B × ∇ » Η ⊢ u ~ t ↑ B
   sym~↑ Γ≡Δ (var-refl x x≡y) =
-    let ⊢A = syntacticTerm x
+    let ⊢A = wf-⊢ x
     in  _ , refl ⊢A
      ,  var-refl (PE.subst (λ y → _ ⊢ var y ∷ _) x≡y (stability Γ≡Δ x))
                  (PE.sym x≡y)
   sym~↑ Δ≡Η (defn-refl α α↦⊘ α≡β) =
-    let ⊢A = syntacticTerm α in
+    let ⊢A = wf-⊢ α in
     _ , refl ⊢A ,
     defn-refl
       (PE.subst (λ β → _ ⊢ defn β ∷ _) α≡β (stability Δ≡Η α))
@@ -126,7 +125,7 @@ mutual
           (⊢F≡F′ , ⊢G≡G′ , _ , _ , _) →
             let g≡h = soundness~↓ g~h
                 C≡E = soundnessConv↑ C↑E
-                ⊢Σ , _ = syntacticEqTerm g≡h
+                ⊢Σ , _ = wf-⊢ g≡h
                 ⊢F , ⊢G , _ = inversion-ΠΣ ⊢Σ
                 E↑C = symConv↑ (Δ≡Η ∙ ⊢Σ≡B) C↑E
                 v↑u = symConv↑Term (Δ≡Η ∙ refl ⊢F ∙ refl ⊢G) u↑v
@@ -151,7 +150,7 @@ mutual
                     (PE.subst (λ x₁ → _ ⊢ _ ~ _ ↓ x₁) B≡Empty u~t)
   sym~↑ Δ≡Η (unitrec-cong F<>H k~l u<>v no-η) =
     let k≡l = soundness~↓ k~l
-        ⊢Unit = proj₁ (syntacticEqTerm k≡l)
+        ⊢Unit = proj₁ (wf-⊢ k≡l)
         H<>F = symConv↑ (Δ≡Η ∙ refl ⊢Unit) F<>H
         B , whB , Unit≡B , l~k = sym~↓ Δ≡Η k~l
         l~k′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x)
@@ -239,7 +238,7 @@ mutual
          → ∃ λ B → Whnf ∇ B × ∇ » Δ ⊢ A ≡ B × ∇ » Η ⊢ u ~ t ↓ B
   sym~↓ Δ≡Η ([~] A₁ (D , whnfA) k~l) =
     let B , A≡B , k~l′ = sym~↑ Δ≡Η k~l
-        _ , ⊢B = syntacticEq A≡B
+        _ , ⊢B = wf-⊢ A≡B
         B′ , whnfB′ , D′ = whNorm ⊢B
         A≡B′ = trans (sym (subset* D)) (trans A≡B (subset* D′))
     in  B′ , whnfB′ , A≡B′ ,
@@ -349,13 +348,13 @@ mutual
         Gt≡Gt′ = subst-⊢≡₀ Δ⊢G (sym′ (soundnessConv↑Term Δ⊢t′↑t))
     in  prod-cong Δ⊢G Δ⊢t′↑t (convConv↑Term Gt≡Gt′ Δ⊢u′↑u) ok
   symConv↓Term Δ≡Η (η-eq x₁ x₂ y y₁ t<>u) =
-    let ⊢F , _ , _ = inversion-ΠΣ (syntacticTerm x₁)
+    let ⊢F , _ , _ = inversion-ΠΣ (wf-⊢ x₁)
     in  η-eq (stability Δ≡Η x₂) (stability Δ≡Η x₁)
              y₁ y (symConv↑Term (Δ≡Η ∙ refl ⊢F) t<>u)
   symConv↓Term Δ≡Η (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
     let Η⊢p = stability Δ≡Η ⊢p
         Η⊢r = stability Δ≡Η ⊢r
-        _ , ⊢G , _ = inversion-ΠΣ (syntacticTerm ⊢p)
+        _ , ⊢G , _ = inversion-ΠΣ (wf-⊢ ⊢p)
         Ηfst≡ = symConv↑Term Δ≡Η fstConv
         Ηsnd≡₁ = symConv↑Term Δ≡Η sndConv
         ΗGfstt≡Gfstu =
@@ -371,7 +370,7 @@ mutual
       (_ , B-whnf , Id≡B , v₂~v₁) →
     case Id≡Whnf Id≡B B-whnf of λ {
       (_ , _ , _ , PE.refl) →
-    case syntacticEqTerm (soundness~↓ v₁~v₂) .proj₂ of λ {
+    case wf-⊢ (soundness~↓ v₁~v₂) .proj₂ of λ {
       (⊢v₁′ , ⊢v₂) →
     case sym (neTypeEq (ne⁻ (ne~↓ v₁~v₂ .proj₂ .proj₁)) ⊢v₁ ⊢v₁′) of λ {
       Id≡Id →

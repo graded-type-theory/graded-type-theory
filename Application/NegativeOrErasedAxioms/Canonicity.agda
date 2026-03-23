@@ -59,10 +59,10 @@ open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Consequences.Inequality TR
 open import Definition.Typed.Consequences.Reduction TR
 import Definition.Typed.Weakening TR as W
+open import Definition.Typed.Well-formed TR
 
 open import Definition.LogicalRelation TR
 open import Definition.LogicalRelation.Fundamental.Reducibility TR
@@ -123,7 +123,7 @@ neNeg {γ = γ}
   NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed γ≤δ+pη ⟩
   NegativeErasedContext Γ (δ +ᶜ p ·ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne δ▸t ⟩
-  NegativeType Γ (Π p , q ▷ A ▹ B)       →⟨ (λ hyp → appNeg hyp (refl (syntacticTerm ⊢t)) ⊢u) ⟩
+  NegativeType Γ (Π p , q ▷ A ▹ B)       →⟨ (λ hyp → appNeg hyp (refl (wf-⊢ ⊢t)) ⊢u) ⟩
   NegativeType Γ (B [ u ]₀)              □ }
 neNeg (fstⱼ A⊢B d) (fstₙ {p = p} n) γ▸u nΓγ =
   let _ , m , 𝟙ᵐ≡mᵐ·p , δ▸t , γ≤δ , ok = inv-usage-fst₀₁ γ▸u
@@ -146,7 +146,7 @@ neNeg (sndⱼ A⊢B d) (sndₙ n) γ▸u nΓγ =
 neNeg (supᵘⱼ _ _) _ _ _ =
   level
 neNeg (lowerⱼ d) (lowerₙ n) γ▸u nΓγ =
-  lowerNeg (neNeg d n (inv-usage-lower γ▸u) nΓγ) (refl (syntacticTerm d))
+  lowerNeg (neNeg d n (inv-usage-lower γ▸u) nΓγ) (refl (wf-⊢ d))
 neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
   case inv-usage-natrec₀₁ γ▸natrec of λ {
     (invUsageNatrec {δ = δ} {θ = θ} {χ = χ} _ _ θ▸n _ γ≤χ extra) →
@@ -240,7 +240,7 @@ neNeg {γ} (Kⱼ {A} {t} {B} {v} _ _ ⊢v ok) (Kₙ v-ne) ▸K =
                                                                 ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
       NegativeErasedContext Γ (ω ·ᶜ γ₅)                      →⟨ NegativeErasedContext-upwards-closed ω·ᶜ-decreasing ⟩
       NegativeErasedContext Γ γ₅                             →⟨ neNeg ⊢v v-ne ▸v ⟩
-      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (syntacticTerm ⊢v)) ⟩
+      NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (wf-⊢ ⊢v)) ⟩
       ⊥                                                      →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v ]₀)                              □
     (invUsageK₀₁ em _ _ _ _ _ _ _) →
@@ -352,8 +352,7 @@ module _
     in  u , (d , whnfU) ,
         λ x →
           ¬negA $
-          neNeg (syntacticEqTerm (subset*Term d) .proj₂ .proj₂)
-            x γ▸u nΓγ
+          neNeg (wf-⊢ (subset*Term d) .proj₂ .proj₂) x γ▸u nΓγ
 
   -- Canonicity theorem: A term that has the type ℕ in a
   -- negative/erased context, and that is well-resourced (with respect

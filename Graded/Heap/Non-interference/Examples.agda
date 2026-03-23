@@ -67,7 +67,7 @@ open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 
 private variable
   m n : Nat
@@ -111,8 +111,7 @@ module Example₁
     let ⊢ℕ = ∙ univ (ℕⱼ (∙ univ (ℕⱼ εε)))
         ⊢ℕ′ = univ (ℕⱼ (∙ univ (ℕⱼ ⊢ℕ)))
         ⊢p = prodⱼ ⊢ℕ′ (var ⊢ℕ (there here)) (var ⊢ℕ here) Σ-ok
-    in  prodrecⱼ′ (univ (ℕⱼ (∙ syntacticTerm ⊢p))) ⊢p
-          (var (∙ ⊢ℕ′) here)
+    in  prodrecⱼ′ (univ (ℕⱼ (∙ wf-⊢ ⊢p))) ⊢p (var (∙ ⊢ℕ′) here)
 
   -- t is well-resourced
 

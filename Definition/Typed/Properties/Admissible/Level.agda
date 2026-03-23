@@ -22,7 +22,6 @@ import Definition.Typed.Properties.Admissible.Level.Primitive R as LP
 open import Definition.Typed.Properties.Reduction R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Level R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M

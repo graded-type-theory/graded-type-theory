@@ -28,7 +28,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral.Atomic M type-variant
@@ -71,7 +70,7 @@ mutual
     (lower-cong t~) →
       case fullRedNe~↓ t~ of λ
         (t′ , t′-ne , t≡t′) →
-      case inversion-Lift (syntacticEqTerm t≡t′ .proj₁) of λ
+      case inversion-Lift (wf-⊢ t≡t′ .proj₁) of λ
         (⊢k , ⊢A) →
       lower t′ , lowerₙ t′-ne , lower-cong t≡t′
     (app-cong {u₁ = u} {B} t~ u↑) →
@@ -79,7 +78,7 @@ mutual
         (t′ , t′-ne , t≡t′) →
       case fullRedTermConv↑ u↑ of λ {
         (u′ , u′-nf , u≡u′) →
-      case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) of λ {
+      case inversion-ΠΣ (wf-⊢ t≡t′ .proj₁) of λ {
         (_ , ⊢B , _) →
         t′ ∘ u′
       , (                           $⟨ ∘ₙ t′-ne u′-nf ⟩
@@ -90,7 +89,7 @@ mutual
     (fst-cong {p = p} t~) →
       case fullRedNe~↓ t~ of λ {
         (t′ , t′-ne , t≡t′) →
-      case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) of λ {
+      case inversion-ΠΣ (wf-⊢ t≡t′ .proj₁) of λ {
         (_ , ⊢B , _) →
         fst p t′
       , fstₙ ⊢B t′-ne
@@ -98,7 +97,7 @@ mutual
     (snd-cong {t₁ = t} {p} {B} t~) →
       case fullRedNe~↓ t~ of λ {
         (t′ , t′-ne , t≡t′) →
-      case inversion-ΠΣ (syntacticEqTerm t≡t′ .proj₁) of λ {
+      case inversion-ΠΣ (wf-⊢ t≡t′ .proj₁) of λ {
         (_ , ⊢B , _) →
         snd p t′
       , (                                  $⟨ sndₙ ⊢B t′-ne ⟩
@@ -115,7 +114,7 @@ mutual
         (u′ , u′-nf , u≡u′) →
       case fullRedNe~↓ v~ of λ {
         (v′ , v′-ne , v≡v′) →
-      case syntacticEq A≡A′ of λ {
+      case wf-⊢ A≡A′ of λ {
         (_ , ⊢A′) →
       case wf v≡v′ of λ {
         ⊢Γ →
@@ -142,7 +141,7 @@ mutual
         (u′ , u′-ne , u≡u′) →
       case fullRedTermConv↑ v↑ of λ {
         (v′ , v′-nf , v≡v′) →
-      case inversion-ΠΣ (syntacticEqTerm u≡u′ .proj₁) of λ {
+      case inversion-ΠΣ (wf-⊢ u≡u′ .proj₁) of λ {
         (_ , _ , ok) →
         prodrec r p q C′ u′ v′
       , (                                                         $⟨ v′-nf ⟩
@@ -170,7 +169,7 @@ mutual
         (t′ , t′-ne , t≡t′) →
       case fullRedTermConv↑ u↑ of λ {
         (u′ , u′-nf , u≡u′) →
-      case inversion-Unit (syntacticEqTerm t≡t′ .proj₁) of λ {
+      case inversion-Unit (wf-⊢ t≡t′ .proj₁) of λ {
         ok →
         unitrec _ _ A′ t′ u′
       , (                                           $⟨ u′-nf ⟩
@@ -396,13 +395,13 @@ mutual
     (Σʷ-ins ⊢t∷ΣAB _ t~) →
       case fullRedNe~↓ t~ of λ {
         (v , v-ne , t≡v) →
-      case syntacticEqTerm t≡v of λ {
+      case wf-⊢ t≡v of λ {
         (_ , ⊢t∷ΣCD , _) →
       case ne~↓ t~ of λ {
         (_ , t-ne , _) →
       case neTypeEq (ne⁻ t-ne) ⊢t∷ΣCD ⊢t∷ΣAB of λ {
         ΣCD≡ΣAB →
-      case inversion-ΠΣ (syntacticTerm ⊢t∷ΣAB) of λ {
+      case inversion-ΠΣ (wf-⊢ ⊢t∷ΣAB) of λ {
         (⊢A , ⊢B) →
         v
       , neₙ Σʷₙ (convₙ v-ne ΣCD≡ΣAB)
@@ -410,7 +409,7 @@ mutual
     (ne-ins ⊢t∷A _ A-ne t~↓B) →
       case fullRedNe~↓ t~↓B of λ {
         (u , u-ne , t≡u∷B) →
-      case syntacticEqTerm t≡u∷B of λ {
+      case wf-⊢ t≡u∷B of λ {
         (_ , ⊢t∷B , _) →
       case ne~↓ t~↓B of λ {
         (_ , t-ne , _) →
@@ -425,7 +424,7 @@ mutual
         B
       , (                 $⟨ A≡B ⟩
          (Γ ⊢ A ≡ B)      →⟨ inverseUnivEq ⊢A ⟩
-         Γ ⊢ A ≡ B ∷ U l  →⟨ (λ hyp → syntacticEqTerm hyp .proj₂ .proj₂) ⟩
+         Γ ⊢ A ≡ B ∷ U l  →⟨ (λ hyp → wf-⊢ hyp .proj₂ .proj₂) ⟩
          Γ ⊢ B ∷ U l      →⟨ ⊢nf∷U→⊢nf∷U B-nf ⟩
          Γ ⊢nf B ∷ U l    □)
       , inverseUnivEq ⊢A A≡B }
@@ -462,7 +461,7 @@ mutual
          Γ ⊢ t ≡ lam p (wk1 t ∘⟨ p ⟩ var x0) ∷ Π p , q ▷ A ▹ B  →⟨ flip _⊢_≡_∷_.trans (lam-cong t0≡u ok) ⟩
          Γ ⊢ t ≡ lam p u ∷ Π p , q ▷ A ▹ B                      □) }}
     (Lift-η ⊢t ⊢u wt wu lower≡lower) →
-      case inversion-Lift (syntacticTerm ⊢t) of λ
+      case inversion-Lift (wf-⊢ ⊢t) of λ
         (⊢l , ⊢A) →
       case fullRedTermConv↑ lower≡lower of λ
         (t′ , t′-nf , lowert≡t′) →
@@ -471,7 +470,7 @@ mutual
       , liftₙ ⊢l t′-nf
       , Lift-η-swap ⊢t lowert≡t′
     (Σ-η {p} {q} {A} {B} ⊢t _ _ _ fst-t↑ snd-t↑) →
-      case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
+      case inversion-ΠΣ (wf-⊢ ⊢t) of λ {
         (_ , ⊢B , ok) →
       case fullRedTermConv↑ fst-t↑ of λ {
         (u₁ , u₁-nf , fst-t≡u₁) →
@@ -499,13 +498,13 @@ mutual
       case fullRedNe~↓ t~u of λ {
         (v , ⊢v , t≡v) →
       case neTypeEq (ne⁻ (ne~↓ t~u .proj₂ .proj₁))
-             (syntacticEqTerm t≡v .proj₂ .proj₁) ⊢t of λ {
+             (wf-⊢ t≡v .proj₂ .proj₁) ⊢t of λ {
         Id≡Id →
         v
       , neₙ Idₙ (convₙ ⊢v Id≡Id)
       , conv t≡v Id≡Id }}
     (rfl-refl t≡u) →
-      case syntacticEqTerm t≡u of λ {
+      case wf-⊢ t≡u of λ {
         (⊢A , ⊢t , _) →
         rfl
       , convₙ (rflₙ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡u)

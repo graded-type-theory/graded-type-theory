@@ -26,7 +26,6 @@ open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
-open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -813,7 +812,7 @@ opaque
     t ® v ∷ A →
     t ® v ∷ B
   conv-®∷ A≡B (⊨A , t®v) =
-    let ⊨B = ⊢→⊨ (syntacticEq A≡B .proj₂) in
+    let ⊨B = ⊢→⊨ (wf-⊢ A≡B .proj₂) in
     ⊨B , convTermʳ ⊨A ⊨B A≡B t®v
 
 opaque

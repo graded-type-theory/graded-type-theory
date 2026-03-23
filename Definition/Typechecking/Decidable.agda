@@ -71,7 +71,7 @@ dec⇉-var {Δ = Δ ∙ B} (x +1) =
 dec⇇-var : (x : Fin n) → Γ ⊢ A → Dec (Γ ⊢ var x ⇇ A)
 dec⇇-var x ⊢A =
   let B , x∷B∈Γ = dec⇉-var x
-  in  case decEq (syntacticVar x∷B∈Γ (wf ⊢A)) ⊢A of λ where
+  in  case decEq (wf-∷∈ x∷B∈Γ (wf ⊢A)) ⊢A of λ where
     (yes B≡A) → yes (infᶜ (varᵢ x∷B∈Γ) B≡A)
     (no B≢A) → no λ where
       (infᶜ (varᵢ x) x₁) → case det∈ x x∷B∈Γ of λ where
@@ -727,7 +727,7 @@ mutual
     let B , x∷ = dec⇉-var x
         ⊢x     = var ⊢Γ x∷
     in
-    case ↘U? (syntacticTerm ⊢x) of λ where
+    case ↘U? (wf-⊢ ⊢x) of λ where
       (yes (_ , A↘)) → yes (univᶜ (varᵢ x∷) A↘)
       (no not)       →
         no λ { (univᶜ {B = C} {l} x ↘U) →

@@ -22,7 +22,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.Consequences.Inequality R

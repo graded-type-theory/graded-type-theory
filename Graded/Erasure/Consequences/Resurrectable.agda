@@ -29,7 +29,7 @@ open import Definition.Typed.Consequences.Consistency TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Reasoning.Term TR
-open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 as Erased using (Erased)
 open import Definition.Untyped.Unit 𝕄
@@ -251,7 +251,7 @@ opaque
            (PE.trans (PE.cong _[ _ ]₀ (Erased.Erased-[] _)) $
             Erased.Erased-[] _) $
          inversion-prod-Σ
-           (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
+           (wf-⊢ (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
       (t₁≡0 : glassify ∇ » ε ⊢ t₁ ≡ zero ∷ ℕ) →
 
@@ -284,8 +284,7 @@ opaque
                (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
                 Erased.Erased-[] _) $
              inversion-prod-Σ
-               (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
-                  .proj₂ .proj₂)
+               (wf-⊢ (subset*Term t∘1⇒t₁′,t₂′) .proj₂ .proj₂)
                .proj₂ .proj₁ of λ
           (t₁′≡1 : glassify ∇ » ε ⊢ t₁′ ≡ suc zero ∷ ℕ) →
 
@@ -383,7 +382,7 @@ opaque
            (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
             Erased.Erased-[] _) $
          inversion-prod-Σ
-           (syntacticEqTerm (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
+           (wf-⊢ (subset*Term t∘0⇒t₁,t₂) .proj₂ .proj₂)
            .proj₂ .proj₁ of λ
       (t₁≡0 : glassify ∇ » Δ ⊢ t₁ ≡ zero ∷ ℕ) →
 
@@ -417,8 +416,7 @@ opaque
                (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
                 Erased.Erased-[] _) $
              inversion-prod-Σ
-               (syntacticEqTerm (subset*Term t∘1⇒t₁′,t₂′)
-                  .proj₂ .proj₂)
+               (wf-⊢ (subset*Term t∘1⇒t₁′,t₂′) .proj₂ .proj₂)
                .proj₂ .proj₁ of λ
           (t₁′≡1 : glassify ∇ » Δ ⊢ t₁′ ≡ suc zero ∷ ℕ) →
 

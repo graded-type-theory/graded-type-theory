@@ -42,7 +42,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Eta-long-normal-form TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 
 open import Definition.Conversion TR
 open import Definition.Conversion.Consequences.Completeness TR
@@ -458,7 +458,7 @@ module _ (as : Full-reduction-assumptions) where
           γ +ᶜ 𝟘ᶜ ∙ p · ⌜ m ᵐ· p ⌝           ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ∙ +-identityˡ _ ⟩
           γ +ᶜ p ·ᶜ 𝟘ᶜ ∙ 𝟘 + p · ⌜ m ᵐ· p ⌝  ∎
       (Σ-η {p = p} ⊢t _ _ _ fst-t↑ snd-t↑) ▸∇ ▸t →
-        case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
+        case inversion-ΠΣ (wf-⊢ ⊢t) of λ {
           (_ , _ , ok) →
         case Σ-η-lemma m ok ▸t of λ {
           (δ , ▸fst-t , γ≤) →

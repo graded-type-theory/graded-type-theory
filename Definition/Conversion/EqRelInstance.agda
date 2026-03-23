@@ -28,7 +28,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R using (_»_∷ʷ_⊇_)
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
@@ -94,7 +93,7 @@ module Lemmas where
 
   ~-var : ∀ {x A} → Γ ⊢ var x ∷ A → Γ ⊢ var x ~ var x ∷ A
   ~-var x =
-    let ⊢A = syntacticTerm x
+    let ⊢A = wf-⊢ x
     in  ↑ (refl ⊢A) (var-refl x PE.refl)
 
   ~-defn : ∀ {α A A′}
@@ -102,7 +101,7 @@ module Lemmas where
          → α ↦⊘∷ A′ ∈ Γ .defs
          → Γ ⊢ defn α ~ defn α ∷ A
   ~-defn α α↦⊘ =
-    let ⊢A = syntacticTerm α
+    let ⊢A = wf-⊢ α
     in  ↑ (refl ⊢A) (defn-refl α α↦⊘ PE.refl)
 
   ~-lower :
@@ -110,7 +109,7 @@ module Lemmas where
     Γ ⊢ p ~ r ∷ Lift l A →
     Γ ⊢ lower p ~ lower r ∷ A
   ~-lower (↑ A≡B p~r) =
-    case syntacticEq A≡B of λ (_ , ⊢B) →
+    case wf-⊢ A≡B of λ (_ , ⊢B) →
     case whNorm ⊢B of λ (B′ , whnfB′ , D) →
     case trans A≡B (subset* D) of λ Lift≡B′ →
     case Lift≡A Lift≡B′ whnfB′ of λ where
@@ -124,10 +123,10 @@ module Lemmas where
         → Γ ⊢ a [conv↑] b ∷ F
         → Γ ⊢ f ∘⟨ p ⟩ a ~ g ∘⟨ p ⟩ b ∷ G [ a ]₀
   ~-app (↑ A≡B x) x₁ =
-    let _ , ⊢B = syntacticEq A≡B
+    let _ , ⊢B = wf-⊢ A≡B
         B′ , whnfB′ , D = whNorm ⊢B
         ΠFG≡B′ = trans A≡B (subset* D)
-        _ , ⊢f , _ = syntacticEqTerm (soundnessConv↑Term x₁)
+        _ , ⊢f , _ = wf-⊢ (soundnessConv↑Term x₁)
     in
     case Π≡A ΠFG≡B′ whnfB′ of λ {
       (H , E , B≡ΠHE) →
@@ -144,7 +143,7 @@ module Lemmas where
     Γ ⊢ p ~ r ∷ Σˢ p′ , q ▷ F ▹ G →
     Γ ⊢ fst p′ p ~ fst p′ r ∷ F
   ~-fst (↑ A≡B p~r) =
-    case syntacticEq A≡B of λ (_ , ⊢B) →
+    case wf-⊢ A≡B of λ (_ , ⊢B) →
     case whNorm ⊢B of λ (B′ , whnfB′ , D) →
     case trans A≡B (subset* D) of λ ΣFG≡B′ →
     case Σ≡A ΣFG≡B′ whnfB′ of λ where
@@ -158,7 +157,7 @@ module Lemmas where
     Γ ⊢ p ~ r ∷ Σ p′ , q ▷ F ▹ G →
     Γ ⊢ snd p′ p ~ snd p′ r ∷ G [ fst p′ p ]₀
   ~-snd (↑ A≡B p~r) =
-    case syntacticEq A≡B of λ (⊢ΣFG , ⊢B) →
+    case wf-⊢ A≡B of λ (⊢ΣFG , ⊢B) →
     case whNorm ⊢B of λ (B′ , whnfB′ , D) →
     case trans A≡B (subset* D) of λ ΣFG≡B′ →
     case Σ≡A ΣFG≡B′ whnfB′ of λ where
@@ -167,7 +166,7 @@ module Lemmas where
           (_ , G≡E , _ , _) →
             let p~r↓       = [~] _ (D , whnfB′) p~r
                 _ , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
-                _ , ⊢p , _ = syntacticEqTerm (soundness~↑ p~r)
+                _ , ⊢p , _ = wf-⊢ (soundness~↑ p~r)
                 ⊢fst       = fstⱼ ⊢G (conv ⊢p (sym A≡B))
             in
             ↑ (G≡E (refl ⊢fst)) (snd-cong p~r↓)
@@ -179,14 +178,14 @@ module Lemmas where
         Γ ⊢ n ~ n′ ∷ ℕ →
         Γ ⊢ natrec p q r F z s n ~ natrec p q r F′ z′ s′ n′ ∷ (F [ n ]₀)
   ~-natrec x x₁ x₂ (↑ A≡B x₄) =
-    let _ , ⊢B = syntacticEq A≡B
+    let _ , ⊢B = wf-⊢ A≡B
         B′ , whnfB′ , D = whNorm ⊢B
         ℕ≡B′ = trans A≡B (subset* D)
         B≡ℕ = ℕ≡A ℕ≡B′ whnfB′
         k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡ℕ
                         ([~] _ (D , whnfB′) x₄)
-        ⊢F , _ = syntacticEq (soundnessConv↑ x)
-        _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
+        ⊢F , _ = wf-⊢ (soundnessConv↑ x)
+        _ , ⊢n , _ = wf-⊢ (soundness~↓ k~l′)
     in  ↑ (refl (subst-⊢₀ ⊢F ⊢n))
           (natrec-cong x x₁ x₂ k~l′)
 
@@ -197,7 +196,7 @@ module Lemmas where
     Γ »∙ F »∙ G ⊢ u [conv↑] u′ ∷ A [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q′ A t u ~ prodrec r p q′ A′ t′ u′ ∷ (A [ t ]₀)
   ~-prodrec x₂ (↑ A≡B k~↑l) x₄ =
-    case syntacticEq A≡B of λ (_ , ⊢B) →
+    case wf-⊢ A≡B of λ (_ , ⊢B) →
     case whNorm ⊢B of λ (B′ , whnfB′ , D) →
     case _⊢_≡_.trans A≡B (subset* D) of λ Σ≡Σ′ →
     case Σ≡A (trans A≡B (subset* D)) whnfB′ of λ where
@@ -205,8 +204,8 @@ module Lemmas where
         case ΠΣ-injectivity-no-equality-reflection Σ≡Σ′ of λ where
           (F≡F′ , G≡G′ , _ , _ , _) →
             let t~t′       = [~] _ (D , whnfB′) k~↑l
-                ⊢A , _     = syntacticEq (soundnessConv↑ x₂)
-                _ , ⊢t , _ = syntacticEqTerm (soundness~↑ k~↑l)
+                ⊢A , _     = wf-⊢ (soundnessConv↑ x₂)
+                _ , ⊢t , _ = wf-⊢ (soundness~↑ k~↑l)
             in
             ↑ (refl (subst-⊢₀ ⊢A (conv ⊢t (sym A≡B))))
               (prodrec-cong (stabilityConv↑ (refl-∙ Σ≡Σ′) x₂)
@@ -217,14 +216,14 @@ module Lemmas where
         Γ ⊢ n ~ n′ ∷ Empty →
         Γ ⊢ emptyrec p F n ~ emptyrec p F′ n′ ∷ F
   ~-emptyrec x (↑ A≡B x₄) =
-    let _ , ⊢B = syntacticEq A≡B
+    let _ , ⊢B = wf-⊢ A≡B
         B′ , whnfB′ , D = whNorm ⊢B
         Empty≡B′ = trans A≡B (subset* D)
         B≡Empty = Empty≡A Empty≡B′ whnfB′
         k~l′ = PE.subst (λ x → _ ⊢ _ ~ _ ↓ x) B≡Empty
                         ([~] _ (D , whnfB′) x₄)
-        ⊢F , _ = syntacticEq (soundnessConv↑ x)
-        _ , ⊢n , _ = syntacticEqTerm (soundness~↓ k~l′)
+        ⊢F , _ = wf-⊢ (soundnessConv↑ x)
+        _ , ⊢n , _ = wf-⊢ (soundness~↓ k~l′)
     in  ↑ (refl ⊢F)
           (emptyrec-cong x k~l′)
 
@@ -237,8 +236,8 @@ module Lemmas where
             → Γ ⊢ unitrec p q A t u ~ unitrec p q A′ t′ u′ ∷
                 A [ t ]₀
   ~-unitrec A<>A′ (↑ Unit≡B t~t′) u<>u′ ok no-η =
-    let ⊢A , _ = syntacticEq (soundnessConv↑ A<>A′)
-        _ , ⊢t , _ = syntacticEqTerm (soundness~↑ t~t′)
+    let ⊢A , _ = wf-⊢ (soundnessConv↑ A<>A′)
+        _ , ⊢t , _ = wf-⊢ (soundness~↑ t~t′)
     in
     ↑ (refl (subst-⊢₀ ⊢A (conv ⊢t (sym Unit≡B))))
       (unitrec-cong A<>A′ ([~] _ (Unit-norm (sym Unit≡B)) t~t′) u<>u′
@@ -260,9 +259,9 @@ module Lemmas where
       case Id-norm (sym Id-t₁-v₁≡C) of λ {
         (_ , _ , _ , C⇒*Id-t₃-v₃ , A₁≡A₃ , t₁≡t₃ , v₁≡v₃) →
       ↑ (refl $
-         subst-⊢₁₀ (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁)
-           (syntacticEqTerm v₁≡v₃ .proj₂ .proj₁)
-           (conv (syntacticEqTerm (soundness~↑ w₁~w₂) .proj₂ .proj₁) $
+         subst-⊢₁₀ (wf-⊢ (soundnessConv↑ B₁≡B₂) .proj₁)
+           (wf-⊢ v₁≡v₃ .proj₂ .proj₁)
+           (conv (wf-⊢ (soundness~↑ w₁~w₂) .proj₂ .proj₁) $
             PE.subst (_⊢_≡_ _ _) ≡Id-wk1-wk1-0[]₀ $
             sym Id-t₁-v₁≡C))
         (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂
@@ -281,9 +280,9 @@ module Lemmas where
       case Id-norm (sym Id-t₁-t₁≡C) of λ {
         (_ , _ , _ , C⇒*Id-t₃-t₄ , A₁≡A₃ , t₁≡t₃ , t₁≡t₄) →
       ↑ (refl $
-         subst-⊢₀ (syntacticEq (soundnessConv↑ B₁≡B₂) .proj₁) $
+         subst-⊢₀ (wf-⊢ (soundnessConv↑ B₁≡B₂) .proj₁) $
          _⊢_∷_.conv
-           (syntacticEqTerm (soundness~↑ v₁~v₂) .proj₂ .proj₁) $
+           (wf-⊢ (soundness~↑ v₁~v₂) .proj₂ .proj₁) $
          sym Id-t₁-t₁≡C)
         (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂
            ([~] _ (C⇒*Id-t₃-t₄ , Idₙ) v₁~v₂)
@@ -308,9 +307,9 @@ module Lemmas where
       ↑ (_⊢_≡_.refl $
          Idⱼ′
            ([]ⱼ ([]-cong→Erased ok) ⊢l₁
-              (syntacticEqTerm t₁≡t₃ .proj₂ .proj₁))
+              (wf-⊢ t₁≡t₃ .proj₂ .proj₁))
            ([]ⱼ ([]-cong→Erased ok) ⊢l₁
-              (syntacticEqTerm u₁≡u₃ .proj₂ .proj₁)))
+              (wf-⊢ u₁≡u₃ .proj₂ .proj₁)))
         ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂
            ([~] _ (B⇒*Id-t₃-u₃ , Idₙ) v₁~v₂)
            (trans (sym (subset* B⇒*Id-t₃-u₃)) (sym Id-t₁-u₁≡B))
@@ -520,7 +519,7 @@ private opaque
       λ l₁≡l₂ A≡B → liftConv (Lift-cong l₁≡l₂ A≡B)
     .Equality-relations.≅ₜ-Lift-cong →
       λ l₁≡l₂ A≡B →
-        let ⊢U , ⊢A , ⊢B = syntacticEqTerm (soundnessConv↑Term A≡B)
+        let ⊢U , ⊢A , ⊢B = wf-⊢ (soundnessConv↑Term A≡B)
             ⊢l₁ , ⊢l₂    = wf-⊢ (soundnessConv↑Level l₁≡l₂)
             ⊢l           = inversion-U-Level ⊢U
         in
@@ -545,7 +544,7 @@ private opaque
             _ , _ , [u] = wf-⊢ (subset*Term uRed)
             _ , _ , [u'] = wf-⊢ (subset*Term u'Red)
         in  [↑]ₜ Unit! u u'
-              (id (syntacticTerm [e]) , Unitₙ)
+              (id (wf-⊢ [e]) , Unitₙ)
               (uRed , uWhnf)
               (u'Red , u'Whnf)
               (η-unit [u] [u'] uWhnf u'Whnf η)
@@ -553,8 +552,8 @@ private opaque
       λ x₁ x₂ ok → liftConv (ΠΣ-cong x₁ x₂ ok)
     .Equality-relations.≅ₜ-ΠΣ-cong →
       λ l₁ x₁ x₂ ok →
-        let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
-            _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
+        let _ , F∷U , H∷U = wf-⊢ (soundnessConv↑Term x₁)
+            _ , G∷U , E∷U = wf-⊢ (soundnessConv↑Term x₂)
             ⊢Γ = wf F∷U
             F<>H = univConv↑ x₁
             G<>E = univConv↑ x₂
@@ -598,11 +597,11 @@ private opaque
       λ A₁≡A₂ t₁≡t₂ u₁≡u₂ →
         case soundnessConv↑Term A₁≡A₂ of λ {
           ⊢A₁≡A₂ →
-        case syntacticEqTerm ⊢A₁≡A₂ of λ {
+        case wf-⊢ ⊢A₁≡A₂ of λ {
           (_ , ⊢A₁ , ⊢A₂) →
-        case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) of λ {
+        case wf-⊢ (soundnessConv↑Term t₁≡t₂) of λ {
           (_ , ⊢t₁ , ⊢t₂) →
-        case syntacticEqTerm (soundnessConv↑Term u₁≡u₂) of λ {
+        case wf-⊢ (soundnessConv↑Term u₁≡u₂) of λ {
           (_ , ⊢u₁ , ⊢u₂) →
         liftConvTerm $
         univ (Idⱼ ⊢A₁ ⊢t₁ ⊢u₁)

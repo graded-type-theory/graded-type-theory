@@ -32,7 +32,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Level R
 open import Definition.Conversion.Inversion R
@@ -78,13 +78,13 @@ private opaque
   -- Some lemmas used below.
 
   ~↓→∷ : Γ ⊢ t ~ u ↓ A → Γ ⊢ t ∷ A
-  ~↓→∷ = proj₁ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ soundness~↓
+  ~↓→∷ = proj₁ ∘→ proj₂ ∘→ wf-⊢ ∘→ soundness~↓
 
   ~∷→∷ : Γ ⊢ t ~ u ∷ A → Γ ⊢ t ∷ A
-  ~∷→∷ = proj₁ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ soundness~∷
+  ~∷→∷ = proj₁ ∘→ proj₂ ∘→ wf-⊢ ∘→ soundness~∷
 
   [conv↓]∷→∷ : Γ ⊢ t [conv↓] u ∷ A → Γ ⊢ t ∷ A
-  [conv↓]∷→∷ = proj₁ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ soundnessConv↓Term
+  [conv↓]∷→∷ = proj₁ ∘→ proj₂ ∘→ wf-⊢ ∘→ soundnessConv↓Term
 
   ~↓→∷→Whnf×≡ : Γ ⊢ t ~ u ↓ A → Γ ⊢ t ∷ B → Γ ⊢ B ≡ A × Whnf (Γ .defs) A
   ~↓→∷→Whnf×≡ t~u ⊢t =
@@ -172,7 +172,7 @@ private opaque
     {p₁} {q₁} {A₁} {B₁} {p₂} {q₂} {A₂} {B₂}
     ⊢t₁ ⊢u₁ (yes (C , t₁~u₁)) dec₂ =
     let C-whnf , t₁-ne , u₁-ne = ne~↓ t₁~u₁
-        _ , ⊢t₁′ , ⊢u₁′        = syntacticEqTerm (soundness~↓ t₁~u₁)
+        _ , ⊢t₁′ , ⊢u₁′        = wf-⊢ (soundness~↓ t₁~u₁)
         Π≡C                    = neTypeEq (ne⁻ t₁-ne) ⊢t₁ ⊢t₁′
         A₁≡A₂ , _ , p₁≡p₂ , _  =
           ΠΣ-injectivity
@@ -270,7 +270,7 @@ private opaque
     {p₁} {q₁} {A₁} {B₁} {p₂} {q₂} {A₂} {B₂}
     ⊢t₁ ⊢t₂ (yes (PE.refl , PE.refl , D , t₁~t₂)) dec₁ dec₃ =
     let D-whnf , t₁-ne , t₂-ne = ne~↓ t₁~t₂
-        _ , ⊢t₁′ , ⊢t₂′        = syntacticEqTerm (soundness~↓ t₁~t₂)
+        _ , ⊢t₁′ , ⊢t₂′        = wf-⊢ (soundness~↓ t₁~t₂)
         Σ₁≡D                   = neTypeEq (ne⁻ t₁-ne) ⊢t₁ ⊢t₁′
         Σ₁≡Σ₂                  =
           Σʷ p₁ , q₁ ▷ A₁ ▹ B₁  ≡⟨ Σ₁≡D ⟩⊢
@@ -373,7 +373,7 @@ private opaque
        ∇ » Δ ⊢ unitrec p₁ q₁ A₁ t₁ u₁ ~ unitrec p₂ q₂ A₂ t₂ u₂ ↑ B)
   dec~↑-unitrec-cong
     no-η ⊢t₁ (yes (PE.refl , PE.refl , _ , t₁~t₂)) dec₁ dec₂ =
-    let ok = inversion-Unit (syntacticTerm ⊢t₁)
+    let ok = inversion-Unit (wf-⊢ ⊢t₁)
         ⊢Γ = wf ⊢t₁
     in case
       (dec₁ ×-dec′ λ A₁≡A₂ →
@@ -861,7 +861,7 @@ mutual
         → Dec (∃ λ A → Γ ⊢ k ~ l ↓ A)
   dec~↓ ([~] _ _ k~l) ([~] _ _ k~l₁) with dec~↑ k~l k~l₁
   dec~↓ ([~] _ _ k~l) ([~] _ _ k~l₁) | yes (B , k~l₂) =
-    let ⊢B , _ , _ = syntacticEqTerm (soundness~↑ k~l₂)
+    let ⊢B , _ , _ = wf-⊢ (soundness~↑ k~l₂)
         C , whnfC , D′ = whNorm ⊢B
     in  yes (C , [~] B (D′ , whnfC) k~l₂)
   dec~↓ ([~] _ _ k~l) ([~] _ _ k~l₁) | no ¬p =
@@ -871,7 +871,7 @@ mutual
         → Γ ⊢ k ~ k′ ∷ R → Γ ⊢ l ~ l′ ∷ T
         → Dec (Γ ⊢ k ~ l ∷ R)
   dec~∷ x@(↑ A≡B k~↑l) y@(↑ A≡B₁ k~↑l₁) = Dec-map
-    ( (λ (_ , z) → ~∷→∷→~∷ (↑ (refl (syntacticEqTerm (soundness~↑ z) .proj₁)) z) (~∷→∷ x))
+    ( (λ (_ , z) → ~∷→∷→~∷ (↑ (refl (wf-⊢ (soundness~↑ z) .proj₁)) z) (~∷→∷ x))
     , λ (↑ _ z) → _ , z)
     (dec~↑ k~↑l k~↑l₁)
 
@@ -1088,7 +1088,7 @@ mutual
       (decConv↑Term fst-t≡ fst-u≡
          ×-dec′ λ fst-t≡fst-u →
        decConv↑TermConv
-         (subst-⊢≡₀ (inversion-ΠΣ (syntacticTerm ⊢t) .proj₂ .proj₁)
+         (subst-⊢≡₀ (inversion-ΠΣ (wf-⊢ ⊢t) .proj₂ .proj₁)
             (soundnessConv↑Term fst-t≡fst-u))
          snd-t≡ snd-u≡)
       of λ where
@@ -1278,12 +1278,12 @@ mutual
 
   _≡ⁿ?_ : {t u : Term n} → Γ ⊢ t ~ t ↓ Level → Γ ⊢ u ~ u ↓ Level → Dec (≡ⁿ Γ t u false)
   _≡ⁿ?_ t u =
-    let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t)
+    let _ , ⊢t , _ = wf-⊢ (soundness~↓ t)
     in Dec-map ((λ (_ , x~y) → ne≡ (PE.subst (_ ⊢ _ ~ _ ↓_) (uncurry Level≡A (~↓→∷→Whnf×≡ x~y ⊢t)) x~y)) , λ { (ne≡ x) → _ , x }) (dec~↓ t u)
 
   _≡ⁿ¿_ : {t u : Term n} → Γ ⊢ t ~ t ↓ Level → Γ ⊢ u ~ u ↓ Level → Dec (≡ⁿ Γ t u true)
   _≡ⁿ¿_ t u =
-    let _ , ⊢u , _ = syntacticEqTerm (soundness~↓ u)
+    let _ , ⊢u , _ = wf-⊢ (soundness~↓ u)
     in Dec-map ((λ (_ , x~y) → ne≡' (PE.subst (_ ⊢ _ ~ _ ↓_) (uncurry Level≡A (~↓→∷→Whnf×≡ x~y ⊢u)) x~y)) , λ { (ne≡' x) → _ , x }) (dec~↓ u t)
 
   _≤ᵃ?_ : (t u : LevelAtom Γ) → Dec (≤ᵃ false t u)

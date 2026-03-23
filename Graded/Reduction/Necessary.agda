@@ -35,7 +35,6 @@ import Graded.Usage.Weakening UR as UW
 
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Syntactic TR
 import Definition.Typed.Reasoning.Type TR as TEq
 open import Definition.Typed.Substitution TR
 open import Definition.Typed.Weakening TR as W hiding (wk)

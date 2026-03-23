@@ -18,7 +18,6 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
@@ -84,14 +83,14 @@ mutual
     let _ , ⊢A = soundness⇉ ⊢Γ y
         ⊢l₂ = soundness⇇Level ⊢Γ x
         C≡U = subset* (↘U .proj₁)
-        ⊢l₁ = inversion-U-Level (syntacticEq C≡U .proj₂)
+        ⊢l₁ = inversion-U-Level (wf-⊢ C≡U .proj₂)
     in
     ⊢U (⊢supᵘₗ ⊢l₁ ⊢l₂) , Liftⱼ′ ⊢l₂ (conv ⊢A C≡U)
   soundness⇉ ⊢Γ (ΠΣᵢ ⊢A (⇒*U₁ , _) ⊢B ok) =
     let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
         ⊢A     = conv ⊢A (subset* ⇒*U₁)
         ⊢B     = soundness⇇ ⊢B
-        ⊢l     = inversion-U-Level (syntacticTerm ⊢A)
+        ⊢l     = inversion-U-Level (wf-⊢ ⊢A)
     in
     ⊢U ⊢l , ΠΣⱼ ⊢l ⊢A ⊢B ok
   soundness⇉ ⊢Γ (varᵢ x∷A∈Γ) = soundness⇉-var ⊢Γ x∷A∈Γ
@@ -99,14 +98,14 @@ mutual
     W.wk (W.wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦t (defn-wf ⊢Γ)) , defn ⊢Γ α↦t PE.refl
   soundness⇉ ⊢Γ (lowerᵢ x (A⇒Lift , _)) =
     let A≡Lift = subset* A⇒Lift
-        _ , ⊢Lift = syntacticEq A≡Lift
+        _ , ⊢Lift = wf-⊢ A≡Lift
         ⊢l , ⊢A = inversion-Lift ⊢Lift
         _ , ⊢t = soundness⇉ ⊢Γ x
     in ⊢A , lowerⱼ (conv ⊢t A≡Lift)
   soundness⇉ ⊢Γ (appᵢ t⇉A (A⇒ΠFG , _) u⇇F) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΠFG = subset* A⇒ΠFG
-        _ , ⊢ΠFG = syntacticEq A≡ΠFG
+        _ , ⊢ΠFG = wf-⊢ A≡ΠFG
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΠFG
         ⊢u = soundness⇇ u⇇F
         ⊢t′ = conv ⊢t A≡ΠFG
@@ -114,20 +113,20 @@ mutual
   soundness⇉ ⊢Γ (fstᵢ t⇉A (A⇒ΣFG , _)) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΣFG = subset* A⇒ΣFG
-        _ , ⊢ΣFG = syntacticEq A≡ΣFG
+        _ , ⊢ΣFG = wf-⊢ A≡ΣFG
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
     in  ⊢F , fstⱼ ⊢G (conv ⊢t A≡ΣFG)
   soundness⇉ ⊢Γ (sndᵢ t⇉A (A⇒ΣFG , _)) =
     let ⊢A , ⊢t = soundness⇉ ⊢Γ t⇉A
         A≡ΣFG = subset* A⇒ΣFG
-        _ , ⊢ΣFG = syntacticEq A≡ΣFG
+        _ , ⊢ΣFG = wf-⊢ A≡ΣFG
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
     in  subst-⊢₀ ⊢G (fstⱼ ⊢G (conv ⊢t A≡ΣFG)) , sndⱼ ⊢G (conv ⊢t A≡ΣFG)
   soundness⇉ ⊢Γ (prodrecᵢ A⇇Type t⇉B (B⇒ΣFG , _) u⇇A₊) =
     let ⊢B , ⊢t = soundness⇉ ⊢Γ t⇉B
         B≡ΣFG = subset* B⇒ΣFG
         ⊢t′ = conv ⊢t B≡ΣFG
-        _ , ⊢ΣFG = syntacticEq B≡ΣFG
+        _ , ⊢ΣFG = wf-⊢ B≡ΣFG
         _ , _ , ok = inversion-ΠΣ ⊢ΣFG
         ⊢A = soundness⇇Type (∙ ⊢ΣFG) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
@@ -148,7 +147,7 @@ mutual
     ⊢Unit ⊢Γ ok , starⱼ ⊢Γ ok
   soundness⇉ _ (unitrecᵢ A⇇Type t⇇Unit u⇇A₊) =
     let ⊢t = soundness⇇ t⇇Unit
-        ⊢Unit = syntacticTerm ⊢t
+        ⊢Unit = wf-⊢ ⊢t
         ok = inversion-Unit ⊢Unit
         ⊢A = soundness⇇Type (∙ ⊢Unit) A⇇Type
         ⊢u = soundness⇇ u⇇A₊
@@ -160,7 +159,7 @@ mutual
   soundness⇉ ⊢Γ (Idᵢ ⊢A (⇒*U , _) ⊢t ⊢u) =
     let _ , ⊢A = soundness⇉ ⊢Γ ⊢A
         ⊢A     = conv ⊢A (subset* ⇒*U)
-        ⊢l     = inversion-U-Level (syntacticTerm ⊢A)
+        ⊢l     = inversion-U-Level (wf-⊢ ⊢A)
     in
     ⊢U ⊢l , Idⱼ ⊢A (soundness⇇ ⊢t) (soundness⇇ ⊢u)
   soundness⇉ ⊢Γ (Jᵢ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) =
@@ -195,19 +194,19 @@ mutual
   soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
   soundness⇇ (liftᶜ A↘Lift t⇇B) =
     let A≡Lift = subset* (A↘Lift .proj₁)
-        _ , ⊢Lift = syntacticEq A≡Lift
+        _ , ⊢Lift = wf-⊢ A≡Lift
         ⊢l , ⊢B = inversion-Lift ⊢Lift
         ⊢t = soundness⇇ t⇇B
     in conv (liftⱼ′ ⊢l ⊢t) (sym A≡Lift)
   soundness⇇ (lamᶜ A↘ΠFG t⇇G)=
     let A≡ΠFG = subset* (proj₁ A↘ΠFG)
-        _ , ⊢ΠFG = syntacticEq A≡ΠFG
+        _ , ⊢ΠFG = wf-⊢ A≡ΠFG
         _ , ⊢G , ok = inversion-ΠΣ ⊢ΠFG
         ⊢t = soundness⇇ t⇇G
     in  conv (lamⱼ′ ok ⊢t) (sym A≡ΠFG)
   soundness⇇ (prodᶜ A↘ΣFG t⇇F u⇇Gt) =
     let A≡ΣFG = subset* (proj₁ A↘ΣFG)
-        _ , ⊢ΣFG = syntacticEq A≡ΣFG
+        _ , ⊢ΣFG = wf-⊢ A≡ΣFG
         _ , ⊢G , ok = inversion-ΠΣ ⊢ΣFG
         ⊢t = soundness⇇ t⇇F
         ⊢u = soundness⇇ u⇇Gt

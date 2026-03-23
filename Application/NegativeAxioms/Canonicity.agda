@@ -25,11 +25,11 @@ open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Reduction R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
@@ -74,9 +74,9 @@ module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
   neNeg (supᵘⱼ _ _) _ =
     level
   neNeg (lowerⱼ x) (lowerₙ y) =
-    lowerNeg (neNeg x y) (refl (syntacticTerm x))
+    lowerNeg (neNeg x y) (refl (wf-⊢ x))
   neNeg (d ∘ⱼ ⊢t           ) (∘ₙ n       ) =
-    appNeg (neNeg d n) (refl (syntacticTerm d)) ⊢t
+    appNeg (neNeg d n) (refl (wf-⊢ d)) ⊢t
   neNeg (fstⱼ A⊢B d) (fstₙ n) =
     fstNeg (neNeg d n) (refl (ΠΣⱼ A⊢B (⊢∷ΠΣ→ΠΣ-allowed d)))
   neNeg (sndⱼ A⊢B d) (sndₙ n) =
@@ -95,7 +95,7 @@ module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
   neNeg (Jⱼ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
     ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ′ ⊢t ⊢v)))
   neNeg (Kⱼ _ _ ⊢v _) (Kₙ v-ne) =
-    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (syntacticTerm ⊢v)))
+    ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (wf-⊢ ⊢v)))
   neNeg ([]-congⱼ _ _ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
   neNeg (conv d c) n =
@@ -171,7 +171,7 @@ module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
   ¬NeutralNf ⊢t ¬negA =
     let u , whnfU , d = whNormTerm ⊢t
     in  u , (d , whnfU) ,
-        ¬negA ∘→ neNeg (syntacticEqTerm (subset*Term d) .proj₂ .proj₂)
+        ¬negA ∘→ neNeg (wf-⊢ (subset*Term d) .proj₂ .proj₂)
 
   -- Canonicity theorem: Any well-typed term Γ ⊢ t ∷ ℕ reduces to a
   -- numeral under the ⇒ˢ* reduction (given a certain assumption).

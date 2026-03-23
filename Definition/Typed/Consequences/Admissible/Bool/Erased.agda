@@ -41,7 +41,6 @@ open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped.Bool.Nr 𝕄 𝐌 as B using (OK; OKᵍ)
@@ -201,7 +200,7 @@ opaque
     ∇ » Δ ⊢ u ∷ Erased zeroᵘₗ (OK t) →
     ∇ » Δ ⊢ Target k A t u
   ⊢Target ⊢A ⊢t ⊢u =
-    syntacticEq (Target-cong′ (refl ⊢A) ⊢t ⊢u) .proj₁
+    wf-⊢ (Target-cong′ (refl ⊢A) ⊢t ⊢u) .proj₁
 
 ------------------------------------------------------------------------
 -- Typing rules for boolrec
@@ -377,7 +376,7 @@ opaque
     Γ ⊢ v ∷ Bool →
     Γ ⊢ boolrec p A t u v ∷ A [ v ]₀
   ⊢boolrec Π-ok Π-𝟙-𝟘-ok Unitˢ-ok ⊢A ⊢t ⊢u ⊢v =
-    syntacticEqTerm
+    wf-⊢
       (boolrec-cong Π-ok Π-𝟙-𝟘-ok Unitˢ-ok (refl ⊢A) (refl ⊢t) (refl ⊢u)
          (refl ⊢v))
       .proj₂ .proj₁

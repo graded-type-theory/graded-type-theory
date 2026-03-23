@@ -22,7 +22,6 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 
@@ -62,7 +61,7 @@ neTypeEq (defn α↦⊘) (defn ⊢Γ α↦∷A PE.refl) (defn _ α↦∷B PE.ref
   case unique-↦∈ α↦∷A α↦∷B PE.refl of λ where
     PE.refl → refl (W.wk (wk₀∷ʷ⊇ ⊢Γ) (wf-↦∈ α↦∷A (defn-wf ⊢Γ)))
 neTypeEq (var ok x) (var x₁ x₂) (var x₃ x₄) =
-  varTypeEq (syntacticTerm (var x₃ x₂)) (syntacticTerm (var x₃ x₄)) x₂ x₄
+  varTypeEq (wf-⊢ (var x₃ x₂)) (wf-⊢ (var x₃ x₄)) x₂ x₄
 neTypeEq (supᵘˡₙ _) (supᵘⱼ ⊢t _) (supᵘⱼ _ _) =
   refl (wf-⊢ ⊢t)
 neTypeEq (supᵘʳₙ _) (supᵘⱼ ⊢t _) (supᵘⱼ _ _) =
@@ -75,7 +74,7 @@ neTypeEq (fstₙ neP) (fstⱼ _ ⊢t) (fstⱼ _ ⊢t′) with neTypeEq neP ⊢t 
 neTypeEq (sndₙ neP) (sndⱼ ⊢G ⊢t) (sndⱼ _ ⊢t′) with neTypeEq neP ⊢t ⊢t′
 ... | q = ΠΣ-injectivity q .proj₂ .proj₁ (refl (fstⱼ ⊢G ⊢t))
 neTypeEq (natrecₙ _) ⊢t@(natrecⱼ _ _ _) (natrecⱼ _ _ _) =
-  refl (syntacticTerm ⊢t)
+  refl (wf-⊢ ⊢t)
 neTypeEq
   (prodrecₙ neT) (prodrecⱼ ⊢A ⊢t _ _) (prodrecⱼ _ _ _ _) =
   refl (subst-⊢₀ ⊢A ⊢t)

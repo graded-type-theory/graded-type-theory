@@ -60,7 +60,6 @@ import Definition.Typed.Reasoning.Reduction TR as RR
 import Definition.Typed.Reasoning.Term TR as TmR
 import Definition.Typed.Reasoning.Type TR as TyR
 open import Definition.Typed.Substitution TR hiding (id)
-open import Definition.Typed.Syntactic TR
 import Definition.Typed.Weakening TR as W
 import Definition.Typed.Weakening.Definition TR as WD
 open import Definition.Typed.Well-formed TR

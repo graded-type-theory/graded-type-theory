@@ -22,8 +22,8 @@ open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
+open import Definition.Typed.Well-formed R
 open import Definition.Typed.EqRelInstance R using (eqRelInstance)
 open import Definition.Conversion R
 open import Definition.Conversion.Level R
@@ -71,9 +71,7 @@ mutual
              (snd-cong (wk~↓ ρ p~r))
   wk~↑ [ρ] (natrec-cong {A₁} x x₁ x₂ t~u) =
     let ⊢Δ   = wf-∷ʷ⊇ [ρ]
-        Δℕ⊢F =
-          wk (liftʷʷ [ρ] (⊢ℕ ⊢Δ))
-            (proj₁ (syntacticEq (soundnessConv↑ x)))
+        Δℕ⊢F = wk (liftʷʷ [ρ] (⊢ℕ ⊢Δ)) (proj₁ (wf-⊢ (soundnessConv↑ x)))
     in
     PE.subst (_⊢_~_↑_ _ _ _) (PE.sym (wk-β A₁)) $
     natrec-cong (wkConv↑ (liftʷ (∷ʷ⊇→∷⊇ [ρ]) (⊢ℕ ⊢Δ)) x)
@@ -86,7 +84,7 @@ mutual
     {ρ} {Δ} [ρ]
     (prodrec-cong {C = C} {E} {g} {h} {u} {v} x g~h x₁) =
     let ρg~ρh = wk~↓ [ρ] g~h
-        ⊢ρΣ , _ , _ = syntacticEqTerm (soundness~↓ ρg~ρh)
+        ⊢ρΣ , _ , _ = wf-⊢ (soundness~↓ ρg~ρh)
         _ , ⊢ρG , _ = inversion-ΠΣ ⊢ρΣ
         u↓v = PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-prodrec ρ C)
                 (wkConv↑Term (liftʷ (lift (∷ʷ⊇→∷⊇ [ρ])) ⊢ρG) x₁)
@@ -99,7 +97,7 @@ mutual
     emptyrec-cong (wkConv↑ [ρ] x) (wk~↓ [ρ] t~u)
   wk~↑ [ρ] (unitrec-cong {A₁} x x₁ x₂ no-η) =
     let k~l = wk~↓ [ρ] x₁
-        ⊢Unit , _ = syntacticEqTerm (soundness~↓ k~l)
+        ⊢Unit , _ = wf-⊢ (soundness~↓ k~l)
         u↑v = PE.subst (_⊢_[conv↑]_∷_ _ _ _)
                        (wk-β A₁)
                        (wkConv↑Term [ρ] x₂)
@@ -110,9 +108,9 @@ mutual
   wk~↑
     {∇} {ρ} {Δ} [ρ]
     (J-cong {A₁} {B₁} {B₂} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
-    case syntacticEq (soundnessConv↑ A₁≡A₂) .proj₁ of λ {
+    case wf-⊢ (soundnessConv↑ A₁≡A₂) .proj₁ of λ {
       ⊢A₁ →
-    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
+    case wf-⊢ (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
     case wk [ρ] ⊢A₁ of λ {
       ⊢wk-ρ-A₁ →
@@ -141,7 +139,7 @@ mutual
       (wkConv↑Term [ρ] v₁≡v₂) (wk~↓ [ρ] w₁~w₂)
       (wk [ρ] ≡Id) }}}
   wk~↑ [ρ] (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
+    case wf-⊢ (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
     PE.subst (_ ⊢ K _ _ _ _ _ _ ~ _ ↑_)
       (PE.sym $ wk-β B₁) $
@@ -189,7 +187,7 @@ mutual
   wkConv↓ ρ (Unit-refl x ok) = Unit-refl (wf-∷ʷ⊇ ρ) ok
   wkConv↓ ρ (ne x) = ne (wk~↓ ρ x)
   wkConv↓ ρ (ΠΣ-cong A<>B A<>B₁ ok) =
-    let ⊢ρF = wk ρ (syntacticEq (soundnessConv↑ A<>B) .proj₁) in
+    let ⊢ρF = wk ρ (wf-⊢ (soundnessConv↑ A<>B) .proj₁) in
     ΠΣ-cong (wkConv↑ ρ A<>B) (wkConv↑ (liftʷʷ ρ ⊢ρF) A<>B₁) ok
   wkConv↓ ρ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (wkConv↑ ρ A₁≡A₂) (wkConv↑Term ρ t₁≡t₂)
@@ -246,7 +244,7 @@ mutual
              (wkConv↑Term ρ x₃))
           ok
   wkConv↓Term {∇} {ρ} {Δ} [ρ] (η-eq {F = F} {G = G} x₁ x₂ y y₁ t<>u) =
-    let ⊢F , _ = inversion-ΠΣ (syntacticTerm x₁)
+    let ⊢F , _ = inversion-ΠΣ (wf-⊢ x₁)
         ⊢ρF = wk [ρ] ⊢F
     in
     η-eq (wk [ρ] x₁) (wk [ρ] x₂)

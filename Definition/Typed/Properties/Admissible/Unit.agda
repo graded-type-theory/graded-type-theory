@@ -26,7 +26,6 @@ open import Definition.Typed.Reasoning.Reduction TR
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Stability TR
 open import Definition.Typed.Substitution.Primitive TR
-open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped.Unit 𝕄
@@ -65,7 +64,7 @@ opaque
     Γ ⊢ t ∷ Unit s →
     Γ ⊢ star s ≡ t ∷ Unit s
   Unit-η-≡ η ⊢t =
-    let ok = inversion-Unit (syntacticTerm ⊢t) in
+    let ok = inversion-Unit (wf-⊢ ⊢t) in
     η-unit (starⱼ (wf ⊢t) ok) ⊢t η
 
 ------------------------------------------------------------------------
@@ -97,17 +96,17 @@ opaque
     {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {p} {q} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     case wf t₁≡t₂ of λ
       ⊢Γ →
-    case inversion-Unit $ syntacticEqTerm t₁≡t₂ .proj₁ of λ
+    case inversion-Unit $ wf-⊢ t₁≡t₂ .proj₁ of λ
       ok →
     case Unitʷ-η? of λ where
       (no no-η) →
         unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η
       (yes η) →
-        case syntacticEq A₁≡A₂ of λ
+        case wf-⊢ A₁≡A₂ of λ
           (⊢A₁ , ⊢A₂) →
-        case syntacticEqTerm t₁≡t₂ of λ
+        case wf-⊢ t₁≡t₂ of λ
           (_ , ⊢t₁ , ⊢t₂) →
-        case syntacticEqTerm u₁≡u₂ of λ
+        case wf-⊢ u₁≡u₂ of λ
           (_ , ⊢u₁ , ⊢u₂) →
         unitrec p q A₁ t₁ u₁  ≡⟨ unitrec-β-η ⊢A₁ ⊢t₁ ⊢u₁ ok η ⟩⊢
         u₁                      ≡⟨ conv u₁≡u₂
@@ -209,7 +208,7 @@ opaque
     case inversion-Unit ⊢Unit of λ
       Unit-ok →
     unitrec-subst ⊢A ⊢u t₁⇒t₂ $
-    inversion-Unit $ syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₁ }
+    inversion-Unit $ wf-⊢ (subsetTerm t₁⇒t₂) .proj₁ }
 
 opaque
 
@@ -313,7 +312,7 @@ opaque
   unitrec⟨⟩-subst {s = 𝕤} {p} {q} ⊢A ⊢u t₁⇒t₂ _ =
     id $
     ⊢unitrec⟨⟩ {p = p} {q = q} ⊢A
-      (syntacticEqTerm (subsetTerm t₁⇒t₂) .proj₂ .proj₁) ⊢u
+      (wf-⊢ (subsetTerm t₁⇒t₂) .proj₂ .proj₁) ⊢u
 
 opaque
   unfolding unitrec⟨_⟩
@@ -330,8 +329,8 @@ opaque
     unitrec-cong′ A₁≡A₂ t₁≡t₂ u₁≡u₂
   unitrec⟨⟩-cong {s = 𝕤} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
     conv u₁≡u₂ $
-    subst-⊢≡₀ (syntacticEq A₁≡A₂ .proj₁)
-      (Unit-η-≡ (inj₁ PE.refl) $ syntacticEqTerm t₁≡t₂ .proj₂ .proj₁)
+    subst-⊢≡₀ (wf-⊢ A₁≡A₂ .proj₁)
+      (Unit-η-≡ (inj₁ PE.refl) $ wf-⊢ t₁≡t₂ .proj₂ .proj₁)
 
 ------------------------------------------------------------------------
 -- A lemma related to Unit-η
@@ -345,7 +344,7 @@ opaque
     Γ ⊢ t ∷ Unit s →
     Γ ⊢ Unit-η s p t ∷ Id (Unit s) (star s) t
   ⊢Unit-η {t} {s} ⊢t =
-    case syntacticTerm ⊢t of λ
+    case wf-⊢ ⊢t of λ
       ⊢Unit →
     case inversion-Unit ⊢Unit of λ
       ok →

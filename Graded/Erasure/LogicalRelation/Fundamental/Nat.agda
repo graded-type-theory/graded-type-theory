@@ -33,7 +33,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Reduction R as RR
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M

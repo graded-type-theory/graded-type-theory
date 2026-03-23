@@ -19,7 +19,6 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Variant
 open import Definition.Typed.Well-formed R
 open import Definition.Typechecking R
@@ -64,7 +63,7 @@ decTermTypeᶜ : ⊢ Γ → Checkable-type A → Checkable t → Dec (Γ ⊢ t �
 decTermTypeᶜ ⊢Γ A t =
   case dec ⊢Γ A of λ where
     (yes ⊢A) → decTermᶜ ⊢A t
-    (no ¬⊢A) → no (¬⊢A ∘→ syntacticTerm)
+    (no ¬⊢A) → no (¬⊢A ∘→ wf-⊢)
 
 -- Type inference: if ⊢ Γ holds and t is inferable, then
 -- ∃ λ A → Γ ⊢ t ∷ A is decidable.

@@ -49,6 +49,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Term R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -186,7 +187,7 @@ opaque
       ⊢u[σ] →
     case subst-⊢ ⊢t ⊢σ of λ
       ⊢t[σ] →
-    case inversion-Unit (syntacticTerm ⊢t) of λ
+    case inversion-Unit (wf-⊢ ⊢t) of λ
       ok →
     case Unitʷ-η? of λ where
       (yes η) →

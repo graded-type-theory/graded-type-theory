@@ -40,7 +40,6 @@ open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR as P hiding ([]-cong′)
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
-open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR as W using (_»_∷ʷ_⊇_)
 import Definition.Typed.Weakening.Definition TR as WD
 open import Definition.Typed.Well-formed TR
@@ -296,7 +295,7 @@ opaque
     Γ ⊢ v ∷ Id A t u →
     Γ ⊢ []-cong-J s l A t u v ∷ Id (Erased l A) [ t ] ([ u ])
   []-cong-Jⱼ ok ⊢l ⊢v =
-    let ⊢A , ⊢t , _ = inversion-Id (syntacticTerm ⊢v)
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢v)
         ⊢wk1-l      = W.wk₁ ⊢A ⊢l
     in
     PE.subst (_⊢_∷_ _ _) Id-[]₀≡ $
@@ -319,7 +318,7 @@ opaque
     Γ ⊢ t ≡ t′ ∷ A →
     Γ ⊢ []-cong-J s l A t t′ rfl ⇒ rfl ∷ Id (Erased l A) [ t ] ([ t′ ])
   []-cong-J-β-⇒′ {s} {t} {t′} ok ⊢l t≡t′ =
-    let ⊢A , ⊢t , _ = syntacticEqTerm t≡t′
+    let ⊢A , ⊢t , _ = wf-⊢ t≡t′
         ⊢wk1-l      = W.wk₁ ⊢A ⊢l
     in
     PE.subst (_⊢_⇒_∷_ _ _ _) Id-[]₀≡ $
@@ -765,7 +764,7 @@ private
       Π-allowed p₁′ q₁′ × Π-allowed p₂′ q₂′ × Π-allowed p₃′ q₃′ ×
       Π-allowed 𝟘 q₄′
     oks =
-      let _ , ⊢Π , ok₁ = inversion-ΠΣ $ syntacticTerm ⊢[]-cong′
+      let _ , ⊢Π , ok₁ = inversion-ΠΣ $ wf-⊢ ⊢[]-cong′
           _ , ⊢Π , ok₂ = inversion-ΠΣ ⊢Π
           _ , ⊢Π , ok₃ = inversion-ΠΣ ⊢Π
           _ , _  , ok₄ = inversion-ΠΣ ⊢Π
@@ -1055,7 +1054,7 @@ private
           .IC.constraints-wf →
             let Unit-ok , Σ-ok = PE.subst Erased-allowed (PE.sym eq)
                                    Erased-ok
-                _ , ⊢Π , ok₁   = inversion-ΠΣ $ syntacticTerm ⊢[]-cong′
+                _ , ⊢Π , ok₁   = inversion-ΠΣ $ wf-⊢ ⊢[]-cong′
                 _ , ⊢Π , ok₂   = inversion-ΠΣ ⊢Π
                 _ , ⊢Π , ok₃   = inversion-ΠΣ ⊢Π
                 _ , _  , ok₄   = inversion-ΠΣ ⊢Π
@@ -1596,7 +1595,7 @@ private
       Π-allowed p₁′ q₁′ × Π-allowed p₂′ q₂′ × Π-allowed p₃′ q₃′ ×
       Π-allowed p₄′ q₄′ × Π-allowed 𝟘 q₅′
     oks =
-      let _ , ⊢Π , ok₁ = inversion-ΠΣ $ syntacticTerm ⊢[]-cong′
+      let _ , ⊢Π , ok₁ = inversion-ΠΣ $ wf-⊢ ⊢[]-cong′
           _ , ⊢Π , ok₂ = inversion-ΠΣ ⊢Π
           _ , ⊢Π , ok₃ = inversion-ΠΣ ⊢Π
           _ , ⊢Π , ok₄ = inversion-ΠΣ ⊢Π
@@ -1798,7 +1797,7 @@ private
         Id (Erased (level (var x4)) (var x3)) [ var x2 ] ([ var x1 ])
       ⊢[]-cong″ =
         let ok               = Has-[]-cong→Level-allowed has-[]-cong
-            _ , ⊢Π  , ok₁    = inversion-ΠΣ $ syntacticTerm ⊢[]-cong′
+            _ , ⊢Π  , ok₁    = inversion-ΠΣ $ wf-⊢ ⊢[]-cong′
             _ , ⊢Π  , ok₂    = inversion-ΠΣ ⊢Π
             _ , ⊢Π  , ok₃    = inversion-ΠΣ ⊢Π
             _ , ⊢Π  , ok₄    = inversion-ΠΣ ⊢Π
@@ -2249,7 +2248,7 @@ opaque
           proj₁ $ proj₂ $ inversion-ΠΣ $
           proj₁ $ proj₂ $ inversion-ΠΣ $
           proj₁ $ proj₂ $ inversion-ΠΣ $
-          syntacticTerm $ has-[]-cong′ .proj₂ .proj₂
+          wf-⊢ $ has-[]-cong′ .proj₂ .proj₂
 
         ⊢l∷L : Δ ⊢ level l ∷Level
         ⊢l∷L = inversion-U-Level (wf-⊢ ⊢A)
@@ -2267,7 +2266,7 @@ opaque
         ⊢[[t]] = []ⱼ Erased-ok ⊢l∷L ⊢[t]
 
         ⊢Erased-Erased-A : Δ ⊢ Erased (level l) (Erased (level l) A)
-        ⊢Erased-Erased-A = syntacticTerm ⊢[[t]]
+        ⊢Erased-Erased-A = wf-⊢ ⊢[[t]]
 
         ⊢Erased-A∷U : Δ ⊢ Erased (level l) A ∷ U (level l)
         ⊢Erased-A∷U = Erasedⱼ-U Erased-ok ⊢A

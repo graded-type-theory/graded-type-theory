@@ -24,7 +24,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Soundness R
 open import Definition.Conversion.Stability R
@@ -54,7 +54,7 @@ mutual
     ∇ » Δ ⊢ t [conv↑] u ∷ A →
     ∇ » Η ⊢ t [conv↑] u ∷ B
   convConv↑Term′ Δ≡Η A≡B ([↑]ₜ B₁ t′ u′ (D , _) d d′ t<>u) =
-    let _ , ⊢B = syntacticEq A≡B
+    let _ , ⊢B = wf-⊢ A≡B
         B′ , whnfB′ , D′ = whNorm ⊢B
         B₁≡B′ = trans (sym (subset* D)) (trans A≡B (subset* D′))
     in  [↑]ₜ B′ t′ u′ (stabilityRed↘ Δ≡Η (D′ , whnfB′))
@@ -122,8 +122,8 @@ mutual
     with Σ≡A A≡B whnfB
   ... | F′ , G′ , PE.refl with ΠΣ-injectivity-no-equality-reflection A≡B
   ...   | F≡F′ , G≡G′ , _ , _ =
-    let _ , ⊢G′ = syntacticEq G≡G′
-        _ , ⊢t , _ = syntacticEqTerm (soundnessConv↑Term x₂)
+    let _ , ⊢G′ = wf-⊢ G≡G′
+        _ , ⊢t , _ = wf-⊢ (soundnessConv↑Term x₂)
         Gt≡G′t = subst-⊢≡₀ G≡G′ (refl ⊢t)
     in  prod-cong (stability (Δ≡Η ∙ F≡F′) ⊢G′)
           (convConv↑Term′ Δ≡Η F≡F′ x₂) (convConv↑Term′ Δ≡Η Gt≡G′t x₃) ok
@@ -139,7 +139,7 @@ mutual
     with Σ≡A A≡B whnfB
   ... | F , G , PE.refl with ΠΣ-injectivity-no-equality-reflection A≡B
   ...   | F≡ , G≡ , _ , _ =
-    let ⊢G = proj₁ (syntacticEq G≡)
+    let ⊢G = proj₁ (wf-⊢ G≡)
         ⊢fst = fstⱼ ⊢G ⊢p
     in  Σ-η (stability Δ≡Η (conv ⊢p A≡B))
             (stability Δ≡Η (conv ⊢r A≡B))

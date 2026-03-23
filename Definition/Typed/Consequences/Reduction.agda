@@ -30,7 +30,6 @@ open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
@@ -280,7 +279,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ A ≡ U l → ∃ λ k → Γ ⊢ A ⇒* U k
   U-norm {A} {l} A≡U =
-    let B , B-whnf , A⇒*B = whNorm (syntacticEq A≡U .proj₁)
+    let B , B-whnf , A⇒*B = whNorm (wf-⊢ A≡U .proj₁)
         U≡B               =
           U l  ≡˘⟨ A≡U ⟩⊢
           A    ≡⟨ subset* A⇒*B ⟩⊢∎
@@ -295,7 +294,7 @@ opaque
     Γ ⊢ A ≡ Lift l B →
     ∃₂ λ k C → Γ ⊢ A ⇒* Lift k C
   Lift-norm {A} {l} {B} A≡Lift =
-    case whNorm (syntacticEq A≡Lift .proj₁) of λ
+    case whNorm (wf-⊢ A≡Lift .proj₁) of λ
       (A′ , A′-whnf , A⇒*A′) →
     let Lift≡A′ =
           Lift l B  ≡˘⟨ A≡Lift ⟩⊢
@@ -335,7 +334,7 @@ opaque
       Γ ⊢ A ⇒* ΠΣ⟨ b ⟩ p , q ▷ B′ ▹ C′ × Γ ⊢ B ≡ B′ ×
       (⦃ not-ok : No-equality-reflection ⦄ → Γ »∙ B ⊢ C ≡ C′) ×
       (∀ {t u} → Γ ⊢ t ≡ u ∷ B → Γ ⊢ C [ t ]₀ ≡ C′ [ u ]₀)
-  ΠΣNorm {A} A≡ΠΣ with whNorm (syntacticEq A≡ΠΣ .proj₁)
+  ΠΣNorm {A} A≡ΠΣ with whNorm (wf-⊢ A≡ΠΣ .proj₁)
   … | _ , Levelₙ , D =
     ⊥-elim (Level≢ΠΣⱼ (trans (sym (subset* D)) A≡ΠΣ))
   … | _ , zeroᵘₙ , A⇒zeroᵘ =
@@ -413,7 +412,7 @@ opaque
     ∃₃ λ B′ t′ u′ → (Γ ⊢ A ⇒* Id B′ t′ u′) ×
     (Γ ⊢ B ≡ B′) × Γ ⊢ t ≡ t′ ∷ B × Γ ⊢ u ≡ u′ ∷ B
   Id-norm A≡Id =
-    case whNorm (syntacticEq A≡Id .proj₁) of λ {
+    case whNorm (wf-⊢ A≡Id .proj₁) of λ {
       (_ , A′-whnf , A⇒*A′) →
     case trans (sym A≡Id) (subset* A⇒*A′) of λ {
       Id≡A′ →

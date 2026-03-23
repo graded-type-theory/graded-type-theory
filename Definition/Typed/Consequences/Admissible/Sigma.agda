@@ -21,7 +21,7 @@ open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M type-variant
@@ -85,13 +85,13 @@ prod-cong⁻¹-Σˢ :
 prod-cong⁻¹-Σˢ {Γ} {p} {t} {u} {v} {w} {q} {A} {B} prod≡prod =
   ⊢B , t≡v , u≡w , ok
   where
-  ⊢ΣAB = syntacticEqTerm prod≡prod .proj₁
+  ⊢ΣAB = wf-⊢ prod≡prod .proj₁
   ⊢B   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₁
   ok   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₂
-  ⊢t,u = syntacticEqTerm prod≡prod .proj₂ .proj₁
+  ⊢t,u = wf-⊢ prod≡prod .proj₂ .proj₁
   ⊢t   = inversion-prod-Σ ⊢t,u .proj₁
   ⊢u   = inversion-prod-Σ ⊢t,u .proj₂ .proj₁
-  ⊢v,w = syntacticEqTerm prod≡prod .proj₂ .proj₂
+  ⊢v,w = wf-⊢ prod≡prod .proj₂ .proj₂
   ⊢v   = inversion-prod-Σ ⊢v,w .proj₁
   ⊢w   = inversion-prod-Σ ⊢v,w .proj₂ .proj₁
 
@@ -123,14 +123,14 @@ prod-cong⁻¹-Σʷ :
 prod-cong⁻¹-Σʷ {Γ} {p} {t} {u} {v} {w} {q} {A} {B} prod≡prod =
   ⊢B , t≡v , u≡w , ok
   where
-  ⊢ΣAB = syntacticEqTerm prod≡prod .proj₁
+  ⊢ΣAB = wf-⊢ prod≡prod .proj₁
   ⊢A   = inversion-ΠΣ ⊢ΣAB .proj₁
   ⊢B   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₁
   ok   = inversion-ΠΣ ⊢ΣAB .proj₂ .proj₂
-  ⊢t,u = syntacticEqTerm prod≡prod .proj₂ .proj₁
+  ⊢t,u = wf-⊢ prod≡prod .proj₂ .proj₁
   ⊢t   = inversion-prod-Σ ⊢t,u .proj₁
   ⊢u   = inversion-prod-Σ ⊢t,u .proj₂ .proj₁
-  ⊢v,w = syntacticEqTerm prod≡prod .proj₂ .proj₂
+  ⊢v,w = wf-⊢ prod≡prod .proj₂ .proj₂
   ⊢v   = inversion-prod-Σ ⊢v,w .proj₁
   ⊢w   = inversion-prod-Σ ⊢v,w .proj₂ .proj₁
 
@@ -223,7 +223,7 @@ prod-cong⁻¹ {s = 𝕨} = prod-cong⁻¹-Σʷ
      Γ ⊢ t ≡ u ∷ Σʷ p , q ▷ A ▹ B)
 ¬-Σʷ-η Σ-ok hyp =
   ¬-Σʷ-η-prodʷ-fstʷ-sndʷ Σ-ok λ ⊢t →
-    let _ , ⊢B , ok = inversion-ΠΣ (syntacticTerm ⊢t)
+    let _ , ⊢B , ok = inversion-ΠΣ (wf-⊢ ⊢t)
         lemma       = fstʷ-β-≡ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok
     in
     hyp (prodⱼ ⊢B (fstʷⱼ ⊢t) (sndʷⱼ ⊢t) ok) ⊢t lemma

@@ -35,7 +35,6 @@ open import Definition.Typed.Properties TR
 import Definition.Typed.Reasoning.Term TR as TmR
 import Definition.Typed.Reasoning.Type TR as TyR
 open import Definition.Typed.Substitution TR
-open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Well-formed TR
 open import Definition.Typed.Consequences.Admissible 𝐌 TR
 import Definition.Typed.Consequences.Inequality TR as I
@@ -359,7 +358,7 @@ opaque
                                            ; (x +2) → PE.trans (wk1-tail (wk1 (toSubstₕ H x))) (wk1-sgSubst (toSubstₕ H x) _)})
                        (wk (liftn ρ′ 2) s)))
                    (natrec-suc ⊢z ⊢s ⊢t′)
-        _ , _ , ⊢s₊ = syntacticEqTerm nr-β-≡
+        _ , _ , ⊢s₊ = wf-⊢ nr-β-≡
     in  ⊢ₛ {Γ = Γ ∙ ℕ ∙ wk (lift ρ′) A} (⊢H ∙ ⊢t′ ∙ ⊢natrec′)
            (conv ⊢s₊ (sym (B≡ ⊢t)))
            (⊢ˢ-convₜ (wk-⊢ˢ (step (step id)) ⊢S) (conv nr-β-≡ (sym (B≡ ⊢t)))) }
@@ -384,7 +383,7 @@ opaque
     case inversion-Jₑ ⊢c of λ {
       (⊢u , ⊢B , PE.refl , B′≡) →
     let t≡v = inversion-rfl-Id ⊢rfl
-        ⊢A , ⊢t , ⊢v = syntacticEqTerm t≡v
+        ⊢A , ⊢t , ⊢v = wf-⊢ t≡v
         Bt≡Bv = J-motive-rfl-cong (refl ⊢B) t≡v
     in  ⊢ₛ ⊢H (conv ⊢u (trans Bt≡Bv (sym (B′≡ ⊢rfl))))
            (⊢ˢ-convₜ ⊢S (conv
@@ -411,7 +410,7 @@ opaque
     case inversion-[]-congₑ ⊢e of λ {
       (ok , ⊢l , PE.refl , B≡) →
     let t≡u         = inversion-rfl-Id ⊢rfl
-        _ , ⊢t , ⊢u = syntacticEqTerm t≡u
+        _ , ⊢t , ⊢u = wf-⊢ t≡u
         ≡B          = sym (B≡ ⊢t ⊢u)
     in
     ⊢ₛ ⊢H (conv (rflⱼ′ ([]-cong′ ([]-cong→Erased ok) ⊢l t≡u)) ≡B)
@@ -425,11 +424,11 @@ opaque
   ⊢ₛ-⇒ₑ ⊢s lowerₕ =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         _ , _ , ⊢t , A≡F = inversion-lower ⊢t
-    in  ⊢ₛ ⊢H ⊢t (conv (lowerₑ (syntacticEq A≡F .proj₂)) (sym A≡F) ∙ ⊢S)
+    in  ⊢ₛ ⊢H ⊢t (conv (lowerₑ (wf-⊢ A≡F .proj₂)) (sym A≡F) ∙ ⊢S)
   ⊢ₛ-⇒ₑ ⊢s appₕ =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         _ , _ , _ , ⊢t , ⊢u , A≡Gu = inversion-app ⊢t
-        _ , ⊢G , _ = inversion-ΠΣ (syntacticTerm ⊢t)
+        _ , ⊢G , _ = inversion-ΠΣ (wf-⊢ ⊢t)
     in  ⊢ₛ ⊢H ⊢t (conv (∘ₑ ⊢u ⊢G) (sym A≡Gu) ∙ ⊢S)
   ⊢ₛ-⇒ₑ ⊢s fstₕ =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
@@ -713,7 +712,7 @@ opaque
     case inversion-[]-congₑ ⊢e of λ {
         (ok , ⊢A , PE.refl , B′≡) →
     let t≡u = inversion-rfl-Id ⊢rfl
-        _ , ⊢t , ⊢u = syntacticEqTerm t≡u
+        _ , ⊢t , ⊢u = wf-⊢ t≡u
     in
     ⊢⦅⦆ˢ-subst ⊢S $
     conv ([]-cong-β ⊢A t≡u ok) (sym (B′≡ ⊢t ⊢u)) }

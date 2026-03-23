@@ -27,7 +27,6 @@ open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
@@ -88,7 +87,7 @@ opaque
     let ⊢σt = subst-⊢ ⊢t ⊢σ in
     ®∷→®∷◂ $
     ®∷Id⇔ .proj₂
-      (syntacticTerm ⊢σt
+      (wf-⊢ ⊢σt
       , rflᵣ
           (rfl  ∎⟨ rflⱼ ⊢σt ⟩⇛)
           (λ { PE.refl → T.refl }))

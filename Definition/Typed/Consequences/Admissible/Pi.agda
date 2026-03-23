@@ -19,8 +19,8 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Reduction R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W hiding (wk)
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -270,7 +270,7 @@ opaque
     Γ ⊢ lam p t ≡ lam p u ∷ Π p , q ▷ A ▹ B →
     Γ »∙ A ⊢ t ≡ u ∷ B × Π-allowed p q
   lam-cong⁻¹ {Γ} {p} {t} {u} {q} {A} {B} lam-t≡lam-u =
-    case syntacticEqTerm lam-t≡lam-u of λ {
+    case wf-⊢ lam-t≡lam-u of λ {
       (⊢ΠAB , ⊢lam-t , ⊢lam-u) →
     case inversion-ΠΣ ⊢ΠAB .proj₁ of λ {
       ⊢A →                                                                $⟨ lam-t≡lam-u ⟩
@@ -300,7 +300,7 @@ opaque
     Γ ⊢ lam p t ≡ lam p′ u ∷ Π p″ , q ▷ A ▹ B →
     p PE.≡ p′ × Γ »∙ A ⊢ t ≡ u ∷ B × Π-allowed p q × p′ PE.≡ p″
   lam-injective {Γ} {p} {t} {p′} {u} {p″} {q} {A} {B} lam-t≡lam-u =
-    case syntacticEqTerm lam-t≡lam-u of λ {
+    case wf-⊢ lam-t≡lam-u of λ {
       (_ , ⊢lam₁ , ⊢lam₂) →
     case inversion-lam-Π-no-equality-reflection ⊢lam₁ of λ {
       (_ , PE.refl , _) →
@@ -319,7 +319,7 @@ opaque
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     Γ ⊢ lam p (wk1 t ∘⟨ p ⟩ var x0) ≡ t ∷ Π p , q ▷ A ▹ B
   Π-η {Γ} {t} {p} {q} {A} {B} ⊢t =
-    case inversion-ΠΣ (syntacticTerm ⊢t) of λ {
+    case inversion-ΠΣ (wf-⊢ ⊢t) of λ {
       (⊢A , _ , ok) →
     case                                                                $⟨ wk₁ ⊢A ⊢t ∘ⱼ var₀ ⊢A ⟩
       Γ »∙ A ⊢ wk1 t ∘⟨ p ⟩ var x0 ∷ wk (lift (step id)) B [ var x0 ]₀  →⟨ PE.subst (_ ⊢ _ ∷_) (wkSingleSubstId _) ⟩

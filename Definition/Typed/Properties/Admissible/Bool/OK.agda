@@ -23,7 +23,7 @@ open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term R
-open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool.OK 𝕄 OKᵍ
@@ -80,7 +80,7 @@ opaque
     Γ ⊢ t ∷ ℕ →
     Γ ⊢ OK t ∷ U₀
   ⊢OK∷U ⊢t =
-    syntacticEqTerm (OK-cong-U (refl ⊢t)) .proj₂ .proj₁
+    wf-⊢ (OK-cong-U (refl ⊢t)) .proj₂ .proj₁
 
 opaque
 

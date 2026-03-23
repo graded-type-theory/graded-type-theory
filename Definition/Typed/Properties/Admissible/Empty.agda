@@ -17,10 +17,10 @@ open Type-restrictions TR
 open import Definition.Untyped M hiding (wk)
 open import Definition.Untyped.Properties M
 open import Definition.Typed TR
-open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Weakening TR
 open import Definition.Typed.Properties.Admissible.Unit TR
 open import Definition.Typed.Properties.Well-formed TR
+open import Definition.Typed.Well-formed TR
 open import Definition.Untyped.Empty 𝕄
 
 open import Tools.Function
@@ -79,5 +79,4 @@ opaque
     Γ ⊢ A → Γ ⊢ t ∷ Empty →
     Γ ⊢ emptyrec-sink A t ∷ A
   emptyrec-sinkⱼ ok₁ ok₂ ⊢A ⊢t =
-    syntacticEqTerm (emptyrec-sink-cong ok₁ ok₂ (refl ⊢A) (refl ⊢t))
-      .proj₂ .proj₁
+    wf-⊢ (emptyrec-sink-cong ok₁ ok₂ (refl ⊢A) (refl ⊢t)) .proj₂ .proj₁

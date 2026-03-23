@@ -22,6 +22,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Syntactic R
+open import Definition.Typed.Well-formed R
 
 open import Tools.Function
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
@@ -54,11 +55,11 @@ opaque
   inverseUnivEq′ (inj₁ ⊢A) (univ A≡B) =
     conv A≡B
       (U-cong-⊢≡ $
-       universe-level-unique (syntacticEqTerm A≡B .proj₂ .proj₁) ⊢A)
+       universe-level-unique (wf-⊢ A≡B .proj₂ .proj₁) ⊢A)
   inverseUnivEq′ (inj₂ ⊢B) (univ A≡B) =
     conv A≡B
       (U-cong-⊢≡ $
-       universe-level-unique (syntacticEqTerm A≡B .proj₂ .proj₂) ⊢B)
+       universe-level-unique (wf-⊢ A≡B .proj₂ .proj₂) ⊢B)
   inverseUnivEq′ (inj₁ ⊢A) (refl _) =
     refl ⊢A
   inverseUnivEq′ (inj₂ ⊢A) (refl _) =
@@ -70,13 +71,13 @@ opaque
   inverseUnivEq′ (inj₁ ⊢A) (trans A≡C C≡B) =
     case inverseUnivEq′ (inj₁ ⊢A) A≡C of λ
       A≡C →
-    case syntacticEqTerm A≡C of λ
+    case wf-⊢ A≡C of λ
       (_ , _ , ⊢C) →
     trans A≡C (inverseUnivEq′ (inj₁ ⊢C) C≡B)
   inverseUnivEq′ (inj₂ ⊢B) (trans A≡C C≡B) =
     case inverseUnivEq′ (inj₂ ⊢B) C≡B of λ
       C≡B →
-    case syntacticEqTerm C≡B of λ
+    case wf-⊢ C≡B of λ
       (_ , ⊢C , _) →
     trans (inverseUnivEq′ (inj₂ ⊢C) A≡C) C≡B
   inverseUnivEq′ (inj₁ ⊢A) (U-cong l₁≡l₂) =
@@ -90,7 +91,7 @@ opaque
         (sym U≡U)
   inverseUnivEq′ (inj₂ ⊢B) (Lift-cong l₁≡l₂ A≡B) =
     let _ , ⊢l₂ , ⊢A , U≡U = inversion-Lift∷ ⊢B
-        ⊢k                 = inversion-U-Level (syntacticTerm ⊢A)
+        ⊢k                 = inversion-U-Level (wf-⊢ ⊢A)
     in conv
         (Lift-cong′ l₁≡l₂ (inverseUnivEq′ (inj₂ ⊢A) A≡B))
         (trans (U-cong-⊢≡ (supᵘₗ-cong (refl-⊢≡∷L ⊢k) l₁≡l₂)) (sym U≡U))

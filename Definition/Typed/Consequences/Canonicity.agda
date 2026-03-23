@@ -25,7 +25,6 @@ import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Consequences.Inversion R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.EqRelInstance R
 open import Definition.LogicalRelation R
@@ -330,7 +329,7 @@ opaque
   ε⊢∷Id→ε⊢≡∷ : ∇ » ε ⊢ v ∷ Id A t u → glassify ∇ » ε ⊢ t ≡ u ∷ A
   ε⊢∷Id→ε⊢≡∷ {v} {A} {t} {u} =
     ∇ » ε ⊢ v ∷ Id A t u                  →⟨ ε⊢⇒*rfl∷Id ⟩
-    glassify ∇ » ε ⊢ v ⇒* rfl ∷ Id A t u  →⟨ proj₂ ∘→ proj₂ ∘→ syntacticEqTerm ∘→ subset*Term ⟩
+    glassify ∇ » ε ⊢ v ⇒* rfl ∷ Id A t u  →⟨ proj₂ ∘→ proj₂ ∘→ wf-⊢ ∘→ subset*Term ⟩
     glassify ∇ » ε ⊢ rfl ∷ Id A t u       →⟨ inversion-rfl-Id ⦃ ok = ε ⦄ ⟩
     glassify ∇ » ε ⊢ t ≡ u ∷ A            □
 

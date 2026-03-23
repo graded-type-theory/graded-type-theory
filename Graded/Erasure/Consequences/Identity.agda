@@ -28,7 +28,7 @@ open import Definition.Typed TR
 open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Properties TR
-open import Definition.Typed.Syntactic TR
+open import Definition.Typed.Well-formed TR
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 
@@ -83,7 +83,7 @@ opaque
            ⊢v ▸v of λ {
       (_ , rflᵣ v⇒rfl _) →
     inversion-rfl-Id
-      (syntacticEqTerm (subset*Term v⇒rfl) .proj₂ .proj₂) }
+      (wf-⊢ (subset*Term v⇒rfl) .proj₂ .proj₂) }
     where
     open Fundamental-assumptions⁻ ok
 

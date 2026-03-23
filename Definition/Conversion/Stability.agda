@@ -19,8 +19,8 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
-open import Definition.Typed.Syntactic R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Level R
 open import Definition.Conversion.Soundness R
@@ -60,14 +60,14 @@ mutual
     snd-cong (stability~↓ Γ≡Δ p~r)
   stability~↑ Γ≡Δ (natrec-cong x₁ x₂ x₃ k~l) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
-        ⊢F = proj₁ (syntacticEq (soundnessConv↑ x₁))
+        ⊢F = proj₁ (wf-⊢ (soundnessConv↑ x₁))
     in natrec-cong
          (stabilityConv↑ (Γ≡Δ ∙ (refl (⊢ℕ ⊢Γ))) x₁)
          (stabilityConv↑Term Γ≡Δ x₂)
          (stabilityConv↑Term (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl ⊢F) x₃)
          (stability~↓ Γ≡Δ k~l)
   stability~↑ Γ≡Δ (prodrec-cong x x₁ x₂) =
-    let ⊢Σ , _ = syntacticEqTerm (soundness~↓ x₁)
+    let ⊢Σ , _ = wf-⊢ (soundness~↓ x₁)
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢Σ
     in  prodrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Σ) x)
           (stability~↓ Γ≡Δ x₁)
@@ -77,13 +77,13 @@ mutual
                   (stability~↓ Γ≡Δ k~l)
   stability~↑ Γ≡Δ (unitrec-cong x x₁ x₂ no-η) =
     let k≡l = soundness~↓ x₁
-        ⊢Unit = proj₁ (syntacticEqTerm k≡l)
+        ⊢Unit = proj₁ (wf-⊢ k≡l)
     in  unitrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Unit) x)
           (stability~↓ Γ≡Δ x₁) (stabilityConv↑Term Γ≡Δ x₂) no-η
   stability~↑ Γ≡Δ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
-    case syntacticEq (soundnessConv↑ A₁≡A₂) .proj₁ of λ {
+    case wf-⊢ (soundnessConv↑ A₁≡A₂) .proj₁ of λ {
       ⊢A₁ →
-    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
+    case wf-⊢ (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
     J-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑
@@ -92,7 +92,7 @@ mutual
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stabilityConv↑Term Γ≡Δ v₁≡v₂)
       (stability~↓ Γ≡Δ w₁~w₂) (stability Γ≡Δ ≡Id) }}
   stability~↑ Γ≡Δ (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
-    case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
+    case wf-⊢ (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
     K-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑ (Γ≡Δ ∙ refl (Idⱼ′ ⊢t₁ ⊢t₁)) B₁≡B₂)
@@ -154,7 +154,7 @@ mutual
   stabilityConv↓ Γ≡Δ (ΠΣ-cong A<>B A<>B₁ ok) =
     ΠΣ-cong (stabilityConv↑ Γ≡Δ A<>B)
       (stabilityConv↑
-         (Γ≡Δ ∙ refl (syntacticEq (soundnessConv↑ A<>B) .proj₁)) A<>B₁)
+         (Γ≡Δ ∙ refl (wf-⊢ (soundnessConv↑ A<>B) .proj₁)) A<>B₁)
       ok
   stabilityConv↓ Γ≡Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
@@ -213,7 +213,7 @@ mutual
     prod-cong (stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf x₁))) x₁)
       (stabilityConv↑Term Γ≡Δ x₂) (stabilityConv↑Term Γ≡Δ x₃) ok
   stabilityConv↓Term Γ≡Δ (η-eq x x₁ y y₁ t<>u) =
-    let ⊢F , ⊢G , _ = inversion-ΠΣ (syntacticTerm x)
+    let ⊢F , ⊢G , _ = inversion-ΠΣ (wf-⊢ x)
     in  η-eq (stability Γ≡Δ x) (stability Γ≡Δ x₁)
              y y₁ (stabilityConv↑Term (Γ≡Δ ∙ (refl ⊢F)) t<>u)
   stabilityConv↓Term Γ≡Δ (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =

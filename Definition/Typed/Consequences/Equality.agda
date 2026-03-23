@@ -23,7 +23,6 @@ import Definition.Typed.Consequences.Inequality R as I
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
@@ -431,7 +430,7 @@ opaque
     ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
     Γ ⊢ t ≡ rfl ∷ A → Γ ⊢ t ⇒* rfl ∷ A
   rfl-norm t≡rfl =
-    case inversion-rfl (syntacticEqTerm t≡rfl .proj₂ .proj₂) of λ
+    case inversion-rfl (wf-⊢ t≡rfl .proj₂ .proj₂) of λ
       (_ , _ , _ , _ , A≡Id) →
     case ⊩≡∷Id⇔ .proj₁ $ proj₂ $ reducible-⊩≡∷ $
          conv t≡rfl A≡Id of λ

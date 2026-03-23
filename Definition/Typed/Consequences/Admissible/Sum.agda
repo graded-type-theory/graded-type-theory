@@ -31,7 +31,6 @@ import Definition.Typed.Decidable.Internal.Weakening 𝐌 R as IW
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
@@ -197,7 +196,7 @@ opaque
     Γ ⊢ B ∷ U b →
     Γ ⊢ Sum a b A B ∷ U (a supᵘₗ b)
   ⊢Sum∷U ⊢a ⊢b ⊢A ⊢B =
-    syntacticEqTerm
+    wf-⊢
       (Sum-cong (refl-⊢≡∷L ⊢a) (refl-⊢≡∷L ⊢b) (refl ⊢A) (refl ⊢B))
       .proj₂ .proj₁
 
@@ -225,8 +224,8 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ A →
     Γ ⊢ inl t₁ ≡ inl t₂ ∷ Sum a b A B
   inl-cong {(m)} {(n)} {Γ} {A} {a} {B} {b} {t₁} {t₂} ⊢A ⊢B t₁≡t₂ =
-    let ⊢a = inversion-U-Level (syntacticTerm ⊢A)
-        ⊢b = inversion-U-Level (syntacticTerm ⊢B)
+    let ⊢a = inversion-U-Level (wf-⊢ ⊢A)
+        ⊢b = inversion-U-Level (wf-⊢ ⊢B)
         _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂
         ⊢Γ = wf ⊢A
     in
@@ -291,7 +290,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ inl t ∷ Sum a b A B
   ⊢inl ⊢A ⊢B ⊢t =
-    syntacticEqTerm
+    wf-⊢
       (inl-cong ⊢A ⊢B (refl ⊢t))
       .proj₂ .proj₁
 
@@ -306,8 +305,8 @@ opaque
     Γ ⊢ t₁ ≡ t₂ ∷ B →
     Γ ⊢ inr t₁ ≡ inr t₂ ∷ Sum a b A B
   inr-cong {(m)} {(n)} {Γ} {A} {a} {B} {b} {t₁} {t₂} ⊢A ⊢B t₁≡t₂ =
-    let ⊢a = inversion-U-Level (syntacticTerm ⊢A)
-        ⊢b = inversion-U-Level (syntacticTerm ⊢B)
+    let ⊢a = inversion-U-Level (wf-⊢ ⊢A)
+        ⊢b = inversion-U-Level (wf-⊢ ⊢B)
         _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂
         ⊢Γ = wf ⊢A
     in
@@ -372,7 +371,7 @@ opaque
     Γ ⊢ t ∷ B →
     Γ ⊢ inr t ∷ Sum a b A B
   ⊢inr ⊢A ⊢B ⊢t =
-    syntacticEqTerm
+    wf-⊢
       (inr-cong ⊢A ⊢B (refl ⊢t))
       .proj₂ .proj₁
 

@@ -26,7 +26,6 @@ open import Definition.Typed.Properties R
 import Definition.Typed.Reasoning.Term R as TmR
 import Definition.Typed.Reasoning.Type R as TyR
 open import Definition.Typed.Stability R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Whnf R
@@ -60,12 +59,12 @@ mutual
     app-cong (soundness~↓ k~l) (soundnessConv↑Term x₁)
   soundness~↑ (fst-cong x) =
     let p≡ = soundness~↓ x
-        ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
+        ⊢ΣFG = proj₁ (wf-⊢ p≡)
         _ , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
     in  fst-cong ⊢G p≡
   soundness~↑ (snd-cong x) =
     let p≡ = soundness~↓ x
-        ⊢ΣFG = proj₁ (syntacticEqTerm p≡)
+        ⊢ΣFG = proj₁ (wf-⊢ p≡)
         _ , ⊢G , _ = inversion-ΠΣ ⊢ΣFG
     in  snd-cong ⊢G p≡
   soundness~↑ (natrec-cong x₁ x₂ x₃ k~l) =
@@ -76,7 +75,7 @@ mutual
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        _ , _ , ok = inversion-ΠΣ (proj₁ (syntacticEqTerm g≡h))
+        _ , _ , ok = inversion-ΠΣ (proj₁ (wf-⊢ g≡h))
     in  prodrec-cong C≡E g≡h u≡v ok
   soundness~↑ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
@@ -84,7 +83,7 @@ mutual
     let F≡H = soundnessConv↑ x
         k≡l = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        ok = inversion-Unit (proj₁ (syntacticEqTerm k≡l))
+        ok = inversion-Unit (proj₁ (wf-⊢ k≡l))
     in  unitrec-cong F≡H k≡l u≡v ok no-η
   soundness~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
     case soundnessConv↑ A₁≡A₂ of λ {
@@ -92,7 +91,7 @@ mutual
     case soundnessConv↑Term t₁≡t₂ of λ {
       t₁≡t₂ →
     J-cong A₁≡A₂
-      (syntacticEqTerm t₁≡t₂ .proj₂ .proj₁) t₁≡t₂ (soundnessConv↑ B₁≡B₂)
+      (wf-⊢ t₁≡t₂ .proj₂ .proj₁) t₁≡t₂ (soundnessConv↑ B₁≡B₂)
       (soundnessConv↑Term u₁≡u₂) (soundnessConv↑Term v₁≡v₂)
       (conv (soundness~↓ w₁~w₂) ≡Id) }}
   soundness~↑ (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
@@ -157,12 +156,12 @@ mutual
   soundnessConv↓Term (Σʷ-ins x x₁ x₂) =
     let a≡b = soundness~↓ x₂
         _ , neA , _ = ne~↓ x₂
-        _ , ⊢a , _ = syntacticEqTerm a≡b
+        _ , ⊢a , _ = wf-⊢ a≡b
         Σ≡Σ′ = neTypeEq (ne⁻ neA) x ⊢a
     in  conv a≡b (sym Σ≡Σ′)
   soundnessConv↓Term (ne-ins t u x x₁) =
     let _ , neA , _ = ne~↓ x₁
-        _ , t∷M , _ = syntacticEqTerm (soundness~↓ x₁)
+        _ , t∷M , _ = wf-⊢ (soundness~↓ x₁)
         M≡A = neTypeEq (ne⁻ neA) t∷M t
     in  conv (soundness~↓ x₁) M≡A
   soundnessConv↓Term (univ ⊢A ⊢B A≡B) =
@@ -189,7 +188,7 @@ mutual
     case soundness~↓ v₁~v₂ of λ {
       v₁≡v₂ →
     conv v₁≡v₂
-      (                                          $⟨ syntacticEqTerm v₁≡v₂ .proj₂ .proj₁ , ⊢v₁ ⟩
+      (                                          $⟨ wf-⊢ v₁≡v₂ .proj₂ .proj₁ , ⊢v₁ ⟩
        Γ ⊢ v₁ ∷ Id A′ t′ u′ × Γ ⊢ v₁ ∷ Id A t u  →⟨ uncurry (neTypeEq (ne⁻ (ne~↓ v₁~v₂ .proj₂ .proj₁))) ⟩
        Γ ⊢ Id A′ t′ u′ ≡ Id A t u                □) }
   soundnessConv↓Term (rfl-refl t≡u) =
@@ -205,7 +204,7 @@ mutual
   soundnessConv↓-U {l₁} {l₂} ⊢A ⊢B (ne {l} A~B) =
     let A≡B             = soundness~↓ A~B
         _ , A-ne , B-ne = ne~↓ A~B
-        _ , ⊢A′ , ⊢B′   = syntacticEqTerm A≡B
+        _ , ⊢A′ , ⊢B′   = wf-⊢ A≡B
         U≡U₁            = neTypeEq (ne⁻ A-ne) ⊢A′ ⊢A
         U≡U₂            = neTypeEq (ne⁻ B-ne) ⊢B′ ⊢B
     in
@@ -346,7 +345,7 @@ mutual
   soundnessConv↓Level ([↓]ˡ aᵛ bᵛ a≡ b≡ a≡b) =
     let a≡ = soundness↓ᵛ a≡
         b≡ = soundness↓ᵛ b≡
-        ⊢Level , _ , _ = syntacticEqTerm a≡
+        ⊢Level , _ , _ = wf-⊢ a≡
         ⊢Γ = wf ⊢Level
         ok = inversion-Level-⊢ ⊢Level
     in trans a≡
@@ -366,7 +365,7 @@ mutual
   wf~ᵛ : ∀ {t v} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ∷ Level
   wf~ᵛ (supᵘˡₙ x x₁ x₂) = supᵘⱼ (wf~ᵛ x₁) (wf↑ᵛ x₂)
   wf~ᵛ (supᵘʳₙ x x₁ x₂) = supᵘⱼ (sucᵘⱼ (wf↑ᵛ x₁)) (wf~ᵛ x₂)
-  wf~ᵛ (neₙ [t] x) = syntacticEqTerm (soundness~↓ [t]) .proj₂ .proj₁
+  wf~ᵛ (neₙ [t] x) = wf-⊢ (soundness~↓ [t]) .proj₂ .proj₁
 
   -- A level view in a well-formed context induces a well-formed level
   -- (assuming that Level is allowed).
@@ -376,7 +375,7 @@ mutual
     Γ ⊢ LevelAtom→Term l ∷ Level
   ⊢LevelAtom ok ⊢Γ zeroᵘ    = zeroᵘⱼ ok ⊢Γ
   ⊢LevelAtom _  ⊢Γ (ne t≡t) =
-    let _ , ⊢t , _ = syntacticEqTerm (soundness~↓ t≡t)
+    let _ , ⊢t , _ = wf-⊢ (soundness~↓ t≡t)
     in ⊢t
 
   ⊢Level⁺ :
@@ -483,7 +482,7 @@ mutual
             (refl (⊢Levelᵛ ok ⊢Γ v″)))
          (Levelᵛ→Term-sup-sucᵛ ok ⊢Γ v′ v″))
   soundness~ᵛ (neₙ [t′] PE.refl) =
-    let ⊢Level , ⊢t′ , _ = syntacticEqTerm (soundness~↓ [t′])
+    let ⊢Level , ⊢t′ , _ = wf-⊢ (soundness~↓ [t′])
     in sym′ (supᵘ-zeroʳⱼ ⊢t′)
 
   -- Comparison and equality of level views is sound with respect to reification.
@@ -520,7 +519,7 @@ mutual
     let ⊢t = ⊢Level⁺ ok ⊢Γ t
         ⊢u = ⊢Level⁺ ok ⊢Γ u
         ⊢us = ⊢Levelᵛ ok ⊢Γ us
-        ⊢Level = syntacticTerm ⊢t
+        ⊢Level = wf-⊢ ⊢t
     in
     trans (sym′ (supᵘ-assoc ⊢t ⊢u ⊢us))
       (supᵘ-cong (soundness-≤⁺ ok ⊢Γ _ _ px) (refl ⊢us))

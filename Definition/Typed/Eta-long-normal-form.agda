@@ -28,7 +28,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
@@ -666,7 +665,7 @@ inversion-nf-ΠΣ-U :
   ΠΣ-allowed b p q
 inversion-nf-ΠΣ-U (ΠΣₙ ⊢A ⊢B ok) =
   _ , ⊢A , ⊢B ,
-  refl (⊢U (inversion-U-Level (syntacticTerm (⊢nf∷→⊢∷ ⊢A)))) ,
+  refl (⊢U (inversion-U-Level (wf-⊢ (⊢nf∷→⊢∷ ⊢A)))) ,
   ok
 inversion-nf-ΠΣ-U (convₙ ⊢ΠΣ D≡C) =
   case inversion-nf-ΠΣ-U ⊢ΠΣ of λ {
@@ -696,7 +695,7 @@ inversion-nf-lam :
 inversion-nf-lam (neₙ _ ⊢lam) =
   case ⊢ne∷→NfNeutral ⊢lam of λ ()
 inversion-nf-lam (lamₙ ⊢t ok) =
-  _ , _ , _ , ⊢t , refl (ΠΣⱼ (syntacticTerm (⊢nf∷→⊢∷ ⊢t)) ok) , ok
+  _ , _ , _ , ⊢t , refl (ΠΣⱼ (wf-⊢ (⊢nf∷→⊢∷ ⊢t)) ok) , ok
 inversion-nf-lam (convₙ ⊢lam A≡B) =
   case inversion-nf-lam ⊢lam of λ {
     (_ , _ , _ , ⊢t , A≡ , ok) →
@@ -742,7 +741,7 @@ inversion-ne-app :
      Γ ⊢ne t ∷ Π p , q ▷ B ▹ C × Γ ⊢nf u ∷ B × Γ ⊢ A ≡ C [ u ]₀
 inversion-ne-app (∘ₙ ⊢t ⊢u) =
   _ , _ , _ , ⊢t , ⊢u ,
-  refl (substTypeΠ (syntacticTerm (⊢ne∷→⊢∷ ⊢t)) (⊢nf∷→⊢∷ ⊢u))
+  refl (substTypeΠ (wf-⊢ (⊢ne∷→⊢∷ ⊢t)) (⊢nf∷→⊢∷ ⊢u))
 inversion-ne-app (convₙ ⊢app A≡B) =
   case inversion-ne-app ⊢app of λ {
     (_ , _ , _ , ⊢t , ⊢u , A≡) →
@@ -951,7 +950,7 @@ opaque
     ∃ λ l → Γ ⊢nf A ∷ U l × Γ ⊢nf t ∷ A × Γ ⊢nf u ∷ A × Γ ⊢ B ≡ U l
   inversion-nf-Id-U = λ where
     (Idₙ ⊢A ⊢t ⊢u) →
-      _ , ⊢A , ⊢t , ⊢u , refl (syntacticTerm (⊢nf∷→⊢∷ ⊢A))
+      _ , ⊢A , ⊢t , ⊢u , refl (wf-⊢ (⊢nf∷→⊢∷ ⊢A))
     (convₙ ⊢Id C≡B) →
       case inversion-nf-Id-U ⊢Id of λ {
         (_ , ⊢A , ⊢t , ⊢u , C≡U) →
@@ -986,7 +985,7 @@ opaque
     Γ ⊢ C ≡ B [ v , w ]₁₀
   inversion-ne-J = λ where
     ⊢J@(Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) →
-      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , refl (syntacticTerm (⊢ne∷→⊢∷ ⊢J))
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , refl (wf-⊢ (⊢ne∷→⊢∷ ⊢J))
     (convₙ ⊢J D≡C) →
       case inversion-ne-J ⊢J of λ {
         (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ⊢w , D≡B) →
@@ -1041,7 +1040,7 @@ opaque
     Γ ⊢ C ≡ B [ v ]₀
   inversion-ne-K = λ where
     ⊢K@(Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v ok) →
-      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , refl (syntacticTerm (⊢ne∷→⊢∷ ⊢K))
+      ⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , refl (wf-⊢ (⊢ne∷→⊢∷ ⊢K))
     (convₙ ⊢K D≡C) →
       case inversion-ne-K ⊢K of λ {
         (⊢A , ⊢t , ⊢B , ⊢u , ⊢v , ok , D≡B) →
@@ -1098,7 +1097,7 @@ opaque
   inversion-ne-[]-cong = λ where
     ⊢[]-cong@([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v ok) →
       ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok ,
-      refl (syntacticTerm (⊢ne∷→⊢∷ ⊢[]-cong))
+      refl (wf-⊢ (⊢ne∷→⊢∷ ⊢[]-cong))
     (convₙ ⊢[]-cong C≡B) →
       let ⊢l , ⊢A , ⊢t , ⊢u , ⊢v , ok , C≡Id =
             inversion-ne-[]-cong ⊢[]-cong
@@ -1198,7 +1197,7 @@ opaque
   ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢nf t ∷ Π p , q ▷ A ▹ B → Neutral V (Γ .defs) t → ⊥
 ⊢nf∷Π→Neutral→⊥ {Γ} ⊢t =
-  ⊢nf∷Π→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
+  ⊢nf∷Π→Neutral→⊥′ ⊢t (refl (wf-⊢ (⊢nf∷→⊢∷ ⊢t)))
   where
   ⊢nf∷Π→Neutral→⊥′ :
     Γ ⊢nf t ∷ A → Γ ⊢ A ≡ Π p , q ▷ B ▹ C → Neutral V (Γ .defs) t → ⊥
@@ -1232,7 +1231,7 @@ opaque
   ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢nf t ∷ Σˢ p , q ▷ A ▹ B → Neutral V (Γ .defs) t → ⊥
 ⊢nf∷Σˢ→Neutral→⊥ {Γ} ⊢t =
-  ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t)))
+  ⊢nf∷Σˢ→Neutral→⊥′ ⊢t (refl (wf-⊢ (⊢nf∷→⊢∷ ⊢t)))
   where
   ⊢nf∷Σˢ→Neutral→⊥′ :
     Γ ⊢nf t ∷ A → Γ ⊢ A ≡ Σˢ p , q ▷ B ▹ C → Neutral V (Γ .defs) t → ⊥
@@ -1266,7 +1265,7 @@ opaque
   ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Unit-with-η s → Γ ⊢nf t ∷ Unit s → t PE.≡ star s
 ⊢nf∷Unitˢ→≡starˢ {Γ} {s} ok ⊢t =
-  ⊢nf∷Unitˢ→≡starˢ′ (refl (syntacticTerm (⊢nf∷→⊢∷ ⊢t))) ⊢t
+  ⊢nf∷Unitˢ→≡starˢ′ (refl (wf-⊢ (⊢nf∷→⊢∷ ⊢t))) ⊢t
   where
   ⊢nf∷Unitˢ→≡starˢ′ :
     Γ ⊢ A ≡ Unit s → Γ ⊢nf t ∷ A → t PE.≡ star s
@@ -1441,7 +1440,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
       (Unit-refl _ _) →
         PE.refl
       (ne A≡B) →
-        let _ , ⊢A∷U , ⊢B∷U = syntacticEqTerm (soundness~↓ A≡B) in
+        let _ , ⊢A∷U , ⊢B∷U = wf-⊢ (soundness~↓ A≡B) in
         normal-terms-unique-~↓
           (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U)
           (⊢nf∷U→⊢nf∷U ⊢B ⊢B∷U)
@@ -1561,7 +1560,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
             A≡B′               = soundnessConv↑ A≡B
             t≡t″               = soundness~↓ t≡t′
             ⊢Γ                 = wf t≡t″
-            ⊢Unit , _          = syntacticEqTerm t≡t″
+            ⊢Unit , _          = wf-⊢ t≡t″
             ok                 = inversion-Unit ⊢Unit
             A₊≡B₊              =
               subst-⊢≡₀ (soundnessConv↑ A≡B) (refl (starⱼ ⊢Γ ok))

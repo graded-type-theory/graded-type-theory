@@ -30,7 +30,6 @@ open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Substitution TR
-open import Definition.Typed.Syntactic TR
 open import Definition.Typed.Well-formed TR
 
 open import Definition.Untyped M
@@ -119,7 +118,7 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     ®∷→®∷◂ $
     ®∷Π⇔ .proj₂
-      (ΠΣⱼ (subst-⊢-⇑ (syntacticTerm ⊢t) ⊢σ) ok
+      (ΠΣⱼ (subst-⊢-⇑ (wf-⊢ ⊢t) ⊢σ) ok
       , (λ { PE.refl →
              _ ,
              (erase T.strict (lam p t) T.[ σ′ ]      ≡⟨ PE.cong T._[ _ ] $ lam-keep _ ⟩⇒
@@ -653,7 +652,7 @@ opaque
       ⊢A,⊢B : ts » Γ ⊢ A × ts » Γ ∙ A ⊢ B
       ⊢A,⊢B =
         Σ.map idᶠ proj₁ $
-        inversion-ΠΣ $ syntacticTerm ⊢t
+        inversion-ΠΣ $ wf-⊢ ⊢t
 
     -- Some assumptions that are used in the proof.
 

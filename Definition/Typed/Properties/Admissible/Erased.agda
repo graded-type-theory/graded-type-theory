@@ -37,7 +37,6 @@ open import Definition.Typed.Reasoning.Reduction R
 import Definition.Typed.Reasoning.Term R as TermR
 import Definition.Typed.Reasoning.Type R as TypeR
 open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 
@@ -447,9 +446,7 @@ opaque
     Γ ⊢ u ∷ Erased l A →
     Γ ⊢ erasedrec p B t u ∷ B [ u ]₀
   ⊢erasedrec ⊢B ⊢t ⊢u =
-    syntacticEqTerm
-      (erasedrec-cong (refl ⊢B) (refl ⊢t) (refl ⊢u))
-      .proj₂ .proj₁
+    wf-⊢ (erasedrec-cong (refl ⊢B) (refl ⊢t) (refl ⊢u)) .proj₂ .proj₁
 
 opaque
   unfolding Erased.Erased Erased.[_] Erased.erasedrec
@@ -884,7 +881,7 @@ module _ (ok : []-cong-allowed s) where
         Id (wk₂ (Singleton A₂ t₂)) (wk₂ (prod s 𝟘 t₂ rfl))
           (prod s 𝟘 (var x1) (var x0))
     lemma₆ A₁≡A₂ t₁≡t₂ =
-      case syntacticEqTerm t₁≡t₂ of λ
+      case wf-⊢ t₁≡t₂ of λ
         (⊢A₁ , ⊢t₁ , _) →
       case W.wk (stepʷ (step id) (J-motive-context-type ⊢t₁)) ⊢A₁ of λ
         ⊢A₁′ →
@@ -928,9 +925,9 @@ module _ (ok : []-cong-allowed s) where
         Id (wk₂ (Singleton A t)) (wk₂ (prod s 𝟘 t rfl))
           (prod s 𝟘 (var x1) (var x0))
     lemma₆′ ⊢t =
-      case syntacticTerm ⊢t of λ
+      case wf-⊢ ⊢t of λ
         ⊢A →
-      syntacticEq (lemma₆ (refl ⊢A) (refl ⊢t)) .proj₁
+      wf-⊢ (lemma₆ (refl ⊢A) (refl ⊢t)) .proj₁
 
     lemma₇ :
       Γ ⊢ t ∷ A →
@@ -973,7 +970,7 @@ module _ (ok : []-cong-allowed s) where
                     (var x0))
              ]
     lemma₈ {A₁} {t₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ =
-      case syntacticEqTerm t₁≡t₂ of λ
+      case wf-⊢ t₁≡t₂ of λ
         (⊢A₁ , ⊢t₁ , _) →
       case Idⱼ′ (wk₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁) of λ
         ⊢Id →
@@ -981,7 +978,7 @@ module _ (ok : []-cong-allowed s) where
         ⊢Singleton₁ →
       case wk₁ ⊢Singleton₁ A₁≡A₂ of λ
         A₁≡A₂′ →
-      case syntacticEq A₁≡A₂′ of λ
+      case wf-⊢ A₁≡A₂′ of λ
         (⊢A₁′ , _) →
       subst-⊢≡ B₁≡B₂ $
       →⊢ˢʷ≡∷∙ ⊢Id
@@ -1008,8 +1005,7 @@ module _ (ok : []-cong-allowed s) where
                    (var x0))
             ]
     lemma₈′ ⊢B ⊢t =
-      syntacticEq (lemma₈ (refl (syntacticTerm ⊢t)) (refl ⊢B) (refl ⊢t))
-        .proj₁
+      wf-⊢ (lemma₈ (refl (wf-⊢ ⊢t)) (refl ⊢B) (refl ⊢t)) .proj₁
 
     lemma₉ :
       Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
@@ -1024,7 +1020,7 @@ module _ (ok : []-cong-allowed s) where
           [ prod s 𝟘 u v ]₀ ≡
         B [ u , v ]₁₀
     lemma₉ {A} {t} {B} {v} {u} ⊢B ⊢v =
-      case inversion-Id (syntacticTerm ⊢v) of λ
+      case inversion-Id (wf-⊢ ⊢v) of λ
         (_ , ⊢t , ⊢u) →
       case PE.subst (_⊢_∷_ _ _)
              (PE.sym $ PE.cong₃ Id

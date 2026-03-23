@@ -26,7 +26,6 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Inversion R
@@ -94,7 +93,7 @@ mutual
     in  snd-cong t~v , G≡G′ (soundness~↑ (fst-cong t~u))
   trans~↑ (natrec-cong A<>B a₀<>b₀ aₛ<>bₛ t~u)
           (natrec-cong B<>C b₀<>c₀ bₛ<>cₛ u~v) =
-    let ⊢Γ = wf (proj₁ (syntacticEqTerm (soundness~↓ t~u)))
+    let ⊢Γ = wf (proj₁ (wf-⊢ (soundness~↓ t~u)))
         A≡B = soundnessConv↑ A<>B
         F[0]≡F₁[0] = subst-⊢≡₀ A≡B (refl (zeroⱼ ⊢Γ))
         F↑̂²≡F₁↑² = sucCong A≡B
@@ -111,8 +110,8 @@ mutual
         ⊢Γ = wf Σ≡Σ′
         F≡F′ , G≡G′ , _ =
           ΠΣ-injectivity-no-equality-reflection (sym Σ≡Σ′)
-        _ , ⊢F = syntacticEq F≡F′
-        _ , ⊢G = syntacticEq G≡G′
+        _ , ⊢F = wf-⊢ F≡F′
+        _ , ⊢G = wf-⊢ G≡G′
         ⊢G = stability (refl-∙ F≡F′) ⊢G
         B<>C′ = stabilityConv↑ (refl-∙ (sym Σ≡Σ′)) B<>C
         A<>C = transConv↑ A<>B B<>C′
@@ -132,7 +131,7 @@ mutual
   trans~↑ (unitrec-cong A<>B k~l u<>v no-η)
     (unitrec-cong B<>C l~m v<>w _) =
     let k~m , ⊢Unit≡Unit = trans~↓ k~l l~m
-        ⊢Unit = proj₁ (syntacticEq ⊢Unit≡Unit)
+        ⊢Unit = proj₁ (wf-⊢ ⊢Unit≡Unit)
         ok = inversion-Unit ⊢Unit
         ⊢Γ = wf ⊢Unit
         A<>C = transConv↑ A<>B B<>C
@@ -319,24 +318,24 @@ mutual
   transConv↓Term (Level-ins x) u≡v = Level-ins (transConv↓Level x (inv-[conv↓]∷-Level u≡v))
   transConv↓Term (ne-ins ⊢t _ A-ne t~u) u≡v =
     let _ , u~v    = inv-[conv↓]∷-ne A-ne u≡v
-        _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v)
+        _ , _ , ⊢v = wf-⊢ (soundnessConv↓Term u≡v)
     in
     ne-ins ⊢t ⊢v A-ne (trans~↓ t~u u~v .proj₁)
   transConv↓Term (univ ⊢A ⊢B A≡B) B≡C =
-    let _ , _ , ⊢C = syntacticEqTerm (soundnessConv↓Term B≡C) in
+    let _ , _ , ⊢C = wf-⊢ (soundnessConv↓Term B≡C) in
     univ ⊢A ⊢C (transConv↓ A≡B (inv-[conv↓]∷-U B≡C))
   transConv↓Term (Lift-η ⊢t ⊢u wt wu t≡u) [u≡v] =
     let _ , ⊢v , _ , wv , u≡v = inv-[conv↓]∷-Lift [u≡v]
-        ⊢A , _ , _ = syntacticEqTerm (soundnessConv↑Term t≡u)
+        ⊢A , _ , _ = wf-⊢ (soundnessConv↑Term t≡u)
     in Lift-η ⊢t ⊢v wt wv (transConv↑Term (refl ⊢A) t≡u u≡v)
   transConv↓Term (η-eq ⊢t ⊢u t-fun u-fun t0≡u0) u≡v =
     let _ , v-fun , u0≡v0 = inv-[conv↓]∷-Π u≡v
-        _ , _ , ⊢v        = syntacticEqTerm (soundnessConv↓Term u≡v)
+        _ , _ , ⊢v        = wf-⊢ (soundnessConv↓Term u≡v)
     in
     η-eq ⊢t ⊢v t-fun v-fun (transConvTerm t0≡u0 u0≡v0)
   transConv↓Term (Σ-η ⊢t _ t-prod _ fst-t≡fst-u snd-t≡snd-u) u≡v =
     let _ , v-prod , fst-u≡fst-v , snd-u≡snd-v = inv-[conv↓]∷-Σˢ u≡v
-        ⊢Σ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v)
+        ⊢Σ , _ , ⊢v = wf-⊢ (soundnessConv↓Term u≡v)
         _ , ⊢B , _ = inversion-ΠΣ ⊢Σ
     in
     Σ-η ⊢t ⊢v t-prod v-prod (transConvTerm fst-t≡fst-u fst-u≡fst-v)
@@ -344,14 +343,14 @@ mutual
          (subst-⊢≡₀ ⊢B (soundnessConv↑Term fst-t≡fst-u))
          snd-t≡snd-u snd-u≡snd-v)
   transConv↓Term (Σʷ-ins ⊢t _ t~u) u≡v =
-    let _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v) in
+    let _ , _ , ⊢v = wf-⊢ (soundnessConv↓Term u≡v) in
     case inv-[conv↓]∷-Σʷ u≡v of λ where
       (inj₁ (_ , _ , _ , _ , u~v)) →
         Σʷ-ins ⊢t ⊢v (trans~↓ t~u u~v .proj₁)
       (inj₂ (_ , _ , _ , _ , PE.refl , _)) →
         ⊥-elim $ ¬-Neutral-prod $ ne⁻ $ ne~↓ t~u .proj₂ .proj₂
   transConv↓Term (prod-cong ⊢B t₁≡u₁ t₂≡u₂ ok) u≡v =
-    let _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v) in
+    let _ , _ , ⊢v = wf-⊢ (soundnessConv↓Term u≡v) in
     case inv-[conv↓]∷-Σʷ u≡v of λ where
       (inj₁ (_ , _ , _ , _ , u~v)) →
         ⊥-elim $ ¬-Neutral-prod $ ne⁻ $ ne~↓ u~v .proj₂ .proj₁
@@ -366,7 +365,7 @@ mutual
   transConv↓Term (Empty-ins t~u) u≡v =
     Empty-ins (trans~↓ t~u (inv-[conv↓]∷-Empty u≡v) .proj₁)
   transConv↓Term (η-unit ⊢t _ t-whnf _ η) u≡v =
-    let _ , _ , ⊢v = syntacticEqTerm (soundnessConv↓Term u≡v) in
+    let _ , _ , ⊢v = wf-⊢ (soundnessConv↓Term u≡v) in
     case inv-[conv↓]∷-Unit u≡v of λ where
       (inj₁ (_ , _ , v-whnf)) → η-unit ⊢t ⊢v t-whnf v-whnf η
       (inj₂ (no-η , _))       → ⊥-elim (no-η η)
@@ -428,7 +427,7 @@ mutual
     Γ ⊢ t [conv↑] v ∷ A
   transConvTerm t<>u u<>v =
     let t≡u = soundnessConv↑Term t<>u
-        ⊢A , _ , _ = syntacticEqTerm t≡u
+        ⊢A , _ , _ = wf-⊢ t≡u
     in  transConv↑Term (refl ⊢A) t<>u u<>v
 
   -- Transitivity for _⊢_[conv↑]_∷Level.
