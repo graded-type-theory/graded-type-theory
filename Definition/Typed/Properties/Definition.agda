@@ -1210,7 +1210,7 @@ opaque
     Whnf-inline u-whnf
 
 ------------------------------------------------------------------------
--- Variants of some of the preservations lemmas related to inlining,
+-- Variants of some of the preservation lemmas related to inlining,
 -- expressed for the "ᵈ" variants of the inlining functions
 
 opaque
