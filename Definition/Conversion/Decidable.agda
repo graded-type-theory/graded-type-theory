@@ -287,7 +287,7 @@ private opaque
           dec₃
             (symConEq ΔA₁B₁≡ΔA₂B₂)
              (_⊢_≡_.sym $
-              stabilityEq ΔA₁B₁≡ΔA₂B₂ $
+              stability ΔA₁B₁≡ΔA₂B₂ $
               subst↑²TypeEq-prod (soundnessConv↑ C₁≡C₂))) of λ where
       (yes (C₁≡C₂ , u₁≡u₂)) →
         yes $
@@ -430,7 +430,7 @@ private opaque
        dec₁ (substTypeEq A₁≡A₂ (refl (zeroⱼ ⊢Δ)))
          ×-dec
        dec₂ ΔℕA₁≡ΔℕA₂
-         (stabilityEq (symConEq ΔℕA₁≡ΔℕA₂) $ sym $ sucCong A₁≡A₂))
+         (stability (symConEq ΔℕA₁≡ΔℕA₂) $ sym $ sucCong A₁≡A₂))
       of λ where
       (yes (t₁≡t₂ , u₁≡u₂)) →
         yes $

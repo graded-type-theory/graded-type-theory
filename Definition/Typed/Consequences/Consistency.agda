@@ -383,7 +383,7 @@ opaque
        ⊢inlineᵈ ⊢t) ,
     (λ consistent ⊢Δ _ →
        consistent _ ∘→
-       stabilityTerm
+       stability
          (PE.subst₃ _»⊢_≡_
             (glassify-idem _) inline-Conᵈ-glassify PE.refl $
           ⊢inline-Conᵈ≡ ⊢Δ) ∘→

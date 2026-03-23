@@ -88,25 +88,25 @@ mutual
     Unitʷ-ins ok (stability~↓ Δ≡Η t~u)
   convConv↓Term′ Δ≡Η  A≡B whnfB (Σʷ-ins x x₁ x₂) with Σ≡A A≡B whnfB
   ... | _ , _ , PE.refl =
-    Σʷ-ins (stabilityTerm Δ≡Η (conv x A≡B))
-           (stabilityTerm Δ≡Η (conv x₁ A≡B))
+    Σʷ-ins (stability Δ≡Η (conv x A≡B))
+           (stability Δ≡Η (conv x₁ A≡B))
            (stability~↓ Δ≡Η x₂)
   convConv↓Term′ Δ≡Η A≡B whnfB (ne-ins t u x x₁) =
-    ne-ins (stabilityTerm Δ≡Η (conv t A≡B)) (stabilityTerm Δ≡Η (conv u A≡B))
+    ne-ins (stability Δ≡Η (conv t A≡B)) (stability Δ≡Η (conv u A≡B))
            (ne↑⁺ (ne≡A (ne↑ₗ x) A≡B whnfB)) (stability~↓ Δ≡Η x₁)
   convConv↓Term′ Γ≡Δ A≡B whnfB (univ x x₁ x₂) =
     case U≡A A≡B whnfB of λ {
       (_ , PE.refl) →
     let l≡k = U-injectivity A≡B
         Ul≡Uk = U-cong-⊢≡ l≡k
-    in univ (stabilityTerm Γ≡Δ (conv x Ul≡Uk)) (stabilityTerm Γ≡Δ (conv x₁ Ul≡Uk)) (stabilityConv↓ Γ≡Δ x₂) }
+    in univ (stability Γ≡Δ (conv x Ul≡Uk)) (stability Γ≡Δ (conv x₁ Ul≡Uk)) (stabilityConv↓ Γ≡Δ x₂) }
   convConv↓Term′ Γ≡Δ A≡B whnfB (Lift-η ⊢t ⊢u wt wu lower≡lower) =
     case Lift≡A A≡B whnfB of λ {
       (_ , _ , PE.refl) →
     let k≡k′ , A≡A′ = Lift-injectivity A≡B
     in Lift-η
-      (stabilityTerm Γ≡Δ (conv ⊢t A≡B))
-      (stabilityTerm Γ≡Δ (conv ⊢u A≡B))
+      (stability Γ≡Δ (conv ⊢t A≡B))
+      (stability Γ≡Δ (conv ⊢u A≡B))
       wt wu
       (convConv↑Term′ Γ≡Δ A≡A′ lower≡lower) }
   convConv↓Term′ Δ≡Η A≡B whnfB (zero-refl x) rewrite ℕ≡A A≡B whnfB =
@@ -131,8 +131,8 @@ mutual
   convConv↓Term′ Δ≡Η A≡B whnfB (η-eq x₁ x₂ y y₁ x₃) | _ , _ , PE.refl =
     case ΠΣ-injectivity-no-equality-reflection A≡B of λ {
       (F≡F′ , G≡G′ , _ , _) →
-    η-eq (stabilityTerm Δ≡Η (conv x₁ A≡B))
-         (stabilityTerm Δ≡Η (conv x₂ A≡B))
+    η-eq (stability Δ≡Η (conv x₁ A≡B))
+         (stability Δ≡Η (conv x₂ A≡B))
          y y₁
          (convConv↑Term′ (Δ≡Η ∙ F≡F′) G≡G′ x₃) }
   convConv↓Term′ Δ≡Η A≡B whnfB (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv)
@@ -141,21 +141,21 @@ mutual
   ...   | F≡ , G≡ , _ , _ =
     let ⊢G = proj₁ (syntacticEq G≡)
         ⊢fst = fstⱼ ⊢G ⊢p
-    in  Σ-η (stabilityTerm Δ≡Η (conv ⊢p A≡B))
-            (stabilityTerm Δ≡Η (conv ⊢r A≡B))
+    in  Σ-η (stability Δ≡Η (conv ⊢p A≡B))
+            (stability Δ≡Η (conv ⊢r A≡B))
             pProd
             rProd
             (convConv↑Term′ Δ≡Η F≡ fstConv)
             (convConv↑Term′ Δ≡Η (substTypeEq G≡ (refl ⊢fst)) sndConv)
   convConv↓Term′ Δ≡Η A≡B whnfB (η-unit [t] [u] tUnit uUnit ok)
     rewrite Unit≡A A≡B whnfB =
-    let [t] = stabilityTerm Δ≡Η [t]
-        [u] = stabilityTerm Δ≡Η [u]
+    let [t] = stability Δ≡Η [t]
+        [u] = stability Δ≡Η [u]
     in  η-unit [t] [u] tUnit uUnit ok
   convConv↓Term′ Δ≡Η Id-A-t-u≡B B-whnf (Id-ins ⊢v₁ v₁~v₂) =
     case Id≡Whnf Id-A-t-u≡B B-whnf of λ {
       (_ , _ , _ , PE.refl) →
-    Id-ins (stabilityTerm Δ≡Η (conv ⊢v₁ Id-A-t-u≡B))
+    Id-ins (stability Δ≡Η (conv ⊢v₁ Id-A-t-u≡B))
       (stability~↓ Δ≡Η v₁~v₂) }
   convConv↓Term′ Δ≡Η Id-A-t-u≡B B-whnf (rfl-refl t≡u) =
     case Id≡Whnf Id-A-t-u≡B B-whnf of λ {
@@ -163,7 +163,7 @@ mutual
     case Id-injectivity Id-A-t-u≡B of λ {
       (A≡A′ , t≡t′ , u≡u′) →
     rfl-refl
-      (stabilityEqTerm Δ≡Η $
+      (stability Δ≡Η $
        conv (trans (sym′ t≡t′) (trans t≡u u≡u′)) A≡A′) }}
 
 -- Conversion of algorithmic equality with the same context.

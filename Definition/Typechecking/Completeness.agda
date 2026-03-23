@@ -226,7 +226,7 @@ mutual
         ok = ⊢∷ΠΣ→ΠΣ-allowed ⊢t
         B , t⇉B , ΣFG≡B = completeness⇉ t ⊢t
         F′ , G′ , B⇒Σ′ , F≡F′ , G≡G′ , _ = ΠΣNorm (sym ΣFG≡B)
-        u⇇C₊ = completeness⇇ u (stabilityTerm (refl-∙ F≡F′ ∙ G≡G′) ⊢u)
+        u⇇C₊ = completeness⇇ u (stability (refl-∙ F≡F′ ∙ G≡G′) ⊢u)
         C⇇Type = completeness⇇Type C $
                  stability (refl-∙ (ΠΣ-cong F≡F′ G≡G′ ok)) ⊢C
     in  _ , prodrecᵢ C⇇Type t⇉B (B⇒Σ′ , ΠΣₙ) u⇇C₊ , A≡Ct
@@ -311,7 +311,7 @@ mutual
     let F , G , q , _ , ⊢t , A≡ΠFG , _ = inversion-lam ⊢t
         F′ , G′ , A⇒ΠF′G′ , F≡F′ , G≡G′ , _ = ΠΣNorm A≡ΠFG
         t⇇G = completeness⇇ t
-                (stabilityTerm (refl-∙ F≡F′) (conv ⊢t G≡G′))
+                (stability (refl-∙ F≡F′) (conv ⊢t G≡G′))
     in  lamᶜ (A⇒ΠF′G′ , ΠΣₙ) t⇇G
   completeness⇇ (prodᶜ t u) ⊢t =
     let F , G , m , ⊢F , ⊢G , ⊢t , ⊢u , A≡ΣFG , _ = inversion-prod ⊢t

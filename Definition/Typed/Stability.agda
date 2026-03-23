@@ -122,48 +122,12 @@ opaque
 
 opaque
 
-  -- Stability for _⊢_≡_.
-
-  stabilityEq : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ A ≡ B → ∇ » Δ ⊢ A ≡ B
-  stabilityEq = stability
-
-opaque
-
-  -- Stability for _⊢_∷_.
-
-  stabilityTerm : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ t ∷ A
-  stabilityTerm = stability
-
-opaque
-
-  -- Stability for _⊢_∷Level.
-
-  stabilityLevel : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ l ∷Level → ∇ » Δ ⊢ l ∷Level
-  stabilityLevel = stability
-
-opaque
-
-  -- Stability for _⊢_≡_∷_.
-
-  stabilityEqTerm : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ≡ u ∷ A → ∇ » Δ ⊢ t ≡ u ∷ A
-  stabilityEqTerm = stability
-
-opaque
-
-  -- Stability for _⊢_≡_∷Level.
-
-  stabilityEqLevel :
-    ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → ∇ » Δ ⊢ l₁ ≡ l₂ ∷Level
-  stabilityEqLevel = stability
-
-opaque
-
   -- Stability for _⊢ˢ_∷_.
 
   stability-⊢ˢ∷ˡ : ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ˢ σ ∷ Γ → ∇ » Η ⊢ˢ σ ∷ Γ
   stability-⊢ˢ∷ˡ _   id        = id
   stability-⊢ˢ∷ˡ Δ≡Η (⊢σ , ⊢t) =
-    stability-⊢ˢ∷ˡ Δ≡Η ⊢σ , stabilityTerm Δ≡Η ⊢t
+    stability-⊢ˢ∷ˡ Δ≡Η ⊢σ , stability Δ≡Η ⊢t
 
 opaque
 
@@ -213,7 +177,7 @@ opaque
   stability-⊢ˢ≡∷ˡ : ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ
   stability-⊢ˢ≡∷ˡ _   id              = id
   stability-⊢ˢ≡∷ˡ Δ≡Η (σ₁≡σ₂ , t₁≡t₂) =
-    stability-⊢ˢ≡∷ˡ Δ≡Η σ₁≡σ₂ , stabilityEqTerm Δ≡Η t₁≡t₂
+    stability-⊢ˢ≡∷ˡ Δ≡Η σ₁≡σ₂ , stability Δ≡Η t₁≡t₂
 
 opaque
 
@@ -258,25 +222,25 @@ opaque
 
   stabilityRedTerm : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ⇒ u ∷ A → ∇ » Δ ⊢ t ⇒ u ∷ A
   stabilityRedTerm Γ≡Δ (conv d x) =
-    conv (stabilityRedTerm Γ≡Δ d) (stabilityEq Γ≡Δ x)
+    conv (stabilityRedTerm Γ≡Δ d) (stability Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (δ-red ⊢Γ α↦t A≡A′ t≡t′) =
     δ-red (S.wf-⊢≡ʳ (⊢≡⇔⊢≡ .proj₁ Γ≡Δ)) α↦t A≡A′ t≡t′
   stabilityRedTerm Γ≡Δ (supᵘ-zeroˡ ⊢l) =
-    supᵘ-zeroˡ (stabilityTerm Γ≡Δ ⊢l)
+    supᵘ-zeroˡ (stability Γ≡Δ ⊢l)
   stabilityRedTerm Γ≡Δ (supᵘ-zeroʳ ⊢l) =
-    supᵘ-zeroʳ (stabilityTerm Γ≡Δ ⊢l)
+    supᵘ-zeroʳ (stability Γ≡Δ ⊢l)
   stabilityRedTerm Γ≡Δ (supᵘ-sucᵘ ⊢l₁ ⊢l₂) =
-    supᵘ-sucᵘ (stabilityTerm Γ≡Δ ⊢l₁) (stabilityTerm Γ≡Δ ⊢l₂)
+    supᵘ-sucᵘ (stability Γ≡Δ ⊢l₁) (stability Γ≡Δ ⊢l₂)
   stabilityRedTerm Γ≡Δ (supᵘ-substˡ t⇒t′ ⊢u) =
-    supᵘ-substˡ (stabilityRedTerm Γ≡Δ t⇒t′) (stabilityTerm Γ≡Δ ⊢u)
+    supᵘ-substˡ (stabilityRedTerm Γ≡Δ t⇒t′) (stability Γ≡Δ ⊢u)
   stabilityRedTerm Γ≡Δ (supᵘ-substʳ ⊢t u⇒u′) =
-    supᵘ-substʳ (stabilityTerm Γ≡Δ ⊢t) (stabilityRedTerm Γ≡Δ u⇒u′)
+    supᵘ-substʳ (stability Γ≡Δ ⊢t) (stabilityRedTerm Γ≡Δ u⇒u′)
   stabilityRedTerm Γ≡Δ (lower-subst x) =
     lower-subst (stabilityRedTerm Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (Lift-β x₁ x₂) =
-    Lift-β (stability Γ≡Δ x₁) (stabilityTerm Γ≡Δ x₂)
+    Lift-β (stability Γ≡Δ x₁) (stability Γ≡Δ x₂)
   stabilityRedTerm Γ≡Δ (app-subst d x) =
-    app-subst (stabilityRedTerm Γ≡Δ d) (stabilityTerm Γ≡Δ x)
+    app-subst (stabilityRedTerm Γ≡Δ d) (stability Γ≡Δ x)
   stabilityRedTerm Γ≡Δ (fst-subst ⊢G t⇒) =
     fst-subst (stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf ⊢G))) ⊢G)
               (stabilityRedTerm Γ≡Δ t⇒)
@@ -285,89 +249,89 @@ opaque
               (stabilityRedTerm Γ≡Δ t⇒)
   stabilityRedTerm Γ≡Δ (Σ-β₁ ⊢G ⊢t ⊢u p≡p′ ok) =
     Σ-β₁ (stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf ⊢G))) ⊢G)
-         (stabilityTerm Γ≡Δ ⊢t)
-         (stabilityTerm Γ≡Δ ⊢u)
+         (stability Γ≡Δ ⊢t)
+         (stability Γ≡Δ ⊢u)
          p≡p′ ok
   stabilityRedTerm Γ≡Δ (Σ-β₂ ⊢G ⊢t ⊢u p≡p′ ok) =
     Σ-β₂ (stability (Γ≡Δ ∙ refl (⊢∙→⊢ (wf ⊢G))) ⊢G)
-         (stabilityTerm Γ≡Δ ⊢t)
-         (stabilityTerm Γ≡Δ ⊢u)
+         (stability Γ≡Δ ⊢t)
+         (stability Γ≡Δ ⊢u)
          p≡p′ ok
   stabilityRedTerm Γ≡Δ (β-red x₁ x₂ x₃ x₄ ok) =
     let x = ⊢∙→⊢ (wf x₁) in
     β-red (stability (Γ≡Δ ∙ refl x) x₁)
-          (stabilityTerm (Γ≡Δ ∙ refl x) x₂) (stabilityTerm Γ≡Δ x₃) x₄ ok
+          (stability (Γ≡Δ ∙ refl x) x₂) (stability Γ≡Δ x₃) x₄ ok
   stabilityRedTerm Γ≡Δ (natrec-subst x₁ x₂ d) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
-    natrec-subst (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
+    natrec-subst (stability Γ≡Δ x₁)
+      (stability (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
       (stabilityRedTerm Γ≡Δ d)
   stabilityRedTerm Γ≡Δ (natrec-zero x₁ x₂) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
-    natrec-zero (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
+    natrec-zero (stability Γ≡Δ x₁)
+      (stability (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
   stabilityRedTerm Γ≡Δ (natrec-suc x₁ x₂ x₃) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
-    natrec-suc (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
-      (stabilityTerm Γ≡Δ x₃)
+    natrec-suc (stability Γ≡Δ x₁)
+      (stability (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
+      (stability Γ≡Δ x₃)
   stabilityRedTerm Γ≡Δ (prodrec-subst x₂ x₃ d ok) =
     let x₁ = ⊢∙→⊢ (wf x₃)
         x  = ⊢∙→⊢ (wf x₁)
     in
     prodrec-subst (stability (Γ≡Δ ∙ refl (ΠΣⱼ x₁ ok)) x₂)
-      (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₃)
+      (stability (Γ≡Δ ∙ refl x ∙ refl x₁) x₃)
       (stabilityRedTerm Γ≡Δ d) ok
   stabilityRedTerm Γ≡Δ (prodrec-β x₂ x₃ x₄ x₅ x₆ ok) =
     let x₁ = ⊢∙→⊢ (wf x₅)
         x  = ⊢∙→⊢ (wf x₁)
     in
     prodrec-β (stability (Γ≡Δ ∙ refl (ΠΣⱼ x₁ ok)) x₂)
-      (stabilityTerm Γ≡Δ x₃) (stabilityTerm Γ≡Δ x₄)
-      (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₅) x₆ ok
+      (stability Γ≡Δ x₃) (stability Γ≡Δ x₄)
+      (stability (Γ≡Δ ∙ refl x ∙ refl x₁) x₅) x₆ ok
   stabilityRedTerm Γ≡Δ (emptyrec-subst x d) =
     emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
   stabilityRedTerm Γ≡Δ (unitrec-subst x x₁ x₂ x₃ not-ok) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
     in  unitrec-subst (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ x₃))) x)
-          (stabilityTerm Γ≡Δ x₁) (stabilityRedTerm Γ≡Δ x₂) x₃ not-ok
+          (stability Γ≡Δ x₁) (stabilityRedTerm Γ≡Δ x₂) x₃ not-ok
   stabilityRedTerm Γ≡Δ (unitrec-β x x₁ x₂ not-ok) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
     in  unitrec-β (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ x₂))) x)
-                  (stabilityTerm Γ≡Δ x₁) x₂ not-ok
+                  (stability Γ≡Δ x₁) x₂ not-ok
   stabilityRedTerm Γ≡Δ (unitrec-β-η ⊢A ⊢t ⊢u ok₁ ok₂) =
     case contextConvSubst Γ≡Δ of λ
       (⊢Γ , _) →
     unitrec-β-η (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ ok₁))) ⊢A)
-      (stabilityTerm Γ≡Δ ⊢t) (stabilityTerm Γ≡Δ ⊢u) ok₁ ok₂
+      (stability Γ≡Δ ⊢t) (stability Γ≡Δ ⊢u) ok₁ ok₂
   stabilityRedTerm Γ≡Δ (J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
     let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in
-    J-subst (stabilityTerm Γ≡Δ ⊢t)
+    J-subst (stability Γ≡Δ ⊢t)
       (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)))
          ⊢B)
-      (stabilityTerm Γ≡Δ ⊢u) (stabilityTerm Γ≡Δ ⊢v)
+      (stability Γ≡Δ ⊢u) (stability Γ≡Δ ⊢v)
       (stabilityRedTerm Γ≡Δ w₁⇒w₂)
   stabilityRedTerm Γ≡Δ (K-subst ⊢B ⊢u v₁⇒v₂ ok) =
     let _ , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
     K-subst
-      (stability (Γ≡Δ ∙ refl (Idⱼ′ ⊢t ⊢t)) ⊢B) (stabilityTerm Γ≡Δ ⊢u)
+      (stability (Γ≡Δ ∙ refl (Idⱼ′ ⊢t ⊢t)) ⊢B) (stability Γ≡Δ ⊢u)
       (stabilityRedTerm Γ≡Δ v₁⇒v₂) ok
   stabilityRedTerm Γ≡Δ ([]-cong-subst ⊢l v₁⇒v₂ ok) =
-    []-cong-subst (stabilityLevel Γ≡Δ ⊢l) (stabilityRedTerm Γ≡Δ v₁⇒v₂)
+    []-cong-subst (stability Γ≡Δ ⊢l) (stabilityRedTerm Γ≡Δ v₁⇒v₂)
       ok
   stabilityRedTerm Γ≡Δ (J-β ⊢t ⊢t′ t≡t′ ⊢B ⊢B[t,rfl]≡B[t′,rfl] ⊢u) =
     let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in
-    J-β (stabilityTerm Γ≡Δ ⊢t) (stabilityTerm Γ≡Δ ⊢t′)
-      (stabilityEqTerm Γ≡Δ t≡t′)
+    J-β (stability Γ≡Δ ⊢t) (stability Γ≡Δ ⊢t′)
+      (stability Γ≡Δ t≡t′)
       (stability (Γ≡Δ ∙ refl ⊢A ∙ refl (Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)))
          ⊢B)
-      (stabilityEq Γ≡Δ ⊢B[t,rfl]≡B[t′,rfl]) (stabilityTerm Γ≡Δ ⊢u)
+      (stability Γ≡Δ ⊢B[t,rfl]≡B[t′,rfl]) (stability Γ≡Δ ⊢u)
   stabilityRedTerm Γ≡Δ (K-β ⊢B ⊢u ok) =
     let _ , (⊢t , _) , _ = inversion-Id-⊢ (⊢∙→⊢ (wf ⊢B)) in
     K-β (stability (Γ≡Δ ∙ refl (Idⱼ′ ⊢t ⊢t)) ⊢B)
-      (stabilityTerm Γ≡Δ ⊢u) ok
+      (stability Γ≡Δ ⊢u) ok
   stabilityRedTerm Γ≡Δ ([]-cong-β ⊢l t≡t′ ok) =
-    []-cong-β (stabilityLevel Γ≡Δ ⊢l) (stabilityEqTerm Γ≡Δ t≡t′) ok
+    []-cong-β (stability Γ≡Δ ⊢l) (stability Γ≡Δ t≡t′) ok
 
 opaque
 
@@ -389,7 +353,7 @@ opaque
   -- Stability for _⊢_⇒*_∷_.
 
   stabilityRed*Term : ∇ »⊢ Γ ≡ Δ → ∇ » Γ ⊢ t ⇒* u ∷ A → ∇ » Δ ⊢ t ⇒* u ∷ A
-  stabilityRed*Term Γ≡Δ (id x) = id (stabilityTerm Γ≡Δ x)
+  stabilityRed*Term Γ≡Δ (id x) = id (stability Γ≡Δ x)
   stabilityRed*Term Γ≡Δ (x ⇨ d) =
     stabilityRedTerm Γ≡Δ x ⇨ stabilityRed*Term Γ≡Δ d
 

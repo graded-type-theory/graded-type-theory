@@ -107,7 +107,7 @@ opaque
     conv
       (ΠΣ-cong′ (inverseUnivEq′ (inj₂ ⊢A₂∷U) A₁≡A₂)
          (inverseUnivEq′
-            (inj₂ $ stabilityTerm (refl-∙ (sym A₁≡A₂)) ⊢B₂∷U) B₁≡B₂) ok)
+            (inj₂ $ stability (refl-∙ (sym A₁≡A₂)) ⊢B₂∷U) B₁≡B₂) ok)
       (sym U≡U)
   inverseUnivEq′ (inj₁ ⊢Id) (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     case inversion-Id-U ⊢Id of λ

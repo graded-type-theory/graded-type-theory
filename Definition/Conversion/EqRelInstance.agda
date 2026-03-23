@@ -559,7 +559,7 @@ private opaque
             F<>H = univConv↑ x₁
             G<>E = univConv↑ x₂
             F≡H = soundnessConv↑ F<>H
-            E∷U′ = stabilityTerm (refl-∙ F≡H) E∷U
+            E∷U′ = stability (refl-∙ F≡H) E∷U
         in
         liftConvTerm $ univ
           (ΠΣⱼ l₁ F∷U G∷U ok)

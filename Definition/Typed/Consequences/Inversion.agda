@@ -109,7 +109,7 @@ opaque
       (_ , _ , _ , _ , ⊢t , Π≡Π , ok) →
     case ΠΣ-injectivity′ Π≡Π of λ {
       (A≡A′ , B≡B′ , B[]≡B′[] , PE.refl , PE.refl , _) →
-    let ⊢t = stabilityTerm (refl-∙ (sym A≡A′)) ⊢t in
+    let ⊢t = stability (refl-∙ (sym A≡A′)) ⊢t in
     PE.refl , ok ,
     (λ ⦃ _ ⦄ → conv ⊢t (sym B≡B′)) ,
     _ , ⊢t , (λ {_ _} u≡v → sym (B[]≡B′[] (sym′ u≡v))) }

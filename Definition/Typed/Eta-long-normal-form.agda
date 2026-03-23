@@ -442,7 +442,7 @@ mutual
   ⊢nf∷-stable Δ≡Η = λ where
       (convₙ ⊢t B≡A) → convₙ
         (⊢nf∷-stable Δ≡Η ⊢t)
-        (stabilityEq Δ≡Η B≡A)
+        (stability Δ≡Η B≡A)
       (Levelₙ ⊢Γ ok) → Levelₙ
         ⊢Η
         ok
@@ -457,7 +457,7 @@ mutual
         (⊢nf∷L-stable Δ≡Η ⊢l)
         (⊢nf∷-stable Δ≡Η ⊢A)
       (liftₙ ⊢l ⊢t) → liftₙ
-        (stabilityLevel Δ≡Η ⊢l)
+        (stability Δ≡Η ⊢l)
         (⊢nf∷-stable Δ≡Η ⊢t)
       (ΠΣₙ ⊢A ⊢B ok) → ΠΣₙ
         (⊢nf∷-stable Δ≡Η ⊢A)
@@ -483,7 +483,7 @@ mutual
         (⊢nf∷-stable Δ≡Η ⊢t)
         (⊢nf∷-stable Δ≡Η ⊢u)
       (rflₙ ⊢t) → rflₙ
-        (stabilityTerm Δ≡Η ⊢t)
+        (stability Δ≡Η ⊢t)
       (neₙ ok ⊢t) → neₙ
         ok
         (⊢ne∷-stable Δ≡Η ⊢t)
@@ -507,9 +507,9 @@ mutual
   ⊢ne∷-stable Δ≡Η = λ where
       (convₙ ⊢t B≡A) → convₙ
         (⊢ne∷-stable Δ≡Η ⊢t)
-        (stabilityEq Δ≡Η B≡A)
+        (stability Δ≡Η B≡A)
       (varₙ ⊢Γ x∷A∈Γ) →
-        case inversion-var (stabilityTerm Δ≡Η (var ⊢Γ x∷A∈Γ)) of λ {
+        case inversion-var (stability Δ≡Η (var ⊢Γ x∷A∈Γ)) of λ {
           (B , x∷B∈Δ , A≡B) →
         convₙ (varₙ ⊢Η x∷B∈Δ) (sym A≡B) }
       (defnₙ _ α↦⊘) → defnₙ ⊢Η α↦⊘

@@ -1426,7 +1426,7 @@ opaque
     Lift-cong (⊢inline≡∷L ⊢l) (⊢inline≡ ⊢A)
   ⊢inline≡ (ΠΣⱼ ⊢B ok) =
     let ≡A = ⊢inline≡ (⊢∙→⊢ (wf ⊢B)) in
-    ΠΣ-cong ≡A (stabilityEq (refl-∙ (sym ≡A)) (⊢inline≡ ⊢B)) ok
+    ΠΣ-cong ≡A (stability (refl-∙ (sym ≡A)) (⊢inline≡ ⊢B)) ok
   ⊢inline≡ (Idⱼ ⊢A ⊢t ⊢u) =
     let ≡A = ⊢inline≡ ⊢A in
     Id-cong ≡A (conv (⊢inline≡∷ ⊢t) (sym ≡A))
@@ -1485,7 +1485,7 @@ opaque
   ⊢inline≡∷ (ΠΣⱼ _ ⊢A ⊢B ok) =
     let ≡A = ⊢inline≡∷ ⊢A in
     ΠΣ-cong′ ≡A
-      (stabilityEqTerm (refl-∙ (sym (univ ≡A))) (⊢inline≡∷ ⊢B)) ok
+      (stability (refl-∙ (sym (univ ≡A))) (⊢inline≡∷ ⊢B)) ok
   ⊢inline≡∷ (lamⱼ _ ⊢t ok) =
     lam-cong (⊢inline≡∷ ⊢t) ok
   ⊢inline≡∷ (⊢t ∘ⱼ ⊢u) =
@@ -1529,7 +1529,7 @@ opaque
       (natrec-cong ≡A
          (conv (⊢inline≡∷ ⊢t) $
           substTypeEq (sym ≡A) (refl (zeroⱼ (glassify-⊢′ (wf ⊢t)))))
-         (stabilityEqTerm (refl-∙ (sym ≡A)) $
+         (stability (refl-∙ (sym ≡A)) $
           conv (⊢inline≡∷ ⊢u) $
           subst-⊢≡-↑ (sym ≡A) (refl (sucⱼ (var₁ (glassify-⊢ ⊢A)))))
          ≡v)
@@ -1554,7 +1554,7 @@ opaque
     in
     conv
       (J-cong′ ≡A (conv ≡t (sym ≡A))
-         (stabilityEq
+         (stability
              (refl-∙ (sym ≡A) ∙
               Id-cong (wk₁ ⊢A′ (sym ≡A)) (wk₁ ⊢A′ (sym′ ≡t))
                 (refl (var₀ ⊢A′)))
@@ -1581,7 +1581,7 @@ opaque
     in
     conv
       (K-cong ≡A (conv ≡t (sym ≡A))
-         (stabilityEq (refl-∙ Id-A-t-t≡) ≡B)
+         (stability (refl-∙ Id-A-t-t≡) ≡B)
          (conv (⊢inline≡∷ ⊢u) $
           substTypeEq (sym ≡B) (refl (rflⱼ (glassify-⊢∷ ⊢t))))
          (conv ≡v Id-A-t-t≡) ok)

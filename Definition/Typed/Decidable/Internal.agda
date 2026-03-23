@@ -2799,7 +2799,7 @@ opaque
     | _ | _ | _ | _ | _ , type _
   are-equal-meta-vars-sound-tm _ _ (term PE.refl) _
     | _ | _ | _ | _ | Δ₁≡Δ₂ , term A₁≡A t₁≡t₂ =
-    stabilityEqTerm Δ₁≡Δ₂ (conv t₁≡t₂ A₁≡A)
+    stability Δ₁≡Δ₂ (conv t₁≡t₂ A₁≡A)
   are-equal-meta-vars-sound-tm {x₁} {x₂} {γ} _ ⊢γ (term _) _
     | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
     with γ .metas .bindings x₁ | γ .metas .bindings x₂
@@ -2852,7 +2852,7 @@ opaque
        | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
   are-equal-meta-vars-sound-level _ _ _ (level PE.refl) σ₁≡σ₂
     | _ | _ | _ | _ | Η₁≡Η₂ , level l₁≡l₂ =
-    subst-⊢≡∷L (stabilityEqLevel Η₁≡Η₂ l₁≡l₂) σ₁≡σ₂
+    subst-⊢≡∷L (stability Η₁≡Η₂ l₁≡l₂) σ₁≡σ₂
   are-equal-meta-vars-sound-level {x₁} {x₂} {γ} _ _ ⊢γ (level _) _
     | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
     with γ .metas .bindings x₁ | γ .metas .bindings x₂
@@ -2895,7 +2895,7 @@ opaque
        | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
   are-equal-meta-vars-sound-ty _ _ (type PE.refl) _
     | _ | _ | _ | _ | Δ₁≡Δ₂ , type A₁≡A₂ =
-    stabilityEq Δ₁≡Δ₂ A₁≡A₂
+    stability Δ₁≡Δ₂ A₁≡A₂
   are-equal-meta-vars-sound-ty _ _ (type ()) _
     | _ | _ | _ | _ | _ , term _ _
   are-equal-meta-vars-sound-ty {x₁} {x₂} {γ} _ ⊢γ (term _ _) _
@@ -2906,7 +2906,7 @@ opaque
     | _ | _ | _ | _ | _ , type _
   are-equal-meta-vars-sound-ty _ _ (term PE.refl A₂≡U) _
     | _ | _ | _ | _ | Δ₁≡Δ₂ , term A₁≡A₂ t₁≡t₂ =
-    univ (conv (stabilityEqTerm Δ₁≡Δ₂ (conv t₁≡t₂ A₁≡A₂)) A₂≡U)
+    univ (conv (stability Δ₁≡Δ₂ (conv t₁≡t₂ A₁≡A₂)) A₂≡U)
   are-equal-meta-vars-sound-ty {x₁} {x₂} {γ} _ ⊢γ (type _) _
     | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
     with γ .metas .bindings x₁ | γ .metas .bindings x₂
@@ -3739,7 +3739,7 @@ private module Lemmas (p : P n) where opaque
                                       (W.wk₁ (univ ⊢A₁) ⊢Ul)
     in
     ΠΣ-cong ⊢l A₁₁≡A₂₁
-      (stabilityEqTerm (refl-∙ (sym (univ A₁₁≡A₁))) A₁₂≡A₂₂) ΠΣ-ok
+      (stability (refl-∙ (sym (univ A₁₁≡A₁))) A₁₂≡A₂₂) ΠΣ-ok
   equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (ℕ PE.refl) =
     refl ⊢A₁
   equal-ty-red-U-sound _ eq ⊢γ ⊢A₁ ⊢A₂
@@ -5299,7 +5299,7 @@ private module Lemmas (p : P n) where opaque
           t₁₁≡t₂₁      = conv t₁₁≡t₂₁ (substTypeEq (sym A₁≡A) (refl ⊢0))
           _ , t₁₂≡t₂₂  = check-and-equal-tm-sound eq₃ ⊢γ
                            (subst-⊢-↑ ⊢A ⊢suc-1)
-          t₁₂≡t₂₂      = stabilityEqTerm (refl-∙ (sym A₁≡A)) $
+          t₁₂≡t₂₂      = stability (refl-∙ (sym A₁≡A)) $
                          conv t₁₂≡t₂₂ $
                          subst-⊢≡-↑ (sym A₁≡A) (refl ⊢suc-1)
           t₁₃≡t₂₃      = equal-ne-red-sound eq₄ ⊢γ (⊢ℕ ⊢Γ)
@@ -5327,7 +5327,7 @@ private module Lemmas (p : P n) where opaque
           A₁₂≡A₂ , A₁₂≡A₂₂ = check-and-equal-ty-sound eq₃ ⊢γ
                                (J-motive-context ⊢t₁)
           _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
-          A₁₂≡A₂₂          = stabilityEq
+          A₁₂≡A₂₂          = stability
                                (J-motive-context-cong′ (sym A₁₁≡A₁)
                                   (sym′ t₁₁≡t₁))
                                A₁₂≡A₂₂
@@ -5368,7 +5368,7 @@ private module Lemmas (p : P n) where opaque
           ⊢Id , _          = wf-⊢≡ Id≡Id
           A₁₂≡A₂ , A₁₂≡A₂₂ = check-and-equal-ty-sound eq₃ ⊢γ (∙ ⊢Id)
           _ , ⊢A₂          = wf-⊢≡ A₁₂≡A₂
-          A₁₂≡A₂₂          = stabilityEq (refl-∙ Id≡Id) A₁₂≡A₂₂
+          A₁₂≡A₂₂          = stability (refl-∙ Id≡Id) A₁₂≡A₂₂
           _ , t₁₂≡t₂₂      = check-and-equal-tm-sound eq₄ ⊢γ $
                              substType ⊢A₂ (rflⱼ ⊢t₁)
           t₁₂≡t₂₂          = conv t₁₂≡t₂₂ $
@@ -5967,7 +5967,7 @@ opaque
         _ , ⊢Δ′ , _ = contextConvSubst Δ≡Δ′
         A≡A′        = P.check-type-sound (P-inhabited n) eq₂ ⊢γ ⊢Δ′
     in
-    Δ≡Δ′ ∙ stabilityEq (symConEq Δ≡Δ′) A≡A′
+    Δ≡Δ′ ∙ stability (symConEq Δ≡Δ′) A≡A′
 
 opaque
 
@@ -6117,7 +6117,7 @@ opaque
         _ , t≡t′    = check-type-and-term-sound′ n eq₂ ⊢γ ⊢Δ′
         _ , ⊢t , _  = wf-⊢≡∷ t≡t′
     in
-    stabilityTerm (symConEq Δ≡Δ′) ⊢t
+    stability (symConEq Δ≡Δ′) ⊢t
 
 opaque
 
@@ -6152,7 +6152,7 @@ opaque
     let _ , ⊢Δ′ , _ = contextConvSubst Δ≡Δ′
         t₁≡t₂       = check-and-equal-type-and-terms-sound′ n eq₂ ⊢γ ⊢Δ′
     in
-    stabilityEqTerm (symConEq Δ≡Δ′) t₁≡t₂
+    stability (symConEq Δ≡Δ′) t₁≡t₂
 
 opaque
 

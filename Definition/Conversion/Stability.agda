@@ -47,9 +47,9 @@ mutual
               → ∇ » Γ ⊢ k ~ l ↑ A
               → ∇ » Δ ⊢ k ~ l ↑ A
   stability~↑ Γ≡Δ (var-refl x x≡y) =
-    var-refl (stabilityTerm Γ≡Δ x) x≡y
+    var-refl (stability Γ≡Δ x) x≡y
   stability~↑ Γ≡Δ (defn-refl α α↦⊘ α≡β) =
-    defn-refl (stabilityTerm Γ≡Δ α) α↦⊘ α≡β
+    defn-refl (stability Γ≡Δ α) α↦⊘ α≡β
   stability~↑ Γ≡Δ (lower-cong x) =
     lower-cong (stability~↓ Γ≡Δ x)
   stability~↑ Γ≡Δ (app-cong k~l x) =
@@ -90,19 +90,19 @@ mutual
          (Γ≡Δ ∙ refl ⊢A₁ ∙ refl (Idⱼ′ (W.wk₁ ⊢A₁ ⊢t₁) (var₀ ⊢A₁)))
          B₁≡B₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stabilityConv↑Term Γ≡Δ v₁≡v₂)
-      (stability~↓ Γ≡Δ w₁~w₂) (stabilityEq Γ≡Δ ≡Id) }}
+      (stability~↓ Γ≡Δ w₁~w₂) (stability Γ≡Δ ≡Id) }}
   stability~↑ Γ≡Δ (K-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     case syntacticEqTerm (soundnessConv↑Term t₁≡t₂) .proj₂ .proj₁ of λ {
       ⊢t₁ →
     K-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑ (Γ≡Δ ∙ refl (Idⱼ′ ⊢t₁ ⊢t₁)) B₁≡B₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
-      (stabilityEq Γ≡Δ ≡Id) ok }
+      (stability Γ≡Δ ≡Id) ok }
   stability~↑ Γ≡Δ ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁~v₂ ≡Id ok) =
     []-cong-cong (stabilityConv↑Level Γ≡Δ l₁≡l₂)
       (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
-      (stabilityEq Γ≡Δ ≡Id) ok
+      (stability Γ≡Δ ≡Id) ok
 
   -- Stability of algorithmic equality of neutrals of types in WHNF.
   stability~↓ : ∀ {k l A}
@@ -117,7 +117,7 @@ mutual
               → ∇ » Γ ⊢ k ~ l ∷ A
               → ∇ » Δ ⊢ k ~ l ∷ A
   stability~∷ Γ≡Δ (↑ A≡B k~l) =
-    ↑ (stabilityEq Γ≡Δ A≡B) (stability~↑ Γ≡Δ k~l)
+    ↑ (stability Γ≡Δ A≡B) (stability~↑ Γ≡Δ k~l)
 
   -- Stability of algorithmic equality of types.
   stabilityConv↑ : ∀ {A B}
@@ -195,13 +195,13 @@ mutual
   stabilityConv↓Term Γ≡Δ (Unitʷ-ins ok t~u) =
     Unitʷ-ins ok (stability~↓ Γ≡Δ t~u)
   stabilityConv↓Term Γ≡Δ (Σʷ-ins x x₁ x₂) =
-    Σʷ-ins (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stability~↓ Γ≡Δ x₂)
+    Σʷ-ins (stability Γ≡Δ x) (stability Γ≡Δ x₁) (stability~↓ Γ≡Δ x₂)
   stabilityConv↓Term Γ≡Δ (ne-ins t u neN x) =
-    ne-ins (stabilityTerm Γ≡Δ t) (stabilityTerm Γ≡Δ u) neN (stability~↓ Γ≡Δ x)
+    ne-ins (stability Γ≡Δ t) (stability Γ≡Δ u) neN (stability~↓ Γ≡Δ x)
   stabilityConv↓Term Γ≡Δ (univ x x₁ x₂) =
-    univ (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁) (stabilityConv↓ Γ≡Δ x₂)
+    univ (stability Γ≡Δ x) (stability Γ≡Δ x₁) (stabilityConv↓ Γ≡Δ x₂)
   stabilityConv↓Term Γ≡Δ (Lift-η ⊢t₁ ⊢t₂ w₁ w₂ lower≡lower) =
-    Lift-η (stabilityTerm Γ≡Δ ⊢t₁) (stabilityTerm Γ≡Δ ⊢t₂) w₁ w₂ (stabilityConv↑Term Γ≡Δ lower≡lower)
+    Lift-η (stability Γ≡Δ ⊢t₁) (stability Γ≡Δ ⊢t₂) w₁ w₂ (stabilityConv↑Term Γ≡Δ lower≡lower)
   stabilityConv↓Term Γ≡Δ (zero-refl x) =
     let _ , ⊢Δ , _ = contextConvSubst Γ≡Δ
     in  zero-refl ⊢Δ
@@ -214,20 +214,20 @@ mutual
       (stabilityConv↑Term Γ≡Δ x₂) (stabilityConv↑Term Γ≡Δ x₃) ok
   stabilityConv↓Term Γ≡Δ (η-eq x x₁ y y₁ t<>u) =
     let ⊢F , ⊢G , _ = inversion-ΠΣ (syntacticTerm x)
-    in  η-eq (stabilityTerm Γ≡Δ x) (stabilityTerm Γ≡Δ x₁)
+    in  η-eq (stability Γ≡Δ x) (stability Γ≡Δ x₁)
              y y₁ (stabilityConv↑Term (Γ≡Δ ∙ (refl ⊢F)) t<>u)
   stabilityConv↓Term Γ≡Δ (Σ-η ⊢p ⊢r pProd rProd fstConv sndConv) =
-    Σ-η (stabilityTerm Γ≡Δ ⊢p) (stabilityTerm Γ≡Δ ⊢r)
+    Σ-η (stability Γ≡Δ ⊢p) (stability Γ≡Δ ⊢r)
         pProd rProd
         (stabilityConv↑Term Γ≡Δ fstConv) (stabilityConv↑Term Γ≡Δ sndConv)
   stabilityConv↓Term Γ≡Δ (η-unit [t] [u] tUnit uUnit η) =
-    let [t] = stabilityTerm Γ≡Δ [t]
-        [u] = stabilityTerm Γ≡Δ [u]
+    let [t] = stability Γ≡Δ [t]
+        [u] = stability Γ≡Δ [u]
     in  η-unit [t] [u] tUnit uUnit η
   stabilityConv↓Term Γ≡Δ (Id-ins ⊢v₁ v₁~v₂) =
-    Id-ins (stabilityTerm Γ≡Δ ⊢v₁) (stability~↓ Γ≡Δ v₁~v₂)
+    Id-ins (stability Γ≡Δ ⊢v₁) (stability~↓ Γ≡Δ v₁~v₂)
   stabilityConv↓Term Γ≡Δ (rfl-refl t≡u) =
-    rfl-refl (stabilityEqTerm Γ≡Δ t≡u)
+    rfl-refl (stability Γ≡Δ t≡u)
 
   -- Stability of algorithmic equality of levels.
 
