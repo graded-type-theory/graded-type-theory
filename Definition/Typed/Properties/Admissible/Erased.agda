@@ -319,14 +319,14 @@ private
           ⊢wk3          = ⊢ˢʷ∷-wkSubst (∙ ⊢Unit′)
                             (⊢ˢʷ∷-idSubst (wf ⊢A₁))
           ⊢A[wk3]       = subst-⊢ ⊢A₁ ⊢wk3
-          ⊢wk1-l-[wk3⇑] = subst-⊢∷L ⊢wk1-l (⊢ˢʷ∷-⇑ ⊢A[wk3] ⊢wk3)
+          ⊢wk1-l-[wk3⇑] = subst-⊢ ⊢wk1-l (⊢ˢʷ∷-⇑ ⊢A[wk3] ⊢wk3)
       in
       [][]↑-cong B₁≡B₂ $ _⊢_≡_∷_.refl $
       prodⱼ
         (Liftⱼ ⊢wk1-l-[wk3⇑] (⊢Unit (∙ ⊢A[wk3]) Unit-ok))
         (PE.subst (_⊢_∷_ _ _) (wk[]≡[] 3) $ var₂ ⊢Unit′)
         (liftⱼ′
-           (subst-⊢∷L ⊢wk1-l-[wk3⇑]
+           (subst-⊢ ⊢wk1-l-[wk3⇑]
               (PE.subst (_⊢ˢʷ_∷_ _ _)
                  (PE.cong (_∙_ _) $
                   PE.trans (wk[]≡wk[]′ {n = 3}) $ wk≡subst _ _) $
@@ -496,7 +496,7 @@ opaque
                                                                                     (erasedrec-lemma₃ ⊢B (wk₁ ⊢Unit′ ⊢u) $
                                                                                      liftⱼ′
                                                                                        (PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) $
-                                                                                        subst-⊢∷L ⊢wk1-l (⊢ˢʷ∷-[][]↑ (wk₁ ⊢Unit′ ⊢u)))
+                                                                                        subst-⊢ ⊢wk1-l (⊢ˢʷ∷-[][]↑ (wk₁ ⊢Unit′ ⊢u)))
                                                                                        (var₀ ⊢Unit′))
                                                                                     .proj₂)
                                                                                  (Lift-β′ ⊢star)
@@ -569,7 +569,7 @@ opaque
       (Idⱼ′
          ([]ⱼ Erased-ok
             (PE.subst (_⊢_∷Level _) wk[]′-[]↑ $
-             subst-⊢∷L ⊢l $ ⊢ˢʷ∷-[][]↑ $ erasedⱼ $
+             subst-⊢ ⊢l $ ⊢ˢʷ∷-[][]↑ $ erasedⱼ $
              PE.subst (_⊢_∷_ _ _) wk-Erased $
              var₀ ⊢Erased-A)
             (erasedⱼ ⊢0))

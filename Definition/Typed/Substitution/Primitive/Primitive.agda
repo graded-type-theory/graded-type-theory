@@ -1884,21 +1884,6 @@ opaque
 
 opaque
 
-  -- A substitution lemma for _⊢_∷_.
-
-  subst-⊢∷ : ∇ » Γ ⊢ t ∷ A → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ t [ σ ] ∷ A [ σ ]
-  subst-⊢∷ = subst-⊢
-
-opaque
-
-  -- A substitution lemma for _⊢_∷Level.
-
-  subst-⊢∷L :
-    ∇ » Γ ⊢ l ∷Level → ∇ » Δ ⊢ˢʷ σ ∷ Γ → ∇ » Δ ⊢ l [ σ ] ∷Level
-  subst-⊢∷L = subst-⊢
-
-opaque
-
   -- A substitution lemma for several kinds of judgements.
 
   subst-⊢≡ :
@@ -1917,24 +1902,6 @@ opaque
     P.subst-⊢∷L→⊢≡∷L Inhabited.P-inhabited σ₁≡σ₂ ⊢𝓙 PE.refl
   subst-⊢≡ {𝓙 = [ _ ≡ _ ∷Level]} ⊢𝓙 σ₁≡σ₂ =
     P.subst-⊢≡∷L Inhabited.P-inhabited σ₁≡σ₂ ⊢𝓙 PE.refl
-
-opaque
-
-  -- A substitution lemma for _⊢_≡_∷_.
-
-  subst-⊢≡∷ :
-    ∇ » Γ ⊢ t₁ ≡ t₂ ∷ A → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    ∇ » Δ ⊢ t₁ [ σ₁ ] ≡ t₂ [ σ₂ ] ∷ A [ σ₁ ]
-  subst-⊢≡∷ = subst-⊢≡
-
-opaque
-
-  -- A substitution lemma for _⊢_≡_∷Level.
-
-  subst-⊢≡∷L :
-    ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level → ∇ » Δ ⊢ˢʷ σ₁ ≡ σ₂ ∷ Γ →
-    ∇ » Δ ⊢ l₁ [ σ₁ ] ≡ l₂ [ σ₂ ] ∷Level
-  subst-⊢≡∷L = subst-⊢≡
 
 opaque
 

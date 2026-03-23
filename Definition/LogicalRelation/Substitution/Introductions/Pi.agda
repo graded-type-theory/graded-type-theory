@@ -220,7 +220,7 @@ opaque
       ⊩A[σ₁] →
     case R.escape-⊩ ⊩A[σ₁] of λ
       ⊢A[σ₁] →
-    case wf-⊢≡∷ (subst-⊢≡∷ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂) of λ
+    case wf-⊢≡∷ (subst-⊢≡ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂) of λ
       (_ , ⊢lam-t₁[σ₁] , ⊢lam-t₂[σ₂]) →
     case
       (∀ κ′ (∇′ : DCon (Term 0) κ′) → » ∇′ ⊇ ∇ →
@@ -266,7 +266,7 @@ opaque
                 ) of λ
            ρ•ₛσ₁,v₁≡ρ•ₛσ₂,v₂ →
          lam p (wk (lift ρ) (t₁ [ σ₁ ⇑ ])) ∘⟨ p ⟩ v₁  ⇒⟨ β-red (W.wk (W.liftʷʷ ρ⊇ ⊢wk-ρ-A[σ₁]) (subst-⊢ ⊢B ⊢σ₁⇑))
-                                                           (W.wk (W.liftʷʷ ρ⊇ ⊢wk-ρ-A[σ₁]) (subst-⊢∷ ⊢t₁ ⊢σ₁⇑))
+                                                           (W.wk (W.liftʷʷ ρ⊇ ⊢wk-ρ-A[σ₁]) (subst-⊢ ⊢t₁ ⊢σ₁⇑))
                                                            (escape-⊩∷ ⊩v₁) PE.refl ok ⟩⊩∷
          wk (lift ρ) (t₁ [ σ₁ ⇑ ]) [ v₁ ]₀ ∷
            wk (lift ρ) (B [ σ₁ ⇑ ]) [ v₁ ]₀           ≡⟨ singleSubstWkComp _ _ t₁ ⟩⊩∷∷≡
@@ -280,7 +280,7 @@ opaque
                                                        ˘⟨ singleSubstWkComp _ _ B ⟩⇒≡
          wk (lift ρ) (t₂ [ σ₂ ⇑ ]) [ v₂ ]₀ ∷
            wk (lift ρ) (B [ σ₂ ⇑ ]) [ v₂ ]₀           ⇐⟨ β-red (W.wk (W.liftʷʷ ρ⊇ (⊢wk-ρ-A[σ₂])) (subst-⊢ ⊢B ⊢σ₂⇑))
-                                                           (W.wk (W.liftʷʷ ρ⊇ (⊢wk-ρ-A[σ₂])) (subst-⊢∷ ⊢t₂ ⊢σ₂⇑))
+                                                           (W.wk (W.liftʷʷ ρ⊇ (⊢wk-ρ-A[σ₂])) (subst-⊢ ⊢t₂ ⊢σ₂⇑))
                                                            (escape-⊩∷ ⊩v₂) PE.refl ok
                                                        ⟩∎∷
          lam p (wk (lift ρ) (t₂ [ σ₂ ⇑ ])) ∘⟨ p ⟩ v₂  ∎)
@@ -292,7 +292,7 @@ opaque
       , id ⊢lam-t₁[σ₁]
       , id ⊢lam-t₂[σ₂]
       , lamₙ , lamₙ
-      , with-inc-⊢≅∷ (subst-⊢≡∷ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂)
+      , with-inc-⊢≅∷ (subst-⊢≡ (lam-cong ⊢t₁≡t₂ ok) ⊢σ₁≡σ₂)
           (let instance
                  inc : Var-included or-empty Φ
                  inc = included
@@ -543,9 +543,9 @@ opaque
             , u₁ , u₂ , t₁[σ]⇒*u₁ , t₂[σ]⇒*u₂ , u₁-fun , u₂-fun
             , with-inc-⊢≅∷
                 (u₁        ⇐*⟨ t₁[σ]⇒*u₁ ⟩⊢
-                 t₁ [ σ ]  ≡⟨ subst-⊢≡∷ (η-eq′ (defn-wk ξ⊇ ⊢t₁)
-                                               (defn-wk ξ⊇ ⊢t₂)
-                                               (defn-wk ξ⊇ ⊢wk1-t₁∘0≡wk1-t₂∘0))
+                 t₁ [ σ ]  ≡⟨ subst-⊢≡ (η-eq′ (defn-wk ξ⊇ ⊢t₁)
+                                              (defn-wk ξ⊇ ⊢t₂)
+                                              (defn-wk ξ⊇ ⊢wk1-t₁∘0≡wk1-t₂∘0))
                                 (refl-⊢ˢʷ≡∷ $ escape-⊩ˢ∷ ⊩σ .proj₂) ⟩⊢
                  t₂ [ σ ]  ⇒*⟨ t₂[σ]⇒*u₂ ⟩⊢∎
                  u₂        ∎)

@@ -91,7 +91,7 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     case
       (let open RR in
-       suc (t [ σ ])  ∎⟨ sucⱼ (subst-⊢∷ ⊢t ⊢σ) ⟩⇒)
+       suc (t [ σ ])  ∎⟨ sucⱼ (subst-⊢ ⊢t ⊢σ) ⟩⇒)
     of λ
       suc-t[σ]⇒*suc-t[σ] →
 
@@ -256,7 +256,7 @@ opaque
     v [ σ ] ® erase str v T.[ σ′ ] ∷ℕ                              →⟨ natrecʳ′
                                                                        (subst-⊢≡₀ (subst-⊢-⇑ ⊢A ⊢σ) ∘→ sym′ ∘→ ⇛→⊢≡)
                                                                        (subst-⊢-⇑ ⊢A ⊢σ)
-                                                                       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢∷ ⊢t ⊢σ))
+                                                                       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢t ⊢σ))
                                                                        (PE.subst (_⊢_∷_ _ _) (natrecSucCase _ A) (subst-⊢-⇑ ⊢u ⊢σ))
                                                                        t[σ]®t[σ′] u[σ⇑⇑]®u[σ′⇑⇑] ⟩
     (natrec p q r (A [ σ ⇑ ]) (t [ σ ]) (u [ σ ⇑ ⇑ ]) (v [ σ ]) ®

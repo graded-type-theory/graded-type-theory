@@ -288,7 +288,7 @@ private opaque
     let ⊢l , ⊢A = inversion-Lift (⊢∙→⊢ (wf ⊢lower₀-t)) in
     ⊢l ,
     PE.subst (flip (_⊢_∷_ _) _) ([][]↑-[↑⇑] 0 t)
-      (subst-⊢∷ ⊢lower₀-t $
+      (subst-⊢ ⊢lower₀-t $
        ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wk₁ ⊢A ⊢l) (var₀ ⊢A)))
 
 private opaque
@@ -328,7 +328,7 @@ opaque
         ⊢σ                                   =
           ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wk₁ ⊢A′ ⊢l₂) (var₀ ⊢A′))
     in
-    PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) (subst-⊢∷L ⊢l₁ ⊢σ) ,
+    PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) (subst-⊢ ⊢l₁ ⊢σ) ,
     ⊢l₂ , (_ , ⊢A) , (_ , inversion-lower₀-⊢∷ {t = B} ⊢B .proj₂) ,
     (_ , C≡U) , ok
 
@@ -351,6 +351,6 @@ opaque
         ⊢σ                     =
           ⊢ˢʷ∷-[][]↑ (liftⱼ′ (wk₁ ⊢A ⊢l₂) (var₀ ⊢A))
     in
-    PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) (subst-⊢∷L ⊢l₁ ⊢σ) ,
+    PE.subst (_⊢_∷Level _) (wk1-[][]↑ 1) (subst-⊢ ⊢l₁ ⊢σ) ,
     ⊢l₂ , ⊢A , inversion-lower₀-⊢ {B = B} ⊢B .proj₂ ,
     ok

@@ -97,7 +97,7 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷L ⊢l ⊢σ
+      ( subst-⊢ ⊢l ⊢σ
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 
@@ -302,7 +302,7 @@ opaque
                                                                    ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊢σ ⟩
 
     (t [ σ ] ® erase str t T.[ σ′ ] ∷ (Π p , q ▷ A ▹ B) [ σ ])  →⟨ (λ hyp →
-                                                                      hyp _ $ subst-⊢∷ ⊢u ⊢σ) ∘→
+                                                                      hyp _ $ subst-⊢ ⊢u ⊢σ) ∘→
                                                                    proj₂ ∘→ proj₂ ∘→ ®∷Π⇔ .proj₁ ⟩
     (p PE.≡ 𝟘 →
      (t ∘⟨ 𝟘 ⟩ u) [ σ ] ® app-𝟘 str (erase str t T.[ σ′ ]) ∷
@@ -422,9 +422,9 @@ opaque
       ( ΠΣⱼ (subst-⊢-⇑ ⊢B ⊢σ) ok
       , t [ σ ] , u [ σ ] , v₂
       , (⇒*→⇛ $ _⊢_⇒*_∷_.id $
-         prodⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢∷ ⊢t ⊢σ)
+         prodⱼ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢ ⊢t ⊢σ)
            (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-            subst-⊢∷ ⊢u ⊢σ)
+            subst-⊢ ⊢u ⊢σ)
            ok)
       , ®∷-⇒* u[σ′]⇒*v₂ u[σ]®
       , (λ p≡𝟘 →
@@ -731,7 +731,7 @@ opaque
         r≡𝟘-lemma PE.refl =
           case r≡𝟘→ε PE.refl of λ {
             (ε , tr) →
-          case red-Σ (subst-⊢∷ ⊢t ⊢σ) of λ {
+          case red-Σ (subst-⊢ ⊢t ⊢σ) of λ {
             (_ , ne n , _) →
               ⊥-elim $ glass-closed-no-ne $
               PE.subst (flip (Neutral _) _) tr n;

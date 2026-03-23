@@ -2845,21 +2845,21 @@ opaque
     with γ .metas .bindings x₂ | ⊢γ .metas-wf .bindings-wf x₂
   are-equal-meta-vars-sound-level _ _ _ (level PE.refl) σ₁≡σ₂
     | _ | _ | _ , level _ | ⊢l =
-    subst-⊢≡∷L (refl-⊢≡∷L ⊢l) σ₁≡σ₂
+    subst-⊢≡ (refl-⊢≡∷L ⊢l) σ₁≡σ₂
   are-equal-meta-vars-sound-level {x₁} {x₂} {γ} _ _ ⊢γ (level _) _
     | _ | inv (inj₂ (inj₁ ∈eqs)) _ _
     with γ .metas .bindings x₁ | γ .metas .bindings x₂
        | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
   are-equal-meta-vars-sound-level _ _ _ (level PE.refl) σ₁≡σ₂
     | _ | _ | _ | _ | Η₁≡Η₂ , level l₁≡l₂ =
-    subst-⊢≡∷L (stability Η₁≡Η₂ l₁≡l₂) σ₁≡σ₂
+    subst-⊢≡ (stability Η₁≡Η₂ l₁≡l₂) σ₁≡σ₂
   are-equal-meta-vars-sound-level {x₁} {x₂} {γ} _ _ ⊢γ (level _) _
     | _ | inv (inj₂ (inj₂ ∈eqs)) _ _
     with γ .metas .bindings x₁ | γ .metas .bindings x₂
        | List.lookup (⊢γ .metas-wf .equalities-wf) ∈eqs
   are-equal-meta-vars-sound-level _ _ _ (level PE.refl) σ₁≡σ₂
     | _ | _ | _ | _ | _ , level l₁≡l₂ =
-    subst-⊢≡∷L (sym-⊢≡∷L l₁≡l₂) σ₁≡σ₂
+    subst-⊢≡ (sym-⊢≡∷L l₁≡l₂) σ₁≡σ₂
 
 -- A type used to state are-equal-meta-vars-sound-ty and
 -- is-type-sound.
@@ -3186,7 +3186,7 @@ private module Lemmas (p : P n) where opaque
     level γx≡ ,
     wf ⊢l ,
     ⊢σ ,
-    subst-⊢≡∷L (refl-⊢≡∷L ⊢l) σ≡σ′
+    subst-⊢≡ (refl-⊢≡∷L ⊢l) σ≡σ′
   is-level-sound {x} {σ} {γ} _ ⊢γ ⊢Γ | inv _ _ eq | _ , term _ A | ⊢t
     with inv->>= eq
   … | inv σ′ eq₁ eq
@@ -3214,7 +3214,7 @@ private module Lemmas (p : P n) where opaque
     term γx≡ ⊢A A[σ]≡Level ,
     wf ⊢t ,
     ⊢σ ,
-    term-⊢≡∷ (conv (subst-⊢≡∷ (refl ⊢t) σ≡σ′) A[σ]≡Level)
+    term-⊢≡∷ (conv (subst-⊢≡ (refl ⊢t) σ≡σ′) A[σ]≡Level)
 
   -- Soundness for check-and-equal-ty.
 
@@ -3689,7 +3689,7 @@ private module Lemmas (p : P n) where opaque
         A[σ₁]≡Ul      = equal-ty-sound eq₄ ⊢γ
                           (subst-⊢ (wf-⊢∷ ⊢x₂) ⊢σ₁) (wf-⊢∷ ⊢x₁[σ₁])
     in
-    conv (subst-⊢≡∷ x₁≡x₂ σ₁≡σ₂) A[σ₁]≡Ul
+    conv (subst-⊢≡ x₁≡x₂ σ₁≡σ₂) A[σ₁]≡Ul
   equal-ty-red-U-sound _ _ _ ⊢A₁ _ | just (Level PE.refl) =
     refl ⊢A₁
   equal-ty-red-U-sound _ eq ⊢γ ⊢A₁ ⊢A₂ | just (U _ _ PE.refl) =
@@ -4720,7 +4720,7 @@ private module Lemmas (p : P n) where opaque
           ⊢Δ     = wf ⊢t
           σ≡σ′   = check-sub-sound σ eq₂ ⊢γ ⊢Γ ⊢Δ
       in
-      wf-⊢≡∷ (subst-⊢≡∷ (refl ⊢t) (sym-⊢ˢʷ≡∷ ⊢Δ σ≡σ′)) .proj₂ .proj₂
+      wf-⊢≡∷ (subst-⊢≡ (refl ⊢t) (sym-⊢ˢʷ≡∷ ⊢Δ σ≡σ′)) .proj₂ .proj₂
     infer′-sound {Γ} (var _) eq _ ⊢Γ =
       var ⊢Γ (index-sound (Γ .vars) eq .proj₁ PE.refl)
     infer′-sound {Γ} (defn _) eq _ ⊢Γ
@@ -5186,7 +5186,7 @@ private module Lemmas (p : P n) where opaque
           x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term
                             ⊢x₂
       in
-      subst-⊢≡∷ x₁≡x₂ σ₁≡σ₂
+      subst-⊢≡ x₁≡x₂ σ₁≡σ₂
     equal-ne-inf′-sound {Γ} (var _ PE.refl) eq _ ⊢Γ =
       refl (var ⊢Γ (index-sound (Γ .vars) eq .proj₁ PE.refl))
     equal-ne-inf′-sound {Γ} (defn _ PE.refl) eq _ ⊢Γ

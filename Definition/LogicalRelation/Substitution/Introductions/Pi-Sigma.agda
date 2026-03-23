@@ -551,7 +551,7 @@ opaque
       ⊩l[σ] →
     case inversion-ΠΣ-U ⊢ΠΣ∷U of λ
       (_ , _ , _ , _ , _ , ok) →
-    let ⊢ΠΣ[] = refl $ subst-⊢∷ ⊢ΠΣ∷U $ escape-⊩ˢ∷ ⊩σ .proj₂
+    let ⊢ΠΣ[] = refl $ subst-⊢ ⊢ΠΣ∷U $ escape-⊩ˢ∷ ⊩σ .proj₂
         ⊢≅ΠΣ[] = with-inc-⊢≅∷ ⊢ΠΣ[] $ ≅ₜ-ΠΣ-cong
             (escapeLevel ⊩l[σ])
             (escape-⊩≡∷ (refl-⊩≡∷ ⊩A[σ]))
@@ -635,7 +635,7 @@ opaque
         (conv-∙-⊩ᵛ∷ A₁≡A₂ (wf-⊩ᵛ≡∷ B₁≡B₂∷U .proj₂)) ⊩σ₂ of λ
       (_ , _ , ⊩ΠΣ₂ , _) →
     let _ , _ , ok = inversion-ΠΣ (wf-⊢≡ (univ ΠΣ≡ΠΣ) .proj₁)
-        ΠΣ[]≡ΠΣ[] = subst-⊢≡∷ ΠΣ≡ΠΣ (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂)
+        ΠΣ[]≡ΠΣ[] = subst-⊢≡ ΠΣ≡ΠΣ (escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₂)
         ΠΣ[]≅ΠΣ[] = with-inc-⊢≅∷ ΠΣ[]≡ΠΣ[] $ ≅ₜ-ΠΣ-cong
             (escapeLevel ⊩l[σ₁])
             (R.escape-⊩≡∷ A₁[σ₁]≡A₂[σ₂]∷U)

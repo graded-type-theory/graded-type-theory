@@ -253,7 +253,7 @@ opaque
     Γ »∙ A ⊢ t ∷ B →
     Γ »∙ Lift l A ⊢ lower₀ t ∷ lower₀ B
   lower₀Term ⊢l ⊢t =
-    subst-⊢∷ ⊢t
+    subst-⊢ ⊢t
       (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf ⊢t))) here)))
 
 opaque
@@ -266,7 +266,7 @@ opaque
     Γ »∙ A ⊢ t₁ ≡ t₂ ∷ B →
     Γ »∙ Lift l A ⊢ lower₀ t₁ ≡ lower₀ t₂ ∷ lower₀ B
   lower₀TermEq ⊢l t₁≡t₂ =
-    subst-⊢≡∷ t₁≡t₂
+    subst-⊢≡ t₁≡t₂
       (refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
        lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf t₁≡t₂))) here))
 

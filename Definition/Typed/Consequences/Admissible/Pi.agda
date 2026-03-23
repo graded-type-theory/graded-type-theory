@@ -76,7 +76,7 @@ opaque
       C [ u , v ]₁₀
   β-red-⇒₂ {p₁} {p₂} {t} {p₁′} {p₂′} {C} {u} {v} ⊢lam ⊢u ⊢v =
     let _ , ⊢lam′ , Π≡Π , _ = inversion-lam-Π ⊢lam in
-    case subst-⊢∷ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u) of λ {
+    case subst-⊢ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u) of λ {
       ⊢lam′ →                                         ⟨ PE.sym $ singleSubstComp _ _ C ⟩⇒≡
     lam p₁ (lam p₂ t) ∘⟨ p₁′ ⟩ u ∘⟨ p₂′ ⟩ v          ⇒⟨ app-subst (β-red-⇒₁ ⊢lam ⊢u) ⊢v ⟩
     lam p₂ (t [ liftSubst (sgSubst u) ]) ∘⟨ p₂′ ⟩ v  ⇒⟨ β-red-⇒₁ (conv ⊢lam′ (Π≡Π (refl ⊢u))) ⊢v ⟩∎≡
@@ -101,14 +101,14 @@ opaque
     {p₁} {p₂} {p₃} {t} {p₁′} {p₂′} {p₃′} {C} {D} {u} {v} {w}
     ⊢lam ⊢u ⊢v ⊢w =
     let _ , ⊢lam′ , Π≡Π , _ = inversion-lam-Π ⊢lam
-        ⊢lam′               = conv (subst-⊢∷ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u))
+        ⊢lam′               = conv (subst-⊢ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u))
                                 (Π≡Π (refl ⊢u))
         _ , ⊢lam″ , Π≡Π , _ = inversion-lam-Π ⊢lam′
         ⊢lam″               =
           PE.subst₂ (_⊢_∷_ _)
             (singleSubstComp _ _ (lam _ t))
             (singleSubstComp _ _ (Π _ , _ ▷ C ▹ D)) $
-          conv (subst-⊢∷ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢v))
+          conv (subst-⊢ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢v))
             (Π≡Π (refl ⊢v))
     in                                                               ⟨ PE.sym $ singleSubstComp _ _ D ⟩⇒≡
     lam p₁ (lam p₂ (lam p₃ t)) ∘⟨ p₁′ ⟩ u ∘⟨ p₂′ ⟩ v ∘⟨ p₃′ ⟩ w    ⇒*⟨ app-subst* (β-red-⇒₂ ⊢lam ⊢u ⊢v) ⊢w ⟩
@@ -137,21 +137,21 @@ opaque
     {p₁} {p₂} {p₃} {p₄} {t} {p₁′} {p₂′} {p₃′} {C} {p₄′} {D} {E}
     {u₁} {u₂} {u₃} {u₄} ⊢lam ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄ =
     let _ , ⊢lam′ , Π≡Π , _ = inversion-lam-Π ⊢lam
-        ⊢lam′               = conv (subst-⊢∷ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u₁))
+        ⊢lam′               = conv (subst-⊢ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u₁))
                                 (Π≡Π (refl ⊢u₁))
         _ , ⊢lam″ , Π≡Π , _ = inversion-lam-Π ⊢lam′
         ⊢lam″               =
           PE.subst₂ (_⊢_∷_ _)
             (singleSubstComp _ _ (lam _ (lam _ t)))
             (singleSubstComp _ _ (Π _ , _ ▷ C ▹ Π _ , _ ▷ D ▹ E)) $
-          conv (subst-⊢∷ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢u₂))
+          conv (subst-⊢ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢u₂))
             (Π≡Π (refl ⊢u₂))
         _ , ⊢lam‴ , Π≡Π , _ = inversion-lam-Π ⊢lam″
         ⊢lam‴ =
           PE.subst₂ (_⊢_∷_ _)
             (singleSubstComp _ _ (lam _ t))
             (singleSubstComp _ _ (Π _ , _ ▷ D ▹ E)) $
-          conv (subst-⊢∷ ⊢lam‴ (⊢ˢʷ∷-sgSubst ⊢u₃))
+          conv (subst-⊢ ⊢lam‴ (⊢ˢʷ∷-sgSubst ⊢u₃))
             (Π≡Π (refl ⊢u₃))
     in
                                                                            ⟨ PE.sym $ singleSubstComp _ _ E ⟩⇒≡
@@ -192,7 +192,7 @@ opaque
     {p₁} {p₂} {p₃} {p₄} {p₅} {t} {p₁′} {p₂′} {p₃′} {C} {p₄′} {D} {p₅′}
     {E} {F} {u₁} {u₂} {u₃} {u₄} {u₅} ⊢lam ⊢u₁ ⊢u₂ ⊢u₃ ⊢u₄ ⊢u₅ =
     let _ , ⊢lam′ , Π≡Π , _ = inversion-lam-Π ⊢lam
-        ⊢lam′               = conv (subst-⊢∷ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u₁))
+        ⊢lam′               = conv (subst-⊢ ⊢lam′ (⊢ˢʷ∷-sgSubst ⊢u₁))
                                 (Π≡Π (refl ⊢u₁))
         _ , ⊢lam″ , Π≡Π , _ = inversion-lam-Π ⊢lam′
         ⊢lam″               =
@@ -200,21 +200,21 @@ opaque
             (singleSubstComp _ _ (lam _ (lam _ (lam _ t))))
             (singleSubstComp _ _
                (Π _ , _ ▷ C ▹ Π _ , _ ▷ D ▹ Π _ , _ ▷ E ▹ F)) $
-          conv (subst-⊢∷ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢u₂))
+          conv (subst-⊢ ⊢lam″ (⊢ˢʷ∷-sgSubst ⊢u₂))
             (Π≡Π (refl ⊢u₂))
         _ , ⊢lam‴ , Π≡Π , _ = inversion-lam-Π ⊢lam″
         ⊢lam‴ =
           PE.subst₂ (_⊢_∷_ _)
             (singleSubstComp _ _ (lam _ (lam _ t)))
             (singleSubstComp _ _ (Π _ , _ ▷ D ▹ Π _ , _ ▷ E ▹ F)) $
-          conv (subst-⊢∷ ⊢lam‴ (⊢ˢʷ∷-sgSubst ⊢u₃))
+          conv (subst-⊢ ⊢lam‴ (⊢ˢʷ∷-sgSubst ⊢u₃))
             (Π≡Π (refl ⊢u₃))
         _ , ⊢lam⁗ , Π≡Π , _ = inversion-lam-Π ⊢lam‴
         ⊢lam⁗ =
           PE.subst₂ (_⊢_∷_ _)
             (singleSubstComp _ _ (lam _ t))
             (singleSubstComp _ _ (Π _ , _ ▷ E ▹ F)) $
-          conv (subst-⊢∷ ⊢lam⁗ (⊢ˢʷ∷-sgSubst ⊢u₄))
+          conv (subst-⊢ ⊢lam⁗ (⊢ˢʷ∷-sgSubst ⊢u₄))
             (Π≡Π (refl ⊢u₄))
     in
                                                                             ⟨ PE.sym $ singleSubstComp _ _ F ⟩⇒≡

@@ -72,7 +72,7 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷L ⊢v ⊢σ
+      ( subst-⊢ ⊢v ⊢σ
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 
@@ -85,7 +85,7 @@ opaque
     γ ▸ Γ ⊩ʳ rfl ∷[ m ∣ n ] Id A t t
   rflʳ ⊢t =
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
-    let ⊢σt = subst-⊢∷ ⊢t ⊢σ in
+    let ⊢σt = subst-⊢ ⊢t ⊢σ in
     ®∷→®∷◂ $
     ®∷Id⇔ .proj₂
       (syntacticTerm ⊢σt
@@ -112,13 +112,13 @@ opaque
     ®∷→®∷◂ $
     ®∷Id⇔ .proj₂
       ( PE.subst (_⊢_ _) (PE.sym $ Erased.Erased-[] _)
-          (Erasedⱼ ([]-cong→Erased ok) (subst-⊢∷L ⊢l ⊢σ)
+          (Erasedⱼ ([]-cong→Erased ok) (subst-⊢ ⊢l ⊢σ)
              (subst-⊢ ⊢A ⊢σ))
       , rflᵣ
           (                              ˘⟨ Erased.Id-Erased-[] _ ⟩⇛≡
            ([]-cong _ l A t u v) [ σ ]  ⇒*⟨ PE.subst₄ _⊢_⇒*_∷_
                                               (PE.cong (_» _) (PE.sym tr)) PE.refl PE.refl PE.refl $
-                                            ε⊢⇒*rfl∷Id $ []-congⱼ′ ok (subst-⊢∷L ⊢l ⊢σ) (subst-⊢∷ ⊢v ⊢σ) ⟩∎⇛
+                                            ε⊢⇒*rfl∷Id $ []-congⱼ′ ok (subst-⊢ ⊢l ⊢σ) (subst-⊢ ⊢v ⊢σ) ⟩∎⇛
            rfl                          ∎)
           (λ { PE.refl → T.refl })
       )
@@ -143,12 +143,12 @@ opaque
     {Γ} {A} {t} {B} {u} {v} {γ} {δ} {m = 𝟙ᵐ} {n} {p}
     ⊢B ⊢u ⊢v ok γ≤δ ⊩ʳu ε⊎⊩ʳv =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
-    case subst-⊢∷ ⊢v ⊢σ of λ
+    case subst-⊢ ⊢v ⊢σ of λ
       ⊢v[σ] →
     case subst-⊢-⇑ ⊢B ⊢σ of λ
       ⊢B[σ⇑] →
     case PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) $
-         subst-⊢∷ ⊢u ⊢σ of λ
+         subst-⊢ ⊢u ⊢σ of λ
       ⊢u[σ] →
     case
       (case ε⊎⊩ʳv of λ where
@@ -212,9 +212,9 @@ opaque
          subst-⊢-⇑ ⊢B ⊢σ of λ
       ⊢B[σ⇑⇑] →
     case PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
-         subst-⊢∷ ⊢u ⊢σ of λ
+         subst-⊢ ⊢u ⊢σ of λ
       ⊢u[σ] →
-    case subst-⊢∷ ⊢w ⊢σ of λ
+    case subst-⊢ ⊢w ⊢σ of λ
       ⊢w[σ] →
     case
       (case ε⊎⊩ʳw of λ where

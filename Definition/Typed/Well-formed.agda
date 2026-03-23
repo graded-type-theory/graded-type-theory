@@ -289,7 +289,7 @@ opaque mutual
       let ⊢[u]₀ = ⊢ˢʷ∷-sgSubst ⊢u in
       subst-⊢ ⊢B ⊢[u]₀ ,
       lamⱼ ⊢B ⊢t ok ∘ⱼ ⊢u ,
-      subst-⊢∷ ⊢t ⊢[u]₀
+      subst-⊢ ⊢t ⊢[u]₀
     (η-eq ⊢B ⊢t₁ ⊢t₂ _ ok) →
       ΠΣⱼ ⊢B ok , ⊢t₁ , ⊢t₂
     (fst-cong ⊢B t₁≡t₂) →
@@ -357,7 +357,7 @@ opaque mutual
       subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst (prodⱼ (⊢∙→⊢ (wf ⊢v)) ⊢t ⊢u ok)) ,
       prodrecⱼ ⊢C (prodⱼ (⊢∙→⊢ (wf ⊢v)) ⊢t ⊢u ok) ⊢v ok ,
       PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] C)
-        (subst-⊢∷ ⊢v (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u))
+        (subst-⊢ ⊢v (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u))
     (emptyrec-cong A₁≡A₂ t₁≡t₂) →
       let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
@@ -424,7 +424,7 @@ opaque mutual
       subst-⊢ (⊢∙→⊢ (wf ⊢u)) (⊢ˢʷ∷-sgSubst (sucⱼ ⊢v)) ,
       natrecⱼ ⊢t ⊢u (sucⱼ ⊢v) ,
       PE.subst (_⊢_∷_ _ _) (PE.sym $ substComp↑² A _)
-        (subst-⊢∷ ⊢u (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) (natrecⱼ ⊢t ⊢u ⊢v)))
+        (subst-⊢ ⊢u (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) (natrecⱼ ⊢t ⊢u ⊢v)))
     (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
       let ⊢U , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂  = wf-⊢≡∷ t₁≡t₂

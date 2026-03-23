@@ -54,6 +54,6 @@ opaque
     PE.subst (flip (_®_∷_◂_ _ _) _) (PE.cong U (PE.sym (1ᵘ+-[] l))) $
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( ⊢1ᵘ+ (subst-⊢∷L ⊢l ⊢σ)
+      ( ⊢1ᵘ+ (subst-⊢ ⊢l ⊢σ)
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )

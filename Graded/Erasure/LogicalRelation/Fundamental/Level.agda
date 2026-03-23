@@ -53,7 +53,7 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷L ⊢l ⊢σ
+      ( subst-⊢ ⊢l ⊢σ
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 

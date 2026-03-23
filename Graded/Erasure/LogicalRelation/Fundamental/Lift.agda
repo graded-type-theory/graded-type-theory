@@ -57,7 +57,7 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ ⊢σ _ →
     ®∷→®∷◂ $
     ®∷U⇔ .proj₂
-      ( subst-⊢∷L ⊢l₁ ⊢σ
+      ( subst-⊢ ⊢l₁ ⊢σ
       , U/Levelᵣ (λ { PE.refl → T.refl })
       )
 
@@ -76,10 +76,10 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     ®∷→®∷◂ $
     ®∷Lift⇔ .proj₂
-      ( subst-⊢∷L ⊢l ⊢σ
+      ( subst-⊢ ⊢l ⊢σ
       , (                                                         $⟨ σ®σ′ ⟩
          σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ γ                                 →⟨ ®∷→®∷◂ω non-trivial ∘→ ▸⊩ʳ∷⇔ .proj₁ ⊩ʳt ⊢σ ⟩
-         t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ]                 →⟨ ®∷-⇐* (⇒*→⇛ (redMany (Lift-β⇒ (subst-⊢∷ ⊢t ⊢σ)))) T.refl ⟩
+         t [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ]                 →⟨ ®∷-⇐* (⇒*→⇛ (redMany (Lift-β⇒ (subst-⊢ ⊢t ⊢σ)))) T.refl ⟩
          lower (lift t) [ σ ] ® erase str t T.[ σ′ ] ∷ A [ σ ]    □)
       )
 

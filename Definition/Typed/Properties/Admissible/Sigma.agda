@@ -424,7 +424,7 @@ opaque
 
     Γ ⊢ˢʷ
       consSubst (consSubst idSubst (fst p t)) (snd p t) ∷
-      Γ .vars ∙ A ∙ B                                            →⟨ subst-⊢∷ ⊢u ⟩
+      Γ .vars ∙ A ∙ B                                            →⟨ subst-⊢ ⊢u ⟩
 
     Γ ⊢
       prodrecˢ p t u ∷
@@ -454,7 +454,7 @@ opaque
       consSubst (consSubst idSubst t) u ≡
       consSubst (consSubst idSubst (fst p (prodˢ p t u)))
         (snd p (prodˢ p t u)) ∷
-      Γ .vars ∙ A ∙ B                                                    →⟨ subst-⊢≡∷ (refl ⊢v) ⟩
+      Γ .vars ∙ A ∙ B                                                    →⟨ subst-⊢≡ (refl ⊢v) ⟩
 
     Γ ⊢
       v [ t , u ]₁₀ ≡
@@ -484,7 +484,7 @@ opaque
     Γ ⊢ˢʷ
       consSubst (consSubst idSubst (fst p t₁)) (snd p t₁) ≡
       consSubst (consSubst idSubst (fst p t₂)) (snd p t₂) ∷
-      Γ .vars ∙ A ∙ B                                              →⟨ subst-⊢≡∷ u₁≡u₂ ⟩
+      Γ .vars ∙ A ∙ B                                              →⟨ subst-⊢≡ u₁≡u₂ ⟩
 
     Γ ⊢
       prodrecˢ p t₁ u₁ ≡
@@ -1615,7 +1615,7 @@ opaque
     in
     prodrec⟨⟩-cong C₁≡C₂ t₁≡t₂
       (conv
-         (subst-⊢≡∷ u₁≡u₂ $ refl-⊢ˢʷ≡∷ $
+         (subst-⊢≡ u₁≡u₂ $ refl-⊢ˢʷ≡∷ $
           ⊢ˢʷ∷-replace₂-lower-1-lower-0 ⊢l₁ ⊢l₂ ⊢B)
          (prodrecʰ⟨⟩-eq₁ ok ⊢l₁ ⊢B (wf-⊢≡ C₁≡C₂ .proj₁)))
 
@@ -1655,14 +1655,14 @@ opaque
     prodrec⟨ s ⟩ r p q C (prod s p (lift t) (lift u))
       (v [ replace₂ (lower (var x1)) (lower (var x0)) ])  ≡⟨ prodrec⟨⟩-β (λ _ → ⊢C) (liftⱼ′ ⊢l₂ ⊢t)
                                                                (liftⱼ′ (PE.subst (_⊢_∷Level _) (PE.sym $ wk1-sgSubst _ _) ⊢l₁) ⊢u′)
-                                                               (conv (subst-⊢∷ ⊢v $ ⊢ˢʷ∷-replace₂-lower-1-lower-0 ⊢l₁ ⊢l₂ ⊢B)
+                                                               (conv (subst-⊢ ⊢v $ ⊢ˢʷ∷-replace₂-lower-1-lower-0 ⊢l₁ ⊢l₂ ⊢B)
                                                                   (prodrecʰ⟨⟩-eq₁ ok ⊢l₁ ⊢B ⊢C))
                                                                (λ _ → ok) ⟩⊢
     v [ replace₂ (lower (var x1)) (lower (var x0)) ]
       [ lift t , lift u ]₁₀                               ≡⟨ [replace₂]-[,]₁₀ v ⟩⊢≡
 
     v [ lower (lift t) , lower (lift u) ]₁₀               ≡⟨ conv
-                                                               (subst-⊢≡∷ (refl ⊢v) $
+                                                               (subst-⊢≡ (refl ⊢v) $
                                                                 →⊢ˢʷ≡∷∙ ⊢B (⊢ˢʷ≡∷-sgSubst lower-lift-t≡t) $
                                                                 Lift-β′ (conv ⊢u (subst-⊢≡₀ ⊢B (sym′ lower-lift-t≡t))))
                                                                (prodrecʰ⟨⟩-eq₂ ok ⊢l₁ ⊢B ⊢C ⊢t ⊢u′) ⟩⊢∎

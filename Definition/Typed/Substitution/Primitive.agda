@@ -158,9 +158,9 @@ opaque
     in
     ⊢ˢʷ≡∷∙⇔ .proj₂
       ( ⊢ˢ≡∷-ₛ•ₛ σ₁₁≡σ₁₂ σ₂₁₊≡σ₂₂₊
-      , PE.subst (_⊢_∷_ _ _) (substCompEq A) (subst-⊢∷ ⊢σ₂₁₀ ⊢σ₁₁)
-      , PE.subst (_⊢_∷_ _ _) (substCompEq A) (subst-⊢∷ ⊢σ₂₂₀ ⊢σ₁₂)
-      , PE.subst (_⊢_≡_∷_ _ _ _) (substCompEq A) (subst-⊢≡∷ σ₂₁₀≡σ₂₂₀ σ₁₁≡σ₁₂)
+      , PE.subst (_⊢_∷_ _ _) (substCompEq A) (subst-⊢ ⊢σ₂₁₀ ⊢σ₁₁)
+      , PE.subst (_⊢_∷_ _ _) (substCompEq A) (subst-⊢ ⊢σ₂₂₀ ⊢σ₁₂)
+      , PE.subst (_⊢_≡_∷_ _ _ _) (substCompEq A) (subst-⊢≡ σ₂₁₀≡σ₂₂₀ σ₁₁≡σ₁₂)
       )
 
 opaque

@@ -301,7 +301,7 @@ opaque
       ._▸_⊢ˢᴱ_∷[_]_ δ Δ σ m Γ →
         Δ ⊢ˢʷ σ ∷ Γ × (∀ x → δ ▸[ m ] σ x)
       .subst-⊢∷ᴱ (⊢t , ▸t , ▸∇) (⊢σ , ▸σ) →
-        subst-⊢∷ ⊢t ⊢σ , substₘ-lemma-closed ▸σ ▸t , ▸∇
+        subst-⊢ ⊢t ⊢σ , substₘ-lemma-closed ▸σ ▸t , ▸∇
       .tr-ℕ-[]ᴱ →
         PE.refl
       .glassify-tr-DCon →
@@ -384,7 +384,7 @@ opaque
       ._▸_⊢ˢᴱ_∷[_]_ δ Δ σ m Γ →
         Δ ⊢ˢʷ σ ∷ Γ × (∀ x → δ GU.▸[ m ] σ x)
       .subst-⊢∷ᴱ (⊢t , ▸t , ▸∇) (⊢σ , ▸σ) →
-        subst-⊢∷ ⊢t ⊢σ , substₘ-lemma-closed ▸σ ▸t , ▸∇
+        subst-⊢ ⊢t ⊢σ , substₘ-lemma-closed ▸σ ▸t , ▸∇
       .tr-ℕ-[]ᴱ             → PE.refl
       .glassify-tr-DCon {∇} →
         glassify (glassify ∇)      ≡⟨ DD.glassify-idem _ ⟩

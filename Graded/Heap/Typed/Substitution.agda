@@ -88,7 +88,7 @@ opaque
   substHeapTerm :
     Δ ⊢ʰ H ∷ Γ → ε » Γ ⊢ t ∷ A → ε » Δ ⊢ t [ H ]ₕ ∷ A [ H ]ₕ
   substHeapTerm ⊢H ⊢t =
-    subst-⊢∷ ⊢t (⊢ʰ→⊢ˢʷ ⊢H)
+    subst-⊢ ⊢t (⊢ʰ→⊢ˢʷ ⊢H)
 
 opaque
 
@@ -107,7 +107,7 @@ opaque
   substHeapEqTerm : Δ ⊢ʰ H ∷ Γ → ε » Γ ⊢ t ≡ u ∷ A
                   → ε » Δ ⊢ t [ H ]ₕ ≡ u [ H ]ₕ ∷ A [ H ]ₕ
   substHeapEqTerm ⊢H ⊢t≡u =
-    subst-⊢≡∷ ⊢t≡u (refl-⊢ˢʷ≡∷ (⊢ʰ→⊢ˢʷ ⊢H))
+    subst-⊢≡ ⊢t≡u (refl-⊢ˢʷ≡∷ (⊢ʰ→⊢ˢʷ ⊢H))
 
 opaque
 

@@ -1334,7 +1334,7 @@ opaque
       (λ {_ _} ξ⊇ {_ _} {σ} ⊩σ →
          let _ , ⊢σ = escape-⊩ˢ∷ ⊩σ in
          PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
-         J-β-⇒ (refl $ subst-⊢∷ (defn-wk ξ⊇ ⊢t) ⊢σ)
+         J-β-⇒ (refl $ subst-⊢ (defn-wk ξ⊇ ⊢t) ⊢σ)
            (PE.subst₂ _⊢_
               (PE.cong (_»∙_ _) $ Id-wk1-wk1-0[⇑]≡ A t) PE.refl $
             subst-⊢-⇑ (defn-wk ξ⊇ ⊢B) ⊢σ)

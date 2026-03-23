@@ -84,7 +84,7 @@ opaque
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     case is-𝟘? p of λ where
       (yes refl) →
-        ⊥-elim (consistent ok _ (subst-⊢∷ ⊢t ⊢σ))
+        ⊥-elim (consistent ok _ (subst-⊢ ⊢t ⊢σ))
       (no p≢𝟘) →
         case PE.sym (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) of λ
           𝟙ᵐ≡⌞p⌟ →

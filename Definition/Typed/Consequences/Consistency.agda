@@ -55,7 +55,7 @@ opaque
 
   subst-Consistent :
     ∇ » Ε ⊢ˢʷ σ ∷ Δ → Consistent (∇ » Ε) → Consistent (∇ » Δ)
-  subst-Consistent ⊢σ consistent _ ⊢t = consistent _ (subst-⊢∷ ⊢t ⊢σ)
+  subst-Consistent ⊢σ consistent _ ⊢t = consistent _ (subst-⊢ ⊢t ⊢σ)
 
 opaque
 
