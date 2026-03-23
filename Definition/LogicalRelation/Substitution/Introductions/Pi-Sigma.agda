@@ -282,7 +282,7 @@ opaque
     in
       ok , b₁≡b₂ , p₁≡p₂ , q₁≡q₂
     , PE.subst₂ (_⊩⟨_⟩_≡_ _ _) (wk-id _) (wk-id _)
-        (rest id⊇ (id (wfEq (≅-eq ΠΣ≅ΠΣ))) .proj₁)
+        (rest id⊇ (id (wf (≅-eq ΠΣ≅ΠΣ))) .proj₁)
     , let wk₁-A₁≡wk₁-A₂ ,
             wk-lift-step-id-B₁[]₀≡wk-lift-step-id-B₂[]₀ =
             rest id⊇ (includedʷʳ (TW.stepʷ TW.id (escape ⊩A₁)))

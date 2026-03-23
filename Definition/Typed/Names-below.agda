@@ -112,7 +112,7 @@ opaque mutual
   ⊢∷→Names< (sucⱼ ⊢t) =
     suc (⊢∷→Names< ⊢t)
   ⊢∷→Names< (natrecⱼ ⊢t ⊢u ⊢v) =
-    natrec (⊢→Names< (⊢∙→⊢ (wfTerm ⊢u))) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
+    natrec (⊢→Names< (⊢∙→⊢ (wf ⊢u))) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
       (⊢∷→Names< ⊢v)
   ⊢∷→Names< (Idⱼ ⊢A ⊢t ⊢u) =
     Id (⊢∷→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
@@ -150,7 +150,7 @@ opaque
   ↦∷→Names< ∙ᵗ[ ⊢t ] here =
     ⊢→Names< (wf-⊢∷ ⊢t)
   ↦∷→Names< ∙ᵗ[ ⊢t ] (there α↦) =
-    ↦∷→Names< (defn-wf (wfTerm ⊢t)) α↦
+    ↦∷→Names< (defn-wf (wf ⊢t)) α↦
   ↦∷→Names< ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] here =
     ⊢→Names< ⊢A
   ↦∷→Names< ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] (there α↦) =
@@ -166,7 +166,7 @@ opaque
   ↦→Names< ∙ᵗ[ ⊢t ] here =
     ⊢∷→Names< ⊢t
   ↦→Names< ∙ᵗ[ ⊢t ] (there α↦) =
-    ↦→Names< (defn-wf (wfTerm ⊢t)) α↦
+    ↦→Names< (defn-wf (wf ⊢t)) α↦
   ↦→Names< ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] (there α↦) =
     ↦→Names< (defn-wf (wf ⊢A)) α↦
 

@@ -414,7 +414,7 @@ opaque
            (_ , _ , _ , _ , _ , Level⇒* , _) →
          case inversion-Level (redFirst*Term Level⇒*) of λ
            (_ , ok) →
-         wfEqTerm (subset*Term Level⇒*) , ok)
+         wf (subset*Term Level⇒*) , ok)
     , (λ (⊢Γ , ok) →
          let ⊢Level = Levelⱼ ⊢Γ ok in
          case id ⊢Level of λ

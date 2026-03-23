@@ -131,7 +131,7 @@ opaque
     let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
         _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
         ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
-        ⊢Γ            = wfTerm ⊢A₁
+        ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound
       γ
@@ -246,7 +246,7 @@ opaque
            (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var  not-x2 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p p p p p p p Γ (n V.∷ V.ε)
 
@@ -286,7 +286,7 @@ opaque
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢t
            (I.var  not-x3 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p p p p p p p Γ (n V.∷ n V.∷ V.ε)
 
@@ -325,7 +325,7 @@ opaque
          .IC.metas-wf .IC.bindings-wf   → λ where
            (I.var! x0)         → ⊢l
            (I.var  not-x1 _ _))
-      (wfLevel ⊢l)
+      (wf ⊢l)
       where
       open Defs p p q q q q r Γ V.ε
 
@@ -360,7 +360,7 @@ opaque
            (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var  not-x2 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p p q q q q r Γ (n V.∷ V.ε)
 
@@ -403,7 +403,7 @@ opaque
            (I.var! x1)         → ⊢A
            (I.var! x2)         → ⊢t
            (I.var  not-x3 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p p q q q q r Γ (n V.∷ n V.∷ V.ε)
 
@@ -442,7 +442,7 @@ opaque
            (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var  not-x2 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p p p p p p p Γ (n V.∷ V.ε)
 
@@ -479,7 +479,7 @@ opaque
          .IC.metas-wf .IC.bindings-wf   → λ where
            (I.var! x0)         → ⊢l
            (I.var  not-x1 _ _))
-      (wfLevel ⊢l)
+      (wf ⊢l)
       where
       open Defs p p q q q q r Γ V.ε
 
@@ -503,7 +503,7 @@ opaque
     let _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
         _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
         ⊢l₁           = inversion-U-Level (wf-⊢∷ ⊢A₁)
-        ⊢Γ            = wfTerm ⊢A₁
+        ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound
       γ
@@ -642,7 +642,7 @@ opaque
          .IC.metas-wf .IC.bindings-wf   → λ where
            (I.var! x0)         → ⊢l
            (I.var  not-x1 _ _))
-      (wfLevel ⊢l)
+      (wf ⊢l)
       where
       open Defs p p q₁ q₂ q₃ q₄ q₁ Γ V.ε
 
@@ -698,7 +698,7 @@ opaque
            (I.var! x5)         → ⊢v
            (I.var! x6)         → ⊢w
            (I.var  not-x7 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p₁ p₂ q₁ q₂ r r r Γ
              (n V.∷ 2+ n V.∷ n V.∷ 4+ n V.∷ n V.∷ n V.∷ V.ε)
@@ -788,7 +788,7 @@ opaque
            (I.var! x3)         → ⊢t
            (I.var! x4)         → ⊢u
            (I.var  not-x5 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p₁ p₂ q₁ q₂ r r r Γ (n V.∷ 2+ n V.∷ n V.∷ 4+ n V.∷ V.ε)
 
@@ -884,7 +884,7 @@ opaque
            (I.var! x6)         → ⊢t₄
            (I.var! x7)         → ⊢t₅
            (I.var  not-x8 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p₁ p₂ q₁ q₂ r r r Γ
              (n V.∷ 2+ n V.∷ n V.∷ 4+ n V.∷ n V.∷ n V.∷ n V.∷ V.ε)

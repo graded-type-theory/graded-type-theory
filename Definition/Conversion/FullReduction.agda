@@ -60,13 +60,13 @@ mutual
       case inversion-var ⊢x of λ {
         (_ , x∈ , A≡B) →
         var x
-      , convₙ (varₙ (wfEq A≡B) x∈) (sym A≡B)
+      , convₙ (varₙ (wf A≡B) x∈) (sym A≡B)
       , refl ⊢x }
     (defn-refl {α = α} ⊢α α↦⊘ _) →
       case inversion-defn ⊢α of λ {
         (A′ , α↦∷A , A≡A′) →
         defn α
-      , convₙ (defnₙ (wfEq A≡A′) (coerce-↦⊘∈ α↦∷A α↦⊘)) (sym A≡A′)
+      , convₙ (defnₙ (wf A≡A′) (coerce-↦⊘∈ α↦∷A α↦⊘)) (sym A≡A′)
       , refl ⊢α }
     (lower-cong t~) →
       case fullRedNe~↓ t~ of λ
@@ -117,7 +117,7 @@ mutual
         (v′ , v′-ne , v≡v′) →
       case syntacticEq A≡A′ of λ {
         (_ , ⊢A′) →
-      case wfEqTerm v≡v′ of λ {
+      case wf v≡v′ of λ {
         ⊢Γ →
         natrec p q r A′ t′ u′ v′
       , (                                             $⟨ u′-nf ⟩
@@ -175,7 +175,7 @@ mutual
         unitrec _ _ A′ t′ u′
       , (                                           $⟨ u′-nf ⟩
          Γ ⊢nf u′ ∷ A [ starʷ ]₀                  →⟨ flip _⊢nf_∷_.convₙ $
-                                                       substTypeEq A≡A′ (refl (starⱼ (wfEqTerm t≡t′) ok)) ⟩
+                                                       substTypeEq A≡A′ (refl (starⱼ (wf t≡t′) ok)) ⟩
          Γ ⊢nf u′ ∷ A′ [ starʷ ]₀                 →⟨ (λ ⊢u′ → unitrecₙ A′-nf t′-ne ⊢u′ ok no-η) ⟩
          Γ ⊢ne unitrec _ _ A′ t′ u′ ∷ A′ [ t′ ]₀  →⟨ flip _⊢ne_∷_.convₙ $ _⊢_≡_.sym $
                                                        substTypeEq A≡A′ t≡t′ ⟩
@@ -488,7 +488,7 @@ mutual
                                                                     prod-cong ⊢B fst-t≡u₁ snd-t≡u₂ ok ⟩
          Γ ⊢ t ≡ prodˢ p u₁ u₂ ∷ Σˢ p , q ▷ A ▹ B                □) }}}
     (η-unit ⊢t _ _ _ ok) →
-      case wfTerm ⊢t of λ {
+      case wf ⊢t of λ {
         ⊢Γ →
       case ⊢∷Unit→Unit-allowed ⊢t of λ {
         Unit-ok →

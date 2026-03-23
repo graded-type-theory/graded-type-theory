@@ -92,7 +92,7 @@ opaque
     Γ ⊢ t ∷ Level × Γ ⊢ A ≡ Level
   inversion-sucᵘ (sucᵘⱼ ⊢t) =
     let ok = inversion-Level-⊢ (wf-⊢∷ ⊢t) in
-    ⊢t , refl (Levelⱼ′ ok (wfTerm ⊢t))
+    ⊢t , refl (Levelⱼ′ ok (wf ⊢t))
   inversion-sucᵘ (conv ⊢sucᵘ eq) =
     let ⊢t , A≡ = inversion-sucᵘ ⊢sucᵘ in
     ⊢t , trans (sym eq) A≡
@@ -164,7 +164,7 @@ opaque
     Γ ⊢ t₁ ∷ Level × Γ ⊢ t₂ ∷ Level × Γ ⊢ A ≡ Level
   inversion-supᵘ (supᵘⱼ ⊢t₁ ⊢t₂) =
     let ok = inversion-Level-⊢ (wf-⊢∷ ⊢t₁) in
-    ⊢t₁ , ⊢t₂ , refl (Levelⱼ′ ok (wfTerm ⊢t₁))
+    ⊢t₁ , ⊢t₂ , refl (Levelⱼ′ ok (wf ⊢t₁))
   inversion-supᵘ (conv ⊢supᵘ eq) =
     let ⊢t₁ , ⊢t₂ , A≡ = inversion-supᵘ ⊢supᵘ in
     ⊢t₁ , ⊢t₂ , trans (sym eq) A≡
@@ -195,7 +195,7 @@ opaque
   … | yes (t₁-lit , t₂-lit) =
     let ≡Level = inversion-↓ᵘ ⊢sup
         ok     = inversion-Level-⊢ (wf-⊢≡ ≡Level .proj₂)
-        ⊢Γ     = wfEq ≡Level
+        ⊢Γ     = wf ≡Level
     in
     ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷L ⊢Γ (level t₁-lit) (λ ())) ,
     ⊢∷Level→⊢∷Level ok (Level-literal→⊢∷L ⊢Γ (level t₂-lit) (λ ())) ,
@@ -434,7 +434,7 @@ opaque
       Γ »∙ C »∙ D ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
       Γ ⊢ B ≡ A [ t ]₀
   inversion-prodrec (prodrecⱼ ⊢A ⊢t ⊢u _) =
-    let ⊢D = ⊢∙→⊢ (wfTerm ⊢u) in
+    let ⊢D = ⊢∙→⊢ (wf ⊢u) in
     _ , _ , _ , ⊢∙→⊢ (wf ⊢D) , ⊢D , ⊢A , ⊢t , ⊢u ,
     refl (substType ⊢A ⊢t)
   inversion-prodrec (conv ⊢pr eq) =
@@ -456,7 +456,7 @@ opaque
     Γ ⊢ v ∷ ℕ ×
     Γ ⊢ B ≡ A [ v ]₀
   inversion-natrec (natrecⱼ ⊢t ⊢u ⊢v) =
-    let ⊢A = ⊢∙→⊢ (wfTerm ⊢u) in
+    let ⊢A = ⊢∙→⊢ (wf ⊢u) in
     ⊢A , ⊢t , ⊢u , ⊢v , refl (substType ⊢A ⊢v)
   inversion-natrec (conv ⊢nr eq) =
     let a , b , c , d , e = inversion-natrec ⊢nr in

@@ -362,7 +362,7 @@ data Σ-prop (Γ : Cons m n) :
   𝕤 :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕤 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A
-        id-Γ = id (wfEq (≅-eq A≡A))
+        id-Γ = id (wf (≅-eq A≡A))
     in
     (t-prod : Productᵃₗ (Γ .defs) t) →
     (⊩fst : Γ ⊩⟨ l ⟩ fst p t ∷ wk id F / [F] id⊇ id-Γ) →
@@ -371,7 +371,7 @@ data Σ-prop (Γ : Cons m n) :
   𝕨-prodₙ :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕨 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A
-        id-Γ = id (wfEq (≅-eq A≡A))
+        id-Γ = id (wf (≅-eq A≡A))
     in
     (⊩t₁ : Γ ⊩⟨ l ⟩ t₁ ∷ wk id F / [F] id⊇ id-Γ) →
     Γ ⊩⟨ l ⟩ t₂ ∷ wk (lift id) G [ t₁ ]₀ / [G] id⊇ id-Γ ⊩t₁ →

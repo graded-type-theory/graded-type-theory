@@ -1548,7 +1548,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         let invUsageSuc ▸t γ≤δ = inv-usage-suc ▸suc in
         suc (⊢∷[]←⊢∷▸ ⊢t (sub ▸t γ≤δ))
       (natrecⱼ {p} {r} ⊢t ⊢u ⊢v) ▸nr →
-        let ⊢A = ⊢←⊢ (⊢∙→⊢ (wfTerm ⊢u))
+        let ⊢A = ⊢←⊢ (⊢∙→⊢ (wf ⊢u))
         in
         case inv-usage-natrec₀₁ ▸nr of λ {
           (invUsageNatrec {δ} {η} {θ} {χ} ▸t ▸u ▸v ▸A γ≤χ more) →

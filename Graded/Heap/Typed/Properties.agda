@@ -87,7 +87,7 @@ opaque
 
   ⊢initial : ε » Δ ⊢ t ∷ A → Δ ⊢ₛ initial t ∷ A
   ⊢initial {Δ} {t} {A} ⊢t =
-    ⊢ₛ (⊢erasedHeap (wfTerm ⊢t))
+    ⊢ₛ (⊢erasedHeap (wf ⊢t))
       (PE.subst (_ ⊢_∷ _) (lemma t) ⊢t) ε
     where
     lemma : ∀ {n} (t : Term n) → t PE.≡ wk id t [ erasedHeap _ ]ₕ
@@ -165,7 +165,7 @@ opaque
   ⊢⦅⦆ᶜ-cong (prodrecₑ ⊢v ⊢A) t≡u =
     prodrec-cong′ (refl ⊢A) t≡u (refl ⊢v)
   ⊢⦅⦆ᶜ-cong (natrecₑ ⊢z ⊢s) t≡u =
-    natrec-cong (refl (⊢∙→⊢ (wfTerm ⊢s))) (refl ⊢z) (refl ⊢s) t≡u
+    natrec-cong (refl (⊢∙→⊢ (wf ⊢s))) (refl ⊢z) (refl ⊢s) t≡u
   ⊢⦅⦆ᶜ-cong (unitrecₑ ⊢v ⊢A no-η) t≡u =
     unitrec-cong′ (refl ⊢A) t≡u (refl ⊢v)
   ⊢⦅⦆ᶜ-cong (emptyrecₑ ⊢A) t≡u =
@@ -263,7 +263,7 @@ opaque
       (substTypeEq (refl ⊢A) (sym′ t≡u))
   ⊢ᶜ-convₜ (natrecₑ ⊢z ⊢s) t≡u =
     conv (natrecₑ ⊢z ⊢s)
-      (substTypeEq (refl (⊢∙→⊢ (wfTerm ⊢s))) (sym′ t≡u))
+      (substTypeEq (refl (⊢∙→⊢ (wf ⊢s))) (sym′ t≡u))
   ⊢ᶜ-convₜ (unitrecₑ ⊢v ⊢A no-η) t≡u =
     conv (unitrecₑ ⊢v ⊢A no-η)
       (substTypeEq (refl ⊢A) (sym′ t≡u))

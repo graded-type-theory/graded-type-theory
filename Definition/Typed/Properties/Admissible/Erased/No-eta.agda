@@ -54,7 +54,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ erased A [ t ] ≡ t ∷ A
   Erased-β (Unit-ok , Σ-ok) ⊢t =
-    let ⊢Γ = wfTerm ⊢t
+    let ⊢Γ = wf ⊢t
         ⊢A = wf-⊢∷ ⊢t
     in
     fst⟨⟩-β-≡ (Liftⱼ (⊢zeroᵘ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t

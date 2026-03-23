@@ -513,8 +513,8 @@ private
       defn-wkEqTerm ξ⊇ [A]@(Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext ok)
                     (Σₜ₌ p r d d′ pProd rProd p≅r
                          ([fstp] , [fstr] , [fst≡] , [snd≡])) =
-        let id-Γ = id (wfEq (≅-eq A≡A))
-            id-Γ′ = id (wfEq (≅-eq (≅-defn-wk ξ⊇ A≡A)))
+        let id-Γ = id (wf (≅-eq A≡A))
+            id-Γ′ = id (wf (≅-eq (≅-defn-wk ξ⊇ A≡A)))
             [Fid] = [F] id⊇ id-Γ
             [Fid]′ = [F] ξ⊇ id-Γ′
             [fstp]′ = irrelevanceTerm (defn-wk ξ⊇ [Fid]) [Fid]′
@@ -536,8 +536,8 @@ private
       defn-wkEqTerm ξ⊇ [A]@(Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext ok)
         (Σₜ₌ p r d d′ prodₙ prodₙ p≅r
            (eq , eq′ , eq″ , eq‴ , [p₁] , [r₁] , [fst≡] , [snd≡])) =
-        let id-Γ = id (wfEq (≅-eq A≡A))
-            id-Γ′ = id (wfEq (≅-eq (≅-defn-wk ξ⊇ A≡A)))
+        let id-Γ = id (wf (≅-eq A≡A))
+            id-Γ′ = id (wf (≅-eq (≅-defn-wk ξ⊇ A≡A)))
             [Fid] = [F] id⊇ id-Γ
             [Fid]′ = [F] ξ⊇ id-Γ′
             [p₁]′ = irrelevanceTerm (defn-wk ξ⊇ [Fid]) [Fid]′

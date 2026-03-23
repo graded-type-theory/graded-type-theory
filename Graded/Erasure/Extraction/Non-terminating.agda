@@ -150,7 +150,7 @@ opaque
     Γ ⊢ u ∷ A →
     Γ ⊢ cast t A B u ∷ B
   ⊢cast ⊢t ⊢A ⊢B =
-    ⊢subst (univ $ var₀ $ ⊢U₀ (wfTerm ⊢t)) (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
+    ⊢subst (univ $ var₀ $ ⊢U₀ (wf ⊢t)) (emptyrecⱼ (Idⱼ′ ⊢A ⊢B) ⊢t)
 
 opaque
   unfolding cast

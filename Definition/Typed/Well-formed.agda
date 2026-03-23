@@ -69,7 +69,7 @@ opaque
   wf-↦∷∈ (there α↦t) ∙ᵒ⟨ ok ⟩[ ⊢u ∷ ⊢B ] =
     defn-wkTerm (stepᵒ₁ ok ⊢B ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢B)))
   wf-↦∷∈ (there α↦t) ∙ᵗ[ ⊢u ] =
-    defn-wkTerm (stepᵗ₁ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wfTerm ⊢u)))
+    defn-wkTerm (stepᵗ₁ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢u)))
 
 opaque mutual
 
@@ -83,7 +83,7 @@ opaque mutual
   wf-↦∈ (there α↦t) ∙ᵒ⟨ ok ⟩[ ⊢u ∷ ⊢B ] =
     defn-wk (stepᵒ₁ ok ⊢B ⊢u) (wf-↦∈ α↦t (defn-wf (wf ⊢B)))
   wf-↦∈ (there α↦t) ∙ᵗ[ ⊢u ] =
-    defn-wk (stepᵗ₁ ⊢u) (wf-↦∈ α↦t (defn-wf (wfTerm ⊢u)))
+    defn-wk (stepᵗ₁ ⊢u) (wf-↦∈ α↦t (defn-wf (wf ⊢u)))
 
   -- A well-formedness lemma for _⊢_∷_.
 
@@ -143,9 +143,9 @@ opaque mutual
     (zeroⱼ ⊢Γ) →
       univ (ℕⱼ ⊢Γ)
     (sucⱼ ⊢t) →
-      univ (ℕⱼ (wfTerm ⊢t))
+      univ (ℕⱼ (wf ⊢t))
     (natrecⱼ _ ⊢u ⊢v) →
-      subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst ⊢v)
+      subst-⊢ (⊢∙→⊢ (wf ⊢u)) (⊢ˢʷ∷-sgSubst ⊢v)
     (Idⱼ ⊢A _ _) →
       ⊢U (inversion-U-Level (wf-⊢∷ ⊢A))
     (rflⱼ ⊢t) →
@@ -236,7 +236,7 @@ opaque mutual
       ⊢Level , supᵘⱼ ⊢t₁ ⊢u₁ , supᵘⱼ ⊢t₂ ⊢u₂
     (supᵘ-zeroˡ ⊢l) →
       let ⊢L = wf-⊢∷ ⊢l in
-      ⊢L , supᵘⱼ (zeroᵘⱼ (inversion-Level-⊢ ⊢L) (wfTerm ⊢l)) ⊢l , ⊢l
+      ⊢L , supᵘⱼ (zeroᵘⱼ (inversion-Level-⊢ ⊢L) (wf ⊢l)) ⊢l , ⊢l
     (supᵘ-sucᵘ ⊢l₁ ⊢l₂) →
       wf-⊢∷ ⊢l₁ , supᵘⱼ (sucᵘⱼ ⊢l₁) (sucᵘⱼ ⊢l₂) , sucᵘⱼ (supᵘⱼ ⊢l₁ ⊢l₂)
     (supᵘ-assoc ⊢l₁ ⊢l₂ ⊢l₃) →
@@ -329,7 +329,7 @@ opaque mutual
       let ⊢C₁ , ⊢C₂     = wf-⊢≡ C₁≡C₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-          ⊢B            = ⊢∙→⊢ (wfEqTerm u₁≡u₂)
+          ⊢B            = ⊢∙→⊢ (wf u₁≡u₂)
           ⊢A            = ⊢∙→⊢ (wf ⊢B)
           ⊢wk2-id       = ⊢ˢʷ∷-wk1Subst ⊢B $
                           ⊢ˢʷ∷-wk1Subst ⊢A $
@@ -354,8 +354,8 @@ opaque mutual
            ok)
         (sym (subst-⊢≡ C₁≡C₂ (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂)))
     (prodrec-β {A = C} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
-      subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst (prodⱼ (⊢∙→⊢ (wfTerm ⊢v)) ⊢t ⊢u ok)) ,
-      prodrecⱼ ⊢C (prodⱼ (⊢∙→⊢ (wfTerm ⊢v)) ⊢t ⊢u ok) ⊢v ok ,
+      subst-⊢ ⊢C (⊢ˢʷ∷-sgSubst (prodⱼ (⊢∙→⊢ (wf ⊢v)) ⊢t ⊢u ok)) ,
+      prodrecⱼ ⊢C (prodⱼ (⊢∙→⊢ (wf ⊢v)) ⊢t ⊢u ok) ⊢v ok ,
       PE.subst (_⊢_∷_ _ _) ([1,0]↑²[,] C)
         (subst-⊢∷ ⊢v (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t) ⊢u))
     (emptyrec-cong A₁≡A₂ t₁≡t₂) →
@@ -367,7 +367,7 @@ opaque mutual
       let ⊢A₁ , ⊢A₂     = wf-⊢≡ A₁≡A₂
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
-          ⊢Γ            = wfEqTerm t₁≡t₂
+          ⊢Γ            = wf t₁≡t₂
           Unit≡         = refl (univ (Unitⱼ ⊢Γ ok))
       in
       subst-⊢ ⊢A₁ (⊢ˢʷ∷-sgSubst ⊢t₁) ,
@@ -384,9 +384,9 @@ opaque mutual
           ok)
         (sym (subst-⊢≡ A₁≡A₂ (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂)))
     (unitrec-β ⊢A ⊢t ok _) →
-      wf-⊢∷ ⊢t , unitrecⱼ ⊢A (starⱼ (wfTerm ⊢t) ok) ⊢t ok , ⊢t
+      wf-⊢∷ ⊢t , unitrecⱼ ⊢A (starⱼ (wf ⊢t) ok) ⊢t ok , ⊢t
     (unitrec-β-η ⊢A ⊢t ⊢u ok η) →
-      let ⊢star = starⱼ (wfTerm ⊢t) ok in
+      let ⊢star = starⱼ (wf ⊢t) ok in
       subst-⊢ ⊢A (⊢ˢʷ∷-sgSubst ⊢t) ,
       unitrecⱼ ⊢A ⊢t ⊢u ok ,
       conv ⊢u
@@ -402,7 +402,7 @@ opaque mutual
           _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
           _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
           _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
-          ⊢Γ            = wfTerm ⊢t₁
+          ⊢Γ            = wf ⊢t₁
       in
       subst-⊢ ⊢A₁ (⊢ˢʷ∷-sgSubst ⊢v₁) ,
       natrecⱼ ⊢t₁ ⊢u₁ ⊢v₁ ,
@@ -419,9 +419,9 @@ opaque mutual
            ⊢v₂)
         (sym $ subst-⊢≡ A₁≡A₂ (⊢ˢʷ≡∷-sgSubst ⊢v₁ ⊢v₂ v₁≡v₂))
     (natrec-zero ⊢t ⊢u) →
-      wf-⊢∷ ⊢t , natrecⱼ ⊢t ⊢u (zeroⱼ (wfTerm ⊢t)) , ⊢t
+      wf-⊢∷ ⊢t , natrecⱼ ⊢t ⊢u (zeroⱼ (wf ⊢t)) , ⊢t
     (natrec-suc {A} ⊢t ⊢u ⊢v) →
-      subst-⊢ (⊢∙→⊢ (wfTerm ⊢u)) (⊢ˢʷ∷-sgSubst (sucⱼ ⊢v)) ,
+      subst-⊢ (⊢∙→⊢ (wf ⊢u)) (⊢ˢʷ∷-sgSubst (sucⱼ ⊢v)) ,
       natrecⱼ ⊢t ⊢u (sucⱼ ⊢v) ,
       PE.subst (_⊢_∷_ _ _) (PE.sym $ substComp↑² A _)
         (subst-⊢∷ ⊢u (→⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢v) (natrecⱼ ⊢t ⊢u ⊢v)))
@@ -593,6 +593,6 @@ opaque
   wf-⊢ˢ≡∷ (∙ ⊢A) (σ₁≡σ₂ , t₁≡t₂) =
     let ⊢σ₁ , ⊢σ₂     = wf-⊢ˢ≡∷ (wf ⊢A) σ₁≡σ₂
         _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        σ₁≡σ₂         = ⊢ˢʷ≡∷⇔ .proj₂ (wfTerm ⊢t₁ , ⊢σ₁ , ⊢σ₂ , σ₁≡σ₂)
+        σ₁≡σ₂         = ⊢ˢʷ≡∷⇔ .proj₂ (wf ⊢t₁ , ⊢σ₁ , ⊢σ₂ , σ₁≡σ₂)
     in
     (⊢σ₁ , ⊢t₁) , (⊢σ₂ , conv ⊢t₂ (subst-⊢≡ (refl ⊢A) σ₁≡σ₂))

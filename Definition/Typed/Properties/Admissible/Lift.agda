@@ -241,7 +241,7 @@ opaque
     → Γ »∙ Lift l A ⊢ lower₀ B₁ ≡ lower₀ B₂
   lower₀TypeEq ⊢l B₁≡B₂ =
     subst-⊢≡ B₁≡B₂ $ refl-⊢ˢʷ≡∷ $
-    ⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEq B₁≡B₂))) here))
+    ⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf B₁≡B₂))) here))
 
 opaque
   unfolding lower₀
@@ -254,7 +254,7 @@ opaque
     Γ »∙ Lift l A ⊢ lower₀ t ∷ lower₀ B
   lower₀Term ⊢l ⊢t =
     subst-⊢∷ ⊢t
-      (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfTerm ⊢t))) here)))
+      (⊢ˢʷ∷-[][]↑ (lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf ⊢t))) here)))
 
 opaque
   unfolding lower₀
@@ -268,7 +268,7 @@ opaque
   lower₀TermEq ⊢l t₁≡t₂ =
     subst-⊢≡∷ t₁≡t₂
       (refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
-       lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wfEqTerm t₁≡t₂))) here))
+       lowerⱼ (var (∙ Liftⱼ ⊢l (⊢∙→⊢ (wf t₁≡t₂))) here))
 
 opaque
   unfolding lower₀

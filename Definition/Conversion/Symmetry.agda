@@ -175,7 +175,7 @@ mutual
       ⊢t₁≡t₂ →
     case soundnessConv↑Term v₁≡v₂ of λ {
       ⊢v₁≡v₂ →
-    case reflConEq (wfEq ⊢A₁≡A₂) of λ {
+    case reflConEq (wf ⊢A₁≡A₂) of λ {
       Δ≡Δ →
       _
     , J-result-cong ⊢B₁≡B₂ ⊢v₁≡v₂ (conv (soundness~↓ w₁~w₂) C≡Id-t₁-v₁)
@@ -197,7 +197,7 @@ mutual
       ⊢B₁≡B₂ →
     case soundnessConv↑Term t₁≡t₂ of λ {
       ⊢t₁≡t₂ →
-    case reflConEq (wfEq ⊢A₁≡A₂) of λ {
+    case reflConEq (wf ⊢A₁≡A₂) of λ {
       Δ≡Δ →
       _
     , substTypeEq ⊢B₁≡B₂
@@ -219,7 +219,7 @@ mutual
         ⊢A₁≡A₂              = soundnessConv↑ A₁≡A₂
         ⊢t₁≡t₂              = soundnessConv↑Term t₁≡t₂
         ⊢u₁≡u₂              = soundnessConv↑Term u₁≡u₂
-        Γ≡Γ                 = reflConEq (wfEq ⊢A₁≡A₂)
+        Γ≡Γ                 = reflConEq (wf ⊢A₁≡A₂)
         Erased-ok           = []-cong→Erased ok
     in
     _ ,
@@ -285,7 +285,7 @@ mutual
   symConv↓ Δ≡Η (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     case soundnessConv↑ A₁≡A₂ of λ {
       ⊢A₁≡A₂ →
-    case reflConEq (wfEq ⊢A₁≡A₂) of λ {
+    case reflConEq (wf ⊢A₁≡A₂) of λ {
       Δ≡Δ →
     Id-cong (symConv↑ Δ≡Η A₁≡A₂)
       (convConv↑Term′ Δ≡Η ⊢A₁≡A₂ (symConv↑Term Δ≡Δ t₁≡t₂))
@@ -388,7 +388,7 @@ mutual
 
   sym~↓Level : ∀ {t u} → Γ ⊢ t ~ u ↓ Level → Γ ⊢ u ~ t ↓ Level
   sym~↓Level t~u =
-    let B , whnfB , Level≡B , u~t = sym~↓ (reflConEq (wfEqTerm (soundness~↓ t~u))) t~u
+    let B , whnfB , Level≡B , u~t = sym~↓ (reflConEq (wf (soundness~↓ t~u))) t~u
     in PE.subst (_⊢_~_↓_ _ _ _) (Level≡A Level≡B whnfB) u~t
 
   sym-≡ⁿ : ∀ {t u : Term n} → ≡ⁿ Γ t u d → ≡ⁿ Γ t u (not d)
@@ -415,16 +415,16 @@ mutual
 
 symConv↓Term′ : ∀ {t u A} → Γ ⊢ t [conv↓] u ∷ A → Γ ⊢ u [conv↓] t ∷ A
 symConv↓Term′ tConvU =
-  symConv↓Term (reflConEq (wfEqTerm (soundnessConv↓Term tConvU))) tConvU
+  symConv↓Term (reflConEq (wf (soundnessConv↓Term tConvU))) tConvU
 
 -- Symmetry of algorithmic equality of types with preserved context.
 symConv : ∀ {A B} → Γ ⊢ A [conv↑] B → Γ ⊢ B [conv↑] A
 symConv A<>B =
-  let ⊢Γ = wfEq (soundnessConv↑ A<>B)
+  let ⊢Γ = wf (soundnessConv↑ A<>B)
   in  symConv↑ (reflConEq ⊢Γ) A<>B
 
 -- Symmetry of algorithmic equality of terms with preserved context.
 symConvTerm : ∀ {t u A} → Γ ⊢ t [conv↑] u ∷ A → Γ ⊢ u [conv↑] t ∷ A
 symConvTerm t<>u =
-  let ⊢Γ = wfEqTerm (soundnessConv↑Term t<>u)
+  let ⊢Γ = wf (soundnessConv↑Term t<>u)
   in  symConv↑Term (reflConEq ⊢Γ) t<>u

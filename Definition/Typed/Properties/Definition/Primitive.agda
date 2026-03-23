@@ -53,7 +53,7 @@ opaque
   opaque-ok ∙ᵒ⟨ ok ⟩[ _  ∷ ⊢A ] here =
     ok
   opaque-ok ∙ᵗ[ ⊢t ] (there α↦⊘) =
-    opaque-ok (defn-wf (wfTerm ⊢t)) α↦⊘
+    opaque-ok (defn-wf (wf ⊢t)) α↦⊘
   opaque-ok ∙ᵒ⟨ ok ⟩[ _  ∷ ⊢A ] (there α↦⊘) =
     opaque-ok (defn-wf (wf ⊢A)) α↦⊘
 
@@ -88,7 +88,7 @@ opaque
     ⊥-elim $ no-opacity allowed
   »→Transparent no-opacity ∙ᵗ[ ⊢t ] =
     PE.cong _∙! $
-    »→Transparent no-opacity (defn-wf (wfTerm ⊢t))
+    »→Transparent no-opacity (defn-wf (wf ⊢t))
 
 ------------------------------------------------------------------------
 -- Lemmas about _⊔ᵒᵗ_

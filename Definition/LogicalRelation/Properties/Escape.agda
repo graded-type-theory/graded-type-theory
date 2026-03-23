@@ -103,7 +103,7 @@ escapeEq (Liftᵣ′ D _ _) (Lift₌ D′ k≡k′ F≡F′) =
 escapeEq (ℕᵣ D) D′ =
   ≅-red (D , ℕₙ) (D′ , ℕₙ) (≅-ℕrefl (wf (redFirst* D)))
 escapeEq (Emptyᵣ D) D′ =
-  ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wfEq (subset* D)))
+  ≅-red (D , Emptyₙ) (D′ , Emptyₙ) (≅-Emptyrefl (wf (subset* D)))
 escapeEq (Unitᵣ′ D ok) (Unit₌ D′) =
   ≅-red (D , Unitₙ) (D′ , Unitₙ) (≅-Unit-refl (wf (redFirst* D)) ok)
 escapeEq (ne′ _ D neK _) (ne₌ _ D′ neM K≡M) =

@@ -440,44 +440,6 @@ opaque
 
 opaque
 
-  -- If a term is well-typed with respect to Γ, then Γ is well-formed.
-
-  wfTerm : Γ ⊢ t ∷ A → ⊢ Γ
-  wfTerm = wf
-
-opaque
-
-  -- If a level is well-typed with respect to Γ, then Γ is well-formed.
-
-  wfLevel : Γ ⊢ l ∷Level → ⊢ Γ
-  wfLevel = wf
-
-opaque
-
-  -- If a type equality is well-formed with respect to Γ, then Γ is
-  -- well-formed.
-
-  wfEq : Γ ⊢ A ≡ B → ⊢ Γ
-  wfEq = wf
-
-opaque
-
-  -- If a term equality is well-formed with respect to Γ, then Γ is
-  -- well-formed.
-
-  wfEqTerm : Γ ⊢ t ≡ u ∷ A → ⊢ Γ
-  wfEqTerm = wf
-
-opaque
-
-  -- If a level equality is well-formed with respect to Γ, then Γ is
-  -- well-formed.
-
-  wfEqLevel : Γ ⊢ l₁ ≡ l₂ ∷Level → ⊢ Γ
-  wfEqLevel = wf
-
-opaque
-
   -- If there is a proof of Γ »∙ A ⊢[ 𝓙 ], then there are strictly
   -- smaller proofs of ⊢ Γ and Γ ⊢ A.
 

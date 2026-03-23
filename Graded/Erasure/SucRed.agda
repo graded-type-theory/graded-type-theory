@@ -114,7 +114,7 @@ subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
   ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
   Γ ⊢ t ⇒ˢ zero ∷ℕ → Γ ⊢ t ⇒ zero ∷ ℕ
 ⇒ˢzero∷ℕ→⇒zero t⇒ =
-  ⇒ˢ∷ℕ≡zero→⇒ t⇒ (refl (zeroⱼ (wfEqTerm (subsetTermˢ t⇒))))
+  ⇒ˢ∷ℕ≡zero→⇒ t⇒ (refl (zeroⱼ (wf (subsetTermˢ t⇒))))
 
 -- If t reduces to zero according to _⊢_⇒ˢ*_∷ℕ, then t reduces to
 -- zero (given a certain assumption).
@@ -123,7 +123,7 @@ subset*Termˢ (x ⇨ˢ d) = trans (subsetTermˢ x) (subset*Termˢ d)
   ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
   Γ ⊢ t ⇒ˢ* zero ∷ℕ → Γ ⊢ t ⇒* zero ∷ ℕ
 ⇒ˢ*zero∷ℕ→⇒*zero t⇒ =
-  ⇒ˢ*∷ℕ≡zero→⇒* t⇒ (refl (zeroⱼ (wfEqTerm (subset*Termˢ t⇒))))
+  ⇒ˢ*∷ℕ≡zero→⇒* t⇒ (refl (zeroⱼ (wf (subset*Termˢ t⇒))))
 
 opaque
 

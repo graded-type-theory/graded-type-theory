@@ -92,7 +92,7 @@ opaque
     (id ⊢v₁)                     → id (natrecⱼ ⊢t ⊢u ⊢v₁)
     (_⇨_ {t′ = v₃} v₁⇒v₃ v₃⇒*v₂) →
       natrec p q r A t u v₁ ∷ A [ v₁ ]₀  ⇒⟨ natrec-subst ⊢t ⊢u v₁⇒v₃ ⟩∷
-                                         ˘⟨ substTypeEq (refl (⊢∙→⊢ (wfTerm ⊢u)))
+                                         ˘⟨ substTypeEq (refl (⊢∙→⊢ (wf ⊢u)))
                                               (sym′ (subsetTerm v₁⇒v₃)) ⟩⇒
       natrec p q r A t u v₃ ∷ A [ v₃ ]₀  ⇒*⟨ natrec-subst* ⊢t ⊢u v₃⇒*v₂ ⟩∎∷
       natrec p q r A t u v₂              ∎
@@ -127,7 +127,7 @@ opaque
   -- A typing rule for plus′.
 
   ⊢plus′ : Γ ⊢ t ∷ ℕ → Γ ⊢ u ∷ ℕ → Γ ⊢ plus′ t u ∷ ℕ
-  ⊢plus′ ⊢t ⊢u = natrecⱼ ⊢t (sucⱼ (var₀ (⊢ℕ (∙ ⊢ℕ (wfTerm ⊢t))))) ⊢u
+  ⊢plus′ ⊢t ⊢u = natrecⱼ ⊢t (sucⱼ (var₀ (⊢ℕ (∙ ⊢ℕ (wf ⊢t))))) ⊢u
 
 opaque
 
@@ -151,7 +151,7 @@ opaque
 
   ⊢f′ : Γ ⊢ t ∷ ℕ → Γ ⊢ u ∷ ℕ → Γ ⊢ f′ t u ∷ ℕ
   ⊢f′ ⊢t ⊢u =
-    let ⊢ℕ = ⊢ℕ (∙ ⊢ℕ (wfTerm ⊢t)) in
+    let ⊢ℕ = ⊢ℕ (∙ ⊢ℕ (wf ⊢t)) in
     natrecⱼ ⊢t
       (⊢plus′ (wkTerm (∷⊇→∷ʷ⊇ (step (step id)) (∙ ⊢ℕ)) ⊢t) (var₁ ⊢ℕ)) ⊢u
 
@@ -175,8 +175,8 @@ opaque
 
   ⊢pred′ : Γ ⊢ t ∷ ℕ → Γ ⊢ pred′ t ∷ ℕ
   ⊢pred′ ⊢t =
-    natrecⱼ (zeroⱼ (wfTerm ⊢t))
-      (var (∙ ⊢ℕ (∙ ⊢ℕ (wfTerm ⊢t))) (there here))
+    natrecⱼ (zeroⱼ (wf ⊢t))
+      (var (∙ ⊢ℕ (∙ ⊢ℕ (wf ⊢t))) (there here))
       ⊢t
 
 opaque
@@ -334,7 +334,7 @@ opaque
     Γ ⊢ u₁ ⇒ u₂ ∷ ℕ →
     Γ ⊢ strict-const A t u₁ ⇒ strict-const A t u₂ ∷ A
   strict-const-subst ⊢t u₁⇒u₂ =
-    let ⊢A = wk₁ (⊢ℕ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
+    let ⊢A = wk₁ (⊢ℕ (wf ⊢t)) (syntacticTerm ⊢t) in
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-subst
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)
@@ -365,7 +365,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ strict-const A t zero ⇒ t ∷ A
   strict-const-zero-⇒ ⊢t =
-    let ⊢A = wk₁ (⊢ℕ (wfTerm ⊢t)) (syntacticTerm ⊢t) in
+    let ⊢A = wk₁ (⊢ℕ (wf ⊢t)) (syntacticTerm ⊢t) in
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk1-sgSubst _ _) $
     natrec-zero
       (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk1-sgSubst _ _) ⊢t)

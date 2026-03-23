@@ -116,7 +116,7 @@ opaque
     Γ »∙ A ⊢ B →
     Γ ⊢ ΠΣʰ b p q l₁ l₂ A B
   ⊢ΠΣʰ′ ok ⊢l₁ ⊢B =
-    let ⊢l₂ , _ = inversion-Lift (⊢∙→⊢ (wfLevel ⊢l₁)) in
+    let ⊢l₂ , _ = inversion-Lift (⊢∙→⊢ (wf ⊢l₁)) in
     wf-⊢≡
       (ΠΣʰ-cong-⊢′ ok (refl-⊢≡∷L ⊢l₁) (refl-⊢≡∷L ⊢l₂)
          (refl (⊢∙→⊢ (wf ⊢B))) (refl ⊢B))
@@ -285,7 +285,7 @@ private opaque
     Γ ⊢ l ∷Level ×
     Γ »∙ A ⊢ t [ lower (lift (var x0)) ]↑ ∷ B [ lift (var x0) ]↑
   inversion-lower₀-⊢∷ {t} ⊢lower₀-t =
-    let ⊢l , ⊢A = inversion-Lift (⊢∙→⊢ (wfTerm ⊢lower₀-t)) in
+    let ⊢l , ⊢A = inversion-Lift (⊢∙→⊢ (wf ⊢lower₀-t)) in
     ⊢l ,
     PE.subst (flip (_⊢_∷_ _) _) ([][]↑-[↑⇑] 0 t)
       (subst-⊢∷ ⊢lower₀-t $

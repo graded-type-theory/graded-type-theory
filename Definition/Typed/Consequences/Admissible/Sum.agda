@@ -120,7 +120,7 @@ opaque
         ⊢b₁ , ⊢b₂ = wf-⊢≡∷L b₁≡b₂
         _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
         _ , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
-        ⊢Γ = wfTerm ⊢A₁
+        ⊢Γ = wf ⊢A₁
     in  check-and-equal-type-and-terms-sound
       (γ′ λ where
         .I.equalities →
@@ -228,7 +228,7 @@ opaque
     let ⊢a = inversion-U-Level (syntacticTerm ⊢A)
         ⊢b = inversion-U-Level (syntacticTerm ⊢B)
         _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        ⊢Γ = wfTerm ⊢A
+        ⊢Γ = wf ⊢A
     in
     check-and-equal-type-and-terms-sound
       (γ′ λ where
@@ -309,7 +309,7 @@ opaque
     let ⊢a = inversion-U-Level (syntacticTerm ⊢A)
         ⊢b = inversion-U-Level (syntacticTerm ⊢B)
         _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
-        ⊢Γ = wfTerm ⊢A
+        ⊢Γ = wf ⊢A
     in
     check-and-equal-type-and-terms-sound
       (γ′ λ where
@@ -450,7 +450,7 @@ opaque
   ⊢sumrec {(m)} {(n)} {Γ} {a} {b} {A} {B} {P}
     {l} {r} {t} {p} {q}
     ⊢a ⊢b ⊢A ⊢B ⊢P ⊢l ⊢r ⊢t Π-ok₁ Π-ok₂ =
-      let ⊢Γ = wfTerm ⊢t
+      let ⊢Γ = wf ⊢t
           Sumᵢ′ = Sumᵢ xa xb xA xB
       in  check-type-and-term-sound
         (γ′ λ where
@@ -534,7 +534,7 @@ opaque
     {(m)} {(n)} {Γ} {a} {b} {A} {B} {P}
     {l} {r} {t} {p} {q}
     ⊢a ⊢b ⊢A ⊢B ⊢P ⊢l ⊢r ⊢t Π-ok₁ Π-ok₂ =
-      let ⊢Γ = wfTerm ⊢t
+      let ⊢Γ = wf ⊢t
           Sumᵢ′ = Sumᵢ xa xb xA xB
       in  check-and-equal-type-and-terms-sound
         (γ′ λ where
@@ -616,7 +616,7 @@ opaque
     {(m)} {(n)} {Γ} {a} {b} {A} {B} {P}
     {l} {r} {t} {p} {q}
     ⊢a ⊢b ⊢A ⊢B ⊢P ⊢l ⊢r ⊢t Π-ok₁ Π-ok₂ =
-      let ⊢Γ = wfTerm ⊢t
+      let ⊢Γ = wf ⊢t
           Sumᵢ′ = Sumᵢ xa xb xA xB
       in  check-and-equal-type-and-terms-sound
         (γ′ λ where

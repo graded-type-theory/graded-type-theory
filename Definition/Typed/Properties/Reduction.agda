@@ -220,7 +220,7 @@ opaque
   subsetTerm (lower-subst x) = lower-cong (subsetTerm x)
   subsetTerm (Lift-β ⊢A x₁) = Lift-β ⊢A x₁
   subsetTerm (natrec-subst z s n⇒n′) =
-    natrec-cong (refl (⊢∙→⊢ (wfTerm s))) (refl z) (refl s)
+    natrec-cong (refl (⊢∙→⊢ (wf s))) (refl z) (refl s)
       (subsetTerm n⇒n′)
   subsetTerm (natrec-zero z s) = natrec-zero z s
   subsetTerm (natrec-suc z s n) = natrec-suc z s n

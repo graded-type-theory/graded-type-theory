@@ -444,7 +444,7 @@ opaque
     Σˢ-allowed p q′ →
     Γ ⊢ prodrecˢ p (prodˢ p t u) v ≡ v [ t , u ]₁₀ ∷ C [ prodˢ p t u ]₀
   prodrecˢ-β {Γ} {t} {A} {u} {B} {v} {p} C ⊢t ⊢u ⊢v ok =
-    let ⊢B = ⊢∙→⊢ (wfTerm ⊢v) in                                         $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
+    let ⊢B = ⊢∙→⊢ (wf ⊢v) in                                         $⟨ Σ-β₁-≡ ⊢B ⊢t ⊢u ok
                                                                           , Σ-β₂-≡ ⊢B ⊢t ⊢u ok
                                                                           ⟩
     Γ ⊢ fst p (prodˢ p t u) ≡ t ∷ A ×
@@ -1404,7 +1404,7 @@ opaque
     Γ ⊢ u ∷ B [ t ]₀ →
     Γ ⊢ sndʰ p (prodʰˢ p t u) ≡ u ∷ B [ t ]₀
   Σʰ-β₂ {p} {B} {t} {u} ok ⊢B ⊢t ⊢u =
-    let ⊢0 = ⊢zeroᵘ (wfTerm ⊢t) in
+    let ⊢0 = ⊢zeroᵘ (wf ⊢t) in
     lower (snd p (prodˢ p (lift t) (lift u)))  ≡⟨ conv
                                                     (lower-cong $
                                                      Σ-β₂-≡ (Liftⱼ (wkLevel₁ (Liftⱼ ⊢0 (⊢∙→⊢ (wf ⊢B))) ⊢0) (lower₀Type ⊢0 ⊢B))
@@ -1606,7 +1606,7 @@ opaque
     Γ ⊢ prodrecʰ⟨ s ⟩ r p q C₁ t₁ u₁ ≡ prodrecʰ⟨ s ⟩ r p q C₂ t₂ u₂ ∷
       C₁ [ t₁ ]₀
   prodrecʰ⟨⟩-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ =
-    let ⊢B                     = ⊢∙→⊢ (wfEqTerm u₁≡u₂)
+    let ⊢B                     = ⊢∙→⊢ (wf u₁≡u₂)
         ⊢Σ , ⊢t₁ , _           = wf-⊢≡∷ t₁≡t₂
         ⊢l₁ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ ⊢Σ
         ⊢l₁                    = PE.subst (_⊢_∷Level _)
@@ -1644,7 +1644,7 @@ opaque
     Γ ⊢ prodrecʰ⟨ s ⟩ r p q C (prodʰ s p t u) v ≡ v [ t , u ]₁₀ ∷
       C [ prodʰ s p t u ]₀
   prodrecʰ⟨⟩-β {s} {p} {C} {t} {u} {v} {r} {q} ⊢C ⊢t ⊢u ⊢v =
-    let ⊢B                     = ⊢∙→⊢ (wfTerm ⊢v)
+    let ⊢B                     = ⊢∙→⊢ (wf ⊢v)
         ⊢l₁ , ⊢l₂ , _ , _ , ok = inversion-ΠΣʰ-⊢ (⊢∙→⊢ (wf ⊢C))
         ⊢l₁                    = PE.subst (_⊢_∷Level _)
                                    (wk1-sgSubst _ _) $

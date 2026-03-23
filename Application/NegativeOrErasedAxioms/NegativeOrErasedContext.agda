@@ -115,7 +115,7 @@ opaque
       (lookupOpaqueNegative α↦ (defn-wf (wf ⊢A)) ∇-neg)
   lookupOpaqueNegative (there α↦) ∙ᵗ[ ⊢t ] (∙ᵗ ∇-neg) =
     defn-wkNeg (stepᵗ₁ ⊢t)
-      (lookupOpaqueNegative α↦ (defn-wf (wfTerm ⊢t)) ∇-neg)
+      (lookupOpaqueNegative α↦ (defn-wf (wf ⊢t)) ∇-neg)
 
 opaque
 

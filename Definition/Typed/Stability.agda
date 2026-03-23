@@ -103,7 +103,7 @@ opaque
   -- A variant of _∙_.
 
   refl-∙ : ∇ » Γ ⊢ A ≡ B → ∇ »⊢ Γ ∙ A ≡ Γ ∙ B
-  refl-∙ A≡B = reflConEq (wfEq A≡B) ∙ A≡B
+  refl-∙ A≡B = reflConEq (wf A≡B) ∙ A≡B
 
 opaque
 
@@ -194,7 +194,7 @@ opaque
   stability-⊢ˢ∷ʳ (ε »∇)      ⊢σ        = ⊢σ
   stability-⊢ˢ∷ʳ (Γ≡Δ ∙ A≡B) (⊢σ , ⊢t) =
     stability-⊢ˢ∷ʳ Γ≡Δ ⊢σ ,
-    conv ⊢t (subst-⊢≡ A≡B (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷⇔ .proj₂ (wfTerm ⊢t , ⊢σ))))
+    conv ⊢t (subst-⊢≡ A≡B (refl-⊢ˢʷ≡∷ (⊢ˢʷ∷⇔ .proj₂ (wf ⊢t , ⊢σ))))
 
 opaque
 
@@ -234,8 +234,8 @@ opaque
   stability-⊢ˢ≡∷ʳ : ∇ »⊢ Γ ≡ Δ → ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Γ → ∇ » Η ⊢ˢ σ₁ ≡ σ₂ ∷ Δ
   stability-⊢ˢ≡∷ʳ (ε ⊢∇)      σ₁≡σ₂           = σ₁≡σ₂
   stability-⊢ˢ≡∷ʳ (Γ≡Δ ∙ A≡B) (σ₁≡σ₂ , t₁≡t₂) =
-    let ⊢σ₁ , _ = wf-⊢ˢ≡∷ (wfEq A≡B) σ₁≡σ₂
-        ⊢σ₁     = ⊢ˢʷ∷⇔ .proj₂ (wfEqTerm t₁≡t₂ , ⊢σ₁)
+    let ⊢σ₁ , _ = wf-⊢ˢ≡∷ (wf A≡B) σ₁≡σ₂
+        ⊢σ₁     = ⊢ˢʷ∷⇔ .proj₂ (wf t₁≡t₂ , ⊢σ₁)
     in
     stability-⊢ˢ≡∷ʳ Γ≡Δ σ₁≡σ₂ ,
     conv t₁≡t₂ (subst-⊢≡ A≡B (refl-⊢ˢʷ≡∷ ⊢σ₁))
@@ -300,26 +300,26 @@ opaque
   stabilityRedTerm Γ≡Δ (natrec-subst x₁ x₂ d) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
     natrec-subst (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
+      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
       (stabilityRedTerm Γ≡Δ d)
   stabilityRedTerm Γ≡Δ (natrec-zero x₁ x₂) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
     natrec-zero (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
+      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
   stabilityRedTerm Γ≡Δ (natrec-suc x₁ x₂ x₃) =
     let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ in
     natrec-suc (stabilityTerm Γ≡Δ x₁)
-      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wfTerm x₂))) x₂)
+      (stabilityTerm (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
       (stabilityTerm Γ≡Δ x₃)
   stabilityRedTerm Γ≡Δ (prodrec-subst x₂ x₃ d ok) =
-    let x₁ = ⊢∙→⊢ (wfTerm x₃)
+    let x₁ = ⊢∙→⊢ (wf x₃)
         x  = ⊢∙→⊢ (wf x₁)
     in
     prodrec-subst (stability (Γ≡Δ ∙ refl (ΠΣⱼ x₁ ok)) x₂)
       (stabilityTerm (Γ≡Δ ∙ refl x ∙ refl x₁) x₃)
       (stabilityRedTerm Γ≡Δ d) ok
   stabilityRedTerm Γ≡Δ (prodrec-β x₂ x₃ x₄ x₅ x₆ ok) =
-    let x₁ = ⊢∙→⊢ (wfTerm x₅)
+    let x₁ = ⊢∙→⊢ (wf x₅)
         x  = ⊢∙→⊢ (wf x₁)
     in
     prodrec-β (stability (Γ≡Δ ∙ refl (ΠΣⱼ x₁ ok)) x₂)

@@ -161,7 +161,7 @@ opaque instance
     ; prodrec-⇛ = λ ⊢C t₁≡t₂ ⊢u →
                     prodrec-cong′ (refl ⊢C) t₁≡t₂ (refl ⊢u)
     ; natrec-⇛  = λ ⊢t ⊢u v₁≡v₂ →
-                    natrec-cong (refl (⊢∙→⊢ (wfTerm ⊢u))) (refl ⊢t)
+                    natrec-cong (refl (⊢∙→⊢ (wf ⊢u))) (refl ⊢t)
                       (refl ⊢u) v₁≡v₂
     ; J-⇛       = λ ⊢B ⊢u w₁≡w₂ →
                     let ⊢A , ⊢t , ⊢v =

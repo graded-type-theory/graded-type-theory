@@ -61,7 +61,7 @@ opaque
     Γ ⊢ A₁ ≡ A₂ → Γ ⊢ t₁ ≡ t₂ ∷ Empty →
     Γ ⊢ emptyrec-sink A₁ t₁ ≡ emptyrec-sink A₂ t₂ ∷ A₁
   emptyrec-sink-cong ok₁ ok₂ A₁≡A₂ t₁≡t₂ =
-    let ⊢Γ    = wfEq A₁≡A₂
+    let ⊢Γ    = wf A₁≡A₂
         ⊢Unit = ⊢Unit ⊢Γ ok₁
     in
     PE.subst (_⊢_≡_∷_ _ _ _) (wk1-sgSubst _ _) $

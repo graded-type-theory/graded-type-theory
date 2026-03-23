@@ -167,7 +167,7 @@ opaque
         (Σₜ _ (id ⊢t) (ne t-ne) (~-to-≅ₜ ~t) (𝕤 _ [fst] [snd]))
     neuTerm′ (Bᵣ (BΣ 𝕨 _ q) ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) =
       let A≡ΣFG = subset* D
-          ⊢Γ = wfEq A≡ΣFG
+          ⊢Γ = wf A≡ΣFG
           ⊢t = conv ⊢t A≡ΣFG
           ~t = ~-conv ~t A≡ΣFG
       in

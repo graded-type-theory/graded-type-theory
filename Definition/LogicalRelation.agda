@@ -721,7 +721,7 @@ module LogRel
       Γ ⊩ₗB⟨ BΣ m p q ⟩ A →
       Productᵃₗ (Γ .defs) t → Productᵃₗ (Γ .defs) r → Set a
     [Σ]-prop {p} 𝕤 t r Γ (Bᵣ F G D A≡A [F] [G] G-ext _) _ _ =
-      let id-Γ = id (wfEq (≅-eq A≡A)) in
+      let id-Γ = id (wf (≅-eq A≡A)) in
       Σ (Γ ⊩ₗ fst p t ∷ U.wk id F / [F] id⊇ id-Γ) λ [fstp]
       → Γ ⊩ₗ fst p r ∷ U.wk id F / [F] id⊇ id-Γ
       × Γ ⊩ₗ fst p t ≡ fst p r ∷ U.wk id F / [F] id⊇ id-Γ
@@ -731,7 +731,7 @@ module LogRel
       {p} 𝕨 _ _ Γ (Bᵣ F G _ A≡A [F] [G] _ _)
       (prodₙ {s = s′} {p = p′} {t = p₁} {u = p₂})
       (prodₙ {s = s″} {p = p″} {t = r₁} {u = r₂}) =
-        let id-Γ = id (wfEq (≅-eq A≡A)) in
+        let id-Γ = id (wf (≅-eq A≡A)) in
         s′ PE.≡ 𝕨 × s″ PE.≡ 𝕨 ×
         p PE.≡ p′ × p PE.≡ p″ ×
         Σ (Γ ⊩ₗ p₁ ∷ U.wk id F / [F] id⊇ id-Γ) λ [p₁] →

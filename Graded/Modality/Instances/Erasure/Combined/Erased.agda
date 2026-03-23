@@ -267,7 +267,7 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
       𝟘ᶜ ▸ Γ ⊢ mapᴱ A t u ∷[ p ] Erased l₂ B
     ⊢∷-mapᴱ {s} ⊢l₂ ⊢t ⊢u =
       let ⊢t′ = ⊢∷[]→⊢∷ ⊢t
-          ⊢A  = ⊢←⊢ ok-𝟘ᵐ (⊢∙→⊢ (wfTerm ⊢t′))
+          ⊢A  = ⊢←⊢ ok-𝟘ᵐ (⊢∙→⊢ (wf ⊢t′))
       in
       ⊢∷[]←⊢∷▸ ok-𝟘ᵐ (⊢mapᴱ (⊢∷L→⊢∷L ⊢l₂) ⊢t′ (⊢∷[]→⊢∷ ⊢u))
         (▸mapᴱ s

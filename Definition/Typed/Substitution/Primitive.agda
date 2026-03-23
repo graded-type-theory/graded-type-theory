@@ -252,7 +252,7 @@ opaque
       C [ prod s p (var x1) (var x0) ]↑² ≡
       D [ prod s p (var x1) (var x0) ]↑²
   subst↑²TypeEq-prod {B} C≡D =
-    let ⊢A , ⊢B , ok = inversion-ΠΣ (⊢∙→⊢ (wfEq C≡D))
+    let ⊢A , ⊢B , ok = inversion-ΠΣ (⊢∙→⊢ (wf C≡D))
         ⊢A′          = wk₁ ⊢A ⊢A
     in
     subst-⊢≡ C≡D $ ⊢ˢʷ≡∷-[][]↑ $ _⊢_≡_∷_.refl $

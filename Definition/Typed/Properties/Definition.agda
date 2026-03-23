@@ -376,7 +376,7 @@ opaque
   inline-⊇-⊢∷ ∇′⊇∇ (sucⱼ ⊢t) =
     PE.cong suc (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
   inline-⊇-⊢∷ ∇′⊇∇ (natrecⱼ ⊢t ⊢u ⊢v) =
-    PE.cong₄ (natrec _ _ _) (inline-⊇-⊢ ∇′⊇∇ (⊢∙→⊢ (wfTerm ⊢u)))
+    PE.cong₄ (natrec _ _ _) (inline-⊇-⊢ ∇′⊇∇ (⊢∙→⊢ (wf ⊢u)))
       (inline-⊇-⊢∷ ∇′⊇∇ ⊢t) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
   inline-⊇-⊢∷ ∇′⊇∇ (Idⱼ ⊢A ⊢t ⊢u) =
     PE.cong₃ Id (inline-⊇-⊢∷ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
@@ -532,11 +532,11 @@ opaque
     {t} {ξ = step ξ _ _ _} {m≤α} {α<n = ≤′-step α<n}
     (∙ᵗ[_] {t = u} {A = B} ⊢t) (there α∈) =
     let s = stepᵗ₁ ⊢t in
-    inline-< ξ m≤α α<n         ≡⟨ inline-<≡ (defn-wf (wfTerm ⊢t)) α∈ ⟩
+    inline-< ξ m≤α α<n         ≡⟨ inline-<≡ (defn-wf (wf ⊢t)) α∈ ⟩
 
     inline ξ t                 ≡⟨ inline-⊇-⊢∷ s $
                                   PE.subst₂ (_⊢_∷_ _) wk₀-closed wk₀-closed $
-                                  wf-⊢≡∷ (δ-red (wfTerm ⊢t) α∈ PE.refl PE.refl) .proj₂ .proj₂ ⟩
+                                  wf-⊢≡∷ (δ-red (wf ⊢t) α∈ PE.refl PE.refl) .proj₂ .proj₂ ⟩
     inline (step ξ tra B u) t  ∎
 
 opaque
@@ -590,8 +590,8 @@ opaque
     PE.subst (_⊢_∷_ _ _)
       (inline-⊇-⊢ (stepᵗ₁ ⊢t) $
        PE.subst (_⊢_ _) wk₀-closed $
-       wf-⊢∷ (defn (wfTerm ⊢t) α↦ PE.refl)) $
-    ⊢inline-<∷ {ξ = ξ} (defn-wf (wfTerm ⊢t)) α↦
+       wf-⊢∷ (defn (wf ⊢t) α↦ PE.refl)) $
+    ⊢inline-<∷ {ξ = ξ} (defn-wf (wf ⊢t)) α↦
   ⊢inline-<∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
     ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] (there α↦) =
     PE.subst (_⊢_∷_ _ _)
@@ -1385,7 +1385,7 @@ opaque
   ⊢inline-<≡defn∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
     ∙ᵗ[ ⊢t ] (there α↦) =
     defn-wkEqTerm (stepᵗ₁ (glassify-⊢∷ ⊢t)) $
-    ⊢inline-<≡defn∷ {ξ = ξ} (defn-wf (wfTerm ⊢t)) α↦
+    ⊢inline-<≡defn∷ {ξ = ξ} (defn-wf (wf ⊢t)) α↦
   ⊢inline-<≡defn∷ {ξ = step ξ _ _ _} {α<n = ≤′-step _}
     ∙ᵒ⟨ _ ⟩[ ⊢t ∷ ⊢A ] (there α↦) =
     defn-wkEqTerm
@@ -1480,7 +1480,7 @@ opaque
       (unitrec-cong′ ≡A ≡t
          (conv (⊢inline≡∷ ⊢u) $
           substTypeEq (sym ≡A) $
-          refl (starⱼ (glassify-⊢′ (wfTerm ⊢t)) ok)))
+          refl (starⱼ (glassify-⊢′ (wf ⊢t)) ok)))
       (substTypeEq ≡A ≡t)
   ⊢inline≡∷ (ΠΣⱼ _ ⊢A ⊢B ok) =
     let ≡A = ⊢inline≡∷ ⊢A in
@@ -1521,14 +1521,14 @@ opaque
   ⊢inline≡∷ (sucⱼ ⊢t) =
     suc-cong (⊢inline≡∷ ⊢t)
   ⊢inline≡∷ (natrecⱼ ⊢t ⊢u ⊢v) =
-    let ⊢A = ⊢∙→⊢ (wfTerm ⊢u)
+    let ⊢A = ⊢∙→⊢ (wf ⊢u)
         ≡A = ⊢inline≡ ⊢A
         ≡v = ⊢inline≡∷ ⊢v
     in
     conv
       (natrec-cong ≡A
          (conv (⊢inline≡∷ ⊢t) $
-          substTypeEq (sym ≡A) (refl (zeroⱼ (glassify-⊢′ (wfTerm ⊢t)))))
+          substTypeEq (sym ≡A) (refl (zeroⱼ (glassify-⊢′ (wf ⊢t)))))
          (stabilityEqTerm (refl-∙ (sym ≡A)) $
           conv (⊢inline≡∷ ⊢u) $
           subst-⊢≡-↑ (sym ≡A) (refl (sucⱼ (var₁ (glassify-⊢ ⊢A)))))

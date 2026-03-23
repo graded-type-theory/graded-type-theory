@@ -96,7 +96,7 @@ private opaque
     let t-ne , _ = ne~∷ t~u
         ⊢t∷A = ~∷→∷ t~u
     in
-    conv~∷ (reflConEq (wfTerm ⊢t∷A)) (neTypeEq (ne⁻ t-ne) ⊢t∷A ⊢t) t~u
+    conv~∷ (reflConEq (wf ⊢t∷A)) (neTypeEq (ne⁻ t-ne) ⊢t∷A ⊢t) t~u
 
 private opaque
 
@@ -374,7 +374,7 @@ private opaque
   dec~↑-unitrec-cong
     no-η ⊢t₁ (yes (PE.refl , PE.refl , _ , t₁~t₂)) dec₁ dec₂ =
     let ok = inversion-Unit (syntacticTerm ⊢t₁)
-        ⊢Γ = wfTerm ⊢t₁
+        ⊢Γ = wf ⊢t₁
     in case
       (dec₁ ×-dec′ λ A₁≡A₂ →
        dec₂ (substTypeEq (soundnessConv↑ A₁≡A₂) (refl (starⱼ ⊢Γ ok))))
@@ -424,7 +424,7 @@ private opaque
     dec₂ =
     case
       (let A₁≡A₂     = soundnessConv↑ A₁≡A₂
-           ⊢Δ        = wfTerm ⊢v₁
+           ⊢Δ        = wf ⊢v₁
            ΔℕA₁≡ΔℕA₂ = refl-∙ (sym A₁≡A₂)
        in
        dec₁ (substTypeEq A₁≡A₂ (refl (zeroⱼ ⊢Δ)))

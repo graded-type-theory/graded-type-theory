@@ -87,7 +87,7 @@ private opaque
   ⊢Erased-OK :
     Γ ⊢ t ∷ ℕ →
     Γ ⊢ Erased zeroᵘₗ (OK t)
-  ⊢Erased-OK ⊢t = Erasedⱼ Erased-ok (⊢zeroᵘ (wfTerm ⊢t)) (⊢OK ⊢t)
+  ⊢Erased-OK ⊢t = Erasedⱼ Erased-ok (⊢zeroᵘ (wf ⊢t)) (⊢OK ⊢t)
 
 ------------------------------------------------------------------------
 -- Typing rules for Bool, true and false
@@ -171,7 +171,7 @@ opaque
        PE.sym $
        PE.trans Erased-[] $
        PE.cong (Erased _) B.OK-[]) $
-    prod-cong (⊢Erased-OK (var₀ (⊢ℕ (wfEqTerm t₁≡t₂)))) t₁≡t₂
+    prod-cong (⊢Erased-OK (var₀ (⊢ℕ (wf t₁≡t₂)))) t₁≡t₂
       (PE.subst (_⊢_≡_∷_ _ _ _)
          (PE.sym $
           PE.trans Erased-[] $
@@ -294,7 +294,7 @@ opaque
         _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
         _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
         _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
-        ⊢Γ            = wfTerm ⊢t₁
+        ⊢Γ            = wf ⊢t₁
     in
     check-and-equal-type-and-terms-sound
       (γ′ λ where
@@ -424,7 +424,7 @@ opaque
            (I.var! x1)         → ⊢t
            (I.var! x2)         → ⊢u
            (I.var  not-x3 _ _))
-      (wfTerm ⊢t)
+      (wf ⊢t)
       where
       open Defs p Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
 
@@ -477,7 +477,7 @@ opaque
            (I.var! x1)         → ⊢t
            (I.var! x2)         → ⊢u
            (I.var  not-x3 _ _))
-      (wfTerm ⊢t)
+      (wf ⊢t)
       where
       open Defs p Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
 

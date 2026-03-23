@@ -105,7 +105,7 @@ opaque
             fst≡fst , snd≡snd) →
          case B-PE-injectivity _ _ $ whnfRed* Σ⇒*Σ ΠΣₙ of λ {
            (PE.refl , PE.refl , _) →
-         let ⊩wk-id-A  = ⊩wk-A _ (id (wfEq (≅-eq A≡A))) in
+         let ⊩wk-id-A  = ⊩wk-A _ (id (wf (≅-eq A≡A))) in
          case wf-⊩≡∷ $
               level-⊩≡∷ (PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A)
                 fst≡fst of λ

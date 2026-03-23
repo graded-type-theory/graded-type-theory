@@ -149,7 +149,7 @@ opaque
     × (ε » Δ ⊢ t [ H ]ₕ ∷ ℕ →
        ε » Δ ⊢ C ≡ wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
   inversion-natrecₑ (natrecₑ ⊢z ⊢s) =
-    ⊢z , ⊢s , PE.refl , λ ⊢t → refl (substType (⊢∙→⊢ (wfTerm ⊢s)) ⊢t)
+    ⊢z , ⊢s , PE.refl , λ ⊢t → refl (substType (⊢∙→⊢ (wf ⊢s)) ⊢t)
   inversion-natrecₑ (conv ⊢c ≡C) =
     case inversion-natrecₑ ⊢c of λ
       (⊢z , ⊢s , B≡ , C′≡) →

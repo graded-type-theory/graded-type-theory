@@ -83,7 +83,7 @@ opaque
     , (λ Level≡A →
          let ok           = inversion-Level-⊢
                               (wf-⊢≡ (subset* Level≡A) .proj₂)
-             Level⇒*Level = id (Levelⱼ′ ok (wfEq (subset* Level≡A)))
+             Level⇒*Level = id (Levelⱼ′ ok (wf (subset* Level≡A)))
              ⊩Level       = Levelᵣ Level⇒*Level in
            ⊩Level
          , (redSubst* Level≡A ⊩Level) .proj₁
@@ -105,7 +105,7 @@ opaque
     , (λ (ok , t≡u) →
           Levelᵣ
             (id $
-             Levelⱼ′ ok $ wfTerm $ ⊢∷Level→⊢∷Level ok $
+             Levelⱼ′ ok $ wf $ ⊢∷Level→⊢∷Level ok $
              escapeLevel (wf-Level-eq t≡u .proj₁))
          , t≡u)
 
@@ -137,7 +137,7 @@ opaque
   ⊩zeroᵘ∷Level⇔ {Γ} {ℓ} =
     Γ ⊩⟨ ℓ ⟩ zeroᵘ ∷ Level                  ⇔⟨ ⊩∷Level⇔ ⟩
     Level-allowed × Γ ⊩Level zeroᵘₗ ∷Level  ⇔⟨ (Σ-cong-⇔ λ ok →
-                                                wfTerm ∘→ ⊢∷Level→⊢∷Level ok ∘→ escapeLevel ,
+                                                wf ∘→ ⊢∷Level→⊢∷Level ok ∘→ escapeLevel ,
                                                 ⊩zeroᵘ) ⟩
     Level-allowed × ⊢ Γ                     □⇔
 

@@ -70,7 +70,7 @@ opaque
       (λ ⊩ℕ →
         case ℕ-view ⊩ℕ of λ {
           (ℕᵣ ℕ⇒*ℕ) →
-        wfEq (subset* ℕ⇒*ℕ) })
+        wf (subset* ℕ⇒*ℕ) })
     , (λ ⊢Γ → ℕᵣ (id (⊢ℕ ⊢Γ)))
 
 opaque
@@ -82,7 +82,7 @@ opaque
       (λ ⊩ℕ →
          case ⊩∷U⇔ .proj₁ ⊩ℕ of λ
            (_ , _ , _ , _ , ℕ⇒* , _) →
-         wfEqTerm (subset*Term ℕ⇒*))
+         wf (subset*Term ℕ⇒*))
     , (λ ⊢Γ →
          ⊩∷U⇔ .proj₂
            ( ⊩zeroᵘ ⊢Γ , ↑ᵘ<ᵘωᵘ·2 , ⊩ℕ⇔ .proj₂ ⊢Γ
@@ -101,7 +101,7 @@ opaque
            (ℕᵣ _) →
          ℕ≡A })
     , (λ ℕ≡A →
-         case id (⊢ℕ (wfEq (subset* ℕ≡A))) of λ
+         case id (⊢ℕ (wf (subset* ℕ≡A))) of λ
            ℕ⇒*ℕ →
          let ⊩ℕ = ℕᵣ ℕ⇒*ℕ in
            ⊩ℕ
@@ -117,7 +117,7 @@ opaque
       (λ ℕ≡ℕ →
          case ⊩≡∷U⇔ .proj₁ ℕ≡ℕ of λ
            (_ , _ , _ , _ , _ , ℕ⇒* , _) →
-         wfEqTerm (subset*Term ℕ⇒*))
+         wf (subset*Term ℕ⇒*))
     , (λ ⊢Γ →
          case id (ℕⱼ ⊢Γ) of λ
            ℕ⇒*ℕ →
@@ -138,7 +138,7 @@ opaque
            (ℕᵣ _) →
          t≡u })
     , (λ t≡u →
-         ℕᵣ (id (⊢ℕ (wfEqTerm (subset*Term (_⊩ℕ_≡_∷ℕ.d t≡u))))) , t≡u)
+         ℕᵣ (id (⊢ℕ (wf (subset*Term (_⊩ℕ_≡_∷ℕ.d t≡u))))) , t≡u)
 
 opaque
 
@@ -157,7 +157,7 @@ opaque
 
   ⊩zero∷ℕ⇔ : Γ ⊩⟨ l ⟩ zero ∷ ℕ ⇔ ⊢ Γ
   ⊩zero∷ℕ⇔ =
-      wfTerm ∘→ escape-⊩∷
+      wf ∘→ escape-⊩∷
     , (λ ⊢Γ →
          ⊩∷ℕ⇔ .proj₂ $
          ℕₜ _ (id (zeroⱼ ⊢Γ)) (≅ₜ-zerorefl ⊢Γ) zeroᵣ)
@@ -204,7 +204,7 @@ opaque
       ℕₜ₌ _ _ (id (sucⱼ (redFirst*Term t⇒*t′)))
         (id (sucⱼ (redFirst*Term u⇒*u′)))
         (≅-suc-cong $
-         ≅ₜ-red (id (⊢ℕ (wfEqTerm (≅ₜ-eq t′≅u′))) , ℕₙ)
+         ≅ₜ-red (id (⊢ℕ (wf (≅ₜ-eq t′≅u′))) , ℕₙ)
            (t⇒*t′ , naturalWhnf t′-ok) (u⇒*u′ , naturalWhnf u′-ok)
            t′≅u′)
         (sucᵣ t≡u)
@@ -573,7 +573,7 @@ opaque
     Γ ⊩ᵛ⟨ l ⟩ natrec p q r A t u v ∷ A [ v ]₀
   natrecᵛ ⊩A ⊩t ⊢u ⊩u ⊩v =
     ⊩ᵛ∷⇔⊩ᵛ≡∷ .proj₂ $
-    natrec-congᵛ (refl (⊢∙→⊢ (wfTerm ⊢u))) (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t)
+    natrec-congᵛ (refl (⊢∙→⊢ (wf ⊢u))) (refl-⊩ᵛ≡ ⊩A) (refl-⊩ᵛ≡∷ ⊩t)
       (refl ⊢u) (refl-⊩ᵛ≡∷ ⊩u) (refl-⊩ᵛ≡∷ ⊩v)
 
 opaque

@@ -156,7 +156,7 @@ module _
         ⊢t′ : glassify ∇ » Δ ⊢ t ∷ ℕ
         ⊢t′ = glassify-⊢∷ ⊢t
 
-        open L str (wfTerm ⊢t′)
+        open L str (wf ⊢t′)
 
         soundness-ℕ″ :
           u ® v ∷ℕ →
@@ -231,7 +231,7 @@ module _
         ⊢t′ : glassify ∇ » Δ ⊢ t ∷ Unit s
         ⊢t′ = glassify-⊢∷ ⊢t
 
-        open L str (wfTerm ⊢t′)
+        open L str (wf ⊢t′)
 
     opaque
 
@@ -272,7 +272,7 @@ module _
         glassify ∇ » ε ⊢ t ⇒ˢ* sucⁿ n ∷ℕ ×
         (∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucⁿ n)
       soundness-ℕ ⊢t =
-        S.soundness-ℕ (glassify-» (defn-wf (wfTerm ⊢t))) ⊢t
+        S.soundness-ℕ (glassify-» (defn-wf (wf ⊢t))) ⊢t
 
     opaque
 
@@ -283,7 +283,7 @@ module _
         ∇ » ε ⊢ t ∷ ℕ → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
         ∃ λ n → glassify ∇ » ε ⊢ t ⇒ˢ* sucⁿ n ∷ℕ
       soundness-ℕ-only-source ⊢t =
-        S.soundness-ℕ-only-source (glassify-» (defn-wf (wfTerm ⊢t))) ⊢t
+        S.soundness-ℕ-only-source (glassify-» (defn-wf (wf ⊢t))) ⊢t
 
     opaque
 
@@ -294,7 +294,7 @@ module _
         glassify ∇ » ε ⊢ t ⇒* star s ∷ Unit s ×
         (∀ str → eraseDCon str ∇ T.⊢ erase str t ⇒* T.star)
       soundness-Unit ⊢t =
-        S.soundness-Unit (glassify-» (defn-wf (wfTerm ⊢t))) ⊢t
+        S.soundness-Unit (glassify-» (defn-wf (wf ⊢t))) ⊢t
 
 opaque
 

@@ -242,7 +242,7 @@ opaque
   wk1-lam∘0⇒ ⊢lam =
     case inversion-lam-Π-no-equality-reflection ⊢lam of λ {
       (⊢t , PE.refl , ok) →
-    case wfTerm ⊢t of λ {
+    case wf ⊢t of λ {
       (∙ ⊢A) →
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (wkSingleSubstId _)

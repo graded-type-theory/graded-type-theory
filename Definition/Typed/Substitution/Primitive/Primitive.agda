@@ -398,7 +398,7 @@ opaque
     ∇ » Γ ⊢ˢʷ sgSubst t₁ ≡ sgSubst t₂ ∷ Γ ∙ A
   ⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂ =
     ⊢ˢʷ≡∷∙⇔ .proj₂
-      ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-idSubst (wfEqTerm t₁≡t₂))
+      ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-idSubst (wf t₁≡t₂))
       , PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-id _) ⊢t₁
       , PE.subst (_⊢_∷_ _ _) (PE.sym $ subst-id _) ⊢t₂
       , PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ subst-id _) t₁≡t₂
@@ -457,7 +457,7 @@ opaque
     ∇ » Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t₁ ≡
       consSubst (wkSubst k idSubst) t₂ ∷ drop k Γ ∙ A
   ⊢ˢʷ≡∷-[][]↑ {k} ⊢t₁ ⊢t₂ t₁≡t₂ =
-    let ⊢Γ = wfEqTerm t₁≡t₂ in
+    let ⊢Γ = wf t₁≡t₂ in
     ⊢ˢʷ≡∷∙⇔ .proj₂
       ( refl-⊢ˢʷ≡∷ (⊢ˢʷ∷-wkSubst ⊢Γ (⊢ˢʷ∷-idSubst (lemma k ⊢Γ)))
       , PE.subst (_⊢_∷_ _ _) (wk[]≡[] k) ⊢t₁
@@ -491,7 +491,7 @@ opaque
     ∇ » Γ ∙ A ∙ B ⊢ u ∷ wk (lift (stepn id 2)) D [ t ]₀ →
     ∇ » Γ ∙ A ∙ B ⊢ˢʷ replace₂ t u ∷ Γ ∙ C ∙ D
   ⊢ˢʷ∷-replace₂ {D} ⊢t ⊢u =
-    let ⊢B = ⊢∙→⊢ (wfTerm ⊢t) in
+    let ⊢B = ⊢∙→⊢ (wf ⊢t) in
     →⊢ˢʷ∷∙
       (→⊢ˢʷ∷∙
          (⊢ˢʷ∷-wkSubst (∙ ⊢B) $

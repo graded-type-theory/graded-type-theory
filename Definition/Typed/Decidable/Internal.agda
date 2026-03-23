@@ -382,7 +382,7 @@ opaque
     Γ ⊢⌜ ⌞ l ⌟ⁿ ⌝ⁿ γ ∷Level ×
     Γ ⊢ ⌜ Term[]→Lvl l ⌝ γ ≡ ⌜ ⌞ l ⌟ⁿ ⌝ⁿ γ ∷Level
   ⌞⌟ⁿ-correct _ ⊢l =
-    ((⊢l , _) , ⊢zeroᵘ (wfLevel ⊢l)) ,
+    ((⊢l , _) , ⊢zeroᵘ (wf ⊢l)) ,
     sym-⊢≡∷L (supᵘₗ-zeroʳ ⊢l)
 
 -- Zero.
@@ -2201,7 +2201,7 @@ opaque
       using inv (t , _) eq₁ eq ← inv->>= eq
       with inv->>= eq
     … | inv t′ eq₂ ok! =
-      let ⊢Γ               = wfTerm ⊢α
+      let ⊢Γ               = wf ⊢α
           A′ , α↦A′ , A≡A′ = inversion-defn ⊢α
           α↦t∷A″ , A″≡A′   = Σ.map idᶠ (λ hyp → hyp α↦A′) $
                              definition-of-sound (Γ .defs) eq₁
@@ -3180,11 +3180,11 @@ private module Lemmas (p : P n) where opaque
     rewrite ⌜meta-var⌝ {γ = γ} {x = x} σ
           | ⌜meta-var⌝ {γ = γ} {x = x} σ′
           | γx≡ =
-    let σ≡σ′       = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wfLevel ⊢l)
+    let σ≡σ′       = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wf ⊢l)
         _ , ⊢σ , _ = wf-⊢ˢʷ≡∷ σ≡σ′
     in
     level γx≡ ,
-    wfLevel ⊢l ,
+    wf ⊢l ,
     ⊢σ ,
     subst-⊢≡∷L (refl-⊢≡∷L ⊢l) σ≡σ′
   is-level-sound {x} {σ} {γ} _ ⊢γ ⊢Γ | inv _ _ eq | _ , term _ A | ⊢t
@@ -3199,7 +3199,7 @@ private module Lemmas (p : P n) where opaque
           | γx≡ =
     let open TyR
 
-        σ≡σ′         = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wfTerm ⊢t)
+        σ≡σ′         = check-sub-sound σ eq₁ ⊢γ ⊢Γ (wf ⊢t)
         _ , ⊢σ , ⊢σ′ = wf-⊢ˢʷ≡∷ σ≡σ′
         ⊢A           = wf-⊢∷ ⊢t
         ⊢A[σ′]       = subst-⊢ ⊢A ⊢σ′
@@ -3212,7 +3212,7 @@ private module Lemmas (p : P n) where opaque
           U.Level                  ∎
     in
     term γx≡ ⊢A A[σ]≡Level ,
-    wfTerm ⊢t ,
+    wf ⊢t ,
     ⊢σ ,
     term-⊢≡∷ (conv (subst-⊢≡∷ (refl ⊢t) σ≡σ′) A[σ]≡Level)
 
@@ -3411,7 +3411,7 @@ private module Lemmas (p : P n) where opaque
     … | inv _ eq₁ eq
       with inv->>= eq
     … | inv PE.refl eq₂ eq₃ =
-      let ⊢Γ                       = wfLevel ⊢l₁
+      let ⊢Γ                       = wf ⊢l₁
           x₂-level , ⊢Δ₂ , ⊢σ₂ , _ = is-level-sound eq₁ ⊢γ ⊢Γ
           σ₁≡σ₂                    = equal-sub′-sound eq₂ ⊢γ (λ _ → ⊢σ₂)
                                        ⊢Γ ⊢Δ₂
@@ -3682,8 +3682,8 @@ private module Lemmas (p : P n) where opaque
   … | inv PE.refl eq₂ eq =
     let inv _ eq₃ eq₄ = inv->>= eq
         x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
-        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (λ ()) (wfTerm ⊢x₁[σ₁])
-                          (wfTerm ⊢x₂)
+        σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (λ ()) (wf ⊢x₁[σ₁])
+                          (wf ⊢x₂)
         _ , ⊢σ₁ , _   = wf-⊢ˢʷ≡∷ σ₁≡σ₂
         x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term ⊢x₂
         A[σ₁]≡Ul      = equal-ty-sound eq₄ ⊢γ
@@ -3710,7 +3710,7 @@ private module Lemmas (p : P n) where opaque
         _ , ⊢l₂ , _    = inversion-Lift∷ ⊢A₂
         l₁≡l₂          = equal-level-sound eq₁ ⊢γ ⊢l₁ ⊢l₂
         ⊢l₁ , _        = wf-⊢≡∷L l₁≡l₂
-        ⊢A₁            = infer-U-sound eq₂ ⊢γ (wfTerm ⊢A₁)
+        ⊢A₁            = infer-U-sound eq₂ ⊢γ (wf ⊢A₁)
         ⊢l₃            = inversion-U-Level (wf-⊢∷ ⊢A₁)
         A₂≡A₂′         = check-sound eq₃ ⊢γ (⊢U ⊢l₃)
         _ , _ , ⊢A₂′   = wf-⊢≡∷ A₂≡A₂′
@@ -3759,7 +3759,7 @@ private module Lemmas (p : P n) where opaque
   … | inv _ eq₁ eq
     with inv->>= eq
   … | inv _ eq₂ _ =
-    let A₁≡A₂  = equal-ne-inf-red-sound eq₁ ⊢γ (wfTerm ⊢A₁)
+    let A₁≡A₂  = equal-ne-inf-red-sound eq₁ ⊢γ (wf ⊢A₁)
         ⊢B , _ = wf-⊢≡∷ A₁≡A₂
         B≡Ul   = equal-ty-sound eq₂ ⊢γ ⊢B (wf-⊢∷ ⊢A₁)
     in
@@ -3795,7 +3795,7 @@ private module Lemmas (p : P n) where opaque
     equal-ne-red-sound eq ⊢γ (wf-⊢∷ ⊢t₁)
   equal-tm-red-sound {t₁} {t₂} _ eq ⊢γ ⊢t₁ ⊢t₂
     | just Level
-    using ⊢Γ  ← wfTerm ⊢t₁
+    using ⊢Γ  ← wf ⊢t₁
         | okᴸ ← inversion-Level-⊢ (wf-⊢∷ ⊢t₁)
     with equal-level-cons? t₁ t₂ | eq
   … | just zeroᵘ | ok! =
@@ -3987,7 +3987,7 @@ private module Lemmas (p : P n) where opaque
       using inv (t , B) eq₁ eq ← inv->>= eq
       with inv->>= eq
     … | inv t′ eq₂ ok! =
-      let ⊢Γ               = wfTerm ⊢α
+      let ⊢Γ               = wf ⊢α
           A′ , α↦A′ , A≡A′ = inversion-defn ⊢α
           α↦t∷B , B≡A′     = Σ.map idᶠ (λ hyp → hyp α↦A′) $
                              definition-of-sound (Γ .defs) eq₁
@@ -4299,7 +4299,7 @@ private module Lemmas (p : P n) where opaque
       using inv _ eq₄ eq ← inv->>= eq
       with inv->>= eq
     … | inv t₂′ eq₅ eq
-      using ⊢t₁              ← infer-red-sound eq₁ ⊢γ (wfTerm ⊢pr)
+      using ⊢t₁              ← infer-red-sound eq₁ ⊢γ (wf ⊢pr)
           | ⊢Σ               ← wf-⊢∷ ⊢t₁
           | ⊢C₁ , ⊢C₂ , Σ-ok ← inversion-ΠΣ ⊢Σ
           | B≡B′             ← check-type-sound eq₂ ⊢γ (∙ ⊢Σ)
@@ -4718,7 +4718,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₂ ok! =
       let _ , ⊢t = is-term-sound eq₁ ⊢γ
-          ⊢Δ     = wfTerm ⊢t
+          ⊢Δ     = wf ⊢t
           σ≡σ′   = check-sub-sound σ eq₂ ⊢γ ⊢Γ ⊢Δ
       in
       wf-⊢≡∷ (subst-⊢≡∷ (refl ⊢t) (sym-⊢ˢʷ≡∷ ⊢Δ σ≡σ′)) .proj₂ .proj₂
@@ -5075,7 +5075,7 @@ private module Lemmas (p : P n) where opaque
   normalise-level′-sound (just (meta-var x _)) ok! _ ⊢x[σ] =
     ⌞⌟ⁿ-correct (meta-var x _) ⊢x[σ]
   normalise-level′-sound (just zeroᵘ) ok! _ ⊢zeroᵘ =
-    zeroᵘⁿ-correct (wfLevel ⊢zeroᵘ)
+    zeroᵘⁿ-correct (wf ⊢zeroᵘ)
   normalise-level′-sound {γ} (just (1ᵘ+ l)) eq ⊢γ ⊢1ᵘ+
     with inv-<$> eq
   … | inv l′ eq PE.refl =
@@ -5105,7 +5105,7 @@ private module Lemmas (p : P n) where opaque
   … | inv _ l₂″ eq eq₄ PE.refl
     with inv-<$> eq
   … | inv l₁″ eq₃ PE.refl =
-    let ⊢Γ                    = wfLevel ⊢supᵘ
+    let ⊢Γ                    = wf ⊢supᵘ
         l₁≡l₁′                = check-level-sound eq₁ ⊢γ ⊢Γ
         _ , ⊢l₁′              = wf-⊢≡∷L l₁≡l₁′
         ⊢l₁″ , l₁′≡l₁″        = normalise-level-sound eq₃ ⊢γ ⊢l₁′
@@ -5183,7 +5183,7 @@ private module Lemmas (p : P n) where opaque
       with inv->>= eq
     … | inv _ eq₃ ok! =
       let x₂-term , ⊢x₂ = is-term-sound eq₁ ⊢γ
-          σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (λ ()) ⊢Γ (wfTerm ⊢x₂)
+          σ₁≡σ₂         = equal-sub′-sound eq₂ ⊢γ (λ ()) ⊢Γ (wf ⊢x₂)
           x₁≡x₂         = are-equal-meta-vars-sound-tm eq₃ ⊢γ x₂-term
                             ⊢x₂
       in

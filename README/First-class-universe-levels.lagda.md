@@ -245,7 +245,7 @@ import Definition.Untyped.Whnf
 Lemma 2.1: Well-formedness.
 ```agda
 import Definition.Typed.Properties
-  using (wf; wfEq; wfTerm; wfEqTerm)
+  using (wf)
 import Definition.Typed.Well-formed
   using (wf-⊢≡; wf-⊢∷; wf-⊢≡∷)
 import Definition.Typed.Syntactic

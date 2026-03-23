@@ -129,7 +129,7 @@ opaque
             (Unitᵣ (Unitᵣ Unit⇒*Unit ok)) →
          ok , t≡u })
     , (λ (ok , t≡u@(Unitₜ₌ _ _ (d , _) _ _)) →
-        ⊩Unit⇔ .proj₂ (wfTerm (redFirst*Term d) , ok) , t≡u)
+        ⊩Unit⇔ .proj₂ (wf (redFirst*Term d) , ok) , t≡u)
 
 opaque
 

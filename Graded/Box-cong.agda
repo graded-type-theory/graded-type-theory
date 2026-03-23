@@ -872,7 +872,7 @@ opaque
       Has-[]-cong-for-level-weaker hyp₁ hyp₂ hyp₃ hyp₄ hyp₁′ hyp₂′ hyp₃′
         has-[]-cong
     , λ _ _ _ A t ρ Δ⊇Γ ⊢A ⊢t →
-        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
+        let ⊇ε = WD.»⊇ε (defn-wf (wf ⊢A)) in
         wk ρ
           (lam p₁′ $ lam p₂′ $ lam p₃′ $ lam 𝟘 $
            wk (stepn id 4) []-cong′ ∘⟨ p₁ ⟩ var x3 ∘⟨ p₂ ⟩ var x2
@@ -1094,9 +1094,9 @@ private
 
     open Box-cong-internal (ε » Γ) l []-cong′ (Lift l ℕ) (lift zero)
            ⊢l ⊢[]-cong′
-           (conv (Liftⱼ′ ⊢l (ℕⱼ (wfLevel ⊢l)))
+           (conv (Liftⱼ′ ⊢l (ℕⱼ (wf ⊢l)))
               (U-cong-⊢≡ (supᵘₗ-zeroˡ ⊢l)))
-           (liftⱼ′ ⊢l (zeroⱼ (wfLevel ⊢l)))
+           (liftⱼ′ ⊢l (zeroⱼ (wf ⊢l)))
 
     private
 
@@ -1124,11 +1124,11 @@ private
         (𝕤 , PE.refl) →
           check-type-and-term-sound (γ′ I.𝕤) (I.base nothing I.» I.base)
             ([]-cong″ᵢ I.𝕤) (Goalᵢ I.𝕤) 22 PE.refl (γ-wf PE.refl)
-            (wfLevel ⊢l)
+            (wf ⊢l)
         (𝕨 , PE.refl) →
           check-type-and-term-sound (γ′ I.𝕨) (I.base nothing I.» I.base)
             ([]-cong″ᵢ I.𝕨) (Goalᵢ I.𝕨) 21 PE.refl (γ-wf PE.refl)
-            (wfLevel ⊢l)
+            (wf ⊢l)
 
 opaque
 
@@ -1394,7 +1394,7 @@ opaque
         opaque
 
           Δ⊇ε : WD.» Δ .defs ⊇ ε
-          Δ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A))
+          Δ⊇ε = WD.»⊇ε (defn-wf (wf ⊢A))
 
         opaque
 
@@ -1517,11 +1517,11 @@ opaque
             (𝕤 , PE.refl) →
               check-and-equal-type-and-terms-sound (γ′ I.𝕤)
                 (I.base nothing I.» I.base) (lhsᵢ I.𝕤) (rhsᵢ I.𝕤)
-                (Lhsᵢ I.𝕤) 29 PE.refl (γ-wf PE.refl) (wfTerm ⊢A)
+                (Lhsᵢ I.𝕤) 29 PE.refl (γ-wf PE.refl) (wf ⊢A)
             (𝕨 , PE.refl) →
               check-and-equal-type-and-terms-sound (γ′ I.𝕨)
                 (I.base nothing I.» I.base) (lhsᵢ I.𝕨) (rhsᵢ I.𝕨)
-                (Lhsᵢ I.𝕨) 28 PE.refl (γ-wf PE.refl) (wfTerm ⊢A)
+                (Lhsᵢ I.𝕨) 28 PE.refl (γ-wf PE.refl) (wf ⊢A)
 
         opaque
           unfolding Erased erased fst⟨_⟩ mapᴱ [_]
@@ -1537,11 +1537,11 @@ opaque
             (𝕤 , PE.refl) →
               check-and-equal-ty-sound (γ′ I.𝕤)
                 (I.base nothing I.» I.base) (Lhsᵢ I.𝕤) (Rhsᵢ I.𝕤) 15
-                PE.refl (γ-wf PE.refl) (wfTerm ⊢A)
+                PE.refl (γ-wf PE.refl) (wf ⊢A)
             (𝕨 , PE.refl) →
               check-and-equal-ty-sound (γ′ I.𝕨)
                 (I.base nothing I.» I.base) (Lhsᵢ I.𝕨) (Rhsᵢ I.𝕨) 14
-                PE.refl (γ-wf PE.refl) (wfTerm ⊢A)
+                PE.refl (γ-wf PE.refl) (wf ⊢A)
 
 ------------------------------------------------------------------------
 -- Some instances of Has-[]-cong/Has-computing-[]-cong are logically
@@ -1590,7 +1590,7 @@ private
           Id (var x2) (var x1) (var x0)
         ⊢Id =
           ⊢Id-2-1-0 (Has-[]-cong→Level-allowed has-[]-cong)
-            (wfTerm ⊢[]-cong′)
+            (wf ⊢[]-cong′)
 
     oks :
       Π-allowed p₁′ q₁′ × Π-allowed p₂′ q₂′ × Π-allowed p₃′ q₃′ ×
@@ -1724,14 +1724,14 @@ opaque
       Has-[]-cong-weaker hyp₁ hyp₂ hyp₃ hyp₄ hyp₅
         hyp₁′ hyp₂′ hyp₃′ hyp₄′ has-[]-cong
     , λ _ _ _ l A t ρ Δ⊇Γ ⊢A ⊢t →
-        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
+        let ⊇ε = WD.»⊇ε (defn-wf (wf ⊢A)) in
         wk ρ
           (lam p₁′ $ lam p₂′ $ lam p₃′ $ lam p₄′ $ lam 𝟘 $
            wk (stepn id 5) []-cong′ ∘⟨ p₁ ⟩ var x4 ∘⟨ p₂ ⟩ var x3
              ∘⟨ p₃ ⟩ var x2 ∘⟨ p₄ ⟩ var x1 ∘⟨ 𝟘 ⟩ var x0)
           ∘⟨ p₁′ ⟩ l ∘⟨ p₂′ ⟩ A ∘⟨ p₃′ ⟩ t ∘⟨ p₄′ ⟩ t ∘⟨ 𝟘 ⟩ rfl          ⇒*⟨ β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
                                                                                 (W.wkTerm
-                                                                                  (W.liftnʷ Δ⊇Γ $ ∙_ $ ⊢Id-2-1-0 ok $ wfTerm $
+                                                                                  (W.liftnʷ Δ⊇Γ $ ∙_ $ ⊢Id-2-1-0 ok $ wf $
                                                                                    WD.defn-wkTerm ⊇ε ⊢[]-cong′) $
                                                                                   WD.defn-wkTerm ⊇ε ⊢[]-cong″)
                                                                                 (⊢∷Level→⊢∷Level ok (inversion-U-Level (wf-⊢∷ ⊢A)))
@@ -1805,7 +1805,7 @@ private
             _ , ⊢Id , ok₅    = inversion-ΠΣ ⊢Π
             Erased-ok , _    = inversion-Erased $
                                inversion-Id ⊢Id .proj₁
-            ⊢Id              = ⊢Id-2-1-0 ok (wfTerm ⊢[]-cong′)
+            ⊢Id              = ⊢Id-2-1-0 ok (wf ⊢[]-cong′)
             ⊢3               = var₃ ⊢Id
             ⊢4               = term ok (var₄ ⊢Id)
             ⊢Erased-3        = Erasedⱼ-U Erased-ok ⊢3
@@ -2134,7 +2134,7 @@ opaque
 
             ok₁ , ok₂ , ok₃ , ok₄ , ok₅ , ⊢[]-cong″ = ⊢[]-cong″
 
-            ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A))
+            ⊇ε = WD.»⊇ε (defn-wf (wf ⊢A))
         in
         wk ρ
           (lam p₁′ $ lam p₂′ $ lam p₃′ $ lam p₄′ $ lam 𝟘 $
@@ -2156,7 +2156,7 @@ opaque
           Id (Erased (level l) A) [ t ] ([ t ])                         ⇒*⟨ β-red-⇒₅′ ok₁ ok₂ ok₃ ok₄ ok₅
                                                                               (W.wkTerm
                                                                                  (W.liftnʷ Δ⊇Γ $
-                                                                                  ∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε (wfTerm ⊢[]-cong′))) $
+                                                                                  ∙ ⊢Id-2-1-0 Level-ok (WD.defn-wk′ ⊇ε (wf ⊢[]-cong′))) $
                                                                                WD.defn-wkTerm ⊇ε ⊢[]-cong″)
                                                                               ⊢l ⊢A ⊢t ⊢t (rflⱼ ⊢t) ⟩⊢∷
                                                                          ˘⟨ Id-cong (refl (univ ⊢Erased-A)) mapᴱ-lemma mapᴱ-lemma ⟩≡
@@ -2616,7 +2616,7 @@ opaque
     {l} ok ⊢l ▸l ok₁ ok₂ ok₃ ok₄ =
       ([]-cong₁ l , ▸[]-cong₁ ▸l , ⊢[]-cong₁ ⊢l)
     , λ _ _ _ A t ρ Δ⊇Γ ⊢A ⊢t →
-        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
+        let ⊇ε = WD.»⊇ε (defn-wf (wf ⊢A)) in
         wk ρ ([]-cong₁ l) ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl      ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _)
                                                                            (PE.trans (PE.sym $ Erased.wk-Id-Erased-[]-[] _) $
                                                                             PE.cong₃ Id
@@ -2678,7 +2678,7 @@ opaque
     Level-ok ok ⊢Γ ok₁ ok₂ ok₃ ok₄ ok₅ =
       ([]-cong₂ , ▸[]-cong₂ , ⊢[]-cong₂ Level-ok ok₁ ⊢Γ)
     , λ _ _ _ l A t ρ Δ⊇Γ ⊢A ⊢t →
-        let ⊇ε = WD.»⊇ε (defn-wf (wfTerm ⊢A)) in
+        let ⊇ε = WD.»⊇ε (defn-wf (wf ⊢A)) in
         wk ρ []-cong₂ ∘⟨ 𝟘 ⟩ l ∘⟨ 𝟘 ⟩ A ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ t ∘⟨ 𝟘 ⟩ rfl  ⇒*⟨ PE.subst (_⊢_⇒*_∷_ _ _ _)
                                                                             (PE.sym $
                                                                              PE.trans (Erased.Id-Erased-[] _) $
@@ -2752,7 +2752,7 @@ opaque
           (usagePres*Term₀₁ Unitʷ-η→ (λ ()) ▸[]-cong′ []-cong′⇒*u)
     where
     ⊢Γ : ε »⊢ Γ
-    ⊢Γ = wfTerm (hyp .proj₂)
+    ⊢Γ = wf (hyp .proj₂)
 
     σ′ : Subst (1+ n) (3+ n)
     σ′ = consSubst (sgSubst (var x0)) rfl
@@ -2824,7 +2824,7 @@ opaque
     ⊢l = Has-[]-cong-for-level→⊢∷L has-[]-cong
 
     ⊢Γ : ε »⊢ Γ
-    ⊢Γ = wfLevel ⊢l
+    ⊢Γ = wf ⊢l
 
     u′ : Term n
     u′ = lift zero
@@ -2928,7 +2928,7 @@ opaque
     ⊥                                                           □
     where
     ⊢Γ : ε »⊢ Γ
-    ⊢Γ = wfTerm (hyp .proj₂)
+    ⊢Γ = wf (hyp .proj₂)
 
     l′ : Term n
     l′ = zeroᵘ

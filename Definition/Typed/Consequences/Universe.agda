@@ -150,7 +150,7 @@ opaque
     let ¬⊢∷ = λ (_ , ⊢A) →
           let _ , _ , ⊢U₀ , ⊢U₁ , _ = inversion-ΠΣ-U ⊢A in
           ¬U∷U $
-          conv (substTerm ⊢U₁ (Emptyⱼ (wfTerm ⊢U₀)))
+          conv (substTerm ⊢U₁ (Emptyⱼ (wf ⊢U₀)))
             (PE.subst (flip (_⊢_≡_ _) _) (PE.sym $ wk1-sgSubst _ _) $
              inversion-U ⊢U₀)
     in

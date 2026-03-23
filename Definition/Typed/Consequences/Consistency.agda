@@ -377,7 +377,7 @@ opaque
     Consistentᵍ (∇ » Δ)
   Consistentᵍ-inline-Con⇔Consistentᵍ =
     (λ consistent _ ⊢t →
-       consistent (wfTerm ⊢t) _ $
+       consistent (wf ⊢t) _ $
        PE.subst₃ _⊢_∷_
          (PE.cong (_»_ _) inline-Conᵈ-glassify) PE.refl PE.refl $
        ⊢inlineᵈ ⊢t) ,
@@ -405,7 +405,7 @@ opaque
     Consistentᵍ (∇ » Δ)
   Consistentᵍ-⊇⇔Consistentᵍ =
     (λ consistent _ ⊢t →
-       consistent (wfTerm ⊢t) id⊇ _ ⊢t) ,
+       consistent (wf ⊢t) id⊇ _ ⊢t) ,
     (λ consistent ⊢Δ ∇′⊇∇ _ ⊢t →
        consistent _ $
        PE.subst₃ _⊢_∷_

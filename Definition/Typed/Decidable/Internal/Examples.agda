@@ -190,7 +190,7 @@ opaque
            (I.var! x4)         → ⊢v
            (I.var! x5)         → ⊢w
            (I.var  not-x6 _ _))
-      (wfTerm ⊢v)
+      (wf ⊢v)
       where
       c′ : I.Constants
       c′ .I.gs                 = 1
@@ -263,7 +263,7 @@ opaque
            (I.var! x4)         → ⊢v
            (I.var! x5)         → ⊢w
            (I.var  not-x6 _ _))
-      (wfTerm ⊢w)
+      (wf ⊢w)
       where
       c′ : I.Constants
       c′ .I.gs                 = 1

@@ -451,7 +451,7 @@ module Fundamental
       γ ▸ Γ ⊩ʳ t ∷[ m ∣ o ] A  →⟨ ▸⊩ʳ∷[∣]→▸⊩ʳ∷
                                     (λ _ α↦t α↦v →
                                        subsumption-®∷◂ (⊥-elim ∘→ non-trivial) $
-                                       lemma id⊇ (defn-wf (wfTerm ⊢t)) well-resourced α↦t α↦v) ⟩
+                                       lemma id⊇ (defn-wf (wf ⊢t)) well-resourced α↦t α↦v) ⟩
       γ ▸ Γ ⊩ʳ t ∷[ m ] A      □
       where
       lemma :
@@ -476,7 +476,7 @@ module Fundamental
               erase s t′ PE.≡ v′ →
               wk wk₀ t′ ® T.wk wk₀ v′ ∷ wk wk₀ A′ ◂ 𝟙
             ih β↦t′ eq =
-              lemma {∇′ = ∇′} ∇⊇∇′ (defn-wf (wfTerm ⊢t)) (▸∇′∙ ∘→ there)
+              lemma {∇′ = ∇′} ∇⊇∇′ (defn-wf (wf ⊢t)) (▸∇′∙ ∘→ there)
                 β↦t′ (PE.subst (_ T.↦_∈ _) eq (↦erase∈eraseDCon′ β↦t′))
         in
         case α↦t of λ where

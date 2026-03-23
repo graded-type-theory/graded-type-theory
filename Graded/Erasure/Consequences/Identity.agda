@@ -77,7 +77,7 @@ opaque
     case ®∷Id⇔ .proj₁ $
          Fundamental.fundamentalErased-𝟙ᵐ
            (record
-              { well-formed       = wfTerm ⊢v
+              { well-formed       = wf ⊢v
               ; other-assumptions = ok
               })
            ⊢v ▸v of λ {
@@ -88,7 +88,7 @@ opaque
     open Fundamental-assumptions⁻ ok
 
     as : Assumptions
-    as = record { ⊢Δ = wfTerm ⊢v; str = T.non-strict }
+    as = record { ⊢Δ = wf ⊢v; str = T.non-strict }
 
     open H variant as
     open L as

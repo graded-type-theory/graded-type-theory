@@ -157,7 +157,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ unbox [ t ] ≡ t ∷ A
   Unrestricted-β ⊢t =
-    let ⊢Γ = wfTerm ⊢t
+    let ⊢Γ = wf ⊢t
         ⊢A = wf-⊢∷ ⊢t
     in
     Σ-β₁-≡ (Liftⱼ (⊢zeroᵘ (∙ ⊢A)) (⊢Unit (∙ ⊢A) Unit-ok)) ⊢t
@@ -185,7 +185,7 @@ opaque
             (PE.trans (wk1-sgSubst l _) $
              PE.sym $ wk1-sgSubst _ _) $
           refl-⊢≡∷L (substLevel ⊢wk1-l (fstⱼ′ ⊢u)))
-         (refl (⊢Unit (wfTerm ⊢t) Unit-ok))) $
+         (refl (⊢Unit (wf ⊢t) Unit-ok))) $
     η-unit (lowerⱼ (sndⱼ′ ⊢t)) (lowerⱼ (sndⱼ′ ⊢u)) (inj₁ PE.refl)
 
 opaque

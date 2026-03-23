@@ -317,7 +317,7 @@ module Lemmas where
            ok)
 
   ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
-  ~-sym x@(↑ A≡B _) = sym~∷ (reflConEq (wfEq A≡B)) x
+  ~-sym x@(↑ A≡B _) = sym~∷ (reflConEq (wf A≡B)) x
 
   ~-trans : ∀ {k l m A}
           → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ m ∷ A
@@ -398,7 +398,7 @@ module Lemmas where
   ≅ₜ-supᵘ-zeroʳ ([↑]ˡ v _ t↑ _ _) =
     let ok         = inversion-Level-⊢ $
                      wf-⊢≡∷ (subset*Term (t↑ ._⊢_↑ᵛ_.d .proj₁)) .proj₁
-        v′ , x , y = supᵘ-↑ᵛ t↑ (zeroᵘ-↑ᵛ ok (wfTerm (wf↑ᵛ t↑)))
+        v′ , x , y = supᵘ-↑ᵛ t↑ (zeroᵘ-↑ᵛ ok (wf (wf↑ᵛ t↑)))
     in
     [↑]ˡ _ _ x t↑ (trans-≡ᵛ y ≡ᵛ-supᵘ-zeroʳ)
 
@@ -555,7 +555,7 @@ private opaque
       λ l₁ x₁ x₂ ok →
         let _ , F∷U , H∷U = syntacticEqTerm (soundnessConv↑Term x₁)
             _ , G∷U , E∷U = syntacticEqTerm (soundnessConv↑Term x₂)
-            ⊢Γ = wfTerm F∷U
+            ⊢Γ = wf F∷U
             F<>H = univConv↑ x₁
             G<>E = univConv↑ x₂
             F≡H = soundnessConv↑ F<>H

@@ -279,7 +279,7 @@ opaque
     ∇ »⊢ Δ ∙ A₁ ∙ Id (wk1 A₁) (wk1 t₁) (var x0) ≡
       Δ ∙ A₂ ∙ Id (wk1 A₂) (wk1 t₂) (var x0)
   J-motive-context-cong′ A₁≡A₂ =
-    J-motive-context-cong (reflConEq (wfEq A₁≡A₂)) A₁≡A₂
+    J-motive-context-cong (reflConEq (wf A₁≡A₂)) A₁≡A₂
 
 ------------------------------------------------------------------------
 -- Lemmas related to K
@@ -311,7 +311,7 @@ opaque
     Γ »∙ Id A₁ t₁ t₁ ⊢ B₁ ≡ B₂ →
     Γ ⊢ B₁ [ rfl ]₀ ≡ B₂ [ rfl ]₀
   K-motive-rfl-cong B₁≡B₂ =
-    case wfEq B₁≡B₂ of λ {
+    case wf B₁≡B₂ of λ {
       (∙ ⊢Id) →
     substTypeEq B₁≡B₂ (refl (rflⱼ (inversion-Id ⊢Id .proj₂ .proj₁))) }
 
@@ -361,7 +361,7 @@ opaque
     ∇ » Δ ⊢ t₁ ≡ t₂ ∷ A₁ →
     ∇ »⊢ Δ ∙ Id A₁ t₁ t₁ ≡ Δ ∙ Id A₂ t₂ t₂
   K-motive-context-cong′ A₁≡A₂ =
-    K-motive-context-cong (reflConEq (wfEq A₁≡A₂)) A₁≡A₂
+    K-motive-context-cong (reflConEq (wf A₁≡A₂)) A₁≡A₂
 
 ------------------------------------------------------------------------
 -- Lemmas related to []-cong

@@ -688,7 +688,7 @@ opaque
               ⊥-elim $
               case dichotomy-ne (ne⁻ v′-ne) of λ where
                 (inj₁ b) →
-                  let op = ne-opaque-ok (defn-wf (wfEqTerm (~-eq v′~v′))) b
+                  let op = ne-opaque-ok (defn-wf (wf (~-eq v′~v′))) b
                   in  no-opaque-equality-reflection op ok
                 (inj₂ n) → Equality-reflection-allowed→¬Var-included ok n
       )

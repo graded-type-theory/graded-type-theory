@@ -108,7 +108,7 @@ mutual
   trans~↑ {Γ = Γ} (prodrec-cong {F = F} {G} A<>B a~b t<>u)
                   (prodrec-cong B<>C b~c u<>v) =
     let a~c , Σ≡Σ′ = trans~↓ a~b b~c
-        ⊢Γ = wfEq Σ≡Σ′
+        ⊢Γ = wf Σ≡Σ′
         F≡F′ , G≡G′ , _ =
           ΠΣ-injectivity-no-equality-reflection (sym Σ≡Σ′)
         _ , ⊢F = syntacticEq F≡F′

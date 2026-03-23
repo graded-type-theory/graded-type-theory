@@ -464,7 +464,7 @@ mutual
         (⊢nf∷-stable (Δ≡Η ∙ refl (⊢nf→⊢ (univₙ ⊢A))) ⊢B)
         ok
       (lamₙ ⊢t ok) → lamₙ
-        (⊢nf∷-stable (Δ≡Η ∙ refl (⊢∙→⊢ (wfTerm (⊢nf∷→⊢∷ ⊢t)))) ⊢t)
+        (⊢nf∷-stable (Δ≡Η ∙ refl (⊢∙→⊢ (wf (⊢nf∷→⊢∷ ⊢t)))) ⊢t)
         ok
       (prodₙ ⊢B ⊢t ⊢u ok) → prodₙ
         (stability (Δ≡Η ∙ refl (⊢∙→⊢ (wf ⊢B))) ⊢B)
@@ -531,7 +531,7 @@ mutual
         (stability (Δ≡Η ∙ refl (⊢∙→⊢ (wf ⊢B))) ⊢B)
         (⊢ne∷-stable Δ≡Η ⊢t)
       (prodrecₙ ⊢C ⊢t ⊢u ok) →
-        let ⊢B = ⊢∙→⊢ (wfTerm (⊢nf∷→⊢∷ ⊢u)) in
+        let ⊢B = ⊢∙→⊢ (wf (⊢nf∷→⊢∷ ⊢u)) in
         prodrecₙ (⊢nf-stable (Δ≡Η ∙ refl (ΠΣⱼ ⊢B ok)) ⊢C)
           (⊢ne∷-stable Δ≡Η ⊢t)
           (⊢nf∷-stable (Δ≡Η ∙ refl (⊢∙→⊢ (wf ⊢B)) ∙ refl ⊢B) ⊢u) ok
@@ -539,14 +539,14 @@ mutual
         (⊢nf-stable Δ≡Η ⊢A)
         (⊢ne∷-stable Δ≡Η ⊢t)
       (natrecₙ ⊢A ⊢t ⊢u ⊢v) →
-        case Δ≡Η ∙ refl (⊢ℕ (wfTerm (⊢nf∷→⊢∷ ⊢t))) of λ {
+        case Δ≡Η ∙ refl (⊢ℕ (wf (⊢nf∷→⊢∷ ⊢t))) of λ {
           ⊢Γℕ≡Δℕ → natrecₙ
         (⊢nf-stable ⊢Γℕ≡Δℕ ⊢A)
         (⊢nf∷-stable Δ≡Η ⊢t)
         (⊢nf∷-stable (⊢Γℕ≡Δℕ ∙ refl (⊢nf→⊢ ⊢A)) ⊢u)
         (⊢ne∷-stable Δ≡Η ⊢v) }
       (unitrecₙ ⊢A ⊢t ⊢u ok not-ok) →
-        case Δ≡Η ∙ refl (⊢Unit (wfTerm (⊢nf∷→⊢∷ ⊢u)) ok) of λ {
+        case Δ≡Η ∙ refl (⊢Unit (wf (⊢nf∷→⊢∷ ⊢u)) ok) of λ {
           ⊢Γ⊤≡Δ⊤ → unitrecₙ
         (⊢nf-stable ⊢Γ⊤≡Δ⊤ ⊢A)
         (⊢ne∷-stable Δ≡Η ⊢t)
@@ -728,7 +728,7 @@ inversion-nf-suc :
 inversion-nf-suc (neₙ _ ⊢suc) =
   case ⊢ne∷→NfNeutral ⊢suc of λ ()
 inversion-nf-suc (sucₙ ⊢t) =
-  ⊢t , refl (⊢ℕ (wfTerm (⊢nf∷→⊢∷ ⊢t)))
+  ⊢t , refl (⊢ℕ (wf (⊢nf∷→⊢∷ ⊢t)))
 inversion-nf-suc (convₙ ⊢suc A≡B) =
   case inversion-nf-suc ⊢suc of λ {
     (⊢t , A≡) →
@@ -1560,7 +1560,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
             ⊢B , ⊢t′ , ⊢u′ , _ = inversion-nf-ne-unitrec ⊢v
             A≡B′               = soundnessConv↑ A≡B
             t≡t″               = soundness~↓ t≡t′
-            ⊢Γ                 = wfEqTerm t≡t″
+            ⊢Γ                 = wf t≡t″
             ⊢Unit , _          = syntacticEqTerm t≡t″
             ok                 = inversion-Unit ⊢Unit
             A₊≡B₊              =

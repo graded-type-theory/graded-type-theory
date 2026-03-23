@@ -69,7 +69,7 @@ opaque
       Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where
            (ne (neNfₜ u-ne _)) → ⊥-elim (glass-closed-no-ne (ne⁻ u-ne))
-           zeroᵣ               → 0 , refl (zeroⱼ (wfTerm (glassify-⊢∷ ⊢t)))
+           zeroᵣ               → 0 , refl (zeroⱼ (wf (glassify-⊢∷ ⊢t)))
            (sucᵣ ⊩u)           → Σ.map 1+ suc-cong (lemma ⊩u))
 
 -- Only-Level-or-U Δ holds if Δ is a context that only contains
@@ -263,7 +263,7 @@ opaque
     lemma (ℕₜ v u⇒*v _ ⊩v) =
       Σ.map idᶠ (trans (subset*Term u⇒*v))
         (case ⊩v of λ where
-           zeroᵣ                 → 0 , refl (zeroⱼ (wfTerm ⊢t))
+           zeroᵣ                 → 0 , refl (zeroⱼ (wf ⊢t))
            (sucᵣ ⊩u)             → Σ.map 1+ suc-cong (lemma ⊩u)
            (ne (neNfₜ u-ne u≡u)) →
              let _ , ⊢u , _ = wf-⊢≡∷ u≡u in

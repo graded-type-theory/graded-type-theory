@@ -138,7 +138,7 @@ opaque
     [][]↑-cong A₁≡A₂ $
     PE.subst (_⊢_≡_∷_ _ _ _)
       (PE.cong (Σ⟨_⟩_,_▷_▹_ _ _ _ _) $ PE.sym OK-[]) $
-    prod-cong (⊢OK (var₀ (⊢ℕ (wfEqTerm t₁≡t₂)))) t₁≡t₂
+    prod-cong (⊢OK (var₀ (⊢ℕ (wf t₁≡t₂)))) t₁≡t₂
       (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym OK-[]) u₁≡u₂)
       Σ-ok
 
@@ -264,7 +264,7 @@ opaque
         _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
         _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
         _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
-        ⊢Γ            = wfTerm ⊢t₁
+        ⊢Γ            = wf ⊢t₁
     in
     check-and-equal-type-and-terms-sound
       (γ′ λ where
@@ -391,7 +391,7 @@ opaque
            (I.var! x1)         → ⊢t
            (I.var! x2)         → ⊢u
            (I.var  not-x3 _ _))
-      (wfTerm ⊢t)
+      (wf ⊢t)
       where
       open Defs p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
 
@@ -442,7 +442,7 @@ opaque
            (I.var! x1)         → ⊢t
            (I.var! x2)         → ⊢u
            (I.var  not-x3 _ _))
-      (wfTerm ⊢t)
+      (wf ⊢t)
       where
       open Defs p boolrecᵍ-Π boolrecᵍ-nc₁ boolrecᵍ-nc₂ boolrecᵍ-nc₃ boolrecᵍ-pr Γ (1+ n V.∷ n V.∷ n V.∷ V.ε)
 

@@ -88,7 +88,7 @@ opaque
   ᵈ•⊇ {ξ = step ξ _ _ _} ∙ᵒ⟨ ok ⟩[ ⊢t ∷ ⊢A ] =
     stepᵒ (ᵈ•⊇ {ξ = ξ} (defn-wf (wf ⊢A))) ok ⊢A ⊢t
   ᵈ•⊇ {ξ = step ξ _ _ _} ∙ᵗ[ ⊢t ] =
-    stepᵗ (ᵈ•⊇ {ξ = ξ} (defn-wf (wfTerm ⊢t))) ⊢t
+    stepᵗ (ᵈ•⊇ {ξ = ξ} (defn-wf (wf ⊢t))) ⊢t
 
 opaque
   unfolding _ᵈ•_

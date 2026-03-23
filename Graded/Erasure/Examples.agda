@@ -466,7 +466,7 @@ private
     unfolding Vec
 
     ⊢Γ : ⊢ Γ
-    ⊢Γ = wfTerm ⊢A
+    ⊢Γ = wf ⊢A
 
     »Γ : » Γ .defs
     »Γ = defn-wf ⊢Γ
@@ -643,7 +643,7 @@ private opaque
     Γ ⊢ t ∷ ℕ →
     Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ t ⇒ natcase 𝟘 𝟘 U₀ Empty (Unit s) t ∷ U₀
   Non-zero-step ⊢t =
-    let ⊢Γ = wfTerm ⊢t in
+    let ⊢Γ = wf ⊢t in
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.trans (PE.cong _[ _ ]₀ wk-natcase)
        natcase-[])
@@ -688,7 +688,7 @@ opaque
     Γ ⊢ t ∷ ℕ →
     Γ ⊢ wk wk₀ Non-zero ∘⟨ ω ⟩ suc t ⇒* Unit s ∷ U₀
   Non-zero∘suc⇒* {t} ⊢t =
-    let ⊢Γ  = wfTerm ⊢t
+    let ⊢Γ  = wf ⊢t
         ⊢Γℕ = ∙ ⊢ℕ ⊢Γ
     in
     wk wk₀ Non-zero ∘⟨ ω ⟩ suc t           ⇒⟨ Non-zero-step (sucⱼ ⊢t) ⟩

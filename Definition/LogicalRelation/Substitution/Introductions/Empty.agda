@@ -63,7 +63,7 @@ opaque
            (Emptyᵣ _) →
          Empty≡A })
     , (λ Empty≡A →
-         case id (⊢Empty (wfEq (subset* Empty≡A))) of λ
+         case id (⊢Empty (wf (subset* Empty≡A))) of λ
            Empty⇒*Empty →
          let ⊩Empty = Emptyᵣ Empty⇒*Empty in
            ⊩Empty
@@ -83,7 +83,7 @@ opaque
           (Emptyᵣ _) →
         t≡u })
     , λ t≡u@(Emptyₜ₌ _ _ t⇒*t′ u⇒*u′ t′≅u′ prop) →
-        ⊩Empty⇔ .proj₂ (wfEqTerm (subset*Term t⇒*t′)) , t≡u
+        ⊩Empty⇔ .proj₂ (wf (subset*Term t⇒*t′)) , t≡u
 
 opaque
 

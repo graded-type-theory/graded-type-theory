@@ -223,7 +223,7 @@ opaque
   -- Inversion for suc.
 
   inversion-suc : Γ ⊢ suc t ∷ A → Γ ⊢ t ∷ ℕ × Γ ⊢ A ≡ ℕ
-  inversion-suc (sucⱼ ⊢t)      = ⊢t , refl (univ (ℕⱼ (wfTerm ⊢t)))
+  inversion-suc (sucⱼ ⊢t)      = ⊢t , refl (univ (ℕⱼ (wf ⊢t)))
   inversion-suc (conv ⊢suc eq) =
     let a , b = inversion-suc ⊢suc in
     a , trans (sym eq) b

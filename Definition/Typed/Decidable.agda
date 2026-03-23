@@ -118,14 +118,14 @@ decWfDCon (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
         (explicit , _) →
           case decWfDCon (unfold-Checkable ∇) of λ where
             (no not) → no λ where
-              ∙ᵒ⟨ _ ⟩[ ⊢t ∷ _ ] → not $ defn-wf $ wfTerm ⊢t
+              ∙ᵒ⟨ _ ⟩[ ⊢t ∷ _ ] → not $ defn-wf $ wf ⊢t
             (yes »∇′) → cont »∇′
 decWfDCon (∇ ∙ᶜᵗ[ t ∷ A ]) =
   case (decWfDCon ∇ ×-dec′ λ »∇ →
         dec (ε »∇) A ×-dec′ λ ⊢A →
         decTermᶜ ⊢A t) of λ where
     (no not) → no λ where
-      ∙ᵗ[ ⊢t ] → not (defn-wf (wfTerm ⊢t) , wf-⊢∷ ⊢t , ⊢t)
+      ∙ᵗ[ ⊢t ] → not (defn-wf (wf ⊢t) , wf-⊢∷ ⊢t , ⊢t)
     (yes (_ , _ , ⊢t)) → yes ∙ᵗ[ ⊢t ]
 
 -- If » ∇ and Δ is a checkable context, then ∇ »⊢ Δ is decidable.
@@ -168,7 +168,7 @@ decConTermTypeᶜ :
 decConTermTypeᶜ Γ A t =
   case decWfCons Γ of λ where
     (yes ⊢Γ) → decTermTypeᶜ ⊢Γ A t
-    (no ¬⊢Γ) → no (¬⊢Γ ∘→ wfTerm)
+    (no ¬⊢Γ) → no (¬⊢Γ ∘→ wf)
 
 -- Type inference for arbitrary checkable contexts: if Γ is checkable
 -- and t is inferable, then ∃ λ A → Γ ⊢ t ∷ A is decidable.
@@ -178,4 +178,4 @@ decConTermᵢ :
 decConTermᵢ Γ t =
   case decWfCons Γ of λ where
     (yes ⊢Γ) → decTermᵢ ⊢Γ t
-    (no ¬⊢Γ) → no (¬⊢Γ ∘→ wfTerm ∘→ proj₂)
+    (no ¬⊢Γ) → no (¬⊢Γ ∘→ wf ∘→ proj₂)

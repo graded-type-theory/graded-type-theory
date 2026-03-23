@@ -239,7 +239,7 @@ opaque
     -- Let us first apply t to zero.
     case ®∷Σω⇔ non-trivial .proj₁ $
          ®∷Π₀⇔ .proj₁ t®erase-t .proj₂ .proj₂
-           zero (zeroⱼ (wfTerm ⊢t)) of λ {
+           zero (zeroⱼ (wf ⊢t)) of λ {
       (_ , t₁ , _ , _ , _ , t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
     -- The term t₁ is definitionally equal to zero.
@@ -270,7 +270,7 @@ opaque
         -- Let us now apply t to suc zero.
         case ®∷Σω⇔ non-trivial .proj₁ $
              ®∷Π₀⇔ .proj₁ t®erase-t .proj₂ .proj₂
-               (suc zero) (sucⱼ (zeroⱼ (wfTerm ⊢t))) of λ {
+               (suc zero) (sucⱼ (zeroⱼ (wf ⊢t))) of λ {
           (_ , t₁′ , _ , _ , _ ,
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →
 
@@ -320,7 +320,7 @@ opaque
                 case TP.suc-noRed suc⇒zero of λ () }}}}
     where
     fas : Fundamental-assumptions (glassify ∇ » ε)
-    fas = fundamental-assumptions₀ (defn-wf (wfTerm ⊢t)) ▸∇
+    fas = fundamental-assumptions₀ (defn-wf (wf ⊢t)) ▸∇
 
     open Fundamental-assumptions fas
 
@@ -357,11 +357,11 @@ opaque
     ¬ Resurrectable s q₁ q₂ (glassify ∇ » Δ) zeroᵘₗ ℕ
   ¬-ℕ-resurrectable
     {∇} {Δ} ⦃ ok ⦄ Unitʷ-η→ P-ok []-cong-ok []-cong-ok′ ▸∇ as (_ , ▸t , ⊢t) =
-    let ⊢0 = ⊢zeroᵘ (wfTerm ⊢t) in
+    let ⊢0 = ⊢zeroᵘ (wf ⊢t) in
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ
            (record
-              { well-formed       = wfTerm ⊢t
+              { well-formed       = wf ⊢t
               ; other-assumptions = as
               })
            ⊢t ▸t of λ {
@@ -370,7 +370,7 @@ opaque
     -- Let us first apply t to zero.
     case ®∷Σω⇔ non-trivial .proj₁ $
          ®∷Π₀⇔ .proj₁ t®erase-t .proj₂ .proj₂
-           zero (zeroⱼ (wfTerm ⊢t)) of λ {
+           zero (zeroⱼ (wf ⊢t)) of λ {
       (_ , t₁ , _ , _ , _ , t∘0⇒t₁,t₂ , erase-t∘↯⇒v₁,v₂ , t₁®v₁ , _) →
 
     -- The term t₁ is definitionally equal to zero.
@@ -402,7 +402,7 @@ opaque
         -- Let us now apply t to suc zero.
         case ®∷Σω⇔ non-trivial .proj₁ $
              ®∷Π₀⇔ .proj₁ t®erase-t .proj₂ .proj₂
-               (suc zero) (sucⱼ (zeroⱼ (wfTerm ⊢t))) of λ {
+               (suc zero) (sucⱼ (zeroⱼ (wf ⊢t))) of λ {
           (_ , t₁′ , _ , _ , _ ,
            t∘1⇒t₁′,t₂′ , erase-t∘↯⇒v₁′,v₂′ , t₁′®v₁′ , _) →
 
@@ -455,7 +455,7 @@ opaque
     open Fundamental-assumptions⁻ as
 
     as′ : Assumptions
-    as′ = record { ⊢Δ = wfTerm ⊢t; str = T.non-strict }
+    as′ = record { ⊢Δ = wf ⊢t; str = T.non-strict }
 
     open H variant as′
     open L as′

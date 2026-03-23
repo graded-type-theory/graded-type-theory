@@ -486,7 +486,7 @@ opaque
     soundness-ℕ-using-equality-reflection
       (⊢ˢʷ∷-sgSubst $
        DP′.⊢poly-funext _ ok Π-ok Π-ok′ $
-       tr-⊢ (ε (DP.defn-wf (DP.wfTerm ⊢t))))
+       tr-⊢ (ε (DP.defn-wf (DP.wf ⊢t))))
       (λ { x0 → ▸poly-funext ·p≤𝟘 ·p′≤𝟘; (() +1) })
       ⊢t
     where

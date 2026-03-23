@@ -66,7 +66,7 @@ opaque
     Γ ⊢ star s ≡ t ∷ Unit s
   Unit-η-≡ η ⊢t =
     let ok = inversion-Unit (syntacticTerm ⊢t) in
-    η-unit (starⱼ (wfTerm ⊢t) ok) ⊢t η
+    η-unit (starⱼ (wf ⊢t) ok) ⊢t η
 
 ------------------------------------------------------------------------
 -- Lemmas related to unitrec
@@ -95,7 +95,7 @@ opaque
     Γ ⊢ unitrec p q A₁ t₁ u₁ ≡ unitrec p q A₂ t₂ u₂ ∷ A₁ [ t₁ ]₀
   unitrec-cong′
     {A₁} {A₂} {t₁} {t₂} {u₁} {u₂} {p} {q} A₁≡A₂ t₁≡t₂ u₁≡u₂ =
-    case wfEqTerm t₁≡t₂ of λ
+    case wf t₁≡t₂ of λ
       ⊢Γ →
     case inversion-Unit $ syntacticEqTerm t₁≡t₂ .proj₁ of λ
       ok →
@@ -136,7 +136,7 @@ opaque
       Unit-ok →
     case Unitʷ-η? of λ where
       (yes ok) →
-        unitrec-β-η ⊢A (starⱼ (wfTerm ⊢t) Unit-ok) ⊢t Unit-ok ok
+        unitrec-β-η ⊢A (starⱼ (wf ⊢t) Unit-ok) ⊢t Unit-ok ok
       (no not-ok) →
         unitrec-β ⊢A ⊢t Unit-ok not-ok }
 
@@ -154,7 +154,7 @@ opaque
     case Unitʷ-η? of λ where
       (yes ok) →
         unitrec-β-η ⊢A
-          (starⱼ (wfTerm ⊢t) Unit-ok)
+          (starⱼ (wf ⊢t) Unit-ok)
           ⊢t Unit-ok ok
       (no not-ok) →
         unitrec-β ⊢A ⊢t Unit-ok not-ok
@@ -352,4 +352,4 @@ opaque
     PE.subst (_⊢_∷_ _ _) (PE.sym ≡Id-wk1-wk1-0[]₀) $
     ⊢unitrec⟨⟩ (Idⱼ′ (starⱼ (∙ ⊢Unit) ok) (var₀ ⊢Unit)) ⊢t $
     PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ $
-    rflⱼ (starⱼ (wfTerm ⊢t) ok)
+    rflⱼ (starⱼ (wf ⊢t) ok)

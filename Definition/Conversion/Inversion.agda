@@ -1524,7 +1524,7 @@ opaque
                    (wf-⊢≡∷ (subset*Term (d .proj₁)) .proj₁)
         in
         [↑]ₜ _ _ _
-          (id (Levelⱼ′ ok (wfTerm (redFirst*Term (d .proj₁)))) , Levelₙ)
+          (id (Levelⱼ′ ok (wf (redFirst*Term (d .proj₁)))) , Levelₙ)
           d d′ (Level-ins ([↓]ˡ v v′ t↓ u↓ t≡u))
 
 opaque

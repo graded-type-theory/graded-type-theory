@@ -123,7 +123,7 @@ opaque
 
   sym-⊢≡∷L : Γ ⊢ l₁ ≡ l₂ ∷Level → Γ ⊢ l₂ ≡ l₁ ∷Level
   sym-⊢≡∷L (term ok l₁≡l₂) =
-    term ok (sym (Levelⱼ′ ok (wfEqTerm l₁≡l₂)) l₁≡l₂)
+    term ok (sym (Levelⱼ′ ok (wf l₁≡l₂)) l₁≡l₂)
   sym-⊢≡∷L (literal ok ⊢Γ) =
     literal ok ⊢Γ
 
@@ -154,7 +154,7 @@ opaque
     Γ ⊢ t ∷ Level →
     Γ ⊢ t supᵘ zeroᵘ ≡ t ∷ Level
   supᵘ-zeroʳⱼ ok ⊢l =
-    trans (supᵘ-comm ⊢l (zeroᵘⱼ ok (wfTerm ⊢l))) (supᵘ-zeroˡ ⊢l)
+    trans (supᵘ-comm ⊢l (zeroᵘⱼ ok (wf ⊢l))) (supᵘ-zeroˡ ⊢l)
 
 ------------------------------------------------------------------------
 -- Some lemmas related to _supᵘₗ_

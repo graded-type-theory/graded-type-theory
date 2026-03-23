@@ -211,7 +211,7 @@ opaque mutual
     Γ ⊢≅ t ∷ Level
   escapeLevel′ ok (term t⇒t′ t′-prop) =
     let t↘t′ = t⇒t′ , Level-prop→Whnf t′-prop
-        ⊢Γ   = wfTerm (redFirst*Term t⇒t′)
+        ⊢Γ   = wf (redFirst*Term t⇒t′)
     in
     ≅ₜ-red (id (Levelⱼ′ ok ⊢Γ) , Levelₙ) t↘t′ t↘t′
       (escape-Level-prop′ ⊢Γ t′-prop)
@@ -256,7 +256,7 @@ opaque mutual
   escapeLevelEq (term t⇒t′ u⇒u′ t′≡u′) =
     let t′-whnf , u′-whnf = lsplit t′≡u′
         ⊢t                = redFirst*Term t⇒t′
-        ⊢Γ                = wfTerm ⊢t
+        ⊢Γ                = wf ⊢t
         ok                = inversion-Level-⊢ (wf-⊢∷ ⊢t)
     in
     ⊢≅∷→⊢≅∷L $
@@ -511,7 +511,7 @@ opaque
     let
       ⊢u  = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩u)
       ⊢v  = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩v)
-      ⊢Γ  = wfTerm ⊢u
+      ⊢Γ  = wf ⊢u
       ⊢t′ = escape-Level-prop ⊢Γ propt
       ⊢u′ = escape-Level-prop ⊢Γ propu
       ⊢v′ = escape-Level-prop ⊢Γ propv
@@ -591,7 +591,7 @@ opaque
     Level-allowed→Allowed-literal→ okᴸ ok
   ⊩supᵘ-zeroʳ′ ⊩t@(term t⇒ prop) u⇒ =
     let ⊢u = redFirst*Term u⇒
-        ⊢Γ = wfTerm ⊢u
+        ⊢Γ = wf ⊢u
     in
     ⊩Level≡-⇒* (supᵘ-substˡ* t⇒ ⊢u) t⇒ $
     case prop of λ where
@@ -612,7 +612,7 @@ opaque
     Γ ⊩Level level (t supᵘ zeroᵘ) ≡ level t ∷Level
   ⊩supᵘ-zeroʳ ok ⊩t =
     ⊩supᵘ-zeroʳ′ ⊩t $
-    id (zeroᵘⱼ ok (wfTerm (⊢∷Level→⊢∷Level ok (escapeLevel ⊩t))))
+    id (zeroᵘⱼ ok (wf (⊢∷Level→⊢∷Level ok (escapeLevel ⊩t))))
 
 opaque
 
@@ -626,7 +626,7 @@ opaque
   ⊩supᵘ-comm ok ⊩t@(term t⇒ propt) ⊩u@(term u⇒ propu) =
     let ⊢t  = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩t)
         ⊢u  = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩u)
-        ⊢Γ  = wfTerm ⊢u
+        ⊢Γ  = wf ⊢u
         ⊢t′ = escape-Level-prop ⊢Γ propt
         ⊢u′ = escape-Level-prop ⊢Γ propu
     in
@@ -729,7 +729,7 @@ opaque
     let ⊢u  = redFirst*Term u⇒
         ok  = inversion-Level-⊢ (wf-⊢∷ ⊢u)
         ⊢t  = ⊢∷Level→⊢∷Level ok (escapeLevel ⊩t)
-        ⊢Γ  = wfTerm ⊢t
+        ⊢Γ  = wf ⊢t
         ⊢t′ = escape-Level-prop ⊢Γ propt
     in
     ⊩Level≡-⇒* (supᵘ-substˡ* t⇒ ⊢u) (id ⊢u) $
@@ -773,7 +773,7 @@ opaque
   wf-neLevel-prop (supᵘˡᵣ x₁ x₂) = wf-neLevel-prop x₁
   wf-neLevel-prop (supᵘʳᵣ x₁ x₂) = wf-neLevel-prop x₂
   wf-neLevel-prop (ne (neNfₜ₌ neK neM k≡m)) =
-    wfEqTerm (≅ₜ-eq (~-to-≅ₜ k≡m))
+    wf (≅ₜ-eq (~-to-≅ₜ k≡m))
 
 opaque mutual
 
@@ -904,7 +904,7 @@ opaque
               ⊢k′     = ⊢∷Level→⊢∷Level okᴸ (escapeLevel ⊩k′)
               ⊩k′+1   = ⊩1ᵘ+ ⊩k′
               ⊩k⊔k′+1 = ⊩supᵘ okᴸ (⊩neLvl ⊩k) ⊩k′+1
-              ⊢Γ      = wfTerm (redFirst*Term u⇒)
+              ⊢Γ      = wf (redFirst*Term u⇒)
           in case propu of λ where
             (zeroᵘᵣ _) →
               transEqTermLevel (⊩supᵘ-zeroʳ′ ⊩k⊔k′+1 u⇒) $
@@ -942,7 +942,7 @@ opaque
                      (supᵘ-substˡ* u⇒ (sucᵘⱼ ⊢k′))
                      ([Level]-prop.neLvl $
                       supᵘˡᵣ (reflneLevel-prop ⊩u′)
-                        (⊩[Lvl] (wfTerm ⊢k) k≤1+k′))) $
+                        (⊩[Lvl] (wf ⊢k) k≤1+k′))) $
                 ⊩supᵘ-comm okᴸ ⊩u (⊩1ᵘ+ ⊩k′)
     ⊩supᵘ-congˡ-prop (neLvl x) [u] =
       ⊩[neLvl] (supᵘˡᵣ x (reflLevel [u]))
@@ -1668,7 +1668,7 @@ opaque
       f-⇒* (id (⊢∷Level→⊢∷Level ok (escapeLevel ⊩t)))
 
     f′ : Level-prop Γ t → Nat
-    f′ = f ∘→ ⊩Lvl (wfLevel (escapeLevel ⊩t))
+    f′ = f ∘→ ⊩Lvl (wf (escapeLevel ⊩t))
 
     f″ : neLevel-prop Γ t → Nat
     f″ = f ∘→ ⊩neLvl

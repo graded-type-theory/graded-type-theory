@@ -50,7 +50,7 @@ opaque
     Γ »∙ A ⊢ wk1 l ∷Level →
     Γ ⊢ Erased l A
   Erasedⱼ′ ⊢l =
-    ΠΣⱼ (Liftⱼ ⊢l (univ (Unitⱼ (wfLevel ⊢l) Unit-ok))) Σ-ok
+    ΠΣⱼ (Liftⱼ ⊢l (univ (Unitⱼ (wf ⊢l) Unit-ok))) Σ-ok
 
 opaque
 
@@ -73,7 +73,7 @@ opaque
     Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂
   Erased-cong′ l₁≡l₂ A₁≡A₂ =
     ΠΣ-cong A₁≡A₂
-      (Lift-cong l₁≡l₂ (refl (univ (Unitⱼ (wfEqLevel l₁≡l₂) Unit-ok))))
+      (Lift-cong l₁≡l₂ (refl (univ (Unitⱼ (wf l₁≡l₂) Unit-ok))))
       Σ-ok
 
 opaque
@@ -119,7 +119,7 @@ opaque
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
     Γ ⊢ Erased l₁ A₁ ≡ Erased l₂ A₂ ∷ U l₁
   Erased-cong-U′ ⊢l₁ l₁≡l₂ A₁≡A₂ =
-    let ⊢∙A₁ = wfEqLevel l₁≡l₂
+    let ⊢∙A₁ = wf l₁≡l₂
         ⊢l₁′ = wkLevel₁ (⊢∙→⊢ ⊢∙A₁) ⊢l₁
     in
     ΠΣ-cong ⊢l₁ A₁≡A₂
@@ -153,7 +153,7 @@ opaque
     Γ ⊢ t ∷ A →
     Γ ⊢ [ t ] ∷ Erased l A
   []ⱼ ⊢l ⊢A ⊢t =
-    let ⊢Γ    = wfTerm ⊢t
+    let ⊢Γ    = wf ⊢t
         ⊢Unit = univ (Unitⱼ ⊢Γ Unit-ok)
     in
     prodⱼ (Liftⱼ (wkLevel₁ ⊢A ⊢l) (wk₁ ⊢A ⊢Unit)) ⊢t

@@ -128,7 +128,7 @@ opaque
   List-cong {n} {A₁} {A₂} {l} {Γ} A₁≡A₂ =
     let _ , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
         ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
-        ⊢Γ            = wfTerm ⊢A₁
+        ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound
       (γ′ L.[] λ where
@@ -207,7 +207,7 @@ opaque
            (I.var! x0)         → inversion-U-Level (wf-⊢∷ ⊢A)
            (I.var! x1)         → ⊢A
            (I.var  not-x2 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs pₕ pₕ pₕ pₕ pₕ Γ (n V.∷ V.ε)
 
@@ -234,7 +234,7 @@ opaque
         _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
         _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
         ⊢l            = inversion-U-Level (wf-⊢∷ ⊢A₁)
-        ⊢Γ            = wfTerm ⊢A₁
+        ⊢Γ            = wf ⊢A₁
     in
     check-and-equal-type-and-terms-sound
       (γ′ L.[] λ where
@@ -359,7 +359,7 @@ opaque
            (I.var! x4)         → ⊢u
            (I.var! x5)         → ⊢v
            (I.var  not-x6 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p₁ p₂ q r₁ r₂ Γ
              (n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ n V.∷ V.ε)
@@ -430,7 +430,7 @@ opaque
            (I.var! x3)         → ⊢t
            (I.var! x4)         → ⊢u
            (I.var  not-x5 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p₁ p₂ q r₁ r₂ Γ (n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ V.ε)
 
@@ -516,7 +516,7 @@ opaque
            (I.var! x6)         → ⊢w₁
            (I.var! x7)         → ⊢w₂
            (I.var  not-x8 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       open Defs p₁ p₂ q r₁ r₂ Γ
              (n V.∷ 1+ n V.∷ n V.∷ 3+ n V.∷ n V.∷ n V.∷ n V.∷ V.ε)

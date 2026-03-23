@@ -195,7 +195,7 @@ opaque
            (I.var! x3)         → ⊢l₂′
            (I.var! x4)         → ⊢ext
            (I.var  not-x5 _ _))
-      (wfTerm ⊢ext)
+      (wf ⊢ext)
       where
       c′ : I.Constants
       c′ .I.gs                 = 4
@@ -442,7 +442,7 @@ opaque
            (I.var! x6)         → ⊢u
            (I.var! x7)         → ⊢ext
            (I.var  not-x8 _ _))
-      (wfTerm ⊢A₁)
+      (wf ⊢A₁)
       where
       c′ : I.Constants
       c′ .I.gs                 = 6
@@ -638,7 +638,7 @@ opaque
            (I.var! x8)          → ⊢u₂
            (I.var! x9)          → ⊢v
            (I.var  not-x10 _ _))
-      (wfTerm ⊢A₁)
+      (wf ⊢A₁)
       where
       c′ : I.Constants
       c′ .I.gs                 = 2
@@ -777,7 +777,7 @@ opaque
            (I.var! x6)         → ⊢t
            (I.var! x7)         → ⊢ext
            (I.var  not-x8 _ _))
-      (wfTerm ⊢A)
+      (wf ⊢A)
       where
       c′ : I.Constants
       c′ .I.gs                 = 4

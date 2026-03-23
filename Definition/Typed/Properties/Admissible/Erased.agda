@@ -313,7 +313,7 @@ private
         B₂ [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑
     erasedrec-lemma₁ B₁≡B₂ =
       let (Unit-ok , Σ-ok) , ⊢A₁ , ⊢wk1-l =
-            inversion-Erased (⊢∙→⊢ (wfEq B₁≡B₂))
+            inversion-Erased (⊢∙→⊢ (wf B₁≡B₂))
           ⊢Unit′        = ⊢Unit (∙ Liftⱼ ⊢wk1-l (⊢Unit (∙ ⊢A₁) Unit-ok))
                             Unit-ok
           ⊢wk3          = ⊢ˢʷ∷-wkSubst (∙ ⊢Unit′)
@@ -347,7 +347,7 @@ private
         B [ 3 ][ prod s 𝟘 (var x2) (lift (var x0)) ]↑ [ star s ]₀
     erasedrec-lemma₂ {s} B Unit-ok ⊢wk1-l t₁≡t₂ =
       flip (PE.subst (_⊢_≡_∷_ _ _ _))
-        (wkEqTerm₁ (Liftⱼ ⊢wk1-l (⊢Unit (wfEqTerm t₁≡t₂) Unit-ok))
+        (wkEqTerm₁ (Liftⱼ ⊢wk1-l (⊢Unit (wf t₁≡t₂) Unit-ok))
            t₁≡t₂) $
       wk1 (B [ [ var x0 ] ]↑)                                      ≡⟨ wk[]′[][]↑ 1 B ⟩
       B [ 2 ][ wk1 [ var x0 ] ]↑                                   ≡⟨⟩
@@ -371,7 +371,7 @@ private
     erasedrec-lemma₃ {s} {k} {l} {B} {t} {u} ⊢B ⊢t ⊢u =
       let (Unit-ok , Σ-ok) , ⊢A , ⊢wk1-l =
             inversion-Erased (⊢∙→⊢ (wf ⊢B))
-          ⊢wk-A = W.wk (ʷ⊇-drop (wfTerm ⊢t)) ⊢A
+          ⊢wk-A = W.wk (ʷ⊇-drop (wf ⊢t)) ⊢A
       in
       B U.[ 1+ k ][ prod s 𝟘 (wk1 t) (lift (var x0)) ]↑ U.[ lower u ]₀  ≡⟨ [][]↑-[₀⇑] 0 B ⟩⊢≡
 
@@ -478,7 +478,7 @@ opaque
          (lower (var x0)) (wk1 t))                                       ≡⟨ prodrec⟨⟩-β (λ _ → ⊢B) ⊢u (liftⱼ′ ⊢wk1-l[u]₀ ⊢star)
                                                                               (conv
                                                                                  (⊢unitrec⟨⟩ (wf-⊢≡ (erasedrec-lemma₁ (refl ⊢B)) .proj₁)
-                                                                                    (lowerⱼ (var₀ (Liftⱼ ⊢wk1-l (⊢Unit (wfTerm ⊢t) Unit-ok))))
+                                                                                    (lowerⱼ (var₀ (Liftⱼ ⊢wk1-l (⊢Unit (wf ⊢t) Unit-ok))))
                                                                                     (wf-⊢≡∷ (erasedrec-lemma₂ B Unit-ok ⊢wk1-l (refl ⊢t))
                                                                                        .proj₂ .proj₁))
                                                                                  (erasedrec-lemma₃′ ⊢B))
@@ -624,7 +624,7 @@ opaque
     Γ ⊢ u ∷ Erased l₁ A →
     Γ ⊢ mapᴱ A t u ∷ Erased l₂ B
   ⊢mapᴱ ⊢l₂ ⊢t ⊢u =
-    wf-⊢≡∷ (mapᴱ-cong ⊢l₂ (refl (⊢∙→⊢ (wfTerm ⊢t))) (refl ⊢t) (refl ⊢u))
+    wf-⊢≡∷ (mapᴱ-cong ⊢l₂ (refl (⊢∙→⊢ (wf ⊢t))) (refl ⊢t) (refl ⊢u))
       .proj₂ .proj₁
 
 opaque
@@ -803,7 +803,7 @@ module _ (ok : []-cong-allowed s) where
       in
       conv
         (subst-subst (⊢[erased-0]↑ ⊢B)
-           ([]-cong-subst (⊢zeroᵘ (wfTerm ⊢t)) v₁⇒v₂ ok)
+           ([]-cong-subst (⊢zeroᵘ (wf ⊢t)) v₁⇒v₂ ok)
            (conv ⊢w $ sym $ [erased-0]↑[[]]₀≡[]₀ ⊢B ⊢t))
         ([erased-0]↑[[]]₀≡[]₀ ⊢B ⊢u)
 

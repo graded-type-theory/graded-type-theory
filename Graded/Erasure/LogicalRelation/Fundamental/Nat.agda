@@ -198,7 +198,7 @@ opaque
     {Γ} {t} {A} {u} {v} {γ} {m = 𝟙ᵐ} {n} {δ} {p} {r} {η} {χ} {q}
     ⊢t ⊢u ⊢v ⊩ʳt ⊩ʳu ⊩ʳv ≡𝟘→≡𝟘 =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
-    case wfTerm ⊢u of λ {
+    case wf ⊢u of λ {
       (∙ ⊢A) →
     case                                                      $⟨ σ®σ′ ⟩
       σ ® σ′ ∷[ 𝟙ᵐ ∣ n ] Γ ◂ χ                                →⟨ subsumption-®∷[∣]◂ (λ x → proj₁ ∘→ ≡𝟘→≡𝟘 x) ⟩

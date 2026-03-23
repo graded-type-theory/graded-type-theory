@@ -327,7 +327,7 @@ opaque
     Γ »∙ A ⊢ t ∷ B →
     Γ ⊢ lamʰ p t ∷ Πʰ p q l₁ l₂ A B
   ⊢lamʰ ok ⊢l₁ ⊢l₂ ⊢t =
-    let ⊢A = ⊢∙→⊢ (wfTerm ⊢t) in
+    let ⊢A = ⊢∙→⊢ (wf ⊢t) in
     lamⱼ′ ok (liftⱼ′ (wkLevel₁ (Liftⱼ ⊢l₂ ⊢A) ⊢l₁) (lower₀Term ⊢l₂ ⊢t))
 
 opaque
@@ -370,7 +370,7 @@ opaque
     Π-allowed p q →
     Γ ⊢ ∘ʰ p (lamʰ p t) u ≡ t [ u ]₀ ∷ B [ u ]₀
   β-redʰ {t} {u} {p} ⊢t ⊢u ok =
-    let ⊢0      = ⊢zeroᵘ (wfTerm ⊢u)
+    let ⊢0      = ⊢zeroᵘ (wf ⊢u)
         ⊢wk-l₁  = wkLevel₁ (Liftⱼ ⊢0 (wf-⊢∷ ⊢u)) ⊢0
         ⊢lift-u = liftⱼ′ ⊢0 ⊢u
     in

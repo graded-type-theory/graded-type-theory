@@ -164,7 +164,7 @@ neNeg {γ} (natrecⱼ {A} {n} _ _ ⊢n) (natrecₙ n-ne) γ▸natrec =
         (inj₂ θ≈𝟘) → θ≈𝟘                                 }}) ⟩
 
   NegativeErasedContext Γ θ            →⟨ neNeg ⊢n n-ne θ▸n ⟩
-  NegativeType Γ ℕ                     →⟨ flip ¬negℕ (refl (⊢ℕ (wfTerm ⊢n))) ⟩
+  NegativeType Γ ℕ                     →⟨ flip ¬negℕ (refl (⊢ℕ (wf ⊢n))) ⟩
   ⊥                                    →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ n ]₀)            □ }
 neNeg
@@ -184,7 +184,7 @@ neNeg
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ              →⟨ neNeg ⊢t t-ne (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ r≢𝟘) δ▸t) ⟩
-  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ (⊢∙→⊢ (wfTerm ⊢u)) ok₁)) ⟩
+  NegativeType Γ (Σʷ p , q ▷ B ▹ C)      →⟨ flip ¬negΣʷ (refl (ΠΣⱼ (⊢∙→⊢ (wf ⊢u)) ok₁)) ⟩
   ⊥                                      →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)              □ }}
 neNeg (emptyrecⱼ _ d) (emptyrecₙ _) _ _ =
@@ -203,7 +203,7 @@ neNeg
                                                   }) ∘→
                                                ·ᶜ-zero-product-⟨⟩ δ) ⟩
   NegativeErasedContext Γ δ               →⟨ neNeg d n (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) δ▸t) ⟩
-  NegativeType Γ Unitʷ                    →⟨ flip ¬negUnit (refl (⊢Unit (wfTerm d) ok)) ⟩
+  NegativeType Γ Unitʷ                    →⟨ flip ¬negUnit (refl (⊢Unit (wf d) ok)) ⟩
   ⊥                                       →⟨ ⊥-elim ⟩
   NegativeType Γ (A [ t ]₀)               □ }
 neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
@@ -372,7 +372,7 @@ module _
   canonicityRed′ γ▸t nΓγ (ℕₜ _ d _ (ne (neNfₜ neK _))) =
     let u , d′ , ¬neU =
           ¬NeutralNf (redFirst*Term d) γ▸t nΓγ
-            (flip ¬negℕ $ refl (⊢ℕ $ wfTerm $ redFirst*Term d))
+            (flip ¬negℕ $ refl (⊢ℕ $ wf $ redFirst*Term d))
     in  ⊥-elim $ ¬neU $
         PE.subst (Neutral⁺ _) (whrDet*Term (d , ne! neK) d′) $
         ne→ _ (ne⁻ neK)

@@ -109,7 +109,7 @@ opaque
     Γ ⊢ u ∷ Level →
     Γ ⊢ Id Level t u
   ⊢Id-Level ok ⊢t ⊢u =
-    Idⱼ (Levelⱼ′ ok (wfTerm ⊢t)) ⊢t ⊢u
+    Idⱼ (Levelⱼ′ ok (wf ⊢t)) ⊢t ⊢u
 
 ------------------------------------------------------------------------
 -- Some lemmas related to _⊢_∷Level, _⊢_≡_∷Level or _⊢_≤ₗ_∷Level
@@ -243,7 +243,7 @@ opaque
     Γ ⊢ l ∷Level →
     Γ ⊢ l supᵘₗ zeroᵘₗ ≡ l ∷Level
   supᵘₗ-zeroʳ {l} ⊢l =
-    l supᵘₗ zeroᵘₗ  ≡⟨ supᵘₗ-comm ⊢l (⊢zeroᵘ (wfLevel ⊢l)) ⟩⊢
+    l supᵘₗ zeroᵘₗ  ≡⟨ supᵘₗ-comm ⊢l (⊢zeroᵘ (wf ⊢l)) ⟩⊢
     zeroᵘₗ supᵘₗ l  ≡⟨ supᵘₗ-zeroˡ ⊢l ⟩⊢∎
     l               ∎
 
@@ -578,7 +578,7 @@ opaque
   zeroᵘₗ≤ₗ :
     Γ ⊢ l ∷Level →
     Γ ⊢ zeroᵘₗ ≤ₗ l ∷Level
-  zeroᵘₗ≤ₗ ⊢l = ⊢≡∷L→⊢≤ₗ∷L (⊢zeroᵘ (wfLevel ⊢l)) (supᵘₗ-zeroˡ ⊢l)
+  zeroᵘₗ≤ₗ ⊢l = ⊢≡∷L→⊢≤ₗ∷L (⊢zeroᵘ (wf ⊢l)) (supᵘₗ-zeroˡ ⊢l)
 
 opaque
   unfolding _supᵘₗ_
@@ -591,7 +591,7 @@ opaque
     Γ ⊢ level t ≤ₗ ωᵘ+ m ∷Level
   level≤ₗωᵘ+ ok ⊢t =
     ⊢≡∷L→⊢≤ₗ∷L ⊢t $
-    refl-⊢≡∷L (literal (Allowed-literal-ωᵘ+-⇔ .proj₂ ok) (wfLevel ⊢t))
+    refl-⊢≡∷L (literal (Allowed-literal-ωᵘ+-⇔ .proj₂ ok) (wf ⊢t))
 
 opaque
   unfolding _⊢_≤ₗ_∷Level

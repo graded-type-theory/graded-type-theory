@@ -461,7 +461,7 @@ mutual
     let ⊢t≡v = soundness↑ᵛ t≡v
         ok   = inversion-Level-⊢ (wf-⊢≡∷ ⊢t≡v .proj₁)
     in
-    trans (sucᵘ-cong ⊢t≡v) (Levelᵛ→Term-suc ok (wfTerm (wf↑ᵛ t≡v)) v′)
+    trans (sucᵘ-cong ⊢t≡v) (Levelᵛ→Term-suc ok (wf (wf↑ᵛ t≡v)) v′)
   soundness↓ᵛ (neₙ x) = soundness~ᵛ x
 
   soundness~ᵛ : ∀ {t} {v : Levelᵛ Γ} → Γ ⊢ t ~ᵛ v → Γ ⊢ t ≡ Levelᵛ→Term v ∷ Level
@@ -471,9 +471,9 @@ mutual
     in
     trans (supᵘ-cong (soundness~ᵛ t~) u↑)
       (PE.subst (_ ⊢ _ ≡_∷ _) (PE.cong Levelᵛ→Term (PE.sym y))
-        (Levelᵛ→Term-sup ok (wfTerm (wf~ᵛ t~)) v′ v″))
+        (Levelᵛ→Term-sup ok (wf (wf~ᵛ t~)) v′ v″))
   soundness~ᵛ (supᵘʳₙ {v′} {v″} PE.refl t↑ u~) =
-    let ⊢Γ = wfTerm (wf↑ᵛ t↑)
+    let ⊢Γ = wf (wf↑ᵛ t↑)
         t↑ = soundness↑ᵛ t↑
         ok = inversion-Level-⊢ (wf-⊢≡∷ t↑ .proj₁)
     in

@@ -215,7 +215,7 @@ mutual
   soundness⇇ (rflᶜ (A↘Id , _) t≡u) =
     conv (rflⱼ′ t≡u) (sym (subset* A↘Id))
   soundness⇇ (infᶜ t⇉B A≡B) =
-    conv (soundness⇉ (wfEq A≡B) t⇉B .proj₂) A≡B
+    conv (soundness⇉ (wf A≡B) t⇉B .proj₂) A≡B
 
   soundness⇇Level : ⊢ Γ → Γ ⊢ l ⇇Level → Γ ⊢ l ∷Level
   soundness⇇Level _ (term ok ⊢l) =

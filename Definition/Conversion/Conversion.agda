@@ -171,7 +171,7 @@ convConv↑Term :
   Γ ⊢ A ≡ B →
   Γ ⊢ t [conv↑] u ∷ A →
   Γ ⊢ t [conv↑] u ∷ B
-convConv↑Term A≡B = convConv↑Term′ (reflConEq (wfEq A≡B)) A≡B
+convConv↑Term A≡B = convConv↑Term′ (reflConEq (wf A≡B)) A≡B
 
 opaque
 
@@ -182,4 +182,4 @@ opaque
     Whnf (Γ .defs) B →
     Γ ⊢ t [conv↓] u ∷ A →
     Γ ⊢ t [conv↓] u ∷ B
-  convConv↓Term A≡B = convConv↓Term′ (reflConEq (wfEq A≡B)) A≡B
+  convConv↓Term A≡B = convConv↓Term′ (reflConEq (wf A≡B)) A≡B
