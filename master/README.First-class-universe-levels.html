@@ -60,7 +60,7 @@ notation works for both terms and levels), and ↓ k is denoted by
 `↓ᵘ k`.
 </a><a id="2299" class="Markup">```agda
 </a><a id="2307" class="Keyword">import</a> <a id="2314" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="2335" class="Keyword">using</a> <a id="2341" class="Symbol">(</a><a id="2342" href="Definition.Untyped.html#1218" class="Function">Term</a><a id="2346" class="Symbol">;</a> <a id="2348" href="Definition.Untyped.html#1274" class="Function">Lvl</a><a id="2351" class="Symbol">;</a> <a id="2353" href="Definition.Untyped.html#7871" class="Function">1ᵘ+ⁿ</a><a id="2357" class="Symbol">;</a> <a id="2359" href="Definition.Untyped.html#8044" class="Function Operator">↓ᵘ_</a><a id="2362" class="Symbol">)</a>
+  <a id="2335" class="Keyword">using</a> <a id="2341" class="Symbol">(</a><a id="2342" href="Definition.Untyped.html#1198" class="Function">Term</a><a id="2346" class="Symbol">;</a> <a id="2348" href="Definition.Untyped.html#1254" class="Function">Lvl</a><a id="2351" class="Symbol">;</a> <a id="2353" href="Definition.Untyped.html#7851" class="Function">1ᵘ+ⁿ</a><a id="2357" class="Symbol">;</a> <a id="2359" href="Definition.Untyped.html#8024" class="Function Operator">↓ᵘ_</a><a id="2362" class="Symbol">)</a>
 <a id="2364" class="Markup">```
 </a><a id="2368" class="Background">
 Contexts. The type is more general than in the paper: the
@@ -77,7 +77,7 @@ are used in addition to the variable contexts in the paper.
 Substitution.
 </a><a id="2829" class="Markup">```agda
 </a><a id="2837" class="Keyword">import</a> <a id="2844" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="2865" class="Keyword">using</a> <a id="2871" class="Symbol">(</a><a id="2872" href="Definition.Untyped.html#21302" class="Function Operator">_[_]</a><a id="2876" class="Symbol">)</a>
+  <a id="2865" class="Keyword">using</a> <a id="2871" class="Symbol">(</a><a id="2872" href="Definition.Untyped.html#21282" class="Function Operator">_[_]</a><a id="2876" class="Symbol">)</a>
 <a id="2878" class="Markup">```
 </a><a id="2882" class="Background">
 Weakening. The notation `wk ρ t` is used instead of t[ρ], and the
@@ -86,15 +86,14 @@ notation `∇ » ρ ∷ʷ Δ ⊇ Γ` means that ρ is a well-formed weaken
 Δ ⊢ ρ : Γ is used for the corresponding notion without a definition
 context). The single-step weakening p is written `step id`: in the
 code this weakening is often used via `wk1` = `wk (step id)`, and the
-lemmas `wk₁` and `wkTerm₁` show that this operation is
-type-preserving.
-</a><a id="3362" class="Markup">```agda
-</a><a id="3370" class="Keyword">import</a> <a id="3377" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="3398" class="Keyword">using</a> <a id="3404" class="Symbol">(</a><a id="3405" href="Definition.Untyped.html#16050" class="Function">wk</a><a id="3407" class="Symbol">;</a> <a id="3409" href="Definition.Untyped.NotParametrised.html#3049" class="InductiveConstructor">step</a><a id="3413" class="Symbol">;</a> <a id="3415" href="Definition.Untyped.NotParametrised.html#2985" class="InductiveConstructor">id</a><a id="3417" class="Symbol">;</a> <a id="3419" href="Definition.Untyped.html#17906" class="Function">wk1</a><a id="3422" class="Symbol">)</a>
-<a id="3424" class="Keyword">import</a> <a id="3431" href="Definition.Typed.Weakening.html" class="Module">Definition.Typed.Weakening</a>
-  <a id="3460" class="Keyword">using</a> <a id="3466" class="Symbol">(</a><a id="3467" href="Definition.Typed.Weakening.html#3967" class="Function Operator">_»_∷ʷ_⊇_</a><a id="3475" class="Symbol">;</a> <a id="3477" href="Definition.Typed.Weakening.html#35186" class="Function">wk₁</a><a id="3480" class="Symbol">;</a> <a id="3482" href="Definition.Typed.Weakening.html#35454" class="Function">wkTerm₁</a><a id="3489" class="Symbol">)</a>
-<a id="3491" class="Markup">```
-</a><a id="3495" class="Background">
+lemma `wk₁` shows that this operation is type-preserving.
+</a><a id="3348" class="Markup">```agda
+</a><a id="3356" class="Keyword">import</a> <a id="3363" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
+  <a id="3384" class="Keyword">using</a> <a id="3390" class="Symbol">(</a><a id="3391" href="Definition.Untyped.html#16030" class="Function">wk</a><a id="3393" class="Symbol">;</a> <a id="3395" href="Definition.Untyped.NotParametrised.html#3049" class="InductiveConstructor">step</a><a id="3399" class="Symbol">;</a> <a id="3401" href="Definition.Untyped.NotParametrised.html#2985" class="InductiveConstructor">id</a><a id="3403" class="Symbol">;</a> <a id="3405" href="Definition.Untyped.html#17886" class="Function">wk1</a><a id="3408" class="Symbol">)</a>
+<a id="3410" class="Keyword">import</a> <a id="3417" href="Definition.Typed.Weakening.html" class="Module">Definition.Typed.Weakening</a>
+  <a id="3446" class="Keyword">using</a> <a id="3452" class="Symbol">(</a><a id="3453" href="Definition.Typed.Weakening.html#3987" class="Function Operator">_»_∷ʷ_⊇_</a><a id="3461" class="Symbol">;</a> <a id="3463" href="Definition.Typed.Weakening.html#34492" class="Function">wk₁</a><a id="3466" class="Symbol">)</a>
+<a id="3468" class="Markup">```
+</a><a id="3472" class="Background">
 #### 2.2: Typing Rules
 
 Unlike in the paper the type system is parametrised by a value of type
@@ -102,11 +101,11 @@ Unlike in the paper the type system is parametrised by a value of type
 like certain (graded) Π- or Σ-types, the K rule or equality
 reflection. For instance, the two typing rules for Π and Σ include the
 assumption `ΠΣ-allowed b p q`.
-</a><a id="3824" class="Markup">```agda
-</a><a id="3832" class="Keyword">import</a> <a id="3839" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
-  <a id="3871" class="Keyword">using</a> <a id="3877" class="Symbol">(</a><a id="3878" href="Definition.Typed.Restrictions.html#964" class="Record">Type-restrictions</a><a id="3895" class="Symbol">)</a>
-<a id="3897" class="Markup">```
-</a><a id="3901" class="Background">
+</a><a id="3801" class="Markup">```agda
+</a><a id="3809" class="Keyword">import</a> <a id="3816" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+  <a id="3848" class="Keyword">using</a> <a id="3854" class="Symbol">(</a><a id="3855" href="Definition.Typed.Restrictions.html#964" class="Record">Type-restrictions</a><a id="3872" class="Symbol">)</a>
+<a id="3874" class="Markup">```
+</a><a id="3878" class="Background">
 It is also possible to restrict the `Level` type so that it is not an
 element of a universe, or not allowed at all. There is a parameter
 `level-support` that can take one of the following three values:
@@ -124,20 +123,20 @@ element of a universe, or not allowed at all. There is a parameter
 
 If either of the two last settings are used, then the type
 `Level-allowed` is inhabited.
-</a><a id="4620" class="Markup">```agda
-</a><a id="4628" class="Keyword">open</a> <a id="4633" href="Definition.Typed.Restrictions.html#964" class="Module">Definition.Typed.Restrictions.Type-restrictions</a>
-  <a id="4683" class="Keyword">using</a>
-    <a id="4693" class="Symbol">(</a><a id="4694" href="Definition.Typed.Restrictions.html#1230" class="Field">level-support</a><a id="4707" class="Symbol">;</a> <a id="4709" href="Definition.Typed.Restrictions.html#6316" class="Function">Level-is-small</a><a id="4723" class="Symbol">;</a> <a id="4725" href="Definition.Typed.Restrictions.html#6806" class="Function">Level-is-not-small</a><a id="4743" class="Symbol">;</a> <a id="4745" href="Definition.Typed.Restrictions.html#5471" class="Function">Level-allowed</a><a id="4758" class="Symbol">)</a>
-<a id="4760" class="Markup">```
-</a><a id="4764" class="Background">
+</a><a id="4597" class="Markup">```agda
+</a><a id="4605" class="Keyword">open</a> <a id="4610" href="Definition.Typed.Restrictions.html#964" class="Module">Definition.Typed.Restrictions.Type-restrictions</a>
+  <a id="4660" class="Keyword">using</a>
+    <a id="4670" class="Symbol">(</a><a id="4671" href="Definition.Typed.Restrictions.html#1230" class="Field">level-support</a><a id="4684" class="Symbol">;</a> <a id="4686" href="Definition.Typed.Restrictions.html#6316" class="Function">Level-is-small</a><a id="4700" class="Symbol">;</a> <a id="4702" href="Definition.Typed.Restrictions.html#6806" class="Function">Level-is-not-small</a><a id="4720" class="Symbol">;</a> <a id="4722" href="Definition.Typed.Restrictions.html#5471" class="Function">Level-allowed</a><a id="4735" class="Symbol">)</a>
+<a id="4737" class="Markup">```
+</a><a id="4741" class="Background">
 One can also choose whether the levels ω, ω + 1 and so on are allowed
 or not. That is the case if the parameter `Omega-plus-allowed` is
 inhabited.
-</a><a id="4912" class="Markup">```agda
-</a><a id="4920" class="Keyword">open</a> <a id="4925" href="Definition.Typed.Restrictions.html#964" class="Module">Definition.Typed.Restrictions.Type-restrictions</a>
-  <a id="4975" class="Keyword">using</a> <a id="4981" class="Symbol">(</a><a id="4982" href="Definition.Typed.Restrictions.html#1312" class="Field">Omega-plus-allowed</a><a id="5000" class="Symbol">)</a>
-<a id="5002" class="Markup">```
-</a><a id="5006" class="Background">
+</a><a id="4889" class="Markup">```agda
+</a><a id="4897" class="Keyword">open</a> <a id="4902" href="Definition.Typed.Restrictions.html#964" class="Module">Definition.Typed.Restrictions.Type-restrictions</a>
+  <a id="4952" class="Keyword">using</a> <a id="4958" class="Symbol">(</a><a id="4959" href="Definition.Typed.Restrictions.html#1312" class="Field">Omega-plus-allowed</a><a id="4977" class="Symbol">)</a>
+<a id="4979" class="Markup">```
+</a><a id="4983" class="Background">
 The variant of the type theory in which `Level` is allowed but not
 small (and `Omega-plus-allowed` is inhabited) is similar to what one
 gets by enabling Agda&#39;s `--level-universe` flag, which makes `Level`
@@ -150,11 +149,11 @@ levels, whether `Level` is small or not. No result in the paper
 depends on whether `Level` is small or not, except for the following
 one: if `Level` is not small, then `Id Level t u` does not live in a
 universe.
-</a><a id="5751" class="Markup">```agda
-</a><a id="5759" class="Keyword">import</a> <a id="5766" href="Definition.Typed.Properties.Admissible.Level.html" class="Module">Definition.Typed.Properties.Admissible.Level</a>
-  <a id="5813" class="Keyword">using</a> <a id="5819" class="Symbol">(</a><a id="5820" href="Definition.Typed.Properties.Admissible.Level.html#3265" class="Function">⊢Id-Level</a><a id="5829" class="Symbol">;</a> <a id="5831" href="Definition.Typed.Properties.Admissible.Level.html#2679" class="Function">¬Level-is-small→¬Level∷U</a><a id="5855" class="Symbol">)</a>
-<a id="5857" class="Markup">```
-</a><a id="5861" class="Background">
+</a><a id="5728" class="Markup">```agda
+</a><a id="5736" class="Keyword">import</a> <a id="5743" href="Definition.Typed.Properties.Admissible.Level.html" class="Module">Definition.Typed.Properties.Admissible.Level</a>
+  <a id="5790" class="Keyword">using</a> <a id="5796" class="Symbol">(</a><a id="5797" href="Definition.Typed.Properties.Admissible.Level.html#3221" class="Function">⊢Id-Level</a><a id="5806" class="Symbol">;</a> <a id="5808" href="Definition.Typed.Properties.Admissible.Level.html#2635" class="Function">¬Level-is-small→¬Level∷U</a><a id="5832" class="Symbol">)</a>
+<a id="5834" class="Markup">```
+</a><a id="5838" class="Background">
 The type system. Some typing rules have names that differ from those
 in the paper. Γ ∋ x : A is denoted by `x ∷ A ∈ Γ`. The definitions use
 the relations `_⊢_∷Level` and `_⊢_≡_∷Level` to support disallowing
@@ -162,127 +161,127 @@ the relations `_⊢_∷Level` and `_⊢_≡_∷Level` to support disallowing
 the case where `Level` is allowed `Γ ⊢ level t ∷Level` is logically
 equivalent to `Γ ⊢ t ∷ Level`, and similarly for `_⊢_≡_∷Level` (the
 constructor `level` takes terms to levels).
-</a><a id="6318" class="Markup">```agda
-</a><a id="6326" class="Keyword">import</a> <a id="6333" href="Definition.Typed.html" class="Module">Definition.Typed</a>
-  <a id="6352" class="Keyword">using</a>
-    <a id="6362" class="Symbol">(</a><a id="6363" href="Definition.Typed.html#2446" class="Function Operator">⊢_</a><a id="6365" class="Symbol">;</a> <a id="6367" href="Definition.Typed.html#2535" class="Datatype Operator">_⊢_</a><a id="6370" class="Symbol">;</a> <a id="6372" href="Definition.Typed.html#7047" class="Datatype Operator">_⊢_≡_</a><a id="6377" class="Symbol">;</a> <a id="6379" href="Definition.Typed.html#2999" class="Datatype Operator">_⊢_∷_</a><a id="6384" class="Symbol">;</a> <a id="6386" href="Definition.Typed.html#7841" class="Datatype Operator">_⊢_≡_∷_</a><a id="6393" class="Symbol">;</a> <a id="6395" href="Definition.Typed.html#1180" class="Datatype Operator">_∷_∈_</a><a id="6400" class="Symbol">;</a> <a id="6402" href="Definition.Typed.html#24593" class="Function Operator">_⊢_≤_∷Level</a><a id="6413" class="Symbol">;</a>
-     <a id="6420" href="Definition.Typed.html#6788" class="Datatype Operator">_⊢_∷Level</a><a id="6429" class="Symbol">;</a> <a id="6431" href="Definition.Typed.html#17348" class="Datatype Operator">_⊢_≡_∷Level</a><a id="6442" class="Symbol">)</a>
-<a id="6444" class="Markup">```
-</a><a id="6448" class="Background">
+</a><a id="6295" class="Markup">```agda
+</a><a id="6303" class="Keyword">import</a> <a id="6310" href="Definition.Typed.html" class="Module">Definition.Typed</a>
+  <a id="6329" class="Keyword">using</a>
+    <a id="6339" class="Symbol">(</a><a id="6340" href="Definition.Typed.html#2446" class="Function Operator">⊢_</a><a id="6342" class="Symbol">;</a> <a id="6344" href="Definition.Typed.html#2535" class="Datatype Operator">_⊢_</a><a id="6347" class="Symbol">;</a> <a id="6349" href="Definition.Typed.html#7047" class="Datatype Operator">_⊢_≡_</a><a id="6354" class="Symbol">;</a> <a id="6356" href="Definition.Typed.html#2999" class="Datatype Operator">_⊢_∷_</a><a id="6361" class="Symbol">;</a> <a id="6363" href="Definition.Typed.html#7841" class="Datatype Operator">_⊢_≡_∷_</a><a id="6370" class="Symbol">;</a> <a id="6372" href="Definition.Typed.html#1180" class="Datatype Operator">_∷_∈_</a><a id="6377" class="Symbol">;</a> <a id="6379" href="Definition.Typed.html#24593" class="Function Operator">_⊢_≤_∷Level</a><a id="6390" class="Symbol">;</a>
+     <a id="6397" href="Definition.Typed.html#6788" class="Datatype Operator">_⊢_∷Level</a><a id="6406" class="Symbol">;</a> <a id="6408" href="Definition.Typed.html#17348" class="Datatype Operator">_⊢_≡_∷Level</a><a id="6419" class="Symbol">)</a>
+<a id="6421" class="Markup">```
+</a><a id="6425" class="Background">
 The ordering of levels induced by `_supᵘ_` is reflexive, transitive and
 antisymmetric, and the right identity rule can be derived.
-</a><a id="6580" class="Markup">```agda
-</a><a id="6588" class="Keyword">import</a> <a id="6595" href="Definition.Typed.Properties.Admissible.Level.html" class="Module">Definition.Typed.Properties.Admissible.Level</a>
-  <a id="6642" class="Keyword">using</a> <a id="6648" class="Symbol">(</a><a id="6649" href="Definition.Typed.Properties.Admissible.Level.html#23834" class="Function">⊢≤-refl</a><a id="6656" class="Symbol">;</a> <a id="6658" href="Definition.Typed.Properties.Admissible.Level.html#24051" class="Function">⊢≤-trans</a><a id="6666" class="Symbol">;</a> <a id="6668" href="Definition.Typed.Properties.Admissible.Level.html#24321" class="Function">⊢≤-antisymmetric</a><a id="6684" class="Symbol">;</a> <a id="6686" href="Definition.Typed.Properties.Admissible.Level.html#5343" class="Function">supᵘ-zeroʳⱼ</a><a id="6697" class="Symbol">)</a>
-<a id="6699" class="Markup">```
-</a><a id="6703" class="Background">
+</a><a id="6557" class="Markup">```agda
+</a><a id="6565" class="Keyword">import</a> <a id="6572" href="Definition.Typed.Properties.Admissible.Level.html" class="Module">Definition.Typed.Properties.Admissible.Level</a>
+  <a id="6619" class="Keyword">using</a> <a id="6625" class="Symbol">(</a><a id="6626" href="Definition.Typed.Properties.Admissible.Level.html#23748" class="Function">⊢≤-refl</a><a id="6633" class="Symbol">;</a> <a id="6635" href="Definition.Typed.Properties.Admissible.Level.html#23963" class="Function">⊢≤-trans</a><a id="6643" class="Symbol">;</a> <a id="6645" href="Definition.Typed.Properties.Admissible.Level.html#24231" class="Function">⊢≤-antisymmetric</a><a id="6661" class="Symbol">;</a> <a id="6663" href="Definition.Typed.Properties.Admissible.Level.html#5290" class="Function">supᵘ-zeroʳⱼ</a><a id="6674" class="Symbol">)</a>
+<a id="6676" class="Markup">```
+</a><a id="6680" class="Background">
 There is also an alternative definition of ordering of levels that
 works for ω, ω + 1 and so on, and that also works if the `Level` type
 is disallowed.
-</a><a id="6856" class="Markup">```agda
-</a><a id="6864" class="Keyword">import</a> <a id="6871" href="Definition.Typed.html" class="Module">Definition.Typed</a>
-  <a id="6890" class="Keyword">using</a> <a id="6896" class="Symbol">(</a><a id="6897" href="Definition.Typed.html#24818" class="Function Operator">_⊢_≤ₗ_∷Level</a><a id="6909" class="Symbol">)</a>
-<a id="6911" class="Markup">```
-</a><a id="6915" class="Background">
+</a><a id="6833" class="Markup">```agda
+</a><a id="6841" class="Keyword">import</a> <a id="6848" href="Definition.Typed.html" class="Module">Definition.Typed</a>
+  <a id="6867" class="Keyword">using</a> <a id="6873" class="Symbol">(</a><a id="6874" href="Definition.Typed.html#24818" class="Function Operator">_⊢_≤ₗ_∷Level</a><a id="6886" class="Symbol">)</a>
+<a id="6888" class="Markup">```
+</a><a id="6892" class="Background">
 Typing rules for `Lift` that use either of the two ordering relations
 for levels are admissible.
-</a><a id="7013" class="Markup">```agda
-</a><a id="7021" class="Keyword">import</a> <a id="7028" href="Definition.Typed.Properties.Admissible.Lift.html" class="Module">Definition.Typed.Properties.Admissible.Lift</a>
-  <a id="7074" class="Keyword">using</a> <a id="7080" class="Symbol">(</a><a id="7081" href="Definition.Typed.Properties.Admissible.Lift.html#1947" class="Function">Liftⱼ≤</a><a id="7087" class="Symbol">;</a> <a id="7089" href="Definition.Typed.Properties.Admissible.Lift.html#3247" class="Function">⊢Lift-≤ₗ</a><a id="7097" class="Symbol">)</a>
-<a id="7099" class="Markup">```
-</a><a id="7103" class="Background">
+</a><a id="6990" class="Markup">```agda
+</a><a id="6998" class="Keyword">import</a> <a id="7005" href="Definition.Typed.Properties.Admissible.Lift.html" class="Module">Definition.Typed.Properties.Admissible.Lift</a>
+  <a id="7051" class="Keyword">using</a> <a id="7057" class="Symbol">(</a><a id="7058" href="Definition.Typed.Properties.Admissible.Lift.html#1946" class="Function">Liftⱼ≤</a><a id="7064" class="Symbol">;</a> <a id="7066" href="Definition.Typed.Properties.Admissible.Lift.html#3239" class="Function">⊢Lift-≤ₗ</a><a id="7074" class="Symbol">)</a>
+<a id="7076" class="Markup">```
+</a><a id="7080" class="Background">
 A certain type of a certain universe-polymorphic identity function
 does not live in any universe, and &quot;Π U₀ U₁&quot; does not have a type,
 given certain assumptions. However, a certain universe-polymorphic
 identity function expressed using lifting has a type that has a type,
 assuming that Omega-plus-allowed is inhabited (and some other
 assumptions).
-</a><a id="7451" class="Markup">```agda
-</a><a id="7459" class="Keyword">import</a> <a id="7466" href="Definition.Typed.Consequences.Universe.html" class="Module">Definition.Typed.Consequences.Universe</a>
-  <a id="7507" class="Keyword">using</a> <a id="7513" class="Symbol">(</a><a id="7514" href="Definition.Typed.Consequences.Universe.html#2289" class="Function">a-type-of-id-does-not-have-a-type</a><a id="7547" class="Symbol">;</a> <a id="7549" href="Definition.Typed.Consequences.Universe.html#4402" class="Function">type-without-type</a><a id="7566" class="Symbol">)</a>
-<a id="7568" class="Keyword">import</a> <a id="7575" href="Definition.Typed.Properties.Admissible.Pi.html" class="Module">Definition.Typed.Properties.Admissible.Pi</a>
-  <a id="7619" class="Keyword">using</a> <a id="7625" class="Symbol">(</a><a id="7626" href="Definition.Typed.Properties.Admissible.Pi.html#15193" class="Function">a-type-of-id-has-a-type</a><a id="7649" class="Symbol">)</a>
-<a id="7651" class="Markup">```
-</a><a id="7655" class="Background">
+</a><a id="7428" class="Markup">```agda
+</a><a id="7436" class="Keyword">import</a> <a id="7443" href="Definition.Typed.Consequences.Universe.html" class="Module">Definition.Typed.Consequences.Universe</a>
+  <a id="7484" class="Keyword">using</a> <a id="7490" class="Symbol">(</a><a id="7491" href="Definition.Typed.Consequences.Universe.html#2289" class="Function">a-type-of-id-does-not-have-a-type</a><a id="7524" class="Symbol">;</a> <a id="7526" href="Definition.Typed.Consequences.Universe.html#4398" class="Function">type-without-type</a><a id="7543" class="Symbol">)</a>
+<a id="7545" class="Keyword">import</a> <a id="7552" href="Definition.Typed.Properties.Admissible.Pi.html" class="Module">Definition.Typed.Properties.Admissible.Pi</a>
+  <a id="7596" class="Keyword">using</a> <a id="7602" class="Symbol">(</a><a id="7603" href="Definition.Typed.Properties.Admissible.Pi.html#15133" class="Function">a-type-of-id-has-a-type</a><a id="7626" class="Symbol">)</a>
+<a id="7628" class="Markup">```
+</a><a id="7632" class="Background">
 Admissible typing rules for heterogeneous Π- and Σ-types.
-</a><a id="7714" class="Markup">```agda
-</a><a id="7722" class="Keyword">import</a> <a id="7729" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html" class="Module">Definition.Typed.Properties.Admissible.Pi-Sigma</a>
-  <a id="7779" class="Keyword">using</a> <a id="7785" class="Symbol">(</a><a id="7786" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html#3671" class="Function">⊢ΠΣʰ</a><a id="7790" class="Symbol">;</a> <a id="7792" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html#2856" class="Function">ΠΣʰ-cong-⊢</a><a id="7802" class="Symbol">;</a> <a id="7804" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html#5146" class="Function">⊢ΠΣʰ∷</a><a id="7809" class="Symbol">;</a> <a id="7811" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html#4649" class="Function">ΠΣʰ-cong-⊢∷</a><a id="7822" class="Symbol">)</a>
-<a id="7824" class="Keyword">import</a> <a id="7831" href="Definition.Typed.Properties.Admissible.Pi.html" class="Module">Definition.Typed.Properties.Admissible.Pi</a>
-  <a id="7875" class="Keyword">using</a> <a id="7881" class="Symbol">(</a><a id="7882" href="Definition.Typed.Properties.Admissible.Pi.html#11137" class="Function">⊢lamʰ</a><a id="7887" class="Symbol">;</a> <a id="7889" href="Definition.Typed.Properties.Admissible.Pi.html#11850" class="Function">⊢∘ʰ</a><a id="7892" class="Symbol">;</a> <a id="7894" href="Definition.Typed.Properties.Admissible.Pi.html#11452" class="Function">app-congʰ</a><a id="7903" class="Symbol">;</a> <a id="7905" href="Definition.Typed.Properties.Admissible.Pi.html#12088" class="Function">β-redʰ</a><a id="7911" class="Symbol">;</a> <a id="7913" href="Definition.Typed.Properties.Admissible.Pi.html#13073" class="Function">η-eqʰ</a><a id="7918" class="Symbol">)</a>
-<a id="7920" class="Keyword">import</a> <a id="7927" href="Definition.Typed.Properties.Admissible.Sigma.html" class="Module">Definition.Typed.Properties.Admissible.Sigma</a>
-  <a id="7974" class="Keyword">using</a>
-    <a id="7984" class="Symbol">(</a><a id="7985" href="Definition.Typed.Properties.Admissible.Sigma.html#45299" class="Function">⊢prodʰ</a><a id="7991" class="Symbol">;</a> <a id="7993" href="Definition.Typed.Properties.Admissible.Sigma.html#44686" class="Function">prodʰ-cong</a><a id="8003" class="Symbol">;</a>
-     <a id="8010" href="Definition.Typed.Properties.Admissible.Sigma.html#45814" class="Function">⊢fstʰ</a><a id="8015" class="Symbol">;</a> <a id="8017" href="Definition.Typed.Properties.Admissible.Sigma.html#46248" class="Function">⊢sndʰ</a><a id="8022" class="Symbol">;</a> <a id="8024" href="Definition.Typed.Properties.Admissible.Sigma.html#45640" class="Function">fstʰ-cong</a><a id="8033" class="Symbol">;</a> <a id="8035" href="Definition.Typed.Properties.Admissible.Sigma.html#46008" class="Function">sndʰ-cong</a><a id="8044" class="Symbol">;</a> <a id="8046" href="Definition.Typed.Properties.Admissible.Sigma.html#46438" class="Function">Σʰ-β₁</a><a id="8051" class="Symbol">;</a> <a id="8053" href="Definition.Typed.Properties.Admissible.Sigma.html#47266" class="Function">Σʰ-β₂</a><a id="8058" class="Symbol">;</a> <a id="8060" href="Definition.Typed.Properties.Admissible.Sigma.html#48234" class="Function">Σʰ-η</a><a id="8064" class="Symbol">;</a>
-     <a id="8071" href="Definition.Typed.Properties.Admissible.Sigma.html#55871" class="Function">⊢prodrecʰ⟨⟩</a><a id="8082" class="Symbol">;</a> <a id="8084" href="Definition.Typed.Properties.Admissible.Sigma.html#54991" class="Function">prodrecʰ⟨⟩-cong</a><a id="8099" class="Symbol">;</a> <a id="8101" href="Definition.Typed.Properties.Admissible.Sigma.html#56240" class="Function">prodrecʰ⟨⟩-β</a><a id="8113" class="Symbol">)</a>
-<a id="8115" class="Markup">```
-</a><a id="8119" class="Background">
+</a><a id="7691" class="Markup">```agda
+</a><a id="7699" class="Keyword">import</a> <a id="7706" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html" class="Module">Definition.Typed.Properties.Admissible.Pi-Sigma</a>
+  <a id="7756" class="Keyword">using</a> <a id="7762" class="Symbol">(</a><a id="7763" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html#3653" class="Function">⊢ΠΣʰ</a><a id="7767" class="Symbol">;</a> <a id="7769" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html#2855" class="Function">ΠΣʰ-cong-⊢</a><a id="7779" class="Symbol">;</a> <a id="7781" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html#5112" class="Function">⊢ΠΣʰ∷</a><a id="7786" class="Symbol">;</a> <a id="7788" href="Definition.Typed.Properties.Admissible.Pi-Sigma.html#4627" class="Function">ΠΣʰ-cong-⊢∷</a><a id="7799" class="Symbol">)</a>
+<a id="7801" class="Keyword">import</a> <a id="7808" href="Definition.Typed.Properties.Admissible.Pi.html" class="Module">Definition.Typed.Properties.Admissible.Pi</a>
+  <a id="7852" class="Keyword">using</a> <a id="7858" class="Symbol">(</a><a id="7859" href="Definition.Typed.Properties.Admissible.Pi.html#11123" class="Function">⊢lamʰ</a><a id="7864" class="Symbol">;</a> <a id="7866" href="Definition.Typed.Properties.Admissible.Pi.html#11823" class="Function">⊢∘ʰ</a><a id="7869" class="Symbol">;</a> <a id="7871" href="Definition.Typed.Properties.Admissible.Pi.html#11429" class="Function">app-congʰ</a><a id="7880" class="Symbol">;</a> <a id="7882" href="Definition.Typed.Properties.Admissible.Pi.html#12059" class="Function">β-redʰ</a><a id="7888" class="Symbol">;</a> <a id="7890" href="Definition.Typed.Properties.Admissible.Pi.html#13030" class="Function">η-eqʰ</a><a id="7895" class="Symbol">)</a>
+<a id="7897" class="Keyword">import</a> <a id="7904" href="Definition.Typed.Properties.Admissible.Sigma.html" class="Module">Definition.Typed.Properties.Admissible.Sigma</a>
+  <a id="7951" class="Keyword">using</a>
+    <a id="7961" class="Symbol">(</a><a id="7962" href="Definition.Typed.Properties.Admissible.Sigma.html#45191" class="Function">⊢prodʰ</a><a id="7968" class="Symbol">;</a> <a id="7970" href="Definition.Typed.Properties.Admissible.Sigma.html#44585" class="Function">prodʰ-cong</a><a id="7980" class="Symbol">;</a>
+     <a id="7987" href="Definition.Typed.Properties.Admissible.Sigma.html#45704" class="Function">⊢fstʰ</a><a id="7992" class="Symbol">;</a> <a id="7994" href="Definition.Typed.Properties.Admissible.Sigma.html#46136" class="Function">⊢sndʰ</a><a id="7999" class="Symbol">;</a> <a id="8001" href="Definition.Typed.Properties.Admissible.Sigma.html#45530" class="Function">fstʰ-cong</a><a id="8010" class="Symbol">;</a> <a id="8012" href="Definition.Typed.Properties.Admissible.Sigma.html#45896" class="Function">sndʰ-cong</a><a id="8021" class="Symbol">;</a> <a id="8023" href="Definition.Typed.Properties.Admissible.Sigma.html#46324" class="Function">Σʰ-β₁</a><a id="8028" class="Symbol">;</a> <a id="8030" href="Definition.Typed.Properties.Admissible.Sigma.html#47147" class="Function">Σʰ-β₂</a><a id="8035" class="Symbol">;</a> <a id="8037" href="Definition.Typed.Properties.Admissible.Sigma.html#48106" class="Function">Σʰ-η</a><a id="8041" class="Symbol">;</a>
+     <a id="8048" href="Definition.Typed.Properties.Admissible.Sigma.html#55678" class="Function">⊢prodrecʰ⟨⟩</a><a id="8059" class="Symbol">;</a> <a id="8061" href="Definition.Typed.Properties.Admissible.Sigma.html#54810" class="Function">prodrecʰ⟨⟩-cong</a><a id="8076" class="Symbol">;</a> <a id="8078" href="Definition.Typed.Properties.Admissible.Sigma.html#56045" class="Function">prodrecʰ⟨⟩-β</a><a id="8090" class="Symbol">)</a>
+<a id="8092" class="Markup">```
+</a><a id="8096" class="Background">
 The type of natural numbers does not have type `U (sucᵘ l)`.
-</a><a id="8181" class="Markup">```agda
-</a><a id="8189" class="Keyword">import</a> <a id="8196" href="Definition.Typed.Consequences.Inequality.html" class="Module">Definition.Typed.Consequences.Inequality</a>
-  <a id="8239" class="Keyword">using</a> <a id="8245" class="Symbol">(</a><a id="8246" href="Definition.Typed.Consequences.Inequality.html#26657" class="Function">¬ℕ∷U-sucᵘ</a><a id="8255" class="Symbol">)</a>
-<a id="8257" class="Markup">```
-</a><a id="8261" class="Background">
+</a><a id="8158" class="Markup">```agda
+</a><a id="8166" class="Keyword">import</a> <a id="8173" href="Definition.Typed.Consequences.Inequality.html" class="Module">Definition.Typed.Consequences.Inequality</a>
+  <a id="8216" class="Keyword">using</a> <a id="8222" class="Symbol">(</a><a id="8223" href="Definition.Typed.Consequences.Inequality.html#26657" class="Function">¬ℕ∷U-sucᵘ</a><a id="8232" class="Symbol">)</a>
+<a id="8234" class="Markup">```
+</a><a id="8238" class="Background">
 #### 2.3: Reduction Rules
 
 Single-step reduction and reduction for terms and types.
-</a><a id="8346" class="Markup">```agda
-</a><a id="8354" class="Keyword">import</a> <a id="8361" href="Definition.Typed.html" class="Module">Definition.Typed</a>
-  <a id="8380" class="Keyword">using</a> <a id="8386" class="Symbol">(</a><a id="8387" href="Definition.Typed.html#17636" class="Datatype Operator">_⊢_⇒_∷_</a><a id="8394" class="Symbol">;</a> <a id="8396" href="Definition.Typed.html#23868" class="Datatype Operator">_⊢_⇒*_∷_</a><a id="8404" class="Symbol">;</a> <a id="8406" href="Definition.Typed.html#23687" class="Datatype Operator">_⊢_⇒_</a><a id="8411" class="Symbol">;</a> <a id="8413" href="Definition.Typed.html#24125" class="Datatype Operator">_⊢_⇒*_</a><a id="8419" class="Symbol">)</a>
-<a id="8421" class="Markup">```
-</a><a id="8425" class="Background">
+</a><a id="8323" class="Markup">```agda
+</a><a id="8331" class="Keyword">import</a> <a id="8338" href="Definition.Typed.html" class="Module">Definition.Typed</a>
+  <a id="8357" class="Keyword">using</a> <a id="8363" class="Symbol">(</a><a id="8364" href="Definition.Typed.html#17636" class="Datatype Operator">_⊢_⇒_∷_</a><a id="8371" class="Symbol">;</a> <a id="8373" href="Definition.Typed.html#23868" class="Datatype Operator">_⊢_⇒*_∷_</a><a id="8381" class="Symbol">;</a> <a id="8383" href="Definition.Typed.html#23687" class="Datatype Operator">_⊢_⇒_</a><a id="8388" class="Symbol">;</a> <a id="8390" href="Definition.Typed.html#24125" class="Datatype Operator">_⊢_⇒*_</a><a id="8396" class="Symbol">)</a>
+<a id="8398" class="Markup">```
+</a><a id="8402" class="Background">
 Neutral terms and WHNFs. The types `Neutral` and `Neutralᵃ` are not
 defined in the same way as in the paper: there is a single, inductive
 definition of neutral terms, and a neutral term is atomic neutral if
 it is not an application of `_supᵘ_`.
-</a><a id="8671" class="Markup">```agda
-</a><a id="8679" class="Keyword">import</a> <a id="8686" href="Definition.Untyped.Neutral.html" class="Module">Definition.Untyped.Neutral</a>
-  <a id="8715" class="Keyword">using</a> <a id="8721" class="Symbol">(</a><a id="8722" href="Definition.Untyped.Neutral.html#1271" class="Datatype">Neutral</a><a id="8729" class="Symbol">)</a>
-<a id="8731" class="Keyword">import</a> <a id="8738" href="Definition.Untyped.Neutral.Atomic.html" class="Module">Definition.Untyped.Neutral.Atomic</a>
-  <a id="8774" class="Keyword">using</a> <a id="8780" class="Symbol">(</a><a id="8781" href="Definition.Untyped.Neutral.Atomic.html#1283" class="Datatype">Neutralᵃ</a><a id="8789" class="Symbol">)</a>
-<a id="8791" class="Keyword">import</a> <a id="8798" href="Definition.Untyped.Whnf.html" class="Module">Definition.Untyped.Whnf</a>
-  <a id="8824" class="Keyword">using</a> <a id="8830" class="Symbol">(</a><a id="8831" href="Definition.Untyped.Whnf.html#1138" class="Datatype">Whnf</a><a id="8835" class="Symbol">)</a>
-<a id="8837" class="Markup">```
-</a><a id="8841" class="Background">
+</a><a id="8648" class="Markup">```agda
+</a><a id="8656" class="Keyword">import</a> <a id="8663" href="Definition.Untyped.Neutral.html" class="Module">Definition.Untyped.Neutral</a>
+  <a id="8692" class="Keyword">using</a> <a id="8698" class="Symbol">(</a><a id="8699" href="Definition.Untyped.Neutral.html#1271" class="Datatype">Neutral</a><a id="8706" class="Symbol">)</a>
+<a id="8708" class="Keyword">import</a> <a id="8715" href="Definition.Untyped.Neutral.Atomic.html" class="Module">Definition.Untyped.Neutral.Atomic</a>
+  <a id="8751" class="Keyword">using</a> <a id="8757" class="Symbol">(</a><a id="8758" href="Definition.Untyped.Neutral.Atomic.html#1283" class="Datatype">Neutralᵃ</a><a id="8766" class="Symbol">)</a>
+<a id="8768" class="Keyword">import</a> <a id="8775" href="Definition.Untyped.Whnf.html" class="Module">Definition.Untyped.Whnf</a>
+  <a id="8801" class="Keyword">using</a> <a id="8807" class="Symbol">(</a><a id="8808" href="Definition.Untyped.Whnf.html#1138" class="Datatype">Whnf</a><a id="8812" class="Symbol">)</a>
+<a id="8814" class="Markup">```
+</a><a id="8818" class="Background">
 Lemma 2.1: Well-formedness.
-</a><a id="8870" class="Markup">```agda
-</a><a id="8878" class="Keyword">import</a> <a id="8885" href="Definition.Typed.Properties.html" class="Module">Definition.Typed.Properties</a>
-  <a id="8915" class="Keyword">using</a> <a id="8921" class="Symbol">(</a><a id="8922" href="Definition.Typed.Properties.Well-formed.html#13999" class="Function">wf</a><a id="8924" class="Symbol">;</a> <a id="8926" href="Definition.Typed.Properties.Well-formed.html#14419" class="Function">wfEq</a><a id="8930" class="Symbol">;</a> <a id="8932" href="Definition.Typed.Properties.Well-formed.html#14121" class="Function">wfTerm</a><a id="8938" class="Symbol">;</a> <a id="8940" href="Definition.Typed.Properties.Well-formed.html#14566" class="Function">wfEqTerm</a><a id="8948" class="Symbol">)</a>
-<a id="8950" class="Keyword">import</a> <a id="8957" href="Definition.Typed.Well-formed.html" class="Module">Definition.Typed.Well-formed</a>
-  <a id="8988" class="Keyword">using</a> <a id="8994" class="Symbol">(</a><a id="8995" href="Definition.Typed.Well-formed.html#4458" class="Function">wf-⊢≡</a><a id="9000" class="Symbol">;</a> <a id="9002" href="Definition.Typed.Well-formed.html#2608" class="Function">wf-⊢∷</a><a id="9007" class="Symbol">;</a> <a id="9009" href="Definition.Typed.Well-formed.html#5527" class="Function">wf-⊢≡∷</a><a id="9015" class="Symbol">)</a>
-<a id="9017" class="Keyword">import</a> <a id="9024" href="Definition.Typed.Syntactic.html" class="Module">Definition.Typed.Syntactic</a>
-  <a id="9053" class="Keyword">using</a> <a id="9059" class="Symbol">(</a><a id="9060" href="Definition.Typed.Syntactic.html#868" class="Function">syntacticRed</a><a id="9072" class="Symbol">;</a> <a id="9074" href="Definition.Typed.Syntactic.html#1005" class="Function">syntacticRedTerm</a><a id="9090" class="Symbol">)</a>
-<a id="9092" class="Markup">```
-</a><a id="9096" class="Background">
+</a><a id="8847" class="Markup">```agda
+</a><a id="8855" class="Keyword">import</a> <a id="8862" href="Definition.Typed.Properties.html" class="Module">Definition.Typed.Properties</a>
+  <a id="8892" class="Keyword">using</a> <a id="8898" class="Symbol">(</a><a id="8899" href="Definition.Typed.Properties.Well-formed.html#13797" class="Function">wf</a><a id="8901" class="Symbol">)</a>
+<a id="8903" class="Keyword">import</a> <a id="8910" href="Definition.Typed.Well-formed.html" class="Module">Definition.Typed.Well-formed</a>
+  <a id="8941" class="Keyword">using</a> <a id="8947" class="Symbol">(</a><a id="8948" href="Definition.Typed.Well-formed.html#20169" class="Function">wf-⊢</a><a id="8952" class="Symbol">)</a>
+<a id="8954" class="Keyword">import</a> <a id="8961" href="Definition.Typed.Syntactic.html" class="Module">Definition.Typed.Syntactic</a>
+  <a id="8990" class="Keyword">using</a> <a id="8996" class="Symbol">(</a><a id="8997" href="Definition.Typed.Syntactic.html#700" class="Function">syntacticRed</a><a id="9009" class="Symbol">;</a> <a id="9011" href="Definition.Typed.Syntactic.html#830" class="Function">syntacticRedTerm</a><a id="9027" class="Symbol">)</a>
+<a id="9029" class="Markup">```
+</a><a id="9033" class="Background">
 ### 3: A Logical Relation
 
 External universe levels (natural numbers, ω, ω + 1, and so on, or
 ω · 2).
-</a><a id="9199" class="Markup">```agda
-</a><a id="9207" class="Keyword">import</a> <a id="9214" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
-  <a id="9251" class="Keyword">using</a> <a id="9257" class="Symbol">(</a><a id="9258" href="Definition.Untyped.NotParametrised.html#4705" class="Datatype">Universe-level</a><a id="9272" class="Symbol">)</a>
-<a id="9274" class="Markup">```
-</a><a id="9278" class="Background">
+</a><a id="9136" class="Markup">```agda
+</a><a id="9144" class="Keyword">import</a> <a id="9151" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
+  <a id="9188" class="Keyword">using</a> <a id="9194" class="Symbol">(</a><a id="9195" href="Definition.Untyped.NotParametrised.html#4705" class="Datatype">Universe-level</a><a id="9209" class="Symbol">)</a>
+<a id="9211" class="Markup">```
+</a><a id="9215" class="Background">
 The generic equality relations. Compared to the paper we include an
 extra relation for levels, to support disallowing `Level` entirely and
 to support ω, ω + 1, and so on. We also include the type
 `Var-included`, which is used to handle equality reflection: in the
 absence of equality reflection one can instantiate this type with
 something inhabited.
-</a><a id="9630" class="Markup">```agda
-</a><a id="9638" class="Keyword">open</a> <a id="9643" class="Keyword">import</a> <a id="9650" href="Definition.Typed.EqualityRelation.html" class="Module">Definition.Typed.EqualityRelation</a>
-  <a id="9686" class="Keyword">using</a> <a id="9692" class="Symbol">(</a><a id="9693" href="Definition.Typed.EqualityRelation.html#16308" class="Record">EqRelSet</a><a id="9701" class="Symbol">)</a>
-<a id="9703" class="Keyword">open</a> <a id="9708" href="Definition.Typed.EqualityRelation.html#16308" class="Module">EqRelSet</a>
-  <a id="9719" class="Keyword">using</a> <a id="9725" class="Symbol">(</a><a id="9726" href="Definition.Typed.EqualityRelation.html#16834" class="Field">Var-included</a><a id="9738" class="Symbol">)</a>
-<a id="9740" class="Markup">```
-</a><a id="9744" class="Background">
+</a><a id="9567" class="Markup">```agda
+</a><a id="9575" class="Keyword">open</a> <a id="9580" class="Keyword">import</a> <a id="9587" href="Definition.Typed.EqualityRelation.html" class="Module">Definition.Typed.EqualityRelation</a>
+  <a id="9623" class="Keyword">using</a> <a id="9629" class="Symbol">(</a><a id="9630" href="Definition.Typed.EqualityRelation.html#16300" class="Record">EqRelSet</a><a id="9638" class="Symbol">)</a>
+<a id="9640" class="Keyword">open</a> <a id="9645" href="Definition.Typed.EqualityRelation.html#16300" class="Module">EqRelSet</a>
+  <a id="9656" class="Keyword">using</a> <a id="9662" class="Symbol">(</a><a id="9663" href="Definition.Typed.EqualityRelation.html#16826" class="Field">Var-included</a><a id="9675" class="Symbol">)</a>
+<a id="9677" class="Markup">```
+</a><a id="9681" class="Background">
 The generic equality relation instance for judgemental equality. Note
 that `Var-included` is instantiated to `No-equality-reflection`.
-</a><a id="9880" class="Markup">```agda
-</a><a id="9888" class="Keyword">import</a> <a id="9895" href="Definition.Typed.EqRelInstance.html" class="Module">Definition.Typed.EqRelInstance</a>
-  <a id="9928" class="Keyword">using</a> <a id="9934" class="Symbol">(</a><a id="9935" href="Definition.Typed.EqRelInstance.html#4228" class="Function">eqRelInstance</a><a id="9948" class="Symbol">)</a>
-<a id="9950" class="Markup">```
-</a><a id="9954" class="Background">
+</a><a id="9817" class="Markup">```agda
+</a><a id="9825" class="Keyword">import</a> <a id="9832" href="Definition.Typed.EqRelInstance.html" class="Module">Definition.Typed.EqRelInstance</a>
+  <a id="9865" class="Keyword">using</a> <a id="9871" class="Symbol">(</a><a id="9872" href="Definition.Typed.EqRelInstance.html#4193" class="Function">eqRelInstance</a><a id="9885" class="Symbol">)</a>
+<a id="9887" class="Markup">```
+</a><a id="9891" class="Background">
 #### 3.1: Reducible Levels and Neutrals
 
 We use the notations `Γ ⊩neNf t ∷ A` and `Γ ⊩neNf t ≡ u ∷ A` instead
@@ -293,282 +292,282 @@ of Γ ⊩neNf t : A and Γ ⊩neNf t = u : A, `Γ ⊩Level t ∷Lev
 instead of Γ ⊩Lvlₙ t and Γ ⊩Lvlₙ t = u. The code sometimes uses
 `Γ ⊩neNf t ≡ t ∷ A` instead of `Γ ⊩neNf t ∷ A`: these definitions are
 logically equivalent.
-</a><a id="10483" class="Markup">```agda
-</a><a id="10491" class="Keyword">import</a> <a id="10498" href="Definition.LogicalRelation.Unary.html" class="Module">Definition.LogicalRelation.Unary</a>
-  <a id="10533" class="Keyword">using</a> <a id="10539" class="Symbol">(</a><a id="10540" href="Definition.LogicalRelation.Unary.html#1817" class="Record Operator">_⊩neNf_∷_</a><a id="10549" class="Symbol">;</a> <a id="10551" href="Definition.LogicalRelation.Unary.html#2091" class="Function">⊩neNf∷⇔⊩neNf≡∷</a><a id="10565" class="Symbol">)</a>
-<a id="10567" class="Keyword">import</a> <a id="10574" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
-  <a id="10603" class="Keyword">using</a>
-    <a id="10613" class="Symbol">(</a><a id="10614" href="Definition.LogicalRelation.html#3531" class="Record Operator">_⊩neNf_≡_∷_</a><a id="10625" class="Symbol">;</a>
-     <a id="10632" href="Definition.LogicalRelation.html#4411" class="Datatype Operator">_⊩Level_∷Level</a><a id="10646" class="Symbol">;</a> <a id="10648" href="Definition.LogicalRelation.html#5480" class="Datatype Operator">_⊩Level_≡_∷Level</a><a id="10664" class="Symbol">;</a>
-     <a id="10671" href="Definition.LogicalRelation.html#4743" class="Datatype">Level-prop</a><a id="10681" class="Symbol">;</a> <a id="10683" href="Definition.LogicalRelation.html#5933" class="Datatype">[Level]-prop</a><a id="10695" class="Symbol">;</a>
-     <a id="10702" href="Definition.LogicalRelation.html#5043" class="Datatype">neLevel-prop</a><a id="10714" class="Symbol">;</a> <a id="10716" href="Definition.LogicalRelation.html#6688" class="Datatype">[neLevel]-prop</a><a id="10730" class="Symbol">)</a>
-<a id="10732" class="Markup">```
-</a><a id="10736" class="Background">
+</a><a id="10420" class="Markup">```agda
+</a><a id="10428" class="Keyword">import</a> <a id="10435" href="Definition.LogicalRelation.Unary.html" class="Module">Definition.LogicalRelation.Unary</a>
+  <a id="10470" class="Keyword">using</a> <a id="10476" class="Symbol">(</a><a id="10477" href="Definition.LogicalRelation.Unary.html#1817" class="Record Operator">_⊩neNf_∷_</a><a id="10486" class="Symbol">;</a> <a id="10488" href="Definition.LogicalRelation.Unary.html#2091" class="Function">⊩neNf∷⇔⊩neNf≡∷</a><a id="10502" class="Symbol">)</a>
+<a id="10504" class="Keyword">import</a> <a id="10511" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
+  <a id="10540" class="Keyword">using</a>
+    <a id="10550" class="Symbol">(</a><a id="10551" href="Definition.LogicalRelation.html#3531" class="Record Operator">_⊩neNf_≡_∷_</a><a id="10562" class="Symbol">;</a>
+     <a id="10569" href="Definition.LogicalRelation.html#4411" class="Datatype Operator">_⊩Level_∷Level</a><a id="10583" class="Symbol">;</a> <a id="10585" href="Definition.LogicalRelation.html#5480" class="Datatype Operator">_⊩Level_≡_∷Level</a><a id="10601" class="Symbol">;</a>
+     <a id="10608" href="Definition.LogicalRelation.html#4743" class="Datatype">Level-prop</a><a id="10618" class="Symbol">;</a> <a id="10620" href="Definition.LogicalRelation.html#5933" class="Datatype">[Level]-prop</a><a id="10632" class="Symbol">;</a>
+     <a id="10639" href="Definition.LogicalRelation.html#5043" class="Datatype">neLevel-prop</a><a id="10651" class="Symbol">;</a> <a id="10653" href="Definition.LogicalRelation.html#6688" class="Datatype">[neLevel]-prop</a><a id="10667" class="Symbol">)</a>
+<a id="10669" class="Markup">```
+</a><a id="10673" class="Background">
 If `Level-prop Γ t` holds, then `t` is in WHNF, if `neLevel-prop Γ t`
 holds, then `t` is neutral, and similarly for the corresponding binary
 predicates.
-</a><a id="10890" class="Markup">```agda
-</a><a id="10898" class="Keyword">import</a> <a id="10905" href="Definition.LogicalRelation.Properties.Whnf.html" class="Module">Definition.LogicalRelation.Properties.Whnf</a>
-  <a id="10950" class="Keyword">using</a> <a id="10956" class="Symbol">(</a><a id="10957" href="Definition.LogicalRelation.Properties.Whnf.html#1246" class="Function">Level-prop→Whnf</a><a id="10972" class="Symbol">;</a> <a id="10974" href="Definition.LogicalRelation.Properties.Whnf.html#1006" class="Function">nelevel</a><a id="10981" class="Symbol">;</a> <a id="10983" href="Definition.LogicalRelation.Properties.Whnf.html#2408" class="Function">lsplit</a><a id="10989" class="Symbol">;</a> <a id="10991" href="Definition.LogicalRelation.Properties.Whnf.html#1512" class="Function">nelsplit</a><a id="10999" class="Symbol">)</a>
-<a id="11001" class="Markup">```
-</a><a id="11005" class="Background">
+</a><a id="10827" class="Markup">```agda
+</a><a id="10835" class="Keyword">import</a> <a id="10842" href="Definition.LogicalRelation.Properties.Whnf.html" class="Module">Definition.LogicalRelation.Properties.Whnf</a>
+  <a id="10887" class="Keyword">using</a> <a id="10893" class="Symbol">(</a><a id="10894" href="Definition.LogicalRelation.Properties.Whnf.html#1246" class="Function">Level-prop→Whnf</a><a id="10909" class="Symbol">;</a> <a id="10911" href="Definition.LogicalRelation.Properties.Whnf.html#1006" class="Function">nelevel</a><a id="10918" class="Symbol">;</a> <a id="10920" href="Definition.LogicalRelation.Properties.Whnf.html#2408" class="Function">lsplit</a><a id="10926" class="Symbol">;</a> <a id="10928" href="Definition.LogicalRelation.Properties.Whnf.html#1512" class="Function">nelsplit</a><a id="10936" class="Symbol">)</a>
+<a id="10938" class="Markup">```
+</a><a id="10942" class="Background">
 The natural number realising a reducible level t is written `↑ⁿ [t]`,
 where `[t]` is a witness that t is reducible. The corresponding
 external level is written `↑ᵘ [t]`.
-</a><a id="11176" class="Markup">```agda
-</a><a id="11184" class="Keyword">import</a> <a id="11191" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
-  <a id="11220" class="Keyword">using</a> <a id="11226" class="Symbol">(</a><a id="11227" href="Definition.LogicalRelation.html#8704" class="Function">↑ⁿ</a><a id="11229" class="Symbol">;</a> <a id="11231" href="Definition.LogicalRelation.html#9180" class="Function">↑ᵘ</a><a id="11233" class="Symbol">)</a>
-<a id="11235" class="Markup">```
-</a><a id="11239" class="Background">
+</a><a id="11113" class="Markup">```agda
+</a><a id="11121" class="Keyword">import</a> <a id="11128" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
+  <a id="11157" class="Keyword">using</a> <a id="11163" class="Symbol">(</a><a id="11164" href="Definition.LogicalRelation.html#8704" class="Function">↑ⁿ</a><a id="11166" class="Symbol">;</a> <a id="11168" href="Definition.LogicalRelation.html#9180" class="Function">↑ᵘ</a><a id="11170" class="Symbol">)</a>
+<a id="11172" class="Markup">```
+</a><a id="11176" class="Background">
 The natural number realiser satisfies the specification given in the
 paper (adjusted in response to some of the changes mentioned above),
 and any function that satisfies the specification is pointwise equal
 to the realiser.
-</a><a id="11464" class="Markup">```agda
-</a><a id="11472" class="Keyword">import</a> <a id="11479" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
-  <a id="11529" class="Keyword">using</a> <a id="11535" class="Symbol">(</a><a id="11536" href="Definition.LogicalRelation.Properties.Primitive.html#56510" class="Function">↑ⁿ-respects-⇒*</a><a id="11550" class="Symbol">;</a> <a id="11552" href="Definition.LogicalRelation.Properties.Primitive.html#39210" class="Function">↑ⁿ-zeroᵘ</a><a id="11560" class="Symbol">;</a> <a id="11562" href="Definition.LogicalRelation.Properties.Primitive.html#40199" class="Function">↑ⁿ-sucᵘ</a><a id="11569" class="Symbol">;</a> <a id="11571" href="Definition.LogicalRelation.Properties.Primitive.html#42520" class="Function">↑ⁿ-supᵘ′</a><a id="11579" class="Symbol">;</a> <a id="11581" href="Definition.LogicalRelation.Properties.Primitive.html#38618" class="Function">↑ⁿ-ne</a><a id="11586" class="Symbol">;</a> <a id="11588" href="Definition.LogicalRelation.Properties.Primitive.html#57997" class="Function">↑ⁿ-unique</a><a id="11597" class="Symbol">)</a>
-<a id="11599" class="Markup">```
-</a><a id="11603" class="Background">
+</a><a id="11401" class="Markup">```agda
+</a><a id="11409" class="Keyword">import</a> <a id="11416" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
+  <a id="11466" class="Keyword">using</a> <a id="11472" class="Symbol">(</a><a id="11473" href="Definition.LogicalRelation.Properties.Primitive.html#56401" class="Function">↑ⁿ-respects-⇒*</a><a id="11487" class="Symbol">;</a> <a id="11489" href="Definition.LogicalRelation.Properties.Primitive.html#39119" class="Function">↑ⁿ-zeroᵘ</a><a id="11497" class="Symbol">;</a> <a id="11499" href="Definition.LogicalRelation.Properties.Primitive.html#40108" class="Function">↑ⁿ-sucᵘ</a><a id="11506" class="Symbol">;</a> <a id="11508" href="Definition.LogicalRelation.Properties.Primitive.html#42429" class="Function">↑ⁿ-supᵘ′</a><a id="11516" class="Symbol">;</a> <a id="11518" href="Definition.LogicalRelation.Properties.Primitive.html#38527" class="Function">↑ⁿ-ne</a><a id="11523" class="Symbol">;</a> <a id="11525" href="Definition.LogicalRelation.Properties.Primitive.html#57888" class="Function">↑ⁿ-unique</a><a id="11534" class="Symbol">)</a>
+<a id="11536" class="Markup">```
+</a><a id="11540" class="Background">
 Irrelevance for `↑ⁿ_` and `↑ᵘ_`; `↑ⁿ_` and `↑ᵘ_` respect equality and
 ordering.
-</a><a id="11684" class="Markup">```agda
-</a><a id="11692" class="Keyword">import</a> <a id="11699" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
-  <a id="11749" class="Keyword">using</a>
-    <a id="11759" class="Symbol">(</a><a id="11760" href="Definition.LogicalRelation.Properties.Primitive.html#35393" class="Function">↑ⁿ-irrelevance</a><a id="11774" class="Symbol">;</a> <a id="11776" href="Definition.LogicalRelation.Properties.Primitive.html#37478" class="Function">↑ᵘ-irrelevance</a><a id="11790" class="Symbol">;</a>
-     <a id="11797" href="Definition.LogicalRelation.Properties.Primitive.html#46986" class="Function">↑ⁿ-cong</a><a id="11804" class="Symbol">;</a> <a id="11806" href="Definition.LogicalRelation.Properties.Primitive.html#55607" class="Function">↑ᵘ-cong</a><a id="11813" class="Symbol">;</a>
-     <a id="11820" href="Definition.LogicalRelation.Properties.Primitive.html#57016" class="Function">↑ⁿ-cong-≤</a><a id="11829" class="Symbol">;</a> <a id="11831" href="Definition.LogicalRelation.Properties.Primitive.html#57345" class="Function">↑ᵘ-cong-≤</a><a id="11840" class="Symbol">)</a>
-<a id="11842" class="Markup">```
-</a><a id="11846" class="Background">
+</a><a id="11621" class="Markup">```agda
+</a><a id="11629" class="Keyword">import</a> <a id="11636" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
+  <a id="11686" class="Keyword">using</a>
+    <a id="11696" class="Symbol">(</a><a id="11697" href="Definition.LogicalRelation.Properties.Primitive.html#35302" class="Function">↑ⁿ-irrelevance</a><a id="11711" class="Symbol">;</a> <a id="11713" href="Definition.LogicalRelation.Properties.Primitive.html#37387" class="Function">↑ᵘ-irrelevance</a><a id="11727" class="Symbol">;</a>
+     <a id="11734" href="Definition.LogicalRelation.Properties.Primitive.html#46883" class="Function">↑ⁿ-cong</a><a id="11741" class="Symbol">;</a> <a id="11743" href="Definition.LogicalRelation.Properties.Primitive.html#55502" class="Function">↑ᵘ-cong</a><a id="11750" class="Symbol">;</a>
+     <a id="11757" href="Definition.LogicalRelation.Properties.Primitive.html#56907" class="Function">↑ⁿ-cong-≤</a><a id="11766" class="Symbol">;</a> <a id="11768" href="Definition.LogicalRelation.Properties.Primitive.html#57236" class="Function">↑ᵘ-cong-≤</a><a id="11777" class="Symbol">)</a>
+<a id="11779" class="Markup">```
+</a><a id="11783" class="Background">
 The function `_supᵘ_` respects equality in its first argument.
-</a><a id="11910" class="Markup">```agda
-</a><a id="11918" class="Keyword">import</a> <a id="11925" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
-  <a id="11975" class="Keyword">using</a> <a id="11981" class="Symbol">(</a><a id="11982" href="Definition.LogicalRelation.Properties.Primitive.html#32976" class="Function">⊩supᵘ-congˡ</a><a id="11993" class="Symbol">)</a>
-<a id="11995" class="Markup">```
-</a><a id="11999" class="Background">
+</a><a id="11847" class="Markup">```agda
+</a><a id="11855" class="Keyword">import</a> <a id="11862" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
+  <a id="11912" class="Keyword">using</a> <a id="11918" class="Symbol">(</a><a id="11919" href="Definition.LogicalRelation.Properties.Primitive.html#32885" class="Function">⊩supᵘ-congˡ</a><a id="11930" class="Symbol">)</a>
+<a id="11932" class="Markup">```
+</a><a id="11936" class="Background">
 Lemma 3.1: Reducibility for the typing rule for `_supᵘ_`.
-</a><a id="12058" class="Markup">```agda
-</a><a id="12066" class="Keyword">import</a> <a id="12073" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
-  <a id="12123" class="Keyword">using</a> <a id="12129" class="Symbol">(</a><a id="12130" href="Definition.LogicalRelation.Properties.Primitive.html#13403" class="Function">⊩supᵘ</a><a id="12135" class="Symbol">)</a>
-<a id="12137" class="Markup">```
-</a><a id="12141" class="Background">
+</a><a id="11995" class="Markup">```agda
+</a><a id="12003" class="Keyword">import</a> <a id="12010" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
+  <a id="12060" class="Keyword">using</a> <a id="12066" class="Symbol">(</a><a id="12067" href="Definition.LogicalRelation.Properties.Primitive.html#13362" class="Function">⊩supᵘ</a><a id="12072" class="Symbol">)</a>
+<a id="12074" class="Markup">```
+</a><a id="12078" class="Background">
 Lemma 3.2: Reducibility for the judgemental equality rule supᵘ-idem.
-</a><a id="12211" class="Markup">```agda
-</a><a id="12219" class="Keyword">import</a> <a id="12226" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
-  <a id="12276" class="Keyword">using</a> <a id="12282" class="Symbol">(</a><a id="12283" href="Definition.LogicalRelation.Properties.Primitive.html#22918" class="Function">⊩supᵘ-idem</a><a id="12293" class="Symbol">)</a>
-<a id="12295" class="Markup">```
-</a><a id="12299" class="Background">
+</a><a id="12148" class="Markup">```agda
+</a><a id="12156" class="Keyword">import</a> <a id="12163" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
+  <a id="12213" class="Keyword">using</a> <a id="12219" class="Symbol">(</a><a id="12220" href="Definition.LogicalRelation.Properties.Primitive.html#22855" class="Function">⊩supᵘ-idem</a><a id="12230" class="Symbol">)</a>
+<a id="12232" class="Markup">```
+</a><a id="12236" class="Background">
 Two weak head expansion lemmas used in Lemmas 3.1 and 3.2.
-</a><a id="12359" class="Markup">```agda
-</a><a id="12367" class="Keyword">import</a> <a id="12374" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
-  <a id="12424" class="Keyword">using</a> <a id="12430" class="Symbol">(</a><a id="12431" href="Definition.LogicalRelation.Properties.Primitive.html#4300" class="Function">⊩Level-⇒*</a><a id="12440" class="Symbol">;</a> <a id="12442" href="Definition.LogicalRelation.Properties.Primitive.html#4023" class="Function">redLevel′</a><a id="12451" class="Symbol">)</a>
-<a id="12453" class="Markup">```
-</a><a id="12457" class="Background">
+</a><a id="12296" class="Markup">```agda
+</a><a id="12304" class="Keyword">import</a> <a id="12311" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
+  <a id="12361" class="Keyword">using</a> <a id="12367" class="Symbol">(</a><a id="12368" href="Definition.LogicalRelation.Properties.Primitive.html#4300" class="Function">⊩Level-⇒*</a><a id="12377" class="Symbol">;</a> <a id="12379" href="Definition.LogicalRelation.Properties.Primitive.html#4023" class="Function">redLevel′</a><a id="12388" class="Symbol">)</a>
+<a id="12390" class="Markup">```
+</a><a id="12394" class="Background">
 #### 3.2: Reducibility
 
 The main reducibility judgements.
-</a><a id="12516" class="Markup">```agda
-</a><a id="12524" class="Keyword">import</a> <a id="12531" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
-  <a id="12560" class="Keyword">using</a> <a id="12566" class="Symbol">(</a><a id="12567" href="Definition.LogicalRelation.html#26273" class="Function Operator">_⊩⟨_⟩_</a><a id="12573" class="Symbol">;</a> <a id="12575" href="Definition.LogicalRelation.html#26430" class="Function Operator">_⊩⟨_⟩_≡_/_</a><a id="12585" class="Symbol">;</a> <a id="12587" href="Definition.LogicalRelation.html#26850" class="Function Operator">_⊩⟨_⟩_≡_∷_/_</a><a id="12599" class="Symbol">;</a> <a id="12601" href="Definition.LogicalRelation.html#26636" class="Function Operator">_⊩⟨_⟩_∷_/_</a><a id="12611" class="Symbol">)</a>
-<a id="12613" class="Markup">```
-</a><a id="12617" class="Background">
+</a><a id="12453" class="Markup">```agda
+</a><a id="12461" class="Keyword">import</a> <a id="12468" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
+  <a id="12497" class="Keyword">using</a> <a id="12503" class="Symbol">(</a><a id="12504" href="Definition.LogicalRelation.html#26267" class="Function Operator">_⊩⟨_⟩_</a><a id="12510" class="Symbol">;</a> <a id="12512" href="Definition.LogicalRelation.html#26424" class="Function Operator">_⊩⟨_⟩_≡_/_</a><a id="12522" class="Symbol">;</a> <a id="12524" href="Definition.LogicalRelation.html#26844" class="Function Operator">_⊩⟨_⟩_≡_∷_/_</a><a id="12536" class="Symbol">;</a> <a id="12538" href="Definition.LogicalRelation.html#26630" class="Function Operator">_⊩⟨_⟩_∷_/_</a><a id="12548" class="Symbol">)</a>
+<a id="12550" class="Markup">```
+</a><a id="12554" class="Background">
 The logical relation is cumulative.
-</a><a id="12654" class="Markup">```agda
-</a><a id="12662" class="Keyword">import</a> <a id="12669" href="Definition.LogicalRelation.Properties.Embedding.html" class="Module">Definition.LogicalRelation.Properties.Embedding</a>
-  <a id="12719" class="Keyword">using</a> <a id="12725" class="Symbol">(</a><a id="12726" href="Definition.LogicalRelation.Properties.Embedding.html#943" class="Function">emb-≤-⊩</a><a id="12733" class="Symbol">;</a> <a id="12735" href="Definition.LogicalRelation.Properties.Embedding.html#2246" class="Function">emb-≤-⊩≡</a><a id="12743" class="Symbol">;</a> <a id="12745" href="Definition.LogicalRelation.Properties.Embedding.html#2463" class="Function">emb-≤-⊩≡∷</a><a id="12754" class="Symbol">;</a> <a id="12756" href="Definition.LogicalRelation.Properties.Embedding.html#1046" class="Function">emb-≤-⊩∷</a><a id="12764" class="Symbol">)</a>
-<a id="12766" class="Markup">```
-</a><a id="12770" class="Background">
+</a><a id="12591" class="Markup">```agda
+</a><a id="12599" class="Keyword">import</a> <a id="12606" href="Definition.LogicalRelation.Properties.Embedding.html" class="Module">Definition.LogicalRelation.Properties.Embedding</a>
+  <a id="12656" class="Keyword">using</a> <a id="12662" class="Symbol">(</a><a id="12663" href="Definition.LogicalRelation.Properties.Embedding.html#943" class="Function">emb-≤-⊩</a><a id="12670" class="Symbol">;</a> <a id="12672" href="Definition.LogicalRelation.Properties.Embedding.html#2246" class="Function">emb-≤-⊩≡</a><a id="12680" class="Symbol">;</a> <a id="12682" href="Definition.LogicalRelation.Properties.Embedding.html#2463" class="Function">emb-≤-⊩≡∷</a><a id="12691" class="Symbol">;</a> <a id="12693" href="Definition.LogicalRelation.Properties.Embedding.html#1046" class="Function">emb-≤-⊩∷</a><a id="12701" class="Symbol">)</a>
+<a id="12703" class="Markup">```
+</a><a id="12707" class="Background">
 Reducibility for neutrals.
-</a><a id="12798" class="Markup">```agda
-</a><a id="12806" class="Keyword">import</a> <a id="12813" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
-  <a id="12842" class="Keyword">using</a> <a id="12848" class="Symbol">(</a><a id="12849" href="Definition.LogicalRelation.html#2902" class="Record Operator">_⊩ne_</a><a id="12854" class="Symbol">;</a> <a id="12856" href="Definition.LogicalRelation.html#3146" class="Record Operator">_⊩ne_≡_/_</a><a id="12865" class="Symbol">;</a> <a id="12867" href="Definition.LogicalRelation.html#3839" class="Record Operator">_⊩ne_≡_∷_/_</a><a id="12878" class="Symbol">)</a>
-<a id="12880" class="Markup">```
-</a><a id="12884" class="Background">
+</a><a id="12735" class="Markup">```agda
+</a><a id="12743" class="Keyword">import</a> <a id="12750" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
+  <a id="12779" class="Keyword">using</a> <a id="12785" class="Symbol">(</a><a id="12786" href="Definition.LogicalRelation.html#2902" class="Record Operator">_⊩ne_</a><a id="12791" class="Symbol">;</a> <a id="12793" href="Definition.LogicalRelation.html#3146" class="Record Operator">_⊩ne_≡_/_</a><a id="12802" class="Symbol">;</a> <a id="12804" href="Definition.LogicalRelation.html#3839" class="Record Operator">_⊩ne_≡_∷_/_</a><a id="12815" class="Symbol">)</a>
+<a id="12817" class="Markup">```
+</a><a id="12821" class="Background">
 Reducibility for levels.
-</a><a id="12910" class="Markup">```agda
-</a><a id="12918" class="Keyword">import</a> <a id="12925" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
-  <a id="12954" class="Keyword">using</a> <a id="12960" class="Symbol">(</a><a id="12961" href="Definition.LogicalRelation.html#4149" class="Function Operator">_⊩Level_</a><a id="12969" class="Symbol">;</a> <a id="12971" href="Definition.LogicalRelation.html#4269" class="Function Operator">_⊩Level_≡_</a><a id="12981" class="Symbol">;</a> <a id="12983" href="Definition.LogicalRelation.html#5480" class="Datatype Operator">_⊩Level_≡_∷Level</a><a id="12999" class="Symbol">)</a>
-<a id="13001" class="Markup">```
-</a><a id="13005" class="Background">
+</a><a id="12847" class="Markup">```agda
+</a><a id="12855" class="Keyword">import</a> <a id="12862" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
+  <a id="12891" class="Keyword">using</a> <a id="12897" class="Symbol">(</a><a id="12898" href="Definition.LogicalRelation.html#4149" class="Function Operator">_⊩Level_</a><a id="12906" class="Symbol">;</a> <a id="12908" href="Definition.LogicalRelation.html#4269" class="Function Operator">_⊩Level_≡_</a><a id="12918" class="Symbol">;</a> <a id="12920" href="Definition.LogicalRelation.html#5480" class="Datatype Operator">_⊩Level_≡_∷Level</a><a id="12936" class="Symbol">)</a>
+<a id="12938" class="Markup">```
+</a><a id="12942" class="Background">
 Level reflexivity and well-formedness.
-</a><a id="13045" class="Markup">```agda
-</a><a id="13053" class="Keyword">import</a> <a id="13060" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
-  <a id="13110" class="Keyword">using</a> <a id="13116" class="Symbol">(</a><a id="13117" href="Definition.LogicalRelation.Properties.Primitive.html#1677" class="Function">reflLevel</a><a id="13126" class="Symbol">;</a> <a id="13128" href="Definition.LogicalRelation.Properties.Primitive.html#26030" class="Function">wf-Level-eq</a><a id="13139" class="Symbol">)</a>
-<a id="13141" class="Markup">```
-</a><a id="13145" class="Background">
+</a><a id="12982" class="Markup">```agda
+</a><a id="12990" class="Keyword">import</a> <a id="12997" href="Definition.LogicalRelation.Properties.Primitive.html" class="Module">Definition.LogicalRelation.Properties.Primitive</a>
+  <a id="13047" class="Keyword">using</a> <a id="13053" class="Symbol">(</a><a id="13054" href="Definition.LogicalRelation.Properties.Primitive.html#1677" class="Function">reflLevel</a><a id="13063" class="Symbol">;</a> <a id="13065" href="Definition.LogicalRelation.Properties.Primitive.html#25954" class="Function">wf-Level-eq</a><a id="13076" class="Symbol">)</a>
+<a id="13078" class="Markup">```
+</a><a id="13082" class="Background">
 Reducibility for universes.
-</a><a id="13174" class="Markup">```agda
-</a><a id="13182" class="Keyword">open</a> <a id="13187" class="Keyword">import</a> <a id="13194" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
-  <a id="13223" class="Keyword">using</a> <a id="13229" class="Symbol">(</a><a id="13230" class="Keyword">module</a> <a id="13237" href="Definition.LogicalRelation.html#12953" class="Module">LogRel</a><a id="13243" class="Symbol">)</a>
-<a id="13245" class="Keyword">open</a> <a id="13250" href="Definition.LogicalRelation.html#12953" class="Module">LogRel</a>
-  <a id="13259" class="Keyword">using</a> <a id="13265" class="Symbol">(</a><a id="13266" href="Definition.LogicalRelation.html#13107" class="Record Operator">_⊩₁U_</a><a id="13271" class="Symbol">;</a> <a id="13273" href="Definition.LogicalRelation.html#13372" class="Record Operator">_⊩₁U≡_/_</a><a id="13281" class="Symbol">;</a> <a id="13283" href="Definition.LogicalRelation.html#13640" class="Record Operator">_⊩₁U_≡_∷U/_</a><a id="13294" class="Symbol">)</a>
-<a id="13296" class="Markup">```
-</a><a id="13300" class="Background">
+</a><a id="13111" class="Markup">```agda
+</a><a id="13119" class="Keyword">open</a> <a id="13124" class="Keyword">import</a> <a id="13131" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a>
+  <a id="13160" class="Keyword">using</a> <a id="13166" class="Symbol">(</a><a id="13167" class="Keyword">module</a> <a id="13174" href="Definition.LogicalRelation.html#12951" class="Module">LogRel</a><a id="13180" class="Symbol">)</a>
+<a id="13182" class="Keyword">open</a> <a id="13187" href="Definition.LogicalRelation.html#12951" class="Module">LogRel</a>
+  <a id="13196" class="Keyword">using</a> <a id="13202" class="Symbol">(</a><a id="13203" href="Definition.LogicalRelation.html#13105" class="Record Operator">_⊩₁U_</a><a id="13208" class="Symbol">;</a> <a id="13210" href="Definition.LogicalRelation.html#13370" class="Record Operator">_⊩₁U≡_/_</a><a id="13218" class="Symbol">;</a> <a id="13220" href="Definition.LogicalRelation.html#13638" class="Record Operator">_⊩₁U_≡_∷U/_</a><a id="13231" class="Symbol">)</a>
+<a id="13233" class="Markup">```
+</a><a id="13237" class="Background">
 Types in WHNF.
-</a><a id="13316" class="Markup">```agda
-</a><a id="13324" class="Keyword">import</a> <a id="13331" href="Definition.Untyped.Whnf.html" class="Module">Definition.Untyped.Whnf</a>
-  <a id="13357" class="Keyword">using</a> <a id="13363" class="Symbol">(</a><a id="13364" href="Definition.Untyped.Whnf.html#2624" class="Datatype">Type</a><a id="13368" class="Symbol">)</a>
-<a id="13370" class="Markup">```
-</a><a id="13374" class="Background">
+</a><a id="13253" class="Markup">```agda
+</a><a id="13261" class="Keyword">import</a> <a id="13268" href="Definition.Untyped.Whnf.html" class="Module">Definition.Untyped.Whnf</a>
+  <a id="13294" class="Keyword">using</a> <a id="13300" class="Symbol">(</a><a id="13301" href="Definition.Untyped.Whnf.html#2624" class="Datatype">Type</a><a id="13305" class="Symbol">)</a>
+<a id="13307" class="Markup">```
+</a><a id="13311" class="Background">
 Reducibility for lift types.
-</a><a id="13404" class="Markup">```agda
-</a><a id="13412" class="Keyword">open</a> <a id="13417" href="Definition.LogicalRelation.html#12953" class="Module">LogRel</a>
-  <a id="13426" class="Keyword">using</a> <a id="13432" class="Symbol">(</a><a id="13433" href="Definition.LogicalRelation.html#14175" class="Record Operator">_⊩ₗLift_</a><a id="13441" class="Symbol">;</a> <a id="13443" href="Definition.LogicalRelation.html#14522" class="Record Operator">_⊩ₗLift_≡_/_</a><a id="13455" class="Symbol">;</a> <a id="13457" href="Definition.LogicalRelation.html#14963" class="Function Operator">_⊩ₗLift_≡_∷_/_</a><a id="13471" class="Symbol">)</a>
-<a id="13473" class="Markup">```
-</a><a id="13477" class="Background">
+</a><a id="13341" class="Markup">```agda
+</a><a id="13349" class="Keyword">open</a> <a id="13354" href="Definition.LogicalRelation.html#12951" class="Module">LogRel</a>
+  <a id="13363" class="Keyword">using</a> <a id="13369" class="Symbol">(</a><a id="13370" href="Definition.LogicalRelation.html#14173" class="Record Operator">_⊩ₗLift_</a><a id="13378" class="Symbol">;</a> <a id="13380" href="Definition.LogicalRelation.html#14520" class="Record Operator">_⊩ₗLift_≡_/_</a><a id="13392" class="Symbol">;</a> <a id="13394" href="Definition.LogicalRelation.html#14961" class="Function Operator">_⊩ₗLift_≡_∷_/_</a><a id="13408" class="Symbol">)</a>
+<a id="13410" class="Markup">```
+</a><a id="13414" class="Background">
 Reducibility for Π-types (the first two definitions are used also for
 Σ-types).
-</a><a id="13558" class="Markup">```agda
-</a><a id="13566" class="Keyword">open</a> <a id="13571" href="Definition.LogicalRelation.html#12953" class="Module">LogRel</a>
-  <a id="13580" class="Keyword">using</a> <a id="13586" class="Symbol">(</a><a id="13587" href="Definition.LogicalRelation.html#15354" class="Record Operator">_⊩ₗB⟨_⟩_</a><a id="13595" class="Symbol">;</a> <a id="13597" href="Definition.LogicalRelation.html#16659" class="Record Operator">_⊩ₗB⟨_⟩_≡_/_</a><a id="13609" class="Symbol">;</a> <a id="13611" href="Definition.LogicalRelation.html#17691" class="Function Operator">_⊩ₗΠ_≡_∷_/_</a><a id="13622" class="Symbol">)</a>
-<a id="13624" class="Markup">```
-</a><a id="13628" class="Background">
+</a><a id="13495" class="Markup">```agda
+</a><a id="13503" class="Keyword">open</a> <a id="13508" href="Definition.LogicalRelation.html#12951" class="Module">LogRel</a>
+  <a id="13517" class="Keyword">using</a> <a id="13523" class="Symbol">(</a><a id="13524" href="Definition.LogicalRelation.html#15352" class="Record Operator">_⊩ₗB⟨_⟩_</a><a id="13532" class="Symbol">;</a> <a id="13534" href="Definition.LogicalRelation.html#16657" class="Record Operator">_⊩ₗB⟨_⟩_≡_/_</a><a id="13546" class="Symbol">;</a> <a id="13548" href="Definition.LogicalRelation.html#17689" class="Function Operator">_⊩ₗΠ_≡_∷_/_</a><a id="13559" class="Symbol">)</a>
+<a id="13561" class="Markup">```
+</a><a id="13565" class="Background">
 Well-formed weakenings were introduced above. The definition of the
 logical relation uses a variant of this definition which is logically
 equivalent if `Var-included` is inhabited.
-</a><a id="13810" class="Markup">```agda
-</a><a id="13818" class="Keyword">import</a> <a id="13825" href="Definition.LogicalRelation.Weakening.Restricted.html" class="Module">Definition.LogicalRelation.Weakening.Restricted</a>
-  <a id="13875" class="Keyword">using</a> <a id="13881" class="Symbol">(</a><a id="13882" href="Definition.LogicalRelation.Weakening.Restricted.html#980" class="Datatype Operator">_»_∷ʷʳ_⊇_</a><a id="13891" class="Symbol">;</a> <a id="13893" href="Definition.LogicalRelation.Weakening.Restricted.html#1221" class="Function">∷ʷ⊇→∷ʷʳ⊇</a><a id="13901" class="Symbol">;</a> <a id="13903" href="Definition.LogicalRelation.Weakening.Restricted.html#1537" class="Function">∷ʷʳ⊇→∷ʷ⊇</a><a id="13911" class="Symbol">)</a>
-<a id="13913" class="Markup">```
-</a><a id="13917" class="Background">
+</a><a id="13747" class="Markup">```agda
+</a><a id="13755" class="Keyword">import</a> <a id="13762" href="Definition.LogicalRelation.Weakening.Restricted.html" class="Module">Definition.LogicalRelation.Weakening.Restricted</a>
+  <a id="13812" class="Keyword">using</a> <a id="13818" class="Symbol">(</a><a id="13819" href="Definition.LogicalRelation.Weakening.Restricted.html#980" class="Datatype Operator">_»_∷ʷʳ_⊇_</a><a id="13828" class="Symbol">;</a> <a id="13830" href="Definition.LogicalRelation.Weakening.Restricted.html#1221" class="Function">∷ʷ⊇→∷ʷʳ⊇</a><a id="13838" class="Symbol">;</a> <a id="13840" href="Definition.LogicalRelation.Weakening.Restricted.html#1537" class="Function">∷ʷʳ⊇→∷ʷ⊇</a><a id="13848" class="Symbol">)</a>
+<a id="13850" class="Markup">```
+</a><a id="13854" class="Background">
 Lifting of weakenings is denoted by `lift` rather than \_⇑ (which is
 used for substitutions).
-</a><a id="14012" class="Markup">```agda
-</a><a id="14020" class="Keyword">import</a> <a id="14027" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
-  <a id="14064" class="Keyword">using</a> <a id="14070" class="Symbol">(</a><a id="14071" href="Definition.Untyped.NotParametrised.html#3138" class="InductiveConstructor">lift</a><a id="14075" class="Symbol">)</a>
-<a id="14077" class="Keyword">import</a> <a id="14084" href="Definition.Typed.Weakening.html" class="Module">Definition.Typed.Weakening</a>
-  <a id="14113" class="Keyword">using</a> <a id="14119" class="Symbol">(</a><a id="14120" href="Definition.Typed.Weakening.html#5271" class="Function">liftʷ</a><a id="14125" class="Symbol">)</a>
-<a id="14127" class="Markup">```
-</a><a id="14131" class="Background">
+</a><a id="13949" class="Markup">```agda
+</a><a id="13957" class="Keyword">import</a> <a id="13964" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
+  <a id="14001" class="Keyword">using</a> <a id="14007" class="Symbol">(</a><a id="14008" href="Definition.Untyped.NotParametrised.html#3138" class="InductiveConstructor">lift</a><a id="14012" class="Symbol">)</a>
+<a id="14014" class="Keyword">import</a> <a id="14021" href="Definition.Typed.Weakening.html" class="Module">Definition.Typed.Weakening</a>
+  <a id="14050" class="Keyword">using</a> <a id="14056" class="Symbol">(</a><a id="14057" href="Definition.Typed.Weakening.html#5291" class="Function">liftʷ</a><a id="14062" class="Symbol">)</a>
+<a id="14064" class="Markup">```
+</a><a id="14068" class="Background">
 Irrelevance for reducibility judgements.
-</a><a id="14173" class="Markup">```agda
-</a><a id="14181" class="Keyword">import</a> <a id="14188" href="Definition.LogicalRelation.Irrelevance.html" class="Module">Definition.LogicalRelation.Irrelevance</a>
-  <a id="14229" class="Keyword">using</a> <a id="14235" class="Symbol">(</a><a id="14236" href="Definition.LogicalRelation.Irrelevance.html#1819" class="Function">irrelevanceEq</a><a id="14249" class="Symbol">;</a> <a id="14251" href="Definition.LogicalRelation.Irrelevance.html#6617" class="Function">irrelevanceEqTerm</a><a id="14268" class="Symbol">;</a> <a id="14270" href="Definition.LogicalRelation.Irrelevance.html#5671" class="Function">irrelevanceTerm</a><a id="14285" class="Symbol">)</a>
-<a id="14287" class="Markup">```
-</a><a id="14291" class="Background">
+</a><a id="14110" class="Markup">```agda
+</a><a id="14118" class="Keyword">import</a> <a id="14125" href="Definition.LogicalRelation.Irrelevance.html" class="Module">Definition.LogicalRelation.Irrelevance</a>
+  <a id="14166" class="Keyword">using</a> <a id="14172" class="Symbol">(</a><a id="14173" href="Definition.LogicalRelation.Irrelevance.html#1819" class="Function">irrelevanceEq</a><a id="14186" class="Symbol">;</a> <a id="14188" href="Definition.LogicalRelation.Irrelevance.html#6617" class="Function">irrelevanceEqTerm</a><a id="14205" class="Symbol">;</a> <a id="14207" href="Definition.LogicalRelation.Irrelevance.html#5671" class="Function">irrelevanceTerm</a><a id="14222" class="Symbol">)</a>
+<a id="14224" class="Markup">```
+</a><a id="14228" class="Background">
 Reducibility judgements with hidden reducibility arguments.
-</a><a id="14352" class="Markup">```agda
-</a><a id="14360" class="Keyword">import</a> <a id="14367" href="Definition.LogicalRelation.Hidden.html" class="Module">Definition.LogicalRelation.Hidden</a>
-  <a id="14403" class="Keyword">using</a> <a id="14409" class="Symbol">(</a><a id="14410" href="Definition.LogicalRelation.Hidden.html#1970" class="Function Operator">_⊩⟨_⟩_∷_</a><a id="14418" class="Symbol">;</a> <a id="14420" href="Definition.LogicalRelation.Hidden.html#2371" class="Function Operator">_⊩⟨_⟩_≡_∷_</a><a id="14430" class="Symbol">;</a> <a id="14432" href="Definition.LogicalRelation.Hidden.html#2162" class="Function Operator">_⊩⟨_⟩_≡_</a><a id="14440" class="Symbol">)</a>
-<a id="14442" class="Markup">```
-</a><a id="14446" class="Background">
+</a><a id="14289" class="Markup">```agda
+</a><a id="14297" class="Keyword">import</a> <a id="14304" href="Definition.LogicalRelation.Hidden.html" class="Module">Definition.LogicalRelation.Hidden</a>
+  <a id="14340" class="Keyword">using</a> <a id="14346" class="Symbol">(</a><a id="14347" href="Definition.LogicalRelation.Hidden.html#1970" class="Function Operator">_⊩⟨_⟩_∷_</a><a id="14355" class="Symbol">;</a> <a id="14357" href="Definition.LogicalRelation.Hidden.html#2371" class="Function Operator">_⊩⟨_⟩_≡_∷_</a><a id="14367" class="Symbol">;</a> <a id="14369" href="Definition.LogicalRelation.Hidden.html#2162" class="Function Operator">_⊩⟨_⟩_≡_</a><a id="14377" class="Symbol">)</a>
+<a id="14379" class="Markup">```
+</a><a id="14383" class="Background">
 #### 3.3 Validity and the Fundamental Lemma
 
 `Γ ⊩⟨ ℓ ⟩ 𝒥` implies `Γ ⊢ 𝒥`.
-</a><a id="14522" class="Markup">```agda
-</a><a id="14530" class="Keyword">import</a> <a id="14537" href="Definition.LogicalRelation.Properties.Escape.html" class="Module">Definition.LogicalRelation.Properties.Escape</a>
-  <a id="14584" class="Keyword">using</a> <a id="14590" class="Symbol">(</a><a id="14591" href="Definition.LogicalRelation.Properties.Escape.html#1411" class="Function">escape</a><a id="14597" class="Symbol">;</a> <a id="14599" href="Definition.LogicalRelation.Properties.Escape.html#1838" class="Function">escapeEq</a><a id="14607" class="Symbol">;</a> <a id="14609" href="Definition.LogicalRelation.Properties.Escape.html#2092" class="Function">escapeTerm</a><a id="14619" class="Symbol">;</a> <a id="14621" href="Definition.LogicalRelation.Properties.Escape.html#1974" class="Function">escapeTermEq</a><a id="14633" class="Symbol">)</a>
-<a id="14635" class="Markup">```
-</a><a id="14639" class="Background">
+</a><a id="14459" class="Markup">```agda
+</a><a id="14467" class="Keyword">import</a> <a id="14474" href="Definition.LogicalRelation.Properties.Escape.html" class="Module">Definition.LogicalRelation.Properties.Escape</a>
+  <a id="14521" class="Keyword">using</a> <a id="14527" class="Symbol">(</a><a id="14528" href="Definition.LogicalRelation.Properties.Escape.html#1411" class="Function">escape</a><a id="14534" class="Symbol">;</a> <a id="14536" href="Definition.LogicalRelation.Properties.Escape.html#1838" class="Function">escapeEq</a><a id="14544" class="Symbol">;</a> <a id="14546" href="Definition.LogicalRelation.Properties.Escape.html#2092" class="Function">escapeTerm</a><a id="14556" class="Symbol">;</a> <a id="14558" href="Definition.LogicalRelation.Properties.Escape.html#1974" class="Function">escapeTermEq</a><a id="14570" class="Symbol">)</a>
+<a id="14572" class="Markup">```
+</a><a id="14576" class="Background">
 Validity judgements. In addition to the ones in the paper we also use
 `Γ ⊩ᵛ⟨ ℓ ⟩ l₁ ∷Level` and `Γ ⊩ᵛ⟨ ℓ ⟩ l₁ ≡ l₂ ∷Level`. When the `Level`
 type is allowed `Γ ⊩ᵛ⟨ ℓ ⟩ level t ∷Level` is logically equivalent to
 `Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ Level`, and `Γ ⊩ᵛ⟨ ℓ ⟩ level t ≡ level u ∷Level` is
 logically equivalent to `Γ ⊩ᵛ⟨ ℓ ⟩ t ≡ u ∷ Level`.
-</a><a id="14969" class="Markup">```agda
-</a><a id="14977" class="Keyword">import</a> <a id="14984" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a>
-  <a id="15026" class="Keyword">using</a>
-    <a id="15036" class="Symbol">(</a><a id="15037" href="Definition.LogicalRelation.Substitution.html#3098" class="Function Operator">⊩ᵛ_</a><a id="15040" class="Symbol">;</a> <a id="15042" href="Definition.LogicalRelation.Substitution.html#2303" class="Function Operator">_⊩ᵛ⟨_⟩_</a><a id="15049" class="Symbol">;</a> <a id="15051" href="Definition.LogicalRelation.Substitution.html#2439" class="Function Operator">_⊩ᵛ⟨_⟩_≡_</a><a id="15060" class="Symbol">;</a> <a id="15062" href="Definition.LogicalRelation.Substitution.html#3198" class="Function Operator">_⊩ˢ_∷_</a><a id="15068" class="Symbol">;</a> <a id="15070" href="Definition.LogicalRelation.Substitution.html#2759" class="Function Operator">_⊩ˢ_≡_∷_</a><a id="15078" class="Symbol">;</a> <a id="15080" href="Definition.LogicalRelation.Substitution.html#3691" class="Function Operator">_⊩ᵛ⟨_⟩_∷_</a><a id="15089" class="Symbol">;</a> <a id="15091" href="Definition.LogicalRelation.Substitution.html#3340" class="Function Operator">_⊩ᵛ⟨_⟩_≡_∷_</a><a id="15102" class="Symbol">;</a>
-     <a id="15109" href="Definition.LogicalRelation.Substitution.html#4228" class="Function Operator">_⊩ᵛ⟨_⟩_∷Level</a><a id="15122" class="Symbol">;</a> <a id="15124" href="Definition.LogicalRelation.Substitution.html#3852" class="Datatype Operator">_⊩ᵛ⟨_⟩_≡_∷Level</a><a id="15139" class="Symbol">;</a> <a id="15141" href="Definition.LogicalRelation.Substitution.html#14365" class="Function">⊩ᵛ∷L⇔</a><a id="15146" class="Symbol">;</a> <a id="15148" href="Definition.LogicalRelation.Substitution.html#14072" class="Function">⊩ᵛ≡∷L⇔</a><a id="15154" class="Symbol">)</a>
-<a id="15156" class="Markup">```
-</a><a id="15160" class="Background">
+</a><a id="14906" class="Markup">```agda
+</a><a id="14914" class="Keyword">import</a> <a id="14921" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a>
+  <a id="14963" class="Keyword">using</a>
+    <a id="14973" class="Symbol">(</a><a id="14974" href="Definition.LogicalRelation.Substitution.html#3098" class="Function Operator">⊩ᵛ_</a><a id="14977" class="Symbol">;</a> <a id="14979" href="Definition.LogicalRelation.Substitution.html#2303" class="Function Operator">_⊩ᵛ⟨_⟩_</a><a id="14986" class="Symbol">;</a> <a id="14988" href="Definition.LogicalRelation.Substitution.html#2439" class="Function Operator">_⊩ᵛ⟨_⟩_≡_</a><a id="14997" class="Symbol">;</a> <a id="14999" href="Definition.LogicalRelation.Substitution.html#3198" class="Function Operator">_⊩ˢ_∷_</a><a id="15005" class="Symbol">;</a> <a id="15007" href="Definition.LogicalRelation.Substitution.html#2759" class="Function Operator">_⊩ˢ_≡_∷_</a><a id="15015" class="Symbol">;</a> <a id="15017" href="Definition.LogicalRelation.Substitution.html#3691" class="Function Operator">_⊩ᵛ⟨_⟩_∷_</a><a id="15026" class="Symbol">;</a> <a id="15028" href="Definition.LogicalRelation.Substitution.html#3340" class="Function Operator">_⊩ᵛ⟨_⟩_≡_∷_</a><a id="15039" class="Symbol">;</a>
+     <a id="15046" href="Definition.LogicalRelation.Substitution.html#4228" class="Function Operator">_⊩ᵛ⟨_⟩_∷Level</a><a id="15059" class="Symbol">;</a> <a id="15061" href="Definition.LogicalRelation.Substitution.html#3852" class="Datatype Operator">_⊩ᵛ⟨_⟩_≡_∷Level</a><a id="15076" class="Symbol">;</a> <a id="15078" href="Definition.LogicalRelation.Substitution.html#15190" class="Function">⊩ᵛ∷L⇔</a><a id="15083" class="Symbol">;</a> <a id="15085" href="Definition.LogicalRelation.Substitution.html#14897" class="Function">⊩ᵛ≡∷L⇔</a><a id="15091" class="Symbol">)</a>
+<a id="15093" class="Markup">```
+</a><a id="15097" class="Background">
 Lemma 3.3: Fundamental lemma.
-</a><a id="15191" class="Markup">```agda
-</a><a id="15199" class="Keyword">import</a> <a id="15206" href="Definition.LogicalRelation.Fundamental.html" class="Module">Definition.LogicalRelation.Fundamental</a>
-  <a id="15247" class="Keyword">using</a>
-    <a id="15257" class="Symbol">(</a><a id="15258" href="Definition.LogicalRelation.Fundamental.html#1789" class="Function">valid</a><a id="15263" class="Symbol">;</a>
-     <a id="15270" href="Definition.LogicalRelation.Fundamental.html#1950" class="Function">fundamental-⊩ᵛ</a><a id="15284" class="Symbol">;</a> <a id="15286" href="Definition.LogicalRelation.Fundamental.html#2571" class="Function">fundamental-⊩ᵛ≡</a><a id="15301" class="Symbol">;</a>
-     <a id="15308" href="Definition.LogicalRelation.Fundamental.html#3847" class="Function">fundamental-⊩ᵛ∷</a><a id="15323" class="Symbol">;</a> <a id="15325" href="Definition.LogicalRelation.Fundamental.html#7847" class="Function">fundamental-⊩ᵛ≡∷</a><a id="15341" class="Symbol">;</a>
-     <a id="15348" href="Definition.LogicalRelation.Fundamental.html#7583" class="Function">fundamental-⊩ᵛ∷L</a><a id="15364" class="Symbol">;</a> <a id="15366" href="Definition.LogicalRelation.Fundamental.html#14999" class="Function">fundamental-⊩ᵛ≡∷L</a><a id="15383" class="Symbol">)</a>
-<a id="15385" class="Markup">```
-</a><a id="15389" class="Background">
+</a><a id="15128" class="Markup">```agda
+</a><a id="15136" class="Keyword">import</a> <a id="15143" href="Definition.LogicalRelation.Fundamental.html" class="Module">Definition.LogicalRelation.Fundamental</a>
+  <a id="15184" class="Keyword">using</a>
+    <a id="15194" class="Symbol">(</a><a id="15195" href="Definition.LogicalRelation.Fundamental.html#1805" class="Function">valid</a><a id="15200" class="Symbol">;</a>
+     <a id="15207" href="Definition.LogicalRelation.Fundamental.html#1966" class="Function">fundamental-⊩ᵛ</a><a id="15221" class="Symbol">;</a> <a id="15223" href="Definition.LogicalRelation.Fundamental.html#2587" class="Function">fundamental-⊩ᵛ≡</a><a id="15238" class="Symbol">;</a>
+     <a id="15245" href="Definition.LogicalRelation.Fundamental.html#3861" class="Function">fundamental-⊩ᵛ∷</a><a id="15260" class="Symbol">;</a> <a id="15262" href="Definition.LogicalRelation.Fundamental.html#7860" class="Function">fundamental-⊩ᵛ≡∷</a><a id="15278" class="Symbol">;</a>
+     <a id="15285" href="Definition.LogicalRelation.Fundamental.html#7596" class="Function">fundamental-⊩ᵛ∷L</a><a id="15301" class="Symbol">;</a> <a id="15303" href="Definition.LogicalRelation.Fundamental.html#15008" class="Function">fundamental-⊩ᵛ≡∷L</a><a id="15320" class="Symbol">)</a>
+<a id="15322" class="Markup">```
+</a><a id="15326" class="Background">
 Lemma 3.4: Validity for the term typing rule for U. The proof sketch
 given in the paper does not quite match the proof used here: this
 proof goes via a corresponding proof for binary validity. Similar
 comments apply to Lemmas 3.5 and 3.6 below.
-</a><a id="15635" class="Markup">```agda
-</a><a id="15643" class="Keyword">import</a> <a id="15650" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Universe</a>
-  <a id="15715" class="Keyword">using</a> <a id="15721" class="Symbol">(</a><a id="15722" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html#12149" class="Function">⊩ᵛU∷U</a><a id="15727" class="Symbol">)</a>
-<a id="15729" class="Markup">```
-</a><a id="15733" class="Background">
+</a><a id="15572" class="Markup">```agda
+</a><a id="15580" class="Keyword">import</a> <a id="15587" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Universe</a>
+  <a id="15652" class="Keyword">using</a> <a id="15658" class="Symbol">(</a><a id="15659" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html#12145" class="Function">⊩ᵛU∷U</a><a id="15664" class="Symbol">)</a>
+<a id="15666" class="Markup">```
+</a><a id="15670" class="Background">
 Lemma 3.5: Validity for the typing rule univ.
-</a><a id="15780" class="Markup">```agda
-</a><a id="15788" class="Keyword">import</a> <a id="15795" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Universe</a>
-  <a id="15860" class="Keyword">using</a> <a id="15866" class="Symbol">(</a><a id="15867" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html#12663" class="Function">⊩ᵛ∷U→⊩ᵛ</a><a id="15874" class="Symbol">)</a>
-<a id="15876" class="Markup">```
-</a><a id="15880" class="Background">
+</a><a id="15717" class="Markup">```agda
+</a><a id="15725" class="Keyword">import</a> <a id="15732" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Universe</a>
+  <a id="15797" class="Keyword">using</a> <a id="15803" class="Symbol">(</a><a id="15804" href="Definition.LogicalRelation.Substitution.Introductions.Universe.html#12659" class="Function">⊩ᵛ∷U→⊩ᵛ</a><a id="15811" class="Symbol">)</a>
+<a id="15813" class="Markup">```
+</a><a id="15817" class="Background">
 Lemma 3.6: Validity for the term typing rule for Lift.
-</a><a id="15936" class="Markup">```agda
-</a><a id="15944" class="Keyword">import</a> <a id="15951" href="Definition.LogicalRelation.Substitution.Introductions.Lift.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Lift</a>
-  <a id="16012" class="Keyword">using</a> <a id="16018" class="Symbol">(</a><a id="16019" href="Definition.LogicalRelation.Substitution.Introductions.Lift.html#7377" class="Function">Liftᵗᵛ</a><a id="16025" class="Symbol">)</a>
-<a id="16027" class="Markup">```
-</a><a id="16031" class="Background">
+</a><a id="15873" class="Markup">```agda
+</a><a id="15881" class="Keyword">import</a> <a id="15888" href="Definition.LogicalRelation.Substitution.Introductions.Lift.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Lift</a>
+  <a id="15949" class="Keyword">using</a> <a id="15955" class="Symbol">(</a><a id="15956" href="Definition.LogicalRelation.Substitution.Introductions.Lift.html#7376" class="Function">Liftᵗᵛ</a><a id="15962" class="Symbol">)</a>
+<a id="15964" class="Markup">```
+</a><a id="15968" class="Background">
 Lemma 3.7: Validity for the term typing rule for Π.
-</a><a id="16084" class="Markup">```agda
-</a><a id="16092" class="Keyword">import</a> <a id="16099" href="Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma</a>
-  <a id="16164" class="Keyword">using</a> <a id="16170" class="Symbol">(</a><a id="16171" href="Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma.html#25614" class="Function">ΠΣᵗᵛ</a><a id="16175" class="Symbol">)</a>
-<a id="16177" class="Markup">```
-</a><a id="16181" class="Background">
+</a><a id="16021" class="Markup">```agda
+</a><a id="16029" class="Keyword">import</a> <a id="16036" href="Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma</a>
+  <a id="16101" class="Keyword">using</a> <a id="16107" class="Symbol">(</a><a id="16108" href="Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma.html#25596" class="Function">ΠΣᵗᵛ</a><a id="16112" class="Symbol">)</a>
+<a id="16114" class="Markup">```
+</a><a id="16118" class="Background">
 Level realisers are stable under weakening.
-</a><a id="16226" class="Markup">```agda
-</a><a id="16234" class="Keyword">import</a> <a id="16241" href="Definition.LogicalRelation.Weakening.html" class="Module">Definition.LogicalRelation.Weakening</a>
-  <a id="16280" class="Keyword">using</a> <a id="16286" class="Symbol">(</a><a id="16287" href="Definition.LogicalRelation.Weakening.html#5240" class="Function">wk-↑ⁿ</a><a id="16292" class="Symbol">;</a> <a id="16294" href="Definition.LogicalRelation.Weakening.html#8023" class="Function">wk-↑ᵘ</a><a id="16299" class="Symbol">)</a>
-<a id="16301" class="Markup">```
-</a><a id="16305" class="Background">
+</a><a id="16163" class="Markup">```agda
+</a><a id="16171" class="Keyword">import</a> <a id="16178" href="Definition.LogicalRelation.Weakening.html" class="Module">Definition.LogicalRelation.Weakening</a>
+  <a id="16217" class="Keyword">using</a> <a id="16223" class="Symbol">(</a><a id="16224" href="Definition.LogicalRelation.Weakening.html#5216" class="Function">wk-↑ⁿ</a><a id="16229" class="Symbol">;</a> <a id="16231" href="Definition.LogicalRelation.Weakening.html#7999" class="Function">wk-↑ᵘ</a><a id="16236" class="Symbol">)</a>
+<a id="16238" class="Markup">```
+</a><a id="16242" class="Background">
 Corollary 3.8: Well-typed objects are reducible.
-</a><a id="16355" class="Markup">```agda
-</a><a id="16363" class="Keyword">import</a> <a id="16370" href="Definition.LogicalRelation.Fundamental.Reducibility.html" class="Module">Definition.LogicalRelation.Fundamental.Reducibility</a>
-  <a id="16424" class="Keyword">using</a> <a id="16430" class="Symbol">(</a><a id="16431" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1108" class="Function">reducible-⊩</a><a id="16442" class="Symbol">;</a> <a id="16444" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1326" class="Function">reducible-⊩≡</a><a id="16456" class="Symbol">;</a> <a id="16458" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1478" class="Function">reducible-⊩∷</a><a id="16470" class="Symbol">;</a> <a id="16472" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1718" class="Function">reducible-⊩≡∷</a><a id="16485" class="Symbol">)</a>
-<a id="16487" class="Markup">```
-</a><a id="16491" class="Background">
+</a><a id="16292" class="Markup">```agda
+</a><a id="16300" class="Keyword">import</a> <a id="16307" href="Definition.LogicalRelation.Fundamental.Reducibility.html" class="Module">Definition.LogicalRelation.Fundamental.Reducibility</a>
+  <a id="16361" class="Keyword">using</a> <a id="16367" class="Symbol">(</a><a id="16368" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1108" class="Function">reducible-⊩</a><a id="16379" class="Symbol">;</a> <a id="16381" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1326" class="Function">reducible-⊩≡</a><a id="16393" class="Symbol">;</a> <a id="16395" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1478" class="Function">reducible-⊩∷</a><a id="16407" class="Symbol">;</a> <a id="16409" href="Definition.LogicalRelation.Fundamental.Reducibility.html#1718" class="Function">reducible-⊩≡∷</a><a id="16422" class="Symbol">)</a>
+<a id="16424" class="Markup">```
+</a><a id="16428" class="Background">
 The identity substitution is reducible.
-</a><a id="16532" class="Markup">```agda
-</a><a id="16540" class="Keyword">import</a> <a id="16547" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a>
-  <a id="16589" class="Keyword">using</a> <a id="16595" class="Symbol">(</a><a id="16596" href="Definition.LogicalRelation.Substitution.html#47958" class="Function">⊩ˢ∷-idSubst</a><a id="16607" class="Symbol">)</a>
-<a id="16609" class="Markup">```
-</a><a id="16613" class="Background">
+</a><a id="16469" class="Markup">```agda
+</a><a id="16477" class="Keyword">import</a> <a id="16484" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a>
+  <a id="16526" class="Keyword">using</a> <a id="16532" class="Symbol">(</a><a id="16533" href="Definition.LogicalRelation.Substitution.html#48781" class="Function">⊩ˢ∷-idSubst</a><a id="16544" class="Symbol">)</a>
+<a id="16546" class="Markup">```
+</a><a id="16550" class="Background">
 Atomic neutrals are reducible.
-</a><a id="16645" class="Markup">```agda
-</a><a id="16653" class="Keyword">import</a> <a id="16660" href="Definition.LogicalRelation.Properties.Neutral.html" class="Module">Definition.LogicalRelation.Properties.Neutral</a>
-<a id="16706" class="Markup">```
-</a><a id="16710" class="Background">
+</a><a id="16582" class="Markup">```agda
+</a><a id="16590" class="Keyword">import</a> <a id="16597" href="Definition.LogicalRelation.Properties.Neutral.html" class="Module">Definition.LogicalRelation.Properties.Neutral</a>
+<a id="16643" class="Markup">```
+</a><a id="16647" class="Background">
 Corollary 3.9: Consistency.
-</a><a id="16739" class="Markup">```agda
-</a><a id="16747" class="Keyword">import</a> <a id="16754" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a>
-  <a id="16797" class="Keyword">using</a> <a id="16803" class="Symbol">(</a><a id="16804" href="Definition.Typed.Consequences.Canonicity.html#11221" class="Function">¬Empty</a><a id="16810" class="Symbol">)</a>
-<a id="16812" class="Markup">```
-</a><a id="16816" class="Background">
+</a><a id="16676" class="Markup">```agda
+</a><a id="16684" class="Keyword">import</a> <a id="16691" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a>
+  <a id="16734" class="Keyword">using</a> <a id="16740" class="Symbol">(</a><a id="16741" href="Definition.Typed.Consequences.Canonicity.html#11168" class="Function">¬Empty</a><a id="16747" class="Symbol">)</a>
+<a id="16749" class="Markup">```
+</a><a id="16753" class="Background">
 Corollary 3.10: Canonicity.
-</a><a id="16845" class="Markup">```agda
-</a><a id="16853" class="Keyword">import</a> <a id="16860" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a>
-  <a id="16903" class="Keyword">using</a> <a id="16909" class="Symbol">(</a><a id="16910" href="Definition.Typed.Consequences.Canonicity.html#1714" class="Function">canonicity</a><a id="16920" class="Symbol">)</a>
-<a id="16922" class="Markup">```
-</a><a id="16926" class="Background">
+</a><a id="16782" class="Markup">```agda
+</a><a id="16790" class="Keyword">import</a> <a id="16797" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a>
+  <a id="16840" class="Keyword">using</a> <a id="16846" class="Symbol">(</a><a id="16847" href="Definition.Typed.Consequences.Canonicity.html#1673" class="Function">canonicity</a><a id="16857" class="Symbol">)</a>
+<a id="16859" class="Markup">```
+</a><a id="16863" class="Background">
 Corollary 3.11: Weak head normalisation.
-</a><a id="16968" class="Markup">```agda
-</a><a id="16976" class="Keyword">import</a> <a id="16983" href="Definition.Typed.Consequences.Reduction.html" class="Module">Definition.Typed.Consequences.Reduction</a>
-  <a id="17025" class="Keyword">using</a> <a id="17031" class="Symbol">(</a><a id="17032" href="Definition.Typed.Consequences.Reduction.html#8308" class="Function">whNorm</a><a id="17038" class="Symbol">;</a> <a id="17040" href="Definition.Typed.Consequences.Reduction.html#15302" class="Function">whNormTerm</a><a id="17050" class="Symbol">)</a>
-<a id="17052" class="Markup">```
-</a><a id="17056" class="Background">
+</a><a id="16905" class="Markup">```agda
+</a><a id="16913" class="Keyword">import</a> <a id="16920" href="Definition.Typed.Consequences.Reduction.html" class="Module">Definition.Typed.Consequences.Reduction</a>
+  <a id="16962" class="Keyword">using</a> <a id="16968" class="Symbol">(</a><a id="16969" href="Definition.Typed.Consequences.Reduction.html#8263" class="Function">whNorm</a><a id="16975" class="Symbol">;</a> <a id="16977" href="Definition.Typed.Consequences.Reduction.html#15219" class="Function">whNormTerm</a><a id="16987" class="Symbol">)</a>
+<a id="16989" class="Markup">```
+</a><a id="16993" class="Background">
 Corollary 3.12: Injectivity of and non-confusion for type formers.
 More lemmas of this kind can be found in the given modules. Statements
 of the form &quot;`A` is not derivable&quot; are interpreted as `¬ A`; note that
 if Agda is inconsistent, then `¬ A` and `A` might both be inhabited.
-</a><a id="17335" class="Markup">```agda
-</a><a id="17343" class="Keyword">import</a> <a id="17350" href="Definition.Typed.Consequences.Injectivity.html" class="Module">Definition.Typed.Consequences.Injectivity</a>
-  <a id="17394" class="Keyword">using</a>
-    <a id="17404" class="Symbol">(</a><a id="17405" href="Definition.Typed.Consequences.Injectivity.html#1295" class="Function">U-injectivity</a><a id="17418" class="Symbol">;</a> <a id="17420" href="Definition.Typed.Consequences.Injectivity.html#1577" class="Function">Lift-injectivity</a><a id="17436" class="Symbol">;</a>
-     <a id="17443" href="Definition.Typed.Consequences.Injectivity.html#3139" class="Function">ΠΣ-injectivity-no-equality-reflection</a><a id="17480" class="Symbol">)</a>
-<a id="17482" class="Keyword">import</a> <a id="17489" href="Definition.Typed.Consequences.Inequality.html" class="Module">Definition.Typed.Consequences.Inequality</a>
-  <a id="17532" class="Keyword">using</a> <a id="17538" class="Symbol">(</a><a id="17539" href="Definition.Typed.Consequences.Inequality.html#8607" class="Function">Level≢ℕ</a><a id="17546" class="Symbol">;</a> <a id="17548" href="Definition.Typed.Consequences.Inequality.html#3504" class="Function">U≢ℕ</a><a id="17551" class="Symbol">)</a>
-<a id="17553" class="Markup">```
-</a><a id="17557" class="Background">
+</a><a id="17272" class="Markup">```agda
+</a><a id="17280" class="Keyword">import</a> <a id="17287" href="Definition.Typed.Consequences.Injectivity.html" class="Module">Definition.Typed.Consequences.Injectivity</a>
+  <a id="17331" class="Keyword">using</a>
+    <a id="17341" class="Symbol">(</a><a id="17342" href="Definition.Typed.Consequences.Injectivity.html#1295" class="Function">U-injectivity</a><a id="17355" class="Symbol">;</a> <a id="17357" href="Definition.Typed.Consequences.Injectivity.html#1577" class="Function">Lift-injectivity</a><a id="17373" class="Symbol">;</a>
+     <a id="17380" href="Definition.Typed.Consequences.Injectivity.html#3139" class="Function">ΠΣ-injectivity-no-equality-reflection</a><a id="17417" class="Symbol">)</a>
+<a id="17419" class="Keyword">import</a> <a id="17426" href="Definition.Typed.Consequences.Inequality.html" class="Module">Definition.Typed.Consequences.Inequality</a>
+  <a id="17469" class="Keyword">using</a> <a id="17475" class="Symbol">(</a><a id="17476" href="Definition.Typed.Consequences.Inequality.html#8607" class="Function">Level≢ℕ</a><a id="17483" class="Symbol">;</a> <a id="17485" href="Definition.Typed.Consequences.Inequality.html#3504" class="Function">U≢ℕ</a><a id="17488" class="Symbol">)</a>
+<a id="17490" class="Markup">```
+</a><a id="17494" class="Background">
 Corollary 3.13: Canonicity for contexts that only contain level and
 type variables.
-</a><a id="17642" class="Markup">```agda
-</a><a id="17650" class="Keyword">import</a> <a id="17657" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a>
-  <a id="17700" class="Keyword">using</a> <a id="17706" class="Symbol">(</a><a id="17707" href="Definition.Typed.Consequences.Canonicity.html#9761" class="Function">canonicity-Only-Level-or-U</a><a id="17733" class="Symbol">)</a>
-<a id="17735" class="Markup">```
-</a><a id="17739" class="Background">
+</a><a id="17579" class="Markup">```agda
+</a><a id="17587" class="Keyword">import</a> <a id="17594" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a>
+  <a id="17637" class="Keyword">using</a> <a id="17643" class="Symbol">(</a><a id="17644" href="Definition.Typed.Consequences.Canonicity.html#9714" class="Function">canonicity-Only-Level-or-U</a><a id="17670" class="Symbol">)</a>
+<a id="17672" class="Markup">```
+</a><a id="17676" class="Background">
 ### 4: Decidability of Equality
 
 Algorithmic equality. The conversion relations are denoted as follows:
@@ -583,158 +582,158 @@ Algorithmic equality. The conversion relations are denoted as follows:
 * `Γ ⊢ t ~ u ↑ A` and `Γ ⊢ t ~ u ↓ A` for atomic neutral terms and
   atomic neutral terms with types in WHNF, respectively.
 
-</a><a id="18221" class="Markup">```agda
-</a><a id="18229" class="Keyword">import</a> <a id="18236" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
-  <a id="18260" class="Keyword">using</a>
-    <a id="18270" class="Symbol">(</a><a id="18271" href="Definition.Conversion.html#5505" class="Record Operator">_⊢_[conv↑]_</a><a id="18282" class="Symbol">;</a> <a id="18284" href="Definition.Conversion.html#5791" class="Datatype Operator">_⊢_[conv↓]_</a><a id="18295" class="Symbol">;</a> <a id="18297" href="Definition.Conversion.html#6808" class="Record Operator">_⊢_[conv↑]_∷_</a><a id="18310" class="Symbol">;</a> <a id="18312" href="Definition.Conversion.html#7151" class="Datatype Operator">_⊢_[conv↓]_∷_</a><a id="18325" class="Symbol">;</a>
-     <a id="18332" href="Definition.Conversion.html#1633" class="Datatype Operator">_⊢_~_↑_</a><a id="18339" class="Symbol">;</a> <a id="18341" href="Definition.Conversion.html#5008" class="Record Operator">_⊢_~_↓_</a><a id="18348" class="Symbol">)</a>
-<a id="18350" class="Markup">```
-</a><a id="18354" class="Background">
+</a><a id="18158" class="Markup">```agda
+</a><a id="18166" class="Keyword">import</a> <a id="18173" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
+  <a id="18197" class="Keyword">using</a>
+    <a id="18207" class="Symbol">(</a><a id="18208" href="Definition.Conversion.html#5505" class="Record Operator">_⊢_[conv↑]_</a><a id="18219" class="Symbol">;</a> <a id="18221" href="Definition.Conversion.html#5791" class="Datatype Operator">_⊢_[conv↓]_</a><a id="18232" class="Symbol">;</a> <a id="18234" href="Definition.Conversion.html#6808" class="Record Operator">_⊢_[conv↑]_∷_</a><a id="18247" class="Symbol">;</a> <a id="18249" href="Definition.Conversion.html#7151" class="Datatype Operator">_⊢_[conv↓]_∷_</a><a id="18262" class="Symbol">;</a>
+     <a id="18269" href="Definition.Conversion.html#1633" class="Datatype Operator">_⊢_~_↑_</a><a id="18276" class="Symbol">;</a> <a id="18278" href="Definition.Conversion.html#5008" class="Record Operator">_⊢_~_↓_</a><a id="18285" class="Symbol">)</a>
+<a id="18287" class="Markup">```
+</a><a id="18291" class="Background">
 Level atoms, `Level⁺` and level views.
-</a><a id="18394" class="Markup">```agda
-</a><a id="18402" class="Keyword">import</a> <a id="18409" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
-  <a id="18433" class="Keyword">using</a> <a id="18439" class="Symbol">(</a><a id="18440" href="Definition.Conversion.html#10077" class="Datatype">LevelAtom</a><a id="18449" class="Symbol">;</a> <a id="18451" href="Definition.Conversion.html#10201" class="Function">Level⁺</a><a id="18457" class="Symbol">;</a> <a id="18459" href="Definition.Conversion.html#10261" class="Function">Levelᵛ</a><a id="18465" class="Symbol">)</a>
-<a id="18467" class="Markup">```
-</a><a id="18471" class="Background">
+</a><a id="18331" class="Markup">```agda
+</a><a id="18339" class="Keyword">import</a> <a id="18346" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
+  <a id="18370" class="Keyword">using</a> <a id="18376" class="Symbol">(</a><a id="18377" href="Definition.Conversion.html#10077" class="Datatype">LevelAtom</a><a id="18386" class="Symbol">;</a> <a id="18388" href="Definition.Conversion.html#10201" class="Function">Level⁺</a><a id="18394" class="Symbol">;</a> <a id="18396" href="Definition.Conversion.html#10261" class="Function">Levelᵛ</a><a id="18402" class="Symbol">)</a>
+<a id="18404" class="Markup">```
+</a><a id="18408" class="Background">
 Level view comparison.
-</a><a id="18495" class="Markup">```agda
-</a><a id="18503" class="Keyword">import</a> <a id="18510" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
-  <a id="18534" class="Keyword">using</a> <a id="18540" class="Symbol">(</a><a id="18541" href="Definition.Conversion.html#10350" class="Function Operator">_≡ᵛ_</a><a id="18545" class="Symbol">;</a> <a id="18547" href="Definition.Conversion.html#10670" class="Function">≤ᵛ</a><a id="18549" class="Symbol">;</a> <a id="18551" href="Definition.Conversion.html#10756" class="Function">≤⁺ᵛ</a><a id="18554" class="Symbol">;</a> <a id="18556" href="Definition.Conversion.html#10835" class="Function">≤⁺</a><a id="18558" class="Symbol">;</a> <a id="18560" href="Definition.Conversion.html#10925" class="Datatype">≤ᵃ</a><a id="18562" class="Symbol">)</a>
-<a id="18564" class="Markup">```
-</a><a id="18568" class="Background">
+</a><a id="18432" class="Markup">```agda
+</a><a id="18440" class="Keyword">import</a> <a id="18447" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
+  <a id="18471" class="Keyword">using</a> <a id="18477" class="Symbol">(</a><a id="18478" href="Definition.Conversion.html#10350" class="Function Operator">_≡ᵛ_</a><a id="18482" class="Symbol">;</a> <a id="18484" href="Definition.Conversion.html#10670" class="Function">≤ᵛ</a><a id="18486" class="Symbol">;</a> <a id="18488" href="Definition.Conversion.html#10756" class="Function">≤⁺ᵛ</a><a id="18491" class="Symbol">;</a> <a id="18493" href="Definition.Conversion.html#10835" class="Function">≤⁺</a><a id="18495" class="Symbol">;</a> <a id="18497" href="Definition.Conversion.html#10925" class="Datatype">≤ᵃ</a><a id="18499" class="Symbol">)</a>
+<a id="18501" class="Markup">```
+</a><a id="18505" class="Background">
 Operations on level views.
-</a><a id="18596" class="Markup">```agda
-</a><a id="18604" class="Keyword">import</a> <a id="18611" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
-  <a id="18635" class="Keyword">using</a> <a id="18641" class="Symbol">(</a><a id="18642" href="Definition.Conversion.html#11720" class="Function">sucᵛ</a><a id="18646" class="Symbol">;</a> <a id="18648" href="Definition.Conversion.html#11788" class="Function">supᵛ</a><a id="18652" class="Symbol">)</a>
-<a id="18654" class="Markup">```
-</a><a id="18658" class="Background">
+</a><a id="18533" class="Markup">```agda
+</a><a id="18541" class="Keyword">import</a> <a id="18548" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
+  <a id="18572" class="Keyword">using</a> <a id="18578" class="Symbol">(</a><a id="18579" href="Definition.Conversion.html#11720" class="Function">sucᵛ</a><a id="18583" class="Symbol">;</a> <a id="18585" href="Definition.Conversion.html#11788" class="Function">supᵛ</a><a id="18589" class="Symbol">)</a>
+<a id="18591" class="Markup">```
+</a><a id="18595" class="Background">
 Normalising levels into level views.
-</a><a id="18696" class="Markup">```agda
-</a><a id="18704" class="Keyword">import</a> <a id="18711" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
-  <a id="18735" class="Keyword">using</a> <a id="18741" class="Symbol">(</a><a id="18742" href="Definition.Conversion.html#12759" class="Record Operator">_⊢_↑ᵛ_</a><a id="18748" class="Symbol">;</a> <a id="18750" href="Definition.Conversion.html#11955" class="Datatype Operator">_⊢_↓ᵛ_</a><a id="18756" class="Symbol">;</a> <a id="18758" href="Definition.Conversion.html#12285" class="Datatype Operator">_⊢_~ᵛ_</a><a id="18764" class="Symbol">)</a>
-<a id="18766" class="Markup">```
-</a><a id="18770" class="Background">
+</a><a id="18633" class="Markup">```agda
+</a><a id="18641" class="Keyword">import</a> <a id="18648" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
+  <a id="18672" class="Keyword">using</a> <a id="18678" class="Symbol">(</a><a id="18679" href="Definition.Conversion.html#12759" class="Record Operator">_⊢_↑ᵛ_</a><a id="18685" class="Symbol">;</a> <a id="18687" href="Definition.Conversion.html#11955" class="Datatype Operator">_⊢_↓ᵛ_</a><a id="18693" class="Symbol">;</a> <a id="18695" href="Definition.Conversion.html#12285" class="Datatype Operator">_⊢_~ᵛ_</a><a id="18701" class="Symbol">)</a>
+<a id="18703" class="Markup">```
+</a><a id="18707" class="Background">
 Algorithmic equality is sound.
-</a><a id="18802" class="Markup">```agda
-</a><a id="18810" class="Keyword">import</a> <a id="18817" href="Definition.Conversion.Soundness.html" class="Module">Definition.Conversion.Soundness</a>
-  <a id="18851" class="Keyword">using</a>
-    <a id="18861" class="Symbol">(</a><a id="18862" href="Definition.Conversion.Soundness.html#4383" class="Function">soundnessConv↑</a><a id="18876" class="Symbol">;</a> <a id="18878" href="Definition.Conversion.Soundness.html#4626" class="Function">soundnessConv↓</a><a id="18892" class="Symbol">;</a>
-     <a id="18899" href="Definition.Conversion.Soundness.html#5420" class="Function">soundnessConv↑Term</a><a id="18917" class="Symbol">;</a> <a id="18919" href="Definition.Conversion.Soundness.html#6023" class="Function">soundnessConv↓Term</a><a id="18937" class="Symbol">;</a>
-     <a id="18944" href="Definition.Conversion.Soundness.html#1760" class="Function">soundness~↑</a><a id="18955" class="Symbol">;</a> <a id="18957" href="Definition.Conversion.Soundness.html#4081" class="Function">soundness~↓</a><a id="18968" class="Symbol">)</a>
-<a id="18970" class="Markup">```
-</a><a id="18974" class="Background">
+</a><a id="18739" class="Markup">```agda
+</a><a id="18747" class="Keyword">import</a> <a id="18754" href="Definition.Conversion.Soundness.html" class="Module">Definition.Conversion.Soundness</a>
+  <a id="18788" class="Keyword">using</a>
+    <a id="18798" class="Symbol">(</a><a id="18799" href="Definition.Conversion.Soundness.html#4287" class="Function">soundnessConv↑</a><a id="18813" class="Symbol">;</a> <a id="18815" href="Definition.Conversion.Soundness.html#4530" class="Function">soundnessConv↓</a><a id="18829" class="Symbol">;</a>
+     <a id="18836" href="Definition.Conversion.Soundness.html#5324" class="Function">soundnessConv↑Term</a><a id="18854" class="Symbol">;</a> <a id="18856" href="Definition.Conversion.Soundness.html#5927" class="Function">soundnessConv↓Term</a><a id="18874" class="Symbol">;</a>
+     <a id="18881" href="Definition.Conversion.Soundness.html#1719" class="Function">soundness~↑</a><a id="18892" class="Symbol">;</a> <a id="18894" href="Definition.Conversion.Soundness.html#3985" class="Function">soundness~↓</a><a id="18905" class="Symbol">)</a>
+<a id="18907" class="Markup">```
+</a><a id="18911" class="Background">
 Algorithmic equality is stable under weakening.
-</a><a id="19023" class="Markup">```agda
-</a><a id="19031" class="Keyword">import</a> <a id="19038" href="Definition.Conversion.Weakening.html" class="Module">Definition.Conversion.Weakening</a>
-  <a id="19072" class="Keyword">using</a> <a id="19078" class="Symbol">(</a><a id="19079" href="Definition.Conversion.Weakening.html#6355" class="Function">wkConv↑</a><a id="19086" class="Symbol">;</a> <a id="19088" href="Definition.Conversion.Weakening.html#6672" class="Function">wkConv↓</a><a id="19095" class="Symbol">;</a> <a id="19097" href="Definition.Conversion.Weakening.html#7522" class="Function">wkConv↑Term</a><a id="19108" class="Symbol">;</a> <a id="19110" href="Definition.Conversion.Weakening.html#8244" class="Function">wkConv↓Term</a><a id="19121" class="Symbol">;</a> <a id="19123" href="Definition.Conversion.Weakening.html#1668" class="Function">wk~↑</a><a id="19127" class="Symbol">;</a> <a id="19129" href="Definition.Conversion.Weakening.html#5927" class="Function">wk~↓</a><a id="19133" class="Symbol">)</a>
-<a id="19135" class="Markup">```
-</a><a id="19139" class="Background">
+</a><a id="18960" class="Markup">```agda
+</a><a id="18968" class="Keyword">import</a> <a id="18975" href="Definition.Conversion.Weakening.html" class="Module">Definition.Conversion.Weakening</a>
+  <a id="19009" class="Keyword">using</a> <a id="19015" class="Symbol">(</a><a id="19016" href="Definition.Conversion.Weakening.html#6257" class="Function">wkConv↑</a><a id="19023" class="Symbol">;</a> <a id="19025" href="Definition.Conversion.Weakening.html#6574" class="Function">wkConv↓</a><a id="19032" class="Symbol">;</a> <a id="19034" href="Definition.Conversion.Weakening.html#7417" class="Function">wkConv↑Term</a><a id="19045" class="Symbol">;</a> <a id="19047" href="Definition.Conversion.Weakening.html#8139" class="Function">wkConv↓Term</a><a id="19058" class="Symbol">;</a> <a id="19060" href="Definition.Conversion.Weakening.html#1670" class="Function">wk~↑</a><a id="19064" class="Symbol">;</a> <a id="19066" href="Definition.Conversion.Weakening.html#5831" class="Function">wk~↓</a><a id="19070" class="Symbol">)</a>
+<a id="19072" class="Markup">```
+</a><a id="19076" class="Background">
 Algorithmic equality is decidable.
-</a><a id="19175" class="Markup">```agda
-</a><a id="19183" class="Keyword">import</a> <a id="19190" href="Definition.Conversion.Decidable.html" class="Module">Definition.Conversion.Decidable</a>
-  <a id="19224" class="Keyword">using</a> <a id="19230" class="Symbol">(</a><a id="19231" href="Definition.Conversion.Decidable.html#30531" class="Function">decConv↑</a><a id="19239" class="Symbol">;</a> <a id="19241" href="Definition.Conversion.Decidable.html#31421" class="Function">decConv↓</a><a id="19249" class="Symbol">;</a> <a id="19251" href="Definition.Conversion.Decidable.html#35244" class="Function">decConv↑Term</a><a id="19263" class="Symbol">;</a> <a id="19265" href="Definition.Conversion.Decidable.html#37574" class="Function">decConv↓Term</a><a id="19277" class="Symbol">;</a> <a id="19279" href="Definition.Conversion.Decidable.html#23433" class="Function">dec~↑</a><a id="19284" class="Symbol">;</a> <a id="19286" href="Definition.Conversion.Decidable.html#29735" class="Function">dec~↓</a><a id="19291" class="Symbol">)</a>
-<a id="19293" class="Markup">```
-</a><a id="19297" class="Background">
+</a><a id="19112" class="Markup">```agda
+</a><a id="19120" class="Keyword">import</a> <a id="19127" href="Definition.Conversion.Decidable.html" class="Module">Definition.Conversion.Decidable</a>
+  <a id="19161" class="Keyword">using</a> <a id="19167" class="Symbol">(</a><a id="19168" href="Definition.Conversion.Decidable.html#30427" class="Function">decConv↑</a><a id="19176" class="Symbol">;</a> <a id="19178" href="Definition.Conversion.Decidable.html#31317" class="Function">decConv↓</a><a id="19186" class="Symbol">;</a> <a id="19188" href="Definition.Conversion.Decidable.html#35140" class="Function">decConv↑Term</a><a id="19200" class="Symbol">;</a> <a id="19202" href="Definition.Conversion.Decidable.html#37470" class="Function">decConv↓Term</a><a id="19214" class="Symbol">;</a> <a id="19216" href="Definition.Conversion.Decidable.html#23351" class="Function">dec~↑</a><a id="19221" class="Symbol">;</a> <a id="19223" href="Definition.Conversion.Decidable.html#29653" class="Function">dec~↓</a><a id="19228" class="Symbol">)</a>
+<a id="19230" class="Markup">```
+</a><a id="19234" class="Background">
 Level normalisation is deterministic.
-</a><a id="19336" class="Markup">```agda
-</a><a id="19344" class="Keyword">import</a> <a id="19351" href="Definition.Conversion.Level.html" class="Module">Definition.Conversion.Level</a>
-  <a id="19381" class="Keyword">using</a> <a id="19387" class="Symbol">(</a><a id="19388" href="Definition.Conversion.Level.html#5778" class="Function">deterministic-↑ᵛ</a><a id="19404" class="Symbol">)</a>
-<a id="19406" class="Markup">```
-</a><a id="19410" class="Background">
+</a><a id="19273" class="Markup">```agda
+</a><a id="19281" class="Keyword">import</a> <a id="19288" href="Definition.Conversion.Level.html" class="Module">Definition.Conversion.Level</a>
+  <a id="19318" class="Keyword">using</a> <a id="19324" class="Symbol">(</a><a id="19325" href="Definition.Conversion.Level.html#5778" class="Function">deterministic-↑ᵛ</a><a id="19341" class="Symbol">)</a>
+<a id="19343" class="Markup">```
+</a><a id="19347" class="Background">
 Lemma 4.1.
-</a><a id="19422" class="Markup">```agda
-</a><a id="19430" class="Keyword">open</a> <a id="19435" class="Keyword">import</a> <a id="19442" href="Definition.Conversion.EqRelInstance.html" class="Module">Definition.Conversion.EqRelInstance</a>
-  <a id="19480" class="Keyword">using</a> <a id="19486" class="Symbol">(</a><a id="19487" class="Keyword">module</a> <a id="19494" href="Definition.Conversion.EqRelInstance.html#3253" class="Module">Lemmas</a><a id="19500" class="Symbol">)</a>
-<a id="19502" class="Keyword">open</a> <a id="19507" href="Definition.Conversion.EqRelInstance.html#3253" class="Module">Lemmas</a>
-  <a id="19516" class="Keyword">using</a> <a id="19522" class="Symbol">(</a><a id="19523" href="Definition.Conversion.EqRelInstance.html#12733" class="Function">supᵘ-↑ᵛ</a><a id="19530" class="Symbol">)</a>
-<a id="19532" class="Markup">```
-</a><a id="19536" class="Background">
+</a><a id="19359" class="Markup">```agda
+</a><a id="19367" class="Keyword">open</a> <a id="19372" class="Keyword">import</a> <a id="19379" href="Definition.Conversion.EqRelInstance.html" class="Module">Definition.Conversion.EqRelInstance</a>
+  <a id="19417" class="Keyword">using</a> <a id="19423" class="Symbol">(</a><a id="19424" class="Keyword">module</a> <a id="19431" href="Definition.Conversion.EqRelInstance.html#3206" class="Module">Lemmas</a><a id="19437" class="Symbol">)</a>
+<a id="19439" class="Keyword">open</a> <a id="19444" href="Definition.Conversion.EqRelInstance.html#3206" class="Module">Lemmas</a>
+  <a id="19453" class="Keyword">using</a> <a id="19459" class="Symbol">(</a><a id="19460" href="Definition.Conversion.EqRelInstance.html#12444" class="Function">supᵘ-↑ᵛ</a><a id="19467" class="Symbol">)</a>
+<a id="19469" class="Markup">```
+</a><a id="19473" class="Background">
 The generic equality relation instance for algorithmic equality.
-</a><a id="19602" class="Markup">```agda
-</a><a id="19610" class="Keyword">import</a> <a id="19617" href="Definition.Conversion.EqRelInstance.html" class="Module">Definition.Conversion.EqRelInstance</a>
-  <a id="19655" class="Keyword">using</a> <a id="19661" class="Symbol">(</a><a id="19662" href="Definition.Conversion.EqRelInstance.html#24002" class="Function">eqRelInstance</a><a id="19675" class="Symbol">)</a>
-<a id="19677" class="Markup">```
-</a><a id="19681" class="Background">
+</a><a id="19539" class="Markup">```agda
+</a><a id="19547" class="Keyword">import</a> <a id="19554" href="Definition.Conversion.EqRelInstance.html" class="Module">Definition.Conversion.EqRelInstance</a>
+  <a id="19592" class="Keyword">using</a> <a id="19598" class="Symbol">(</a><a id="19599" href="Definition.Conversion.EqRelInstance.html#23612" class="Function">eqRelInstance</a><a id="19612" class="Symbol">)</a>
+<a id="19614" class="Markup">```
+</a><a id="19618" class="Background">
 Theorem 4.2: Algorithmic equality is complete with respect to
 judgemental equality.
-</a><a id="19766" class="Markup">```agda
-</a><a id="19774" class="Keyword">import</a> <a id="19781" href="Definition.Conversion.Consequences.Completeness.html" class="Module">Definition.Conversion.Consequences.Completeness</a>
-  <a id="19831" class="Keyword">using</a> <a id="19837" class="Symbol">(</a><a id="19838" href="Definition.Conversion.Consequences.Completeness.html#1135" class="Function">completeEq</a><a id="19848" class="Symbol">;</a> <a id="19850" href="Definition.Conversion.Consequences.Completeness.html#1428" class="Function">completeEqTerm</a><a id="19864" class="Symbol">)</a>
-<a id="19866" class="Markup">```
-</a><a id="19870" class="Background">
+</a><a id="19703" class="Markup">```agda
+</a><a id="19711" class="Keyword">import</a> <a id="19718" href="Definition.Conversion.Consequences.Completeness.html" class="Module">Definition.Conversion.Consequences.Completeness</a>
+  <a id="19768" class="Keyword">using</a> <a id="19774" class="Symbol">(</a><a id="19775" href="Definition.Conversion.Consequences.Completeness.html#1135" class="Function">completeEq</a><a id="19785" class="Symbol">;</a> <a id="19787" href="Definition.Conversion.Consequences.Completeness.html#1428" class="Function">completeEqTerm</a><a id="19801" class="Symbol">)</a>
+<a id="19803" class="Markup">```
+</a><a id="19807" class="Background">
 Corollary 4.3: Judgemental equality of well-formed types and terms is
 decidable.
-</a><a id="19952" class="Markup">```agda
-</a><a id="19960" class="Keyword">import</a> <a id="19967" href="Definition.Typed.Decidable.Equality.html" class="Module">Definition.Typed.Decidable.Equality</a>
-  <a id="20005" class="Keyword">using</a> <a id="20011" class="Symbol">(</a><a id="20012" href="Definition.Typed.Decidable.Equality.html#958" class="Function">decEq</a><a id="20017" class="Symbol">;</a> <a id="20019" href="Definition.Typed.Decidable.Equality.html#1207" class="Function">decEqTerm</a><a id="20028" class="Symbol">)</a>
-<a id="20030" class="Markup">```
-</a><a id="20034" class="Background">
+</a><a id="19889" class="Markup">```agda
+</a><a id="19897" class="Keyword">import</a> <a id="19904" href="Definition.Typed.Decidable.Equality.html" class="Module">Definition.Typed.Decidable.Equality</a>
+  <a id="19942" class="Keyword">using</a> <a id="19948" class="Symbol">(</a><a id="19949" href="Definition.Typed.Decidable.Equality.html#958" class="Function">decEq</a><a id="19954" class="Symbol">;</a> <a id="19956" href="Definition.Typed.Decidable.Equality.html#1207" class="Function">decEqTerm</a><a id="19965" class="Symbol">)</a>
+<a id="19967" class="Markup">```
+</a><a id="19971" class="Background">
 Corollary 4.4: Deep normalisation.
-</a><a id="20070" class="Markup">```agda
-</a><a id="20078" class="Keyword">import</a> <a id="20085" href="Definition.Conversion.FullReduction.html" class="Module">Definition.Conversion.FullReduction</a>
-  <a id="20123" class="Keyword">using</a> <a id="20129" class="Symbol">(</a><a id="20130" href="Definition.Conversion.FullReduction.html#19571" class="Function">fullRed</a><a id="20137" class="Symbol">;</a> <a id="20139" href="Definition.Conversion.FullReduction.html#19765" class="Function">fullRedTerm</a><a id="20150" class="Symbol">)</a>
-<a id="20152" class="Markup">```
-</a><a id="20156" class="Background">
+</a><a id="20007" class="Markup">```agda
+</a><a id="20015" class="Keyword">import</a> <a id="20022" href="Definition.Conversion.FullReduction.html" class="Module">Definition.Conversion.FullReduction</a>
+  <a id="20060" class="Keyword">using</a> <a id="20066" class="Symbol">(</a><a id="20067" href="Definition.Conversion.FullReduction.html#19301" class="Function">fullRed</a><a id="20074" class="Symbol">;</a> <a id="20076" href="Definition.Conversion.FullReduction.html#19495" class="Function">fullRedTerm</a><a id="20087" class="Symbol">)</a>
+<a id="20089" class="Markup">```
+</a><a id="20093" class="Background">
 Checkable types, checkable terms and inferable terms. The code also
 makes use of `Checkable-level`. If `Level` is allowed, then
 `Checkable-level (level t)` is logically equivalent to `Checkable t`.
-</a><a id="20355" class="Markup">```agda
-</a><a id="20363" class="Keyword">import</a> <a id="20370" href="Definition.Typechecking.html" class="Module">Definition.Typechecking</a>
-  <a id="20396" class="Keyword">using</a>
-    <a id="20406" class="Symbol">(</a><a id="20407" href="Definition.Typechecking.html#6032" class="Datatype">Checkable-type</a><a id="20421" class="Symbol">;</a> <a id="20423" href="Definition.Typechecking.html#8268" class="Datatype">Checkable</a><a id="20432" class="Symbol">;</a> <a id="20434" href="Definition.Typechecking.html#6461" class="Datatype">Inferable</a><a id="20443" class="Symbol">;</a> <a id="20445" href="Definition.Typechecking.html#8568" class="Datatype">Checkable-level</a><a id="20460" class="Symbol">;</a>
-     <a id="20467" href="Definition.Typechecking.html#12376" class="Function">Checkable-level⇔</a><a id="20483" class="Symbol">)</a>
-<a id="20485" class="Markup">```
-</a><a id="20489" class="Background">
+</a><a id="20292" class="Markup">```agda
+</a><a id="20300" class="Keyword">import</a> <a id="20307" href="Definition.Typechecking.html" class="Module">Definition.Typechecking</a>
+  <a id="20333" class="Keyword">using</a>
+    <a id="20343" class="Symbol">(</a><a id="20344" href="Definition.Typechecking.html#6032" class="Datatype">Checkable-type</a><a id="20358" class="Symbol">;</a> <a id="20360" href="Definition.Typechecking.html#8268" class="Datatype">Checkable</a><a id="20369" class="Symbol">;</a> <a id="20371" href="Definition.Typechecking.html#6461" class="Datatype">Inferable</a><a id="20380" class="Symbol">;</a> <a id="20382" href="Definition.Typechecking.html#8568" class="Datatype">Checkable-level</a><a id="20397" class="Symbol">;</a>
+     <a id="20404" href="Definition.Typechecking.html#12376" class="Function">Checkable-level⇔</a><a id="20420" class="Symbol">)</a>
+<a id="20422" class="Markup">```
+</a><a id="20426" class="Background">
 The term Π (λ x₀) x₀ is a checkable type but not a checkable term.
 Every well-formed, checkable type is inferable.
-</a><a id="20605" class="Markup">```agda
-</a><a id="20613" class="Keyword">import</a> <a id="20620" href="Definition.Typechecking.html" class="Module">Definition.Typechecking</a>
-  <a id="20646" class="Keyword">using</a> <a id="20652" class="Symbol">(</a><a id="20653" href="Definition.Typechecking.html#10097" class="Function">Checkable-type×¬Checkable</a><a id="20678" class="Symbol">;</a> <a id="20680" href="Definition.Typechecking.html#11671" class="Function">⊢→Checkable-type→Inferable</a><a id="20706" class="Symbol">)</a>
-<a id="20708" class="Markup">```
-</a><a id="20712" class="Background">
+</a><a id="20542" class="Markup">```agda
+</a><a id="20550" class="Keyword">import</a> <a id="20557" href="Definition.Typechecking.html" class="Module">Definition.Typechecking</a>
+  <a id="20583" class="Keyword">using</a> <a id="20589" class="Symbol">(</a><a id="20590" href="Definition.Typechecking.html#10097" class="Function">Checkable-type×¬Checkable</a><a id="20615" class="Symbol">;</a> <a id="20617" href="Definition.Typechecking.html#11671" class="Function">⊢→Checkable-type→Inferable</a><a id="20643" class="Symbol">)</a>
+<a id="20645" class="Markup">```
+</a><a id="20649" class="Background">
 Theorem 4.5: Decidability of type checking/type inference for certain
 classes of terms, types and contexts.
-</a><a id="20821" class="Markup">```agda
-</a><a id="20829" class="Keyword">import</a> <a id="20836" href="Definition.Typed.Decidable.html" class="Module">Definition.Typed.Decidable</a>
-  <a id="20865" class="Keyword">using</a> <a id="20871" class="Symbol">(</a><a id="20872" href="Definition.Typed.Decidable.html#4282" class="Function">decWfCon</a><a id="20880" class="Symbol">;</a> <a id="20882" href="Definition.Typed.Decidable.html#4875" class="Function">decConTypeᶜ</a><a id="20893" class="Symbol">;</a> <a id="20895" href="Definition.Typed.Decidable.html#5166" class="Function">decConTermTypeᶜ</a><a id="20910" class="Symbol">;</a> <a id="20912" href="Definition.Typed.Decidable.html#5508" class="Function">decConTermᵢ</a><a id="20923" class="Symbol">)</a>
-<a id="20925" class="Markup">```
-</a><a id="20929" class="Background">
+</a><a id="20758" class="Markup">```agda
+</a><a id="20766" class="Keyword">import</a> <a id="20773" href="Definition.Typed.Decidable.html" class="Module">Definition.Typed.Decidable</a>
+  <a id="20802" class="Keyword">using</a> <a id="20808" class="Symbol">(</a><a id="20809" href="Definition.Typed.Decidable.html#4223" class="Function">decWfCon</a><a id="20817" class="Symbol">;</a> <a id="20819" href="Definition.Typed.Decidable.html#4816" class="Function">decConTypeᶜ</a><a id="20830" class="Symbol">;</a> <a id="20832" href="Definition.Typed.Decidable.html#5107" class="Function">decConTermTypeᶜ</a><a id="20847" class="Symbol">;</a> <a id="20849" href="Definition.Typed.Decidable.html#5445" class="Function">decConTermᵢ</a><a id="20860" class="Symbol">)</a>
+<a id="20862" class="Markup">```
+</a><a id="20866" class="Background">
 ### 5: Erasing Levels Is Safe
 
 The usage relation. This relation is parametrised by a value of type
 `Usage-restrictions`, which for instance makes it possible to disallow
 several forms of erased matches.
-</a><a id="21134" class="Markup">```agda
-</a><a id="21142" class="Keyword">import</a> <a id="21149" href="Graded.Usage.html" class="Module">Graded.Usage</a>
-  <a id="21164" class="Keyword">using</a> <a id="21170" class="Symbol">(</a><a id="21171" href="Graded.Usage.html#8996" class="Datatype Operator">_▸[_]_</a><a id="21177" class="Symbol">)</a>
-<a id="21179" class="Keyword">import</a> <a id="21186" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
-  <a id="21214" class="Keyword">using</a> <a id="21220" class="Symbol">(</a><a id="21221" href="Graded.Usage.Restrictions.html#974" class="Record">Usage-restrictions</a><a id="21239" class="Symbol">)</a>
-<a id="21241" class="Markup">```
-</a><a id="21245" class="Background">
+</a><a id="21071" class="Markup">```agda
+</a><a id="21079" class="Keyword">import</a> <a id="21086" href="Graded.Usage.html" class="Module">Graded.Usage</a>
+  <a id="21101" class="Keyword">using</a> <a id="21107" class="Symbol">(</a><a id="21108" href="Graded.Usage.html#8996" class="Datatype Operator">_▸[_]_</a><a id="21114" class="Symbol">)</a>
+<a id="21116" class="Keyword">import</a> <a id="21123" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+  <a id="21151" class="Keyword">using</a> <a id="21157" class="Symbol">(</a><a id="21158" href="Graded.Usage.Restrictions.html#974" class="Record">Usage-restrictions</a><a id="21176" class="Symbol">)</a>
+<a id="21178" class="Markup">```
+</a><a id="21182" class="Background">
 Usage contexts.
-</a><a id="21262" class="Markup">```agda
-</a><a id="21270" class="Keyword">import</a> <a id="21277" href="Graded.Context.html" class="Module">Graded.Context</a>
-  <a id="21294" class="Keyword">using</a> <a id="21300" class="Symbol">(</a><a id="21301" href="Graded.Context.html#729" class="Datatype">Conₘ</a><a id="21305" class="Symbol">)</a>
-<a id="21307" class="Markup">```
-</a><a id="21311" class="Background">
+</a><a id="21199" class="Markup">```agda
+</a><a id="21207" class="Keyword">import</a> <a id="21214" href="Graded.Context.html" class="Module">Graded.Context</a>
+  <a id="21231" class="Keyword">using</a> <a id="21237" class="Symbol">(</a><a id="21238" href="Graded.Context.html#729" class="Datatype">Conₘ</a><a id="21242" class="Symbol">)</a>
+<a id="21244" class="Markup">```
+</a><a id="21248" class="Background">
 Modes. The development supports modalities with or without the zero
 mode.
-</a><a id="21386" class="Markup">```agda
-</a><a id="21394" class="Keyword">import</a> <a id="21401" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a>
-  <a id="21434" class="Keyword">using</a> <a id="21440" class="Symbol">(</a><a id="21441" href="Graded.Mode.Instances.Zero-one.html#1900" class="Datatype">Mode</a><a id="21445" class="Symbol">)</a>
-<a id="21447" class="Markup">```
-</a><a id="21451" class="Background">
+</a><a id="21323" class="Markup">```agda
+</a><a id="21331" class="Keyword">import</a> <a id="21338" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a>
+  <a id="21371" class="Keyword">using</a> <a id="21377" class="Symbol">(</a><a id="21378" href="Graded.Mode.Instances.Zero-one.html#1900" class="Datatype">Mode</a><a id="21382" class="Symbol">)</a>
+<a id="21384" class="Markup">```
+</a><a id="21388" class="Background">
 The erasure modality. The development supports two variants of the
 erasure modality: with or without support for the zero mode. When the
 paper refers to &quot;the erasure modality&quot; it is the one with support for
 the zero mode that is meant.
-</a><a id="21688" class="Markup">```agda
-</a><a id="21696" class="Keyword">import</a> <a id="21703" href="Graded.Modality.Instances.Erasure.html" class="Module">Graded.Modality.Instances.Erasure</a>
-  <a id="21739" class="Keyword">using</a> <a id="21745" class="Symbol">(</a><a id="21746" href="Graded.Modality.Instances.Erasure.html#442" class="InductiveConstructor">𝟘</a><a id="21747" class="Symbol">;</a> <a id="21749" href="Graded.Modality.Instances.Erasure.html#444" class="InductiveConstructor">ω</a><a id="21750" class="Symbol">)</a>
-<a id="21752" class="Keyword">import</a> <a id="21759" href="Graded.Modality.Instances.Erasure.Modality.html" class="Module">Graded.Modality.Instances.Erasure.Modality</a>
-  <a id="21804" class="Keyword">using</a> <a id="21810" class="Symbol">(</a><a id="21811" href="Graded.Modality.Instances.Erasure.Modality.html#511" class="Function">ErasureModality</a><a id="21826" class="Symbol">)</a>
-<a id="21828" class="Markup">```
-</a><a id="21832" class="Background">
+</a><a id="21625" class="Markup">```agda
+</a><a id="21633" class="Keyword">import</a> <a id="21640" href="Graded.Modality.Instances.Erasure.html" class="Module">Graded.Modality.Instances.Erasure</a>
+  <a id="21676" class="Keyword">using</a> <a id="21682" class="Symbol">(</a><a id="21683" href="Graded.Modality.Instances.Erasure.html#442" class="InductiveConstructor">𝟘</a><a id="21684" class="Symbol">;</a> <a id="21686" href="Graded.Modality.Instances.Erasure.html#444" class="InductiveConstructor">ω</a><a id="21687" class="Symbol">)</a>
+<a id="21689" class="Keyword">import</a> <a id="21696" href="Graded.Modality.Instances.Erasure.Modality.html" class="Module">Graded.Modality.Instances.Erasure.Modality</a>
+  <a id="21741" class="Keyword">using</a> <a id="21747" class="Symbol">(</a><a id="21748" href="Graded.Modality.Instances.Erasure.Modality.html#511" class="Function">ErasureModality</a><a id="21763" class="Symbol">)</a>
+<a id="21765" class="Markup">```
+</a><a id="21769" class="Background">
 The target language. The term appˢ t u is denoted by `t ∘⟨ s ⟩ u`, the
 predicate Valueˢ is called `Value⟨ s ⟩`, sucˢ is called `suc⟨ s ⟩`, ↯ˢ
 is called `loop? s`, \_⊢\_⟶ˢᵘᶜ\_:ℕ is called `_⊢_⇒ˢ_∷ℕ`,
@@ -743,32 +742,32 @@ reduction relations for the target language include a definition
 context: ⇒ corresponds to `_⊢_⇒_`, ⇒ˢᵘᶜ corresponds to `_⊢_⇒ˢ_`, and
 ⇒\*ₛ corresponds to `_⊢_⇒ˢ⟨_⟩*_`. The term loop corresponds to
 `loop non-strict`.
-</a><a id="22318" class="Markup">```agda
-</a><a id="22326" class="Keyword">import</a> <a id="22333" href="Graded.Erasure.Target.html" class="Module">Graded.Erasure.Target</a>
-  <a id="22357" class="Keyword">using</a> <a id="22363" class="Symbol">(</a><a id="22364" href="Graded.Erasure.Target.html#1322" class="Datatype">Term</a><a id="22368" class="Symbol">;</a> <a id="22370" href="Graded.Erasure.Target.html#708" class="Datatype">Strictness</a><a id="22380" class="Symbol">;</a> <a id="22382" href="Graded.Erasure.Target.html#6329" class="Datatype">Value</a><a id="22387" class="Symbol">;</a> <a id="22389" href="Graded.Erasure.Target.html#6573" class="Function Operator">Value⟨_⟩</a><a id="22397" class="Symbol">;</a> <a id="22399" href="Graded.Erasure.Target.html#7364" class="Datatype Operator">_⊢_⇒_</a><a id="22404" class="Symbol">;</a> <a id="22406" href="Graded.Erasure.Target.html#1976" class="Function Operator">suc⟨_⟩</a><a id="22412" class="Symbol">;</a> <a id="22414" href="Graded.Erasure.Target.html#7107" class="Function">sucⁿ</a><a id="22418" class="Symbol">)</a>
-<a id="22420" class="Keyword">import</a> <a id="22427" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
-  <a id="22448" class="Keyword">using</a> <a id="22454" class="Symbol">(</a><a id="22455" href="Definition.Untyped.html#5194" class="Function">sucⁿ</a><a id="22459" class="Symbol">)</a>
-<a id="22461" class="Keyword">import</a> <a id="22468" href="Graded.Erasure.Target.Non-terminating.html" class="Module">Graded.Erasure.Target.Non-terminating</a>
-  <a id="22508" class="Keyword">using</a> <a id="22514" class="Symbol">(</a><a id="22515" href="Graded.Erasure.Target.Non-terminating.html#796" class="Function">loop</a><a id="22519" class="Symbol">)</a>
-<a id="22521" class="Keyword">import</a> <a id="22528" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
-  <a id="22556" class="Keyword">using</a> <a id="22562" class="Symbol">(</a><a id="22563" href="Graded.Erasure.Extraction.html#893" class="Function">loop?</a><a id="22568" class="Symbol">)</a>
-<a id="22570" class="Keyword">import</a> <a id="22577" href="Graded.Erasure.SucRed.html" class="Module">Graded.Erasure.SucRed</a>
-  <a id="22601" class="Keyword">using</a> <a id="22607" class="Symbol">(</a><a id="22608" href="Graded.Erasure.SucRed.html#6069" class="Datatype Operator">_⊢_⇒ˢ_</a><a id="22614" class="Symbol">;</a> <a id="22616" href="Graded.Erasure.SucRed.html#1447" class="Datatype Operator">_⊢_⇒ˢ_∷ℕ</a><a id="22624" class="Symbol">;</a> <a id="22626" href="Graded.Erasure.SucRed.html#1707" class="Datatype Operator">_⊢_⇒ˢ*_∷ℕ</a><a id="22635" class="Symbol">;</a> <a id="22637" href="Graded.Erasure.SucRed.html#12249" class="Function Operator">_⊢_⇒ˢ⟨_⟩*_</a><a id="22647" class="Symbol">)</a>
-<a id="22649" class="Markup">```
-</a><a id="22653" class="Background">
+</a><a id="22255" class="Markup">```agda
+</a><a id="22263" class="Keyword">import</a> <a id="22270" href="Graded.Erasure.Target.html" class="Module">Graded.Erasure.Target</a>
+  <a id="22294" class="Keyword">using</a> <a id="22300" class="Symbol">(</a><a id="22301" href="Graded.Erasure.Target.html#1322" class="Datatype">Term</a><a id="22305" class="Symbol">;</a> <a id="22307" href="Graded.Erasure.Target.html#708" class="Datatype">Strictness</a><a id="22317" class="Symbol">;</a> <a id="22319" href="Graded.Erasure.Target.html#6329" class="Datatype">Value</a><a id="22324" class="Symbol">;</a> <a id="22326" href="Graded.Erasure.Target.html#6573" class="Function Operator">Value⟨_⟩</a><a id="22334" class="Symbol">;</a> <a id="22336" href="Graded.Erasure.Target.html#7364" class="Datatype Operator">_⊢_⇒_</a><a id="22341" class="Symbol">;</a> <a id="22343" href="Graded.Erasure.Target.html#1976" class="Function Operator">suc⟨_⟩</a><a id="22349" class="Symbol">;</a> <a id="22351" href="Graded.Erasure.Target.html#7107" class="Function">sucⁿ</a><a id="22355" class="Symbol">)</a>
+<a id="22357" class="Keyword">import</a> <a id="22364" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
+  <a id="22385" class="Keyword">using</a> <a id="22391" class="Symbol">(</a><a id="22392" href="Definition.Untyped.html#5174" class="Function">sucⁿ</a><a id="22396" class="Symbol">)</a>
+<a id="22398" class="Keyword">import</a> <a id="22405" href="Graded.Erasure.Target.Non-terminating.html" class="Module">Graded.Erasure.Target.Non-terminating</a>
+  <a id="22445" class="Keyword">using</a> <a id="22451" class="Symbol">(</a><a id="22452" href="Graded.Erasure.Target.Non-terminating.html#796" class="Function">loop</a><a id="22456" class="Symbol">)</a>
+<a id="22458" class="Keyword">import</a> <a id="22465" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
+  <a id="22493" class="Keyword">using</a> <a id="22499" class="Symbol">(</a><a id="22500" href="Graded.Erasure.Extraction.html#893" class="Function">loop?</a><a id="22505" class="Symbol">)</a>
+<a id="22507" class="Keyword">import</a> <a id="22514" href="Graded.Erasure.SucRed.html" class="Module">Graded.Erasure.SucRed</a>
+  <a id="22538" class="Keyword">using</a> <a id="22544" class="Symbol">(</a><a id="22545" href="Graded.Erasure.SucRed.html#6055" class="Datatype Operator">_⊢_⇒ˢ_</a><a id="22551" class="Symbol">;</a> <a id="22553" href="Graded.Erasure.SucRed.html#1447" class="Datatype Operator">_⊢_⇒ˢ_∷ℕ</a><a id="22561" class="Symbol">;</a> <a id="22563" href="Graded.Erasure.SucRed.html#1707" class="Datatype Operator">_⊢_⇒ˢ*_∷ℕ</a><a id="22572" class="Symbol">;</a> <a id="22574" href="Graded.Erasure.SucRed.html#12235" class="Function Operator">_⊢_⇒ˢ⟨_⟩*_</a><a id="22584" class="Symbol">)</a>
+<a id="22586" class="Markup">```
+</a><a id="22590" class="Background">
 The extraction function.
-</a><a id="22679" class="Markup">```agda
-</a><a id="22687" class="Keyword">import</a> <a id="22694" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
-  <a id="22722" class="Keyword">using</a> <a id="22728" class="Symbol">(</a><a id="22729" href="Graded.Erasure.Extraction.html#2112" class="Function">erase</a><a id="22734" class="Symbol">)</a>
-<a id="22736" class="Markup">```
-</a><a id="22740" class="Background">
+</a><a id="22616" class="Markup">```agda
+</a><a id="22624" class="Keyword">import</a> <a id="22631" href="Graded.Erasure.Extraction.html" class="Module">Graded.Erasure.Extraction</a>
+  <a id="22659" class="Keyword">using</a> <a id="22665" class="Symbol">(</a><a id="22666" href="Graded.Erasure.Extraction.html#2112" class="Function">erase</a><a id="22671" class="Symbol">)</a>
+<a id="22673" class="Markup">```
+</a><a id="22677" class="Background">
 Complete removal of all arguments can, in the strict setting, lead to
 non-termination for the extracted program.
-</a><a id="22854" class="Markup">```agda
-</a><a id="22862" class="Keyword">import</a> <a id="22869" href="Graded.Erasure.Extraction.Non-terminating.html" class="Module">Graded.Erasure.Extraction.Non-terminating</a>
-  <a id="22913" class="Keyword">using</a> <a id="22919" class="Symbol">(</a><a id="22920" href="Graded.Erasure.Extraction.Non-terminating.html#12640" class="Function">loops-reduces-forever</a><a id="22941" class="Symbol">;</a> <a id="22943" href="Graded.Erasure.Extraction.Non-terminating.html#13659" class="Function">⊢loops</a><a id="22949" class="Symbol">;</a> <a id="22951" href="Graded.Erasure.Extraction.Non-terminating.html#13972" class="Function">▸loops</a><a id="22957" class="Symbol">)</a>
-<a id="22959" class="Markup">```
-</a><a id="22963" class="Background">
+</a><a id="22791" class="Markup">```agda
+</a><a id="22799" class="Keyword">import</a> <a id="22806" href="Graded.Erasure.Extraction.Non-terminating.html" class="Module">Graded.Erasure.Extraction.Non-terminating</a>
+  <a id="22850" class="Keyword">using</a> <a id="22856" class="Symbol">(</a><a id="22857" href="Graded.Erasure.Extraction.Non-terminating.html#12636" class="Function">loops-reduces-forever</a><a id="22878" class="Symbol">;</a> <a id="22880" href="Graded.Erasure.Extraction.Non-terminating.html#13655" class="Function">⊢loops</a><a id="22886" class="Symbol">;</a> <a id="22888" href="Graded.Erasure.Extraction.Non-terminating.html#13968" class="Function">▸loops</a><a id="22894" class="Symbol">)</a>
+<a id="22896" class="Markup">```
+</a><a id="22900" class="Background">
 Theorem 5.1: Soundness of erasure. The paper uses the formulation
 &quot;erased matches are disallowed for weak Σ and unit types&quot;, but the
 code uses the formulation &quot;if the modality is non-trivial, then erased
@@ -777,50 +776,50 @@ identity type&quot;: the paper focuses on the erasure modality, which is
 non-trivial, and identity types are mostly ignored in the text. The
 statement in the code also has the condition &quot;equality reflection is
 disallowed or the context is empty&quot;.
-</a><a id="23474" class="Markup">```agda
-</a><a id="23482" class="Keyword">open</a> <a id="23487" class="Keyword">import</a> <a id="23494" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
-<a id="23532" class="Keyword">open</a> <a id="23537" href="Graded.Erasure.Consequences.Soundness.html#3563" class="Module">Soundness</a>
-  <a id="23549" class="Keyword">using</a> <a id="23555" class="Symbol">(</a><a id="23556" href="Graded.Erasure.Consequences.Soundness.html#6008" class="Function">soundness-ℕ</a><a id="23567" class="Symbol">)</a>
-<a id="23569" class="Markup">```
-</a><a id="23573" class="Background">
+</a><a id="23411" class="Markup">```agda
+</a><a id="23419" class="Keyword">open</a> <a id="23424" class="Keyword">import</a> <a id="23431" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
+<a id="23469" class="Keyword">open</a> <a id="23474" href="Graded.Erasure.Consequences.Soundness.html#3563" class="Module">Soundness</a>
+  <a id="23486" class="Keyword">using</a> <a id="23492" class="Symbol">(</a><a id="23493" href="Graded.Erasure.Consequences.Soundness.html#6003" class="Function">soundness-ℕ</a><a id="23504" class="Symbol">)</a>
+<a id="23506" class="Markup">```
+</a><a id="23510" class="Background">
 Corollary 5.2: Soundness of erasure for closed terms.
-</a><a id="23628" class="Markup">```agda
-</a><a id="23636" class="Keyword">open</a> <a id="23641" href="Graded.Erasure.Consequences.Soundness.html#8348" class="Module">Soundness₀</a>
-  <a id="23654" class="Keyword">using</a> <a id="23660" class="Symbol">(</a><a id="23661" href="Graded.Erasure.Consequences.Soundness.html#8550" class="Function">soundness-ℕ</a><a id="23672" class="Symbol">)</a>
-<a id="23674" class="Markup">```
-</a><a id="23678" class="Background">
+</a><a id="23565" class="Markup">```agda
+</a><a id="23573" class="Keyword">open</a> <a id="23578" href="Graded.Erasure.Consequences.Soundness.html#8338" class="Module">Soundness₀</a>
+  <a id="23591" class="Keyword">using</a> <a id="23597" class="Symbol">(</a><a id="23598" href="Graded.Erasure.Consequences.Soundness.html#8540" class="Function">soundness-ℕ</a><a id="23609" class="Symbol">)</a>
+<a id="23611" class="Markup">```
+</a><a id="23615" class="Background">
 Some counterexamples to variants of Theorem 5.1, one for the case
 where erased matches are allowed for weak Σ-types, and one for the
 case where erased matches are allowed for the empty type and the
 context is allowed to be inconsistent.
-</a><a id="23916" class="Markup">```agda
-</a><a id="23924" class="Keyword">import</a> <a id="23931" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a> <a id="23969" class="Keyword">using</a>
-  <a id="23977" class="Symbol">(</a><a id="23978" href="Graded.Erasure.Consequences.Soundness.html#10069" class="Function">soundness-ℕ-only-source-counterexample₁</a><a id="24017" class="Symbol">;</a> <a id="24019" href="Graded.Erasure.Consequences.Soundness.html#20830" class="Function">soundness-ℕ-counterexample₆</a><a id="24046" class="Symbol">)</a>
-<a id="24048" class="Markup">```
-</a><a id="24052" class="Background">
+</a><a id="23853" class="Markup">```agda
+</a><a id="23861" class="Keyword">import</a> <a id="23868" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a> <a id="23906" class="Keyword">using</a>
+  <a id="23914" class="Symbol">(</a><a id="23915" href="Graded.Erasure.Consequences.Soundness.html#10047" class="Function">soundness-ℕ-only-source-counterexample₁</a><a id="23954" class="Symbol">;</a> <a id="23956" href="Graded.Erasure.Consequences.Soundness.html#20808" class="Function">soundness-ℕ-counterexample₆</a><a id="23983" class="Symbol">)</a>
+<a id="23985" class="Markup">```
+</a><a id="23989" class="Background">
 ### 6: Discussion and Future Work
 
 The algorithmic η-equality rule for Lift, stability of algorithmic
 equality under conversion, and lifting of algorithmic equality of
 atomic neutrals with types in WHNF (`Γ ⊢ t ~ u ↓ A`) to algorithmic
 equality of terms in WHNF (`Γ ⊢ t [conv↓] u ∷ A`).
-</a><a id="24340" class="Markup">```agda
-</a><a id="24348" class="Keyword">open</a> <a id="24353" class="Keyword">import</a> <a id="24360" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
-  <a id="24384" class="Keyword">using</a> <a id="24390" class="Symbol">(</a><a id="24391" class="Keyword">module</a> <a id="24398" href="Definition.Conversion.html#7151" class="Module Operator">_⊢_[conv↓]_∷_</a><a id="24411" class="Symbol">)</a>
-<a id="24413" class="Keyword">open</a> <a id="24418" href="Definition.Conversion.html#7151" class="Module Operator">_⊢_[conv↓]_∷_</a>
-  <a id="24434" class="Keyword">using</a> <a id="24440" class="Symbol">(</a><a id="24441" href="Definition.Conversion.html#8115" class="InductiveConstructor">Lift-η</a><a id="24447" class="Symbol">)</a>
-<a id="24449" class="Keyword">import</a> <a id="24456" href="Definition.Conversion.Conversion.html" class="Module">Definition.Conversion.Conversion</a>
-  <a id="24491" class="Keyword">using</a> <a id="24497" class="Symbol">(</a><a id="24498" href="Definition.Conversion.Conversion.html#6481" class="Function">convConv↑Term</a><a id="24511" class="Symbol">;</a> <a id="24513" href="Definition.Conversion.Conversion.html#6666" class="Function">convConv↓Term</a><a id="24526" class="Symbol">)</a>
-<a id="24528" class="Keyword">import</a> <a id="24535" href="Definition.Conversion.Lift.html" class="Module">Definition.Conversion.Lift</a>
-  <a id="24564" class="Keyword">using</a> <a id="24570" class="Symbol">(</a><a id="24571" href="Definition.Conversion.Lift.html#8833" class="Function">lift~toConv↓</a><a id="24583" class="Symbol">)</a>
-<a id="24585" class="Markup">```
-</a><a id="24589" class="Background">
+</a><a id="24277" class="Markup">```agda
+</a><a id="24285" class="Keyword">open</a> <a id="24290" class="Keyword">import</a> <a id="24297" href="Definition.Conversion.html" class="Module">Definition.Conversion</a>
+  <a id="24321" class="Keyword">using</a> <a id="24327" class="Symbol">(</a><a id="24328" class="Keyword">module</a> <a id="24335" href="Definition.Conversion.html#7151" class="Module Operator">_⊢_[conv↓]_∷_</a><a id="24348" class="Symbol">)</a>
+<a id="24350" class="Keyword">open</a> <a id="24355" href="Definition.Conversion.html#7151" class="Module Operator">_⊢_[conv↓]_∷_</a>
+  <a id="24371" class="Keyword">using</a> <a id="24377" class="Symbol">(</a><a id="24378" href="Definition.Conversion.html#8115" class="InductiveConstructor">Lift-η</a><a id="24384" class="Symbol">)</a>
+<a id="24386" class="Keyword">import</a> <a id="24393" href="Definition.Conversion.Conversion.html" class="Module">Definition.Conversion.Conversion</a>
+  <a id="24428" class="Keyword">using</a> <a id="24434" class="Symbol">(</a><a id="24435" href="Definition.Conversion.Conversion.html#6381" class="Function">convConv↑Term</a><a id="24448" class="Symbol">;</a> <a id="24450" href="Definition.Conversion.Conversion.html#6564" class="Function">convConv↓Term</a><a id="24463" class="Symbol">)</a>
+<a id="24465" class="Keyword">import</a> <a id="24472" href="Definition.Conversion.Lift.html" class="Module">Definition.Conversion.Lift</a>
+  <a id="24501" class="Keyword">using</a> <a id="24507" class="Symbol">(</a><a id="24508" href="Definition.Conversion.Lift.html#8737" class="Function">lift~toConv↓</a><a id="24520" class="Symbol">)</a>
+<a id="24522" class="Markup">```
+</a><a id="24526" class="Background">
 ## More pointers to code
 
 Some examples, including a universe-polymorphic identity function and
 a universe-polymorphic encoding of vectors (lists of a given length).
-</a><a id="24756" class="Markup">```agda
-</a><a id="24764" class="Keyword">import</a> <a id="24771" href="Graded.Erasure.Examples.html" class="Module">Graded.Erasure.Examples</a>
-  <a id="24797" class="Keyword">using</a> <a id="24803" class="Symbol">(</a><a id="24804" href="Graded.Erasure.Examples.html#5175" class="Function">⊢id</a><a id="24807" class="Symbol">;</a> <a id="24809" href="Graded.Erasure.Examples.html#13426" class="Function">⊢Vec</a><a id="24813" class="Symbol">;</a> <a id="24815" href="Graded.Erasure.Examples.html#24121" class="Function">⊢head</a><a id="24820" class="Symbol">)</a>
-<a id="24822" class="Markup">```
+</a><a id="24693" class="Markup">```agda
+</a><a id="24701" class="Keyword">import</a> <a id="24708" href="Graded.Erasure.Examples.html" class="Module">Graded.Erasure.Examples</a>
+  <a id="24734" class="Keyword">using</a> <a id="24740" class="Symbol">(</a><a id="24741" href="Graded.Erasure.Examples.html#5129" class="Function">⊢id</a><a id="24744" class="Symbol">;</a> <a id="24746" href="Graded.Erasure.Examples.html#13380" class="Function">⊢Vec</a><a id="24750" class="Symbol">;</a> <a id="24752" href="Graded.Erasure.Examples.html#24025" class="Function">⊢head</a><a id="24757" class="Symbol">)</a>
+<a id="24759" class="Markup">```
 </a></pre></body></html>
