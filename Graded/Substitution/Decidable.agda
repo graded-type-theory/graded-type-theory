@@ -130,7 +130,7 @@ _▶?_ {mos = mos} Ψ σ = case ∥∥▶? σ of λ where
       (yes Ψ≤∥σ∥) → yes (λ x → sub (▶σ x) (Ψ≤∥σ∥ x))
       (no Ψ≰∥σ∥)  → no λ Ψ▶σ → Ψ≰∥σ∥ λ x → begin
         (𝟘ᶜ , x ≔ ⌜ mos x ⌝) <* Ψ          ≤⟨ substₘ-calc-upper-bound no-sink-or-≤𝟘 σ _ (Ψ▶σ x) ⟩
-        (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos          ≈⟨ ∥∥-*>-𝟘ᶜ,≔𝟙 σ ⟩
+        (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos          ≈⟨ 𝟘ᶜ,≔𝟙-<*-∥∥ σ ⟩
         (𝟘ᶜ , x ≔ ⌜ mos x ⌝) <* ∥ σ ∥ mos  ∎
   where
   open Tools.Reasoning.PartialOrder ≤ᶜ-poset

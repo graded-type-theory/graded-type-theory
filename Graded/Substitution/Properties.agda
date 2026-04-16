@@ -1575,14 +1575,14 @@ opaque
 
 opaque
 
-  -- The expression ∥ σ ∥ mos *> (𝟘ᶜ , x ≔ p) has the same value for two
-  -- potentially different values of p: 𝟙 and ⌜ mos x ⌝.
+  -- The expression (𝟘ᶜ , x ≔ p) <* ∥ σ ∥ mos has the same value for
+  -- two potentially different values of p: 𝟙 and ⌜ mos x ⌝.
 
-  ∥∥-*>-𝟘ᶜ,≔𝟙 :
+  𝟘ᶜ,≔𝟙-<*-∥∥ :
     ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
     (σ : Subst m n) →
     (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos ≈ᶜ (𝟘ᶜ , x ≔ ⌜ mos x ⌝) <* ∥ σ ∥ mos
-  ∥∥-*>-𝟘ᶜ,≔𝟙 {x = x} {mos = mos} σ = begin
+  𝟘ᶜ,≔𝟙-<*-∥∥ {x} {mos} σ = begin
     (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos               ≈⟨ substₘ-calc-row σ _ ⟩
     ⌈ σ x ⌉ (mos x)                         ≈˘⟨ ·-⌈⌉ (σ x) ⟩
     ⌜ mos x ⌝ ·ᶜ ⌈ σ x ⌉ (mos x)            ≈˘⟨ ·ᶜ-congˡ (substₘ-calc-row σ _) ⟩
