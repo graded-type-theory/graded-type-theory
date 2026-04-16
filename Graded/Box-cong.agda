@@ -917,7 +917,7 @@ private
     where
 
     open Erased s
-    open Erased.Internal s Zero-one-isMode TR
+    open Erased.Internal s Zero-one-isMode TR hiding (sᵢ)
 
     []-cong″ : Term n
     []-cong″ =

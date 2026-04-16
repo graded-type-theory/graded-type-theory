@@ -14,7 +14,7 @@ module Definition.Typed.Consequences.Admissible
   where
 
 open import Definition.Typed.Consequences.Admissible.Bool 𝐌 R public
-open import Definition.Typed.Consequences.Admissible.Erased R public
+open import Definition.Typed.Consequences.Admissible.Erased 𝐌 R public
 open import Definition.Typed.Consequences.Admissible.Identity 𝐌 R public
 open import Definition.Typed.Consequences.Admissible.Pi R public
 open import Definition.Typed.Consequences.Admissible.Sigma R public

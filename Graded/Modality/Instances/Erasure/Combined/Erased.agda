@@ -40,6 +40,7 @@ open import Graded.Usage UR
 open import Graded.Usage.Properties UR
 
 open import Definition.Typed.Inversion TR
+open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped Erasure hiding (_[_])

@@ -27,6 +27,7 @@ open Modality 𝕄
 open Mode-variant variant
 
 import Definition.Typed
+import Definition.Typed.Consequences.Admissible
 import Definition.Typed.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Substitution
@@ -667,6 +668,7 @@ opaque
 
     open Configuration hiding (TRₜ; URₜ)
     open Definition.Typed TRₜ
+    open Definition.Typed.Consequences.Admissible Zero-one-isMode TRₜ
     open Definition.Typed.Properties TRₜ hiding ([]-cong′)
     open Graded.Derived.Erased.Usage URₜ 𝕨
     open Graded.Usage URₜ
@@ -808,27 +810,15 @@ opaque
 
     opaque
 
-      -- This reduction lemma can be proved.
-
-      J″-β-⇒* :
-        (d : Dec (p PE.≡ 𝟘 × q PE.≡ 𝟘)) →
-        Γ ⊢ t ∷ A →
-        Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
-        Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
-        Γ ⊢ J″ d A t B u t rfl ⇒* u ∷ B [ t , rfl ]₁₀
-      J″-β-⇒* = λ where
-        (yes _)         → Jᵉ-⇒* non-trivial
-        (no _) ⊢t ⊢B ⊢u → redMany (J-β-⇒ (refl ⊢t) ⊢B ⊢u)
-
-    opaque
-
       J″-β-≡′ :
         (d : Dec (p PE.≡ 𝟘 × q PE.≡ 𝟘)) →
         Γ ⊢ t ∷ A →
         Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
         Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
         Γ ⊢ J″ d A t B u t rfl ≡ u ∷ B [ t , rfl ]₁₀
-      J″-β-≡′ d ⊢t ⊢B ⊢u = subset*Term (J″-β-⇒* d ⊢t ⊢B ⊢u)
+      J″-β-≡′ = λ where
+        (yes _) → Jᵉ-≡ non-trivial
+        (no _)  → J-β-≡
 
     opaque
 

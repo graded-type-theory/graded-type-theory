@@ -20,7 +20,7 @@ open import Definition.Typed.Restrictions
 
 open import Definition.Untyped M as U hiding (_[_])
 import Definition.Untyped.Erased.Eta 𝕄 as Eta
-open import Definition.Untyped.Identity 𝕄 hiding (module Internal)
+open import Definition.Untyped.Identity 𝕄 as UI hiding (module Internal)
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄 as US hiding (module Internal)
 open import Definition.Untyped.Unit 𝕄 as UU hiding (module Internal)
@@ -32,7 +32,7 @@ open import Graded.Mode
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Maybe
-open import Tools.Nat
+open import Tools.Nat as N
 open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (subst; cong)
 open import Tools.Reasoning.PropositionalEquality
@@ -549,6 +549,7 @@ module Internal
   (R : Type-restrictions 𝕄)
   where
 
+  open UI.Internal 𝐌 R
   open US.Internal 𝐌 R
   open UU.Internal 𝐌 R
 
@@ -561,11 +562,11 @@ module Internal
       Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
-    c           : I.Constants
-    pᵢ          : I.Termᵍ _
-    Aᵢ Bᵢ tᵢ uᵢ : I.Term _ _
-    lᵢ          : I.Lvl _ _
-    γ           : I.Contexts _
+    c                 : I.Constants
+    pᵢ                : I.Termᵍ _
+    Aᵢ Bᵢ tᵢ uᵢ vᵢ wᵢ : I.Term _ _
+    lᵢ                : I.Lvl _ _
+    γ                 : I.Contexts _
 
   -- A variant of erased, intended to be used with the internal
   -- type-checker.
@@ -585,6 +586,13 @@ module Internal
     … | 𝕨 , refl = refl
     … | 𝕤 , refl = refl
 
+  -- A term corresponding to s.
+
+  sᵢ : I.Termˢ n
+  sᵢ = case s of λ where
+    𝕨 → I.𝕨
+    𝕤 → I.𝕤
+
   -- A variant of erasedrec, intended to be used with the internal
   -- type-checker.
 
@@ -595,14 +603,10 @@ module Internal
     prodrec⟨ s ⟩ᵢ is-𝕨′ I.𝟘 p B u
       (unitrec⟨ s ⟩ᵢ I.𝟙 p
          (I.subst B (I.cons (IS.wkSubst 3 I.id)
-            (I.prod s′ I.𝟘 nothing (I.var x2)
+            (I.prod sᵢ I.𝟘 nothing (I.var x2)
                (I.lift nothing (I.var x0)))))
          (I.lower (I.var x0)) (IW.wk[ 1 ] t))
     where
-    s′ = case s of λ where
-      𝕨 → I.𝕨
-      𝕤 → I.𝕤
-
     is-𝕨′ = case PE.singleton s of λ where
       (𝕨 , _) → I.𝟙
       (𝕤 , _) → I.𝟘
@@ -624,11 +628,7 @@ module Internal
 
   mapᴱᵢ :
     I.Lvl c n → I.Term c n → I.Term c (1+ n) → I.Term c n → I.Term c n
-  mapᴱᵢ l A t u = I.box s′ l (I.subst t (IS.sgSubst (erasedᵢ A u)))
-    where
-    s′ = case s of λ where
-      𝕨 → I.𝕨
-      𝕤 → I.𝕤
+  mapᴱᵢ l A t u = I.box sᵢ l (I.subst t (IS.sgSubst (erasedᵢ A u)))
 
   opaque
     unfolding erased fst⟨_⟩ mapᴱ [_]
@@ -639,5 +639,78 @@ module Internal
       I.⌜ mapᴱᵢ lᵢ Aᵢ tᵢ uᵢ ⌝ γ ≡
       mapᴱ (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
     ⌜mapᴱᵢ⌝ with PE.singleton s
+    … | 𝕨 , refl = refl
+    … | 𝕤 , refl = refl
+
+  -- A variant of substᵉ, intended to be used with the internal
+  -- type-checker.
+
+  substᵉᵢ :
+    I.Lvl c n → I.Term c n → I.Term c (1+ n) → (_ _ _ _ : I.Term c n) →
+    I.Term c n
+  substᵉᵢ l A B t u v w =
+    substᵢ I.𝟘 (I.Erased sᵢ I.zeroᵘₗ A)
+      (I.subst B $
+       I.cons (IS.wkSubst 1 I.id) (erasedᵢ (IW.wk[ 1 ] A) (I.var x0)))
+      (I.box sᵢ l t) (I.box sᵢ l u) (I.[]-cong sᵢ I.zeroᵘₗ A t u v) w
+
+  opaque
+    unfolding Erased erased fst⟨_⟩ subst substᵉ [_]
+
+    -- A translation lemma for substᵉᵢ.
+
+    ⌜substᵉᵢ⌝ :
+      I.⌜ substᵉᵢ lᵢ Aᵢ Bᵢ tᵢ uᵢ vᵢ wᵢ ⌝ γ ≡
+      substᵉ (I.⌜ Aᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
+        (I.⌜ vᵢ ⌝ γ) (I.⌜ wᵢ ⌝ γ)
+    ⌜substᵉᵢ⌝ with PE.singleton s
+    … | 𝕨 , refl = refl
+    … | 𝕤 , refl = refl
+
+  -- A variant of Jᵉ, intended to be used with the internal
+  -- type-checker.
+
+  Jᵉᵢ :
+    I.Lvl c n → (_ _ : I.Term c n) → I.Term c (2+ n) →
+    (_ _ _ : I.Term c n) → I.Term c n
+  Jᵉᵢ {c} {n} l A t B u v w =
+    let Singleton =
+          I.ΠΣ⟨ I.BMΣ sᵢ ⟩ I.𝟘 , I.𝟘 ▷ A ▹
+          I.Id (IW.wk[ 1 ] A) (IW.wk[ 1 ] t) (I.var x0)
+
+        prod : ∀ k (_ _ : I.Term c (k N.+ n)) → I.Term c (k N.+ n)
+        prod k u v =
+          I.prod sᵢ I.𝟘
+            (just
+               (I.𝟘 ,
+                I.Id (IW.wk[ 1+ k ] A) (IW.wk[ 1+ k ] t) (I.var x0)))
+            u v
+    in
+    substᵉᵢ l Singleton
+      (I.subst B $
+       I.cons
+         (I.cons (IS.wkSubst 1 I.id)
+            (fst⟨ s ⟩ᵢ I.𝟘 (IW.wk[ 1 ] A) (I.var x0)))
+         (snd⟨ s ⟩ᵢ I.𝟘 I.𝟘 (IW.wk[ 1 ] A)
+            (I.Id (IW.wk[ 2 ] A) (IW.wk[ 2 ] t) (I.var x0)) (I.var x0)))
+      (prod 0 t (I.rfl (just t)))
+      (prod 0 v w)
+      (I.J I.𝟘 (I.𝟘 I.∧ I.𝟙) A t
+         (I.Id (IW.wk[ 2 ] Singleton)
+            (IW.wk[ 2 ] (prod 0 t (I.rfl (just t))))
+            (prod 2 (I.var x1) (I.var x0)))
+         (I.rfl (just (prod 0 t (I.rfl (just t))))) v w)
+      u
+
+  opaque
+    unfolding Erased Jᵉ erased fst⟨_⟩ snd⟨_⟩ subst substᵉ [_]
+
+    -- A translation lemma for Jᵉᵢ.
+
+    ⌜Jᵉᵢ⌝ :
+      I.⌜ Jᵉᵢ lᵢ Aᵢ tᵢ Bᵢ uᵢ vᵢ wᵢ ⌝ γ ≡
+      Jᵉ (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
+        (I.⌜ vᵢ ⌝ γ) (I.⌜ wᵢ ⌝ γ)
+    ⌜Jᵉᵢ⌝ with PE.singleton s
     … | 𝕨 , refl = refl
     … | 𝕤 , refl = refl
