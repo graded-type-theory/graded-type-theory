@@ -854,7 +854,7 @@ private module Lemmas (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
   opaque
 
-    -- A variant of ⊢ˢʷ≡∷-⇑-<ˢ.
+    -- A variant of ⊢ˢʷ≡∷-⇑.
 
     ⊢ˢʷ≡∷-⇑-<ˢ :
       (∃ λ (⊢A : ∇ » Γ ⊢ A) → size ⊢A <ˢ s) →
