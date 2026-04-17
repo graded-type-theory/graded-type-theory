@@ -405,7 +405,7 @@ opaque
 
 opaque
 
-  -- A typing rule prodrec.
+  -- A typing rule for prodrec.
 
   ⊢prodrec-⟶ :
     Γ »∙ A ×ʷ[ p ] B ⊢ C →
