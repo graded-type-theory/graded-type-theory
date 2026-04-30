@@ -1,0 +1,892 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>README.Opaque-definitions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Markup">```
+</a><a id="5" class="Symbol">{-#</a> <a id="9" class="Keyword">OPTIONS</a> <a id="17" class="Pragma">--infer-absurd-clauses</a> <a id="40" class="Symbol">#-}</a>
+
+<a id="45" class="Keyword">open</a> <a id="50" class="Keyword">import</a> <a id="57" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
+<a id="87" class="Keyword">open</a> <a id="92" class="Keyword">import</a> <a id="99" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="116" class="Keyword">module</a> <a id="123" href="README.Opaque-definitions.html" class="Module">README.Opaque-definitions</a> <a id="149" class="Keyword">where</a>
+
+<a id="156" class="Keyword">module</a> <a id="ExampleLib"></a><a id="163" href="README.Opaque-definitions.html#163" class="Module">ExampleLib</a> <a id="174" class="Keyword">where</a> <a id="180" class="Comment">-- Utilities for the example code snippets</a>
+  <a id="225" class="Keyword">open</a> <a id="230" class="Keyword">import</a> <a id="237" href="Tools.Level.html" class="Module">Tools.Level</a> <a id="249" class="Keyword">renaming</a> <a id="258" class="Symbol">(</a><a id="259" href="Agda.Primitive.html#961" class="Primitive Operator">_⊔_</a> <a id="263" class="Symbol">to</a> <a id="266" class="Primitive Operator">_⊔ₗ_</a><a id="270" class="Symbol">)</a>
+  <a id="274" class="Keyword">open</a> <a id="279" class="Keyword">import</a> <a id="286" href="Tools.Nat.html" class="Module">Tools.Nat</a> <a id="296" class="Keyword">renaming</a> <a id="305" class="Symbol">(</a><a id="306" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a> <a id="310" class="Symbol">to</a> <a id="313" class="Datatype">ℕ</a><a id="314" class="Symbol">;</a> <a id="316" href="Tools.Nat.html#2254" class="InductiveConstructor">1+</a> <a id="319" class="Symbol">to</a> <a id="322" class="InductiveConstructor">suc</a><a id="325" class="Symbol">)</a> <a id="327" class="Keyword">hiding</a> <a id="334" class="Symbol">(</a><a id="335" href="Data.Nat.Base.html#5272" class="Function">pred</a><a id="339" class="Symbol">)</a> <a id="341" class="Keyword">public</a>
+  <a id="350" class="Keyword">open</a> <a id="355" class="Keyword">import</a> <a id="362" href="Tools.Product.html" class="Module">Tools.Product</a> <a id="376" class="Keyword">renaming</a> <a id="385" class="Symbol">(</a><a id="386" href="Data.Product.Base.html#636" class="Field">proj₁</a> <a id="392" class="Symbol">to</a> <a id="395" class="Field">fst</a><a id="398" class="Symbol">;</a> <a id="400" href="Data.Product.Base.html#650" class="Field">proj₂</a> <a id="406" class="Symbol">to</a> <a id="409" class="Field">snd</a><a id="412" class="Symbol">)</a> <a id="414" class="Keyword">public</a>
+  <a id="423" class="Keyword">open</a> <a id="428" class="Keyword">import</a> <a id="435" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a> <a id="463" class="Keyword">public</a>
+  <a id="472" class="Keyword">open</a> <a id="477" class="Keyword">import</a> <a id="484" href="Tools.Relation.html" class="Module">Tools.Relation</a> <a id="499" class="Keyword">using</a> <a id="505" class="Symbol">(</a><a id="506" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬_</a><a id="508" class="Symbol">)</a> <a id="510" class="Keyword">public</a>
+
+  <a id="ExampleLib.Σ-syntax"></a><a id="520" href="README.Opaque-definitions.html#520" class="Function">Σ-syntax</a> <a id="529" class="Symbol">:</a> <a id="531" class="Symbol">∀</a> <a id="533" class="Symbol">{</a><a id="534" href="README.Opaque-definitions.html#534" class="Bound">ℓ</a> <a id="536" href="README.Opaque-definitions.html#536" class="Bound">ℓ′</a><a id="538" class="Symbol">}</a> <a id="540" class="Symbol">(</a><a id="541" href="README.Opaque-definitions.html#541" class="Bound">A</a> <a id="543" class="Symbol">:</a> <a id="545" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="549" href="README.Opaque-definitions.html#534" class="Bound">ℓ</a><a id="550" class="Symbol">)</a> <a id="552" class="Symbol">(</a><a id="553" href="README.Opaque-definitions.html#553" class="Bound">B</a> <a id="555" class="Symbol">:</a> <a id="557" href="README.Opaque-definitions.html#541" class="Bound">A</a> <a id="559" class="Symbol">→</a> <a id="561" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="565" href="README.Opaque-definitions.html#536" class="Bound">ℓ′</a><a id="567" class="Symbol">)</a> <a id="569" class="Symbol">→</a> <a id="571" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="575" class="Symbol">(</a><a id="576" href="README.Opaque-definitions.html#534" class="Bound">ℓ</a> <a id="578" href="README.Opaque-definitions.html#266" class="Primitive Operator">⊔ₗ</a> <a id="581" href="README.Opaque-definitions.html#536" class="Bound">ℓ′</a><a id="583" class="Symbol">)</a>
+  <a id="587" href="README.Opaque-definitions.html#520" class="Function">Σ-syntax</a> <a id="596" class="Symbol">=</a> <a id="598" href="Agda.Builtin.Sigma.html#165" class="Record">Σ</a>
+
+  <a id="603" class="Keyword">syntax</a> <a id="610" href="README.Opaque-definitions.html#520" class="Function">Σ-syntax</a> <a id="619" class="Bound">A</a> <a id="621" class="Symbol">(λ</a> <a id="624" class="Bound">x</a> <a id="626" class="Symbol">→</a> <a id="628" class="Bound">B</a><a id="629" class="Symbol">)</a> <a id="631" class="Symbol">=</a> <a id="633" class="Function">Σ[</a> <a id="636" class="Bound">x</a> <a id="638" class="Function">∷</a> <a id="640" class="Bound">A</a> <a id="642" class="Function">]</a> <a id="644" class="Bound">B</a>
+  <a id="648" class="Keyword">infix</a> <a id="654" class="Number">2</a> <a id="656" href="README.Opaque-definitions.html#520" class="Function">Σ-syntax</a>
+
+  <a id="668" class="Keyword">data</a> <a id="ExampleLib._&gt;_"></a><a id="673" href="README.Opaque-definitions.html#673" class="Datatype Operator">_&gt;_</a> <a id="677" class="Symbol">:</a> <a id="679" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="681" class="Symbol">→</a> <a id="683" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="685" class="Symbol">→</a> <a id="687" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="691" class="Keyword">where</a>
+    <a id="ExampleLib._&gt;_.&gt;zero"></a><a id="701" href="README.Opaque-definitions.html#701" class="InductiveConstructor">&gt;zero</a> <a id="707" class="Symbol">:</a> <a id="709" class="Symbol">∀</a> <a id="711" class="Symbol">{</a><a id="712" href="README.Opaque-definitions.html#712" class="Bound">n</a><a id="713" class="Symbol">}</a>           <a id="725" class="Symbol">→</a> <a id="727" href="README.Opaque-definitions.html#322" class="InductiveConstructor">suc</a> <a id="731" href="README.Opaque-definitions.html#712" class="Bound">n</a> <a id="733" href="README.Opaque-definitions.html#673" class="Datatype Operator">&gt;</a> <a id="735" class="Number">0</a>
+    <a id="ExampleLib._&gt;_.&gt;suc"></a><a id="741" href="README.Opaque-definitions.html#741" class="InductiveConstructor">&gt;suc</a>  <a id="747" class="Symbol">:</a> <a id="749" class="Symbol">∀</a> <a id="751" class="Symbol">{</a><a id="752" href="README.Opaque-definitions.html#752" class="Bound">m</a> <a id="754" href="README.Opaque-definitions.html#754" class="Bound">n</a><a id="755" class="Symbol">}</a> <a id="757" class="Symbol">→</a> <a id="759" href="README.Opaque-definitions.html#752" class="Bound">m</a> <a id="761" href="README.Opaque-definitions.html#673" class="Datatype Operator">&gt;</a> <a id="763" href="README.Opaque-definitions.html#754" class="Bound">n</a> <a id="765" class="Symbol">→</a> <a id="767" href="README.Opaque-definitions.html#322" class="InductiveConstructor">suc</a> <a id="771" href="README.Opaque-definitions.html#752" class="Bound">m</a> <a id="773" href="README.Opaque-definitions.html#673" class="Datatype Operator">&gt;</a> <a id="775" href="README.Opaque-definitions.html#322" class="InductiveConstructor">suc</a> <a id="779" href="README.Opaque-definitions.html#754" class="Bound">n</a>
+<a id="781" class="Markup">```
+</a><a id="785" class="Background">
+# A Formalization of Opaque Definitions for a Dependent Type Theory
+
+This document serves as a companion to the paper of the same name, linking the definitions and theorems used in the
+paper to the relevant parts of the actual formalization codebase. Each entity listed here is accompanied by an Agda
+snippet containing either relevant example code or a reference to the theorem in the main formalization. Any differences
+between the formalism given in the paper and the actual formalization will also be mentioned.
+
+Note that the listings in the paper reference previous snapshots of the formalization, whereas this document is intended
+to live in the most up-to-date version. As such, some of the references below do not refer to the same code as is
+referenced by the corresponding entity in the paper; instead, they&#39;ll refer to the code as it appears in this version.
+This also means that there is some duplication below, since an entity referenced in two different snapshots by the paper
+will both redirect to the same entity in this version.
+
+Note also that this version of the code is not identical to the code that accompanies the paper
+(doi:10.5281/zenodo.16906631). Some differences are mentioned below. One addition is a discussion of consistency in the
+presence of opaque definitions:
+</a><a id="2082" class="Markup">```
+</a><a id="2086" class="Keyword">import</a> <a id="2093" href="Definition.Typed.Consequences.Consistency.html" class="Module">Definition.Typed.Consequences.Consistency</a>
+<a id="2135" class="Markup">```
+</a><a id="2139" class="Background">
+This document is a literate Agda document, which means it&#39;s also valid Agda source code! Try loading it in an editor
+with good support for Agda to make navigating the references a bit easier.
+
+## 1 Introduction
+
+The first code snippet from the introduction, demonstrating definitions:
+</a><a id="2425" class="Markup">```
+</a><a id="2429" class="Keyword">module</a> <a id="DefinitionDemo"></a><a id="2436" href="README.Opaque-definitions.html#2436" class="Module">DefinitionDemo</a> <a id="2451" class="Keyword">where</a>
+  <a id="2459" class="Keyword">open</a> <a id="2464" href="README.Opaque-definitions.html#163" class="Module">ExampleLib</a>
+
+  <a id="DefinitionDemo.double"></a><a id="2478" href="README.Opaque-definitions.html#2478" class="Function">double</a> <a id="2485" class="Symbol">:</a> <a id="2487" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="2489" class="Symbol">→</a> <a id="2491" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="2493" class="Comment">-- Doubles a natural</a>
+  <a id="2516" href="README.Opaque-definitions.html#2478" class="Function">double</a> <a id="2523" href="README.Opaque-definitions.html#2523" class="Bound">n</a> <a id="2525" class="Symbol">=</a> <a id="2527" href="README.Opaque-definitions.html#2523" class="Bound">n</a> <a id="2529" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="2531" href="README.Opaque-definitions.html#2523" class="Bound">n</a>
+
+  <a id="DefinitionDemo.quadruple"></a><a id="2536" href="README.Opaque-definitions.html#2536" class="Function">quadruple</a> <a id="2546" class="Symbol">:</a> <a id="2548" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="2550" class="Symbol">→</a> <a id="2552" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="2554" class="Comment">-- Quadruples a natural</a>
+  <a id="2580" href="README.Opaque-definitions.html#2536" class="Function">quadruple</a> <a id="2590" href="README.Opaque-definitions.html#2590" class="Bound">n</a> <a id="2592" class="Symbol">=</a> <a id="2594" href="README.Opaque-definitions.html#2478" class="Function">double</a> <a id="2601" class="Symbol">(</a><a id="2602" href="README.Opaque-definitions.html#2478" class="Function">double</a> <a id="2609" href="README.Opaque-definitions.html#2590" class="Bound">n</a><a id="2610" class="Symbol">)</a>
+
+  <a id="DefinitionDemo.ℕ&gt;0"></a><a id="2615" href="README.Opaque-definitions.html#2615" class="Function">ℕ&gt;0</a> <a id="2619" class="Symbol">:</a> <a id="2621" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2625" class="Comment">-- Positive naturals</a>
+  <a id="2648" href="README.Opaque-definitions.html#2615" class="Function">ℕ&gt;0</a> <a id="2652" class="Symbol">=</a> <a id="2654" href="README.Opaque-definitions.html#520" class="Function">Σ[</a> <a id="2657" href="README.Opaque-definitions.html#2657" class="Bound">n</a> <a id="2659" href="README.Opaque-definitions.html#520" class="Function">∷</a> <a id="2661" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="2663" href="README.Opaque-definitions.html#520" class="Function">]</a> <a id="2665" href="README.Opaque-definitions.html#2657" class="Bound">n</a> <a id="2667" href="README.Opaque-definitions.html#673" class="Datatype Operator">&gt;</a> <a id="2669" class="Number">0</a>
+
+  <a id="DefinitionDemo.pred"></a><a id="2674" href="README.Opaque-definitions.html#2674" class="Function">pred</a> <a id="2679" class="Symbol">:</a> <a id="2681" href="README.Opaque-definitions.html#2615" class="Function">ℕ&gt;0</a> <a id="2685" class="Symbol">→</a> <a id="2687" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="2689" class="Comment">-- Predecessor</a>
+  <a id="2706" href="README.Opaque-definitions.html#2674" class="Function">pred</a> <a id="2711" class="Symbol">(</a><a id="2712" href="README.Opaque-definitions.html#322" class="InductiveConstructor">suc</a> <a id="2716" href="README.Opaque-definitions.html#2716" class="Bound">n</a> <a id="2718" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="2720" href="README.Opaque-definitions.html#701" class="InductiveConstructor">&gt;zero</a><a id="2725" class="Symbol">)</a> <a id="2727" class="Symbol">=</a> <a id="2729" href="README.Opaque-definitions.html#2716" class="Bound">n</a>
+<a id="2731" class="Markup">```
+</a><a id="2735" class="Background">
+The &quot;complex&quot; example from the introduction, first without opaque definitions:
+</a><a id="2815" class="Markup">```
+</a><a id="2819" class="Keyword">module</a> <a id="IntroExample1"></a><a id="2826" href="README.Opaque-definitions.html#2826" class="Module">IntroExample1</a> <a id="2840" class="Keyword">where</a>
+  <a id="2848" class="Keyword">open</a> <a id="2853" href="README.Opaque-definitions.html#163" class="Module">ExampleLib</a>
+
+  <a id="IntroExample1.ℤ"></a><a id="2867" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="2869" class="Symbol">:</a> <a id="2871" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2875" class="Comment">-- Integers as differences of naturals</a>
+  <a id="2916" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="2918" class="Symbol">=</a> <a id="2920" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="2922" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="2924" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a>
+
+  <a id="IntroExample1._≡ℤ_"></a><a id="2929" href="README.Opaque-definitions.html#2929" class="Function Operator">_≡ℤ_</a> <a id="2934" class="Symbol">:</a> <a id="2936" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="2938" class="Symbol">→</a> <a id="2940" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="2942" class="Symbol">→</a> <a id="2944" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="2948" class="Comment">-- Equality on integers</a>
+  <a id="2974" href="README.Opaque-definitions.html#2974" class="Bound">x</a> <a id="2976" href="README.Opaque-definitions.html#2929" class="Function Operator">≡ℤ</a> <a id="2979" href="README.Opaque-definitions.html#2979" class="Bound">y</a> <a id="2981" class="Symbol">=</a> <a id="2983" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="2987" href="README.Opaque-definitions.html#2974" class="Bound">x</a> <a id="2989" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="2991" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="2995" href="README.Opaque-definitions.html#2979" class="Bound">y</a> <a id="2997" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="2999" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3003" href="README.Opaque-definitions.html#2979" class="Bound">y</a> <a id="3005" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="3007" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3011" href="README.Opaque-definitions.html#2974" class="Bound">x</a>
+
+  <a id="IntroExample1._*ℤ_"></a><a id="3016" href="README.Opaque-definitions.html#3016" class="Function Operator">_*ℤ_</a> <a id="3021" class="Symbol">:</a> <a id="3023" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="3025" class="Symbol">→</a> <a id="3027" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="3029" class="Symbol">→</a> <a id="3031" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="3033" class="Comment">-- Integer multiplication</a>
+  <a id="3061" href="README.Opaque-definitions.html#3061" class="Bound">x</a> <a id="3063" href="README.Opaque-definitions.html#3016" class="Function Operator">*ℤ</a> <a id="3066" href="README.Opaque-definitions.html#3066" class="Bound">y</a>  <a id="3069" class="Symbol">=</a> <a id="3071" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3075" href="README.Opaque-definitions.html#3061" class="Bound">x</a> <a id="3077" href="Agda.Builtin.Nat.html#539" class="Primitive Operator">*</a> <a id="3079" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3083" href="README.Opaque-definitions.html#3066" class="Bound">y</a> <a id="3085" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="3087" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3091" href="README.Opaque-definitions.html#3061" class="Bound">x</a> <a id="3093" href="Agda.Builtin.Nat.html#539" class="Primitive Operator">*</a> <a id="3095" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3099" href="README.Opaque-definitions.html#3066" class="Bound">y</a>
+          <a id="3111" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="3113" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3117" href="README.Opaque-definitions.html#3061" class="Bound">x</a> <a id="3119" href="Agda.Builtin.Nat.html#539" class="Primitive Operator">*</a> <a id="3121" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3125" href="README.Opaque-definitions.html#3066" class="Bound">y</a> <a id="3127" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="3129" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3133" href="README.Opaque-definitions.html#3066" class="Bound">y</a> <a id="3135" href="Agda.Builtin.Nat.html#539" class="Primitive Operator">*</a> <a id="3137" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3141" href="README.Opaque-definitions.html#3061" class="Bound">x</a>
+
+  <a id="3146" class="Keyword">infix</a> <a id="3152" class="Number">5</a> <a id="3154" href="README.Opaque-definitions.html#2929" class="Function Operator">_≡ℤ_</a>
+  <a id="3161" class="Keyword">infixl</a> <a id="3168" class="Number">30</a> <a id="3171" href="README.Opaque-definitions.html#3016" class="Function Operator">_*ℤ_</a>
+
+  <a id="IntroExample1.0ℤ"></a><a id="3179" href="README.Opaque-definitions.html#3179" class="Function">0ℤ</a> <a id="3182" class="Symbol">:</a> <a id="3184" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="3186" class="Comment">-- Integer zero</a>
+  <a id="3204" href="README.Opaque-definitions.html#3179" class="Function">0ℤ</a> <a id="3207" class="Symbol">=</a> <a id="3209" class="Number">0</a> <a id="3211" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="3213" class="Number">0</a>
+
+  <a id="IntroExample1.ℤ≠0"></a><a id="3218" href="README.Opaque-definitions.html#3218" class="Function">ℤ≠0</a> <a id="3222" class="Symbol">:</a> <a id="3224" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3228" class="Comment">-- Nonzero integers</a>
+  <a id="3250" href="README.Opaque-definitions.html#3218" class="Function">ℤ≠0</a> <a id="3254" class="Symbol">=</a> <a id="3256" href="README.Opaque-definitions.html#520" class="Function">Σ[</a> <a id="3259" href="README.Opaque-definitions.html#3259" class="Bound">x</a> <a id="3261" href="README.Opaque-definitions.html#520" class="Function">∷</a> <a id="3263" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="3265" href="README.Opaque-definitions.html#520" class="Function">]</a> <a id="3267" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="3269" href="README.Opaque-definitions.html#3259" class="Bound">x</a> <a id="3271" href="README.Opaque-definitions.html#2929" class="Function Operator">≡ℤ</a> <a id="3274" href="README.Opaque-definitions.html#3179" class="Function">0ℤ</a>
+
+  <a id="IntroExample1.ℚ"></a><a id="3280" href="README.Opaque-definitions.html#3280" class="Function">ℚ</a> <a id="3282" class="Symbol">:</a> <a id="3284" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3288" class="Comment">-- Rationals as the field of fractions</a>
+  <a id="3329" href="README.Opaque-definitions.html#3280" class="Function">ℚ</a> <a id="3331" class="Symbol">=</a> <a id="3333" href="README.Opaque-definitions.html#2867" class="Function">ℤ</a> <a id="3335" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="3337" href="README.Opaque-definitions.html#3218" class="Function">ℤ≠0</a>
+
+  <a id="IntroExample1._≡ℚ_"></a><a id="3344" href="README.Opaque-definitions.html#3344" class="Function Operator">_≡ℚ_</a> <a id="3349" class="Symbol">:</a> <a id="3351" href="README.Opaque-definitions.html#3280" class="Function">ℚ</a> <a id="3353" class="Symbol">→</a> <a id="3355" href="README.Opaque-definitions.html#3280" class="Function">ℚ</a> <a id="3357" class="Symbol">→</a> <a id="3359" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3363" class="Comment">-- Equality on rationals</a>
+  <a id="3390" href="README.Opaque-definitions.html#3390" class="Bound">x</a> <a id="3392" href="README.Opaque-definitions.html#3344" class="Function Operator">≡ℚ</a> <a id="3395" href="README.Opaque-definitions.html#3395" class="Bound">y</a> <a id="3397" class="Symbol">=</a> <a id="3399" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3403" href="README.Opaque-definitions.html#3390" class="Bound">x</a> <a id="3405" href="README.Opaque-definitions.html#3016" class="Function Operator">*ℤ</a> <a id="3408" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3412" class="Symbol">(</a><a id="3413" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3417" href="README.Opaque-definitions.html#3395" class="Bound">y</a><a id="3418" class="Symbol">)</a> <a id="3420" href="README.Opaque-definitions.html#2929" class="Function Operator">≡ℤ</a> <a id="3423" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3427" href="README.Opaque-definitions.html#3395" class="Bound">y</a> <a id="3429" href="README.Opaque-definitions.html#3016" class="Function Operator">*ℤ</a> <a id="3432" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3436" class="Symbol">(</a><a id="3437" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3441" href="README.Opaque-definitions.html#3390" class="Bound">x</a><a id="3442" class="Symbol">)</a>
+
+  <a id="3447" class="Keyword">infix</a> <a id="3453" class="Number">5</a> <a id="3455" href="README.Opaque-definitions.html#3344" class="Function Operator">_≡ℚ_</a>
+
+<a id="3461" class="Comment">--  sym-ℚ : ∀ {x y} → x ≡ℚ y → y ≡ℚ x</a>
+<a id="3499" class="Comment">--  sym-ℚ p = {! insert proof here !}</a>
+<a id="3537" class="Markup">```
+</a><a id="3541" class="Background">
+The &quot;complex&quot; example again, now with opaque definitions:
+</a><a id="3600" class="Markup">```
+</a><a id="3604" class="Keyword">module</a> <a id="IntroExample2"></a><a id="3611" href="README.Opaque-definitions.html#3611" class="Module">IntroExample2</a> <a id="3625" class="Keyword">where</a>
+  <a id="3633" class="Keyword">open</a> <a id="3638" href="README.Opaque-definitions.html#163" class="Module">ExampleLib</a>
+
+  <a id="3652" class="Keyword">opaque</a>
+    <a id="IntroExample2.ℤ"></a><a id="3663" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="3665" class="Symbol">:</a> <a id="3667" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3671" class="Comment">-- Integers as differences of naturals</a>
+    <a id="3714" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="3716" class="Symbol">=</a> <a id="3718" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a> <a id="3720" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="3722" href="README.Opaque-definitions.html#313" class="Datatype">ℕ</a>
+
+  <a id="3727" class="Keyword">opaque</a>
+    <a id="3738" class="Keyword">unfolding</a> <a id="3748" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a>
+    <a id="IntroExample2._≡ℤ_"></a><a id="3754" href="README.Opaque-definitions.html#3754" class="Function Operator">_≡ℤ_</a> <a id="3759" class="Symbol">:</a> <a id="3761" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="3763" class="Symbol">→</a> <a id="3765" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="3767" class="Symbol">→</a> <a id="3769" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3773" class="Comment">-- Equality on integers</a>
+    <a id="3801" href="README.Opaque-definitions.html#3801" class="Bound">x</a> <a id="3803" href="README.Opaque-definitions.html#3754" class="Function Operator">≡ℤ</a> <a id="3806" href="README.Opaque-definitions.html#3806" class="Bound">y</a> <a id="3808" class="Symbol">=</a> <a id="3810" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3814" href="README.Opaque-definitions.html#3801" class="Bound">x</a> <a id="3816" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="3818" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3822" href="README.Opaque-definitions.html#3806" class="Bound">y</a> <a id="3824" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="3826" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3830" href="README.Opaque-definitions.html#3806" class="Bound">y</a> <a id="3832" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="3834" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3838" href="README.Opaque-definitions.html#3801" class="Bound">x</a>
+
+  <a id="3843" class="Keyword">opaque</a>
+    <a id="3854" class="Keyword">unfolding</a> <a id="3864" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a>
+    <a id="IntroExample2._*ℤ_"></a><a id="3870" href="README.Opaque-definitions.html#3870" class="Function Operator">_*ℤ_</a> <a id="3875" class="Symbol">:</a> <a id="3877" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="3879" class="Symbol">→</a> <a id="3881" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="3883" class="Symbol">→</a> <a id="3885" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="3887" class="Comment">-- Integer multiplication</a>
+    <a id="3917" href="README.Opaque-definitions.html#3917" class="Bound">x</a> <a id="3919" href="README.Opaque-definitions.html#3870" class="Function Operator">*ℤ</a> <a id="3922" href="README.Opaque-definitions.html#3922" class="Bound">y</a>  <a id="3925" class="Symbol">=</a> <a id="3927" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3931" href="README.Opaque-definitions.html#3917" class="Bound">x</a> <a id="3933" href="Agda.Builtin.Nat.html#539" class="Primitive Operator">*</a> <a id="3935" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3939" href="README.Opaque-definitions.html#3922" class="Bound">y</a> <a id="3941" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="3943" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3947" href="README.Opaque-definitions.html#3917" class="Bound">x</a> <a id="3949" href="Agda.Builtin.Nat.html#539" class="Primitive Operator">*</a> <a id="3951" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3955" href="README.Opaque-definitions.html#3922" class="Bound">y</a>
+            <a id="3969" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="3971" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3975" href="README.Opaque-definitions.html#3917" class="Bound">x</a> <a id="3977" href="Agda.Builtin.Nat.html#539" class="Primitive Operator">*</a> <a id="3979" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3983" href="README.Opaque-definitions.html#3922" class="Bound">y</a> <a id="3985" href="Agda.Builtin.Nat.html#336" class="Primitive Operator">+</a> <a id="3987" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="3991" href="README.Opaque-definitions.html#3922" class="Bound">y</a> <a id="3993" href="Agda.Builtin.Nat.html#539" class="Primitive Operator">*</a> <a id="3995" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="3999" href="README.Opaque-definitions.html#3917" class="Bound">x</a>
+
+  <a id="4004" class="Keyword">infix</a> <a id="4010" class="Number">5</a> <a id="4012" href="README.Opaque-definitions.html#3754" class="Function Operator">_≡ℤ_</a>
+  <a id="4019" class="Keyword">infixl</a> <a id="4026" class="Number">30</a> <a id="4029" href="README.Opaque-definitions.html#3870" class="Function Operator">_*ℤ_</a>
+
+  <a id="4037" class="Keyword">opaque</a>
+    <a id="4048" class="Keyword">unfolding</a> <a id="4058" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a>
+    <a id="IntroExample2.0ℤ"></a><a id="4064" href="README.Opaque-definitions.html#4064" class="Function">0ℤ</a> <a id="4067" class="Symbol">:</a> <a id="4069" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="4071" class="Comment">-- Integer zero</a>
+    <a id="4091" href="README.Opaque-definitions.html#4064" class="Function">0ℤ</a> <a id="4094" class="Symbol">=</a> <a id="4096" class="Number">0</a> <a id="4098" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="4100" class="Number">0</a>
+
+  <a id="4105" class="Keyword">opaque</a>
+    <a id="IntroExample2.ℤ≠0"></a><a id="4116" href="README.Opaque-definitions.html#4116" class="Function">ℤ≠0</a> <a id="4120" class="Symbol">:</a> <a id="4122" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="4126" class="Comment">-- Nonzero integers</a>
+    <a id="4150" href="README.Opaque-definitions.html#4116" class="Function">ℤ≠0</a> <a id="4154" class="Symbol">=</a> <a id="4156" href="README.Opaque-definitions.html#520" class="Function">Σ[</a> <a id="4159" href="README.Opaque-definitions.html#4159" class="Bound">x</a> <a id="4161" href="README.Opaque-definitions.html#520" class="Function">∷</a> <a id="4163" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="4165" href="README.Opaque-definitions.html#520" class="Function">]</a> <a id="4167" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="4169" href="README.Opaque-definitions.html#4159" class="Bound">x</a> <a id="4171" href="README.Opaque-definitions.html#3754" class="Function Operator">≡ℤ</a> <a id="4174" href="README.Opaque-definitions.html#4064" class="Function">0ℤ</a>
+
+  <a id="4180" class="Keyword">opaque</a>
+    <a id="IntroExample2.ℚ"></a><a id="4191" href="README.Opaque-definitions.html#4191" class="Function">ℚ</a> <a id="4193" class="Symbol">:</a> <a id="4195" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="4199" class="Comment">-- Rationals as the field of fractions</a>
+    <a id="4242" href="README.Opaque-definitions.html#4191" class="Function">ℚ</a> <a id="4244" class="Symbol">=</a> <a id="4246" href="README.Opaque-definitions.html#3663" class="Function">ℤ</a> <a id="4248" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="4250" href="README.Opaque-definitions.html#4116" class="Function">ℤ≠0</a>
+
+  <a id="4257" class="Keyword">opaque</a>
+    <a id="4268" class="Keyword">unfolding</a> <a id="4278" href="README.Opaque-definitions.html#4191" class="Function">ℚ</a> <a id="4280" href="README.Opaque-definitions.html#4116" class="Function">ℤ≠0</a>
+    <a id="IntroExample2._≡ℚ_"></a><a id="4288" href="README.Opaque-definitions.html#4288" class="Function Operator">_≡ℚ_</a> <a id="4293" class="Symbol">:</a> <a id="4295" href="README.Opaque-definitions.html#4191" class="Function">ℚ</a> <a id="4297" class="Symbol">→</a> <a id="4299" href="README.Opaque-definitions.html#4191" class="Function">ℚ</a> <a id="4301" class="Symbol">→</a> <a id="4303" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="4307" class="Comment">-- Equality on rationals</a>
+    <a id="4336" href="README.Opaque-definitions.html#4336" class="Bound">x</a> <a id="4338" href="README.Opaque-definitions.html#4288" class="Function Operator">≡ℚ</a> <a id="4341" href="README.Opaque-definitions.html#4341" class="Bound">y</a> <a id="4343" class="Symbol">=</a> <a id="4345" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="4349" href="README.Opaque-definitions.html#4336" class="Bound">x</a> <a id="4351" href="README.Opaque-definitions.html#3870" class="Function Operator">*ℤ</a> <a id="4354" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="4358" class="Symbol">(</a><a id="4359" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="4363" href="README.Opaque-definitions.html#4341" class="Bound">y</a><a id="4364" class="Symbol">)</a> <a id="4366" href="README.Opaque-definitions.html#3754" class="Function Operator">≡ℤ</a> <a id="4369" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="4373" href="README.Opaque-definitions.html#4341" class="Bound">y</a> <a id="4375" href="README.Opaque-definitions.html#3870" class="Function Operator">*ℤ</a> <a id="4378" href="README.Opaque-definitions.html#395" class="Field">fst</a> <a id="4382" class="Symbol">(</a><a id="4383" href="README.Opaque-definitions.html#409" class="Field">snd</a> <a id="4387" href="README.Opaque-definitions.html#4336" class="Bound">x</a><a id="4388" class="Symbol">)</a>
+
+  <a id="4393" class="Keyword">infix</a> <a id="4399" class="Number">5</a> <a id="4401" href="README.Opaque-definitions.html#4288" class="Function Operator">_≡ℚ_</a>
+
+<a id="4407" class="Comment">--  opaque</a>
+<a id="4418" class="Comment">--    unfolding _≡ℚ_</a>
+<a id="4439" class="Comment">--    sym-ℚ : ∀ {x y} → x ≡ℚ y → y ≡ℚ x</a>
+<a id="4479" class="Comment">--    sym-ℚ p = {! insert proof here !}</a>
+<a id="4519" class="Markup">```
+</a><a id="4523" class="Background">
+## 3 Background
+
+### 3.1 The Type Theory
+
+Definition 3.1 refers to terms, which are defined here:
+</a><a id="4622" class="Markup">```
+</a><a id="4626" class="Keyword">import</a> <a id="4633" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="4652" class="Keyword">using</a> <a id="4658" class="Symbol">(</a><a id="4659" href="Definition.Untyped.html#1198" class="Function">Term</a><a id="4663" class="Symbol">)</a>
+<a id="4665" class="Markup">```
+</a><a id="4669" class="Background">Note that the formalization uses well-scoped terms (this is mostly ignored in the paper): `Term n` stands for terms with
+at most `n` distinct free variables. Note how the `var` constructor takes an index from `Fin n`, and so it is not
+possible to reference an out-of-scope variable.
+
+The formalization includes support for modalities, and some terms are annotated with &quot;grades&quot;. Such annotations are not
+included in the paper. However, some results related to the grades have been extended to also work in the presence of
+definitions. For instance, soundness of erasure holds for transparent definition contexts:
+</a><a id="5282" class="Markup">```
+</a><a id="5286" class="Keyword">import</a> <a id="5293" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
+<a id="5331" href="README.Opaque-definitions.html#5331" class="Function">_</a> <a id="5333" class="Symbol">=</a> <a id="5335" href="Graded.Erasure.Consequences.Soundness.html#6012" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ</a>
+<a id="5395" class="Markup">```
+</a><a id="5399" class="Background">
+Definitions 3.2, 3.3, and 3.4 refer to typing contexts, weakenings, and substitutions, which are defined here (all
+well-scoped):
+</a><a id="5529" class="Markup">```
+</a><a id="5533" class="Keyword">import</a> <a id="5540" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a> <a id="5575" class="Keyword">using</a>
+  <a id="5583" class="Symbol">(</a> <a id="5585" href="Definition.Untyped.NotParametrised.html#957" class="Datatype">Con</a> <a id="5589" class="Comment">-- Typing contexts</a>
+  <a id="5610" class="Symbol">;</a> <a id="5612" href="Definition.Untyped.NotParametrised.html#2956" class="Datatype">Wk</a>  <a id="5616" class="Comment">-- Weakenings</a>
+  <a id="5632" class="Symbol">)</a>
+<a id="5634" class="Keyword">import</a> <a id="5641" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="5660" class="Keyword">using</a>
+  <a id="5668" class="Symbol">(</a> <a id="5670" href="Definition.Untyped.html#16030" class="Function">wk</a>    <a id="5676" class="Comment">-- Weakening operation</a>
+  <a id="5701" class="Symbol">;</a> <a id="5703" href="Definition.Untyped.html#18933" class="Function">Subst</a> <a id="5709" class="Comment">-- Substitutions</a>
+  <a id="5728" class="Symbol">;</a> <a id="5730" href="Definition.Untyped.html#21282" class="Function Operator">_[_]</a>  <a id="5736" class="Comment">-- Substitution operation</a>
+  <a id="5764" class="Symbol">)</a>
+<a id="5766" class="Markup">```
+</a><a id="5770" class="Background">Note that the `Con` type former is more general than in the paper.
+
+Definition 3.5 refers to the typing judgements, which are defined here (albeit with accommodation for definition
+contexts, which are discussed further down in Section 4):
+</a><a id="6009" class="Markup">```
+</a><a id="6013" class="Keyword">import</a> <a id="6020" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="6037" class="Keyword">using</a>
+  <a id="6045" class="Symbol">(</a> <a id="6047" href="Definition.Typed.html#2270" class="Datatype Operator">_»⊢_</a>    <a id="6055" class="Comment">-- Well-formed typing contexts</a>
+  <a id="6088" class="Symbol">;</a> <a id="6090" href="Definition.Typed.html#2535" class="Datatype Operator">_⊢_</a>     <a id="6098" class="Comment">-- Well-formed types</a>
+  <a id="6121" class="Symbol">;</a> <a id="6123" href="Definition.Typed.html#2999" class="Datatype Operator">_⊢_∷_</a>   <a id="6131" class="Comment">-- Well-typed terms</a>
+  <a id="6153" class="Symbol">;</a> <a id="6155" href="Definition.Typed.html#7047" class="Datatype Operator">_⊢_≡_</a>   <a id="6163" class="Comment">-- Equality of types</a>
+  <a id="6186" class="Symbol">;</a> <a id="6188" href="Definition.Typed.html#7841" class="Datatype Operator">_⊢_≡_∷_</a> <a id="6196" class="Comment">-- Equality of terms</a>
+  <a id="6219" class="Symbol">;</a> <a id="6221" href="Definition.Typed.html#23687" class="Datatype Operator">_⊢_⇒_</a>   <a id="6229" class="Comment">-- Single-step weak head reduction of types</a>
+  <a id="6275" class="Symbol">;</a> <a id="6277" href="Definition.Typed.html#17636" class="Datatype Operator">_⊢_⇒_∷_</a> <a id="6285" class="Comment">-- Single-step weak head reduction of terms</a>
+  <a id="6331" class="Symbol">)</a>
+<a id="6333" class="Keyword">import</a> <a id="6340" href="Definition.Typed.Weakening.html" class="Module">Definition.Typed.Weakening</a> <a id="6367" class="Keyword">using</a>
+  <a id="6375" class="Symbol">(</a> <a id="6377" href="Definition.Typed.Weakening.html#3987" class="Function Operator">_»_∷ʷ_⊇_</a> <a id="6386" class="Comment">-- Well-formed weakenings</a>
+  <a id="6414" class="Symbol">)</a>
+<a id="6416" class="Keyword">import</a> <a id="6423" href="Definition.Typed.Substitution.html" class="Module">Definition.Typed.Substitution</a> <a id="6453" class="Keyword">using</a>
+  <a id="6461" class="Symbol">(</a> <a id="6463" href="Definition.Typed.Substitution.Primitive.Primitive.html#4682" class="Function Operator">_⊢ˢʷ_∷_</a> <a id="6471" class="Comment">-- Well-formed substitutions</a>
+  <a id="6502" class="Symbol">)</a>
+<a id="6504" class="Markup">```
+</a><a id="6508" class="Background">Note that well-formedness of weakenings and substitutions as defined for the above relations includes well-formedness of
+the target context (the one on the left).
+
+The type system is parametrised by a record type that makes it possible to include or exclude certain features:
+</a><a id="6784" class="Markup">```
+</a><a id="6788" class="Keyword">import</a> <a id="6795" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a> <a id="6825" class="Keyword">using</a> <a id="6831" class="Symbol">(</a><a id="6832" href="Definition.Typed.Restrictions.html#964" class="Record">Type-restrictions</a><a id="6849" class="Symbol">)</a>
+<a id="6851" class="Markup">```
+</a><a id="6855" class="Background">For instance, one can choose whether or not to include equality reflection.
+
+The following variants of the reduction relations, allowing for zero or more steps, are also used:
+</a><a id="7031" class="Markup">```
+</a><a id="7035" class="Keyword">import</a> <a id="7042" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="7059" class="Keyword">using</a>
+  <a id="7067" class="Symbol">(</a> <a id="7069" href="Definition.Typed.html#24125" class="Datatype Operator">_⊢_⇒*_</a>   <a id="7078" class="Comment">-- Many-step weak head reduction for types</a>
+  <a id="7123" class="Symbol">;</a> <a id="7125" href="Definition.Typed.html#23868" class="Datatype Operator">_⊢_⇒*_∷_</a> <a id="7134" class="Comment">-- Many-step weak head reduction for terms</a>
+  <a id="7179" class="Symbol">)</a>
+<a id="7181" class="Markup">```
+</a><a id="7185" class="Background">These are left implicit in the paper, but are used in some of the theorem statements here.
+
+Lemma 3.6 states that typing judgements are preserved under weakening:
+</a><a id="7348" class="Markup">```
+</a><a id="7352" class="Keyword">import</a> <a id="7359" href="Definition.Typed.Weakening.html" class="Module">Definition.Typed.Weakening</a> <a id="7386" class="Keyword">using</a>
+  <a id="7394" class="Symbol">(</a> <a id="7396" href="Definition.Typed.Weakening.html#33518" class="Function">wk</a>        <a id="7406" class="Comment">-- Seven basic typing judgements are preserved under weakening</a>
+  <a id="7471" class="Symbol">;</a> <a id="7473" href="Definition.Typed.Weakening.html#34591" class="Function">wkRed</a>     <a id="7483" class="Comment">-- Weak head reduction is preserved under weakening</a>
+  <a id="7537" class="Symbol">;</a> <a id="7539" href="Definition.Typed.Weakening.html#34709" class="Function">wkRedTerm</a> <a id="7549" class="Comment">-- Weak head reduction of terms is preserved under weakening</a>
+  <a id="7612" class="Symbol">)</a>
+<a id="7614" class="Markup">```
+</a><a id="7618" class="Background">
+Lemma 3.7 states that typing judgements are preserved under substitution:
+</a><a id="7693" class="Markup">```
+</a><a id="7697" class="Keyword">import</a> <a id="7704" href="Definition.Typed.Substitution.html" class="Module">Definition.Typed.Substitution</a> <a id="7734" class="Keyword">using</a>
+  <a id="7742" class="Symbol">(</a> <a id="7744" href="Definition.Typed.Substitution.Primitive.Primitive.html#68026" class="Function">subst-⊢</a>   <a id="7754" class="Comment">-- Seven basic typing judgements are preserved under substitution</a>
+  <a id="7822" class="Symbol">;</a> <a id="7824" href="Definition.Typed.Substitution.html#6991" class="Function">subst-⊢⇒</a>  <a id="7834" class="Comment">-- Weak head reduction is preserved under substitution</a>
+  <a id="7891" class="Symbol">;</a> <a id="7893" href="Definition.Typed.Substitution.html#978" class="Function">subst-⊢⇒∷</a> <a id="7903" class="Comment">-- Weak head reduction of terms is preserved under substitution</a>
+  <a id="7969" class="Symbol">)</a>
+<a id="7971" class="Markup">```
+</a><a id="7975" class="Background">Some of these lemmas are stated a little differently than in the paper. For instance, `subst-⊢≡` involves equality of
+substitutions.
+
+Lemma 3.8 states that constituents of valid typing judgements are well-formed:
+</a><a id="8188" class="Markup">```
+</a><a id="8192" class="Keyword">import</a> <a id="8199" href="Definition.Typed.Properties.Well-formed.html" class="Module">Definition.Typed.Properties.Well-formed</a> <a id="8239" class="Keyword">using</a>
+  <a id="8247" class="Symbol">(</a> <a id="8249" href="Definition.Typed.Properties.Well-formed.html#13797" class="Function">wf</a> <a id="8252" class="Comment">-- Γ ⊢ A implies ⊢ Γ</a>
+  <a id="8275" class="Symbol">)</a>
+<a id="8277" class="Keyword">import</a> <a id="8284" href="Definition.Typed.Well-formed.html" class="Module">Definition.Typed.Well-formed</a> <a id="8313" class="Keyword">using</a>
+  <a id="8321" class="Symbol">(</a> <a id="8323" href="Definition.Typed.Well-formed.html#20169" class="Function">wf-⊢</a> <a id="8328" class="Comment">-- Γ ⊢ t ∷ A implies Γ ⊢ A,</a>
+         <a id="8365" class="Comment">-- Γ ⊢ A ≡ B implies Γ ⊢ A and Γ ⊢ B, and</a>
+         <a id="8416" class="Comment">-- Γ ⊢ t ≡ u ∷ A implies Γ ⊢ t ∷ A and Γ ⊢ u ∷ A</a>
+  <a id="8467" class="Symbol">)</a>
+<a id="8469" class="Keyword">import</a> <a id="8476" href="Definition.Typed.Syntactic.html" class="Module">Definition.Typed.Syntactic</a> <a id="8503" class="Keyword">using</a>
+  <a id="8511" class="Symbol">(</a> <a id="8513" href="Definition.Typed.Syntactic.html#700" class="Function">syntacticRed</a>     <a id="8530" class="Comment">-- Γ ⊢ A ⇒* B implies Γ ⊢ A and Γ ⊢ B</a>
+  <a id="8570" class="Symbol">;</a> <a id="8572" href="Definition.Typed.Syntactic.html#830" class="Function">syntacticRedTerm</a> <a id="8589" class="Comment">-- Γ ⊢ t ⇒* u ∷ A implies Γ ⊢ t ∷ A and Γ ⊢ u ∷ A</a>
+  <a id="8641" class="Symbol">)</a>
+<a id="8643" class="Markup">```
+</a><a id="8647" class="Background">The formalization does not contain lemmas like `syntacticRed` and `syntacticRedTerm` for the non-starred reduction
+relations: those variants follow from `redMany-⊢` and `redMany`:
+</a><a id="8827" class="Markup">```
+</a><a id="8831" class="Keyword">import</a> <a id="8838" href="Definition.Typed.Properties.Reduction.html" class="Module">Definition.Typed.Properties.Reduction</a> <a id="8876" class="Keyword">using</a>
+  <a id="8884" class="Symbol">(</a> <a id="8886" href="Definition.Typed.Properties.Reduction.html#10842" class="Function">redMany-⊢</a> <a id="8896" class="Comment">-- Γ ⊢ A ⇒ B implies Γ ⊢ A ⇒* B</a>
+  <a id="8930" class="Symbol">;</a> <a id="8932" href="Definition.Typed.Properties.Reduction.html#10627" class="Function">redMany</a>   <a id="8942" class="Comment">-- Γ ⊢ t ⇒ u ∷ A implies Γ ⊢ t ⇒* u ∷ A</a>
+  <a id="8984" class="Symbol">)</a>
+<a id="8986" class="Markup">```
+</a><a id="8990" class="Background">
+Theorem 3.9 states that the term reduction relation enjoys subject reduction. The statement as it appears in the paper
+follows directly from the above:
+</a><a id="9143" class="Markup">```
+</a><a id="9147" class="Keyword">module</a> <a id="SubjectReduction"></a><a id="9154" href="README.Opaque-definitions.html#9154" class="Module">SubjectReduction</a> <a id="9171" class="Symbol">{</a><a id="9172" href="README.Opaque-definitions.html#9172" class="Bound">a</a><a id="9173" class="Symbol">}</a> <a id="9175" class="Symbol">{</a><a id="9176" href="README.Opaque-definitions.html#9176" class="Bound">M</a> <a id="9178" class="Symbol">:</a> <a id="9180" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="9184" href="README.Opaque-definitions.html#9172" class="Bound">a</a><a id="9185" class="Symbol">}</a> <a id="9187" class="Symbol">{</a><a id="9188" href="README.Opaque-definitions.html#9188" class="Bound">𝕄</a> <a id="9190" class="Symbol">:</a> <a id="9192" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="9201" href="README.Opaque-definitions.html#9176" class="Bound">M</a><a id="9202" class="Symbol">}</a> <a id="9204" class="Symbol">(</a><a id="9205" href="README.Opaque-definitions.html#9205" class="Bound">R</a> <a id="9207" class="Symbol">:</a> <a id="9209" href="Definition.Typed.Restrictions.html#964" class="Record">Type-restrictions</a> <a id="9227" href="README.Opaque-definitions.html#9188" class="Bound">𝕄</a><a id="9228" class="Symbol">)</a> <a id="9230" class="Keyword">where</a>
+  <a id="9238" class="Keyword">open</a> <a id="9243" class="Keyword">import</a> <a id="9250" href="Tools.Product.html" class="Module">Tools.Product</a>
+  <a id="9266" class="Keyword">open</a> <a id="9271" class="Keyword">import</a> <a id="9278" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="9297" href="README.Opaque-definitions.html#9176" class="Bound">M</a>
+  <a id="9301" class="Keyword">open</a> <a id="9306" class="Keyword">import</a> <a id="9313" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="9330" href="README.Opaque-definitions.html#9205" class="Bound">R</a>
+  <a id="9334" class="Keyword">open</a> <a id="9339" class="Keyword">import</a> <a id="9346" href="Definition.Typed.Properties.Reduction.html" class="Module">Definition.Typed.Properties.Reduction</a> <a id="9384" href="README.Opaque-definitions.html#9205" class="Bound">R</a>
+  <a id="9388" class="Keyword">open</a> <a id="9393" class="Keyword">import</a> <a id="9400" href="Definition.Typed.Syntactic.html" class="Module">Definition.Typed.Syntactic</a> <a id="9427" href="README.Opaque-definitions.html#9205" class="Bound">R</a>
+
+  <a id="SubjectReduction.subject-reduction"></a><a id="9432" href="README.Opaque-definitions.html#9432" class="Function">subject-reduction</a> <a id="9450" class="Symbol">:</a>
+    <a id="9456" class="Symbol">∀</a> <a id="9458" class="Symbol">{</a><a id="9459" href="README.Opaque-definitions.html#9459" class="Bound">m</a> <a id="9461" href="README.Opaque-definitions.html#9461" class="Bound">n</a><a id="9462" class="Symbol">}</a> <a id="9464" class="Symbol">{</a><a id="9465" href="README.Opaque-definitions.html#9465" class="Bound">Γ</a> <a id="9467" class="Symbol">:</a> <a id="9469" href="Definition.Untyped.html#4562" class="Function">Cons</a> <a id="9474" href="README.Opaque-definitions.html#9459" class="Bound">m</a> <a id="9476" href="README.Opaque-definitions.html#9461" class="Bound">n</a><a id="9477" class="Symbol">}</a> <a id="9479" class="Symbol">{</a><a id="9480" href="README.Opaque-definitions.html#9480" class="Bound">t</a> <a id="9482" href="README.Opaque-definitions.html#9482" class="Bound">u</a> <a id="9484" href="README.Opaque-definitions.html#9484" class="Bound">A</a> <a id="9486" class="Symbol">:</a> <a id="9488" href="Definition.Untyped.html#1198" class="Function">Term</a> <a id="9493" href="README.Opaque-definitions.html#9461" class="Bound">n</a><a id="9494" class="Symbol">}</a> <a id="9496" class="Symbol">→</a>
+    <a id="9502" href="README.Opaque-definitions.html#9465" class="Bound">Γ</a> <a id="9504" href="Definition.Typed.html#17636" class="Datatype Operator">⊢</a> <a id="9506" href="README.Opaque-definitions.html#9480" class="Bound">t</a> <a id="9508" href="Definition.Typed.html#17636" class="Datatype Operator">⇒</a> <a id="9510" href="README.Opaque-definitions.html#9482" class="Bound">u</a> <a id="9512" href="Definition.Typed.html#17636" class="Datatype Operator">∷</a> <a id="9514" href="README.Opaque-definitions.html#9484" class="Bound">A</a> <a id="9516" class="Symbol">→</a> <a id="9518" href="README.Opaque-definitions.html#9465" class="Bound">Γ</a> <a id="9520" href="Definition.Typed.html#2999" class="Datatype Operator">⊢</a> <a id="9522" href="README.Opaque-definitions.html#9480" class="Bound">t</a> <a id="9524" href="Definition.Typed.html#2999" class="Datatype Operator">∷</a> <a id="9526" href="README.Opaque-definitions.html#9484" class="Bound">A</a> <a id="9528" class="Symbol">→</a> <a id="9530" href="README.Opaque-definitions.html#9465" class="Bound">Γ</a> <a id="9532" href="Definition.Typed.html#2999" class="Datatype Operator">⊢</a> <a id="9534" href="README.Opaque-definitions.html#9482" class="Bound">u</a> <a id="9536" href="Definition.Typed.html#2999" class="Datatype Operator">∷</a> <a id="9538" href="README.Opaque-definitions.html#9484" class="Bound">A</a>
+  <a id="9542" href="README.Opaque-definitions.html#9432" class="Function">subject-reduction</a> <a id="9560" href="README.Opaque-definitions.html#9560" class="Bound">t⇒u</a> <a id="9564" href="README.Opaque-definitions.html#9564" class="Bound">⊢t</a> <a id="9567" class="Symbol">=</a> <a id="9569" href="Definition.Typed.Syntactic.html#830" class="Function">syntacticRedTerm</a> <a id="9586" class="Symbol">(</a><a id="9587" href="Definition.Typed.Properties.Reduction.html#10627" class="Function">redMany</a> <a id="9595" href="README.Opaque-definitions.html#9560" class="Bound">t⇒u</a><a id="9598" class="Symbol">)</a> <a id="9600" class="Symbol">.</a><a id="9601" href="Data.Product.Base.html#650" class="Field">proj₂</a> <a id="9607" class="Symbol">.</a><a id="9608" href="Data.Product.Base.html#650" class="Field">proj₂</a>
+<a id="9614" class="Markup">```
+</a><a id="9618" class="Background">Note that the parameter `⊢t : Γ ⊢ t ∷ A` is unused; in fact, it can be obtained from `syntacticRedTerm`.
+
+### 3.2 The Logical Relation
+
+Definition 3.10 refers to neutrals, which are defined by a predicate on terms here:
+</a><a id="9838" class="Markup">```
+</a><a id="9842" class="Keyword">import</a> <a id="9849" href="Definition.Untyped.Neutral.html" class="Module">Definition.Untyped.Neutral</a> <a id="9876" class="Keyword">using</a> <a id="9882" class="Symbol">(</a><a id="9883" href="Definition.Untyped.Neutral.html#1271" class="Datatype">Neutral</a><a id="9890" class="Symbol">)</a>
+<a id="9892" class="Markup">```
+</a><a id="9896" class="Background">The predicate in the formalization includes some extra parameters.
+
+Definition 3.11 refers to weak head normal forms, which are similarly defined by a predicate here:
+</a><a id="10063" class="Markup">```
+</a><a id="10067" class="Keyword">import</a> <a id="10074" href="Definition.Untyped.Whnf.html" class="Module">Definition.Untyped.Whnf</a> <a id="10098" class="Keyword">using</a> <a id="10104" class="Symbol">(</a><a id="10105" href="Definition.Untyped.Whnf.html#1138" class="Datatype">Whnf</a><a id="10109" class="Symbol">)</a>
+<a id="10111" class="Markup">```
+</a><a id="10115" class="Background">The predicate in the formalization includes an extra parameter.
+
+Definition 3.12 refers to the logical relation for reducibility, which is defined here:
+</a><a id="10268" class="Markup">```
+</a><a id="10272" class="Keyword">import</a> <a id="10279" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a> <a id="10306" class="Keyword">using</a>
+  <a id="10314" class="Symbol">(</a> <a id="10316" href="Definition.LogicalRelation.html#26267" class="Function Operator">_⊩⟨_⟩_</a>       <a id="10329" class="Comment">-- Reducible types</a>
+  <a id="10350" class="Symbol">;</a> <a id="10352" href="Definition.LogicalRelation.html#26630" class="Function Operator">_⊩⟨_⟩_∷_/_</a>   <a id="10365" class="Comment">-- Reducible terms</a>
+  <a id="10386" class="Symbol">;</a> <a id="10388" href="Definition.LogicalRelation.html#26424" class="Function Operator">_⊩⟨_⟩_≡_/_</a>   <a id="10401" class="Comment">-- Reducibly equal types</a>
+  <a id="10428" class="Symbol">;</a> <a id="10430" href="Definition.LogicalRelation.html#26844" class="Function Operator">_⊩⟨_⟩_≡_∷_/_</a> <a id="10443" class="Comment">-- Reducibly equal terms</a>
+  <a id="10470" class="Symbol">)</a>
+<a id="10472" class="Markup">```
+</a><a id="10476" class="Background">Note the two extra parameters compared to the presentation in the paper, one in brackets (`⟨_⟩`) and the other under a
+slash (`/_`). The bracketed parameter is a universe level and the other parameter is a type reducibility proof. Both are
+elided in the paper for brevity.
+
+Note also that the notion of judgemental equality used in the logical relation is not the usual judgemental equality
+`_⊢_≡_`, but is given by the `EqRelSet` data structure, which contains three operators `_⊢_≅_`, `_⊢_≅_∷_`, and
+`_⊢_~_∷_`:
+</a><a id="10989" class="Markup">```
+</a><a id="10993" class="Keyword">import</a> <a id="11000" href="Definition.Typed.EqualityRelation.html" class="Module">Definition.Typed.EqualityRelation</a> <a id="11034" class="Keyword">using</a> <a id="11040" class="Symbol">(</a><a id="11041" href="Definition.Typed.EqualityRelation.html#16300" class="Record">EqRelSet</a><a id="11049" class="Symbol">)</a>
+<a id="11051" class="Markup">```
+</a><a id="11055" class="Background">Additionally, there is a `Var-included` flag used to control how terms stuck on free variables are treated in the
+logical relation:
+</a><a id="11187" class="Markup">```
+</a><a id="11191" href="README.Opaque-definitions.html#11191" class="Function">_</a> <a id="11193" class="Symbol">=</a> <a id="11195" href="Definition.Typed.EqualityRelation.html#16826" class="Field">Definition.Typed.EqualityRelation.EqRelSet.Var-included</a>
+<a id="11251" class="Markup">```
+</a><a id="11255" class="Background">This flag is present because the formalization has optional support for equality reflection: in the presence of equality
+reflection, normalization does not necessarily hold for open terms.
+
+The `EqRelSet` parameter allows for different instantiations of the logical relation (and, by extension, of the
+fundamental theorem) which can be used in different situations to prove different properties of the type system. In the
+formalization, the &quot;standard&quot; instantiation uses `_⊢_≡_` and `_⊢_≡_∷_`, while a specialized instantiation is given in
+`Definition.Conversion` to show decidability of conversion:
+</a><a id="11855" class="Markup">```
+</a><a id="11859" class="Keyword">import</a> <a id="11866" href="Definition.Typed.EqRelInstance.html" class="Module">Definition.Typed.EqRelInstance</a> <a id="11897" class="Keyword">using</a> <a id="11903" class="Symbol">(</a><a id="11904" href="Definition.Typed.EqRelInstance.html#4193" class="Function">eqRelInstance</a><a id="11917" class="Symbol">)</a>
+<a id="11919" class="Keyword">import</a> <a id="11926" href="Definition.Conversion.EqRelInstance.html" class="Module">Definition.Conversion.EqRelInstance</a> <a id="11962" class="Keyword">using</a> <a id="11968" class="Symbol">(</a><a id="11969" href="Definition.Conversion.EqRelInstance.html#23612" class="Function">eqRelInstance</a><a id="11982" class="Symbol">)</a>
+<a id="11984" class="Markup">```
+</a><a id="11988" class="Background">
+Lemma 3.13 states that reducibility is preserved under weakening:
+</a><a id="12055" class="Markup">```
+</a><a id="12059" class="Keyword">import</a> <a id="12066" href="Definition.LogicalRelation.Weakening.html" class="Module">Definition.LogicalRelation.Weakening</a> <a id="12103" class="Keyword">using</a>
+  <a id="12111" class="Symbol">(</a> <a id="12113" href="Definition.LogicalRelation.Weakening.html#11622" class="Function">wk</a>       <a id="12122" class="Comment">-- Weakening for reducible types</a>
+  <a id="12157" class="Symbol">;</a> <a id="12159" href="Definition.LogicalRelation.Weakening.html#12037" class="Function">wkTerm</a>   <a id="12168" class="Comment">-- Weakening for reducible terms</a>
+  <a id="12203" class="Symbol">;</a> <a id="12205" href="Definition.LogicalRelation.Weakening.html#11716" class="Function">wkEq</a>     <a id="12214" class="Comment">-- Weakening for reducible equality of types</a>
+  <a id="12261" class="Symbol">;</a> <a id="12263" href="Definition.LogicalRelation.Weakening.html#11868" class="Function">wkEqTerm</a> <a id="12272" class="Comment">-- Weakening for reducible equality of terms</a>
+  <a id="12319" class="Symbol">)</a>
+<a id="12321" class="Markup">```
+</a><a id="12325" class="Background">Note that the well-formedness relation for weakening is the &quot;restricted&quot; variant `_»_∷ʷʳ_⊇_`, which requires the
+weakening to be trivial if `Var-included` does not hold.
+
+Lemma 3.14 states that the reducibility judgements can be &quot;escaped&quot; to recover the normal typing judgements:
+</a><a id="12605" class="Markup">```
+</a><a id="12609" class="Keyword">import</a> <a id="12616" href="Definition.LogicalRelation.Properties.Escape.html" class="Module">Definition.LogicalRelation.Properties.Escape</a> <a id="12661" class="Keyword">using</a>
+  <a id="12669" class="Symbol">(</a> <a id="12671" href="Definition.LogicalRelation.Properties.Escape.html#1411" class="Function">escape</a>       <a id="12684" class="Comment">-- Escape for reducible types</a>
+  <a id="12716" class="Symbol">;</a> <a id="12718" href="Definition.LogicalRelation.Properties.Escape.html#2092" class="Function">escapeTerm</a>   <a id="12731" class="Comment">-- Escape for reducible terms</a>
+  <a id="12763" class="Symbol">;</a> <a id="12765" href="Definition.LogicalRelation.Properties.Escape.html#1838" class="Function">escapeEq</a>     <a id="12778" class="Comment">-- Escape for reducible equality of types</a>
+  <a id="12822" class="Symbol">;</a> <a id="12824" href="Definition.LogicalRelation.Properties.Escape.html#1974" class="Function">escapeTermEq</a> <a id="12837" class="Comment">-- Escape for reducible equality of terms</a>
+  <a id="12881" class="Symbol">)</a>
+<a id="12883" class="Markup">```
+</a><a id="12887" class="Background">
+Definition 3.15 refers to the validity judgements, which are defined here (again, with accommodation for definition
+contexts):
+</a><a id="13015" class="Markup">```
+</a><a id="13019" class="Keyword">import</a> <a id="13026" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a> <a id="13066" class="Keyword">using</a>
+  <a id="13074" class="Symbol">(</a> <a id="13076" href="Definition.LogicalRelation.Substitution.html#2153" class="Function Operator">_»⊩ᵛ_</a>       <a id="13088" class="Comment">-- Valid typing contexts</a>
+  <a id="13115" class="Symbol">;</a> <a id="13117" href="Definition.LogicalRelation.Substitution.html#2303" class="Function Operator">_⊩ᵛ⟨_⟩_</a>     <a id="13129" class="Comment">-- Valid types</a>
+  <a id="13146" class="Symbol">;</a> <a id="13148" href="Definition.LogicalRelation.Substitution.html#3691" class="Function Operator">_⊩ᵛ⟨_⟩_∷_</a>   <a id="13160" class="Comment">-- Valid terms</a>
+  <a id="13177" class="Symbol">;</a> <a id="13179" href="Definition.LogicalRelation.Substitution.html#2439" class="Function Operator">_⊩ᵛ⟨_⟩_≡_</a>   <a id="13191" class="Comment">-- Valid equality of types</a>
+  <a id="13220" class="Symbol">;</a> <a id="13222" href="Definition.LogicalRelation.Substitution.html#3340" class="Function Operator">_⊩ᵛ⟨_⟩_≡_∷_</a> <a id="13234" class="Comment">-- Valid equality of terms</a>
+  <a id="13263" class="Symbol">;</a> <a id="13265" href="Definition.LogicalRelation.Substitution.html#3198" class="Function Operator">_⊩ˢ_∷_</a>      <a id="13277" class="Comment">-- Valid substitutions</a>
+  <a id="13302" class="Symbol">;</a> <a id="13304" href="Definition.LogicalRelation.Substitution.html#2759" class="Function Operator">_⊩ˢ_≡_∷_</a>    <a id="13316" class="Comment">-- Valid equality of substitutions</a>
+  <a id="13353" class="Symbol">)</a>
+<a id="13355" class="Markup">```
+</a><a id="13359" class="Background">Note that the substitution validity operators are tagged with a superscript `ˢ` in the Agda code, rather than with a `ᵛ`
+as in the paper.
+
+As with reducibility above, the bracketed universe level parameter is elided in the paper, but note that the other
+parameter (the type reducibility proof) has vanished; this is accomplished by existential quantification in the &quot;hidden&quot;
+variant of reducibility introduced here:
+</a><a id="13775" class="Markup">```
+</a><a id="13779" class="Keyword">import</a> <a id="13786" href="Definition.LogicalRelation.Hidden.html" class="Module">Definition.LogicalRelation.Hidden</a> <a id="13820" class="Keyword">using</a>
+  <a id="13828" class="Symbol">(</a> <a id="13830" href="Definition.LogicalRelation.Hidden.html#1970" class="Function Operator">_⊩⟨_⟩_∷_</a>   <a id="13841" class="Comment">-- &quot;Hidden&quot; reducibility for terms</a>
+  <a id="13878" class="Symbol">;</a> <a id="13880" href="Definition.LogicalRelation.Hidden.html#2162" class="Function Operator">_⊩⟨_⟩_≡_</a>   <a id="13891" class="Comment">-- &quot;Hidden&quot; reducible equality for types</a>
+  <a id="13934" class="Symbol">;</a> <a id="13936" href="Definition.LogicalRelation.Hidden.html#2371" class="Function Operator">_⊩⟨_⟩_≡_∷_</a> <a id="13947" class="Comment">-- &quot;Hidden&quot; reducible equality for terms</a>
+  <a id="13990" class="Symbol">)</a>
+<a id="13992" class="Markup">```
+</a><a id="13996" class="Background">No hidden variant of type reducibility is necessary, since there is no parameter to hide.
+
+Additionally, the validity judgements operate on a &quot;restricted&quot; variant of reducibility that is only required to hold
+when either the context is empty or `Var-included` does not hold; this is introduced here:
+</a><a id="14296" class="Markup">```
+</a><a id="14300" class="Keyword">import</a> <a id="14307" href="Definition.LogicalRelation.Hidden.Restricted.html" class="Module">Definition.LogicalRelation.Hidden.Restricted</a> <a id="14352" class="Keyword">using</a>
+  <a id="14360" class="Symbol">(</a> <a id="14362" href="Definition.LogicalRelation.Hidden.Restricted.html#1627" class="Function Operator">_⊩⟨_⟩_</a>     <a id="14373" class="Comment">-- &quot;Restricted&quot; reducibility for types</a>
+  <a id="14414" class="Symbol">;</a> <a id="14416" href="Definition.LogicalRelation.Hidden.Restricted.html#1807" class="Function Operator">_⊩⟨_⟩_∷_</a>   <a id="14427" class="Comment">-- &quot;Restricted&quot; reducibility for terms</a>
+  <a id="14468" class="Symbol">;</a> <a id="14470" href="Definition.LogicalRelation.Hidden.Restricted.html#2014" class="Function Operator">_⊩⟨_⟩_≡_</a>   <a id="14481" class="Comment">-- &quot;Restricted&quot; reducible equality for types</a>
+  <a id="14528" class="Symbol">;</a> <a id="14530" href="Definition.LogicalRelation.Hidden.Restricted.html#2223" class="Function Operator">_⊩⟨_⟩_≡_∷_</a> <a id="14541" class="Comment">-- &quot;Restricted&quot; reducible equality for terms</a>
+  <a id="14588" class="Symbol">)</a>
+<a id="14590" class="Markup">```
+</a><a id="14594" class="Background">This restricted notion of reducibility is used to enable the validity argument for equality reflection.
+
+Lemma 3.16 states that the validity judgements can be &quot;escaped&quot; to recover reducibility (and, by extension, the normal
+typing judgements):
+</a><a id="14838" class="Markup">```
+</a><a id="14842" class="Keyword">import</a> <a id="14849" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a> <a id="14889" class="Keyword">using</a>
+  <a id="14897" class="Symbol">(</a> <a id="14899" href="Definition.LogicalRelation.Substitution.html#52031" class="Function">escape-⊩ᵛ′</a>  <a id="14911" class="Comment">-- Escape for valid typing contexts</a>
+  <a id="14949" class="Symbol">;</a> <a id="14951" href="Definition.LogicalRelation.Substitution.html#50595" class="Function">⊩ᵛ→⊩</a>        <a id="14963" class="Comment">-- Escape for valid types</a>
+  <a id="14991" class="Symbol">;</a> <a id="14993" href="Definition.LogicalRelation.Substitution.html#51619" class="Function">⊩ᵛ∷→⊩∷</a>      <a id="15005" class="Comment">-- Escape for valid terms</a>
+  <a id="15033" class="Symbol">;</a> <a id="15035" href="Definition.LogicalRelation.Substitution.html#49959" class="Function">⊩ᵛ≡→⊩≡</a>      <a id="15047" class="Comment">-- Escape for valid equality of types</a>
+  <a id="15087" class="Symbol">;</a> <a id="15089" href="Definition.LogicalRelation.Substitution.html#50795" class="Function">⊩ᵛ≡∷→⊩≡∷</a>    <a id="15101" class="Comment">-- Escape for valid equality of terms</a>
+  <a id="15141" class="Symbol">;</a> <a id="15143" href="Definition.LogicalRelation.Substitution.html#52890" class="Function">escape-⊩ˢ∷</a>  <a id="15155" class="Comment">-- Escape for valid substitutions</a>
+  <a id="15191" class="Symbol">;</a> <a id="15193" href="Definition.LogicalRelation.Substitution.html#53984" class="Function">escape-⊩ˢ≡∷</a> <a id="15205" class="Comment">-- Escape for valid equality of substitutions</a>
+  <a id="15253" class="Symbol">)</a>
+<a id="15255" class="Markup">```
+</a><a id="15259" class="Background">In the formalization, these lemmas include an assumption related to `Var-included`. Note that the escape lemmas for
+valid contexts, substitutions, and substitution equality all go directly to the normal typing judgements, since there is
+no notion of reducibility for these entities.
+
+Theorem 3.17, the fundamental theorem, states that the normal typing judgements can be strengthened to validity:
+</a><a id="15656" class="Markup">```
+</a><a id="15660" class="Keyword">import</a> <a id="15667" href="Definition.LogicalRelation.Fundamental.html" class="Module">Definition.LogicalRelation.Fundamental</a> <a id="15706" class="Keyword">using</a>
+  <a id="15714" class="Symbol">(</a> <a id="15716" href="Definition.LogicalRelation.Fundamental.html#1966" class="Function">fundamental-⊩ᵛ</a>   <a id="15733" class="Comment">-- Fundamental theorem for seven basic typing judgements</a>
+  <a id="15792" class="Symbol">;</a> <a id="15794" href="Definition.LogicalRelation.Fundamental.html#15814" class="Function">fundamental-⊩ˢ∷</a>  <a id="15811" class="Comment">-- Fundamental theorem for well-formedness of substitutions</a>
+  <a id="15873" class="Symbol">;</a> <a id="15875" href="Definition.LogicalRelation.Fundamental.html#16230" class="Function">fundamental-⊩ˢ≡∷</a> <a id="15892" class="Comment">-- Fundamental theorem for equality of well-formed substitutions</a>
+  <a id="15959" class="Symbol">)</a>
+<a id="15961" class="Markup">```
+</a><a id="15965" class="Background">
+Theorem 3.18 states that all well-typed terms normalize to a WHNF; the same is true of well-formed types:
+</a><a id="16072" class="Markup">```
+</a><a id="16076" class="Keyword">import</a> <a id="16083" href="Definition.Typed.Consequences.Reduction.html" class="Module">Definition.Typed.Consequences.Reduction</a> <a id="16123" class="Keyword">using</a>
+  <a id="16131" class="Symbol">(</a> <a id="16133" href="Definition.Typed.Consequences.Reduction.html#8263" class="Function">whNorm</a>     <a id="16144" class="Comment">-- Well-formed types normalize to WHNF</a>
+  <a id="16185" class="Symbol">;</a> <a id="16187" href="Definition.Typed.Consequences.Reduction.html#15219" class="Function">whNormTerm</a> <a id="16198" class="Comment">-- Well-typed terms normalize to WHNF</a>
+  <a id="16238" class="Symbol">)</a>
+<a id="16240" class="Markup">```
+</a><a id="16244" class="Background">Note that these results require either that the context is empty or that equality reflection is disallowed; otherwise,
+equality reflection can contradict normalization:
+</a><a id="16413" class="Markup">```
+</a><a id="16417" class="Keyword">import</a> <a id="16424" href="Definition.Typed.Consequences.Reduction.html" class="Module">Definition.Typed.Consequences.Reduction</a> <a id="16464" class="Keyword">using</a>
+  <a id="16472" class="Symbol">(</a> <a id="16474" href="Definition.Typed.Consequences.Reduction.html#15641" class="Function">type-without-WHNF</a> <a id="16492" class="Comment">-- A well-formed type that fails to normalize in the presence of equality reflection</a>
+  <a id="16579" class="Symbol">;</a> <a id="16581" href="Definition.Typed.Consequences.Reduction.html#16179" class="Function">term-without-WHNF</a> <a id="16599" class="Comment">-- A well-typed term that fails to normalize in the presence of equality reflection</a>
+  <a id="16685" class="Symbol">)</a>
+<a id="16687" class="Markup">```
+</a><a id="16691" class="Background">
+Theorem 3.19 states that if `ε ⊢ t ∷ ℕ`, then `t` is judgementally equal to a canonical form of `ℕ`, i.e. a numeral:
+</a><a id="16809" class="Markup">```
+</a><a id="16813" class="Keyword">import</a> <a id="16820" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a> <a id="16861" class="Keyword">using</a> <a id="16867" class="Symbol">(</a><a id="16868" href="Definition.Typed.Consequences.Canonicity.html#1673" class="Function">canonicity</a><a id="16878" class="Symbol">)</a>
+<a id="16880" class="Markup">```
+</a><a id="16884" class="Background">
+Theorem 3.20 states that the empty type is uninhabited in the empty context---that is, that the theory is consistent;
+this is the special case of canonicity for the empty type:
+</a><a id="17062" class="Markup">```
+</a><a id="17066" class="Keyword">import</a> <a id="17073" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a> <a id="17114" class="Keyword">using</a> <a id="17120" class="Symbol">(</a><a id="17121" href="Definition.Typed.Consequences.Canonicity.html#11168" class="Function">¬Empty</a><a id="17127" class="Symbol">)</a>
+<a id="17129" class="Markup">```
+</a><a id="17133" class="Background">
+Theorem 3.21 states that conversion is decidable (in the absence of equality reflection):
+</a><a id="17224" class="Markup">```
+</a><a id="17228" class="Keyword">import</a> <a id="17235" href="Definition.Typed.Decidable.Equality.html" class="Module">Definition.Typed.Decidable.Equality</a> <a id="17271" class="Keyword">using</a>
+  <a id="17279" class="Symbol">(</a> <a id="17281" href="Definition.Typed.Decidable.Equality.html#958" class="Function">decEq</a>     <a id="17291" class="Comment">-- Equality of types is decidable</a>
+  <a id="17327" class="Symbol">;</a> <a id="17329" href="Definition.Typed.Decidable.Equality.html#1207" class="Function">decEqTerm</a> <a id="17339" class="Comment">-- Equality of terms is decidable</a>
+  <a id="17375" class="Symbol">)</a>
+<a id="17377" class="Markup">```
+</a><a id="17381" class="Background">As mentioned above, this is shown through a specialized instantiation of the logical relation.
+
+## 4 Formalizing Top-level Definitions
+
+### 4.1 The Formalism
+
+Definition 4.1 refers to the terms updated with a definition constructor, which are defined here:
+</a><a id="17638" class="Markup">```
+</a><a id="17642" class="Keyword">import</a> <a id="17649" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="17668" class="Keyword">using</a>
+  <a id="17676" class="Symbol">(</a> <a id="17678" href="Definition.Untyped.html#1198" class="Function">Term</a> <a id="17683" class="Comment">-- Term data type</a>
+  <a id="17703" class="Symbol">;</a> <a id="17705" href="Definition.Untyped.html#1982" class="InductiveConstructor">defn</a> <a id="17710" class="Comment">-- Definition constructor</a>
+  <a id="17738" class="Symbol">)</a>
+<a id="17740" class="Markup">```
+</a><a id="17744" class="Background">
+Definition 4.2 refers to definition contexts, which are defined here (the definition includes an extra parameter, and
+one of the constructors takes an extra opacity argument, which is discussed later):
+</a><a id="17947" class="Markup">```
+</a><a id="17951" class="Keyword">import</a> <a id="17958" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="17977" class="Keyword">using</a> <a id="17983" class="Symbol">(</a><a id="17984" href="Definition.Untyped.NotParametrised.html#7725" class="Datatype">DCon</a><a id="17988" class="Symbol">)</a>
+<a id="17990" class="Markup">```
+</a><a id="17994" class="Background">As with typing contexts, definition contexts are also length-indexed.
+
+Definition 4.3 refers to the maps-to relations, which are defined here:
+</a><a id="18137" class="Markup">```
+</a><a id="18141" class="Keyword">import</a> <a id="18148" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="18167" class="Keyword">using</a>
+  <a id="18175" class="Symbol">(</a> <a id="18177" href="Definition.Untyped.NotParametrised.html#8317" class="Datatype Operator">_↦_∷_∈_</a> <a id="18185" class="Comment">-- A name refers to a definition with a given definiens and annotated with a given type</a>
+  <a id="18275" class="Symbol">;</a> <a id="18277" href="Definition.Untyped.NotParametrised.html#8044" class="Datatype Operator">_↦∷_∈_</a>  <a id="18285" class="Comment">-- A name refers to a definition annotated with a given type</a>
+  <a id="18348" class="Symbol">)</a>
+<a id="18350" class="Markup">```
+</a><a id="18354" class="Background">Since the code here accounts for opacity, `_↦_∷_∈_` has the additional stipulation that the definition is transparent,
+as mentioned later in the paper.
+
+Definition 4.4 refers to well-formedness for definition contexts, which is defined here:
+</a><a id="18596" class="Markup">```
+</a><a id="18600" class="Keyword">import</a> <a id="18607" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="18624" class="Keyword">using</a> <a id="18630" class="Symbol">(</a><a id="18631" href="Definition.Typed.html#1952" class="Datatype Operator">»_</a><a id="18633" class="Symbol">)</a>
+<a id="18635" class="Markup">```
+</a><a id="18639" class="Background">The constructors here similarly account for opacity, and so the &quot;extend&quot; case is split into two separate constructors
+which are also discussed later in the paper.
+
+Definition 4.5 refers to well-formedness for typing contexts, which is defined here:
+</a><a id="18888" class="Markup">```
+</a><a id="18892" class="Keyword">import</a> <a id="18899" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="18916" class="Keyword">using</a> <a id="18922" class="Symbol">(</a><a id="18923" href="Definition.Typed.html#2270" class="Datatype Operator">_»⊢_</a><a id="18927" class="Symbol">)</a>
+<a id="18929" class="Markup">```
+</a><a id="18933" class="Background">
+The typing rules are augmented with definition contexts, but instead of prepending a parameter for it as in the paper
+(e.g. `_»_⊢_`), the formalization here just changes the parameter on the left of the turnstile to a pair of a definition
+context and a typing context. By naming the pairing operator `_»_`, we can recover the syntax from the paper by
+expanding the pair. These pairs are defined here:
+</a><a id="19335" class="Markup">```
+</a><a id="19339" class="Keyword">import</a> <a id="19346" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="19365" class="Keyword">using</a>
+  <a id="19373" class="Symbol">(</a> <a id="19375" href="Definition.Untyped.html#4562" class="Function">Cons</a> <a id="19380" class="Comment">-- Context pair type</a>
+  <a id="19403" class="Symbol">;</a> <a id="19405" href="Definition.Untyped.NotParametrised.html#10595" class="InductiveConstructor Operator">_»_</a>  <a id="19410" class="Comment">-- Pairing operator</a>
+  <a id="19432" class="Symbol">)</a>
+<a id="19434" class="Markup">```
+</a><a id="19438" class="Background">
+The typing rules for definitions are given here:
+</a><a id="19488" class="Markup">```
+</a><a id="19492" class="Keyword">import</a> <a id="19499" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="19516" class="Keyword">using</a>
+  <a id="19524" class="Symbol">(</a> <a id="19526" href="Definition.Typed.html#3217" class="InductiveConstructor">defn</a>  <a id="19532" class="Comment">-- Well-typedness rule</a>
+  <a id="19557" class="Symbol">;</a> <a id="19559" href="Definition.Typed.html#8269" class="InductiveConstructor">δ-red</a> <a id="19565" class="Comment">-- Equality (and reduction) rule</a>
+  <a id="19600" class="Symbol">)</a>
+<a id="19602" class="Markup">```
+</a><a id="19606" class="Background">Note the extra weakenings, which are necessary because the definientia are closed terms (defined in the empty context)
+which must be lifted to the ambient context for the rule. Since these weakenings are necessarily trivial, they are
+elided in the paper for brevity.
+
+Definition 4.6 refers to definition context extensions, which are defined here:
+</a><a id="19954" class="Markup">```
+</a><a id="19958" class="Keyword">import</a> <a id="19965" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="19984" class="Keyword">using</a>
+  <a id="19992" class="Symbol">(</a> <a id="19994" href="Definition.Untyped.NotParametrised.html#9166" class="Datatype">DExt</a> <a id="19999" class="Comment">-- Definition context extensions</a>
+  <a id="20034" class="Symbol">)</a>
+<a id="20036" class="Markup">```
+</a><a id="20040" class="Background">The code no longer contains the definition `_»_⊇_`, but instead uses a definition that does not refer to `DExt`, `»_⊇_`:
+</a><a id="20161" class="Markup">```
+</a><a id="20165" class="Keyword">import</a> <a id="20172" href="Definition.Typed.Weakening.Definition.html" class="Module">Definition.Typed.Weakening.Definition</a> <a id="20210" class="Keyword">using</a>
+  <a id="20218" class="Symbol">(</a> <a id="20220" href="Definition.Typed.Weakening.Definition.html#1665" class="Datatype Operator">»_⊇_</a> <a id="20225" class="Comment">-- Well-formed definition context extensions</a>
+  <a id="20272" class="Symbol">)</a>
+<a id="20274" class="Markup">```
+</a><a id="20278" class="Background">
+Lemma 4.7 states that typing judgements are preserved under weakening of the definition context (&quot;definitional
+weakening&quot;):
+</a><a id="20403" class="Markup">```
+</a><a id="20407" class="Keyword">import</a> <a id="20414" href="Definition.Typed.Weakening.Definition.html" class="Module">Definition.Typed.Weakening.Definition</a> <a id="20452" class="Keyword">using</a>
+  <a id="20460" class="Symbol">(</a> <a id="20462" href="Definition.Typed.Weakening.Definition.html#17399" class="Function">defn-wk</a>        <a id="20477" class="Comment">-- Preservation under definitional weakening for seven basic typing judgements</a>
+  <a id="20558" class="Symbol">;</a> <a id="20560" href="Definition.Typed.Weakening.Definition.html#22048" class="Function">defn-wkRed</a>     <a id="20575" class="Comment">-- Weak head reduction is preserved under definitional weakening</a>
+  <a id="20642" class="Symbol">;</a> <a id="20644" href="Definition.Typed.Weakening.Definition.html#18228" class="Function">defn-wkRedTerm</a> <a id="20659" class="Comment">-- Weak head reduction of terms is preserved under definitional weakening</a>
+  <a id="20735" class="Symbol">)</a>
+<a id="20737" class="Markup">```
+</a><a id="20741" class="Background">
+Lemma 4.8 states that if `» ∇` and `α ↦ t ∷ A ∈ ∇`, then `∇ » ε ⊢ t ∷ A`; a similar result holds for `α ↦∷ A ∈ ∇`:
+</a><a id="20857" class="Markup">```
+</a><a id="20861" class="Keyword">import</a> <a id="20868" href="Definition.Typed.Well-formed.html" class="Module">Definition.Typed.Well-formed</a> <a id="20897" class="Keyword">using</a>
+  <a id="20905" class="Symbol">(</a> <a id="20907" href="Definition.Typed.Well-formed.html#2223" class="Function">wf-↦∈</a>  <a id="20914" class="Comment">-- Well-formedness of the type annotation for `α ↦∷ A ∈ ∇`</a>
+  <a id="20975" class="Symbol">;</a> <a id="20977" href="Definition.Typed.Well-formed.html#1875" class="Function">wf-↦∷∈</a> <a id="20984" class="Comment">-- Well-typedness of the definiens for `α ↦ t ∷ A ∈ ∇`</a>
+  <a id="21041" class="Symbol">)</a>
+<a id="21043" class="Markup">```
+</a><a id="21047" class="Background">
+Lemma 4.9 extends the well-formedness lemma with definition contexts and an additional case for well-formedness of the
+definition context:
+</a><a id="21187" class="Markup">```
+</a><a id="21191" class="Keyword">import</a> <a id="21198" href="Definition.Typed.Well-formed.html" class="Module">Definition.Typed.Well-formed</a> <a id="21227" class="Keyword">using</a>
+  <a id="21235" class="Symbol">(</a> <a id="21237" href="Definition.Typed.Well-formed.html#20169" class="Function">wf-⊢</a> <a id="21242" class="Comment">-- The first five cases (and more)</a>
+  <a id="21279" class="Symbol">)</a>
+<a id="21281" class="Keyword">import</a> <a id="21288" href="Definition.Typed.Syntactic.html" class="Module">Definition.Typed.Syntactic</a> <a id="21315" class="Keyword">using</a>
+  <a id="21323" class="Symbol">(</a> <a id="21325" href="Definition.Typed.Syntactic.html#700" class="Function">syntacticRed</a>     <a id="21342" class="Comment">-- ∇ » Γ ⊢ A ⇒ B implies ∇ » Γ ⊢ A and ∇ » Γ ⊢ B</a>
+  <a id="21393" class="Symbol">;</a> <a id="21395" href="Definition.Typed.Syntactic.html#830" class="Function">syntacticRedTerm</a> <a id="21412" class="Comment">-- ∇ » Γ ⊢ t ⇒ u ∷ A implies ∇ » Γ ⊢ t ∷ A and ∇ » Γ ⊢ u ∷ A</a>
+  <a id="21475" class="Symbol">)</a>
+<a id="21477" class="Markup">```
+</a><a id="21481" class="Background">
+### 4.2 Updating the Logical Relation
+
+Definition 4.10 extends the logical relation for reducibility with defintion contexts (this snippet is identical to the
+one above for Definition 3.12):
+
+</a><a id="21674" class="Markup">```
+</a><a id="21678" class="Keyword">import</a> <a id="21685" href="Definition.LogicalRelation.html" class="Module">Definition.LogicalRelation</a> <a id="21712" class="Keyword">using</a>
+  <a id="21720" class="Symbol">(</a> <a id="21722" href="Definition.LogicalRelation.html#26267" class="Function Operator">_⊩⟨_⟩_</a>       <a id="21735" class="Comment">-- Reducible types</a>
+  <a id="21756" class="Symbol">;</a> <a id="21758" href="Definition.LogicalRelation.html#26630" class="Function Operator">_⊩⟨_⟩_∷_/_</a>   <a id="21771" class="Comment">-- Reducible terms</a>
+  <a id="21792" class="Symbol">;</a> <a id="21794" href="Definition.LogicalRelation.html#26424" class="Function Operator">_⊩⟨_⟩_≡_/_</a>   <a id="21807" class="Comment">-- Reducibly equal types</a>
+  <a id="21834" class="Symbol">;</a> <a id="21836" href="Definition.LogicalRelation.html#26844" class="Function Operator">_⊩⟨_⟩_≡_∷_/_</a> <a id="21849" class="Comment">-- Reducibly equal terms</a>
+  <a id="21876" class="Symbol">)</a>
+<a id="21878" class="Markup">```
+</a><a id="21882" class="Background">As with the normal typing judgements, the parameter to the left of the turnstile is a context pair.
+
+Definition 4.11 similarly extends the validity judgements with definition contexts (this snippet is identical to the one
+above for Definition 3.15):
+</a><a id="22132" class="Markup">```
+</a><a id="22136" class="Keyword">import</a> <a id="22143" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a> <a id="22183" class="Keyword">using</a>
+  <a id="22191" class="Symbol">(</a> <a id="22193" href="Definition.LogicalRelation.Substitution.html#2153" class="Function Operator">_»⊩ᵛ_</a>       <a id="22205" class="Comment">-- Valid typing contexts</a>
+  <a id="22232" class="Symbol">;</a> <a id="22234" href="Definition.LogicalRelation.Substitution.html#2303" class="Function Operator">_⊩ᵛ⟨_⟩_</a>     <a id="22246" class="Comment">-- Valid types</a>
+  <a id="22263" class="Symbol">;</a> <a id="22265" href="Definition.LogicalRelation.Substitution.html#3691" class="Function Operator">_⊩ᵛ⟨_⟩_∷_</a>   <a id="22277" class="Comment">-- Valid terms</a>
+  <a id="22294" class="Symbol">;</a> <a id="22296" href="Definition.LogicalRelation.Substitution.html#2439" class="Function Operator">_⊩ᵛ⟨_⟩_≡_</a>   <a id="22308" class="Comment">-- Valid equality of types</a>
+  <a id="22337" class="Symbol">;</a> <a id="22339" href="Definition.LogicalRelation.Substitution.html#3340" class="Function Operator">_⊩ᵛ⟨_⟩_≡_∷_</a> <a id="22351" class="Comment">-- Valid equality of terms</a>
+  <a id="22380" class="Symbol">;</a> <a id="22382" href="Definition.LogicalRelation.Substitution.html#3198" class="Function Operator">_⊩ˢ_∷_</a>      <a id="22394" class="Comment">-- Valid substitutions</a>
+  <a id="22419" class="Symbol">;</a> <a id="22421" href="Definition.LogicalRelation.Substitution.html#2759" class="Function Operator">_⊩ˢ_≡_∷_</a>    <a id="22433" class="Comment">-- Valid equality of substitutions</a>
+  <a id="22470" class="Symbol">)</a>
+<a id="22472" class="Markup">```
+</a><a id="22476" class="Background">
+Definition 4.12 refers to validity for definition contexts, which is defined here:
+</a><a id="22560" class="Markup">```
+</a><a id="22564" class="Keyword">import</a> <a id="22571" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Definition</a> <a id="22636" class="Keyword">using</a> <a id="22642" class="Symbol">(</a><a id="22643" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html#1449" class="Function Operator">»ᵛ_</a><a id="22646" class="Symbol">)</a>
+<a id="22648" class="Markup">```
+</a><a id="22652" class="Background">
+Theorem 4.13 updates the fundamental theorem, adding a case for definition contexts:
+</a><a id="22738" class="Markup">```
+</a><a id="22742" class="Keyword">import</a> <a id="22749" href="Definition.LogicalRelation.Fundamental.html" class="Module">Definition.LogicalRelation.Fundamental</a> <a id="22788" class="Keyword">using</a>
+  <a id="22796" class="Symbol">(</a> <a id="22798" href="Definition.LogicalRelation.Fundamental.html#1404" class="Function">defn-valid</a>       <a id="22815" class="Comment">-- Fundamental theorem for well-formedness of definition contexts</a>
+  <a id="22883" class="Symbol">;</a> <a id="22885" href="Definition.LogicalRelation.Fundamental.html#1966" class="Function">fundamental-⊩ᵛ</a>   <a id="22902" class="Comment">-- Fundamental theorem for seven basic typing judgements</a>
+  <a id="22961" class="Symbol">;</a> <a id="22963" href="Definition.LogicalRelation.Fundamental.html#15814" class="Function">fundamental-⊩ˢ∷</a>  <a id="22980" class="Comment">-- Fundamental theorem for well-formedness of substitutions</a>
+  <a id="23042" class="Symbol">;</a> <a id="23044" href="Definition.LogicalRelation.Fundamental.html#16230" class="Function">fundamental-⊩ˢ≡∷</a> <a id="23061" class="Comment">-- Fundamental theorem for equality of well-formed substitutions</a>
+  <a id="23128" class="Symbol">)</a>
+<a id="23130" class="Markup">```
+</a><a id="23134" class="Background">
+Lemma 4.14 establishes validity for δ-reduction (with two weakenings which are elided in the paper):
+</a><a id="23236" class="Markup">```
+</a><a id="23240" class="Keyword">import</a> <a id="23247" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Definition</a> <a id="23312" class="Keyword">using</a> <a id="23318" class="Symbol">(</a><a id="23319" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html#4653" class="Function">δ-redᵛ</a><a id="23325" class="Symbol">)</a>
+<a id="23327" class="Markup">```
+</a><a id="23331" class="Background">
+Lemma 4.15 establishes validity variants of the well-formedness results from Lemma 4.8:
+</a><a id="23420" class="Markup">```
+</a><a id="23424" class="Keyword">import</a> <a id="23431" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Definition</a> <a id="23496" class="Keyword">using</a>
+  <a id="23504" class="Symbol">(</a> <a id="23506" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html#2760" class="Function">wf-↦∈ᵛ</a>  <a id="23514" class="Comment">-- Validity of the type annotation for `α ↦∷ A ∈ ∇`</a>
+  <a id="23568" class="Symbol">;</a> <a id="23570" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html#3570" class="Function">wf-↦∷∈ᵛ</a> <a id="23578" class="Comment">-- Validity of the definiens for `α ↦ t ∷ A ∈ ∇`</a>
+  <a id="23629" class="Symbol">)</a>
+<a id="23631" class="Markup">```
+</a><a id="23635" class="Background">
+Lemma 4.16 states that validity is preserved under definitional weakening:
+</a><a id="23711" class="Markup">```
+</a><a id="23715" class="Keyword">import</a> <a id="23722" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a> <a id="23762" class="Keyword">using</a>
+  <a id="23770" class="Symbol">(</a> <a id="23772" href="Definition.LogicalRelation.Substitution.html#21438" class="Function">defn-wk-⊩ᵛ</a>   <a id="23785" class="Comment">-- Validity of types is preserved under definitional weakening</a>
+  <a id="23850" class="Symbol">;</a> <a id="23852" href="Definition.LogicalRelation.Substitution.html#22254" class="Function">defn-wk-⊩ᵛ∷</a>  <a id="23865" class="Comment">-- Validity of terms is preserved under definitional weakening</a>
+  <a id="23930" class="Symbol">;</a> <a id="23932" href="Definition.LogicalRelation.Substitution.html#21619" class="Function">defn-wk-⊩ᵛ≡</a>  <a id="23945" class="Comment">-- Valid equality of types is preserved under definitional weakening</a>
+  <a id="24016" class="Symbol">;</a> <a id="24018" href="Definition.LogicalRelation.Substitution.html#21924" class="Function">defn-wk-⊩ᵛ≡∷</a> <a id="24031" class="Comment">-- Valid equality of terms is preserved under definitional weakening</a>
+  <a id="24102" class="Symbol">)</a>
+<a id="24104" class="Markup">```
+</a><a id="24108" class="Background">
+Lemma 4.17 states that validity is preserved under weak head expansion (the formalized statement is a little different
+from the one in the paper if `Var-included` does not hold):
+</a><a id="24288" class="Markup">```
+</a><a id="24292" class="Keyword">import</a> <a id="24299" href="Definition.LogicalRelation.Substitution.html" class="Module">Definition.LogicalRelation.Substitution</a> <a id="24339" class="Keyword">using</a>
+  <a id="24347" class="Symbol">(</a> <a id="24349" href="Definition.LogicalRelation.Substitution.html#43790" class="Function">⊩ᵛ∷-⇐</a> <a id="24355" class="Comment">-- Weak head expansion for validity</a>
+  <a id="24393" class="Symbol">)</a>
+<a id="24395" class="Markup">```
+</a><a id="24399" class="Background">This is proved using `redSubst*Term`:
+</a><a id="24437" class="Markup">```
+</a><a id="24441" class="Keyword">import</a> <a id="24448" href="Definition.LogicalRelation.Properties.Reduction.html" class="Module">Definition.LogicalRelation.Properties.Reduction</a> <a id="24496" class="Keyword">using</a>
+  <a id="24504" class="Symbol">(</a> <a id="24506" href="Definition.LogicalRelation.Properties.Reduction.html#3133" class="Function">redSubst*Term</a> <a id="24520" class="Comment">-- Weak head expansion for reducibility</a>
+  <a id="24562" class="Symbol">)</a>
+<a id="24564" class="Markup">```
+</a><a id="24568" class="Background">
+Lemma 4.18 establishes validity for the definition typing rule (with a weakening which is elided in the paper):
+</a><a id="24681" class="Markup">```
+</a><a id="24685" class="Keyword">import</a> <a id="24692" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Definition</a> <a id="24757" class="Keyword">using</a> <a id="24763" class="Symbol">(</a><a id="24764" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html#5478" class="Function">defnᵛ</a><a id="24769" class="Symbol">)</a>
+<a id="24771" class="Markup">```
+</a><a id="24775" class="Background">Note that the argument here accounts for opacity, and so it differs somewhat from the one given in this section of the
+paper.
+
+## 5 Formalizing Opacity
+
+### 5.1 The Formalism, Take Two
+
+Definition 5.1 refers to opacities and unfolding vectors:
+
+</a><a id="25020" class="Markup">```
+</a><a id="25024" class="Keyword">import</a> <a id="25031" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="25050" class="Keyword">using</a>
+  <a id="25058" class="Symbol">(</a> <a id="25060" href="Definition.Untyped.NotParametrised.html#7517" class="Datatype">Opacity</a>   <a id="25070" class="Comment">-- Opacities</a>
+  <a id="25085" class="Symbol">;</a> <a id="25087" href="Definition.Untyped.NotParametrised.html#7078" class="Function">Unfolding</a> <a id="25097" class="Comment">-- Unfolding vectors</a>
+  <a id="25120" class="Symbol">)</a>
+<a id="25122" class="Markup">```
+</a><a id="25126" class="Background">Note that opacities and unfolding vectors are indexed by the length of the definition contexts they act on, which is how
+the side condition on the length of `φ` in `opa(φ)` is enforced.
+
+Definition 5.2 extends definition contexts with opacities (this snippet is identical to the one above for
+Definition 4.2):
+</a><a id="25436" class="Markup">```
+</a><a id="25440" class="Keyword">import</a> <a id="25447" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="25466" class="Keyword">using</a> <a id="25472" class="Symbol">(</a><a id="25473" href="Definition.Untyped.NotParametrised.html#7725" class="Datatype">DCon</a><a id="25477" class="Symbol">)</a>
+<a id="25479" class="Markup">```
+</a><a id="25483" class="Background">
+Definition 5.3 extends the maps-to relations with an additional case for opaque definitions, and refines the `_↦_∷_∈_`
+relation to require that the definition is transparent:
+</a><a id="25659" class="Markup">```
+</a><a id="25663" class="Keyword">import</a> <a id="25670" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="25689" class="Keyword">using</a>
+  <a id="25697" class="Symbol">(</a> <a id="25699" href="Definition.Untyped.NotParametrised.html#8317" class="Datatype Operator">_↦_∷_∈_</a> <a id="25707" class="Comment">-- A name refers to a transparent definition with a given definiens and annotated with a given type</a>
+  <a id="25809" class="Symbol">;</a> <a id="25811" href="Definition.Untyped.NotParametrised.html#8607" class="Datatype Operator">_↦⊘∷_∈_</a> <a id="25819" class="Comment">-- A name refers to an opaque definition annotated with a given type</a>
+  <a id="25890" class="Symbol">;</a> <a id="25892" href="Definition.Untyped.NotParametrised.html#8044" class="Datatype Operator">_↦∷_∈_</a>  <a id="25900" class="Comment">-- A name refers to a definition annotated with a given type</a>
+  <a id="25963" class="Symbol">)</a>
+<a id="25965" class="Markup">```
+</a><a id="25969" class="Background">
+Lemma 5.4 states that any definition (`_↦∷_∈_`) must be either opaque (`_↦⊘∷_∈_`) or transparent (`_↦_∷_∈_`):
+</a><a id="26080" class="Markup">```
+</a><a id="26084" class="Keyword">import</a> <a id="26091" href="Definition.Untyped.Properties.html" class="Module">Definition.Untyped.Properties</a> <a id="26121" class="Keyword">using</a> <a id="26127" class="Symbol">(</a><a id="26128" href="Definition.Untyped.Properties.html#3342" class="Function">dichotomy-↦∈</a><a id="26140" class="Symbol">)</a>
+<a id="26142" class="Markup">```
+</a><a id="26146" class="Background">
+Definition 5.5 refers to the glassification operation, which is defined here:
+</a><a id="26225" class="Markup">```
+</a><a id="26229" class="Keyword">import</a> <a id="26236" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="26255" class="Keyword">using</a> <a id="26261" class="Symbol">(</a><a id="26262" href="Definition.Untyped.NotParametrised.html#8819" class="Function">glassify</a><a id="26270" class="Symbol">)</a>
+<a id="26272" class="Markup">```
+</a><a id="26276" class="Background">
+Lemma 5.6 states that glassification makes any definition transparent:
+</a><a id="26348" class="Markup">```
+</a><a id="26352" class="Keyword">import</a> <a id="26359" href="Definition.Untyped.Properties.html" class="Module">Definition.Untyped.Properties</a> <a id="26389" class="Keyword">using</a> <a id="26395" class="Symbol">(</a><a id="26396" href="Definition.Untyped.Properties.html#6935" class="Function">glassify-↦∈′</a><a id="26408" class="Symbol">)</a>
+<a id="26410" class="Markup">```
+</a><a id="26414" class="Background">
+Definition 5.7 refers to a transparentization relation. This relation has been replaced by a function:
+</a><a id="26518" class="Markup">```
+</a><a id="26522" class="Keyword">import</a> <a id="26529" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="26546" class="Keyword">using</a>
+  <a id="26554" class="Symbol">(</a> <a id="26556" href="Definition.Typed.html#1582" class="Function">Trans</a> <a id="26562" class="Comment">-- The transparentization function</a>
+  <a id="26599" class="Symbol">)</a>
+<a id="26601" class="Markup">```
+</a><a id="26605" class="Background">
+In the paper, the &quot;⊔&quot; operator refers exclusively to bitwise disjunction, whereas the formalization offers the choice of
+an alternative operator that always returns the left unfolding vector and discards the right one. A consequence of the
+use of this operator is shown later in Counterexample 5.13. The operators are defined here:
+</a><a id="26938" class="Markup">```
+</a><a id="26942" class="Keyword">import</a> <a id="26949" href="Definition.Typed.Variant.html" class="Module">Definition.Typed.Variant</a> <a id="26974" class="Keyword">using</a>
+  <a id="26982" class="Symbol">(</a> <a id="26984" href="Definition.Typed.Variant.html#430" class="Datatype">UnfoldingMode</a>  <a id="26999" class="Comment">-- The enumeration of available unfolding operators</a>
+  <a id="27053" class="Symbol">)</a>
+<a id="27055" class="Keyword">import</a> <a id="27062" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="27079" class="Keyword">using</a>
+  <a id="27087" class="Symbol">(</a> <a id="27089" href="Definition.Typed.html#1416" class="Function Operator">_⊔ᵒᵗ_</a> <a id="27095" class="Comment">-- The parametric unfolding operator</a>
+  <a id="27134" class="Symbol">)</a>
+<a id="27136" class="Markup">```
+</a><a id="27140" class="Background">
+Definition 5.8 extends well-formedness for definition contexts with opacity:
+</a><a id="27218" class="Markup">```
+</a><a id="27222" class="Keyword">import</a> <a id="27229" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="27246" class="Keyword">using</a>
+  <a id="27254" class="Symbol">(</a> <a id="27256" href="Definition.Typed.html#1952" class="Datatype Operator">»_</a>         <a id="27267" class="Comment">-- Well-formedness relation</a>
+  <a id="27297" class="Symbol">;</a> <a id="27299" href="Definition.Typed.html#1991" class="InductiveConstructor">ε</a>          <a id="27310" class="Comment">-- Empty case</a>
+  <a id="27326" class="Symbol">;</a> <a id="27328" href="Definition.Typed.html#2012" class="InductiveConstructor Operator">∙ᵒ⟨_⟩[_∷_]</a> <a id="27339" class="Comment">-- Extend case for an opaque definition</a>
+  <a id="27381" class="Symbol">;</a> <a id="27383" href="Definition.Typed.html#2152" class="InductiveConstructor Operator">∙ᵗ[_]</a>      <a id="27394" class="Comment">-- Extend case for a transparent definition</a>
+  <a id="27440" class="Symbol">)</a>
+<a id="27442" class="Markup">```
+</a><a id="27446" class="Background">Note the `Opacity-allowed` parameter to the opaque case: this is a type system parameter that specifies whether opaque
+definitions are allowed at all:
+</a><a id="27597" class="Markup">```
+</a><a id="27601" href="README.Opaque-definitions.html#27601" class="Function">_</a> <a id="27603" class="Symbol">=</a> <a id="27605" href="Definition.Typed.Restrictions.html#2359" class="Field">Definition.Typed.Restrictions.Type-restrictions.Opacity-allowed</a>
+<a id="27669" class="Markup">```
+</a><a id="27673" class="Background">If this is set to the empty type, then the `∙ᵒ⟨_,_⟩[_∷_]` constructor becomes unusable, meaning that contexts with
+opaque definitions cannot be well-formed. In particular, we use this to prohibit opaque definitions in the presence of
+equality reflection:
+</a><a id="27928" class="Markup">```
+</a><a id="27932" href="README.Opaque-definitions.html#27932" class="Function">_</a> <a id="27934" class="Symbol">=</a> <a id="27936" href="Definition.Typed.Restrictions.html#3708" class="Field">Definition.Typed.Restrictions.Type-restrictions.no-opaque-equality-reflection</a>
+<a id="28014" class="Markup">```
+</a><a id="28018" class="Background">This is used in the proof of validity for equality reflection: if all definitions are transparent, then any closed
+term of an identity type must reduce to reflexivity.
+
+Lemma 5.9 states that typing judgements are preserved under definitional weakening (this snippet is identical to the one
+above for Lemma 4.7):
+</a><a id="28330" class="Markup">```
+</a><a id="28334" class="Keyword">import</a> <a id="28341" href="Definition.Typed.Weakening.Definition.html" class="Module">Definition.Typed.Weakening.Definition</a> <a id="28379" class="Keyword">using</a>
+  <a id="28387" class="Symbol">(</a> <a id="28389" href="Definition.Typed.Weakening.Definition.html#17399" class="Function">defn-wk</a>        <a id="28404" class="Comment">-- Preservation under definitional weakening for seven basic typing judgements</a>
+  <a id="28485" class="Symbol">;</a> <a id="28487" href="Definition.Typed.Weakening.Definition.html#22048" class="Function">defn-wkRed</a>     <a id="28502" class="Comment">-- Weak head reduction is preserved under definitional weakening</a>
+  <a id="28569" class="Symbol">;</a> <a id="28571" href="Definition.Typed.Weakening.Definition.html#18228" class="Function">defn-wkRedTerm</a> <a id="28586" class="Comment">-- Weak head reduction of terms is preserved under definitional weakening</a>
+  <a id="28662" class="Symbol">)</a>
+<a id="28664" class="Markup">```
+</a><a id="28668" class="Background">
+Lemma 5.10 states that typing judgements are preserved under glassification of the definition context:
+</a><a id="28772" class="Markup">```
+</a><a id="28776" class="Keyword">import</a> <a id="28783" href="Definition.Typed.Properties.Definition.html" class="Module">Definition.Typed.Properties.Definition</a> <a id="28822" class="Keyword">using</a>
+  <a id="28830" class="Symbol">(</a> <a id="28832" href="Definition.Typed.Properties.Definition.Primitive.html#13793" class="Function">glassify-»</a>  <a id="28844" class="Comment">-- Glassification for well-formedness of definition contexts</a>
+  <a id="28907" class="Symbol">;</a> <a id="28909" href="Definition.Typed.Properties.Definition.Primitive.html#24777" class="Function">glassify-⊢</a>  <a id="28921" class="Comment">-- Glassification for seven basic typing judgements</a>
+  <a id="28975" class="Symbol">;</a> <a id="28977" href="Definition.Typed.Properties.Definition.Primitive.html#28670" class="Function">glassify-⇒</a>  <a id="28989" class="Comment">-- Glassification for weak head reduction of types</a>
+  <a id="29042" class="Symbol">;</a> <a id="29044" href="Definition.Typed.Properties.Definition.Primitive.html#25185" class="Function">glassify-⇒∷</a> <a id="29056" class="Comment">-- Glassification for weak head reduction of terms</a>
+  <a id="29109" class="Symbol">)</a>
+<a id="29111" class="Markup">```
+</a><a id="29115" class="Background">
+Theorem 5.11 re-establishes subject reduction:
+</a><a id="29163" class="Markup">```
+</a><a id="29167" href="README.Opaque-definitions.html#29167" class="Function">_</a> <a id="29169" class="Symbol">=</a> <a id="29171" href="README.Opaque-definitions.html#9432" class="Function">SubjectReduction.subject-reduction</a>
+<a id="29206" class="Markup">```
+</a><a id="29210" class="Background">
+Theorem 5.12 states that with transitive unfolding (using the bitwise disjunction operator), well-formedness of
+definition contexts (among other things) is preserved under transparentization by any unfolding vector:
+</a><a id="29427" class="Markup">```
+</a><a id="29431" class="Keyword">import</a> <a id="29438" href="Definition.Typed.Properties.Transparentisation.html" class="Module">Definition.Typed.Properties.Transparentisation</a>
+<a id="29485" href="README.Opaque-definitions.html#29485" class="Function">_</a> <a id="29487" class="Symbol">=</a> <a id="29489" href="Definition.Typed.Properties.Transparentisation.html#17728" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-»</a>
+<a id="29556" href="README.Opaque-definitions.html#29556" class="Function">_</a> <a id="29558" class="Symbol">=</a> <a id="29560" href="Definition.Typed.Properties.Transparentisation.html#2872" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢′</a>
+<a id="29628" href="README.Opaque-definitions.html#29628" class="Function">_</a> <a id="29630" class="Symbol">=</a> <a id="29632" href="Definition.Typed.Properties.Transparentisation.html#3071" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢</a>
+<a id="29699" href="README.Opaque-definitions.html#29699" class="Function">_</a> <a id="29701" class="Symbol">=</a> <a id="29703" href="Definition.Typed.Properties.Transparentisation.html#3509" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢∷</a>
+<a id="29771" href="README.Opaque-definitions.html#29771" class="Function">_</a> <a id="29773" class="Symbol">=</a> <a id="29775" href="Definition.Typed.Properties.Transparentisation.html#6417" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢≡</a>
+<a id="29843" href="README.Opaque-definitions.html#29843" class="Function">_</a> <a id="29845" class="Symbol">=</a> <a id="29847" href="Definition.Typed.Properties.Transparentisation.html#7153" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⊢≡∷</a>
+<a id="29916" href="README.Opaque-definitions.html#29916" class="Function">_</a> <a id="29918" class="Symbol">=</a> <a id="29920" href="Definition.Typed.Properties.Transparentisation.html#13008" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⇒∷</a>
+<a id="29988" href="README.Opaque-definitions.html#29988" class="Function">_</a> <a id="29990" class="Symbol">=</a> <a id="29992" href="Definition.Typed.Properties.Transparentisation.html#16563" class="Function">Definition.Typed.Properties.Transparentisation.Transitive.unfold-⇒</a>
+<a id="30059" class="Markup">```
+</a><a id="30063" class="Background">(The last seven definitions above are given in a module with an extra assumption that is instantiated in the module
+`Transitive`; see `open Unconditional`.)
+
+Counterexample 5.13 demonstrates that the same is not necessarily true of the alternative operator:
+</a><a id="30321" class="Markup">```
+</a><a id="30325" class="Keyword">import</a> <a id="30332" href="Definition.Typed.Consequences.Transparentisation.html" class="Module">Definition.Typed.Consequences.Transparentisation</a>
+<a id="30381" href="README.Opaque-definitions.html#30381" class="Function">_</a> <a id="30383" class="Symbol">=</a> <a id="30385" href="Definition.Typed.Consequences.Transparentisation.html#1160" class="Function">Definition.Typed.Consequences.Transparentisation.no-unfold-»</a>
+<a id="30446" class="Markup">```
+</a><a id="30450" class="Background">
+The text discusses efficiency of type-checking. Our implementation of `decWfDCon`, a type-checker for definition
+contexts, uses an extra recursive call in one of the branches if transitive unfolding is not used:
+</a><a id="30663" class="Markup">```
+</a><a id="30667" class="Keyword">open</a> <a id="30672" class="Keyword">import</a> <a id="30679" href="Definition.Typed.Decidable.html" class="Module">Definition.Typed.Decidable</a> <a id="30706" class="Keyword">using</a> <a id="30712" class="Symbol">(</a><a id="30713" href="Definition.Typed.Decidable.html#3028" class="Function">decWfDCon</a><a id="30722" class="Symbol">)</a>
+<a id="30724" class="Markup">```
+</a><a id="30728" class="Background">
+### 5.2 Updating the Logical Relation, Take Two
+
+Definitions 5.14 and 5.15 extend neutrality and WHNFs to include opaque definitions:
+</a><a id="30863" class="Markup">```
+</a><a id="30867" class="Keyword">import</a> <a id="30874" href="Definition.Untyped.Neutral.html" class="Module">Definition.Untyped.Neutral</a> <a id="30901" class="Keyword">using</a> <a id="30907" class="Symbol">(</a><a id="30908" href="Definition.Untyped.Neutral.html#1271" class="Datatype">Neutral</a><a id="30915" class="Symbol">)</a>
+<a id="30917" class="Keyword">import</a> <a id="30924" href="Definition.Untyped.Whnf.html" class="Module">Definition.Untyped.Whnf</a> <a id="30948" class="Keyword">using</a> <a id="30954" class="Symbol">(</a><a id="30955" href="Definition.Untyped.Whnf.html#1138" class="Datatype">Whnf</a><a id="30959" class="Symbol">)</a>
+<a id="30961" class="Markup">```
+</a><a id="30965" class="Background">The definition of neutrality includes an extra parameter that is used to handle equality reflection.
+
+Lemma 5.16 re-establishes validity for the definition typing rule (this snippet is identical to the one above for
+Lemma 4.18):
+</a><a id="31194" class="Markup">```
+</a><a id="31198" class="Keyword">import</a> <a id="31205" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Definition</a> <a id="31270" class="Keyword">using</a> <a id="31276" class="Symbol">(</a><a id="31277" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html#5478" class="Function">defnᵛ</a><a id="31282" class="Symbol">)</a>
+<a id="31284" class="Markup">```
+</a><a id="31288" class="Background">
+Lemma 5.17 states that neutral terms of reducible types are reducible:
+</a><a id="31360" class="Markup">```
+</a><a id="31364" class="Keyword">import</a> <a id="31371" href="Definition.LogicalRelation.Properties.Neutral.html" class="Module">Definition.LogicalRelation.Properties.Neutral</a> <a id="31417" class="Keyword">using</a>
+  <a id="31425" class="Symbol">(</a> <a id="31427" href="Definition.LogicalRelation.Properties.Neutral.html#2337" class="Function">neuTerm</a> <a id="31435" class="Comment">-- Neutral term reducibility for basic reducibility</a>
+  <a id="31489" class="Symbol">)</a>
+<a id="31491" class="Keyword">import</a> <a id="31498" href="Definition.LogicalRelation.Hidden.Restricted.html" class="Module">Definition.LogicalRelation.Hidden.Restricted</a> <a id="31543" class="Keyword">using</a>
+  <a id="31551" class="Symbol">(</a> <a id="31553" href="Definition.LogicalRelation.Hidden.Restricted.html#24458" class="Function">neutral-⊩∷</a> <a id="31564" class="Comment">-- Neutral term reducibility for the restricted variant of reducibility used to define validity</a>
+  <a id="31662" class="Symbol">)</a>
+<a id="31664" class="Markup">```
+</a><a id="31668" class="Background">
+Lemma 5.18 extends the well-formedness results for definitions from Lemma 4.15 to handle opacity (this snippet is
+identical to the one above for Lemma 4.15):
+</a><a id="31827" class="Markup">```
+</a><a id="31831" class="Keyword">import</a> <a id="31838" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html" class="Module">Definition.LogicalRelation.Substitution.Introductions.Definition</a> <a id="31903" class="Keyword">using</a>
+  <a id="31911" class="Symbol">(</a> <a id="31913" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html#2760" class="Function">wf-↦∈ᵛ</a>  <a id="31921" class="Comment">-- Validity of the type annotation for `α ↦∷ A ∈ ∇`</a>
+  <a id="31975" class="Symbol">;</a> <a id="31977" href="Definition.LogicalRelation.Substitution.Introductions.Definition.html#3570" class="Function">wf-↦∷∈ᵛ</a> <a id="31985" class="Comment">-- Validity of the definiens for `α ↦ t ∷ A ∈ ∇`</a>
+  <a id="32036" class="Symbol">)</a>
+<a id="32038" class="Markup">```
+</a><a id="32042" class="Background">
+### 5.3 Consequences of the Fundamental Theorem
+
+Theorem 5.19 re-establishes canonicity for natural numbers with appropriate glassification of definition contexts (this
+snippet is identical to the one above for Theorem 3.19):
+</a><a id="32269" class="Markup">```
+</a><a id="32273" class="Keyword">import</a> <a id="32280" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a> <a id="32321" class="Keyword">using</a> <a id="32327" class="Symbol">(</a><a id="32328" href="Definition.Typed.Consequences.Canonicity.html#1673" class="Function">canonicity</a><a id="32338" class="Symbol">)</a>
+<a id="32340" class="Markup">```
+</a><a id="32344" class="Background">
+Theorem 5.20 states that in glass definition contexts, terms of identity types may be lifted to judgemental equalities:
+</a><a id="32465" class="Markup">```
+</a><a id="32469" class="Keyword">import</a> <a id="32476" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a> <a id="32517" class="Keyword">using</a> <a id="32523" class="Symbol">(</a><a id="32524" href="Definition.Typed.Consequences.Canonicity.html#12185" class="Function">ε⊢∷Id→ε⊢≡∷</a><a id="32534" class="Symbol">)</a>
+<a id="32536" class="Markup">```
+</a><a id="32540" class="Background">
+Counterexample 5.21 demonstrates that this can fail in non-glass contexts:
+</a><a id="32616" class="Markup">```
+</a><a id="32620" class="Keyword">import</a> <a id="32627" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a> <a id="32668" class="Keyword">using</a> <a id="32674" class="Symbol">(</a><a id="32675" href="Definition.Typed.Consequences.Canonicity.html#12689" class="Function">ε⊢∷Id↛ε⊢≡∷</a><a id="32685" class="Symbol">)</a>
+<a id="32687" class="Markup">```
+</a><a id="32691" class="Background">
+Theorem 5.22 re-establishes consistency (this snippet is identical to the one above for Theorem 3.20):
+</a><a id="32795" class="Markup">```
+</a><a id="32799" class="Keyword">import</a> <a id="32806" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a> <a id="32847" class="Keyword">using</a> <a id="32853" class="Symbol">(</a><a id="32854" href="Definition.Typed.Consequences.Canonicity.html#11168" class="Function">¬Empty</a><a id="32860" class="Symbol">)</a>
+<a id="32862" class="Markup">```
+</a><a id="32866" class="Background">
+Theorem 5.23 states that no definition in a well-formed definition context has the empty type, a property that might be
+called &quot;definition consistency&quot;:
+</a><a id="33020" class="Markup">```
+</a><a id="33024" class="Keyword">import</a> <a id="33031" href="Definition.Typed.Consequences.Canonicity.html" class="Module">Definition.Typed.Consequences.Canonicity</a> <a id="33072" class="Keyword">using</a> <a id="33078" class="Symbol">(</a><a id="33079" href="Definition.Typed.Consequences.Canonicity.html#11304" class="Function">¬defn-Empty′</a><a id="33091" class="Symbol">)</a>
+<a id="33093" class="Markup">```
+</a><a id="33097" class="Background">
+Theorems 5.24 and 5.25 re-establish normalization (this snippet is identical to the one above for Theorem 3.18):
+</a><a id="33211" class="Markup">```
+</a><a id="33215" class="Keyword">import</a> <a id="33222" href="Definition.Typed.Consequences.Reduction.html" class="Module">Definition.Typed.Consequences.Reduction</a> <a id="33262" class="Keyword">using</a>
+  <a id="33270" class="Symbol">(</a> <a id="33272" href="Definition.Typed.Consequences.Reduction.html#8263" class="Function">whNorm</a>     <a id="33283" class="Comment">-- Well-formed types normalize to a WHNF</a>
+  <a id="33326" class="Symbol">;</a> <a id="33328" href="Definition.Typed.Consequences.Reduction.html#15219" class="Function">whNormTerm</a> <a id="33339" class="Comment">-- Well-typed terms normalize to a WHNF</a>
+  <a id="33381" class="Symbol">)</a>
+<a id="33383" class="Markup">```
+</a><a id="33387" class="Background">
+Theorem 5.26 re-establishes decidability of conversion (this snippet is identical to the one above for Theorem 3.21):
+</a><a id="33506" class="Markup">```
+</a><a id="33510" class="Keyword">import</a> <a id="33517" href="Definition.Typed.Decidable.Equality.html" class="Module">Definition.Typed.Decidable.Equality</a> <a id="33553" class="Keyword">using</a>
+  <a id="33561" class="Symbol">(</a> <a id="33563" href="Definition.Typed.Decidable.Equality.html#958" class="Function">decEq</a>     <a id="33573" class="Comment">-- Equality of types is decidable</a>
+  <a id="33609" class="Symbol">;</a> <a id="33611" href="Definition.Typed.Decidable.Equality.html#1207" class="Function">decEqTerm</a> <a id="33621" class="Comment">-- Equality of terms is decidable</a>
+  <a id="33657" class="Symbol">)</a>
+<a id="33659" class="Markup">```
+</a><a id="33663" class="Background">
+Theorem 5.27 states that type-checking is decidable for a &quot;checkable&quot; fragment of the language:
+</a><a id="33760" class="Markup">```
+</a><a id="33764" class="Keyword">import</a> <a id="33771" href="Definition.Typechecking.html" class="Module">Definition.Typechecking</a> <a id="33795" class="Keyword">using</a>
+  <a id="33803" class="Symbol">(</a> <a id="33805" href="Definition.Typechecking.html#6032" class="Datatype">Checkable-type</a> <a id="33820" class="Comment">-- Checkability predicate for types</a>
+  <a id="33858" class="Symbol">;</a> <a id="33860" href="Definition.Typechecking.html#8268" class="Datatype">Checkable</a>      <a id="33875" class="Comment">-- Checkability predicate for terms</a>
+  <a id="33913" class="Symbol">;</a> <a id="33915" href="Definition.Typechecking.html#6461" class="Datatype">Inferable</a>      <a id="33930" class="Comment">-- Inferability predicate</a>
+  <a id="33958" class="Symbol">)</a>
+<a id="33960" class="Keyword">import</a> <a id="33967" href="Definition.Typed.Decidable.html" class="Module">Definition.Typed.Decidable</a> <a id="33994" class="Keyword">using</a>
+  <a id="34002" class="Symbol">(</a> <a id="34004" href="Definition.Typed.Decidable.html#3028" class="Function">decWfDCon</a> <a id="34014" class="Comment">-- Check whether a definition context of checkable definitions is well-formed</a>
+  <a id="34094" class="Symbol">;</a> <a id="34096" href="Definition.Typed.Decidable.html#4223" class="Function">decWfCon</a>  <a id="34106" class="Comment">-- Check whether a typing context of checkable types is well-formed</a>
+  <a id="34176" class="Symbol">;</a> <a id="34178" href="Definition.Typed.Decidable.html#1334" class="Function">dec</a>       <a id="34188" class="Comment">-- Check whether a checkable type is well-formed</a>
+  <a id="34239" class="Symbol">;</a> <a id="34241" href="Definition.Typed.Decidable.html#1565" class="Function">decTermᶜ</a>  <a id="34251" class="Comment">-- Check whether a checkable term is well-typed for a given type</a>
+  <a id="34318" class="Symbol">;</a> <a id="34320" href="Definition.Typed.Decidable.html#2082" class="Function">decTermᵢ</a>  <a id="34330" class="Comment">-- Infer a type for an inferable term, if possible</a>
+  <a id="34383" class="Symbol">)</a>
+<a id="34385" class="Markup">```
+</a></pre></body></html>
