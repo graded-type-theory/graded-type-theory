@@ -137,7 +137,7 @@ opaque
 -- η-equality for weak unit types is only allowed for 𝟘ᵐ. In that
 -- case this assumption could perhaps be removed.
 
-module _
+module Subject-reduction
   (Unitʷ-η→ :
      ∀ {m p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed m p q → ⌜ m ⌝ PE.≢ 𝟘 →
@@ -519,6 +519,8 @@ module _
   usagePres* _   γ▸A (id _)      = γ▸A
   usagePres* ▸∇ γ▸A (A⇒C ⇨ C⇒B) =
     usagePres* ▸∇ (usagePres ▸∇ γ▸A A⇒C) C⇒B
+
+open Subject-reduction public
 
 ------------------------------------------------------------------------
 -- Some results related to η-long normal forms

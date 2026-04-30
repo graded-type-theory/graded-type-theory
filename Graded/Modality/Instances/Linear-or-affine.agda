@@ -4371,7 +4371,7 @@ opaque
 ------------------------------------------------------------------------
 -- Instances of Full-reduction-assumptions
 
-module _ {𝟘ᵐ-allowed : Bool} where
+module Zero-one {𝟘ᵐ-allowed : Bool} where
 
   open Graded.Mode.Instances.Zero-one.Variant linear-or-affine
 
@@ -4492,6 +4492,8 @@ module _ {𝟘ᵐ-allowed : Bool} where
     where
     open Full-reduction-assumptions _ _ as
     open Usage-restrictions urs
+
+open Zero-one public
 
 ------------------------------------------------------------------------
 -- Subtraction

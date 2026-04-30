@@ -101,7 +101,7 @@ private
 -- Some results that are proved under the assumption that the
 -- modality's zero is well-behaved.
 
-module _
+module Soundness′
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
@@ -295,6 +295,8 @@ module _
         (∀ str → eraseDCon str ∇ T.⊢ erase str t ⇒* T.star)
       soundness-Unit ⊢t =
         S.soundness-Unit (glassify-» (defn-wf (wf ⊢t))) ⊢t
+
+open Soundness′ public
 
 opaque
 

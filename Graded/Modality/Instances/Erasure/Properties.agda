@@ -615,7 +615,7 @@ opaque
 ------------------------------------------------------------------------
 -- Properties relating to the mode structure Zero-one
 
-module _ {𝟘ᵐ-allowed : Bool} where
+module Zero-one {𝟘ᵐ-allowed : Bool} where
 
   private
     variant : Mode-variant
@@ -708,3 +708,5 @@ module _ {𝟘ᵐ-allowed : Bool} where
         (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
     where
     open Full-reduction-assumptions _ _ as
+
+open Zero-one public
