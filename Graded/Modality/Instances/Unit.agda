@@ -244,3 +244,10 @@ opaque
 
   unit-supports-subtraction : Supports-subtraction UnitModality
   unit-supports-subtraction _ = _ , refl , λ _ _ → refl
+
+opaque
+
+  -- The unit modality does not have a well-behaved zero
+
+  ¬unit-has-well-behaved-zero : ¬ Has-well-behaved-zero UnitModality
+  ¬unit-has-well-behaved-zero ok = Has-well-behaved-zero.non-trivial ok refl
