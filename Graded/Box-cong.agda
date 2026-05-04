@@ -2904,9 +2904,9 @@ opaque
   -- the []-cong primitive) are not allowed, equality reflection is
   -- not allowed, and η-equality is not allowed for weak unit types
   -- unless a certain condition is satisfied, then []-cong is not
-  -- supported for the mode 𝟙ᵐ, a consistent variable context Γ (which
-  -- must be consistent if erased matches are allowed for the empty
-  -- type), and certain grades.
+  -- supported for the mode 𝟙ᵐ, a variable context Γ (which must be
+  -- consistent if erased matches are allowed for the empty type), and
+  -- certain grades.
 
   ¬-[]-cong :
     {Γ : Con Term n}
