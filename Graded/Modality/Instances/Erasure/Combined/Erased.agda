@@ -35,6 +35,7 @@ open import Graded.Derived.Erased.Usage.Zero-one UR
 open import Graded.Modality.Instances.Erasure
 open import Graded.Modality.Instances.Erasure.Combined TR UR
 open import Graded.Modality.Instances.Erasure.Combined.Equivalent TR UR
+open import Graded.Modality.Instances.Erasure.Combined.Properties TR UR
 open import Graded.Modality.Instances.Erasure.Properties
 open import Graded.Usage UR
 open import Graded.Usage.Properties UR
@@ -135,14 +136,18 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
   opaque
 
     -- A typing/usage rule for [_].
+    --
+    -- This definition was tweaked after feedback from an anonymous
+    -- reviewer.
 
     ⊢∷-[] :
       let open Erased s in
       Erased-allowed s →
       Γ ⊢ l ∷Level →
       Γ ⊢ t ∷ A →
-      𝟘ᶜ ▸ Γ ⊢ [ t ] ∷[ p ] Erased l A
+      γ ▸ Γ ⊢ [ t ] ∷[ p ] Erased l A
     ⊢∷-[] ok ⊢l ⊢t =
+      flip sub-⊢∷ (greatest-elemᶜ _) $
       ⊢∷[]←⊢∷▸ ok-𝟘ᵐ ([]ⱼ ok (⊢∷L→⊢∷L ⊢l) (⊢∷[]→⊢∷ ⊢t))
         (▸[] _ (▸-cong ⌞𝟘⌟≡𝟘ᵐ? (⊢∷[]→▸ ⊢t)))
 
