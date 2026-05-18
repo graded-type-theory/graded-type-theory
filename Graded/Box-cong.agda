@@ -79,7 +79,7 @@ open import Tools.Function
 import Tools.List as L
 open import Tools.Maybe
 open import Tools.Nat using (Nat; 1+; 2+; 3+; 4+; 5+)
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE using (_≢_)
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
@@ -480,6 +480,22 @@ opaque
 
 -- The property of supporting a []-cong combinator for a certain mode,
 -- a certain erased variable context, a certain level, a certain type,
+-- a certain value, and certain grades.
+
+Has-[]-cong-for-value :
+  Strength → Mode → Con Term n → Lvl n → (_ _ : Term n) (_ _ _ : M) →
+  Set a
+Has-[]-cong-for-value {n} s m Γ l A t p₁ q₁ q₂ =
+  let open Erased s in
+  ∃ λ ([]-cong : Term n) →
+  𝟘ᶜ ▸[ m ] []-cong ×
+  ε » Γ ⊢ []-cong ∷
+    Π p₁ , q₁ ▷ A ▹
+    Π 𝟘  , q₂ ▷ Id (wk1 A) (wk1 t) (var x0) ▹
+    Id (Erased (wk[ 2 ]′ l) (wk[ 2 ]′ A)) [ wk[ 2 ]′ t ] ([ var x1 ])
+
+-- The property of supporting a []-cong combinator for a certain mode,
+-- a certain erased variable context, a certain level, a certain type,
 -- and certain grades.
 
 Has-[]-cong-for-type :
@@ -693,6 +709,70 @@ opaque
   Has-[]-cong→Has-[]-cong-for-type ▸t ▸A ⊢A =
     Has-[]-cong-for-level→Has-[]-cong-for-type ⊢A ▸A ∘→
     Has-[]-cong→Has-[]-cong-for-level (inversion-U-Level (wf-⊢ ⊢A)) ▸t
+
+opaque
+
+  -- Has-[]-cong-for-type implies Has-[]-cong-for-value, given certain
+  -- assumptions.
+
+  Has-[]-cong-for-type→Has-[]-cong-for-value :
+    ε » Δ ⊢ t ∷ A →
+    𝟘ᶜ ▸[ m ᵐ· p₁ ] t →
+    Has-[]-cong-for-type s m Δ l A p₁ q₁ p₂ q₂ q₃ →
+    Has-[]-cong-for-value s m Δ l A t p₂ q₂ q₃
+  Has-[]-cong-for-type→Has-[]-cong-for-value
+    {t} {p₁} {s} {p₂} {q₂} {q₃}
+    ⊢t ▸t has-[]-cong@([]-cong′ , ▸[]-cong′ , ⊢[]-cong′) =
+    []-cong′ ∘⟨ p₁ ⟩ t ,
+    (sub
+       (▸[]-cong′ ∘ₘ ▸t) $ begin
+       𝟘ᶜ              ≈˘⟨ +ᶜ-identityʳ _ ⟩
+       𝟘ᶜ +ᶜ 𝟘ᶜ        ≈˘⟨ +ᶜ-congˡ (·ᶜ-zeroʳ _) ⟩
+       𝟘ᶜ +ᶜ p₁ ·ᶜ 𝟘ᶜ  ∎) ,
+    (PE.subst (_⊢_∷_ _ _)
+       (PE.cong₂ (Π p₂ , q₂ ▷_▹_) (wk1-sgSubst _ _) $
+        PE.cong₂ (Π 𝟘  , q₃ ▷_▹_)
+          (PE.cong₃ Id wk[+1]′-[₀⇑]≡ PE.refl PE.refl) $
+        PE.trans (PE.sym Id-Erased-[]) $
+        PE.cong₃ Id (PE.cong₂ Erased wk[+1]′-[₀⇑]≡ wk[+1]′-[₀⇑]≡)
+          (PE.cong [_] wk[]≡wk[]′) PE.refl) $
+     ⊢[]-cong′ ∘ⱼ ⊢t)
+    where
+    open ≤ᶜ-reasoning
+    open Erased s
+
+opaque
+
+  -- Has-[]-cong-for-level implies Has-[]-cong-for-value, given
+  -- certain assumptions.
+
+  Has-[]-cong-for-level→Has-[]-cong-for-value :
+    𝟘ᶜ ▸[ m ᵐ· p₁ ] A →
+    𝟘ᶜ ▸[ m ᵐ· p₂ ] t →
+    ε » Δ ⊢ A ∷ U l →
+    ε » Δ ⊢ t ∷ A →
+    Has-[]-cong-for-level s m Δ l p₁ q₁ p₂ q₂ p₃ q₃ q₄ →
+    Has-[]-cong-for-value s m Δ l A t p₃ q₃ q₄
+  Has-[]-cong-for-level→Has-[]-cong-for-value ▸A ▸t ⊢A ⊢t =
+    Has-[]-cong-for-type→Has-[]-cong-for-value ⊢t ▸t ∘→
+    Has-[]-cong-for-level→Has-[]-cong-for-type ⊢A ▸A
+
+opaque
+
+  -- Has-[]-cong implies Has-[]-cong-for-value, given certain
+  -- assumptions.
+
+  Has-[]-cong→Has-[]-cong-for-value :
+    𝟘ᶜ ▸[ m ᵐ· p₁ ] t →
+    𝟘ᶜ ▸[ m ᵐ· p₂ ] A →
+    𝟘ᶜ ▸[ m ᵐ· p₃ ] u →
+    ε » Δ ⊢ A ∷ U (level t) →
+    ε » Δ ⊢ u ∷ A →
+    Has-[]-cong s m Δ p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅ →
+    Has-[]-cong-for-value s m Δ (level t) A u p₄ q₄ q₅
+  Has-[]-cong→Has-[]-cong-for-value ▸t ▸A ▸u ⊢A ⊢u =
+    Has-[]-cong-for-type→Has-[]-cong-for-value ⊢u ▸u ∘→
+    Has-[]-cong→Has-[]-cong-for-type ▸t ▸A ⊢A
 
 ------------------------------------------------------------------------
 -- Some instances of
@@ -2708,6 +2788,118 @@ opaque
 ------------------------------------------------------------------------
 -- Sometimes []-cong cannot be defined
 
+private opaque
+
+  -- A lemma used below.
+
+  ¬-[]-cong-lemma :
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ⊢ t ∷ Π 𝟘 , p ▷ B ▹ C →
+    let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × ε » Δ ∙ B ⊢ t0 ∷ C
+  ¬-[]-cong-lemma (▸t , ⊢t) =
+    let ⊢B , _ = inversion-ΠΣ (wf-⊢ ⊢t) in
+    sub (wkUsage (step id) ▸t ∘ₘ var)
+      (begin
+         𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
+         𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
+         𝟘ᶜ +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎) ,
+    PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _)
+      (W.wk₁ ⊢B ⊢t ∘ⱼ var₀ ⊢B)
+    where
+    open ≤ᶜ-reasoning
+
+opaque
+
+  -- []-cong is not supported for the mode 𝟙ᵐ, the context Γ, the
+  -- level l, the type A, the term t, and the grades 𝟘, q₁ and q₂,
+  -- assuming that
+  --
+  -- * the modality's zero is well-behaved,
+  --
+  -- * erased matches (including the []-cong primitive) are not
+  --   allowed (except perhaps for the empty type),
+  --
+  -- * equality reflection is not allowed,
+  --
+  -- * η-equality is not allowed for weak unit types unless a certain
+  --   condition is satisfied,
+  --
+  -- * A is a type without η-equality (under an empty definition
+  --   context) distinct from Level,
+  --
+  -- * t is a WHNF (under an empty definition context) that is not a
+  --   variable, and
+  --
+  -- * if erased matches are allowed for the empty type, then ε » Γ is
+  --   consistent and t has type A (under ε » Γ).
+
+  ¬-[]-cong-for-value :
+    {Γ : Con Term n}
+    ⦃ not-ok : No-equality-reflection ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
+    No-erased-matches TR UR →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     p ≤ 𝟘) →
+    No-η-equality ε A →
+    A ≢ Level →
+    Whnf ε t →
+    (¬ ∃ λ x → t PE.≡ var x) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Γ) × ε » Γ ⊢ t ∷ A) →
+    ¬ Has-[]-cong-for-value s 𝟙ᵐ Γ l A t 𝟘 q₁ q₂
+  ¬-[]-cong-for-value
+    {n} {A} {t} {Γ}
+    nem Unitʷ-η→ no-η A≢Level t-whnf t≢var consistent (_ , hyp) =
+    let ▸[]-cong′ , ⊢[]-cong′ = ¬-[]-cong-lemma (¬-[]-cong-lemma hyp) in
+    case red-Id ⦃ ok = included ⦄ ⊢[]-cong′ of λ where
+      (_ , rflₙ , ⇒*rfl) →
+        t≢var $ Σ.map idᶠ proj₁ $ wk-var $ PE.sym $
+        var-only-equal-to-itself (wk-No-η-equality no-η)
+           (A≢Level ∘→ wk-Level) (wkWhnf _ t-whnf) $
+        []-cong′⁻¹ ⦃ ok = included ⦄
+          (sym′ $
+           inversion-rfl-Id ⦃ ok = included ⦄ $
+           wf-⊢ (subset*Term ⇒*rfl) .proj₂ .proj₂)
+      (_ , ne u-ne , []-cong′⇒*u) →
+        neutral-not-well-resourced nem
+          (λ ok →
+             let consistent , ⊢t = consistent ok in
+             subst-Consistent (⊢σ ⊢t) consistent)
+          PE.refl (ne→ _ u-ne)
+          (wf-⊢ (subset*Term []-cong′⇒*u) .proj₂ .proj₂)
+          (usagePres*Term₀₁ Unitʷ-η→ (λ ()) ▸[]-cong′ []-cong′⇒*u)
+    where
+    σ′ : Subst n (2+ n)
+    σ′ = consSubst (sgSubst t) rfl
+
+    ⊢σ :
+      ε » Γ ⊢ t ∷ A →
+      ε » Γ ⊢ˢʷ σ′ ∷ Γ ∙ A ∙ Id (wk1 A) (wk1 t) (var x0)
+    ⊢σ ⊢t =
+      →⊢ˢʷ∷∙ (⊢ˢʷ∷-sgSubst ⊢t)
+        (PE.subst (_⊢_∷_ _ _) ≡Id-wk1-wk1-0[]₀ (rflⱼ ⊢t))
+
+opaque
+
+  -- A special case of ¬-[]-cong-for-value.
+
+  ¬-[]-cong-for-zero :
+    {Γ : Con Term n}
+    ⦃ not-ok : No-equality-reflection ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
+    No-erased-matches TR UR →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     p ≤ 𝟘) →
+    (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Γ)) →
+    ¬ Has-[]-cong-for-value s 𝟙ᵐ Γ zeroᵘₗ ℕ zero 𝟘 q₁ q₂
+  ¬-[]-cong-for-zero {Γ} nem Unitʷ-η→ consistent has-[]-cong =
+    ¬-[]-cong-for-value nem Unitʷ-η→ ℕₙ (λ ()) zeroₙ (λ { (_ , ()) })
+      (λ ok → consistent ok , zeroⱼ ⊢Γ) has-[]-cong
+    where
+    ⊢Γ : ε »⊢ Γ
+    ⊢Γ = wf (has-[]-cong .proj₂ .proj₂)
+
 opaque
 
   -- If the modality's zero is well-behaved, erased matches (including
@@ -2734,7 +2926,9 @@ opaque
     ¬ Has-[]-cong-for-type s 𝟙ᵐ Γ l A 𝟘 q₁ 𝟘 q₂ q₃
   ¬-[]-cong-for-type
     {n} {A} {Γ} nem Unitʷ-η→ no-η A≢Level ⊢A consistent (_ , hyp) =
-    let ▸[]-cong′ , ⊢[]-cong′ = lemma (lemma (lemma hyp)) in
+    let ▸[]-cong′ , ⊢[]-cong′ =
+          ¬-[]-cong-lemma (¬-[]-cong-lemma (¬-[]-cong-lemma hyp))
+    in
     case red-Id ⦃ ok = included ⦄ ⊢[]-cong′ of λ where
       (_ , rflₙ , ⇒*rfl) →
         case var-only-equal-to-itself (wk-No-η-equality no-η)
@@ -2770,24 +2964,6 @@ opaque
            ⊢0)
       where
       open Tools.Reasoning.PropositionalEquality
-
-    opaque
-
-      lemma :
-        𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ⊢ t ∷ Π 𝟘 , p ▷ B ▹ C →
-        let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
-        𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × ε » Δ ∙ B ⊢ t0 ∷ C
-      lemma (▸t , ⊢t) =
-        let ⊢B , _ = inversion-ΠΣ (wf-⊢ ⊢t) in
-        sub (wkUsage (step id) ▸t ∘ₘ var)
-          (begin
-             𝟘ᶜ                           ≈˘⟨ ·ᶜ-zeroˡ _ ⟩
-             𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)        ≈˘⟨ +ᶜ-identityˡ _ ⟩
-             𝟘ᶜ +ᶜ 𝟘 ·ᶜ (𝟘ᶜ ∙ ⌜ ⌞ 𝟘 ⌟ ⌝)  ∎) ,
-        PE.subst (_⊢_∷_ _ _) (wkSingleSubstId _)
-          (W.wk₁ ⊢B ⊢t ∘ⱼ var₀ ⊢B)
-        where
-        open ≤ᶜ-reasoning
 
 opaque
 
