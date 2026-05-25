@@ -2052,6 +2052,16 @@ opaque
 
 opaque
 
+  -- A rearrangement lemma related to subst, cong and wk1.
+
+  subst-cong-1+-wk1 :
+    (eq : m ≡ n) →
+    subst Term[ k ] (cong 1+ eq) (wk1 t) ≡
+    wk1 (subst Term[ k ] eq t)
+  subst-cong-1+-wk1 refl = refl
+
+opaque
+
   -- A composition lemma for wkSubst.
 
   wkSubst-comp :
@@ -2060,14 +2070,9 @@ opaque
     wkSubst m (wkSubst n σ) x
   wkSubst-comp             0      _ = refl
   wkSubst-comp {n} {o} {σ} (1+ m) x =
-    subst Term (cong 1+ (+-assoc m n o)) (wk1 (wkSubst (m + n) σ x))  ≡⟨ lemma {eq = +-assoc m _ _} ⟩
+    subst Term (cong 1+ (+-assoc m n o)) (wk1 (wkSubst (m + n) σ x))  ≡⟨ subst-cong-1+-wk1 (+-assoc m _ _) ⟩
     wk1 (subst Term (+-assoc m n o) (wkSubst (m + n) σ x))            ≡⟨ cong wk1 $ wkSubst-comp m _ ⟩
     wk1 (wkSubst m (wkSubst n σ) x)                                   ∎
-    where
-    lemma :
-      subst Term (cong 1+ eq) (wk1 t) ≡
-      wk1 (subst Term eq t)
-    lemma {eq = refl} = refl
 
 opaque
 
@@ -2605,6 +2610,29 @@ opaque
     t [ var x0 ]↑   ≡⟨ [1+][0]↑ ⟩
     wk (lift id) t  ≡⟨ wk-lift-id _ ⟩
     t               ∎
+
+opaque
+
+  -- A generalisation of [1]↑².
+
+  [][var]↑ :
+    (t : Term[ k ] (1+ n)) →
+    t [ 1+ m ][ var (fromℕ m) ]↑ ≡
+    subst Term[ k ] (+-suc m n) (wk[ m ]′ t)
+  [][var]↑ {m = 0} t =
+    t [ var x0 ]↑                      ≡⟨ [][]↑≡ t ⟩
+    wk (lift (step id)) t [ var x0 ]₀  ≡⟨ wkSingleSubstId _ ⟩
+    t                                  ≡⟨ wk[]≡wk[]′ ⟩
+    wk[ 0 ]′ t                         ∎
+  [][var]↑ {k} {n} {m = 1+ m} t =
+    t [ 2+ m ][ var (fromℕ m +1) ]↑                           ≡⟨ sym (wk[]′[][]↑ 1 t) ⟩
+    wk1 (t [ 1+ m ][ var (fromℕ m) ]↑)                        ≡⟨ cong wk1 ([][var]↑ t) ⟩
+    wk1 (subst Term[ k ] (+-suc m n) (wk[ m ]′ t))            ≡˘⟨ subst-cong-1+-wk1 (+-suc m _) ⟩
+    subst Term[ k ] (cong 1+ (+-suc m n)) (wk1 (wk[ m ]′ t))  ≡⟨ cong (subst _ (cong _ (+-suc m _))) (wk-comp _ _ _) ⟩
+    subst Term[ k ] (cong 1+ (+-suc m n)) (wk[ 1+ m ]′ t)     ∎
+
+_ : (t : Term[ k ] (1+ n)) → t [ var x1 ]↑² ≡ wk1 t
+_ = [][var]↑
 
 ------------------------------------------------------------------------
 -- Some lemmas related to replace₂

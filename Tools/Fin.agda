@@ -6,7 +6,8 @@ module Tools.Fin where
 
 open import Data.Fin.Properties public
   using (suc-injective) renaming (_≟_ to _≟ⱽ_)
-open import Data.Fin.Base public
+import Data.Fin.Base as F
+open F public
   using (Fin; toℕ; compare; Ordering)
   renaming (zero to x0; suc to _+1)
 open Ordering public
@@ -42,3 +43,9 @@ pattern not-x9  = not-x8  +1
 pattern not-x10 = not-x9  +1
 pattern not-x11 = not-x10 +1
 pattern not-x12 = not-x11 +1
+
+-- A function that converts from natural numbers to Fin in a certain
+-- way. The resulting number is "equal" to the input.
+
+fromℕ : (m : Nat) → Fin (1+ m + n)
+fromℕ m = F.fromℕ m F.↑ˡ _
