@@ -68,7 +68,7 @@ private opaque
   symConEq′ (S.ε ⊢ε)             = S.ε ⊢ε
   symConEq′ (Γ≡Δ S.∙⟨ _ ∣ A≡B ⟩) = symConEq′ Γ≡Δ ∙⟨ sym A≡B ⟩′
 
-private opaque
+opaque
 
   -- ⊢ Γ ≡ Δ is logically equivalent to S.⊢ Γ ≡ Δ.
 
