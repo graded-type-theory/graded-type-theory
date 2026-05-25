@@ -2071,3 +2071,24 @@ opaque
   []-cong-with-equality-reflection ok₁ ok₂ ⊢l ⊢eq =
     let ⊢A , _ = inversion-Id (wf-⊢ ⊢eq) in
     rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A (equality-reflection′ ok₁ ⊢eq))
+
+opaque
+
+  -- In the presence of equality reflection any application of subst
+  -- can be simplified.
+
+  drop-subst :
+    Equality-reflection →
+    Γ »∙ A ⊢ B →
+    Γ ⊢ v ∷ Id A t u →
+    Γ ⊢ w ∷ B [ t ]₀ →
+    Γ ⊢ subst p A B t u v w ≡ w ∷ B [ u ]₀
+  drop-subst {A} {B} {v} {t} {u} {w} {p} ok ⊢B ⊢v ⊢w =
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢v)
+        t≡u         = equality-reflection′ ok ⊢v
+    in
+    subst p A B t u v w   ∷ B [ u ]₀  ≡⟨ subst-cong (refl ⊢A) (refl ⊢B) (refl ⊢t) (sym′ t≡u)
+                                           (uip-with-equality-reflection-≡ ok ⊢v (rflⱼ′ t≡u)) (refl ⊢w) ⟩⊢∷
+                                       ⟨ subst-⊢≡₀ ⊢B (sym′ t≡u) ⟩≡
+    subst p A B t t rfl w ∷ B [ t ]₀  ≡⟨ subst-≡ ⊢B ⊢t ⊢w ⟩⊢∷∎
+    w                                 ∎
