@@ -84,6 +84,13 @@ opaque
 
 opaque
 
+  -- If ∇ »⊢ Γ ∙ A ≡ Δ ∙ B holds, then ∇ »⊢ Γ ≡ Δ also holds.
+
+  ⊢∙≡∙→⊢≡ : ∇ »⊢ Γ ∙ A ≡ Δ ∙ B → ∇ »⊢ Γ ≡ Δ
+  ⊢∙≡∙→⊢≡ (Γ≡Δ ∙⟨ _ ∣ _ ⟩) = Γ≡Δ
+
+opaque
+
   -- A glassification lemma for _»⊢_≡_.
 
   glassify-»⊢≡ : ∇ »⊢ Γ ≡ Δ → glassify ∇ »⊢ Γ ≡ Δ

@@ -107,6 +107,13 @@ opaque
 
 opaque
 
+  -- If ∇ »⊢ Γ ∙ A ≡ Δ ∙ B holds, then ∇ »⊢ Γ ≡ Δ also holds.
+
+  ⊢∙≡∙→⊢≡ : ∇ »⊢ Γ ∙ A ≡ Δ ∙ B → ∇ »⊢ Γ ≡ Δ
+  ⊢∙≡∙→⊢≡ (Γ≡Δ ∙ _) = Γ≡Δ
+
+opaque
+
   -- A well-formedness lemma for ⊢_≡_.
 
   wf-⊢≡ˡ : ∇ »⊢ Γ ≡ Δ → ∇ »⊢ Γ
