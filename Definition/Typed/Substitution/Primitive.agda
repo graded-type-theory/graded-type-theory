@@ -187,6 +187,17 @@ opaque
     let _ , ⊢t₁ , ⊢t₂ = wf-⊢ t₁≡t₂ in
     P.⊢ˢʷ≡∷-[][]↑ ⊢t₁ ⊢t₂ t₁≡t₂
 
+opaque
+
+  -- A lemma related to _[_][_]↑.
+
+  ⊢ˢʷ≡∷-[][]↑′ :
+    ∇ » Δ ⊢ t₁ ≡ t₂ ∷ wk[ k ]′ A →
+    ∇ » Δ ⊢ˢʷ consSubst (wkSubst k idSubst) t₁ ≡
+      consSubst (wkSubst k idSubst) t₂ ∷ drop k Δ ∙ A
+  ⊢ˢʷ≡∷-[][]↑′ =
+    ⊢ˢʷ≡∷-[][]↑ ∘→ PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wk[]≡wk[]′)
+
 ------------------------------------------------------------------------
 -- Substitution lemmas
 

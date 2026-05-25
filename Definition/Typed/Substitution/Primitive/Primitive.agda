@@ -482,6 +482,15 @@ opaque
     ⊢ˢʷ∷⇔⊢ˢʷ≡∷ .proj₂ (⊢ˢʷ≡∷-[][]↑ ⊢t ⊢t (refl ⊢t))
 
 opaque
+
+  -- A lemma related to _[_][_]↑.
+
+  ⊢ˢʷ∷-[][]↑′ :
+    ∇ » Γ ⊢ t ∷ wk[ k ]′ A →
+    ∇ » Γ ⊢ˢʷ consSubst (wkSubst k idSubst) t ∷ drop k Γ ∙ A
+  ⊢ˢʷ∷-[][]↑′ = ⊢ˢʷ∷-[][]↑ ∘→ PE.subst (_⊢_∷_ _ _) (PE.sym wk[]≡wk[]′)
+
+opaque
   unfolding replace₂
 
   -- A lemma related to replace₂.
