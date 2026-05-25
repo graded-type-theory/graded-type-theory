@@ -2596,12 +2596,23 @@ opaque
     wk[ n ] t          ≡⟨ wk[]≡wk[]′ ⟩
     wk[ n ]′ t         ∎
 
+-- A function used to state [+][var]↑.
+
+≡+1++ : ∀ m n o → 1+ m + (n + o) ≡ m + 1+ n + o
+≡+1++ 0      _ _ = refl
+≡+1++ (1+ m) n o = cong 1+ (≡+1++ m n o)
+
 opaque
 
-  -- A lemma related to t [ 1+ n ][ var x0 ]↑.
+  -- A lemma related to expressions of the form
+  -- t [ m + 1+ n ][ var "m" ]↑.
 
-  [1+][0]↑ : t [ 1+ n ][ var x0 ]↑ ≡ wk (lift (stepn id n)) t
-  [1+][0]↑ {t} {n} =
+  [+][var]↑ :
+    ∀ {t : Term[ k ] (1+ o)} m →
+    t [ m + 1+ n ][ subst Term (≡+1++ m n o) (var (fromℕ m)) ]↑ ≡
+    subst Term[ k ] (sym (+-assoc m (1+ n) o))
+      (wk (stepn (lift (stepn id n)) m) t)
+  [+][var]↑ {k} {o} {n} {t} 0 =
     t [ 1+ n ][ var x0 ]↑                             ≡⟨ [][]↑≡ t ⟩
     wk (lift (stepn id (1+ n))) t [ var x0 ]₀         ≡⟨ subst-wk t ⟩
     t [ sgSubst (var x0) ₛ• lift (stepn id (1+ n)) ]  ≡⟨ (flip substVar-to-subst t λ where
@@ -2609,6 +2620,34 @@ opaque
                                                             (_ +1) → refl) ⟩
     t [ toSubst (lift (stepn id n)) ]                 ≡˘⟨ wk≡subst _ _ ⟩
     wk (lift (stepn id n)) t                          ∎
+  [+][var]↑ {k} {o} {n} {t} (1+ m) =
+    t [ 1+ m + 1+ n ][
+        subst Term (cong 1+ (≡+1++ m n o)) (wk1 (var (fromℕ m))) ]↑       ≡⟨ cong (t [ _ ][_]↑) (subst-cong-1+-wk1 (≡+1++ m _ _)) ⟩
+
+    t [ 1+ m + 1+ n ][ wk1 (subst Term (≡+1++ m n o) (var (fromℕ m))) ]↑  ≡˘⟨ wk[]′[][]↑ 1 t ⟩
+
+    wk1
+      (t [ m + 1+ n ][ subst Term (≡+1++ m n o) (var (fromℕ m)) ]↑)       ≡⟨ cong wk1 ([+][var]↑ m) ⟩
+
+    wk1
+      (subst Term[ k ] (sym (+-assoc m (1+ n) o))
+         (wk (stepn (lift (stepn id n)) m) t))                            ≡˘⟨ subst-cong-1+-wk1 (sym (+-assoc m _ _)) ⟩
+
+    subst Term[ k ] (cong 1+ (sym (+-assoc m (1+ n) o)))
+      (wk1 (wk (stepn (lift (stepn id n)) m) t))                          ≡⟨ cong₂ (subst Term[ _ ]) (lemma (+-assoc m _ _))
+                                                                              (wk-comp (step id) _ _) ⟩
+    subst Term[ k ] (sym (+-assoc (1+ m) (1+ n) o))
+      (wk (stepn (lift (stepn id n)) (1+ m)) t)                           ∎
+    where
+    lemma : ∀ {m n} (eq : m ≡ n) → cong 1+ (sym eq) ≡ sym (cong 1+ eq)
+    lemma refl = refl
+
+opaque
+
+  -- An example of how [+][var]↑ can be used.
+
+  _ : t [ 1+ n ][ var x0 ]↑ ≡ wk (lift (stepn id n)) t
+  _ = [+][var]↑ 0
 
 opaque
 
@@ -2616,7 +2655,7 @@ opaque
 
   [0]↑ : t [ var x0 ]↑ ≡ t
   [0]↑ {t} =
-    t [ var x0 ]↑   ≡⟨ [1+][0]↑ ⟩
+    t [ var x0 ]↑   ≡⟨ [+][var]↑ 0 ⟩
     wk (lift id) t  ≡⟨ wk-lift-id _ ⟩
     t               ∎
 
