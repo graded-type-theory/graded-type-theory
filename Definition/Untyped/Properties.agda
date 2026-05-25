@@ -2321,6 +2321,26 @@ opaque
 
 opaque
 
+  -- A generalisation of wk-β↑ and wk-β↑².
+
+  wk-liftn-[][]↑ :
+    (t : Term[ k ] (1+ m)) →
+    wk (liftn ρ n) (t [ n ][ u ]↑) ≡
+    wk (lift ρ) t [ n ][ wk (liftn ρ n) u ]↑
+  wk-liftn-[][]↑ {ρ} {n} {u} t =
+    wk (liftn ρ n) (t [ n ][ u ]↑)                                     ≡⟨ cong (wk _) ([][]↑≡ t) ⟩
+    wk (liftn ρ n) (wk (lift (stepn id n)) t [ u ]₀)                   ≡⟨ wk-subst (wk _ t) ⟩
+    wk (lift (stepn id n)) t [ liftn ρ n •ₛ sgSubst u ]                ≡⟨ subst-wk t ⟩
+    t [ liftn ρ n •ₛ sgSubst u ₛ• lift (stepn id n) ]                  ≡⟨ (flip substVar-to-subst t λ where
+                                                                             x0     → refl
+                                                                             (_ +1) → wk⇑[]-wk[]≡ n) ⟩
+    t [ sgSubst (wk (liftn ρ n) u) ₛ• lift (stepn id n) ₛ• lift ρ ]    ≡˘⟨ subst-wk t ⟩
+    wk (lift ρ) t [ sgSubst (wk (liftn ρ n) u) ₛ• lift (stepn id n) ]  ≡˘⟨ subst-wk (wk _ t) ⟩
+    wk (lift (stepn id n)) (wk (lift ρ) t) [ wk (liftn ρ n) u ]₀       ≡˘⟨ [][]↑≡ (wk _ t) ⟩
+    wk (lift ρ) t [ n ][ wk (liftn ρ n) u ]↑                           ∎
+
+opaque
+
   -- The function _[_][_]↑ commutes (in a certain sense) with _[_].
 
   [][]↑-commutes :
