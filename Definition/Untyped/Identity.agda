@@ -34,6 +34,7 @@ open import Tools.Reasoning.PropositionalEquality
 
 private variable
   n                                              : Nat
+  ξ                                              : DExt _ _ _
   A A₁ A₂ B eq eq₁ eq₂ t t₁ t₂ u u₁ u₂ v w w₁ w₂ : Term _
   l l₁ l₂                                        : Lvl _
   σ                                              : Subst _ _
@@ -61,6 +62,35 @@ opaque
       (w [ σ ])
   subst-[] {B} =
     cong₄ (J _ _ _ _) (wk1-liftSubst B) refl refl refl
+
+opaque
+
+  -- A weakening lemma for subst.
+
+  wk-subst′ :
+    wk ρ (subst p A B t u v w) ≡
+    subst p (wk ρ A) (wk (lift ρ) B) (wk ρ t) (wk ρ u) (wk ρ v) (wk ρ w)
+  wk-subst′ {ρ} {p} {A} {B} {t} {u} {v} {w} =
+    wk ρ (subst p A B t u v w)                                            ≡⟨ wk-liftn 0 ⟩
+
+    subst p A B t u v w [ toSubst ρ ]                                     ≡⟨ subst-[] ⟩
+
+    subst p (A [ toSubst ρ ]) (B [ toSubst ρ ⇑ ]) (t [ toSubst ρ ])
+      (u [ toSubst ρ ]) (v [ toSubst ρ ]) (w [ toSubst ρ ])               ≡˘⟨ cong₆ (subst _) (wk-liftn 0) (wk-liftn 1) (wk-liftn 0) (wk-liftn 0)
+                                                                                (wk-liftn 0) (wk-liftn 0) ⟩
+    subst p (wk ρ A) (wk (lift ρ) B) (wk ρ t) (wk ρ u) (wk ρ v) (wk ρ w)  ∎
+
+opaque
+  unfolding inline subst
+
+  -- Inlining commutes with subst p.
+
+  inline-subst :
+    inline ξ (subst p A B t u v w) ≡
+    subst p (inline ξ A) (inline ξ B) (inline ξ t) (inline ξ u)
+      (inline ξ v) (inline ξ w)
+  inline-subst {B} =
+    cong₄ (J _ _ _ _) (sym (wk-inline B)) refl refl refl
 
 opaque
 
