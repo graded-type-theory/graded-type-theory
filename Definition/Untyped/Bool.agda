@@ -9,9 +9,9 @@
 -- and with greatest lower bounds for the natrec rule respectively.
 
 -- Typing rules for the term formers defined in this module can be
--- found in Definition.Typed.Consequences.Admissible.Bool.OK and
--- Definition.Typed.Consequences.Admissible.Bool, and usage rules can be
--- found in Graded/Derived/Bool.
+-- found in Definition.Typed.Properties.Admissible.Bool.OK and
+-- Definition.Typed.Consequences.Admissible.Bool, and usage rules can
+-- be found in Graded/Derived/Bool.
 
 import Graded.Modality
 import Graded.Mode
