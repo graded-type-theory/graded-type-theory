@@ -56,6 +56,8 @@ data _⊢ʰ_∷_ : (Δ : Con Term k) (H : Heap k m) (Γ : Con Term m) → Set a 
   _∙●_ : Δ ⊢ʰ H ∷ Γ → ε » Γ ⊢ A → Δ ∙ A [ H ]ₕ ⊢ʰ H ∙● ∷ Γ ∙ A
 
 -- Well-formed continuations
+--
+-- This typing relation does not support quotient term formers.
 
 data _⨾_⊢ᶜ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
                   (c : Cont m) (t : Term m) (A B : Term k) → Set a where

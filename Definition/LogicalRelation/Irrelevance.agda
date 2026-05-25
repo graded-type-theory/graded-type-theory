@@ -28,9 +28,11 @@ open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Escape R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Level hiding (_⊔_)
@@ -38,6 +40,7 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
+open import Tools.Sum
 
 private
   variable
@@ -45,6 +48,7 @@ private
     Γ Γ′ : Cons m n
     A A′ B B′ C C′ t u : Term _
     l l′ : Universe-level
+    id-Γ id-Γ′ : _ ⊢ʷᵏʳ _ ∷ _
 
 -- Irrelevance for propositionally equal types
 irrelevance′ : ∀ {A A′ l}
@@ -136,6 +140,23 @@ mutual
       } }
     where
     open _⊩ₗId_≡_/_ A≡B
+  irrelevanceEqT (Quot ⊩A@record{} ⊩A′) A≡B
+    with
+      whrDet* (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) (_⊩ₗQuot_.⇒*Quot ⊩A′ , Quot)
+  … | PE.refl = record
+    { ⇒*Quot′   = ⇒*Quot′
+    ; Quot≅Quot = Quot≅Quot
+    ; Data≡Data = λ ⊢ρ → irrelevanceEq _ _ (Data≡Data ⊢ρ)
+    ; Rel≡Rel   = λ ⊢ρ ⊩t ⊩u →
+        irrelevanceEq _ _ $
+        Rel≡Rel ⊢ρ
+          (irrelevanceEqTerm (⊩A′.⊩Data ⊢ρ) (⊩A.⊩Data ⊢ρ) ⊩t)
+          (irrelevanceEqTerm (⊩A′.⊩Data ⊢ρ) (⊩A.⊩Data ⊢ρ) ⊩u)
+    }
+    where
+    module ⊩A  = _⊩ₗQuot_ ⊩A
+    module ⊩A′ = _⊩ₗQuot_ ⊩A′
+    open _⊩ₗQuot_≡_/_ A≡B
 
 --------------------------------------------------------------------------------
 
@@ -286,3 +307,39 @@ mutual
              rflₙ , rflₙ
            , irrelevanceEqTerm
                (_⊩ₗId_.⊩Ty ⊩A) (_⊩ₗId_.⊩Ty ⊩A′) lhs≡rhs) }
+  irrelevanceEqTermT
+    (Quot ⊩A@record{} ⊩A′)
+    eq@(_ , _ , ⇒*t , ⇒*u , t-q , u-q , _)
+    with
+      whrDet* (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) (_⊩ₗQuot_.⇒*Quot ⊩A′ , Quot)
+  … | PE.refl =
+    _ , _ , ⇒*t , ⇒*u , t-q , u-q ,
+    (case Quot-view-inhabited ⊩A eq of λ where
+       (equal t≡u) →
+         inj₁ (irrelevanceEqTerm (⊩A.⊩Data _) (⊩A′.⊩Data _) t≡u)
+       (related ok rel) →
+         inj₂ (ok , irrelevance-⊩Quot-related ⊩A ⊩A′ rel)
+       (ne _ _ t~u) →
+         t~u)
+    where
+    module ⊩A  = _⊩ₗQuot_ ⊩A
+    module ⊩A′ = _⊩ₗQuot_ ⊩A′
+
+  -- An irrelevance lemma for ⊩Quot-related.
+
+  irrelevance-⊩Quot-related :
+    (⊩A : Γ ⊩′⟨ l ⟩Quot A) (⊩A′ : Γ ⊩′⟨ l′ ⟩Quot A) →
+    ⊩Quot-related l  Γ t u id-Γ  ⊩A →
+    ⊩Quot-related l′ Γ t u id-Γ′ ⊩A′
+  irrelevance-⊩Quot-related ⊩A@record{} ⊩A′
+    with
+      whrDet* (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) (_⊩ₗQuot_.⇒*Quot ⊩A′ , Quot)
+  … | PE.refl =
+    Symmetric-transitive-closure-map
+      (λ (⊩t , ⊩u , _ , ⊩v) →
+         irrelevanceTerm (⊩A.⊩Data _) (⊩A′.⊩Data _) ⊩t ,
+         irrelevanceTerm (⊩A.⊩Data _) (⊩A′.⊩Data _) ⊩u , _ ,
+         irrelevanceTerm (⊩A.⊩Rel _ _ _) (⊩A′.⊩Rel _ _ _) ⊩v)
+    where
+    module ⊩A  = _⊩ₗQuot_ ⊩A
+    module ⊩A′ = _⊩ₗQuot_ ⊩A′

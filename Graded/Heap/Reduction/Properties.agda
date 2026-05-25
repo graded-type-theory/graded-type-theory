@@ -13,7 +13,7 @@ module Graded.Heap.Reduction.Properties
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
@@ -98,6 +98,7 @@ opaque
   ⇒ₑ-det d Jₕ = ⇒ₑ-inv-J d
   ⇒ₑ-det d Kₕ = ⇒ₑ-inv-K d
   ⇒ₑ-det d []-congₕ = ⇒ₑ-inv-[]-cong d
+  ⇒ₑ-det d qrecₕ = ⇒ₑ-inv-qrec d
 
 opaque
 
@@ -168,6 +169,15 @@ opaque
   ⇒ᵥ-det d rflₕⱼ = ⇒ᵥ-inv-rfl-Jₑ d
   ⇒ᵥ-det d rflₕₖ = ⇒ᵥ-inv-rfl-Kₑ d
   ⇒ᵥ-det d rflₕₑ = ⇒ᵥ-inv-rfl-[]-congₑ d
+  ⇒ᵥ-det d (classₕ eq) with ⇒ᵥ-inv-class-qrecₑ d
+  … | _ , refl , refl , eq′ , refl rewrite ∣∣-functional eq eq′ =
+    refl , refl , refl
+  ⇒ᵥ-det d (respₕ ok) with ⇒ᵥ-inv-resp d
+  … | _ , refl , refl , refl =
+    refl , refl , refl
+  ⇒ᵥ-det d (setₕ ok) with ⇒ᵥ-inv-set d
+  … | _ , refl , refl , refl =
+    refl , refl , refl
 
 opaque
 
@@ -198,6 +208,9 @@ opaque
   not-⇒ᵥ-and-⇒ₑ rflₕⱼ d = ⇒ₑ-inv-rfl d
   not-⇒ᵥ-and-⇒ₑ rflₕₖ d = ⇒ₑ-inv-rfl d
   not-⇒ᵥ-and-⇒ₑ rflₕₑ d = ⇒ₑ-inv-rfl d
+  not-⇒ᵥ-and-⇒ₑ (classₕ _) d = ⇒ₑ-inv-class d
+  not-⇒ᵥ-and-⇒ₑ (respₕ _) d = ⇒ₑ-inv-resp d
+  not-⇒ᵥ-and-⇒ₑ (setₕ _) d = ⇒ₑ-inv-set d
 
 opaque
 
@@ -343,6 +356,7 @@ opaque
   ⇒ₑ-⦅⦆-≡ Jₕ = refl
   ⇒ₑ-⦅⦆-≡ Kₕ = refl
   ⇒ₑ-⦅⦆-≡ []-congₕ = refl
+  ⇒ₑ-⦅⦆-≡ qrecₕ = refl
 
 opaque
 
@@ -396,6 +410,7 @@ opaque
   wk1-⇒ₑ Jₕ = Jₕ
   wk1-⇒ₑ Kₕ = Kₕ
   wk1-⇒ₑ []-congₕ = []-congₕ
+  wk1-⇒ₑ qrecₕ = qrecₕ
 
 opaque
 
@@ -442,6 +457,7 @@ opaque
   wk1●-⇒ₑ Jₕ = Jₕ
   wk1●-⇒ₑ Kₕ = Kₕ
   wk1●-⇒ₑ []-congₕ = []-congₕ
+  wk1●-⇒ₑ qrecₕ = qrecₕ
 
 opaque
 
@@ -511,6 +527,7 @@ opaque
   ++-⇒ₑ S₀ Jₕ = Jₕ
   ++-⇒ₑ S₀ Kₕ = Kₕ
   ++-⇒ₑ S₀ []-congₕ = []-congₕ
+  ++-⇒ₑ _ qrecₕ = qrecₕ
   ++-⇒ₑ S₀ lowerₕ = lowerₕ
 
 opaque
@@ -574,6 +591,15 @@ opaque
   ++sucₛ-⇒ᵥ rflₕⱼ = rflₕⱼ
   ++sucₛ-⇒ᵥ rflₕₖ = rflₕₖ
   ++sucₛ-⇒ᵥ rflₕₑ = rflₕₑ
+  ++sucₛ-⇒ᵥ {k} (classₕ {S} {q} {H} {w} {ρ} {C} {t} {u} {v} {ρ′} eq) =
+    subst
+      (λ S′ →
+         ⟨ H , class w , ρ , (qrecₑ C t u v ρ′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ
+         ⟨ H ∙ (q , w , ρ) , t , lift ρ′ , S′ ⟩)
+      (wk-++sucₛ (step id) S)
+      (classₕ (∣S++sucₛ∣≡∣S∣ eq))
+  ++sucₛ-⇒ᵥ (respₕ ok) = respₕ ok
+  ++sucₛ-⇒ᵥ (setₕ ok) = setₕ ok
 
 opaque
 
@@ -618,6 +644,7 @@ opaque
   ⇒ₑ-Heap≡ Jₕ = refl
   ⇒ₑ-Heap≡ Kₕ = refl
   ⇒ₑ-Heap≡ []-congₕ = refl
+  ⇒ₑ-Heap≡ qrecₕ = refl
 
 opaque
 
@@ -664,6 +691,8 @@ opaque
     _ , Kₕ , H~H″
   ~ʰ-⇒ₑ []-congₕ H~H″ =
     _ , []-congₕ , H~H″
+  ~ʰ-⇒ₑ qrecₕ H~H″ =
+    _ , qrecₕ , H~H″
 
 opaque
 
@@ -698,6 +727,9 @@ opaque
   ~ʰ-⇒ᵥ rflₕⱼ H~H″ = _ , rflₕⱼ , H~H″
   ~ʰ-⇒ᵥ rflₕₖ H~H″ = _ , rflₕₖ , H~H″
   ~ʰ-⇒ᵥ rflₕₑ H~H″ = _ , rflₕₑ , H~H″
+  ~ʰ-⇒ᵥ (classₕ eq) H~H″ = _ , classₕ eq , H~H″ ∙ _
+  ~ʰ-⇒ᵥ (respₕ eq) H~H″ = _ , respₕ eq , H~H″
+  ~ʰ-⇒ᵥ (setₕ eq) H~H″ = _ , setₕ eq , H~H″
 
 opaque
 
@@ -780,6 +812,9 @@ opaque
   Matching→⇒ᵥ Jₑ _ = _ , _ , _ , rflₕⱼ
   Matching→⇒ᵥ Kₑ _ = _ , _ , _ , rflₕₖ
   Matching→⇒ᵥ []-congₑ _ = _ , _ , _ , rflₕₑ
+  Matching→⇒ᵥ (respₑ ok) _ = _ , _ , _ , respₕ ok
+  Matching→⇒ᵥ (setₑ ok) _ = _ , _ , _ , setₕ ok
+  Matching→⇒ᵥ qrecₑ (_ ∙ eq) = _ , _ , _ , classₕ eq
 
 opaque
 
@@ -801,6 +836,9 @@ opaque
   ⇒ᵥ→Matching rflₕⱼ = Jₑ
   ⇒ᵥ→Matching rflₕₖ = Kₑ
   ⇒ᵥ→Matching rflₕₑ = []-congₑ
+  ⇒ᵥ→Matching (classₕ _) = qrecₑ
+  ⇒ᵥ→Matching (respₕ ok) = respₑ ok
+  ⇒ᵥ→Matching (setₕ ok) = setₑ ok
 
 opaque
 
@@ -814,7 +852,7 @@ opaque
 opaque
 
   -- A kind of inversion lemma for Final.
-  -- There are four different reasons why a state can be Final:
+  -- There are five different reasons why a state can be Final:
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
   --    multiplicity).
@@ -824,6 +862,8 @@ opaque
   --    stack multiplicity does not exist.
   -- 3. It has a value in head position and the stack is empty.
   -- 4. It has a name in head position.
+  -- 5. It has a higher quotient constructor in head position and
+  --    higher quotient constructors are neutral.
 
   Final-reasons :
       ∀ t → Final ⟨ H , t , ρ , S ⟩ →
@@ -832,10 +872,12 @@ opaque
       (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × ∃ ∣ S ∣≡_)) ⊎
       Value t × S ≡ ε ⊎
-      (∃ λ α → t ≡ defn α)
+      (∃ λ α → t ≡ defn α) ⊎
+      Higher-quotient-constructors-neutral ×
+      Is-higher-quotient-constructor t
 
   Final-reasons = λ where
-      (defn _) _ → inj₂ (inj₂ (inj₂ (_ , refl)))
+      (defn _) _ → inj₂ (inj₂ (inj₂ (inj₁ (_ , refl))))
       (var x) ¬d → inj₁ (inj₁ (_ , refl , λ x y → ¬d (⇾ₑ (var x y))))
       Level ¬d → inj₂ (lemma Levelᵥ ¬d)
       zeroᵘ ¬d → inj₂ (lemma zeroᵘᵥ ¬d)
@@ -869,6 +911,11 @@ opaque
       (J p q t t₁ t₂ t₃ t₄ t₅) ¬d → ⊥-elim (¬d (⇾ₑ′ Jₕ))
       (K p t t₁ t₂ t₃ t₄) ¬d → ⊥-elim (¬d (⇾ₑ′ Kₕ))
       ([]-cong _ _ _ _ _ _) ¬d → ⊥-elim (¬d (⇾ₑ′ []-congₕ))
+      (Quot _ _) ¬d → inj₂ (lemma Quotᵥ ¬d)
+      (class _) ¬d → inj₂ (lemma classᵥ ¬d)
+      (resp _ _ _ _ _) ¬d → inj₂ (lemma respᵥ ¬d)
+      (set _ _ _ _ _ _) ¬d → inj₂ (lemma setᵥ ¬d)
+      (qrec _ _ _ _ _) ¬d → ⊥-elim (¬d (⇾ₑ′ qrecₕ))
         where
         lemma′ :
           Value t → Final ⟨ H , t , ρ , c ∙ S ⟩ →
@@ -907,10 +954,19 @@ opaque
         lemma′ Idᵥ ¬d (() , _ , _)
         lemma′ (unitrec-ηᵥ x) ¬d _ =
           ¬d (⇒ᵥ unitrec-ηₕ x)
+        lemma′ Quotᵥ _ (() , _ , _)
+        lemma′ classᵥ ¬d (qrecₑ , _ , _ ∙ eq) =
+          ¬d (⇒ᵥ (classₕ eq))
+        lemma′ respᵥ ¬d (respₑ ok , _) =
+          ¬d (⇒ᵥ (respₕ ok))
+        lemma′ setᵥ ¬d (setₑ ok , _) =
+          ¬d (⇒ᵥ (setₕ ok))
         lemma : ∀ {S : Stack m} → Value t → Final ⟨ H , t , ρ , S ⟩ →
                 (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × ∃ ∣ S ∣≡_)) ⊎
                 Value t × S ≡ ε ⊎
-                (∃ λ α → t ≡ defn α)
+                (∃ λ α → t ≡ defn α) ⊎
+                Higher-quotient-constructors-neutral ×
+                Is-higher-quotient-constructor t
         lemma {S = ε} v _ = inj₂ (inj₁ (v , refl))
         lemma {S = e ∙ S} v ¬d = inj₁ (_ , _ , refl , v , lemma′ v ¬d)
 
@@ -925,7 +981,9 @@ opaque
       (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ (Matching t S × (∃ ∣ S ∣≡_))) ⊎
       Value t × S ≡ ε ⊎
-      (∃ λ α → t ≡ defn α)
+      (∃ λ α → t ≡ defn α) ⊎
+      Higher-quotient-constructors-neutral ×
+      Is-higher-quotient-constructor t
     ⇘-reasons (d , ¬d) = Final-reasons _ ¬d
 
 opaque
@@ -934,7 +992,7 @@ opaque
   -- the stack implies that the usage rule for natrec with an nr function
   -- is used.
   --
-  -- In this case there are four different reasons why a state can be
+  -- In this case there are five different reasons why a state can be
   -- Final:
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
@@ -944,6 +1002,8 @@ opaque
   --    head does not match the stack.
   -- 3. It has a value in head position and the stack is empty.
   -- 4. It has a name in head position.
+  -- 5. It has a higher quotient constructor in head position and
+  --    higher quotient constructors are neutral.
 
   nr∉-Final-reasons :
       ∀ t → (∀ {p r} → natrec p , r ∈ S → Nr-available) →
@@ -953,7 +1013,9 @@ opaque
       (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
       Value t × S ≡ ε ⊎
-      (∃ λ α → t ≡ defn α)
+      (∃ λ α → t ≡ defn α) ⊎
+      Higher-quotient-constructors-neutral ×
+      Is-higher-quotient-constructor t
   nr∉-Final-reasons t has-nr ¬d =
     case Final-reasons t ¬d of λ where
       (inj₁ x) → inj₁ x
@@ -966,7 +1028,7 @@ opaque
   -- A variant of the above where the stack is assumed to not contain
   -- any natrecₑ tokens.
   --
-  -- In this case there are four different reasons why a state can be
+  -- In this case there are five different reasons why a state can be
   -- Final:
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
@@ -976,6 +1038,8 @@ opaque
   --    head does not match the stack.
   -- 3. It has a value in head position and the stack is empty.
   -- 4. It has a name in head position.
+  -- 5. It has a higher quotient constructor in head position and
+  --    higher quotient constructors are neutral.
 
   nr∉-Final-reasons′ :
       ∀ t → (∀ {p r} → natrec p , r ∈ S → ⊥) →
@@ -985,7 +1049,9 @@ opaque
       (∃₂ λ u v → t ≡ u supᵘ v)) ⊎
       (∃₂ λ e S′ → S ≡ e ∙ S′ × Value t × ¬ Matching t S) ⊎
       Value t × S ≡ ε ⊎
-      (∃ λ α → t ≡ defn α)
+      (∃ λ α → t ≡ defn α) ⊎
+      Higher-quotient-constructors-neutral ×
+      Is-higher-quotient-constructor t
   nr∉-Final-reasons′ t nr∉ ¬d =
     nr∉-Final-reasons t (⊥-elim ∘→ nr∉) ¬d
 
@@ -1005,6 +1071,7 @@ opaque
   Value-¬⇒ₑ () Jₕ
   Value-¬⇒ₑ () Kₕ
   Value-¬⇒ₑ () []-congₕ
+  Value-¬⇒ₑ () qrecₕ
 
 opaque
 
@@ -1082,6 +1149,9 @@ opaque
   No-namesₛ-⇒ₑ
     []-congₕ ((H-nn , B.[]-cong nn₁ nn₂ nn₃ nn₄ nn₅) , S-nn) =
     (H-nn , nn₅) , []-congₑ nn₁ nn₂ nn₃ nn₄ ∙ S-nn
+  No-namesₛ-⇒ₑ
+    qrecₕ ((H-nn , B.qrec nn₁ nn₂ nn₃ nn₄ nn₅) , S-nn) =
+    (H-nn , nn₅) , qrecₑ nn₁ nn₂ nn₃ nn₄ ∙ S-nn
 
 opaque
 
@@ -1124,6 +1194,13 @@ opaque
   No-namesₛ-⇒ᵥ rflₕₖ ((H-nn , _) , Kₑ _ _ _ nn ∙ S-nn) =
     (H-nn , nn) , S-nn
   No-namesₛ-⇒ᵥ rflₕₑ ((H-nn , _) , _ ∙ S-nn) =
+    (H-nn , B.rfl) , S-nn
+  No-namesₛ-⇒ᵥ
+    (classₕ _) ((H-nn , B.class w-nn) , qrecₑ _ t-nn _ _ ∙ S-nn) =
+    (H-nn ∙ w-nn , t-nn) , No-namesˢ-wk S-nn
+  No-namesₛ-⇒ᵥ (respₕ _) ((H-nn , _) , S-nn) =
+    (H-nn , B.rfl) , S-nn
+  No-namesₛ-⇒ᵥ (setₕ _) ((H-nn , _) , S-nn) =
     (H-nn , B.rfl) , S-nn
 
 opaque

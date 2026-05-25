@@ -21,6 +21,7 @@ private variable
   a b c d e f g h i j k l : Level
   A B                     : Set _
   P Q                     : A → Set _
+  R                       : A → A → Set _
   x y                     : A
 
 -- 4-tuples.
@@ -212,3 +213,16 @@ _×-Dec-∀_ :
 inj₂ ¬P ×-Dec-∀ _       = inj₂ (λ _ (p , _) → ¬P _ p)
 inj₁ _  ×-Dec-∀ inj₂ ¬Q = inj₂ (λ _ (_ , q) → ¬Q _ q)
 inj₁ p  ×-Dec-∀ inj₁ q  = inj₁ (p , q)
+
+opaque
+
+  -- A variant of the eliminator for Symmetric-transitive-closure.
+
+  Symmetric-transitive-closure-elim-× :
+    (∀ {x y} → R x y → P x × P y) →
+    Symmetric-transitive-closure R x y →
+    P x × P y
+  Symmetric-transitive-closure-elim-× =
+    Symmetric-transitive-closure-elim
+      (λ (x , y) → y , x)
+      (λ (x , _) (_ , y) → x , y)

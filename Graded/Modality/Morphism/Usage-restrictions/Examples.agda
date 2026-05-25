@@ -51,16 +51,16 @@ open import Graded.Usage.Restrictions.Natrec
 open Usage-restrictions
 
 private variable
-  b₁ b₂ 𝟙≤𝟘 ok trp : Bool
-  v₁ v₂            : Mode-variant _
-  R R₁ R₂          : Usage-restrictions _ _
-  TR₁ TR₂          : Type-restrictions _
-  A M₁ M₂          : Set _
-  𝕄₁ 𝕄₂            : Modality _
-  m₁ m₂            : Mode _
-  tr tr-Σ          : M₁ → M₂
-  v₁-ok v₂-ok      : A
-  nm₁ nm₂          : Natrec-mode _
+  b₁ b₂ b₃ 𝟙≤𝟘 ok trp : Bool
+  v₁ v₂               : Mode-variant _
+  R R₁ R₂             : Usage-restrictions _ _
+  TR₁ TR₂             : Type-restrictions _
+  A M₁ M₂             : Set _
+  𝕄₁ 𝕄₂               : Modality _
+  m₁ m₂               : Mode _
+  tr tr-Σ             : M₁ → M₂
+  v₁-ok v₂-ok         : A
+  nm₁ nm₂             : Natrec-mode _
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting no usage restrictions
@@ -75,8 +75,8 @@ opaque
     (T (Mode-variant.𝟘ᵐ-allowed v₁) → T (Mode-variant.𝟘ᵐ-allowed v₂)) →
     nm₁ ≈ⁿᵐ nm₂ →
     Common-properties
-      (no-usage-restrictions 𝕄₁ v₁ nm₁ b₁ b₂)
-      (no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂)
+      (no-usage-restrictions 𝕄₁ v₁ nm₁ b₁ b₂ b₃)
+      (no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃)
   Common-properties-no-usage-restrictions hyp nm₁≈nm₂ = λ where
       .𝟘ᵐ-preserved                   → hyp
       .natrec-mode-preserved          → nm₁≈nm₂
@@ -85,6 +85,8 @@ opaque
                                       , lift ∘→ Lift.lower
       .erased-matches-for-J-preserved → _
       .erased-matches-for-K-preserved → _
+      .Qrec-motive-erased-preserved   → lift ∘→ Lift.lower
+                                      , lift ∘→ Lift.lower
     where
     open Common-properties
 
@@ -109,12 +111,13 @@ opaque
      ⦃ no-nr₂ : Natrec-mode-no-nr-glb _ nm₂ ⦄ →
      Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr) →
     Are-preserving-usage-restrictions
-      (no-usage-restrictions 𝕄₁ v₁ nm₁ b₁ b₂)
-      (no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂)
+      (no-usage-restrictions 𝕄₁ v₁ nm₁ b₁ b₂ b₃)
+      (no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃)
       tr tr-Σ
   Are-preserving-usage-restrictions-no-usage-restrictions
     hyp₁ nm₁≈nm₂ hyp₂ hyp₃ hyp₄ = λ where
-      .common-properties  → Common-properties-no-usage-restrictions hyp₁ nm₁≈nm₂
+      .common-properties →
+        Common-properties-no-usage-restrictions hyp₁ nm₁≈nm₂
       .nr-preserving → hyp₂
       .no-nr-preserving → hyp₃
       .no-nr-glb-preserving → hyp₄
@@ -122,6 +125,16 @@ opaque
       .Unitrec-preserved → _
       .Emptyrec-preserved → _
       .[]-cong-mode-preserved → _
+      .Quotient-terms-preserved → _
+      .Higher-quotient-constructors-preserved →
+        lift ∘→
+        Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₁ ∘→
+        (_∘→
+           (¬𝟘ᵐ-allowed→Trivialᵐ _ ∘→
+            (_∘→ hyp₁) ∘→
+            Trivialᵐ→¬𝟘ᵐ-allowed _)) ∘→
+        Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₂ ∘→
+        Lift.lower
     where
     open Are-preserving-usage-restrictions
 
@@ -137,7 +150,7 @@ opaque
         module V₁ = Mode-variant v₁
         module V₂ = Mode-variant v₂
     in
-    (T V₁.𝟘ᵐ-allowed → T V₂.𝟘ᵐ-allowed) →
+    (T V₁.𝟘ᵐ-allowed ⇔ T V₂.𝟘ᵐ-allowed) →
     (T V₂.𝟘ᵐ-allowed ⊎ M₂.Trivial → T V₁.𝟘ᵐ-allowed ⊎ M₁.Trivial) →
     nm₁ ≈ⁿᵐ nm₂ →
     (⦃ has-nr₁ : Natrec-mode-has-nr _ nm₁ ⦄ →
@@ -152,24 +165,33 @@ opaque
      ⦃ no-nr₂ : Natrec-mode-no-nr-glb _ nm₂ ⦄ →
      Is-no-nr-glb-reflecting-morphism 𝕄₁ 𝕄₂ tr) →
     Are-reflecting-usage-restrictions
-      (no-usage-restrictions 𝕄₁ v₁ nm₁ b₁ b₂)
-      (no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂)
+      (no-usage-restrictions 𝕄₁ v₁ nm₁ b₁ b₂ b₃)
+      (no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃)
       tr tr-Σ
   Are-reflecting-usage-restrictions-no-usage-restrictions
     hyp₁ hyp₂ nm₁≈nm₂ hyp₃ hyp₄ hyp₅ =
     λ where
       .common-properties →
-        Common-properties-no-usage-restrictions hyp₁ nm₁≈nm₂
-      .𝟘ᵐ-reflected                   → hyp₂
-      .nr-reflected                   → hyp₃
-      .no-nr-reflected                → hyp₄
-      .no-nr-glb-reflected            → hyp₅
-      .Prodrec-reflected              → _
-      .Unitrec-reflected              → _
-      .Emptyrec-reflected             → _
-      .[]-cong-mode-reflected         → _
-      .erased-matches-for-J-reflected → _
-      .erased-matches-for-K-reflected → _
+        Common-properties-no-usage-restrictions (hyp₁ .proj₁) nm₁≈nm₂
+      .𝟘ᵐ-reflected                           → hyp₂
+      .nr-reflected                           → hyp₃
+      .no-nr-reflected                        → hyp₄
+      .no-nr-glb-reflected                    → hyp₅
+      .Prodrec-reflected                      → _
+      .Unitrec-reflected                      → _
+      .Emptyrec-reflected                     → _
+      .[]-cong-mode-reflected                 → _
+      .erased-matches-for-J-reflected         → _
+      .erased-matches-for-K-reflected         → _
+      .Quotient-terms-reflected               → _
+      .Higher-quotient-constructors-reflected →
+        lift ∘→
+        Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₁ ∘→
+        𝟘ᵐ-allowed→¬Trivialᵐ _ ∘→
+        hyp₁ .proj₂ ∘→
+        ¬Trivialᵐ→𝟘ᵐ-allowed _ ∘→
+        Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₂ ∘→
+        Lift.lower
     where
     open Are-reflecting-usage-restrictions
 
@@ -197,6 +219,7 @@ opaque
     ; erased-matches-for-K-preserved = λ where
         𝟙ᵐ → _
         𝟘ᵐ → erased-matches-for-K-preserved 𝟘ᵐ?≈𝟘ᵐ?′
+    ; Qrec-motive-erased-preserved = Qrec-motive-erased-preserved
     }
     where
     open Common-properties cp
@@ -241,6 +264,10 @@ opaque
         Emptyrec-preserved
     ; []-cong-mode-preserved =
         []-cong-mode-preserved
+    ; Quotient-terms-preserved =
+        Quotient-terms-preserved
+    ; Higher-quotient-constructors-preserved =
+        Higher-quotient-constructors-preserved
     }
     where
     module M₁ = Modality 𝕄₁
@@ -294,6 +321,10 @@ opaque
     ; erased-matches-for-K-reflected = λ where
         𝟙ᵐ → _
         𝟘ᵐ → erased-matches-for-K-reflected 𝟘ᵐ?≈𝟘ᵐ?′
+    ; Quotient-terms-reflected =
+        Quotient-terms-reflected
+    ; Higher-quotient-constructors-reflected =
+        Higher-quotient-constructors-reflected
     }
     where
     module M₁ = Modality 𝕄₁
@@ -316,6 +347,7 @@ Common-properties-no-erased-matches-UR _ _ cp = record
   ; Id-erased-preserved            = Id-erased-preserved
   ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
   ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+  ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
   }
   where
   open Common-properties
@@ -364,6 +396,10 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
       UP.Emptyrec-preserved
   ; []-cong-mode-preserved =
       UP.[]-cong-mode-preserved
+  ; Quotient-terms-preserved =
+      UP.Quotient-terms-preserved
+  ; Higher-quotient-constructors-preserved =
+      UP.Higher-quotient-constructors-preserved
   }
   where
   module UP  = Are-preserving-usage-restrictions up
@@ -418,6 +454,10 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
       UR.erased-matches-for-K-reflected
   ; []-cong-mode-reflected =
       UR.[]-cong-mode-reflected
+  ; Quotient-terms-reflected =
+      UR.Quotient-terms-reflected
+  ; Higher-quotient-constructors-reflected =
+      UR.Higher-quotient-constructors-reflected
   }
   where
   module UR =
@@ -478,6 +518,7 @@ opaque
           not-all-for-𝟙ᵐ-≤ᵉᵐ R₁.erased-matches-for-K
             R₂.erased-matches-for-K (erased-matches-for-K-preserved 𝟙ᵐ)
             𝟙ᵐ
+    ; Qrec-motive-erased-preserved = Qrec-motive-erased-preserved
     }
     where
     module R₁ = Usage-restrictions R₁
@@ -511,6 +552,10 @@ opaque
         Emptyrec-preserved
     ; []-cong-mode-preserved =
         []-cong-mode-preserved
+    ; Quotient-terms-preserved =
+        Quotient-terms-preserved
+    ; Higher-quotient-constructors-preserved =
+        Higher-quotient-constructors-preserved
     }
     where
     open Are-preserving-usage-restrictions r
@@ -556,6 +601,10 @@ opaque
           not-all-for-𝟙ᵐ-≤ᵉᵐ R₂.erased-matches-for-K
             R₁.erased-matches-for-K (erased-matches-for-K-reflected 𝟙ᵐ)
             𝟙ᵐ
+    ; Quotient-terms-reflected =
+        Quotient-terms-reflected
+    ; Higher-quotient-constructors-reflected =
+        Higher-quotient-constructors-reflected
     }
     where
     module M₁ = Modality 𝕄₁
@@ -581,6 +630,7 @@ opaque
     ; Id-erased-preserved            = Id-erased-preserved
     ; erased-matches-for-J-preserved = _
     ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
     }
     where
     open Common-properties cp
@@ -618,6 +668,10 @@ opaque
         Emptyrec-preserved
     ; []-cong-mode-preserved = λ m₁≈m₂ →
         ⊎.map ([]-cong-mode-preserved m₁≈m₂) (_∘→ hyp)
+    ; Quotient-terms-preserved =
+        Quotient-terms-preserved
+    ; Higher-quotient-constructors-preserved =
+        Higher-quotient-constructors-preserved
     }
     where
     open Are-preserving-usage-restrictions r
@@ -664,6 +718,10 @@ opaque
         _
     ; erased-matches-for-K-reflected =
         erased-matches-for-K-reflected
+    ; Quotient-terms-reflected =
+        Quotient-terms-reflected
+    ; Higher-quotient-constructors-reflected =
+        Higher-quotient-constructors-reflected
     }
     where
     module M₂ = Modality 𝕄₂
@@ -706,6 +764,7 @@ opaque
           R₂.erased-matches-for-J (erased-matches-for-J-preserved m₁≈m₂)
           m₁≈m₂
     ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
     }
     where
     module R₁ = Usage-restrictions R₁
@@ -741,6 +800,10 @@ opaque
         Emptyrec-preserved
     ; []-cong-mode-preserved =
         λ _ ()
+    ; Quotient-terms-preserved =
+        Quotient-terms-preserved
+    ; Higher-quotient-constructors-preserved =
+        Higher-quotient-constructors-preserved
     }
     where
     open Are-preserving-usage-restrictions r
@@ -785,11 +848,278 @@ opaque
           (erased-matches-for-J-reflected m₁≈m₂) (≈ᵐ-symmetric m₁≈m₂)
     ; erased-matches-for-K-reflected =
         erased-matches-for-K-reflected
+    ; Quotient-terms-reflected =
+        Quotient-terms-reflected
+    ; Higher-quotient-constructors-reflected =
+        Higher-quotient-constructors-reflected
     }
     where
     module R₁ = Usage-restrictions R₁
     module R₂ = Usage-restrictions R₂
     open Are-reflecting-usage-restrictions r
+
+opaque
+
+  -- The function no-higher-quotient-constructors preserves
+  -- Common-properties in a certain way.
+
+  Common-properties-no-higher-quotient-constructors :
+    Common-properties R₁ R₂ →
+    Common-properties
+      (no-higher-quotient-constructors 𝕄₁ v₁ R₁)
+      (no-higher-quotient-constructors 𝕄₂ v₂ R₂)
+  Common-properties-no-higher-quotient-constructors cp = record
+    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
+    ; starˢ-sink-preserved           = starˢ-sink-preserved
+    ; Id-erased-preserved            = Id-erased-preserved
+    ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
+    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
+    }
+    where
+    open Common-properties cp
+
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain usage restrictions,
+  -- then they do this also for certain usage restrictions obtained
+  -- using no-higher-quotient-constructors.
+
+  Are-preserving-usage-restrictions-no-higher-quotient-constructors :
+    Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-preserving-usage-restrictions
+      (no-higher-quotient-constructors 𝕄₁ v₁ R₁)
+      (no-higher-quotient-constructors 𝕄₂ v₂ R₂)
+      tr tr-Σ
+  Are-preserving-usage-restrictions-no-higher-quotient-constructors
+    r = record
+    { common-properties =
+        Common-properties-no-higher-quotient-constructors
+          common-properties
+    ; nr-preserving =
+        nr-preserving
+    ; no-nr-preserving =
+        no-nr-preserving
+    ; no-nr-glb-preserving =
+        no-nr-glb-preserving
+    ; Prodrec-preserved =
+        Prodrec-preserved
+    ; Unitrec-preserved =
+        Unitrec-preserved
+    ; Emptyrec-preserved =
+        Emptyrec-preserved
+    ; []-cong-mode-preserved =
+        []-cong-mode-preserved
+    ; Quotient-terms-preserved =
+        Quotient-terms-preserved
+    ; Higher-quotient-constructors-preserved =
+        lift ∘→ Lift.lower
+    }
+    where
+    open Are-preserving-usage-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain usage restrictions,
+  -- then they do this also for certain usage restrictions obtained
+  -- using no-higher-quotient-constructors.
+
+  Are-reflecting-usage-restrictions-no-higher-quotient-constructors :
+    Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-reflecting-usage-restrictions
+      (no-higher-quotient-constructors 𝕄₁ v₁ R₁)
+      (no-higher-quotient-constructors 𝕄₂ v₂ R₂)
+      tr tr-Σ
+  Are-reflecting-usage-restrictions-no-higher-quotient-constructors
+    r = record
+    { common-properties =
+        Common-properties-no-higher-quotient-constructors
+          common-properties
+    ; 𝟘ᵐ-reflected =
+        𝟘ᵐ-reflected
+    ; nr-reflected =
+        nr-reflected
+    ; no-nr-reflected =
+        no-nr-reflected
+    ; no-nr-glb-reflected =
+        no-nr-glb-reflected
+    ; Prodrec-reflected =
+        Prodrec-reflected
+    ; Unitrec-reflected =
+        Unitrec-reflected
+    ; Emptyrec-reflected =
+        Emptyrec-reflected
+    ; []-cong-mode-reflected =
+        []-cong-mode-reflected
+    ; erased-matches-for-J-reflected =
+        erased-matches-for-J-reflected
+    ; erased-matches-for-K-reflected =
+        erased-matches-for-K-reflected
+    ; Quotient-terms-reflected =
+        Quotient-terms-reflected
+    ; Higher-quotient-constructors-reflected =
+        lift ∘→ Lift.lower
+    }
+    where
+    open Are-reflecting-usage-restrictions r
+
+opaque
+
+  -- The function no-quotient-terms preserves Common-properties in a
+  -- certain way.
+
+  Common-properties-no-quotient-terms :
+    Common-properties R₁ R₂ →
+    Common-properties
+      (no-quotient-terms 𝕄₁ v₁ R₁)
+      (no-quotient-terms 𝕄₂ v₂ R₂)
+  Common-properties-no-quotient-terms cp = record
+    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
+    ; starˢ-sink-preserved           = starˢ-sink-preserved
+    ; Id-erased-preserved            = Id-erased-preserved
+    ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
+    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
+    }
+    where
+    open Common-properties cp
+
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain usage restrictions,
+  -- then they do this also for certain usage restrictions obtained
+  -- using no-quotient-terms.
+
+  Are-preserving-usage-restrictions-no-quotient-terms :
+    Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-preserving-usage-restrictions
+      (no-quotient-terms 𝕄₁ v₁ R₁)
+      (no-quotient-terms 𝕄₂ v₂ R₂)
+      tr tr-Σ
+  Are-preserving-usage-restrictions-no-quotient-terms
+    r = record
+    { common-properties =
+        Common-properties-no-quotient-terms
+          common-properties
+    ; nr-preserving =
+        nr-preserving
+    ; no-nr-preserving =
+        no-nr-preserving
+    ; no-nr-glb-preserving =
+        no-nr-glb-preserving
+    ; Prodrec-preserved =
+        Prodrec-preserved
+    ; Unitrec-preserved =
+        Unitrec-preserved
+    ; Emptyrec-preserved =
+        Emptyrec-preserved
+    ; []-cong-mode-preserved =
+        []-cong-mode-preserved
+    ; Quotient-terms-preserved =
+        lift ∘→ Lift.lower
+    ; Higher-quotient-constructors-preserved =
+        lift ∘→ Lift.lower
+    }
+    where
+    open Are-preserving-usage-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain usage restrictions,
+  -- then they do this also for certain usage restrictions obtained
+  -- using no-quotient-terms.
+
+  Are-reflecting-usage-restrictions-no-quotient-terms :
+    Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
+    Are-reflecting-usage-restrictions
+      (no-quotient-terms 𝕄₁ v₁ R₁)
+      (no-quotient-terms 𝕄₂ v₂ R₂)
+      tr tr-Σ
+  Are-reflecting-usage-restrictions-no-quotient-terms
+    r = record
+    { common-properties =
+        Common-properties-no-quotient-terms
+          common-properties
+    ; 𝟘ᵐ-reflected =
+        𝟘ᵐ-reflected
+    ; nr-reflected =
+        nr-reflected
+    ; no-nr-reflected =
+        no-nr-reflected
+    ; no-nr-glb-reflected =
+        no-nr-glb-reflected
+    ; Prodrec-reflected =
+        Prodrec-reflected
+    ; Unitrec-reflected =
+        Unitrec-reflected
+    ; Emptyrec-reflected =
+        Emptyrec-reflected
+    ; []-cong-mode-reflected =
+        []-cong-mode-reflected
+    ; erased-matches-for-J-reflected =
+        erased-matches-for-J-reflected
+    ; erased-matches-for-K-reflected =
+        erased-matches-for-K-reflected
+    ; Quotient-terms-reflected =
+        lift ∘→ Lift.lower
+    ; Higher-quotient-constructors-reflected =
+        lift ∘→ Lift.lower
+    }
+    where
+    open Are-reflecting-usage-restrictions r
+
+opaque
+
+  -- The functions tr and tr-Σ reflect certain usage restrictions
+  -- obtained from a combination of no-quotient-terms and
+  -- no-usage-restrictions, given that certain assumptions hold.
+
+  Are-reflecting-usage-restrictions-no-quotient-terms′ :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+        module V₁ = Mode-variant v₁
+        module V₂ = Mode-variant v₂
+    in
+    (T V₁.𝟘ᵐ-allowed → T V₂.𝟘ᵐ-allowed) →
+    (T V₂.𝟘ᵐ-allowed ⊎ M₂.Trivial → T V₁.𝟘ᵐ-allowed ⊎ M₁.Trivial) →
+    nm₁ ≈ⁿᵐ nm₂ →
+    (⦃ has-nr₁ : Natrec-mode-has-nr _ nm₁ ⦄ →
+     ⦃ has-nr₂ : Natrec-mode-has-nr _ nm₂ ⦄ →
+     Is-nr-reflecting-morphism 𝕄₁ 𝕄₂
+       ⦃ has-nr₁ = Natrec-mode-Has-nr 𝕄₁ has-nr₁ ⦄
+       ⦃ has-nr₂ = Natrec-mode-Has-nr 𝕄₂ has-nr₂ ⦄ tr) →
+    (⦃ no-nr₁ : Natrec-mode-no-nr _ nm₁ ⦄ →
+     ⦃ no-nr₂ : Natrec-mode-no-nr _ nm₂ ⦄ →
+     Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₂ v₁ v₂ tr) →
+    (⦃ no-nr₁ : Natrec-mode-no-nr-glb _ nm₁ ⦄ →
+     ⦃ no-nr₂ : Natrec-mode-no-nr-glb _ nm₂ ⦄ →
+     Is-no-nr-glb-reflecting-morphism 𝕄₁ 𝕄₂ tr) →
+    Are-reflecting-usage-restrictions
+      (no-quotient-terms 𝕄₁ v₁ $
+       no-usage-restrictions 𝕄₁ v₁ nm₁ b₁ b₂ b₃)
+      (no-quotient-terms 𝕄₂ v₂ $
+       no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃)
+      tr tr-Σ
+  Are-reflecting-usage-restrictions-no-quotient-terms′
+    hyp₁ hyp₂ nm₁≈nm₂ hyp₃ hyp₄ hyp₅ = record
+    { common-properties =
+        Common-properties-no-quotient-terms $
+        Common-properties-no-usage-restrictions hyp₁ nm₁≈nm₂
+    ; 𝟘ᵐ-reflected =
+        hyp₂
+    ; nr-reflected =
+        hyp₃
+    ; no-nr-reflected =
+        hyp₄
+    ; no-nr-glb-reflected =
+        hyp₅
+    ; Quotient-terms-reflected =
+        lift ∘→ Lift.lower
+    ; Higher-quotient-constructors-reflected =
+        lift ∘→ Lift.lower
+    }
 
 ------------------------------------------------------------------------
 -- Some lemmas related to only-some-erased-matches and concrete
@@ -853,7 +1183,8 @@ opaque
     let 𝕄₂ = UnitModality in
     ¬ Are-reflecting-usage-restrictions
         (only-some-erased-matches ErasureModality v₁ R)
-        (only-some-erased-matches 𝕄₂ v₂ (no-usage-restrictions 𝕄₂ v₂ nm₁ b₁ b₂))
+        (only-some-erased-matches 𝕄₂ v₂
+           (no-usage-restrictions 𝕄₂ v₂ nm₁ b₁ b₂ b₃))
         erasure→unit tr
   ¬-erasure→unit-reflects-only-some-erased-matches _ r =
     Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , (λ _ tt≢tt → tt≢tt))
@@ -1280,7 +1611,8 @@ erasure→unit-preserves-no-erased-matches-UR =
   let 𝕄₂ = UnitModality in
   ¬ Are-reflecting-usage-restrictions
       (no-erased-matches-UR ErasureModality v₁ TR₁ R)
-      (no-erased-matches-UR 𝕄₂ v₂ TR₂ (no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂))
+      (no-erased-matches-UR 𝕄₂ v₂ TR₂
+         (no-usage-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃))
       erasure→unit tr
 ¬-erasure→unit-reflects-no-erased-matches-UR _ _ _ r =
   Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , λ _ tt≢tt → tt≢tt)

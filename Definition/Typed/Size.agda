@@ -43,11 +43,18 @@ opaque mutual
     -- The size of a derivation.
 
     size-⊢ : Γ ⊢ A → Size
-    size-⊢ (Levelⱼ _ ⊢Γ)  = node (size-⊢′ ⊢Γ)
-    size-⊢ (univ ⊢A)      = node (size-⊢∷ ⊢A)
-    size-⊢ (Liftⱼ ⊢l ⊢A)  = size-⊢∷L ⊢l ⊕ size-⊢ ⊢A
-    size-⊢ (ΠΣⱼ ⊢B _)     = node (size-⊢ ⊢B)
-    size-⊢ (Idⱼ ⊢A ⊢t ⊢u) = size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+    size-⊢ (Levelⱼ _ ⊢Γ) =
+      node (size-⊢′ ⊢Γ)
+    size-⊢ (univ ⊢A) =
+      node (size-⊢∷ ⊢A)
+    size-⊢ (Liftⱼ ⊢l ⊢A) =
+      size-⊢∷L ⊢l ⊕ size-⊢ ⊢A
+    size-⊢ (ΠΣⱼ ⊢B _) =
+      node (size-⊢ ⊢B)
+    size-⊢ (Idⱼ ⊢A ⊢t ⊢u) =
+      size-⊢ ⊢A ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u
+    size-⊢ (Quot _ ⊢B) =
+      node (size-⊢ ⊢B)
 
     -- The size of a derivation.
 
@@ -118,6 +125,16 @@ opaque mutual
     size-⊢∷ ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v _) =
       (size-⊢∷L ⊢l ⊕ size-⊢ ⊢A ⊕ size-⊢∷ ⊢t) ⊕
       (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
+    size-⊢∷ (Quot _ ⊢l ⊢A ⊢B) =
+      size-⊢∷L ⊢l ⊕ size-⊢∷ ⊢A ⊕ size-⊢∷ ⊢B
+    size-⊢∷ (class ⊢Q ⊢t) =
+      size-⊢ ⊢Q ⊕ size-⊢∷ ⊢t
+    size-⊢∷ (resp ⊢Q ⊢t ⊢u ⊢v) =
+      (size-⊢ ⊢Q ⊕ size-⊢∷ ⊢t) ⊕ (size-⊢∷ ⊢u ⊕ size-⊢∷ ⊢v)
+    size-⊢∷ (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+      (size-⊢ ⊢Q ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u) ⊕ (size-⊢∷ ⊢v ⊕ size-⊢∷ ⊢w)
+    size-⊢∷ (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+      (size-⊢ ⊢C ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u) ⊕ (size-⊢∷ ⊢v ⊕ size-⊢∷ ⊢w)
 
     -- The size of a derivation.
 
@@ -144,6 +161,8 @@ opaque mutual
       size-⊢≡ A₁≡B₁ ⊕ size-⊢≡ A₂≡B₂
     size-⊢≡ (Id-cong A≡B t₁≡u₁ t₂≡u₂) =
       size-⊢≡ A≡B ⊕ size-⊢≡∷ t₁≡u₁ ⊕ size-⊢≡∷ t₂≡u₂
+    size-⊢≡ (Quot-cong _ A₁≡B₁ A₂≡B₂) =
+      size-⊢≡ A₁≡B₁ ⊕ size-⊢≡ A₂≡B₂
 
     -- The size of a derivation.
 
@@ -248,6 +267,22 @@ opaque mutual
       size-⊢∷L ⊢l ⊕ size-⊢∷ ⊢t
     size-⊢≡∷ (equality-reflection _ ⊢Id ⊢v) =
       size-⊢ ⊢Id ⊕ size-⊢∷ ⊢v
+    size-⊢≡∷ (Quot-cong _ ⊢l A₁≡A₂ B₁≡B₂) =
+      size-⊢∷L ⊢l ⊕ size-⊢≡∷ A₁≡A₂ ⊕ size-⊢≡∷ B₁≡B₂
+    size-⊢≡∷ (class-cong ⊢Q t₁≡t₂) =
+      size-⊢ ⊢Q ⊕ size-⊢≡∷ t₁≡t₂
+    size-⊢≡∷ (resp-cong _ A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
+      (size-⊢≡ A₁≡A₂ ⊕ size-⊢≡ B₁≡B₂ ⊕ size-⊢≡∷ t₁≡t₂) ⊕
+      (size-⊢≡∷ u₁≡u₂ ⊕ size-⊢≡∷ v₁≡v₂)
+    size-⊢≡∷ (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+      (size-⊢≡ A₁≡A₂ ⊕ size-⊢≡ B₁≡B₂) ⊕
+      (size-⊢≡∷ t₁≡t₂ ⊕ size-⊢≡∷ u₁≡u₂) ⊕
+      (size-⊢≡∷ v₁≡v₂ ⊕ size-⊢≡∷ w₁≡w₂)
+    size-⊢≡∷ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+      size-⊢≡ C₁≡C₂ ⊕ (size-⊢≡∷ t₁≡t₂ ⊕ size-⊢≡∷ u₁≡u₂) ⊕
+      (size-⊢≡∷ v₁≡v₂ ⊕ size-⊢≡∷ w₁≡w₂)
+    size-⊢≡∷ (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) =
+      (size-⊢ ⊢C ⊕ size-⊢∷ ⊢t ⊕ size-⊢∷ ⊢u) ⊕ (size-⊢∷ ⊢v ⊕ size-⊢∷ ⊢w)
 
     -- The size of a derivation.
 

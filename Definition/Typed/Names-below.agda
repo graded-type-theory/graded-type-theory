@@ -21,6 +21,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 
 open import Tools.Empty
 open import Tools.Nat
@@ -34,7 +35,9 @@ private variable
   A B C t u v w : Term _
   l             : Lvl _
 
-opaque mutual
+opaque
+ unfolding Quot-rel-Con Resp-Con
+ mutual
 
   -- If ∇ » Γ ⊢ A holds, where ∇ has length n, then A only uses names
   -- below n.
@@ -52,6 +55,9 @@ opaque mutual
     ΠΣ (⊢→Names< (⊢∙→⊢ (wf ⊢B))) (⊢→Names< ⊢B)
   ⊢→Names< (Idⱼ ⊢A ⊢t ⊢u) =
     Id (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
+  ⊢→Names< (Quot _ ⊢B) =
+    let _ , (⊢A , _) , _ = ∙∙⊢→⊢-<ˢ ⊢B in
+    Quot (⊢→Names< ⊢A) (⊢→Names< ⊢B)
 
   -- If ∇ » Γ ⊢ t ∷ A holds, where ∇ has length n, then t only uses
   -- names below n.
@@ -128,6 +134,21 @@ opaque mutual
   ⊢∷→Names< ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v _) =
     []-cong (⊢∷L→Names< ⊢l) (⊢→Names< ⊢A) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
       (⊢∷→Names< ⊢v)
+  ⊢∷→Names< (Quot ok _ ⊢A ⊢B) =
+    Quot (⊢∷→Names< ⊢A) (⊢∷→Names< ⊢B)
+  ⊢∷→Names< (class _ ⊢t) =
+    class (⊢∷→Names< ⊢t)
+  ⊢∷→Names< (resp ⊢Q ⊢t ⊢u ⊢v) =
+    let _ , ⊢A , ⊢B = inversion-Quot ⊢Q in
+    resp (⊢→Names< ⊢A) (⊢→Names< ⊢B) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
+      (⊢∷→Names< ⊢v)
+  ⊢∷→Names< (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+    let _ , ⊢A , ⊢B = inversion-Quot ⊢Q in
+    set (⊢→Names< ⊢A) (⊢→Names< ⊢B) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u)
+      (⊢∷→Names< ⊢v) (⊢∷→Names< ⊢w)
+  ⊢∷→Names< (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    qrec (⊢→Names< ⊢C) (⊢∷→Names< ⊢t) (⊢∷→Names< ⊢u) (⊢∷→Names< ⊢v)
+      (⊢∷→Names< ⊢w)
 
   -- If ∇ » Γ ⊢ l ∷Level holds, where ∇ has length n, then l only uses
   -- names below n.

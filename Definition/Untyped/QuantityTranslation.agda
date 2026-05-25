@@ -31,6 +31,7 @@ open import Definition.Untyped
 import Definition.Untyped.Identity
 open import Definition.Untyped.Neutral
 import Definition.Untyped.Properties
+import Definition.Untyped.Quotient
 open import Definition.Untyped.Whnf
 
 private
@@ -46,22 +47,23 @@ private
 open import Graded.Modality
 
 private variable
-  α m n                    : Nat
-  as                       : List _
-  x                        : Fin _
-  p q r                    : M₂
-  s                        : Strength
-  b                        : BinderMode
-  k                        : Term-kind
-  c₁ c₂                    : Constructor _ _ _
-  ts us                    : Args _ _ _
-  A B j l l′ l₁ l₂ t u v w : Term[ _ ] _ _
-  ∇                        : DCon _ _
-  ρ                        : Wk _ _
-  σ                        : Subst _ _ _
-  tv₁ tv₂                  : Type-variant
-  o                        : Opacity _
-  V₁ V₂                    : Set _
+  α m n                                        : Nat
+  as                                           : List _
+  x                                            : Fin _
+  p q r                                        : M₂
+  s                                            : Strength
+  b                                            : BinderMode
+  k                                            : Term-kind
+  c₁ c₂                                        : Constructor _ _ _
+  ts us                                        : Args _ _ _
+  A A₁ A₂ B C j l l′ l₁ l₂ t u u₁ u₂ u₃ u₄ v w : Term[ _ ] _ _
+  ∇                                            : DCon _ _
+  Δ                                            : Con _ _
+  Γ                                            : Cons _ _ _
+  ρ                                            : Wk _ _
+  σ                                            : Subst _ _ _
+  o                                            : Opacity _
+  V₁ V₂                                        : Set _
 
 ------------------------------------------------------------------------
 -- Translation
@@ -107,6 +109,11 @@ tr-Constructor rflᵏ             = rflᵏ
 tr-Constructor (Jᵏ p q)         = Jᵏ (tr p) (tr q)
 tr-Constructor (Kᵏ p)           = Kᵏ (tr p)
 tr-Constructor ([]-congᵏ s)     = []-congᵏ s
+tr-Constructor Quotᵏ            = Quotᵏ
+tr-Constructor classᵏ           = classᵏ
+tr-Constructor respᵏ            = respᵏ
+tr-Constructor setᵏ             = setᵏ
+tr-Constructor qrecᵏ            = qrecᵏ
 
 mutual
 
@@ -223,8 +230,14 @@ opaque
 -- Lemmas related to Neutral and Whnf
 
 module _
+  {tv₁ : Type-variant a₁} {tv₂ : Type-variant a₂}
   -- It is assumed that definitions are not made transparent.
   (not-transparent : ¬ T transparent)
+  -- It is assumed that Higher-quotient-constructors-neutral holds for
+  -- tv₂ if it holds for tv₁.
+  (Higher-quotient-constructors-neutral→ :
+     Type-variant.Higher-quotient-constructors-neutral tv₁ →
+     Type-variant.Higher-quotient-constructors-neutral tv₂)
   -- It is assumed that Unitʷ-η holds for tv₁ if it holds for tv₂.
   (Unitʷ-η→ : Type-variant.Unitʷ-η tv₂ → Type-variant.Unitʷ-η tv₁)
   where
@@ -252,6 +265,10 @@ module _
     (Jₙ n)              → Jₙ (tr-Neutral f n)
     (Kₙ n)              → Kₙ (tr-Neutral f n)
     ([]-congₙ n)        → []-congₙ (tr-Neutral f n)
+    (resp ok)           → resp
+                            (Higher-quotient-constructors-neutral→ ok)
+    (set ok)            → set (Higher-quotient-constructors-neutral→ ok)
+    (qrec n)            → qrec (tr-Neutral f n)
 
   -- The function tr-Term takes WHNFs to WHNFs.
 
@@ -274,6 +291,8 @@ module _
   tr-Whnf zeroᵘₙ            = zeroᵘₙ
   tr-Whnf sucᵘₙ             = sucᵘₙ
   tr-Whnf liftₙ             = liftₙ
+  tr-Whnf Quot              = Quot
+  tr-Whnf class             = class
   tr-Whnf (ne n)            = ne (tr-Neutral _ n)
 
 ------------------------------------------------------------------------
@@ -473,7 +492,7 @@ opaque
     tr-Term (t U₁.[ U₁.replace₁ n u ])           ∎
 
 ------------------------------------------------------------------------
--- A definition that makes use of modalities
+-- Some definitions that make use of modalities
 
 module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
 
@@ -481,6 +500,8 @@ module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
   module M₂  = Modality 𝕄₂
   module UI₁ = Definition.Untyped.Identity 𝕄₁
   module UI₂ = Definition.Untyped.Identity 𝕄₂
+  module UQ₁ = Definition.Untyped.Quotient 𝕄₁
+  module UQ₂ = Definition.Untyped.Quotient 𝕄₂
 
   opaque
     unfolding Definition.Untyped.Identity.subst
@@ -496,6 +517,106 @@ module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
     tr-Term-subst′ hyp =
       cong₂ (λ q B → J _ q _ _ B _ _ _) hyp (sym tr-Term-wk)
 
+  opaque
+    unfolding Definition.Untyped.Quotient.Quot-rel-Con
+
+    -- Translation commutes with Quot-rel-Con.
+
+    tr-Cons-Quot-rel-Con :
+      tr-Con (UQ₁.Quot-rel-Con Δ A) ≡
+      UQ₂.Quot-rel-Con (tr-Con Δ) (tr-Term A)
+    tr-Cons-Quot-rel-Con =
+      cong (_∙_ _) (sym tr-Term-wk)
+
+  opaque
+
+    -- Translation commutes with Quot-rel-Cons.
+
+    tr-Cons-Quot-rel-Cons :
+      tr-Cons (UQ₁.Quot-rel-Cons Γ A) ≡
+      UQ₂.Quot-rel-Cons (tr-Cons Γ) (tr-Term A)
+    tr-Cons-Quot-rel-Cons =
+      cong (_»_ _) tr-Cons-Quot-rel-Con
+
+  opaque
+    unfolding Definition.Untyped.Quotient.Resp-Con
+
+    -- Translation commutes with Resp-Con.
+
+    tr-Cons-Resp-Con :
+      tr-Con (UQ₁.Resp-Con Δ A B) ≡
+      UQ₂.Resp-Con (tr-Con Δ) (tr-Term A) (tr-Term B)
+    tr-Cons-Resp-Con =
+      cong (flip _∙_ _) tr-Cons-Quot-rel-Con
+
+  opaque
+
+    -- Translation commutes with Resp-Cons.
+
+    tr-Cons-Resp-Cons :
+      tr-Cons (UQ₁.Resp-Cons Γ A B) ≡
+      UQ₂.Resp-Cons (tr-Cons Γ) (tr-Term A) (tr-Term B)
+    tr-Cons-Resp-Cons =
+      cong (_»_ _) tr-Cons-Resp-Con
+
+  opaque
+    unfolding Definition.Untyped.Quotient.Resp-type
+
+    -- Translation commutes with Resp-type (given certain
+    -- assumptions).
+
+    tr-Term-Resp-type :
+      tr M₁.𝟘 ≡ M₂.𝟘 →
+      tr M₁.ω ≡ M₂.ω →
+      tr-Term (UQ₁.Resp-type A B C t) ≡
+      UQ₂.Resp-type (tr-Term A) (tr-Term B) (tr-Term C) (tr-Term t)
+    tr-Term-Resp-type {C} {t} hyp₁ hyp₂ =
+      cong₃ Id
+        (sym (tr-Term-[]↑ C))
+        (trans (tr-Term-subst′ hyp₁) $
+         cong₆
+           (λ p A B C D w →
+              UI₂.subst p A B (U₂.class (U₂.var x2))
+                (U₂.class (U₂.var x1))
+                (U₂.resp C D (U₂.var x2) (U₂.var x1) (U₂.var x0)) w)
+           hyp₂ (sym (tr-Term-wk {t = Quot _ _})) (sym (tr-Term-[]↑ C))
+           (sym tr-Term-wk) (sym tr-Term-wk) (sym tr-Term-wk))
+        (sym (tr-Term-[]↑ t))
+
+  opaque
+    unfolding Definition.Untyped.Quotient.Is-set-Con
+
+    -- Translation commutes with Is-set-Con.
+
+    tr-Cons-Is-set-Con :
+      tr-Con (UQ₁.Is-set-Con Δ A B C) ≡
+      UQ₂.Is-set-Con (tr-Con Δ) (tr-Term A) (tr-Term B) (tr-Term C)
+    tr-Cons-Is-set-Con =
+      sym $
+      cong₂ _∙_
+        (cong₂ _∙_ (cong (_∙_ _) tr-Term-wk)
+           (cong₃ Id tr-Term-wk refl refl))
+        (cong₃ Id tr-Term-wk refl refl)
+
+  opaque
+
+    -- Translation commutes with Is-set-Cons.
+
+    tr-Cons-Is-set-Cons :
+      tr-Cons (UQ₁.Is-set-Cons Γ A B C) ≡
+      UQ₂.Is-set-Cons (tr-Cons Γ) (tr-Term A) (tr-Term B) (tr-Term C)
+    tr-Cons-Is-set-Cons =
+      cong (_»_ _) tr-Cons-Is-set-Con
+
+  opaque
+    unfolding Definition.Untyped.Quotient.Is-set-type
+
+    -- Translation commutes with Is-set-type.
+
+    tr-Term-Is-set-type :
+      tr-Term (UQ₁.Is-set-type C) ≡ UQ₂.Is-set-type (tr-Term C)
+    tr-Term-Is-set-type =
+      cong₃ Id (cong₃ Id (sym tr-Term-wk) refl refl) refl refl
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for translation
@@ -534,6 +655,11 @@ tr-Term-defn {t = rfl}                   ()
 tr-Term-defn {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-defn {t = K _ _ _ _ _ _}         ()
 tr-Term-defn {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-defn {t = Quot _ _}              ()
+tr-Term-defn {t = class _}               ()
+tr-Term-defn {t = resp _ _ _ _ _}        ()
+tr-Term-defn {t = set _ _ _ _ _ _}       ()
+tr-Term-defn {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for var.
 
@@ -569,6 +695,11 @@ tr-Term-var {t = rfl}                   ()
 tr-Term-var {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-var {t = K _ _ _ _ _ _}         ()
 tr-Term-var {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-var {t = Quot _ _}              ()
+tr-Term-var {t = class _}               ()
+tr-Term-var {t = resp _ _ _ _ _}        ()
+tr-Term-var {t = set _ _ _ _ _ _}       ()
+tr-Term-var {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Level.
 
@@ -606,6 +737,11 @@ tr-Term-Level {t = rfl}                   ()
 tr-Term-Level {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-Level {t = K _ _ _ _ _ _}         ()
 tr-Term-Level {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-Level {t = Quot _ _}              ()
+tr-Term-Level {t = class _}               ()
+tr-Term-Level {t = resp _ _ _ _ _}        ()
+tr-Term-Level {t = set _ _ _ _ _ _}       ()
+tr-Term-Level {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for zeroᵘ.
 
@@ -643,6 +779,11 @@ tr-Term-zeroᵘ {t = rfl}                   ()
 tr-Term-zeroᵘ {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-zeroᵘ {t = K _ _ _ _ _ _}         ()
 tr-Term-zeroᵘ {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-zeroᵘ {t = Quot _ _}              ()
+tr-Term-zeroᵘ {t = class _}               ()
+tr-Term-zeroᵘ {t = resp _ _ _ _ _}        ()
+tr-Term-zeroᵘ {t = set _ _ _ _ _ _}       ()
+tr-Term-zeroᵘ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for sucᵘ.
 
@@ -680,6 +821,11 @@ tr-Term-sucᵘ {t = rfl}                   ()
 tr-Term-sucᵘ {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-sucᵘ {t = K _ _ _ _ _ _}         ()
 tr-Term-sucᵘ {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-sucᵘ {t = Quot _ _}              ()
+tr-Term-sucᵘ {t = class _}               ()
+tr-Term-sucᵘ {t = resp _ _ _ _ _}        ()
+tr-Term-sucᵘ {t = set _ _ _ _ _ _}       ()
+tr-Term-sucᵘ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for _supᵘ_.
 
@@ -718,6 +864,11 @@ tr-Term-supᵘ {t = rfl}                   ()
 tr-Term-supᵘ {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-supᵘ {t = K _ _ _ _ _ _}         ()
 tr-Term-supᵘ {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-supᵘ {t = Quot _ _}              ()
+tr-Term-supᵘ {t = class _}               ()
+tr-Term-supᵘ {t = resp _ _ _ _ _}        ()
+tr-Term-supᵘ {t = set _ _ _ _ _ _}       ()
+tr-Term-supᵘ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for ωᵘ+.
 
@@ -771,6 +922,11 @@ tr-Term-U {t = rfl}                   ()
 tr-Term-U {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-U {t = K _ _ _ _ _ _}         ()
 tr-Term-U {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-U {t = Quot _ _}              ()
+tr-Term-U {t = class _}               ()
+tr-Term-U {t = resp _ _ _ _ _}        ()
+tr-Term-U {t = set _ _ _ _ _ _}       ()
+tr-Term-U {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Lift.
 
@@ -809,6 +965,11 @@ tr-Term-Lift {t = rfl}                   ()
 tr-Term-Lift {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-Lift {t = K _ _ _ _ _ _}         ()
 tr-Term-Lift {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-Lift {t = Quot _ _}              ()
+tr-Term-Lift {t = class _}               ()
+tr-Term-Lift {t = resp _ _ _ _ _}        ()
+tr-Term-Lift {t = set _ _ _ _ _ _}       ()
+tr-Term-Lift {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for lift.
 
@@ -846,6 +1007,11 @@ tr-Term-lift {t = rfl}                   ()
 tr-Term-lift {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-lift {t = K _ _ _ _ _ _}         ()
 tr-Term-lift {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-lift {t = Quot _ _}              ()
+tr-Term-lift {t = class _}               ()
+tr-Term-lift {t = resp _ _ _ _ _}        ()
+tr-Term-lift {t = set _ _ _ _ _ _}       ()
+tr-Term-lift {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for lower.
 
@@ -883,6 +1049,11 @@ tr-Term-lower {t = rfl}                   ()
 tr-Term-lower {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-lower {t = K _ _ _ _ _ _}         ()
 tr-Term-lower {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-lower {t = Quot _ _}              ()
+tr-Term-lower {t = class _}               ()
+tr-Term-lower {t = resp _ _ _ _ _}        ()
+tr-Term-lower {t = set _ _ _ _ _ _}       ()
+tr-Term-lower {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for ΠΣ⟨_⟩_,_▷_▹_.
 
@@ -924,6 +1095,11 @@ tr-Term-ΠΣ {t = rfl}                  ()
 tr-Term-ΠΣ {t = J _ _ _ _ _ _ _ _}    ()
 tr-Term-ΠΣ {t = K _ _ _ _ _ _}        ()
 tr-Term-ΠΣ {t = []-cong _ _ _ _ _ _}  ()
+tr-Term-ΠΣ {t = Quot _ _}              ()
+tr-Term-ΠΣ {t = class _}               ()
+tr-Term-ΠΣ {t = resp _ _ _ _ _}        ()
+tr-Term-ΠΣ {t = set _ _ _ _ _ _}       ()
+tr-Term-ΠΣ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for lam.
 
@@ -962,6 +1138,11 @@ tr-Term-lam {t = rfl}                   ()
 tr-Term-lam {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-lam {t = K _ _ _ _ _ _}         ()
 tr-Term-lam {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-lam {t = Quot _ _}              ()
+tr-Term-lam {t = class _}               ()
+tr-Term-lam {t = resp _ _ _ _ _}        ()
+tr-Term-lam {t = set _ _ _ _ _ _}       ()
+tr-Term-lam {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for _∘⟨_⟩_.
 
@@ -1001,6 +1182,11 @@ tr-Term-∘ {t = rfl}                   ()
 tr-Term-∘ {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-∘ {t = K _ _ _ _ _ _}         ()
 tr-Term-∘ {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-∘ {t = Quot _ _}              ()
+tr-Term-∘ {t = class _}               ()
+tr-Term-∘ {t = resp _ _ _ _ _}        ()
+tr-Term-∘ {t = set _ _ _ _ _ _}       ()
+tr-Term-∘ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for prod.
 
@@ -1041,6 +1227,11 @@ tr-Term-prod {t = rfl}                   ()
 tr-Term-prod {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-prod {t = K _ _ _ _ _ _}         ()
 tr-Term-prod {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-prod {t = Quot _ _}              ()
+tr-Term-prod {t = class _}               ()
+tr-Term-prod {t = resp _ _ _ _ _}        ()
+tr-Term-prod {t = set _ _ _ _ _ _}       ()
+tr-Term-prod {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for fst.
 
@@ -1079,6 +1270,11 @@ tr-Term-fst {t = rfl}                   ()
 tr-Term-fst {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-fst {t = K _ _ _ _ _ _}         ()
 tr-Term-fst {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-fst {t = Quot _ _}              ()
+tr-Term-fst {t = class _}               ()
+tr-Term-fst {t = resp _ _ _ _ _}        ()
+tr-Term-fst {t = set _ _ _ _ _ _}       ()
+tr-Term-fst {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for snd.
 
@@ -1117,6 +1313,11 @@ tr-Term-snd {t = rfl}                   ()
 tr-Term-snd {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-snd {t = K _ _ _ _ _ _}         ()
 tr-Term-snd {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-snd {t = Quot _ _}              ()
+tr-Term-snd {t = class _}               ()
+tr-Term-snd {t = resp _ _ _ _ _}        ()
+tr-Term-snd {t = set _ _ _ _ _ _}       ()
+tr-Term-snd {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for prodrec.
 
@@ -1157,6 +1358,11 @@ tr-Term-prodrec {t = rfl}                   ()
 tr-Term-prodrec {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-prodrec {t = K _ _ _ _ _ _}         ()
 tr-Term-prodrec {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-prodrec {t = Quot _ _}              ()
+tr-Term-prodrec {t = class _}               ()
+tr-Term-prodrec {t = resp _ _ _ _ _}        ()
+tr-Term-prodrec {t = set _ _ _ _ _ _}       ()
+tr-Term-prodrec {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Unit.
 
@@ -1193,6 +1399,11 @@ tr-Term-Unit {t = rfl}                   ()
 tr-Term-Unit {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-Unit {t = K _ _ _ _ _ _}         ()
 tr-Term-Unit {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-Unit {t = Quot _ _}              ()
+tr-Term-Unit {t = class _}               ()
+tr-Term-Unit {t = resp _ _ _ _ _}        ()
+tr-Term-Unit {t = set _ _ _ _ _ _}       ()
+tr-Term-Unit {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for star.
 
@@ -1228,6 +1439,11 @@ tr-Term-star {t = rfl}                   ()
 tr-Term-star {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-star {t = K _ _ _ _ _ _}         ()
 tr-Term-star {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-star {t = Quot _ _}              ()
+tr-Term-star {t = class _}               ()
+tr-Term-star {t = resp _ _ _ _ _}        ()
+tr-Term-star {t = set _ _ _ _ _ _}       ()
+tr-Term-star {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for unitrec.
 
@@ -1268,6 +1484,11 @@ tr-Term-unitrec {t = rfl}                   ()
 tr-Term-unitrec {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-unitrec {t = K _ _ _ _ _ _}         ()
 tr-Term-unitrec {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-unitrec {t = Quot _ _}              ()
+tr-Term-unitrec {t = class _}               ()
+tr-Term-unitrec {t = resp _ _ _ _ _}        ()
+tr-Term-unitrec {t = set _ _ _ _ _ _}       ()
+tr-Term-unitrec {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Empty.
 
@@ -1303,6 +1524,11 @@ tr-Term-Empty {t = rfl}                   ()
 tr-Term-Empty {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-Empty {t = K _ _ _ _ _ _}         ()
 tr-Term-Empty {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-Empty {t = Quot _ _}              ()
+tr-Term-Empty {t = class _}               ()
+tr-Term-Empty {t = resp _ _ _ _ _}        ()
+tr-Term-Empty {t = set _ _ _ _ _ _}       ()
+tr-Term-Empty {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for emptyrec.
 
@@ -1342,6 +1568,11 @@ tr-Term-emptyrec {t = rfl}                   ()
 tr-Term-emptyrec {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-emptyrec {t = K _ _ _ _ _ _}         ()
 tr-Term-emptyrec {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-emptyrec {t = Quot _ _}              ()
+tr-Term-emptyrec {t = class _}               ()
+tr-Term-emptyrec {t = resp _ _ _ _ _}        ()
+tr-Term-emptyrec {t = set _ _ _ _ _ _}       ()
+tr-Term-emptyrec {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for ℕ.
 
@@ -1377,6 +1608,11 @@ tr-Term-ℕ {t = rfl}                   ()
 tr-Term-ℕ {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-ℕ {t = K _ _ _ _ _ _}         ()
 tr-Term-ℕ {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-ℕ {t = Quot _ _}              ()
+tr-Term-ℕ {t = class _}               ()
+tr-Term-ℕ {t = resp _ _ _ _ _}        ()
+tr-Term-ℕ {t = set _ _ _ _ _ _}       ()
+tr-Term-ℕ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for zero.
 
@@ -1412,6 +1648,11 @@ tr-Term-zero {t = rfl}                   ()
 tr-Term-zero {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-zero {t = K _ _ _ _ _ _}         ()
 tr-Term-zero {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-zero {t = Quot _ _}              ()
+tr-Term-zero {t = class _}               ()
+tr-Term-zero {t = resp _ _ _ _ _}        ()
+tr-Term-zero {t = set _ _ _ _ _ _}       ()
+tr-Term-zero {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for suc.
 
@@ -1449,6 +1690,11 @@ tr-Term-suc {t = rfl}                   ()
 tr-Term-suc {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-suc {t = K _ _ _ _ _ _}         ()
 tr-Term-suc {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-suc {t = Quot _ _}              ()
+tr-Term-suc {t = class _}               ()
+tr-Term-suc {t = resp _ _ _ _ _}        ()
+tr-Term-suc {t = set _ _ _ _ _ _}       ()
+tr-Term-suc {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for natrec.
 
@@ -1491,6 +1737,11 @@ tr-Term-natrec {t = rfl}                   ()
 tr-Term-natrec {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-natrec {t = K _ _ _ _ _ _}         ()
 tr-Term-natrec {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-natrec {t = Quot _ _}              ()
+tr-Term-natrec {t = class _}               ()
+tr-Term-natrec {t = resp _ _ _ _ _}        ()
+tr-Term-natrec {t = set _ _ _ _ _ _}       ()
+tr-Term-natrec {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Id.
 
@@ -1531,6 +1782,11 @@ tr-Term-Id {v = rfl}                   ()
 tr-Term-Id {v = J _ _ _ _ _ _ _ _}     ()
 tr-Term-Id {v = K _ _ _ _ _ _}         ()
 tr-Term-Id {v = []-cong _ _ _ _ _ _}   ()
+tr-Term-Id {v = Quot _ _}              ()
+tr-Term-Id {v = class _}               ()
+tr-Term-Id {v = resp _ _ _ _ _}        ()
+tr-Term-Id {v = set _ _ _ _ _ _}       ()
+tr-Term-Id {v = qrec _ _ _ _ _}        ()
 
 -- Inversion for rfl.
 
@@ -1566,6 +1822,11 @@ tr-Term-rfl {t = Id _ _ _}              ()
 tr-Term-rfl {t = J _ _ _ _ _ _ _ _}     ()
 tr-Term-rfl {t = K _ _ _ _ _ _}         ()
 tr-Term-rfl {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-rfl {t = Quot _ _}              ()
+tr-Term-rfl {t = class _}               ()
+tr-Term-rfl {t = resp _ _ _ _ _}        ()
+tr-Term-rfl {t = set _ _ _ _ _ _}       ()
+tr-Term-rfl {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for J.
 
@@ -1608,6 +1869,11 @@ tr-Term-J {j = Id _ _ _}              ()
 tr-Term-J {j = rfl}                   ()
 tr-Term-J {j = K _ _ _ _ _ _}         ()
 tr-Term-J {j = []-cong _ _ _ _ _ _}   ()
+tr-Term-J {j = Quot _ _}              ()
+tr-Term-J {j = class _}               ()
+tr-Term-J {j = resp _ _ _ _ _}        ()
+tr-Term-J {j = set _ _ _ _ _ _}       ()
+tr-Term-J {j = qrec _ _ _ _ _}        ()
 
 -- Inversion for K.
 
@@ -1649,6 +1915,11 @@ tr-Term-K {w = Id _ _ _}              ()
 tr-Term-K {w = rfl}                   ()
 tr-Term-K {w = J _ _ _ _ _ _ _ _}     ()
 tr-Term-K {w = []-cong _ _ _ _ _ _}   ()
+tr-Term-K {w = Quot _ _}              ()
+tr-Term-K {w = class _}               ()
+tr-Term-K {w = resp _ _ _ _ _}        ()
+tr-Term-K {w = set _ _ _ _ _ _}       ()
+tr-Term-K {w = qrec _ _ _ _ _}        ()
 
 -- Inversion for []-cong.
 
@@ -1690,6 +1961,234 @@ tr-Term-[]-cong {w = Id _ _ _}              ()
 tr-Term-[]-cong {w = rfl}                   ()
 tr-Term-[]-cong {w = J _ _ _ _ _ _ _ _}     ()
 tr-Term-[]-cong {w = K _ _ _ _ _ _}         ()
+tr-Term-[]-cong {w = Quot _ _}              ()
+tr-Term-[]-cong {w = class _}               ()
+tr-Term-[]-cong {w = resp _ _ _ _ _}        ()
+tr-Term-[]-cong {w = set _ _ _ _ _ _}       ()
+tr-Term-[]-cong {w = qrec _ _ _ _ _}        ()
+
+-- Inversion for Quot.
+
+tr-Term-Quot :
+  tr-Term t ≡ Quot A B →
+  ∃₂ λ A′ B′ →
+     t ≡ Quot A′ B′ × tr-Term A′ ≡ A × tr-Term B′ ≡ B
+tr-Term-Quot {t = Quot _ _} refl =
+  _ # _ # refl # refl # refl
+tr-Term-Quot {t = defn _}                ()
+tr-Term-Quot {t = var _}                 ()
+tr-Term-Quot {t = Level}                 ()
+tr-Term-Quot {t = zeroᵘ}                 ()
+tr-Term-Quot {t = sucᵘ _}                ()
+tr-Term-Quot {t = _ supᵘ _}              ()
+tr-Term-Quot {t = U _}                   ()
+tr-Term-Quot {t = Lift _ _}              ()
+tr-Term-Quot {t = lift _}                ()
+tr-Term-Quot {t = lower _}               ()
+tr-Term-Quot {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-Quot {t = lam _ _}               ()
+tr-Term-Quot {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-Quot {t = prod _ _ _ _}          ()
+tr-Term-Quot {t = fst _ _}               ()
+tr-Term-Quot {t = snd _ _}               ()
+tr-Term-Quot {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-Quot {t = Empty}                 ()
+tr-Term-Quot {t = emptyrec _ _ _}        ()
+tr-Term-Quot {t = Unit _}                ()
+tr-Term-Quot {t = star _}                ()
+tr-Term-Quot {t = unitrec _ _ _ _ _}     ()
+tr-Term-Quot {t = ℕ}                     ()
+tr-Term-Quot {t = zero}                  ()
+tr-Term-Quot {t = suc _}                 ()
+tr-Term-Quot {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-Quot {t = Id _ _ _}              ()
+tr-Term-Quot {t = rfl}                   ()
+tr-Term-Quot {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-Quot {t = K _ _ _ _ _ _}         ()
+tr-Term-Quot {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-Quot {t = class _}               ()
+tr-Term-Quot {t = resp _ _ _ _ _}        ()
+tr-Term-Quot {t = set _ _ _ _ _ _}       ()
+tr-Term-Quot {t = qrec _ _ _ _ _}        ()
+
+-- Inversion for class.
+
+tr-Term-class :
+  tr-Term t ≡ class u →
+  ∃ λ u′ → t ≡ class u′ × tr-Term u′ ≡ u
+tr-Term-class {t = class _} refl =
+  _ # refl # refl
+tr-Term-class {t = defn _}                ()
+tr-Term-class {t = var _}                 ()
+tr-Term-class {t = Level}                 ()
+tr-Term-class {t = zeroᵘ}                 ()
+tr-Term-class {t = sucᵘ _}                ()
+tr-Term-class {t = _ supᵘ _}              ()
+tr-Term-class {t = U _}                   ()
+tr-Term-class {t = Lift _ _}              ()
+tr-Term-class {t = lift _}                ()
+tr-Term-class {t = lower _}               ()
+tr-Term-class {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-class {t = lam _ _}               ()
+tr-Term-class {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-class {t = prod _ _ _ _}          ()
+tr-Term-class {t = fst _ _}               ()
+tr-Term-class {t = snd _ _}               ()
+tr-Term-class {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-class {t = Empty}                 ()
+tr-Term-class {t = emptyrec _ _ _}        ()
+tr-Term-class {t = Unit _}                ()
+tr-Term-class {t = star _}                ()
+tr-Term-class {t = unitrec _ _ _ _ _}     ()
+tr-Term-class {t = ℕ}                     ()
+tr-Term-class {t = zero}                  ()
+tr-Term-class {t = suc _}                 ()
+tr-Term-class {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-class {t = Id _ _ _}              ()
+tr-Term-class {t = rfl}                   ()
+tr-Term-class {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-class {t = K _ _ _ _ _ _}         ()
+tr-Term-class {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-class {t = Quot _ _}              ()
+tr-Term-class {t = resp _ _ _ _ _}        ()
+tr-Term-class {t = set _ _ _ _ _ _}       ()
+tr-Term-class {t = qrec _ _ _ _ _}        ()
+
+-- Inversion for resp.
+
+tr-Term-resp :
+  tr-Term t ≡ resp A B u v w →
+  ∃₅ λ A′ B′ u′ v′ w′ →
+     t ≡ resp A′ B′ u′ v′ w′ × tr-Term A′ ≡ A × tr-Term B′ ≡ B ×
+     tr-Term u′ ≡ u × tr-Term v′ ≡ v × tr-Term w′ ≡ w
+tr-Term-resp {t = resp _ _ _ _ _} refl =
+  _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl
+tr-Term-resp {t = defn _}                ()
+tr-Term-resp {t = var _}                 ()
+tr-Term-resp {t = Level}                 ()
+tr-Term-resp {t = zeroᵘ}                 ()
+tr-Term-resp {t = sucᵘ _}                ()
+tr-Term-resp {t = _ supᵘ _}              ()
+tr-Term-resp {t = U _}                   ()
+tr-Term-resp {t = Lift _ _}              ()
+tr-Term-resp {t = lift _}                ()
+tr-Term-resp {t = lower _}               ()
+tr-Term-resp {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-resp {t = lam _ _}               ()
+tr-Term-resp {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-resp {t = prod _ _ _ _}          ()
+tr-Term-resp {t = fst _ _}               ()
+tr-Term-resp {t = snd _ _}               ()
+tr-Term-resp {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-resp {t = Empty}                 ()
+tr-Term-resp {t = emptyrec _ _ _}        ()
+tr-Term-resp {t = Unit _}                ()
+tr-Term-resp {t = star _}                ()
+tr-Term-resp {t = unitrec _ _ _ _ _}     ()
+tr-Term-resp {t = ℕ}                     ()
+tr-Term-resp {t = zero}                  ()
+tr-Term-resp {t = suc _}                 ()
+tr-Term-resp {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-resp {t = Id _ _ _}              ()
+tr-Term-resp {t = rfl}                   ()
+tr-Term-resp {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-resp {t = K _ _ _ _ _ _}         ()
+tr-Term-resp {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-resp {t = Quot _ _}              ()
+tr-Term-resp {t = class _}               ()
+tr-Term-resp {t = set _ _ _ _ _ _}       ()
+tr-Term-resp {t = qrec _ _ _ _ _}        ()
+
+-- Inversion for set.
+
+tr-Term-set :
+  tr-Term t ≡ set A₁ A₂ u₁ u₂ u₃ u₄ →
+  ∃₆ λ A₁′ A₂′ u₁′ u₂′ u₃′ u₄′ →
+     t ≡ set A₁′ A₂′ u₁′ u₂′ u₃′ u₄′ × tr-Term A₁′ ≡ A₁ ×
+     tr-Term A₂′ ≡ A₂ × tr-Term u₁′ ≡ u₁ × tr-Term u₂′ ≡ u₂ ×
+     tr-Term u₃′ ≡ u₃ × tr-Term u₄′ ≡ u₄
+tr-Term-set {t = set _ _ _ _ _ _} refl =
+  _ # _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl # refl
+tr-Term-set {t = defn _}                ()
+tr-Term-set {t = var _}                 ()
+tr-Term-set {t = Level}                 ()
+tr-Term-set {t = zeroᵘ}                 ()
+tr-Term-set {t = sucᵘ _}                ()
+tr-Term-set {t = _ supᵘ _}              ()
+tr-Term-set {t = U _}                   ()
+tr-Term-set {t = Lift _ _}              ()
+tr-Term-set {t = lift _}                ()
+tr-Term-set {t = lower _}               ()
+tr-Term-set {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-set {t = lam _ _}               ()
+tr-Term-set {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-set {t = prod _ _ _ _}          ()
+tr-Term-set {t = fst _ _}               ()
+tr-Term-set {t = snd _ _}               ()
+tr-Term-set {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-set {t = Empty}                 ()
+tr-Term-set {t = emptyrec _ _ _}        ()
+tr-Term-set {t = Unit _}                ()
+tr-Term-set {t = star _}                ()
+tr-Term-set {t = unitrec _ _ _ _ _}     ()
+tr-Term-set {t = ℕ}                     ()
+tr-Term-set {t = zero}                  ()
+tr-Term-set {t = suc _}                 ()
+tr-Term-set {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-set {t = Id _ _ _}              ()
+tr-Term-set {t = rfl}                   ()
+tr-Term-set {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-set {t = K _ _ _ _ _ _}         ()
+tr-Term-set {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-set {t = Quot _ _}              ()
+tr-Term-set {t = class _}               ()
+tr-Term-set {t = resp _ _ _ _ _}        ()
+tr-Term-set {t = qrec _ _ _ _ _}        ()
+
+-- Inversion for qrec.
+
+tr-Term-qrec :
+  tr-Term t ≡ qrec A u₁ u₂ u₃ u₄ →
+  ∃₅ λ A′ u₁′ u₂′ u₃′ u₄′ →
+     t ≡ qrec A′ u₁′ u₂′ u₃′ u₄′ × tr-Term A′ ≡ A × tr-Term u₁′ ≡ u₁ ×
+     tr-Term u₂′ ≡ u₂ × tr-Term u₃′ ≡ u₃ × tr-Term u₄′ ≡ u₄
+tr-Term-qrec {t = qrec _ _ _ _ _} refl =
+  _ # _ # _ # _ # _ # refl # refl # refl # refl # refl # refl
+tr-Term-qrec {t = defn _}                ()
+tr-Term-qrec {t = var _}                 ()
+tr-Term-qrec {t = Level}                 ()
+tr-Term-qrec {t = zeroᵘ}                 ()
+tr-Term-qrec {t = sucᵘ _}                ()
+tr-Term-qrec {t = _ supᵘ _}              ()
+tr-Term-qrec {t = U _}                   ()
+tr-Term-qrec {t = Lift _ _}              ()
+tr-Term-qrec {t = lift _}                ()
+tr-Term-qrec {t = lower _}               ()
+tr-Term-qrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+tr-Term-qrec {t = lam _ _}               ()
+tr-Term-qrec {t = _ ∘⟨ _ ⟩ _}            ()
+tr-Term-qrec {t = prod _ _ _ _}          ()
+tr-Term-qrec {t = fst _ _}               ()
+tr-Term-qrec {t = snd _ _}               ()
+tr-Term-qrec {t = prodrec _ _ _ _ _ _}   ()
+tr-Term-qrec {t = Empty}                 ()
+tr-Term-qrec {t = emptyrec _ _ _}        ()
+tr-Term-qrec {t = Unit _}                ()
+tr-Term-qrec {t = star _}                ()
+tr-Term-qrec {t = unitrec _ _ _ _ _}     ()
+tr-Term-qrec {t = ℕ}                     ()
+tr-Term-qrec {t = zero}                  ()
+tr-Term-qrec {t = suc _}                 ()
+tr-Term-qrec {t = natrec _ _ _ _ _ _ _}  ()
+tr-Term-qrec {t = Id _ _ _}              ()
+tr-Term-qrec {t = rfl}                   ()
+tr-Term-qrec {t = J _ _ _ _ _ _ _ _}     ()
+tr-Term-qrec {t = K _ _ _ _ _ _}         ()
+tr-Term-qrec {t = []-cong _ _ _ _ _ _}   ()
+tr-Term-qrec {t = Quot _ _}              ()
+tr-Term-qrec {t = class _}               ()
+tr-Term-qrec {t = resp _ _ _ _ _}        ()
+tr-Term-qrec {t = set _ _ _ _ _ _}       ()
 
 mutual
 
@@ -1871,7 +2370,12 @@ module Injective
   tr-Constructor-injective {c₁ = Emptyᵏ}     {c₂ = Emptyᵏ}     refl = refl
   tr-Constructor-injective {c₁ = Idᵏ}        {c₂ = Idᵏ}        refl = refl
   tr-Constructor-injective {c₁ = rflᵏ}       {c₂ = rflᵏ}       refl = refl
-  tr-Constructor-injective {c₁ = []-congᵏ _} {c₂ = []-congᵏ _} refl =
+  tr-Constructor-injective {c₁ = []-congᵏ _} {c₂ = []-congᵏ _} refl = refl
+  tr-Constructor-injective {c₁ = Quotᵏ}      {c₂ = Quotᵏ}      refl = refl
+  tr-Constructor-injective {c₁ = classᵏ}     {c₂ = classᵏ}     refl = refl
+  tr-Constructor-injective {c₁ = respᵏ}      {c₂ = respᵏ}      refl = refl
+  tr-Constructor-injective {c₁ = setᵏ}       {c₂ = setᵏ}       refl = refl
+  tr-Constructor-injective {c₁ = qrecᵏ}      {c₂ = qrecᵏ}      refl =
     refl
   tr-Constructor-injective {c₁ = ΠΣᵏ b p q} {c₂ = ΠΣᵏ _ _ _} eq
     with tr-BinderMode b p in tr-p≡ | tr q in tr-q≡
@@ -1954,6 +2458,7 @@ module Injective
   tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = fstᵏ _}      ()
   tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = sndᵏ _}      ()
   tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = sucᵘᵏ}       {c₂ = classᵏ}      ()
   tr-Constructor-injective {c₁ = supᵘᵏ}       {c₂ = emptyrecᵏ _} ()
   tr-Constructor-injective {c₁ = supᵘᵏ}       {c₂ = appᵏ _}      ()
   tr-Constructor-injective {c₁ = supᵘᵏ}       {c₂ = prodᵏ _ _}   ()
@@ -1962,11 +2467,13 @@ module Injective
   tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = fstᵏ _}      ()
   tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = sndᵏ _}      ()
   tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = liftᵏ}       {c₂ = classᵏ}      ()
   tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = sucᵘᵏ}       ()
   tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = liftᵏ}       ()
   tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = fstᵏ _}      ()
   tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = sndᵏ _}      ()
   tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = lowerᵏ}      {c₂ = classᵏ}      ()
   tr-Constructor-injective {c₁ = appᵏ _}      {c₂ = supᵘᵏ}       ()
   tr-Constructor-injective {c₁ = appᵏ _}      {c₂ = prodᵏ _ _}   ()
   tr-Constructor-injective {c₁ = appᵏ _}      {c₂ = emptyrecᵏ _} ()
@@ -1978,11 +2485,13 @@ module Injective
   tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = lowerᵏ}      ()
   tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = sndᵏ _}      ()
   tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = fstᵏ _}      {c₂ = classᵏ}      ()
   tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = sucᵘᵏ}       ()
   tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = liftᵏ}       ()
   tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = lowerᵏ}      ()
   tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = fstᵏ _}      ()
   tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = sucᵏ}        ()
+  tr-Constructor-injective {c₁ = sndᵏ _}      {c₂ = classᵏ}      ()
   tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = defnᵏ _}     ()
   tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = Levelᵏ}      ()
   tr-Constructor-injective {c₁ = Emptyᵏ}      {c₂ = zeroᵘᵏ}      ()
@@ -2031,6 +2540,7 @@ module Injective
   tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = lowerᵏ}      ()
   tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = fstᵏ _}      ()
   tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = sndᵏ _}      ()
+  tr-Constructor-injective {c₁ = sucᵏ}        {c₂ = classᵏ}      ()
   tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = defnᵏ _}     ()
   tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = Levelᵏ}      ()
   tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = zeroᵘᵏ}      ()
@@ -2039,6 +2549,12 @@ module Injective
   tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = starᵏ _}     ()
   tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = ℕᵏ}          ()
   tr-Constructor-injective {c₁ = rflᵏ}        {c₂ = zeroᵏ}       ()
+  tr-Constructor-injective {c₁ = classᵏ}      {c₂ = sucᵘᵏ}       ()
+  tr-Constructor-injective {c₁ = classᵏ}      {c₂ = liftᵏ}       ()
+  tr-Constructor-injective {c₁ = classᵏ}      {c₂ = lowerᵏ}      ()
+  tr-Constructor-injective {c₁ = classᵏ}      {c₂ = fstᵏ _}      ()
+  tr-Constructor-injective {c₁ = classᵏ}      {c₂ = sndᵏ _}      ()
+  tr-Constructor-injective {c₁ = classᵏ}      {c₂ = sucᵏ}        ()
 
   mutual
 

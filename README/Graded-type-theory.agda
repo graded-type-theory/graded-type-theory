@@ -125,6 +125,8 @@ import Graded.Usage.Restrictions.Satisfied
 --   universe polymorphism, and optional support for the levels ω,
 --   ω + 1, and so on.
 --
+-- * Quotient types have been added.
+--
 -- * Top-level definitions with optional support for opacity have been
 --   added.
 --

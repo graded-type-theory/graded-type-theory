@@ -206,6 +206,11 @@ mutual
     case wf-⊢ (soundness~↓ t~u) .proj₂ .proj₁ of λ {
       ⊢t →
     Id-ins ⊢t t~u }}
+  lift~toConv↓′ (Quot ⊩A′) A′⇒*A t~u@([~] _ (_ , A-whnf) _) =
+    case whrDet* (_⊩ₗQuot_.⇒*Quot ⊩A′ , Quot) (A′⇒*A , A-whnf) of λ {
+      PE.refl →
+    let _ , ⊢t , _ = wf-⊢ (soundness~↓ t~u) in
+    Quot-ins ⊢t t~u }
 
   -- Helper function for lifting from neutral to generic terms.
   lift~toConv↑′ : ∀ {t u A l}

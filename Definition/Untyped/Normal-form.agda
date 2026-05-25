@@ -6,7 +6,7 @@ open import Definition.Typed.Variant
 
 module Definition.Untyped.Normal-form
   {a} (M : Set a)
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   where
 
 open Type-variant type-variant
@@ -20,13 +20,13 @@ open import Tools.Nat
 open import Tools.Relation
 
 private variable
-  ∇                  : DCon _ _
-  A B C c l t t′ u v : Term[ _ ] _
-  k                  : Term-kind
-  p q r              : M
-  b                  : BinderMode
-  s                  : Strength
-  α m                : Nat
+  ∇                    : DCon _ _
+  A B C c l t t′ u v w : Term[ _ ] _
+  k                    : Term-kind
+  p q r                : M
+  b                    : BinderMode
+  s                    : Strength
+  α m                  : Nat
 
 mutual
 
@@ -46,6 +46,7 @@ mutual
     Emptyₙ : Nf ∇ Empty
     Unitₙ  : Nf ∇ (Unit s)
     Idₙ    : Nf ∇ A → Nf ∇ t → Nf ∇ u → Nf ∇ (Id A t u)
+    Quot   : Nf ∇ A → Nf ∇ B → Nf ∇ (Quot A B)
 
     lamₙ   : Nf ∇ t → Nf ∇ (lam q t)
     prodₙ  : Nf ∇ t → Nf ∇ u → Nf ∇ (prod s p t u)
@@ -53,6 +54,7 @@ mutual
     sucₙ   : Nf ∇ t → Nf ∇ (suc t)
     starₙ  : Nf ∇ (star s)
     rflₙ   : Nf ∇ rfl
+    class  : Nf ∇ t → Nf ∇ (class t)
 
     ne     : NfNeutral ∇ t → Nf ∇ t
 
@@ -81,6 +83,13 @@ mutual
                 NfNeutral ∇ (K p A t B u v)
     []-congₙ  : Nf ∇ l → Nf ∇ A → Nf ∇ t → Nf ∇ u → NfNeutral ∇ v →
                 NfNeutral ∇ ([]-cong s l A t u v)
+    resp      : Higher-quotient-constructors-neutral → Nf ∇ A → Nf ∇ B →
+                Nf ∇ t → Nf ∇ u → Nf ∇ v → NfNeutral ∇ (resp A B t u v)
+    set       : Higher-quotient-constructors-neutral → Nf ∇ A → Nf ∇ B →
+                Nf ∇ t → Nf ∇ u → Nf ∇ v → Nf ∇ w →
+                NfNeutral ∇ (set A B t u v w)
+    qrec      : Nf ∇ C → Nf ∇ t → Nf ∇ u → Nf ∇ v → NfNeutral ∇ w →
+                NfNeutral ∇ (qrec C t u v w)
 
 -- If NfNeutral ∇ t holds, then t is neutral.
 
@@ -101,6 +110,9 @@ nfNeutral = λ where
   (Jₙ _ _ _ _ _ n)        → Jₙ (nfNeutral n)
   (Kₙ _ _ _ _ n)          → Kₙ (nfNeutral n)
   ([]-congₙ _ _ _ _ n)    → []-congₙ (nfNeutral n)
+  (resp ok _ _ _ _ _)     → resp ok
+  (set ok _ _ _ _ _ _)    → set ok
+  (qrec _ _ _ _ n)        → qrec (nfNeutral n)
 
 -- Normal forms are in WHNF.
 
@@ -117,12 +129,14 @@ nfWhnf = λ where
   Emptyₙ      → Emptyₙ
   Unitₙ       → Unitₙ
   (Idₙ _ _ _) → Idₙ
+  (Quot _ _)  → Quot
   (lamₙ _)    → lamₙ
   (prodₙ _ _) → prodₙ
   zeroₙ       → zeroₙ
   (sucₙ _)    → sucₙ
   starₙ       → starₙ
   rflₙ        → rflₙ
+  (class _)   → class
   (ne n)      → ne (nfNeutral n)
 
 opaque

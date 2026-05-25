@@ -12,7 +12,7 @@ module Graded.Heap.Usage
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
@@ -78,6 +78,8 @@ data _▸ʰ_ : (γ : Conₘ n) (H : Heap k n) → Set (a ⊔ b) where
 -- Usage of continuations and stacks
 
 -- Usage of continuations
+--
+-- This relation does not support quotient term formers.
 
 data _▸ᶜ[_]_ {n : Nat} : (γ : Conₘ n) (m : Mode) (c : Cont n) → Set (a ⊔ b) where
   lowerₑ : 𝟘ᶜ ▸ᶜ[ m ] lowerₑ

@@ -37,7 +37,9 @@ import Definition.Typed.Properties
 open import Definition.Untyped M
 import Definition.Untyped.Allowed-literal
 import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 import Definition.Untyped.Sup
 
 open import Graded.Context 𝕄
@@ -69,21 +71,21 @@ private
   module USₜ = Definition.Untyped.Sup TRₜ
 
 private variable
-  b                 : Bool
-  α n n′ n₁ n₂ o    : Nat
-  x                 : Fin _
-  ∇ ∇₁ ∇₂           : DCon _ _
-  φ φ₁ φ₂           : Unfolding _
-  Δ                 : Con _ _
-  Γ                 : Cons _ _
-  ρ                 : Wk _ _
-  σ                 : Subst _ _
-  A B l l₁ l₂ t u v : Term[ _ ] _
-  k                 : Term-kind
-  s                 : Strength
-  γ                 : Conₘ _
-  m                 : Mode
-  str               : T.Strictness
+  b                   : Bool
+  α n n′ n₁ n₂ o      : Nat
+  x                   : Fin _
+  ∇ ∇₁ ∇₂             : DCon _ _
+  φ φ₁ φ₂             : Unfolding _
+  Δ                   : Con _ _
+  Γ                   : Cons _ _
+  ρ                   : Wk _ _
+  σ                   : Subst _ _
+  A B C l l₁ l₂ t u v : Term[ _ ] _
+  k                   : Term-kind
+  s                   : Strength
+  γ                   : Conₘ _
+  m                   : Mode
+  str                 : T.Strictness
 
 ------------------------------------------------------------------------
 -- The translation
@@ -159,6 +161,16 @@ opaque
     K p (tr A) (tr t) (tr B) (tr u) (tr v)
   tr ([]-cong s l A t u v) =
     []-cong′ s (tr l) (tr A) (tr t) (tr u) (tr v)
+  tr (Quot A B) =
+    Quot (tr A) (tr B)
+  tr (class t) =
+    class (tr t)
+  tr (resp A B t u v) =
+    resp (tr A) (tr B) (tr t) (tr u) (tr v)
+  tr (set A B t u v w) =
+    set (tr A) (tr B) (tr t) (tr u) (tr v) (tr w)
+  tr (qrec C t u v w) =
+    qrec (tr C) (tr t) (tr u) (tr v) (tr w)
 
 opaque
 
@@ -398,6 +410,19 @@ module _
           []-cong′ s (tr l) (tr A) (tr t) (tr u) (tr v)  ≡⟨ PE.cong₅ ([]-cong′ _) (tr-id′ l) (tr-id′ A) (tr-id′ t) (tr-id′ u) (tr-id′ v) ⟩
           []-cong′ s l A t u v                           ≡⟨ []-cong′≡[]-cong ⟩
           []-cong s l A t u v                            ∎
+        (Quot A B) →
+          PE.cong₂ Quot (tr-id′ A) (tr-id′ B)
+        (class t) →
+          PE.cong class (tr-id′ t)
+        (resp A B t u v) →
+          PE.cong₅ resp (tr-id′ A) (tr-id′ B) (tr-id′ t) (tr-id′ u)
+            (tr-id′ v)
+        (set A B t u v w) →
+          PE.cong₆ set (tr-id′ A) (tr-id′ B) (tr-id′ t) (tr-id′ u)
+            (tr-id′ v) (tr-id′ w)
+        (qrec C t u v w) →
+          PE.cong₅ qrec (tr-id′ C) (tr-id′ t) (tr-id′ u) (tr-id′ v)
+            (tr-id′ w)
 
   opaque
 
@@ -534,6 +559,17 @@ opaque
         (wk ρ (tr v))                                                     ≡˘⟨ wk-[]-cong′ ⟩
 
       wk ρ ([]-cong′ s (tr l) (tr A) (tr t) (tr u) (tr v))                ∎
+    (Quot A B) →
+      PE.cong₂ Quot (tr-wk A) (tr-wk B)
+    (class t) →
+      PE.cong class (tr-wk t)
+    (resp A B t u v) →
+      PE.cong₅ resp (tr-wk A) (tr-wk B) (tr-wk t) (tr-wk u) (tr-wk v)
+    (set A B t u v w) →
+      PE.cong₆ set (tr-wk A) (tr-wk B) (tr-wk t) (tr-wk u) (tr-wk v)
+        (tr-wk w)
+    (qrec C t u v w) →
+      PE.cong₅ qrec (tr-wk C) (tr-wk t) (tr-wk u) (tr-wk v) (tr-wk w)
 
 private opaque
   unfolding tr Erased.Erased Erased.[_]
@@ -644,6 +680,18 @@ opaque
         (tr t [ tr ∘→ σ ]) (tr u [ tr ∘→ σ ]) (tr v [ tr ∘→ σ ])  ≡˘⟨ []-cong′-[] ⟩
 
       []-cong′ s (tr l) (tr A) (tr t) (tr u) (tr v) [ tr ∘→ σ ]   ∎
+    (Quot A B) →
+      PE.cong₂ Quot (tr-[] A) (tr-[⇑] 2 B)
+    (class t) →
+      PE.cong class (tr-[] t)
+    (resp A B t u v) →
+      PE.cong₅ resp (tr-[] A) (tr-[⇑] 2 B) (tr-[] t) (tr-[] u) (tr-[] v)
+    (set A B t u v w) →
+      PE.cong₆ set (tr-[] A) (tr-[⇑] 2 B) (tr-[] t) (tr-[] u) (tr-[] v)
+        (tr-[] w)
+    (qrec C t u v w) →
+      PE.cong₅ qrec (tr-[⇑] 1 C) (tr-[⇑] 1 t) (tr-[⇑] 3 u) (tr-[⇑] 5 v)
+        (tr-[] w)
 
   -- A variant of tr-[].
 
@@ -725,6 +773,72 @@ opaque
       tr (wk1 (wkSubst m idSubst x))  ≡⟨ tr-wk (wkSubst m _ _) ⟩
       wk1 (tr (wkSubst m idSubst x))  ≡⟨ PE.cong wk1 (lemma m x) ⟩
       wk1 (wkSubst m idSubst x)       ∎
+
+------------------------------------------------------------------------
+-- Some lemmas related to quotient types
+
+opaque
+  unfolding Quot-rel-Con tr-Cons
+
+  -- Translation commutes with Quot-rel-Cons.
+
+  tr-Cons-Quot-rel-Cons :
+    tr-Cons (Quot-rel-Cons Γ A) PE.≡ Quot-rel-Cons (tr-Cons Γ) (tr A)
+  tr-Cons-Quot-rel-Cons =
+    PE.cong (_»_ _ ∘→ _∙_ _) (tr-wk _)
+
+opaque
+  unfolding Quot-rel-Con Resp-Con tr-Cons
+
+  -- Translation commutes with Resp-Cons.
+
+  tr-Cons-Resp-Cons :
+    tr-Cons (Resp-Cons Γ A B) PE.≡ Resp-Cons (tr-Cons Γ) (tr A) (tr B)
+  tr-Cons-Resp-Cons =
+    PE.cong (_»_ _) (PE.cong₂ _∙_ (PE.cong (_∙_ _) (tr-wk _)) PE.refl)
+
+opaque
+  unfolding Resp-type subst tr
+
+  -- Translation commutes with Resp-type.
+
+  tr-Resp-type :
+    tr (Resp-type A B C t) PE.≡ Resp-type (tr A) (tr B) (tr C) (tr t)
+  tr-Resp-type {A} {B} {C} {t} =
+    PE.cong₃ Id
+      (tr-[]↑ C)
+      (PE.trans J′-ω-𝟘 $
+       PE.cong₆ (J _ _) (tr-wk (Quot A B)) PE.refl
+         (PE.trans (tr-wk (C [ _ ][ _ ]↑)) $
+          PE.cong wk1 (tr-[]↑ C))
+         (tr-wk t) PE.refl
+         (PE.cong₅ resp (tr-wk A) (tr-wk B) PE.refl PE.refl PE.refl))
+      (tr-[]↑ t)
+
+opaque
+  unfolding Is-set-Con tr tr-Cons
+
+  -- Translation commutes with Is-set-Cons.
+
+  tr-Cons-Is-set-Cons :
+    tr-Cons (Is-set-Cons Γ A B C) PE.≡
+    Is-set-Cons (tr-Cons Γ) (tr A) (tr B) (tr C)
+  tr-Cons-Is-set-Cons {C} =
+    PE.cong (_»_ _) $
+    PE.cong₂ _∙_
+      (PE.cong₂ _∙_ (PE.cong (_∙_ _) (tr-wk C))
+         (PE.cong₃ Id (tr-wk C) PE.refl PE.refl))
+      (PE.cong₃ Id (tr-wk C) PE.refl PE.refl)
+
+opaque
+  unfolding Is-set-type tr
+
+  -- Translation commutes with Is-set-type.
+
+  tr-Is-set-type :
+    tr (Is-set-type C) PE.≡ Is-set-type (tr C)
+  tr-Is-set-type {C} =
+    PE.cong₃ Id (PE.cong₃ Id (tr-wk C) PE.refl PE.refl) PE.refl PE.refl
 
 ------------------------------------------------------------------------
 -- The translation is usage-preserving
@@ -844,6 +958,24 @@ opaque
         (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v)
     (Uₛ.[]-congₘ l A t u v ok) →
       ▸[]-cong′ ok (tr-▸ l) (tr-▸ A) (tr-▸ t) (tr-▸ u) (tr-▸ v)
+    (Uₛ.Quot ok A B) →
+      Uₜ.Quot (Quotient-terms-allowed-→ ok) (tr-▸ A) (tr-▸ B)
+    (Uₛ.class ok t) →
+      Uₜ.class (Quotient-terms-allowed-→ ok) (tr-▸ t)
+    (Uₛ.resp ok A B t u v eq) →
+      Uₜ.resp (Higher-quotient-constructors-allowed-→ ok) (tr-▸ A)
+        (tr-▸ B) (tr-▸ t) (tr-▸ u) (tr-▸ v) eq
+    (Uₛ.set ok A B t u v w eq) →
+      Uₜ.set (Higher-quotient-constructors-allowed-→ ok) (tr-▸ A)
+        (tr-▸ B) (tr-▸ t) (tr-▸ u) (tr-▸ v) (tr-▸ w) eq
+    (Uₛ.qrec₀ ok₁ ok₂ C t u v w) →
+      Uₜ.qrec₀ (Quotient-terms-allowed-→ ok₁)
+        (Qrec-motive-erased-⇔ .proj₁ ok₂) (tr-▸ C) (tr-▸ t) (tr-▸ u)
+        (tr-▸ v) (tr-▸ w)
+    (Uₛ.qrec₁ ok₁ ok₂ C t u v w) →
+      Uₜ.qrec₁ (Quotient-terms-allowed-→ ok₁)
+        (ok₂ ∘→ Qrec-motive-erased-⇔ .proj₂) (tr-▸ C) (tr-▸ t) (tr-▸ u)
+        (tr-▸ v) (tr-▸ w)
 
 opaque
 
@@ -987,6 +1119,10 @@ opaque
       Tₜ.ΠΣⱼ (tr-⊢ ⊢B) (ΠΣ-allowed-→ ok)
     (Tₛ.Idⱼ _ ⊢t ⊢u) →
       TPₜ.Idⱼ′ (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u)
+    (Tₛ.Quot ok ⊢B) →
+      Tₜ.Quot (Quot-allowed-→ ok)
+        (PE.subst (flip Tₜ._⊢_ _) tr-Cons-Quot-rel-Cons $
+         tr-⊢ ⊢B)
 
   -- A preservation lemma for _⊢_∷_.
 
@@ -1091,6 +1227,30 @@ opaque
     (Tₛ.[]-congⱼ ⊢l _ _ _ ⊢v ok) →
       PE.subst (Tₜ._⊢_∷_ _ _) tr-Id-Erased-[]-[] $
       ⊢[]-cong′ ok (tr-⊢∷L ⊢l) (tr-⊢∷ ⊢v)
+    (Tₛ.Quot {l} ok _ ⊢A ⊢B) →
+      TPₜ.⊢Quot (Quot-allowed-→ ok) (tr-⊢∷ ⊢A)
+        (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Quot-rel-Cons PE.refl
+           (tr-wk (U l)) $
+         tr-⊢∷ ⊢B)
+    (Tₛ.class ⊢Q ⊢t) →
+      Tₜ.class (tr-⊢ ⊢Q) (tr-⊢∷ ⊢t)
+    (Tₛ.resp {B} ⊢Q ⊢t ⊢u ⊢v) →
+      Tₜ.resp (tr-⊢ ⊢Q) (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u)
+        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₁₀ B) $
+         tr-⊢∷ ⊢v)
+    (Tₛ.set _ _ _ ⊢v ⊢w) →
+      TPₜ.⊢set (tr-⊢∷ ⊢v) (tr-⊢∷ ⊢w)
+    (Tₛ.qrec {C} ⊢C ⊢t ⊢u ⊢v ⊢w) →
+      let ok , _ = inversion-Is-set-Cons ⊢v in
+      PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym (tr-[]₀ C)) $
+      Tₜ.qrec (tr-⊢ ⊢C)
+        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ C) $
+         tr-⊢∷ ⊢t)
+        (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Resp-Cons PE.refl tr-Resp-type $
+         tr-⊢∷ ⊢u)
+        (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Is-set-Cons PE.refl tr-Is-set-type $
+         tr-⊢∷ ⊢v)
+        (tr-⊢∷ ⊢w)
 
   -- A preservation lemma for _⊢_∷Level.
 
@@ -1121,6 +1281,10 @@ opaque
       Tₜ.ΠΣ-cong (tr-⊢≡ A₁≡A₂) (tr-⊢≡ B₁≡B₂) (ΠΣ-allowed-→ ok)
     (Tₛ.Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
       Tₜ.Id-cong (tr-⊢≡ A₁≡A₂) (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡∷ u₁≡u₂)
+    (Tₛ.Quot-cong ok A₁≡A₂ B₁≡B₂) →
+      Tₜ.Quot-cong (Quot-allowed-→ ok) (tr-⊢≡ A₁≡A₂)
+        (PE.subst₃ Tₜ._⊢_≡_ tr-Cons-Quot-rel-Cons PE.refl PE.refl $
+         tr-⊢≡ B₁≡B₂)
 
   -- A preservation lemma for _⊢_≡_∷_.
 
@@ -1310,6 +1474,48 @@ opaque
       []-cong′-β-≡ ok (tr-⊢∷L ⊢l) (tr-⊢∷ ⊢t)
     (Tₛ.equality-reflection ok _ ⊢v) →
       TPₜ.equality-reflection′ (Equality-reflection-→ ok) (tr-⊢∷ ⊢v)
+    (Tₛ.Quot-cong {l} ok ⊢l A₁≡A₂ B₁≡B₂) →
+      TPₜ.Quot-cong′ (Quot-allowed-→ ok) (tr-⊢≡∷ A₁≡A₂)
+        (PE.subst₄ Tₜ._⊢_≡_∷_ tr-Cons-Quot-rel-Cons PE.refl PE.refl
+           (tr-wk (U l)) $
+         tr-⊢≡∷ B₁≡B₂)
+    (Tₛ.class-cong ⊢Q t₁≡t₂) →
+      Tₜ.class-cong (tr-⊢ ⊢Q) (tr-⊢≡∷ t₁≡t₂)
+    (Tₛ.resp-cong {B₁} ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+      Tₜ.resp-cong (Quot-allowed-→ ok) (tr-⊢≡ A₁≡A₂)
+        (PE.subst₃ Tₜ._⊢_≡_ tr-Cons-Quot-rel-Cons PE.refl PE.refl $
+         tr-⊢≡ B₁≡B₂)
+        (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡∷ u₁≡u₂)
+        (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]₁₀ B₁) $
+         tr-⊢≡∷ v₁≡v₂)
+    (Tₛ.set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+      Tₜ.set-cong (tr-⊢≡ A₁≡A₂)
+        (PE.subst₃ Tₜ._⊢_≡_ tr-Cons-Quot-rel-Cons PE.refl PE.refl $
+         tr-⊢≡ B₁≡B₂)
+        (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡∷ u₁≡u₂) (tr-⊢≡∷ v₁≡v₂) (tr-⊢≡∷ w₁≡w₂)
+    (Tₛ.qrec-cong {C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+      let ok , _ = inversion-Is-set-Cons v₁≡v₂ in
+      PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym (tr-[]₀ C₁)) $
+      Tₜ.qrec-cong (tr-⊢≡ C₁≡C₂)
+        (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]↑ C₁) (tr-⊢≡∷ t₁≡t₂))
+        (PE.subst₄ Tₜ._⊢_≡_∷_ tr-Cons-Resp-Cons PE.refl PE.refl
+           tr-Resp-type $
+         tr-⊢≡∷ u₁≡u₂)
+        (PE.subst₄ Tₜ._⊢_≡_∷_ tr-Cons-Is-set-Cons PE.refl PE.refl
+           tr-Is-set-type $
+         tr-⊢≡∷ v₁≡v₂)
+        (tr-⊢≡∷ w₁≡w₂)
+    (Tₛ.qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) →
+      let ok , _ = inversion-Is-set-Cons ⊢v in
+      PE.subst₂ (Tₜ._⊢_≡_∷_ _ _) (PE.sym (tr-[]₀ t))
+        (PE.sym (tr-[]₀ C)) $
+      Tₜ.qrec-β (tr-⊢ ⊢C)
+        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ C) (tr-⊢∷ ⊢t))
+        (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Resp-Cons PE.refl tr-Resp-type $
+         tr-⊢∷ ⊢u)
+        (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Is-set-Cons PE.refl tr-Is-set-type $
+         tr-⊢∷ ⊢v)
+        (tr-⊢∷ ⊢w)
 
   -- A preservation lemma for _⊢_≡_∷Level.
 
@@ -1483,6 +1689,40 @@ module _ (pres : T preservation-of-reduction) where
       (Tₛ.[]-cong-β ⊢l t≡t′ ok) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) tr-Id-Erased-[]-[] $
         []-cong′-β-⇒* pres ok (tr-⊢∷L ⊢l) (tr-⊢≡∷ t≡t′)
+      (Tₛ.resp-η {B} ok ⊢Q ⊢t ⊢u ⊢v) →
+        TPₜ.redMany $
+        Tₜ.resp-η (Equality-reflection-→ ok) (tr-⊢ ⊢Q) (tr-⊢∷ ⊢t)
+          (tr-⊢∷ ⊢u)
+          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₁₀ B) $
+           tr-⊢∷ ⊢v)
+      (Tₛ.set-η ok ⊢t ⊢u ⊢v ⊢w) →
+        TPₜ.redMany $
+        Tₜ.set-η (Equality-reflection-→ ok) (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u)
+          (tr-⊢∷ ⊢v) (tr-⊢∷ ⊢w)
+      (Tₛ.qrec-subst {C} ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) →
+        let ok , _ = inversion-Is-set-Cons ⊢v in
+        PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym (tr-[]₀ C)) $
+        TPₜ.qrec-subst* (tr-⊢ ⊢C)
+          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ C) (tr-⊢∷ ⊢t))
+          (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Resp-Cons PE.refl tr-Resp-type $
+           tr-⊢∷ ⊢u)
+          (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
+             tr-Is-set-type $
+           tr-⊢∷ ⊢v)
+          (tr-⊢⇒∷ w₁⇒w₂)
+      (Tₛ.qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) →
+        let ok , _ = inversion-Is-set-Cons ⊢v in
+        TPₜ.redMany $
+        PE.subst₂ (Tₜ._⊢_⇒_∷_ _ _) (PE.sym (tr-[]₀ t))
+          (PE.sym (tr-[]₀ C)) $
+        Tₜ.qrec-β (tr-⊢ ⊢C)
+          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ C) (tr-⊢∷ ⊢t))
+          (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Resp-Cons PE.refl tr-Resp-type $
+           tr-⊢∷ ⊢u)
+          (PE.subst₃ Tₜ._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
+             tr-Is-set-type $
+           tr-⊢∷ ⊢v)
+          (tr-⊢∷ ⊢w)
 
   opaque
 
@@ -1640,3 +1880,13 @@ opaque
     erase′ b str ([]-cong′ s (tr l) (tr A) (tr t) (tr u) (tr v))  ≡⟨ erase-[]-cong′ ⟩
     loop? str                                                     ≡⟨⟩
     erase′ b str ([]-cong s l A t u v)                            ∎
+  erase-tr (Quot _ _) =
+    PE.refl
+  erase-tr (class t) =
+    erase-tr t
+  erase-tr (resp _ _ _ _ _) =
+    PE.refl
+  erase-tr (set _ _ _ _ _ _) =
+    PE.refl
+  erase-tr (qrec _ t _ _ w) =
+    PE.cong₂ (λ t w → T.lam t T.∘⟨ _ ⟩ w) (erase-tr t) (erase-tr w)

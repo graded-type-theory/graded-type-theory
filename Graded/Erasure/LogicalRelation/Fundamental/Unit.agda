@@ -5,14 +5,18 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
+import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
+open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Unit
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
   {R : Type-restrictions 𝕄}
-  (variant : Mode-variant 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (as : Assumptions R)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
@@ -25,7 +29,7 @@ open import Graded.Modality.Properties.Has-well-behaved-zero 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   is-reduction-relation
-open import Graded.Erasure.LogicalRelation.Hidden variant as
+open import Graded.Erasure.LogicalRelation.Hidden UR as
 
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
@@ -53,7 +57,6 @@ open import Definition.Typed.Well-formed R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Mode.Instances.Zero-one variant
 
 open import Tools.Empty
 open import Tools.Function
@@ -109,7 +112,10 @@ opaque
     ts » Γ ⊢ u ∷ A [ starʷ ]₀ →
     γ ▸ Γ ⊩ʳ t ∷[ m ᵐ· p ∣ n ] Unitʷ →
     δ ▸ Γ ⊩ʳ u ∷[ m ∣ n ] A [ starʷ ]₀ →
-    (p PE.≡ 𝟘 → Empty-con Δ × Transparent ts ⊎ Unitʷ-η) →
+    (p PE.≡ 𝟘 →
+     Empty-con Δ × Transparent ts ×
+       ¬ Higher-quotient-constructors-neutral ⊎
+     Unitʷ-η) →
     p ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ unitrec p q A t u ∷[ m ∣ n ] A [ t ]₀
   unitrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
@@ -218,7 +224,7 @@ opaque
                    t [ σ ]  ⇒*⟨ t[σ]⇒t′ ⟩⊢∎
                    t′       ∎) }
               (yes p≡𝟘) → case p≡𝟘→ p≡𝟘 of λ where
-                (inj₂ η)        → no-η η
-                (inj₁ (ε , tr)) →
-                  glass-closed-no-ne $
+                (inj₂ η)                 → no-η η
+                (inj₁ (ε , tr , not-ok)) →
+                  not-ok $ glass-closed-no-ne $
                   PE.subst (flip (Neutral _) _) tr t′-ne

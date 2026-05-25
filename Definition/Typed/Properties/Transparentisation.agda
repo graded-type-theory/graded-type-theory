@@ -111,6 +111,8 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
     unfold-⊢ (ΠΣⱼ ⊢A ok) = ΠΣⱼ (unfold-⊢ ⊢A) ok
     unfold-⊢ (Idⱼ ⊢A ⊢t ⊢u) =
       Idⱼ (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u)
+    unfold-⊢ (Quot ok ⊢B) =
+      Quot ok (unfold-⊢ ⊢B)
     unfold-⊢ (univ ⊢A) = univ (unfold-⊢∷ ⊢A)
 
     -- Terms that are well-formed under ∇ are well-formed under
@@ -186,6 +188,18 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
         ok
     unfold-⊢∷ ([]-congⱼ ⊢l _ _ _ ⊢tₚ ok) =
       []-congⱼ′ ok (unfold-⊢∷L ⊢l) (unfold-⊢∷ ⊢tₚ)
+    unfold-⊢∷ (Quot ok ⊢l ⊢A ⊢B) =
+      Quot ok (unfold-⊢∷L ⊢l) (unfold-⊢∷ ⊢A) (unfold-⊢∷ ⊢B)
+    unfold-⊢∷ (class ⊢Q ⊢t) =
+      class (unfold-⊢ ⊢Q) (unfold-⊢∷ ⊢t)
+    unfold-⊢∷ (resp ⊢Q ⊢t ⊢u ⊢v) =
+      resp (unfold-⊢ ⊢Q) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u) (unfold-⊢∷ ⊢v)
+    unfold-⊢∷ (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+      set (unfold-⊢ ⊢Q) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u) (unfold-⊢∷ ⊢v)
+        (unfold-⊢∷ ⊢w)
+    unfold-⊢∷ (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+      qrec (unfold-⊢ ⊢C) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u) (unfold-⊢∷ ⊢v)
+        (unfold-⊢∷ ⊢w)
 
     -- Levels that are well-formed under ∇ are well-formed under
     -- Trans φ ∇.
@@ -214,6 +228,8 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
       Id-cong (unfold-⊢≡ A≡A′)
               (unfold-⊢≡∷ t₁≡t₂)
               (unfold-⊢≡∷ u₁≡u₂)
+    unfold-⊢≡ (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+      Quot-cong ok (unfold-⊢≡ A₁≡A₂) (unfold-⊢≡ B₁≡B₂)
 
     -- Term equalities that hold under ∇ hold under Trans φ ∇.
 
@@ -358,6 +374,22 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
       []-cong-β-≡ (unfold-⊢∷L ⊢l) (refl (unfold-⊢∷ ⊢t)) ok
     unfold-⊢≡∷ (equality-reflection ok ⊢Id ⊢t) =
       equality-reflection ok (unfold-⊢ ⊢Id) (unfold-⊢∷ ⊢t)
+    unfold-⊢≡∷ (Quot-cong ok ⊢l A₁≡A₂ B₁≡B₂) =
+      Quot-cong ok (unfold-⊢∷L ⊢l) (unfold-⊢≡∷ A₁≡A₂) (unfold-⊢≡∷ B₁≡B₂)
+    unfold-⊢≡∷ (class-cong ⊢Q t₁≡t₂) =
+      class-cong (unfold-⊢ ⊢Q) (unfold-⊢≡∷ t₁≡t₂)
+    unfold-⊢≡∷ (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
+      resp-cong ok (unfold-⊢≡ A₁≡A₂) (unfold-⊢≡ B₁≡B₂)
+        (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂) (unfold-⊢≡∷ v₁≡v₂)
+    unfold-⊢≡∷ (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+      set-cong (unfold-⊢≡ A₁≡A₂) (unfold-⊢≡ B₁≡B₂) (unfold-⊢≡∷ t₁≡t₂)
+        (unfold-⊢≡∷ u₁≡u₂) (unfold-⊢≡∷ v₁≡v₂) (unfold-⊢≡∷ w₁≡w₂)
+    unfold-⊢≡∷ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+      qrec-cong (unfold-⊢≡ C₁≡C₂) (unfold-⊢≡∷ t₁≡t₂) (unfold-⊢≡∷ u₁≡u₂)
+        (unfold-⊢≡∷ v₁≡v₂) (unfold-⊢≡∷ w₁≡w₂)
+    unfold-⊢≡∷ (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) =
+      qrec-β (unfold-⊢ ⊢C) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u) (unfold-⊢∷ ⊢v)
+        (unfold-⊢∷ ⊢w)
 
     -- Level equalities that hold under ∇ hold under Trans φ ∇.
 
@@ -459,6 +491,18 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
       K-β (unfold-⊢ ⊢A) (unfold-⊢∷ ⊢t) ok
     unfold-⇒∷ ([]-cong-β ⊢l t≡t′ ok) =
       []-cong-β (unfold-⊢∷L ⊢l) (unfold-⊢≡∷ t≡t′) ok
+    unfold-⇒∷ (resp-η ok ⊢Q ⊢t ⊢u ⊢v) =
+      resp-η ok (unfold-⊢ ⊢Q) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u)
+        (unfold-⊢∷ ⊢v)
+    unfold-⇒∷ (set-η ok ⊢t ⊢u ⊢v ⊢w) =
+      set-η ok (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u) (unfold-⊢∷ ⊢v)
+        (unfold-⊢∷ ⊢w)
+    unfold-⇒∷ (qrec-subst ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) =
+      qrec-subst (unfold-⊢ ⊢C) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u)
+        (unfold-⊢∷ ⊢v) (unfold-⇒∷ w₁⇒w₂)
+    unfold-⇒∷ (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) =
+      qrec-β (unfold-⊢ ⊢C) (unfold-⊢∷ ⊢t) (unfold-⊢∷ ⊢u) (unfold-⊢∷ ⊢v)
+        (unfold-⊢∷ ⊢w)
 
   opaque
 

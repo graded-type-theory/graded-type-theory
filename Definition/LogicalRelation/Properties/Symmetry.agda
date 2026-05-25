@@ -29,12 +29,14 @@ open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Conversion R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 private
   variable
@@ -173,6 +175,23 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
       } }
     where
     open _⊩ₗId_≡_/_ A≡B
+  symEqT (Quot ⊩A ⊩B@record{}) A≡B
+    with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+           (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+  … | PE.refl = record
+    { ⇒*Quot′   = ⊩A.⇒*Quot
+    ; Quot≅Quot = ≅-sym Quot≅Quot
+    ; Data≡Data = λ ⊢ρ → symEq (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data ⊢ρ)
+    ; Rel≡Rel   = λ ⊢ρ ⊩t ⊩u →
+        symEq (⊩A.⊩Rel _ _ _) (⊩B.⊩Rel _ _ _)
+          (Rel≡Rel ⊢ρ
+             (convTerm₂ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _) ⊩t)
+             (convTerm₂ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _) ⊩u))
+    }
+    where
+    module ⊩A = _⊩ₗQuot_ ⊩A
+    module ⊩B = _⊩ₗQuot_ ⊩B
+    open _⊩ₗQuot_≡_/_ A≡B
 
   symEqTerm (Levelᵣ D) t≡u = symLevel t≡u
   symEqTerm (Liftᵣ′ D [k] [F]) (Liftₜ₌ _ _ t↘ u↘ t≡u) =
@@ -227,6 +246,20 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
     Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] $
       ⊩<≡⇔⊩≡ k< .proj₂ $ Rec.symEq k<
         (⊩<⇔⊩ k< .proj₁ [t]) (⊩<⇔⊩ k< .proj₁ [u]) (⊩<≡⇔⊩≡ k< .proj₁ [t≡u])
+  symEqTerm (Quot ⊩A) t≡u@(_ , _ , ⇒*t′ , ⇒*u′ , t′-q , u′-q , _) =
+    _ , _ , ⇒*u′ , ⇒*t′ , u′-q , t′-q ,
+    Quot-view-inhabited⁻¹′ ⊩A ⇒*u′ ⇒*t′ u′-q t′-q
+      (case Quot-view-inhabited ⊩A t≡u of λ where
+         (equal t″≡u″) →
+           equal $
+           irrelevanceEqTerm (⊩Data _) (⊩Data _)
+             (symEqTerm (⊩Data _) t″≡u″)
+         (related ok rel) →
+           related ok (irrelevance-⊩Quot-related ⊩A ⊩A (symˢᵗ rel))
+         (ne t′-n u′-n t′~u′) →
+           ne u′-n t′-n (~-sym t′~u′))
+    where
+    open _⊩ₗQuot_ ⊩A
 
 private opaque
   symKit : ∀ l → SymKit l

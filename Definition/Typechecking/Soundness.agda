@@ -59,6 +59,8 @@ mutual
     ΠΣⱼ (soundness⇇Type (∙ soundness⇇Type ⊢Γ ⊢A) ⊢B) ok
   soundness⇇Type _ (Idᶜ _ ⊢t ⊢u) =
     Idⱼ′ (soundness⇇ ⊢t) (soundness⇇ ⊢u)
+  soundness⇇Type ⊢Γ (Quot ok ⊢A ⊢B) =
+    Quot ok (soundness⇇Type (⊢Quot-rel-Con (soundness⇇Type ⊢Γ ⊢A)) ⊢B)
   soundness⇇Type ⊢Γ (univᶜ ⊢A ↘U) =
     let ⊢B , A∷B = soundness⇉ ⊢Γ ⊢A in
     univ (conv A∷B (subset* (↘U .proj₁)))
@@ -187,6 +189,37 @@ mutual
     Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢l (soundness⇇ ⊢t))
       ([]ⱼ ([]-cong→Erased ok) ⊢l (soundness⇇ ⊢u)) ,
     []-congⱼ′ ok ⊢l (soundness⇇ ⊢v)
+  soundness⇉ ⊢Γ (Quot ok B (⇒*U , _) C) =
+    let ≡U     = subset* ⇒*U
+        _ , ⊢U = wf-⊢ ≡U
+        _ , ⊢B = soundness⇉ ⊢Γ B
+    in
+    ⊢U , ⊢Quot ok (conv ⊢B ≡U) (soundness⇇ C)
+  soundness⇉ ⊢Γ (resp ok B C t u v) =
+    let ⊢B = soundness⇇Type ⊢Γ B
+        ⊢C = soundness⇇Type (⊢Quot-rel-Con ⊢B) C
+        ⊢Q = Quot ok ⊢C
+        ⊢t = soundness⇇ t
+        ⊢u = soundness⇇ u
+    in
+    Idⱼ′ (class ⊢Q ⊢t) (class ⊢Q ⊢u) ,
+    resp ⊢Q ⊢t ⊢u (soundness⇇ v)
+  soundness⇉ ⊢Γ (set ok B C t u v w) =
+    let ⊢B = soundness⇇Type ⊢Γ B
+        ⊢C = soundness⇇Type (⊢Quot-rel-Con ⊢B) C
+        ⊢v = soundness⇇ v
+        ⊢w = soundness⇇ w
+    in
+    Idⱼ′ ⊢v ⊢w ,
+    set (Quot ok ⊢C) (soundness⇇ t) (soundness⇇ u) ⊢v ⊢w
+  soundness⇉ ⊢Γ (qrec w (⇒*Q , _) D t u v) =
+    let ≡Q     = subset* ⇒*Q
+        _ , ⊢w = soundness⇉ ⊢Γ w
+        ⊢w     = conv ⊢w ≡Q
+        ⊢D     = soundness⇇Type (∙ wf-⊢ ⊢w) D
+    in
+    subst-⊢₀ ⊢D ⊢w ,
+    qrec ⊢D (soundness⇇ t) (soundness⇇ u) (soundness⇇ v) ⊢w
 
   soundness⇇ : Γ ⊢ t ⇇ A → Γ ⊢ t ∷ A
   soundness⇇ (liftᶜ A↘Lift t⇇B) =
@@ -210,6 +243,11 @@ mutual
     in  conv (prodⱼ ⊢G ⊢t ⊢u ok) (sym A≡ΣFG)
   soundness⇇ (rflᶜ (A↘Id , _) t≡u) =
     conv (rflⱼ′ t≡u) (sym (subset* A↘Id))
+  soundness⇇ (class (A⇒* , _) ⊢t) =
+    let A≡Q    = subset* A⇒*
+        _ , ⊢Q = wf-⊢ A≡Q
+    in
+    conv (class ⊢Q (soundness⇇ ⊢t)) (sym A≡Q)
   soundness⇇ (infᶜ t⇉B A≡B) =
     conv (soundness⇉ (wf A≡B) t⇉B .proj₂) A≡B
 

@@ -136,6 +136,11 @@ mutual
     erase″ (J _ _ _ _ _ u _ _)   = erase″ u
     erase″ (K _ _ _ _ u _)       = erase″ u
     erase″ ([]-cong _ _ _ _ _ _) = loop? s
+    erase″ (Quot _ _)            = loop? s
+    erase″ (class t)             = erase″ t
+    erase″ (resp _ _ _ _ _)      = loop s
+    erase″ (set _ _ _ _ _ _)     = loop s
+    erase″ (qrec _ t _ _ w)      = T.lam (erase″ t) ∘⟨ s ⟩ erase″ w
 
 mutual
 

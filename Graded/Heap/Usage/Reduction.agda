@@ -15,7 +15,7 @@ module Graded.Heap.Usage.Reduction
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Type-variant type-variant)
   (open Usage-restrictions UR)
@@ -27,6 +27,9 @@ module Graded.Heap.Usage.Reduction
   (∣ε∣ : M)
   (Unitʷ-η→ : ∀ {m p q} → Unitʷ-η → Unitrec-allowed m p q → ⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟘)
   (¬Nr-not-available : ¬ Nr-not-available)
+  -- Quotient term formers are not allowed.
+  (¬Quot-allowed           : ¬ Quot-allowed)
+  (¬Quotient-terms-allowed : ¬ Quotient-terms-allowed)
   where
 
 open import Tools.Empty
@@ -451,6 +454,26 @@ opaque
     where
     open ≤ᶜ-reasoning
 
+  ▸-⇒ᵥ ▸s (classₕ _) =
+    let _ , _ , _ , _ , _ , _ , ▸class , _ = ▸ₛ-inv ▸s
+        ok , _                             = inv-usage-class ▸class
+    in
+    ⊥-elim (¬Quotient-terms-allowed ok)
+
+  ▸-⇒ᵥ ▸s (respₕ _) =
+    let _ , _ , _ , _ , _ , _ , ▸resp , _ = ▸ₛ-inv ▸s
+        _ , _ , ok , _                    = inv-usage-resp ▸resp
+    in
+    ⊥-elim $ ¬Quotient-terms-allowed $
+    Higher-quotient-constructors→Quotient-terms ok
+
+  ▸-⇒ᵥ ▸s (setₕ _) =
+    let _ , _ , _ , _ , _ , _ , ▸set , _ = ▸ₛ-inv ▸s
+        _ , _ , ok , _                   = inv-usage-set ▸set
+    in
+    ⊥-elim $ ¬Quotient-terms-allowed $
+    Higher-quotient-constructors→Quotient-terms ok
+
 opaque
 
   -- Usage preservation under _⇒ₑ_
@@ -733,6 +756,14 @@ opaque
     where
     open ≤ᶜ-reasoning
 
+  ▸-⇒ₑ ▸s qrecₕ =
+    let _ , _ , _ , _ , _ , _ , ▸qrec , _ = ▸ₛ-inv ▸s in
+    case inv-usage-qrec ▸qrec of λ where
+      (invUsageQrec₀ ok _ _ _ _ _ _ _) →
+        ⊥-elim (¬Quotient-terms-allowed ok)
+      (invUsageQrec₁ ok _ _ _ _ _ _ _) →
+        ⊥-elim (¬Quotient-terms-allowed ok)
+
 opaque
 
   ▸-⇾ₑ : ▸ s → s ⇾ₑ s′ → ▸ s′
@@ -829,7 +860,11 @@ opaque
   ▸Final-reasons {ρ} ok ▸s f =
     let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s
     in  case Final-reasons _ f of λ where
-          (inj₂ (inj₂ x)) → inj₂ (inj₂ x)
+          (inj₂ (inj₂ (inj₁ x))) → inj₂ (inj₂ (inj₁ x))
+          (inj₂ (inj₂ (inj₂ (inj₁ x)))) → inj₂ (inj₂ (inj₂ x))
+          (inj₂ (inj₂ (inj₂ (inj₂ (ok , _))))) →
+            ⊥-elim $ ¬Quot-allowed $
+            Higher-quotient-constructors-neutral⇔ .proj₁ ok .proj₁
           (inj₂ (inj₁ (_ , _ , eq , v , prop))) →
             inj₂ (inj₁ (_ , _ , eq , v , λ m → prop (m , _ , ∣S∣≡)))
           (inj₁ (inj₁ (x , refl , ¬d))) →

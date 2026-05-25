@@ -50,7 +50,8 @@ private variable
 -- Functions that construct Type-restrictions
 
 -- No type restrictions except that
--- * if the modality is trivial, then []-cong is not allowed,
+-- * if the modality is trivial, then []-cong and quotient types are
+--   not allowed,
 -- * the K rule is allowed if and only if the first boolean is true,
 -- * η-equality is not allowed for weak unit types,
 -- * opacity is allowed if and only if the second boolean is false,
@@ -61,6 +62,12 @@ private variable
 
 no-type-restrictions : Bool → Bool → Type-restrictions
 no-type-restrictions k equality-reflection = λ where
+    .type-variant → λ where
+      .unfolding-mode       → transitive
+      .η-for-Unitʷ          → false
+      .Quot-allowed         → ¬ Trivial
+      .Equality-reflection  → Lift _ (T equality-reflection)
+      .Equality-reflection? → Lift? (T? equality-reflection)
     .level-support                 → level-type small
     .Omega-plus-allowed            → Lift _ ⊤
     .Unit-allowed                  → λ _ → Lift _ ⊤
@@ -71,14 +78,10 @@ no-type-restrictions k equality-reflection = λ where
     .[]-cong-allowed               → λ _ → ¬ Trivial
     .[]-cong→Erased                → _
     .[]-cong→¬Trivial              → idᶠ
-    .Equality-reflection           → Lift _ (T equality-reflection)
-    .Equality-reflection?          → Lift? (T? equality-reflection)
     .no-opaque-equality-reflection → (_∘→ Lift.lower) ∘→ Lift.lower
-    .type-variant                  → λ where
-      .Type-variant.unfolding-mode → transitive
-      .Type-variant.η-for-Unitʷ    → false
   where
   open Type-restrictions
+  open Type-variant
 
 -- The function adds the restriction that the two quantities on a Π-
 -- or Σ-type have to be equal.
@@ -231,11 +234,23 @@ no-[]-cong-TR TR = record TR
 
 with-equality-reflection : Type-restrictions → Type-restrictions
 with-equality-reflection TR = record TR
-  { Opacity-allowed               = Lift _ ⊥
+  { type-variant = record (TR .Type-restrictions.type-variant)
+    { Equality-reflection  = Lift _ ⊤
+    ; Equality-reflection? = yes _
+    }
+  ; Opacity-allowed               = Lift _ ⊥
   ; Opacity-allowed?              = no (λ ())
-  ; Equality-reflection           = Lift _ ⊤
-  ; Equality-reflection?          = yes _
   ; no-opaque-equality-reflection = λ ()
+  }
+
+-- The function no-quotients adds the restriction that quotient types
+-- are not allowed.
+
+no-quotients : Type-restrictions → Type-restrictions
+no-quotients R = record R
+  { type-variant = record (R .Type-restrictions.type-variant)
+    { Quot-allowed = Lift _ ⊥
+    }
   }
 
 ------------------------------------------------------------------------
@@ -243,35 +258,58 @@ with-equality-reflection TR = record TR
 
 -- No restrictions for prodrec, unitrec or emptyrec, all erased
 -- matches are allowed for J and K, the natrec mode can be anything,
--- Id-erased is inhabited if the first boolean is true, and starˢ
--- is treated as a sink if the second boolean is true.
+-- the higher quotient constructors are allowed exactly if the mode
+-- structure is non-trivial, Id-erased is inhabited if the first
+-- boolean is true, starˢ is treated as a sink if the second boolean
+-- is true, and Qrec-motive-erased is inhabited if the third boolean
+-- is true.
 
 no-usage-restrictions :
   (nm : Natrec-mode) →
   (⦃ has-nr : Natrec-mode-has-nr nm ⦄ →
      Mode-supports-nr ⦃ Natrec-mode-Has-nr has-nr ⦄ 𝐌) →
-  Bool → Bool → Usage-restrictions
-no-usage-restrictions nm nr-ok erased sink = λ where
-    .natrec-mode                             → nm
-    .Prodrec-allowed                         → λ _ _ _ _ → Lift _ ⊤
-    .Prodrec-allowed-upwards-closed          → λ _ _ → _
-    .Unitrec-allowed                         → λ _ _ _ → Lift _ ⊤
-    .Unitrec-allowed-upwards-closed          → λ _ _ → _
-    .Emptyrec-allowed                        → λ _ _ → Lift _ ⊤
-    .Emptyrec-allowed-upwards-closed         → λ _ _ → _
-    .[]-cong-allowed-mode                    → λ _ _ → Lift _ ⊤
-    .[]-cong-allowed-mode-upwards-closed     → λ _ _ → _
-    .starˢ-sink                              → sink
-    .Id-erased                               → Lift _ (T erased)
-    .Id-erased?                              → Dec.map lift Lift.lower $
-                                                T? erased
-    .erased-matches-for-J                    → λ _ → all
-    .erased-matches-for-J-≤ᵉᵐ                → _
-    .erased-matches-for-K                    → λ _ → all
-    .erased-matches-for-K-≤ᵉᵐ                → _
-    .mode-supports-nr                        → nr-ok
+  Bool → Bool → Bool → Usage-restrictions
+no-usage-restrictions nm nr-ok erased sink qrec = λ where
+    .natrec-mode                           → nm
+    .Prodrec-allowed                       → λ _ _ _ _ → Lift _ ⊤
+    .Prodrec-allowed-upwards-closed        → λ _ _ → _
+    .Unitrec-allowed                       → λ _ _ _ → Lift _ ⊤
+    .Unitrec-allowed-upwards-closed        → λ _ _ → _
+    .Emptyrec-allowed                      → λ _ _ → Lift _ ⊤
+    .Emptyrec-allowed-upwards-closed       → λ _ _ → _
+    .[]-cong-allowed-mode                  → λ _ _ → Lift _ ⊤
+    .[]-cong-allowed-mode-upwards-closed   → λ _ _ → _
+    .starˢ-sink                            → sink
+    .Id-erased                             → Lift _ (T erased)
+    .Id-erased?                            → Dec.map lift Lift.lower $
+                                              T? erased
+    .erased-matches-for-J                  → λ _ → all
+    .erased-matches-for-J-≤ᵉᵐ              → _
+    .erased-matches-for-K                  → λ _ → all
+    .erased-matches-for-K-≤ᵉᵐ              → _
+    .mode-supports-nr                      → nr-ok
+    .Quotient-terms-allowed                → Lift _ ⊤
+    .Higher-quotient-constructors-allowed  →
+      HQC-allowed
+    .Higher-quotient-constructors-allowed→¬Trivialᵐ →
+      HQC-allowed→¬Trivialᵐ
+    .Higher-quotient-constructors→Quotient-terms →
+      _
+    .Qrec-motive-erased →
+      Lift _ (T qrec)
+    .Qrec-motive-erased? →
+      Dec.map lift Lift.lower (T? qrec)
   where
   open Usage-restrictions
+
+  ¬Trivialᵐ′ : ∃ λ (T : Set) → (¬ Trivialᵐ) ⇔ T × Dec T
+  ¬Trivialᵐ′ = Resize-Dec (¬? trivialᵐ?)
+
+  HQC-allowed : Set a
+  HQC-allowed = Lift _ (¬Trivialᵐ′ .proj₁)
+
+  HQC-allowed→¬Trivialᵐ : HQC-allowed → ¬ Trivialᵐ
+  HQC-allowed→¬Trivialᵐ = ¬Trivialᵐ′ .proj₂ .proj₁ .proj₂ ∘→ Lift.lower
 
 -- The function updates the usage restrictions to use the usage rule
 -- natrecₘ for natrec using a given nr function.
@@ -313,6 +351,27 @@ nr-not-available-glb-UR ok UR =
   where
   open Usage-restrictions UR
 
+-- The function no-higher-quotient-constructors adds the restriction
+-- that higher quotient constructors are not allowed.
+
+no-higher-quotient-constructors :
+  Usage-restrictions → Usage-restrictions
+no-higher-quotient-constructors R = record R
+  { Higher-quotient-constructors-allowed           = Lift _ ⊥
+  ; Higher-quotient-constructors-allowed→¬Trivialᵐ = λ ()
+  ; Higher-quotient-constructors→Quotient-terms    = λ ()
+  }
+
+-- The function no-quotient-terms adds the restriction that quotient
+-- term formers are not allowed.
+
+no-quotient-terms :
+  Usage-restrictions → Usage-restrictions
+no-quotient-terms R = record (no-higher-quotient-constructors R)
+  { Quotient-terms-allowed                      = Lift _ ⊥
+  ; Higher-quotient-constructors→Quotient-terms = idᶠ
+  }
+
 ------------------------------------------------------------------------
 -- No-erased-matches
 
@@ -341,7 +400,7 @@ No-erased-matches TR UR =
 -- An alternative to No-erased-matches that refers to
 -- Type-variant instead of Type-restrictions
 
-No-erased-matches′ : Type-variant → Usage-restrictions → Set (a ⊔ a′)
+No-erased-matches′ : Type-variant a → Usage-restrictions → Set (a ⊔ a′)
 No-erased-matches′ TV UR =
   ¬ Trivial →
   (∀ {m r p q} → Prodrec-allowed m r p q → r ≡ 𝟘 → ⌜ m ⌝ ≡ 𝟘) ×
@@ -374,6 +433,8 @@ opaque
         (false , refl) → no (λ ())
       .[]-cong-allowed? _ →
         ¬? trivial?
+      .Quot-allowed? →
+        ¬? trivial?
       .no-equality-reflection (lift ())
     where
     open TD.Assumptions
@@ -391,6 +452,7 @@ opaque
       .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q ×-dec p A.≟ q
       .K-allowed?             → A.K-allowed?
       .[]-cong-allowed?       → A.[]-cong-allowed?
+      .Quot-allowed?          → A.Quot-allowed?
       .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
@@ -409,6 +471,7 @@ opaque
       .ΠΣ-allowed? b p q      → A.ΠΣ-allowed? b p q ×-dec q A.≟ 𝟘
       .K-allowed?             → A.K-allowed?
       .[]-cong-allowed?       → A.[]-cong-allowed?
+      .Quot-allowed?          → A.Quot-allowed?
       .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
@@ -432,6 +495,7 @@ opaque
                                 (¬? (p A.≟ ω) →-dec q A.≟ 𝟘)
       .K-allowed?             → A.K-allowed?
       .[]-cong-allowed?       → A.[]-cong-allowed?
+      .Quot-allowed?          → A.Quot-allowed?
       .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
@@ -461,6 +525,7 @@ opaque
       .[]-cong-allowed? s     → A.[]-cong-allowed? s
                                   ×-dec
                                 ¬? (decStrength s 𝕤)
+      .Quot-allowed?          → A.Quot-allowed?
       .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
@@ -507,7 +572,71 @@ opaque
       .[]-cong-allowed? s′    → A.[]-cong-allowed? s′
                                   ×-dec
                                 ¬? (decStrength s′ s)
+      .Quot-allowed?          → A.Quot-allowed?
       .no-equality-reflection → A.no-equality-reflection
     where
     module A = TD.Assumptions as
     open TD.Assumptions
+
+opaque
+
+  -- The function no-quotients preserves TD.Assumptions.
+
+  Assumptions-no-quotients :
+    TD.Assumptions TR → TD.Assumptions (no-quotients TR)
+  Assumptions-no-quotients as = λ where
+      ._≟_                    → A._≟_
+      .Omega-plus-allowed?    → A.Omega-plus-allowed?
+      .Unit-allowed?          → A.Unit-allowed?
+      .ΠΣ-allowed?            → A.ΠΣ-allowed?
+      .K-allowed?             → A.K-allowed?
+      .[]-cong-allowed? s′    → A.[]-cong-allowed? s′
+      .Quot-allowed?          → no (λ ())
+      .no-equality-reflection → A.no-equality-reflection
+    where
+    module A = TD.Assumptions as
+    open TD.Assumptions
+
+------------------------------------------------------------------------
+-- Some lemmas related to UD.Assumptions
+
+opaque
+
+  -- The function no-higher-quotient-constructors preserves
+  -- UD.Assumptions.
+
+  Assumptions-no-higher-quotient-constructors :
+    UD.Assumptions UR →
+    UD.Assumptions (no-higher-quotient-constructors UR)
+  Assumptions-no-higher-quotient-constructors {UR} as = λ where
+      ._≟_                                   → A._≟_
+      .Prodrec-allowed?                      → A.Prodrec-allowed?
+      .Unitrec-allowed?                      → A.Unitrec-allowed?
+      .Emptyrec-allowed?                     → A.Emptyrec-allowed?
+      .[]-cong-allowed-mode?                 → A.[]-cong-allowed-mode?
+      .no-sink-or-≤𝟘                         → A.no-sink-or-≤𝟘
+      .Quotient-terms-allowed?               → A.Quotient-terms-allowed?
+      .Higher-quotient-constructors-allowed? → no (λ ())
+    where
+    module A = UD.Assumptions as
+    open UD.Assumptions
+
+opaque
+
+  -- The function no-quotient-terms preserves UD.Assumptions.
+
+  Assumptions-no-quotient-terms :
+    UD.Assumptions UR →
+    UD.Assumptions (no-quotient-terms UR)
+  Assumptions-no-quotient-terms {UR} as = λ where
+      ._≟_                                   → A._≟_
+      .Prodrec-allowed?                      → A.Prodrec-allowed?
+      .Unitrec-allowed?                      → A.Unitrec-allowed?
+      .Emptyrec-allowed?                     → A.Emptyrec-allowed?
+      .[]-cong-allowed-mode?                 → A.[]-cong-allowed-mode?
+      .no-sink-or-≤𝟘                         → A.no-sink-or-≤𝟘
+      .Quotient-terms-allowed?               → no (λ ())
+      .Higher-quotient-constructors-allowed? → no (λ ())
+    where
+    module A = UD.Assumptions as
+    open UD.Assumptions

@@ -1,4 +1,4 @@
-# An Agda Formalization of a Graded Modal Type Theory with Erasure, First-Class Universe Levels and Opaque Definitions
+# An Agda Formalization of a Graded Modal Type Theory with Erasure, First-Class Universe Levels, Quotient Types and Opaque Definitions
 
 ## Project history
 
@@ -56,6 +56,8 @@ Later other additions were made. Some highlights:
   SIGPLAN International Workshop on Type-Driven Development (TyDe
   '25)_, 2025
   ([doi:10.1145/3759538.3759653](https://doi.org/10.1145/3759538.3759653)).
+
+- Quotient types were added by Nils Anders Danielsson (@nad, 2026).
 
 ## Dependencies ##
 

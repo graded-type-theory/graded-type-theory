@@ -59,7 +59,7 @@ private
     ∇ : DCon (Term 0) n
     ξ : DExt _ _ _
     Γ : Con Term n
-    A B F t u v w : Term[ _ ] n
+    A B C F t u v w : Term[ _ ] n
     G : Term[ _ ] (1+ n)
     k : Term-kind
     γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
@@ -343,6 +343,35 @@ opaque mutual
           ▸A ▸t ▸B (▸-· ▸u) ▸v
       ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) →
         sub-≈ᶜ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ([]-cong-allowed-mode-·ᵐ ok)) (·ᶜ-zeroʳ _)
+      (Quot ok ▸A ▸B) →
+        Quot ok (▸-· ▸A) ▸B
+      (class ok ▸t) →
+        class ok (▸-· ▸t)
+      (resp ok ▸A ▸B ▸t ▸u ▸v refl) →
+        sub-≈ᶜ (▸-cong (sym (·ᵐ-zeroʳ _)) (resp ok ▸A ▸B ▸t ▸u ▸v refl))
+          (·ᶜ-zeroʳ _)
+      (set ok ▸A ▸B ▸t ▸u ▸v ▸w refl) →
+        sub-≈ᶜ
+          (▸-cong (sym (·ᵐ-zeroʳ _)) (set ok ▸A ▸B ▸t ▸u ▸v ▸w refl))
+          (·ᶜ-zeroʳ _)
+      (qrec₀ {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) →
+        sub
+          (qrec₀ ok₁ ok₂ (▸-𝟘 ▸C)
+             (sub-≈ᶜ (▸-· ▸t) (≈ᶜ-refl ∙ ·ᵐ-·-assoc _)) ▸u ▸v (▸-· ▸w))
+          (begin
+             ⌜ m′ ⌝ ·ᶜ (γ₂ +ᶜ ω ·ᶜ γ₅)          ≈⟨ ≈ᶜ-trans (·ᶜ-distribˡ-+ᶜ _ _ _) $
+                                                   +ᶜ-congˡ (⌜⌝·ᶜ-comm _ _ _) ⟩
+             ⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ω ·ᶜ ⌜ m′ ⌝ ·ᶜ γ₅  ∎)
+      (qrec₁ {γ₁} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) →
+        sub
+          (qrec₁ ok₁ ok₂ (sub-≈ᶜ (▸-· ▸C) (≈ᶜ-refl ∙ ·ᵐ-·-assoc _))
+             (sub-≈ᶜ (▸-· ▸t) (≈ᶜ-refl ∙ ·ᵐ-·-assoc _)) ▸u ▸v (▸-· ▸w))
+          (begin
+             ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅)                      ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+             ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅)                      ≈⟨ ·ᶜ-congˡ $
+                                                                     ≈ᶜ-trans (·ᶜ-distribˡ-+ᶜ _ _ _) $
+                                                                     +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+             ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₁ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₅)  ∎)
     where
     ▸-ᵐ· : γ ▸[ m ᵐ· p ] t → ⌜ m′ ⌝ ·ᶜ γ ▸[ (m′ ·ᵐ m) ᵐ· p ] t
     ▸-ᵐ· ▸t = ▸-cong (sym (·ᵐ-ᵐ·-assoc m′)) (▸-· ▸t)
@@ -609,6 +638,28 @@ opaque mutual
         ▸ᵐ ▸u
       ([]-congₘ _ _ _ _ _ _) →
         𝟘ᶜ≤ᶜm𝟘ᶜ
+      (Quot _ ▸A _) →
+        ▸ᵐ ▸A
+      (class _ ▸t) →
+        ▸ᵐ ▸t
+      (resp _ _ _ _ _ _ _) →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      (set _ _ _ _ _ _ _ _) →
+        𝟘ᶜ≤ᶜm𝟘ᶜ
+      (qrec₀ {γ₂} {γ₅} _ _ _ ▸t _ _ ▸w) → begin
+        γ₂ +ᶜ ω ·ᶜ γ₅                    ≤⟨ +ᶜ-monotone (tailₘ-monotone (▸ᵐ ▸t)) (·ᶜ-monotoneʳ (▸ᵐ ▸w)) ⟩
+        ⌜ m ⌝ ·ᶜ γ₂ +ᶜ ω ·ᶜ ⌜ m ⌝ ·ᶜ γ₅  ≈˘⟨ +ᶜ-congˡ (⌜⌝·ᶜ-comm _ _ _) ⟩
+        ⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ ω ·ᶜ γ₅  ≈˘⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ (γ₂ +ᶜ ω ·ᶜ γ₅)         ∎
+      (qrec₁ {γ₁} {γ₂} {γ₅} _ _ ▸C ▸t _ _ ▸w) → begin
+        ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅)                             ≤⟨ ·ᶜ-monotoneʳ $
+                                                             +ᶜ-monotone (tailₘ-monotone (▸ᵐ ▸C)) $
+                                                             +ᶜ-monotone (tailₘ-monotone (▸ᵐ ▸t)) (▸ᵐ ▸w) ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₁ +ᶜ ⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ γ₅)  ≈˘⟨ ·ᶜ-congˡ $
+                                                              ≈ᶜ-trans (·ᶜ-distribˡ-+ᶜ _ _ _) $
+                                                              +ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+        ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅)                    ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+        ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅)                    ∎
     where
     open ≤ᶜ-reasoning
     open Graded.Usage.Restrictions.Instance R
@@ -1416,6 +1467,81 @@ opaque
     where
     open CR
 
+  Conₘ-interchange (Quot ok ▸A ▸B) ▸Q x =
+    let _ , ▸A′ , _ = inv-usage-Quot ▸Q in
+    Quot ok (Conₘ-interchange ▸A ▸A′ x) ▸B
+
+  Conₘ-interchange {δ} (class ok ▸t) ▸c x =
+    let _ , ▸t′ = inv-usage-class ▸c in
+    class ok (Conₘ-interchange ▸t ▸t′ x)
+
+  Conₘ-interchange {δ} (resp ok ▸A ▸B ▸t ▸u ▸v eq) ▸r x =
+    sub (resp ok ▸A ▸B ▸t ▸u ▸v eq)
+      (begin
+         𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ (lookup-monotone _ (inv-usage-resp ▸r .proj₁)) ⟩
+         𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+         𝟘ᶜ                 ∎)
+    where
+    open ≤ᶜ-reasoning
+
+  Conₘ-interchange {δ} (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq) ▸s x =
+    sub (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq)
+      (begin
+         𝟘ᶜ , x ≔ δ ⟨ x ⟩   ≤⟨ update-monotoneʳ _ (lookup-monotone _ (inv-usage-set ▸s .proj₁)) ⟩
+         𝟘ᶜ , x ≔ 𝟘ᶜ ⟨ x ⟩  ≡⟨ update-self _ _ ⟩
+         𝟘ᶜ                 ∎)
+    where
+    open ≤ᶜ-reasoning
+
+  Conₘ-interchange {δ} (qrec₀ {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) ▸q x
+    with inv-usage-qrec ▸q
+  … | invUsageQrec₀ {δ₂} {δ₅} _ _ ▸C′ ▸t′ _ _ ▸w′ δ≤ =
+    sub
+      (qrec₀ ok₁ ok₂ (Conₘ-interchange ▸C ▸C′ (x +1))
+         (Conₘ-interchange ▸t ▸t′ (x +1)) ▸u ▸v
+         (Conₘ-interchange ▸w ▸w′ x))
+      (begin
+         (γ₂ +ᶜ ω ·ᶜ γ₅) , x ≔ δ ⟨ x ⟩                    ≤⟨ update-monotoneʳ _ (lookup-monotone _ δ≤) ⟩
+         (γ₂ +ᶜ ω ·ᶜ γ₅) , x ≔ (δ₂ +ᶜ ω ·ᶜ δ₅) ⟨ x ⟩      ≡⟨ cong (_,_≔_ _ _) $
+                                                             trans (lookup-distrib-+ᶜ δ₂ _ _) $
+                                                             +-congˡ (lookup-distrib-·ᶜ δ₅ _ _) ⟩
+         (γ₂ +ᶜ ω ·ᶜ γ₅) , x ≔ (δ₂ ⟨ x ⟩ + ω · δ₅ ⟨ x ⟩)  ≡⟨ trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                             cong (_+ᶜ_ _) (update-distrib-·ᶜ _ _ _ _) ⟩
+         (γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ ω ·ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩)  ∎)
+    where
+    open ≤ᶜ-reasoning
+  … | invUsageQrec₁ _ not-ok _ _ _ _ _ _ =
+    ⊥-elim (not-ok ok₂)
+
+  Conₘ-interchange
+    {δ} (qrec₁ {γ₁} {γ₂} {γ₅} ok not-ok ▸C ▸t ▸u ▸v ▸w) ▸q x
+    with inv-usage-qrec ▸q
+  … | invUsageQrec₀ _ ok _ _ _ _ _ _ =
+    ⊥-elim (not-ok ok)
+  … | invUsageQrec₁ {δ₁} {δ₂} {δ₅} _ _ ▸C′ ▸t′ _ _ ▸w′ δ≤ =
+    sub
+      (qrec₁ ok not-ok (Conₘ-interchange ▸C ▸C′ (x +1))
+         (Conₘ-interchange ▸t ▸t′ (x +1)) ▸u ▸v
+         (Conₘ-interchange ▸w ▸w′ x))
+      (begin
+         ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅) , x ≔ δ ⟨ x ⟩                        ≤⟨ update-monotoneʳ _ (lookup-monotone _ δ≤) ⟩
+
+         ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅) , x ≔ (ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)) ⟨ x ⟩  ≡⟨ cong (_,_≔_ _ _) $
+                                                                       trans (lookup-distrib-·ᶜ (δ₁ +ᶜ _) _ _) $
+                                                                       ·-congˡ $
+                                                                       trans (lookup-distrib-+ᶜ δ₁ _ _) $
+                                                                       +-congˡ (lookup-distrib-+ᶜ δ₂ _ _) ⟩
+         ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅) ,
+         x ≔ ω · (δ₁ ⟨ x ⟩ + δ₂ ⟨ x ⟩ + δ₅ ⟨ x ⟩)                   ≡⟨ (trans (update-distrib-·ᶜ _ _ _ _) $
+                                                                       cong (_·ᶜ_ _) $
+                                                                       trans (update-distrib-+ᶜ _ _ _ _ _) $
+                                                                       cong (_+ᶜ_ _) (update-distrib-+ᶜ _ _ _ _ _)) ⟩
+         ω ·ᶜ
+           ((γ₁ , x ≔ δ₁ ⟨ x ⟩) +ᶜ (γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ
+            (γ₅ , x ≔ δ₅ ⟨ x ⟩))                                    ∎)
+    where
+    open ≤ᶜ-reasoning
+
 -- Some variants of Conₘ-interchange
 
 Conₘ-interchange₁ :
@@ -1829,6 +1955,16 @@ opaque
       (K _ A _ _ _ _) → ·-⌈⌉-K {A = A}
       ([]-cong _ _ _ _ _ _) →
         ·ᶜ-zeroʳ _
+      (Quot A _) →
+        ·-⌈⌉ A
+      (class t) →
+        ·-⌈⌉ t
+      (resp _ _ _ _ _) →
+        ·ᶜ-zeroʳ _
+      (set _ _ _ _ _ _) →
+        ·ᶜ-zeroʳ _
+      (qrec _ _ u v _) →
+        ·-⌈⌉-qrec u v
     where
     open ≈ᶜ-reasoning
     open Graded.Usage.Restrictions.Instance R
@@ -1921,6 +2057,28 @@ opaque
       ω ·ᶜ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m +ᶜ tailₘ (⌜ m ⌝ ·ᶜ ⌈ B ⌉ m) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m +ᶜ ⌜ m ⌝ ·ᶜ ⌈ v ⌉ m)
         ≈⟨ ·ᶜ-congˡ (+ᶜ-cong (·-⌈⌉ t) (+ᶜ-cong (tailₘ-cong (·-⌈⌉ B)) (+ᶜ-cong (·-⌈⌉ u) (·-⌈⌉ v)))) ⟩
       ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m) ∎
+
+    ·-⌈⌉-qrec :
+      ∀ u v → ⌜ m ⌝ ·ᶜ ⌈ qrec C t u v w ⌉ m ≈ᶜ ⌈ qrec C t u v w ⌉ m
+    ·-⌈⌉-qrec {C} {t} {w} _ _ with Qrec-motive-erased?
+    … | yes _ = begin
+      ⌜ m ⌝ ·ᶜ (tailₘ (⌈ t ⌉ m) +ᶜ ω ·ᶜ ⌈ w ⌉ m)         ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+      ⌜ m ⌝ ·ᶜ tailₘ (⌈ t ⌉ m) +ᶜ ⌜ m ⌝ ·ᶜ ω ·ᶜ ⌈ w ⌉ m  ≈⟨ +ᶜ-cong (≈ᶜ-sym (tailₘ-distrib-·ᶜ _ (⌈ t ⌉ _))) (⌜⌝·ᶜ-comm _ _ _) ⟩
+      tailₘ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m) +ᶜ ω ·ᶜ ⌜ m ⌝ ·ᶜ ⌈ w ⌉ m  ≈⟨ +ᶜ-cong (tailₘ-cong (·-⌈⌉ t)) (·ᶜ-congˡ (·-⌈⌉ w)) ⟩
+      tailₘ (⌈ t ⌉ m) +ᶜ ω ·ᶜ ⌈ w ⌉ m                    ∎
+    … | no _ = begin
+        ⌜ m ⌝ ·ᶜ (ω ·ᶜ (tailₘ (⌈ C ⌉ m) +ᶜ tailₘ (⌈ t ⌉ m) +ᶜ ⌈ w ⌉ m))  ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
+        ω ·ᶜ (⌜ m ⌝ ·ᶜ (tailₘ (⌈ C ⌉ m) +ᶜ tailₘ (⌈ t ⌉ m) +ᶜ ⌈ w ⌉ m))  ≈⟨ ·ᶜ-congˡ $
+                                                                            ≈ᶜ-trans (·ᶜ-distribˡ-+ᶜ _ _ _) $
+                                                                            +ᶜ-cong (≈ᶜ-sym (tailₘ-distrib-·ᶜ _ (⌈ C ⌉ _))) $
+                                                                            ≈ᶜ-trans (·ᶜ-distribˡ-+ᶜ _ _ _) $
+                                                                            +ᶜ-congʳ (≈ᶜ-sym (tailₘ-distrib-·ᶜ _ (⌈ t ⌉ _))) ⟩
+        ω ·ᶜ
+          (tailₘ (⌜ m ⌝ ·ᶜ ⌈ C ⌉ m) +ᶜ tailₘ (⌜ m ⌝ ·ᶜ ⌈ t ⌉ m) +ᶜ
+           ⌜ m ⌝ ·ᶜ ⌈ w ⌉ m)                                             ≈⟨ ·ᶜ-congˡ $
+                                                                            +ᶜ-cong (tailₘ-cong (·-⌈⌉ C)) $
+                                                                            +ᶜ-cong (tailₘ-cong (·-⌈⌉ t)) (·-⌈⌉ w) ⟩
+        ω ·ᶜ (tailₘ (⌈ C ⌉ m) +ᶜ tailₘ (⌈ t ⌉ m) +ᶜ ⌈ w ⌉ m)             ∎
 
     ·-⌈⌉-ᵐ· : (t : Term n) → ⌜ m ⌝ ·ᶜ p ·ᶜ ⌈ t ⌉ (m ᵐ· p) ≈ᶜ p ·ᶜ ⌈ t ⌉ (m ᵐ· p)
     ·-⌈⌉-ᵐ· {p} t = begin
@@ -2166,6 +2324,41 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   usage-upper-bound′ ([]-congₘ _ _ _ _ _ _) =
     ≤ᶜ-refl
 
+  usage-upper-bound′ (Quot _ ▸A _) =
+    usage-upper-bound′ ▸A
+
+  usage-upper-bound′ (class _ ▸t) =
+    usage-upper-bound′ ▸t
+
+  usage-upper-bound′ (resp _ _ _ _ _ _ _) =
+    ≤ᶜ-refl
+
+  usage-upper-bound′ (set _ _ _ _ _ _ _ _) =
+    ≤ᶜ-refl
+
+  usage-upper-bound′
+    {m} (qrec₀ {γ₂} {t} {γ₅} {w} _ ok _ ▸t _ _ ▸w)
+    with Qrec-motive-erased?
+  … | no not-ok = ⊥-elim (not-ok ok)
+  … | yes _     = begin
+    γ₂ +ᶜ ω ·ᶜ γ₅                    ≤⟨ +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸t)) $
+                                        ·ᶜ-monotoneʳ (usage-upper-bound′ ▸w) ⟩
+    tailₘ (⌈ t ⌉ m) +ᶜ ω ·ᶜ ⌈ w ⌉ m  ∎
+    where
+    open ≤ᶜ-reasoning
+
+  usage-upper-bound′
+    {m} (qrec₁ {γ₁} {C} {γ₂} {t} {γ₅} {w} _ not-ok ▸C ▸t _ _ ▸w)
+    with Qrec-motive-erased?
+  … | yes ok = ⊥-elim (not-ok ok)
+  … | no _   = begin
+    ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅)                                 ≤⟨ ·ᶜ-monotoneʳ $
+                                                             +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸C)) $
+                                                             +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸t)) (usage-upper-bound′ ▸w) ⟩
+    ω ·ᶜ (tailₘ (⌈ C ⌉ m) +ᶜ tailₘ (⌈ t ⌉ m) +ᶜ ⌈ w ⌉ m)  ∎
+    where
+    open ≤ᶜ-reasoning
+
   usage-upper-bound′ (sub t x) = ≤ᶜ-trans x (usage-upper-bound′ t)
 
 opaque
@@ -2276,6 +2469,26 @@ opaque
   … | is-all _            = K₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v
   usage-inf ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
     []-congₘ ▸l ▸A ▸t ▸u ▸v ok
+  usage-inf (Quot ok ▸A ▸B) =
+    Quot ok (usage-inf ▸A) ▸B
+  usage-inf (class ok ▸t) =
+    class ok (usage-inf ▸t)
+  usage-inf (resp ok ▸A ▸B ▸t ▸u ▸v eq) =
+    resp ok ▸A ▸B ▸t ▸u ▸v eq
+  usage-inf (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq) =
+    set ok ▸A ▸B ▸t ▸u ▸v ▸w eq
+  usage-inf (qrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w)
+    with Qrec-motive-erased?
+  … | no not-ok = ⊥-elim (not-ok ok₂)
+  … | yes _     =
+    qrec₀ ok₁ ok₂ ▸C (Conₘ-interchange₁ (usage-inf ▸t) ▸t) ▸u ▸v
+      (usage-inf ▸w)
+  usage-inf (qrec₁ ok not-ok ▸C ▸t ▸u ▸v ▸w)
+    with Qrec-motive-erased?
+  … | yes ok = ⊥-elim (not-ok ok)
+  … | no _   =
+    qrec₁ ok not-ok (Conₘ-interchange₁ (usage-inf ▸C) ▸C)
+      (Conₘ-interchange₁ (usage-inf ▸t) ▸t) ▸u ▸v (usage-inf ▸w)
   usage-inf (sub γ▸t x) = usage-inf γ▸t
 
 ------------------------------------------------------------------------
@@ -2420,6 +2633,24 @@ opaque
     []-congₘ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸l) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸u)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v) ok
+  ▸inline ▸ξ (Quot ok ▸A ▸B) =
+    Quot ok (▸inline ▸ξ ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸B)
+  ▸inline ▸ξ (class ok ▸t) =
+    class ok (▸inline ▸ξ ▸t)
+  ▸inline ▸ξ (resp ok ▸A ▸B ▸t ▸u ▸v refl) =
+    resp ok (▸inline ▸ξ ▸A) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸t)
+      (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v) refl
+  ▸inline ▸ξ (set ok ▸A ▸B ▸t ▸u ▸v ▸w refl) =
+    set ok (▸inline ▸ξ ▸A) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸t)
+      (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v) (▸inline ▸ξ ▸w) refl
+  ▸inline ▸ξ (qrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+    qrec₀ ok₁ ok₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸C) (▸inline ▸ξ ▸t)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸u) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v)
+      (▸inline ▸ξ ▸w)
+  ▸inline ▸ξ (qrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+    qrec₁ ok₁ ok₂ (▸inline ▸ξ ▸C) (▸inline ▸ξ ▸t)
+      (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸u) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v)
+      (▸inline ▸ξ ▸w)
 
 opaque
   unfolding inlineᵈ

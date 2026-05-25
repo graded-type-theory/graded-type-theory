@@ -16,6 +16,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Syntactic R
@@ -51,7 +52,7 @@ private
   variable
     m n α β : Nat
     Γ : Cons _ _
-    A₁ A₂ B₁ B₂ C F G E : Term n
+    A₁ A₂ B₁ B₂ C C₁ C₂ F G E : Term n
     g h t t₁ t₂ t₃ u u₁ u₂ u₃ v v₁ v₂ w₁ w₂ : Term n
     l l′ l₁ l₂ : Lvl _
     x y : Fin n
@@ -149,6 +150,36 @@ mutual
                       []-cong s l₂ A₂ t₂ u₂ v₂ ↑
                       Id (Erased l₁ A₁) [ t₁ ] ([ u₁ ])
 
+    resp-cong     : Higher-quotient-constructors-neutral
+                  → Γ ⊢ A₁ [conv↑] A₂
+                  → Quot-rel-Cons Γ A₁ ⊢ B₁ [conv↑] B₂
+                  → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
+                  → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁
+                  → Γ ⊢ v₁ [conv↑] v₂ ∷ B₁ [ t₁ , u₁ ]₁₀
+                  → Γ ⊢ resp A₁ B₁ t₁ u₁ v₁ ~ resp A₂ B₂ t₂ u₂ v₂ ↑
+                    Id (Quot A₁ B₁) (class t₁) (class u₁)
+
+    set-cong      : Higher-quotient-constructors-neutral
+                  → Γ ⊢ A₁ [conv↑] A₂
+                  → Quot-rel-Cons Γ A₁ ⊢ B₁ [conv↑] B₂
+                  → Γ ⊢ t₁ [conv↑] t₂ ∷ Quot A₁ B₁
+                  → Γ ⊢ u₁ [conv↑] u₂ ∷ Quot A₁ B₁
+                  → Γ ⊢ v₁ [conv↑] v₂ ∷ Id (Quot A₁ B₁) t₁ u₁
+                  → Γ ⊢ w₁ [conv↑] w₂ ∷ Id (Quot A₁ B₁) t₁ u₁
+                  → Γ ⊢ set A₁ B₁ t₁ u₁ v₁ w₁ ~ set A₂ B₂ t₂ u₂ v₂ w₂ ↑
+                    Id (Id (Quot A₁ B₁) t₁ u₁) v₁ w₁
+
+    qrec-cong     : ∀ {A B}
+                  → Γ »∙ Quot A B ⊢ C₁ [conv↑] C₂
+                  → Γ »∙ A ⊢ t₁ [conv↑] t₂ ∷ C₁ [ class (var x0) ]↑
+                  → Resp-Cons Γ A B ⊢ u₁ [conv↑] u₂ ∷
+                    Resp-type A B C₁ t₁
+                  → Is-set-Cons Γ A B C₁ ⊢ v₁ [conv↑] v₂ ∷
+                    Is-set-type C₁
+                  → Γ ⊢ w₁ ~ w₂ ↓ Quot A B
+                  → Γ ⊢ qrec C₁ t₁ u₁ v₁ w₁ ~ qrec C₂ t₂ u₂ v₂ w₂ ↑
+                    C₁ [ w₁ ]₀
+
   -- Neutral equality with types in WHNF.
   record _⊢_~_↓_ (Γ : Cons m n) (k l B : Term n) : Set a where
     inductive
@@ -217,6 +248,11 @@ mutual
                → Γ ⊢ t₁ [conv↑] t₂ ∷ A₁
                → Γ ⊢ u₁ [conv↑] u₂ ∷ A₁
                → Γ ⊢ Id A₁ t₁ u₁ [conv↓] Id A₂ t₂ u₂
+
+    Quot-cong  : Quot-allowed
+               → Γ ⊢ A₁ [conv↑] A₂
+               → Quot-rel-Cons Γ A₁ ⊢ B₁ [conv↑] B₂
+               → Γ ⊢ Quot A₁ B₁ [conv↓] Quot A₂ B₂
 
   -- Term equality.
   record _⊢_[conv↑]_∷_ (Γ : Cons m n) (t u A : Term n) : Set a where
@@ -325,6 +361,16 @@ mutual
     rfl-refl  : ∀ {A}
               → Γ ⊢ t ≡ u ∷ A
               → Γ ⊢ rfl [conv↓] rfl ∷ Id A t u
+
+    Quot-ins  : Γ ⊢ t₁ ∷ Quot A₁ B₁
+              → Γ ⊢ t₁ ~ t₂ ↓ Quot A₂ B₂
+              → Γ ⊢ t₁ [conv↓] t₂ ∷ Quot A₁ B₁
+
+    class-cong
+              : ∀ {A B}
+              → Γ ⊢ Quot A B
+              → Γ ⊢ t₁ [conv↑] t₂ ∷ A
+              → Γ ⊢ class t₁ [conv↓] class t₂ ∷ Quot A B
 
   -- Level atoms and level views
 

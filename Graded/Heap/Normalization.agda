@@ -12,7 +12,7 @@ module Graded.Heap.Normalization
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
@@ -186,6 +186,11 @@ opaque mutual
     case normalize H v ρ ([]-congₑ s l A t u ρ ∙ S) H-nn v-nn of λ
       (_ , _ , _ , _ , n , d) →
     _ , _ , _ , _ , n , ⇒ₑ []-congₕ ⇨ d
+  normalize H (qrec C t u v w) ρ S H-nn (B.qrec _ _ _ _ w-nn) =
+    let _ , _ , _ , _ , n , d =
+          normalize H w ρ (qrecₑ C t u v ρ ∙ S) H-nn w-nn
+    in
+    _ , _ , _ , _ , n , ⇒ₑ qrecₕ ⇨ d
   normalize H (U l) ρ S _ _ =
     _ , U l , ρ , S , val Uᵥ , id
   normalize H ℕ ρ S _ _ =
@@ -198,6 +203,14 @@ opaque mutual
     _ , ΠΣ⟨ b ⟩ p , q ▷ A ▹ B , ρ , S , val ΠΣᵥ , id
   normalize H (Id A t u) ρ S _ _ =
     _ , Id A t u , ρ , S , val Idᵥ , id
+  normalize H (Quot A B) ρ S _ _ =
+    _ , Quot A B , ρ , S , val Quotᵥ , id
+  normalize H (class t) ρ S _ _ =
+    _ , class t , ρ , S , val classᵥ , id
+  normalize _ (resp _ _ _ _ _) _ _ _ _ =
+    _ , _ , _ , _ , val respᵥ , id
+  normalize _ (set _ _ _ _ _ _) _ _ _ _ =
+    _ , _ , _ , _ , val setᵥ , id
 
 opaque
 

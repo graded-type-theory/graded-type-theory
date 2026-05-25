@@ -16,6 +16,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation as Dec
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
+open import Tools.Unit
 
 private variable
   a b p   : Level
@@ -301,3 +302,12 @@ Is-proposition-Dec = λ where
   _  _    {x = no x}  {y = yes y} → ⊥-elim (x y)
   fe _    {x = no x}  {y = no y}  →
     cong no (Is-proposition-Π fe λ _ → ⊥-propositional)
+
+-- Decided properties can be represented (up to logical equivalence)
+-- in Set.
+
+Resize-Dec : Dec A → ∃ λ (B : Set) → A ⇔ B × Dec B
+Resize-Dec (yes inhabited) =
+  ⊤ , ((λ _ → tt) , (λ _ → inhabited)) , yes tt
+Resize-Dec (no not-inhabited) =
+  ⊥ , (not-inhabited , ⊥-elim) , no ⊥-elim

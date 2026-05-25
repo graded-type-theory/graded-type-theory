@@ -42,7 +42,7 @@ open import Tools.Level as L using (lsuc)
 open import Tools.Nat hiding (_<_; _≤_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Relation
+open import Tools.Relation hiding (Rel)
 open import Tools.Sum
 open import Tools.Unit
 
@@ -85,6 +85,9 @@ Productᵃₗ = Productᵃ Var-included
 
 Identityᵃₗ : DCon (Term 0) κ → Term ℓ → Set a
 Identityᵃₗ = Identityᵃ Var-included
+
+Quotientᵃₗ : DCon (Term 0) κ → Term ℓ → Set a
+Quotientᵃₗ = Quotientᵃ Var-included
 
 -- The different cases of the logical relation are spread out through out
 -- this file. This is due to them having different dependencies.
@@ -483,12 +486,13 @@ record LogRelKit : Set (lsuc a) where
   no-eta-equality
   pattern
   constructor Kit
-  infix 4 _⊩U_ _⊩Lift_ _⊩B⟨_⟩_ _⊩Id_ _⊩_ _⊩_≡_/_ _⊩_∷_/_ _⊩_≡_∷_/_
+  infix 4 _⊩U_ _⊩Lift_ _⊩B⟨_⟩_ _⊩Id_ _⊩Quot_
+          _⊩_ _⊩_≡_/_ _⊩_∷_/_ _⊩_≡_∷_/_
   field
     _⊩U_ : Cons κ ℓ → Term ℓ → Set a
     _⊩Lift_ : Cons κ ℓ → Term ℓ → Set a
     _⊩B⟨_⟩_ : Cons κ ℓ → BindingType → Term ℓ → Set a
-    _⊩Id_ : Cons κ ℓ → Term ℓ → Set a
+    _⊩Id_ _⊩Quot_ : Cons κ ℓ → Term ℓ → Set a
 
     _⊩_ : Cons κ ℓ → Term ℓ → Set a
     _⊩_≡_/_ : (Γ : Cons κ ℓ) (A _ : Term ℓ) → Γ ⊩ A → Set a
@@ -807,6 +811,101 @@ module LogRel
       where
       open _⊩ₗId_ ⊩A
 
+    -- Reducibility for quotients.
+
+    -- Well-formed quotient types.
+
+    infix 4 _⊩ₗQuot_
+
+    record _⊩ₗQuot_ (Γ : Cons κ ℓ) (A : Term ℓ) : Set a where
+      inductive
+      no-eta-equality
+      pattern
+      constructor Quot
+      field
+        {Data}  : Term ℓ
+        {Rel}   : Term (2+ ℓ)
+        ⇒*Quot  : Γ ⊢ A ⇒* Quot Data Rel
+        ≅Quot   : Γ ⊢≅ Quot Data Rel
+        ⊩Data   : ∀ {κ′ m} {Δ : Cons κ′ m} {ρ : Wk m ℓ}
+                → Δ ⊢ʷᵏʳ ρ ∷ Γ
+                → Δ ⊩ₗ U.wk ρ Data
+        ⊩Rel    : ∀ {κ′ m} {Δ : Cons κ′ m} {ρ : Wk m ℓ} {t u}
+                → (⊢ρ : Δ ⊢ʷᵏʳ ρ ∷ Γ)
+                → Δ ⊩ₗ t ∷ U.wk ρ Data / ⊩Data ⊢ρ
+                → Δ ⊩ₗ u ∷ U.wk ρ Data / ⊩Data ⊢ρ
+                → Δ ⊩ₗ U.wk (liftn ρ 2) Rel [ t , u ]₁₀
+        Rel≡Rel : ∀ {κ′ m} {Δ : Cons κ′ m} {ρ : Wk m ℓ} {t₁ t₂ u₁ u₂}
+                → (⊢ρ : Δ ⊢ʷᵏʳ ρ ∷ Γ)
+                → (⊩t₁ : Δ ⊩ₗ t₁ ∷ U.wk ρ Data / ⊩Data ⊢ρ)
+                → Δ ⊩ₗ t₂ ∷ U.wk ρ Data / ⊩Data ⊢ρ
+                → (⊩u₁ : Δ ⊩ₗ u₁ ∷ U.wk ρ Data / ⊩Data ⊢ρ)
+                → Δ ⊩ₗ u₂ ∷ U.wk ρ Data / ⊩Data ⊢ρ
+                → Δ ⊩ₗ t₁ ≡ t₂ ∷ U.wk ρ Data / ⊩Data ⊢ρ
+                → Δ ⊩ₗ u₁ ≡ u₂ ∷ U.wk ρ Data / ⊩Data ⊢ρ
+                → Δ ⊩ₗ U.wk (liftn ρ 2) Rel [ t₁ , u₁ ]₁₀ ≡
+                  U.wk (liftn ρ 2) Rel [ t₂ , u₂ ]₁₀ / ⊩Rel ⊢ρ ⊩t₁ ⊩u₁
+
+    -- Well-formed quotient type equality.
+
+    infix 4 _⊩ₗQuot_≡_/_
+
+    record _⊩ₗQuot_≡_/_ (Γ : Cons κ ℓ) (A B : Term ℓ)
+             (⊩A : Γ ⊩ₗQuot A) : Set a where
+      inductive
+      no-eta-equality
+      pattern
+      constructor Quot
+      open _⊩ₗQuot_ ⊩A
+      field
+        {Data′}   : Term ℓ
+        {Rel′}    : Term (2+ ℓ)
+        ⇒*Quot′   : Γ ⊢ B ⇒* Quot Data′ Rel′
+        Quot≅Quot : Γ ⊢ Quot Data Rel ≅ Quot Data′ Rel′
+        Data≡Data : ∀ {κ′ m} {Δ : Cons κ′ m} {ρ : Wk m ℓ}
+                  → (⊢ρ : Δ ⊢ʷᵏʳ ρ ∷ Γ)
+                  → Δ ⊩ₗ U.wk ρ Data ≡ U.wk ρ Data′ / ⊩Data ⊢ρ
+        Rel≡Rel   : ∀ {κ′ m} {Δ : Cons κ′ m} {ρ : Wk m ℓ} {t u}
+                  → (⊢ρ : Δ ⊢ʷᵏʳ ρ ∷ Γ)
+                  → (⊩t : Δ ⊩ₗ t ∷ U.wk ρ Data / ⊩Data ⊢ρ)
+                  → (⊩u : Δ ⊩ₗ u ∷ U.wk ρ Data / ⊩Data ⊢ρ)
+                  → Δ ⊩ₗ U.wk (liftn ρ 2) Rel [ t , u ]₁₀ ≡
+                    U.wk (liftn ρ 2) Rel′ [ t , u ]₁₀ / ⊩Rel ⊢ρ ⊩t ⊩u
+
+    -- Well-formed quotient term equality.
+
+    infix 4 _⊩ₗQuot_≡_∷_/_
+
+    _⊩ₗQuot_≡_∷_/_ :
+      (Γ : Cons κ ℓ) (_ _ A : Term ℓ) → Γ ⊩ₗQuot A → Set a
+    Γ ⊩ₗQuot t ≡ u ∷ A / ⊩A =
+      ∃₃ λ t′ u′ (t⇒*t′ : Γ ⊢ t ⇒* t′ ∷ Quot Data Rel) →
+      Γ ⊢ u ⇒* u′ ∷ Quot Data Rel ×
+      ∃ λ (t′-quot : Quotientᵃₗ (Γ .defs) t′) →
+      ∃ λ (u′-quot : Quotientᵃₗ (Γ .defs) u′) →
+      let id-Γ = ⊢ʷᵏʳid (wf (subset* ⇒*Quot)) in
+      Quotientᵃ-rec t′-quot
+        (λ t″ →
+           Quotientᵃ-rec u′-quot
+             (λ u″ →
+                Γ ⊩ₗ t″ ≡ u″ ∷ wk id Data / ⊩Data id-Γ
+                  ⊎
+                Equality-reflection ×
+                Symmetric-transitive-closure
+                  (λ t″ u″ →
+                     ∃ λ (⊩t″ : Γ ⊩ₗ t″ ∷ wk id Data / ⊩Data id-Γ) →
+                     ∃ λ (⊩u″ : Γ ⊩ₗ u″ ∷ wk id Data / ⊩Data id-Γ) →
+                     ∃ λ v →
+                     Γ ⊩ₗ v ∷ wk (liftn id 2) Rel [ t″ , u″ ]₁₀ /
+                       ⊩Rel id-Γ ⊩t″ ⊩u″)
+                  t″ u″)
+             (L.Lift _ ⊥))
+        (Quotientᵃ-rec u′-quot
+           (λ _ → L.Lift _ ⊥)
+           (Γ ⊢ t′ ~ u′ ∷ Quot Data Rel))
+      where
+      open _⊩ₗQuot_ ⊩A
+
     -- Logical relation definition
 
     infix 4 _⊩ₗ_
@@ -821,6 +920,7 @@ module LogRel
       ne     : ∀ {A} → Γ ⊩ne A → Γ ⊩ₗ A
       Bᵣ     : ∀ {A} W → Γ ⊩ₗB⟨ W ⟩ A → Γ ⊩ₗ A
       Idᵣ    : ∀ {A} → Γ ⊩ₗId A → Γ ⊩ₗ A
+      Quot   : ∀ {A} → Γ ⊩ₗQuot A → Γ ⊩ₗ A
 
     infix 4 _⊩ₗ_≡_/_
 
@@ -834,6 +934,7 @@ module LogRel
     Γ ⊩ₗ A ≡ B / ne neA = Γ ⊩ne A ≡ B / neA
     Γ ⊩ₗ A ≡ B / Bᵣ W BA = Γ ⊩ₗB⟨ W ⟩ A ≡ B / BA
     Γ ⊩ₗ A ≡ B / Idᵣ ⊩A = Γ ⊩ₗId A ≡ B / ⊩A
+    Γ ⊩ₗ A ≡ B / Quot ⊩A = Γ ⊩ₗQuot A ≡ B / ⊩A
 
     infix 4 _⊩ₗ_∷_/_
 
@@ -853,18 +954,21 @@ module LogRel
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΠ! ΠA = Γ ⊩ₗΠ t ≡ u ∷ A / ΠA
     Γ ⊩ₗ t ≡ u ∷ A / Bᵣ BΣ! ΣA  = Γ ⊩ₗΣ t ≡ u ∷ A / ΣA
     Γ ⊩ₗ t ≡ u ∷ A / Idᵣ ⊩A = Γ ⊩ₗId t ≡ u ∷ A / ⊩A
+    Γ ⊩ₗ t ≡ u ∷ A / Quot ⊩A = Γ ⊩ₗQuot t ≡ u ∷ A / ⊩A
 
     kit : LogRelKit
-    kit = Kit _⊩₁U_ _⊩ₗLift_ _⊩ₗB⟨_⟩_ _⊩ₗId_
+    kit = Kit _⊩₁U_ _⊩ₗLift_ _⊩ₗB⟨_⟩_ _⊩ₗId_ _⊩ₗQuot_
               _⊩ₗ_ _⊩ₗ_≡_/_ _⊩ₗ_≡_∷_/_
 
 open LogRel public
   using
-    (Levelᵣ; Uᵣ; U₌; Liftᵣ; Lift₌; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌; Idᵣ; Id₌; Uₜ₌;
+    (Levelᵣ; Uᵣ; U₌; Uₜ₌; Liftᵣ; Lift₌; ℕᵣ; Emptyᵣ; Unitᵣ; ne; Bᵣ; B₌;
+     Idᵣ; Id₌; Quot;
      module _⊩₁U_; module _⊩₁U≡_/_; module _⊩₁U_≡_∷U/_;
      module _⊩ₗLift_; module _⊩ₗLift_≡_/_;
      module _⊩ₗB⟨_⟩_; module _⊩ₗB⟨_⟩_≡_/_;
-     module _⊩ₗId_; module _⊩ₗId_≡_/_)
+     module _⊩ₗId_; module _⊩ₗId_≡_/_;
+     module _⊩ₗQuot_; module _⊩ₗQuot_≡_/_)
 
 -- Patterns for the non-records
 pattern Liftₜ₌ a b c d e = a , b , c , d , e
@@ -912,6 +1016,13 @@ infix 4 _⊩′⟨_⟩Id_
 
 _⊩′⟨_⟩Id_ : Cons κ ℓ → Universe-level → Term ℓ → Set a
 Γ ⊩′⟨ l ⟩Id A = Γ ⊩Id A
+  where
+  open LogRelKit (kit l)
+
+infix 4 _⊩′⟨_⟩Quot_
+
+_⊩′⟨_⟩Quot_ : Cons κ ℓ → Universe-level → Term ℓ → Set a
+Γ ⊩′⟨ l ⟩Quot A = Γ ⊩Quot A
   where
   open LogRelKit (kit l)
 

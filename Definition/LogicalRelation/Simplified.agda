@@ -17,6 +17,7 @@ open Type-restrictions R
 open import Definition.Untyped Mod
 open import Definition.Untyped.Neutral Mod type-variant
 open import Definition.Untyped.Properties Mod
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf Mod type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
@@ -126,6 +127,22 @@ mutual
       ⊨lhs       : Γ ⊢ lhs ∷ Ty
       ⊨rhs       : Γ ⊢ rhs ∷ Ty
 
+  -- Quotients.
+
+  infix 4 _⊨Quot_
+
+  record _⊨Quot_ (Γ : Cons m n) (A : Term n) : Set a where
+    inductive
+    no-eta-equality
+    pattern
+    constructor Idᵣ
+    field
+      {Data} : Term n
+      {Rel}  : Term (2+ n)
+      ⇒*Quot : Γ ⊢ A ⇒* Quot Data Rel
+      ⊨Data  : Γ ⊨ Data
+      ⊨Rel   : Γ ⊢ t ∷ Data → Γ ⊢ u ∷ Data → Γ ⊨ Rel [ t , u ]₁₀
+
   -- The logical relation
 
   infix 4 _⊨_
@@ -140,6 +157,7 @@ mutual
     ne     : Γ ⊨ne A          → Γ ⊨ A
     Bᵣ     : ∀ b p q → Γ ⊨ΠΣ⟨ b , p , q ⟩ A → Γ ⊨ A
     Idᵣ    : Γ ⊨Id A          → Γ ⊨ A
+    Quot   : Γ ⊨Quot A        → Γ ⊨ A
 
 pattern Uᵣ′ a = Uᵣ (Uᵣ a)
 pattern Liftᵣ′ {Ty} a b = Liftᵣ (Liftᵣ {Ty = Ty} a b)
@@ -164,6 +182,7 @@ opaque
   ⊨→⊢ (ne′ _ D _) = redFirst* D
   ⊨→⊢ (Bᵣ′ _ _ _ _ _ D _ _) = redFirst* D
   ⊨→⊢ (Idᵣ′ _ _ _ ⇒*Id _ _ _) = redFirst* ⇒*Id
+  ⊨→⊢ (Quot ⊩Q) = redFirst* (_⊨Quot_.⇒*Quot ⊩Q)
 
 opaque
 
@@ -191,6 +210,26 @@ opaque
   ⊩→⊨ (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     Idᵣ′ Ty lhs rhs ⇒*Id (⊩→⊨ ⊩Ty)
       (escapeTerm ⊩Ty ⊩lhs) (escapeTerm ⊩Ty ⊩rhs)
+  ⊩→⊨ (Quot ⊩Q) =
+    let id-Γ = ⊢ʷᵏʳid (wf (subset* ⇒*Quot)) in
+    Quot record
+      { ⇒*Quot = ⇒*Quot
+      ; ⊨Data  = PE.subst (_⊨_ _) (wk-id _) $
+                 ⊩→⊨ (⊩Data id-Γ)
+      ; ⊨Rel   = λ ⊢t ⊢u →
+                   PE.subst (_⊨_ _)
+                     (PE.cong _[ _ , _ ]₁₀ (wk-liftn-id 2 Rel)) $
+                   ⊩→⊨
+                     (⊩Rel id-Γ
+                        (⊩∷→⊩∷/ (⊩Data id-Γ) $
+                         PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym (wk-id _)) $
+                         reducible-⊩∷ ⊢t .proj₂)
+                        (⊩∷→⊩∷/ (⊩Data id-Γ) $
+                         PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym (wk-id _)) $
+                         reducible-⊩∷ ⊢u .proj₂))
+      }
+    where
+    open _⊩ₗQuot_ ⊩Q
 
 opaque
 
@@ -212,6 +251,7 @@ data ShapeView (Γ : Cons m n) : ∀ A A′ → Γ ⊨ A → Γ ⊨ A′ → Set
   ne : ∀ neA neA′ → ShapeView Γ A A′ (ne neA) (ne neA′)
   Bᵥ : ∀ b p q BA BA′ → ShapeView Γ A A′ (Bᵣ b p q BA) (Bᵣ b p q BA′)
   Idᵥ : ∀ IdA IdA′ → ShapeView Γ A A′ (Idᵣ IdA) (Idᵣ IdA′)
+  Quot : ∀ ⊩A ⊩B → ShapeView Γ A B (Quot ⊩A) (Quot ⊩B)
 
 opaque
 
@@ -244,6 +284,7 @@ opaque
       (_ , _ , PE.refl , PE.refl , _) →
         Bᵥ _ _ _ [Σ] [Σ]′
   goodCases (Idᵣ x) (Idᵣ x₁) A≡B = Idᵥ x x₁
+  goodCases (Quot ⊩A) (Quot ⊩B) _ = Quot ⊩A ⊩B
 
   goodCases (Unitᵣ {(𝕤)} x) (Unitᵣ {(𝕨)} x₁) A≡B =
     ⊥-elim $ Unitʷ≢Unitˢ $
@@ -284,6 +325,10 @@ opaque
   goodCases (Levelᵣ ⇒*Level) (Idᵣ′ _ _ _ ⇒*Id _ _ _) A≡B =
     ⊥-elim $ Level≢Id $
     trans (trans (sym (subset* ⇒*Level)) A≡B) (subset* ⇒*Id)
+  goodCases (Levelᵣ ⇒*Level) (Quot ⊩B) A≡B =
+    ⊥-elim $ Quot≢Level $
+    trans (trans (sym (subset* (_⊨Quot_.⇒*Quot ⊩B))) (sym A≡B))
+      (subset* ⇒*Level)
   goodCases (Uᵣ′ ⇒*U) (Levelᵣ ⇒*Level) A≡B =
     ⊥-elim $ U≢Level $
     trans (trans (sym (subset* ⇒*U)) A≡B) (subset* ⇒*Level)
@@ -303,6 +348,10 @@ opaque
     ⊥-elim (U≢ΠΣⱼ (trans (trans (sym (subset* (_⊨U_.⇒*U x))) A≡B) (subset* (_⊨ΠΣ⟨_,_,_⟩_.D x₁))))
   goodCases (Uᵣ x) (Idᵣ x₁) A≡B =
     ⊥-elim (Id≢U (trans (trans (sym (subset* (x₁ ._⊨Id_.⇒*Id))) (sym A≡B)) (subset* (x ._⊨U_.⇒*U))))
+  goodCases (Uᵣ ⊩A) (Quot ⊩B) A≡B =
+    ⊥-elim $ Quot≢U $
+    trans (trans (sym (subset* (⊩B ._⊨Quot_.⇒*Quot))) (sym A≡B))
+      (subset* (⊩A ._⊨U_.⇒*U))
   goodCases (Liftᵣ′ ⇒*Lift _) (Levelᵣ ⇒*Level) A≡B =
     ⊥-elim $ Lift≢Level $
     trans (trans (sym (subset* ⇒*Lift)) A≡B) (subset* ⇒*Level)
@@ -327,6 +376,10 @@ opaque
   goodCases (Liftᵣ′ ⇒*Lift _) (Idᵣ′ _ _ _ ⇒*Id _ _ _) A≡B =
     ⊥-elim $ Id≢Lift $
     sym (trans (trans (sym (subset* ⇒*Lift)) A≡B) (subset* ⇒*Id))
+  goodCases (Liftᵣ′ ⇒*Lift _) (Quot ⊩B) A≡B =
+    ⊥-elim $ Quot≢Lift $
+    trans (trans (sym (subset* (⊩B ._⊨Quot_.⇒*Quot))) (sym A≡B))
+      (subset* ⇒*Lift)
   goodCases (ℕᵣ ⇒*ℕ) (Levelᵣ ⇒*Level) A≡B =
     ⊥-elim $ Level≢ℕ $
     sym (trans (trans (sym (subset* ⇒*ℕ)) A≡B) (subset* ⇒*Level))
@@ -345,6 +398,10 @@ opaque
     ⊥-elim (ℕ≢ΠΣⱼ (trans (trans (sym (subset* x)) A≡B) (subset* (_⊨ΠΣ⟨_,_,_⟩_.D x₁))))
   goodCases (ℕᵣ x) (Idᵣ x₁) A≡B =
     ⊥-elim (Id≢ℕ (trans (trans (sym (subset* (x₁ ._⊨Id_.⇒*Id))) (sym A≡B)) (subset* x)))
+  goodCases (ℕᵣ ⇒*ℕ) (Quot ⊩B) A≡B =
+    ⊥-elim $ Quot≢ℕ $
+    trans (trans (sym (subset* (⊩B ._⊨Quot_.⇒*Quot))) (sym A≡B))
+      (subset* ⇒*ℕ)
   goodCases (Emptyᵣ ⇒*Empty) (Levelᵣ ⇒*Level) A≡B =
     ⊥-elim $ Level≢Empty $
     sym (trans (trans (sym (subset* ⇒*Empty)) A≡B) (subset* ⇒*Level))
@@ -364,6 +421,10 @@ opaque
     ⊥-elim (Empty≢ΠΣⱼ (trans (trans (sym (subset* x)) A≡B) (subset* (x₁ ._⊨ΠΣ⟨_,_,_⟩_.D))))
   goodCases (Emptyᵣ x) (Idᵣ x₁) A≡B =
     ⊥-elim (Id≢Empty (trans (trans (sym (subset* (x₁ ._⊨Id_.⇒*Id))) (sym A≡B)) (subset* x)))
+  goodCases (Emptyᵣ ⇒*Empty) (Quot ⊩B) A≡B =
+    ⊥-elim $ Quot≢Empty $
+    trans (trans (sym (subset* (⊩B ._⊨Quot_.⇒*Quot))) (sym A≡B))
+      (subset* ⇒*Empty)
   goodCases (Unitᵣ ⇒*Unit) (Levelᵣ ⇒*Level) A≡B =
     ⊥-elim $ Level≢Unitⱼ $
     sym (trans (trans (sym (subset* ⇒*Unit)) A≡B) (subset* ⇒*Level))
@@ -388,6 +449,10 @@ opaque
   goodCases (Unitᵣ x) (Idᵣ x₁) A≡B =
     ⊥-elim $ Id≢Unit $
     trans (trans (sym (subset* (x₁ ._⊨Id_.⇒*Id))) (sym A≡B)) (subset* x)
+  goodCases (Unitᵣ ⇒*Unit) (Quot ⊩B) A≡B =
+    ⊥-elim $ Quot≢Unit $
+    trans (trans (sym (subset* (⊩B ._⊨Quot_.⇒*Quot))) (sym A≡B))
+      (subset* ⇒*Unit)
   goodCases (ne′ _ ⇒*C C-ne) (Levelᵣ ⇒*Level) A≡B =
     ⊥-elim $ I.Level≢ne C-ne $
     sym (trans (trans (sym (subset* ⇒*C)) A≡B) (subset* ⇒*Level))
@@ -407,6 +472,10 @@ opaque
     ⊥-elim (I.ΠΣ≢ne x₂ (trans (trans (sym (subset* (x₃ ._⊨ΠΣ⟨_,_,_⟩_.D))) (sym A≡B)) (subset* x₁)))
   goodCases (ne′ x x₁ x₂) (Idᵣ x₃) A≡B =
     ⊥-elim (I.Id≢ne x₂ (trans (trans (sym (subset* (x₃ ._⊨Id_.⇒*Id))) (sym A≡B)) (subset* x₁)))
+  goodCases (ne′ _ D n) (Quot ⊩B) A≡B =
+    ⊥-elim $ I.Quot≢ne n $
+    trans (trans (sym (subset* (⊩B ._⊨Quot_.⇒*Quot))) (sym A≡B))
+      (subset* D)
   goodCases (Bᵣ′ _ _ _ _ _ ⇒*ΠΣ _ _) (Levelᵣ ⇒*Level) A≡B =
     ⊥-elim $ Level≢ΠΣⱼ $
     sym (trans (trans (sym (subset* ⇒*ΠΣ)) A≡B) (subset* ⇒*Level))
@@ -427,6 +496,10 @@ opaque
     ⊥-elim (I.ΠΣ≢ne x₃ (trans (trans (sym (subset* (x ._⊨ΠΣ⟨_,_,_⟩_.D))) A≡B) (subset* x₂)))
   goodCases (Bᵣ _ _ _ x) (Idᵣ x₁) A≡B =
     ⊥-elim (I.Id≢ΠΣ (trans (trans (sym (subset* (x₁ ._⊨Id_.⇒*Id))) (sym A≡B)) (subset* (x ._⊨ΠΣ⟨_,_,_⟩_.D))))
+  goodCases (Bᵣ _ _ _ ⊩A) (Quot ⊩B) A≡B =
+    ⊥-elim $ I.Quot≢ΠΣ $
+    trans (trans (sym (subset* (⊩B ._⊨Quot_.⇒*Quot))) (sym A≡B))
+      (subset* (⊩A ._⊨ΠΣ⟨_,_,_⟩_.D))
   goodCases (Idᵣ′ _ _ _ ⇒*Id _ _ _) (Levelᵣ ⇒*Level) A≡B =
     ⊥-elim $ Level≢Id $
     sym (trans (trans (sym (subset* ⇒*Id)) A≡B) (subset* ⇒*Level))
@@ -446,6 +519,45 @@ opaque
     ⊥-elim (I.Id≢ne x₃ (trans (trans (sym (subset* (x ._⊨Id_.⇒*Id))) A≡B) (subset* x₂)))
   goodCases (Idᵣ x) (Bᵣ _ _ _ x₁) A≡B =
     ⊥-elim (I.Id≢ΠΣ (trans (trans (sym (subset* (x ._⊨Id_.⇒*Id))) A≡B) (subset* (x₁ ._⊨ΠΣ⟨_,_,_⟩_.D))))
+  goodCases (Idᵣ ⊩A) (Quot ⊩B) A≡B =
+    ⊥-elim $ I.Quot≢Id $
+    trans (trans (sym (subset* (⊩B ._⊨Quot_.⇒*Quot))) (sym A≡B))
+      (subset* (⊩A ._⊨Id_.⇒*Id))
+  goodCases (Quot ⊩A) (Levelᵣ ⇒*Level) A≡B =
+    ⊥-elim $ Quot≢Level $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B)
+      (subset* ⇒*Level)
+  goodCases (Quot ⊩A) (Uᵣ ⊩B) A≡B =
+    ⊥-elim $ Quot≢U $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B)
+      (subset* (⊩B ._⊨U_.⇒*U))
+  goodCases (Quot ⊩A) (Liftᵣ′ ⇒*Lift _) A≡B =
+    ⊥-elim $ Quot≢Lift $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B)
+      (subset* ⇒*Lift)
+  goodCases (Quot ⊩A) (ℕᵣ ⇒*ℕ) A≡B =
+    ⊥-elim $ Quot≢ℕ $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B)
+      (subset* ⇒*ℕ)
+  goodCases (Quot ⊩A) (Emptyᵣ ⇒*Empty) A≡B =
+    ⊥-elim $ Quot≢Empty $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B)
+      (subset* ⇒*Empty)
+  goodCases (Quot ⊩A) (Unitᵣ ⇒*Unit) A≡B =
+    ⊥-elim $ Quot≢Unit $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B)
+      (subset* ⇒*Unit)
+  goodCases (Quot ⊩A) (ne′ _ D n) A≡B =
+    ⊥-elim $ I.Quot≢ne n $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B) (subset* D)
+  goodCases (Quot ⊩A) (Bᵣ _ _ _ ⊩B) A≡B =
+    ⊥-elim $ I.Quot≢ΠΣ $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B)
+      (subset* (⊩B ._⊨ΠΣ⟨_,_,_⟩_.D))
+  goodCases (Quot ⊩A) (Idᵣ ⊩B) A≡B =
+    ⊥-elim $ I.Quot≢Id $
+    trans (trans (sym (subset* (⊩A ._⊨Quot_.⇒*Quot))) A≡B)
+      (subset* (⊩B ._⊨Id_.⇒*Id))
 
 opaque
 
@@ -457,8 +569,10 @@ opaque
   goodCasesRefl [A] [A]′ = goodCases [A] [A]′ (refl (⊨→⊢ [A]))
 
 ------------------------------------------------------------------------
--- Introduction and Elimination lemmas for the logical relation.
--- Note that the introduction lemmas are deliberately not made opaque.
+-- Introduction and elimination lemmas for the logical relation
+
+-- Note that most introduction lemmas have deliberately not been made
+-- opaque.
 
 opaque
 
@@ -486,6 +600,9 @@ opaque
       [F] , (λ {t} ⊢t → [G] {t = t} ⊢t)}
   ΠΣ-elim (Idᵣ x) =
     case whnfRed* (x ._⊨Id_.⇒*Id) ΠΣₙ of λ ()
+  ΠΣ-elim (Quot ⊩ΠΣ)
+    with whnfRed* (⊩ΠΣ ._⊨Quot_.⇒*Quot) ΠΣₙ
+  … | ()
 
 -- An introduction lemma for Level.
 
@@ -523,6 +640,25 @@ Id-intro :
   ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
   Γ ⊢ A → Γ ⊢ t ∷ A → Γ ⊢ u ∷ A → Γ ⊨ Id A t u
 Id-intro ⊢A ⊢t ⊢u = Idᵣ′ _ _ _ (id (Idⱼ ⊢A ⊢t ⊢u)) (⊢→⊨ ⊢A) ⊢t ⊢u
+
+opaque
+  unfolding Quot-rel-Con
+
+  -- An introduction lemma for Quot.
+
+  Quot-intro :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Quot-allowed → Quot-rel-Cons Γ A ⊢ B →
+    Γ ⊨ Quot A B
+  Quot-intro {Γ} {A} {B} ok ⊢B =
+    let _ , (⊢A , _) , _ = ∙∙⊢→⊢-<ˢ ⊢B in
+    Quot record
+      { ⇒*Quot = id (Quot ok ⊢B)
+      ; ⊨Data  = ⊢→⊨ ⊢A
+      ; ⊨Rel   = λ ⊢t ⊢u →
+          ⊢→⊨ $ subst-⊢₁₀ ⊢B ⊢t $
+          PE.subst (_⊢_∷_ _ _) (PE.sym (wk1-sgSubst _ _)) ⊢u
+      }
 
 -- An introduction lemma for ΠΣ.
 

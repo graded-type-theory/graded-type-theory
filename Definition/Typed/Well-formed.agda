@@ -19,6 +19,7 @@ open import Definition.Typed.Inversion.Primitive R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R
   as Erased
 open import Definition.Typed.Properties.Admissible.Level.Primitive R
+open import Definition.Typed.Properties.Admissible.Quotient.Primitive R
 open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Well-formed R
@@ -29,6 +30,7 @@ open import Definition.Typed.Weakening.Definition R
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 
 open import Tools.Fin
 open import Tools.Function
@@ -71,7 +73,9 @@ opaque
   wf-↦∷∈ (there α↦t) ∙ᵗ[ ⊢u ] =
     defn-wk (stepᵗ₁ ⊢u) (wf-↦∷∈ α↦t (defn-wf (wf ⊢u)))
 
-opaque mutual
+opaque
+ unfolding Quot-rel-Con
+ mutual
 
   -- A well-formedness lemma for _↦∷_∈_.
 
@@ -164,6 +168,16 @@ opaque mutual
       ([]-congⱼ ⊢l ⊢A ⊢t ⊢u _ ok) →
         let open Erased ([]-cong→Erased ok) in
         Idⱼ (Erasedⱼ ⊢l ⊢A) ([]ⱼ ⊢l ⊢A ⊢t) ([]ⱼ ⊢l ⊢A ⊢u)
+      (Quot _ _ ⊢A _) →
+        wf-⊢∷ ⊢A
+      (class ⊢Q _) →
+        ⊢Q
+      (resp ⊢Q ⊢t ⊢u _) →
+        Idⱼ ⊢Q (class ⊢Q ⊢t) (class ⊢Q ⊢u)
+      (set ⊢Q ⊢t ⊢u ⊢v ⊢w) →
+        Idⱼ (Idⱼ ⊢Q ⊢t ⊢u) ⊢v ⊢w
+      (qrec ⊢C _ _ _ ⊢w) →
+        subst-⊢₀ ⊢C ⊢w
 
     -- A well-formedness lemma for _⊢_≡_.
 
@@ -204,6 +218,14 @@ opaque mutual
             _ , ⊢t₂ , ⊢u₂ = wf-⊢≡∷ t₂≡u₂
         in
         Idⱼ ⊢A ⊢t₁ ⊢t₂ , Idⱼ ⊢B (conv ⊢u₁ A≡B) (conv ⊢u₂ A≡B)
+      (Quot-cong ok A₁≡A₂ B₁≡B₂) →
+        let _   , ⊢A₂ = wf-⊢≡ A₁≡A₂
+            ⊢B₁ , ⊢B₂ = wf-⊢≡ B₁≡B₂
+        in
+        Quot ok ⊢B₁ ,
+        Quot ok
+          (stability-⊢
+             (Quot-rel-Con-cong (reflConEq (wf A₁≡A₂)) ⊢A₂ A₁≡A₂) ⊢B₂)
 
     -- A well-formedness lemma for _⊢_≡_∷_.
 
@@ -553,6 +575,101 @@ opaque mutual
         rflⱼ ⊢[t]
       (equality-reflection _ ⊢Id _) →
         inversion-Id ⊢Id
+      (Quot-cong ok ⊢l A₁≡A₂ B₁≡B₂) →
+        let ⊢U , ⊢A₁ , ⊢A₂ = wf-⊢≡∷ A₁≡A₂
+            _  , ⊢B₁ , ⊢B₂ = wf-⊢≡∷ B₁≡B₂
+        in
+        ⊢U ,
+        Quot ok ⊢l ⊢A₁ ⊢B₁ ,
+        Quot ok ⊢l ⊢A₂
+          (stability-⊢
+             (Quot-rel-Con-cong (reflConEq (wf A₁≡A₂)) (univ ⊢A₂)
+                (univ A₁≡A₂))
+             ⊢B₂)
+      (class-cong ⊢Q t₁≡t₂) →
+        let _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂ in
+        ⊢Q ,
+        class ⊢Q ⊢t₁ ,
+        class ⊢Q ⊢t₂
+      (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+        let _   , ⊢A₂     = wf-⊢≡ A₁≡A₂
+            ⊢B₁ , ⊢B₂     = wf-⊢≡ B₁≡B₂
+            ⊢B₂           = stability-⊢
+                              (Quot-rel-Con-cong
+                                 (reflConEq (wf ⊢A₂)) ⊢A₂ A₁≡A₂)
+                              ⊢B₂
+            ⊢Q₁           = Quot ok ⊢B₁
+            ⊢Q₂           = Quot ok ⊢B₂
+            _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
+            ⊢t₂′          = conv ⊢t₂ A₁≡A₂
+            _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
+            ⊢u₂′          = conv ⊢u₂ A₁≡A₂
+            _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
+            ⊢v₂           =
+              conv ⊢v₂ $ subst-⊢≡ B₁≡B₂ $
+              ⊢ˢʷ≡∷∙⇔ .proj₂
+                (⊢ˢʷ≡∷-sgSubst ⊢t₁ ⊢t₂ t₁≡t₂ ,
+                 PE.subst (_⊢_∷_ _ _) (PE.sym (wk1-sgSubst _ _)) ⊢u₁ ,
+                 PE.subst (_⊢_∷_ _ _) (PE.sym (wk1-sgSubst _ _)) ⊢u₂ ,
+                 PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (wk1-sgSubst _ _))
+                   u₁≡u₂)
+        in
+        Idⱼ ⊢Q₁ (class ⊢Q₁ ⊢t₁) (class ⊢Q₁ ⊢u₁) ,
+        resp ⊢Q₁ ⊢t₁ ⊢u₁ ⊢v₁ ,
+        conv (resp ⊢Q₂ ⊢t₂′ ⊢u₂′ ⊢v₂)
+          (_⊢_≡_.sym $
+           Id-cong (Quot-cong ok A₁≡A₂ B₁≡B₂) (class-cong ⊢Q₁ t₁≡t₂)
+             (class-cong ⊢Q₁ u₁≡u₂))
+      (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        let ⊢Q₁ , ⊢t₁ , ⊢t₂   = wf-⊢≡∷ t₁≡t₂
+            ok , _            = inversion-Quot ⊢Q₁
+            Q₁≡Q₂             = Quot-cong ok A₁≡A₂ B₁≡B₂
+            Id-t₁-u₁≡Id-t₂-u₂ = Id-cong Q₁≡Q₂ t₁≡t₂ u₁≡u₂
+            _ , ⊢A₂           = wf-⊢≡ A₁≡A₂
+            _ , ⊢B₂           = wf-⊢≡ B₁≡B₂
+            ⊢B₂               = stability-⊢
+                                  (Quot-rel-Con-cong
+                                     (reflConEq (wf ⊢A₂)) ⊢A₂ A₁≡A₂)
+                                  ⊢B₂
+            ⊢Q₂               = Quot ok ⊢B₂
+            _ , ⊢u₁ , ⊢u₂     = wf-⊢≡∷ u₁≡u₂
+            _ , ⊢v₁ , ⊢v₂     = wf-⊢≡∷ v₁≡v₂
+            _ , ⊢w₁ , ⊢w₂     = wf-⊢≡∷ w₁≡w₂
+        in
+        Idⱼ (Idⱼ ⊢Q₁ ⊢t₁ ⊢u₁) ⊢v₁ ⊢w₁ ,
+        set ⊢Q₁ ⊢t₁ ⊢u₁ ⊢v₁ ⊢w₁ ,
+        conv
+          (set ⊢Q₂ (conv ⊢t₂ Q₁≡Q₂) (conv ⊢u₂ Q₁≡Q₂)
+             (conv ⊢v₂ Id-t₁-u₁≡Id-t₂-u₂) (conv ⊢w₂ Id-t₁-u₁≡Id-t₂-u₂))
+          (sym (Id-cong Id-t₁-u₁≡Id-t₂-u₂ v₁≡v₂ w₁≡w₂))
+      (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        let _ , (⊢A , _) , (⊢B , _) , _ , (⊢Q , _) =
+              inversion-Is-set-Cons v₁≡v₂
+            ⊢C₁ , ⊢C₂     = wf-⊢≡ C₁≡C₂
+            _ , ⊢t₁ , ⊢t₂ = wf-⊢≡∷ t₁≡t₂
+            _ , ⊢u₁ , ⊢u₂ = wf-⊢≡∷ u₁≡u₂
+            _ , ⊢v₁ , ⊢v₂ = wf-⊢≡∷ v₁≡v₂
+            _ , ⊢w₁ , ⊢w₂ = wf-⊢≡∷ w₁≡w₂
+        in
+        subst-⊢₀ ⊢C₁ ⊢w₁ ,
+        qrec ⊢C₁ ⊢t₁ ⊢u₁ ⊢v₁ ⊢w₁ ,
+        conv
+          (qrec ⊢C₂
+             (conv ⊢t₂ $ subst-⊢≡ C₁≡C₂ $ refl-⊢ˢʷ≡∷ $
+              ⊢ˢʷ∷-[][]↑ (class (wk₁ ⊢A ⊢Q) (var₀ ⊢A)))
+             (conv ⊢u₂ $
+              Resp-type-cong (refl ⊢A) ⊢B (refl ⊢B) C₁≡C₂ t₁≡t₂)
+             (stability-⊢
+                (Is-set-Con-cong (reflConEq (wf ⊢A)) (refl ⊢A) (refl ⊢B)
+                   ⊢C₂ C₁≡C₂) $
+              conv ⊢v₂ (Is-set-type-cong ⊢C₁ C₁≡C₂))
+             ⊢w₂)
+          (sym (subst-⊢≡ C₁≡C₂ (⊢ˢʷ≡∷-sgSubst ⊢w₁ ⊢w₂ w₁≡w₂)))
+      (qrec-β {C} ⊢C ⊢t ⊢u ⊢v ⊢w) →
+        let ⊢class-w = class (⊢∙→⊢ (wf ⊢C)) ⊢w in
+        subst-⊢₀ ⊢C ⊢class-w ,
+        qrec ⊢C ⊢t ⊢u ⊢v ⊢class-w ,
+        PE.subst (_⊢_∷_ _ _) ([]↑-[]₀ C) (subst-⊢₀ ⊢t ⊢w)
 
     -- A well-formedness lemma for _⊢_≡_∷Level.
 

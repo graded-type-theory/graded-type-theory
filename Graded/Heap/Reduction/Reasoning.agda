@@ -12,7 +12,7 @@ module Graded.Heap.Reduction.Reasoning
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :

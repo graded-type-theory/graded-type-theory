@@ -28,21 +28,28 @@ open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Escape R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
+open import Definition.LogicalRelation.Properties.Reflexivity
+  R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Level
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 private
   variable
     m n : Nat
+    ℓ : Universe-level
     p q : M
     Γ : Cons m n
-    A B t u : Term n
+    A B t t′ u u′ : Term n
+    id-Γ : _ ⊢ʷᵏʳ _ ∷ _
 
 convEqTermNe : Γ ⊢ A ≡ B → Γ ⊩neNf t ≡ u ∷ A → Γ ⊩neNf t ≡ u ∷ B
 convEqTermNe A≡B (neNfₜ₌ neK neM k≡m) = neNfₜ₌ neK neM (~-conv k≡m A≡B)
@@ -228,6 +235,39 @@ mutual
                (lhs≡rhs→lhs′≡rhs′ lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
+  convEqTermT₁
+    (Quot ⊩A ⊩B@record{}) A≡B t≡u@(_ , _ , t⇒* , u⇒* , t′-q , u′-q , _)
+    with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+           (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+  … | PE.refl =
+    let Quot≡Quot′ = ≅-eq Quot≅Quot
+        t⇒*′       = conv* t⇒* Quot≡Quot′
+        u⇒*′       = conv* u⇒* Quot≡Quot′
+    in
+    _ , _ , t⇒*′ , u⇒*′ , t′-q , u′-q ,
+    Quot-view-inhabited⁻¹′ ⊩B t⇒*′ u⇒*′ t′-q u′-q
+      (case Quot-view-inhabited ⊩A t≡u of λ where
+         (ne t′-n u′-n t′~u′) →
+           ne t′-n u′-n (~-conv t′~u′ Quot≡Quot′)
+         (equal t″≡u″) →
+           equal $
+           convEqTerm₁ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _) t″≡u″
+         (related ok rel) →
+           related ok
+             (Symmetric-transitive-closure-map
+                (λ (⊩t″ , ⊩u″ , _ , ⊩v) →
+                   convTerm₁ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _)
+                     ⊩t″ ,
+                   convTerm₁ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _)
+                     ⊩u″ ,
+                   _ ,
+                   convTerm₁ (⊩A.⊩Rel _ _ _) (⊩B.⊩Rel _ _ _)
+                     (Rel≡Rel _ _ _) ⊩v)
+                rel))
+    where
+    module ⊩A = _⊩ₗQuot_ ⊩A
+    module ⊩B = _⊩ₗQuot_ ⊩B
+    open _⊩ₗQuot_≡_/_ A≡B
 
   -- Helper function for conversion of term equality converting from right to left.
   convEqTermT₂ : ∀ {l l′ A B t u} {[A] : Γ ⊩⟨ l ⟩ A} {[B] : Γ ⊩⟨ l′ ⟩ B}
@@ -381,6 +421,39 @@ mutual
                   lhs≡rhs)) }}
     where
     open _⊩ₗId_≡_/_ A≡B
+  convEqTermT₂
+    (Quot ⊩A ⊩B@record{}) A≡B t≡u@(_ , _ , t⇒* , u⇒* , t′-q , u′-q , _)
+    with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+           (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+  … | PE.refl =
+    let Quot′≡Quot = sym (≅-eq Quot≅Quot)
+        t⇒*′       = conv* t⇒* Quot′≡Quot
+        u⇒*′       = conv* u⇒* Quot′≡Quot
+    in
+    _ , _ , t⇒*′ , u⇒*′ , t′-q , u′-q ,
+    Quot-view-inhabited⁻¹′ ⊩A t⇒*′ u⇒*′ t′-q u′-q
+      (case Quot-view-inhabited ⊩B t≡u of λ where
+         (ne t′-n u′-n t′~u′) →
+           ne t′-n u′-n (~-conv t′~u′ Quot′≡Quot)
+         (equal t″≡u″) →
+           equal $
+           convEqTerm₂ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _) t″≡u″
+         (related ok rel) →
+           related ok
+             (Symmetric-transitive-closure-map
+                (λ (⊩t″ , ⊩u″ , _ , ⊩v) →
+                   convTerm₂ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _)
+                     ⊩t″ ,
+                   convTerm₂ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _)
+                     ⊩u″ ,
+                   _ ,
+                   convTerm₂ (⊩A.⊩Rel _ _ _) (⊩B.⊩Rel _ _ _)
+                     (Rel≡Rel _ _ _) ⊩v)
+                rel))
+    where
+    module ⊩A = _⊩ₗQuot_ ⊩A
+    module ⊩B = _⊩ₗQuot_ ⊩B
+    open _⊩ₗQuot_≡_/_ A≡B
 
   -- Conversion of term equality converting from left to right.
   convEqTerm₁ : ∀ {l l′ A B t u} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
@@ -395,3 +468,51 @@ mutual
             → Γ ⊩⟨ l′ ⟩ t ≡ u ∷ B / [B]
             → Γ ⊩⟨ l ⟩  t ≡ u ∷ A / [A]
   convEqTerm₂ [A] [B] A≡B t≡u = convEqTermT₂ (goodCases [A] [B] A≡B) A≡B t≡u
+
+opaque
+
+  -- A cast lemma for ⊩Quot-related.
+
+  cast-⊩Quot-relatedˡ :
+    (⊩A : Γ ⊩′⟨ ℓ ⟩Quot A) →
+    let open _⊩ₗQuot_ ⊩A in
+    Γ ⊩⟨ ℓ ⟩ t′ ∷ wk id Data / ⊩Data id-Γ →
+    Γ ⊩⟨ ℓ ⟩ t ≡ t′ ∷ wk id Data / ⊩Data id-Γ →
+    ⊩Quot-related ℓ Γ t  u id-Γ ⊩A →
+    ⊩Quot-related ℓ Γ t′ u id-Γ ⊩A
+  cast-⊩Quot-relatedˡ ⊩A ⊩t′ t≡t′ =
+    Symmetric-transitive-closure-cast.castˡ
+      (λ (⊩t , ⊩u , _ , ⊩v) →
+         ⊩t′ , ⊩u , _ ,
+         convTerm₁ (⊩Rel _ _ _) (⊩Rel _ _ _)
+           (Rel≡Rel _ ⊩t ⊩t′ ⊩u ⊩u t≡t′ (reflEqTerm (⊩Data _) ⊩u)) ⊩v)
+      (λ (⊩u , ⊩t , _ , ⊩v) →
+         ⊩u , ⊩t′ , _ ,
+         convTerm₁ (⊩Rel _ _ _) (⊩Rel _ _ _)
+           (Rel≡Rel _ ⊩u ⊩u ⊩t ⊩t′ (reflEqTerm (⊩Data _) ⊩u) t≡t′) ⊩v)
+    where
+    open _⊩ₗQuot_ ⊩A
+
+opaque
+
+  -- A cast lemma for ⊩Quot-related.
+
+  cast-⊩Quot-relatedʳ :
+    (⊩A : Γ ⊩′⟨ ℓ ⟩Quot A) →
+    let open _⊩ₗQuot_ ⊩A in
+    Γ ⊩⟨ ℓ ⟩ u′ ∷ wk id Data / ⊩Data id-Γ →
+    Γ ⊩⟨ ℓ ⟩ u ≡ u′ ∷ wk id Data / ⊩Data id-Γ →
+    ⊩Quot-related ℓ Γ t u  id-Γ ⊩A →
+    ⊩Quot-related ℓ Γ t u′ id-Γ ⊩A
+  cast-⊩Quot-relatedʳ ⊩A ⊩u′ u≡u′ =
+    Symmetric-transitive-closure-cast.castʳ
+      (λ (⊩u , ⊩t , _ , ⊩v) →
+         ⊩u′ , ⊩t , _ ,
+         convTerm₁ (⊩Rel _ _ _) (⊩Rel _ _ _)
+           (Rel≡Rel _ ⊩u ⊩u′ ⊩t ⊩t u≡u′ (reflEqTerm (⊩Data _) ⊩t)) ⊩v)
+      (λ (⊩t , ⊩u , _ , ⊩v) →
+         ⊩t , ⊩u′ , _ ,
+         convTerm₁ (⊩Rel _ _ _) (⊩Rel _ _ _)
+           (Rel≡Rel _ ⊩t ⊩t ⊩u ⊩u′ (reflEqTerm (⊩Data _) ⊩t) u≡u′) ⊩v)
+    where
+    open _⊩ₗQuot_ ⊩A

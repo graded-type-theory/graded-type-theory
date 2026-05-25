@@ -109,6 +109,7 @@ import Definition.Untyped.Whnf
 import Definition.Untyped.Neutral.Atomic
 import Definition.Untyped.Names-below
 import Definition.Untyped.Identity
+import Definition.Untyped.Quotient
 import Definition.Untyped.Lift
 import Definition.Untyped.Pi-Sigma
 import Definition.Untyped.Pi
@@ -150,6 +151,7 @@ import Definition.Typed.Weakening.Combined
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
+import Definition.Typed.Properties.Admissible.Quotient.Primitive
 import Definition.Typed.Well-formed
 import Definition.Typed.Properties.Admissible.U
 import Definition.Typed.Substitution.Primitive
@@ -176,6 +178,7 @@ import Definition.Typed.Properties.Admissible.Non-dependent
 import Definition.Typed.Properties.Admissible.Erased.Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta
 import Definition.Typed.Properties.Admissible.Erased
+import Definition.Typed.Properties.Admissible.Quotient
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Omega
 import Definition.Typed.Properties.Definition
@@ -313,6 +316,7 @@ import Graded.Modality.Instances.Erasure.Combined.Erased
 import Definition.LogicalRelation.Weakening.Restricted
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Properties.Kit
+import Definition.LogicalRelation.Properties.Quotient
 import Definition.LogicalRelation.Properties.Whnf
 import Definition.LogicalRelation.Properties.Primitive
 import Definition.LogicalRelation.Properties.Reflexivity
@@ -353,6 +357,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak
 import Definition.LogicalRelation.Substitution.Introductions.Sigma
 import Definition.LogicalRelation.Substitution.Introductions.Erased
 import Definition.LogicalRelation.Substitution.Introductions.Identity
+import Definition.LogicalRelation.Substitution.Introductions.Quotient
 import Definition.LogicalRelation.Substitution.Introductions
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility.Restricted
@@ -371,7 +376,6 @@ import Definition.Typed.Consequences.Admissible.Erased
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
-import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.NeTypeEq
 import Definition.Typed.Consequences.Transparentisation
 import Definition.Typed.Consequences.Universe
@@ -414,6 +418,7 @@ import Definition.Typed.Decidable.Internal
 import Definition.Typed.Decidable.Internal.Examples
 
 -- Some code that uses the internal type-checker.
+import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.Admissible.Identity
 import Definition.Typed.Consequences.Admissible.Bool
 import Definition.Typed.Consequences.Admissible.Bool.Erased
@@ -495,6 +500,8 @@ import Graded.Modality.Extended
 import Graded.Modality.Extended.K-allowed
 import Graded.Modality.Extended.K-not-allowed.Erased-matches
 import Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches
+import
+  Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches.Quotients
 import Graded.Modality.Extended.K-not-allowed.No-erased-matches
 
 ------------------------------------------------------------------------
@@ -533,6 +540,7 @@ import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
+import Graded.Erasure.LogicalRelation.Fundamental.Quotient
 import Graded.Erasure.LogicalRelation.Fundamental.Universe
 import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 import Graded.Erasure.LogicalRelation.Fundamental

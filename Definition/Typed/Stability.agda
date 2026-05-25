@@ -344,6 +344,42 @@ opaque
       (stability Γ≡Δ ⊢u) ok
   stabilityRedTerm Γ≡Δ ([]-cong-β ⊢l t≡t′ ok) =
     []-cong-β (stability Γ≡Δ ⊢l) (stability Γ≡Δ t≡t′) ok
+  stabilityRedTerm Γ≡Δ (resp-η ok ⊢Q ⊢t ⊢u ⊢v) =
+    resp-η ok (stability Γ≡Δ ⊢Q) (stability Γ≡Δ ⊢t) (stability Γ≡Δ ⊢u)
+      (stability Γ≡Δ ⊢v)
+  stabilityRedTerm Γ≡Δ (set-η ok ⊢t ⊢u ⊢v ⊢w) =
+    set-η ok (stability Γ≡Δ ⊢t) (stability Γ≡Δ ⊢u) (stability Γ≡Δ ⊢v)
+      (stability Γ≡Δ ⊢w)
+  stabilityRedTerm Γ≡Δ (qrec-subst ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) =
+    let _ , (⊢Q , _) = ∙⊢→⊢-<ˢ ⊢C
+        _ , (⊢A , _) = ∙⊢→⊢-<ˢ ⊢t
+    in
+    qrec-subst (stability (Γ≡Δ ∙ refl ⊢Q) ⊢C)
+      (stability (Γ≡Δ ∙ refl ⊢A) ⊢t)
+      (stability
+         (⊢≡⇔⊢≡ .proj₂ $
+          S.stability-Resp-Con (⊢≡⇔⊢≡ .proj₁ Γ≡Δ) (wf ⊢u))
+         ⊢u)
+      (stability
+         (⊢≡⇔⊢≡ .proj₂ $
+          S.stability-Is-set-Con (⊢≡⇔⊢≡ .proj₁ Γ≡Δ) (wf ⊢v))
+         ⊢v)
+      (stabilityRedTerm Γ≡Δ w₁⇒w₂)
+  stabilityRedTerm Γ≡Δ (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    let _ , (⊢Q , _) = ∙⊢→⊢-<ˢ ⊢C
+        _ , (⊢A , _) = ∙⊢→⊢-<ˢ ⊢t
+    in
+    qrec-β (stability (Γ≡Δ ∙ refl ⊢Q) ⊢C)
+      (stability (Γ≡Δ ∙ refl ⊢A) ⊢t)
+      (stability
+         (⊢≡⇔⊢≡ .proj₂ $
+          S.stability-Resp-Con (⊢≡⇔⊢≡ .proj₁ Γ≡Δ) (wf ⊢u))
+         ⊢u)
+      (stability
+         (⊢≡⇔⊢≡ .proj₂ $
+          S.stability-Is-set-Con (⊢≡⇔⊢≡ .proj₁ Γ≡Δ) (wf ⊢v))
+         ⊢v)
+      (stability Γ≡Δ ⊢w)
 
 opaque
 

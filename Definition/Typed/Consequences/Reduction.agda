@@ -19,6 +19,7 @@ open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Omega M
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Properties R
@@ -247,6 +248,25 @@ opaque
     lemma ⊢w rflₙ   = inversion-rfl-Id ⊢w
     lemma ⊢w (ne _) = _
 
+opaque
+
+  -- If the type of t is Quot A B, then t reduces to an application of
+  -- class or a neutral term (given a certain assumption).
+
+  red-Quot :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ t ∷ Quot A B →
+    ∃ λ u → Quotient No-equality-reflection (Γ .defs) u ×
+            Γ ⊢ t ⇒* u ∷ Quot A B
+  red-Quot ⊢t =
+    case ⊩∷Quot⇔ .proj₁ $ proj₂ $ reducible-⊩∷ ⊢t of λ
+      (_ , u , t⇒*u , rest) →
+      u
+    , (case rest of λ where
+         (class _)   → class
+         (ne u-ne _) → ne (ne⁻ u-ne))
+    , t⇒*u
+
 -- Helper function where all reducible types can be reduced to WHNF.
 whNorm′ : ∀ {A l} ([A] : Γ ⊩⟨ l ⟩ A)
                 → ∃ λ B → Whnf (Γ .defs) B × Γ ⊢ A ⇒* B
@@ -260,6 +280,7 @@ whNorm′ (ne′ H D neH H≡H) = H , ne-whnf neH , D
 whNorm′ (Πᵣ′ F G D _ _ _ _ _) = Π _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Σᵣ′ F G D _ _ _ _ _) = Σ _ , _ ▷ F ▹ G , ΠΣₙ , D
 whNorm′ (Idᵣ ⊩Id) = _ , Idₙ , _⊩ₗId_.⇒*Id ⊩Id
+whNorm′ (Quot ⊩Quot) = _ , Quot , _⊩ₗQuot_.⇒*Quot ⊩Quot
 
 opaque
 
@@ -396,6 +417,13 @@ opaque
       (_ , univ ⊢rfl) →
         ⊥-elim $ Id≢U $
         sym (inversion-rfl ⊢rfl .proj₂ .proj₂ .proj₂ .proj₂)
+  … | _ , Quot , A⇒Quot =
+    ⊥-elim $ I.Quot≢ΠΣ (trans (sym (subset* A⇒Quot)) A≡ΠΣ)
+  … | _ , class , A⇒class =
+    case wf-⊢ (subset* A⇒class) of λ where
+      (_ , univ ⊢class) →
+        let _ , _ , _ , _ , eq = inversion-class ⊢class in
+        ⊥-elim (Quot≢U (sym eq))
   … | _ , ne n , D =
     ⊥-elim (I.ΠΣ≢ne n (trans (sym A≡ΠΣ) (subset* D)))
 
@@ -419,6 +447,32 @@ opaque
     case Id≡Whnf Id≡A′ A′-whnf of λ {
       (_ , _ , _ , PE.refl) →
     _ , _ , _ , A⇒*A′ , Id-injectivity Id≡A′ }}}
+
+opaque
+
+  -- If equality reflection is not allowed or the context is empty,
+  -- and A is definitionally equal to Quot B t u, then A reduces to
+  -- Quot B′ t′ u′ for some B′, t′ and u′ that are definitionally equal
+  -- to B, t and u.
+
+  Quot-norm :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ A ≡ Quot B C →
+    ∃₂ λ B′ C′ →
+      (Γ ⊢ A ⇒* Quot B′ C′) ×
+      Γ ⊢ B ≡ B′ ×
+      (⦃ not-ok : No-equality-reflection ⦄ →
+       Quot-rel-Cons Γ B ⊢ C ≡ C′) ×
+      (∀ {t₁ t₂ u₁ u₂} →
+       Γ ⊢ t₁ ≡ t₂ ∷ B → Γ ⊢ u₁ ≡ u₂ ∷ B →
+       Γ ⊢ C [ t₁ , u₁ ]₁₀ ≡ C′ [ t₂ , u₂ ]₁₀)
+  Quot-norm A≡Quot =
+    case whNorm (wf-⊢ A≡Quot .proj₁) of λ
+      (_ , A′-whnf , A⇒*A′) →
+    let Quot≡A′ = trans (sym A≡Quot) (subset* A⇒*A′) in
+    case Quot≡Whnf Quot≡A′ A′-whnf of λ {
+      (_ , _ , PE.refl) →
+    _ , _ , A⇒*A′ , Quot-injectivity′ Quot≡A′ }
 
 -- Helper function where reducible all terms can be reduced to WHNF.
 whNormTerm′ : ∀ {a A l} ([A] : Γ ⊩⟨ l ⟩ A) → Γ ⊩⟨ l ⟩ a ∷ A / [A]
@@ -457,6 +511,12 @@ whNormTerm′ (Idᵣ ⊩Id) ⊩a =
   let Idₜ a′ a⇒*a′ a′-id _ = ⊩Id∷⇔⊩Id≡∷ ⊩Id .proj₂ ⊩a in
     a′ , Identityᵃ→Whnf a′-id
   , conv* a⇒*a′ (sym (subset* (_⊩ₗId_.⇒*Id ⊩Id)))
+whNormTerm′ (Quot ⊩Quot) ⊩a =
+  _ ,
+  Quotientᵃ→Whnf w-q ,
+  conv* ⇒*w (sym (subset* (_⊩ₗQuot_.⇒*Quot ⊩Quot)))
+  where
+  open _⊩⟨_⟩Quot_∷_/_ (⊩Quot∷⇔⊩Quot≡∷ ⊩Quot .proj₂ ⊩a)
 
 opaque
 

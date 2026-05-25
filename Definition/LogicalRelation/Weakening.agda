@@ -40,6 +40,8 @@ open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation hiding (Rel)
+open import Tools.Sum
 
 private
   variable
@@ -340,6 +342,53 @@ private module Weakening (ℓ : Universe-level) (rec : ∀ {ℓ′} → ℓ′ <
     Γ₂ ⊩⟨ ℓ ⟩ U.wk ρ t ∷ U.wk ρ A / wk ⊢ρ ⊩A
   wkTerm ⊩A ⊩t = wkEqTerm ⊩A ⊩t
 
+  private
+    wk-⊩Quot :
+      Γ₂ ⊢ʷᵏʳ ρ ∷ Γ₁ → Γ₁ ⊩′⟨ ℓ ⟩Quot A → Γ₂ ⊩′⟨ ℓ ⟩Quot U.wk ρ A
+    wk-⊩Quot {Γ₂} {ρ} {Γ₁} ⊢ρ ⊩A =
+      let ⊩Data′ : ∀ {κ′ m} {Γ₃ : Cons κ′ m} {ρ′ : Wk m _} →
+                   Γ₃ ⊢ʷᵏʳ ρ′ ∷ Γ₂ → Γ₃ ⊩⟨ ℓ ⟩ U.wk (ρ′ • ρ) Data
+          ⊩Data′ ⊢ρ′ =
+            ⊩Data (⊢ʷᵏʳ• ⊢ρ′ ⊢ρ)
+
+          ⊩Data″ : ∀ {κ′ m} {Γ₃ : Cons κ′ m} {ρ′ : Wk m _} →
+                   Γ₃ ⊢ʷᵏʳ ρ′ ∷ Γ₂ → Γ₃ ⊩⟨ ℓ ⟩ U.wk ρ′ (U.wk ρ Data)
+          ⊩Data″ ⊢ρ′ =
+            PE.subst (_⊩⟨_⟩_ _ _) (PE.sym (wk-comp _ _ _)) (⊩Data′ ⊢ρ′)
+      in
+      record
+        { ⇒*Quot = wk-⇒* ⊢ρ ⇒*Quot
+        ; ≅Quot  = ≅-wk (⊢ʷᵏʳ→⊢ʷᵏ ⊢ρ) ≅Quot
+        ; ⊩Data  = ⊩Data″
+        ; ⊩Rel   = λ ⊢ρ′ ⊩t ⊩u →
+            PE.subst (_⊩⟨_⟩_ _ _)
+              (PE.cong _[ _ , _ ]₁₀ (PE.sym (wk-comp _ _ Rel))) $
+            ⊩Rel (⊢ʷᵏʳ• ⊢ρ′ ⊢ρ)
+              (irrelevanceTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′)
+                 (⊩Data′ ⊢ρ′) ⊩t)
+              (irrelevanceTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′)
+                 (⊩Data′ ⊢ρ′) ⊩u)
+        ; Rel≡Rel = λ ⊢ρ′ ⊩t₁ ⊩t₂ ⊩u₁ ⊩u₂ t₁≡t₂ u₁≡u₂ →
+            irrelevanceEq″
+              (PE.cong _[ _ , _ ]₁₀ (PE.sym (wk-comp _ _ Rel)))
+              (PE.cong _[ _ , _ ]₁₀ (PE.sym (wk-comp _ _ Rel))) _ _ $
+            Rel≡Rel (⊢ʷᵏʳ• ⊢ρ′ ⊢ρ)
+              (irrelevanceTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′)
+                 (⊩Data′ ⊢ρ′) ⊩t₁)
+              (irrelevanceTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′)
+                 (⊩Data′ ⊢ρ′) ⊩t₂)
+              (irrelevanceTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′)
+                 (⊩Data′ ⊢ρ′) ⊩u₁)
+              (irrelevanceTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′)
+                 (⊩Data′ ⊢ρ′) ⊩u₂)
+              (irrelevanceEqTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′)
+                 (⊩Data′ ⊢ρ′) t₁≡t₂)
+              (irrelevanceEqTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′)
+                 (⊩Data′ ⊢ρ′) u₁≡u₂)
+        }
+      where
+      open _⊩ₗQuot_ ⊩A
+
   wk ρ (Levelᵣ D) = Levelᵣ (wk-⇒* ρ D)
   wk ρ (Liftᵣ′ D [k] [F]) =
     Liftᵣ′ (wk-⇒* ρ D) (wkTermLevel (⊢ʷᵏʳ→⊢ʷᵏ ρ) [k]) (wk ρ [F])
@@ -392,6 +441,8 @@ private module Weakening (ℓ : Universe-level) (rec : ∀ {ℓ′} → ℓ′ <
     })
     where
     open _⊩ₗId_ ⊩A
+  wk ⊢ρ (Quot ⊩A) =
+    Quot (wk-⊩Quot ⊢ρ ⊩A)
 
   wkEq ρ (Levelᵣ D) A≡B = wk-⇒* ρ A≡B
   wkEq ρ (Liftᵣ′ D [k] [F]) (Lift₌ D′ k≡k′ F≡F′) =
@@ -432,6 +483,37 @@ private module Weakening (ℓ : Universe-level) (rec : ∀ {ℓ′} → ℓ′ <
     where
     open _⊩ₗId_ ⊩A
     open _⊩ₗId_≡_/_ A≡B
+  wkEq {Γ₂} {ρ} {Γ₁} ⊢ρ (Quot ⊩A) A≡B =
+    let ⊩Data′ : ∀ {κ′ m} {Γ₃ : Cons κ′ m} {ρ′ : Wk m _} →
+                 Γ₃ ⊢ʷᵏʳ ρ′ ∷ Γ₂ → Γ₃ ⊩⟨ ℓ ⟩ U.wk (ρ′ • ρ) Q.Data
+        ⊩Data′ ⊢ρ′ =
+          Q.⊩Data (⊢ʷᵏʳ• ⊢ρ′ ⊢ρ)
+
+        ⊩Data″ : ∀ {κ′ m} {Γ₃ : Cons κ′ m} {ρ′ : Wk m _} →
+                 Γ₃ ⊢ʷᵏʳ ρ′ ∷ Γ₂ → Γ₃ ⊩⟨ ℓ ⟩ U.wk ρ′ (U.wk ρ Q.Data)
+        ⊩Data″ ⊢ρ′ =
+          PE.subst (_⊩⟨_⟩_ _ _) (PE.sym (wk-comp _ _ _)) (⊩Data′ ⊢ρ′)
+    in
+    record
+      { ⇒*Quot′   = wk-⇒* ⊢ρ ⇒*Quot′
+      ; Quot≅Quot = ≅-wk (⊢ʷᵏʳ→⊢ʷᵏ ⊢ρ) Quot≅Quot
+      ; Data≡Data = λ ⊢ρ′ →
+          irrelevanceEq″
+            (PE.sym (wk-comp _ _ _)) (PE.sym (wk-comp _ _ _)) _ _ $
+          Data≡Data (⊢ʷᵏʳ• ⊢ρ′ ⊢ρ)
+      ; Rel≡Rel = λ ⊢ρ′ ⊩t ⊩u →
+          irrelevanceEq″
+            (PE.cong _[ _ , _ ]₁₀ (PE.sym (wk-comp _ _ Q.Rel)))
+            (PE.cong _[ _ , _ ]₁₀ (PE.sym (wk-comp _ _ Rel′))) _ _ $
+          Rel≡Rel (⊢ʷᵏʳ• ⊢ρ′ ⊢ρ)
+            (irrelevanceTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′) (⊩Data′ ⊢ρ′)
+               ⊩t)
+            (irrelevanceTerm′ (wk-comp _ _ _) (⊩Data″ ⊢ρ′) (⊩Data′ ⊢ρ′)
+               ⊩u)
+      }
+    where
+    module Q = _⊩ₗQuot_ ⊩A
+    open _⊩ₗQuot_≡_/_ A≡B
 
   wkEqTerm ρ (Levelᵣ D) [t≡u] = wkEqTermLevel (⊢ʷᵏʳ→⊢ʷᵏ ρ) [t≡u]
   wkEqTerm
@@ -605,6 +687,66 @@ private module Weakening (ℓ : Universe-level) (rec : ∀ {ℓ′} → ℓ′ <
           , ~-wk (⊢ʷᵏʳ→⊢ʷᵏ ρ∷⊇) t′~u′)
     where
     open _⊩ₗId_ ⊩A
+  wkEqTerm {Γ₂} {ρ} {Γ₁} ⊢ρ (Quot ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
+    let ⊩Data′ : ∀ {κ′ m} {Γ₃ : Cons κ′ m} {ρ′ : Wk m _} →
+                 Γ₃ ⊢ʷᵏʳ ρ′ ∷ Γ₂ → Γ₃ ⊩⟨ ℓ ⟩ U.wk (ρ′ • ρ) Data
+        ⊩Data′ ⊢ρ′ =
+          ⊩Data (⊢ʷᵏʳ• ⊢ρ′ ⊢ρ)
+
+        ⊩Data″ : ∀ {κ′ m} {Γ₃ : Cons κ′ m} {ρ′ : Wk m _} →
+                 Γ₃ ⊢ʷᵏʳ ρ′ ∷ Γ₂ → Γ₃ ⊩⟨ ℓ ⟩ U.wk ρ′ (U.wk ρ Data)
+        ⊩Data″ ⊢ρ′ =
+          PE.subst (_⊩⟨_⟩_ _ _) (PE.sym (wk-comp _ _ _)) (⊩Data′ ⊢ρ′)
+
+        lemma = λ {A : Term _} →
+          U.wk ρ (U.wk id A)  ≡⟨ PE.cong (U.wk _) (wk-id _) ⟩
+          U.wk ρ A            ≡˘⟨ wk-id _ ⟩
+          U.wk id (U.wk ρ A)  ∎
+    in
+    _ , _ , wk-⇒*∷ ⊢ρ t⇒*t′ , wk-⇒*∷ ⊢ρ u⇒*u′ ,
+    (case Quot-view-inhabited ⊩A t≡u of λ where
+       (equal t″≡u″) →
+         class , class ,
+         inj₁
+           (irrelevanceEqTerm′ lemma
+              (wk ⊢ρ (⊩Data _)) (⊩Data″ _) $
+            wkEqTerm ⊢ρ (⊩Data _) t″≡u″)
+       (related ok rel) →
+         class , class ,
+         inj₂
+           (ok ,
+            Symmetric-transitive-closure-elim
+              {R₂ = λ _ _ → ⊩Quot-related _ _ _ _ _ (wk-⊩Quot _ ⊩A)}
+              symˢᵗ transˢᵗ
+              (λ {x = t″} {y = u″} (⊩t″ , ⊩u″ , _ , ⊩v) →
+                 injˢᵗ
+                   ( irrelevanceTerm′ lemma (wk ⊢ρ (⊩Data _))
+                       (_⊩ₗQuot_.⊩Data (wk-⊩Quot ⊢ρ ⊩A) _)
+                       (wkTerm ⊢ρ (⊩Data _) ⊩t″)
+                   , irrelevanceTerm′ lemma (wk ⊢ρ (⊩Data _))
+                       (_⊩ₗQuot_.⊩Data (wk-⊩Quot ⊢ρ ⊩A) _)
+                       (wkTerm ⊢ρ (⊩Data _) ⊩u″)
+                   , _
+                   , irrelevanceTerm′
+                       (U.wk ρ (U.wk (liftn id 2) Rel [ t″ , u″ ]₁₀)  ≡⟨ wk-β-doubleSubst _ (U.wk _ Rel) _ _ ⟩
+
+                        U.wk (liftn ρ 2) (U.wk (liftn id 2) Rel)
+                          [ U.wk ρ t″ , U.wk ρ u″ ]₁₀                 ≡⟨ PE.cong _[ _ , _ ]₁₀ $
+                                                                         PE.trans (wk-comp _ _ Rel) $
+                                                                         PE.trans (PE.cong (flip U.wk _ ∘→ flip liftn 2) •-id) $
+                                                                         PE.sym (wk-comp _ _ Rel) ⟩
+                        U.wk (liftn id 2) (U.wk (liftn ρ 2) Rel)
+                          [ U.wk ρ t″ , U.wk ρ u″ ]₁₀                 ∎)
+                       (wk ⊢ρ (⊩Rel _ _ _))
+                       (_⊩ₗQuot_.⊩Rel (wk-⊩Quot ⊢ρ ⊩A) _ _ _)
+                       (wkTerm ⊢ρ (⊩Rel _ _ _) ⊩v)
+                   ))
+              rel)
+       (ne t′-n u′-n t′~u′) →
+         ne (wk-Neutralᵃ ⊢ρ t′-n) , ne (wk-Neutralᵃ ⊢ρ u′-n) ,
+         ~-wk (⊢ʷᵏʳ→⊢ʷᵏ ⊢ρ) t′~u′)
+    where
+    open _⊩ₗQuot_ ⊩A
 
   -- Impossible cases
   wkEqTerm _ (Bᵣ BΣʷ record{}) (Σₜ₌ _ _ _ _ prodₙ (ne _) _ ())

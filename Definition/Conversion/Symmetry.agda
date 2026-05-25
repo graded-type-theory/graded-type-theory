@@ -16,6 +16,8 @@ module Definition.Conversion.Symmetry
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R using (eqRelInstance)
@@ -52,7 +54,9 @@ private
     l₁ l₂ : Lvl _
     d : Bool
 
-mutual
+opaque
+ unfolding Quot-rel-Con
+ mutual
   -- Symmetry of algorithmic equality of neutral terms.
   sym~↑ : ∀ {t u A} → ∇ »⊢ Δ ≡ Η
         → ∇ » Δ ⊢ t ~ u ↑ A
@@ -232,6 +236,73 @@ mutual
        trans (trans (sym B≡C) B≡Id-t₁-u₁)
          (Id-cong ⊢A₁≡A₂ ⊢t₁≡t₂ ⊢u₁≡u₂))
       ok
+  sym~↑ Γ≡Δ (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
+    let ⊢A₁≡A₂  = soundnessConv↑ A₁≡A₂
+        ⊢B₁≡B₂  = soundnessConv↑ B₁≡B₂
+        ⊢t₁≡t₂  = soundnessConv↑Term t₁≡t₂
+        ⊢u₁≡u₂  = soundnessConv↑Term u₁≡u₂
+        Γ≡Γ     = reflConEq (wf ⊢A₁≡A₂)
+        ok′ , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok
+        ⊢B₁ , _ = wf-⊢ ⊢B₁≡B₂
+        ⊢Q₁     = Quot ok′ ⊢B₁
+    in
+    _ ,
+    Id-cong (Quot-cong ok′ ⊢A₁≡A₂ ⊢B₁≡B₂)
+      (class-cong ⊢Q₁ ⊢t₁≡t₂) (class-cong ⊢Q₁ ⊢u₁≡u₂) ,
+    resp-cong ok (symConv↑ Γ≡Δ A₁≡A₂)
+      (symConv↑ (Quot-rel-Con-cong Γ≡Δ ⊢A₁≡A₂) B₁≡B₂)
+      (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ t₁≡t₂))
+      (convConv↑Term′ Γ≡Δ ⊢A₁≡A₂ (symConv↑Term Γ≡Γ u₁≡u₂))
+      (convConv↑Term′ Γ≡Δ
+         (subst-⊢≡₁₀ ⊢B₁≡B₂ ⊢t₁≡t₂ $
+          PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (wk1-sgSubst _ _)) ⊢u₁≡u₂)
+         (symConv↑Term Γ≡Γ v₁≡v₂))
+  sym~↑ Γ≡Δ (set-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+    let ⊢A₁≡A₂  = soundnessConv↑ A₁≡A₂
+        ⊢B₁≡B₂  = soundnessConv↑ B₁≡B₂
+        ⊢t₁≡t₂  = soundnessConv↑Term t₁≡t₂
+        ⊢u₁≡u₂  = soundnessConv↑Term u₁≡u₂
+        ⊢v₁≡v₂  = soundnessConv↑Term v₁≡v₂
+        ⊢w₁≡w₂  = soundnessConv↑Term w₁≡w₂
+        Γ≡Γ     = reflConEq (wf ⊢A₁≡A₂)
+        ok′ , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok
+        Q≡Q     = Quot-cong ok′ ⊢A₁≡A₂ ⊢B₁≡B₂
+        Id≡Id   = Id-cong Q≡Q ⊢t₁≡t₂ ⊢u₁≡u₂
+    in
+    _ ,
+    Id-cong Id≡Id ⊢v₁≡v₂ ⊢w₁≡w₂ ,
+    set-cong ok (symConv↑ Γ≡Δ A₁≡A₂)
+      (symConv↑ (Quot-rel-Con-cong Γ≡Δ ⊢A₁≡A₂) B₁≡B₂)
+      (convConv↑Term′ Γ≡Δ Q≡Q (symConv↑Term Γ≡Γ t₁≡t₂))
+      (convConv↑Term′ Γ≡Δ Q≡Q (symConv↑Term Γ≡Γ u₁≡u₂))
+      (convConv↑Term′ Γ≡Δ Id≡Id (symConv↑Term Γ≡Γ v₁≡v₂))
+      (convConv↑Term′ Γ≡Δ Id≡Id (symConv↑Term Γ≡Γ w₁≡w₂))
+  sym~↑ Γ≡Δ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂)
+    with sym~↓ Γ≡Δ w₁~w₂
+  … | _ , D-whnf , Q≡D , w₂~w₁ with Quot≡Whnf Q≡D D-whnf
+  …   | _ , _ , PE.refl =
+    let ⊢Q , _  = wf-⊢ Q≡D
+        A≡ , B≡ = Quot-injectivity-no-equality-reflection Q≡D
+        ⊢A , _  = wf-⊢ A≡
+        ⊢C₁≡C₂  = soundnessConv↑ C₁≡C₂
+        ⊢C₁ , _ = wf-⊢ ⊢C₁≡C₂
+        ⊢t₁≡t₂  = soundnessConv↑Term t₁≡t₂
+        ⊢w₁≡w₂  = soundness~↓ w₁~w₂
+    in
+    _ ,
+    subst-⊢≡₀ ⊢C₁≡C₂ ⊢w₁≡w₂ ,
+    qrec-cong (symConv↑ (Γ≡Δ ∙ Q≡D) C₁≡C₂)
+      (convConv↑Term′ (Γ≡Δ ∙ A≡)
+         (subst-⊢≡ ⊢C₁≡C₂ $ refl-⊢ˢʷ≡∷ $ ⊢ˢʷ∷-[][]↑ $
+          class (wk₁ ⊢A ⊢Q) (var₀ ⊢A))
+         (symConv↑Term (reflConEq (∙ ⊢A)) t₁≡t₂))
+      (convConv↑Term′ (Resp-Con-cong Γ≡Δ A≡ B≡)
+         (Resp-type-cong A≡ B≡ ⊢C₁≡C₂ ⊢t₁≡t₂)
+         (symConv↑Term (reflConEq (⊢Resp-Con ⊢Q)) u₁≡u₂))
+      (convConv↑Term′ (Is-set-Con-cong Γ≡Δ A≡ B≡ ⊢C₁≡C₂)
+         (Is-set-type-cong ⊢C₁≡C₂)
+         (symConv↑Term (reflConEq (⊢Is-set-Con ⊢C₁)) v₁≡v₂))
+      w₂~w₁
 
   -- Symmetry of algorithmic equality of neutral terms with types in WHNF.
   sym~↓ : ∀ {t u A} → ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ t ~ u ↓ A
@@ -289,6 +360,10 @@ mutual
     Id-cong (symConv↑ Δ≡Η A₁≡A₂)
       (convConv↑Term′ Δ≡Η ⊢A₁≡A₂ (symConv↑Term Δ≡Δ t₁≡t₂))
       (convConv↑Term′ Δ≡Η ⊢A₁≡A₂ (symConv↑Term Δ≡Δ u₁≡u₂)) }}
+  symConv↓ Δ≡Η (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+    let ⊢A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+    Quot-cong ok (symConv↑ Δ≡Η A₁≡A₂)
+      (symConv↑ (Quot-rel-Con-cong Δ≡Η ⊢A₁≡A₂) B₁≡B₂)
 
   -- Symmetry of algorithmic equality of terms.
   symConv↑Term : ∀ {t u A} → ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢ t [conv↑] u ∷ A → ∇ » Η ⊢ u [conv↑] t ∷ A
@@ -377,6 +452,15 @@ mutual
     Id-ins (stability Δ≡Η (conv ⊢v₂ Id≡Id)) v₂~v₁ }}}}
   symConv↓Term Δ≡Η (rfl-refl t≡u) =
     rfl-refl (stability Δ≡Η t≡u)
+  symConv↓Term Δ≡Η (Quot-ins ⊢t₁ t₁~t₂) with sym~↓ Δ≡Η t₁~t₂
+  … | _ , C-whnf , Q≡C , t₂~t₁ with Quot≡Whnf Q≡C C-whnf
+  …   | _ , _ , PE.refl =
+    let _ , ⊢t₁′ , ⊢t₂ = wf-⊢ (soundness~↓ t₁~t₂)
+        t₁-ne          = ne⁻ (ne~↓ t₁~t₂ .proj₂ .proj₁)
+    in
+    Quot-ins (stability Δ≡Η (conv ⊢t₂ (neTypeEq t₁-ne ⊢t₁′ ⊢t₁))) t₂~t₁
+  symConv↓Term Δ≡Η (class-cong ⊢Q t₁≡t₂) =
+    class-cong (stability Δ≡Η ⊢Q) (symConv↑Term Δ≡Η t₁≡t₂)
 
   -- Symmetry of algorithmic equality of levels.
 

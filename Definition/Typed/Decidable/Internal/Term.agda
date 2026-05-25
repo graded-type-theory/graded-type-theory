@@ -137,6 +137,9 @@ mutual
   --   grades is at the time of writing only a syntactic check, the
   --   modality laws have not been implemented.)
   --
+  --   The term formers related to quotients are currently not
+  --   included.
+  --
   -- * One can optionally annotate some term constructors with extra
   --   information. This feature is included so that one can have
   --   things like β-redexes in the terms to be type-checked.

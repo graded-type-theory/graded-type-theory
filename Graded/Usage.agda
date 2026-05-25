@@ -42,7 +42,7 @@ private
     α n o : Nat
     p q r : M
     γ γ′ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
-    A B F G : Term[ _ ] n
+    A B C F G : Term[ _ ] n
     l t u v w z : Term[ _ ] n
     k : Term-kind
     x : Fin n
@@ -150,6 +150,15 @@ mutual
   … | is-other _ _    =
         ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)
   ⌈ []-cong _ _ _ _ _ _ ⌉ _ = 𝟘ᶜ
+  ⌈ Quot A _ ⌉ m = ⌈ A ⌉ m
+  ⌈ class t ⌉ m = ⌈ t ⌉ m
+  ⌈ resp _ _ _ _ _ ⌉ _ = 𝟘ᶜ
+  ⌈ set _ _ _ _ _ _ ⌉ _ = 𝟘ᶜ
+  ⌈ qrec C t _ _ w ⌉ m with Qrec-motive-erased?
+  … | yes _ =
+    tailₘ (⌈ t ⌉ m) +ᶜ ω ·ᶜ ⌈ w ⌉ m
+  … | no _ =
+    ω ·ᶜ (tailₘ (⌈ C ⌉ m) +ᶜ tailₘ (⌈ t ⌉ m) +ᶜ ⌈ w ⌉ m)
 
 -- Well-usage of variables
 data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
@@ -542,6 +551,62 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → γ₅ ▸[ 𝟘ᵐ ] v
             → []-cong-allowed-mode s m
             → 𝟘ᶜ ▸[ m ] []-cong s l A t u v
+
+  Quot      : Quotient-terms-allowed
+            → γ₁ ▸[ m ] A
+            → γ₂ ▸[ 𝟘ᵐ ] B
+            → γ₁ ▸[ m ] Quot A B
+
+  class     : Quotient-terms-allowed
+            → γ ▸[ m ] t
+            → γ ▸[ m ] class t
+
+  resp      : Higher-quotient-constructors-allowed
+            → γ₁ ▸[ 𝟘ᵐ ] A
+            → γ₂ ▸[ 𝟘ᵐ ] B
+            → γ₃ ▸[ 𝟘ᵐ ] t
+            → γ₄ ▸[ 𝟘ᵐ ] u
+            → γ₅ ▸[ 𝟘ᵐ ] v
+            → m ≡ 𝟘ᵐ
+            → 𝟘ᶜ ▸[ m ] resp A B t u v
+
+  set       : Higher-quotient-constructors-allowed
+            → γ₁ ▸[ 𝟘ᵐ ] A
+            → γ₂ ▸[ 𝟘ᵐ ] B
+            → γ₃ ▸[ 𝟘ᵐ ] t
+            → γ₄ ▸[ 𝟘ᵐ ] u
+            → γ₅ ▸[ 𝟘ᵐ ] v
+            → γ₆ ▸[ 𝟘ᵐ ] w
+            → m ≡ 𝟘ᵐ
+            → 𝟘ᶜ ▸[ m ] set A B t u v w
+
+  -- Erased matches are not allowed for qrec: There are three
+  -- constructors (two of which are erased), so if the scrutinee is
+  -- erased, how do you know what branch should be chosen? When
+  -- running closed programs, is it fine to always pick the first
+  -- branch (the one with a non-erased implementation)? If this is
+  -- possible, is it even useful?
+  --
+  -- For simplicity the code uses a fixed grade ω. One could perhaps
+  -- imagine being more flexible.
+
+  qrec₀     : Quotient-terms-allowed
+            → Qrec-motive-erased
+            → γ₁ ▸[ 𝟘ᵐ ] C
+            → γ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] t
+            → γ₃ ▸[ 𝟘ᵐ ] u
+            → γ₄ ▸[ 𝟘ᵐ ] v
+            → γ₅ ▸[ m ] w
+            → γ₂ +ᶜ ω ·ᶜ γ₅ ▸[ m ] qrec C t u v w
+
+  qrec₁     : Quotient-terms-allowed
+            → ¬ Qrec-motive-erased
+            → γ₁ ∙ ⌜ m ⌝ · ω ▸[ m ] C
+            → γ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] t
+            → γ₃ ▸[ 𝟘ᵐ ] u
+            → γ₄ ▸[ 𝟘ᵐ ] v
+            → γ₅ ▸[ m ] w
+            → ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅) ▸[ m ] qrec C t u v w
 
 -- Usage with implicit mode 𝟙ᵐ
 

@@ -32,6 +32,7 @@ open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Unary R
@@ -178,6 +179,16 @@ opaque
            (ne t-ne (~-conv ~t A≡Id)))
       where
       open _⊩ₗId_ ⊩A
+    neuTerm′ (Quot ⊩A) =
+      let A≡Quot = subset* ⇒*Quot in
+      ⊩Quot∷⇔⊩Quot≡∷ ⊩A .proj₁
+        (record
+           { ⇒*w  = id (conv ⊢t A≡Quot)
+           ; w-q  = ne t-ne
+           ; prop = ne t-ne (~-conv ~t A≡Quot)
+           })
+      where
+      open _⊩ₗQuot_ ⊩A
 
   -- "Neutrally equal" neutral terms are "reducibly equal".
 
@@ -320,3 +331,9 @@ opaque
          (~-conv t~t′ A≡Id))
       where
       open _⊩ₗId_ ⊩A
+    neuEqTerm′ (Quot ⊩A) =
+      let A≡Quot = subset* ⇒*Quot in
+      Quot-view-inhabited⁻¹ ⊩A (id (conv ⊢t A≡Quot))
+        (id (conv ⊢t′ A≡Quot)) (ne t-ne t′-ne (~-conv t~t′ A≡Quot))
+      where
+      open _⊩ₗQuot_ ⊩A

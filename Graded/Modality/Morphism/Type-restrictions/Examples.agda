@@ -59,15 +59,20 @@ private variable
 opaque
 
   -- The functions tr and tr-Σ preserve certain type restrictions
-  -- obtained from no-type-restrictions, given a certain assumption.
+  -- obtained from no-type-restrictions, given certain assumptions.
 
   Are-preserving-type-restrictions-no-type-restrictions :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
     (¬ Modality.Trivial 𝕄₁ → ¬ Modality.Trivial 𝕄₂) →
+    (¬ Modality.Trivial 𝕄₁ → tr M₁.𝟘 ≡ M₂.𝟘) →
     Are-preserving-type-restrictions trp
       (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂)
       (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂)
       tr tr-Σ
-  Are-preserving-type-restrictions-no-type-restrictions hyp = λ where
+  Are-preserving-type-restrictions-no-type-restrictions hyp₁ hyp₂ =
+    λ where
       .unfolding-mode-preserved      → refl
       .level-support-preserved       → level-type small≤small
       .Omega-plus-preserved          → _
@@ -76,8 +81,10 @@ opaque
       .ΠΣ-preserved                  → _
       .Opacity-preserved _           → lift ∘→ Lift.lower
       .K-preserved                   → lift ∘→ Lift.lower
-      .[]-cong-preserved             → hyp
+      .[]-cong-preserved             → hyp₁
       .Equality-reflection-preserved → lift ∘→ Lift.lower
+      .Quot-preserved                → hyp₁
+      .Quot-allowed→tr-𝟘≡𝟘           → hyp₂
     where
     open Are-preserving-type-restrictions
 
@@ -103,6 +110,7 @@ opaque
       .K-reflected                   → lift ∘→ Lift.lower
       .[]-cong-reflected             → ⊎.comm ∘→ hyp ∘→ ⊎.comm
       .Equality-reflection-reflected → lift ∘→ Lift.lower
+      .Quot-reflected                → ⊎.comm ∘→ hyp ∘→ ⊎.comm
     where
     open Are-reflecting-type-restrictions
 
@@ -134,6 +142,8 @@ Are-preserving-type-restrictions-equal-binder-quantities {trp} {tr} r =
     ; K-preserved                   = R.K-preserved
     ; []-cong-preserved             = R.[]-cong-preserved
     ; Equality-reflection-preserved = R.Equality-reflection-preserved
+    ; Quot-preserved                = R.Quot-preserved
+    ; Quot-allowed→tr-𝟘≡𝟘           = R.Quot-allowed→tr-𝟘≡𝟘
     }
   where
   module R = Are-preserving-type-restrictions r
@@ -167,6 +177,7 @@ Are-reflecting-type-restrictions-equal-binder-quantities
   ; K-reflected                   = K-reflected
   ; []-cong-reflected             = []-cong-reflected
   ; Equality-reflection-reflected = Equality-reflection-reflected
+  ; Quot-reflected                = Quot-reflected
   }
   where
   open Are-reflecting-type-restrictions r
@@ -196,6 +207,8 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   ; K-preserved                   = K-preserved
   ; []-cong-preserved             = []-cong-preserved
   ; Equality-reflection-preserved = Equality-reflection-preserved
+  ; Quot-preserved                = Quot-preserved
+  ; Quot-allowed→tr-𝟘≡𝟘           = Quot-allowed→tr-𝟘≡𝟘
   }
   where
   open Are-preserving-type-restrictions r
@@ -222,6 +235,7 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
   ; K-reflected                   = K-reflected
   ; []-cong-reflected             = []-cong-reflected
   ; Equality-reflection-reflected = Equality-reflection-reflected
+  ; Quot-reflected                = Quot-reflected
   }
   where
   open Are-reflecting-type-restrictions r
@@ -253,6 +267,8 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   ; K-preserved                   = K-preserved
   ; []-cong-preserved             = []-cong-preserved
   ; Equality-reflection-preserved = Equality-reflection-preserved
+  ; Quot-preserved                = Quot-preserved
+  ; Quot-allowed→tr-𝟘≡𝟘           = Quot-allowed→tr-𝟘≡𝟘
   }
   where
   module M₁ = Modality 𝕄₁
@@ -322,6 +338,7 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   ; K-reflected                   = K-reflected
   ; []-cong-reflected             = []-cong-reflected
   ; Equality-reflection-reflected = Equality-reflection-reflected
+  ; Quot-reflected                = Quot-reflected
   }
   where
   module M₁ = Modality 𝕄₁
@@ -394,6 +411,10 @@ opaque
        Σ.map []-cong-preserved idᶠ
    ; Equality-reflection-preserved =
        Equality-reflection-preserved
+   ; Quot-preserved =
+       Quot-preserved
+   ; Quot-allowed→tr-𝟘≡𝟘 =
+       Quot-allowed→tr-𝟘≡𝟘
    }
    where
    open Are-preserving-type-restrictions r
@@ -441,6 +462,8 @@ opaque
            (inj₂ trivial₁) → inj₂ trivial₁
    ; Equality-reflection-reflected =
        Equality-reflection-reflected
+   ; Quot-reflected =
+       Quot-reflected
    }
    where
    open Are-reflecting-type-restrictions r
@@ -478,6 +501,10 @@ opaque
        Σ.map []-cong-preserved idᶠ
    ; Equality-reflection-preserved =
        Equality-reflection-preserved
+   ; Quot-preserved =
+       Quot-preserved
+   ; Quot-allowed→tr-𝟘≡𝟘 =
+       Quot-allowed→tr-𝟘≡𝟘
    }
    where
    open Are-preserving-type-restrictions r
@@ -523,6 +550,8 @@ opaque
            (inj₂ trivial₁) → inj₂ trivial₁
    ; Equality-reflection-reflected =
        Equality-reflection-reflected
+   ; Quot-reflected =
+       Quot-reflected
    }
    where
    open Are-reflecting-type-restrictions r
@@ -548,6 +577,8 @@ Are-preserving-type-restrictions-no-erased-matches-TR r = record
   ; K-preserved                   = K-preserved
   ; []-cong-preserved             = Σ.map []-cong-preserved idᶠ
   ; Equality-reflection-preserved = Equality-reflection-preserved
+  ; Quot-preserved                = Quot-preserved
+  ; Quot-allowed→tr-𝟘≡𝟘           = Quot-allowed→tr-𝟘≡𝟘
   }
   where
   open Are-preserving-type-restrictions r
@@ -583,6 +614,7 @@ Are-reflecting-type-restrictions-no-erased-matches-TR hyp r = record
           (inj₁ ok₁)      → ⊥-elim $ hyp trivial₂ ok₁
           (inj₂ trivial₁) → inj₂ trivial₁
   ; Equality-reflection-reflected = Equality-reflection-reflected
+  ; Quot-reflected                = Quot-reflected
   }
   where
   open Are-reflecting-type-restrictions r
@@ -635,6 +667,10 @@ opaque
         proj₁ ∘→ hyp
     ; Equality-reflection-preserved =
         Equality-reflection-preserved
+    ; Quot-preserved =
+        Quot-preserved
+    ; Quot-allowed→tr-𝟘≡𝟘 =
+        Quot-allowed→tr-𝟘≡𝟘
     }
     where
     open Are-preserving-type-restrictions r
@@ -690,6 +726,8 @@ opaque
         (no non-trivial) → inj₁ non-trivial
     ; Equality-reflection-reflected =
         Equality-reflection-reflected
+    ; Quot-reflected =
+        Quot-reflected
     }
     where
     open Graded.Modality.Properties 𝕄₁
@@ -718,6 +756,8 @@ opaque
     ; K-preserved                   = K-preserved
     ; []-cong-preserved             = λ ()
     ; Equality-reflection-preserved = Equality-reflection-preserved
+    ; Quot-preserved                = Quot-preserved
+    ; Quot-allowed→tr-𝟘≡𝟘           = Quot-allowed→tr-𝟘≡𝟘
     }
     where
     open Are-preserving-type-restrictions r
@@ -752,6 +792,7 @@ opaque
             (inj₁ ok)      → ⊥-elim $ hyp trivial ok
             (inj₂ trivial) → inj₂ trivial
     ; Equality-reflection-reflected = Equality-reflection-reflected
+    ; Quot-reflected                = Quot-reflected
     }
     where
     open Are-reflecting-type-restrictions r
@@ -778,6 +819,8 @@ opaque
     ; K-preserved                   = K-preserved
     ; []-cong-preserved             = []-cong-preserved
     ; Equality-reflection-preserved = _
+    ; Quot-preserved                = Quot-preserved
+    ; Quot-allowed→tr-𝟘≡𝟘           = Quot-allowed→tr-𝟘≡𝟘
     }
     where
     open Are-preserving-type-restrictions r
@@ -805,6 +848,8 @@ opaque
     ; K-preserved                   = K-preserved
     ; []-cong-preserved             = []-cong-preserved
     ; Equality-reflection-preserved = _
+    ; Quot-preserved                = Quot-preserved
+    ; Quot-allowed→tr-𝟘≡𝟘           = Quot-allowed→tr-𝟘≡𝟘
     }
     where
     open Are-preserving-type-restrictions r
@@ -835,6 +880,64 @@ opaque
     ; K-reflected                   = K-reflected
     ; []-cong-reflected             = []-cong-reflected
     ; Equality-reflection-reflected = _
+    ; Quot-reflected                = Quot-reflected
+    }
+    where
+    open Are-reflecting-type-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain type restrictions,
+  -- then they do this also for certain type restrictions obtained
+  -- using no-quotients.
+
+  Are-preserving-type-restrictions-no-quotients :
+    Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-preserving-type-restrictions trp
+      (no-quotients 𝕄₁ 𝐌₁ R₁)
+      (no-quotients 𝕄₂ 𝐌₂ R₂)
+      tr tr-Σ
+  Are-preserving-type-restrictions-no-quotients r = record
+    { unfolding-mode-preserved      = unfolding-mode-preserved
+    ; level-support-preserved       = level-support-preserved
+    ; Omega-plus-preserved          = Omega-plus-preserved
+    ; Unitʷ-η-preserved             = Unitʷ-η-preserved
+    ; Unit-preserved                = Unit-preserved
+    ; ΠΣ-preserved                  = ΠΣ-preserved
+    ; Opacity-preserved             = Opacity-preserved
+    ; K-preserved                   = K-preserved
+    ; []-cong-preserved             = []-cong-preserved
+    ; Equality-reflection-preserved = Equality-reflection-preserved
+    ; Quot-preserved                = ⊥-elim ∘→ Lift.lower
+    ; Quot-allowed→tr-𝟘≡𝟘           = ⊥-elim ∘→ Lift.lower
+    }
+    where
+    open Are-preserving-type-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ reflect certain type restrictions,
+  -- then they do this also for certain type restrictions obtained
+  -- using no-quotients, given a certain assumption.
+
+  Are-reflecting-type-restrictions-no-quotients :
+    (Modality.Trivial 𝕄₂ → Modality.Trivial 𝕄₁) →
+    Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-reflecting-type-restrictions trp
+      (no-quotients 𝕄₁ 𝐌₁ R₁)
+      (no-quotients 𝕄₂ 𝐌₂ R₂)
+      tr tr-Σ
+  Are-reflecting-type-restrictions-no-quotients hyp r = record
+    { unfolding-mode-reflected      = unfolding-mode-reflected
+    ; level-support-reflected       = level-support-reflected
+    ; Unitʷ-η-reflected             = Unitʷ-η-reflected
+    ; Unit-reflected                = Unit-reflected
+    ; ΠΣ-reflected                  = ΠΣ-reflected
+    ; Opacity-reflected             = Opacity-reflected
+    ; K-reflected                   = K-reflected
+    ; []-cong-reflected             = []-cong-reflected
+    ; Equality-reflection-reflected = Equality-reflection-reflected
+    ; Quot-reflected                = ⊎.map (⊥-elim ∘→ Lift.lower) hyp
     }
     where
     open Are-reflecting-type-restrictions r
@@ -937,6 +1040,8 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
     ; K-preserved                   = K-preserved
     ; []-cong-preserved             = []-cong-preserved
     ; Equality-reflection-preserved = Equality-reflection-preserved
+    ; Quot-preserved                = Quot-preserved
+    ; Quot-allowed→tr-𝟘≡𝟘           = Quot-allowed→tr-𝟘≡𝟘
   }
   where
   open Are-preserving-type-restrictions r

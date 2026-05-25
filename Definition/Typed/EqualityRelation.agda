@@ -15,7 +15,9 @@ module Definition.Typed.EqualityRelation
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -33,16 +35,17 @@ open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
+open import Tools.Sum
 
 private
   variable
     p q q′ r : M
     δ n n′ : Nat
-    ∇₁ ∇₂ : DCon _ _
+    ∇ ∇₁ ∇₂ : DCon _ _
     Δ : Con _ _
     Γ Γ₁ Γ₂ : Cons _ _
     ρ : Wk n′ n
-    A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
+    A A₁ A₂ A′ B B₁ B₂ B′ C C₁ C₂ : Term n
     a a′ b b′ e e′ : Term n
     k m t t₁ t₂ u u₁ u₂ v v₁ v₂ w₁ w₂ : Term n
     l l₀ l₁ l₂ : Lvl _
@@ -98,14 +101,17 @@ record Equality-relations
       Equality-reflection → ¬ Var-included
 
     -- If Var-included does not hold, then definitional equality
-    -- for types and terms is contained in _⊢_≅_ and _⊢_≅_∷_,
-    -- respectively.
+    -- for types is contained in _⊢_≅_, and definitional equality
+    -- for terms is contained in _⊢_≅_∷_ and _⊢_~_.
     ⊢≡→⊢≅ :
       ¬ Var-included →
       Γ ⊢ A ≡ B → Γ ⊢ A ≅ B
     ⊢≡∷→⊢≅∷ :
       ¬ Var-included →
       Γ ⊢ t ≡ u ∷ A → Γ ⊢ t ≅ u ∷ A
+    ⊢≡∷→⊢~∷ :
+      ¬ Var-included →
+      Γ ⊢ t ≡ u ∷ A → Γ ⊢ t ~ u ∷ A
 
     -- Generic equality compatibility
     ~-to-≅ₜ  : Γ ⊢ t ~ u ∷ A
@@ -428,6 +434,54 @@ record Equality-relations
         Γ ⊢ []-cong s l₁ A₁ t₁ u₁ v₁ ~ []-cong s l₂ A₂ t₂ u₂ v₂ ∷
           Id (Erased l₁ A₁) ([ t₁ ]) ([ u₁ ])
 
+    -- Congruence for Quot.
+    ≅-Quot-cong
+      : Quot-allowed
+      → Γ ⊢ A₁ ≅ A₂
+      → Quot-rel-Cons Γ A₁ ⊢ B₁ ≅ B₂
+      → Γ ⊢ Quot A₁ B₁ ≅ Quot A₂ B₂
+    ≅ₜ-Quot-cong
+      : Quot-allowed
+      → Γ ⊢ A₁ ≅ A₂ ∷ U l
+      → Quot-rel-Cons Γ A₁ ⊢ B₁ ≅ B₂ ∷ U (wk[ 2 ]′ l)
+      → Γ ⊢ Quot A₁ B₁ ≅ Quot A₂ B₂ ∷ U l
+
+    -- Congruence for class.
+    ≅-class-cong
+      : Γ ⊢ Quot A B
+      → Γ ⊢ t₁ ≅ t₂ ∷ A
+      → Γ ⊢ class t₁ ≅ class t₂ ∷ Quot A B
+
+    -- Congruence for resp.
+    ~-resp-cong
+      : Quot-allowed
+      → Γ ⊢ A₁ ≅ A₂
+      → Quot-rel-Cons Γ A₁ ⊢ B₁ ≅ B₂
+      → Γ ⊢ t₁ ≅ t₂ ∷ A₁
+      → Γ ⊢ u₁ ≅ u₂ ∷ A₁
+      → Γ ⊢ v₁ ≅ v₂ ∷ B₁ [ t₁ , u₁ ]₁₀
+      → Γ ⊢ resp A₁ B₁ t₁ u₁ v₁ ~ resp A₂ B₂ t₂ u₂ v₂ ∷
+        Id (Quot A₁ B₁) (class t₁) (class u₁)
+
+    -- Congruence for set.
+    ~-set-cong
+      : Γ ⊢ A₁ ≅ A₂
+      → Quot-rel-Cons Γ A₁ ⊢ B₁ ≅ B₂
+      → Γ ⊢ t₁ ≅ t₂ ∷ Quot A₁ B₁
+      → Γ ⊢ u₁ ≅ u₂ ∷ Quot A₁ B₁
+      → Γ ⊢ v₁ ≅ v₂ ∷ Id (Quot A₁ B₁) t₁ u₁
+      → Γ ⊢ w₁ ≅ w₂ ∷ Id (Quot A₁ B₁) t₁ u₁
+      → Γ ⊢ set A₁ B₁ t₁ u₁ v₁ w₁ ~ set A₂ B₂ t₂ u₂ v₂ w₂ ∷
+        Id (Id (Quot A₁ B₁) t₁ u₁) v₁ w₁
+
+    -- Congruence for qrec.
+    ~-qrec-cong
+      : Γ »∙ Quot A B ⊢ C₁ ≅ C₂
+      → Γ »∙ A ⊢ t₁ ≅ t₂ ∷ C₁ [ class (var x0) ]↑
+      → Resp-Cons Γ A B ⊢ u₁ ≅ u₂ ∷ Resp-type A B C₁ t₁
+      → Is-set-Cons Γ A B C₁ ⊢ v₁ ≅ v₂ ∷ Is-set-type C₁
+      → Γ ⊢ w₁ ~ w₂ ∷ Quot A B
+      → Γ ⊢ qrec C₁ t₁ u₁ v₁ w₁ ~ qrec C₂ t₂ u₂ v₂ w₂ ∷ C₁ [ w₁ ]₀
 
   -- Composition of judgemental conversion and generic equality compatibility
   ~-eq : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ k ≡ l ∷ A
@@ -561,6 +615,20 @@ record Equality-relations
 
   opaque
 
+    -- If Γ ⊢ t ≡ u ∷ A holds, then one can assume Var-included when
+    -- proving Γ ⊢ t ~ u ∷ A.
+
+    with-inc-⊢~∷ :
+      Γ ⊢ t ≡ u ∷ A →
+      (⦃ inc : Var-included ⦄ → Γ ⊢ t ~ u ∷ A) →
+      Γ ⊢ t ~ u ∷ A
+    with-inc-⊢~∷ t≡u t~u =
+      case Var-included? of λ where
+        (yes inc) → t~u ⦃ inc = inc ⦄
+        (no ni)   → ⊢≡∷→⊢~∷ ni t≡u
+
+  opaque
+
     -- If equality reflection is allowed and Var-included or-empty Δ
     -- holds, then Δ is empty.
 
@@ -573,6 +641,18 @@ record Equality-relations
     Equality-reflection→Empty-con
       ⦃ inc = possibly-nonempty ⦃ ok = inc ⦄ ⦄ ok =
       ⊥-elim (Equality-reflection-allowed→¬Var-included ok inc)
+
+  opaque
+
+    -- If equality reflection is allowed and ∇ is well-formed, then
+    -- Neutral Var-included ∇ t is empty.
+
+    Equality-reflection→¬Neutral-Var-included :
+      » ∇ → Equality-reflection → ¬ Neutral Var-included ∇ t
+    Equality-reflection→¬Neutral-Var-included »∇ ok n
+      with dichotomy-ne n
+    … | inj₁ n   = Equality-reflection→¬Neutral⁻ »∇ ok n
+    … | inj₂ inc = Equality-reflection-allowed→¬Var-included ok inc
 
   opaque
 

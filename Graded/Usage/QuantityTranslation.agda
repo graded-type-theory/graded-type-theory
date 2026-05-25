@@ -405,8 +405,7 @@ module Is-morphism
       (begin
          tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆))   ≈⟨ tr-Conₘ-·ᶜ ⟩
 
-         tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆)  ≤⟨ flip ·ᶜ-monotone tr-ω $
-                                                                            ≤ᶜ-reflexive $
+         tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆)  ≈⟨ ·ᶜ-cong tr-ω $
                                                                             ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
                                                                             ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
                                                                             ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
@@ -442,8 +441,7 @@ module Is-morphism
                (M₁.ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆))  ≈⟨ tr-Conₘ-·ᶜ ⟩
 
              tr M₁.ω C₂.·ᶜ
-             tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆)         ≤⟨ flip ·ᶜ-monotone tr-ω $
-                                                                         ≤ᶜ-reflexive $
+             tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆)         ≈⟨ ·ᶜ-cong tr-ω $
                                                                          ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
                                                                          ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
                                                                          ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
@@ -463,7 +461,7 @@ module Is-morphism
              (tr-▸ ▸u) (tr-▸[𝟘ᵐ?] ▸v) (tr-▸[𝟘ᵐ?] ▸w))
           (begin
              tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))        ≈⟨ tr-Conₘ-·ᶜ ⟩
-             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.+ᶜ γ₄)       ≤⟨ ·ᶜ-monotone (≤ᶜ-reflexive tr-Conₘ-+ᶜ) tr-ω ⟩
+             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.+ᶜ γ₄)       ≈⟨ ·ᶜ-cong tr-ω tr-Conₘ-+ᶜ ⟩
              M₂.ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄)  ∎)
       where
       open CR₂
@@ -480,8 +478,7 @@ module Is-morphism
       (begin
          tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅))   ≈⟨ tr-Conₘ-·ᶜ ⟩
 
-         tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅)  ≤⟨ flip ·ᶜ-monotone tr-ω $
-                                                                   ≤ᶜ-reflexive $
+         tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅)  ≈⟨ ·ᶜ-cong tr-ω $
                                                                    ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
                                                                    ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
                                                                    tr-Conₘ-+ᶜ ⟩
@@ -505,8 +502,7 @@ module Is-morphism
 
              tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅))   ≈⟨ tr-Conₘ-·ᶜ ⟩
 
-             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅)  ≤⟨ flip ·ᶜ-monotone tr-ω $
-                                                                       ≤ᶜ-reflexive $
+             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅)  ≈⟨ ·ᶜ-cong tr-ω $
                                                                        ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
                                                                        ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
                                                                        tr-Conₘ-+ᶜ ⟩
@@ -525,7 +521,7 @@ module Is-morphism
              (tr-▸ ▸u) (tr-▸[𝟘ᵐ?] ▸v))
           (begin
              tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))        ≈⟨ tr-Conₘ-·ᶜ ⟩
-             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.+ᶜ γ₄)       ≤⟨ ·ᶜ-monotone (≤ᶜ-reflexive tr-Conₘ-+ᶜ) tr-ω ⟩
+             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.+ᶜ γ₄)       ≈⟨ ·ᶜ-cong tr-ω tr-Conₘ-+ᶜ ⟩
              M₂.ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄)  ∎)
       where
       open CR₂
@@ -538,6 +534,62 @@ module Is-morphism
          (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v)
          ([]-cong-mode-preserved ≈ᵐ-tr-Mode ok))
       tr-Conₘ-𝟘ᶜ-≤ᶜ
+    tr-▸ (Quot ok ▸A ▸B) =
+      Quot (Quotient-terms-preserved ok) (tr-▸ ▸A) (tr-▸[𝟘ᵐ?] ▸B)
+    tr-▸ (class ok ▸t) =
+      class (Quotient-terms-preserved ok) (tr-▸ ▸t)
+    tr-▸ (resp ok ▸A ▸B ▸t ▸u ▸v refl) =
+      sub
+        (resp (Higher-quotient-constructors-preserved ok)
+           (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸B) (tr-▸[𝟘ᵐ?] ▸t) (tr-▸[𝟘ᵐ?] ▸u)
+           (tr-▸[𝟘ᵐ?] ▸v)
+           (tr-Mode-𝟘ᵐ? λ _ →
+              Mo₁.¬Trivialᵐ→𝟘ᵐ-allowed $
+              UR₁.Higher-quotient-constructors-allowed→¬Trivialᵐ ok))
+        tr-Conₘ-𝟘ᶜ-≤ᶜ
+    tr-▸ (set ok ▸A ▸B ▸t ▸u ▸v ▸w refl) =
+      sub
+        (set (Higher-quotient-constructors-preserved ok)
+           (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸B) (tr-▸[𝟘ᵐ?] ▸t) (tr-▸[𝟘ᵐ?] ▸u)
+           (tr-▸[𝟘ᵐ?] ▸v) (tr-▸[𝟘ᵐ?] ▸w)
+           (tr-Mode-𝟘ᵐ? λ _ →
+              Mo₁.¬Trivialᵐ→𝟘ᵐ-allowed $
+              UR₁.Higher-quotient-constructors-allowed→¬Trivialᵐ ok))
+        tr-Conₘ-𝟘ᶜ-≤ᶜ
+    tr-▸ (qrec₀ {γ₂} {m} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+      sub
+        (qrec₀ (Quotient-terms-preserved ok₁)
+           (Qrec-motive-erased-preserved .proj₁ ok₂) (tr-▸[𝟘ᵐ?] ▸C)
+           (sub (tr-▸ ▸t) $ begin
+              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω     ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
+              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.ω  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
+              tr-Conₘ γ₂ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)        ∎)
+           (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v) (tr-▸ ▸w))
+        (begin
+           tr-Conₘ (γ₂ C₁.+ᶜ M₁.ω C₁.·ᶜ γ₅)        ≈⟨ ≈ᶜ-trans tr-Conₘ-+ᶜ (+ᶜ-congˡ (≈ᶜ-trans tr-Conₘ-·ᶜ (·ᶜ-congʳ tr-ω))) ⟩
+           tr-Conₘ γ₂ C₂.+ᶜ M₂.ω C₂.·ᶜ tr-Conₘ γ₅  ∎)
+      where
+      open ≤ᶜ-reasoning
+    tr-▸ (qrec₁ {γ₁} {m} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+      sub
+        (qrec₁ (Quotient-terms-preserved ok₁)
+           (ok₂ ∘→ Qrec-motive-erased-preserved .proj₂)
+           (sub (tr-▸ ▸C) $ begin
+              tr-Conₘ γ₁ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω     ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
+              tr-Conₘ γ₁ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.ω  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
+              tr-Conₘ γ₁ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)        ∎)
+           (sub (tr-▸ ▸t) $ begin
+              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω     ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
+              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.ω  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
+              tr-Conₘ γ₂ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)        ∎)
+           (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v) (tr-▸ ▸w))
+        (begin
+           tr-Conₘ (M₁.ω C₁.·ᶜ (γ₁ C₁.+ᶜ γ₂ C₁.+ᶜ γ₅))                ≈⟨ ≈ᶜ-trans tr-Conₘ-·ᶜ $
+                                                                         ·ᶜ-cong tr-ω $
+                                                                         ≈ᶜ-trans tr-Conₘ-+ᶜ (+ᶜ-congˡ tr-Conₘ-+ᶜ) ⟩
+           M₂.ω C₂.·ᶜ (tr-Conₘ γ₁ C₂.+ᶜ tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₅)  ∎)
+      where
+      open ≤ᶜ-reasoning
     tr-▸ (sub ▸t γ≤δ) =
       sub (tr-▸ ▸t) (tr-Conₘ-monotone γ≤δ)
 
@@ -975,6 +1027,31 @@ module Is-order-embedding
           RS₁.[]-congᵤ ([]-cong-mode-reflected m₁≳m₂ ok)
             (lemma-𝟘ᵐ?-𝟘ᵐ? l) (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
             (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
+        (Quot _ _) (Quot ok A B) →
+          RS₁.Quot (Quotient-terms-reflected ok) (lemma m₁≳m₂ _ A)
+            (lemma-𝟘ᵐ?-𝟘ᵐ? B)
+        (class _) (class ok t) →
+          RS₁.class (Quotient-terms-reflected ok) (lemma m₁≳m₂ _ t)
+        (resp _ _ _ _ _) (resp ok A B t u v eq) →
+          RS₁.resp (Higher-quotient-constructors-reflected ok)
+            (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? B) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
+            (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
+            (≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ? m₁≳m₂ eq)
+        (set _ _ _ _ _ _) (set ok A B t u v w eq) →
+          RS₁.set (Higher-quotient-constructors-reflected ok)
+            (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? B) (lemma-𝟘ᵐ?-𝟘ᵐ? t)
+            (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v) (lemma-𝟘ᵐ?-𝟘ᵐ? w)
+            (≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ? m₁≳m₂ eq)
+        (qrec _ _ _ _ _) (qrec₀ ok₁ ok₂ C t u v w) →
+          RS₁.qrec₀ (Quotient-terms-reflected ok₁)
+            (Qrec-motive-erased-preserved .proj₂ ok₂) (lemma-𝟘ᵐ?-𝟘ᵐ? C)
+            (lemma m₁≳m₂ _ t) (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
+            (lemma m₁≳m₂ _ w)
+        (qrec _ _ _ _ _) (qrec₁ ok₁ ok₂ C t u v w) →
+          RS₁.qrec₁ (Quotient-terms-reflected ok₁)
+            (ok₂ ∘→ Qrec-motive-erased-preserved .proj₁)
+            (lemma m₁≳m₂ _ C) (lemma m₁≳m₂ _ t) (lemma-𝟘ᵐ?-𝟘ᵐ? u)
+            (lemma-𝟘ᵐ?-𝟘ᵐ? v) (lemma m₁≳m₂ _ w)
 
   -- Preservation of _▸[_]_ for trivial source modalities.
 
@@ -1453,6 +1530,73 @@ module Is-order-embedding
            (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
            ([]-cong-mode-reflected [ ≈ᵐ-tr-Mode {m = m} ] ok))
         (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
+
+    tr-▸⁻¹′ (Quot _ _) (Quot ok ▸A ▸B) refl ≤γ′ =
+      Quot (Quotient-terms-reflected ok) (tr-▸⁻¹′ _ ▸A refl ≤γ′)
+        (tr-▸[𝟘ᵐ?]⁻¹ ▸B .proj₂)
+
+    tr-▸⁻¹′ (class _) (class ok ▸t) refl ≤γ′ =
+      class (Quotient-terms-reflected ok) (tr-▸⁻¹′ _ ▸t refl ≤γ′)
+
+    tr-▸⁻¹′ (resp _ _ _ _ _) (resp ok ▸A ▸B ▸t ▸u ▸v eq) refl ≤𝟘 =
+      sub
+        (resp (Higher-quotient-constructors-reflected ok)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸B .proj₂)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂) (tr-Mode-𝟘ᵐ?⁻¹ eq))
+        (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
+
+    tr-▸⁻¹′ (set _ _ _ _ _ _) (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq) refl ≤𝟘 =
+      sub
+        (set (Higher-quotient-constructors-reflected ok)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸B .proj₂)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸w .proj₂)
+           (tr-Mode-𝟘ᵐ?⁻¹ eq))
+        (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
+
+    tr-▸⁻¹′
+      {m} {γ} (qrec _ _ _ _ _) (qrec₀ {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w)
+      refl ≤γ′ =
+      let γ₂′ , δ′ , ≤γ₂ , δ′≤ , γ≤ = tr-Conₘ-≤ᶜ-+ᶜ ≤γ′
+          γ₅′ , ≤γ₅ , δ′≤′          = tr-Conₘ-≤ᶜ-ωᶜ·ᶜ δ′≤
+      in
+      sub
+        (qrec₀ (Quotient-terms-reflected ok₁)
+           (Qrec-motive-erased-preserved .proj₂ ok₂)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸C .proj₂)
+           (let open CP₂.≤ᶜ-reasoning in
+            tr-▸⁻¹′ _ ▸t refl $ begin
+              tr-Conₘ γ₂′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)     ≤⟨ ≤γ₂ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m)) (M₂.·-congˡ tr-ω)) ⟩
+              γ₂          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω  ∎)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
+           (tr-▸⁻¹′ _ ▸w refl ≤γ₅))
+        (let open CP₁.≤ᶜ-reasoning in
+         begin
+           γ                         ≤⟨ γ≤ ⟩
+           γ₂′ C₁.+ᶜ δ′              ≤⟨ CP₁.+ᶜ-monotoneʳ δ′≤′ ⟩
+           γ₂′ C₁.+ᶜ M₁.ω C₁.·ᶜ γ₅′  ∎)
+
+    tr-▸⁻¹′
+      {m} {γ} (qrec _ _ _ _ _)
+      (qrec₁ {γ₁} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) refl ≤γ′ =
+      let γ₁′ , γ₂′ , γ₅′ , ≤γ₁ , ≤γ₂ , ≤γ₅ , γ≤ =
+            tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ² ≤γ′
+      in
+      sub
+        (qrec₁ (Quotient-terms-reflected ok₁)
+           (ok₂ ∘→ Qrec-motive-erased-preserved .proj₁)
+           (tr-▸⁻¹′ _ ▸C refl $ begin
+              tr-Conₘ γ₁′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)     ≤⟨ ≤γ₁ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m)) (M₂.·-congˡ tr-ω)) ⟩
+              γ₁          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω  ∎)
+           (tr-▸⁻¹′ _ ▸t refl $ begin
+              tr-Conₘ γ₂′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)     ≤⟨ ≤γ₂ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m)) (M₂.·-congˡ tr-ω)) ⟩
+              γ₂          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω  ∎)
+           (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
+           (tr-▸⁻¹′ _ ▸w refl ≤γ₅))
+        γ≤
+      where
+      open CP₂.≤ᶜ-reasoning
 
     tr-▸⁻¹′ {γ′ = γ′} {γ = γ} t (sub {γ = δ} ▸t γ′≤δ) refl γ≤γ′ =
       tr-▸⁻¹′ t ▸t refl (begin

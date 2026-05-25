@@ -18,7 +18,7 @@ open Eq public using
 
 private variable
   a p                                       : Level
-  A B C D E F G                             : Set _
+  A B C D E F G H                           : Set _
   P                                         : A → Set _
   a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ e₁ e₂ f f₁ f₂ x y : A
   eq                                        : _ ≡ _

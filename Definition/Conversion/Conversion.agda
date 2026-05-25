@@ -165,6 +165,17 @@ mutual
     rfl-refl
       (stability Δ≡Η $
        conv (trans (sym′ t≡t′) (trans t≡u u≡u′)) A≡A′) }}
+  convConv↓Term′ Δ≡Η Q≡B B-whnf (Quot-ins ⊢t t~u) =
+    case Quot≡Whnf Q≡B B-whnf of λ {
+      (_ , _ , PE.refl) →
+    stabilityConv↓Term Δ≡Η (Quot-ins (conv ⊢t Q≡B) t~u) }
+  convConv↓Term′ Δ≡Η Q≡C C-whnf (class-cong ⊢Q t≡u) =
+    case Quot≡Whnf Q≡C C-whnf of λ {
+      (_ , _ , PE.refl) →
+    let _ , ⊢C = wf-⊢ Q≡C
+        A≡ , _ = Quot-injectivity-no-equality-reflection Q≡C
+    in
+    class-cong (stability Δ≡Η ⊢C) (convConv↑Term′ Δ≡Η A≡ t≡u) }
 
 -- Conversion of algorithmic equality with the same context.
 convConv↑Term :

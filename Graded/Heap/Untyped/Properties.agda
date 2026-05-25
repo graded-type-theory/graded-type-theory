@@ -12,7 +12,7 @@ module Graded.Heap.Untyped.Properties
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
@@ -107,6 +107,10 @@ opaque
   wkValue ρ Emptyᵥ = Emptyᵥ
   wkValue ρ Idᵥ = Idᵥ
   wkValue ρ (unitrec-ηᵥ η) = unitrec-ηᵥ η
+  wkValue _ Quotᵥ = Quotᵥ
+  wkValue _ classᵥ = classᵥ
+  wkValue _ respᵥ = respᵥ
+  wkValue _ setᵥ = setᵥ
 
 opaque
 
@@ -131,12 +135,18 @@ opaque
   substValue σ Emptyᵥ = Emptyᵥ
   substValue σ Idᵥ = Idᵥ
   substValue ρ (unitrec-ηᵥ η) = unitrec-ηᵥ η
+  substValue _ Quotᵥ = Quotᵥ
+  substValue _ classᵥ = classᵥ
+  substValue _ respᵥ = respᵥ
+  substValue _ setᵥ = setᵥ
 
 opaque
 
-  -- Values are non-neutrals
+  -- If a value is neutral, then Higher-quotient-constructors-neutral
+  -- holds.
 
-  Value→¬Neutral : Value t → ¬ Neutral⁺ ∇ t
+  Value→¬Neutral :
+    Value t → Neutral⁺ ∇ t → Higher-quotient-constructors-neutral
   Value→¬Neutral Levelᵥ ()
   Value→¬Neutral zeroᵘᵥ ()
   Value→¬Neutral sucᵘᵥ ()
@@ -154,16 +164,23 @@ opaque
   Value→¬Neutral Unitᵥ ()
   Value→¬Neutral Emptyᵥ ()
   Value→¬Neutral Idᵥ ()
-  Value→¬Neutral (unitrec-ηᵥ η) (unitrecₙ no-η _) = no-η η
+  Value→¬Neutral (unitrec-ηᵥ η) (unitrecₙ no-η _) = ⊥-elim (no-η η)
+  Value→¬Neutral Quotᵥ ()
+  Value→¬Neutral classᵥ ()
+  Value→¬Neutral respᵥ (resp ok) = ok
+  Value→¬Neutral setᵥ (set ok) = ok
 
 opaque
 
-  -- If t is a value, then either t is in WHNF, or t is an application
-  -- of unitrec and η-equality is allowed for weak unit types.
+  -- If t is a value, then either t is in WHNF, t is an application of
+  -- unitrec and η-equality is allowed for weak unit types, or t is a
+  -- higher quotient constructor.
 
   Value→Whnf :
     Value t →
-    Whnf ∇ t ⊎ (∃₅ λ p q A u v → t ≡ unitrec p q A u v × Unitʷ-η)
+    Whnf ∇ t ⊎
+    (∃₅ λ p q A u v → t ≡ unitrec p q A u v × Unitʷ-η) ⊎
+    Is-higher-quotient-constructor t
   Value→Whnf Levelᵥ = inj₁ Levelₙ
   Value→Whnf zeroᵘᵥ = inj₁ zeroᵘₙ
   Value→Whnf sucᵘᵥ = inj₁ sucᵘₙ
@@ -181,7 +198,11 @@ opaque
   Value→Whnf Unitᵥ = inj₁ Unitₙ
   Value→Whnf Emptyᵥ = inj₁ Emptyₙ
   Value→Whnf Idᵥ = inj₁ Idₙ
-  Value→Whnf (unitrec-ηᵥ x) = inj₂ (_ , _ , _ , _ , _ , refl , x)
+  Value→Whnf (unitrec-ηᵥ x) = inj₂ (inj₁ (_ , _ , _ , _ , _ , refl , x))
+  Value→Whnf Quotᵥ = inj₁ Quot
+  Value→Whnf classᵥ = inj₁ class
+  Value→Whnf respᵥ = inj₂ (inj₂ resp)
+  Value→Whnf setᵥ = inj₂ (inj₂ set)
 
 ------------------------------------------------------------------------
 -- Properties of the lookup relations
@@ -369,6 +390,9 @@ opaque
     cong₄ (λ l A t u → []-cong s l A t u _)
       (step-sgSubst l _) (step-sgSubst A _) (step-sgSubst t _)
       (step-sgSubst u _)
+  ⦅⦆ᶜ-sgSubst (qrecₑ C t u v ρ) =
+    cong₅ qrec (lifts-step-sgSubst 1 C) (lifts-step-sgSubst 1 t)
+      (lifts-step-sgSubst 3 u) (lifts-step-sgSubst 5 v) refl
   ⦅⦆ᶜ-sgSubst sucₑ = refl
 
 opaque
@@ -421,6 +445,9 @@ opaque
     cong₄ (λ l A t u → []-cong s l A t u _)
       (lifts-step-[,] 0 l) (lifts-step-[,] 0 A) (lifts-step-[,] 0 t)
       (lifts-step-[,] 0 u)
+  ⦅⦆ᶜ-[,] (qrecₑ C t u v ρ) =
+    cong₅ qrec (lifts-step-[,] 1 C) (lifts-step-[,] 1 t)
+      (lifts-step-[,] 3 u) (lifts-step-[,] 5 v) refl
   ⦅⦆ᶜ-[,] sucₑ = refl
 
 opaque
@@ -474,6 +501,9 @@ opaque
     cong₄ (λ l A t u → []-cong s l A t u _)
       (wk-comp ρ ρ′ l) (wk-comp ρ ρ′ A) (wk-comp ρ ρ′ t)
       (wk-comp ρ ρ′ u)
+  wk-⦅⦆ᶜ (qrecₑ C t u v ρ) =
+    cong₅ qrec (wk-comp _ _ _) (wk-comp _ _ _) (wk-comp _ _ _)
+      (wk-comp _ _ _) refl
   wk-⦅⦆ᶜ {ρ} sucₑ = refl
 
 opaque
@@ -504,6 +534,8 @@ opaque
     cong (K _ _ _ _ _) t≡u
   ⦅⦆ᶜ-cong ([]-congₑ _ _ _ _ _ _) t≡u =
     cong ([]-cong _ _ _ _ _) t≡u
+  ⦅⦆ᶜ-cong (qrecₑ _ _ _ _ _) =
+    cong (qrec _ _ _ _)
   ⦅⦆ᶜ-cong sucₑ t≡u =
     cong suc t≡u
 
@@ -555,6 +587,7 @@ opaque
   wk-∣∣ᶜ (Jₑ x) = Jₑ x
   wk-∣∣ᶜ (Kₑ x) = Kₑ x
   wk-∣∣ᶜ []-congₑ = []-congₑ
+  wk-∣∣ᶜ qrecₑ = qrecₑ
   wk-∣∣ᶜ sucₑ = sucₑ
 
 opaque
@@ -627,6 +660,7 @@ opaque
   ∣∣ᶜ-functional (Jₑ x) (Jₑ y) = ∣J∣ᶜ-functional x y
   ∣∣ᶜ-functional (Kₑ x) (Kₑ y) = ∣K∣ᶜ-functional x y
   ∣∣ᶜ-functional []-congₑ []-congₑ = refl
+  ∣∣ᶜ-functional qrecₑ qrecₑ = refl
   ∣∣ᶜ-functional sucₑ sucₑ = refl
 
 opaque
@@ -695,6 +729,7 @@ opaque
   ∣∣ᶜ≡ {c = Jₑ p q A t B u v ρ} _ = _ , Jₑ (∣J∣≡ .proj₂)
   ∣∣ᶜ≡ {c = Kₑ p A t B u ρ} _ = _ , Kₑ (∣K∣≡ .proj₂)
   ∣∣ᶜ≡ {c = []-congₑ _ _ _ _ _ _} _ = 𝟘 , []-congₑ
+  ∣∣ᶜ≡ {c = qrecₑ _ _ _ _ _} _ = 𝟙 , qrecₑ
   ∣∣ᶜ≡ {c = sucₑ} _ = 𝟙 , sucₑ
 
 opaque
@@ -953,6 +988,7 @@ opaque
     here′ q≡ (Jₑ x) = inj₂ (inj₂ (inj₂ (inj₁ (_ , _ , here))))
     here′ q≡ (Kₑ x) = inj₂ (inj₂ (inj₂ (inj₂ (inj₁ (_ , here)))))
     here′ q≡ []-congₑ = inj₂ (inj₂ (inj₂ (inj₂ (inj₂ here))))
+    here′ q≡ qrecₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ lowerₑ = ⊥-elim (non-trivial q≡)
     here′ q≡ sucₑ = ⊥-elim (non-trivial q≡)
     lemma :
@@ -1027,6 +1063,7 @@ opaque
   ⦅⦆ᶜ-neutral (Jₑ p q A t B u v ρ) (Jₙ n) = n
   ⦅⦆ᶜ-neutral (Kₑ p A t B u ρ) (Kₙ n) = n
   ⦅⦆ᶜ-neutral ([]-congₑ _ _ _ _ _ _) ([]-congₙ n) = n
+  ⦅⦆ᶜ-neutral (qrecₑ _ _ _ _ _) (qrec n) = n
   ⦅⦆ᶜ-neutral sucₑ ()
 
 opaque
@@ -1329,6 +1366,8 @@ opaque
     Kₙ (toSubstₕ-NeutralAt d n)
   toSubstₕ-NeutralAt d ([]-congₙ n) =
     []-congₙ (toSubstₕ-NeutralAt d n)
+  toSubstₕ-NeutralAt d (qrec n) =
+    qrec (toSubstₕ-NeutralAt d n)
 
 opaque
 
@@ -1357,6 +1396,7 @@ opaque
   No-namesᶜ-wk (Jₑ nn₁ nn₂ nn₃ nn₄ nn₅)   = Jₑ nn₁ nn₂ nn₃ nn₄ nn₅
   No-namesᶜ-wk (Kₑ nn₁ nn₂ nn₃ nn₄)       = Kₑ nn₁ nn₂ nn₃ nn₄
   No-namesᶜ-wk ([]-congₑ nn₁ nn₂ nn₃ nn₄) = []-congₑ nn₁ nn₂ nn₃ nn₄
+  No-namesᶜ-wk (qrecₑ nn₁ nn₂ nn₃ nn₄)    = qrecₑ nn₁ nn₂ nn₃ nn₄
 
 opaque
 

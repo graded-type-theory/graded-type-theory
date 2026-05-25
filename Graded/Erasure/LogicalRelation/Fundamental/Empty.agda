@@ -29,7 +29,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Empty
   where
 
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden variant as
+open import Graded.Erasure.LogicalRelation.Hidden UR as
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄
 

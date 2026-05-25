@@ -6,7 +6,7 @@ open import Definition.Typed.Variant
 
 module Definition.Untyped.Whnf
   {a} (M : Set a)
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   where
 
 open Type-variant type-variant
@@ -29,10 +29,10 @@ open import Tools.Unit
 private
   variable
     p q r : M
-    n : Nat
+    m n : Nat
     ∇ ∇′ : DCon (Term 0) _
     ξ : DExt _ _ _
-    A B F G t u v w : Term _
+    A B C F G t u v w : Term _
     l : Lvl _
     V V′ : Set a
     ρ : Wk _ _
@@ -56,6 +56,7 @@ data Whnf {m n} (∇ : DCon (Term 0) m) : Term n → Set a where
   Unitₙ  : Whnf ∇ (Unit s)
   Emptyₙ : Whnf ∇ Empty
   Idₙ    : Whnf ∇ (Id A t u)
+  Quot   : Whnf ∇ (Quot A B)
 
   -- Introductions are whnfs.
   zeroᵘₙ : Whnf ∇ zeroᵘ
@@ -67,6 +68,7 @@ data Whnf {m n} (∇ : DCon (Term 0) m) : Term n → Set a where
   starₙ  : Whnf ∇ (star s)
   prodₙ  : Whnf ∇ (prod s p t u)
   rflₙ   : Whnf ∇ rfl
+  class  : Whnf ∇ (class t)
 
   -- Neutral terms are whnfs.
   ne    : Neutral⁺ ∇ t → Whnf ∇ t
@@ -109,6 +111,7 @@ data Type {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   Emptyₙ :                 Type V ∇ Empty
   Unitₙ  :                 Type V ∇ (Unit s)
   Idₙ    :                 Type V ∇ (Id A t u)
+  Quot   :                 Type V ∇ (Quot A B)
   ne     : Neutral V ∇ t → Type V ∇ t
 
 Type⁺ : ∀ {m n} → DCon (Term 0) m → Term n → Set a
@@ -125,6 +128,7 @@ opaque
   type↑ ok Emptyₙ = Emptyₙ
   type↑ ok Unitₙ  = Unitₙ
   type↑ ok Idₙ    = Idₙ
+  type↑ ok Quot   = Quot
   type↑ ok (ne b) = ne (ne↑ ok b)
 
 ⟦_⟧-type : ∀ (W : BindingType) → Type V ∇ (⟦ W ⟧ F ▹ G)
@@ -200,6 +204,23 @@ Identity-rec :
 Identity-rec rflₙ   r b = r
 Identity-rec (ne _) r b = b
 
+-- A WHNF of type Quot A R is either an application of class or
+-- neutral.
+
+data Quotient {n} (V : Set a) (∇ : DCon (Term 0) m) :
+       Term n → Set a where
+  class :                 Quotient V ∇ (class t)
+  ne    : Neutral V ∇ t → Quotient V ∇ t
+
+Quotient⁺ : DCon (Term 0) m → Term n → Set a
+Quotient⁺ = Quotient (L.Lift _ ⊤)
+
+opaque
+
+  quotient↑ : V → Quotient V′ ∇ t → Quotient V ∇ t
+  quotient↑ ok class  = class
+  quotient↑ ok (ne b) = ne (ne↑ ok b)
+
 opaque
 
   -- Numerals satisfy the predicate Natural⁺.
@@ -225,6 +246,7 @@ typeWhnf ℕₙ     = ℕₙ
 typeWhnf Emptyₙ = Emptyₙ
 typeWhnf Unitₙ  = Unitₙ
 typeWhnf Idₙ    = Idₙ
+typeWhnf Quot   = Quot
 typeWhnf (ne b) = ne-whnf b
 
 functionWhnf : Function V ∇ t → Whnf ∇ t
@@ -242,6 +264,10 @@ starWhnf (ne b) = ne-whnf b
 identityWhnf : Identity V ∇ t → Whnf ∇ t
 identityWhnf rflₙ   = rflₙ
 identityWhnf (ne b) = ne-whnf b
+
+quotientWhnf : Quotient V ∇ t → Whnf ∇ t
+quotientWhnf class  = class
+quotientWhnf (ne n) = ne-whnf n
 
 ⟦_⟧ₙ : (W : BindingType) → Whnf ∇ (⟦ W ⟧ F ▹ G)
 ⟦_⟧ₙ (BΠ p q)   = ΠΣₙ
@@ -263,6 +289,7 @@ data No-η-equality {m n} (∇ : DCon (Term 0) m) : Term n → Set a where
   ℕₙ     :                No-η-equality ∇ ℕ
   Unitʷₙ : ¬ Unitʷ-η    → No-η-equality ∇ Unitʷ
   Idₙ    :                No-η-equality ∇ (Id A t u)
+  Quot   :                No-η-equality ∇ (Quot A B)
   neₙ    : Neutral⁺ ∇ A → No-η-equality ∇ A
 
 -- If No-η-equality A holds, then A is a WHNF.
@@ -276,6 +303,7 @@ No-η-equality→Whnf = λ where
   ℕₙ         → ℕₙ
   (Unitʷₙ _) → Unitₙ
   Idₙ        → Idₙ
+  Quot       → Quot
   (neₙ b)    → ne b
 
 ------------------------------------------------------------------------
@@ -297,6 +325,7 @@ wkType ρ ℕₙ     = ℕₙ
 wkType ρ Emptyₙ = Emptyₙ
 wkType ρ Unitₙ  = Unitₙ
 wkType ρ Idₙ    = Idₙ
+wkType ρ Quot   = Quot
 wkType ρ (ne b) = ne (wkNeutral ρ b)
 
 wkFunction : ∀ ρ → Function V ∇ t → Function {n = n} V ∇ (wk ρ t)
@@ -311,25 +340,31 @@ wkIdentity : Identity V ∇ t → Identity V ∇ (wk ρ t)
 wkIdentity rflₙ   = rflₙ
 wkIdentity (ne b) = ne (wkNeutral _ b)
 
+wkQuotient : Quotient V ∇ t → Quotient V ∇ (wk ρ t)
+wkQuotient class  = class
+wkQuotient (ne n) = ne (wkNeutral _ n)
+
 wkWhnf : ∀ ρ → Whnf ∇ t → Whnf {n = n} ∇ (wk ρ t)
-wkWhnf ρ Levelₙ  = Levelₙ
-wkWhnf ρ Uₙ      = Uₙ
-wkWhnf ρ Liftₙ   = Liftₙ
-wkWhnf ρ liftₙ   = liftₙ
-wkWhnf ρ ΠΣₙ     = ΠΣₙ
-wkWhnf ρ ℕₙ      = ℕₙ
-wkWhnf ρ Emptyₙ  = Emptyₙ
-wkWhnf ρ Unitₙ   = Unitₙ
-wkWhnf ρ Idₙ     = Idₙ
-wkWhnf ρ zeroᵘₙ  = zeroᵘₙ
-wkWhnf ρ sucᵘₙ   = sucᵘₙ
-wkWhnf ρ lamₙ    = lamₙ
-wkWhnf ρ prodₙ   = prodₙ
-wkWhnf ρ zeroₙ   = zeroₙ
-wkWhnf ρ sucₙ    = sucₙ
-wkWhnf ρ starₙ   = starₙ
-wkWhnf ρ rflₙ    = rflₙ
-wkWhnf ρ (ne x)  = ne (wkNeutral ρ x)
+wkWhnf ρ Levelₙ = Levelₙ
+wkWhnf ρ Uₙ     = Uₙ
+wkWhnf ρ Liftₙ  = Liftₙ
+wkWhnf ρ liftₙ  = liftₙ
+wkWhnf ρ ΠΣₙ    = ΠΣₙ
+wkWhnf ρ ℕₙ     = ℕₙ
+wkWhnf ρ Emptyₙ = Emptyₙ
+wkWhnf ρ Unitₙ  = Unitₙ
+wkWhnf ρ Idₙ    = Idₙ
+wkWhnf ρ zeroᵘₙ = zeroᵘₙ
+wkWhnf ρ sucᵘₙ  = sucᵘₙ
+wkWhnf ρ lamₙ   = lamₙ
+wkWhnf ρ prodₙ  = prodₙ
+wkWhnf ρ zeroₙ  = zeroₙ
+wkWhnf ρ sucₙ   = sucₙ
+wkWhnf ρ starₙ  = starₙ
+wkWhnf ρ rflₙ   = rflₙ
+wkWhnf _ Quot   = Quot
+wkWhnf _ class  = class
+wkWhnf ρ (ne x) = ne (wkNeutral ρ x)
 
 opaque
 
@@ -343,6 +378,7 @@ opaque
   wk-No-η-equality ℕₙ            = ℕₙ
   wk-No-η-equality (Unitʷₙ no-η) = Unitʷₙ no-η
   wk-No-η-equality Idₙ           = Idₙ
+  wk-No-η-equality Quot          = Quot
   wk-No-η-equality (neₙ A-ne)    = neₙ (wkNeutral _ A-ne)
 
 ------------------------------------------------------------------------
@@ -433,6 +469,29 @@ opaque
   inv-whnf-[]-cong : Whnf ∇ ([]-cong s l A t u v) → Neutral⁺ ∇ v
   inv-whnf-[]-cong (ne b) = inv-ne-[]-cong b
 
+opaque
+
+  -- An inversion lemma for resp.
+
+  inv-whnf-resp :
+    Whnf ∇ (resp A B t u v) → Higher-quotient-constructors-neutral
+  inv-whnf-resp (ne n) = inv-ne-resp n
+
+opaque
+
+  -- An inversion lemma for set.
+
+  inv-whnf-set :
+    Whnf ∇ (set A B t u v w) → Higher-quotient-constructors-neutral
+  inv-whnf-set (ne n) = inv-ne-set n
+
+opaque
+
+  -- An inversion lemma for qrec.
+
+  inv-whnf-qrec : Whnf ∇ (qrec C t u v w) → Neutral⁺ ∇ w
+  inv-whnf-qrec (ne n) = inv-ne-qrec n
+
 ------------------------------------------------------------------------
 -- Substitution lemmas
 
@@ -513,6 +572,16 @@ opaque
       (inj₁ (x , refl)) → var⁺ x
       (inj₂ (_ , _ , _ , _ , _ , refl , _ , _ , _ , _ , ≡t′)) →
         []-congₙ (ne⁺-subst ≡t′ b)
+  ne⁺-subst {t} ≡u (resp ok) with subst-resp {t = t} ≡u
+  … | inj₁ (x , refl)                     = var⁺ x
+  … | inj₂ (_ , _ , _ , _ , _ , refl , _) = resp ok
+  ne⁺-subst {t} ≡u (set ok) with subst-set {t = t} ≡u
+  … | inj₁ (x , refl)                         = var⁺ x
+  … | inj₂ (_ , _ , _ , _ , _ , _ , refl , _) = set ok
+  ne⁺-subst {t} ≡u (qrec n) with subst-qrec {t = t} ≡u
+  … | inj₁ (x , refl)                                       = var⁺ x
+  … | inj₂ (_ , _ , _ , _ , _ , refl , _ , _ , _ , _ , ≡t′) =
+    qrec (ne⁺-subst ≡t′ n)
 
 opaque
 
@@ -591,6 +660,12 @@ opaque
       case subst-rfl {t = t} ≡u of λ where
         (inj₁ (x , refl)) → ne (var⁺ x)
         (inj₂ refl) → rflₙ
+    lemma ≡u Quot with subst-Quot {t = t} ≡u
+    ... | inj₁ (x , refl)         = ne (var⁺ x)
+    ... | inj₂ (_ , _ , refl , _) = Quot
+    lemma ≡u class with subst-class {t = t} ≡u
+    ... | inj₁ (x , refl)     = ne (var⁺ x)
+    ... | inj₂ (_ , refl , _) = class
     lemma ≡u (ne b) = ne (ne⁺-subst ≡u b)
 
 ------------------------------------------------------------------------
@@ -619,6 +694,9 @@ opaque
   Neutral-inline (Jₙ t-ne)            = Jₙ (Neutral-inline t-ne)
   Neutral-inline (Kₙ t-ne)            = Kₙ (Neutral-inline t-ne)
   Neutral-inline ([]-congₙ t-ne)      = []-congₙ (Neutral-inline t-ne)
+  Neutral-inline (resp ok)            = resp ok
+  Neutral-inline (set ok)             = set ok
+  Neutral-inline (qrec n)             = qrec (Neutral-inline n)
 
 opaque
   unfolding inline
@@ -644,4 +722,6 @@ opaque
   Whnf-inline starₙ     = starₙ
   Whnf-inline prodₙ     = prodₙ
   Whnf-inline rflₙ      = rflₙ
+  Whnf-inline Quot      = Quot
+  Whnf-inline class     = class
   Whnf-inline (ne t-ne) = ne (Neutral-inline t-ne)

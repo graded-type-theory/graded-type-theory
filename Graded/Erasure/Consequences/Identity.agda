@@ -90,7 +90,7 @@ opaque
     as : Assumptions
     as = record { ⊢Δ = wf ⊢v; str = T.non-strict }
 
-    open H variant as
+    open H UR as
     open L as
 
 opaque

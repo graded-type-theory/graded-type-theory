@@ -64,6 +64,27 @@ opaque
     ok
   emb-≤-⊩ p (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     Idᵣ (Idᵣ Ty lhs rhs ⇒*Id (emb-≤-⊩ p ⊩Ty) (emb-≤-⊩∷ {⊩A = ⊩Ty} ⊩lhs) (emb-≤-⊩∷ {⊩A = ⊩Ty} ⊩rhs))
+  emb-≤-⊩ p (Quot ⊩A) =
+    Quot record
+      { ⇒*Quot = ⇒*Quot
+      ; ≅Quot  = ≅Quot
+      ; ⊩Data  = λ ⊢ρ → emb-≤-⊩ p (⊩Data ⊢ρ)
+      ; ⊩Rel   = λ ⊢ρ ⊩t ⊩u →
+          emb-≤-⊩ p $
+          ⊩Rel ⊢ρ (irrelevanceTerm (emb-≤-⊩ p (⊩Data _)) (⊩Data _) ⊩t)
+            (irrelevanceTerm (emb-≤-⊩ p (⊩Data _)) (⊩Data _) ⊩u)
+      ; Rel≡Rel = λ ⊢ρ ⊩t₁ ⊩t₂ ⊩u₁ ⊩u₂ t₁≡t₂ u₁≡u₂ →
+          irrelevanceEq _ _ $
+          Rel≡Rel ⊢ρ
+            (irrelevanceTerm (emb-≤-⊩ p (⊩Data _)) (⊩Data _) ⊩t₁)
+            (irrelevanceTerm (emb-≤-⊩ p (⊩Data _)) (⊩Data _) ⊩t₂)
+            (irrelevanceTerm (emb-≤-⊩ p (⊩Data _)) (⊩Data _) ⊩u₁)
+            (irrelevanceTerm (emb-≤-⊩ p (⊩Data _)) (⊩Data _) ⊩u₂)
+            (irrelevanceEqTerm (emb-≤-⊩ p (⊩Data _)) (⊩Data _) t₁≡t₂)
+            (irrelevanceEqTerm (emb-≤-⊩ p (⊩Data _)) (⊩Data _) u₁≡u₂)
+      }
+    where
+    open _⊩ₗQuot_ ⊩A
 
 opaque
 

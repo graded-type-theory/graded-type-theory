@@ -39,7 +39,7 @@ record Type-restrictions : Set (lsuc a) where
   no-eta-equality
   field
     -- What variant of the type system should be used?
-    type-variant : Type-variant
+    type-variant : Type-variant a
 
   open Type-variant type-variant public
 
@@ -97,6 +97,10 @@ record Type-restrictions : Set (lsuc a) where
     -- Opacity-allowed is decided.
     Opacity-allowed? : Dec Opacity-allowed
 
+    -- Equality reflection is incompatible with opaque definitions.
+    no-opaque-equality-reflection :
+      Opacity-allowed → ¬ Equality-reflection
+
   -- The type Erased A is only allowed if Erased-allowed holds.
   -- Note that the Erased type can be defined using either a
   -- weak or strong unit type.
@@ -124,73 +128,6 @@ record Type-restrictions : Set (lsuc a) where
 
   []-congˢ-allowed = []-cong-allowed 𝕤
   []-congʷ-allowed = []-cong-allowed 𝕨
-
-  field
-    -- Equality reflection is only allowed if the given predicate
-    -- holds.
-    Equality-reflection : Set a
-
-    -- Equality-reflection is decided.
-    Equality-reflection? : Dec Equality-reflection
-
-    -- Equality reflection is incompatible with opaque definitions.
-    no-opaque-equality-reflection :
-      Opacity-allowed → ¬ Equality-reflection
-
-  -- No-equality-reflection holds if equality reflection is not
-  -- allowed.
-
-  data No-equality-reflection : Set a where
-    no-equality-reflection :
-      ¬ Equality-reflection → No-equality-reflection
-
-  opaque
-
-    -- A characterisation lemma for No-equality-reflection.
-
-    No-equality-reflection⇔ :
-      No-equality-reflection ⇔ (¬ Equality-reflection)
-    No-equality-reflection⇔ =
-        (λ { (no-equality-reflection not-ok) → not-ok })
-      , no-equality-reflection
-
-  opaque
-
-    -- No-equality-reflection is decided.
-
-    No-equality-reflection? : Dec No-equality-reflection
-    No-equality-reflection? =
-      Dec-map (sym⇔ No-equality-reflection⇔) (¬? Equality-reflection?)
-
-  opaque
-
-    -- No-equality-reflection holds if opacity is allowed.
-
-    Opacity-allowed→No-equality-reflection :
-      Opacity-allowed → No-equality-reflection
-    Opacity-allowed→No-equality-reflection =
-      no-equality-reflection ∘→ no-opaque-equality-reflection
-
-  opaque
-
-    -- A characterisation lemma for No-equality-reflection or-empty_.
-
-    No-equality-reflection-or-empty⇔ :
-      No-equality-reflection or-empty Γ ⇔
-      (¬ Equality-reflection ⊎ Empty-con Γ)
-    No-equality-reflection-or-empty⇔ {Γ} =
-      No-equality-reflection or-empty Γ     ⇔⟨ or-empty⇔ ⟩
-      No-equality-reflection ⊎ Empty-con Γ  ⇔⟨ No-equality-reflection⇔ ⊎-cong-⇔ id⇔ ⟩
-      ¬ Equality-reflection ⊎ Empty-con Γ   □⇔
-
-  opaque
-
-    -- No-equality-reflection or-empty_ is decidable.
-
-    No-equality-reflection-or-empty? :
-      Dec (No-equality-reflection or-empty Γ)
-    No-equality-reflection-or-empty? =
-      No-equality-reflection? or-empty?
 
   opaque
 
@@ -308,6 +245,15 @@ record Type-restrictions : Set (lsuc a) where
 
   BindingType-allowed : BindingType → Set a
   BindingType-allowed (BM b p q) = ΠΣ-allowed b p q
+
+  opaque
+
+    -- No-equality-reflection holds if opacity is allowed.
+
+    Opacity-allowed→No-equality-reflection :
+      Opacity-allowed → No-equality-reflection
+    Opacity-allowed→No-equality-reflection =
+      no-equality-reflection ∘→ no-opaque-equality-reflection
 
   -- Some typing rules use the following condition.
 

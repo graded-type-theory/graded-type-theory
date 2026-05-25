@@ -34,7 +34,7 @@ private
     Γ : Con Term _
     Δ : Cons _ _
     φ : Unfolding _
-    A A₁ A₂ B₁ B₂ E F G H
+    A A₁ A₂ B B₁ B₂ C C₁ C₂ D E F G H
       l l′ l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ v₃ w w₁ w₂ :
       Term[ _ ] _
     k : Term-kind
@@ -319,6 +319,20 @@ opaque
   toTerm∘fromTerm ([]-cong s l A t u v) =
     cong₅ ([]-cong s) (toTerm∘fromTerm l) (toTerm∘fromTerm A)
       (toTerm∘fromTerm t) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+  toTerm∘fromTerm (Quot A B) =
+    cong₂ Quot (toTerm∘fromTerm A) (toTerm∘fromTerm B)
+  toTerm∘fromTerm (class t) =
+    cong class (toTerm∘fromTerm t)
+  toTerm∘fromTerm (resp A B t u v) =
+    cong₅ resp (toTerm∘fromTerm A) (toTerm∘fromTerm B)
+      (toTerm∘fromTerm t) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+  toTerm∘fromTerm (set A B t u v w) =
+    cong₆ set (toTerm∘fromTerm A) (toTerm∘fromTerm B)
+      (toTerm∘fromTerm t) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+      (toTerm∘fromTerm w)
+  toTerm∘fromTerm (qrec C t u v w) =
+    cong₅ qrec (toTerm∘fromTerm C) (toTerm∘fromTerm t)
+      (toTerm∘fromTerm u) (toTerm∘fromTerm v) (toTerm∘fromTerm w)
 
 opaque
 
@@ -409,6 +423,23 @@ opaque
       (λ l A t u v → con ([]-congᵏ s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
       (fromTerm∘toTerm l) (fromTerm∘toTerm A) (fromTerm∘toTerm t)
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
+  fromTerm∘toTerm (con Quotᵏ (A ∷ₜ B ∷ₜ [])) =
+    cong₂ (λ A B → con Quotᵏ (A ∷ₜ B ∷ₜ [])) (fromTerm∘toTerm A)
+      (fromTerm∘toTerm B)
+  fromTerm∘toTerm (con classᵏ (t ∷ₜ [])) =
+    cong (λ t → con classᵏ (t ∷ₜ [])) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (con respᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+    cong₅ (λ A B t u v → con respᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm B) (fromTerm∘toTerm t)
+      (fromTerm∘toTerm u) (fromTerm∘toTerm v)
+  fromTerm∘toTerm (con setᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])) =
+    cong₆ (λ A B t u v w → con setᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm B) (fromTerm∘toTerm t)
+      (fromTerm∘toTerm u) (fromTerm∘toTerm v) (fromTerm∘toTerm w)
+  fromTerm∘toTerm (con qrecᵏ (C ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])) =
+    cong₅ (λ C t u v w → con qrecᵏ (C ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ []))
+      (fromTerm∘toTerm C) (fromTerm∘toTerm t) (fromTerm∘toTerm u)
+      (fromTerm∘toTerm v) (fromTerm∘toTerm w)
 
 opaque
 
@@ -492,6 +523,14 @@ Id≢ΠΣ : ∀ b → Id A t u PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Id≢ΠΣ BMΠ     ()
 Id≢ΠΣ (BMΣ _) ()
 
+Quot≢⟦⟧▷ : ∀ W → Quot A B PE.≢ ⟦ W ⟧ C ▹ D
+Quot≢⟦⟧▷ (BΠ _ _)   ()
+Quot≢⟦⟧▷ (BΣ _ _ _) ()
+
+Quot≢ΠΣ : ∀ b → Quot A B PE.≢ ΠΣ⟨ b ⟩ p , q ▷ C ▹ D
+Quot≢ΠΣ BMΠ     ()
+Quot≢ΠΣ (BMΣ _) ()
+
 Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
 Π≢Σ ()
 
@@ -552,6 +591,17 @@ opaque
   wk≡wk′ ([]-cong _ l A t u v) =
     cong₅ []-cong! (wk≡wk′ l) (wk≡wk′ A) (wk≡wk′ t) (wk≡wk′ u)
       (wk≡wk′ v)
+  wk≡wk′ (Quot A B) =
+    cong₂ Quot (wk≡wk′ A) (wk≡wk′ B)
+  wk≡wk′ (class t) =
+    cong class (wk≡wk′ t)
+  wk≡wk′ (resp A B t u v) =
+    cong₅ resp (wk≡wk′ A) (wk≡wk′ B) (wk≡wk′ t) (wk≡wk′ u) (wk≡wk′ v)
+  wk≡wk′ (set A B t u v w) =
+    cong₆ set (wk≡wk′ A) (wk≡wk′ B) (wk≡wk′ t) (wk≡wk′ u) (wk≡wk′ v)
+      (wk≡wk′ w)
+  wk≡wk′ (qrec C t u v w) =
+    cong₅ qrec (wk≡wk′ C) (wk≡wk′ t) (wk≡wk′ u) (wk≡wk′ v) (wk≡wk′ w)
 
 opaque mutual
 
@@ -796,6 +846,19 @@ opaque
   subst≡subst′ ([]-cong _ l A t u v) =
     cong₅ []-cong! (subst≡subst′ l) (subst≡subst′ A) (subst≡subst′ t)
       (subst≡subst′ u) (subst≡subst′ v)
+  subst≡subst′ (Quot A B) =
+    cong₂ Quot (subst≡subst′ A) (subst≡subst′ B)
+  subst≡subst′ (class t) =
+    cong class (subst≡subst′ t)
+  subst≡subst′ (resp A B t u v) =
+    cong₅ resp (subst≡subst′ A) (subst≡subst′ B) (subst≡subst′ t)
+      (subst≡subst′ u) (subst≡subst′ v)
+  subst≡subst′ (set A B t u v w) =
+    cong₆ set (subst≡subst′ A) (subst≡subst′ B) (subst≡subst′ t)
+      (subst≡subst′ u) (subst≡subst′ v) (subst≡subst′ w)
+  subst≡subst′ (qrec C t u v w) =
+    cong₅ qrec (subst≡subst′ C) (subst≡subst′ t) (subst≡subst′ u)
+      (subst≡subst′ v) (subst≡subst′ w)
 
 -- Two substitutions σ and σ′ are equal if they are pointwise equal,
 -- i.e., agree on all variables.
@@ -3071,6 +3134,11 @@ opaque
   isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
   isNumeral? (K _ _ _ _ _ _) = no λ ()
   isNumeral? ([]-cong! _ _ _ _ _) = no λ ()
+  isNumeral? (Quot _ _) = no λ ()
+  isNumeral? (class _) = no λ ()
+  isNumeral? (resp _ _ _ _ _) = no λ ()
+  isNumeral? (set _ _ _ _ _ _) = no λ ()
+  isNumeral? (qrec _ _ _ _ _) = no λ ()
 
 opaque
 
@@ -3313,6 +3381,39 @@ K-PE-injectivity PE.refl =
 []-cong-PE-injectivity PE.refl =
   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
 
+-- Quot is injective.
+
+Quot-PE-injectivity :
+  Quot A₁ B₁ ≡ Quot A₂ B₂ →
+  A₁ ≡ A₂ × B₁ ≡ B₂
+Quot-PE-injectivity refl = refl , refl
+
+-- The term former class is injective.
+
+class-PE-injectivity : class t₁ ≡ class t₂ → t₁ ≡ t₂
+class-PE-injectivity refl = refl
+
+-- The term former resp is injective.
+
+resp-PE-injectivity :
+  resp A₁ B₁ t₁ u₁ v₁ ≡ resp A₂ B₂ t₂ u₂ v₂ →
+  A₁ ≡ A₂ × B₁ ≡ B₂ × t₁ ≡ t₂ × u₁ ≡ u₂ × v₁ ≡ v₂
+resp-PE-injectivity refl = refl , refl , refl , refl , refl
+
+-- The term former set is injective.
+
+set-PE-injectivity :
+  set A₁ B₁ t₁ u₁ v₁ w₁ ≡ set A₂ B₂ t₂ u₂ v₂ w₂ →
+  A₁ ≡ A₂ × B₁ ≡ B₂ × t₁ ≡ t₂ × u₁ ≡ u₂ × v₁ ≡ v₂ × w₁ ≡ w₂
+set-PE-injectivity refl = refl , refl , refl , refl , refl , refl
+
+-- The term former qrec is injective.
+
+qrec-PE-injectivity :
+  qrec C₁ t₁ u₁ v₁ w₁ ≡ qrec C₂ t₂ u₂ v₂ w₂ →
+  C₁ ≡ C₂ × t₁ ≡ t₂ × u₁ ≡ u₂ × v₁ ≡ v₂ × w₁ ≡ w₂
+qrec-PE-injectivity refl = refl , refl , refl , refl , refl
+
 ------------------------------------------------------------------------
 -- Properties related to inlining of definitions
 
@@ -3428,6 +3529,19 @@ opaque
   inline-id ([]-cong _ l A t u v) =
     cong₅ ([]-cong _) (inline-id l) (inline-id A) (inline-id t)
       (inline-id u) (inline-id v)
+  inline-id (Quot A B) =
+    cong₂ Quot (inline-id A) (inline-id B)
+  inline-id (class t) =
+    cong class (inline-id t)
+  inline-id (resp A B t u v) =
+    cong₅ resp (inline-id A) (inline-id B) (inline-id t) (inline-id u)
+      (inline-id v)
+  inline-id (set A B t u v w) =
+    cong₆ set (inline-id A) (inline-id B) (inline-id t) (inline-id u)
+      (inline-id v) (inline-id w)
+  inline-id (qrec C t u v w) =
+    cong₅ qrec (inline-id C) (inline-id t) (inline-id u) (inline-id v)
+      (inline-id w)
 
 opaque
   unfolding inline-Con
@@ -3516,6 +3630,19 @@ opaque
   wk-inline ([]-cong _ l A t u v) =
     cong₅ ([]-cong _) (wk-inline l) (wk-inline A) (wk-inline t)
       (wk-inline u) (wk-inline v)
+  wk-inline (Quot A B) =
+    cong₂ Quot (wk-inline A) (wk-inline B)
+  wk-inline (class t) =
+    cong class (wk-inline t)
+  wk-inline (resp A B t u v) =
+    cong₅ resp (wk-inline A) (wk-inline B) (wk-inline t) (wk-inline u)
+      (wk-inline v)
+  wk-inline (set A B t u v w) =
+    cong₆ set (wk-inline A) (wk-inline B) (wk-inline t) (wk-inline u)
+      (wk-inline v) (wk-inline w)
+  wk-inline (qrec C t u v w) =
+    cong₅ qrec (wk-inline C) (wk-inline t) (wk-inline u) (wk-inline v)
+      (wk-inline w)
 
 opaque
   unfolding inline inline-Subst
@@ -3691,6 +3818,19 @@ opaque
   inline-[] ([]-cong _ l A t u v) =
     cong₅ ([]-cong _) (inline-[] l) (inline-[] A) (inline-[] t)
       (inline-[] u) (inline-[] v)
+  inline-[] (Quot A B) =
+    cong₂ Quot (inline-[] A) (inline-[⇑] 2 B)
+  inline-[] (class t) =
+    cong class (inline-[] t)
+  inline-[] (resp A B t u v) =
+    cong₅ resp (inline-[] A) (inline-[⇑] 2 B) (inline-[] t)
+      (inline-[] u) (inline-[] v)
+  inline-[] (set A B t u v w) =
+    cong₆ set (inline-[] A) (inline-[⇑] 2 B) (inline-[] t) (inline-[] u)
+      (inline-[] v) (inline-[] w)
+  inline-[] (qrec C t u v w) =
+    cong₅ qrec (inline-[⇑] 1 C) (inline-[⇑] 1 t) (inline-[⇑] 3 u)
+      (inline-[⇑] 5 v) (inline-[] w)
 
   -- A variant of inline-[].
 
@@ -3895,6 +4035,20 @@ opaque
   inline-glassifyᵉ ([]-cong _ l A t u v) =
     cong₅ ([]-cong _) (inline-glassifyᵉ l) (inline-glassifyᵉ A)
       (inline-glassifyᵉ t) (inline-glassifyᵉ u) (inline-glassifyᵉ v)
+  inline-glassifyᵉ (Quot A B) =
+    cong₂ Quot (inline-glassifyᵉ A) (inline-glassifyᵉ B)
+  inline-glassifyᵉ (class t) =
+    cong class (inline-glassifyᵉ t)
+  inline-glassifyᵉ (resp A B t u v) =
+    cong₅ resp (inline-glassifyᵉ A) (inline-glassifyᵉ B)
+      (inline-glassifyᵉ t) (inline-glassifyᵉ u) (inline-glassifyᵉ v)
+  inline-glassifyᵉ (set A B t u v w) =
+    cong₆ set (inline-glassifyᵉ A) (inline-glassifyᵉ B)
+      (inline-glassifyᵉ t) (inline-glassifyᵉ u) (inline-glassifyᵉ v)
+      (inline-glassifyᵉ w)
+  inline-glassifyᵉ (qrec C t u v w) =
+    cong₅ qrec (inline-glassifyᵉ C) (inline-glassifyᵉ t)
+      (inline-glassifyᵉ u) (inline-glassifyᵉ v) (inline-glassifyᵉ w)
 
 opaque
   unfolding inlineᵈ
@@ -3996,6 +4150,11 @@ opaque
   is-var? (J _ _ _ _ _ _ _ _)     = not-var (λ ())
   is-var? (K _ _ _ _ _ _)         = not-var (λ ())
   is-var? ([]-cong _ _ _ _ _ _)   = not-var (λ ())
+  is-var? (Quot _ _)              = not-var (λ ())
+  is-var? (class _)               = not-var (λ ())
+  is-var? (resp _ _ _ _ _)        = not-var (λ ())
+  is-var? (set _ _ _ _ _ _)       = not-var (λ ())
+  is-var? (qrec _ _ _ _ _)        = not-var (λ ())
 
 ------------------------------------------------------------------------
 -- Some lemmas related to DCon/DExt

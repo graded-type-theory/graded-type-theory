@@ -17,7 +17,7 @@ module Graded.Heap.Usage.Reduction.Zero-one
   {a} {M : Set a}
   {𝕄 : Modality M}
   {mode-variant : Mode-variant 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (open Graded.Mode.Instances.Zero-one mode-variant)
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (open Type-variant type-variant)
@@ -28,6 +28,9 @@ module Graded.Heap.Usage.Reduction.Zero-one
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (Unitʷ-η→ : ∀ {m p q} → Unitʷ-η → Unitrec-allowed m p q → ⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟘)
   (¬Nr-not-available : ¬ Nr-not-available)
+  -- Quotient term formers are not allowed.
+  (¬Quot-allowed           : ¬ Quot-allowed)
+  (¬Quotient-terms-allowed : ¬ Quotient-terms-allowed)
   where
 
 open import Tools.Empty
@@ -47,7 +50,9 @@ open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Properties.Zero-one type-variant UR factoring-nr
-open import Graded.Heap.Usage.Reduction type-variant UR factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
+open import Graded.Heap.Usage.Reduction
+  type-variant UR factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
+  ¬Quot-allowed ¬Quotient-terms-allowed
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties 𝕄

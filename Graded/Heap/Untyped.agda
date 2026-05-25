@@ -12,7 +12,7 @@ module Graded.Heap.Untyped
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   -- If the usage rules use an nr function is assumed to be factoring
@@ -52,7 +52,7 @@ open import Graded.Usage.Erased-matches
 private variable
   n n′ m m′ m″ n″ k : Nat
   Γ : Con Term _
-  A B C t t′ t₁ t₂ u v : Term _
+  A B C t t′ t₁ t₂ u v w : Term _
   l : Lvl _
   kₜ : Term-kind
   x : Fin _
@@ -124,6 +124,8 @@ data Cont (m : Nat) : Set a where
               (u : Term n) (ρ : Wk m n) → Cont m
   []-congₑ  : (s : Strength) (l : Lvl n) (A t u : Term n) (ρ : Wk m n) →
               Cont m
+  qrecₑ     : (C t : Term (1+ n)) (u : Term (3+ n)) (v : Term (5+ n))
+              (ρ : Wk m n) → Cont m
   sucₑ      : Cont m
 
 private variable
@@ -143,6 +145,7 @@ wkᶜ ρ (emptyrecₑ p A ρ′) = emptyrecₑ p A (ρ • ρ′)
 wkᶜ ρ (Jₑ p q A t B u v ρ′) = Jₑ p q A t B u v (ρ • ρ′)
 wkᶜ ρ (Kₑ p A t B u ρ′) = Kₑ p A t B u (ρ • ρ′)
 wkᶜ ρ ([]-congₑ s l A t u ρ′) = []-congₑ s l A t u (ρ • ρ′)
+wkᶜ ρ (qrecₑ C t u v ρ′) = qrecₑ C t u v (ρ • ρ′)
 wkᶜ ρ sucₑ = sucₑ
 
 wk1ᶜ : Cont m → Cont (1+ m)
@@ -205,6 +208,7 @@ data ∣_∣ᶜ[_]≡_ {m} : Cont m → Mode → M → Set (a ⊔ a′) where
     ∣K erased-matches-for-K mo , p ∣≡ r →
     ∣ Kₑ p A t B u ρ ∣ᶜ[ mo ]≡ r
   []-congₑ : ∣ []-congₑ s l A t u ρ ∣ᶜ[ mo ]≡ 𝟘
+  qrecₑ : ∣ qrecₑ C t u v ρ ∣ᶜ[ mo ]≡ 𝟙
   sucₑ : ∣ sucₑ ∣ᶜ[ mo ]≡ 𝟙
 
 -- Evaluation stacks, indexed by the size of the heap
@@ -470,6 +474,9 @@ infixr 29 ⦅_⦆ᶜ_
   K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) v
 ⦅ []-congₑ s l A t u ρ ⦆ᶜ v =
   []-cong s (wk ρ l) (wk ρ A) (wk ρ t) (wk ρ u) v
+⦅ qrecₑ C t u v ρ ⦆ᶜ w =
+  qrec (wk (lift ρ) C) (wk (lift ρ) t) (wk (liftn ρ 3) u)
+    (wk (liftn ρ 5) v) w
 ⦅ sucₑ ⦆ᶜ t = suc t
 
 -- Converting stacks back to terms
@@ -523,6 +530,8 @@ data No-namesᶜ : Cont m → Set a where
               No-namesᶜ (Kₑ p A t B u ρ)
   []-congₑ  : No-names l → No-names A → No-names t → No-names u →
               No-namesᶜ ([]-congₑ s l A t u ρ)
+  qrecₑ     : No-names C → No-names t → No-names u → No-names v →
+              No-namesᶜ (qrecₑ C t u v ρ)
 
 -- No-namesˢ holds for a stack if it does not contain any names.
 
@@ -566,6 +575,10 @@ data Value {n : Nat} : (t : Term n) → Set a where
   Emptyᵥ : Value Empty
   Idᵥ : Value (Id A t u)
   unitrec-ηᵥ : Unitʷ-η → Value (unitrec p q A t u)
+  Quotᵥ : Value (Quot A B)
+  classᵥ : Value (class t)
+  respᵥ : Value (resp A B t u v)
+  setᵥ : Value (set A B t u v w)
 
 -- States in normal form are either values, variables without
 -- entries in the heap, or levels of the form t ⊔ u.
@@ -585,7 +598,8 @@ data Normal : (State k m n) → Set a where
 -- Matching→⇒ᵥ in Graded.Heap.Reduction.Properties.
 --
 -- Note that when the weak unit type has eta-equality, unitrec is
--- considered a value and matches any stack.
+-- considered a value and matches any stack. Applications of resp and
+-- set are treated in a similar way if equality reflection is allowed.
 
 data Matching {m n} : Term n → Stack m → Set a where
   lowerₑ : Matching (lift t) (lowerₑ ∙ S)
@@ -600,3 +614,6 @@ data Matching {m n} : Term n → Stack m → Set a where
   Jₑ : Matching rfl (Jₑ p q A t B u v ρ ∙ S)
   Kₑ : Matching rfl (Kₑ p A t B u ρ ∙ S)
   []-congₑ : Matching rfl ([]-congₑ s l A t u ρ ∙ S)
+  qrecₑ : Matching (class w) (qrecₑ C t u v ρ ∙ S)
+  respₑ : Equality-reflection → Matching (resp A B t u v) S
+  setₑ : Equality-reflection → Matching (set A B t u v w) S

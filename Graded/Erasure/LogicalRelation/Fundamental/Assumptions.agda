@@ -33,8 +33,11 @@ open import Definition.Typed.Substitution TR
 open import Graded.Usage UR
 open import Graded.Restrictions.Zero-one 𝕄 variant
 
+open import Tools.Function
 open import Tools.Nat
-open import Tools.Sum
+open import Tools.Product
+open import Tools.Relation
+open import Tools.Sum as ⊎
 
 private variable
   k kᵈ : Nat
@@ -52,9 +55,10 @@ record Fundamental-assumptions⁻ (Δ : Cons kᵈ k) : Set a where
     -- then the contexts in Δ are consistent.
     consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Δ
     -- Erased matches are not allowed unless the variable context is
-    -- empty.
+    -- empty and higher quotient constructors are not allowed.
     closed-or-no-erased-matches :
-      No-erased-matches TR UR ⊎ Empty-con (Δ .vars)
+      No-erased-matches TR UR ⊎
+      Empty-con (Δ .vars) × ¬ Higher-quotient-constructors-neutral
     instance
       -- No-equality-reflection holds or the variable context is
       -- empty.
@@ -75,25 +79,33 @@ record Fundamental-assumptions (Δ : Cons kᵈ k) : Set a where
   open Fundamental-assumptions⁻ other-assumptions public
 
 -- Fundamental-assumptions⁻ holds for an empty variable context if the
--- definition context is well-formed and well-resourced.
+-- definition context is well-formed and well-resourced, and either
+-- erased matches are disallowed or higher quotient constructors are
+-- not neutral.
 
 fundamental-assumptions⁻₀ :
+  No-erased-matches TR UR ⊎ ¬ Higher-quotient-constructors-neutral →
   » ∇ → ▸[ 𝟙ᵐ ] ∇ → Fundamental-assumptions⁻ (∇ » ε)
-fundamental-assumptions⁻₀ ≫∇ ▸∇     = record
-  { well-resourced                  = ▸∇
-  ; consistent                      = λ _ →
-                                        inhabited-consistent
-                                          (⊢ˢʷ∷-idSubst (ε ≫∇))
-  ; closed-or-no-erased-matches     = inj₂ ε
-  ; no-equality-reflection-or-empty = ε
+fundamental-assumptions⁻₀ ok ≫∇ ▸∇ = record
+  { well-resourced =
+      ▸∇
+  ; consistent =
+      λ _ → inhabited-consistent (⊢ˢʷ∷-idSubst (ε ≫∇))
+  ; closed-or-no-erased-matches =
+      ⊎.map idᶠ (ε ,_) ok
+  ; no-equality-reflection-or-empty =
+      ε
   }
 
 -- Fundamental-assumptions holds for an empty variable context if the
--- definition context is well-formed and well-resourced.
+-- definition context is well-formed and well-resourced, and either
+-- erased matches are disallowed or higher quotient constructors are
+-- not neutral.
 
 fundamental-assumptions₀ :
+  No-erased-matches TR UR ⊎ ¬ Higher-quotient-constructors-neutral →
   » ∇ → ▸[ 𝟙ᵐ ] ∇ → Fundamental-assumptions (∇ » ε)
-fundamental-assumptions₀ ≫∇ ▸∇ = record
+fundamental-assumptions₀ ok ≫∇ ▸∇ = record
   { well-formed       = ε ≫∇
-  ; other-assumptions = fundamental-assumptions⁻₀ ≫∇ ▸∇
+  ; other-assumptions = fundamental-assumptions⁻₀ ok ≫∇ ▸∇
   }

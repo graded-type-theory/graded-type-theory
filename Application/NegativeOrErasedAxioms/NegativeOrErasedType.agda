@@ -302,3 +302,19 @@ opaque
   ¬negId universe      = I.Id≢U ∘→ sym
   ¬negId level         = I.Id≢Level ∘→ sym
   ¬negId (conv n B≡A)  = ¬negId n ∘→ trans B≡A
+
+opaque
+
+  -- Quotient types are not negative (given a certain assumption).
+
+  ¬negQuot :
+    ⦃ ok : No-equality-reflection or-empty Η .vars ⦄ →
+    NegativeType Η A → ¬ Η ⊢ A ≡ Quot B C
+  ¬negQuot (lift _)      = Quot≢Lift ∘→ sym
+  ¬negQuot empty         = Quot≢Empty ∘→ sym
+  ¬negQuot (pi _ _)      = Quot≢ΠΣ ∘→ sym
+  ¬negQuot (sigma-𝟘 _ _) = Quot≢ΠΣ ∘→ sym
+  ¬negQuot (sigma _ _ _) = Quot≢ΠΣ ∘→ sym
+  ¬negQuot universe      = Quot≢U ∘→ sym
+  ¬negQuot level         = Quot≢Level ∘→ sym
+  ¬negQuot (conv n B≡A)  = ¬negQuot n ∘→ trans B≡A

@@ -79,6 +79,8 @@ opaque mutual
     _ , ΠΣᵛ ⊢ΠΣ (emb-⊩ᵛ ≤ᵘ⊔ᵘʳ ⊩A) (emb-⊩ᵛ ≤ᵘ⊔ᵘˡ ⊩B)
   fundamental-⊩ᵛ (Idⱼ _ ⊢t ⊢u) =
     _ , Idᵛ (fundamental-⊩ᵛ∷ ⊢t .proj₂) (fundamental-⊩ᵛ∷ ⊢u .proj₂)
+  fundamental-⊩ᵛ (Quot ok ⊢B) =
+    _ , Quotᵛ′ ok ⊢B (fundamental-⊩ᵛ ⊢B .proj₂)
   fundamental-⊩ᵛ (univ ⊢A) =
     _ , ⊩ᵛ∷U→⊩ᵛ (fundamental-⊩ᵛ∷ ⊢A .proj₂)
 
@@ -115,6 +117,10 @@ opaque mutual
      _ , (Id-congᵛ (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂)
                    (proj₂ (fundamental-⊩ᵛ≡∷ t₁≡t₂))
                    (proj₂ (fundamental-⊩ᵛ≡∷ u₁≡u₂)))
+  fundamental-⊩ᵛ≡ (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+    _ ,
+    Quot-congᵛ′ ok A₁≡A₂ (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂) B₁≡B₂
+      (fundamental-⊩ᵛ≡ B₁≡B₂ .proj₂)
 
   -- Fundamental theorem for terms.
   fundamental-⊩ᵛ∷ : Γ ⊢ t ∷ A → ∃ λ ℓ → Γ ⊩ᵛ⟨ ℓ ⟩ t ∷ A
@@ -221,6 +227,26 @@ opaque mutual
   fundamental-⊩ᵛ∷ ([]-congⱼ ⊢l _ _ _ ⊢v ok) =
     _ ,
     []-congᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+  fundamental-⊩ᵛ∷ (Quot ok ⊢l ⊢A ⊢B) =
+    _ ,
+    Quotᵗᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) (univ ⊢A)
+      (fundamental-⊩ᵛ∷ ⊢A .proj₂) ⊢B (fundamental-⊩ᵛ∷ ⊢B .proj₂)
+  fundamental-⊩ᵛ∷ (class ⊢Q ⊢t) =
+    _ , classᵛ′ (fundamental-⊩ᵛ ⊢Q .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+  fundamental-⊩ᵛ∷ (resp ⊢Q ⊢t ⊢u ⊢v) =
+    _ ,
+    respᵛ′ ⊢Q (fundamental-⊩ᵛ ⊢Q .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢u .proj₂) (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+  fundamental-⊩ᵛ∷ (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+    _ ,
+    setᵛ′ ⊢Q (fundamental-⊩ᵛ ⊢Q .proj₂) (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢u .proj₂) (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢w .proj₂)
+  fundamental-⊩ᵛ∷ (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    _ ,
+    qrecᵛ′ ⊢C (fundamental-⊩ᵛ ⊢C .proj₂) ⊢t (fundamental-⊩ᵛ∷ ⊢t .proj₂)
+      ⊢u (fundamental-⊩ᵛ∷ ⊢u .proj₂) ⊢v (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+      (fundamental-⊩ᵛ∷ ⊢w .proj₂)
   fundamental-⊩ᵛ∷ (Uⱼ ⊢l) =
     _ , ⊩ᵛU∷U (fundamental-⊩ᵛ∷L ⊢l .proj₂)
 
@@ -398,6 +424,37 @@ opaque mutual
       (fundamental-⊩ᵛ∷ ⊢t .proj₂)
   fundamental-⊩ᵛ≡∷ (equality-reflection ok _ ⊢v) =
     _ , equality-reflectionᵛ ok (fundamental-⊩ᵛ∷ ⊢v .proj₂)
+  fundamental-⊩ᵛ≡∷ (Quot-cong ok ⊢l A₁≡A₂ B₁≡B₂) =
+    _ ,
+    Quot-congᵗᵛ ok (fundamental-⊩ᵛ∷L ⊢l .proj₂) (univ A₁≡A₂)
+      (fundamental-⊩ᵛ≡∷ A₁≡A₂ .proj₂) B₁≡B₂
+      (fundamental-⊩ᵛ≡∷ B₁≡B₂ .proj₂)
+
+  fundamental-⊩ᵛ≡∷ (class-cong ⊢Q t₁≡t₂) =
+    _ ,
+    class-congᵛ′ (fundamental-⊩ᵛ ⊢Q .proj₂)
+      (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
+    _ ,
+    resp-congᵛ′ ok A₁≡A₂ (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂) B₁≡B₂
+      (fundamental-⊩ᵛ≡ B₁≡B₂ .proj₂) (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
+      (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂) (fundamental-⊩ᵛ≡∷ v₁≡v₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+    _ ,
+    set-congᵛ′ (fundamental-⊩ᵛ≡ A₁≡A₂ .proj₂) B₁≡B₂
+      (fundamental-⊩ᵛ≡ B₁≡B₂ .proj₂) (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂)
+      (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂) (fundamental-⊩ᵛ≡∷ v₁≡v₂ .proj₂)
+      (fundamental-⊩ᵛ≡∷ w₁≡w₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+    _ ,
+    qrec-congᵛ′ C₁≡C₂ (fundamental-⊩ᵛ≡ C₁≡C₂ .proj₂) t₁≡t₂
+      (fundamental-⊩ᵛ≡∷ t₁≡t₂ .proj₂) u₁≡u₂
+      (fundamental-⊩ᵛ≡∷ u₁≡u₂ .proj₂) v₁≡v₂
+      (fundamental-⊩ᵛ≡∷ v₁≡v₂ .proj₂) (fundamental-⊩ᵛ≡∷ w₁≡w₂ .proj₂)
+  fundamental-⊩ᵛ≡∷ (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    _ ,
+    qrec-βᵛ ⊢C ⊢t (fundamental-⊩ᵛ∷ ⊢t .proj₂) ⊢u ⊢v ⊢w
+      (fundamental-⊩ᵛ∷ ⊢w .proj₂)
 
   -- The fundamental theorem for level equality.
   fundamental-⊩ᵛ≡∷L :

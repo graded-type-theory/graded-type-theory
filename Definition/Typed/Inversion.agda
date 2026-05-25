@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 import Definition.Typed.Inversion.Primitive R as I
+open import Definition.Typed.Properties.Admissible.Identity.Primitive R
 open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Admissible.U.Primitive R
 open import Definition.Typed.Properties.Well-formed R
@@ -26,6 +27,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup R
 
 open import Tools.Empty
@@ -41,14 +43,14 @@ open import Tools.Sum as ⊎
 open I public
 
 private variable
-  α m n               : Nat
-  x                   : Fin _
-  Γ                   : Cons _ _
-  A B C t t₁ t₂ u v w : Term _
-  l l₁ l₂             : Lvl _
-  b                   : BinderMode
-  s                   : Strength
-  p q q′ r            : M
+  α m n                 : Nat
+  x                     : Fin _
+  Γ                     : Cons _ _
+  A B C D t t₁ t₂ u v w : Term _
+  l l₁ l₂               : Lvl _
+  b                     : BinderMode
+  s                     : Strength
+  p q q′ r              : M
 
 ------------------------------------------------------------------------
 -- Inversion for variables
@@ -235,6 +237,8 @@ opaque
       ⊥-elim (supᵘₗ≢ΠΣ eq)
     inversion-supᵘₗ-⊢′ (Idⱼ _ _ _) eq =
       ⊥-elim (supᵘₗ≢Id eq)
+    inversion-supᵘₗ-⊢′ (Quot _ _) eq =
+      ⊥-elim (supᵘₗ≢Quot eq)
 
 opaque
   unfolding _supᵘₗ_
@@ -569,3 +573,77 @@ opaque
     (conv ⊢bc eq) →
       let a , b , c , d , e , f , g = inversion-[]-cong ⊢bc in
       a , b , c , d , e , f , trans (sym eq) g
+
+------------------------------------------------------------------------
+-- Inversion for quotients
+
+opaque
+
+  -- Inversion for class.
+
+  inversion-class :
+    Γ ⊢ class t ∷ A →
+    ∃₂ λ B C →
+    (Γ ⊢ Quot B C) ×
+    Γ ⊢ t ∷ B ×
+    Γ ⊢ A ≡ Quot B C
+  inversion-class (class ⊢Q ⊢t) =
+    _ , _ , ⊢Q , ⊢t , refl ⊢Q
+  inversion-class (conv ⊢c ≡A) =
+    let _ , _ , ⊢Q , ⊢t , ≡Q = inversion-class ⊢c in
+    _ , _ , ⊢Q , ⊢t , trans (sym ≡A) ≡Q
+
+opaque
+
+  -- Inversion for resp.
+
+  inversion-resp :
+    Γ ⊢ resp A B t u v ∷ C →
+    (Γ ⊢ Quot A B) ×
+    Γ ⊢ t ∷ A ×
+    Γ ⊢ u ∷ A ×
+    Γ ⊢ v ∷ B [ t , u ]₁₀ ×
+    Γ ⊢ C ≡ Id (Quot A B) (class t) (class u)
+  inversion-resp (resp ⊢Q ⊢t ⊢u ⊢v) =
+    ⊢Q , ⊢t , ⊢u , ⊢v ,
+    refl (Idⱼ′ (class ⊢Q ⊢t) (class ⊢Q ⊢u))
+  inversion-resp (conv ⊢r ≡C) =
+    let ⊢Q , ⊢t , ⊢u , ⊢v , ≡Id = inversion-resp ⊢r in
+    ⊢Q , ⊢t , ⊢u , ⊢v , trans (sym ≡C) ≡Id
+
+opaque
+
+  -- Inversion for set.
+
+  inversion-set :
+    Γ ⊢ set A B t u v w ∷ C →
+    (Γ ⊢ Quot A B) ×
+    Γ ⊢ t ∷ Quot A B ×
+    Γ ⊢ u ∷ Quot A B ×
+    Γ ⊢ v ∷ Id (Quot A B) t u ×
+    Γ ⊢ w ∷ Id (Quot A B) t u ×
+    Γ ⊢ C ≡ Id (Id (Quot A B) t u) v w
+  inversion-set (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+    ⊢Q , ⊢t , ⊢u , ⊢v , ⊢w , refl (Idⱼ′ ⊢v ⊢w)
+  inversion-set (conv ⊢s ≡C) =
+    let ⊢Q , ⊢t , ⊢u , ⊢v , ⊢w , ≡Id = inversion-set ⊢s in
+    ⊢Q , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡C) ≡Id
+
+opaque
+
+  -- Inversion for qrec.
+
+  inversion-qrec :
+    Γ ⊢ qrec C t u v w ∷ D →
+    ∃₂ λ A B →
+    (Γ »∙ Quot A B ⊢ C) ×
+    Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ ×
+    Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t ×
+    Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C ×
+    Γ ⊢ w ∷ Quot A B ×
+    Γ ⊢ D ≡ C [ w ]₀
+  inversion-qrec (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , refl (subst-⊢₀ ⊢C ⊢w)
+  inversion-qrec (conv ⊢q ≡D) =
+    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ = inversion-qrec ⊢q in
+    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀

@@ -52,6 +52,13 @@ record Assumptions : Set (a ⊔ b) where
     -- decidable.
     []-cong-allowed-mode? : ∀ s m → Dec ([]-cong-allowed-mode s m)
 
+    -- Quotient-terms is decided.
+    Quotient-terms-allowed? : Dec Quotient-terms-allowed
+
+    -- Higher-quotient-constructors-allowed is decided.
+    Higher-quotient-constructors-allowed? :
+      Dec Higher-quotient-constructors-allowed
+
     instance
       -- The inference function is supported
       ⦃ inference-ok ⦄ : Natrec-mode-supports-usage-inference natrec-mode

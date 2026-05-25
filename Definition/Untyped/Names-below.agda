@@ -101,6 +101,19 @@ data Names< (m : Nat) : Term[ k ] n → Set a where
   []-cong :
     Names< m l → Names< m A → Names< m t → Names< m u → Names< m v →
     Names< m ([]-cong s l A t u v)
+  Quot :
+    Names< m A → Names< m B → Names< m (Quot A B)
+  class :
+    Names< m t → Names< m (class t)
+  resp :
+    Names< m A → Names< m B → Names< m t → Names< m u → Names< m v →
+    Names< m (resp A B t u v)
+  set :
+    Names< m A → Names< m B → Names< m t → Names< m u → Names< m v →
+    Names< m w → Names< m (set A B t u v w)
+  qrec :
+    Names< m C → Names< m t → Names< m u → Names< m v → Names< m w →
+    Names< m (qrec C t u v w)
 
 -- No-names t means that there are no names in t.
 
@@ -190,6 +203,19 @@ opaque
   Names<-wk ([]-cong <n₁ <n₂ <n₃ <n₄ <n₅) =
     []-cong (Names<-wk <n₁) (Names<-wk <n₂) (Names<-wk <n₃)
       (Names<-wk <n₄) (Names<-wk <n₅)
+  Names<-wk (Quot <n₁ <n₂) =
+    Quot (Names<-wk <n₁) (Names<-wk <n₂)
+  Names<-wk (class <n₁) =
+    class (Names<-wk <n₁)
+  Names<-wk (resp <n₁ <n₂ <n₃ <n₄ <n₅) =
+    resp (Names<-wk <n₁) (Names<-wk <n₂) (Names<-wk <n₃) (Names<-wk <n₄)
+      (Names<-wk <n₅)
+  Names<-wk (set <n₁ <n₂ <n₃ <n₄ <n₅ <n₆) =
+    set (Names<-wk <n₁) (Names<-wk <n₂) (Names<-wk <n₃) (Names<-wk <n₄)
+      (Names<-wk <n₅) (Names<-wk <n₆)
+  Names<-wk (qrec <n₁ <n₂ <n₃ <n₄ <n₅) =
+    qrec (Names<-wk <n₁) (Names<-wk <n₂) (Names<-wk <n₃) (Names<-wk <n₄)
+      (Names<-wk <n₅)
 
 opaque
 
@@ -265,6 +291,20 @@ opaque
       (Names<-wk→ <n₄) (Names<-wk→ <n₅)
   Names<-wk→ {t = []-cong _ _ _ _ _ _} ([]-cong <n₁ <n₂ <n₃ <n₄ <n₅) =
     []-cong (Names<-wk→ <n₁) (Names<-wk→ <n₂) (Names<-wk→ <n₃)
+      (Names<-wk→ <n₄) (Names<-wk→ <n₅)
+  Names<-wk→ {t = Quot _ _} (Quot <n₁ <n₂) =
+    Quot (Names<-wk→ <n₁) (Names<-wk→ <n₂)
+  Names<-wk→ {t = class _} (class <n) =
+    class (Names<-wk→ <n)
+  Names<-wk→ {t = resp _ _ _ _ _} (resp <n₁ <n₂ <n₃ <n₄ <n₅) =
+    resp (Names<-wk→ <n₁) (Names<-wk→ <n₂) (Names<-wk→ <n₃)
+      (Names<-wk→ <n₄) (Names<-wk→ <n₅)
+  Names<-wk→ {t = set _ _ _ _ _ _} (set <n₁ <n₂ <n₃ <n₄ <n₅ <n₆) =
+    set (Names<-wk→ <n₁) (Names<-wk→ <n₂) (Names<-wk→ <n₃)
+      (Names<-wk→ <n₄) (Names<-wk→ <n₅) (Names<-wk→ <n₆)
+  Names<-wk→
+    {t = qrec _ _ _ _ _} (qrec <n₁ <n₂ <n₃ <n₄ <n₅) =
+    qrec (Names<-wk→ <n₁) (Names<-wk→ <n₂) (Names<-wk→ <n₃)
       (Names<-wk→ <n₄) (Names<-wk→ <n₅)
 
 ------------------------------------------------------------------------
@@ -383,6 +423,21 @@ opaque
   Names<-[] ([]-cong l-<n A-<n t-<n u-<n v-<n) σ-<n =
     []-cong (Names<-[] l-<n σ-<n) (Names<-[] A-<n σ-<n)
       (Names<-[] t-<n σ-<n) (Names<-[] u-<n σ-<n) (Names<-[] v-<n σ-<n)
+  Names<-[] (Quot <n₁ <n₂) <n₃ =
+    Quot (Names<-[] <n₁ <n₃) (Names<-[] <n₂ (Names<ˢ-⇑ <n₃))
+  Names<-[] (class <n₁) <n₂ =
+    class (Names<-[] <n₁ <n₂)
+  Names<-[] (resp <n₁ <n₂ <n₃ <n₄ <n₅) <n₆ =
+    resp (Names<-[] <n₁ <n₆) (Names<-[] <n₂ (Names<ˢ-⇑ <n₆))
+      (Names<-[] <n₃ <n₆) (Names<-[] <n₄ <n₆) (Names<-[] <n₅ <n₆)
+  Names<-[] (set <n₁ <n₂ <n₃ <n₄ <n₅ <n₆) <n₇ =
+    set (Names<-[] <n₁ <n₇) (Names<-[] <n₂ (Names<ˢ-⇑ <n₇))
+      (Names<-[] <n₃ <n₇) (Names<-[] <n₄ <n₇) (Names<-[] <n₅ <n₇)
+      (Names<-[] <n₆ <n₇)
+  Names<-[] (qrec <n₁ <n₂ <n₃ <n₄ <n₅) <n₆ =
+    qrec (Names<-[] <n₁ (Names<ˢ-⇑ <n₆)) (Names<-[] <n₂ (Names<ˢ-⇑ <n₆))
+      (Names<-[] <n₃ (Names<ˢ-⇑ <n₆)) (Names<-[] <n₄ (Names<ˢ-⇑ <n₆))
+      (Names<-[] <n₅ <n₆)
 
 opaque
 
@@ -475,6 +530,19 @@ opaque
       (Names<-[]→ <n₄) (Names<-[]→ <n₅)
   Names<-[]→ {t = []-cong _ _ _ _ _ _} ([]-cong <n₁ <n₂ <n₃ <n₄ <n₅) =
     []-cong (Names<-[]→ <n₁) (Names<-[]→ <n₂) (Names<-[]→ <n₃)
+      (Names<-[]→ <n₄) (Names<-[]→ <n₅)
+  Names<-[]→ {t = Quot _ _} (Quot <n₁ <n₂) =
+    Quot (Names<-[]→ <n₁) (Names<-[]→ <n₂)
+  Names<-[]→ {t = class _} (class <n) =
+    class (Names<-[]→ <n)
+  Names<-[]→ {t = resp _ _ _ _ _} (resp <n₁ <n₂ <n₃ <n₄ <n₅) =
+    resp (Names<-[]→ <n₁) (Names<-[]→ <n₂) (Names<-[]→ <n₃)
+      (Names<-[]→ <n₄) (Names<-[]→ <n₅)
+  Names<-[]→ {t = set _ _ _ _ _ _} (set <n₁ <n₂ <n₃ <n₄ <n₅ <n₆) =
+    set (Names<-[]→ <n₁) (Names<-[]→ <n₂) (Names<-[]→ <n₃)
+      (Names<-[]→ <n₄) (Names<-[]→ <n₅) (Names<-[]→ <n₆)
+  Names<-[]→ {t = qrec _ _ _ _ _} (qrec <n₁ <n₂ <n₃ <n₄ <n₅) =
+    qrec (Names<-[]→ <n₁) (Names<-[]→ <n₂) (Names<-[]→ <n₃)
       (Names<-[]→ <n₄) (Names<-[]→ <n₅)
 
 ------------------------------------------------------------------------

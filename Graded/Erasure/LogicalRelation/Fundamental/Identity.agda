@@ -5,14 +5,18 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
+import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
+open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Identity
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
   {R : Type-restrictions 𝕄}
-  (variant : Mode-variant 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (as : Assumptions R)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
@@ -39,15 +43,15 @@ open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   is-reduction-relation
-open import Graded.Erasure.LogicalRelation.Hidden variant as
+open import Graded.Erasure.LogicalRelation.Hidden UR as
 import Graded.Erasure.Target as T
-open import Graded.Mode.Instances.Zero-one variant
 
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
 open import Tools.PropositionalEquality as PE using (_≡_)
+open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
@@ -98,14 +102,15 @@ opaque
   -- definition contexts.
 
   []-congʳ :
-    Empty-con Δ × Transparent ts →
+    Empty-con Δ × Transparent ts ×
+      ¬ Higher-quotient-constructors-neutral →
     ts » Γ ⊢ l ∷Level →
     ts » Γ ⊢ v ∷ Id A t u →
     []-cong-allowed s →
     let open Erased s in
     γ ▸ Γ ⊩ʳ []-cong s l A t u v ∷[ m ∣ n ]
       Id (Erased l A) [ t ] ([ u ])
-  []-congʳ {l} {v} {A} {t} {u} (ε , tr) ⊢l ⊢v ok =
+  []-congʳ {l} {v} {A} {t} {u} (ε , tr , not-ok) ⊢l ⊢v ok =
     let ⊢A , _ = inversion-Id (wf-⊢ ⊢v) in
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} ⊢σ _ →
     ®∷→®∷◂ $
@@ -117,7 +122,8 @@ opaque
           (                              ˘⟨ Erased.Id-Erased-[] _ ⟩⇛≡
            ([]-cong _ l A t u v) [ σ ]  ⇒*⟨ PE.subst₄ _⊢_⇒*_∷_
                                               (PE.cong (_» _) (PE.sym tr)) PE.refl PE.refl PE.refl $
-                                            ε⊢⇒*rfl∷Id $ []-congⱼ′ ok (subst-⊢ ⊢l ⊢σ) (subst-⊢ ⊢v ⊢σ) ⟩∎⇛
+                                            ε⊢⇒*rfl∷Id not-ok $
+                                            []-congⱼ′ ok (subst-⊢ ⊢l ⊢σ) (subst-⊢ ⊢v ⊢σ) ⟩∎⇛
            rfl                          ∎)
           (λ { PE.refl → T.refl })
       )
@@ -133,7 +139,8 @@ opaque
     K-allowed →
     γ ≤ᶜ δ →
     δ ▸ Γ ⊩ʳ u ∷[ m ∣ n ] B [ rfl ]₀ →
-    Empty-con Δ × Transparent ts ⊎
+    Empty-con Δ × Transparent ts ×
+      ¬ Higher-quotient-constructors-neutral ⊎
     (∃ λ η → γ ≤ᶜ η × η ▸ Γ ⊩ʳ v ∷[ m ∣ n ] Id A t t) →
     γ ▸ Γ ⊩ʳ K p A t B u v ∷[ m ∣ n ] B [ v ]₀
   Kʳ {m = 𝟘ᵐ} _ _ _ _ _ _ _ =
@@ -151,10 +158,10 @@ opaque
       ⊢u[σ] →
     case
       (case ε⊎⊩ʳv of λ where
-         (inj₁ (ε , tr)) →                           $⟨ ⊢v[σ] ⟩
+         (inj₁ (ε , tr , not-ok)) →                  $⟨ ⊢v[σ] ⟩
            ts » ε ⊢ v [ σ ] ∷ Id A t t [ σ ]         →⟨ PE.subst₄ _⊢_⇒*_∷_
                                                           (PE.cong (_» _) (PE.sym tr)) PE.refl PE.refl PE.refl ∘→
-                                                        ε⊢⇒*rfl∷Id ⟩
+                                                        ε⊢⇒*rfl∷Id not-ok ⟩
            ts » ε ⊢ v [ σ ] ⇒* rfl ∷ Id A t t [ σ ]  →⟨ ⇒*→⇛ ⟩
            v [ σ ] ⇛ rfl ∷ Id A t t [ σ ]            □
          (inj₂ (η , γ≤η , ⊩ʳv)) →                               $⟨ σ®σ′ ⟩
@@ -197,7 +204,8 @@ opaque
     ts » Γ ⊢ w ∷ Id A t v →
     γ ≤ᶜ δ →
     δ ▸ Γ ⊩ʳ u ∷[ m ∣ n ] B [ t , rfl ]₁₀ →
-    Empty-con Δ × Transparent ts ⊎
+    Empty-con Δ × Transparent ts ×
+      ¬ Higher-quotient-constructors-neutral ⊎
     (∃ λ η → γ ≤ᶜ η × η ▸ Γ ⊩ʳ w ∷[ m ∣ n ] Id A t v) →
     γ ▸ Γ ⊩ʳ J p q A t B u v w ∷[ m ∣ n ] B [ v , w ]₁₀
   Jʳ {m = 𝟘ᵐ} _ _ _ _ _ _ =
@@ -217,10 +225,10 @@ opaque
       ⊢w[σ] →
     case
       (case ε⊎⊩ʳw of λ where
-         (inj₁ (ε , tr)) →                           $⟨ ⊢w[σ] ⟩
+         (inj₁ (ε , tr , not-ok)) →                  $⟨ ⊢w[σ] ⟩
            ts » ε ⊢ w [ σ ] ∷ Id A t v [ σ ]         →⟨ PE.subst₄ _⊢_⇒*_∷_
                                                           (PE.cong (_» _) (PE.sym tr)) PE.refl PE.refl PE.refl ∘→
-                                                        ε⊢⇒*rfl∷Id ⟩
+                                                        ε⊢⇒*rfl∷Id not-ok ⟩
            ts » ε ⊢ w [ σ ] ⇒* rfl ∷ Id A t v [ σ ]  →⟨ ⇒*→⇛ ⟩
            w [ σ ] ⇛ rfl ∷ Id A t v [ σ ]            □
          (inj₂ (η , γ≤η , ⊩ʳw)) →                               $⟨ σ®σ′ ⟩

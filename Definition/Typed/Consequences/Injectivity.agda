@@ -15,6 +15,7 @@ open Type-restrictions R
 
 open import Definition.Untyped M hiding (wk)
 import Definition.Untyped M as U
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
@@ -24,6 +25,8 @@ open import Definition.LogicalRelation.Hidden R ⦃ eqRelInstance ⦄
 open import Definition.LogicalRelation.Properties R ⦃ eqRelInstance ⦄
 open import Definition.LogicalRelation.Fundamental.Reducibility R ⦃ eqRelInstance ⦄
 open import Definition.LogicalRelation.Substitution.Introductions R ⦃ eqRelInstance ⦄
+open import
+  Definition.LogicalRelation.Weakening.Restricted R ⦃ eqRelInstance ⦄
 
 open import Tools.Function
 open import Tools.Nat using (Nat)
@@ -155,3 +158,54 @@ opaque
     (∃ λ l → Γ ⊩⟨ l ⟩ Unit s₁ ≡ Unit s₂) →⟨ ⊩Unit≡Unit⇔ .proj₁ ∘→ proj₂ ⟩
     ⊢ Γ × Unit-allowed s₁ × s₁ PE.≡ s₂   →⟨ proj₂ ∘→ proj₂ ⟩
     s₁ PE.≡ s₂                           □
+
+opaque
+
+  -- A kind of injectivity for Quot.
+
+  Quot-injectivity′ :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ Quot A₁ B₁ ≡ Quot A₂ B₂ →
+    Γ ⊢ A₁ ≡ A₂ ×
+    (⦃ not-ok : No-equality-reflection ⦄ →
+     Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂) ×
+    (∀ {t₁ t₂ u₁ u₂} → Γ ⊢ t₁ ≡ t₂ ∷ A₁ → Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+     Γ ⊢ B₁ [ t₁ , u₁ ]₁₀ ≡ B₂ [ t₂ , u₂ ]₁₀)
+  Quot-injectivity′ Quot≡Quot =
+    let _ , Quot≡Quot     = reducible-⊩≡ Quot≡Quot
+        _ , A₁≡A₂ , B₁≡B₂ = ⊩Quot≡Quot→ Quot≡Quot
+    in
+    escape-⊩≡ A₁≡A₂ ,
+    (λ ⦃ not-ok = not-ok ⦄ → escape-⊩≡ (B₁≡B₂ ⦃ inc = not-ok ⦄)) ,
+    (λ t₁≡t₂ u₁≡u₂ →
+       escape-⊩≡ $
+       ⊩Quot≡Quot→⊩≡∷→⊩≡∷→⊩[]₁₀≡[]₁₀ Quot≡Quot
+         (reducible-⊩≡∷ t₁≡t₂ .proj₂) (reducible-⊩≡∷ u₁≡u₂ .proj₂))
+
+opaque
+
+  -- A kind of injectivity for Quot.
+
+  Quot-injectivity :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ Quot A₁ B₁ ≡ Quot A₂ B₂ →
+    Γ ⊢ A₁ ≡ A₂ ×
+    (∀ {t₁ t₂ u₁ u₂} → Γ ⊢ t₁ ≡ t₂ ∷ A₁ → Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
+     Γ ⊢ B₁ [ t₁ , u₁ ]₁₀ ≡ B₂ [ t₂ , u₂ ]₁₀)
+  Quot-injectivity Quot≡Quot =
+    let A₁≡A₂ , _ , B₁≡B₂ = Quot-injectivity′ Quot≡Quot in
+    A₁≡A₂ , B₁≡B₂
+
+opaque
+
+  -- A kind of injectivity for Quot.
+
+  Quot-injectivity-no-equality-reflection :
+    ⦃ ok : No-equality-reflection ⦄ →
+    Γ ⊢ Quot A₁ B₁ ≡ Quot A₂ B₂ →
+    Γ ⊢ A₁ ≡ A₂ × Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂
+  Quot-injectivity-no-equality-reflection Quot≡Quot =
+    let A₁≡A₂ , B₁≡B₂ , _ =
+          Quot-injectivity′ ⦃ ok = included ⦄ Quot≡Quot
+    in
+    A₁≡A₂ , B₁≡B₂

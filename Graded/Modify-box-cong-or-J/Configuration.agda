@@ -134,6 +134,8 @@ record Configuration : Set (lsuc a) where
       TRₛ.K-allowed → TRₜ.K-allowed
     Equality-reflection-→ :
       TRₛ.Equality-reflection → TRₜ.Equality-reflection
+    Quot-allowed-→ :
+      TRₛ.Quot-allowed → TRₜ.Quot-allowed
 
     -- Some assumptions related to usage restrictions.
     Emptyrec-allowed-→ :
@@ -150,6 +152,15 @@ record Configuration : Set (lsuc a) where
       URₛ.Id-erased ⇔ URₜ.Id-erased
     erased-matches-for-K-≡ :
       URₛ.erased-matches-for-K m PE.≡ URₜ.erased-matches-for-K m
+    Quotient-terms-allowed-→ :
+      URₛ.Quotient-terms-allowed →
+      URₜ.Quotient-terms-allowed
+    Higher-quotient-constructors-allowed-→ :
+      URₛ.Higher-quotient-constructors-allowed →
+      URₜ.Higher-quotient-constructors-allowed
+    Qrec-motive-erased-⇔ :
+      URₛ.Qrec-motive-erased ⇔
+      URₜ.Qrec-motive-erased
 
   open Tₜ
   open Uₜ
@@ -221,6 +232,9 @@ record Configuration : Set (lsuc a) where
       (_ _ : M) (_ _ : Term n) → Term (2+ n) → (_ _ _ : Term n) → Term n
 
     -- Assumptions related to J′.
+
+    J′-ω-𝟘 :
+      J′ ω 𝟘 A t B u v w PE.≡ J ω 𝟘 A t B u v w
 
     J′-[] :
       J′ p q A t B u v w [ σ ] PE.≡
@@ -523,29 +537,33 @@ opaque
      Usage-restrictions.[]-cong-allowed-mode URₛ s m → T 𝟘ᵐ-allowed) →
     Configuration
   remove-[]-cong 𝟘ᵐ-ok = λ where
-      .preservation-of-reduction       → true
-      .glassification                  → false
-      .Configuration.TRₜ               → TRₜ
-      .Configuration.URₜ               → URₜ
-      .Opacity-allowed-→ _             → idᶠ
-      .level-support-≤                 → refl-≤LS
-      .Omega-plus-allowed-→            → idᶠ
-      .unfolding-mode-≡                → PE.refl
-      .Unit-allowed-→                  → idᶠ
-      .η-for-Unitʷ-≡                   → PE.refl
-      .ΠΣ-allowed-→                    → idᶠ
-      .K-allowed-→                     → idᶠ
-      .Equality-reflection-→           → idᶠ
-      .Emptyrec-allowed-→ _            → idᶠ
-      .Unitrec-allowed-→ _             → idᶠ
-      .Starˢ-sink-→                    → idᶠ
-      .Prodrec-allowed-→ _             → idᶠ
-      .natrec-mode-≡                   → PE.refl
-      .Id-erased-⇔                     → id⇔
-      .erased-matches-for-K-≡          → PE.refl
-      .[]-cong′                        → []-cong-J
-      .[]-cong′-[]                     → []-cong-J-[]
-      .▸[]-cong′ {m} ok ▸l ▸A ▸t ▸u ▸v →
+      .preservation-of-reduction              → true
+      .glassification                         → false
+      .Configuration.TRₜ                      → TRₜ
+      .Configuration.URₜ                      → URₜ
+      .Opacity-allowed-→ _                    → idᶠ
+      .level-support-≤                        → refl-≤LS
+      .Omega-plus-allowed-→                   → idᶠ
+      .unfolding-mode-≡                       → PE.refl
+      .Unit-allowed-→                         → idᶠ
+      .η-for-Unitʷ-≡                          → PE.refl
+      .ΠΣ-allowed-→                           → idᶠ
+      .K-allowed-→                            → idᶠ
+      .Equality-reflection-→                  → idᶠ
+      .Quot-allowed-→                         → idᶠ
+      .Emptyrec-allowed-→ _                   → idᶠ
+      .Unitrec-allowed-→ _                    → idᶠ
+      .Starˢ-sink-→                           → idᶠ
+      .Prodrec-allowed-→ _                    → idᶠ
+      .natrec-mode-≡                          → PE.refl
+      .Id-erased-⇔                            → id⇔
+      .erased-matches-for-K-≡                 → PE.refl
+      .Quotient-terms-allowed-→               → idᶠ
+      .Higher-quotient-constructors-allowed-→ → idᶠ
+      .Qrec-motive-erased-⇔                   → id⇔
+      .[]-cong′                               → []-cong-J
+      .[]-cong′-[]                            → []-cong-J-[]
+      .▸[]-cong′ {m} ok ▸l ▸A ▸t ▸u ▸v        →
         ▸[]-cong-J {ok = 𝟘ᵐ-ok m ok}
           (some-erased-matches-allowed .proj₂) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸l)
           (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸A) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸u)
@@ -561,6 +579,7 @@ opaque
       .erase-[]-cong′ →
         erase-[]-cong-J
       .J′                    → J
+      .J′-ω-𝟘                → PE.refl
       .J′-[]                 → PE.refl
       .▸J′ _ _               → Jₘ-generalised
       .▸J′₀₁ ok              → J₀ₘ₁ (≡-not-none-preserved ok)
@@ -615,29 +634,33 @@ opaque
     Usage-restrictions.erased-matches-for-J URₛ 𝟙ᵐ ≤ᵉᵐ some →
     Configuration
   remove-J-𝟘-𝟘 ⦃ ok = 𝟘ᵐ-ok ⦄ P-ok ≤some = λ where
-      .preservation-of-reduction            → false
-      .glassification                       → false
-      .Configuration.TRₜ                    → TRₜ
-      .Configuration.URₜ                    → URₜ
-      .Opacity-allowed-→ _                  → idᶠ
-      .level-support-≤                      → refl-≤LS
-      .Omega-plus-allowed-→                 → idᶠ
-      .unfolding-mode-≡                     → PE.refl
-      .Unit-allowed-→                       → inj₁
-      .η-for-Unitʷ-≡                        → PE.refl
-      .ΠΣ-allowed-→ {bm = BMΣ _}            → inj₁
-      .ΠΣ-allowed-→ {bm = BMΠ}              → idᶠ
-      .K-allowed-→                          → idᶠ
-      .Equality-reflection-→                → idᶠ
-      .Emptyrec-allowed-→ _                 → idᶠ
-      .Unitrec-allowed-→ _                  → idᶠ
-      .Starˢ-sink-→                         → idᶠ
-      .Prodrec-allowed-→ _                  → idᶠ
-      .natrec-mode-≡                        → PE.refl
-      .Id-erased-⇔                          → id⇔
-      .erased-matches-for-K-≡               → PE.refl
-      .[]-cong′                             → []-cong
-      .[]-cong′-[]                          → PE.refl
+      .preservation-of-reduction              → false
+      .glassification                         → false
+      .Configuration.TRₜ                      → TRₜ
+      .Configuration.URₜ                      → URₜ
+      .Opacity-allowed-→ _                    → idᶠ
+      .level-support-≤                        → refl-≤LS
+      .Omega-plus-allowed-→                   → idᶠ
+      .unfolding-mode-≡                       → PE.refl
+      .Unit-allowed-→                         → inj₁
+      .η-for-Unitʷ-≡                          → PE.refl
+      .ΠΣ-allowed-→ {bm = BMΣ _}              → inj₁
+      .ΠΣ-allowed-→ {bm = BMΠ}                → idᶠ
+      .K-allowed-→                            → idᶠ
+      .Equality-reflection-→                  → idᶠ
+      .Quot-allowed-→                         → idᶠ
+      .Emptyrec-allowed-→ _                   → idᶠ
+      .Unitrec-allowed-→ _                    → idᶠ
+      .Starˢ-sink-→                           → idᶠ
+      .Prodrec-allowed-→ _                    → idᶠ
+      .natrec-mode-≡                          → PE.refl
+      .Id-erased-⇔                            → id⇔
+      .erased-matches-for-K-≡                 → PE.refl
+      .Quotient-terms-allowed-→               → idᶠ
+      .Higher-quotient-constructors-allowed-→ → idᶠ
+      .Qrec-motive-erased-⇔                   → id⇔
+      .[]-cong′                               → []-cong
+      .[]-cong′-[]                            → PE.refl
       .▸[]-cong′ ok ▸l ▸A ▸t ▸u ▸v →
         []-congₘ ▸l ▸A ▸t ▸u ▸v (inj₁ ok)
       .[]-cong′-cong _ l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ →
@@ -650,6 +673,7 @@ opaque
       .erase-[]-cong′ →
         PE.refl
       .J′ p q      → J″       (is-𝟘? p ×-dec is-𝟘? q)
+      .J′-ω-𝟘      → J″-ω-𝟘   (is-𝟘? _ ×-dec _)
       .J′-[]       → J″-[]    (is-𝟘? _ ×-dec _)
       .▸J′ _ _     → ▸J″      (is-𝟘? _ ×-dec _)
       .▸J′₀₁ _     → ▸J″₀₁    (is-𝟘? _ ×-dec _)
@@ -692,6 +716,15 @@ opaque
       Term n → Term n → Term n → Term n
     J″         (yes _) = Erased.Jᵉ 𝕨
     J″ {p} {q} (no _)  = J p q
+
+    opaque
+
+      J″-ω-𝟘 :
+        (d : Dec (ω PE.≡ 𝟘 × 𝟘 PE.≡ 𝟘)) →
+        J″ d A t B u v w PE.≡ J ω 𝟘 A t B u v w
+      J″-ω-𝟘 = λ where
+        (no _)          → PE.refl
+        (yes (ω≡𝟘 , _)) → ⊥-elim (𝟘ᵐ.ω≢𝟘 𝟘ᵐ-ok ω≡𝟘)
 
     opaque
 
@@ -836,30 +869,34 @@ opaque
 
   replace-[]-cong-with-rfl : Configuration
   replace-[]-cong-with-rfl = λ where
-      .preservation-of-reduction          → true
-      .glassification                     → true
-      .Configuration.TRₜ                  → TRₜ
-      .Configuration.URₜ                  → URₜ
-      .Opacity-allowed-→ ¬⊤               → ⊥-elim (¬⊤ _)
-      .level-support-≤                    → refl-≤LS
-      .Omega-plus-allowed-→               → idᶠ
-      .unfolding-mode-≡                   → PE.refl
-      .Unit-allowed-→                     → idᶠ
-      .η-for-Unitʷ-≡                      → PE.refl
-      .ΠΣ-allowed-→                       → idᶠ
-      .K-allowed-→                        → idᶠ
-      .Equality-reflection-→              → _
-      .Emptyrec-allowed-→ _               → idᶠ
-      .Unitrec-allowed-→ _                → idᶠ
-      .Starˢ-sink-→                       → idᶠ
-      .Prodrec-allowed-→ _                → idᶠ
-      .natrec-mode-≡                      → PE.refl
-      .Id-erased-⇔                        → id⇔
-      .erased-matches-for-K-≡             → PE.refl
-      .[]-cong′ _ _ _ _ _ _               → rfl
-      .[]-cong′-[]                        → PE.refl
-      .▸[]-cong′ _ _ _ _ _ _              → rflₘ
-      .[]-cong′-cong ok l₁≡l₂ _ _ _ v₁≡v₂ →
+      .preservation-of-reduction              → true
+      .glassification                         → true
+      .Configuration.TRₜ                      → TRₜ
+      .Configuration.URₜ                      → URₜ
+      .Opacity-allowed-→ ¬⊤                   → ⊥-elim (¬⊤ _)
+      .level-support-≤                        → refl-≤LS
+      .Omega-plus-allowed-→                   → idᶠ
+      .unfolding-mode-≡                       → PE.refl
+      .Unit-allowed-→                         → idᶠ
+      .η-for-Unitʷ-≡                          → PE.refl
+      .ΠΣ-allowed-→                           → idᶠ
+      .K-allowed-→                            → idᶠ
+      .Equality-reflection-→                  → _
+      .Quot-allowed-→                         → idᶠ
+      .Emptyrec-allowed-→ _                   → idᶠ
+      .Unitrec-allowed-→ _                    → idᶠ
+      .Starˢ-sink-→                           → idᶠ
+      .Prodrec-allowed-→ _                    → idᶠ
+      .natrec-mode-≡                          → PE.refl
+      .Id-erased-⇔                            → id⇔
+      .erased-matches-for-K-≡                 → PE.refl
+      .Quotient-terms-allowed-→               → idᶠ
+      .Higher-quotient-constructors-allowed-→ → idᶠ
+      .Qrec-motive-erased-⇔                   → id⇔
+      .[]-cong′ _ _ _ _ _ _                   → rfl
+      .[]-cong′-[]                            → PE.refl
+      .▸[]-cong′ _ _ _ _ _ _                  → rflₘ
+      .[]-cong′-cong ok l₁≡l₂ _ _ _ v₁≡v₂     →
         refl $
         []-cong-with-equality-reflection _ (TRₛ .[]-cong→Erased ok)
           (wf-⊢ l₁≡l₂ .proj₁) (wf-⊢ v₁≡v₂ .proj₂ .proj₁)
@@ -876,6 +913,7 @@ opaque
       .erase-[]-cong′ →
         PE.refl
       .J′                    → J
+      .J′-ω-𝟘                → PE.refl
       .J′-[]                 → PE.refl
       .▸J′ _ _               → Jₘ-generalised
       .▸J′₀₁ ok              → J₀ₘ₁ (≡-not-none-preserved ok)
@@ -907,29 +945,33 @@ opaque
 
   turn-on-equality-reflection : Configuration
   turn-on-equality-reflection = λ where
-      .preservation-of-reduction   → true
-      .glassification              → true
-      .Configuration.TRₜ           → TRₜ
-      .Configuration.URₜ           → URₛ
-      .Opacity-allowed-→ ¬⊤        → ⊥-elim (¬⊤ _)
-      .level-support-≤             → refl-≤LS
-      .Omega-plus-allowed-→        → idᶠ
-      .unfolding-mode-≡            → PE.refl
-      .Unit-allowed-→              → idᶠ
-      .η-for-Unitʷ-≡               → PE.refl
-      .ΠΣ-allowed-→                → idᶠ
-      .K-allowed-→                 → idᶠ
-      .Equality-reflection-→       → _
-      .Emptyrec-allowed-→ _        → idᶠ
-      .Unitrec-allowed-→ _         → idᶠ
-      .Starˢ-sink-→                → idᶠ
-      .Prodrec-allowed-→ _         → idᶠ
-      .natrec-mode-≡               → PE.refl
-      .Id-erased-⇔                 → id⇔
-      .erased-matches-for-K-≡      → PE.refl
-      .[]-cong′                    → []-cong
-      .[]-cong′-[]                 → PE.refl
-      .▸[]-cong′ ok ▸l ▸A ▸t ▸u ▸v →
+      .preservation-of-reduction              → true
+      .glassification                         → true
+      .Configuration.TRₜ                      → TRₜ
+      .Configuration.URₜ                      → URₛ
+      .Opacity-allowed-→ ¬⊤                   → ⊥-elim (¬⊤ _)
+      .level-support-≤                        → refl-≤LS
+      .Omega-plus-allowed-→                   → idᶠ
+      .unfolding-mode-≡                       → PE.refl
+      .Unit-allowed-→                         → idᶠ
+      .η-for-Unitʷ-≡                          → PE.refl
+      .ΠΣ-allowed-→                           → idᶠ
+      .K-allowed-→                            → idᶠ
+      .Equality-reflection-→                  → _
+      .Quot-allowed-→                         → idᶠ
+      .Emptyrec-allowed-→ _                   → idᶠ
+      .Unitrec-allowed-→ _                    → idᶠ
+      .Starˢ-sink-→                           → idᶠ
+      .Prodrec-allowed-→ _                    → idᶠ
+      .natrec-mode-≡                          → PE.refl
+      .Id-erased-⇔                            → id⇔
+      .erased-matches-for-K-≡                 → PE.refl
+      .Quotient-terms-allowed-→               → idᶠ
+      .Higher-quotient-constructors-allowed-→ → idᶠ
+      .Qrec-motive-erased-⇔                   → id⇔
+      .[]-cong′                               → []-cong
+      .[]-cong′-[]                            → PE.refl
+      .▸[]-cong′ ok ▸l ▸A ▸t ▸u ▸v            →
         []-congₘ ▸l ▸A ▸t ▸u ▸v ok
       .[]-cong′-cong ok l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ →
         []-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok
@@ -938,6 +980,7 @@ opaque
       .[]-cong′-β-⇒* _ ok ⊢l t≡t′  → redMany ([]-cong-β ⊢l t≡t′ ok)
       .erase-[]-cong′              → PE.refl
       .J′                          → J
+      .J′-ω-𝟘                      → PE.refl
       .J′-[]                       → PE.refl
       .▸J′                         → Jₘ
       .▸J′₀₁ ok                    → J₀ₘ₁ ok PE.refl PE.refl

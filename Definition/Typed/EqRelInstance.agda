@@ -38,6 +38,7 @@ private opaque
         λ { ok (no-equality-reflection not-ok) → not-ok ok }
       .⊢≡→⊢≅                     → λ _ → idᶠ
       .⊢≡∷→⊢≅∷                   → λ _ → idᶠ
+      .⊢≡∷→⊢~∷                   → λ _ → idᶠ
       .~-to-≅ₜ                   → idᶠ
       .⊢≅∷→⊢≅∷L                  → term-⊢≡∷
       .≅-eq                      → idᶠ
@@ -104,6 +105,12 @@ private opaque
       .~-J          → J-cong
       .~-K          → K-cong
       .~-[]-cong    → []-cong-cong
+      .≅-Quot-cong  → Quot-cong
+      .≅ₜ-Quot-cong → Quot-cong′
+      .≅-class-cong → class-cong
+      .~-resp-cong  → resp-cong
+      .~-set-cong   → set-cong
+      .~-qrec-cong  → qrec-cong
     where
     open Equality-relations
 

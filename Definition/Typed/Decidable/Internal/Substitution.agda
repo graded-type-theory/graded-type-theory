@@ -607,6 +607,11 @@ opaque mutual
     lemma (U.J _ _ _ _ _ _ _ _)     _ ()
     lemma (U.K _ _ _ _ _ _)         _ ()
     lemma (U.[]-cong _ _ _ _ _ _)   _ ()
+    lemma (U.Quot _ _)              _ ()
+    lemma (U.class _)               _ ()
+    lemma (U.resp _ _ _ _ _)        _ ()
+    lemma (U.set _ _ _ _ _ _)       _ ()
+    lemma (U.qrec _ _ _ _ _)        _ ()
 
 opaque
 

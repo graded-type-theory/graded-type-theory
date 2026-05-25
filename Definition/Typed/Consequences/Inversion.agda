@@ -210,6 +210,20 @@ opaque
 
 opaque
 
+  -- A variant of inversion-class.
+
+  inversion-class-Quot :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ class t ∷ Quot A B →
+    Γ ⊢ t ∷ A
+  inversion-class-Quot ⊢class =
+    let _ , _ , _ , ⊢t , Quot≡Quot = inversion-class ⊢class
+        A≡A′ , _                   = Quot-injectivity Quot≡Quot
+    in
+    conv ⊢t (sym A≡A′)
+
+opaque
+
   -- Inversion of products in WHNF.
 
   whnfProduct :
@@ -261,6 +275,12 @@ opaque
     rflₙ →
       let _ , _ , _ , _ , eq = inversion-rfl ⊢t in
       ⊥-elim (I.Id≢ΠΣ (sym eq))
+    Quot →
+      let _ , _ , _ , _ , _ , eq = inversion-Quot-∷ ⊢t in
+      ⊥-elim (U≢ΠΣⱼ (sym eq))
+    class →
+      let _ , _ , _ , _ , eq = inversion-class ⊢t in
+      ⊥-elim (I.Quot≢ΠΣ (sym eq))
 
 opaque
 
@@ -315,3 +335,9 @@ opaque
     rflₙ →
       let _ , _ , _ , _ , eq = inversion-rfl ⊢t in
       ⊥-elim (I.Id≢Unit (sym eq))
+    Quot →
+      let _ , _ , _ , _ , _ , eq = inversion-Quot-∷ ⊢t in
+      ⊥-elim (U≢Unitⱼ (sym eq))
+    class →
+      let _ , _ , _ , _ , eq = inversion-class ⊢t in
+      ⊥-elim (Quot≢Unit (sym eq))

@@ -5,14 +5,18 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
+import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
+open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Lift
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
   {R : Type-restrictions 𝕄}
-  (variant : Mode-variant 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (as : Assumptions R)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
@@ -28,10 +32,9 @@ open import Definition.Untyped M
 open import Graded.Context 𝕄
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden variant as
+open import Graded.Erasure.LogicalRelation.Hidden UR as
 import Graded.Erasure.Target as T
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode.Instances.Zero-one variant
 
 open import Tools.Function
 open import Tools.Nat

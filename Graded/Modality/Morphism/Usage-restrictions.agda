@@ -376,6 +376,11 @@ record Common-properties
       m₁ ≈ᵐ m₂ →
       R₁.erased-matches-for-K m₁ ≤ᵉᵐ R₂.erased-matches-for-K m₂
 
+    -- R₁.Qrec-motive-erased holds if and only if
+    -- R₂.Qrec-motive-erased holds.
+    Qrec-motive-erased-preserved :
+      R₁.Qrec-motive-erased ⇔ R₂.Qrec-motive-erased
+
   opaque
 
     -- If Nr-available holds in the source usage restrictions then it
@@ -477,6 +482,7 @@ opaque
       .Id-erased-preserved            → id⇔
       .erased-matches-for-J-preserved → ≈ᵐ→≤ᵉᵐ₁
       .erased-matches-for-K-preserved → ≈ᵐ→≤ᵉᵐ₁
+      .Qrec-motive-erased-preserved   → id⇔
     where
     open Common-properties
 
@@ -503,6 +509,9 @@ opaque
       .erased-matches-for-K-preserved →
         ≈ᵐ→≤ᵉᵐ₂ CP₁.𝟘ᵐ-preserved CP₁.erased-matches-for-K-preserved
           CP₂.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved →
+        CP₂.Qrec-motive-erased-preserved ∘⇔
+        CP₁.Qrec-motive-erased-preserved
     where
     open Common-properties
     module CP₁ = Common-properties cp₁
@@ -586,6 +595,16 @@ record Are-preserving-usage-restrictions
       R₁.[]-cong-allowed-mode s m₁ →
       R₂.[]-cong-allowed-mode s m₂
 
+    -- R₁.Quotient-terms-allowed implies R₂.Quotient-terms-allowed.
+    Quotient-terms-preserved :
+      R₁.Quotient-terms-allowed → R₂.Quotient-terms-allowed
+
+    -- R₁.Higher-quotient-constructors-allowed implies
+    -- R₂.Higher-quotient-constructors-allowed.
+    Higher-quotient-constructors-preserved :
+      R₁.Higher-quotient-constructors-allowed →
+      R₂.Higher-quotient-constructors-allowed
+
   open Common-properties common-properties public
 
 opaque
@@ -600,12 +619,16 @@ opaque
       .nr-preserving ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
         case Nr-available-propositional _ has-nr₁ has-nr₂ of λ where
           refl → Is-nr-preserving-morphism-id
-      .no-nr-preserving        → Is-no-nr-preserving-reflexive
-      .no-nr-glb-preserving    → Is-no-nr-glb-preserving-morphism-id
-      .Prodrec-preserved       → ≈ᵐ→→₁
-      .Unitrec-preserved       → ≈ᵐ→→₁
-      .Emptyrec-preserved      → ≈ᵐ→→₁
-      .[]-cong-mode-preserved  → ≈ᵐ→→₁
+      .no-nr-preserving         → Is-no-nr-preserving-reflexive
+      .no-nr-glb-preserving     → Is-no-nr-glb-preserving-morphism-id
+      .Prodrec-preserved        → ≈ᵐ→→₁
+      .Unitrec-preserved        → ≈ᵐ→→₁
+      .Emptyrec-preserved       → ≈ᵐ→→₁
+      .[]-cong-mode-preserved   → ≈ᵐ→→₁
+      .Quotient-terms-preserved →
+        idᶠ
+      .Higher-quotient-constructors-preserved →
+        idᶠ
     where
     open Are-preserving-usage-restrictions
     open Usage-restrictions R
@@ -658,6 +681,11 @@ opaque
       .[]-cong-mode-preserved →
         ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.[]-cong-mode-preserved
           P₁.[]-cong-mode-preserved
+      .Quotient-terms-preserved →
+        P₁.Quotient-terms-preserved ∘→ P₂.Quotient-terms-preserved
+      .Higher-quotient-constructors-preserved →
+        P₁.Higher-quotient-constructors-preserved ∘→
+        P₂.Higher-quotient-constructors-preserved
     where
     open Are-preserving-usage-restrictions
     open RI R₁
@@ -764,6 +792,16 @@ record Are-reflecting-usage-restrictions
       m₁ ≈ᵐ m₂ →
       R₂.erased-matches-for-K m₂ ≤ᵉᵐ R₁.erased-matches-for-K m₁
 
+    -- R₂.Quotient-terms-allowed implies R₁.Quotient-terms-allowed.
+    Quotient-terms-reflected :
+      R₂.Quotient-terms-allowed → R₁.Quotient-terms-allowed
+
+    -- R₂.Higher-quotient-constructors-allowed implies
+    -- R₁.Higher-quotient-constructors-allowed.
+    Higher-quotient-constructors-reflected :
+      R₂.Higher-quotient-constructors-allowed →
+      R₁.Higher-quotient-constructors-allowed
+
   open Common-properties common-properties public
 
   opaque
@@ -798,6 +836,10 @@ opaque
       .[]-cong-mode-reflected         → ≳ᵐ→←₁
       .erased-matches-for-J-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
       .erased-matches-for-K-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
+      .Quotient-terms-reflected       →
+        idᶠ
+      .Higher-quotient-constructors-reflected →
+        idᶠ
     where
     open Are-reflecting-usage-restrictions
     open Graded.Modality.Properties 𝕄
@@ -861,6 +903,11 @@ opaque
       .erased-matches-for-K-reflected →
         ≈ᵐ→≥ᵉᵐ₂ R₂.𝟘ᵐ-preserved R₁.erased-matches-for-K-reflected
           R₂.erased-matches-for-K-reflected
+      .Quotient-terms-reflected →
+        R₂.Quotient-terms-reflected ∘→ R₁.Quotient-terms-reflected
+      .Higher-quotient-constructors-reflected →
+        R₂.Higher-quotient-constructors-reflected ∘→
+        R₁.Higher-quotient-constructors-reflected
     where
     open Are-reflecting-usage-restrictions
     module M₁ = Modality 𝕄₁

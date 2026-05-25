@@ -130,6 +130,8 @@ opaque
          ; K-preserved                   = idᶠ
          ; []-cong-preserved             = idᶠ
          ; Equality-reflection-preserved = idᶠ
+         ; Quot-preserved                = idᶠ
+         ; Quot-allowed→tr-𝟘≡𝟘           = λ _ → refl
          })
       ⊢t
 

@@ -18,6 +18,7 @@ open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Erased 𝕄
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
@@ -156,6 +157,33 @@ mutual
     []-cong-cong (wkConv↑Level [ρ] l₁≡l₂) (wkConv↑ [ρ] A₁≡A₂)
       (wkConv↑Term [ρ] t₁≡t₂) (wkConv↑Term [ρ] u₁≡u₂) (wk~↓ [ρ] v₁~v₂)
       (wk-⊢ [ρ] ≡Id) ok
+  wk~↑ ρ (resp-cong {B₁} ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
+    let ⊢A₁ , _ = wf-⊢ (soundnessConv↑ A₁≡A₂) in
+    resp-cong ok (wkConv↑ ρ A₁≡A₂)
+      (wkConv↑ (Quot-rel-Cons-⊢ʷᵏ-liftn ρ ⊢A₁) B₁≡B₂)
+      (wkConv↑Term ρ t₁≡t₂) (wkConv↑Term ρ u₁≡u₂)
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
+       wkConv↑Term ρ v₁≡v₂)
+  wk~↑ ρ (set-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+    let ⊢A₁ , _ = wf-⊢ (soundnessConv↑ A₁≡A₂) in
+    set-cong ok (wkConv↑ ρ A₁≡A₂)
+      (wkConv↑ (Quot-rel-Cons-⊢ʷᵏ-liftn ρ ⊢A₁) B₁≡B₂)
+      (wkConv↑Term ρ t₁≡t₂) (wkConv↑Term ρ u₁≡u₂) (wkConv↑Term ρ v₁≡v₂)
+      (wkConv↑Term ρ w₁≡w₂)
+  wk~↑ ρ (qrec-cong {C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂) =
+    let _ , (⊢A , _) , (⊢B , _) , (⊢C₁ , _) , (⊢Q , _) =
+          inversion-Is-set-Cons (soundnessConv↑Term v₁≡v₂)
+    in
+    PE.subst (_⊢_~_↑_ _ _ _) (PE.sym (wk-β C₁)) $
+    qrec-cong
+      (wkConv↑ (⊢ʷᵏlift ρ (wk-⊢ ρ ⊢Q)) C₁≡C₂)
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) (wk-β↑ C₁) $
+       wkConv↑Term (⊢ʷᵏlift ρ (wk-⊢ ρ ⊢A)) t₁≡t₂)
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) wk-Resp-type $
+       wkConv↑Term (Resp-Cons-⊢ʷᵏ-liftn ρ ⊢B) u₁≡u₂)
+      (PE.subst (_⊢_[conv↑]_∷_ _ _ _) wk-Is-set-type $
+       wkConv↑Term (Is-set-Cons-⊢ʷᵏ-liftn ρ ⊢C₁) v₁≡v₂)
+      (wk~↓ ρ w₁~w₂)
 
   -- Weakening of algorithmic equality of neutral terms in WHNF.
   wk~↓ :
@@ -199,6 +227,10 @@ mutual
   wkConv↓ ρ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (wkConv↑ ρ A₁≡A₂) (wkConv↑Term ρ t₁≡t₂)
       (wkConv↑Term ρ u₁≡u₂)
+  wkConv↓ ρ (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+    let ⊢A₁ , _ = wf-⊢ (soundnessConv↑ A₁≡A₂) in
+    Quot-cong ok (wkConv↑ ρ A₁≡A₂)
+      (wkConv↑ (Quot-rel-Cons-⊢ʷᵏ-liftn ρ ⊢A₁) B₁≡B₂)
 
   -- Weakening of algorithmic equality of terms.
   wkConv↑Term :
@@ -280,6 +312,10 @@ mutual
     Id-ins (wk-⊢ ρ ⊢v₁) (wk~↓ ρ v₁~v₂)
   wkConv↓Term ρ (rfl-refl t≡u) =
     rfl-refl (wk-⊢ ρ t≡u)
+  wkConv↓Term ρ (Quot-ins ⊢t₁ t₁~t₂) =
+    Quot-ins (wk-⊢ ρ ⊢t₁) (wk~↓ ρ t₁~t₂)
+  wkConv↓Term ρ (class-cong ⊢Q t₁≡t₂) =
+    class-cong (wk-⊢ ρ ⊢Q) (wkConv↑Term ρ t₁≡t₂)
 
   -- Weakening of algorithmic equality of levels.
 

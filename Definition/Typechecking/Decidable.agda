@@ -29,6 +29,7 @@ open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R as W
+open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
@@ -40,6 +41,7 @@ open import Definition.Untyped M as U
 open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
@@ -57,7 +59,7 @@ private
     m n : Nat
     Δ : Con Term n
     Γ : Cons m n
-    t u v w A B : Term n
+    A B C t u v w : Term n
     l : Lvl _
     p q r : M
 
@@ -122,6 +124,12 @@ mutual
         (no not)          → no λ where
           (Idᶜ A t u)                 → not (A , t , u)
           (checkᶜ (infᶜ (Idᵢ A t u))) → not (checkᶜ (infᶜ A) , t , u)
+    helper (Quot A B) _ =
+      case dec-Checkable-type A ×-dec dec-Checkable-type B of λ where
+        (yes (A , B)) → yes (Quot A B)
+        (no not)      → no λ where
+          (Quot A B)                 → not (A , B)
+          (checkᶜ (infᶜ (Quot A B))) → not (checkᶜ (infᶜ A) , checkᶜ B)
     helper A@(var _) = λ where
       (yes A)  → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
@@ -204,6 +212,18 @@ mutual
       (yes A)  → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
     helper A@([]-cong _ _ _ _ _ _) = λ where
+      (yes A)  → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper A@(class _) = λ where
+      (yes A)  → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper A@(resp _ _ _ _ _) = λ where
+      (yes A)  → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper A@(set _ _ _ _ _ _) = λ where
+      (yes A)  → yes (checkᶜ A)
+      (no not) → no λ { (checkᶜ A) → not A }
+    helper A@(qrec _ _ _ _ _) = λ where
       (yes A)  → yes (checkᶜ A)
       (no not) → no λ { (checkᶜ A) → not A }
 
@@ -322,6 +342,33 @@ mutual
       (yes (l , A , t , u , v)) → yes ([]-congᵢ l A t u v)
       (no not)                  →
         no λ { ([]-congᵢ l A t u v) → not (l , A , t , u , v) }
+  dec-Inferable (Quot A B) =
+    case dec-Inferable A ×-dec dec-Checkable B of λ where
+      (yes (A , B)) → yes (Quot A B)
+      (no not)      → no λ { (Quot A B) → not (A , B) }
+  dec-Inferable (class _) =
+    no (λ ())
+  dec-Inferable (resp A B t u v) =
+    case dec-Checkable-type A ×-dec dec-Checkable-type B ×-dec
+         dec-Checkable t ×-dec dec-Checkable u ×-dec
+         dec-Checkable v of λ where
+      (yes (A , B , t , u , v)) → yes (resp A B t u v)
+      (no not)                  →
+        no λ { (resp A B t u v) → not (A , B , t , u , v) }
+  dec-Inferable (set A B t u v w) =
+    case dec-Checkable-type A ×-dec dec-Checkable-type B ×-dec
+         dec-Checkable t ×-dec dec-Checkable u ×-dec
+         dec-Checkable v ×-dec dec-Checkable w of λ where
+      (yes (A , B , t , u , v , w)) → yes (set A B t u v w)
+      (no not)                  →
+        no λ { (set A B t u v w) → not (A , B , t , u , v , w) }
+  dec-Inferable (qrec C t u v w) =
+    case dec-Checkable-type C ×-dec dec-Checkable t ×-dec
+         dec-Checkable u ×-dec dec-Checkable v ×-dec
+         dec-Inferable w of λ where
+      (yes (C , t , u , v , w)) → yes (qrec C t u v w)
+      (no not)                  →
+        no λ { (qrec C t u v w) → not (C , t , u , v , w) }
 
   -- Decidability of terms being checkable
 
@@ -346,6 +393,12 @@ mutual
         (yes (t , u)) → yes (prodᶜ t u)
         (no not)      → no λ where
           (prodᶜ t u) → not (t , u)
+          (infᶜ ())
+    helper (class t) _ =
+      case dec-Checkable t of λ where
+        (yes t)  → yes (class t)
+        (no not) → no λ where
+          (class t) → not t
           (infᶜ ())
     helper rfl _ =
       yes rflᶜ
@@ -430,6 +483,18 @@ mutual
     helper ([]-cong _ _ _ _ _ _) = λ where
       (yes t) → yes (infᶜ t)
       (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (Quot _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (resp _ _ _ _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (set _ _ _ _ _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
+    helper (qrec _ _ _ _ _) = λ where
+      (yes t) → yes (infᶜ t)
+      (no ¬t) → no λ { (infᶜ t) → ¬t t }
 
   -- It is decidable whether Checkable-level l holds.
 
@@ -480,7 +545,17 @@ private opaque
   ↘U? : Γ ⊢ A → Dec (∃ λ l → Γ ⊢ A ↘ U l)
   ↘U? = Dec.map (Σ.map idᶠ (_, Uₙ)) (Σ.map idᶠ proj₁) ∘→ ⇒*U?
 
-mutual
+  -- A variant of is-Quot.
+
+  ↘Quot? : Γ ⊢ A → Dec (∃₂ λ B C → Γ ⊢ A ↘ Quot B C)
+  ↘Quot? =
+    Dec.map (Σ.map idᶠ (Σ.map idᶠ (_, Quot)))
+      (Σ.map idᶠ (Σ.map idᶠ proj₁)) ∘→
+    is-Quot
+
+opaque
+ unfolding Quot-rel-Con
+ mutual
 
   private
 
@@ -680,6 +755,36 @@ mutual
         (yes (ok , A , t , B , u , v)) → yes (_ , Kᵢ A t B u v ok)
         (no not)                       →
           no λ { (_ , Kᵢ A t B u v ok) → not (ok , A , t , B , u , v) }
+
+    dec⇉-qrec :
+      ⊢ Γ → Checkable-type C → Checkable t → Checkable u →
+      Checkable v → Inferable w →
+      Dec (∃ λ D → Γ ⊢ qrec C t u v w ⇉ D)
+    dec⇉-qrec ⊢Γ C t u v w =
+      case
+        (dec⇉-with-cont ⊢Γ w λ ⊢A _ →
+         Σ-dec (↘Quot? ⊢A)
+           (λ (_ , _ , ↘Q₁) (_ , _ , ↘Q₂) →
+              case whrDet* ↘Q₁ ↘Q₂ of λ {
+                PE.refl →
+              idᶠ })
+           λ (_ , _ , A⇒*Q , _) →
+         let A≡Q         = subset* A⇒*Q
+             _ , ⊢Q      = wf-⊢ A≡Q
+             _ , ⊢Q₁ , _ = inversion-Quot ⊢Q
+         in
+         dec⇇Type-with-cont (∙ ⊢Q) C λ ⊢C →
+         dec⇇-with-cont t
+           (subst-⊢ ⊢C $
+            ⊢ˢʷ∷-[][]↑ (class (wk₁ ⊢Q₁ ⊢Q) (var₀ ⊢Q₁))) λ ⊢t →
+         dec⇇ u (⊢Resp-type ⊢C ⊢t) ×-dec
+         dec⇇ v (⊢Is-set-type ⊢C))
+      of λ where
+        (yes ((_ , w) , (_ , _ , ↘Q) , C , t , u , v)) →
+          yes (_ , qrec w ↘Q C t u v)
+        (no not) → no λ where
+          (_ , qrec w ↘Q C t u v) →
+            not ((_ , w) , (_ , _ , ↘Q) , C , t , u , v)
 
   -- Decidability of checking that an inferable term is a type
 
@@ -891,6 +996,36 @@ mutual
     no λ where
       (univᶜ ([]-congᵢ _ _ _ _ _ _) ↘U) →
         case whnfRed* (↘U .proj₁) Idₙ of λ ()
+  dec⇉Type ⊢Γ (Quot A B) =
+    case
+      (Quot-allowed? ×-dec
+       dec⇉Type-with-cont ⊢Γ A λ ⊢A →
+       dec⇇Type′ (⊢Quot-rel-Con ⊢A) B)
+    of λ where
+      (yes (ok , A , B)) → yes (Quot ok A B)
+      (no not)           → no λ where
+        (Quot ok A B)              → not (ok , A , B)
+        (univᶜ (Quot ok A ↘U B) _) →
+          not (ok , univᶜ A ↘U , ⊢⇇U→⊢⇇Type B)
+  dec⇉Type ⊢Γ (resp _ _ _ _ _) =
+    no λ where
+      (univᶜ (resp _ _ _ _ _ _) ↘U) →
+        case whnfRed* (↘U .proj₁) Idₙ of λ ()
+  dec⇉Type ⊢Γ (set _ _ _ _ _ _) =
+    no λ where
+      (univᶜ (set _ _ _ _ _ _ _) ↘U) →
+        case whnfRed* (↘U .proj₁) Idₙ of λ ()
+  dec⇉Type ⊢Γ (qrec C t u v w) =
+    case
+      (Σ-dec (dec⇉-qrec ⊢Γ C t u v w)
+         (λ (_ , qrec₁) (_ , qrec₂) →
+            case deterministic⇉ qrec₁ qrec₂ of λ { PE.refl → idᶠ })
+         λ (_ , qrec′) →
+       ↘U? (soundness⇉ ⊢Γ qrec′ .proj₁))
+    of λ where
+      (yes ((_ , qrec′) , (_ , ↘U))) → yes (univᶜ qrec′ ↘U)
+      (no not)                       →
+        no λ { (univᶜ qrec′ ↘U) → not ((_ , qrec′) , (_ , ↘U)) }
 
   -- It is decidable whether a checkable type is a type.
 
@@ -921,6 +1056,17 @@ mutual
       (no not)          → no λ where
         (Idᶜ A t u)              → not (A , t , u)
         (univᶜ (Idᵢ A ↘U t u) _) → not (univᶜ A ↘U , t , u)
+  dec⇇Type ⊢Γ (Quot A B) =
+    case
+      (Quot-allowed? ×-dec
+       dec⇇Type-with-cont ⊢Γ A λ ⊢A →
+       dec⇇Type (⊢Quot-rel-Con ⊢A) B)
+    of λ where
+      (yes (ok , A , B)) → yes (Quot ok A B)
+      (no not)           → no λ where
+        (Quot ok A B)              → not (ok , A , B)
+        (univᶜ (Quot ok A ↘U B) _) →
+          not (ok , univᶜ A ↘U , ⊢⇇U→⊢⇇Type B)
   dec⇇Type {Γ} {A} ⊢Γ (checkᶜ A-c) = dec⇇Type′ ⊢Γ A-c
 
   dec⇇Type′ : ⊢ Γ → Checkable A → Dec (Γ ⊢ A ⇇Type)
@@ -928,6 +1074,7 @@ mutual
   dec⇇Type′ ⊢Γ (lamᶜ _)    = no λ { (univᶜ () _) }
   dec⇇Type′ ⊢Γ (prodᶜ _ _) = no λ { (univᶜ () _) }
   dec⇇Type′ ⊢Γ rflᶜ        = no λ { (univᶜ () _) }
+  dec⇇Type′ ⊢Γ (class _)   = no λ { (univᶜ () _) }
   dec⇇Type′ ⊢Γ (infᶜ A)    = dec⇉Type ⊢Γ A
 
   -- Decidability of bi-directional type inference
@@ -1041,6 +1188,55 @@ mutual
       (yes (ok , l , A , t , u , v)) → yes (_ , []-congᵢ l A t u v ok)
       (no not)                       → no λ where
         (_ , []-congᵢ l A t u v ok) → not (ok , l , A , t , u , v)
+  dec⇉ ⊢Γ (Quot A B) =
+    case
+      (Quot-allowed? ×-dec
+       dec⇉-with-cont ⊢Γ A λ ⊢C ⊢A →
+       Σ-dec (↘U? ⊢C)
+         (λ (_ , ↘U₁) (_ , ↘U₂) →
+            case whrDet* ↘U₁ ↘U₂ of λ {
+              PE.refl →
+            idᶠ })
+         λ (_ , C⇒*U , _) →
+       let C≡U    = subset* C⇒*U
+           _ , ⊢U = wf-⊢ C≡U
+       in
+       dec⇇ B (wk-⊢ (⊢ʷᵏdrop (⊢Quot-rel-Con (univ (conv ⊢A C≡U)))) ⊢U))
+    of λ where
+      (yes (ok , (_ , A) , (_ , ↘U) , B)) → yes (_ , Quot ok A ↘U B)
+      (no not)                            →
+        no λ { (_ , Quot ok A ↘U B) → not (ok , (_ , A) , (_ , ↘U) , B) }
+  dec⇉ ⊢Γ (resp A B t u v) =
+    case
+      (Quot-allowed? ×-dec
+       dec⇇Type-with-cont ⊢Γ A λ ⊢A →
+       dec⇇Type-with-cont (⊢Quot-rel-Con ⊢A) B λ ⊢B →
+       dec⇇-with-cont t ⊢A λ ⊢t →
+       dec⇇-with-cont u ⊢A λ ⊢u →
+       dec⇇ v
+         (subst-⊢₁₀ ⊢B ⊢t $
+          PE.subst (_⊢_∷_ _ _) (PE.sym (wk1-sgSubst _ _)) ⊢u))
+    of λ where
+      (yes (ok , A , B , t , u , v)) → yes (_ , resp ok A B t u v)
+      (no not)                       →
+        no λ { (_ , resp ok A B t u v) → not (ok , A , B , t , u , v) }
+  dec⇉ ⊢Γ (set A B t u v w) =
+    case
+      (Quot-allowed? ×-dec′ λ ok →
+       dec⇇Type-with-cont ⊢Γ A λ ⊢A →
+       dec⇇Type-with-cont (⊢Quot-rel-Con ⊢A) B λ ⊢B →
+       let ⊢Q = Quot ok ⊢B in
+       dec⇇-with-cont t ⊢Q λ ⊢t →
+       dec⇇-with-cont u ⊢Q λ ⊢u →
+       let ⊢Id = Idⱼ′ ⊢t ⊢u in
+       dec⇇ v ⊢Id ×-dec
+       dec⇇ w ⊢Id)
+    of λ where
+      (yes (ok , A , B , t , u , v , w)) → yes (_ , set ok A B t u v w)
+      (no not)                           → no λ where
+        (_ , set ok A B t u v w) → not (ok , A , B , t , u , v , w)
+  dec⇉ ⊢Γ (qrec C t u v w) =
+    dec⇉-qrec ⊢Γ C t u v w
 
   -- Decidability of bi-directional type checking
 
@@ -1105,6 +1301,21 @@ mutual
       (no not) → no λ where
         (rflᶜ A t≡u) → not ((_ , _ , _ , A .proj₁) , t≡u)
         (infᶜ () _)
+  dec⇇ (class t) ⊢A =
+    case
+      (Σ-dec (is-Quot ⊢A)
+         (λ (_ , _ , A⇒*Q₁) (_ , _ , A⇒*Q₂) →
+            case whrDet* (A⇒*Q₁ , Quot) (A⇒*Q₂ , Quot) of λ {
+              PE.refl →
+            idᶠ })
+         λ (_ , _ , A⇒*Q) →
+       let _ , ⊢B , _ = inversion-Quot (syntacticRed A⇒*Q .proj₂) in
+       dec⇇ t ⊢B)
+    of λ where
+      (yes ((_ , _ , ⇒*Q) , t)) → yes (class (⇒*Q , Quot) t)
+      (no not) → no λ where
+        (class ↘Q t) → not ((_ , _ , ↘Q .proj₁) , t)
+        (infᶜ () _)
   dec⇇ (infᶜ t) ⊢A =
     case
       (dec⇉-with-cont (wf ⊢A) t λ ⊢B _ →
@@ -1117,6 +1328,7 @@ mutual
         (lamᶜ _ _)    → case t of λ ()
         (prodᶜ _ _ _) → case t of λ ()
         (rflᶜ _ _)    → case t of λ ()
+        (class _ _)   → case t of λ ()
 
   -- Decidability of bi-directional type-checking for levels.
 

@@ -32,6 +32,7 @@ open import Tools.Sum
 open import Tools.Unit
 
 open import Graded.Heap.Assumptions UR TR ∣ε∣
+import Graded.Heap.Typed.Reduction UR TR as GHTR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
@@ -70,7 +71,6 @@ private
     open import Graded.Heap.Typed                          UR TR factoring-nr ∣ε∣ public
     open import Graded.Heap.Typed.Inversion                UR TR factoring-nr ∣ε∣ public
     open import Graded.Heap.Typed.Properties               UR TR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Typed.Reduction                UR TR factoring-nr ∣ε∣ public
 
     variable
       s s′ : State _ _ _
@@ -126,6 +126,7 @@ module _ (As : Assumptions) where
   open Imports factoring-nr
   open import Graded.Heap.Usage.Reduction
     type-variant UR factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available
+    Quot-not-allowed Quotient-terms-not-allowed
 
   opaque
 
@@ -210,7 +211,7 @@ module _ (As : Assumptions) where
 -- Most properties are proven under the assumptions that the nr
 -- function is factoring (if it is used for usage), that equality
 -- reflection is not allowed or the context is empty, and that Level
--- is not allowed.
+-- and quotient types are not allowed.
 
 module _
   (factoring-nr :
@@ -218,9 +219,11 @@ module _
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   ⦃ ok : No-equality-reflection or-empty Δ ⦄
   (Level-not-allowed : ¬ Level-allowed)
+  (Quot-not-allowed : ¬ Quot-allowed)
   where
 
   open Imports factoring-nr
+  open GHTR factoring-nr ∣ε∣ Quot-not-allowed
 
   opaque
 
@@ -247,20 +250,35 @@ module _
     ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , ε ⟩} d (val x) ⊢s _ =
       case Value→Whnf (substValue (toSubstₕ H) (wkValue ρ x)) of λ where
           (inj₁ w) → ⊥-elim (whnfRedTerm d w)
-          (inj₂ (_ , _ , _ , _ , _ , ≡ur , η)) →
+          (inj₂ (inj₁ (_ , _ , _ , _ , _ , ≡ur , η))) →
             case subst-unitrec {t = wk ρ t} ≡ur of λ where
               (inj₁ (_ , ≡x)) → case subst Value ≡x (wkValue ρ x) of λ ()
               (inj₂ (_ , _ , _ , ≡ur′ , refl , refl , refl)) →
                 case wk-unitrec ≡ur′ of λ {
                   (_ , _ , _ , refl , refl , refl , refl) →
-                _ , _ , _ , unitrec-ηₕ η , lemma η d}
+                _ , _ , _ , unitrec-ηₕ η , lemma₁ η d}
+          (inj₂ (inj₂ hqc)) →
+            let _ , _ , _ , ⊢t , _ = ⊢ₛ-inv ⊢s in
+            ⊥-elim (lemma₂ hqc ⊢t)
         where
-        lemma :
+        lemma₁ :
           Unitʷ-η → ε » Δ ⊢ (unitrec p q A u v) ⇒ w ∷ B → w PE.≡ v
-        lemma η (conv d x) = lemma η d
-        lemma η (unitrec-subst _ _ _ no-η) = ⊥-elim (no-η η)
-        lemma η (unitrec-β _ _ no-η) = ⊥-elim (no-η η)
-        lemma _ (unitrec-β-η _ _ _ _) = refl
+        lemma₁ η (conv d x) = lemma₁ η d
+        lemma₁ η (unitrec-subst _ _ _ no-η) = ⊥-elim (no-η η)
+        lemma₁ η (unitrec-β _ _ no-η) = ⊥-elim (no-η η)
+        lemma₁ _ (unitrec-β-η _ _ _ _) = refl
+
+        lemma₂ :
+          Is-higher-quotient-constructor u →
+          ¬ ε » Δ ⊢ u ∷ A
+        lemma₂ resp (resp ⊢Q _ _ _) =
+          let ok , _ = inversion-Quot ⊢Q in
+          Quot-not-allowed ok
+        lemma₂ set (set ⊢Q _ _ _ _) =
+          let ok , _ = inversion-Quot ⊢Q in
+          Quot-not-allowed ok
+        lemma₂ hqc (conv ⊢t _) =
+          lemma₂ hqc ⊢t
     ⊢⇒→⇒ᵥ {s = ⟨ H , t , ρ , e ∙ S ⟩} d (val v) ⊢s ∣S∣≡ =
       case ⊢Value-⇒ᵥ ∣S∣≡ ⊢s v of λ
         (_ , _ , _ , d′) →
@@ -281,6 +299,8 @@ module _ (As : Assumptions) where
   open Imports factoring-nr
   open import Graded.Heap.Usage.Reduction
     type-variant UR factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available
+    Quot-not-allowed Quotient-terms-not-allowed
+  open GHTR factoring-nr ∣ε∣ Quot-not-allowed
 
   opaque
 
@@ -297,7 +317,8 @@ module _ (As : Assumptions) where
           ⊢s′ = ⊢ₛ-⇾ₑ* ⊢s d′
           _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv (▸-⇾ₑ* ▸s d′)
           _ , _ , s″ , d‴ , u≡ =
-            ⊢⇒→⇒ᵥ factoring-nr Level-not-allowed d″ n ⊢s′ ∣S∣≡
+            ⊢⇒→⇒ᵥ factoring-nr Level-not-allowed Quot-not-allowed
+              d″ n ⊢s′ ∣S∣≡
       in  _ , _ , s″ , ⇾ₑ* d′ ⇨* ⇒ᵥ d‴ ⇨ id , u≡ }
 
   opaque

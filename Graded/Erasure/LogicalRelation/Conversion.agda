@@ -120,6 +120,16 @@ private opaque
           B                                                  ≡⟨ subset* (_⊨Id_.⇒*Id ⊩B) ⟩⊢∎
           Id (_⊨Id_.Ty ⊩B) (_⊨Id_.lhs ⊩B) (_⊨Id_.rhs ⊩B)  ∎))
       ⇒*↯
+  convTermʳ′ A≡B (Quot ⊩A ⊩B) (_ , ⇛class , t®v) =
+    let Q≡Q           = trans (sym (subset* ⊨A.⇒*Quot))
+                          (trans A≡B (subset* ⊨B.⇒*Quot))
+        Data≡Data , _ = Quot-injectivity Q≡Q
+    in
+    _ , conv-⇛ ⇛class Q≡Q ,
+    convTermʳ′ Data≡Data (goodCases ⊨A.⊨Data ⊨B.⊨Data Data≡Data) t®v
+    where
+    module ⊨A = _⊨Quot_ ⊩A
+    module ⊨B = _⊨Quot_ ⊩B
   -- Impossible cases
   convTermʳ′ _ (Emptyᵥ _ _) ()
   convTermʳ′ _ (ne record{} _) ()

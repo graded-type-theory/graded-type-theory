@@ -22,6 +22,7 @@ open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Size R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup R
 
 open import Tools.Empty
@@ -401,3 +402,101 @@ opaque
   inversion-fst (conv ⊢fst eq) =
     let a , b , c , d , e , f , g = inversion-fst ⊢fst in
     a , b , c , d , e , f , trans (sym eq) g
+
+------------------------------------------------------------------------
+-- Inversion for quotients
+
+opaque
+  unfolding size
+
+  -- Inversion for Quot.
+
+  inversion-Quot-∷-<ˢ :
+    (⊢Q : Γ ⊢ Quot A B ∷ C) →
+    Quot-allowed ×
+    ∃ λ l →
+    (∃ λ (⊢l : Γ ⊢ l ∷Level) → size ⊢l <ˢ size ⊢Q) ×
+    (∃ λ (⊢A : Γ ⊢ A ∷ U l) → size ⊢A <ˢ size ⊢Q) ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢Q) ×
+    (∃ λ (⊢B : Quot-rel-Cons Γ A ⊢ B ∷ U (wk[ 2 ]′ l)) →
+       size ⊢B <ˢ size ⊢Q) ×
+    (∃ λ (⊢B : Quot-rel-Cons Γ A ⊢ B) → size ⊢B <ˢ node (size ⊢Q)) ×
+    Γ ⊢ C ≡ U l
+  inversion-Quot-∷-<ˢ (Quot ok ⊢l ⊢A ⊢B) =
+    ok , _ , (⊢l , !) , (⊢A , !) , (univ ⊢A , ↘ (◻ ⊕ leaf≤ˢ)) ,
+    (⊢B , !) , (univ ⊢B , ! ↙⊕ !-≤ˢ) , refl (⊢U ⊢l)
+  inversion-Quot-∷-<ˢ (conv ⊢Q ≡C) =
+    let ok , _ , (⊢l , l<) , (⊢A∷ , A∷<) , (⊢A , A<) , (⊢B∷ , B∷<) ,
+          (⊢B , B<) , ≡U = inversion-Quot-∷-<ˢ ⊢Q
+    in
+    ok , _ , (⊢l , <ˢ-trans l< !) , (⊢A∷ , <ˢ-trans A∷< !) ,
+      (⊢A , <ˢ-trans A< !) , (⊢B∷ , <ˢ-trans B∷< !) ,
+      (⊢B , <ˢ-trans B< (! ↙⊕ !-≤ˢ)) , trans (sym ≡C) ≡U
+
+opaque
+
+  -- Inversion for Quot.
+
+  inversion-Quot-∷ :
+    Γ ⊢ Quot A B ∷ C →
+    Quot-allowed ×
+    ∃ λ l →
+    Γ ⊢ l ∷Level ×
+    Γ ⊢ A ∷ U l ×
+    Quot-rel-Cons Γ A ⊢ B ∷ U (wk[ 2 ]′ l) ×
+    Γ ⊢ C ≡ U l
+  inversion-Quot-∷ ⊢Q =
+    let ok , _ , (⊢l , _) , (⊢A , _) , _ , (⊢B , _) , _ , ≡U =
+          inversion-Quot-∷-<ˢ ⊢Q
+    in
+    ok , _ , ⊢l , ⊢A , ⊢B , ≡U
+
+opaque
+  unfolding Quot-rel-Con size
+
+  -- Inversion for Quot.
+
+  inversion-Quot-<ˢ :
+    (⊢Q : Γ ⊢ Quot A B) →
+    Quot-allowed ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢Q) ×
+    (∃ λ (⊢B : Quot-rel-Cons Γ A ⊢ B) → size ⊢B <ˢ size ⊢Q)
+  inversion-Quot-<ˢ (Quot ok ⊢B) =
+    let _ , (⊢A , A<) , _ = ∙∙⊢→⊢-<ˢ ⊢B in
+    ok , (⊢A , <ˢ-trans A< !) , (⊢B , !)
+  inversion-Quot-<ˢ (univ ⊢Q) =
+    let ok , _ , _ , _ , (⊢A , A<) , _ , (⊢B , B<) , _ =
+          inversion-Quot-∷-<ˢ ⊢Q
+    in
+    ok , (⊢A , <ˢ-trans A< !) , (⊢B , B<)
+
+opaque
+
+  -- Inversion for Quot.
+
+  inversion-Quot :
+    Γ ⊢ Quot A B →
+    Quot-allowed ×
+    Γ ⊢ A ×
+    Quot-rel-Cons Γ A ⊢ B
+  inversion-Quot ⊢Q =
+    let ok , (⊢A , _) , (⊢B , _) = inversion-Quot-<ˢ ⊢Q in
+    ok , ⊢A , ⊢B
+
+opaque
+  unfolding Is-set-Con
+
+  -- An inversion lemma for Is-set-Cons.
+
+  inversion-Is-set-Cons :
+    ∀ {𝓙} (⊢I : Is-set-Cons Γ A B C ⊢[ 𝓙 ]) →
+    Quot-allowed ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢I) ×
+    (∃ λ (⊢B : Quot-rel-Cons Γ A ⊢ B) → size ⊢B <ˢ size ⊢I) ×
+    (∃ λ (⊢C : Γ »∙ Quot A B ⊢ C) → size ⊢C <ˢ size ⊢I) ×
+    (∃ λ (⊢Q : Γ ⊢ Quot A B) → size ⊢Q <ˢ size ⊢I)
+  inversion-Is-set-Cons ⊢I =
+    let _ , (⊢Q , Q<) , ⊢C , _    = ∙∙∙∙∙⊢→⊢-<ˢ ⊢I
+        ok , (⊢A , A<) , (⊢B , B<) = inversion-Quot-<ˢ ⊢Q
+    in
+    ok , (⊢A , <ˢ-trans A< Q<) , (⊢B , <ˢ-trans B< Q<) , ⊢C , (⊢Q , Q<)

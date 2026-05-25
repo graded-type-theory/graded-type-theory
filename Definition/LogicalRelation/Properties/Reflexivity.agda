@@ -62,3 +62,11 @@ reflEq (Idᵣ ⊩A) = record
   }
   where
   open _⊩ₗId_ ⊩A
+reflEq (Quot ⊩A) = record
+  { ⇒*Quot′   = ⇒*Quot
+  ; Quot≅Quot = ≅Quot
+  ; Data≡Data = λ ⊢ρ → reflEq (⊩Data ⊢ρ)
+  ; Rel≡Rel   = λ ⊢ρ ⊩t ⊩u → reflEq (⊩Rel ⊢ρ ⊩t ⊩u)
+  }
+  where
+  open _⊩ₗQuot_ ⊩A

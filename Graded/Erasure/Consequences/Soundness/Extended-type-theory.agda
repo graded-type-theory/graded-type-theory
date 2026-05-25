@@ -61,6 +61,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
+open import Tools.Sum
 
 private variable
   k l n     : Nat
@@ -220,7 +221,7 @@ record Extended-type-theory : Set (lsuc a) where
       eraseDConᴱ str (map-DCon tr ∇) PE.≡ eraseDCon str ∇
     eraseDConᴱ-map-DCon-tr {∇ = ε} =
       PE.refl
-    eraseDConᴱ-map-DCon-tr {∇ = ∇ ∙!} =
+    eraseDConᴱ-map-DCon-tr {∇ = ∇ ∙! } =
       PE.cong₂ L._++_ (eraseDConᴱ-map-DCon-tr {∇ = ∇})
         (PE.cong (L._∷ _) eraseᴱ-tr)
 
@@ -288,8 +289,10 @@ opaque
   -- A trivial instance of Extended-type-theory, used to ensure that
   -- the record type's fields make at least some sense.
 
-  Trivial-extended-type-theory : Extended-type-theory
-  Trivial-extended-type-theory = λ where
+  Trivial-extended-type-theory :
+    No-erased-matches TR UR ⊎ ¬ Higher-quotient-constructors-neutral →
+    Extended-type-theory
+  Trivial-extended-type-theory ok = λ where
       .Termᴱ                 → Term
       ._[_]ᴱ                 → _[_]
       .tr                    → idᶠ
@@ -314,7 +317,9 @@ opaque
       .eraseᴱ-[]ᴱ (_ , ▸t , _) →
         wk₀-erase-[] ▸t
       .soundness-ℕᴱ (⊢t , ▸t , ▸∇) →
-        let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ ⊢t ▸t in
+        let _ , t⇒n , erase-t⇒n =
+              Soundness₀.soundness-ℕ ok ▸∇ ⊢t ▸t
+        in
         _ , subset*Termˢ t⇒n , erase-t⇒n _
     where
     open Definition.Typed.Substitution TR
@@ -367,7 +372,7 @@ private module Extended-type-theory-with-equality-reflection where
          map-Con idᶠ Δ    ∎)
 
 opaque
-  unfolding eraseDCon′
+  unfolding eraseDCon′ turn-on-equality-reflection
 
   -- An instance that uses equality reflection.
 
@@ -401,7 +406,14 @@ opaque
            glassify (glassify (Γ .defs))        ∎)
           (GM.tr-▸-DCon ▸∇)
       .soundness-ℕᴱ (⊢t , ▸t , ▸∇) →
-        let _ , t⇒n , erase-t⇒n = Soundness₀.soundness-ℕ ▸∇ ⊢t ▸t in
+        let _ , t⇒n , erase-t⇒n =
+              Soundness₀.soundness-ℕ
+                (inj₂
+                   ((_$ _) ∘→ proj₂ ∘→
+                    Conf.TRₜ.Higher-quotient-constructors-neutral⇔
+                      .proj₁))
+                ▸∇ ⊢t ▸t
+        in
         _ , GS.subset*Termˢ t⇒n , erase-t⇒n _
     where
     open Extended-type-theory
@@ -419,11 +431,11 @@ opaque
   -- A variant of the soundness theorem for erasure for natural
   -- numbers.
   --
-  -- This theorem has no restrictions related to erased matches.
-  -- However, the variable context has to be inhabited in an extended
-  -- theory in which equality reflection has been turned on, and the
-  -- extended theory is used to define what it means for "the numeral"
-  -- to be "correct".
+  -- This theorem has no restrictions related to erased matches or
+  -- quotient types. However, the variable context has to be inhabited
+  -- in an extended theory in which equality reflection has been
+  -- turned on, and the extended theory is used to define what it
+  -- means for "the numeral" to be "correct".
 
   soundness-ℕ-using-equality-reflection :
     let TR′         = with-equality-reflection TR

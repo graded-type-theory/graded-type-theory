@@ -22,6 +22,7 @@ import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
 import Definition.Typed.Properties.Admissible.Identity.Primitive
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Pi R
+import Definition.Typed.Properties.Admissible.Quotient.Primitive R as Q
 open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
@@ -62,36 +63,7 @@ private variable
   s                                                    : Strength
 
 ------------------------------------------------------------------------
--- Lemmas related to rfl
-
-opaque
-
-  -- A variant of the typing rule for rfl.
-
-  rflⱼ′ :
-    Γ ⊢ t ≡ u ∷ A →
-    Γ ⊢ rfl ∷ Id A t u
-  rflⱼ′ t≡u =
-    case wf-⊢ t≡u of λ {
-      (⊢A , ⊢t , _) →
-    conv (rflⱼ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡u) }
-
-------------------------------------------------------------------------
 -- Lemmas related to J
-
-opaque
-
-  -- A variant of the typing rule for J.
-
-  Jⱼ′ :
-    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
-    Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
-    Γ ⊢ w ∷ Id A t v →
-    Γ ⊢ J p q A t B u v w ∷ B [ v , w ]₁₀
-  Jⱼ′ ⊢B ⊢u ⊢w =
-    case inversion-Id (wf-⊢ ⊢w) of λ {
-      (_ , ⊢t , ⊢v) →
-    Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w }
 
 opaque
 
@@ -478,7 +450,6 @@ opaque
     subsetTerm (subst-⇒ ⊢B ⊢t ⊢u)
 
 opaque
-  unfolding subst
 
   -- An equality rule for subst.
 
@@ -491,12 +462,9 @@ opaque
     Γ ⊢ w₁ ≡ w₂ ∷ B₁ [ t₁ ]₀ →
     Γ ⊢ subst p A₁ B₁ t₁ u₁ v₁ w₁ ≡ subst p A₂ B₂ t₂ u₂ v₂ w₂ ∷
       B₁ [ u₁ ]₀
-  subst-cong {B₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
-    PE.subst (_⊢_≡_∷_ _ _ _) (subst-wk B₁) $
-    J-cong′ A₁≡A₂ t₁≡t₂
-      (wk₁ (J-motive-context-type (wf-⊢ t₁≡t₂ .proj₂ .proj₁)) B₁≡B₂)
-      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ subst-wk B₁) w₁≡w₂) u₁≡u₂
-      v₁≡v₂
+  subst-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ =
+    let ⊢A₁ , ⊢t₁ , _ = wf-⊢ t₁≡t₂ in
+    Q.subst-cong ⊢A₁ A₁≡A₂ B₁≡B₂ ⊢t₁ t₁≡t₂
 
 opaque
   unfolding subst
@@ -1951,17 +1919,6 @@ opaque
 
 opaque
 
-  -- A variant of equality-reflection.
-
-  equality-reflection′ :
-    Equality-reflection →
-    Γ ⊢ v ∷ Id A t u →
-    Γ ⊢ t ≡ u ∷ A
-  equality-reflection′ ok ⊢v =
-    equality-reflection ok (wf-⊢ ⊢v) ⊢v
-
-opaque
-
   -- If equality reflection is allowed and the context is inconsistent
   -- (in a certain sense), then any two well-typed terms of the same
   -- type are "definitionally" equal to each other.
@@ -2078,49 +2035,6 @@ opaque
     let L⊢L = Levelⱼ′ okᴸ (∙ Levelⱼ′ okᴸ ⊢Γ) in
     lamⱼ′ Π-ok $ lamⱼ′ Π-ok $
     ⊢funext ok Π-ok Π-ok′ (term-⊢∷ (var₁ L⊢L)) (term-⊢∷ (var₀ L⊢L))
-
-opaque
-
-  -- In the presence of equality reflection one can prove a
-  -- definitional variant of UIP.
-
-  uip-with-equality-reflection-≡ :
-    Equality-reflection →
-    Γ ⊢ eq₁ ∷ Id A t u →
-    Γ ⊢ eq₂ ∷ Id A t u →
-    Γ ⊢ eq₁ ≡ eq₂ ∷ Id A t u
-  uip-with-equality-reflection-≡ ok ⊢eq₁ ⊢eq₂ =
-    trans (lemma ⊢eq₁) (sym′ (lemma ⊢eq₂))
-    where
-    lemma : Γ ⊢ eq ∷ Id A t u → Γ ⊢ eq ≡ rfl ∷ Id A t u
-    lemma ⊢eq =
-      let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢eq)
-          ⊢Id         = var₀ $ Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)
-      in
-      equality-reflection′ ok $
-      PE.subst (_⊢_∷_ _ _)
-        (PE.cong₃ Id
-           (PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) PE.refl PE.refl) $
-      Jⱼ′ {p = ω} {q = ω}
-        (Idⱼ′ ⊢Id (rflⱼ′ (equality-reflection′ ok ⊢Id)))
-        (rflⱼ $
-         PE.subst (_⊢_∷_ _ _)
-           (PE.sym $ PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) $
-         rflⱼ ⊢t)
-        ⊢eq
-
-opaque
-
-  -- In the presence of equality reflection one can prove a variant of
-  -- UIP.
-
-  uip-with-equality-reflection-Id :
-    Equality-reflection →
-    Γ ⊢ eq₁ ∷ Id A t u →
-    Γ ⊢ eq₂ ∷ Id A t u →
-    Γ ⊢ rfl ∷ Id (Id A t u) eq₁ eq₂
-  uip-with-equality-reflection-Id ok ⊢eq₁ ⊢eq₂ =
-    rflⱼ′ (uip-with-equality-reflection-≡ ok ⊢eq₁ ⊢eq₂)
 
 opaque
 

@@ -84,6 +84,11 @@ opaque
   tr-Constructor-id {c = Jᵏ _ _}         = refl
   tr-Constructor-id {c = Kᵏ _}           = refl
   tr-Constructor-id {c = []-congᵏ _}     = refl
+  tr-Constructor-id {c = Quotᵏ}          = refl
+  tr-Constructor-id {c = classᵏ}         = refl
+  tr-Constructor-id {c = respᵏ}          = refl
+  tr-Constructor-id {c = setᵏ}           = refl
+  tr-Constructor-id {c = qrecᵏ}          = refl
 
 opaque mutual
 

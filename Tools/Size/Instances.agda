@@ -38,6 +38,12 @@ instance
 ! : ⦃ p : l <ˢ r ⦄ → l <ˢ r
 ! ⦃ p ⦄ = p
 
+-- A function that can be used to ask Agda to use instance resolution
+-- to infer values of type l ≤ˢ r.
+
+!-≤ˢ : ⦃ p : l ≤ˢ r ⦄ → l ≤ˢ r
+!-≤ˢ ⦃ p ⦄ = p
+
 private
 
   -- Some tests.

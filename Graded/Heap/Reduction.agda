@@ -12,7 +12,7 @@ module Graded.Heap.Reduction
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
@@ -38,7 +38,7 @@ private variable
   m m′ n n′ k ℓ : Nat
   H H′ : Heap _ _
   ρ ρ′ : Wk _ _
-  A B s t t′ t₁ t₂ u v w z : Term _
+  A B C s t t′ t₁ t₂ u v w z : Term _
   l : Lvl _
   x : Fin _
   S S′ : Stack _
@@ -85,6 +85,8 @@ data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
        ⟨ H , v , ρ , Kₑ p A t B u ρ ∙ S ⟩
   []-congₕ : ⟨ H , []-cong str l A t u v , ρ , S ⟩ ⇒ₑ
              ⟨ H , v , ρ , []-congₑ str l A t u ρ ∙ S ⟩
+  qrecₕ : ⟨ H , qrec C t u v w , ρ , S ⟩ ⇒ₑ
+          ⟨ H , w , ρ , qrecₑ C t u v ρ ∙ S ⟩
 
 -- The relation _⇾ₑ_ describes evaluation of states with an eliminator
 -- or a variable in head position with resource tracking.
@@ -169,6 +171,15 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set (a ⊔ b) wher
   rflₕₖ : ⟨ H , rfl , ρ ,  Kₑ p A t B u ρ′ ∙ S ⟩ ⇒ᵥ ⟨ H , u , ρ′ , S ⟩
   rflₕₑ : ⟨ H , rfl , ρ  , []-congₑ str l A t u ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , rfl , ρ′ , S ⟩
+  classₕ : ∣ S ∣≡ q →
+           ⟨ H , class w , ρ  , qrecₑ C t u v ρ′ ∙ S ⟩ ⇒ᵥ
+           ⟨ H ∙ (q , w , ρ) , t , lift ρ′ , wk1ˢ S ⟩
+  respₕ : Equality-reflection →
+          ⟨ H , resp A B t u v , ρ , S ⟩ ⇒ᵥ
+          ⟨ H , rfl , ρ , S ⟩
+  setₕ : Equality-reflection →
+         ⟨ H , set A B t u v w , ρ , S ⟩ ⇒ᵥ
+         ⟨ H , rfl , ρ , S ⟩
 
 -- The relation _⇒ₙ_ allows evaluation under the successor constructor
 -- in order to fully evaluate terms to numerals.

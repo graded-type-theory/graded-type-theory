@@ -95,6 +95,12 @@ private opaque
     case whrDet* (_⊨Id_.⇒*Id ⊨A , Idₙ) (_⊨Id_.⇒*Id ⊨B , Idₙ) of λ {
       PE.refl →
     t®v }
+  irrelevanceTermSV (_ , ⇛class , t®v) (Quot ⊨A@record{} ⊨B)
+    with whrDet* (_⊨Quot_.⇒*Quot ⊨A , Quot) (_⊨Quot_.⇒*Quot ⊨B , Quot)
+  … | PE.refl =
+    _ , ⇛class ,
+    irrelevanceTermSV t®v
+      (goodCasesRefl (_⊨Quot_.⊨Data ⊨A) (_⊨Quot_.⊨Data ⊨B))
 
 opaque
 

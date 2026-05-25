@@ -44,6 +44,8 @@ record Are-preserving-type-restrictions
   no-eta-equality
 
   private
+    module M₁ = Modality 𝕄₁
+    module M₂ = Modality 𝕄₂
     module R₁ = Type-restrictions R₁
     module R₂ = Type-restrictions R₂
 
@@ -92,6 +94,14 @@ record Are-preserving-type-restrictions
     -- holds.
     Equality-reflection-preserved :
       R₁.Equality-reflection → R₂.Equality-reflection
+
+    -- If R₁.Quot-allowed holds, then R₂.Quot-allowed holds.
+    Quot-preserved :
+      R₁.Quot-allowed → R₂.Quot-allowed
+
+    -- If R₁.Quot-allowed holds, then 𝟘 is translated to 𝟘.
+    Quot-allowed→tr-𝟘≡𝟘 :
+      R₁.Quot-allowed → tr M₁.𝟘 ≡ M₂.𝟘
 
   opaque
     unfolding Type-restrictions.Level-is-small
@@ -168,6 +178,12 @@ record Are-reflecting-type-restrictions
     Equality-reflection-reflected :
       R₂.Equality-reflection → R₁.Equality-reflection
 
+    -- If R₂.Quot-allowed holds or 𝕄₂ is trivial, then R₁.Quot-allowed
+    -- holds or 𝕄₁ is trivial.
+    Quot-reflected :
+      R₂.Quot-allowed ⊎ M₂.Trivial →
+      R₁.Quot-allowed ⊎ M₁.Trivial
+
   opaque
     unfolding Type-restrictions.Level-is-small
 
@@ -206,6 +222,8 @@ Are-preserving-type-restrictions-id {R = R} = λ where
     .K-preserved                   → idᶠ
     .[]-cong-preserved             → idᶠ
     .Equality-reflection-preserved → idᶠ
+    .Quot-preserved                → idᶠ
+    .Quot-allowed→tr-𝟘≡𝟘           → λ _ → refl
   where
   open Are-preserving-type-restrictions
   open Type-restrictions R
@@ -226,6 +244,7 @@ Are-reflecting-type-restrictions-id {R = R} = λ where
     .K-reflected                   → idᶠ
     .[]-cong-reflected             → idᶠ
     .Equality-reflection-reflected → idᶠ
+    .Quot-reflected                → idᶠ
   where
   open Are-reflecting-type-restrictions
   open Type-restrictions R
@@ -240,7 +259,7 @@ Are-preserving-type-restrictions-∘ :
   Are-preserving-type-restrictions trp₂ R₁ R₂ tr₂ tr-Σ₂ →
   Are-preserving-type-restrictions (trp₁ ∨ trp₂)
     R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
-Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
+Are-preserving-type-restrictions-∘ {tr₁} m₁ m₂ = λ where
     .unfolding-mode-preserved →
        trans M₂.unfolding-mode-preserved M₁.unfolding-mode-preserved
     .level-support-preserved →
@@ -266,6 +285,11 @@ Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
     .Equality-reflection-preserved →
       M₁.Equality-reflection-preserved ∘→
       M₂.Equality-reflection-preserved
+    .Quot-preserved →
+      M₁.Quot-preserved ∘→ M₂.Quot-preserved
+    .Quot-allowed→tr-𝟘≡𝟘 ok →
+      trans (cong tr₁ (M₂.Quot-allowed→tr-𝟘≡𝟘 ok))
+        (M₁.Quot-allowed→tr-𝟘≡𝟘 (M₂.Quot-preserved ok))
   where
   open Are-preserving-type-restrictions
   module M₁ = Are-preserving-type-restrictions m₁
@@ -300,6 +324,8 @@ Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
     .Equality-reflection-reflected →
       M₂.Equality-reflection-reflected ∘→
       M₁.Equality-reflection-reflected
+    .Quot-reflected →
+      M₂.Quot-reflected ∘→ M₁.Quot-reflected
   where
   open Are-reflecting-type-restrictions
   module M₁ = Are-reflecting-type-restrictions m₁

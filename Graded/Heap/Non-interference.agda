@@ -31,6 +31,9 @@ module Graded.Heap.Non-interference
   (open Usage-restrictions UR)
   (open Type-restrictions TR)
   (Level-not-allowed : ¬ Level-allowed)
+  -- Quotients are not allowed.
+  (Quot-not-allowed : ¬ Quot-allowed)
+  (Quotient-terms-not-allowed : ¬ Quotient-terms-allowed)
   -- The security level programs should be run in
   (ℓ₀ : M)
   ⦃ no-nr : Nr-not-available-GLB ⦄
@@ -83,12 +86,15 @@ open Addition≡Meet +≡∧
 non-interference-assumptions : Assumptions UR TR ℓ₀
 non-interference-assumptions = record
    { Level-not-allowed = Level-not-allowed
+   ; Quot-not-allowed = Quot-not-allowed
+   ; Quotient-terms-not-allowed = Quotient-terms-not-allowed
    ; subtraction-ok = supports-subtraction
    ; Unitʷ-η→ = λ _ _ _ → ≤⊤ _
    ; natrec-mode-ok = inj₂ no-nr
    }
 
 open Assumptions non-interference-assumptions
+  hiding (Quot-not-allowed; Quotient-terms-not-allowed)
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ℓ₀
@@ -96,11 +102,14 @@ open import Graded.Heap.Usage type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ℓ₀
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr ℓ₀ Unitʷ-η→ (flip ¬[No-nr∧No-nr-glb] no-nr)
+  type-variant UR factoring-nr ℓ₀ Unitʷ-η→
+  (flip ¬[No-nr∧No-nr-glb] no-nr) Quot-not-allowed
+  Quotient-terms-not-allowed
 open import Graded.Heap.Termination UR TR ℓ₀ non-interference-assumptions
 open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
 open import Graded.Heap.Typed.Inversion UR TR factoring-nr ℓ₀
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr ℓ₀
+open import Graded.Heap.Typed.Reduction
+  UR TR factoring-nr ℓ₀ Quot-not-allowed
 open import Graded.Heap.Typed.Properties UR TR factoring-nr ℓ₀
 open import Graded.Heap.Typed.Substitution UR TR factoring-nr ℓ₀
 open import Graded.Heap.Reduction type-variant UR factoring-nr ℓ₀
@@ -225,6 +234,8 @@ opaque
       ℓ₀ ∎
   no-secret-matchesᶜ ok _ r≤ℓ₀ ▸c []-congₑ =
     No-secret-matches.no-secret-[]-cong ok r≤ℓ₀ (▸-inv-[]-congₑ ▸c .proj₁)
+  no-secret-matchesᶜ _ _ _ _ qrecₑ =
+    ⊥≤ _
   no-secret-matchesᶜ ok _ _ ▸c lowerₑ =
     ⊥≤ _
   no-secret-matchesᶜ _ _ _ ▸c sucₑ =
@@ -419,6 +430,8 @@ opaque
     _ , []-congₕ , H~H′
   ~⟨⟩-⇒ₑ H~H′ lowerₕ =
     _ , lowerₕ , H~H′
+  ~⟨⟩-⇒ₑ H~H′ qrecₕ =
+    _ , qrecₕ , H~H′
 
 opaque
 
@@ -476,6 +489,12 @@ opaque
     _ , rflₕₑ , H~H′
   ~⟨⟩-⇒ᵥ H~H′ liftₕ =
     _ , liftₕ , H~H′
+  ~⟨⟩-⇒ᵥ H~H′ (classₕ eq) =
+    _ , classₕ eq , H~H′ ∙ λ _ → PE.refl
+  ~⟨⟩-⇒ᵥ H~H′ (respₕ ok) =
+    _ , respₕ ok , H~H′
+  ~⟨⟩-⇒ᵥ H~H′ (setₕ ok) =
+    _ , setₕ ok , H~H′
 
 opaque
 
@@ -654,8 +673,11 @@ private opaque
   non-interference′ ok ▸s ⊢s H~H′ (ℕₜ u ⇒*u ≅u (ne (neNfₜ neK _))) PE.refl =
     let neK = ne→ _ (ne⁻ neK)
         _ , _ , H , t , ρ , d′ , ≡u , v = whBisim-closed ⊢s ▸s (⇒*u , ne neK)
-    in  ⊥-elim (Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v))
-                 (PE.subst (Neutral⁺ ε) (PE.sym ≡u) neK))
+    in
+    ⊥-elim $ Quot-not-allowed $ proj₁ $
+    Higher-quotient-constructors-neutral⇔ .proj₁ $
+    Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v))
+      (PE.subst (Neutral⁺ ε) (PE.sym ≡u) neK)
 
 opaque
 

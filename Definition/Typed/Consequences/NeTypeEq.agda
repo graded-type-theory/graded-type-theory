@@ -92,6 +92,12 @@ neTypeEq
   ([]-congₙ _) ([]-congⱼ ⊢l _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _ _) =
   refl $
   Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢u)
+neTypeEq (resp ok) (resp ⊢Q ⊢t ⊢u _) (resp _ _ _ _) =
+  refl (Idⱼ′ (class ⊢Q ⊢t) (class ⊢Q ⊢u))
+neTypeEq (set ok) (set _ _ _ ⊢v ⊢w) (set _ _ _ _ _) =
+  refl (Idⱼ′ ⊢v ⊢w)
+neTypeEq (qrec _) (qrec ⊢C _ _ _ ⊢w) (qrec _ _ _ _ _) =
+  refl (subst-⊢₀ ⊢C ⊢w)
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q
 neTypeEq x t∷A (conv t∷B x₃) = let q = neTypeEq x t∷A t∷B

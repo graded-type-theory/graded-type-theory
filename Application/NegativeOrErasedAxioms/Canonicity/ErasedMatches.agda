@@ -68,7 +68,7 @@ module Counterexample
     TR = no-type-restrictions true false
 
     UR : Usage-restrictions 𝕄 Zero-one-isMode
-    UR = no-usage-restrictions Nr true true
+    UR = no-usage-restrictions Nr true true true
 
   open Type-restrictions TR
   open Usage-restrictions UR

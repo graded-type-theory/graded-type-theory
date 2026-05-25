@@ -34,34 +34,36 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat hiding (_≤_)
+open import Tools.Level using (_⊔_)
+open import Tools.Nat hiding (_≤_; _⊔_)
 open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
 private variable
-  α n o         : Nat
-  x             : Fin _
-  A B l t u v w : Term[ _ ] _
-  k             : Term-kind
-  p q r         : M
-  γ             : Conₘ _
-  s             : Strength
-  b             : BinderMode
-  m m′          : Mode
-  sem           : Some-erased-matches
-  ok            : T _
+  α n o           : Nat
+  x               : Fin _
+  A B C l t u v w : Term[ _ ] _
+  k               : Term-kind
+  p q r           : M
+  γ               : Conₘ _
+  s               : Strength
+  b               : BinderMode
+  m m′            : Mode
+  sem             : Some-erased-matches
+  ok              : T _
 
 ------------------------------------------------------------------------
 -- Usage-restrictions-satisfied
 
 -- Usage-restrictions-satisfied m t means that the usage restrictions
--- for emptyrec, unitrec, prodrec and []-cong hold, for certain modes,
--- for every subterm in t, and that a certain condition holds for
--- every application of natrec in t.
+-- for emptyrec, unitrec, prodrec, []-cong and the quotient term
+-- formers hold, sometimes for certain modes, for every subterm in t,
+-- and that a certain condition holds for every application of natrec
+-- in t.
 
 data Usage-restrictions-satisfied {n} (m : Mode) :
-       Term[ k ] n → Set a where
+       Term[ k ] n → Set (a ⊔ a′) where
   varᵤ :
     Usage-restrictions-satisfied m (var x)
   defnᵤ :
@@ -232,6 +234,52 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied 𝟘ᵐ u →
     Usage-restrictions-satisfied 𝟘ᵐ v →
     Usage-restrictions-satisfied m ([]-cong s l A t u v)
+  Quot :
+    Quotient-terms-allowed →
+    Usage-restrictions-satisfied m A →
+    Usage-restrictions-satisfied 𝟘ᵐ B →
+    Usage-restrictions-satisfied m (Quot A B)
+  class :
+    Quotient-terms-allowed →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied m (class t)
+  resp :
+    Higher-quotient-constructors-allowed →
+    Usage-restrictions-satisfied 𝟘ᵐ A →
+    Usage-restrictions-satisfied 𝟘ᵐ B →
+    Usage-restrictions-satisfied 𝟘ᵐ t →
+    Usage-restrictions-satisfied 𝟘ᵐ u →
+    Usage-restrictions-satisfied 𝟘ᵐ v →
+    m ≡ 𝟘ᵐ →
+    Usage-restrictions-satisfied m (resp A B t u v)
+  set :
+    Higher-quotient-constructors-allowed →
+    Usage-restrictions-satisfied 𝟘ᵐ A →
+    Usage-restrictions-satisfied 𝟘ᵐ B →
+    Usage-restrictions-satisfied 𝟘ᵐ t →
+    Usage-restrictions-satisfied 𝟘ᵐ u →
+    Usage-restrictions-satisfied 𝟘ᵐ v →
+    Usage-restrictions-satisfied 𝟘ᵐ w →
+    m ≡ 𝟘ᵐ →
+    Usage-restrictions-satisfied m (set A B t u v w)
+  qrec₀ :
+    Quotient-terms-allowed →
+    Qrec-motive-erased →
+    Usage-restrictions-satisfied 𝟘ᵐ C →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied 𝟘ᵐ u →
+    Usage-restrictions-satisfied 𝟘ᵐ v →
+    Usage-restrictions-satisfied m w →
+    Usage-restrictions-satisfied m (qrec C t u v w)
+  qrec₁ :
+    Quotient-terms-allowed →
+    ¬ Qrec-motive-erased →
+    Usage-restrictions-satisfied m C →
+    Usage-restrictions-satisfied m t →
+    Usage-restrictions-satisfied 𝟘ᵐ u →
+    Usage-restrictions-satisfied 𝟘ᵐ v →
+    Usage-restrictions-satisfied m w →
+    Usage-restrictions-satisfied m (qrec C t u v w)
 
 ------------------------------------------------------------------------
 -- Usage-restrictions-satisfied-≤ᵐ and some related definitions
@@ -357,7 +405,7 @@ opaque mutual
     m ≤ᵐ m′ →
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m′ t
-  Usage-restrictions-satisfied-≤ᵐ {m′} m≤m′ = λ where
+  Usage-restrictions-satisfied-≤ᵐ {m} {m′} m≤m′ = λ where
     varᵤ →
       varᵤ
     defnᵤ →
@@ -474,6 +522,21 @@ opaque mutual
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ u) v
     ([]-congᵤ ok l A t u v) →
       []-congᵤ ([]-cong-allowed-mode-upwards-closed ok m≤m′) l A t u v
+    (Quot ok A B) →
+      Quot ok (Usage-restrictions-satisfied-≤ᵐ m≤m′ A) B
+    (class ok t) →
+      class ok (Usage-restrictions-satisfied-≤ᵐ m≤m′ t)
+    (resp ok A B t u v eq) →
+      resp ok A B t u v (≡𝟘ᵐ-upwards-closed eq m≤m′)
+    (set ok A B t u v w eq) →
+      set ok A B t u v w (≡𝟘ᵐ-upwards-closed eq m≤m′)
+    (qrec₀ ok₁ ok₂ C t u v w) →
+      qrec₀ ok₁ ok₂ C (Usage-restrictions-satisfied-≤ᵐ m≤m′ t) u v
+        (Usage-restrictions-satisfied-≤ᵐ m≤m′ w)
+    (qrec₁ ok₁ ok₂ C t u v w) →
+      qrec₁ ok₁ ok₂ (Usage-restrictions-satisfied-≤ᵐ m≤m′ C)
+        (Usage-restrictions-satisfied-≤ᵐ m≤m′ t) u v
+        (Usage-restrictions-satisfied-≤ᵐ m≤m′ w)
 
 opaque
 
@@ -653,6 +716,36 @@ opaque
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
+    (Quot ok ▸A ▸B) →
+      Quot ok (▸→Usage-restrictions-satisfied ▸A)
+        (▸→Usage-restrictions-satisfied ▸B)
+    (class ok ▸t) →
+      class ok (▸→Usage-restrictions-satisfied ▸t)
+    (resp ok ▸A ▸B ▸t ▸u ▸v eq) →
+      resp ok (▸→Usage-restrictions-satisfied ▸A)
+        (▸→Usage-restrictions-satisfied ▸B)
+        (▸→Usage-restrictions-satisfied ▸t)
+        (▸→Usage-restrictions-satisfied ▸u)
+        (▸→Usage-restrictions-satisfied ▸v) eq
+    (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq) →
+      set ok (▸→Usage-restrictions-satisfied ▸A)
+        (▸→Usage-restrictions-satisfied ▸B)
+        (▸→Usage-restrictions-satisfied ▸t)
+        (▸→Usage-restrictions-satisfied ▸u)
+        (▸→Usage-restrictions-satisfied ▸v)
+        (▸→Usage-restrictions-satisfied ▸w) eq
+    (qrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) →
+      qrec₀ ok₁ ok₂ (▸→Usage-restrictions-satisfied ▸C)
+        (▸→Usage-restrictions-satisfied ▸t)
+        (▸→Usage-restrictions-satisfied ▸u)
+        (▸→Usage-restrictions-satisfied ▸v)
+        (▸→Usage-restrictions-satisfied ▸w)
+    (qrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) →
+      qrec₁ ok₁ ok₂ (▸→Usage-restrictions-satisfied ▸C)
+        (▸→Usage-restrictions-satisfied ▸t)
+        (▸→Usage-restrictions-satisfied ▸u)
+        (▸→Usage-restrictions-satisfied ▸v)
+        (▸→Usage-restrictions-satisfied ▸w)
     (sub ▸t _) →
       ▸→Usage-restrictions-satisfied ▸t
 
@@ -667,14 +760,19 @@ opaque
     Usage-restrictions-satisfied 𝟘ᵐ t → 𝟘ᶜ ▸[ 𝟘ᵐ ] t
   Usage-restrictions-satisfied→▸[𝟘ᵐ] 𝟙ᵐ≢𝟘ᵐ = lemma
     where
+    ⌜𝟘ᵐ⌝·≤𝟘 : ⌜ 𝟘ᵐ ⌝ · p ≤ 𝟘
+    ⌜𝟘ᵐ⌝·≤𝟘 {p} = begin
+      ⌜ 𝟘ᵐ ⌝ · p  ≈⟨ ·-congʳ (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ) ⟩
+      𝟘 · p       ≈⟨ ·-zeroˡ _ ⟩
+      𝟘           ∎
+      where open ≤-reasoning
 
     fst-lemma : ⌜ 𝟘ᵐ ⌝ · p ≤ ⌜ 𝟘ᵐ ⌝
     fst-lemma {p} =
       let open ≤-reasoning in begin
-        ⌜ 𝟘ᵐ ⌝ · p ≈⟨ ·-congʳ (⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ) ⟩
-        𝟘 · p      ≈⟨ ·-zeroˡ _ ⟩
-        𝟘          ≈˘⟨ ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ ⟩
-        ⌜ 𝟘ᵐ ⌝     ∎
+        ⌜ 𝟘ᵐ ⌝ · p  ≤⟨ ⌜𝟘ᵐ⌝·≤𝟘 ⟩
+        𝟘           ≈˘⟨ ⌜𝟘ᵐ⌝ 𝟙ᵐ≢𝟘ᵐ ⟩
+        ⌜ 𝟘ᵐ ⌝      ∎
 
     open ≤ᶜ-reasoning
 
@@ -888,6 +986,41 @@ opaque
         liftₘ (lemma u-ok)
       (lowerᵤ t-ok) →
         lowerₘ (lemma t-ok)
+      (Quot ok A-ok B-ok) →
+        Quot ok (lemma A-ok) (lemma B-ok)
+      (class ok t-ok) →
+        class ok (lemma t-ok)
+      (resp ok A-ok B-ok t-ok u-ok v-ok eq) →
+        resp ok (lemma A-ok) (lemma B-ok) (lemma t-ok) (lemma u-ok)
+          (lemma v-ok) eq
+      (set ok A-ok B-ok t-ok u-ok v-ok w-ok eq) →
+        set ok (lemma A-ok) (lemma B-ok) (lemma t-ok) (lemma u-ok)
+          (lemma v-ok) (lemma w-ok) eq
+      (qrec₀ ok₁ ok₂ C-ok t-ok u-ok v-ok w-ok) →
+        sub-≈ᶜ
+          (qrec₀ ok₁ ok₂ (lemma C-ok)
+             (sub (lemma t-ok) $ begin
+                𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ⌜𝟘ᵐ⌝·≤𝟘 ⟩
+                𝟘ᶜ               ∎)
+             (lemma u-ok) (lemma v-ok) (lemma w-ok))
+          (≈ᶜ-sym $
+           flip ≈ᶜ-trans (+ᶜ-identityˡ _) $
+           +ᶜ-congˡ $ ·ᶜ-zeroʳ _)
+      (qrec₁ ok₁ ok₂ C-ok t-ok u-ok v-ok w-ok) →
+        sub-≈ᶜ
+          (qrec₁ ok₁ ok₂
+             (sub (lemma C-ok) $ begin
+                𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ⌜𝟘ᵐ⌝·≤𝟘 ⟩
+                𝟘ᶜ               ∎)
+             (sub (lemma t-ok) $ begin
+                𝟘ᶜ ∙ ⌜ 𝟘ᵐ ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ⌜𝟘ᵐ⌝·≤𝟘 ⟩
+                𝟘ᶜ               ∎)
+             (lemma u-ok) (lemma v-ok) (lemma w-ok))
+          (≈ᶜ-sym $
+           flip ≈ᶜ-trans (·ᶜ-zeroʳ _) $
+           ·ᶜ-congˡ $
+           flip ≈ᶜ-trans (+ᶜ-identityˡ _) $
+           +ᶜ-congˡ $ +ᶜ-identityˡ _)
       ℕᵤ →
         ℕₘ
       Emptyᵤ →
@@ -938,8 +1071,10 @@ opaque
     (∀ p q → Unitrec-allowed 𝟘ᵐ p q) →
     (∀ r p q → Prodrec-allowed 𝟘ᵐ r p q) →
     (∀ p → []-cong-allowed-mode p 𝟘ᵐ) →
+    Quotient-terms-allowed →
+    Higher-quotient-constructors-allowed →
     Usage-restrictions-satisfied 𝟘ᵐ t
-  Usage-restrictions-satisfied-𝟘ᵐ glb er ur pr bc = lemma _
+  Usage-restrictions-satisfied-𝟘ᵐ glb er ur pr bc qt qc = lemma _
     where
     mutual
 
@@ -1019,6 +1154,20 @@ opaque
         Kᵤ-generalised (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
       lemma ([]-cong _ _ _ _ _ _) =
         []-congᵤ (bc _) (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
+      lemma (Quot _ _) =
+        Quot qt (lemma _) (lemma _)
+      lemma (class _) =
+        class qt (lemma _)
+      lemma (resp _ _ _ _ _) =
+        resp qc (lemma _) (lemma _) (lemma _) (lemma _) (lemma _) refl
+      lemma (set _ _ _ _ _ _) =
+        set qc (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
+          (lemma _) refl
+      lemma (qrec _ _ _ _ _) with Qrec-motive-erased?
+      … | yes ok =
+        qrec₀ qt ok (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
+      … | no ok =
+        qrec₁ qt ok (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
 
 ------------------------------------------------------------------------
 -- Lemmas that apply if the modality is trivial
@@ -1149,6 +1298,34 @@ opaque
         liftₘ (lemma u-ok)
       (lowerᵤ t-ok) →
         lowerₘ (lemma t-ok)
+      (Quot ok A-ok B-ok) →
+        Quot {γ₂ = 𝟘ᶜ} ok (lemma A-ok) (lemma B-ok)
+      (class ok t-ok) →
+        class ok (lemma t-ok)
+      (resp ok A-ok B-ok t-ok u-ok v-ok eq) →
+        sub
+          (resp {γ₁ = 𝟘ᶜ} {γ₂ = 𝟘ᶜ} {γ₃ = 𝟘ᶜ} {γ₄ = 𝟘ᶜ} {γ₅ = 𝟘ᶜ} ok
+             (lemma A-ok) (lemma B-ok) (lemma t-ok) (lemma u-ok)
+             (lemma v-ok) eq)
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (set ok A-ok B-ok t-ok u-ok v-ok w-ok eq) →
+        sub
+          (set {γ₁ = 𝟘ᶜ} {γ₂ = 𝟘ᶜ} {γ₃ = 𝟘ᶜ} {γ₄ = 𝟘ᶜ} {γ₅ = 𝟘ᶜ}
+             {γ₆ = 𝟘ᶜ} ok (lemma A-ok) (lemma B-ok) (lemma t-ok)
+             (lemma u-ok) (lemma v-ok) (lemma w-ok) eq)
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (qrec₀ ok₁ ok₂ C-ok t-ok u-ok v-ok w-ok) →
+        sub
+          (qrec₀ {γ₁ = 𝟘ᶜ} {γ₂ = 𝟘ᶜ} {γ₃ = 𝟘ᶜ} {γ₄ = 𝟘ᶜ} {γ₅ = 𝟘ᶜ} ok₁
+             ok₂ (lemma C-ok) (lemma t-ok) (lemma u-ok) (lemma v-ok)
+             (lemma w-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
+      (qrec₁ ok₁ ok₂ C-ok t-ok u-ok v-ok w-ok) →
+        sub
+          (qrec₁ {γ₁ = 𝟘ᶜ} {γ₂ = 𝟘ᶜ} {γ₃ = 𝟘ᶜ} {γ₄ = 𝟘ᶜ} {γ₅ = 𝟘ᶜ} ok₁
+             ok₂ (lemma C-ok) (lemma t-ok) (lemma u-ok) (lemma v-ok)
+             (lemma w-ok))
+          (≈ᶜ-trivial 𝟙≡𝟘)
       ℕᵤ →
         sub ℕₘ (≈ᶜ-trivial 𝟙≡𝟘)
       Emptyᵤ →

@@ -14,6 +14,7 @@ module Definition.LogicalRelation.Properties
   where
 
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Quotient eqrel public
 open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄ public
 open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄ public
 open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄ public

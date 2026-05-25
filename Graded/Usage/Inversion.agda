@@ -31,7 +31,7 @@ open import Tools.Bool using (T)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level using (_⊔_)
-open import Tools.Nat using (Nat; 1+; 2+)
+open import Tools.Nat using (Nat; 1+; 2+; 3+; 5+)
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -39,9 +39,9 @@ open import Tools.Relation
 private
   variable
     α k n : Nat
-    γ χ : Conₘ n
+    γ δ₁ δ₂ δ₃ δ₄ δ₅ χ : Conₘ n
     p q r : M
-    A B F l t t′ u v z n' : Term[ _ ] n
+    A B C F l t t′ u v w z n' : Term[ _ ] n
     G : Term[ _ ] (1+ n)
     m : Mode
     b : BinderMode
@@ -774,3 +774,92 @@ inv-usage-[]-cong ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
 inv-usage-[]-cong (sub γ′▸ γ≤γ′) with inv-usage-[]-cong γ′▸
 ... | invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok γ′≤ =
   invUsage-[]-cong ▸l ▸A ▸t ▸u ▸v ok (≤ᶜ-trans γ≤γ′ γ′≤)
+
+-- A usage inversion lemma for Quot.
+
+inv-usage-Quot :
+  γ ▸[ m ] Quot A B →
+  Quotient-terms-allowed × γ ▸[ m ] A × ∃ (_▸[ 𝟘ᵐ ] B)
+inv-usage-Quot (Quot ok ▸A ▸B) =
+  ok , ▸A , _ , ▸B
+inv-usage-Quot (sub δ▸ γ≤δ) =
+  let ok , ▸A , _ , ▸B = inv-usage-Quot δ▸ in
+  ok , sub ▸A γ≤δ , _ , ▸B
+
+-- A usage inversion lemma for class.
+
+inv-usage-class :
+  γ ▸[ m ] class t → Quotient-terms-allowed × γ ▸[ m ] t
+inv-usage-class (class ok ▸t) =
+  ok , ▸t
+inv-usage-class (sub δ▸ γ≤δ) =
+  let ok , ▸t = inv-usage-class δ▸ in
+  ok , sub ▸t γ≤δ
+
+-- A usage inversion lemma for resp.
+
+inv-usage-resp :
+  γ ▸[ m ] resp A B t u v →
+  γ ≤ᶜ 𝟘ᶜ × m ≡ 𝟘ᵐ × Higher-quotient-constructors-allowed ×
+  ∃ (_▸[ 𝟘ᵐ ] A) × ∃ (_▸[ 𝟘ᵐ ] B) × ∃ (_▸[ 𝟘ᵐ ] t) × ∃ (_▸[ 𝟘ᵐ ] u) ×
+  ∃ (_▸[ 𝟘ᵐ ] v)
+inv-usage-resp (resp ok ▸A ▸B ▸t ▸u ▸v eq) =
+  ≤ᶜ-refl , eq , ok , (_ , ▸A) , (_ , ▸B) , (_ , ▸t) , (_ , ▸u) ,
+  (_ , ▸v)
+inv-usage-resp (sub δ▸ γ≤δ) =
+  let δ≤𝟘 , rest = inv-usage-resp δ▸ in
+  ≤ᶜ-trans γ≤δ δ≤𝟘 , rest
+
+-- A usage inversion lemma for set.
+
+inv-usage-set :
+  γ ▸[ m ] set A B t u v w →
+  γ ≤ᶜ 𝟘ᶜ × m ≡ 𝟘ᵐ × Higher-quotient-constructors-allowed ×
+  ∃ (_▸[ 𝟘ᵐ ] A) × ∃ (_▸[ 𝟘ᵐ ] B) × ∃ (_▸[ 𝟘ᵐ ] t) × ∃ (_▸[ 𝟘ᵐ ] u) ×
+  ∃ (_▸[ 𝟘ᵐ ] v) × ∃ (_▸[ 𝟘ᵐ ] w)
+inv-usage-set (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq) =
+  ≤ᶜ-refl , eq , ok , (_ , ▸A) , (_ , ▸B) , (_ , ▸t) , (_ , ▸u) ,
+  (_ , ▸v) , (_ , ▸w)
+inv-usage-set (sub δ▸ γ≤δ) =
+  let δ≤𝟘 , rest = inv-usage-set δ▸ in
+  ≤ᶜ-trans γ≤δ δ≤𝟘 , rest
+
+-- A type used to state inv-usage-qrec.
+
+data InvUsage-qrec
+       (γ : Conₘ n) (m : Mode) (C t : Term (1+ n)) (u : Term (3+ n))
+       (v : Term (5+ n)) (w : Term n) : Set (a ⊔ a′) where
+  invUsageQrec₀ :
+    Quotient-terms-allowed →
+    Qrec-motive-erased →
+    δ₁ ▸[ 𝟘ᵐ ] C →
+    δ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] t →
+    δ₃ ▸[ 𝟘ᵐ ] u →
+    δ₄ ▸[ 𝟘ᵐ ] v →
+    δ₅ ▸[ m ] w →
+    γ ≤ᶜ δ₂ +ᶜ ω ·ᶜ δ₅ →
+    InvUsage-qrec γ m C t u v w
+  invUsageQrec₁ :
+    Quotient-terms-allowed →
+    ¬ Qrec-motive-erased →
+    δ₁ ∙ ⌜ m ⌝ · ω ▸[ m ] C →
+    δ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] t →
+    δ₃ ▸[ 𝟘ᵐ ] u →
+    δ₄ ▸[ 𝟘ᵐ ] v →
+    δ₅ ▸[ m ] w →
+    γ ≤ᶜ ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅) →
+    InvUsage-qrec γ m C t u v w
+
+-- A usage inversion lemma for qrec.
+
+inv-usage-qrec :
+  γ ▸[ m ] qrec C t u v w → InvUsage-qrec γ m C t u v w
+inv-usage-qrec (qrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+  invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w ≤ᶜ-refl
+inv-usage-qrec (qrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+  invUsageQrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w ≤ᶜ-refl
+inv-usage-qrec (sub δ▸ γ≤δ) with inv-usage-qrec δ▸
+… | invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w δ≤ =
+  invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w (≤ᶜ-trans γ≤δ δ≤)
+… | invUsageQrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w δ≤ =
+  invUsageQrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w (≤ᶜ-trans γ≤δ δ≤)

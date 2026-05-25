@@ -499,6 +499,31 @@ module _
   usagePresTerm {γ} _ γ▸ (Lift-β _ _) =
     inv-usage-lift (inv-usage-lower γ▸)
 
+  usagePresTerm _ ▸resp (resp-η _ _ _ _ _) =
+    sub rflₘ (inv-usage-resp ▸resp .proj₁)
+  usagePresTerm _ ▸set (set-η _ _ _ _ _) =
+    sub rflₘ (inv-usage-set ▸set .proj₁)
+  usagePresTerm ▸Γ ▸qrec (qrec-subst ⊢C ⊢t ⊢u ⊢v w₁⇒w₂)
+    with inv-usage-qrec ▸qrec
+  … | invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w₁ γ≤ =
+    sub (qrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v (usagePresTerm ▸Γ ▸w₁ w₁⇒w₂)) γ≤
+  … | invUsageQrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w₁ γ≤ =
+    sub (qrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v (usagePresTerm ▸Γ ▸w₁ w₁⇒w₂)) γ≤
+  usagePresTerm {γ} _ ▸qrec (qrec-β _ _ _ _ _)
+    with inv-usage-qrec ▸qrec
+  … | invUsageQrec₀ _ _ _ ▸t _ _ ▸class-w γ≤ =
+    sub (sgSubstₘ-lemma₃ ▸t (inv-usage-class ▸class-w .proj₂)) γ≤
+  … | invUsageQrec₁ {δ₁} {δ₂} {δ₅} _ _ _ ▸t _ _ ▸class-w γ≤ =
+    sub (sgSubstₘ-lemma₃ ▸t (inv-usage-class ▸class-w .proj₂))
+      (begin
+         γ                      ≤⟨ γ≤ ⟩
+         ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+         ω ·ᶜ (δ₂ +ᶜ δ₅)        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+         ω ·ᶜ δ₂ +ᶜ ω ·ᶜ δ₅     ≤⟨ +ᶜ-monotoneˡ ω·ᶜ-decreasing ⟩
+         δ₂ +ᶜ ω ·ᶜ δ₅          ∎)
+    where
+    open ≤ᶜ-reasoning
+
   -- Type reduction preserves usage (for well-resourced definition
   -- contexts).
 

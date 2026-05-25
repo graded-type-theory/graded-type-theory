@@ -12,7 +12,7 @@ module Graded.Heap.Reduction.Inversion
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (UR : Usage-restrictions 𝕄 𝐌)
   (open Usage-restrictions UR)
   (factoring-nr :
@@ -43,7 +43,7 @@ private variable
   m n m′ n′ n″ k : Nat
   H : Heap _ _
   x : Fin _
-  A B t u v w : Term _
+  A B C t u v w : Term _
   l : Lvl _
   ρ ρ′ : Wk _ _
   S : Stack _
@@ -171,6 +171,15 @@ opaque
     ⟨ H , []-cong s′ l A u v t , ρ , S ⟩ ⇒ₑ s →
     s ≡ ⟨ H , t , ρ , []-congₑ s′ l A u v ρ ∙ S ⟩
   ⇒ₑ-inv-[]-cong []-congₕ = refl
+
+opaque
+
+  -- Inversion for qrec.
+
+  ⇒ₑ-inv-qrec :
+    ⟨ H , qrec C t u v w , ρ , S ⟩ ⇒ₑ s →
+    s ≡ ⟨ H , w , ρ , qrecₑ C t u v ρ ∙ S ⟩
+  ⇒ₑ-inv-qrec qrecₕ = refl
 
 opaque
 
@@ -481,6 +490,58 @@ opaque
 
 opaque
 
+  -- Inversion for class.
+
+  ⇒ᵥ-inv-class :
+    ⟨ H , class w , ρ , S ⟩ ⇒ᵥ s →
+    ∃₁₀ λ n′ S′ q C t u v ρ′ (m≡ : m ≡ 1+ m′) (n≡ : n ≡ 1+ n′) →
+    ∣ S′ ∣≡ q ×
+    S ≡ qrecₑ C t u v ρ′ ∙ S′ ×
+    subst₂ (State k) m≡ n≡ s ≡
+    ⟨ H ∙ (q , w , ρ) , t , lift ρ′ , wk1ˢ S′ ⟩
+  ⇒ᵥ-inv-class (classₕ eq) =
+    _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , eq , refl , refl
+
+opaque
+
+  -- Inversion for class with qrec on top of the stack.
+
+  ⇒ᵥ-inv-class-qrecₑ :
+    ⟨ H , class w , ρ , qrecₑ C t u v ρ′ ∙ S ⟩ ⇒ᵥ s →
+    ∃₃ λ q (m≡ : m ≡ 1+ m′) (n≡ : n ≡ 1+ n′) →
+    ∣ S ∣≡ q ×
+    subst₂ (State _) m≡ n≡ s ≡
+    ⟨ H ∙ (q , w , ρ) , t , lift ρ′ , wk1ˢ S ⟩
+  ⇒ᵥ-inv-class-qrecₑ d with ⇒ᵥ-inv-class d
+  … | _ , _ , _ , _ , _ , _ , _ , _ , refl , refl , eq , refl , refl =
+    _ , refl , refl , eq , refl
+
+opaque
+
+  -- Inversion for resp.
+
+  ⇒ᵥ-inv-resp :
+    ⟨ H , resp A B t u v , ρ , S ⟩ ⇒ᵥ s →
+    Equality-reflection ×
+    ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
+    subst₂ (State _) m≡ n≡ s ≡ ⟨ H , rfl , ρ , S ⟩
+  ⇒ᵥ-inv-resp (respₕ ok) =
+    ok , refl , refl , refl
+
+opaque
+
+  -- Inversion for set.
+
+  ⇒ᵥ-inv-set :
+    ⟨ H , set A B t u v w , ρ , S ⟩ ⇒ᵥ s →
+    Equality-reflection ×
+    ∃₂ λ (m≡ : m ≡ m′) (n≡ : n ≡ n′) →
+    subst₂ (State _) m≡ n≡ s ≡ ⟨ H , rfl , ρ , S ⟩
+  ⇒ᵥ-inv-set (setₕ ok) =
+    ok , refl , refl , refl
+
+opaque
+
   -- Inversion of suc
 
   ⇒ₙ-inv-suc :
@@ -562,6 +623,27 @@ opaque
 
   ⇒ₑ-inv-rfl : ⟨ H , rfl , ρ , S ⟩ ⇒ₑ s → ⊥
   ⇒ₑ-inv-rfl ()
+
+opaque
+
+  -- Inversion for class.
+
+  ⇒ₑ-inv-class : ⟨ H , class t , ρ , S ⟩ ⇒ₑ s → ⊥
+  ⇒ₑ-inv-class ()
+
+opaque
+
+  -- Inversion for resp.
+
+  ⇒ₑ-inv-resp : ⟨ H , resp A B t u v , ρ , S ⟩ ⇒ₑ s → ⊥
+  ⇒ₑ-inv-resp ()
+
+opaque
+
+  -- Inversion for set.
+
+  ⇒ₑ-inv-set : ⟨ H , set A B t u v w , ρ , S ⟩ ⇒ₑ s → ⊥
+  ⇒ₑ-inv-set ()
 
 opaque
 

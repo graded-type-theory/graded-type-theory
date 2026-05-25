@@ -14,29 +14,41 @@ module Definition.Typed.Consequences.Consistency
 open Modality 𝕄
 open Type-restrictions R
 
+open import Graded.Mode.Instances.Trivial 𝕄
+
 open import Definition.Untyped M
-open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Identity 𝕄 as Id
 open import Definition.Untyped.Properties M
 open import Definition.Typed R
 open import Definition.Typed.Consequences.Canonicity R
+open import Definition.Typed.Decidable.Internal trivial R
+import Definition.Typed.Decidable.Internal.Context trivial R as IC
+import Definition.Typed.Decidable.Internal.Term trivial R as I
 open import Definition.Typed.EqRelInstance R
+open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Substitution.Introductions R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 
+open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
+import Tools.List as L
+open import Tools.Maybe
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
-open import Tools.Vec using (ε)
+open import Tools.Vec as V using (ε)
+
+open Id.Internal trivial R
 
 private
   variable
@@ -107,10 +119,64 @@ opaque
   -- inhabited in the empty context.
 
   ¬-Id-ℕ-zero-suc : ¬ ∇ » ε ⊢ u ∷ Id ℕ zero (suc t)
-  ¬-Id-ℕ-zero-suc {∇} {u} {t} =
-    ∇ » ε ⊢ u ∷ Id ℕ zero (suc t)      →⟨ ε⊢∷Id→ε⊢≡∷ ⟩
-    glassify ∇ » ε ⊢ zero ≡ suc t ∷ ℕ  →⟨ zero≢suc ⦃ ok = ε ⦄ ⟩
-    ⊥                                  □
+  ¬-Id-ℕ-zero-suc {∇} {u} {t} zero≡suc = ¬Empty ⊢v
+    where
+    c : I.Constants
+    c = λ where
+      .I.gs                 → 0
+      .I.ss                 → 0
+      .I.bms                → 0
+      .I.ms                 → 2
+      .I.meta-con-size      → 0 V.∷ 0 V.∷ ε
+      .I.meta-con-term-kind → tm V.∷ tm V.∷ ε
+      .I.base-dcon-size     → _
+      .I.base-con-allowed   → true
+      .I.base-con-size      → 0
+
+    xt xu : I.Term c 0
+    xt = I.varᵐ x0
+    xu = I.varᵐ x1
+
+    γ : I.Contexts c
+    γ .I.grades              = ε
+    γ .I.strengths           = ε
+    γ .I.binder-modes        = ε
+    γ .I.constraints⁰        = I.emptyᶜ⁰
+    γ .I.constraints⁺        = L.[]
+    γ .I.⌜base⌝              = ∇ » ε
+    γ .I.metas .I.equalities = L.[]
+    γ .I.metas .I.bindings   = λ where
+      (I.var! x0)     → I.base , I.term t I.ℕ
+      (I.var! x1)     → I.base , I.term u (I.Id I.ℕ I.zero (I.suc xt))
+      (I.var! not-x2)
+
+    v : I.Term c 0
+    v =
+      substᵢ I.𝟘 I.U₀ (I.var x0) I.ℕ I.Empty
+        (congᵢ I.𝟘 I.ℕ I.zero (I.suc xt) I.U₀
+           (I.natrec I.𝟘 I.𝟘 I.𝟘 I.U₀ I.ℕ I.Empty (I.var x0)) xu)
+        I.zero
+
+    ⊢t : ∇ » ε ⊢ t ∷ ℕ
+    ⊢t =
+      inversion-suc (inversion-Id (wf-⊢ zero≡suc) .proj₂ .proj₂) .proj₁
+
+    ⊢v : ∇ » ε ⊢ I.⌜ v ⌝ γ ∷ Empty
+    ⊢v = check-type-and-term-sound
+      γ
+      (I.base nothing I.» I.base)
+      v
+      I.Empty
+      12
+      PE.refl
+      (λ where
+         .IC.constraints-wf             → L.[]
+         .IC.metas-wf .IC.equalities-wf → L.[]
+         .IC.metas-wf .IC.bindings-wf   → λ where
+           (I.var! x0)         → ⊢t
+           (I.var! x1)         → zero≡suc
+           (I.var  not-x2 _ _))
+      (wf zero≡suc)
 
 ------------------------------------------------------------------------
 -- Consistency, glassification, inlining and context extensions

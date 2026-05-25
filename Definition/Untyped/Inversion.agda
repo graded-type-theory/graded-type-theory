@@ -13,14 +13,14 @@ open import Tools.PropositionalEquality
 open import Tools.Sum
 
 private variable
-  x                : Fin _
-  α m              : Nat
-  ρ                : Wk _ _
-  A B l t t′ u v w : Term[ _ ] _
-  p q r            : M
-  s                : Strength
-  b                : BinderMode
-  σ                : Subst _ _
+  x                                  : Fin _
+  α m                                : Nat
+  ρ                                  : Wk _ _
+  A A₁ A₂ B l t t′ u u₁ u₂ u₃ u₄ v w : Term[ _ ] _
+  p q r                              : M
+  s                                  : Strength
+  b                                  : BinderMode
+  σ                                  : Subst _ _
 
 -- Inversion for var.
 
@@ -58,6 +58,11 @@ wk-var {t = rfl}                   ()
 wk-var {t = J _ _ _ _ _ _ _ _}     ()
 wk-var {t = K _ _ _ _ _ _}         ()
 wk-var {t = []-cong _ _ _ _ _ _}   ()
+wk-var {t = Quot _ _}              ()
+wk-var {t = class _}               ()
+wk-var {t = resp _ _ _ _ _}        ()
+wk-var {t = set _ _ _ _ _ _}       ()
+wk-var {t = qrec _ _ _ _ _}        ()
 
 subst-var :
   t [ σ ] ≡ var x →
@@ -93,6 +98,11 @@ subst-var {t = rfl}                   ()
 subst-var {t = J _ _ _ _ _ _ _ _}     ()
 subst-var {t = K _ _ _ _ _ _}         ()
 subst-var {t = []-cong _ _ _ _ _ _}   ()
+subst-var {t = Quot _ _}              ()
+subst-var {t = class _}               ()
+subst-var {t = resp _ _ _ _ _}        ()
+subst-var {t = set _ _ _ _ _ _}       ()
+subst-var {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Level.
 
@@ -128,6 +138,11 @@ wk-Level {t = rfl}                   ()
 wk-Level {t = J _ _ _ _ _ _ _ _}     ()
 wk-Level {t = K _ _ _ _ _ _}         ()
 wk-Level {t = []-cong _ _ _ _ _ _}   ()
+wk-Level {t = Quot _ _}              ()
+wk-Level {t = class _}               ()
+wk-Level {t = resp _ _ _ _ _}        ()
+wk-Level {t = set _ _ _ _ _ _}       ()
+wk-Level {t = qrec _ _ _ _ _}        ()
 
 subst-Level : t [ σ ] ≡ Level → (∃ λ x → t ≡ var x) ⊎ t ≡ Level
 subst-Level {t = var _}                 _ = inj₁ (_ , refl)
@@ -161,6 +176,11 @@ subst-Level {t = rfl}                   ()
 subst-Level {t = J _ _ _ _ _ _ _ _}     ()
 subst-Level {t = K _ _ _ _ _ _}         ()
 subst-Level {t = []-cong _ _ _ _ _ _}   ()
+subst-Level {t = Quot _ _}              ()
+subst-Level {t = class _}               ()
+subst-Level {t = resp _ _ _ _ _}        ()
+subst-Level {t = set _ _ _ _ _ _}       ()
+subst-Level {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for zeroᵘ.
 
@@ -196,6 +216,11 @@ wk-zeroᵘ {t = rfl}                   ()
 wk-zeroᵘ {t = J _ _ _ _ _ _ _ _}     ()
 wk-zeroᵘ {t = K _ _ _ _ _ _}         ()
 wk-zeroᵘ {t = []-cong _ _ _ _ _ _}   ()
+wk-zeroᵘ {t = Quot _ _}              ()
+wk-zeroᵘ {t = class _}               ()
+wk-zeroᵘ {t = resp _ _ _ _ _}        ()
+wk-zeroᵘ {t = set _ _ _ _ _ _}       ()
+wk-zeroᵘ {t = qrec _ _ _ _ _}        ()
 
 subst-zeroᵘ : t [ σ ] ≡ zeroᵘ → (∃ λ x → t ≡ var x) ⊎ t ≡ zeroᵘ
 subst-zeroᵘ {t = var _}                 _ = inj₁ (_ , refl)
@@ -229,6 +254,11 @@ subst-zeroᵘ {t = rfl}                   ()
 subst-zeroᵘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-zeroᵘ {t = K _ _ _ _ _ _}         ()
 subst-zeroᵘ {t = []-cong _ _ _ _ _ _}   ()
+subst-zeroᵘ {t = Quot _ _}              ()
+subst-zeroᵘ {t = class _}               ()
+subst-zeroᵘ {t = resp _ _ _ _ _}        ()
+subst-zeroᵘ {t = set _ _ _ _ _ _}       ()
+subst-zeroᵘ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for sucᵘ.
 
@@ -266,6 +296,11 @@ wk-sucᵘ {t = rfl}                   ()
 wk-sucᵘ {t = J _ _ _ _ _ _ _ _}     ()
 wk-sucᵘ {t = K _ _ _ _ _ _}         ()
 wk-sucᵘ {t = []-cong _ _ _ _ _ _}   ()
+wk-sucᵘ {t = Quot _ _}              ()
+wk-sucᵘ {t = class _}               ()
+wk-sucᵘ {t = resp _ _ _ _ _}        ()
+wk-sucᵘ {t = set _ _ _ _ _ _}       ()
+wk-sucᵘ {t = qrec _ _ _ _ _}        ()
 
 subst-sucᵘ :
   t [ σ ] ≡ sucᵘ u →
@@ -301,6 +336,11 @@ subst-sucᵘ {t = rfl}                   ()
 subst-sucᵘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-sucᵘ {t = K _ _ _ _ _ _}         ()
 subst-sucᵘ {t = []-cong _ _ _ _ _ _}   ()
+subst-sucᵘ {t = Quot _ _}              ()
+subst-sucᵘ {t = class _}               ()
+subst-sucᵘ {t = resp _ _ _ _ _}        ()
+subst-sucᵘ {t = set _ _ _ _ _ _}       ()
+subst-sucᵘ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for _supᵘ_.
 
@@ -338,6 +378,11 @@ wk-supᵘ {t = rfl}                   ()
 wk-supᵘ {t = J _ _ _ _ _ _ _ _}     ()
 wk-supᵘ {t = K _ _ _ _ _ _}         ()
 wk-supᵘ {t = []-cong _ _ _ _ _ _}   ()
+wk-supᵘ {t = Quot _ _}              ()
+wk-supᵘ {t = class _}               ()
+wk-supᵘ {t = resp _ _ _ _ _}        ()
+wk-supᵘ {t = set _ _ _ _ _ _}       ()
+wk-supᵘ {t = qrec _ _ _ _ _}        ()
 
 subst-supᵘ :
   t [ σ ] ≡ u supᵘ v →
@@ -374,6 +419,11 @@ subst-supᵘ {t = rfl}                   ()
 subst-supᵘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-supᵘ {t = K _ _ _ _ _ _}         ()
 subst-supᵘ {t = []-cong _ _ _ _ _ _}   ()
+subst-supᵘ {t = Quot _ _}              ()
+subst-supᵘ {t = class _}               ()
+subst-supᵘ {t = resp _ _ _ _ _}        ()
+subst-supᵘ {t = set _ _ _ _ _ _}       ()
+subst-supᵘ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for ωᵘ+.
 
@@ -433,6 +483,11 @@ wk-defn {t = rfl}                   ()
 wk-defn {t = J _ _ _ _ _ _ _ _}     ()
 wk-defn {t = K _ _ _ _ _ _}         ()
 wk-defn {t = []-cong _ _ _ _ _ _}   ()
+wk-defn {t = Quot _ _}              ()
+wk-defn {t = class _}               ()
+wk-defn {t = resp _ _ _ _ _}        ()
+wk-defn {t = set _ _ _ _ _ _}       ()
+wk-defn {t = qrec _ _ _ _ _}        ()
 
 subst-defn : t [ σ ] ≡ defn α → (∃ λ x → t ≡ var x) ⊎ t ≡ defn α
 subst-defn {t = var _}                 _    = inj₁ (_ , refl)
@@ -466,6 +521,11 @@ subst-defn {t = rfl}                   ()
 subst-defn {t = J _ _ _ _ _ _ _ _}     ()
 subst-defn {t = K _ _ _ _ _ _}         ()
 subst-defn {t = []-cong _ _ _ _ _ _}   ()
+subst-defn {t = Quot _ _}              ()
+subst-defn {t = class _}               ()
+subst-defn {t = resp _ _ _ _ _}        ()
+subst-defn {t = set _ _ _ _ _ _}       ()
+subst-defn {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for U.
 
@@ -501,6 +561,11 @@ wk-U {t = rfl}                   ()
 wk-U {t = J _ _ _ _ _ _ _ _}     ()
 wk-U {t = K _ _ _ _ _ _}         ()
 wk-U {t = []-cong _ _ _ _ _ _}   ()
+wk-U {t = Quot _ _}              ()
+wk-U {t = class _}               ()
+wk-U {t = resp _ _ _ _ _}        ()
+wk-U {t = set _ _ _ _ _ _}       ()
+wk-U {t = qrec _ _ _ _ _}        ()
 
 subst-U : t [ σ ] ≡ U l → (∃ λ x → t ≡ var x) ⊎ ∃ λ l′ → t ≡ U l′ × l′ [ σ ] ≡ l
 subst-U {t = var _}                 _    = inj₁ (_ , refl)
@@ -534,6 +599,11 @@ subst-U {t = rfl}                   ()
 subst-U {t = J _ _ _ _ _ _ _ _}     ()
 subst-U {t = K _ _ _ _ _ _}         ()
 subst-U {t = []-cong _ _ _ _ _ _}   ()
+subst-U {t = Quot _ _}              ()
+subst-U {t = class _}               ()
+subst-U {t = resp _ _ _ _ _}        ()
+subst-U {t = set _ _ _ _ _ _}       ()
+subst-U {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Lift.
 
@@ -569,6 +639,11 @@ wk-Lift {t = rfl}                   ()
 wk-Lift {t = J _ _ _ _ _ _ _ _}     ()
 wk-Lift {t = K _ _ _ _ _ _}         ()
 wk-Lift {t = []-cong _ _ _ _ _ _}   ()
+wk-Lift {t = Quot _ _}              ()
+wk-Lift {t = class _}               ()
+wk-Lift {t = resp _ _ _ _ _}        ()
+wk-Lift {t = set _ _ _ _ _ _}       ()
+wk-Lift {t = qrec _ _ _ _ _}        ()
 
 subst-Lift : t [ σ ] ≡ Lift l A → (∃ λ x → t ≡ var x) ⊎ ∃₂ λ l′ A′ → t ≡ Lift l′ A′ × l′ [ σ ] ≡ l × A′ [ σ ] ≡ A
 subst-Lift {t = var _}                 _    = inj₁ (_ , refl)
@@ -602,6 +677,11 @@ subst-Lift {t = rfl}                   ()
 subst-Lift {t = J _ _ _ _ _ _ _ _}     ()
 subst-Lift {t = K _ _ _ _ _ _}         ()
 subst-Lift {t = []-cong _ _ _ _ _ _}   ()
+subst-Lift {t = Quot _ _}              ()
+subst-Lift {t = class _}               ()
+subst-Lift {t = resp _ _ _ _ _}        ()
+subst-Lift {t = set _ _ _ _ _ _}       ()
+subst-Lift {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for lift.
 
@@ -637,6 +717,11 @@ wk-lift {t = rfl}                   ()
 wk-lift {t = J _ _ _ _ _ _ _ _}     ()
 wk-lift {t = K _ _ _ _ _ _}         ()
 wk-lift {t = []-cong _ _ _ _ _ _}   ()
+wk-lift {t = Quot _ _}              ()
+wk-lift {t = class _}               ()
+wk-lift {t = resp _ _ _ _ _}        ()
+wk-lift {t = set _ _ _ _ _ _}       ()
+wk-lift {t = qrec _ _ _ _ _}        ()
 
 subst-lift : t [ σ ] ≡ lift A → (∃ λ x → t ≡ var x) ⊎ ∃ λ A′ → t ≡ lift A′ × A′ [ σ ] ≡ A
 subst-lift {t = var _}                 _    = inj₁ (_ , refl)
@@ -670,6 +755,11 @@ subst-lift {t = rfl}                   ()
 subst-lift {t = J _ _ _ _ _ _ _ _}     ()
 subst-lift {t = K _ _ _ _ _ _}         ()
 subst-lift {t = []-cong _ _ _ _ _ _}   ()
+subst-lift {t = Quot _ _}              ()
+subst-lift {t = class _}               ()
+subst-lift {t = resp _ _ _ _ _}        ()
+subst-lift {t = set _ _ _ _ _ _}       ()
+subst-lift {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Lift.
 
@@ -705,6 +795,11 @@ wk-lower {t = rfl}                   ()
 wk-lower {t = J _ _ _ _ _ _ _ _}     ()
 wk-lower {t = K _ _ _ _ _ _}         ()
 wk-lower {t = []-cong _ _ _ _ _ _}   ()
+wk-lower {t = Quot _ _}              ()
+wk-lower {t = class _}               ()
+wk-lower {t = resp _ _ _ _ _}        ()
+wk-lower {t = set _ _ _ _ _ _}       ()
+wk-lower {t = qrec _ _ _ _ _}        ()
 
 subst-lower : t [ σ ] ≡ lower u → (∃ λ x → t ≡ var x) ⊎ ∃ λ u′ → t ≡ lower u′ × u′ [ σ ] ≡ u
 subst-lower {t = var _}                 _    = inj₁ (_ , refl)
@@ -738,6 +833,11 @@ subst-lower {t = rfl}                   ()
 subst-lower {t = J _ _ _ _ _ _ _ _}     ()
 subst-lower {t = K _ _ _ _ _ _}         ()
 subst-lower {t = []-cong _ _ _ _ _ _}   ()
+subst-lower {t = Quot _ _}              ()
+subst-lower {t = class _}               ()
+subst-lower {t = resp _ _ _ _ _}        ()
+subst-lower {t = set _ _ _ _ _ _}       ()
+subst-lower {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for ΠΣ⟨_⟩_,_▷_▹_.
 
@@ -778,6 +878,11 @@ wk-ΠΣ {t = rfl}                  ()
 wk-ΠΣ {t = J _ _ _ _ _ _ _ _}    ()
 wk-ΠΣ {t = K _ _ _ _ _ _}        ()
 wk-ΠΣ {t = []-cong _ _ _ _ _ _}  ()
+wk-ΠΣ {t = Quot _ _}              ()
+wk-ΠΣ {t = class _}               ()
+wk-ΠΣ {t = resp _ _ _ _ _}        ()
+wk-ΠΣ {t = set _ _ _ _ _ _}       ()
+wk-ΠΣ {t = qrec _ _ _ _ _}        ()
 
 subst-ΠΣ :
   t [ σ ] ≡ ΠΣ⟨ b ⟩ p , q ▷ A ▹ B →
@@ -818,6 +923,11 @@ subst-ΠΣ {t = rfl}                  ()
 subst-ΠΣ {t = J _ _ _ _ _ _ _ _}    ()
 subst-ΠΣ {t = K _ _ _ _ _ _}        ()
 subst-ΠΣ {t = []-cong _ _ _ _ _ _}  ()
+subst-ΠΣ {t = Quot _ _}              ()
+subst-ΠΣ {t = class _}               ()
+subst-ΠΣ {t = resp _ _ _ _ _}        ()
+subst-ΠΣ {t = set _ _ _ _ _ _}       ()
+subst-ΠΣ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for lam.
 
@@ -855,6 +965,11 @@ wk-lam {t = rfl}                   ()
 wk-lam {t = J _ _ _ _ _ _ _ _}     ()
 wk-lam {t = K _ _ _ _ _ _}         ()
 wk-lam {t = []-cong _ _ _ _ _ _}   ()
+wk-lam {t = Quot _ _}              ()
+wk-lam {t = class _}               ()
+wk-lam {t = resp _ _ _ _ _}        ()
+wk-lam {t = set _ _ _ _ _ _}       ()
+wk-lam {t = qrec _ _ _ _ _}        ()
 
 subst-lam :
   t [ σ ] ≡ lam p u →
@@ -891,6 +1006,11 @@ subst-lam {t = rfl}                   ()
 subst-lam {t = J _ _ _ _ _ _ _ _}     ()
 subst-lam {t = K _ _ _ _ _ _}         ()
 subst-lam {t = []-cong _ _ _ _ _ _}   ()
+subst-lam {t = Quot _ _}              ()
+subst-lam {t = class _}               ()
+subst-lam {t = resp _ _ _ _ _}        ()
+subst-lam {t = set _ _ _ _ _ _}       ()
+subst-lam {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for _∘⟨_⟩_.
 
@@ -928,6 +1048,11 @@ wk-∘ {t = rfl}                   ()
 wk-∘ {t = J _ _ _ _ _ _ _ _}     ()
 wk-∘ {t = K _ _ _ _ _ _}         ()
 wk-∘ {t = []-cong _ _ _ _ _ _}   ()
+wk-∘ {t = Quot _ _}              ()
+wk-∘ {t = class _}               ()
+wk-∘ {t = resp _ _ _ _ _}        ()
+wk-∘ {t = set _ _ _ _ _ _}       ()
+wk-∘ {t = qrec _ _ _ _ _}        ()
 
 subst-∘ :
   t [ σ ] ≡ u ∘⟨ p ⟩ v →
@@ -965,6 +1090,11 @@ subst-∘ {t = rfl}                   ()
 subst-∘ {t = J _ _ _ _ _ _ _ _}     ()
 subst-∘ {t = K _ _ _ _ _ _}         ()
 subst-∘ {t = []-cong _ _ _ _ _ _}   ()
+subst-∘ {t = Quot _ _}              ()
+subst-∘ {t = class _}               ()
+subst-∘ {t = resp _ _ _ _ _}        ()
+subst-∘ {t = set _ _ _ _ _ _}       ()
+subst-∘ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for prod.
 
@@ -1002,6 +1132,11 @@ wk-prod {t = rfl}                   ()
 wk-prod {t = J _ _ _ _ _ _ _ _}     ()
 wk-prod {t = K _ _ _ _ _ _}         ()
 wk-prod {t = []-cong _ _ _ _ _ _}   ()
+wk-prod {t = Quot _ _}              ()
+wk-prod {t = class _}               ()
+wk-prod {t = resp _ _ _ _ _}        ()
+wk-prod {t = set _ _ _ _ _ _}       ()
+wk-prod {t = qrec _ _ _ _ _}        ()
 
 subst-prod :
   t [ σ ] ≡ prod s p u v →
@@ -1040,6 +1175,11 @@ subst-prod {t = rfl}                   ()
 subst-prod {t = J _ _ _ _ _ _ _ _}     ()
 subst-prod {t = K _ _ _ _ _ _}         ()
 subst-prod {t = []-cong _ _ _ _ _ _}   ()
+subst-prod {t = Quot _ _}              ()
+subst-prod {t = class _}               ()
+subst-prod {t = resp _ _ _ _ _}        ()
+subst-prod {t = set _ _ _ _ _ _}       ()
+subst-prod {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for fst.
 
@@ -1077,6 +1217,11 @@ wk-fst {t = rfl}                   ()
 wk-fst {t = J _ _ _ _ _ _ _ _}     ()
 wk-fst {t = K _ _ _ _ _ _}         ()
 wk-fst {t = []-cong _ _ _ _ _ _}   ()
+wk-fst {t = Quot _ _}              ()
+wk-fst {t = class _}               ()
+wk-fst {t = resp _ _ _ _ _}        ()
+wk-fst {t = set _ _ _ _ _ _}       ()
+wk-fst {t = qrec _ _ _ _ _}        ()
 
 subst-fst :
   t [ σ ] ≡ fst p u →
@@ -1113,6 +1258,11 @@ subst-fst {t = rfl}                   ()
 subst-fst {t = J _ _ _ _ _ _ _ _}     ()
 subst-fst {t = K _ _ _ _ _ _}         ()
 subst-fst {t = []-cong _ _ _ _ _ _}   ()
+subst-fst {t = Quot _ _}              ()
+subst-fst {t = class _}               ()
+subst-fst {t = resp _ _ _ _ _}        ()
+subst-fst {t = set _ _ _ _ _ _}       ()
+subst-fst {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for snd.
 
@@ -1150,6 +1300,11 @@ wk-snd {t = rfl}                   ()
 wk-snd {t = J _ _ _ _ _ _ _ _}     ()
 wk-snd {t = K _ _ _ _ _ _}         ()
 wk-snd {t = []-cong _ _ _ _ _ _}   ()
+wk-snd {t = Quot _ _}              ()
+wk-snd {t = class _}               ()
+wk-snd {t = resp _ _ _ _ _}        ()
+wk-snd {t = set _ _ _ _ _ _}       ()
+wk-snd {t = qrec _ _ _ _ _}        ()
 
 subst-snd :
   t [ σ ] ≡ snd p u →
@@ -1186,6 +1341,11 @@ subst-snd {t = rfl}                   ()
 subst-snd {t = J _ _ _ _ _ _ _ _}     ()
 subst-snd {t = K _ _ _ _ _ _}         ()
 subst-snd {t = []-cong _ _ _ _ _ _}   ()
+subst-snd {t = Quot _ _}              ()
+subst-snd {t = class _}               ()
+subst-snd {t = resp _ _ _ _ _}        ()
+subst-snd {t = set _ _ _ _ _ _}       ()
+subst-snd {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for prodrec.
 
@@ -1226,6 +1386,11 @@ wk-prodrec {t = rfl}                   ()
 wk-prodrec {t = J _ _ _ _ _ _ _ _}     ()
 wk-prodrec {t = K _ _ _ _ _ _}         ()
 wk-prodrec {t = []-cong _ _ _ _ _ _}   ()
+wk-prodrec {t = Quot _ _}              ()
+wk-prodrec {t = class _}               ()
+wk-prodrec {t = resp _ _ _ _ _}        ()
+wk-prodrec {t = set _ _ _ _ _ _}       ()
+wk-prodrec {t = qrec _ _ _ _ _}        ()
 
 subst-prodrec :
   t [ σ ] ≡ prodrec r p q A u v →
@@ -1266,6 +1431,11 @@ subst-prodrec {t = rfl}                   ()
 subst-prodrec {t = J _ _ _ _ _ _ _ _}     ()
 subst-prodrec {t = K _ _ _ _ _ _}         ()
 subst-prodrec {t = []-cong _ _ _ _ _ _}   ()
+subst-prodrec {t = Quot _ _}              ()
+subst-prodrec {t = class _}               ()
+subst-prodrec {t = resp _ _ _ _ _}        ()
+subst-prodrec {t = set _ _ _ _ _ _}       ()
+subst-prodrec {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Unit.
 
@@ -1301,6 +1471,11 @@ wk-Unit {t = rfl}                   ()
 wk-Unit {t = J _ _ _ _ _ _ _ _}     ()
 wk-Unit {t = K _ _ _ _ _ _}         ()
 wk-Unit {t = []-cong _ _ _ _ _ _}   ()
+wk-Unit {t = Quot _ _}              ()
+wk-Unit {t = class _}               ()
+wk-Unit {t = resp _ _ _ _ _}        ()
+wk-Unit {t = set _ _ _ _ _ _}       ()
+wk-Unit {t = qrec _ _ _ _ _}        ()
 
 subst-Unit : t [ σ ] ≡ Unit s →
              (∃ λ x → t ≡ var x) ⊎ t ≡ Unit s
@@ -1335,6 +1510,11 @@ subst-Unit {t = rfl}                   ()
 subst-Unit {t = J _ _ _ _ _ _ _ _}     ()
 subst-Unit {t = K _ _ _ _ _ _}         ()
 subst-Unit {t = []-cong _ _ _ _ _ _}   ()
+subst-Unit {t = Quot _ _}              ()
+subst-Unit {t = class _}               ()
+subst-Unit {t = resp _ _ _ _ _}        ()
+subst-Unit {t = set _ _ _ _ _ _}       ()
+subst-Unit {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for star.
 
@@ -1370,6 +1550,11 @@ wk-star {t = rfl}                   ()
 wk-star {t = J _ _ _ _ _ _ _ _}     ()
 wk-star {t = K _ _ _ _ _ _}         ()
 wk-star {t = []-cong _ _ _ _ _ _}   ()
+wk-star {t = Quot _ _}              ()
+wk-star {t = class _}               ()
+wk-star {t = resp _ _ _ _ _}        ()
+wk-star {t = set _ _ _ _ _ _}       ()
+wk-star {t = qrec _ _ _ _ _}        ()
 
 subst-star : t [ σ ] ≡ star s →
             (∃ λ x → t ≡ var x) ⊎ t ≡ star s
@@ -1404,6 +1589,11 @@ subst-star {t = rfl}                   ()
 subst-star {t = J _ _ _ _ _ _ _ _}     ()
 subst-star {t = K _ _ _ _ _ _}         ()
 subst-star {t = []-cong _ _ _ _ _ _}   ()
+subst-star {t = Quot _ _}              ()
+subst-star {t = class _}               ()
+subst-star {t = resp _ _ _ _ _}        ()
+subst-star {t = set _ _ _ _ _ _}       ()
+subst-star {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for unitrec.
 
@@ -1444,6 +1634,11 @@ wk-unitrec {t = rfl}                   ()
 wk-unitrec {t = J _ _ _ _ _ _ _ _}     ()
 wk-unitrec {t = K _ _ _ _ _ _}         ()
 wk-unitrec {t = []-cong _ _ _ _ _ _}   ()
+wk-unitrec {t = Quot _ _}              ()
+wk-unitrec {t = class _}               ()
+wk-unitrec {t = resp _ _ _ _ _}        ()
+wk-unitrec {t = set _ _ _ _ _ _}       ()
+wk-unitrec {t = qrec _ _ _ _ _}        ()
 
 subst-unitrec :
   t [ σ ] ≡ unitrec p q A u v →
@@ -1484,6 +1679,11 @@ subst-unitrec {t = rfl}                   ()
 subst-unitrec {t = J _ _ _ _ _ _ _ _}     ()
 subst-unitrec {t = K _ _ _ _ _ _}         ()
 subst-unitrec {t = []-cong _ _ _ _ _ _}   ()
+subst-unitrec {t = Quot _ _}              ()
+subst-unitrec {t = class _}               ()
+subst-unitrec {t = resp _ _ _ _ _}        ()
+subst-unitrec {t = set _ _ _ _ _ _}       ()
+subst-unitrec {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Empty.
 
@@ -1519,6 +1719,11 @@ wk-Empty {t = rfl}                   ()
 wk-Empty {t = J _ _ _ _ _ _ _ _}     ()
 wk-Empty {t = K _ _ _ _ _ _}         ()
 wk-Empty {t = []-cong _ _ _ _ _ _}   ()
+wk-Empty {t = Quot _ _}              ()
+wk-Empty {t = class _}               ()
+wk-Empty {t = resp _ _ _ _ _}        ()
+wk-Empty {t = set _ _ _ _ _ _}       ()
+wk-Empty {t = qrec _ _ _ _ _}        ()
 
 subst-Empty : t [ σ ] ≡ Empty →
               (∃ λ x → t ≡ var x) ⊎ t ≡ Empty
@@ -1553,6 +1758,11 @@ subst-Empty {t = rfl}                   ()
 subst-Empty {t = J _ _ _ _ _ _ _ _}     ()
 subst-Empty {t = K _ _ _ _ _ _}         ()
 subst-Empty {t = []-cong _ _ _ _ _ _}   ()
+subst-Empty {t = Quot _ _}              ()
+subst-Empty {t = class _}               ()
+subst-Empty {t = resp _ _ _ _ _}        ()
+subst-Empty {t = set _ _ _ _ _ _}       ()
+subst-Empty {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for emptyrec.
 
@@ -1591,6 +1801,11 @@ wk-emptyrec {t = rfl}                   ()
 wk-emptyrec {t = J _ _ _ _ _ _ _ _}     ()
 wk-emptyrec {t = K _ _ _ _ _ _}         ()
 wk-emptyrec {t = []-cong _ _ _ _ _ _}   ()
+wk-emptyrec {t = Quot _ _}              ()
+wk-emptyrec {t = class _}               ()
+wk-emptyrec {t = resp _ _ _ _ _}        ()
+wk-emptyrec {t = set _ _ _ _ _ _}       ()
+wk-emptyrec {t = qrec _ _ _ _ _}        ()
 
 subst-emptyrec :
   t [ σ ] ≡ emptyrec p A u →
@@ -1629,6 +1844,11 @@ subst-emptyrec {t = rfl}                   ()
 subst-emptyrec {t = J _ _ _ _ _ _ _ _}     ()
 subst-emptyrec {t = K _ _ _ _ _ _}         ()
 subst-emptyrec {t = []-cong _ _ _ _ _ _}   ()
+subst-emptyrec {t = Quot _ _}              ()
+subst-emptyrec {t = class _}               ()
+subst-emptyrec {t = resp _ _ _ _ _}        ()
+subst-emptyrec {t = set _ _ _ _ _ _}       ()
+subst-emptyrec {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for ℕ.
 
@@ -1664,6 +1884,11 @@ wk-ℕ {t = rfl}                   ()
 wk-ℕ {t = J _ _ _ _ _ _ _ _}     ()
 wk-ℕ {t = K _ _ _ _ _ _}         ()
 wk-ℕ {t = []-cong _ _ _ _ _ _}   ()
+wk-ℕ {t = Quot _ _}              ()
+wk-ℕ {t = class _}               ()
+wk-ℕ {t = resp _ _ _ _ _}        ()
+wk-ℕ {t = set _ _ _ _ _ _}       ()
+wk-ℕ {t = qrec _ _ _ _ _}        ()
 
 subst-ℕ : t [ σ ] ≡ ℕ → (∃ λ x → t ≡ var x) ⊎ t ≡ ℕ
 subst-ℕ {t = var _}                 _    = inj₁ (_ , refl)
@@ -1697,6 +1922,11 @@ subst-ℕ {t = rfl}                   ()
 subst-ℕ {t = J _ _ _ _ _ _ _ _}     ()
 subst-ℕ {t = K _ _ _ _ _ _}         ()
 subst-ℕ {t = []-cong _ _ _ _ _ _}   ()
+subst-ℕ {t = Quot _ _}              ()
+subst-ℕ {t = class _}               ()
+subst-ℕ {t = resp _ _ _ _ _}        ()
+subst-ℕ {t = set _ _ _ _ _ _}       ()
+subst-ℕ {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for zero.
 
@@ -1732,6 +1962,11 @@ wk-zero {t = rfl}                   ()
 wk-zero {t = J _ _ _ _ _ _ _ _}     ()
 wk-zero {t = K _ _ _ _ _ _}         ()
 wk-zero {t = []-cong _ _ _ _ _ _}   ()
+wk-zero {t = Quot _ _}              ()
+wk-zero {t = class _}               ()
+wk-zero {t = resp _ _ _ _ _}        ()
+wk-zero {t = set _ _ _ _ _ _}       ()
+wk-zero {t = qrec _ _ _ _ _}        ()
 
 subst-zero : t [ σ ] ≡ zero → (∃ λ x → t ≡ var x) ⊎ t ≡ zero
 subst-zero {t = var _}                 _    = inj₁ (_ , refl)
@@ -1765,6 +2000,11 @@ subst-zero {t = rfl}                   ()
 subst-zero {t = J _ _ _ _ _ _ _ _}     ()
 subst-zero {t = K _ _ _ _ _ _}         ()
 subst-zero {t = []-cong _ _ _ _ _ _}   ()
+subst-zero {t = Quot _ _}              ()
+subst-zero {t = class _}               ()
+subst-zero {t = resp _ _ _ _ _}        ()
+subst-zero {t = set _ _ _ _ _ _}       ()
+subst-zero {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for suc.
 
@@ -1802,6 +2042,11 @@ wk-suc {t = rfl}                   ()
 wk-suc {t = J _ _ _ _ _ _ _ _}     ()
 wk-suc {t = K _ _ _ _ _ _}         ()
 wk-suc {t = []-cong _ _ _ _ _ _}   ()
+wk-suc {t = Quot _ _}              ()
+wk-suc {t = class _}               ()
+wk-suc {t = resp _ _ _ _ _}        ()
+wk-suc {t = set _ _ _ _ _ _}       ()
+wk-suc {t = qrec _ _ _ _ _}        ()
 
 subst-suc :
   t [ σ ] ≡ suc u →
@@ -1837,6 +2082,11 @@ subst-suc {t = rfl}                   ()
 subst-suc {t = J _ _ _ _ _ _ _ _}     ()
 subst-suc {t = K _ _ _ _ _ _}         ()
 subst-suc {t = []-cong _ _ _ _ _ _}   ()
+subst-suc {t = Quot _ _}              ()
+subst-suc {t = class _}               ()
+subst-suc {t = resp _ _ _ _ _}        ()
+subst-suc {t = set _ _ _ _ _ _}       ()
+subst-suc {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for natrec.
 
@@ -1878,6 +2128,11 @@ wk-natrec {t = rfl}                   ()
 wk-natrec {t = J _ _ _ _ _ _ _ _}     ()
 wk-natrec {t = K _ _ _ _ _ _}         ()
 wk-natrec {t = []-cong _ _ _ _ _ _}   ()
+wk-natrec {t = Quot _ _}              ()
+wk-natrec {t = class _}               ()
+wk-natrec {t = resp _ _ _ _ _}        ()
+wk-natrec {t = set _ _ _ _ _ _}       ()
+wk-natrec {t = qrec _ _ _ _ _}        ()
 
 subst-natrec :
   t [ σ ] ≡ natrec p q r A u v w →
@@ -1919,6 +2174,11 @@ subst-natrec {t = rfl}                   ()
 subst-natrec {t = J _ _ _ _ _ _ _ _}     ()
 subst-natrec {t = K _ _ _ _ _ _}         ()
 subst-natrec {t = []-cong _ _ _ _ _ _}   ()
+subst-natrec {t = Quot _ _}              ()
+subst-natrec {t = class _}               ()
+subst-natrec {t = resp _ _ _ _ _}        ()
+subst-natrec {t = set _ _ _ _ _ _}       ()
+subst-natrec {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for Id.
 
@@ -1959,6 +2219,11 @@ wk-Id {v = rfl}                   ()
 wk-Id {v = J _ _ _ _ _ _ _ _}     ()
 wk-Id {v = K _ _ _ _ _ _}         ()
 wk-Id {v = []-cong _ _ _ _ _ _}   ()
+wk-Id {v = Quot _ _}              ()
+wk-Id {v = class _}               ()
+wk-Id {v = resp _ _ _ _ _}        ()
+wk-Id {v = set _ _ _ _ _ _}       ()
+wk-Id {v = qrec _ _ _ _ _}        ()
 
 subst-Id :
   v [ σ ] ≡ Id A t u →
@@ -1999,6 +2264,11 @@ subst-Id {v = rfl}                   ()
 subst-Id {v = J _ _ _ _ _ _ _ _}     ()
 subst-Id {v = K _ _ _ _ _ _}         ()
 subst-Id {v = []-cong _ _ _ _ _ _}   ()
+subst-Id {v = Quot _ _}              ()
+subst-Id {v = class _}               ()
+subst-Id {v = resp _ _ _ _ _}        ()
+subst-Id {v = set _ _ _ _ _ _}       ()
+subst-Id {v = qrec _ _ _ _ _}        ()
 
 -- Inversion for rfl.
 
@@ -2034,6 +2304,11 @@ wk-rfl {t = Id _ _ _}              ()
 wk-rfl {t = J _ _ _ _ _ _ _ _}     ()
 wk-rfl {t = K _ _ _ _ _ _}         ()
 wk-rfl {t = []-cong _ _ _ _ _ _}   ()
+wk-rfl {t = Quot _ _}              ()
+wk-rfl {t = class _}               ()
+wk-rfl {t = resp _ _ _ _ _}        ()
+wk-rfl {t = set _ _ _ _ _ _}       ()
+wk-rfl {t = qrec _ _ _ _ _}        ()
 
 subst-rfl : t [ σ ] ≡ rfl → (∃ λ x → t ≡ var x) ⊎ t ≡ rfl
 subst-rfl {t = var x}                 _    = inj₁ (_ , refl)
@@ -2067,6 +2342,11 @@ subst-rfl {t = Id _ _ _}              ()
 subst-rfl {t = J _ _ _ _ _ _ _ _}     ()
 subst-rfl {t = K _ _ _ _ _ _}         ()
 subst-rfl {t = []-cong _ _ _ _ _ _}   ()
+subst-rfl {t = Quot _ _}              ()
+subst-rfl {t = class _}               ()
+subst-rfl {t = resp _ _ _ _ _}        ()
+subst-rfl {t = set _ _ _ _ _ _}       ()
+subst-rfl {t = qrec _ _ _ _ _}        ()
 
 -- Inversion for J.
 
@@ -2108,6 +2388,11 @@ wk-J {w = Id _ _ _}              ()
 wk-J {w = rfl}                   ()
 wk-J {w = K _ _ _ _ _ _}         ()
 wk-J {w = []-cong _ _ _ _ _ _}   ()
+wk-J {w = Quot _ _}              ()
+wk-J {w = class _}               ()
+wk-J {w = resp _ _ _ _ _}        ()
+wk-J {w = set _ _ _ _ _ _}       ()
+wk-J {w = qrec _ _ _ _ _}        ()
 
 subst-J :
   w [ σ ] ≡ J p q A t B u t′ v →
@@ -2149,6 +2434,11 @@ subst-J {w = Id _ _ _}              ()
 subst-J {w = rfl}                   ()
 subst-J {w = K _ _ _ _ _ _}         ()
 subst-J {w = []-cong _ _ _ _ _ _}   ()
+subst-J {w = Quot _ _}              ()
+subst-J {w = class _}               ()
+subst-J {w = resp _ _ _ _ _}        ()
+subst-J {w = set _ _ _ _ _ _}       ()
+subst-J {w = qrec _ _ _ _ _}        ()
 
 -- Inversion for K.
 
@@ -2190,6 +2480,11 @@ wk-K {w = Id _ _ _}              ()
 wk-K {w = rfl}                   ()
 wk-K {w = J _ _ _ _ _ _ _ _}     ()
 wk-K {w = []-cong _ _ _ _ _ _}   ()
+wk-K {w = Quot _ _}              ()
+wk-K {w = class _}               ()
+wk-K {w = resp _ _ _ _ _}        ()
+wk-K {w = set _ _ _ _ _ _}       ()
+wk-K {w = qrec _ _ _ _ _}        ()
 
 subst-K :
   w [ σ ] ≡ K p A t B u v →
@@ -2231,6 +2526,11 @@ subst-K {w = Id _ _ _}              ()
 subst-K {w = rfl}                   ()
 subst-K {w = J _ _ _ _ _ _ _ _}     ()
 subst-K {w = []-cong _ _ _ _ _ _}   ()
+subst-K {w = Quot _ _}              ()
+subst-K {w = class _}               ()
+subst-K {w = resp _ _ _ _ _}        ()
+subst-K {w = set _ _ _ _ _ _}       ()
+subst-K {w = qrec _ _ _ _ _}        ()
 
 -- Inversion for []-cong.
 
@@ -2271,6 +2571,11 @@ wk-[]-cong {w = Id _ _ _}              ()
 wk-[]-cong {w = rfl}                   ()
 wk-[]-cong {w = J _ _ _ _ _ _ _ _}     ()
 wk-[]-cong {w = K _ _ _ _ _ _}         ()
+wk-[]-cong {w = Quot _ _}              ()
+wk-[]-cong {w = class _}               ()
+wk-[]-cong {w = resp _ _ _ _ _}        ()
+wk-[]-cong {w = set _ _ _ _ _ _}       ()
+wk-[]-cong {w = qrec _ _ _ _ _}        ()
 
 subst-[]-cong :
   w [ σ ] ≡ []-cong s l A t u v →
@@ -2312,3 +2617,456 @@ subst-[]-cong {w = Id _ _ _}              ()
 subst-[]-cong {w = rfl}                   ()
 subst-[]-cong {w = J _ _ _ _ _ _ _ _}     ()
 subst-[]-cong {w = K _ _ _ _ _ _}         ()
+subst-[]-cong {w = Quot _ _}              ()
+subst-[]-cong {w = class _}               ()
+subst-[]-cong {w = resp _ _ _ _ _}        ()
+subst-[]-cong {w = set _ _ _ _ _ _}       ()
+subst-[]-cong {w = qrec _ _ _ _ _}        ()
+
+-- Inversion for Quot.
+
+wk-Quot :
+  wk ρ t ≡ Quot A B →
+  ∃₂ λ A′ B′ → t ≡ Quot A′ B′ × wk ρ A′ ≡ A × wk (liftn ρ 2) B′ ≡ B
+wk-Quot {t = Quot _ _} refl =
+  _ , _ , refl , refl , refl
+wk-Quot {t = var _}                 ()
+wk-Quot {t = defn _}                ()
+wk-Quot {t = U _}                   ()
+wk-Quot {t = Level}                 ()
+wk-Quot {t = zeroᵘ}                 ()
+wk-Quot {t = sucᵘ _}                ()
+wk-Quot {t = _ supᵘ _}              ()
+wk-Quot {t = Lift _ _}              ()
+wk-Quot {t = lift _}                ()
+wk-Quot {t = lower _}               ()
+wk-Quot {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-Quot {t = lam _ _}               ()
+wk-Quot {t = _ ∘⟨ _ ⟩ _}            ()
+wk-Quot {t = prod _ _ _ _}          ()
+wk-Quot {t = fst _ _}               ()
+wk-Quot {t = snd _ _}               ()
+wk-Quot {t = prodrec _ _ _ _ _ _}   ()
+wk-Quot {t = Empty}                 ()
+wk-Quot {t = emptyrec _ _ _}        ()
+wk-Quot {t = Unit _}                ()
+wk-Quot {t = star _}                ()
+wk-Quot {t = unitrec _ _ _ _ _}     ()
+wk-Quot {t = ℕ}                     ()
+wk-Quot {t = zero}                  ()
+wk-Quot {t = suc _}                 ()
+wk-Quot {t = natrec _ _ _ _ _ _ _}  ()
+wk-Quot {t = Id _ _ _}              ()
+wk-Quot {t = rfl}                   ()
+wk-Quot {t = J _ _ _ _ _ _ _ _}     ()
+wk-Quot {t = K _ _ _ _ _ _}         ()
+wk-Quot {t = []-cong _ _ _ _ _ _}   ()
+wk-Quot {t = class _}               ()
+wk-Quot {t = resp _ _ _ _ _}        ()
+wk-Quot {t = set _ _ _ _ _ _}       ()
+wk-Quot {t = qrec _ _ _ _ _}        ()
+
+subst-Quot :
+  t [ σ ] ≡ Quot A B →
+  (∃ λ x → t ≡ var x) ⊎
+  ∃₂ λ A′ B′ → t ≡ Quot A′ B′ × A′ [ σ ] ≡ A × B′ [ σ ⇑[ 2 ] ] ≡ B
+subst-Quot {t = var _} _ =
+  inj₁ (_ , refl)
+subst-Quot {t = Quot _ _} refl =
+  inj₂ (_ , _ , refl , refl , refl)
+subst-Quot {t = defn _}                ()
+subst-Quot {t = U _}                   ()
+subst-Quot {t = Level}                 ()
+subst-Quot {t = zeroᵘ}                 ()
+subst-Quot {t = sucᵘ _}                ()
+subst-Quot {t = _ supᵘ _}              ()
+subst-Quot {t = Lift _ _}              ()
+subst-Quot {t = lift _}                ()
+subst-Quot {t = lower _}               ()
+subst-Quot {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-Quot {t = lam _ _}               ()
+subst-Quot {t = _ ∘⟨ _ ⟩ _}            ()
+subst-Quot {t = prod _ _ _ _}          ()
+subst-Quot {t = fst _ _}               ()
+subst-Quot {t = snd _ _}               ()
+subst-Quot {t = prodrec _ _ _ _ _ _}   ()
+subst-Quot {t = Empty}                 ()
+subst-Quot {t = emptyrec _ _ _}        ()
+subst-Quot {t = Unit _}                ()
+subst-Quot {t = star _}                ()
+subst-Quot {t = unitrec _ _ _ _ _}     ()
+subst-Quot {t = ℕ}                     ()
+subst-Quot {t = zero}                  ()
+subst-Quot {t = suc _}                 ()
+subst-Quot {t = natrec _ _ _ _ _ _ _}  ()
+subst-Quot {t = Id _ _ _}              ()
+subst-Quot {t = rfl}                   ()
+subst-Quot {t = J _ _ _ _ _ _ _ _}     ()
+subst-Quot {t = K _ _ _ _ _ _}         ()
+subst-Quot {t = []-cong _ _ _ _ _ _}   ()
+subst-Quot {t = class _}               ()
+subst-Quot {t = resp _ _ _ _ _}        ()
+subst-Quot {t = set _ _ _ _ _ _}       ()
+subst-Quot {t = qrec _ _ _ _ _}        ()
+
+-- Inversion for class.
+
+wk-class :
+  wk ρ t ≡ class u →
+  ∃ λ u′ → t ≡ class u′ × wk ρ u′ ≡ u
+wk-class {t = class _} refl =
+  _ , refl , refl
+wk-class {t = var _}                 ()
+wk-class {t = defn _}                ()
+wk-class {t = U _}                   ()
+wk-class {t = Level}                 ()
+wk-class {t = zeroᵘ}                 ()
+wk-class {t = sucᵘ _}                ()
+wk-class {t = _ supᵘ _}              ()
+wk-class {t = Lift _ _}              ()
+wk-class {t = lift _}                ()
+wk-class {t = lower _}               ()
+wk-class {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-class {t = lam _ _}               ()
+wk-class {t = _ ∘⟨ _ ⟩ _}            ()
+wk-class {t = prod _ _ _ _}          ()
+wk-class {t = fst _ _}               ()
+wk-class {t = snd _ _}               ()
+wk-class {t = prodrec _ _ _ _ _ _}   ()
+wk-class {t = Empty}                 ()
+wk-class {t = emptyrec _ _ _}        ()
+wk-class {t = Unit _}                ()
+wk-class {t = star _}                ()
+wk-class {t = unitrec _ _ _ _ _}     ()
+wk-class {t = ℕ}                     ()
+wk-class {t = zero}                  ()
+wk-class {t = suc _}                 ()
+wk-class {t = natrec _ _ _ _ _ _ _}  ()
+wk-class {t = Id _ _ _}              ()
+wk-class {t = rfl}                   ()
+wk-class {t = J _ _ _ _ _ _ _ _}     ()
+wk-class {t = K _ _ _ _ _ _}         ()
+wk-class {t = []-cong _ _ _ _ _ _}   ()
+wk-class {t = Quot _ _}              ()
+wk-class {t = resp _ _ _ _ _}        ()
+wk-class {t = set _ _ _ _ _ _}       ()
+wk-class {t = qrec _ _ _ _ _}        ()
+
+subst-class :
+  t [ σ ] ≡ class u →
+  (∃ λ x → t ≡ var x) ⊎
+  ∃ λ u′ → t ≡ class u′ × u′ [ σ ] ≡ u
+subst-class {t = var _} _ =
+  inj₁ (_ , refl)
+subst-class {t = class _} refl =
+  inj₂ (_ , refl , refl)
+subst-class {t = defn _}                ()
+subst-class {t = U _}                   ()
+subst-class {t = Level}                 ()
+subst-class {t = zeroᵘ}                 ()
+subst-class {t = sucᵘ _}                ()
+subst-class {t = _ supᵘ _}              ()
+subst-class {t = Lift _ _}              ()
+subst-class {t = lift _}                ()
+subst-class {t = lower _}               ()
+subst-class {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-class {t = lam _ _}               ()
+subst-class {t = _ ∘⟨ _ ⟩ _}            ()
+subst-class {t = prod _ _ _ _}          ()
+subst-class {t = fst _ _}               ()
+subst-class {t = snd _ _}               ()
+subst-class {t = prodrec _ _ _ _ _ _}   ()
+subst-class {t = Empty}                 ()
+subst-class {t = emptyrec _ _ _}        ()
+subst-class {t = Unit _}                ()
+subst-class {t = star _}                ()
+subst-class {t = unitrec _ _ _ _ _}     ()
+subst-class {t = ℕ}                     ()
+subst-class {t = zero}                  ()
+subst-class {t = suc _}                 ()
+subst-class {t = natrec _ _ _ _ _ _ _}  ()
+subst-class {t = Id _ _ _}              ()
+subst-class {t = rfl}                   ()
+subst-class {t = J _ _ _ _ _ _ _ _}     ()
+subst-class {t = K _ _ _ _ _ _}         ()
+subst-class {t = []-cong _ _ _ _ _ _}   ()
+subst-class {t = Quot _ _}              ()
+subst-class {t = resp _ _ _ _ _}        ()
+subst-class {t = set _ _ _ _ _ _}       ()
+subst-class {t = qrec _ _ _ _ _}        ()
+
+-- Inversion for resp.
+
+wk-resp :
+  wk ρ t ≡ resp A B u v w →
+  ∃₅ λ A′ B′ u′ v′ w′ →
+    t ≡ resp A′ B′ u′ v′ w′ × wk ρ A′ ≡ A × wk (liftn ρ 2) B′ ≡ B ×
+    wk ρ u′ ≡ u × wk ρ v′ ≡ v × wk ρ w′ ≡ w
+wk-resp {t = resp _ _ _ _ _} refl =
+  _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl
+wk-resp {t = var _}                 ()
+wk-resp {t = defn _}                ()
+wk-resp {t = U _}                   ()
+wk-resp {t = Level}                 ()
+wk-resp {t = zeroᵘ}                 ()
+wk-resp {t = sucᵘ _}                ()
+wk-resp {t = _ supᵘ _}              ()
+wk-resp {t = Lift _ _}              ()
+wk-resp {t = lift _}                ()
+wk-resp {t = lower _}               ()
+wk-resp {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-resp {t = lam _ _}               ()
+wk-resp {t = _ ∘⟨ _ ⟩ _}            ()
+wk-resp {t = prod _ _ _ _}          ()
+wk-resp {t = fst _ _}               ()
+wk-resp {t = snd _ _}               ()
+wk-resp {t = prodrec _ _ _ _ _ _}   ()
+wk-resp {t = Empty}                 ()
+wk-resp {t = emptyrec _ _ _}        ()
+wk-resp {t = Unit _}                ()
+wk-resp {t = star _}                ()
+wk-resp {t = unitrec _ _ _ _ _}     ()
+wk-resp {t = ℕ}                     ()
+wk-resp {t = zero}                  ()
+wk-resp {t = suc _}                 ()
+wk-resp {t = natrec _ _ _ _ _ _ _}  ()
+wk-resp {t = Id _ _ _}              ()
+wk-resp {t = rfl}                   ()
+wk-resp {t = J _ _ _ _ _ _ _ _}     ()
+wk-resp {t = K _ _ _ _ _ _}         ()
+wk-resp {t = []-cong _ _ _ _ _ _}   ()
+wk-resp {t = Quot _ _}              ()
+wk-resp {t = class _}               ()
+wk-resp {t = set _ _ _ _ _ _}       ()
+wk-resp {t = qrec _ _ _ _ _}        ()
+
+subst-resp :
+  t [ σ ] ≡ resp A B u v w →
+  (∃ λ x → t ≡ var x) ⊎
+  ∃₅ λ A′ B′ u′ v′ w′ →
+    t ≡ resp A′ B′ u′ v′ w′ × A′ [ σ ] ≡ A × B′ [ σ ⇑[ 2 ] ] ≡ B ×
+    u′ [ σ ] ≡ u × v′ [ σ ] ≡ v × w′ [ σ ] ≡ w
+subst-resp {t = var _} _ =
+  inj₁ (_ , refl)
+subst-resp {t = resp _ _ _ _ _} refl =
+  inj₂ (_ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl)
+subst-resp {t = defn _}                ()
+subst-resp {t = U _}                   ()
+subst-resp {t = Level}                 ()
+subst-resp {t = zeroᵘ}                 ()
+subst-resp {t = sucᵘ _}                ()
+subst-resp {t = _ supᵘ _}              ()
+subst-resp {t = Lift _ _}              ()
+subst-resp {t = lift _}                ()
+subst-resp {t = lower _}               ()
+subst-resp {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-resp {t = lam _ _}               ()
+subst-resp {t = _ ∘⟨ _ ⟩ _}            ()
+subst-resp {t = prod _ _ _ _}          ()
+subst-resp {t = fst _ _}               ()
+subst-resp {t = snd _ _}               ()
+subst-resp {t = prodrec _ _ _ _ _ _}   ()
+subst-resp {t = Empty}                 ()
+subst-resp {t = emptyrec _ _ _}        ()
+subst-resp {t = Unit _}                ()
+subst-resp {t = star _}                ()
+subst-resp {t = unitrec _ _ _ _ _}     ()
+subst-resp {t = ℕ}                     ()
+subst-resp {t = zero}                  ()
+subst-resp {t = suc _}                 ()
+subst-resp {t = natrec _ _ _ _ _ _ _}  ()
+subst-resp {t = Id _ _ _}              ()
+subst-resp {t = rfl}                   ()
+subst-resp {t = J _ _ _ _ _ _ _ _}     ()
+subst-resp {t = K _ _ _ _ _ _}         ()
+subst-resp {t = []-cong _ _ _ _ _ _}   ()
+subst-resp {t = Quot _ _}              ()
+subst-resp {t = class _}               ()
+subst-resp {t = set _ _ _ _ _ _}       ()
+subst-resp {t = qrec _ _ _ _ _}        ()
+
+-- Inversion for set.
+
+wk-set :
+  wk ρ t ≡ set A₁ A₂ u₁ u₂ u₃ u₄ →
+  ∃₆ λ A₁′ A₂′ u₁′ u₂′ u₃′ u₄′ →
+    t ≡ set A₁′ A₂′ u₁′ u₂′ u₃′ u₄′ × wk ρ A₁′ ≡ A₁ ×
+    wk (liftn ρ 2) A₂′ ≡ A₂ × wk ρ u₁′ ≡ u₁ × wk ρ u₂′ ≡ u₂ ×
+    wk ρ u₃′ ≡ u₃ × wk ρ u₄′ ≡ u₄
+wk-set {t = set _ _ _ _ _ _} refl =
+  _ , _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl , refl
+wk-set {t = var _}                 ()
+wk-set {t = defn _}                ()
+wk-set {t = U _}                   ()
+wk-set {t = Level}                 ()
+wk-set {t = zeroᵘ}                 ()
+wk-set {t = sucᵘ _}                ()
+wk-set {t = _ supᵘ _}              ()
+wk-set {t = Lift _ _}              ()
+wk-set {t = lift _}                ()
+wk-set {t = lower _}               ()
+wk-set {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-set {t = lam _ _}               ()
+wk-set {t = _ ∘⟨ _ ⟩ _}            ()
+wk-set {t = prod _ _ _ _}          ()
+wk-set {t = fst _ _}               ()
+wk-set {t = snd _ _}               ()
+wk-set {t = prodrec _ _ _ _ _ _}   ()
+wk-set {t = Empty}                 ()
+wk-set {t = emptyrec _ _ _}        ()
+wk-set {t = Unit _}                ()
+wk-set {t = star _}                ()
+wk-set {t = unitrec _ _ _ _ _}     ()
+wk-set {t = ℕ}                     ()
+wk-set {t = zero}                  ()
+wk-set {t = suc _}                 ()
+wk-set {t = natrec _ _ _ _ _ _ _}  ()
+wk-set {t = Id _ _ _}              ()
+wk-set {t = rfl}                   ()
+wk-set {t = J _ _ _ _ _ _ _ _}     ()
+wk-set {t = K _ _ _ _ _ _}         ()
+wk-set {t = []-cong _ _ _ _ _ _}   ()
+wk-set {t = Quot _ _}              ()
+wk-set {t = class _}               ()
+wk-set {t = resp _ _ _ _ _}        ()
+wk-set {t = qrec _ _ _ _ _}        ()
+
+subst-set :
+  t [ σ ] ≡ set A₁ A₂ u₁ u₂ u₃ u₄ →
+  (∃ λ x → t ≡ var x) ⊎
+  ∃₆ λ A₁′ A₂′ u₁′ u₂′ u₃′ u₄′ →
+    t ≡ set A₁′ A₂′ u₁′ u₂′ u₃′ u₄′ × A₁′ [ σ ] ≡ A₁ ×
+    A₂′ [ σ ⇑[ 2 ] ] ≡ A₂ × u₁′ [ σ ] ≡ u₁ × u₂′ [ σ ] ≡ u₂ ×
+    u₃′ [ σ ] ≡ u₃ × u₄′ [ σ ] ≡ u₄
+subst-set {t = var _} _ =
+  inj₁ (_ , refl)
+subst-set {t = set _ _ _ _ _ _} refl =
+  inj₂
+    (_ , _ , _ , _ , _ , _ ,
+     refl , refl , refl , refl , refl , refl , refl)
+subst-set {t = defn _}                ()
+subst-set {t = U _}                   ()
+subst-set {t = Level}                 ()
+subst-set {t = zeroᵘ}                 ()
+subst-set {t = sucᵘ _}                ()
+subst-set {t = _ supᵘ _}              ()
+subst-set {t = Lift _ _}              ()
+subst-set {t = lift _}                ()
+subst-set {t = lower _}               ()
+subst-set {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-set {t = lam _ _}               ()
+subst-set {t = _ ∘⟨ _ ⟩ _}            ()
+subst-set {t = prod _ _ _ _}          ()
+subst-set {t = fst _ _}               ()
+subst-set {t = snd _ _}               ()
+subst-set {t = prodrec _ _ _ _ _ _}   ()
+subst-set {t = Empty}                 ()
+subst-set {t = emptyrec _ _ _}        ()
+subst-set {t = Unit _}                ()
+subst-set {t = star _}                ()
+subst-set {t = unitrec _ _ _ _ _}     ()
+subst-set {t = ℕ}                     ()
+subst-set {t = zero}                  ()
+subst-set {t = suc _}                 ()
+subst-set {t = natrec _ _ _ _ _ _ _}  ()
+subst-set {t = Id _ _ _}              ()
+subst-set {t = rfl}                   ()
+subst-set {t = J _ _ _ _ _ _ _ _}     ()
+subst-set {t = K _ _ _ _ _ _}         ()
+subst-set {t = []-cong _ _ _ _ _ _}   ()
+subst-set {t = Quot _ _}              ()
+subst-set {t = class _}               ()
+subst-set {t = resp _ _ _ _ _}        ()
+subst-set {t = qrec _ _ _ _ _}        ()
+
+-- Inversion for qrec.
+
+wk-qrec :
+  wk ρ t ≡ qrec A u₁ u₂ u₃ u₄ →
+  ∃₅ λ A′ u₁′ u₂′ u₃′ u₄′ →
+    t ≡ qrec A′ u₁′ u₂′ u₃′ u₄′ ×
+    wk (lift ρ) A′ ≡ A × wk (lift ρ) u₁′ ≡ u₁ ×
+    wk (liftn ρ 3) u₂′ ≡ u₂ × wk (liftn ρ 5) u₃′ ≡ u₃ × wk ρ u₄′ ≡ u₄
+wk-qrec {t = qrec _ _ _ _ _} refl =
+  _ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl
+wk-qrec {t = var _}                 ()
+wk-qrec {t = defn _}                ()
+wk-qrec {t = U _}                   ()
+wk-qrec {t = Level}                 ()
+wk-qrec {t = zeroᵘ}                 ()
+wk-qrec {t = sucᵘ _}                ()
+wk-qrec {t = _ supᵘ _}              ()
+wk-qrec {t = Lift _ _}              ()
+wk-qrec {t = lift _}                ()
+wk-qrec {t = lower _}               ()
+wk-qrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+wk-qrec {t = lam _ _}               ()
+wk-qrec {t = _ ∘⟨ _ ⟩ _}            ()
+wk-qrec {t = prod _ _ _ _}          ()
+wk-qrec {t = fst _ _}               ()
+wk-qrec {t = snd _ _}               ()
+wk-qrec {t = prodrec _ _ _ _ _ _}   ()
+wk-qrec {t = Empty}                 ()
+wk-qrec {t = emptyrec _ _ _}        ()
+wk-qrec {t = Unit _}                ()
+wk-qrec {t = star _}                ()
+wk-qrec {t = unitrec _ _ _ _ _}     ()
+wk-qrec {t = ℕ}                     ()
+wk-qrec {t = zero}                  ()
+wk-qrec {t = suc _}                 ()
+wk-qrec {t = natrec _ _ _ _ _ _ _}  ()
+wk-qrec {t = Id _ _ _}              ()
+wk-qrec {t = rfl}                   ()
+wk-qrec {t = J _ _ _ _ _ _ _ _}     ()
+wk-qrec {t = K _ _ _ _ _ _}         ()
+wk-qrec {t = []-cong _ _ _ _ _ _}   ()
+wk-qrec {t = Quot _ _}              ()
+wk-qrec {t = class _}               ()
+wk-qrec {t = resp _ _ _ _ _}        ()
+wk-qrec {t = set _ _ _ _ _ _}       ()
+
+subst-qrec :
+  t [ σ ] ≡ qrec A u₁ u₂ u₃ u₄ →
+  (∃ λ x → t ≡ var x) ⊎
+  ∃₅ λ A′ u₁′ u₂′ u₃′ u₄′ →
+    t ≡ qrec A′ u₁′ u₂′ u₃′ u₄′ ×
+    A′ [ σ ⇑ ] ≡ A × u₁′ [ σ ⇑ ] ≡ u₁ × u₂′ [ σ ⇑[ 3 ] ] ≡ u₂ ×
+    u₃′ [ σ ⇑[ 5 ] ] ≡ u₃ × u₄′ [ σ ] ≡ u₄
+subst-qrec {t = var _} _ =
+  inj₁ (_ , refl)
+subst-qrec {t = qrec _ _ _ _ _} refl =
+  inj₂ (_ , _ , _ , _ , _ , refl , refl , refl , refl , refl , refl)
+subst-qrec {t = defn _}                ()
+subst-qrec {t = U _}                   ()
+subst-qrec {t = Level}                 ()
+subst-qrec {t = zeroᵘ}                 ()
+subst-qrec {t = sucᵘ _}                ()
+subst-qrec {t = _ supᵘ _}              ()
+subst-qrec {t = Lift _ _}              ()
+subst-qrec {t = lift _}                ()
+subst-qrec {t = lower _}               ()
+subst-qrec {t = ΠΣ⟨ _ ⟩ _ , _ ▷ _ ▹ _} ()
+subst-qrec {t = lam _ _}               ()
+subst-qrec {t = _ ∘⟨ _ ⟩ _}            ()
+subst-qrec {t = prod _ _ _ _}          ()
+subst-qrec {t = fst _ _}               ()
+subst-qrec {t = snd _ _}               ()
+subst-qrec {t = prodrec _ _ _ _ _ _}   ()
+subst-qrec {t = Empty}                 ()
+subst-qrec {t = emptyrec _ _ _}        ()
+subst-qrec {t = Unit _}                ()
+subst-qrec {t = star _}                ()
+subst-qrec {t = unitrec _ _ _ _ _}     ()
+subst-qrec {t = ℕ}                     ()
+subst-qrec {t = zero}                  ()
+subst-qrec {t = suc _}                 ()
+subst-qrec {t = natrec _ _ _ _ _ _ _}  ()
+subst-qrec {t = Id _ _ _}              ()
+subst-qrec {t = rfl}                   ()
+subst-qrec {t = J _ _ _ _ _ _ _ _}     ()
+subst-qrec {t = K _ _ _ _ _ _}         ()
+subst-qrec {t = []-cong _ _ _ _ _ _}   ()
+subst-qrec {t = Quot _ _}              ()
+subst-qrec {t = class _}               ()
+subst-qrec {t = resp _ _ _ _ _}        ()
+subst-qrec {t = set _ _ _ _ _ _}       ()

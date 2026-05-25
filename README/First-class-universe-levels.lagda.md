@@ -19,7 +19,7 @@ code:
 * The definition of reducibility for neutral types no longer requires
   the types to be atomic neutral.
 
-* Top-level definitions have been added.
+* Quotient types and top-level definitions have been added.
 
 ## Pointers to code for specific definitions, theorems etc. in the paper
 

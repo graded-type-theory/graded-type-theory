@@ -17,6 +17,7 @@ open import Definition.Typed R
 open import Definition.Typed.Inversion.Primitive R
 open import Definition.Typed.Properties.Admissible.Equality R
 import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
+open import Definition.Typed.Properties.Admissible.Identity.Primitive R
 open import Definition.Typed.Properties.Admissible.Level.Primitive R
 open import Definition.Typed.Properties.Well-formed R
 open import Definition.Typed.Reasoning.Term.Primitive R
@@ -26,6 +27,7 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
@@ -37,13 +39,13 @@ open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
 private variable
-  Γ                               : Cons _ _
-  A A′ B B′ C t t′ u u′ v v₁ v₂ w : Term _
-  l                               : Lvl _
-  V                               : Set ℓ
-  n α                             : Nat
-  s                               : Strength
-  p p′ q r                        : M
+  Γ                                                 : Cons _ _
+  A A′ A₁ A₂ B B′ C t t′ t₁ t₂ t₃ t₄ u u′ v v₁ v₂ w : Term _
+  l                                                 : Lvl _
+  V                                                 : Set ℓ
+  n α                                               : Nat
+  s                                                 : Strength
+  p p′ q r                                          : M
 
 ------------------------------------------------------------------------
 -- Inversion lemmas related to _⊢_⇒_∷_
@@ -197,6 +199,40 @@ opaque
   inv-⇒-[]-cong ([]-cong-β _ t≡t′ _) =
     inj₂ (PE.refl , PE.refl , t≡t′)
 
+  -- An inversion lemma related to resp.
+
+  inv-⇒-resp :
+    Γ ⊢ resp A B t u v ⇒ w ∷ C →
+    w PE.≡ rfl
+  inv-⇒-resp (conv d _) =
+    inv-⇒-resp d
+  inv-⇒-resp (resp-η _ _ _ _ _) =
+    PE.refl
+
+  -- An inversion lemma related to set.
+
+  inv-⇒-set :
+    Γ ⊢ set A₁ A₂ t₁ t₂ t₃ t₄ ⇒ u ∷ B →
+    u PE.≡ rfl
+  inv-⇒-set (conv d _) =
+    inv-⇒-set d
+  inv-⇒-set (set-η _ _ _ _ _) =
+    PE.refl
+
+  -- An inversion lemma related to qrec.
+
+  inv-⇒-qrec :
+    Γ ⊢ qrec A t₁ t₂ t₃ t₄ ⇒ u ∷ B →
+    (∃₃ λ A₁ A₂ t₄′ →
+       Γ ⊢ t₄ ⇒ t₄′ ∷ Quot A₁ A₂ × u PE.≡ qrec A t₁ t₂ t₃ t₄′) ⊎
+    (∃ λ t₄′ → t₄ PE.≡ class t₄′ × u PE.≡ t₁ [ t₄′ ]₀)
+  inv-⇒-qrec (conv d _) =
+    inv-⇒-qrec d
+  inv-⇒-qrec (qrec-subst _ _ _ _ d) =
+    inj₁ (_ , _ , _ , d , PE.refl)
+  inv-⇒-qrec (qrec-β _ _ _ _ _) =
+    inj₂ (_ , PE.refl , PE.refl)
+
   -- An inversion lemma related to sucᵘ.
 
   ¬sucᵘ⇒ : ¬ Γ ⊢ sucᵘ t ⇒ u ∷ A
@@ -206,6 +242,7 @@ opaque
 -- The reduction relations are contained in the equality relations
 
 opaque
+  unfolding Quot-rel-Con Resp-Con
 
   -- The reduction relation _⊢_⇒_∷_ is contained in the conversion
   -- relation _⊢_≡_∷_.
@@ -276,6 +313,19 @@ opaque
     unitrec-β A u ok
   subsetTerm (unitrec-β-η A t u ok) =
     unitrec-β-η A t u ok
+  subsetTerm (resp-η ok ⊢Q ⊢t ⊢u ⊢v) =
+    let ⊢resp = resp ⊢Q ⊢t ⊢u ⊢v in
+    uip-with-equality-reflection-≡ ok ⊢resp
+      (rflⱼ′ (equality-reflection′ ok ⊢resp))
+  subsetTerm (set-η ok ⊢t ⊢u ⊢v ⊢w) =
+    let ⊢set = set (wf-⊢ ⊢t) ⊢t ⊢u ⊢v ⊢w in
+    uip-with-equality-reflection-≡ ok ⊢set
+      (rflⱼ′ (equality-reflection′ ok ⊢set))
+  subsetTerm (qrec-subst ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) =
+    let _ , (⊢A , _) , _ , (⊢B , _) = ∙∙∙⊢→⊢-<ˢ ⊢u in
+    qrec-cong (refl ⊢C) (refl ⊢t) (refl ⊢u) (refl ⊢v) (subsetTerm w₁⇒w₂)
+  subsetTerm (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w
 
 opaque
 
@@ -455,6 +505,16 @@ opaque
     (unitrec-subst _ _ d _) → neRedTerm d ∘→ proj₂ ∘→ inv-ne-unitrec
     (unitrec-β _ _ _)       → (λ ()) ∘→ proj₂ ∘→ inv-ne-unitrec
     (unitrec-β-η _ _ _ ok)  → (_$ ok) ∘→ proj₁ ∘→ inv-ne-unitrec
+    (resp-η ok _ _ _ _)     → (_$ ok) ∘→ proj₂ ∘→
+                              Higher-quotient-constructors-neutral⇔
+                                .proj₁ ∘→
+                              inv-ne-resp
+    (set-η ok _ _ _ _)      → (_$ ok) ∘→ proj₂ ∘→
+                              Higher-quotient-constructors-neutral⇔
+                                .proj₁ ∘→
+                              inv-ne-set
+    (qrec-subst _ _ _ _ d)  → neRedTerm d ∘→ inv-ne-qrec
+    (qrec-β _ _ _ _ _)      → (λ ()) ∘→ inv-ne-qrec
 
 opaque
 
@@ -505,6 +565,16 @@ opaque
                                inv-whnf-unitrec
     (unitrec-β _ _ _)        → (λ ()) ∘→ proj₂ ∘→ inv-whnf-unitrec
     (unitrec-β-η _ _ _ ok)   → (_$ ok) ∘→ proj₁ ∘→ inv-whnf-unitrec
+    (resp-η ok _ _ _ _)      → (_$ ok) ∘→ proj₂ ∘→
+                               Higher-quotient-constructors-neutral⇔
+                                 .proj₁ ∘→
+                               inv-whnf-resp
+    (set-η ok _ _ _ _)       → (_$ ok) ∘→ proj₂ ∘→
+                               Higher-quotient-constructors-neutral⇔
+                                 .proj₁ ∘→
+                               inv-whnf-set
+    (qrec-subst _ _ _ _ d)   → neRedTerm d ∘→ inv-whnf-qrec
+    (qrec-β _ _ _ _ _)       → (λ ()) ∘→ inv-whnf-qrec
 
 opaque
 
@@ -679,6 +749,20 @@ opaque
       case inv-⇒-[]-cong d′ of λ where
         (inj₁ (_ , d′ , _))      → ⊥-elim (whnfRedTerm d′ rflₙ)
         (inj₂ (_ , PE.refl , _)) → PE.refl
+    (resp-η _ _ _ _ _) d′ →
+      PE.sym (inv-⇒-resp d′)
+    (set-η _ _ _ _ _) d′ →
+      PE.sym (inv-⇒-set d′)
+    (qrec-subst _ _ _ _ d) d′ →
+      case inv-⇒-qrec d′ of λ where
+        (inj₁ (_ , _ , _ , d′ , PE.refl)) →
+          PE.cong (qrec _ _ _ _) (whrDetTerm d d′)
+        (inj₂ (_ , PE.refl , _)) →
+          ⊥-elim (whnfRedTerm d class)
+    (qrec-β _ _ _ _ _) d′ →
+      case inv-⇒-qrec d′ of λ where
+        (inj₁ (_ , _ , _ , d′ , _))    → ⊥-elim (whnfRedTerm d′ class)
+        (inj₂ (_ , PE.refl , PE.refl)) → PE.refl
 
 opaque
 

@@ -23,6 +23,7 @@ import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R using (eqRelInstance)
@@ -32,6 +33,7 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Reasoning.Type R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Level R
@@ -646,6 +648,105 @@ private opaque
 
   -- A lemma used below.
 
+  dec~↑-resp-cong :
+    Higher-quotient-constructors-neutral →
+    Dec
+      ((Γ ⊢ A₁ [conv↑] A₂) ×
+       (Quot-rel-Cons Γ A₁ ⊢ B₁ [conv↑] B₂) ×
+       Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ ×
+       Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ ×
+       Γ ⊢ v₁ [conv↑] v₂ ∷ B₁ [ t₁ , u₁ ]₁₀) →
+    Dec (∃ λ C → Γ ⊢ resp A₁ B₁ t₁ u₁ v₁ ~ resp A₂ B₂ t₂ u₂ v₂ ↑ C)
+  dec~↑-resp-cong ok (yes (A₁≡A₂ , B₁≡B₂ , t₁≡t₂ , u₁≡u₂ , v₁≡v₂)) =
+    yes (_ , resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂)
+  dec~↑-resp-cong _ (no not-all-equal) = no λ (_ , resp~resp) →
+    case inv-resp~ resp~resp of λ {
+      (_ , _ , _ , _ , _ , _ , PE.refl , _ , all-equal) →
+    not-all-equal all-equal }
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-set-cong :
+    Higher-quotient-constructors-neutral →
+    Dec
+      ((Γ ⊢ A₁ [conv↑] A₂) ×
+       (Quot-rel-Cons Γ A₁ ⊢ B₁ [conv↑] B₂) ×
+       Γ ⊢ t₁ [conv↑] t₂ ∷ Quot A₁ B₁ ×
+       Γ ⊢ u₁ [conv↑] u₂ ∷ Quot A₁ B₁ ×
+       Γ ⊢ v₁ [conv↑] v₂ ∷ Id (Quot A₁ B₁) t₁ u₁ ×
+       Γ ⊢ w₁ [conv↑] w₂ ∷ Id (Quot A₁ B₁) t₁ u₁) →
+    Dec (∃ λ C → Γ ⊢ set A₁ B₁ t₁ u₁ v₁ w₁ ~ set A₂ B₂ t₂ u₂ v₂ w₂ ↑ C)
+  dec~↑-set-cong
+    ok (yes (A₁≡A₂ , B₁≡B₂ , t₁≡t₂ , u₁≡u₂ , v₁≡v₂ , w₁≡w₂)) =
+    yes (_ , set-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂)
+  dec~↑-set-cong _ (no not-all-equal) = no λ (_ , set~set) →
+    case inv-set~ set~set of λ {
+      (_ , _ , _ , _ , _ , _ , _ , PE.refl , _ , all-equal) →
+    not-all-equal all-equal }
+
+private opaque
+
+  -- A lemma used below.
+
+  dec~↑-qrec-cong :
+    Γ ⊢ w₁ ∷ Quot A B →
+    Dec
+      ((∃ λ D → Γ ⊢ w₁ ~ w₂ ↓ D) ×
+       (Γ »∙ Quot A B ⊢ C₁ [conv↑] C₂) ×
+       Γ »∙ A ⊢ t₁ [conv↑] t₂ ∷ C₁ [ class (var x0) ]↑ ×
+       Resp-Cons Γ A B ⊢ u₁ [conv↑] u₂ ∷ Resp-type A B C₁ t₁ ×
+       Is-set-Cons Γ A B C₁ ⊢ v₁ [conv↑] v₂ ∷ Is-set-type C₁) →
+    Dec (∃ λ D → Γ ⊢ qrec C₁ t₁ u₁ v₁ w₁ ~ qrec C₂ t₂ u₂ v₂ w₂ ↑ D)
+  dec~↑-qrec-cong
+    ⊢w₁ (yes ((_ , w₁~w₂) , C₁≡C₂ , t₁≡t₂ , u₁≡u₂ , v₁≡v₂)) =
+    let D-whnf , w₁-ne , _ = ne~↓ w₁~w₂
+        Q≡D                = neTypeEq (ne⁻ w₁-ne) ⊢w₁ (~↓→∷ w₁~w₂)
+    in
+    case Quot≡Whnf Q≡D D-whnf of λ {
+      (_ , _ , PE.refl) →
+    let A≡ , B≡     = Quot-injectivity-no-equality-reflection Q≡D
+        Γ≡Γ         = reflConEq (wf A≡)
+        ⊢C₁ , _     = wf-⊢ (soundnessConv↑ C₁≡C₂)
+        _ , ⊢t₁ , _ = wf-⊢ (soundnessConv↑Term t₁≡t₂)
+    in
+    yes
+      (_ ,
+       qrec-cong
+         (stabilityConv↑ (refl-∙ Q≡D) C₁≡C₂)
+         (stabilityConv↑Term (refl-∙ A≡) t₁≡t₂)
+         (stabilityConv↑Term (Resp-Con-cong Γ≡Γ A≡ B≡)
+            (convConv↑Term (Resp-type-cong A≡ B≡ (refl ⊢C₁) (refl ⊢t₁))
+               u₁≡u₂))
+         (stabilityConv↑Term (Is-set-Con-cong Γ≡Γ A≡ B≡ (refl ⊢C₁))
+            v₁≡v₂)
+         w₁~w₂) }
+  dec~↑-qrec-cong ⊢w₁ (no not-all-OK) = no λ (_ , qrec~qrec) →
+    case inv-qrec~ qrec~qrec of λ {
+      (_ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+       C₁≡C₂ , t₁≡t₂ , u₁≡u₂ , v₁≡v₂ , w₁~w₂) →
+    let _ , w₁-ne , _ = ne~↓ w₁~w₂
+        ≡Q            = neTypeEq (ne⁻ w₁-ne) (~↓→∷ w₁~w₂) ⊢w₁
+        ≡A , ≡B       = Quot-injectivity-no-equality-reflection ≡Q
+        Γ≡Γ           = reflConEq (wf ≡A)
+        ⊢C₁ , _       = wf-⊢ (soundnessConv↑ C₁≡C₂)
+        _ , ⊢t₁ , _   = wf-⊢ (soundnessConv↑Term t₁≡t₂)
+    in
+    not-all-OK
+      ( (_ , w₁~w₂)
+      , stabilityConv↑ (refl-∙ ≡Q) C₁≡C₂
+      , stabilityConv↑Term (refl-∙ ≡A) t₁≡t₂
+      , stabilityConv↑Term (Resp-Con-cong Γ≡Γ ≡A ≡B)
+          (convConv↑Term (Resp-type-cong ≡A ≡B (refl ⊢C₁) (refl ⊢t₁))
+             u₁≡u₂)
+      , stabilityConv↑Term (Is-set-Con-cong Γ≡Γ ≡A ≡B (refl ⊢C₁)) v₁≡v₂
+      ) }
+
+private opaque
+
+  -- A lemma used below.
+
   decConv↓-ΠΣ :
     ΠΣ-allowed b₁ p₁ q₁ →
     Dec
@@ -707,10 +808,29 @@ private opaque
     in
     A₁≢A₂ (PE.subst (_⊢_[conv↑]_ _ _) ≡A₂ A₁≡)
 
+private opaque
+
+  -- A lemma used below.
+
+  decConv↓-Quot :
+    Quot-allowed →
+    Dec
+      (Γ ⊢ A₁ [conv↑] A₂ ×
+       Quot-rel-Cons Γ A₁ ⊢ B₁ [conv↑] B₂) →
+    Dec (Γ ⊢ Quot A₁ B₁ [conv↓] Quot A₂ B₂)
+  decConv↓-Quot ok (yes (A₁≡A₂ , B₁≡B₂)) =
+    yes (Quot-cong ok A₁≡A₂ B₁≡B₂)
+  decConv↓-Quot ok (no not-all-equal) = no λ Q≡Q →
+    case inv-[conv↓]-Quot Q≡Q of λ {
+      (_ , _ , PE.refl , _ , all-equal) →
+    not-all-equal all-equal }
+
 ------------------------------------------------------------------------
 -- Public definitions
 
-mutual
+opaque
+ unfolding Quot-rel-Con
+ mutual
   -- Decidability of algorithmic equality of neutral terms.
   dec~↑ : ∀ {k l R T k′ l′}
         → Γ ⊢ k ~ k′ ↑ R → Γ ⊢ l ~ l′ ↑ T
@@ -848,6 +968,103 @@ mutual
         no λ (_ , t~u) →
         let _ , _ , _ , _ , _ , _ , _ , u≡bc , _ = inv-[]-cong~ t~u in
         u≢bc (_ , _ , _ , _ , _ , _ , u≡bc)
+  dec~↑ (resp-cong ok A₁≡ B₁≡ t₁≡ u₁≡ v₁≡) u~
+    with inv-~-resp u~
+  … | inj₂ (u≢resp , _) = no λ (_ , t~u) →
+    let _ , _ , _ , _ , _ , _ , u≡resp , _ = inv-resp~ t~u in
+    u≢resp (_ , _ , _ , _ , _ , u≡resp)
+  … | inj₁
+        (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl , _ ,
+         ok , A₂≡ , B₂≡ , t₂≡ , u₂≡ , v₂≡) =
+    dec~↑-resp-cong ok
+      (decConv↑ A₁≡ A₂≡ ×-dec′ λ A₁≡A₂ →
+       let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+       decConv↑ B₁≡
+         (stabilityConv↑
+            (Quot-rel-Con-cong (reflConEq (wf A₁≡A₂)) (sym A₁≡A₂))
+            B₂≡) ×-dec′ λ B₁≡B₂ →
+       decConv↑TermConv A₁≡A₂ t₁≡ t₂≡ ×-dec′ λ t₁≡t₂ →
+       decConv↑TermConv A₁≡A₂ u₁≡ u₂≡ ×-dec′ λ u₁≡u₂ →
+       let B₁≡B₂ = soundnessConv↑ B₁≡B₂
+           t₁≡t₂ = soundnessConv↑Term t₁≡t₂
+           u₁≡u₂ = soundnessConv↑Term u₁≡u₂
+       in
+       decConv↑TermConv
+         (subst-⊢≡₁₀ B₁≡B₂ t₁≡t₂ $
+          PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (wk1-sgSubst _ _)) u₁≡u₂)
+         v₁≡ v₂≡)
+  dec~↑ (set-cong ok A₁≡ B₁≡ t₁≡ u₁≡ v₁≡ w₁≡) u~
+    with inv-~-set u~
+  … | inj₂ (u≢set , _) = no λ (_ , t~u) →
+    let _ , _ , _ , _ , _ , _ , _ , u≡set , _ = inv-set~ t~u in
+    u≢set (_ , _ , _ , _ , _ , _ , u≡set)
+  … | inj₁
+        (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+         PE.refl , PE.refl , _ ,
+         ok , A₂≡ , B₂≡ , t₂≡ , u₂≡ , v₂≡ , w₂≡) =
+    let ok′ , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok in
+    dec~↑-set-cong ok
+      (decConv↑ A₁≡ A₂≡ ×-dec′ λ A₁≡A₂ →
+       let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+       decConv↑ B₁≡
+         (stabilityConv↑
+            (Quot-rel-Con-cong (reflConEq (wf A₁≡A₂)) (sym A₁≡A₂))
+            B₂≡) ×-dec′ λ B₁≡B₂ →
+       let B₁≡B₂ = soundnessConv↑ B₁≡B₂
+           Q≡Q   = Quot-cong ok′ A₁≡A₂ B₁≡B₂
+       in
+       decConv↑TermConv Q≡Q t₁≡ t₂≡ ×-dec′ λ t₁≡t₂ →
+       decConv↑TermConv Q≡Q u₁≡ u₂≡ ×-dec′ λ u₁≡u₂ →
+       let t₁≡t₂ = soundnessConv↑Term t₁≡t₂
+           u₁≡u₂ = soundnessConv↑Term u₁≡u₂
+           Id≡Id = Id-cong Q≡Q t₁≡t₂ u₁≡u₂
+       in
+       decConv↑TermConv Id≡Id v₁≡ v₂≡ ×-dec
+       decConv↑TermConv Id≡Id w₁≡ w₂≡)
+  dec~↑ (qrec-cong C₁≡ t₁≡ u₁≡ v₁≡ w₁~) u~
+    with inv-~-qrec u~
+  … | inj₂ (u≢qrec , _) = no λ (_ , t~u) →
+    let _ , _ , _ , _ , _ , _ , _ , _ , u≡qrec , _ = inv-qrec~ t~u in
+    u≢qrec (_ , _ , _ , _ , _ , u≡qrec)
+  … | inj₁
+        (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+         PE.refl , PE.refl , _ , C₂≡ , t₂≡ , u₂≡ , v₂≡ , w₂~) =
+    dec~↑-qrec-cong (~↓→∷ w₁~)
+      (dec~↓ w₁~ w₂~ ×-dec′ λ (_ , w₁~w₂) →
+       let _ , w₁-ne , w₂-ne = ne~↓ w₁~w₂
+           _ , ⊢w₁ , _       = wf-⊢ (soundness~↓ w₁~)
+           _ , ⊢w₂ , _       = wf-⊢ (soundness~↓ w₂~)
+           _ , ⊢w₁′ , ⊢w₂′   = wf-⊢ (soundness~↓ w₁~w₂)
+           Q≡Q               = _⊢_≡_.trans
+                                 (neTypeEq (ne⁻ w₁-ne) ⊢w₁ ⊢w₁′)
+                                 (neTypeEq (ne⁻ w₂-ne) ⊢w₂′ ⊢w₂)
+           ⊢Q , _            = wf-⊢ Q≡Q
+           _ , ⊢A , _        = inversion-Quot ⊢Q
+           A≡A , B≡B         = Quot-injectivity-no-equality-reflection
+                                 Q≡Q
+           Γ≡Γ               = reflConEq (wf ⊢Q)
+       in
+       decConv↑ C₁≡ (stabilityConv↑ (refl-∙ (sym Q≡Q)) C₂≡)
+         ×-dec′ λ C₁≡C₂ →
+       let C₁≡C₂ = soundnessConv↑ C₁≡C₂ in
+       decConv↑Term t₁≡
+         (convConv↑Term
+            (sym $
+             subst-⊢ C₁≡C₂ (⊢ˢʷ∷-[][]↑ (class (wk₁ ⊢A ⊢Q) (var₀ ⊢A))))
+            (stabilityConv↑Term (refl-∙ (sym A≡A)) t₂≡))
+         ×-dec′ λ t₁≡t₂ →
+       let t₁≡t₂ = soundnessConv↑Term t₁≡t₂ in
+       decConv↑Term u₁≡
+         (convConv↑Term (sym (Resp-type-cong A≡A B≡B C₁≡C₂ t₁≡t₂)) $
+          stabilityConv↑Term
+            (symConEq (Resp-Con-cong Γ≡Γ A≡A B≡B))
+            u₂≡)
+         ×-dec
+       decConv↑Term v₁≡
+         (convConv↑Term (sym (Is-set-type-cong C₁≡C₂)) $
+          stabilityConv↑Term
+            (symConEq (Is-set-Con-cong Γ≡Γ A≡A B≡B C₁≡C₂))
+            v₂≡))
 
   dec~↑′ : ∀ {k l R T}
         → ∇ »⊢ Δ ≡ Η
@@ -993,6 +1210,19 @@ mutual
         no λ Id≡B →
         let _ , _ , _ , B≡Id , _ = inv-[conv↓]-Id Id≡B in
         B≢Id (_ , _ , _ , B≡Id)
+  decConv↓ (Quot-cong ok A₁≡ B₁≡) B≡
+    with inv-[conv↓]-Quot′ B≡
+  … | inj₂ (B≢Quot , _) = no λ Quot≡B →
+    let _ , _ , B≡Quot , _ = inv-[conv↓]-Quot Quot≡B in
+    B≢Quot (_ , _ , B≡Quot)
+  … | inj₁ (_ , _ , _ , _ , PE.refl , PE.refl , ok , A₂≡ , B₂≡) =
+    decConv↓-Quot ok
+      (decConv↑ A₁≡ A₂≡ ×-dec′ λ A₁≡A₂ →
+       let A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+       decConv↑ B₁≡
+         (stabilityConv↑
+            (Quot-rel-Con-cong (reflConEq (wf A₁≡A₂)) (sym A₁≡A₂))
+            B₂≡))
 
   -- Decidability of algorithmic equality of terms.
   decConv↑Term : ∀ {t u A t′ u′}
@@ -1252,6 +1482,44 @@ mutual
           (inj₁ (_ , _ , _ , rfl~u)) → ne~↓ rfl~u .proj₂ .proj₁
           (inj₂ (_ , PE.refl , _))   → ne~↓ u~ .proj₂ .proj₁
       (inj₂ (PE.refl , _)) → yes rfl≡rfl
+  decConv↓Term (Quot-ins ⊢t t~) u≡
+    with inv-[conv↓]∷-Quot u≡
+  … | inj₂ (_ , _ , PE.refl , PE.refl , _ , u≡) = no λ t≡class →
+    case inv-[conv↓]∷-Quot t≡class of λ where
+      (inj₁ (_ , _ , t~class)) →
+        ¬-Neutral-class (ne⁻ (ne~↓ t~class .proj₂ .proj₂))
+      (inj₂ (_ , _ , PE.refl , _)) →
+        ¬-Neutral-class (ne⁻ (ne~↓ t~ .proj₂ .proj₁))
+  … | inj₁ (_ , _ , u~)
+    with dec~↓ t~ u~
+  … | yes (_ , t~u) =
+    yes $ Quot-ins ⊢t $
+    PE.subst (_⊢_~_↓_ _ _ _)
+      (uncurry Quot≡Whnf (~↓→∷→Whnf×≡ t~u (~↓→∷ t~)) .proj₂ .proj₂)
+      t~u
+  … | no ¬t~u = no λ t≡u →
+    case inv-[conv↓]∷-Quot t≡u of λ where
+      (inj₁ (_ , _ , t~u))             → ¬t~u (_ , t~u)
+      (inj₂ (_ , _ , _ , PE.refl , _)) →
+        let [~] _ _ class~ = u~ in
+        inv-class~ class~
+  decConv↓Term (class-cong ⊢Q t≡) u≡
+    with inv-[conv↓]∷-Quot u≡
+  … | inj₁ (_ , _ , u~) = no λ class≡u →
+    case inv-[conv↓]∷-Quot class≡u of λ where
+      (inj₁ (_ , _ , class~u)) →
+        ¬-Neutral-class (ne⁻ (ne~↓ class~u .proj₂ .proj₁))
+      (inj₂ (_ , _ , _ , PE.refl , _)) →
+        ¬-Neutral-class (ne⁻ (ne~↓ u~ .proj₂ .proj₁))
+  … | inj₂ (_ , _ , PE.refl , PE.refl , _ , u≡)
+    with decConv↑Term t≡ u≡
+  … | yes t≡u = yes (class-cong ⊢Q t≡u)
+  … | no t≢u  = no λ class≡class →
+    case inv-[conv↓]∷-Quot class≡class of λ where
+      (inj₁ (_ , _ , [~] _ _ class~class)) →
+        inv-class~ class~class
+      (inj₂ (_ , _ , PE.refl , PE.refl , _ , t≡u)) →
+        t≢u t≡u
 
   -- Decidability of algorithmic equality of terms of equal types.
   decConv↑TermConv : ∀ {t u A B t′ u′}

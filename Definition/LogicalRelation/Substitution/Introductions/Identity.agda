@@ -477,12 +477,8 @@ opaque
            t≡u
          (_ , _ , _ , _ , ne n _) →
            ⊥-elim $
-           case dichotomy-ne (ne⁻ n) of λ where
-             (inj₁ n) →
-               let op = ne-opaque-ok (defn-wf (wf (escape-⊩∷ ⊩v))) n in
-               no-opaque-equality-reflection op ok
-             (inj₂ inc) →
-               Equality-reflection-allowed→¬Var-included ok inc) ,
+           Equality-reflection→¬Neutral-Var-included
+             (defn-wf (wf (escape-⊩∷ ⊩v))) ok (ne⁻ n)) ,
     (λ t≡u →
        let ⊩t , ⊩u = wf-⊩≡∷ t≡u in
        rfl ,

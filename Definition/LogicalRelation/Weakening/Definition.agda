@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------
--- Weakening of the definition context for the logical relation
+-- Some lemmas related to weakening of the definition context
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation

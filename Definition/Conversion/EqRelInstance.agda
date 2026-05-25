@@ -19,6 +19,7 @@ open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R
@@ -69,7 +70,7 @@ private
     ∇ ∇′ : DCon (Term 0) κ
     Η : Con Term _
     Γ : Cons _ _
-    A₁ A₂ B₁ B₂ t t′ t₁ t₂ u u′ u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
+    A A₁ A₂ B B₁ B₂ C₁ C₂ t t′ t₁ t₂ u u′ u₁ u₂ v v₁ v₂ w₁ w₂ : Term _
     l l′ l₁ l₂ : Lvl _
     ρ : Wk m n
     p p₁ p₂ p′ q q′ q₁ q₂ r r′ : M
@@ -313,6 +314,76 @@ module Lemmas where
            (trans (sym (subset* B⇒*Id-t₃-u₃)) (sym Id-t₁-u₁≡B))
            ok)
 
+    ~-resp :
+      Quot-allowed →
+      Γ ⊢ A₁ [conv↑] A₂ →
+      Quot-rel-Cons Γ A₁ ⊢ B₁ [conv↑] B₂ →
+      Γ ⊢ t₁ [conv↑] t₂ ∷ A₁ →
+      Γ ⊢ u₁ [conv↑] u₂ ∷ A₁ →
+      Γ ⊢ v₁ [conv↑] v₂ ∷ B₁ [ t₁ , u₁ ]₁₀ →
+      Γ ⊢ resp A₁ B₁ t₁ u₁ v₁ ~ resp A₂ B₂ t₂ u₂ v₂ ∷
+        Id (Quot A₁ B₁) (class t₁) (class u₁)
+    ~-resp ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ =
+      let ⊢B₁ , _     = wf-⊢ (soundnessConv↑ B₁≡B₂)
+          ⊢Q₁         = Quot ok ⊢B₁
+          _ , ⊢t₁ , _ = wf-⊢ (soundnessConv↑Term t₁≡t₂)
+          _ , ⊢u₁ , _ = wf-⊢ (soundnessConv↑Term u₁≡u₂)
+      in
+      ↑ (refl (Idⱼ′ (class ⊢Q₁ ⊢t₁) (class ⊢Q₁ ⊢u₁)))
+        (resp-cong
+           (Higher-quotient-constructors-neutral⇔ .proj₂
+              (ok ,
+               No-equality-reflection⇔ .proj₁ no-equality-reflection))
+           A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂)
+
+    ~-set :
+      Γ ⊢ A₁ [conv↑] A₂ →
+      Quot-rel-Cons Γ A₁ ⊢ B₁ [conv↑] B₂ →
+      Γ ⊢ t₁ [conv↑] t₂ ∷ Quot A₁ B₁ →
+      Γ ⊢ u₁ [conv↑] u₂ ∷ Quot A₁ B₁ →
+      Γ ⊢ v₁ [conv↑] v₂ ∷ Id (Quot A₁ B₁) t₁ u₁ →
+      Γ ⊢ w₁ [conv↑] w₂ ∷ Id (Quot A₁ B₁) t₁ u₁ →
+      Γ ⊢ set A₁ B₁ t₁ u₁ v₁ w₁ ~ set A₂ B₂ t₂ u₂ v₂ w₂ ∷
+        Id (Id (Quot A₁ B₁) t₁ u₁) v₁ w₁
+    ~-set A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
+      let ⊢Q , _      = wf-⊢ (soundnessConv↑Term t₁≡t₂)
+          ok , _      = inversion-Quot ⊢Q
+          _ , ⊢v₁ , _ = wf-⊢ (soundnessConv↑Term v₁≡v₂)
+          _ , ⊢w₁ , _ = wf-⊢ (soundnessConv↑Term w₁≡w₂)
+      in
+      ↑ (refl (Idⱼ′ ⊢v₁ ⊢w₁))
+        (set-cong
+           (Higher-quotient-constructors-neutral⇔ .proj₂
+              (ok ,
+               No-equality-reflection⇔ .proj₁ no-equality-reflection))
+           A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂)
+
+    ~-qrec :
+      Γ »∙ Quot A B ⊢ C₁ [conv↑] C₂ →
+      Γ »∙ A ⊢ t₁ [conv↑] t₂ ∷ C₁ [ class (var x0) ]↑ →
+      Resp-Cons Γ A B ⊢ u₁ [conv↑] u₂ ∷ Resp-type A B C₁ t₁ →
+      Is-set-Cons Γ A B C₁ ⊢ v₁ [conv↑] v₂ ∷ Is-set-type C₁ →
+      Γ ⊢ w₁ ~ w₂ ∷ Quot A B →
+      Γ ⊢ qrec C₁ t₁ u₁ v₁ w₁ ~ qrec C₂ t₂ u₂ v₂ w₂ ∷ C₁ [ w₁ ]₀
+    ~-qrec C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ (↑ Quot≡ w₁~w₂) =
+      let ⊢C₁ , _     = wf-⊢ (soundnessConv↑ C₁≡C₂)
+          C₁≡C₁       = refl ⊢C₁
+          _ , ⊢t₁ , _ = wf-⊢ (soundnessConv↑Term t₁≡t₂)
+          _ , ⊢w₁ , _ = wf-⊢ (soundness~↑ w₁~w₂)
+          Γ≡Γ         = reflConEq (wf ⊢w₁)
+          ok , _      = inversion-Quot (wf-⊢ Quot≡ .proj₁)
+
+          _ , _ , ⇒*Quot , A≡ , B≡ , B≡′ = Quot-norm (sym Quot≡)
+      in
+      ↑ (refl (subst-⊢₀ ⊢C₁ (conv ⊢w₁ (sym Quot≡))))
+        (qrec-cong (stabilityConv↑ (refl-∙ (Quot-cong ok A≡ B≡)) C₁≡C₂)
+           (stabilityConv↑Term (refl-∙ A≡) t₁≡t₂)
+           (stabilityConv↑Term (Resp-Con-cong Γ≡Γ A≡ B≡) $
+            convConv↑Term (Resp-type-cong A≡ B≡ C₁≡C₁ (refl ⊢t₁)) u₁≡u₂)
+           (stabilityConv↑Term (Is-set-Con-cong Γ≡Γ A≡ B≡ C₁≡C₁) $
+            convConv↑Term (Is-set-type-cong C₁≡C₁) v₁≡v₂)
+           ([~] _ (⇒*Quot , Quot) w₁~w₂))
+
   ~-sym : ∀ {k l A} → Γ ⊢ k ~ l ∷ A → Γ ⊢ l ~ k ∷ A
   ~-sym x@(↑ A≡B _) = sym~∷ (reflConEq (wf A≡B)) x
 
@@ -440,6 +511,7 @@ private opaque
       λ ok _ → No-equality-reflection⇔ .proj₁ no-equality-reflection ok
     .Equality-relations.⊢≡→⊢≅          → ⊥-elim ∘→ (_$ _)
     .Equality-relations.⊢≡∷→⊢≅∷        → ⊥-elim ∘→ (_$ _)
+    .Equality-relations.⊢≡∷→⊢~∷        → ⊥-elim ∘→ (_$ _)
     .Equality-relations.~-to-≅ₜ        → ~-to-conv
     .Equality-relations.⊢≅∷→⊢≅∷L l₁≡l₂ →
       let ok = inversion-Level-⊢
@@ -593,9 +665,29 @@ private opaque
           (Id-cong (univConv↑ A₁≡A₂) t₁≡t₂ u₁≡u₂) }}}}
     .Equality-relations.≅ₜ-rflrefl →
       liftConvTerm ∘→ rfl-refl ∘→ refl
-    .Equality-relations.~-J       → ~-J
-    .Equality-relations.~-K       → ~-K
-    .Equality-relations.~-[]-cong → ~-[]-cong
+    .Equality-relations.~-J                        → ~-J
+    .Equality-relations.~-K                        → ~-K
+    .Equality-relations.~-[]-cong                  → ~-[]-cong
+    .Equality-relations.≅-Quot-cong ok A₁≡A₂ B₁≡B₂ →
+      liftConv (Quot-cong ok A₁≡A₂ B₁≡B₂)
+    .Equality-relations.≅ₜ-Quot-cong ok A₁≡A₂ B₁≡B₂ →
+      let ⊢A₁≡A₂        = soundnessConv↑Term A₁≡A₂
+          ⊢B₁≡B₂        = soundnessConv↑Term B₁≡B₂
+          _ , ⊢A₁ , ⊢A₂ = wf-⊢ ⊢A₁≡A₂
+          _ , ⊢B₁ , ⊢B₂ = wf-⊢ ⊢B₁≡B₂
+      in
+      liftConvTerm $
+      univ (⊢Quot ok ⊢A₁ ⊢B₁)
+        (⊢Quot ok ⊢A₂
+           (stability
+              (Quot-rel-Con-cong (reflConEq (wf ⊢A₁)) (univ ⊢A₁≡A₂))
+              ⊢B₂))
+        (Quot-cong ok (univConv↑ A₁≡A₂) (univConv↑ B₁≡B₂))
+    .Equality-relations.≅-class-cong ⊢Q t₁≡t₂ →
+      liftConvTerm (class-cong ⊢Q t₁≡t₂)
+    .Equality-relations.~-resp-cong → ~-resp
+    .Equality-relations.~-set-cong  → ~-set
+    .Equality-relations.~-qrec-cong → ~-qrec
 
 -- An EqRelSet instance that uses algorithmic equality (_⊢_[conv↑]_,
 -- _⊢_[conv↑]_∷_, _⊢_[conv↑]_∷Level and _⊢_~_∷_).

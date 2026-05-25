@@ -13,14 +13,16 @@ module Definition.Typed.Weakening
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk; wk′)
 open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Erased 𝕄
+open import Definition.Untyped.Erased 𝕄 hiding ([_])
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
@@ -35,6 +37,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Size
 open import Tools.Size.Instances
 open import Tools.Sum as ⊎
@@ -130,6 +133,51 @@ opaque
   liftn∷⊇ : ρ ∷ Δ ⊇ drop k Γ → liftn ρ k ∷ Δ ∙[ k ][ Γ ][ ρ ]ʷ ⊇ Γ
   liftn∷⊇ {k = 0}                ρ∷ = ρ∷
   liftn∷⊇ {k = 1+ _} {Γ = _ ∙ _} ρ∷ = lift (liftn∷⊇ ρ∷)
+
+opaque
+  unfolding Quot-rel-Con
+
+  -- A weakening lemma related to Quot-rel-Con.
+
+  lift-Quot-rel-Con :
+    ρ ∷ Δ ⊇ Γ →
+    liftn ρ 2 ∷ Quot-rel-Con Δ (U.wk ρ A) ⊇ Quot-rel-Con Γ A
+  lift-Quot-rel-Con ρ⊇ =
+    PE.subst (flip (_∷_⊇_ _) _ ∘→ _∙_ _)
+      (PE.sym (wk1-wk≡lift-wk1 _ _)) $
+    lift (lift ρ⊇)
+
+opaque
+  unfolding Quot-rel-Con Resp-Con
+
+  -- A weakening lemma related to Resp-Con.
+
+  lift-Resp-Con :
+    ρ ∷ Δ ⊇ Γ →
+    liftn ρ 3 ∷ Resp-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) ⊇
+      Resp-Con Γ A B
+  lift-Resp-Con ρ⊇ =
+    PE.subst (flip (_∷_⊇_ _) _)
+      (PE.cong (flip _∙_ _ ∘→ _∙_ _) (wk⇑[]-wk[]≡ 1)) $
+    lift (lift (lift ρ⊇))
+
+opaque
+  unfolding Is-set-Con
+
+  -- A weakening lemma related to Is-set-Con.
+
+  lift-Is-set-Con :
+    ρ ∷ Δ ⊇ Γ →
+    liftn ρ 5 ∷
+      Is-set-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) (U.wk (lift ρ) C) ⊇
+      Is-set-Con Γ A B C
+  lift-Is-set-Con {C} ρ⊇ =
+    PE.subst (flip (_∷_⊇_ _) _)
+      (PE.cong₂ _∙_
+         (PE.cong₂ _∙_ (PE.cong (_∙_ _) (wk⇑[]-wk[]≡ 1))
+            (PE.cong₃ Id (wk⇑[]-wk[]≡ 2) PE.refl PE.refl))
+         (PE.cong₃ Id (wk⇑[]-wk[]≡ 3) PE.refl PE.refl)) $
+    lift (lift (lift (lift (lift ρ⊇))))
 
 ------------------------------------------------------------------------
 -- The type _∷ʷ_⊇_
@@ -332,7 +380,7 @@ private
         size l₁≡l₂ PE.≡ s →
         ∇ » Δ ⊢ U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
 
--- A variant of the fields of P.
+-- A variant of the fields of P, along with some lemmas.
 
 private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
@@ -360,12 +408,108 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
     wk {𝓙 = [ _ ≡ _ ∷Level]} ρ⊇ ⊢Δ ⊢𝓙 ⦃ lt ⦄ =
       P.wkEqLevel (hyp lt) ρ⊇ ⊢Δ ⊢𝓙 PE.refl
 
+  opaque
+    unfolding Quot-rel-Con
+
+    -- A derived definition.
+
+    wk-Quot-rel-Con :
+      ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
+      (⊢A : ∇ » Γ ⊢ A)
+      ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
+      ∇ »⊢ Quot-rel-Con Δ (U.wk ρ A)
+    wk-Quot-rel-Con ρ⊇ ⊢Δ ⊢A =
+      ∙_ $
+      PE.subst (_⊢_ _) (PE.sym (wk-comp _ _ _)) $
+      wk (step ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢A) ⊢A
+
+  opaque
+    unfolding Quot-rel-Con
+
+    -- A derived definition.
+
+    wk-Quot-rel-Con-⊢ :
+      ∀ {𝓙} → ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
+      (⊢𝓙 : ∇ » Quot-rel-Con Γ A ⊢[ 𝓙 ])
+      ⦃ lt : size ⊢𝓙 <ˢ s₂ ⦄ →
+      ∇ » Quot-rel-Con Δ (U.wk ρ A) ⊢[ mapJ (U.wk (liftn ρ 2)) 𝓙 ]
+    wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ ⊢𝓙 =
+      let _ , (⊢A , A<) , _ = ∙∙⊢→⊢-<ˢ ⊢𝓙 in
+      wk (lift-Quot-rel-Con ρ⊇)
+        (wk-Quot-rel-Con ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄) ⊢𝓙
+
+  opaque
+    unfolding Resp-Con
+
+    -- A derived definition.
+
+    wk-Resp-Con :
+      ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
+      (⊢B : ∇ » Quot-rel-Con Γ A ⊢ B)
+      ⦃ lt : size ⊢B <ˢ s₂ ⦄ →
+      ∇ »⊢ Resp-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B)
+    wk-Resp-Con ρ⊇ ⊢Δ ⊢B =
+      ∙ wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ ⊢B
+
+  opaque
+    unfolding Is-set-Con
+
+    -- A derived definition.
+
+    wk-Is-set-Con :
+      ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
+      (⊢C : ∇ » Γ ∙ Quot A B ⊢ C)
+      ⦃ lt : size ⊢C <ˢ s₂ ⦄ →
+      ∇ »⊢
+        Is-set-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) (U.wk (lift ρ) C)
+    wk-Is-set-Con {ρ} {Δ} {∇} {A} {B} {C} ρ⊇ ⊢Δ ⊢C =
+      ∙_ $
+      PE.subst (flip _⊢_ _)
+        (PE.cong (_»_ _) $
+         PE.cong₂ _∙_
+           (PE.cong (_∙_ _) (PE.sym (wk-comp _ _ _)))
+           (PE.cong₃ Id (PE.sym (wk-comp _ _ _)) PE.refl PE.refl)) $
+      Idⱼ
+        (PE.subst (_⊢_ _) (PE.sym (wk-comp _ _ _)) $
+         wk (step (step (step (lift ρ⊇)))) (∙ ⊢Id) ⊢C)
+        (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ (var₂ ⊢Id))
+        (PE.subst (_⊢_∷_ _ _)
+           (PE.trans (PE.cong wk[ 2 ] (PE.sym (wk-comp _ _ _)))
+            wk[]≡wk[]′)
+           (var₁ ⊢Id))
+      where
+      ⊢C′ : (∇ » Δ) »∙ U.wk ρ (Quot A B) ⊢ U.wk (lift ρ) C
+      ⊢C′ =
+        let _ , (⊢Q , Q<) = ∙⊢→⊢-<ˢ ⊢C
+            ⊢Q′           = wk ρ⊇ ⊢Δ ⊢Q ⦃ lt = <ˢ-trans Q< ! ⦄
+        in
+        wk (lift ρ⊇) (∙ ⊢Q′) ⊢C
+
+      ⊢C″ :
+        (∇ » Δ) »∙ U.wk ρ (Quot A B) »∙ U.wk (lift ρ) C ⊢
+        U.wk (step (lift ρ)) C
+      ⊢C″ = wk (step (lift ρ⊇)) (∙ ⊢C′) ⊢C
+
+      ⊢Id :
+        (∇ » Δ) »∙ U.wk ρ (Quot A B) »∙ U.wk (lift ρ) C »∙
+        U.wk (step (lift ρ)) C ⊢
+        Id (U.wk (stepn (lift ρ) 2) C) (var x1) (var x0)
+      ⊢Id =
+        Idⱼ
+          (wk (step (step (lift ρ⊇))) (∙ ⊢C″) ⊢C)
+          (PE.subst (_⊢_∷_ _ _)
+             (PE.trans (wk[]≡wk[]′ {n = 2}) (wk-comp _ _ _)) $
+           var₁ ⊢C″)
+          (PE.subst (_⊢_∷_ _ _)
+             (PE.trans (wk[]≡wk[]′ {n = 1}) (wk-comp _ _ _)) $
+           var₀ ⊢C″)
+
 -- The type P s is inhabited for every s.
 
 private module Inhabited where
 
   opaque
-    unfolding size
+    unfolding Quot-rel-Con size
 
     -- A weakening lemma for _⊢_.
 
@@ -389,6 +533,8 @@ private module Inhabited where
           ΠΣⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) ok
         (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
           Idⱼ (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u)
+        (Quot ok ⊢B) PE.refl →
+          Quot ok (wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ ⊢B)
       where
       open Variants hyp
 
@@ -549,8 +695,44 @@ private module Inhabited where
             (wk ρ⊇ ⊢Δ ⊢v) ok
         ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
           PE.subst (_⊢_∷_ _ _) (wk-Id-Erased _) $
-          []-congⱼ (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A)
-            (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u) (wk ρ⊇ ⊢Δ ⊢v) ok
+          []-congⱼ (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t)
+            (wk ρ⊇ ⊢Δ ⊢u) (wk ρ⊇ ⊢Δ ⊢v) ok
+        (Quot ok ⊢l ⊢A ⊢B) PE.refl →
+          Quot ok (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A)
+            (PE.subst (_⊢_∷_ _ _) (wk⇑[]-wk[]≡ 2) $
+             wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ ⊢B)
+        (class ⊢Q ⊢t) PE.refl →
+          class (wk ρ⊇ ⊢Δ ⊢Q) (wk ρ⊇ ⊢Δ ⊢t)
+        (resp {B} ⊢Q ⊢t ⊢u ⊢v) PE.refl →
+          resp (wk ρ⊇ ⊢Δ ⊢Q) (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u)
+            (PE.subst (_⊢_∷_ _ _) (wk-β-doubleSubst _ B _ _) $
+             wk ρ⊇ ⊢Δ ⊢v)
+        (set ⊢Q ⊢t ⊢u ⊢v ⊢w) PE.refl →
+          set (wk ρ⊇ ⊢Δ ⊢Q) (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u) (wk ρ⊇ ⊢Δ ⊢v)
+            (wk ρ⊇ ⊢Δ ⊢w)
+        ⊢q@(qrec {C} ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
+          let _ , (⊢A , A<) , (⊢B , B<) , _ , (⊢Q , Q<) =
+                inversion-Is-set-Cons ⊢v
+
+              instance
+                _ : size ⊢Q <ˢ size ⊢q
+                _ = <ˢ-trans Q< !
+
+                _ : size ⊢A <ˢ size ⊢q
+                _ = <ˢ-trans A< !
+
+                _ : size ⊢B <ˢ size ⊢q
+                _ = <ˢ-trans B< !
+          in
+          PE.subst (_⊢_∷_ _ _) (PE.sym (wk-β C)) $
+          qrec (wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢Q) ⊢C)
+            (PE.subst (_⊢_∷_ _ _) (wk-β↑ C) $
+             wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢A) ⊢t)
+            (PE.subst (_⊢_∷_ _ _) wk-Resp-type $
+             wk (lift-Resp-Con ρ⊇) (wk-Resp-Con ρ⊇ ⊢Δ ⊢B) ⊢u)
+            (PE.subst (_⊢_∷_ _ _) wk-Is-set-type $
+             wk (lift-Is-set-Con ρ⊇) (wk-Is-set-Con ρ⊇ ⊢Δ ⊢C) ⊢v)
+            (wk ρ⊇ ⊢Δ ⊢w)
       where
       open Variants hyp
 
@@ -602,13 +784,14 @@ private module Inhabited where
           in
           ΠΣ-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk (lift ρ⊇) (∙ ⊢A₁′) B₁≡B₂) ok
         (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) PE.refl →
-          Id-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk ρ⊇ ⊢Δ t₁≡t₂)
-            (wk ρ⊇ ⊢Δ u₁≡u₂)
+          Id-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂)
+        (Quot-cong ok A₁≡A₂ B₁≡B₂) PE.refl →
+          Quot-cong ok (wk ρ⊇ ⊢Δ A₁≡A₂) (wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ B₁≡B₂)
       where
       open Variants hyp
 
   opaque
-    unfolding size
+    unfolding Is-set-Con Resp-Con size
 
     -- A weakening lemma for _⊢_≡_∷_.
 
@@ -920,6 +1103,72 @@ private module Inhabited where
           []-cong-β (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢t) (PE.cong (U.wk _) eq) ok
         (equality-reflection ok ⊢Id ⊢v) PE.refl →
           equality-reflection ok (wk ρ⊇ ⊢Δ ⊢Id) (wk ρ⊇ ⊢Δ ⊢v)
+        (Quot-cong ok ⊢l A₁≡A₂ B₁≡B₂) PE.refl →
+          Quot-cong ok (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ A₁≡A₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) (wk⇑[]-wk[]≡ 2) $
+             wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ B₁≡B₂)
+        (class-cong ⊢Q t₁≡t₂) PE.refl →
+          class-cong (wk ρ⊇ ⊢Δ ⊢Q) (wk ρ⊇ ⊢Δ t₁≡t₂)
+        (resp-cong {B₁} ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) PE.refl →
+          resp-cong ok (wk ρ⊇ ⊢Δ A₁≡A₂) (wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ B₁≡B₂)
+            (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
+             wk ρ⊇ ⊢Δ v₁≡v₂)
+        (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
+          set-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ B₁≡B₂)
+            (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂) (wk ρ⊇ ⊢Δ v₁≡v₂)
+            (wk ρ⊇ ⊢Δ w₁≡w₂)
+        ⊢q@(qrec-cong {C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
+          let _ , (⊢A₁ , A₁<) , (⊢B₁ , B₁<) , (⊢C₁ , C₁<) , (⊢Q , Q<) =
+                inversion-Is-set-Cons v₁≡v₂
+
+              instance
+                _ : size ⊢Q <ˢ size ⊢q
+                _ = <ˢ-trans Q< !
+
+                _ : size ⊢A₁ <ˢ size ⊢q
+                _ = <ˢ-trans A₁< !
+
+                _ : size ⊢C₁ <ˢ size ⊢q
+                _ = <ˢ-trans C₁< !
+
+                _ : size ⊢B₁ <ˢ size ⊢q
+                _ = <ˢ-trans B₁< !
+          in
+          PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (wk-β C₁)) $
+          qrec-cong
+            (wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢Q) C₁≡C₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β↑ C₁) $
+             wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢A₁) t₁≡t₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) wk-Resp-type $
+             wk (lift-Resp-Con ρ⊇) (wk-Resp-Con ρ⊇ ⊢Δ ⊢B₁) u₁≡u₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) wk-Is-set-type $
+             wk (lift-Is-set-Con ρ⊇) (wk-Is-set-Con ρ⊇ ⊢Δ ⊢C₁)
+               v₁≡v₂)
+            (wk ρ⊇ ⊢Δ w₁≡w₂)
+        ⊢q@(qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
+          let _ , (⊢A , A<) , (⊢B , B<) , _ , (⊢Q , Q<) =
+                inversion-Is-set-Cons ⊢v
+
+              instance
+                _ : size ⊢Q <ˢ size ⊢q
+                _ = <ˢ-trans Q< !
+
+                _ : size ⊢A <ˢ size ⊢q
+                _ = <ˢ-trans A< !
+
+                _ : size ⊢B <ˢ size ⊢q
+                _ = <ˢ-trans B< !
+          in
+          PE.subst₂ (_⊢_≡_∷_ _ _) (PE.sym (wk-β t)) (PE.sym (wk-β C)) $
+          qrec-β (wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢Q) ⊢C)
+            (PE.subst (_⊢_∷_ _ _) (wk-β↑ C) $
+             wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢A) ⊢t)
+            (PE.subst (_⊢_∷_ _ _) wk-Resp-type $
+             wk (lift-Resp-Con ρ⊇) (wk-Resp-Con ρ⊇ ⊢Δ ⊢B) ⊢u)
+            (PE.subst (_⊢_∷_ _ _) wk-Is-set-type $
+             wk (lift-Is-set-Con ρ⊇) (wk-Is-set-Con ρ⊇ ⊢Δ ⊢C) ⊢v)
+            (wk ρ⊇ ⊢Δ ⊢w)
       where
       open Variants hyp
 
@@ -988,6 +1237,51 @@ opaque
 
   wk₁ : ∇ » Γ ⊢ A → ∇ » Γ ⊢[ 𝓙 ] → ∇ » Γ ∙ A ⊢[ mapJ U.wk1 𝓙 ]
   wk₁ ⊢A = wk (stepʷ id ⊢A)
+
+opaque
+  unfolding _»_∷ʷ_⊇_
+
+  -- A weakening lemma related to Quot-rel-Con.
+
+  liftʷ-Quot-rel-Con :
+    ∇ » ρ ∷ʷ Δ ⊇ Γ →
+    ∇ » Γ ⊢ A →
+    ∇ » liftn ρ 2 ∷ʷ Quot-rel-Con Δ (U.wk ρ A) ⊇ Quot-rel-Con Γ A
+  liftʷ-Quot-rel-Con (ρ⊇ , ⊢Δ) ⊢A =
+    lift-Quot-rel-Con ρ⊇ ,
+    Variants.wk-Quot-rel-Con (λ _ → Inhabited.P-inhabited) ρ⊇ ⊢Δ ⊢A
+      ⦃ lt = ∃-<ˢ .proj₂ ⦄
+
+opaque
+  unfolding Quot-rel-Con _»_∷ʷ_⊇_
+
+  -- A weakening lemma related to Resp-Con.
+
+  liftʷ-Resp-Con :
+    ∇ » ρ ∷ʷ Δ ⊇ Γ →
+    ∇ » Quot-rel-Con Γ A ⊢ B →
+    ∇ » liftn ρ 3 ∷ʷ Resp-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) ⊇
+      Resp-Con Γ A B
+  liftʷ-Resp-Con (ρ⊇ , ⊢Δ) ⊢B =
+    lift-Resp-Con ρ⊇ ,
+    Variants.wk-Resp-Con (λ _ → Inhabited.P-inhabited) ρ⊇ ⊢Δ ⊢B
+      ⦃ lt = ∃-<ˢ .proj₂ ⦄
+
+opaque
+  unfolding _»_∷ʷ_⊇_
+
+  -- A weakening lemma related to Is-set-Con.
+
+  liftʷ-Is-set-Con :
+    ∇ » ρ ∷ʷ Δ ⊇ Γ →
+    ∇ » Γ ∙ Quot A B ⊢ C →
+    ∇ » liftn ρ 5 ∷ʷ
+      Is-set-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) (U.wk (lift ρ) C) ⊇
+      Is-set-Con Γ A B C
+  liftʷ-Is-set-Con (ρ⊇ , ⊢Δ) ⊢C =
+    lift-Is-set-Con ρ⊇ ,
+    Variants.wk-Is-set-Con (λ _ → Inhabited.P-inhabited) ρ⊇ ⊢Δ ⊢C
+      ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
 mutual
   wkRed : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ A ⇒ B → ∇ » Δ ⊢ U.wk ρ A ⇒ U.wk ρ B
@@ -1200,6 +1494,38 @@ mutual
   wkRedTerm ρ ([]-cong-β ⊢l t≡t′ ok) =
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk-Id-Erased _) $
     []-cong-β (wk ρ ⊢l) (wk ρ t≡t′) ok
+  wkRedTerm ρ (resp-η {B} ok ⊢Q ⊢t ⊢u ⊢v) =
+    resp-η ok (wk ρ ⊢Q) (wk ρ ⊢t) (wk ρ ⊢u)
+      (PE.subst (_⊢_∷_ _ _) (wk-β-doubleSubst _ B _ _) $
+       wk ρ ⊢v)
+  wkRedTerm ρ (set-η ok ⊢t ⊢u ⊢v ⊢w) =
+    set-η ok (wk ρ ⊢t) (wk ρ ⊢u) (wk ρ ⊢v) (wk ρ ⊢w)
+  wkRedTerm ρ (qrec-subst {C} ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) =
+    let _ , (⊢A , _) , (⊢B , _) , _ , (⊢Q , _) =
+          inversion-Is-set-Cons ⊢v
+    in
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β C)) $
+    qrec-subst (wk (liftʷʷ ρ (wk ρ ⊢Q)) ⊢C)
+      (PE.subst (_⊢_∷_ _ _) (wk-β↑ C) $
+       wk (liftʷʷ ρ (wk ρ ⊢A)) ⊢t)
+      (PE.subst (_⊢_∷_ _ _) wk-Resp-type $
+       wk (liftʷ-Resp-Con ρ ⊢B) ⊢u)
+      (PE.subst (_⊢_∷_ _ _) wk-Is-set-type $
+       wk (liftʷ-Is-set-Con ρ ⊢C) ⊢v)
+      (wkRedTerm ρ w₁⇒w₂)
+  wkRedTerm ρ (qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    let _ , (⊢A , _) , (⊢B , _) , _ , (⊢Q , _) =
+          inversion-Is-set-Cons ⊢v
+    in
+    PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym (wk-β t)) (PE.sym (wk-β C)) $
+    qrec-β (wk (liftʷʷ ρ (wk ρ ⊢Q)) ⊢C)
+      (PE.subst (_⊢_∷_ _ _) (wk-β↑ C) $
+       wk (liftʷʷ ρ (wk ρ ⊢A)) ⊢t)
+      (PE.subst (_⊢_∷_ _ _) wk-Resp-type $
+       wk (liftʷ-Resp-Con ρ ⊢B) ⊢u)
+      (PE.subst (_⊢_∷_ _ _) wk-Is-set-type $
+       wk (liftʷ-Is-set-Con ρ ⊢C) ⊢v)
+      (wk ρ ⊢w)
 
 wkRed* : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ A ⇒* B → ∇ » Δ ⊢ U.wk ρ A ⇒* U.wk ρ B
 wkRed* ρ (id A)         = id (wk ρ A)

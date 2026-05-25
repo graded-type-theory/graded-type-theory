@@ -29,6 +29,7 @@ open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Conversion R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Symmetry R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄
@@ -39,6 +40,7 @@ open import Tools.Level
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Sum
 
 private
@@ -288,6 +290,42 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
         (_⊩ₗId_.⊩Ty ⊩B)
         (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
         (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
+  transEqT (Quot ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C
+    with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+           (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+       | whrDet* (_⊩ₗQuot_.⇒*Quot ⊩C , Quot)
+           (_⊩ₗQuot_≡_/_.⇒*Quot′ B≡C , Quot)
+  … | PE.refl | PE.refl =
+    record
+      { ⇒*Quot′   = ⊩C.⇒*Quot
+      ; Quot≅Quot = ≅-trans A≡B.Quot≅Quot B≡C.Quot≅Quot
+      ; Data≡Data = λ ⊢ρ →
+          transEq _ _ (⊩C.⊩Data ⊢ρ) (A≡B.Data≡Data ⊢ρ)
+            (B≡C.Data≡Data ⊢ρ)
+      ; Rel≡Rel = λ ⊢ρ ⊩t ⊩u →
+          transEq _ _
+            (⊩C.⊩Rel ⊢ρ
+               (convTerm₁ _ (⊩C.⊩Data _)
+                  (transEq _ _ (⊩C.⊩Data ⊢ρ)
+                     (A≡B.Data≡Data _) (B≡C.Data≡Data ⊢ρ))
+                  ⊩t)
+               (convTerm₁ _ (⊩C.⊩Data _)
+                  (transEq _ _ (⊩C.⊩Data ⊢ρ)
+                     (A≡B.Data≡Data _) (B≡C.Data≡Data ⊢ρ))
+                  ⊩u))
+            (A≡B.Rel≡Rel ⊢ρ ⊩t ⊩u)
+            (B≡C.Rel≡Rel ⊢ρ
+               (convTerm₁ (⊩A.⊩Data _) (⊩B.⊩Data _) (A≡B.Data≡Data _)
+                  ⊩t)
+               (convTerm₁ (⊩A.⊩Data _) (⊩B.⊩Data _) (A≡B.Data≡Data _)
+                  ⊩u))
+      }
+    where
+    module ⊩A  = _⊩ₗQuot_ ⊩A
+    module ⊩B  = _⊩ₗQuot_ ⊩B
+    module ⊩C  = _⊩ₗQuot_ ⊩C
+    module A≡B = _⊩ₗQuot_≡_/_ A≡B
+    module B≡C = _⊩ₗQuot_≡_/_ B≡C
 
   transEqTerm (Levelᵣ D) [t≡u] [u≡v] = transEqTermLevel [t≡u] [u≡v]
   transEqTerm
@@ -451,6 +489,56 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
           (ne u″-n _ _) →
             ⊥-elim $ rfl≢ne (ne⁻ u″-n) $
             whrDet*Term (u⇒*u′ , rflₙ) (u⇒*u″ , ne! u″-n)) }
+  transEqTerm
+    (Quot ⊩A)
+    t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , t′-q , u′-q , _)
+    u≡v@(_ , _ , u⇒*u′′ , v⇒*v′ , u′′-q , v′-q , _)
+    with
+      whrDet*Term (u⇒*u′ , Quotientᵃ→Whnf u′-q)
+        (u⇒*u′′ , Quotientᵃ→Whnf u′′-q)
+  … | PE.refl =
+    _ , _ , t⇒*t′ , v⇒*v′ , t′-q , v′-q ,
+    Quot-view-inhabited⁻¹′ ⊩A t⇒*t′ v⇒*v′ t′-q v′-q
+      (case Quot-view-inhabited ⊩A t≡u of λ where
+         (equal t″≡u″) →
+           case Quot-view-inhabited ⊩A u≡v of λ where
+             (equal u″≡v″) →
+               equal $
+               transEqTerm (⊩Data _) t″≡u″ $
+               irrelevanceEqTerm (⊩Data _) (⊩Data _) u″≡v″
+             (related ok rel) →
+               related ok $
+               cast-⊩Quot-relatedˡ ⊩A
+                 (transEqTerm (⊩Data _) t″≡u″
+                    (symEqTerm (⊩Data _) t″≡u″))
+                 (symEqTerm (⊩Data _) t″≡u″) $
+               irrelevance-⊩Quot-related ⊩A ⊩A rel
+             (ne u′-n _ _) →
+               case ne⁻ u′-n of λ ()
+         (related ok rel₁) →
+           case Quot-view-inhabited ⊩A u≡v of λ where
+             (equal u″≡v″) →
+               related ok $
+               cast-⊩Quot-relatedʳ ⊩A
+                 (irrelevanceEqTerm (⊩Data _) (⊩Data _)
+                    (transEqTerm (⊩Data _) (symEqTerm (⊩Data _) u″≡v″) u″≡v″))
+                 (irrelevanceEqTerm (⊩Data _) (⊩Data _) u″≡v″)
+               rel₁
+             (related _ rel₂) →
+               related ok $
+               transˢᵗ rel₁ (irrelevance-⊩Quot-related ⊩A ⊩A rel₂)
+             (ne u′-n _ _) →
+               case ne⁻ u′-n of λ ()
+         (ne t′-n u′-n t′~u′) →
+           case Quot-view-inhabited ⊩A u≡v of λ where
+             (equal _) →
+               case ne⁻ u′-n of λ ()
+             (related _ _) →
+               case ne⁻ u′-n of λ ()
+             (ne _ v′-n u′~v′) →
+               ne t′-n v′-n (~-trans t′~u′ u′~v′))
+    where
+    open _⊩ₗQuot_ ⊩A
 
 private opaque
   transKit : ∀ l → TransKit l

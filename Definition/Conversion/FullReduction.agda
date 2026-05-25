@@ -28,10 +28,12 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Weakening R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Fin
@@ -47,7 +49,9 @@ private variable
   l l′ : Lvl _
   s    : Strength
 
-mutual
+opaque
+ unfolding Quot-rel-Con
+ mutual
 
   -- Some lemmas used to prove the main theorems below.
 
@@ -247,15 +251,80 @@ mutual
            ([]-cong′ Erased-ok ⊢l₁ u₁≡u₁′)) ,
       []-cong-cong l₁≡l₁′ A₁≡A₁′ t₁≡t₁′ u₁≡u₁′ (conv v₁≡v₁′ B≡Id-t₁-u₁)
         ok
+    (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+      let ok′ , _ =
+            Higher-quotient-constructors-neutral⇔ .proj₁ ok
+          A₁′ , ⊢A₁′ , A₁≡A₁′ = fullRedConv↑ A₁≡A₂
+          B₁′ , ⊢B₁′ , B₁≡B₁′ = fullRedConv↑ B₁≡B₂
+          t₁′ , ⊢t₁′ , t₁≡t₁′ = fullRedTermConv↑ t₁≡t₂
+          u₁′ , ⊢u₁′ , u₁≡u₁′ = fullRedTermConv↑ u₁≡u₂
+          v₁′ , ⊢v₁′ , v₁≡v₁′ = fullRedTermConv↑ v₁≡v₂
+          Q≡Q                 = Quot-cong ok′ A₁≡A₁′ B₁≡B₁′
+          ⊢Q , _              = wf-⊢ Q≡Q
+      in
+      resp A₁′ B₁′ t₁′ u₁′ v₁′ ,
+      convₙ
+        (resp ok ⊢A₁′
+           (⊢nf-stable (Quot-rel-Con-cong (reflConEq (wf ⊢Q)) A₁≡A₁′)
+              ⊢B₁′)
+           (convₙ ⊢t₁′ A₁≡A₁′) (convₙ ⊢u₁′ A₁≡A₁′)
+           (convₙ ⊢v₁′ $ subst-⊢≡₁₀ B₁≡B₁′ t₁≡t₁′ $
+            PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (wk1-sgSubst _ _)) u₁≡u₁′))
+        (_⊢_≡_.sym $
+         Id-cong Q≡Q (class-cong ⊢Q t₁≡t₁′) (class-cong ⊢Q u₁≡u₁′)) ,
+      resp-cong ok′ A₁≡A₁′ B₁≡B₁′ t₁≡t₁′ u₁≡u₁′ v₁≡v₁′
+    (set-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+      let ok′ , _ =
+            Higher-quotient-constructors-neutral⇔ .proj₁ ok
+          A₁′ , ⊢A₁′ , A₁≡A₁′ = fullRedConv↑ A₁≡A₂
+          B₁′ , ⊢B₁′ , B₁≡B₁′ = fullRedConv↑ B₁≡B₂
+          t₁′ , ⊢t₁′ , t₁≡t₁′ = fullRedTermConv↑ t₁≡t₂
+          u₁′ , ⊢u₁′ , u₁≡u₁′ = fullRedTermConv↑ u₁≡u₂
+          v₁′ , ⊢v₁′ , v₁≡v₁′ = fullRedTermConv↑ v₁≡v₂
+          w₁′ , ⊢w₁′ , w₁≡w₁′ = fullRedTermConv↑ w₁≡w₂
+          Q≡Q                 = Quot-cong ok′ A₁≡A₁′ B₁≡B₁′
+          Id≡Id               = Id-cong Q≡Q t₁≡t₁′ u₁≡u₁′
+      in
+      set A₁′ B₁′ t₁′ u₁′ v₁′ w₁′ ,
+      convₙ
+        (set ok ⊢A₁′
+           (⊢nf-stable (Quot-rel-Con-cong (reflConEq (wf Q≡Q)) A₁≡A₁′)
+              ⊢B₁′)
+           (convₙ ⊢t₁′ Q≡Q) (convₙ ⊢u₁′ Q≡Q) (convₙ ⊢v₁′ Id≡Id)
+           (convₙ ⊢w₁′ Id≡Id))
+        (sym (Id-cong Id≡Id v₁≡v₁′ w₁≡w₁′)) ,
+      set-cong A₁≡A₁′ B₁≡B₁′ t₁≡t₁′ u₁≡u₁′ v₁≡v₁′ w₁≡w₁′
+    (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂) →
+      let C₁′ , ⊢C₁′ , C₁≡C₁′ = fullRedConv↑ C₁≡C₂
+          t₁′ , ⊢t₁′ , t₁≡t₁′ = fullRedTermConv↑ t₁≡t₂
+          u₁′ , ⊢u₁′ , u₁≡u₁′ = fullRedTermConv↑ u₁≡u₂
+          v₁′ , ⊢v₁′ , v₁≡v₁′ = fullRedTermConv↑ v₁≡v₂
+          w₁′ , ⊢w₁′ , w₁≡w₁′ = fullRedNe~↓ w₁~w₂
+          _ , (⊢A , _) , (⊢B , _) , _ , (⊢Q , _) =
+            inversion-Is-set-Cons v₁≡v₁′
+      in
+      qrec C₁′ t₁′ u₁′ v₁′ w₁′ ,
+      convₙ
+        (qrec ⊢C₁′
+           (convₙ ⊢t₁′ $
+            subst-⊢ C₁≡C₁′ (⊢ˢʷ∷-[][]↑ (class (wk₁ ⊢A ⊢Q) (var₀ ⊢A))))
+           (convₙ ⊢u₁′ $
+            Resp-type-cong (refl ⊢A) (refl ⊢B) C₁≡C₁′ t₁≡t₁′)
+           (⊢nf∷-stable
+              (Is-set-Con-cong (reflConEq (wf ⊢A)) (refl ⊢A) (refl ⊢B)
+                 C₁≡C₁′)
+              (convₙ ⊢v₁′ (Is-set-type-cong C₁≡C₁′)))
+           ⊢w₁′)
+        (sym (subst-⊢≡₀ C₁≡C₁′ w₁≡w₁′)) ,
+      qrec-cong C₁≡C₁′ t₁≡t₁′ u₁≡u₁′ v₁≡v₁′ w₁≡w₁′
 
   fullRedNe~↓ :
     Γ ⊢ t ~ t′ ↓ A →
     ∃ λ u → Γ ⊢ne u ∷ A × Γ ⊢ t ≡ u ∷ A
   fullRedNe~↓ ([~] _ (D , _) k~l) =
-    let u , A-ne , t≡u = fullRedNe k~l
-    in  u , convₙ A-ne A≡ , conv t≡u A≡
-    where
-    A≡ = subset* D
+    let A≡             = subset* D
+        u , A-ne , t≡u = fullRedNe k~l
+    in u , convₙ A-ne A≡ , conv t≡u A≡
 
   fullRedNe~∷ :
     Γ ⊢ t ~ t′ ∷ A →
@@ -309,18 +378,26 @@ mutual
         Id A₁′ t₁′ u₁′
       , Idₙ ⊢A₁′ (convₙ ⊢t₁′ A₁≡A₁′) (convₙ ⊢u₁′ A₁≡A₁′)
       , Id-cong A₁≡A₁′ t₁≡t₁′ u₁≡u₁′ }}}
+    (Quot-cong ok A₁≡A₂ B₁≡B₂) →
+      let A₁′ , ⊢A₁′ , A₁≡A₁′ = fullRedConv↑ A₁≡A₂
+          B₁′ , ⊢B₁′ , B₁≡B₁′ = fullRedConv↑ B₁≡B₂
+      in
+      Quot A₁′ B₁′ ,
+      Quot ok ⊢A₁′
+        (⊢nf-stable (Quot-rel-Con-cong (reflConEq (wf A₁≡A₁′)) A₁≡A₁′)
+           ⊢B₁′) ,
+      Quot-cong ok A₁≡A₁′ B₁≡B₁′
 
   fullRedTermConv↑ :
     Γ ⊢ t [conv↑] t′ ∷ A →
     ∃ λ u → Γ ⊢nf u ∷ A × Γ ⊢ t ≡ u ∷ A
   fullRedTermConv↑ ([↑]ₜ _ _ _ (D , _) (d , _) _ t<>u) =
+    let B≡A = sym (subset* D) in
     case fullRedTermConv↓ t<>u of λ {
       (u″ , nf , u′≡u″) →
     u″ ,
     convₙ nf B≡A ,
     conv (trans (subset*Term d) u′≡u″) B≡A }
-    where
-    B≡A = sym (subset* D)
 
   fullRedTermConv↑ᵛ :
     ∀ {tᵛ} →
@@ -507,6 +584,20 @@ mutual
         rfl
       , convₙ (rflₙ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡u)
       , refl (rflⱼ′ t≡u) }
+    (Quot-ins ⊢t₁ t₁~t₂) →
+      let t₁′ , ⊢t₁′ , t₁≡t₁′ = fullRedNe~↓ t₁~t₂
+          _ , t-ne , _        = ne~↓ t₁~t₂
+          _ , ⊢t₁-′ , _       = wf-⊢ t₁≡t₁′
+          Q≡Q                 = neTypeEq (ne⁻ t-ne) ⊢t₁-′ ⊢t₁
+      in
+      t₁′ ,
+      neₙ Quot (convₙ ⊢t₁′ Q≡Q) ,
+      conv t₁≡t₁′ Q≡Q
+    (class-cong ⊢Q t₁≡t₂) →
+      let t₁′ , ⊢t₁′ , t₁≡t₁′ = fullRedTermConv↑ t₁≡t₂ in
+      class t₁′ ,
+      class ⊢Q ⊢t₁′ ,
+      class-cong ⊢Q t₁≡t₁′
 
 -- If A is a well-formed type, then A is definitionally equal to a
 -- type in η-long normal form.

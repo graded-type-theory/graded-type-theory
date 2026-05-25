@@ -19,20 +19,27 @@ open Type-restrictions R
 open import Definition.Untyped M hiding (K)
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
 open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
+open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Nat
 open import Tools.Product
+import Tools.PropositionalEquality as PE
+open import Tools.Relation hiding (Rel)
+open import Tools.Sum
 
 private
   variable
@@ -55,6 +62,7 @@ escape (Unitᵣ′ D _) = redFirst* D
 escape (ne′ _ D _ _) = redFirst* D
 escape (Bᵣ′ _ _ _ D _ _ _ _ _) = redFirst* D
 escape (Idᵣ ⊩A) = redFirst* (_⊩ₗId_.⇒*Id ⊩A)
+escape (Quot ⊩A) = redFirst*  (_⊩ₗQuot_.⇒*Quot ⊩A)
 
 -- Reducible type equality is contained in the equality relation.
 escapeEq :
@@ -112,6 +120,9 @@ escapeEq (Bᵣ′ W _ _ D _ _ _ _ _) (B₌ _ _ D′ A≡B _ _) =
   ≅-red (D , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ) A≡B
 escapeEq (Idᵣ ⊩A) A≡B =
   ≅-red (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (Id≅Id A≡B)
+escapeEq (Quot ⊩A) A≡B =
+  ≅-red (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+    (_⊩ₗQuot_≡_/_.Quot≅Quot A≡B)
 
 escapeTermEq (Levelᵣ D) (term d d′ prop) =
   let lk , lk′ = lsplit prop
@@ -169,6 +180,34 @@ escapeTermEq {Γ = Γ} (Idᵣ ⊩A) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) =
   open _⊩ₗId_ ⊩A
   lemma = λ t′-whnf u′-whnf →
             ≅ₜ-red (⇒*Id , Idₙ) (t⇒*t′ , t′-whnf) (u⇒*u′ , u′-whnf)
+escapeTermEq
+  (Quot ⊩A) eq@(_ , _ , ⇒*t , ⇒*u , t-q , u-q , _) =
+  let ⊢Q = wf-⊢ (subset* ⇒*Quot) .proj₂ in
+  ≅ₜ-red (⇒*Quot , Quot) (⇒*t , Quotientᵃ→Whnf t-q)
+    (⇒*u , Quotientᵃ→Whnf u-q) $
+  case Quot-view-inhabited ⊩A eq of λ where
+    (equal t≡u) →
+      ≅-class-cong ⊢Q
+        (PE.subst (_⊢_≅_∷_ _ _ _) (wk-id _) $
+         escapeTermEq (⊩Data _) t≡u)
+    (related ok rel) →
+      ⊢≡∷→⊢≅∷ (Equality-reflection-allowed→¬Var-included ok) $
+      Symmetric-transitive-closure-elim sym′ trans
+        (λ (⊩t , ⊩u , _ , ⊩v) →
+           equality-reflection′ ok $
+           resp ⊢Q
+             (PE.subst (_⊢_∷_ _ _) (wk-id _) $
+              escapeTerm (⊩Data _) ⊩t)
+             (PE.subst (_⊢_∷_ _ _) (wk-id _) $
+              escapeTerm (⊩Data _) ⊩u)
+             (PE.subst (_⊢_∷_ _ _)
+                (PE.cong _[ _ , _ ]₁₀ (wk-liftn-id 2 Rel)) $
+              escapeTerm (⊩Rel _ ⊩t ⊩u) ⊩v))
+        rel
+    (ne _ _ t~u) →
+      ~-to-≅ₜ t~u
+  where
+  open _⊩ₗQuot_ ⊩A
 
 opaque
 

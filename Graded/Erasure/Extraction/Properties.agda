@@ -376,6 +376,13 @@ wk-erase-comm {s} _ U.rfl = wk-loop? s
 wk-erase-comm _ (J _ _ _ _ _ u _ _) = wk-erase-comm _ u
 wk-erase-comm _ (K _ _ _ _ u _) = wk-erase-comm _ u
 wk-erase-comm {s} _ ([]-cong _ _ _ _ _ _) = wk-loop? s
+wk-erase-comm {s} _ (Quot _ _) = wk-loop? s
+wk-erase-comm _ (class t) = wk-erase-comm _ t
+wk-erase-comm _ (resp _ _ _ _ _) = wk-loop
+wk-erase-comm _ (set _ _ _ _ _ _) = wk-loop
+wk-erase-comm _ (qrec _ t _ _ w) =
+  cong₂ (λ t w → T.lam t T.∘⟨ _ ⟩ w) (wk-erase-comm _ t)
+    (wk-erase-comm _ w)
 
 -- Lifting substitutions commute with erase
 
@@ -555,6 +562,18 @@ subst-erase-comm {s} _ U.rfl = loop?-[] s
 subst-erase-comm _ (J _ _ _ _ _ u _ _) = subst-erase-comm _ u
 subst-erase-comm _ (K _ _ _ _ u _) = subst-erase-comm _ u
 subst-erase-comm {s} _ ([]-cong _ _ _ _ _ _) = loop?-[] s
+subst-erase-comm {s} _ (Quot _ _) = loop?-[] s
+subst-erase-comm _ (class t) = subst-erase-comm _ t
+subst-erase-comm _ (resp _ _ _ _ _) = loop-[]
+subst-erase-comm _ (set _ _ _ _ _ _) = loop-[]
+subst-erase-comm {b} {s} σ (qrec _ t _ _ w) =
+  cong₂ (λ t w → T.lam t T.∘⟨ _ ⟩ w)
+    (erase′ b s t [ eraseSubst′ b s σ T.⇑ ]      ≡⟨ substVar-to-subst liftSubst-erase-comm (erase′ _ _ t) ⟩
+     erase′ b s t T.[ eraseSubst′ b s (σ U.⇑) ]  ≡⟨ subst-erase-comm _ t ⟩
+     erase′ b s (t U.[ σ U.⇑ ])                  ∎)
+    (subst-erase-comm _ w)
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 subst-undefined : (x : Fin (1+ n)) →
       eraseSubst′ b s (U.sgSubst Empty) x ≡

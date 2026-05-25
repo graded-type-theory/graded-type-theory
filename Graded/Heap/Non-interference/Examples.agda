@@ -24,6 +24,9 @@ module Graded.Heap.Non-interference.Examples
   (open Usage-restrictions UR)
   (open Type-restrictions TR)
   (Level-not-allowed : ¬ Level-allowed)
+  -- Quotients are not allowed.
+  (Quot-not-allowed : ¬ Quot-allowed)
+  (Quotient-terms-not-allowed : ¬ Quotient-terms-allowed)
   -- The security level programs should be run in
   (ℓ₀ : M)
   ⦃ no-nr : Nr-not-available-GLB ⦄
@@ -41,7 +44,9 @@ open import Tools.Relation
 
 open import Graded.Usage.Restrictions.Natrec modality
 
-open import Graded.Heap.Non-interference L is-⊤? UR TR Level-not-allowed ℓ₀
+open import Graded.Heap.Non-interference
+  L is-⊤? UR TR Level-not-allowed Quot-not-allowed
+  Quotient-terms-not-allowed ℓ₀
 
 open Assumptions non-interference-assumptions
 
