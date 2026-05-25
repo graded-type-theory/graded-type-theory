@@ -26,11 +26,11 @@ open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  Γ           : Cons _ _
-  𝓙           : Judgement _
-  A B C D t u : Term _
-  l l₁ l₂     : Lvl _
-  s s₁ s₂     : Size
+  Γ             : Cons _ _
+  𝓙             : Judgement _
+  A B C D E t u : Term _
+  l l₁ l₂       : Lvl _
+  s s₁ s₂       : Size
 
 private opaque
 
@@ -477,6 +477,70 @@ opaque
         (⊢Γ , Γ<) , (⊢A , A<)     = ∙⊢→⊢-<ˢ ⊢Γ∙A
     in
     (⊢Γ , <ˢ-trans Γ< Γ∙A<) , (⊢A , <ˢ-trans A< Γ∙A<) , (⊢B , B<)
+
+opaque
+
+  -- If there is a proof of Γ »∙ A »∙ B »∙ C ⊢[ 𝓙 ], then there are
+  -- strictly smaller proofs of ⊢ Γ, Γ ⊢ A, Γ »∙ A ⊢ B and
+  -- Γ »∙ A »∙ B ⊢ C.
+
+  ∙∙∙⊢→⊢-<ˢ :
+    ∀ {𝓙} (⊢𝓙 : Γ »∙ A »∙ B »∙ C ⊢[ 𝓙 ]) →
+    (∃ λ (⊢Γ : ⊢ Γ) → size ⊢Γ <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢C : Γ »∙ A »∙ B ⊢ C) → size ⊢C <ˢ size ⊢𝓙)
+  ∙∙∙⊢→⊢-<ˢ ⊢𝓙 =
+    let (⊢ΓAB , ΓAB<) , ⊢C                = ∙⊢→⊢-<ˢ ⊢𝓙
+        (⊢Γ , Γ<) , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢ΓAB
+    in
+    (⊢Γ , <ˢ-trans Γ< ΓAB<) , (⊢A , <ˢ-trans A< ΓAB<) ,
+    (⊢B , <ˢ-trans B< ΓAB<) , ⊢C
+
+opaque
+
+  -- If there is a proof of Γ »∙ A »∙ B »∙ C »∙ D ⊢[ 𝓙 ], then there
+  -- are strictly smaller proofs of ⊢ Γ, Γ ⊢ A, Γ »∙ A ⊢ B,
+  -- Γ »∙ A »∙ B ⊢ C and Γ »∙ A »∙ B »∙ C ⊢ D.
+
+  ∙∙∙∙⊢→⊢-<ˢ :
+    ∀ {𝓙} (⊢𝓙 : Γ »∙ A »∙ B »∙ C »∙ D ⊢[ 𝓙 ]) →
+    (∃ λ (⊢Γ : ⊢ Γ) → size ⊢Γ <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢C : Γ »∙ A »∙ B ⊢ C) → size ⊢C <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢D : Γ »∙ A »∙ B »∙ C ⊢ D) → size ⊢D <ˢ size ⊢𝓙)
+  ∙∙∙∙⊢→⊢-<ˢ ⊢𝓙 =
+    let (⊢ΓABC , ΓABC<) , ⊢D                          = ∙⊢→⊢-<ˢ ⊢𝓙
+        (⊢Γ , Γ<) , (⊢A , A<) , (⊢B , B<) , (⊢C , C<) = ∙∙∙⊢→⊢-<ˢ ⊢ΓABC
+    in
+    (⊢Γ , <ˢ-trans Γ< ΓABC<) , (⊢A , <ˢ-trans A< ΓABC<) ,
+    (⊢B , <ˢ-trans B< ΓABC<) , (⊢C , <ˢ-trans C< ΓABC<) , ⊢D
+
+opaque
+
+  -- If there is a proof of Γ »∙ A »∙ B »∙ C »∙ D »∙ E ⊢[ 𝓙 ], then
+  -- there are strictly smaller proofs of ⊢ Γ, Γ ⊢ A, Γ »∙ A ⊢ B,
+  -- Γ »∙ A »∙ B ⊢ C, Γ »∙ A »∙ B »∙ C ⊢ D and
+  -- Γ »∙ A »∙ B »∙ C »∙ D ⊢ E.
+
+  ∙∙∙∙∙⊢→⊢-<ˢ :
+    ∀ {𝓙} (⊢𝓙 : Γ »∙ A »∙ B »∙ C »∙ D »∙ E ⊢[ 𝓙 ]) →
+    (∃ λ (⊢Γ : ⊢ Γ) → size ⊢Γ <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢C : Γ »∙ A »∙ B ⊢ C) → size ⊢C <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢D : Γ »∙ A »∙ B »∙ C ⊢ D) → size ⊢D <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢E : Γ »∙ A »∙ B »∙ C »∙ D ⊢ E) → size ⊢E <ˢ size ⊢𝓙)
+  ∙∙∙∙∙⊢→⊢-<ˢ ⊢𝓙 =
+    let (⊢ΓABCD , ΓABCD<) , ⊢E =
+          ∙⊢→⊢-<ˢ ⊢𝓙
+        (⊢Γ , Γ<) , (⊢A , A<) , (⊢B , B<) , (⊢C , C<) , (⊢D , D<) =
+          ∙∙∙∙⊢→⊢-<ˢ ⊢ΓABCD
+    in
+    (⊢Γ , <ˢ-trans Γ< ΓABCD<) , (⊢A , <ˢ-trans A< ΓABCD<) ,
+    (⊢B , <ˢ-trans B< ΓABCD<) , (⊢C , <ˢ-trans C< ΓABCD<) ,
+    (⊢D , <ˢ-trans D< ΓABCD<) , ⊢E
 
 opaque
   unfolding size
