@@ -992,6 +992,19 @@ record IsMode : Set (a ⊔ b) where
 
   opaque
 
+    -- The grade ω is bounded from above by ⌜ m ⌝ · ω.
+
+    ω≤⌜⌝·ω : ω ≤ ⌜ m ⌝ · ω
+    ω≤⌜⌝·ω {m} =
+      ≤⌜⌝· ω≤𝟘
+        (begin
+           𝟘          ≡˘⟨ ·-zeroʳ _ ⟩
+           ⌜ m ⌝ · 𝟘  ∎)
+      where
+      open Tools.Reasoning.PartialOrder ≤-poset
+
+  opaque
+
     -- Multiplication from the left with values of the form ⌜ m ⌝
     -- distributes over nrᵢ r.
 
