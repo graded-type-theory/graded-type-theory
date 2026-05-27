@@ -499,6 +499,20 @@ record IsMode : Set (a ⊔ b) where
 
   opaque
 
+    -- "Equality to 𝟘ᵐ" is upwards closed.
+
+    ≡𝟘ᵐ-upwards-closed : m₁ ≡ 𝟘ᵐ → m₁ ≤ᵐ m₂ → m₂ ≡ 𝟘ᵐ
+    ≡𝟘ᵐ-upwards-closed {m₁} {m₂} m₁≡𝟘ᵐ m₁≤m₂ =
+      ≤ᵐ-antisym ≤𝟘ᵐ
+        (begin
+           𝟘ᵐ  ≡˘⟨ m₁≡𝟘ᵐ ⟩
+           m₁  ≤⟨ m₁≤m₂ ⟩
+           m₂  ∎)
+      where
+      open ≤ᵐ-reasoning
+
+  opaque
+
     -- Addition is decreasing in a certain sense
 
     ⌞+⌟-decreasingʳ : ⌞ p + q ⌟ ≤ᵐ ⌞ q ⌟
