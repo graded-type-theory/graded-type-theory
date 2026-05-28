@@ -66,6 +66,13 @@ opaque
 
 opaque
 
+  -- The function _+ q is decreasing for all q if and only if 𝟙 ≤ 𝟘.
+
+  +-decreasingˡ⇔𝟙≤𝟘 : (∀ {p q} → p + q ≤ p) ⇔ 𝟙 ≤ 𝟘
+  +-decreasingˡ⇔𝟙≤𝟘 = +-decreasingˡ→𝟙≤𝟘 , (λ hyp → +-decreasingˡ hyp)
+
+opaque
+
   -- If 𝟙 ≤ 𝟘, then p +_ is decreasing.
 
   +-decreasingʳ : 𝟙 ≤ 𝟘 → p + q ≤ q
@@ -85,6 +92,13 @@ opaque
     (∀ {p q} → p + q ≤ q)  →⟨ (λ hyp → hyp) ⟩
     𝟙 + 𝟘 ≤ 𝟘              →⟨ ≤-trans (≤-reflexive (sym (+-identityʳ _))) ⟩
     𝟙 ≤ 𝟘                  □
+
+opaque
+
+  -- The function p +_ is decreasing for all p if and only if 𝟙 ≤ 𝟘.
+
+  +-decreasingʳ⇔𝟙≤𝟘 : (∀ {p q} → p + q ≤ q) ⇔ 𝟙 ≤ 𝟘
+  +-decreasingʳ⇔𝟙≤𝟘 = +-decreasingʳ→𝟙≤𝟘 , (λ hyp → +-decreasingʳ hyp)
 
 -- The operation _+_ is sub-interchangeable with _∧_ (with respect
 -- to _≤_).
