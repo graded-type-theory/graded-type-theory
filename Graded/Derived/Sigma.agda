@@ -96,16 +96,6 @@ private
 
   opaque
 
-    [𝟘∧𝟙]·≡𝟘∧ : (𝟘 ∧ 𝟙) · p PE.≡ 𝟘 ∧ p
-    [𝟘∧𝟙]·≡𝟘∧ {p = p} =
-      (𝟘 ∧ 𝟙) · p    ≡⟨ ·-distribʳ-∧ _ _ _ ⟩
-      𝟘 · p ∧ 𝟙 · p  ≡⟨ ∧-cong (·-zeroˡ _) (·-identityˡ _) ⟩
-      𝟘 ∧ p          ∎
-      where
-      open Tools.Reasoning.PropositionalEquality
-
-  opaque
-
     ·[𝟘∧𝟙]·≡𝟘∧· : p · (𝟘 ∧ 𝟙) · q PE.≡ 𝟘 ∧ p · q
     ·[𝟘∧𝟙]·≡𝟘∧· {p = p} {q = q} =
       p · (𝟘 ∧ 𝟙) · q  ≡⟨ ·-congˡ [𝟘∧𝟙]·≡𝟘∧ ⟩
