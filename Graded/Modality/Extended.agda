@@ -133,7 +133,8 @@ record _⇨_
        erased-matches-for-K-preserved;
        nr-in-first-if-in-second; nr-in-second-if-in-first;
        no-nr-in-first-if-in-second; no-nr-in-second-if-in-first;
-       no-nr-glb-in-first-if-in-second; no-nr-glb-in-second-if-in-first)
+       no-nr-glb-in-first-if-in-second; no-nr-glb-in-second-if-in-first;
+       ≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ?)
 
 -- An identity morphism.
 

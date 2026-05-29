@@ -10,6 +10,7 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
 
@@ -124,6 +125,18 @@ opaque
   ≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ : m₁ ≈ᵐ m₂ → m₂ ≡ 𝟙ᵐ → m₁ ≡ 𝟙ᵐ
   ≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ 𝟙ᵐ refl = refl
   ≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ 𝟘ᵐ ()
+
+opaque
+
+  -- If m₁ ≈ᵐ m₂ holds, then m₂ ≡ 𝟘ᵐ implies m₁ ≡ 𝟘ᵐ.
+
+  ≈ᵐ→≡𝟘ᵐ→≡𝟘ᵐ :
+    {m₁ : Mode v₁} {m₂ : Mode v₂}
+    ⦃ ok₁ : T (Mode-variant.𝟘ᵐ-allowed v₁) ⦄
+    ⦃ ok₂ : T (Mode-variant.𝟘ᵐ-allowed v₂) ⦄ →
+    m₁ ≈ᵐ m₂ → m₂ ≡ 𝟘ᵐ → m₁ ≡ 𝟘ᵐ
+  ≈ᵐ→≡𝟘ᵐ→≡𝟘ᵐ 𝟘ᵐ refl = 𝟘ᵐ-cong _
+  ≈ᵐ→≡𝟘ᵐ→≡𝟘ᵐ 𝟙ᵐ ()
 
 opaque
 
@@ -428,6 +441,29 @@ record Common-properties
       R₁.Nr-not-available-GLB
     no-nr-glb-in-first-if-in-second ⦃ no-nr ⦄ =
       Natrec-mode-no-nr-glb-≈ⁿᵐ (≈ⁿᵐ-sym natrec-mode-preserved) no-nr
+
+  opaque
+
+    -- If m₁ ≳ᵐ m₂ for some m₂ that is equal to 𝟘ᵐ? v₂, then m₁ is
+    -- equal to 𝟘ᵐ? v₁.
+
+    ≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ? : m₁ ≳ᵐ m₂ → m₂ ≡ 𝟘ᵐ? v₂ → m₁ ≡ 𝟘ᵐ? v₁
+    ≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ? {m₁} with trivialᵐ? v₁
+    … | yes trivial    = λ _ _ → ≡-trivialᵐ _ trivial
+    … | no non-trivial = λ where
+        [ m₁≈𝟘ᵐ? ] refl →
+          m₁      ≡⟨ ≈ᵐ→≡𝟘ᵐ→≡𝟘ᵐ m₁≈𝟘ᵐ? (𝟘ᵐ?≡𝟘ᵐ _) ⟩
+          𝟘ᵐ      ≡˘⟨ 𝟘ᵐ?≡𝟘ᵐ _ ⟩
+          𝟘ᵐ? v₁  ∎
+        (𝟙ᵐ≳𝟘ᵐ trivial) _ →
+          ⊥-elim (non-trivial (Trivial→Trivialᵐ _ trivial))
+      where
+      instance
+        ok₁′ : T (Mode-variant.𝟘ᵐ-allowed v₁)
+        ok₁′ = ¬Trivialᵐ→𝟘ᵐ-allowed _ non-trivial
+
+        ok₂′ : T (Mode-variant.𝟘ᵐ-allowed v₂)
+        ok₂′ = 𝟘ᵐ-preserved ok₁′
 
 opaque
 
