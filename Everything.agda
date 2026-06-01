@@ -145,6 +145,7 @@ import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Definition.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Weakening.Definition
+import Definition.Typed.Weakening.Combined
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
