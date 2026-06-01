@@ -611,10 +611,20 @@ opaque
     toTerm (fromTerm t)          ≡⟨ toTerm∘fromTerm _ ⟩
     t                            ∎
 
+opaque
+
+  -- The weakening liftn id m is also an identity.
+
+  wk-liftn-id : ∀ m (t : Term[ k ] (m + n)) → wk (liftn id m) t ≡ t
+  wk-liftn-id m t =
+    wk (liftn id m) t  ≡⟨ wkVar-to-wk (wkVar-lifts-id _) t ⟩
+    wk id t            ≡⟨ wk-id _ ⟩
+    t                  ∎
+
 -- lift id  is also the identity renaming.
 
 wk-lift-id : (t : Term[ k ] (1+ n)) → wk (lift id) t ≡ t
-wk-lift-id t = trans (wkVar-to-wk wkVar-lift-id t) (wk-id t)
+wk-lift-id = wk-liftn-id _
 
 opaque mutual
 
