@@ -2315,6 +2315,15 @@ private
     t [ 2 ][ u ]↑ [ v , w ]₁₀ ≡ t [ u [ v , w ]₁₀ ]₀
   _ = [][]↑-[] 2
 
+private
+
+  -- An example of how [][]↑-[] can be used.
+
+  _ :
+    (t : Term[ k ] (1+ n)) →
+    t [ u ]↑ [ m ][ v ]↑ ≡ t [ m ][ u [ m ][ v ]↑ ]↑
+  _ = [][]↑-[] 1
+
 opaque
 
   -- One can express _[_][_]↑ using some other operations.
