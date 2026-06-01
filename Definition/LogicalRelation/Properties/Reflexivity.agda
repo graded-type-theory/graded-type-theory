@@ -50,8 +50,8 @@ reflEq (Unitᵣ′ D _) = Unit₌ D
 reflEq (ne′ _ D neK K≡K) = ne₌ _ D neK K≡K
 reflEq (Bᵣ′ _ _ _ D A≡A [F] [G] _ _) =
    B₌ _ _ D A≡A
-      (λ ξ⊇ ρ → reflEq ([F] ξ⊇ ρ))
-      (λ ξ⊇ ρ [a] → reflEq ([G] ξ⊇ ρ [a]))
+      (λ ρ → reflEq ([F] ρ))
+      (λ ρ [a] → reflEq ([G] ρ [a]))
 reflEq (Idᵣ ⊩A) = record
   { ⇒*Id′             = ⇒*Id
   ; Ty≡Ty′            = reflEq ⊩Ty

@@ -22,12 +22,10 @@ open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 import Definition.LogicalRelation.Weakening R as W
-open import Definition.LogicalRelation.Weakening.Definition R
 open import Definition.LogicalRelation.Weakening.Restricted R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening.Definition R using (»_⊇_)
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
@@ -45,9 +43,7 @@ open import Tools.Sum
 
 private variable
   m n               : Nat
-  ∇ ∇′              : DCon (Term 0) m
-  Δ Η               : Con Term _
-  Γ                 : Cons _ _
+  Γ Γ₁ Γ₂           : Cons _ _
   A B C t t₁ t₂ u v : Term _
   ρ                 : Wk _ _
   l l′              : Universe-level
@@ -314,7 +310,7 @@ opaque
 
   -- Weakening for _⊩⟨_⟩_.
 
-  wk-⊩ : ∇ » ρ ∷ʷʳ Η ⊇ Δ → ∇ » Δ ⊩⟨ l ⟩ A → ∇ » Η ⊩⟨ l ⟩ wk ρ A
+  wk-⊩ : Γ₂ ⊢ʷᵏʳ ρ ∷ Γ₁ → Γ₁ ⊩⟨ l ⟩ A → Γ₂ ⊩⟨ l ⟩ wk ρ A
   wk-⊩ = W.wk
 
 opaque
@@ -322,10 +318,9 @@ opaque
 
   -- Weakening for _⊩⟨_⟩_≡_.
 
-  wk-⊩≡ :
-    ∇ » ρ ∷ʷʳ Η ⊇ Δ → ∇ » Δ ⊩⟨ l ⟩ A ≡ B → ∇ » Η ⊩⟨ l ⟩ wk ρ A ≡ wk ρ B
-  wk-⊩≡ Η⊇Δ (⊩A , ⊩B , A≡B) =
-    W.wk Η⊇Δ ⊩A , W.wk Η⊇Δ ⊩B , W.wkEq Η⊇Δ ⊩A A≡B
+  wk-⊩≡ : Γ₂ ⊢ʷᵏʳ ρ ∷ Γ₁ → Γ₁ ⊩⟨ l ⟩ A ≡ B → Γ₂ ⊩⟨ l ⟩ wk ρ A ≡ wk ρ B
+  wk-⊩≡ ⊢ρ (⊩A , ⊩B , A≡B) =
+    W.wk ⊢ρ ⊩A , W.wk ⊢ρ ⊩B , W.wkEq ⊢ρ ⊩A A≡B
 
 opaque
   unfolding _⊩⟨_⟩_≡_∷_
@@ -333,58 +328,17 @@ opaque
   -- Weakening for _⊩⟨_⟩_≡_∷_.
 
   wk-⊩≡∷ :
-    ∇ » ρ ∷ʷʳ Η ⊇ Δ → ∇ » Δ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    ∇ » Η ⊩⟨ l ⟩ wk ρ t ≡ wk ρ u ∷ wk ρ A
-  wk-⊩≡∷ Δ⊇Γ (⊩A , t≡u) =
-    W.wk Δ⊇Γ ⊩A , W.wkEqTerm Δ⊇Γ ⊩A t≡u
+    Γ₂ ⊢ʷᵏʳ ρ ∷ Γ₁ → Γ₁ ⊩⟨ l ⟩ t ≡ u ∷ A →
+    Γ₂ ⊩⟨ l ⟩ wk ρ t ≡ wk ρ u ∷ wk ρ A
+  wk-⊩≡∷ ⊢ρ (⊩A , t≡u) =
+    W.wk ⊢ρ ⊩A , W.wkEqTerm ⊢ρ ⊩A t≡u
 
 opaque
 
   -- Weakening for _⊩⟨_⟩_∷_.
 
-  wk-⊩∷ :
-    ∇ » ρ ∷ʷʳ Η ⊇ Δ → ∇ » Δ ⊩⟨ l ⟩ t ∷ A → ∇ » Η ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
-  wk-⊩∷ Η⊇Δ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ Η⊇Δ ∘→ ⊩∷⇔⊩≡∷ .proj₁
-
-opaque
-
-  -- Weakening of the definition context for _⊩⟨_⟩_.
-
-  defn-wk-⊩ : » ∇′ ⊇ ∇ → ∇ » Δ ⊩⟨ l ⟩ A → ∇′ » Δ ⊩⟨ l ⟩ A
-  defn-wk-⊩ = defn-wk
-
-opaque
-  unfolding _⊩⟨_⟩_≡_
-
-  -- Weakening of the definition context for _⊩⟨_⟩_≡_.
-
-  defn-wk-⊩≡ :
-    » ∇′ ⊇ ∇ →
-    ∇ » Δ ⊩⟨ l ⟩ A ≡ B →
-    ∇′ » Δ ⊩⟨ l ⟩ A ≡ B
-  defn-wk-⊩≡ ξ⊇ (⊩A , ⊩B , A≡B) =
-    defn-wk ξ⊇ ⊩A , defn-wk ξ⊇ ⊩B , defn-wkEq ξ⊇ ⊩A A≡B
-
-opaque
-  unfolding _⊩⟨_⟩_≡_∷_
-
-  -- Weakening of the definition context for _⊩⟨_⟩_≡_∷_.
-
-  defn-wk-⊩≡∷ :
-    » ∇′ ⊇ ∇ →
-    ∇ » Δ ⊩⟨ l ⟩ t ≡ u ∷ A →
-    ∇′ » Δ ⊩⟨ l ⟩ t ≡ u ∷ A
-  defn-wk-⊩≡∷ ξ⊇ (⊩A , t≡u) = defn-wk ξ⊇ ⊩A , defn-wkEqTerm ξ⊇ ⊩A t≡u
-
-opaque
-
-  -- Weakening of the definition context for _⊩⟨_⟩_∷_.
-
-  defn-wk-⊩∷ :
-    » ∇′ ⊇ ∇ →
-    ∇ » Δ ⊩⟨ l ⟩ t ∷ A →
-    ∇′ » Δ ⊩⟨ l ⟩ t ∷ A
-  defn-wk-⊩∷ ξ⊇ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ defn-wk-⊩≡∷ ξ⊇ ∘→ ⊩∷⇔⊩≡∷ .proj₁
+  wk-⊩∷ : Γ₂ ⊢ʷᵏʳ ρ ∷ Γ₁ → Γ₁ ⊩⟨ l ⟩ t ∷ A → Γ₂ ⊩⟨ l ⟩ wk ρ t ∷ wk ρ A
+  wk-⊩∷ ⊢ρ = ⊩∷⇔⊩≡∷ .proj₂ ∘→ wk-⊩≡∷ ⊢ρ ∘→ ⊩∷⇔⊩≡∷ .proj₁
 
 ------------------------------------------------------------------------
 -- Reduction

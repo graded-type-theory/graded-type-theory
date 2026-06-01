@@ -23,6 +23,7 @@ open import Definition.Untyped.Whnf M type-variant
 
 open import Definition.Typed R
 open import Definition.Typed.Weakening R hiding (wk)
+open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Weakening.Definition R
 
 open import Definition.LogicalRelation.Hidden.Restricted R
@@ -217,7 +218,7 @@ opaque
                     → ∇′ » Δ ⊩⟨ l ⟩ defn α [ σ₁ ] ≡ defn α [ σ₂ ] ∷ wk wk₀ A [ σ₁ ]
           α[]≡α[] ξ⊇ σ₁≡σ₂ = with-inc-⊩≡∷ $
             let ⊢Δ = escape-⊩ˢ≡∷ σ₁≡σ₂ .proj₁
-                ⊩ᴿA = wk-⊩ (wk₀∷ʷ⊇ ⊢Δ) (defn-wk-⊩ ξ⊇ (⊩ᵛ→⊩ ⊩A))
+                ⊩ᴿA = wk-⊩ (⊢ʷᵏ⇔ .proj₂ (ξ⊇ , wk₀∷ʷ⊇ ⊢Δ)) (⊩ᵛ→⊩ ⊩A)
                 α-ne = defnᵃ (there*-↦⊘∈ ξ⊇ α↦⊘)
                 A~A = ~-defn (defn ⊢Δ (there*-↦∈ ξ⊇ α↦∷) PE.refl)
                              (there*-↦⊘∈ ξ⊇ α↦⊘)

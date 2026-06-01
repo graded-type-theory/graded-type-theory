@@ -53,14 +53,14 @@ opaque
   emb-≤-⊩ p (Unitᵣ′ A⇒ ok) = Unitᵣ′ A⇒ ok
   emb-≤-⊩ p (ne′ k D neK K≡K) = ne′ k D neK K≡K
   emb-≤-⊩ p (Bᵣ′ W F G D A≡A [F] [G] G-ext ok) = Bᵣ′ W F G D A≡A
-    (λ [ξ] [ρ] → emb-≤-⊩ p ([F] [ξ] [ρ]))
-    (λ [ξ] [ρ] [a] →
-       emb-≤-⊩ p $ [G] [ξ] [ρ] $
-       irrelevanceTerm (emb-≤-⊩ p ([F] [ξ] [ρ])) ([F] [ξ] [ρ]) [a])
-    (λ [ξ] [ρ] [a] [b] a≡b → irrelevanceEq _ _ $ G-ext [ξ] [ρ]
-        (irrelevanceTerm (emb-≤-⊩ p ([F] [ξ] [ρ])) ([F] [ξ] [ρ]) [a])
-        (irrelevanceTerm (emb-≤-⊩ p ([F] [ξ] [ρ])) ([F] [ξ] [ρ]) [b])
-        (irrelevanceEqTerm (emb-≤-⊩ p ([F] [ξ] [ρ])) ([F] [ξ] [ρ]) a≡b))
+    (λ [ρ] → emb-≤-⊩ p ([F] [ρ]))
+    (λ [ρ] [a] →
+       emb-≤-⊩ p $ [G] [ρ] $
+       irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [a])
+    (λ [ρ] [a] [b] a≡b → irrelevanceEq _ _ $ G-ext [ρ]
+        (irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [a])
+        (irrelevanceTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) [b])
+        (irrelevanceEqTerm (emb-≤-⊩ p ([F] [ρ])) ([F] [ρ]) a≡b))
     ok
   emb-≤-⊩ p (Idᵣ (Idᵣ Ty lhs rhs ⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     Idᵣ (Idᵣ Ty lhs rhs ⇒*Id (emb-≤-⊩ p ⊩Ty) (emb-≤-⊩∷ {⊩A = ⊩Ty} ⊩lhs) (emb-≤-⊩∷ {⊩A = ⊩Ty} ⊩rhs))

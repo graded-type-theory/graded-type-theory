@@ -78,7 +78,7 @@ redSubst* D (ne′ _ D′ neK K≡K) =
 redSubst*
   D (Bᵣ′ W F G D′ A≡A [F] [G] G-ext ok) =
     Bᵣ′ W F G (D ⇨* D′) A≡A [F] [G] G-ext ok
-  , B₌ _ _ D′ A≡A (λ ξ⊇ ρ → reflEq ([F] ξ⊇ ρ)) (λ ξ⊇ ρ [a] → reflEq ([G] ξ⊇ ρ [a]))
+  , B₌ _ _ D′ A≡A (λ ρ → reflEq ([F] ρ)) (λ ρ [a] → reflEq ([G] ρ [a]))
 redSubst* A⇒*B (Idᵣ ⊩B) =
     Idᵣ record
       { ⇒*Id  = A⇒*B ⇨* ⇒*Id
@@ -141,7 +141,7 @@ opaque
         d′   = conv* t⇒u (subset* D) ⇨∷* d
     in
     Πₜ₌ f f d′ d funcF funcF f≡f
-      (λ [ξ] [ρ] [a] → [f] [ξ] [ρ] (reflEqTerm ([F] [ξ] [ρ]) [a]))
+      (λ [ρ] [a] → [f] [ρ] (reflEqTerm ([F] [ρ]) [a]))
   redSubst*Term t⇒u (Bᵣ BΣˢ ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) [u] =
     let Σₜ p d pProd p≅p pProp = ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ [u]
         d′ = conv* t⇒u (subset* D) ⇨∷* d
@@ -220,7 +220,7 @@ opaque
     case whrDet↘ (A⇒*ΠΣ , ⟦ W ⟧ₙ) A⇒*B of λ
       B⇒*ΠΣ →
       Bᵣ′ _ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok
-    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ _ → reflEq (⊩C _ _)) (λ _ _ _ → reflEq (⊩D _ _ _))
+    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ → reflEq (⊩C _)) (λ _ _ → reflEq (⊩D _ _))
   redSubst*′ A⇒*B (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     case whrDet↘ (A⇒*Id , Idₙ) A⇒*B of λ
       B⇒*Id →

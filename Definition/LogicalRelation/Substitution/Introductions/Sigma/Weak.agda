@@ -131,10 +131,10 @@ opaque
                    _ , _ , u₁₁≡u₂₁ , u₁₂≡u₂₂) →
                 prodₙ
                   (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-id _)
-                     (⊩wk-A _ _ , u₁₁≡u₂₁))
+                     (⊩wk-A _ , u₁₁≡u₂₁))
                   (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                      (PE.cong _[ _ ]₀ $ wk-lift-id B)
-                     (⊩wk-B _ _ _ , u₁₂≡u₂₂)) }}) }})
+                     (⊩wk-B _ _ , u₁₂≡u₂₂)) }}) }})
     , (λ (⊩Σ , rest) →
          case B-view ⊩Σ of λ {
            (Bᵣ ⊩Σ@(Bᵣ _ _ Σ⇒*Σ _ ⊩wk-A ⊩wk-B _ _)) →
@@ -154,14 +154,14 @@ opaque
                 case wf-⊩≡∷ u₁₁≡u₂₁ of λ
                   (⊩u₁₁ , ⊩u₂₁) →
                   prodₙ , prodₙ , PE.refl , PE.refl , PE.refl , PE.refl
-                , ⊩∷→⊩∷/ (⊩wk-A _ _)
+                , ⊩∷→⊩∷/ (⊩wk-A _)
                     (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩u₁₁)
-                , ⊩∷→⊩∷/ (⊩wk-A _ _)
+                , ⊩∷→⊩∷/ (⊩wk-A _)
                     (PE.subst (_⊩⟨_⟩_∷_ _ _ _) (PE.sym $ wk-id _) ⊩u₂₁)
-                , ⊩≡∷→⊩≡∷/ (⊩wk-A _ _)
+                , ⊩≡∷→⊩≡∷/ (⊩wk-A _)
                     (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.sym $ wk-id _)
                        u₁₁≡u₂₁)
-                , ⊩≡∷→⊩≡∷/ (⊩wk-B _ _ _)
+                , ⊩≡∷→⊩≡∷/ (⊩wk-B _ _)
                     (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
                        (PE.sym $ PE.cong _[ _ ]₀ $ wk-lift-id B) u₁₂≡u₂₂)
               (ne u₁-ne u₂-ne u₁~u₂) →

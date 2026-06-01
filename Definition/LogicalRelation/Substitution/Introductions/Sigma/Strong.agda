@@ -94,9 +94,9 @@ opaque
           Γ ⊩⟨ l ⟩ snd p u₁ ≡ snd p u₂ ∷ B [ fst p u₁ ]₀) ∋
            u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁-prod , u₂-prod , u₁≅u₂
          , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-id _)
-             (⊩wk-A _ _ , fst≡fst)
+             (⊩wk-A _ , fst≡fst)
          , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (PE.cong _[ _ ]₀ $ wk-lift-id B)
-             (⊩wk-B _ _ ⊩fst-u₁ , snd≡snd)) }})
+             (⊩wk-B _ ⊩fst-u₁ , snd≡snd)) }})
     , (λ (⊩Σ , rest) →
          case B-view ⊩Σ of λ {
            (Bᵣ ⊩Σ′@(Bᵣ _ _ Σ⇒*Σ A≡A ⊩wk-A ⊩wk-B _ _)) →
@@ -105,7 +105,7 @@ opaque
             fst≡fst , snd≡snd) →
          case B-PE-injectivity _ _ $ whnfRed* Σ⇒*Σ ΠΣₙ of λ {
            (PE.refl , PE.refl , _) →
-         let ⊩wk-id-A  = ⊩wk-A _ (id (wf (≅-eq A≡A))) in
+         let ⊩wk-id-A  = ⊩wk-A (⊢ʷᵏʳid (wf (≅-eq A≡A))) in
          case wf-⊩≡∷ $
               level-⊩≡∷ (PE.subst (_⊩⟨_⟩_ _ _) (wk-id _) ⊩wk-id-A)
                 fst≡fst of λ
@@ -123,7 +123,7 @@ opaque
          (_ ⊩⟨ _ ⟩ _ ≡ _ ∷ _ / Bᵣ _ ⊩Σ′ ∋
          u₁ , u₂ , t₁⇒*u₁ , t₂⇒*u₂ , u₁≅u₂ ,
          u₁-prod , u₂-prod , ⊩fst-u₁′ , ⊩fst-u₂′ , fst≡fst′ ,
-         ⊩≡∷→⊩≡∷/ (⊩wk-B _ _ ⊩fst-u₁′)
+         ⊩≡∷→⊩≡∷/ (⊩wk-B _ ⊩fst-u₁′)
            (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _)
               (PE.sym $ PE.cong _[ _ ] $ wk-lift-id B) snd≡snd)) }})
 

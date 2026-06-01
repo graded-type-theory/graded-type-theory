@@ -15,12 +15,13 @@ module Definition.Typed.EqualityRelation
 open Type-restrictions R
 
 open import Definition.Untyped M
+open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R as W using (_»_∷ʷ_⊇_)
+open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
@@ -36,10 +37,9 @@ private
   variable
     p q q′ r : M
     δ n n′ : Nat
-    ∇ : DCon (Term 0) n
-    ∇′ : DCon (Term 0) n′
-    Γ : Cons _ _
-    Δ Η : Con _ _
+    ∇₁ ∇₂ : DCon _ _
+    Δ : Con _ _
+    Γ Γ₁ Γ₂ : Cons _ _
     ρ : Wk n′ n
     A A₁ A₂ A′ B B₁ B₂ B′ C : Term n
     a a′ b b′ e e′ : Term n
@@ -151,29 +151,18 @@ record Equality-relations
     ~-conv : Γ ⊢ t ~ u ∷ A → Γ ⊢ A ≡ B → Γ ⊢ t ~ u ∷ B
 
     -- Weakening
-    ≅-wk    : ∇ » ρ ∷ʷ Η ⊇ Δ
-            → (∇ » Δ) ⊢ A ≅ B
-            → (∇ » Η) ⊢ wk ρ A ≅ wk ρ B
-    ≅ₜ-wk   : ∇ » ρ ∷ʷ Η ⊇ Δ
-            → (∇ » Δ) ⊢ t ≅ u ∷ A
-            → (∇ » Η) ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
-    wk-⊢≅∷L : ∇ » ρ ∷ʷ Η ⊇ Δ
-            → (∇ » Δ) ⊢ l₁ ≅ l₂ ∷Level
-            → (∇ » Η) ⊢ wk ρ l₁ ≅ wk ρ l₂ ∷Level
-    ~-wk    : ∇ » ρ ∷ʷ Η ⊇ Δ
-            → (∇ » Δ) ⊢ t ~ u ∷ A
-            → (∇ » Η) ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
-
-    -- Definitional weakening
-    ≅-defn-wk  : » ∇′ ⊇ ∇
-               → (∇ » Δ) ⊢ A ≅ B
-               → (∇′ » Δ) ⊢ A ≅ B
-    ≅ₜ-defn-wk : » ∇′ ⊇ ∇
-               → (∇ » Δ) ⊢ t ≅ u ∷ A
-               → (∇′ » Δ) ⊢ t ≅ u ∷ A
-    ~-defn-wk  : » ∇′ ⊇ ∇
-               → (∇ » Δ) ⊢ t ~ u ∷ A
-               → (∇′ » Δ) ⊢ t ~ u ∷ A
+    ≅-wk    : Γ₂ ⊢ʷᵏ ρ ∷ Γ₁
+            → Γ₁ ⊢ A ≅ B
+            → Γ₂ ⊢ wk ρ A ≅ wk ρ B
+    ≅ₜ-wk   : Γ₂ ⊢ʷᵏ ρ ∷ Γ₁
+            → Γ₁ ⊢ t ≅ u ∷ A
+            → Γ₂ ⊢ wk ρ t ≅ wk ρ u ∷ wk ρ A
+    wk-⊢≅∷L : Γ₂ ⊢ʷᵏ ρ ∷ Γ₁
+            → Γ₁ ⊢ l₁ ≅ l₂ ∷Level
+            → Γ₂ ⊢ wk ρ l₁ ≅ wk ρ l₂ ∷Level
+    ~-wk    : Γ₂ ⊢ʷᵏ ρ ∷ Γ₁
+            → Γ₁ ⊢ t ~ u ∷ A
+            → Γ₂ ⊢ wk ρ t ~ wk ρ u ∷ wk ρ A
 
     -- Weak head expansion
     ≅-red : Γ ⊢ A ↘ A′
@@ -446,6 +435,36 @@ record Equality-relations
   -- Composition of universe and generic equality compatibility
   ~-to-≅ : ∀ {k l l′} → Γ ⊢ k ~ l ∷ U l′ → Γ ⊢ k ≅ l
   ~-to-≅ = ≅-univ ∘→ ~-to-≅ₜ
+
+  opaque
+
+    -- Weakening for _⊢_≅_ for the definition context.
+
+    ≅-defn-wk :
+      » ∇₂ ⊇ ∇₁ → (∇₁ » Δ) ⊢ A ≅ B → (∇₂ » Δ) ⊢ A ≅ B
+    ≅-defn-wk ∇₂⊇∇₁ A≅B =
+      PE.subst₂ (_⊢_≅_ _) (wk-id _) (wk-id _) $
+      ≅-wk (»⊇→⊢ʷᵏ ∇₂⊇∇₁ (defn-wk ∇₂⊇∇₁ (wf (≅-eq A≅B)))) A≅B
+
+  opaque
+
+    -- Weakening for _⊢_≅_∷_ for the definition context.
+
+    ≅ₜ-defn-wk :
+      » ∇₂ ⊇ ∇₁ → (∇₁ » Δ) ⊢ t ≅ u ∷ A → (∇₂ » Δ) ⊢ t ≅ u ∷ A
+    ≅ₜ-defn-wk ∇₂⊇∇₁ t≅u =
+      PE.subst₃ (_⊢_≅_∷_ _) (wk-id _) (wk-id _) (wk-id _) $
+      ≅ₜ-wk (»⊇→⊢ʷᵏ ∇₂⊇∇₁ (defn-wk ∇₂⊇∇₁ (wf (≅ₜ-eq t≅u)))) t≅u
+
+  opaque
+
+    -- Weakening for _⊢_~_∷_ for the definition context.
+
+    ~-defn-wk :
+      » ∇₂ ⊇ ∇₁ → (∇₁ » Δ) ⊢ t ~ u ∷ A → (∇₂ » Δ) ⊢ t ~ u ∷ A
+    ~-defn-wk ∇₂⊇∇₁ t~u =
+      PE.subst₃ (_⊢_~_∷_ _) (wk-id _) (wk-id _) (wk-id _) $
+      ~-wk (»⊇→⊢ʷᵏ ∇₂⊇∇₁ (defn-wk ∇₂⊇∇₁ (wf (~-eq t~u)))) t~u
 
   opaque
 

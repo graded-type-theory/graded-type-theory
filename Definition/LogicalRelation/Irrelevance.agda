@@ -102,14 +102,14 @@ mutual
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity W W ΠFG≡ΠF₁G₁
     in  B₌ F′ G′ D′
            (PE.subst (λ x → Γ ⊢ x ≅ ⟦ W ⟧ F′ ▹ G′) ΠFG≡ΠF₁G₁ A≡B)
-           (λ [ξ] {_} {ρ} [ρ] → irrelevanceEq′ (PE.cong (wk ρ) F≡F₁)
-                              ([F] [ξ] [ρ]) ([F]₁ [ξ] [ρ]) ([F≡F′] [ξ] [ρ]))
-           (λ [ξ] {_} {ρ} [ρ] [a]₁ →
-              let [a] = irrelevanceTerm′ (PE.cong (wk ρ) (PE.sym F≡F₁))
-                                         ([F]₁ [ξ] [ρ]) ([F] [ξ] [ρ]) [a]₁
-              in  irrelevanceEq′ (PE.cong (λ y → wk (lift ρ) y [ _ ]) G≡G₁)
-                    ([G] [ξ] [ρ] [a]) ([G]₁ [ξ] [ρ] [a]₁)
-                    ([G≡G′] [ξ] [ρ] [a]))
+           (λ [ρ] → irrelevanceEq′ (PE.cong (wk _) F≡F₁)
+                      ([F] [ρ]) ([F]₁ [ρ]) ([F≡F′] [ρ]))
+           (λ [ρ] [a]₁ →
+              let [a] = irrelevanceTerm′ (PE.cong (wk _) (PE.sym F≡F₁))
+                          ([F]₁ [ρ]) ([F] [ρ]) [a]₁
+              in  irrelevanceEq′ (PE.cong (λ y → wk (lift _) y [ _ ]) G≡G₁)
+                    ([G] [ρ] [a]) ([G]₁ [ρ] [a]₁)
+                    ([G≡G′] [ρ] [a]))
   irrelevanceEqT (Uᵥ (Uᵣ _ _ _ D1) (Uᵣ _ _ _ D2)) A≡B
     = case whrDet* (D1 , Uₙ) (D2 , Uₙ) of λ { PE.refl →
         U₌ k′ ⇒*U′ k≡k′ }
@@ -205,12 +205,12 @@ mutual
            (whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ)) of λ where
       (PE.refl , PE.refl , _) →
         Πₜ₌ f g d d′ funcF funcG f≡g
-        λ [ξ] [ρ] ⊩v ⊩w v≡w →
-          let ⊩v′ = irrelevanceTerm ([F]₁ [ξ] [ρ]) ([F] [ξ] [ρ]) ⊩v in
-          irrelevanceEqTerm ([G] [ξ] [ρ] ⊩v′) ([G]₁ [ξ] [ρ] ⊩v) $
-          [f≡g] [ξ] [ρ] ⊩v′
-            (irrelevanceTerm ([F]₁ [ξ] [ρ]) ([F] [ξ] [ρ]) ⊩w)
-            (irrelevanceEqTerm ([F]₁ [ξ] [ρ]) ([F] [ξ] [ρ]) v≡w)
+        λ [ρ] ⊩v ⊩w v≡w →
+          let ⊩v′ = irrelevanceTerm ([F]₁ [ρ]) ([F] [ρ]) ⊩v in
+          irrelevanceEqTerm ([G] [ρ] ⊩v′) ([G]₁ [ρ] ⊩v) $
+          [f≡g] [ρ] ⊩v′
+            (irrelevanceTerm ([F]₁ [ρ]) ([F] [ρ]) ⊩w)
+            (irrelevanceEqTerm ([F]₁ [ρ]) ([F] [ρ]) v≡w)
   irrelevanceEqTermT
     {Γ} {t} {u}
     (Bᵥ BΣˢ (Bᵣ F G D A≡A [F] [G] G-ext ok)
@@ -219,14 +219,14 @@ mutual
     let ΣFG≡ΣF₁G₁       = whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [fstp]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
-                    ([F] _ _) ([F]₁ _ _) [fstp]
+                    ([F] _) ([F]₁ _) [fstp]
         [fstr]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
-                    ([F] _ _) ([F]₁ _ _) [fstr]
+                    ([F] _) ([F]₁ _) [fstr]
         [fst≡]′ = irrelevanceEqTerm′ (PE.cong (wk id) F≡F₁)
-                    ([F] _ _) ([F]₁ _ _) [fst≡]
+                    ([F] _) ([F]₁ _) [fst≡]
         [snd≡]′ = irrelevanceEqTerm′
                     (PE.cong (λ x → wk (lift id) x [ fst _ p ]₀) G≡G₁)
-                    ([G] _ _ [fstp]) ([G]₁ _ _ [fstp]′) [snd≡]
+                    ([G] _ [fstp]) ([G]₁ _ [fstp]′) [snd≡]
     in  Σₜ₌ p r (PE.subst (λ x → Γ ⊢ t ⇒* p ∷ x) ΣFG≡ΣF₁G₁ d)
             (PE.subst (λ x → Γ ⊢ u ⇒* r ∷ x) ΣFG≡ΣF₁G₁ d′) pProd rProd
             (PE.subst (λ x → Γ ⊢ p ≅ r ∷ x) ΣFG≡ΣF₁G₁ p≅r)
@@ -241,13 +241,13 @@ mutual
     let ΣFG≡ΣF₁G₁       = whrDet* (D , ΠΣₙ) (D₁ , ΠΣₙ)
         F≡F₁ , G≡G₁ , _ = B-PE-injectivity BΣ! BΣ! ΣFG≡ΣF₁G₁
         [p₁]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
-                  ([F] _ _) ([F]₁ _ _) [p₁]
+                  ([F] _) ([F]₁ _) [p₁]
         [r₁]′ = irrelevanceTerm′ (PE.cong (wk id) F≡F₁)
-                  ([F] _ _) ([F]₁ _ _) [r₁]
+                  ([F] _) ([F]₁ _) [r₁]
         [fst≡]′ = irrelevanceEqTerm′ (PE.cong (wk id) F≡F₁)
-                    ([F] _ _) ([F]₁ _ _) [fst≡]
+                    ([F] _) ([F]₁ _) [fst≡]
         [snd≡]′ = irrelevanceEqTerm′ (PE.cong (λ x → wk (lift id) x [ _ ]₀) G≡G₁)
-                    ([G] _ _ [p₁]) ([G]₁ _ _ [p₁]′) [snd≡]
+                    ([G] _ [p₁]) ([G]₁ _ [p₁]′) [snd≡]
     in  Σₜ₌ p r (PE.subst (λ x → Γ ⊢ t ⇒* p ∷ x) ΣFG≡ΣF₁G₁ d)
             (PE.subst (λ x → Γ ⊢ u ⇒* r ∷ x) ΣFG≡ΣF₁G₁ d′) prodₙ prodₙ
             (PE.subst (λ x → Γ ⊢ p ≅ r ∷ x) ΣFG≡ΣF₁G₁ p≅r)

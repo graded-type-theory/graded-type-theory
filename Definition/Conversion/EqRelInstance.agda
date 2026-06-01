@@ -43,7 +43,6 @@ open import Definition.Conversion.Inversion R
 open import Definition.Conversion.Symmetry R
 open import Definition.Conversion.Transitivity R
 open import Definition.Conversion.Weakening R
-open import Definition.Conversion.Weakening.Definition R
 open import Definition.Conversion.Whnf R
 open import Definition.Typed.EqualityRelation R
 import Definition.Typed.EqualityRelation.Instance
@@ -322,16 +321,6 @@ module Lemmas where
           → Γ ⊢ k ~ m ∷ A
   ~-trans x y = trans~∷ x y .proj₁
 
-  ~-wk : ∀ {k l A} {ρ : Wk m n} {Γ Δ} →
-        ∇ » ρ ∷ʷ Δ ⊇ Γ →
-        ∇ » Γ ⊢ k ~ l ∷ A → ∇ » Δ ⊢ wk ρ k ~ wk ρ l ∷ wk ρ A
-  ~-wk = wk~∷
-
-  ~-defn-wk : ∀ {k l A} →
-        » ∇′ ⊇ ∇ →
-        ∇ » Η ⊢ k ~ l ∷ A → ∇′ » Η ⊢ k ~ l ∷ A
-  ~-defn-wk ξ⊇ (↑ A≡B k~l) = ↑ (defn-wk ξ⊇ A≡B) (defn-wk~↑ ξ⊇ k~l)
-
   ~-conv : ∀ {k l A B} →
         Γ ⊢ k ~ l ∷ A → Γ ⊢ A ≡ B → Γ ⊢ k ~ l ∷ B
   ~-conv (↑ x x₁) x₂ = ↑ (trans (sym x₂) x) x₁
@@ -476,10 +465,7 @@ private opaque
     .Equality-relations.≅-wk       → wkConv↑
     .Equality-relations.≅ₜ-wk      → wkConv↑Term
     .Equality-relations.wk-⊢≅∷L    → wkConv↑Level
-    .Equality-relations.~-wk       → ~-wk
-    .Equality-relations.≅-defn-wk  → defn-wkConv↑
-    .Equality-relations.≅ₜ-defn-wk → defn-wkConv↑Term
-    .Equality-relations.~-defn-wk  → ~-defn-wk
+    .Equality-relations.~-wk       → wk~∷
     .Equality-relations.≅-red      →
       λ (A⇒* , _) (B⇒* , _) → reductionConv↑ A⇒* B⇒*
     .Equality-relations.≅ₜ-red     →

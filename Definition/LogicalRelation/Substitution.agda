@@ -23,6 +23,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R as TW using (_∷_⊇_; _»_∷ʷ_⊇_)
+import Definition.Typed.Weakening.Combined R as C
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
@@ -810,21 +811,24 @@ opaque
   defn-wk-⊩ˢ≡∷ {Δ = ε} ⦃ inc ⦄ ξ⊇ σ₁≡σ₂ =
     ⊩ˢ≡∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ≡∷→» σ₁≡σ₂) , defn-wk ξ⊇ (⊩ˢ≡∷ε⇔ .proj₁ σ₁≡σ₂ .proj₂ ⦃ inc ⦄))
   defn-wk-⊩ˢ≡∷ {Δ = Δ ∙ A} ξ⊇ σ₁≡σ₂ =
-    let ((ℓ , ⊩A , h≡h) , t≡t) = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂
-    in  ⊩ˢ≡∷∙⇔ .proj₂ $ (ℓ , defn-wk-⊩ᵛ ξ⊇ ⊩A , defn-wk-⊩≡∷ ξ⊇ h≡h)
-                      , defn-wk-⊩ˢ≡∷ ξ⊇ t≡t
+    let ((ℓ , ⊩A , h≡h) , t≡t) = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
+    ⊩ˢ≡∷∙⇔ .proj₂ $
+      (ℓ , defn-wk-⊩ᵛ ξ⊇ ⊩A ,
+       PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _) (wk-id _) (wk-id _) (wk-id _)
+         (wk-⊩≡∷
+            (C.»⊇→⊢ʷᵏ ξ⊇ (defn-wk ξ⊇ (wf (≅ₜ-eq (escape-⊩≡∷ h≡h)))))
+            h≡h)) ,
+      defn-wk-⊩ˢ≡∷ ξ⊇ t≡t
 
 opaque
 
   -- A definitional weakening lemma for _⊩ˢ_∷_.
 
-  defn-wk-⊩ˢ∷ : » ∇′ ⊇ ∇ → ∇ » Η ⊩ˢ σ ∷ Δ → ∇′ » Η ⊩ˢ σ ∷ Δ
-  defn-wk-⊩ˢ∷ {Δ = ε} ξ⊇ ⊩σ =
-    ⊩ˢ∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ∷→» ⊩σ) , defn-wk ξ⊇ (⊩ˢ∷ε⇔ .proj₁ ⊩σ .proj₂))
-  defn-wk-⊩ˢ∷ {Δ = Δ ∙ A} ξ⊇ ⊩σ =
-    let ((ℓ , ⊩A , ⊩h) , ⊩t) = ⊩ˢ∷∙⇔ .proj₁ ⊩σ
-    in  ⊩ˢ∷∙⇔ .proj₂ $ (ℓ , defn-wk-⊩ᵛ ξ⊇ ⊩A , defn-wk-⊩∷ ξ⊇ ⊩h)
-                     , defn-wk-⊩ˢ∷ ξ⊇ ⊩t
+  defn-wk-⊩ˢ∷ :
+    ⦃ inc : Var-included or-empty Η ⦄ →
+    » ∇′ ⊇ ∇ → ∇ » Η ⊩ˢ σ ∷ Δ → ∇′ » Η ⊩ˢ σ ∷ Δ
+  defn-wk-⊩ˢ∷ ξ⊇ =
+    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ defn-wk-⊩ˢ≡∷ ξ⊇ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
 
 opaque
 
@@ -1498,7 +1502,7 @@ opaque
       ( ( _ , ⊩A
         , with-inc-⊩≡∷
             (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A)
-               (wk-⊩≡∷ ρ⊇ σ₁₀≡σ₂₀))
+               (wk-⊩≡∷ (C.»∷ʷ⊇→⊢ʷᵏ ρ⊇) σ₁₀≡σ₂₀))
         )
       , ⊩ˢ≡∷-•ₛ ρ⊇ σ₁₊≡σ₂₊
       )

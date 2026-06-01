@@ -391,7 +391,6 @@ import Definition.Conversion.Conversion
 import Definition.Conversion.Symmetry
 import Definition.Conversion.Transitivity
 import Definition.Conversion.Weakening
-import Definition.Conversion.Weakening.Definition
 import Definition.Conversion.Lift
 import Definition.Conversion.Universe
 import Definition.Conversion.Decidable

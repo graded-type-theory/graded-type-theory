@@ -421,11 +421,12 @@ open LogRel
 ```
 
 Well-formed weakenings were introduced above. The definition of the
-logical relation uses a variant of this definition which is logically
-equivalent if `Var-included` is inhabited.
+logical relation uses a notion of weakening that (if `Var-included` is
+inhabited) includes weakening for both the variable context and the
+definition context.
 ```agda
 import Definition.LogicalRelation.Weakening.Restricted
-  using (_»_∷ʷʳ_⊇_; ∷ʷ⊇→∷ʷʳ⊇; ∷ʷʳ⊇→∷ʷ⊇)
+  using (_⊢ʷᵏʳ_∷_)
 ```
 
 Lifting of weakenings is denoted by `lift` rather than \_⇑ (which is

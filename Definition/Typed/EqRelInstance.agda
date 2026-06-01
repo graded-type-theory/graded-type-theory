@@ -16,8 +16,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.EqualityRelation R
 import Definition.Typed.EqualityRelation.Instance
@@ -55,13 +54,10 @@ private opaque
       .~-trans                   → trans
       .≅-conv                    → conv
       .~-conv                    → conv
-      .≅-wk                      → wk
-      .≅ₜ-wk                     → wk
-      .wk-⊢≅∷L                   → wk
-      .~-wk                      → wk
-      .≅-defn-wk                 → defn-wk
-      .≅ₜ-defn-wk                → defn-wk
-      .~-defn-wk                 → defn-wk
+      .≅-wk                      → wk-⊢
+      .≅ₜ-wk                     → wk-⊢
+      .wk-⊢≅∷L                   → wk-⊢
+      .~-wk                      → wk-⊢
       .≅-red (A⇒* , _) (B⇒* , _) →
         reduction A⇒* B⇒*
       .≅ₜ-red (A⇒* , _) (t⇒* , _) (u⇒* , _) →
