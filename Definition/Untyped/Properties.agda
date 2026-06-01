@@ -45,6 +45,7 @@ private
     s s₁ s₂ : Strength
     b₁ b₂ : BinderMode
     f : 𝕋 → 𝕌
+    𝓙 : Judgement _
 
 ------------------------------------------------------------------------
 -- Properties of definition contexts
@@ -4323,3 +4324,49 @@ opaque
 
   Infinite→Level-literal : Infinite l → Level-literal l
   Infinite→Level-literal ωᵘ+ = ωᵘ+
+
+------------------------------------------------------------------------
+-- Some lemmas related to mapJ
+
+opaque
+
+  -- A congruence lemma for mapJ.
+
+  mapJ-cong :
+    {f g : ∀ {k} → Term[ k ] n → Term[ k ] n} →
+    (∀ {k} (t : Term[ k ] n) → f t ≡ g t) →
+    mapJ f 𝓙 ≡ mapJ g 𝓙
+  mapJ-cong {𝓙 = [ctxt]}          f≡g = refl
+  mapJ-cong {𝓙 = [ _ type]}       f≡g = cong [_type] (f≡g _)
+  mapJ-cong {𝓙 = [ _ ≡ _ type]}   f≡g = cong₂ [_≡_type] (f≡g _) (f≡g _)
+  mapJ-cong {𝓙 = [ _ ∷ _ ]}       f≡g = cong₂ [_∷_] (f≡g _) (f≡g _)
+  mapJ-cong {𝓙 = [ _ ≡ _ ∷ _ ]}   f≡g = cong₃ [_≡_∷_] (f≡g _) (f≡g _)
+                                          (f≡g _)
+  mapJ-cong {𝓙 = [ _ ∷Level]}     f≡g = cong [_∷Level] (f≡g _)
+  mapJ-cong {𝓙 = [ _ ≡ _ ∷Level]} f≡g = cong₂ [_≡_∷Level] (f≡g _)
+                                          (f≡g _)
+
+opaque
+
+  -- The function mapJ idᶠ is pointwise equal to the identity
+  -- function.
+
+  mapJ-id : mapJ idᶠ 𝓙 ≡ 𝓙
+  mapJ-id {𝓙 = [ctxt]}          = refl
+  mapJ-id {𝓙 = [ _ type]}       = refl
+  mapJ-id {𝓙 = [ _ ≡ _ type]}   = refl
+  mapJ-id {𝓙 = [ _ ∷ _ ]}       = refl
+  mapJ-id {𝓙 = [ _ ≡ _ ∷ _ ]}   = refl
+  mapJ-id {𝓙 = [ _ ∷Level]}     = refl
+  mapJ-id {𝓙 = [ _ ≡ _ ∷Level]} = refl
+
+opaque
+
+  -- The function mapJ (wk id) is pointwise equal to the identity
+  -- function.
+
+  mapJ-wk-id : mapJ (wk id) 𝓙 ≡ 𝓙
+  mapJ-wk-id {𝓙} =
+    mapJ (wk id) 𝓙  ≡⟨ mapJ-cong wk-id ⟩
+    mapJ idᶠ 𝓙      ≡⟨ mapJ-id ⟩
+    𝓙               ∎
