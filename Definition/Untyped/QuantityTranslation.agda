@@ -24,6 +24,7 @@ open import Tools.Relation
 open import Definition.Typed.Variant
 
 open import Definition.Untyped
+import Definition.Untyped.Identity
 open import Definition.Untyped.Neutral
 import Definition.Untyped.Properties
 open import Definition.Untyped.Whnf
@@ -37,6 +38,8 @@ private
   module UP₂ = Definition.Untyped.Properties M₂
   module UW₁ = Definition.Untyped.Whnf M₁
   module UW₂ = Definition.Untyped.Whnf M₂
+
+open import Graded.Modality
 
 private variable
   α m n                    : Nat
@@ -429,6 +432,30 @@ opaque
     tr-Term t U₂.[ U₂.replace₁ n (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst []↑-lemma (tr-Term t) ⟩
     tr-Term t U₂.[ tr-Subst (U₁.replace₁ n u) ]  ≡⟨ tr-Term-subst t ⟩
     tr-Term (t U₁.[ U₁.replace₁ n u ])           ∎
+
+------------------------------------------------------------------------
+-- A definition that makes use of modalities
+
+module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
+
+  module M₁  = Modality 𝕄₁
+  module M₂  = Modality 𝕄₂
+  module UI₁ = Definition.Untyped.Identity 𝕄₁
+  module UI₂ = Definition.Untyped.Identity 𝕄₂
+
+  opaque
+    unfolding Definition.Untyped.Identity.subst
+
+    -- Translation commutes with subst (given a certain assumption).
+
+    tr-Term-subst′ :
+      ∀ {p} →
+      tr M₁.𝟘 ≡ M₂.𝟘 →
+      tr-Term (UI₁.subst p A B t u v w) ≡
+      UI₂.subst (tr p) (tr-Term A) (tr-Term B) (tr-Term t) (tr-Term u)
+        (tr-Term v) (tr-Term w)
+    tr-Term-subst′ hyp =
+      cong₂ (λ q B → J _ q _ _ B _ _ _) hyp (sym tr-Term-wk)
 
 
 ------------------------------------------------------------------------
