@@ -275,7 +275,7 @@ mutual
   tr-⊢∷ (prodrecⱼ {A = Q} ⊢Q t u) =
     PE.subst (T₂._⊢_∷_ _ _) (tr-Term-[] Q)
       (prodrecⱼ (tr-⊢′ ⊢Q) (tr-⊢∷ t)
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² Q)) (tr-⊢∷ u)))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ Q)) (tr-⊢∷ u)))
   tr-⊢∷ (zeroⱼ Γ) =
     zeroⱼ (tr-⊢ Γ)
   tr-⊢∷ (sucⱼ t) =
@@ -284,7 +284,7 @@ mutual
     PE.subst (T₂._⊢_∷_ _ _) (tr-Term-[] P)
       (natrecⱼ
          (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² P))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ P))
             (tr-⊢∷ s))
          (tr-⊢∷ n))
   tr-⊢∷ (emptyrecⱼ A e) =
@@ -437,14 +437,14 @@ mutual
   tr-⊢≡∷ (prodrec-cong {A = Q} Q≡R t≡u v≡w) =
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] Q)
       (prodrec-cong (tr-⊢≡ Q≡R) (tr-⊢≡∷ t≡u)
-         (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-[]↑² Q))
+         (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-[]↑ Q))
             (tr-⊢≡∷ v≡w)))
   tr-⊢≡∷
     (prodrec-β {G = P} {A = Q} {u = v} ⊢Q t u ⊢v PE.refl) =
     PE.subst₂ (T₂._⊢_≡_∷_ _ _) (tr-Term-[,] v) (tr-Term-[] Q)
       (prodrec-β (tr-⊢′ ⊢Q) (tr-⊢∷ t)
          (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[] P)) (tr-⊢∷ u))
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² Q))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ Q))
             (tr-⊢∷ ⊢v))
          PE.refl)
   tr-⊢≡∷ (suc-cong t≡u) =
@@ -454,7 +454,7 @@ mutual
       (natrec-cong (tr-⊢≡ P≡P′)
          (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-[] P))
             (tr-⊢≡∷ z≡z′))
-         (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-[]↑² P))
+         (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-[]↑ P))
             (tr-⊢≡∷ s≡s′))
          (tr-⊢≡∷ n≡n′))
   tr-⊢≡∷ (natrec-zero {A = P} z s) =
@@ -462,12 +462,12 @@ mutual
       (tr-Term-[] P)
       (natrec-zero
          (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² P)) (tr-⊢∷ s)))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ P)) (tr-⊢∷ s)))
   tr-⊢≡∷ (natrec-suc {A = P} {s} z ⊢s n) =
     PE.subst₂ (T₂._⊢_≡_∷_ _ _) (tr-Term-[,] s) (tr-Term-[] P)
       (natrec-suc
          (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² P)) (tr-⊢∷ ⊢s))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ P)) (tr-⊢∷ ⊢s))
          (tr-⊢∷ n))
   tr-⊢≡∷ (emptyrec-cong A≡B t≡u) =
     emptyrec-cong (tr-⊢≡ A≡B) (tr-⊢≡∷ t≡u)
@@ -640,31 +640,31 @@ module _
   tr-⊢⇒∷ (prodrec-subst {A = Q} ⊢Q v t⇒u) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] Q)
       (prodrec-subst (tr-⊢′ ⊢Q)
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² Q)) (tr-⊢∷ v))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ Q)) (tr-⊢∷ v))
          (tr-⊢⇒∷ t⇒u))
   tr-⊢⇒∷ (prodrec-β {G = P} {A = Q} {u = v} ⊢Q t u ⊢v PE.refl) =
     PE.subst₂ (T₂._⊢_⇒_∷_ _ _) (tr-Term-[,] v) (tr-Term-[] Q)
       (prodrec-β (tr-⊢′ ⊢Q) (tr-⊢∷ t)
          (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[] P)) (tr-⊢∷ u))
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² Q)) (tr-⊢∷ ⊢v))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ Q)) (tr-⊢∷ ⊢v))
          PE.refl)
   tr-⊢⇒∷ (natrec-subst {A = P} z s n⇒n′) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] P)
       (natrec-subst
          (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² P)) (tr-⊢∷ s))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ P)) (tr-⊢∷ s))
          (tr-⊢⇒∷ n⇒n′))
   tr-⊢⇒∷ (natrec-zero {A = P} z s) =
     PE.subst (T₂._⊢_⇒_∷_ _ _ _)
       (tr-Term-[] P)
       (natrec-zero
          (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² P)) (tr-⊢∷ s)))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ P)) (tr-⊢∷ s)))
   tr-⊢⇒∷ (natrec-suc {A = P} {s} z ⊢s n) =
     PE.subst₂ (T₂._⊢_⇒_∷_ _ _) (tr-Term-[,] s) (tr-Term-[] P)
       (natrec-suc
          (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[] P)) (tr-⊢∷ z))
-         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑² P)) (tr-⊢∷ ⊢s))
+         (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ P)) (tr-⊢∷ ⊢s))
          (tr-⊢∷ n))
   tr-⊢⇒∷ (emptyrec-subst A t⇒u) =
     emptyrec-subst (tr-⊢′ A) (tr-⊢⇒∷ t⇒u)

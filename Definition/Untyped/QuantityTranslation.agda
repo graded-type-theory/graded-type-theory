@@ -321,6 +321,18 @@ tr-Subst-wk1Subst :
 tr-Subst-wk1Subst x0     = tr-Term-wk
 tr-Subst-wk1Subst (_ +1) = tr-Term-wk
 
+opaque
+
+  -- The function wkSubst commutes with translation.
+
+  tr-Subst-wkSubst :
+    ∀ n x → U₂.wkSubst n (tr-Subst σ) x ≡ tr-Subst (U₁.wkSubst n σ) x
+  tr-Subst-wkSubst     0      _ = refl
+  tr-Subst-wkSubst {σ} (1+ n) x =
+    U₂.wk1Subst (U₂.wkSubst n (tr-Subst σ)) x  ≡⟨ UP₂.wk1Subst-cong (tr-Subst-wkSubst n) _ ⟩
+    U₂.wk1Subst (tr-Subst (U₁.wkSubst n σ)) x  ≡⟨ tr-Subst-wk1Subst {σ = U₁.wkSubst n _} _ ⟩
+    tr-Subst (U₁.wk1Subst (U₁.wkSubst n σ)) x  ∎
+
 mutual
 
   -- Substitution commutes with translation of the alternative term
@@ -395,65 +407,29 @@ tr-Term-[,] {u = u} {v = v} t =
 
   tr-Term (t U₁.[ U₁.consSubst (U₁.sgSubst u) v ])            ∎
 
-private
+private opaque
 
   -- A lemma used below.
 
   []↑-lemma :
-    ∀ x →
-    U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term t) x ≡
-    tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) t) x
-  []↑-lemma {t = t} x =
-    U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term t) x             ≡⟨ UP₂.consSubst-cong refl tr-Subst-wk1Subst x ⟩
-    U₂.consSubst (tr-Subst (U₁.wk1Subst U₁.idSubst)) (tr-Term t) x  ≡⟨ tr-Subst-consSubst x ⟩
-    tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) t) x            ∎
+    ∀ x → U₂.replace₁ n (tr-Term t) x ≡ tr-Subst (U₁.replace₁ n t) x
+  []↑-lemma {n} {t} x =
+    U₂.consSubst (U₂.wkSubst n U₂.idSubst) (tr-Term t) x             ≡⟨ UP₂.consSubst-cong refl (tr-Subst-wkSubst n) x ⟩
+    U₂.consSubst (tr-Subst (U₁.wkSubst n U₁.idSubst)) (tr-Term t) x  ≡⟨ tr-Subst-consSubst x ⟩
+    tr-Subst (U₁.consSubst (U₁.wkSubst n U₁.idSubst) t) x            ∎
 
--- Substitution commutes with translation.
+opaque
 
-tr-Term-[]↑ :
-  (t : U₁.Term[ k ] (1+ n)) →
-  tr-Term t U₂.[ tr-Term u ]↑ ≡ tr-Term (t U₁.[ u ]↑)
-tr-Term-[]↑ {u = u} t =
-  tr-Term t
-    U₂.[ U₂.consSubst (U₂.wk1Subst U₂.idSubst) (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst []↑-lemma (tr-Term t) ⟩
+  -- Substitution commutes with translation.
 
-  tr-Term t
-    U₂.[ tr-Subst (U₁.consSubst (U₁.wk1Subst U₁.idSubst) u) ]  ≡⟨ tr-Term-subst t ⟩
+  tr-Term-[]↑ :
+    (t : U₁.Term[ k ] (1+ m)) →
+    tr-Term t U₂.[ n ][ tr-Term u ]↑ ≡ tr-Term (t U₁.[ n ][ u ]↑)
+  tr-Term-[]↑ {n} {u} t =
+    tr-Term t U₂.[ U₂.replace₁ n (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst []↑-lemma (tr-Term t) ⟩
+    tr-Term t U₂.[ tr-Subst (U₁.replace₁ n u) ]  ≡⟨ tr-Term-subst t ⟩
+    tr-Term (t U₁.[ U₁.replace₁ n u ])           ∎
 
-  tr-Term (t U₁.[ U₁.consSubst (U₁.wk1Subst U₁.idSubst) u ])   ∎
-
-private
-
-  -- A lemma used below.
-
-  []↑²-lemma :
-    ∀ x →
-    U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term t) x ≡
-    tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) t) x
-  []↑²-lemma {t = t} x =
-    U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term t) x   ≡⟨ UP₂.consSubst-cong refl (UP₂.wk1Subst-cong tr-Subst-wk1Subst) x ⟩
-
-    U₂.consSubst (U₂.wk1Subst (tr-Subst (U₁.wk1Subst U₁.idSubst)))
-      (tr-Term t) x                                                     ≡⟨ UP₂.consSubst-cong refl tr-Subst-wk1Subst x ⟩
-
-    U₂.consSubst (tr-Subst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)))
-      (tr-Term t) x                                                     ≡⟨ tr-Subst-consSubst x ⟩
-
-    tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) t) x  ∎
-
--- Substitution commutes with translation.
-
-tr-Term-[]↑² :
-  (t : U₁.Term[ k ] (1+ n)) →
-  tr-Term t U₂.[ tr-Term u ]↑² ≡ tr-Term (t U₁.[ u ]↑²)
-tr-Term-[]↑² {u = u} t =
-  tr-Term t
-    U₂.[ U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term u) ]   ≡⟨ UP₂.substVar-to-subst []↑²-lemma (tr-Term t) ⟩
-
-  tr-Term t
-    U₂.[ tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) u) ]  ≡⟨ tr-Term-subst t ⟩
-
-  tr-Term (t U₁.[ U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) u ])   ∎
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for translation
@@ -2149,5 +2125,5 @@ module Injective
   tr-Term-[]↑²⁻¹ {t = t} {u = u} {v = v} eq = tr-Term-subst⁻¹ (
     tr-Term t                                                                  ≡⟨ eq ⟩
     u U₂.[ tr-Term v ]↑²                                                       ≡⟨⟩
-    u U₂.[ U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term v) ]   ≡⟨ UP₂.substVar-to-subst []↑²-lemma u ⟩
+    u U₂.[ U₂.consSubst (U₂.wk1Subst (U₂.wk1Subst U₂.idSubst)) (tr-Term v) ]   ≡⟨ UP₂.substVar-to-subst []↑-lemma u ⟩
     u U₂.[ tr-Subst (U₁.consSubst (U₁.wk1Subst (U₁.wk1Subst U₁.idSubst)) v) ]  ∎)
