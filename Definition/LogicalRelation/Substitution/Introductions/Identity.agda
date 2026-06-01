@@ -463,6 +463,34 @@ opaque
 
 opaque
 
+  -- In the presence of equality reflection Γ ⊩⟨ ℓ ⟩ v ∷ Id A t u
+  -- holds for some v if and only if Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A holds.
+
+  Equality-reflection→⊩∷Id⇔ :
+    Equality-reflection →
+    (∃ λ v → Γ ⊩⟨ ℓ ⟩ v ∷ Id A t u) ⇔
+    Γ ⊩⟨ ℓ ⟩ t ≡ u ∷ A
+  Equality-reflection→⊩∷Id⇔ ok =
+    (λ (_ , ⊩v) →
+       case ⊩∷Id⇔ .proj₁ ⊩v of λ where
+         (_ , _ , _ , _ , rflᵣ t≡u) →
+           t≡u
+         (_ , _ , _ , _ , ne n _) →
+           ⊥-elim $
+           case dichotomy-ne (ne⁻ n) of λ where
+             (inj₁ n) →
+               let op = ne-opaque-ok (defn-wf (wf (escape-⊩∷ ⊩v))) n in
+               no-opaque-equality-reflection op ok
+             (inj₂ inc) →
+               Equality-reflection-allowed→¬Var-included ok inc) ,
+    (λ t≡u →
+       let ⊩t , ⊩u = wf-⊩≡∷ t≡u in
+       rfl ,
+       Identityᵃ→⊩∷Id⇔ rflₙ .proj₂
+         (rflⱼ′ (≅ₜ-eq (escape-⊩≡∷ t≡u)) , ⊩t , ⊩u , rflᵣ t≡u))
+
+opaque
+
   -- A characterisation lemma for _⊩ᵛ⟨_⟩_.
 
   ⊩ᵛId⇔ :
@@ -680,17 +708,8 @@ opaque
       ( ⊩t
       , ⊩u
       , λ ξ⊇ ⊩σ →
-          case ⊩≡∷Id⇔ .proj₁ $ v≡v ξ⊇ $ refl-⊩ˢ≡∷ ⊩σ of λ
-            (_ , _ , _ , _ , _ , _ , rest) →
-          case rest of λ where
-            (rfl₌ t[σ]≡u[σ]) → t[σ]≡u[σ]
-            (ne v′-ne _ v′~v′) →
-              ⊥-elim $
-              case dichotomy-ne (ne⁻ v′-ne) of λ where
-                (inj₁ b) →
-                  let op = ne-opaque-ok (defn-wf (wf (~-eq v′~v′))) b
-                  in  no-opaque-equality-reflection op ok
-                (inj₂ n) → Equality-reflection-allowed→¬Var-included ok n
+          Equality-reflection→⊩∷Id⇔ ok .proj₁
+            (_ , ⊩∷⇔⊩≡∷ .proj₂ (v≡v ξ⊇ (refl-⊩ˢ≡∷ ⊩σ)))
       )
 
 ------------------------------------------------------------------------
