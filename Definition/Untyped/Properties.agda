@@ -2236,6 +2236,28 @@ opaque
 
 opaque
 
+  -- A generalisation of wk1-tail and wk2-tail.
+
+  wk[]-tail :
+    ∀ n {σ : Subst m (n + o)} → wk[ n ] t [ σ ] ≡ t [ tail[ n ] σ ]
+  wk[]-tail     0          = PE.refl
+  wk[]-tail {t} (1+ n) {σ} =
+    wk1 (wk[ n ] t) [ σ ]     ≡⟨ wk1-tail (wk[ n ] _) ⟩
+    wk[ n ] t [ tail σ ]      ≡⟨ wk[]-tail n ⟩
+    t [ tail[ n ] (tail σ) ]  ∎
+
+opaque
+
+  -- A variant of wk[]-tail.
+
+  wk[]′-tail : (t : Term[ k ] m) → wk[ n ]′ t [ σ ] ≡ t [ tail[ n ] σ ]
+  wk[]′-tail {n} {σ} t =
+    wk[ n ]′ t [ σ ]   ≡˘⟨ PE.cong _[ _ ] (wk[]≡wk[]′ {t = t}) ⟩
+    wk[ n ] t [ σ ]    ≡⟨ wk[]-tail n ⟩
+    t [ tail[ n ] σ ]  ∎
+
+opaque
+
   -- One can combine wk (lift (step id)) and wk[ 1+ k ]′.
 
   wk-lift-step-id-wk[1+]′≡ :
@@ -2269,6 +2291,31 @@ opaque
     wk (liftn ρ n • stepn id n) t  ≡˘⟨ cong (flip wk _) (liftn-stepn-comp n) ⟩
     wk (stepn ρ n) t               ≡˘⟨ wk[]′-wk ⟩
     wk[ n ]′ (wk ρ t)              ∎
+
+------------------------------------------------------------------------
+-- Another lemma
+
+opaque
+
+  -- A variant of singleSubstComp and doubleSubstComp.
+
+  tripleSubstComp :
+    (t : Term (3+ n)) →
+    t [ σ ⇑[ 3 ] ] [ u , v , w ]₂₁₀ PE.≡
+    t [ consSubst (consSubst (consSubst σ u) v) w ]
+  tripleSubstComp {σ} {u} {v} {w} t =
+    t [ σ ⇑[ 3 ] ] [ u , v , w ]₂₁₀                                ≡⟨ substCompEq t ⟩
+    t [ consSubst (consSubst (sgSubst u) v) w ₛ•ₛ (σ ⇑[ 3 ]) ]     ≡⟨ (flip substVar-to-subst t λ where
+                                                                         x0           → PE.refl
+                                                                         (x0 +1)      → PE.refl
+                                                                         (x0 +1 +1)   → PE.refl
+                                                                         (_ +1 +1 +1) → wk[]-tail {t = σ _} 3) ⟩
+    t [ consSubst (consSubst (consSubst (idSubst ₛ•ₛ σ) u) v) w ]  ≡⟨ flip substVar-to-subst t $
+                                                                      consSubst-cong PE.refl $
+                                                                      consSubst-cong PE.refl $
+                                                                      consSubst-cong PE.refl $
+                                                                      idSubst-ₛ•ₛˡ ⟩
+    t [ consSubst (consSubst (consSubst σ u) v) w ]                ∎
 
 ------------------------------------------------------------------------
 -- Some lemmas related to _[_][_]↑
