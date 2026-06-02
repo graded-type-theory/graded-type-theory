@@ -44,15 +44,16 @@ open import Tools.Relation
 open import Tools.Unit
 
 private variable
-  m n κ                                                 : Nat
-  ∇ ∇′ ∇″                                               : DCon (Term 0) _
-  Δ Η Φ                                                 : Con Term _
-  Γ                                                     : Cons _ _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v v₁ v₂ w : Term _
-  l l₁ l₂                                               : Lvl _
-  σ σ₁ σ₂ σ₃                                            : Subst _ _
-  ρ                                                     : Wk _ _
-  ℓ ℓ′ ℓ″ ℓ‴                                            : Universe-level
+  m n κ                             : Nat
+  ∇ ∇′ ∇″                           : DCon (Term 0) _
+  Δ Η Φ                             : Con Term _
+  Γ                                 : Cons _ _
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ D E
+    t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  l l₁ l₂                           : Lvl _
+  σ σ₁ σ₂ σ₃                        : Subst _ _
+  ρ                                 : Wk _ _
+  ℓ ℓ′ ℓ″ ℓ‴                        : Universe-level
 
 ------------------------------------------------------------------------
 -- The type formers
@@ -2691,6 +2692,62 @@ opaque
     ⊩∷⇔⊩≡∷ .proj₂ $
     ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
       (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v)
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
+
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩≡∷→⊩[⇑³][]₂₁₀≡[⇑³][]₂₁₀∷ :
+    ∇ » Δ ∙ A ∙ B ∙ C ⊩ᵛ⟨ ℓ ⟩ t₁ ≡ t₂ ∷ D →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊩⟨ ℓ′ ⟩ u₁ ≡ u₂ ∷ A [ σ₁ ] →
+    ∇ » Η ⊩⟨ ℓ″ ⟩ v₁ ≡ v₂ ∷ B [ σ₁ ⇑ ] [ u₁ ]₀ →
+    ∇ » Η ⊩⟨ ℓ‴ ⟩ w₁ ≡ w₂ ∷ C [ σ₁ ⇑[ 2 ] ] [ u₁ , v₁ ]₁₀ →
+    ∇ » Η ⊩⟨ ℓ ⟩ t₁ [ σ₁ ⇑[ 3 ] ] [ u₁ , v₁ , w₁ ]₂₁₀ ≡
+      t₂ [ σ₂ ⇑[ 3 ] ] [ u₂ , v₂ , w₂ ]₂₁₀ ∷
+      D [ σ₁ ⇑[ 3 ] ] [ u₁ , v₁ , w₁ ]₂₁₀
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩≡∷→⊩[⇑³][]₂₁₀≡[⇑³][]₂₁₀∷
+    {B} {C} {t₁} {t₂} {D} t₁≡t₂ σ₁≡σ₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
+    let _ , ⊩C = wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁))
+        _ , ⊩B = wf-∙-⊩ᵛ ⊩C
+    in
+    PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _)
+      (PE.sym $ tripleSubstComp t₁)
+      (PE.sym $ tripleSubstComp t₂)
+      (PE.sym $ tripleSubstComp D) $
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
+    ⊩ˢ≡∷∙⇔′ .proj₂
+      ( (_ , ⊩C)
+      , ( _
+        , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (doubleSubstComp C _ _ _) w₁≡w₂
+        )
+      , ⊩ˢ≡∷∙⇔′ .proj₂
+          ( (_ , ⊩B)
+          , ( _
+            , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstComp _ _ B)
+                v₁≡v₂
+            )
+          , ⊩ˢ≡∷∙⇔′ .proj₂ (wf-∙-⊩ᵛ ⊩B , (_ , u₁≡u₂) , σ₁≡σ₂)
+          )
+      )
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
+
+  ⊩ᵛ∷→⊩ˢ∷→⊩∷→⊩∷→⊩∷→⊩[⇑³][]₂₁₀∷ :
+    ∇ » Δ ∙ A ∙ B ∙ C ⊩ᵛ⟨ ℓ ⟩ t ∷ D →
+    ∇ » Η ⊩ˢ σ ∷ Δ →
+    ∇ » Η ⊩⟨ ℓ′ ⟩ u ∷ A [ σ ] →
+    ∇ » Η ⊩⟨ ℓ″ ⟩ v ∷ B [ σ ⇑ ] [ u ]₀ →
+    ∇ » Η ⊩⟨ ℓ‴ ⟩ w ∷ C [ σ ⇑[ 2 ] ] [ u , v ]₁₀ →
+    ∇ » Η ⊩⟨ ℓ ⟩
+      t [ σ ⇑[ 3 ] ] [ consSubst (consSubst (sgSubst u) v) w ] ∷
+      D [ σ ⇑[ 3 ] ] [ consSubst (consSubst (sgSubst u) v) w ]
+  ⊩ᵛ∷→⊩ˢ∷→⊩∷→⊩∷→⊩∷→⊩[⇑³][]₂₁₀∷ ⊩t ⊩σ ⊩u ⊩v ⊩w =
+    ⊩∷⇔⊩≡∷ .proj₂ $
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩≡∷→⊩[⇑³][]₂₁₀≡[⇑³][]₂₁₀∷ (refl-⊩ᵛ≡∷ ⊩t)
+      (refl-⊩ˢ≡∷ ⊩σ) (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v) (refl-⊩≡∷ ⊩w)
 
 opaque
 
