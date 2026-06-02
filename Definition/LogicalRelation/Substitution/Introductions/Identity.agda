@@ -1288,7 +1288,7 @@ opaque
                 (PE.cong (_»∙_ _) $ Id-wk1-wk1-0[⇑]≡ A₁ t₁)
                 PE.refl PE.refl $
               R.escape-⊩≡ ⦃ inc = included ⦄ $
-              ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] B₁≡B₂ σ₁≡σ₂)
+              ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]] B₁≡B₂ σ₁≡σ₂)
              (escape-⊩≡∷ u₁[σ₁]≡u₂[σ₂])
              (escape-⊩≡∷ v₁[σ₁]≡v₂[σ₂]) w₁′~w₂′)
 

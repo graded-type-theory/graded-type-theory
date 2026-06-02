@@ -474,7 +474,7 @@ opaque
              (PE.subst (_⊢_≅_∷_ _ _ _) (subst-β-prodrec C₁ _) $
               with-inc-⊢≅∷ (subst-⊢≡-⇑ ⊢u₁≡u₂ ⊢σ₁≡σ₂) $
               R.escape-⊩≡∷ ⦃ inc = included ⦄ $
-              ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂))
+              ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]]∷ u₁≡u₂ σ₁≡σ₂))
     of λ
       lemma →
                                   ∷ C₁ [ t₁ ]₀ [ σ₁ ]             ⟨ singleSubstLift C₁ _ ⟩⊩∷∷≡

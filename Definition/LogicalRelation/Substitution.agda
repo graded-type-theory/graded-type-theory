@@ -36,7 +36,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 import Tools.Level as L
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -1635,6 +1635,29 @@ opaque
 
 opaque
 
+  -- A lemma related to _⇑[_].
+
+  ⊩ˢ≡∷-⇑[] :
+    ∇ »⊩ᵛ Δ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ₁ ] ⊩ˢ σ₁ ⇑[ n ] ≡ σ₂ ⇑[ n ] ∷ Δ
+  ⊩ˢ≡∷-⇑[] {n = 0}                _  σ₁≡σ₂ = σ₁≡σ₂
+  ⊩ˢ≡∷-⇑[] {n = 1+ _} {Δ = _ ∙ _} ⊩Δ σ₁≡σ₂ =
+    let _ , ⊩A = wf-⊩ᵛ-∙ ⊩Δ in
+    ⊩ˢ≡∷-liftSubst ⊩A (⊩ˢ≡∷-⇑[] (wf-⊩ᵛ ⊩A) σ₁≡σ₂)
+
+opaque
+
+  -- A lemma related to _⇑[_].
+
+  ⊩ˢ∷-⇑[] :
+    ∇ »⊩ᵛ Δ →
+    ∇ » Η ⊩ˢ σ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ ] ⊩ˢ σ ⇑[ n ] ∷ Δ
+  ⊩ˢ∷-⇑[] ⊩Δ = ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ ⊩ˢ≡∷-⇑[] ⊩Δ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
+
+opaque
+
   -- A lemma related to idSubst.
 
   ⊩ˢ∷-idSubst :
@@ -2425,52 +2448,49 @@ opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_ and _⊩⟨_⟩_≡_.
 
-  ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] :
-    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ ℓ ⟩ C₁ ≡ C₂ →
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
-    ∇ » Η ∙ A [ σ₁ ] ∙ B [ σ₁ ⇑ ] ⊩⟨ ℓ ⟩ C₁ [ σ₁ ⇑ ⇑ ] ≡ C₂ [ σ₂ ⇑ ⇑ ]
-  ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] C₁≡C₂ σ₁≡σ₂ =
-    case wf-∙-⊩ᵛ (wf-⊩ᵛ≡ C₁≡C₂ .proj₁) of λ
-      (_ , ⊩B) →
-    ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] C₁≡C₂ $
-    ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
+  ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]] :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A₁ ≡ A₂ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ₁ ] ⊩⟨ ℓ ⟩ A₁ [ σ₁ ⇑[ n ] ] ≡ A₂ [ σ₂ ⇑[ n ] ]
+  ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]] A₁≡A₂ σ₁≡σ₂ =
+    ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ $
+    ⊩ˢ≡∷-⇑[] (wf-⊩ᵛ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁)) σ₁≡σ₂
 
 opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
 
-  ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] :
-    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ ℓ ⟩ C →
-    ∇ » Η ⊩ˢ σ ∷ Δ →
-    ∇ » Η ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊩⟨ ℓ ⟩ C [ σ ⇑ ⇑ ]
-  ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] ⊩C ⊩σ =
-    ⊩⇔⊩≡ .proj₂ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] (refl-⊩ᵛ≡ ⊩C) (refl-⊩ˢ≡∷ ⊩σ)
+  ⊩ᵛ→⊩ˢ∷→⊩[⇑[]] :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A →
+    ∇ » Η ⊩ˢ σ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ ] ⊩⟨ ℓ ⟩ A [ σ ⇑[ n ] ]
+  ⊩ᵛ→⊩ˢ∷→⊩[⇑[]] ⊩A ⊩σ =
+    ⊩⇔⊩≡ .proj₂ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]] (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ)
 
 opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
 
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ :
-    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ ℓ ⟩ t₁ ≡ t₂ ∷ C →
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
-    ∇ » Η ∙ A [ σ₁ ] ∙ B [ σ₁ ⇑ ] ⊩⟨ ℓ ⟩ t₁ [ σ₁ ⇑ ⇑ ] ≡ t₂ [ σ₂ ⇑ ⇑ ] ∷
-      C [ σ₁ ⇑ ⇑ ]
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ t₁≡t₂ σ₁≡σ₂ =
-    case wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)) of λ
-      (_ , ⊩B) →
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]]∷ :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ t₁ ≡ t₂ ∷ A →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ₁ ] ⊩⟨ ℓ ⟩ t₁ [ σ₁ ⇑[ n ] ] ≡ t₂ [ σ₂ ⇑[ n ] ] ∷
+      A [ σ₁ ⇑[ n ] ]
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]]∷ t₁≡t₂ σ₁≡σ₂ =
     ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
-    ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
+    ⊩ˢ≡∷-⇑[] (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁))) σ₁≡σ₂
 
 opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
 
-  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ :
-    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ ℓ ⟩ t ∷ C →
-    ∇ » Η ⊩ˢ σ ∷ Δ →
-    ∇ » Η ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊩⟨ ℓ ⟩ t [ σ ⇑ ⇑ ] ∷ C [ σ ⇑ ⇑ ]
-  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩t ⊩σ =
-    ⊩∷⇔⊩≡∷ .proj₂ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
+  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑[]]∷ :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ t ∷ A →
+    ∇ » Η ⊩ˢ σ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ ] ⊩⟨ ℓ ⟩ t [ σ ⇑[ n ] ] ∷ A [ σ ⇑[ n ] ]
+  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑[]]∷ ⊩t ⊩σ =
+    ⊩∷⇔⊩≡∷ .proj₂ $
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]]∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
 
 opaque
 
