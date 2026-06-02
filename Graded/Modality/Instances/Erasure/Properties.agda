@@ -472,6 +472,25 @@ opaque
 
 opaque
 
+  -- Addition preserves greatest lower bounds.
+
+  +-GLB :
+    ∀ {ps qs} →
+    Modality.Greatest-lower-bound ErasureModality p ps →
+    Modality.Greatest-lower-bound ErasureModality q qs →
+    Modality.Greatest-lower-bound ErasureModality (p + q)
+      (λ i → ps i + qs i)
+  +-GLB {p} {q} (p-lb , p-glb) (q-lb , q-glb) =
+    (λ i → +-monotone (p-lb i) (q-lb i)) ,
+    (λ where
+       ω _   → PE.refl
+       𝟘 hyp →
+         PE.cong₂ _+_
+           (p-glb 𝟘 (λ i → PE.sym (+-positiveˡ (PE.sym (hyp i)))))
+           (q-glb 𝟘 (λ i → PE.sym (+-positiveʳ (PE.sym (hyp i))))))
+
+opaque
+
   -- z ∧ s is the greatest lower bound of the sequence nrᵢ r z s.
 
   Erasure-nrᵢ-glb-∧ :
