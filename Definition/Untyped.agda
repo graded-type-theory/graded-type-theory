@@ -39,7 +39,7 @@ infixr 30 _supᵘ_ _supᵘₗ′_
 infix 25 _[_] _[_]′
 infix 25 _[_]₀
 infix 25 _[_]↑
-infix 25 _[_,_]₁₀
+infix 25 _[_,_]₁₀ _[_,_,_]₂₁₀
 infix 25 _[_]↑²
 infix 25 _[_][_]↑
 infix 24 _∙[_][_][_]ʷ _∙[_][_][_]
@@ -880,6 +880,11 @@ t [ s ]↑ = t [ replace₁ 1 s ]
 
 _[_,_]₁₀ : (t : Term[ k ] (2+ n)) (s s′ : Term n) → Term[ k ] n
 t [ s , s′ ]₁₀ = t [ consSubst (sgSubst s) s′ ]
+
+-- A trinary variant of _[_]₀ and _[_,_]₁₀.
+
+_[_,_,_]₂₁₀ : Term[ k ] (3+ n) → (_ _ _ : Term n) → Term[ k ] n
+t [ u , v , w ]₂₁₀ = t [ consSubst (consSubst (sgSubst u) v) w ]
 
 -- Substitute the first variable with a term and shift remaining
 -- variables up by one
