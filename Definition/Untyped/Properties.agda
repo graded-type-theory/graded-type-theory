@@ -34,7 +34,8 @@ private
     Γ : Con Term _
     Δ : Cons _ _
     φ : Unfolding _
-    A A₁ A₂ B₁ B₂ E F G H l l′ l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ :
+    A A₁ A₂ B₁ B₂ E F G H
+      l l′ l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ v₃ w w₁ w₂ :
       Term[ _ ] _
     k : Term-kind
     ts₁ ts₂ : Args _ _
@@ -2558,6 +2559,35 @@ private opaque
     t [ 2+ n ][ u ]↑ [ v , w ]₁₀ ≡
     t [ n ][ u [ v , w ]₁₀ ]↑
   _ = [][]↑-[,⇑] 0
+
+opaque
+
+  -- A variant of [][]↑-commutes-+.
+
+  [][]↑-[,,⇑] :
+    ∀ ℓ {u} (t : Term[ k ] (1+ n)) →
+    let cast =
+          subst₂ Subst (sym $ +-assoc ℓ m n) (sym $ +-assoc ℓ (3+ m) n)
+    in
+    t [ ℓ + 3+ m ][ u ]↑
+      [ cast (consSubst (consSubst (sgSubst v₁) v₂) v₃ ⇑[ ℓ ]) ] ≡
+    t [ ℓ + m ][
+        u [ cast (consSubst (consSubst (sgSubst v₁) v₂) v₃ ⇑[ ℓ ]) ] ]↑
+  [][]↑-[,,⇑] {m} {v₁} {v₂} {v₃} _ t =
+    [][]↑-commutes-+ t λ x →
+      wk[ 3+ m ] (var x) [ v₁ , v₂ , v₃ ]₂₁₀  ≡⟨ wk[]-tail {t = wk[ m ] _} 3 ⟩
+      wk[ m ] (var x) [ idSubst ]             ≡⟨ subst-id _ ⟩
+      wk[ m ] (var x)                         ∎
+
+private opaque
+
+  -- An example of how [][]↑-[,⇑] can be used.
+
+  _ :
+    (t : Term[ k ] (1+ m)) →
+    t [ 3+ n ][ u ]↑ [ v₁ , v₂ , v₃ ]₂₁₀ ≡
+    t [ n ][ u [ v₁ , v₂ , v₃ ]₂₁₀ ]↑
+  _ = [][]↑-[,,⇑] 0
 
 opaque
 
