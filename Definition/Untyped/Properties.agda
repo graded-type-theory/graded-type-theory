@@ -2294,7 +2294,28 @@ opaque
     wk[ n ]′ (wk ρ t)              ∎
 
 ------------------------------------------------------------------------
--- Another lemma
+-- More lemmas
+
+opaque
+
+  -- A variant of singleSubstWkComp.
+
+  doubleSubstWkComp :
+    (t : Term[ k ] (2+ n)) →
+    wk (liftn ρ 2) (t [ σ ⇑[ 2 ] ]) [ u , v ]₁₀ ≡
+    t [ consSubst (consSubst (ρ •ₛ σ) u) v ]
+  doubleSubstWkComp {ρ} {σ} {u} {v} t =
+    wk (liftn ρ 2) (t [ σ ⇑[ 2 ] ]) [ u , v ]₁₀                  ≡⟨ cong _[ _ , _ ]₁₀ (wk-subst t) ⟩
+    t [ liftn ρ 2 •ₛ (σ ⇑[ 2 ]) ] [ u , v ]₁₀                    ≡⟨ substCompEq t ⟩
+    t [ consSubst (sgSubst u) v ₛ•ₛ (liftn ρ 2 •ₛ (σ ⇑[ 2 ])) ]  ≡⟨ (flip substVar-to-subst t λ {
+                                                                       x0        → refl;
+                                                                       (x0 +1)   → refl;
+                                                                       (x +1 +1) →
+      wk (liftn ρ 2) (wk[ 2 ] (σ x)) [ u , v ]₁₀                         ≡⟨ cong _[ _ , _ ]₁₀ (cong (wk _) (wk[]≡wk[]′ {t = σ _})) ⟩
+      wk (liftn ρ 2) (wk[ 2 ]′ (σ x)) [ u , v ]₁₀                        ≡⟨ cong _[ _ , _ ]₁₀ (wk⇑[]-wk[]≡ {t = σ _} _) ⟩
+      wk[ 2 ]′ (wk ρ (σ x)) [ u , v ]₁₀                                  ≡⟨ wk₂-[,] ⟩
+      wk ρ (σ x)                                                         ∎ }) ⟩
+    t [ consSubst (consSubst (ρ •ₛ σ) u) v ]                     ∎
 
 opaque
 
