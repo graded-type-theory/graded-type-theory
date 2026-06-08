@@ -222,6 +222,28 @@ opaque
   liftʷʷ = liftʷ ∘→ ∷ʷ⊇→∷⊇
 
 opaque
+
+  -- A variant of liftʷ.
+
+  liftⁿʷ :
+    ρ ∷ Δ ⊇ drop k Γ →
+    ∇ »⊢ Δ ∙[ k ][ Γ ][ ρ ]ʷ →
+    ∇ » liftn ρ k ∷ʷ Δ ∙[ k ][ Γ ][ ρ ]ʷ ⊇ Γ
+  liftⁿʷ {k = 0}                ⊢ρ ⊢Δ     = ∷⊇→∷ʷ⊇ ⊢ρ ⊢Δ
+  liftⁿʷ {k = 1+ k} {Γ = _ ∙ _} ⊢ρ (∙ ⊢A) =
+    liftʷʷ (liftⁿʷ ⊢ρ (wf ⊢A)) ⊢A
+
+opaque
+
+  -- A variant of liftⁿʷ.
+
+  liftⁿʷʷ :
+    ∇ » ρ ∷ʷ Δ ⊇ drop k Γ →
+    ∇ »⊢ Δ ∙[ k ][ Γ ][ ρ ]ʷ →
+    ∇ » liftn ρ k ∷ʷ Δ ∙[ k ][ Γ ][ ρ ]ʷ ⊇ Γ
+  liftⁿʷʷ = liftⁿʷ ∘→ ∷ʷ⊇→∷⊇
+
+opaque
   unfolding _»_∷ʷ_⊇_
 
   -- The composition of well-formed weakenings is well-formed.
