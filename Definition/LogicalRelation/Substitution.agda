@@ -1276,39 +1276,6 @@ opaque
 
 opaque
 
-  -- Conversion for one of the contexts for _⊩ˢ_≡_∷_.
-
-  conv-⊩ˢ≡∷-∙ :
-    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A ≡ B → ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ A →
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B
-  conv-⊩ˢ≡∷-∙ {∇} {Δ} {A} {B} {Η} {σ₁} {σ₂} A≡B =
-    case ⊩ᵛ≡⇔′ .proj₁ A≡B of λ
-      (_ , ⊩B , A≡B) →
-
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ A                                                ⇔⟨ ⊩ˢ≡∷∙⇔ ⟩→
-
-    (∃ λ ℓ →
-     (∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A) × ∇ » Η ⊩⟨ ℓ ⟩ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]) ×
-    ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          →⟨ (λ ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
-                                                                                    (_ , ⊩B , conv-⊩≡∷ (A≡B id⊇ $ wf-⊩ˢ≡∷ σ₁₊≡σ₂₊ .proj₁) σ₁₀≡σ₂₀)
-                                                                                  , σ₁₊≡σ₂₊) ⟩
-    (∃ λ ℓ →
-     (∇ » Δ ⊩ᵛ⟨ ℓ ⟩ B) × ∇ » Η ⊩⟨ ℓ ⟩ head σ₁ ≡ head σ₂ ∷ B [ tail σ₁ ]) ×
-    ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          ⇔˘⟨ ⊩ˢ≡∷∙⇔ ⟩→
-
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B                                                □
-
-opaque
-
-  -- Conversion for one of the contexts for _⊩ˢ_∷_.
-
-  conv-⊩ˢ∷-∙ :
-    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A ≡ B → ∇ » Η ⊩ˢ σ ∷ Δ ∙ A → ∇ » Η ⊩ˢ σ ∷ Δ ∙ B
-  conv-⊩ˢ∷-∙ A≡B =
-    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ conv-⊩ˢ≡∷-∙ A≡B ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
-
-opaque
-
   -- Conversion for the context for _⊩ᵛ⟨_⟩_.
 
   conv-∙-⊩ᵛ :
@@ -1341,6 +1308,39 @@ opaque
 
           ∇ » Η ⊩⟨ ℓ ⟩ C [ σ₁ ] ≡ C [ σ₂ ]                    □
       )
+
+opaque
+
+  -- Conversion for one of the contexts for _⊩ˢ_≡_∷_.
+
+  conv-⊩ˢ≡∷-∙ :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A ≡ B → ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ A →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B
+  conv-⊩ˢ≡∷-∙ {∇} {Δ} {A} {B} {Η} {σ₁} {σ₂} A≡B =
+    case ⊩ᵛ≡⇔′ .proj₁ A≡B of λ
+      (_ , ⊩B , A≡B) →
+
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ A                                                ⇔⟨ ⊩ˢ≡∷∙⇔ ⟩→
+
+    (∃ λ ℓ →
+     (∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A) × ∇ » Η ⊩⟨ ℓ ⟩ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]) ×
+    ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          →⟨ (λ ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
+                                                                                    (_ , ⊩B , conv-⊩≡∷ (A≡B id⊇ $ wf-⊩ˢ≡∷ σ₁₊≡σ₂₊ .proj₁) σ₁₀≡σ₂₀)
+                                                                                  , σ₁₊≡σ₂₊) ⟩
+    (∃ λ ℓ →
+     (∇ » Δ ⊩ᵛ⟨ ℓ ⟩ B) × ∇ » Η ⊩⟨ ℓ ⟩ head σ₁ ≡ head σ₂ ∷ B [ tail σ₁ ]) ×
+    ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          ⇔˘⟨ ⊩ˢ≡∷∙⇔ ⟩→
+
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B                                                □
+
+opaque
+
+  -- Conversion for one of the contexts for _⊩ˢ_∷_.
+
+  conv-⊩ˢ∷-∙ :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A ≡ B → ∇ » Η ⊩ˢ σ ∷ Δ ∙ A → ∇ » Η ⊩ˢ σ ∷ Δ ∙ B
+  conv-⊩ˢ∷-∙ A≡B =
+    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ conv-⊩ˢ≡∷-∙ A≡B ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
 
 opaque
 
