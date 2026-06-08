@@ -310,7 +310,8 @@ opaque
 
 opaque
 
-  -- Every closed equality proof reduces to rfl.
+  -- Every closed equality proof reduces to rfl (in glassified
+  -- contexts).
 
   ε⊢⇒*rfl∷Id : ∇ » ε ⊢ v ∷ Id A t u → glassify ∇ » ε ⊢ v ⇒* rfl ∷ Id A t u
   ε⊢⇒*rfl∷Id ⊢v =
@@ -324,7 +325,7 @@ opaque
 opaque
 
   -- If Id A t u is inhabited in the empty context, then t is
-  -- definitionally equal to u at type A.
+  -- definitionally equal to u at type A (in glassified contexts).
 
   ε⊢∷Id→ε⊢≡∷ : ∇ » ε ⊢ v ∷ Id A t u → glassify ∇ » ε ⊢ t ≡ u ∷ A
   ε⊢∷Id→ε⊢≡∷ {v} {A} {t} {u} =
