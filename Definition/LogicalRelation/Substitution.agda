@@ -1335,6 +1335,25 @@ opaque
 
 opaque
 
+  -- Another kind of conversion for one of the contexts for _⊩ˢ_≡_∷_.
+
+  conv-⊩ˢ≡∷-∙∙ :
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ →
+    Γ »∙ A₁ ⊩ᵛ⟨ ℓ″ ⟩ B₁ ≡ B₂ →
+    Γ .defs » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars ∙ A₁ ∙ B₁ →
+    Γ .defs » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars ∙ A₂ ∙ B₂
+  conv-⊩ˢ≡∷-∙∙ A₁≡A₂ B₁≡B₂ σ₁≡σ₂ =
+    let _ , ⊩B₂ , B₁≡B₂             = ⊩ᵛ≡⇔′ .proj₁ B₁≡B₂
+        (_ , _ , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊ = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂
+        ⊩σ₁₊ , _                    = wf-⊩ˢ≡∷ σ₁₊≡σ₂₊
+    in
+    ⊩ˢ≡∷∙⇔ .proj₂
+      ( (_ , conv-∙-⊩ᵛ A₁≡A₂ ⊩B₂ , conv-⊩≡∷ (B₁≡B₂ id⊇ ⊩σ₁₊) σ₁₀≡σ₂₀)
+      , conv-⊩ˢ≡∷-∙ A₁≡A₂ σ₁₊≡σ₂₊
+      )
+
+opaque
+
   -- Conversion for one of the contexts for _⊩ˢ_∷_.
 
   conv-⊩ˢ∷-∙ :
@@ -1387,6 +1406,30 @@ opaque
 
 opaque
 
+  -- Conversion for the context for _⊩ᵛ⟨_⟩_≡_.
+
+  conv-∙-⊩ᵛ≡ :
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ →
+    Γ »∙ A₁ ⊩ᵛ⟨ ℓ ⟩ B₁ ≡ B₂ →
+    Γ »∙ A₂ ⊩ᵛ⟨ ℓ ⟩ B₁ ≡ B₂
+  conv-∙-⊩ᵛ≡ A₁≡A₂ B₁≡B₂ =
+    let ⊩A₁ , ⊩A₂ , A₁≡A₂ = ⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ in
+    ⊩ᵛ≡⇔ .proj₂
+      ( ⊩ᵛ-∙-intro ⊩A₂
+      , λ ∇⊇ σ₁≡σ₂ →
+          let (_ , _ , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊ = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
+          ⊩ᵛ≡⇔ .proj₁ B₁≡B₂ .proj₂ ∇⊇ $
+          ⊩ˢ≡∷∙⇔ .proj₂
+            ( ( _ , defn-wk-⊩ᵛ ∇⊇ ⊩A₁
+              , conv-⊩≡∷ (sym-⊩≡ (A₁≡A₂ ∇⊇ (wf-⊩ˢ≡∷ σ₁₊≡σ₂₊ .proj₁)))
+                  σ₁₀≡σ₂₀
+              )
+            , σ₁₊≡σ₂₊
+            )
+      )
+
+opaque
+
   -- Conversion for _⊩ᵛ⟨_⟩_≡_∷_.
 
   conv-⊩ᵛ≡∷ :
@@ -1428,6 +1471,26 @@ opaque
     ⊩ᵛ∷⇔ .proj₂
       ( conv-∙-⊩ᵛ A≡B ⊩C
       , λ ξ⊇ σ₁≡σ₂ → t≡t ξ⊇ (conv-⊩ˢ≡∷-∙ (sym-⊩ᵛ≡ (defn-wk-⊩ᵛ≡ ξ⊇ A≡B)) σ₁≡σ₂)
+      )
+
+opaque
+
+  -- Another kind of conversion for the context for _⊩ᵛ⟨_⟩_∷_.
+
+  conv-∙∙-⊩ᵛ∷ :
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ →
+    Γ »∙ A₁ ⊩ᵛ⟨ ℓ″ ⟩ B₁ ≡ B₂ →
+    Γ »∙ A₁ »∙ B₁ ⊩ᵛ⟨ ℓ ⟩ t ∷ C →
+    Γ »∙ A₂ »∙ B₂ ⊩ᵛ⟨ ℓ ⟩ t ∷ C
+  conv-∙∙-⊩ᵛ∷ A₁≡A₂ B₁≡B₂ ⊩t =
+    let ⊩C , t≡t = ⊩ᵛ∷⇔ .proj₁ ⊩t in
+    ⊩ᵛ∷⇔ .proj₂
+      ( conv-∙∙-⊩ᵛ A₁≡A₂ B₁≡B₂ ⊩C
+      , λ ∇⊇ σ₁≡σ₂ →
+          let A₁≡A₂ = defn-wk-⊩ᵛ≡ ∇⊇ A₁≡A₂ in
+          t≡t ∇⊇ $
+          conv-⊩ˢ≡∷-∙∙ (sym-⊩ᵛ≡ A₁≡A₂)
+            (conv-∙-⊩ᵛ≡ A₁≡A₂ (sym-⊩ᵛ≡ (defn-wk-⊩ᵛ≡ ∇⊇ B₁≡B₂))) σ₁≡σ₂
       )
 
 ------------------------------------------------------------------------
