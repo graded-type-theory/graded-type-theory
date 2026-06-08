@@ -11,7 +11,6 @@ module Definition.Typed.Consequences.Canonicity
   {𝕄 : Modality M}
   (R : Type-restrictions 𝕄)
   (open Definition.Untyped M)
-  {m} {∇ : DCon (Term 0) m}
   where
 
 open Type-restrictions R
@@ -46,6 +45,7 @@ private
   variable
     α n     : Nat
     x       : Fin _
+    ∇       : DCon _ _
     V       : Set _
     A t u v : Term _
     l       : Lvl _
@@ -57,7 +57,7 @@ opaque
   -- Canonicity for natural numbers.
 
   canonicity : ∇ » ε ⊢ t ∷ ℕ → ∃ λ n → glassify ∇ » ε ⊢ t ≡ sucⁿ n ∷ ℕ
-  canonicity {t} ⊢t = $⟨ ⊢t ⟩
+  canonicity {∇} {t} ⊢t =                      $⟨ ⊢t ⟩
     ∇ » ε ⊢ t ∷ ℕ                              →⟨ glassify-⊢ ⟩
     glassify ∇ » ε ⊢ t ∷ ℕ                     →⟨ ⊩∷ℕ⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⦃ inc = ε ⦄ ⟩
     glassify ∇ » ε ⊩ℕ t ∷ℕ                     →⟨ lemma ⟩
@@ -279,7 +279,7 @@ opaque
   -- Canonicity for the empty type in glass contexts.
 
   ¬Empty′ : ¬ glassify ∇ » ε ⊢ t ∷ Empty
-  ¬Empty′ {t} =
+  ¬Empty′ {∇} {t} =
     glassify ∇ » ε ⊢ t ∷ Empty      →⟨ ⊩∷Empty⇔ .proj₁ ∘→ proj₂ ∘→ reducible-⊩∷ ⦃ inc = ε ⦄ ⟩
     glassify ∇ » ε ⊩Empty t ∷Empty  →⟨ (λ { (Emptyₜ _ _ _ (ne (neNfₜ u-ne _))) →
                                             glass-closed-no-ne (ne⁻ u-ne) }) ⟩
@@ -328,7 +328,7 @@ opaque
   -- definitionally equal to u at type A (in glassified contexts).
 
   ε⊢∷Id→ε⊢≡∷ : ∇ » ε ⊢ v ∷ Id A t u → glassify ∇ » ε ⊢ t ≡ u ∷ A
-  ε⊢∷Id→ε⊢≡∷ {v} {A} {t} {u} =
+  ε⊢∷Id→ε⊢≡∷ {∇} {v} {A} {t} {u} =
     ∇ » ε ⊢ v ∷ Id A t u                  →⟨ ε⊢⇒*rfl∷Id ⟩
     glassify ∇ » ε ⊢ v ⇒* rfl ∷ Id A t u  →⟨ proj₂ ∘→ proj₂ ∘→ wf-⊢ ∘→ subset*Term ⟩
     glassify ∇ » ε ⊢ rfl ∷ Id A t u       →⟨ inversion-rfl-Id ⦃ ok = ε ⦄ ⟩
