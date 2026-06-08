@@ -2002,6 +2002,54 @@ opaque
     σ₊ = consSubst (consSubst σ u) v
 
 ------------------------------------------------------------------------
+-- Some lemmas related to subst
+
+opaque
+
+  -- One can push subst into _[_].
+
+  push-subst-[] :
+    ∀ t → subst Term[ k ] eq (t [ σ ]) ≡ t [ subst Term eq ∘→ σ ]
+  push-subst-[] {eq = refl} _ = refl
+
+opaque
+
+  -- A rearrangement lemma related to subst, cong and wk1.
+
+  subst-cong-1+-wk1 :
+    (eq : m ≡ n) →
+    subst Term[ k ] (cong 1+ eq) (wk1 t) ≡
+    wk1 (subst Term[ k ] eq t)
+  subst-cong-1+-wk1 refl = refl
+
+opaque
+
+  -- A rearrangement lemma related to Fin and x0.
+
+  subst-Fin-x0 :
+    (eq : 1+ m ≡ 1+ n) →
+    subst Fin eq x0 ≡ x0
+  subst-Fin-x0 refl = refl
+
+opaque
+
+  -- A rearrangement lemma related to Fin and _+1.
+
+  subst-Fin-+1 :
+    (eq : m ≡ n) →
+    subst Fin (cong 1+ eq) (x +1) ≡ subst Fin eq x +1
+  subst-Fin-+1 refl = refl
+
+opaque
+
+  -- A rearrangement lemma related to Term and var x0.
+
+  subst-Term-var-x0 :
+    (eq : 1+ m ≡ 1+ n) →
+    subst Term eq (var x0) ≡ var x0
+  subst-Term-var-x0 refl = refl
+
+------------------------------------------------------------------------
 -- Some lemmas related to wk[_], wk[_]′ and wkSubst
 
 opaque
@@ -2064,16 +2112,6 @@ opaque
 
 opaque
 
-  -- A rearrangement lemma related to subst, cong and wk1.
-
-  subst-cong-1+-wk1 :
-    (eq : m ≡ n) →
-    subst Term[ k ] (cong 1+ eq) (wk1 t) ≡
-    wk1 (subst Term[ k ] eq t)
-  subst-cong-1+-wk1 refl = refl
-
-opaque
-
   -- A composition lemma for wkSubst.
 
   wkSubst-comp :
@@ -2096,17 +2134,13 @@ opaque
     wk[ m ] (wk[ n ] t)
   wk[]-comp {k} {n} {o} {t} m =
     subst Term[ k ] (+-assoc m n o) (wk[ m + n ] t)                  ≡⟨ cong (subst _ _) $ wk[]≡[] (m + _) ⟩
-    subst Term[ k ] (+-assoc m n o) (t [ wkSubst (m + n) idSubst ])  ≡⟨ lemma t ⟩
+    subst Term[ k ] (+-assoc m n o) (t [ wkSubst (m + n) idSubst ])  ≡⟨ push-subst-[] t ⟩
     t [ subst Term (+-assoc m n o) ∘→ wkSubst (m + n) idSubst ]      ≡⟨ flip substVar-to-subst t $ wkSubst-comp m ⟩
     t [ wkSubst m (wkSubst n idSubst) ]                              ≡˘⟨ flip substVar-to-subst t $ wkSubst-idSubst-ₛ•ₛ m ⟩
     t [ wkSubst m idSubst ₛ•ₛ wkSubst n idSubst ]                    ≡˘⟨ substCompEq t ⟩
     t [ wkSubst n idSubst ] [ wkSubst m idSubst ]                    ≡˘⟨ wk[]≡[] m ⟩
     wk[ m ] (t [ wkSubst n idSubst ])                                ≡˘⟨ cong wk[ m ] $ wk[]≡[] n ⟩
     wk[ m ] (wk[ n ] t)                                              ∎
-    where
-    lemma :
-      ∀ t → subst Term[ k ] eq (t [ σ ]) ≡ t [ subst Term eq ∘→ σ ]
-    lemma {eq = refl} _ = refl
 
 opaque
 
