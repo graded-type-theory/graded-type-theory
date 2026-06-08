@@ -25,6 +25,7 @@ open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level hiding (Level; _⊔_; Lift)
@@ -557,6 +558,21 @@ record Equality-relations
       case Var-included? of λ where
         (yes inc) → t≅u ⦃ inc = inc ⦄
         (no ni)   → ⊢≡∷→⊢≅∷ ni t≡u
+
+  opaque
+
+    -- If equality reflection is allowed and Var-included or-empty Δ
+    -- holds, then Δ is empty.
+
+    Equality-reflection→Empty-con :
+      ⦃ inc : Var-included or-empty Δ ⦄ →
+      Equality-reflection →
+      Empty-con Δ
+    Equality-reflection→Empty-con
+      ⦃ inc = ε ⦄ _ = ε
+    Equality-reflection→Empty-con
+      ⦃ inc = possibly-nonempty ⦃ ok = inc ⦄ ⦄ ok =
+      ⊥-elim (Equality-reflection-allowed→¬Var-included ok inc)
 
   opaque
 
