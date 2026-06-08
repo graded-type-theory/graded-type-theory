@@ -17,11 +17,11 @@ open Eq public using
    isEquivalence; setoid)
 
 private variable
-  a p                                     : Level
-  A B C D E F G                           : Set _
-  P                                       : A → Set _
-  a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ e₁ e₂ f₁ f₂ x y : A
-  eq                                      : _ ≡ _
+  a p                                       : Level
+  A B C D E F G                             : Set _
+  P                                         : A → Set _
+  a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ e₁ e₂ f f₁ f₂ x y : A
+  eq                                        : _ ≡ _
 
 -- Non-dependent congruence rules.
 
@@ -93,3 +93,10 @@ opaque
 
   swap-subst : subst P eq x ≡ y → subst P (sym eq) y ≡ x
   swap-subst {eq = refl} = sym
+
+opaque
+
+  -- The function cong f commutes with sym.
+
+  cong-sym : (eq : x ≡ y) → cong f (sym eq) ≡ sym (cong f eq)
+  cong-sym refl = refl

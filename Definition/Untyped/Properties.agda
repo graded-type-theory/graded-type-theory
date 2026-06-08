@@ -2101,6 +2101,27 @@ opaque
 
 opaque
 
+  -- A lemma relating wk[_]′ and wkSubst.
+
+  wk[]′≡wkSubst : ∀ n x → wk[ n ]′ (σ x) ≡ wkSubst n σ x
+  wk[]′≡wkSubst {σ} n x =
+    wk[ n ]′ (σ x)  ≡˘⟨ wk[]≡wk[]′ ⟩
+    wk[ n ] (σ x)   ≡⟨ wk[]≡wkSubst n _ ⟩
+    wkSubst n σ x   ∎
+
+opaque
+
+  -- One can express wkSubst using composition in another way.
+
+  wkSubst-as-composition :
+    ∀ n x → wkSubst n σ x ≡ (toSubst (stepn id n) ₛ•ₛ σ) x
+  wkSubst-as-composition {σ} n x =
+    wkSubst n σ x                 ≡˘⟨ wk[]′≡wkSubst n _ ⟩
+    wk[ n ]′ (σ x)                ≡⟨ wk≡subst _ _ ⟩
+    σ x [ toSubst (stepn id n) ]  ∎
+
+opaque
+
   -- A composition lemma for wkSubst.
 
   wkSubst-idSubst-ₛ•ₛ :
@@ -2183,15 +2204,113 @@ opaque
 
 opaque
 
+  -- A lemma related to liftn, _⇑[_] and _ₛ•_.
+
+  wk-liftn-[⇑] :
+    ∀ m (t : Term[ k ] (m + o)) →
+    wk (liftn ρ m) t [ σ ⇑[ m ] ] ≡
+    t [ (σ ₛ• ρ) ⇑[ m ] ]
+  wk-liftn-[⇑] {ρ} {σ} m t =
+    wk (liftn ρ m) t [ σ ⇑[ m ] ]  ≡⟨ subst-wk t ⟩
+    t [ (σ ⇑[ m ]) ₛ• liftn ρ m ]  ≡⟨ substVar-to-subst (lemma m) t ⟩
+    t [ (σ ₛ• ρ) ⇑[ m ] ]          ∎
+    where
+    lemma : ∀ m x → ((σ ⇑[ m ]) ₛ• liftn ρ m) x ≡ ((σ ₛ• ρ) ⇑[ m ]) x
+    lemma 0      _      = refl
+    lemma (1+ _) x0     = refl
+    lemma (1+ m) (x +1) = cong wk1 (lemma m x)
+
+opaque
+
+  -- A lemma related to liftn, stepn, wkSubst and _⇑[_].
+
+  wk-liftn-stepn-[⇑]₁ :
+    ∀ m (t : Term[ k ] (m + o)) →
+    wk (liftn (stepn id n) m) (t [ σ ⇑[ m ] ]) ≡
+    t [ wkSubst n σ ⇑[ m ] ]
+  wk-liftn-stepn-[⇑]₁ {n} m t =
+    trans (wk-liftn m) $
+    trans (substCompEq t) $
+    flip substVar-to-subst t λ x →
+    trans (substCompLifts m x) $
+    substVar-lifts (sym ∘→ wkSubst-as-composition n) m x
+
+private opaque
+
+  -- A lemma used to prove wk-liftn-stepn-[⇑]₂.
+
+  wk-liftn-stepn-[⇑]₂-lemma :
+    ∀ {o₁ o₂} {σ : Subst o₁ o₂} m →
+    let cast₁ = PE.subst Fin (sym (+-assoc m n o₂))
+        cast₂ = PE.subst Term (sym (+-assoc m n o₁))
+    in
+    ∀ x →
+    ((σ ⇑[ m + n ] ∘→ cast₁) ₛ• liftn (stepn id n) m) x ≡
+    (cast₂ ∘→ wkSubst n σ ⇑[ m ]) x
+  wk-liftn-stepn-[⇑]₂-lemma {n = 0} 0 _ = refl
+  wk-liftn-stepn-[⇑]₂-lemma {n = 1+ n} {σ} 0 x =
+    wk1 ((σ ⇑[ n ]) (wkVar (stepn id n) x))  ≡⟨ cong wk1 (wk-liftn-stepn-[⇑]₂-lemma {n = n} 0 x) ⟩
+    wk1 (wkSubst n σ x)                      ∎
+  wk-liftn-stepn-[⇑]₂-lemma {n} {σ} (1+ m) x0 =
+    (σ ⇑[ m + n ] ⇑) (subst Fin (sym (+-assoc (1+ m) _ _)) x0)  ≡⟨ cong (_ ⇑) (subst-Fin-x0 (sym (+-assoc (1+ m) _ _))) ⟩
+    (σ ⇑[ m + n ] ⇑) x0                                         ≡⟨⟩
+    var x0                                                      ≡˘⟨ subst-Term-var-x0 (sym (+-assoc (1+ m) _ _)) ⟩
+    subst Term (sym (+-assoc (1+ m) _ _)) (var x0)              ∎
+  wk-liftn-stepn-[⇑]₂-lemma {n} {σ} (1+ m) (x +1) =
+    (σ ⇑[ m + n ] ⇑)
+      (subst Fin (sym (cong 1+ (+-assoc m _ _)))
+         (wkVar (liftn (stepn id n) m) x +1))                             ≡˘⟨ cong (_ ⇑) (cong (flip (subst _) _) (cong-sym (+-assoc m _ _))) ⟩
+
+    (σ ⇑[ m + n ] ⇑)
+      (subst Fin (cong 1+ (sym (+-assoc m _ _)))
+         (wkVar (liftn (stepn id n) m) x +1))                             ≡⟨ cong (_ ⇑) (subst-Fin-+1 (sym (+-assoc m _ _))) ⟩
+
+    (σ ⇑[ m + n ] ⇑)
+      (subst Fin (sym (+-assoc m _ _))
+         (wkVar (liftn (stepn id n) m) x) +1)                             ≡⟨⟩
+
+    wk1
+      ((σ ⇑[ m + n ])
+         (subst Fin (sym (+-assoc m _ _))
+            ((wkVar (liftn (stepn id n) m) x))))                          ≡⟨ cong wk1 (wk-liftn-stepn-[⇑]₂-lemma m x) ⟩
+
+    wk1 (subst Term (sym (+-assoc m _ _)) ((wkSubst n σ ⇑[ m ]) x))       ≡˘⟨ subst-cong-1+-wk1 (sym (+-assoc m _ _)) ⟩
+
+    subst Term (cong 1+ (sym (+-assoc m _ _)))
+      (wk1 ((wkSubst n σ ⇑[ m ]) x))                                      ≡⟨ cong (flip (subst _) _) (cong-sym (+-assoc m _ _)) ⟩
+
+    subst Term (sym (+-assoc (1+ m) _ _)) (wk1 ((wkSubst n σ ⇑[ m ]) x))  ∎
+
+opaque
+
+  -- A generalisation of wk[]′-[⇑] (which is defined below).
+
+  wk-liftn-stepn-[⇑]₂ :
+    ∀ {o₁ o₂} {σ : Subst o₁ o₂} m →
+    let cast₁ = PE.subst Fin (sym (+-assoc m n o₂))
+        cast₂ = PE.subst Term[ k ] (sym (+-assoc m n o₁))
+    in
+    (t : Term[ k ] (m + o₂)) →
+    wk (liftn (stepn id n) m) t [ σ ⇑[ m + n ] ∘→ cast₁ ] ≡
+    cast₂ (wk (liftn (stepn id n) m) (t [ σ ⇑[ m ] ]))
+  wk-liftn-stepn-[⇑]₂ {n} {σ} m t =
+    let cast₁ = PE.subst Fin (sym (+-assoc m _ _))
+        cast₂ = PE.subst Term[ _ ] (sym (+-assoc m _ _))
+        cast₃ = PE.subst Term (sym (+-assoc m _ _))
+    in
+    wk (liftn (stepn id n) m) t [ σ ⇑[ m + n ] ∘→ cast₁ ]  ≡⟨ subst-wk t ⟩
+    t [ (σ ⇑[ m + n ] ∘→ cast₁) ₛ• liftn (stepn id n) m ]  ≡⟨ substVar-to-subst (wk-liftn-stepn-[⇑]₂-lemma m) t ⟩
+    t [ cast₃ ∘→ wkSubst n σ ⇑[ m ] ]                      ≡˘⟨ push-subst-[] t ⟩
+    cast₂ (t [ wkSubst n σ ⇑[ m ] ])                       ≡˘⟨ cong cast₂ (wk-liftn-stepn-[⇑]₁ m t) ⟩
+    cast₂ (wk (liftn (stepn id n) m) (t [ σ ⇑[ m ] ]))     ∎
+
+opaque
+
   -- A lemma relating wk[_]′, _[_] and _⇑[_].
 
   wk[]′-[⇑] :
     (t : Term[ k ] m) → wk[ n ]′ t [ σ ⇑[ n ] ] ≡ wk[ n ]′ (t [ σ ])
-  wk[]′-[⇑] {n} {σ} t =
-    wk[ n ]′ t [ σ ⇑[ n ] ]  ≡˘⟨ cong _[ _ ] $ wk[]≡wk[]′ {t = t} ⟩
-    wk[ n ] t [ σ ⇑[ n ] ]   ≡⟨ wk[]-⇑[] n ⟩
-    wk[ n ] (t [ σ ])        ≡⟨ wk[]≡wk[]′ ⟩
-    wk[ n ]′ (t [ σ ])       ∎
+  wk[]′-[⇑] = wk-liftn-stepn-[⇑]₂ 0
 
 opaque
 
@@ -2786,13 +2905,10 @@ opaque
          (wk (stepn (lift (stepn id n)) m) t))                            ≡˘⟨ subst-cong-1+-wk1 (sym (+-assoc m _ _)) ⟩
 
     subst Term[ k ] (cong 1+ (sym (+-assoc m (1+ n) o)))
-      (wk1 (wk (stepn (lift (stepn id n)) m) t))                          ≡⟨ cong₂ (subst Term[ _ ]) (lemma (+-assoc m _ _))
+      (wk1 (wk (stepn (lift (stepn id n)) m) t))                          ≡⟨ cong₂ (subst Term[ _ ]) (cong-sym (+-assoc m _ _))
                                                                               (wk-comp (step id) _ _) ⟩
     subst Term[ k ] (sym (+-assoc (1+ m) (1+ n) o))
       (wk (stepn (lift (stepn id n)) (1+ m)) t)                           ∎
-    where
-    lemma : ∀ {m n} (eq : m ≡ n) → cong 1+ (sym eq) ≡ sym (cong 1+ eq)
-    lemma refl = refl
 
 opaque
 
