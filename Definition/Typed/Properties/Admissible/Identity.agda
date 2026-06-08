@@ -34,6 +34,7 @@ open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
@@ -48,6 +49,7 @@ open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
   m n                                                  : Nat
+  V                                                    : Set _
   ∇                                                    : DCon (Term 0) _
   Δ Δ₁ Δ₂                                              : Con Term _
   Γ Η                                                  : Cons _ _
@@ -406,6 +408,16 @@ opaque
 
 ------------------------------------------------------------------------
 -- Lemmas related to subst
+
+opaque
+  unfolding subst
+
+  -- If v is neutral, then subst p A B t u v w is neutral.
+
+  subst-neutral :
+    Neutral V ∇ v →
+    Neutral V ∇ (subst p A B t u v w)
+  subst-neutral = Jₙ
 
 opaque
   unfolding subst
