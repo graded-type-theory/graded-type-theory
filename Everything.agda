@@ -83,10 +83,11 @@ import Graded.Context.Weakening
 import Graded.Mode
 
 ------------------------------------------------------------------------
--- The mode instance Zero-one
+-- Some mode structures
 
 import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
+import Graded.Mode.Instances.Trivial
 
 ------------------------------------------------------------------------
 -- The type theory's syntax (as well as type restrictions)
