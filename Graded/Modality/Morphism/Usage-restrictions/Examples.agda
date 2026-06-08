@@ -51,16 +51,16 @@ open import Graded.Usage.Restrictions.Natrec
 open Usage-restrictions
 
 private variable
-  b₁ b₂ 𝟙≤𝟘 ok : Bool
-  v₁ v₂        : Mode-variant _
-  R R₁ R₂      : Usage-restrictions _ _
-  TR₁ TR₂      : Type-restrictions _
-  A M₁ M₂      : Set _
-  𝕄₁ 𝕄₂        : Modality _
-  m₁ m₂        : Mode _
-  tr tr-Σ      : M₁ → M₂
-  v₁-ok v₂-ok  : A
-  nm₁ nm₂      : Natrec-mode _
+  b₁ b₂ 𝟙≤𝟘 ok trp : Bool
+  v₁ v₂            : Mode-variant _
+  R R₁ R₂          : Usage-restrictions _ _
+  TR₁ TR₂          : Type-restrictions _
+  A M₁ M₂          : Set _
+  𝕄₁ 𝕄₂            : Modality _
+  m₁ m₂            : Mode _
+  tr tr-Σ          : M₁ → M₂
+  v₁-ok v₂-ok      : A
+  nm₁ nm₂          : Natrec-mode _
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting no usage restrictions
@@ -330,7 +330,7 @@ Are-preserving-usage-restrictions-no-erased-matches-UR :
    ¬ Modality.Trivial 𝕄₁ ×
    (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
    (∀ {p} → tr p ≢ Modality.𝟘 𝕄₂)) →
-  Are-preserving-type-restrictions TR₁ TR₂ tr tr-Σ →
+  Are-preserving-type-restrictions trp TR₁ TR₂ tr tr-Σ →
   Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
   Are-preserving-usage-restrictions
     (no-erased-matches-UR 𝕄₁ v₁ TR₁ R₁)
@@ -381,7 +381,7 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR :
   (¬ Modality.Trivial 𝕄₁ →
    ¬ Modality.Trivial 𝕄₂ ×
    (∀ {p} → p ≡ Modality.𝟘 𝕄₁ → tr p ≡ Modality.𝟘 𝕄₂)) →
-  Are-reflecting-type-restrictions TR₁ TR₂ tr tr-Σ →
+  Are-reflecting-type-restrictions trp TR₁ TR₂ tr tr-Σ →
   Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
   Are-reflecting-usage-restrictions
     (no-erased-matches-UR 𝕄₁ v₁ TR₁ R₁)
@@ -1232,7 +1232,7 @@ opaque
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 unit→erasure-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂ unit→erasure tr →
+  Are-preserving-type-restrictions trp TR₁ TR₂ unit→erasure tr →
   Are-preserving-usage-restrictions R₁ R₂ unit→erasure tr →
   Are-preserving-usage-restrictions
     (no-erased-matches-UR UnitModality v₁ TR₁ R₁)
@@ -1247,7 +1247,7 @@ unit→erasure-preserves-no-erased-matches-UR =
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 unit→erasure-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂ unit→erasure tr →
+  Are-reflecting-type-restrictions trp TR₁ TR₂ unit→erasure tr →
   Are-reflecting-usage-restrictions R₁ R₂ unit→erasure tr →
   Are-reflecting-usage-restrictions
     (no-erased-matches-UR UnitModality v₁ TR₁ R₁)
@@ -1262,7 +1262,7 @@ unit→erasure-reflects-no-erased-matches-UR =
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 erasure→unit-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂ erasure→unit tr →
+  Are-preserving-type-restrictions trp TR₁ TR₂ erasure→unit tr →
   Are-preserving-usage-restrictions R₁ R₂ erasure→unit tr →
   Are-preserving-usage-restrictions
     (no-erased-matches-UR ErasureModality v₁ TR₁ R₁)
@@ -1294,7 +1294,7 @@ erasure→unit-preserves-no-erased-matches-UR =
 -- assumption.
 
 erasure→zero-one-many-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂ erasure→zero-one-many tr →
+  Are-preserving-type-restrictions trp TR₁ TR₂ erasure→zero-one-many tr →
   Are-preserving-usage-restrictions R₁ R₂
     erasure→zero-one-many tr →
   Are-preserving-usage-restrictions
@@ -1315,7 +1315,8 @@ erasure→zero-one-many-preserves-no-erased-matches-UR =
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 erasure→zero-one-many-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂ erasure→zero-one-many tr →
+  Are-reflecting-type-restrictions trp TR₁ TR₂
+    erasure→zero-one-many tr →
   Are-reflecting-usage-restrictions R₁ R₂
     erasure→zero-one-many tr →
   Are-reflecting-usage-restrictions
@@ -1336,7 +1337,8 @@ erasure→zero-one-many-reflects-no-erased-matches-UR =
 -- assumption.
 
 zero-one-many→erasure-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂ zero-one-many→erasure tr →
+  Are-preserving-type-restrictions trp TR₁ TR₂
+    zero-one-many→erasure tr →
   Are-preserving-usage-restrictions R₁ R₂
     zero-one-many→erasure tr →
   Are-preserving-usage-restrictions
@@ -1358,7 +1360,8 @@ zero-one-many→erasure-preserves-no-erased-matches-UR =
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 zero-one-many→erasure-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂ zero-one-many→erasure tr →
+  Are-reflecting-type-restrictions trp TR₁ TR₂
+    zero-one-many→erasure tr →
   Are-reflecting-usage-restrictions R₁ R₂
     zero-one-many→erasure tr →
   Are-reflecting-usage-restrictions
@@ -1380,7 +1383,7 @@ zero-one-many→erasure-reflects-no-erased-matches-UR =
 -- assumption.
 
 linearity→linear-or-affine-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂
+  Are-preserving-type-restrictions trp TR₁ TR₂
     linearity→linear-or-affine tr →
   Are-preserving-usage-restrictions R₁ R₂
     linearity→linear-or-affine tr →
@@ -1404,7 +1407,7 @@ linearity→linear-or-affine-preserves-no-erased-matches-UR =
 -- assumption.
 
 linearity→linear-or-affine-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂
+  Are-reflecting-type-restrictions trp TR₁ TR₂
     linearity→linear-or-affine tr →
   Are-reflecting-usage-restrictions R₁ R₂
     linearity→linear-or-affine tr →
@@ -1427,7 +1430,7 @@ linearity→linear-or-affine-reflects-no-erased-matches-UR =
 -- assumption.
 
 linear-or-affine→linearity-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂
+  Are-preserving-type-restrictions trp TR₁ TR₂
     linear-or-affine→linearity tr →
   Are-preserving-usage-restrictions R₁ R₂
     linear-or-affine→linearity tr →
@@ -1452,7 +1455,7 @@ linear-or-affine→linearity-preserves-no-erased-matches-UR =
 -- assumption.
 
 linear-or-affine→linearity-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂
+  Are-reflecting-type-restrictions trp TR₁ TR₂
     linear-or-affine→linearity tr →
   Are-reflecting-usage-restrictions R₁ R₂
     linear-or-affine→linearity tr →
@@ -1476,7 +1479,8 @@ linear-or-affine→linearity-reflects-no-erased-matches-UR =
 -- assumption.
 
 affine→linear-or-affine-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂ affine→linear-or-affine tr →
+  Are-preserving-type-restrictions trp TR₁ TR₂
+    affine→linear-or-affine tr →
   Are-preserving-usage-restrictions R₁ R₂
     affine→linear-or-affine tr →
   Are-preserving-usage-restrictions
@@ -1499,7 +1503,8 @@ affine→linear-or-affine-preserves-no-erased-matches-UR =
 -- assumption.
 
 affine→linear-or-affine-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂ affine→linear-or-affine tr →
+  Are-reflecting-type-restrictions trp TR₁ TR₂
+    affine→linear-or-affine tr →
   Are-reflecting-usage-restrictions R₁ R₂
     affine→linear-or-affine tr →
   Are-reflecting-usage-restrictions
@@ -1521,7 +1526,8 @@ affine→linear-or-affine-reflects-no-erased-matches-UR =
 -- assumption.
 
 linear-or-affine→affine-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂ linear-or-affine→affine tr →
+  Are-preserving-type-restrictions trp TR₁ TR₂
+    linear-or-affine→affine tr →
   Are-preserving-usage-restrictions R₁ R₂
     linear-or-affine→affine tr →
   Are-preserving-usage-restrictions
@@ -1545,7 +1551,8 @@ linear-or-affine→affine-preserves-no-erased-matches-UR =
 -- assumption.
 
 linear-or-affine→affine-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂ linear-or-affine→affine tr →
+  Are-reflecting-type-restrictions trp TR₁ TR₂
+    linear-or-affine→affine tr →
   Are-reflecting-usage-restrictions R₁ R₂
     linear-or-affine→affine tr →
   Are-reflecting-usage-restrictions
@@ -1567,7 +1574,7 @@ linear-or-affine→affine-reflects-no-erased-matches-UR =
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 affine→linearity-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂ affine→linearity tr →
+  Are-preserving-type-restrictions trp TR₁ TR₂ affine→linearity tr →
   Are-preserving-usage-restrictions R₁ R₂
     affine→linearity tr →
   Are-preserving-usage-restrictions
@@ -1589,7 +1596,7 @@ affine→linearity-preserves-no-erased-matches-UR =
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 affine→linearity-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂ affine→linearity tr →
+  Are-reflecting-type-restrictions trp TR₁ TR₂ affine→linearity tr →
   Are-reflecting-usage-restrictions R₁ R₂
     affine→linearity tr →
   Are-reflecting-usage-restrictions
@@ -1610,7 +1617,7 @@ affine→linearity-reflects-no-erased-matches-UR =
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 linearity→affine-preserves-no-erased-matches-UR :
-  Are-preserving-type-restrictions TR₁ TR₂ linearity→affine tr →
+  Are-preserving-type-restrictions trp TR₁ TR₂ linearity→affine tr →
   Are-preserving-usage-restrictions R₁ R₂
     linearity→affine tr →
   Are-preserving-usage-restrictions
@@ -1632,7 +1639,7 @@ linearity→affine-preserves-no-erased-matches-UR =
 -- obtained using no-erased-matches-UR, given a certain assumption.
 
 linearity→affine-reflects-no-erased-matches-UR :
-  Are-reflecting-type-restrictions TR₁ TR₂ linearity→affine tr →
+  Are-reflecting-type-restrictions trp TR₁ TR₂ linearity→affine tr →
   Are-reflecting-usage-restrictions R₁ R₂
     linearity→affine tr →
   Are-reflecting-usage-restrictions

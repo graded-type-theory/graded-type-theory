@@ -3,8 +3,12 @@
 -- quantities from another
 ------------------------------------------------------------------------
 
+open import Tools.Bool
+
 module Definition.Untyped.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
+  -- Should the translation make every definition transparent?
+  (transparent : Bool)
   -- A translation function used for quantities other than those
   -- corresponding to the first components of Σ-types.
   (tr : M₁ → M₂)
@@ -56,6 +60,7 @@ private variable
   ρ                        : Wk _ _
   σ                        : Subst _ _ _
   tv₁ tv₂                  : Type-variant
+  o                        : Opacity _
   V₁ V₂                    : Set _
 
 ------------------------------------------------------------------------
@@ -128,11 +133,18 @@ tr-Con : U₁.Con U₁.Term n → U₂.Con U₂.Term n
 tr-Con ε       = ε
 tr-Con (Γ ∙ A) = tr-Con Γ ∙ tr-Term A
 
+-- Translation for Opacity.
+
+tr-Opacity : Opacity n → Opacity n
+tr-Opacity tra       = tra
+tr-Opacity o@(opa _) = if transparent then tra else o
+
 -- Translation of definition contexts.
 
 tr-DCon : U₁.DCon (U₁.Term m) n → U₂.DCon (U₂.Term m) n
 tr-DCon ε                   = ε
-tr-DCon (∇ ∙⟨ o ⟩[ t ∷ A ]) = tr-DCon ∇ ∙⟨ o ⟩[ tr-Term t ∷ tr-Term A ]
+tr-DCon (∇ ∙⟨ o ⟩[ t ∷ A ]) =
+  tr-DCon ∇ ∙⟨ tr-Opacity o ⟩[ tr-Term t ∷ tr-Term A ]
 
 -- Translation of context pairs.
 
@@ -160,6 +172,26 @@ module _ (tr-Σ≡tr : ∀ {p} → tr-Σ p ≡ tr p) where
 
 opaque
 
+  -- If definitions are not made transparent, then tr-Opacity is the
+  -- identity function.
+
+  tr-Opacity-not-transparent : ¬ T transparent → tr-Opacity o ≡ o
+  tr-Opacity-not-transparent {o = tra}   _       = refl
+  tr-Opacity-not-transparent {o = opa _} not-trp =
+    cong (if_then _ else _) (¬-T .proj₁ not-trp)
+
+opaque
+
+  -- If definitions are made transparent, then tr-Opacity always
+  -- returns tra.
+
+  tr-Opacity-transparent : T transparent → tr-Opacity o ≡ tra
+  tr-Opacity-transparent {o = tra}   _   = refl
+  tr-Opacity-transparent {o = opa _} trp =
+    cong (if_then _ else _) (T-true .proj₁ trp)
+
+opaque
+
   -- The relation _↦∷_∈_ is preserved by tr-Term/tr-DCon.
 
   tr-↦ : α ↦∷ A ∈ ∇ → α ↦∷ tr-Term A ∈ tr-DCon ∇
@@ -176,16 +208,23 @@ opaque
 
 opaque
 
-  -- The relation _↦⊘∷_∈_ is preserved by tr-Term/tr-DCon.
+  -- The relation _↦⊘∷_∈_ is preserved by tr-Term/tr-DCon unless
+  -- transparent is true.
 
-  tr-↦⊘∷ : α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ tr-Term A ∈ tr-DCon ∇
-  tr-↦⊘∷ here       = here
-  tr-↦⊘∷ (there α∈) = there (tr-↦⊘∷ α∈)
+  tr-↦⊘∷ : ¬ T transparent → α ↦⊘∷ A ∈ ∇ → α ↦⊘∷ tr-Term A ∈ tr-DCon ∇
+  tr-↦⊘∷ ok (there α∈) = there (tr-↦⊘∷ ok α∈)
+  tr-↦⊘∷ ok here       =
+    subst (_↦⊘∷_∈_ _ _)
+      (cong₃ (U₂._∙⟨_⟩[_∷_] _)
+         (sym (tr-Opacity-not-transparent ok)) refl refl)
+      here
 
 ------------------------------------------------------------------------
 -- Lemmas related to Neutral and Whnf
 
 module _
+  -- It is assumed that definitions are not made transparent.
+  (not-transparent : ¬ T transparent)
   -- It is assumed that Unitʷ-η holds for tv₁ if it holds for tv₂.
   (Unitʷ-η→ : Type-variant.Unitʷ-η tv₂ → Type-variant.Unitʷ-η tv₁)
   where
@@ -197,7 +236,7 @@ module _
     (V₁ → V₂) →
     UN₁.Neutral tv₁ V₁ ∇ t → UN₂.Neutral tv₂ V₂ (tr-DCon ∇) (tr-Term t)
   tr-Neutral f = λ where
-    (defn α∈)           → defn (tr-↦⊘∷ α∈)
+    (defn α∈)           → defn (tr-↦⊘∷ not-transparent α∈)
     (var p x)           → var (f p) x
     (supᵘˡₙ n)          → supᵘˡₙ (tr-Neutral f n)
     (supᵘʳₙ n)          → supᵘʳₙ (tr-Neutral f n)

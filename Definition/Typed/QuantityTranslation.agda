@@ -7,16 +7,18 @@ open import Graded.Modality
 open import Graded.Modality.Morphism
 open import Graded.Modality.Morphism.Type-restrictions
 open import Definition.Typed.Restrictions
+open import Tools.Bool
 
 module Definition.Typed.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
   (R₁ : Type-restrictions 𝕄₁)
   (R₂ : Type-restrictions 𝕄₂)
+  (transparent : Bool)
   (tr tr-Σ : M₁ → M₂)
   (m : Is-morphism 𝕄₁ 𝕄₂ tr)
   (m-Σ : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ)
-  (pres : Are-preserving-type-restrictions R₁ R₂ tr tr-Σ)
+  (pres : Are-preserving-type-restrictions transparent R₁ R₂ tr tr-Σ)
   where
 
 open Is-morphism m
@@ -39,7 +41,7 @@ import Definition.Typed.Substitution
 open import Definition.Untyped
 import Definition.Untyped.Allowed-literal
 import Definition.Untyped.Erased
-open import Definition.Untyped.QuantityTranslation tr tr-Σ
+open import Definition.Untyped.QuantityTranslation transparent tr tr-Σ
 import Definition.Untyped.Sup
 
 private
@@ -72,7 +74,8 @@ private variable
   σ σ′          : Subst _ _ _
   p q           : M₁
   s             : Strength
-  φ             : Unfolding _
+  o             : Opacity _
+  φ φ₁ φ₂       : Unfolding _
 
 opaque
 
@@ -173,20 +176,78 @@ tr-∷∈ (there x) =
   PE.subst (_ T₂.∷_∈ _ ∙ tr-Term _) tr-Term-wk (there (tr-∷∈ x))
 
 opaque
-  unfolding Definition.Typed.Trans Definition.Typed._⊔ᵒᵗ_
+  unfolding Definition.Typed._⊔ᵒᵗ_
 
-  -- Translation commutes with Trans φ.
+  -- Preservation for _⊔ᵒᵗ_.
 
-  tr-Trans : tr-DCon (T₁.Trans φ ∇) PE.≡ T₂.Trans φ (tr-DCon ∇)
-  tr-Trans {∇ = ε} =
+  tr-⊔ᵒᵗ : φ₁ T₁.⊔ᵒᵗ φ₂ PE.≡ φ₁ T₂.⊔ᵒᵗ φ₂
+  tr-⊔ᵒᵗ rewrite unfolding-mode-preserved = PE.refl
+
+opaque
+  unfolding Definition.Typed.Trans
+
+  -- If definitions are not made transparent, then translation
+  -- commutes with Trans φ.
+
+  tr-Trans-not-transparent :
+    ¬ T transparent →
+    tr-DCon (T₁.Trans φ ∇) PE.≡ T₂.Trans φ (tr-DCon ∇)
+  tr-Trans-not-transparent {∇ = ε} _ =
     PE.refl
-  tr-Trans {∇ = _ ∙⟨ tra ⟩!} =
-    PE.cong U₂._∙! tr-Trans
-  tr-Trans {φ = _ ⁰} {∇ = _ ∙⟨ opa _ ⟩!} =
-    PE.cong U₂._∙! tr-Trans
-  tr-Trans {φ = φ ¹} {∇ = ∇ ∙⟨ opa φ′ ⟩!}
-    rewrite unfolding-mode-preserved =
-    PE.cong U₂._∙! tr-Trans
+  tr-Trans-not-transparent {∇ = _ ∙⟨ tra ⟩!} not-trp =
+    PE.cong U₂._∙! (tr-Trans-not-transparent not-trp)
+  tr-Trans-not-transparent
+    {φ = φ ⁰} {∇ = ∇ ∙⟨ opa φ′ ⟩[ t ∷ A ]} not-trp =
+    tr-DCon (T₁.Trans φ ∇)
+      U₂.∙⟨ tr-Opacity (U₂.opa φ′) ⟩[ tr-Term t ∷ tr-Term A ]  ≡⟨ PE.cong U₂._∙! (tr-Trans-not-transparent not-trp) ⟩
+
+    T₂.Trans φ (tr-DCon ∇)
+      U₂.∙⟨ tr-Opacity (U₂.opa φ′) ⟩[ tr-Term t ∷ tr-Term A ]  ≡⟨ PE.cong (U₂._∙⟨_⟩! _) $
+                                                                  tr-Opacity-not-transparent not-trp ⟩
+    T₂.Trans φ (tr-DCon ∇)
+      U₂.∙⟨ U₂.opa φ′ ⟩[ tr-Term t ∷ tr-Term A ]               ≡⟨⟩
+
+    T₂.Trans (φ ⁰)
+      (tr-DCon ∇ U₂.∙⟨ U₂.opa φ′ ⟩[ tr-Term t ∷ tr-Term A ])   ≡˘⟨ PE.cong (T₂.Trans _ ∘→ U₂._∙⟨_⟩! _) $
+                                                                   tr-Opacity-not-transparent not-trp ⟩
+    T₂.Trans (φ ⁰)
+      (tr-DCon ∇ U₂.∙⟨ tr-Opacity (U₂.opa φ′) ⟩[
+         tr-Term t ∷ tr-Term A ])                              ∎
+  tr-Trans-not-transparent
+    {φ = φ ¹} {∇ = ∇ ∙⟨ opa φ′ ⟩[ t ∷ A ]} not-trp =
+    tr-DCon (T₁.Trans (φ T₁.⊔ᵒᵗ φ′) ∇)
+      U₂.∙⟨ U₂.tra ⟩[ tr-Term t ∷ tr-Term A ]                 ≡⟨ PE.cong U₂._∙! (tr-Trans-not-transparent not-trp) ⟩
+
+    T₂.Trans (φ T₁.⊔ᵒᵗ φ′) (tr-DCon ∇)
+      U₂.∙⟨ U₂.tra ⟩[ tr-Term t ∷ tr-Term A ]                 ≡⟨ PE.cong (U₂._∙! ∘→ flip T₂.Trans _) tr-⊔ᵒᵗ ⟩
+
+    T₂.Trans (φ T₂.⊔ᵒᵗ φ′) (tr-DCon ∇)
+      U₂.∙⟨ U₂.tra ⟩[ tr-Term t ∷ tr-Term A ]                 ≡⟨⟩
+
+    T₂.Trans (φ ¹)
+      (tr-DCon ∇ U₂.∙⟨ U₂.opa φ′ ⟩[ tr-Term t ∷ tr-Term A ])  ≡˘⟨ PE.cong (T₂.Trans _ ∘→ U₂._∙⟨_⟩! _) $
+                                                                  tr-Opacity-not-transparent not-trp ⟩
+    T₂.Trans (φ ¹)
+      (tr-DCon ∇ U₂.∙⟨ tr-Opacity (U₂.opa φ′) ⟩[
+         tr-Term t ∷ tr-Term A ])                             ∎
+
+opaque
+  unfolding Definition.Typed.Trans
+
+  -- If definitions are made transparent, then transparentisation is
+
+  tr-Trans-transparent :
+    T transparent →
+    tr-DCon (T₁.Trans φ ∇) PE.≡ tr-DCon ∇
+  tr-Trans-transparent {∇ = ε} _ =
+    PE.refl
+  tr-Trans-transparent {∇ = _ ∙⟨ tra ⟩!} trp =
+    PE.cong U₂._∙! (tr-Trans-transparent trp)
+  tr-Trans-transparent {φ = _ ⁰} {∇ = _ ∙⟨ opa _ ⟩!} trp =
+    PE.cong U₂._∙! (tr-Trans-transparent trp)
+  tr-Trans-transparent {φ = _ ¹} {∇ = _ ∙⟨ opa _ ⟩!} trp =
+    PE.cong₂ U₂._∙⟨_⟩! (tr-Trans-transparent trp)
+      (PE.sym (tr-Opacity-transparent trp))
 
 mutual
 
@@ -195,9 +256,25 @@ mutual
   tr-» : T₁.» ∇ → T₂.» tr-DCon ∇
   tr-» ε                 = ε
   tr-» ∙ᵗ[ t ]           = ∙ᵗ[ tr-⊢∷ t ]
-  tr-» ∙ᵒ⟨ ok ⟩[ t ∷ A ] =
-    ∙ᵒ⟨ Opacity-preserved ok
-    ⟩[ PE.subst₃ T₂._⊢_∷_ (PE.cong (_» _) tr-Trans) PE.refl PE.refl $
+  tr-» ∙ᵒ⟨ ok ⟩[ t ∷ A ] with T? transparent
+  … | yes trp =
+    PE.subst T₂.»_
+      (PE.cong₃ (_∙⟨_⟩[_∷_] _)
+         (PE.cong (if_then _ else _) (PE.sym (T-true .proj₁ trp)))
+         PE.refl PE.refl)
+      ∙ᵗ[ PE.subst₃ T₂._⊢_∷_
+            (PE.cong (_» _) (tr-Trans-transparent trp))
+            PE.refl PE.refl $
+          tr-⊢∷ t ]
+  … | no not-trp =
+    PE.subst T₂.»_
+      (PE.cong₃ (_∙⟨_⟩[_∷_] _)
+         (PE.cong (if_then _ else _) (PE.sym (¬-T .proj₁ not-trp)))
+         PE.refl PE.refl) $
+    ∙ᵒ⟨ Opacity-preserved not-trp ok
+    ⟩[ PE.subst₃ T₂._⊢_∷_
+         (PE.cong (_» _) (tr-Trans-not-transparent not-trp))
+         PE.refl PE.refl $
        tr-⊢∷ t
     ∷ tr-⊢′ A
     ]
@@ -745,13 +822,19 @@ module _
   tr-⊢⇒* (id A)       = id (tr-⊢′ A)
   tr-⊢⇒* (A⇒B ⇨ B⇒*C) = tr-⊢⇒ A⇒B ⇨ tr-⊢⇒* B⇒*C
 
-  -- Preservation of _⊢_↘_.
+  -- The following results make use of yet another assumption.
 
-  tr-⊢↘ : Γ T₁.⊢ A ↘ B → tr-Cons Γ T₂.⊢ tr-Term A ↘ tr-Term B
-  tr-⊢↘ (A⇒*B , B) = tr-⊢⇒* A⇒*B , tr-Whnf Unitʷ-η-reflected B
+  module _ (not-transparent : ¬ T transparent) where
 
-  -- Preservation of _⊢_↘_∷_.
+    -- Preservation of _⊢_↘_.
 
-  tr-⊢↘∷ :
-    Γ T₁.⊢ t ↘ u ∷ A → tr-Cons Γ T₂.⊢ tr-Term t ↘ tr-Term u ∷ tr-Term A
-  tr-⊢↘∷ (t⇒*u , u) = tr-⊢⇒*∷ t⇒*u , tr-Whnf Unitʷ-η-reflected u
+    tr-⊢↘ : Γ T₁.⊢ A ↘ B → tr-Cons Γ T₂.⊢ tr-Term A ↘ tr-Term B
+    tr-⊢↘ (A⇒*B , B) =
+      tr-⊢⇒* A⇒*B , tr-Whnf not-transparent Unitʷ-η-reflected B
+
+    -- Preservation of _⊢_↘_∷_.
+
+    tr-⊢↘∷ :
+      Γ T₁.⊢ t ↘ u ∷ A → tr-Cons Γ T₂.⊢ tr-Term t ↘ tr-Term u ∷ tr-Term A
+    tr-⊢↘∷ (t⇒*u , u) =
+      tr-⊢⇒*∷ t⇒*u , tr-Whnf not-transparent Unitʷ-η-reflected u

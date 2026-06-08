@@ -11,6 +11,7 @@ open import Graded.Modality.Morphism as M
 open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Mode.Instances.Zero-one
 open import Graded.Usage.Restrictions
+open import Tools.Bool
 
 module Graded.Usage.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
@@ -18,11 +19,12 @@ module Graded.Usage.QuantityTranslation
   (v₁ : Mode-variant 𝕄₁) (v₂ : Mode-variant 𝕄₂)
   (R₁ : Usage-restrictions 𝕄₁ (Zero-one-isMode v₁))
   (R₂ : Usage-restrictions 𝕄₂ (Zero-one-isMode v₂))
+  (transparent : Bool)
   (tr tr-Σ : M₁ → M₂)
   where
 
 open import Definition.Untyped
-open import Definition.Untyped.QuantityTranslation tr tr-Σ
+open import Definition.Untyped.QuantityTranslation transparent tr tr-Σ
 
 open import Graded.Context
 import Graded.Context.Properties
@@ -40,7 +42,9 @@ import Graded.Modality.Morphism.Forward-instances
 
 open import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
   as MQP hiding (module Is-morphism)
-open import Graded.Mode.Instances.Zero-one.QuantityTranslation 𝕄₁ 𝕄₂ v₁ v₂ tr tr-Σ
+open import
+  Graded.Mode.Instances.Zero-one.QuantityTranslation
+    𝕄₁ 𝕄₂ v₁ v₂ transparent tr tr-Σ
   as MQ hiding (module Is-morphism; module Is-order-embedding)
 
 open Graded.Modality.Properties 𝕄₂
@@ -67,7 +71,6 @@ private
   module UR₁  = Usage-restrictions R₁
   module UR₂  = Usage-restrictions R₂
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function

@@ -523,6 +523,8 @@ opaque
 
 Trivial⇨Erasure : Trivial ⇨ Erasure
 Trivial⇨Erasure = λ where
+    ._⇨_.transparent →
+      false
     ._⇨_.tr →
       tr
     ._⇨_.tr-Σ →
@@ -559,7 +561,7 @@ Trivial⇨Erasure = λ where
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
     are-preserving-type-restrictions :
-      Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
+      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
@@ -579,7 +581,7 @@ Trivial⇨Erasure = λ where
         (λ _ ())
 
     are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
+      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
       Are-reflecting-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
@@ -636,6 +638,8 @@ Trivial⇨Erasure = λ where
 
 Erasure⇨Affine-types : Erasure ⇨ Affine-types
 Erasure⇨Affine-types = λ where
+    ._⇨_.transparent →
+      false
     ._⇨_.tr →
       tr
     ._⇨_.tr-Σ →
@@ -672,7 +676,7 @@ Erasure⇨Affine-types = λ where
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
     are-preserving-type-restrictions :
-      Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
+      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
@@ -692,7 +696,7 @@ Erasure⇨Affine-types = λ where
         (λ _ ())
 
     are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
+      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
       Are-reflecting-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
@@ -754,6 +758,8 @@ Erasure⇨Affine-types = λ where
 
 Erasure⇨Linearity : Erasure ⇨ Linearity
 Erasure⇨Linearity = λ where
+    ._⇨_.transparent →
+      false
     ._⇨_.tr →
       tr
     ._⇨_.tr-Σ →
@@ -790,7 +796,7 @@ Erasure⇨Linearity = λ where
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
     are-preserving-type-restrictions :
-      Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
+      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
@@ -810,7 +816,7 @@ Erasure⇨Linearity = λ where
         (λ _ ())
 
     are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
+      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
       Are-reflecting-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
@@ -873,6 +879,8 @@ Erasure⇨Linearity = λ where
 Affine-types⇨Linear-or-affine-types :
   Affine-types ⇨ Linear-or-affine-types
 Affine-types⇨Linear-or-affine-types = λ where
+    ._⇨_.transparent →
+      false
     ._⇨_.tr →
       tr
     ._⇨_.tr-Σ →
@@ -909,7 +917,7 @@ Affine-types⇨Linear-or-affine-types = λ where
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
     are-preserving-type-restrictions :
-      Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
+      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
@@ -929,7 +937,7 @@ Affine-types⇨Linear-or-affine-types = λ where
         (λ _ ())
 
     are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
+      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
       Are-reflecting-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
@@ -993,6 +1001,8 @@ Affine-types⇨Linear-or-affine-types = λ where
 Linearity⇨Linear-or-affine-types :
   Linearity ⇨ Linear-or-affine-types
 Linearity⇨Linear-or-affine-types = λ where
+    ._⇨_.transparent →
+      false
     ._⇨_.tr →
       tr
     ._⇨_.tr-Σ →
@@ -1029,7 +1039,7 @@ Linearity⇨Linear-or-affine-types = λ where
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
     are-preserving-type-restrictions :
-      Are-preserving-type-restrictions E₁.TR E₂.TR tr tr
+      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
       Are-preserving-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
@@ -1049,7 +1059,7 @@ Linearity⇨Linear-or-affine-types = λ where
         (λ _ ())
 
     are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions E₁.TR E₂.TR tr tr
+      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
       Are-reflecting-type-restrictions-no-erased-matches-TR
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}

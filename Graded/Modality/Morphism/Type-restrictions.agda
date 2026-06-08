@@ -4,9 +4,12 @@
 
 module Graded.Modality.Morphism.Type-restrictions where
 
+open import Tools.Bool
 open import Tools.Function
 open import Tools.Level
+open import Tools.Product
 open import Tools.PropositionalEquality
+open import Tools.Relation
 open import Tools.Sum
 
 open import Definition.Typed.Restrictions
@@ -18,6 +21,7 @@ open import Definition.Untyped.QuantityTranslation
 open import Graded.Modality
 
 private variable
+  trp trp₁ trp₂       : Bool
   R R₁ R₂ R₃          : Type-restrictions _
   b                   : BinderMode
   M M₁ M₂             : Set _
@@ -34,6 +38,7 @@ private variable
 record Are-preserving-type-restrictions
          {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
          {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
+         (transparent : Bool)
          (R₁ : Type-restrictions 𝕄₁) (R₂ : Type-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   no-eta-equality
@@ -68,11 +73,12 @@ record Are-preserving-type-restrictions
     -- certain way.
     ΠΣ-preserved :
       R₁.ΠΣ-allowed b p q →
-      R₂.ΠΣ-allowed b (tr-BinderMode tr tr-Σ b p) (tr q)
+      R₂.ΠΣ-allowed b (tr-BinderMode transparent tr tr-Σ b p) (tr q)
 
-    -- If R₁.Opacity-allowed holds, then R₂.Opacity-allowed holds.
+    -- If the translation does not make every definition transparent
+    -- and R₁.Opacity-allowed holds, then R₂.Opacity-allowed holds.
     Opacity-preserved :
-      R₁.Opacity-allowed → R₂.Opacity-allowed
+      ¬ T transparent → R₁.Opacity-allowed → R₂.Opacity-allowed
 
     -- If R₁.K-allowed holds, then R₂.K-allowed holds.
     K-preserved :
@@ -109,6 +115,7 @@ record Are-preserving-type-restrictions
 record Are-reflecting-type-restrictions
          {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
          {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
+         (transparent : Bool)
          (R₁ : Type-restrictions 𝕄₁) (R₂ : Type-restrictions 𝕄₂)
          (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   no-eta-equality
@@ -139,7 +146,7 @@ record Are-reflecting-type-restrictions
     -- The functions tr and tr-Σ reflect the ΠΣ-allowed property in a
     -- certain way.
     ΠΣ-reflected :
-      R₂.ΠΣ-allowed b (tr-BinderMode tr tr-Σ b p) (tr q) →
+      R₂.ΠΣ-allowed b (tr-BinderMode transparent tr tr-Σ b p) (tr q) →
       R₁.ΠΣ-allowed b p q
 
     -- If R₂.Opacity-allowed holds, then R₁.Opacity-allowed holds.
@@ -186,7 +193,7 @@ record Are-reflecting-type-restrictions
 -- preserves Type-restrictions for R and R.
 
 Are-preserving-type-restrictions-id :
-  Are-preserving-type-restrictions R R idᶠ idᶠ
+  Are-preserving-type-restrictions trp R R idᶠ idᶠ
 Are-preserving-type-restrictions-id {R = R} = λ where
     .unfolding-mode-preserved      → refl
     .level-support-preserved       → refl-≤LS
@@ -195,7 +202,7 @@ Are-preserving-type-restrictions-id {R = R} = λ where
     .Unit-preserved                → idᶠ
     .ΠΣ-preserved {b = BMΠ}        → idᶠ
     .ΠΣ-preserved {b = BMΣ _}      → idᶠ
-    .Opacity-preserved             → idᶠ
+    .Opacity-preserved             → λ _ → idᶠ
     .K-preserved                   → idᶠ
     .[]-cong-preserved             → idᶠ
     .Equality-reflection-preserved → idᶠ
@@ -207,7 +214,7 @@ Are-preserving-type-restrictions-id {R = R} = λ where
 -- reflects Type-restrictions for R and R.
 
 Are-reflecting-type-restrictions-id :
-  Are-reflecting-type-restrictions R R idᶠ idᶠ
+  Are-reflecting-type-restrictions trp R R idᶠ idᶠ
 Are-reflecting-type-restrictions-id {R = R} = λ where
     .unfolding-mode-reflected      → refl
     .level-support-reflected       → refl-≤LS
@@ -229,9 +236,9 @@ Are-reflecting-type-restrictions-id {R = R} = λ where
 -- Composition preserves Are-preserving-type-restrictions.
 
 Are-preserving-type-restrictions-∘ :
-  Are-preserving-type-restrictions R₂ R₃ tr₁ tr-Σ₁ →
-  Are-preserving-type-restrictions R₁ R₂ tr₂ tr-Σ₂ →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp₁ R₂ R₃ tr₁ tr-Σ₁ →
+  Are-preserving-type-restrictions trp₂ R₁ R₂ tr₂ tr-Σ₂ →
+  Are-preserving-type-restrictions (trp₁ ∨ trp₂)
     R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
 Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
     .unfolding-mode-preserved →
@@ -248,8 +255,10 @@ Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
       M₁.ΠΣ-preserved ∘→ M₂.ΠΣ-preserved
     .ΠΣ-preserved {b = BMΣ _} →
       M₁.ΠΣ-preserved ∘→ M₂.ΠΣ-preserved
-    .Opacity-preserved →
-      M₁.Opacity-preserved ∘→ M₂.Opacity-preserved
+    .Opacity-preserved ok →
+      let ok = ok ∘→ T-∨ .proj₂ in
+      M₁.Opacity-preserved (ok ∘→ inj₁) ∘→
+      M₂.Opacity-preserved (ok ∘→ inj₂)
     .K-preserved →
       M₁.K-preserved ∘→ M₂.K-preserved
     .[]-cong-preserved →
@@ -265,9 +274,10 @@ Are-preserving-type-restrictions-∘ m₁ m₂ = λ where
 -- Composition preserves Are-reflecting-type-restrictions.
 
 Are-reflecting-type-restrictions-∘ :
-  Are-reflecting-type-restrictions R₂ R₃ tr₁ tr-Σ₁ →
-  Are-reflecting-type-restrictions R₁ R₂ tr₂ tr-Σ₂ →
-  Are-reflecting-type-restrictions R₁ R₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
+  Are-reflecting-type-restrictions trp₁ R₂ R₃ tr₁ tr-Σ₁ →
+  Are-reflecting-type-restrictions trp₂ R₁ R₂ tr₂ tr-Σ₂ →
+  Are-reflecting-type-restrictions (trp₁ ∨ trp₂) R₁ R₃ (tr₁ ∘→ tr₂)
+    (tr-Σ₁ ∘→ tr-Σ₂)
 Are-reflecting-type-restrictions-∘ m₁ m₂ = λ where
     .unfolding-mode-reflected →
        trans M₂.unfolding-mode-reflected M₁.unfolding-mode-reflected

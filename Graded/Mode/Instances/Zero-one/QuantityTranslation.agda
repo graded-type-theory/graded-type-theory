@@ -7,11 +7,13 @@ open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding; Is-Σ-morphism)
   hiding (module Is-morphism; module Is-order-embedding)
 open import Graded.Mode.Instances.Zero-one.Variant
+open import Tools.Bool
 
 module Graded.Mode.Instances.Zero-one.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
   (v₁ : Mode-variant 𝕄₁) (v₂ : Mode-variant 𝕄₂)
+  (transparent : Bool)
   (tr tr-Σ : M₁ → M₂)
   where
 
@@ -21,7 +23,7 @@ open import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
   as Q hiding (module Is-morphism)
 open import Definition.Untyped
-open import Definition.Untyped.QuantityTranslation tr tr-Σ
+open import Definition.Untyped.QuantityTranslation transparent tr tr-Σ
 
 open Graded.Modality.Properties 𝕄₂
 
@@ -34,7 +36,6 @@ private
   module V₁ = Mode-variant v₁
   module V₂ = Mode-variant v₂
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product

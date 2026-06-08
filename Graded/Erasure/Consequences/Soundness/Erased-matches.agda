@@ -50,9 +50,15 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
+open import Tools.Bool
+open import Tools.Function
+open import Tools.Product
+open import Tools.PropositionalEquality as PE
+open import Tools.Sum
+
 import Definition.Typed.QuantityTranslation as QT
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.QuantityTranslation.Identity M
+open import Definition.Untyped.QuantityTranslation.Identity M false
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Morphism
@@ -61,11 +67,6 @@ import Graded.Erasure.Consequences.Soundness
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.SucRed
 import Graded.Erasure.Target as T
-
-open import Tools.Function
-open import Tools.Product
-open import Tools.PropositionalEquality as PE
-open import Tools.Sum
 
 private variable
   Γ   : Cons _ _
@@ -113,8 +114,9 @@ opaque
   ⊢∷→⊢∷-η ⊢t =
     case Is-order-embedding.tr-morphism Is-order-embedding-id of λ
       (m : Is-morphism 𝕄 𝕄 idᶠ) →
-    subst₃ T-η._⊢_∷_ tr-Cons-id tr-Term-id tr-Term-id $
-    QT.tr-⊢∷ TR TR-η idᶠ idᶠ m (Is-morphism→Is-Σ-morphism m)
+    subst₃ T-η._⊢_∷_ (Not-transparent.tr-Cons-id idᶠ) tr-Term-id
+      tr-Term-id $
+    QT.tr-⊢∷ TR TR-η false idᶠ idᶠ m (Is-morphism→Is-Σ-morphism m)
       (record
          { unfolding-mode-preserved = refl
          ; level-support-preserved  = refl-≤LS
@@ -124,7 +126,7 @@ opaque
              λ {b = b} →
                subst (flip (ΠΣ-allowed _) _) $
                PE.sym $ tr-BinderMode-id b
-         ; Opacity-preserved             = idᶠ
+         ; Opacity-preserved             = λ _ → idᶠ
          ; K-preserved                   = idᶠ
          ; []-cong-preserved             = idᶠ
          ; Equality-reflection-preserved = idᶠ

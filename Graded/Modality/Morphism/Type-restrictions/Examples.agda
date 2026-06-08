@@ -43,15 +43,15 @@ open import Definition.Untyped.NotParametrised
 open import Definition.Untyped.QuantityTranslation
 
 private variable
-  b₁ b₂ 𝟙≤𝟘   : Bool
-  R R₁ R₂     : Type-restrictions _
-  s           : Strength
-  M₁ M₂       : Set _
-  Mode₁ Mode₂ : Set _
-  𝕄₁ 𝕄₂       : Modality _
-  𝐌₁ 𝐌₂     : IsMode _ _
-  tr tr-Σ     : M₁ → M₂
-  v₁-ok v₂-ok : ¬ _
+  b₁ b₂ trp 𝟙≤𝟘 : Bool
+  R R₁ R₂       : Type-restrictions _
+  s             : Strength
+  M₁ M₂         : Set _
+  Mode₁ Mode₂   : Set _
+  𝕄₁ 𝕄₂         : Modality _
+  𝐌₁ 𝐌₂         : IsMode _ _
+  tr tr-Σ       : M₁ → M₂
+  v₁-ok v₂-ok   : ¬ _
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting no type restrictions
@@ -63,7 +63,7 @@ opaque
 
   Are-preserving-type-restrictions-no-type-restrictions :
     (¬ Modality.Trivial 𝕄₁ → ¬ Modality.Trivial 𝕄₂) →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂)
       (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂)
       tr tr-Σ
@@ -74,7 +74,7 @@ opaque
       .Unitʷ-η-preserved ()
       .Unit-preserved                → _
       .ΠΣ-preserved                  → _
-      .Opacity-preserved             → lift ∘→ Lift.lower
+      .Opacity-preserved _           → lift ∘→ Lift.lower
       .K-preserved                   → lift ∘→ Lift.lower
       .[]-cong-preserved             → hyp
       .Equality-reflection-preserved → lift ∘→ Lift.lower
@@ -89,7 +89,7 @@ opaque
   Are-reflecting-type-restrictions-no-type-restrictions :
     (Modality.Trivial 𝕄₂ ⊎ ¬ Modality.Trivial 𝕄₂ →
      Modality.Trivial 𝕄₁ ⊎ ¬ Modality.Trivial 𝕄₁) →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂)
       (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂)
       tr tr-Σ
@@ -114,12 +114,12 @@ opaque
 -- equal-binder-quantities 𝕄₂ R₂.
 
 Are-preserving-type-restrictions-equal-binder-quantities :
-  Are-preserving-type-restrictions R₁ R₂ tr tr →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp R₁ R₂ tr tr →
+  Are-preserving-type-restrictions trp
     (equal-binder-quantities 𝕄₁ 𝐌₁ R₁)
     (equal-binder-quantities 𝕄₂ 𝐌₂ R₂)
     tr tr
-Are-preserving-type-restrictions-equal-binder-quantities {tr = tr} r =
+Are-preserving-type-restrictions-equal-binder-quantities {trp} {tr} r =
   record
     { unfolding-mode-preserved = R.unfolding-mode-preserved
     ; level-support-preserved  = R.level-support-preserved
@@ -129,7 +129,7 @@ Are-preserving-type-restrictions-equal-binder-quantities {tr = tr} r =
     ; ΠΣ-preserved             = λ {b = b} → λ where
         (bn , refl) →
             R.ΠΣ-preserved bn
-          , tr-BinderMode-one-function _ _ refl b
+          , tr-BinderMode-one-function trp _ _ refl b
     ; Opacity-preserved             = R.Opacity-preserved
     ; K-preserved                   = R.K-preserved
     ; []-cong-preserved             = R.[]-cong-preserved
@@ -145,13 +145,13 @@ Are-preserving-type-restrictions-equal-binder-quantities {tr = tr} r =
 
 Are-reflecting-type-restrictions-equal-binder-quantities :
   (∀ {p q} → tr p ≡ tr q → p ≡ q) →
-  Are-reflecting-type-restrictions R₁ R₂ tr tr →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp R₁ R₂ tr tr →
+  Are-reflecting-type-restrictions trp
     (equal-binder-quantities 𝕄₁ 𝐌₁ R₁)
     (equal-binder-quantities 𝕄₂ 𝐌₂ R₂)
     tr tr
 Are-reflecting-type-restrictions-equal-binder-quantities
-  {tr = tr} inj r = record
+  {tr} {trp} inj r = record
   { unfolding-mode-reflected = unfolding-mode-reflected
   ; level-support-reflected  = level-support-reflected
   ; Unitʷ-η-reflected        = Unitʷ-η-reflected
@@ -160,9 +160,9 @@ Are-reflecting-type-restrictions-equal-binder-quantities
       λ {b = b} {p = p} {q = q} (bn , eq) →
           ΠΣ-reflected bn
         , inj (
-            tr p                     ≡˘⟨ tr-BinderMode-one-function _ _ refl b ⟩
-            tr-BinderMode tr tr b p  ≡⟨ eq ⟩
-            tr q                     ∎)
+            tr p                         ≡˘⟨ tr-BinderMode-one-function trp _ _ refl b ⟩
+            tr-BinderMode trp tr tr b p  ≡⟨ eq ⟩
+            tr q                         ∎)
   ; Opacity-reflected             = Opacity-reflected
   ; K-reflected                   = K-reflected
   ; []-cong-reflected             = []-cong-reflected
@@ -179,8 +179,8 @@ Are-reflecting-type-restrictions-equal-binder-quantities
 
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 :
   tr (Modality.𝟘 𝕄₁) ≡ Modality.𝟘 𝕄₂ →
-  Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘 𝕄₁ 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘 𝕄₂ 𝐌₂ R₂)
     tr tr-Σ
@@ -207,8 +207,8 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
 
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 :
   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) →
-  Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘 𝕄₁ 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘 𝕄₂ 𝐌₂ R₂)
     tr tr-Σ
@@ -235,13 +235,13 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
    tr (Modality.𝟘 𝕄₁) ≡ Modality.𝟘 𝕄₂) →
   (∀ {p} → tr p ≡ Modality.ω 𝕄₂ ⇔ p ≡ Modality.ω 𝕄₁) →
   (∀ {p} → tr-Σ p ≡ Modality.ω 𝕄₂ ⇔ p ≡ Modality.ω 𝕄₁) →
-  Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {𝕄₁} {tr} {𝕄₂} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
+  {𝕄₁} {tr} {𝕄₂} {tr-Σ} {trp} tr-𝟘 tr-ω tr-Σ-ω r = record
   { unfolding-mode-preserved = unfolding-mode-preserved
   ; level-support-preserved  = level-support-preserved
   ; Omega-plus-preserved     = Omega-plus-preserved
@@ -263,7 +263,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   lemma₁ :
     ∀ {p q} b →
     (p ≡ M₁.ω → q ≡ M₁.ω) →
-    tr-BinderMode tr tr-Σ b p ≡ M₂.ω → tr q ≡ M₂.ω
+    tr-BinderMode trp tr tr-Σ b p ≡ M₂.ω → tr q ≡ M₂.ω
   lemma₁ {p = p} {q = q} BMΠ hyp =
     tr p ≡ M₂.ω  →⟨ tr-ω .proj₁ ⟩
     p ≡ M₁.ω     →⟨ hyp ⟩
@@ -287,7 +287,7 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
   lemma₃ :
     ∀ {p q} b →
     (p ≢ M₁.ω → q ≡ M₁.𝟘) →
-    tr-BinderMode tr tr-Σ b p ≢ M₂.ω → tr q ≡ M₂.𝟘
+    tr-BinderMode trp tr tr-Σ b p ≢ M₂.ω → tr q ≡ M₂.𝟘
   lemma₃ {p = p} {q = q} BMΠ hyp =
     tr p ≢ M₂.ω  →⟨ _∘→ tr-ω .proj₂ ⟩
     p ≢ M₁.ω     →⟨ lemma₂ hyp ⟩
@@ -305,13 +305,13 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) →
   (∀ {p} → tr p ≡ Modality.ω 𝕄₂ ⇔ p ≡ Modality.ω 𝕄₁) →
   (∀ {p} → tr-Σ p ≡ Modality.ω 𝕄₂ ⇔ p ≡ Modality.ω 𝕄₁) →
-  Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {tr} {𝕄₂} {𝕄₁} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
+  {tr} {𝕄₂} {𝕄₁} {tr-Σ} {trp} tr-𝟘 tr-ω tr-Σ-ω r = record
   { unfolding-mode-reflected = unfolding-mode-reflected
   ; level-support-reflected  = level-support-reflected
   ; Unitʷ-η-reflected        = Unitʷ-η-reflected
@@ -330,7 +330,7 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
 
   lemma₁ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≡ M₂.ω → tr q ≡ M₂.ω) →
+    (tr-BinderMode trp tr tr-Σ b p ≡ M₂.ω → tr q ≡ M₂.ω) →
     p ≡ M₁.ω → q ≡ M₁.ω
   lemma₁ {p = p} {q = q} BMΠ hyp =
     p ≡ M₁.ω     →⟨ tr-ω .proj₂ ⟩
@@ -345,7 +345,7 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
 
   lemma₂ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≢ M₂.ω → tr q ≡ M₂.𝟘) →
+    (tr-BinderMode trp tr tr-Σ b p ≢ M₂.ω → tr q ≡ M₂.𝟘) →
     p ≢ M₁.ω → q ≡ M₁.𝟘
   lemma₂ {p = p} {q = q} BMΠ hyp =
     p ≢ M₁.ω     →⟨ _∘→ tr-ω .proj₁ ⟩
@@ -366,8 +366,8 @@ opaque
 
  Are-preserving-type-restrictions-strong-types-restricted :
    tr-Σ (Modality.𝟙 𝕄₁) ≡ Modality.𝟙 𝕄₂ →
-   Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-   Are-preserving-type-restrictions
+   Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+   Are-preserving-type-restrictions trp
      (strong-types-restricted 𝕄₁ 𝐌₁ R₁)
      (strong-types-restricted 𝕄₂ 𝐌₂ R₂)
      tr tr-Σ
@@ -409,8 +409,8 @@ opaque
    (∀ {s} →
     Modality.Trivial 𝕄₂ →
     ¬ Type-restrictions.[]-cong-allowed R₁ s) →
-   Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-   Are-reflecting-type-restrictions
+   Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+   Are-reflecting-type-restrictions trp
      (strong-types-restricted 𝕄₁ 𝐌₁ R₁)
      (strong-types-restricted 𝕄₂ 𝐌₂ R₂)
      tr tr-Σ
@@ -452,8 +452,8 @@ opaque
  -- using no-strong-types.
 
  Are-preserving-type-restrictions-no-strong-types :
-   Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-   Are-preserving-type-restrictions
+   Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+   Are-preserving-type-restrictions trp
      (no-strong-types 𝕄₁ 𝐌₁ R₁)
      (no-strong-types 𝕄₂ 𝐌₂ R₂)
      tr tr-Σ
@@ -492,8 +492,8 @@ opaque
    (∀ {s} →
     Modality.Trivial 𝕄₂ →
     ¬ Type-restrictions.[]-cong-allowed R₁ s) →
-   Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-   Are-reflecting-type-restrictions
+   Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+   Are-reflecting-type-restrictions trp
      (no-strong-types 𝕄₁ 𝐌₁ R₁)
      (no-strong-types 𝕄₂ 𝐌₂ R₂)
      tr tr-Σ
@@ -532,8 +532,8 @@ opaque
 -- no-erased-matches-TR.
 
 Are-preserving-type-restrictions-no-erased-matches-TR :
-  Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+  Are-preserving-type-restrictions trp
     (no-erased-matches-TR 𝕄₁ 𝐌₁ s R₁)
     (no-erased-matches-TR 𝕄₂ 𝐌₂ s R₂)
     tr tr-Σ
@@ -560,8 +560,8 @@ Are-reflecting-type-restrictions-no-erased-matches-TR :
   (∀ {s} →
    Modality.Trivial 𝕄₂ →
    ¬ Type-restrictions.[]-cong-allowed R₁ s) →
-  Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+  Are-reflecting-type-restrictions trp
     (no-erased-matches-TR 𝕄₁ 𝐌₁ s R₁)
     (no-erased-matches-TR 𝕄₂ 𝐌₂ s R₂)
     tr tr-Σ
@@ -598,8 +598,8 @@ opaque
         module M₂ = Modality 𝕄₂
     in
     (¬ M₁.Trivial → ¬ M₂.Trivial × tr M₁.𝟘 ≡ M₂.𝟘 × tr-Σ M₁.𝟘 ≡ M₂.𝟘) →
-    Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-preserving-type-restrictions trp
       ([]-cong-TR 𝕄₁ 𝐌₁ R₁)
       ([]-cong-TR 𝕄₂ 𝐌₂ R₂)
       tr tr-Σ
@@ -653,8 +653,8 @@ opaque
      ¬ M₁.Trivial ×
      (∀ p → tr p ≡ M₂.𝟘 → p ≡ M₁.𝟘) ×
      (∀ p → tr-Σ p ≡ M₂.𝟘 → p ≡ M₁.𝟘)) →
-    Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-reflecting-type-restrictions trp
       ([]-cong-TR 𝕄₁ 𝐌₁ R₁)
       ([]-cong-TR 𝕄₂ 𝐌₂ R₂)
       tr tr-Σ
@@ -702,8 +702,8 @@ opaque
   -- using no-[]-cong-TR.
 
   Are-preserving-type-restrictions-no-[]-cong-TR :
-    Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-preserving-type-restrictions trp
       (no-[]-cong-TR 𝕄₁ 𝐌₁ R₁)
       (no-[]-cong-TR 𝕄₂ 𝐌₂ R₂)
       tr tr-Σ
@@ -732,8 +732,8 @@ opaque
     (∀ {s} →
      Modality.Trivial 𝕄₂ →
      ¬ Type-restrictions.[]-cong-allowed R₁ s) →
-    Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-reflecting-type-restrictions trp
       (no-[]-cong-TR 𝕄₁ 𝐌₁ R₁)
       (no-[]-cong-TR 𝕄₂ 𝐌₂ R₂)
       tr tr-Σ
@@ -762,9 +762,35 @@ opaque
   -- then they do this also for certain type restrictions obtained
   -- using with-equality-reflection.
 
+  Are-preserving-type-restrictions-with-equality-reflectionʳ :
+    Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-preserving-type-restrictions true R₁
+      (with-equality-reflection 𝕄₂ 𝐌₂ R₂)
+      tr tr-Σ
+  Are-preserving-type-restrictions-with-equality-reflectionʳ r = record
+    { unfolding-mode-preserved      = unfolding-mode-preserved
+    ; level-support-preserved       = level-support-preserved
+    ; Omega-plus-preserved          = Omega-plus-preserved
+    ; Unitʷ-η-preserved             = Unitʷ-η-preserved
+    ; Unit-preserved                = Unit-preserved
+    ; ΠΣ-preserved                  = ΠΣ-preserved
+    ; Opacity-preserved             = λ ¬-⊤ _ → lift (¬-⊤ _)
+    ; K-preserved                   = K-preserved
+    ; []-cong-preserved             = []-cong-preserved
+    ; Equality-reflection-preserved = _
+    }
+    where
+    open Are-preserving-type-restrictions r
+
+opaque
+
+  -- If the functions tr and tr-Σ preserve certain type restrictions,
+  -- then they do this also for certain type restrictions obtained
+  -- using with-equality-reflection.
+
   Are-preserving-type-restrictions-with-equality-reflection :
-    Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-preserving-type-restrictions trp
       (with-equality-reflection 𝕄₁ 𝐌₁ R₁)
       (with-equality-reflection 𝕄₂ 𝐌₂ R₂)
       tr tr-Σ
@@ -775,7 +801,7 @@ opaque
     ; Unitʷ-η-preserved             = Unitʷ-η-preserved
     ; Unit-preserved                = Unit-preserved
     ; ΠΣ-preserved                  = ΠΣ-preserved
-    ; Opacity-preserved             = λ ()
+    ; Opacity-preserved             = λ _ ()
     ; K-preserved                   = K-preserved
     ; []-cong-preserved             = []-cong-preserved
     ; Equality-reflection-preserved = _
@@ -793,8 +819,8 @@ opaque
     (∀ {s} →
      Modality.Trivial 𝕄₂ →
      ¬ Type-restrictions.[]-cong-allowed R₁ s) →
-    Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp R₁ R₂ tr tr-Σ →
+    Are-reflecting-type-restrictions trp
       (with-equality-reflection 𝕄₁ 𝐌₁ R₁)
       (with-equality-reflection 𝕄₂ 𝐌₂ R₂)
       tr tr-Σ
@@ -823,7 +849,7 @@ opaque
 
 ¬-erasure→zero-one-many-Σ-preserves-equal-binder-quantities :
   (R : Type-restrictions 𝕄₂) →
-  ¬ Are-preserving-type-restrictions
+  ¬ Are-preserving-type-restrictions trp
       (equal-binder-quantities 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
       (equal-binder-quantities 𝕄₂ 𝐌₂ R)
       erasure→zero-one-many erasure→zero-one-many-Σ
@@ -838,7 +864,7 @@ opaque
 
 ¬-affine→linear-or-affine-Σ-preserves-equal-binder-quantities :
   (R : Type-restrictions 𝕄₂) →
-  ¬ Are-preserving-type-restrictions
+  ¬ Are-preserving-type-restrictions trp
       (equal-binder-quantities 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
       (equal-binder-quantities 𝕄₂ 𝐌₂ R)
       affine→linear-or-affine affine→linear-or-affine-Σ
@@ -856,9 +882,9 @@ opaque
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 unit→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     R₁ R₂ unit→erasure unit→erasure →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω UnitModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ErasureModality 𝐌₂ R₂)
     unit→erasure unit→erasure
@@ -874,9 +900,9 @@ unit→erasure-preserves-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {𝐌₂} =
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 unit→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp
     R₁ R₂ unit→erasure unit→erasure →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω UnitModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω ErasureModality 𝐌₂ R₂)
     unit→erasure unit→erasure
@@ -892,9 +918,9 @@ unit→erasure-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {𝐌₂} =
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     R₁ R₂ erasure→unit erasure→unit →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω ErasureModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω UnitModality 𝐌₂ R₂)
     erasure→unit erasure→unit
@@ -923,7 +949,7 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
       𝕄₂ = UnitModality
   in
   (R₁ : Type-restrictions 𝕄₁) →
-  ¬ Are-reflecting-type-restrictions
+  ¬ Are-reflecting-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
       erasure→unit erasure→unit
@@ -942,9 +968,9 @@ erasure→unit-preserves-second-ΠΣ-quantities-𝟘-or-ω r =
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-type-restrictions R₁ R₂
+  Are-preserving-type-restrictions trp R₁ R₂
     erasure→zero-one-many erasure→zero-one-many →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω ErasureModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω (zero-one-many-modality 𝟙≤𝟘) 𝐌₂ R₂)
     erasure→zero-one-many erasure→zero-one-many
@@ -964,9 +990,9 @@ erasure→zero-one-many-preserves-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {�
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-reflecting-type-restrictions R₁ R₂
+  Are-reflecting-type-restrictions trp R₁ R₂
     erasure→zero-one-many erasure→zero-one-many →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω ErasureModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω (zero-one-many-modality 𝟙≤𝟘) 𝐌₂ R₂)
     erasure→zero-one-many erasure→zero-one-many
@@ -992,7 +1018,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {�
       𝕄₂ = zero-one-many-modality 𝟙≤𝟘
   in
   (R₂ : Type-restrictions 𝕄₂) →
-  ¬ Are-preserving-type-restrictions
+  ¬ Are-preserving-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
       erasure→zero-one-many erasure→zero-one-many-Σ
@@ -1014,7 +1040,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {�
       𝕄₂ = zero-one-many-modality 𝟙≤𝟘
   in
   (R₁ : Type-restrictions 𝕄₁) →
-  ¬ Are-reflecting-type-restrictions
+  ¬ Are-reflecting-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
       erasure→zero-one-many erasure→zero-one-many-Σ
@@ -1035,7 +1061,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {�
       𝕄₂ = ErasureModality
   in
   (R₂ : Type-restrictions 𝕄₂) →
-  ¬ Are-preserving-type-restrictions
+  ¬ Are-preserving-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
       zero-one-many→erasure zero-one-many→erasure
@@ -1056,7 +1082,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {�
       𝕄₂ = ErasureModality
   in
   (R₁ : Type-restrictions 𝕄₁) →
-  ¬ Are-reflecting-type-restrictions
+  ¬ Are-reflecting-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
       zero-one-many→erasure zero-one-many→erasure
@@ -1075,9 +1101,9 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {�
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-type-restrictions R₁ R₂
+  Are-preserving-type-restrictions trp R₁ R₂
     linearity→linear-or-affine linearity→linear-or-affine →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω linearityModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω linear-or-affine 𝐌₂ R₂)
     linearity→linear-or-affine linearity→linear-or-affine
@@ -1099,9 +1125,9 @@ linearity→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω {𝐌�
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-reflecting-type-restrictions R₁ R₂
+  Are-reflecting-type-restrictions trp R₁ R₂
     linearity→linear-or-affine linearity→linear-or-affine →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω linearityModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω linear-or-affine 𝐌₂ R₂)
     linearity→linear-or-affine linearity→linear-or-affine
@@ -1129,7 +1155,7 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁
       𝕄₂ = linearityModality
   in
   (R₂ : Type-restrictions 𝕄₂) →
-  ¬ Are-preserving-type-restrictions
+  ¬ Are-preserving-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
       linear-or-affine→linearity linear-or-affine→linearity
@@ -1150,7 +1176,7 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁
       𝕄₂ = linearityModality
   in
   (R₁ : Type-restrictions 𝕄₁) →
-  ¬ Are-reflecting-type-restrictions
+  ¬ Are-reflecting-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
       linear-or-affine→linearity linear-or-affine→linearity
@@ -1169,9 +1195,9 @@ linearity→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-type-restrictions R₁ R₂
+  Are-preserving-type-restrictions trp R₁ R₂
     affine→linear-or-affine affine→linear-or-affine →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω affineModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω linear-or-affine 𝐌₂ R₂)
     affine→linear-or-affine affine→linear-or-affine
@@ -1193,9 +1219,9 @@ affine→linear-or-affine-preserves-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} 
 -- obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-reflecting-type-restrictions R₁ R₂
+  Are-reflecting-type-restrictions trp R₁ R₂
     affine→linear-or-affine affine→linear-or-affine →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω affineModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω linear-or-affine 𝐌₂ R₂)
     affine→linear-or-affine affine→linear-or-affine
@@ -1221,9 +1247,9 @@ affine→linear-or-affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-type-restrictions R₁ R₂
+  Are-preserving-type-restrictions trp R₁ R₂
     affine→linear-or-affine affine→linear-or-affine-Σ →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω affineModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω linear-or-affine 𝐌₂ R₂)
     affine→linear-or-affine affine→linear-or-affine-Σ
@@ -1246,9 +1272,9 @@ affine→linear-or-affine-Σ-preserves-second-ΠΣ-quantities-𝟘-or-ω {𝐌�
 -- second-ΠΣ-quantities-𝟘-or-ω.
 
 affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-reflecting-type-restrictions R₁ R₂
+  Are-reflecting-type-restrictions trp R₁ R₂
     affine→linear-or-affine affine→linear-or-affine-Σ →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω affineModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω linear-or-affine 𝐌₂ R₂)
     affine→linear-or-affine affine→linear-or-affine-Σ
@@ -1273,9 +1299,9 @@ affine→linear-or-affine-Σ-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-type-restrictions R₁ R₂
+  Are-preserving-type-restrictions trp R₁ R₂
     linear-or-affine→affine linear-or-affine→affine →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω linear-or-affine 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω affineModality 𝐌₂ R₂)
     linear-or-affine→affine linear-or-affine→affine
@@ -1299,9 +1325,9 @@ linear-or-affine→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} 
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-reflecting-type-restrictions R₁ R₂
+  Are-reflecting-type-restrictions trp R₁ R₂
     linear-or-affine→affine linear-or-affine→affine →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω linear-or-affine 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω affineModality 𝐌₂ R₂)
     linear-or-affine→affine linear-or-affine→affine
@@ -1332,7 +1358,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {
       𝕄₂ = linearityModality
   in
   (R₂ : Type-restrictions 𝕄₂) →
-  ¬ Are-preserving-type-restrictions
+  ¬ Are-preserving-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
       affine→linearity affine→linearity
@@ -1353,7 +1379,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {
       𝕄₂ = linearityModality
   in
   (R₁ : Type-restrictions 𝕄₁) →
-  ¬ Are-reflecting-type-restrictions
+  ¬ Are-reflecting-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
       affine→linearity affine→linearity
@@ -1376,7 +1402,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {
       𝕄₂ = linearityModality
   in
   (R₂ : Type-restrictions 𝕄₂) →
-  ¬ Are-preserving-type-restrictions
+  ¬ Are-preserving-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
       affine→linearity affine→linearity-Σ
@@ -1398,7 +1424,7 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {
       𝕄₂ = linearityModality
   in
   (R₁ : Type-restrictions 𝕄₁) →
-  ¬ Are-reflecting-type-restrictions
+  ¬ Are-reflecting-type-restrictions trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
       affine→linearity affine→linearity-Σ
@@ -1417,9 +1443,9 @@ linear-or-affine→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-preserving-type-restrictions R₁ R₂
+  Are-preserving-type-restrictions trp R₁ R₂
     linearity→affine linearity→affine →
-  Are-preserving-type-restrictions
+  Are-preserving-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω linearityModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω affineModality 𝐌₂ R₂)
     linearity→affine linearity→affine
@@ -1441,9 +1467,9 @@ linearity→affine-preserves-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {𝐌�
 -- restrictions obtained using second-ΠΣ-quantities-𝟘-or-ω.
 
 linearity→affine-reflects-second-ΠΣ-quantities-𝟘-or-ω :
-  Are-reflecting-type-restrictions R₁ R₂
+  Are-reflecting-type-restrictions trp R₁ R₂
     linearity→affine linearity→affine →
-  Are-reflecting-type-restrictions
+  Are-reflecting-type-restrictions trp
     (second-ΠΣ-quantities-𝟘-or-ω linearityModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω affineModality 𝐌₂ R₂)
     linearity→affine linearity→affine
@@ -1474,9 +1500,9 @@ opaque
   -- using strong-types-restricted.
 
   unit→erasure-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       R₁ R₂ unit→erasure unit→erasure →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted UnitModality 𝐌₁ R₁)
       (strong-types-restricted ErasureModality 𝐌₂ R₂)
       unit→erasure unit→erasure
@@ -1490,9 +1516,9 @@ opaque
   -- using strong-types-restricted.
 
   unit→erasure-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       R₁ R₂ unit→erasure unit→erasure →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted UnitModality 𝐌₁ R₁)
       (strong-types-restricted ErasureModality 𝐌₂ R₂)
       unit→erasure unit→erasure
@@ -1508,9 +1534,9 @@ opaque
   -- using strong-types-restricted.
 
   erasure→unit-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       R₁ R₂ erasure→unit erasure→unit →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted ErasureModality 𝐌₁ R₁)
       (strong-types-restricted UnitModality 𝐌₂ R₂)
       erasure→unit erasure→unit
@@ -1527,7 +1553,7 @@ opaque
         𝕄₂ = UnitModality
     in
     (R₁ : Type-restrictions 𝕄₁) →
-    ¬ Are-reflecting-type-restrictions
+    ¬ Are-reflecting-type-restrictions trp
         (strong-types-restricted 𝕄₁ 𝐌₁ R₁)
         (strong-types-restricted 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
         erasure→unit erasure→unit
@@ -1549,7 +1575,7 @@ opaque
         𝕄₂ = zero-one-many-modality 𝟙≤𝟘
     in
     (R₂ : Type-restrictions 𝕄₂) →
-    ¬ Are-preserving-type-restrictions
+    ¬ Are-preserving-type-restrictions trp
         (strong-types-restricted 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
         (strong-types-restricted 𝕄₂ 𝐌₂ R₂)
         erasure→zero-one-many erasure→zero-one-many
@@ -1568,9 +1594,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   erasure→zero-one-many-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       erasure→zero-one-many erasure→zero-one-many →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted ErasureModality 𝐌₁ R₁)
       (strong-types-restricted (zero-one-many-modality 𝟙≤𝟘) 𝐌₂ R₂)
       erasure→zero-one-many erasure→zero-one-many
@@ -1589,9 +1615,9 @@ opaque
   -- strong-types-restricted.
 
   erasure→zero-one-many-Σ-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions R₁ R₂
+    Are-preserving-type-restrictions trp R₁ R₂
       erasure→zero-one-many erasure→zero-one-many-Σ →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted ErasureModality 𝐌₁ R₁)
       (strong-types-restricted (zero-one-many-modality 𝟙≤𝟘) 𝐌₂ R₂)
       erasure→zero-one-many erasure→zero-one-many-Σ
@@ -1606,9 +1632,9 @@ opaque
   -- strong-types-restricted.
 
   erasure→zero-one-many-Σ-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       erasure→zero-one-many erasure→zero-one-many-Σ →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted ErasureModality 𝐌₁ R₁)
       (strong-types-restricted (zero-one-many-modality 𝟙≤𝟘) 𝐌₂ R₂)
       erasure→zero-one-many erasure→zero-one-many-Σ
@@ -1626,9 +1652,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   zero-one-many→erasure-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       R₁ R₂ zero-one-many→erasure zero-one-many→erasure →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted (zero-one-many-modality 𝟙≤𝟘) 𝐌₁ R₁)
       (strong-types-restricted ErasureModality 𝐌₂ R₂)
       zero-one-many→erasure zero-one-many→erasure
@@ -1645,7 +1671,7 @@ opaque
         𝕄₂ = ErasureModality
     in
     (R₁ : Type-restrictions 𝕄₁) →
-    ¬ Are-reflecting-type-restrictions
+    ¬ Are-reflecting-type-restrictions trp
         (strong-types-restricted 𝕄₁ 𝐌₁ R₁)
         (strong-types-restricted 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
         zero-one-many→erasure zero-one-many→erasure
@@ -1664,9 +1690,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   linearity→linear-or-affine-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions R₁ R₂
+    Are-preserving-type-restrictions trp R₁ R₂
       linearity→linear-or-affine linearity→linear-or-affine →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted linearityModality 𝐌₁ R₁)
       (strong-types-restricted linear-or-affine 𝐌₂ R₂)
       linearity→linear-or-affine linearity→linear-or-affine
@@ -1680,9 +1706,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   linearity→linear-or-affine-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       linearity→linear-or-affine linearity→linear-or-affine →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted linearityModality 𝐌₁ R₁)
       (strong-types-restricted linear-or-affine 𝐌₂ R₂)
       linearity→linear-or-affine linearity→linear-or-affine
@@ -1701,9 +1727,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   linear-or-affine→linearity-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions R₁ R₂
+    Are-preserving-type-restrictions trp R₁ R₂
       linear-or-affine→linearity linear-or-affine→linearity →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted linear-or-affine 𝐌₁ R₁)
       (strong-types-restricted linearityModality 𝐌₂ R₂)
       linear-or-affine→linearity linear-or-affine→linearity
@@ -1717,9 +1743,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   linear-or-affine→linearity-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       linear-or-affine→linearity linear-or-affine→linearity →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted linear-or-affine 𝐌₁ R₁)
       (strong-types-restricted linearityModality 𝐌₂ R₂)
       linear-or-affine→linearity linear-or-affine→linearity
@@ -1742,7 +1768,7 @@ opaque
         𝕄₂ = linear-or-affine
     in
     (R₂ : Type-restrictions 𝕄₂) →
-    ¬ Are-preserving-type-restrictions
+    ¬ Are-preserving-type-restrictions trp
         (strong-types-restricted 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
         (strong-types-restricted 𝕄₂ 𝐌₂ R₂)
         affine→linear-or-affine affine→linear-or-affine
@@ -1761,9 +1787,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   affine→linear-or-affine-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       affine→linear-or-affine affine→linear-or-affine →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted affineModality 𝐌₁ R₁)
       (strong-types-restricted linear-or-affine 𝐌₂ R₂)
       affine→linear-or-affine affine→linear-or-affine
@@ -1783,9 +1809,9 @@ opaque
   -- using strong-types-restricted.
 
   affine→linear-or-affine-Σ-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions R₁ R₂
+    Are-preserving-type-restrictions trp R₁ R₂
       affine→linear-or-affine affine→linear-or-affine-Σ →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted affineModality 𝐌₁ R₁)
       (strong-types-restricted linear-or-affine 𝐌₂ R₂)
       affine→linear-or-affine affine→linear-or-affine-Σ
@@ -1800,9 +1826,9 @@ opaque
   -- strong-types-restricted.
 
   affine→linear-or-affine-Σ-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       affine→linear-or-affine affine→linear-or-affine-Σ →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted affineModality 𝐌₁ R₁)
       (strong-types-restricted linear-or-affine 𝐌₂ R₂)
       affine→linear-or-affine affine→linear-or-affine-Σ
@@ -1821,9 +1847,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   linear-or-affine→affine-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions R₁ R₂
+    Are-preserving-type-restrictions trp R₁ R₂
       linear-or-affine→affine linear-or-affine→affine →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted linear-or-affine 𝐌₁ R₁)
       (strong-types-restricted affineModality 𝐌₂ R₂)
       linear-or-affine→affine linear-or-affine→affine
@@ -1840,7 +1866,7 @@ opaque
         𝕄₂ = affineModality
     in
     (R₁ : Type-restrictions 𝕄₁) →
-    ¬ Are-reflecting-type-restrictions
+    ¬ Are-reflecting-type-restrictions trp
         (strong-types-restricted 𝕄₁ 𝐌₁ R₁)
         (strong-types-restricted 𝕄₂ 𝐌₂ (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂))
         linear-or-affine→affine linear-or-affine→affine
@@ -1862,7 +1888,7 @@ opaque
         𝕄₂ = linearityModality
     in
     (R₂ : Type-restrictions 𝕄₂) →
-    ¬ Are-preserving-type-restrictions
+    ¬ Are-preserving-type-restrictions trp
         (strong-types-restricted 𝕄₁ 𝐌₁ (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂))
         (strong-types-restricted 𝕄₂ 𝐌₂ R₂)
         affine→linearity affine→linearity
@@ -1881,9 +1907,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   affine→linearity-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       affine→linearity affine→linearity →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted affineModality 𝐌₁ R₁)
       (strong-types-restricted linearityModality 𝐌₂ R₂)
       affine→linearity affine→linearity
@@ -1902,9 +1928,9 @@ opaque
   -- type restrictions obtained using strong-types-restricted.
 
   affine→linearity-Σ-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions R₁ R₂
+    Are-preserving-type-restrictions trp R₁ R₂
       affine→linearity affine→linearity-Σ →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted affineModality 𝐌₁ R₁)
       (strong-types-restricted linearityModality 𝐌₂ R₂)
       affine→linearity affine→linearity-Σ
@@ -1918,9 +1944,9 @@ opaque
   -- type restrictions obtained using strong-types-restricted.
 
   affine→linearity-Σ-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       affine→linearity affine→linearity-Σ →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted affineModality 𝐌₁ R₁)
       (strong-types-restricted linearityModality 𝐌₂ R₂)
       affine→linearity affine→linearity-Σ
@@ -1939,9 +1965,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   linearity→affine-preserves-strong-types-restricted :
-    Are-preserving-type-restrictions R₁ R₂
+    Are-preserving-type-restrictions trp R₁ R₂
       linearity→affine linearity→affine →
-    Are-preserving-type-restrictions
+    Are-preserving-type-restrictions trp
       (strong-types-restricted linearityModality 𝐌₁ R₁)
       (strong-types-restricted affineModality 𝐌₂ R₂)
       linearity→affine linearity→affine
@@ -1955,9 +1981,9 @@ opaque
   -- restrictions obtained using strong-types-restricted.
 
   linearity→affine-reflects-strong-types-restricted :
-    Are-reflecting-type-restrictions R₁ R₂
+    Are-reflecting-type-restrictions trp R₁ R₂
       linearity→affine linearity→affine →
-    Are-reflecting-type-restrictions
+    Are-reflecting-type-restrictions trp
       (strong-types-restricted linearityModality 𝐌₁ R₁)
       (strong-types-restricted affineModality 𝐌₂ R₂)
       linearity→affine linearity→affine
