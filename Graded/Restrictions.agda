@@ -398,9 +398,8 @@ opaque
       .K-allowed?          → case singleton b of λ where
         (true  , refl) → yes _
         (false , refl) → no (λ ())
-      .[]-cong-allowed? _ → case trivial? of λ where
-        (yes trivial)    → no (_$ trivial)
-        (no non-trivial) → yes non-trivial
+      .[]-cong-allowed? _ →
+        ¬? trivial?
       .no-equality-reflection (lift ())
     where
     open TD.Assumptions
