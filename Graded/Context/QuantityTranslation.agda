@@ -315,6 +315,22 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
 
   opaque
 
+    -- A variant of tr-≤-ω· for usage contexts.
+
+    tr-Conₘ-≤ᶜ-ωᶜ·ᶜ :
+      tr-Conₘ γ C₂.≤ᶜ M₂.ω C₂.·ᶜ δ →
+      ∃ λ δ′ → tr-Conₘ δ′ C₂.≤ᶜ δ × γ C₁.≤ᶜ M₁.ω C₁.·ᶜ δ′
+    tr-Conₘ-≤ᶜ-ωᶜ·ᶜ {γ = ε} {δ = ε} _ =
+      ε , ε , ε
+    tr-Conₘ-≤ᶜ-ωᶜ·ᶜ
+      {γ = _ ∙ _} {δ = _ ∙ _} (hyp₁ ∙ hyp₂) =
+      let _ , ≤δ , γ≤ = tr-Conₘ-≤ᶜ-ωᶜ·ᶜ hyp₁
+          _ , ≤q , p≤ = tr-≤-ω· hyp₂
+      in
+      _ , ≤δ ∙ ≤q , γ≤ ∙ p≤
+
+  opaque
+
     -- A variant of tr-≤-ω·+ for usage contexts.
 
     tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ :
@@ -334,6 +350,27 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
 
     -- A variant of tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ.
 
+    tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ² :
+      tr-Conₘ γ C₂.≤ᶜ M₂.ω C₂.·ᶜ (δ₁ C₂.+ᶜ δ₂ C₂.+ᶜ δ₃) →
+      ∃₃ λ δ₁′ δ₂′ δ₃′ →
+        tr-Conₘ δ₁′ C₂.≤ᶜ δ₁ × tr-Conₘ δ₂′ C₂.≤ᶜ δ₂ ×
+        tr-Conₘ δ₃′ C₂.≤ᶜ δ₃ ×
+        γ C₁.≤ᶜ M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ₂′ C₁.+ᶜ δ₃′)
+    tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ² {γ} γ≤ =
+      let δ₁′ , δ′  , δ₁′≤ , δ′≤  , γ≤   = tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ γ≤
+          δ₂′ , δ₃′ , δ₂′≤ , δ₃′≤ , δ′≤′ = tr-Conₘ-≤ᶜ-+ᶜ δ′≤
+      in
+      δ₁′ , δ₂′ , δ₃′ , δ₁′≤ , δ₂′≤ , δ₃′≤ , (begin
+        γ                                     ≤⟨ γ≤ ⟩
+        M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ′)             ≤⟨ CP₁.·ᶜ-monotoneʳ $ CP₁.+ᶜ-monotoneʳ δ′≤′ ⟩
+        M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ₂′ C₁.+ᶜ δ₃′)  ∎)
+      where
+      open CP₁.≤ᶜ-reasoning
+
+  opaque
+
+    -- A variant of tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ.
+
     tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ³ :
       tr-Conₘ γ C₂.≤ᶜ M₂.ω C₂.·ᶜ (δ₁ C₂.+ᶜ δ₂ C₂.+ᶜ δ₃ C₂.+ᶜ δ₄) →
       ∃₄ λ δ₁′ δ₂′ δ₃′ δ₄′ →
@@ -341,17 +378,15 @@ module Is-order-embedding (m : Is-order-embedding 𝕄₁ 𝕄₂ tr) where
         tr-Conₘ δ₃′ C₂.≤ᶜ δ₃ × tr-Conₘ δ₄′ C₂.≤ᶜ δ₄ ×
         γ C₁.≤ᶜ M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ₂′ C₁.+ᶜ δ₃′ C₁.+ᶜ δ₄′)
     tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ³ {γ} γ≤ =
-      case tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ γ≤ of λ
-        (δ₁′ , δ′ , δ₁′≤ , δ′≤ , γ≤) →
+      case tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ² γ≤ of λ
+        (δ₁′ , δ₂′ , δ′ , δ₁′≤ , δ₂′≤ , δ′≤ , γ≤) →
       case tr-Conₘ-≤ᶜ-+ᶜ δ′≤ of λ
-        (δ₂′ , δ″ , δ₂′≤ , δ″≤ , δ′≤′) →
-      case tr-Conₘ-≤ᶜ-+ᶜ δ″≤ of λ
-        (δ₃′ , δ₄′ , δ₃′≤ , δ₄′≤ , δ″≤′) →
-      δ₁′ , δ₂′ , δ₃′ , δ₄′ , δ₁′≤ , δ₂′≤ , δ₃′≤ , δ₄′≤ , (begin
-        γ                                               ≤⟨ γ≤ ⟩
-        M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ′)                       ≤⟨ CP₁.·ᶜ-monotoneʳ $ CP₁.+ᶜ-monotoneʳ δ′≤′ ⟩
-        M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ₂′ C₁.+ᶜ δ″)             ≤⟨ CP₁.·ᶜ-monotoneʳ $ CP₁.+ᶜ-monotoneʳ $ CP₁.+ᶜ-monotoneʳ δ″≤′ ⟩
-        M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ₂′ C₁.+ᶜ δ₃′ C₁.+ᶜ δ₄′)  ∎)
+        (δ₃′ , δ₄′ , δ₃′≤ , δ₄′≤ , δ′≤′) →
+        δ₁′ , δ₂′ , δ₃′ , δ₄′ , δ₁′≤ , δ₂′≤ , δ₃′≤ , δ₄′≤
+      , (begin
+           γ                                               ≤⟨ γ≤ ⟩
+           M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ₂′ C₁.+ᶜ δ′)             ≤⟨ CP₁.·ᶜ-monotoneʳ $ CP₁.+ᶜ-monotoneʳ $ CP₁.+ᶜ-monotoneʳ δ′≤′ ⟩
+           M₁.ω C₁.·ᶜ (δ₁′ C₁.+ᶜ δ₂′ C₁.+ᶜ δ₃′ C₁.+ᶜ δ₄′)  ∎)
       where
       open CP₁.≤ᶜ-reasoning
 
