@@ -1006,6 +1006,19 @@ record IsMode : Set (a ⊔ b) where
 
   opaque
 
+    -- The mode ⌞ ω ⌟ is a left identity for _·ᵐ_.
+
+    ·ᵐ-identityˡ-⌞ω⌟ : ⌞ ω ⌟ ·ᵐ m ≡ m
+    ·ᵐ-identityˡ-⌞ω⌟ {m} =
+      ⌞ ω ⌟ ·ᵐ m  ≡⟨ ·ᵐ-comm _ _ ⟩
+      m ·ᵐ ⌞ ω ⌟  ≡⟨⟩
+      m ᵐ· ω      ≡⟨ ᵐ·-identityʳ-ω ⟩
+      m           ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+
+  opaque
+
     -- The grade ω is bounded from above by ⌜ m ⌝ · ω.
 
     ω≤⌜⌝·ω : ω ≤ ⌜ m ⌝ · ω
