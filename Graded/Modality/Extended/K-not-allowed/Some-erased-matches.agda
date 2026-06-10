@@ -38,6 +38,7 @@ open import Graded.Modality.Morphism.Type-restrictions
 open import Graded.Modality.Morphism.Type-restrictions.Examples
 open import Graded.Modality.Morphism.Usage-restrictions
 open import Graded.Modality.Morphism.Usage-restrictions.Examples
+open import Graded.Modality.Omega-instances
 open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Mode.Instances.Zero-one
 open import Graded.Restrictions.Zero-one
@@ -114,6 +115,7 @@ private
 
   TR′ :
     {M : Set} {𝕄 : Modality M} →
+    ⦃ ok : Has-omega M 𝕄 ⦄ →
     Mode-variant 𝕄 →
     Type-restrictions 𝕄
   TR′ v =
@@ -124,6 +126,7 @@ private
 
     Assumptions-TR′ :
       {M : Set} {𝕄 : Modality M} →
+      ⦃ ok : Has-omega M 𝕄 ⦄ →
       (v : Mode-variant 𝕄) →
       Decidable (_≡_ {A = M}) →
       TD.Assumptions (TR′ {𝕄 = 𝕄} v)
@@ -134,6 +137,7 @@ private
   UR′ :
     {M : Set} {𝕄 : Modality M}
     {v : Mode-variant 𝕄} →
+    ⦃ ok : Has-omega M 𝕄 ⦄ →
     Has-nr M 𝕄 →
     Usage-restrictions 𝕄 (Zero-one-isMode v)
   UR′ has-nr =
@@ -146,6 +150,7 @@ private
       {M : Set} {𝕄 : Modality M}
       {v : Mode-variant 𝕄} →
       {has-nr : Has-nr _ 𝕄} →
+      ⦃ ok : Has-omega M 𝕄 ⦄ →
       Decidable (_≡_ {A = M}) →
       UD.Assumptions (UR′ {𝕄 = 𝕄} {v = v} has-nr)
     Assumptions-UR′ {has-nr} =
@@ -166,6 +171,7 @@ Erasure = λ where
     .UA      → Assumptions-UR′ E._≟_
     .NR      → Nr ⦃ EM.erasure-has-nr ⦄
     .NO-NR-GLB → EP.Erasure-supports-factoring-nr-rule
+    .HAS-ω   → EM.erasure-has-omega
     .NR₀ {z} → EP.nr-linearity-like-for-𝟘 {z = z}
     .NR₁ {z} → EP.nr-linearity-like-for-𝟙 {z = z}
     .SUB     → EP.supports-subtraction

@@ -308,7 +308,8 @@ mutual
               → Γ ⊢ w ∷ Id (Quot A B) t u
               → γ ▸ Γ ⊢ set A B t u v w ∷[ 𝟘 ]
                 Id (Id (Quot A B) t u) v w
-    qrec      : Quotient-terms-allowed
+    qrec      : Usage-allows-omega
+              → Quotient-terms-allowed
               → (Qrec-motive-erased → q PE.≡ 𝟘 × δ PE.≡ 𝟘ᶜ)
               → (¬ Qrec-motive-erased → q PE.≡ p × δ PE.≡ γ ∙ ω)
               → δ ▸ Γ »∙ Quot A B ⊢[ q ] C

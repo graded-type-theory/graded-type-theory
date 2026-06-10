@@ -38,8 +38,6 @@ var x ≟ᵍ var y =
   just refl
 𝟙 ≟ᵍ 𝟙 =
   just refl
-ω ≟ᵍ ω =
-  just refl
 t₁₁ + t₁₂ ≟ᵍ t₂₁ + t₂₂ =
   cong₂ _+_ <$> t₁₁ ≟ᵍ t₂₁ ⊛ t₁₂ ≟ᵍ t₂₂
 t₁₁ · t₁₂ ≟ᵍ t₂₁ · t₂₂ =

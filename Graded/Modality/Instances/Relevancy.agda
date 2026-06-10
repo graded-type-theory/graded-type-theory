@@ -205,7 +205,6 @@ relevancy-modality = record
   ; _∧_ = _∧_
   ; 𝟘 = 𝟘
   ; 𝟙 = ≥𝟙
-  ; ω = ω
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record
@@ -295,8 +294,6 @@ relevancy-modality = record
   ; +-distrib-∧ =
         +-distrib-∧ˡ
       , comm∧distrˡ⇒distrʳ +-comm +-distrib-∧ˡ
-  ; ω≤𝟙 = refl
-  ; ω·+≤ω·ʳ = ω·+≤ω·ʳ _ _
   ; is-𝟘? = _≟ 𝟘
   }
   where
@@ -377,27 +374,40 @@ relevancy-modality = record
     ω ≥𝟙 ω  → refl
     ω ω _   → refl
 
-  ω·+≤ω·ʳ : ∀ p q → ω · (p + q) ≤ ω · q
-  ω·+≤ω·ʳ = λ where
-    𝟘 𝟘  → refl
-    𝟘 ≥𝟙 → refl
-    𝟘 ω  → refl
-    ≥𝟙 _ → refl
-    ω 𝟘  → refl
-    ω ≥𝟙 → refl
-    ω ω  → refl
-
 open Modality relevancy-modality
-  hiding (_+_;_·_;_∧_;𝟘;ω;_≤_)
+  hiding (_+_;_·_;_∧_;𝟘;_≤_)
 open Addition relevancy-modality
 open GLB relevancy-modality
 open Natrec relevancy-modality
 open PartialOrder relevancy-modality
 open Subtraction relevancy-modality
 
--- The modality has a well-behaved zero
+instance
+
+  -- The modality has grade ω.
+
+  relevancy-has-omega :
+    Has-omega relevancy-modality
+  relevancy-has-omega = record
+    { ω = ω
+    ; ω≤𝟙 = refl
+    ; ω·+≤ω·ʳ = ω·+≤ω·ʳ _ _
+    }
+    where
+    ω·+≤ω·ʳ : ∀ p q → ω · (p + q) ≤ ω · q
+    ω·+≤ω·ʳ = λ where
+      𝟘 𝟘  → refl
+      𝟘 ≥𝟙 → refl
+      𝟘 ω  → refl
+      ≥𝟙 _ → refl
+      ω 𝟘  → refl
+      ω ≥𝟙 → refl
+      ω ω  → refl
 
 instance
+
+  -- The modality has a well-behaved zero
+
   relevancy-has-well-behaved-zero :
     Has-well-behaved-zero relevancy-modality
   relevancy-has-well-behaved-zero = record

@@ -48,6 +48,8 @@ open import Graded.Erasure.LogicalRelation.Value UR as
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
+open import Graded.Modality.Omega-instances
+open import Graded.Usage.Restrictions.Instance UR
 
 open import Tools.Fin
 open import Tools.Function
@@ -128,6 +130,7 @@ opaque
   -- Validity of qrec.
 
   qrecʳ :
+    ⦃ ok : Usage-allows-omega ⦄ →
     ts » Γ ∙ Quot A B ⊢ C →
     ts » Γ ∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
     δ ∙ ⌜ m ⌝ · ω ▸ Γ ∙ A ⊩ʳ t ∷[ m ∣ n ] C [ class (var x0) ]↑ →

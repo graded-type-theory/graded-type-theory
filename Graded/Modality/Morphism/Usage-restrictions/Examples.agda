@@ -38,7 +38,8 @@ open import Graded.Modality.Instances.Linearity
 open import Graded.Modality.Instances.Unit using (UnitModality)
 open import Graded.Modality.Instances.Zero-one-many
   using (Zero-one-many; 𝟘; 𝟙; ω; zero-one-many-modality;
-         zero-one-many-has-well-behaved-zero)
+         zero-one-many-has-well-behaved-zero;
+         zero-one-many-has-omega)
 open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
@@ -47,6 +48,7 @@ open import Graded.Restrictions.Zero-one
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
 open import Graded.Usage.Restrictions.Natrec
+open import Graded.Usage.Restrictions.Omega
 
 open Usage-restrictions
 
@@ -61,6 +63,14 @@ private variable
   tr tr-Σ             : M₁ → M₂
   v₁-ok v₂-ok         : A
   nm₁ nm₂             : Natrec-mode _
+
+-- An instance used below
+
+private instance
+  zero-one-many-has-omega′ : Has-omega (Zero-one-many 𝟙≤𝟘) (zero-one-many-modality 𝟙≤𝟘)
+  zero-one-many-has-omega′ = zero-one-many-has-omega _
+
+  {-# OVERLAPPABLE zero-one-many-has-omega′ #-}
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting no usage restrictions
@@ -87,6 +97,7 @@ opaque
       .erased-matches-for-K-preserved → _
       .Qrec-motive-erased-preserved   → lift ∘→ Lift.lower
                                       , lift ∘→ Lift.lower
+      .Usage-allows-omega-preserved        → (λ ()) , (λ ())
     where
     open Common-properties
 
@@ -135,6 +146,7 @@ opaque
             Trivialᵐ→¬𝟘ᵐ-allowed _)) ∘→
         Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₂ ∘→
         Lift.lower
+      .omega-preserving ⦃ () ⦄
     where
     open Are-preserving-usage-restrictions
 
@@ -192,6 +204,7 @@ opaque
         ¬Trivialᵐ→𝟘ᵐ-allowed _ ∘→
         Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₂ ∘→
         Lift.lower
+      .omega-preserving ⦃ () ⦄
     where
     open Are-reflecting-usage-restrictions
 
@@ -204,6 +217,8 @@ opaque
   -- in a certain way.
 
   Common-properties-only-some-erased-matches :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     Common-properties R₁ R₂ →
     Common-properties
       (only-some-erased-matches 𝕄₁ v₁ R₁)
@@ -220,6 +235,7 @@ opaque
         𝟙ᵐ → _
         𝟘ᵐ → erased-matches-for-K-preserved 𝟘ᵐ?≈𝟘ᵐ?′
     ; Qrec-motive-erased-preserved = Qrec-motive-erased-preserved
+    ; Usage-allows-omega-preserved = (λ _ → with-ω) , (λ _ → with-ω)
     }
     where
     open Common-properties cp
@@ -232,17 +248,20 @@ opaque
   -- hold.
 
   Are-preserving-usage-restrictions-only-some-erased-matches :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     (¬ Modality.Trivial 𝕄₂ →
      ¬ Modality.Trivial 𝕄₁ ×
      (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
      (∀ {p} → tr p ≢ Modality.𝟘 𝕄₂)) →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
     Are-preserving-usage-restrictions
       (only-some-erased-matches 𝕄₁ v₁ R₁)
       (only-some-erased-matches 𝕄₂ v₂ R₂)
       tr tr-Σ
   Are-preserving-usage-restrictions-only-some-erased-matches
-    {𝕄₂} {𝕄₁} {tr} hyp r = record
+    {𝕄₁} {𝕄₂} {tr} {R₁} {R₂} hyp hyp′ r = record
     { common-properties =
         Common-properties-only-some-erased-matches common-properties
     ; nr-preserving = nr-preserving
@@ -268,6 +287,12 @@ opaque
         Quotient-terms-preserved
     ; Higher-quotient-constructors-preserved =
         Higher-quotient-constructors-preserved
+    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Usage-allows-omega-propositional (only-some-erased-matches 𝕄₁ _ R₁) ok₁ with-ω of λ {
+          refl →
+        case Usage-allows-omega-propositional (only-some-erased-matches 𝕄₂ _ R₂) ok₂ with-ω of λ {
+          refl →
+        hyp′ }}
     }
     where
     module M₁ = Modality 𝕄₁
@@ -282,16 +307,19 @@ opaque
   -- holds.
 
   Are-reflecting-usage-restrictions-only-some-erased-matches :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     (¬ Modality.Trivial 𝕄₁ →
      ¬ Modality.Trivial 𝕄₂ ×
      (∀ {p} → p ≡ Modality.𝟘 𝕄₁ → tr p ≡ Modality.𝟘 𝕄₂)) →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
     Are-reflecting-usage-restrictions
       (only-some-erased-matches 𝕄₁ v₁ R₁)
       (only-some-erased-matches 𝕄₂ v₂ R₂)
       tr tr-Σ
   Are-reflecting-usage-restrictions-only-some-erased-matches
-    {𝕄₁} {𝕄₂} {tr} hyp r = record
+    {𝕄₁} {𝕄₂} {tr} {R₁} {R₂} hyp hyp′ r = record
     { common-properties =
         Common-properties-only-some-erased-matches common-properties
     ; 𝟘ᵐ-reflected =
@@ -325,6 +353,12 @@ opaque
         Quotient-terms-reflected
     ; Higher-quotient-constructors-reflected =
         Higher-quotient-constructors-reflected
+    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Usage-allows-omega-propositional (only-some-erased-matches 𝕄₁ _ R₁) ok₁ with-ω of λ {
+          refl →
+        case Usage-allows-omega-propositional (only-some-erased-matches 𝕄₂ _ R₂) ok₂ with-ω of λ {
+          refl →
+        hyp′ }}
     }
     where
     module M₁ = Modality 𝕄₁
@@ -335,6 +369,8 @@ opaque
 -- a certain way.
 
 Common-properties-no-erased-matches-UR :
+  ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+  ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
   ∀ TR₁ TR₂ →
   Common-properties R₁ R₂ →
   Common-properties
@@ -348,6 +384,7 @@ Common-properties-no-erased-matches-UR _ _ cp = record
   ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
   ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
   ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
+  ; Usage-allows-omega-preserved        = (λ _ → with-ω) , (λ _ → with-ω)
   }
   where
   open Common-properties
@@ -358,10 +395,13 @@ Common-properties-no-erased-matches-UR _ _ cp = record
 -- using no-erased-matches-UR, given that certain assumptions hold.
 
 Are-preserving-usage-restrictions-no-erased-matches-UR :
+  ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+  ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
   (¬ Modality.Trivial 𝕄₂ →
    ¬ Modality.Trivial 𝕄₁ ×
    (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
    (∀ {p} → tr p ≢ Modality.𝟘 𝕄₂)) →
+  Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
   Are-preserving-type-restrictions trp TR₁ TR₂ tr tr-Σ →
   Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
   Are-preserving-usage-restrictions
@@ -369,7 +409,7 @@ Are-preserving-usage-restrictions-no-erased-matches-UR :
     (no-erased-matches-UR 𝕄₂ v₂ TR₂ R₂)
     tr tr-Σ
 Are-preserving-usage-restrictions-no-erased-matches-UR
-  {𝕄₂} {𝕄₁} {tr} {TR₁} {TR₂} hyp tp up = record
+  {𝕄₁} {𝕄₂} {tr} {TR₁} {TR₂} hyp hyp′ tp up = record
   { common-properties =
       Common-properties-no-erased-matches-UR TR₁ TR₂
         UP.common-properties
@@ -379,7 +419,7 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
   ; Prodrec-preserved =
       Are-preserving-usage-restrictions.Prodrec-preserved
         (Are-preserving-usage-restrictions-only-some-erased-matches
-           hyp up)
+           hyp hyp′ up)
   ; Unitrec-preserved = λ {p = p} m₁≈m₂ (P , η) →
         UP.Unitrec-preserved m₁≈m₂ P
       , (λ ≡𝟙ᵐ 𝟙≢𝟘 → case hyp 𝟙≢𝟘 of λ where
@@ -400,6 +440,10 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
       UP.Quotient-terms-preserved
   ; Higher-quotient-constructors-preserved =
       UP.Higher-quotient-constructors-preserved
+  ; omega-preserving =
+      Are-preserving-usage-restrictions.omega-preserving
+        (Are-preserving-usage-restrictions-only-some-erased-matches
+           hyp hyp′ up)
   }
   where
   module UP  = Are-preserving-usage-restrictions up
@@ -414,9 +458,12 @@ Are-preserving-usage-restrictions-no-erased-matches-UR
 -- using no-erased-matches-UR, given that certain assumptions hold.
 
 Are-reflecting-usage-restrictions-no-erased-matches-UR :
+  ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+  ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
   (¬ Modality.Trivial 𝕄₁ →
    ¬ Modality.Trivial 𝕄₂ ×
    (∀ {p} → p ≡ Modality.𝟘 𝕄₁ → tr p ≡ Modality.𝟘 𝕄₂)) →
+  Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
   Are-reflecting-type-restrictions trp TR₁ TR₂ tr tr-Σ →
   Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
   Are-reflecting-usage-restrictions
@@ -424,7 +471,7 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR :
     (no-erased-matches-UR 𝕄₂ v₂ TR₂ R₂)
     tr tr-Σ
 Are-reflecting-usage-restrictions-no-erased-matches-UR
-  {𝕄₁} {𝕄₂} {tr} {TR₁} {TR₂} hyp tp up = record
+  {𝕄₁} {𝕄₂} {tr} {TR₁} {TR₂} hyp hyp′ tp up = record
   { common-properties =
       Common-properties-no-erased-matches-UR TR₁ TR₂
         (Are-reflecting-usage-restrictions.common-properties up)
@@ -458,12 +505,14 @@ Are-reflecting-usage-restrictions-no-erased-matches-UR
       UR.Quotient-terms-reflected
   ; Higher-quotient-constructors-reflected =
       UR.Higher-quotient-constructors-reflected
+  ; omega-preserving =
+      UR.omega-preserving
   }
   where
   module UR =
     Are-reflecting-usage-restrictions
       (Are-reflecting-usage-restrictions-only-some-erased-matches
-        hyp up)
+        hyp hyp′ up)
   module TR  = Are-reflecting-type-restrictions tp
   module M₁  = Modality 𝕄₁
   module M₂  = Modality 𝕄₂
@@ -496,6 +545,8 @@ opaque
   -- Common-properties in a certain way.
 
   Common-properties-not-all-erased-matches-JK :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     Common-properties R₁ R₂ →
     Common-properties
       (not-all-erased-matches-JK 𝕄₁ v₁ R₁)
@@ -519,6 +570,7 @@ opaque
             R₂.erased-matches-for-K (erased-matches-for-K-preserved 𝟙ᵐ)
             𝟙ᵐ
     ; Qrec-motive-erased-preserved = Qrec-motive-erased-preserved
+    ; Usage-allows-omega-preserved = (λ _ → with-ω) , (λ _ → with-ω)
     }
     where
     module R₁ = Usage-restrictions R₁
@@ -532,13 +584,16 @@ opaque
   -- using not-all-erased-matches-JK.
 
   Are-preserving-usage-restrictions-not-all-erased-matches-JK :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
     Are-preserving-usage-restrictions
       (not-all-erased-matches-JK 𝕄₁ v₁ R₁)
       (not-all-erased-matches-JK 𝕄₂ v₂ R₂)
       tr tr-Σ
   Are-preserving-usage-restrictions-not-all-erased-matches-JK
-    r = record
+    {R₁} {R₂} hyp r = record
     { common-properties =
         Common-properties-not-all-erased-matches-JK common-properties
     ; nr-preserving = nr-preserving
@@ -556,6 +611,12 @@ opaque
         Quotient-terms-preserved
     ; Higher-quotient-constructors-preserved =
         Higher-quotient-constructors-preserved
+    ; omega-preserving =  λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Usage-allows-omega-propositional (not-all-erased-matches-JK _ _ R₁) ok₁ with-ω of λ {
+          refl →
+        case Usage-allows-omega-propositional (not-all-erased-matches-JK _ _ R₂) ok₂ with-ω of λ {
+          refl →
+        hyp }}
     }
     where
     open Are-preserving-usage-restrictions r
@@ -567,13 +628,16 @@ opaque
   -- using not-all-erased-matches-JK.
 
   Are-reflecting-usage-restrictions-not-all-erased-matches-JK :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
     Are-reflecting-usage-restrictions
       (not-all-erased-matches-JK 𝕄₁ v₁ R₁)
       (not-all-erased-matches-JK 𝕄₂ v₂ R₂)
       tr tr-Σ
   Are-reflecting-usage-restrictions-not-all-erased-matches-JK
-    {𝕄₁} {R₁} {𝕄₂} {R₂} r = record
+    {𝕄₁} {𝕄₂} {R₁} {R₂} hyp r = record
     { common-properties =
         Common-properties-not-all-erased-matches-JK common-properties
     ; 𝟘ᵐ-reflected =
@@ -605,6 +669,12 @@ opaque
         Quotient-terms-reflected
     ; Higher-quotient-constructors-reflected =
         Higher-quotient-constructors-reflected
+    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Usage-allows-omega-propositional (not-all-erased-matches-JK _ _ R₁) ok₁ with-ω of λ {
+          refl →
+        case Usage-allows-omega-propositional (not-all-erased-matches-JK _ _ R₂) ok₂ with-ω of λ {
+          refl →
+        hyp }}
     }
     where
     module M₁ = Modality 𝕄₁
@@ -631,6 +701,8 @@ opaque
   -- way.
 
   Common-properties-[]-cong-UR :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     Common-properties R₁ R₂ →
     Common-properties
       ([]-cong-UR 𝕄₁ v₁ R₁)
@@ -644,6 +716,7 @@ opaque
         none-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-J-preserved
     ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
     ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
+    ; Usage-allows-omega-preserved        = (λ _ → with-ω) , (λ _ → with-ω)
     }
     where
     open Common-properties cp
@@ -655,16 +728,19 @@ opaque
   -- using []-cong-UR, given a certain assumption.
 
   Are-preserving-usage-restrictions-[]-cong-UR :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     let module M₁ = Modality 𝕄₁
         module M₂ = Modality 𝕄₂
     in
     (M₂.Trivial → M₁.Trivial) →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Are-preserving-usage-restrictions R₁ R₂ tr tr-Σ →
     Are-preserving-usage-restrictions
       ([]-cong-UR 𝕄₁ v₁ R₁)
       ([]-cong-UR 𝕄₂ v₂ R₂)
       tr tr-Σ
-  Are-preserving-usage-restrictions-[]-cong-UR hyp r = record
+  Are-preserving-usage-restrictions-[]-cong-UR {R₁} {R₂} hyp hyp′ r = record
     { common-properties =
         Common-properties-[]-cong-UR common-properties
     ; nr-preserving =
@@ -685,6 +761,12 @@ opaque
         Quotient-terms-preserved
     ; Higher-quotient-constructors-preserved =
         Higher-quotient-constructors-preserved
+    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Usage-allows-omega-propositional ([]-cong-UR _ _ R₁) ok₁ with-ω of λ {
+          refl →
+        case Usage-allows-omega-propositional ([]-cong-UR _ _ R₂) ok₂ with-ω of λ {
+          refl →
+        hyp′ }}
     }
     where
     open Are-preserving-usage-restrictions r
@@ -696,16 +778,19 @@ opaque
   -- using []-cong-UR, given a certain assumption.
 
   Are-reflecting-usage-restrictions-[]-cong-UR :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     let module M₁ = Modality 𝕄₁
         module M₂ = Modality 𝕄₂
     in
     (M₁.Trivial → M₂.Trivial) →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
     Are-reflecting-usage-restrictions
       ([]-cong-UR 𝕄₁ v₁ R₁)
       ([]-cong-UR 𝕄₂ v₂ R₂)
       tr tr-Σ
-  Are-reflecting-usage-restrictions-[]-cong-UR {𝕄₂} hyp r = record
+  Are-reflecting-usage-restrictions-[]-cong-UR {𝕄₂} {R₁} {R₂} hyp hyp′ r = record
     { common-properties =
         Common-properties-[]-cong-UR common-properties
     ; 𝟘ᵐ-reflected =
@@ -737,6 +822,12 @@ opaque
         Quotient-terms-reflected
     ; Higher-quotient-constructors-reflected =
         Higher-quotient-constructors-reflected
+    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Usage-allows-omega-propositional ([]-cong-UR _ _ R₁) ok₁ with-ω of λ {
+          refl →
+        case Usage-allows-omega-propositional ([]-cong-UR _ _ R₂) ok₂ with-ω of λ {
+          refl →
+        hyp′ }}
     }
     where
     module M₂ = Modality 𝕄₂
@@ -780,6 +871,7 @@ opaque
           m₁≈m₂
     ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
     ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
+    ; Usage-allows-omega-preserved        = Usage-allows-omega-preserved
     }
     where
     module R₁ = Usage-restrictions R₁
@@ -819,6 +911,8 @@ opaque
         Quotient-terms-preserved
     ; Higher-quotient-constructors-preserved =
         Higher-quotient-constructors-preserved
+    ; omega-preserving =
+        omega-preserving
     }
     where
     open Are-preserving-usage-restrictions r
@@ -867,6 +961,8 @@ opaque
         Quotient-terms-reflected
     ; Higher-quotient-constructors-reflected =
         Higher-quotient-constructors-reflected
+    ; omega-preserving =
+        omega-preserving
     }
     where
     module R₁ = Usage-restrictions R₁
@@ -891,6 +987,7 @@ opaque
     ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
     ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
     ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
+    ; Usage-allows-omega-preserved   = Usage-allows-omega-preserved
     }
     where
     open Common-properties cp
@@ -930,6 +1027,8 @@ opaque
         Quotient-terms-preserved
     ; Higher-quotient-constructors-preserved =
         lift ∘→ Lift.lower
+    ; omega-preserving =
+        omega-preserving
     }
     where
     open Are-preserving-usage-restrictions r
@@ -975,6 +1074,8 @@ opaque
         Quotient-terms-reflected
     ; Higher-quotient-constructors-reflected =
         lift ∘→ Lift.lower
+    ; omega-preserving =
+        omega-preserving
     }
     where
     open Are-reflecting-usage-restrictions r
@@ -997,6 +1098,7 @@ opaque
     ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
     ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
     ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
+    ; Usage-allows-omega-preserved   = Usage-allows-omega-preserved
     }
     where
     open Common-properties cp
@@ -1036,6 +1138,8 @@ opaque
         lift ∘→ Lift.lower
     ; Higher-quotient-constructors-preserved =
         lift ∘→ Lift.lower
+    ; omega-preserving =
+        omega-preserving
     }
     where
     open Are-preserving-usage-restrictions r
@@ -1081,6 +1185,8 @@ opaque
         lift ∘→ Lift.lower
     ; Higher-quotient-constructors-reflected =
         lift ∘→ Lift.lower
+    ; omega-preserving =
+        omega-preserving
     }
     where
     open Are-reflecting-usage-restrictions r
@@ -1134,6 +1240,8 @@ opaque
         lift ∘→ Lift.lower
     ; Higher-quotient-constructors-reflected =
         lift ∘→ Lift.lower
+    ; omega-preserving =
+        λ ⦃ ok ⦄ → case ok of λ ()
     }
 
 ------------------------------------------------------------------------
@@ -1154,7 +1262,7 @@ opaque
       unit→erasure tr
   unit→erasure-preserves-only-some-erased-matches =
     Are-preserving-usage-restrictions-only-some-erased-matches
-      (λ _ → inj₂ (λ ()))
+      (λ _ → inj₂ (λ ())) unit⇨erasure-omega-preserving
 
 opaque
 
@@ -1170,7 +1278,7 @@ opaque
       unit→erasure tr
   unit→erasure-reflects-only-some-erased-matches =
     Are-reflecting-usage-restrictions-only-some-erased-matches
-      (λ tt≢tt → ⊥-elim $ tt≢tt refl)
+      (λ tt≢tt → ⊥-elim $ tt≢tt refl) unit⇨erasure-omega-preserving
 
 opaque
 
@@ -1186,7 +1294,7 @@ opaque
       erasure→unit tr
   erasure→unit-preserves-only-some-erased-matches =
     Are-preserving-usage-restrictions-only-some-erased-matches
-      (λ tt≢tt → ⊥-elim $ tt≢tt refl)
+      (λ tt≢tt → ⊥-elim $ tt≢tt refl) erasure⇨unit-omega-preserving
 
 opaque
 
@@ -1228,6 +1336,7 @@ opaque
               {p = 𝟘} _  → refl
               {p = ω} ())
          ))
+      erasure⇨zero-one-many-omega-preserving
 
 opaque
 
@@ -1249,6 +1358,7 @@ opaque
          , (λ where
               {p = 𝟘} _  → refl
               {p = ω} ()))
+      erasure⇨zero-one-many-omega-preserving
 
 opaque
 
@@ -1272,6 +1382,7 @@ opaque
               {p = 𝟙} ()
               {p = ω} ())
          ))
+      zero-one-many⇨erasure-omega-preserving
 
 opaque
 
@@ -1294,6 +1405,7 @@ opaque
               {p = 𝟘} _  → refl
               {p = 𝟙} ()
               {p = ω} ()))
+      zero-one-many⇨erasure-omega-preserving
 
 opaque
 
@@ -1317,6 +1429,7 @@ opaque
               {p = 𝟙} ()
               {p = ω} ())
          ))
+      linearity⇨linear-or-affine-omega-preserving
 
 opaque
 
@@ -1339,6 +1452,7 @@ opaque
               {p = 𝟘} _  → refl
               {p = 𝟙} ()
               {p = ω} ()))
+      linearity⇨linear-or-affine-omega-preserving
 
 opaque
 
@@ -1363,6 +1477,7 @@ opaque
               {p = ≤𝟙} ()
               {p = ≤ω} ())
          ))
+      linear-or-affine⇨linearity-omega-preserving
 
 opaque
 
@@ -1386,6 +1501,7 @@ opaque
               {p = 𝟙}  ()
               {p = ≤𝟙} ()
               {p = ≤ω} ()))
+      linear-or-affine⇨linearity-omega-preserving
 
 opaque
 
@@ -1409,6 +1525,7 @@ opaque
               {p = 𝟙} ()
               {p = ω} ())
          ))
+      affine⇨linear-or-affine-omega-preserving
 
 opaque
 
@@ -1431,6 +1548,7 @@ opaque
               {p = 𝟘} _  → refl
               {p = 𝟙} ()
               {p = ω} ()))
+      affine⇨linear-or-affine-omega-preserving
 
 opaque
 
@@ -1455,6 +1573,7 @@ opaque
               {p = ≤𝟙} ()
               {p = ≤ω} ())
          ))
+      linear-or-affine⇨affine-omega-preserving
 
 opaque
 
@@ -1478,6 +1597,7 @@ opaque
               {p = 𝟙}  ()
               {p = ≤𝟙} ()
               {p = ≤ω} ()))
+      linear-or-affine⇨affine-omega-preserving
 
 opaque
 
@@ -1501,6 +1621,7 @@ opaque
               {p = 𝟙} ()
               {p = ω} ())
          ))
+      affine⇨linearity-omega-preserving
 
 opaque
 
@@ -1523,6 +1644,7 @@ opaque
               {p = 𝟘} _  → refl
               {p = 𝟙} ()
               {p = ω} ()))
+      affine⇨linearity-omega-preserving
 
 opaque
 
@@ -1546,6 +1668,7 @@ opaque
               {p = 𝟙} ()
               {p = ω} ())
          ))
+      linearity⇨affine-omega-preserving
 
 opaque
 
@@ -1568,6 +1691,7 @@ opaque
               {p = 𝟘} _  → refl
               {p = 𝟙} ()
               {p = ω} ()))
+      linearity⇨affine-omega-preserving
 
 ------------------------------------------------------------------------
 -- Some lemmas related to no-erased-matches-UR and concrete
@@ -1587,6 +1711,7 @@ unit→erasure-preserves-no-erased-matches-UR :
 unit→erasure-preserves-no-erased-matches-UR =
   Are-preserving-usage-restrictions-no-erased-matches-UR
     (λ _ → inj₂ (λ ()))
+    unit⇨erasure-omega-preserving
 
 -- If the functions unit→erasure and tr reflect certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1602,6 +1727,7 @@ unit→erasure-reflects-no-erased-matches-UR :
 unit→erasure-reflects-no-erased-matches-UR =
   Are-reflecting-usage-restrictions-no-erased-matches-UR
     (λ tt≢tt → ⊥-elim $ tt≢tt refl)
+    unit⇨erasure-omega-preserving
 
 -- If the functions erasure→unit and tr preserve certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1617,6 +1743,7 @@ erasure→unit-preserves-no-erased-matches-UR :
 erasure→unit-preserves-no-erased-matches-UR =
   Are-preserving-usage-restrictions-no-erased-matches-UR
     (λ tt≢tt → ⊥-elim $ tt≢tt refl)
+    erasure⇨unit-omega-preserving
 
 -- The functions erasure→unit and tr do not reflect certain usage
 -- restrictions obtained using no-erased-matches-UR.
@@ -1656,6 +1783,7 @@ erasure→zero-one-many-preserves-no-erased-matches-UR =
             {p = 𝟘} _  → refl
             {p = ω} ())
        ))
+    erasure⇨zero-one-many-omega-preserving
 
 -- If the functions erasure→zero-one-many and tr reflect certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1677,6 +1805,7 @@ erasure→zero-one-many-reflects-no-erased-matches-UR =
        , (λ where
             {p = 𝟘} _  → refl
             {p = ω} ()))
+    erasure⇨zero-one-many-omega-preserving
 
 -- If the functions zero-one-many→erasure and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1701,6 +1830,7 @@ zero-one-many→erasure-preserves-no-erased-matches-UR =
             {p = 𝟙} ()
             {p = ω} ())
        ))
+    zero-one-many⇨erasure-omega-preserving
 
 -- If the functions zero-one-many→erasure and tr reflect certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1723,6 +1853,7 @@ zero-one-many→erasure-reflects-no-erased-matches-UR =
             {p = 𝟘} _  → refl
             {p = 𝟙} ()
             {p = ω} ()))
+    zero-one-many⇨erasure-omega-preserving
 
 -- If the functions linearity→linear-or-affine and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1747,6 +1878,7 @@ linearity→linear-or-affine-preserves-no-erased-matches-UR =
             {p = 𝟙} ()
             {p = ω} ())
        ))
+    linearity⇨linear-or-affine-omega-preserving
 
 -- If the functions linearity→linear-or-affine and tr reflect certain
 -- usage restrictions, then they also do this for certain usage
@@ -1770,6 +1902,7 @@ linearity→linear-or-affine-reflects-no-erased-matches-UR =
             {p = 𝟘} _  → refl
             {p = 𝟙} ()
             {p = ω} ()))
+    linearity⇨linear-or-affine-omega-preserving
 
 -- If the functions linear-or-affine→linearity and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1795,6 +1928,7 @@ linear-or-affine→linearity-preserves-no-erased-matches-UR =
             {p = ≤𝟙} ()
             {p = ≤ω} ())
        ))
+    linear-or-affine⇨linearity-omega-preserving
 
 -- If the functions linear-or-affine→linearity and tr reflect certain
 -- usage restrictions, then they also do this for certain usage
@@ -1819,6 +1953,7 @@ linear-or-affine→linearity-reflects-no-erased-matches-UR =
             {p = 𝟙}  ()
             {p = ≤𝟙} ()
             {p = ≤ω} ()))
+    linear-or-affine⇨linearity-omega-preserving
 
 -- If the functions affine→linear-or-affine and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1843,6 +1978,7 @@ affine→linear-or-affine-preserves-no-erased-matches-UR =
             {p = 𝟙} ()
             {p = ω} ())
        ))
+    affine⇨linear-or-affine-omega-preserving
 
 -- If the functions affine→linear-or-affine and tr reflect certain
 -- usage restrictions, then they also do this for certain usage
@@ -1866,6 +2002,7 @@ affine→linear-or-affine-reflects-no-erased-matches-UR =
             {p = 𝟘} _  → refl
             {p = 𝟙} ()
             {p = ω} ()))
+    affine⇨linear-or-affine-omega-preserving
 
 -- If the functions linear-or-affine→affine and tr preserve certain
 -- usage restrictions, then they also do this for certain usage
@@ -1891,6 +2028,7 @@ linear-or-affine→affine-preserves-no-erased-matches-UR =
             {p = ≤𝟙} ()
             {p = ≤ω} ())
        ))
+    linear-or-affine⇨affine-omega-preserving
 
 -- If the functions linear-or-affine→affine and tr reflect certain
 -- usage restrictions, then they also do this for certain usage
@@ -1915,6 +2053,7 @@ linear-or-affine→affine-reflects-no-erased-matches-UR =
             {p = 𝟙}  ()
             {p = ≤𝟙} ()
             {p = ≤ω} ()))
+    linear-or-affine⇨affine-omega-preserving
 
 -- If the functions affine→linearity and tr preserve certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1937,6 +2076,7 @@ affine→linearity-preserves-no-erased-matches-UR =
             {p = 𝟙} ()
             {p = ω} ())
        ))
+    affine⇨linearity-omega-preserving
 
 -- If the functions affine→linearity and tr reflect certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1958,6 +2098,7 @@ affine→linearity-reflects-no-erased-matches-UR =
             {p = 𝟘} _  → refl
             {p = 𝟙} ()
             {p = ω} ()))
+    affine⇨linearity-omega-preserving
 
 -- If the functions linearity→affine and tr preserve certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -1980,6 +2121,7 @@ linearity→affine-preserves-no-erased-matches-UR =
             {p = 𝟙} ()
             {p = ω} ())
        ))
+    linearity⇨affine-omega-preserving
 
 -- If the functions linearity→affine and tr reflect certain usage
 -- restrictions, then they also do this for certain usage restrictions
@@ -2001,7 +2143,7 @@ linearity→affine-reflects-no-erased-matches-UR =
             {p = 𝟘} _  → refl
             {p = 𝟙} ()
             {p = ω} ()))
-
+    linearity⇨affine-omega-preserving
 
 ------------------------------------------------------------------------
 -- Some lemmas related to Is-no-nr-preserving and concrete modalities

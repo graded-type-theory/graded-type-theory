@@ -119,7 +119,7 @@ Meet-requirements-required M@record{} refl refl 𝟘∧𝟙≢𝟘 ω≤ =
        𝟙 ∧ 𝟘  ≡⟨ 𝟙∧𝟘≡𝟘 ⟩
        𝟘      ∎))
   where
-  open Modality M hiding (𝟘; 𝟙; ω)
+  open Modality M hiding (𝟘; 𝟙)
   open Meet M
   open PartialOrder M
   open Tools.Reasoning.PropositionalEquality
@@ -497,9 +497,6 @@ zero-one-many-modality = record
   ; _∧_          = _∧_
   ; 𝟘            = 𝟘
   ; 𝟙            = 𝟙
-  ; ω            = ω
-  ; ω≤𝟙          = refl
-  ; ω·+≤ω·ʳ      = λ {p = p} → ω·+≤ω·ʳ p
   ; is-𝟘?        = _≟ 𝟘
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
@@ -704,6 +701,18 @@ zero-one-many-modality = record
 
 instance
 
+  -- The zero-one-many instance has a grade ω.
+
+  zero-one-many-has-omega :
+    Has-omega zero-one-many-modality
+  zero-one-many-has-omega = record
+    { ω      = ω
+    ; ω≤𝟙    = refl
+    ; ω·+≤ω·ʳ = λ {p = p} → ω·+≤ω·ʳ p
+    }
+
+instance
+
   zero-one-many-has-well-behaved-zero :
     Has-well-behaved-zero zero-one-many-modality
   zero-one-many-has-well-behaved-zero = record
@@ -817,7 +826,7 @@ Star-requirements-required′
       , ⊛-ineq₂ _ _ _
       , ⊛-ineq₂ _ _ _
   where
-  open Modality M hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+  open Modality M hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
   open PartialOrder M
   open Meet M
   open Tools.Reasoning.PartialOrder ≤-poset
@@ -1095,7 +1104,7 @@ zero-one-many-greatest-star = record
   where
 
   open Modality zero-one-many-modality
-    hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+    hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
   open PartialOrder zero-one-many-modality
   open Addition zero-one-many-modality
   open Meet zero-one-many-modality
@@ -1273,7 +1282,7 @@ opaque
     open Has-nr zero-one-many-greatest-star-nr
     open Is-factoring-nr factoring
     open Modality zero-one-many-modality
-      hiding (𝟘; 𝟙; ω; _+_; _·_)
+      hiding (𝟘; 𝟙; _+_; _·_)
     open Tools.Reasoning.PropositionalEquality
     𝟙≡ω : 𝟙 ≡ ω
     𝟙≡ω = begin
@@ -1448,7 +1457,7 @@ nr≡nr′ : ∀ p r → nr p r z s n ≡ nr′ p r z s n
 nr≡nr′ p r = lemma _ _ _ _ _ (nr′-view p r _ _ _)
   where
   open Modality zero-one-many-modality
-    hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_)
+    hiding (𝟘; 𝟙; _+_; _·_; _∧_)
   open Tools.Reasoning.PropositionalEquality
 
   lemma :
@@ -1625,7 +1634,7 @@ zero-one-many-has-nr = record
   }
   where
   open Modality zero-one-many-modality
-    hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+    hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
   open Addition zero-one-many-modality
   open Meet zero-one-many-modality
   open Multiplication zero-one-many-modality
@@ -1810,7 +1819,7 @@ opaque
     where
     open Tools.Reasoning.PropositionalEquality
     open Modality zero-one-many-modality
-           hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_)
+           hiding (𝟘; 𝟙; _+_; _·_; _∧_)
     nr₂ : Op₂ Zero-one-many
     nr₂ p r = 𝟙 ∧ (r + p)
     𝟙+p≡𝟙∧𝟙+p : ∀ p → 𝟙 + p ≡ 𝟙 ∧ (𝟙 + p)
@@ -1932,7 +1941,7 @@ opaque
     open Natrec zero-one-many-modality renaming (nr-𝟘 to nr″-𝟘)
     open PartialOrder zero-one-many-modality
     open Modality zero-one-many-modality
-      hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+      hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
     open Tools.Reasoning.PartialOrder ≤-poset
     lemma : nr″ p r z s n ≤ ω → nr″ p r z s n ≤ nr p r z s n
     lemma {p} {r} {z} {s} {n} nr″≤ω =
@@ -2103,7 +2112,7 @@ opaque
       ω → lemma-ω _ _
     where
     open Modality zero-one-many-modality
-      hiding (𝟘; 𝟙; ω; _∧_; _·_; _+_)
+      hiding (𝟘; 𝟙; _∧_; _·_; _+_)
     open GLB zero-one-many-modality
     open Natrec zero-one-many-modality
     open PartialOrder zero-one-many-modality
@@ -2164,7 +2173,7 @@ opaque
     GLB.GLB-congʳ zero-one-many-modality (+-comm (ω · q) p) (nr-nrᵢ-GLB {z = p} {s = q} 𝟙)
     where
     open Modality zero-one-many-modality
-      hiding (𝟙; ω; _·_; _+_)
+      hiding (𝟙; _·_; _+_)
 
 opaque
 
@@ -2178,7 +2187,7 @@ opaque
     GLB.GLB-congʳ zero-one-many-modality (·-congˡ (+-comm q p)) (nr-nrᵢ-GLB {z = p} {s = q} ω)
     where
     open Modality zero-one-many-modality
-      hiding (ω; _·_; _+_)
+      hiding (_·_; _+_)
 
 opaque
 
@@ -2194,7 +2203,7 @@ opaque
     }
     where
     open Modality zero-one-many-modality
-      hiding (_+_; _·_; _≤_; 𝟘; 𝟙; ω)
+      hiding (_+_; _·_; _≤_; 𝟘; 𝟙)
     open GLB zero-one-many-modality
     open Multiplication zero-one-many-modality
     open PartialOrder zero-one-many-modality

@@ -30,11 +30,13 @@ open import Graded.Context
 import Graded.Context.Properties
 open import Graded.Context.QuantityTranslation 𝕄₁ 𝕄₂ tr
   as CQ using (tr-Conₘ)
+open import Graded.Modality.Omega-instances
 import Graded.Modality.Properties
 open import Graded.Usage
 open import Graded.Usage.Erased-matches
 import Graded.Usage.Properties
 import Graded.Usage.Properties.Zero-one
+import Graded.Usage.Restrictions.Instance
 import Graded.Usage.Restrictions.Satisfied
 open import Graded.Modality.Morphism.Usage-restrictions
 import Graded.Modality.Morphism.Backward-instances
@@ -268,8 +270,8 @@ module Is-morphism
       tr-Conₘ-nrᶜ
       where
       open Graded.Modality.Morphism.Forward-instances common-properties
-      open import Graded.Usage.Restrictions.Instance R₁
-      open import Graded.Usage.Restrictions.Instance R₂
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
       open CQ.Is-nr-preserving-morphism nr-preserving
       open CR₂
     tr-▸
@@ -394,7 +396,7 @@ module Is-morphism
       sub rflₘ tr-Conₘ-𝟘ᶜ-≤ᶜ
     tr-▸
       (Jₘ {m} {p} {q} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆}
-         _ _ ▸A ▸t ▸B ▸u ▸v ▸w) = sub
+         _ ▸A ▸t ▸B ▸u ▸v ▸w) = sub
       (Jₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
          (sub (tr-▸ ▸B) $ begin
             tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p ∙
@@ -403,21 +405,27 @@ module Is-morphism
             tr-Conₘ γ₃ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p) ∙ tr (Mo₁.⌜ m ⌝ M₁.· q)  ∎)
          (tr-▸ ▸u) (tr-▸ ▸v) (tr-▸ ▸w))
       (begin
-         tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆))   ≈⟨ tr-Conₘ-·ᶜ ⟩
+         tr-Conₘ (ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆))   ≈⟨ tr-Conₘ-·ᶜ ⟩
 
-         tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆)  ≈⟨ ·ᶜ-cong tr-ω $
-                                                                            ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
-                                                                            ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
-                                                                            ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
-                                                                            tr-Conₘ-+ᶜ ⟩
-         M₂.ω C₂.·ᶜ
+         tr ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆)  ≈⟨ ·ᶜ-cong
+                                                                         (M.Is-omega-preserving-morphism.tr-ω omega-preserving) $
+
+                                                                         ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
+                                                                         ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
+                                                                         ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
+                                                                         tr-Conₘ-+ᶜ ⟩
+         ω C₂.·ᶜ
          (tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄ C₂.+ᶜ
-          tr-Conₘ γ₅ C₂.+ᶜ tr-Conₘ γ₆)                                   ∎)
+          tr-Conₘ γ₅ C₂.+ᶜ tr-Conₘ γ₆)                                ∎)
       where
       open CR₂
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+
     tr-▸
       (J₀ₘ₁ {m} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆}
-         ≡some refl refl ▸A ▸t ▸B ▸u ▸v ▸w) =
+         ⦃ (≡some) ⦄ refl refl ▸A ▸t ▸B ▸u ▸v ▸w) =
       case trivial-⊎-tr-𝟘 of λ where
         (inj₁ trivial₁) → sub
           (Jₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸-trivial trivial₁ ▸t)
@@ -435,20 +443,21 @@ module Is-morphism
              (tr-▸ ▸u) (tr-▸-trivial trivial₁ ▸v)
              (tr-▸-trivial trivial₁ ▸w))
           (begin
-             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))                       ≡⟨ cong tr-Conₘ $ CP₁.≈ᶜ→≡ $ CP₁.≈ᶜ-trivial trivial₁ ⟩
+             tr-Conₘ (ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))                       ≡⟨ cong tr-Conₘ $ CP₁.≈ᶜ→≡ $ CP₁.≈ᶜ-trivial trivial₁ ⟩
 
              tr-Conₘ
-               (M₁.ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆))  ≈⟨ tr-Conₘ-·ᶜ ⟩
+               (ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆))  ≈⟨ tr-Conₘ-·ᶜ ⟩
 
-             tr M₁.ω C₂.·ᶜ
-             tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆)         ≈⟨ ·ᶜ-cong tr-ω $
-                                                                         ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
-                                                                         ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
-                                                                         ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
-                                                                         tr-Conₘ-+ᶜ ⟩
-             M₂.ω C₂.·ᶜ
+             tr ω C₂.·ᶜ
+             tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅ C₁.+ᶜ γ₆)      ≈⟨ ·ᶜ-cong
+                                                                      (M.Is-omega-preserving-morphism.tr-ω omega-preserving) $
+                                                                      ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
+                                                                      ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
+                                                                      ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
+                                                                      tr-Conₘ-+ᶜ ⟩
+             ω C₂.·ᶜ
              (tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄ C₂.+ᶜ
-              tr-Conₘ γ₅ C₂.+ᶜ tr-Conₘ γ₆)                            ∎)
+              tr-Conₘ γ₅ C₂.+ᶜ tr-Conₘ γ₆)                         ∎)
         (inj₂ tr-𝟘) → sub
           (J₀ₘ₁-generalised
              (≤ᵉᵐ→≡some→≡not-none
@@ -460,34 +469,43 @@ module Is-morphism
                 tr-Conₘ γ₃ ∙ tr M₁.𝟘 ∙ tr M₁.𝟘  ∎)
              (tr-▸ ▸u) (tr-▸[𝟘ᵐ?] ▸v) (tr-▸[𝟘ᵐ?] ▸w))
           (begin
-             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))        ≈⟨ tr-Conₘ-·ᶜ ⟩
-             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.+ᶜ γ₄)       ≈⟨ ·ᶜ-cong tr-ω tr-Conₘ-+ᶜ ⟩
-             M₂.ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄)  ∎)
+             tr-Conₘ (ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))        ≈⟨ tr-Conₘ-·ᶜ ⟩
+             tr ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.+ᶜ γ₄)       ≈⟨ ·ᶜ-cong
+                                                       (M.Is-omega-preserving-morphism.tr-ω omega-preserving)
+                                                       tr-Conₘ-+ᶜ ⟩
+             ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄)  ∎)
       where
       open CR₂
-    tr-▸ (J₀ₘ₂ ≡all ▸A ▸t ▸B ▸u ▸v ▸w) = J₀ₘ₂
-      (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-preserved ≈ᵐ-tr-Mode) ≡all)
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+    tr-▸ (J₀ₘ₂ ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v ▸w) = J₀ₘ₂
+      ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-J-preserved ≈ᵐ-tr-Mode) ≡all ⦄
       (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
       (tr-▸[𝟘ᵐ?] ▸v) (tr-▸[𝟘ᵐ?] ▸w)
-    tr-▸ (Kₘ {m} {p} {γ₂} {γ₃} {γ₄} {γ₅} _ _ ▸A ▸t ▸B ▸u ▸v) = sub
+    tr-▸ (Kₘ {m} {p} {γ₂} {γ₃} {γ₄} {γ₅} _ ▸A ▸t ▸B ▸u ▸v) = sub
       (Kₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
          (sub (tr-▸ ▸B) $ begin
             tr-Conₘ γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
             tr-Conₘ γ₃ ∙ tr (Mo₁.⌜ m ⌝ M₁.· p)        ∎)
          (tr-▸ ▸u) (tr-▸ ▸v))
       (begin
-         tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅))   ≈⟨ tr-Conₘ-·ᶜ ⟩
+         tr-Conₘ (ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅))   ≈⟨ tr-Conₘ-·ᶜ ⟩
 
-         tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅)  ≈⟨ ·ᶜ-cong tr-ω $
-                                                                   ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
-                                                                   ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
-                                                                   tr-Conₘ-+ᶜ ⟩
-         M₂.ω C₂.·ᶜ
+         tr ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅)  ≈⟨ ·ᶜ-cong
+                                                                (M.Is-omega-preserving-morphism.tr-ω omega-preserving) $
+                                                                ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
+                                                                ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
+                                                                tr-Conₘ-+ᶜ ⟩
+         ω C₂.·ᶜ
          (tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄ C₂.+ᶜ
-          tr-Conₘ γ₅)                                           ∎)
+          tr-Conₘ γ₅)                                        ∎)
       where
       open CR₂
-    tr-▸ (K₀ₘ₁ {m} {γ₂} {γ₃} {γ₄} {γ₅} ≡some refl ▸A ▸t ▸B ▸u ▸v) =
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+    tr-▸ (K₀ₘ₁ {m} {γ₂} {γ₃} {γ₄} {γ₅} ⦃ (≡some) ⦄ refl ▸A ▸t ▸B ▸u ▸v) =
       case trivial-⊎-tr-𝟘 of λ where
         (inj₁ trivial₁) → sub
           (Kₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸-trivial trivial₁ ▸t)
@@ -498,15 +516,15 @@ module Is-morphism
                 tr-Conₘ γ₃ ∙ tr M₁.𝟘                         ∎)
              (tr-▸ ▸u) (tr-▸-trivial trivial₁ ▸v))
           (begin
-             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))                     ≡⟨ cong tr-Conₘ $ CP₁.≈ᶜ→≡ $ CP₁.≈ᶜ-trivial trivial₁ ⟩
+             tr-Conₘ (ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))                     ≡⟨ cong tr-Conₘ $ CP₁.≈ᶜ→≡ $ CP₁.≈ᶜ-trivial trivial₁ ⟩
 
-             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅))   ≈⟨ tr-Conₘ-·ᶜ ⟩
+             tr-Conₘ (ω C₁.·ᶜ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅))   ≈⟨ tr-Conₘ-·ᶜ ⟩
 
-             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅)  ≈⟨ ·ᶜ-cong tr-ω $
-                                                                       ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
-                                                                       ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
-                                                                       tr-Conₘ-+ᶜ ⟩
-             M₂.ω C₂.·ᶜ
+             tr ω C₂.·ᶜ tr-Conₘ (γ₂ C₁.+ᶜ γ₃ C₁.+ᶜ γ₄ C₁.+ᶜ γ₅)  ≈⟨ ·ᶜ-cong (M.Is-omega-preserving-morphism.tr-ω omega-preserving) $
+                                                                    ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ $
+                                                                    ≈ᶜ-trans tr-Conₘ-+ᶜ $ +ᶜ-congˡ
+                                                                    tr-Conₘ-+ᶜ ⟩
+             ω C₂.·ᶜ
              (tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄ C₂.+ᶜ
               tr-Conₘ γ₅)                                           ∎)
         (inj₂ tr-𝟘) → sub
@@ -520,13 +538,18 @@ module Is-morphism
                 tr-Conₘ γ₃ ∙ tr M₁.𝟘  ∎)
              (tr-▸ ▸u) (tr-▸[𝟘ᵐ?] ▸v))
           (begin
-             tr-Conₘ (M₁.ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))        ≈⟨ tr-Conₘ-·ᶜ ⟩
-             tr M₁.ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.+ᶜ γ₄)       ≈⟨ ·ᶜ-cong tr-ω tr-Conₘ-+ᶜ ⟩
-             M₂.ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄)  ∎)
+             tr-Conₘ (ω C₁.·ᶜ (γ₃ C₁.+ᶜ γ₄))        ≈⟨ tr-Conₘ-·ᶜ ⟩
+             tr ω C₂.·ᶜ tr-Conₘ (γ₃ C₁.+ᶜ γ₄)       ≈⟨ ·ᶜ-cong
+                                                        (M.Is-omega-preserving-morphism.tr-ω omega-preserving)
+                                                        tr-Conₘ-+ᶜ ⟩
+             ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄)  ∎)
       where
       open CR₂
-    tr-▸ (K₀ₘ₂ ≡none ▸A ▸t ▸B ▸u ▸v) = K₀ₘ₂
-      (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡none)
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+    tr-▸ (K₀ₘ₂ ⦃ (≡none) ⦄ ▸A ▸t ▸B ▸u ▸v) = K₀ₘ₂
+      ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡none ⦄
       (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
       (tr-▸[𝟘ᵐ?] ▸v)
     tr-▸ ([]-congₘ {m} ▸l ▸A ▸t ▸u ▸v ok) = sub
@@ -561,35 +584,45 @@ module Is-morphism
         (qrec₀ (Quotient-terms-preserved ok₁)
            (Qrec-motive-erased-preserved .proj₁ ok₂) (tr-▸[𝟘ᵐ?] ▸C)
            (sub (tr-▸ ▸t) $ begin
-              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω     ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
-              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.ω  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
-              tr-Conₘ γ₂ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)        ∎)
+             tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· ω    ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
+             tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr ω ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
+             tr-Conₘ γ₂ ∙ tr (Mo₁.⌜ m ⌝ M₁.· ω)       ∎)
            (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v) (tr-▸ ▸w))
         (begin
-           tr-Conₘ (γ₂ C₁.+ᶜ M₁.ω C₁.·ᶜ γ₅)        ≈⟨ ≈ᶜ-trans tr-Conₘ-+ᶜ (+ᶜ-congˡ (≈ᶜ-trans tr-Conₘ-·ᶜ (·ᶜ-congʳ tr-ω))) ⟩
-           tr-Conₘ γ₂ C₂.+ᶜ M₂.ω C₂.·ᶜ tr-Conₘ γ₅  ∎)
+           tr-Conₘ (γ₂ C₁.+ᶜ ω C₁.·ᶜ γ₅)           ≈⟨ ≈ᶜ-trans tr-Conₘ-+ᶜ (+ᶜ-congˡ tr-Conₘ-·ᶜ) ⟩
+           tr-Conₘ γ₂ C₂.+ᶜ tr ω C₂.·ᶜ tr-Conₘ γ₅  ≈⟨ +ᶜ-congˡ (·ᶜ-congʳ tr-ω) ⟩
+           tr-Conₘ γ₂ C₂.+ᶜ ω C₂.·ᶜ tr-Conₘ γ₅     ∎)
+
       where
       open ≤ᶜ-reasoning
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+      open M.Is-omega-preserving-morphism omega-preserving
     tr-▸ (qrec₁ {γ₁} {m} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
       sub
         (qrec₁ (Quotient-terms-preserved ok₁)
            (ok₂ ∘→ Qrec-motive-erased-preserved .proj₂)
            (sub (tr-▸ ▸C) $ begin
-              tr-Conₘ γ₁ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω     ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
-              tr-Conₘ γ₁ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.ω  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
-              tr-Conₘ γ₁ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)        ∎)
+              tr-Conₘ γ₁ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· ω     ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
+              tr-Conₘ γ₁ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr ω  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
+              tr-Conₘ γ₁ ∙ tr (Mo₁.⌜ m ⌝ M₁.· ω)        ∎)
            (sub (tr-▸ ▸t) $ begin
-              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω     ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
-              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr M₁.ω  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
-              tr-Conₘ γ₂ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)        ∎)
+              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· ω     ≈˘⟨ ≈ᶜ-refl ∙ M₂.·-congˡ tr-ω ⟩
+              tr-Conₘ γ₂ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr ω  ≈⟨ ≈ᶜ-refl ∙ tr-⌜⌝-· m ⟩
+              tr-Conₘ γ₂ ∙ tr (Mo₁.⌜ m ⌝ M₁.· ω)        ∎)
            (tr-▸[𝟘ᵐ?] ▸u) (tr-▸[𝟘ᵐ?] ▸v) (tr-▸ ▸w))
         (begin
-           tr-Conₘ (M₁.ω C₁.·ᶜ (γ₁ C₁.+ᶜ γ₂ C₁.+ᶜ γ₅))                ≈⟨ ≈ᶜ-trans tr-Conₘ-·ᶜ $
-                                                                         ·ᶜ-cong tr-ω $
-                                                                         ≈ᶜ-trans tr-Conₘ-+ᶜ (+ᶜ-congˡ tr-Conₘ-+ᶜ) ⟩
-           M₂.ω C₂.·ᶜ (tr-Conₘ γ₁ C₂.+ᶜ tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₅)  ∎)
+           tr-Conₘ (ω C₁.·ᶜ (γ₁ C₁.+ᶜ γ₂ C₁.+ᶜ γ₅))                ≈⟨ ≈ᶜ-trans tr-Conₘ-·ᶜ $
+                                                                      ·ᶜ-cong tr-ω $
+                                                                      ≈ᶜ-trans tr-Conₘ-+ᶜ (+ᶜ-congˡ tr-Conₘ-+ᶜ) ⟩
+           ω C₂.·ᶜ (tr-Conₘ γ₁ C₂.+ᶜ tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₅)  ∎)
       where
       open ≤ᶜ-reasoning
+      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+      open M.Is-omega-preserving-morphism omega-preserving
     tr-▸ (sub ▸t γ≤δ) =
       sub (tr-▸ ▸t) (tr-Conₘ-monotone γ≤δ)
 
@@ -801,7 +834,7 @@ module Is-order-embedding
 
   opaque
 
-    -- A variant of ? and tr-Conₘ-≤ᶜ-tr-Σ-·ᶜ for tr-BinderMode
+    -- A variant of tr-Conₘ-≤ᶜ-·ᶜ and tr-Conₘ-≤ᶜ-tr-Σ-·ᶜ for tr-BinderMode
 
     tr-Conₘ-≤ᶜ-tr-BinderMode-·ᶜ :
       ∀ {b} → tr-Conₘ γ C₂.≤ᶜ tr-BinderMode b p C₂.·ᶜ δ →
@@ -941,11 +974,11 @@ module Is-order-embedding
             (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? u)
         rfl rflᵤ →
           RS₁.rflᵤ
-        (J _ _ _ _ _ _ _ _) (Jᵤ _ _ A t B u v w) →
+        (J _ _ _ _ _ _ _ _) (Jᵤ _ A t B u v w) →
           RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
             (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
             (lemma m₁≳m₂ _ w)
-        (J _ _ _ _ _ _ _ _) (J₀ᵤ₁ ≡some tr-p≡𝟘 tr-q≡𝟘 A t B u v w) →
+        (J _ _ _ _ _ _ _ _) (J₀ᵤ₁ ⦃ (≡some) ⦄ tr-p≡𝟘 tr-q≡𝟘 A t B u v w) →
           subst (RS₁.Usage-restrictions-satisfied _)
             (sym $
              case trivial-⊎-tr-≡-𝟘-⇔ of λ where
@@ -975,22 +1008,22 @@ module Is-order-embedding
               RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
                 (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? m₁≳m₂ v)
                 (lemma-𝟘ᵐ? m₁≳m₂ w)
-        (J _ _ _ _ _ _ _ _) (J₀ᵤ₂ ≡all A t B u v w) →
+        (J _ _ _ _ _ _ _ _) (J₀ᵤ₂ ⦃ (≡all) ⦄ A t B u v w) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
               RS₁.J₀ᵤ₂
-                (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected m₁≈m₂)
-                   ≡all)
+                ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected m₁≈m₂)
+                   ≡all ⦄
                 (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? B)
                 (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ?-𝟘ᵐ? v) (lemma-𝟘ᵐ?-𝟘ᵐ? w)
             (𝟙ᵐ≳𝟘ᵐ _) →
               RS₁.Jᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
                 (lemma-𝟘ᵐ? m₁≳m₂ B) (lemma m₁≳m₂ _ u)
                 (lemma-𝟘ᵐ? m₁≳m₂ v) (lemma-𝟘ᵐ? m₁≳m₂ w)
-        (K _ _ _ _ _ _) (Kᵤ _ _ A t B u v) →
+        (K _ _ _ _ _ _) (Kᵤ _ A t B u v) →
           RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma m₁≳m₂ _ t)
             (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma m₁≳m₂ _ v)
-        (K _ _ _ _ _ _) (K₀ᵤ₁ ≡some tr-p≡𝟘 A t B u v) →
+        (K _ _ _ _ _ _) (K₀ᵤ₁ ⦃ (≡some) ⦄ tr-p≡𝟘 A t B u v) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
               case singleton $ UR₁.erased-matches-for-K m₁ of λ where
@@ -1011,12 +1044,12 @@ module Is-order-embedding
             (𝟙ᵐ≳𝟘ᵐ _) →
               RS₁.Kᵤ-generalised (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ? m₁≳m₂ t)
                 (lemma m₁≳m₂ _ B) (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ? m₁≳m₂ v)
-        (K _ _ _ _ _ _) (K₀ᵤ₂ ≡all A t B u v) →
+        (K _ _ _ _ _ _) (K₀ᵤ₂ ⦃ (≡all) ⦄ A t B u v) →
           case m₁≳m₂ of λ where
             [ m₁≈m₂ ] →
               RS₁.K₀ᵤ₂
-                (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected m₁≈m₂)
-                   ≡all)
+                ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected m₁≈m₂)
+                   ≡all ⦄
                 (lemma-𝟘ᵐ?-𝟘ᵐ? A) (lemma-𝟘ᵐ?-𝟘ᵐ? t) (lemma-𝟘ᵐ?-𝟘ᵐ? B)
                 (lemma m₁≳m₂ _ u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
             (𝟙ᵐ≳𝟘ᵐ _) →
@@ -1043,11 +1076,13 @@ module Is-order-embedding
             (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v) (lemma-𝟘ᵐ?-𝟘ᵐ? w)
             (≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ? m₁≳m₂ eq)
         (qrec _ _ _ _ _) (qrec₀ ok₁ ok₂ C t u v w) →
+          let open Graded.Modality.Morphism.Backward-instances common-properties in
           RS₁.qrec₀ (Quotient-terms-reflected ok₁)
             (Qrec-motive-erased-preserved .proj₂ ok₂) (lemma-𝟘ᵐ?-𝟘ᵐ? C)
             (lemma m₁≳m₂ _ t) (lemma-𝟘ᵐ?-𝟘ᵐ? u) (lemma-𝟘ᵐ?-𝟘ᵐ? v)
             (lemma m₁≳m₂ _ w)
         (qrec _ _ _ _ _) (qrec₁ ok₁ ok₂ C t u v w) →
+          let open Graded.Modality.Morphism.Backward-instances common-properties in
           RS₁.qrec₁ (Quotient-terms-reflected ok₁)
             (ok₂ ∘→ Qrec-motive-erased-preserved .proj₁)
             (lemma m₁≳m₂ _ C) (lemma m₁≳m₂ _ t) (lemma-𝟘ᵐ?-𝟘ᵐ? u)
@@ -1323,8 +1358,8 @@ module Is-order-embedding
         γ≤nr-prθ′δ′η′
       where
       open Graded.Modality.Morphism.Backward-instances common-properties
-      open import Graded.Usage.Restrictions.Instance R₁
-      open import Graded.Usage.Restrictions.Instance R₂
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
       open CQ.Is-nr-reflecting-morphism nr-reflected
 
     tr-▸⁻¹′
@@ -1425,7 +1460,7 @@ module Is-order-embedding
       sub rflₘ (tr-Conₘ-≤ᶜ-𝟘ᶜ-→-≤ᶜ-𝟘ᶜ ≤𝟘)
 
     tr-▸⁻¹′
-      {m} (J p q _ _ _ _ _ _) (Jₘ {γ₃} _ _ ▸A ▸t ▸B ▸u ▸v ▸w) refl
+      {m} (J p q _ _ _ _ _ _) (Jₘ {γ₃} _ ▸A ▸t ▸B ▸u ▸v ▸w) refl
       γ≤ω[γ₂+γ₃+γ₄+γ₅+γ₆] =
       case tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ⁴ γ≤ω[γ₂+γ₃+γ₄+γ₅+γ₆] of λ
         (_ , γ₃′ , _ , _ , _ ,
@@ -1442,10 +1477,15 @@ module Is-order-embedding
          (tr-▸⁻¹′ _ ▸u refl γ₄′≤γ₄) (tr-▸⁻¹′ _ ▸v refl γ₅′≤γ₅)
          (tr-▸⁻¹′ _ ▸w refl γ₆′≤γ₆))
       γ≤ω[γ₂′+γ₃′+γ₄′+γ₅′+γ₆′]
+      where
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
       {m} {γ} (J p q _ _ _ _ _ _)
-      (J₀ₘ₁ {γ₃} {γ₄} ≡some tr-p≡𝟘 tr-q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) refl
+      (J₀ₘ₁ {γ₃} {γ₄} ⦃ (≡some) ⦄ tr-p≡𝟘 tr-q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) refl
       γ≤ω[γ₃+γ₄] =
       case
         (case trivial-⊎-tr-≡-𝟘-⇔ of λ where
@@ -1470,16 +1510,21 @@ module Is-order-embedding
          (tr-▸⁻¹′ _ ▸u refl γ₄′≤γ₄) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
          (tr-▸[𝟘ᵐ?]⁻¹ ▸w .proj₂))
       γ≤ω[γ₃′+γ₄′]
+      where
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
-      (J _ _ _ _ _ _ _ _) (J₀ₘ₂ ≡all ▸A ▸t ▸B ▸u ▸v ▸w) refl ≤γ′ = J₀ₘ₂
-      (≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected ≈ᵐ-tr-Mode) ≡all)
+      (J _ _ _ _ _ _ _ _) (J₀ₘ₂ ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v ▸w) refl ≤γ′ = J₀ₘ₂
+      ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected ≈ᵐ-tr-Mode) ≡all ⦄
       (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
       (tr-∙∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸w .proj₂)
 
     tr-▸⁻¹′
-      {m} (K p _ _ _ _ _) (Kₘ {γ₃} _ _ ▸A ▸t ▸B ▸u ▸v) refl
+      {m} (K p _ _ _ _ _) (Kₘ {γ₃} _ ▸A ▸t ▸B ▸u ▸v) refl
       γ≤ω[γ₂+γ₃+γ₄+γ₅] =
       case tr-Conₘ-≤ᶜ-ωᶜ·ᶜ+ᶜ³ γ≤ω[γ₂+γ₃+γ₄+γ₅] of λ
         (_ , γ₃′ , _ , _ , γ₂′≤γ₂ , γ₃′≤γ₃ , γ₄′≤γ₄ , γ₅′≤γ₅ ,
@@ -1492,10 +1537,15 @@ module Is-order-embedding
             γ₃ ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· tr p     ∎)
          (tr-▸⁻¹′ _ ▸u refl γ₄′≤γ₄) (tr-▸⁻¹′ _ ▸v refl γ₅′≤γ₅))
       γ≤ω[γ₂′+γ₃′+γ₄′+γ₅′]
+      where
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
       (K _ _ _ _ _ _)
-      (K₀ₘ₁ {γ₃} ≡some tr-p≡𝟘 ▸A ▸t ▸B ▸u ▸v) refl γ≤ω[γ₃+γ₄] =
+      (K₀ₘ₁ {γ₃} ⦃ (≡some) ⦄ tr-p≡𝟘 ▸A ▸t ▸B ▸u ▸v) refl γ≤ω[γ₃+γ₄] =
       case
         (case trivial-⊎-tr-≡-𝟘-⇔ of λ where
            (inj₁ trivial₁) → MP₁.≡-trivial trivial₁
@@ -1515,9 +1565,14 @@ module Is-order-embedding
             γ₃ ∙ M₂.𝟘              ∎)
          (tr-▸⁻¹′ _ ▸u refl γ₄′≤γ₄) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂))
       γ≤ω[γ₃′+γ₄′]
+      where
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open CQ.Is-omega-preserving tr-emb omega-preserving
 
-    tr-▸⁻¹′ (K _ _ _ _ _ _) (K₀ₘ₂ ≡all ▸A ▸t ▸B ▸u ▸v) refl ≤γ′ = K₀ₘ₂
-      (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected ≈ᵐ-tr-Mode) ≡all)
+    tr-▸⁻¹′ (K _ _ _ _ _ _) (K₀ₘ₂ ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v) refl ≤γ′ = K₀ₘ₂
+      ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected ≈ᵐ-tr-Mode) ≡all ⦄
       (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
       (tr-∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
@@ -1567,15 +1622,21 @@ module Is-order-embedding
            (tr-▸[𝟘ᵐ?]⁻¹ ▸C .proj₂)
            (let open CP₂.≤ᶜ-reasoning in
             tr-▸⁻¹′ _ ▸t refl $ begin
-              tr-Conₘ γ₂′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)     ≤⟨ ≤γ₂ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m)) (M₂.·-congˡ tr-ω)) ⟩
-              γ₂          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω  ∎)
+              tr-Conₘ γ₂′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· ω)     ≤⟨ ≤γ₂ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m))
+                                                                (M₂.·-congˡ (M.Is-omega-preserving-morphism.tr-ω omega-preserving))) ⟩
+              γ₂          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· ω  ∎)
            (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
            (tr-▸⁻¹′ _ ▸w refl ≤γ₅))
         (let open CP₁.≤ᶜ-reasoning in
          begin
-           γ                         ≤⟨ γ≤ ⟩
-           γ₂′ C₁.+ᶜ δ′              ≤⟨ CP₁.+ᶜ-monotoneʳ δ′≤′ ⟩
-           γ₂′ C₁.+ᶜ M₁.ω C₁.·ᶜ γ₅′  ∎)
+           γ                      ≤⟨ γ≤ ⟩
+           γ₂′ C₁.+ᶜ δ′           ≤⟨ CP₁.+ᶜ-monotoneʳ δ′≤′ ⟩
+           γ₂′ C₁.+ᶜ ω C₁.·ᶜ γ₅′  ∎)
+      where
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
       {m} {γ} (qrec _ _ _ _ _)
@@ -1587,16 +1648,23 @@ module Is-order-embedding
         (qrec₁ (Quotient-terms-reflected ok₁)
            (ok₂ ∘→ Qrec-motive-erased-preserved .proj₁)
            (tr-▸⁻¹′ _ ▸C refl $ begin
-              tr-Conₘ γ₁′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)     ≤⟨ ≤γ₁ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m)) (M₂.·-congˡ tr-ω)) ⟩
-              γ₁          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω  ∎)
+              tr-Conₘ γ₁′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· ω)     ≤⟨ ≤γ₁ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m))
+                                                                 (M₂.·-congˡ (M.Is-omega-preserving-morphism.tr-ω omega-preserving))) ⟩
+              γ₁          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· ω  ∎)
            (tr-▸⁻¹′ _ ▸t refl $ begin
-              tr-Conₘ γ₂′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· M₁.ω)     ≤⟨ ≤γ₂ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m)) (M₂.·-congˡ tr-ω)) ⟩
-              γ₂          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· M₂.ω  ∎)
+              tr-Conₘ γ₂′ ∙ tr (Mo₁.⌜ m ⌝ M₁.· ω)     ≤⟨ ≤γ₂ ∙ ≤-reflexive (trans (sym (tr-⌜⌝-· m))
+                                                                 (M₂.·-congˡ (M.Is-omega-preserving-morphism.tr-ω omega-preserving))) ⟩
+              γ₂          ∙ Mo₂.⌜ tr-Mode m ⌝ M₂.· ω  ∎)
            (tr-▸[𝟘ᵐ?]⁻¹ ▸u .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
            (tr-▸⁻¹′ _ ▸w refl ≤γ₅))
         γ≤
       where
+      open Graded.Usage.Restrictions.Instance R₁
+      open Graded.Usage.Restrictions.Instance R₂
+      open Graded.Modality.Morphism.Backward-instances common-properties
+      open CQ.Is-omega-preserving tr-emb omega-preserving
       open CP₂.≤ᶜ-reasoning
+      -- open M.Is-omega-preserving-morphism.tr-ω omega-preserving
 
     tr-▸⁻¹′ {γ′ = γ′} {γ = γ} t (sub {γ = δ} ▸t γ′≤δ) refl γ≤γ′ =
       tr-▸⁻¹′ t ▸t refl (begin

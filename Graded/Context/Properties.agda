@@ -31,6 +31,7 @@ open import Graded.Context.Properties.Natrec 𝕄 public
 open import Graded.Context.Properties.PartialOrder 𝕄 public
 open import Graded.Context.Properties.Star 𝕄 public
 open import Graded.Context.Properties.Update 𝕄 public
+open import Graded.Modality.Omega-instances
 
 private
   variable
@@ -207,7 +208,9 @@ opaque
 
   -- A lemma related to some of the usage rules for J and K.
 
-  ω·ᶜ+ᶜ²𝟘ᶜ : ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
+  ω·ᶜ+ᶜ²𝟘ᶜ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
+    ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
   ω·ᶜ+ᶜ²𝟘ᶜ = begin
     ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ≈⟨ ·ᶜ-congˡ $ +ᶜ-identityˡ _ ⟩
     ω ·ᶜ 𝟘ᶜ          ≈⟨ ·ᶜ-zeroʳ _ ⟩
@@ -219,7 +222,9 @@ opaque
 
   -- A lemma related to one of the usage rules for K.
 
-  ω·ᶜ+ᶜ⁴𝟘ᶜ : ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
+  ω·ᶜ+ᶜ⁴𝟘ᶜ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
+    ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
   ω·ᶜ+ᶜ⁴𝟘ᶜ = begin
     ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ≈⟨ ·ᶜ-congˡ +ᶜ⁴𝟘ᶜ ⟩
     ω ·ᶜ 𝟘ᶜ                      ≈⟨ ·ᶜ-zeroʳ _ ⟩
@@ -231,7 +236,9 @@ opaque
 
   -- A lemma related to one of the usage rules for J.
 
-  ω·ᶜ+ᶜ⁵𝟘ᶜ : ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
+  ω·ᶜ+ᶜ⁵𝟘ᶜ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
+    ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ) ≈ᶜ 𝟘ᶜ {n = n}
   ω·ᶜ+ᶜ⁵𝟘ᶜ = begin
     ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ≈⟨ ·ᶜ-congˡ +ᶜ⁵𝟘ᶜ ⟩
     ω ·ᶜ 𝟘ᶜ                            ≈⟨ ·ᶜ-zeroʳ _ ⟩

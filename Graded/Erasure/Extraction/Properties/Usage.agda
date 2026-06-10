@@ -16,6 +16,7 @@ module Graded.Erasure.Extraction.Properties.Usage
   where
 
 open Modality 𝕄
+open Usage-restrictions R
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
@@ -288,23 +289,23 @@ opaque
     refl
   erase-[] _ rflₘ =
     refl
-  erase-[] ok (Jₘ _ _ _ _ _ ▸t _ _) =
+  erase-[] ok (Jₘ _ _ _ _ ▸t _ _) =
     erase-[]
       (x◂𝟘∈γ+δˡ refl ∘→ x◂𝟘∈γ+δʳ refl ∘→ x◂𝟘∈γ+δʳ refl ∘→
        x◂𝟘∈pγ refl ω≢𝟘 ∘→ ok)
       ▸t
-  erase-[] ok (J₀ₘ₁ _ _ _ _ _ _ ▸t _ _) =
+  erase-[] ok (J₀ₘ₁ _ _ _ _ _ ▸t _ _) =
     erase-[] (x◂𝟘∈γ+δʳ refl ∘→ x◂𝟘∈pγ refl ω≢𝟘 ∘→ ok) ▸t
-  erase-[] ok (J₀ₘ₂ _ _ _ _ ▸t _ _) =
+  erase-[] ok (J₀ₘ₂ _ _ _ ▸t _ _) =
     erase-[] ok ▸t
-  erase-[] ok (Kₘ _ _ _ _ _ ▸t _) =
+  erase-[] ok (Kₘ _ _ _ _ ▸t _) =
     erase-[]
       (x◂𝟘∈γ+δˡ refl ∘→ x◂𝟘∈γ+δʳ refl ∘→ x◂𝟘∈γ+δʳ refl ∘→
        x◂𝟘∈pγ refl ω≢𝟘 ∘→ ok)
       ▸t
-  erase-[] ok (K₀ₘ₁ _ _ _ _ _ ▸t _) =
+  erase-[] ok (K₀ₘ₁ _ _ _ _ ▸t _) =
     erase-[] (x◂𝟘∈γ+δʳ refl ∘→ x◂𝟘∈pγ refl ω≢𝟘 ∘→ ok) ▸t
-  erase-[] ok (K₀ₘ₂ _ _ _ _ ▸t _) =
+  erase-[] ok (K₀ₘ₂ _ _ _ ▸t _) =
     erase-[] ok ▸t
   erase-[] _ ([]-congₘ _ _ _ _ _ _) =
     refl

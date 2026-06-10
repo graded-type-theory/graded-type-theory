@@ -1018,9 +1018,6 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
       ; _·_     = _·_
       ; 𝟘       = 𝟘
       ; 𝟙       = 𝟙
-      ; ω       = ℕ
-      ; ω≤𝟙     = ℕ-least
-      ; ω·+≤ω·ʳ = ℕ·+≤ℕ·ʳ
       ; is-𝟘?   = λ xs → case is-𝟘? xs of λ where
           (inj₁ xs≡𝟘) → yes (xs≡𝟘 ext)
           (inj₂ xs≢𝟘) → no xs≢𝟘
@@ -1047,6 +1044,15 @@ record Is-non-empty-interval (S : Set a) : Set (lsuc (lsuc a)) where
       ; ∧-positiveˡ  = proj₁ ∘→ ∪-positive
       ; +-positiveˡ  = proj₁ ∘→ +-positive
       ; zero-product = zero-product
+      }
+
+    -- The modality has grade ω.
+
+    has-omega : Has-omega modality
+    has-omega = record
+      { ω       = ℕ
+      ; ω≤𝟙     = ℕ-least
+      ; ω·+≤ω·ʳ = ℕ·+≤ℕ·ʳ
       }
 
     private

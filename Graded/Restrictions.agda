@@ -26,11 +26,13 @@ open import Tools.Relation as Dec
 open import Tools.Sum
 open import Tools.Unit
 
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄 𝐌
 open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Restrictions.Omega 𝕄
 
 import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Typed.Restrictions 𝕄
@@ -114,6 +116,7 @@ second-ΠΣ-quantities-𝟘 R = record R
 -- quantity is not ω, then the second quantity is the 𝟘 of 𝕄.
 
 second-ΠΣ-quantities-𝟘-or-ω :
+  ⦃ ok : Has-omega 𝕄 ⦄ →
   Type-restrictions → Type-restrictions
 second-ΠΣ-quantities-𝟘-or-ω R = record R
   { ΠΣ-allowed = λ b p q →
@@ -270,24 +273,24 @@ no-usage-restrictions :
      Mode-supports-nr ⦃ Natrec-mode-Has-nr has-nr ⦄ 𝐌) →
   Bool → Bool → Bool → Usage-restrictions
 no-usage-restrictions nm nr-ok erased sink qrec = λ where
-    .natrec-mode                           → nm
-    .Prodrec-allowed                       → λ _ _ _ _ → Lift _ ⊤
-    .Prodrec-allowed-upwards-closed        → λ _ _ → _
-    .Unitrec-allowed                       → λ _ _ _ → Lift _ ⊤
-    .Unitrec-allowed-upwards-closed        → λ _ _ → _
-    .Emptyrec-allowed                      → λ _ _ → Lift _ ⊤
-    .Emptyrec-allowed-upwards-closed       → λ _ _ → _
-    .[]-cong-allowed-mode                  → λ _ _ → Lift _ ⊤
-    .[]-cong-allowed-mode-upwards-closed   → λ _ _ → _
-    .starˢ-sink                            → sink
-    .Id-erased                             → Lift _ (T erased)
-    .Id-erased?                            → Dec.map lift Lift.lower $
-                                              T? erased
-    .erased-matches-for-J                  → λ _ → all
-    .erased-matches-for-J-≤ᵉᵐ              → _
-    .erased-matches-for-K                  → λ _ → all
-    .erased-matches-for-K-≤ᵉᵐ              → _
-    .mode-supports-nr                      → nr-ok
+    .natrec-mode                             → nm
+    .Prodrec-allowed                         → λ _ _ _ _ → Lift _ ⊤
+    .Prodrec-allowed-upwards-closed          → λ _ _ → _
+    .Unitrec-allowed                         → λ _ _ _ → Lift _ ⊤
+    .Unitrec-allowed-upwards-closed          → λ _ _ → _
+    .Emptyrec-allowed                        → λ _ _ → Lift _ ⊤
+    .Emptyrec-allowed-upwards-closed         → λ _ _ → _
+    .[]-cong-allowed-mode                    → λ _ _ → Lift _ ⊤
+    .[]-cong-allowed-mode-upwards-closed     → λ _ _ → _
+    .starˢ-sink                              → sink
+    .Id-erased                               → Lift _ (T erased)
+    .Id-erased?                              → Dec.map lift Lift.lower $
+                                                T? erased
+    .usage-rules-with-ω                      → without-ω
+    .erased-matches-for-JK                   → λ _ _ → all
+    .erased-matches-for-JK-≤ᵉᵐ               → _
+    .erased-matches-for-JK-supports-ω        → λ ()
+    .mode-supports-nr                        → nr-ok
     .Quotient-terms-allowed                → Lift _ ⊤
     .Higher-quotient-constructors-allowed  →
       HQC-allowed
@@ -467,6 +470,7 @@ opaque
   -- TD.Assumptions.
 
   Assumptions-second-ΠΣ-quantities-𝟘-or-ω :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     TD.Assumptions TR → TD.Assumptions (second-ΠΣ-quantities-𝟘-or-ω TR)
   Assumptions-second-ΠΣ-quantities-𝟘-or-ω as = λ where
       ._≟_                    → A._≟_

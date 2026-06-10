@@ -18,12 +18,15 @@ module Definition.Untyped.Bool.Nr
   (𝐌 : IsMode)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr 𝕄 ⦄
+  -- It is assumed that the modality has the grade ω
+  ⦃ has-omega : Has-omega 𝕄 ⦄
   where
 
 private
-  open module M = Modality 𝕄 using (𝟘; 𝟙; ω; _+_; _·_; _∧_)
+  open module M = Modality 𝕄 using (𝟘; 𝟙; _+_; _·_; _∧_)
 
 open IsMode 𝐌
+open Has-omega has-omega
 
 open import Definition.Untyped M
 open import Definition.Untyped.Empty 𝕄

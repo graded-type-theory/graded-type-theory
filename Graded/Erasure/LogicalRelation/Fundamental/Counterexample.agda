@@ -286,6 +286,7 @@ opaque
 
   negation-of-fundamental-lemma-with-erased-matches₃′ :
     ⦃ ok : No-equality-reflection ⦄ →
+    ⦃ ok-ω : Usage-allows-omega ⦄ →
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
     Higher-quotient-constructors-allowed →
     Higher-quotient-constructors-neutral →

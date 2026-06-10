@@ -138,9 +138,6 @@ _≟_ = λ where
   ; _∧_     = _∧_
   ; 𝟘       = 𝟘
   ; 𝟙       = 𝟙
-  ; ω       = 𝟘
-  ; ω≤𝟙     = refl
-  ; ω·+≤ω·ʳ = refl
   ; is-𝟘?   = λ where
       𝟘 → yes refl
       𝟙 → no (λ ())
@@ -294,6 +291,15 @@ _≟_ = λ where
   +-distrib-∧ : _+_ DistributesOver _∧_
   +-distrib-∧ =
     +-distribˡ-∧ , comm∧distrˡ⇒distrʳ +-comm +-distribˡ-∧
+
+-- The modality has grade ω.
+
+𝟘≤𝟙-has-omega : Has-omega 𝟘≤𝟙
+𝟘≤𝟙-has-omega = record
+  { ω       = 𝟘
+  ; ω≤𝟙     = refl
+  ; ω·+≤ω·ʳ = refl
+  }
 
 -- A natrec-star operator can be defined for Grade.
 

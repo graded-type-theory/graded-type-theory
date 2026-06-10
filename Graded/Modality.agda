@@ -31,10 +31,10 @@ record Modality : Set a where
 
   field
     -- A modality structure consists of a type M with three binary
-    -- operations (addition, multiplication and meet), and three
+    -- operations (addition, multiplication and meet), and two
     -- special elements.
     _+_ _·_ _∧_ : Op₂ M
-    𝟘 𝟙 ω       : M
+    𝟘 𝟙         : M
 
     -- + and · form a semiring with 𝟙 as multiplicative unit and 𝟘 as
     -- zero
@@ -56,12 +56,6 @@ record Modality : Set a where
   p < q = p ≤ q × p ≢ q
 
   field
-    -- In some modalities the grade ω stands for "an unlimited number
-    -- of uses". This grade must be bounded from above by 𝟙.
-    ω≤𝟙 : ω ≤ 𝟙
-
-    -- Furthermore ω · (p + q) must be bounded by ω · q.
-    ω·+≤ω·ʳ : ω · (p + q) ≤ ω · q
 
     -- It is decidable whether a grade is equal to 𝟘.
     is-𝟘? : (p : M) → Dec (p ≡ 𝟘)
@@ -186,6 +180,25 @@ record Has-well-behaved-zero (𝕄 : Modality) : Set a where
     -- Graded.Modality.Properties.Has-well-behaved-zero.∧-positiveʳ.)
     ∧-positiveˡ : {p q : M} → p ∧ q ≡ 𝟘 → p ≡ 𝟘
 
+-- The property of having the grade ω
+
+record Has-omega (𝕄 : Modality) : Set a where
+  no-eta-equality
+  pattern
+  open Modality 𝕄
+  field
+
+    -- The grade ω
+    ω : M
+
+    -- In some modalities the grade ω stands for "an unlimited number
+    -- of uses". This grade must be bounded from above by 𝟙.
+    ω≤𝟙 : ω ≤ 𝟙
+
+    -- Furthermore ω · (p + q) must be bounded by ω · q.
+    ω·+≤ω·ʳ : ω · (p + q) ≤ ω · q
+
+
 -- The property of having an nr function (a "natrec usage function").
 -- Such a function is used in one of the usage rules for natrec.
 
@@ -237,9 +250,10 @@ record Has-nr (𝕄 : Modality) : Set a where
 
   -- Another property that nr functions can satisfy.
 
-  Linearity-like-nr-for-𝟙 : Set a
-  Linearity-like-nr-for-𝟙 =
+  Linearity-like-nr-for-𝟙 : ⦃ ok : Has-omega 𝕄 ⦄ → Set a
+  Linearity-like-nr-for-𝟙 ⦃ ok ⦄ =
     ∀ {p z s n} →
+    let open Has-omega ok in
     nr p 𝟙 z s n ≡ (𝟙 + p) · n + ω · s + z
 
 -- The property of having an nr function that factors in a certain way
@@ -283,7 +297,6 @@ record Has-well-behaved-GLBs (𝕄 : Modality) : Set a where
       Greatest-lower-bound p (nrᵢ r z₁ s₁) →
       Greatest-lower-bound p′ (nrᵢ r z₂ s₂) →
       ∃ λ q → Greatest-lower-bound q (nrᵢ r (z₁ + z₂) (s₁ + s₂)) × p + p′ ≤ q
-
 
 -- The property of having a natrec-star operator.
 record Has-star (r : Modality) : Set a where

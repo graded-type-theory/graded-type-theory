@@ -7,9 +7,12 @@ open import Graded.Modality
 module Graded.Derived.Unrestricted.Eta.Untyped
   {a} {M : Set a}
   (𝕄 : Modality M)
+  -- It is assumed that the modality has the grade ω
+  ⦃ has-omega : Has-omega _ 𝕄 ⦄
   where
 
 open Modality 𝕄
+open Has-omega has-omega
 
 open import Definition.Untyped M
 

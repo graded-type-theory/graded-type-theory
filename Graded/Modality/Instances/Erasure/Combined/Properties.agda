@@ -207,14 +207,14 @@ opaque mutual
     rfl ⊢Γ
   sub-⊢∷ {p = r} (J {p} {q} hyp₁ hyp₂ hyp₃ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) δ≤γ =
     case J-view p q ⌞ r ⌟ of λ where
-      (is-all ≡all) →
+      (is-all ⦃ (≡all) ⦄) →
         case hyp₃ ≡all of λ {
           (PE.refl , PE.refl , PE.refl , PE.refl) →
         J (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
           (λ ≡some _ _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
           (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           ⊢A ⊢t ⊢B (sub-⊢∷ ⊢u δ≤γ) ⊢v ⊢w }
-      (is-some-yes ≡some (PE.refl , PE.refl)) →
+      (is-some-yes ⦃ (≡some) ⦄ (PE.refl , PE.refl)) →
         case hyp₂ ≡some PE.refl PE.refl of λ {
           (PE.refl , PE.refl , PE.refl , PE.refl) →
         J (λ _ ¬[p≡𝟘×q≡𝟘] →
@@ -223,7 +223,7 @@ opaque mutual
           (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
           ⊢A ⊢t (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl ∙ ≤-refl)) (sub-⊢∷ ⊢u δ≤γ) ⊢v
           ⊢w }
-      (is-other ≤some ¬[p≡𝟘×q≡𝟘]) →
+      (is-other ⦃ (≤some) ⦄ ¬[p≡𝟘×q≡𝟘]) →
         case hyp₁ ≤some ¬[p≡𝟘×q≡𝟘] of λ {
           (PE.refl , PE.refl , PE.refl , PE.refl) →
         J (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
@@ -233,21 +233,21 @@ opaque mutual
           (sub-⊢∷ ⊢u δ≤γ) (sub-⊢∷ ⊢v δ≤γ) (sub-⊢∷ ⊢w δ≤γ) }
   sub-⊢∷ {p = r} (K {p} hyp₁ hyp₂ hyp₃ ok ⊢A ⊢t ⊢B ⊢u ⊢v) δ≤γ =
     case K-view p ⌞ r ⌟ of λ where
-      (is-all ≡all) →
+      (is-all ⦃ (≡all) ⦄) →
         case hyp₃ ≡all of λ {
           (PE.refl , PE.refl , PE.refl , PE.refl) →
         K (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
           (λ ≡some _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
           (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           ok ⊢A ⊢t ⊢B (sub-⊢∷ ⊢u δ≤γ) ⊢v }
-      (is-some-yes ≡some PE.refl) →
+      (is-some-yes ⦃ (≡some) ⦄ PE.refl) →
         case hyp₂ ≡some PE.refl of λ {
           (PE.refl , PE.refl , PE.refl , PE.refl) →
         K (λ _ p≢𝟘 → ⊥-elim (p≢𝟘 ≡some PE.refl))
           (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
           (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
           ok ⊢A ⊢t (sub-⊢ ⊢B (δ≤γ ∙ ≤-refl)) (sub-⊢∷ ⊢u δ≤γ) ⊢v }
-      (is-other ≤some p≢𝟘) →
+      (is-other ⦃ (≤some) ⦄ p≢𝟘) →
         case hyp₁ ≤some p≢𝟘 of λ {
           (PE.refl , PE.refl , PE.refl , PE.refl) →
         K (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
@@ -265,13 +265,13 @@ opaque mutual
     resp ok ⊢Q ⊢t ⊢u ⊢v
   sub-⊢∷ (set ok ⊢Q ⊢t ⊢u ⊢v ⊢w) _ =
     set ok ⊢Q ⊢t ⊢u ⊢v ⊢w
-  sub-⊢∷ (qrec ok₁ ok₂ ok₃ ⊢C ⊢t ⊢u ⊢v ⊢w) δ≤γ
+  sub-⊢∷ (qrec ok₁ ok₂ ok₃ ok₄ ⊢C ⊢t ⊢u ⊢v ⊢w) δ≤γ
     with Qrec-motive-erased?
   … | yes erased =
-    qrec ok₁ ok₂ (⊥-elim ∘→ (_$ erased)) ⊢C
+    qrec ok₁ ok₂ ok₃ (⊥-elim ∘→ (_$ erased)) ⊢C
       (sub-⊢∷ ⊢t (δ≤γ ∙ PE.refl)) ⊢u ⊢v (sub-⊢∷ ⊢w δ≤γ)
-  … | no not-erased with ok₃ not-erased
+  … | no not-erased with ok₄ not-erased
   …   | PE.refl , PE.refl =
-    qrec ok₁ (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
+    qrec ok₁ ok₂ (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
       (sub-⊢ ⊢C (δ≤γ ∙ PE.refl)) (sub-⊢∷ ⊢t (δ≤γ ∙ PE.refl)) ⊢u ⊢v
       (sub-⊢∷ ⊢w δ≤γ)

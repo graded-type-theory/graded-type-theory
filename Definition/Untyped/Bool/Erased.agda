@@ -19,6 +19,8 @@ module Definition.Untyped.Bool.Erased
   (𝐌 : IsMode)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr 𝕄 ⦄
+  -- It is assumed that the modality has the grade ω
+  ⦃ has-omega : Has-omega 𝕄 ⦄
   where
 
 open Modality 𝕄

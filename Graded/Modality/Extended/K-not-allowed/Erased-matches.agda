@@ -39,6 +39,7 @@ open import Graded.Modality.Morphism.Type-restrictions
 open import Graded.Modality.Morphism.Type-restrictions.Examples
 open import Graded.Modality.Morphism.Usage-restrictions
 open import Graded.Modality.Morphism.Usage-restrictions.Examples
+open import Graded.Modality.Omega-instances
 open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Mode.Instances.Zero-one
 open import Graded.Restrictions.Zero-one
@@ -123,6 +124,7 @@ private
 
   TR′ :
     {M : Set} {𝕄 : Modality M} →
+    ⦃ ok : Has-omega M 𝕄 ⦄ →
     Mode-variant 𝕄 →
     Type-restrictions 𝕄
   TR′ v =
@@ -136,6 +138,7 @@ private
 
     Assumptions-TR′ :
       {M : Set} {𝕄 : Modality M} →
+      ⦃ ok : Has-omega M 𝕄 ⦄ →
       (v : Mode-variant 𝕄) →
       Decidable (_≡_ {A = M}) →
       TD.Assumptions (TR′ {𝕄 = 𝕄} v)
@@ -149,6 +152,7 @@ private
   UR′ :
     {M : Set} {𝕄 : Modality M}
     {v : Mode-variant 𝕄} →
+    ⦃ ok : Has-omega M 𝕄 ⦄ →
     Has-nr M 𝕄 →
     Usage-restrictions 𝕄 (Zero-one-isMode v)
   UR′ has-nr =
@@ -162,6 +166,7 @@ private
       {M : Set} {𝕄 : Modality M}
       {v : Mode-variant 𝕄} →
       {has-nr : Has-nr _ 𝕄} →
+      ⦃ ok : Has-omega M 𝕄 ⦄ →
       Decidable (_≡_ {A = M}) →
       UD.Assumptions (UR′ {𝕄 = 𝕄} {v = v} has-nr)
     Assumptions-UR′ {has-nr} =
@@ -183,6 +188,7 @@ Trivial = λ where
     .UA  → Assumptions-UR′ U._≟_
     .NR  → Nr ⦃ U.unit-has-nr ⦄
     .NO-NR-GLB → U.unit-supports-glb-for-nr
+    .HAS-ω → U.unit-has-omega
     .NR₀ → U.nr-linearity-like-for-𝟘
     .NR₁ → U.nr-linearity-like-for-𝟙
     .SUB → U.unit-supports-subtraction
@@ -243,6 +249,7 @@ Erasure = λ where
     .UA      → Assumptions-UR′ E._≟_
     .NR      → Nr ⦃ EM.erasure-has-nr ⦄
     .NO-NR-GLB → EP.Erasure-supports-factoring-nr-rule
+    .HAS-ω → EM.erasure-has-omega
     .NR₀ {z} → EP.nr-linearity-like-for-𝟘 {z = z}
     .NR₁ {z} → EP.nr-linearity-like-for-𝟙 {z = z}
     .SUB     → EP.supports-subtraction
@@ -303,6 +310,7 @@ Affine-types = λ where
     .UA          → Assumptions-UR′ A._≟_
     .NR          → Nr ⦃ A.zero-one-many-has-nr ⦄
     .NO-NR-GLB   → A.zero-one-many-supports-glb-for-natrec
+    .HAS-ω       → A.zero-one-many-has-omega
     .NR₀ {p}     → A.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {z} → A.nr-linearity-like-for-𝟙 {p = p} {z = z}
     .SUB         → A.supports-subtraction
@@ -374,6 +382,7 @@ Linearity = λ where
     .UA          → Assumptions-UR′ L._≟_
     .NR          → Nr ⦃ L.zero-one-many-has-nr ⦄
     .NO-NR-GLB   → L.zero-one-many-supports-glb-for-natrec
+    .HAS-ω       → L.zero-one-many-has-omega
     .NR₀ {p}     → L.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {z} → L.nr-linearity-like-for-𝟙 {p = p} {z = z}
     .SUB         → L.supports-subtraction
@@ -449,6 +458,7 @@ Linear-or-affine-types = λ where
     .UA          → Assumptions-UR′ LA._≟_
     .NR          → Nr ⦃ LA.linear-or-affine-has-nr ⦄
     .NO-NR-GLB   → LA.linear-or-affine-supports-glb-for-natrec
+    .HAS-ω       → LA.linear-or-affine-has-omega
     .NR₀ {p}     → LA.nr-linearity-like-for-𝟘 {p = p}
     .NR₁ {p} {s} → LA.nr-linearity-like-for-𝟙 {p = p} {s = s}
     .SUB {r}     → LA.supports-subtraction {r = r}
@@ -600,7 +610,7 @@ Trivial⇨Erasure = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-not-all-erased-matches-JK unit⇨erasure-omega-preserving $
       Are-preserving-usage-restrictions-no-quotient-terms $
         Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -615,7 +625,7 @@ Trivial⇨Erasure = λ where
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-not-all-erased-matches-JK unit⇨erasure-omega-preserving $
       Are-reflecting-usage-restrictions-no-quotient-terms′
         (λ ()) (λ _ → inj₂ refl) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -667,7 +677,6 @@ Erasure⇨Affine-types = λ where
     is-Σ-order-embedding : Is-Σ-order-embedding E₁.𝕄 E₂.𝕄 tr tr
     is-Σ-order-embedding =
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
-
     are-preserving-type-restrictions :
       Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr
     are-preserving-type-restrictions =
@@ -713,7 +722,7 @@ Erasure⇨Affine-types = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-not-all-erased-matches-JK erasure⇨zero-one-many-omega-preserving $
       Are-preserving-usage-restrictions-no-quotient-terms $
       Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -728,7 +737,7 @@ Erasure⇨Affine-types = λ where
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-not-all-erased-matches-JK erasure⇨zero-one-many-omega-preserving $
       Are-reflecting-usage-restrictions-no-quotient-terms′
         _ (λ _ → inj₁ _) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -826,7 +835,7 @@ Erasure⇨Linearity = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-not-all-erased-matches-JK erasure⇨zero-one-many-omega-preserving $
       Are-preserving-usage-restrictions-no-quotient-terms $
       Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -841,7 +850,7 @@ Erasure⇨Linearity = λ where
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-not-all-erased-matches-JK erasure⇨zero-one-many-omega-preserving $
       Are-reflecting-usage-restrictions-no-quotient-terms′
         _ (λ _ → inj₁ _) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -915,6 +924,7 @@ Affine-types⇨Linear-or-affine-types = λ where
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
         (λ _ ()) (λ _ → refl)
 
+
     are-reflecting-type-restrictions :
       Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr
     are-reflecting-type-restrictions =
@@ -940,7 +950,7 @@ Affine-types⇨Linear-or-affine-types = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-not-all-erased-matches-JK affine⇨linear-or-affine-omega-preserving $
       Are-preserving-usage-restrictions-no-quotient-terms $
       Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -955,7 +965,7 @@ Affine-types⇨Linear-or-affine-types = λ where
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-not-all-erased-matches-JK affine⇨linear-or-affine-omega-preserving $
       Are-reflecting-usage-restrictions-no-quotient-terms′
         _ (λ _ → inj₁ _) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -1054,7 +1064,7 @@ Linearity⇨Linear-or-affine-types = λ where
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
     are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-not-all-erased-matches-JK $
+      Are-preserving-usage-restrictions-not-all-erased-matches-JK linearity⇨linear-or-affine-omega-preserving $
       Are-preserving-usage-restrictions-no-quotient-terms $
       Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -1069,7 +1079,7 @@ Linearity⇨Linear-or-affine-types = λ where
     are-reflecting-usage-restrictions :
       Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
     are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-not-all-erased-matches-JK $
+      Are-reflecting-usage-restrictions-not-all-erased-matches-JK linearity⇨linear-or-affine-omega-preserving $
       Are-reflecting-usage-restrictions-no-quotient-terms′
         _ (λ _ → inj₁ _) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →

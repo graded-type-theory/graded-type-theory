@@ -22,6 +22,7 @@ open Usage-restrictions R
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Usage R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Natrec 𝕄
@@ -171,7 +172,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
   rflᵤ :
     Usage-restrictions-satisfied m rfl
   Jᵤ :
-    erased-matches-for-J m ≤ᵉᵐ some →
+    ⦃ ok : erased-matches-for-J m ≤ᵉᵐ some ⦄ →
     (erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘)) →
     Usage-restrictions-satisfied 𝟘ᵐ A →
     Usage-restrictions-satisfied m t →
@@ -181,7 +182,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied m w →
     Usage-restrictions-satisfied m (J p q A t B u v w)
   J₀ᵤ₁ :
-    erased-matches-for-J m ≡ some →
+    ⦃ ok : erased-matches-for-J m ≡ some ⦄ →
     p ≡ 𝟘 →
     q ≡ 𝟘 →
     Usage-restrictions-satisfied 𝟘ᵐ A →
@@ -192,7 +193,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied 𝟘ᵐ w →
     Usage-restrictions-satisfied m (J p q A t B u v w)
   J₀ᵤ₂ :
-    erased-matches-for-J m ≡ all →
+    ⦃ ok : erased-matches-for-J m ≡ all ⦄ →
     Usage-restrictions-satisfied 𝟘ᵐ A →
     Usage-restrictions-satisfied 𝟘ᵐ t →
     Usage-restrictions-satisfied 𝟘ᵐ B →
@@ -201,7 +202,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied 𝟘ᵐ w →
     Usage-restrictions-satisfied m (J p q A t B u v w)
   Kᵤ :
-    erased-matches-for-K m ≤ᵉᵐ some →
+    ⦃ ok : erased-matches-for-K m ≤ᵉᵐ some ⦄ →
     (erased-matches-for-K m ≡ some → p ≢ 𝟘) →
     Usage-restrictions-satisfied 𝟘ᵐ A →
     Usage-restrictions-satisfied m t →
@@ -210,7 +211,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied m v →
     Usage-restrictions-satisfied m (K p A t B u v)
   K₀ᵤ₁ :
-    erased-matches-for-K m ≡ some →
+    ⦃ ok : erased-matches-for-K m ≡ some ⦄ →
     p ≡ 𝟘 →
     Usage-restrictions-satisfied 𝟘ᵐ A →
     Usage-restrictions-satisfied 𝟘ᵐ t →
@@ -219,7 +220,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied 𝟘ᵐ v →
     Usage-restrictions-satisfied m (K p A t B u v)
   K₀ᵤ₂ :
-    erased-matches-for-K m ≡ all →
+    ⦃ ok : erased-matches-for-K m ≡ all ⦄ →
     Usage-restrictions-satisfied 𝟘ᵐ A →
     Usage-restrictions-satisfied 𝟘ᵐ t →
     Usage-restrictions-satisfied 𝟘ᵐ B →
@@ -263,6 +264,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     m ≡ 𝟘ᵐ →
     Usage-restrictions-satisfied m (set A B t u v w)
   qrec₀ :
+    ⦃ ok : Usage-allows-omega ⦄ →
     Quotient-terms-allowed →
     Qrec-motive-erased →
     Usage-restrictions-satisfied 𝟘ᵐ C →
@@ -272,6 +274,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied m w →
     Usage-restrictions-satisfied m (qrec C t u v w)
   qrec₁ :
+    ⦃ ok : Usage-allows-omega ⦄ →
     Quotient-terms-allowed →
     ¬ Qrec-motive-erased →
     Usage-restrictions-satisfied m C →
@@ -318,14 +321,14 @@ opaque mutual
     Usage-restrictions-satisfied m (J p q A t B u v w)
   Jᵤ-generalised {m} {p} {q} A t B u v w
     with J-view p q m
-  … | is-other ≤some ≢𝟘 =
-    Jᵤ ≤some ≢𝟘 A t B u v w
-  … | is-some-yes ≡some (refl , refl) =
-    J₀ᵤ₁ ≡some refl refl A (Usage-restrictions-satisfied-→𝟘ᵐ t)
+  … | is-other ≢𝟘 =
+    Jᵤ ≢𝟘 A t B u v w
+  … | is-some-yes (refl , refl) =
+    J₀ᵤ₁ refl refl A (Usage-restrictions-satisfied-→𝟘ᵐ t)
       B u (Usage-restrictions-satisfied-→𝟘ᵐ v)
       (Usage-restrictions-satisfied-→𝟘ᵐ w)
-  … | is-all ≡all =
-    J₀ᵤ₂ ≡all A (Usage-restrictions-satisfied-→𝟘ᵐ t)
+  … | is-all =
+    J₀ᵤ₂ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
       (Usage-restrictions-satisfied-→𝟘ᵐ B) u
       (Usage-restrictions-satisfied-→𝟘ᵐ v)
       (Usage-restrictions-satisfied-→𝟘ᵐ w)
@@ -347,9 +350,9 @@ opaque mutual
     with erased-matches-for-J m in ok
   … | none = case ≡not-none of λ ()
   … | some =
-    J₀ᵤ₁ ok refl refl A t B u v w
+    J₀ᵤ₁ ⦃ ok = ok ⦄ refl refl A t B u v w
   … | all =
-    J₀ᵤ₂ ok A (Usage-restrictions-satisfied-→𝟘ᵐ t)
+    J₀ᵤ₂ ⦃ ok = ok ⦄ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
       (Usage-restrictions-satisfied-→𝟘ᵐ B) u
       (Usage-restrictions-satisfied-→𝟘ᵐ v)
       (Usage-restrictions-satisfied-→𝟘ᵐ w)
@@ -366,13 +369,13 @@ opaque mutual
     Usage-restrictions-satisfied m v →
     Usage-restrictions-satisfied m (K p A t B u v)
   Kᵤ-generalised {m} {p} A t B u v with K-view p m
-  … | is-other ≤some ≢𝟘 =
-    Kᵤ ≤some ≢𝟘 A t B u v
-  … | is-some-yes ≡some refl =
-    K₀ᵤ₁ ≡some refl A (Usage-restrictions-satisfied-→𝟘ᵐ t) B u
+  … | is-other ≢𝟘 =
+    Kᵤ ≢𝟘 A t B u v
+  … | is-some-yes refl =
+    K₀ᵤ₁ refl A (Usage-restrictions-satisfied-→𝟘ᵐ t) B u
       (Usage-restrictions-satisfied-→𝟘ᵐ v)
-  … | is-all ≡all =
-    K₀ᵤ₂ ≡all A (Usage-restrictions-satisfied-→𝟘ᵐ t)
+  … | is-all =
+    K₀ᵤ₂ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
       (Usage-restrictions-satisfied-→𝟘ᵐ B) u
       (Usage-restrictions-satisfied-→𝟘ᵐ v)
 
@@ -392,9 +395,9 @@ opaque mutual
   … | none =
     case hyp of λ ()
   … | some =
-    K₀ᵤ₁ ok refl A t B u v
+    K₀ᵤ₁ ⦃ ok = ok ⦄ refl A t B u v
   … | all =
-    K₀ᵤ₂ ok A (Usage-restrictions-satisfied-→𝟘ᵐ t)
+    K₀ᵤ₂ ⦃ ok = ok ⦄ A (Usage-restrictions-satisfied-→𝟘ᵐ t)
       (Usage-restrictions-satisfied-→𝟘ᵐ B) u
       (Usage-restrictions-satisfied-→𝟘ᵐ v)
 
@@ -476,13 +479,13 @@ opaque mutual
     (Id₀ᵤ ok A t u) →
       Id₀ᵤ ok A t u
     rflᵤ → rflᵤ
-    (Jᵤ _ _ A t B u v w) →
+    (Jᵤ _ A t B u v w) →
       Jᵤ-generalised A (Usage-restrictions-satisfied-≤ᵐ m≤m′ t)
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ B)
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ u)
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ v)
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ w)
-    (J₀ᵤ₁ ≡some p≡𝟘 q≡𝟘 A t B u v w) →
+    (J₀ᵤ₁ ⦃ ok = ≡some ⦄ p≡𝟘 q≡𝟘 A t B u v w) →
       case singleton $ erased-matches-for-J m′ of λ where
         (not-none _ , ≡not-none) →
           J₀ᵤ₁-generalised ≡not-none p≡𝟘 q≡𝟘 A t
@@ -495,16 +498,16 @@ opaque mutual
             trans (sym ≡some)
               (≤ᵉᵐ→≡none→≡none (erased-matches-for-J-≤ᵉᵐ m≤m′) ≡none)
           of λ ()
-    (J₀ᵤ₂ ≡all A t B u v w) →
-      J₀ᵤ₂ (subst (λ x → erased-matches-for-J x ≡ all) (sym m≤m′)
-             (erased-matches-for-J-all·ᵐ ≡all))
+    (J₀ᵤ₂ ⦃ ok = ≡all ⦄ A t B u v w) →
+      J₀ᵤ₂ ⦃ ok = subst (λ x → erased-matches-for-J x ≡ all) (sym m≤m′)
+             (erased-matches-for-J-all·ᵐ ≡all) ⦄
         A t B (Usage-restrictions-satisfied-≤ᵐ m≤m′ u) v w
-    (Kᵤ _ _ A t B u v) →
+    (Kᵤ _ A t B u v) →
       Kᵤ-generalised A (Usage-restrictions-satisfied-≤ᵐ m≤m′ t)
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ B)
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ u)
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ v)
-    (K₀ᵤ₁ ≡some p≡𝟘 A t B u v) →
+    (K₀ᵤ₁ ⦃ ok = ≡some ⦄ p≡𝟘 A t B u v) →
       case singleton $ erased-matches-for-K m′ of λ where
         (not-none _ , ≡not-none) →
           K₀ᵤ₁-generalised ≡not-none p≡𝟘 A
@@ -517,8 +520,8 @@ opaque mutual
             trans (sym ≡some)
               (≤ᵉᵐ→≡none→≡none (erased-matches-for-K-≤ᵉᵐ m≤m′) ≡none)
           of λ ()
-    (K₀ᵤ₂ ≡all A t B u v) →
-      K₀ᵤ₂ (≤ᵉᵐ→≡all→≡all (erased-matches-for-K-≤ᵉᵐ m≤m′) ≡all) A t B
+    (K₀ᵤ₂ ⦃ ok = ≡all ⦄ A t B u v) →
+      K₀ᵤ₂ ⦃ ok = ≤ᵉᵐ→≡all→≡all (erased-matches-for-K-≤ᵉᵐ m≤m′) ≡all ⦄ A t B
         (Usage-restrictions-satisfied-≤ᵐ m≤m′ u) v
     ([]-congᵤ ok l A t u v) →
       []-congᵤ ([]-cong-allowed-mode-upwards-closed ok m≤m′) l A t u v
@@ -671,41 +674,41 @@ opaque
         (▸→Usage-restrictions-satisfied ▸u)
     rflₘ →
       rflᵤ
-    (Jₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w) →
-      Jᵤ ok₁ ok₂ (▸→Usage-restrictions-satisfied ▸A)
+    (Jₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) →
+      Jᵤ ok (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸B)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
         (▸→Usage-restrictions-satisfied ▸w)
-    (J₀ₘ₁ ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) →
-      J₀ᵤ₁ ok p≡𝟘 q≡𝟘 (▸→Usage-restrictions-satisfied ▸A)
+    (J₀ₘ₁ p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) →
+      J₀ᵤ₁ p≡𝟘 q≡𝟘 (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸B)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
         (▸→Usage-restrictions-satisfied ▸w)
-    (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v ▸w) →
-      J₀ᵤ₂ ok (▸→Usage-restrictions-satisfied ▸A)
+    (J₀ₘ₂ ▸A ▸t ▸B ▸u ▸v ▸w) →
+      J₀ᵤ₂ (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸B)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
         (▸→Usage-restrictions-satisfied ▸w)
-    (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) →
-      Kᵤ ok₁ ok₂ (▸→Usage-restrictions-satisfied ▸A)
+    (Kₘ ok ▸A ▸t ▸B ▸u ▸v) →
+      Kᵤ ok (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸B)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
-    (K₀ₘ₁ ok p≡𝟘 ▸A ▸t ▸B ▸u ▸v) →
-      K₀ᵤ₁ ok p≡𝟘 (▸→Usage-restrictions-satisfied ▸A)
+    (K₀ₘ₁ p≡𝟘 ▸A ▸t ▸B ▸u ▸v) →
+      K₀ᵤ₁ p≡𝟘 (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸B)
         (▸→Usage-restrictions-satisfied ▸u)
         (▸→Usage-restrictions-satisfied ▸v)
-    (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) →
-      K₀ᵤ₂ ok (▸→Usage-restrictions-satisfied ▸A)
+    (K₀ₘ₂ ▸A ▸t ▸B ▸u ▸v) →
+      K₀ᵤ₂ (▸→Usage-restrictions-satisfied ▸A)
         (▸→Usage-restrictions-satisfied ▸t)
         (▸→Usage-restrictions-satisfied ▸B)
         (▸→Usage-restrictions-satisfied ▸u)
@@ -893,8 +896,8 @@ opaque
           (lemma A-ok)
           (lemma t-ok)
           (lemma u-ok)
-      (Jᵤ {p} {q} ok₁ ok₂ A-ok t-ok B-ok u-ok v-ok w-ok) → sub
-        (Jₘ ok₁ ok₂
+      (Jᵤ {p} {q} ok A-ok t-ok B-ok u-ok v-ok w-ok) → sub
+        (Jₘ ok
            (lemma A-ok)
            (lemma t-ok)
            (sub (lemma B-ok) $ begin
@@ -906,14 +909,14 @@ opaque
         (begin
            𝟘ᶜ                                 ≈˘⟨ ω·ᶜ+ᶜ⁵𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
-      (J₀ᵤ₁ ok p≡𝟘 q≡𝟘 A-ok t-ok B-ok u-ok v-ok w-ok) → sub
-        (J₀ₘ₁ ok p≡𝟘 q≡𝟘 (lemma A-ok) (lemma t-ok) (lemma B-ok)
+      (J₀ᵤ₁ p≡𝟘 q≡𝟘 A-ok t-ok B-ok u-ok v-ok w-ok) → sub
+        (J₀ₘ₁ p≡𝟘 q≡𝟘 (lemma A-ok) (lemma t-ok) (lemma B-ok)
            (lemma u-ok) (lemma v-ok) (lemma w-ok))
         (begin
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
-      (J₀ᵤ₂ {p} {q} ok A-ok t-ok B-ok u-ok v-ok w-ok) →
-        J₀ₘ₂ ok
+      (J₀ᵤ₂ {p} {q} A-ok t-ok B-ok u-ok v-ok w-ok) →
+        J₀ₘ₂
           (lemma A-ok)
           (lemma t-ok)
           (sub (lemma B-ok) $ begin
@@ -922,8 +925,8 @@ opaque
           (lemma u-ok)
           (lemma v-ok)
           (lemma w-ok)
-      (Kᵤ {p} ok₁ ok₂ A-ok t-ok B-ok u-ok v-ok) → sub
-        (Kₘ ok₁ ok₂
+      (Kᵤ {p} ok A-ok t-ok B-ok u-ok v-ok) → sub
+        (Kₘ ok
            (lemma A-ok)
            (lemma t-ok)
            (sub (lemma B-ok) $ begin
@@ -934,14 +937,14 @@ opaque
         (begin
            𝟘ᶜ                           ≈˘⟨ ω·ᶜ+ᶜ⁴𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
-      (K₀ᵤ₁ ok p≡𝟘 A-ok t-ok B-ok u-ok v-ok) → sub
-        (K₀ₘ₁ ok p≡𝟘 (lemma A-ok) (lemma t-ok) (lemma B-ok)
+      (K₀ᵤ₁ p≡𝟘 A-ok t-ok B-ok u-ok v-ok) → sub
+        (K₀ₘ₁ p≡𝟘 (lemma A-ok) (lemma t-ok) (lemma B-ok)
            (lemma u-ok) (lemma v-ok))
         (begin
            𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
            ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
-      (K₀ᵤ₂ {p} ok A-ok t-ok B-ok u-ok v-ok) →
-        K₀ₘ₂ ok
+      (K₀ᵤ₂ {p} A-ok t-ok B-ok u-ok v-ok) →
+        K₀ₘ₂
           (lemma A-ok)
           (lemma t-ok)
           (sub (lemma B-ok) $ begin
@@ -1073,8 +1076,9 @@ opaque
     (∀ p → []-cong-allowed-mode p 𝟘ᵐ) →
     Quotient-terms-allowed →
     Higher-quotient-constructors-allowed →
+    Usage-allows-omega →
     Usage-restrictions-satisfied 𝟘ᵐ t
-  Usage-restrictions-satisfied-𝟘ᵐ glb er ur pr bc qt qc = lemma _
+  Usage-restrictions-satisfied-𝟘ᵐ glb er ur pr bc qt qc ω-ok = lemma _
     where
     mutual
 
@@ -1165,9 +1169,9 @@ opaque
           (lemma _) refl
       lemma (qrec _ _ _ _ _) with Qrec-motive-erased?
       … | yes ok =
-        qrec₀ qt ok (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
+        qrec₀ ⦃ ω-ok ⦄ qt ok (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
       … | no ok =
-        qrec₁ qt ok (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
+        qrec₁ ⦃ ω-ok ⦄ qt ok (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
 
 ------------------------------------------------------------------------
 -- Lemmas that apply if the modality is trivial
@@ -1238,34 +1242,34 @@ opaque
         sub
           (Id₀ₘ erased (lemma₀ A-ok) (lemma₀ t-ok) (lemma₀ u-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (Jᵤ ok₁ ok₂ A-ok t-ok B-ok u-ok v-ok w-ok) →
+      (Jᵤ ok A-ok t-ok B-ok u-ok v-ok w-ok) →
         sub
-          (Jₘ {γ₃ = 𝟘ᶜ} ok₁ ok₂ (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
+          (Jₘ {γ₃ = 𝟘ᶜ} ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
              (lemma₀ u-ok) (lemma₀ v-ok) (lemma₀ w-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (J₀ᵤ₁ ok p≡𝟘 q≡𝟘 A-ok t-ok B-ok u-ok v-ok w-ok) →
+      (J₀ᵤ₁ p≡𝟘 q≡𝟘 A-ok t-ok B-ok u-ok v-ok w-ok) →
         sub
-          (J₀ₘ₁ {γ₃ = 𝟘ᶜ} ok p≡𝟘 q≡𝟘 (lemma₀ A-ok) (lemma₀ t-ok)
+          (J₀ₘ₁ {γ₃ = 𝟘ᶜ} p≡𝟘 q≡𝟘 (lemma₀ A-ok) (lemma₀ t-ok)
              (lemma B-ok) (lemma₀ u-ok) (lemma₀ v-ok) (lemma₀ w-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (J₀ᵤ₂ ok A-ok t-ok B-ok u-ok v-ok w-ok) →
+      (J₀ᵤ₂ A-ok t-ok B-ok u-ok v-ok w-ok) →
         sub
-          (J₀ₘ₂ {γ₃ = 𝟘ᶜ} ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
+          (J₀ₘ₂ {γ₃ = 𝟘ᶜ} (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
              (lemma₀ u-ok) (lemma₀ v-ok) (lemma₀ w-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (Kᵤ ok₁ ok₂ A-ok t-ok B-ok u-ok v-ok) →
+      (Kᵤ ok A-ok t-ok B-ok u-ok v-ok) →
         sub
-          (Kₘ {γ₃ = 𝟘ᶜ} ok₁ ok₂ (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
+          (Kₘ {γ₃ = 𝟘ᶜ} ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
              (lemma₀ u-ok) (lemma₀ v-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (K₀ᵤ₁ ok p≡𝟘 A-ok t-ok B-ok u-ok v-ok) →
+      (K₀ᵤ₁ p≡𝟘 A-ok t-ok B-ok u-ok v-ok) →
         sub
-          (K₀ₘ₁ {γ₃ = 𝟘ᶜ} ok p≡𝟘 (lemma₀ A-ok) (lemma₀ t-ok)
+          (K₀ₘ₁ {γ₃ = 𝟘ᶜ} p≡𝟘 (lemma₀ A-ok) (lemma₀ t-ok)
              (lemma B-ok) (lemma₀ u-ok) (lemma₀ v-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
-      (K₀ᵤ₂ ok A-ok t-ok B-ok u-ok v-ok) →
+      (K₀ᵤ₂ A-ok t-ok B-ok u-ok v-ok) →
         sub
-          (K₀ₘ₂ {γ₃ = 𝟘ᶜ} ok (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
+          (K₀ₘ₂ {γ₃ = 𝟘ᶜ} (lemma₀ A-ok) (lemma₀ t-ok) (lemma B-ok)
              (lemma₀ u-ok) (lemma₀ v-ok))
           (≈ᶜ-trivial 𝟙≡𝟘)
       ([]-congᵤ ok l-ok A-ok t-ok u-ok v-ok) →

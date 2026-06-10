@@ -39,10 +39,12 @@ open import Graded.Derived.Identity UR
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.Target as T
 open import Graded.Modality.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties UR
 open import Graded.Usage.Properties.Zero-one variant UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Weakening UR
 
 open import Tools.Bool using (Bool; T)
@@ -113,6 +115,7 @@ opaque
   -- A usage rule for []-cong-J.
 
   ▸[]-cong-J :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     erased-matches-for-J m PE.≡ not-none sem →
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] l →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] A →
@@ -152,6 +155,7 @@ opaque
   -- Another usage rule for []-cong-J.
 
   ▸[]-cong-J-𝟘ᵐ :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] l →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] A →
     γ₃ ▸[ 𝟘ᵐ[ ok ] ] t →
@@ -187,6 +191,7 @@ opaque
   -- trivial.
 
   ▸[]-cong-J-trivial :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     Trivial →
     γ₁ ▸[ 𝟘ᵐ? ] l →
     γ₂ ▸[ 𝟘ᵐ? ] A →
