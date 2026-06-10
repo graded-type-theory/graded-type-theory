@@ -51,7 +51,7 @@ open import Tools.Bool
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
-open import Tools.Nat
+open import Tools.Nat as N
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PropositionalEquality
@@ -70,7 +70,7 @@ private
 
 private variable
   b                 : Bool
-  α n n′ n₁ n₂      : Nat
+  α n n′ n₁ n₂ o    : Nat
   x                 : Fin _
   ∇ ∇₁ ∇₂           : DCon _ _
   φ φ₁ φ₂           : Unfolding _
@@ -593,11 +593,11 @@ opaque
     (star _) →
       PE.refl
     (unitrec _ _ A t u) →
-      PE.cong₃ (unitrec _ _) (tr-[⇑] A) (tr-[] t) (tr-[] u)
+      PE.cong₃ (unitrec _ _) (tr-[⇑] 1 A) (tr-[] t) (tr-[] u)
     (ΠΣ⟨ _ ⟩ _ , _ ▷ A ▹ B) →
-      PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (tr-[] A) (tr-[⇑] B)
+      PE.cong₂ (ΠΣ⟨ _ ⟩ _ , _ ▷_▹_) (tr-[] A) (tr-[⇑] 1 B)
     (lam _ t) →
-      PE.cong (lam _) (tr-[⇑] t)
+      PE.cong (lam _) (tr-[⇑] 1 t)
     (t ∘⟨ _ ⟩ u) →
       PE.cong₂ (_∘⟨ _ ⟩_) (tr-[] t) (tr-[] u)
     (prod _ _ t u) →
@@ -607,8 +607,8 @@ opaque
     (snd _ t) →
       PE.cong (snd _) (tr-[] t)
     (prodrec _ _ _ A t u) →
-      PE.cong₃ (prodrec _ _ _) (tr-[⇑] A) (tr-[] t)
-        (tr-[⇑²] u)
+      PE.cong₃ (prodrec _ _ _) (tr-[⇑] 1 A) (tr-[] t)
+        (tr-[⇑] 2 u)
     ℕ →
       PE.refl
     zero →
@@ -616,8 +616,8 @@ opaque
     (suc t) →
       PE.cong suc (tr-[] t)
     (natrec _ _ _ A t u v) →
-      PE.cong₄ (natrec _ _ _) (tr-[⇑] A) (tr-[] t)
-        (tr-[⇑²] u) (tr-[] v)
+      PE.cong₄ (natrec _ _ _) (tr-[⇑] 1 A) (tr-[] t)
+        (tr-[⇑] 2 u) (tr-[] v)
     (Id A t u) →
       PE.cong₃ Id (tr-[] A) (tr-[] t) (tr-[] u)
     rfl →
@@ -625,7 +625,7 @@ opaque
     (J p q A t B u v w) →
       let open Tools.Reasoning.PropositionalEquality in
       J′ p q (tr (A [ σ ])) (tr (t [ σ ])) (tr (B [ σ ⇑[ 2 ] ]))
-        (tr (u [ σ ])) (tr (v [ σ ])) (tr (w [ σ ]))                ≡⟨ PE.cong₆ (J′ _ _) (tr-[] A) (tr-[] t) (tr-[⇑²] B)
+        (tr (u [ σ ])) (tr (v [ σ ])) (tr (w [ σ ]))                ≡⟨ PE.cong₆ (J′ _ _) (tr-[] A) (tr-[] t) (tr-[⇑] 2 B)
                                                                          (tr-[] u) (tr-[] v) (tr-[] w) ⟩
       J′ p q (tr A [ tr ∘→ σ ]) (tr t [ tr ∘→ σ ])
         (tr B [ (tr ∘→ σ) ⇑[ 2 ] ]) (tr u [ tr ∘→ σ ])
@@ -633,7 +633,7 @@ opaque
 
       J′ p q (tr A) (tr t) (tr B) (tr u) (tr v) (tr w) [ tr ∘→ σ ]  ∎
     (K _ A t B u v) →
-      PE.cong₅ (K _) (tr-[] A) (tr-[] t) (tr-[⇑] B)
+      PE.cong₅ (K _) (tr-[] A) (tr-[] t) (tr-[⇑] 1 B)
         (tr-[] u) (tr-[] v)
     ([]-cong s l A t u v) →
       let open Tools.Reasoning.PropositionalEquality in
@@ -648,36 +648,23 @@ opaque
   -- A variant of tr-[].
 
   tr-[⇑] :
-    (t : Term[ k ] (1+ n)) → tr (t [ σ ⇑ ]) PE.≡ tr t [ (tr ∘→ σ) ⇑ ]
-  tr-[⇑] {σ} t =
-    tr (t [ σ ⇑ ])        ≡⟨ tr-[] t ⟩
-    tr t [ tr ∘→ σ ⇑ ]    ≡⟨ (flip substVar-to-subst (tr t) λ where
-                                x0     → PE.refl
-                                (x +1) → tr-wk (σ x)) ⟩
-    tr t [ (tr ∘→ σ) ⇑ ]  ∎
+    ∀ m (t : Term[ k ] (m N.+ n)) →
+    tr (t [ σ ⇑[ m ] ]) PE.≡ tr t [ (tr ∘→ σ) ⇑[ m ] ]
+  tr-[⇑] {n} {σ} m t =
+    tr (t [ σ ⇑[ m ] ])        ≡⟨ tr-[] t ⟩
+    tr t [ tr ∘→ σ ⇑[ m ] ]    ≡⟨ substVar-to-subst (lemma _) (tr t) ⟩
+    tr t [ (tr ∘→ σ) ⇑[ m ] ]  ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
-  -- A variant of tr-[].
-
-  tr-[⇑²] :
-    (t : Term[ k ] (2+ n)) →
-    tr (t [ σ ⇑[ 2 ] ]) PE.≡ tr t [ (tr ∘→ σ) ⇑[ 2 ] ]
-  tr-[⇑²] {σ} t =
-    tr (t [ σ ⇑[ 2 ] ])        ≡⟨ tr-[] t ⟩
-
-    tr t [ tr ∘→ σ ⇑[ 2 ] ]    ≡⟨ (flip substVar-to-subst (tr t) λ {
-                                     x0        → PE.refl;
-                                     (x0 +1)   → PE.refl;
-                                     (x +1 +1) →
-      tr (wk[ 2 ] (σ x))               ≡⟨ PE.cong tr $ wk[]≡wk[]′ {t = σ _} ⟩
-      tr (wk[ 2 ]′ (σ x))              ≡⟨ tr-wk (σ x) ⟩
-      wk[ 2 ]′ (tr (σ x))              ≡˘⟨ wk[]≡wk[]′ ⟩
-      wk[ 2 ] (tr (σ x))               ∎ }) ⟩
-
-    tr t [ (tr ∘→ σ) ⇑[ 2 ] ]  ∎
-    where
-    open Tools.Reasoning.PropositionalEquality
+    lemma :
+      ∀ m (x : Fin (m N.+ n)) → tr ((σ ⇑[ m ]) x) PE.≡ ((tr ∘→ σ) ⇑[ m ]) x
+    lemma 0      _      = PE.refl
+    lemma (1+ m) x0     = PE.refl
+    lemma (1+ m) (x +1) =
+      tr (wk1 ((σ ⇑[ m ]) x))     ≡⟨ tr-wk ((σ ⇑[ _ ]) _) ⟩
+      wk1 (tr ((σ ⇑[ m ]) x))     ≡⟨ PE.cong wk1 (lemma m x) ⟩
+      wk1 (((tr ∘→ σ) ⇑[ m ]) x)  ∎
 
 opaque
   unfolding tr
@@ -718,16 +705,26 @@ opaque
 
   -- A variant of tr-[].
 
-  tr-[]↑² :
-    (t : Term[ k ] (1+ n)) → tr (t [ u ]↑²) PE.≡ tr t [ tr u ]↑²
-  tr-[]↑² {u} t =
-    tr (t [ consSubst (wkSubst 2 idSubst) u ])      ≡⟨ tr-[] t ⟩
-    tr t [ tr ∘→ consSubst (wkSubst 2 idSubst) u ]  ≡⟨ (flip substVar-to-subst (tr t) λ where
+  tr-[]↑ :
+    (t : Term[ k ] (1+ n)) →
+    tr (t [ o ][ u ]↑) PE.≡ tr t [ o ][ tr u ]↑
+  tr-[]↑ {o} {u} t =
+    tr (t [ consSubst (wkSubst o idSubst) u ])      ≡⟨ tr-[] t ⟩
+    tr t [ tr ∘→ consSubst (wkSubst o idSubst) u ]  ≡⟨ (flip substVar-to-subst (tr t) λ where
                                                           x0     → PE.refl
-                                                          (_ +1) → PE.refl) ⟩
-    tr t [ consSubst (wkSubst 2 idSubst) (tr u) ]   ∎
+                                                          (x +1) → lemma _ x) ⟩
+    tr t [ consSubst (wkSubst o idSubst) (tr u) ]   ∎
     where
     open Tools.Reasoning.PropositionalEquality
+
+    lemma :
+      ∀ m (x : Fin n) →
+      tr (wkSubst m idSubst x) PE.≡ wkSubst m idSubst x
+    lemma 0      _ = PE.refl
+    lemma (1+ m) x =
+      tr (wk1 (wkSubst m idSubst x))  ≡⟨ tr-wk (wkSubst m _ _) ⟩
+      wk1 (tr (wkSubst m idSubst x))  ≡⟨ PE.cong wk1 (lemma m x) ⟩
+      wk1 (wkSubst m idSubst x)       ∎
 
 ------------------------------------------------------------------------
 -- The translation is usage-preserving
@@ -1055,7 +1052,7 @@ opaque
     (Tₛ.prodrecⱼ {A = C} ⊢C ⊢t ⊢u) →
       PE.subst (Tₜ._⊢_∷_ _ _) (PE.sym $ tr-[]₀ C) $
       Tₜ.prodrecⱼ (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
-        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
+        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ C) $
          tr-⊢∷ ⊢u)
     (Tₛ.ℕⱼ ⊢Γ) →
       Tₜ.ℕⱼ (tr-⊢′ ⊢Γ)
@@ -1068,7 +1065,7 @@ opaque
       Tₜ.natrecⱼ
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
          tr-⊢∷ ⊢t)
-        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² A) $
+        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ A) $
          tr-⊢∷ ⊢u)
         (tr-⊢∷ ⊢v)
     (Tₛ.Idⱼ ⊢A ⊢t ⊢u) →
@@ -1233,7 +1230,7 @@ opaque
     (Tₛ.prodrec-cong {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂) →
       PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (PE.sym $ tr-[]₀ C₁) $
       Tₜ.prodrec-cong (tr-⊢≡ C₁≡C₂) (tr-⊢≡∷ t₁≡t₂)
-        (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]↑² C₁) $
+        (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]↑ C₁) $
          tr-⊢≡∷ u₁≡u₂)
     (Tₛ.prodrec-β {G = B} {A = C} {u} ⊢C ⊢t ⊢u ⊢v eq) →
       PE.subst₂ (Tₜ._⊢_≡_∷_ _ _)
@@ -1241,7 +1238,7 @@ opaque
       Tₜ.prodrec-β (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
          tr-⊢∷ ⊢u)
-        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
+        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ C) $
          tr-⊢∷ ⊢v)
         eq
     (Tₛ.suc-cong t₁≡t₂) →
@@ -1251,7 +1248,7 @@ opaque
       Tₜ.natrec-cong (tr-⊢≡ A₁≡A₂)
         (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]₀ A₁) $
          tr-⊢≡∷ t₁≡t₂)
-        (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]↑² A₁) $
+        (PE.subst (Tₜ._⊢_≡_∷_ _ _ _) (tr-[]↑ A₁) $
          tr-⊢≡∷ u₁≡u₂)
         (tr-⊢≡∷ v₁≡v₂)
     (Tₛ.natrec-zero {A} ⊢t ⊢u) →
@@ -1259,7 +1256,7 @@ opaque
       Tₜ.natrec-zero
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
          tr-⊢∷ ⊢t)
-        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² A) $
+        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ A) $
          tr-⊢∷ ⊢u)
     (Tₛ.natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) →
       PE.subst₂ (Tₜ._⊢_≡_∷_ _ _)
@@ -1267,7 +1264,7 @@ opaque
       Tₜ.natrec-suc
         (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
          tr-⊢∷ ⊢t)
-        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² A) $
+        (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ A) $
          tr-⊢∷ ⊢u)
         (tr-⊢∷ ⊢v)
     (Tₛ.Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) →
@@ -1411,7 +1408,7 @@ module _ (pres : T preservation-of-reduction) where
       (Tₛ.prodrec-subst {A = C} ⊢C ⊢u t⇒t′) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ C) $
         TPₜ.prodrec-subst* (tr-⊢ ⊢C) (tr-⊢⇒∷ t⇒t′)
-          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
+          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ C) $
            tr-⊢∷ ⊢u)
       (Tₛ.prodrec-β {G = B} {A = C} {u} ⊢C ⊢t ⊢u ⊢v PE.refl) →
         PE.subst₂ (Tₜ._⊢_⇒*_∷_ _ _)
@@ -1420,14 +1417,14 @@ module _ (pres : T preservation-of-reduction) where
         TPₜ.prodrec-β-⇒ (tr-⊢ ⊢C) (tr-⊢∷ ⊢t)
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ B) $
            tr-⊢∷ ⊢u)
-          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² C) $
+          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ C) $
            tr-⊢∷ ⊢v)
       (Tₛ.natrec-subst {A} ⊢t ⊢u v⇒v′) →
         PE.subst (Tₜ._⊢_⇒*_∷_ _ _ _) (PE.sym $ tr-[]₀ A) $
         TPₜ.natrec-subst*
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢t)
-          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² A) $
+          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ A) $
            tr-⊢∷ ⊢u)
           (tr-⊢⇒∷ v⇒v′)
       (Tₛ.natrec-zero {A} ⊢t ⊢u) →
@@ -1436,7 +1433,7 @@ module _ (pres : T preservation-of-reduction) where
         Tₜ.natrec-zero
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢t)
-          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² A) $
+          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ A) $
            tr-⊢∷ ⊢u)
       (Tₛ.natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) →
         PE.subst₂ (Tₜ._⊢_⇒*_∷_ _ _)
@@ -1445,7 +1442,7 @@ module _ (pres : T preservation-of-reduction) where
         Tₜ.natrec-suc
           (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]₀ A) $
            tr-⊢∷ ⊢t)
-          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑² A) $
+          (PE.subst (Tₜ._⊢_∷_ _ _) (tr-[]↑ A) $
            tr-⊢∷ ⊢u)
           (tr-⊢∷ ⊢v)
       (Tₛ.J-subst {t} {A} {B} ⊢t ⊢B ⊢u ⊢v w⇒w′) →
