@@ -248,7 +248,7 @@ record Assumptions : Set (lsuc a) where
     ⊢Δ : ts »⊢ Δ
 
     instance
-      -- Var-included holds or Δ is empty.
+      -- Either equality reflection is disallowed or Δ is empty.
       ⦃ no-equality-reflection-or-empty ⦄ :
         No-equality-reflection or-empty Δ
 
