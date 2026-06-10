@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Usage.Restrictions.JK</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Definitions related to usage restrictions controling which usage</a>
+<a id="142" class="Comment">-- rules for J and K should be used.</a>
+<a id="179" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="253" class="Keyword">import</a> <a id="260" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="277" class="Keyword">module</a> <a id="284" href="Graded.Usage.Restrictions.JK.html" class="Module">Graded.Usage.Restrictions.JK</a>
+  <a id="315" class="Symbol">{</a><a id="316" href="Graded.Usage.Restrictions.JK.html#316" class="Bound">a</a><a id="317" class="Symbol">}</a> <a id="319" class="Symbol">{</a><a id="320" href="Graded.Usage.Restrictions.JK.html#320" class="Bound">M</a> <a id="322" class="Symbol">:</a> <a id="324" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="328" href="Graded.Usage.Restrictions.JK.html#316" class="Bound">a</a><a id="329" class="Symbol">}</a>
+  <a id="333" class="Symbol">(</a><a id="334" class="Keyword">open</a> <a id="339" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="355" href="Graded.Usage.Restrictions.JK.html#320" class="Bound">M</a><a id="356" class="Symbol">)</a>
+  <a id="360" class="Symbol">(</a><a id="361" href="Graded.Usage.Restrictions.JK.html#361" class="Bound">𝕄</a> <a id="363" class="Symbol">:</a> <a id="365" href="Graded.Modality.html#581" class="Record">Modality</a><a id="373" class="Symbol">)</a>
+  <a id="377" class="Keyword">where</a>
+
+<a id="384" class="Keyword">open</a> <a id="389" class="Keyword">import</a> <a id="396" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="408" class="Keyword">open</a> <a id="413" class="Keyword">import</a> <a id="420" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="448" class="Keyword">open</a> <a id="453" class="Keyword">import</a> <a id="460" href="Tools.Product.html" class="Module">Tools.Product</a>
+
+<a id="475" class="Keyword">open</a> <a id="480" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="489" href="Graded.Usage.Restrictions.JK.html#361" class="Bound">𝕄</a>
+
+<a id="492" class="Comment">-- The type JK corresponds to the eliminators J and K.</a>
+
+<a id="548" class="Keyword">data</a> <a id="JK"></a><a id="553" href="Graded.Usage.Restrictions.JK.html#553" class="Datatype">JK</a> <a id="556" class="Symbol">:</a> <a id="558" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="562" class="Keyword">where</a>
+  <a id="JK.J"></a><a id="570" href="Graded.Usage.Restrictions.JK.html#570" class="InductiveConstructor">J</a> <a id="JK.K"></a><a id="572" href="Graded.Usage.Restrictions.JK.html#572" class="InductiveConstructor">K</a> <a id="574" class="Symbol">:</a> <a id="576" href="Graded.Usage.Restrictions.JK.html#553" class="Datatype">JK</a>
+
+<a id="580" class="Comment">-- The type JK-supported-erased-matches represents whether erased</a>
+<a id="646" class="Comment">-- matches for J and K that require the modality to have grade ω should</a>
+<a id="718" class="Comment">-- be allowed. If any kind of erased matches are allowed the modality is</a>
+<a id="791" class="Comment">-- required to have grade ω. If only &quot;all&quot; erased matches are allowed</a>
+<a id="861" class="Comment">-- there are no conditions on the modality.</a>
+
+<a id="906" class="Keyword">data</a> <a id="JK-Supported-erased-matches"></a><a id="911" href="Graded.Usage.Restrictions.JK.html#911" class="Datatype">JK-Supported-erased-matches</a> <a id="939" class="Symbol">:</a> <a id="941" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="945" href="Graded.Usage.Restrictions.JK.html#316" class="Bound">a</a> <a id="947" class="Keyword">where</a>
+  <a id="JK-Supported-erased-matches.any"></a><a id="955" href="Graded.Usage.Restrictions.JK.html#955" class="InductiveConstructor">any</a> <a id="959" class="Symbol">:</a> <a id="961" class="Symbol">⦃</a> <a id="963" href="Graded.Usage.Restrictions.JK.html#963" class="Bound">ok</a> <a id="966" class="Symbol">:</a> <a id="968" href="Graded.Modality.html#5186" class="Record">Has-omega</a> <a id="978" href="Graded.Usage.Restrictions.JK.html#361" class="Bound">𝕄</a> <a id="980" class="Symbol">⦄</a> <a id="982" class="Symbol">→</a> <a id="984" href="Graded.Usage.Restrictions.JK.html#911" class="Datatype">JK-Supported-erased-matches</a>
+  <a id="JK-Supported-erased-matches.only-all"></a><a id="1014" href="Graded.Usage.Restrictions.JK.html#1014" class="InductiveConstructor">only-all</a> <a id="1023" class="Symbol">:</a> <a id="1025" href="Graded.Usage.Restrictions.JK.html#911" class="Datatype">JK-Supported-erased-matches</a>
+
+<a id="1054" class="Comment">-- A predicate on JK-Supported-erased-matches corresponding to</a>
+<a id="1117" class="Comment">-- any erased matches being allowed.</a>
+
+<a id="1155" class="Keyword">data</a> <a id="JK-Any-erased-matches"></a><a id="1160" href="Graded.Usage.Restrictions.JK.html#1160" class="Datatype">JK-Any-erased-matches</a> <a id="1182" class="Symbol">:</a> <a id="1184" href="Graded.Usage.Restrictions.JK.html#911" class="Datatype">JK-Supported-erased-matches</a> <a id="1212" class="Symbol">→</a> <a id="1214" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1218" href="Graded.Usage.Restrictions.JK.html#316" class="Bound">a</a> <a id="1220" class="Keyword">where</a>
+  <a id="JK-Any-erased-matches.any"></a><a id="1228" href="Graded.Usage.Restrictions.JK.html#1228" class="InductiveConstructor">any</a> <a id="1232" class="Symbol">:</a> <a id="1234" class="Symbol">⦃</a> <a id="1236" href="Graded.Usage.Restrictions.JK.html#1236" class="Bound">ok</a> <a id="1239" class="Symbol">:</a> <a id="1241" href="Graded.Modality.html#5186" class="Record">Has-omega</a> <a id="1251" href="Graded.Usage.Restrictions.JK.html#361" class="Bound">𝕄</a> <a id="1253" class="Symbol">⦄</a> <a id="1255" class="Symbol">→</a> <a id="1257" href="Graded.Usage.Restrictions.JK.html#1160" class="Datatype">JK-Any-erased-matches</a> <a id="1279" href="Graded.Usage.Restrictions.JK.html#955" class="InductiveConstructor">any</a>
+
+<a id="JK-Any-erased-matches-has-omega"></a><a id="1284" href="Graded.Usage.Restrictions.JK.html#1284" class="Function">JK-Any-erased-matches-has-omega</a> <a id="1316" class="Symbol">:</a>
+  <a id="1320" class="Symbol">∀</a> <a id="1322" class="Symbol">{</a><a id="1323" href="Graded.Usage.Restrictions.JK.html#1323" class="Bound">x</a><a id="1324" class="Symbol">}</a> <a id="1326" class="Symbol">→</a> <a id="1328" href="Graded.Usage.Restrictions.JK.html#1160" class="Datatype">JK-Any-erased-matches</a> <a id="1350" href="Graded.Usage.Restrictions.JK.html#1323" class="Bound">x</a> <a id="1352" class="Symbol">→</a> <a id="1354" href="Graded.Modality.html#5186" class="Record">Has-omega</a> <a id="1364" href="Graded.Usage.Restrictions.JK.html#361" class="Bound">𝕄</a>
+<a id="1366" href="Graded.Usage.Restrictions.JK.html#1284" class="Function">JK-Any-erased-matches-has-omega</a> <a id="1398" class="Symbol">(</a><a id="1399" href="Graded.Usage.Restrictions.JK.html#1228" class="InductiveConstructor">any</a> <a id="1403" class="Symbol">⦃</a> <a id="1405" href="Graded.Usage.Restrictions.JK.html#1405" class="Bound">ok</a> <a id="1408" class="Symbol">⦄)</a> <a id="1411" class="Symbol">=</a> <a id="1413" href="Graded.Usage.Restrictions.JK.html#1405" class="Bound">ok</a>
+
+<a id="1417" class="Keyword">opaque</a>
+
+  <a id="1427" class="Comment">-- JK-Any-erased-matches is propositional</a>
+
+  <a id="JK-Any-erased-matches-propositional"></a><a id="1472" href="Graded.Usage.Restrictions.JK.html#1472" class="Function">JK-Any-erased-matches-propositional</a> <a id="1508" class="Symbol">:</a>
+    <a id="1514" class="Symbol">∀</a> <a id="1516" class="Symbol">{</a><a id="1517" href="Graded.Usage.Restrictions.JK.html#1517" class="Bound">x</a><a id="1518" class="Symbol">}</a> <a id="1520" class="Symbol">→</a> <a id="1522" class="Symbol">(</a><a id="1523" href="Graded.Usage.Restrictions.JK.html#1523" class="Bound">p</a> <a id="1525" href="Graded.Usage.Restrictions.JK.html#1525" class="Bound">q</a> <a id="1527" class="Symbol">:</a> <a id="1529" href="Graded.Usage.Restrictions.JK.html#1160" class="Datatype">JK-Any-erased-matches</a> <a id="1551" href="Graded.Usage.Restrictions.JK.html#1517" class="Bound">x</a><a id="1552" class="Symbol">)</a> <a id="1554" class="Symbol">→</a> <a id="1556" href="Graded.Usage.Restrictions.JK.html#1523" class="Bound">p</a> <a id="1558" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a> <a id="1560" href="Graded.Usage.Restrictions.JK.html#1525" class="Bound">q</a>
+  <a id="1564" href="Graded.Usage.Restrictions.JK.html#1472" class="Function">JK-Any-erased-matches-propositional</a> <a id="1600" href="Graded.Usage.Restrictions.JK.html#1228" class="InductiveConstructor">any</a> <a id="1604" href="Graded.Usage.Restrictions.JK.html#1228" class="InductiveConstructor">any</a> <a id="1608" class="Symbol">=</a> <a id="1610" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+
+<a id="1616" class="Keyword">opaque</a>
+
+  <a id="1626" class="Comment">-- The grade ω given by two different proofs that J and K</a>
+  <a id="1686" class="Comment">-- supports usage rules with ω are equal.</a>
+
+  <a id="ω≡ω"></a><a id="1731" href="Graded.Usage.Restrictions.JK.html#1731" class="Function">ω≡ω</a> <a id="1735" class="Symbol">:</a>
+    <a id="1741" class="Symbol">∀</a> <a id="1743" class="Symbol">{</a><a id="1744" href="Graded.Usage.Restrictions.JK.html#1744" class="Bound">x</a><a id="1745" class="Symbol">}</a> <a id="1747" class="Symbol">→</a> <a id="1749" class="Symbol">(</a><a id="1750" href="Graded.Usage.Restrictions.JK.html#1750" class="Bound">ok₁</a> <a id="1754" href="Graded.Usage.Restrictions.JK.html#1754" class="Bound">ok₂</a> <a id="1758" class="Symbol">:</a> <a id="1760" href="Graded.Usage.Restrictions.JK.html#1160" class="Datatype">JK-Any-erased-matches</a> <a id="1782" href="Graded.Usage.Restrictions.JK.html#1744" class="Bound">x</a><a id="1783" class="Symbol">)</a> <a id="1785" class="Symbol">→</a>
+    <a id="1791" href="Graded.Modality.html#5303" class="Field">Has-omega.ω</a> <a id="1803" class="Symbol">(</a><a id="1804" href="Graded.Usage.Restrictions.JK.html#1284" class="Function">JK-Any-erased-matches-has-omega</a> <a id="1836" href="Graded.Usage.Restrictions.JK.html#1750" class="Bound">ok₁</a><a id="1839" class="Symbol">)</a> <a id="1841" href="Agda.Builtin.Equality.html#150" class="Datatype Operator">≡</a>
+    <a id="1847" href="Graded.Modality.html#5303" class="Field">Has-omega.ω</a> <a id="1859" class="Symbol">(</a><a id="1860" href="Graded.Usage.Restrictions.JK.html#1284" class="Function">JK-Any-erased-matches-has-omega</a> <a id="1892" href="Graded.Usage.Restrictions.JK.html#1754" class="Bound">ok₂</a><a id="1895" class="Symbol">)</a>
+  <a id="1899" href="Graded.Usage.Restrictions.JK.html#1731" class="Function">ω≡ω</a> <a id="1903" href="Graded.Usage.Restrictions.JK.html#1228" class="InductiveConstructor">any</a> <a id="1907" href="Graded.Usage.Restrictions.JK.html#1228" class="InductiveConstructor">any</a> <a id="1911" class="Symbol">=</a> <a id="1913" href="Agda.Builtin.Equality.html#207" class="InductiveConstructor">refl</a>
+</pre></body></html>

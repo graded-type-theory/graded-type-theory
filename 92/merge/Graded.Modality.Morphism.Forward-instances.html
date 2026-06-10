@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Modality.Morphism.Forward-instances</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- &quot;Forward&quot; instances related to morphisms</a>
+<a id="118" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="192" class="Keyword">open</a> <a id="197" class="Keyword">import</a> <a id="204" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="220" class="Keyword">open</a> <a id="225" class="Keyword">import</a> <a id="232" href="Graded.Mode.Instances.Zero-one.Variant.html" class="Module">Graded.Mode.Instances.Zero-one.Variant</a>
+<a id="271" class="Keyword">open</a> <a id="276" class="Keyword">import</a> <a id="283" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a>
+<a id="314" class="Keyword">open</a> <a id="319" class="Keyword">import</a> <a id="326" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+<a id="352" class="Keyword">open</a> <a id="357" class="Keyword">import</a> <a id="364" href="Graded.Modality.Morphism.Usage-restrictions.html" class="Module">Graded.Modality.Morphism.Usage-restrictions</a>
+
+<a id="409" class="Keyword">module</a> <a id="416" href="Graded.Modality.Morphism.Forward-instances.html" class="Module">Graded.Modality.Morphism.Forward-instances</a>
+  <a id="461" class="Symbol">{</a><a id="462" href="Graded.Modality.Morphism.Forward-instances.html#462" class="Bound">a₁</a> <a id="465" href="Graded.Modality.Morphism.Forward-instances.html#465" class="Bound">a₂</a><a id="467" class="Symbol">}</a> <a id="469" class="Symbol">{</a><a id="470" href="Graded.Modality.Morphism.Forward-instances.html#470" class="Bound">M₁</a> <a id="473" class="Symbol">:</a> <a id="475" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="479" href="Graded.Modality.Morphism.Forward-instances.html#462" class="Bound">a₁</a><a id="481" class="Symbol">}</a> <a id="483" class="Symbol">{</a><a id="484" href="Graded.Modality.Morphism.Forward-instances.html#484" class="Bound">M₂</a> <a id="487" class="Symbol">:</a> <a id="489" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="493" href="Graded.Modality.Morphism.Forward-instances.html#465" class="Bound">a₂</a><a id="495" class="Symbol">}</a>
+  <a id="499" class="Symbol">{</a><a id="500" href="Graded.Modality.Morphism.Forward-instances.html#500" class="Bound">𝕄₁</a> <a id="503" class="Symbol">:</a> <a id="505" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="514" href="Graded.Modality.Morphism.Forward-instances.html#470" class="Bound">M₁</a><a id="516" class="Symbol">}</a> <a id="518" class="Symbol">{</a><a id="519" href="Graded.Modality.Morphism.Forward-instances.html#519" class="Bound">𝕄₂</a> <a id="522" class="Symbol">:</a> <a id="524" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="533" href="Graded.Modality.Morphism.Forward-instances.html#484" class="Bound">M₂</a><a id="535" class="Symbol">}</a>
+  <a id="539" class="Symbol">{</a><a id="540" href="Graded.Modality.Morphism.Forward-instances.html#540" class="Bound">v₁</a> <a id="543" class="Symbol">:</a> <a id="545" href="Graded.Mode.Instances.Zero-one.Variant.html#522" class="Record">Mode-variant</a> <a id="558" href="Graded.Modality.Morphism.Forward-instances.html#500" class="Bound">𝕄₁</a><a id="560" class="Symbol">}</a> <a id="562" class="Symbol">{</a><a id="563" href="Graded.Modality.Morphism.Forward-instances.html#563" class="Bound">v₂</a> <a id="566" class="Symbol">:</a> <a id="568" href="Graded.Mode.Instances.Zero-one.Variant.html#522" class="Record">Mode-variant</a> <a id="581" href="Graded.Modality.Morphism.Forward-instances.html#519" class="Bound">𝕄₂</a><a id="583" class="Symbol">}</a>
+  <a id="587" class="Symbol">{</a><a id="588" href="Graded.Modality.Morphism.Forward-instances.html#588" class="Bound">R₁</a> <a id="591" class="Symbol">:</a> <a id="593" href="Graded.Usage.Restrictions.html#1045" class="Record">Usage-restrictions</a> <a id="612" href="Graded.Modality.Morphism.Forward-instances.html#500" class="Bound">𝕄₁</a> <a id="615" class="Symbol">(</a><a id="616" href="Graded.Mode.Instances.Zero-one.html#18686" class="Function">Zero-one-isMode</a> <a id="632" href="Graded.Modality.Morphism.Forward-instances.html#540" class="Bound">v₁</a><a id="634" class="Symbol">)}</a>
+  <a id="639" class="Symbol">{</a><a id="640" href="Graded.Modality.Morphism.Forward-instances.html#640" class="Bound">R₂</a> <a id="643" class="Symbol">:</a> <a id="645" href="Graded.Usage.Restrictions.html#1045" class="Record">Usage-restrictions</a> <a id="664" href="Graded.Modality.Morphism.Forward-instances.html#519" class="Bound">𝕄₂</a> <a id="667" class="Symbol">(</a><a id="668" href="Graded.Mode.Instances.Zero-one.html#18686" class="Function">Zero-one-isMode</a> <a id="684" href="Graded.Modality.Morphism.Forward-instances.html#563" class="Bound">v₂</a><a id="686" class="Symbol">)}</a>
+  <a id="691" class="Symbol">(</a><a id="692" href="Graded.Modality.Morphism.Forward-instances.html#692" class="Bound">cp</a> <a id="695" class="Symbol">:</a> <a id="697" href="Graded.Modality.Morphism.Usage-restrictions.html#9231" class="Record">Common-properties</a> <a id="715" href="Graded.Modality.Morphism.Forward-instances.html#588" class="Bound">R₁</a> <a id="718" href="Graded.Modality.Morphism.Forward-instances.html#640" class="Bound">R₂</a><a id="720" class="Symbol">)</a>
+  <a id="724" class="Keyword">where</a>
+
+<a id="731" class="Keyword">open</a> <a id="736" class="Keyword">import</a> <a id="743" href="Tools.Product.html" class="Module">Tools.Product</a>
+
+<a id="758" class="Keyword">open</a> <a id="763" href="Graded.Modality.Morphism.Usage-restrictions.html#9231" class="Module">Common-properties</a> <a id="781" href="Graded.Modality.Morphism.Forward-instances.html#692" class="Bound">cp</a>
+
+<a id="785" class="Keyword">module</a> <a id="R₁"></a><a id="792" href="Graded.Modality.Morphism.Forward-instances.html#792" class="Module">R₁</a> <a id="795" class="Symbol">=</a> <a id="797" href="Graded.Usage.Restrictions.html#1045" class="Module">Usage-restrictions</a> <a id="816" href="Graded.Modality.Morphism.Forward-instances.html#588" class="Bound">R₁</a>
+<a id="819" class="Keyword">module</a> <a id="R₂"></a><a id="826" href="Graded.Modality.Morphism.Forward-instances.html#826" class="Module">R₂</a> <a id="829" class="Symbol">=</a> <a id="831" href="Graded.Usage.Restrictions.html#1045" class="Module">Usage-restrictions</a> <a id="850" href="Graded.Modality.Morphism.Forward-instances.html#640" class="Bound">R₂</a>
+
+<a id="854" class="Keyword">instance</a>
+
+  <a id="866" class="Comment">-- If the source modality uses the usage rule for natrec with</a>
+  <a id="930" class="Comment">-- an nr function then so does the target one.</a>
+
+  <a id="nr-in-second-if-in-first′"></a><a id="980" href="Graded.Modality.Morphism.Forward-instances.html#980" class="Function">nr-in-second-if-in-first′</a> <a id="1006" class="Symbol">:</a>
+    <a id="1012" class="Symbol">⦃</a> <a id="1014" href="Graded.Modality.Morphism.Forward-instances.html#1014" class="Bound">has-nr</a> <a id="1021" class="Symbol">:</a> <a id="1023" href="Graded.Usage.Restrictions.html#3669" class="Function">R₁.Nr-available</a> <a id="1039" class="Symbol">⦄</a> <a id="1041" class="Symbol">→</a> <a id="1043" href="Graded.Usage.Restrictions.html#3669" class="Function">R₂.Nr-available</a>
+  <a id="1061" href="Graded.Modality.Morphism.Forward-instances.html#980" class="Function">nr-in-second-if-in-first′</a> <a id="1087" class="Symbol">=</a> <a id="1089" href="Graded.Modality.Morphism.Usage-restrictions.html#11046" class="Function">nr-in-second-if-in-first</a>
+
+  <a id="1117" class="Comment">-- If the source modality uses the usage rule for natrec with</a>
+  <a id="1181" class="Comment">-- inequalities then so does the target one.</a>
+
+  <a id="no-nr-in-second-if-in-first′"></a><a id="1229" href="Graded.Modality.Morphism.Forward-instances.html#1229" class="Function">no-nr-in-second-if-in-first′</a> <a id="1258" class="Symbol">:</a>
+    <a id="1264" class="Symbol">⦃</a> <a id="1266" href="Graded.Modality.Morphism.Forward-instances.html#1266" class="Bound">no-nr</a> <a id="1272" class="Symbol">:</a> <a id="1274" href="Graded.Usage.Restrictions.html#3741" class="Function">R₁.Nr-not-available</a> <a id="1294" class="Symbol">⦄</a> <a id="1296" class="Symbol">→</a> <a id="1298" href="Graded.Usage.Restrictions.html#3741" class="Function">R₂.Nr-not-available</a>
+  <a id="1320" href="Graded.Modality.Morphism.Forward-instances.html#1229" class="Function">no-nr-in-second-if-in-first′</a> <a id="1349" class="Symbol">=</a> <a id="1351" href="Graded.Modality.Morphism.Usage-restrictions.html#11374" class="Function">no-nr-in-second-if-in-first</a>
+
+  <a id="1382" class="Comment">-- If the source modality uses the usage rule for natrec with</a>
+  <a id="1446" class="Comment">-- the greatest lower bound of an nrᵢ sequence then so does the</a>
+  <a id="1512" class="Comment">-- target one.</a>
+
+  <a id="no-nr-glb-in-second-if-in-first′"></a><a id="1530" href="Graded.Modality.Morphism.Forward-instances.html#1530" class="Function">no-nr-glb-in-second-if-in-first′</a> <a id="1563" class="Symbol">:</a>
+    <a id="1569" class="Symbol">⦃</a> <a id="1571" href="Graded.Modality.Morphism.Forward-instances.html#1571" class="Bound">no-nr</a> <a id="1577" class="Symbol">:</a> <a id="1579" href="Graded.Usage.Restrictions.html#3820" class="Function">R₁.Nr-not-available-GLB</a> <a id="1603" class="Symbol">⦄</a> <a id="1605" class="Symbol">→</a> <a id="1607" href="Graded.Usage.Restrictions.html#3820" class="Function">R₂.Nr-not-available-GLB</a>
+  <a id="1633" href="Graded.Modality.Morphism.Forward-instances.html#1530" class="Function">no-nr-glb-in-second-if-in-first′</a> <a id="1666" class="Symbol">=</a> <a id="1668" href="Graded.Modality.Morphism.Usage-restrictions.html#11716" class="Function">no-nr-glb-in-second-if-in-first</a>
+
+  <a id="1703" class="Comment">-- If the source modality allows grade ω for J and K then so does</a>
+  <a id="1771" class="Comment">-- the target one.</a>
+
+  <a id="JK-with-omega-in-second-if-in-first"></a><a id="1793" href="Graded.Modality.Morphism.Forward-instances.html#1793" class="Function">JK-with-omega-in-second-if-in-first</a> <a id="1829" class="Symbol">:</a>
+    <a id="1835" class="Symbol">⦃</a> <a id="1837" href="Graded.Modality.Morphism.Forward-instances.html#1837" class="Bound">ok</a> <a id="1840" class="Symbol">:</a> <a id="1842" href="Graded.Usage.Restrictions.html#4013" class="Function">R₁.JK-with-omega</a> <a id="1859" class="Symbol">⦄</a> <a id="1861" class="Symbol">→</a> <a id="1863" href="Graded.Usage.Restrictions.html#4013" class="Function">R₂.JK-with-omega</a>
+  <a id="1882" href="Graded.Modality.Morphism.Forward-instances.html#1793" class="Function">JK-with-omega-in-second-if-in-first</a> <a id="1918" class="Symbol">⦃</a> <a id="1920" href="Graded.Modality.Morphism.Forward-instances.html#1920" class="Bound">ok</a> <a id="1923" class="Symbol">⦄</a> <a id="1925" class="Symbol">=</a>
+    <a id="1931" href="Graded.Modality.Morphism.Usage-restrictions.html#10846" class="Field">JK-with-omega-preserved</a> <a id="1955" class="Symbol">.</a><a id="1956" href="Data.Product.Base.html#636" class="Field">proj₁</a> <a id="1962" href="Graded.Modality.Morphism.Forward-instances.html#1920" class="Bound">ok</a>
+</pre></body></html>

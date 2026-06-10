@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Usage.Restrictions.Instance</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Instances related to Usage-restrictions</a>
+<a id="117" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="191" class="Keyword">open</a> <a id="196" class="Keyword">import</a> <a id="203" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="219" class="Keyword">open</a> <a id="224" class="Keyword">import</a> <a id="231" href="Graded.Mode.html" class="Module">Graded.Mode</a>
+<a id="243" class="Keyword">open</a> <a id="248" class="Keyword">import</a> <a id="255" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
+
+<a id="282" class="Keyword">module</a> <a id="289" href="Graded.Usage.Restrictions.Instance.html" class="Module">Graded.Usage.Restrictions.Instance</a>
+  <a id="326" class="Symbol">{</a><a id="327" href="Graded.Usage.Restrictions.Instance.html#327" class="Bound">a</a> <a id="329" href="Graded.Usage.Restrictions.Instance.html#329" class="Bound">b</a><a id="330" class="Symbol">}</a> <a id="332" class="Symbol">{</a><a id="333" href="Graded.Usage.Restrictions.Instance.html#333" class="Bound">M</a> <a id="335" class="Symbol">:</a> <a id="337" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="341" href="Graded.Usage.Restrictions.Instance.html#327" class="Bound">a</a><a id="342" class="Symbol">}</a> <a id="344" class="Symbol">{</a><a id="345" href="Graded.Usage.Restrictions.Instance.html#345" class="Bound">Mode</a> <a id="350" class="Symbol">:</a> <a id="352" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="356" href="Graded.Usage.Restrictions.Instance.html#329" class="Bound">b</a><a id="357" class="Symbol">}</a>
+  <a id="361" class="Symbol">{</a><a id="362" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a> <a id="364" class="Symbol">:</a> <a id="366" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="375" href="Graded.Usage.Restrictions.Instance.html#333" class="Bound">M</a><a id="376" class="Symbol">}</a>
+  <a id="380" class="Symbol">{</a><a id="381" href="Graded.Usage.Restrictions.Instance.html#381" class="Bound">𝐌</a> <a id="383" class="Symbol">:</a> <a id="385" href="Graded.Mode.html#1754" class="Record">IsMode</a> <a id="392" href="Graded.Usage.Restrictions.Instance.html#345" class="Bound">Mode</a> <a id="397" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a><a id="398" class="Symbol">}</a>
+  <a id="402" class="Symbol">(</a><a id="403" href="Graded.Usage.Restrictions.Instance.html#403" class="Bound">R</a> <a id="405" class="Symbol">:</a> <a id="407" href="Graded.Usage.Restrictions.html#1045" class="Record">Usage-restrictions</a> <a id="426" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a> <a id="428" href="Graded.Usage.Restrictions.Instance.html#381" class="Bound">𝐌</a><a id="429" class="Symbol">)</a>
+  <a id="433" class="Keyword">where</a>
+
+<a id="440" class="Keyword">open</a> <a id="445" class="Keyword">import</a> <a id="452" href="Graded.Usage.Restrictions.Natrec.html" class="Module">Graded.Usage.Restrictions.Natrec</a> <a id="485" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a>
+<a id="487" class="Keyword">open</a> <a id="492" class="Keyword">import</a> <a id="499" href="Graded.Usage.Restrictions.JK.html" class="Module">Graded.Usage.Restrictions.JK</a> <a id="528" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a>
+
+<a id="531" class="Keyword">open</a> <a id="536" href="Graded.Usage.Restrictions.html#1045" class="Module">Usage-restrictions</a> <a id="555" href="Graded.Usage.Restrictions.Instance.html#403" class="Bound">R</a>
+<a id="557" class="Keyword">open</a> <a id="562" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="571" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a>
+
+<a id="574" class="Keyword">instance</a>
+
+  <a id="Nr-available-Has-nr"></a><a id="586" href="Graded.Usage.Restrictions.Instance.html#586" class="Function">Nr-available-Has-nr</a> <a id="606" class="Symbol">:</a>
+    <a id="612" class="Symbol">⦃</a> <a id="614" href="Graded.Usage.Restrictions.Instance.html#614" class="Bound">has-nr</a> <a id="621" class="Symbol">:</a> <a id="623" href="Graded.Usage.Restrictions.html#3669" class="Function">Nr-available</a> <a id="636" class="Symbol">⦄</a> <a id="638" class="Symbol">→</a>
+    <a id="644" href="Graded.Modality.html#5694" class="Record">Has-nr</a> <a id="651" href="Graded.Usage.Restrictions.Instance.html#333" class="Bound">M</a> <a id="653" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a>
+  <a id="657" href="Graded.Usage.Restrictions.Instance.html#586" class="Function">Nr-available-Has-nr</a> <a id="677" class="Symbol">⦃</a> <a id="679" href="Graded.Usage.Restrictions.Instance.html#679" class="Bound">has-nr</a> <a id="686" class="Symbol">⦄</a> <a id="688" class="Symbol">=</a>
+    <a id="694" href="Graded.Usage.Restrictions.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="713" href="Graded.Usage.Restrictions.Instance.html#679" class="Bound">has-nr</a>
+
+<a id="721" class="Keyword">instance</a>
+
+  <a id="Nr-not-available-Has-well-behaved-GLBs"></a><a id="733" href="Graded.Usage.Restrictions.Instance.html#733" class="Function">Nr-not-available-Has-well-behaved-GLBs</a> <a id="772" class="Symbol">:</a>
+    <a id="778" class="Symbol">⦃</a> <a id="780" href="Graded.Usage.Restrictions.Instance.html#780" class="Bound">no-nr</a> <a id="786" class="Symbol">:</a> <a id="788" href="Graded.Usage.Restrictions.html#3820" class="Function">Nr-not-available-GLB</a> <a id="809" class="Symbol">⦄</a> <a id="811" class="Symbol">→</a>
+    <a id="817" href="Graded.Modality.html#7814" class="Record">Has-well-behaved-GLBs</a> <a id="839" href="Graded.Usage.Restrictions.Instance.html#333" class="Bound">M</a> <a id="841" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a>
+  <a id="845" href="Graded.Usage.Restrictions.Instance.html#733" class="Function">Nr-not-available-Has-well-behaved-GLBs</a> <a id="884" class="Symbol">⦃</a> <a id="886" href="Graded.Usage.Restrictions.Instance.html#886" class="Bound">no-nr</a> <a id="892" class="Symbol">⦄</a> <a id="894" class="Symbol">=</a>
+    <a id="900" href="Graded.Usage.Restrictions.Natrec.html#2333" class="Function">Natrec-mode-Has-well-behaved-GLBs</a> <a id="934" href="Graded.Usage.Restrictions.Instance.html#886" class="Bound">no-nr</a>
+
+<a id="941" class="Keyword">instance</a>
+
+  <a id="JK-with-omega-has-omega"></a><a id="953" href="Graded.Usage.Restrictions.Instance.html#953" class="Function">JK-with-omega-has-omega</a> <a id="977" class="Symbol">:</a>
+    <a id="983" class="Symbol">⦃</a> <a id="985" href="Graded.Usage.Restrictions.Instance.html#985" class="Bound">ok</a> <a id="988" class="Symbol">:</a> <a id="990" href="Graded.Usage.Restrictions.html#4013" class="Function">JK-with-omega</a> <a id="1004" class="Symbol">⦄</a> <a id="1006" class="Symbol">→</a>
+    <a id="1012" href="Graded.Modality.html#5186" class="Record">Has-omega</a> <a id="1022" href="Graded.Usage.Restrictions.Instance.html#333" class="Bound">M</a> <a id="1024" href="Graded.Usage.Restrictions.Instance.html#362" class="Bound">𝕄</a>
+  <a id="1028" href="Graded.Usage.Restrictions.Instance.html#953" class="Function">JK-with-omega-has-omega</a> <a id="1052" class="Symbol">⦃</a> <a id="1054" href="Graded.Usage.Restrictions.Instance.html#1054" class="Bound">ok</a> <a id="1057" class="Symbol">⦄</a> <a id="1059" class="Symbol">=</a>
+    <a id="1065" href="Graded.Usage.Restrictions.JK.html#1284" class="Function">JK-Any-erased-matches-has-omega</a> <a id="1097" href="Graded.Usage.Restrictions.Instance.html#1054" class="Bound">ok</a>
+</pre></body></html>
