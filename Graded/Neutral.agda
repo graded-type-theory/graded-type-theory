@@ -32,6 +32,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Erasure.Consequences.Soundness TR UR
 open import Graded.Erasure.Target using (non-strict)
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Restrictions.Zero-one 𝕄 variant
 open import Graded.Usage UR
@@ -162,7 +163,7 @@ opaque
                                 (inj₂ γ≈𝟘) → γ≈𝟘) ⟩
           γ ≈ᶜ 𝟘ᶜ →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t) ⟩
           ⊥ □ }
-      (Jₙ w-n) ⊢J (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ _ ▸w) →
+      (Jₙ w-n) ⊢J (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ ▸w) →
         case inversion-J ⊢J of λ {
           (_ , _ , _ , _ , _ , ⊢w , _) →
         ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
@@ -175,17 +176,17 @@ opaque
                                                      proj₂ ∘→ +ᶜ-positive ⟩
         γ₆ ≈ᶜ 𝟘ᶜ                                  →⟨ helper w-n ⊢w ▸w ⟩
         ⊥                                         □ }
-      (Jₙ _) _ (J₀ₘ₁ em _ _ _ _ _ _ _ _) →
+      (Jₙ _) _ (J₀ₘ₁ ⦃ (em) ⦄ _ _ _ _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
         of λ ()
-      (Jₙ _) _ (J₀ₘ₂ em _ _ _ _ _ _) →
+      (Jₙ _) _ (J₀ₘ₂ ⦃ (em) ⦄ _ _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
         of λ ()
-      (Kₙ v-n) ⊢K (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ _ ▸v) →
+      (Kₙ v-n) ⊢K (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸v) →
         case inversion-K ⊢K of λ {
           (_ , _ , _ , _ , ⊢v , _) →
         ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
@@ -197,12 +198,12 @@ opaque
                                                proj₂ ∘→ +ᶜ-positive ⟩
         γ₅ ≈ᶜ 𝟘ᶜ                            →⟨ helper v-n ⊢v ▸v ⟩
         ⊥                                   □ }
-      (Kₙ _) _ (K₀ₘ₁ em _ _ _ _ _ _) →
+      (Kₙ _) _ (K₀ₘ₁ ⦃ (em) ⦄ _ _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
         of λ ()
-      (Kₙ _) _ (K₀ₘ₂ em _ _ _ _ _) →
+      (Kₙ _) _ (K₀ₘ₂ ⦃ (em) ⦄ _ _ _ _ _) →
         case
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)

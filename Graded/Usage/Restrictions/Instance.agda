@@ -14,6 +14,7 @@ module Graded.Usage.Restrictions.Instance
   where
 
 open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Restrictions.JK 𝕄
 
 open Usage-restrictions R
 open Modality 𝕄
@@ -33,3 +34,11 @@ instance
     Has-well-behaved-GLBs M 𝕄
   Nr-not-available-Has-well-behaved-GLBs ⦃ no-nr ⦄ =
     Natrec-mode-Has-well-behaved-GLBs no-nr
+
+instance
+
+  JK-with-omega-has-omega :
+    ⦃ ok : JK-with-omega ⦄ →
+    Has-omega M 𝕄
+  JK-with-omega-has-omega ⦃ ok ⦄ =
+    JK-Any-erased-matches-has-omega ok

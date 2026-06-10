@@ -18,6 +18,7 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 open import Graded.Modality
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 import Graded.Modality.Properties
 
 private variable
@@ -63,9 +64,6 @@ record Is-morphism
 
     -- The translation of 𝟙 is bounded by 𝟙.
     tr-𝟙 : tr M₁.𝟙 ≤ M₂.𝟙
-
-    -- The translation of ω is bounded by ω.
-    tr-ω : tr M₁.ω ≤ M₂.ω
 
     -- The translation commutes with addition.
     tr-+ : ∀ {p q} → tr (p M₁.+ q) ≡ tr p M₂.+ tr q
@@ -181,9 +179,6 @@ record Is-order-embedding
     -- 𝟙.
     tr-≤-𝟙 : ∀ {p} → tr p M₂.≤ M₂.𝟙 → p M₁.≤ M₁.𝟙
 
-    -- The translation of ω is equal to ω.
-    tr-ω : tr M₁.ω ≡ M₂.ω
-
     -- If the translation of p is bounded by q + r, then there are q′
     -- and r′ such that the translation of q′ is bounded by q, the
     -- translation of r′ is bounded by r, and p is bounded by q′ + r′.
@@ -208,7 +203,7 @@ record Is-order-embedding
       tr p M₂.≤ q M₂.∧ r →
       ∃₂ λ q′ r′ → tr q′ M₂.≤ q × tr r′ M₂.≤ r × p M₁.≤ q′ M₁.∧ r′
 
-  open Is-morphism tr-morphism public hiding (tr-ω)
+  open Is-morphism tr-morphism public
 
   -- The translation is injective.
 
@@ -216,43 +211,6 @@ record Is-order-embedding
   tr-injective tr-p≡tr-q = P₁.≤-antisym
     (tr-order-reflecting (P₂.≤-reflexive tr-p≡tr-q))
     (tr-order-reflecting (P₂.≤-reflexive (sym tr-p≡tr-q)))
-
-  opaque
-
-    -- If the translation of p is bounded by M₂.ω · q, then there is a
-    -- q′ such that the translation of q′ is bounded by q, and p is
-    -- bounded by M₁.ω · q′.
-
-    tr-≤-ω· :
-      tr p M₂.≤ M₂.ω M₂.· q →
-      ∃ λ q′ → tr q′ M₂.≤ q × p M₁.≤ M₁.ω M₁.· q′
-    tr-≤-ω· {p} {q} tr-p≤ωq =
-      tr-≤-· $ begin
-        tr p            ≤⟨ tr-p≤ωq ⟩
-        M₂.ω M₂.· q     ≡˘⟨ M₂.·-congʳ tr-ω ⟩
-        tr M₁.ω M₂.· q  ∎
-      where
-      open Tools.Reasoning.PartialOrder P₂.≤-poset
-
-  opaque
-
-    -- A combination of tr-≤-ω· and tr-≤-+.
-
-    tr-≤-ω·+ :
-      tr p M₂.≤ M₂.ω M₂.· (q M₂.+ r) →
-      ∃₂ λ q′ r′ →
-        tr q′ M₂.≤ q × tr r′ M₂.≤ r × p M₁.≤ M₁.ω M₁.· (q′ M₁.+ r′)
-    tr-≤-ω·+ {p} {q} {r} tr-p≤ω[q+r] =
-      case tr-≤-ω· tr-p≤ω[q+r] of λ
-        (s , tr-s≤q+r , p≤ωs) →
-      case tr-≤-+ tr-s≤q+r of λ
-        (q′ , r′ , tr-q′≤q , tr-r′≤r , s≤q′+r′) →
-      q′ , r′ , tr-q′≤q , tr-r′≤r , (begin
-        p                       ≤⟨ p≤ωs ⟩
-        M₁.ω M₁.· s             ≤⟨ P₁.·-monotoneʳ s≤q′+r′ ⟩
-        M₁.ω M₁.· (q′ M₁.+ r′)  ∎)
-      where
-      open Tools.Reasoning.PartialOrder P₁.≤-poset
 
 -- The property of being a Σ-morphism (with respect to a given
 -- function).
@@ -349,6 +307,88 @@ record Is-Σ-order-embedding
       tr p M₂.≤ tr-Σ q M₂.· r → ∃ λ r′ → tr r′ M₂.≤ r × p M₁.≤ q M₁.· r′
 
   open Is-Σ-morphism tr-Σ-morphism public
+
+-- The property of being an "ω preserving" morphism.
+
+record Is-omega-preserving-morphism
+  {M₁ : Set a₁} {M₂ : Set a₂}
+  (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
+  ⦃ has-ω₁ : Has-omega M₁ 𝕄₁ ⦄
+  ⦃ has-ω₂ : Has-omega M₂ 𝕄₂ ⦄
+  (tr : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+
+  no-eta-equality
+
+  open Modality 𝕄₂
+
+  field
+    -- The translation of ω is bounded by ω.
+    tr-ω : tr ω ≤ ω
+
+-- The property of being an "ω reflecting" morphism.
+
+record Is-omega-reflecting-morphism
+  {M₁ : Set a₁} {M₂ : Set a₂}
+  (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
+  ⦃ has-ω₁ : Has-omega M₁ 𝕄₁ ⦄
+  ⦃ has-ω₂ : Has-omega M₂ 𝕄₂ ⦄
+  (tr : M₁ → M₂) : Set (a₁ ⊔ a₂) where
+
+  no-eta-equality
+
+  private
+    module M₁  = Modality 𝕄₁
+    module M₂  = Modality 𝕄₂
+    module P₁ = Graded.Modality.Properties 𝕄₁
+    module P₂ = Graded.Modality.Properties 𝕄₂
+
+  field
+    -- The translation of ω is equal to ω.
+    tr-ω : tr ω ≡ ω
+
+  -- Some properties that hold if the morphism is an order-embedding
+
+  opaque
+
+    -- If the translation of p is bounded by M₂.ω · q, then there is a
+    -- q′ such that the translation of q′ is bounded by q, and p is
+    -- bounded by M₁.ω · q′.
+
+    tr-≤-ω· :
+      Is-order-embedding 𝕄₁ 𝕄₂ tr →
+      tr p M₂.≤ ω M₂.· q →
+      ∃ λ q′ → tr q′ M₂.≤ q × p M₁.≤ ω M₁.· q′
+    tr-≤-ω· {p} {q} ok tr-p≤ωq =
+      tr-≤-· $ begin
+        tr p         ≤⟨ tr-p≤ωq ⟩
+        ω M₂.· q     ≡˘⟨ M₂.·-congʳ tr-ω ⟩
+        tr ω M₂.· q  ∎
+      where
+      open Is-order-embedding ok
+      open Tools.Reasoning.PartialOrder P₂.≤-poset
+
+  opaque
+
+    -- A combination of tr-≤-ω· and tr-≤-+.
+
+    tr-≤-ω·+ :
+      Is-order-embedding 𝕄₁ 𝕄₂ tr →
+      tr p M₂.≤ ω M₂.· (q M₂.+ r) →
+      ∃₂ λ q′ r′ →
+        tr q′ M₂.≤ q × tr r′ M₂.≤ r × p M₁.≤ ω M₁.· (q′ M₁.+ r′)
+    tr-≤-ω·+ {p} {q} {r} ok tr-p≤ω[q+r] =
+      case tr-≤-ω· ok tr-p≤ω[q+r] of λ
+        (s , tr-s≤q+r , p≤ωs) →
+      case tr-≤-+ tr-s≤q+r of λ
+        (q′ , r′ , tr-q′≤q , tr-r′≤r , s≤q′+r′) →
+      q′ , r′ , tr-q′≤q , tr-r′≤r , (begin
+        p                    ≤⟨ p≤ωs ⟩
+        ω M₁.· s             ≤⟨ P₁.·-monotoneʳ s≤q′+r′ ⟩
+        ω M₁.· (q′ M₁.+ r′)  ∎)
+      where
+      open Is-order-embedding ok
+      open Tools.Reasoning.PartialOrder P₁.≤-poset
+
 
 -- The property of being an "nr-preserving" morphism (related to
 -- the usage rule for natrec with an nr function).
@@ -517,13 +557,11 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
     .tr-order-reflecting → idᶠ
     .tr-≤                → _ , ≤-refl
     .tr-≤-𝟙              → idᶠ
-    .tr-ω                → refl
     .tr-≤-+ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-≤-· hyp          → _ , ≤-refl , hyp
     .tr-≤-∧ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-morphism         → λ where
       .tr-𝟙                                    → ≤-refl
-      .tr-ω                                    → ≤-refl
       .tr-𝟘-≤                                  → ≤-refl
       .trivial-⊎-tr-≡-𝟘-⇔                      → inj₂ (idᶠ , idᶠ)
       .tr-+                                    → refl
@@ -534,6 +572,23 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
   open Graded.Modality.Properties 𝕄
   open Is-morphism
   open Is-order-embedding
+
+Is-omega-preserving-morphism-id :
+  ⦃ has-ω : Has-omega _ 𝕄 ⦄ →
+  Is-omega-preserving-morphism 𝕄 𝕄 idᶠ
+Is-omega-preserving-morphism-id {𝕄} = λ where
+    .tr-ω → ≤-refl
+  where
+  open Is-omega-preserving-morphism
+  open Graded.Modality.Properties 𝕄
+
+Is-omega-reflecting-morphism-id :
+  ⦃ has-ω : Has-omega _ 𝕄 ⦄ →
+  Is-omega-reflecting-morphism 𝕄 𝕄 idᶠ
+Is-omega-reflecting-morphism-id {𝕄} = λ where
+    .tr-ω → refl
+  where
+  open Is-omega-reflecting-morphism
 
 Is-nr-preserving-morphism-id :
   ⦃ has-nr : Has-nr _ 𝕄 ⦄ →
@@ -583,7 +638,7 @@ Is-morphism-∘ :
   Is-morphism 𝕄₁ 𝕄₂ tr₂ →
   Is-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂)
 Is-morphism-∘
-  {𝕄₂ = 𝕄₂} {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {𝕄₁ = 𝕄₁} {tr₂ = tr₂} f g = λ where
+  {𝕄₂} {𝕄₃} {tr₁} {𝕄₁} {tr₂} f g = λ where
     .Is-morphism.first-trivial-if-second-trivial →
       G.first-trivial-if-second-trivial ∘→
       F.first-trivial-if-second-trivial
@@ -602,10 +657,6 @@ Is-morphism-∘
        tr₁ (tr₂ M₁.𝟙)  ≤⟨ F.tr-monotone G.tr-𝟙 ⟩
        tr₁ M₂.𝟙        ≤⟨ F.tr-𝟙 ⟩
        M₃.𝟙            ∎
-    .Is-morphism.tr-ω → let open R in begin
-       tr₁ (tr₂ M₁.ω)  ≤⟨ F.tr-monotone G.tr-ω ⟩
-       tr₁ M₂.ω        ≤⟨ F.tr-ω ⟩
-       M₃.ω            ∎
     .Is-morphism.tr-+ {p = p} {q = q} →
       let open Tools.Reasoning.PropositionalEquality in
       tr₁ (tr₂ (p M₁.+ q))          ≡⟨ cong tr₁ G.tr-+ ⟩
@@ -637,7 +688,7 @@ Is-order-embedding-∘ :
   Is-order-embedding 𝕄₁ 𝕄₂ tr₂ →
   Is-order-embedding 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂)
 Is-order-embedding-∘
-  {𝕄₂ = 𝕄₂} {𝕄₃ = 𝕄₃} {tr₁ = tr₁} {𝕄₁ = 𝕄₁} {tr₂ = tr₂} f g = λ where
+  {𝕄₂} {𝕄₃} {tr₁} {𝕄₁} {tr₂} f g = λ where
     .Is-order-embedding.tr-morphism →
       Is-morphism-∘ F.tr-morphism G.tr-morphism
     .Is-order-embedding.tr-order-reflecting →
@@ -653,11 +704,6 @@ Is-order-embedding-∘
            p             ∎)
     .Is-order-embedding.tr-≤-𝟙 →
       G.tr-≤-𝟙 ∘→ F.tr-≤-𝟙
-    .Is-order-embedding.tr-ω →
-      let open Tools.Reasoning.PropositionalEquality in
-      tr₁ (tr₂ M₁.ω)  ≡⟨ cong tr₁ G.tr-ω ⟩
-      tr₁ M₂.ω        ≡⟨ F.tr-ω ⟩
-      M₃.ω            ∎
     .Is-order-embedding.tr-≤-+ {q = q} {r = r} tr-p≤q+r →
       case F.tr-≤-+ tr-p≤q+r of
         λ (q′ , r′ , tr-q′≤q , tr-r′≤r , tr-p≤q′+r′) →
@@ -777,6 +823,45 @@ Is-Σ-order-embedding-∘
   module G = Is-Σ-order-embedding g
   open Graded.Modality.Properties 𝕄₃
   open Tools.Reasoning.PartialOrder ≤-poset
+
+Is-omega-preserving-morphism-∘ :
+  ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄ →
+  ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
+  ⦃ has-ω₃ : Has-omega _ 𝕄₃ ⦄ →
+  Is-morphism 𝕄₂ 𝕄₃ tr₁ →
+  Is-omega-preserving-morphism 𝕄₂ 𝕄₃ tr₁ →
+  Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr₂ →
+  Is-omega-preserving-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂)
+Is-omega-preserving-morphism-∘ {𝕄₃} {tr₁} {tr₂} m f g = λ where
+    .tr-ω → begin
+       tr₁ (tr₂ ω)  ≤⟨ tr-monotone G.tr-ω ⟩
+       tr₁ ω        ≤⟨ F.tr-ω ⟩
+       ω            ∎
+  where
+  open Is-omega-preserving-morphism
+  module F = Is-omega-preserving-morphism f
+  module G = Is-omega-preserving-morphism g
+  open Is-morphism m
+  open Graded.Modality.Properties 𝕄₃
+  open ≤-reasoning
+
+Is-omega-reflecting-morphism-∘ :
+  ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄ →
+  ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
+  ⦃ has-ω₃ : Has-omega _ 𝕄₃ ⦄ →
+  Is-omega-reflecting-morphism 𝕄₂ 𝕄₃ tr₁ →
+  Is-omega-reflecting-morphism 𝕄₁ 𝕄₂ tr₂ →
+  Is-omega-reflecting-morphism 𝕄₁ 𝕄₃ (tr₁ ∘→ tr₂)
+Is-omega-reflecting-morphism-∘ {tr₁} {tr₂} f g = λ where
+    .tr-ω → begin
+      tr₁ (tr₂ ω)  ≡⟨ cong tr₁ G.tr-ω ⟩
+      tr₁ ω        ≡⟨ F.tr-ω ⟩
+      ω            ∎
+  where
+  open Is-omega-reflecting-morphism
+  module F = Is-omega-reflecting-morphism f
+  module G = Is-omega-reflecting-morphism g
+  open Tools.Reasoning.PropositionalEquality
 
 Is-nr-preserving-morphism-∘ :
   ⦃ has-nr₁ : Has-nr _ 𝕄₁ ⦄ →

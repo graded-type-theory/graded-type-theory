@@ -69,11 +69,13 @@ open import Definition.LogicalRelation.Unary TR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
+open import Graded.Usage.Restrictions.JK modality
 open import Graded.Usage.Restrictions.Natrec modality
 
 open Addition≡Meet +≡∧
@@ -162,23 +164,35 @@ record No-secret-matches : Set a where
     no-secret-[]-cong :
       ∀ {s m} → m ≤ ℓ₀ → []-cong-allowed-mode s m → 𝟘 ≤ ℓ₀
 
+  opaque instance
+
+    jk-with-omega : JK-with-omega
+    jk-with-omega =
+      erased-matches-for-JK-supports-ω
+        (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-J ≤-refl)) _)
+
+
   -- If there are no secret matches then the multiplicity for Jₑ
   -- is equal to 𝟙.
 
   ∣J∣≡𝟙 :
     ∀ {m p q} → m ≤ ℓ₀ → ∣J erased-matches-for-J ⌞ m ⌟ , p , q ∣≡ 𝟙
-  ∣J∣≡𝟙 m≤ℓ₀ =
-    ∣J∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-J m≤ℓ₀)) (none-≤ᵉᵐ {em = some}))
-      λ em≡some → case PE.trans (PE.sym (no-secret-J m≤ℓ₀)) em≡some of λ ()
+  ∣J∣≡𝟙 {p} {q} m≤ℓ₀ =
+    PE.subst₂ (λ x y → ∣J x , p , q ∣≡ y)
+      (PE.sym $ no-secret-J m≤ℓ₀)
+      (≤-antisym (ω≤𝟙 ⦃ JK-Any-erased-matches-has-omega jk-with-omega ⦄) 𝟙≤)
+      J-none
 
   -- If there are no secret matches then the multiplicity for Kₑ
   -- is equal to 𝟙.
 
   ∣K∣≡𝟙 :
     ∀ {m p} → m ≤ ℓ₀ → ∣K erased-matches-for-K ⌞ m ⌟ , p ∣≡ 𝟙
-  ∣K∣≡𝟙 m≤ℓ₀ =
-    ∣K∣≡ω (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-K m≤ℓ₀)) (none-≤ᵉᵐ {em = some}))
-      (λ em≡some → case PE.trans (PE.sym (no-secret-K m≤ℓ₀)) em≡some of λ ())
+  ∣K∣≡𝟙 {p} m≤ℓ₀ =
+    PE.subst₂ (λ x y → ∣K x , p ∣≡ y)
+      (PE.sym $ no-secret-K m≤ℓ₀)
+      (≤-antisym (ω≤𝟙 ⦃ JK-Any-erased-matches-has-omega jk-with-omega ⦄) 𝟙≤)
+      K-none
 
 opaque
 

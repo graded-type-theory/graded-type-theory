@@ -19,6 +19,8 @@ module Definition.Typed.Consequences.Admissible.Bool.Erased
   (open Type-restrictions R)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr M 𝕄 ⦄
+  -- It is assumed that the modality has grade ω.
+  ⦃ has-ω : Has-omega M 𝕄 ⦄
   -- It is assumed that certain Σ-types are allowed.
   (Σ-ok : Σʷ-allowed 𝟙 Boolᵍ)
   -- It is assumed that Erased is allowed for the strength 𝕨.

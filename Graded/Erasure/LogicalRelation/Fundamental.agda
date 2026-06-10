@@ -24,6 +24,7 @@ module Graded.Erasure.LogicalRelation.Fundamental
   where
 
 open Type-restrictions TR
+open Usage-restrictions UR
 
 open Definition.Untyped M
 open Definition.Typed TR
@@ -32,6 +33,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
 open import Graded.Usage.Inversion UR
@@ -343,7 +345,7 @@ module Fundamental
       rflʳ ⊢t
     fundamental′ {γ} {m = 𝟙ᵐ} (Jⱼ _ ⊢B ⊢u _ ⊢w) ▸J (J _ _ _ <n₄ _ <n₆) =
       case inv-usage-J ▸J of λ where
-        (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
+        (invUsageJ₀₂ ⦃ (em) ⦄ _ _ _ ▸u _ _ γ≤) →
           Jʳ ⊢B ⊢u ⊢w γ≤ (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
                (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
@@ -352,7 +354,7 @@ module Fundamental
                    PE.trans (PE.sym em)
                      (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
                  of λ ())
-        (invUsageJ₀₁ {γ₃} {γ₄} em _ _ _ _ _ ▸u _ _ γ≤) →
+        (invUsageJ₀₁ {γ₃} {γ₄} ⦃ (em) ⦄ _ _ _ _ _ ▸u _ _ γ≤) →
           subsumption-▸⊩ʳ∷[]
             (λ x →
                γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
@@ -368,7 +370,7 @@ module Fundamental
                    PE.trans (PE.sym em)
                      (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
                  of λ ())
-        (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ ▸u _ ▸w γ≤) →
+        (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ ▸u _ ▸w γ≤) →
           subsumption-▸⊩ʳ∷[]
             (λ x →
                γ ⟨ x ⟩ PE.≡ 𝟘                                        →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
@@ -390,7 +392,7 @@ module Fundamental
                   (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental′ ⊢w ▸w <n₆)))
     fundamental′ {γ} {m = 𝟙ᵐ} (Kⱼ ⊢B ⊢u ⊢v ok) ▸K (K _ _ _ <n₄ <n₅) =
       case inv-usage-K ▸K of λ where
-        (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
+        (invUsageK₀₂ ⦃ (em) ⦄ _ _ _ ▸u _ γ≤) →
           Kʳ ⊢B ⊢u ⊢v ok γ≤ (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
                (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
@@ -399,7 +401,7 @@ module Fundamental
                    PE.trans (PE.sym em)
                      (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
                  of λ ())
-        (invUsageK₀₁ {γ₃} {γ₄} em _ _ _ _ ▸u _ γ≤) →
+        (invUsageK₀₁ {γ₃} {γ₄} ⦃ (em) ⦄ _ _ _ _ ▸u _ γ≤) →
           subsumption-▸⊩ʳ∷[]
             (λ x →
                γ ⟨ x ⟩ PE.≡ 𝟘                      →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
@@ -415,7 +417,7 @@ module Fundamental
                    PE.trans (PE.sym em)
                      (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
                  of λ ())
-        (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸u ▸v γ≤) →
+        (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ ▸u ▸v γ≤) →
           subsumption-▸⊩ʳ∷[]
             (λ x →
                γ ⟨ x ⟩ PE.≡ 𝟘                                  →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩

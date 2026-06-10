@@ -67,6 +67,9 @@ record Extended-modality a : Set (lsuc a) where
     -- The modality has well-behaved GLBs.
     NO-NR-GLB : Has-well-behaved-GLBs _ 𝕄
 
+    -- The modality has grade ω.
+    HAS-ω : Has-omega _ 𝕄
+
   open Has-nr (Natrec-mode-Has-nr 𝕄 NR) public
 
   field
@@ -74,7 +77,7 @@ record Extended-modality a : Set (lsuc a) where
     NR₀ : Linearity-like-nr-for-𝟘
 
     -- The dedicated nr function satisfies Linearity-like-nr-for-𝟙.
-    NR₁ : Linearity-like-nr-for-𝟙
+    NR₁ : Linearity-like-nr-for-𝟙 ⦃ HAS-ω ⦄
 
     -- The modality supports subtraction
     SUB : Supports-subtraction 𝕄
@@ -82,6 +85,10 @@ record Extended-modality a : Set (lsuc a) where
   open Type-restrictions TR public
   open Usage-restrictions UR public
   open Full-reduction-assumptions FA public
+
+  instance
+    has-omega : Has-omega _ 𝕄
+    has-omega = HAS-ω
 
 private variable
   𝕄 𝕄₁ 𝕄₂ 𝕄₃ : Extended-modality _

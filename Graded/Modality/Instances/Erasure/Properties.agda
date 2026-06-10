@@ -525,7 +525,7 @@ opaque instance
     }
     where
     open Modality ErasureModality
-      hiding (_+_; _·_; _≤_; 𝟘; ω)
+      hiding (_+_; _·_; _≤_; 𝟘)
 
     +-GLBˡ′ : {p q : Erasure} {pᵢ : Sequence Erasure} →
             Greatest-lower-bound p pᵢ →
@@ -611,6 +611,16 @@ opaque
       η +ᶜ ω ·ᶜ η ≈⟨ +ᶜ-congˡ (·ᶜ-identityˡ _) ⟩
       η +ᶜ η      ≡⟨ +ᶜ-idem _ ⟩
       η           ∎
+
+opaque
+
+  -- ω is the only omega grade.
+
+  erasure-has-omega-unique :
+    (p : Has-omega ErasureModality) →
+    Has-omega.ω p ≡ ω
+  erasure-has-omega-unique p =
+    least-elem′ (Has-omega.ω p) (Has-omega.ω≤𝟙 p)
 
 ------------------------------------------------------------------------
 -- Properties relating to the mode structure Zero-one

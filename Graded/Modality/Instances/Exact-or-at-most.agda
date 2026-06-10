@@ -200,6 +200,23 @@ _∧_ : Op₂ Exact-or-at-most
 ≈/≤1+ b m ∧ ∞ = ∞
 ∞ ∧ q = ∞
 
+private opaque
+
+  -- Meet is idempotent.
+
+  ∧-idem : Idempotent _∧_
+  ∧-idem 𝟘 = refl
+  ∧-idem (≈/≤1+ b m) =
+    cong₂ ≈/≤1+ lemma (N.⊔-idem m)
+    where
+    open RPe
+    lemma : (b B.∧ b) B.∧ (m N.== m) ≡ b
+    lemma = begin
+      (b B.∧ b) B.∧ (m N.== m) ≡⟨ cong₂ B._∧_ (B.∧-idem b) (N.==-refl m) ⟩
+      b B.∧ true               ≡⟨ B.∧-identityʳ b ⟩
+      b                        ∎
+  ∧-idem ∞ = refl
+
 _≤_ : (p q : Exact-or-at-most) → Set
 p ≤ q = p ≡ p ∧ q
 
@@ -235,7 +252,6 @@ exact-or-at-most-modality = record
   ; _∧_ = _∧_
   ; 𝟘 = 𝟘
   ; 𝟙 = 𝟙
-  ; ω = ∞
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
       { +-isCommutativeMonoid = record
@@ -273,8 +289,6 @@ exact-or-at-most-modality = record
     }
   ; ·-distrib-∧ = ·-distribˡ-∧ , (comm∧distrˡ⇒distrʳ ·-comm ·-distribˡ-∧)
   ; +-distrib-∧ = +-distribˡ-∧ , (comm∧distrˡ⇒distrʳ +-comm +-distribˡ-∧)
-  ; ω≤𝟙 = refl
-  ; ω·+≤ω·ʳ = ω·+≤ω·ʳ
   ; is-𝟘? = λ p → p ≟ 𝟘
   }
   where
@@ -447,18 +461,6 @@ exact-or-at-most-modality = record
     lemma (1+ m) 0 (1+ m₂) = refl
     lemma (1+ m) (1+ m₁) 0 = B.∧-zeroʳ _
     lemma (1+ m) (1+ m₁) (1+ m₂) = lemma m m₁ m₂
-  ∧-idem : Idempotent _∧_
-  ∧-idem 𝟘 = refl
-  ∧-idem (≈/≤1+ b m) =
-    cong₂ ≈/≤1+ lemma (N.⊔-idem m)
-    where
-    open RPe
-    lemma : (b B.∧ b) B.∧ (m N.== m) ≡ b
-    lemma = begin
-      (b B.∧ b) B.∧ (m N.== m) ≡⟨ cong₂ B._∧_ (B.∧-idem b) (N.==-refl m) ⟩
-      b B.∧ true               ≡⟨ B.∧-identityʳ b ⟩
-      b                        ∎
-  ∧-idem ∞ = refl
 
   ∧-comm : Commutative _∧_
   ∧-comm 𝟘 𝟘 = refl
@@ -594,12 +596,23 @@ exact-or-at-most-modality = record
   +-distribˡ-∧ (≈/≤1+ b m) ∞ r = refl
   +-distribˡ-∧ ∞ q r = refl
 
-  ω·+≤ω·ʳ : ∞ · (p + q) ≤ ∞ · q
-  ω·+≤ω·ʳ {(𝟘)} = sym (∧-idem _)
-  ω·+≤ω·ʳ {≈/≤1+ b m} {(𝟘)} = refl
-  ω·+≤ω·ʳ {≈/≤1+ b m} {≈/≤1+ b₁ m₁} = refl
-  ω·+≤ω·ʳ {≈/≤1+ b m} {(∞)} = refl
-  ω·+≤ω·ʳ {(∞)} = refl
+instance
+
+  -- The modality has grade ω
+
+  exact-or-at-most-has-omega : Has-omega exact-or-at-most-modality
+  exact-or-at-most-has-omega = record
+    { ω = ∞
+    ; ω≤𝟙 = refl
+    ; ω·+≤ω·ʳ = ω·+≤ω·ʳ
+    }
+    where
+    ω·+≤ω·ʳ : ∞ · (p + q) ≤ ∞ · q
+    ω·+≤ω·ʳ {(𝟘)} = sym (∧-idem _)
+    ω·+≤ω·ʳ {≈/≤1+ b m} {(𝟘)} = refl
+    ω·+≤ω·ʳ {≈/≤1+ b m} {≈/≤1+ b₁ m₁} = refl
+    ω·+≤ω·ʳ {≈/≤1+ b m} {(∞)} = refl
+    ω·+≤ω·ʳ {(∞)} = refl
 
 opaque instance
 

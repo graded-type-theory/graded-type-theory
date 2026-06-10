@@ -40,11 +40,12 @@ module Graded.Erasure.Extraction.Non-terminating
   (open Graded.Mode.Instances.Zero-one variant)
   (TR : Type-restrictions 𝕄)
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (open Usage-restrictions UR)
+  ⦃ jk-ω : JK-with-omega ⦄
   where
 
 open Modality 𝕄
 open Type-restrictions TR
-open Usage-restrictions UR
 
 open import Definition.Typed TR
 open import Definition.Typed.Properties TR hiding (⊢cast)
@@ -59,10 +60,12 @@ open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.Target as T using (Strictness; strict)
 open import Graded.Erasure.Target.Non-terminating
 open import Graded.Erasure.Target.Properties
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
 open import Graded.Usage.Properties UR
 open import Graded.Usage.Properties.Zero-one variant UR
+open import Graded.Usage.Restrictions.Instance UR
 
 open import Tools.Bool using (Bool; true)
 open import Tools.Empty

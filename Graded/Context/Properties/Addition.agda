@@ -10,6 +10,7 @@ module Graded.Context.Properties.Addition
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 
 open import Tools.Algebra
@@ -157,7 +158,7 @@ opaque
 
   -- The context ω ·ᶜ (γ +ᶜ δ) is bounded by ω ·ᶜ δ.
 
-  ω·ᶜ+ᶜ≤ω·ᶜʳ : ω ·ᶜ (γ +ᶜ δ) ≤ᶜ ω ·ᶜ δ
+  ω·ᶜ+ᶜ≤ω·ᶜʳ : ⦃ ok : Has-omega _ 𝕄 ⦄ → ω ·ᶜ (γ +ᶜ δ) ≤ᶜ ω ·ᶜ δ
   ω·ᶜ+ᶜ≤ω·ᶜʳ {γ = ε}     {δ = ε}     = ε
   ω·ᶜ+ᶜ≤ω·ᶜʳ {γ = _ ∙ _} {δ = _ ∙ _} = ω·ᶜ+ᶜ≤ω·ᶜʳ ∙ ω·+≤ω·ʳ
 
@@ -165,6 +166,6 @@ opaque
 
   -- The context ω ·ᶜ (γ +ᶜ δ) is bounded by ω ·ᶜ γ.
 
-  ω·ᶜ+ᶜ≤ω·ᶜˡ : ω ·ᶜ (γ +ᶜ δ) ≤ᶜ ω ·ᶜ γ
+  ω·ᶜ+ᶜ≤ω·ᶜˡ : ⦃ ok : Has-omega _ 𝕄 ⦄ → ω ·ᶜ (γ +ᶜ δ) ≤ᶜ ω ·ᶜ γ
   ω·ᶜ+ᶜ≤ω·ᶜˡ {γ = ε}     {δ = ε}     = ε
   ω·ᶜ+ᶜ≤ω·ᶜˡ {γ = _ ∙ _} {δ = _ ∙ _} = ω·ᶜ+ᶜ≤ω·ᶜˡ ∙ ω·+≤ω·ˡ

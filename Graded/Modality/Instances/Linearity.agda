@@ -61,6 +61,14 @@ instance
     Has-well-behaved-zero linearityModality
   linearity-has-well-behaved-zero = zero-one-many-has-well-behaved-zero
 
+instance
+
+  -- The "linear types" modality has grade ω.
+
+  linearity-has-omega :
+    Has-omega linearityModality
+  linearity-has-omega = zero-one-many-has-omega
+
 open Graded.Modality.Properties linearityModality
 open Graded.Mode.Instances.Zero-one.Variant linearityModality
 

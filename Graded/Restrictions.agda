@@ -26,11 +26,13 @@ open import Tools.Relation as Dec
 open import Tools.Sum
 open import Tools.Unit
 
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄 𝐌
 open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Restrictions.JK 𝕄
 
 import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Typed.Restrictions 𝕄
@@ -111,6 +113,7 @@ second-ΠΣ-quantities-𝟘 R = record R
 -- quantity is not ω, then the second quantity is the 𝟘 of 𝕄.
 
 second-ΠΣ-quantities-𝟘-or-ω :
+  ⦃ ok : Has-omega 𝕄 ⦄ →
   Type-restrictions → Type-restrictions
 second-ΠΣ-quantities-𝟘-or-ω R = record R
   { ΠΣ-allowed = λ b p q →
@@ -265,10 +268,10 @@ no-usage-restrictions nm nr-ok erased sink = λ where
     .Id-erased                               → Lift _ (T erased)
     .Id-erased?                              → Dec.map lift Lift.lower $
                                                 T? erased
-    .erased-matches-for-J                    → λ _ → all
-    .erased-matches-for-J-≤ᵉᵐ                → _
-    .erased-matches-for-K                    → λ _ → all
-    .erased-matches-for-K-≤ᵉᵐ                → _
+    .JK-supported-erased-matches             → only-all
+    .erased-matches-for-JK                   → λ _ _ → all
+    .erased-matches-for-JK-≤ᵉᵐ               → _
+    .erased-matches-for-JK-supports-ω        → λ ()
     .mode-supports-nr                        → nr-ok
   where
   open Usage-restrictions
@@ -300,44 +303,24 @@ nr-not-available-glb-UR ok UR =
 -- The function enables support for []-cong (if the modality is
 -- non-trivial), but disables support for erased matches for J.
 
-[]-cong-UR : Usage-restrictions → Usage-restrictions
-[]-cong-UR UR = record UR
+[]-cong-UR : ⦃ ok : Has-omega 𝕄 ⦄ → Usage-restrictions → Usage-restrictions
+[]-cong-UR ⦃ ok ⦄ UR = record UR
   { []-cong-allowed-mode     = λ m s → []-cong-allowed-mode m s ⊎
                                      ¬ Trivial
   ; []-cong-allowed-mode-upwards-closed = λ where
       (inj₁ ok) m≤m′ → inj₁ ([]-cong-allowed-mode-upwards-closed ok m≤m′)
       (inj₂ 𝟙≢𝟘) _   → inj₂ 𝟙≢𝟘
-  ; erased-matches-for-J     = λ _ → none
-  ; erased-matches-for-J-≤ᵉᵐ = _
+  ; JK-supported-erased-matches = any ⦃ ok ⦄
+  ; erased-matches-for-JK     = λ where
+      J _ → none
+      K m → erased-matches-for-JK K m
+  ; erased-matches-for-JK-≤ᵉᵐ = λ where
+      {jk = J} m≤m′ → _
+      {jk = K} m≤m′ → erased-matches-for-JK-≤ᵉᵐ m≤m′
+  ; erased-matches-for-JK-supports-ω = λ _ → any
   }
   where
   open Usage-restrictions UR
-
-------------------------------------------------------------------------
--- No-secret-matches
-
--- The property of not allowing (certain) secret matches (matches on
--- data that is "more secret" than a given grade).
-
--- record No-secret-matches
---   (p₀ : M) (TV : Type-variant) (UR : Usage-restrictions) : Set (a ⊔ a′) where
-
---   no-eta-equality
-
---   open Usage-restrictions UR
---   open Type-variant TV
-
---   field
---     no-secret-prodrec :
---       ∀ {m p q r} → m ≤ᵐ ⌞ p₀ ⌟ → Prodrec-allowed m r p q → r ≤ p₀
---     no-secret-unitrec :
---       ∀ {m p q} → m ≤ᵐ ⌞ p₀ ⌟ → ¬ Unitʷ-η → Unitrec-allowed ⌞ m ⌟ p q → p ≤ p₀
---     no-secret-J :
---       erased-matches-for-J ⌞ p₀ ⌟ ≡ none
---     no-secret-K :
---       m ≤ᵐ ⌞ p₀ ⌟ → erased-matches-for-K m ≡ none
---     no-secret-[]-cong :
---       ∀ {s m} → m ≤ p₀ → []-cong-allowed-mode s ⌞ m ⌟ → 𝟘 ≤ p₀
 
 ------------------------------------------------------------------------
 -- No-erased-matches
@@ -447,6 +430,7 @@ opaque
   -- TD.Assumptions.
 
   Assumptions-second-ΠΣ-quantities-𝟘-or-ω :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     TD.Assumptions TR → TD.Assumptions (second-ΠΣ-quantities-𝟘-or-ω TR)
   Assumptions-second-ΠΣ-quantities-𝟘-or-ω as = λ where
       ._≟_                    → A._≟_

@@ -17,6 +17,8 @@ module Graded.Modality.Morphism.Backward-instances
   (cp : Common-properties R₁ R₂)
   where
 
+open import Tools.Product
+
 open Common-properties cp
 
 module R₁ = Usage-restrictions R₁
@@ -45,3 +47,11 @@ instance
   no-nr-glb-in-first-if-in-second′ :
     ⦃ no-nr : R₂.Nr-not-available-GLB ⦄ → R₁.Nr-not-available-GLB
   no-nr-glb-in-first-if-in-second′ = no-nr-glb-in-first-if-in-second
+
+  -- If the target modality allows grade ω for J and K then so does
+  -- the source one.
+
+  JK-with-omega-in-first-if-in-second :
+    ⦃ ok : R₂.JK-with-omega ⦄ → R₁.JK-with-omega
+  JK-with-omega-in-first-if-in-second ⦃ ok ⦄ =
+    JK-with-omega-preserved .proj₂ ok

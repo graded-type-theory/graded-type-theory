@@ -54,6 +54,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
@@ -643,9 +644,9 @@ opaque
       ∃₃ λ r′ δ η → δ ▸[ ⌞ r · r′ ⌟ ] w × η ▸[ ⌞ r ⌟ ] u ×
         (∣J erased-matches-for-J ⌞ r ⌟ , p , q ∣≡ r′) ×
         γ ≤ᶜ r′ ·ᶜ δ +ᶜ η
-    lemma {γ} (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} x x₁ _ _ _ ▸u _ ▸w γ≤) =
+    lemma {γ} (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} x _ _ _ ▸u _ ▸w γ≤) =
       _ , _ , _ , ▸-cong (trans (sym ᵐ·-identityʳ-ω) ⌞⌟·ᵐ) ▸w
-        , ▸u , ∣J∣≡ω x x₁ , (begin
+        , ▸u , ∣J∣≡ω x , (begin
           γ                                 ≤⟨ γ≤ ⟩
           ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
           ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)       ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
@@ -653,18 +654,18 @@ opaque
           ω ·ᶜ γ₄ +ᶜ ω ·ᶜ (γ₅ +ᶜ γ₆)        ≤⟨ +ᶜ-monotone ω·ᶜ-decreasing ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
           γ₄ +ᶜ ω ·ᶜ γ₆                     ≈⟨ +ᶜ-comm _ _ ⟩
           ω ·ᶜ γ₆ +ᶜ γ₄                     ∎)
-    lemma {γ} (invUsageJ₀₁ {γ₃} {γ₄} {γ₆} x p≡𝟘 q≡𝟘 _ _ _ ▸u _ ▸w γ≤) =
+    lemma {γ} (invUsageJ₀₁ {γ₃} {γ₄} {γ₆} ⦃ (ok) ⦄ p≡𝟘 q≡𝟘 _ _ _ ▸u _ ▸w γ≤) =
        _ , _ , _ , ▸-cong (sym (trans (⌞⌟-cong (·-zeroʳ _)) ⌞𝟘⌟)) ▸w , ▸u
-         , (subst (λ em → ∣J em , _ , _ ∣≡ 𝟘) (sym x) (J-some₀ p≡𝟘 q≡𝟘)) , (begin
+         , (subst (λ em → ∣J em , _ , _ ∣≡ 𝟘) (sym ok) (J-some₀ p≡𝟘 q≡𝟘)) , (begin
           γ               ≤⟨ γ≤ ⟩
           ω ·ᶜ (γ₃ +ᶜ γ₄) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
           ω ·ᶜ γ₄         ≤⟨ ω·ᶜ-decreasing ⟩
           γ₄              ≈˘⟨ +ᶜ-identityˡ _ ⟩
           𝟘ᶜ +ᶜ γ₄        ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
           𝟘 ·ᶜ γ₆ +ᶜ γ₄   ∎)
-    lemma {γ} (invUsageJ₀₂ {γ₄} {γ₆} x _ _ _ ▸u _ ▸w γ≤) =
+    lemma {γ} (invUsageJ₀₂ {γ₄} {γ₆} ⦃ (ok) ⦄ _ _ _ ▸u _ ▸w γ≤) =
       _ , _ , _ , ▸-cong (sym (trans (⌞⌟-cong (·-zeroʳ _)) ⌞𝟘⌟)) ▸w , ▸u
-        , subst (λ em → ∣J em , _ , _ ∣≡ 𝟘) (sym x) J-all , (begin
+        , subst (λ em → ∣J em , _ , _ ∣≡ 𝟘) (sym ok) J-all , (begin
         γ             ≤⟨ γ≤ ⟩
         γ₄            ≈˘⟨ +ᶜ-identityˡ _ ⟩
         𝟘ᶜ +ᶜ γ₄      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
@@ -690,9 +691,9 @@ opaque
       ∃₃ λ q δ η → δ ▸[ ⌞ r · q ⌟ ] v × η ▸[ ⌞ r ⌟ ] u ×
         (∣K erased-matches-for-K ⌞ r ⌟ , p ∣≡ q) ×
         γ ≤ᶜ q ·ᶜ δ +ᶜ η
-    lemma {γ} (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} x x₁ _ _ _ ▸u ▸v γ≤) =
+    lemma {γ} (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} x _ _ _ ▸u ▸v γ≤) =
       _ , _ , _ , ▸-cong (trans (sym ᵐ·-identityʳ-ω) ⌞⌟·ᵐ) ▸v
-        , ▸u , ∣K∣≡ω x x₁ , (begin
+        , ▸u , ∣K∣≡ω x , (begin
           γ                           ≤⟨ γ≤ ⟩
           ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
           ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅)       ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
@@ -700,18 +701,18 @@ opaque
           ω ·ᶜ γ₄ +ᶜ ω ·ᶜ γ₅          ≤⟨ +ᶜ-monotoneˡ ω·ᶜ-decreasing ⟩
           γ₄ +ᶜ ω ·ᶜ γ₅               ≈⟨ +ᶜ-comm _ _ ⟩
           ω ·ᶜ γ₅ +ᶜ γ₄               ∎)
-    lemma {γ} (invUsageK₀₁ {γ₃} {γ₄} {γ₅} x p≡𝟘 _ _ _ ▸u ▸v γ≤) =
+    lemma {γ} (invUsageK₀₁ {γ₃} {γ₄} {γ₅} ⦃ (ok) ⦄ p≡𝟘 _ _ _ ▸u ▸v γ≤) =
       _ , _ , _ , ▸-cong (sym (trans (⌞⌟-cong (·-zeroʳ _)) ⌞𝟘⌟)) ▸v , ▸u
-        , subst (λ em → ∣K em , _ ∣≡ 𝟘) (sym x) (K-some₀ p≡𝟘) , (begin
+        , subst (λ em → ∣K em , _ ∣≡ 𝟘) (sym ok) (K-some₀ p≡𝟘) , (begin
           γ               ≤⟨ γ≤ ⟩
           ω ·ᶜ (γ₃ +ᶜ γ₄) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
           ω ·ᶜ γ₄         ≤⟨ ω·ᶜ-decreasing ⟩
           γ₄              ≈˘⟨ +ᶜ-identityˡ _ ⟩
           𝟘ᶜ +ᶜ γ₄        ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩
           𝟘 ·ᶜ γ₅ +ᶜ γ₄   ∎)
-    lemma {γ} (invUsageK₀₂ {γ₄} {γ₅} x _ _ _ ▸u ▸v γ≤) =
+    lemma {γ} (invUsageK₀₂ {γ₄} {γ₅} ⦃ (ok) ⦄ _ _ _ ▸u ▸v γ≤) =
       _ , _ , _ , ▸-cong (sym (trans (⌞⌟-cong (·-zeroʳ _)) ⌞𝟘⌟)) ▸v , ▸u
-        , subst (λ em → ∣K em , _ ∣≡ 𝟘) (sym x) K-all , (begin
+        , subst (λ em → ∣K em , _ ∣≡ 𝟘) (sym ok) K-all , (begin
         γ             ≤⟨ γ≤ ⟩
         γ₄            ≈˘⟨ +ᶜ-identityˡ _ ⟩
         𝟘ᶜ +ᶜ γ₄      ≈˘⟨ +ᶜ-congʳ (·ᶜ-zeroˡ _) ⟩

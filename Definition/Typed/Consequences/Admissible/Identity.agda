@@ -16,6 +16,8 @@ module Definition.Typed.Consequences.Admissible.Identity
 open Modality 𝕄
 open Type-restrictions R
 
+open import Graded.Modality.Omega-instances
+
 open import Definition.Typed R
 open import Definition.Typed.Decidable.Internal 𝐌 R
 import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
@@ -101,7 +103,9 @@ opaque
   -- A definition that is used to state
   -- Is-function-extensionality-lower-ext below.
 
-  lower-ext : M → M → M → Lvl n → Lvl n → Term n → Term n
+  lower-ext :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
+    M → M → M → Lvl n → Lvl n → Term n → Term n
   lower-ext p q p′ l₁′ l₂′ ext =
     lam p $ lam p′ $ lam p′ $ lam p′ $ lam p′ $
     cong ω
@@ -131,6 +135,7 @@ opaque
   -- are well-formed).
 
   Is-function-extensionality-lower-ext :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     {Γ : Cons m n} →
     Γ ⊢ l₁ ∷Level →
     Γ ⊢ l₁′ ∷Level →
@@ -151,7 +156,7 @@ opaque
       (I.base nothing I.» I.base)
       (I.lam xp nothing $ I.lam xp′ nothing $ I.lam xp′ nothing $
        I.lam xp′ nothing $ I.lam xp′ nothing $
-       congᵢ I.ω
+       congᵢ xω
          (I.Π xp , xq ▷ I.Lift (IW.wk[ 5 ] xl₁′) (I.var x4) ▹
           I.Lift (IW.wk[ 6 ] xl₂′)
             (I.var x4 I.∘⟨ xp ⟩ I.lower (I.var x0)))
@@ -175,7 +180,7 @@ opaque
             (I.lift nothing (I.var x2 I.∘⟨ xp ⟩ I.lower (I.var x0)))
             I.∘⟨ xp′ ⟩
           I.lam xp nothing
-            (congᵢ I.ω (I.var x4 I.∘⟨ xp ⟩ I.lower (I.var x0))
+            (congᵢ xω (I.var x4 I.∘⟨ xp ⟩ I.lower (I.var x0))
                (I.var x3 I.∘⟨ xp ⟩ I.lower (I.var x0))
                (I.var x2 I.∘⟨ xp ⟩ I.lower (I.var x0))
                (I.Lift (IW.wk[ 6 ] xl₂′)
@@ -198,7 +203,7 @@ opaque
       (wf ⊢ext)
       where
       c′ : I.Constants
-      c′ .I.gs                 = 4
+      c′ .I.gs                 = 5
       c′ .I.ss                 = 0
       c′ .I.bms                = 0
       c′ .I.ms                 = 5
@@ -209,11 +214,12 @@ opaque
       c′ .I.meta-con-term-kind =
         lvl V.∷ lvl V.∷ lvl V.∷ lvl V.∷ tm V.∷ V.ε
 
-      xp xp′ xq xq′ : I.Termᵍ 4
+      xp xp′ xq xq′ xω : I.Termᵍ 5
       xp  = I.var x0
       xp′ = I.var x1
       xq  = I.var x2
       xq′ = I.var x3
+      xω  = I.var x4
 
       xl₁ xl₁′ xl₂ xl₂′ : I.Lvl c′ n
       xl₁  = I.varᵐ x0
@@ -225,7 +231,7 @@ opaque
       xext = I.varᵐ x4
 
       γ′ : I.Contexts c′
-      γ′ .I.grades       = p V.∷ p′ V.∷ q V.∷ q′ V.∷ V.ε
+      γ′ .I.grades       = p V.∷ p′ V.∷ q V.∷ q′ V.∷ ω V.∷ V.ε
       γ′ .I.strengths    = V.ε
       γ′ .I.binder-modes = V.ε
       γ′ .I.⌜base⌝       = Γ
@@ -255,6 +261,7 @@ opaque
   -- are well-formed).
 
   Has-function-extensionality-supᵘₗ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ l₁ ∷Level →
     Γ ⊢ l₁′ ∷Level →
     Γ ⊢ l₂ ∷Level →
@@ -273,6 +280,7 @@ opaque
   -- holds for smaller levels l₁ and l₂.
 
   Has-function-extensionality-downwards-closed :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ l₁ ≤ₗ l₁′ ∷Level →
     Γ ⊢ l₂ ≤ₗ l₂′ ∷Level →
     Has-function-extensionality p q p′ q′ l₁′ l₂′ Γ →
@@ -339,6 +347,7 @@ opaque
   -- A term used to state ⊢ΠΣ-cong-Idˡ.
 
   ΠΣ-cong-Idˡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     BinderMode → M → M → M → M → M → M → Lvl n → Term n → Term n →
     Term (1+ n) → Term n → Term (1+ n) → Term n → Term (1+ n) → Term n
   ΠΣ-cong-Idˡ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u =
@@ -372,6 +381,7 @@ opaque
   -- allowed).
 
   ⊢ΠΣ-cong-Idˡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     {Γ : Cons m n} →
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
@@ -395,7 +405,7 @@ opaque
     check-type-and-term-sound
       γ′
       (I.base nothing I.» I.base)
-      (I.J I.ω I.ω (I.U xl) xA₁
+      (I.J xω xω (I.U xl) xA₁
          (I.Π xp″ , xq″ ▷
             I.Π xp′ , xq′ ▷ I.var x1 ▹ I.U (IW.wk[ 3 ] xl) ▹
           I.Π xp″ , xq″ ▷
@@ -410,7 +420,7 @@ opaque
             (I.ΠΣ⟨ xb ⟩ xp , xq ▷ I.var x3 ▹
              (I.var x2 I.∘⟨ xp′ ⟩ I.var x0)))
          (I.lam xp″ nothing $ I.lam xp″ nothing $
-          congᵢ I.ω
+          congᵢ xω
             (IW.wk[ 2 ] (I.Π xp′ , xq′ ▷ xA₁ ▹ I.U (IW.wk[ 1 ] xl)))
             (IW.wk[ 2 ] (I.lam xp′ (just (xq′ , xA₁)) xB₁)) (I.var x1)
             (I.U (IW.wk[ 2 ] xl))
@@ -445,7 +455,7 @@ opaque
       (wf ⊢A₁)
       where
       c′ : I.Constants
-      c′ .I.gs                 = 6
+      c′ .I.gs                 = 7
       c′ .I.ss                 = 0
       c′ .I.bms                = 1
       c′ .I.ms                 = 8
@@ -459,13 +469,14 @@ opaque
       xb : I.Termᵇᵐ 0 1
       xb = I.var x0
 
-      xp xp′ xp″ xq xq′ xq″ : I.Termᵍ 6
+      xp xp′ xp″ xq xq′ xq″ xω : I.Termᵍ 7
       xp  = I.var x0
       xp′ = I.var x1
       xp″ = I.var x2
       xq  = I.var x3
       xq′ = I.var x4
       xq″ = I.var x5
+      xω  = I.var x6
 
       xl : I.Lvl c′ n
       xl = I.varᵐ x0
@@ -482,7 +493,7 @@ opaque
       xu  = I.varᵐ x6
 
       γ′ : I.Contexts c′
-      γ′ .I.grades       = p V.∷ p′ V.∷ p″ V.∷ q V.∷ q′ V.∷ q″ V.∷ V.ε
+      γ′ .I.grades       = p V.∷ p′ V.∷ p″ V.∷ q V.∷ q′ V.∷ q″ V.∷ ω V.∷ V.ε
       γ′ .I.strengths    = V.ε
       γ′ .I.binder-modes = b V.∷ V.ε
       γ′ .I.⌜base⌝       = Γ
@@ -519,6 +530,7 @@ opaque
   -- A term used to state ⊢ΠΣ-cong-Idʳ.
 
   ΠΣ-cong-Idʳ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     BinderMode → M → M → M → M → M → M → Lvl n → Term n → Term n →
     Term (1+ n) → Term n → Term (1+ n) → Term n → Term (1+ n) → Term n
   ΠΣ-cong-Idʳ b p q p′ q′ p″ q″ l ext A₁ B₁ A₂ B₂ t u =
@@ -534,6 +546,7 @@ opaque
   -- A variant of ⊢ΠΣ-cong-Idˡ.
 
   ⊢ΠΣ-cong-Idʳ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     ΠΣ-allowed b p q →
     Π-allowed p′ q′ →
     Π-allowed p″ q″ →
@@ -576,6 +589,7 @@ opaque
   -- that some Π-type is allowed).
 
   Id-cong-Idˡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     {Γ : Cons m n} →
     Π-allowed p q →
     Γ ⊢ t ∷ Id (U l) A₁ A₂ →
@@ -596,7 +610,7 @@ opaque
     check-type-and-term-sound
       γ′
       (I.base nothing I.» I.base)
-      (I.J I.ω I.ω (I.U xl) xA₁
+      (I.J xω xω (I.U xl) xA₁
          (I.Π xp , xq ▷ I.var x1 ▹
           I.Π xp , xq ▷ I.var x2 ▹
           I.Π xp , xq ▷
@@ -613,7 +627,7 @@ opaque
             (I.Id (I.var x5) (I.var x3) (I.var x2)))
          (I.lam xp nothing $ I.lam xp nothing $ I.lam xp nothing $
           I.lam xp nothing $
-          cong₂ᵢ I.ω (IW.wk[ 4 ] xA₁) (IW.wk[ 4 ] xt₁) (I.var x3)
+          cong₂ᵢ xω xω (IW.wk[ 4 ] xA₁) (IW.wk[ 4 ] xt₁) (I.var x3)
             (IW.wk[ 4 ] xA₁) (IW.wk[ 4 ] xu₁) (I.var x2)
             (I.U (IW.wk[ 4 ] xl))
             (I.Id (IW.wk[ 6 ] xA₁) (I.var x1) (I.var x0)) (I.var x1)
@@ -641,7 +655,7 @@ opaque
       (wf ⊢A₁)
       where
       c′ : I.Constants
-      c′ .I.gs                 = 2
+      c′ .I.gs                 = 3
       c′ .I.ss                 = 0
       c′ .I.bms                = 0
       c′ .I.ms                 = 10
@@ -651,9 +665,10 @@ opaque
       c′ .I.meta-con-size      = V.replicate 10 n
       c′ .I.meta-con-term-kind = lvl V.∷ V.replicate 9 tm
 
-      xp xq : I.Termᵍ 2
+      xp xq xω : I.Termᵍ 3
       xp = I.var x0
       xq = I.var x1
+      xω = I.var x2
 
       xl : I.Lvl c′ n
       xl = I.varᵐ x0
@@ -670,7 +685,7 @@ opaque
       xv  = I.varᵐ x9
 
       γ′ : I.Contexts c′
-      γ′ .I.grades              = p V.∷ q V.∷ V.ε
+      γ′ .I.grades              = p V.∷ q V.∷ ω V.∷ V.ε
       γ′ .I.strengths           = V.ε
       γ′ .I.binder-modes        = V.ε
       γ′ .I.⌜base⌝              = Γ
@@ -697,6 +712,7 @@ opaque
   -- A variant of Id-cong-Idˡ.
 
   Id-cong-Idʳ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Π-allowed p q →
     Γ ⊢ t ∷ Id (U l) A₁ A₂ →
     Γ ⊢ u ∷ Id A₁ t₁ (cast⁻¹ l A₁ A₂ t t₂) →

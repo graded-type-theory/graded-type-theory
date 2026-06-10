@@ -61,6 +61,7 @@ import Graded.Derived.Erased.Usage.Zero-one UR as ErasedU₀₁
 open import Graded.Derived.Identity UR
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.Target as T
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Neutral TR UR
 open import Graded.Reduction.Zero-one variant TR UR
@@ -70,6 +71,7 @@ open import Graded.Usage.Erased-matches
 open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
 open import Graded.Usage.Properties.Zero-one variant UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Weakening UR
 
 open import Tools.Bool using (Bool; T; true)
@@ -186,6 +188,7 @@ opaque
   -- A usage rule for []-cong-J.
 
   ▸[]-cong-J :
+    ⦃ has-ω : JK-with-omega ⦄ →
     erased-matches-for-J m PE.≡ not-none sem →
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] l →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] A →
@@ -225,6 +228,7 @@ opaque
   -- Another usage rule for []-cong-J.
 
   ▸[]-cong-J-𝟘ᵐ :
+    ⦃ has-ω : JK-with-omega ⦄ →
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] l →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] A →
     γ₃ ▸[ 𝟘ᵐ[ ok ] ] t →
@@ -260,6 +264,7 @@ opaque
   -- trivial.
 
   ▸[]-cong-J-trivial :
+    ⦃ has-ω : JK-with-omega ⦄ →
     Trivial →
     γ₁ ▸[ 𝟘ᵐ? ] l →
     γ₂ ▸[ 𝟘ᵐ? ] A →
@@ -1140,6 +1145,7 @@ opaque
   -- modality with 𝟘ᵐ.
 
   Has-[]-cong-for-level-stronger :
+    ⦃ has-ω : JK-with-omega ⦄ →
     {Γ : Con Term n} →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
@@ -1260,6 +1266,7 @@ opaque
   -- with 𝟘ᵐ.
 
   Has-computing-[]-cong-for-level-stronger :
+    ⦃ has-ω : JK-with-omega ⦄ →
     {Γ : Con Term n} →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
@@ -1867,6 +1874,7 @@ opaque
   -- erasure modality with 𝟘ᵐ.
 
   Has-[]-cong-stronger :
+    ⦃ has-ω : JK-with-omega ⦄ →
     {Γ : Con Term n} →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
@@ -2055,6 +2063,7 @@ opaque
   -- erasure modality with 𝟘ᵐ.
 
   Has-computing-[]-cong-stronger :
+    ⦃ has-ω : JK-with-omega ⦄ →
     {Γ : Con Term n} →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
@@ -2376,6 +2385,7 @@ opaque
 
 private
   module []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong
+    ⦃ has-ω : JK-with-omega ⦄
     (ok : ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
           Erased-allowed s ×
           (erased-matches-for-J m ≢ none × T 𝟘ᵐ-allowed ⊎
@@ -2597,6 +2607,7 @@ opaque
   --   * equality reflection is allowed.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong-for-level :
+    ⦃ has-ω : JK-with-omega ⦄ →
     {Γ : Con Term n} →
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
     Erased-allowed s ×
@@ -2658,6 +2669,7 @@ opaque
   --   * equality reflection is allowed.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong :
+    ⦃ has-ω : JK-with-omega ⦄ →
     {Γ : Con Term n} →
     Level-allowed →
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
@@ -2874,6 +2886,7 @@ opaque
   -- Consistent (ε » Δ) also holds.
 
   ¬-[]-cong-for-level′ :
+    ⦃ has-ω : JK-with-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
@@ -2949,6 +2962,7 @@ opaque
   -- holds.
 
   ¬-[]-cong′ :
+    ⦃ has-ω : JK-with-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →

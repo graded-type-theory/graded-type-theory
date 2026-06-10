@@ -23,6 +23,7 @@ open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
 open import Graded.Mode
+open import Graded.Modality.Omega-instances
 
 open import Tools.Fin
 open import Tools.Function
@@ -67,6 +68,7 @@ opaque
   -- Symmetry.
 
   symmetry :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Term n → Term n → Term n → Term n → Term n
   symmetry A t u eq =
     subst ω A (Id (wk1 A) (var x0) (wk1 t)) t u eq rfl
@@ -77,6 +79,7 @@ opaque
   -- A substitution lemma for symmetry.
 
   symmetry-[] :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     symmetry A t u eq [ σ ] ≡
     symmetry (A [ σ ]) (t [ σ ]) (u [ σ ]) (eq [ σ ])
   symmetry-[] {A} {t} {u} {eq} {σ} =
@@ -96,6 +99,7 @@ opaque
   -- Transitivity.
 
   transitivity :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Term n → Term n → Term n → Term n → Term n → Term n → Term n
   transitivity A t u v eq₁ eq₂ =
     subst ω A (Id (wk1 A) (wk1 t) (var x0)) u v eq₂ eq₁
@@ -106,6 +110,7 @@ opaque
   -- A substitution lemma for transitivity.
 
   transitivity-[] :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     transitivity A t u v eq₁ eq₂ [ σ ] ≡
     transitivity (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ]) (eq₁ [ σ ])
       (eq₂ [ σ ])
@@ -125,6 +130,7 @@ opaque
   -- A simplification lemma for transitivity and symmetry.
 
   transitivity-symmetryˡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Term n → Term n → Term n → Term n → Term n
   transitivity-symmetryˡ A t u eq =
     J ω ω A t
@@ -176,7 +182,9 @@ opaque
 
   -- An inverse of cast.
 
-  cast⁻¹ : Lvl n → Term n → Term n → Term n → Term n → Term n
+  cast⁻¹ :
+   ⦃ ok : Has-omega _ 𝕄 ⦄ →
+   Lvl n → Term n → Term n → Term n → Term n → Term n
   cast⁻¹ l A B t u =
     cast l B A (symmetry (U l) A B t) u
 
@@ -186,6 +194,7 @@ opaque
   -- A substitution lemma for cast⁻¹.
 
   cast⁻¹-[] :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     cast⁻¹ l A B t u [ σ ] ≡
     cast⁻¹ (l [ σ ]) (A [ σ ]) (B [ σ ]) (t [ σ ]) (u [ σ ])
   cast⁻¹-[] {l} {A} {B} {t} {u} {σ} =
@@ -202,6 +211,7 @@ opaque
   -- A weakening lemma for cast⁻¹.
 
   wk-cast⁻¹ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     wk ρ (cast⁻¹ l A B t u) ≡
     cast⁻¹ (wk ρ l) (wk ρ A) (wk ρ B) (wk ρ t) (wk ρ u)
   wk-cast⁻¹ {ρ} {l} {A} {B} {t} {u} =
@@ -275,6 +285,7 @@ opaque
   -- Binary congruence.
 
   cong₂ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     M → Term n → Term n → Term n → Term n → Term n → Term n → Term n →
     Term (2+ n) → Term n → Term n → Term n
   cong₂ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ =
@@ -288,6 +299,7 @@ opaque
   -- A substitution lemma for cong₂.
 
   cong₂-[] :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     cong₂ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ [ σ ] ≡
     cong₂ p (A₁ [ σ ]) (t₁ [ σ ]) (u₁ [ σ ]) (A₂ [ σ ]) (t₂ [ σ ])
       (u₂ [ σ ]) (B [ σ ]) (v [ σ ⇑[ 2 ] ]) (w₁ [ σ ]) (w₂ [ σ ])
@@ -340,6 +352,7 @@ opaque
   -- If two functions are equal, then they are pointwise equal.
 
   pointwise-equality :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     M → M → Term n → Term (1+ n) → Term n → Term n → Term n → Term n →
     Term n
   pointwise-equality p q A B t u v w =
@@ -351,6 +364,7 @@ opaque
   -- A substitution lemma for pointwise-equality.
 
   pointwise-equality-[] :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     pointwise-equality p q A B t u v w [ σ ] ≡
     pointwise-equality p q (A [ σ ]) (B [ liftSubst σ ]) (t [ σ ])
       (u [ σ ]) (v [ σ ]) (w [ σ ])
@@ -371,7 +385,9 @@ opaque
 
   -- Uniqueness of identity proofs (UIP)
 
-  uip : M → M → Term n → Term n → Term n → Term n → Term n → Term n
+  uip :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
+    M → M → Term n → Term n → Term n → Term n → Term n → Term n
   uip p q A t u eq₁ eq₂ =
     transitivity
       (Id A t u)
@@ -531,7 +547,7 @@ module Internal
 
   private variable
     c                                     : I.Constants
-    pᵢ p′ᵢ qᵢ q′ᵢ                         : I.Termᵍ _
+    pᵢ p′ᵢ qᵢ q′ᵢ ωᵢ                      : I.Termᵍ _
     Aᵢ A₁ᵢ A₂ᵢ Bᵢ eq₁ᵢ eq₂ᵢ
       tᵢ t₁ᵢ t₂ᵢ uᵢ u₁ᵢ u₂ᵢ vᵢ wᵢ w₁ᵢ w₂ᵢ : I.Term _ _
     lᵢ l₁ᵢ l₂ᵢ                            : I.Lvl _ _
@@ -579,10 +595,11 @@ module Internal
   -- type-checker.
 
   transitivityᵢ :
+    I.Termᵍ (c .I.gs) →
     I.Term c n → I.Term c n → I.Term c n → I.Term c n → I.Term c n →
     I.Term c n → I.Term c n
-  transitivityᵢ A t u v eq₁ eq₂ =
-    substᵢ I.ω A (I.Id (IW.wk[ 1 ] A) (IW.wk[ 1 ] t) (I.var x0)) u v eq₂
+  transitivityᵢ ω A t u v eq₁ eq₂ =
+    substᵢ ω A (I.Id (IW.wk[ 1 ] A) (IW.wk[ 1 ] t) (I.var x0)) u v eq₂
       eq₁
 
   opaque
@@ -591,10 +608,12 @@ module Internal
     -- A translation lemma for transitivityᵢ.
 
     ⌜transitivityᵢ⌝ :
-      I.⌜ transitivityᵢ Aᵢ tᵢ uᵢ vᵢ eq₁ᵢ eq₂ᵢ ⌝ γ ≡
+      ⦃ ok : Has-omega _ 𝕄 ⦄ →
+      I.⟦ ωᵢ ⟧ᵍ γ ≡ ω →
+      I.⌜ transitivityᵢ ωᵢ Aᵢ tᵢ uᵢ vᵢ eq₁ᵢ eq₂ᵢ ⌝ γ ≡
       transitivity (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ)
         (I.⌜ eq₁ᵢ ⌝ γ) (I.⌜ eq₂ᵢ ⌝ γ)
-    ⌜transitivityᵢ⌝ = refl
+    ⌜transitivityᵢ⌝ eq rewrite eq = refl
 
   -- A variant of cong, intended to be used with the internal
   -- type-checker.
@@ -613,8 +632,8 @@ module Internal
     -- A translation lemma for congᵢ.
 
     ⌜congᵢ⌝ :
-      I.⌜ congᵢ pᵢ Aᵢ tᵢ uᵢ Bᵢ vᵢ wᵢ ⌝ γ ≡
-      cong (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
+      I.⌜ congᵢ ωᵢ Aᵢ tᵢ uᵢ Bᵢ vᵢ wᵢ ⌝ γ ≡
+      cong (I.⟦ ωᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ) (I.⌜ uᵢ ⌝ γ)
         (I.⌜ Bᵢ ⌝ γ) (I.⌜ vᵢ ⌝ γ) (I.⌜ wᵢ ⌝ γ)
     ⌜congᵢ⌝ = refl
 
@@ -622,11 +641,12 @@ module Internal
   -- type-checker.
 
   cong₂ᵢ :
+    I.Termᵍ (c .I.gs) →
     I.Termᵍ (c .I.gs) → I.Term c n → I.Term c n → I.Term c n →
     I.Term c n → I.Term c n → I.Term c n → I.Term c n →
     I.Term c (2+ n) → I.Term c n → I.Term c n → I.Term c n
-  cong₂ᵢ p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ =
-    transitivityᵢ B (I.subst v (I.cons (IS.sgSubst t₁) t₂))
+  cong₂ᵢ ω p A₁ t₁ u₁ A₂ t₂ u₂ B v w₁ w₂ =
+    transitivityᵢ ω B (I.subst v (I.cons (IS.sgSubst t₁) t₂))
       (I.subst v (I.cons (IS.sgSubst u₁) t₂))
       (I.subst v (I.cons (IS.sgSubst u₁) u₂))
       (congᵢ p A₁ t₁ u₁ B (I.subst v (IS.sgSubst (IW.wk[ 1 ] t₂))) w₁)
@@ -638,11 +658,13 @@ module Internal
     -- A translation lemma for cong₂ᵢ.
 
     ⌜cong₂ᵢ⌝ :
-      I.⌜ cong₂ᵢ pᵢ A₁ᵢ t₁ᵢ u₁ᵢ A₂ᵢ t₂ᵢ u₂ᵢ Bᵢ vᵢ w₁ᵢ w₂ᵢ ⌝ γ ≡
+      ⦃ ok : Has-omega _ 𝕄 ⦄ →
+      I.⟦ ωᵢ ⟧ᵍ γ ≡ ω →
+      I.⌜ cong₂ᵢ ωᵢ pᵢ A₁ᵢ t₁ᵢ u₁ᵢ A₂ᵢ t₂ᵢ u₂ᵢ Bᵢ vᵢ w₁ᵢ w₂ᵢ ⌝ γ ≡
       cong₂ (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ A₁ᵢ ⌝ γ) (I.⌜ t₁ᵢ ⌝ γ) (I.⌜ u₁ᵢ ⌝ γ)
         (I.⌜ A₂ᵢ ⌝ γ) (I.⌜ t₂ᵢ ⌝ γ) (I.⌜ u₂ᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ)
         (I.⌜ vᵢ ⌝ γ) (I.⌜ w₁ᵢ ⌝ γ) (I.⌜ w₂ᵢ ⌝ γ)
-    ⌜cong₂ᵢ⌝ = refl
+    ⌜cong₂ᵢ⌝ eq rewrite eq = refl
 
   -- A variant of Funext, intended to be used with the internal
   -- type-checker.

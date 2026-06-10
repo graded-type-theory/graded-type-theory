@@ -11,6 +11,8 @@ module Graded.Derived.Unrestricted.Eta.Usage
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
   (R : Usage-restrictions 𝕄 𝐌)
+   -- It is assumed that the modality has a grade ω.
+  ⦃ has-ω : Has-omega _ 𝕄 ⦄
   where
 
 open Modality 𝕄
@@ -18,6 +20,7 @@ open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage R
 open import Graded.Usage.Inversion R

@@ -55,15 +55,10 @@ opaque
     ; _∧_ = _⊔_
     ; 𝟘 = 0
     ; 𝟙 = 1
-    ; ω = 1
     ; +-·-Semiring = +-*-isSemiring
     ; ∧-Semilattice = ⊔-isSemilattice
     ; ·-distrib-∧ = *-distribˡ-⊔ , *-distribʳ-⊔
     ; +-distrib-∧ = +-distribˡ-⊔ , +-distribʳ-⊔
-    ; ω≤𝟙 = refl
-    ; ω·+≤ω·ʳ = λ {p} {q} →
-      sym (m≥n⇒m⊔n≡m (≤-trans (m≤n+m (q + 0) p)
-        (≤-reflexive (sym (+-assoc p q 0)))))
     ; is-𝟘? = _≟ 0
     }
     where

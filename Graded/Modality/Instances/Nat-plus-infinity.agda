@@ -491,9 +491,6 @@ opaque
   ; _∧_          = _∧_
   ; 𝟘            = ⌞ 0 ⌟
   ; 𝟙            = ⌞ 1 ⌟
-  ; ω            = ∞
-  ; ω≤𝟙          = ∞≤ ⌞ 1 ⌟
-  ; ω·+≤ω·ʳ      = ∞·+≤∞·ʳ
   ; is-𝟘?        = _≟ ⌞ 0 ⌟
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
@@ -751,6 +748,17 @@ opaque
   +-distrib-∧ : _+_ DistributesOver _∧_
   +-distrib-∧ =
     +-distribˡ-∧ , comm∧distrˡ⇒distrʳ +-comm +-distribˡ-∧
+
+instance
+
+  -- The modality has grade ω.
+
+  ℕ⊎∞-has-omega : Has-omega ℕ⊎∞-modality
+  ℕ⊎∞-has-omega = record
+    { ω       = ∞
+    ; ω≤𝟙     = ∞≤ ⌞ 1 ⌟
+    ; ω·+≤ω·ʳ = ∞·+≤∞·ʳ
+    }
 
 instance
 
@@ -1170,14 +1178,15 @@ opaque
       open Tools.Reasoning.PartialOrder ≤-poset
       lemma′ : ∞ · (z + s) ≤ z
       lemma′ = begin
-        ∞ · (z + s) ≤⟨ ω·+≤ω·ˡ ⟩
-        ∞ · z       ≤⟨ ·-monotoneˡ ω≤𝟙 ⟩
+        ∞ · (z + s) ≡⟨ ·-congˡ (+-comm _ _) ⟩
+        ∞ · (s + z) ≤⟨ ∞·+≤∞·ʳ ⟩
+        ∞ · z       ≤⟨ ·-monotoneˡ (∞≤ 𝟙) ⟩
         𝟙 · z       ≡⟨ ·-identityˡ _ ⟩
         z           ∎
       lemma : ∀ r → nr₃ r z s ≤ z
       lemma ⌞ 0 ⌟ = ∧-decreasingˡ _ _
       lemma ⌞ 1 ⌟ = begin
-        z + ∞ · s ≤⟨ +-monotoneʳ (·-monotoneˡ {q = 𝟘} ω≤𝟘) ⟩
+        z + ∞ · s ≤⟨ +-monotoneʳ (·-monotoneˡ {q = 𝟘} (∞≤ 𝟘)) ⟩
         z + 𝟘 · s ≡⟨⟩
         z + 𝟘     ≡⟨ +-identityʳ _ ⟩
         z         ∎
@@ -1409,7 +1418,7 @@ opaque
       s + p · 𝟘 + r · nr′ p r z s 𝟘 ≡⟨ +-congˡ (+-congʳ (·-zeroʳ p)) ⟩
       s + 𝟘 + r · nr′ p r z s 𝟘     ≡⟨ +-congˡ (+-identityˡ _) ⟩
       s + r · nr′ p r z s 𝟘         ∎
-    nr′p∞≤ : ∀ {z s n p} → ¬ (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘) → nr′ p ∞ z s n ≤ nr p ω z s n
+    nr′p∞≤ : ∀ {z s n p} → ¬ (z ≡ 𝟘 × s ≡ 𝟘 × n ≡ 𝟘) → nr′ p ∞ z s n ≤ nr p ∞ z s n
     nr′p∞≤ {z} {s} {n} {p} ≢𝟘 = lemma $ begin
       nr′ p ∞ z s n                 ≤⟨ nr-suc ⟩
       s + p · n + ∞ · nr′ p ∞ z s n ≡⟨ +-congˡ {s} (+-congˡ (∞·≢𝟘 (≢𝟘 ∘→ nr′-positive))) ⟩

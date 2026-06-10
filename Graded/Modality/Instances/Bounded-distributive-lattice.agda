@@ -44,9 +44,6 @@ modality = record
   ; _∧_           = _∧_
   ; 𝟘             = ⊤
   ; 𝟙             = ⊥
-  ; ω             = ⊥
-  ; ω≤𝟙           = ⊥≤ _
-  ; ω·+≤ω·ʳ       = ⊥∨∧≤⊥∨ʳ
   ; is-𝟘?         = is-⊤?
   ; +-·-Semiring  = record
     { isSemiringWithoutAnnihilatingZero = record
@@ -101,16 +98,6 @@ modality = record
       ⊤ ∨ (⊤ ∧ p)  ≡⟨ ∨-absorbs-∧ _ _ ⟩
       ⊤            ∎
 
-  opaque
-
-    ⊥∨∧≤⊥∨ʳ : ⊥ ∨ (p ∧ q) ≤ ⊥ ∨ q
-    ⊥∨∧≤⊥∨ʳ {p} {q} =
-      ⊥ ∨ (p ∧ q)              ≡⟨ ∨-identityˡ _ ⟩
-      p ∧ q                    ≡˘⟨ cong (_ ∧_) (∧-idem _) ⟩
-      p ∧ (q ∧ q)              ≡˘⟨ ∧-assoc _ _ _ ⟩
-      (p ∧ q) ∧ q              ≡˘⟨ cong₂ _∧_ (∨-identityˡ _) (∨-identityˡ _) ⟩
-      (⊥ ∨ (p ∧ q)) ∧ (⊥ ∨ q)  ∎
-
 -- One can define natrec-star operators for bounded, distributive
 -- lattices (if equality with ⊤ is decidable).
 
@@ -124,6 +111,30 @@ opaque
 
   has-nr : Has-nr modality
   has-nr = Star.has-nr modality ⦃ has-star ⦄
+
+instance
+
+  -- The modality has grade ω.
+
+  has-omega : Has-omega modality
+  has-omega = record
+    { ω             = ⊥
+    ; ω≤𝟙           = ⊥≤ _
+    ; ω·+≤ω·ʳ       = ⊥∨∧≤⊥∨ʳ
+    }
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+    opaque
+
+      ⊥∨∧≤⊥∨ʳ : ⊥ ∨ (p ∧ q) ≤ ⊥ ∨ q
+      ⊥∨∧≤⊥∨ʳ {p} {q} =
+        ⊥ ∨ (p ∧ q)              ≡⟨ ∨-identityˡ _ ⟩
+        p ∧ q                    ≡˘⟨ cong (_ ∧_) (∧-idem _) ⟩
+        p ∧ (q ∧ q)              ≡˘⟨ ∧-assoc _ _ _ ⟩
+        (p ∧ q) ∧ q              ≡˘⟨ cong₂ _∧_ (∨-identityˡ _) (∨-identityˡ _) ⟩
+        (⊥ ∨ (p ∧ q)) ∧ (⊥ ∨ q)  ∎
+
 
 opaque
   unfolding has-nr

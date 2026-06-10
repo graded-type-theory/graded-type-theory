@@ -56,7 +56,7 @@ infixr 45 _·_
 
 data Termᵍ (n : Nat) : Set a where
   var         : (x : Fin n) → Termᵍ n
-  𝟘 𝟙 ω       : Termᵍ n
+  𝟘 𝟙         : Termᵍ n
   _+_ _·_ _∧_ : (p q : Termᵍ n) → Termᵍ n
   ⌜⌞_⌟⌝       : (p : Termᵍ n) → Termᵍ n
 
@@ -473,14 +473,13 @@ is-id? _  = nothing
 -- Translates grade terms to grades.
 
 ⟦_⟧ᵍ : Termᵍ (c .gs) → Contexts c → M
-⟦ var x   ⟧ᵍ γ = Vec.lookup (γ .grades) x
-⟦ 𝟘       ⟧ᵍ γ = M.𝟘
-⟦ 𝟙       ⟧ᵍ γ = M.𝟙
-⟦ ω       ⟧ᵍ γ = M.ω
-⟦ t₁ + t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.+ ⟦ t₂ ⟧ᵍ γ
-⟦ t₁ · t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.· ⟦ t₂ ⟧ᵍ γ
-⟦ t₁ ∧ t₂ ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.∧ ⟦ t₂ ⟧ᵍ γ
-⟦ ⌜⌞ t ⌟⌝ ⟧ᵍ γ = Mode.⌜ Mode.⌞ ⟦ t ⟧ᵍ γ ⌟ ⌝
+⟦ var x    ⟧ᵍ γ = Vec.lookup (γ .grades) x
+⟦ 𝟘        ⟧ᵍ γ = M.𝟘
+⟦ 𝟙        ⟧ᵍ γ = M.𝟙
+⟦ t₁ + t₂  ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.+ ⟦ t₂ ⟧ᵍ γ
+⟦ t₁ · t₂  ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.· ⟦ t₂ ⟧ᵍ γ
+⟦ t₁ ∧ t₂  ⟧ᵍ γ = ⟦ t₁ ⟧ᵍ γ M.∧ ⟦ t₂ ⟧ᵍ γ
+⟦ ⌜⌞ t ⌟⌝  ⟧ᵍ γ = Mode.⌜ Mode.⌞ ⟦ t ⟧ᵍ γ ⌟ ⌝
 
 -- Translates strength terms to strengths.
 

@@ -26,9 +26,11 @@ open import Graded.Usage R
 open import Graded.Usage.Inversion R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Restrictions.JK 𝕄
 import Graded.Usage.Restrictions.Instance
 open import Graded.Usage.Weakening R
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 
 import Definition.Typed
@@ -255,92 +257,109 @@ opaque mutual
         sub-≈ᶜ (Id₀ₘ ok ▸A ▸t ▸u) (·ᶜ-zeroʳ _)
       rflₘ →
         sub-≈ᶜ rflₘ (·ᶜ-zeroʳ _)
-      (Jₘ {p} {q} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} x x₁ ▸A ▸t ▸B ▸u ▸v ▸w) →
+      (Jₘ {p} {q} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ⦃ (ok₁) ⦄ x ▸A ▸t ▸B ▸u ▸v ▸w) →
         case J-view p q (m′ ·ᵐ m) of λ where
-          (is-all x₂) →
+          (is-all) →
             let ▸B′ = sub-≈ᶜ (▸-𝟘 ▸B) (≈ᶜ-refl ∙ lemma″ ∙ lemma″)
-            in  sub (J₀ₘ₂ x₂ ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v) (▸-𝟘 ▸w)) $ begin
+            in  sub (J₀ₘ₂ ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v) (▸-𝟘 ▸w)) $ begin
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)       ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₄ +ᶜ γ₅ +ᶜ γ₆)             ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜˡ  ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ γ₄                           ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
               ⌜ m′ ⌝ ·ᶜ γ₄                                ∎
-          (is-some-yes x₂ (refl , refl)) →
+          (is-some-yes ⦃ (ok₂) ⦄ (refl , refl)) →
             let ▸B′ = sub-≈ᶜ (▸-· ▸B) (≈ᶜ-refl ∙ lemma′ ∙ lemma′)
-            in  sub (J₀ₘ₁ x₂ refl refl ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v) (▸-𝟘 ▸w)) $ begin
+                ok₁′ = erased-matches-JK-≤-some-JK-with-omega ⦃ ok₁ ⦄
+                ok₂′ = erased-matches-JK-≤-some-JK-with-omega
+                         ⦃ erased-matches-JK-≡-some-≤-some ⦃ ok₂ ⦄ ⦄
+            in  sub (J₀ₘ₁ refl refl ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v) (▸-𝟘 ▸w)) $ begin
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)       ≈˘⟨ ·ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-assoc _ _ _)) ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ ((γ₃ +ᶜ γ₄) +ᶜ γ₅ +ᶜ γ₆)     ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)                  ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
               ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄)                  ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄)        ≈⟨ ·ᶜ-congʳ (ω≡ω ok₁′ ok₂′) ⟩
               ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄)        ∎
-          (is-other x₂ x₃) →
-            sub (Jₘ x₂ x₃ ▸A (▸-· ▸t) (▸-·-∙₂ ▸B) (▸-· ▸u) (▸-· ▸v) (▸-· ▸w)) $ begin
+          (is-other ⦃ (ok₂) ⦄ x) →
+            sub (Jₘ x ▸A (▸-· ▸t) (▸-·-∙₂ ▸B) (▸-· ▸u) (▸-· ▸v) (▸-· ▸w)) $ begin
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                                         ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
               ω ·ᶜ (⌜ m′ ⌝ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆))                                       ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
               ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆))                             ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
               ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₄ +ᶜ γ₅ +ᶜ γ₆))                   ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _))) ⟩
               ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₅ +ᶜ γ₆))         ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)))) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₅ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₆) ≈⟨ ·ᶜ-congʳ (ω≡ω erased-matches-JK-≤-some-JK-with-omega
+                                                                                                             erased-matches-JK-≤-some-JK-with-omega) ⟩
               ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₅ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₆) ∎
-      (J₀ₘ₁ {γ₃} {γ₄} x refl refl ▸A ▸t ▸B ▸u ▸v ▸w) →
-        case erased-matches-for-J-some·ᵐ {m′ = m′} x of λ where
+      (J₀ₘ₁ {γ₃} {γ₄} ⦃ (ok) ⦄ refl refl ▸A ▸t ▸B ▸u ▸v ▸w) →
+        case erased-matches-for-J-some·ᵐ {m′ = m′} ok of λ where
           (inj₁ ≡all) →
             let ▸B′ = ▸-𝟘 ▸B
-            in  sub (J₀ₘ₂ ≡all ▸A ▸t ▸B′ (▸-· ▸u) ▸v ▸w) $ begin
+            in  sub (J₀ₘ₂ ⦃ ≡all ⦄ ▸A ▸t ▸B′ (▸-· ▸u) ▸v ▸w) $ begin
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ γ₄         ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
               ⌜ m′ ⌝ ·ᶜ γ₄              ∎
           (inj₂ ≡some) →
             let ▸B′ = sub-≈ᶜ (▸-· ▸B) (≈ᶜ-refl ∙ sym (·-zeroʳ _) ∙ sym (·-zeroʳ _))
-            in  sub (J₀ₘ₁ ≡some refl refl ▸A ▸t ▸B′ (▸-· ▸u) ▸v ▸w) $ begin
+                instance _ = ≡some
+            in  sub (J₀ₘ₁ refl refl ▸A ▸t ▸B′ (▸-· ▸u) ▸v ▸w) $ begin
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)           ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
               ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄)           ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄) ≈⟨ ·ᶜ-congʳ (ω≡ω erased-matches-JK-≤-some-JK-with-omega
+                                                              erased-matches-JK-≤-some-JK-with-omega) ⟩
               ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄) ∎
-      (J₀ₘ₂ x ▸A ▸t ▸B ▸u ▸v ▸w) →
-        J₀ₘ₂ (erased-matches-for-J-all·ᵐ x) ▸A ▸t ▸B (▸-· ▸u) ▸v ▸w
-      (Kₘ {p} {γ₂} {γ₃} {γ₄} {γ₅} x x₁ ▸A ▸t ▸B ▸u ▸v) →
+      (J₀ₘ₂ ⦃ ok ⦄ ▸A ▸t ▸B ▸u ▸v ▸w) →
+        J₀ₘ₂ ⦃ erased-matches-for-J-all·ᵐ ok ⦄ ▸A ▸t ▸B (▸-· ▸u) ▸v ▸w
+      (Kₘ {p} {γ₂} {γ₃} {γ₄} {γ₅} ⦃ (ok₁) ⦄ x ▸A ▸t ▸B ▸u ▸v) →
         case K-view p (m′ ·ᵐ m) of λ where
-          (is-all x₂) →
+          (is-all) →
             let ▸B′ = sub-≈ᶜ (▸-𝟘 ▸B) (≈ᶜ-refl ∙ lemma″)
-            in  sub (K₀ₘ₂ x₂ ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v)) $ begin
+            in  sub (K₀ₘ₂ ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v)) $ begin
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅)       ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₄ +ᶜ γ₅)             ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ γ₄                     ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
               ⌜ m′ ⌝ ·ᶜ γ₄                          ∎
-          (is-some-yes x₂ refl) →
+          (is-some-yes ⦃ (ok₂) ⦄ refl) →
             let ▸B′ = sub-≈ᶜ (▸-· ▸B) (≈ᶜ-refl ∙ lemma′)
-            in  sub (K₀ₘ₁ x₂ refl ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v)) $ begin
+                ok₁′ = erased-matches-JK-≤-some-JK-with-omega ⦃ ok₁ ⦄
+                ok₂′ = erased-matches-JK-≤-some-JK-with-omega
+                         ⦃ erased-matches-JK-≡-some-≤-some ⦃ ok₂ ⦄ ⦄
+            in  sub (K₀ₘ₁ refl ▸A (▸-𝟘 ▸t) ▸B′ (▸-· ▸u) (▸-𝟘 ▸v)) $ begin
              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅)       ≈˘⟨ ·ᶜ-congˡ (·ᶜ-congˡ (+ᶜ-assoc _ _ _)) ⟩
              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ ((γ₃ +ᶜ γ₄) +ᶜ γ₅)     ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
              ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)             ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
              ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄)             ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
-             ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄) ∎
-          (is-other x₂ x₃) →
-            sub (Kₘ x₂ x₃ ▸A (▸-· ▸t) (▸-·-∙ ▸B) (▸-· ▸u) (▸-· ▸v)) $ begin
+             ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄)   ≈⟨ ·ᶜ-congʳ (ω≡ω ok₁′ ok₂′) ⟩
+             ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄)   ∎
+          (is-other ⦃ (ok₂) ⦄ x) →
+            sub (Kₘ x ▸A (▸-· ▸t) (▸-·-∙ ▸B) (▸-· ▸u) (▸-· ▸v)) $ begin
             ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                               ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
             ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                               ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
             ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅))                   ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _)) ⟩
             ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ (γ₄ +ᶜ γ₅))         ≈⟨ ·ᶜ-congˡ (+ᶜ-congˡ (+ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _))) ⟩
+            ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₅) ≈⟨ ·ᶜ-congʳ (ω≡ω erased-matches-JK-≤-some-JK-with-omega
+                                                                                              erased-matches-JK-≤-some-JK-with-omega) ⟩
             ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₂ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₅) ∎
-      (K₀ₘ₁ {γ₃} {γ₄} x refl ▸A ▸t ▸B ▸u ▸v) →
-        case erased-matches-for-K-some·ᵐ {m′ = m′} x of λ where
+      (K₀ₘ₁ {γ₃} {γ₄} ⦃ ok ⦄ refl ▸A ▸t ▸B ▸u ▸v) →
+        case erased-matches-for-K-some·ᵐ {m′ = m′} ok of λ where
           (inj₁ ≡all) →
             let ▸B′ = ▸-𝟘 ▸B
-            in  sub (K₀ₘ₂ ≡all ▸A ▸t ▸B′ (▸-· ▸u) ▸v) $ begin
+            in  sub (K₀ₘ₂ ⦃ ≡all ⦄ ▸A ▸t ▸B′ (▸-· ▸u) ▸v) $ begin
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ γ₄         ≤⟨ ·ᶜ-monotoneʳ ω·ᶜ-decreasing ⟩
               ⌜ m′ ⌝ ·ᶜ γ₄              ∎
           (inj₂ ≡some) →
             let ▸B′ = sub-≈ᶜ (▸-· ▸B) (≈ᶜ-refl ∙ sym (·-zeroʳ _))
-            in  sub (K₀ₘ₁ ≡some refl ▸A ▸t ▸B′ (▸-· ▸u) ▸v) $ begin
+                instance _ = ≡some
+            in  sub (K₀ₘ₁ refl ▸A ▸t ▸B′ (▸-· ▸u) ▸v) $ begin
               ⌜ m′ ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)           ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
               ω ·ᶜ ⌜ m′ ⌝ ·ᶜ (γ₃ +ᶜ γ₄)           ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
+              ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄) ≈⟨ ·ᶜ-congʳ (ω≡ω erased-matches-JK-≤-some-JK-with-omega
+                                                              erased-matches-JK-≤-some-JK-with-omega) ⟩
               ω ·ᶜ (⌜ m′ ⌝ ·ᶜ γ₃ +ᶜ ⌜ m′ ⌝ ·ᶜ γ₄) ∎
-      (K₀ₘ₂ x ▸A ▸t ▸B ▸u ▸v) →
-        K₀ₘ₂ (erased-matches-for-K-all·ᵐ x)
-          ▸A ▸t ▸B (▸-· ▸u) ▸v
+      (K₀ₘ₂ ⦃ ok ⦄ ▸A ▸t ▸B ▸u ▸v) →
+        K₀ₘ₂ ⦃ erased-matches-for-K-all·ᵐ ok ⦄ ▸A ▸t ▸B (▸-· ▸u) ▸v
       ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) →
         sub-≈ᶜ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ([]-cong-allowed-mode-·ᵐ ok)) (·ᶜ-zeroʳ _)
     where
@@ -574,7 +593,7 @@ opaque mutual
         𝟘ᶜ≤ᶜm𝟘ᶜ
       rflₘ →
         𝟘ᶜ≤ᶜm𝟘ᶜ
-      (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ ▸t ▸B ▸u ▸v ▸w) → begin
+      (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ ▸t ▸B ▸u ▸v ▸w) → begin
         ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                                              ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotone (▸ᵐ ▸t)
                                                                                           (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (▸ᵐ ▸B)))
                                                                                           (+ᶜ-monotone (▸ᵐ ▸u) (+ᶜ-monotone (▸ᵐ ▸v) (▸ᵐ ▸w))))) ⟩
@@ -584,14 +603,14 @@ opaque mutual
         ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆))                          ≈˘⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
         ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                                     ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
         ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ∎
-      (J₀ₘ₁ {γ₃} {γ₄} _ _ _ _ _ ▸B ▸u _ _) → begin
+      (J₀ₘ₁ {γ₃} {γ₄} _ _ _ _ ▸B ▸u _ _) → begin
         ω ·ᶜ (γ₃ +ᶜ γ₄)                   ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (▸ᵐ ▸B))) (▸ᵐ ▸u)) ⟩
         ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ γ₄) ≈˘⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
         ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₃ +ᶜ γ₄)          ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
         ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)          ∎
-      (J₀ₘ₂ _ _ _ _ ▸u _ _) →
+      (J₀ₘ₂ _ _ _ ▸u _ _) →
         ▸ᵐ ▸u
-      (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ ▸t ▸B ▸u ▸v) → begin
+      (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} _ _ ▸t ▸B ▸u ▸v) → begin
         ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                                     ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotone (▸ᵐ ▸t)
                                                                            (+ᶜ-monotone (tailₘ-monotone (▸ᵐ ▸B))
                                                                            (+ᶜ-monotone (▸ᵐ ▸u) (▸ᵐ ▸v)))) ⟩
@@ -600,12 +619,12 @@ opaque mutual
         ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₂ +ᶜ ⌜ m ⌝ ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅))                 ≈˘⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
         ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                            ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
         ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ∎
-      (K₀ₘ₁ {γ₃} {γ₄} _ _ _ _ ▸B ▸u _) → begin
+      (K₀ₘ₁ {γ₃} {γ₄} _ _ _ ▸B ▸u _) → begin
         ω ·ᶜ (γ₃ +ᶜ γ₄)                   ≤⟨ ·ᶜ-monotoneʳ (+ᶜ-monotone (tailₘ-monotone (▸ᵐ ▸B)) (▸ᵐ ▸u)) ⟩
         ω ·ᶜ (⌜ m ⌝ ·ᶜ γ₃ +ᶜ ⌜ m ⌝ ·ᶜ γ₄) ≈˘⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
         ω ·ᶜ ⌜ m ⌝ ·ᶜ (γ₃ +ᶜ γ₄)          ≈˘⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
         ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)          ∎
-      (K₀ₘ₂ _ _ _ _ ▸u _) →
+      (K₀ₘ₂ _ _ _ ▸u _) →
         ▸ᵐ ▸u
       ([]-congₘ _ _ _ _ _ _) →
         𝟘ᶜ≤ᶜm𝟘ᶜ
@@ -781,36 +800,36 @@ private opaque
   -- Some lemmas used below.
 
   Conₘ-interchange₀₁ :
-    ∀ δ₃ δ₄ → ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ (ω ·ᶜ (δ₃ +ᶜ δ₄)) ⟨ x ⟩ ≡
-    ω ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))
-  Conₘ-interchange₀₁ {γ₃} {γ₄} {x} δ₃ δ₄ =
-    ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ (ω ·ᶜ (δ₃ +ᶜ δ₄)) ⟨ x ⟩      ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₃ +ᶜ _) _ _ ⟩
-    ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ ω · (δ₃ +ᶜ δ₄) ⟨ x ⟩         ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
-    ω ·ᶜ (γ₃ +ᶜ γ₄ , x ≔ (δ₃ +ᶜ δ₄) ⟨ x ⟩)             ≡⟨ cong (_ ·ᶜ_) $
+    ∀ δ₃ δ₄ → p ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ (p ·ᶜ (δ₃ +ᶜ δ₄)) ⟨ x ⟩ ≡
+    p ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))
+  Conₘ-interchange₀₁ {p} {γ₃} {γ₄} {x} δ₃ δ₄ =
+    p ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ (p ·ᶜ (δ₃ +ᶜ δ₄)) ⟨ x ⟩      ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₃ +ᶜ _) _ _ ⟩
+    p ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ p · (δ₃ +ᶜ δ₄) ⟨ x ⟩         ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+    p ·ᶜ (γ₃ +ᶜ γ₄ , x ≔ (δ₃ +ᶜ δ₄) ⟨ x ⟩)             ≡⟨ cong (_ ·ᶜ_) $
                                                           trans (cong (_ , _ ≔_) $ lookup-distrib-+ᶜ δ₃ _ _) $
                                                           update-distrib-+ᶜ _ _ _ _ _ ⟩
-    ω ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))  ∎
+    p ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))  ∎
     where
     open Tools.Reasoning.PropositionalEquality
 
   Conₘ-interchange-J :
     ∀ δ₂ δ₃ δ₄ δ₅ δ₆ →
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ,
-    x ≔ (ω ·ᶜ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅ +ᶜ δ₆)) ⟨ x ⟩ ≡
-    ω ·ᶜ
+    p ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ,
+    x ≔ (p ·ᶜ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅ +ᶜ δ₆)) ⟨ x ⟩ ≡
+    p ·ᶜ
      ((γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ
       (γ₄ , x ≔ δ₄ ⟨ x ⟩) +ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩) +ᶜ
       (γ₆ , x ≔ δ₆ ⟨ x ⟩))
-  Conₘ-interchange-J {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} {x} δ₂ δ₃ δ₄ δ₅ δ₆ =
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ,
-    x ≔ (ω ·ᶜ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅ +ᶜ δ₆)) ⟨ x ⟩   ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₂ +ᶜ _) _ _ ⟩
+  Conₘ-interchange-J {p} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} {x} δ₂ δ₃ δ₄ δ₅ δ₆ =
+    p ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ,
+    x ≔ (p ·ᶜ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅ +ᶜ δ₆)) ⟨ x ⟩   ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₂ +ᶜ _) _ _ ⟩
 
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ,
-    x ≔ ω · (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅ +ᶜ δ₆) ⟨ x ⟩      ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+    p ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ,
+    x ≔ p · (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅ +ᶜ δ₆) ⟨ x ⟩      ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
 
-    ω ·ᶜ
+    p ·ᶜ
     (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆ ,
-     x ≔ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅ +ᶜ δ₆) ⟨ x ⟩)        ≡⟨ cong (ω ·ᶜ_) $
+     x ≔ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅ +ᶜ δ₆) ⟨ x ⟩)        ≡⟨ cong (p ·ᶜ_) $
                                                        trans (cong (_ , _ ≔_) $ lookup-distrib-+ᶜ δ₂ _ _) $
                                                        trans (update-distrib-+ᶜ _ _ _ _ _) $
                                                        cong (_ +ᶜ_) $
@@ -823,7 +842,7 @@ private opaque
                                                        trans (cong (_ , _ ≔_) $ lookup-distrib-+ᶜ δ₅ _ _) $
                                                        update-distrib-+ᶜ _ _ _ _ _ ⟩
 
-    ω ·ᶜ
+    p ·ᶜ
     ((γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ
      (γ₄ , x ≔ δ₄ ⟨ x ⟩) +ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩) +ᶜ
      (γ₆ , x ≔ δ₆ ⟨ x ⟩))                           ∎
@@ -832,20 +851,20 @@ private opaque
 
   Conₘ-interchange-K :
     ∀ δ₂ δ₃ δ₄ δ₅ →
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ,
-    x ≔ (ω ·ᶜ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅)) ⟨ x ⟩ ≡
-    ω ·ᶜ
+    p ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ,
+    x ≔ (p ·ᶜ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅)) ⟨ x ⟩ ≡
+    p ·ᶜ
      ((γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ
       (γ₄ , x ≔ δ₄ ⟨ x ⟩) +ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩))
-  Conₘ-interchange-K {γ₂} {γ₃} {γ₄} {γ₅} {x} δ₂ δ₃ δ₄ δ₅ =
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ,
-    x ≔ (ω ·ᶜ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅)) ⟨ x ⟩                    ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₂ +ᶜ _) _ _ ⟩
+  Conₘ-interchange-K {p} {γ₂} {γ₃} {γ₄} {γ₅} {x} δ₂ δ₃ δ₄ δ₅ =
+    p ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ,
+    x ≔ (p ·ᶜ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅)) ⟨ x ⟩                    ≡⟨ cong (_ , _ ≔_) $ lookup-distrib-·ᶜ (δ₂ +ᶜ _) _ _ ⟩
 
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ,
-    x ≔ ω · (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅) ⟨ x ⟩                       ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
+    p ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ,
+    x ≔ p · (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅) ⟨ x ⟩                       ≡⟨ update-distrib-·ᶜ _ _ _ _ ⟩
 
-    ω ·ᶜ
-    (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ , x ≔ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅) ⟨ x ⟩)  ≡⟨ cong (ω ·ᶜ_) $
+    p ·ᶜ
+    (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ , x ≔ (δ₂ +ᶜ δ₃ +ᶜ δ₄ +ᶜ δ₅) ⟨ x ⟩)  ≡⟨ cong (p ·ᶜ_) $
                                                                   trans (cong (_ , _ ≔_) $ lookup-distrib-+ᶜ δ₂ _ _) $
                                                                   trans (update-distrib-+ᶜ _ _ _ _ _) $
                                                                   cong (_ +ᶜ_) $
@@ -854,7 +873,7 @@ private opaque
                                                                   cong (_ +ᶜ_) $
                                                                   trans (cong (_ , _ ≔_) $ lookup-distrib-+ᶜ δ₄ _ _) $
                                                                   update-distrib-+ᶜ _ _ _ _ _ ⟩
-    ω ·ᶜ
+    p ·ᶜ
     ((γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ
      (γ₄ , x ≔ δ₄ ⟨ x ⟩) +ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩))               ∎
     where
@@ -1292,15 +1311,17 @@ opaque
 
   Conₘ-interchange
     {δ = η}
-    (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ≤some ok ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
+    (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ⦃ (≤some) ⦄ ok ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
     case inv-usage-J ▸J of λ where
-      (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+      (invUsageJ₀₁ ⦃ (≡some) ⦄ p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
         ⊥-elim $ ok ≡some (p≡𝟘 , q≡𝟘)
-      (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+      (invUsageJ₀₂ ⦃ (≡all) ⦄ _ _ _ _ _ _ _) →
         case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
       (invUsageJ {γ₂ = δ₂} {γ₃ = δ₃} {γ₄ = δ₄} {γ₅ = δ₅} {γ₆ = δ₆}
-         _ _ _ ▸t′ ▸F′ ▸u′ ▸v′ ▸w′ η≤ω·) → sub
-        (Jₘ ≤some ok ▸A (Conₘ-interchange ▸t ▸t′ x)
+         ⦃ (≤some′) ⦄ _ _ ▸t′ ▸F′ ▸u′ ▸v′ ▸w′ η≤ω·) →
+         case ≤ᵉᵐ-propositional ≤some ≤some′ of λ {
+           refl → sub
+        (Jₘ ⦃ ≤some ⦄ ok ▸A (Conₘ-interchange ▸t ▸t′ x)
            (Conₘ-interchange ▸F ▸F′ (x +2)) (Conₘ-interchange ▸u ▸u′ x)
            (Conₘ-interchange ▸v ▸v′ x) (Conₘ-interchange ▸w ▸w′ x))
         (begin
@@ -1312,37 +1333,42 @@ opaque
            ω ·ᶜ
            ((γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ
             (γ₄ , x ≔ δ₄ ⟨ x ⟩) +ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩) +ᶜ
-            (γ₆ , x ≔ δ₆ ⟨ x ⟩))                            ∎)
+            (γ₆ , x ≔ δ₆ ⟨ x ⟩))                            ∎) }
     where
     open CR
+    open Graded.Usage.Restrictions.Instance R
 
   Conₘ-interchange
-    {δ = η} (J₀ₘ₁ {γ₃} {γ₄} ≡some p≡𝟘 q≡𝟘 ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
+    {δ = η} (J₀ₘ₁ {γ₃} {γ₄} ⦃ (≡some) ⦄ p≡𝟘 q≡𝟘 ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
     case inv-usage-J ▸J of λ where
-      (invUsageJ _ ok _ _ _ _ _ _ _) →
+      (invUsageJ ok _ _ _ _ _ _ _) →
         ⊥-elim $ ok ≡some (p≡𝟘 , q≡𝟘)
-      (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+      (invUsageJ₀₂ ⦃ (≡all) ⦄ _ _ _ _ _ _ _) →
         case trans (PE.sym ≡some) ≡all of λ ()
       (invUsageJ₀₁ {γ₃ = δ₃} {γ₄ = δ₄}
-         _ _ _ _ ▸t′ ▸F′ ▸u′ ▸v′ ▸w′ η≤ω·) → sub
-        (J₀ₘ₁ ≡some p≡𝟘 q≡𝟘 ▸A (Conₘ-interchange ▸t ▸t′ x)
+         ⦃ (≡some′) ⦄ _ _ _ ▸t′ ▸F′ ▸u′ ▸v′ ▸w′ η≤ω·) →
+         case Erased-matches-set ≡some ≡some′ of λ {
+           refl →
+         sub
+         (J₀ₘ₁ p≡𝟘 q≡𝟘 ▸A (Conₘ-interchange ▸t ▸t′ x)
            (Conₘ-interchange ▸F ▸F′ (x +2)) (Conₘ-interchange ▸u ▸u′ x)
            (Conₘ-interchange ▸v ▸v′ x) (Conₘ-interchange ▸w ▸w′ x))
-        (begin
-           ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ η ⟨ x ⟩                      ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤ω· ⟩
-           ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ (ω ·ᶜ (δ₃ +ᶜ δ₄)) ⟨ x ⟩      ≡⟨ Conₘ-interchange₀₁ δ₃ δ₄ ⟩
-           ω ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))  ∎)
+         (begin
+            ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ η ⟨ x ⟩                      ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤ω· ⟩
+            ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ (ω ·ᶜ (δ₃ +ᶜ δ₄)) ⟨ x ⟩      ≡⟨ Conₘ-interchange₀₁ δ₃ δ₄ ⟩
+            ω ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))  ∎) }
     where
     open CR
+    open Graded.Usage.Restrictions.Instance R
 
-  Conₘ-interchange {δ} (J₀ₘ₂ {γ₄} ≡all ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
+  Conₘ-interchange {δ} (J₀ₘ₂ {γ₄} ⦃ (≡all) ⦄ ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
     case inv-usage-J ▸J of λ where
-      (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+      (invUsageJ ⦃ (≤some) ⦄ _ _ _ _ _ _ _ _) →
         case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-      (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+      (invUsageJ₀₁ ⦃ (≡some) ⦄ _ _ _ _ _ _ _ _ _) →
         case trans (PE.sym ≡all) ≡some of λ ()
-      (invUsageJ₀₂ {γ₄ = γ₄′} _ _ _ _ ▸u′ _ _ δ≤γ₄′) → sub
-        (J₀ₘ₂ ≡all ▸A ▸t ▸F (Conₘ-interchange ▸u ▸u′ x) ▸v ▸w)
+      (invUsageJ₀₂ {γ₄ = γ₄′} _ _ _ ▸u′ _ _ δ≤γ₄′) → sub
+        (J₀ₘ₂ ⦃ ≡all ⦄ ▸A ▸t ▸F (Conₘ-interchange ▸u ▸u′ x) ▸v ▸w)
         (begin
            γ₄ , x ≔ δ ⟨ x ⟩    ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ₄′ ⟩
            γ₄ , x ≔ γ₄′ ⟨ x ⟩  ∎)
@@ -1350,15 +1376,17 @@ opaque
     open CR
 
   Conₘ-interchange
-    {δ = η} (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} ≤some ok ▸A ▸t ▸F ▸u ▸v) ▸K x =
+    {δ = η} (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} ⦃ (≤some) ⦄ ok ▸A ▸t ▸F ▸u ▸v) ▸K x =
     case inv-usage-K ▸K of λ where
-      (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
+      (invUsageK₀₁ ⦃ (≡some) ⦄ p≡𝟘 _ _ _ _ _ _) →
         ⊥-elim $ ok ≡some p≡𝟘
-      (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+      (invUsageK₀₂ ⦃ (≡all) ⦄ _ _ _ _ _ _) →
         case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
       (invUsageK {γ₂ = δ₂} {γ₃ = δ₃} {γ₄ = δ₄} {γ₅ = δ₅}
-         _ _ _ ▸t′ ▸F′ ▸u′ ▸v′ η≤ω·) → sub
-        (Kₘ ≤some ok ▸A (Conₘ-interchange ▸t ▸t′ x)
+         ⦃ (≤some′) ⦄ _ _ ▸t′ ▸F′ ▸u′ ▸v′ η≤ω·) →
+        case ≤ᵉᵐ-propositional ≤some ≤some′ of λ {
+          refl → sub
+        (Kₘ ok ▸A (Conₘ-interchange ▸t ▸t′ x)
            (Conₘ-interchange ▸F ▸F′ (x +1)) (Conₘ-interchange ▸u ▸u′ x)
            (Conₘ-interchange ▸v ▸v′ x))
         (begin
@@ -1369,36 +1397,40 @@ opaque
 
            ω ·ᶜ
            ((γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ (γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ
-            (γ₄ , x ≔ δ₄ ⟨ x ⟩) +ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩))    ∎)
+            (γ₄ , x ≔ δ₄ ⟨ x ⟩) +ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩))    ∎) }
     where
     open CR
+    open Graded.Usage.Restrictions.Instance R
 
   Conₘ-interchange
-    {δ = η} (K₀ₘ₁ {γ₃} {γ₄} ≡some p≡𝟘 ▸A ▸t ▸F ▸u ▸v) ▸K x =
+    {δ = η} (K₀ₘ₁ {γ₃} {γ₄} ⦃ (≡some) ⦄ p≡𝟘 ▸A ▸t ▸F ▸u ▸v) ▸K x =
     case inv-usage-K ▸K of λ where
-      (invUsageK _ ok _ _ _ _ _ _) →
+      (invUsageK ok _ _ _ _ _ _) →
         ⊥-elim $ ok ≡some p≡𝟘
-      (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+      (invUsageK₀₂ ⦃ (≡all) ⦄ _ _ _ _ _ _) →
         case trans (PE.sym ≡some) ≡all of λ ()
-      (invUsageK₀₁ {γ₃ = δ₃} {γ₄ = δ₄} _ _ _ ▸t′ ▸F′ ▸u′ ▸v′ η≤ω·) → sub
-        (K₀ₘ₁ ≡some p≡𝟘 ▸A (Conₘ-interchange ▸t ▸t′ x)
+      (invUsageK₀₁ {γ₃ = δ₃} {γ₄ = δ₄} ⦃ (≡some′) ⦄ _ _ ▸t′ ▸F′ ▸u′ ▸v′ η≤ω·) →
+        case Erased-matches-set ≡some ≡some′ of λ {
+          refl → sub
+        (K₀ₘ₁ p≡𝟘 ▸A (Conₘ-interchange ▸t ▸t′ x)
            (Conₘ-interchange ▸F ▸F′ (x +1)) (Conₘ-interchange ▸u ▸u′ x)
            (Conₘ-interchange ▸v ▸v′ x))
         (begin
            ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ η ⟨ x ⟩                      ≤⟨ update-monotoneʳ _ $ lookup-monotone _ η≤ω· ⟩
            ω ·ᶜ (γ₃ +ᶜ γ₄) , x ≔ (ω ·ᶜ (δ₃ +ᶜ δ₄)) ⟨ x ⟩      ≡⟨ Conₘ-interchange₀₁ δ₃ δ₄ ⟩
-           ω ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))  ∎)
+           ω ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))  ∎) }
     where
     open CR
+    open Graded.Usage.Restrictions.Instance R
 
-  Conₘ-interchange {δ} (K₀ₘ₂ {γ₄} ≡all ▸A ▸t ▸F ▸u ▸v) ▸K x =
+  Conₘ-interchange {δ} (K₀ₘ₂ {γ₄} ⦃ (≡all) ⦄ ▸A ▸t ▸F ▸u ▸v) ▸K x =
     case inv-usage-K ▸K of λ where
-      (invUsageK ≤some _ _ _ _ _ _ _) →
+      (invUsageK ⦃ (≤some) ⦄ _ _ _ _ _ _ _) →
         case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-      (invUsageK₀₁ ≡some _ _ _ _ _ _ _) →
+      (invUsageK₀₁ ⦃ (≡some) ⦄ _ _ _ _ _ _ _) →
         case trans (PE.sym ≡all) ≡some of λ ()
-      (invUsageK₀₂ {γ₄ = γ₄′} _ _ _ _ ▸u′ _ δ≤γ₄′) → sub
-        (K₀ₘ₂ ≡all ▸A ▸t ▸F (Conₘ-interchange ▸u ▸u′ x) ▸v)
+      (invUsageK₀₂ {γ₄ = γ₄′} _ _ _ ▸u′ _ δ≤γ₄′) → sub
+        (K₀ₘ₂ ⦃ ≡all ⦄ ▸A ▸t ▸F (Conₘ-interchange ▸u ▸u′ x) ▸v)
         (begin
            γ₄ , x ≔ δ ⟨ x ⟩    ≤⟨ update-monotoneʳ _ $ lookup-monotone _ δ≤γ₄′ ⟩
            γ₄ , x ≔ γ₄′ ⟨ x ⟩  ∎)
@@ -1445,9 +1477,27 @@ Conₘ-interchange₂ {γ = γ} {m} {t} {δ} γ▸t δ▸t =
 ------------------------------------------------------------------------
 -- Variants of some usage rules
 
+opaque
+
+  -- A variant of Idₘ and Id₀ₘ.
+
+  Idₘ-generalised :
+    γ₁ ▸[ m ] A →
+    γ₂ ▸[ m ] t →
+    γ₃ ▸[ m ] u →
+    (Id-erased → δ ≤ᶜ 𝟘ᶜ) →
+    (¬ Id-erased → δ ≤ᶜ γ₁ +ᶜ γ₂ +ᶜ γ₃) →
+    δ ▸[ m ] Id A t u
+  Idₘ-generalised ▸A ▸t ▸u δ≤𝟘ᶜ δ≤γ₁+γ₂+γ₃ =
+    case Id-erased? of λ where
+      (no not-erased) →
+        sub (Idₘ not-erased ▸A ▸t ▸u) (δ≤γ₁+γ₂+γ₃ not-erased)
+      (yes erased) →
+        sub (Id₀ₘ erased (▸-𝟘 ▸A) (▸-𝟘 ▸t) (▸-𝟘 ▸u)) (δ≤𝟘ᶜ erased)
+
 module _ where
 
-  open import Graded.Usage.Restrictions.Instance R
+  open Graded.Usage.Restrictions.Instance R
 
   -- A variant of natrecₘ, natrec-no-nrₘ and natrec-no-nr-glbₘ.
 
@@ -1482,195 +1532,278 @@ module _ where
         let _ , _ , x-glb , θ-glb , χ≤ = hyp₃
         in  sub (natrec-no-nr-glbₘ ▸t ▸u ▸v ▸A x-glb θ-glb) χ≤
 
-opaque
+  opaque
 
-  -- A variant of Idₘ and Id₀ₘ.
+    -- A generalisation of the usage rule Jₘ:
+    -- erased-matches-for-J m ≡ none and
+    -- erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘) have been
+    -- removed.
 
-  Idₘ-generalised :
-    γ₁ ▸[ m ] A →
-    γ₂ ▸[ m ] t →
-    γ₃ ▸[ m ] u →
-    (Id-erased → δ ≤ᶜ 𝟘ᶜ) →
-    (¬ Id-erased → δ ≤ᶜ γ₁ +ᶜ γ₂ +ᶜ γ₃) →
-    δ ▸[ m ] Id A t u
-  Idₘ-generalised ▸A ▸t ▸u δ≤𝟘ᶜ δ≤γ₁+γ₂+γ₃ =
-    case Id-erased? of λ where
-      (no not-erased) →
-        sub (Idₘ not-erased ▸A ▸t ▸u) (δ≤γ₁+γ₂+γ₃ not-erased)
-      (yes erased) →
-        sub (Id₀ₘ erased (▸-𝟘 ▸A) (▸-𝟘 ▸t) (▸-𝟘 ▸u)) (δ≤𝟘ᶜ erased)
-
-opaque
-
-  -- A generalisation of the usage rule Jₘ:
-  -- erased-matches-for-J m ≡ none and
-  -- erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘) have been
-  -- removed.
-
-  Jₘ-generalised :
-    γ₁ ▸[ 𝟘ᵐ ] A →
-    γ₂ ▸[ m ] t →
-    γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
-    γ₄ ▸[ m ] u →
-    γ₅ ▸[ m ] v →
-    γ₆ ▸[ m ] w →
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ▸[ m ] J p q A t B u v w
-  Jₘ-generalised
-    {γ₂} {m} {γ₃} {p} {q} {B} {γ₄} {γ₅} {γ₆} ▸A ▸t ▸B ▸u ▸v ▸w
-    with J-view p q m
-  … | is-other ≤some ≢𝟘 =
-    Jₘ ≤some ≢𝟘 ▸A ▸t ▸B ▸u ▸v ▸w
-  … | is-some-yes ≡some (refl , refl) = sub
-    (J₀ₘ₁ ≡some refl refl ▸A (▸-𝟘 ▸t)
-       (sub ▸B $ begin
-          γ₃ ∙ 𝟘 ∙ 𝟘                  ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
-          γ₃ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘  ∎)
-       ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w))
-    (begin
-       ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
-                                             ≤ᶜ-trans (≤ᶜ-reflexive $ ≈ᶜ-sym $ ·ᶜ-congˡ $ +ᶜ-assoc _ _ _)
-                                             ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
-       ω ·ᶜ (γ₃ +ᶜ γ₄)                    ∎)
-    where
-    open CR
-  Jₘ-generalised
-    {γ₂} {m} {γ₃} {p} {q} {B} {γ₄} {γ₅} {γ₆} ▸A ▸t ▸B ▸u ▸v ▸w
-    | is-all ≡all = sub
-    (J₀ₘ₂ ≡all ▸A (▸-𝟘 ▸t)
-      (sub (▸-𝟘 ▸B) (begin
-        ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q                 ≈⟨ ≈ᶜ-refl ∙ lemma ∙ lemma ⟩
-        ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · q ∎))
-       ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w))
-    (begin
-       ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
-                                             ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ
-                                             ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
-       ω ·ᶜ γ₄                            ≤⟨ ω·ᶜ-decreasing ⟩
-       γ₄                                 ∎)
-    where
-    lemma : ∀ {p} → ⌜ 𝟘ᵐ ⌝ · p ≡ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p
-    lemma {p} = begin
-      ⌜ 𝟘ᵐ ⌝ · p           ≡˘⟨ ·-congʳ (⌜⌝-cong (·ᵐ-zeroˡ _)) ⟩
-      ⌜ 𝟘ᵐ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ 𝟘ᵐ) ⟩
-      (⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
-      ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p   ∎
+    Jₘ-generalised′  :
+      γ₁ ▸[ 𝟘ᵐ ] A →
+      γ₂ ▸[ m ] t →
+      γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
+      γ₄ ▸[ m ] u →
+      γ₅ ▸[ m ] v →
+      γ₆ ▸[ m ] w →
+      (⦃ ok : erased-matches-for-J m ≤ᵉᵐ some ⦄ → δ ≤ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)) →
+      (erased-matches-for-J m ≡ all → δ ≤ᶜ γ₄) →
+      δ ▸[ m ] J p q A t B u v w
+    Jₘ-generalised′ {γ₂} {m} {γ₃} {p} {q} {γ₄} {γ₅} {γ₆} {δ} ▸A ▸t ▸B ▸u ▸v ▸w δ≤₁ δ≤₂
+      with J-view p q m
+    … | is-other ≢𝟘 =
+      sub (Jₘ ≢𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) δ≤₁
+    … | is-some-yes (refl , refl) = sub
+      (J₀ₘ₁ refl refl ▸A (▸-𝟘 ▸t)
+        (sub ▸B $ begin
+            γ₃ ∙ 𝟘 ∙ 𝟘                  ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
+            γ₃ ∙ ⌜ m ⌝ · 𝟘 ∙ ⌜ m ⌝ · 𝟘  ∎)
+         ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w)) $ begin
+      δ ≤⟨ δ≤₁ ⟩
+      ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+      ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)       ≈˘⟨ ·ᶜ-congˡ (+ᶜ-assoc _ _ _) ⟩
+      ω ·ᶜ ((γ₃ +ᶜ γ₄) +ᶜ γ₅ +ᶜ γ₆)     ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
+      ω ·ᶜ (γ₃ +ᶜ γ₄)                   ∎
       where
-      open Tools.Reasoning.PropositionalEquality
-    open ≤ᶜ-reasoning
-
-opaque
-
-  -- A generalisation of the usage rule J₀ₘ₁:
-  -- erased-matches-for-J m ≡ some has been replaced by
-  -- erased-matches-for-J m ≡ not-none sem.
-
-  J₀ₘ₁-generalised :
-    erased-matches-for-J m ≡ not-none sem →
-    p ≡ 𝟘 →
-    q ≡ 𝟘 →
-    γ₁ ▸[ m₁ ] A →
-    γ₂ ▸[ m₂ ] t →
-    γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
-    γ₄ ▸[ m ] u →
-    γ₅ ▸[ m₃ ] v →
-    γ₆ ▸[ m₄ ] w →
-    ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] J p q A t B u v w
-  J₀ₘ₁-generalised {m} {γ₃} {B} {γ₄} hyp refl refl ▸A ▸t ▸B ▸u ▸v ▸w
-    with erased-matches-for-J m in ok
-  … | none = case hyp of λ ()
-  … | some = J₀ₘ₁ ok refl refl (▸-𝟘 ▸A) (▸-𝟘 ▸t) ▸B ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w)
-  … | all  = sub
-    (J₀ₘ₂ ok (▸-𝟘 ▸A) (▸-𝟘 ▸t)
-       (▸-𝟘 ▸B) ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w))
-    (begin
-       ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
-       ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
-       γ₄               ∎)
-    where
-    open CR
-
-opaque
-
-  -- A generalisation of the usage rule Kₘ:
-  -- erased-matches-for-K m ≤ᵉᵐ some and
-  -- erased-matches-for-K m ≡ some → p ≢ 𝟘 have been removed.
-
-  Kₘ-generalised :
-    γ₁ ▸[ 𝟘ᵐ ] A →
-    γ₂ ▸[ m ] t →
-    γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
-    γ₄ ▸[ m ] u →
-    γ₅ ▸[ m ] v →
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ▸[ m ] K p A t B u v
-  Kₘ-generalised {γ₂} {m} {γ₃} {p} {B} {γ₄} {γ₅} ▸A ▸t ▸B ▸u ▸v
-    with K-view p m
-  … | is-other ≤some ≢𝟘 =
-    Kₘ ≤some ≢𝟘 ▸A ▸t ▸B ▸u ▸v
-  … | is-some-yes ≡some refl = sub
-    (K₀ₘ₁ ≡some refl ▸A (▸-𝟘 ▸t)
-       (sub ▸B $ begin
-          γ₃ ∙ 𝟘          ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
-          γ₃ ∙ ⌜ m ⌝ · 𝟘  ∎)
-       ▸u (▸-𝟘 ▸v))
-    (begin
-       ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
-                                       ≤ᶜ-trans (≤ᶜ-reflexive $ ≈ᶜ-sym $ ·ᶜ-congˡ $ +ᶜ-assoc _ _ _)
-                                       ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
-       ω ·ᶜ (γ₃ +ᶜ γ₄)              ∎)
-    where
-    open CR
-  … | is-all ≡all = sub
-    (K₀ₘ₂ ≡all ▸A (▸-𝟘 ▸t)
-       (sub (▸-𝟘 ▸B) (begin
-         ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p          ≈⟨ ≈ᶜ-refl ∙ lemma ⟩
-         ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p  ∎))
-       ▸u (▸-𝟘 ▸v))
-    (begin
-       ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)  ≤⟨ ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
-                                       ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ
-                                       ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
-       ω ·ᶜ γ₄                      ≤⟨ ω·ᶜ-decreasing ⟩
-       γ₄                           ∎)
-    where
-    lemma : ∀ {p} → ⌜ 𝟘ᵐ ⌝ · p ≡ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p
-    lemma {p} = begin
-      ⌜ 𝟘ᵐ ⌝ · p           ≡˘⟨ ·-congʳ (⌜⌝-cong (·ᵐ-zeroˡ _)) ⟩
-      ⌜ 𝟘ᵐ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ 𝟘ᵐ) ⟩
-      (⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
-      ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p   ∎
+      open ≤ᶜ-reasoning
+    … | is-all ⦃ (≡all) ⦄ = sub
+      (J₀ₘ₂ ▸A (▸-𝟘 ▸t)
+        (sub (▸-𝟘 ▸B) (begin
+          ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q                 ≈⟨ ≈ᶜ-refl ∙ lemma ∙ lemma ⟩
+          ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · q ∎))
+        ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w)) (δ≤₂ ≡all)
       where
-      open Tools.Reasoning.PropositionalEquality
-    open CR
+      lemma : ∀ {p} → ⌜ 𝟘ᵐ ⌝ · p ≡ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p
+      lemma {p} = begin
+        ⌜ 𝟘ᵐ ⌝ · p           ≡˘⟨ ·-congʳ (⌜⌝-cong (·ᵐ-zeroˡ _)) ⟩
+        ⌜ 𝟘ᵐ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ 𝟘ᵐ) ⟩
+        (⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
+        ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p   ∎
+        where
+        open Tools.Reasoning.PropositionalEquality
+      open ≤ᶜ-reasoning
 
-opaque
+  opaque
 
-  -- A generalisation of the usage rule K₀ₘ₁:
-  -- erased-matches-for-K m ≡ some has been replaced by
-  -- erased-matches-for-K m ≡ not-none sem.
+    -- A generalisation of the usage rule Jₘ:
+    -- erased-matches-for-J m ≡ none and
+    -- erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘) have been
+    -- removed.
 
-  K₀ₘ₁-generalised :
-    erased-matches-for-K m ≡ not-none sem →
-    p ≡ 𝟘 →
-    γ₁ ▸[ m₁ ] A →
-    γ₂ ▸[ m₂ ] t →
-    γ₃ ∙ 𝟘 ▸[ m ] B →
-    γ₄ ▸[ m ] u →
-    γ₅ ▸[ m₃ ] v →
-    ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] K p A t B u v
-  K₀ₘ₁-generalised {m} {γ₃} {B} {γ₄} hyp refl ▸A ▸t ▸B ▸u ▸v
-    with erased-matches-for-K m in ok
-  … | none = case hyp of λ ()
-  … | some = K₀ₘ₁ ok refl (▸-𝟘 ▸A) (▸-𝟘 ▸t) ▸B ▸u (▸-𝟘 ▸v)
-  … | all  = sub
-    (K₀ₘ₂ ok (▸-𝟘 ▸A) (▸-𝟘 ▸t)
-       (▸-𝟘 ▸B)
-       ▸u (▸-𝟘 ▸v))
-    (begin
-       ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
-       ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
-       γ₄               ∎)
-    where
-    open CR
+    Jₘ-generalised :
+      ⦃ ok : JK-with-omega ⦄ →
+      γ₁ ▸[ 𝟘ᵐ ] A →
+      γ₂ ▸[ m ] t →
+      γ₃ ∙ ⌜ m ⌝ · p ∙ ⌜ m ⌝ · q ▸[ m ] B →
+      γ₄ ▸[ m ] u →
+      γ₅ ▸[ m ] v →
+      γ₆ ▸[ m ] w →
+      ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ▸[ m ] J p q A t B u v w
+    Jₘ-generalised {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ⦃ ok ⦄ ▸A ▸t ▸B ▸u ▸v ▸w =
+      Jₘ-generalised′ ▸A ▸t ▸B ▸u ▸v ▸w
+        (≤ᶜ-reflexive (·ᶜ-congʳ (ω≡ω ok erased-matches-JK-≤-some-JK-with-omega)))
+        λ _ → begin
+          ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+          ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)       ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+          ω ·ᶜ (γ₄ +ᶜ γ₅ +ᶜ γ₆)             ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
+          ω ·ᶜ γ₄                           ≤⟨ ω·ᶜ-decreasing ⟩
+          γ₄                                ∎
+      where
+      open ≤ᶜ-reasoning
+
+  opaque
+
+    -- A generalisation of the usage rule J₀ₘ₁:
+    -- erased-matches-for-J m ≡ some has been replaced by
+    -- erased-matches-for-J m ≡ not-none sem.
+
+    J₀ₘ₁-generalised′ :
+      erased-matches-for-J m ≡ not-none sem →
+      p ≡ 𝟘 →
+      q ≡ 𝟘 →
+      γ₁ ▸[ m₁ ] A →
+      γ₂ ▸[ m₂ ] t →
+      γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
+      γ₄ ▸[ m ] u →
+      γ₅ ▸[ m₃ ] v →
+      γ₆ ▸[ m₄ ] w →
+      (⦃ ok : erased-matches-for-J m ≡ some ⦄ → δ ≤ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)) →
+      (erased-matches-for-J m ≡ all → δ ≤ᶜ γ₄) →
+      δ ▸[ m ] J p q A t B u v w
+    J₀ₘ₁-generalised′ {m} hyp refl refl ▸A ▸t ▸B ▸u ▸v ▸w δ≤₁ δ≤₂
+      with J-view 𝟘 𝟘 m
+    … | is-all ⦃ (ok) ⦄ =
+        sub (J₀ₘ₂ (▸-𝟘 ▸A) (▸-𝟘 ▸t) (▸-𝟘 ▸B) ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w)) (δ≤₂ ok)
+    … | is-some-yes _   =
+        sub (J₀ₘ₁ refl refl (▸-𝟘 ▸A) (▸-𝟘 ▸t) ▸B ▸u (▸-𝟘 ▸v) (▸-𝟘 ▸w)) δ≤₁
+    … | is-other ⦃ (≤some) ⦄ 𝟘≢𝟘 =
+        ⊥-elim (lemma _ hyp ≤some (λ ≡some → 𝟘≢𝟘 ≡some (refl , refl)))
+      where
+      lemma : ∀ em → em ≡ not-none sem → em ≤ᵉᵐ some → em ≢ some → ⊥
+      lemma none () _ _
+      lemma all _ () _
+      lemma some _ em≤ em≢some = em≢some refl
+
+  opaque
+
+    -- A generalisation of the usage rule J₀ₘ₁:
+    -- erased-matches-for-J m ≡ some has been replaced by
+    -- erased-matches-for-J m ≡ not-none sem.
+
+    J₀ₘ₁-generalised :
+      ⦃ ok : JK-with-omega ⦄ →
+      erased-matches-for-J m ≡ not-none sem →
+      p ≡ 𝟘 →
+      q ≡ 𝟘 →
+      γ₁ ▸[ m₁ ] A →
+      γ₂ ▸[ m₂ ] t →
+      γ₃ ∙ 𝟘 ∙ 𝟘 ▸[ m ] B →
+      γ₄ ▸[ m ] u →
+      γ₅ ▸[ m₃ ] v →
+      γ₆ ▸[ m₄ ] w →
+      ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] J p q A t B u v w
+    J₀ₘ₁-generalised {m} {γ₃} {γ₄} ⦃ ok = has-omega ⦄ hyp refl refl ▸A ▸t ▸B ▸u ▸v ▸w =
+      J₀ₘ₁-generalised′ hyp refl refl ▸A ▸t ▸B ▸u ▸v ▸w
+        (≤ᶜ-reflexive (·ᶜ-congʳ (ω≡ω has-omega erased-matches-JK-≤-some-JK-with-omega)))
+        λ _ → begin
+          ω ·ᶜ (γ₃ +ᶜ γ₄) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+          ω ·ᶜ γ₄         ≤⟨ ω·ᶜ-decreasing ⟩
+          γ₄              ∎
+      where
+      open ≤ᶜ-reasoning
+
+  opaque
+
+    -- A generalisation of the usage rule Kₘ:
+    -- erased-matches-for-K m ≤ᵉᵐ some and
+    -- erased-matches-for-K m ≡ some → p ≢ 𝟘 have been removed.
+
+    Kₘ-generalised′ :
+      γ₁ ▸[ 𝟘ᵐ ] A →
+      γ₂ ▸[ m ] t →
+      γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
+      γ₄ ▸[ m ] u →
+      γ₅ ▸[ m ] v →
+      (⦃ ok : erased-matches-for-K m ≤ᵉᵐ some ⦄ → δ ≤ᶜ ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)) →
+      (erased-matches-for-K m ≡ all → δ ≤ᶜ γ₄) →
+      δ ▸[ m ] K p A t B u v
+    Kₘ-generalised′ {γ₂} {m} {γ₃} {p} {γ₄} {γ₅} {δ} ▸A ▸t ▸B ▸u ▸v δ≤₁ δ≤₂
+      with K-view p m
+    … | is-other ≢𝟘 =
+      sub (Kₘ ≢𝟘 ▸A ▸t ▸B ▸u ▸v) δ≤₁
+    … | is-some-yes refl = sub
+      (K₀ₘ₁ refl ▸A (▸-𝟘 ▸t)
+        (sub ▸B $ begin
+          γ₃ ∙ 𝟘         ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ⟩
+          γ₃ ∙ ⌜ m ⌝ · 𝟘 ∎)
+        ▸u (▸-𝟘 ▸v)) $ begin
+        δ                           ≤⟨ δ≤₁ ⟩
+        ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+        ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅)       ≈˘⟨ ·ᶜ-congˡ (+ᶜ-assoc _ _ _) ⟩
+        ω ·ᶜ ((γ₃ +ᶜ γ₄) +ᶜ γ₅)     ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
+        ω ·ᶜ (γ₃ +ᶜ γ₄)             ∎
+      where
+      open ≤ᶜ-reasoning
+    … | is-all ⦃ (≡all) ⦄ = sub
+      (K₀ₘ₂ ▸A (▸-𝟘 ▸t)
+        (sub (▸-𝟘 ▸B) $ begin
+          ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p         ≈⟨ ≈ᶜ-refl ∙ lemma ⟩
+          ⌜ 𝟘ᵐ ⌝ ·ᶜ γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p ∎)
+        ▸u (▸-𝟘 ▸v))
+      (δ≤₂ ≡all)
+      where
+      lemma : ∀ {p} → ⌜ 𝟘ᵐ ⌝ · p ≡ ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p
+      lemma {p} = begin
+        ⌜ 𝟘ᵐ ⌝ · p           ≡˘⟨ ·-congʳ (⌜⌝-cong (·ᵐ-zeroˡ _)) ⟩
+        ⌜ 𝟘ᵐ ·ᵐ m ⌝ · p      ≡⟨ ·-congʳ (⌜·ᵐ⌝ 𝟘ᵐ) ⟩
+        (⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝) · p ≡⟨ ·-assoc _ _ _ ⟩
+        ⌜ 𝟘ᵐ ⌝ · ⌜ m ⌝ · p   ∎
+        where
+        open Tools.Reasoning.PropositionalEquality
+      open ≤ᶜ-reasoning
+
+  opaque
+
+    -- A generalisation of the usage rule Kₘ:
+    -- erased-matches-for-K m ≤ᵉᵐ some and
+    -- erased-matches-for-K m ≡ some → p ≢ 𝟘 have been removed.
+
+    Kₘ-generalised :
+      ⦃ ok : JK-with-omega ⦄ →
+      γ₁ ▸[ 𝟘ᵐ ] A →
+      γ₂ ▸[ m ] t →
+      γ₃ ∙ ⌜ m ⌝ · p ▸[ m ] B →
+      γ₄ ▸[ m ] u →
+      γ₅ ▸[ m ] v →
+      ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ▸[ m ] K p A t B u v
+    Kₘ-generalised  {γ₂} {γ₃} {γ₄} {γ₅} ⦃ ok ⦄ ▸A ▸t ▸B ▸u ▸v =
+      Kₘ-generalised′ ▸A ▸t ▸B ▸u ▸v
+        (≤ᶜ-reflexive (·ᶜ-congʳ (ω≡ω ok erased-matches-JK-≤-some-JK-with-omega)))
+        (λ _ → begin
+          ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+          ω ·ᶜ (γ₃ +ᶜ γ₄ +ᶜ γ₅)       ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+          ω ·ᶜ (γ₄ +ᶜ γ₅)             ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
+          ω ·ᶜ γ₄                     ≤⟨ ω·ᶜ-decreasing ⟩
+          γ₄                          ∎)
+      where
+      open ≤ᶜ-reasoning
+
+  opaque
+
+    -- A generalisation of the usage rule K₀ₘ₁:
+    -- erased-matches-for-K m ≡ some has been replaced by
+    -- erased-matches-for-K m ≡ not-none sem.
+
+    K₀ₘ₁-generalised′ :
+      erased-matches-for-K m ≡ not-none sem →
+      p ≡ 𝟘 →
+      γ₁ ▸[ m₁ ] A →
+      γ₂ ▸[ m₂ ] t →
+      γ₃ ∙ 𝟘 ▸[ m ] B →
+      γ₄ ▸[ m ] u →
+      γ₅ ▸[ m₃ ] v →
+      (⦃ ok : erased-matches-for-K m ≡ some ⦄ → δ ≤ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄)) →
+      (erased-matches-for-K m ≡ all → δ ≤ᶜ γ₄) →
+      δ ▸[ m ] K p A t B u v
+    K₀ₘ₁-generalised′ {m} hyp refl ▸A ▸t ▸B ▸u ▸v δ≤₁ δ≤₂
+      with K-view 𝟘 m
+    … | is-all ⦃ (ok) ⦄ =
+        sub (K₀ₘ₂ (▸-𝟘 ▸A) (▸-𝟘 ▸t) (▸-𝟘 ▸B) ▸u (▸-𝟘 ▸v)) (δ≤₂ ok)
+    … | is-some-yes _   =
+        sub (K₀ₘ₁ refl (▸-𝟘 ▸A) (▸-𝟘 ▸t) ▸B ▸u (▸-𝟘 ▸v)) δ≤₁
+    … | is-other ⦃ (≤some) ⦄ 𝟘≢𝟘 =
+        ⊥-elim (lemma _ hyp ≤some (λ ≡some → 𝟘≢𝟘 ≡some refl))
+      where
+      lemma : ∀ em → em ≡ not-none sem → em ≤ᵉᵐ some → em ≢ some → ⊥
+      lemma none () _ _
+      lemma all _ () _
+      lemma some _ em≤ em≢some = em≢some refl
+
+  opaque
+
+    -- A generalisation of the usage rule K₀ₘ₁:
+    -- erased-matches-for-K m ≡ some has been replaced by
+    -- erased-matches-for-K m ≡ not-none sem.
+
+    K₀ₘ₁-generalised :
+      ⦃ ok : JK-with-omega ⦄ →
+      erased-matches-for-K m ≡ not-none sem →
+      p ≡ 𝟘 →
+      γ₁ ▸[ m₁ ] A →
+      γ₂ ▸[ m₂ ] t →
+      γ₃ ∙ 𝟘 ▸[ m ] B →
+      γ₄ ▸[ m ] u →
+      γ₅ ▸[ m₃ ] v →
+      ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] K p A t B u v
+    K₀ₘ₁-generalised {m} {γ₃} {γ₄} ⦃ ok = has-omega ⦄ hyp refl ▸A ▸t ▸B ▸u ▸v =
+      K₀ₘ₁-generalised′ hyp refl ▸A ▸t ▸B ▸u ▸v
+        (≤ᶜ-reflexive (·ᶜ-congʳ (ω≡ω has-omega erased-matches-JK-≤-some-JK-with-omega)))
+        λ _ → begin
+          ω ·ᶜ (γ₃ +ᶜ γ₄) ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+          ω ·ᶜ γ₄         ≤⟨ ω·ᶜ-decreasing ⟩
+          γ₄              ∎
+      where
+      open ≤ᶜ-reasoning
 
 ------------------------------------------------------------------------
 -- A lemma related to level literals
@@ -1877,15 +2010,15 @@ opaque
 
     ·-⌈⌉-J : ⌜ m ⌝ ·ᶜ ⌈ J p q A t B u v w ⌉ m ≈ᶜ ⌈ J p q A t B u v w ⌉ m
     ·-⌈⌉-J {p} {q} {t} {B} {u} {v} {w} with J-view p q m
-    … | is-all _ = ·-⌈⌉ u
-    … | is-some-yes _ _ = begin
+    … | is-all = ·-⌈⌉ u
+    … | is-some-yes _ = begin
       ⌜ m ⌝ ·ᶜ ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)          ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
       ω ·ᶜ ⌜ m ⌝ ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)          ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
       ω ·ᶜ (⌜ m ⌝ ·ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congʳ (tailₘ-distrib-·ᶜ _ (tailₘ (⌈ B ⌉ m)))) ⟩
       ω ·ᶜ (tailₘ (⌜ m ⌝ ·ᶜ tailₘ (⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congʳ (tailₘ-cong (tailₘ-distrib-·ᶜ _ (⌈ B ⌉ m)))) ⟩
       ω ·ᶜ (tailₘ (tailₘ (⌜ m ⌝ ·ᶜ ⌈ B ⌉ m)) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈⟨ ·ᶜ-congˡ (+ᶜ-cong (tailₘ-cong (tailₘ-cong (·-⌈⌉ B))) (·-⌈⌉ u)) ⟩
       ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)                   ∎
-    … | is-other _ _ = begin
+    … | is-other _ = begin
       ⌜ m ⌝ ·ᶜ ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m)
         ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
       ω ·ᶜ ⌜ m ⌝ ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m)
@@ -1902,14 +2035,14 @@ opaque
 
     ·-⌈⌉-K : ⌜ m ⌝ ·ᶜ ⌈ K p A t B u v ⌉ m ≈ᶜ ⌈ K p A t B u v ⌉ m
     ·-⌈⌉-K {p} {t} {B} {u} {v} with K-view p m
-    … | is-all _ = ·-⌈⌉ u
-    … | is-some-yes _ _ = begin
+    … | is-all = ·-⌈⌉ u
+    … | is-some-yes _ = begin
       ⌜ m ⌝ ·ᶜ ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)          ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
       ω ·ᶜ ⌜ m ⌝ ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)          ≈⟨ ·ᶜ-congˡ (·ᶜ-distribˡ-+ᶜ _ _ _) ⟩
       ω ·ᶜ (⌜ m ⌝ ·ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈˘⟨ ·ᶜ-congˡ (+ᶜ-congʳ (tailₘ-distrib-·ᶜ _ (⌈ B ⌉ m))) ⟩
       ω ·ᶜ (tailₘ (⌜ m ⌝ ·ᶜ ⌈ B ⌉ m) +ᶜ ⌜ m ⌝ ·ᶜ ⌈ u ⌉ m) ≈⟨ ·ᶜ-congˡ (+ᶜ-cong (tailₘ-cong (·-⌈⌉ B)) (·-⌈⌉ u)) ⟩
       ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)                   ∎
-    … | is-other _ _ = begin
+    … | is-other _ = begin
       ⌜ m ⌝ ·ᶜ ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)
         ≈⟨ ⌜⌝·ᶜ-comm _ _ _ ⟩
       ω ·ᶜ ⌜ m ⌝ ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)
@@ -2093,75 +2226,75 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   usage-upper-bound′
     {m}
     (Jₘ {p} {q} {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} {γ₆} {w}
-       ≤some ok _ ▸t ▸B ▸u ▸v ▸w)
+       ⦃ (≤some) ⦄ ok _ ▸t ▸B ▸u ▸v ▸w)
     with J-view p q m
-  … | is-all ≡all               = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-  … | is-some-yes ≡some p≡𝟘×q≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘×q≡𝟘
-  … | is-other _ _              = begin
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)                           ≤⟨ ·ᶜ-monotoneʳ $
-                                                                   +ᶜ-monotone (usage-upper-bound′ ▸t) $
-                                                                   +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B))) $
-                                                                   +ᶜ-monotone (usage-upper-bound′ ▸u) $
-                                                                   +ᶜ-monotone (usage-upper-bound′ ▸v) $
-                                                                   usage-upper-bound′ ▸w ⟩
-    ω ·ᶜ
-    (⌈ t ⌉ m +ᶜ
-     tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m)  ∎
-    where
-    open ≤ᶜ-reasoning
+  … | is-all ⦃ (≡all) ⦄               = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ⦃ (≡some) ⦄ p≡𝟘×q≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘×q≡𝟘
+  … | is-other ⦃ ok ⦄ _               =
+    ≤ᶜ-trans (·ᶜ-monotoneʳ $
+             +ᶜ-monotone (usage-upper-bound′ ▸t) $
+             +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B))) $
+             +ᶜ-monotone (usage-upper-bound′ ▸u) $
+             +ᶜ-monotone (usage-upper-bound′ ▸v) $
+             usage-upper-bound′ ▸w)
+      (≤ᶜ-reflexive (·ᶜ-congʳ (ω≡ω (erased-matches-for-JK-supports-ω _)
+        (erased-matches-JK-≤-some-JK-with-omega ⦃ ok ⦄))))
 
   usage-upper-bound′
-    {m} (J₀ₘ₁ {p} {q} {γ₃} {B} {γ₄} {u} ≡some p≡𝟘 q≡𝟘 _ ▸t ▸B ▸u ▸v ▸w)
+    {m} (J₀ₘ₁ {p} {q} {γ₃} {B} {γ₄} {u} ⦃ (≡some) ⦄ p≡𝟘 q≡𝟘 _ ▸t ▸B ▸u ▸v ▸w)
     with J-view p q m
-  … | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
-  … | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
-  … | is-some-yes _ _ = begin
-    ω ·ᶜ (γ₃ +ᶜ γ₄)                            ≤⟨ ·ᶜ-monotoneʳ $
-                                                  +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B))) $
-                                                  usage-upper-bound′ ▸u ⟩
-    ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)  ∎
+  … | is-all ⦃ (≡all) ⦄     = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-other 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+  … | is-some-yes ⦃ ok ⦄ _ =
+    ≤ᶜ-trans (·ᶜ-monotoneʳ $
+             +ᶜ-monotone (tailₘ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B))) $
+             usage-upper-bound′ ▸u)
+      (≤ᶜ-reflexive (·ᶜ-congʳ (ω≡ω (erased-matches-for-JK-supports-ω _)
+        (erased-matches-JK-≤-some-JK-with-omega ⦃ erased-matches-JK-≡-some-≤-some ⦃ ok ⦄ ⦄))))
     where
     open ≤ᶜ-reasoning
 
-  usage-upper-bound′ {m} (J₀ₘ₂ {p} {q} ≡all _ _ _ ▸u _ _)
+  usage-upper-bound′ {m} (J₀ₘ₂ {p} {q} ⦃ (≡all) ⦄ _ _ _ ▸u _ _)
     with J-view p q m
-  … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-  … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
-  … | is-all _            = usage-upper-bound′ ▸u
+  … | is-other ⦃ (≤some) ⦄ _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ⦃ (≡some) ⦄ _ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-all                    = usage-upper-bound′ ▸u
 
   usage-upper-bound′
     {m}
-    (Kₘ {p} {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} ≤some ok _ ▸t ▸B ▸u ▸v)
+    (Kₘ {p} {γ₂} {t} {γ₃} {B} {γ₄} {u} {γ₅} {v} ⦃ (≤some) ⦄ ok _ ▸t ▸B ▸u ▸v)
     with K-view p m
-  … | is-all ≡all           = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-  … | is-some-yes ≡some p≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘
-  … | is-other _ _          = begin
-    ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)                              ≤⟨ ·ᶜ-monotoneʳ $
-                                                                +ᶜ-monotone (usage-upper-bound′ ▸t) $
-                                                                +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B)) $
-                                                                +ᶜ-monotone (usage-upper-bound′ ▸u) $
-                                                                usage-upper-bound′ ▸v ⟩
-    ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)  ∎
+  … | is-all ⦃ (≡all) ⦄           = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ⦃ (≡some) ⦄ p≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘
+  … | is-other ⦃ ok ⦄ _           =
+    ≤ᶜ-trans (·ᶜ-monotoneʳ $
+             +ᶜ-monotone (usage-upper-bound′ ▸t) $
+             +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B)) $
+             +ᶜ-monotone (usage-upper-bound′ ▸u) $
+             usage-upper-bound′ ▸v)
+      (≤ᶜ-reflexive (·ᶜ-congʳ (ω≡ω (erased-matches-for-JK-supports-ω _)
+          (erased-matches-JK-≤-some-JK-with-omega ⦃ ok ⦄))))
     where
     open ≤ᶜ-reasoning
 
   usage-upper-bound′
-    {m} (K₀ₘ₁ {p} {γ₃} {B} {γ₄} {u} ≡some p≡𝟘 _ ▸t ▸B ▸u ▸v)
+    {m} (K₀ₘ₁ {p} {γ₃} {B} {γ₄} {u} ⦃ (≡some) ⦄ p≡𝟘 _ ▸t ▸B ▸u ▸v)
     with K-view p m
-  … | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
-  … | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some p≡𝟘
-  … | is-some-yes _ _ = begin
-    ω ·ᶜ (γ₃ +ᶜ γ₄)                    ≤⟨ ·ᶜ-monotoneʳ $
-                                          +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B)) $
-                                          usage-upper-bound′ ▸u ⟩
-    ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)  ∎
+  … | is-all ⦃ (≡all) ⦄ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-other 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some p≡𝟘
+  … | is-some-yes ⦃ ok ⦄ _ =
+    ≤ᶜ-trans (·ᶜ-monotoneʳ $
+             +ᶜ-monotone (tailₘ-monotone (usage-upper-bound′ ▸B)) $
+             usage-upper-bound′ ▸u)
+      (≤ᶜ-reflexive (·ᶜ-congʳ (ω≡ω (erased-matches-for-JK-supports-ω _)
+          (erased-matches-JK-≤-some-JK-with-omega ⦃ erased-matches-JK-≡-some-≤-some ⦃ ok ⦄ ⦄) )))
     where
     open ≤ᶜ-reasoning
 
-  usage-upper-bound′ {m} (K₀ₘ₂ {p} ≡all _ _ _ ▸u _) with K-view p m
-  … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-  … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
-  … | is-all _            = usage-upper-bound′ ▸u
+  usage-upper-bound′ {m} (K₀ₘ₂ {p} ⦃ (≡all) ⦄ _ _ _ ▸u _) with K-view p m
+  … | is-other ⦃ (≤some) ⦄ _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ⦃ (≡some) ⦄ _ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-all                    = usage-upper-bound′ ▸u
 
   usage-upper-bound′ ([]-congₘ _ _ _ _ _ _) =
     ≤ᶜ-refl
@@ -2240,40 +2373,40 @@ opaque
   … | yes _     = Id₀ₘ ok ▸A ▸t ▸u
   usage-inf rflₘ =
     rflₘ
-  usage-inf {m} (Jₘ {p} {q} ≤some ok ▸A ▸t ▸B ▸u ▸v ▸w) with J-view p q m
-  … | is-all ≡all               = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-  … | is-some-yes ≡some p≡𝟘×q≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘×q≡𝟘
-  … | is-other _ _              =
-    Jₘ ≤some ok ▸A (usage-inf ▸t) (Conₘ-interchange₂ (usage-inf ▸B) ▸B)
+  usage-inf {m} (Jₘ {p} {q} ⦃ (≤some) ⦄ ok ▸A ▸t ▸B ▸u ▸v ▸w) with J-view p q m
+  … | is-all ⦃ (≡all) ⦄               = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ⦃ (≡some) ⦄ p≡𝟘×q≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘×q≡𝟘
+  … | is-other ⦃ (≤some′) ⦄ _         =
+    Jₘ ⦃ ≤some′ ⦄ ok ▸A (usage-inf ▸t) (Conₘ-interchange₂ (usage-inf ▸B) ▸B)
       (usage-inf ▸u) (usage-inf ▸v) (usage-inf ▸w)
-  usage-inf {m} (J₀ₘ₁ {p} {q} ≡some p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w)
+  usage-inf {m} (J₀ₘ₁ {p} {q} ⦃ (≡some) ⦄ p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w)
     with J-view p q m
-  … | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
-  … | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
-  … | is-some-yes _ _ =
-    J₀ₘ₁ ≡some p≡𝟘 q≡𝟘 ▸A (usage-inf ▸t)
+  … | is-all ⦃ (≡all) ⦄          = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-other 𝟘≢𝟘               = ⊥-elim $ 𝟘≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
+  … | is-some-yes ⦃ (≡some′) ⦄ _ =
+    J₀ₘ₁ ⦃ ≡some′ ⦄ p≡𝟘 q≡𝟘 ▸A (usage-inf ▸t)
       (Conₘ-interchange₂ (usage-inf ▸B) ▸B) (usage-inf ▸u) (usage-inf ▸v)
       (usage-inf ▸w)
-  usage-inf {m} (J₀ₘ₂ {p} {q} ≡all ▸A ▸t ▸B ▸u ▸v ▸w) with J-view p q m
-  … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-  … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
-  … | is-all _            = J₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v ▸w
-  usage-inf {m} (Kₘ {p} ≤some ok ▸A ▸t ▸B ▸u ▸v) with K-view p m
-  … | is-all ≡all           = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-  … | is-some-yes ≡some p≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘
-  … | is-other _ _          =
-    Kₘ ≤some ok ▸A (usage-inf ▸t) (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
+  usage-inf {m} (J₀ₘ₂ {p} {q} ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v ▸w) with J-view p q m
+  … | is-other ⦃ (≤some) ⦄ _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ⦃ (≡some) ⦄ _ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-all                    = J₀ₘ₂ ⦃ ≡all ⦄ ▸A ▸t ▸B (usage-inf ▸u) ▸v ▸w
+  usage-inf {m} (Kₘ {p} ⦃ (≤some) ⦄ ok ▸A ▸t ▸B ▸u ▸v) with K-view p m
+  … | is-all ⦃ (≡all) ⦄           = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ⦃ (≡some) ⦄ p≡𝟘 = ⊥-elim $ ok ≡some p≡𝟘
+  … | is-other ⦃ (≤some′) ⦄ _     =
+    Kₘ ⦃ ≤some′ ⦄ ok ▸A (usage-inf ▸t) (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
       (usage-inf ▸u) (usage-inf ▸v)
-  usage-inf {m} (K₀ₘ₁ {p} ≡some p≡𝟘 ▸A ▸t ▸B ▸u ▸v) with K-view p m
-  … | is-all ≡all     = case trans (PE.sym ≡some) ≡all of λ ()
-  … | is-other _ 𝟘≢𝟘  = ⊥-elim $ 𝟘≢𝟘 ≡some p≡𝟘
-  … | is-some-yes _ _ =
-    K₀ₘ₁ ≡some p≡𝟘 ▸A (usage-inf ▸t) (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
+  usage-inf {m} (K₀ₘ₁ {p} ⦃ (≡some) ⦄ p≡𝟘 ▸A ▸t ▸B ▸u ▸v) with K-view p m
+  … | is-all ⦃ (≡all) ⦄          = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-other 𝟘≢𝟘               = ⊥-elim $ 𝟘≢𝟘 ≡some p≡𝟘
+  … | is-some-yes ⦃ (≡some′) ⦄ _ =
+    K₀ₘ₁ ⦃ ≡some′ ⦄ p≡𝟘 ▸A (usage-inf ▸t) (Conₘ-interchange₁ (usage-inf ▸B) ▸B)
       (usage-inf ▸u) (usage-inf ▸v)
-  usage-inf {m} (K₀ₘ₂ {p} ≡all ▸A ▸t ▸B ▸u ▸v) with K-view p m
-  … | is-other ≤some _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-  … | is-some-yes ≡some _ = case trans (PE.sym ≡some) ≡all of λ ()
-  … | is-all _            = K₀ₘ₂ ≡all ▸A ▸t ▸B (usage-inf ▸u) ▸v
+  usage-inf {m} (K₀ₘ₂ {p} ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v) with K-view p m
+  … | is-other ⦃ (≤some) ⦄ _    = case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
+  … | is-some-yes ⦃ (≡some) ⦄ _ = case trans (PE.sym ≡some) ≡all of λ ()
+  … | is-all                    = K₀ₘ₂ ⦃ ≡all ⦄ ▸A ▸t ▸B (usage-inf ▸u) ▸v
   usage-inf ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
     []-congₘ ▸l ▸A ▸t ▸u ▸v ok
   usage-inf (sub γ▸t x) = usage-inf γ▸t
@@ -2394,26 +2527,26 @@ opaque
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸u)
   ▸inline _ rflₘ =
     rflₘ
-  ▸inline ▸ξ (Jₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
-    Jₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
+  ▸inline ▸ξ (Jₘ ok ▸A ▸t ▸B ▸u ▸v ▸w) =
+    Jₘ ok (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
       (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v) (▸inline ▸ξ ▸w)
-  ▸inline ▸ξ (J₀ₘ₁ ok₁ ok₂ ok₃ ▸A ▸t ▸B ▸u ▸v ▸w) =
-    J₀ₘ₁ ok₁ ok₂ ok₃ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
+  ▸inline ▸ξ (J₀ₘ₁ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
+    J₀ₘ₁ ok₁ ok₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸w)
-  ▸inline ▸ξ (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v ▸w) =
-    J₀ₘ₂ ok (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t)
+  ▸inline ▸ξ (J₀ₘ₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
+    J₀ₘ₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸w)
-  ▸inline ▸ξ (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
-    Kₘ ok₁ ok₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
+  ▸inline ▸ξ (Kₘ ok ▸A ▸t ▸B ▸u ▸v) =
+    Kₘ ok (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline ▸ξ ▸t)
       (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u) (▸inline ▸ξ ▸v)
-  ▸inline ▸ξ (K₀ₘ₁ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
-    K₀ₘ₁ ok₁ ok₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
+  ▸inline ▸ξ (K₀ₘ₁ ok ▸A ▸t ▸B ▸u ▸v) =
+    K₀ₘ₁ ok (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t) (▸inline ▸ξ ▸B) (▸inline ▸ξ ▸u)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v)
-  ▸inline ▸ξ (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) =
-    K₀ₘ₂ ok (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t)
+  ▸inline ▸ξ (K₀ₘ₂ ▸A ▸t ▸B ▸u ▸v) =
+    K₀ₘ₂ (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸A) (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸t)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸B) (▸inline ▸ξ ▸u)
       (▸inline (▸-𝟘ᵐ-DCon ▸ξ) ▸v)
   ▸inline ▸ξ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =

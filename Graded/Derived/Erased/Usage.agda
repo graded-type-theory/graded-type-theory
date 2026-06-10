@@ -21,12 +21,14 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Substitution R
 open import Graded.Substitution.Properties R
 open import Graded.Usage R
 open import Graded.Usage.Inversion R
 open import Graded.Usage.Properties R
+open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Weakening R
 
 open import Definition.Untyped M
@@ -367,6 +369,7 @@ opaque
   -- A usage rule for substᵉ.
 
   ▸substᵉ :
+    ⦃ ok : JK-with-omega ⦄ →
     (s ≡ 𝕨 → Trivialᵐ → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕤 → Trivialᵐ → 𝟘 ≤ 𝟙) →
@@ -415,6 +418,7 @@ opaque
   -- A usage rule for Jᵉ.
 
   ▸Jᵉ :
+    ⦃ ok : JK-with-omega ⦄ →
     (s ≡ 𝕨 → Trivialᵐ → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕤 → Trivialᵐ → 𝟘 ≤ 𝟙) →

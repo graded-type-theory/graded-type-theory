@@ -1697,7 +1697,7 @@ opaque
               (possibly-nonempty ⦃ ok = p , q , ok ⦄) →
                 p , q , possibly-nonempty ⦃ ok = ok ⦄
               ε →
-                Modality.ω 𝕄 , Modality.ω 𝕄 , ε
+                Modality.𝟘 𝕄 , Modality.𝟘 𝕄 , ε
 
             ok = p,q,ok .proj₂ .proj₂
 

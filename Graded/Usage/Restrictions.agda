@@ -16,6 +16,7 @@ module Graded.Usage.Restrictions
 open import Graded.Context 𝕄
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Restrictions.JK 𝕄
 open import Definition.Untyped.NotParametrised
 
 open import Tools.Bool
@@ -37,6 +38,9 @@ private variable
   s : Strength
   ⦃ ok ⦄ : T _
   γ δ η : Conₘ _
+
+private variable
+  jk : JK
 
 -- Restrictions on/choices for usage derivations.
 
@@ -86,25 +90,26 @@ record Usage-restrictions : Set (lsuc a ⊔ b) where
     -- Id-erased is decided.
     Id-erased? : Dec Id-erased
 
-    -- What kinds of erased matches are allowed for the J rule (for
-    -- the current mode)?
-    erased-matches-for-J : Mode → Erased-matches
+    -- Should the erased matches for J and K that require the grade ω be
+    -- allowed?
+    JK-supported-erased-matches : JK-Supported-erased-matches
 
-    -- The usage rules for J are at least as permissive for m′
+    -- What kinds of erased matches are allowed for the J and K rules (for
+    -- the current mode)?
+    erased-matches-for-JK : JK → Mode → Erased-matches
+
+    -- The usage rules for J and K are at least as permissive for m′
     -- as for m when m ≤ᵐ m′. (See Graded.Usage.Properties.Jₘ-generalised and
-    -- Graded.Usage.Properties.J₀ₘ₁-generalised.)
-    erased-matches-for-J-≤ᵉᵐ :
-      m ≤ᵐ m′ → erased-matches-for-J m ≤ᵉᵐ erased-matches-for-J m′
+    -- Graded.Usage.Properties.J₀ₘ₁-generalised and similar for K)
+    erased-matches-for-JK-≤ᵉᵐ :
+      m ≤ᵐ m′ → erased-matches-for-JK jk m ≤ᵉᵐ erased-matches-for-JK jk m′
 
-    -- What kinds of erased matches are allowed for the K rule (for
-    -- the current mode)?
-    erased-matches-for-K : Mode → Erased-matches
-
-    -- The usage rules for K are at least as permissive for m′
-    -- as for m when m ≤ᵐ m′. (See Graded.Usage.Properties.Kₘ-generalised and
-    -- Graded.Usage.Properties.K₀ₘ₁-generalised.)
-    erased-matches-for-K-≤ᵉᵐ :
-      m ≤ᵐ m′ → erased-matches-for-K m ≤ᵉᵐ erased-matches-for-K m′
+    -- If the erased matches for J or K is at most "some" for any mode
+    -- then such erased modes must be supported by the modality. I.e.
+    -- the modality must have grade ω.
+    erased-matches-for-JK-supports-ω :
+      erased-matches-for-JK jk m ≤ᵉᵐ some →
+      JK-Any-erased-matches JK-supported-erased-matches
 
   -- Three mutually exclusive types which correspond to each of the
   -- three possibilities for natrec-mode
@@ -118,7 +123,16 @@ record Usage-restrictions : Set (lsuc a ⊔ b) where
   Nr-not-available-GLB : Set a
   Nr-not-available-GLB = Natrec-mode-no-nr-glb natrec-mode
 
+  -- A type that is inhabited iff the usage rules for J and K that
+  -- require grade ω are allowed.
+
+  JK-with-omega : Set a
+  JK-with-omega = JK-Any-erased-matches JK-supported-erased-matches
+
   field
+
+    -- If nr functions are used, they must be compatible with
+    -- the modes.
 
     mode-supports-nr :
       ⦃ ok : Nr-available ⦄ →
@@ -144,11 +158,45 @@ record Usage-restrictions : Set (lsuc a ⊔ b) where
   … | false = inj₂ idᶠ
   … | true = inj₁ _
 
+  -- The erased matches for J for a given mode.
+
+  erased-matches-for-J : Mode → Erased-matches
+  erased-matches-for-J = erased-matches-for-JK J
+
+  -- The erased matches for K for a given mode.
+
+  erased-matches-for-K : Mode → Erased-matches
+  erased-matches-for-K = erased-matches-for-JK K
+
+  opaque
+
+    -- JK-with-omega is propositional
+
+    JK-with-omega-propositional : (p q : JK-with-omega) → p ≡ q
+    JK-with-omega-propositional = JK-Any-erased-matches-propositional
+
+  opaque
+
+    -- The usage rules for J are at least as permissive for m′
+    -- as for m when m ≤ᵐ m′. (See Graded.Usage.Properties.Jₘ-generalised and
+    -- Graded.Usage.Properties.J₀ₘ₁-generalised.)
+    erased-matches-for-J-≤ᵉᵐ :
+      m ≤ᵐ m′ → erased-matches-for-J m ≤ᵉᵐ erased-matches-for-J m′
+    erased-matches-for-J-≤ᵉᵐ = erased-matches-for-JK-≤ᵉᵐ
+
+  opaque
+
+    -- The usage rules for K are at least as permissive for m′
+    -- as for m when m ≤ᵐ m′. (See Graded.Usage.Properties.Kₘ-generalised and
+    -- Graded.Usage.Properties.K₀ₘ₁-generalised.)
+    erased-matches-for-K-≤ᵉᵐ :
+      m ≤ᵐ m′ → erased-matches-for-K m ≤ᵉᵐ erased-matches-for-K m′
+    erased-matches-for-K-≤ᵉᵐ = erased-matches-for-JK-≤ᵉᵐ
+
   opaque
 
     -- If prodrec is allowed at mode m (for some grade) then it is
     -- also allowed at mode m′ ·ᵐ m.
-
 
     Prodrec-allowed-·ᵐ :
       Prodrec-allowed m r p q →
@@ -186,114 +234,102 @@ record Usage-restrictions : Set (lsuc a ⊔ b) where
     []-cong-allowed-mode-·ᵐ ok =
       []-cong-allowed-mode-upwards-closed ok ·ᵐ-increasingˡ
 
-  opaque
+  -- The following two instances give connections from the
+  -- choice of erased matches for J or K, as given in the
+  -- corresponding usage rules, to the property JK-with-omega.
 
-    -- The usage rules for J are at least as permissive for m′ ·ᵐ m as
-    -- for m. (See Graded.Usage.Properties.Jₘ-generalised and
-    -- Graded.Usage.Properties.J₀ₘ₁-generalised.)
+  instance
 
-    erased-matches-for-J-≤ᵉᵐ·ᵐ :
-      erased-matches-for-J m ≤ᵉᵐ erased-matches-for-J (m′ ·ᵐ m)
-    erased-matches-for-J-≤ᵉᵐ·ᵐ =
-      erased-matches-for-J-≤ᵉᵐ ·ᵐ-increasingˡ
+    -- If the erased matches for J or K are at most "some" then
+    -- erased matches that require ω are supported.
 
-  opaque
+    erased-matches-JK-≤-some-JK-with-omega :
+      ⦃ ok : erased-matches-for-JK jk m ≤ᵉᵐ some ⦄ →
+      JK-with-omega
+    erased-matches-JK-≤-some-JK-with-omega ⦃ ok ⦄ =
+      erased-matches-for-JK-supports-ω
+        (≤ᵉᵐ-transitive (erased-matches-for-JK-≤ᵉᵐ 𝟙ᵐ≤) ok)
 
-    -- If J has some erased matches for m then it has all
-    -- erased matches for m′ ·ᵐ m.
+    {-# INCOHERENT erased-matches-JK-≤-some-JK-with-omega #-}
 
-    erased-matches-for-J-all·ᵐ :
-      erased-matches-for-J m ≡ all →
-      erased-matches-for-J (m′ ·ᵐ m) ≡ all
-    erased-matches-for-J-all·ᵐ ≡all =
-      ≤ᵉᵐ→≡all→≡all erased-matches-for-J-≤ᵉᵐ·ᵐ ≡all
+  instance
 
-  opaque
+    -- If erased matches for J or K are some then they are at
+    -- most some.
 
-    -- If J has some erased matches for m then it has either all or
-    -- some erased matches for m′ ·ᵐ m.
+    erased-matches-JK-≡-some-≤-some :
+      ⦃ ok : erased-matches-for-JK jk m ≡ some ⦄ →
+      erased-matches-for-JK jk m ≤ᵉᵐ some
+    erased-matches-JK-≡-some-≤-some ⦃ ok ⦄ =
+      subst (_≤ᵉᵐ some) (sym ok) _
 
-    erased-matches-for-J-some·ᵐ :
-      erased-matches-for-J m ≡ some →
-      erased-matches-for-J (m′ ·ᵐ m) ≡ all ⊎
-      erased-matches-for-J (m′ ·ᵐ m) ≡ some
-    erased-matches-for-J-some·ᵐ {m} {m′} ≡some =
-      some≤ᵉᵐ→ (subst (_≤ᵉᵐ erased-matches-for-J (m′ ·ᵐ m))
-                 ≡some erased-matches-for-J-≤ᵉᵐ·ᵐ)
+    {-# INCOHERENT erased-matches-JK-≡-some-≤-some #-}
 
-  private opaque
+  -- The usage rules for J are at least as permissive for m′ ·ᵐ m as
+  -- for m. (See Graded.Usage.Properties.Jₘ-generalised and
+  -- Graded.Usage.Properties.J₀ₘ₁-generalised.)
 
-    -- A lemma used below
+  erased-matches-for-JK-≤ᵉᵐ·ᵐ :
+    erased-matches-for-JK jk m ≤ᵉᵐ erased-matches-for-JK jk (m′ ·ᵐ m)
+  erased-matches-for-JK-≤ᵉᵐ·ᵐ =
+    erased-matches-for-JK-≤ᵉᵐ ·ᵐ-increasingˡ
 
-    erased-matches-for-JK-not-none·ᵐ :
-      ∀ sem em → not-none sem ≤ᵉᵐ em →
-      ∃ λ sem′ → em ≡ not-none sem′
-    erased-matches-for-JK-not-none·ᵐ all′ none ()
-    erased-matches-for-JK-not-none·ᵐ all′ (not-none x) _ = x , refl
-    erased-matches-for-JK-not-none·ᵐ some′ none ()
-    erased-matches-for-JK-not-none·ᵐ some′ (not-none x) le = x , refl
+  -- If J or K has all erased matches for m then it has all
+  -- erased matches for m′ ·ᵐ m.
 
-  opaque
-
-    -- If J has not-none erased matches for m then it has
-    -- not-none erased matches for m′ ·ᵐ m.
-
-    erased-matches-for-J-not-none·ᵐ :
-      ∀ {sem} →
-      erased-matches-for-J m ≡ not-none sem →
-      ∃ λ sem′ → erased-matches-for-J (m′ ·ᵐ m) ≡ not-none sem′
-    erased-matches-for-J-not-none·ᵐ {m} {m′} ok =
-      erased-matches-for-JK-not-none·ᵐ _ _
-        (subst (_≤ᵉᵐ erased-matches-for-J (m′ ·ᵐ m)) ok erased-matches-for-J-≤ᵉᵐ·ᵐ)
-
-  opaque
-
-    -- The usage rules for K are at least as permissive for m′ ·ᵐ m as
-    -- for m. (See Graded.Usage.Properties.Kₘ-generalised and
-    -- Graded.Usage.Properties.K₀ₘ₁-generalised.)
-
-    erased-matches-for-K-≤ᵉᵐ·ᵐ :
-      erased-matches-for-K m ≤ᵉᵐ erased-matches-for-K (m′ ·ᵐ m)
-    erased-matches-for-K-≤ᵉᵐ·ᵐ =
-      erased-matches-for-K-≤ᵉᵐ ·ᵐ-increasingˡ
-
-  opaque
+  erased-matches-for-JK-all·ᵐ :
+    erased-matches-for-JK jk m ≡ all →
+    erased-matches-for-JK jk (m′ ·ᵐ m) ≡ all
+  erased-matches-for-JK-all·ᵐ ≡all =
+    ≤ᵉᵐ→≡all→≡all erased-matches-for-JK-≤ᵉᵐ·ᵐ ≡all
 
 
-    -- If K has some erased matches for m then it has all
-    -- erased matches for m′ ·ᵐ m.
+  -- If J has all erased matches for m then it has all
+  -- erased matches for m′ ·ᵐ m.
 
-    erased-matches-for-K-all·ᵐ :
-      erased-matches-for-K m ≡ all →
-      erased-matches-for-K (m′ ·ᵐ m) ≡ all
-    erased-matches-for-K-all·ᵐ ≡all =
-      ≤ᵉᵐ→≡all→≡all erased-matches-for-K-≤ᵉᵐ·ᵐ ≡all
+  erased-matches-for-J-all·ᵐ :
+    erased-matches-for-J m ≡ all →
+    erased-matches-for-J (m′ ·ᵐ m) ≡ all
+  erased-matches-for-J-all·ᵐ = erased-matches-for-JK-all·ᵐ
 
-  opaque
 
-    -- If K has some erased matches for m then it has either all or
-    -- some erased matches for m′ ·ᵐ m.
+  -- If K has all erased matches for m then it has all
+  -- erased matches for m′ ·ᵐ m.
 
-    erased-matches-for-K-some·ᵐ :
-      erased-matches-for-K m ≡ some →
-      erased-matches-for-K (m′ ·ᵐ m) ≡ all ⊎
-      erased-matches-for-K (m′ ·ᵐ m) ≡ some
-    erased-matches-for-K-some·ᵐ {m} {m′} ≡some =
-      some≤ᵉᵐ→ (subst (_≤ᵉᵐ erased-matches-for-K (m′ ·ᵐ m))
-                 ≡some erased-matches-for-K-≤ᵉᵐ·ᵐ)
+  erased-matches-for-K-all·ᵐ :
+    erased-matches-for-K m ≡ all →
+    erased-matches-for-K (m′ ·ᵐ m) ≡ all
+  erased-matches-for-K-all·ᵐ = erased-matches-for-JK-all·ᵐ
 
-  opaque
 
-    -- If K has not-none erased matches for m then it has
-    -- not-none erased matches for m′ ·ᵐ m.
+  -- If J or K has some erased matches for m then it has either all or
+  -- some erased matches for m′ ·ᵐ m.
 
-    erased-matches-for-K-not-none·ᵐ :
-      ∀ {sem} →
-      erased-matches-for-K m ≡ not-none sem →
-      ∃ λ sem′ → erased-matches-for-K (m′ ·ᵐ m) ≡ not-none sem′
-    erased-matches-for-K-not-none·ᵐ {m} {m′} ok =
-      erased-matches-for-JK-not-none·ᵐ _ _
-        (subst (_≤ᵉᵐ erased-matches-for-K (m′ ·ᵐ m)) ok erased-matches-for-K-≤ᵉᵐ·ᵐ)
+  erased-matches-for-JK-some·ᵐ :
+    erased-matches-for-JK jk m ≡ some →
+    erased-matches-for-JK jk (m′ ·ᵐ m) ≡ all ⊎
+    erased-matches-for-JK jk (m′ ·ᵐ m) ≡ some
+  erased-matches-for-JK-some·ᵐ {m} {m′} ≡-some =
+    some≤ᵉᵐ→ (subst (_≤ᵉᵐ erased-matches-for-JK _ (m′ ·ᵐ m))
+               ≡-some erased-matches-for-JK-≤ᵉᵐ·ᵐ)
+
+  -- If J has some erased matches for m then it has either all or
+  -- some erased matches for m′ ·ᵐ m.
+
+  erased-matches-for-J-some·ᵐ :
+    erased-matches-for-J m ≡ some →
+    erased-matches-for-J (m′ ·ᵐ m) ≡ all ⊎
+    erased-matches-for-J (m′ ·ᵐ m) ≡ some
+  erased-matches-for-J-some·ᵐ = erased-matches-for-JK-some·ᵐ
+
+  -- If K has some erased matches for m then it has either all or
+  -- some erased matches for m′ ·ᵐ m.
+
+  erased-matches-for-K-some·ᵐ :
+    erased-matches-for-K m ≡ some →
+    erased-matches-for-K (m′ ·ᵐ m) ≡ all ⊎
+    erased-matches-for-K (m′ ·ᵐ m) ≡ some
+  erased-matches-for-K-some·ᵐ = erased-matches-for-JK-some·ᵐ
 
   opaque
 

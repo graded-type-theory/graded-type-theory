@@ -7,3 +7,4 @@ flags:
   --hidden-argument-puns
   --no-infer-absurd-clauses
   -WnoUnsupportedIndexedMatch
+

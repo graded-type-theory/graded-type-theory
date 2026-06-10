@@ -41,6 +41,7 @@ open import Definition.Untyped.Properties M
 import Definition.Untyped.Sup
 
 open import Graded.Context 𝕄
+open import Graded.Context.Properties 𝕄
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.SucRed
 import Graded.Erasure.Target as T
@@ -829,22 +830,28 @@ opaque
       Uₜ.Id₀ₘ (Id-erased-⇔ .proj₁ erased) (tr-▸ A) (tr-▸ t) (tr-▸ u)
     Uₛ.rflₘ →
       Uₜ.rflₘ
-    (Uₛ.Jₘ ok₁ ok₂ A t B u v w) →
-      ▸J′ ok₁ ok₂ (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v) (tr-▸ w)
-    (Uₛ.J₀ₘ₁ ok PE.refl PE.refl A t B u v w) →
-      ▸J′₀₁ ok (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v) (tr-▸ w)
-    (Uₛ.J₀ₘ₂ ok A t B u v w) →
-      ▸J′₀₂ ok (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v) (tr-▸ w)
-    (Uₛ.Kₘ ok₁ ok₂ A t B u v) →
-      Uₜ.Kₘ (PE.subst (_≤ᵉᵐ _) erased-matches-for-K-≡ ok₁)
-        (ok₂ ∘→ PE.trans erased-matches-for-K-≡) (tr-▸ A) (tr-▸ t)
-        (tr-▸ B) (tr-▸ u) (tr-▸ v)
-    (Uₛ.K₀ₘ₁ ok₁ ok₂ A t B u v) →
-      Uₜ.K₀ₘ₁ (PE.trans (PE.sym erased-matches-for-K-≡) ok₁) ok₂
-        (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v)
-    (Uₛ.K₀ₘ₂ ok A t B u v) →
-      Uₜ.K₀ₘ₂ (PE.trans (PE.sym erased-matches-for-K-≡) ok) (tr-▸ A)
-        (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v)
+    (Uₛ.Jₘ ok A t B u v w) →
+      ▸J′ ok (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v) (tr-▸ w)
+    (Uₛ.J₀ₘ₁ PE.refl PE.refl A t B u v w) →
+      ▸J′₀₁ (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v) (tr-▸ w)
+    (Uₛ.J₀ₘ₂ A t B u v w) →
+      ▸J′₀₂ (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v) (tr-▸ w)
+    (Uₛ.Kₘ ⦃ (ok₁) ⦄ ok₂ A t B u v) →
+      Uₜ.sub-≈ᶜ
+       (Uₜ.Kₘ ⦃ PE.subst (_≤ᵉᵐ _) erased-matches-for-K-≡ ok₁ ⦄
+         (ok₂ ∘→ PE.trans erased-matches-for-K-≡)
+         (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v))
+       (·ᶜ-congʳ (ωₛ≡ωₜ URₛ.erased-matches-JK-≤-some-JK-with-omega
+         (URₜ.erased-matches-JK-≤-some-JK-with-omega ⦃ PE.subst (_≤ᵉᵐ _) erased-matches-for-K-≡ ok₁ ⦄)))
+    (Uₛ.K₀ₘ₁ ⦃ (ok₁) ⦄ ok₂ A t B u v) →
+      Uₜ.sub-≈ᶜ
+        (Uₜ.K₀ₘ₁ ⦃ PE.trans (PE.sym erased-matches-for-K-≡) ok₁ ⦄ ok₂
+          (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v))
+        (·ᶜ-congʳ (ωₛ≡ωₜ (URₛ.erased-matches-JK-≤-some-JK-with-omega ⦃ URₛ.erased-matches-JK-≡-some-≤-some ⦄)
+          (URₜ.erased-matches-JK-≤-some-JK-with-omega ⦃ URₜ.erased-matches-JK-≡-some-≤-some
+            ⦃ PE.trans (PE.sym erased-matches-for-K-≡) ok₁ ⦄ ⦄)))
+    (Uₛ.K₀ₘ₂ ⦃ (ok) ⦄ A t B u v) →
+      Uₜ.K₀ₘ₂ ⦃ PE.trans (PE.sym erased-matches-for-K-≡) ok ⦄ (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v)
     (Uₛ.[]-congₘ l A t u v ok) →
       ▸[]-cong′ ok (tr-▸ l) (tr-▸ A) (tr-▸ t) (tr-▸ u) (tr-▸ v)
 

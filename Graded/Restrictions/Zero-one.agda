@@ -32,6 +32,7 @@ import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄 Zero-one-isMode
 open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Restrictions.JK 𝕄
 
 import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Typed.Restrictions 𝕄
@@ -96,20 +97,17 @@ not-all-for-𝟙ᵐ f 𝟙ᵐ with f 𝟙ᵐ
 -- The function adds the restriction that, for the mode 𝟙ᵐ, "all"
 -- erased matches are not allowed for J and K.
 
-not-all-erased-matches-JK : Usage-restrictions → Usage-restrictions
+not-all-erased-matches-JK :
+  ⦃ ok : Has-omega 𝕄 ⦄ → Usage-restrictions → Usage-restrictions
 not-all-erased-matches-JK UR = record UR
-  { erased-matches-for-J =
-      not-all-for-𝟙ᵐ erased-matches-for-J
-  ; erased-matches-for-J-≤ᵉᵐ =
-     𝟙ᵐ𝟘ᵐ→≤ᵐ (λ m m′ → not-all-for-𝟙ᵐ erased-matches-for-J m ≤ᵉᵐ not-all-for-𝟙ᵐ erased-matches-for-J m′)
-       (not-all-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-J (erased-matches-for-J-≤ᵉᵐ 𝟙ᵐ≤))
-       ≤ᵉᵐ-reflexive
-  ; erased-matches-for-K =
-      not-all-for-𝟙ᵐ erased-matches-for-K
-  ; erased-matches-for-K-≤ᵉᵐ =
-    𝟙ᵐ𝟘ᵐ→≤ᵐ (λ m m′ → not-all-for-𝟙ᵐ erased-matches-for-K m ≤ᵉᵐ not-all-for-𝟙ᵐ erased-matches-for-K m′)
-      (not-all-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-K (erased-matches-for-K-≤ᵉᵐ 𝟙ᵐ≤))
-      ≤ᵉᵐ-reflexive
+  { JK-supported-erased-matches = any
+  ; erased-matches-for-JK = λ jk m → not-all-for-𝟙ᵐ (erased-matches-for-JK jk) m
+  ; erased-matches-for-JK-≤ᵉᵐ =
+      𝟙ᵐ𝟘ᵐ→≤ᵐ
+        (λ m m′ → not-all-for-𝟙ᵐ (erased-matches-for-JK _) m ≤ᵉᵐ not-all-for-𝟙ᵐ (erased-matches-for-JK _) m′)
+        (not-all-for-𝟙ᵐ-≤ᵉᵐ (erased-matches-for-JK _) (erased-matches-for-JK-≤ᵉᵐ 𝟙ᵐ≤))
+        ≤ᵉᵐ-reflexive
+  ; erased-matches-for-JK-supports-ω = λ _ → any
   }
   where
   open Usage-restrictions UR
@@ -130,21 +128,20 @@ not-all-erased-matches-JK UR = record UR
 -- or unitrec. For prodrec the added restriction only applies to
 -- non-trivial modalities.
 
-only-some-erased-matches : Usage-restrictions → Usage-restrictions
+only-some-erased-matches :
+  ⦃ ok : Has-omega 𝕄 ⦄ → Usage-restrictions → Usage-restrictions
 only-some-erased-matches UR = record UR
   { Prodrec-allowed = λ m r p q →
       Prodrec-allowed m r p q ×
       (m ≡ 𝟙ᵐ → ¬ Trivial → r ≢ 𝟘)
   ; Prodrec-allowed-upwards-closed = λ (ok , r≢𝟘) m≤m′ →
       Prodrec-allowed-upwards-closed ok m≤m′ , λ { refl → r≢𝟘 (≤ᵐ-𝟙ᵐ→ m≤m′) }
-  ; erased-matches-for-J =
-      f (erased-matches-for-J 𝟘ᵐ?)
-  ; erased-matches-for-J-≤ᵉᵐ =
+  ; JK-supported-erased-matches = any
+  ; erased-matches-for-JK =
+      λ jk → f (erased-matches-for-JK jk 𝟘ᵐ?)
+  ; erased-matches-for-JK-≤ᵉᵐ =
       𝟙ᵐ𝟘ᵐ→≤ᵐ (λ m m′ → f _ m ≤ᵉᵐ f _ m′) _ ≤ᵉᵐ-reflexive
-  ; erased-matches-for-K =
-      f (erased-matches-for-K 𝟘ᵐ?)
-  ; erased-matches-for-K-≤ᵉᵐ =
-      𝟙ᵐ𝟘ᵐ→≤ᵐ (λ m m′ → f _ m ≤ᵉᵐ f _ m′) _ ≤ᵉᵐ-reflexive
+  ; erased-matches-for-JK-supports-ω = λ _ → any
   }
   where
   open Usage-restrictions UR
@@ -159,6 +156,7 @@ only-some-erased-matches UR = record UR
 -- applies if η-equality is not allowed for weak unit types.
 
 no-erased-matches-UR :
+  ⦃ ok : Has-omega 𝕄 ⦄ →
   Type-restrictions → Usage-restrictions → Usage-restrictions
 no-erased-matches-UR TR UR = record (only-some-erased-matches UR)
   { Unitrec-allowed = λ m p q →
@@ -196,13 +194,27 @@ no-[]-cong-UR : Usage-restrictions → Usage-restrictions
 no-[]-cong-UR UR = record UR
   { []-cong-allowed-mode                = λ _ _ → Lift _ ⊥
   ; []-cong-allowed-mode-upwards-closed = λ ()
-  ; erased-matches-for-J     = at-least-some erased-matches-for-J
-  ; erased-matches-for-J-≤ᵉᵐ =
-      𝟙ᵐ𝟘ᵐ→≤ᵐ (λ m m′ → at-least-some erased-matches-for-J m ≤ᵉᵐ at-least-some erased-matches-for-J m′)
+  ; erased-matches-for-JK    = λ where
+      J → at-least-some erased-matches-for-J
+      K → erased-matches-for-K
+  ; erased-matches-for-JK-≤ᵉᵐ = λ where
+      {jk = J} → 𝟙ᵐ𝟘ᵐ→≤ᵐ (λ m m′ → at-least-some erased-matches-for-J m ≤ᵉᵐ at-least-some erased-matches-for-J m′)
         at-least-some-≤ᵉᵐ ≤ᵉᵐ-reflexive
+      {jk = K} → erased-matches-for-K-≤ᵉᵐ
+  ; erased-matches-for-JK-supports-ω = λ where
+      {jk = J} ≤some → erased-matches-for-JK-supports-ω
+        (≤ᵉᵐ-transitive (some-≤ᵉᵐ-at-least-some (erased-matches-for-JK J) _) ≤some)
+      {jk = K} ≤some → erased-matches-for-JK-supports-ω ≤some
   }
   where
   open Usage-restrictions UR
+
+  some-≤ᵉᵐ-at-least-some :
+    (f : Mode → Erased-matches) (m : Mode) →
+    f m ≤ᵉᵐ at-least-some f m
+  some-≤ᵉᵐ-at-least-some f m with f m
+  ... | none       = _
+  ... | not-none x = ≤ᵉᵐ-reflexive
 
   at-least-some-≤ᵉᵐ :
     at-least-some erased-matches-for-J 𝟙ᵐ ≤ᵉᵐ
@@ -245,6 +257,7 @@ opaque
   -- only-some-erased-matches satisfy Only-some-erased-matches.
 
   Only-some-erased-matches-only-some-erased-matches :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     ∀ TR UR →
     Only-some-erased-matches
       (no-erased-matches-TR 𝕤 (no-erased-matches-TR 𝕨 TR))
@@ -286,6 +299,7 @@ No-erased-matches TR UR =
 -- no-erased-matches-UR satisfy No-erased-matches.
 
 No-erased-matches-no-erased-matches :
+  ⦃ ok : Has-omega 𝕄 ⦄ →
   ∀ TR UR →
   let TR′ = no-erased-matches-TR 𝕤 (no-erased-matches-TR 𝕨 TR) in
   No-erased-matches TR′ (no-erased-matches-UR TR′ UR)
@@ -351,6 +365,7 @@ opaque
   -- The function not-all-erased-matches-JK preserves UD.Assumptions.
 
   Assumptions-not-all-erased-matches-JK :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     UD.Assumptions UR → UD.Assumptions (not-all-erased-matches-JK UR)
   Assumptions-not-all-erased-matches-JK as = λ where
       ._≟_                   → A._≟_
@@ -368,6 +383,7 @@ opaque
   -- The function only-some-erased-matches preserves UD.Assumptions.
 
   Assumptions-only-some-erased-matches :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     UD.Assumptions UR → UD.Assumptions (only-some-erased-matches UR)
   Assumptions-only-some-erased-matches as = λ where
       ._≟_                       → A._≟_
@@ -392,6 +408,7 @@ opaque
   -- The function no-erased-matches-UR TR preserves UD.Assumptions.
 
   Assumptions-no-erased-matches-UR :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     ∀ TR → UD.Assumptions UR →
     UD.Assumptions (no-erased-matches-UR TR UR)
   Assumptions-no-erased-matches-UR TR as = λ where
