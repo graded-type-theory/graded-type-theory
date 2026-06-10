@@ -115,8 +115,8 @@ private
 -- Below negations of variants of the statement of the fundamental
 -- lemma are proved. In each case the variants are given for the
 -- module parameters (𝕄, TR, UR, etc.), and for an arbitrary
--- Strictness. Furthermore the assumption "erased matches are not
--- allowed unless the context is empty" is removed. In most cases the
+-- Strictness. Furthermore the assumption "either erased matches are
+-- not allowed or the context is empty" is removed. In most cases the
 -- assumption "if erased matches are allowed for emptyrec when the
 -- mode is 𝟙ᵐ, then the context is consistent" is replaced by "the
 -- context is consistent", but in one case this assumption is instead
