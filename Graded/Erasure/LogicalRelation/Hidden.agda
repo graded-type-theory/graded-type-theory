@@ -865,6 +865,21 @@ opaque
     ⊨A , targetRedSubstTerm*′ ⊨A t®v v⇒v′
 
 opaque
+  unfolding _®_∷_◂_
+
+  -- Closure under reduction of the target language term for _®_∷_◂_.
+
+  ®∷◂-⇒* :
+    vs T.⊢ v ⇒* v′ →
+    t ® v ∷ A ◂ p →
+    t ® v′ ∷ A ◂ p
+  ®∷◂-⇒* {v} {v′} {t} {A} {p} v⇒v′ =
+    t ® v ∷ A ◂ p         ⇔⟨ ®∷◂⇔ ⟩→
+    (p ≢ 𝟘 → t ® v ∷ A)   →⟨ ®∷-⇒* v⇒v′ ∘→_ ⟩
+    (p ≢ 𝟘 → t ® v′ ∷ A)  ⇔˘⟨ ®∷◂⇔ ⟩→
+    t ® v′ ∷ A ◂ p        □
+
+opaque
   unfolding _®_∷_
 
   -- Closure under expansion for _®_∷_.
