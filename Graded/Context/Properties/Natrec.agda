@@ -14,6 +14,7 @@ module Graded.Context.Properties.Natrec
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties.Natrec 𝕄
 
 open import Tools.Fin
@@ -151,6 +152,7 @@ module _  ⦃ has-nr : Has-nr 𝕄 ⦄ where
     -- corresponding property holds for nrᶜ.
 
     nrᶜ-linearity-like-for-𝟙 :
+      ⦃ ok : Has-omega 𝕄 ⦄ →
       Linearity-like-nr-for-𝟙 →
       nrᶜ p 𝟙 γ δ η ≈ᶜ (𝟙 + p) ·ᶜ η +ᶜ ω ·ᶜ δ +ᶜ γ
     nrᶜ-linearity-like-for-𝟙 {γ = ε}     {δ = ε}     {η = ε}     _   = ε

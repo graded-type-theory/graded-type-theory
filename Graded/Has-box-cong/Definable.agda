@@ -61,6 +61,7 @@ open import Graded.Has-box-cong.Equivalent.For-level TR UR
 open import Graded.Has-box-cong.Lemmas TR variant
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Neutral TR UR
 open import Graded.Reduction.Zero-one variant TR UR
@@ -68,6 +69,7 @@ open import Graded.Restrictions.Zero-one 𝕄 variant
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Weakening UR
 
 open import Tools.Bool using (T)
@@ -103,6 +105,7 @@ private variable
 
 private
   module []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong
+    ⦃ has-ω : Usage-allows-omega ⦄
     (ok : ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
           Erased-allowed s ×
           (erased-matches-for-J m ≢ none × T 𝟘ᵐ-allowed ⊎
@@ -324,6 +327,7 @@ opaque
   --   * equality reflection is allowed.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong-for-level :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     {Γ : Con Term n} →
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
     Erased-allowed s ×
@@ -385,6 +389,7 @@ opaque
   --   * equality reflection is allowed.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     {Γ : Con Term n} →
     Level-allowed →
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
@@ -698,6 +703,7 @@ opaque
   -- Consistent (ε » Δ) also holds.
 
   ¬-[]-cong-for-level′ :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
@@ -738,6 +744,7 @@ opaque
   -- be consistent in their absence).
 
   ¬-[]-cong-for-level-with-funext :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
@@ -818,6 +825,7 @@ opaque
   -- holds.
 
   ¬-[]-cong′ :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →
@@ -858,6 +866,7 @@ opaque
   -- be consistent in their absence).
 
   ¬-[]-cong-with-funext :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches TR UR →

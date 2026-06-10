@@ -170,15 +170,23 @@ UnitModality = record
   ; _∧_ = _+_
   ; 𝟘 = tt
   ; 𝟙 = tt
-  ; ω = tt
-  ; ω≤𝟙 = refl
-  ; ω·+≤ω·ʳ = refl
   ; is-𝟘? = _≟ tt
   ; +-·-Semiring = +-+-Semiring
   ; ∧-Semilattice = +-Semilattice
   ; ·-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   ; +-distrib-∧ = +-Distributiveˡ , +-Distributiveʳ
   }
+
+instance
+
+  -- The unit modality has grade ω.
+
+  unit-has-omega : Has-omega UnitModality
+  unit-has-omega = record
+    { ω = tt
+    ; ω≤𝟙 = refl
+    ; ω·+≤ω·ʳ = refl
+    }
 
 -- A natrec-star operator can be defined for the trivial modality
 -- structure

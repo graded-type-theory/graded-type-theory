@@ -13,7 +13,7 @@ module Graded.Derived.Omega
   (UR : Usage-restrictions 𝕄 𝐌)
   where
 
-open Modality 𝕄 hiding (ω)
+open Modality 𝕄
 open IsMode 𝐌
 
 open import Graded.Context 𝕄

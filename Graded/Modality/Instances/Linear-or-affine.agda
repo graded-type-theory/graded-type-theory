@@ -365,9 +365,6 @@ linear-or-affine  = record
   ; _∧_          = _∧_
   ; 𝟘            = 𝟘
   ; 𝟙            = 𝟙
-  ; ω            = ≤ω
-  ; ω≤𝟙          = refl
-  ; ω·+≤ω·ʳ      = λ {p = p} → ≤ω·+≤≤ω·ʳ p
   ; is-𝟘?        = _≟ 𝟘
   ; +-·-Semiring = record
     { isSemiringWithoutAnnihilatingZero = record
@@ -798,6 +795,18 @@ linear-or-affine  = record
     ≤ω ≤ω 𝟙  → refl
     ≤ω ≤ω ≤𝟙 → refl
     ≤ω ≤ω ≤ω → refl
+
+instance
+
+  -- The modality has grade ω.
+
+  linear-or-affine-has-omega :
+    Has-omega linear-or-affine
+  linear-or-affine-has-omega = record
+    { ω            = ≤ω
+    ; ω≤𝟙          = refl
+    ; ω·+≤ω·ʳ      = λ {p = p} → ≤ω·+≤≤ω·ʳ p
+    }
 
 instance
 
@@ -4158,7 +4167,7 @@ opaque
       +-congʳ (·-congʳ (sym (𝟙∧𝟙+p≡1+p p)))
     nr-factoring p ≤𝟙 z s n rewrite ·-zeroʳ (≤𝟙 + p) =
       +-congʳ (·-congʳ (sym (𝟙∧≤𝟙+p≡≤1+p p)))
-    nr-factoring p ≤ω z s n rewrite ≤ω+ p = ·-distribˡ-+ ω n (s + z)
+    nr-factoring p ≤ω z s n rewrite ≤ω+ p = ·-distribˡ-+ ≤ω n (s + z)
 
 opaque
 
@@ -4294,7 +4303,7 @@ opaque
     open Multiplication linear-or-affine
     open PartialOrder linear-or-affine
     open Modality linear-or-affine
-      hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+      hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
     open Tools.Reasoning.PartialOrder ≤-poset
     lemma : nr′ p r z s n ≤ ≤ω → nr′ p r z s n ≤ nr p r z s n
     lemma {p} {r} {z} {s} {n} nr′≤ω =
@@ -4711,7 +4720,7 @@ opaque
       ≤ω → lemma-ω _ _
     where
     open Modality linear-or-affine
-      hiding (𝟘; 𝟙; ω; _∧_; _·_; _+_)
+      hiding (𝟘; 𝟙; _∧_; _·_; _+_)
     open GLB linear-or-affine
     open Natrec linear-or-affine
     open PartialOrder linear-or-affine
@@ -4813,7 +4822,7 @@ opaque
     }
     where
     open Modality linear-or-affine
-      hiding (𝟘; 𝟙; ω; _+_; _·_; _∧_; _≤_)
+      hiding (𝟘; 𝟙; _+_; _·_; _∧_; _≤_)
     open GLB linear-or-affine
     open Multiplication linear-or-affine
     open PartialOrder linear-or-affine

@@ -24,6 +24,7 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Substitution R
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage R
 open import Graded.Usage.Properties R
@@ -1302,8 +1303,9 @@ opaque mutual
       (<*-zeroˡ Ψ)
   substₘ-lemma {Ψ} ▶σ rflₘ =
     sub-≈ᶜ rflₘ (<*-zeroˡ Ψ)
-  substₘ-lemma {Ψ} ▶σ (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
+  substₘ-lemma {Ψ} ▶σ (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ok ▸A ▸t ▸B ▸u ▸v ▸w) =
     let open ≤ᶜ-reasoning
+        open Graded.Usage.Restrictions.Instance R
         ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆}) ▶σ
         ▶σ₂ = ▶-⌞+ᶜ⌟ˡ γ₂ ▶σ′
         ▶σ₃ = ▶-⌞+ᶜ⌟ˡ γ₃ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ′)
@@ -1311,7 +1313,7 @@ opaque mutual
         ▶σ₅ = ▶-⌞+ᶜ⌟ˡ γ₅ (▶-⌞+ᶜ⌟ʳ γ₄ (▶-⌞+ᶜ⌟ʳ γ₃ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ′)))
         ▶σ₆ = ▶-⌞+ᶜ⌟ʳ γ₅ (▶-⌞+ᶜ⌟ʳ γ₄ (▶-⌞+ᶜ⌟ʳ γ₃ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ′)))
     in  sub-≈ᶜ
-          (Jₘ ok₁ ok₂
+          (Jₘ ok
             (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
             (substₘ-lemma ▶σ₂ ▸t)
             (substₘ-lemma-⇑² ▶σ₃ ▸B)
@@ -1319,12 +1321,13 @@ opaque mutual
             (substₘ-lemma ▶σ₅ ▸v)
             (substₘ-lemma ▶σ₆ ▸w))
           (·ᶜ+ᶜ⁵<* γ₂)
-  substₘ-lemma {Ψ} ▶σ (J₀ₘ₁ {γ₃} {γ₄} ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) =
-    let ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₃ +ᶜ γ₄}) ▶σ
+  substₘ-lemma {Ψ} ▶σ (J₀ₘ₁ {γ₃} {γ₄} p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) =
+    let open Graded.Usage.Restrictions.Instance R
+        ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₃ +ᶜ γ₄}) ▶σ
         ▶σ₃ = ▶-⌞+ᶜ⌟ˡ γ₃ ▶σ′
         ▶σ₄ = ▶-⌞+ᶜ⌟ʳ γ₃ ▶σ′
     in  sub-≈ᶜ
-          (J₀ₘ₁ ok p≡𝟘 q≡𝟘
+          (J₀ₘ₁ p≡𝟘 q≡𝟘
             (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
             (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
             (substₘ-lemma-⇑² ▶σ₃ ▸B)
@@ -1332,40 +1335,42 @@ opaque mutual
             (substₘ-lemma-𝟘ᵐ ▶σ ▸v)
             (substₘ-lemma-𝟘ᵐ ▶σ ▸w))
           (·ᶜ+ᶜ²<* γ₃)
-  substₘ-lemma ▶σ (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v ▸w) =
-    J₀ₘ₂ ok
+  substₘ-lemma ▶σ (J₀ₘ₂ ▸A ▸t ▸B ▸u ▸v ▸w) =
+    J₀ₘ₂
       (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
       (substₘ-lemma-𝟘ᵐ-⇑² ▶σ ▸B)
       (substₘ-lemma ▶σ ▸u)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸v)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸w)
-  substₘ-lemma {Ψ} ▶σ (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
-    let ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅}) ▶σ
+  substₘ-lemma {Ψ} ▶σ (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} ok ▸A ▸t ▸B ▸u ▸v) =
+    let open Graded.Usage.Restrictions.Instance R
+        ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅}) ▶σ
         ▶σ₂ = ▶-⌞+ᶜ⌟ˡ γ₂ ▶σ′
         ▶σ₃ = ▶-⌞+ᶜ⌟ˡ γ₃ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ′)
         ▶σ₄ = ▶-⌞+ᶜ⌟ˡ γ₄ (▶-⌞+ᶜ⌟ʳ γ₃ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ′))
         ▶σ₅ = ▶-⌞+ᶜ⌟ʳ γ₄ (▶-⌞+ᶜ⌟ʳ γ₃ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ′))
     in  sub-≈ᶜ
-          (Kₘ ok₁ ok₂ (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
+          (Kₘ ok (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
             (substₘ-lemma ▶σ₂ ▸t)
             (substₘ-lemma-⇑ ▶σ₃ ▸B)
             (substₘ-lemma ▶σ₄ ▸u)
             (substₘ-lemma ▶σ₅ ▸v))
           (·ᶜ+ᶜ⁴<* γ₂)
-  substₘ-lemma {Ψ} ▶σ (K₀ₘ₁ {γ₃} {γ₄} ok p≡𝟘 ▸A ▸t ▸B ▸u ▸v) =
-    let ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₃ +ᶜ γ₄}) ▶σ
+  substₘ-lemma {Ψ} ▶σ (K₀ₘ₁ {γ₃} {γ₄} p≡𝟘 ▸A ▸t ▸B ▸u ▸v) =
+    let open Graded.Usage.Restrictions.Instance R
+        ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₃ +ᶜ γ₄}) ▶σ
         ▶σ₃ = ▶-⌞+ᶜ⌟ˡ γ₃ ▶σ′
         ▶σ₄ = ▶-⌞+ᶜ⌟ʳ γ₃ ▶σ′
     in  sub-≈ᶜ
-          (K₀ₘ₁ ok p≡𝟘 (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
+          (K₀ₘ₁ p≡𝟘 (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
             (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
             (substₘ-lemma-⇑ ▶σ₃ ▸B)
             (substₘ-lemma ▶σ₄ ▸u)
             (substₘ-lemma-𝟘ᵐ ▶σ ▸v))
           (·ᶜ+ᶜ²<* γ₃)
-  substₘ-lemma ▶σ (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) =
-    K₀ₘ₂ ok (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
+  substₘ-lemma ▶σ (K₀ₘ₂ ▸A ▸t ▸B ▸u ▸v) =
+    K₀ₘ₂ (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
       (substₘ-lemma-𝟘ᵐ-⇑ ▶σ ▸B)
       (substₘ-lemma ▶σ ▸u)
@@ -1432,8 +1437,10 @@ opaque mutual
          γ₂ <* Ψ +ᶜ ω ·ᶜ (⌜ ⌞ ω ⌟ ⌝ ·ᶜ γ₅) <* Ψ   ∎)
     where
     open ≈ᶜ-reasoning
+    open Graded.Usage.Restrictions.Instance R
   substₘ-lemma {Ψ} ▶σ (qrec₁ {γ₁} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
-    let ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₁ +ᶜ γ₂ +ᶜ γ₅}) ▶σ
+    let open Graded.Usage.Restrictions.Instance R
+        ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₁ +ᶜ γ₂ +ᶜ γ₅}) ▶σ
         ▶σ₁ = ▶-⌞+ᶜ⌟ˡ γ₁ ▶σ′
         ▶σ₂ = ▶-⌞+ᶜ⌟ˡ γ₂ (▶-⌞+ᶜ⌟ʳ γ₁ ▶σ′)
         ▶σ₅ = ▶-⌞+ᶜ⌟ʳ γ₂ (▶-⌞+ᶜ⌟ʳ γ₁ ▶σ′)

@@ -11,6 +11,9 @@ module Graded.Derived.Unrestricted.Eta.Typed
   (open Modality 𝕄)
   (R : Type-restrictions 𝕄)
   (open Type-restrictions R)
+  -- The modality is assumed to have grade ω.
+  ⦃ has-omega : Has-omega _ 𝕄 ⦄
+  (open Has-omega has-omega)
   -- Strong unit types are assumed to be allowed.
   (Unit-ok : Unitˢ-allowed)
   -- It is assumed that strong Σ-types are allowed for the quantities

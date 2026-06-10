@@ -230,7 +230,7 @@ opaque
 
         lemma₃ :
           Resp-Cons Γ A B ⊢
-          subst ω (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
+          subst 𝟘 (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
             (class (var x2)) (class (var x1))
             (resp (wk[ 3 ]′ A) (wk (liftn (stepn id 3) 2) B) (var x2)
                (var x1) (var x0))
@@ -259,7 +259,7 @@ opaque
     (λ t≡t →
        rfl ,
        rflⱼ′
-         (subst ω (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
+         (subst 𝟘 (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
             (class (var x2)) (class (var x1))
             (resp (wk[ 3 ]′ A) (wk (liftn (stepn id 3) 2) B)
                (var x2) (var x1) (var x0))

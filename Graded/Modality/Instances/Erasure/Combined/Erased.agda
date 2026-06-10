@@ -39,6 +39,7 @@ open import Graded.Modality.Instances.Erasure.Combined.Properties TR UR
 open import Graded.Modality.Instances.Erasure.Properties
 open import Graded.Usage UR
 open import Graded.Usage.Properties UR
+open import Graded.Usage.Restrictions.Omega 𝕄
 
 open import Definition.Typed.Inversion TR
 open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
@@ -60,6 +61,17 @@ private variable
   γ                                               : Conₘ _
   p q                                             : Erasure
   s                                               : Strength
+
+private
+
+  ω′ : ⦃ ok : Usage-allows-omega ⦄ → _
+  ω′ ⦃ ok ⦄ = Has-omega.ω (Usage-with-omega-has-omega ok)
+
+  ω′≡ω :
+    ⦃ ok : Usage-allows-omega ⦄ →
+    ω′ PE.≡ ω
+  ω′≡ω ⦃ ok ⦄ =
+    erasure-has-omega-unique (Usage-with-omega-has-omega ok)
 
 -- The following properties are proven under the asuumption that certain
 -- things must always be allowed when the mode is 𝟘ᵐ[ ok ].
@@ -316,6 +328,7 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
     -- A typing/usage rule for Jᵉ.
 
     ⊢∷-Jᵉ :
+      ⦃ ok : Usage-allows-omega ⦄ →
       let open Erased s in
       []-cong-allowed s →
       []-cong-allowed-mode s ⌞ p ⌟ →
@@ -342,7 +355,8 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
            (begin
               γ              ≡˘⟨ +ᶜ-idem _ ⟩
               γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-              ω ·ᶜ (γ +ᶜ γ)  ∎))
+              ω ·ᶜ (γ +ᶜ γ)  ≈˘⟨ ·ᶜ-congʳ ω′≡ω ⟩
+              ω′ ·ᶜ (γ +ᶜ γ) ∎))
       where
       open ≤ᶜ-reasoning
 

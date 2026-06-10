@@ -37,6 +37,7 @@ import Tools.Algebra
 
 import Graded.Modality
 import Graded.Modality.Nr-instances
+import Graded.Modality.Omega-instances
 
 ------------------------------------------------------------------------
 -- Properties of the modality semiring
@@ -196,6 +197,7 @@ import Definition.Typed.EqRelInstance
 import Graded.Usage.Erased-matches
 import Graded.Usage.Restrictions.Natrec
 import Graded.Usage.Restrictions.Natrec.Instance
+import Graded.Usage.Restrictions.Omega
 import Graded.Usage.Restrictions
 import Graded.Usage.Restrictions.Instance
 import Graded.Usage

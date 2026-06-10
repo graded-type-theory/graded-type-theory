@@ -9,6 +9,7 @@ module Graded.Modality.Properties.Multiplication
 
 open Modality 𝕄
 
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
 
@@ -17,7 +18,6 @@ open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality
 import Tools.Reasoning.PartialOrder
-
 
 private
   variable
@@ -58,7 +58,7 @@ opaque
 
 -- Multiplication by ω (from the left) is decreasing.
 
-ω·-decreasing : ω · p ≤ p
+ω·-decreasing : ⦃ ok : Has-omega _ 𝕄 ⦄ → ω · p ≤ p
 ω·-decreasing {p = p} = begin
   ω · p  ≤⟨ ·-monotoneˡ ω≤𝟙 ⟩
   𝟙 · p  ≡⟨ ·-identityˡ _ ⟩
@@ -70,7 +70,7 @@ opaque
 
   -- Multiplication by ω (from the right) is decreasing.
 
-  ·ω-decreasing : p · ω ≤ p
+  ·ω-decreasing : ⦃ ok : Has-omega _ 𝕄 ⦄ → p · ω ≤ p
   ·ω-decreasing {p = p} = begin
     p · ω  ≤⟨ ·-monotoneʳ ω≤𝟙 ⟩
     p · 𝟙  ≡⟨ ·-identityʳ _ ⟩

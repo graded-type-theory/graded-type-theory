@@ -55,7 +55,7 @@ private variable
   c                                               : I.Constants
   Δ                                               : Con _ _
   A A₁ A₂ B B₁ B₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
-  p                                               : M
+  p q                                             : M
 
 opaque
 
@@ -65,30 +65,32 @@ opaque
   -- used.
 
   let-α≡zero-in-λλ0∘zero≡λα :
-    Π-allowed ω ω →
+    Π-allowed 𝟘 𝟘 →
+    Π-allowed 𝟙 𝟘 →
     Unit-allowed 𝕤 →
     ε ∙⟨ tra ⟩[ zero ∷ ℕ ] » ε ⊢
-      lam ω (lam ω (var x0) ∘⟨ ω ⟩ zero) ≡
-      lam ω (defn 0) ∷
-      Π ω , ω ▷ Unit 𝕤 ▹ ℕ
-  let-α≡zero-in-λλ0∘zero≡λα ok₁ ok₂ =
+      lam 𝟘 (lam 𝟙 (var x0) ∘⟨ 𝟙 ⟩ zero) ≡
+      lam 𝟘 (defn 0) ∷
+      Π 𝟘 , 𝟘 ▷ Unit 𝕤 ▹ ℕ
+  let-α≡zero-in-λλ0∘zero≡λα ok₁ ok₂ ok₃ =
     check-and-equal-cons-type-and-terms-sound
       (record (I.empty-Contexts false)
          { constraints⁺ =
-             I.π-allowed I.ω I.ω L.∷
+             I.π-allowed I.𝟘 I.𝟘 L.∷
+             I.π-allowed I.𝟙 I.𝟘 L.∷
              I.unit-allowed I.𝕤  L.∷
              L.[]
          })
       (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ] I.» I.ε)
-      (I.lam I.ω nothing $
-       I.lam I.ω (just (I.ω , I.ℕ)) (I.var x0) I.∘⟨ I.ω ⟩ I.zero)
-      (I.lam I.ω nothing (I.defn 0))
-      (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 ▹ I.ℕ)
+      (I.lam I.𝟘 nothing $
+       I.lam I.𝟙 (just (I.𝟘 , I.ℕ)) (I.var x0) I.∘⟨ I.𝟙 ⟩ I.zero)
+      (I.lam I.𝟘 nothing (I.defn 0))
+      (I.Π I.𝟘 , I.𝟘 ▷ I.Unit I.𝕤 ▹ I.ℕ)
       10
       PE.refl
       (record
          { metas-wf       = C.Meta-con-wf-empty PE.refl
-         ; constraints-wf = ok₁ L.∷ ok₂ L.∷ L.[]
+         ; constraints-wf = ok₁ L.∷ ok₂ L.∷ ok₃ L.∷ L.[]
          })
       ε
       (λ ())
@@ -107,15 +109,16 @@ opaque
 
   let-α≡zero-in-let-β≡λ0-in-λβ∙zero≡λα :
     ε »⊢ Δ →
-    Π-allowed ω ω →
+    Π-allowed 𝟘 𝟘 →
+    Π-allowed 𝟙 𝟘 →
     Unit-allowed 𝕤 →
     ε ∙⟨ tra ⟩[ zero ∷ ℕ ]
-      ∙⟨ tra ⟩[ lam ω (var x0) ∷ Π ω , ω ▷ ℕ ▹ ℕ ]
+      ∙⟨ tra ⟩[ lam 𝟙 (var x0) ∷ Π 𝟙 , 𝟘 ▷ ℕ ▹ ℕ ]
       » Δ ⊢
-      lam ω (defn 1 ∘⟨ ω ⟩ zero) ≡
-      lam ω (defn 0) ∷
-      Π ω , ω ▷ Unit 𝕤 ▹ ℕ
-  let-α≡zero-in-let-β≡λ0-in-λβ∙zero≡λα {Δ} ⊢Δ ok₁ ok₂ =
+      lam 𝟘 (defn 1 ∘⟨ 𝟙 ⟩ zero) ≡
+      lam 𝟘 (defn 0) ∷
+      Π 𝟘 , 𝟘 ▷ Unit 𝕤 ▹ ℕ
+  let-α≡zero-in-let-β≡λ0-in-λβ∙zero≡λα {Δ} ⊢Δ ok₁ ok₂ ok₃ =
     check-and-equal-type-and-terms-sound
       {c = record { base-con-allowed = true }}
       (record
@@ -126,36 +129,36 @@ opaque
          ; ⌜base⌝       = ε » Δ
          ; constraints⁰ = I.emptyᶜ⁰
          ; constraints⁺ =
-             I.π-allowed I.ω I.ω L.∷
+             I.π-allowed I.𝟘 I.𝟘 L.∷
              I.unit-allowed I.𝕤  L.∷
              L.[]
          })
       (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ]
-           I.∙⟨ tra ⟩[ I.lam I.ω nothing (I.var x0) ∷
-                       I.Π I.ω , I.ω ▷ I.ℕ ▹ I.ℕ ] I.»
+           I.∙⟨ tra ⟩[ I.lam I.𝟙 nothing (I.var x0) ∷
+                       I.Π I.𝟙 , I.𝟘 ▷ I.ℕ ▹ I.ℕ ] I.»
            I.base)
-      (I.lam I.ω nothing (I.defn 1 I.∘⟨ I.ω ⟩ I.zero))
-      (I.lam I.ω nothing (I.defn 0))
-      (I.Π I.ω , I.ω ▷ I.Unit I.𝕤 ▹ I.ℕ)
+      (I.lam I.𝟘 nothing (I.defn 1 I.∘⟨ I.𝟙 ⟩ I.zero))
+      (I.lam I.𝟘 nothing (I.defn 0))
+      (I.Π I.𝟘 , I.𝟘 ▷ I.Unit I.𝕤 ▹ I.ℕ)
       10
       PE.refl
       (record
          { metas-wf       = C.Meta-con-wf-empty PE.refl
-         ; constraints-wf = ok₁ L.∷ ok₂ L.∷ L.[]
+         ; constraints-wf = ok₁ L.∷ ok₃ L.∷ L.[]
          })
       (flip defn-wk ⊢Δ $ »⊇ε $
        check-dcon-sound
          (record (I.empty-Contexts false)
             { constraints⁺ =
-                I.π-allowed I.ω I.ω L.∷
+                I.π-allowed I.𝟙 I.𝟘 L.∷
                 L.[]
             })
          (I.ε I.∙⟨ tra ⟩[ I.zero ∷ I.ℕ ]
-              I.∙⟨ tra ⟩[ I.lam I.ω nothing (I.var x0) ∷
-                          I.Π I.ω , I.ω ▷ I.ℕ ▹ I.ℕ ])
+              I.∙⟨ tra ⟩[ I.lam I.𝟙 nothing (I.var x0) ∷
+                          I.Π I.𝟙 , I.𝟘 ▷ I.ℕ ▹ I.ℕ ])
          6
          PE.refl
-         (ok₁ L.∷ L.[])
+         (ok₂ L.∷ L.[])
          ε)
 
 opaque

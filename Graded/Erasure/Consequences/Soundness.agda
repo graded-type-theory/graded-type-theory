@@ -48,9 +48,11 @@ open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Usage UR
 open import Graded.Derived.Identity UR
 open import Graded.Derived.Omega UR
+open import Graded.Modality.Omega-instances
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Restrictions.Zero-one 𝕄 variant
@@ -405,15 +407,14 @@ opaque
        []ⱼ ([]-cong→Erased ok) (⊢zeroᵘ ⊢Id) (zeroⱼ ⊢Id))
       (zeroⱼ ⊢Id) ([]-congⱼ′ ok (⊢zeroᵘ ⊢Id) (var ⊢Id here)) ,
     (λ ()) ,
-    sub-≈ᶜ
-      (Jₘ-generalised (▸Erased s (level zeroᵘₘ) ℕₘ) (▸[] s zeroₘ)
+    Jₘ-generalised′ (▸Erased s (level zeroᵘₘ) ℕₘ) (▸[] s zeroₘ)
          (let open Tools.Reasoning.PartialOrder ≤ᶜ-poset in
           sub ℕₘ $ begin
             𝟘ᶜ ∙ 𝟙 · 𝟘 ∙ 𝟙 · 𝟘  ≈⟨ ≈ᶜ-refl ∙ ·-zeroʳ _ ∙ ·-zeroʳ _ ⟩
             𝟘ᶜ                  ∎)
-         zeroₘ (▸[] s zeroₘ)
-         ([]-congₘ (level zeroᵘₘ) ℕₘ zeroₘ zeroₘ var ok′))
-      (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ) ,
+         zeroₘ (▸[] s zeroₘ) ([]-congₘ (level zeroᵘₘ) ℕₘ zeroₘ zeroₘ var ok′)
+         (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ⁵𝟘ᶜ))
+         (λ _ → ≤ᶜ-refl) ,
     (λ where
        (0 , whred J⇒ ⇨ˢ _) →
          whnfRedTerm J⇒ (ne (Jₙ ([]-congₙ (var _ _))))
@@ -456,20 +457,15 @@ opaque
       inhabited-consistent (⊢ˢʷ∷-sgSubst (rflⱼ (zeroⱼ εε)))
     , Jⱼ′ (⊢ℕ (J-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
     , (λ ())
-    , sub
-        (J₀ₘ₁-generalised {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ} {m₄ = 𝟙ᵐ}
-          ≡not-none PE.refl PE.refl ℕₘ zeroₘ ℕₘ zeroₘ zeroₘ var)
-        (begin
-           𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
-           ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
+    , J₀ₘ₁-generalised′ {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ} {m₄ = 𝟙ᵐ}
+          ≡not-none PE.refl PE.refl ℕₘ zeroₘ ℕₘ zeroₘ zeroₘ var
+          (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ²𝟘ᶜ)) (λ _ → ≤ᶜ-refl)
     , (λ where
          (0    , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _ _)))
          (1+ _ , whred J⇒ ⇨ˢ _) → whnfRedTerm J⇒ (ne (Jₙ (var _ _))))
     , sucⁿ≢ne {V = TL.Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
         _ (Jₙ (var _ _)) ∘→
       sym′ ∘→ proj₂ }
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 opaque
   unfolding subst
@@ -479,6 +475,7 @@ opaque
   -- higher quotient constructors are allowed and neutral.
 
   soundness-ℕ-only-source-counterexample₃′ :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     erased-matches-for-J 𝟙ᵐ PE.≡ not-none sem →
     Higher-quotient-constructors-allowed →
     Higher-quotient-constructors-neutral →
@@ -553,20 +550,15 @@ opaque
     , Kⱼ (⊢ℕ (K-motive-context (zeroⱼ ⊢Id))) (zeroⱼ ⊢Id) (var ⊢Id here)
         K-ok
     , (λ ())
-    , sub
-        (K₀ₘ₁-generalised {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ}
-          ≡not-none PE.refl ℕₘ zeroₘ ℕₘ zeroₘ var)
-        (begin
-           𝟘ᶜ               ≈˘⟨ ω·ᶜ+ᶜ²𝟘ᶜ ⟩
-           ω ·ᶜ (𝟘ᶜ +ᶜ 𝟘ᶜ)  ∎)
+    , K₀ₘ₁-generalised′ {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ}
+          ≡not-none PE.refl ℕₘ zeroₘ ℕₘ zeroₘ var
+          (≤ᶜ-reflexive (≈ᶜ-sym ω·ᶜ+ᶜ²𝟘ᶜ)) (λ _ → ≤ᶜ-refl)
     , (λ where
          (0    , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _ _)))
          (1+ _ , whred K⇒ ⇨ˢ _) → whnfRedTerm K⇒ (ne (Kₙ (var _ _))))
     , sucⁿ≢ne {V = TL.Lift _ ⊤} ⦃ ok = possibly-nonempty ⦄
         _ (Kₙ (var _ _)) ∘→
       sym′ ∘→ proj₂ }
-    where
-    open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 opaque
 
@@ -824,7 +816,7 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
 ... | yes _ =
     0
   , (λ _ → refl-⇒ˢ⟨⟩*)
-  , subst ω ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
+  , subst 𝟙 ℕ² (Id ℕ pr zero) 0,0 (var x0) η rfl
   , 0 , ε , id⊇
   , ⊢subst (Idⱼ′ ⊢pr (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ])))
       (⊢Σʷ-η-prodʷ-fstʷ-sndʷ (var₀ (⊢ℕ² εε)))
@@ -1045,9 +1037,9 @@ opaque
   … | yes _  =
       _
     , (λ _ → refl-⇒ˢ⟨⟩*)
-    , subst ω Unitʷ
+    , subst 𝟙 Unitʷ
         (Id ℕ (unitrec 𝟘 𝟘 ℕ (var x0) zero) zero)
-        starʷ (var x0) (Unit-η 𝕨 ω (var x0)) rfl
+        starʷ (var x0) (Unit-η 𝕨 𝟙 (var x0)) rfl
     , 0 , ε , id⊇
     , ⊢subst
         (Idⱼ′
@@ -1109,6 +1101,7 @@ opaque
 
   no-run-time-canonicity-if-strict-and-arguments-removed :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     Π-allowed 𝟘 p →
     Π-allowed ω q →

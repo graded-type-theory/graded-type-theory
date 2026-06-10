@@ -15,7 +15,7 @@ module Graded.Derived.Omega.Zero-one
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   where
 
-open Modality 𝕄 hiding (ω)
+open Modality 𝕄
 
 open import Graded.Context 𝕄
 import Graded.Derived.Omega UR as O

@@ -17,6 +17,8 @@ module Graded.Modality.Morphism.Forward-instances
   (cp : Common-properties R₁ R₂)
   where
 
+open import Tools.Product
+
 open Common-properties cp
 
 module R₁ = Usage-restrictions R₁
@@ -45,3 +47,11 @@ instance
   no-nr-glb-in-second-if-in-first′ :
     ⦃ no-nr : R₁.Nr-not-available-GLB ⦄ → R₂.Nr-not-available-GLB
   no-nr-glb-in-second-if-in-first′ = no-nr-glb-in-second-if-in-first
+
+  -- If the source modality allows grade ω for usage rules then so does
+  -- the target one.
+
+  Usage-allows-omega-in-second-if-in-first :
+    ⦃ ok : R₁.Usage-allows-omega ⦄ → R₂.Usage-allows-omega
+  Usage-allows-omega-in-second-if-in-first ⦃ ok ⦄ =
+    Usage-allows-omega-preserved .proj₁ ok

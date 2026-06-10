@@ -17,6 +17,7 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
+open import Graded.Modality.Omega-instances
 
 open import Tools.Algebra Mode
 open import Tools.Empty
@@ -1001,14 +1002,14 @@ record IsMode : Set (a ⊔ b) where
 
     -- The quantity ω is a right identity for _ᵐ·_.
 
-    ᵐ·-identityʳ-ω : m ᵐ· ω ≡ m
+    ᵐ·-identityʳ-ω : ⦃ ok : Has-omega 𝕄 ⦄ → m ᵐ· ω ≡ m
     ᵐ·-identityʳ-ω = ᵐ·-identityʳ-≤𝟙 ω≤𝟙
 
   opaque
 
     -- The mode ⌞ ω ⌟ is a left identity for _·ᵐ_.
 
-    ·ᵐ-identityˡ-⌞ω⌟ : ⌞ ω ⌟ ·ᵐ m ≡ m
+    ·ᵐ-identityˡ-⌞ω⌟ : ⦃ ok : Has-omega 𝕄 ⦄ → ⌞ ω ⌟ ·ᵐ m ≡ m
     ·ᵐ-identityˡ-⌞ω⌟ {m} =
       ⌞ ω ⌟ ·ᵐ m  ≡⟨ ·ᵐ-comm _ _ ⟩
       m ·ᵐ ⌞ ω ⌟  ≡⟨⟩
@@ -1021,7 +1022,7 @@ record IsMode : Set (a ⊔ b) where
 
     -- The grade ω is bounded from above by ⌜ m ⌝ · ω.
 
-    ω≤⌜⌝·ω : ω ≤ ⌜ m ⌝ · ω
+    ω≤⌜⌝·ω : ⦃ ok : Has-omega 𝕄 ⦄ → ω ≤ ⌜ m ⌝ · ω
     ω≤⌜⌝·ω {m} =
       ≤⌜⌝· ω≤𝟘
         (begin

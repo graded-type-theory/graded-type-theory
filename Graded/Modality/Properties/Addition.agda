@@ -9,6 +9,7 @@ module Graded.Modality.Properties.Addition
 
 open Modality 𝕄
 
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.Multiplication 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
@@ -130,7 +131,7 @@ opaque
 
   -- The grade ω · (p + q) is bounded by ω · p.
 
-  ω·+≤ω·ˡ : ω · (p + q) ≤ ω · p
+  ω·+≤ω·ˡ : ⦃ ok : Has-omega _ 𝕄 ⦄ → ω · (p + q) ≤ ω · p
   ω·+≤ω·ˡ {p} {q} = begin
     ω · (p + q)  ≡⟨ ·-congˡ $ +-comm _ _ ⟩
     ω · (q + p)  ≤⟨ ω·+≤ω·ʳ ⟩
@@ -142,7 +143,7 @@ opaque
 
   -- The grade ω is bounded by 𝟘.
 
-  ω≤𝟘 : ω ≤ 𝟘
+  ω≤𝟘 : ⦃ ok : Has-omega _ 𝕄 ⦄ → ω ≤ 𝟘
   ω≤𝟘 = begin
     ω            ≡˘⟨ ·-identityʳ _ ⟩
     ω · 𝟙        ≡˘⟨ ·-congˡ $ +-identityʳ _ ⟩
@@ -156,14 +157,14 @@ opaque
 
   -- The grade ω is bounded by 𝟘 ∧ 𝟙.
 
-  ω≤𝟘∧𝟙 : ω ≤ 𝟘 ∧ 𝟙
+  ω≤𝟘∧𝟙 : ⦃ ok : Has-omega _ 𝕄 ⦄ → ω ≤ 𝟘 ∧ 𝟙
   ω≤𝟘∧𝟙 = ∧-greatest-lower-bound ω≤𝟘 ω≤𝟙
 
 opaque
 
   -- The grade ω + ω is bounded by ω.
 
-  ω+ω≤ω : ω + ω ≤ ω
+  ω+ω≤ω : ⦃ ok : Has-omega _ 𝕄 ⦄ → ω + ω ≤ ω
   ω+ω≤ω = begin
     ω + ω          ≡˘⟨ +-cong (·-identityʳ _) (·-identityʳ _) ⟩
     ω · 𝟙 + ω · 𝟙  ≡˘⟨ ·-distribˡ-+ _ _ _ ⟩

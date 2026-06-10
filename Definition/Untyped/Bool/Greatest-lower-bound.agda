@@ -17,7 +17,7 @@ module Definition.Untyped.Bool.Greatest-lower-bound
   where
 
 private
-  open module M = Modality 𝕄 using (𝟘; 𝟙; ω; _+_; _·_; _∧_)
+  open module M = Modality 𝕄 using (𝟘; 𝟙; _+_; _·_; _∧_)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Empty 𝕄

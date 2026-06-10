@@ -22,11 +22,15 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Omega-instances
+open import Graded.Modality.Properties 𝕄
 open import Graded.Usage R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Inversion R
 open import Graded.Usage.Properties R
 open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage.Restrictions.Omega 𝕄
+open import Graded.Usage.Restrictions.Instance R
 open import Definition.Untyped M
 
 open import Tools.Empty
@@ -321,7 +325,7 @@ infix 10 ⌈⌉▸[_]?_
   inj₁ rflₘ
 
 ⌈⌉▸[ m ]? J p q A t B u v w with J-view p q m
-… | is-all ≡all =
+… | is-all ⦃ ok = ≡all ⦄ =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀
        Dec→Dec-∀ (⌜ 𝟘ᵐ ⌝ · p ≤? headₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ))) ×-Dec-∀
@@ -337,23 +341,23 @@ infix 10 ⌈⌉▸[_]?_
 
             ⌈ B ⌉ 𝟘ᵐ                                                ∎
       in
-      inj₁ (J₀ₘ₂ ≡all ▸A ▸t (sub ▸B lemma) ▸u ▸v ▸w)
+      inj₁ (J₀ₘ₂ ▸A ▸t (sub ▸B lemma) ▸u ▸v ▸w)
     (inj₂ problem) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
-        (invUsageJ₀₂ _ ▸A ▸t ▸B ▸u ▸v ▸w _) →
+        (invUsageJ₀₂ ▸A ▸t ▸B ▸u ▸v ▸w _) →
           let ≤⌈B⌉𝟘ᵐ = usage-upper-bound no-sink-or-≤𝟘 ▸B in
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸w , ▸B
             , headₘ-monotone (tailₘ-monotone ≤⌈B⌉𝟘ᵐ)
             , headₘ-monotone ≤⌈B⌉𝟘ᵐ
             )
-        (invUsageJ ≤some _ _ _ _ _ _ _ _) →
+        (invUsageJ ⦃ ≤some ⦄ _ _ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-        (invUsageJ₀₁ ≡some _ _ _ _ _ _ _ _ _) →
+        (invUsageJ₀₁ ⦃ ≡some ⦄ _ _ _ _ _ _ _ _ _) →
           case trans (sym ≡some) ≡all of λ ()
   where
   open ≤ᶜ-reasoning
-… | is-some-yes ≡some (refl , refl) =
+… | is-some-yes ⦃ ok = ≡some ⦄ (refl , refl) =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w ×-Dec-∀ ⌈⌉▸[ m ]? B ×-Dec-∀
        Dec→Dec-∀ (𝟘 ≤? headₘ (tailₘ (⌈ B ⌉ m))) ×-Dec-∀
@@ -369,23 +373,23 @@ infix 10 ⌈⌉▸[_]?_
 
             ⌈ B ⌉ m                                              ∎
       in
-      inj₁ (J₀ₘ₁ ≡some refl refl ▸A ▸t (sub ▸B lemma) ▸u ▸v ▸w)
+      inj₁ (J₀ₘ₁ refl refl ▸A ▸t (sub ▸B lemma) ▸u ▸v ▸w)
     (inj₂ problem) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
-        (invUsageJ₀₁ _ _ _ ▸A ▸t ▸B ▸u ▸v ▸w _) →
+        (invUsageJ₀₁ _ _ ▸A ▸t ▸B ▸u ▸v ▸w _) →
           let ≤⌈B⌉m = usage-upper-bound no-sink-or-≤𝟘 ▸B in
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸w , ▸B
             , headₘ-monotone (tailₘ-monotone ≤⌈B⌉m)
             , headₘ-monotone ≤⌈B⌉m
             )
-        (invUsageJ _ ≢𝟘 _ _ _ _ _ _ _) →
+        (invUsageJ ≢𝟘 _ _ _ _ _ _ _) →
           ⊥-elim $ ≢𝟘 ≡some (refl , refl)
-        (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+        (invUsageJ₀₂ ⦃ ≡all ⦄ _ _ _ _ _ _ _) →
           case trans (sym ≡all) ≡some of λ ()
   where
   open ≤ᶜ-reasoning
-… | is-other ≤some ≢𝟘 =
+… | is-other ⦃ ok = ≤some ⦄ ≢𝟘 =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
        ⌈⌉▸[ m ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀ ⌈⌉▸[ m ]? B ×-Dec-∀
        Dec→Dec-∀ (⌜ m ⌝ · p ≤? headₘ (tailₘ (⌈ B ⌉ m))) ×-Dec-∀
@@ -401,25 +405,25 @@ infix 10 ⌈⌉▸[_]?_
 
             ⌈ B ⌉ m                                              ∎
       in
-      inj₁ (Jₘ ≤some ≢𝟘 ▸A ▸t (sub ▸B lemma) ▸u ▸v ▸w)
+      inj₁ (Jₘ ≢𝟘 ▸A ▸t (sub ▸B lemma) ▸u ▸v ▸w)
     (inj₂ problem) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
-        (invUsageJ _ _ ▸A ▸t ▸B ▸u ▸v ▸w _) →
+        (invUsageJ _ ▸A ▸t ▸B ▸u ▸v ▸w _) →
           let ≤⌈B⌉m = usage-upper-bound no-sink-or-≤𝟘 ▸B in
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸w , ▸B
             , headₘ-monotone (tailₘ-monotone ≤⌈B⌉m)
             , headₘ-monotone ≤⌈B⌉m
             )
-        (invUsageJ₀₁ ≡some p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
+        (invUsageJ₀₁ ⦃ ≡some ⦄ p≡𝟘 q≡𝟘 _ _ _ _ _ _ _) →
           ⊥-elim $ ≢𝟘 ≡some (p≡𝟘 , q≡𝟘)
-        (invUsageJ₀₂ ≡all _ _ _ _ _ _ _) →
+        (invUsageJ₀₂ ⦃ ≡all ⦄ _ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
   where
   open ≤ᶜ-reasoning
 
 ⌈⌉▸[ m ]? K p A t B u v with K-view p m
-… | is-all ≡all =
+… | is-all ⦃ ok = ≡all ⦄ =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀
        Dec→Dec-∀ (⌜ 𝟘ᵐ ⌝ · p ≤? headₘ (⌈ B ⌉ 𝟘ᵐ)) of λ where
@@ -429,21 +433,21 @@ infix 10 ⌈⌉▸[_]?_
             tailₘ (⌈ B ⌉ 𝟘ᵐ) ∙ headₘ (⌈ B ⌉ 𝟘ᵐ)  ≡⟨ headₘ-tailₘ-correct _ ⟩
             ⌈ B ⌉ 𝟘ᵐ                              ∎
       in
-      inj₁ (K₀ₘ₂ ≡all ▸A ▸t (sub ▸B lemma) ▸u ▸v)
+      inj₁ (K₀ₘ₂ ▸A ▸t (sub ▸B lemma) ▸u ▸v)
     (inj₂ problem) → inj₂ λ _ ▸K →
       case inv-usage-K ▸K of λ where
-        (invUsageK₀₂ _ ▸A ▸t ▸B ▸u ▸v _) →
+        (invUsageK₀₂ ▸A ▸t ▸B ▸u ▸v _) →
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸B
             , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B)
             )
-        (invUsageK ≤some _ _ _ _ _ _ _) →
+        (invUsageK ⦃ ≤some ⦄ _ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
-        (invUsageK₀₁ ≡some _ _ _ _ _ _ _) →
+        (invUsageK₀₁ ⦃ ≡some ⦄ _ _ _ _ _ _ _) →
           case trans (sym ≡some) ≡all of λ ()
   where
   open ≤ᶜ-reasoning
-… | is-some-yes ≡some refl =
+… | is-some-yes ⦃ ok = ≡some ⦄ refl =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? B ×-Dec-∀
        Dec→Dec-∀ (𝟘 ≤? headₘ (⌈ B ⌉ m)) of λ where
@@ -453,21 +457,21 @@ infix 10 ⌈⌉▸[_]?_
             tailₘ (⌈ B ⌉ m) ∙ headₘ (⌈ B ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
             ⌈ B ⌉ m                            ∎
       in
-      inj₁ (K₀ₘ₁ ≡some refl ▸A ▸t (sub ▸B lemma) ▸u ▸v)
+      inj₁ (K₀ₘ₁ refl ▸A ▸t (sub ▸B lemma) ▸u ▸v)
     (inj₂ problem) → inj₂ λ _ ▸K →
       case inv-usage-K ▸K of λ where
-        (invUsageK₀₁ _ _ ▸A ▸t ▸B ▸u ▸v _) →
+        (invUsageK₀₁ _ ▸A ▸t ▸B ▸u ▸v _) →
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸B
             , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B)
             )
-        (invUsageK _ ≢𝟘 _ _ _ _ _ _) →
+        (invUsageK ≢𝟘 _ _ _ _ _ _) →
           ⊥-elim $ ≢𝟘 ≡some refl
-        (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+        (invUsageK₀₂ ⦃ ≡all ⦄ _ _ _ _ _ _) →
           case trans (sym ≡all) ≡some of λ ()
   where
   open ≤ᶜ-reasoning
-… | is-other ≤some ≢𝟘 =
+… | is-other ⦃ ok = ≤some ⦄ ≢𝟘 =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
        ⌈⌉▸[ m ]? v ×-Dec-∀ ⌈⌉▸[ m ]? B ×-Dec-∀
        Dec→Dec-∀ (⌜ m ⌝ · p ≤? headₘ (⌈ B ⌉ m)) of λ where
@@ -477,17 +481,17 @@ infix 10 ⌈⌉▸[_]?_
             tailₘ (⌈ B ⌉ m) ∙ headₘ (⌈ B ⌉ m)  ≡⟨ headₘ-tailₘ-correct _ ⟩
             ⌈ B ⌉ m                            ∎
       in
-      inj₁ (Kₘ ≤some ≢𝟘 ▸A ▸t (sub ▸B lemma) ▸u ▸v)
+      inj₁ (Kₘ ≢𝟘 ▸A ▸t (sub ▸B lemma) ▸u ▸v)
     (inj₂ problem) → inj₂ λ _ ▸K →
       case inv-usage-K ▸K of λ where
-        (invUsageK _ _ ▸A ▸t ▸B ▸u ▸v ▸w) →
+        (invUsageK _ ▸A ▸t ▸B ▸u ▸v ▸w) →
           problem _
             ( ▸A , ▸t , ▸u , ▸v , ▸B
             , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B)
             )
-        (invUsageK₀₁ ≡some p≡𝟘 _ _ _ _ _ _) →
+        (invUsageK₀₁ ⦃ ≡some ⦄ p≡𝟘 _ _ _ _ _ _) →
           ⊥-elim $ ≢𝟘 ≡some p≡𝟘
-        (invUsageK₀₂ ≡all _ _ _ _ _ _) →
+        (invUsageK₀₂ ⦃ ≡all ⦄ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
   where
   open ≤ᶜ-reasoning
@@ -551,8 +555,12 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v , ▸w)
 
 ⌈⌉▸[ m ]? qrec C t u v w
-  with Qrec-motive-erased?
-… | yes erased =
+  with Usage-allows-omega? | Qrec-motive-erased?
+… | no ω-not-ok | _ = inj₂ λ _ ▸q →
+  case inv-usage-qrec ▸q of λ where
+    (invUsageQrec₀ ⦃ ok = ω-ok ⦄ _ _ _ _ _ _ _ _) → ω-not-ok ω-ok
+    (invUsageQrec₁ ⦃ ok = ω-ok ⦄ _ _ _ _ _ _ _ _) → ω-not-ok ω-ok
+… | yes ω-ok | yes erased =
   case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? C ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀
@@ -560,27 +568,32 @@ infix 10 ⌈⌉▸[_]?_
   of λ where
     (inj₁ (ok , ▸C , ▸t , ▸u , ▸v , ▸w , ≤t)) →
       inj₁ $
-      qrec₀ ok erased ▸C
-        (sub ▸t $ begin
-         tailₘ ⌈t⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤t ⟩
-         tailₘ ⌈t⌉ ∙ headₘ ⌈t⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
-         ⌈t⌉                    ∎)
-        ▸u ▸v ▸w
+      sub-≈ᶜ
+        (qrec₀ ok erased ▸C
+          (sub ▸t $ begin
+           tailₘ ⌈t⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤t ⟩
+           tailₘ ⌈t⌉ ∙ headₘ ⌈t⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
+           ⌈t⌉                    ∎)
+          ▸u ▸v ▸w)
+        (⌈⌉-qrec₀ ω-ok (yes erased) erased)
     (inj₂ problem) → inj₂ λ _ ▸q →
       case inv-usage-qrec ▸q of λ where
-        (invUsageQrec₀ ok _ ▸C ▸t ▸u ▸v ▸w _) →
+        (invUsageQrec₀ ⦃ ok = ω-ok′ ⦄ ok _ ▸C ▸t ▸u ▸v ▸w _) →
           let upper-bound-C = usage-upper-bound no-sink-or-≤𝟘 ▸C
               upper-bound-t = usage-upper-bound no-sink-or-≤𝟘 ▸t
           in
           problem _
-            (ok , ▸C , ▸t , ▸u , ▸v , ▸w , headₘ-monotone upper-bound-t)
+            (ok , ▸C , ▸t , ▸u , ▸v , ▸w
+                , ≤-trans (≤-reflexive (·-congˡ (ω≡ω ω-ok ω-ok′)))
+                    (headₘ-monotone upper-bound-t))
         (invUsageQrec₁ _ not-erased _ _ _ _ _ _) →
           ⊥-elim (not-erased erased)
   where
   open ≤ᶜ-reasoning
+  instance _ = ω-ok
 
   ⌈t⌉ = ⌈ t ⌉ m
-… | no not-erased =
+… | yes ω-ok | no not-erased =
   case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
        ⌈⌉▸[ m ]? C ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀
@@ -589,30 +602,34 @@ infix 10 ⌈⌉▸[_]?_
   of λ where
     (inj₁ (ok , ▸C , ▸t , ▸u , ▸v , ▸w , ≤C , ≤t)) →
       inj₁ $
-      qrec₁ ok not-erased
-        (sub ▸C $ begin
-         tailₘ ⌈C⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤C ⟩
-         tailₘ ⌈C⌉ ∙ headₘ ⌈C⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
-         ⌈C⌉                    ∎)
-        (sub ▸t $ begin
-         tailₘ ⌈t⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤t ⟩
-         tailₘ ⌈t⌉ ∙ headₘ ⌈t⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
-         ⌈t⌉                    ∎)
-        ▸u ▸v ▸w
+      sub-≈ᶜ
+        (qrec₁ ok not-erased
+          (sub ▸C $ begin
+            tailₘ ⌈C⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤C ⟩
+            tailₘ ⌈C⌉ ∙ headₘ ⌈C⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
+            ⌈C⌉                    ∎)
+          (sub ▸t $ begin
+            tailₘ ⌈t⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤t ⟩
+            tailₘ ⌈t⌉ ∙ headₘ ⌈t⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
+            ⌈t⌉                    ∎)
+          ▸u ▸v ▸w)
+        (⌈⌉-qrec₁ ω-ok (no not-erased) not-erased)
     (inj₂ problem) → inj₂ λ _ ▸q →
       case inv-usage-qrec ▸q of λ where
         (invUsageQrec₀ _ erased _ _ _ _ _ _) →
           ⊥-elim (not-erased erased)
-        (invUsageQrec₁ ok _ ▸C ▸t ▸u ▸v ▸w _) →
+        (invUsageQrec₁ ⦃ ok = ω-ok′ ⦄ ok _ ▸C ▸t ▸u ▸v ▸w _) →
           let upper-bound-C = usage-upper-bound no-sink-or-≤𝟘 ▸C
               upper-bound-t = usage-upper-bound no-sink-or-≤𝟘 ▸t
+              mω≤mω = ≤-reflexive (·-congˡ (ω≡ω ω-ok ω-ok′))
           in
           problem _
             (ok , ▸C , ▸t , ▸u , ▸v , ▸w ,
-             headₘ-monotone upper-bound-C ,
-             headₘ-monotone upper-bound-t)
+             ≤-trans mω≤mω (headₘ-monotone upper-bound-C) ,
+             ≤-trans mω≤mω (headₘ-monotone upper-bound-t))
   where
   open ≤ᶜ-reasoning
+  instance _ = ω-ok
 
   ⌈C⌉ = ⌈ C ⌉ m
   ⌈t⌉ = ⌈ t ⌉ m

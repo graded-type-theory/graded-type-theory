@@ -25,6 +25,7 @@ open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
 open import Graded.Usage.Restrictions.Natrec
+open import Graded.Usage.Restrictions.Omega
 open import Graded.Usage.Restrictions.Instance as RI
 
 open import Definition.Untyped.NotParametrised
@@ -381,6 +382,10 @@ record Common-properties
     Qrec-motive-erased-preserved :
       R₁.Qrec-motive-erased ⇔ R₂.Qrec-motive-erased
 
+    -- The usage rules that use grade ω are allowed in
+    -- the target iff it is allowed in the source.
+    Usage-allows-omega-preserved : R₁.Usage-allows-omega ⇔ R₂.Usage-allows-omega
+
   opaque
 
     -- If Nr-available holds in the source usage restrictions then it
@@ -483,6 +488,7 @@ opaque
       .erased-matches-for-J-preserved → ≈ᵐ→≤ᵉᵐ₁
       .erased-matches-for-K-preserved → ≈ᵐ→≤ᵉᵐ₁
       .Qrec-motive-erased-preserved   → id⇔
+      .Usage-allows-omega-preserved   → id⇔
     where
     open Common-properties
 
@@ -512,6 +518,8 @@ opaque
       .Qrec-motive-erased-preserved →
         CP₂.Qrec-motive-erased-preserved ∘⇔
         CP₁.Qrec-motive-erased-preserved
+      .Usage-allows-omega-preserved →
+        CP₂.Usage-allows-omega-preserved ∘⇔ CP₁.Usage-allows-omega-preserved
     where
     open Common-properties
     module CP₁ = Common-properties cp₁
@@ -605,9 +613,16 @@ record Are-preserving-usage-restrictions
       R₁.Higher-quotient-constructors-allowed →
       R₂.Higher-quotient-constructors-allowed
 
+    -- If the source modality supports grade ω then the morphism
+    -- must be omega preserving
+    omega-preserving :
+      ⦃ ok₁ : R₁.Usage-allows-omega ⦄ ⦃ ok₂ : R₂.Usage-allows-omega ⦄ →
+      Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr
+
   open Common-properties common-properties public
 
 opaque
+  unfolding Common-properties-reflexive
 
   -- For every value R the identity function preserves
   -- Usage-restrictions for R and R.
@@ -629,6 +644,9 @@ opaque
         idᶠ
       .Higher-quotient-constructors-preserved →
         idᶠ
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Usage-allows-omega-propositional ok₁ ok₂ of λ where
+          refl → Is-omega-preserving-morphism-id
     where
     open Are-preserving-usage-restrictions
     open Usage-restrictions R
@@ -636,6 +654,7 @@ opaque
     open Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
 
 opaque
+  unfolding Common-properties-transitive
 
   -- Composition preserves Are-preserving-usage-restrictions (in a
   -- certain sense).
@@ -686,6 +705,13 @@ opaque
       .Higher-quotient-constructors-preserved →
         P₁.Higher-quotient-constructors-preserved ∘→
         P₂.Higher-quotient-constructors-preserved
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ (ok₃) ⦄ →
+        let ok₂ = P₂.Usage-allows-omega-preserved .proj₁ ok₁
+        in  Is-omega-preserving-morphism-∘ ⦃ _ ⦄
+              ⦃ has-ω₂ = Usage-with-omega-has-omega _ ok₂ ⦄ ⦃ _ ⦄
+              m₁ (P₁.omega-preserving ⦃ ok₁ = ok₂ ⦄)
+                 (P₂.omega-preserving ⦃ ok₂ = ok₂ ⦄)
+
     where
     open Are-preserving-usage-restrictions
     open RI R₁
@@ -802,6 +828,12 @@ record Are-reflecting-usage-restrictions
       R₂.Higher-quotient-constructors-allowed →
       R₁.Higher-quotient-constructors-allowed
 
+    -- If the target modality supports grade ω then the morphism
+    -- must be omega preserving.
+    omega-preserving :
+      ⦃ ok₁ : R₁.Usage-allows-omega ⦄ ⦃ ok₂ : R₂.Usage-allows-omega ⦄ →
+      Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr
+
   open Common-properties common-properties public
 
   opaque
@@ -840,6 +872,9 @@ opaque
         idᶠ
       .Higher-quotient-constructors-reflected →
         idᶠ
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Usage-allows-omega-propositional ok₁ ok₂ of λ where
+          refl → Is-omega-preserving-morphism-id
     where
     open Are-reflecting-usage-restrictions
     open Graded.Modality.Properties 𝕄
@@ -908,6 +943,12 @@ opaque
       .Higher-quotient-constructors-reflected →
         R₂.Higher-quotient-constructors-reflected ∘→
         R₁.Higher-quotient-constructors-reflected
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ (ok₃) ⦄ →
+        let ok₂ = R₂.Usage-allows-omega-preserved .proj₁ ok₁
+        in  Is-omega-preserving-morphism-∘ ⦃ _ ⦄
+              ⦃ has-ω₂ = Usage-with-omega-has-omega _ ok₂ ⦄ ⦃ _ ⦄
+              m (R₁.omega-preserving ⦃ ok₁ = ok₂ ⦄)
+                 (R₂.omega-preserving ⦃ ok₂ = ok₂ ⦄)
     where
     open Are-reflecting-usage-restrictions
     module M₁ = Modality 𝕄₁

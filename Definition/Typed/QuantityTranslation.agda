@@ -426,7 +426,7 @@ mutual
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ C)) $
        tr-⊢∷ ⊢t)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Resp-Cons PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok) tr-ω) $
+         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
        tr-⊢∷ ⊢u)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
          tr-Term-Is-set-type $
@@ -681,7 +681,7 @@ mutual
       (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-[]↑ C₁)) $
        tr-⊢≡∷ t₁≡t₂)
       (PE.subst₄ T₂._⊢_≡_∷_ tr-Cons-Resp-Cons PE.refl PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok) tr-ω) $
+         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
        tr-⊢≡∷ u₁≡u₂)
       (PE.subst₄ T₂._⊢_≡_∷_ tr-Cons-Is-set-Cons PE.refl PE.refl
          tr-Term-Is-set-type $
@@ -694,7 +694,7 @@ mutual
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ C)) $
        tr-⊢∷ ⊢t)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Resp-Cons PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok) tr-ω) $
+         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
        tr-⊢∷ ⊢u)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
          tr-Term-Is-set-type $
@@ -900,7 +900,7 @@ module _
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ C)) $
        tr-⊢∷ ⊢t)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Resp-Cons PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok) tr-ω) $
+         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
        tr-⊢∷ ⊢u)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
          tr-Term-Is-set-type $
@@ -913,7 +913,7 @@ module _
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ C)) $
        tr-⊢∷ ⊢t)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Resp-Cons PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok) tr-ω) $
+         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
        tr-⊢∷ ⊢u)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
          tr-Term-Is-set-type $

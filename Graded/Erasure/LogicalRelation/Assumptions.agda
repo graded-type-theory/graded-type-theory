@@ -199,6 +199,7 @@ opaque
   -- * if equality reflection is allowed.
 
   Id-is-reduction-relation :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Transparent (Γ .defs) × Empty-con (Γ .vars) × ¬ Quot-allowed ⊎
     Equality-reflection →
     Is-reduction-relation Γ (λ t u A → ∃ λ v → Γ ⊢ v ∷ Id A t u)

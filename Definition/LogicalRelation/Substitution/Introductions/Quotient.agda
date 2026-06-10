@@ -1358,14 +1358,14 @@ opaque
     ⊩Id≡Id⇔ .proj₂
       ( sym-⊩≡ C[σ⇑][u]≡C[σ⇑][v]
       , ⊩∷-⇐*
-          (subst ω (Quot A B [ σ ]) (C [ σ ⇑ ]) (class u) (class v)
+          (subst 𝟘 (Quot A B [ σ ]) (C [ σ ⇑ ]) (class u) (class v)
              (resp (A [ σ ]) (B [ σ ⇑[ 2 ] ]) u v w)
              (t [ σ ⇑ ] [ u ]₀) ∷ C [ σ ⇑ ] [ class v ]₀             ⇒⟨ subst-subst ⊢C[σ⇑]
                                                                           (resp-η ok (⊢∙→⊢ (wf ⊢C[σ⇑])) (escape-⊩∷ ⊩u) (escape-⊩∷ ⊩v)
                                                                              (escape-⊩∷ ⊩w))
                                                                           ⊢t[σ⇑][u] ⟩∷
                                                                      ˘⟨ ≅-eq (escape-⊩≡ C[σ⇑][u]≡C[σ⇑][v]) ⟩⇒
-           subst ω (Quot A B [ σ ]) (C [ σ ⇑ ]) (class u) (class v)
+           subst 𝟘 (Quot A B [ σ ]) (C [ σ ⇑ ]) (class u) (class v)
              rfl (t [ σ ⇑ ] [ u ]₀) ∷ C [ σ ⇑ ] [ class u ]₀         ⇒⟨ subst-⇒′ ⊢C[σ⇑] (≅ₜ-eq (escape-⊩≡∷ u≡v)) ⊢t[σ⇑][u] ⟩∎∷
 
            t [ σ ⇑ ] [ u ]₀                                          ∎)

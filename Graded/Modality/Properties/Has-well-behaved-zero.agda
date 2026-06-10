@@ -16,6 +16,7 @@ module Graded.Modality.Properties.Has-well-behaved-zero
 open Has-well-behaved-zero 𝟘-well-behaved public
 
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties.Addition 𝕄
 open import Graded.Modality.Properties.Meet 𝕄
 open import Graded.Modality.Properties.PartialOrder 𝕄
@@ -88,12 +89,12 @@ opaque
 
   -- The grade ω is strictly less than 𝟘.
 
-  ω<𝟘 : ω < 𝟘
+  ω<𝟘 : ⦃ ok : Has-omega 𝕄 ⦄ → ω < 𝟘
   ω<𝟘 = ≤<-trans ω≤𝟘∧𝟙 𝟘∧𝟙<𝟘
 
 -- The grade ω is not equal to 𝟘.
 
-ω≢𝟘 : ω ≢ 𝟘
+ω≢𝟘 : ⦃ ok : Has-omega 𝕄 ⦄ → ω ≢ 𝟘
 ω≢𝟘 = ω<𝟘 .proj₂
 
 -- If p ⊛ q ▷ r is equal to zero, then p is equal to zero.

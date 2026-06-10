@@ -55,8 +55,10 @@ open import Graded.Context.Properties 𝕄
 import Graded.Derived.Erased.Usage UR as ErasedU
 import Graded.Derived.Erased.Usage.Zero-one UR as ErasedU₀₁
 open import Graded.Derived.Identity UR
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Usage UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Weakening UR
 
 open import Tools.Bool using (T; true)
@@ -526,6 +528,7 @@ opaque
   -- modality with 𝟘ᵐ.
 
   Has-[]-cong-for-level-stronger :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     {Γ : Con Term n} →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
@@ -646,6 +649,7 @@ opaque
   -- with 𝟘ᵐ.
 
   Has-computing-[]-cong-for-level-stronger :
+    ⦃ has-ω : Usage-allows-omega ⦄ →
     {Γ : Con Term n} →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →

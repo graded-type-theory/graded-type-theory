@@ -306,6 +306,14 @@ instance
     Has-well-behaved-zero affineModality
   affine-has-well-behaved-zero = zero-one-many-has-well-behaved-zero
 
+instance
+
+  -- The "affine types" modality has grade ω.
+
+  affine-has-omega :
+    Has-omega affineModality
+  affine-has-omega = zero-one-many-has-omega
+
 -- 𝟘 is the largest element.
 
 ≤𝟘 : p ≤ 𝟘

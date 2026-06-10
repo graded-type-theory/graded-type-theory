@@ -10,6 +10,7 @@ module Graded.Context.Properties.Multiplication
 open import Graded.Context 𝕄
 open import Graded.Context.Properties.Equivalence 𝕄
 open import Graded.Context.Properties.PartialOrder 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 
 open import Tools.Nat using (Nat; 1+)
@@ -128,6 +129,6 @@ private
 
 -- Multiplication by ω is decreasing.
 
-ω·ᶜ-decreasing : ω ·ᶜ γ ≤ᶜ γ
+ω·ᶜ-decreasing : ⦃ ok : Has-omega _ 𝕄 ⦄ → ω ·ᶜ γ ≤ᶜ γ
 ω·ᶜ-decreasing {γ = ε}     = ε
 ω·ᶜ-decreasing {γ = _ ∙ _} = ω·ᶜ-decreasing ∙ ω·-decreasing
