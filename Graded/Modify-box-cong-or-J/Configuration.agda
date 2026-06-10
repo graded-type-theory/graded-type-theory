@@ -38,7 +38,7 @@ open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-import Graded.Box-cong
+import Graded.Has-box-cong.Definable.J
 import Graded.Derived.Erased.Usage
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
@@ -581,7 +581,7 @@ opaque
     open Configuration hiding (TRₜ; URₜ)
     open Definition.Typed TRₜ
     open Definition.Typed.Properties TRₜ hiding ([]-cong′)
-    open Graded.Box-cong TRₜ URₜ
+    open Graded.Has-box-cong.Definable.J TRₜ URₜ
     open Graded.Usage URₜ
     open Graded.Usage.Properties URₜ
     open Graded.Usage.Properties.Zero-one variant URₜ

@@ -560,7 +560,12 @@ import Graded.Neutral
 -- Some discussion of under what circumstances a []-cong combinator
 -- can be defined
 
-import Graded.Box-cong
+import Graded.Has-box-cong
+import Graded.Has-box-cong.Lemmas
+import Graded.Has-box-cong.Equivalent.For-level
+import Graded.Has-box-cong.Equivalent
+import Graded.Has-box-cong.Definable.J
+import Graded.Has-box-cong.Definable
 import Graded.Modify-box-cong-or-J.Configuration
 import Graded.Modify-box-cong-or-J
 

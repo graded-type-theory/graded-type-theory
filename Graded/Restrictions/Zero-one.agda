@@ -268,7 +268,7 @@ opaque
 -- * Erased matches are allowed when the mode is not 𝟙ᵐ, except for
 --   []-cong. (Note that a variant of []-cong that works when the mode
 --   is not 𝟙ᵐ can be defined without the use of []-cong, see
---   Graded.Box-cong.▸[]-cong-J-𝟘ᵐ.)
+--   Graded.Has-box-cong.Definable.J.▸[]-cong-J-𝟘ᵐ.)
 
 No-erased-matches : Type-restrictions → Usage-restrictions → Set a
 No-erased-matches TR UR =

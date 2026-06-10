@@ -260,12 +260,13 @@ data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
 -- rules for J more or less give the power of []-cong plus the "none"
 -- variants of the usage rules for J:
 --
--- * Graded.Box-cong.[]-cong-J is a variant of []-cong defined
---   using J. This term former satisfies typing rules that are similar
---   to those for []-cong (see Graded.Box-cong), and if the "some"
---   variants of the usage rules for J are used, then the term former
---   satisfies a usage rule that is similar to []-congₘ (see
---   Graded.Box-cong.▸[]-cong-J).
+-- * Graded.Has-box-cong.Definable.J.[]-cong-J is a variant of []-cong
+--   defined using J. This term former satisfies typing rules that are
+--   similar to those for []-cong (see
+--   Graded.Has-box-cong.Definable.J), and if the "some" variants of
+--   the usage rules for J are used, then the term former satisfies a
+--   usage rule that is similar to []-congₘ (see
+--   Graded.Has-box-cong.Definable.J.▸[]-cong-J).
 --
 -- * Definition.Untyped.Erased.Jᵉ is a variant of J that is defined
 --   using []-cong. If []-cong is allowed (which at the time of
