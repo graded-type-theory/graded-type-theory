@@ -562,6 +562,60 @@ opaque
     v PE.≡ rfl × t′ PE.≡ w × Γ ⊢ t ≡ u ∷ A
   inv-⇒-subst = inv-⇒-J
 
+opaque
+
+  -- Instances of subst with a "syntactically constant" motive can be
+  -- simplified (up to identity).
+
+  Id-subst-const :
+    Γ ⊢ v ∷ Id A t u →
+    Γ ⊢ w ∷ B →
+    ∃ λ eq → Γ ⊢ eq ∷ Id B (subst p A (wk1 B) t u v w) w
+  Id-subst-const {v} {A} {t} {u} {w} {B} {p} ⊢v ⊢w =
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢v)
+        ⊢B           = wf-⊢ ⊢w
+        ⊢w′          = W.wk (ʷ⊇-drop (J-motive-context ⊢t)) ⊢w
+    in
+    J 𝟘 𝟘 A t
+      (Id (wk[ 2 ]′ B)
+         (subst p (wk[ 2 ]′ A) (wk[ 3 ]′ B) (wk[ 2 ]′ t) (var x1)
+            (var x0) (wk[ 2 ]′ w))
+         (wk[ 2 ]′ w))
+      rfl u v ,
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₃ Id wk₂-[,]
+         (PE.trans subst-[] $
+          PE.cong₆ (subst _) wk₂-[,] wk[2+]′[,⇑]≡ wk₂-[,] PE.refl
+            PE.refl wk₂-[,])
+         wk₂-[,])
+      (Jⱼ ⊢t
+         (Idⱼ′
+            (PE.subst (_⊢_∷_ _ _) (step-sgSubst _ _) $
+             ⊢subst
+               (W.wk
+                  (ʷ⊇-drop (∙ W.wk (ʷ⊇-drop (J-motive-context ⊢t)) ⊢A))
+                  ⊢B)
+               (PE.subst (_⊢_∷_ _ _)
+                  (PE.cong₃ Id wk[]≡wk[]′ wk[]≡wk[]′ PE.refl) $
+                var₀ (J-motive-context-type ⊢t))
+               (PE.subst (_⊢_∷_ _ _) (PE.sym (step-sgSubst _ _)) ⊢w′))
+            ⊢w′)
+         (rflⱼ′
+            (subst p (wk[ 2 ]′ A) (wk[ 3 ]′ B) (wk[ 2 ]′ t) (var x1)
+               (var x0) (wk[ 2 ]′ w) [ t , rfl ]₁₀                    ≡⟨ PE.trans subst-[] $
+                                                                         PE.cong₆ (subst _) wk₂-[,] wk[2+]′[,⇑]≡ wk₂-[,] PE.refl PE.refl wk₂-[,] ⟩⊢≡
+
+             subst p A (wk1 B) t t rfl w                              ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _)
+                                                                           (PE.trans (wk1-sgSubst B _) (PE.sym wk₂-[,])) $
+                                                                         subsetTerm $
+                                                                         subst-⇒ (wk₁ ⊢A ⊢B) ⊢t
+                                                                           (PE.subst (_⊢_∷_ _ _) (PE.sym (wk1-sgSubst _ _)) ⊢w) ⟩⊢∎≡
+
+             w                                                        ≡˘⟨ wk₂-[,] ⟩
+
+             wk[ 2 ]′ w [ t , rfl ]₁₀                                 ∎))
+         ⊢u ⊢v)
+
 ------------------------------------------------------------------------
 -- Lemmas related to transitivity
 
