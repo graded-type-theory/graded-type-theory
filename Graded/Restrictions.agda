@@ -314,32 +314,6 @@ nr-not-available-glb-UR ok UR =
   open Usage-restrictions UR
 
 ------------------------------------------------------------------------
--- No-secret-matches
-
--- The property of not allowing (certain) secret matches (matches on
--- data that is "more secret" than a given grade).
-
--- record No-secret-matches
---   (p₀ : M) (TV : Type-variant) (UR : Usage-restrictions) : Set (a ⊔ a′) where
-
---   no-eta-equality
-
---   open Usage-restrictions UR
---   open Type-variant TV
-
---   field
---     no-secret-prodrec :
---       ∀ {m p q r} → m ≤ᵐ ⌞ p₀ ⌟ → Prodrec-allowed m r p q → r ≤ p₀
---     no-secret-unitrec :
---       ∀ {m p q} → m ≤ᵐ ⌞ p₀ ⌟ → ¬ Unitʷ-η → Unitrec-allowed ⌞ m ⌟ p q → p ≤ p₀
---     no-secret-J :
---       erased-matches-for-J ⌞ p₀ ⌟ ≡ none
---     no-secret-K :
---       m ≤ᵐ ⌞ p₀ ⌟ → erased-matches-for-K m ≡ none
---     no-secret-[]-cong :
---       ∀ {s m} → m ≤ p₀ → []-cong-allowed-mode s ⌞ m ⌟ → 𝟘 ≤ p₀
-
-------------------------------------------------------------------------
 -- No-erased-matches
 
 -- The property of not allowing (certain) erased matches:
