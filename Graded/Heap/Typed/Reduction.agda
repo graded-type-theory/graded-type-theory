@@ -1345,7 +1345,7 @@ opaque
 
 opaque
 
-  -- For well-typed states there are four reasons why a state can be
+  -- For well-typed states there are five reasons why a state can be
   -- Final:
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
