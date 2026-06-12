@@ -34,7 +34,7 @@ jobs:
     steps:
 
       # Checkout to $HOME empties $HOME so we have to do it before we put stuff there.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Debug info --- directories
         run: |
@@ -86,7 +86,7 @@ jobs:
           ls -al "${AGDA_DIR}/libraries.d/agda-stdlib-${{ env.STDLIB_VERSION }}/standard-library.agda-lib"
 
       - name: Restore cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         id:   cache
         with:
           key: agda-${{ env.AGDA_VERSION }}-stdlib-${{ env.STDLIB_VERSION }}-commit-${{ github.sha }}
@@ -120,7 +120,7 @@ jobs:
       - name: Save cache
         # Primary cache key is unique, so we can always save.
         if:   ${{ always() }}
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           key: ${{ steps.cache.outputs.cache-primary-key }}
           path: |
@@ -156,6 +156,6 @@ jobs:
           folder: html
           git-config-name: Github Actions
 
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: html
