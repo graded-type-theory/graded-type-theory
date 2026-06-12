@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Typed.Variant</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Variants of the type system</a>
+<a id="105" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="179" class="Keyword">module</a> <a id="186" href="Definition.Typed.Variant.html" class="Module">Definition.Typed.Variant</a> <a id="211" class="Keyword">where</a>
+
+<a id="218" class="Keyword">open</a> <a id="223" class="Keyword">import</a> <a id="230" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="241" class="Keyword">open</a> <a id="246" class="Keyword">import</a> <a id="253" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="268" class="Keyword">open</a> <a id="273" class="Keyword">import</a> <a id="280" href="Tools.Level.html" class="Module">Tools.Level</a>
+<a id="292" class="Keyword">open</a> <a id="297" class="Keyword">import</a> <a id="304" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="318" class="Keyword">open</a> <a id="323" class="Keyword">import</a> <a id="330" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="345" class="Keyword">open</a> <a id="350" class="Keyword">import</a> <a id="357" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+
+<a id="368" class="Keyword">open</a> <a id="373" class="Keyword">import</a> <a id="380" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
+<a id="415" class="Keyword">open</a> <a id="420" class="Keyword">import</a> <a id="427" href="Definition.Untyped.Properties.NotParametrised.html" class="Module">Definition.Untyped.Properties.NotParametrised</a>
+
+<a id="474" class="Keyword">private</a> <a id="482" class="Keyword">variable</a>
+  <a id="493" href="Definition.Typed.Variant.html#493" class="Generalizable">Γ</a> <a id="495" class="Symbol">:</a> <a id="497" href="Definition.Untyped.NotParametrised.html#957" class="Datatype">Con</a> <a id="501" class="Symbol">_</a> <a id="503" class="Symbol">_</a>
+
+<a id="506" class="Comment">-- This type makes it possible to choose between different variants of</a>
+<a id="577" class="Comment">-- the type system.</a>
+<a id="597" class="Comment">--</a>
+<a id="600" class="Comment">-- See also Definition.Typed.Restrictions.Type-restrictions.</a>
+
+<a id="662" class="Keyword">data</a> <a id="UnfoldingMode"></a><a id="667" href="Definition.Typed.Variant.html#667" class="Datatype">UnfoldingMode</a> <a id="681" class="Symbol">:</a> <a id="683" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="687" class="Keyword">where</a>
+  <a id="695" class="Comment">-- Unfold only explicitly specified definitions.</a>
+  <a id="UnfoldingMode.explicit"></a><a id="746" href="Definition.Typed.Variant.html#746" class="InductiveConstructor">explicit</a>   <a id="757" class="Symbol">:</a> <a id="759" href="Definition.Typed.Variant.html#667" class="Datatype">UnfoldingMode</a>
+
+  <a id="776" class="Comment">-- Unfold all transitive dependencies of definitions.</a>
+  <a id="UnfoldingMode.transitive"></a><a id="832" href="Definition.Typed.Variant.html#832" class="InductiveConstructor">transitive</a> <a id="843" class="Symbol">:</a> <a id="845" href="Definition.Typed.Variant.html#667" class="Datatype">UnfoldingMode</a>
+
+<a id="860" class="Keyword">record</a> <a id="Type-variant"></a><a id="867" href="Definition.Typed.Variant.html#867" class="Record">Type-variant</a> <a id="880" class="Symbol">(</a><a id="881" href="Definition.Typed.Variant.html#881" class="Bound">a</a> <a id="883" class="Symbol">:</a> <a id="885" href="Agda.Primitive.html#742" class="Postulate">Level</a><a id="890" class="Symbol">)</a> <a id="892" class="Symbol">:</a> <a id="894" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="898" class="Symbol">(</a><a id="899" href="Agda.Primitive.html#931" class="Primitive">lsuc</a> <a id="904" href="Definition.Typed.Variant.html#881" class="Bound">a</a><a id="905" class="Symbol">)</a> <a id="907" class="Keyword">where</a>
+  <a id="915" class="Keyword">no-eta-equality</a>
+  <a id="933" class="Keyword">field</a>
+
+    <a id="944" class="Comment">-- How should transitive dependencies of definitions be unfolded?</a>
+
+    <a id="Type-variant.unfolding-mode"></a><a id="1015" href="Definition.Typed.Variant.html#1015" class="Field">unfolding-mode</a> <a id="1030" class="Symbol">:</a> <a id="1032" href="Definition.Typed.Variant.html#667" class="Datatype">UnfoldingMode</a>
+
+    <a id="1051" class="Comment">-- Should η-equality be enabled for weak unit types?</a>
+    <a id="1108" class="Comment">--</a>
+    <a id="1115" class="Comment">-- This variant of the type system is used to state some soundness</a>
+    <a id="1186" class="Comment">-- theorems for extraction, see</a>
+    <a id="1222" class="Comment">-- Graded.Erasure.Consequences.Soundness.Erased-matches.</a>
+
+    <a id="Type-variant.η-for-Unitʷ"></a><a id="1284" href="Definition.Typed.Variant.html#1284" class="Field">η-for-Unitʷ</a> <a id="1296" class="Symbol">:</a> <a id="1298" href="Agda.Builtin.Bool.html#173" class="Datatype">Bool</a>
+
+    <a id="1308" class="Comment">-- Are quotient types allowed?</a>
+    <a id="Type-variant.Quot-allowed"></a><a id="1343" href="Definition.Typed.Variant.html#1343" class="Field">Quot-allowed</a> <a id="1356" class="Symbol">:</a> <a id="1358" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1362" href="Definition.Typed.Variant.html#881" class="Bound">a</a>
+
+    <a id="1369" class="Comment">-- Equality reflection is only allowed if the given predicate</a>
+    <a id="1435" class="Comment">-- holds.</a>
+    <a id="Type-variant.Equality-reflection"></a><a id="1449" href="Definition.Typed.Variant.html#1449" class="Field">Equality-reflection</a> <a id="1469" class="Symbol">:</a> <a id="1471" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1475" href="Definition.Typed.Variant.html#881" class="Bound">a</a>
+
+    <a id="1482" class="Comment">-- Equality-reflection is decided.</a>
+    <a id="Type-variant.Equality-reflection?"></a><a id="1521" href="Definition.Typed.Variant.html#1521" class="Field">Equality-reflection?</a> <a id="1542" class="Symbol">:</a> <a id="1544" href="Relation.Nullary.Decidable.Core.html#1966" class="Record">Dec</a> <a id="1548" href="Definition.Typed.Variant.html#1449" class="Field">Equality-reflection</a>
+
+  <a id="1571" class="Comment">-- Unitʷ-η holds exactly when η-for-Unitʷ is true.</a>
+
+  <a id="Type-variant.Unitʷ-η"></a><a id="1625" href="Definition.Typed.Variant.html#1625" class="Function">Unitʷ-η</a> <a id="1633" class="Symbol">:</a> <a id="1635" href="Agda.Primitive.html#388" class="Primitive">Set</a>
+  <a id="1641" href="Definition.Typed.Variant.html#1625" class="Function">Unitʷ-η</a> <a id="1649" class="Symbol">=</a> <a id="1651" href="Data.Bool.Base.html#1358" class="Function">T</a> <a id="1653" href="Definition.Typed.Variant.html#1284" class="Field">η-for-Unitʷ</a>
+
+  <a id="1668" class="Keyword">opaque</a>
+
+    <a id="1680" class="Comment">-- Unitʷ-η is decided.</a>
+
+    <a id="Type-variant.Unitʷ-η?"></a><a id="1708" href="Definition.Typed.Variant.html#1708" class="Function">Unitʷ-η?</a> <a id="1717" class="Symbol">:</a> <a id="1719" href="Relation.Nullary.Decidable.Core.html#1966" class="Record">Dec</a> <a id="1723" href="Definition.Typed.Variant.html#1625" class="Function">Unitʷ-η</a>
+    <a id="1735" href="Definition.Typed.Variant.html#1708" class="Function">Unitʷ-η?</a> <a id="1744" class="Symbol">=</a> <a id="1746" href="Relation.Nullary.Decidable.Core.html#3225" class="Function">T?</a> <a id="1749" class="Symbol">_</a>
+
+  <a id="1754" class="Comment">-- No-equality-reflection holds if equality reflection is not</a>
+  <a id="1818" class="Comment">-- allowed.</a>
+
+  <a id="1833" class="Keyword">data</a> <a id="Type-variant.No-equality-reflection"></a><a id="1838" href="Definition.Typed.Variant.html#1838" class="Datatype">No-equality-reflection</a> <a id="1861" class="Symbol">:</a> <a id="1863" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="1867" href="Definition.Typed.Variant.html#881" class="Bound">a</a> <a id="1869" class="Keyword">where</a>
+    <a id="Type-variant.No-equality-reflection.no-equality-reflection"></a><a id="1879" href="Definition.Typed.Variant.html#1879" class="InductiveConstructor">no-equality-reflection</a> <a id="1902" class="Symbol">:</a>
+      <a id="1910" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="1912" href="Definition.Typed.Variant.html#1449" class="Field">Equality-reflection</a> <a id="1932" class="Symbol">→</a> <a id="1934" href="Definition.Typed.Variant.html#1838" class="Datatype">No-equality-reflection</a>
+
+  <a id="1960" class="Keyword">opaque</a>
+
+    <a id="1972" class="Comment">-- A characterisation lemma for No-equality-reflection.</a>
+
+    <a id="Type-variant.No-equality-reflection⇔"></a><a id="2033" href="Definition.Typed.Variant.html#2033" class="Function">No-equality-reflection⇔</a> <a id="2057" class="Symbol">:</a>
+      <a id="2065" href="Definition.Typed.Variant.html#1838" class="Datatype">No-equality-reflection</a> <a id="2088" href="Tools.Function.html#1290" class="Function Operator">⇔</a> <a id="2090" class="Symbol">(</a><a id="2091" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="2093" href="Definition.Typed.Variant.html#1449" class="Field">Equality-reflection</a><a id="2112" class="Symbol">)</a>
+    <a id="2118" href="Definition.Typed.Variant.html#2033" class="Function">No-equality-reflection⇔</a> <a id="2142" class="Symbol">=</a>
+      <a id="2150" class="Symbol">(λ</a> <a id="2153" class="Symbol">{</a> <a id="2155" class="Symbol">(</a><a id="2156" href="Definition.Typed.Variant.html#1879" class="InductiveConstructor">no-equality-reflection</a> <a id="2179" href="Definition.Typed.Variant.html#2179" class="Bound">not-ok</a><a id="2185" class="Symbol">)</a> <a id="2187" class="Symbol">→</a> <a id="2189" href="Definition.Typed.Variant.html#2179" class="Bound">not-ok</a> <a id="2196" class="Symbol">})</a> <a id="2199" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a>
+      <a id="2207" href="Definition.Typed.Variant.html#1879" class="InductiveConstructor">no-equality-reflection</a>
+
+  <a id="2233" class="Keyword">opaque</a>
+
+    <a id="2245" class="Comment">-- No-equality-reflection is decided.</a>
+
+    <a id="Type-variant.No-equality-reflection?"></a><a id="2288" href="Definition.Typed.Variant.html#2288" class="Function">No-equality-reflection?</a> <a id="2312" class="Symbol">:</a> <a id="2314" href="Relation.Nullary.Decidable.Core.html#1966" class="Record">Dec</a> <a id="2318" href="Definition.Typed.Variant.html#1838" class="Datatype">No-equality-reflection</a>
+    <a id="2345" href="Definition.Typed.Variant.html#2288" class="Function">No-equality-reflection?</a> <a id="2369" class="Symbol">=</a>
+      <a id="2377" href="Tools.Function.html#5449" class="Function">Dec-map</a> <a id="2385" class="Symbol">(</a><a id="2386" href="Tools.Function.html#1453" class="Function">sym⇔</a> <a id="2391" href="Definition.Typed.Variant.html#2033" class="Function">No-equality-reflection⇔</a><a id="2414" class="Symbol">)</a> <a id="2416" class="Symbol">(</a><a id="2417" href="Relation.Nullary.Decidable.Core.html#3277" class="Function">¬?</a> <a id="2420" href="Definition.Typed.Variant.html#1521" class="Field">Equality-reflection?</a><a id="2440" class="Symbol">)</a>
+
+  <a id="2445" class="Keyword">opaque</a>
+
+    <a id="2457" class="Comment">-- A characterisation lemma for No-equality-reflection or-empty_.</a>
+
+    <a id="Type-variant.No-equality-reflection-or-empty⇔"></a><a id="2528" href="Definition.Typed.Variant.html#2528" class="Function">No-equality-reflection-or-empty⇔</a> <a id="2561" class="Symbol">:</a>
+      <a id="2569" href="Definition.Typed.Variant.html#1838" class="Datatype">No-equality-reflection</a> <a id="2592" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="2601" href="Definition.Typed.Variant.html#493" class="Generalizable">Γ</a> <a id="2603" href="Tools.Function.html#1290" class="Function Operator">⇔</a>
+      <a id="2611" class="Symbol">(</a><a id="2612" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="2614" href="Definition.Typed.Variant.html#1449" class="Field">Equality-reflection</a> <a id="2634" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="2636" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="2646" href="Definition.Typed.Variant.html#493" class="Generalizable">Γ</a><a id="2647" class="Symbol">)</a>
+    <a id="2653" href="Definition.Typed.Variant.html#2528" class="Function">No-equality-reflection-or-empty⇔</a> <a id="2686" class="Symbol">{</a><a id="2687" href="Definition.Typed.Variant.html#2687" class="Bound">Γ</a><a id="2688" class="Symbol">}</a> <a id="2690" class="Symbol">=</a>
+      <a id="2698" href="Definition.Typed.Variant.html#1838" class="Datatype">No-equality-reflection</a> <a id="2721" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="2730" href="Definition.Typed.Variant.html#2687" class="Bound">Γ</a>     <a id="2736" href="Tools.Function.html#1772" class="Function">⇔⟨</a> <a id="2739" href="Definition.Untyped.Properties.NotParametrised.html#17684" class="Function">or-empty⇔</a> <a id="2749" href="Tools.Function.html#1772" class="Function">⟩</a>
+      <a id="2757" href="Definition.Typed.Variant.html#1838" class="Datatype">No-equality-reflection</a> <a id="2780" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="2782" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="2792" href="Definition.Typed.Variant.html#2687" class="Bound">Γ</a>  <a id="2795" href="Tools.Function.html#1772" class="Function">⇔⟨</a> <a id="2798" href="Definition.Typed.Variant.html#2033" class="Function">No-equality-reflection⇔</a> <a id="2822" href="Tools.Function.html#4586" class="Function Operator">⊎-cong-⇔</a> <a id="2831" href="Tools.Function.html#1389" class="Function">id⇔</a> <a id="2835" href="Tools.Function.html#1772" class="Function">⟩</a>
+      <a id="2843" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="2845" href="Definition.Typed.Variant.html#1449" class="Field">Equality-reflection</a> <a id="2865" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="2867" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="2877" href="Definition.Typed.Variant.html#2687" class="Bound">Γ</a>   <a id="2881" href="Tools.Function.html#2491" class="Function Operator">□⇔</a>
+
+  <a id="2887" class="Keyword">opaque</a>
+
+    <a id="2899" class="Comment">-- No-equality-reflection or-empty_ is decidable.</a>
+
+    <a id="Type-variant.No-equality-reflection-or-empty?"></a><a id="2954" href="Definition.Typed.Variant.html#2954" class="Function">No-equality-reflection-or-empty?</a> <a id="2987" class="Symbol">:</a>
+      <a id="2995" href="Relation.Nullary.Decidable.Core.html#1966" class="Record">Dec</a> <a id="2999" class="Symbol">(</a><a id="3000" href="Definition.Typed.Variant.html#1838" class="Datatype">No-equality-reflection</a> <a id="3023" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="3032" href="Definition.Typed.Variant.html#493" class="Generalizable">Γ</a><a id="3033" class="Symbol">)</a>
+    <a id="3039" href="Definition.Typed.Variant.html#2954" class="Function">No-equality-reflection-or-empty?</a> <a id="3072" class="Symbol">=</a>
+      <a id="3080" href="Definition.Typed.Variant.html#2288" class="Function">No-equality-reflection?</a> <a id="3104" href="Definition.Untyped.Properties.NotParametrised.html#18024" class="Function Operator">or-empty?</a>
+
+  <a id="3117" class="Keyword">opaque</a>
+
+    <a id="3129" class="Comment">-- Are the higher quotient constructors neutral?</a>
+
+    <a id="Type-variant.Higher-quotient-constructors-neutral"></a><a id="3183" href="Definition.Typed.Variant.html#3183" class="Function">Higher-quotient-constructors-neutral</a> <a id="3220" class="Symbol">:</a> <a id="3222" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="3226" href="Definition.Typed.Variant.html#881" class="Bound">a</a>
+    <a id="3232" href="Definition.Typed.Variant.html#3183" class="Function">Higher-quotient-constructors-neutral</a> <a id="3269" class="Symbol">=</a>
+      <a id="3277" href="Definition.Typed.Variant.html#1343" class="Field">Quot-allowed</a> <a id="3290" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="3292" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="3294" href="Definition.Typed.Variant.html#1449" class="Field">Equality-reflection</a>
+
+  <a id="3317" class="Keyword">opaque</a>
+    <a id="3328" class="Keyword">unfolding</a> <a id="3338" href="Definition.Typed.Variant.html#3183" class="Function">Higher-quotient-constructors-neutral</a>
+
+    <a id="3380" class="Comment">-- A characterisation lemma for</a>
+    <a id="3416" class="Comment">-- Higher-quotient-constructors-neutral.</a>
+
+    <a id="Type-variant.Higher-quotient-constructors-neutral⇔"></a><a id="3462" href="Definition.Typed.Variant.html#3462" class="Function">Higher-quotient-constructors-neutral⇔</a> <a id="3500" class="Symbol">:</a>
+      <a id="3508" href="Definition.Typed.Variant.html#3183" class="Function">Higher-quotient-constructors-neutral</a> <a id="3545" href="Tools.Function.html#1290" class="Function Operator">⇔</a>
+      <a id="3553" class="Symbol">(</a><a id="3554" href="Definition.Typed.Variant.html#1343" class="Field">Quot-allowed</a> <a id="3567" href="Data.Product.Base.html#1618" class="Function Operator">×</a> <a id="3569" href="Relation.Nullary.Negation.Core.html#677" class="Function Operator">¬</a> <a id="3571" href="Definition.Typed.Variant.html#1449" class="Field">Equality-reflection</a><a id="3590" class="Symbol">)</a>
+    <a id="3596" href="Definition.Typed.Variant.html#3462" class="Function">Higher-quotient-constructors-neutral⇔</a> <a id="3634" class="Symbol">=</a> <a id="3636" href="Tools.Function.html#1389" class="Function">id⇔</a>
+</pre></body></html>
