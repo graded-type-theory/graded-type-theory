@@ -299,17 +299,6 @@ import Graded.Mode.Instances.Bounded-distributive-lattice
 import Graded.Modality.Instances.Bounded-distributive-lattice.Usage
 
 ------------------------------------------------------------------------
--- A combination of typing and usage
-
--- A combination of typing and usage for the erasure modality with
--- modes.
-
-import Graded.Modality.Instances.Erasure.Combined
-import Graded.Modality.Instances.Erasure.Combined.Properties
-import Graded.Modality.Instances.Erasure.Combined.Equivalent
-import Graded.Modality.Instances.Erasure.Combined.Erased
-
-------------------------------------------------------------------------
 -- Properties of the type theory
 
 -- The logical relation for reducibility.
@@ -441,6 +430,17 @@ import Definition.Typed.Decidable.Reduction
 import Definition.Typechecking.Decidable.Assumptions
 import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
+
+------------------------------------------------------------------------
+-- A combination of typing and usage
+
+-- A combination of typing and usage for the erasure modality with
+-- modes.
+
+import Graded.Modality.Instances.Erasure.Combined
+import Graded.Modality.Instances.Erasure.Combined.Properties
+import Graded.Modality.Instances.Erasure.Combined.Equivalent
+import Graded.Modality.Instances.Erasure.Combined.Erased
 
 ------------------------------------------------------------------------
 -- Definitions related to type and usage restrictions
