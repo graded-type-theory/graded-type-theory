@@ -593,6 +593,40 @@ erase-consSubst : (σ : U.Subst m n) (a : U.Term m) (t : T.Term (1+ n))
 erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
 
 opaque
+
+  -- Erasure commutes with U._[_]₀/T._[_]₀.
+
+  erase-[erase]₀ :
+    ∀ t → erase′ b s t T.[ erase′ b s u ]₀ ≡ erase′ b s (t U.[ u ]₀)
+  erase-[erase]₀ {b} {s} {u} t =
+    erase′ b s t T.[ T.sgSubst (erase′ b s u) ]       ≡⟨ erase-consSubst _ _ (erase′ _ _ t) ⟩
+    erase′ b s t T.[ eraseSubst′ b s (U.sgSubst u) ]  ≡⟨ subst-erase-comm _ t ⟩
+    erase′ b s (t U.[ U.sgSubst u ])                  ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- Erasure commutes with U._[_,_]₁₀/T._[_,_]₁₀.
+
+  erase-[erase,erase]₁₀ :
+    ∀ {v} t → erase′ b s t T.[ erase′ b s u , erase′ b s v ]₁₀ ≡
+    erase′ b s (t U.[ u , v ]₁₀)
+  erase-[erase,erase]₁₀ {b} {s} {u} {v} t =
+    erase′ b s t
+      T.[ T.consSubst (T.sgSubst (erase′ b s u)) (erase′ b s v) ]     ≡⟨ substVar-to-subst
+                                                                           (λ x →
+                                                                              trans (consSubst-cong refl (erase-consSubst-var _ _) x) $
+                                                                              erase-consSubst-var _ _ x)
+                                                                           (erase′ b s t) ⟩
+
+    erase′ b s t T.[ eraseSubst′ b s (U.consSubst (U.sgSubst u) v) ]  ≡⟨ subst-erase-comm _ t ⟩
+
+    erase′ b s (t U.[ U.consSubst (U.sgSubst u) v ])                  ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+opaque
   unfolding eraseDCon″
 
   -- Glassification does not affect the result of eraseDCon′.
