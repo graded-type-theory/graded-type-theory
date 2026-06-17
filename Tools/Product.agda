@@ -12,7 +12,7 @@ open import Data.Product.Base public
 open import Data.Product.Properties public
   using (≡-dec)
 open import Relation.Nullary.Decidable public
-  using (_×-dec_)
+  using () renaming (_×?_ to _×-dec_)
 
 open import Tools.Relation
 open import Tools.Sum

@@ -8,7 +8,7 @@ open import Function.Base public
   using (case_of_; flip; _$_; _∋_)
   renaming (id to idᶠ; _∘_ to _∘→_)
 open import Relation.Nullary.Decidable public
-  using (_→-dec_)
+  using () renaming (_→?_ to _→-dec_)
 
 open import Tools.Empty
 open import Tools.Level

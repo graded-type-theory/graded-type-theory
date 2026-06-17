@@ -12,7 +12,7 @@ on:
 
 env:
   AGDA_VERSION: 2.8.0
-  STDLIB_VERSION: 2.3
+  STDLIB_VERSION: 2.4
 
 jobs:
   build:
