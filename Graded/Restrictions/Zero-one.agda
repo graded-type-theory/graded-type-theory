@@ -185,6 +185,34 @@ nr-available-UR has-nr UR = record UR
   ; mode-supports-nr = λ { ⦃ (Nr) ⦄ → Zero-one-supports-nr}
   }
 
+-- A function used to define []-cong-UR.
+
+none-for-𝟙ᵐ : (Mode → Erased-matches) → Mode → Erased-matches
+none-for-𝟙ᵐ f 𝟙ᵐ = none
+none-for-𝟙ᵐ f 𝟘ᵐ = f 𝟘ᵐ
+
+-- The function enables support for []-cong (if the modality is
+-- non-trivial), but disables support for erased matches for J (when
+-- the mode is 𝟙ᵐ).
+
+[]-cong-UR : Usage-restrictions → Usage-restrictions
+[]-cong-UR UR = record UR
+  { []-cong-allowed-mode     = λ m s → []-cong-allowed-mode m s ⊎
+                                     ¬ Trivial
+  ; []-cong-allowed-mode-upwards-closed = λ where
+      (inj₁ ok) m≤m′ → inj₁ ([]-cong-allowed-mode-upwards-closed ok m≤m′)
+      (inj₂ 𝟙≢𝟘) _   → inj₂ 𝟙≢𝟘
+  ; erased-matches-for-J     = none-for-𝟙ᵐ erased-matches-for-J
+  ; erased-matches-for-J-≤ᵉᵐ =
+      𝟙ᵐ𝟘ᵐ→≤ᵐ
+        (λ m₁ m₂ →
+           none-for-𝟙ᵐ erased-matches-for-J m₁ ≤ᵉᵐ
+           none-for-𝟙ᵐ erased-matches-for-J m₂)
+        _ ≤ᵉᵐ-reflexive
+  }
+  where
+  open Usage-restrictions UR
+
 -- A function used to define no-[]-cong-UR.
 
 at-least-some : (Mode → Erased-matches) → Mode → Erased-matches

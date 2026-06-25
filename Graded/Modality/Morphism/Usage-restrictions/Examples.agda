@@ -613,6 +613,18 @@ opaque
     module R₂ = Usage-restrictions R₂
     open Are-reflecting-usage-restrictions r
 
+private opaque
+
+  -- A lemma related to none-for-𝟙ᵐ.
+
+  none-for-𝟙ᵐ-≤ᵉᵐ :
+    {f₁ : Mode v₁ → Erased-matches}
+    {f₂ : Mode v₂ → Erased-matches} →
+    (m₁ ≈ᵐ m₂ → f₁ m₁ ≤ᵉᵐ f₂ m₂) →
+    m₁ ≈ᵐ m₂ → none-for-𝟙ᵐ 𝕄₁ v₁ f₁ m₁ ≤ᵉᵐ none-for-𝟙ᵐ 𝕄₂ v₂ f₂ m₂
+  none-for-𝟙ᵐ-≤ᵉᵐ hyp 𝟘ᵐ = hyp 𝟘ᵐ
+  none-for-𝟙ᵐ-≤ᵉᵐ _   𝟙ᵐ = _
+
 opaque
 
   -- The function []-cong-UR preserves Common-properties in a certain
@@ -628,7 +640,8 @@ opaque
     ; natrec-mode-preserved          = natrec-mode-preserved
     ; starˢ-sink-preserved           = starˢ-sink-preserved
     ; Id-erased-preserved            = Id-erased-preserved
-    ; erased-matches-for-J-preserved = _
+    ; erased-matches-for-J-preserved =
+        none-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-J-preserved
     ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
     ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
     }
@@ -715,7 +728,9 @@ opaque
         m₁≳m₂ (inj₂ ¬trivial) →
           inj₂ (¬trivial ∘→ hyp)
     ; erased-matches-for-J-reflected =
-        _
+        none-for-𝟙ᵐ-≤ᵉᵐ
+          (erased-matches-for-J-reflected ∘→ ≈ᵐ-symmetric) ∘→
+        ≈ᵐ-symmetric
     ; erased-matches-for-K-reflected =
         erased-matches-for-K-reflected
     ; Quotient-terms-reflected =

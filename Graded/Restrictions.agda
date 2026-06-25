@@ -335,22 +335,6 @@ nr-not-available-glb-UR ok UR =
     ; mode-supports-nr = λ { ⦃ () ⦄}
     }
 
--- The function enables support for []-cong (if the modality is
--- non-trivial), but disables support for erased matches for J.
-
-[]-cong-UR : Usage-restrictions → Usage-restrictions
-[]-cong-UR UR = record UR
-  { []-cong-allowed-mode     = λ m s → []-cong-allowed-mode m s ⊎
-                                     ¬ Trivial
-  ; []-cong-allowed-mode-upwards-closed = λ where
-      (inj₁ ok) m≤m′ → inj₁ ([]-cong-allowed-mode-upwards-closed ok m≤m′)
-      (inj₂ 𝟙≢𝟘) _   → inj₂ 𝟙≢𝟘
-  ; erased-matches-for-J     = λ _ → none
-  ; erased-matches-for-J-≤ᵉᵐ = _
-  }
-  where
-  open Usage-restrictions UR
-
 -- The function no-higher-quotient-constructors adds the restriction
 -- that higher quotient constructors are not allowed.
 
