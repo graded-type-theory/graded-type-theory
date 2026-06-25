@@ -499,6 +499,7 @@ import Graded.Usage.QuantityTranslation
 import Graded.Modality.Extended
 import Graded.Modality.Extended.K-allowed
 import Graded.Modality.Extended.K-not-allowed.Erased-matches
+import Graded.Modality.Extended.K-not-allowed.Some-erased-matches
 import Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches
 import
   Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches.Quotients
