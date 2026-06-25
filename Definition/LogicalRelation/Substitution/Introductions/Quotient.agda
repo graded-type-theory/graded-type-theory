@@ -429,7 +429,7 @@ opaque
 
 opaque
 
-  -- A variant of ⊩≡∷Id⇔.
+  -- A variant of ⊩≡∷Quot⇔.
 
   Quotientᵃ→⊩≡∷Quot⇔ :
     Quotientᵃₗ (Γ .defs) t → Quotientᵃₗ (Γ .defs) u →
