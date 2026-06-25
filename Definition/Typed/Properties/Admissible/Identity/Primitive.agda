@@ -128,6 +128,18 @@ opaque
            (PE.sym $ PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) $
          rflⱼ ⊢t)
         ⊢eq
+opaque
+
+  -- In the presence of equality reflection every identity proof is
+  -- judgementally equal to rfl.
+
+  ⊢≡rfl∷Id :
+    Equality-reflection →
+    Γ ⊢ eq ∷ Id A t u →
+    Γ ⊢ eq ≡ rfl ∷ Id A t u
+  ⊢≡rfl∷Id ok ⊢eq =
+    uip-with-equality-reflection-≡ ok ⊢eq
+      (rflⱼ′ (equality-reflection′ ok ⊢eq))
 
 opaque
 
