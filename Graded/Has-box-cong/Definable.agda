@@ -680,10 +680,11 @@ opaque
 
   -- A variant of ¬-[]-cong-for-level.
   --
-  -- Note that, if all Π-types are allowed and l is a level literal,
-  -- then the seven assumptions after No-erased-matches TR UR and
-  -- before Consistent (ε » Δ) are satisfied for the erasure modality
-  -- with 𝟘ᵐ (along with 𝟘-well-behaved). If Δ is empty then
+  -- Note that, if all Π-types are allowed, l is a level literal, and
+  -- prodrec is always allowed in erased contexts, then the seven
+  -- assumptions after No-erased-matches TR UR and before
+  -- Consistent (ε » Δ) are satisfied for the erasure modality with 𝟘ᵐ
+  -- (along with 𝟘-well-behaved). If Δ is empty then
   -- Consistent (ε » Δ) also holds.
 
   ¬-[]-cong-for-level′ :
@@ -755,8 +756,9 @@ opaque
 
   -- A variant of ¬-[]-cong.
   --
-  -- Note that, if all Π-types are allowed, then the seven assumptions
-  -- after No-erased-matches TR UR and before Consistent (ε » Δ) are
+  -- Note that, if all Π-types are allowed and prodrec is always
+  -- allowed in erased contexts, then the seven assumptions after
+  -- No-erased-matches TR UR and before Consistent (ε » Δ) are
   -- satisfied for the erasure modality with 𝟘ᵐ (along with
   -- 𝟘-well-behaved). If Δ is empty then Consistent (ε » Δ) also
   -- holds.
