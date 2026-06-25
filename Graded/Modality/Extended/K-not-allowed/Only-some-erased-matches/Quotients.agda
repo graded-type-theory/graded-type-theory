@@ -63,7 +63,7 @@ private variable
 -- properties:
 --
 -- * The term former prodrec r is allowed when the mode is 𝟘ᵐ or r is
---   non-zero or the modality is trivial.
+--   non-zero.
 -- * There are no restrictions on unitrec or emptyrec.
 -- * Strong unit types are not allowed to be used as sinks.
 -- * Id-erased is not inhabited.
@@ -88,11 +88,11 @@ private variable
 -- * Omega-plus-allowed is inhabited.
 -- * Quotients, quotient terms and higher quotient constructors are
 --   allowed. The motive of qrec is not treated as erased.
--- * 𝟘ᵐ is allowed exactly when the modality is non-trivial.
+-- * 𝟘ᵐ is allowed.
 
 All-properties-hold-for : Extended-modality a → Set a
 All-properties-hold-for M =
-  (∀ {m r p q} → Prodrec-allowed m r p q ⇔ (m ≢ 𝟙ᵐ ⊎ r ≢ 𝟘 ⊎ Trivial)) ×
+  (∀ {m r p q} → Prodrec-allowed m r p q ⇔ (m ≢ 𝟙ᵐ ⊎ r ≢ 𝟘)) ×
   (∀ {m p q} → Unitrec-allowed m p q) ×
   (∀ {m p} → Emptyrec-allowed m p) ×
   ¬ Starˢ-sink ×
@@ -117,7 +117,7 @@ All-properties-hold-for M =
   Quotient-terms-allowed ×
   Higher-quotient-constructors-allowed ×
   ¬ Qrec-motive-erased ×
-  (T 𝟘ᵐ-allowed ⇔ (¬ Trivial))
+  T 𝟘ᵐ-allowed
   where
   open Extended-modality M
   open Mode-variant MV
@@ -202,11 +202,10 @@ opaque
       (λ where
          {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ ()))
          {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 refl (λ ()))))
+             (λ (_ , r≢𝟘) → inj₂ (r≢𝟘 refl (λ ())))
            , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
+                (inj₁ 𝟙ᵐ≢𝟙ᵐ) → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
+                (inj₂ r≢𝟘)   → _ , (λ _ _ → r≢𝟘)))
     , _
     , _
     , (λ ())
@@ -237,7 +236,7 @@ opaque
     , _
     , _
     , (λ ())
-    , ((λ _ ()) , _)
+    , _
     where
     open Extended-modality Erasure
 
@@ -279,14 +278,13 @@ opaque
   All-properties-hold-for-Affine-types :
     All-properties-hold-for Affine-types
   All-properties-hold-for-Affine-types =
-       (λ where
+      (λ where
          {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ ()))
          {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 refl (λ ()))))
+             (λ (_ , r≢𝟘) → inj₂ (r≢𝟘 refl (λ ())))
            , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
+                (inj₁ 𝟙ᵐ≢𝟙ᵐ) → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
+                (inj₂ r≢𝟘)   → _ , (λ _ _ → r≢𝟘)))
     , _
     , _
     , (λ ())
@@ -317,7 +315,7 @@ opaque
     , _
     , _
     , (λ ())
-    , ((λ _ ()) , _)
+    , _
     where
     open Extended-modality Affine-types
 
@@ -366,11 +364,10 @@ opaque
       (λ where
          {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ ()))
          {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 refl (λ ()))))
+             (λ (_ , r≢𝟘) → inj₂ (r≢𝟘 refl (λ ())))
            , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
+                (inj₁ 𝟙ᵐ≢𝟙ᵐ) → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
+                (inj₂ r≢𝟘)   → _ , (λ _ _ → r≢𝟘)))
     , _
     , _
     , (λ ())
@@ -401,7 +398,7 @@ opaque
     , _
     , _
     , (λ ())
-    , ((λ _ ()) , _)
+    , _
     where
     open Extended-modality Linearity
 
@@ -451,11 +448,10 @@ opaque
       (λ where
          {m = 𝟘ᵐ} → (λ _ → inj₁ (λ ())) , (λ _ → _ , (λ ()))
          {m = 𝟙ᵐ} →
-             (λ (_ , r≢𝟘) → inj₂ (inj₁ (r≢𝟘 refl (λ ()))))
+             (λ (_ , r≢𝟘) → inj₂ (r≢𝟘 refl (λ ())))
            , (λ where
-                (inj₁ 𝟙ᵐ≢𝟙ᵐ)      → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
-                (inj₂ (inj₁ r≢𝟘)) → _ , (λ _ _ → r≢𝟘)
-                (inj₂ (inj₂ ()))))
+                (inj₁ 𝟙ᵐ≢𝟙ᵐ) → ⊥-elim $ 𝟙ᵐ≢𝟙ᵐ refl
+                (inj₂ r≢𝟘)   → _ , (λ _ _ → r≢𝟘)))
     , _
     , _
     , (λ ())
@@ -486,7 +482,7 @@ opaque
     , _
     , _
     , (λ ())
-    , ((λ _ ()) , _)
+    , _
     where
     open Extended-modality Linear-or-affine-types
 
