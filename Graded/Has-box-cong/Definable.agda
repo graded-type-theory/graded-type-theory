@@ -26,23 +26,33 @@ open Usage-restrictions UR
 open import Definition.Conversion.Consequences.Var TR
 open import Definition.Typed TR
 open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
-open import Definition.Typed.Consequences.Consistency TR
+import Definition.Typed.Consequences.Consistency
 open import Definition.Typed.Consequences.Inversion TR
 open import Definition.Typed.Consequences.Reduction TR
 open import Definition.Typed.EqRelInstance TR
 open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR hiding ([]-cong′)
+import Definition.Typed.Properties
 open import Definition.Typed.Reasoning.Term TR
 open import Definition.Typed.Substitution TR
 import Definition.Typed.Weakening TR as W
 import Definition.Typed.Weakening.Definition TR as WD
 open import Definition.Typed.Well-formed TR
+open import Definition.Typed.With-equality-reflection TR
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Whnf M type-variant
+
+open Definition.Typed.Consequences.Consistency TR
+open Definition.Typed.Properties TR hiding ([]-cong′)
+
+private
+  module CR = Definition.Typed.Consequences.Consistency With-refl
+  module PR = Definition.Typed.Properties With-refl
+  module TR = Type-restrictions With-refl
 
 open import Graded.Has-box-cong TR UR
 open import Graded.Has-box-cong.Definable.J TR UR
@@ -73,16 +83,16 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n n′                                     : Nat
-  Δ                                        : Con Term _
-  Γ                                        : Cons _ _
-  A B C t u v                              : Term _
-  l                                        : Lvl _
-  σ                                        : Subst _ _
-  p p₁ p₂ p₃ p₄ q₁ q₂ q₂′ q₃ q₃′ q₄ q₄′ q₅ : M
-  γ γ₁ γ₂ γ₃ γ₄ γ₅                         : Conₘ _
-  m                                        : Mode
-  s                                        : Strength
+  n n′                                                    : Nat
+  Δ                                                       : Con Term _
+  Γ                                                       : Cons _ _
+  A B C t u v                                             : Term _
+  l l₁ l₂                                                 : Lvl _
+  σ                                                       : Subst _ _
+  p p₁ p₂ p₃ p₄ p₅ p₆ p₇ q₁ q₂ q₂′ q₃ q₃′ q₄ q₄′ q₅ q₆ q₇ : M
+  γ γ₁ γ₂ γ₃ γ₄ γ₅                                        : Conₘ _
+  m                                                       : Mode
+  s                                                       : Strength
 
 ------------------------------------------------------------------------
 -- []-cong can sometimes be defined
@@ -714,6 +724,50 @@ opaque
 
 opaque
 
+  -- A variant of ¬-[]-cong-for-level′ where the context has been
+  -- instantiated to a context containing only (erased) function
+  -- extensionality for certain grades and levels.
+  --
+  -- Note that, if all Π-types are allowed, l, l₁ and l₂ are level
+  -- literals, and prodrec is always allowed in erased contexts, then
+  -- all assumptions after No-erased-matches TR UR are satisfied for
+  -- the erasure modality with 𝟘ᵐ (along with 𝟘-well-behaved).
+  --
+  -- The last two assumptions could presumably be removed (if the
+  -- context is consistent with those assumptions, then it should also
+  -- be consistent in their absence).
+
+  ¬-[]-cong-for-level-with-funext :
+    ⦃ not-ok : No-equality-reflection ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
+    No-erased-matches TR UR →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     p ≤ 𝟘) →
+    (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s PE.≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    (Π-allowed p₂ q₂ → Π-allowed 𝟘 q₂′) →
+    (Π-allowed p₃ q₃ → Π-allowed 𝟘 q₃′) →
+    p₁ ≤ 𝟘 →
+    γ ▸[ 𝟘ᵐ? ] l →
+    ε » ε ⊢ l₁ ∷Level →
+    ε » ε ⊢ l₂ ∷Level →
+    Π-allowed p₅ q₅ →
+    Π-allowed p₆ q₆ →
+    ¬ Has-[]-cong-for-level s 𝟙ᵐ (ε ∙ Funext p₅ q₅ p₆ q₆ l₁ l₂) l
+        p₁ q₁ p₂ q₂ p₃ q₃ q₄
+  ¬-[]-cong-for-level-with-funext
+    nem Unitʷ-η→ trivial P-ok 𝟘≤𝟙 hyp₂ hyp₃ hyp₁ ▸l
+    ⊢l₁ ⊢l₂ Π-ok₅ Π-ok₆ =
+    ¬-[]-cong-for-level′ nem Unitʷ-η→ trivial P-ok 𝟘≤𝟙 hyp₂ hyp₃ hyp₁ ▸l
+      (λ _ →
+         Consistent-with-equality-reflection→Consistent $
+         CR.inhabited-consistent $ With-refl.⊢ˢʷ∷-sgSubst $
+         PR.⊢funext _ Π-ok₅ Π-ok₆ (tr-⊢∷L ⊢l₁) (tr-⊢∷L ⊢l₂))
+
+opaque
+
   -- If the modality's zero is well-behaved, erased matches (including
   -- the []-cong primitive) are not allowed, equality reflection is
   -- not allowed, and η-equality is not allowed for weak unit types
@@ -787,3 +841,48 @@ opaque
                                                         (≤-reflexive (·-identityˡ _)) ⟩
     Has-[]-cong s 𝟙ᵐ Δ p₁ q₁ p₂ q₂ 𝟘 q₃′ 𝟘 q₄′ q₅  →⟨ ¬-[]-cong nem Unitʷ-η→ consistent ⟩
     ⊥                                              □
+
+opaque
+
+  -- A variant of ¬-[]-cong′ where the context has been instantiated
+  -- to a context containing only (erased) universe-polymorphic
+  -- function extensionality for certain grades.
+  --
+  -- Note that, if all Π-types and Level are allowed and prodrec is
+  -- always allowed in erased contexts, then all assumptions after
+  -- No-erased-matches TR UR are satisfied for the erasure modality
+  -- with 𝟘ᵐ (along with 𝟘-well-behaved).
+  --
+  -- The last three assumptions could presumably be removed (if the
+  -- context is consistent with those assumptions, then it should also
+  -- be consistent in their absence).
+
+  ¬-[]-cong-with-funext :
+    ⦃ not-ok : No-equality-reflection ⦄
+    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
+    No-erased-matches TR UR →
+    (∀ {p q} →
+     Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
+     p ≤ 𝟘) →
+    (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
+    (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
+    (s PE.≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
+    (Π-allowed p₃ q₃ → Π-allowed 𝟘 q₃′) →
+    (Π-allowed p₄ q₄ → Π-allowed 𝟘 q₄′) →
+    p₁ ≤ ω · p₁ →
+    p₂ ≤ 𝟘 →
+    Level-allowed →
+    Π-allowed p₆ q₆ →
+    Π-allowed p₇ q₇ →
+    ¬ Has-[]-cong s 𝟙ᵐ (ε ∙ Poly-funext p₆ q₆ p₇ q₇)
+        p₁ q₁ p₂ q₂ p₃ q₃ p₄ q₄ q₅
+  ¬-[]-cong-with-funext
+    nem Unitʷ-η→ trivial P-ok 𝟘≤𝟙 hyp₃ hyp₄ hyp₁ hyp₂
+    Level-ok Π-ok₆ Π-ok₇ =
+    ¬-[]-cong′ nem Unitʷ-η→ trivial P-ok 𝟘≤𝟙 hyp₃ hyp₄ hyp₁ hyp₂
+      (λ _ →
+         Consistent-with-equality-reflection→Consistent $
+         CR.inhabited-consistent $ With-refl.⊢ˢʷ∷-sgSubst $
+         PR.⊢poly-funext _
+           (TR.Level-allowed⇔≢ .proj₂ (Level-allowed⇔≢ .proj₁ Level-ok))
+           Π-ok₆ Π-ok₇ εε)
