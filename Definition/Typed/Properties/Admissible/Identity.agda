@@ -1915,7 +1915,7 @@ opaque
      Idⱼ′ (var₂ ⊢Π3Id) (var₁ ⊢Π3Id))
 
 ------------------------------------------------------------------------
--- Some lemmas related to equality-reflection
+-- Some lemmas related to equality reflection
 
 opaque
 
