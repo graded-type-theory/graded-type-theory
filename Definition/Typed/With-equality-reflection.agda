@@ -194,3 +194,15 @@ opaque
   tr-⊢⇒* =
     PE.subst₃ With-refl._⊢_⇒*_ tr-Cons-glassify tr-Term-id tr-Term-id ∘→
     QT.tr-⊢⇒* idᶠ
+
+opaque
+
+  -- If a context is consistent when equality reflection is enabled
+  -- (and the definition context is made transparent), then it is
+  -- consistent.
+
+  Consistent-with-equality-reflection→Consistent :
+    With-refl.Consistent (glassify ∇ » Γ) →
+    Consistent (∇ » Γ)
+  Consistent-with-equality-reflection→Consistent hyp _ ⊢t =
+    hyp _ (tr-⊢∷ ⊢t)
