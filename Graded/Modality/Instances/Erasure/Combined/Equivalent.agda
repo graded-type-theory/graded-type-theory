@@ -2092,3 +2092,32 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
     ⊢[]⇔⊢[] {𝓙 = [ _ ≡ _ ∷ _ ]}   = ⊢≡∷→⊢≡∷   , ⊢≡∷←⊢≡∷   ok
     ⊢[]⇔⊢[] {𝓙 = [ _ ∷Level]}     = ⊢∷L→⊢∷L   , ⊢∷L←⊢∷L   ok
     ⊢[]⇔⊢[] {𝓙 = [ _ ≡ _ ∷Level]} = ⊢≡∷L→⊢≡∷L , ⊢≡∷L←⊢≡∷L ok
+
+------------------------------------------------------------------------
+-- Some consequences
+
+private opaque
+
+  -- A lemma used below.
+
+  ▸→𝟘▸[⌞𝟘⌟] : γ ▸[ m ] t → 𝟘ᶜ ▸[ ⌞ 𝟘 ⌟ ] t
+  ▸→𝟘▸[⌞𝟘⌟] = ▸-cong (PE.sym ⌞𝟘⌟≡𝟘ᵐ?) ∘→ ▸-𝟘′ (𝟘ᵐ-allowed→¬Trivialᵐ _)
+
+opaque
+
+  -- If Allowed-at-𝟘ᵐ holds, then γ ▸ Γ ⊢ t ∷[ p ] A implies
+  -- Γ C.⊢ t ∷ A.
+
+  ⊢∷[]→⊢∷′ : Allowed-at-𝟘ᵐ → γ ▸ Γ ⊢ t ∷[ p ] A → Γ C.⊢ t ∷ A
+  ⊢∷[]→⊢∷′ {γ} ok ⊢t =
+    let ⊢t , ▸t = ⊢∷[]⇔⊢∷▸ ok .proj₁ ⊢t in
+    ⊢∷[]⇔⊢∷▸ ok .proj₂ (⊢t , ▸→𝟘▸[⌞𝟘⌟] ▸t)
+
+opaque
+
+  -- If Allowed-at-𝟘ᵐ holds, then γ ▸ Γ ⊢[ p ] A implies Γ C.⊢ A.
+
+  ⊢[]→⊢′ : Allowed-at-𝟘ᵐ → γ ▸ Γ ⊢[ p ] A → Γ C.⊢ A
+  ⊢[]→⊢′ {γ} ok ⊢A =
+    let ⊢A , ▸A = ⊢[]⇔⊢▸ ok .proj₁ ⊢A in
+    ⊢[]⇔⊢▸ ok .proj₂ (⊢A , ▸→𝟘▸[⌞𝟘⌟] ▸A)
