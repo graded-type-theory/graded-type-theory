@@ -385,7 +385,7 @@ Universe-level = Definition.Untyped.NotParametrised.Universe-level
 --
 -- Grades are elements of the chosen grade semiring.
 
-grade = Graded.Modality.Modality
+Grade = Graded.Modality.Modality
 
 -- Σ-type Strength
 
@@ -1091,7 +1091,7 @@ normalize = Graded.Heap.Normalization.normalize
 
 ⊢⇒→⇾*-whnf = Graded.Heap.Termination.whBisim-closed
 
--- Theorem 4.7: Termination of the weak-head reduction.
+-- Corollary 4.7: Termination of the weak-head reduction.
 
 termination = Graded.Heap.Termination.⊢▸-⇘-closed
 
