@@ -247,13 +247,13 @@ sucₛ : Nat → Stack m
 sucₛ 0 = ε
 sucₛ (1+ n) = sucₑ ∙ sucₛ n
 
--- A predicate for stacks containing natrec (with given grades)
+-- A predicate for stacks containing prodrecₑ (with given grades)
 
 data prodrec_,_∈ {m} (r p : M) : (S : Stack m) → Set a where
   here  : prodrec r , p ∈ (prodrecₑ r p q A u ρ ∙ S)
   there : prodrec r , p ∈ S → prodrec r , p ∈ (c ∙ S)
 
--- A predicate for stacks containing natrec (with given grades)
+-- A predicate for stacks containing natrecₑ (with given grades)
 
 data natrec_,_∈ {m} (p r : M) : (S : Stack m) → Set a where
   here  : natrec p , r ∈ (natrecₑ p q r A u v ρ ∙ S)
@@ -289,7 +289,7 @@ data []-cong∈_ {m} : (S : Stack m) → Set a where
   here : []-cong∈ ([]-congₑ s l A t u ρ ∙ S)
   there : []-cong∈ S → []-cong∈ (c ∙ S)
 
--- A predicate for stacks containing []-congₑ
+-- A predicate for stacks containing sucₑ
 
 data suc∈_ {m} : (S : Stack m) → Set a where
   here : suc∈ (sucₑ ∙ S)
