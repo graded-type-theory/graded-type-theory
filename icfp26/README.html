@@ -386,7 +386,7 @@
 <a id="14951" class="Comment">--</a>
 <a id="14954" class="Comment">-- Grades are elements of the chosen grade semiring.</a>
 
-<a id="grade"></a><a id="15008" href="README.html#15008" class="Function">grade</a> <a id="15014" class="Symbol">=</a> <a id="15016" href="Graded.Modality.html#581" class="Record">Graded.Modality.Modality</a>
+<a id="Grade"></a><a id="15008" href="README.html#15008" class="Function">Grade</a> <a id="15014" class="Symbol">=</a> <a id="15016" href="Graded.Modality.html#581" class="Record">Graded.Modality.Modality</a>
 
 <a id="15042" class="Comment">-- Σ-type Strength</a>
 
@@ -1092,617 +1092,617 @@
 
 <a id="⊢⇒→⇾*-whnf"></a><a id="37481" href="README.html#37481" class="Function">⊢⇒→⇾*-whnf</a> <a id="37492" class="Symbol">=</a> <a id="37494" href="Graded.Heap.Termination.html#8126" class="Function">Graded.Heap.Termination.whBisim-closed</a>
 
-<a id="37534" class="Comment">-- Theorem 4.7: Termination of the weak-head reduction.</a>
+<a id="37534" class="Comment">-- Corollary 4.7: Termination of the weak-head reduction.</a>
 
-<a id="termination"></a><a id="37591" href="README.html#37591" class="Function">termination</a> <a id="37603" class="Symbol">=</a> <a id="37605" href="Graded.Heap.Termination.html#8530" class="Function">Graded.Heap.Termination.⊢▸-⇘-closed</a>
+<a id="termination"></a><a id="37593" href="README.html#37593" class="Function">termination</a> <a id="37605" class="Symbol">=</a> <a id="37607" href="Graded.Heap.Termination.html#8530" class="Function">Graded.Heap.Termination.⊢▸-⇘-closed</a>
 
-<a id="37642" class="Comment">-- Theorem 4.8: Evaluation to numerals</a>
-<a id="37681" class="Comment">--</a>
-<a id="37684" class="Comment">-- This property is shown under the assumption that the stack</a>
-<a id="37746" class="Comment">-- multiplicity of the empty stack is 1.</a>
+<a id="37644" class="Comment">-- Theorem 4.8: Evaluation to numerals</a>
+<a id="37683" class="Comment">--</a>
+<a id="37686" class="Comment">-- This property is shown under the assumption that the stack</a>
+<a id="37748" class="Comment">-- multiplicity of the empty stack is 1.</a>
 
-<a id="redNumeral"></a><a id="37788" href="README.html#37788" class="Function">redNumeral</a> <a id="37799" class="Symbol">=</a> <a id="37801" href="Graded.Heap.Soundness.html#8625" class="Function">Graded.Heap.Soundness.redNumeral-closed</a>
+<a id="redNumeral"></a><a id="37790" href="README.html#37790" class="Function">redNumeral</a> <a id="37801" class="Symbol">=</a> <a id="37803" href="Graded.Heap.Soundness.html#8625" class="Function">Graded.Heap.Soundness.redNumeral-closed</a>
 
-<a id="37842" class="Comment">-- The logical relation for natural numbers.</a>
+<a id="37844" class="Comment">-- The logical relation for natural numbers.</a>
 
-<a id="_⊩ℕ_∷ℕ"></a><a id="37888" href="README.html#37888" class="Function Operator">_⊩ℕ_∷ℕ</a> <a id="37895" class="Symbol">=</a> <a id="37897" href="Definition.LogicalRelation.html#9728" class="Record Operator">Definition.LogicalRelation._⊩ℕ_≡_∷ℕ</a>
+<a id="_⊩ℕ_∷ℕ"></a><a id="37890" href="README.html#37890" class="Function Operator">_⊩ℕ_∷ℕ</a> <a id="37897" class="Symbol">=</a> <a id="37899" href="Definition.LogicalRelation.html#9728" class="Record Operator">Definition.LogicalRelation._⊩ℕ_≡_∷ℕ</a>
 
-<a id="37934" class="Comment">-- Theorem 4.9: Resource correctness</a>
-<a id="37971" class="Comment">--</a>
-<a id="37974" class="Comment">-- The grade associated with each entry in the heap being bounded by 𝟘</a>
-<a id="38045" class="Comment">-- is expressed using the relation _≤ʰ_ which relates a heap to a grade.</a>
-<a id="38118" class="Comment">-- H ≤ʰ p is inhabited iff the grade associated with each entry is less</a>
-<a id="38190" class="Comment">-- than p.</a>
-<a id="38201" class="Comment">--</a>
-<a id="38204" class="Comment">-- This property is shown under the assumption that the stack</a>
-<a id="38266" class="Comment">-- multiplicity of the empty stack is 1.</a>
+<a id="37936" class="Comment">-- Theorem 4.9: Resource correctness</a>
+<a id="37973" class="Comment">--</a>
+<a id="37976" class="Comment">-- The grade associated with each entry in the heap being bounded by 𝟘</a>
+<a id="38047" class="Comment">-- is expressed using the relation _≤ʰ_ which relates a heap to a grade.</a>
+<a id="38120" class="Comment">-- H ≤ʰ p is inhabited iff the grade associated with each entry is less</a>
+<a id="38192" class="Comment">-- than p.</a>
+<a id="38203" class="Comment">--</a>
+<a id="38206" class="Comment">-- This property is shown under the assumption that the stack</a>
+<a id="38268" class="Comment">-- multiplicity of the empty stack is 1.</a>
 
-<a id="resourceCorrectness"></a><a id="38308" href="README.html#38308" class="Function">resourceCorrectness</a> <a id="38328" class="Symbol">=</a> <a id="38330" href="Graded.Heap.Soundness.html#11851" class="Function">Graded.Heap.Soundness.soundness-closed</a>
+<a id="resourceCorrectness"></a><a id="38310" href="README.html#38310" class="Function">resourceCorrectness</a> <a id="38330" class="Symbol">=</a> <a id="38332" href="Graded.Heap.Soundness.html#11851" class="Function">Graded.Heap.Soundness.soundness-closed</a>
 
-<a id="_≤ʰ_"></a><a id="38370" href="README.html#38370" class="Function Operator">_≤ʰ_</a> <a id="38375" class="Symbol">=</a> <a id="38377" href="Graded.Heap.Usage.html#1563" class="Datatype Operator">Graded.Heap.Usage._≤ʰ_</a>
+<a id="_≤ʰ_"></a><a id="38372" href="README.html#38372" class="Function Operator">_≤ʰ_</a> <a id="38377" class="Symbol">=</a> <a id="38379" href="Graded.Heap.Usage.html#1563" class="Datatype Operator">Graded.Heap.Usage._≤ʰ_</a>
 
-<a id="38401" class="Comment">-- One cannot subtract non-zero from zero when the grade semiring has a</a>
-<a id="38473" class="Comment">-- well-behaved zero.</a>
+<a id="38403" class="Comment">-- One cannot subtract non-zero from zero when the grade semiring has a</a>
+<a id="38475" class="Comment">-- well-behaved zero.</a>
 
-<a id="𝟘-p≡q"></a><a id="38496" href="README.html#38496" class="Function">𝟘-p≡q</a> <a id="38502" class="Symbol">=</a> <a id="38504" href="Graded.Modality.Properties.Subtraction.html#7069" class="Function">Graded.Modality.Properties.Subtraction.𝟘-p≡q</a>
+<a id="𝟘-p≡q"></a><a id="38498" href="README.html#38498" class="Function">𝟘-p≡q</a> <a id="38504" class="Symbol">=</a> <a id="38506" href="Graded.Modality.Properties.Subtraction.html#7069" class="Function">Graded.Modality.Properties.Subtraction.𝟘-p≡q</a>
 
-<a id="38550" class="Comment">-- Theorem 4.10: Resource correctness for open terms</a>
-<a id="38603" class="Comment">--</a>
-<a id="38606" class="Comment">-- The formalized statement also disallows erased matches for</a>
-<a id="38668" class="Comment">-- eliminators related to excluded types.</a>
-<a id="38710" class="Comment">--</a>
-<a id="38713" class="Comment">-- This property is shown under the assumption that the stack</a>
-<a id="38775" class="Comment">-- multiplicity of the empty stack is 1.</a>
+<a id="38552" class="Comment">-- Theorem 4.10: Resource correctness for open terms</a>
+<a id="38605" class="Comment">--</a>
+<a id="38608" class="Comment">-- The formalized statement also disallows erased matches for</a>
+<a id="38670" class="Comment">-- eliminators related to excluded types.</a>
+<a id="38712" class="Comment">--</a>
+<a id="38715" class="Comment">-- This property is shown under the assumption that the stack</a>
+<a id="38777" class="Comment">-- multiplicity of the empty stack is 1.</a>
 
-<a id="resourceCorrectnessOpen"></a><a id="38817" href="README.html#38817" class="Function">resourceCorrectnessOpen</a> <a id="38841" class="Symbol">=</a>
-  <a id="38845" href="Graded.Heap.Soundness.html#12853" class="Function">Graded.Heap.Soundness.soundness-open-consistent</a>
+<a id="resourceCorrectnessOpen"></a><a id="38819" href="README.html#38819" class="Function">resourceCorrectnessOpen</a> <a id="38843" class="Symbol">=</a>
+  <a id="38847" href="Graded.Heap.Soundness.html#12853" class="Function">Graded.Heap.Soundness.soundness-open-consistent</a>
 
-<a id="38894" class="Comment">-- Counterexamples to the resource correctness theorem for open terms</a>
-<a id="38964" class="Comment">-- when some assumptions are removed.</a>
-<a id="39002" class="Comment">-- These counterexamples are constructed under the assumption that some</a>
-<a id="39074" class="Comment">-- function types are allowed (as given by the type restrictions).</a>
+<a id="38896" class="Comment">-- Counterexamples to the resource correctness theorem for open terms</a>
+<a id="38966" class="Comment">-- when some assumptions are removed.</a>
+<a id="39004" class="Comment">-- These counterexamples are constructed under the assumption that some</a>
+<a id="39076" class="Comment">-- function types are allowed (as given by the type restrictions).</a>
 
-<a id="39142" class="Comment">-- Counterexample using inconsistent contexts.</a>
+<a id="39144" class="Comment">-- Counterexample using inconsistent contexts.</a>
 
-<a id="¬resource-correctness-inconsistent"></a><a id="39190" href="README.html#39190" class="Function">¬resource-correctness-inconsistent</a> <a id="39225" class="Symbol">=</a>
-  <a id="39229" href="Graded.Heap.Soundness.Counterexample.html#2385" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-ε-inconsistent</a>
+<a id="¬resource-correctness-inconsistent"></a><a id="39192" href="README.html#39192" class="Function">¬resource-correctness-inconsistent</a> <a id="39227" class="Symbol">=</a>
+  <a id="39231" href="Graded.Heap.Soundness.Counterexample.html#2385" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-ε-inconsistent</a>
 
-<a id="39293" class="Comment">-- Counterexample using erased matches for prodrec.</a>
+<a id="39295" class="Comment">-- Counterexample using erased matches for prodrec.</a>
 
-<a id="¬resource-correctness-erased-matches-prodrec"></a><a id="39346" href="README.html#39346" class="Function">¬resource-correctness-erased-matches-prodrec</a> <a id="39391" class="Symbol">=</a>
-  <a id="39395" href="Graded.Heap.Soundness.Counterexample.html#7491" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-ε-erased-matches-prodrec</a>
+<a id="¬resource-correctness-erased-matches-prodrec"></a><a id="39348" href="README.html#39348" class="Function">¬resource-correctness-erased-matches-prodrec</a> <a id="39393" class="Symbol">=</a>
+  <a id="39397" href="Graded.Heap.Soundness.Counterexample.html#7491" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-ε-erased-matches-prodrec</a>
 
-<a id="39469" class="Comment">-- Counterexample for programs using free variables in a non-erased way.</a>
+<a id="39471" class="Comment">-- Counterexample for programs using free variables in a non-erased way.</a>
 
-<a id="¬resource-correctness-non-erased"></a><a id="39543" href="README.html#39543" class="Function">¬resource-correctness-non-erased</a> <a id="39576" class="Symbol">=</a>
-  <a id="39580" href="Graded.Heap.Soundness.Counterexample.html#10284" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-ε-not-erased</a>
+<a id="¬resource-correctness-non-erased"></a><a id="39545" href="README.html#39545" class="Function">¬resource-correctness-non-erased</a> <a id="39578" class="Symbol">=</a>
+  <a id="39582" href="Graded.Heap.Soundness.Counterexample.html#10284" class="Function">Graded.Heap.Soundness.Counterexample.¬soundness-ε-not-erased</a>
 
-<a id="39642" class="Comment">-- A version of resource correctness with no erased matches for</a>
-<a id="39706" class="Comment">-- emptyrec.</a>
+<a id="39644" class="Comment">-- A version of resource correctness with no erased matches for</a>
+<a id="39708" class="Comment">-- emptyrec.</a>
 
-<a id="resourceCorrectnessOpen″"></a><a id="39720" href="README.html#39720" class="Function">resourceCorrectnessOpen″</a> <a id="39745" class="Symbol">=</a>
-  <a id="39749" href="Graded.Heap.Soundness.html#13368" class="Function">Graded.Heap.Soundness.soundness-open-¬emptyrec₀</a>
+<a id="resourceCorrectnessOpen″"></a><a id="39722" href="README.html#39722" class="Function">resourceCorrectnessOpen″</a> <a id="39747" class="Symbol">=</a>
+  <a id="39751" href="Graded.Heap.Soundness.html#13368" class="Function">Graded.Heap.Soundness.soundness-open-¬emptyrec₀</a>
 
-<a id="39798" class="Comment">------------------------------------------------------------------------</a>
-<a id="39871" class="Comment">-- 5: Natural Number Recursion</a>
+<a id="39800" class="Comment">------------------------------------------------------------------------</a>
+<a id="39873" class="Comment">-- 5: Natural Number Recursion</a>
 
-<a id="39903" class="Comment">------------------------------------------------------------------------</a>
-<a id="39976" class="Comment">-- 5.1: Natrec-star</a>
+<a id="39905" class="Comment">------------------------------------------------------------------------</a>
+<a id="39978" class="Comment">-- 5.1: Natrec-star</a>
 
-<a id="39997" class="Comment">-- The alternative usage rule has problems related to linearity.</a>
+<a id="39999" class="Comment">-- The alternative usage rule has problems related to linearity.</a>
 
-<a id="alt-usage-bad"></a><a id="40063" href="README.html#40063" class="Function">alt-usage-bad</a> <a id="40077" class="Symbol">=</a>
-  <a id="40081" href="Graded.Modality.Instances.Linearity.Examples.Bad.No-nr.html#1505" class="Function">Graded.Modality.Instances.Linearity.Examples.Bad.No-nr.▸double</a>
+<a id="alt-usage-bad"></a><a id="40065" href="README.html#40065" class="Function">alt-usage-bad</a> <a id="40079" class="Symbol">=</a>
+  <a id="40083" href="Graded.Modality.Instances.Linearity.Examples.Bad.No-nr.html#1505" class="Function">Graded.Modality.Instances.Linearity.Examples.Bad.No-nr.▸double</a>
 
-<a id="40145" class="Comment">-- The property of a grade semiring having a natrec-star operator.</a>
+<a id="40147" class="Comment">-- The property of a grade semiring having a natrec-star operator.</a>
 
-<a id="natrec-star"></a><a id="40213" href="README.html#40213" class="Function">natrec-star</a> <a id="40225" class="Symbol">=</a> <a id="40227" href="Graded.Modality.html#8217" class="Record">Graded.Modality.Has-star</a>
+<a id="natrec-star"></a><a id="40215" href="README.html#40215" class="Function">natrec-star</a> <a id="40227" class="Symbol">=</a> <a id="40229" href="Graded.Modality.html#8217" class="Record">Graded.Modality.Has-star</a>
 
-<a id="40253" class="Comment">-- The usage rule using natrec-star is more general than the one</a>
-<a id="40318" class="Comment">-- mentioned in the paper and is based on the grade semiring providing a</a>
-<a id="40391" class="Comment">-- so-called nr-function which is assumed to satisfy certain properties.</a>
+<a id="40255" class="Comment">-- The usage rule using natrec-star is more general than the one</a>
+<a id="40320" class="Comment">-- mentioned in the paper and is based on the grade semiring providing a</a>
+<a id="40393" class="Comment">-- so-called nr-function which is assumed to satisfy certain properties.</a>
 
-<a id="40465" class="Comment">-- Any natrec-star operator is an instance of such an nr-function.</a>
+<a id="40467" class="Comment">-- Any natrec-star operator is an instance of such an nr-function.</a>
 
-<a id="natrec-star→nr"></a><a id="40533" href="README.html#40533" class="Function">natrec-star→nr</a> <a id="40548" class="Symbol">=</a> <a id="40550" href="Graded.Modality.Properties.Star.html#2531" class="Function">Graded.Modality.Properties.Star.has-nr</a>
+<a id="natrec-star→nr"></a><a id="40535" href="README.html#40535" class="Function">natrec-star→nr</a> <a id="40550" class="Symbol">=</a> <a id="40552" href="Graded.Modality.Properties.Star.html#2531" class="Function">Graded.Modality.Properties.Star.has-nr</a>
 
-<a id="40590" class="Comment">-- Addition for natural numbers.</a>
+<a id="40592" class="Comment">-- Addition for natural numbers.</a>
 
-<a id="plus"></a><a id="40624" href="README.html#40624" class="Function">plus</a> <a id="40629" class="Symbol">=</a> <a id="40631" href="Definition.Untyped.Nat.html#1383" class="Function">Definition.Untyped.Nat.plus′</a>
+<a id="plus"></a><a id="40626" href="README.html#40626" class="Function">plus</a> <a id="40631" class="Symbol">=</a> <a id="40633" href="Definition.Untyped.Nat.html#1383" class="Function">Definition.Untyped.Nat.plus′</a>
 
-<a id="40661" class="Comment">-- Natrec-star for the linearity semiring.</a>
+<a id="40663" class="Comment">-- Natrec-star for the linearity semiring.</a>
 
-<a id="⊛-linearity"></a><a id="40705" href="README.html#40705" class="Function">⊛-linearity</a> <a id="40717" class="Symbol">=</a> <a id="40719" href="Graded.Modality.Instances.Zero-one-many.html#23142" class="Function Operator">Graded.Modality.Instances.Zero-one-many._⊛_▷_</a>
+<a id="⊛-linearity"></a><a id="40707" href="README.html#40707" class="Function">⊛-linearity</a> <a id="40719" class="Symbol">=</a> <a id="40721" href="Graded.Modality.Instances.Zero-one-many.html#23142" class="Function Operator">Graded.Modality.Instances.Zero-one-many._⊛_▷_</a>
 
-<a id="40766" class="Comment">-- This is the greatest lawful natrec-star operator.</a>
+<a id="40768" class="Comment">-- This is the greatest lawful natrec-star operator.</a>
 
-<a id="⊛-linearity-greatest"></a><a id="40820" href="README.html#40820" class="Function">⊛-linearity-greatest</a> <a id="40841" class="Symbol">=</a>
-  <a id="40845" href="Graded.Modality.Instances.Zero-one-many.html#25302" class="Function">Graded.Modality.Instances.Zero-one-many.⊛-greatest</a>
+<a id="⊛-linearity-greatest"></a><a id="40822" href="README.html#40822" class="Function">⊛-linearity-greatest</a> <a id="40843" class="Symbol">=</a>
+  <a id="40847" href="Graded.Modality.Instances.Zero-one-many.html#25302" class="Function">Graded.Modality.Instances.Zero-one-many.⊛-greatest</a>
 
-<a id="40897" class="Comment">-- A usage rule for plus.</a>
+<a id="40899" class="Comment">-- A usage rule for plus.</a>
 
-<a id="▸plus"></a><a id="40924" href="README.html#40924" class="Function">▸plus</a> <a id="40930" class="Symbol">=</a> <a id="40932" href="Graded.Modality.Instances.Linearity.Examples.Bad.Nr.html#2150" class="Function">Graded.Modality.Instances.Linearity.Examples.Bad.Nr.▸plus′</a>
+<a id="▸plus"></a><a id="40926" href="README.html#40926" class="Function">▸plus</a> <a id="40932" class="Symbol">=</a> <a id="40934" href="Graded.Modality.Instances.Linearity.Examples.Bad.Nr.html#2150" class="Function">Graded.Modality.Instances.Linearity.Examples.Bad.Nr.▸plus′</a>
 
-<a id="40992" class="Comment">-- The usage for adding two variables is ω for both variables.</a>
+<a id="40994" class="Comment">-- The usage for adding two variables is ω for both variables.</a>
 
-<a id="▸plus-x₀-x₁"></a><a id="41056" href="README.html#41056" class="Function">▸plus-x₀-x₁</a> <a id="41068" class="Symbol">=</a>
-  <a id="41072" href="Graded.Modality.Instances.Linearity.Examples.Bad.Nr.html#2994" class="Function">Graded.Modality.Instances.Linearity.Examples.Bad.Nr.▸plus′-x₀-x₁</a>
+<a id="▸plus-x₀-x₁"></a><a id="41058" href="README.html#41058" class="Function">▸plus-x₀-x₁</a> <a id="41070" class="Symbol">=</a>
+  <a id="41074" href="Graded.Modality.Instances.Linearity.Examples.Bad.Nr.html#2994" class="Function">Graded.Modality.Instances.Linearity.Examples.Bad.Nr.▸plus′-x₀-x₁</a>
 
-<a id="41138" class="Comment">-- The usage for adding a variable to itself is 1.</a>
+<a id="41140" class="Comment">-- The usage for adding a variable to itself is 1.</a>
 
-<a id="▸plus-x₀-x₀"></a><a id="41190" href="README.html#41190" class="Function">▸plus-x₀-x₀</a> <a id="41202" class="Symbol">=</a>
-  <a id="41206" href="Graded.Modality.Instances.Linearity.Examples.Bad.Nr.html#3151" class="Function">Graded.Modality.Instances.Linearity.Examples.Bad.Nr.▸plus′-x₀-x₀</a>
+<a id="▸plus-x₀-x₀"></a><a id="41192" href="README.html#41192" class="Function">▸plus-x₀-x₀</a> <a id="41204" class="Symbol">=</a>
+  <a id="41208" href="Graded.Modality.Instances.Linearity.Examples.Bad.Nr.html#3151" class="Function">Graded.Modality.Instances.Linearity.Examples.Bad.Nr.▸plus′-x₀-x₀</a>
 
-<a id="41272" class="Comment">------------------------------------------------------------------------</a>
-<a id="41345" class="Comment">-- 5.2: A Resource-Correct Usage Rule</a>
+<a id="41274" class="Comment">------------------------------------------------------------------------</a>
+<a id="41347" class="Comment">-- 5.2: A Resource-Correct Usage Rule</a>
 
-<a id="41384" class="Comment">-- The necessary conditions for natrec are derived in the following</a>
-<a id="41452" class="Comment">-- module.</a>
+<a id="41386" class="Comment">-- The necessary conditions for natrec are derived in the following</a>
+<a id="41454" class="Comment">-- module.</a>
 
-<a id="41464" class="Keyword">module</a> <a id="natrec-necessary"></a><a id="41471" href="README.html#41471" class="Module">natrec-necessary</a> <a id="41488" class="Symbol">=</a> <a id="41490" href="Graded.Reduction.Necessary.html#18114" class="Module">Graded.Reduction.Necessary.Natrec₁</a>
+<a id="41466" class="Keyword">module</a> <a id="natrec-necessary"></a><a id="41473" href="README.html#41473" class="Module">natrec-necessary</a> <a id="41490" class="Symbol">=</a> <a id="41492" href="Graded.Reduction.Necessary.html#18114" class="Module">Graded.Reduction.Necessary.Natrec₁</a>
 
-<a id="41526" class="Comment">-- In this module, an &quot;arbitrary&quot; usage relation is assumed with the</a>
-<a id="41595" class="Comment">-- &quot;usual&quot; rules for some terms, subject reduction and a few additional</a>
-<a id="41667" class="Comment">-- properties like weakening.</a>
+<a id="41528" class="Comment">-- In this module, an &quot;arbitrary&quot; usage relation is assumed with the</a>
+<a id="41597" class="Comment">-- &quot;usual&quot; rules for some terms, subject reduction and a few additional</a>
+<a id="41669" class="Comment">-- properties like weakening.</a>
 
-<a id="Usage-relation"></a><a id="41698" href="README.html#41698" class="Function">Usage-relation</a> <a id="41713" class="Symbol">=</a> <a id="41715" href="Graded.Reduction.Necessary.html#2039" class="Record">Graded.Reduction.Necessary.Usage-relation</a>
+<a id="Usage-relation"></a><a id="41700" href="README.html#41700" class="Function">Usage-relation</a> <a id="41715" class="Symbol">=</a> <a id="41717" href="Graded.Reduction.Necessary.html#2039" class="Record">Graded.Reduction.Necessary.Usage-relation</a>
 
-<a id="41758" class="Comment">-- The usage relation we use in the paper is an instance of such an</a>
-<a id="41826" class="Comment">-- &quot;arbitrary&quot; usage relation.</a>
-<a id="41857" class="Comment">--</a>
-<a id="41860" class="Comment">-- Note that the assumption discussed above related to η-equality</a>
-<a id="41926" class="Comment">-- for weak unit types is applied here as well in order to show</a>
-<a id="41990" class="Comment">-- subject reduction.</a>
+<a id="41760" class="Comment">-- The usage relation we use in the paper is an instance of such an</a>
+<a id="41828" class="Comment">-- &quot;arbitrary&quot; usage relation.</a>
+<a id="41859" class="Comment">--</a>
+<a id="41862" class="Comment">-- Note that the assumption discussed above related to η-equality</a>
+<a id="41928" class="Comment">-- for weak unit types is applied here as well in order to show</a>
+<a id="41992" class="Comment">-- subject reduction.</a>
 
-<a id="▸[]-Usage-relation"></a><a id="42013" href="README.html#42013" class="Function">▸[]-Usage-relation</a> <a id="42032" class="Symbol">=</a> <a id="42034" href="Graded.Reduction.Necessary.html#6939" class="Function">Graded.Reduction.Necessary.▸[]-Usage-relation</a>
+<a id="▸[]-Usage-relation"></a><a id="42015" href="README.html#42015" class="Function">▸[]-Usage-relation</a> <a id="42034" class="Symbol">=</a> <a id="42036" href="Graded.Reduction.Necessary.html#6939" class="Function">Graded.Reduction.Necessary.▸[]-Usage-relation</a>
 
-<a id="42081" class="Comment">-- In the module, the &quot;arbitrary&quot; usage relation is also assumed to</a>
-<a id="42149" class="Comment">-- have a usage rule for natrec in the form of our ansatz as well as</a>
-<a id="42218" class="Comment">-- a corresponding usage inversion lemma.</a>
+<a id="42083" class="Comment">-- In the module, the &quot;arbitrary&quot; usage relation is also assumed to</a>
+<a id="42151" class="Comment">-- have a usage rule for natrec in the form of our ansatz as well as</a>
+<a id="42220" class="Comment">-- a corresponding usage inversion lemma.</a>
 
-<a id="Usage-relation-natrec"></a><a id="42261" href="README.html#42261" class="Function">Usage-relation-natrec</a> <a id="42283" class="Symbol">=</a>
-  <a id="42287" href="Graded.Reduction.Necessary.html#3605" class="Record">Graded.Reduction.Necessary.Usage-relation-natrec₁</a>
+<a id="Usage-relation-natrec"></a><a id="42263" href="README.html#42263" class="Function">Usage-relation-natrec</a> <a id="42285" class="Symbol">=</a>
+  <a id="42289" href="Graded.Reduction.Necessary.html#3605" class="Record">Graded.Reduction.Necessary.Usage-relation-natrec₁</a>
 
-<a id="42338" class="Comment">-- A &quot;usage rule&quot; for numerals.</a>
+<a id="42340" class="Comment">-- A &quot;usage rule&quot; for numerals.</a>
 
-<a id="▸num"></a><a id="42371" href="README.html#42371" class="Function">▸num</a> <a id="42376" class="Symbol">=</a> <a id="42378" href="Graded.Reduction.Necessary.html#12480" class="Function">Graded.Reduction.Necessary.Usage.▸sucⁿ</a>
+<a id="▸num"></a><a id="42373" href="README.html#42373" class="Function">▸num</a> <a id="42378" class="Symbol">=</a> <a id="42380" href="Graded.Reduction.Necessary.html#12480" class="Function">Graded.Reduction.Necessary.Usage.▸sucⁿ</a>
 
-<a id="42418" class="Comment">-- A necessary condition for natrec.</a>
+<a id="42420" class="Comment">-- A necessary condition for natrec.</a>
 
-<a id="natrec-necessary₁"></a><a id="42456" href="README.html#42456" class="Function">natrec-necessary₁</a> <a id="42474" class="Symbol">=</a> <a id="42476" href="Graded.Reduction.Necessary.html#39083" class="Function">Graded.Reduction.Necessary.Natrec₁.g-≤-nrᵢᶜ</a>
+<a id="natrec-necessary₁"></a><a id="42458" href="README.html#42458" class="Function">natrec-necessary₁</a> <a id="42476" class="Symbol">=</a> <a id="42478" href="Graded.Reduction.Necessary.html#39083" class="Function">Graded.Reduction.Necessary.Natrec₁.g-≤-nrᵢᶜ</a>
 
-<a id="42521" class="Comment">-- The function nrᵢ.</a>
+<a id="42523" class="Comment">-- The function nrᵢ.</a>
 
-<a id="nrᵢ"></a><a id="42543" href="README.html#42543" class="Function">nrᵢ</a> <a id="42547" class="Symbol">=</a> <a id="42549" href="Graded.Modality.html#2726" class="Function">Graded.Modality.Modality.nrᵢ</a>
+<a id="nrᵢ"></a><a id="42545" href="README.html#42545" class="Function">nrᵢ</a> <a id="42549" class="Symbol">=</a> <a id="42551" href="Graded.Modality.html#2726" class="Function">Graded.Modality.Modality.nrᵢ</a>
 
-<a id="42579" class="Comment">-- The function nrᵢ lifted to contexts.</a>
+<a id="42581" class="Comment">-- The function nrᵢ lifted to contexts.</a>
 
-<a id="nrᵢᶜ"></a><a id="42620" href="README.html#42620" class="Function">nrᵢᶜ</a> <a id="42625" class="Symbol">=</a> <a id="42627" href="Graded.Context.Properties.Natrec.html#5441" class="Function">Graded.Context.Properties.Natrec.nrᵢᶜ</a>
+<a id="nrᵢᶜ"></a><a id="42622" href="README.html#42622" class="Function">nrᵢᶜ</a> <a id="42627" class="Symbol">=</a> <a id="42629" href="Graded.Context.Properties.Natrec.html#5441" class="Function">Graded.Context.Properties.Natrec.nrᵢᶜ</a>
 
-<a id="42666" class="Comment">-- Grade and usage context sequences.</a>
-<a id="42704" class="Comment">--</a>
-<a id="42707" class="Comment">-- This defines sequences of any type.</a>
+<a id="42668" class="Comment">-- Grade and usage context sequences.</a>
+<a id="42706" class="Comment">--</a>
+<a id="42709" class="Comment">-- This defines sequences of any type.</a>
 
-<a id="Grade-sequence"></a><a id="42747" href="README.html#42747" class="Function">Grade-sequence</a> <a id="42762" class="Symbol">=</a> <a id="42764" href="Tools.Nat.html#12748" class="Function">Tools.Nat.Sequence</a>
+<a id="Grade-sequence"></a><a id="42749" href="README.html#42749" class="Function">Grade-sequence</a> <a id="42764" class="Symbol">=</a> <a id="42766" href="Tools.Nat.html#12748" class="Function">Tools.Nat.Sequence</a>
 
-<a id="42784" class="Comment">-- Greatest lower bounds of grade sequences.</a>
+<a id="42786" class="Comment">-- Greatest lower bounds of grade sequences.</a>
 
-<a id="Greatest-lower-bound"></a><a id="42830" href="README.html#42830" class="Function">Greatest-lower-bound</a> <a id="42851" class="Symbol">=</a> <a id="42853" href="Graded.Modality.html#2517" class="Function">Graded.Modality.Modality.Greatest-lower-bound</a>
+<a id="Greatest-lower-bound"></a><a id="42832" href="README.html#42832" class="Function">Greatest-lower-bound</a> <a id="42853" class="Symbol">=</a> <a id="42855" href="Graded.Modality.html#2517" class="Function">Graded.Modality.Modality.Greatest-lower-bound</a>
 
-<a id="42900" class="Comment">-- Greatest lower bounds of context sequences.</a>
+<a id="42902" class="Comment">-- Greatest lower bounds of context sequences.</a>
 
-<a id="Greatest-lower-boundᶜ"></a><a id="42948" href="README.html#42948" class="Function">Greatest-lower-boundᶜ</a> <a id="42970" class="Symbol">=</a> <a id="42972" href="Graded.Context.html#3091" class="Function">Graded.Context.Greatest-lower-boundᶜ</a>
+<a id="Greatest-lower-boundᶜ"></a><a id="42950" href="README.html#42950" class="Function">Greatest-lower-boundᶜ</a> <a id="42972" class="Symbol">=</a> <a id="42974" href="Graded.Context.html#3091" class="Function">Graded.Context.Greatest-lower-boundᶜ</a>
 
-<a id="43010" class="Comment">-- Another necessary condition for natrec.</a>
-<a id="43053" class="Comment">--</a>
-<a id="43056" class="Comment">-- This property is shown under the additional assumption that there are</a>
-<a id="43129" class="Comment">-- at least two modes. This is the case in the paper.</a>
+<a id="43012" class="Comment">-- Another necessary condition for natrec.</a>
+<a id="43055" class="Comment">--</a>
+<a id="43058" class="Comment">-- This property is shown under the additional assumption that there are</a>
+<a id="43131" class="Comment">-- at least two modes. This is the case in the paper.</a>
 
-<a id="natrec-necessary₂"></a><a id="43184" href="README.html#43184" class="Function">natrec-necessary₂</a> <a id="43202" class="Symbol">=</a> <a id="43204" href="Graded.Reduction.Necessary.html#44320" class="Function">Graded.Reduction.Necessary.Natrec₁.f-≤-p+rf</a>
+<a id="natrec-necessary₂"></a><a id="43186" href="README.html#43186" class="Function">natrec-necessary₂</a> <a id="43204" class="Symbol">=</a> <a id="43206" href="Graded.Reduction.Necessary.html#44320" class="Function">Graded.Reduction.Necessary.Natrec₁.f-≤-p+rf</a>
 
-<a id="43249" class="Comment">-- The necessary condition together with the condition x ≤ 𝟙 can be</a>
-<a id="43317" class="Comment">-- rewritten in a different form.</a>
-<a id="43351" class="Comment">-- The greatest lower bound of nrᵢ r 𝟙 p gives the greatest solution to</a>
-<a id="43423" class="Comment">-- the system of inequalities x ≤ 𝟙 and x ≤ p + r · x.</a>
+<a id="43251" class="Comment">-- The necessary condition together with the condition x ≤ 𝟙 can be</a>
+<a id="43319" class="Comment">-- rewritten in a different form.</a>
+<a id="43353" class="Comment">-- The greatest lower bound of nrᵢ r 𝟙 p gives the greatest solution to</a>
+<a id="43425" class="Comment">-- the system of inequalities x ≤ 𝟙 and x ≤ p + r · x.</a>
 
-<a id="natrec-alt-condition"></a><a id="43479" href="README.html#43479" class="Function">natrec-alt-condition</a> <a id="43500" class="Symbol">=</a> <a id="43502" href="Graded.Modality.Properties.Natrec.html#5508" class="Function">Graded.Modality.Properties.Natrec.≤-nrᵢ-GLB</a>
+<a id="natrec-alt-condition"></a><a id="43481" href="README.html#43481" class="Function">natrec-alt-condition</a> <a id="43502" class="Symbol">=</a> <a id="43504" href="Graded.Modality.Properties.Natrec.html#5508" class="Function">Graded.Modality.Properties.Natrec.≤-nrᵢ-GLB</a>
 
-<a id="43547" class="Comment">-- The usage rule for natrec.</a>
-<a id="43577" class="Comment">--</a>
-<a id="43580" class="Comment">-- The rule in question is natrec-no-nr-glbₘ.</a>
+<a id="43549" class="Comment">-- The usage rule for natrec.</a>
+<a id="43579" class="Comment">--</a>
+<a id="43582" class="Comment">-- The rule in question is natrec-no-nr-glbₘ.</a>
 
-<a id="▸natrec"></a><a id="43627" href="README.html#43627" class="Function">▸natrec</a> <a id="43635" class="Symbol">=</a> <a id="43637" href="Graded.Usage.html#8996" class="Datatype Operator">Graded.Usage._▸[_]_</a>
+<a id="▸natrec"></a><a id="43629" href="README.html#43629" class="Function">▸natrec</a> <a id="43637" class="Symbol">=</a> <a id="43639" href="Graded.Usage.html#8996" class="Datatype Operator">Graded.Usage._▸[_]_</a>
 
-<a id="43658" class="Comment">-- Definition 5.1: Grade semirings with well-behaved greatest lower</a>
-<a id="43726" class="Comment">-- bounds.</a>
+<a id="43660" class="Comment">-- Definition 5.1: Grade semirings with well-behaved greatest lower</a>
+<a id="43728" class="Comment">-- bounds.</a>
 
-<a id="Well-behaved-GLB"></a><a id="43738" href="README.html#43738" class="Function">Well-behaved-GLB</a> <a id="43755" class="Symbol">=</a> <a id="43757" href="Graded.Modality.html#7577" class="Record">Graded.Modality.Has-well-behaved-GLBs</a>
+<a id="Well-behaved-GLB"></a><a id="43740" href="README.html#43740" class="Function">Well-behaved-GLB</a> <a id="43757" class="Symbol">=</a> <a id="43759" href="Graded.Modality.html#7577" class="Record">Graded.Modality.Has-well-behaved-GLBs</a>
 
-<a id="43796" class="Comment">-- A &quot;sub-interchange&quot; law for addition and meet.</a>
+<a id="43798" class="Comment">-- A &quot;sub-interchange&quot; law for addition and meet.</a>
 
-<a id="+-sub-interchangeable-∧"></a><a id="43847" href="README.html#43847" class="Function">+-sub-interchangeable-∧</a> <a id="43871" class="Symbol">=</a>
-  <a id="43875" href="Graded.Modality.Properties.Addition.html#2429" class="Function">Graded.Modality.Properties.Addition.+-sub-interchangeable-∧</a>
+<a id="+-sub-interchangeable-∧"></a><a id="43849" href="README.html#43849" class="Function">+-sub-interchangeable-∧</a> <a id="43873" class="Symbol">=</a>
+  <a id="43877" href="Graded.Modality.Properties.Addition.html#2429" class="Function">Graded.Modality.Properties.Addition.+-sub-interchangeable-∧</a>
 
-<a id="43936" class="Comment">-- The example grade semirings have well-behaved greatest lower bounds.</a>
-<a id="44008" class="Comment">--</a>
-<a id="44011" class="Comment">-- Note that the proof for the linear types and affine types instances</a>
-<a id="44082" class="Comment">-- link to the same property since it is proven independently of the</a>
-<a id="44151" class="Comment">-- choice of partial order.</a>
+<a id="43938" class="Comment">-- The example grade semirings have well-behaved greatest lower bounds.</a>
+<a id="44010" class="Comment">--</a>
+<a id="44013" class="Comment">-- Note that the proof for the linear types and affine types instances</a>
+<a id="44084" class="Comment">-- link to the same property since it is proven independently of the</a>
+<a id="44153" class="Comment">-- choice of partial order.</a>
 
-<a id="linearity-well-behaved-GLB"></a><a id="44180" href="README.html#44180" class="Function">linearity-well-behaved-GLB</a> <a id="44207" class="Symbol">=</a>
-  <a id="44211" href="Graded.Modality.Instances.Zero-one-many.html#66334" class="Function">Graded.Modality.Instances.Zero-one-many.zero-one-many-supports-glb-for-natrec</a>
-<a id="affine-well-behaved-GLB"></a><a id="44289" href="README.html#44289" class="Function">affine-well-behaved-GLB</a> <a id="44313" class="Symbol">=</a>
-  <a id="44317" href="Graded.Modality.Instances.Zero-one-many.html#66334" class="Function">Graded.Modality.Instances.Zero-one-many.zero-one-many-supports-glb-for-natrec</a>
-<a id="erasure-well-behaved-GLB"></a><a id="44395" href="README.html#44395" class="Function">erasure-well-behaved-GLB</a> <a id="44420" class="Symbol">=</a>
-  <a id="44424" href="Graded.Modality.Instances.Erasure.Properties.html#15034" class="Function">Graded.Modality.Instances.Erasure.Properties.Erasure-supports-factoring-nr-rule</a>
-<a id="nat-well-behaved-GLB"></a><a id="44504" href="README.html#44504" class="Function">nat-well-behaved-GLB</a> <a id="44525" class="Symbol">=</a>
-  <a id="44529" href="Graded.Modality.Instances.Nat-plus-infinity.html#65223" class="Function">Graded.Modality.Instances.Nat-plus-infinity.ℕ⊎∞-supports-glb-for-natrec</a>
+<a id="linearity-well-behaved-GLB"></a><a id="44182" href="README.html#44182" class="Function">linearity-well-behaved-GLB</a> <a id="44209" class="Symbol">=</a>
+  <a id="44213" href="Graded.Modality.Instances.Zero-one-many.html#66334" class="Function">Graded.Modality.Instances.Zero-one-many.zero-one-many-supports-glb-for-natrec</a>
+<a id="affine-well-behaved-GLB"></a><a id="44291" href="README.html#44291" class="Function">affine-well-behaved-GLB</a> <a id="44315" class="Symbol">=</a>
+  <a id="44319" href="Graded.Modality.Instances.Zero-one-many.html#66334" class="Function">Graded.Modality.Instances.Zero-one-many.zero-one-many-supports-glb-for-natrec</a>
+<a id="erasure-well-behaved-GLB"></a><a id="44397" href="README.html#44397" class="Function">erasure-well-behaved-GLB</a> <a id="44422" class="Symbol">=</a>
+  <a id="44426" href="Graded.Modality.Instances.Erasure.Properties.html#15034" class="Function">Graded.Modality.Instances.Erasure.Properties.Erasure-supports-factoring-nr-rule</a>
+<a id="nat-well-behaved-GLB"></a><a id="44506" href="README.html#44506" class="Function">nat-well-behaved-GLB</a> <a id="44527" class="Symbol">=</a>
+  <a id="44531" href="Graded.Modality.Instances.Nat-plus-infinity.html#65223" class="Function">Graded.Modality.Instances.Nat-plus-infinity.ℕ⊎∞-supports-glb-for-natrec</a>
 
-<a id="44602" class="Comment">-- Subject reduction.</a>
+<a id="44604" class="Comment">-- Subject reduction.</a>
 
-<a id="usage-subject-reduction′"></a><a id="44625" href="README.html#44625" class="Function">usage-subject-reduction′</a> <a id="44650" class="Symbol">=</a> <a id="44652" href="Graded.Reduction.html#4523" class="Function">Graded.Reduction.usagePresTerm</a>
+<a id="usage-subject-reduction′"></a><a id="44627" href="README.html#44627" class="Function">usage-subject-reduction′</a> <a id="44652" class="Symbol">=</a> <a id="44654" href="Graded.Reduction.html#4523" class="Function">Graded.Reduction.usagePresTerm</a>
 
-<a id="44684" class="Comment">-- The characteristic inequalities of greatest lower bounds of nrᵢ.</a>
+<a id="44686" class="Comment">-- The characteristic inequalities of greatest lower bounds of nrᵢ.</a>
 
-<a id="nrᵢ-≤₁"></a><a id="44753" href="README.html#44753" class="Function">nrᵢ-≤₁</a> <a id="44760" class="Symbol">=</a> <a id="44762" href="Graded.Modality.Properties.Natrec.html#4953" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-GLB-≤₀</a>
-<a id="nrᵢ-≤₂"></a><a id="44807" href="README.html#44807" class="Function">nrᵢ-≤₂</a> <a id="44814" class="Symbol">=</a> <a id="44816" href="Graded.Modality.Properties.Natrec.html#5119" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-GLB-≤</a>
+<a id="nrᵢ-≤₁"></a><a id="44755" href="README.html#44755" class="Function">nrᵢ-≤₁</a> <a id="44762" class="Symbol">=</a> <a id="44764" href="Graded.Modality.Properties.Natrec.html#4953" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-GLB-≤₀</a>
+<a id="nrᵢ-≤₂"></a><a id="44809" href="README.html#44809" class="Function">nrᵢ-≤₂</a> <a id="44816" class="Symbol">=</a> <a id="44818" href="Graded.Modality.Properties.Natrec.html#5119" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-GLB-≤</a>
 
-<a id="44861" class="Comment">-- The substitution lemma.</a>
+<a id="44863" class="Comment">-- The substitution lemma.</a>
 
-<a id="subst-lemma"></a><a id="44889" href="README.html#44889" class="Function">subst-lemma</a> <a id="44901" class="Symbol">=</a> <a id="44903" href="Graded.Substitution.Properties.html#36743" class="Function">Graded.Substitution.Properties.substₘ-lemma</a>
+<a id="subst-lemma"></a><a id="44891" href="README.html#44891" class="Function">subst-lemma</a> <a id="44903" class="Symbol">=</a> <a id="44905" href="Graded.Substitution.Properties.html#36743" class="Function">Graded.Substitution.Properties.substₘ-lemma</a>
 
-<a id="44948" class="Comment">-- Correctness for erasure.</a>
+<a id="44950" class="Comment">-- Correctness for erasure.</a>
 
-<a id="erasure-correct"></a><a id="44977" href="README.html#44977" class="Function">erasure-correct</a> <a id="44993" class="Symbol">=</a>
-  <a id="44997" href="Graded.Erasure.Consequences.Soundness.html#6012" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ</a>
+<a id="erasure-correct"></a><a id="44979" href="README.html#44979" class="Function">erasure-correct</a> <a id="44995" class="Symbol">=</a>
+  <a id="44999" href="Graded.Erasure.Consequences.Soundness.html#6012" class="Function">Graded.Erasure.Consequences.Soundness.Soundness.soundness-ℕ</a>
 
-<a id="45058" class="Comment">-- For the linearity semiring the greatest lower bound of nrᵢ r 𝟙 p</a>
-<a id="45126" class="Comment">-- is 𝟙 iff r ≡ 𝟘 and p ≡ 𝟙 or r ≡ 𝟙 and p ≡ 𝟘.</a>
-<a id="45174" class="Comment">-- In other words, the natural number argument to natrec is considered</a>
-<a id="45245" class="Comment">-- to be used linearly in exactly these cases.</a>
+<a id="45060" class="Comment">-- For the linearity semiring the greatest lower bound of nrᵢ r 𝟙 p</a>
+<a id="45128" class="Comment">-- is 𝟙 iff r ≡ 𝟘 and p ≡ 𝟙 or r ≡ 𝟙 and p ≡ 𝟘.</a>
+<a id="45176" class="Comment">-- In other words, the natural number argument to natrec is considered</a>
+<a id="45247" class="Comment">-- to be used linearly in exactly these cases.</a>
 
-<a id="natrec-linear"></a><a id="45293" href="README.html#45293" class="Function">natrec-linear</a> <a id="45307" class="Symbol">=</a> <a id="45309" href="Graded.Modality.Instances.Linearity.html#4159" class="Function">Graded.Modality.Instances.Linearity.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
+<a id="natrec-linear"></a><a id="45295" href="README.html#45295" class="Function">natrec-linear</a> <a id="45309" class="Symbol">=</a> <a id="45311" href="Graded.Modality.Instances.Linearity.html#4159" class="Function">Graded.Modality.Instances.Linearity.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
 
-<a id="45364" class="Comment">-- For the affine types semiring, the greatest lower bound of nrᵢ r 𝟙 p</a>
-<a id="45436" class="Comment">-- is 𝟙 iff r ≡ 𝟘 and p ≡ 𝟙 or r ≡ 𝟙 and p ≡ 𝟘 or r ≡ 𝟘 and p ≡ 𝟘</a>
-<a id="45502" class="Comment">-- In other words, the natural number argument to natrec is considered</a>
-<a id="45573" class="Comment">-- to be used in an affine way in exactly these cases.</a>
+<a id="45366" class="Comment">-- For the affine types semiring, the greatest lower bound of nrᵢ r 𝟙 p</a>
+<a id="45438" class="Comment">-- is 𝟙 iff r ≡ 𝟘 and p ≡ 𝟙 or r ≡ 𝟙 and p ≡ 𝟘 or r ≡ 𝟘 and p ≡ 𝟘</a>
+<a id="45504" class="Comment">-- In other words, the natural number argument to natrec is considered</a>
+<a id="45575" class="Comment">-- to be used in an affine way in exactly these cases.</a>
 
-<a id="natrec-affine"></a><a id="45629" href="README.html#45629" class="Function">natrec-affine</a> <a id="45643" class="Symbol">=</a> <a id="45645" href="Graded.Modality.Instances.Affine.html#9922" class="Function">Graded.Modality.Instances.Affine.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
+<a id="natrec-affine"></a><a id="45631" href="README.html#45631" class="Function">natrec-affine</a> <a id="45645" class="Symbol">=</a> <a id="45647" href="Graded.Modality.Instances.Affine.html#9922" class="Function">Graded.Modality.Instances.Affine.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
 
-<a id="45697" class="Comment">-- An admissible usage rule for plus (for any grade semiring).</a>
+<a id="45699" class="Comment">-- An admissible usage rule for plus (for any grade semiring).</a>
 
-<a id="▸plus′"></a><a id="45761" href="README.html#45761" class="Function">▸plus′</a> <a id="45768" class="Symbol">=</a> <a id="45770" href="Graded.Derived.Nat.html#2301" class="Function">Graded.Derived.Nat.▸plus′₂</a>
+<a id="▸plus′"></a><a id="45763" href="README.html#45763" class="Function">▸plus′</a> <a id="45770" class="Symbol">=</a> <a id="45772" href="Graded.Derived.Nat.html#2301" class="Function">Graded.Derived.Nat.▸plus′₂</a>
 
-<a id="45798" class="Comment">------------------------------------------------------------------------</a>
-<a id="45871" class="Comment">-- 5.3: Resource Correctness</a>
-<a id="45900" class="Comment">--</a>
-<a id="45903" class="Comment">-- In the paper we discuss how the abstract machine supports the usage</a>
-<a id="45974" class="Comment">-- rule with greatest lower bounds. In the formalization we also do this</a>
-<a id="46047" class="Comment">-- for the usage rule with an &quot;nr function&quot; (given certain assumptions).</a>
-<a id="46120" class="Comment">-- This is not discussed in the paper.</a>
+<a id="45800" class="Comment">------------------------------------------------------------------------</a>
+<a id="45873" class="Comment">-- 5.3: Resource Correctness</a>
+<a id="45902" class="Comment">--</a>
+<a id="45905" class="Comment">-- In the paper we discuss how the abstract machine supports the usage</a>
+<a id="45976" class="Comment">-- rule with greatest lower bounds. In the formalization we also do this</a>
+<a id="46049" class="Comment">-- for the usage rule with an &quot;nr function&quot; (given certain assumptions).</a>
+<a id="46122" class="Comment">-- This is not discussed in the paper.</a>
 
-<a id="46160" class="Comment">-- Multiplicity of a continuation.</a>
-<a id="46195" class="Comment">--</a>
-<a id="46198" class="Comment">-- As above, the formalized version has a mode argument which has no</a>
-<a id="46267" class="Comment">-- effect when identity types are not considered.</a>
+<a id="46162" class="Comment">-- Multiplicity of a continuation.</a>
+<a id="46197" class="Comment">--</a>
+<a id="46200" class="Comment">-- As above, the formalized version has a mode argument which has no</a>
+<a id="46269" class="Comment">-- effect when identity types are not considered.</a>
 
-<a id="∣_∣ᶜ≡′_"></a><a id="46318" href="README.html#46318" class="Function Operator">∣_∣ᶜ≡′_</a> <a id="46326" class="Symbol">=</a> <a id="46328" href="Graded.Heap.Untyped.html#5679" class="Datatype Operator">Graded.Heap.Untyped.∣_∣ᶜ[_]≡_</a>
+<a id="∣_∣ᶜ≡′_"></a><a id="46320" href="README.html#46320" class="Function Operator">∣_∣ᶜ≡′_</a> <a id="46328" class="Symbol">=</a> <a id="46330" href="Graded.Heap.Untyped.html#5679" class="Datatype Operator">Graded.Heap.Untyped.∣_∣ᶜ[_]≡_</a>
 
-<a id="46359" class="Comment">-- The greatest lower bound does not exist for all nrᵢ sequences for</a>
-<a id="46428" class="Comment">-- all grade semirings. This example is the semiring of natural numbers</a>
-<a id="46500" class="Comment">-- (without ω as opposed to the grade semiring discussed above).</a>
+<a id="46361" class="Comment">-- The greatest lower bound does not exist for all nrᵢ sequences for</a>
+<a id="46430" class="Comment">-- all grade semirings. This example is the semiring of natural numbers</a>
+<a id="46502" class="Comment">-- (without ω as opposed to the grade semiring discussed above).</a>
 
-<a id="¬nrᵢ-GLB"></a><a id="46566" href="README.html#46566" class="Function">¬nrᵢ-GLB</a> <a id="46575" class="Symbol">=</a> <a id="46577" href="Graded.Modality.Instances.Nat.html#11802" class="Function">Graded.Modality.Instances.Nat.¬nrᵢ-GLB</a>
+<a id="¬nrᵢ-GLB"></a><a id="46568" href="README.html#46568" class="Function">¬nrᵢ-GLB</a> <a id="46577" class="Symbol">=</a> <a id="46579" href="Graded.Modality.Instances.Nat.html#11802" class="Function">Graded.Modality.Instances.Nat.¬nrᵢ-GLB</a>
 
-<a id="46617" class="Comment">-- This instance has a well-behaved zero, supports subtraction and</a>
-<a id="46684" class="Comment">-- has well-behaved greatest lower bounds.</a>
+<a id="46619" class="Comment">-- This instance has a well-behaved zero, supports subtraction and</a>
+<a id="46686" class="Comment">-- has well-behaved greatest lower bounds.</a>
 
-<a id="Nat-well-behaved-zero"></a><a id="46728" href="README.html#46728" class="Function">Nat-well-behaved-zero</a> <a id="46750" class="Symbol">=</a>
-  <a id="46754" href="Graded.Modality.Instances.Nat.html#2157" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-zero</a>
-<a id="Nat-subtraction"></a><a id="46810" href="README.html#46810" class="Function">Nat-subtraction</a> <a id="46826" class="Symbol">=</a>
-  <a id="46830" href="Graded.Modality.Instances.Nat.html#7803" class="Function">Graded.Modality.Instances.Nat.supports-subtraction</a>
-<a id="Nat-well-behaved-GLB"></a><a id="46881" href="README.html#46881" class="Function">Nat-well-behaved-GLB</a> <a id="46902" class="Symbol">=</a>
-  <a id="46906" href="Graded.Modality.Instances.Nat.html#12100" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-GLBs</a>
+<a id="Nat-well-behaved-zero"></a><a id="46730" href="README.html#46730" class="Function">Nat-well-behaved-zero</a> <a id="46752" class="Symbol">=</a>
+  <a id="46756" href="Graded.Modality.Instances.Nat.html#2157" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-zero</a>
+<a id="Nat-subtraction"></a><a id="46812" href="README.html#46812" class="Function">Nat-subtraction</a> <a id="46828" class="Symbol">=</a>
+  <a id="46832" href="Graded.Modality.Instances.Nat.html#7803" class="Function">Graded.Modality.Instances.Nat.supports-subtraction</a>
+<a id="Nat-well-behaved-GLB"></a><a id="46883" href="README.html#46883" class="Function">Nat-well-behaved-GLB</a> <a id="46904" class="Symbol">=</a>
+  <a id="46908" href="Graded.Modality.Instances.Nat.html#12100" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-GLBs</a>
 
-<a id="46963" class="Comment">-- The stack multiplicity does not necessarily exist.</a>
+<a id="46965" class="Comment">-- The stack multiplicity does not necessarily exist.</a>
 
-<a id="∣∣≢"></a><a id="47018" href="README.html#47018" class="Function">∣∣≢</a> <a id="47022" class="Symbol">=</a> <a id="47024" href="Graded.Heap.Untyped.Properties.html#28791" class="Function">Graded.Heap.Untyped.Properties.∣∣≢</a>
+<a id="∣∣≢"></a><a id="47020" href="README.html#47020" class="Function">∣∣≢</a> <a id="47024" class="Symbol">=</a> <a id="47026" href="Graded.Heap.Untyped.Properties.html#28791" class="Function">Graded.Heap.Untyped.Properties.∣∣≢</a>
 
-<a id="47060" class="Comment">-- The stack multiplicity is functional.</a>
+<a id="47062" class="Comment">-- The stack multiplicity is functional.</a>
 
-<a id="∣∣-functional′"></a><a id="47102" href="README.html#47102" class="Function">∣∣-functional′</a> <a id="47117" class="Symbol">=</a> <a id="47119" href="Graded.Heap.Untyped.Properties.html#18655" class="Function">Graded.Heap.Untyped.Properties.∣∣-functional</a>
+<a id="∣∣-functional′"></a><a id="47104" href="README.html#47104" class="Function">∣∣-functional′</a> <a id="47119" class="Symbol">=</a> <a id="47121" href="Graded.Heap.Untyped.Properties.html#18655" class="Function">Graded.Heap.Untyped.Properties.∣∣-functional</a>
 
-<a id="47165" class="Comment">-- The greatest lower bound of grade sequences is unique if it exists.</a>
+<a id="47167" class="Comment">-- The greatest lower bound of grade sequences is unique if it exists.</a>
 
-<a id="GLB-unique"></a><a id="47237" href="README.html#47237" class="Function">GLB-unique</a> <a id="47248" class="Symbol">=</a> <a id="47250" href="Graded.Modality.Properties.Greatest-lower-bound.html#1925" class="Function">Graded.Modality.Properties.Greatest-lower-bound.GLB-unique</a>
+<a id="GLB-unique"></a><a id="47239" href="README.html#47239" class="Function">GLB-unique</a> <a id="47250" class="Symbol">=</a> <a id="47252" href="Graded.Modality.Properties.Greatest-lower-bound.html#1925" class="Function">Graded.Modality.Properties.Greatest-lower-bound.GLB-unique</a>
 
-<a id="47310" class="Comment">-- The reduction of eliminators and variables is updated.</a>
+<a id="47312" class="Comment">-- The reduction of eliminators and variables is updated.</a>
 
-<a id="_⇾ₑ′_"></a><a id="47369" href="README.html#47369" class="Function Operator">_⇾ₑ′_</a> <a id="47375" class="Symbol">=</a> <a id="47377" href="Graded.Heap.Reduction.html#3157" class="Datatype Operator">Graded.Heap.Reduction._⇾ₑ_</a>
+<a id="_⇾ₑ′_"></a><a id="47371" href="README.html#47371" class="Function Operator">_⇾ₑ′_</a> <a id="47377" class="Symbol">=</a> <a id="47379" href="Graded.Heap.Reduction.html#3157" class="Datatype Operator">Graded.Heap.Reduction._⇾ₑ_</a>
 
-<a id="47405" class="Comment">-- In particular, the auxiliary reduction is updated.</a>
+<a id="47407" class="Comment">-- In particular, the auxiliary reduction is updated.</a>
 
-<a id="_⇒ₑ′_"></a><a id="47460" href="README.html#47460" class="Function Operator">_⇒ₑ′_</a> <a id="47466" class="Symbol">=</a> <a id="47468" href="Graded.Heap.Reduction.html#1960" class="Datatype Operator">Graded.Heap.Reduction._⇒ₑ_</a>
+<a id="_⇒ₑ′_"></a><a id="47462" href="README.html#47462" class="Function Operator">_⇒ₑ′_</a> <a id="47468" class="Symbol">=</a> <a id="47470" href="Graded.Heap.Reduction.html#1960" class="Datatype Operator">Graded.Heap.Reduction._⇒ₑ_</a>
 
-<a id="47496" class="Comment">-- Reduction of values is also updated.</a>
+<a id="47498" class="Comment">-- Reduction of values is also updated.</a>
 
-<a id="_⇒ᵥ′_"></a><a id="47537" href="README.html#47537" class="Function Operator">_⇒ᵥ′_</a> <a id="47543" class="Symbol">=</a> <a id="47545" href="Graded.Heap.Reduction.html#4324" class="Datatype Operator">Graded.Heap.Reduction._⇒ᵥ_</a>
+<a id="_⇒ᵥ′_"></a><a id="47539" href="README.html#47539" class="Function Operator">_⇒ᵥ′_</a> <a id="47545" class="Symbol">=</a> <a id="47547" href="Graded.Heap.Reduction.html#4324" class="Datatype Operator">Graded.Heap.Reduction._⇒ᵥ_</a>
 
-<a id="47573" class="Comment">-- The reduction relations are deterministic.</a>
+<a id="47575" class="Comment">-- The reduction relations are deterministic.</a>
 
-<a id="⇾-det′"></a><a id="47620" href="README.html#47620" class="Function">⇾-det′</a> <a id="47627" class="Symbol">=</a> <a id="47629" href="Graded.Heap.Reduction.Properties.html#7124" class="Function">Graded.Heap.Reduction.Properties.⇾-det</a>
-<a id="⇢-det′"></a><a id="47668" href="README.html#47668" class="Function">⇢-det′</a> <a id="47675" class="Symbol">=</a> <a id="47677" href="Graded.Heap.Reduction.Properties.html#7644" class="Function">Graded.Heap.Reduction.Properties.⇢-det</a>
-<a id="↠-det′"></a><a id="47716" href="README.html#47716" class="Function">↠-det′</a> <a id="47723" class="Symbol">=</a> <a id="47725" href="Graded.Heap.Reduction.Properties.html#8159" class="Function">Graded.Heap.Reduction.Properties.↠-det</a>
+<a id="⇾-det′"></a><a id="47622" href="README.html#47622" class="Function">⇾-det′</a> <a id="47629" class="Symbol">=</a> <a id="47631" href="Graded.Heap.Reduction.Properties.html#7124" class="Function">Graded.Heap.Reduction.Properties.⇾-det</a>
+<a id="⇢-det′"></a><a id="47670" href="README.html#47670" class="Function">⇢-det′</a> <a id="47677" class="Symbol">=</a> <a id="47679" href="Graded.Heap.Reduction.Properties.html#7644" class="Function">Graded.Heap.Reduction.Properties.⇢-det</a>
+<a id="↠-det′"></a><a id="47718" href="README.html#47718" class="Function">↠-det′</a> <a id="47725" class="Symbol">=</a> <a id="47727" href="Graded.Heap.Reduction.Properties.html#8159" class="Function">Graded.Heap.Reduction.Properties.↠-det</a>
 
-<a id="47765" class="Comment">-- The usage for continuations is extended.</a>
+<a id="47767" class="Comment">-- The usage for continuations is extended.</a>
 
-<a id="_▸ᶜ[_]′_"></a><a id="47810" href="README.html#47810" class="Function Operator">_▸ᶜ[_]′_</a> <a id="47819" class="Symbol">=</a> <a id="47821" href="Graded.Heap.Usage.html#2160" class="Datatype Operator">Graded.Heap.Usage._▸ᶜ[_]_</a>
+<a id="_▸ᶜ[_]′_"></a><a id="47812" href="README.html#47812" class="Function Operator">_▸ᶜ[_]′_</a> <a id="47821" class="Symbol">=</a> <a id="47823" href="Graded.Heap.Usage.html#2160" class="Datatype Operator">Graded.Heap.Usage._▸ᶜ[_]_</a>
 
-<a id="47848" class="Comment">-- The stack multiplicity always exists for well-resourced states.</a>
+<a id="47850" class="Comment">-- The stack multiplicity always exists for well-resourced states.</a>
 
-<a id="▸∣∣≡"></a><a id="47916" href="README.html#47916" class="Function">▸∣∣≡</a> <a id="47921" class="Symbol">=</a> <a id="47923" href="Graded.Heap.Usage.Inversion.html#2763" class="Function">Graded.Heap.Usage.Inversion.▸ₛ-inv</a>
+<a id="▸∣∣≡"></a><a id="47918" href="README.html#47918" class="Function">▸∣∣≡</a> <a id="47923" class="Symbol">=</a> <a id="47925" href="Graded.Heap.Usage.Inversion.html#2763" class="Function">Graded.Heap.Usage.Inversion.▸ₛ-inv</a>
 
-<a id="47959" class="Comment">-- Well-resourced states do not get stuck due to non-existing stack</a>
-<a id="48027" class="Comment">-- multiplicity.</a>
-<a id="48044" class="Comment">--</a>
-<a id="48047" class="Comment">-- In the formalization, this is stated as there being four ways</a>
-<a id="48112" class="Comment">-- reduction can fail, two of which are related to level terms and</a>
-<a id="48179" class="Comment">-- definitions which are not discussed in the paper. Of the original</a>
-<a id="48248" class="Comment">-- three reasons mentioned earlier, the case for states with variables</a>
-<a id="48319" class="Comment">-- in head position is no longer possible.</a>
+<a id="47961" class="Comment">-- Well-resourced states do not get stuck due to non-existing stack</a>
+<a id="48029" class="Comment">-- multiplicity.</a>
+<a id="48046" class="Comment">--</a>
+<a id="48049" class="Comment">-- In the formalization, this is stated as there being four ways</a>
+<a id="48114" class="Comment">-- reduction can fail, two of which are related to level terms and</a>
+<a id="48181" class="Comment">-- definitions which are not discussed in the paper. Of the original</a>
+<a id="48250" class="Comment">-- three reasons mentioned earlier, the case for states with variables</a>
+<a id="48321" class="Comment">-- in head position is no longer possible.</a>
 
-<a id="▸Final-reasons′"></a><a id="48363" href="README.html#48363" class="Function">▸Final-reasons′</a> <a id="48379" class="Symbol">=</a> <a id="48381" href="Graded.Heap.Usage.Reduction.html#46029" class="Function">Graded.Heap.Usage.Reduction.▸Final-reasons-closed</a>
+<a id="▸Final-reasons′"></a><a id="48365" href="README.html#48365" class="Function">▸Final-reasons′</a> <a id="48381" class="Symbol">=</a> <a id="48383" href="Graded.Heap.Usage.Reduction.html#46029" class="Function">Graded.Heap.Usage.Reduction.▸Final-reasons-closed</a>
 
-<a id="48432" class="Comment">-- Typing for states is updated.</a>
+<a id="48434" class="Comment">-- Typing for states is updated.</a>
 
-<a id="⊢ₛ_∷_′"></a><a id="48466" href="README.html#48466" class="Function Operator">⊢ₛ_∷_′</a> <a id="48473" class="Symbol">=</a> <a id="48475" href="Graded.Heap.Typed.html#4202" class="Datatype Operator">Graded.Heap.Typed._⊢ₛ_∷_</a>
+<a id="⊢ₛ_∷_′"></a><a id="48468" href="README.html#48468" class="Function Operator">⊢ₛ_∷_′</a> <a id="48475" class="Symbol">=</a> <a id="48477" href="Graded.Heap.Typed.html#4202" class="Datatype Operator">Graded.Heap.Typed._⊢ₛ_∷_</a>
 
-<a id="48501" class="Comment">------------------------------------------------------------------------</a>
-<a id="48574" class="Comment">-- 5.4: Usage Counting of the Natural Number Eliminator for Linear and</a>
-<a id="48645" class="Comment">-- Affine Types</a>
+<a id="48503" class="Comment">------------------------------------------------------------------------</a>
+<a id="48576" class="Comment">-- 5.4: Usage Counting of the Natural Number Eliminator for Linear and</a>
+<a id="48647" class="Comment">-- Affine Types</a>
 
-<a id="48662" class="Comment">-- For the linearity semiring the greatest lower bound of nrᵢ r 𝟙 p</a>
-<a id="48730" class="Comment">-- is 𝟙 iff r ≡ 𝟘 and p ≡ 𝟙 or r ≡ 𝟙 and p ≡ 𝟘.</a>
-<a id="48778" class="Comment">-- In other words, the natural number argument to natrec is used</a>
-<a id="48843" class="Comment">-- linearly in exactly these cases.</a>
+<a id="48664" class="Comment">-- For the linearity semiring the greatest lower bound of nrᵢ r 𝟙 p</a>
+<a id="48732" class="Comment">-- is 𝟙 iff r ≡ 𝟘 and p ≡ 𝟙 or r ≡ 𝟙 and p ≡ 𝟘.</a>
+<a id="48780" class="Comment">-- In other words, the natural number argument to natrec is used</a>
+<a id="48845" class="Comment">-- linearly in exactly these cases.</a>
 
-<a id="natrec-linear′"></a><a id="48880" href="README.html#48880" class="Function">natrec-linear′</a> <a id="48895" class="Symbol">=</a> <a id="48897" href="Graded.Modality.Instances.Linearity.html#4159" class="Function">Graded.Modality.Instances.Linearity.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
+<a id="natrec-linear′"></a><a id="48882" href="README.html#48882" class="Function">natrec-linear′</a> <a id="48897" class="Symbol">=</a> <a id="48899" href="Graded.Modality.Instances.Linearity.html#4159" class="Function">Graded.Modality.Instances.Linearity.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
 
-<a id="48952" class="Comment">-- The predecessor function.</a>
+<a id="48954" class="Comment">-- The predecessor function.</a>
 
-<a id="pred"></a><a id="48982" href="README.html#48982" class="Function">pred</a> <a id="48987" class="Symbol">=</a> <a id="48989" href="Definition.Untyped.Nat.html#2045" class="Function">Definition.Untyped.Nat.pred′</a>
+<a id="pred"></a><a id="48984" href="README.html#48984" class="Function">pred</a> <a id="48989" class="Symbol">=</a> <a id="48991" href="Definition.Untyped.Nat.html#2045" class="Function">Definition.Untyped.Nat.pred′</a>
 
-<a id="49019" class="Comment">-- A usage rule for pred. Its argument is considered to be used once</a>
-<a id="49088" class="Comment">-- i.e. linearly/affine.</a>
+<a id="49021" class="Comment">-- A usage rule for pred. Its argument is considered to be used once</a>
+<a id="49090" class="Comment">-- i.e. linearly/affine.</a>
 
-<a id="▸pred"></a><a id="49114" href="README.html#49114" class="Function">▸pred</a> <a id="49120" class="Symbol">=</a> <a id="49122" href="Graded.Derived.Nat.html#4562" class="Function">Graded.Derived.Nat.▸pred′₂</a>
+<a id="▸pred"></a><a id="49116" href="README.html#49116" class="Function">▸pred</a> <a id="49122" class="Symbol">=</a> <a id="49124" href="Graded.Derived.Nat.html#4562" class="Function">Graded.Derived.Nat.▸pred′₂</a>
 
-<a id="49150" class="Comment">-- For the affine types semiring, the greatest lower bound of nrᵢ r 𝟙 p</a>
-<a id="49222" class="Comment">-- is 𝟙 ifff r ≡ 𝟘 and p ≡ 𝟙, or r ≡ 𝟙 and p ≡ 𝟘, or r ≡ 𝟘 and p ≡ 𝟘.</a>
-<a id="49292" class="Comment">-- In other words, the natural number argument to natrec is used</a>
-<a id="49357" class="Comment">-- in an affine way in exactly these cases.</a>
+<a id="49152" class="Comment">-- For the affine types semiring, the greatest lower bound of nrᵢ r 𝟙 p</a>
+<a id="49224" class="Comment">-- is 𝟙 ifff r ≡ 𝟘 and p ≡ 𝟙, or r ≡ 𝟙 and p ≡ 𝟘, or r ≡ 𝟘 and p ≡ 𝟘.</a>
+<a id="49294" class="Comment">-- In other words, the natural number argument to natrec is used</a>
+<a id="49359" class="Comment">-- in an affine way in exactly these cases.</a>
 
-<a id="natrec-affine′"></a><a id="49402" href="README.html#49402" class="Function">natrec-affine′</a> <a id="49417" class="Symbol">=</a> <a id="49419" href="Graded.Modality.Instances.Affine.html#9922" class="Function">Graded.Modality.Instances.Affine.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
+<a id="natrec-affine′"></a><a id="49404" href="README.html#49404" class="Function">natrec-affine′</a> <a id="49419" class="Symbol">=</a> <a id="49421" href="Graded.Modality.Instances.Affine.html#9922" class="Function">Graded.Modality.Instances.Affine.nrᵢ-r𝟙p-GLB-𝟙-inv</a>
 
-<a id="49471" class="Comment">-- The natural number argument is never considered to be erased. I.e.</a>
-<a id="49541" class="Comment">-- the greatest lower bound of nrᵢ r 𝟙 p is never 𝟘 for grade semirings</a>
-<a id="49613" class="Comment">-- with a well-behaved zero.</a>
+<a id="49473" class="Comment">-- The natural number argument is never considered to be erased. I.e.</a>
+<a id="49543" class="Comment">-- the greatest lower bound of nrᵢ r 𝟙 p is never 𝟘 for grade semirings</a>
+<a id="49615" class="Comment">-- with a well-behaved zero.</a>
 
-<a id="natrec-not-erased"></a><a id="49643" href="README.html#49643" class="Function">natrec-not-erased</a> <a id="49661" class="Symbol">=</a>
-  <a id="49665" href="Graded.Modality.Properties.Natrec.html#8180" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-natrec-not-erased</a>
+<a id="natrec-not-erased"></a><a id="49645" href="README.html#49645" class="Function">natrec-not-erased</a> <a id="49663" class="Symbol">=</a>
+  <a id="49667" href="Graded.Modality.Properties.Natrec.html#8180" class="Function">Graded.Modality.Properties.Natrec.nrᵢ-natrec-not-erased</a>
 
-<a id="49722" class="Comment">-- For both the linearity and the affine types semirings, the</a>
-<a id="49784" class="Comment">-- greatest lower bound of nrᵢ 𝟘 p q is p ∧ q.</a>
-<a id="49831" class="Comment">-- In other words, the contribution of the zero and successor branches</a>
-<a id="49902" class="Comment">-- of natrec p′ q′ 𝟘 A z s n is γ ∧ δ when γ ▸ z and δ.p.r ▸ s.</a>
+<a id="49724" class="Comment">-- For both the linearity and the affine types semirings, the</a>
+<a id="49786" class="Comment">-- greatest lower bound of nrᵢ 𝟘 p q is p ∧ q.</a>
+<a id="49833" class="Comment">-- In other words, the contribution of the zero and successor branches</a>
+<a id="49904" class="Comment">-- of natrec p′ q′ 𝟘 A z s n is γ ∧ δ when γ ▸ z and δ.p.r ▸ s.</a>
 
-<a id="natrec-usage-𝟘"></a><a id="49967" href="README.html#49967" class="Function">natrec-usage-𝟘</a> <a id="49982" class="Symbol">=</a> <a id="49984" href="Graded.Modality.Instances.Zero-one-many.html#65286" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-𝟘-GLB</a>
+<a id="natrec-usage-𝟘"></a><a id="49969" href="README.html#49969" class="Function">natrec-usage-𝟘</a> <a id="49984" class="Symbol">=</a> <a id="49986" href="Graded.Modality.Instances.Zero-one-many.html#65286" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-𝟘-GLB</a>
 
-<a id="50035" class="Comment">-- The function f.</a>
+<a id="50037" class="Comment">-- The function f.</a>
 
-<a id="f"></a><a id="50055" href="README.html#50055" class="Function">f</a> <a id="50057" class="Symbol">=</a> <a id="50059" href="Definition.Untyped.Nat.html#1959" class="Function">Definition.Untyped.Nat.f</a>
+<a id="f"></a><a id="50057" href="README.html#50057" class="Function">f</a> <a id="50059" class="Symbol">=</a> <a id="50061" href="Definition.Untyped.Nat.html#1959" class="Function">Definition.Untyped.Nat.f</a>
 
-<a id="50085" class="Comment">-- f is linear in both arguments.</a>
+<a id="50087" class="Comment">-- f is linear in both arguments.</a>
 
-<a id="▸f"></a><a id="50120" href="README.html#50120" class="Function">▸f</a> <a id="50123" class="Symbol">=</a> <a id="50125" href="Graded.Derived.Nat.html#3852" class="Function">Graded.Derived.Nat.▸f</a>
+<a id="▸f"></a><a id="50122" href="README.html#50122" class="Function">▸f</a> <a id="50125" class="Symbol">=</a> <a id="50127" href="Graded.Derived.Nat.html#3852" class="Function">Graded.Derived.Nat.▸f</a>
 
-<a id="50148" class="Comment">-- For both the linearity and the affine types semirings, the greatest</a>
-<a id="50219" class="Comment">-- lower bound of nrᵢ 𝟙 p q is p + ω · q. In other words, the</a>
-<a id="50281" class="Comment">-- contribution of the zero and successor branches of</a>
-<a id="50335" class="Comment">-- natrec p′ q′ 𝟙 A z s n is γ + ω · δ when γ ▸ z and δ.p.r ▸ s.</a>
+<a id="50150" class="Comment">-- For both the linearity and the affine types semirings, the greatest</a>
+<a id="50221" class="Comment">-- lower bound of nrᵢ 𝟙 p q is p + ω · q. In other words, the</a>
+<a id="50283" class="Comment">-- contribution of the zero and successor branches of</a>
+<a id="50337" class="Comment">-- natrec p′ q′ 𝟙 A z s n is γ + ω · δ when γ ▸ z and δ.p.r ▸ s.</a>
 
-<a id="natrec-usage-𝟙"></a><a id="50401" href="README.html#50401" class="Function">natrec-usage-𝟙</a> <a id="50416" class="Symbol">=</a> <a id="50418" href="Graded.Modality.Instances.Zero-one-many.html#65549" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-𝟙-GLB</a>
+<a id="natrec-usage-𝟙"></a><a id="50403" href="README.html#50403" class="Function">natrec-usage-𝟙</a> <a id="50418" class="Symbol">=</a> <a id="50420" href="Graded.Modality.Instances.Zero-one-many.html#65549" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-𝟙-GLB</a>
 
-<a id="50469" class="Comment">-- For both the linearity and the affine types semirings, the greatest</a>
-<a id="50540" class="Comment">-- lower bound of nrᵢ ω p q is ω ·(p + q). In other words, the</a>
-<a id="50603" class="Comment">-- contribution of the zero and successor branches of</a>
-<a id="50657" class="Comment">-- natrec p q ω A z s n is ω ·(γ + δ) when γ ▸ z and δ.p.r ▸ s.</a>
+<a id="50471" class="Comment">-- For both the linearity and the affine types semirings, the greatest</a>
+<a id="50542" class="Comment">-- lower bound of nrᵢ ω p q is ω ·(p + q). In other words, the</a>
+<a id="50605" class="Comment">-- contribution of the zero and successor branches of</a>
+<a id="50659" class="Comment">-- natrec p q ω A z s n is ω ·(γ + δ) when γ ▸ z and δ.p.r ▸ s.</a>
 
-<a id="natrec-usage-ω"></a><a id="50722" href="README.html#50722" class="Function">natrec-usage-ω</a> <a id="50737" class="Symbol">=</a> <a id="50739" href="Graded.Modality.Instances.Zero-one-many.html#65948" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-ω-GLB</a>
+<a id="natrec-usage-ω"></a><a id="50724" href="README.html#50724" class="Function">natrec-usage-ω</a> <a id="50739" class="Symbol">=</a> <a id="50741" href="Graded.Modality.Instances.Zero-one-many.html#65948" class="Function">Graded.Modality.Instances.Zero-one-many.nrᵢ-ω-GLB</a>
 
-<a id="50790" class="Comment">------------------------------------------------------------------------</a>
-<a id="50863" class="Comment">-- 5.5: Derived Usage Rules for Encoded Booleans and Vectors</a>
+<a id="50792" class="Comment">------------------------------------------------------------------------</a>
+<a id="50865" class="Comment">-- 5.5: Derived Usage Rules for Encoded Booleans and Vectors</a>
 
-<a id="50925" class="Comment">-- Encoded booleans.</a>
+<a id="50927" class="Comment">-- Encoded booleans.</a>
 
-<a id="Bool"></a><a id="50947" href="README.html#50947" class="Function">Bool</a> <a id="50952" class="Symbol">=</a> <a id="50954" href="Definition.Untyped.Bool.html#3653" class="Function">Definition.Untyped.Bool.Greatest-lower-bound.Bool</a>
-<a id="false"></a><a id="51004" href="README.html#51004" class="Function">false</a> <a id="51010" class="Symbol">=</a> <a id="51012" href="Definition.Untyped.Bool.html#3845" class="Function">Definition.Untyped.Bool.Greatest-lower-bound.false</a>
-<a id="true"></a><a id="51063" href="README.html#51063" class="Function">true</a> <a id="51068" class="Symbol">=</a> <a id="51070" href="Definition.Untyped.Bool.html#3752" class="Function">Definition.Untyped.Bool.Greatest-lower-bound.true</a>
-<a id="boolrec"></a><a id="51120" href="README.html#51120" class="Function">boolrec</a> <a id="51128" class="Symbol">=</a> <a id="51130" href="Definition.Untyped.Bool.Greatest-lower-bound.html#2108" class="Function">Definition.Untyped.Bool.Greatest-lower-bound.boolrec</a>
+<a id="Bool"></a><a id="50949" href="README.html#50949" class="Function">Bool</a> <a id="50954" class="Symbol">=</a> <a id="50956" href="Definition.Untyped.Bool.html#3653" class="Function">Definition.Untyped.Bool.Greatest-lower-bound.Bool</a>
+<a id="false"></a><a id="51006" href="README.html#51006" class="Function">false</a> <a id="51012" class="Symbol">=</a> <a id="51014" href="Definition.Untyped.Bool.html#3845" class="Function">Definition.Untyped.Bool.Greatest-lower-bound.false</a>
+<a id="true"></a><a id="51065" href="README.html#51065" class="Function">true</a> <a id="51070" class="Symbol">=</a> <a id="51072" href="Definition.Untyped.Bool.html#3752" class="Function">Definition.Untyped.Bool.Greatest-lower-bound.true</a>
+<a id="boolrec"></a><a id="51122" href="README.html#51122" class="Function">boolrec</a> <a id="51130" class="Symbol">=</a> <a id="51132" href="Definition.Untyped.Bool.Greatest-lower-bound.html#2108" class="Function">Definition.Untyped.Bool.Greatest-lower-bound.boolrec</a>
 
-<a id="51184" class="Comment">-- A usage rule for boolrec.</a>
+<a id="51186" class="Comment">-- A usage rule for boolrec.</a>
 
-<a id="▸boolrec"></a><a id="51214" href="README.html#51214" class="Function">▸boolrec</a> <a id="51223" class="Symbol">=</a> <a id="51225" href="Graded.Derived.Bool.Greatest-lower-bound.html#4650" class="Function">Graded.Derived.Bool.Greatest-lower-bound.▸boolrec</a>
+<a id="▸boolrec"></a><a id="51216" href="README.html#51216" class="Function">▸boolrec</a> <a id="51225" class="Symbol">=</a> <a id="51227" href="Graded.Derived.Bool.Greatest-lower-bound.html#4650" class="Function">Graded.Derived.Bool.Greatest-lower-bound.▸boolrec</a>
 
-<a id="51276" class="Comment">-- Encoded vectors (lists of length n).</a>
+<a id="51278" class="Comment">-- Encoded vectors (lists of length n).</a>
 
-<a id="Vec"></a><a id="51317" href="README.html#51317" class="Function">Vec</a> <a id="51321" class="Symbol">=</a> <a id="51323" href="Definition.Untyped.Vec.html#1653" class="Function">Definition.Untyped.Vec.Vec</a>
-<a id="nil"></a><a id="51350" href="README.html#51350" class="Function">nil</a> <a id="51354" class="Symbol">=</a> <a id="51356" href="Definition.Untyped.Vec.html#1747" class="Function">Definition.Untyped.Vec.nil′</a>
-<a id="cons"></a><a id="51384" href="README.html#51384" class="Function">cons</a> <a id="51389" class="Symbol">=</a> <a id="51391" href="Definition.Untyped.Vec.html#1866" class="Function">Definition.Untyped.Vec.cons′</a>
-<a id="vecrec"></a><a id="51420" href="README.html#51420" class="Function">vecrec</a> <a id="51427" class="Symbol">=</a> <a id="51429" href="Definition.Untyped.Vec.html#2701" class="Function">Definition.Untyped.Vec.vecrec′</a>
+<a id="Vec"></a><a id="51319" href="README.html#51319" class="Function">Vec</a> <a id="51323" class="Symbol">=</a> <a id="51325" href="Definition.Untyped.Vec.html#1653" class="Function">Definition.Untyped.Vec.Vec</a>
+<a id="nil"></a><a id="51352" href="README.html#51352" class="Function">nil</a> <a id="51356" class="Symbol">=</a> <a id="51358" href="Definition.Untyped.Vec.html#1747" class="Function">Definition.Untyped.Vec.nil′</a>
+<a id="cons"></a><a id="51386" href="README.html#51386" class="Function">cons</a> <a id="51391" class="Symbol">=</a> <a id="51393" href="Definition.Untyped.Vec.html#1866" class="Function">Definition.Untyped.Vec.cons′</a>
+<a id="vecrec"></a><a id="51422" href="README.html#51422" class="Function">vecrec</a> <a id="51429" class="Symbol">=</a> <a id="51431" href="Definition.Untyped.Vec.html#2701" class="Function">Definition.Untyped.Vec.vecrec′</a>
 
-<a id="51461" class="Comment">-- A usage rule for vecrec (for any grade semiring).</a>
+<a id="51463" class="Comment">-- A usage rule for vecrec (for any grade semiring).</a>
 
-<a id="▸vecrec"></a><a id="51515" href="README.html#51515" class="Function">▸vecrec</a> <a id="51523" class="Symbol">=</a> <a id="51525" href="Graded.Derived.Vec.html#14743" class="Function">Graded.Derived.Vec.▸vecrec′</a>
+<a id="▸vecrec"></a><a id="51517" href="README.html#51517" class="Function">▸vecrec</a> <a id="51525" class="Symbol">=</a> <a id="51527" href="Graded.Derived.Vec.html#14743" class="Function">Graded.Derived.Vec.▸vecrec′</a>
 
-<a id="51554" class="Comment">-- The usage rule for the linearity semiring.</a>
+<a id="51556" class="Comment">-- The usage rule for the linearity semiring.</a>
 
-<a id="▸vecrec-linear"></a><a id="51601" href="README.html#51601" class="Function">▸vecrec-linear</a> <a id="51616" class="Symbol">=</a>
-  <a id="51620" href="Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.html#4534" class="Function">Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′</a>
+<a id="▸vecrec-linear"></a><a id="51603" href="README.html#51603" class="Function">▸vecrec-linear</a> <a id="51618" class="Symbol">=</a>
+  <a id="51622" href="Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.html#4534" class="Function">Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′</a>
 
-<a id="51705" class="Comment">-- The usage rule for the affine types semiring.</a>
+<a id="51707" class="Comment">-- The usage rule for the affine types semiring.</a>
 
-<a id="▸vecrec-affine"></a><a id="51755" href="README.html#51755" class="Function">▸vecrec-affine</a> <a id="51770" class="Symbol">=</a>
-  <a id="51774" href="Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.html#4581" class="Function">Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′</a>
+<a id="▸vecrec-affine"></a><a id="51757" href="README.html#51757" class="Function">▸vecrec-affine</a> <a id="51772" class="Symbol">=</a>
+  <a id="51776" href="Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.html#4581" class="Function">Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′</a>
 
-<a id="51856" class="Comment">-- The usage rule for vecrec for erased recursive calls.</a>
-<a id="51913" class="Comment">-- The list is used linearly when both the head and tail are</a>
-<a id="51974" class="Comment">-- used linearly/affine or one of them is affine and the other erased.</a>
-<a id="52045" class="Comment">-- The list is erased when both the head and tail are erased.</a>
-<a id="52107" class="Comment">-- Also note that the length of the vector is not erased.</a>
+<a id="51858" class="Comment">-- The usage rule for vecrec for erased recursive calls.</a>
+<a id="51915" class="Comment">-- The list is used linearly when both the head and tail are</a>
+<a id="51976" class="Comment">-- used linearly/affine or one of them is affine and the other erased.</a>
+<a id="52047" class="Comment">-- The list is erased when both the head and tail are erased.</a>
+<a id="52109" class="Comment">-- Also note that the length of the vector is not erased.</a>
 
-<a id="▸vecrec-𝟘-linear"></a><a id="52166" href="README.html#52166" class="Function">▸vecrec-𝟘-linear</a> <a id="52183" class="Symbol">=</a>
-  <a id="52187" href="Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.html#5285" class="Function">Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-𝟘</a>
-<a id="▸vecrec-𝟘-affine"></a><a id="52273" href="README.html#52273" class="Function">▸vecrec-𝟘-affine</a> <a id="52290" class="Symbol">=</a>
-  <a id="52294" href="Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.html#5332" class="Function">Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-𝟘</a>
+<a id="▸vecrec-𝟘-linear"></a><a id="52168" href="README.html#52168" class="Function">▸vecrec-𝟘-linear</a> <a id="52185" class="Symbol">=</a>
+  <a id="52189" href="Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.html#5285" class="Function">Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-𝟘</a>
+<a id="▸vecrec-𝟘-affine"></a><a id="52275" href="README.html#52275" class="Function">▸vecrec-𝟘-affine</a> <a id="52292" class="Symbol">=</a>
+  <a id="52296" href="Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.html#5332" class="Function">Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-𝟘</a>
 
-<a id="52378" class="Comment">-- The usage rule for vecrec for linear/affine recursive calls.</a>
-<a id="52442" class="Comment">-- The list is used linearly/affine if the tail is erased and the head</a>
-<a id="52513" class="Comment">-- is used linearly/affine.</a>
-<a id="52541" class="Comment">-- The list is erased when both the head and tail are erased.</a>
-<a id="52603" class="Comment">-- Also note that the length of the vector is not erased.</a>
+<a id="52380" class="Comment">-- The usage rule for vecrec for linear/affine recursive calls.</a>
+<a id="52444" class="Comment">-- The list is used linearly/affine if the tail is erased and the head</a>
+<a id="52515" class="Comment">-- is used linearly/affine.</a>
+<a id="52543" class="Comment">-- The list is erased when both the head and tail are erased.</a>
+<a id="52605" class="Comment">-- Also note that the length of the vector is not erased.</a>
 
-<a id="▸vecrec-𝟙-linear"></a><a id="52662" href="README.html#52662" class="Function">▸vecrec-𝟙-linear</a> <a id="52679" class="Symbol">=</a>
-  <a id="52683" href="Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.html#6664" class="Function">Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-𝟙</a>
-<a id="▸vecrec-𝟙-affine"></a><a id="52769" href="README.html#52769" class="Function">▸vecrec-𝟙-affine</a> <a id="52786" class="Symbol">=</a>
-  <a id="52790" href="Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.html#6711" class="Function">Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-𝟙</a>
+<a id="▸vecrec-𝟙-linear"></a><a id="52664" href="README.html#52664" class="Function">▸vecrec-𝟙-linear</a> <a id="52681" class="Symbol">=</a>
+  <a id="52685" href="Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.html#6664" class="Function">Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-𝟙</a>
+<a id="▸vecrec-𝟙-affine"></a><a id="52771" href="README.html#52771" class="Function">▸vecrec-𝟙-affine</a> <a id="52788" class="Symbol">=</a>
+  <a id="52792" href="Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.html#6711" class="Function">Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-𝟙</a>
 
-<a id="52874" class="Comment">-- The usage rule for vecrec for unrestricted recursive calls</a>
-<a id="52936" class="Comment">-- The list is not used linearly/affine.</a>
-<a id="52977" class="Comment">-- The list is erased when both the head and tail are erased.</a>
-<a id="53039" class="Comment">-- Also note that the length of the vector is not erased.</a>
+<a id="52876" class="Comment">-- The usage rule for vecrec for unrestricted recursive calls</a>
+<a id="52938" class="Comment">-- The list is not used linearly/affine.</a>
+<a id="52979" class="Comment">-- The list is erased when both the head and tail are erased.</a>
+<a id="53041" class="Comment">-- Also note that the length of the vector is not erased.</a>
 
-<a id="▸vecrec-ω-linear"></a><a id="53098" href="README.html#53098" class="Function">▸vecrec-ω-linear</a> <a id="53115" class="Symbol">=</a>
-  <a id="53119" href="Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.html#8108" class="Function">Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-ω</a>
-<a id="▸vecrec-ω-affine"></a><a id="53205" href="README.html#53205" class="Function">▸vecrec-ω-affine</a> <a id="53222" class="Symbol">=</a>
-  <a id="53226" href="Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.html#8155" class="Function">Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-ω</a>
+<a id="▸vecrec-ω-linear"></a><a id="53100" href="README.html#53100" class="Function">▸vecrec-ω-linear</a> <a id="53117" class="Symbol">=</a>
+  <a id="53121" href="Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.html#8108" class="Function">Graded.Modality.Instances.Linearity.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-ω</a>
+<a id="▸vecrec-ω-affine"></a><a id="53207" href="README.html#53207" class="Function">▸vecrec-ω-affine</a> <a id="53224" class="Symbol">=</a>
+  <a id="53228" href="Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.html#8155" class="Function">Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound.Vec.▸vecrec′-ω</a>
 
-<a id="53310" class="Comment">------------------------------------------------------------------------</a>
-<a id="53383" class="Comment">-- 5.6: Decidability of Usage</a>
+<a id="53312" class="Comment">------------------------------------------------------------------------</a>
+<a id="53385" class="Comment">-- 5.6: Decidability of Usage</a>
 
-<a id="53414" class="Comment">-- For the example grade semirings, the greatest lower bound of</a>
-<a id="53478" class="Comment">-- nrᵢ r p q always exists.</a>
-<a id="53506" class="Comment">--</a>
-<a id="53509" class="Comment">-- Note that the proof for the linearity and affine types semirings</a>
-<a id="53577" class="Comment">-- link to the same property since it is proven independently of the</a>
-<a id="53646" class="Comment">-- choice of partial order.</a>
+<a id="53416" class="Comment">-- For the example grade semirings, the greatest lower bound of</a>
+<a id="53480" class="Comment">-- nrᵢ r p q always exists.</a>
+<a id="53508" class="Comment">--</a>
+<a id="53511" class="Comment">-- Note that the proof for the linearity and affine types semirings</a>
+<a id="53579" class="Comment">-- link to the same property since it is proven independently of the</a>
+<a id="53648" class="Comment">-- choice of partial order.</a>
 
-<a id="linear-GLB-nrᵢ"></a><a id="53675" href="README.html#53675" class="Function">linear-GLB-nrᵢ</a> <a id="53690" class="Symbol">=</a>
-  <a id="53694" href="Graded.Modality.Instances.Zero-one-many.html#63614" class="Function">Graded.Modality.Instances.Zero-one-many.nr-nrᵢ-GLB</a>
-<a id="affine-GLB-nrᵢ"></a><a id="53745" href="README.html#53745" class="Function">affine-GLB-nrᵢ</a> <a id="53760" class="Symbol">=</a>
-  <a id="53764" href="Graded.Modality.Instances.Zero-one-many.html#63614" class="Function">Graded.Modality.Instances.Zero-one-many.nr-nrᵢ-GLB</a>
-<a id="erasure-GLB-nrᵢ"></a><a id="53815" href="README.html#53815" class="Function">erasure-GLB-nrᵢ</a> <a id="53831" class="Symbol">=</a>
-  <a id="53835" href="Graded.Modality.Instances.Erasure.Properties.html#14464" class="Function">Graded.Modality.Instances.Erasure.Properties.Erasure-nrᵢ-glb</a>
-<a id="nat-GLB-nrᵢ"></a><a id="53896" href="README.html#53896" class="Function">nat-GLB-nrᵢ</a> <a id="53908" class="Symbol">=</a>
-  <a id="53912" href="Graded.Modality.Instances.Nat-plus-infinity.html#65071" class="Function">Graded.Modality.Instances.Nat-plus-infinity.nrᵢ-GLB</a>
+<a id="linear-GLB-nrᵢ"></a><a id="53677" href="README.html#53677" class="Function">linear-GLB-nrᵢ</a> <a id="53692" class="Symbol">=</a>
+  <a id="53696" href="Graded.Modality.Instances.Zero-one-many.html#63614" class="Function">Graded.Modality.Instances.Zero-one-many.nr-nrᵢ-GLB</a>
+<a id="affine-GLB-nrᵢ"></a><a id="53747" href="README.html#53747" class="Function">affine-GLB-nrᵢ</a> <a id="53762" class="Symbol">=</a>
+  <a id="53766" href="Graded.Modality.Instances.Zero-one-many.html#63614" class="Function">Graded.Modality.Instances.Zero-one-many.nr-nrᵢ-GLB</a>
+<a id="erasure-GLB-nrᵢ"></a><a id="53817" href="README.html#53817" class="Function">erasure-GLB-nrᵢ</a> <a id="53833" class="Symbol">=</a>
+  <a id="53837" href="Graded.Modality.Instances.Erasure.Properties.html#14464" class="Function">Graded.Modality.Instances.Erasure.Properties.Erasure-nrᵢ-glb</a>
+<a id="nat-GLB-nrᵢ"></a><a id="53898" href="README.html#53898" class="Function">nat-GLB-nrᵢ</a> <a id="53910" class="Symbol">=</a>
+  <a id="53914" href="Graded.Modality.Instances.Nat-plus-infinity.html#65071" class="Function">Graded.Modality.Instances.Nat-plus-infinity.nrᵢ-GLB</a>
 
-<a id="53965" class="Comment">-- A function computing a usage context from a term.</a>
-<a id="54018" class="Comment">-- Note that the functions assumes (among other things) that a greatest</a>
-<a id="54090" class="Comment">-- lower bound exists for all nrᵢ r p q (when the usage rule for natrec</a>
-<a id="54162" class="Comment">-- using greatest lower bounds is used).</a>
+<a id="53967" class="Comment">-- A function computing a usage context from a term.</a>
+<a id="54020" class="Comment">-- Note that the functions assumes (among other things) that a greatest</a>
+<a id="54092" class="Comment">-- lower bound exists for all nrᵢ r p q (when the usage rule for natrec</a>
+<a id="54164" class="Comment">-- using greatest lower bounds is used).</a>
 
-<a id="⌈_⌉"></a><a id="54204" href="README.html#54204" class="Function Operator">⌈_⌉</a> <a id="54208" class="Symbol">=</a> <a id="54210" href="Graded.Usage.html#2725" class="Function Operator">Graded.Usage.⌈_⌉</a>
+<a id="⌈_⌉"></a><a id="54206" href="README.html#54206" class="Function Operator">⌈_⌉</a> <a id="54210" class="Symbol">=</a> <a id="54212" href="Graded.Usage.html#2725" class="Function Operator">Graded.Usage.⌈_⌉</a>
 
-<a id="54228" class="Comment">-- A decision procedure for the usage relation.</a>
-<a id="54276" class="Comment">-- Note that the decision procedure assumes (among other things) that</a>
-<a id="54346" class="Comment">-- a greatest lower bound exists for all nrᵢ r p q (when the usage rule</a>
-<a id="54418" class="Comment">-- for natrec using greatest lower bounds is used).</a>
+<a id="54230" class="Comment">-- A decision procedure for the usage relation.</a>
+<a id="54278" class="Comment">-- Note that the decision procedure assumes (among other things) that</a>
+<a id="54348" class="Comment">-- a greatest lower bound exists for all nrᵢ r p q (when the usage rule</a>
+<a id="54420" class="Comment">-- for natrec using greatest lower bounds is used).</a>
 
-<a id="_▸[_]?_"></a><a id="54471" href="README.html#54471" class="Function Operator">_▸[_]?_</a> <a id="54479" class="Symbol">=</a> <a id="54481" href="Graded.Usage.Decidable.html#19801" class="Function Operator">Graded.Usage.Decidable._▸[_]?_</a>
+<a id="_▸[_]?_"></a><a id="54473" href="README.html#54473" class="Function Operator">_▸[_]?_</a> <a id="54481" class="Symbol">=</a> <a id="54483" href="Graded.Usage.Decidable.html#19801" class="Function Operator">Graded.Usage.Decidable._▸[_]?_</a>
 
-<a id="54513" class="Comment">-- The natural numbers grade semiring (without ω).</a>
+<a id="54515" class="Comment">-- The natural numbers grade semiring (without ω).</a>
 
-<a id="ℕ-semiring"></a><a id="54565" href="README.html#54565" class="Function">ℕ-semiring</a> <a id="54576" class="Symbol">=</a> <a id="54578" href="Graded.Modality.Instances.Nat.html#1547" class="Function">Graded.Modality.Instances.Nat.Nat-modality</a>
+<a id="ℕ-semiring"></a><a id="54567" href="README.html#54567" class="Function">ℕ-semiring</a> <a id="54578" class="Symbol">=</a> <a id="54580" href="Graded.Modality.Instances.Nat.html#1547" class="Function">Graded.Modality.Instances.Nat.Nat-modality</a>
 
-<a id="54622" class="Comment">-- This instance has a well-behaved zero, supports subtraction and</a>
-<a id="54689" class="Comment">-- has well-behaved greatest lower bounds.</a>
+<a id="54624" class="Comment">-- This instance has a well-behaved zero, supports subtraction and</a>
+<a id="54691" class="Comment">-- has well-behaved greatest lower bounds.</a>
 
-<a id="ℕ-well-behaved-zero"></a><a id="54733" href="README.html#54733" class="Function">ℕ-well-behaved-zero</a> <a id="54753" class="Symbol">=</a>
-  <a id="54757" href="Graded.Modality.Instances.Nat.html#2157" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-zero</a>
-<a id="ℕ-subtraction"></a><a id="54813" href="README.html#54813" class="Function">ℕ-subtraction</a> <a id="54827" class="Symbol">=</a>
-  <a id="54831" href="Graded.Modality.Instances.Nat.html#7803" class="Function">Graded.Modality.Instances.Nat.supports-subtraction</a>
-<a id="ℕ-well-behaved-GLB"></a><a id="54882" href="README.html#54882" class="Function">ℕ-well-behaved-GLB</a> <a id="54901" class="Symbol">=</a>
-  <a id="54905" href="Graded.Modality.Instances.Nat.html#12100" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-GLBs</a>
+<a id="ℕ-well-behaved-zero"></a><a id="54735" href="README.html#54735" class="Function">ℕ-well-behaved-zero</a> <a id="54755" class="Symbol">=</a>
+  <a id="54759" href="Graded.Modality.Instances.Nat.html#2157" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-zero</a>
+<a id="ℕ-subtraction"></a><a id="54815" href="README.html#54815" class="Function">ℕ-subtraction</a> <a id="54829" class="Symbol">=</a>
+  <a id="54833" href="Graded.Modality.Instances.Nat.html#7803" class="Function">Graded.Modality.Instances.Nat.supports-subtraction</a>
+<a id="ℕ-well-behaved-GLB"></a><a id="54884" href="README.html#54884" class="Function">ℕ-well-behaved-GLB</a> <a id="54903" class="Symbol">=</a>
+  <a id="54907" href="Graded.Modality.Instances.Nat.html#12100" class="Function">Graded.Modality.Instances.Nat.Nat-has-well-behaved-GLBs</a>
 
-<a id="54962" class="Comment">-- The grade semiring does not have a least element.</a>
+<a id="54964" class="Comment">-- The grade semiring does not have a least element.</a>
 
-<a id="ℕ-no-least"></a><a id="55016" href="README.html#55016" class="Function">ℕ-no-least</a> <a id="55027" class="Symbol">=</a> <a id="55029" href="Graded.Modality.Instances.Nat.html#2845" class="Function">Graded.Modality.Instances.Nat.no-least</a>
+<a id="ℕ-no-least"></a><a id="55018" href="README.html#55018" class="Function">ℕ-no-least</a> <a id="55029" class="Symbol">=</a> <a id="55031" href="Graded.Modality.Instances.Nat.html#2845" class="Function">Graded.Modality.Instances.Nat.no-least</a>
 
-<a id="55069" class="Comment">-- nrᵢ r p q does not have a greatest lower bound for most values of r,</a>
-<a id="55141" class="Comment">-- p and q.</a>
+<a id="55071" class="Comment">-- nrᵢ r p q does not have a greatest lower bound for most values of r,</a>
+<a id="55143" class="Comment">-- p and q.</a>
 
-<a id="ℕ-GLB-inv"></a><a id="55154" href="README.html#55154" class="Function">ℕ-GLB-inv</a> <a id="55164" class="Symbol">=</a> <a id="55166" href="Graded.Modality.Instances.Nat.html#8820" class="Function">Graded.Modality.Instances.Nat.nrᵢ-GLB-inv</a>
+<a id="ℕ-GLB-inv"></a><a id="55156" href="README.html#55156" class="Function">ℕ-GLB-inv</a> <a id="55166" class="Symbol">=</a> <a id="55168" href="Graded.Modality.Instances.Nat.html#8820" class="Function">Graded.Modality.Instances.Nat.nrᵢ-GLB-inv</a>
 
-<a id="55209" class="Comment">------------------------------------------------------------------------</a>
-<a id="55282" class="Comment">-- 6 Information flow</a>
+<a id="55211" class="Comment">------------------------------------------------------------------------</a>
+<a id="55284" class="Comment">-- 6 Information flow</a>
 
-<a id="55305" class="Comment">-- A bounded-distributive lattice is a valid grade semiring.</a>
+<a id="55307" class="Comment">-- A bounded-distributive lattice is a valid grade semiring.</a>
 
-<a id="Bounded-distributive-lattice"></a><a id="55367" href="README.html#55367" class="Function">Bounded-distributive-lattice</a> <a id="55396" class="Symbol">=</a>
-  <a id="55400" href="Tools.Algebra.html#2468" class="Record">Tools.Algebra.Bounded-distributive-lattice</a>
-<a id="Bounded-distributive-lattice-semiring"></a><a id="55443" href="README.html#55443" class="Function">Bounded-distributive-lattice-semiring</a> <a id="55481" class="Symbol">=</a>
-  <a id="55485" href="Graded.Modality.Instances.Bounded-distributive-lattice.html#1196" class="Function">Graded.Modality.Instances.Bounded-distributive-lattice.modality</a>
+<a id="Bounded-distributive-lattice"></a><a id="55369" href="README.html#55369" class="Function">Bounded-distributive-lattice</a> <a id="55398" class="Symbol">=</a>
+  <a id="55402" href="Tools.Algebra.html#2468" class="Record">Tools.Algebra.Bounded-distributive-lattice</a>
+<a id="Bounded-distributive-lattice-semiring"></a><a id="55445" href="README.html#55445" class="Function">Bounded-distributive-lattice-semiring</a> <a id="55483" class="Symbol">=</a>
+  <a id="55487" href="Graded.Modality.Instances.Bounded-distributive-lattice.html#1196" class="Function">Graded.Modality.Instances.Bounded-distributive-lattice.modality</a>
 
-<a id="55550" class="Comment">-- Zero is the greatest element.</a>
+<a id="55552" class="Comment">-- Zero is the greatest element.</a>
 
-<a id="≤𝟘"></a><a id="55584" href="README.html#55584" class="Function">≤𝟘</a> <a id="55587" class="Symbol">=</a> <a id="55589" href="Graded.Modality.Instances.Bounded-distributive-lattice.html#5517" class="Function">Graded.Modality.Instances.Bounded-distributive-lattice.≤𝟘</a>
+<a id="≤𝟘"></a><a id="55586" href="README.html#55586" class="Function">≤𝟘</a> <a id="55589" class="Symbol">=</a> <a id="55591" href="Graded.Modality.Instances.Bounded-distributive-lattice.html#5517" class="Function">Graded.Modality.Instances.Bounded-distributive-lattice.≤𝟘</a>
 
-<a id="55648" class="Comment">-- One is the least element.</a>
+<a id="55650" class="Comment">-- One is the least element.</a>
 
-<a id="𝟙≤"></a><a id="55678" href="README.html#55678" class="Function">𝟙≤</a> <a id="55681" class="Symbol">=</a> <a id="55683" href="Graded.Modality.Instances.Bounded-distributive-lattice.html#5582" class="Function">Graded.Modality.Instances.Bounded-distributive-lattice.𝟙≤</a>
+<a id="𝟙≤"></a><a id="55680" href="README.html#55680" class="Function">𝟙≤</a> <a id="55683" class="Symbol">=</a> <a id="55685" href="Graded.Modality.Instances.Bounded-distributive-lattice.html#5582" class="Function">Graded.Modality.Instances.Bounded-distributive-lattice.𝟙≤</a>
 
-<a id="55742" class="Comment">-- An alternative representation of subtraction when addition and meet</a>
-<a id="55813" class="Comment">-- coincide.</a>
+<a id="55744" class="Comment">-- An alternative representation of subtraction when addition and meet</a>
+<a id="55815" class="Comment">-- coincide.</a>
 
-<a id="subtraction-+≡∧"></a><a id="55827" href="README.html#55827" class="Function">subtraction-+≡∧</a> <a id="55843" class="Symbol">=</a>
-  <a id="55847" href="Graded.Modality.Properties.Subtraction.html#6475" class="Function">Graded.Modality.Properties.Subtraction.Addition≡Meet.p-q≡r⇔</a>
+<a id="subtraction-+≡∧"></a><a id="55829" href="README.html#55829" class="Function">subtraction-+≡∧</a> <a id="55845" class="Symbol">=</a>
+  <a id="55849" href="Graded.Modality.Properties.Subtraction.html#6475" class="Function">Graded.Modality.Properties.Subtraction.Addition≡Meet.p-q≡r⇔</a>
 
-<a id="55908" class="Comment">-- An alternative representation of heap lookups for security lattice</a>
-<a id="55978" class="Comment">-- instances.</a>
+<a id="55910" class="Comment">-- An alternative representation of heap lookups for security lattice</a>
+<a id="55980" class="Comment">-- instances.</a>
 
-<a id="↦[]⇔"></a><a id="55993" href="README.html#55993" class="Function">↦[]⇔</a> <a id="55998" class="Symbol">=</a> <a id="56000" href="Graded.Heap.Non-interference.html#11141" class="Function">Graded.Heap.Non-interference.↦[]⇔</a>
+<a id="↦[]⇔"></a><a id="55995" href="README.html#55995" class="Function">↦[]⇔</a> <a id="56000" class="Symbol">=</a> <a id="56002" href="Graded.Heap.Non-interference.html#11141" class="Function">Graded.Heap.Non-interference.↦[]⇔</a>
 
-<a id="56035" class="Comment">-- ℓ-equivalent heaps.</a>
-<a id="56058" class="Comment">--</a>
-<a id="56061" class="Comment">-- In the formalization, the grade/security level is written in brackets</a>
-<a id="56134" class="Comment">-- instead of as a subscript.</a>
+<a id="56037" class="Comment">-- ℓ-equivalent heaps.</a>
+<a id="56060" class="Comment">--</a>
+<a id="56063" class="Comment">-- In the formalization, the grade/security level is written in brackets</a>
+<a id="56136" class="Comment">-- instead of as a subscript.</a>
 
-<a id="_∼⟨_⟩_"></a><a id="56165" href="README.html#56165" class="Function Operator">_∼⟨_⟩_</a> <a id="56172" class="Symbol">=</a> <a id="56174" href="Graded.Heap.Untyped.html#10971" class="Datatype Operator">Graded.Heap.Untyped._~⟨_⟩_</a>
+<a id="_∼⟨_⟩_"></a><a id="56167" href="README.html#56167" class="Function Operator">_∼⟨_⟩_</a> <a id="56174" class="Symbol">=</a> <a id="56176" href="Graded.Heap.Untyped.html#10971" class="Datatype Operator">Graded.Heap.Untyped._~⟨_⟩_</a>
 
-<a id="56202" class="Comment">-- Theorem 6.1: Non-interference.</a>
-<a id="56236" class="Comment">--</a>
-<a id="56239" class="Comment">-- The theorem in the paper states that the heaps should have well-typed</a>
-<a id="56312" class="Comment">-- entries. In the formalization this is expressed using a tpying</a>
-<a id="56378" class="Comment">-- judgement for heaps that is part of the typing for states but is not</a>
-<a id="56450" class="Comment">-- discussed in the paper. The formalized statement only requires this</a>
-<a id="56521" class="Comment">-- assumption to hold for one of the heaps.</a>
-<a id="56565" class="Comment">--</a>
-<a id="56568" class="Comment">-- The assumption that the grades of the heaps are given by γ[ρ] is</a>
-<a id="56636" class="Comment">-- expressed using the usage relation for heaps. In general it is not</a>
-<a id="56706" class="Comment">-- the case that the grades of the context and entries are equal but</a>
-<a id="56775" class="Comment">-- for the lattices we consider in this section this is the case (since</a>
-<a id="56847" class="Comment">-- subtraction is identity). The formalized statement only requires this</a>
-<a id="56920" class="Comment">-- assumption to hold one of the heaps.</a>
-<a id="56960" class="Comment">--</a>
-<a id="56963" class="Comment">-- In the paper there is an environment ρ for mapping variable names to</a>
-<a id="57035" class="Comment">-- pointer names. In the formalized statement this is the identity</a>
-<a id="57102" class="Comment">-- weakening since the heaps contain one entry for each variable in</a>
-<a id="57170" class="Comment">-- scope.</a>
-<a id="57180" class="Comment">--</a>
-<a id="57183" class="Comment">-- Note that the multiplicity of the empty stack has been set to the</a>
-<a id="57252" class="Comment">-- user&#39;s level ℓ₀ as given by a module parameter.</a>
+<a id="56204" class="Comment">-- Theorem 6.1: Non-interference.</a>
+<a id="56238" class="Comment">--</a>
+<a id="56241" class="Comment">-- The theorem in the paper states that the heaps should have well-typed</a>
+<a id="56314" class="Comment">-- entries. In the formalization this is expressed using a tpying</a>
+<a id="56380" class="Comment">-- judgement for heaps that is part of the typing for states but is not</a>
+<a id="56452" class="Comment">-- discussed in the paper. The formalized statement only requires this</a>
+<a id="56523" class="Comment">-- assumption to hold for one of the heaps.</a>
+<a id="56567" class="Comment">--</a>
+<a id="56570" class="Comment">-- The assumption that the grades of the heaps are given by γ[ρ] is</a>
+<a id="56638" class="Comment">-- expressed using the usage relation for heaps. In general it is not</a>
+<a id="56708" class="Comment">-- the case that the grades of the context and entries are equal but</a>
+<a id="56777" class="Comment">-- for the lattices we consider in this section this is the case (since</a>
+<a id="56849" class="Comment">-- subtraction is identity). The formalized statement only requires this</a>
+<a id="56922" class="Comment">-- assumption to hold one of the heaps.</a>
+<a id="56962" class="Comment">--</a>
+<a id="56965" class="Comment">-- In the paper there is an environment ρ for mapping variable names to</a>
+<a id="57037" class="Comment">-- pointer names. In the formalized statement this is the identity</a>
+<a id="57104" class="Comment">-- weakening since the heaps contain one entry for each variable in</a>
+<a id="57172" class="Comment">-- scope.</a>
+<a id="57182" class="Comment">--</a>
+<a id="57185" class="Comment">-- Note that the multiplicity of the empty stack has been set to the</a>
+<a id="57254" class="Comment">-- user&#39;s level ℓ₀ as given by a module parameter.</a>
 
-<a id="non-interference"></a><a id="57304" href="README.html#57304" class="Function">non-interference</a> <a id="57321" class="Symbol">=</a> <a id="57323" href="Graded.Heap.Non-interference.html#23284" class="Function">Graded.Heap.Non-interference.non-interference</a>
+<a id="non-interference"></a><a id="57306" href="README.html#57306" class="Function">non-interference</a> <a id="57323" class="Symbol">=</a> <a id="57325" href="Graded.Heap.Non-interference.html#23284" class="Function">Graded.Heap.Non-interference.non-interference</a>
 
-<a id="57370" class="Comment">-- The property of not allowing secret matches.</a>
-<a id="57418" class="Comment">--</a>
-<a id="57421" class="Comment">-- Like erased matches, this is done by disallowing certain matches</a>
-<a id="57489" class="Comment">-- using the Usage-restrictions.</a>
-<a id="57522" class="Comment">--</a>
-<a id="57525" class="Comment">-- Note that the formalized definition also includes matches related to</a>
-<a id="57597" class="Comment">-- eliminators not discussed in the paper.</a>
+<a id="57372" class="Comment">-- The property of not allowing secret matches.</a>
+<a id="57420" class="Comment">--</a>
+<a id="57423" class="Comment">-- Like erased matches, this is done by disallowing certain matches</a>
+<a id="57491" class="Comment">-- using the Usage-restrictions.</a>
+<a id="57524" class="Comment">--</a>
+<a id="57527" class="Comment">-- Note that the formalized definition also includes matches related to</a>
+<a id="57599" class="Comment">-- eliminators not discussed in the paper.</a>
 
-<a id="secret-matches"></a><a id="57641" href="README.html#57641" class="Function">secret-matches</a> <a id="57656" class="Symbol">=</a> <a id="57658" href="Graded.Heap.Non-interference.html#8831" class="Function">Graded.Heap.Non-interference.no-secret-matches</a>
+<a id="secret-matches"></a><a id="57643" href="README.html#57643" class="Function">secret-matches</a> <a id="57658" class="Symbol">=</a> <a id="57660" href="Graded.Heap.Non-interference.html#8831" class="Function">Graded.Heap.Non-interference.no-secret-matches</a>
 
-<a id="57706" class="Comment">------------------------------------------------------------------------</a>
-<a id="57779" class="Comment">-- 7 Related Work</a>
+<a id="57708" class="Comment">------------------------------------------------------------------------</a>
+<a id="57781" class="Comment">-- 7 Related Work</a>
 
-<a id="57798" class="Comment">------------------------------------------------------------------------</a>
-<a id="57871" class="Comment">-- 7.2 Natural Numbers and Recursion</a>
+<a id="57800" class="Comment">------------------------------------------------------------------------</a>
+<a id="57873" class="Comment">-- 7.2 Natural Numbers and Recursion</a>
 
-<a id="57909" class="Comment">-- For erasure, the usage rule we propose coincides with the one using</a>
-<a id="57980" class="Comment">-- the natrec-star operator.</a>
+<a id="57911" class="Comment">-- For erasure, the usage rule we propose coincides with the one using</a>
+<a id="57982" class="Comment">-- the natrec-star operator.</a>
 
-<a id="Erasure-⊛≡GLB"></a><a id="58010" href="README.html#58010" class="Function">Erasure-⊛≡GLB</a> <a id="58024" class="Symbol">=</a> <a id="58026" href="Graded.Modality.Instances.Erasure.Properties.html#17368" class="Function">Graded.Modality.Instances.Erasure.Properties.▸⊛≈GLB</a>
+<a id="Erasure-⊛≡GLB"></a><a id="58012" href="README.html#58012" class="Function">Erasure-⊛≡GLB</a> <a id="58026" class="Symbol">=</a> <a id="58028" href="Graded.Modality.Instances.Erasure.Properties.html#17368" class="Function">Graded.Modality.Instances.Erasure.Properties.▸⊛≈GLB</a>
 </pre></body></html>
