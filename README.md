@@ -1,4 +1,8 @@
-# An Agda Formalization of a Graded Modal Type Theory with Erasure, First-Class Universe Levels and Opaque Definitions
+# An Agda Formalization of a "On Recursion in Graded Modal Type Theory"
+This code is related to the paper "On Recursion in Graded Modal Type Theory" by
+Oskar Eriksson, Andreas Abel and Nils Anders Danielsson.
+
+See `README.agda` for an overview of how the code relates to the paper.
 
 ## Project history
 

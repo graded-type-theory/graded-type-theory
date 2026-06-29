@@ -632,14 +632,7 @@ import Application.NegativeOrErasedAxioms.Canonicity
 import Application.NegativeOrErasedAxioms.Canonicity.ErasedMatches
 
 ------------------------------------------------------------------------
--- Pointers to code related to papers
+-- Pointers to code related to the paper "On Recursion in Graded Modal
+-- Type Theory".
 
--- "A Graded Modal Dependent Type Theory with a Universe and Erasure,
--- Formalized"
-import README.Graded-type-theory
-
--- "Normalisation for First-Class Universe Levels"
-import README.First-class-universe-levels
-
--- "A Formalization of Opaque Definitions for a Dependent Type Theory"
-import README.Opaque-definitions
+import README

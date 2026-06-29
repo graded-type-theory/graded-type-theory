@@ -25,7 +25,7 @@ env:
   # Entry point for Agda compilation
   MAIN: Everything.agda
   # Entry point for uploaded HTML, becomes index.html
-  INDEX: README.Graded-type-theory.html
+  INDEX: README.html
 
 jobs:
   build:
