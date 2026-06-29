@@ -385,14 +385,26 @@ opaque
   nrᵢ-r𝟙p-GLB-𝟙-inv :
     let 𝕄 = zero-one-many-modality in
       ∀ p r →
-    Modality.Greatest-lower-bound 𝕄 𝟙 (Modality.nrᵢ 𝕄 r 𝟙 p) →
-    p ≡ 𝟘 × r ≡ 𝟙 ⊎ p ≡ 𝟙 × r ≡ 𝟘 ⊎ p ≡ 𝟘 × r ≡ 𝟘
-  nrᵢ-r𝟙p-GLB-𝟙-inv p r glb =
-    case nrᵢ-GLB-𝟙-inv r 𝟙 p glb of λ where
-      (inj₁ (r≡𝟙 , _ , p≡𝟘)) → inj₁ (p≡𝟘 , r≡𝟙)
-      (inj₂ (inj₁ (r≡𝟘 , _ , p≡𝟙))) → inj₂ (inj₁ (p≡𝟙 , r≡𝟘))
-      (inj₂ (inj₂ (inj₁ (_ , () , _))))
-      (inj₂ (inj₂ (inj₂ (r≡𝟘 , _ , p≡𝟘)))) → inj₂ (inj₂ (p≡𝟘 , r≡𝟘))
+    Modality.Greatest-lower-bound 𝕄 𝟙 (Modality.nrᵢ 𝕄 r 𝟙 p) ⇔
+    (p ≡ 𝟘 × r ≡ 𝟙 ⊎ p ≡ 𝟙 × r ≡ 𝟘 ⊎ p ≡ 𝟘 × r ≡ 𝟘)
+  nrᵢ-r𝟙p-GLB-𝟙-inv p r = left , right
+    where
+    open Modality zero-one-many-modality using (nrᵢ; Greatest-lower-bound)
+    left :
+      Greatest-lower-bound 𝟙 (nrᵢ r 𝟙 p) →
+      p ≡ 𝟘 × r ≡ 𝟙 ⊎ p ≡ 𝟙 × r ≡ 𝟘 ⊎ p ≡ 𝟘 × r ≡ 𝟘
+    left glb =
+      case nrᵢ-GLB-𝟙-inv r 𝟙 p glb of λ where
+        (inj₁ (r≡𝟙 , _ , p≡𝟘)) → inj₁ (p≡𝟘 , r≡𝟙)
+        (inj₂ (inj₁ (r≡𝟘 , _ , p≡𝟙))) → inj₂ (inj₁ (p≡𝟙 , r≡𝟘))
+        (inj₂ (inj₂ (inj₁ (_ , () , _))))
+        (inj₂ (inj₂ (inj₂ (r≡𝟘 , _ , p≡𝟘)))) → inj₂ (inj₂ (p≡𝟘 , r≡𝟘))
+    right :
+      p ≡ 𝟘 × r ≡ 𝟙 ⊎ p ≡ 𝟙 × r ≡ 𝟘 ⊎ p ≡ 𝟘 × r ≡ 𝟘 →
+      Greatest-lower-bound 𝟙 (nrᵢ r 𝟙 p)
+    right (inj₁ (refl , refl))        = nr-nrᵢ-GLB {z = 𝟙} {s = 𝟘} 𝟙
+    right (inj₂ (inj₁ (refl , refl))) = nr-nrᵢ-GLB {z = 𝟙} {s = 𝟙} 𝟘
+    right (inj₂ (inj₂ (refl , refl))) = nr-nrᵢ-GLB {z = 𝟙} {s = 𝟘} 𝟘
 
 ------------------------------------------------------------------------
 -- Properties relating to the Zero-one mode structure
