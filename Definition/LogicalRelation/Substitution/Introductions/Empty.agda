@@ -109,7 +109,7 @@ opaque
 
 opaque
 
-  -- Validity for Empty, seen as a type formerr.
+  -- Validity for Empty, seen as a type former.
 
   Emptyᵛ : ⊩ᵛ Γ → Γ ⊩ᵛ⟨ l ⟩ Empty
   Emptyᵛ {Γ = _ » Γ} {l} ⊩Γ =

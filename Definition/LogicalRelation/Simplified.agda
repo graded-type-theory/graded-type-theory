@@ -49,7 +49,7 @@ private variable
   b : BinderMode
 
 ------------------------------------------------------------------------
--- The logical relation and some auxilliary definitions
+-- The logical relation and some auxiliary definitions
 
 -- Universe type
 

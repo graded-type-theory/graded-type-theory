@@ -897,7 +897,7 @@ Star-requirements-required has-star =
   open Has-star has-star
 
 ------------------------------------------------------------------------
--- A star opaerator for the modality
+-- A star operator for the modality
 
 -- A natrec-star operator defined using the construction in
 -- Graded.Modality.Instances.LowerBounded.

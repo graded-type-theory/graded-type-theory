@@ -272,7 +272,7 @@ pattern σ-allowed s p q = πσ-allowed (BMΣ s) p q
 pattern σˢ-allowed p q  = σ-allowed 𝕤 p q
 pattern σʷ-allowed p q  = σ-allowed 𝕨 p q
 
--- A representation of sets of nullary contraints.
+-- A representation of sets of nullary constraints.
 
 record Constraints⁰ : Set where
   no-eta-equality

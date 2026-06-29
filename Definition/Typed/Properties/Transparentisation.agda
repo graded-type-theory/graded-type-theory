@@ -93,7 +93,7 @@ module Unconditional (»-Trans : » ∇ → » Trans φ ∇) where
 
   opaque mutual
 
-    -- Varible contexts that are well-formed under ∇ are well-formed
+    -- Variable contexts that are well-formed under ∇ are well-formed
     -- under Trans φ ∇.
 
     unfold-⊢′ : ∇ »⊢ Γ → Trans φ ∇ »⊢ Γ

@@ -178,12 +178,12 @@ record Has-well-behaved-zero (𝕄 : Modality) : Set a where
 
     -- if p + q is 𝟘, then p and q are 𝟘. (The statement that p + q ≡ 𝟘
     -- implies q ≡ 𝟘 follows from the one below, see
-    -- Definition.Modality.Properties.Has-well-behaved-zero.+-positiveʳ.)
+    -- Graded.Modality.Properties.Has-well-behaved-zero.+-positiveʳ.)
     +-positiveˡ : {p q : M} → p + q ≡ 𝟘 → p ≡ 𝟘
 
     -- If p ∧ q is equal to 𝟘, then p ≡ 𝟘.  (The statement that p ∧ q ≡ 𝟘
     -- implies q ≡ 𝟘 follows from the one below, see
-    -- Definition.Modality.Properties.Has-well-behaved-zero.∧-positiveʳ.)
+    -- Graded.Modality.Properties.Has-well-behaved-zero.∧-positiveʳ.)
     ∧-positiveˡ : {p q : M} → p ∧ q ≡ 𝟘 → p ≡ 𝟘
 
 -- The property of having an nr function (a "natrec usage function").
