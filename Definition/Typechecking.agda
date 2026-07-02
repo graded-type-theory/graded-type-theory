@@ -336,16 +336,15 @@ mutual
 -- CheckableDCon ∇ means that the types and terms in ∇ are checkable.
 
 data CheckableDCon : (∇ : DCon (Term 0) n) → Set a where
-  ε            : CheckableDCon ε
-  _∙ᶜᵒ⟨_⟩[_∷_] : CheckableDCon ∇
-               → Opacity-allowed
-               → Checkable t
-               → Checkable-type A
-               → CheckableDCon (∇ ∙⟨ opa φ ⟩[ t ∷ A ])
-  _∙ᶜᵗ[_∷_]    : CheckableDCon ∇
-               → Checkable t
-               → Checkable-type A
-               → CheckableDCon (∇ ∙⟨ tra ⟩[ t ∷ A ])
+  ε         : CheckableDCon ε
+  _∙ᶜᵒ[_∷_] : CheckableDCon ∇
+            → Checkable t
+            → Checkable-type A
+            → CheckableDCon (∇ ∙⟨ opa φ ⟩[ t ∷ A ])
+  _∙ᶜᵗ[_∷_] : CheckableDCon ∇
+            → Checkable t
+            → Checkable-type A
+            → CheckableDCon (∇ ∙⟨ tra ⟩[ t ∷ A ])
 
 -- CheckableCon Δ means that the types in Δ are checkable.
 
