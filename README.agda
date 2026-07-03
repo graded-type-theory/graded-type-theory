@@ -5,7 +5,8 @@
 
 -- Note that Naïm Camille Favier, Eve Geng, Gaëtan Gilbert, Ondřej
 -- Kubánek, Wojciech Nawrocki, Joakim Öhman and Andrea Vezzosi have also
--- contributed to the code.
+-- contributed to the code and some changes were made based on
+-- suggestions by anonymous reviewers.
 --
 -- The code also depends on some libraries:
 --
@@ -562,7 +563,7 @@ Logical-relation = Definition.LogicalRelation.LogRelKit
 
 -- Weak-head normalization.
 
-wh-normalization = Definition.Typed.Consequences.Reduction.whNorm
+wh-normalization = Definition.Typed.Consequences.Reduction.whNormTerm
 
 -- Terms in weak head normal form.
 
@@ -1066,6 +1067,9 @@ Normal = Graded.Heap.Untyped.Normal
 ⇢→⇾ = Graded.Heap.Bisimilarity.⇢→⇾
 
 -- Theorem 4.5: Evaluation to normal form
+--
+-- These properties contain some assumptions not mentioned in the paper
+-- about the states not including any definitions.
 
 normalize = Graded.Heap.Normalization.normalize
 ▸normalize = Graded.Heap.Bisimilarity.▸normalize
@@ -1116,7 +1120,7 @@ _⊩ℕ_∷ℕ = Definition.LogicalRelation._⊩ℕ_≡_∷ℕ
 -- This property is shown under the assumption that the stack
 -- multiplicity of the empty stack is 1.
 
-resourceCorrectness = Graded.Heap.Soundness.soundness-closed
+resourceCorrectness = Graded.Heap.Soundness.soundness-closed′
 
 _≤ʰ_ = Graded.Heap.Usage._≤ʰ_
 
@@ -1134,7 +1138,7 @@ _≤ʰ_ = Graded.Heap.Usage._≤ʰ_
 -- multiplicity of the empty stack is 1.
 
 resourceCorrectnessOpen =
-  Graded.Heap.Soundness.soundness-open-consistent
+  Graded.Heap.Soundness.soundness-open-consistent′
 
 -- Counterexamples to the resource correctness theorem for open terms
 -- when some assumptions are removed.
@@ -1160,7 +1164,7 @@ resourceCorrectnessOpen =
 -- emptyrec.
 
 resourceCorrectnessOpen″ =
-  Graded.Heap.Soundness.soundness-open-¬emptyrec₀
+  Graded.Heap.Soundness.soundness-open-¬emptyrec₀′
 
 ------------------------------------------------------------------------
 -- 5: Natural Number Recursion
@@ -1216,7 +1220,12 @@ plus = Definition.Untyped.Nat.plus′
 -- 5.2: A Resource-Correct Usage Rule
 
 -- The necessary conditions for natrec are derived in the following
--- module.
+-- module. The main part of this module construct a natrec term which is
+-- well-resourced under a certain context. This term reduces to either
+-- its zero or successor branch, both of which are well-resourced under
+-- a known context. Subject reduction then gives necessary conditions
+-- as relating the contexts of the original term and the term it reduces
+-- to, see below.
 
 module natrec-necessary = Graded.Reduction.Necessary.Natrec₁
 
@@ -1238,6 +1247,15 @@ Usage-relation = Graded.Reduction.Necessary.Usage-relation
 -- In the module, the "arbitrary" usage relation is also assumed to
 -- have a usage rule for natrec in the form of our ansatz as well as
 -- a corresponding usage inversion lemma.
+--
+-- Here, the ansatz is expressed using two functions:
+--   1. f, which computes a grade given grades p and r. This corresponds
+--      to the grade x in the paper.
+--   2. g, which computes a context given grade r and context γ and δ.
+--      This corresponds to the context χ in the paper.
+--
+-- The necessary conditions for x and χ are expressed as conditions for
+-- f and g in the formalization.
 
 Usage-relation-natrec =
   Graded.Reduction.Necessary.Usage-relation-natrec₁
