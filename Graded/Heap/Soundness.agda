@@ -342,6 +342,26 @@ opaque
     soundness ⦃ ok = ε ⦄ (λ _ _ → ¬Empty) (λ 0≢0 → ⊥-elim (0≢0 PE.refl))
 
 opaque
+  unfolding inlineᵈ
+
+  -- The soundness property above specialised to closed terms with no
+  -- definitions.
+
+  -- Note that some assumptions to this theorem are given as a module parameter.
+
+  soundness-closed′ :
+    ε » ε ⊢ t ∷ ℕ → ε ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial t ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » ε ⊢ t ≡ sucⁿ k ∷ ℕ) × H ≤ʰ 𝟘
+  soundness-closed′ ⊢t ▸t =
+    let _ , _ , H , k , ρ , d , t≡ , H≤ = soundness-closed ⊢t (λ ()) ▸t
+    in  _ , _ , H , k , ρ
+          , PE.subst (λ x → initial x ↠* ⟨ H , sucⁿ k , ρ , ε ⟩) (inline-id _) d
+          , PE.subst (λ x → _ ⊢ x ≡ sucⁿ k ∷ _) (inline-id _) t≡
+          , H≤
+
+opaque
 
   -- The soundness property above specialised to open terms.
 
@@ -376,6 +396,31 @@ opaque
   soundness-open-consistent consistent = soundness-open (λ _ → consistent)
 
 opaque
+  unfolding inline-Conᵈ
+
+  -- A version of soundness-open-consistent without definitions.
+
+  soundness-open-consistent′ :
+    ⦃ No-equality-reflection or-empty Δ ⦄ →
+    Consistent (ε » Δ) →
+    No-erased-matches′ type-variant UR →
+    Has-well-behaved-zero M 𝕄 →
+    ε » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial t ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » Δ ⊢ t ≡ sucⁿ k ∷ ℕ) ×
+    H ≤ʰ 𝟘
+  soundness-open-consistent′ consistent nem wb-𝟘 ⊢t ▸t =
+    let consistent′ = PE.subst Consistent (PE.cong (_»_ _) (PE.sym (inline-Con-id _))) consistent
+        _ , _ , H , k , ρ , d , t≡ , H≤ =
+          soundness-open-consistent consistent′ nem wb-𝟘 ⊢t (λ ()) ▸t
+    in  _ , _ , H , k , ρ
+          , PE.subst (λ x → initial x ↠* ⟨ H , sucⁿ k , ρ , ε ⟩) (inline-id _) d
+          , PE.subst₂ (λ x y → ε » x ⊢ y ≡ sucⁿ k ∷ ℕ) (inline-Con-id _) (inline-id _) t≡
+          , H≤
+
+
+opaque
 
   -- A version of soundness-open
 
@@ -391,3 +436,24 @@ opaque
     H ≤ʰ 𝟘
   soundness-open-¬emptyrec₀ ¬ok =
     soundness-open (⊥-elim ∘→ ¬ok)
+
+opaque
+  unfolding inlineᵈ
+
+  -- A version of soundness-open-¬emptyrec₀ without definitons.
+
+  soundness-open-¬emptyrec₀′ :
+    ⦃ No-equality-reflection or-empty Δ ⦄ →
+    ¬ Emptyrec-allowed 𝟙ᵐ 𝟘 →
+    No-erased-matches′ type-variant UR →
+    Has-well-behaved-zero M 𝕄 →
+    ε » Δ ⊢ t ∷ ℕ → 𝟘ᶜ ▸ t →
+    ∃₅ λ m n H k (ρ : Wk m n) →
+    initial t ↠* ⟨ H , sucⁿ k , ρ , ε ⟩ ×
+    (ε » Δ ⊢ t ≡ sucⁿ k ∷ ℕ) × H ≤ʰ 𝟘
+  soundness-open-¬emptyrec₀′ ¬ok nem wb-𝟘 ⊢t ▸t =
+    let _ , _ , H , k , ρ , d , t≡ , H≤ = soundness-open-¬emptyrec₀ ¬ok nem wb-𝟘 ⊢t (λ ()) ▸t
+    in  _ , _ , H , k , ρ
+          , PE.subst (λ x → initial x ↠* ⟨ H , sucⁿ k , ρ , ε ⟩) (inline-id _) d
+          , PE.subst₂ (λ x y → ε » x ⊢ y ≡ sucⁿ k ∷ ℕ) (inline-Con-id _) (inline-id _) t≡
+          , H≤
