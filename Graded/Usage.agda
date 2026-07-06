@@ -178,7 +178,7 @@ data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
 --
 --   {-# OPTIONS --erasure --safe --cubical-compatible #-}
 --
---   data Id {@0 a} {@0 A : Set a} (x : A) : A → Set a where
+--   data Id {@0 a} {A : Set a} (x : A) : A → Set a where
 --     refl : Id x x
 --
 --   J :
