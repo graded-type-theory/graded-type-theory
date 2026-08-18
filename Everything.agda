@@ -643,3 +643,6 @@ import README.First-class-universe-levels
 
 -- "A Formalization of Opaque Definitions for a Dependent Type Theory"
 import README.Opaque-definitions
+
+-- "On Recursion in Graded Modal Type Theory"
+import README.Recursion
