@@ -682,21 +682,21 @@ makes use of `Checkable-level`. If `Level` is allowed, then
 </a><a id="20344" class="Keyword">import</a> <a id="20351" href="Definition.Typechecking.html" class="Module">Definition.Typechecking</a>
   <a id="20377" class="Keyword">using</a>
     <a id="20387" class="Symbol">(</a><a id="20388" href="Definition.Typechecking.html#7264" class="Datatype">Checkable-type</a><a id="20402" class="Symbol">;</a> <a id="20404" href="Definition.Typechecking.html#10055" class="Datatype">Checkable</a><a id="20413" class="Symbol">;</a> <a id="20415" href="Definition.Typechecking.html#7783" class="Datatype">Inferable</a><a id="20424" class="Symbol">;</a> <a id="20426" href="Definition.Typechecking.html#10401" class="Datatype">Checkable-level</a><a id="20441" class="Symbol">;</a>
-     <a id="20448" href="Definition.Typechecking.html#14524" class="Function">Checkable-level⇔</a><a id="20464" class="Symbol">)</a>
+     <a id="20448" href="Definition.Typechecking.html#14464" class="Function">Checkable-level⇔</a><a id="20464" class="Symbol">)</a>
 <a id="20466" class="Markup">```
 </a><a id="20470" class="Background">
 The term Π (λ x₀) x₀ is a checkable type but not a checkable term.
 Every well-formed, checkable type is inferable.
 </a><a id="20586" class="Markup">```agda
 </a><a id="20594" class="Keyword">import</a> <a id="20601" href="Definition.Typechecking.html" class="Module">Definition.Typechecking</a>
-  <a id="20627" class="Keyword">using</a> <a id="20633" class="Symbol">(</a><a id="20634" href="Definition.Typechecking.html#11930" class="Function">Checkable-type×¬Checkable</a><a id="20659" class="Symbol">;</a> <a id="20661" href="Definition.Typechecking.html#13663" class="Function">⊢→Checkable-type→Inferable</a><a id="20687" class="Symbol">)</a>
+  <a id="20627" class="Keyword">using</a> <a id="20633" class="Symbol">(</a><a id="20634" href="Definition.Typechecking.html#11870" class="Function">Checkable-type×¬Checkable</a><a id="20659" class="Symbol">;</a> <a id="20661" href="Definition.Typechecking.html#13603" class="Function">⊢→Checkable-type→Inferable</a><a id="20687" class="Symbol">)</a>
 <a id="20689" class="Markup">```
 </a><a id="20693" class="Background">
 Theorem 4.5: Decidability of type checking/type inference for certain
 classes of terms, types and contexts.
 </a><a id="20802" class="Markup">```agda
 </a><a id="20810" class="Keyword">import</a> <a id="20817" href="Definition.Typed.Decidable.html" class="Module">Definition.Typed.Decidable</a>
-  <a id="20846" class="Keyword">using</a> <a id="20852" class="Symbol">(</a><a id="20853" href="Definition.Typed.Decidable.html#4223" class="Function">decWfCon</a><a id="20861" class="Symbol">;</a> <a id="20863" href="Definition.Typed.Decidable.html#4816" class="Function">decConTypeᶜ</a><a id="20874" class="Symbol">;</a> <a id="20876" href="Definition.Typed.Decidable.html#5107" class="Function">decConTermTypeᶜ</a><a id="20891" class="Symbol">;</a> <a id="20893" href="Definition.Typed.Decidable.html#5445" class="Function">decConTermᵢ</a><a id="20904" class="Symbol">)</a>
+  <a id="20846" class="Keyword">using</a> <a id="20852" class="Symbol">(</a><a id="20853" href="Definition.Typed.Decidable.html#4242" class="Function">decWfCon</a><a id="20861" class="Symbol">;</a> <a id="20863" href="Definition.Typed.Decidable.html#4835" class="Function">decConTypeᶜ</a><a id="20874" class="Symbol">;</a> <a id="20876" href="Definition.Typed.Decidable.html#5126" class="Function">decConTermTypeᶜ</a><a id="20891" class="Symbol">;</a> <a id="20893" href="Definition.Typed.Decidable.html#5464" class="Function">decConTermᵢ</a><a id="20904" class="Symbol">)</a>
 <a id="20906" class="Markup">```
 </a><a id="20910" class="Background">
 ### 5: Erasing Levels Is Safe
@@ -706,7 +706,7 @@ The usage relation. This relation is parametrised by a value of type
 several forms of erased matches.
 </a><a id="21115" class="Markup">```agda
 </a><a id="21123" class="Keyword">import</a> <a id="21130" href="Graded.Usage.html" class="Module">Graded.Usage</a>
-  <a id="21145" class="Keyword">using</a> <a id="21151" class="Symbol">(</a><a id="21152" href="Graded.Usage.html#9329" class="Datatype Operator">_▸[_]_</a><a id="21158" class="Symbol">)</a>
+  <a id="21145" class="Keyword">using</a> <a id="21151" class="Symbol">(</a><a id="21152" href="Graded.Usage.html#9326" class="Datatype Operator">_▸[_]_</a><a id="21158" class="Symbol">)</a>
 <a id="21160" class="Keyword">import</a> <a id="21167" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
   <a id="21195" class="Keyword">using</a> <a id="21201" class="Symbol">(</a><a id="21202" href="Graded.Usage.Restrictions.html#974" class="Record">Usage-restrictions</a><a id="21220" class="Symbol">)</a>
 <a id="21222" class="Markup">```
