@@ -29,6 +29,7 @@ open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Conversion R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Symmetry R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄
@@ -39,6 +40,7 @@ open import Tools.Level
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Sum
 
 private
@@ -246,15 +248,13 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
           (whrDet* (D₂ , ⟦ W″ ⟧ₙ) (D″ , ⟦ W′ ⟧ₙ)) of λ {
       (PE.refl , PE.refl , PE.refl) →
     B₌ F″ G″ D″ (≅-trans A≡B A≡B₁)
-      (λ ξ⊇ ρ →
-         transEq ([F] ξ⊇ ρ) ([F]₁ ξ⊇ ρ) ([F]₂ ξ⊇ ρ) ([F≡F′] ξ⊇ ρ)
-           ([F≡F′]₁ ξ⊇ ρ))
-      (λ ξ⊇ ρ [a] →
-         let [a′] = convTerm₁ ([F] ξ⊇ ρ) ([F]₁ ξ⊇ ρ) ([F≡F′] ξ⊇ ρ) [a]
-             [a″] =
-               convTerm₁ ([F]₁ ξ⊇ ρ) ([F]₂ ξ⊇ ρ) ([F≡F′]₁ ξ⊇ ρ) [a′]
-         in  transEq ([G] ξ⊇ ρ [a]) ([G]₁ ξ⊇ ρ [a′]) ([G]₂ ξ⊇ ρ [a″])
-               ([G≡G′] ξ⊇ ρ [a]) ([G≡G′]₁ ξ⊇ ρ [a′])) }}
+      (λ ρ →
+         transEq ([F] ρ) ([F]₁ ρ) ([F]₂ ρ) ([F≡F′] ρ) ([F≡F′]₁ ρ))
+      (λ ρ [a] →
+         let [a′] = convTerm₁ ([F] ρ) ([F]₁ ρ) ([F≡F′] ρ) [a]
+             [a″] = convTerm₁ ([F]₁ ρ) ([F]₂ ρ) ([F≡F′]₁ ρ) [a′]
+         in  transEq ([G] ρ [a]) ([G]₁ ρ [a′]) ([G]₂ ρ [a″])
+               ([G≡G′] ρ [a]) ([G≡G′]₁ ρ [a′])) }}
   transEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁) (Uᵣ l′₂ [l′₂] l<₂ ⇒*U₂)) (U₌ k D l′≡k) (U₌ k′ D₁ k≡k′)
     with whrDet* (⇒*U₁ , Uₙ) (D , Uₙ)  | whrDet* (⇒*U₂ , Uₙ) (D₁ , Uₙ)
   ... | PE.refl | PE.refl =
@@ -290,6 +290,42 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
         (_⊩ₗId_.⊩Ty ⊩B)
         (_⊩ₗId_≡_/_.Ty≡Ty′ A≡B)
         (_⊩ₗId_≡_/_.rhs≡rhs′ B≡C)) }}
+  transEqT (Quot ⊩A ⊩B@record{} ⊩C@record{}) A≡B B≡C
+    with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+           (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+       | whrDet* (_⊩ₗQuot_.⇒*Quot ⊩C , Quot)
+           (_⊩ₗQuot_≡_/_.⇒*Quot′ B≡C , Quot)
+  … | PE.refl | PE.refl =
+    record
+      { ⇒*Quot′   = ⊩C.⇒*Quot
+      ; Quot≅Quot = ≅-trans A≡B.Quot≅Quot B≡C.Quot≅Quot
+      ; Data≡Data = λ ⊢ρ →
+          transEq _ _ (⊩C.⊩Data ⊢ρ) (A≡B.Data≡Data ⊢ρ)
+            (B≡C.Data≡Data ⊢ρ)
+      ; Rel≡Rel = λ ⊢ρ ⊩t ⊩u →
+          transEq _ _
+            (⊩C.⊩Rel ⊢ρ
+               (convTerm₁ _ (⊩C.⊩Data _)
+                  (transEq _ _ (⊩C.⊩Data ⊢ρ)
+                     (A≡B.Data≡Data _) (B≡C.Data≡Data ⊢ρ))
+                  ⊩t)
+               (convTerm₁ _ (⊩C.⊩Data _)
+                  (transEq _ _ (⊩C.⊩Data ⊢ρ)
+                     (A≡B.Data≡Data _) (B≡C.Data≡Data ⊢ρ))
+                  ⊩u))
+            (A≡B.Rel≡Rel ⊢ρ ⊩t ⊩u)
+            (B≡C.Rel≡Rel ⊢ρ
+               (convTerm₁ (⊩A.⊩Data _) (⊩B.⊩Data _) (A≡B.Data≡Data _)
+                  ⊩t)
+               (convTerm₁ (⊩A.⊩Data _) (⊩B.⊩Data _) (A≡B.Data≡Data _)
+                  ⊩u))
+      }
+    where
+    module ⊩A  = _⊩ₗQuot_ ⊩A
+    module ⊩B  = _⊩ₗQuot_ ⊩B
+    module ⊩C  = _⊩ₗQuot_ ⊩C
+    module A≡B = _⊩ₗQuot_≡_/_ A≡B
+    module B≡C = _⊩ₗQuot_≡_/_ B≡C
 
   transEqTerm (Levelᵣ D) [t≡u] [u≡v] = transEqTermLevel [t≡u] [u≡v]
   transEqTerm
@@ -331,10 +367,9 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
     rewrite whrDet*Term (d′ , Functionᵃ→Whnf funcG)
               (d₁ , Functionᵃ→Whnf funcF₁) =
     Πₜ₌ f g₁ d d₁′ funcF funcG₁ (≅ₜ-trans f≡g f≡g₁)
-      (λ ξ⊇ ρ ⊩v ⊩w v≡w →
-         transEqTerm ([G] ξ⊇ ρ ⊩v)
-           ([f≡g] ξ⊇ ρ ⊩v ⊩v (reflEqTerm ([F] ξ⊇ ρ) ⊩v))
-           ([f≡g]₁ ξ⊇ ρ ⊩v ⊩w v≡w))
+      (λ ρ ⊩v ⊩w v≡w →
+         transEqTerm ([G] ρ ⊩v) ([f≡g] ρ ⊩v ⊩v (reflEqTerm ([F] ρ) ⊩v))
+           ([f≡g]₁ ρ ⊩v ⊩w v≡w))
   transEqTerm
     {n = n} {Γ = Γ} (Bᵣ′ (BΣ 𝕤 p′ q) F G D A≡A [F] [G] G-ext _)
     (Σₜ₌ p r d d′ pProd rProd p≅r ([fstp] , [fstr] , [fst≡] , [snd≡]))
@@ -346,19 +381,19 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
                 (PE.subst
                     (λ (x : Term n) → Γ ⊢ x ≅ r₁ ∷ Σˢ p′ , q ▷ F ▹ G)
                     p₁≡r p≅r₁)
-        [F]′ = [F] _ _
+        [F]′ = [F] _
         [fst≡]′ = transEqTerm [F]′ [fst≡]
           (PE.subst
             (λ (x : Term n) →
                 Γ ⊩⟨ _ ⟩ fst _ x ≡ fst _ r₁ ∷ wk id F / [F]′)
             p₁≡r [fst≡]₁)
-        [Gfstp≡Gfstp₁] = G-ext _ _ [fstp] [fstp]₁
+        [Gfstp≡Gfstp₁] = G-ext _ [fstp] [fstp]₁
           (PE.subst
             (λ (x : Term n) →
                 Γ ⊩⟨ _ ⟩ fst _ p ≡ fst _ x ∷ wk id F / [F]′)
             (PE.sym p₁≡r) [fst≡])
-        [Gfstp] = [G] _ _ [fstp]
-        [Gfstp₁] = [G] _ _ [fstp]₁
+        [Gfstp] = [G] _ [fstp]
+        [Gfstp₁] = [G] _ [fstp]₁
         [snd≡]₁′ = convEqTerm₂ [Gfstp] [Gfstp₁] [Gfstp≡Gfstp₁] [snd≡]₁
         [snd≡]′ = transEqTerm [Gfstp] [snd≡]
           (PE.subst
@@ -381,13 +416,13 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
         p≅r′ = ≅ₜ-trans p≅r
                   (PE.subst (λ x → Γ ⊢ x ≅ r′ ∷ Σʷ p″ , q ▷ F ▹ G)
                     p′≡r p′≅r′)
-        [F]′ = [F] _ _
+        [F]′ = [F] _
         [p₁≡r′₁] = transEqTerm [F]′ [p₁≡r₁] (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk id F / [F]′) p′₁≡r₁ [p′₁≡r′₁])
-        [Gp≡Gp₁] = G-ext _ _ [p₁] [p₁]′
+        [Gp≡Gp₁] = G-ext _ [p₁] [p₁]′
                         (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ _ ≡ x ∷ wk id F / [F]′)
                                   (PE.sym p′₁≡r₁) [p₁≡r₁])
-        [Gp] = [G] _ _ [p₁]
-        [Gp′] = [G] _ _ [p₁]′
+        [Gp] = [G] _ [p₁]
+        [Gp′] = [G] _ [p₁]′
         [r₂≡r′₂] = convEqTerm₂ [Gp] [Gp′] [Gp≡Gp₁]
                               (PE.subst (λ (x : Term n) → Γ ⊩⟨ _ ⟩ x ≡ _ ∷ wk (lift id) G [ _ ]₀ / [Gp′])
                                         p′₂≡r₂ [p′₂≡r′₂])
@@ -454,6 +489,56 @@ private module Trans (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → 
           (ne u″-n _ _) →
             ⊥-elim $ rfl≢ne (ne⁻ u″-n) $
             whrDet*Term (u⇒*u′ , rflₙ) (u⇒*u″ , ne! u″-n)) }
+  transEqTerm
+    (Quot ⊩A)
+    t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , t′-q , u′-q , _)
+    u≡v@(_ , _ , u⇒*u′′ , v⇒*v′ , u′′-q , v′-q , _)
+    with
+      whrDet*Term (u⇒*u′ , Quotientᵃ→Whnf u′-q)
+        (u⇒*u′′ , Quotientᵃ→Whnf u′′-q)
+  … | PE.refl =
+    _ , _ , t⇒*t′ , v⇒*v′ , t′-q , v′-q ,
+    Quot-view-inhabited⁻¹′ ⊩A t⇒*t′ v⇒*v′ t′-q v′-q
+      (case Quot-view-inhabited ⊩A t≡u of λ where
+         (equal t″≡u″) →
+           case Quot-view-inhabited ⊩A u≡v of λ where
+             (equal u″≡v″) →
+               equal $
+               transEqTerm (⊩Data _) t″≡u″ $
+               irrelevanceEqTerm (⊩Data _) (⊩Data _) u″≡v″
+             (related ok rel) →
+               related ok $
+               cast-⊩Quot-relatedˡ ⊩A
+                 (transEqTerm (⊩Data _) t″≡u″
+                    (symEqTerm (⊩Data _) t″≡u″))
+                 (symEqTerm (⊩Data _) t″≡u″) $
+               irrelevance-⊩Quot-related ⊩A ⊩A rel
+             (ne u′-n _ _) →
+               case ne⁻ u′-n of λ ()
+         (related ok rel₁) →
+           case Quot-view-inhabited ⊩A u≡v of λ where
+             (equal u″≡v″) →
+               related ok $
+               cast-⊩Quot-relatedʳ ⊩A
+                 (irrelevanceEqTerm (⊩Data _) (⊩Data _)
+                    (transEqTerm (⊩Data _) (symEqTerm (⊩Data _) u″≡v″) u″≡v″))
+                 (irrelevanceEqTerm (⊩Data _) (⊩Data _) u″≡v″)
+               rel₁
+             (related _ rel₂) →
+               related ok $
+               transˢᵗ rel₁ (irrelevance-⊩Quot-related ⊩A ⊩A rel₂)
+             (ne u′-n _ _) →
+               case ne⁻ u′-n of λ ()
+         (ne t′-n u′-n t′~u′) →
+           case Quot-view-inhabited ⊩A u≡v of λ where
+             (equal _) →
+               case ne⁻ u′-n of λ ()
+             (related _ _) →
+               case ne⁻ u′-n of λ ()
+             (ne _ v′-n u′~v′) →
+               ne t′-n v′-n (~-trans t′~u′ u′~v′))
+    where
+    open _⊩ₗQuot_ ⊩A
 
 private opaque
   transKit : ∀ l → TransKit l

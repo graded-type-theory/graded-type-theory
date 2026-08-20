@@ -51,11 +51,13 @@ open import Graded.Heap.Termination UR TR 𝟙 As
 open import Graded.Heap.Typed UR TR factoring-nr 𝟙
 open import Graded.Heap.Typed.Inversion UR TR factoring-nr 𝟙
 open import Graded.Heap.Typed.Properties UR TR factoring-nr 𝟙
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr 𝟙
+open import Graded.Heap.Typed.Reduction
+  UR TR factoring-nr 𝟙 Quot-not-allowed
 open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Reduction.Zero-one
   type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
+  Quot-not-allowed Quotient-terms-not-allowed
 open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
 
 private variable

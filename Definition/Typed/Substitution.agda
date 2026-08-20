@@ -15,13 +15,16 @@ open import Definition.Typed R
 open import Definition.Typed.Properties.Admissible.Identity R
 open import Definition.Typed.Properties.Admissible.Pi R
 open import Definition.Typed.Properties.Admissible.Sigma R
+open import Definition.Typed.Properties.Well-formed R
 import Definition.Typed.Substitution.Primitive R as P
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 
 open import Tools.Function
+open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 open P public
@@ -33,6 +36,7 @@ private variable
   σ       : Subst _ _
 
 opaque
+  unfolding Is-set-Con Quot-rel-Con Resp-Con
 
   -- A substitution lemma for _⊢_⇒_∷_.
 
@@ -82,14 +86,13 @@ opaque
     Σ-β₂ (subst-⊢-⇑ ⊢B ⊢σ) (subst-⊢ ⊢t ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift B _) (subst-⊢ ⊢u ⊢σ))
       eq ok
-  subst-⊢⇒∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂ _) ⊢σ =
+  subst-⊢⇒∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift C _)
-      (prodrec-subst′ (subst-⊢-⇑ ⊢C ⊢σ)
+      (prodrec-subst (subst-⊢-⇑ ⊢C ⊢σ)
         (PE.subst (_ ⊢ _ ∷_) (subst-β-prodrec C _) $
          subst-⊢-⇑ ⊢u ⊢σ)
         (subst-⊢⇒∷ t₁⇒t₂ ⊢σ))
-  subst-⊢⇒∷
-    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl _) ⊢σ =
+  subst-⊢⇒∷ (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl) ⊢σ =
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ [,]-[]-commute v)
       (PE.sym $ singleSubstLift C _) $
@@ -122,20 +125,19 @@ opaque
       (subst-⊢ ⊢v ⊢σ)
   subst-⊢⇒∷ (emptyrec-subst ⊢A t₁⇒t₂) ⊢σ =
     emptyrec-subst (subst-⊢ ⊢A ⊢σ) (subst-⊢⇒∷ t₁⇒t₂ ⊢σ)
-  subst-⊢⇒∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ ok no-η) ⊢σ =
+  subst-⊢⇒∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-subst (subst-⊢-⇑ ⊢A ⊢σ)
       (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢u ⊢σ))
-      (subst-⊢⇒∷ t₁⇒t₂ ⊢σ) ok no-η
-  subst-⊢⇒∷ (unitrec-β {A} ⊢A ⊢t ok no-η) ⊢σ =
+      (subst-⊢⇒∷ t₁⇒t₂ ⊢σ) no-η
+  subst-⊢⇒∷ (unitrec-β {A} ⊢A ⊢t no-η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-β (subst-⊢-⇑ ⊢A ⊢σ)
-      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢t ⊢σ)) ok
-      no-η
-  subst-⊢⇒∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) ⊢σ =
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢t ⊢σ)) no-η
+  subst-⊢⇒∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u η) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ singleSubstLift A _) $
     unitrec-β-η (subst-⊢-⇑ ⊢A ⊢σ) (subst-⊢ ⊢t ⊢σ)
-      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢u ⊢σ)) ok η
+      (PE.subst (_⊢_∷_ _ _) (singleSubstLift A _) (subst-⊢ ⊢u ⊢σ)) η
   subst-⊢⇒∷ (J-subst {t} {A} {B} ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ [,]-[]-commute B) $
     J-subst (subst-⊢ ⊢t ⊢σ)
@@ -168,6 +170,34 @@ opaque
   subst-⊢⇒∷ ([]-cong-β ⊢l t≡t′ ok) ⊢σ =
     PE.subst (_⊢_⇒_∷_ _ _ _) (E.Id-Erased-[] _) $
     []-cong-β (subst-⊢ ⊢l ⊢σ) (subst-⊢≡ t≡t′ (refl-⊢ˢʷ≡∷ ⊢σ)) ok
+  subst-⊢⇒∷ (resp-η {B} ok ⊢Q ⊢t ⊢u ⊢v) ⊢σ =
+    resp-η ok (subst-⊢ ⊢Q ⊢σ) (subst-⊢ ⊢t ⊢σ) (subst-⊢ ⊢u ⊢σ)
+      (PE.subst (_⊢_∷_ _ _) ([,]-[]-commute B) $
+       subst-⊢ ⊢v ⊢σ)
+  subst-⊢⇒∷ (set-η ok ⊢t ⊢u ⊢v ⊢w) ⊢σ =
+    set-η ok (subst-⊢ ⊢t ⊢σ) (subst-⊢ ⊢u ⊢σ) (subst-⊢ ⊢v ⊢σ)
+      (subst-⊢ ⊢w ⊢σ)
+  subst-⊢⇒∷ {Γ} (qrec-subst {A} {B} {C} ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) ⊢σ =
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (singleSubstLift C _)) $
+    qrec-subst (subst-⊢-⇑ ⊢C ⊢σ)
+      (PE.subst (_⊢_∷_ _ _) ([][]↑-commutes C) $
+       subst-⊢-⇑ ⊢t ⊢σ)
+      (PE.subst₃ _⊢_∷_ (Resp-Con-[] Γ A B) PE.refl Resp-type-[] $
+       subst-⊢-⇑ ⊢u ⊢σ)
+      (PE.subst₃ _⊢_∷_ (Is-set-Con-[] Γ A B C) PE.refl Is-set-type-[] $
+       subst-⊢-⇑ ⊢v ⊢σ)
+      (subst-⊢⇒∷ w₁⇒w₂ ⊢σ)
+  subst-⊢⇒∷ {Γ} (qrec-β {A} {B} {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) ⊢σ =
+    PE.subst₂ (_⊢_⇒_∷_ _ _)
+      (PE.sym (singleSubstLift t _)) (PE.sym (singleSubstLift C _)) $
+    qrec-β (subst-⊢-⇑ ⊢C ⊢σ)
+      (PE.subst (_⊢_∷_ _ _) ([][]↑-commutes C) $
+       subst-⊢-⇑ ⊢t ⊢σ)
+      (PE.subst₃ _⊢_∷_ (Resp-Con-[] Γ A B) PE.refl Resp-type-[] $
+       subst-⊢-⇑ ⊢u ⊢σ)
+      (PE.subst₃ _⊢_∷_ (Is-set-Con-[] Γ A B C) PE.refl Is-set-type-[] $
+       subst-⊢-⇑ ⊢v ⊢σ)
+      (subst-⊢ ⊢w ⊢σ)
 
 opaque
 

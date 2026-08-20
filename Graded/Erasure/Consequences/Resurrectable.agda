@@ -222,16 +222,18 @@ opaque
 
 opaque
 
-  -- If the modality's zero is well-behaved and Erased is allowed,
-  -- then ℕ is not resurrectable with respect to a well-resourced,
-  -- transparent definition context and an empty variable context.
+  -- If the modality's zero is well-behaved, Erased is allowed, and
+  -- higher quotient constructors are not neutral, then ℕ is not
+  -- resurrectable with respect to a well-resourced, transparent
+  -- definition context and an empty variable context.
 
   ¬-ℕ-resurrectable-ε :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     Erased-allowed s →
+    ¬ Higher-quotient-constructors-neutral →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     ¬ Resurrectable s q₁ q₂ (glassify ∇ » ε) l ℕ
-  ¬-ℕ-resurrectable-ε {∇} ok ▸∇ (_ , ▸t , ⊢t) =
+  ¬-ℕ-resurrectable-ε {∇} ok not-ok ▸∇ (_ , ▸t , ⊢t) =
     -- By the fundamental theorem t is related to erase t.
     case Fundamental.fundamentalErased-𝟙ᵐ fas ⊢t ▸t of λ {
       t®erase-t →
@@ -245,7 +247,7 @@ opaque
     -- The term t₁ is definitionally equal to zero.
     case PE.subst₄ _⊢_≡_∷_
            (PE.cong (_» _) (glassify-idem _)) PE.refl PE.refl PE.refl $
-         ε⊢∷Id→ε⊢≡∷ $
+         ε⊢∷Id→ε⊢≡∷ not-ok $
          erasedⱼ $
          PE.subst (_⊢_∷_ _ _)
            (PE.trans (PE.cong _[ _ ]₀ (Erased.Erased-[] _)) $
@@ -278,7 +280,7 @@ opaque
         case PE.subst₄ _⊢_≡_∷_
                (PE.cong (_» _) (glassify-idem _))
                PE.refl PE.refl PE.refl $
-             ε⊢∷Id→ε⊢≡∷ $
+             ε⊢∷Id→ε⊢≡∷ not-ok $
              erasedⱼ $
              PE.subst (_⊢_∷_ _ _)
                (PE.trans (PE.cong _[ _ ]₀ $ Erased.Erased-[] _) $
@@ -319,14 +321,14 @@ opaque
                 case TP.suc-noRed suc⇒zero of λ () }}}}
     where
     fas : Fundamental-assumptions (glassify ∇ » ε)
-    fas = fundamental-assumptions₀ (defn-wf (wf ⊢t)) ▸∇
+    fas = fundamental-assumptions₀ (inj₂ not-ok) (defn-wf (wf ⊢t)) ▸∇
 
     open Fundamental-assumptions fas
 
     as : Assumptions
     as = record { ⊢Δ = well-formed; str = T.non-strict }
 
-    open H variant as
+    open H UR as
     open L as
 
 opaque
@@ -455,7 +457,7 @@ opaque
     as′ : Assumptions
     as′ = record { ⊢Δ = wf ⊢t; str = T.non-strict }
 
-    open H variant as′
+    open H UR as′
     open L as′
 
     instance

@@ -36,6 +36,7 @@ open import Graded.Modality.Properties 𝕄
 open import Graded.Restrictions.Zero-one 𝕄 variant
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
+open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
 open import Graded.Usage.Properties.Zero-one variant UR
 open import Graded.Usage.Restrictions.Instance UR
@@ -211,6 +212,35 @@ opaque
         case inversion-[]-cong ⊢bc of λ {
           (_ , _ , _ , _ , _ , ok , _) →
         ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₁ ok }
+      (resp _) _ ▸resp _ →
+        let _ , 𝟙≡𝟘ᵐ? , ok , _ = inv-usage-resp ▸resp in
+        𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ (PE.sym 𝟙≡𝟘ᵐ?) $
+        ¬Trivialᵐ→𝟘ᵐ-allowed $
+        Higher-quotient-constructors-allowed→¬Trivialᵐ ok
+      (set _) _ ▸set _ →
+        let _ , 𝟙≡𝟘ᵐ? , ok , _ = inv-usage-set ▸set in
+        𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ (PE.sym 𝟙≡𝟘ᵐ?) $
+        ¬Trivialᵐ→𝟘ᵐ-allowed $
+        Higher-quotient-constructors-allowed→¬Trivialᵐ ok
+      (qrec n) ⊢qrec (qrec₀ {γ₂} {γ₅} _ _ _ _ _ _ ▸w) →
+        let _ , _ , _ , _ , _ , _ , ⊢w , _ = inversion-qrec ⊢qrec in
+        γ₂ +ᶜ ω ·ᶜ γ₅ ≈ᶜ 𝟘ᶜ  →⟨ proj₂ ∘→ +ᶜ-positive ⟩
+        ω ·ᶜ γ₅ ≈ᶜ 𝟘ᶜ        →⟨ ·ᶜ-zero-product ⟩
+        ω ≡ 𝟘 ⊎ γ₅ ≈ᶜ 𝟘ᶜ     →⟨ (λ where
+                                   (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘)
+                                   (inj₂ hyp) → hyp) ⟩
+        γ₅ ≈ᶜ 𝟘ᶜ             →⟨ helper n ⊢w ▸w ⟩
+        ⊥                    □
+      (qrec n) ⊢qrec (qrec₁ {γ₁} {γ₂} {γ₅} _ _ _ _ _ _ ▸w) →
+        let _ , _ , _ , _ , _ , _ , ⊢w , _ = inversion-qrec ⊢qrec in
+        ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
+        ω ≡ 𝟘 ⊎ γ₁ +ᶜ γ₂ +ᶜ γ₅ ≈ᶜ 𝟘ᶜ  →⟨ (λ where
+                                            (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘)
+                                            (inj₂ hyp) → hyp) ⟩
+        γ₁ +ᶜ γ₂ +ᶜ γ₅ ≈ᶜ 𝟘ᶜ          →⟨ proj₂ ∘→ +ᶜ-positive ∘→
+                                         proj₂ ∘→ +ᶜ-positive ⟩
+        γ₅ ≈ᶜ 𝟘ᶜ                      →⟨ helper n ⊢w ▸w ⟩
+        ⊥                             □
       t-n ⊢t (sub {γ} ▸t χ≤γ) →
         χ ≈ᶜ 𝟘ᶜ  →⟨ ≤ᶜ→≈ᶜ𝟘ᶜ→≈ᶜ𝟘ᶜ χ≤γ ⟩
         γ ≈ᶜ 𝟘ᶜ  →⟨ helper t-n ⊢t ▸t ⟩

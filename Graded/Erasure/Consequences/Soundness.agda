@@ -46,12 +46,14 @@ open import Definition.Typed.Well-formed TR
 
 open import Graded.Context 𝕄
 open import Graded.Derived.Erased.Usage UR
+open import Graded.Derived.Identity UR
 open import Graded.Derived.Omega UR
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties UR
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
+open import Graded.Restrictions.Zero-one 𝕄 variant
 
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
@@ -123,14 +125,14 @@ module Soundness′
 
       as : Assumptions
       as =
-        assumptions ⦃ ok = no-equality-reflection-or-empty ⦄ ⊢Δ str
-          ⇒*-is-reduction-relation
+        assumptions ⦃ ok = no-equality-reflection-or-empty ⦄
+          ⊢Δ str ⇒*-is-reduction-relation
         where
         open Fundamental-assumptions FA
 
       open Fundamental FA public
       open Graded.Erasure.LogicalRelation as public
-      open Graded.Erasure.LogicalRelation.Hidden variant as public
+      open Graded.Erasure.LogicalRelation.Hidden UR as public
       open Graded.Erasure.LogicalRelation.Irrelevance as public
 
     private opaque
@@ -251,16 +253,18 @@ module Soundness′
           strict     → erase-t⇒*₁
           non-strict → erase-t⇒*₂
 
-  -- If the variable context is empty, then the results in Soundness
-  -- hold without any further assumptions related to the variable
-  -- context.
+  -- Variants of the results in Soundness for the case where the
+  -- variable context is empty.
 
   module Soundness₀
+    (ok : No-erased-matches TR UR ⊎
+          ¬ Higher-quotient-constructors-neutral)
     (▸∇ : ▸[ 𝟙ᵐ ] glassify ∇)
     where
 
     private
-      module S »∇ = Soundness (fundamental-assumptions⁻₀ »∇ ▸∇)
+      module S »∇ =
+        Soundness (fundamental-assumptions⁻₀ ok »∇ ▸∇)
 
     opaque
 
@@ -303,8 +307,9 @@ opaque
   -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 and Σʷ-allowed p 𝟘 hold for some p,
   -- then there is a counterexample to soundness-ℕ-only-source without
   -- the assumption "erased matches are not allowed unless the context
-  -- is empty" (and without the strictness argument, the assumption
-  -- that the modality's zero is well-behaved, and the assumption that
+  -- is empty and higher quotient constructors are not neutral" (and
+  -- without the strictness argument, the assumption that the
+  -- modality's zero is well-behaved, and the assumption that
   -- No-equality-reflection holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
@@ -328,7 +333,7 @@ opaque
   soundness-ℕ-only-source-counterexample₁ {p = p} P-ok Σʷ-ok =
       inhabited-consistent
         (⊢ˢʷ∷-sgSubst (prodⱼ ℕ⊢ℕ (zeroⱼ εε) (zeroⱼ εε) Σʷ-ok))
-    , prodrecⱼ′ (⊢ℕ (∙ ΠΣⱼ Σℕ⊢ℕ Σʷ-ok)) (var₀ ⊢Σ) (zeroⱼ (∙ Σℕ⊢ℕ))
+    , prodrecⱼ (⊢ℕ (∙ ΠΣⱼ Σℕ⊢ℕ Σʷ-ok)) (var₀ ⊢Σ) (zeroⱼ (∙ Σℕ⊢ℕ))
     , (λ ())
     , sub
         (prodrecₘ var
@@ -367,8 +372,9 @@ opaque
   -- If []-cong-allowed and []-cong-allowed-mode 𝟙ᵐ hold, then there
   -- is a counterexample to soundness-ℕ-only-source without the
   -- assumption "erased matches are not allowed unless the context is
-  -- empty" (and without the strictness argument, the assumption that
-  -- the modality's zero is well-behaved, and the assumption that
+  -- empty and higher quotient constructors are not neutral" (and
+  -- without the strictness argument, the assumption that the
+  -- modality's zero is well-behaved, and the assumption that
   -- No-equality-reflection holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
@@ -422,8 +428,9 @@ opaque
   -- If erased-matches-for-J 𝟙ᵐ is equal to not-none sem, then there
   -- is a counterexample to soundness-ℕ-only-source without the
   -- assumption "erased matches are not allowed unless the context is
-  -- empty" (and without the strictness argument, the assumption that
-  -- the modality's zero is well-behaved, and the assumption that
+  -- empty and higher quotient constructors are not neutral" (and
+  -- without the strictness argument, the assumption that the
+  -- modality's zero is well-behaved, and the assumption that
   -- No-equality-reflection holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
@@ -465,12 +472,59 @@ opaque
     open Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
 opaque
+  unfolding subst
+
+  -- A variant of soundness-ℕ-only-source-counterexample₃ with a
+  -- closed context, implemented under the additional assumption that
+  -- higher quotient constructors are allowed and neutral.
+
+  soundness-ℕ-only-source-counterexample₃′ :
+    erased-matches-for-J 𝟙ᵐ PE.≡ not-none sem →
+    Higher-quotient-constructors-allowed →
+    Higher-quotient-constructors-neutral →
+    let ∇ = ε
+        Δ = ε
+        t = subst 𝟘 (Quot ℕ ℕ) ℕ (class zero) (class zero)
+              (resp ℕ ℕ zero zero zero) zero
+    in
+    Consistent (glassify ∇ » Δ) ×
+    Empty-con Δ ×
+    ∇ » Δ ⊢ t ∷ ℕ ×
+    ▸[ 𝟙ᵐ ] glassify ∇ ×
+    𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
+    (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucⁿ n ∷ℕ) ×
+    (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucⁿ n ∷ ℕ)
+  soundness-ℕ-only-source-counterexample₃′ ok₁ ok₂ ok₃ =
+    let ok₄          = Higher-quotient-constructors→Quotient-terms ok₂
+        ok₅ , not-ok = Higher-quotient-constructors-neutral⇔ .proj₁ ok₃
+        ⊢zero        = zeroⱼ εε
+        ⊢Q           = Quot ok₅ (⊢ℕ (⊢Quot-rel-Con (⊢ℕ εε)))
+    in
+    (λ _ → TC.¬Empty) ,
+    ε ,
+    ⊢subst (⊢ℕ (∙ ⊢Q)) (resp ⊢Q ⊢zero ⊢zero ⊢zero) ⊢zero ,
+    (λ ()) ,
+    ▸subst-𝟘 {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ} ok₁ (Quot ok₄ ℕₘ ℕₘ) ℕₘ
+      (class ok₄ zeroₘ) (class ok₄ zeroₘ)
+      (resp ok₂ ℕₘ ℕₘ zeroₘ zeroₘ zeroₘ PE.refl) zeroₘ ,
+    (λ where
+       (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne (Jₙ (resp ok₃)))
+       (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (Jₙ (resp ok₃)))) ,
+    sucⁿ≢ne {V = TL.Lift _ ⊤}
+      ⦃ ok = possibly-nonempty
+               ⦃ ok = No-equality-reflection⇔ .proj₂ not-ok ⦄
+      ⦄
+      _ (Jₙ (resp ok₃)) ∘→
+    sym′ ∘→ proj₂
+
+opaque
 
   -- If the K rule is allowed and erased-matches-for-K 𝟙ᵐ is equal to
   -- not-none sem, then there is a counterexample to
   -- soundness-ℕ-only-source without the assumption "erased matches
-  -- are not allowed unless the context is empty" (and without the
-  -- strictness argument, the assumption that the modality's zero is
+  -- are not allowed unless the context is empty and higher quotient
+  -- constructors are not neutral" (and without the strictness
+  -- argument, the assumption that the modality's zero is
   -- well-behaved, and the assumption that No-equality-reflection
   -- holds or the variable context is empty).
   --
@@ -519,10 +573,11 @@ opaque
   -- If Unitrec-allowed 𝟙ᵐ 𝟘 𝟘 and Unitʷ-allowed hold and η-equality
   -- is not allowed for weak unit types, then there is a
   -- counterexample to soundness-ℕ-only-source without the assumption
-  -- "erased matches are not allowed unless the context is empty" (and
-  -- without the strictness argument, the assumption that the
-  -- modality's zero is well-behaved, and the assumption that
-  -- No-equality-reflection holds or the variable context is empty).
+  -- "erased matches are not allowed unless the context is empty and
+  -- higher quotient constructors are not neutral" (and without the
+  -- strictness argument, the assumption that the modality's zero is
+  -- well-behaved, and the assumption that No-equality-reflection
+  -- holds or the variable context is empty).
   --
   -- If equality reflection is not allowed, then the counterexample
   -- also works for a variant of the statement with reduction replaced
@@ -547,7 +602,7 @@ opaque
     let ε⊢Unit = ⊢Unit εε Unit-ok in
       inhabited-consistent (⊢ˢʷ∷-sgSubst (starⱼ εε Unit-ok))
     , unitrecⱼ (⊢ℕ (∙ ⊢Unit (∙ ε⊢Unit) Unit-ok)) (var₀ ε⊢Unit)
-        (zeroⱼ (∙ ε⊢Unit)) Unit-ok
+        (zeroⱼ (∙ ε⊢Unit))
     , (λ ())
     , sub
         (unitrecₘ
@@ -578,7 +633,8 @@ opaque
   --
   -- * "if erased matches are allowed for emptyrec, then the context
   --   is consistent",
-  -- * "erased matches are not allowed unless the context is empty",
+  -- * "erased matches are not allowed unless the context is empty and
+  --   higher quotient constructors are not neutral",
   -- * the assumption that the modality's zero is well-behaved, and
   -- * the assumption that No-equality-reflection holds or the
   --   variable context is empty.
@@ -673,12 +729,12 @@ opaque
   -- If equality reflection is allowed and Π p , q is allowed for some
   -- grade p that satisfies p ≤ 1 + p, then there is a counterexample
   -- to soundness-ℕ without the assumption "No-equality-reflection
-  -- holds or the context is empty" (and without the strictness
-  -- argument, the assumption that the modality's zero is
-  -- well-behaved, the assumption "erased matches are not allowed
-  -- unless the context is empty", and the assumption "if erased
-  -- matches are allowed for emptyrec, then the context is
-  -- consistent").
+  -- holds or the context is empty and higher quotient constructors
+  -- are not neutral" (and without the strictness argument, the
+  -- assumption that the modality's zero is well-behaved, the
+  -- assumption "erased matches are not allowed unless the context is
+  -- empty", and the assumption "if erased matches are allowed for
+  -- emptyrec, then the context is consistent").
 
   soundness-ℕ-counterexample₈ :
     Equality-reflection →
@@ -798,7 +854,7 @@ soundness-ℕ-only-target-not-counterexample₁ {p} ok
 
   ⊢pr : Δ′ »∙ ℕ² ⊢ pr ∷ ℕ
   ⊢pr =
-    prodrecⱼ′ (⊢ℕ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
+    prodrecⱼ (⊢ℕ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ]))
       (var₀ (⊢ℕ² (εε ∙[ ⊢ℕ² ])))
       (zeroⱼ (εε ∙[ ⊢ℕ² ] ∙[ ⊢ℕ² ] ∙[ ⊢ℕ ] ∙[ ⊢ℕ ]))
 
@@ -919,6 +975,23 @@ opaque
     ⊢zero = zeroⱼ (J-motive-context (zeroⱼ ⊢Δ))
 
 opaque
+  unfolding subst
+
+  soundness-ℕ-only-target-not-counterexample₃′ :
+    Quot-allowed →
+    Run-time-canonicity-for
+      ε
+      ε
+      (subst 𝟘 (Quot ℕ ℕ) ℕ (class zero) (class zero)
+         (resp ℕ ℕ zero zero zero) zero)
+  soundness-ℕ-only-target-not-counterexample₃′ ok =
+    let ⊢zero = zeroⱼ εε in
+    0 , (λ _ → refl-⇒ˢ⟨⟩*) , _ , _ , ε , id⊇ ,
+    Id-subst-const
+      (resp (Quot ok (⊢ℕ (⊢Quot-rel-Con (⊢ℕ εε)))) ⊢zero ⊢zero ⊢zero)
+      ⊢zero .proj₂
+
+opaque
 
   soundness-ℕ-only-target-not-counterexample₄ :
     K-allowed →
@@ -981,7 +1054,7 @@ opaque
            (unitrecⱼ
               (⊢ℕ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ]))
               (var₀ (⊢Unitʷ (εε ∙[ ⊢Unitʷ ])))
-              (zeroⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])) Unit-ok)
+              (zeroⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
            (zeroⱼ (εε ∙[ ⊢Unitʷ ] ∙[ ⊢Unitʷ ])))
         (⊢Unit-η (var₀ (⊢Unitʷ εε)))
         (rflⱼ′

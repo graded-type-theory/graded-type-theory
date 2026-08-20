@@ -13,7 +13,7 @@ module Graded.Heap.Usage.Properties.Zero-one
   {a} {M : Set a}
   {𝕄 : Modality M}
   {mode-variant : Mode-variant 𝕄}
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   (open Graded.Mode.Instances.Zero-one mode-variant)
   (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (open Usage-restrictions UR)

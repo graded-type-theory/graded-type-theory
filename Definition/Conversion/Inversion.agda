@@ -28,6 +28,7 @@ open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
@@ -44,7 +45,7 @@ private variable
   x y                               : Fin _
   ∇                                 : DCon (Term 0) _
   Γ                                 : Cons _ _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ D
     t t₁ t₂ t₃ t₄ u u₁ u₂ u₃ u₄ v w : Term _
   l l₁ l₂                           : Lvl _
   V                                 : Set a
@@ -77,6 +78,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -118,6 +122,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -190,6 +197,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -245,6 +255,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -313,6 +326,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -361,6 +377,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -418,6 +437,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -490,6 +512,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -579,6 +604,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -687,6 +715,9 @@ opaque
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -785,6 +816,9 @@ opaque
     (natrec-cong _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
     (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -863,6 +897,9 @@ opaque
     (natrec-cong _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
     (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
     ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -930,18 +967,21 @@ opaque
       _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
       PE.refl , PE.refl , PE.refl ,
       t₁≡u₁ , B≡C , t₂≡u₂ , t₃≡u₃ , t₄~u₄ , D≡Id , ok
-    (var-refl _ _)         → inj₂ ((λ ()) , (λ ()))
-    (defn-refl _ _ _)      → inj₂ ((λ ()) , (λ ()))
-    (lower-cong _)         → inj₂ ((λ ()) , (λ ()))
-    (app-cong _ _)         → inj₂ ((λ ()) , (λ ()))
-    (fst-cong _)           → inj₂ ((λ ()) , (λ ()))
-    (snd-cong _)           → inj₂ ((λ ()) , (λ ()))
-    (prodrec-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
-    (emptyrec-cong _ _)    → inj₂ ((λ ()) , (λ ()))
+    (var-refl _ _)           → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)        → inj₂ ((λ ()) , (λ ()))
+    (lower-cong _)           → inj₂ ((λ ()) , (λ ()))
+    (app-cong _ _)           → inj₂ ((λ ()) , (λ ()))
+    (fst-cong _)             → inj₂ ((λ ()) , (λ ()))
+    (snd-cong _)             → inj₂ ((λ ()) , (λ ()))
+    (prodrec-cong _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (emptyrec-cong _ _)      → inj₂ ((λ ()) , (λ ()))
     (unitrec-cong _ _ _ _)   → inj₂ ((λ ()) , (λ ()))
-    (natrec-cong _ _ _ _)  → inj₂ ((λ ()) , (λ ()))
-    (J-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
-    (K-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (natrec-cong _ _ _ _)    → inj₂ ((λ ()) , (λ ()))
+    (J-cong _ _ _ _ _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (K-cong _ _ _ _ _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)  → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)    → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -985,6 +1025,268 @@ opaque
     _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
     l′≡l , B≡C , t₁≡u₁ , t₂≡u₂ , t₃~u₃ , D≡ , ok
 
+opaque
+
+  -- Inversion for Quot.
+
+  inv-Quot~ : ¬ Γ ⊢ Quot A B ~ C ↑ D
+  inv-Quot~ ()
+
+opaque
+
+  -- Inversion for Quot.
+
+  inv-~Quot : ¬ Γ ⊢ A ~ Quot B C ↑ D
+  inv-~Quot ()
+
+opaque
+
+  -- Inversion for class.
+
+  inv-class~ : ¬ Γ ⊢ class t ~ u ↑ A
+  inv-class~ ()
+
+opaque
+
+  -- Inversion for class.
+
+  inv-~class : ¬ Γ ⊢ t ~ class u ↑ A
+  inv-~class ()
+
+opaque
+
+  -- A kind of inversion lemma for resp.
+
+  inv-~-resp :
+    Γ ⊢ t₁ ~ t₂ ↑ A →
+    (∃₁₀ λ B₁ B₂ C₁ C₂ u₁ u₂ v₁ v₂ w₁ w₂ →
+     A PE.≡ Id (Quot B₁ C₁) (class u₁) (class v₁) ×
+     t₁ PE.≡ resp B₁ C₁ u₁ v₁ w₁ ×
+     t₂ PE.≡ resp B₂ C₂ u₂ v₂ w₂ ×
+     Higher-quotient-constructors-neutral ×
+     (Γ ⊢ B₁ [conv↑] B₂) ×
+     (Quot-rel-Cons Γ B₁ ⊢ C₁ [conv↑] C₂) ×
+     Γ ⊢ u₁ [conv↑] u₂ ∷ B₁ ×
+     Γ ⊢ v₁ [conv↑] v₂ ∷ B₁ ×
+     Γ ⊢ w₁ [conv↑] w₂ ∷ C₁ [ u₁ , v₁ ]₁₀) ⊎
+    ¬ (∃₅ λ B₁ C₁ u₁ v₁ w₁ → t₁ PE.≡ resp B₁ C₁ u₁ v₁ w₁) ×
+    ¬ (∃₅ λ B₂ C₂ u₂ v₂ w₂ → t₂ PE.≡ resp B₂ C₂ u₂ v₂ w₂)
+  inv-~-resp = λ where
+    (resp-cong ok B₁≡B₂ C₁≡C₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+      inj₁ $
+      _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+      PE.refl , PE.refl , PE.refl ,
+      ok , B₁≡B₂ , C₁≡C₂ , u₁≡u₂ , v₁≡v₂ , w₁≡w₂
+    (var-refl _ _)               → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)            → inj₂ ((λ ()) , (λ ()))
+    (lower-cong _)               → inj₂ ((λ ()) , (λ ()))
+    (app-cong _ _)               → inj₂ ((λ ()) , (λ ()))
+    (fst-cong _)                 → inj₂ ((λ ()) , (λ ()))
+    (snd-cong _)                 → inj₂ ((λ ()) , (λ ()))
+    (prodrec-cong _ _ _)         → inj₂ ((λ ()) , (λ ()))
+    (emptyrec-cong _ _)          → inj₂ ((λ ()) , (λ ()))
+    (unitrec-cong _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    (natrec-cong _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
+    (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
+
+opaque
+
+  -- Inversion for resp.
+
+  inv-resp~ :
+    Γ ⊢ resp A B t u v ~ w ↑ C →
+    ∃₅ λ A′ B′ t′ u′ v′ →
+    C PE.≡ Id (Quot A B) (class t) (class u) ×
+    w PE.≡ resp A′ B′ t′ u′ v′ ×
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢ A [conv↑] A′) ×
+    (Quot-rel-Cons Γ A ⊢ B [conv↑] B′) ×
+    Γ ⊢ t [conv↑] t′ ∷ A ×
+    Γ ⊢ u [conv↑] u′ ∷ A ×
+    Γ ⊢ v [conv↑] v′ ∷ B [ t , u ]₁₀
+  inv-resp~ (resp-cong ok A≡ B≡ t≡ u≡ v≡) =
+    _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+    ok , A≡ , B≡ , t≡ , u≡ , v≡
+
+opaque
+
+  -- Inversion for resp.
+
+  inv-~resp :
+    Γ ⊢ t ~ resp A B u v w ↑ C →
+    ∃₅ λ A′ B′ u′ v′ w′ →
+    C PE.≡ Id (Quot A′ B′) (class u′) (class v′) ×
+    t PE.≡ resp A′ B′ u′ v′ w′ ×
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢ A′ [conv↑] A) ×
+    (Quot-rel-Cons Γ A′ ⊢ B′ [conv↑] B) ×
+    Γ ⊢ u′ [conv↑] u ∷ A′ ×
+    Γ ⊢ v′ [conv↑] v ∷ A′ ×
+    Γ ⊢ w′ [conv↑] w ∷ B′ [ u′ , v′ ]₁₀
+  inv-~resp (resp-cong ok ≡A ≡B ≡u ≡v ≡w) =
+    _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+    ok , ≡A , ≡B , ≡u , ≡v , ≡w
+
+opaque
+
+  -- A kind of inversion lemma for set.
+
+  inv-~-set :
+    Γ ⊢ t ~ u ↑ A →
+    (∃₆ λ B₁ B₂ v₁ v₂ v₃ v₄ → ∃₆ λ C₁ C₂ w₁ w₂ w₃ w₄ →
+     A PE.≡ Id (Id (Quot B₁ B₂) v₁ v₂) v₃ v₄ ×
+     t PE.≡ set B₁ B₂ v₁ v₂ v₃ v₄ ×
+     u PE.≡ set C₁ C₂ w₁ w₂ w₃ w₄ ×
+     Higher-quotient-constructors-neutral ×
+     (Γ ⊢ B₁ [conv↑] C₁) ×
+     (Quot-rel-Cons Γ B₁ ⊢ B₂ [conv↑] C₂) ×
+     Γ ⊢ v₁ [conv↑] w₁ ∷ Quot B₁ B₂ ×
+     Γ ⊢ v₂ [conv↑] w₂ ∷ Quot B₁ B₂ ×
+     Γ ⊢ v₃ [conv↑] w₃ ∷ Id (Quot B₁ B₂) v₁ v₂ ×
+     Γ ⊢ v₄ [conv↑] w₄ ∷ Id (Quot B₁ B₂) v₁ v₂) ⊎
+    ¬ (∃₆ λ B₁ B₂ v₁ v₂ v₃ v₄ → t PE.≡ set B₁ B₂ v₁ v₂ v₃ v₄) ×
+    ¬ (∃₆ λ C₁ C₂ w₁ w₂ w₃ w₄ → u PE.≡ set C₁ C₂ w₁ w₂ w₃ w₄)
+  inv-~-set = λ where
+    (set-cong ok B₁≡ B₂≡ v₁≡ v₂≡ v₃≡ v₄≡) →
+      inj₁ $
+      _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+      PE.refl , PE.refl , PE.refl ,
+      ok , B₁≡ , B₂≡ , v₁≡ , v₂≡ , v₃≡ , v₄≡
+    (var-refl _ _)               → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)            → inj₂ ((λ ()) , (λ ()))
+    (lower-cong _)               → inj₂ ((λ ()) , (λ ()))
+    (app-cong _ _)               → inj₂ ((λ ()) , (λ ()))
+    (fst-cong _)                 → inj₂ ((λ ()) , (λ ()))
+    (snd-cong _)                 → inj₂ ((λ ()) , (λ ()))
+    (prodrec-cong _ _ _)         → inj₂ ((λ ()) , (λ ()))
+    (emptyrec-cong _ _)          → inj₂ ((λ ()) , (λ ()))
+    (unitrec-cong _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    (natrec-cong _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
+    (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (qrec-cong _ _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
+
+opaque
+
+  -- Inversion for set.
+
+  inv-set~ :
+    Γ ⊢ set A₁ A₂ t₁ t₂ t₃ t₄ ~ u ↑ B →
+    ∃₆ λ C₁ C₂ v₁ v₂ v₃ v₄ →
+    B PE.≡ Id (Id (Quot A₁ A₂) t₁ t₂) t₃ t₄ ×
+    u PE.≡ set C₁ C₂ v₁ v₂ v₃ v₄ ×
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢ A₁ [conv↑] C₁) ×
+    (Quot-rel-Cons Γ A₁ ⊢ A₂ [conv↑] C₂) ×
+    Γ ⊢ t₁ [conv↑] v₁ ∷ Quot A₁ A₂ ×
+    Γ ⊢ t₂ [conv↑] v₂ ∷ Quot A₁ A₂ ×
+    Γ ⊢ t₃ [conv↑] v₃ ∷ Id (Quot A₁ A₂) t₁ t₂ ×
+    Γ ⊢ t₄ [conv↑] v₄ ∷ Id (Quot A₁ A₂) t₁ t₂
+  inv-set~ (set-cong ok A₁≡ A₂≡ t₁≡ t₂≡ t₃≡ t₄≡) =
+    _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+    ok , A₁≡ , A₂≡ , t₁≡ , t₂≡ , t₃≡ , t₄≡
+
+opaque
+
+  -- Inversion for set.
+
+  inv-~set :
+    Γ ⊢ t ~ set A₁ A₂ u₁ u₂ u₃ u₄ ↑ B →
+    ∃₆ λ C₁ C₂ v₁ v₂ v₃ v₄ →
+    B PE.≡ Id (Id (Quot C₁ C₂) v₁ v₂) v₃ v₄ ×
+    t PE.≡ set C₁ C₂ v₁ v₂ v₃ v₄ ×
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢ C₁ [conv↑] A₁) ×
+    (Quot-rel-Cons Γ C₁ ⊢ C₂ [conv↑] A₂) ×
+    Γ ⊢ v₁ [conv↑] u₁ ∷ Quot C₁ C₂ ×
+    Γ ⊢ v₂ [conv↑] u₂ ∷ Quot C₁ C₂ ×
+    Γ ⊢ v₃ [conv↑] u₃ ∷ Id (Quot C₁ C₂) v₁ v₂ ×
+    Γ ⊢ v₄ [conv↑] u₄ ∷ Id (Quot C₁ C₂) v₁ v₂
+  inv-~set (set-cong ok ≡A₁ ≡A₂ ≡t₁ ≡t₂ ≡t₃ ≡t₄) =
+    _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+    ok , ≡A₁ , ≡A₂ , ≡t₁ , ≡t₂ , ≡t₃ , ≡t₄
+
+opaque
+
+  -- A kind of inversion lemma for qrec.
+
+  inv-~-qrec :
+    Γ ⊢ t ~ u ↑ A →
+    (∃₇ λ B C D v₁ v₂ v₃ v₄ → ∃₅ λ E w₁ w₂ w₃ w₄ →
+     A PE.≡ D [ v₄ ]₀ ×
+     t PE.≡ qrec D v₁ v₂ v₃ v₄ ×
+     u PE.≡ qrec E w₁ w₂ w₃ w₄ ×
+     (Γ »∙ Quot B C ⊢ D [conv↑] E) ×
+     Γ »∙ B ⊢ v₁ [conv↑] w₁ ∷ D [ class (var x0) ]↑ ×
+     Resp-Cons Γ B C ⊢ v₂ [conv↑] w₂ ∷ Resp-type B C D v₁ ×
+     Is-set-Cons Γ B C D ⊢ v₃ [conv↑] w₃ ∷ Is-set-type D ×
+     Γ ⊢ v₄ ~ w₄ ↓ Quot B C) ⊎
+    ¬ (∃₅ λ D v₁ v₂ v₃ v₄ → t PE.≡ qrec D v₁ v₂ v₃ v₄) ×
+    ¬ (∃₅ λ E w₁ w₂ w₃ w₄ → u PE.≡ qrec E w₁ w₂ w₃ w₄)
+  inv-~-qrec = λ where
+    (qrec-cong D≡ v₁≡ v₂≡ v₃≡ v₄≡) →
+      inj₁ $
+      _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
+      PE.refl , PE.refl , PE.refl ,
+      D≡ , v₁≡ , v₂≡ , v₃≡ , v₄≡
+    (var-refl _ _)               → inj₂ ((λ ()) , (λ ()))
+    (defn-refl _ _ _)            → inj₂ ((λ ()) , (λ ()))
+    (lower-cong _)               → inj₂ ((λ ()) , (λ ()))
+    (app-cong _ _)               → inj₂ ((λ ()) , (λ ()))
+    (fst-cong _)                 → inj₂ ((λ ()) , (λ ()))
+    (snd-cong _)                 → inj₂ ((λ ()) , (λ ()))
+    (prodrec-cong _ _ _)         → inj₂ ((λ ()) , (λ ()))
+    (emptyrec-cong _ _)          → inj₂ ((λ ()) , (λ ()))
+    (unitrec-cong _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    (natrec-cong _ _ _ _)        → inj₂ ((λ ()) , (λ ()))
+    (J-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    (K-cong _ _ _ _ _ _ _)       → inj₂ ((λ ()) , (λ ()))
+    ([]-cong-cong _ _ _ _ _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (resp-cong _ _ _ _ _ _)      → inj₂ ((λ ()) , (λ ()))
+    (set-cong _ _ _ _ _ _ _)     → inj₂ ((λ ()) , (λ ()))
+
+opaque
+
+  -- Inversion for qrec.
+
+  inv-qrec~ :
+    Γ ⊢ qrec A t₁ t₂ t₃ t₄ ~ u ↑ B →
+    ∃₇ λ C D E v₁ v₂ v₃ v₄ →
+    B PE.≡ A [ t₄ ]₀ ×
+    u PE.≡ qrec E v₁ v₂ v₃ v₄ ×
+    (Γ »∙ Quot C D ⊢ A [conv↑] E) ×
+    Γ »∙ C ⊢ t₁ [conv↑] v₁ ∷ A [ class (var x0) ]↑ ×
+    Resp-Cons Γ C D ⊢ t₂ [conv↑] v₂ ∷ Resp-type C D A t₁ ×
+    Is-set-Cons Γ C D A ⊢ t₃ [conv↑] v₃ ∷ Is-set-type A ×
+    Γ ⊢ t₄ ~ v₄ ↓ Quot C D
+  inv-qrec~ (qrec-cong A≡ t₁≡ t₂≡ t₃≡ t₄≡) =
+    _ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+    A≡ , t₁≡ , t₂≡ , t₃≡ , t₄≡
+
+opaque
+
+  -- Inversion for qrec.
+
+  inv-~qrec :
+    Γ ⊢ t ~ qrec A u₁ u₂ u₃ u₄ ↑ B →
+    ∃₇ λ C D E v₁ v₂ v₃ v₄ →
+    B PE.≡ E [ v₄ ]₀ ×
+    t PE.≡ qrec E v₁ v₂ v₃ v₄ ×
+    (Γ »∙ Quot C D ⊢ E [conv↑] A) ×
+    Γ »∙ C ⊢ v₁ [conv↑] u₁ ∷ E [ class (var x0) ]↑ ×
+    Resp-Cons Γ C D ⊢ v₂ [conv↑] u₂ ∷ Resp-type C D E v₁ ×
+    Is-set-Cons Γ C D E ⊢ v₃ [conv↑] u₃ ∷ Is-set-type E ×
+    Γ ⊢ v₄ ~ u₄ ↓ Quot C D
+  inv-~qrec (qrec-cong ≡A ≡u₁ ≡u₂ ≡u₃ ≡u₄) =
+    _ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+    ≡A , ≡u₁ , ≡u₂ , ≡u₃ , ≡u₄
+
 ------------------------------------------------------------------------
 -- Inversion and similar lemmas for _⊢_[conv↓]_
 
@@ -997,15 +1299,16 @@ opaque
     (∃ λ l → Γ ⊢ A ~ B ↓ U l) ⊎
     ¬ Neutral V (Γ .defs) A × ¬ Neutral V (Γ .defs) B
   inv-[conv↓]-ne′ = λ where
-    (ne A~B)         → inj₁ (_ , A~B)
-    (U-cong _)       → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
-    (Lift-cong _ _)  → inj₂ (¬-Neutral-Lift , ¬-Neutral-Lift)
-    (ΠΣ-cong _ _ _)  → inj₂ (¬-Neutral-ΠΣ    , ¬-Neutral-ΠΣ)
-    (Empty-refl _)   → inj₂ (¬-Neutral-Empty , ¬-Neutral-Empty)
-    (Unit-refl _ _)  → inj₂ (¬-Neutral-Unit  , ¬-Neutral-Unit)
-    (ℕ-refl _)       → inj₂ (¬-Neutral-ℕ     , ¬-Neutral-ℕ)
-    (Level-refl _ _) → inj₂ (¬-Neutral-Level , ¬-Neutral-Level)
-    (Id-cong _ _ _)  → inj₂ (¬-Neutral-Id    , ¬-Neutral-Id)
+    (ne A~B)          → inj₁ (_ , A~B)
+    (U-cong _)        → inj₂ (¬-Neutral-U     , ¬-Neutral-U)
+    (Lift-cong _ _)   → inj₂ (¬-Neutral-Lift , ¬-Neutral-Lift)
+    (ΠΣ-cong _ _ _)   → inj₂ (¬-Neutral-ΠΣ    , ¬-Neutral-ΠΣ)
+    (Empty-refl _)    → inj₂ (¬-Neutral-Empty , ¬-Neutral-Empty)
+    (Unit-refl _ _)   → inj₂ (¬-Neutral-Unit  , ¬-Neutral-Unit)
+    (ℕ-refl _)        → inj₂ (¬-Neutral-ℕ     , ¬-Neutral-ℕ)
+    (Level-refl _ _)  → inj₂ (¬-Neutral-Level , ¬-Neutral-Level)
+    (Id-cong _ _ _)   → inj₂ (¬-Neutral-Id    , ¬-Neutral-Id)
+    (Quot-cong _ _ _) → inj₂ (¬-Neutral-Quot  , ¬-Neutral-Quot)
 
 opaque
 
@@ -1036,13 +1339,14 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , PE.refl) → ¬-Neutral-U (ne⁻ A-ne) })
       , (λ { (_ , PE.refl) → ¬-Neutral-U (ne⁻ B-ne) })
-    (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)       → inj₂ ((λ ()) , (λ ()))
-    (Level-refl _ _) → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
+    (Level-refl _ _)  → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Quot-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1084,6 +1388,7 @@ opaque
     (ℕ-refl _)              → inj₂ ((λ ()) , (λ ()))
     (Level-refl _ _)        → inj₂ ((λ ()) , (λ ()))
     (Id-cong _ _ _)         → inj₂ ((λ ()) , (λ ()))
+    (Quot-cong _ _ _)       → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1119,13 +1424,14 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , _ , _ , _ , _ , PE.refl) → ¬-Neutral-ΠΣ (ne⁻ A-ne) })
       , (λ { (_ , _ , _ , _ , _ , PE.refl) → ¬-Neutral-ΠΣ (ne⁻ B-ne) })
-    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)       → inj₂ ((λ ()) , (λ ()))
-    (Level-refl _ _) → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)        → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
+    (Level-refl _ _)  → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Quot-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1157,13 +1463,14 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-Empty (ne⁻ A-ne) })
       , (λ { PE.refl → ¬-Neutral-Empty (ne⁻ B-ne) })
-    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)       → inj₂ ((λ ()) , (λ ()))
-    (Level-refl _ _) → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)        → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
+    (Level-refl _ _)  → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Quot-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1192,13 +1499,14 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , PE.refl) → ¬-Neutral-Unit (ne⁻ A-ne) })
       , (λ { (_ , PE.refl) → ¬-Neutral-Unit (ne⁻ B-ne) })
-    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)       → inj₂ ((λ ()) , (λ ()))
-    (Level-refl _ _) → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)        → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
+    (Level-refl _ _)  → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Quot-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1227,13 +1535,14 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-Level (ne⁻ A-ne) })
       , (λ { PE.refl → ¬-Neutral-Level (ne⁻ B-ne) })
-    (U-cong _)      → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _) → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)  → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _) → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)      → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)        → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Quot-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1261,13 +1570,14 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { PE.refl → ¬-Neutral-ℕ (ne⁻ A-ne) })
       , (λ { PE.refl → ¬-Neutral-ℕ (ne⁻ B-ne) })
-    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)  → inj₂ ((λ ()) , (λ ()))
-    (Level-refl _ _) → inj₂ ((λ ()) , (λ ()))
-    (Id-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)        → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Level-refl _ _)  → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Quot-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1304,13 +1614,14 @@ opaque
         (_ , A-ne , B-ne) →
         (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id (ne⁻ A-ne) })
       , (λ { (_ , _ , _ , PE.refl) → ¬-Neutral-Id (ne⁻ B-ne) })
-    (U-cong _)       → inj₂ ((λ ()) , (λ ()))
-    (Lift-cong _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ΠΣ-cong _ _ _)  → inj₂ ((λ ()) , (λ ()))
-    (Empty-refl _)   → inj₂ ((λ ()) , (λ ()))
-    (Unit-refl _ _)  → inj₂ ((λ ()) , (λ ()))
-    (ℕ-refl _)       → inj₂ ((λ ()) , (λ ()))
-    (Level-refl _ _) → inj₂ ((λ ()) , (λ ()))
+    (U-cong _)        → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
+    (Level-refl _ _)  → inj₂ ((λ ()) , (λ ()))
+    (Quot-cong _ _ _) → inj₂ ((λ ()) , (λ ()))
 
 opaque
 
@@ -1328,6 +1639,55 @@ opaque
       _ , _ , _ , rest
     (inj₂ (Id≢Id , _)) →
       ⊥-elim (Id≢Id (_ , _ , _ , PE.refl))
+
+opaque
+
+  -- A kind of inversion lemma for Quot.
+
+  inv-[conv↓]-Quot′ :
+    Γ ⊢ A [conv↓] B →
+    (∃₄ λ A₁ A₂ B₁ B₂ →
+     A PE.≡ Quot A₁ A₂ ×
+     B PE.≡ Quot B₁ B₂ ×
+     Quot-allowed ×
+     (Γ ⊢ A₁ [conv↑] B₁) ×
+     Quot-rel-Cons Γ A₁ ⊢ A₂ [conv↑] B₂) ⊎
+    ¬ (∃₂ λ A₁ A₂ → A PE.≡ Quot A₁ A₂) ×
+    ¬ (∃₂ λ B₁ B₂ → B PE.≡ Quot B₁ B₂)
+  inv-[conv↓]-Quot′ = λ where
+    (Quot-cong ok A₁≡B₁ A₂≡B₂) →
+      inj₁ $
+      _ , _ , _ , _ , PE.refl , PE.refl , ok , A₁≡B₁ , A₂≡B₂
+    (ne A~B) →
+      inj₂ $
+      let _ , A-ne , B-ne = ne~↓ A~B in
+      (λ { (_ , _ , PE.refl) → ¬-Neutral-Quot (ne⁻ A-ne) }) ,
+      (λ { (_ , _ , PE.refl) → ¬-Neutral-Quot (ne⁻ B-ne) })
+    (U-cong _)        → inj₂ ((λ ()) , (λ ()))
+    (Lift-cong _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ΠΣ-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+    (Empty-refl _)    → inj₂ ((λ ()) , (λ ()))
+    (Unit-refl _ _)   → inj₂ ((λ ()) , (λ ()))
+    (ℕ-refl _)        → inj₂ ((λ ()) , (λ ()))
+    (Level-refl _ _)  → inj₂ ((λ ()) , (λ ()))
+    (Id-cong _ _ _)   → inj₂ ((λ ()) , (λ ()))
+
+opaque
+
+  -- Inversion for Quot.
+
+  inv-[conv↓]-Quot :
+    Γ ⊢ Quot A₁ A₂ [conv↓] B →
+    ∃₂ λ B₁ B₂ →
+    B PE.≡ Quot B₁ B₂ ×
+    Quot-allowed ×
+    (Γ ⊢ A₁ [conv↑] B₁) ×
+    Quot-rel-Cons Γ A₁ ⊢ A₂ [conv↑] B₂
+  inv-[conv↓]-Quot Quot≡A = case inv-[conv↓]-Quot′ Quot≡A of λ where
+    (inj₁ (_ , _ , _ , _ , PE.refl , rest)) →
+      _ , _ , rest
+    (inj₂ (Quot≢Quot , _)) →
+      ⊥-elim (Quot≢Quot (_ , _ , PE.refl))
 
 ------------------------------------------------------------------------
 -- Inversion for _⊢_[conv↓]_∷_
@@ -1358,6 +1718,8 @@ opaque
     (suc-cong _)        → ⊥-elim (¬-Neutral-ℕ     A-ne)
     (Id-ins _ _)        → ⊥-elim (¬-Neutral-Id    A-ne)
     (rfl-refl _)        → ⊥-elim (¬-Neutral-Id    A-ne)
+    (Quot-ins _ _)      → ⊥-elim (¬-Neutral-Quot  A-ne)
+    (class-cong _ _)    → ⊥-elim (¬-Neutral-Quot  A-ne)
 
 opaque
 
@@ -1556,3 +1918,21 @@ opaque
   inv-[conv↓]∷-Id (Id-ins _ t~u)    = inj₁ (_ , _ , _ , t~u)
   inv-[conv↓]∷-Id (rfl-refl v≡w)    = inj₂ (PE.refl , PE.refl , v≡w)
   inv-[conv↓]∷-Id (ne-ins _ _ () _)
+
+opaque
+
+  -- Inversion for Quot.
+
+  inv-[conv↓]∷-Quot :
+    Γ ⊢ t [conv↓] u ∷ Quot A B →
+    (∃₂ λ A B → Γ ⊢ t ~ u ↓ Quot A B) ⊎
+    (∃₂ λ t′ u′ →
+     t PE.≡ class t′ ×
+     u PE.≡ class u′ ×
+     (Γ ⊢ Quot A B) ×
+     Γ ⊢ t′ [conv↑] u′ ∷ A)
+  inv-[conv↓]∷-Quot (Quot-ins _ t~u) =
+    inj₁ (_ , _ , t~u)
+  inv-[conv↓]∷-Quot (class-cong ⊢Q t′≡u′) =
+    inj₂ (_ , _ , PE.refl , PE.refl , ⊢Q , t′≡u′)
+  inv-[conv↓]∷-Quot (ne-ins _ _ () _)

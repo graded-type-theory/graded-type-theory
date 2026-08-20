@@ -20,10 +20,12 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 
 open import Graded.Erasure.Target as T using (Strictness)
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Level using (lsuc)
@@ -31,6 +33,7 @@ open import Tools.List hiding (_∷_)
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 open import Tools.Sum
 
 private variable
@@ -115,6 +118,14 @@ record Is-reduction-relation
       K-allowed →
       K p A t B u v₁ ⇛ K p A t B u v₂ ∷ B [ v₁ ]₀
 
+    qrec-⇛ :
+      Γ »∙ Quot A B ⊢ C →
+      Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
+      Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t →
+      Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C →
+      w₁ ⇛ w₂ ∷ Quot A B →
+      qrec C t u v w₁ ⇛ qrec C t u v w₂ ∷ C [ w₁ ]₀
+
   opaque
 
     -- If t reduces to u, then t and u are well-typed.
@@ -141,6 +152,7 @@ opaque instance
     ; natrec-⇛  = natrec-subst*
     ; J-⇛       = J-subst*
     ; K-⇛       = K-subst*
+    ; qrec-⇛    = qrec-subst*
     }
 
 opaque instance
@@ -159,7 +171,7 @@ opaque instance
     ; fst-⇛     = fst-cong′
     ; snd-⇛     = snd-cong′
     ; prodrec-⇛ = λ ⊢C t₁≡t₂ ⊢u →
-                    prodrec-cong′ (refl ⊢C) t₁≡t₂ (refl ⊢u)
+                    prodrec-cong (refl ⊢C) t₁≡t₂ (refl ⊢u)
     ; natrec-⇛  = λ ⊢t ⊢u v₁≡v₂ →
                     natrec-cong (refl (⊢∙→⊢ (wf ⊢u))) (refl ⊢t)
                       (refl ⊢u) v₁≡v₂
@@ -175,17 +187,20 @@ opaque instance
                     in
                     K-cong (refl ⊢A) (refl ⊢t) (refl ⊢B) (refl ⊢u) v₁≡v₂
                       ok
+    ; qrec-⇛    = λ ⊢C ⊢t ⊢u ⊢v →
+                    qrec-cong (refl ⊢C) (refl ⊢t) (refl ⊢u) (refl ⊢v)
     }
 
 opaque
 
   -- Propositional equality is a "reduction" relation
   -- * for the empty variable context, if the definition context is
-  --   transparent, or
+  --   transparent and quotient types are not allowed, or
   -- * if equality reflection is allowed.
 
   Id-is-reduction-relation :
-    Transparent (Γ .defs) × Empty-con (Γ .vars) ⊎ Equality-reflection →
+    Transparent (Γ .defs) × Empty-con (Γ .vars) × ¬ Quot-allowed ⊎
+    Equality-reflection →
     Is-reduction-relation Γ (λ t u A → ∃ λ v → Γ ⊢ v ∷ Id A t u)
   Id-is-reduction-relation {Γ} ok = record
     { conv-⇛    = λ (_ , ⊢v) A≡B →
@@ -204,16 +219,22 @@ opaque
     ; natrec-⇛  = λ ⊢A ⊢u v₁⇛v₂ → ⊢≡→⇛ (R.natrec-⇛ ⊢A ⊢u (⇛→⊢≡ v₁⇛v₂))
     ; J-⇛       = λ ⊢B ⊢u w₁⇛w₂ → ⊢≡→⇛ (R.J-⇛ ⊢B ⊢u (⇛→⊢≡ w₁⇛w₂))
     ; K-⇛       = λ ⊢B ⊢u v₁⇛v₂ ok → ⊢≡→⇛ (R.K-⇛ ⊢B ⊢u (⇛→⊢≡ v₁⇛v₂) ok)
+    ; qrec-⇛    = λ ⊢C ⊢t ⊢u ⊢v w₁⇛w₂ →
+                    ⊢≡→⇛ (R.qrec-⇛ ⊢C ⊢t ⊢u ⊢v (⇛→⊢≡ w₁⇛w₂))
     }
     where
     module R = Is-reduction-relation (≡-is-reduction-relation {Γ = Γ})
 
-    ⇛→⊢≡ : (∃ λ v → Γ ⊢ v ∷ Id A t u) → Γ ⊢ t ≡ u ∷ A
+    ⇛→⊢≡ :
+      (∃ λ v → Γ ⊢ v ∷ Id A t u) → Γ ⊢ t ≡ u ∷ A
     ⇛→⊢≡ (_ , ⊢v) = case ok of λ where
-      (inj₁ (transparent , ε)) →
+      (inj₁ (transparent , ε , not-ok)) →
         PE.subst₄ _⊢_≡_∷_
           (PE.cong (_» _) (PE.sym transparent)) PE.refl PE.refl PE.refl
-          (ε⊢∷Id→ε⊢≡∷ ⊢v)
+          (ε⊢∷Id→ε⊢≡∷
+             (not-ok ∘→ proj₁ ∘→
+              Higher-quotient-constructors-neutral⇔ .proj₁)
+             ⊢v)
       (inj₂ ok) →
         equality-reflection′ ok ⊢v
 
@@ -248,7 +269,7 @@ record Assumptions : Set (lsuc a) where
     ⊢Δ : ts »⊢ Δ
 
     instance
-      -- Var-included holds or Δ is empty.
+      -- Either equality reflection is disallowed or Δ is empty.
       ⦃ no-equality-reflection-or-empty ⦄ :
         No-equality-reflection or-empty Δ
 

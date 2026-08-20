@@ -84,9 +84,9 @@ opaque
     ε
   unfold-Checkable (∇ ∙ᶜᵗ[ t ∷ A ]) =
     unfold-Checkable ∇ ∙ᶜᵗ[ t ∷ A ]
-  unfold-Checkable {φ = _ ⁰} (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
-    unfold-Checkable ∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]
-  unfold-Checkable {φ = _ ¹} (∇ ∙ᶜᵒ⟨ _ ⟩[ t ∷ A ]) =
+  unfold-Checkable {φ = _ ⁰} (∇ ∙ᶜᵒ[ t ∷ A ]) =
+    unfold-Checkable ∇ ∙ᶜᵒ[ t ∷ A ]
+  unfold-Checkable {φ = _ ¹} (∇ ∙ᶜᵒ[ t ∷ A ]) =
     unfold-Checkable ∇ ∙ᶜᵗ[ t ∷ A ]
 
 -- If ∇ is a checkable definition context, then » ∇ is decidable.
@@ -98,12 +98,13 @@ opaque
 
 decWfDCon : CheckableDCon ∇ → Dec (» ∇)
 decWfDCon ε = yes ε
-decWfDCon (∇ ∙ᶜᵒ⟨ ok ⟩[ t ∷ A ]) =
-  case (decWfDCon ∇ ×-dec′ λ »∇ →
+decWfDCon (∇ ∙ᶜᵒ[ t ∷ A ]) =
+  case (Opacity-allowed? ×-dec
+        decWfDCon ∇ ×-dec′ λ »∇ →
         dec (ε »∇) A) of λ where
     (no not) → no λ where
-      ∙ᵒ⟨ _ ⟩[ _ ∷ ⊢A ] → not (defn-wf (wf ⊢A) , ⊢A)
-    (yes (»∇ , ⊢A)) →
+      ∙ᵒ⟨ ok ⟩[ _ ∷ ⊢A ] → not (ok , defn-wf (wf ⊢A) , ⊢A)
+    (yes (ok , »∇ , ⊢A)) →
       let cont   = λ »∇′ →
             let ⊢A′ = Unconditional.unfold-⊢ (λ _ → »∇′) ⊢A in
             case decTermᶜ ⊢A′ t of λ where

@@ -37,38 +37,53 @@ red*concat : ∇ ⊢ t ⇒* t′ → ∇ ⊢ t′ ⇒* u → ∇ ⊢ t ⇒* u
 red*concat refl t′⇒*u = t′⇒*u
 red*concat (trans x t⇒*t′) t′⇒*u = trans x (red*concat t⇒*t′ t′⇒*u)
 
--- Closure of substitution reductions
+opaque
 
-app-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ t ∘⟨ s ⟩ u ⇒* t′ ∘⟨ s ⟩ u
-app-subst* refl = refl
-app-subst* (trans x t⇒*t′) = trans (app-subst x) (app-subst* t⇒*t′)
+  -- The single-step reduction relation is contained in the multi-step
+  -- relation.
 
-app-subst*-arg :
-  Value t → ∇ ⊢ u ⇒* u′ → ∇ ⊢ t ∘⟨ strict ⟩ u ⇒* t ∘⟨ strict ⟩ u′
-app-subst*-arg _   refl                = refl
-app-subst*-arg val (trans u⇒u′ u′⇒*u″) =
-  trans (app-subst-arg val u⇒u′) (app-subst*-arg val u′⇒*u″)
+  ⇒→⇒* : ∇ ⊢ t ⇒ u → ∇ ⊢ t ⇒* u
+  ⇒→⇒* t⇒u = trans t⇒u refl
 
-fst-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ fst t ⇒* fst t′
-fst-subst* refl = refl
-fst-subst* (trans x t⇒*t′) = trans (fst-subst x) (fst-subst* t⇒*t′)
+opaque
 
-snd-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ snd t ⇒* snd t′
-snd-subst* refl = refl
-snd-subst* (trans x t⇒*t′) = trans (snd-subst x) (snd-subst* t⇒*t′)
+  -- Lifts a form of congruence from the single-step relation to the
+  -- multi-step relation.
 
-natrec-subst* :
-  ∀ {z s} → ∇ ⊢ t ⇒* t′ → ∇ ⊢ natrec z s t ⇒* natrec z s t′
-natrec-subst* refl = refl
-natrec-subst* (trans x t⇒t′) = trans (natrec-subst x) (natrec-subst* t⇒t′)
+  lift-cong :
+    {f : Term n → Term n} →
+    (∀ {∇ t u} → ∇ ⊢ t ⇒ u → ∇ ⊢ f t ⇒* f u) →
+    ∇ ⊢ t ⇒* u → ∇ ⊢ f t ⇒* f u
+  lift-cong _   refl             = refl
+  lift-cong hyp (trans t⇒u u⇒*v) =
+    red*concat (hyp t⇒u) (lift-cong hyp u⇒*v)
 
-prodrec-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ prodrec t u ⇒* prodrec t′ u
-prodrec-subst* refl = refl
-prodrec-subst* (trans x t⇒t′) = trans (prodrec-subst x) (prodrec-subst* t⇒t′)
+opaque
 
-unitrec-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ unitrec t u ⇒* unitrec t′ u
-unitrec-subst* refl = refl
-unitrec-subst* (trans x d) = trans (unitrec-subst x) (unitrec-subst* d)
+  -- Closure of substitution reductions
+
+  app-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ t ∘⟨ s ⟩ u ⇒* t′ ∘⟨ s ⟩ u
+  app-subst* = lift-cong (⇒→⇒* ∘→ app-subst)
+
+  app-subst*-arg :
+    Value t → ∇ ⊢ u ⇒* u′ → ∇ ⊢ t ∘⟨ strict ⟩ u ⇒* t ∘⟨ strict ⟩ u′
+  app-subst*-arg val = lift-cong (⇒→⇒* ∘→ app-subst-arg val)
+
+  fst-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ fst t ⇒* fst t′
+  fst-subst* = lift-cong (⇒→⇒* ∘→ fst-subst)
+
+  snd-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ snd t ⇒* snd t′
+  snd-subst* = lift-cong (⇒→⇒* ∘→ snd-subst)
+
+  natrec-subst* :
+    ∀ {z s} → ∇ ⊢ t ⇒* t′ → ∇ ⊢ natrec z s t ⇒* natrec z s t′
+  natrec-subst* = lift-cong (⇒→⇒* ∘→ natrec-subst)
+
+  prodrec-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ prodrec t u ⇒* prodrec t′ u
+  prodrec-subst* = lift-cong (⇒→⇒* ∘→ prodrec-subst)
+
+  unitrec-subst* : ∇ ⊢ t ⇒* t′ → ∇ ⊢ unitrec t u ⇒* unitrec t′ u
+  unitrec-subst* = lift-cong (⇒→⇒* ∘→ unitrec-subst)
 
 opaque
 

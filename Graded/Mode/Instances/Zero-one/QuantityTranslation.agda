@@ -7,11 +7,13 @@ open import Graded.Modality.Morphism as M
   using (Is-morphism; Is-order-embedding; Is-Σ-morphism)
   hiding (module Is-morphism; module Is-order-embedding)
 open import Graded.Mode.Instances.Zero-one.Variant
+open import Tools.Bool
 
 module Graded.Mode.Instances.Zero-one.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂)
   (v₁ : Mode-variant 𝕄₁) (v₂ : Mode-variant 𝕄₂)
+  (transparent : Bool)
   (tr tr-Σ : M₁ → M₂)
   where
 
@@ -21,7 +23,7 @@ open import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
   as Q hiding (module Is-morphism)
 open import Definition.Untyped
-open import Definition.Untyped.QuantityTranslation tr tr-Σ
+open import Definition.Untyped.QuantityTranslation transparent tr tr-Σ
 
 open Graded.Modality.Properties 𝕄₂
 
@@ -34,13 +36,13 @@ private
   module V₁ = Mode-variant v₁
   module V₂ = Mode-variant v₂
 
-open import Tools.Bool
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Product
 open import Tools.PropositionalEquality as PE
 import Tools.Reasoning.PartialOrder
 import Tools.Reasoning.PropositionalEquality
+open import Tools.Relation
 
 private variable
   p q        : M₁
@@ -88,6 +90,18 @@ module Is-morphism
     ≈ᵐ-tr-Mode {m = 𝟙ᵐ}       = 𝟙ᵐ
     ≈ᵐ-tr-Mode {m = 𝟘ᵐ[ ok ]} =
       𝟘ᵐ ⦃ ok₂ = 𝟘ᵐ-in-second-if-in-first ok ⦄
+
+  opaque
+
+    -- If 𝟘ᵐ is allowed in the source whenever it is allowed in the
+    -- target, then 𝟘ᵐ? is translated to 𝟘ᵐ?.
+
+    tr-Mode-𝟘ᵐ? :
+      (T V₂.𝟘ᵐ-allowed → T V₁.𝟘ᵐ-allowed) →
+      tr-Mode Mo₁.𝟘ᵐ? ≡ Mo₂.𝟘ᵐ?
+    tr-Mode-𝟘ᵐ? hyp =
+      Mo₁.𝟘ᵐ?-elim (λ m → tr-Mode m ≡ Mo₂.𝟘ᵐ?) (sym Mo₂.𝟘ᵐ?≡𝟘ᵐ)
+        (sym ∘→ Mo₂.𝟘ᵐ?≡𝟙ᵐ⇔ .proj₂ ∘→ (_∘→ hyp))
 
   opaque
 
@@ -329,6 +343,18 @@ module Is-order-embedding
   open Are-mode-respecting-morphisms mode-respecting
 
   open Is-morphism tr-morphism tr-Σ-m mode-respecting public
+
+  opaque
+
+    -- If the translation of m is Mo₂.𝟘ᵐ?, then m is Mo₁.𝟘ᵐ?.
+
+    tr-Mode-𝟘ᵐ?⁻¹ : tr-Mode m ≡ Mo₂.𝟘ᵐ? → m ≡ Mo₁.𝟘ᵐ?
+    tr-Mode-𝟘ᵐ?⁻¹ {m = 𝟘ᵐ[ ok ]} = λ _ → sym Mo₁.𝟘ᵐ?≡𝟘ᵐ
+    tr-Mode-𝟘ᵐ?⁻¹ {m = 𝟙ᵐ}       =
+      tr-Mode 𝟙ᵐ ≡ Mo₂.𝟘ᵐ?  →⟨ Mo₂.𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ ∘→ sym ⟩
+      ¬ T V₂.𝟘ᵐ-allowed     →⟨ _∘→ 𝟘ᵐ-in-second-if-in-first ⟩
+      ¬ T V₁.𝟘ᵐ-allowed     →⟨ sym ∘→ Mo₁.𝟘ᵐ?≡𝟙ᵐ⇔ .proj₂ ⟩
+      𝟙ᵐ ≡ Mo₁.𝟘ᵐ?          □
 
   -- If the translation of p is bounded by Mo₂.⌜ tr-Mode m ⌝, then p
   -- is bounded by Mo₁.⌜ m ⌝.

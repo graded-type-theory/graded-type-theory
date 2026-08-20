@@ -156,7 +156,7 @@ opaque
         ⊢t =
           lamⱼ′ ok₂
             (unitrecⱼ (⊢ℕ (∙ ⊢Unit ⊢Δ′ ok₁)) (var ⊢Δ′ (there here))
-               (var ⊢Δ′ here) ok₁)
+               (var ⊢Δ′ here))
            ∘ⱼ zeroⱼ ⊢Δ
         eq₁ = begin
           𝟙 · 𝟙     ≡⟨ ·-identityˡ _ ⟩
@@ -225,7 +225,7 @@ opaque
         ⊢t =
           lamⱼ′ ok₂
             (prodrecⱼ (⊢ℕ (∙ ΠΣⱼ (⊢ℕ ⊢Δ′) ok₁)) (var₁ (⊢ℕ ⊢Δ))
-               (var₂ (⊢ℕ ⊢Δ′)) ok₁) ∘ⱼ
+               (var₂ (⊢ℕ ⊢Δ′))) ∘ⱼ
           zeroⱼ ⊢Δ
         eq₁ = begin
           𝟙 · 𝟘 · p ≡⟨ ·-identityˡ _ ⟩

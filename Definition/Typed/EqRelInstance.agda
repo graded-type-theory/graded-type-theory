@@ -16,8 +16,7 @@ open Type-restrictions R
 
 open import Definition.Typed R
 open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.EqualityRelation R
 import Definition.Typed.EqualityRelation.Instance
@@ -39,6 +38,7 @@ private opaque
         λ { ok (no-equality-reflection not-ok) → not-ok ok }
       .⊢≡→⊢≅                     → λ _ → idᶠ
       .⊢≡∷→⊢≅∷                   → λ _ → idᶠ
+      .⊢≡∷→⊢~∷                   → λ _ → idᶠ
       .~-to-≅ₜ                   → idᶠ
       .⊢≅∷→⊢≅∷L                  → term-⊢≡∷
       .≅-eq                      → idᶠ
@@ -55,13 +55,10 @@ private opaque
       .~-trans                   → trans
       .≅-conv                    → conv
       .~-conv                    → conv
-      .≅-wk                      → wk
-      .≅ₜ-wk                     → wk
-      .wk-⊢≅∷L                   → wk
-      .~-wk                      → wk
-      .≅-defn-wk                 → defn-wk
-      .≅ₜ-defn-wk                → defn-wk
-      .~-defn-wk                 → defn-wk
+      .≅-wk                      → wk-⊢
+      .≅ₜ-wk                     → wk-⊢
+      .wk-⊢≅∷L                   → wk-⊢
+      .~-wk                      → wk-⊢
       .≅-red (A⇒* , _) (B⇒* , _) →
         reduction A⇒* B⇒*
       .≅ₜ-red (A⇒* , _) (t⇒* , _) (u⇒* , _) →
@@ -108,6 +105,12 @@ private opaque
       .~-J          → J-cong
       .~-K          → K-cong
       .~-[]-cong    → []-cong-cong
+      .≅-Quot-cong  → Quot-cong
+      .≅ₜ-Quot-cong → Quot-cong′
+      .≅-class-cong → class-cong
+      .~-resp-cong  → resp-cong
+      .~-set-cong   → set-cong
+      .~-qrec-cong  → qrec-cong
     where
     open Equality-relations
 

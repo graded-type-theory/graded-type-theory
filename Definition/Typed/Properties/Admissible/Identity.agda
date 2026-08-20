@@ -22,6 +22,7 @@ import Definition.Typed.Properties.Admissible.Erased.Primitive R as EP
 import Definition.Typed.Properties.Admissible.Identity.Primitive
 open import Definition.Typed.Properties.Admissible.Level R
 open import Definition.Typed.Properties.Admissible.Pi R
+import Definition.Typed.Properties.Admissible.Quotient.Primitive R as Q
 open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Var R
 open import Definition.Typed.Properties.Reduction R
@@ -34,6 +35,7 @@ open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
 
 open import Tools.Fin
@@ -48,6 +50,7 @@ open Definition.Typed.Properties.Admissible.Identity.Primitive R public
 
 private variable
   m n                                                  : Nat
+  V                                                    : Set _
   ∇                                                    : DCon (Term 0) _
   Δ Δ₁ Δ₂                                              : Con Term _
   Γ Η                                                  : Cons _ _
@@ -60,36 +63,7 @@ private variable
   s                                                    : Strength
 
 ------------------------------------------------------------------------
--- Lemmas related to rfl
-
-opaque
-
-  -- A variant of the typing rule for rfl.
-
-  rflⱼ′ :
-    Γ ⊢ t ≡ u ∷ A →
-    Γ ⊢ rfl ∷ Id A t u
-  rflⱼ′ t≡u =
-    case wf-⊢ t≡u of λ {
-      (⊢A , ⊢t , _) →
-    conv (rflⱼ ⊢t) (Id-cong (refl ⊢A) (refl ⊢t) t≡u) }
-
-------------------------------------------------------------------------
 -- Lemmas related to J
-
-opaque
-
-  -- A variant of the typing rule for J.
-
-  Jⱼ′ :
-    Γ »∙ A »∙ Id (wk1 A) (wk1 t) (var x0) ⊢ B →
-    Γ ⊢ u ∷ B [ t , rfl ]₁₀ →
-    Γ ⊢ w ∷ Id A t v →
-    Γ ⊢ J p q A t B u v w ∷ B [ v , w ]₁₀
-  Jⱼ′ ⊢B ⊢u ⊢w =
-    case inversion-Id (wf-⊢ ⊢w) of λ {
-      (_ , ⊢t , ⊢v) →
-    Jⱼ ⊢t ⊢B ⊢u ⊢v ⊢w }
 
 opaque
 
@@ -410,6 +384,16 @@ opaque
 opaque
   unfolding subst
 
+  -- If v is neutral, then subst p A B t u v w is neutral.
+
+  subst-neutral :
+    Neutral V ∇ v →
+    Neutral V ∇ (subst p A B t u v w)
+  subst-neutral = Jₙ
+
+opaque
+  unfolding subst
+
   -- A typing rule for subst.
 
   ⊢subst :
@@ -466,7 +450,6 @@ opaque
     subsetTerm (subst-⇒ ⊢B ⊢t ⊢u)
 
 opaque
-  unfolding subst
 
   -- An equality rule for subst.
 
@@ -479,12 +462,9 @@ opaque
     Γ ⊢ w₁ ≡ w₂ ∷ B₁ [ t₁ ]₀ →
     Γ ⊢ subst p A₁ B₁ t₁ u₁ v₁ w₁ ≡ subst p A₂ B₂ t₂ u₂ v₂ w₂ ∷
       B₁ [ u₁ ]₀
-  subst-cong {B₁} A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
-    PE.subst (_⊢_≡_∷_ _ _ _) (subst-wk B₁) $
-    J-cong′ A₁≡A₂ t₁≡t₂
-      (wk₁ (J-motive-context-type (wf-⊢ t₁≡t₂ .proj₂ .proj₁)) B₁≡B₂)
-      (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ subst-wk B₁) w₁≡w₂) u₁≡u₂
-      v₁≡v₂
+  subst-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ =
+    let ⊢A₁ , ⊢t₁ , _ = wf-⊢ t₁≡t₂ in
+    Q.subst-cong ⊢A₁ A₁≡A₂ B₁≡B₂ ⊢t₁ t₁≡t₂
 
 opaque
   unfolding subst
@@ -549,6 +529,60 @@ opaque
     (∃ λ v′ → Γ ⊢ v ⇒ v′ ∷ Id A t u × t′ PE.≡ subst p A B t u v′ w) ⊎
     v PE.≡ rfl × t′ PE.≡ w × Γ ⊢ t ≡ u ∷ A
   inv-⇒-subst = inv-⇒-J
+
+opaque
+
+  -- Instances of subst with a "syntactically constant" motive can be
+  -- simplified (up to identity).
+
+  Id-subst-const :
+    Γ ⊢ v ∷ Id A t u →
+    Γ ⊢ w ∷ B →
+    ∃ λ eq → Γ ⊢ eq ∷ Id B (subst p A (wk1 B) t u v w) w
+  Id-subst-const {v} {A} {t} {u} {w} {B} {p} ⊢v ⊢w =
+    let ⊢A , ⊢t , ⊢u = inversion-Id (wf-⊢ ⊢v)
+        ⊢B           = wf-⊢ ⊢w
+        ⊢w′          = W.wk (ʷ⊇-drop (J-motive-context ⊢t)) ⊢w
+    in
+    J 𝟘 𝟘 A t
+      (Id (wk[ 2 ]′ B)
+         (subst p (wk[ 2 ]′ A) (wk[ 3 ]′ B) (wk[ 2 ]′ t) (var x1)
+            (var x0) (wk[ 2 ]′ w))
+         (wk[ 2 ]′ w))
+      rfl u v ,
+    PE.subst (_⊢_∷_ _ _)
+      (PE.cong₃ Id wk₂-[,]
+         (PE.trans subst-[] $
+          PE.cong₆ (subst _) wk₂-[,] wk[2+]′[,⇑]≡ wk₂-[,] PE.refl
+            PE.refl wk₂-[,])
+         wk₂-[,])
+      (Jⱼ ⊢t
+         (Idⱼ′
+            (PE.subst (_⊢_∷_ _ _) (step-sgSubst _ _) $
+             ⊢subst
+               (W.wk
+                  (ʷ⊇-drop (∙ W.wk (ʷ⊇-drop (J-motive-context ⊢t)) ⊢A))
+                  ⊢B)
+               (PE.subst (_⊢_∷_ _ _)
+                  (PE.cong₃ Id wk[]≡wk[]′ wk[]≡wk[]′ PE.refl) $
+                var₀ (J-motive-context-type ⊢t))
+               (PE.subst (_⊢_∷_ _ _) (PE.sym (step-sgSubst _ _)) ⊢w′))
+            ⊢w′)
+         (rflⱼ′
+            (subst p (wk[ 2 ]′ A) (wk[ 3 ]′ B) (wk[ 2 ]′ t) (var x1)
+               (var x0) (wk[ 2 ]′ w) [ t , rfl ]₁₀                    ≡⟨ PE.trans subst-[] $
+                                                                         PE.cong₆ (subst _) wk₂-[,] wk[2+]′[,⇑]≡ wk₂-[,] PE.refl PE.refl wk₂-[,] ⟩⊢≡
+
+             subst p A (wk1 B) t t rfl w                              ≡⟨ PE.subst (_⊢_≡_∷_ _ _ _)
+                                                                           (PE.trans (wk1-sgSubst B _) (PE.sym wk₂-[,])) $
+                                                                         subsetTerm $
+                                                                         subst-⇒ (wk₁ ⊢A ⊢B) ⊢t
+                                                                           (PE.subst (_⊢_∷_ _ _) (PE.sym (wk1-sgSubst _ _)) ⊢w) ⟩⊢∎≡
+
+             w                                                        ≡˘⟨ wk₂-[,] ⟩
+
+             wk[ 2 ]′ w [ t , rfl ]₁₀                                 ∎))
+         ⊢u ⊢v)
 
 ------------------------------------------------------------------------
 -- Lemmas related to transitivity
@@ -1881,18 +1915,7 @@ opaque
      Idⱼ′ (var₂ ⊢Π3Id) (var₁ ⊢Π3Id))
 
 ------------------------------------------------------------------------
--- Some lemmas related to equality-reflection
-
-opaque
-
-  -- A variant of equality-reflection.
-
-  equality-reflection′ :
-    Equality-reflection →
-    Γ ⊢ v ∷ Id A t u →
-    Γ ⊢ t ≡ u ∷ A
-  equality-reflection′ ok ⊢v =
-    equality-reflection ok (wf-⊢ ⊢v) ⊢v
+-- Some lemmas related to equality reflection
 
 opaque
 
@@ -2015,49 +2038,6 @@ opaque
 
 opaque
 
-  -- In the presence of equality reflection one can prove a
-  -- definitional variant of UIP.
-
-  uip-with-equality-reflection-≡ :
-    Equality-reflection →
-    Γ ⊢ eq₁ ∷ Id A t u →
-    Γ ⊢ eq₂ ∷ Id A t u →
-    Γ ⊢ eq₁ ≡ eq₂ ∷ Id A t u
-  uip-with-equality-reflection-≡ ok ⊢eq₁ ⊢eq₂ =
-    trans (lemma ⊢eq₁) (sym′ (lemma ⊢eq₂))
-    where
-    lemma : Γ ⊢ eq ∷ Id A t u → Γ ⊢ eq ≡ rfl ∷ Id A t u
-    lemma ⊢eq =
-      let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢eq)
-          ⊢Id         = var₀ $ Idⱼ′ (wk₁ ⊢A ⊢t) (var₀ ⊢A)
-      in
-      equality-reflection′ ok $
-      PE.subst (_⊢_∷_ _ _)
-        (PE.cong₃ Id
-           (PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) PE.refl PE.refl) $
-      Jⱼ′ {p = ω} {q = ω}
-        (Idⱼ′ ⊢Id (rflⱼ′ (equality-reflection′ ok ⊢Id)))
-        (rflⱼ $
-         PE.subst (_⊢_∷_ _ _)
-           (PE.sym $ PE.cong₃ Id wk2-[,] wk2-[,] PE.refl) $
-         rflⱼ ⊢t)
-        ⊢eq
-
-opaque
-
-  -- In the presence of equality reflection one can prove a variant of
-  -- UIP.
-
-  uip-with-equality-reflection-Id :
-    Equality-reflection →
-    Γ ⊢ eq₁ ∷ Id A t u →
-    Γ ⊢ eq₂ ∷ Id A t u →
-    Γ ⊢ rfl ∷ Id (Id A t u) eq₁ eq₂
-  uip-with-equality-reflection-Id ok ⊢eq₁ ⊢eq₂ =
-    rflⱼ′ (uip-with-equality-reflection-≡ ok ⊢eq₁ ⊢eq₂)
-
-opaque
-
   -- In the presence of equality reflection one can define a variant
   -- of []-cong.
 
@@ -2071,3 +2051,24 @@ opaque
   []-cong-with-equality-reflection ok₁ ok₂ ⊢l ⊢eq =
     let ⊢A , _ = inversion-Id (wf-⊢ ⊢eq) in
     rflⱼ′ (EP.[]-cong′ ok₂ ⊢l ⊢A (equality-reflection′ ok₁ ⊢eq))
+
+opaque
+
+  -- In the presence of equality reflection any application of subst
+  -- can be simplified.
+
+  drop-subst :
+    Equality-reflection →
+    Γ »∙ A ⊢ B →
+    Γ ⊢ v ∷ Id A t u →
+    Γ ⊢ w ∷ B [ t ]₀ →
+    Γ ⊢ subst p A B t u v w ≡ w ∷ B [ u ]₀
+  drop-subst {A} {B} {v} {t} {u} {w} {p} ok ⊢B ⊢v ⊢w =
+    let ⊢A , ⊢t , _ = inversion-Id (wf-⊢ ⊢v)
+        t≡u         = equality-reflection′ ok ⊢v
+    in
+    subst p A B t u v w   ∷ B [ u ]₀  ≡⟨ subst-cong (refl ⊢A) (refl ⊢B) (refl ⊢t) (sym′ t≡u)
+                                           (uip-with-equality-reflection-≡ ok ⊢v (rflⱼ′ t≡u)) (refl ⊢w) ⟩⊢∷
+                                       ⟨ subst-⊢≡₀ ⊢B (sym′ t≡u) ⟩≡
+    subst p A B t t rfl w ∷ B [ t ]₀  ≡⟨ subst-≡ ⊢B ⊢t ⊢w ⟩⊢∷∎
+    w                                 ∎

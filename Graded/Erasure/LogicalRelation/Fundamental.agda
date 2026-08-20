@@ -58,6 +58,7 @@ import Graded.Erasure.LogicalRelation.Fundamental.Level
 import Graded.Erasure.LogicalRelation.Fundamental.Lift
 import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
+import Graded.Erasure.LogicalRelation.Fundamental.Quotient
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
 import Graded.Erasure.LogicalRelation.Fundamental.Universe
 import Graded.Erasure.LogicalRelation.Conversion
@@ -115,8 +116,8 @@ module _
       Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄
   where
 
-  open Graded.Erasure.LogicalRelation.Hidden
-         variant (assumptions ⊢Δ s is-reduction-relation)
+  open Graded.Erasure.LogicalRelation.Hidden UR
+         (assumptions ⊢Δ s is-reduction-relation)
 
   opaque
 
@@ -167,14 +168,15 @@ module Fundamental
     as = assumptions well-formed s is-reduction-relation
 
   open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
-  open Graded.Erasure.LogicalRelation.Fundamental.Identity variant as
-  open Graded.Erasure.LogicalRelation.Fundamental.Level variant as
-  open Graded.Erasure.LogicalRelation.Fundamental.Lift variant as
-  open Graded.Erasure.LogicalRelation.Fundamental.Nat variant as
+  open Graded.Erasure.LogicalRelation.Fundamental.Identity UR as
+  open Graded.Erasure.LogicalRelation.Fundamental.Level UR as
+  open Graded.Erasure.LogicalRelation.Fundamental.Lift UR as
+  open Graded.Erasure.LogicalRelation.Fundamental.Nat UR as
   open Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Unit variant as
-  open Graded.Erasure.LogicalRelation.Fundamental.Universe variant as
-  open Graded.Erasure.LogicalRelation.Hidden variant as
+  open Graded.Erasure.LogicalRelation.Fundamental.Quotient UR as
+  open Graded.Erasure.LogicalRelation.Fundamental.Unit UR as
+  open Graded.Erasure.LogicalRelation.Fundamental.Universe UR as
+  open Graded.Erasure.LogicalRelation.Hidden UR as
 
   -- A lemma used to prove the fundamental lemma.
   --
@@ -271,15 +273,17 @@ module Fundamental
         (invUsageSnd ▸t γ≤δ) →
       sndʳ ⊢t (fundamental′ ⊢t (sub ▸t γ≤δ) <n)
     fundamental′
-      {m = 𝟙ᵐ} (prodrecⱼ ⊢C ⊢t ⊢u _) ▸prodrec (prodrec _ <n₂ <n₃) =
+      {m = 𝟙ᵐ} (prodrecⱼ ⊢C ⊢t ⊢u) ▸prodrec (prodrec _ <n₂ <n₃) =
       case inv-usage-prodrec ▸prodrec of λ
         (invUsageProdrec ▸t ▸u _ ok γ≤rδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤rδ+η $
       prodrecʳ ⊢C ⊢t ⊢u (fundamental′ ⊢t ▸t <n₂)
         (fundamental′ ⊢u ▸u <n₃)
         (case closed-or-no-erased-matches of λ where
-           (inj₁ nem) r≡𝟘 → ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
-           (inj₂ k≡0) _   → k≡0 , PE.sym (glassify-idem _))
+           (inj₁ nem) r≡𝟘 →
+             ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
+           (inj₂ (k≡0 , not-ok)) _ →
+             k≡0 , PE.sym (glassify-idem _) , not-ok)
     fundamental′ (zeroⱼ _) _ _ =
       zeroʳ
     fundamental′ (sucⱼ ⊢t) γ▸suc (suc <n) =
@@ -328,15 +332,17 @@ module Fundamental
     fundamental′ (starⱼ _ ok) _ _ =
       starʳ ok
     fundamental′
-      {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u ok) γ▸ur (unitrec _ <n₂ <n₃) =
+      {m = 𝟙ᵐ} (unitrecⱼ ⊢A ⊢t ⊢u) γ▸ur (unitrec _ <n₂ <n₃) =
       case inv-usage-unitrec γ▸ur of λ
-        (invUsageUnitrec δ▸t η▸u _ ok′ γ≤pδ+η) →
+        (invUsageUnitrec δ▸t η▸u _ ok γ≤pδ+η) →
       subsumption-▸⊩ʳ∷[]-≤ γ≤pδ+η $
       unitrecʳ ⊢A ⊢t ⊢u (fundamental′ ⊢t δ▸t <n₂)
         (fundamental′ ⊢u η▸u <n₃)
         (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
-           (inj₁ nem) → inj₂ (nem non-trivial .proj₂ .proj₁ ok′ p≡𝟘)
-           (inj₂ k≡0) → inj₁ (k≡0 , PE.sym (glassify-idem _)))
+           (inj₁ nem) →
+             inj₂ (nem non-trivial .proj₂ .proj₁ ok p≡𝟘)
+           (inj₂ (k≡0 , not-ok)) →
+             inj₁ (k≡0 , PE.sym (glassify-idem _) , not-ok))
     fundamental′ (Idⱼ ⊢A _ _) _ _ =
       Idʳ (inversion-U-Level (wf-⊢ ⊢A))
     fundamental′ (rflⱼ ⊢t) _ _ =
@@ -346,7 +352,8 @@ module Fundamental
         (invUsageJ₀₂ em _ _ _ ▸u _ _ γ≤) →
           Jʳ ⊢B ⊢u ⊢w γ≤ (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
+               (inj₂ (k≡0 , not-ok)) →
+                 k≡0 , PE.sym (glassify-idem _) , not-ok
                (inj₁ nem) →
                  case
                    PE.trans (PE.sym em)
@@ -362,7 +369,8 @@ module Fundamental
                (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
           Jʳ ⊢B ⊢u ⊢w (∧ᶜ-decreasingʳ γ₃ _) (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
+               (inj₂ (k≡0 , not-ok)) →
+                 k≡0 , PE.sym (glassify-idem _) , not-ok
                (inj₁ nem) →
                  case
                    PE.trans (PE.sym em)
@@ -393,7 +401,8 @@ module Fundamental
         (invUsageK₀₂ em _ _ _ ▸u _ γ≤) →
           Kʳ ⊢B ⊢u ⊢v ok γ≤ (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
+               (inj₂ (k≡0 , not-ok)) →
+                 k≡0 , PE.sym (glassify-idem _) , not-ok
                (inj₁ nem) →
                  case
                    PE.trans (PE.sym em)
@@ -409,7 +418,8 @@ module Fundamental
                (γ₃ ∧ᶜ γ₄) ⟨ x ⟩ PE.≡ 𝟘             □) $
           Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingʳ γ₃ _) (fundamental′ ⊢u ▸u <n₄)
             (inj₁ $ case closed-or-no-erased-matches of λ where
-               (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _)
+               (inj₂ (k≡0 , not-ok)) →
+                 k≡0 , PE.sym (glassify-idem _) , not-ok
                (inj₁ nem) →
                  case
                    PE.trans (PE.sym em)
@@ -430,9 +440,60 @@ module Fundamental
     fundamental′ ([]-congⱼ ⊢l _ _ _ ⊢v ok) _ _ =
       []-congʳ
         (case closed-or-no-erased-matches of λ where
-           (inj₁ nem) → ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
-           (inj₂ k≡0) → k≡0 , PE.sym (glassify-idem _))
+           (inj₁ nem) →
+             ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
+           (inj₂ (k≡0 , not-ok)) →
+             k≡0 , PE.sym (glassify-idem _) , not-ok)
         ⊢l ⊢v ok
+    fundamental′ (Quot _ ⊢l _ _) _ _ =
+      Quotʳ ⊢l
+    fundamental′ (class ⊢Q ⊢t) ▸class (class <n) =
+      let _ , ▸t = inv-usage-class ▸class in
+      classʳ ⊢Q ⊢t (fundamental′ ⊢t ▸t <n)
+    fundamental′ (resp _ _ _ _) ▸resp _ =
+      let _ , eq , ok , _ = inv-usage-resp ▸resp in
+      respʳ ok eq
+    fundamental′ (set _ _ _ _ _) ▸set _ =
+      let _ , eq , ok , _ = inv-usage-set ▸set in
+      setʳ ok eq
+    fundamental′ {γ} (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) ▸qrec (qrec _ <n₂ _ _ <n₅)
+      with inv-usage-qrec ▸qrec
+    … | invUsageQrec₀ {δ₂} {δ₅} _ _ ▸C ▸t ▸u ▸v ▸w γ≤ =
+      subsumption-▸⊩ʳ∷[]
+        (λ x →
+           γ ⟨ x ⟩ PE.≡ 𝟘                →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+           (δ₂ +ᶜ ω ·ᶜ δ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 δ₂ ⟩
+           (δ₂ ∧ᶜ ω ·ᶜ δ₅) ⟨ x ⟩ PE.≡ 𝟘  □) $
+      qrecʳ ⊢C ⊢t (fundamental′ ⊢t ▸t <n₂) ⊢u ⊢v
+        (fundamental′ ⊢w ▸w <n₅)
+        (begin
+           δ₂ ∧ᶜ ω ·ᶜ δ₅  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
+           δ₂             ∎)
+        (begin
+           δ₂ ∧ᶜ ω ·ᶜ δ₅  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+           ω ·ᶜ δ₅        ≤⟨ ω·ᶜ-decreasing ⟩
+           δ₅             ∎)
+      where
+      open ≤ᶜ-reasoning
+    … | invUsageQrec₁ {δ₁} {δ₂} {δ₅} _ _ ▸C ▸t ▸u ▸v ▸w γ≤ =
+      subsumption-▸⊩ʳ∷[]
+        (λ x →
+           γ ⟨ x ⟩ PE.≡ 𝟘                            →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
+           (ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)) ⟨ x ⟩ PE.≡ 𝟘      →⟨ ·ᶜ-zero-product-⟨⟩ (δ₁ +ᶜ _) ⟩
+           ω PE.≡ 𝟘 ⊎ (δ₁ +ᶜ δ₂ +ᶜ δ₅) ⟨ x ⟩ PE.≡ 𝟘  →⟨ (λ { (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘); (inj₂ hyp) → hyp }) ⟩
+           (δ₁ +ᶜ δ₂ +ᶜ δ₅) ⟨ x ⟩ PE.≡ 𝟘             →⟨ proj₂ ∘→ +ᶜ-positive-⟨⟩ δ₁ ⟩
+           (δ₂ +ᶜ δ₅) ⟨ x ⟩ PE.≡ 𝟘                   →⟨ +ᶜ-⟨⟩-≡-𝟘-→-∧ᶜ-⟨⟩-≡-𝟘 δ₂ ⟩
+           (δ₂ ∧ᶜ δ₅) ⟨ x ⟩ PE.≡ 𝟘                   □) $
+      qrecʳ ⊢C ⊢t (fundamental′ ⊢t ▸t <n₂) ⊢u ⊢v
+        (fundamental′ ⊢w ▸w <n₅)
+        (begin
+           δ₂ ∧ᶜ δ₅  ≤⟨ ∧ᶜ-decreasingˡ _ _ ⟩
+           δ₂        ∎)
+        (begin
+           δ₂ ∧ᶜ δ₅  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
+           δ₅        ∎)
+      where
+      open ≤ᶜ-reasoning
     fundamental′ (conv ⊢t A≡B) γ▸t <n =
       conv-▸⊩ʳ∷ A≡B (fundamental′ ⊢t γ▸t <n)
 

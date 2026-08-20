@@ -28,8 +28,7 @@ open import Definition.Typed.Well-formed R
 open import Definition.LogicalRelation R
 open import Definition.LogicalRelation.Hidden R
 open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Properties.Primitive R
-open import Definition.LogicalRelation.Properties.Whnf R
+open import Definition.LogicalRelation.Properties R
 open import Definition.LogicalRelation.ShapeView R
 open import Definition.LogicalRelation.Fundamental.Reducibility R
 open import Definition.LogicalRelation.Substitution.Introductions.Level R
@@ -606,6 +605,110 @@ opaque
     A≢B _⊩′⟨_⟩Id_ _⊩′⟨_⟩B⟨ b ⟩_ Idᵣ (Bᵣ _)
       Id-elim B-elim (λ ())
 
+opaque
+
+  -- Applications of Quot are not definitionally equal to neutral
+  -- types (given a certain assumption).
+
+  Quot≢ne :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Neutral V (Γ .defs) C → ¬ Γ ⊢ Quot A B ≡ C
+  Quot≢ne C-ne =
+    A≢B _⊩′⟨_⟩Quot_ (λ Γ _ A → Γ ⊩ne A) Quot ne
+      Quot-elim (ne-elim C-ne) (λ ())
+
+opaque
+
+  -- Applications of Quot are not definitionally equal to Level (given
+  -- a certain assumption).
+
+  Quot≢Level :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ Quot A B ≡ Level
+  Quot≢Level =
+    A≢B _⊩′⟨_⟩Quot_ (λ Γ _ A → Γ ⊩Level A) Quot Levelᵣ
+      Quot-elim Level-elim (λ ())
+
+opaque
+
+  -- Applications of Quot are not definitionally equal to applications
+  -- of U (given a certain assumption).
+
+  Quot≢U :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ Quot A B ≡ U l
+  Quot≢U =
+    A≢B _⊩′⟨_⟩Quot_ _⊩′⟨_⟩U_ Quot Uᵣ Quot-elim U-elim (λ ())
+
+opaque
+
+  -- Applications of Quot are not definitionally equal to applications
+  -- of Lift (given a certain assumption).
+
+  Quot≢Lift :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ Quot A B ≡ Lift l C
+  Quot≢Lift =
+    A≢B _⊩′⟨_⟩Quot_ _⊩′⟨_⟩Lift_ Quot Liftᵣ Quot-elim Lift-elim (λ ())
+
+opaque
+
+  -- Applications of Quot are not definitionally equal to ℕ (given a
+  -- certain assumption).
+
+  Quot≢ℕ :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ Quot A B ≡ ℕ
+  Quot≢ℕ =
+    A≢B _⊩′⟨_⟩Quot_ (λ Γ _ A → Γ ⊩ℕ A) Quot ℕᵣ Quot-elim ℕ-elim (λ ())
+
+opaque
+
+  -- Applications of Quot are not definitionally equal to applications
+  -- of Unit (given a certain assumption).
+
+  Quot≢Unit :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ Quot A B ≡ Unit s
+  Quot≢Unit {s} =
+    A≢B _⊩′⟨_⟩Quot_ (λ Γ _ A → Γ ⊩Unit⟨ s ⟩ A) Quot Unitᵣ Quot-elim
+      Unit-elim (λ ())
+
+opaque
+
+  -- Applications of Quot are not definitionally equal to Empty (given
+  -- a certain assumption).
+
+  Quot≢Empty :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ Quot A B ≡ Empty
+  Quot≢Empty =
+    A≢B _⊩′⟨_⟩Quot_ (λ Γ _ A → Γ ⊩Empty A) Quot Emptyᵣ Quot-elim
+      Empty-elim (λ ())
+
+opaque
+
+  -- Applications of Quot are not definitionally equal to applications
+  -- of ΠΣ⟨_⟩_,_▷_▹_ (given a certain assumption).
+
+  Quot≢ΠΣ :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ Quot A B ≡ ΠΣ⟨ b ⟩ p , q ▷ C ▹ D
+  Quot≢ΠΣ =
+    let b = _ in
+    A≢B _⊩′⟨_⟩Quot_ _⊩′⟨_⟩B⟨ b ⟩_ Quot (Bᵣ _) Quot-elim B-elim (λ ())
+
+opaque
+
+  -- Applications of Quot are not definitionally equal to applications
+  -- of Id (given a certain assumption).
+
+  Quot≢Id :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    ¬ Γ ⊢ Quot A B ≡ Id C t u
+  Quot≢Id =
+    A≢B _⊩′⟨_⟩Quot_ _⊩′⟨_⟩Id_ Quot Idᵣ Quot-elim Id-elim (λ ())
+
 -- If No-η-equality A holds, then A is not a Π-type (given a certain
 -- assumption).
 
@@ -619,6 +722,7 @@ No-η-equality→≢Π = λ where
   Emptyₙ     Empty≡Π → Empty≢ΠΣⱼ Empty≡Π
   ℕₙ         ℕ≡Π     → ℕ≢ΠΣⱼ ℕ≡Π
   Idₙ        Id≡Π    → Id≢ΠΣ Id≡Π
+  Quot       Quot≡Π  → Quot≢ΠΣ Quot≡Π
   (Unitʷₙ _) Unit≡Π  → Unit≢ΠΣⱼ Unit≡Π
   (neₙ A-ne) A≡Π     → ΠΣ≢ne A-ne (sym A≡Π)
 
@@ -635,6 +739,7 @@ No-η-equality→≢Σˢ = λ where
   Emptyₙ     Empty≡Σ → Empty≢ΠΣⱼ Empty≡Σ
   ℕₙ         ℕ≡Σ     → ℕ≢ΠΣⱼ ℕ≡Σ
   Idₙ        Id≡Σ    → Id≢ΠΣ Id≡Σ
+  Quot       Quot≡Σ  → Quot≢ΠΣ Quot≡Σ
   (Unitʷₙ _) Unit≡Σ  → Unit≢ΠΣⱼ Unit≡Σ
   (neₙ A-ne) A≡Σ     → ΠΣ≢ne A-ne (sym A≡Σ)
 
@@ -651,6 +756,7 @@ No-η-equality→≢Unit = λ where
   Emptyₙ        Empty≡Unit  _              → Empty≢Unitⱼ Empty≡Unit
   ℕₙ            ℕ≡Unit      _              → ℕ≢Unitⱼ ℕ≡Unit
   Idₙ           Id≡Unit     _              → Id≢Unit Id≡Unit
+  Quot          Quot≡Unit   _              → Quot≢Unit Quot≡Unit
   (Unitʷₙ _)    Unitʷ≡Unitˢ (inj₁ PE.refl) → Unitʷ≢Unitˢ Unitʷ≡Unitˢ
   (Unitʷₙ no-η) _           (inj₂ η)       → no-η η
   (neₙ A-ne)    A≡Unit      _              → Unit≢neⱼ A-ne (sym A≡Unit)
@@ -668,6 +774,7 @@ No-η-equality→≢Lift = λ where
   Emptyₙ        Empty≡Lift → Lift≢Emptyⱼ (sym Empty≡Lift)
   ℕₙ            ℕ≡Lift     → Lift≢ℕ (sym ℕ≡Lift)
   Idₙ           Id≡Lift    → Id≢Lift Id≡Lift
+  Quot          Quot≡Lift  → Quot≢Lift Quot≡Lift
   (Unitʷₙ _)    Unit≡Lift  → Lift≢Unitⱼ (sym Unit≡Lift)
   (neₙ A-ne)    A≡Lift     → Lift≢ne A-ne (sym A≡Lift)
 
@@ -748,6 +855,11 @@ whnf≢ne {Γ} {V} {A} {t} {u} →V ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u 
       case ⊩Id≡∷-view-inhabited ⊩Id t≡u of λ where
         (ne t′-ne _ _) → ¬t⇒*ne t⇒*t′ (ne⁻ t′-ne)
         (rfl₌ _)       → U.rfl≢ne (u⇒*ne u⇒*u′) PE.refl
+    (Quot ⊩Quot) t≡u@(_ , _ , t⇒*t′ , u⇒*u′ , _) →
+      case Quot-view-inhabited ⊩Quot t≡u of λ where
+        (ne t′-ne _ _) → ¬t⇒*ne t⇒*t′ (ne⁻ t′-ne)
+        (equal _)      → U.class≢ne (u⇒*ne u⇒*u′) PE.refl
+        (related _ _)  → U.class≢ne (u⇒*ne u⇒*u′) PE.refl
     (Uᵣ _) (Uₜ₌ _ _ t⇒*A u⇒*B A-type B-type A≡B _ _ _) →
       case B-type of λ where
         Levelₙ    → U.Level≢ne (u⇒*ne u⇒*B) PE.refl
@@ -758,6 +870,7 @@ whnf≢ne {Γ} {V} {A} {t} {u} →V ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u 
         Emptyₙ    → U.Empty≢ne (u⇒*ne u⇒*B) PE.refl
         Unitₙ     → U.Unit≢ne  (u⇒*ne u⇒*B) PE.refl
         Idₙ       → U.Id≢ne    (u⇒*ne u⇒*B) PE.refl
+        Quot      → U.Quot≢ne  (u⇒*ne u⇒*B) PE.refl
         (ne B-ne) → case A-type of λ where
           (ne A-ne) → ⊥-elim (¬t⇒*ne t⇒*A A-ne)
           Levelₙ    → Level≢ne  B-ne (univ A≡B)
@@ -768,6 +881,7 @@ whnf≢ne {Γ} {V} {A} {t} {u} →V ¬-A-η A≢Level t-whnf ¬-t-ne u-ne t≡u 
           Emptyₙ    → Empty≢neⱼ B-ne (univ A≡B)
           Unitₙ     → Unit≢neⱼ  B-ne (univ A≡B)
           Idₙ       → Id≢ne     B-ne (univ A≡B)
+          Quot      → Quot≢ne   B-ne (univ A≡B)
 
 opaque
 
@@ -852,6 +966,15 @@ rfl≢ne :
   (No-equality-reflection → V) → Neutral V (Γ .defs) v →
   ¬ Γ ⊢ rfl ≡ v ∷ Id A t u
 rfl≢ne →V = whnf≢ne →V Idₙ (λ ()) rflₙ (λ ())
+
+-- The term class t is not definitionally equal (at type Quot A B) to
+-- any neutral term (given a certain assumption).
+
+class≢ne :
+  ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+  (No-equality-reflection → V) → Neutral V (Γ .defs) u →
+  ¬ Γ ⊢ class t ≡ u ∷ Quot A B
+class≢ne →V = whnf≢ne →V Quot (λ ()) class (λ ())
 
 opaque
   unfolding ⊩1ᵘ+ ↑ⁿ

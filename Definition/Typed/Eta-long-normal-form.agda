@@ -28,6 +28,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Weakening R hiding (wk)
 open import Definition.Typed.Well-formed R
 
 open import Definition.Untyped M
@@ -36,6 +37,7 @@ import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Normal-form M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
 
@@ -49,17 +51,17 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  m n α         : Nat
-  x             : Fin _
-  ∇             : DCon _ _
-  Δ Η           : Con _ _
-  Γ             : Cons _ _
-  A B C t u v w : Term _
-  l l₁ l₂       : Lvl _
-  V             : Set a
-  b             : BinderMode
-  s             : Strength
-  p q q′ r      : M
+  m n α           : Nat
+  x               : Fin _
+  ∇               : DCon _ _
+  Δ Η             : Con _ _
+  Γ               : Cons _ _
+  A B C D t u v w : Term _
+  l l₁ l₂         : Lvl _
+  V               : Set a
+  b               : BinderMode
+  s               : Strength
+  p q q′ r        : M
 
 ------------------------------------------------------------------------
 -- Definitions of η-long normal types and terms and some associated
@@ -89,6 +91,10 @@ mutual
              Γ ⊢nf t ∷ A →
              Γ ⊢nf u ∷ A →
              Γ ⊢nf Id A t u
+    Quot   : Quot-allowed
+           → Γ ⊢nf A
+           → Quot-rel-Cons Γ A ⊢nf B
+           → Γ ⊢nf Quot A B
 
   -- Γ ⊢nf t ∷ A holds if t is a term in η-long normal form (with
   -- respect to the context Γ and the type A).
@@ -147,6 +153,13 @@ mutual
              Γ ⊢nf Id A t u ∷ U l
     rflₙ   : Γ ⊢ t ∷ A →
              Γ ⊢nf rfl ∷ Id A t t
+    Quot   : Quot-allowed
+           → Γ ⊢nf A ∷ U l
+           → Quot-rel-Cons Γ A ⊢nf B ∷ U (wk[ 2 ]′ l)
+           → Γ ⊢nf Quot A B ∷ U l
+    class  : Γ ⊢ Quot A B
+           → Γ ⊢nf t ∷ A
+           → Γ ⊢nf class t ∷ Quot A B
     neₙ    : No-η-equality (Γ .defs) A →
              Γ ⊢ne t ∷ A →
              Γ ⊢nf t ∷ A
@@ -196,7 +209,6 @@ mutual
     prodrecₙ  : Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢nf C →
                 Γ ⊢ne t ∷ Σʷ p , q′ ▷ A ▹ B →
                 Γ »∙ A »∙ B ⊢nf u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-                Σʷ-allowed p q′ →
                 Γ ⊢ne prodrec r p q C t u ∷ C [ t ]₀
     emptyrecₙ : Γ ⊢nf A →
                 Γ ⊢ne t ∷ Empty →
@@ -209,7 +221,6 @@ mutual
     unitrecₙ  : Γ »∙ Unitʷ ⊢nf A →
                 Γ ⊢ne t ∷ Unitʷ →
                 Γ ⊢nf u ∷ A [ starʷ ]₀ →
-                Unitʷ-allowed →
                 ¬ Unitʷ-η →
                 Γ ⊢ne unitrec p q A t u ∷ A [ t ]₀
     Jₙ        : Γ ⊢nf A →
@@ -235,6 +246,27 @@ mutual
                 let open Erased s in
                 Γ ⊢ne []-cong s l A t u v ∷
                   Id (Erased l A) ([ t ]) ([ u ])
+    resp      : Higher-quotient-constructors-neutral
+              → Γ ⊢nf A
+              → Quot-rel-Cons Γ A ⊢nf B
+              → Γ ⊢nf t ∷ A
+              → Γ ⊢nf u ∷ A
+              → Γ ⊢nf v ∷ B [ t , u ]₁₀
+              → Γ ⊢ne resp A B t u v ∷ Id (Quot A B) (class t) (class u)
+    set       : Higher-quotient-constructors-neutral
+              → Γ ⊢nf A
+              → Quot-rel-Cons Γ A ⊢nf B
+              → Γ ⊢nf t ∷ Quot A B
+              → Γ ⊢nf u ∷ Quot A B
+              → Γ ⊢nf v ∷ Id (Quot A B) t u
+              → Γ ⊢nf w ∷ Id (Quot A B) t u
+              → Γ ⊢ne set A B t u v w ∷ Id (Id (Quot A B) t u) v w
+    qrec      : Γ »∙ Quot A B ⊢nf C
+              → Γ »∙ A ⊢nf t ∷ C [ class (var x0) ]↑
+              → Resp-Cons Γ A B ⊢nf u ∷ Resp-type A B C t
+              → Is-set-Cons Γ A B C ⊢nf v ∷ Is-set-type C
+              → Γ ⊢ne w ∷ Quot A B
+              → Γ ⊢ne qrec C t u v w ∷ C [ w ]₀
 
 ------------------------------------------------------------------------
 -- Some conversion functions
@@ -250,6 +282,7 @@ mutual
     (univₙ ⊢A)     → univ (⊢nf∷→⊢∷ ⊢A)
     (ΠΣₙ _ ⊢B ok)  → ΠΣⱼ (⊢nf→⊢ ⊢B) ok
     (Idₙ _ ⊢t ⊢u)  → Idⱼ′ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
+    (Quot ok _ ⊢B) → Quot ok (⊢nf→⊢ ⊢B)
 
   -- If t is an η-long normal term, then t is well-typed.
 
@@ -273,6 +306,8 @@ mutual
     (sucₙ ⊢t)           → sucⱼ (⊢nf∷→⊢∷ ⊢t)
     (Idₙ ⊢A ⊢t ⊢u)      → Idⱼ (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
     (rflₙ ⊢t)           → rflⱼ ⊢t
+    (Quot ok ⊢A ⊢B)     → ⊢Quot ok (⊢nf∷→⊢∷ ⊢A) (⊢nf∷→⊢∷ ⊢B)
+    (class ⊢Q ⊢t)       → class ⊢Q (⊢nf∷→⊢∷ ⊢t)
     (neₙ _ ⊢t)          → ⊢ne∷→⊢∷ ⊢t
 
   -- If Γ ⊢nf l ∷Level holds, then l is well-typed.
@@ -295,18 +330,28 @@ mutual
     (lowerₙ ⊢t)               → lowerⱼ (⊢ne∷→⊢∷ ⊢t)
     (fstₙ ⊢B ⊢t)              → fstⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
     (sndₙ ⊢B ⊢t)              → sndⱼ ⊢B (⊢ne∷→⊢∷ ⊢t)
-    (prodrecₙ ⊢C ⊢t ⊢u ok)    → prodrecⱼ (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢t)
-                                  (⊢nf∷→⊢∷ ⊢u) ok
+    (prodrecₙ ⊢C ⊢t ⊢u)       → prodrecⱼ (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢t)
+                                  (⊢nf∷→⊢∷ ⊢u)
     (emptyrecₙ ⊢A ⊢t)         → emptyrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
     (natrecₙ _ ⊢t ⊢u ⊢v)      → natrecⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u)
                                   (⊢ne∷→⊢∷ ⊢v)
-    (unitrecₙ ⊢A ⊢t ⊢u ok _)  → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
-                                  (⊢nf∷→⊢∷ ⊢u) ok
+    (unitrecₙ ⊢A ⊢t ⊢u _)     → unitrecⱼ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)
+                                  (⊢nf∷→⊢∷ ⊢u)
     (Jₙ _ ⊢t ⊢B ⊢u ⊢v ⊢w)     → Jⱼ (⊢nf∷→⊢∷ ⊢t) (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u)
                                   (⊢nf∷→⊢∷ ⊢v) (⊢ne∷→⊢∷ ⊢w)
     (Kₙ _ _ ⊢B ⊢u ⊢v ok)      → Kⱼ (⊢nf→⊢ ⊢B) (⊢nf∷→⊢∷ ⊢u) (⊢ne∷→⊢∷ ⊢v)
                                   ok
     ([]-congₙ ⊢l _ _ _ ⊢v ok) → []-congⱼ′ ok (⊢nf∷L→⊢∷L ⊢l) (⊢ne∷→⊢∷ ⊢v)
+    (resp ok _ ⊢B ⊢t ⊢u ⊢v)   →
+      let ok , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok in
+      resp (Quot ok (⊢nf→⊢ ⊢B)) (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) (⊢nf∷→⊢∷ ⊢v)
+    (set ok _ ⊢B ⊢t ⊢u ⊢v ⊢w) →
+      let ok , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok in
+      set (Quot ok (⊢nf→⊢ ⊢B)) (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) (⊢nf∷→⊢∷ ⊢v)
+        (⊢nf∷→⊢∷ ⊢w)
+    (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) →
+      qrec (⊢nf→⊢ ⊢C) (⊢nf∷→⊢∷ ⊢t) (⊢nf∷→⊢∷ ⊢u) (⊢nf∷→⊢∷ ⊢v)
+        (⊢ne∷→⊢∷ ⊢w)
 
 mutual
 
@@ -319,6 +364,7 @@ mutual
     (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷L→Nf ⊢l) (⊢nf→Nf ⊢A)
     (ΠΣₙ ⊢A ⊢B _)  → ΠΣₙ (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
     (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
+    (Quot _ ⊢A ⊢B) → Quot (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
 
   -- If t is an η-long normal term, then t is normal.
 
@@ -342,6 +388,8 @@ mutual
     (sucₙ ⊢t)         → sucₙ (⊢nf∷→Nf ⊢t)
     (Idₙ ⊢A ⊢t ⊢u)    → Idₙ (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
     (rflₙ ⊢t)         → rflₙ
+    (Quot _ ⊢A ⊢B)    → Quot (⊢nf∷→Nf ⊢A) (⊢nf∷→Nf ⊢B)
+    (class _ ⊢t)      → class (⊢nf∷→Nf ⊢t)
     (neₙ _ ⊢t)        → ne (⊢ne∷→NfNeutral ⊢t)
 
   -- If l is an η-long normal level, then l is normal.
@@ -355,34 +403,43 @@ mutual
 
   ⊢ne∷→NfNeutral : Γ ⊢ne t ∷ A → NfNeutral (Γ .defs) t
   ⊢ne∷→NfNeutral = λ where
-    (convₙ ⊢t _)                 → ⊢ne∷→NfNeutral ⊢t
-    (varₙ _ _)                   → var _
-    (defnₙ _ α↦⊘)                → defn α↦⊘
-    (supᵘˡₙ ⊢t ⊢u)               → supᵘˡₙ (⊢ne∷→NfNeutral ⊢t)
-                                     (⊢nf∷→Nf ⊢u)
-    (supᵘʳₙ ⊢t ⊢u)               → supᵘʳₙ (⊢nf∷→Nf ⊢t)
-                                     (⊢ne∷→NfNeutral ⊢u)
-    (lowerₙ ⊢t)                  → lowerₙ (⊢ne∷→NfNeutral ⊢t)
-    (∘ₙ ⊢t ⊢u)                   → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (fstₙ _ ⊢t)                  → fstₙ (⊢ne∷→NfNeutral ⊢t)
-    (sndₙ _ ⊢t)                  → sndₙ (⊢ne∷→NfNeutral ⊢t)
-    (prodrecₙ ⊢C ⊢t ⊢u _)        → prodrecₙ (⊢nf→Nf ⊢C)
-                                     (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (emptyrecₙ ⊢A ⊢t)            → emptyrecₙ (⊢nf→Nf ⊢A)
-                                     (⊢ne∷→NfNeutral ⊢t)
-    (natrecₙ ⊢A ⊢t ⊢u ⊢v)        → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                     (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
-    (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) → unitrecₙ not-ok (⊢nf→Nf ⊢A)
-                                     (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
-    (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)       → Jₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                     (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
-                                     (⊢nf∷→Nf ⊢v) (⊢ne∷→NfNeutral ⊢w)
-    (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)        → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
-                                     (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
-                                     (⊢ne∷→NfNeutral ⊢v)
-    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _)  → []-congₙ (⊢nf∷L→Nf ⊢l) (⊢nf→Nf ⊢A)
-                                     (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
-                                     (⊢ne∷→NfNeutral ⊢v)
+    (convₙ ⊢t _)                → ⊢ne∷→NfNeutral ⊢t
+    (varₙ _ _)                  → var _
+    (defnₙ _ α↦⊘)               → defn α↦⊘
+    (supᵘˡₙ ⊢t ⊢u)              → supᵘˡₙ (⊢ne∷→NfNeutral ⊢t)
+                                    (⊢nf∷→Nf ⊢u)
+    (supᵘʳₙ ⊢t ⊢u)              → supᵘʳₙ (⊢nf∷→Nf ⊢t)
+                                    (⊢ne∷→NfNeutral ⊢u)
+    (lowerₙ ⊢t)                 → lowerₙ (⊢ne∷→NfNeutral ⊢t)
+    (∘ₙ ⊢t ⊢u)                  → ∘ₙ (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (fstₙ _ ⊢t)                 → fstₙ (⊢ne∷→NfNeutral ⊢t)
+    (sndₙ _ ⊢t)                 → sndₙ (⊢ne∷→NfNeutral ⊢t)
+    (prodrecₙ ⊢C ⊢t ⊢u)         → prodrecₙ (⊢nf→Nf ⊢C)
+                                    (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (emptyrecₙ ⊢A ⊢t)           → emptyrecₙ (⊢nf→Nf ⊢A)
+                                    (⊢ne∷→NfNeutral ⊢t)
+    (natrecₙ ⊢A ⊢t ⊢u ⊢v)       → natrecₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                    (⊢nf∷→Nf ⊢u) (⊢ne∷→NfNeutral ⊢v)
+    (unitrecₙ ⊢A ⊢t ⊢u not-ok)  → unitrecₙ not-ok (⊢nf→Nf ⊢A)
+                                    (⊢ne∷→NfNeutral ⊢t) (⊢nf∷→Nf ⊢u)
+    (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w)      → Jₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                    (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
+                                    (⊢nf∷→Nf ⊢v) (⊢ne∷→NfNeutral ⊢w)
+    (Kₙ ⊢A ⊢t ⊢B ⊢u ⊢v _)       → Kₙ (⊢nf→Nf ⊢A) (⊢nf∷→Nf ⊢t)
+                                    (⊢nf→Nf ⊢B) (⊢nf∷→Nf ⊢u)
+                                    (⊢ne∷→NfNeutral ⊢v)
+    ([]-congₙ ⊢l ⊢A ⊢t ⊢u ⊢v _) → []-congₙ (⊢nf∷L→Nf ⊢l) (⊢nf→Nf ⊢A)
+                                    (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
+                                    (⊢ne∷→NfNeutral ⊢v)
+    (resp ok ⊢A ⊢B ⊢t ⊢u ⊢v)    → resp ok (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
+                                    (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
+                                    (⊢nf∷→Nf ⊢v)
+    (set ok ⊢A ⊢B ⊢t ⊢u ⊢v ⊢w)  → set ok (⊢nf→Nf ⊢A) (⊢nf→Nf ⊢B)
+                                    (⊢nf∷→Nf ⊢t) (⊢nf∷→Nf ⊢u)
+                                    (⊢nf∷→Nf ⊢v) (⊢nf∷→Nf ⊢w)
+    (qrec ⊢C ⊢t ⊢u ⊢v ⊢w)       → qrec (⊢nf→Nf ⊢C) (⊢nf∷→Nf ⊢t)
+                                    (⊢nf∷→Nf ⊢u) (⊢nf∷→Nf ⊢v)
+                                    (⊢ne∷→NfNeutral ⊢w)
 
 ------------------------------------------------------------------------
 -- A lemma
@@ -411,6 +468,10 @@ opaque
     (Idₙ ⊢A ⊢t ⊢u) ⊢Id →
       let _ , ⊢A∷U , _ , _ , U≡U = inversion-Id-U ⊢Id in
       convₙ (Idₙ (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U) ⊢t ⊢u) (sym U≡U)
+    (Quot ok ⊢A ⊢B) ⊢Q →
+      let _ , _ , _ , ⊢A∷U , ⊢B∷U , U≡U = inversion-Quot-∷ ⊢Q in
+      convₙ (Quot ok (⊢nf∷U→⊢nf∷U ⊢A ⊢A∷U) (⊢nf∷U→⊢nf∷U ⊢B ⊢B∷U))
+        (sym U≡U)
 
 ------------------------------------------------------------------------
 -- Stability
@@ -423,13 +484,17 @@ mutual
 
   ⊢nf-stable : ∇ »⊢ Δ ≡ Η → ∇ » Δ ⊢nf A → ∇ » Η ⊢nf A
   ⊢nf-stable Δ≡Η = λ where
-      (Levelₙ ok _)  → Levelₙ ok ⊢Η
-      (univₙ ⊢A)     → univₙ (⊢nf∷-stable Δ≡Η ⊢A)
-      (Liftₙ ⊢l ⊢A)  → Liftₙ (⊢nf∷L-stable Δ≡Η ⊢l) (⊢nf-stable Δ≡Η ⊢A)
-      (ΠΣₙ ⊢A ⊢B ok) → ΠΣₙ (⊢nf-stable Δ≡Η ⊢A)
-                         (⊢nf-stable (Δ≡Η ∙ refl (⊢nf→⊢ ⊢A)) ⊢B) ok
-      (Idₙ ⊢A ⊢t ⊢u) → Idₙ (⊢nf-stable Δ≡Η ⊢A) (⊢nf∷-stable Δ≡Η ⊢t)
-                         (⊢nf∷-stable Δ≡Η ⊢u)
+      (Levelₙ ok _)   → Levelₙ ok ⊢Η
+      (univₙ ⊢A)      → univₙ (⊢nf∷-stable Δ≡Η ⊢A)
+      (Liftₙ ⊢l ⊢A)   → Liftₙ (⊢nf∷L-stable Δ≡Η ⊢l) (⊢nf-stable Δ≡Η ⊢A)
+      (ΠΣₙ ⊢A ⊢B ok)  → ΠΣₙ (⊢nf-stable Δ≡Η ⊢A)
+                          (⊢nf-stable (Δ≡Η ∙ refl (⊢nf→⊢ ⊢A)) ⊢B) ok
+      (Idₙ ⊢A ⊢t ⊢u)  → Idₙ (⊢nf-stable Δ≡Η ⊢A) (⊢nf∷-stable Δ≡Η ⊢t)
+                          (⊢nf∷-stable Δ≡Η ⊢u)
+      (Quot ok ⊢A ⊢B) → Quot ok (⊢nf-stable Δ≡Η ⊢A)
+                          (⊢nf-stable
+                             (Quot-rel-Con-cong Δ≡Η (refl (⊢nf→⊢ ⊢A)))
+                             ⊢B)
     where
     ⊢Η = contextConvSubst Δ≡Η .proj₂ .proj₁
 
@@ -483,6 +548,14 @@ mutual
         (⊢nf∷-stable Δ≡Η ⊢u)
       (rflₙ ⊢t) → rflₙ
         (stability Δ≡Η ⊢t)
+      (Quot ok ⊢A ⊢B) → Quot
+        ok
+        (⊢nf∷-stable Δ≡Η ⊢A)
+        (⊢nf∷-stable (Quot-rel-Con-cong Δ≡Η (refl (univ (⊢nf∷→⊢∷ ⊢A))))
+           ⊢B)
+      (class ⊢Q ⊢t) → class
+        (stability Δ≡Η ⊢Q)
+        (⊢nf∷-stable Δ≡Η ⊢t)
       (neₙ ok ⊢t) → neₙ
         ok
         (⊢ne∷-stable Δ≡Η ⊢t)
@@ -529,11 +602,12 @@ mutual
       (sndₙ ⊢B ⊢t) → sndₙ
         (stability (Δ≡Η ∙ refl (⊢∙→⊢ (wf ⊢B))) ⊢B)
         (⊢ne∷-stable Δ≡Η ⊢t)
-      (prodrecₙ ⊢C ⊢t ⊢u ok) →
-        let ⊢B = ⊢∙→⊢ (wf (⊢nf∷→⊢∷ ⊢u)) in
-        prodrecₙ (⊢nf-stable (Δ≡Η ∙ refl (ΠΣⱼ ⊢B ok)) ⊢C)
-          (⊢ne∷-stable Δ≡Η ⊢t)
-          (⊢nf∷-stable (Δ≡Η ∙ refl (⊢∙→⊢ (wf ⊢B)) ∙ refl ⊢B) ⊢u) ok
+      (prodrecₙ ⊢C ⊢t ⊢u) →
+        let ⊢ΣAB         = ⊢∙→⊢ (wf (⊢nf→⊢ ⊢C))
+            ⊢A , ⊢B , ok = inversion-ΠΣ ⊢ΣAB
+        in
+        prodrecₙ (⊢nf-stable (Δ≡Η ∙ refl ⊢ΣAB) ⊢C) (⊢ne∷-stable Δ≡Η ⊢t)
+          (⊢nf∷-stable (Δ≡Η ∙ refl ⊢A ∙ refl ⊢B) ⊢u)
       (emptyrecₙ ⊢A ⊢t) → emptyrecₙ
         (⊢nf-stable Δ≡Η ⊢A)
         (⊢ne∷-stable Δ≡Η ⊢t)
@@ -544,12 +618,10 @@ mutual
         (⊢nf∷-stable Δ≡Η ⊢t)
         (⊢nf∷-stable (⊢Γℕ≡Δℕ ∙ refl (⊢nf→⊢ ⊢A)) ⊢u)
         (⊢ne∷-stable Δ≡Η ⊢v) }
-      (unitrecₙ ⊢A ⊢t ⊢u ok not-ok) →
-        case Δ≡Η ∙ refl (⊢Unit (wf (⊢nf∷→⊢∷ ⊢u)) ok) of λ {
-          ⊢Γ⊤≡Δ⊤ → unitrecₙ
-        (⊢nf-stable ⊢Γ⊤≡Δ⊤ ⊢A)
-        (⊢ne∷-stable Δ≡Η ⊢t)
-        (⊢nf∷-stable Δ≡Η ⊢u) ok not-ok }
+      (unitrecₙ ⊢A ⊢t ⊢u not-ok) →
+        let ⊢Γ⊤≡Δ⊤ = Δ≡Η ∙ refl (⊢∙→⊢ (wf (⊢nf→⊢ ⊢A))) in
+        unitrecₙ (⊢nf-stable ⊢Γ⊤≡Δ⊤ ⊢A) (⊢ne∷-stable Δ≡Η ⊢t)
+          (⊢nf∷-stable Δ≡Η ⊢u) not-ok
       (Jₙ ⊢A ⊢t ⊢B ⊢u ⊢v ⊢w) → Jₙ
         (⊢nf-stable Δ≡Η ⊢A)
         (⊢nf∷-stable Δ≡Η ⊢t)
@@ -574,6 +646,31 @@ mutual
         (⊢nf∷-stable Δ≡Η ⊢u)
         (⊢ne∷-stable Δ≡Η ⊢v)
         ok
+      (resp ok ⊢A ⊢B ⊢t ⊢u ⊢v) → resp
+        ok
+        (⊢nf-stable Δ≡Η ⊢A)
+        (⊢nf-stable (Quot-rel-Con-cong Δ≡Η (refl (⊢nf→⊢ ⊢A))) ⊢B)
+        (⊢nf∷-stable Δ≡Η ⊢t)
+        (⊢nf∷-stable Δ≡Η ⊢u)
+        (⊢nf∷-stable Δ≡Η ⊢v)
+      (set ok ⊢A ⊢B ⊢t ⊢u ⊢v ⊢w) → set
+        ok
+        (⊢nf-stable Δ≡Η ⊢A)
+        (⊢nf-stable (Quot-rel-Con-cong Δ≡Η (refl (⊢nf→⊢ ⊢A))) ⊢B)
+        (⊢nf∷-stable Δ≡Η ⊢t)
+        (⊢nf∷-stable Δ≡Η ⊢u)
+        (⊢nf∷-stable Δ≡Η ⊢v)
+        (⊢nf∷-stable Δ≡Η ⊢w)
+      (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) →
+        let _ , (⊢A , _) , (⊢B , _) , (⊢C′ , _) , (⊢Q , _) =
+              inversion-Is-set-Cons (⊢nf∷→⊢∷ ⊢v)
+        in
+        qrec (⊢nf-stable (Δ≡Η ∙ refl ⊢Q) ⊢C)
+          (⊢nf∷-stable (Δ≡Η ∙ refl ⊢A) ⊢t)
+          (⊢nf∷-stable (Resp-Con-cong Δ≡Η (refl ⊢A) (refl ⊢B)) ⊢u)
+          (⊢nf∷-stable
+             (Is-set-Con-cong Δ≡Η (refl ⊢A) (refl ⊢B) (refl ⊢C′)) ⊢v)
+          (⊢ne∷-stable Δ≡Η ⊢w)
     where
     ⊢Η = contextConvSubst Δ≡Η .proj₂ .proj₁
 
@@ -840,7 +937,7 @@ inversion-ne-prodrec :
     Γ ⊢ne t ∷ Σʷ p , q ▷ C ▹ D ×
     Γ »∙ C »∙ D ⊢nf u ∷ A [ prodʷ p (var x1) (var x0) ]↑² ×
     Γ ⊢ B ≡ A [ t ]₀
-inversion-ne-prodrec (prodrecₙ ⊢A ⊢t ⊢u _) =
+inversion-ne-prodrec (prodrecₙ ⊢A ⊢t ⊢u) =
   _ , _ , _ , ⊢A , ⊢t , ⊢u ,
   refl (subst-⊢₀ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t))
 inversion-ne-prodrec (convₙ ⊢pr B≡C) =
@@ -1152,7 +1249,7 @@ opaque
     Γ ⊢nf u ∷ A [ starʷ ]₀ ×
     Γ ⊢ B ≡ A [ t ]₀ ×
     ¬ Unitʷ-η
-  inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u _ not-ok) =
+  inversion-ne-unitrec (unitrecₙ ⊢A ⊢t ⊢u not-ok) =
     ⊢A , ⊢t , ⊢u , refl (subst-⊢₀ (⊢nf→⊢ ⊢A) (⊢ne∷→⊢∷ ⊢t)) , not-ok
   inversion-ne-unitrec (convₙ ⊢ur B≡C) =
     case inversion-ne-unitrec ⊢ur of λ {
@@ -1186,6 +1283,231 @@ opaque
   inversion-nf-ne-unitrec (inj₁ ⊢ur) = inversion-nf-unitrec ⊢ur
   inversion-nf-ne-unitrec (inj₂ ⊢ur) = inversion-ne-unitrec ⊢ur
 
+opaque
+
+  -- Inversion for terms that are quotient types.
+
+  inversion-nf-Quot-U :
+    Γ ⊢nf Quot A B ∷ C →
+    Quot-allowed ×
+    ∃ λ l →
+    Γ ⊢nf A ∷ U l ×
+    Quot-rel-Cons Γ A ⊢nf B ∷ U (wk[ 2 ]′ l) ×
+    Γ ⊢ C ≡ U l
+  inversion-nf-Quot-U = λ where
+    (Quot ok ⊢A ⊢B) →
+      ok , _ , ⊢A , ⊢B , refl (wf-⊢ (⊢nf∷→⊢∷ ⊢A))
+    (convₙ ⊢Q ≡C) →
+      let ok , _ , ⊢A , ⊢B , ≡U = inversion-nf-Quot-U ⊢Q in
+      ok , _ , ⊢A , ⊢B , trans (sym ≡C) ≡U
+    (neₙ _ ⊢Q) →
+      case ⊢ne∷→NfNeutral ⊢Q of λ ()
+
+opaque
+
+  -- Inversion for quotient types.
+
+  inversion-nf-Quot :
+    Γ ⊢nf Quot A B →
+    Quot-allowed ×
+    Γ ⊢nf A ×
+    Quot-rel-Cons Γ A ⊢nf B
+  inversion-nf-Quot = λ where
+    (Quot ok ⊢A ⊢B) →
+      ok , ⊢A , ⊢B
+    (univₙ ⊢Q) →
+      let ok , _ , ⊢A , ⊢B , _ = inversion-nf-Quot-U ⊢Q in
+      ok , univₙ ⊢A , univₙ ⊢B
+
+opaque
+
+  -- Inversion for class.
+
+  inversion-nf-class :
+    Γ ⊢nf class t ∷ A →
+    ∃₂ λ B C →
+    (Γ ⊢ Quot B C) ×
+    Γ ⊢nf t ∷ B ×
+    Γ ⊢ A ≡ Quot B C
+  inversion-nf-class = λ where
+    (class ⊢Q ⊢t) →
+      _ , _ , ⊢Q , ⊢t , refl ⊢Q
+    (convₙ ⊢c ≡A) →
+      let _ , _ , ⊢Q , ⊢t , ≡Q = inversion-nf-class ⊢c in
+      _ , _ , ⊢Q , ⊢t , trans (sym ≡A) ≡Q
+    (neₙ _ ⊢c) →
+      case ⊢ne∷→NfNeutral ⊢c of λ ()
+
+opaque
+
+  -- Inversion for resp.
+
+  inversion-ne-resp :
+    Γ ⊢ne resp A B t u v ∷ C →
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢nf A) ×
+    (Quot-rel-Cons Γ A ⊢nf B) ×
+    Γ ⊢nf t ∷ A ×
+    Γ ⊢nf u ∷ A ×
+    Γ ⊢nf v ∷ B [ t , u ]₁₀ ×
+    Γ ⊢ C ≡ Id (Quot A B) (class t) (class u)
+  inversion-ne-resp (resp ok ⊢A ⊢B ⊢t ⊢u ⊢v) =
+    let ok′ , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok
+        ⊢Q      = Quot ok′ (⊢nf→⊢ ⊢B)
+    in
+    ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v ,
+    refl (Idⱼ′ (class ⊢Q (⊢nf∷→⊢∷ ⊢t)) (class ⊢Q (⊢nf∷→⊢∷ ⊢u)))
+  inversion-ne-resp (convₙ ⊢r ≡C) =
+    let ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , ≡Id = inversion-ne-resp ⊢r in
+    ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , trans (sym ≡C) ≡Id
+
+opaque
+
+  -- Inversion for resp.
+
+  inversion-nf-resp :
+    Γ ⊢nf resp A B t u v ∷ C →
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢nf A) ×
+    (Quot-rel-Cons Γ A ⊢nf B) ×
+    Γ ⊢nf t ∷ A ×
+    Γ ⊢nf u ∷ A ×
+    Γ ⊢nf v ∷ B [ t , u ]₁₀ ×
+    Γ ⊢ C ≡ Id (Quot A B) (class t) (class u)
+  inversion-nf-resp (neₙ _ ⊢r) =
+    inversion-ne-resp ⊢r
+  inversion-nf-resp (convₙ ⊢r ≡C) =
+    let ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , ≡Id = inversion-nf-resp ⊢r in
+    ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , trans (sym ≡C) ≡Id
+
+opaque
+
+  -- Inversion for resp.
+
+  inversion-nf-ne-resp :
+    Γ ⊢nf resp A B t u v ∷ C ⊎ Γ ⊢ne resp A B t u v ∷ C →
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢nf A) ×
+    (Quot-rel-Cons Γ A ⊢nf B) ×
+    Γ ⊢nf t ∷ A ×
+    Γ ⊢nf u ∷ A ×
+    Γ ⊢nf v ∷ B [ t , u ]₁₀ ×
+    Γ ⊢ C ≡ Id (Quot A B) (class t) (class u)
+  inversion-nf-ne-resp (inj₁ ⊢r) = inversion-nf-resp ⊢r
+  inversion-nf-ne-resp (inj₂ ⊢r) = inversion-ne-resp ⊢r
+
+opaque
+
+  -- Inversion for set.
+
+  inversion-ne-set :
+    Γ ⊢ne set A B t u v w ∷ C →
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢nf A) ×
+    (Quot-rel-Cons Γ A ⊢nf B) ×
+    Γ ⊢nf t ∷ Quot A B ×
+    Γ ⊢nf u ∷ Quot A B ×
+    Γ ⊢nf v ∷ Id (Quot A B) t u ×
+    Γ ⊢nf w ∷ Id (Quot A B) t u ×
+    Γ ⊢ C ≡ Id (Id (Quot A B) t u) v w
+  inversion-ne-set (set ok ⊢A ⊢B ⊢t ⊢u ⊢v ⊢w) =
+    ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , ⊢w ,
+    refl (Idⱼ′ (⊢nf∷→⊢∷ ⊢v) (⊢nf∷→⊢∷ ⊢w))
+  inversion-ne-set (convₙ ⊢s ≡C) =
+    let ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , ⊢w , ≡Id = inversion-ne-set ⊢s in
+    ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡C) ≡Id
+
+opaque
+
+  -- Inversion for set.
+
+  inversion-nf-set :
+    Γ ⊢nf set A B t u v w ∷ C →
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢nf A) ×
+    (Quot-rel-Cons Γ A ⊢nf B) ×
+    Γ ⊢nf t ∷ Quot A B ×
+    Γ ⊢nf u ∷ Quot A B ×
+    Γ ⊢nf v ∷ Id (Quot A B) t u ×
+    Γ ⊢nf w ∷ Id (Quot A B) t u ×
+    Γ ⊢ C ≡ Id (Id (Quot A B) t u) v w
+  inversion-nf-set (neₙ _ ⊢s) =
+    inversion-ne-set ⊢s
+  inversion-nf-set (convₙ ⊢s ≡C) =
+    let ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , ⊢w , ≡Id = inversion-nf-set ⊢s in
+    ok , ⊢A , ⊢B , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡C) ≡Id
+
+opaque
+
+  -- Inversion for set.
+
+  inversion-nf-ne-set :
+    Γ ⊢nf set A B t u v w ∷ C ⊎ Γ ⊢ne set A B t u v w ∷ C →
+    Higher-quotient-constructors-neutral ×
+    (Γ ⊢nf A) ×
+    (Quot-rel-Cons Γ A ⊢nf B) ×
+    Γ ⊢nf t ∷ Quot A B ×
+    Γ ⊢nf u ∷ Quot A B ×
+    Γ ⊢nf v ∷ Id (Quot A B) t u ×
+    Γ ⊢nf w ∷ Id (Quot A B) t u ×
+    Γ ⊢ C ≡ Id (Id (Quot A B) t u) v w
+  inversion-nf-ne-set (inj₁ ⊢s) = inversion-nf-set ⊢s
+  inversion-nf-ne-set (inj₂ ⊢s) = inversion-ne-set ⊢s
+
+opaque
+
+  -- Inversion for qrec.
+
+  inversion-ne-qrec :
+    Γ ⊢ne qrec C t u v w ∷ D →
+    ∃₂ λ A B →
+    (Γ »∙ Quot A B ⊢nf C) ×
+    Γ »∙ A ⊢nf t ∷ C [ class (var x0) ]↑ ×
+    Resp-Cons Γ A B ⊢nf u ∷ Resp-type A B C t ×
+    Is-set-Cons Γ A B C ⊢nf v ∷ Is-set-type C ×
+    Γ ⊢ne w ∷ Quot A B ×
+    Γ ⊢ D ≡ C [ w ]₀
+  inversion-ne-qrec (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w ,
+    refl (subst-⊢₀ (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢w))
+  inversion-ne-qrec (convₙ ⊢q ≡D) =
+    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ = inversion-ne-qrec ⊢q in
+    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀
+
+opaque
+
+  -- Inversion for qrec.
+
+  inversion-nf-qrec :
+    Γ ⊢nf qrec C t u v w ∷ D →
+    ∃₂ λ A B →
+    (Γ »∙ Quot A B ⊢nf C) ×
+    Γ »∙ A ⊢nf t ∷ C [ class (var x0) ]↑ ×
+    Resp-Cons Γ A B ⊢nf u ∷ Resp-type A B C t ×
+    Is-set-Cons Γ A B C ⊢nf v ∷ Is-set-type C ×
+    Γ ⊢ne w ∷ Quot A B ×
+    Γ ⊢ D ≡ C [ w ]₀
+  inversion-nf-qrec (neₙ _ ⊢q) =
+    inversion-ne-qrec ⊢q
+  inversion-nf-qrec (convₙ ⊢q ≡D) =
+    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ = inversion-nf-qrec ⊢q in
+    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀
+
+opaque
+
+  -- Inversion for qrec.
+
+  inversion-nf-ne-qrec :
+    Γ ⊢nf qrec C t u v w ∷ D ⊎ Γ ⊢ne qrec C t u v w ∷ D →
+    ∃₂ λ A B →
+    (Γ »∙ Quot A B ⊢nf C) ×
+    Γ »∙ A ⊢nf t ∷ C [ class (var x0) ]↑ ×
+    Resp-Cons Γ A B ⊢nf u ∷ Resp-type A B C t ×
+    Is-set-Cons Γ A B C ⊢nf v ∷ Is-set-type C ×
+    Γ ⊢ne w ∷ Quot A B ×
+    Γ ⊢ D ≡ C [ w ]₀
+  inversion-nf-ne-qrec (inj₁ ⊢q) = inversion-nf-qrec ⊢q
+  inversion-nf-ne-qrec (inj₂ ⊢q) = inversion-ne-qrec ⊢q
 
 ------------------------------------------------------------------------
 -- Lemmas related to η-long normal forms for types with η-equality
@@ -1223,6 +1545,8 @@ opaque
     (sucₙ _)        _ ()
     (Idₙ _ _ _)     _ ()
     (rflₙ _)        _ ()
+    (Quot _ _ _)    _ ()
+    (class _ _)     _ ()
 
 -- Normal forms of type Σˢ p , q ▷ A ▹ B are not neutral (given a
 -- certain assumption).
@@ -1257,6 +1581,8 @@ opaque
     (sucₙ _)        _ ()
     (Idₙ _ _ _)     _ ()
     (rflₙ _)        _ ()
+    (Quot _ _ _)    _ ()
+    (class _ _)     _ ()
 
 -- Normal forms of type Unit s l are equal to star s l if Unit s l
 -- comes with η-equality (given a certain assumption).
@@ -1292,6 +1618,8 @@ opaque
     (sucₙ _)        → ⊥-elim (ℕ≢Unitⱼ A≡Unit)
     (Idₙ _ _ _)     → ⊥-elim (U≢Unitⱼ A≡Unit)
     (rflₙ _)        → ⊥-elim (Id≢Unit A≡Unit)
+    (Quot _ _ _)    → ⊥-elim (U≢Unitⱼ A≡Unit)
+    (class _ _)     → ⊥-elim (Quot≢Unit A≡Unit)
 
 -- Normal forms of type Lift l A are equal to applications of lift
 -- (given a certain assumption).
@@ -1324,6 +1652,8 @@ opaque
     (sucₙ _)        → ⊥-elim (Lift≢ℕ (sym A≡Lift))
     (Idₙ _ _ _)     → ⊥-elim (U≢Liftⱼ A≡Lift)
     (rflₙ _)        → ⊥-elim (I.Id≢Lift A≡Lift)
+    (Quot _ _ _)    → ⊥-elim (U≢Liftⱼ A≡Lift)
+    (class _ _)     → ⊥-elim (Quot≢Lift A≡Lift)
 
 ------------------------------------------------------------------------
 -- Normal forms (η-long) are unique (if Level and equality reflection
@@ -1401,7 +1731,9 @@ opaque
 
 private module _ (Level-not-allowed : ¬ Level-allowed) where
 
-  opaque mutual
+  opaque
+   unfolding Quot-rel-Con
+   mutual
 
     normal-types-unique-[conv↑] :
       ⦃ not-ok : No-equality-reflection ⦄ →
@@ -1463,6 +1795,15 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
           (normal-types-unique-[conv↑] ⊢C₁ ⊢C₂ C₁≡C₂)
           (normal-terms-unique-[conv↑]∷ ⊢t₁ (convₙ ⊢t₂ C₂≡C₁) t₁≡t₂)
           (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ C₂≡C₁) u₁≡u₂)
+      (Quot-cong ok A₁≡B₁ A₂≡B₂) →
+        let B₁≡A₁         = sym (soundnessConv↑ A₁≡B₁)
+            Γ≡Γ           = reflConEq (wf B₁≡A₁)
+            _ , ⊢A₁ , ⊢A₂ = inversion-nf-Quot ⊢A
+            _ , ⊢B₁ , ⊢B₂ = inversion-nf-Quot ⊢B
+        in
+        PE.cong₂ Quot (normal-types-unique-[conv↑] ⊢A₁ ⊢B₁ A₁≡B₁)
+          (normal-types-unique-[conv↑] ⊢A₂
+             (⊢nf-stable (Quot-rel-Con-cong Γ≡Γ B₁≡A₁) ⊢B₂) A₂≡B₂)
 
     normal-or-neutral-terms-unique-~↑ :
       ⦃ not-ok : No-equality-reflection ⦄ →
@@ -1624,6 +1965,104 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
           (normal-terms-unique-[conv↑]∷ ⊢t₁ (convₙ ⊢t₂ A₂≡A₁) t₁≡t₂)
           (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ A₂≡A₁) u₁≡u₂)
           (neutral-terms-unique-~↓ ⊢v₁ ⊢v₂ v₁~v₂) }
+      (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+        let _ , ⊢A₁ , ⊢B₁ , ⊢t₁ , ⊢u₁ , ⊢v₁ , _ =
+              inversion-nf-ne-resp ⊢u
+            _ , ⊢A₂ , ⊢B₂ , ⊢t₂ , ⊢u₂ , ⊢v₂ , _ =
+              inversion-nf-ne-resp ⊢v
+            A₂≡A₁ =
+              sym (soundnessConv↑ A₁≡A₂)
+            B₂[t₂,u₂]≡B₁[t₁,u₁] =
+              _⊢_≡_.sym $
+              subst-⊢≡₁₀ (soundnessConv↑ B₁≡B₂)
+                (soundnessConv↑Term t₁≡t₂)
+                (PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (wk1-sgSubst _ _)) $
+                 soundnessConv↑Term u₁≡u₂)
+            Γ≡Γ =
+              reflConEq (wf A₂≡A₁)
+        in
+        PE.cong₅ resp (normal-types-unique-[conv↑] ⊢A₁ ⊢A₂ A₁≡A₂)
+          (normal-types-unique-[conv↑] ⊢B₁
+             (⊢nf-stable (Quot-rel-Con-cong Γ≡Γ A₂≡A₁) ⊢B₂) B₁≡B₂)
+          (normal-terms-unique-[conv↑]∷ ⊢t₁ (convₙ ⊢t₂ A₂≡A₁) t₁≡t₂)
+          (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ A₂≡A₁) u₁≡u₂)
+          (normal-terms-unique-[conv↑]∷ ⊢v₁
+             (convₙ ⊢v₂ B₂[t₂,u₂]≡B₁[t₁,u₁]) v₁≡v₂)
+      (set-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        let _ , ⊢A₁ , ⊢B₁ , ⊢t₁ , ⊢u₁ , ⊢v₁ , ⊢w₁ , _ =
+              inversion-nf-ne-set ⊢u
+            _ , ⊢A₂ , ⊢B₂ , ⊢t₂ , ⊢u₂ , ⊢v₂ , ⊢w₂ , _ =
+              inversion-nf-ne-set ⊢v
+            ⊢A₁≡A₂ = soundnessConv↑ A₁≡A₂
+            Γ≡Γ    = reflConEq (wf ⊢A₁≡A₂)
+            ok , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok
+            Q≡Q    = Quot-cong ok ⊢A₁≡A₂ (soundnessConv↑ B₁≡B₂)
+            Id≡Id  =
+              _⊢_≡_.sym $
+              Id-cong Q≡Q (soundnessConv↑Term t₁≡t₂)
+                (soundnessConv↑Term u₁≡u₂)
+        in
+        PE.cong₆ set (normal-types-unique-[conv↑] ⊢A₁ ⊢A₂ A₁≡A₂)
+          (normal-types-unique-[conv↑] ⊢B₁
+             (⊢nf-stable (Quot-rel-Con-cong Γ≡Γ (sym ⊢A₁≡A₂)) ⊢B₂)
+             B₁≡B₂)
+          (normal-terms-unique-[conv↑]∷ ⊢t₁ (convₙ ⊢t₂ (sym Q≡Q)) t₁≡t₂)
+          (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ (sym Q≡Q)) u₁≡u₂)
+          (normal-terms-unique-[conv↑]∷ ⊢v₁ (convₙ ⊢v₂ Id≡Id) v₁≡v₂)
+          (normal-terms-unique-[conv↑]∷ ⊢w₁ (convₙ ⊢w₂ Id≡Id) w₁≡w₂)
+      (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂) →
+        let _ , _ , ⊢C₁ , ⊢t₁ , ⊢u₁ , ⊢v₁ , ⊢w₁ , _ =
+              inversion-nf-ne-qrec ⊢u
+            _ , _ , ⊢C₂ , ⊢t₂ , ⊢u₂ , ⊢v₂ , ⊢w₂ , _ =
+              inversion-nf-ne-qrec ⊢v
+            _ , ⊢w₁′ , ⊢w₂′ = wf-⊢ (soundness~↓ w₁~w₂)
+            w₁-ne           = nfNeutral (⊢ne∷→NfNeutral ⊢w₁)
+            w₂-ne           = nfNeutral (⊢ne∷→NfNeutral ⊢w₂)
+            Q≡₁             =
+              neTypeEq ⦃ ok = included ⦄ w₁-ne ⊢w₁′ (⊢ne∷→⊢∷ ⊢w₁)
+            Q≡₂ =
+              neTypeEq ⦃ ok = included ⦄ w₂-ne ⊢w₂′ (⊢ne∷→⊢∷ ⊢w₂)
+            ⊢Q , _    = wf-⊢ Q≡₁
+            A≡₁ , B≡₁ =
+              Quot-injectivity-no-equality-reflection Q≡₁
+            A≡₂ , B≡₂ =
+              Quot-injectivity-no-equality-reflection Q≡₂
+            ⊢A , _       = wf-⊢ A≡₂
+            ⊢C₁≡C₂       = soundnessConv↑ C₁≡C₂
+            ⊢C₁′ , _     = wf-⊢ ⊢C₁≡C₂
+            ⊢t₁≡t₂       = soundnessConv↑Term t₁≡t₂
+            _ , ⊢t₁′ , _ = wf-⊢ ⊢t₁≡t₂
+            Γ≡Γ          = reflConEq (wf ⊢A)
+        in
+        PE.cong₅ qrec
+          (normal-types-unique-[conv↑]
+             (⊢nf-stable (refl-∙ (sym Q≡₁)) ⊢C₁)
+             (⊢nf-stable (refl-∙ (sym Q≡₂)) ⊢C₂) C₁≡C₂)
+          (normal-terms-unique-[conv↑]∷
+             (⊢nf∷-stable (refl-∙ (sym A≡₁)) ⊢t₁)
+             (_⊢nf_∷_.convₙ (⊢nf∷-stable (refl-∙ (sym A≡₂)) ⊢t₂) $ sym $
+              subst-⊢ ⊢C₁≡C₂ (⊢ˢʷ∷-[][]↑ (class (wk₁ ⊢A ⊢Q) (var₀ ⊢A))))
+             t₁≡t₂)
+          (normal-terms-unique-[conv↑]∷
+             (convₙ
+                (⊢nf∷-stable (symConEq (Resp-Con-cong Γ≡Γ A≡₁ B≡₁)) ⊢u₁)
+                (sym $
+                 Resp-type-cong A≡₁ B≡₁ (refl ⊢C₁′)
+                   (refl ⊢t₁′)))
+             (convₙ
+                (⊢nf∷-stable (symConEq (Resp-Con-cong Γ≡Γ A≡₂ B≡₂)) ⊢u₂)
+                (sym (Resp-type-cong A≡₂ B≡₂ ⊢C₁≡C₂ ⊢t₁≡t₂)))
+             u₁≡u₂)
+          (normal-terms-unique-[conv↑]∷
+             (⊢nf∷-stable
+                (symConEq (Is-set-Con-cong Γ≡Γ A≡₁ B≡₁ (refl ⊢C₁′)))
+                ⊢v₁)
+             (convₙ
+                (⊢nf∷-stable
+                   (symConEq (Is-set-Con-cong Γ≡Γ A≡₂ B≡₂ ⊢C₁≡C₂)) ⊢v₂)
+                (sym (Is-set-type-cong ⊢C₁≡C₂)))
+             v₁≡v₂)
+          (neutral-terms-unique-~↓ ⊢w₁ ⊢w₂ w₁~w₂)
 
     neutral-terms-unique-~↑ :
       ⦃ not-ok : No-equality-reflection ⦄ →
@@ -1783,6 +2222,18 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
         normal-terms-unique-~↓ ⊢u ⊢v u~v
       (rfl-refl _) →
         PE.refl
+      (Quot-ins _ u~v) →
+        normal-terms-unique-~↓ ⊢u ⊢v u~v
+      (class-cong ⊢Q u≡v) →
+        let _ , _ , _ , ⊢u , ≡Q₁ = inversion-nf-class ⊢u
+            _ , _ , _ , ⊢v , ≡Q₂ = inversion-nf-class ⊢v
+
+            B≡₁ , _ = Quot-injectivity-no-equality-reflection ≡Q₁
+            B≡₂ , _ = Quot-injectivity-no-equality-reflection ≡Q₂
+        in
+        PE.cong class $
+        normal-terms-unique-[conv↑]∷ (convₙ ⊢u (sym B≡₁))
+          (convₙ ⊢v (sym B≡₂)) u≡v
 
     normal-terms-unique-[conv↑]∷ :
       ⦃ not-ok : No-equality-reflection ⦄ →

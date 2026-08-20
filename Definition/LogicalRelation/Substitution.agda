@@ -23,6 +23,7 @@ open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Substitution R
 open import Definition.Typed.Weakening R as TW using (_∷_⊇_; _»_∷ʷ_⊇_)
+import Definition.Typed.Weakening.Combined R as C
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Well-formed R
 
@@ -35,7 +36,7 @@ open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 import Tools.Level as L
-open import Tools.Nat using (Nat)
+open import Tools.Nat using (Nat; 1+)
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
@@ -43,15 +44,16 @@ open import Tools.Relation
 open import Tools.Unit
 
 private variable
-  m n κ                                                 : Nat
-  ∇ ∇′ ∇″                                               : DCon (Term 0) _
-  Δ Η Φ                                                 : Con Term _
-  Γ                                                     : Cons _ _
-  A A₁ A₂ B B₁ B₂ C C₁ C₂ D E t t₁ t₂ u u₁ u₂ v v₁ v₂ w : Term _
-  l l₁ l₂                                               : Lvl _
-  σ σ₁ σ₂ σ₃                                            : Subst _ _
-  ρ                                                     : Wk _ _
-  ℓ ℓ′ ℓ″ ℓ‴                                            : Universe-level
+  m n κ                             : Nat
+  ∇ ∇′ ∇″                           : DCon (Term 0) _
+  Δ Η Φ                             : Con Term _
+  Γ                                 : Cons _ _
+  A A₁ A₂ B B₁ B₂ C C₁ C₂ D E
+    t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
+  l l₁ l₂                           : Lvl _
+  σ σ₁ σ₂ σ₃                        : Subst _ _
+  ρ                                 : Wk _ _
+  ℓ ℓ′ ℓ″ ℓ‴                        : Universe-level
 
 ------------------------------------------------------------------------
 -- The type formers
@@ -810,21 +812,24 @@ opaque
   defn-wk-⊩ˢ≡∷ {Δ = ε} ⦃ inc ⦄ ξ⊇ σ₁≡σ₂ =
     ⊩ˢ≡∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ≡∷→» σ₁≡σ₂) , defn-wk ξ⊇ (⊩ˢ≡∷ε⇔ .proj₁ σ₁≡σ₂ .proj₂ ⦃ inc ⦄))
   defn-wk-⊩ˢ≡∷ {Δ = Δ ∙ A} ξ⊇ σ₁≡σ₂ =
-    let ((ℓ , ⊩A , h≡h) , t≡t) = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂
-    in  ⊩ˢ≡∷∙⇔ .proj₂ $ (ℓ , defn-wk-⊩ᵛ ξ⊇ ⊩A , defn-wk-⊩≡∷ ξ⊇ h≡h)
-                      , defn-wk-⊩ˢ≡∷ ξ⊇ t≡t
+    let ((ℓ , ⊩A , h≡h) , t≡t) = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
+    ⊩ˢ≡∷∙⇔ .proj₂ $
+      (ℓ , defn-wk-⊩ᵛ ξ⊇ ⊩A ,
+       PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _) (wk-id _) (wk-id _) (wk-id _)
+         (wk-⊩≡∷
+            (C.»⊇→⊢ʷᵏ ξ⊇ (defn-wk ξ⊇ (wf (≅ₜ-eq (escape-⊩≡∷ h≡h)))))
+            h≡h)) ,
+      defn-wk-⊩ˢ≡∷ ξ⊇ t≡t
 
 opaque
 
   -- A definitional weakening lemma for _⊩ˢ_∷_.
 
-  defn-wk-⊩ˢ∷ : » ∇′ ⊇ ∇ → ∇ » Η ⊩ˢ σ ∷ Δ → ∇′ » Η ⊩ˢ σ ∷ Δ
-  defn-wk-⊩ˢ∷ {Δ = ε} ξ⊇ ⊩σ =
-    ⊩ˢ∷ε⇔ .proj₂ (wf-»⊇ ξ⊇ (⊩ˢ∷→» ⊩σ) , defn-wk ξ⊇ (⊩ˢ∷ε⇔ .proj₁ ⊩σ .proj₂))
-  defn-wk-⊩ˢ∷ {Δ = Δ ∙ A} ξ⊇ ⊩σ =
-    let ((ℓ , ⊩A , ⊩h) , ⊩t) = ⊩ˢ∷∙⇔ .proj₁ ⊩σ
-    in  ⊩ˢ∷∙⇔ .proj₂ $ (ℓ , defn-wk-⊩ᵛ ξ⊇ ⊩A , defn-wk-⊩∷ ξ⊇ ⊩h)
-                     , defn-wk-⊩ˢ∷ ξ⊇ ⊩t
+  defn-wk-⊩ˢ∷ :
+    ⦃ inc : Var-included or-empty Η ⦄ →
+    » ∇′ ⊇ ∇ → ∇ » Η ⊩ˢ σ ∷ Δ → ∇′ » Η ⊩ˢ σ ∷ Δ
+  defn-wk-⊩ˢ∷ ξ⊇ =
+    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ defn-wk-⊩ˢ≡∷ ξ⊇ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
 
 opaque
 
@@ -1271,39 +1276,6 @@ opaque
 
 opaque
 
-  -- Conversion for one of the contexts for _⊩ˢ_≡_∷_.
-
-  conv-⊩ˢ≡∷-∙ :
-    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A ≡ B → ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ A →
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B
-  conv-⊩ˢ≡∷-∙ {∇} {Δ} {A} {B} {Η} {σ₁} {σ₂} A≡B =
-    case ⊩ᵛ≡⇔′ .proj₁ A≡B of λ
-      (_ , ⊩B , A≡B) →
-
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ A                                                ⇔⟨ ⊩ˢ≡∷∙⇔ ⟩→
-
-    (∃ λ ℓ →
-     (∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A) × ∇ » Η ⊩⟨ ℓ ⟩ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]) ×
-    ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          →⟨ (λ ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
-                                                                                    (_ , ⊩B , conv-⊩≡∷ (A≡B id⊇ $ wf-⊩ˢ≡∷ σ₁₊≡σ₂₊ .proj₁) σ₁₀≡σ₂₀)
-                                                                                  , σ₁₊≡σ₂₊) ⟩
-    (∃ λ ℓ →
-     (∇ » Δ ⊩ᵛ⟨ ℓ ⟩ B) × ∇ » Η ⊩⟨ ℓ ⟩ head σ₁ ≡ head σ₂ ∷ B [ tail σ₁ ]) ×
-    ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          ⇔˘⟨ ⊩ˢ≡∷∙⇔ ⟩→
-
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B                                                □
-
-opaque
-
-  -- Conversion for one of the contexts for _⊩ˢ_∷_.
-
-  conv-⊩ˢ∷-∙ :
-    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A ≡ B → ∇ » Η ⊩ˢ σ ∷ Δ ∙ A → ∇ » Η ⊩ˢ σ ∷ Δ ∙ B
-  conv-⊩ˢ∷-∙ A≡B =
-    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ conv-⊩ˢ≡∷-∙ A≡B ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
-
-opaque
-
   -- Conversion for the context for _⊩ᵛ⟨_⟩_.
 
   conv-∙-⊩ᵛ :
@@ -1336,6 +1308,58 @@ opaque
 
           ∇ » Η ⊩⟨ ℓ ⟩ C [ σ₁ ] ≡ C [ σ₂ ]                    □
       )
+
+opaque
+
+  -- Conversion for one of the contexts for _⊩ˢ_≡_∷_.
+
+  conv-⊩ˢ≡∷-∙ :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A ≡ B → ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ A →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B
+  conv-⊩ˢ≡∷-∙ {∇} {Δ} {A} {B} {Η} {σ₁} {σ₂} A≡B =
+    case ⊩ᵛ≡⇔′ .proj₁ A≡B of λ
+      (_ , ⊩B , A≡B) →
+
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ A                                                ⇔⟨ ⊩ˢ≡∷∙⇔ ⟩→
+
+    (∃ λ ℓ →
+     (∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A) × ∇ » Η ⊩⟨ ℓ ⟩ head σ₁ ≡ head σ₂ ∷ A [ tail σ₁ ]) ×
+    ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          →⟨ (λ ((_ , ⊩A , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊) →
+                                                                                    (_ , ⊩B , conv-⊩≡∷ (A≡B id⊇ $ wf-⊩ˢ≡∷ σ₁₊≡σ₂₊ .proj₁) σ₁₀≡σ₂₀)
+                                                                                  , σ₁₊≡σ₂₊) ⟩
+    (∃ λ ℓ →
+     (∇ » Δ ⊩ᵛ⟨ ℓ ⟩ B) × ∇ » Η ⊩⟨ ℓ ⟩ head σ₁ ≡ head σ₂ ∷ B [ tail σ₁ ]) ×
+    ∇ » Η ⊩ˢ tail σ₁ ≡ tail σ₂ ∷ Δ                                          ⇔˘⟨ ⊩ˢ≡∷∙⇔ ⟩→
+
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ ∙ B                                                □
+
+opaque
+
+  -- Another kind of conversion for one of the contexts for _⊩ˢ_≡_∷_.
+
+  conv-⊩ˢ≡∷-∙∙ :
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ →
+    Γ »∙ A₁ ⊩ᵛ⟨ ℓ″ ⟩ B₁ ≡ B₂ →
+    Γ .defs » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars ∙ A₁ ∙ B₁ →
+    Γ .defs » Δ ⊩ˢ σ₁ ≡ σ₂ ∷ Γ .vars ∙ A₂ ∙ B₂
+  conv-⊩ˢ≡∷-∙∙ A₁≡A₂ B₁≡B₂ σ₁≡σ₂ =
+    let _ , ⊩B₂ , B₁≡B₂             = ⊩ᵛ≡⇔′ .proj₁ B₁≡B₂
+        (_ , _ , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊ = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂
+        ⊩σ₁₊ , _                    = wf-⊩ˢ≡∷ σ₁₊≡σ₂₊
+    in
+    ⊩ˢ≡∷∙⇔ .proj₂
+      ( (_ , conv-∙-⊩ᵛ A₁≡A₂ ⊩B₂ , conv-⊩≡∷ (B₁≡B₂ id⊇ ⊩σ₁₊) σ₁₀≡σ₂₀)
+      , conv-⊩ˢ≡∷-∙ A₁≡A₂ σ₁₊≡σ₂₊
+      )
+
+opaque
+
+  -- Conversion for one of the contexts for _⊩ˢ_∷_.
+
+  conv-⊩ˢ∷-∙ :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A ≡ B → ∇ » Η ⊩ˢ σ ∷ Δ ∙ A → ∇ » Η ⊩ˢ σ ∷ Δ ∙ B
+  conv-⊩ˢ∷-∙ A≡B =
+    ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ conv-⊩ˢ≡∷-∙ A≡B ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
 
 opaque
 
@@ -1382,6 +1406,30 @@ opaque
 
 opaque
 
+  -- Conversion for the context for _⊩ᵛ⟨_⟩_≡_.
+
+  conv-∙-⊩ᵛ≡ :
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ →
+    Γ »∙ A₁ ⊩ᵛ⟨ ℓ ⟩ B₁ ≡ B₂ →
+    Γ »∙ A₂ ⊩ᵛ⟨ ℓ ⟩ B₁ ≡ B₂
+  conv-∙-⊩ᵛ≡ A₁≡A₂ B₁≡B₂ =
+    let ⊩A₁ , ⊩A₂ , A₁≡A₂ = ⊩ᵛ≡⇔′ .proj₁ A₁≡A₂ in
+    ⊩ᵛ≡⇔ .proj₂
+      ( ⊩ᵛ-∙-intro ⊩A₂
+      , λ ∇⊇ σ₁≡σ₂ →
+          let (_ , _ , σ₁₀≡σ₂₀) , σ₁₊≡σ₂₊ = ⊩ˢ≡∷∙⇔ .proj₁ σ₁≡σ₂ in
+          ⊩ᵛ≡⇔ .proj₁ B₁≡B₂ .proj₂ ∇⊇ $
+          ⊩ˢ≡∷∙⇔ .proj₂
+            ( ( _ , defn-wk-⊩ᵛ ∇⊇ ⊩A₁
+              , conv-⊩≡∷ (sym-⊩≡ (A₁≡A₂ ∇⊇ (wf-⊩ˢ≡∷ σ₁₊≡σ₂₊ .proj₁)))
+                  σ₁₀≡σ₂₀
+              )
+            , σ₁₊≡σ₂₊
+            )
+      )
+
+opaque
+
   -- Conversion for _⊩ᵛ⟨_⟩_≡_∷_.
 
   conv-⊩ᵛ≡∷ :
@@ -1423,6 +1471,26 @@ opaque
     ⊩ᵛ∷⇔ .proj₂
       ( conv-∙-⊩ᵛ A≡B ⊩C
       , λ ξ⊇ σ₁≡σ₂ → t≡t ξ⊇ (conv-⊩ˢ≡∷-∙ (sym-⊩ᵛ≡ (defn-wk-⊩ᵛ≡ ξ⊇ A≡B)) σ₁≡σ₂)
+      )
+
+opaque
+
+  -- Another kind of conversion for the context for _⊩ᵛ⟨_⟩_∷_.
+
+  conv-∙∙-⊩ᵛ∷ :
+    Γ ⊩ᵛ⟨ ℓ′ ⟩ A₁ ≡ A₂ →
+    Γ »∙ A₁ ⊩ᵛ⟨ ℓ″ ⟩ B₁ ≡ B₂ →
+    Γ »∙ A₁ »∙ B₁ ⊩ᵛ⟨ ℓ ⟩ t ∷ C →
+    Γ »∙ A₂ »∙ B₂ ⊩ᵛ⟨ ℓ ⟩ t ∷ C
+  conv-∙∙-⊩ᵛ∷ A₁≡A₂ B₁≡B₂ ⊩t =
+    let ⊩C , t≡t = ⊩ᵛ∷⇔ .proj₁ ⊩t in
+    ⊩ᵛ∷⇔ .proj₂
+      ( conv-∙∙-⊩ᵛ A₁≡A₂ B₁≡B₂ ⊩C
+      , λ ∇⊇ σ₁≡σ₂ →
+          let A₁≡A₂ = defn-wk-⊩ᵛ≡ ∇⊇ A₁≡A₂ in
+          t≡t ∇⊇ $
+          conv-⊩ˢ≡∷-∙∙ (sym-⊩ᵛ≡ A₁≡A₂)
+            (conv-∙-⊩ᵛ≡ A₁≡A₂ (sym-⊩ᵛ≡ (defn-wk-⊩ᵛ≡ ∇⊇ B₁≡B₂))) σ₁≡σ₂
       )
 
 ------------------------------------------------------------------------
@@ -1498,7 +1566,7 @@ opaque
       ( ( _ , ⊩A
         , with-inc-⊩≡∷
             (PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (wk-subst A)
-               (wk-⊩≡∷ ρ⊇ σ₁₀≡σ₂₀))
+               (wk-⊩≡∷ (C.»∷ʷ⊇→⊢ʷᵏ ρ⊇) σ₁₀≡σ₂₀))
         )
       , ⊩ˢ≡∷-•ₛ ρ⊇ σ₁₊≡σ₂₊
       )
@@ -1628,6 +1696,29 @@ opaque
     ∇ » Η ∙ A₁ [ σ ] ⊩ˢ liftSubst σ ∷ Δ ∙ A₂
   ⊩ˢ∷-liftSubst′ A₁≡A₂ =
     ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ ⊩ˢ≡∷-liftSubst′ A₁≡A₂ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
+
+opaque
+
+  -- A lemma related to _⇑[_].
+
+  ⊩ˢ≡∷-⇑[] :
+    ∇ »⊩ᵛ Δ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ₁ ] ⊩ˢ σ₁ ⇑[ n ] ≡ σ₂ ⇑[ n ] ∷ Δ
+  ⊩ˢ≡∷-⇑[] {n = 0}                _  σ₁≡σ₂ = σ₁≡σ₂
+  ⊩ˢ≡∷-⇑[] {n = 1+ _} {Δ = _ ∙ _} ⊩Δ σ₁≡σ₂ =
+    let _ , ⊩A = wf-⊩ᵛ-∙ ⊩Δ in
+    ⊩ˢ≡∷-liftSubst ⊩A (⊩ˢ≡∷-⇑[] (wf-⊩ᵛ ⊩A) σ₁≡σ₂)
+
+opaque
+
+  -- A lemma related to _⇑[_].
+
+  ⊩ˢ∷-⇑[] :
+    ∇ »⊩ᵛ Δ →
+    ∇ » Η ⊩ˢ σ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ ] ⊩ˢ σ ⇑[ n ] ∷ Δ
+  ⊩ˢ∷-⇑[] ⊩Δ = ⊩ˢ∷⇔⊩ˢ≡∷ .proj₂ ∘→ ⊩ˢ≡∷-⇑[] ⊩Δ ∘→ ⊩ˢ∷⇔⊩ˢ≡∷ .proj₁
 
 opaque
 
@@ -2421,52 +2512,49 @@ opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_ and _⊩⟨_⟩_≡_.
 
-  ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] :
-    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ ℓ ⟩ C₁ ≡ C₂ →
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
-    ∇ » Η ∙ A [ σ₁ ] ∙ B [ σ₁ ⇑ ] ⊩⟨ ℓ ⟩ C₁ [ σ₁ ⇑ ⇑ ] ≡ C₂ [ σ₂ ⇑ ⇑ ]
-  ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] C₁≡C₂ σ₁≡σ₂ =
-    case wf-∙-⊩ᵛ (wf-⊩ᵛ≡ C₁≡C₂ .proj₁) of λ
-      (_ , ⊩B) →
-    ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] C₁≡C₂ $
-    ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
+  ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]] :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A₁ ≡ A₂ →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ₁ ] ⊩⟨ ℓ ⟩ A₁ [ σ₁ ⇑[ n ] ] ≡ A₂ [ σ₂ ⇑[ n ] ]
+  ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]] A₁≡A₂ σ₁≡σ₂ =
+    ⊩ᵛ≡→⊩ˢ≡∷→⊩[]≡[] A₁≡A₂ $
+    ⊩ˢ≡∷-⇑[] (wf-⊩ᵛ (wf-⊩ᵛ≡ A₁≡A₂ .proj₁)) σ₁≡σ₂
 
 opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_ and _⊩⟨_⟩_.
 
-  ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] :
-    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ ℓ ⟩ C →
-    ∇ » Η ⊩ˢ σ ∷ Δ →
-    ∇ » Η ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊩⟨ ℓ ⟩ C [ σ ⇑ ⇑ ]
-  ⊩ᵛ→⊩ˢ∷→⊩[⇑⇑] ⊩C ⊩σ =
-    ⊩⇔⊩≡ .proj₂ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑] (refl-⊩ᵛ≡ ⊩C) (refl-⊩ˢ≡∷ ⊩σ)
+  ⊩ᵛ→⊩ˢ∷→⊩[⇑[]] :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ A →
+    ∇ » Η ⊩ˢ σ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ ] ⊩⟨ ℓ ⟩ A [ σ ⇑[ n ] ]
+  ⊩ᵛ→⊩ˢ∷→⊩[⇑[]] ⊩A ⊩σ =
+    ⊩⇔⊩≡ .proj₂ $ ⊩ᵛ≡→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]] (refl-⊩ᵛ≡ ⊩A) (refl-⊩ˢ≡∷ ⊩σ)
 
 opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
 
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ :
-    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ ℓ ⟩ t₁ ≡ t₂ ∷ C →
-    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
-    ∇ » Η ∙ A [ σ₁ ] ∙ B [ σ₁ ⇑ ] ⊩⟨ ℓ ⟩ t₁ [ σ₁ ⇑ ⇑ ] ≡ t₂ [ σ₂ ⇑ ⇑ ] ∷
-      C [ σ₁ ⇑ ⇑ ]
-  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ t₁≡t₂ σ₁≡σ₂ =
-    case wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁)) of λ
-      (_ , ⊩B) →
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]]∷ :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ t₁ ≡ t₂ ∷ A →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ₁ ] ⊩⟨ ℓ ⟩ t₁ [ σ₁ ⇑[ n ] ] ≡ t₂ [ σ₂ ⇑[ n ] ] ∷
+      A [ σ₁ ⇑[ n ] ]
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]]∷ t₁≡t₂ σ₁≡σ₂ =
     ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
-    ⊩ˢ≡∷-liftSubst ⊩B $ ⊩ˢ≡∷-liftSubst (wf-∙-⊩ᵛ ⊩B .proj₂) σ₁≡σ₂
+    ⊩ˢ≡∷-⇑[] (wf-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁))) σ₁≡σ₂
 
 opaque
 
   -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
 
-  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ :
-    ∇ » Δ ∙ A ∙ B ⊩ᵛ⟨ ℓ ⟩ t ∷ C →
-    ∇ » Η ⊩ˢ σ ∷ Δ →
-    ∇ » Η ∙ A [ σ ] ∙ B [ σ ⇑ ] ⊩⟨ ℓ ⟩ t [ σ ⇑ ⇑ ] ∷ C [ σ ⇑ ⇑ ]
-  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑⇑]∷ ⊩t ⊩σ =
-    ⊩∷⇔⊩≡∷ .proj₂ $ ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
+  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑[]]∷ :
+    ∇ » Δ ⊩ᵛ⟨ ℓ ⟩ t ∷ A →
+    ∇ » Η ⊩ˢ σ ∷ drop n Δ →
+    ∇ » Η ∙[ n ][ Δ ][ σ ] ⊩⟨ ℓ ⟩ t [ σ ⇑[ n ] ] ∷ A [ σ ⇑[ n ] ]
+  ⊩ᵛ∷→⊩ˢ∷→⊩[⇑[]]∷ ⊩t ⊩σ =
+    ⊩∷⇔⊩≡∷ .proj₂ $
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]]∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
 
 opaque
 
@@ -2667,6 +2755,62 @@ opaque
     ⊩∷⇔⊩≡∷ .proj₂ $
     ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩[⇑⇑][]₁₀≡[⇑⇑][]₁₀∷ (refl-⊩ᵛ≡∷ ⊩t) (refl-⊩ˢ≡∷ ⊩σ)
       (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v)
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_≡_∷_ and _⊩⟨_⟩_≡_∷_.
+
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩≡∷→⊩[⇑³][]₂₁₀≡[⇑³][]₂₁₀∷ :
+    ∇ » Δ ∙ A ∙ B ∙ C ⊩ᵛ⟨ ℓ ⟩ t₁ ≡ t₂ ∷ D →
+    ∇ » Η ⊩ˢ σ₁ ≡ σ₂ ∷ Δ →
+    ∇ » Η ⊩⟨ ℓ′ ⟩ u₁ ≡ u₂ ∷ A [ σ₁ ] →
+    ∇ » Η ⊩⟨ ℓ″ ⟩ v₁ ≡ v₂ ∷ B [ σ₁ ⇑ ] [ u₁ ]₀ →
+    ∇ » Η ⊩⟨ ℓ‴ ⟩ w₁ ≡ w₂ ∷ C [ σ₁ ⇑[ 2 ] ] [ u₁ , v₁ ]₁₀ →
+    ∇ » Η ⊩⟨ ℓ ⟩ t₁ [ σ₁ ⇑[ 3 ] ] [ u₁ , v₁ , w₁ ]₂₁₀ ≡
+      t₂ [ σ₂ ⇑[ 3 ] ] [ u₂ , v₂ , w₂ ]₂₁₀ ∷
+      D [ σ₁ ⇑[ 3 ] ] [ u₁ , v₁ , w₁ ]₂₁₀
+  ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩≡∷→⊩[⇑³][]₂₁₀≡[⇑³][]₂₁₀∷
+    {B} {C} {t₁} {t₂} {D} t₁≡t₂ σ₁≡σ₂ u₁≡u₂ v₁≡v₂ w₁≡w₂ =
+    let _ , ⊩C = wf-∙-⊩ᵛ (wf-⊩ᵛ∷ (wf-⊩ᵛ≡∷ t₁≡t₂ .proj₁))
+        _ , ⊩B = wf-∙-⊩ᵛ ⊩C
+    in
+    PE.subst₃ (_⊩⟨_⟩_≡_∷_ _ _)
+      (PE.sym $ tripleSubstComp t₁)
+      (PE.sym $ tripleSubstComp t₂)
+      (PE.sym $ tripleSubstComp D) $
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[]≡[]∷ t₁≡t₂ $
+    ⊩ˢ≡∷∙⇔′ .proj₂
+      ( (_ , ⊩C)
+      , ( _
+        , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (doubleSubstComp C _ _ _) w₁≡w₂
+        )
+      , ⊩ˢ≡∷∙⇔′ .proj₂
+          ( (_ , ⊩B)
+          , ( _
+            , PE.subst (_⊩⟨_⟩_≡_∷_ _ _ _ _) (singleSubstComp _ _ B)
+                v₁≡v₂
+            )
+          , ⊩ˢ≡∷∙⇔′ .proj₂ (wf-∙-⊩ᵛ ⊩B , (_ , u₁≡u₂) , σ₁≡σ₂)
+          )
+      )
+
+opaque
+
+  -- A substitution lemma for _⊩ᵛ⟨_⟩_∷_ and _⊩⟨_⟩_∷_.
+
+  ⊩ᵛ∷→⊩ˢ∷→⊩∷→⊩∷→⊩∷→⊩[⇑³][]₂₁₀∷ :
+    ∇ » Δ ∙ A ∙ B ∙ C ⊩ᵛ⟨ ℓ ⟩ t ∷ D →
+    ∇ » Η ⊩ˢ σ ∷ Δ →
+    ∇ » Η ⊩⟨ ℓ′ ⟩ u ∷ A [ σ ] →
+    ∇ » Η ⊩⟨ ℓ″ ⟩ v ∷ B [ σ ⇑ ] [ u ]₀ →
+    ∇ » Η ⊩⟨ ℓ‴ ⟩ w ∷ C [ σ ⇑[ 2 ] ] [ u , v ]₁₀ →
+    ∇ » Η ⊩⟨ ℓ ⟩
+      t [ σ ⇑[ 3 ] ] [ consSubst (consSubst (sgSubst u) v) w ] ∷
+      D [ σ ⇑[ 3 ] ] [ consSubst (consSubst (sgSubst u) v) w ]
+  ⊩ᵛ∷→⊩ˢ∷→⊩∷→⊩∷→⊩∷→⊩[⇑³][]₂₁₀∷ ⊩t ⊩σ ⊩u ⊩v ⊩w =
+    ⊩∷⇔⊩≡∷ .proj₂ $
+    ⊩ᵛ≡∷→⊩ˢ≡∷→⊩≡∷→⊩≡∷→⊩≡∷→⊩[⇑³][]₂₁₀≡[⇑³][]₂₁₀∷ (refl-⊩ᵛ≡∷ ⊩t)
+      (refl-⊩ˢ≡∷ ⊩σ) (refl-⊩≡∷ ⊩u) (refl-⊩≡∷ ⊩v) (refl-⊩≡∷ ⊩w)
 
 opaque
 

@@ -17,6 +17,7 @@ open Type-restrictions R
 open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal R
 import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
 
@@ -40,7 +41,7 @@ private
     ∇ : DCon (Term 0) m
     Δ : Con Term n
     Γ : Cons m n
-    t u v w A B C C₁ C₂ F G : Term n
+    t u v w A B C C₁ C₂ D F G : Term n
     l l₁ l₂ : Lvl _
     p q r p′ q′ : M
     b : BinderMode
@@ -71,6 +72,10 @@ mutual
         → Γ ⊢ t ⇇ A
         → Γ ⊢ u ⇇ A
         → Γ ⊢ Id A t u ⇇Type
+    Quot : Quot-allowed
+         → Γ ⊢ A ⇇Type
+         → Quot-rel-Cons Γ A ⊢ B ⇇Type
+         → Γ ⊢ Quot A B ⇇Type
     univᶜ : Γ ⊢ A ⇉ B
           → Γ ⊢ B ↘ U l
           → Γ ⊢ A ⇇Type
@@ -169,6 +174,33 @@ mutual
              → let open Erased s in
                Γ ⊢ []-cong s l A t u v ⇉
                  Id (Erased l A) [ t ] ([ u ])
+    Quot : Quot-allowed
+         → Γ ⊢ A ⇉ C
+         → Γ ⊢ C ↘ U l
+         → Quot-rel-Cons Γ A ⊢ B ⇇ U (wk[ 2 ]′ l)
+         → Γ ⊢ Quot A B ⇉ U l
+    resp : Quot-allowed
+         → Γ ⊢ A ⇇Type
+         → Quot-rel-Cons Γ A ⊢ B ⇇Type
+         → Γ ⊢ t ⇇ A
+         → Γ ⊢ u ⇇ A
+         → Γ ⊢ v ⇇ B [ t , u ]₁₀
+         → Γ ⊢ resp A B t u v ⇉ Id (Quot A B) (class t) (class u)
+    set : Quot-allowed
+        → Γ ⊢ A ⇇Type
+        → Quot-rel-Cons Γ A ⊢ B ⇇Type
+        → Γ ⊢ t ⇇ Quot A B
+        → Γ ⊢ u ⇇ Quot A B
+        → Γ ⊢ v ⇇ Id (Quot A B) t u
+        → Γ ⊢ w ⇇ Id (Quot A B) t u
+        → Γ ⊢ set A B t u v w ⇉ Id (Id (Quot A B) t u) v w
+    qrec : Γ ⊢ w ⇉ A
+         → Γ ⊢ A ↘ Quot B C
+         → Γ »∙ Quot B C ⊢ D ⇇Type
+         → Γ »∙ B ⊢ t ⇇ D [ class (var x0) ]↑
+         → Resp-Cons Γ B C ⊢ u ⇇ Resp-type B C D t
+         → Is-set-Cons Γ B C D ⊢ v ⇇ Is-set-type D
+         → Γ ⊢ qrec D t u v w ⇉ D [ w ]₀
 
   infix 4 _⊢_⇇_
 
@@ -187,6 +219,9 @@ mutual
     rflᶜ : Γ ⊢ A ↘ Id B t u
          → Γ ⊢ t ≡ u ∷ B
          → Γ ⊢ rfl ⇇ A
+    class : Γ ⊢ A ↘ Quot B C
+          → Γ ⊢ t ⇇ B
+          → Γ ⊢ class t ⇇ A
     infᶜ : Γ ⊢ t ⇉ A
          → Γ ⊢ A ≡ B
          → Γ ⊢ t ⇇ B
@@ -213,6 +248,8 @@ opaque
     case whnfRed* (U↘Σ .proj₁) Uₙ of λ ()
   ⊢⇇U→⊢⇇Type (rflᶜ U↘Id _) =
     case whnfRed* (U↘Id .proj₁) Uₙ of λ ()
+  ⊢⇇U→⊢⇇Type (class U↘Quot _) =
+    case whnfRed* (U↘Quot .proj₁) Uₙ of λ ()
   ⊢⇇U→⊢⇇Type (infᶜ A⇉ ≡U) =
     univᶜ A⇉ (U-norm ≡U .proj₂ , Uₙ)
 
@@ -228,6 +265,8 @@ mutual
              Checkable-type (ΠΣ⟨ b ⟩ p , q ▷ A ▹ B)
     Idᶜ    : Checkable-type A → Checkable t → Checkable u →
              Checkable-type (Id A t u)
+    Quot   : Checkable-type A → Checkable-type B →
+             Checkable-type (Quot A B)
     checkᶜ : Checkable A → Checkable-type A
 
   -- Inferable terms.
@@ -269,6 +308,14 @@ mutual
     []-congᵢ : Checkable-level l → Checkable-type A → Checkable t →
                Checkable u → Checkable v →
                Inferable ([]-cong s l A t u v)
+    Quot : Inferable A → Checkable B → Inferable (Quot A B)
+    resp : Checkable-type A → Checkable-type B → Checkable t →
+           Checkable u → Checkable v → Inferable (resp A B t u v)
+    set : Checkable-type A → Checkable-type B → Checkable t →
+          Checkable u → Checkable v → Checkable w →
+          Inferable (set A B t u v w)
+    qrec : Checkable-type C → Checkable t → Checkable u → Checkable v →
+           Inferable w → Inferable (qrec C t u v w)
 
   -- Checkable terms.
 
@@ -277,6 +324,7 @@ mutual
     lamᶜ : Checkable t → Checkable (lam p t)
     prodᶜ : ∀ {m} → Checkable t → Checkable u → Checkable (prod m p t u)
     rflᶜ : Checkable {n = n} rfl
+    class : Checkable t → Checkable (class t)
     infᶜ : Inferable t → Checkable t
 
   -- Checkable levels.
@@ -288,16 +336,15 @@ mutual
 -- CheckableDCon ∇ means that the types and terms in ∇ are checkable.
 
 data CheckableDCon : (∇ : DCon (Term 0) n) → Set a where
-  ε            : CheckableDCon ε
-  _∙ᶜᵒ⟨_⟩[_∷_] : CheckableDCon ∇
-               → Opacity-allowed
-               → Checkable t
-               → Checkable-type A
-               → CheckableDCon (∇ ∙⟨ opa φ ⟩[ t ∷ A ])
-  _∙ᶜᵗ[_∷_]    : CheckableDCon ∇
-               → Checkable t
-               → Checkable-type A
-               → CheckableDCon (∇ ∙⟨ tra ⟩[ t ∷ A ])
+  ε         : CheckableDCon ε
+  _∙ᶜᵒ[_∷_] : CheckableDCon ∇
+            → Checkable t
+            → Checkable-type A
+            → CheckableDCon (∇ ∙⟨ opa φ ⟩[ t ∷ A ])
+  _∙ᶜᵗ[_∷_] : CheckableDCon ∇
+            → Checkable t
+            → Checkable-type A
+            → CheckableDCon (∇ ∙⟨ tra ⟩[ t ∷ A ])
 
 -- CheckableCon Δ means that the types in Δ are checkable.
 
@@ -379,6 +426,11 @@ opaque
         (univ ⊢rfl) →
       let _ , _ , _ , _ , U≡Id = inversion-rfl ⊢rfl in
       ⊥-elim (Id≢U (sym U≡Id)) }
+    (class t) →
+      case ⊢A of λ {
+        (univ ⊢class) →
+      let _ , _ , _ , _ , U≡Quot = inversion-class ⊢class in
+      ⊥-elim (Quot≢U (sym U≡Quot)) }
     (infᶜ A) →
       A
 
@@ -401,6 +453,10 @@ opaque
     (Idᶜ B t u) →
       let ⊢B , _ = inversion-Id ⊢A in
       Idᵢ (⊢→Checkable-type→Inferable ⊢B B) t u
+    (Quot B C) →
+      let _ , ⊢B , ⊢C = inversion-Quot ⊢A in
+      Quot (⊢→Checkable-type→Inferable ⊢B B)
+        (infᶜ (⊢→Checkable-type→Inferable ⊢C C))
     (checkᶜ A) →
       ⊢→Checkable→Inferable ⦃ ok = possibly-nonempty ⦄ ⊢A A
 
@@ -444,8 +500,10 @@ mutual
   Checkable⇇Type (Unitᶜ _) = checkᶜ (infᶜ Unitᵢ)
   Checkable⇇Type Emptyᶜ      = checkᶜ (infᶜ Emptyᵢ)
   Checkable⇇Type (ΠΣᶜ A B _) = ΠΣᶜ (Checkable⇇Type A) (Checkable⇇Type B)
-  Checkable⇇Type (Idᶜ A t u) = Idᶜ (Checkable⇇Type A) (Checkable⇇ t)
-                                 (Checkable⇇ u)
+  Checkable⇇Type (Idᶜ A t u) =
+    Idᶜ (Checkable⇇Type A) (Checkable⇇ t) (Checkable⇇ u)
+  Checkable⇇Type (Quot _ A B) =
+    Quot (Checkable⇇Type A) (Checkable⇇Type B)
   Checkable⇇Type (univᶜ A _) = checkᶜ (infᶜ (Inferable⇉ A))
 
   -- Γ ⊢ t ⇇ A implies that t is a checkable term.
@@ -455,6 +513,7 @@ mutual
   Checkable⇇ (lamᶜ x t⇇A) = lamᶜ (Checkable⇇ t⇇A)
   Checkable⇇ (prodᶜ x t⇇A t⇇A₁) = prodᶜ (Checkable⇇ t⇇A) (Checkable⇇ t⇇A₁)
   Checkable⇇ (rflᶜ _ _) = rflᶜ
+  Checkable⇇ (class _ t) = class (Checkable⇇ t)
   Checkable⇇ (infᶜ x x₁) = infᶜ (Inferable⇉ x)
 
   -- Γ ⊢ t ⇉ A implies that t is an inferable term.
@@ -495,6 +554,17 @@ mutual
   Inferable⇉ ([]-congᵢ l A t u v _) =
     []-congᵢ (Checkable⇇Level l) (Checkable⇇Type A) (Checkable⇇ t)
       (Checkable⇇ u) (Checkable⇇ v)
+  Inferable⇉ (Quot _ A _ B) =
+    Quot (Inferable⇉ A) (Checkable⇇ B)
+  Inferable⇉ (resp _ A B t u v) =
+    resp (Checkable⇇Type A) (Checkable⇇Type B) (Checkable⇇ t)
+      (Checkable⇇ u) (Checkable⇇ v)
+  Inferable⇉ (set _ A B t u v w) =
+    set (Checkable⇇Type A) (Checkable⇇Type B) (Checkable⇇ t)
+      (Checkable⇇ u) (Checkable⇇ v) (Checkable⇇ w)
+  Inferable⇉ (qrec w ↘Q D t u v) =
+    qrec (Checkable⇇Type D) (Checkable⇇ t) (Checkable⇇ u) (Checkable⇇ v)
+      (Inferable⇉ w)
 
   -- Γ ⊢ t ⇇Level implies that t is a checkable level.
 

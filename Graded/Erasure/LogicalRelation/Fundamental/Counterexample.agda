@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- The fundamental lemma does not hold in general without the
 -- assumption that erased matches are disallowed or the context is
--- empty
+-- empty and higher quotient constructors are not neutral
 ------------------------------------------------------------------------
 
 open import Graded.Modality
@@ -32,6 +32,7 @@ open import Graded.Restrictions.Zero-one 𝕄 variant
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed TR
@@ -84,7 +85,7 @@ private
       as = assumptions ⊢Δ str is-reduction-relation
 
     open Graded.Erasure.LogicalRelation as public
-    open Graded.Erasure.LogicalRelation.Hidden variant as public
+    open Graded.Erasure.LogicalRelation.Hidden UR as public
 
   -- A variant of LR.
 
@@ -110,17 +111,18 @@ private
         }
 
     open Graded.Erasure.LogicalRelation as public
-    open Graded.Erasure.LogicalRelation.Hidden variant as public
+    open Graded.Erasure.LogicalRelation.Hidden UR as public
 
 -- Below negations of variants of the statement of the fundamental
 -- lemma are proved. In each case the variants are given for the
 -- module parameters (𝕄, TR, UR, etc.), and for an arbitrary
--- Strictness. Furthermore the assumption "erased matches are not
--- allowed unless the context is empty" is removed. In most cases the
--- assumption "if erased matches are allowed for emptyrec when the
--- mode is 𝟙ᵐ, then the context is consistent" is replaced by "the
--- context is consistent", but in one case this assumption is instead
--- removed.
+-- Strictness. In most cases the assumption "either erased matches are
+-- not allowed or the context is empty and higher quotient
+-- constructors are not neutral" is removed, but in one case it is
+-- replaced by "the context is empty". In most cases the assumption
+-- "if erased matches are allowed for emptyrec when the mode is 𝟙ᵐ,
+-- then the context is consistent" is replaced by "the context is
+-- consistent", but in one case this assumption is instead removed.
 
 -- If Prodrec-allowed 𝟙ᵐ 𝟘 p 𝟘 holds for some p (which means that
 -- certain kinds of erased matches are allowed), and if additionally
@@ -276,6 +278,60 @@ opaque
         case whnfRed*Term t⇒* (ne (Jₙ (var _ _))) of λ ()
       (sucᵣ t⇒* _ _ _) →
         case whnfRed*Term t⇒* (ne (Jₙ (var _ _))) of λ ()
+
+opaque
+  unfolding subst
+
+  -- A variant of negation-of-fundamental-lemma-with-erased-matches₃.
+
+  negation-of-fundamental-lemma-with-erased-matches₃′ :
+    ⦃ ok : No-equality-reflection ⦄ →
+    erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
+    Higher-quotient-constructors-allowed →
+    Higher-quotient-constructors-neutral →
+    ¬ (∀ {o k} {Δ : Con Term k} {∇ : DCon (Term 0) o}
+       (⊢Δ : glassify ∇ »⊢ Δ) →
+       ▸[ 𝟙ᵐ ] (glassify ∇) →
+       Consistent (glassify ∇ » Δ) →
+       Empty-con Δ →
+       ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
+         {_⇛_∷_}
+         ⦃ is-reduction-relation :
+             Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄ →
+       let open LR ⊢Δ str is-reduction-relation in
+       ∀ {n} {Γ : Con Term n} {t A : Term n} {γ : Conₘ n} {m} →
+       glassify ∇ » Γ ⊢ t ∷ A → γ ▸[ m ] t →
+       γ ▸ Γ ⊩ʳ t ∷[ m ] A)
+  negation-of-fundamental-lemma-with-erased-matches₃′
+    {str} ≡not-none allowed neutral hyp =
+    let consistent , _ , ⊢t , ▸∇ , ▸t , _ =
+          soundness-ℕ-only-source-counterexample₃′ ≡not-none allowed
+            neutral
+    in
+    ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
+    hyp ⊢Δ ▸∇ consistent ε ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
+    where
+    Δ : Cons 0 0
+    Δ = ε » ε
+
+    t : Term 0
+    t = subst 𝟘 (Quot ℕ ℕ) ℕ (class zero) (class zero)
+          (resp ℕ ℕ zero zero zero) zero
+
+    A : Term 0
+    A = ℕ
+
+    ⊢Δ : ⊢ Δ
+    ⊢Δ = εε
+
+    open LR ⊢Δ ⦃ ok = possibly-nonempty ⦄ str ⇒*-is-reduction-relation
+
+    ¬t®t : ¬ t ® erase str t ∷ A
+    ¬t®t t®t with ®∷ℕ⇔ .proj₁ t®t
+    … | zeroᵣ t⇒* _ =
+      case whnfRed*Term t⇒* (ne (Jₙ (resp neutral))) of λ ()
+    … | sucᵣ t⇒* _ _ _ =
+      case whnfRed*Term t⇒* (ne (Jₙ (resp neutral))) of λ ()
 
 opaque
 

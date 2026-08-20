@@ -183,7 +183,9 @@ module _ (as : Full-reduction-assumptions) where
              (p · ⌜ ⌞ p ⌟ ⌝) ·ᶜ γ  ≈⟨ ·ᶜ-assoc _ _ _ ⟩
              p ·ᶜ ⌜ ⌞ p ⌟ ⌝ ·ᶜ γ   ∎)
 
-  mutual
+  opaque
+   unfolding FR.fullRedNe
+   mutual
 
     -- Some lemmas used to prove the main theorems below.
 
@@ -303,6 +305,43 @@ module _ (as : Full-reduction-assumptions) where
                (fullRedTermConv↑ u↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸u)
                (fullRedNe~↓ v~ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v) ok)
           γ≤
+      (resp-cong ok A↑ B↑ t↑ u↑ v↑) ▸∇ ▸resp →
+        case inv-usage-resp ▸resp of λ {
+          (γ≤ , PE.refl , ok , (_ , ▸A) , (_ , ▸B) , (_ , ▸t) ,
+           (_ , ▸u) , (_ , ▸v)) →
+        sub
+          (resp ok (fullRedConv↑ A↑ ▸∇ ▸A) (fullRedConv↑ B↑ ▸∇ ▸B)
+             (fullRedTermConv↑ t↑ ▸∇ ▸t) (fullRedTermConv↑ u↑ ▸∇ ▸u)
+             (fullRedTermConv↑ v↑ ▸∇ ▸v) PE.refl)
+          γ≤ }
+      (set-cong ok A↑ B↑ t↑ u↑ v↑ w↑) ▸∇ ▸set →
+        case inv-usage-set ▸set of λ {
+          (γ≤ , PE.refl , ok , (_ , ▸A) , (_ , ▸B) , (_ , ▸t) ,
+           (_ , ▸u) , (_ , ▸v) , (_ , ▸w)) →
+        sub
+          (set ok (fullRedConv↑ A↑ ▸∇ ▸A) (fullRedConv↑ B↑ ▸∇ ▸B)
+             (fullRedTermConv↑ t↑ ▸∇ ▸t) (fullRedTermConv↑ u↑ ▸∇ ▸u)
+             (fullRedTermConv↑ v↑ ▸∇ ▸v) (fullRedTermConv↑ w↑ ▸∇ ▸w)
+             PE.refl)
+          γ≤ }
+      (qrec-cong C↑ t↑ u↑ v↑ w~) ▸∇ ▸qrec →
+        case inv-usage-qrec ▸qrec of λ where
+          (invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
+            sub
+              (qrec₀ ok₁ ok₂ (fullRedConv↑ C↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸C)
+                 (fullRedTermConv↑ t↑ ▸∇ ▸t)
+                 (fullRedTermConv↑ u↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸u)
+                 (fullRedTermConv↑ v↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v)
+                 (fullRedNe~↓ w~ ▸∇ ▸w))
+              γ≤
+          (invUsageQrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
+            sub
+              (qrec₁ ok₁ ok₂ (fullRedConv↑ C↑ ▸∇ ▸C)
+                 (fullRedTermConv↑ t↑ ▸∇ ▸t)
+                 (fullRedTermConv↑ u↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸u)
+                 (fullRedTermConv↑ v↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v)
+                 (fullRedNe~↓ w~ ▸∇ ▸w))
+              γ≤
 
     fullRedNe~↓ :
       ⦃ not-ok : No-equality-reflection ⦄ →
@@ -361,6 +400,10 @@ module _ (as : Full-reduction-assumptions) where
                    (fullRedTermConv↑ t↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸t)
                    (fullRedTermConv↑ u↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸u))
               γ≤
+      (Quot-cong _ A↑ B↑) ▸∇ ▸Quot →
+        let ok , ▸A , (_ , ▸B) = inv-usage-Quot ▸Quot in
+        Quot ok (fullRedConv↑ A↑ ▸∇ ▸A)
+          (fullRedConv↑ B↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸B)
 
     fullRedTermConv↑ :
       ⦃ not-ok : No-equality-reflection ⦄ →
@@ -472,6 +515,11 @@ module _ (as : Full-reduction-assumptions) where
         Unit-lemma (⊢∷Unit→Unit-allowed ⊢t) η ▸t
       (Id-ins _ v~) ▸∇ ▸v   → fullRedNe~↓ v~ ▸∇ ▸v
       (rfl-refl _)  _  ▸rfl → sub rflₘ (inv-usage-rfl ▸rfl)
+      (Quot-ins _ t~) ▸∇ ▸t →
+        fullRedNe~↓ t~ ▸∇ ▸t
+      (class-cong _ t↑) ▸∇ ▸class →
+        let ok , ▸t = inv-usage-class ▸class in
+        class ok (fullRedTermConv↑ t↑ ▸∇ ▸t)
 
 ------------------------------------------------------------------------
 -- The main theorems

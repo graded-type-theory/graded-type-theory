@@ -35,11 +35,13 @@ open import Graded.Derived.Erased.Usage.Zero-one UR
 open import Graded.Modality.Instances.Erasure
 open import Graded.Modality.Instances.Erasure.Combined TR UR
 open import Graded.Modality.Instances.Erasure.Combined.Equivalent TR UR
+open import Graded.Modality.Instances.Erasure.Combined.Properties TR UR
 open import Graded.Modality.Instances.Erasure.Properties
 open import Graded.Usage UR
 open import Graded.Usage.Properties UR
 
 open import Definition.Typed.Inversion TR
+open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
 open import Definition.Typed.Properties TR
 open import Definition.Typed.Well-formed TR
 open import Definition.Untyped Erasure hiding (_[_])
@@ -134,14 +136,18 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
   opaque
 
     -- A typing/usage rule for [_].
+    --
+    -- This definition was tweaked after feedback from an anonymous
+    -- reviewer.
 
     ⊢∷-[] :
       let open Erased s in
       Erased-allowed s →
       Γ ⊢ l ∷Level →
       Γ ⊢ t ∷ A →
-      𝟘ᶜ ▸ Γ ⊢ [ t ] ∷[ p ] Erased l A
+      γ ▸ Γ ⊢ [ t ] ∷[ p ] Erased l A
     ⊢∷-[] ok ⊢l ⊢t =
+      flip sub-⊢∷ (greatest-elemᶜ _) $
       ⊢∷[]←⊢∷▸ ok-𝟘ᵐ ([]ⱼ ok (⊢∷L→⊢∷L ⊢l) (⊢∷[]→⊢∷ ⊢t))
         (▸[] _ (▸-cong ⌞𝟘⌟≡𝟘ᵐ? (⊢∷[]→▸ ⊢t)))
 

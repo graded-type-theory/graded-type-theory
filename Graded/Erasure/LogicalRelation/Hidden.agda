@@ -6,19 +6,25 @@
 open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
+import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
+open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Hidden
   {a} {M : Set a}
   {𝕄 : Modality M}
   {TR : Type-restrictions 𝕄}
-  (variant : Mode-variant 𝕄)
+  {variant : Mode-variant 𝕄}
+  (open Graded.Mode.Instances.Zero-one variant)
+  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
   (as : Assumptions TR)
   where
 
 open Assumptions as
 open Modality 𝕄 hiding (_≤_; _<_)
+open Mode-variant variant
 open Type-restrictions TR
+open Usage-restrictions UR
 
 open import Definition.LogicalRelation.Simplified TR
 open import Definition.Typed TR
@@ -41,7 +47,6 @@ open import Graded.Erasure.LogicalRelation.Reduction as
 open import Graded.Erasure.Target as T using (strict)
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode.Instances.Zero-one variant
 
 open import Tools.Bool
 open import Tools.Empty
@@ -403,6 +408,25 @@ opaque
      vs T.⊢ v ⇒* v′ ×
      t₂ ® v′ ∷ B [ t₁ ]₀)                                        □⇔
 
+opaque
+  unfolding _®_∷_ Quot-intro
+
+  -- A characterisation lemma for Quot.
+
+  ®∷Quot⇔ :
+    t ® v ∷ Quot A B ⇔
+    (∃ λ t′ → t ⇛ class t′ ∷ Quot A B × t′ ® v ∷ A)
+  ®∷Quot⇔ =
+      (λ (⊨Quot , t®v) →
+        let ok , _ , ⊢B = inversion-Quot (⊨→⊢ ⊨Quot) in
+        let _ , ⇛class , t′®v =
+              (irrelevanceTerm ⊨Quot) (Quot-intro ok ⊢B) t®v
+        in
+        _ , ⇛class , ⊢→⊨ _ , t′®v)
+    , (λ (t′ , ⇛class , ⊨A , t®v) →
+         let ok , _ , ⊢B = inversion-Quot (wf-⊢ (wf-⇛ ⇛class .proj₁)) in
+         Quot-intro ok ⊢B , _ , ⇛class , irrelevanceTerm ⊨A (⊢→⊨ _) t®v)
+
 ------------------------------------------------------------------------
 -- The type formers _®_∷_◂_, Definitions-related, _®_∷[_∣_]_◂_,
 -- _®_∷[_]_◂_, _▸_⊩ʳ_∷[_∣_]_ and _▸_⊩ʳ_∷[_]_
@@ -702,6 +726,25 @@ opaque
   ▸⊩ʳ∷[𝟘ᵐ] : γ ▸ Γ ⊩ʳ t ∷[ 𝟘ᵐ[ ok ] ∣ n ] A
   ▸⊩ʳ∷[𝟘ᵐ] = ▸⊩ʳ∷⇔ .proj₂ (λ _ _ → ®∷◂𝟘 PE.refl)
 
+opaque
+
+  -- If higher quotient constructors are allowed, then the type
+  -- γ ▸ Γ ⊩ʳ t ∷[ 𝟘ᵐ? ∣ n ] A is inhabited.
+
+  ▸⊩ʳ∷[𝟘ᵐ?] :
+    Higher-quotient-constructors-allowed →
+    γ ▸ Γ ⊩ʳ t ∷[ 𝟘ᵐ? ∣ n ] A
+  ▸⊩ʳ∷[𝟘ᵐ?] ok =
+    let instance
+          ok : T 𝟘ᵐ-allowed
+          ok =
+            ¬Trivialᵐ→𝟘ᵐ-allowed $
+            Higher-quotient-constructors-allowed→¬Trivialᵐ ok
+    in
+    PE.subst₃ (_▸_⊩ʳ_∷[_∣_]_ _ _ _)
+      (PE.sym (𝟘ᵐ?≡𝟘ᵐ {ok = ok})) PE.refl PE.refl
+      ▸⊩ʳ∷[𝟘ᵐ]
+
 ------------------------------------------------------------------------
 -- Some lemmas related to substitutions
 
@@ -863,6 +906,21 @@ opaque
     t ® v′ ∷ A
   ®∷-⇒* v⇒v′ (⊨A , t®v) =
     ⊨A , targetRedSubstTerm*′ ⊨A t®v v⇒v′
+
+opaque
+  unfolding _®_∷_◂_
+
+  -- Closure under reduction of the target language term for _®_∷_◂_.
+
+  ®∷◂-⇒* :
+    vs T.⊢ v ⇒* v′ →
+    t ® v ∷ A ◂ p →
+    t ® v′ ∷ A ◂ p
+  ®∷◂-⇒* {v} {v′} {t} {A} {p} v⇒v′ =
+    t ® v ∷ A ◂ p         ⇔⟨ ®∷◂⇔ ⟩→
+    (p ≢ 𝟘 → t ® v ∷ A)   →⟨ ®∷-⇒* v⇒v′ ∘→_ ⟩
+    (p ≢ 𝟘 → t ® v′ ∷ A)  ⇔˘⟨ ®∷◂⇔ ⟩→
+    t ® v′ ∷ A ◂ p        □
 
 opaque
   unfolding _®_∷_

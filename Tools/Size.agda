@@ -135,6 +135,14 @@ opaque
 
 opaque
 
+  -- The size leaf is a least size.
+
+  leaf≤ˢ : leaf ≤ˢ s
+  leaf≤ˢ {s = leaf}  = ◻
+  leaf≤ˢ {s = s ⊕ _} = ↙ leaf≤ˢ
+
+opaque
+
   -- Every size is strictly smaller than some other size.
 
   ∃-<ˢ : ∃ λ s₂ → s₁ <ˢ s₂

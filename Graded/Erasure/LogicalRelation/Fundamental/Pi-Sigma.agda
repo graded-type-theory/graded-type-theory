@@ -45,8 +45,8 @@ open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   is-reduction-relation
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden variant as
-open import Graded.Erasure.LogicalRelation.Value variant as
+open import Graded.Erasure.LogicalRelation.Hidden UR as
+open import Graded.Erasure.LogicalRelation.Value UR as
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
@@ -609,7 +609,9 @@ opaque
     γ ▸ Γ ⊩ʳ t ∷[ m ᵐ· r ∣ n ] Σʷ p , q ▷ A ▹ B →
     δ ∙ ⌜ m ⌝ · r · p ∙ ⌜ m ⌝ · r ▸ Γ ∙ A ∙ B ⊩ʳ u ∷[ m ∣ n ]
       C [ prodʷ p (var x1) (var x0) ]↑² →
-    (r PE.≡ 𝟘 → Empty-con Δ × Transparent ts) →
+    (r PE.≡ 𝟘 →
+     Empty-con Δ × Transparent ts ×
+     ¬ Higher-quotient-constructors-neutral) →
     r ·ᶜ γ +ᶜ δ ▸ Γ ⊩ʳ prodrec r p q′ C t u ∷[ m ∣ n ] C [ t ]₀
   prodrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
@@ -729,11 +731,11 @@ opaque
         r≡𝟘-lemma : r PE.≡ 𝟘 → Prodrec-assumptions σ σ′
         r≡𝟘-lemma PE.refl =
           case r≡𝟘→ε PE.refl of λ {
-            (ε , tr) →
+            (ε , tr , not-ok) →
           case red-Σ (subst-⊢ ⊢t ⊢σ) of λ {
             (_ , ne n , _) →
-              ⊥-elim $ glass-closed-no-ne $
-              PE.subst (flip (Neutral _) _) tr n;
+              ⊥-elim $ not-ok $
+              glass-closed-no-ne (PE.subst (flip (Neutral _) _) tr n);
             (_ , prodₙ {t = t₁} {u = t₂} , t[σ]⇒*t₁,t₂) →
           case inversion-prod-Σ $
                wf-⊢ (subset*Term t[σ]⇒*t₁,t₂) .proj₂ .proj₂ of λ {

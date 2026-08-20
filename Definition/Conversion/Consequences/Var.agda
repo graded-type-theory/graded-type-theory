@@ -68,6 +68,7 @@ var-only-equal-to-itself =
     _             _ _ (Unitʷ-ins _ x≡t)         → ~↓-lemma x≡t
     _             _ _ (ℕ-ins x≡t)               → ~↓-lemma x≡t
     _             _ _ (Id-ins _ x≡t)            → ~↓-lemma x≡t
+    _             _ _ (Quot-ins _ x≡t)          → ~↓-lemma x≡t
     _             _ _ (ne-ins _ _ _ x≡t)        → ~↓-lemma x≡t
     (Unitʷₙ no-η) _ _ (η-unit _ _ _ _ (inj₂ η)) → ⊥-elim (no-η η)
     (Unitʷₙ _)    _ _ (η-unit _ _ _ _ (inj₁ ()))

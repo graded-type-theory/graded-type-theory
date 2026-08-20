@@ -55,12 +55,14 @@ open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
 open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
 open import Graded.Heap.Typed.Inversion UR TR factoring-nr ∣ε∣
 open import Graded.Heap.Typed.Properties UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Reduction
+  UR TR factoring-nr ∣ε∣ Quot-not-allowed
 open import Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
 open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ∣ε∣
 open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ∣ε∣
 open import Graded.Heap.Usage.Reduction
   type-variant UR factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available
+  Quot-not-allowed Quotient-terms-not-allowed
 open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
 open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣
 

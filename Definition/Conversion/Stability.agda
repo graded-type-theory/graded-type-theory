@@ -103,6 +103,30 @@ mutual
       (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂) (stability~↓ Γ≡Δ v₁~v₂)
       (stability Γ≡Δ ≡Id) ok
+  stability~↑ Γ≡Δ (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
+    let ⊢A₁ , _ = wf-⊢ (soundnessConv↑ A₁≡A₂) in
+    resp-cong ok (stabilityConv↑ Γ≡Δ A₁≡A₂)
+      (stabilityConv↑ (Quot-rel-Con-cong Γ≡Δ (refl ⊢A₁)) B₁≡B₂)
+      (stabilityConv↑Term Γ≡Δ t₁≡t₂) (stabilityConv↑Term Γ≡Δ u₁≡u₂)
+      (stabilityConv↑Term Γ≡Δ v₁≡v₂)
+  stability~↑ Γ≡Δ (set-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+    let ⊢A₁ , _ = wf-⊢ (soundnessConv↑ A₁≡A₂) in
+    set-cong ok (stabilityConv↑ Γ≡Δ A₁≡A₂)
+      (stabilityConv↑ (Quot-rel-Con-cong Γ≡Δ (refl ⊢A₁)) B₁≡B₂)
+      (stabilityConv↑Term Γ≡Δ t₁≡t₂) (stabilityConv↑Term Γ≡Δ u₁≡u₂)
+      (stabilityConv↑Term Γ≡Δ v₁≡v₂) (stabilityConv↑Term Γ≡Δ w₁≡w₂)
+  stability~↑ Γ≡Δ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂) =
+    let _ , (⊢A , _) , (⊢B , _) , (⊢C₁ , _) , (⊢Q , _) =
+          inversion-Is-set-Cons (soundnessConv↑Term v₁≡v₂)
+        A≡A = refl ⊢A
+        B≡B = refl ⊢B
+    in
+    qrec-cong (stabilityConv↑ (Γ≡Δ ∙ refl ⊢Q) C₁≡C₂)
+      (stabilityConv↑Term (Γ≡Δ ∙ A≡A) t₁≡t₂)
+      (stabilityConv↑Term (Resp-Con-cong Γ≡Δ A≡A B≡B) u₁≡u₂)
+      (stabilityConv↑Term (Is-set-Con-cong Γ≡Δ A≡A B≡B (refl ⊢C₁))
+         v₁≡v₂)
+      (stability~↓ Γ≡Δ w₁~w₂)
 
   -- Stability of algorithmic equality of neutrals of types in WHNF.
   stability~↓ : ∀ {k l A}
@@ -159,6 +183,10 @@ mutual
   stabilityConv↓ Γ≡Δ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (stabilityConv↑ Γ≡Δ A₁≡A₂) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
       (stabilityConv↑Term Γ≡Δ u₁≡u₂)
+  stabilityConv↓ Γ≡Δ (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+    let ⊢A₁ , _ = wf-⊢ (soundnessConv↑ A₁≡A₂) in
+    Quot-cong ok (stabilityConv↑ Γ≡Δ A₁≡A₂)
+      (stabilityConv↑ (Quot-rel-Con-cong Γ≡Δ (refl ⊢A₁)) B₁≡B₂)
 
   -- Stability of algorithmic equality of terms.
   stabilityConv↑Term : ∀ {t u A}
@@ -228,6 +256,10 @@ mutual
     Id-ins (stability Γ≡Δ ⊢v₁) (stability~↓ Γ≡Δ v₁~v₂)
   stabilityConv↓Term Γ≡Δ (rfl-refl t≡u) =
     rfl-refl (stability Γ≡Δ t≡u)
+  stabilityConv↓Term Γ≡Δ (Quot-ins ⊢t₁ t₁~t₂) =
+    Quot-ins (stability Γ≡Δ ⊢t₁) (stability~↓ Γ≡Δ t₁~t₂)
+  stabilityConv↓Term Γ≡Δ (class-cong ⊢Q t₁≡t₂) =
+    class-cong (stability Γ≡Δ ⊢Q) (stabilityConv↑Term Γ≡Δ t₁≡t₂)
 
   -- Stability of algorithmic equality of levels.
 

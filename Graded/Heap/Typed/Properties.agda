@@ -109,11 +109,11 @@ opaque
   ⊢⦅⦆ᶜ (sndₑ _) ⊢t =
     sndⱼ′ ⊢t
   ⊢⦅⦆ᶜ (prodrecₑ ⊢u ⊢A) ⊢t =
-    prodrecⱼ′ ⊢A ⊢t ⊢u
+    prodrecⱼ ⊢A ⊢t ⊢u
   ⊢⦅⦆ᶜ (natrecₑ ⊢z ⊢s) ⊢t =
     natrecⱼ ⊢z ⊢s ⊢t
   ⊢⦅⦆ᶜ (unitrecₑ ⊢u ⊢A no-η) ⊢t =
-    unitrecⱼ′ ⊢A ⊢t ⊢u
+    unitrecⱼ ⊢A ⊢t ⊢u
   ⊢⦅⦆ᶜ (emptyrecₑ ⊢A) ⊢t =
     emptyrecⱼ ⊢A ⊢t
   ⊢⦅⦆ᶜ (Jₑ ⊢u ⊢B) ⊢t =
@@ -162,7 +162,7 @@ opaque
   ⊢⦅⦆ᶜ-cong (sndₑ _) t≡u =
     snd-cong′ t≡u
   ⊢⦅⦆ᶜ-cong (prodrecₑ ⊢v ⊢A) t≡u =
-    prodrec-cong′ (refl ⊢A) t≡u (refl ⊢v)
+    prodrec-cong (refl ⊢A) t≡u (refl ⊢v)
   ⊢⦅⦆ᶜ-cong (natrecₑ ⊢z ⊢s) t≡u =
     natrec-cong (refl (⊢∙→⊢ (wf ⊢s))) (refl ⊢z) (refl ⊢s) t≡u
   ⊢⦅⦆ᶜ-cong (unitrecₑ ⊢v ⊢A no-η) t≡u =
@@ -213,11 +213,11 @@ opaque
   ⊢⦅⦆ᶜ-subst (sndₑ _) d =
     snd-subst′ d
   ⊢⦅⦆ᶜ-subst (prodrecₑ ⊢u ⊢A) d =
-    prodrec-subst′ ⊢A ⊢u d
+    prodrec-subst ⊢A ⊢u d
   ⊢⦅⦆ᶜ-subst (natrecₑ ⊢z ⊢s) d =
     natrec-subst ⊢z ⊢s d
   ⊢⦅⦆ᶜ-subst (unitrecₑ ⊢u ⊢A no-η) d =
-    unitrec-subst′ ⊢A ⊢u d no-η
+    unitrec-subst ⊢A ⊢u d no-η
   ⊢⦅⦆ᶜ-subst (emptyrecₑ ⊢A) d =
     emptyrec-subst ⊢A d
   ⊢⦅⦆ᶜ-subst (Jₑ ⊢u ⊢B) d =

@@ -1,32 +1,40 @@
 ------------------------------------------------------------------------
 -- If Definition.Untyped.QuantityTranslation is instantiated with
 -- identity functions, then the translations are pointwise equal to
--- identity functions
+-- identity functions or glassification
 ------------------------------------------------------------------------
+
+open import Tools.Bool
 
 module Definition.Untyped.QuantityTranslation.Identity
   {a} (M : Set a)
+  (transparent : Bool)
   where
 
 open import Tools.Fin
 open import Tools.Function
+open import Tools.Nat
 open import Tools.PropositionalEquality
+open import Tools.Relation
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.QuantityTranslation {M₁ = M} idᶠ idᶠ
+open import
+  Definition.Untyped.QuantityTranslation {M₁ = M} transparent idᶠ idᶠ
 
 private variable
-  p  : M
-  c  : Constructor _ _
-  t  : Term[ _ ] _
-  k  : Term-kind
-  ts : Args _ _
-  ∇  : DCon (Term 0) _
-  Δ  : Con Term _
-  Γ  : Cons _ _
-  σ  : Subst _ _
-  x  : Fin _
+  p   : M
+  c   : Constructor _ _
+  t   : Term[ _ ] _
+  k   : Term-kind
+  ts  : Args _ _
+  ∇   : DCon (Term 0) _
+  Δ   : Con Term _
+  Γ   : Cons _ _
+  σ   : Subst _ _
+  o   : Opacity _
+  m n : Nat
+  x   : Fin _
 
 opaque
 
@@ -76,6 +84,11 @@ opaque
   tr-Constructor-id {c = Jᵏ _ _}         = refl
   tr-Constructor-id {c = Kᵏ _}           = refl
   tr-Constructor-id {c = []-congᵏ _}     = refl
+  tr-Constructor-id {c = Quotᵏ}          = refl
+  tr-Constructor-id {c = classᵏ}         = refl
+  tr-Constructor-id {c = respᵏ}          = refl
+  tr-Constructor-id {c = setᵏ}           = refl
+  tr-Constructor-id {c = qrecᵏ}          = refl
 
 opaque mutual
 
@@ -109,23 +122,64 @@ opaque
 
 opaque
 
-  -- The function tr-DCon is pointwise equal to an identity function.
-
-  tr-DCon-id : tr-DCon ∇ ≡ ∇
-  tr-DCon-id {∇ = ε}    = refl
-  tr-DCon-id {∇ = _ ∙!} =
-    cong₃ _∙⟨ _ ⟩[_∷_] tr-DCon-id tr-Term-id tr-Term-id
-
-opaque
-
-  -- The function tr-Cons is pointwise equal to an identity function.
-
-  tr-Cons-id : tr-Cons Γ ≡ Γ
-  tr-Cons-id = cong₂ _»_ tr-DCon-id tr-Con-id
-
-opaque
-
   -- The function tr-Subst is pointwise equal to an identity function.
 
-  tr-Subst-id : tr-Subst σ x ≡ σ x
-  tr-Subst-id = tr-Term-id
+  tr-Subst-id : (σ : Subst m n) → tr-Subst σ x ≡ σ x
+  tr-Subst-id _ = tr-Term-id
+
+-- The following results hold if definitions are not made transparent.
+
+module Not-transparent (not-transparent : ¬ T transparent) where
+
+  opaque
+
+    -- The function tr-Opacity is pointwise equal to an identity
+    -- function.
+
+    tr-Opacity-id : tr-Opacity o ≡ o
+    tr-Opacity-id = tr-Opacity-not-transparent not-transparent
+
+  opaque
+
+    -- The function tr-DCon is pointwise equal to an identity function.
+
+    tr-DCon-id : tr-DCon ∇ ≡ ∇
+    tr-DCon-id {∇ = ε}    = refl
+    tr-DCon-id {∇ = _ ∙!} =
+      cong₄ _∙⟨_⟩[_∷_] tr-DCon-id tr-Opacity-id tr-Term-id tr-Term-id
+
+  opaque
+
+    -- The function tr-Cons is pointwise equal to an identity function.
+
+    tr-Cons-id : tr-Cons Γ ≡ Γ
+    tr-Cons-id = cong₂ _»_ tr-DCon-id tr-Con-id
+
+-- The following results hold if definitions are made transparent.
+
+module Transparent (transparent : T transparent) where
+
+  opaque
+
+    -- The function tr-Opacity is pointwise equal to a constant
+    -- function.
+
+    tr-Opacity-tra : (o : Opacity n) → tr-Opacity o ≡ tra
+    tr-Opacity-tra o = tr-Opacity-transparent {o = o} transparent
+
+  opaque
+
+    -- The function tr-DCon is pointwise equal to glassify.
+
+    tr-DCon-glassify : tr-DCon ∇ ≡ glassify ∇
+    tr-DCon-glassify {∇ = ε}         = refl
+    tr-DCon-glassify {∇ = _ ∙⟨ o ⟩!} =
+      cong₄ _∙⟨_⟩[_∷_]
+        tr-DCon-glassify (tr-Opacity-tra o) tr-Term-id tr-Term-id
+
+  opaque
+
+    -- The function tr-Cons is pointwise equal to a certain function.
+
+    tr-Cons-glassify : tr-Cons Γ ≡ glassify (Γ .defs) » Γ .vars
+    tr-Cons-glassify = cong₂ _»_ tr-DCon-glassify tr-Con-id

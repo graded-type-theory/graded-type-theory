@@ -1,5 +1,6 @@
 ------------------------------------------------------------------------
--- Proof that consistent negative axioms do not jeopardize canonicity.
+-- Consistent negative axioms do not jeopardize canonicity (if higher
+-- quotient constructors are not neutral)
 ------------------------------------------------------------------------
 
 open import Definition.Typed.Restrictions
@@ -43,6 +44,7 @@ open import Tools.Function
 open import Tools.Nat
 import Tools.PropositionalEquality as PE
 open import Tools.Product
+open import Tools.Relation
 
 
 -- Preliminaries
@@ -55,10 +57,12 @@ private variable
   t u   : Term _
 
 module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
-            (consistent : Consistent Γ) where
+            (consistent : Consistent Γ)
+            (not-neutral : ¬ Higher-quotient-constructors-neutral)
+  where
 
   -- Lemma: A neutral has a negative type in a consistent, negative
-  -- context (given a certain assumption).
+  -- context (given certain assumptions).
 
   neNeg :
     ⦃ ok : No-equality-reflection or-empty Γ .vars ⦄ →
@@ -84,20 +88,27 @@ module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
   neNeg (natrecⱼ _ _ d) (natrecₙ n) =
     let ⊢ℕ = refl (⊢ℕ (wf d))
     in  ⊥-elim (¬negℕ (neNeg d n) ⊢ℕ)
-  neNeg (prodrecⱼ ⊢A d _ ok) (prodrecₙ n) =
+  neNeg (prodrecⱼ ⊢A d ok) (prodrecₙ n) =
     let ⊢Σ = refl (⊢∙→⊢ (wf ⊢A))
     in  ⊥-elim (¬negΣʷ (neNeg d n) ⊢Σ)
   neNeg (emptyrecⱼ _ d     ) (emptyrecₙ n) =
     ⊥-elim (consistent _ d)
-  neNeg (unitrecⱼ _ d _ ok) (unitrecₙ _ n) =
-    let ⊢Unit = refl (⊢Unit (wf d) ok)
-    in  ⊥-elim (¬negUnit (neNeg d n) ⊢Unit)
+  neNeg (unitrecⱼ ⊢A d _) (unitrecₙ _ n) =
+    let ≡Unit = refl (⊢∙→⊢ (wf ⊢A)) in
+    ⊥-elim (¬negUnit (neNeg d n) ≡Unit)
   neNeg (Jⱼ ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) =
     ⊥-elim (¬negId (neNeg ⊢w w-ne) (refl (Idⱼ′ ⊢t ⊢v)))
   neNeg (Kⱼ _ _ ⊢v _) (Kₙ v-ne) =
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (wf-⊢ ⊢v)))
   neNeg ([]-congⱼ _ _ ⊢t ⊢u ⊢v _) ([]-congₙ v-ne) =
     ⊥-elim (¬negId (neNeg ⊢v v-ne) (refl (Idⱼ′ ⊢t ⊢u)))
+  neNeg (resp _ _ _ _) (resp ok) =
+    ⊥-elim (not-neutral ok)
+  neNeg (set _ _ _ _ _) (set ok) =
+    ⊥-elim (not-neutral ok)
+  neNeg (qrec _ _ _ ⊢v ⊢w) (qrec w-ne) =
+    let _ , _ , _ , _ , (⊢Q , _) = inversion-Is-set-Cons ⊢v in
+    ⊥-elim (¬negQuot (neNeg ⊢w w-ne) (refl ⊢Q))
   neNeg (conv d c) n =
     conv (neNeg d n) c
   neNeg (Uⱼ _)          ()
@@ -117,6 +128,8 @@ module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
   neNeg (sucᵘⱼ _)       ()
   neNeg (Liftⱼ _ _ _)   ()
   neNeg (liftⱼ _ _ _)   ()
+  neNeg (Quot _ _ _ _)  ()
+  neNeg (class _ _)     ()
 
   -- Lemma: A normal form of type ℕ is a numeral in a consistent
   -- negative context (given a certain assumption).
@@ -147,18 +160,20 @@ module Main {Γ : Cons m n} (nΓ : NegativeContext Γ)
   -- Impossible cases: type is not ℕ.
 
   -- * Canonical types
-  nfN (Uⱼ _)        (Uₙ _)      c = ⊥-elim (U≢ℕ c)
-  nfN (ΠΣⱼ _ _ _ _) (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
-  nfN (ℕⱼ _)        ℕₙ          c = ⊥-elim (U≢ℕ c)
-  nfN (Emptyⱼ _)    Emptyₙ      c = ⊥-elim (U≢ℕ c)
-  nfN (Unitⱼ _ _)   Unitₙ       c = ⊥-elim (U≢ℕ c)
-  nfN (Idⱼ _ _ _)   (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
+  nfN (Uⱼ _)         (Uₙ _)      c = ⊥-elim (U≢ℕ c)
+  nfN (ΠΣⱼ _ _ _ _)  (ΠΣₙ _ _)   c = ⊥-elim (U≢ℕ c)
+  nfN (ℕⱼ _)         ℕₙ          c = ⊥-elim (U≢ℕ c)
+  nfN (Emptyⱼ _)     Emptyₙ      c = ⊥-elim (U≢ℕ c)
+  nfN (Unitⱼ _ _)    Unitₙ       c = ⊥-elim (U≢ℕ c)
+  nfN (Idⱼ _ _ _)    (Idₙ _ _ _) c = ⊥-elim (U≢ℕ c)
+  nfN (Quot _ _ _ _) (Quot _ _)  c = ⊥-elim (U≢ℕ c)
 
   -- * Canonical forms
   nfN (lamⱼ _ _ _)    (lamₙ _)    c = ⊥-elim (ℕ≢ΠΣⱼ (sym c))
   nfN (prodⱼ _ _ _ _) (prodₙ _ _) c = ⊥-elim (ℕ≢ΠΣⱼ (sym c))
   nfN (starⱼ _ _)     starₙ       c = ⊥-elim (ℕ≢Unitⱼ (sym c))
   nfN (rflⱼ _)        rflₙ        c = ⊥-elim (Id≢ℕ c)
+  nfN (class _ _)     (class _)   c = ⊥-elim (Quot≢ℕ c)
   -- q.e.d
 
    -- Terms of non-negative type reduce to non-neutral terms (given a

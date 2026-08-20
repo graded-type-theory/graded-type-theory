@@ -948,21 +948,37 @@ private
 
   -- Some lemmas used in the proofs of the substitution lemmas below.
 
+  +ᶜ³-<* :
+    ∀ γ₁ →
+    (γ₁ +ᶜ γ₂ +ᶜ γ₃) <* Ψ ≈ᶜ
+    γ₁ <* Ψ +ᶜ γ₂ <* Ψ +ᶜ γ₃ <* Ψ
+  +ᶜ³-<* {γ₂} γ₁ =
+    ≈ᶜ-trans (<*-distrib-+ᶜ _ γ₁ _) $
+    +ᶜ-congˡ $
+    <*-distrib-+ᶜ _ γ₂ _
+
   +ᶜ⁴-<* :
     ∀ γ₁ →
     (γ₁ +ᶜ γ₂ +ᶜ γ₃ +ᶜ γ₄) <* Ψ ≈ᶜ
     γ₁ <* Ψ +ᶜ γ₂ <* Ψ +ᶜ γ₃ <* Ψ +ᶜ γ₄ <* Ψ
-  +ᶜ⁴-<* {γ₂ = γ₂} {γ₃ = γ₃} γ₁ =
+  +ᶜ⁴-<* {γ₂} γ₁ =
     ≈ᶜ-trans (<*-distrib-+ᶜ _ γ₁ _) $
     +ᶜ-congˡ $
-    ≈ᶜ-trans (<*-distrib-+ᶜ _ γ₂ _) $
-    +ᶜ-congˡ $
-    <*-distrib-+ᶜ _ γ₃ _
+    +ᶜ³-<* γ₂
 
   ·ᶜ+ᶜ²<* : ∀ γ₁ → (p ·ᶜ (γ₁ +ᶜ γ₂)) <* Ψ ≈ᶜ p ·ᶜ (γ₁ <* Ψ +ᶜ γ₂ <* Ψ)
   ·ᶜ+ᶜ²<* γ₁ =
     ≈ᶜ-trans (<*-distrib-·ᶜ _ _ (γ₁ +ᶜ _)) $
     ·ᶜ-congˡ $ <*-distrib-+ᶜ _ γ₁ _
+
+  ·ᶜ+ᶜ³<* :
+    ∀ γ₁ →
+    (p ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₃)) <* Ψ ≈ᶜ
+    p ·ᶜ (γ₁ <* Ψ +ᶜ γ₂ <* Ψ +ᶜ γ₃ <* Ψ)
+  ·ᶜ+ᶜ³<* γ₁ =
+    ≈ᶜ-trans (<*-distrib-·ᶜ _ _ (γ₁ +ᶜ _)) $
+    ·ᶜ-congˡ $
+    +ᶜ³-<* γ₁
 
   ·ᶜ+ᶜ⁴<* :
     ∀ γ₁ →
@@ -1359,6 +1375,85 @@ opaque mutual
              (substₘ-lemma-𝟘ᵐ ▶σ ▸t) (substₘ-lemma-𝟘ᵐ ▶σ ▸u)
              (substₘ-lemma-𝟘ᵐ ▶σ ▸v) ok)
       (<*-zeroˡ Ψ)
+  substₘ-lemma ▶σ (Quot ok ▸A ▸B) =
+    Quot ok (substₘ-lemma ▶σ ▸A)
+      (substₘ-lemma-𝟘ᵐ
+         (wf-liftSubstₘ {mo = 𝟘ᵐ} $
+          wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)
+         ▸B)
+  substₘ-lemma ▶σ (class ok ▸t) =
+    class ok (substₘ-lemma ▶σ ▸t)
+  substₘ-lemma {Ψ} ▶σ (resp ok ▸A ▸B ▸t ▸u ▸v eq) =
+    sub-≈ᶜ
+      (resp ok (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
+         (substₘ-lemma-𝟘ᵐ
+            (wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)
+            ▸B)
+         (substₘ-lemma-𝟘ᵐ ▶σ ▸t) (substₘ-lemma-𝟘ᵐ ▶σ ▸u)
+         (substₘ-lemma-𝟘ᵐ ▶σ ▸v) eq)
+      (<*-zeroˡ Ψ)
+  substₘ-lemma {Ψ} ▶σ (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq) =
+    sub-≈ᶜ
+      (set ok (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
+         (substₘ-lemma-𝟘ᵐ
+            (wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)
+            ▸B)
+         (substₘ-lemma-𝟘ᵐ ▶σ ▸t) (substₘ-lemma-𝟘ᵐ ▶σ ▸u)
+         (substₘ-lemma-𝟘ᵐ ▶σ ▸v) (substₘ-lemma-𝟘ᵐ ▶σ ▸w) eq)
+      (<*-zeroˡ Ψ)
+  substₘ-lemma {Ψ} ▶σ (qrec₀ {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+    let ▶σ₂ = ▶-⌞+ᶜ⌟ˡ γ₂ ▶σ
+        ▶σ₅ = ▶-⌞·ᶜ⌟ γ₅ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ)
+    in
+    sub-≈ᶜ
+      (qrec₀ ok₁ ok₂ (substₘ-lemma-𝟘ᵐ (wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ) ▸C)
+         (substₘ-lemma-⇑ ▶σ₂ ▸t)
+         (substₘ-lemma-𝟘ᵐ
+            (wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)
+            ▸u)
+         (substₘ-lemma-𝟘ᵐ
+            (wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)
+            ▸v)
+         (substₘ-lemma ▶σ₅ (▸-cong ·ᵐ-identityˡ-⌞ω⌟ (▸-· ▸w))))
+      (begin
+         (γ₂ +ᶜ ω ·ᶜ γ₅) <* Ψ                     ≈⟨ <*-distrib-+ᶜ _ γ₂ _ ⟩
+         γ₂ <* Ψ +ᶜ (ω ·ᶜ γ₅) <* Ψ                ≈˘⟨ +ᶜ-congˡ (<*-cong Ψ (·ᶜ-congʳ {γ = γ₅} ·⌜⌞⌟⌝)) ⟩
+         γ₂ <* Ψ +ᶜ ((ω · ⌜ ⌞ ω ⌟ ⌝) ·ᶜ γ₅) <* Ψ  ≈⟨ +ᶜ-congˡ $
+                                                     ≈ᶜ-trans (<*-cong Ψ (·ᶜ-assoc _ _ γ₅)) $
+                                                     <*-distrib-·ᶜ Ψ _ (_ ·ᶜ γ₅) ⟩
+         γ₂ <* Ψ +ᶜ ω ·ᶜ (⌜ ⌞ ω ⌟ ⌝ ·ᶜ γ₅) <* Ψ   ∎)
+    where
+    open ≈ᶜ-reasoning
+  substₘ-lemma {Ψ} ▶σ (qrec₁ {γ₁} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+    let ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₁ +ᶜ γ₂ +ᶜ γ₅}) ▶σ
+        ▶σ₁ = ▶-⌞+ᶜ⌟ˡ γ₁ ▶σ′
+        ▶σ₂ = ▶-⌞+ᶜ⌟ˡ γ₂ (▶-⌞+ᶜ⌟ʳ γ₁ ▶σ′)
+        ▶σ₅ = ▶-⌞+ᶜ⌟ʳ γ₂ (▶-⌞+ᶜ⌟ʳ γ₁ ▶σ′)
+    in
+    sub-≈ᶜ
+      (qrec₁ ok₁ ok₂ (substₘ-lemma-⇑ ▶σ₁ ▸C) (substₘ-lemma-⇑ ▶σ₂ ▸t)
+         (substₘ-lemma-𝟘ᵐ
+            (wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)
+            ▸u)
+         (substₘ-lemma-𝟘ᵐ
+            (wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} $
+             wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)
+            ▸v)
+         (substₘ-lemma ▶σ₅ ▸w))
+      (·ᶜ+ᶜ³<* γ₁)
 
 opaque
 
@@ -1575,14 +1670,14 @@ opaque
 
 opaque
 
-  -- The expression ∥ σ ∥ mos *> (𝟘ᶜ , x ≔ p) has the same value for two
-  -- potentially different values of p: 𝟙 and ⌜ mos x ⌝.
+  -- The expression (𝟘ᶜ , x ≔ p) <* ∥ σ ∥ mos has the same value for
+  -- two potentially different values of p: 𝟙 and ⌜ mos x ⌝.
 
-  ∥∥-*>-𝟘ᶜ,≔𝟙 :
+  𝟘ᶜ,≔𝟙-<*-∥∥ :
     ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →
     (σ : Subst m n) →
     (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos ≈ᶜ (𝟘ᶜ , x ≔ ⌜ mos x ⌝) <* ∥ σ ∥ mos
-  ∥∥-*>-𝟘ᶜ,≔𝟙 {x = x} {mos = mos} σ = begin
+  𝟘ᶜ,≔𝟙-<*-∥∥ {x} {mos} σ = begin
     (𝟘ᶜ , x ≔ 𝟙) <* ∥ σ ∥ mos               ≈⟨ substₘ-calc-row σ _ ⟩
     ⌈ σ x ⌉ (mos x)                         ≈˘⟨ ·-⌈⌉ (σ x) ⟩
     ⌜ mos x ⌝ ·ᶜ ⌈ σ x ⌉ (mos x)            ≈˘⟨ ·ᶜ-congˡ (substₘ-calc-row σ _) ⟩

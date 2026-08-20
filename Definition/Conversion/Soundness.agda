@@ -75,16 +75,14 @@ mutual
     let C≡E = soundnessConv↑ x
         g≡h = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        _ , _ , ok = inversion-ΠΣ (proj₁ (wf-⊢ g≡h))
-    in  prodrec-cong C≡E g≡h u≡v ok
+    in  prodrec-cong C≡E g≡h u≡v
   soundness~↑ (emptyrec-cong x₁ k~l) =
     emptyrec-cong (soundnessConv↑ x₁) (soundness~↓ k~l)
   soundness~↑ (unitrec-cong x x₁ x₂ no-η) =
     let F≡H = soundnessConv↑ x
         k≡l = soundness~↓ x₁
         u≡v = soundnessConv↑Term x₂
-        ok = inversion-Unit (proj₁ (wf-⊢ k≡l))
-    in  unitrec-cong F≡H k≡l u≡v ok no-η
+    in  unitrec-cong F≡H k≡l u≡v no-η
   soundness~↑ (J-cong A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁~w₂ ≡Id) =
     case soundnessConv↑ A₁≡A₂ of λ {
       A₁≡A₂ →
@@ -102,6 +100,19 @@ mutual
     []-cong-cong (soundnessConv↑Level l₁≡l₂) (soundnessConv↑ A₁≡A₂)
       (soundnessConv↑Term t₁≡t₂) (soundnessConv↑Term u₁≡u₂)
       (conv (soundness~↓ v₁~v₂) ≡Id) ok
+  soundness~↑ (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) =
+    resp-cong (Higher-quotient-constructors-neutral⇔ .proj₁ ok .proj₁)
+      (soundnessConv↑ A₁≡A₂) (soundnessConv↑ B₁≡B₂)
+      (soundnessConv↑Term t₁≡t₂) (soundnessConv↑Term u₁≡u₂)
+      (soundnessConv↑Term v₁≡v₂)
+  soundness~↑ (set-cong _ A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
+    set-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑ B₁≡B₂)
+      (soundnessConv↑Term t₁≡t₂) (soundnessConv↑Term u₁≡u₂)
+      (soundnessConv↑Term v₁≡v₂) (soundnessConv↑Term w₁≡w₂)
+  soundness~↑ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂) =
+    qrec-cong (soundnessConv↑ C₁≡C₂) (soundnessConv↑Term t₁≡t₂)
+      (soundnessConv↑Term u₁≡u₂) (soundnessConv↑Term v₁≡v₂)
+      (soundness~↓ w₁~w₂)
 
   -- Algorithmic equality of neutrals in WHNF is well-formed.
   soundness~↓ : ∀ {k l A} → Γ ⊢ k ~ l ↓ A → Γ ⊢ k ≡ l ∷ A
@@ -131,6 +142,8 @@ mutual
   soundnessConv↓ (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) =
     Id-cong (soundnessConv↑ A₁≡A₂) (soundnessConv↑Term t₁≡t₂)
       (soundnessConv↑Term u₁≡u₂)
+  soundnessConv↓ (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+    Quot-cong ok (soundnessConv↑ A₁≡A₂) (soundnessConv↑ B₁≡B₂)
 
   -- Algorithmic equality of terms is well-formed.
   soundnessConv↑Term : ∀ {a b A} → Γ ⊢ a [conv↑] b ∷ A → Γ ⊢ a ≡ b ∷ A
@@ -193,6 +206,14 @@ mutual
        Γ ⊢ Id A′ t′ u′ ≡ Id A t u                □) }
   soundnessConv↓Term (rfl-refl t≡u) =
     refl (rflⱼ′ t≡u)
+  soundnessConv↓Term (Quot-ins ⊢t₁ t₁~t₂) =
+    let t₁≡t₂        = soundness~↓ t₁~t₂
+        t₁-ne        = ne⁻ (ne~↓ t₁~t₂ .proj₂ .proj₁)
+        _ , ⊢t₁′ , _ = wf-⊢ t₁≡t₂
+    in
+    conv t₁≡t₂ (neTypeEq t₁-ne ⊢t₁′ ⊢t₁)
+  soundnessConv↓Term (class-cong ⊢Q t₁≡t₂) =
+    class-cong ⊢Q (soundnessConv↑Term t₁≡t₂)
 
   -- A variant of soundnessConv↓.
 
@@ -309,6 +330,26 @@ mutual
          U l₃  ≡⟨ U-cong-⊢≡ l₃≡l₄ ⟩⊢
          U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
          U l₂  ∎)
+    where
+    open TyR
+  soundnessConv↓-U {l₁} {l₂} ⊢Q₁ ⊢Q₂ (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+    let ok , l₃ , ⊢l₃ , ⊢A₁ , ⊢B₁ , U≡U₁ = inversion-Quot-∷ ⊢Q₁
+        _  , l₄ , _   , ⊢A₂ , ⊢B₂ , U≡U₂ = inversion-Quot-∷ ⊢Q₂
+
+        ⊢B₂           = stability
+                          (Quot-rel-Con-cong
+                             (reflConEq (wf ⊢Q₁))
+                             (sym (soundnessConv↑ A₁≡A₂)))
+                          ⊢B₂
+        A₁≡A₂ , l₃≡l₄ = soundnessConv↑-U ⊢A₁ ⊢A₂ A₁≡A₂
+        B₁≡B₂ , _     = soundnessConv↑-U ⊢B₁ ⊢B₂ B₁≡B₂
+    in
+    conv (Quot-cong ok ⊢l₃ A₁≡A₂ B₁≡B₂) (sym U≡U₁) ,
+    U-injectivity
+      (U l₁  ≡⟨ U≡U₁ ⟩⊢
+       U l₃  ≡⟨ U-cong-⊢≡ l₃≡l₄ ⟩⊢
+       U l₄  ≡˘⟨ U≡U₂ ⟩⊢∎
+       U l₂  ∎)
     where
     open TyR
 

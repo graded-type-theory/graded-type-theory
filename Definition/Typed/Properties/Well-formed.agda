@@ -14,6 +14,8 @@ module Definition.Typed.Properties.Well-formed
   where
 
 open import Definition.Untyped M
+open import Definition.Untyped.Quotient 𝕄
+
 open import Definition.Typed R
 open import Definition.Typed.Size R
 
@@ -26,11 +28,11 @@ open import Tools.Size
 open import Tools.Size.Instances
 
 private variable
-  Γ           : Cons _ _
-  𝓙           : Judgement _
-  A B C D t u : Term _
-  l l₁ l₂     : Lvl _
-  s s₁ s₂     : Size
+  Γ             : Cons _ _
+  𝓙             : Judgement _
+  A B C D E t u : Term _
+  l l₁ l₂       : Lvl _
+  s s₁ s₂       : Size
 
 private opaque
 
@@ -124,6 +126,24 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
   opaque
 
+    -- If there is a proof of Γ »∙ A »∙ B ⊢ C, then there are strictly
+    -- smaller proofs of ⊢ Γ, Γ ⊢ A and Γ »∙ A ⊢ B.
+
+    ∙∙⊢→⊢-<ˢ :
+      (⊢C : Γ »∙ A »∙ B ⊢ C) →
+      ⦃ lt : size ⊢C <ˢ s₂ ⦄ →
+      (∃ λ (⊢Γ : ⊢ Γ) → size ⊢Γ <ˢ size ⊢C) ×
+      (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢C) ×
+      (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ size ⊢C)
+    ∙∙⊢→⊢-<ˢ ⊢C =
+      let (⊢Γ∙A , Γ∙A<) , ⊢B    = ∙⊢→⊢-<ˢ ⊢C
+          (⊢Γ , Γ<) , (⊢A , A<) = ⊢∙→⊢-<ˢ ⊢Γ∙A
+                                    ⦃ leq = <ˢ→≤ˢ (<ˢ-trans Γ∙A< !) ⦄
+      in
+      (⊢Γ , <ˢ-trans Γ< Γ∙A<) , (⊢A , <ˢ-trans A< Γ∙A<) , ⊢B
+
+  opaque
+
     -- If there is a proof of Γ »∙ A ⊢ t ∷ B, then there are strictly
     -- smaller proofs of ⊢ Γ and Γ ⊢ A.
 
@@ -144,7 +164,7 @@ private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 private module Lemmas where
 
   opaque
-    unfolding size
+    unfolding Quot-rel-Con size
 
     -- If there is a proof of type Γ ⊢ A, then there is a strictly
     -- smaller proof of type ⊢ Γ.
@@ -160,6 +180,7 @@ private module Lemmas where
         (Liftⱼ _ ⊢A)  PE.refl → fix (wf-<ˢ ⊢A)
         (ΠΣⱼ ⊢B _)    PE.refl → fix (∙⊢→⊢-<ˢ ⊢B .proj₁)
         (Idⱼ ⊢A _ _)  PE.refl → fix (wf-<ˢ ⊢A)
+        (Quot _ ⊢B)   PE.refl → fix (∙∙⊢→⊢-<ˢ ⊢B .proj₁)
       where
       open Variants hyp
 
@@ -192,12 +213,12 @@ private module Lemmas where
         (prodⱼ _ ⊢t _ _)        PE.refl → fix (wfTerm-<ˢ ⊢t)
         (fstⱼ _ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
         (sndⱼ _ ⊢t)             PE.refl → fix (wfTerm-<ˢ ⊢t)
-        (prodrecⱼ _ ⊢t _ _)     PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (prodrecⱼ _ ⊢t _)       PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Emptyⱼ ⊢Γ)             _       → ⊢Γ , !
         (emptyrecⱼ ⊢A _)        PE.refl → fix (wf-<ˢ ⊢A)
         (Unitⱼ ⊢Γ _)            PE.refl → ⊢Γ , !
         (starⱼ ⊢Γ _)            PE.refl → ⊢Γ , !
-        (unitrecⱼ ⊢A ⊢t _ _)    PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (unitrecⱼ ⊢A ⊢t _)      PE.refl → fix (wfTerm-<ˢ ⊢t)
         (ℕⱼ ⊢Γ)                 _       → ⊢Γ , !
         (zeroⱼ ⊢Γ)              _       → ⊢Γ , !
         (sucⱼ n)                PE.refl → fix (wfTerm-<ˢ n)
@@ -207,6 +228,11 @@ private module Lemmas where
         (Jⱼ ⊢t _ _ _ _)         PE.refl → fix (wfTerm-<ˢ ⊢t)
         (Kⱼ _ ⊢u _ _)           PE.refl → fix (wfTerm-<ˢ ⊢u)
         ([]-congⱼ _ ⊢A _ _ _ _) PE.refl → fix (wf-<ˢ ⊢A)
+        (Quot _ _ ⊢A _)         PE.refl → fix (wfTerm-<ˢ ⊢A)
+        (class _ ⊢t)            PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (resp _ ⊢t _ _)         PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (set _ ⊢t _ _ _)        PE.refl → fix (wfTerm-<ˢ ⊢t)
+        (qrec _ _ _ _ ⊢w)       PE.refl → fix (wfTerm-<ˢ ⊢w)
       where
       open Variants hyp
 
@@ -286,6 +312,7 @@ private module Lemmas where
       wfEq-<ˢ (Lift-cong _ A≡B)   = fix (wfEq-<ˢ A≡B)
       wfEq-<ˢ (ΠΣ-cong A₁≡B₁ _ _) = fix (wfEq-<ˢ A₁≡B₁)
       wfEq-<ˢ (Id-cong A≡B _ _)   = fix (wfEq-<ˢ A≡B)
+      wfEq-<ˢ (Quot-cong _ A≡B _) = fix (wfEq-<ˢ A≡B)
 
       -- If there is a proof of type Γ ⊢ t ≡ u ∷ A, then there is a
       -- strictly smaller proof of type ⊢ Γ.
@@ -349,17 +376,17 @@ private module Lemmas where
         fix (wfTerm-<ˢ ⊢t)
       wfEqTerm-<ˢ (prod-cong _ t₁≡u₁ _ _) =
         fix (wfEqTerm-<ˢ t₁≡u₁)
-      wfEqTerm-<ˢ (prodrec-cong _ t₁≡u₁ _ _) =
+      wfEqTerm-<ˢ (prodrec-cong _ t₁≡u₁ _) =
         fix (wfEqTerm-<ˢ t₁≡u₁)
-      wfEqTerm-<ˢ (prodrec-β _ ⊢t _ _ _ _) =
+      wfEqTerm-<ˢ (prodrec-β _ ⊢t _ _ _) =
         fix (wfTerm-<ˢ ⊢t)
       wfEqTerm-<ˢ (emptyrec-cong A≡B _) =
         fix (wfEq-<ˢ A≡B)
-      wfEqTerm-<ˢ (unitrec-cong _ t₁≡u₁ _ _ _) =
+      wfEqTerm-<ˢ (unitrec-cong _ t₁≡u₁ _ _) =
         fix (wfEqTerm-<ˢ t₁≡u₁)
-      wfEqTerm-<ˢ (unitrec-β _ ⊢t _ _) =
+      wfEqTerm-<ˢ (unitrec-β _ ⊢t _) =
         fix (wfTerm-<ˢ ⊢t)
-      wfEqTerm-<ˢ (unitrec-β-η _ ⊢t _ _ _) =
+      wfEqTerm-<ˢ (unitrec-β-η _ ⊢t _ _) =
         fix (wfTerm-<ˢ ⊢t)
       wfEqTerm-<ˢ (η-unit ⊢t _ _) =
         fix (wfTerm-<ˢ ⊢t)
@@ -387,6 +414,18 @@ private module Lemmas where
         fix (wfTerm-<ˢ ⊢t)
       wfEqTerm-<ˢ (equality-reflection _ _ ⊢v) =
         fix (wfTerm-<ˢ ⊢v)
+      wfEqTerm-<ˢ (Quot-cong _ _ A₁≡A₂ _) =
+        fix (wfEqTerm-<ˢ A₁≡A₂)
+      wfEqTerm-<ˢ (class-cong _ t₁≡t₂) =
+        fix (wfEqTerm-<ˢ t₁≡t₂)
+      wfEqTerm-<ˢ (resp-cong _ _ _ t₁≡t₂ _ _) =
+        fix (wfEqTerm-<ˢ t₁≡t₂)
+      wfEqTerm-<ˢ (set-cong _ _ t₁≡t₂ _ _ _) =
+        fix (wfEqTerm-<ˢ t₁≡t₂)
+      wfEqTerm-<ˢ (qrec-cong _ _ _ _ w₁≡w₂) =
+        fix (wfEqTerm-<ˢ w₁≡w₂)
+      wfEqTerm-<ˢ (qrec-β _ _ _ _ ⊢w) =
+        fix (wfTerm-<ˢ ⊢w)
 
   opaque
     unfolding size
@@ -477,6 +516,70 @@ opaque
         (⊢Γ , Γ<) , (⊢A , A<)     = ∙⊢→⊢-<ˢ ⊢Γ∙A
     in
     (⊢Γ , <ˢ-trans Γ< Γ∙A<) , (⊢A , <ˢ-trans A< Γ∙A<) , (⊢B , B<)
+
+opaque
+
+  -- If there is a proof of Γ »∙ A »∙ B »∙ C ⊢[ 𝓙 ], then there are
+  -- strictly smaller proofs of ⊢ Γ, Γ ⊢ A, Γ »∙ A ⊢ B and
+  -- Γ »∙ A »∙ B ⊢ C.
+
+  ∙∙∙⊢→⊢-<ˢ :
+    ∀ {𝓙} (⊢𝓙 : Γ »∙ A »∙ B »∙ C ⊢[ 𝓙 ]) →
+    (∃ λ (⊢Γ : ⊢ Γ) → size ⊢Γ <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢C : Γ »∙ A »∙ B ⊢ C) → size ⊢C <ˢ size ⊢𝓙)
+  ∙∙∙⊢→⊢-<ˢ ⊢𝓙 =
+    let (⊢ΓAB , ΓAB<) , ⊢C                = ∙⊢→⊢-<ˢ ⊢𝓙
+        (⊢Γ , Γ<) , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢ΓAB
+    in
+    (⊢Γ , <ˢ-trans Γ< ΓAB<) , (⊢A , <ˢ-trans A< ΓAB<) ,
+    (⊢B , <ˢ-trans B< ΓAB<) , ⊢C
+
+opaque
+
+  -- If there is a proof of Γ »∙ A »∙ B »∙ C »∙ D ⊢[ 𝓙 ], then there
+  -- are strictly smaller proofs of ⊢ Γ, Γ ⊢ A, Γ »∙ A ⊢ B,
+  -- Γ »∙ A »∙ B ⊢ C and Γ »∙ A »∙ B »∙ C ⊢ D.
+
+  ∙∙∙∙⊢→⊢-<ˢ :
+    ∀ {𝓙} (⊢𝓙 : Γ »∙ A »∙ B »∙ C »∙ D ⊢[ 𝓙 ]) →
+    (∃ λ (⊢Γ : ⊢ Γ) → size ⊢Γ <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢C : Γ »∙ A »∙ B ⊢ C) → size ⊢C <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢D : Γ »∙ A »∙ B »∙ C ⊢ D) → size ⊢D <ˢ size ⊢𝓙)
+  ∙∙∙∙⊢→⊢-<ˢ ⊢𝓙 =
+    let (⊢ΓABC , ΓABC<) , ⊢D                          = ∙⊢→⊢-<ˢ ⊢𝓙
+        (⊢Γ , Γ<) , (⊢A , A<) , (⊢B , B<) , (⊢C , C<) = ∙∙∙⊢→⊢-<ˢ ⊢ΓABC
+    in
+    (⊢Γ , <ˢ-trans Γ< ΓABC<) , (⊢A , <ˢ-trans A< ΓABC<) ,
+    (⊢B , <ˢ-trans B< ΓABC<) , (⊢C , <ˢ-trans C< ΓABC<) , ⊢D
+
+opaque
+
+  -- If there is a proof of Γ »∙ A »∙ B »∙ C »∙ D »∙ E ⊢[ 𝓙 ], then
+  -- there are strictly smaller proofs of ⊢ Γ, Γ ⊢ A, Γ »∙ A ⊢ B,
+  -- Γ »∙ A »∙ B ⊢ C, Γ »∙ A »∙ B »∙ C ⊢ D and
+  -- Γ »∙ A »∙ B »∙ C »∙ D ⊢ E.
+
+  ∙∙∙∙∙⊢→⊢-<ˢ :
+    ∀ {𝓙} (⊢𝓙 : Γ »∙ A »∙ B »∙ C »∙ D »∙ E ⊢[ 𝓙 ]) →
+    (∃ λ (⊢Γ : ⊢ Γ) → size ⊢Γ <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢A : Γ ⊢ A) → size ⊢A <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢B : Γ »∙ A ⊢ B) → size ⊢B <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢C : Γ »∙ A »∙ B ⊢ C) → size ⊢C <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢D : Γ »∙ A »∙ B »∙ C ⊢ D) → size ⊢D <ˢ size ⊢𝓙) ×
+    (∃ λ (⊢E : Γ »∙ A »∙ B »∙ C »∙ D ⊢ E) → size ⊢E <ˢ size ⊢𝓙)
+  ∙∙∙∙∙⊢→⊢-<ˢ ⊢𝓙 =
+    let (⊢ΓABCD , ΓABCD<) , ⊢E =
+          ∙⊢→⊢-<ˢ ⊢𝓙
+        (⊢Γ , Γ<) , (⊢A , A<) , (⊢B , B<) , (⊢C , C<) , (⊢D , D<) =
+          ∙∙∙∙⊢→⊢-<ˢ ⊢ΓABCD
+    in
+    (⊢Γ , <ˢ-trans Γ< ΓABCD<) , (⊢A , <ˢ-trans A< ΓABCD<) ,
+    (⊢B , <ˢ-trans B< ΓABCD<) , (⊢C , <ˢ-trans C< ΓABCD<) ,
+    (⊢D , <ˢ-trans D< ΓABCD<) , ⊢E
 
 opaque
   unfolding size

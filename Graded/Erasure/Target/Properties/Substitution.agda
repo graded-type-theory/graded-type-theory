@@ -24,8 +24,8 @@ private
     ℓ m n : Nat
     x : Fin n
     ρ ρ′ : Wk m n
-    σ σ′ : Subst m n
-    t u v : Term n
+    σ σ′ σ₁ σ₂ : Subst m n
+    t t₁ t₂ u v : Term n
     s : Strictness
 
 -- Substitution properties.
@@ -47,6 +47,17 @@ substVar-lifts : (∀ x → σ x ≡ σ′ x) → ∀ n x → liftSubstn σ n x 
 substVar-lifts eq 0 x           = eq x
 substVar-lifts eq (1+ n) x0     = refl
 substVar-lifts eq (1+ n) (x +1) = cong wk1 (substVar-lifts eq n x)
+
+opaque
+
+  -- A form of congruence for consSubst.
+
+  consSubst-cong :
+    t₁ ≡ t₂ →
+    (∀ x → σ₁ x ≡ σ₂ x) →
+    ∀ x → consSubst σ₁ t₁ x ≡ consSubst σ₂ t₂ x
+  consSubst-cong refl _  x0     = refl
+  consSubst-cong _    eq (x +1) = eq x
 
 -- If  σ = σ′  then  t [ σ ] = t [ σ′ ].
 
@@ -345,19 +356,19 @@ doubleSubstLift {n = n} σ G t u = begin
     ≡⟨⟩
   G [ liftSubstn σ 2 ] [ t [ σ ] , u [ σ ] ]₁₀ ∎
   where
-  σ₁ =  consSubst (sgSubst t) u
-  σ₂ = consSubst (sgSubst (t [ σ ])) (u [ σ ])
-  eq : (x : Fin (2+ n)) → (σ ₛ•ₛ σ₁) x ≡ (σ₂ ₛ•ₛ (liftSubstn σ 2)) x
+  σ₁′ =  consSubst (sgSubst t) u
+  σ₂′ = consSubst (sgSubst (t [ σ ])) (u [ σ ])
+  eq : (x : Fin (2+ n)) → (σ ₛ•ₛ σ₁′) x ≡ (σ₂′ ₛ•ₛ (liftSubstn σ 2)) x
   eq x0 = refl
   eq (_+1 x0) = refl
   eq (x +2) = begin
-    (σ ₛ•ₛ σ₁) (x +2)                          ≡⟨⟩
-    σ x                                        ≡˘⟨ subst-id (σ x) ⟩
-    (σ x) [ idSubst ]                          ≡⟨⟩
-    (σ x) [ σ₂ ₛ• (step id • step id) ]        ≡˘⟨ subst-wk (σ x) ⟩
-    wk ((step id) • (step id)) (σ x) [ σ₂ ]    ≡˘⟨ cong (_[ σ₂ ]) (wk-comp (step id) (step id) (σ x)) ⟩
-    wk1 (wk1 (σ x)) [ σ₂ ]                     ≡⟨⟩
-    (σ₂ ₛ•ₛ (liftSubst (liftSubst σ))) (x +2)  ∎
+    (σ ₛ•ₛ σ₁′) (x +2)                          ≡⟨⟩
+    σ x                                         ≡˘⟨ subst-id (σ x) ⟩
+    (σ x) [ idSubst ]                           ≡⟨⟩
+    (σ x) [ σ₂′ ₛ• (step id • step id) ]        ≡˘⟨ subst-wk (σ x) ⟩
+    wk ((step id) • (step id)) (σ x) [ σ₂′ ]    ≡˘⟨ cong (_[ σ₂′ ]) (wk-comp (step id) (step id) (σ x)) ⟩
+    wk1 (wk1 (σ x)) [ σ₂′ ]                     ≡⟨⟩
+    (σ₂′ ₛ•ₛ (liftSubst (liftSubst σ))) (x +2)  ∎
 
 wk1-tail : (t : Term n) → wk1 t [ σ ] ≡ t [ tail σ ]
 wk1-tail {σ = σ} t = begin

@@ -504,6 +504,119 @@ infix 10 ⌈⌉▸[_]?_
       in
       problem _ (▸l , ▸A , ▸t , ▸u , ▸v , ok)
 
+⌈⌉▸[ m ]? Quot A B =
+  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+       ⌈⌉▸[ m ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B of λ where
+    (inj₁ (ok , ▸A , ▸B)) → inj₁ (Quot ok ▸A ▸B)
+    (inj₂ problem) → inj₂ λ _ ▸Q →
+      let ok , ▸A , _ , ▸B = inv-usage-Quot ▸Q in
+      problem _ (ok , ▸A , ▸B)
+
+⌈⌉▸[ m ]? class t =
+  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+       ⌈⌉▸[ m ]? t of λ where
+    (inj₁ (ok , ▸t)) → inj₁ (class ok ▸t)
+    (inj₂ problem)   → inj₂ λ _ ▸c →
+      let ok , ▸t = inv-usage-class ▸c in
+      problem _ (ok , ▸t)
+
+⌈⌉▸[ m ]? resp A B t u v =
+  case Dec→Dec-∀ Higher-quotient-constructors-allowed? ×-Dec-∀
+       Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v
+  of λ where
+    (inj₁ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v)) →
+      inj₁ (resp ok ▸A ▸B ▸t ▸u ▸v eq)
+    (inj₂ problem) → inj₂ λ _ ▸r →
+      let _ , eq , ok , (_ , ▸A) , (_ , ▸B) , (_ , ▸t) , (_ , ▸u) ,
+            (_ , ▸v) =
+            inv-usage-resp ▸r
+      in
+      problem _ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v)
+
+⌈⌉▸[ m ]? set A B t u v w =
+  case Dec→Dec-∀ Higher-quotient-constructors-allowed? ×-Dec-∀
+       Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w
+  of λ where
+    (inj₁ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v , ▸w)) →
+      inj₁ (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq)
+    (inj₂ problem) → inj₂ λ _ ▸s →
+      let _ , eq , ok , (_ , ▸A) , (_ , ▸B) , (_ , ▸t) , (_ , ▸u) ,
+            (_ , ▸v) , (_ , ▸w) =
+            inv-usage-set ▸s
+      in
+      problem _ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v , ▸w)
+
+⌈⌉▸[ m ]? qrec C t u v w
+  with Qrec-motive-erased?
+… | yes erased =
+  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ ]? C ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀
+       Dec→Dec-∀ (⌜ m ⌝ · ω ≤? headₘ ⌈t⌉)
+  of λ where
+    (inj₁ (ok , ▸C , ▸t , ▸u , ▸v , ▸w , ≤t)) →
+      inj₁ $
+      qrec₀ ok erased ▸C
+        (sub ▸t $ begin
+         tailₘ ⌈t⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤t ⟩
+         tailₘ ⌈t⌉ ∙ headₘ ⌈t⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
+         ⌈t⌉                    ∎)
+        ▸u ▸v ▸w
+    (inj₂ problem) → inj₂ λ _ ▸q →
+      case inv-usage-qrec ▸q of λ where
+        (invUsageQrec₀ ok _ ▸C ▸t ▸u ▸v ▸w _) →
+          let upper-bound-C = usage-upper-bound no-sink-or-≤𝟘 ▸C
+              upper-bound-t = usage-upper-bound no-sink-or-≤𝟘 ▸t
+          in
+          problem _
+            (ok , ▸C , ▸t , ▸u , ▸v , ▸w , headₘ-monotone upper-bound-t)
+        (invUsageQrec₁ _ not-erased _ _ _ _ _ _) →
+          ⊥-elim (not-erased erased)
+  where
+  open ≤ᶜ-reasoning
+
+  ⌈t⌉ = ⌈ t ⌉ m
+… | no not-erased =
+  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+       ⌈⌉▸[ m ]? C ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
+       ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀
+       Dec→Dec-∀ (⌜ m ⌝ · ω ≤? headₘ ⌈C⌉) ×-Dec-∀
+       Dec→Dec-∀ (⌜ m ⌝ · ω ≤? headₘ ⌈t⌉)
+  of λ where
+    (inj₁ (ok , ▸C , ▸t , ▸u , ▸v , ▸w , ≤C , ≤t)) →
+      inj₁ $
+      qrec₁ ok not-erased
+        (sub ▸C $ begin
+         tailₘ ⌈C⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤C ⟩
+         tailₘ ⌈C⌉ ∙ headₘ ⌈C⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
+         ⌈C⌉                    ∎)
+        (sub ▸t $ begin
+         tailₘ ⌈t⌉ ∙ ⌜ m ⌝ · ω  ≤⟨ ≤ᶜ-refl ∙ ≤t ⟩
+         tailₘ ⌈t⌉ ∙ headₘ ⌈t⌉  ≡⟨ headₘ-tailₘ-correct _ ⟩
+         ⌈t⌉                    ∎)
+        ▸u ▸v ▸w
+    (inj₂ problem) → inj₂ λ _ ▸q →
+      case inv-usage-qrec ▸q of λ where
+        (invUsageQrec₀ _ erased _ _ _ _ _ _) →
+          ⊥-elim (not-erased erased)
+        (invUsageQrec₁ ok _ ▸C ▸t ▸u ▸v ▸w _) →
+          let upper-bound-C = usage-upper-bound no-sink-or-≤𝟘 ▸C
+              upper-bound-t = usage-upper-bound no-sink-or-≤𝟘 ▸t
+          in
+          problem _
+            (ok , ▸C , ▸t , ▸u , ▸v , ▸w ,
+             headₘ-monotone upper-bound-C ,
+             headₘ-monotone upper-bound-t)
+  where
+  open ≤ᶜ-reasoning
+
+  ⌈C⌉ = ⌈ C ⌉ m
+  ⌈t⌉ = ⌈ t ⌉ m
+
 infix 10 ⌈⌉▸[_]?′_
 
 -- It is decidable whether a term is well-resourced under the inferred

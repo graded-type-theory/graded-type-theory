@@ -154,7 +154,6 @@ unit⇨erasure = λ where
     .tr-order-reflecting _ → refl
     .tr-≤                  → _ , refl
     .tr-≤-𝟙 _              → refl
-    .tr-ω                  → refl
     .tr-≤-+ _              → _ , _ , refl , refl , refl
     .tr-≤-· _              → _ , refl , refl
     .tr-≤-∧ _              → _ , _ , refl , refl , refl
@@ -195,7 +194,6 @@ erasure⇨zero-one-many {𝟙≤𝟘} =
   λ where
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-ω                → refl
     .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
     .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
     .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
@@ -449,7 +447,6 @@ linearity⇨linear-or-affine :
 linearity⇨linear-or-affine = λ where
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-ω                → refl
     .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
     .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
     .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
@@ -742,7 +739,6 @@ affine⇨linear-or-affine :
 affine⇨linear-or-affine = λ where
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-ω                → refl
     .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
     .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
     .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _

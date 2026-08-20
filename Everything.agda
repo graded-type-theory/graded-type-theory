@@ -83,10 +83,11 @@ import Graded.Context.Weakening
 import Graded.Mode
 
 ------------------------------------------------------------------------
--- The mode instance Zero-one
+-- Some mode structures
 
 import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
+import Graded.Mode.Instances.Trivial
 
 ------------------------------------------------------------------------
 -- The type theory's syntax (as well as type restrictions)
@@ -108,6 +109,7 @@ import Definition.Untyped.Whnf
 import Definition.Untyped.Neutral.Atomic
 import Definition.Untyped.Names-below
 import Definition.Untyped.Identity
+import Definition.Untyped.Quotient
 import Definition.Untyped.Lift
 import Definition.Untyped.Pi-Sigma
 import Definition.Untyped.Pi
@@ -145,9 +147,11 @@ import Definition.Typed.Inversion.Primitive
 import Definition.Typed.Properties.Definition.Primitive
 import Definition.Typed.Weakening
 import Definition.Typed.Weakening.Definition
+import Definition.Typed.Weakening.Combined
 import Definition.Typed.Stability.Primitive
 import Definition.Typed.Substitution.Primitive.Primitive
 import Definition.Typed.Properties.Admissible.Erased.Primitive
+import Definition.Typed.Properties.Admissible.Quotient.Primitive
 import Definition.Typed.Well-formed
 import Definition.Typed.Properties.Admissible.U
 import Definition.Typed.Substitution.Primitive
@@ -174,6 +178,7 @@ import Definition.Typed.Properties.Admissible.Non-dependent
 import Definition.Typed.Properties.Admissible.Erased.Eta
 import Definition.Typed.Properties.Admissible.Erased.No-eta
 import Definition.Typed.Properties.Admissible.Erased
+import Definition.Typed.Properties.Admissible.Quotient
 import Definition.Typed.Properties.Admissible.Bool.OK
 import Definition.Typed.Properties.Admissible.Omega
 import Definition.Typed.Properties.Definition
@@ -294,23 +299,13 @@ import Graded.Mode.Instances.Bounded-distributive-lattice
 import Graded.Modality.Instances.Bounded-distributive-lattice.Usage
 
 ------------------------------------------------------------------------
--- A combination of typing and usage
-
--- A combination of typing and usage for the erasure modality with
--- modes.
-
-import Graded.Modality.Instances.Erasure.Combined
-import Graded.Modality.Instances.Erasure.Combined.Properties
-import Graded.Modality.Instances.Erasure.Combined.Equivalent
-import Graded.Modality.Instances.Erasure.Combined.Erased
-
-------------------------------------------------------------------------
 -- Properties of the type theory
 
 -- The logical relation for reducibility.
 import Definition.LogicalRelation.Weakening.Restricted
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Properties.Kit
+import Definition.LogicalRelation.Properties.Quotient
 import Definition.LogicalRelation.Properties.Whnf
 import Definition.LogicalRelation.Properties.Primitive
 import Definition.LogicalRelation.Properties.Reflexivity
@@ -351,6 +346,7 @@ import Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak
 import Definition.LogicalRelation.Substitution.Introductions.Sigma
 import Definition.LogicalRelation.Substitution.Introductions.Erased
 import Definition.LogicalRelation.Substitution.Introductions.Identity
+import Definition.LogicalRelation.Substitution.Introductions.Quotient
 import Definition.LogicalRelation.Substitution.Introductions
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility.Restricted
@@ -369,7 +365,6 @@ import Definition.Typed.Consequences.Admissible.Erased
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
-import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.NeTypeEq
 import Definition.Typed.Consequences.Transparentisation
 import Definition.Typed.Consequences.Universe
@@ -390,7 +385,6 @@ import Definition.Conversion.Conversion
 import Definition.Conversion.Symmetry
 import Definition.Conversion.Transitivity
 import Definition.Conversion.Weakening
-import Definition.Conversion.Weakening.Definition
 import Definition.Conversion.Lift
 import Definition.Conversion.Universe
 import Definition.Conversion.Decidable
@@ -413,6 +407,7 @@ import Definition.Typed.Decidable.Internal
 import Definition.Typed.Decidable.Internal.Examples
 
 -- Some code that uses the internal type-checker.
+import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Consequences.Admissible.Identity
 import Definition.Typed.Consequences.Admissible.Bool
 import Definition.Typed.Consequences.Admissible.Bool.Erased
@@ -435,6 +430,17 @@ import Definition.Typed.Decidable.Reduction
 import Definition.Typechecking.Decidable.Assumptions
 import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
+
+------------------------------------------------------------------------
+-- A combination of typing and usage
+
+-- A combination of typing and usage for the erasure modality with
+-- modes.
+
+import Graded.Modality.Instances.Erasure.Combined
+import Graded.Modality.Instances.Erasure.Combined.Properties
+import Graded.Modality.Instances.Erasure.Combined.Equivalent
+import Graded.Modality.Instances.Erasure.Combined.Erased
 
 ------------------------------------------------------------------------
 -- Definitions related to type and usage restrictions
@@ -484,6 +490,7 @@ import Graded.Mode.Instances.Zero-one.QuantityTranslation
 import Graded.Modality.Morphism.Forward-instances
 import Graded.Modality.Morphism.Backward-instances
 import Definition.Typed.QuantityTranslation
+import Definition.Typed.With-equality-reflection
 import Graded.Usage.QuantityTranslation
 
 ------------------------------------------------------------------------
@@ -492,7 +499,10 @@ import Graded.Usage.QuantityTranslation
 import Graded.Modality.Extended
 import Graded.Modality.Extended.K-allowed
 import Graded.Modality.Extended.K-not-allowed.Erased-matches
+import Graded.Modality.Extended.K-not-allowed.Some-erased-matches
 import Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches
+import
+  Graded.Modality.Extended.K-not-allowed.Only-some-erased-matches.Quotients
 import Graded.Modality.Extended.K-not-allowed.No-erased-matches
 
 ------------------------------------------------------------------------
@@ -531,6 +541,7 @@ import Graded.Erasure.LogicalRelation.Fundamental.Nat
 import Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
 import Graded.Erasure.LogicalRelation.Fundamental.Unit
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
+import Graded.Erasure.LogicalRelation.Fundamental.Quotient
 import Graded.Erasure.LogicalRelation.Fundamental.Universe
 import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 import Graded.Erasure.LogicalRelation.Fundamental
@@ -558,7 +569,12 @@ import Graded.Neutral
 -- Some discussion of under what circumstances a []-cong combinator
 -- can be defined
 
-import Graded.Box-cong
+import Graded.Has-box-cong
+import Graded.Has-box-cong.Lemmas
+import Graded.Has-box-cong.Equivalent.For-level
+import Graded.Has-box-cong.Equivalent
+import Graded.Has-box-cong.Definable.J
+import Graded.Has-box-cong.Definable
 import Graded.Modify-box-cong-or-J.Configuration
 import Graded.Modify-box-cong-or-J
 

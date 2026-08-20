@@ -106,6 +106,30 @@ record Usage-restrictions : Set (lsuc a ⊔ b) where
     erased-matches-for-K-≤ᵉᵐ :
       m ≤ᵐ m′ → erased-matches-for-K m ≤ᵉᵐ erased-matches-for-K m′
 
+    -- Are the quotient term formers allowed?
+    Quotient-terms-allowed : Set a
+
+    -- Are the higher quotient constructors allowed?
+    Higher-quotient-constructors-allowed : Set a
+
+    -- If the higher quotient constructors are allowed, then the mode
+    -- structure is non-trivial: these constructors are only allowed
+    -- in erased contexts.
+    Higher-quotient-constructors-allowed→¬Trivialᵐ :
+      Higher-quotient-constructors-allowed → ¬ Trivialᵐ
+
+    -- If the higher quotient constructors are allowed, then
+    -- Quotient-terms-allowed holds.
+    Higher-quotient-constructors→Quotient-terms :
+      Higher-quotient-constructors-allowed → Quotient-terms-allowed
+
+    -- Is the motive of qrec erased?
+    Qrec-motive-erased : Set a
+
+    -- Qrec-motive-erased is decided.
+    Qrec-motive-erased? :
+      Dec Qrec-motive-erased
+
   -- Three mutually exclusive types which correspond to each of the
   -- three possibilities for natrec-mode
 

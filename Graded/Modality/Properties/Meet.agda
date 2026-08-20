@@ -184,3 +184,15 @@ opaque
     𝟘 ∧ p          ∎
     where
     open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- The grade (𝟘 ∧ 𝟙) · p is equal to 𝟘 ∧ p.
+
+  [𝟘∧𝟙]·≡𝟘∧ : (𝟘 ∧ 𝟙) · p ≡ 𝟘 ∧ p
+  [𝟘∧𝟙]·≡𝟘∧ {p} =
+    (𝟘 ∧ 𝟙) · p    ≡⟨ ·-distribʳ-∧ _ _ _ ⟩
+    𝟘 · p ∧ 𝟙 · p  ≡⟨ ∧-cong (·-zeroˡ _) (·-identityˡ _) ⟩
+    𝟘 ∧ p          ∎
+    where
+    open Tools.Reasoning.PropositionalEquality

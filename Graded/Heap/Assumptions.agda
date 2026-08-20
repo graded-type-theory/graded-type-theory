@@ -47,6 +47,9 @@ record Assumptions : Set (a ⊔ b) where
   field
     -- The type Level is not allowed.
     Level-not-allowed : ¬ Level-allowed
+    -- Quotients are not allowed.
+    Quot-not-allowed           : ¬ Quot-allowed
+    Quotient-terms-not-allowed : ¬ Quotient-terms-allowed
     -- The modality supports subtraction.
     subtraction-ok : Supports-subtraction
     -- An assumption related to the weak unit type when η-equality is

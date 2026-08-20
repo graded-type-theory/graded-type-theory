@@ -29,12 +29,14 @@ open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Conversion R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Nat hiding (_<_)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
 
 private
   variable
@@ -123,32 +125,30 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
     let ΠF₁G₁≡ΠF′G′       = whrDet* (D₁ , ⟦ W ⟧ₙ) (D′ , ⟦ W ⟧ₙ)
         F₁≡F′ , G₁≡G′ , _ = B-PE-injectivity W W ΠF₁G₁≡ΠF′G′
         [F₁≡F] :
-          {κ′ : Nat} {∇ : DCon (Term 0) κ′}
-          ([ξ] : » ∇ ⊇ Γ .defs) →
-          {ℓ : Nat} {ρ : Wk ℓ n} {Δ : Con Term ℓ}
-          ([ρ] : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars) →
-          ∇ » Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ξ] [ρ]
-        [F₁≡F] [ξ] {_} {ρ} {Δ} [ρ] =
+          {κ′ ℓ : Nat} {ρ : Wk ℓ n} {Δ : Cons κ′ ℓ}
+          ([ρ] : Δ ⊢ʷᵏʳ ρ ∷ Γ) →
+          Δ ⊩⟨ l′ ⟩ (wk ρ F₁) ≡ (wk ρ F) / [F]₁ [ρ]
+        [F₁≡F] [ρ] =
           let ρF′≡ρF₁ ρ = PE.cong (wk ρ) (PE.sym F₁≡F′)
               [ρF′] {ρ} [ρ] =
-                PE.subst (_⊩⟨_⟩_ _ _ ∘→ wk ρ) F₁≡F′ ([F]₁ [ξ] [ρ])
-          in  irrelevanceEq′ (ρF′≡ρF₁ ρ)
-                ([ρF′] [ρ]) ([F]₁ [ξ] [ρ]) (symEq ([F] [ξ] [ρ])
-                ([ρF′] [ρ]) ([F≡F′] [ξ] [ρ]))
+                PE.subst (_⊩⟨_⟩_ _ _ ∘→ wk ρ) F₁≡F′ ([F]₁ [ρ])
+          in  irrelevanceEq′ (ρF′≡ρF₁ _)
+                ([ρF′] [ρ]) ([F]₁ [ρ]) (symEq ([F] [ρ])
+                ([ρF′] [ρ]) ([F≡F′] [ρ]))
     in
     B₌ _ _ D
       (≅-sym (PE.subst (Γ ⊢ ⟦ W ⟧ F ▹ G ≅_) (PE.sym ΠF₁G₁≡ΠF′G′) A≡B))
       [F₁≡F]
-      (λ {_} {∇} [ξ] {_} {ρ} {Δ} {a} [ρ] [a] →
+      (λ {Δ = Δ} {ρ = ρ} {a = a} [ρ] [a] →
          let ρG′a≡ρG₁′a =
                PE.cong (_[ a ]₀ ∘→ wk (lift ρ)) (PE.sym G₁≡G′)
              [ρG′a] = PE.subst
-                        (λ x → ∇ » Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]₀)
-                        G₁≡G′ ([G]₁ [ξ] [ρ] [a])
-             [a]₁ = convTerm₁ ([F]₁ [ξ] [ρ]) ([F] [ξ] [ρ])
-                      ([F₁≡F] [ξ] [ρ]) [a]
-         in  irrelevanceEq′ ρG′a≡ρG₁′a [ρG′a] ([G]₁ [ξ] [ρ] [a])
-               (symEq ([G] [ξ] [ρ] [a]₁) [ρG′a] ([G≡G′] [ξ] [ρ] [a]₁)))
+                        (λ x → Δ ⊩⟨ l′ ⟩ wk (lift ρ) x [ a ]₀)
+                        G₁≡G′ ([G]₁ [ρ] [a])
+             [a]₁ = convTerm₁ ([F]₁ [ρ]) ([F] [ρ])
+                      ([F₁≡F] [ρ]) [a]
+         in  irrelevanceEq′ ρG′a≡ρG₁′a [ρG′a] ([G]₁ [ρ] [a])
+               (symEq ([G] [ρ] [a]₁) [ρG′a] ([G≡G′] [ρ] [a]₁)))
   symEqT (Uᵥ (Uᵣ l′ [l′] l< ⇒*U) (Uᵣ l′₁ [l′₁] l<₁ ⇒*U₁)) (U₌ k D l′≡k) with whrDet* (D , Uₙ) (⇒*U₁ , Uₙ)
   ... | PE.refl = U₌ l′ ⇒*U (symLevel l′≡k)
   symEqT (Idᵥ ⊩A ⊩B@record{}) A≡B =
@@ -175,6 +175,23 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
       } }
     where
     open _⊩ₗId_≡_/_ A≡B
+  symEqT (Quot ⊩A ⊩B@record{}) A≡B
+    with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+           (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+  … | PE.refl = record
+    { ⇒*Quot′   = ⊩A.⇒*Quot
+    ; Quot≅Quot = ≅-sym Quot≅Quot
+    ; Data≡Data = λ ⊢ρ → symEq (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data ⊢ρ)
+    ; Rel≡Rel   = λ ⊢ρ ⊩t ⊩u →
+        symEq (⊩A.⊩Rel _ _ _) (⊩B.⊩Rel _ _ _)
+          (Rel≡Rel ⊢ρ
+             (convTerm₂ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _) ⊩t)
+             (convTerm₂ (⊩A.⊩Data _) (⊩B.⊩Data _) (Data≡Data _) ⊩u))
+    }
+    where
+    module ⊩A = _⊩ₗQuot_ ⊩A
+    module ⊩B = _⊩ₗQuot_ ⊩B
+    open _⊩ₗQuot_≡_/_ A≡B
 
   symEqTerm (Levelᵣ D) t≡u = symLevel t≡u
   symEqTerm (Liftᵣ′ D [k] [F]) (Liftₜ₌ _ _ t↘ u↘ t≡u) =
@@ -190,30 +207,30 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
   symEqTerm (Bᵣ′ BΠ! F G D A≡A [F] [G] G-ext _)
     (Πₜ₌ f g d d′ funcF funcG f≡g [f≡g]) =
     Πₜ₌ g f d′ d funcG funcF (≅ₜ-sym f≡g)
-        (λ ξ⊇ ρ ⊩v ⊩w v≡w →
-           let w≡v = symEqTerm ([F] ξ⊇ ρ) v≡w in
-           convEqTerm₁ ([G] ξ⊇ ρ ⊩w) ([G] ξ⊇ ρ ⊩v)
-             (G-ext ξ⊇ ρ ⊩w ⊩v w≡v) $
-           symEqTerm ([G] ξ⊇ ρ ⊩w) ([f≡g] ξ⊇ ρ ⊩w ⊩v w≡v))
+        (λ ρ ⊩v ⊩w v≡w →
+           let w≡v = symEqTerm ([F] ρ) v≡w in
+           convEqTerm₁ ([G] ρ ⊩w) ([G] ρ ⊩v)
+             (G-ext ρ ⊩w ⊩v w≡v) $
+           symEqTerm ([G] ρ ⊩w) ([f≡g] ρ ⊩w ⊩v w≡v))
   symEqTerm (Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _)
     (Σₜ₌ p r d d′ pProd rProd p≅r ([fstp] , [fstr] , [fst≡] , [snd≡])) =
-    let [Gfstp≡Gfstr] = G-ext _ _ [fstp] [fstr] [fst≡]
+    let [Gfstp≡Gfstr] = G-ext _ [fstp] [fstr] [fst≡]
     in  Σₜ₌ r p d′ d rProd pProd (≅ₜ-sym p≅r)
-            ([fstr] , [fstp] , (symEqTerm ([F] _ _) [fst≡]) ,
-            convEqTerm₁ ([G] _ _ [fstp]) ([G] _ _ [fstr]) [Gfstp≡Gfstr]
-              (symEqTerm ([G] _ _ [fstp]) [snd≡]))
+            ([fstr] , [fstp] , (symEqTerm ([F] _) [fst≡]) ,
+            convEqTerm₁ ([G] _ [fstp]) ([G] _ [fstr]) [Gfstp≡Gfstr]
+              (symEqTerm ([G] _ [fstp]) [snd≡]))
   symEqTerm
     (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
     (Σₜ₌ p r d d′ prodₙ prodₙ p≅r
       (PE.refl , PE.refl , PE.refl , PE.refl ,
         [p₁] , [r₁] , [fst≡] , [snd≡])) =
-    let [Gfstp≡Gfstr] = G-ext _ _ [p₁] [r₁] [fst≡]
+    let [Gfstp≡Gfstr] = G-ext _ [p₁] [r₁] [fst≡]
     in  Σₜ₌ r p d′ d prodₙ prodₙ (≅ₜ-sym p≅r)
           (PE.refl , PE.refl , PE.refl , PE.refl ,
           [r₁] , [p₁] ,
-          symEqTerm ([F] _ _) [fst≡] ,
-          convEqTerm₁ ([G] _ _ [p₁]) ([G] _ _ [r₁]) [Gfstp≡Gfstr]
-            (symEqTerm ([G] _ _ [p₁]) [snd≡]))
+          symEqTerm ([F] _) [fst≡] ,
+          convEqTerm₁ ([G] _ [p₁]) ([G] _ [r₁]) [Gfstp≡Gfstr]
+            (symEqTerm ([G] _ [p₁]) [snd≡]))
   symEqTerm (Bᵣ′ BΣʷ F G D A≡A [F] [G] G-ext _)
     (Σₜ₌ p r d d′ (ne x) (ne y) p≅r p~r) =
     Σₜ₌ r p d′ d (ne y) (ne x) (≅ₜ-sym p≅r) (~-sym p~r)
@@ -229,6 +246,20 @@ private module Sym (l : Universe-level) (rec : ∀ {l′} → l′ <ᵘ l → Sy
     Uₜ₌ B A d′ d typeB typeA (≅ₜ-sym A≡B) [u] [t] $
       ⊩<≡⇔⊩≡ k< .proj₂ $ Rec.symEq k<
         (⊩<⇔⊩ k< .proj₁ [t]) (⊩<⇔⊩ k< .proj₁ [u]) (⊩<≡⇔⊩≡ k< .proj₁ [t≡u])
+  symEqTerm (Quot ⊩A) t≡u@(_ , _ , ⇒*t′ , ⇒*u′ , t′-q , u′-q , _) =
+    _ , _ , ⇒*u′ , ⇒*t′ , u′-q , t′-q ,
+    Quot-view-inhabited⁻¹′ ⊩A ⇒*u′ ⇒*t′ u′-q t′-q
+      (case Quot-view-inhabited ⊩A t≡u of λ where
+         (equal t″≡u″) →
+           equal $
+           irrelevanceEqTerm (⊩Data _) (⊩Data _)
+             (symEqTerm (⊩Data _) t″≡u″)
+         (related ok rel) →
+           related ok (irrelevance-⊩Quot-related ⊩A ⊩A (symˢᵗ rel))
+         (ne t′-n u′-n t′~u′) →
+           ne u′-n t′-n (~-sym t′~u′))
+    where
+    open _⊩ₗQuot_ ⊩A
 
 private opaque
   symKit : ∀ l → SymKit l

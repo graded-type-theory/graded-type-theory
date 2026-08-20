@@ -75,6 +75,13 @@ mutual
     Σ.map Kₙᵃ Kₙᵃ (ne~↓ v₁~v₂ .proj₂)
   ne~↑ ([]-cong-cong _ _ _ _ v₁~v₂ _ _) =
     Σ.map []-congₙᵃ []-congₙᵃ (ne~↓ v₁~v₂ .proj₂)
+  ne~↑ (resp-cong ok _ _ _ _ _) =
+    respᵃ ok , respᵃ ok
+  ne~↑ (set-cong ok _ _ _ _ _ _) =
+    setᵃ ok , setᵃ ok
+  ne~↑ (qrec-cong _ _ _ _ w₁~w₂) =
+    let _ , w₁-n , w₂-n = ne~↓ w₁~w₂ in
+    qrecᵃ w₁-n , qrecᵃ w₂-n
 
   -- If Γ ⊢ t ~ u ↓ A holds, then t and u are atomic neutral and A is
   -- in WHNF.
@@ -102,6 +109,7 @@ whnfConv↓ (ne x) = let _ , neA , neB = ne~↓ x
                    in  ne! neA , ne! neB
 whnfConv↓ (ΠΣ-cong _ _ _) = ΠΣₙ , ΠΣₙ
 whnfConv↓ (Id-cong _ _ _) = Idₙ , Idₙ
+whnfConv↓ (Quot-cong _ _ _) = Quot , Quot
 
 whnfConv~ᵛ : ∀ {t v}
            → ∇ » Γ ⊢ t ~ᵛ v
@@ -149,3 +157,7 @@ whnfConv↓Term (Id-ins _ v₁~v₂) =
   Idₙ , Σ.map ne! ne! (ne~↓ v₁~v₂ .proj₂)
 whnfConv↓Term (rfl-refl _) =
   Idₙ , rflₙ , rflₙ
+whnfConv↓Term (Quot-ins _ t₁~t₂) =
+  Quot , Σ.map ne! ne! (ne~↓ t₁~t₂ .proj₂)
+whnfConv↓Term (class-cong _ _) =
+  Quot , class , class

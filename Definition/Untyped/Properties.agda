@@ -34,7 +34,8 @@ private
     Γ : Con Term _
     Δ : Cons _ _
     φ : Unfolding _
-    A A₁ A₂ B₁ B₂ E F G H l l′ l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ w w₁ w₂ :
+    A A₁ A₂ B B₁ B₂ C C₁ C₂ D E F G H
+      l l′ l₁ l₂ t t₁ t₂ u u₁ u₂ v v₁ v₂ v₃ w w₁ w₂ :
       Term[ _ ] _
     k : Term-kind
     ts₁ ts₂ : Args _ _
@@ -45,6 +46,7 @@ private
     s s₁ s₂ : Strength
     b₁ b₂ : BinderMode
     f : 𝕋 → 𝕌
+    𝓙 : Judgement _
 
 ------------------------------------------------------------------------
 -- Properties of definition contexts
@@ -317,6 +319,20 @@ opaque
   toTerm∘fromTerm ([]-cong s l A t u v) =
     cong₅ ([]-cong s) (toTerm∘fromTerm l) (toTerm∘fromTerm A)
       (toTerm∘fromTerm t) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+  toTerm∘fromTerm (Quot A B) =
+    cong₂ Quot (toTerm∘fromTerm A) (toTerm∘fromTerm B)
+  toTerm∘fromTerm (class t) =
+    cong class (toTerm∘fromTerm t)
+  toTerm∘fromTerm (resp A B t u v) =
+    cong₅ resp (toTerm∘fromTerm A) (toTerm∘fromTerm B)
+      (toTerm∘fromTerm t) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+  toTerm∘fromTerm (set A B t u v w) =
+    cong₆ set (toTerm∘fromTerm A) (toTerm∘fromTerm B)
+      (toTerm∘fromTerm t) (toTerm∘fromTerm u) (toTerm∘fromTerm v)
+      (toTerm∘fromTerm w)
+  toTerm∘fromTerm (qrec C t u v w) =
+    cong₅ qrec (toTerm∘fromTerm C) (toTerm∘fromTerm t)
+      (toTerm∘fromTerm u) (toTerm∘fromTerm v) (toTerm∘fromTerm w)
 
 opaque
 
@@ -407,6 +423,23 @@ opaque
       (λ l A t u v → con ([]-congᵏ s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
       (fromTerm∘toTerm l) (fromTerm∘toTerm A) (fromTerm∘toTerm t)
       (fromTerm∘toTerm u) (fromTerm∘toTerm v)
+  fromTerm∘toTerm (con Quotᵏ (A ∷ₜ B ∷ₜ [])) =
+    cong₂ (λ A B → con Quotᵏ (A ∷ₜ B ∷ₜ [])) (fromTerm∘toTerm A)
+      (fromTerm∘toTerm B)
+  fromTerm∘toTerm (con classᵏ (t ∷ₜ [])) =
+    cong (λ t → con classᵏ (t ∷ₜ [])) (fromTerm∘toTerm t)
+  fromTerm∘toTerm (con respᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+    cong₅ (λ A B t u v → con respᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm B) (fromTerm∘toTerm t)
+      (fromTerm∘toTerm u) (fromTerm∘toTerm v)
+  fromTerm∘toTerm (con setᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])) =
+    cong₆ (λ A B t u v w → con setᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ []))
+      (fromTerm∘toTerm A) (fromTerm∘toTerm B) (fromTerm∘toTerm t)
+      (fromTerm∘toTerm u) (fromTerm∘toTerm v) (fromTerm∘toTerm w)
+  fromTerm∘toTerm (con qrecᵏ (C ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])) =
+    cong₅ (λ C t u v w → con qrecᵏ (C ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ []))
+      (fromTerm∘toTerm C) (fromTerm∘toTerm t) (fromTerm∘toTerm u)
+      (fromTerm∘toTerm v) (fromTerm∘toTerm w)
 
 opaque
 
@@ -490,6 +523,14 @@ Id≢ΠΣ : ∀ b → Id A t u PE.≢ ΠΣ⟨ b ⟩ p , q ▷ F ▹ G
 Id≢ΠΣ BMΠ     ()
 Id≢ΠΣ (BMΣ _) ()
 
+Quot≢⟦⟧▷ : ∀ W → Quot A B PE.≢ ⟦ W ⟧ C ▹ D
+Quot≢⟦⟧▷ (BΠ _ _)   ()
+Quot≢⟦⟧▷ (BΣ _ _ _) ()
+
+Quot≢ΠΣ : ∀ b → Quot A B PE.≢ ΠΣ⟨ b ⟩ p , q ▷ C ▹ D
+Quot≢ΠΣ BMΠ     ()
+Quot≢ΠΣ (BMΣ _) ()
+
 Π≢Σ : ∀ {m} → Π p₁ , q₁ ▷ F ▹ G PE.≢ Σ⟨ m ⟩ p₂ , q₂ ▷ H ▹ E
 Π≢Σ ()
 
@@ -550,6 +591,17 @@ opaque
   wk≡wk′ ([]-cong _ l A t u v) =
     cong₅ []-cong! (wk≡wk′ l) (wk≡wk′ A) (wk≡wk′ t) (wk≡wk′ u)
       (wk≡wk′ v)
+  wk≡wk′ (Quot A B) =
+    cong₂ Quot (wk≡wk′ A) (wk≡wk′ B)
+  wk≡wk′ (class t) =
+    cong class (wk≡wk′ t)
+  wk≡wk′ (resp A B t u v) =
+    cong₅ resp (wk≡wk′ A) (wk≡wk′ B) (wk≡wk′ t) (wk≡wk′ u) (wk≡wk′ v)
+  wk≡wk′ (set A B t u v w) =
+    cong₆ set (wk≡wk′ A) (wk≡wk′ B) (wk≡wk′ t) (wk≡wk′ u) (wk≡wk′ v)
+      (wk≡wk′ w)
+  wk≡wk′ (qrec C t u v w) =
+    cong₅ qrec (wk≡wk′ C) (wk≡wk′ t) (wk≡wk′ u) (wk≡wk′ v) (wk≡wk′ w)
 
 opaque mutual
 
@@ -611,10 +663,20 @@ opaque
     toTerm (fromTerm t)          ≡⟨ toTerm∘fromTerm _ ⟩
     t                            ∎
 
+opaque
+
+  -- The weakening liftn id m is also an identity.
+
+  wk-liftn-id : ∀ m (t : Term[ k ] (m + n)) → wk (liftn id m) t ≡ t
+  wk-liftn-id m t =
+    wk (liftn id m) t  ≡⟨ wkVar-to-wk (wkVar-lifts-id _) t ⟩
+    wk id t            ≡⟨ wk-id _ ⟩
+    t                  ∎
+
 -- lift id  is also the identity renaming.
 
 wk-lift-id : (t : Term[ k ] (1+ n)) → wk (lift id) t ≡ t
-wk-lift-id t = trans (wkVar-to-wk wkVar-lift-id t) (wk-id t)
+wk-lift-id = wk-liftn-id _
 
 opaque mutual
 
@@ -784,6 +846,19 @@ opaque
   subst≡subst′ ([]-cong _ l A t u v) =
     cong₅ []-cong! (subst≡subst′ l) (subst≡subst′ A) (subst≡subst′ t)
       (subst≡subst′ u) (subst≡subst′ v)
+  subst≡subst′ (Quot A B) =
+    cong₂ Quot (subst≡subst′ A) (subst≡subst′ B)
+  subst≡subst′ (class t) =
+    cong class (subst≡subst′ t)
+  subst≡subst′ (resp A B t u v) =
+    cong₅ resp (subst≡subst′ A) (subst≡subst′ B) (subst≡subst′ t)
+      (subst≡subst′ u) (subst≡subst′ v)
+  subst≡subst′ (set A B t u v w) =
+    cong₆ set (subst≡subst′ A) (subst≡subst′ B) (subst≡subst′ t)
+      (subst≡subst′ u) (subst≡subst′ v) (subst≡subst′ w)
+  subst≡subst′ (qrec C t u v w) =
+    cong₅ qrec (subst≡subst′ C) (subst≡subst′ t) (subst≡subst′ u)
+      (subst≡subst′ v) (subst≡subst′ w)
 
 -- Two substitutions σ and σ′ are equal if they are pointwise equal,
 -- i.e., agree on all variables.
@@ -1990,6 +2065,54 @@ opaque
     σ₊ = consSubst (consSubst σ u) v
 
 ------------------------------------------------------------------------
+-- Some lemmas related to subst
+
+opaque
+
+  -- One can push subst into _[_].
+
+  push-subst-[] :
+    ∀ t → subst Term[ k ] eq (t [ σ ]) ≡ t [ subst Term eq ∘→ σ ]
+  push-subst-[] {eq = refl} _ = refl
+
+opaque
+
+  -- A rearrangement lemma related to subst, cong and wk1.
+
+  subst-cong-1+-wk1 :
+    (eq : m ≡ n) →
+    subst Term[ k ] (cong 1+ eq) (wk1 t) ≡
+    wk1 (subst Term[ k ] eq t)
+  subst-cong-1+-wk1 refl = refl
+
+opaque
+
+  -- A rearrangement lemma related to Fin and x0.
+
+  subst-Fin-x0 :
+    (eq : 1+ m ≡ 1+ n) →
+    subst Fin eq x0 ≡ x0
+  subst-Fin-x0 refl = refl
+
+opaque
+
+  -- A rearrangement lemma related to Fin and _+1.
+
+  subst-Fin-+1 :
+    (eq : m ≡ n) →
+    subst Fin (cong 1+ eq) (x +1) ≡ subst Fin eq x +1
+  subst-Fin-+1 refl = refl
+
+opaque
+
+  -- A rearrangement lemma related to Term and var x0.
+
+  subst-Term-var-x0 :
+    (eq : 1+ m ≡ 1+ n) →
+    subst Term eq (var x0) ≡ var x0
+  subst-Term-var-x0 refl = refl
+
+------------------------------------------------------------------------
 -- Some lemmas related to wk[_], wk[_]′ and wkSubst
 
 opaque
@@ -2041,6 +2164,27 @@ opaque
 
 opaque
 
+  -- A lemma relating wk[_]′ and wkSubst.
+
+  wk[]′≡wkSubst : ∀ n x → wk[ n ]′ (σ x) ≡ wkSubst n σ x
+  wk[]′≡wkSubst {σ} n x =
+    wk[ n ]′ (σ x)  ≡˘⟨ wk[]≡wk[]′ ⟩
+    wk[ n ] (σ x)   ≡⟨ wk[]≡wkSubst n _ ⟩
+    wkSubst n σ x   ∎
+
+opaque
+
+  -- One can express wkSubst using composition in another way.
+
+  wkSubst-as-composition :
+    ∀ n x → wkSubst n σ x ≡ (toSubst (stepn id n) ₛ•ₛ σ) x
+  wkSubst-as-composition {σ} n x =
+    wkSubst n σ x                 ≡˘⟨ wk[]′≡wkSubst n _ ⟩
+    wk[ n ]′ (σ x)                ≡⟨ wk≡subst _ _ ⟩
+    σ x [ toSubst (stepn id n) ]  ∎
+
+opaque
+
   -- A composition lemma for wkSubst.
 
   wkSubst-idSubst-ₛ•ₛ :
@@ -2060,14 +2204,9 @@ opaque
     wkSubst m (wkSubst n σ) x
   wkSubst-comp             0      _ = refl
   wkSubst-comp {n} {o} {σ} (1+ m) x =
-    subst Term (cong 1+ (+-assoc m n o)) (wk1 (wkSubst (m + n) σ x))  ≡⟨ lemma {eq = +-assoc m _ _} ⟩
+    subst Term (cong 1+ (+-assoc m n o)) (wk1 (wkSubst (m + n) σ x))  ≡⟨ subst-cong-1+-wk1 (+-assoc m _ _) ⟩
     wk1 (subst Term (+-assoc m n o) (wkSubst (m + n) σ x))            ≡⟨ cong wk1 $ wkSubst-comp m _ ⟩
     wk1 (wkSubst m (wkSubst n σ) x)                                   ∎
-    where
-    lemma :
-      subst Term (cong 1+ eq) (wk1 t) ≡
-      wk1 (subst Term eq t)
-    lemma {eq = refl} = refl
 
 opaque
 
@@ -2079,17 +2218,13 @@ opaque
     wk[ m ] (wk[ n ] t)
   wk[]-comp {k} {n} {o} {t} m =
     subst Term[ k ] (+-assoc m n o) (wk[ m + n ] t)                  ≡⟨ cong (subst _ _) $ wk[]≡[] (m + _) ⟩
-    subst Term[ k ] (+-assoc m n o) (t [ wkSubst (m + n) idSubst ])  ≡⟨ lemma t ⟩
+    subst Term[ k ] (+-assoc m n o) (t [ wkSubst (m + n) idSubst ])  ≡⟨ push-subst-[] t ⟩
     t [ subst Term (+-assoc m n o) ∘→ wkSubst (m + n) idSubst ]      ≡⟨ flip substVar-to-subst t $ wkSubst-comp m ⟩
     t [ wkSubst m (wkSubst n idSubst) ]                              ≡˘⟨ flip substVar-to-subst t $ wkSubst-idSubst-ₛ•ₛ m ⟩
     t [ wkSubst m idSubst ₛ•ₛ wkSubst n idSubst ]                    ≡˘⟨ substCompEq t ⟩
     t [ wkSubst n idSubst ] [ wkSubst m idSubst ]                    ≡˘⟨ wk[]≡[] m ⟩
     wk[ m ] (t [ wkSubst n idSubst ])                                ≡˘⟨ cong wk[ m ] $ wk[]≡[] n ⟩
     wk[ m ] (wk[ n ] t)                                              ∎
-    where
-    lemma :
-      ∀ t → subst Term[ k ] eq (t [ σ ]) ≡ t [ subst Term eq ∘→ σ ]
-    lemma {eq = refl} _ = refl
 
 opaque
 
@@ -2132,15 +2267,113 @@ opaque
 
 opaque
 
+  -- A lemma related to liftn, _⇑[_] and _ₛ•_.
+
+  wk-liftn-[⇑] :
+    ∀ m (t : Term[ k ] (m + o)) →
+    wk (liftn ρ m) t [ σ ⇑[ m ] ] ≡
+    t [ (σ ₛ• ρ) ⇑[ m ] ]
+  wk-liftn-[⇑] {ρ} {σ} m t =
+    wk (liftn ρ m) t [ σ ⇑[ m ] ]  ≡⟨ subst-wk t ⟩
+    t [ (σ ⇑[ m ]) ₛ• liftn ρ m ]  ≡⟨ substVar-to-subst (lemma m) t ⟩
+    t [ (σ ₛ• ρ) ⇑[ m ] ]          ∎
+    where
+    lemma : ∀ m x → ((σ ⇑[ m ]) ₛ• liftn ρ m) x ≡ ((σ ₛ• ρ) ⇑[ m ]) x
+    lemma 0      _      = refl
+    lemma (1+ _) x0     = refl
+    lemma (1+ m) (x +1) = cong wk1 (lemma m x)
+
+opaque
+
+  -- A lemma related to liftn, stepn, wkSubst and _⇑[_].
+
+  wk-liftn-stepn-[⇑]₁ :
+    ∀ m (t : Term[ k ] (m + o)) →
+    wk (liftn (stepn id n) m) (t [ σ ⇑[ m ] ]) ≡
+    t [ wkSubst n σ ⇑[ m ] ]
+  wk-liftn-stepn-[⇑]₁ {n} m t =
+    trans (wk-liftn m) $
+    trans (substCompEq t) $
+    flip substVar-to-subst t λ x →
+    trans (substCompLifts m x) $
+    substVar-lifts (sym ∘→ wkSubst-as-composition n) m x
+
+private opaque
+
+  -- A lemma used to prove wk-liftn-stepn-[⇑]₂.
+
+  wk-liftn-stepn-[⇑]₂-lemma :
+    ∀ {o₁ o₂} {σ : Subst o₁ o₂} m →
+    let cast₁ = PE.subst Fin (sym (+-assoc m n o₂))
+        cast₂ = PE.subst Term (sym (+-assoc m n o₁))
+    in
+    ∀ x →
+    ((σ ⇑[ m + n ] ∘→ cast₁) ₛ• liftn (stepn id n) m) x ≡
+    (cast₂ ∘→ wkSubst n σ ⇑[ m ]) x
+  wk-liftn-stepn-[⇑]₂-lemma {n = 0} 0 _ = refl
+  wk-liftn-stepn-[⇑]₂-lemma {n = 1+ n} {σ} 0 x =
+    wk1 ((σ ⇑[ n ]) (wkVar (stepn id n) x))  ≡⟨ cong wk1 (wk-liftn-stepn-[⇑]₂-lemma {n = n} 0 x) ⟩
+    wk1 (wkSubst n σ x)                      ∎
+  wk-liftn-stepn-[⇑]₂-lemma {n} {σ} (1+ m) x0 =
+    (σ ⇑[ m + n ] ⇑) (subst Fin (sym (+-assoc (1+ m) _ _)) x0)  ≡⟨ cong (_ ⇑) (subst-Fin-x0 (sym (+-assoc (1+ m) _ _))) ⟩
+    (σ ⇑[ m + n ] ⇑) x0                                         ≡⟨⟩
+    var x0                                                      ≡˘⟨ subst-Term-var-x0 (sym (+-assoc (1+ m) _ _)) ⟩
+    subst Term (sym (+-assoc (1+ m) _ _)) (var x0)              ∎
+  wk-liftn-stepn-[⇑]₂-lemma {n} {σ} (1+ m) (x +1) =
+    (σ ⇑[ m + n ] ⇑)
+      (subst Fin (sym (cong 1+ (+-assoc m _ _)))
+         (wkVar (liftn (stepn id n) m) x +1))                             ≡˘⟨ cong (_ ⇑) (cong (flip (subst _) _) (cong-sym (+-assoc m _ _))) ⟩
+
+    (σ ⇑[ m + n ] ⇑)
+      (subst Fin (cong 1+ (sym (+-assoc m _ _)))
+         (wkVar (liftn (stepn id n) m) x +1))                             ≡⟨ cong (_ ⇑) (subst-Fin-+1 (sym (+-assoc m _ _))) ⟩
+
+    (σ ⇑[ m + n ] ⇑)
+      (subst Fin (sym (+-assoc m _ _))
+         (wkVar (liftn (stepn id n) m) x) +1)                             ≡⟨⟩
+
+    wk1
+      ((σ ⇑[ m + n ])
+         (subst Fin (sym (+-assoc m _ _))
+            ((wkVar (liftn (stepn id n) m) x))))                          ≡⟨ cong wk1 (wk-liftn-stepn-[⇑]₂-lemma m x) ⟩
+
+    wk1 (subst Term (sym (+-assoc m _ _)) ((wkSubst n σ ⇑[ m ]) x))       ≡˘⟨ subst-cong-1+-wk1 (sym (+-assoc m _ _)) ⟩
+
+    subst Term (cong 1+ (sym (+-assoc m _ _)))
+      (wk1 ((wkSubst n σ ⇑[ m ]) x))                                      ≡⟨ cong (flip (subst _) _) (cong-sym (+-assoc m _ _)) ⟩
+
+    subst Term (sym (+-assoc (1+ m) _ _)) (wk1 ((wkSubst n σ ⇑[ m ]) x))  ∎
+
+opaque
+
+  -- A generalisation of wk[]′-[⇑] (which is defined below).
+
+  wk-liftn-stepn-[⇑]₂ :
+    ∀ {o₁ o₂} {σ : Subst o₁ o₂} m →
+    let cast₁ = PE.subst Fin (sym (+-assoc m n o₂))
+        cast₂ = PE.subst Term[ k ] (sym (+-assoc m n o₁))
+    in
+    (t : Term[ k ] (m + o₂)) →
+    wk (liftn (stepn id n) m) t [ σ ⇑[ m + n ] ∘→ cast₁ ] ≡
+    cast₂ (wk (liftn (stepn id n) m) (t [ σ ⇑[ m ] ]))
+  wk-liftn-stepn-[⇑]₂ {n} {σ} m t =
+    let cast₁ = PE.subst Fin (sym (+-assoc m _ _))
+        cast₂ = PE.subst Term[ _ ] (sym (+-assoc m _ _))
+        cast₃ = PE.subst Term (sym (+-assoc m _ _))
+    in
+    wk (liftn (stepn id n) m) t [ σ ⇑[ m + n ] ∘→ cast₁ ]  ≡⟨ subst-wk t ⟩
+    t [ (σ ⇑[ m + n ] ∘→ cast₁) ₛ• liftn (stepn id n) m ]  ≡⟨ substVar-to-subst (wk-liftn-stepn-[⇑]₂-lemma m) t ⟩
+    t [ cast₃ ∘→ wkSubst n σ ⇑[ m ] ]                      ≡˘⟨ push-subst-[] t ⟩
+    cast₂ (t [ wkSubst n σ ⇑[ m ] ])                       ≡˘⟨ cong cast₂ (wk-liftn-stepn-[⇑]₁ m t) ⟩
+    cast₂ (wk (liftn (stepn id n) m) (t [ σ ⇑[ m ] ]))     ∎
+
+opaque
+
   -- A lemma relating wk[_]′, _[_] and _⇑[_].
 
   wk[]′-[⇑] :
     (t : Term[ k ] m) → wk[ n ]′ t [ σ ⇑[ n ] ] ≡ wk[ n ]′ (t [ σ ])
-  wk[]′-[⇑] {n} {σ} t =
-    wk[ n ]′ t [ σ ⇑[ n ] ]  ≡˘⟨ cong _[ _ ] $ wk[]≡wk[]′ {t = t} ⟩
-    wk[ n ] t [ σ ⇑[ n ] ]   ≡⟨ wk[]-⇑[] n ⟩
-    wk[ n ] (t [ σ ])        ≡⟨ wk[]≡wk[]′ ⟩
-    wk[ n ]′ (t [ σ ])       ∎
+  wk[]′-[⇑] = wk-liftn-stepn-[⇑]₂ 0
 
 opaque
 
@@ -2220,6 +2453,28 @@ opaque
 
 opaque
 
+  -- A generalisation of wk1-tail and wk2-tail.
+
+  wk[]-tail :
+    ∀ n {σ : Subst m (n + o)} → wk[ n ] t [ σ ] ≡ t [ tail[ n ] σ ]
+  wk[]-tail     0          = PE.refl
+  wk[]-tail {t} (1+ n) {σ} =
+    wk1 (wk[ n ] t) [ σ ]     ≡⟨ wk1-tail (wk[ n ] _) ⟩
+    wk[ n ] t [ tail σ ]      ≡⟨ wk[]-tail n ⟩
+    t [ tail[ n ] (tail σ) ]  ∎
+
+opaque
+
+  -- A variant of wk[]-tail.
+
+  wk[]′-tail : (t : Term[ k ] m) → wk[ n ]′ t [ σ ] ≡ t [ tail[ n ] σ ]
+  wk[]′-tail {n} {σ} t =
+    wk[ n ]′ t [ σ ]   ≡˘⟨ PE.cong _[ _ ] (wk[]≡wk[]′ {t = t}) ⟩
+    wk[ n ] t [ σ ]    ≡⟨ wk[]-tail n ⟩
+    t [ tail[ n ] σ ]  ∎
+
+opaque
+
   -- One can combine wk (lift (step id)) and wk[ 1+ k ]′.
 
   wk-lift-step-id-wk[1+]′≡ :
@@ -2233,6 +2488,16 @@ opaque
 
 opaque
 
+  -- A simplification lemma.
+
+  wk[]′-wk : wk[ n ]′ (wk ρ t) ≡ wk (stepn ρ n) t
+  wk[]′-wk {n} {ρ} {t} =
+    wk[ n ]′ (wk ρ t)      ≡⟨ wk-comp _ _ _ ⟩
+    wk (stepn id n • ρ) t  ≡⟨ cong (flip wk _) (stepn-id-• n) ⟩
+    wk (stepn ρ n) t       ∎
+
+opaque
+
   -- The function wk[ n ]′ commutes, in a certain sense, with
   -- weakening.
 
@@ -2241,9 +2506,54 @@ opaque
   wk⇑[]-wk[]≡ {ρ} {t} n =
     wk (liftn ρ n) (wk[ n ]′ t)    ≡⟨ wk-comp _ _ _ ⟩
     wk (liftn ρ n • stepn id n) t  ≡˘⟨ cong (flip wk _) (liftn-stepn-comp n) ⟩
-    wk (stepn ρ n) t               ≡˘⟨ cong (flip wk _) (stepn-id-• n) ⟩
-    wk (stepn id n • ρ) t          ≡˘⟨ wk-comp _ _ _ ⟩
+    wk (stepn ρ n) t               ≡˘⟨ wk[]′-wk ⟩
     wk[ n ]′ (wk ρ t)              ∎
+
+------------------------------------------------------------------------
+-- More lemmas
+
+opaque
+
+  -- A variant of singleSubstWkComp.
+
+  doubleSubstWkComp :
+    (t : Term[ k ] (2+ n)) →
+    wk (liftn ρ 2) (t [ σ ⇑[ 2 ] ]) [ u , v ]₁₀ ≡
+    t [ consSubst (consSubst (ρ •ₛ σ) u) v ]
+  doubleSubstWkComp {ρ} {σ} {u} {v} t =
+    wk (liftn ρ 2) (t [ σ ⇑[ 2 ] ]) [ u , v ]₁₀                  ≡⟨ cong _[ _ , _ ]₁₀ (wk-subst t) ⟩
+    t [ liftn ρ 2 •ₛ (σ ⇑[ 2 ]) ] [ u , v ]₁₀                    ≡⟨ substCompEq t ⟩
+    t [ consSubst (sgSubst u) v ₛ•ₛ (liftn ρ 2 •ₛ (σ ⇑[ 2 ])) ]  ≡⟨ (flip substVar-to-subst t λ {
+                                                                       x0        → refl;
+                                                                       (x0 +1)   → refl;
+                                                                       (x +1 +1) →
+      wk (liftn ρ 2) (wk[ 2 ] (σ x)) [ u , v ]₁₀                         ≡⟨ cong _[ _ , _ ]₁₀ (cong (wk _) (wk[]≡wk[]′ {t = σ _})) ⟩
+      wk (liftn ρ 2) (wk[ 2 ]′ (σ x)) [ u , v ]₁₀                        ≡⟨ cong _[ _ , _ ]₁₀ (wk⇑[]-wk[]≡ {t = σ _} _) ⟩
+      wk[ 2 ]′ (wk ρ (σ x)) [ u , v ]₁₀                                  ≡⟨ wk₂-[,] ⟩
+      wk ρ (σ x)                                                         ∎ }) ⟩
+    t [ consSubst (consSubst (ρ •ₛ σ) u) v ]                     ∎
+
+opaque
+
+  -- A variant of singleSubstComp and doubleSubstComp.
+
+  tripleSubstComp :
+    (t : Term (3+ n)) →
+    t [ σ ⇑[ 3 ] ] [ u , v , w ]₂₁₀ PE.≡
+    t [ consSubst (consSubst (consSubst σ u) v) w ]
+  tripleSubstComp {σ} {u} {v} {w} t =
+    t [ σ ⇑[ 3 ] ] [ u , v , w ]₂₁₀                                ≡⟨ substCompEq t ⟩
+    t [ consSubst (consSubst (sgSubst u) v) w ₛ•ₛ (σ ⇑[ 3 ]) ]     ≡⟨ (flip substVar-to-subst t λ where
+                                                                         x0           → PE.refl
+                                                                         (x0 +1)      → PE.refl
+                                                                         (x0 +1 +1)   → PE.refl
+                                                                         (_ +1 +1 +1) → wk[]-tail {t = σ _} 3) ⟩
+    t [ consSubst (consSubst (consSubst (idSubst ₛ•ₛ σ) u) v) w ]  ≡⟨ flip substVar-to-subst t $
+                                                                      consSubst-cong PE.refl $
+                                                                      consSubst-cong PE.refl $
+                                                                      consSubst-cong PE.refl $
+                                                                      idSubst-ₛ•ₛˡ ⟩
+    t [ consSubst (consSubst (consSubst σ u) v) w ]                ∎
 
 ------------------------------------------------------------------------
 -- Some lemmas related to _[_][_]↑
@@ -2290,6 +2600,15 @@ private
     t [ 2 ][ u ]↑ [ v , w ]₁₀ ≡ t [ u [ v , w ]₁₀ ]₀
   _ = [][]↑-[] 2
 
+private
+
+  -- An example of how [][]↑-[] can be used.
+
+  _ :
+    (t : Term[ k ] (1+ n)) →
+    t [ u ]↑ [ m ][ v ]↑ ≡ t [ m ][ u [ m ][ v ]↑ ]↑
+  _ = [][]↑-[] 1
+
 opaque
 
   -- One can express _[_][_]↑ using some other operations.
@@ -2318,6 +2637,26 @@ opaque
                                                     wk[]≡wk[]′ {t = var x}) ⟩
       t [ sgSubst u ₛ• lift (stepn id n) ]  ≡˘⟨ subst-wk t ⟩
       wk (lift (stepn id n)) t [ u ]₀       ∎
+
+opaque
+
+  -- A generalisation of wk-β↑ and wk-β↑².
+
+  wk-liftn-[][]↑ :
+    (t : Term[ k ] (1+ m)) →
+    wk (liftn ρ n) (t [ n ][ u ]↑) ≡
+    wk (lift ρ) t [ n ][ wk (liftn ρ n) u ]↑
+  wk-liftn-[][]↑ {ρ} {n} {u} t =
+    wk (liftn ρ n) (t [ n ][ u ]↑)                                     ≡⟨ cong (wk _) ([][]↑≡ t) ⟩
+    wk (liftn ρ n) (wk (lift (stepn id n)) t [ u ]₀)                   ≡⟨ wk-subst (wk _ t) ⟩
+    wk (lift (stepn id n)) t [ liftn ρ n •ₛ sgSubst u ]                ≡⟨ subst-wk t ⟩
+    t [ liftn ρ n •ₛ sgSubst u ₛ• lift (stepn id n) ]                  ≡⟨ (flip substVar-to-subst t λ where
+                                                                             x0     → refl
+                                                                             (_ +1) → wk⇑[]-wk[]≡ n) ⟩
+    t [ sgSubst (wk (liftn ρ n) u) ₛ• lift (stepn id n) ₛ• lift ρ ]    ≡˘⟨ subst-wk t ⟩
+    wk (lift ρ) t [ sgSubst (wk (liftn ρ n) u) ₛ• lift (stepn id n) ]  ≡˘⟨ subst-wk (wk _ t) ⟩
+    wk (lift (stepn id n)) (wk (lift ρ) t) [ wk (liftn ρ n) u ]₀       ≡˘⟨ [][]↑≡ (wk _ t) ⟩
+    wk (lift ρ) t [ n ][ wk (liftn ρ n) u ]↑                           ∎
 
 opaque
 
@@ -2462,6 +2801,35 @@ opaque
 
   -- A variant of [][]↑-commutes-+.
 
+  [][]↑-[,,⇑] :
+    ∀ ℓ {u} (t : Term[ k ] (1+ n)) →
+    let cast =
+          subst₂ Subst (sym $ +-assoc ℓ m n) (sym $ +-assoc ℓ (3+ m) n)
+    in
+    t [ ℓ + 3+ m ][ u ]↑
+      [ cast (consSubst (consSubst (sgSubst v₁) v₂) v₃ ⇑[ ℓ ]) ] ≡
+    t [ ℓ + m ][
+        u [ cast (consSubst (consSubst (sgSubst v₁) v₂) v₃ ⇑[ ℓ ]) ] ]↑
+  [][]↑-[,,⇑] {m} {v₁} {v₂} {v₃} _ t =
+    [][]↑-commutes-+ t λ x →
+      wk[ 3+ m ] (var x) [ v₁ , v₂ , v₃ ]₂₁₀  ≡⟨ wk[]-tail {t = wk[ m ] _} 3 ⟩
+      wk[ m ] (var x) [ idSubst ]             ≡⟨ subst-id _ ⟩
+      wk[ m ] (var x)                         ∎
+
+private opaque
+
+  -- An example of how [][]↑-[,⇑] can be used.
+
+  _ :
+    (t : Term[ k ] (1+ m)) →
+    t [ 3+ n ][ u ]↑ [ v₁ , v₂ , v₃ ]₂₁₀ ≡
+    t [ n ][ u [ v₁ , v₂ , v₃ ]₂₁₀ ]↑
+  _ = [][]↑-[,,⇑] 0
+
+opaque
+
+  -- A variant of [][]↑-commutes-+.
+
   [][]↑-[↑⇑] :
     ∀ ℓ {u} (t : Term[ k ] (1+ n)) →
     let σ    = wk1Subst idSubst
@@ -2562,12 +2930,23 @@ opaque
     wk[ n ] t          ≡⟨ wk[]≡wk[]′ ⟩
     wk[ n ]′ t         ∎
 
+-- A function used to state [+][var]↑.
+
+≡+1++ : ∀ m n o → 1+ m + (n + o) ≡ m + 1+ n + o
+≡+1++ 0      _ _ = refl
+≡+1++ (1+ m) n o = cong 1+ (≡+1++ m n o)
+
 opaque
 
-  -- A lemma related to t [ 1+ n ][ var x0 ]↑.
+  -- A lemma related to expressions of the form
+  -- t [ m + 1+ n ][ var "m" ]↑.
 
-  [1+][0]↑ : t [ 1+ n ][ var x0 ]↑ ≡ wk (lift (stepn id n)) t
-  [1+][0]↑ {t} {n} =
+  [+][var]↑ :
+    ∀ {t : Term[ k ] (1+ o)} m →
+    t [ m + 1+ n ][ subst Term (≡+1++ m n o) (var (fromℕ m)) ]↑ ≡
+    subst Term[ k ] (sym (+-assoc m (1+ n) o))
+      (wk (stepn (lift (stepn id n)) m) t)
+  [+][var]↑ {k} {o} {n} {t} 0 =
     t [ 1+ n ][ var x0 ]↑                             ≡⟨ [][]↑≡ t ⟩
     wk (lift (stepn id (1+ n))) t [ var x0 ]₀         ≡⟨ subst-wk t ⟩
     t [ sgSubst (var x0) ₛ• lift (stepn id (1+ n)) ]  ≡⟨ (flip substVar-to-subst t λ where
@@ -2575,6 +2954,31 @@ opaque
                                                             (_ +1) → refl) ⟩
     t [ toSubst (lift (stepn id n)) ]                 ≡˘⟨ wk≡subst _ _ ⟩
     wk (lift (stepn id n)) t                          ∎
+  [+][var]↑ {k} {o} {n} {t} (1+ m) =
+    t [ 1+ m + 1+ n ][
+        subst Term (cong 1+ (≡+1++ m n o)) (wk1 (var (fromℕ m))) ]↑       ≡⟨ cong (t [ _ ][_]↑) (subst-cong-1+-wk1 (≡+1++ m _ _)) ⟩
+
+    t [ 1+ m + 1+ n ][ wk1 (subst Term (≡+1++ m n o) (var (fromℕ m))) ]↑  ≡˘⟨ wk[]′[][]↑ 1 t ⟩
+
+    wk1
+      (t [ m + 1+ n ][ subst Term (≡+1++ m n o) (var (fromℕ m)) ]↑)       ≡⟨ cong wk1 ([+][var]↑ m) ⟩
+
+    wk1
+      (subst Term[ k ] (sym (+-assoc m (1+ n) o))
+         (wk (stepn (lift (stepn id n)) m) t))                            ≡˘⟨ subst-cong-1+-wk1 (sym (+-assoc m _ _)) ⟩
+
+    subst Term[ k ] (cong 1+ (sym (+-assoc m (1+ n) o)))
+      (wk1 (wk (stepn (lift (stepn id n)) m) t))                          ≡⟨ cong₂ (subst Term[ _ ]) (cong-sym (+-assoc m _ _))
+                                                                              (wk-comp (step id) _ _) ⟩
+    subst Term[ k ] (sym (+-assoc (1+ m) (1+ n) o))
+      (wk (stepn (lift (stepn id n)) (1+ m)) t)                           ∎
+
+opaque
+
+  -- An example of how [+][var]↑ can be used.
+
+  _ : t [ 1+ n ][ var x0 ]↑ ≡ wk (lift (stepn id n)) t
+  _ = [+][var]↑ 0
 
 opaque
 
@@ -2582,9 +2986,32 @@ opaque
 
   [0]↑ : t [ var x0 ]↑ ≡ t
   [0]↑ {t} =
-    t [ var x0 ]↑   ≡⟨ [1+][0]↑ ⟩
+    t [ var x0 ]↑   ≡⟨ [+][var]↑ 0 ⟩
     wk (lift id) t  ≡⟨ wk-lift-id _ ⟩
     t               ∎
+
+opaque
+
+  -- A generalisation of [1]↑².
+
+  [][var]↑ :
+    (t : Term[ k ] (1+ n)) →
+    t [ 1+ m ][ var (fromℕ m) ]↑ ≡
+    subst Term[ k ] (+-suc m n) (wk[ m ]′ t)
+  [][var]↑ {m = 0} t =
+    t [ var x0 ]↑                      ≡⟨ [][]↑≡ t ⟩
+    wk (lift (step id)) t [ var x0 ]₀  ≡⟨ wkSingleSubstId _ ⟩
+    t                                  ≡⟨ wk[]≡wk[]′ ⟩
+    wk[ 0 ]′ t                         ∎
+  [][var]↑ {k} {n} {m = 1+ m} t =
+    t [ 2+ m ][ var (fromℕ m +1) ]↑                           ≡⟨ sym (wk[]′[][]↑ 1 t) ⟩
+    wk1 (t [ 1+ m ][ var (fromℕ m) ]↑)                        ≡⟨ cong wk1 ([][var]↑ t) ⟩
+    wk1 (subst Term[ k ] (+-suc m n) (wk[ m ]′ t))            ≡˘⟨ subst-cong-1+-wk1 (+-suc m _) ⟩
+    subst Term[ k ] (cong 1+ (+-suc m n)) (wk1 (wk[ m ]′ t))  ≡⟨ cong (subst _ (cong _ (+-suc m _))) (wk-comp _ _ _) ⟩
+    subst Term[ k ] (cong 1+ (+-suc m n)) (wk[ 1+ m ]′ t)     ∎
+
+_ : (t : Term[ k ] (1+ n)) → t [ var x1 ]↑² ≡ wk1 t
+_ = [][var]↑
 
 ------------------------------------------------------------------------
 -- Some lemmas related to replace₂
@@ -2707,6 +3134,11 @@ opaque
   isNumeral? (J _ _ _ _ _ _ _ _) = no λ ()
   isNumeral? (K _ _ _ _ _ _) = no λ ()
   isNumeral? ([]-cong! _ _ _ _ _) = no λ ()
+  isNumeral? (Quot _ _) = no λ ()
+  isNumeral? (class _) = no λ ()
+  isNumeral? (resp _ _ _ _ _) = no λ ()
+  isNumeral? (set _ _ _ _ _ _) = no λ ()
+  isNumeral? (qrec _ _ _ _ _) = no λ ()
 
 opaque
 
@@ -2949,6 +3381,39 @@ K-PE-injectivity PE.refl =
 []-cong-PE-injectivity PE.refl =
   PE.refl , PE.refl , PE.refl , PE.refl , PE.refl , PE.refl
 
+-- Quot is injective.
+
+Quot-PE-injectivity :
+  Quot A₁ B₁ ≡ Quot A₂ B₂ →
+  A₁ ≡ A₂ × B₁ ≡ B₂
+Quot-PE-injectivity refl = refl , refl
+
+-- The term former class is injective.
+
+class-PE-injectivity : class t₁ ≡ class t₂ → t₁ ≡ t₂
+class-PE-injectivity refl = refl
+
+-- The term former resp is injective.
+
+resp-PE-injectivity :
+  resp A₁ B₁ t₁ u₁ v₁ ≡ resp A₂ B₂ t₂ u₂ v₂ →
+  A₁ ≡ A₂ × B₁ ≡ B₂ × t₁ ≡ t₂ × u₁ ≡ u₂ × v₁ ≡ v₂
+resp-PE-injectivity refl = refl , refl , refl , refl , refl
+
+-- The term former set is injective.
+
+set-PE-injectivity :
+  set A₁ B₁ t₁ u₁ v₁ w₁ ≡ set A₂ B₂ t₂ u₂ v₂ w₂ →
+  A₁ ≡ A₂ × B₁ ≡ B₂ × t₁ ≡ t₂ × u₁ ≡ u₂ × v₁ ≡ v₂ × w₁ ≡ w₂
+set-PE-injectivity refl = refl , refl , refl , refl , refl , refl
+
+-- The term former qrec is injective.
+
+qrec-PE-injectivity :
+  qrec C₁ t₁ u₁ v₁ w₁ ≡ qrec C₂ t₂ u₂ v₂ w₂ →
+  C₁ ≡ C₂ × t₁ ≡ t₂ × u₁ ≡ u₂ × v₁ ≡ v₂ × w₁ ≡ w₂
+qrec-PE-injectivity refl = refl , refl , refl , refl , refl
+
 ------------------------------------------------------------------------
 -- Properties related to inlining of definitions
 
@@ -3064,6 +3529,19 @@ opaque
   inline-id ([]-cong _ l A t u v) =
     cong₅ ([]-cong _) (inline-id l) (inline-id A) (inline-id t)
       (inline-id u) (inline-id v)
+  inline-id (Quot A B) =
+    cong₂ Quot (inline-id A) (inline-id B)
+  inline-id (class t) =
+    cong class (inline-id t)
+  inline-id (resp A B t u v) =
+    cong₅ resp (inline-id A) (inline-id B) (inline-id t) (inline-id u)
+      (inline-id v)
+  inline-id (set A B t u v w) =
+    cong₆ set (inline-id A) (inline-id B) (inline-id t) (inline-id u)
+      (inline-id v) (inline-id w)
+  inline-id (qrec C t u v w) =
+    cong₅ qrec (inline-id C) (inline-id t) (inline-id u) (inline-id v)
+      (inline-id w)
 
 opaque
   unfolding inline-Con
@@ -3152,6 +3630,19 @@ opaque
   wk-inline ([]-cong _ l A t u v) =
     cong₅ ([]-cong _) (wk-inline l) (wk-inline A) (wk-inline t)
       (wk-inline u) (wk-inline v)
+  wk-inline (Quot A B) =
+    cong₂ Quot (wk-inline A) (wk-inline B)
+  wk-inline (class t) =
+    cong class (wk-inline t)
+  wk-inline (resp A B t u v) =
+    cong₅ resp (wk-inline A) (wk-inline B) (wk-inline t) (wk-inline u)
+      (wk-inline v)
+  wk-inline (set A B t u v w) =
+    cong₆ set (wk-inline A) (wk-inline B) (wk-inline t) (wk-inline u)
+      (wk-inline v) (wk-inline w)
+  wk-inline (qrec C t u v w) =
+    cong₅ qrec (wk-inline C) (wk-inline t) (wk-inline u) (wk-inline v)
+      (wk-inline w)
 
 opaque
   unfolding inline inline-Subst
@@ -3327,6 +3818,19 @@ opaque
   inline-[] ([]-cong _ l A t u v) =
     cong₅ ([]-cong _) (inline-[] l) (inline-[] A) (inline-[] t)
       (inline-[] u) (inline-[] v)
+  inline-[] (Quot A B) =
+    cong₂ Quot (inline-[] A) (inline-[⇑] 2 B)
+  inline-[] (class t) =
+    cong class (inline-[] t)
+  inline-[] (resp A B t u v) =
+    cong₅ resp (inline-[] A) (inline-[⇑] 2 B) (inline-[] t)
+      (inline-[] u) (inline-[] v)
+  inline-[] (set A B t u v w) =
+    cong₆ set (inline-[] A) (inline-[⇑] 2 B) (inline-[] t) (inline-[] u)
+      (inline-[] v) (inline-[] w)
+  inline-[] (qrec C t u v w) =
+    cong₅ qrec (inline-[⇑] 1 C) (inline-[⇑] 1 t) (inline-[⇑] 3 u)
+      (inline-[⇑] 5 v) (inline-[] w)
 
   -- A variant of inline-[].
 
@@ -3531,6 +4035,20 @@ opaque
   inline-glassifyᵉ ([]-cong _ l A t u v) =
     cong₅ ([]-cong _) (inline-glassifyᵉ l) (inline-glassifyᵉ A)
       (inline-glassifyᵉ t) (inline-glassifyᵉ u) (inline-glassifyᵉ v)
+  inline-glassifyᵉ (Quot A B) =
+    cong₂ Quot (inline-glassifyᵉ A) (inline-glassifyᵉ B)
+  inline-glassifyᵉ (class t) =
+    cong class (inline-glassifyᵉ t)
+  inline-glassifyᵉ (resp A B t u v) =
+    cong₅ resp (inline-glassifyᵉ A) (inline-glassifyᵉ B)
+      (inline-glassifyᵉ t) (inline-glassifyᵉ u) (inline-glassifyᵉ v)
+  inline-glassifyᵉ (set A B t u v w) =
+    cong₆ set (inline-glassifyᵉ A) (inline-glassifyᵉ B)
+      (inline-glassifyᵉ t) (inline-glassifyᵉ u) (inline-glassifyᵉ v)
+      (inline-glassifyᵉ w)
+  inline-glassifyᵉ (qrec C t u v w) =
+    cong₅ qrec (inline-glassifyᵉ C) (inline-glassifyᵉ t)
+      (inline-glassifyᵉ u) (inline-glassifyᵉ v) (inline-glassifyᵉ w)
 
 opaque
   unfolding inlineᵈ
@@ -3632,6 +4150,11 @@ opaque
   is-var? (J _ _ _ _ _ _ _ _)     = not-var (λ ())
   is-var? (K _ _ _ _ _ _)         = not-var (λ ())
   is-var? ([]-cong _ _ _ _ _ _)   = not-var (λ ())
+  is-var? (Quot _ _)              = not-var (λ ())
+  is-var? (class _)               = not-var (λ ())
+  is-var? (resp _ _ _ _ _)        = not-var (λ ())
+  is-var? (set _ _ _ _ _ _)       = not-var (λ ())
+  is-var? (qrec _ _ _ _ _)        = not-var (λ ())
 
 ------------------------------------------------------------------------
 -- Some lemmas related to DCon/DExt
@@ -4217,3 +4740,49 @@ opaque
 
   Infinite→Level-literal : Infinite l → Level-literal l
   Infinite→Level-literal ωᵘ+ = ωᵘ+
+
+------------------------------------------------------------------------
+-- Some lemmas related to mapJ
+
+opaque
+
+  -- A congruence lemma for mapJ.
+
+  mapJ-cong :
+    {f g : ∀ {k} → Term[ k ] n → Term[ k ] n} →
+    (∀ {k} (t : Term[ k ] n) → f t ≡ g t) →
+    mapJ f 𝓙 ≡ mapJ g 𝓙
+  mapJ-cong {𝓙 = [ctxt]}          f≡g = refl
+  mapJ-cong {𝓙 = [ _ type]}       f≡g = cong [_type] (f≡g _)
+  mapJ-cong {𝓙 = [ _ ≡ _ type]}   f≡g = cong₂ [_≡_type] (f≡g _) (f≡g _)
+  mapJ-cong {𝓙 = [ _ ∷ _ ]}       f≡g = cong₂ [_∷_] (f≡g _) (f≡g _)
+  mapJ-cong {𝓙 = [ _ ≡ _ ∷ _ ]}   f≡g = cong₃ [_≡_∷_] (f≡g _) (f≡g _)
+                                          (f≡g _)
+  mapJ-cong {𝓙 = [ _ ∷Level]}     f≡g = cong [_∷Level] (f≡g _)
+  mapJ-cong {𝓙 = [ _ ≡ _ ∷Level]} f≡g = cong₂ [_≡_∷Level] (f≡g _)
+                                          (f≡g _)
+
+opaque
+
+  -- The function mapJ idᶠ is pointwise equal to the identity
+  -- function.
+
+  mapJ-id : mapJ idᶠ 𝓙 ≡ 𝓙
+  mapJ-id {𝓙 = [ctxt]}          = refl
+  mapJ-id {𝓙 = [ _ type]}       = refl
+  mapJ-id {𝓙 = [ _ ≡ _ type]}   = refl
+  mapJ-id {𝓙 = [ _ ∷ _ ]}       = refl
+  mapJ-id {𝓙 = [ _ ≡ _ ∷ _ ]}   = refl
+  mapJ-id {𝓙 = [ _ ∷Level]}     = refl
+  mapJ-id {𝓙 = [ _ ≡ _ ∷Level]} = refl
+
+opaque
+
+  -- The function mapJ (wk id) is pointwise equal to the identity
+  -- function.
+
+  mapJ-wk-id : mapJ (wk id) 𝓙 ≡ 𝓙
+  mapJ-wk-id {𝓙} =
+    mapJ (wk id) 𝓙  ≡⟨ mapJ-cong wk-id ⟩
+    mapJ idᶠ 𝓙      ≡⟨ mapJ-id ⟩
+    𝓙               ∎

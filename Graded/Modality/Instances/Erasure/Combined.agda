@@ -39,6 +39,7 @@ open import Graded.Usage.Erased-matches
 open import Definition.Typed TR using (_∷_∈_; Trans)
 open import Definition.Untyped Erasure
 import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup TR
 
 open import Tools.Fin
@@ -115,6 +116,11 @@ mutual
             δ ▸ Γ ⊢ t ∷[ r′ ] A →
             δ ▸ Γ ⊢ u ∷[ r′ ] A →
             γ ▸ Γ ⊢[ r ] Id A t u
+    Quot   : Quot-allowed
+           → Quotient-terms-allowed
+           → γ ▸ Γ ⊢[ r ] A
+           → Quot-rel-Cons Γ A ⊢ B
+           → γ ▸ Γ ⊢[ r ] Quot A B
 
   -- A variant of _▸_⊢_∷[_]_.
 
@@ -278,6 +284,40 @@ mutual
                γ ▸ Γ ⊢ []-cong s l A t u v ∷[ p ]
                  Id (Erased l A) [ t ] ([ u ])
 
+    Quot      : Quot-allowed
+              → Quotient-terms-allowed
+              → γ ▸ Γ ⊢ A ∷[ p ] U l
+              → Quot-rel-Cons Γ A ⊢ B ∷ U (wk[ 2 ]′ l)
+              → γ ▸ Γ ⊢ Quot A B ∷[ p ] U l
+    class     : Quotient-terms-allowed
+              → Γ ⊢ Quot A B
+              → γ ▸ Γ ⊢ t ∷[ p ] A
+              → γ ▸ Γ ⊢ class t ∷[ p ] Quot A B
+    resp      : Higher-quotient-constructors-allowed
+              → Γ ⊢ Quot A B
+              → Γ ⊢ t ∷ A
+              → Γ ⊢ u ∷ A
+              → Γ ⊢ v ∷ B [ t , u ]₁₀
+              → γ ▸ Γ ⊢ resp A B t u v ∷[ 𝟘 ]
+                Id (Quot A B) (class t) (class u)
+    set       : Higher-quotient-constructors-allowed
+              → Γ ⊢ Quot A B
+              → Γ ⊢ t ∷ Quot A B
+              → Γ ⊢ u ∷ Quot A B
+              → Γ ⊢ v ∷ Id (Quot A B) t u
+              → Γ ⊢ w ∷ Id (Quot A B) t u
+              → γ ▸ Γ ⊢ set A B t u v w ∷[ 𝟘 ]
+                Id (Id (Quot A B) t u) v w
+    qrec      : Quotient-terms-allowed
+              → (Qrec-motive-erased → q PE.≡ 𝟘 × δ PE.≡ 𝟘ᶜ)
+              → (¬ Qrec-motive-erased → q PE.≡ p × δ PE.≡ γ ∙ ω)
+              → δ ▸ Γ »∙ Quot A B ⊢[ q ] C
+              → γ ∙ ω ▸ Γ »∙ A ⊢ t ∷[ p ] C [ class (var x0) ]↑
+              → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
+              → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
+              → γ ▸ Γ ⊢ w ∷[ p ] Quot A B
+              → γ ▸ Γ ⊢ qrec C t u v w ∷[ p ] C [ w ]₀
+
   -- Well-typed levels.
 
   data _⊢_∷Level (Γ : Cons m n) : Lvl n → Set where
@@ -309,6 +349,10 @@ mutual
                 Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
                 Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
                 Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂
+    Quot-cong : Quot-allowed →
+                Γ ⊢ A₁ ≡ A₂ →
+                Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂ →
+                Γ ⊢ Quot A₁ B₁ ≡ Quot A₂ B₂
 
   -- Term equality.
 
@@ -521,6 +565,44 @@ mutual
     equality-reflection : Equality-reflection →
                           Γ ⊢ v ∷ Id A t u →
                           Γ ⊢ t ≡ u ∷ A
+
+    Quot-cong     : Quot-allowed
+                  → Γ ⊢ A₁ ≡ A₂ ∷ U l
+                  → Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂ ∷ U (wk[ 2 ]′ l)
+                  → Γ ⊢ Quot A₁ B₁ ≡ Quot A₂ B₂ ∷ U l
+    class-cong    : Γ ⊢ Quot A B
+                  → Γ ⊢ t₁ ≡ t₂ ∷ A
+                  → Γ ⊢ class t₁ ≡ class t₂ ∷ Quot A B
+    resp-cong     : Quot-allowed
+                  → Γ ⊢ A₁ ≡ A₂
+                  → Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂
+                  → Γ ⊢ t₁ ≡ t₂ ∷ A₁
+                  → Γ ⊢ u₁ ≡ u₂ ∷ A₁
+                  → Γ ⊢ v₁ ≡ v₂ ∷ B₁ [ t₁ , u₁ ]₁₀
+                  → Γ ⊢ resp A₁ B₁ t₁ u₁ v₁ ≡ resp A₂ B₂ t₂ u₂ v₂ ∷
+                    Id (Quot A₁ B₁) (class t₁) (class u₁)
+    set-cong      : Γ ⊢ A₁ ≡ A₂
+                  → Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂
+                  → Γ ⊢ t₁ ≡ t₂ ∷ Quot A₁ B₁
+                  → Γ ⊢ u₁ ≡ u₂ ∷ Quot A₁ B₁
+                  → Γ ⊢ v₁ ≡ v₂ ∷ Id (Quot A₁ B₁) t₁ u₁
+                  → Γ ⊢ w₁ ≡ w₂ ∷ Id (Quot A₁ B₁) t₁ u₁
+                  → Γ ⊢ set A₁ B₁ t₁ u₁ v₁ w₁ ≡ set A₂ B₂ t₂ u₂ v₂ w₂ ∷
+                    Id (Id (Quot A₁ B₁) t₁ u₁) v₁ w₁
+    qrec-cong     : Γ »∙ Quot A B ⊢ C₁ ≡ C₂
+                  → Γ »∙ A ⊢ t₁ ≡ t₂ ∷ C₁ [ class (var x0) ]↑
+                  → Resp-Cons Γ A B ⊢ u₁ ≡ u₂ ∷ Resp-type A B C₁ t₁
+                  → Is-set-Cons Γ A B C₁ ⊢ v₁ ≡ v₂ ∷ Is-set-type C₁
+                  → Γ ⊢ w₁ ≡ w₂ ∷ Quot A B
+                  → Γ ⊢ qrec C₁ t₁ u₁ v₁ w₁ ≡ qrec C₂ t₂ u₂ v₂ w₂ ∷
+                    C₁ [ w₁ ]₀
+    qrec-β        : Γ »∙ Quot A B ⊢ C
+                  → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
+                  → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
+                  → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
+                  → Γ ⊢ w ∷ A
+                  → Γ ⊢ qrec C t u v (class w) ≡ t [ w ]₀ ∷
+                    C [ class w ]₀
 
   -- Level equality.
 

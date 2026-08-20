@@ -488,3 +488,44 @@ opaque
      var₀ (Idⱼ′ (var₀ ⊢Id) (rflⱼ (zeroⱼ (∙ ⊢Id))))) ,
     ne (var⁺ _) ,
     (λ ())
+
+opaque
+
+  -- If the WHNF C is judgmentally equal to Quot A B, then there are
+  -- A′ and B′ such that C is propositionally equal to Quot A′ B′
+  -- (given a certain assumption).
+
+  Quot≡Whnf :
+    ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄ →
+    Γ ⊢ Quot A B ≡ C → Whnf (Γ .defs) C →
+    ∃₂ λ A′ B′ → C PE.≡ Quot A′ B′
+  Quot≡Whnf Quot≡C C-whnf =
+    let _ , _ , _ , _ , C⇒* , _ =
+          ⊩Quot≡⇔ .proj₁ (reducible-⊩≡ Quot≡C .proj₂)
+    in
+    _ , _ , whnfRed* C⇒* C-whnf
+
+opaque
+
+  -- If equality reflection and quotient types are allowed, then there
+  -- is a WHNF C that is judgementally equal to Quot A B but not
+  -- propositionally equal to any quotient type (if the definition
+  -- context is well-formed).
+
+  whnf≢Quot :
+    Equality-reflection →
+    Quot-allowed →
+    » ∇ →
+    ∃₄ λ (Γ : Con Term 1) A B C →
+      ∇ » Γ ⊢ Quot A B ≡ C × Whnf ∇ C ×
+      ¬ ∃₂ λ A B → C PE.≡ Quot A B
+  whnf≢Quot ok₁ ok₂ »∇ =
+    ε ∙ Id U₀ (Quot ℕ ℕ) ℕ , ℕ , ℕ , ℕ ,
+    univ
+      (equality-reflection′ ok₁ $
+       let ⊢ε = ε »∇ in
+       var₀ $
+       Idⱼ′ (Quot ok₂ (⊢zeroᵘ ⊢ε) (ℕⱼ ⊢ε) (ℕⱼ (⊢Quot-rel-Con (⊢ℕ ⊢ε))))
+         (ℕⱼ ⊢ε)) ,
+    ℕₙ ,
+    (λ ())

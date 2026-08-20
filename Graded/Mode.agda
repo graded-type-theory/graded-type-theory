@@ -499,6 +499,20 @@ record IsMode : Set (a ⊔ b) where
 
   opaque
 
+    -- "Equality to 𝟘ᵐ" is upwards closed.
+
+    ≡𝟘ᵐ-upwards-closed : m₁ ≡ 𝟘ᵐ → m₁ ≤ᵐ m₂ → m₂ ≡ 𝟘ᵐ
+    ≡𝟘ᵐ-upwards-closed {m₁} {m₂} m₁≡𝟘ᵐ m₁≤m₂ =
+      ≤ᵐ-antisym ≤𝟘ᵐ
+        (begin
+           𝟘ᵐ  ≡˘⟨ m₁≡𝟘ᵐ ⟩
+           m₁  ≤⟨ m₁≤m₂ ⟩
+           m₂  ∎)
+      where
+      open ≤ᵐ-reasoning
+
+  opaque
+
     -- Addition is decreasing in a certain sense
 
     ⌞+⌟-decreasingʳ : ⌞ p + q ⌟ ≤ᵐ ⌞ q ⌟
@@ -989,6 +1003,32 @@ record IsMode : Set (a ⊔ b) where
 
     ᵐ·-identityʳ-ω : m ᵐ· ω ≡ m
     ᵐ·-identityʳ-ω = ᵐ·-identityʳ-≤𝟙 ω≤𝟙
+
+  opaque
+
+    -- The mode ⌞ ω ⌟ is a left identity for _·ᵐ_.
+
+    ·ᵐ-identityˡ-⌞ω⌟ : ⌞ ω ⌟ ·ᵐ m ≡ m
+    ·ᵐ-identityˡ-⌞ω⌟ {m} =
+      ⌞ ω ⌟ ·ᵐ m  ≡⟨ ·ᵐ-comm _ _ ⟩
+      m ·ᵐ ⌞ ω ⌟  ≡⟨⟩
+      m ᵐ· ω      ≡⟨ ᵐ·-identityʳ-ω ⟩
+      m           ∎
+      where
+      open Tools.Reasoning.PropositionalEquality
+
+  opaque
+
+    -- The grade ω is bounded from above by ⌜ m ⌝ · ω.
+
+    ω≤⌜⌝·ω : ω ≤ ⌜ m ⌝ · ω
+    ω≤⌜⌝·ω {m} =
+      ≤⌜⌝· ω≤𝟘
+        (begin
+           𝟘          ≡˘⟨ ·-zeroʳ _ ⟩
+           ⌜ m ⌝ · 𝟘  ∎)
+      where
+      open Tools.Reasoning.PartialOrder ≤-poset
 
   opaque
 

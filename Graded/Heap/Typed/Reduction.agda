@@ -8,6 +8,7 @@ open import Graded.Mode
 open import Graded.Usage.Restrictions
 open import Definition.Typed.Restrictions
 open import Graded.Usage.Restrictions.Natrec
+open import Tools.Relation
 
 module Graded.Heap.Typed.Reduction
   {a b} {M : Set a} {Mode : Set b}
@@ -16,13 +17,15 @@ module Graded.Heap.Typed.Reduction
   (UR : Usage-restrictions 𝕄 𝐌)
   (TR : Type-restrictions 𝕄)
   (open Usage-restrictions UR)
+  (open Type-restrictions TR)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
+  -- Quotient types are not supported.
+  (no-quotients : ¬ Quot-allowed)
   where
 
-open Type-restrictions TR
 open Modality 𝕄
 
 open import Definition.Untyped M
@@ -58,7 +61,6 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
-open import Tools.Relation
 
 private variable
   n : Nat
@@ -375,7 +377,7 @@ opaque
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         ⊢A , ⊢t , ⊢u , A≡ = inversion-unitrec ⊢t
     in  ⊢ₛ ⊢H (conv ⊢u (trans (subst-⊢≡₀ ⊢A (Unit-η-≡ (inj₂ η) ⊢t)) (sym A≡)))
-           (⊢ˢ-convₜ ⊢S (conv (unitrec-β-η-≡ ⊢A ⊢t ⊢u η) (sym A≡)))
+           (⊢ˢ-convₜ ⊢S (conv (unitrec-β-η ⊢A ⊢t ⊢u η) (sym A≡)))
 
   ⊢ₛ-⇒ᵥ ⊢s (rflₕⱼ {H} {p} {q} {A} {t} {B} {u} {v} {ρ′}) =
     case ⊢ₛ-inv′ ⊢s of λ
@@ -415,6 +417,24 @@ opaque
     in
     ⊢ₛ ⊢H (conv (rflⱼ′ ([]-cong′ ([]-cong→Erased ok) ⊢l t≡u)) ≡B)
       (⊢ˢ-convₜ ⊢S (conv ([]-cong-β-≡ ⊢l t≡u ok) ≡B)) }
+  ⊢ₛ-⇒ᵥ ⊢s (classₕ _) =
+    let _ , _ , _ , ⊢class , _ = ⊢ₛ-inv ⊢s
+        _ , _ , ⊢Q , _         = inversion-class ⊢class
+        ok , _                 = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
+  ⊢ₛ-⇒ᵥ ⊢s (respₕ _) =
+    let _ , _ , _ , ⊢resp , _ = ⊢ₛ-inv ⊢s
+        ⊢Q , _                = inversion-resp ⊢resp
+        ok , _                = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
+  ⊢ₛ-⇒ᵥ ⊢s (setₕ _) =
+    let _ , _ , _ , ⊢set , _ = ⊢ₛ-inv ⊢s
+        ⊢Q , _               = inversion-set ⊢set
+        ok , _               = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
 
 opaque
 
@@ -470,6 +490,13 @@ opaque
       (conv ([]-congₑ ok ⊢l)
          (sym (PE.subst (_⊢_≡_ _ _) (E.wk-Id-Erased-[]-[] _) A≡Id)) ∙
        ⊢S)
+  ⊢ₛ-⇒ₑ ⊢s qrecₕ =
+    let _ , _ , _ , ⊢qrec , _ = ⊢ₛ-inv ⊢s
+        _ , _ , ⊢C , _        = inversion-qrec ⊢qrec
+        ⊢Q                    = ⊢∙→⊢ (wf ⊢C)
+        ok , _                = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
 
 opaque
 
@@ -691,7 +718,7 @@ opaque
   ⇒ᵥ→⇒ ⊢s (unitrec-ηₕ η) =
     let _ , _ , ⊢H , ⊢t , ⊢S = ⊢ₛ-inv ⊢s
         ⊢A , ⊢t , ⊢u , A≡ = inversion-unitrec ⊢t
-    in  ⊢⦅⦆ˢ-subst ⊢S (conv (unitrec-β-η-⇒ ⊢A ⊢t ⊢u η) (sym A≡))
+    in  ⊢⦅⦆ˢ-subst ⊢S (conv (unitrec-β-η ⊢A ⊢t ⊢u η) (sym A≡))
   ⇒ᵥ→⇒ ⊢s rflₕⱼ =
     case ⊢ₛ-inv′ ⊢s of λ
       (_ , _ , _ , ⊢H , ⊢rfl , ⊢c , ⊢S) →
@@ -716,6 +743,24 @@ opaque
     in
     ⊢⦅⦆ˢ-subst ⊢S $
     conv ([]-cong-β ⊢A t≡u ok) (sym (B′≡ ⊢t ⊢u)) }
+  ⇒ᵥ→⇒ ⊢s (classₕ _) =
+    let _ , _ , _ , ⊢class , _ = ⊢ₛ-inv ⊢s
+        _ , _ , ⊢Q , _         = inversion-class ⊢class
+        ok , _                 = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
+  ⇒ᵥ→⇒ ⊢s (respₕ _) =
+    let _ , _ , _ , ⊢resp , _ = ⊢ₛ-inv ⊢s
+        ⊢Q , _                = inversion-resp ⊢resp
+        ok , _                = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
+  ⇒ᵥ→⇒ ⊢s (setₕ _) =
+    let _ , _ , _ , ⊢set , _ = ⊢ₛ-inv ⊢s
+        ⊢Q , _               = inversion-set ⊢set
+        ok , _               = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
 
 opaque
 
@@ -840,6 +885,24 @@ opaque
     _ , _ , _ , rflₕₖ
   ⊢ˢValue-⇒ᵥ _ ([]-congₑ _ _) _ rflᵥ =
     _ , _ , _ , rflₕₑ
+  ⊢ˢValue-⇒ᵥ _ _ ⊢Q Quotᵥ =
+    let ok , _ = inversion-Quot-∷ ⊢Q in
+    ⊥-elim (no-quotients ok)
+  ⊢ˢValue-⇒ᵥ _ _ ⊢class classᵥ =
+    let _ , _ , ⊢Q , _ = inversion-class ⊢class
+        ok , _         = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
+  ⊢ˢValue-⇒ᵥ _ _ ⊢resp respᵥ =
+    let ⊢Q , _ = inversion-resp ⊢resp
+        ok , _ = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
+  ⊢ˢValue-⇒ᵥ _ _ ⊢set setᵥ =
+    let ⊢Q , _ = inversion-set ⊢set
+        ok , _ = inversion-Quot ⊢Q
+    in
+    ⊥-elim (no-quotients ok)
 
   -- Impossible cases:
   ⊢ˢValue-⇒ᵥ _ (lowerₑ _) ⊢t Levelᵥ =
@@ -1345,7 +1408,7 @@ opaque
 
 opaque
 
-  -- For well-typed states there are four reasons why a state can be
+  -- For well-typed states there are five reasons why a state can be
   -- Final:
   -- 1. It has a variable in head position but lookup does not succeed
   --    (for the number of copies matching the current stack
@@ -1374,7 +1437,20 @@ opaque
         inj₂ $ inj₂ $ inj₁
           (_ , _ , PE.refl , v ,
            λ (p , ∣S∣≡p) → prop (⊢Matching ∣S∣≡p ⊢s v , (_ , ∣S∣≡p)))
-      (inj₂ (inj₂ x)) → inj₂ (inj₂ (inj₂ x))
+      (inj₂ (inj₂ (inj₁ x))) → inj₂ (inj₂ (inj₂ (inj₁ x)))
+      (inj₂ (inj₂ (inj₂ (inj₁ x)))) → inj₂ (inj₂ (inj₂ (inj₂ x)))
+      (inj₂ (inj₂ (inj₂ (inj₂ (_ , resp))))) →
+        let _ , _ , _ , ⊢resp , _ = ⊢ₛ-inv ⊢s
+            ⊢Q , _                = inversion-resp ⊢resp
+            ok , _                = inversion-Quot ⊢Q
+        in
+        ⊥-elim (no-quotients ok)
+      (inj₂ (inj₂ (inj₂ (inj₂ (_ , set))))) →
+        let _ , _ , _ , ⊢set , _ = ⊢ₛ-inv ⊢s
+            ⊢Q , _               = inversion-set ⊢set
+            ok , _               = inversion-Quot ⊢Q
+        in
+        ⊥-elim (no-quotients ok)
 
 opaque
 

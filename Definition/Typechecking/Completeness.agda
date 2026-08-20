@@ -23,12 +23,14 @@ open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
 import Definition.Typed.Weakening R as W
+open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Well-formed R
 open import Definition.Typed.Consequences.Inequality R
 open import Definition.Typed.Consequences.Injectivity R
 open import Definition.Typed.Consequences.Reduction R
 open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
@@ -49,7 +51,9 @@ private
 -- Bi-directional type checking relations are complete with respect to
 -- their corresponding typing relations for Inferable/Checkable terms
 
-mutual
+opaque
+ unfolding Quot-rel-Con
+ mutual
 
   -- If A is a checkable type that is well-formed with respect to Γ,
   -- then Γ ⊢ A ⇇Type holds.
@@ -65,6 +69,9 @@ mutual
     let ⊢B , ⊢t , ⊢u = inversion-Id ⊢A in
     Idᶜ (completeness⇇Type B ⊢B) (completeness⇇ t ⊢t)
       (completeness⇇ u ⊢u)
+  completeness⇇Type (Quot B C) ⊢A =
+    let ok , ⊢B , ⊢C = inversion-Quot ⊢A in
+    Quot ok (completeness⇇Type B ⊢B) (completeness⇇Type C ⊢C)
   completeness⇇Type (checkᶜ A) ⊢A =
     completeness⇇Type′ A ⊢A
 
@@ -84,6 +91,9 @@ mutual
   completeness⇇Type′ rflᶜ (univ ⊢A) =
     let _ , _ , _ , _ , U≡Id = inversion-rfl ⊢A in
     ⊥-elim (Id≢U (sym U≡Id))
+  completeness⇇Type′ (class t) (univ ⊢A) =
+    let _ , _ , _ , _ , U≡Quot = inversion-class ⊢A in
+    ⊥-elim (Quot≢U (sym U≡Quot))
   completeness⇇Type′ (infᶜ A) ⊢A =
     completeness⇉Type A ⊢A
 
@@ -144,6 +154,15 @@ mutual
     univᶜ′ (completeness⇉ (Kᵢ x x₁ x₂ x₃ x₄) ⊢A)
   completeness⇉Type ([]-congᵢ ⊢l ⊢B ⊢t ⊢u ⊢v) (univ ⊢A) =
     univᶜ′ (completeness⇉ ([]-congᵢ ⊢l ⊢B ⊢t ⊢u ⊢v) ⊢A)
+  completeness⇉Type (Quot B C) ⊢A =
+    let ok , ⊢B , ⊢C = inversion-Quot ⊢A in
+    Quot ok (completeness⇉Type B ⊢B) (completeness⇇Type′ C ⊢C)
+  completeness⇉Type ⊢r@(resp _ _ _ _ _) (univ ⊢A) =
+    univᶜ′ (completeness⇉ ⊢r ⊢A)
+  completeness⇉Type ⊢s@(set _ _ _ _ _ _) (univ ⊢A) =
+    univᶜ′ (completeness⇉ ⊢s ⊢A)
+  completeness⇉Type ⊢q@(qrec _ _ _ _ _) (univ ⊢A) =
+    univᶜ′ (completeness⇉ ⊢q ⊢A)
 
   -- Completeness of type inference
 
@@ -297,6 +316,51 @@ mutual
       (completeness⇇ t ⊢t) (completeness⇇ u ⊢u) (completeness⇇ v ⊢v)
       ok ,
     ≡B
+  completeness⇉ (Quot B C) ⊢Q =
+    let ok , _ , ⊢l , ⊢B , ⊢C , ≡U = inversion-Quot-∷ ⊢Q
+        _ , B , U≡                 = completeness⇉ B ⊢B
+        _ , ⇒*U                    = U-norm (sym U≡)
+        U≡U                        = trans U≡ (subset* ⇒*U)
+    in
+    _ ,
+    Quot ok B (⇒*U , Uₙ)
+      (completeness⇇ C
+         (conv ⊢C (wk-⊢ (⊢ʷᵏdrop (⊢Quot-rel-Con (univ ⊢B))) U≡U))) ,
+    trans ≡U U≡U
+  completeness⇉ (resp B C t u v) ⊢r =
+    let ⊢Q , ⊢t , ⊢u , ⊢v , ≡Id = inversion-resp ⊢r
+        ok , ⊢B , ⊢C            = inversion-Quot ⊢Q
+    in
+    _ ,
+    resp ok (completeness⇇Type B ⊢B) (completeness⇇Type C ⊢C)
+      (completeness⇇ t ⊢t) (completeness⇇ u ⊢u) (completeness⇇ v ⊢v) ,
+    ≡Id
+  completeness⇉ (set B C t u v w) ⊢s =
+    let ⊢Q , ⊢t , ⊢u , ⊢v , ⊢w , ≡Id = inversion-set ⊢s
+        ok , ⊢B , ⊢C                 = inversion-Quot ⊢Q
+    in
+    _ ,
+    set ok (completeness⇇Type B ⊢B) (completeness⇇Type C ⊢C)
+      (completeness⇇ t ⊢t) (completeness⇇ u ⊢u) (completeness⇇ v ⊢v)
+      (completeness⇇ w ⊢w) ,
+    ≡Id
+  completeness⇉ (qrec C t u v w) ⊢q =
+    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡C[]₀ = inversion-qrec ⊢q
+        _ , w , Q≡                             = completeness⇉ w ⊢w
+        _ , _ , ⇒*Q , A≡A , B≡B , _            = Quot-norm (sym Q≡)
+        Q≡Q                                    = trans Q≡ (subset* ⇒*Q)
+        Γ≡Γ                                    = reflConEq (wf ⊢w)
+    in
+    _ ,
+    qrec w (⇒*Q , Quot)
+      (completeness⇇Type C (stability (refl-∙ Q≡Q) ⊢C))
+      (completeness⇇ t (stability (refl-∙ A≡A) ⊢t))
+      (completeness⇇ u
+         (stability (Resp-Con-cong Γ≡Γ A≡A B≡B)
+            (conv ⊢u (Resp-type-cong A≡A B≡B (refl ⊢C) (refl ⊢t)))))
+      (completeness⇇ v
+         (stability (Is-set-Con-cong Γ≡Γ A≡A B≡B (refl ⊢C)) ⊢v)) ,
+    ≡C[]₀
 
   -- Completeness of type checking
 
@@ -325,6 +389,11 @@ mutual
       (_ , _ , _ , A⇒*Id-B′-t′-u′ , A≡A′ , t≡t′ , t≡u′) →
     rflᶜ (A⇒*Id-B′-t′-u′ , Idₙ)
       (conv (trans (sym′ t≡t′) t≡u′) A≡A′) }}
+  completeness⇇ (class t) ⊢class =
+    let _ , _ , ⊢Q , ⊢t , ≡Q  = inversion-class ⊢class
+        _ , _ , ⇒*Q , ≡A , _ = Quot-norm ≡Q
+    in
+    class (⇒*Q , Quot) (completeness⇇ t (conv ⊢t ≡A))
   completeness⇇ (infᶜ t) ⊢t =
     let B , t⇉B , A≡B = completeness⇉ t ⊢t
     in  infᶜ t⇉B (sym A≡B)

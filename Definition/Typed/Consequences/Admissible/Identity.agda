@@ -17,23 +17,22 @@ open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Typed R
+open import Definition.Typed.Consequences.Reduction R
 open import Definition.Typed.Decidable.Internal 𝐌 R
 import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
 import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
 import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
 import Definition.Typed.Decidable.Internal.Weakening 𝐌 R as IW
 open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Admissible.Identity R
-open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.U R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as W
 open import Definition.Typed.Well-formed R
+open import Definition.Typed.With-equality-reflection R
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄 as Id
 open import Definition.Untyped.Sup R
+open import Definition.Untyped.Whnf M type-variant
 
 open Id.Internal 𝐌 R
 
@@ -46,6 +45,8 @@ open import Tools.Maybe
 open import Tools.Nat as N using (Nat; 1+)
 open import Tools.Product
 import Tools.PropositionalEquality as PE
+open import Tools.Relation
+open import Tools.Sum
 import Tools.Vec as V
 
 private variable
@@ -296,6 +297,159 @@ opaque
                   ok₁)
                (refl ⊢Π) ok₂)
             ok₁))
+
+------------------------------------------------------------------------
+-- Some definitions related to propositional extensionality
+
+opaque
+
+  -- The concept of being a proposition, formulated using certain
+  -- grades.
+
+  Is-proposition : M → M → Term n → Term n
+  Is-proposition p q A =
+    Π p , q ▷ A ▹ Π p , q ▷ wk1 A ▹
+    Id (wk[ 2 ]′ A) (var x1) (var x0)
+
+opaque
+
+  -- Propositional extensionality, for a certain level, formulated
+  -- using certain grades.
+
+  Propext : M → M → Lvl n → Term n
+  Propext p q l =
+    Π p , q ▷ U l ▹
+    Π p , q ▷ U (wk1 l) ▹
+    Π p , q ▷ Is-proposition p q (var x1) ▹
+    Π p , q ▷ Is-proposition p q (var x1) ▹
+    Π p , q ▷ (Π p , q ▷ var x3 ▹ var x3) ▹
+    Π p , q ▷ (Π p , q ▷ var x3 ▹ var x5) ▹
+    Id (U (wk[ 6 ]′ l)) (var x5) (var x4)
+
+opaque
+
+  -- A universe-polymorphic formulation of propositional
+  -- extensionality, formulated using certain grades.
+
+  Poly-propext : M → M → Term n
+  Poly-propext p q =
+    Π p , q ▷ Level ▹
+    Propext p q (level (var x0))
+
+opaque
+  unfolding Is-proposition Propext
+
+  -- There is no closed implementation of propositional extensionality
+  -- for universe level zero if equality reflection is allowed (given
+  -- certain assumptions).
+  --
+  -- It should be possible to remove all assumptions except for the
+  -- first one: if propext cannot be implemented in the presence of
+  -- those assumptions, then it should not be implementable in their
+  -- absence. With a different proof one could perhaps also remove the
+  -- first assumption.
+
+  ¬-Propext-with-equality-reflection :
+    ¬ Unitʷ-η →
+    Unit-allowed 𝕨 →
+    Π-allowed p q →
+    Equality-reflection →
+    ¬ ε » ε ⊢ t ∷ Propext p q zeroᵘₗ
+  ¬-Propext-with-equality-reflection
+    {p} {t} no-η Unit-ok Π-ok refl-ok ⊢t =
+    case red-Unit ⦃ ok = ε ⦄ ⊢stuck of λ where
+      (_ , ne n , _) →
+        let _ , not-ok =
+              Higher-quotient-constructors-neutral⇔ .proj₁
+                (glass-closed-no-ne n)
+        in
+        not-ok refl-ok
+      (_ , starₙ , (d ⇨ _)) →
+        case inv-⇒-unitrec d of λ where
+          (inj₁ (_ , _ , rfl⇒ , _ , _)) → whnfRedTerm rfl⇒ rflₙ
+          (inj₂ (inj₁ (() , _)))
+          (inj₂ (inj₂ (_ , η)))         → no-η η
+    where
+    stuck : Term 0
+    stuck = unitrec 𝟘 𝟘 (Unit 𝕨) rfl (star 𝕨)
+
+    prf : Term 0
+    prf =
+      t ∘⟨ p ⟩ Id ℕ zero zero ∘⟨ p ⟩ Unit 𝕨 ∘⟨ p ⟩
+      lam p (lam p rfl) ∘⟨ p ⟩
+      (lam p $ lam p $
+       unitrec 𝟘 𝟘 (Id (Unit 𝕨) (var x2) (var x0)) (var x0)
+         (unitrec 𝟘 𝟘 (Id (Unit 𝕨) (var x0) (star 𝕨)) (var x1)
+            rfl)) ∘⟨ p ⟩
+      lam p (star 𝕨) ∘⟨ p ⟩
+      lam p rfl
+
+    ε⊢Unit : ε » ε ⊢ Unit 𝕨
+    ε⊢Unit = ⊢Unit εε Unit-ok
+
+    Unit⊢Unit : ε » ε ∙ Unit 𝕨 ⊢ Unit 𝕨
+    Unit⊢Unit = ⊢Unit (∙ ε⊢Unit) Unit-ok
+
+    Unit²⊢Unit : ε » ε ∙ Unit 𝕨 ∙ Unit 𝕨 ⊢ Unit 𝕨
+    Unit²⊢Unit = ⊢Unit (∙ Unit⊢Unit) Unit-ok
+
+    ε⊢Id : ε » ε ⊢ Id ℕ zero zero
+    ε⊢Id = Idⱼ′ (zeroⱼ εε) (zeroⱼ εε)
+
+    Id⊢Id : ε » ε ∙ Id ℕ zero zero ⊢ Id ℕ zero zero
+    Id⊢Id = Idⱼ′ (zeroⱼ (∙ ε⊢Id)) (zeroⱼ (∙ ε⊢Id))
+
+    ⊢prf : ε » ε ⊢ prf ∷ Id U₀ (Id ℕ zero zero) (Unit 𝕨)
+    ⊢prf =
+      _∘ⱼ_
+        (_∘ⱼ_
+           (_∘ⱼ_
+              (_∘ⱼ_
+                 (_∘ⱼ_ (⊢t ∘ⱼ Idⱼ (ℕⱼ εε) (zeroⱼ εε) (zeroⱼ εε))
+                    (Unitⱼ εε Unit-ok))
+                 (lamⱼ′ Π-ok $ lamⱼ′ Π-ok $
+                  uip-with-equality-reflection-Id refl-ok (var₁′ Id⊢Id)
+                    (var₀ Id⊢Id)))
+              (lamⱼ′ Π-ok $ lamⱼ′ Π-ok $
+               unitrecⱼ (Idⱼ′ (var₂′ Unit²⊢Unit) (var₀ Unit²⊢Unit))
+                 (var₀ Unit⊢Unit) $
+               unitrecⱼ
+                 (Idⱼ′ (var₀ Unit²⊢Unit) (starⱼ (∙ Unit²⊢Unit) Unit-ok))
+                 (var₁ Unit⊢Unit) (rflⱼ (starⱼ (∙ Unit⊢Unit) Unit-ok))))
+           (lamⱼ′ Π-ok (starⱼ (∙ ε⊢Id) Unit-ok)))
+        (lamⱼ′ Π-ok (rflⱼ (zeroⱼ (∙ ε⊢Unit))))
+
+    ⊢rfl : ε » ε ⊢ rfl ∷ Unit 𝕨
+    ⊢rfl =
+      conv (rflⱼ (zeroⱼ εε)) (univ (equality-reflection′ refl-ok ⊢prf))
+
+    ⊢stuck : ε » ε ⊢ stuck ∷ Unit 𝕨
+    ⊢stuck = unitrecⱼ Unit⊢Unit ⊢rfl (starⱼ εε Unit-ok)
+
+opaque
+  unfolding Is-proposition Poly-propext Propext
+
+  -- There is no closed implementation of universe-polymorphic
+  -- propositional extensionality if equality reflection is allowed
+  -- (given certain assumptions).
+  --
+  -- It should be possible to remove all assumptions except for the
+  -- first one: if propext cannot be implemented in the presence of
+  -- those assumptions, then it should not be implementable in their
+  -- absence. With a different proof one could perhaps also remove the
+  -- first assumption.
+
+  ¬-Poly-propext-with-equality-reflection :
+    ¬ Unitʷ-η →
+    Unit-allowed 𝕨 →
+    Π-allowed p q →
+    Level-allowed →
+    Equality-reflection →
+    ¬ ε » ε ⊢ t ∷ Poly-propext p q
+  ¬-Poly-propext-with-equality-reflection
+    no-η Unit-ok Π-ok Level-ok refl-ok ⊢t =
+    ¬-Propext-with-equality-reflection no-η Unit-ok Π-ok refl-ok
+      (⊢t ∘ⱼ zeroᵘⱼ Level-ok εε)
 
 ------------------------------------------------------------------------
 -- Some preservation lemmas

@@ -13,14 +13,16 @@ module Definition.Typed.Weakening
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄
 open Type-restrictions R
 
 open import Definition.Untyped M as U hiding (wk; wk′)
 open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Erased 𝕄
+open import Definition.Untyped.Erased 𝕄 hiding ([_])
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
 open import Definition.Typed R
@@ -35,6 +37,7 @@ open import Tools.Function
 open import Tools.Nat
 open import Tools.Product as Σ
 import Tools.PropositionalEquality as PE
+open import Tools.Reasoning.PropositionalEquality
 open import Tools.Size
 open import Tools.Size.Instances
 open import Tools.Sum as ⊎
@@ -131,6 +134,51 @@ opaque
   liftn∷⊇ {k = 0}                ρ∷ = ρ∷
   liftn∷⊇ {k = 1+ _} {Γ = _ ∙ _} ρ∷ = lift (liftn∷⊇ ρ∷)
 
+opaque
+  unfolding Quot-rel-Con
+
+  -- A weakening lemma related to Quot-rel-Con.
+
+  lift-Quot-rel-Con :
+    ρ ∷ Δ ⊇ Γ →
+    liftn ρ 2 ∷ Quot-rel-Con Δ (U.wk ρ A) ⊇ Quot-rel-Con Γ A
+  lift-Quot-rel-Con ρ⊇ =
+    PE.subst (flip (_∷_⊇_ _) _ ∘→ _∙_ _)
+      (PE.sym (wk1-wk≡lift-wk1 _ _)) $
+    lift (lift ρ⊇)
+
+opaque
+  unfolding Quot-rel-Con Resp-Con
+
+  -- A weakening lemma related to Resp-Con.
+
+  lift-Resp-Con :
+    ρ ∷ Δ ⊇ Γ →
+    liftn ρ 3 ∷ Resp-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) ⊇
+      Resp-Con Γ A B
+  lift-Resp-Con ρ⊇ =
+    PE.subst (flip (_∷_⊇_ _) _)
+      (PE.cong (flip _∙_ _ ∘→ _∙_ _) (wk⇑[]-wk[]≡ 1)) $
+    lift (lift (lift ρ⊇))
+
+opaque
+  unfolding Is-set-Con
+
+  -- A weakening lemma related to Is-set-Con.
+
+  lift-Is-set-Con :
+    ρ ∷ Δ ⊇ Γ →
+    liftn ρ 5 ∷
+      Is-set-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) (U.wk (lift ρ) C) ⊇
+      Is-set-Con Γ A B C
+  lift-Is-set-Con {C} ρ⊇ =
+    PE.subst (flip (_∷_⊇_ _) _)
+      (PE.cong₂ _∙_
+         (PE.cong₂ _∙_ (PE.cong (_∙_ _) (wk⇑[]-wk[]≡ 1))
+            (PE.cong₃ Id (wk⇑[]-wk[]≡ 2) PE.refl PE.refl))
+         (PE.cong₃ Id (wk⇑[]-wk[]≡ 3) PE.refl PE.refl)) $
+    lift (lift (lift (lift (lift ρ⊇))))
+
 ------------------------------------------------------------------------
 -- The type _∷ʷ_⊇_
 
@@ -222,6 +270,28 @@ opaque
   liftʷʷ = liftʷ ∘→ ∷ʷ⊇→∷⊇
 
 opaque
+
+  -- A variant of liftʷ.
+
+  liftⁿʷ :
+    ρ ∷ Δ ⊇ drop k Γ →
+    ∇ »⊢ Δ ∙[ k ][ Γ ][ ρ ]ʷ →
+    ∇ » liftn ρ k ∷ʷ Δ ∙[ k ][ Γ ][ ρ ]ʷ ⊇ Γ
+  liftⁿʷ {k = 0}                ⊢ρ ⊢Δ     = ∷⊇→∷ʷ⊇ ⊢ρ ⊢Δ
+  liftⁿʷ {k = 1+ k} {Γ = _ ∙ _} ⊢ρ (∙ ⊢A) =
+    liftʷʷ (liftⁿʷ ⊢ρ (wf ⊢A)) ⊢A
+
+opaque
+
+  -- A variant of liftⁿʷ.
+
+  liftⁿʷʷ :
+    ∇ » ρ ∷ʷ Δ ⊇ drop k Γ →
+    ∇ »⊢ Δ ∙[ k ][ Γ ][ ρ ]ʷ →
+    ∇ » liftn ρ k ∷ʷ Δ ∙[ k ][ Γ ][ ρ ]ʷ ⊇ Γ
+  liftⁿʷʷ = liftⁿʷ ∘→ ∷ʷ⊇→∷⊇
+
+opaque
   unfolding _»_∷ʷ_⊇_
 
   -- The composition of well-formed weakenings is well-formed.
@@ -310,63 +380,136 @@ private
         size l₁≡l₂ PE.≡ s →
         ∇ » Δ ⊢ U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
 
--- Variants of the fields of P.
+-- A variant of the fields of P, along with some lemmas.
 
 private module Variants (hyp : ∀ {s₁} → s₁ <ˢ s₂ → P s₁) where
 
   opaque
 
-    -- Variants of the fields of P.
+    -- A variant of the fields of P.
 
     wk :
+      ∀ {𝓙} → ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
+      (⊢𝓙 : ∇ » Γ ⊢[ 𝓙 ])
+      ⦃ lt : size ⊢𝓙 <ˢ s₂ ⦄ →
+      ∇ » Δ ⊢[ mapJ (U.wk ρ) 𝓙 ]
+    wk {𝓙 = [ctxt]} _ ⊢Δ _ =
+      ⊢Δ
+    wk {𝓙 = [ _ type]} ρ⊇ ⊢Δ ⊢𝓙 ⦃ lt ⦄ =
+      P.wk (hyp lt) ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+    wk {𝓙 = [ _ ≡ _ type]} ρ⊇ ⊢Δ ⊢𝓙 ⦃ lt ⦄ =
+      P.wkEq (hyp lt) ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+    wk {𝓙 = [ _ ∷ _ ]} ρ⊇ ⊢Δ ⊢𝓙 ⦃ lt ⦄ =
+      P.wkTerm (hyp lt) ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+    wk {𝓙 = [ _ ≡ _ ∷ _ ]} ρ⊇ ⊢Δ ⊢𝓙 ⦃ lt ⦄ =
+      P.wkEqTerm (hyp lt) ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+    wk {𝓙 = [ _ ∷Level]} ρ⊇ ⊢Δ ⊢𝓙 ⦃ lt ⦄ =
+      P.wkLevel (hyp lt) ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+    wk {𝓙 = [ _ ≡ _ ∷Level]} ρ⊇ ⊢Δ ⊢𝓙 ⦃ lt ⦄ =
+      P.wkEqLevel (hyp lt) ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+
+  opaque
+    unfolding Quot-rel-Con
+
+    -- A derived definition.
+
+    wk-Quot-rel-Con :
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
       (⊢A : ∇ » Γ ⊢ A)
       ⦃ lt : size ⊢A <ˢ s₂ ⦄ →
-      ∇ » Δ ⊢ U.wk ρ A
-    wk ρ⊇ ⊢Δ ⊢A ⦃ lt ⦄ = P.wk (hyp lt) ρ⊇ ⊢Δ ⊢A PE.refl
+      ∇ »⊢ Quot-rel-Con Δ (U.wk ρ A)
+    wk-Quot-rel-Con ρ⊇ ⊢Δ ⊢A =
+      ∙_ $
+      PE.subst (_⊢_ _) (PE.sym (wk-comp _ _ _)) $
+      wk (step ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢A) ⊢A
 
-    wkTerm :
-      ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
-      (⊢t : ∇ » Γ ⊢ t ∷ A)
-      ⦃ lt : size ⊢t <ˢ s₂ ⦄ →
-      ∇ » Δ ⊢ U.wk ρ t ∷ U.wk ρ A
-    wkTerm ρ⊇ ⊢Δ ⊢t ⦃ lt ⦄ = P.wkTerm (hyp lt) ρ⊇ ⊢Δ ⊢t PE.refl
+  opaque
+    unfolding Quot-rel-Con
 
-    wkLevel :
-      ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
-      (⊢l : ∇ » Γ ⊢ l ∷Level) →
-      ⦃ lt : size ⊢l <ˢ s₂ ⦄ →
-      ∇ » Δ ⊢ U.wk ρ l ∷Level
-    wkLevel ρ⊇ ⊢Δ ⊢l ⦃ lt ⦄ = P.wkLevel (hyp lt) ρ⊇ ⊢Δ ⊢l PE.refl
+    -- A derived definition.
 
-    wkEq :
-      ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
-      (A≡B : ∇ » Γ ⊢ A ≡ B)
-      ⦃ lt : size A≡B <ˢ s₂ ⦄ →
-      ∇ » Δ ⊢ U.wk ρ A ≡ U.wk ρ B
-    wkEq ρ⊇ ⊢Δ A≡B ⦃ lt ⦄ = P.wkEq (hyp lt) ρ⊇ ⊢Δ A≡B PE.refl
+    wk-Quot-rel-Con-⊢ :
+      ∀ {𝓙} → ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
+      (⊢𝓙 : ∇ » Quot-rel-Con Γ A ⊢[ 𝓙 ])
+      ⦃ lt : size ⊢𝓙 <ˢ s₂ ⦄ →
+      ∇ » Quot-rel-Con Δ (U.wk ρ A) ⊢[ mapJ (U.wk (liftn ρ 2)) 𝓙 ]
+    wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ ⊢𝓙 =
+      let _ , (⊢A , A<) , _ = ∙∙⊢→⊢-<ˢ ⊢𝓙 in
+      wk (lift-Quot-rel-Con ρ⊇)
+        (wk-Quot-rel-Con ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄) ⊢𝓙
 
-    wkEqTerm :
-      ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
-      (t≡u : ∇ » Γ ⊢ t ≡ u ∷ A)
-      ⦃ lt : size t≡u <ˢ s₂ ⦄ →
-      ∇ » Δ ⊢ U.wk ρ t ≡ U.wk ρ u ∷ U.wk ρ A
-    wkEqTerm ρ⊇ ⊢Δ t≡u ⦃ lt ⦄ = P.wkEqTerm (hyp lt) ρ⊇ ⊢Δ t≡u PE.refl
+  opaque
+    unfolding Resp-Con
 
-    wkEqLevel :
+    -- A derived definition.
+
+    wk-Resp-Con :
       ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
-      (l₁≡l₂ : ∇ » Γ ⊢ l₁ ≡ l₂ ∷Level) →
-      ⦃ lt : size l₁≡l₂ <ˢ s₂ ⦄ →
-      ∇ » Δ ⊢ U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
-    wkEqLevel ρ⊇ ⊢Δ l₁≡l₂ ⦃ lt ⦄ =
-      P.wkEqLevel (hyp lt) ρ⊇ ⊢Δ l₁≡l₂ PE.refl
+      (⊢B : ∇ » Quot-rel-Con Γ A ⊢ B)
+      ⦃ lt : size ⊢B <ˢ s₂ ⦄ →
+      ∇ »⊢ Resp-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B)
+    wk-Resp-Con ρ⊇ ⊢Δ ⊢B =
+      ∙ wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ ⊢B
+
+  opaque
+    unfolding Is-set-Con
+
+    -- A derived definition.
+
+    wk-Is-set-Con :
+      ρ ∷ Δ ⊇ Γ → ∇ »⊢ Δ →
+      (⊢C : ∇ » Γ ∙ Quot A B ⊢ C)
+      ⦃ lt : size ⊢C <ˢ s₂ ⦄ →
+      ∇ »⊢
+        Is-set-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) (U.wk (lift ρ) C)
+    wk-Is-set-Con {ρ} {Δ} {∇} {A} {B} {C} ρ⊇ ⊢Δ ⊢C =
+      ∙_ $
+      PE.subst (flip _⊢_ _)
+        (PE.cong (_»_ _) $
+         PE.cong₂ _∙_
+           (PE.cong (_∙_ _) (PE.sym (wk-comp _ _ _)))
+           (PE.cong₃ Id (PE.sym (wk-comp _ _ _)) PE.refl PE.refl)) $
+      Idⱼ
+        (PE.subst (_⊢_ _) (PE.sym (wk-comp _ _ _)) $
+         wk (step (step (step (lift ρ⊇)))) (∙ ⊢Id) ⊢C)
+        (PE.subst (_⊢_∷_ _ _) wk[]≡wk[]′ (var₂ ⊢Id))
+        (PE.subst (_⊢_∷_ _ _)
+           (PE.trans (PE.cong wk[ 2 ] (PE.sym (wk-comp _ _ _)))
+            wk[]≡wk[]′)
+           (var₁ ⊢Id))
+      where
+      ⊢C′ : (∇ » Δ) »∙ U.wk ρ (Quot A B) ⊢ U.wk (lift ρ) C
+      ⊢C′ =
+        let _ , (⊢Q , Q<) = ∙⊢→⊢-<ˢ ⊢C
+            ⊢Q′           = wk ρ⊇ ⊢Δ ⊢Q ⦃ lt = <ˢ-trans Q< ! ⦄
+        in
+        wk (lift ρ⊇) (∙ ⊢Q′) ⊢C
+
+      ⊢C″ :
+        (∇ » Δ) »∙ U.wk ρ (Quot A B) »∙ U.wk (lift ρ) C ⊢
+        U.wk (step (lift ρ)) C
+      ⊢C″ = wk (step (lift ρ⊇)) (∙ ⊢C′) ⊢C
+
+      ⊢Id :
+        (∇ » Δ) »∙ U.wk ρ (Quot A B) »∙ U.wk (lift ρ) C »∙
+        U.wk (step (lift ρ)) C ⊢
+        Id (U.wk (stepn (lift ρ) 2) C) (var x1) (var x0)
+      ⊢Id =
+        Idⱼ
+          (wk (step (step (lift ρ⊇))) (∙ ⊢C″) ⊢C)
+          (PE.subst (_⊢_∷_ _ _)
+             (PE.trans (wk[]≡wk[]′ {n = 2}) (wk-comp _ _ _)) $
+           var₁ ⊢C″)
+          (PE.subst (_⊢_∷_ _ _)
+             (PE.trans (wk[]≡wk[]′ {n = 1}) (wk-comp _ _ _)) $
+           var₀ ⊢C″)
 
 -- The type P s is inhabited for every s.
 
 private module Inhabited where
 
   opaque
-    unfolding size
+    unfolding Quot-rel-Con size
 
     -- A weakening lemma for _⊢_.
 
@@ -380,16 +523,18 @@ private module Inhabited where
         (Levelⱼ ok _) _ →
           Levelⱼ ok ⊢Δ
         (univ ⊢A) PE.refl →
-          univ (wkTerm ρ⊇ ⊢Δ ⊢A)
+          univ (wk ρ⊇ ⊢Δ ⊢A)
         (Liftⱼ ⊢l ⊢A) PE.refl →
-          Liftⱼ (wkLevel ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A)
+          Liftⱼ (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A)
         (ΠΣⱼ ⊢B ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           ΠΣⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) ok
         (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
-          Idⱼ (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
+          Idⱼ (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u)
+        (Quot ok ⊢B) PE.refl →
+          Quot ok (wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ ⊢B)
       where
       open Variants hyp
 
@@ -406,7 +551,7 @@ private module Inhabited where
       ∇ » Δ ⊢ U.wk ρ t ∷ U.wk ρ A
     wkTerm′ hyp ρ⊇ ⊢Δ = λ where
         (conv ⊢t B≡A) PE.refl →
-          conv (wkTerm ρ⊇ ⊢Δ ⊢t) (wkEq ρ⊇ ⊢Δ B≡A)
+          conv (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ B≡A)
         (var _ x∈) _ →
           var ⊢Δ (wkIndex ρ⊇ x∈)
         (defn ⊢Γ α↦t PE.refl) PE.refl →
@@ -416,83 +561,78 @@ private module Inhabited where
         (zeroᵘⱼ ok _) _ →
           zeroᵘⱼ ok ⊢Δ
         (sucᵘⱼ ⊢t) PE.refl →
-          sucᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
+          sucᵘⱼ (wk ρ⊇ ⊢Δ ⊢t)
         (supᵘⱼ ⊢t ⊢u) PE.refl →
-          supᵘⱼ (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
+          supᵘⱼ (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u)
         (Uⱼ l) PE.refl →
           PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym wk-1ᵘ+) $
-          Uⱼ (wkLevel ρ⊇ ⊢Δ l)
+          Uⱼ (wk ρ⊇ ⊢Δ l)
         (Liftⱼ ⊢l₁ ⊢l₂ ⊢A) PE.refl →
           PE.subst (_⊢_∷_ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
-          Liftⱼ (wkLevel ρ⊇ ⊢Δ ⊢l₁) (wkLevel ρ⊇ ⊢Δ ⊢l₂)
-            (wkTerm ρ⊇ ⊢Δ ⊢A)
+          Liftⱼ (wk ρ⊇ ⊢Δ ⊢l₁) (wk ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A)
         (liftⱼ ⊢l₂ ⊢A ⊢t) PE.refl →
-          liftⱼ (wkLevel ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+          liftⱼ (wk ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t)
         (lowerⱼ ⊢t) PE.refl →
-          lowerⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
+          lowerⱼ (wk ρ⊇ ⊢Δ ⊢t)
         (ΠΣⱼ l ⊢A ⊢B ok) PE.refl →
-          let ⊢A′ = wkTerm ρ⊇ ⊢Δ ⊢A in
-          ΠΣⱼ (wkLevel ρ⊇ ⊢Δ l) ⊢A′
+          let ⊢A′ = wk ρ⊇ ⊢Δ ⊢A in
+          ΠΣⱼ (wk ρ⊇ ⊢Δ l) ⊢A′
             (PE.subst (λ x → _ ⊢ _ ∷ U x)
               (PE.sym $ wk1-wk≡lift-wk1 _ _)
-              (wkTerm (lift ρ⊇) (∙ univ ⊢A′) ⊢B))
+              (wk (lift ρ⊇) (∙ univ ⊢A′) ⊢B))
             ok
         (lamⱼ ⊢B ⊢t ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢t
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
-          lamⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm (lift ρ⊇) (∙ ⊢A′) ⊢t)
-            ok
+          lamⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk (lift ρ⊇) (∙ ⊢A′) ⊢t) ok
         (_∘ⱼ_ {G = B} ⊢t ⊢u) PE.refl →
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β B)
-            (wkTerm ρ⊇ ⊢Δ ⊢t ∘ⱼ wkTerm ρ⊇ ⊢Δ ⊢u)
+            (wk ρ⊇ ⊢Δ ⊢t ∘ⱼ wk ρ⊇ ⊢Δ ⊢u)
         (prodⱼ {G = B} ⊢B ⊢t ⊢u ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
-          prodⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B)
-            (wkTerm ρ⊇ ⊢Δ ⊢t)
+          prodⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β B) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
+             wk ρ⊇ ⊢Δ ⊢u)
             ok
         (fstⱼ ⊢B ⊢t) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
-          fstⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm ρ⊇ ⊢Δ ⊢t)
+          fstⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ ⊢t)
         (sndⱼ {G = B} ⊢B ⊢t) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β B) $
-          sndⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm ρ⊇ ⊢Δ ⊢t)
-        (prodrecⱼ {A = C} ⊢C ⊢t ⊢u ok) PE.refl →
-          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢u
+          sndⱼ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ ⊢t)
+        (prodrecⱼ {A = C} ⊢C ⊢t ⊢u) PE.refl →
+          let _ , _ , ok                = inversion-ΠΣ (⊢∙→⊢ (wf ⊢C))
+              _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢u
               ⊢A′                       = wk ρ⊇ ⊢Δ ⊢A
                                             ⦃ lt = <ˢ-trans A< ! ⦄
               ⊢B′                       = wk (lift ρ⊇) (∙ ⊢A′) ⊢B
                                             ⦃ lt = <ˢ-trans B< ! ⦄
           in
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β C) $
-          prodrecⱼ
-            (wk (lift ρ⊇) (∙ ΠΣⱼ ⊢B′ ok) ⊢C)
-            (wkTerm ρ⊇ ⊢Δ ⊢t)
+          prodrecⱼ (wk (lift ρ⊇) (∙ ΠΣⱼ ⊢B′ ok) ⊢C) (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β-prodrec _ C) $
-             wkTerm (lift (lift ρ⊇)) (∙ ⊢B′) ⊢u)
-            ok
+             wk (lift (lift ρ⊇)) (∙ ⊢B′) ⊢u)
         (Emptyⱼ _) _ →
           Emptyⱼ ⊢Δ
         (emptyrecⱼ ⊢A ⊢t) PE.refl →
-          emptyrecⱼ (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+          emptyrecⱼ (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t)
         (starⱼ ⊢Γ ok) PE.refl →
           starⱼ ⊢Δ ok
-        (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) PE.refl →
+        (unitrecⱼ {A} ⊢A ⊢t ⊢u) PE.refl →
+          let ok = inversion-Unit (⊢∙→⊢ (wf ⊢A)) in
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β A) $
           unitrecⱼ (wk (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) ⊢A)
-            (wkTerm ρ⊇ ⊢Δ ⊢t)
+            (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
-            ok
+             wk ρ⊇ ⊢Δ ⊢u)
         (Unitⱼ _ ok) PE.refl →
           Unitⱼ ⊢Δ ok
         (ℕⱼ _) _ →
@@ -500,7 +640,7 @@ private module Inhabited where
         (zeroⱼ _) _ →
           zeroⱼ ⊢Δ
         (sucⱼ ⊢t) PE.refl →
-          sucⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
+          sucⱼ (wk ρ⊇ ⊢Δ ⊢t)
         (natrecⱼ {A} ⊢t ⊢u ⊢v) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
               ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
@@ -509,20 +649,20 @@ private module Inhabited where
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β A) $
           natrecⱼ
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
-             wkTerm ρ⊇ ⊢Δ ⊢t)
+             wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β-natrec _ A) $
-             wkTerm (lift (lift ρ⊇)) (∙ ⊢A′) ⊢u)
-            (wkTerm ρ⊇ ⊢Δ ⊢v)
+             wk (lift (lift ρ⊇)) (∙ ⊢A′) ⊢u)
+            (wk ρ⊇ ⊢Δ ⊢v)
         (Idⱼ ⊢A ⊢t ⊢u) PE.refl →
-          Idⱼ (wkTerm ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u)
+          Idⱼ (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u)
         (rflⱼ ⊢t) PE.refl →
-          rflⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
+          rflⱼ (wk ρ⊇ ⊢Δ ⊢t)
         (Jⱼ {B} ⊢t ⊢B ⊢u ⊢v ⊢w) PE.refl →
           let _ , (⊢A , A<) , _ = ∙∙⊢→⊢-<ˢ ⊢B
               ⊢A′               = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β-doubleSubst _ B _ _) $
-          Jⱼ (wkTerm ρ⊇ ⊢Δ ⊢t)
+          Jⱼ (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst₂ (λ A t → _ » _ ∙ U.wk _ _ ∙ Id A t _ ⊢ _)
                (PE.sym $ wk1-wk≡lift-wk1 _ _)
                (PE.sym $ wk1-wk≡lift-wk1 _ _) $
@@ -533,30 +673,66 @@ private module Inhabited where
                      (PE.subst₂ (_⊢_∷_ _)
                         (PE.sym $ lift-wk1 _ _)
                         (PE.sym $ lift-wk1 _ _) $
-                      wkTerm (step ρ⊇) (∙ ⊢A′) ⊢t)
+                      wk (step ρ⊇) (∙ ⊢A′) ⊢t)
                      (PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
                       var₀ ⊢A′)))
                ⊢B)
             (PE.subst (_⊢_∷_ _ _) (wk-β-doubleSubst _ B _ _) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
-            (wkTerm ρ⊇ ⊢Δ ⊢v) (wkTerm ρ⊇ ⊢Δ ⊢w)
+             wk ρ⊇ ⊢Δ ⊢u)
+            (wk ρ⊇ ⊢Δ ⊢v) (wk ρ⊇ ⊢Δ ⊢w)
         (Kⱼ {B} ⊢B ⊢u ⊢v ok) PE.refl →
           let _ , ⊢Id                   = ∙⊢→⊢-<ˢ ⊢B
               (⊢A , A<) , (⊢t , t<) , _ = inversion-Id-⊢-<ˢ ⊢Id
               ⊢A′                       = wk ρ⊇ ⊢Δ ⊢A
                                             ⦃ lt = <ˢ-trans A< ! ⦄
-              ⊢t′                       = wkTerm ρ⊇ ⊢Δ ⊢t
+              ⊢t′                       = wk ρ⊇ ⊢Δ ⊢t
                                             ⦃ lt = <ˢ-trans t< ! ⦄
           in
           PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-β B) $
           Kⱼ (wk (lift ρ⊇) (∙ Idⱼ ⊢A′ ⊢t′ ⊢t′) ⊢B)
             (PE.subst (_⊢_∷_ _ _) (wk-β B) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
-            (wkTerm ρ⊇ ⊢Δ ⊢v) ok
+             wk ρ⊇ ⊢Δ ⊢u)
+            (wk ρ⊇ ⊢Δ ⊢v) ok
         ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v ok) PE.refl →
           PE.subst (_⊢_∷_ _ _) (wk-Id-Erased _) $
-          []-congⱼ (wkLevel ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A)
-            (wkTerm ρ⊇ ⊢Δ ⊢t) (wkTerm ρ⊇ ⊢Δ ⊢u) (wkTerm ρ⊇ ⊢Δ ⊢v) ok
+          []-congⱼ (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t)
+            (wk ρ⊇ ⊢Δ ⊢u) (wk ρ⊇ ⊢Δ ⊢v) ok
+        (Quot ok ⊢l ⊢A ⊢B) PE.refl →
+          Quot ok (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢A)
+            (PE.subst (_⊢_∷_ _ _) (wk⇑[]-wk[]≡ 2) $
+             wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ ⊢B)
+        (class ⊢Q ⊢t) PE.refl →
+          class (wk ρ⊇ ⊢Δ ⊢Q) (wk ρ⊇ ⊢Δ ⊢t)
+        (resp {B} ⊢Q ⊢t ⊢u ⊢v) PE.refl →
+          resp (wk ρ⊇ ⊢Δ ⊢Q) (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u)
+            (PE.subst (_⊢_∷_ _ _) (wk-β-doubleSubst _ B _ _) $
+             wk ρ⊇ ⊢Δ ⊢v)
+        (set ⊢Q ⊢t ⊢u ⊢v ⊢w) PE.refl →
+          set (wk ρ⊇ ⊢Δ ⊢Q) (wk ρ⊇ ⊢Δ ⊢t) (wk ρ⊇ ⊢Δ ⊢u) (wk ρ⊇ ⊢Δ ⊢v)
+            (wk ρ⊇ ⊢Δ ⊢w)
+        ⊢q@(qrec {C} ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
+          let _ , (⊢A , A<) , (⊢B , B<) , _ , (⊢Q , Q<) =
+                inversion-Is-set-Cons ⊢v
+
+              instance
+                _ : size ⊢Q <ˢ size ⊢q
+                _ = <ˢ-trans Q< !
+
+                _ : size ⊢A <ˢ size ⊢q
+                _ = <ˢ-trans A< !
+
+                _ : size ⊢B <ˢ size ⊢q
+                _ = <ˢ-trans B< !
+          in
+          PE.subst (_⊢_∷_ _ _) (PE.sym (wk-β C)) $
+          qrec (wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢Q) ⊢C)
+            (PE.subst (_⊢_∷_ _ _) (wk-β↑ C) $
+             wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢A) ⊢t)
+            (PE.subst (_⊢_∷_ _ _) wk-Resp-type $
+             wk (lift-Resp-Con ρ⊇) (wk-Resp-Con ρ⊇ ⊢Δ ⊢B) ⊢u)
+            (PE.subst (_⊢_∷_ _ _) wk-Is-set-type $
+             wk (lift-Is-set-Con ρ⊇) (wk-Is-set-Con ρ⊇ ⊢Δ ⊢C) ⊢v)
+            (wk ρ⊇ ⊢Δ ⊢w)
       where
       open Variants hyp
 
@@ -572,7 +748,7 @@ private module Inhabited where
       size ⊢l PE.≡ s₂ →
       ∇ » Δ ⊢ U.wk ρ l ∷Level
     wkLevel′ hyp ρ⊇ ⊢Δ = λ where
-        (term ok ⊢l)   PE.refl → term ok (wkTerm ρ⊇ ⊢Δ ⊢l)
+        (term ok ⊢l)   PE.refl → term ok (wk ρ⊇ ⊢Δ ⊢l)
         (literal ok _) _       →
           literal (Allowed-literal-wk-⇔ .proj₂ ok) ⊢Δ
       where
@@ -591,30 +767,31 @@ private module Inhabited where
       ∇ » Δ ⊢ U.wk ρ A₁ ≡ U.wk ρ A₂
     wkEq′ hyp ρ⊇ ⊢Δ = λ where
         (univ A₁≡A₂) PE.refl →
-          univ (wkEqTerm ρ⊇ ⊢Δ A₁≡A₂)
+          univ (wk ρ⊇ ⊢Δ A₁≡A₂)
         (refl ⊢A) PE.refl →
           refl (wk ρ⊇ ⊢Δ ⊢A)
         (sym A₂≡A₁) PE.refl →
-          sym (wkEq ρ⊇ ⊢Δ A₂≡A₁)
+          sym (wk ρ⊇ ⊢Δ A₂≡A₁)
         (trans A₁≡A₂ A₂≡A₃) PE.refl →
-          trans (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkEq ρ⊇ ⊢Δ A₂≡A₃)
+          trans (wk ρ⊇ ⊢Δ A₁≡A₂) (wk ρ⊇ ⊢Δ A₂≡A₃)
         (U-cong l₁≡l₂) PE.refl →
-          U-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
+          U-cong (wk ρ⊇ ⊢Δ l₁≡l₂)
         (Lift-cong l₁≡l₂ A≡B) PE.refl →
-          Lift-cong (wkEqLevel ρ⊇ ⊢Δ l₁≡l₂) (wkEq ρ⊇ ⊢Δ A≡B)
+          Lift-cong (wk ρ⊇ ⊢Δ l₁≡l₂) (wk ρ⊇ ⊢Δ A≡B)
         (ΠΣ-cong A₁≡A₂ B₁≡B₂ ok) PE.refl →
           let _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ B₁≡B₂
               ⊢A₁′            = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
-          ΠΣ-cong (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkEq (lift ρ⊇) (∙ ⊢A₁′) B₁≡B₂) ok
+          ΠΣ-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk (lift ρ⊇) (∙ ⊢A₁′) B₁≡B₂) ok
         (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) PE.refl →
-          Id-cong (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
-            (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
+          Id-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂)
+        (Quot-cong ok A₁≡A₂ B₁≡B₂) PE.refl →
+          Quot-cong ok (wk ρ⊇ ⊢Δ A₁≡A₂) (wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ B₁≡B₂)
       where
       open Variants hyp
 
   opaque
-    unfolding size
+    unfolding Is-set-Con Resp-Con size
 
     -- A weakening lemma for _⊢_≡_∷_.
 
@@ -626,136 +803,137 @@ private module Inhabited where
       ∇ » Δ ⊢ U.wk ρ t₁ ≡ U.wk ρ t₂ ∷ U.wk ρ A
     wkEqTerm′ hyp ρ⊇ ⊢Δ = λ where
         (refl ⊢t) PE.refl →
-          refl (wkTerm ρ⊇ ⊢Δ ⊢t)
+          refl (wk ρ⊇ ⊢Δ ⊢t)
         (sym ⊢A t₂≡t₁) PE.refl →
-          sym (wk ρ⊇ ⊢Δ ⊢A) (wkEqTerm ρ⊇ ⊢Δ t₂≡t₁)
+          sym (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ t₂≡t₁)
         (trans t₁≡t₂ t₂≡t₃) PE.refl →
-          trans (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ t₂≡t₃)
+          trans (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ t₂≡t₃)
         (conv t₁≡t₂ B≡A) PE.refl →
-          conv (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEq ρ⊇ ⊢Δ B≡A)
+          conv (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ B≡A)
         (δ-red ⊢Γ α↦t PE.refl PE.refl) PE.refl →
           δ-red ⊢Δ α↦t (wk₀-comp _ _) (wk₀-comp _ _)
         (sucᵘ-cong t₁≡t₂) PE.refl →
-          sucᵘ-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+          sucᵘ-cong (wk ρ⊇ ⊢Δ t₁≡t₂)
         (supᵘ-cong t₁≡t₂ u₁≡u₂) PE.refl →
-          supᵘ-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
+          supᵘ-cong (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂)
         (supᵘ-zeroˡ l) PE.refl →
-          supᵘ-zeroˡ (wkTerm ρ⊇ ⊢Δ l)
+          supᵘ-zeroˡ (wk ρ⊇ ⊢Δ l)
         (supᵘ-sucᵘ l₁ l₂) PE.refl →
-          supᵘ-sucᵘ (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
+          supᵘ-sucᵘ (wk ρ⊇ ⊢Δ l₁) (wk ρ⊇ ⊢Δ l₂)
         (supᵘ-assoc l₁ l₂ l₃) PE.refl →
-          supᵘ-assoc (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂) (wkTerm ρ⊇ ⊢Δ l₃)
+          supᵘ-assoc (wk ρ⊇ ⊢Δ l₁) (wk ρ⊇ ⊢Δ l₂) (wk ρ⊇ ⊢Δ l₃)
         (supᵘ-comm l₁ l₂) PE.refl →
-          supᵘ-comm (wkTerm ρ⊇ ⊢Δ l₁) (wkTerm ρ⊇ ⊢Δ l₂)
+          supᵘ-comm (wk ρ⊇ ⊢Δ l₁) (wk ρ⊇ ⊢Δ l₂)
         (supᵘ-idem ⊢l) PE.refl →
-          supᵘ-idem (wkTerm ρ⊇ ⊢Δ ⊢l)
+          supᵘ-idem (wk ρ⊇ ⊢Δ ⊢l)
         (supᵘ-sub ⊢l) PE.refl →
-          supᵘ-sub (wkTerm ρ⊇ ⊢Δ ⊢l)
+          supᵘ-sub (wk ρ⊇ ⊢Δ ⊢l)
         (U-cong l₁≡l₂) PE.refl →
-          U-cong (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
+          U-cong (wk ρ⊇ ⊢Δ l₁≡l₂)
         (Lift-cong ⊢l₁ ⊢l₂ l₂≡l₂′ A≡B) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.cong U $ PE.sym wk-supᵘₗ) $
-          Lift-cong (wkLevel ρ⊇ ⊢Δ ⊢l₁) (wkLevel ρ⊇ ⊢Δ ⊢l₂)
-            (wkEqLevel ρ⊇ ⊢Δ l₂≡l₂′) (wkEqTerm ρ⊇ ⊢Δ A≡B)
+          Lift-cong (wk ρ⊇ ⊢Δ ⊢l₁) (wk ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ l₂≡l₂′)
+            (wk ρ⊇ ⊢Δ A≡B)
         (lower-cong t≡u) PE.refl →
-          lower-cong (wkEqTerm ρ⊇ ⊢Δ t≡u)
+          lower-cong (wk ρ⊇ ⊢Δ t≡u)
         (Lift-β ⊢A ⊢t) PE.refl →
-          Lift-β (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
+          Lift-β (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t)
         (Lift-η ⊢l₂ ⊢A ⊢t ⊢u t≡u) PE.refl →
-          Lift-η (wkLevel ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wkTerm ρ⊇ ⊢Δ ⊢t)
-            (wkTerm ρ⊇ ⊢Δ ⊢u) (wkEqTerm ρ⊇ ⊢Δ t≡u)
+          Lift-η (wk ρ⊇ ⊢Δ ⊢l₂) (wk ρ⊇ ⊢Δ ⊢A) (wk ρ⊇ ⊢Δ ⊢t)
+            (wk ρ⊇ ⊢Δ ⊢u) (wk ρ⊇ ⊢Δ t≡u)
         (ΠΣ-cong ⊢l A₁≡A₂ B₁≡B₂ ok) PE.refl →
           let _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ B₁≡B₂
               ⊢A₁′            = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
-          ΠΣ-cong (wkLevel ρ⊇ ⊢Δ ⊢l) (wkEqTerm ρ⊇ ⊢Δ A₁≡A₂)
+          ΠΣ-cong (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ A₁≡A₂)
             (PE.subst (λ x → _ ⊢ _ ≡ _ ∷ U x)
               (PE.sym $ wk1-wk≡lift-wk1 _ _)
-              (wkEqTerm (lift ρ⊇) (∙ ⊢A₁′) B₁≡B₂))
+              (wk (lift ρ⊇) (∙ ⊢A₁′) B₁≡B₂))
             ok
         (app-cong {G = B} t₁≡t₂ u₁≡u₂) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β B) $
-          app-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
+          app-cong (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂)
         (β-red {B} {t} ⊢B ⊢t ⊢u eq ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst₂ (_⊢_≡_∷_ _ _) (PE.sym $ wk-β t) (PE.sym $ wk-β B) $
-          β-red (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm (lift ρ⊇) (∙ ⊢A′) ⊢t)
-            (wkTerm ρ⊇ ⊢Δ ⊢u) eq ok
+          β-red (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk (lift ρ⊇) (∙ ⊢A′) ⊢t)
+            (wk ρ⊇ ⊢Δ ⊢u) eq ok
         (η-eq {f = t₁} {g = t₂} ⊢B ⊢t₁ ⊢t₂ t₁0≡t₂0 ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ t₁0≡t₂0
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
-          η-eq (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm ρ⊇ ⊢Δ ⊢t₁)
-            (wkTerm ρ⊇ ⊢Δ ⊢t₂)
+          η-eq (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ ⊢t₁)
+            (wk ρ⊇ ⊢Δ ⊢t₂)
             (PE.subst₃ (_⊢_≡_∷_ _)
                (PE.cong (_∘⟨ _ ⟩ _) (PE.sym $ wk1-wk≡lift-wk1 _ _))
                (PE.cong (_∘⟨ _ ⟩ _) (PE.sym $ wk1-wk≡lift-wk1 _ _))
                PE.refl $
-             wkEqTerm (lift ρ⊇) (∙ ⊢A′) t₁0≡t₂0)
+             wk (lift ρ⊇) (∙ ⊢A′) t₁0≡t₂0)
             ok
         (fst-cong ⊢B t₁≡t₂) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
-          fst-cong (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+          fst-cong (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ t₁≡t₂)
         (snd-cong {G = B} ⊢B t₁≡t₂) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β B) $
-          snd-cong (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+          snd-cong (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ t₁≡t₂)
         (Σ-β₁ {G = B} ⊢B ⊢t ⊢u eq ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
-          Σ-β₁ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm ρ⊇ ⊢Δ ⊢t)
+          Σ-β₁ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β B) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
+             wk ρ⊇ ⊢Δ ⊢u)
             eq ok
         (Σ-β₂ {G = B} ⊢B ⊢t ⊢u eq ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β B) $
-          Σ-β₂ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm ρ⊇ ⊢Δ ⊢t)
+          Σ-β₂ (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β B) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
+             wk ρ⊇ ⊢Δ ⊢u)
             eq ok
         (Σ-η {G = B} ⊢B ⊢t₁ ⊢t₂ fst-t₁≡fst-t₂ snd-t₁≡snd-t₂ ok)
           PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
-          Σ-η (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkTerm ρ⊇ ⊢Δ ⊢t₁)
-            (wkTerm ρ⊇ ⊢Δ ⊢t₂) (wkEqTerm ρ⊇ ⊢Δ fst-t₁≡fst-t₂)
+          Σ-η (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ ⊢t₁)
+            (wk ρ⊇ ⊢Δ ⊢t₂) (wk ρ⊇ ⊢Δ fst-t₁≡fst-t₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β B) $
-             wkEqTerm ρ⊇ ⊢Δ snd-t₁≡snd-t₂)
+             wk ρ⊇ ⊢Δ snd-t₁≡snd-t₂)
             ok
         (prod-cong {G = B} ⊢B t₁≡t₂ u₁≡u₂ ok) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢B
               ⊢A′           = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
-          prod-cong (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+          prod-cong (wk (lift ρ⊇) (∙ ⊢A′) ⊢B) (wk ρ⊇ ⊢Δ t₁≡t₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β B) $
-             wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
+             wk ρ⊇ ⊢Δ u₁≡u₂)
             ok
-        (prodrec-cong {A = C} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) PE.refl →
-          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ u₁≡u₂
+        (prodrec-cong {A = C} C₁≡C₂ t₁≡t₂ u₁≡u₂) PE.refl →
+          let _ , _ , ok                = inversion-ΠΣ (⊢∙→⊢ (wf C₁≡C₂))
+              _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ u₁≡u₂
               ⊢A′                       = wk ρ⊇ ⊢Δ ⊢A
                                             ⦃ lt = <ˢ-trans A< ! ⦄
               ⊢B′                       = wk (lift ρ⊇) (∙ ⊢A′) ⊢B
                                             ⦃ lt = <ˢ-trans B< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β C) $
-          prodrec-cong (wkEq (lift ρ⊇) (∙ ΠΣⱼ ⊢B′ ok) C₁≡C₂)
-            (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+          prodrec-cong (wk (lift ρ⊇) (∙ ΠΣⱼ ⊢B′ ok) C₁≡C₂)
+            (wk ρ⊇ ⊢Δ t₁≡t₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β-prodrec _ C) $
-             wkEqTerm (lift (lift ρ⊇)) (∙ ⊢B′) u₁≡u₂)
-            ok
-        (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v eq ok) PE.refl →
-          let _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢v
+             wk (lift (lift ρ⊇)) (∙ ⊢B′) u₁≡u₂)
+        (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v eq) PE.refl →
+          let _ , _ , ok                = inversion-ΠΣ (⊢∙→⊢ (wf ⊢C))
+              _ , (⊢A , A<) , (⊢B , B<) = ∙∙⊢→⊢-<ˢ ⊢v
               ⊢A′                       = wk ρ⊇ ⊢Δ ⊢A
                                             ⦃ lt = <ˢ-trans A< ! ⦄
               ⊢B′                       = wk (lift ρ⊇) (∙ ⊢A′) ⊢B
@@ -764,51 +942,54 @@ private module Inhabited where
           PE.subst₂ (_⊢_≡_∷_ _ _)
             (PE.sym $ wk-β-doubleSubst _ v _ _) (PE.sym $ wk-β C) $
           prodrec-β (wk (lift ρ⊇) (∙ ΠΣⱼ ⊢B′ ok) ⊢C)
-            (wkTerm ρ⊇ ⊢Δ ⊢t)
+            (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β B) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
+             wk ρ⊇ ⊢Δ ⊢u)
             (PE.subst (_⊢_∷_ _ _) (wk-β-prodrec _ C) $
-             wkTerm (lift (lift ρ⊇)) (∙ ⊢B′) ⊢v)
-            eq ok
+             wk (lift (lift ρ⊇)) (∙ ⊢B′) ⊢v)
+            eq
         (emptyrec-cong A₁≡A₂ t₁≡t₂) PE.refl →
-          emptyrec-cong (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
-        (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ ok no-η) PE.refl →
+          emptyrec-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk ρ⊇ ⊢Δ t₁≡t₂)
+        (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ no-η) PE.refl →
+          let ok = inversion-Unit (⊢∙→⊢ (wf A₁≡A₂)) in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A₁) $
           unitrec-cong
-            (wkEq (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) A₁≡A₂)
-            (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+            (wk (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) A₁≡A₂)
+            (wk ρ⊇ ⊢Δ t₁≡t₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β A₁) $
-             wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
-            ok no-η
-        (unitrec-β {A} ⊢A ⊢t ok no-η) PE.refl →
+             wk ρ⊇ ⊢Δ u₁≡u₂)
+            no-η
+        (unitrec-β {A} ⊢A ⊢t no-η) PE.refl →
+          let ok = inversion-Unit (⊢∙→⊢ (wf ⊢A)) in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A) $
           unitrec-β (wk (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) ⊢A)
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
-             wkTerm ρ⊇ ⊢Δ ⊢t)
-            ok no-η
-        (unitrec-β-η {A} ⊢A ⊢t ⊢u ok η) PE.refl →
+             wk ρ⊇ ⊢Δ ⊢t)
+            no-η
+        (unitrec-β-η {A} ⊢A ⊢t ⊢u η) PE.refl →
+          let ok = inversion-Unit (⊢∙→⊢ (wf ⊢A)) in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A) $
           unitrec-β-η (wk (lift ρ⊇) (∙ univ (Unitⱼ ⊢Δ ok)) ⊢A)
-            (wkTerm ρ⊇ ⊢Δ ⊢t)
+            (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
-            ok η
+             wk ρ⊇ ⊢Δ ⊢u)
+            η
         (η-unit ⊢t₁ ⊢t₂ η) PE.refl →
-          η-unit (wkTerm ρ⊇ ⊢Δ ⊢t₁) (wkTerm ρ⊇ ⊢Δ ⊢t₂) η
+          η-unit (wk ρ⊇ ⊢Δ ⊢t₁) (wk ρ⊇ ⊢Δ ⊢t₂) η
         (suc-cong t₁≡t₂) PE.refl →
-          suc-cong (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+          suc-cong (wk ρ⊇ ⊢Δ t₁≡t₂)
         (natrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) PE.refl →
           let _ , (⊢A₁ , A₁<) = ∙⊢→⊢-<ˢ u₁≡u₂
               ⊢A₁′            = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A₁
                                   ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A₁) $
-          natrec-cong (wkEq (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) A₁≡A₂)
+          natrec-cong (wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) A₁≡A₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β A₁) $
-             wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+             wk ρ⊇ ⊢Δ t₁≡t₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β-natrec _ A₁) $
-             wkEqTerm (lift (lift ρ⊇)) (∙ ⊢A₁′) u₁≡u₂)
-            (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂)
+             wk (lift (lift ρ⊇)) (∙ ⊢A₁′) u₁≡u₂)
+            (wk ρ⊇ ⊢Δ v₁≡v₂)
         (natrec-zero {A} ⊢t ⊢u) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
               ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
@@ -817,9 +998,9 @@ private module Inhabited where
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β A) $
           natrec-zero
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
-             wkTerm ρ⊇ ⊢Δ ⊢t)
+             wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β-natrec _ A) $
-             wkTerm (lift (lift ρ⊇)) (∙ ⊢A′) ⊢u)
+             wk (lift (lift ρ⊇)) (∙ ⊢A′) ⊢u)
         (natrec-suc {A} {s = u} ⊢t ⊢u ⊢v) PE.refl →
           let _ , (⊢A , A<) = ∙⊢→⊢-<ˢ ⊢u
               ⊢A′           = wk (lift ρ⊇) (∙ univ (ℕⱼ ⊢Δ)) ⊢A
@@ -829,25 +1010,25 @@ private module Inhabited where
             (PE.sym $ wk-β-doubleSubst _ u _ _) (PE.sym $ wk-β A) $
           natrec-suc
             (PE.subst (_⊢_∷_ _ _) (wk-β A) $
-             wkTerm ρ⊇ ⊢Δ ⊢t)
+             wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst (_⊢_∷_ _ _) (wk-β-natrec _ A) $
-             wkTerm (lift (lift ρ⊇)) (∙ ⊢A′) ⊢u)
-            (wkTerm ρ⊇ ⊢Δ ⊢v)
+             wk (lift (lift ρ⊇)) (∙ ⊢A′) ⊢u)
+            (wk ρ⊇ ⊢Δ ⊢v)
         (Id-cong A₁≡A₂ t₁≡t₂ u₁≡u₂) PE.refl →
-          Id-cong (wkEqTerm ρ⊇ ⊢Δ A₁≡A₂) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
-            (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
+          Id-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk ρ⊇ ⊢Δ t₁≡t₂)
+            (wk ρ⊇ ⊢Δ u₁≡u₂)
         (J-cong {B₁} A₁≡A₂ ⊢t₁ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
           let _ , (⊢A₁ , A₁<) , _ = ∙∙⊢→⊢-<ˢ B₁≡B₂
               ⊢A₁′                = wk ρ⊇ ⊢Δ ⊢A₁ ⦃ lt = <ˢ-trans A₁< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _)
             (PE.sym $ wk-β-doubleSubst _ B₁ _ _) $
-          J-cong (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkTerm ρ⊇ ⊢Δ ⊢t₁)
-            (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
+          J-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk ρ⊇ ⊢Δ ⊢t₁)
+            (wk ρ⊇ ⊢Δ t₁≡t₂)
             (PE.subst₂ (λ A t → _ » _ ∙ U.wk _ _ ∙ Id A t _ ⊢ _ ≡ _)
                (PE.sym $ wk1-wk≡lift-wk1 _ _)
                (PE.sym $ wk1-wk≡lift-wk1 _ _) $
-             wkEq (lift (lift ρ⊇))
+             wk (lift (lift ρ⊇))
                (∙ (Idⱼ
                      (PE.subst (_⊢_ _) (PE.sym $ lift-wk1 _ _) $
                       wk (step ρ⊇) (∙ ⊢A₁′) ⊢A₁
@@ -855,20 +1036,20 @@ private module Inhabited where
                      (PE.subst₂ (_ » _ ∙ U.wk _ _ ⊢_∷_)
                         (PE.sym $ lift-wk1 _ _)
                         (PE.sym $ lift-wk1 _ _) $
-                      wkTerm (step ρ⊇) (∙ ⊢A₁′) ⊢t₁)
+                      wk (step ρ⊇) (∙ ⊢A₁′) ⊢t₁)
                      (PE.subst (_ » _ ∙ U.wk _ _ ⊢ _ ∷_)
                         (wk1-wk≡lift-wk1 _ _) $
                       var₀ ⊢A₁′)))
                B₁≡B₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
-             wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
-            (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂) (wkEqTerm ρ⊇ ⊢Δ w₁≡w₂)
+             wk ρ⊇ ⊢Δ u₁≡u₂)
+            (wk ρ⊇ ⊢Δ v₁≡v₂) (wk ρ⊇ ⊢Δ w₁≡w₂)
         (J-β {B} ⊢t ⊢B ⊢u eq) PE.refl →
           let _ , (⊢A , A<) , _ = ∙∙⊢→⊢-<ˢ ⊢B
               ⊢A′               = wk ρ⊇ ⊢Δ ⊢A ⦃ lt = <ˢ-trans A< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β-doubleSubst _ B _ _) $
-          J-β (wkTerm ρ⊇ ⊢Δ ⊢t)
+          J-β (wk ρ⊇ ⊢Δ ⊢t)
             (PE.subst₂ (λ A t → _ » _ ∙ U.wk _ _ ∙ Id A t _ ⊢ _)
                (PE.sym $ wk1-wk≡lift-wk1 _ _)
                (PE.sym $ wk1-wk≡lift-wk1 _ _) $
@@ -879,51 +1060,115 @@ private module Inhabited where
                      (PE.subst₂ (_⊢_∷_ _)
                         (PE.sym $ lift-wk1 _ _)
                         (PE.sym $ lift-wk1 _ _) $
-                      wkTerm (step ρ⊇) (∙ ⊢A′) ⊢t)
+                      wk (step ρ⊇) (∙ ⊢A′) ⊢t)
                      (PE.subst (_⊢_∷_ _ _) (wk1-wk≡lift-wk1 _ _) $
                       var₀ ⊢A′)))
                ⊢B)
             (PE.subst (_⊢_∷_ _ _) (wk-β-doubleSubst _ B _ _) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
+             wk ρ⊇ ⊢Δ ⊢u)
             (PE.cong (U.wk _) eq)
         (K-cong {B₁} A₁≡A₂ t₁≡t₂ B₁≡B₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
           let _ , ⊢Id                       = ∙⊢→⊢-<ˢ B₁≡B₂
               (⊢A₁ , A₁<) , (⊢t₁ , t₁<) , _ = inversion-Id-⊢-<ˢ ⊢Id
               ⊢A₁′                          = wk ρ⊇ ⊢Δ ⊢A₁
                                                 ⦃ lt = <ˢ-trans A₁< ! ⦄
-              ⊢t₁′                          = wkTerm ρ⊇ ⊢Δ ⊢t₁
+              ⊢t₁′                          = wk ρ⊇ ⊢Δ ⊢t₁
                                                 ⦃ lt = <ˢ-trans t₁< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β B₁) $
-          K-cong (wkEq ρ⊇ ⊢Δ A₁≡A₂) (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂)
-            (wkEq (lift ρ⊇) (∙ Idⱼ ⊢A₁′ ⊢t₁′ ⊢t₁′) B₁≡B₂)
+          K-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk ρ⊇ ⊢Δ t₁≡t₂)
+            (wk (lift ρ⊇) (∙ Idⱼ ⊢A₁′ ⊢t₁′ ⊢t₁′) B₁≡B₂)
             (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β B₁) $
-             wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
-            (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂) ok
+             wk ρ⊇ ⊢Δ u₁≡u₂)
+            (wk ρ⊇ ⊢Δ v₁≡v₂) ok
         (K-β {B} ⊢B ⊢u ok) PE.refl →
           let _ , ⊢Id                   = ∙⊢→⊢-<ˢ ⊢B
               (⊢A , A<) , (⊢t , t<) , _ = inversion-Id-⊢-<ˢ ⊢Id
               ⊢A′                       = wk ρ⊇ ⊢Δ ⊢A
                                             ⦃ lt = <ˢ-trans A< ! ⦄
-              ⊢t′                       = wkTerm ρ⊇ ⊢Δ ⊢t
+              ⊢t′                       = wk ρ⊇ ⊢Δ ⊢t
                                             ⦃ lt = <ˢ-trans t< ! ⦄
           in
           PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ wk-β B) $
           K-β (wk (lift ρ⊇) (∙ Idⱼ ⊢A′ ⊢t′ ⊢t′) ⊢B)
             (PE.subst (_⊢_∷_ _ _) (wk-β B) $
-             wkTerm ρ⊇ ⊢Δ ⊢u)
+             wk ρ⊇ ⊢Δ ⊢u)
             ok
         ([]-cong-cong l₁≡l₂ A₁≡A₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ ok) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (wk-Id-Erased _) $
-          []-cong-cong (wkEqLevel ρ⊇ ⊢Δ l₁≡l₂) (wkEq ρ⊇ ⊢Δ A₁≡A₂)
-            (wkEqTerm ρ⊇ ⊢Δ t₁≡t₂) (wkEqTerm ρ⊇ ⊢Δ u₁≡u₂)
-            (wkEqTerm ρ⊇ ⊢Δ v₁≡v₂) ok
+          []-cong-cong (wk ρ⊇ ⊢Δ l₁≡l₂) (wk ρ⊇ ⊢Δ A₁≡A₂)
+            (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂) (wk ρ⊇ ⊢Δ v₁≡v₂) ok
         ([]-cong-β ⊢l ⊢t eq ok) PE.refl →
           PE.subst (_⊢_≡_∷_ _ _ _) (wk-Id-Erased _) $
-          []-cong-β (wkLevel ρ⊇ ⊢Δ ⊢l) (wkTerm ρ⊇ ⊢Δ ⊢t)
-            (PE.cong (U.wk _) eq) ok
+          []-cong-β (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ ⊢t) (PE.cong (U.wk _) eq) ok
         (equality-reflection ok ⊢Id ⊢v) PE.refl →
-          equality-reflection ok (wk ρ⊇ ⊢Δ ⊢Id) (wkTerm ρ⊇ ⊢Δ ⊢v)
+          equality-reflection ok (wk ρ⊇ ⊢Δ ⊢Id) (wk ρ⊇ ⊢Δ ⊢v)
+        (Quot-cong ok ⊢l A₁≡A₂ B₁≡B₂) PE.refl →
+          Quot-cong ok (wk ρ⊇ ⊢Δ ⊢l) (wk ρ⊇ ⊢Δ A₁≡A₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) (wk⇑[]-wk[]≡ 2) $
+             wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ B₁≡B₂)
+        (class-cong ⊢Q t₁≡t₂) PE.refl →
+          class-cong (wk ρ⊇ ⊢Δ ⊢Q) (wk ρ⊇ ⊢Δ t₁≡t₂)
+        (resp-cong {B₁} ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) PE.refl →
+          resp-cong ok (wk ρ⊇ ⊢Δ A₁≡A₂) (wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ B₁≡B₂)
+            (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β-doubleSubst _ B₁ _ _) $
+             wk ρ⊇ ⊢Δ v₁≡v₂)
+        (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
+          set-cong (wk ρ⊇ ⊢Δ A₁≡A₂) (wk-Quot-rel-Con-⊢ ρ⊇ ⊢Δ B₁≡B₂)
+            (wk ρ⊇ ⊢Δ t₁≡t₂) (wk ρ⊇ ⊢Δ u₁≡u₂) (wk ρ⊇ ⊢Δ v₁≡v₂)
+            (wk ρ⊇ ⊢Δ w₁≡w₂)
+        ⊢q@(qrec-cong {C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
+          let _ , (⊢A₁ , A₁<) , (⊢B₁ , B₁<) , (⊢C₁ , C₁<) , (⊢Q , Q<) =
+                inversion-Is-set-Cons v₁≡v₂
+
+              instance
+                _ : size ⊢Q <ˢ size ⊢q
+                _ = <ˢ-trans Q< !
+
+                _ : size ⊢A₁ <ˢ size ⊢q
+                _ = <ˢ-trans A₁< !
+
+                _ : size ⊢C₁ <ˢ size ⊢q
+                _ = <ˢ-trans C₁< !
+
+                _ : size ⊢B₁ <ˢ size ⊢q
+                _ = <ˢ-trans B₁< !
+          in
+          PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (wk-β C₁)) $
+          qrec-cong
+            (wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢Q) C₁≡C₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) (wk-β↑ C₁) $
+             wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢A₁) t₁≡t₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) wk-Resp-type $
+             wk (lift-Resp-Con ρ⊇) (wk-Resp-Con ρ⊇ ⊢Δ ⊢B₁) u₁≡u₂)
+            (PE.subst (_⊢_≡_∷_ _ _ _) wk-Is-set-type $
+             wk (lift-Is-set-Con ρ⊇) (wk-Is-set-Con ρ⊇ ⊢Δ ⊢C₁)
+               v₁≡v₂)
+            (wk ρ⊇ ⊢Δ w₁≡w₂)
+        ⊢q@(qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
+          let _ , (⊢A , A<) , (⊢B , B<) , _ , (⊢Q , Q<) =
+                inversion-Is-set-Cons ⊢v
+
+              instance
+                _ : size ⊢Q <ˢ size ⊢q
+                _ = <ˢ-trans Q< !
+
+                _ : size ⊢A <ˢ size ⊢q
+                _ = <ˢ-trans A< !
+
+                _ : size ⊢B <ˢ size ⊢q
+                _ = <ˢ-trans B< !
+          in
+          PE.subst₂ (_⊢_≡_∷_ _ _) (PE.sym (wk-β t)) (PE.sym (wk-β C)) $
+          qrec-β (wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢Q) ⊢C)
+            (PE.subst (_⊢_∷_ _ _) (wk-β↑ C) $
+             wk (lift ρ⊇) (∙ wk ρ⊇ ⊢Δ ⊢A) ⊢t)
+            (PE.subst (_⊢_∷_ _ _) wk-Resp-type $
+             wk (lift-Resp-Con ρ⊇) (wk-Resp-Con ρ⊇ ⊢Δ ⊢B) ⊢u)
+            (PE.subst (_⊢_∷_ _ _) wk-Is-set-type $
+             wk (lift-Is-set-Con ρ⊇) (wk-Is-set-Con ρ⊇ ⊢Δ ⊢C) ⊢v)
+            (wk ρ⊇ ⊢Δ ⊢w)
       where
       open Variants hyp
 
@@ -940,7 +1185,7 @@ private module Inhabited where
       ∇ » Δ ⊢ U.wk ρ l₁ ≡ U.wk ρ l₂ ∷Level
     wkEqLevel′ hyp ρ⊇ ⊢Δ = λ where
         (term ok l₁≡l₂) PE.refl →
-          term ok (wkEqTerm ρ⊇ ⊢Δ l₁≡l₂)
+          term ok (wk ρ⊇ ⊢Δ l₁≡l₂)
         (literal ok _) _ →
           literal (Allowed-literal-wk-⇔ .proj₂ ok) ⊢Δ
       where
@@ -970,20 +1215,9 @@ opaque
   -- A weakening lemma for _⊢[_].
 
   wk : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢[ 𝓙 ] → ∇ » Δ ⊢[ mapJ (U.wk ρ) 𝓙 ]
-  wk {𝓙 = [ctxt]} (_ , ⊢Δ) _ =
-    ⊢Δ
-  wk {𝓙 = [ _ type]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
-    P.wk Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
-  wk {𝓙 = [ _ ≡ _ type]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
-    P.wkEq Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
-  wk {𝓙 = [ _ ∷ A ]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
-    P.wkTerm Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
-  wk {𝓙 = [ _ ≡ _ ∷ A ]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
-    P.wkEqTerm Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
-  wk {𝓙 = [ _ ∷Level]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
-    P.wkLevel Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
-  wk {𝓙 = [ _ ≡ _ ∷Level]} (ρ⊇ , ⊢Δ) ⊢𝓙 =
-    P.wkEqLevel Inhabited.P-inhabited ρ⊇ ⊢Δ ⊢𝓙 PE.refl
+  wk (ρ⊇ , ⊢Δ) ⊢𝓙 =
+    Variants.wk (λ _ → Inhabited.P-inhabited) ρ⊇ ⊢Δ ⊢𝓙
+      ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
 opaque
   unfolding _⊢_≤ₗ_∷Level
@@ -1003,6 +1237,51 @@ opaque
 
   wk₁ : ∇ » Γ ⊢ A → ∇ » Γ ⊢[ 𝓙 ] → ∇ » Γ ∙ A ⊢[ mapJ U.wk1 𝓙 ]
   wk₁ ⊢A = wk (stepʷ id ⊢A)
+
+opaque
+  unfolding _»_∷ʷ_⊇_
+
+  -- A weakening lemma related to Quot-rel-Con.
+
+  liftʷ-Quot-rel-Con :
+    ∇ » ρ ∷ʷ Δ ⊇ Γ →
+    ∇ » Γ ⊢ A →
+    ∇ » liftn ρ 2 ∷ʷ Quot-rel-Con Δ (U.wk ρ A) ⊇ Quot-rel-Con Γ A
+  liftʷ-Quot-rel-Con (ρ⊇ , ⊢Δ) ⊢A =
+    lift-Quot-rel-Con ρ⊇ ,
+    Variants.wk-Quot-rel-Con (λ _ → Inhabited.P-inhabited) ρ⊇ ⊢Δ ⊢A
+      ⦃ lt = ∃-<ˢ .proj₂ ⦄
+
+opaque
+  unfolding Quot-rel-Con _»_∷ʷ_⊇_
+
+  -- A weakening lemma related to Resp-Con.
+
+  liftʷ-Resp-Con :
+    ∇ » ρ ∷ʷ Δ ⊇ Γ →
+    ∇ » Quot-rel-Con Γ A ⊢ B →
+    ∇ » liftn ρ 3 ∷ʷ Resp-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) ⊇
+      Resp-Con Γ A B
+  liftʷ-Resp-Con (ρ⊇ , ⊢Δ) ⊢B =
+    lift-Resp-Con ρ⊇ ,
+    Variants.wk-Resp-Con (λ _ → Inhabited.P-inhabited) ρ⊇ ⊢Δ ⊢B
+      ⦃ lt = ∃-<ˢ .proj₂ ⦄
+
+opaque
+  unfolding _»_∷ʷ_⊇_
+
+  -- A weakening lemma related to Is-set-Con.
+
+  liftʷ-Is-set-Con :
+    ∇ » ρ ∷ʷ Δ ⊇ Γ →
+    ∇ » Γ ∙ Quot A B ⊢ C →
+    ∇ » liftn ρ 5 ∷ʷ
+      Is-set-Con Δ (U.wk ρ A) (U.wk (liftn ρ 2) B) (U.wk (lift ρ) C) ⊇
+      Is-set-Con Γ A B C
+  liftʷ-Is-set-Con (ρ⊇ , ⊢Δ) ⊢C =
+    lift-Is-set-Con ρ⊇ ,
+    Variants.wk-Is-set-Con (λ _ → Inhabited.P-inhabited) ρ⊇ ⊢Δ ⊢C
+      ⦃ lt = ∃-<ˢ .proj₂ ⦄
 
 mutual
   wkRed : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ A ⇒ B → ∇ » Δ ⊢ U.wk ρ A ⇒ U.wk ρ B
@@ -1053,8 +1332,9 @@ mutual
         ρu = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β G) ρu
     in  PE.subst (λ x → _ ⊢ _ ⇒ _ ∷ x) (PE.sym (wk-β G))
       (Σ-β₂ ρG ρt ρu p≡p′ ok)
-  wkRedTerm {ρ} {Δ} [ρ] (prodrec-subst {A} ⊢A ⊢u t⇒t′ ok) =
-    let ⊢G = ⊢∙→⊢ (wf ⊢u)
+  wkRedTerm {ρ} {Δ} [ρ] (prodrec-subst {A} ⊢A ⊢u t⇒t′) =
+    let _ , _ , ok = inversion-ΠΣ (⊢∙→⊢ (wf ⊢A))
+        ⊢G = ⊢∙→⊢ (wf ⊢u)
         ρF = wk [ρ] (⊢∙→⊢ (wf ⊢G))
         ρG = wk (liftʷʷ [ρ] ρF) ⊢G
         ρA = wk (liftʷʷ [ρ] (ΠΣⱼ ρG ok)) ⊢A
@@ -1064,9 +1344,10 @@ mutual
                  (prodrec-subst ρA
                                (PE.subst (λ x → _ ⊢ _ ∷ x)
                                          (wk-β-prodrec ρ A) ρu)
-                               ρt⇒t′ ok)
-  wkRedTerm {ρ} {Δ} [ρ] (prodrec-β {G} {A} {u} ⊢A ⊢t ⊢t′ ⊢u p≡p′ ok) =
-    let ⊢G = ⊢∙→⊢ (wf ⊢u)
+                               ρt⇒t′)
+  wkRedTerm {ρ} {Δ} [ρ] (prodrec-β {G} {A} {u} ⊢A ⊢t ⊢t′ ⊢u p≡p′) =
+    let _ , _ , ok = inversion-ΠΣ (⊢∙→⊢ (wf ⊢A))
+        ⊢G = ⊢∙→⊢ (wf ⊢u)
         ρF = wk [ρ] (⊢∙→⊢ (wf ⊢G))
         ρG = wk (liftʷʷ [ρ] ρF) ⊢G
         ρA = wk (liftʷʷ [ρ] (ΠΣⱼ ρG ok)) ⊢A
@@ -1086,7 +1367,7 @@ mutual
           (prodrec-β ρA ρt
              (PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β G) ρt′)
              (PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β-prodrec ρ A) ρu)
-             p≡p′ ok)
+             p≡p′)
   wkRedTerm [ρ] (natrec-subst {A = F} ⊢z ⊢s n⇒n′) =
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β F)) $
     natrec-subst (PE.subst (_⊢_∷_ _ _) (wk-β F) (wk [ρ] ⊢z))
@@ -1117,24 +1398,26 @@ mutual
       (wk [ρ] ⊢n)
   wkRedTerm [ρ] (emptyrec-subst ⊢A n⇒n′) =
     emptyrec-subst (wk [ρ] ⊢A) (wkRedTerm [ρ] n⇒n′)
-  wkRedTerm [ρ] (unitrec-subst {A} ⊢A ⊢u t⇒t′ ok₁ ok₂) =
-    let ρA = wk (liftʷʷ [ρ] (univ (Unitⱼ (wf-∷ʷ⊇ [ρ]) ok₁))) ⊢A
+  wkRedTerm [ρ] (unitrec-subst {A} ⊢A ⊢u t⇒t′ ok) =
+    let Unit-ok = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+        ρA = wk (liftʷʷ [ρ] (univ (Unitⱼ (wf-∷ʷ⊇ [ρ]) Unit-ok))) ⊢A
         ρu = wk [ρ] ⊢u
         ρu′ = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β A) ρu
         ρt⇒t′ = wkRedTerm [ρ] t⇒t′
     in  PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β A))
-          (unitrec-subst ρA ρu′ ρt⇒t′ ok₁ ok₂)
-  wkRedTerm [ρ] (unitrec-β {A} ⊢A ⊢u ok₁ ok₂) =
-    let ρA = wk (liftʷʷ [ρ] (univ (Unitⱼ (wf-∷ʷ⊇ [ρ]) ok₁))) ⊢A
+          (unitrec-subst ρA ρu′ ρt⇒t′ ok)
+  wkRedTerm [ρ] (unitrec-β {A} ⊢A ⊢u ok) =
+    let Unit-ok = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+        ρA = wk (liftʷʷ [ρ] (univ (Unitⱼ (wf-∷ʷ⊇ [ρ]) Unit-ok))) ⊢A
         ρu = wk [ρ] ⊢u
         ρu′ = PE.subst (λ x → _ ⊢ _ ∷ x) (wk-β A) ρu
     in  PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β A))
-          (unitrec-β ρA ρu′ ok₁ ok₂)
-  wkRedTerm ρ (unitrec-β-η {A} ⊢A ⊢t ⊢u ok₁ ok₂) =
+          (unitrec-β ρA ρu′ ok)
+  wkRedTerm ρ (unitrec-β-η {A} ⊢A ⊢t ⊢u ok) =
+    let Unit-ok = inversion-Unit (⊢∙→⊢ (wf ⊢A)) in
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β A)) $
-    unitrec-β-η (wk (liftʷʷ ρ (univ (Unitⱼ (wf-∷ʷ⊇ ρ) ok₁))) ⊢A)
-      (wk ρ ⊢t) (PE.subst (_⊢_∷_ _ _) (wk-β A) (wk ρ ⊢u)) ok₁
-      ok₂
+    unitrec-β-η (wk (liftʷʷ ρ (univ (Unitⱼ (wf-∷ʷ⊇ ρ) Unit-ok))) ⊢A)
+      (wk ρ ⊢t) (PE.subst (_⊢_∷_ _ _) (wk-β A) (wk ρ ⊢u)) ok
   wkRedTerm ρ (J-subst {B} ⊢t ⊢B ⊢u ⊢t′ ⊢v) =
     PE.subst (_ ⊢ U.wk _ (J _ _ _ _ _ _ _ _) ⇒ _ ∷_)
       (PE.sym $ wk-β-doubleSubst _ B _ _) $
@@ -1211,6 +1494,38 @@ mutual
   wkRedTerm ρ ([]-cong-β ⊢l t≡t′ ok) =
     PE.subst (_⊢_⇒_∷_ _ _ _) (wk-Id-Erased _) $
     []-cong-β (wk ρ ⊢l) (wk ρ t≡t′) ok
+  wkRedTerm ρ (resp-η {B} ok ⊢Q ⊢t ⊢u ⊢v) =
+    resp-η ok (wk ρ ⊢Q) (wk ρ ⊢t) (wk ρ ⊢u)
+      (PE.subst (_⊢_∷_ _ _) (wk-β-doubleSubst _ B _ _) $
+       wk ρ ⊢v)
+  wkRedTerm ρ (set-η ok ⊢t ⊢u ⊢v ⊢w) =
+    set-η ok (wk ρ ⊢t) (wk ρ ⊢u) (wk ρ ⊢v) (wk ρ ⊢w)
+  wkRedTerm ρ (qrec-subst {C} ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) =
+    let _ , (⊢A , _) , (⊢B , _) , _ , (⊢Q , _) =
+          inversion-Is-set-Cons ⊢v
+    in
+    PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym (wk-β C)) $
+    qrec-subst (wk (liftʷʷ ρ (wk ρ ⊢Q)) ⊢C)
+      (PE.subst (_⊢_∷_ _ _) (wk-β↑ C) $
+       wk (liftʷʷ ρ (wk ρ ⊢A)) ⊢t)
+      (PE.subst (_⊢_∷_ _ _) wk-Resp-type $
+       wk (liftʷ-Resp-Con ρ ⊢B) ⊢u)
+      (PE.subst (_⊢_∷_ _ _) wk-Is-set-type $
+       wk (liftʷ-Is-set-Con ρ ⊢C) ⊢v)
+      (wkRedTerm ρ w₁⇒w₂)
+  wkRedTerm ρ (qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    let _ , (⊢A , _) , (⊢B , _) , _ , (⊢Q , _) =
+          inversion-Is-set-Cons ⊢v
+    in
+    PE.subst₂ (_⊢_⇒_∷_ _ _) (PE.sym (wk-β t)) (PE.sym (wk-β C)) $
+    qrec-β (wk (liftʷʷ ρ (wk ρ ⊢Q)) ⊢C)
+      (PE.subst (_⊢_∷_ _ _) (wk-β↑ C) $
+       wk (liftʷʷ ρ (wk ρ ⊢A)) ⊢t)
+      (PE.subst (_⊢_∷_ _ _) wk-Resp-type $
+       wk (liftʷ-Resp-Con ρ ⊢B) ⊢u)
+      (PE.subst (_⊢_∷_ _ _) wk-Is-set-type $
+       wk (liftʷ-Is-set-Con ρ ⊢C) ⊢v)
+      (wk ρ ⊢w)
 
 wkRed* : ∇ » ρ ∷ʷ Δ ⊇ Γ → ∇ » Γ ⊢ A ⇒* B → ∇ » Δ ⊢ U.wk ρ A ⇒* U.wk ρ B
 wkRed* ρ (id A)         = id (wk ρ A)

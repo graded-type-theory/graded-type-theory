@@ -26,6 +26,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Syntactic R
 open import Definition.Typed.Weakening R
+open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Weakening.Definition R
 open import Definition.Typed.Properties R
 open import Definition.Typed.EqRelInstance R using (eqRelInstance)
@@ -150,15 +151,15 @@ mutual
     let ⊢ΠFG , ⊢t , ⊢u = wf-⊢ (soundness~↓ ([~] A (D₂ , ΠΣₙ) k~l))
         ⊢F , ⊢G , _ = inversion-ΠΣ ⊢ΠFG
         neT , neU = ne~↑ k~l
-        step-id = stepʷ id ⊢F
-        step-idʳ = ∷ʷ⊇→∷ʷʳ⊇ step-id
-        var0 = neuTerm ([F] id⊇ step-idʳ) (varᵃ no-equality-reflection)
+        step-id = »∷ʷ⊇→⊢ʷᵏ (stepʷ id ⊢F)
+        step-idʳ = ⊢ʷᵏ→⊢ʷᵏʳ step-id
+        var0 = neuTerm ([F] step-idʳ) (varᵃ no-equality-reflection)
                  (refl (var₀ ⊢F))
-        0≡0 = lift~toConv↑′ ([F] id⊇ step-idʳ)
+        0≡0 = lift~toConv↑′ ([F] step-idʳ)
                 (var-refl (var₀ ⊢F) PE.refl)
     in  η-eq ⊢t ⊢u (ne (ne⁻ neT)) (ne (ne⁻ neU))
           (PE.subst (λ x → _ ⊢ _ [conv↑] _ ∷ x) (wkSingleSubstId _) $
-           lift~toConv↑′ ([G] id⊇ step-idʳ var0) $
+           lift~toConv↑′ ([G] step-idʳ var0) $
            app-cong (wk~↓ step-id ([~] A (D₂ , ΠΣₙ) k~l)) 0≡0)
   lift~toConv↓′
     (Bᵣ′ BΣˢ F G D Σ≡Σ [F] [G] G-ext _) D₁
@@ -175,13 +176,13 @@ mutual
         wkId = wk-id F
         wkLiftId = PE.cong (λ x → x [ fst _ _ ]₀) (wk-lift-id G)
 
-        wk[F] = [F] id⊇ (id ⊢Γ)
+        wk[F] = [F] (⊢ʷᵏʳid ⊢Γ)
         wkfst≡ = PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym wkId)
                    (fst-cong ⊢G (refl ⊢t))
         wk[fst] = neuTerm wk[F]
                     (fstₙᵃ (neᵃ→ (λ _ → no-equality-reflection) neT))
                     wkfst≡
-        wk[Gfst] = [G] id⊇ (id ⊢Γ) wk[fst]
+        wk[Gfst] = [G] (⊢ʷᵏʳid ⊢Γ) wk[fst]
 
         wkfst~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkId) (fst-cong t~u↓)
         wksnd~ = PE.subst (λ x → _ ⊢ _ ~ _ ↑ x) (PE.sym wkLiftId) (snd-cong t~u↓)
@@ -205,6 +206,11 @@ mutual
     case wf-⊢ (soundness~↓ t~u) .proj₂ .proj₁ of λ {
       ⊢t →
     Id-ins ⊢t t~u }}
+  lift~toConv↓′ (Quot ⊩A′) A′⇒*A t~u@([~] _ (_ , A-whnf) _) =
+    case whrDet* (_⊩ₗQuot_.⇒*Quot ⊩A′ , Quot) (A′⇒*A , A-whnf) of λ {
+      PE.refl →
+    let _ , ⊢t , _ = wf-⊢ (soundness~↓ t~u) in
+    Quot-ins ⊢t t~u }
 
   -- Helper function for lifting from neutral to generic terms.
   lift~toConv↑′ : ∀ {t u A l}

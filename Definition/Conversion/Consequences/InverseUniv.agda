@@ -120,6 +120,22 @@ opaque
       (_ , ⊢A₂∷U , _ , _ , U≡U) →
     conv (Id-cong (inverseUnivEq′ (inj₂ ⊢A₂∷U) A₁≡A₂) t₁≡t₂ u₁≡u₂)
       (sym U≡U)
+  inverseUnivEq′ (inj₁ ⊢Q) (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+    let ok , _ , _ , ⊢A₁ , ⊢B₁ , U≡U = inversion-Quot-∷ ⊢Q in
+    conv
+      (Quot-cong′ ok (inverseUnivEq′ (inj₁ ⊢A₁) A₁≡A₂)
+         (inverseUnivEq′ (inj₁ ⊢B₁) B₁≡B₂))
+      (sym U≡U)
+  inverseUnivEq′ (inj₂ ⊢Q) (Quot-cong ok A₁≡A₂ B₁≡B₂) =
+    let ok , _ , _ , ⊢A₂ , ⊢B₂ , U≡U = inversion-Quot-∷ ⊢Q
+        Γ≡Γ                          = reflConEq (wf ⊢Q)
+    in
+    conv
+      (Quot-cong′ ok (inverseUnivEq′ (inj₂ ⊢A₂) A₁≡A₂)
+         (inverseUnivEq′
+            (inj₂ (stability (Quot-rel-Con-cong Γ≡Γ (sym A₁≡A₂)) ⊢B₂))
+            B₁≡B₂))
+      (sym U≡U)
 
 opaque
 

@@ -68,7 +68,7 @@ private opaque
   symConEq′ (S.ε ⊢ε)             = S.ε ⊢ε
   symConEq′ (Γ≡Δ S.∙⟨ _ ∣ A≡B ⟩) = symConEq′ Γ≡Δ ∙⟨ sym A≡B ⟩′
 
-private opaque
+opaque
 
   -- ⊢ Γ ≡ Δ is logically equivalent to S.⊢ Γ ≡ Δ.
 
@@ -104,6 +104,13 @@ opaque
 
   refl-∙ : ∇ » Γ ⊢ A ≡ B → ∇ »⊢ Γ ∙ A ≡ Γ ∙ B
   refl-∙ A≡B = reflConEq (wf A≡B) ∙ A≡B
+
+opaque
+
+  -- If ∇ »⊢ Γ ∙ A ≡ Δ ∙ B holds, then ∇ »⊢ Γ ≡ Δ also holds.
+
+  ⊢∙≡∙→⊢≡ : ∇ »⊢ Γ ∙ A ≡ Δ ∙ B → ∇ »⊢ Γ ≡ Δ
+  ⊢∙≡∙→⊢≡ (Γ≡Δ ∙ _) = Γ≡Δ
 
 opaque
 
@@ -275,35 +282,40 @@ opaque
     natrec-suc (stability Γ≡Δ x₁)
       (stability (Γ≡Δ ∙ refl (⊢ℕ ⊢Γ) ∙ refl (⊢∙→⊢ (wf x₂))) x₂)
       (stability Γ≡Δ x₃)
-  stabilityRedTerm Γ≡Δ (prodrec-subst x₂ x₃ d ok) =
-    let x₁ = ⊢∙→⊢ (wf x₃)
-        x  = ⊢∙→⊢ (wf x₁)
+  stabilityRedTerm Γ≡Δ (prodrec-subst x₂ x₃ d) =
+    let _ , _ , ok = inversion-ΠΣ (⊢∙→⊢ (wf x₂))
+        x₁         = ⊢∙→⊢ (wf x₃)
+        x          = ⊢∙→⊢ (wf x₁)
     in
     prodrec-subst (stability (Γ≡Δ ∙ refl (ΠΣⱼ x₁ ok)) x₂)
       (stability (Γ≡Δ ∙ refl x ∙ refl x₁) x₃)
-      (stabilityRedTerm Γ≡Δ d) ok
-  stabilityRedTerm Γ≡Δ (prodrec-β x₂ x₃ x₄ x₅ x₆ ok) =
-    let x₁ = ⊢∙→⊢ (wf x₅)
-        x  = ⊢∙→⊢ (wf x₁)
+      (stabilityRedTerm Γ≡Δ d)
+  stabilityRedTerm Γ≡Δ (prodrec-β x₂ x₃ x₄ x₅ x₆) =
+    let _ , _ , ok = inversion-ΠΣ (⊢∙→⊢ (wf x₂))
+        x₁         = ⊢∙→⊢ (wf x₅)
+        x          = ⊢∙→⊢ (wf x₁)
     in
     prodrec-β (stability (Γ≡Δ ∙ refl (ΠΣⱼ x₁ ok)) x₂)
       (stability Γ≡Δ x₃) (stability Γ≡Δ x₄)
-      (stability (Γ≡Δ ∙ refl x ∙ refl x₁) x₅) x₆ ok
+      (stability (Γ≡Δ ∙ refl x ∙ refl x₁) x₅) x₆
   stabilityRedTerm Γ≡Δ (emptyrec-subst x d) =
     emptyrec-subst (stability Γ≡Δ x) (stabilityRedTerm Γ≡Δ d)
-  stabilityRedTerm Γ≡Δ (unitrec-subst x x₁ x₂ x₃ not-ok) =
-    let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
-    in  unitrec-subst (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ x₃))) x)
-          (stability Γ≡Δ x₁) (stabilityRedTerm Γ≡Δ x₂) x₃ not-ok
-  stabilityRedTerm Γ≡Δ (unitrec-β x x₁ x₂ not-ok) =
-    let ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
-    in  unitrec-β (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ x₂))) x)
-                  (stability Γ≡Δ x₁) x₂ not-ok
-  stabilityRedTerm Γ≡Δ (unitrec-β-η ⊢A ⊢t ⊢u ok₁ ok₂) =
-    case contextConvSubst Γ≡Δ of λ
-      (⊢Γ , _) →
-    unitrec-β-η (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ ok₁))) ⊢A)
-      (stability Γ≡Δ ⊢t) (stability Γ≡Δ ⊢u) ok₁ ok₂
+  stabilityRedTerm Γ≡Δ (unitrec-subst x x₁ x₂ not-ok) =
+    let ok         = inversion-Unit (⊢∙→⊢ (wf x))
+        ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
+    in  unitrec-subst (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ ok))) x)
+          (stability Γ≡Δ x₁) (stabilityRedTerm Γ≡Δ x₂) not-ok
+  stabilityRedTerm Γ≡Δ (unitrec-β x x₁ not-ok) =
+    let ok         = inversion-Unit (⊢∙→⊢ (wf x))
+        ⊢Γ , _ , _ = contextConvSubst Γ≡Δ
+    in  unitrec-β (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ ok))) x)
+                  (stability Γ≡Δ x₁) not-ok
+  stabilityRedTerm Γ≡Δ (unitrec-β-η ⊢A ⊢t ⊢u ok) =
+    let Unit-ok = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+        ⊢Γ , _  = contextConvSubst Γ≡Δ
+    in
+    unitrec-β-η (stability (Γ≡Δ ∙ refl (univ (Unitⱼ ⊢Γ Unit-ok))) ⊢A)
+      (stability Γ≡Δ ⊢t) (stability Γ≡Δ ⊢u) ok
   stabilityRedTerm Γ≡Δ (J-subst ⊢t ⊢B ⊢u ⊢v w₁⇒w₂) =
     let ⊢A = ⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B))) in
     J-subst (stability Γ≡Δ ⊢t)
@@ -332,6 +344,42 @@ opaque
       (stability Γ≡Δ ⊢u) ok
   stabilityRedTerm Γ≡Δ ([]-cong-β ⊢l t≡t′ ok) =
     []-cong-β (stability Γ≡Δ ⊢l) (stability Γ≡Δ t≡t′) ok
+  stabilityRedTerm Γ≡Δ (resp-η ok ⊢Q ⊢t ⊢u ⊢v) =
+    resp-η ok (stability Γ≡Δ ⊢Q) (stability Γ≡Δ ⊢t) (stability Γ≡Δ ⊢u)
+      (stability Γ≡Δ ⊢v)
+  stabilityRedTerm Γ≡Δ (set-η ok ⊢t ⊢u ⊢v ⊢w) =
+    set-η ok (stability Γ≡Δ ⊢t) (stability Γ≡Δ ⊢u) (stability Γ≡Δ ⊢v)
+      (stability Γ≡Δ ⊢w)
+  stabilityRedTerm Γ≡Δ (qrec-subst ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) =
+    let _ , (⊢Q , _) = ∙⊢→⊢-<ˢ ⊢C
+        _ , (⊢A , _) = ∙⊢→⊢-<ˢ ⊢t
+    in
+    qrec-subst (stability (Γ≡Δ ∙ refl ⊢Q) ⊢C)
+      (stability (Γ≡Δ ∙ refl ⊢A) ⊢t)
+      (stability
+         (⊢≡⇔⊢≡ .proj₂ $
+          S.stability-Resp-Con (⊢≡⇔⊢≡ .proj₁ Γ≡Δ) (wf ⊢u))
+         ⊢u)
+      (stability
+         (⊢≡⇔⊢≡ .proj₂ $
+          S.stability-Is-set-Con (⊢≡⇔⊢≡ .proj₁ Γ≡Δ) (wf ⊢v))
+         ⊢v)
+      (stabilityRedTerm Γ≡Δ w₁⇒w₂)
+  stabilityRedTerm Γ≡Δ (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    let _ , (⊢Q , _) = ∙⊢→⊢-<ˢ ⊢C
+        _ , (⊢A , _) = ∙⊢→⊢-<ˢ ⊢t
+    in
+    qrec-β (stability (Γ≡Δ ∙ refl ⊢Q) ⊢C)
+      (stability (Γ≡Δ ∙ refl ⊢A) ⊢t)
+      (stability
+         (⊢≡⇔⊢≡ .proj₂ $
+          S.stability-Resp-Con (⊢≡⇔⊢≡ .proj₁ Γ≡Δ) (wf ⊢u))
+         ⊢u)
+      (stability
+         (⊢≡⇔⊢≡ .proj₂ $
+          S.stability-Is-set-Con (⊢≡⇔⊢≡ .proj₁ Γ≡Δ) (wf ⊢v))
+         ⊢v)
+      (stability Γ≡Δ ⊢w)
 
 opaque
 

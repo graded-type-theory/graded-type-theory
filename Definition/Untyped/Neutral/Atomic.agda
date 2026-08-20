@@ -7,7 +7,7 @@ open import Definition.Typed.Variant
 module Definition.Untyped.Neutral.Atomic
   {a}
   (M : Set a)
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   where
 
 open Type-variant type-variant
@@ -28,15 +28,15 @@ open import Tools.Relation
 open import Tools.Unit
 
 private variable
-  P V V₁ V₂   : Set _
-  α m n       : Nat
-  x           : Fin _
-  ∇           : DCon _ _
-  A B t u v w : Term _
-  l           : Lvl _
-  ρ           : Wk _ _
-  s           : Strength
-  p q r       : M
+  P V V₁ V₂     : Set _
+  α m n         : Nat
+  x             : Fin _
+  ∇             : DCon _ _
+  A B C t u v w : Term _
+  l             : Lvl _
+  ρ             : Wk _ _
+  s             : Strength
+  p q r         : M
 
 ------------------------------------------------------------------------
 -- The type
@@ -205,6 +205,32 @@ opaque
   []-congₙᵃ : Neutralᵃ V ∇ v → Neutralᵃ V ∇ ([]-cong s l A t u v)
   []-congₙᵃ (ne n _) = ne ([]-congₙ n) (λ ())
 
+opaque
+
+  -- A variant of resp for Neutralᵃ.
+
+  respᵃ :
+    Higher-quotient-constructors-neutral →
+    Neutralᵃ V ∇ (resp A B t u v)
+  respᵃ ok = ne (resp ok) (λ ())
+
+opaque
+
+  -- A variant of set for Neutralᵃ.
+
+  setᵃ :
+    Higher-quotient-constructors-neutral →
+    Neutralᵃ V ∇ (set A B t u v w)
+  setᵃ ok = ne (set ok) (λ ())
+
+opaque
+
+  -- A variant of qrec for Neutralᵃ.
+
+  qrecᵃ :
+    Neutralᵃ V ∇ w → Neutralᵃ V ∇ (qrec C t u v w)
+  qrecᵃ (ne n _) = ne (qrec n) (λ ())
+
 ------------------------------------------------------------------------
 -- A variant of Function
 
@@ -348,3 +374,59 @@ opaque
     Identityᵃ⇔ .proj₂ ∘→
     Σ.map wkIdentity (_∘→ wkNon-atomic .proj₂) ∘→
     Identityᵃ⇔ .proj₁
+
+------------------------------------------------------------------------
+-- A variant of Quotient
+
+-- Atomic values of quotient type.
+
+data Quotientᵃ {n} (V : Set a) (∇ : DCon (Term 0) m) :
+       Term n → Set a where
+  class : Quotientᵃ V ∇ (class t)
+  ne    : Neutralᵃ V ∇ t → Quotientᵃ V ∇ t
+
+-- A non-dependent eliminator for Quotientᵃ. Note that the argument of
+-- ne is thrown away.
+
+Quotientᵃ-rec :
+  {t : Term n} →
+  Quotientᵃ V ∇ t → (Term n → P) → P → P
+Quotientᵃ-rec (class {t}) c _ = c t
+Quotientᵃ-rec (ne _)      _ n = n
+
+opaque
+
+  -- A characterisation lemma for Quotientᵃ.
+
+  Quotientᵃ⇔ : Quotientᵃ V ∇ t ⇔ (Quotient V ∇ t × ¬ Non-atomic t)
+  Quotientᵃ⇔ =
+    (λ where
+       class               → class , λ ()
+       (ne (ne t-ne t-nn)) → ne t-ne , t-nn) ,
+    (λ where
+       (class   , _)    → class
+       (ne t-ne , t-nn) → ne (ne t-ne t-nn))
+
+opaque
+
+  -- Conversion to Quotient.
+
+  Quotientᵃ→ : Quotientᵃ V ∇ t → Quotient V ∇ t
+  Quotientᵃ→ = proj₁ ∘→ Quotientᵃ⇔ .proj₁
+
+opaque
+
+  -- Atomic quotient values are WHNFs.
+
+  Quotientᵃ→Whnf : Quotientᵃ V ∇ t → Whnf ∇ t
+  Quotientᵃ→Whnf = quotientWhnf ∘→ Quotientᵃ→
+
+opaque
+
+  -- A weakening lemma.
+
+  wkQuotientᵃ : Quotientᵃ V ∇ t → Quotientᵃ V ∇ (wk ρ t)
+  wkQuotientᵃ =
+    Quotientᵃ⇔ .proj₂ ∘→
+    Σ.map wkQuotient (_∘→ wkNon-atomic .proj₂) ∘→
+    Quotientᵃ⇔ .proj₁

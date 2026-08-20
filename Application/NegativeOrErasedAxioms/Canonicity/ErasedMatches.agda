@@ -68,7 +68,7 @@ module Counterexample
     TR = no-type-restrictions true false
 
     UR : Usage-restrictions 𝕄 Zero-one-isMode
-    UR = no-usage-restrictions Nr true true
+    UR = no-usage-restrictions Nr true true true
 
   open Type-restrictions TR
   open Usage-restrictions UR
@@ -185,7 +185,7 @@ module Counterexample
     ⊢εΣΣ = ∙ εΣ⊢Σ
     εΣΣ⊢ℕ = ⊢ℕ ⊢εΣΣ
     ⊢εΣℕℕ = ∙ εΣℕ⊢ℕ
-    ⊢prodrec = prodrecⱼ {r = 𝟘} εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ) _
+    ⊢prodrec = prodrecⱼ {r = 𝟘} εΣΣ⊢ℕ (var₀ ε⊢Σ) (zeroⱼ ⊢εΣℕℕ)
     neutral = prodrecₙ (var _ _)
 
 -- If one drops the assumption about erased matches from the statement

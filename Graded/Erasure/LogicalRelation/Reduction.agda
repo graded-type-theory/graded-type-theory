@@ -83,6 +83,8 @@ opaque
     extra
   sourceRedSubstTerm (Idᵣ ⊩A) (rflᵣ t′⇒*rfl ⇒*↯) t⇒t′ =
     rflᵣ (trans-⇛ (conv-⇛ t⇒t′ (subset* (_⊨Id_.⇒*Id ⊩A))) t′⇒*rfl) ⇒*↯
+  sourceRedSubstTerm (Quot ⊨A) (_ , ⇛class , t®v) d =
+    _ , trans-⇛ (conv-⇛ d (subset* (_⊨Quot_.⇒*Quot ⊨A))) ⇛class , t®v
   sourceRedSubstTerm (ne record{}) ()
   sourceRedSubstTerm (Emptyᵣ _)    ()
 
@@ -123,6 +125,8 @@ opaque
                (λ v₁ v′⇒p t₁®v₁ → Σ-®-intro-ω v₁ (trans v⇒v′ v′⇒p) t₁®v₁)
   targetRedSubstTerm (Idᵣ _) (rflᵣ t⇒*rfl ⇒*↯) v⇒v′ =
     rflᵣ t⇒*rfl (T.trans v⇒v′ ∘→ ⇒*↯)
+  targetRedSubstTerm (Quot ⊨A) (_ , ⇛class , t®v) d =
+    _ , ⇛class , targetRedSubstTerm (_⊨Quot_.⊨Data ⊨A) t®v d
   targetRedSubstTerm (ne record{}) ()
   targetRedSubstTerm (Emptyᵣ _)    ()
 
@@ -214,6 +218,9 @@ opaque
        , ⊢t₁ , v₂ , t₂®v₂ , extra
   sourceRedSubstTerm′ (Idᵣ ⊩A) (rflᵣ t⇒*rfl ⇒*↯) t⇒t′ =
     rflᵣ (whnf-⇛ t⇒*rfl rflₙ (conv-⇛ t⇒t′ (subset* (_⊨Id_.⇒*Id ⊩A)))) ⇒*↯
+  sourceRedSubstTerm′ (Quot ⊨A) (_ , ⇛class , t®v) d =
+    _ , whnf-⇛ ⇛class class (conv-⇛ d (subset* (_⊨Quot_.⇒*Quot ⊨A))) ,
+    t®v
   sourceRedSubstTerm′ (ne record{}) ()
   sourceRedSubstTerm′ (Emptyᵣ _)    ()
 
@@ -301,6 +308,8 @@ opaque
 
   targetRedSubstTerm′ (Idᵣ _) (rflᵣ t⇒*rfl v⇒*↯) v⇒v′ =
     rflᵣ t⇒*rfl (⇒*↯→⇒→⇒*↯ v⇒*↯ v⇒v′)
+  targetRedSubstTerm′ (Quot ⊨A) (_ , ⇛class , t®v) d =
+    _ , ⇛class , targetRedSubstTerm′ (_⊨Quot_.⊨Data ⊨A) t®v d
   targetRedSubstTerm′ (ne record{}) ()
   targetRedSubstTerm′ (Emptyᵣ _)    ()
 

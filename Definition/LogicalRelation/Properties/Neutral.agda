@@ -32,6 +32,7 @@ open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Escape R
 open import Definition.LogicalRelation.Unary R
@@ -139,24 +140,22 @@ opaque
       ⊩Π∷⇔⊩Π≡∷ ⊩A .proj₁
         (Πₜ _ (id (conv ⊢t A≡ΠFG)) (ne t-ne)
            (~-to-≅ₜ (~-conv ~t A≡ΠFG))
-           (λ [ξ] {_} {ρ} [ρ] ⊩v ⊩w v≡w →
-              let t∘-ne = defn-wkNeutralᵃ [ξ] (wkNeutralᵃ t-ne) in
-              neuEqTerm ([G] [ξ] [ρ] ⊩v) (∘ₙᵃ t∘-ne) (∘ₙᵃ t∘-ne)
-                (~-app
-                   (~-wk (∷ʷʳ⊇→∷ʷ⊇ [ρ]) $
-                    ~-defn-wk [ξ] (~-conv ~t A≡ΠFG))
-                   (escapeTermEq ([F] [ξ] [ρ]) v≡w))))
+           (λ [ρ] ⊩v ⊩w v≡w →
+              let t∘-ne = wk-Neutralᵃ [ρ] t-ne in
+              neuEqTerm ([G] [ρ] ⊩v) (∘ₙᵃ t∘-ne) (∘ₙᵃ t∘-ne)
+                (~-app (~-wk (⊢ʷᵏʳ→⊢ʷᵏ [ρ]) (~-conv ~t A≡ΠFG))
+                   (escapeTermEq ([F] [ρ]) v≡w))))
     neuTerm′ (Bᵣ (BΣ 𝕤 _ q) ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) =
       let A≡ΣFG = subset* D
           ⊢t = conv ⊢t A≡ΣFG
           ~t = ~-conv ~t A≡ΣFG
 
-          [F] = [F] _ _
+          [F] = [F] _
           _ , ⊢G , _ = inversion-ΠΣ (wf-⊢ (≅-eq A≡A) .proj₁)
           [fst] = neuTerm [F] (fstₙᵃ t-ne)
                     (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
                        (~-fst ⊢G ~t))
-          [Gfst] = [G] _ _ [fst]
+          [Gfst] = [G] _ [fst]
           [snd] = neuTerm [Gfst] (sndₙᵃ t-ne)
                     (PE.subst (_⊢_~_∷_ _ _ _)
                        (PE.cong (λ x → x [ fst _ _ ]₀)
@@ -180,6 +179,16 @@ opaque
            (ne t-ne (~-conv ~t A≡Id)))
       where
       open _⊩ₗId_ ⊩A
+    neuTerm′ (Quot ⊩A) =
+      let A≡Quot = subset* ⇒*Quot in
+      ⊩Quot∷⇔⊩Quot≡∷ ⊩A .proj₁
+        (record
+           { ⇒*w  = id (conv ⊢t A≡Quot)
+           ; w-q  = ne t-ne
+           ; prop = ne t-ne (~-conv ~t A≡Quot)
+           })
+      where
+      open _⊩ₗQuot_ ⊩A
 
   -- "Neutrally equal" neutral terms are "reducibly equal".
 
@@ -264,13 +273,13 @@ opaque
       Πₜ₌ _ _ (id (conv ⊢t A≡ΠFG))
         (id (conv ⊢t′ A≡ΠFG))
         (ne t-ne) (ne t′-ne) t≡t′
-        (λ [ξ] {_} {ρ = ρ} [ρ] ⊩v ⊩w v≡w →
-           let v≅w     = escapeTermEq ([F] [ξ] [ρ]) v≡w
-               neT∙a   = ∘ₙᵃ (defn-wkNeutralᵃ [ξ] (wkNeutralᵃ t-ne))
-               neT′∙a′ = ∘ₙᵃ (defn-wkNeutralᵃ [ξ] (wkNeutralᵃ t′-ne))
+        (λ [ρ] ⊩v ⊩w v≡w →
+           let v≅w     = escapeTermEq ([F] [ρ]) v≡w
+               neT∙a   = ∘ₙᵃ (wk-Neutralᵃ [ρ] t-ne)
+               neT′∙a′ = ∘ₙᵃ (wk-Neutralᵃ [ρ] t′-ne)
            in
-           neuEqTerm ([G] [ξ] [ρ] ⊩v) neT∙a neT′∙a′
-             (~-app (~-wk (∷ʷʳ⊇→∷ʷ⊇ [ρ]) (~-defn-wk [ξ] t~t′₁)) v≅w))
+           neuEqTerm ([G] [ρ] ⊩v) neT∙a neT′∙a′
+             (~-app (~-wk (⊢ʷᵏʳ→⊢ʷᵏ [ρ]) t~t′₁) v≅w))
     neuEqTerm′ (Bᵣ′ BΣˢ F G D A≡A [F] [G] G-ext _) =
       let A≡ΣFG = subset* D
           t~t , t′~t′ = wf-⊢~∷ t~t′
@@ -280,7 +289,7 @@ opaque
           t~tΣ = ~-conv t~t A≡ΣFG
           t′~t′Σ = ~-conv t′~t′ A≡ΣFG
 
-          [F] = [F] _ _
+          [F] = [F] _
           _ , ⊢G , _ = inversion-ΠΣ (wf-⊢ (≅-eq A≡A) .proj₁)
           [fstt] = neuTerm [F] (fstₙᵃ t-ne)
                      (PE.subst (_⊢_~_∷_ _ _ _) (PE.sym (wk-id F))
@@ -293,7 +302,7 @@ opaque
                              (λ x → _ ⊢ _ ~ _ ∷ x)
                              (PE.sym (wk-id F))
                              (~-fst ⊢G t~t′Σ))
-          [Gfstt] = [G] _ _ [fstt]
+          [Gfstt] = [G] _ [fstt]
           [sndt≡sndt′] = neuEqTerm [Gfstt] (sndₙᵃ t-ne) (sndₙᵃ t′-ne)
             (PE.subst
                (λ x → _ ⊢ _ ~ _ ∷ x)
@@ -322,3 +331,9 @@ opaque
          (~-conv t~t′ A≡Id))
       where
       open _⊩ₗId_ ⊩A
+    neuEqTerm′ (Quot ⊩A) =
+      let A≡Quot = subset* ⇒*Quot in
+      Quot-view-inhabited⁻¹ ⊩A (id (conv ⊢t A≡Quot))
+        (id (conv ⊢t′ A≡Quot)) (ne t-ne t′-ne (~-conv t~t′ A≡Quot))
+      where
+      open _⊩ₗQuot_ ⊩A

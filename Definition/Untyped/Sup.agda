@@ -619,3 +619,14 @@ opaque
   … | inj₁ (0 , eq′)    = case trans (sym eq) eq′ of λ ()
   … | inj₁ (1+ _ , eq′) = case trans (sym eq) eq′ of λ ()
   … | inj₂ eq′          = case trans (sym eq) eq′ of λ ()
+
+opaque
+  unfolding ↓ᵘ_
+
+  -- Applications of _supᵘₗ_ are not equal to applications of Quot.
+
+  supᵘₗ≢Quot : t₁ supᵘₗ t₂ ≢ Quot A B
+  supᵘₗ≢Quot {t₁} {t₂} eq with supᵘₗ≡ t₁ t₂
+  … | inj₁ (0 , eq′)    = case trans (sym eq) eq′ of λ ()
+  … | inj₁ (1+ _ , eq′) = case trans (sym eq) eq′ of λ ()
+  … | inj₂ eq′          = case trans (sym eq) eq′ of λ ()

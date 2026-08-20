@@ -41,6 +41,9 @@ record Assumptions : Set a where
     -- strength.
     []-cong-allowed? : ∀ s → Dec ([]-cong-allowed s)
 
+    -- It is decidable whether quotient types are allowed.
+    Quot-allowed? : Dec Quot-allowed
+
     -- Equality reflection is not allowed.
     no-equality-reflection : ¬ Equality-reflection
 

@@ -227,7 +227,7 @@ module Internal
   opaque
     unfolding Sum
 
-    -- Atranslation lemma for Sumᵢ.
+    -- A translation lemma for Sumᵢ.
 
     ⌜Sumᵢ⌝ :
       I.⌜ Sumᵢ aᵢ bᵢ Aᵢ Bᵢ ⌝ γ ≡ Sum (I.⌜ aᵢ ⌝ γ) (I.⌜ bᵢ ⌝ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ)

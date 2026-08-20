@@ -1235,9 +1235,12 @@ module Unitrec
             ⊢u = ⊢∷-conv-PE (⊢∷-sink ⊢Γᴺ Sink-ok) (PE.sym (wk1-sgSubst _ _))
         in  case Unitʷ-η? of λ where
           (yes η) →
-            inv-usage-sink (usagePresTerm (λ ()) ▸ur (unitrec-β-η ⊢A (starⱼ ⊢Γᴺ Unit-ok) ⊢u Unit-ok η))
+            inv-usage-sink
+              (usagePresTerm (λ ()) ▸ur
+                 (unitrec-β-η ⊢A (starⱼ ⊢Γᴺ Unit-ok) ⊢u η))
           (no no-η) →
-            inv-usage-sink (usagePresTerm (λ ()) ▸ur (unitrec-β ⊢A ⊢u Unit-ok no-η))
+            inv-usage-sink
+              (usagePresTerm (λ ()) ▸ur (unitrec-β ⊢A ⊢u no-η))
 
   opaque
 

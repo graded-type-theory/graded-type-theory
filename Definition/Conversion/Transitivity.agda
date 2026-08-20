@@ -19,6 +19,7 @@ open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Neutral M type-variant
 open import Definition.Untyped.Neutral.Atomic M type-variant
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Typed R
 open import Definition.Typed.EqRelInstance R using (eqRelInstance)
 open import Definition.Typed.EqualityRelation.Instance R
@@ -26,6 +27,7 @@ open import Definition.Typed.Inversion R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Stability R
 open import Definition.Typed.Substitution R
+open import Definition.Typed.Weakening.Combined R
 open import Definition.Typed.Well-formed R
 open import Definition.Conversion R
 open import Definition.Conversion.Inversion R
@@ -57,7 +59,9 @@ private
     l₁ l₂ l₃ : Lvl _
     d : Bool
 
-mutual
+opaque
+ unfolding Quot-rel-Con
+ mutual
   -- Transitivity of algorithmic equality of neutral terms.
   trans~↑ : ∀ {t u v A B}
          → Γ ⊢ t ~ u ↑ A
@@ -188,6 +192,80 @@ mutual
     Id-cong (Erased-cong Erased-ok ⊢l₁≡l₂ ⊢A₁≡A₂)
       ([]-cong′ Erased-ok ⊢l₁ (soundnessConv↑Term t₁≡t₂))
       ([]-cong′ Erased-ok ⊢l₁ (soundnessConv↑Term u₁≡u₂))
+  trans~↑ (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂)
+    (resp-cong _ A₂≡A₃ B₂≡B₃ t₂≡t₃ u₂≡u₃ v₂≡v₃) =
+    let ⊢A₁≡A₂  = soundnessConv↑ A₁≡A₂
+        ⊢B₁≡B₂  = soundnessConv↑ B₁≡B₂
+        ⊢t₁≡t₂  = soundnessConv↑Term t₁≡t₂
+        ⊢u₁≡u₂  = soundnessConv↑Term u₁≡u₂
+        ok′ , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok
+        ⊢B₁ , _ = wf-⊢ ⊢B₁≡B₂
+        ⊢Q      = Quot ok′ ⊢B₁
+    in
+    resp-cong ok (transConv↑ A₁≡A₂ A₂≡A₃)
+      (transConv↑ B₁≡B₂
+         (stabilityConv↑
+            (Quot-rel-Con-cong (reflConEq (wf ⊢A₁≡A₂)) (sym ⊢A₁≡A₂))
+            B₂≡B₃))
+      (transConv↑Term ⊢A₁≡A₂ t₁≡t₂ t₂≡t₃)
+      (transConv↑Term ⊢A₁≡A₂ u₁≡u₂ u₂≡u₃)
+      (transConv↑Term
+         (subst-⊢≡₁₀ ⊢B₁≡B₂ ⊢t₁≡t₂ $
+          PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (wk1-sgSubst _ _)) ⊢u₁≡u₂)
+         v₁≡v₂ v₂≡v₃) ,
+    Id-cong (Quot-cong ok′ ⊢A₁≡A₂ ⊢B₁≡B₂)
+      (class-cong ⊢Q ⊢t₁≡t₂) (class-cong ⊢Q ⊢u₁≡u₂)
+  trans~↑ (set-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂)
+    (set-cong _ A₂≡A₃ B₂≡B₃ t₂≡t₃ u₂≡u₃ v₂≡v₃ w₂≡w₃) =
+    let ⊢A₁≡A₂  = soundnessConv↑ A₁≡A₂
+        ⊢B₁≡B₂  = soundnessConv↑ B₁≡B₂
+        ⊢t₁≡t₂  = soundnessConv↑Term t₁≡t₂
+        ⊢u₁≡u₂  = soundnessConv↑Term u₁≡u₂
+        ⊢v₁≡v₂  = soundnessConv↑Term v₁≡v₂
+        ⊢w₁≡w₂  = soundnessConv↑Term w₁≡w₂
+        ok′ , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok
+        Q≡Q     = Quot-cong ok′ ⊢A₁≡A₂ ⊢B₁≡B₂
+        Id≡Id   = Id-cong Q≡Q ⊢t₁≡t₂ ⊢u₁≡u₂
+    in
+    set-cong ok (transConv↑ A₁≡A₂ A₂≡A₃)
+      (transConv↑ B₁≡B₂
+         (stabilityConv↑
+            (Quot-rel-Con-cong (reflConEq (wf ⊢A₁≡A₂)) (sym ⊢A₁≡A₂))
+            B₂≡B₃))
+      (transConv↑Term Q≡Q t₁≡t₂ t₂≡t₃)
+      (transConv↑Term Q≡Q u₁≡u₂ u₂≡u₃)
+      (transConv↑Term Id≡Id v₁≡v₂ v₂≡v₃)
+      (transConv↑Term Id≡Id w₁≡w₂ w₂≡w₃) ,
+    Id-cong Id≡Id ⊢v₁≡v₂ ⊢w₁≡w₂
+  trans~↑ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂)
+    (qrec-cong C₂≡C₃ t₂≡t₃ u₂≡u₃ v₂≡v₃ w₂~w₃) =
+    let ok , (⊢A , _) , (⊢B , _) , _ =
+          inversion-Is-set-Cons (soundnessConv↑Term v₁≡v₂)
+        Γ≡Γ         = reflConEq (wf ⊢A)
+        ⊢C₁≡C₂      = soundnessConv↑ C₁≡C₂
+        ⊢t₁≡t₂      = soundnessConv↑Term t₁≡t₂
+        ⊢w₁≡w₂      = soundness~↓ w₁~w₂
+        w₁~w₃ , Q≡Q = trans~↓ w₁~w₂ w₂~w₃
+        A≡ , B≡     = Quot-injectivity-no-equality-reflection Q≡Q
+        Q≡Q         = sym Q≡Q
+        ≡A , ≡B     = Quot-injectivity-no-equality-reflection Q≡Q
+    in
+    qrec-cong (transConv↑ C₁≡C₂ (stabilityConv↑ (refl-∙ Q≡Q) C₂≡C₃))
+      (transConv↑Term
+         (subst-⊢ ⊢C₁≡C₂ $ ⊢ˢʷ∷-[][]↑ $
+          class
+            (Quot ok $
+             wk-⊢ (Quot-rel-Cons-⊢ʷᵏ-liftn (⊢ʷᵏdrop (∙ ⊢A)) ⊢A) ⊢B)
+            (var₀ ⊢A))
+         t₁≡t₂ (stabilityConv↑Term (refl-∙ ≡A) t₂≡t₃))
+      (transConv↑Term (Resp-type-cong A≡ B≡ ⊢C₁≡C₂ ⊢t₁≡t₂) u₁≡u₂
+         (stabilityConv↑Term (Resp-Con-cong Γ≡Γ ≡A ≡B) u₂≡u₃))
+      (transConv↑Term (Is-set-type-cong ⊢C₁≡C₂) v₁≡v₂
+         (stabilityConv↑Term
+            (symConEq (Is-set-Con-cong Γ≡Γ A≡ B≡ ⊢C₁≡C₂))
+            v₂≡v₃))
+      w₁~w₃ ,
+    subst-⊢≡₀ ⊢C₁≡C₂ ⊢w₁≡w₂
 
   -- Transitivity of algorithmic equality of neutral terms with types in WHNF.
   trans~↓ : ∀ {t u v A B}
@@ -291,6 +369,17 @@ mutual
           (transConv↑Term ⊢A≡B t₂≡u₂ u₂≡v₂)
       (inj₂ (Id≢Id , _)) →
         ⊥-elim (Id≢Id (_ , _ , _ , PE.refl))
+  transConv↓ (Quot-cong ok A₁≡A₂ B₁≡B₂) Quot≡C
+    with inv-[conv↓]-Quot′ Quot≡C
+  … | inj₁ (_ , _ , _ , _ , PE.refl , PE.refl , ok , A₂≡A₃ , B₂≡B₃) =
+    let ⊢A₁≡A₂ = soundnessConv↑ A₁≡A₂ in
+    Quot-cong ok (transConv↑ A₁≡A₂ A₂≡A₃)
+      (transConv↑ B₁≡B₂
+         (stabilityConv↑
+            (Quot-rel-Con-cong (reflConEq (wf ⊢A₁≡A₂)) (sym ⊢A₁≡A₂))
+            B₂≡B₃))
+  … | inj₂ (Q≢Q , _) =
+    ⊥-elim (Q≢Q (_ , _ , PE.refl))
 
   -- Transitivity of algorithmic equality of terms.
   transConv↑Term : ∀ {t u v A B}
@@ -419,6 +508,21 @@ mutual
         ⊥-elim $ ¬-Neutral-rfl $ ne⁻ $ ne~↓ u~v .proj₂ .proj₁
       (inj₂ (_ , PE.refl , _)) →
         t≡u
+  transConv↓Term (Quot-ins ⊢t t~u) u≡v
+    with inv-[conv↓]∷-Quot u≡v
+  … | inj₁ (_ , _ , u~v) =
+    let t~v , _ = trans~↓ t~u u~v in
+    Quot-ins ⊢t t~v
+  … | inj₂ (_ , _ , PE.refl , _) =
+    let _ , _ , class-ne = ne~↓ t~u in
+    ⊥-elim (¬-Neutral-class (ne⁻ class-ne))
+  transConv↓Term (class-cong ⊢Q t≡u) class-u≡v
+    with inv-[conv↓]∷-Quot class-u≡v
+  … | inj₁ (_ , _ , class-u~v) =
+    let _ , class-ne , _ = ne~↓ class-u~v in
+    ⊥-elim (¬-Neutral-class (ne⁻ class-ne))
+  … | inj₂ (_ , _ , PE.refl , PE.refl , _ , u≡v) =
+    class-cong ⊢Q (transConvTerm t≡u u≡v)
 
   -- Transitivity of _⊢_[conv↑]_∷_.
   transConvTerm :

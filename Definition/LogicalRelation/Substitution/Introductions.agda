@@ -24,6 +24,7 @@ open import Definition.LogicalRelation.Substitution.Introductions.Lift R ⦃ eqr
 open import Definition.LogicalRelation.Substitution.Introductions.Nat R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Pi R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R ⦃ eqrel ⦄  public
+open import Definition.LogicalRelation.Substitution.Introductions.Quotient eqrel public
 open import Definition.LogicalRelation.Substitution.Introductions.Sigma R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Sigma.Strong R ⦃ eqrel ⦄  public
 open import Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak R ⦃ eqrel ⦄  public

@@ -95,3 +95,10 @@ deterministic⇉ (Idᵢ A₁ B₁ _ _) (Idᵢ A₂ B₂ _ _) =
 deterministic⇉ (Jᵢ _ _ _ _ _ _) (Jᵢ _ _ _ _ _ _) = PE.refl
 deterministic⇉ (Kᵢ _ _ _ _ _ _) (Kᵢ _ _ _ _ _ _) = PE.refl
 deterministic⇉ ([]-congᵢ _ _ _ _ _ _) ([]-congᵢ _ _ _ _ _ _) = PE.refl
+deterministic⇉ (Quot _ A₁ C₁↘ _) (Quot _ A₂ C₂↘ _)
+  with deterministic⇉ A₁ A₂
+… | PE.refl =
+  whrDet* C₁↘ C₂↘
+deterministic⇉ (resp _ _ _ _ _ _) (resp _ _ _ _ _ _) = PE.refl
+deterministic⇉ (set _ _ _ _ _ _ _) (set _ _ _ _ _ _ _) = PE.refl
+deterministic⇉ (qrec _ _ _ _ _ _) (qrec _ _ _ _ _ _) = PE.refl

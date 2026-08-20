@@ -34,6 +34,7 @@ open import Graded.Usage.Restrictions.Satisfied UR
 open import Graded.Usage.Weakening UR
 open import Definition.Typed TR
 open import Definition.Typed.Eta-long-normal-form TR
+open import Definition.Typed.Inversion TR
 open import Definition.Typed.Properties TR
 open import Definition.Untyped M
 open import Definition.Untyped.Normal-form M type-variant
@@ -102,7 +103,7 @@ opaque
     t′⇒u′ : ε » Γ′ ⊢ t′ ⇒ u′ ∷ A′
     t′⇒u′ =
       unitrec-β-η (⊢ℕ (∙ ⊢Unit ⊢Γ′ ok)) (var₀ (⊢Unit εε ok))
-        (zeroⱼ ⊢Γ′) ok η
+        (zeroⱼ ⊢Γ′) η
 
     ▸t′ : γ′ ▸[ 𝟙ᵐ ] t′
     ▸t′ = sub
@@ -308,14 +309,14 @@ module Subject-reduction
     where
     open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
-  usagePresTerm ▸∇ γ▸prodrec (prodrec-subst x₂ x₃ x₄ _) =
+  usagePresTerm ▸∇ γ▸prodrec (prodrec-subst x₂ x₃ x₄) =
     let invUsageProdrec δ▸t η▸u θ▸A ok γ≤γ′ =
           inv-usage-prodrec γ▸prodrec
     in
     sub (prodrecₘ (usagePresTerm (▸-ᵐ· ∘→ ▸∇) δ▸t x₄) η▸u θ▸A ok) γ≤γ′
   usagePresTerm
     {m} {γ} _ γ▸prodrec
-    (prodrec-β {p} {t} {t′} {u} {r} _ _ _ _ PE.refl _) =
+    (prodrec-β {p} {t} {t′} {u} {r} _ _ _ _ PE.refl) =
     case inv-usage-prodrec γ▸prodrec of λ where
       (invUsageProdrec {δ = δ} {η = η} ▸t ▸u _ _ γ≤rδ+η) →
         case inv-usage-prodʷ ▸t of λ where
@@ -336,13 +337,13 @@ module Subject-reduction
     let invUsageEmptyrec δ▸t η▸A ok γ≤δ = inv-usage-emptyrec γ▸et
     in  sub (emptyrecₘ (usagePresTerm (▸-ᵐ· ∘→ ▸∇) δ▸t t⇒u) η▸A ok) γ≤δ
 
-  usagePresTerm ▸∇ γ▸ur (unitrec-subst x x₁ t⇒t′ _ _) =
+  usagePresTerm ▸∇ γ▸ur (unitrec-subst x x₁ t⇒t′ _) =
     let invUsageUnitrec δ▸t η▸u θ▸A ok γ≤γ′ = inv-usage-unitrec γ▸ur
         δ▸t′ = usagePresTerm (▸-ᵐ· ∘→ ▸∇) δ▸t t⇒t′
     in  sub (unitrecₘ δ▸t′ η▸u θ▸A ok) γ≤γ′
 
 
-  usagePresTerm {γ} _ γ▸ur (unitrec-β {p = p} x x₁ _ _) =
+  usagePresTerm {γ} _ γ▸ur (unitrec-β {p = p} x x₁ _) =
     let invUsageUnitrec {δ} {η} δ▸t η▸u θ▸A ok γ≤γ′ =
           inv-usage-unitrec γ▸ur
         δ≤𝟘 = inv-usage-starʷ δ▸t
@@ -356,7 +357,7 @@ module Subject-reduction
     open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
 
   usagePresTerm
-    {m} {γ} _ γ▸ur (unitrec-β-η {u} {p} _ _ _ Unit-ok η-ok) =
+    {m} {γ} _ γ▸ur (unitrec-β-η {u} {p} ⊢A _ _ η-ok) =
     case inv-usage-unitrec γ▸ur of λ
       (invUsageUnitrec {δ} {η} δ▸t η▸u _ unitrec-ok γ≤pδ+η) →
         ⌜⌝≡𝟘-elim (λ m → γ ▸[ m ] u) m
@@ -373,7 +374,8 @@ module Subject-reduction
             sub η▸u $ begin
               γ            ≤⟨ γ≤pδ+η ⟩
               p ·ᶜ δ +ᶜ η  ≤⟨ +ᶜ-monotoneˡ $ ·ᶜ-monotoneˡ $
-                               Unitʷ-η→ η-ok Unit-ok unitrec-ok m≢𝟘 ⟩
+                               Unitʷ-η→ η-ok (inversion-Unit (⊢∙→⊢ (wf ⊢A)))
+                                 unitrec-ok m≢𝟘 ⟩
               𝟘 ·ᶜ δ +ᶜ η  ≈⟨ +ᶜ-congʳ $ ·ᶜ-zeroˡ δ ⟩
               𝟘ᶜ +ᶜ η      ≈⟨ +ᶜ-identityˡ η ⟩
               η            ∎
@@ -496,6 +498,31 @@ module Subject-reduction
     lowerₘ (usagePresTerm ▸∇ (inv-usage-lower γ▸) t⇒t′)
   usagePresTerm {γ} _ γ▸ (Lift-β _ _) =
     inv-usage-lift (inv-usage-lower γ▸)
+
+  usagePresTerm _ ▸resp (resp-η _ _ _ _ _) =
+    sub rflₘ (inv-usage-resp ▸resp .proj₁)
+  usagePresTerm _ ▸set (set-η _ _ _ _ _) =
+    sub rflₘ (inv-usage-set ▸set .proj₁)
+  usagePresTerm ▸Γ ▸qrec (qrec-subst ⊢C ⊢t ⊢u ⊢v w₁⇒w₂)
+    with inv-usage-qrec ▸qrec
+  … | invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w₁ γ≤ =
+    sub (qrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v (usagePresTerm ▸Γ ▸w₁ w₁⇒w₂)) γ≤
+  … | invUsageQrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w₁ γ≤ =
+    sub (qrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v (usagePresTerm ▸Γ ▸w₁ w₁⇒w₂)) γ≤
+  usagePresTerm {γ} _ ▸qrec (qrec-β _ _ _ _ _)
+    with inv-usage-qrec ▸qrec
+  … | invUsageQrec₀ _ _ _ ▸t _ _ ▸class-w γ≤ =
+    sub (sgSubstₘ-lemma₃ ▸t (inv-usage-class ▸class-w .proj₂)) γ≤
+  … | invUsageQrec₁ {δ₁} {δ₂} {δ₅} _ _ _ ▸t _ _ ▸class-w γ≤ =
+    sub (sgSubstₘ-lemma₃ ▸t (inv-usage-class ▸class-w .proj₂))
+      (begin
+         γ                      ≤⟨ γ≤ ⟩
+         ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+         ω ·ᶜ (δ₂ +ᶜ δ₅)        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
+         ω ·ᶜ δ₂ +ᶜ ω ·ᶜ δ₅     ≤⟨ +ᶜ-monotoneˡ ω·ᶜ-decreasing ⟩
+         δ₂ +ᶜ ω ·ᶜ δ₅          ∎)
+    where
+    open ≤ᶜ-reasoning
 
   -- Type reduction preserves usage (for well-resourced definition
   -- contexts).

@@ -110,7 +110,7 @@ opaque
         ⊢ℕ′ = ⊢ℕ (∙ ⊢ℕ εε)
         ⊢s  = prodrecⱼ (⊢ℕ (∙ ΠΣⱼ ⊢ℕ′ ok))
                 (prodⱼ ⊢ℕ′ (zeroⱼ εε) (zeroⱼ εε) ok)
-                (var (∙ ⊢ℕ′) (there here)) ok
+                (var (∙ ⊢ℕ′) (there here))
         ▸s = sub (▸fstʷ (prodʷₘ zeroₘ zeroₘ) .proj₂) (ε≤ _)
         _ , _ , H , _ , _ , d , _ , H≤𝟘 = soundness-closed ⊢s (λ ()) ▸s
         m≡ , n≡ , s≡ = ↠*-det d (fstʷ⟨0,0⟩↠* 𝟙-𝟙≡𝟘)

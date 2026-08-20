@@ -308,6 +308,27 @@ opaque
     erase-[] ok ▸t
   erase-[] _ ([]-congₘ _ _ _ _ _ _) =
     refl
+  erase-[] _ (Quot _ _ _) =
+    refl
+  erase-[] ok (class _ ▸t) =
+    erase-[] ok ▸t
+  erase-[] _ (resp _ _ _ _ _ _ _) =
+    refl
+  erase-[] _ (set _ _ _ _ _ _ _ _) =
+    refl
+  erase-[] ok (qrec₀ _ _ _ ▸t _ _ ▸w) =
+    cong₂ (λ t w → lam t ∘⟨ _ ⟩ w)
+      (erase-[] (OK-⇑-∙ $ x◂𝟘∈γ+δˡ refl ∘→ ok) ▸t)
+      (erase-[] (x◂𝟘∈pγ refl ω≢𝟘 ∘→ x◂𝟘∈γ+δʳ refl ∘→ ok) ▸w)
+  erase-[] ok (qrec₁ _ _ _ ▸t _ _ ▸w) =
+    cong₂ (λ t w → lam t ∘⟨ _ ⟩ w)
+      (erase-[]
+         (OK-⇑-∙ $
+          x◂𝟘∈γ+δˡ refl ∘→ x◂𝟘∈γ+δʳ refl ∘→ x◂𝟘∈pγ refl ω≢𝟘 ∘→ ok)
+         ▸t)
+      (erase-[]
+         (x◂𝟘∈γ+δʳ refl ∘→ x◂𝟘∈γ+δʳ refl ∘→ x◂𝟘∈pγ refl ω≢𝟘 ∘→ ok)
+         ▸w)
 
 opaque
 

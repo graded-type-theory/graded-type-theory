@@ -360,10 +360,10 @@ module Internal
       Definition.Typed.Decidable.Internal.Weakening 𝐌 R
 
   private variable
-    c        : I.Constants
-    pᵢ qᵢ rᵢ : I.Termᵍ _
-    Aᵢ tᵢ uᵢ : I.Term _ _
-    γ        : I.Contexts _
+    c           : I.Constants
+    pᵢ qᵢ rᵢ    : I.Termᵍ _
+    Aᵢ Bᵢ tᵢ uᵢ : I.Term _ _
+    γ           : I.Contexts _
 
   -- A variant of fst⟨_⟩, intended to be used with the internal
   -- type-checker.
@@ -385,6 +385,33 @@ module Internal
       fst⟨ s ⟩ (I.⟦ pᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ tᵢ ⌝ γ)
     ⌜fst⟨⟩ᵢ⌝ 𝕤 = refl
     ⌜fst⟨⟩ᵢ⌝ 𝕨 = refl
+
+  -- A variant of snd⟨_⟩, intended to be used with the internal
+  -- type-checker.
+
+  snd⟨_⟩ᵢ :
+    Strength → (_ _ : I.Termᵍ (c .I.gs)) → I.Term c n →
+    I.Term c (1+ n) → I.Term c n → I.Term c n
+  snd⟨ 𝕤 ⟩ᵢ p _ _ _ t = I.snd p t
+  snd⟨ 𝕨 ⟩ᵢ p q A B t =
+    I.prodrec (I.𝟘 I.∧ I.𝟙) p q
+      (I.subst B $
+       I.cons (IS.wkSubst 1 I.id) $
+       fst⟨ 𝕨 ⟩ᵢ p (IW.wk[ 1 ] A) (I.var x0))
+      t (I.var x0)
+
+  opaque
+    unfolding snd⟨_⟩
+
+    -- A translation lemma for snd⟨_⟩ᵢ.
+
+    ⌜snd⟨⟩ᵢ⌝ :
+      ∀ s →
+      I.⌜ snd⟨ s ⟩ᵢ pᵢ qᵢ Aᵢ Bᵢ tᵢ ⌝ γ ≡
+      snd⟨ s ⟩ (I.⟦ pᵢ ⟧ᵍ γ) (I.⟦ qᵢ ⟧ᵍ γ) (I.⌜ Aᵢ ⌝ γ) (I.⌜ Bᵢ ⌝ γ)
+        (I.⌜ tᵢ ⌝ γ)
+    ⌜snd⟨⟩ᵢ⌝ 𝕤 = refl
+    ⌜snd⟨⟩ᵢ⌝ 𝕨 = refl
 
   -- A variant of prodrec⟨_⟩, intended to be used with the internal
   -- type-checker.

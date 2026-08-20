@@ -86,6 +86,7 @@ import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Nr-instances
 open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Modality.Instances.Erasure.Properties
+open import Graded.Restrictions.Zero-one EM variant
 open import Graded.Usage UR
 open import Graded.Usage.Inversion UR
 open import Graded.Usage.Properties UR
@@ -1078,16 +1079,19 @@ opaque
 
 opaque
 
-  -- The term head-[0] reduces to zero (if Level is allowed).
+  -- The term head-[0] reduces to zero (if Level is allowed and a
+  -- certain condition is true).
   --
   -- Note that this is proved using the fact that the (non-strict)
-  -- erasure of head-[0] reduces to T.zero.
+  -- erasure of head-[0] reduces to T.zero (the condition is used to
+  -- enable this proof).
 
   head-[0]⇒*zero :
+    No-erased-matches TR UR ⊎ ¬ Higher-quotient-constructors-neutral →
     Level-allowed →
     ε » ε ⊢ head-[0] ⇒* zero ∷ ℕ
-  head-[0]⇒*zero ok =
-    case Soundness₀.soundness-ℕ (λ ()) (⊢head-[0] ok)
+  head-[0]⇒*zero ok₁ ok₂ =
+    case Soundness₀.soundness-ℕ ok₁ (λ ()) (⊢head-[0] ok₂)
            ▸head-[0] of λ where
       (0 , head-[0]⇒*zero , _) →
         S.⇒ˢ*zero∷ℕ→⇒*zero ⦃ ok = ε ⦄ head-[0]⇒*zero

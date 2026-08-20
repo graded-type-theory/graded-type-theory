@@ -93,19 +93,6 @@ opaque
 
 opaque
 
-  -- A variant of prodrecⱼ.
-
-  prodrecⱼ′ :
-    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
-    Γ ⊢ t ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ »∙ A »∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-    Γ ⊢ prodrec r p q C t u ∷ C [ t ]₀
-  prodrecⱼ′ ⊢C ⊢t ⊢u =
-    let _ , _ , ok = inversion-ΠΣ (wf-⊢ ⊢t) in
-    prodrecⱼ ⊢C ⊢t ⊢u ok
-
-opaque
-
   -- A variant of fst-subst.
 
   fst-subst′ :
@@ -179,19 +166,6 @@ opaque
 
 opaque
 
-  -- A variant of prodrec-subst.
-
-  prodrec-subst′ :
-    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
-    Γ »∙ A »∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
-    Γ ⊢ t₁ ⇒ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ ⊢ prodrec r p q C t₁ u ⇒ prodrec r p q C t₂ u ∷ C [ t₁ ]₀
-  prodrec-subst′ ⊢C ⊢u t₁⇒t₂ =
-    let _ , _ , ok = inversion-ΠΣ (wf-⊢ (redFirstTerm t₁⇒t₂)) in
-    prodrec-subst ⊢C ⊢u t₁⇒t₂ ok
-
-opaque
-
   -- A variant of prodrec-subst for _⊢_⇒*_∷_.
 
   prodrec-subst* :
@@ -201,24 +175,11 @@ opaque
     Γ ⊢ prodrec r p q′ C t₁ u ⇒* prodrec r p q′ C t₂ u ∷ C [ t₁ ]₀
   prodrec-subst* ⊢C t₁⇒*t₂ ⊢u =
     case t₁⇒*t₂ of λ where
-      (id ⊢t₁)         → id (prodrecⱼ′ ⊢C ⊢t₁ ⊢u)
+      (id ⊢t₁)         → id (prodrecⱼ ⊢C ⊢t₁ ⊢u)
       (t₁⇒t₃ ⇨ t₃⇒*t₂) →
-        prodrec-subst′ ⊢C ⊢u t₁⇒t₃ ⇨
+        prodrec-subst ⊢C ⊢u t₁⇒t₃ ⇨
         conv* (prodrec-subst* ⊢C t₃⇒*t₂ ⊢u)
           (subst-⊢≡₀ ⊢C (sym′ (subsetTerm t₁⇒t₃)))
-
-opaque
-
-  -- A variant of prodrec-cong.
-
-  prodrec-cong′ :
-    Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C₁ ≡ C₂ →
-    Γ ⊢ t₁ ≡ t₂ ∷ Σʷ p , q′ ▷ A ▹ B →
-    Γ »∙ A »∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prodʷ p (var x1) (var x0) ]↑² →
-    Γ ⊢ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
-  prodrec-cong′ C₁≡C₂ t₁≡t₂ u₁≡u₂ =
-    let _ , _ , ok = inversion-ΠΣ (wf-⊢ t₁≡t₂ .proj₁) in
-    prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ ok
 
 opaque
 
@@ -283,9 +244,7 @@ opaque
     Γ »∙ A »∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec r p q C (prodʷ p t u) v ⇒ v [ t , u ]₁₀ ∷
       C [ prodʷ p t u ]₀
-  prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v =
-    let _ , _ , ok = inversion-ΠΣ (⊢∙→⊢ (wf ⊢C)) in
-    prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl ok
+  prodrec-β-⇒ ⊢C ⊢t ⊢u ⊢v = prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl
 
 opaque
 
@@ -603,7 +562,7 @@ opaque
     let ⊢A , ⊢B , ok = inversion-ΠΣ (wf-⊢ ⊢t) in                  $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
 
     (Γ »∙ Σʷ p , q ▷ A ▹ B ⊢ wk1 A) ×
-    Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrecⱼ′ hyp₁ ⊢t hyp₂) ⟩
+    Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrecⱼ hyp₁ ⊢t hyp₂) ⟩
 
     Γ ⊢ fstʷ p A t ∷ wk1 A [ t ]₀                                 →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
@@ -640,7 +599,7 @@ opaque
     in                                                            $⟨ Σ⊢wk1 ⊢B ok , 1∷wk1[1,0] ⊢B ⟩
 
     (Γ »∙ Σʷ p , q ▷ A ▹ B ⊢ wk1 A) ×
-    Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst′ hyp₁ hyp₂ t₁⇒t₂) ⟩
+    Γ »∙ A »∙ B ⊢ var x1 ∷ wk1 A [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-subst hyp₁ hyp₂ t₁⇒t₂) ⟩
 
     Γ ⊢ fstʷ p A t₁ ⇒ fstʷ p A t₂ ∷ wk1 A [ t₁ ]₀                 →⟨ flip conv (⊢wk1[]≡ ⊢A) ⟩
 
@@ -671,7 +630,7 @@ opaque
                                                                       , 1∷wk1[1,0] ⊢B₁
                                                                       ⟩
     (Γ »∙ Σʷ p , q ▷ A₁ ▹ B₁ ⊢ wk1 A₁ ≡ wk1 A₂) ×
-    Γ »∙ A₁ »∙ B₁ ⊢ var x1 ∷ wk1 A₁ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong′ hyp₁ t₁≡t₂ (refl hyp₂)) ⟩
+    Γ »∙ A₁ »∙ B₁ ⊢ var x1 ∷ wk1 A₁ [ prodʷ p (var x1) (var x0) ]↑²  →⟨ (λ (hyp₁ , hyp₂) → prodrec-cong hyp₁ t₁≡t₂ (refl hyp₂)) ⟩
 
     Γ ⊢ fstʷ p A₁ t₁ ≡ fstʷ p A₂ t₂ ∷ wk1 A₁ [ t₁ ]₀                 →⟨ flip conv (⊢wk1[]≡ ⊢A₁) ⟩
 
@@ -865,7 +824,7 @@ opaque
     Γ ⊢ sndʷ p q A B t ∷ B [ fstʷ p A t ]₀
   sndʷⱼ {Γ} {t} {p} {q} {A} {B} ⊢t =
     let _ , ⊢B , ok = inversion-ΠΣ (wf-⊢ ⊢t) in                 $⟨ prodrecⱼ (⊢[fstʷ-0]↑ ⊢B ok) ⊢t
-                                                                     (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) ok ⟩
+                                                                     (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) ⟩
     Γ ⊢ sndʷ p q A B t ∷ B [ fstʷ p (wk1 A) (var x0) ]↑ [ t ]₀  →⟨ flip conv (⊢≡[fstʷ] ⊢t) ⟩
     Γ ⊢ sndʷ p q A B t ∷ B [ fstʷ p A t ]₀                      □
 
@@ -881,7 +840,7 @@ opaque
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷ B [ t ]₀
   sndʷ-β-⇒ {Γ} {A} {B} {t} {u} {p} {q} ⊢B ⊢t ⊢u ok =
                                                        $⟨ prodrec-β (⊢[fstʷ-0]↑ {q = q} ⊢B ok)
-                                                            ⊢t ⊢u (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) PE.refl ok ⟩
+                                                            ⊢t ⊢u (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) PE.refl ⟩
     Γ ⊢ sndʷ p q A B (prodʷ p t u) ⇒ u ∷
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ prodʷ p t u ]₀  →⟨ flip conv (⊢≡[fstʷ] (prodⱼ ⊢B ⊢t ⊢u ok)) ⟩
 
@@ -900,7 +859,7 @@ opaque
   sndʷ-subst {Γ} {t₁} {t₂} {p} {q} {A} {B} t₁⇒t₂ =
     let _ , ⊢t₁ , _ = wf-⊢ (subsetTerm t₁⇒t₂)
         _ , ⊢B , ok = inversion-ΠΣ (wf-⊢ ⊢t₁)
-    in                                           $⟨ prodrec-subst′ (⊢[fstʷ-0]↑ ⊢B ok) (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ⟩
+    in                                           $⟨ prodrec-subst (⊢[fstʷ-0]↑ ⊢B ok) (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok) t₁⇒t₂ ⟩
     Γ ⊢ sndʷ p q A B t₁ ⇒ sndʷ p q A B t₂ ∷
       B [ fstʷ p (wk1 A) (var x0) ]↑ [ t₁ ]₀     →⟨ flip conv (⊢≡[fstʷ] ⊢t₁) ⟩
 
@@ -932,7 +891,7 @@ opaque
     {Γ} {A₁} {A₂} {B₁} {B₂} {t₁} {t₂} {p} {q} A₁≡A₂ B₁≡B₂ t₁≡t₂ =
     let _ , ⊢t₁ , _ = wf-⊢ t₁≡t₂
         _ , ⊢B , ok = inversion-ΠΣ (wf-⊢ ⊢t₁)
-    in                                           $⟨ prodrec-cong′ (⊢[fstʷ-0]↑≡[fstʷ-0]↑ A₁≡A₂ B₁≡B₂ ok)
+    in                                           $⟨ prodrec-cong (⊢[fstʷ-0]↑≡[fstʷ-0]↑ A₁≡A₂ B₁≡B₂ ok)
                                                       t₁≡t₂ (refl (⊢0∷[fstʷ-0]↑[1,0]↑² ⊢B ok)) ⟩
     Γ ⊢ sndʷ p q A₁ B₁ t₁ ≡ sndʷ p q A₂ B₂ t₂ ∷
       B₁ [ fstʷ p (wk1 A₁) (var x0) ]↑ [ t₁ ]₀   →⟨ flip conv (⊢≡[fstʷ] ⊢t₁) ⟩
@@ -1018,7 +977,7 @@ opaque
                                                                           subst-id _) ⟩
        Id (Σʷ p , q ▷ A ▹ B)
          (prodʷ p (fstʷ p A t) (sndʷ p q A B t)) t                  ∎) $
-    prodrecⱼ′
+    prodrecⱼ
       (Idⱼ′
          (prodⱼ ⊢B″ (fstʷⱼ (var₀ ⊢ΣAB)) (sndʷⱼ (var₀ ⊢ΣAB)) ok)
          (var₀ ⊢ΣAB))
@@ -1063,7 +1022,7 @@ opaque
     Γ ⊢ t ∷ Σ⟨ s ⟩ p , q′ ▷ A ▹ B →
     Γ »∙ A »∙ B ⊢ u ∷ C [ prod s p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec⟨ s ⟩ r p q C t u ∷ C [ t ]₀
-  ⊢prodrec⟨⟩ {s = 𝕨} = prodrecⱼ′
+  ⊢prodrec⟨⟩ {s = 𝕨} = prodrecⱼ
   ⊢prodrec⟨⟩ {s = 𝕤} = prodrecˢⱼ
 
 opaque
@@ -1095,7 +1054,7 @@ opaque
     Γ »∙ A »∙ B ⊢ u₁ ≡ u₂ ∷ C₁ [ prod s p (var x1) (var x0) ]↑² →
     Γ ⊢ prodrec⟨ s ⟩ r p q C₁ t₁ u₁ ≡
       prodrec⟨ s ⟩ r p q C₂ t₂ u₂ ∷ C₁ [ t₁ ]₀
-  prodrec⟨⟩-cong {s = 𝕨} = prodrec-cong′
+  prodrec⟨⟩-cong {s = 𝕨} = prodrec-cong
   prodrec⟨⟩-cong {s = 𝕤} = prodrecˢ-cong ∘→ proj₁ ∘→ wf-⊢
 
 ------------------------------------------------------------------------

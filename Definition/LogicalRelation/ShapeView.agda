@@ -68,6 +68,8 @@ Level-view′ D (Unitᵣ′ D′ _) with whrDet* (D , Levelₙ) (D′ , Unitₙ)
 ... | ()
 Level-view′ A⇒*Level (Idᵣ ⊩A) =
   case whrDet* (A⇒*Level , Levelₙ) (_⊩ₗId_.⇒*Id ⊩A , Idₙ) of λ ()
+Level-view′ A⇒*Level (Quot ⊩A) =
+  case whrDet* (A⇒*Level , Levelₙ) (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) of λ ()
 
 Level-view : (⊩A : Γ ⊩⟨ l ⟩ Level) → LevelView ⊩A
 Level-view [Level] = Level-view′ (id (escape [Level])) [Level]
@@ -97,6 +99,8 @@ U-view′ A⇒U (Bᵣ′ W _ _ D _ _ _ _ _) =
   ⊥-elim (U≢B W (whrDet* (A⇒U , Uₙ) (D , ⟦ W ⟧ₙ)))
 U-view′ A⇒U (Idᵣ ⊩A) =
   case whrDet* (A⇒U , Uₙ) (_⊩ₗId_.⇒*Id ⊩A , Idₙ) of λ ()
+U-view′ A⇒*U (Quot ⊩A) =
+  case whrDet* (A⇒*U , Uₙ) (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) of λ ()
 
 U-view : (⊩A : Γ ⊩⟨ l ⟩ U t) → UView ⊩A
 U-view ⊩U = U-view′ (id (escape ⊩U)) ⊩U
@@ -125,6 +129,8 @@ Lift-view′ A⇒Lift (Bᵣ′ W _ _ D _ _ _ _ _) =
   ⊥-elim (Lift≢B W (whrDet* (A⇒Lift , Liftₙ) (D , ⟦ W ⟧ₙ)))
 Lift-view′ A⇒Lift (Idᵣ ⊩A) =
   case whrDet* (A⇒Lift , Liftₙ) (_⊩ₗId_.⇒*Id ⊩A , Idₙ) of λ ()
+Lift-view′ A⇒*Lift (Quot ⊩A) =
+  case whrDet* (A⇒*Lift , Liftₙ) (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) of λ ()
 
 Lift-view : (⊩A : Γ ⊩⟨ l ⟩ Lift t B) → LiftView ⊩A
 Lift-view ⊩Lift = Lift-view′ (id (escape ⊩Lift)) ⊩Lift
@@ -153,6 +159,8 @@ data ℕView {Γ : Cons m n} {l A} : (p : Γ ⊩⟨ l ⟩ A) → Set a where
 ... | ()
 ℕ-view′ A⇒*Nat (Idᵣ ⊩A) =
   case whrDet* (A⇒*Nat , ℕₙ) (_⊩ₗId_.⇒*Id ⊩A , Idₙ) of λ ()
+ℕ-view′ A⇒*ℕ (Quot ⊩A) =
+  case whrDet* (A⇒*ℕ , ℕₙ) (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) of λ ()
 
 ℕ-view : (⊩A : Γ ⊩⟨ l ⟩ ℕ) → ℕView ⊩A
 ℕ-view [ℕ] = ℕ-view′ (id (escape [ℕ])) [ℕ]
@@ -182,6 +190,8 @@ Empty-view′ D (ℕᵣ D′) with whrDet* (D , Emptyₙ) (D′ , ℕₙ)
 ... | ()
 Empty-view′ A⇒*Empty (Idᵣ ⊩A) =
   case whrDet* (A⇒*Empty , Emptyₙ) (_⊩ₗId_.⇒*Id ⊩A , Idₙ) of λ ()
+Empty-view′ A⇒*Empty (Quot ⊩A) =
+  case whrDet* (A⇒*Empty , Emptyₙ) (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) of λ ()
 
 Empty-view : (⊩A : Γ ⊩⟨ l ⟩ Empty) → EmptyView ⊩A
 Empty-view [Empty] = Empty-view′ (id (escape [Empty])) [Empty]
@@ -214,6 +224,8 @@ Unit-view′ D (ℕᵣ D′) with whrDet* (D , Unitₙ) (D′ , ℕₙ)
 ... | ()
 Unit-view′ A⇒*Unit (Idᵣ ⊩A) =
   case whrDet* (A⇒*Unit , Unitₙ) (_⊩ₗId_.⇒*Id ⊩A , Idₙ) of λ ()
+Unit-view′ A⇒*Unit (Quot ⊩A) =
+  case whrDet* (A⇒*Unit , Unitₙ) (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) of λ ()
 
 Unit-view : (⊩A : Γ ⊩⟨ l ⟩ Unit s) → UnitView s ⊩A
 Unit-view [Unit] = Unit-view′ (id (escape [Unit])) [Unit]
@@ -245,6 +257,9 @@ ne-view′ D neK (Bᵣ′ W _ _ D′ _ _ _ _ _) =
   ⊥-elim (B≢ne W neK (whrDet* (D′ , ⟦ W ⟧ₙ) (D , ne-whnf neK)))
 ne-view′ A⇒*ne n (Idᵣ ⊩A) =
   ⊥-elim (Id≢ne n (whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (A⇒*ne , ne-whnf n)))
+ne-view′ A⇒*ne n (Quot ⊩A) =
+  ⊥-elim $
+  Quot≢ne n (whrDet* (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) (A⇒*ne , ne-whnf n))
 
 ne-view : Neutral V (Γ .defs) K → (⊩K : Γ ⊩⟨ l ⟩ K) → NeutralView ⊩K
 ne-view neK [K] = ne-view′ (id (escape [K])) neK [K]
@@ -284,6 +299,9 @@ B-view′ {W = BΣ!} D (Bᵣ′ BΣ! F G D′ A≡A [F] [G] G-ext ok)
 B-view′ A⇒*B (Idᵣ ⊩A) =
   ⊥-elim $ Id≢⟦⟧▷ _ $
   whrDet* (_⊩ₗId_.⇒*Id ⊩A , Idₙ) (A⇒*B , ⟦ _ ⟧ₙ)
+B-view′ A⇒*B (Quot ⊩A) =
+  ⊥-elim $ Quot≢⟦⟧▷ _ $
+  whrDet* (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) (A⇒*B , ⟦ _ ⟧ₙ)
 
 B-view : ∀ {F G W} → (⊩A : Γ ⊩⟨ l ⟩ ⟦ W ⟧ F ▹ G) → BView W ⊩A
 B-view [B] = B-view′ (id (escape [B])) [B]
@@ -314,6 +332,8 @@ Id-view′ ⇒*Id (ne′ _ ⇒*ne n _) =
 Id-view′ ⇒*Id (Bᵣ′ _ _ _ ⇒*B _ _ _ _ _) =
   ⊥-elim (Id≢⟦⟧▷ _ (whrDet* (⇒*Id , Idₙ) (⇒*B , ⟦ _ ⟧ₙ)))
 Id-view′ _ (Idᵣ ⊩A) = Idᵣ ⊩A
+Id-view′ A⇒*Id (Quot ⊩A) =
+  case whrDet* (A⇒*Id , Idₙ) (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) of λ ()
 
 Id-view : (⊩A : Γ ⊩⟨ l ⟩ Id A t u) → IdView ⊩A
 Id-view ⊩Id = Id-view′ (id (escape ⊩Id)) ⊩Id
@@ -323,6 +343,44 @@ opaque
   Id-elim : Γ ⊩⟨ l ⟩ Id A t u → Γ ⊩′⟨ l ⟩Id Id A t u
   Id-elim ⊩Id = case Id-view ⊩Id of λ {
     (Idᵣ ⊩Id) → ⊩Id }
+
+data QuotView {Γ : Cons m n} {l A} : Γ ⊩⟨ l ⟩ A → Set a where
+  Quot : ∀ QuotA → QuotView (Quot QuotA)
+
+Quot-view′ : Γ ⊢ A ⇒* Quot B C → (⊩A : Γ ⊩⟨ l ⟩ A) → QuotView ⊩A
+Quot-view′ ⇒*Quot (Levelᵣ D')
+  with whrDet* (⇒*Quot , Quot) (D' , Levelₙ)
+… | ()
+Quot-view′ ⇒*Quot (Uᵣ′ _ _ _ D') with whrDet* (⇒*Quot , Quot) (D' , Uₙ)
+… | ()
+Quot-view′ ⇒*Quot (Liftᵣ′ D' _ _)
+  with whrDet* (⇒*Quot , Quot) (D' , Liftₙ)
+… | ()
+Quot-view′ ⇒*Quot (ℕᵣ ⇒*ℕ)
+  with whrDet* (⇒*ℕ , ℕₙ) (⇒*Quot , Quot)
+… | ()
+Quot-view′ ⇒*Quot (Emptyᵣ ⇒*Empty)
+  with whrDet* (⇒*Empty , Emptyₙ) (⇒*Quot , Quot)
+… | ()
+Quot-view′ ⇒*Quot (Unitᵣ ⊩Unit)
+  with whrDet* (_⊩Unit⟨_⟩_.⇒*-Unit ⊩Unit , Unitₙ) (⇒*Quot , Quot)
+… | ()
+Quot-view′ ⇒*Quot (ne′ _ ⇒*ne n _) =
+  ⊥-elim (Quot≢ne n (whrDet* (⇒*Quot , Quot) (⇒*ne , ne-whnf n)))
+Quot-view′ ⇒*Quot (Bᵣ′ _ _ _ ⇒*B _ _ _ _ _) =
+  ⊥-elim (Quot≢⟦⟧▷ _ (whrDet* (⇒*Quot , Quot) (⇒*B , ⟦ _ ⟧ₙ)))
+Quot-view′ ⇒*Quot (Idᵣ ⊩A) =
+  case whrDet* (⇒*Quot , Quot) (_⊩ₗId_.⇒*Id ⊩A , Idₙ) of λ ()
+Quot-view′ _ (Quot ⊩A) = Quot ⊩A
+
+Quot-view : (⊩A : Γ ⊩⟨ l ⟩ Quot A B) → QuotView ⊩A
+Quot-view ⊩Quot = Quot-view′ (id (escape ⊩Quot)) ⊩Quot
+
+opaque
+
+  Quot-elim : Γ ⊩⟨ l ⟩ Quot A B → Γ ⊩′⟨ l ⟩Quot Quot A B
+  Quot-elim ⊩Quot with Quot-view ⊩Quot
+  … | Quot ⊩Quot = ⊩Quot
 
 -- A view for constructor equality of types
 data ShapeView (Γ : Cons m n) :
@@ -338,6 +396,7 @@ data ShapeView (Γ : Cons m n) :
   Bᵥ : ∀ {A B l l′} W BA BB
     → ShapeView Γ l l′ A B (Bᵣ W BA) (Bᵣ W BB)
   Idᵥ : ∀ ⊩A ⊩B → ShapeView Γ l l′ A B (Idᵣ ⊩A) (Idᵣ ⊩B)
+  Quot : ∀ ⊩A ⊩B → ShapeView Γ l l′ A B (Quot ⊩A) (Quot ⊩B)
 
 -- Construct a shape view from an equality (aptly named)
 goodCases : ∀ {l l′} ([A] : Γ ⊩⟨ l ⟩ A) ([B] : Γ ⊩⟨ l′ ⟩ B)
@@ -361,6 +420,7 @@ goodCases (Bᵣ BΣ! ΣA) (Bᵣ′ BΣ! F G D A≡A [F] [G] G-ext ok)
   with whrDet* (D , ΠΣₙ) (D′ , ΠΣₙ)
 ... | PE.refl = Bᵥ BΣ! ΣA (Bᵣ F G D A≡A [F] [G] G-ext ok)
 goodCases (Idᵣ ⊩A) (Idᵣ ⊩B) _ = Idᵥ ⊩A ⊩B
+goodCases (Quot ⊩A) (Quot ⊩B) _ = Quot ⊩A ⊩B
 
 -- Refutable cases
 -- Level ≡ _
@@ -380,6 +440,8 @@ goodCases (Levelᵣ _) (Bᵣ′ W _ _ D' _ _ _ _ _) D =
   ⊥-elim (Level≢B W (whrDet* ( D , Levelₙ ) (D' , ⟦ W ⟧ₙ )))
 goodCases (Levelᵣ _) (Idᵣ ⊩B) D =
   case whrDet* (D , Levelₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ ()
+goodCases (Levelᵣ _) (Quot ⊩B) D =
+  case whrDet* (D , Levelₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) of λ ()
 
 -- U ≡ _
 goodCases (Uᵣ _) (Levelᵣ D') (U₌ _ D _) with whrDet* (D , Uₙ) (D' , Levelₙ)
@@ -398,6 +460,8 @@ goodCases (Uᵣ _) (Bᵣ′ W _ _ D' _ _ _ _ _) (U₌ _ D _) =
   ⊥-elim (U≢B W (whrDet* ( D , Uₙ ) (D' , ⟦ W ⟧ₙ )))
 goodCases (Uᵣ _) (Idᵣ ⊩B) (U₌ _ D _) =
   case whrDet* (D , Uₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ ()
+goodCases (Uᵣ _) (Quot ⊩B) (U₌ _ D _) =
+  case whrDet* (D , Uₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) of λ ()
 
 -- Lift ≡ _
 goodCases (Liftᵣ _) (Levelᵣ D') (Lift₌ D _ _) with whrDet* (D , Liftₙ) (D' , Levelₙ)
@@ -416,6 +480,8 @@ goodCases (Liftᵣ _) (Bᵣ′ W _ _ D' _ _ _ _ _) (Lift₌ D _ _) =
   ⊥-elim (Lift≢B W (whrDet* ( D , Liftₙ ) (D' , ⟦ W ⟧ₙ )))
 goodCases (Liftᵣ _) (Idᵣ ⊩B) (Lift₌ D _ _) =
   case whrDet* (D , Liftₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ ()
+goodCases (Liftᵣ _) (Quot ⊩B) (Lift₌ D _ _) =
+  case whrDet* (D , Liftₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) of λ ()
 
 -- ℕ ≡ _
 goodCases (ℕᵣ _) (Levelᵣ D') D with whrDet* (D , ℕₙ) (D' , Levelₙ)
@@ -435,6 +501,8 @@ goodCases (ℕᵣ _) (Bᵣ′ W _ _ D _ _ _ _ _) A≡B =
   ⊥-elim (ℕ≢B W (whrDet* (A≡B , ℕₙ) (D , ⟦ W ⟧ₙ)))
 goodCases (ℕᵣ _) (Idᵣ ⊩B) ⇒*ℕ =
   case whrDet* (⇒*ℕ , ℕₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ ()
+goodCases (ℕᵣ _) (Quot ⊩B) D =
+  case whrDet* (D , ℕₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) of λ ()
 
 -- Empty ≢ _
 goodCases (Emptyᵣ _) (Levelᵣ D') D with whrDet* (D , Emptyₙ) (D' , Levelₙ)
@@ -454,6 +522,8 @@ goodCases (Emptyᵣ _) (Bᵣ′ W _ _ D _ _ _ _ _) A≡B =
   ⊥-elim (Empty≢B W (whrDet* (A≡B , Emptyₙ) (D , ⟦ W ⟧ₙ)))
 goodCases (Emptyᵣ _) (Idᵣ ⊩B) ⇒*Empty =
   case whrDet* (⇒*Empty , Emptyₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ ()
+goodCases (Emptyᵣ _) (Quot ⊩B) D =
+  case whrDet* (D , Emptyₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) of λ ()
 
 -- Unit ≡ _
 goodCases (Unitᵣ _) (Levelᵣ D') (Unit₌ D) with whrDet* (D , Unitₙ) (D' , Levelₙ)
@@ -472,6 +542,8 @@ goodCases (Unitᵣ _) (Bᵣ′ W _ _ D' _ _ _ _ _) (Unit₌ D) =
   ⊥-elim (Unit≢B W (whrDet* (D , Unitₙ) (D' , ⟦ W ⟧ₙ)))
 goodCases (Unitᵣ _) (Idᵣ ⊩B) (Unit₌ ⇒*Unit) =
   case whrDet* (⇒*Unit , Unitₙ) (_⊩ₗId_.⇒*Id ⊩B , Idₙ) of λ ()
+goodCases (Unitᵣ _) (Quot ⊩B) (Unit₌ D) =
+  case whrDet* (D , Unitₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) of λ ()
 
 -- ne ≡ _
 goodCases (ne _) (Levelᵣ D') (ne₌ M D′ neM K≡M) =
@@ -491,6 +563,11 @@ goodCases (ne _) (Bᵣ′ W _ _ D₁ _ _ _ _ _) (ne₌ _ D₂ neM _) =
 goodCases (ne _) (Idᵣ ⊩B) A≡B =
   ⊥-elim $ Id≢ne N.neM $
   whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (N.D′ , ne-whnf N.neM)
+  where
+  module N = _⊩ne_≡_/_ A≡B
+goodCases (ne _) (Quot ⊩B) A≡B =
+  ⊥-elim $ Quot≢ne N.neM $
+  whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (N.D′ , ne-whnf N.neM)
   where
   module N = _⊩ne_≡_/_ A≡B
 
@@ -519,6 +596,9 @@ goodCases (Bᵣ′ BΣ! _ _ _ _ _ _ _ _) (Bᵣ′ BΠ! _ _ D₁ _ _ _ _ _)
 goodCases (Bᵣ _ _) (Idᵣ ⊩B) A≡B =
   ⊥-elim $ Id≢⟦⟧▷ _ $
   whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (_⊩ₗB⟨_⟩_≡_/_.D′ A≡B , ⟦ _ ⟧ₙ)
+goodCases (Bᵣ _ _) (Quot ⊩B) A≡B =
+  ⊥-elim $ Quot≢⟦⟧▷ _ $
+  whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (_⊩ₗB⟨_⟩_≡_/_.D′ A≡B , ⟦ _ ⟧ₙ)
 
 -- Id ≡ _
 goodCases (Idᵣ _) (Levelᵣ D') A≡B =
@@ -551,6 +631,48 @@ goodCases (Idᵣ _) (ne ⊩B) A≡B =
 goodCases (Idᵣ _) (Bᵣ _ ⊩B) A≡B =
   ⊥-elim $ Id≢⟦⟧▷ _ $
   whrDet* (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ) (_⊩ₗB⟨_⟩_.D ⊩B , ⟦ _ ⟧ₙ)
+goodCases (Idᵣ _) (Quot ⊩B) A≡B
+  with
+    whrDet* (_⊩ₗId_≡_/_.⇒*Id′ A≡B , Idₙ)
+      (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+… | ()
+
+-- Quot ≡ _
+goodCases (Quot _) (Levelᵣ D') A≡B =
+  case whrDet* (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot) (D' , Levelₙ)
+  of λ ()
+goodCases (Quot _) (Uᵣ′ _ _ _ D') A≡B =
+  case whrDet* (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot) (D' , Uₙ)
+  of λ ()
+goodCases (Quot _) (Liftᵣ′ D' _ _) A≡B =
+  case whrDet* (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot) (D' , Liftₙ)
+  of λ ()
+goodCases (Quot _) (ℕᵣ ⇒*ℕ) A≡B =
+  case whrDet* (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot) (⇒*ℕ , ℕₙ)
+  of λ ()
+goodCases (Quot _) (Emptyᵣ ⇒*Empty) A≡B =
+  case
+    whrDet* (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot) (⇒*Empty , Emptyₙ)
+  of λ ()
+goodCases (Quot _) (Unitᵣ ⊩B) A≡B =
+  case
+    whrDet*
+      (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+      (_⊩Unit⟨_⟩_.⇒*-Unit ⊩B , Unitₙ)
+  of λ ()
+goodCases (Quot _) (ne ⊩B) A≡B =
+  ⊥-elim $ Quot≢ne B.neK $
+  whrDet* (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot) (B.D , ne-whnf B.neK)
+  where
+  module B = _⊩ne_ ⊩B
+goodCases (Quot _) (Bᵣ _ ⊩B) A≡B =
+  ⊥-elim $ Quot≢⟦⟧▷ _ $
+  whrDet* (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot) (_⊩ₗB⟨_⟩_.D ⊩B , ⟦ _ ⟧ₙ)
+goodCases (Quot _) (Idᵣ ⊩B) A≡B
+  with
+    whrDet* (_⊩ₗQuot_≡_/_.⇒*Quot′ A≡B , Quot)
+      (_⊩ₗId_.⇒*Id ⊩B , Idₙ)
+… | ()
 
 -- Construct a shape view between two derivations of the same type
 goodCasesRefl :
@@ -580,6 +702,9 @@ data ShapeView₃ (Γ : Cons m n) : ∀ l l′ l″ A B C
     → ShapeView₃ Γ l l′ l″ A B C (Bᵣ W BA) (Bᵣ W′ BB) (Bᵣ W″ BC)
   Idᵥ :
     ∀ ⊩A ⊩B ⊩C → ShapeView₃ Γ l l′ l″ A B C (Idᵣ ⊩A) (Idᵣ ⊩B) (Idᵣ ⊩C)
+  Quot :
+    ∀ ⊩A ⊩B ⊩C →
+    ShapeView₃ Γ l l′ l″ A B C (Quot ⊩A) (Quot ⊩B) (Quot ⊩C)
 
 -- Combines two two-way views into a three-way view
 combine : ∀ {l l′ l″ l‴ A B C [A] [B] [B]′ [C]}
@@ -608,6 +733,8 @@ combine (Bᵥ BΣ! ΣA₁ (Bᵣ F G D A≡A [F] [G] G-ext ok))
   Bᵥ BΣ! BΣ! BΣ! ΣA₁ (Bᵣ F G D A≡A [F] [G] G-ext ok) ΣB
 combine (Idᵥ ⊩A ⊩B) (Idᵥ _ ⊩C) =
   Idᵥ ⊩A ⊩B ⊩C
+combine (Quot ⊩A ⊩B) (Quot _ ⊩C) =
+  Quot ⊩A ⊩B ⊩C
 
 -- Refutable cases
 -- Level ≡ _
@@ -627,6 +754,9 @@ combine (Levelᵥ LevelA LevelB) (Bᵥ W (Bᵣ _ _ D _ _ _ _ _) _) =
   ⊥-elim (Level≢B W (whrDet* (LevelB , Levelₙ) (D , ⟦ W ⟧ₙ)))
 combine (Levelᵥ LevelA LevelB) (Idᵥ ⊩B′ _) =
   case whrDet* (LevelB , Levelₙ) (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ) of λ ()
+combine (Levelᵥ _ D) (Quot ⊩B _)
+  with whrDet* (D , Levelₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+… | ()
 
 -- U ≡ _
 combine (Uᵥ UA (Uᵣ _ _ _ ⇒*U)) (Levelᵥ LevelA LevelB) with whrDet* (⇒*U , Uₙ) (LevelA , Levelₙ)
@@ -645,6 +775,9 @@ combine (Uᵥ UA (Uᵣ _ _ _ ⇒*U)) (Bᵥ W (Bᵣ _ _ D _ _ _ _ _) _) =
   ⊥-elim (U≢B W (whrDet* (⇒*U , Uₙ) (D , ⟦ W ⟧ₙ)))
 combine (Uᵥ UA (Uᵣ _ _ _ ⇒*U)) (Idᵥ ⊩B′ _) =
   case whrDet* (⇒*U , Uₙ) (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ) of λ ()
+combine (Uᵥ _ (Uᵣ _ _ _ ⇒*U)) (Quot ⊩B _)
+  with whrDet* (⇒*U , Uₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+… | ()
 
 -- Lift ≡ _
 combine (Liftᵥ LiftA (Liftᵣ D' _ _)) (Levelᵥ LevelA LevelB) with whrDet* (D' , Liftₙ) (LevelA , Levelₙ)
@@ -663,6 +796,9 @@ combine (Liftᵥ LiftA (Liftᵣ D' _ _)) (Bᵥ W (Bᵣ _ _ D _ _ _ _ _) _) =
   ⊥-elim (Lift≢B W (whrDet* (D' , Liftₙ) (D , ⟦ W ⟧ₙ)))
 combine (Liftᵥ LiftA (Liftᵣ D' _ _)) (Idᵥ ⊩B′ _) =
   case whrDet* (D' , Liftₙ) (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ) of λ ()
+combine (Liftᵥ _ (Liftᵣ D _ _)) (Quot ⊩B _)
+  with whrDet* (D , Liftₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+… | ()
 
 -- ℕ ≡ _
 combine (ℕᵥ ℕA ℕB) (Levelᵥ LevelA LevelB) with whrDet* (ℕB , ℕₙ)  (LevelA , Levelₙ)
@@ -682,6 +818,9 @@ combine (ℕᵥ _ ℕB) (Bᵥ W (Bᵣ _ _ D _ _ _ _ _) _) =
   ⊥-elim (ℕ≢B W (whrDet* (ℕB , ℕₙ) (D , ⟦ W ⟧ₙ)))
 combine (ℕᵥ _ ⊩B) (Idᵥ ⊩B′ _) =
   case whrDet* (⊩B , ℕₙ) (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ) of λ ()
+combine (ℕᵥ _ D) (Quot ⊩B _)
+  with whrDet* (D , ℕₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+… | ()
 
 -- Empty ≡ _
 combine (Emptyᵥ EmptyA EmptyB) (Levelᵥ LevelA LevelB) with whrDet* (EmptyB , Emptyₙ)  (LevelA , Levelₙ)
@@ -702,6 +841,9 @@ combine
   ⊥-elim (Empty≢B W (whrDet* (EmptyB , Emptyₙ) (D , ⟦ W ⟧ₙ)))
 combine (Emptyᵥ _ ⊩B) (Idᵥ ⊩B′ _) =
   case whrDet* (⊩B , Emptyₙ) (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ) of λ ()
+combine (Emptyᵥ _ D) (Quot ⊩B _)
+  with whrDet* (D , Emptyₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+… | ()
 
 -- Unit ≡ _
 combine (Unitᵥ UnitA (Unitᵣ UnitB _)) (Levelᵥ LevelA LevelB) with whrDet* (UnitB , Unitₙ)  (LevelA , Levelₙ)
@@ -724,6 +866,9 @@ combine (Unitᵥ _ ⊩B) (Idᵥ ⊩B′ _) =
   case
     whrDet* (_⊩Unit⟨_⟩_.⇒*-Unit ⊩B , Unitₙ) (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ)
   of λ ()
+combine (Unitᵥ _ (Unitᵣ D _)) (Quot ⊩B _)
+  with whrDet* (D , Unitₙ) (_⊩ₗQuot_.⇒*Quot ⊩B , Quot)
+… | ()
 
 -- ne ≡ _
 combine (ne neA (ne _ D neK K≡K)) (Levelᵥ LevelA LevelB) =
@@ -743,6 +888,11 @@ combine (ne _ (ne _ D neK _)) (Bᵥ W (Bᵣ _ _ D′ _ _ _ _ _) _) =
 combine (ne _ ⊩B) (Idᵥ ⊩B′ _) =
   ⊥-elim $ Id≢ne B.neK $
   whrDet* (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ) (B.D , ne-whnf B.neK)
+  where
+  module B = _⊩ne_ ⊩B
+combine (ne _ ⊩B) (Quot ⊩B′ _) =
+  ⊥-elim $ Quot≢ne B.neK $
+  whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B′ , Quot) (B.D , ne-whnf B.neK)
   where
   module B = _⊩ne_ ⊩B
 
@@ -770,6 +920,9 @@ combine (Bᵥ BΣ! _ (Bᵣ _ _ D _ _ _ _ _)) (Bᵥ BΠ! (Bᵣ _ _ D′ _ _ _ _ _
 combine (Bᵥ _ _ ⊩B) (Idᵥ ⊩B′ _) =
   ⊥-elim $ Id≢⟦⟧▷ _ $
   whrDet* (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ) (_⊩ₗB⟨_⟩_.D ⊩B , ⟦ _ ⟧ₙ)
+combine (Bᵥ _ _ ⊩B) (Quot ⊩B′ _) =
+  ⊥-elim $ Quot≢⟦⟧▷ _ $
+  whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B′ , Quot) (_⊩ₗB⟨_⟩_.D ⊩B , ⟦ _ ⟧ₙ)
 
 -- Id ≡ _
 combine (Idᵥ _ ⊩B) (Levelᵥ LevelA LevelB) =
@@ -794,3 +947,38 @@ combine (Idᵥ _ ⊩B) (ne ⊩B′ _) =
 combine (Idᵥ _ ⊩B) (Bᵥ _ ⊩B′ _) =
   ⊥-elim $ Id≢⟦⟧▷ _ $
   whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (_⊩ₗB⟨_⟩_.D ⊩B′ , ⟦ _ ⟧ₙ)
+combine (Idᵥ _ ⊩B) (Quot ⊩B′ _)
+  with whrDet* (_⊩ₗId_.⇒*Id ⊩B , Idₙ) (_⊩ₗQuot_.⇒*Quot ⊩B′ , Quot)
+… | ()
+
+-- Quot ≡ _
+combine (Quot _ ⊩B) (Levelᵥ D _)
+  with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (D , Levelₙ)
+… | ()
+combine (Quot _ ⊩B) (Uᵥ (Uᵣ _ _ _ ⇒*U) UB)
+  with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (⇒*U , Uₙ)
+… | ()
+combine (Quot _ ⊩B) (Liftᵥ (Liftᵣ ⇒*Lift _ _) LiftB)
+  with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (⇒*Lift , Liftₙ)
+… | ()
+combine (Quot _ ⊩B) (ℕᵥ D _)
+  with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (D , ℕₙ)
+… | ()
+combine (Quot _ ⊩B) (Emptyᵥ D _)
+  with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (D , Emptyₙ)
+… | ()
+combine (Quot _ ⊩B) (Unitᵥ D _)
+  with
+    whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (_⊩Unit⟨_⟩_.⇒*-Unit D , Unitₙ)
+… | ()
+combine (Quot _ ⊩B) (ne ⊩B′ _) =
+  ⊥-elim $ Quot≢ne B.neK $
+  whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (B.D , ne-whnf B.neK)
+  where
+  module B = _⊩ne_ ⊩B′
+combine (Quot _ ⊩B) (Bᵥ _ ⊩B′ _) =
+  ⊥-elim $ Quot≢⟦⟧▷ _ $
+  whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (_⊩ₗB⟨_⟩_.D ⊩B′ , ⟦ _ ⟧ₙ)
+combine (Quot _ ⊩B) (Idᵥ ⊩B′ _)
+  with whrDet* (_⊩ₗQuot_.⇒*Quot ⊩B , Quot) (_⊩ₗId_.⇒*Id ⊩B′ , Idₙ)
+… | ()

@@ -6,7 +6,7 @@ open import Definition.Typed.Variant
 
 module Definition.Untyped.Neutral
   {a} (M : Set a)
-  (type-variant : Type-variant)
+  (type-variant : Type-variant a)
   where
 
 open Type-variant type-variant
@@ -42,6 +42,10 @@ private variable
 
 -- A term is neutral if reduction is blocked by a variable or an
 -- opaque definition in its head position.
+--
+-- If quotient types are allowed but equality reflection is not
+-- allowed, then applications of resp and set are also treated as
+-- neutral.
 
 data Neutral {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   defn      : α ↦⊘∷ A ∈ ∇   → Neutral V ∇ (defn α)
@@ -60,6 +64,11 @@ data Neutral {m n} (V : Set a) (∇ : DCon (Term 0) m) : Term n → Set a where
   Jₙ        : Neutral V ∇ w → Neutral V ∇ (J p q A t B u v w)
   Kₙ        : Neutral V ∇ v → Neutral V ∇ (K p A t B u v)
   []-congₙ  : Neutral V ∇ v → Neutral V ∇ ([]-cong s l A t u v)
+  resp      : Higher-quotient-constructors-neutral →
+              Neutral V ∇ (resp A B t u v)
+  set       : Higher-quotient-constructors-neutral →
+              Neutral V ∇ (set A B t u v w)
+  qrec      : Neutral V ∇ w → Neutral V ∇ (qrec C t u v w)
 
 opaque
 
@@ -79,6 +88,9 @@ opaque
   ne→ f (Jₙ b)         = Jₙ (ne→ f b)
   ne→ f (Kₙ b)         = Kₙ (ne→ f b)
   ne→ f ([]-congₙ b)   = []-congₙ (ne→ f b)
+  ne→ f (resp ok)      = resp ok
+  ne→ f (set ok)       = set ok
+  ne→ f (qrec n)       = qrec (ne→ f n)
 
 opaque
 
@@ -133,6 +145,12 @@ opaque
 
   ¬-Neutral-rfl : ¬ Neutral {n = n} V ∇ rfl
   ¬-Neutral-rfl ()
+
+  ¬-Neutral-Quot : ¬ Neutral V ∇ (Quot A B)
+  ¬-Neutral-Quot ()
+
+  ¬-Neutral-class : ¬ Neutral V ∇ (class t)
+  ¬-Neutral-class ()
 
 opaque
 
@@ -198,6 +216,11 @@ opaque
 
 opaque
 
+  Quot≢ne : Neutral V ∇ C → Quot A B ≢ C
+  Quot≢ne () refl
+
+opaque
+
   zeroᵘ≢ne : Neutral V ∇ t → zeroᵘ ≢ t
   zeroᵘ≢ne () refl
 
@@ -231,6 +254,11 @@ opaque
   star≢ne : Neutral V ∇ t → star s ≢ t
   star≢ne () refl
 
+opaque
+
+  class≢ne : Neutral V ∇ t → class u ≢ t
+  class≢ne () refl
+
 ------------------------------------------------------------------------
 -- Weakening
 
@@ -252,6 +280,9 @@ wkNeutral ρ (unitrecₙ no-η b) = unitrecₙ no-η (wkNeutral ρ b)
 wkNeutral ρ (Jₙ b)            = Jₙ (wkNeutral ρ b)
 wkNeutral ρ (Kₙ b)            = Kₙ (wkNeutral ρ b)
 wkNeutral ρ ([]-congₙ b)      = []-congₙ (wkNeutral ρ b)
+wkNeutral ρ (resp ok)         = resp ok
+wkNeutral ρ (set ok)          = set ok
+wkNeutral ρ (qrec n)          = qrec (wkNeutral ρ n)
 
 ------------------------------------------------------------------------
 -- Inversion lemmas for Neutral
@@ -345,6 +376,29 @@ opaque
   inv-ne-[]-cong : Neutral V ∇ ([]-cong s l A t u v) → Neutral V ∇ v
   inv-ne-[]-cong ([]-congₙ b) = b
 
+opaque
+
+  -- An inversion lemma for resp.
+
+  inv-ne-resp :
+    Neutral V ∇ (resp A B t u v) → Higher-quotient-constructors-neutral
+  inv-ne-resp (resp ok) = ok
+
+opaque
+
+  -- An inversion lemma for set.
+
+  inv-ne-set :
+    Neutral V ∇ (set A B t u v w) → Higher-quotient-constructors-neutral
+  inv-ne-set (set ok) = ok
+
+opaque
+
+  -- An inversion lemma for qrec.
+
+  inv-ne-qrec : Neutral V ∇ (qrec C t u v w) → Neutral V ∇ w
+  inv-ne-qrec (qrec n) = n
+
 ------------------------------------------------------------------------
 -- Specializations
 
@@ -397,6 +451,9 @@ opaque
   dichotomy-ne (Jₙ b)            = ⊎-map Jₙ idᶠ (dichotomy-ne b)
   dichotomy-ne (Kₙ b)            = ⊎-map Kₙ idᶠ (dichotomy-ne b)
   dichotomy-ne ([]-congₙ b)      = ⊎-map []-congₙ idᶠ (dichotomy-ne b)
+  dichotomy-ne (resp ok)         = inj₁ (resp ok)
+  dichotomy-ne (set ok)          = inj₁ (set ok)
+  dichotomy-ne (qrec n)          = ⊎-map qrec idᶠ (dichotomy-ne n)
 
 opaque
 
@@ -416,6 +473,9 @@ opaque
   closed-ne (Jₙ b)            = Jₙ (closed-ne b)
   closed-ne (Kₙ b)            = Kₙ (closed-ne b)
   closed-ne ([]-congₙ b)      = []-congₙ (closed-ne b)
+  closed-ne (resp ok)         = resp ok
+  closed-ne (set ok)          = set ok
+  closed-ne (qrec n)          = qrec (closed-ne n)
 
 ------------------------------------------------------------------------
 -- Another lemma
@@ -447,6 +507,9 @@ opaque
   or-empty-Neutral (Jₙ n)            = Jₙ (or-empty-Neutral n)
   or-empty-Neutral (Kₙ n)            = Kₙ (or-empty-Neutral n)
   or-empty-Neutral ([]-congₙ n)      = []-congₙ (or-empty-Neutral n)
+  or-empty-Neutral (resp ok)         = resp ok
+  or-empty-Neutral (set ok)          = set ok
+  or-empty-Neutral (qrec n)          = qrec (or-empty-Neutral n)
 
 ------------------------------------------------------------------------
 -- An alternative representation of neutral terms
@@ -472,6 +535,7 @@ data NeutralAt {m n} (V : Set a) (∇ : DCon (Term 0) m) :
   Jₙ        : NeutralAt V ∇ y w → NeutralAt V ∇ y (J p q A t B u v w)
   Kₙ        : NeutralAt V ∇ y v → NeutralAt V ∇ y (K p A t B u v)
   []-congₙ  : NeutralAt V ∇ y v → NeutralAt V ∇ y ([]-cong s l A t u v)
+  qrec      : NeutralAt V ∇ y w → NeutralAt V ∇ y (qrec C t u v w)
 
 opaque
 
@@ -493,39 +557,4 @@ opaque
   NeutralAt→Neutral (Jₙ n)         = Jₙ (NeutralAt→Neutral n)
   NeutralAt→Neutral (Kₙ n)         = Kₙ (NeutralAt→Neutral n)
   NeutralAt→Neutral ([]-congₙ n)   = []-congₙ (NeutralAt→Neutral n)
-
-opaque
-
-  -- Neutral terms are "NeutralAt x" for some x
-
-  Neutral→NeutralAt : Neutral V ∇ t → ∃ λ y → NeutralAt V ∇ y t
-  Neutral→NeutralAt (defn α↦) =
-    _ , defn α↦
-  Neutral→NeutralAt (var ok x) =
-    _ , var ok
-  Neutral→NeutralAt (supᵘˡₙ n) =
-    _ , supᵘˡₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (supᵘʳₙ n) =
-    _ , supᵘʳₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (lowerₙ n) =
-    _ , lowerₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (∘ₙ n) =
-    _ , ∘ₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (fstₙ n) =
-    _ , fstₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (sndₙ n) =
-    _ , sndₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (natrecₙ n) =
-    _ , natrecₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (prodrecₙ n) =
-    _ , prodrecₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (emptyrecₙ n) =
-    _ , emptyrecₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (unitrecₙ x n) =
-    _ , unitrecₙ x (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (Jₙ n) =
-    _ , Jₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt (Kₙ n) =
-    _ , Kₙ (Neutral→NeutralAt n .proj₂)
-  Neutral→NeutralAt ([]-congₙ n) =
-    _ , []-congₙ (Neutral→NeutralAt n .proj₂)
+  NeutralAt→Neutral (qrec n)       = qrec (NeutralAt→Neutral n)

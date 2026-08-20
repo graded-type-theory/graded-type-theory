@@ -240,6 +240,37 @@ wkUsage ρ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
   where
   open Tools.Reasoning.PropositionalEquality
 wkUsage ρ (sub γ▸t x) = sub (wkUsage ρ γ▸t) (wk-≤ᶜ ρ x)
+wkUsage ρ (Quot ok ▸A ▸B) =
+  Quot ok (wkUsage ρ ▸A) (wkUsage (liftn ρ 2) ▸B)
+wkUsage ρ (class ok ▸t) =
+  class ok (wkUsage ρ ▸t)
+wkUsage ρ (resp ok ▸A ▸B ▸t ▸u ▸v eq) =
+  PE.subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) $
+  resp ok (wkUsage ρ ▸A) (wkUsage _ ▸B) (wkUsage ρ ▸t) (wkUsage ρ ▸u)
+    (wkUsage ρ ▸v) eq
+wkUsage ρ (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq) =
+  PE.subst (_▸[ _ ] _) (PE.sym (wk-𝟘ᶜ ρ)) $
+  set ok (wkUsage ρ ▸A) (wkUsage _ ▸B) (wkUsage ρ ▸t) (wkUsage ρ ▸u)
+    (wkUsage ρ ▸v) (wkUsage ρ ▸w) eq
+wkUsage ρ (qrec₀ {γ₁} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+  sub-≈ᶜ
+    (qrec₀ ok₁ ok₂ (wkUsage (lift ρ) ▸C) (wkUsage (lift ρ) ▸t)
+      (wkUsage (liftn ρ 3) ▸u) (wkUsage (liftn ρ 5) ▸v) (wkUsage ρ ▸w))
+    (begin
+       wkConₘ ρ (γ₂ +ᶜ ω ·ᶜ γ₅)         ≈⟨ ≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-·ᶜ ρ)) ⟩
+       wkConₘ ρ γ₂ +ᶜ ω ·ᶜ wkConₘ ρ γ₅  ∎)
+  where
+  open ≈ᶜ-reasoning
+wkUsage ρ (qrec₁ {γ₁} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
+  sub-≈ᶜ
+    (qrec₁ ok₁ ok₂ (wkUsage (lift ρ) ▸C) (wkUsage (lift ρ) ▸t)
+      (wkUsage (liftn ρ 3) ▸u) (wkUsage (liftn ρ 5) ▸v) (wkUsage ρ ▸w))
+    (begin
+       wkConₘ ρ (ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅))                  ≈⟨ ≈ᶜ-trans (wk-·ᶜ ρ) $ ·ᶜ-congˡ $
+                                                            ≈ᶜ-trans (wk-+ᶜ ρ) (+ᶜ-congˡ (wk-+ᶜ ρ)) ⟩
+       ω ·ᶜ (wkConₘ ρ γ₁ +ᶜ wkConₘ ρ γ₂ +ᶜ wkConₘ ρ γ₅)  ∎)
+  where
+  open ≈ᶜ-reasoning
 
 ------------------------------------------------------------------------
 -- Inversion lemmas
@@ -539,6 +570,51 @@ wkUsage⁻¹ ▸t = wkUsage⁻¹′ ▸t refl
           ([]-congₘ (wkUsage⁻¹ ▸l) (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸t)
              (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸v) ok) $
         ≤ᶜ-reflexive (wkConₘ⁻¹-𝟘ᶜ ρ) }
+      (Quot ok ▸A ▸B) eq →
+        case wk-Quot eq of λ {
+          (_ , _ , refl , refl , refl) →
+        Quot ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸B) }
+      (class ok ▸t) eq →
+        case wk-class eq of λ {
+          (_ , refl , refl) →
+        class ok (wkUsage⁻¹ ▸t) }
+      (resp ok ▸A ▸B ▸t ▸u ▸v eq₁) eq₂ →
+        case wk-resp eq₂ of λ {
+          (_ , _ , _ , _ , _ ,
+           refl , refl , refl , refl , refl , refl) →
+        sub-≈ᶜ
+          (resp ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸B) (wkUsage⁻¹ ▸t)
+             (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸v) eq₁)
+          (wkConₘ⁻¹-𝟘ᶜ ρ) }
+      (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq₁) eq₂ →
+        case wk-set eq₂ of λ {
+          (_ , _ , _ , _ , _ , _ ,
+           refl , refl , refl , refl , refl , refl , refl) →
+        sub-≈ᶜ
+          (set ok (wkUsage⁻¹ ▸A) (wkUsage⁻¹ ▸B) (wkUsage⁻¹ ▸t)
+             (wkUsage⁻¹ ▸u) (wkUsage⁻¹ ▸v) (wkUsage⁻¹ ▸w) eq₁)
+          (wkConₘ⁻¹-𝟘ᶜ ρ) }
+      (qrec₀ {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) eq →
+        case wk-qrec eq of λ {
+          (_ , _ , _ , _ , _ ,
+           refl , refl , refl , refl , refl , refl) →
+        sub
+          (qrec₀ ok₁ ok₂ (wkUsage⁻¹ ▸C) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)
+             (wkUsage⁻¹ ▸v) (wkUsage⁻¹ ▸w))
+          (begin
+             wkConₘ⁻¹ ρ (γ₂ +ᶜ ω ·ᶜ γ₅)           ≈⟨ ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) (+ᶜ-congˡ (wkConₘ⁻¹-·ᶜ ρ)) ⟩
+             wkConₘ⁻¹ ρ γ₂ +ᶜ ω ·ᶜ wkConₘ⁻¹ ρ γ₅  ∎) }
+      (qrec₁ {γ₁} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) eq →
+        case wk-qrec eq of λ {
+          (_ , _ , _ , _ , _ ,
+           refl , refl , refl , refl , refl , refl) →
+        sub
+          (qrec₁ ok₁ ok₂ (wkUsage⁻¹ ▸C) (wkUsage⁻¹ ▸t) (wkUsage⁻¹ ▸u)
+             (wkUsage⁻¹ ▸v) (wkUsage⁻¹ ▸w))
+          (begin
+             wkConₘ⁻¹ ρ (ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅))                      ≈⟨ ≈ᶜ-trans (wkConₘ⁻¹-·ᶜ ρ) $ ·ᶜ-congˡ $
+                                                                        ≈ᶜ-trans (wkConₘ⁻¹-+ᶜ ρ) (+ᶜ-congˡ (wkConₘ⁻¹-+ᶜ ρ)) ⟩
+             ω ·ᶜ (wkConₘ⁻¹ ρ γ₁ +ᶜ wkConₘ⁻¹ ρ γ₂ +ᶜ wkConₘ⁻¹ ρ γ₅)  ∎) }
       (sub ▸t leq) refl →
         sub (wkUsage⁻¹ ▸t) (wkConₘ⁻¹-monotone ρ leq)
 

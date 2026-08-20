@@ -69,10 +69,12 @@ open import Graded.Heap.Usage.Properties type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Usage.Properties.Zero-one type-variant UR factoring-nr
 open import Graded.Heap.Usage.Reduction
   type-variant UR factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
+  Quot-not-allowed Quotient-terms-not-allowed
 open import Graded.Heap.Termination.Zero-one UR TR As
 open import Graded.Heap.Typed UR TR factoring-nr 𝟙
 open import Graded.Heap.Typed.Inversion UR TR factoring-nr 𝟙
-open import Graded.Heap.Typed.Reduction UR TR factoring-nr 𝟙
+open import Graded.Heap.Typed.Reduction
+  UR TR factoring-nr 𝟙 Quot-not-allowed
 open import Graded.Heap.Typed.Properties UR TR factoring-nr 𝟙
 open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
 open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr 𝟙
@@ -206,7 +208,8 @@ opaque
     let neK = ne→ _ (ne⁻ neK) in
     case whBisim consistent prop ⊢s ▸s (d , ne neK) of λ {
       (_ , _ , H , t , ρ , d′ , PE.refl , v) →
-    ⊥-elim $
+    ⊥-elim $ Quot-not-allowed $ proj₁ $
+    Higher-quotient-constructors-neutral⇔ .proj₁ $
     Value→¬Neutral (substValue (toSubstₕ H) (wkValue ρ v)) neK }
 
 opaque

@@ -50,7 +50,7 @@ private
   as = assumptions well-formed str ⇒*-is-reduction-relation
 
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden variant as
+open import Graded.Erasure.LogicalRelation.Hidden UR as
 
 open Fundamental FA
 

@@ -24,6 +24,9 @@ module Graded.Heap.Non-interference.Examples
   (open Usage-restrictions UR)
   (open Type-restrictions TR)
   (Level-not-allowed : ¬ Level-allowed)
+  -- Quotients are not allowed.
+  (Quot-not-allowed : ¬ Quot-allowed)
+  (Quotient-terms-not-allowed : ¬ Quotient-terms-allowed)
   -- The security level programs should be run in
   (ℓ₀ : M)
   ⦃ no-nr : Nr-not-available-GLB ⦄
@@ -41,7 +44,9 @@ open import Tools.Relation
 
 open import Graded.Usage.Restrictions.Natrec modality
 
-open import Graded.Heap.Non-interference L is-⊤? UR TR Level-not-allowed ℓ₀
+open import Graded.Heap.Non-interference
+  L is-⊤? UR TR Level-not-allowed Quot-not-allowed
+  Quotient-terms-not-allowed ℓ₀
 
 open Assumptions non-interference-assumptions
 
@@ -111,7 +116,7 @@ module Example₁
     let ⊢ℕ = ∙ univ (ℕⱼ (∙ univ (ℕⱼ εε)))
         ⊢ℕ′ = univ (ℕⱼ (∙ univ (ℕⱼ ⊢ℕ)))
         ⊢p = prodⱼ ⊢ℕ′ (var ⊢ℕ (there here)) (var ⊢ℕ here) Σ-ok
-    in  prodrecⱼ′ (univ (ℕⱼ (∙ wf-⊢ ⊢p))) ⊢p (var (∙ ⊢ℕ′) here)
+    in  prodrecⱼ (univ (ℕⱼ (∙ wf-⊢ ⊢p))) ⊢p (var (∙ ⊢ℕ′) here)
 
   -- t is well-resourced
 
@@ -217,7 +222,7 @@ opaque
           ⊢ℕ = univ (ℕⱼ (∙ univ (ℕⱼ ⊢ℕ′)))
       in  prodrecⱼ (univ (ℕⱼ (∙ ΠΣⱼ ⊢ℕ Σ-ok)))
             (prodⱼ ⊢ℕ (var ⊢ℕ′ (there here)) (var ⊢ℕ′ here) Σ-ok)
-            (zeroⱼ (∙ ⊢ℕ)) Σ-ok
+            (zeroⱼ (∙ ⊢ℕ))
 
     -- The program t evaluates to zero in the abstract machine (and the
     -- heap is extended in a certain way).

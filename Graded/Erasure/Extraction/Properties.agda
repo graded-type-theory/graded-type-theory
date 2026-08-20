@@ -376,6 +376,13 @@ wk-erase-comm {s} _ U.rfl = wk-loop? s
 wk-erase-comm _ (J _ _ _ _ _ u _ _) = wk-erase-comm _ u
 wk-erase-comm _ (K _ _ _ _ u _) = wk-erase-comm _ u
 wk-erase-comm {s} _ ([]-cong _ _ _ _ _ _) = wk-loop? s
+wk-erase-comm {s} _ (Quot _ _) = wk-loop? s
+wk-erase-comm _ (class t) = wk-erase-comm _ t
+wk-erase-comm _ (resp _ _ _ _ _) = wk-loop
+wk-erase-comm _ (set _ _ _ _ _ _) = wk-loop
+wk-erase-comm _ (qrec _ t _ _ w) =
+  cong₂ (λ t w → T.lam t T.∘⟨ _ ⟩ w) (wk-erase-comm _ t)
+    (wk-erase-comm _ w)
 
 -- Lifting substitutions commute with erase
 
@@ -555,6 +562,18 @@ subst-erase-comm {s} _ U.rfl = loop?-[] s
 subst-erase-comm _ (J _ _ _ _ _ u _ _) = subst-erase-comm _ u
 subst-erase-comm _ (K _ _ _ _ u _) = subst-erase-comm _ u
 subst-erase-comm {s} _ ([]-cong _ _ _ _ _ _) = loop?-[] s
+subst-erase-comm {s} _ (Quot _ _) = loop?-[] s
+subst-erase-comm _ (class t) = subst-erase-comm _ t
+subst-erase-comm _ (resp _ _ _ _ _) = loop-[]
+subst-erase-comm _ (set _ _ _ _ _ _) = loop-[]
+subst-erase-comm {b} {s} σ (qrec _ t _ _ w) =
+  cong₂ (λ t w → T.lam t T.∘⟨ _ ⟩ w)
+    (erase′ b s t [ eraseSubst′ b s σ T.⇑ ]      ≡⟨ substVar-to-subst liftSubst-erase-comm (erase′ _ _ t) ⟩
+     erase′ b s t T.[ eraseSubst′ b s (σ U.⇑) ]  ≡⟨ subst-erase-comm _ t ⟩
+     erase′ b s (t U.[ σ U.⇑ ])                  ∎)
+    (subst-erase-comm _ w)
+  where
+  open Tools.Reasoning.PropositionalEquality
 
 subst-undefined : (x : Fin (1+ n)) →
       eraseSubst′ b s (U.sgSubst Empty) x ≡
@@ -572,6 +591,40 @@ erase-consSubst : (σ : U.Subst m n) (a : U.Term m) (t : T.Term (1+ n))
                 → t T.[ T.consSubst (eraseSubst′ b s σ) (erase′ b s a) ]
                 ≡ t T.[ eraseSubst′ b s (U.consSubst σ a) ]
 erase-consSubst σ a t = substVar-to-subst (erase-consSubst-var σ a) t
+
+opaque
+
+  -- Erasure commutes with U._[_]₀/T._[_]₀.
+
+  erase-[erase]₀ :
+    ∀ t → erase′ b s t T.[ erase′ b s u ]₀ ≡ erase′ b s (t U.[ u ]₀)
+  erase-[erase]₀ {b} {s} {u} t =
+    erase′ b s t T.[ T.sgSubst (erase′ b s u) ]       ≡⟨ erase-consSubst _ _ (erase′ _ _ t) ⟩
+    erase′ b s t T.[ eraseSubst′ b s (U.sgSubst u) ]  ≡⟨ subst-erase-comm _ t ⟩
+    erase′ b s (t U.[ U.sgSubst u ])                  ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
+
+opaque
+
+  -- Erasure commutes with U._[_,_]₁₀/T._[_,_]₁₀.
+
+  erase-[erase,erase]₁₀ :
+    ∀ {v} t → erase′ b s t T.[ erase′ b s u , erase′ b s v ]₁₀ ≡
+    erase′ b s (t U.[ u , v ]₁₀)
+  erase-[erase,erase]₁₀ {b} {s} {u} {v} t =
+    erase′ b s t
+      T.[ T.consSubst (T.sgSubst (erase′ b s u)) (erase′ b s v) ]     ≡⟨ substVar-to-subst
+                                                                           (λ x →
+                                                                              trans (consSubst-cong refl (erase-consSubst-var _ _) x) $
+                                                                              erase-consSubst-var _ _ x)
+                                                                           (erase′ b s t) ⟩
+
+    erase′ b s t T.[ eraseSubst′ b s (U.consSubst (U.sgSubst u) v) ]  ≡⟨ subst-erase-comm _ t ⟩
+
+    erase′ b s (t U.[ U.consSubst (U.sgSubst u) v ])                  ∎
+    where
+    open Tools.Reasoning.PropositionalEquality
 
 opaque
   unfolding eraseDCon″

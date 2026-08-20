@@ -74,6 +74,8 @@ opaque
     is-U starₙ     = no λ ()
     is-U prodₙ     = no λ ()
     is-U rflₙ      = no λ ()
+    is-U Quot      = no λ ()
+    is-U class     = no λ ()
     is-U (ne B-ne) = no (N.U≢ne B-ne ∘→ proj₂)
 
 opaque
@@ -120,6 +122,10 @@ private opaque
     no λ (_ , _ , A⇒*Id) →
     I.Id≢Lift $
     trans (sym (subset* (_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
+  isLift′ (Quot ⊩A) =
+    no λ (_ , _ , A⇒*Lift) →
+    I.Quot≢Lift $
+    trans (sym (subset* (_⊩ₗQuot_.⇒*Quot ⊩A))) (subset* A⇒*Lift)
 
 opaque
 
@@ -169,6 +175,10 @@ private opaque
     no λ (_ , _ , _ , _ , _ , A⇒*Id) →
     I.Id≢ΠΣ $
     trans (sym (subset* (_⊩ₗId_.⇒*Id ⊩A))) (subset* A⇒*Id)
+  isΠΣ′ (Quot ⊩A) =
+    no λ (_ , _ , _ , _ , _ , A⇒*ΠΣ) →
+    I.Quot≢ΠΣ $
+    trans (sym (subset* (_⊩ₗQuot_.⇒*Quot ⊩A))) (subset* A⇒*ΠΣ)
 
 opaque
 
@@ -279,8 +289,71 @@ opaque
     helper (Idᵣ ⊩A) = yes (_ , _ , _ , ⇒*Id)
       where
       open _⊩ₗId_ ⊩A
+    helper (Quot ⊩A) =
+      no λ (_ , _ , _ , A⇒*Id) →
+      I.Quot≢Id $
+      trans (sym (subset* (_⊩ₗQuot_.⇒*Quot ⊩A))) (subset* A⇒*Id)
 
 opaque
 
   ≡Id? : Γ ⊢ A → Dec (∃₃ λ B t u → Γ ⊢ A ≡ Id B t u)
   ≡Id? ⊢A = Dec-map ((λ (_ , _ , _ , A⇒) → _ , _ , _ , subset* A⇒) , (λ (_ , _ , _ , A≡) → let _ , _ , _ , A⇒ , _ = Id-norm A≡ in _ , _ , _ , A⇒)) (is-Id ⊢A)
+
+opaque
+
+  -- It is decidable whether a well-formed type reduces to a quotient
+  -- type.
+
+  is-Quot : Γ ⊢ A → Dec (∃₂ λ B C → Γ ⊢ A ⇒* Quot B C)
+  is-Quot = helper ∘→ proj₂ ∘→ reducible-⊩
+    where
+    helper : Γ ⊩⟨ l ⟩ A → Dec (∃₂ λ B C → Γ ⊢ A ⇒* Quot B C)
+    helper (Levelᵣ A⇒*Level) =
+      no λ (_ , _ , A⇒*Quot) →
+        I.Quot≢Level (trans (sym (subset* A⇒*Quot)) (subset* A⇒*Level))
+    helper (Uᵣ ⊩U) =
+      no λ (_ , _ , A⇒*Quot) →
+        Quot≢U $
+        trans (sym (subset* A⇒*Quot)) (subset* (_⊩₁U_.⇒*U ⊩U))
+    helper (Liftᵣ′ A⇒*Lift _ _) =
+      no λ (_ , _ , A⇒*Quot) →
+        I.Quot≢Lift (trans (sym (subset* A⇒*Quot)) (subset* A⇒*Lift))
+    helper (ℕᵣ A⇒*ℕ) =
+      no λ (_ , _ , A⇒*Quot) →
+        Quot≢ℕ (trans (sym (subset* A⇒*Quot)) (subset* A⇒*ℕ))
+    helper (Emptyᵣ A⇒*Empty) =
+      no λ (_ , _ , A⇒*Quot) →
+        Quot≢Empty (trans (sym (subset* A⇒*Quot)) (subset* A⇒*Empty))
+    helper (Unitᵣ ⊩Unit) =
+      no λ (_ , _ , A⇒*Quot) →
+        Quot≢Unit $
+        trans (sym (subset* A⇒*Quot))
+          (subset* (_⊩Unit⟨_⟩_.⇒*-Unit ⊩Unit))
+    helper (ne ⊩A) =
+      no λ (_ , _ , A⇒*Quot) →
+        I.Quot≢ne neK $ trans (sym (subset* A⇒*Quot)) (subset* D)
+      where
+      open _⊩ne_ ⊩A
+    helper (Bᵣ (BM _ _ _) ⊩A) =
+      no λ (_ , _ , A⇒*Quot) →
+        I.Quot≢ΠΣ $
+        trans (sym (subset* A⇒*Quot)) (subset* (_⊩ₗB⟨_⟩_.D ⊩A))
+    helper (Idᵣ ⊩A) =
+      no λ (_ , _ , A⇒*Quot) →
+        I.Quot≢Id $
+        trans (sym (subset* A⇒*Quot)) (subset* (_⊩ₗId_.⇒*Id ⊩A))
+    helper (Quot ⊩A) = yes (_ , _ , _⊩ₗQuot_.⇒*Quot ⊩A)
+
+opaque
+
+  -- It is decidable whether a well-formed type is judgementally equal
+  -- to a quotient type.
+
+  ≡Quot? : Γ ⊢ A → Dec (∃₂ λ B C → Γ ⊢ A ≡ Quot B C)
+  ≡Quot? ⊢A =
+    Dec-map
+      ((λ (_ , _ , A⇒) → _ , _ , subset* A⇒) ,
+       (λ (_ , _ , A≡) →
+          let _ , _ , A⇒ , _ = Quot-norm A≡ in
+          _ , _ , A⇒))
+      (is-Quot ⊢A)

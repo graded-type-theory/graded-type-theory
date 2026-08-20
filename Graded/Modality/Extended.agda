@@ -5,6 +5,7 @@
 
 module Graded.Modality.Extended where
 
+open import Tools.Bool
 open import Tools.Function
 open import Tools.Level
 
@@ -97,6 +98,8 @@ record _⇨_
   module M₁ = Extended-modality 𝕄₁
   module M₂ = Extended-modality 𝕄₂
   field
+    transparent :
+      Bool
     tr tr-Σ :
       M₁.M → M₂.M
     is-order-embedding :
@@ -104,9 +107,9 @@ record _⇨_
     is-Σ-order-embedding :
       Is-Σ-order-embedding M₁.𝕄 M₂.𝕄 tr tr-Σ
     are-preserving-type-restrictions :
-      Are-preserving-type-restrictions M₁.TR M₂.TR tr tr-Σ
+      Are-preserving-type-restrictions transparent M₁.TR M₂.TR tr tr-Σ
     are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions M₁.TR M₂.TR tr tr-Σ
+      Are-reflecting-type-restrictions transparent M₁.TR M₂.TR tr tr-Σ
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions M₁.UR M₂.UR tr tr-Σ
     are-reflecting-usage-restrictions :
@@ -133,12 +136,15 @@ record _⇨_
        erased-matches-for-K-preserved;
        nr-in-first-if-in-second; nr-in-second-if-in-first;
        no-nr-in-first-if-in-second; no-nr-in-second-if-in-first;
-       no-nr-glb-in-first-if-in-second; no-nr-glb-in-second-if-in-first)
+       no-nr-glb-in-first-if-in-second; no-nr-glb-in-second-if-in-first;
+       ≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ?)
 
 -- An identity morphism.
 
 id : 𝕄 ⇨ 𝕄
 id = λ where
+  ._⇨_.transparent →
+    false
   ._⇨_.tr →
     idᶠ
   ._⇨_.tr-Σ →
@@ -160,6 +166,8 @@ id = λ where
 
 _∘_ : 𝕄₂ ⇨ 𝕄₃ → 𝕄₁ ⇨ 𝕄₂ → 𝕄₁ ⇨ 𝕄₃
 m₁ ∘ m₂ = λ where
+    ._⇨_.transparent →
+      M₁.transparent ∨ M₂.transparent
     ._⇨_.tr →
       M₁.tr ∘→ M₂.tr
     ._⇨_.tr-Σ →

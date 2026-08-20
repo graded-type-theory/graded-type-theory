@@ -1,4 +1,4 @@
-# An Agda Formalization of a Graded Modal Type Theory with Erasure, First-Class Universe Levels and Opaque Definitions
+# An Agda Formalization of a Graded Modal Type Theory with Erasure, First-Class Universe Levels, Quotient Types and Opaque Definitions
 
 ## Project history
 
@@ -66,6 +66,8 @@ Later other additions were made. Some highlights:
   and Nils Anders Danielsson, _Proceedings of the ACM on Programming
   Languages_, Volume 10, Issue ICFP, 2026
   ([doi:10.1145/3828677](https://doi.org/10.1145/3828677)).
+
+- Quotient types were added by Nils Anders Danielsson (@nad, 2026).
 
 ## Dependencies ##
 

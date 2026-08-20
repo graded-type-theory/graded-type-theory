@@ -64,8 +64,8 @@ record Is-morphism
     -- The translation of 𝟙 is bounded by 𝟙.
     tr-𝟙 : tr M₁.𝟙 ≤ M₂.𝟙
 
-    -- The translation of ω is bounded by ω.
-    tr-ω : tr M₁.ω ≤ M₂.ω
+    -- The translation of ω is equal to ω.
+    tr-ω : tr M₁.ω ≡ M₂.ω
 
     -- The translation commutes with addition.
     tr-+ : ∀ {p q} → tr (p M₁.+ q) ≡ tr p M₂.+ tr q
@@ -181,9 +181,6 @@ record Is-order-embedding
     -- 𝟙.
     tr-≤-𝟙 : ∀ {p} → tr p M₂.≤ M₂.𝟙 → p M₁.≤ M₁.𝟙
 
-    -- The translation of ω is equal to ω.
-    tr-ω : tr M₁.ω ≡ M₂.ω
-
     -- If the translation of p is bounded by q + r, then there are q′
     -- and r′ such that the translation of q′ is bounded by q, the
     -- translation of r′ is bounded by r, and p is bounded by q′ + r′.
@@ -208,7 +205,7 @@ record Is-order-embedding
       tr p M₂.≤ q M₂.∧ r →
       ∃₂ λ q′ r′ → tr q′ M₂.≤ q × tr r′ M₂.≤ r × p M₁.≤ q′ M₁.∧ r′
 
-  open Is-morphism tr-morphism public hiding (tr-ω)
+  open Is-morphism tr-morphism public
 
   -- The translation is injective.
 
@@ -517,13 +514,12 @@ Is-order-embedding-id {𝕄 = 𝕄} = λ where
     .tr-order-reflecting → idᶠ
     .tr-≤                → _ , ≤-refl
     .tr-≤-𝟙              → idᶠ
-    .tr-ω                → refl
     .tr-≤-+ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-≤-· hyp          → _ , ≤-refl , hyp
     .tr-≤-∧ hyp          → _ , _ , ≤-refl , ≤-refl , hyp
     .tr-morphism         → λ where
       .tr-𝟙                                    → ≤-refl
-      .tr-ω                                    → ≤-refl
+      .tr-ω                                    → refl
       .tr-𝟘-≤                                  → ≤-refl
       .trivial-⊎-tr-≡-𝟘-⇔                      → inj₂ (idᶠ , idᶠ)
       .tr-+                                    → refl
@@ -602,10 +598,11 @@ Is-morphism-∘
        tr₁ (tr₂ M₁.𝟙)  ≤⟨ F.tr-monotone G.tr-𝟙 ⟩
        tr₁ M₂.𝟙        ≤⟨ F.tr-𝟙 ⟩
        M₃.𝟙            ∎
-    .Is-morphism.tr-ω → let open R in begin
-       tr₁ (tr₂ M₁.ω)  ≤⟨ F.tr-monotone G.tr-ω ⟩
-       tr₁ M₂.ω        ≤⟨ F.tr-ω ⟩
-       M₃.ω            ∎
+    .Is-morphism.tr-ω →
+      let open Tools.Reasoning.PropositionalEquality in
+      tr₁ (tr₂ M₁.ω)  ≡⟨ cong tr₁ G.tr-ω ⟩
+      tr₁ M₂.ω        ≡⟨ F.tr-ω ⟩
+      M₃.ω            ∎
     .Is-morphism.tr-+ {p = p} {q = q} →
       let open Tools.Reasoning.PropositionalEquality in
       tr₁ (tr₂ (p M₁.+ q))          ≡⟨ cong tr₁ G.tr-+ ⟩
@@ -653,11 +650,6 @@ Is-order-embedding-∘
            p             ∎)
     .Is-order-embedding.tr-≤-𝟙 →
       G.tr-≤-𝟙 ∘→ F.tr-≤-𝟙
-    .Is-order-embedding.tr-ω →
-      let open Tools.Reasoning.PropositionalEquality in
-      tr₁ (tr₂ M₁.ω)  ≡⟨ cong tr₁ G.tr-ω ⟩
-      tr₁ M₂.ω        ≡⟨ F.tr-ω ⟩
-      M₃.ω            ∎
     .Is-order-embedding.tr-≤-+ {q = q} {r = r} tr-p≤q+r →
       case F.tr-≤-+ tr-p≤q+r of
         λ (q′ , r′ , tr-q′≤q , tr-r′≤r , tr-p≤q′+r′) →

@@ -98,6 +98,8 @@ opaque mutual
              η  ∎)
     where
     open ≤ᶜ-reasoning
+  sub-⊢ (Quot ok₁ ok₂ ⊢A ⊢B) δ≤γ =
+    Quot ok₁ ok₂ (sub-⊢ ⊢A δ≤γ) ⊢B
 
   -- Subsumption for _▸_⊢_∷[_]_.
 
@@ -255,3 +257,21 @@ opaque mutual
           (sub-⊢∷ ⊢u δ≤γ) (sub-⊢∷ ⊢v δ≤γ) }
   sub-⊢∷ ([]-cong ok₁ ok₂ ⊢l ⊢A ⊢t ⊢u ⊢v) _ =
     []-cong ok₁ ok₂ ⊢l ⊢A ⊢t ⊢u ⊢v
+  sub-⊢∷ (Quot ok₁ ok₂ ⊢A ⊢B) δ≤γ =
+    Quot ok₁ ok₂ (sub-⊢∷ ⊢A δ≤γ) ⊢B
+  sub-⊢∷ (class ok ⊢Q ⊢t) δ≤γ =
+    class ok ⊢Q (sub-⊢∷ ⊢t δ≤γ)
+  sub-⊢∷ (resp ok ⊢Q ⊢t ⊢u ⊢v) _ =
+    resp ok ⊢Q ⊢t ⊢u ⊢v
+  sub-⊢∷ (set ok ⊢Q ⊢t ⊢u ⊢v ⊢w) _ =
+    set ok ⊢Q ⊢t ⊢u ⊢v ⊢w
+  sub-⊢∷ (qrec ok₁ ok₂ ok₃ ⊢C ⊢t ⊢u ⊢v ⊢w) δ≤γ
+    with Qrec-motive-erased?
+  … | yes erased =
+    qrec ok₁ ok₂ (⊥-elim ∘→ (_$ erased)) ⊢C
+      (sub-⊢∷ ⊢t (δ≤γ ∙ PE.refl)) ⊢u ⊢v (sub-⊢∷ ⊢w δ≤γ)
+  … | no not-erased with ok₃ not-erased
+  …   | PE.refl , PE.refl =
+    qrec ok₁ (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
+      (sub-⊢ ⊢C (δ≤γ ∙ PE.refl)) (sub-⊢∷ ⊢t (δ≤γ ∙ PE.refl)) ⊢u ⊢v
+      (sub-⊢∷ ⊢w δ≤γ)

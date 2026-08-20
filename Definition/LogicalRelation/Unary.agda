@@ -323,15 +323,13 @@ record _⊩⟨_⟩Π_∷_/_ (Γ : Cons m n) (l : Universe-level) (t A : Term n)
     ⇒*u   : Γ ⊢ t ⇒* u ∷ Π p , q ▷ F ▹ G
     u-fun : Functionᵃₗ (Γ .defs) u
     ≅u    : Γ ⊢≅ u ∷ Π p , q ▷ F ▹ G
-    ⊩u    : ∀ {m′} {∇ : DCon (Term 0) m′}
-            (∇⊇Γ : » ∇ ⊇ Γ .defs)
-            {n′} {ρ : Wk n′ n} {Δ : Con Term n′} {v w}
-            (Δ⊇Γ : ∇ » ρ ∷ʷʳ Δ ⊇ Γ .vars)
-            (⊩v : ∇ » Δ ⊩⟨ l ⟩ v ∷ wk ρ F / [F] ∇⊇Γ Δ⊇Γ) →
-            ∇ » Δ ⊩⟨ l ⟩ w ∷ wk ρ F / [F] ∇⊇Γ Δ⊇Γ →
-            ∇ » Δ ⊩⟨ l ⟩ v ≡ w ∷ wk ρ F / [F] ∇⊇Γ Δ⊇Γ →
-            ∇ » Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v ≡ wk ρ u ∘⟨ p ⟩ w ∷
-              wk (lift ρ) G [ v ]₀ / [G] ∇⊇Γ Δ⊇Γ ⊩v
+    ⊩u    : ∀ {m′ n′} {Δ : Cons m′ n′} {ρ : Wk n′ n} {v w}
+            (⊢ρ : Δ ⊢ʷᵏʳ ρ ∷ Γ)
+            (⊩v : Δ ⊩⟨ l ⟩ v ∷ wk ρ F / [F] ⊢ρ) →
+            Δ ⊩⟨ l ⟩ w ∷ wk ρ F / [F] ⊢ρ →
+            Δ ⊩⟨ l ⟩ v ≡ w ∷ wk ρ F / [F] ⊢ρ →
+            Δ ⊩⟨ l ⟩ wk ρ u ∘⟨ p ⟩ v ≡ wk ρ u ∘⟨ p ⟩ w ∷
+              wk (lift ρ) G [ v ]₀ / [G] ⊢ρ ⊩v
 
 opaque
 
@@ -362,19 +360,19 @@ data Σ-prop (Γ : Cons m n) :
   𝕤 :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕤 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A
-        id-Γ = id (wf (≅-eq A≡A))
+        id-Γ = ⊢ʷᵏʳid (wf (≅-eq A≡A))
     in
     (t-prod : Productᵃₗ (Γ .defs) t) →
-    (⊩fst : Γ ⊩⟨ l ⟩ fst p t ∷ wk id F / [F] id⊇ id-Γ) →
-    Γ ⊩⟨ l ⟩ snd p t ∷ wk (lift id) G [ fst p t ]₀ / [G] id⊇ id-Γ ⊩fst →
+    (⊩fst : Γ ⊩⟨ l ⟩ fst p t ∷ wk id F / [F] id-Γ) →
+    Γ ⊩⟨ l ⟩ snd p t ∷ wk (lift id) G [ fst p t ]₀ / [G] id-Γ ⊩fst →
     Σ-prop Γ t 𝕤 t-prod ⊩A
   𝕨-prodₙ :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕨 p q ⟩ A} →
     let open _⊩ₗB⟨_⟩_ ⊩A
-        id-Γ = id (wf (≅-eq A≡A))
+        id-Γ = ⊢ʷᵏʳid (wf (≅-eq A≡A))
     in
-    (⊩t₁ : Γ ⊩⟨ l ⟩ t₁ ∷ wk id F / [F] id⊇ id-Γ) →
-    Γ ⊩⟨ l ⟩ t₂ ∷ wk (lift id) G [ t₁ ]₀ / [G] id⊇ id-Γ ⊩t₁ →
+    (⊩t₁ : Γ ⊩⟨ l ⟩ t₁ ∷ wk id F / [F] id-Γ) →
+    Γ ⊩⟨ l ⟩ t₂ ∷ wk (lift id) G [ t₁ ]₀ / [G] id-Γ ⊩t₁ →
     Σ-prop Γ (prodʷ p t₁ t₂) 𝕨 prodₙ ⊩A
   𝕨-ne :
     {⊩A : Γ ⊩′⟨ l ⟩B⟨ BΣ 𝕨 p q ⟩ A} →

@@ -518,7 +518,7 @@ opaque
           subst-⊢≡-⇑ ⊢u₁≡u₂ ⊢σ₁≡σ₂)
          (PE.subst (_⊢_≅_∷_ _ _ _) (natrecSucCase _ A₁) $
           R.escape-⊩≡∷ ⦃ inc = included ⦄ $
-          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑⇑]≡[⇑⇑]∷ u₁≡u₂ σ₁≡σ₂))
+          ⊩ᵛ≡∷→⊩ˢ≡∷→⊩[⇑[]]≡[⇑[]]∷ u₁≡u₂ σ₁≡σ₂))
       (λ {v₁ = v₁} {v₂ = _} {w₁ = w₁} v₁≡v₂ w₁≡w₂ →
          level-⊩≡∷
            (wf-⊩≡

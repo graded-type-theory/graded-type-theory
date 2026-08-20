@@ -45,12 +45,12 @@ open import Graded.Restrictions 𝕄 Zero-one-isMode public
 import Graded.Restrictions 𝕄 Zero-one-isMode as GR
 
 private variable
-  TR : Type-restrictions
-  UR : Usage-restrictions
-  b  : Bool
-  ok : T _
-  s  : Strength
-  nm : Natrec-mode
+  TR    : Type-restrictions
+  UR    : Usage-restrictions
+  b₁ b₂ : Bool
+  ok    : T _
+  s     : Strength
+  nm    : Natrec-mode
 
 ------------------------------------------------------------------------
 -- A lemma used below
@@ -75,12 +75,15 @@ opaque
 
 -- No restrictions for prodrec, unitrec or emptyrec, all erased
 -- matches are allowed for J and K, the natrec mode can be anything,
--- Id-erased is inhabited if the first boolean is true, and starˢ
--- is treated as a sink if the second boolean is true.
+-- the higher quotient constructors are allowed exactly if the mode
+-- structure is non-trivial, Id-erased is inhabited if the first
+-- boolean is true, starˢ is treated as a sink if the second boolean
+-- is true, and Qrec-motive-erased is inhabited if the third boolean
+-- is true.
 
 no-usage-restrictions :
   (nm : Natrec-mode) →
-  Bool → Bool → Usage-restrictions
+  Bool → Bool → Bool → Usage-restrictions
 no-usage-restrictions nm =
   GR.no-usage-restrictions nm
     (λ { ⦃ (Nr) ⦄ → Zero-one-supports-nr ⦃ Natrec-mode-Has-nr Nr ⦄ })
@@ -182,6 +185,34 @@ nr-available-UR has-nr UR = record UR
   ; mode-supports-nr = λ { ⦃ (Nr) ⦄ → Zero-one-supports-nr}
   }
 
+-- A function used to define []-cong-UR.
+
+none-for-𝟙ᵐ : (Mode → Erased-matches) → Mode → Erased-matches
+none-for-𝟙ᵐ f 𝟙ᵐ = none
+none-for-𝟙ᵐ f 𝟘ᵐ = f 𝟘ᵐ
+
+-- The function enables support for []-cong (if the modality is
+-- non-trivial), but disables support for erased matches for J (when
+-- the mode is 𝟙ᵐ).
+
+[]-cong-UR : Usage-restrictions → Usage-restrictions
+[]-cong-UR UR = record UR
+  { []-cong-allowed-mode     = λ m s → []-cong-allowed-mode m s ⊎
+                                     ¬ Trivial
+  ; []-cong-allowed-mode-upwards-closed = λ where
+      (inj₁ ok) m≤m′ → inj₁ ([]-cong-allowed-mode-upwards-closed ok m≤m′)
+      (inj₂ 𝟙≢𝟘) _   → inj₂ 𝟙≢𝟘
+  ; erased-matches-for-J     = none-for-𝟙ᵐ erased-matches-for-J
+  ; erased-matches-for-J-≤ᵉᵐ =
+      𝟙ᵐ𝟘ᵐ→≤ᵐ
+        (λ m₁ m₂ →
+           none-for-𝟙ᵐ erased-matches-for-J m₁ ≤ᵉᵐ
+           none-for-𝟙ᵐ erased-matches-for-J m₂)
+        _ ≤ᵉᵐ-reflexive
+  }
+  where
+  open Usage-restrictions UR
+
 -- A function used to define no-[]-cong-UR.
 
 at-least-some : (Mode → Erased-matches) → Mode → Erased-matches
@@ -268,7 +299,7 @@ opaque
 -- * Erased matches are allowed when the mode is not 𝟙ᵐ, except for
 --   []-cong. (Note that a variant of []-cong that works when the mode
 --   is not 𝟙ᵐ can be defined without the use of []-cong, see
---   Graded.Box-cong.▸[]-cong-J-𝟘ᵐ.)
+--   Graded.Has-box-cong.Definable.J.▸[]-cong-J-𝟘ᵐ.)
 
 No-erased-matches : Type-restrictions → Usage-restrictions → Set a
 No-erased-matches TR UR =
@@ -311,7 +342,7 @@ opaque
 -- An alternative to No-erased-matches that refers to
 -- Type-variant instead of Type-restrictions
 
-No-erased-matches′ : Type-variant → Usage-restrictions → Set a
+No-erased-matches′ : Type-variant a → Usage-restrictions → Set a
 No-erased-matches′ TV UR =
   ¬ Trivial →
   (∀ {r p q} → Prodrec-allowed 𝟙ᵐ r p q → r ≢ 𝟘) ×
@@ -330,19 +361,22 @@ opaque
 
   -- If grade equality is decidable and the modality supports usage
   -- inference for a given natrec-mode nm, UD.Assumptions holds for
-  -- no-usage-restrictions nm b false.
+  -- no-usage-restrictions nm b₁ false b₂.
 
   Assumptions-no-usage-restrictions :
     ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
     Decidable (_≡_ {A = M}) →
-    UD.Assumptions (no-usage-restrictions nm b false)
+    UD.Assumptions (no-usage-restrictions nm b₁ false b₂)
   Assumptions-no-usage-restrictions dec = λ where
-      ._≟_                       → dec
-      .Prodrec-allowed? _ _ _ _  → yes _
-      .Unitrec-allowed? _ _ _    → yes _
-      .Emptyrec-allowed? _ _     → yes _
-      .[]-cong-allowed-mode? _ _ → yes _
-      .no-sink-or-≤𝟘             → inj₁ idᶠ
+      ._≟_                                   → dec
+      .Prodrec-allowed? _ _ _ _              → yes _
+      .Unitrec-allowed? _ _ _                → yes _
+      .Emptyrec-allowed? _ _                 → yes _
+      .[]-cong-allowed-mode? _ _             → yes _
+      .no-sink-or-≤𝟘                         → inj₁ idᶠ
+      .Quotient-terms-allowed?               → yes _
+      .Higher-quotient-constructors-allowed? →
+        Lift? (Resize-Dec (¬? trivialᵐ?) .proj₂ .proj₂)
     where
     open UD.Assumptions
 
@@ -353,12 +387,16 @@ opaque
   Assumptions-not-all-erased-matches-JK :
     UD.Assumptions UR → UD.Assumptions (not-all-erased-matches-JK UR)
   Assumptions-not-all-erased-matches-JK as = λ where
-      ._≟_                   → A._≟_
-      .Prodrec-allowed?      → A.Prodrec-allowed?
-      .Unitrec-allowed?      → A.Unitrec-allowed?
-      .Emptyrec-allowed?     → A.Emptyrec-allowed?
-      .[]-cong-allowed-mode? → A.[]-cong-allowed-mode?
-      .no-sink-or-≤𝟘         → A.no-sink-or-≤𝟘
+      ._≟_                     → A._≟_
+      .Prodrec-allowed?        → A.Prodrec-allowed?
+      .Unitrec-allowed?        → A.Unitrec-allowed?
+      .Emptyrec-allowed?       → A.Emptyrec-allowed?
+      .[]-cong-allowed-mode?   → A.[]-cong-allowed-mode?
+      .no-sink-or-≤𝟘           → A.no-sink-or-≤𝟘
+      .Quotient-terms-allowed? →
+        A.Quotient-terms-allowed?
+      .Higher-quotient-constructors-allowed? →
+        A.Higher-quotient-constructors-allowed?
     where
     module A = UD.Assumptions as
     open UD.Assumptions
@@ -370,19 +408,23 @@ opaque
   Assumptions-only-some-erased-matches :
     UD.Assumptions UR → UD.Assumptions (only-some-erased-matches UR)
   Assumptions-only-some-erased-matches as = λ where
-      ._≟_                       → A._≟_
-      .Prodrec-allowed? m r p q  → A.Prodrec-allowed? m r p q
-                                    ×-dec
-                                  Dec.map (λ ≡𝟙 → trans (sym (⌞⌜⌝⌟ _)) (trans (⌞⌟-cong ≡𝟙) ⌞𝟙⌟))
-                                    (λ { refl → ⌜𝟙ᵐ⌝}) (⌜ m ⌝ A.≟ 𝟙)
-                                    →-dec
-                                  ¬? trivial?
-                                    →-dec
-                                  ¬? (r A.≟ 𝟘)
-      .Unitrec-allowed?       → A.Unitrec-allowed?
-      .Emptyrec-allowed?      → A.Emptyrec-allowed?
-      .[]-cong-allowed-mode?  → A.[]-cong-allowed-mode?
-      .no-sink-or-≤𝟘          → A.no-sink-or-≤𝟘
+      ._≟_                      → A._≟_
+      .Prodrec-allowed? m r p q → A.Prodrec-allowed? m r p q
+                                   ×-dec
+                                 Dec.map (λ ≡𝟙 → trans (sym (⌞⌜⌝⌟ _)) (trans (⌞⌟-cong ≡𝟙) ⌞𝟙⌟))
+                                   (λ { refl → ⌜𝟙ᵐ⌝}) (⌜ m ⌝ A.≟ 𝟙)
+                                   →-dec
+                                 ¬? trivial?
+                                   →-dec
+                                 ¬? (r A.≟ 𝟘)
+      .Unitrec-allowed?         → A.Unitrec-allowed?
+      .Emptyrec-allowed?        → A.Emptyrec-allowed?
+      .[]-cong-allowed-mode?    → A.[]-cong-allowed-mode?
+      .no-sink-or-≤𝟘            → A.no-sink-or-≤𝟘
+      .Quotient-terms-allowed?  →
+        A.Quotient-terms-allowed?
+      .Higher-quotient-constructors-allowed? →
+        A.Higher-quotient-constructors-allowed?
     where
     module A = UD.Assumptions as
     open UD.Assumptions
@@ -395,21 +437,28 @@ opaque
     ∀ TR → UD.Assumptions UR →
     UD.Assumptions (no-erased-matches-UR TR UR)
   Assumptions-no-erased-matches-UR TR as = λ where
-      ._≟_                    → A._≟_
+      ._≟_                     → A._≟_
       .Prodrec-allowed?        → A.Prodrec-allowed?
       .Unitrec-allowed? m p q  → A.Unitrec-allowed? m p q
-                                    ×-dec
-                                 (Dec.map (λ ≡𝟙 → trans (sym (⌞⌜⌝⌟ _)) (trans (⌞⌟-cong ≡𝟙) ⌞𝟙⌟))
+                                   ×-dec
+                                 (Dec.map
+                                    (λ ≡𝟙 →
+                                       trans (sym (⌞⌜⌝⌟ _)) $
+                                       trans (⌞⌟-cong ≡𝟙) ⌞𝟙⌟)
                                     (λ { refl → ⌜𝟙ᵐ⌝}) (⌜ m ⌝ A.≟ 𝟙)
                                     →-dec
-                                   ¬? trivial?
+                                  ¬? trivial?
                                     →-dec
-                                   p A.≟ 𝟘
+                                  p A.≟ 𝟘
                                     →-dec
-                                   Unitʷ-η?)
-      .Emptyrec-allowed?     → A.Emptyrec-allowed?
-      .[]-cong-allowed-mode? → A.[]-cong-allowed-mode?
-      .no-sink-or-≤𝟘         → A.no-sink-or-≤𝟘
+                                  Unitʷ-η?)
+      .Emptyrec-allowed?       → A.Emptyrec-allowed?
+      .[]-cong-allowed-mode?   → A.[]-cong-allowed-mode?
+      .no-sink-or-≤𝟘           → A.no-sink-or-≤𝟘
+      .Quotient-terms-allowed? →
+        A.Quotient-terms-allowed?
+      .Higher-quotient-constructors-allowed? →
+        A.Higher-quotient-constructors-allowed?
     where
     module A = UD.Assumptions (Assumptions-only-some-erased-matches as)
     open UD.Assumptions

@@ -76,11 +76,11 @@ neTypeEq (sndₙ neP) (sndⱼ ⊢G ⊢t) (sndⱼ _ ⊢t′) with neTypeEq neP �
 neTypeEq (natrecₙ _) ⊢t@(natrecⱼ _ _ _) (natrecⱼ _ _ _) =
   refl (wf-⊢ ⊢t)
 neTypeEq
-  (prodrecₙ neT) (prodrecⱼ ⊢A ⊢t _ _) (prodrecⱼ _ _ _ _) =
+  (prodrecₙ neT) (prodrecⱼ ⊢A ⊢t _) (prodrecⱼ _ _ _) =
   refl (subst-⊢₀ ⊢A ⊢t)
 neTypeEq (emptyrecₙ neT) (emptyrecⱼ x t∷A) (emptyrecⱼ x₁ t∷B) =
   refl x₁
-neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _ _) (unitrecⱼ _ _ _ _) =
+neTypeEq (unitrecₙ _ neT) (unitrecⱼ ⊢A ⊢t _) (unitrecⱼ _ _ _) =
   refl (subst-⊢₀ ⊢A ⊢t)
 neTypeEq (Jₙ _) (Jⱼ {w} _ ⊢B _ ⊢v ⊢w) (Jⱼ _ _ _ _ _) =
   refl $
@@ -92,6 +92,12 @@ neTypeEq
   ([]-congₙ _) ([]-congⱼ ⊢l _ ⊢t ⊢u _ ok) ([]-congⱼ _ _ _ _ _ _) =
   refl $
   Idⱼ′ ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢t) ([]ⱼ ([]-cong→Erased ok) ⊢l ⊢u)
+neTypeEq (resp ok) (resp ⊢Q ⊢t ⊢u _) (resp _ _ _ _) =
+  refl (Idⱼ′ (class ⊢Q ⊢t) (class ⊢Q ⊢u))
+neTypeEq (set ok) (set _ _ _ ⊢v ⊢w) (set _ _ _ _ _) =
+  refl (Idⱼ′ ⊢v ⊢w)
+neTypeEq (qrec _) (qrec ⊢C _ _ _ ⊢w) (qrec _ _ _ _ _) =
+  refl (subst-⊢₀ ⊢C ⊢w)
 neTypeEq x (conv t∷A x₁) t∷B = let q = neTypeEq x t∷A t∷B
                                in  trans (sym x₁) q
 neTypeEq x t∷A (conv t∷B x₃) = let q = neTypeEq x t∷A t∷B

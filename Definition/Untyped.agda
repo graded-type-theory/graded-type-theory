@@ -39,7 +39,7 @@ infixr 30 _supᵘ_ _supᵘₗ′_
 infix 25 _[_] _[_]′
 infix 25 _[_]₀
 infix 25 _[_]↑
-infix 25 _[_,_]₁₀
+infix 25 _[_,_]₁₀ _[_,_,_]₂₁₀
 infix 25 _[_]↑²
 infix 25 _[_][_]↑
 infix 24 _∙[_][_][_]ʷ _∙[_][_][_]
@@ -112,6 +112,14 @@ mutual
                    (u v : Term n) → Term n
     []-cong      : (s : Strength) (l : Lvl n) (A t u v : Term n) →
                    Term n
+    Quot         : (A : Term n) (B : Term (2+ n)) → Term n
+    class        : (t : Term n) → Term n
+    resp         : (A : Term n) (B : Term (2+ n)) (t u v : Term n) →
+                   Term n
+    set          : (A : Term n) (B : Term (2+ n)) (t u v w : Term n) →
+                   Term n
+    qrec         : (C t : Term (1+ n)) (u : Term (3+ n))
+                   (v : Term (5+ n)) (w : Term n) → Term n
 
 pattern zeroᵘₗ = level zeroᵘ
 pattern U₀     = U zeroᵘₗ
@@ -141,8 +149,8 @@ pattern []-congʷ l A t u v = []-cong 𝕨 l A t u v
 pattern []-congˢ l A t u v = []-cong 𝕤 l A t u v
 
 private variable
-  t : Term[ _ ] _
-  l : Lvl _
+  A B t u v w : Term[ _ ] _
+  l           : Lvl _
 
 -- Pairs of definition contexts and variable contexts.
 
@@ -230,6 +238,11 @@ opaque
     (J _ _ _ _ _ _ _ _)     → no (λ ())
     (K _ _ _ _ _ _)         → no (λ ())
     ([]-cong _ _ _ _ _ _)   → no (λ ())
+    (Quot _ _)              → no (λ ())
+    (class _)               → no (λ ())
+    (resp _ _ _ _ _)        → no (λ ())
+    (set _ _ _ _ _ _)       → no (λ ())
+    (qrec _ _ _ _ _)        → no (λ ())
 
 opaque
 
@@ -281,6 +294,13 @@ opaque
     ↓ᵘ (size-of-Level l₁-lit ⊔ size-of-Level l₂-lit)
   … | no _ =
     l₁ supᵘ l₂
+
+-- A predicate that holds for applications of higher quotient
+-- constructors.
+
+data Is-higher-quotient-constructor {n} : Term n → Set a where
+  resp : Is-higher-quotient-constructor (resp A B t u v)
+  set  : Is-higher-quotient-constructor (set A B t u v w)
 
 ------------------------------------------------------------------------
 -- An alternative syntax representation
@@ -352,6 +372,12 @@ data Constructor : Term-kind → List Arg-kind → Set a where
   []-congᵏ : Strength →
              Constructor tm
                (lvlᵃ 0 ∷ tmᵃ 0 ∷ tmᵃ 0 ∷ tmᵃ 0 ∷ tmᵃ 0 ∷ [])
+  Quotᵏ    : Constructor tm (tmᵃ 0 ∷ tmᵃ 2 ∷ [])
+  classᵏ   : Constructor tm (tmᵃ 0 ∷ [])
+  respᵏ    : Constructor tm (tmᵃ 0 ∷ tmᵃ 2 ∷ tmᵃ 0 ∷ tmᵃ 0 ∷ tmᵃ 0 ∷ [])
+  setᵏ     : Constructor tm
+               (tmᵃ 0 ∷ tmᵃ 2 ∷ tmᵃ 0 ∷ tmᵃ 0 ∷ tmᵃ 0 ∷ tmᵃ 0 ∷ [])
+  qrecᵏ    : Constructor tm (tmᵃ 1 ∷ tmᵃ 1 ∷ tmᵃ 3 ∷ tmᵃ 5 ∷ tmᵃ 0 ∷ [])
 
 private variable
   c c′ : Constructor _ _
@@ -456,6 +482,16 @@ toTerm (con (Kᵏ p) (A ∷ₜ t ∷ₜ B ∷ₜ u ∷ₜ v ∷ₜ [])) =
 toTerm (con ([]-congᵏ s) (l ∷ₜ A ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
   []-cong s (toTerm l) (toTerm A)
     (toTerm t) (toTerm u) (toTerm v)
+toTerm (con Quotᵏ (A ∷ₜ B ∷ₜ [])) =
+  Quot (toTerm A) (toTerm B)
+toTerm (con classᵏ (t ∷ₜ [])) =
+  class (toTerm t)
+toTerm (con respᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ [])) =
+  resp (toTerm A) (toTerm B) (toTerm t) (toTerm u) (toTerm v)
+toTerm (con setᵏ (A ∷ₜ B ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])) =
+  set (toTerm A) (toTerm B) (toTerm t) (toTerm u) (toTerm v) (toTerm w)
+toTerm (con qrecᵏ (C ∷ₜ t ∷ₜ u ∷ₜ v ∷ₜ w ∷ₜ [])) =
+  qrec (toTerm C) (toTerm t) (toTerm u) (toTerm v) (toTerm w)
 
 mutual
 
@@ -535,6 +571,22 @@ mutual
     con ([]-congᵏ s)
       (fromTerm l ∷ₜ fromTerm A ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ
        fromTerm v ∷ₜ [])
+  fromTerm (Quot A B) =
+    con Quotᵏ (fromTerm A ∷ₜ fromTerm B ∷ₜ [])
+  fromTerm (class t) =
+    con classᵏ (fromTerm t ∷ₜ [])
+  fromTerm (resp A B t u v) =
+    con respᵏ
+      (fromTerm A ∷ₜ fromTerm B ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ
+       fromTerm v ∷ₜ [])
+  fromTerm (set A B t u v w) =
+    con setᵏ
+      (fromTerm A ∷ₜ fromTerm B ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ
+       fromTerm v ∷ₜ fromTerm w ∷ₜ [])
+  fromTerm (qrec C t u v w) =
+    con qrecᵏ
+      (fromTerm C ∷ₜ fromTerm t ∷ₜ fromTerm u ∷ₜ fromTerm v ∷ₜ
+       fromTerm w ∷ₜ [])
 
 ------------------------------------------------------------------------
 -- Weakening
@@ -583,6 +635,15 @@ wk ρ (K p A t B u v) =
   K p (wk ρ A) (wk ρ t) (wk (lift ρ) B) (wk ρ u) (wk ρ v)
 wk ρ ([]-cong s l A t u v) =
   []-cong s (wk ρ l) (wk ρ A) (wk ρ t) (wk ρ u) (wk ρ v)
+wk ρ (Quot A B) = Quot (wk ρ A) (wk (liftn ρ 2) B)
+wk ρ (class t) = class (wk ρ t)
+wk ρ (resp A B t u v) =
+  resp (wk ρ A) (wk (liftn ρ 2) B) (wk ρ t) (wk ρ u) (wk ρ v)
+wk ρ (set A B t u v w) =
+  set (wk ρ A) (wk (liftn ρ 2) B) (wk ρ t) (wk ρ u) (wk ρ v) (wk ρ w)
+wk ρ (qrec C t u v w) =
+  qrec (wk (lift ρ) C) (wk (lift ρ) t) (wk (liftn ρ 3) u)
+    (wk (liftn ρ 5) v) (wk ρ w)
 
 -- Weakening for the alternative term representation.
 
@@ -783,6 +844,15 @@ K p A t B u v [ σ ] =
   K p (A [ σ ]) (t [ σ ]) (B [ σ ⇑ ]) (u [ σ ]) (v [ σ ])
 []-cong s l A t u v [ σ ] =
   []-cong s (l [ σ ]) (A [ σ ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+Quot A B [ σ ] = Quot (A [ σ ]) (B [ σ ⇑[ 2 ] ])
+class t [ σ ] = class (t [ σ ])
+resp A B t u v [ σ ] =
+  resp (A [ σ ]) (B [ σ ⇑[ 2 ] ]) (t [ σ ]) (u [ σ ]) (v [ σ ])
+set A B t u v w [ σ ] =
+  set (A [ σ ]) (B [ σ ⇑[ 2 ] ]) (t [ σ ]) (u [ σ ]) (v [ σ ]) (w [ σ ])
+qrec C t u v w [ σ ] =
+  qrec (C [ σ ⇑ ]) (t [ σ ⇑ ]) (u [ σ ⇑[ 3 ] ]) (v [ σ ⇑[ 5 ] ])
+    (w [ σ ])
 
 -- Substitution for the alternative term representation.
 
@@ -880,6 +950,11 @@ t [ s ]↑ = t [ replace₁ 1 s ]
 
 _[_,_]₁₀ : (t : Term[ k ] (2+ n)) (s s′ : Term n) → Term[ k ] n
 t [ s , s′ ]₁₀ = t [ consSubst (sgSubst s) s′ ]
+
+-- A trinary variant of _[_]₀ and _[_,_]₁₀.
+
+_[_,_,_]₂₁₀ : Term[ k ] (3+ n) → (_ _ _ : Term n) → Term[ k ] n
+t [ u , v , w ]₂₁₀ = t [ consSubst (consSubst (sgSubst u) v) w ]
 
 -- Substitute the first variable with a term and shift remaining
 -- variables up by one
@@ -1003,6 +1078,19 @@ opaque
     inline ξ ([]-cong s l A t u v) =
       []-cong s (inline ξ l) (inline ξ A) (inline ξ t) (inline ξ u)
         (inline ξ v)
+    inline ξ (Quot A B) =
+      Quot (inline ξ A) (inline ξ B)
+    inline ξ (class t) =
+      class (inline ξ t)
+    inline ξ (resp A B t u v) =
+      resp (inline ξ A) (inline ξ B) (inline ξ t) (inline ξ u)
+        (inline ξ v)
+    inline ξ (set A B t u v w) =
+      set (inline ξ A) (inline ξ B) (inline ξ t) (inline ξ u)
+        (inline ξ v) (inline ξ w)
+    inline ξ (qrec C t u v w) =
+      qrec (inline ξ C) (inline ξ t) (inline ξ u) (inline ξ v)
+        (inline ξ w)
 
   -- Inlines all definitions that are in scope. Opacity is ignored.
 

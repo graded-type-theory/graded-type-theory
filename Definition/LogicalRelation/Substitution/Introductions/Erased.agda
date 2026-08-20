@@ -41,6 +41,7 @@ open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
 open import Definition.Typed R
 open import Definition.Typed.Properties R
 open import Definition.Typed.Weakening R as W
+import Definition.Typed.Weakening.Combined R as C
 open import Definition.Typed.Weakening.Definition R using (»_⊇_)
 open import Definition.Typed.Well-formed R
 open import Definition.Untyped M as U
@@ -53,7 +54,7 @@ import Tools.PropositionalEquality as PE
 private variable
   ∇ ∇′        : DCon _ _
   Δ Η         : Con _ _
-  Γ           : Cons _ _
+  Γ Γ₁ Γ₂     : Cons _ _
   A A₁ A₂ t u : Term _
   l l₁ l₂     : Lvl _
   ρ           : Wk _ _
@@ -64,13 +65,11 @@ private opaque
   -- A lemma used below.
 
   wk-Lift-Unit[]₀≡ :
-    ∇ » Δ ⊩Level l₁ ≡ l₂ ∷Level →
-    » ∇′ ⊇ ∇ →
-    ∇′ » ρ ∷ʷʳ Η ⊇ Δ →
-    ∇′ » Η ⊩⟨ ℓ ⟩ U.wk (lift ρ) (Lift (wk1 l₁) (Unit s)) [ t ]₀ ≡
+    Γ₁ ⊩Level l₁ ≡ l₂ ∷Level →
+    Γ₂ ⊢ʷᵏʳ ρ ∷ Γ₁ →
+    Γ₂ ⊩⟨ ℓ ⟩ U.wk (lift ρ) (Lift (wk1 l₁) (Unit s)) [ t ]₀ ≡
       U.wk (lift ρ) (Lift (wk1 l₂) (Unit s)) [ u ]₀
-  wk-Lift-Unit[]₀≡ {l₁} {l₂} l₁≡l₂ ∇′⊇∇ ρ∷ =
-    let l₁≡l₂ = defn-wk-⊩≡∷L ∇′⊇∇ l₁≡l₂ in
+  wk-Lift-Unit[]₀≡ {l₁} {l₂} l₁≡l₂ ⊢ρ =
     PE.subst₂ (_⊩⟨_⟩_≡_ _ _)
       (PE.sym $ PE.cong (flip Lift _) $
        PE.trans (PE.cong _[ _ ]₀ $ lift-wk1 _ l₁) $
@@ -83,11 +82,11 @@ private opaque
       , _
       , id
           (Liftⱼ
-             (W.wk (∷ʷʳ⊇→∷ʷ⊇ ρ∷) $
+             (wk-⊢ ⊢ρ $
               wf-⊢ (⊢≅∷L→⊢≡∷L (escapeLevelEq l₁≡l₂)) .proj₂)
-             (⊢Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
-      , wkEqTermLevel (∷ʷʳ⊇→∷ʷ⊇ ρ∷) l₁≡l₂
-      , refl-⊩≡ (emb-⊩ 0≤ᵘ (⊩Unit (wf-∷ʷʳ⊇ ρ∷) Unit-ok))
+             (⊢Unit (wf-⊢ʷᵏʳ ⊢ρ) Unit-ok))
+      , wkEqTermLevel (⊢ʷᵏʳ→⊢ʷᵏ ⊢ρ) l₁≡l₂
+      , refl-⊩≡ (emb-⊩ 0≤ᵘ (⊩Unit (wf-⊢ʷᵏʳ ⊢ρ) Unit-ok))
       )
 
 opaque
@@ -102,12 +101,13 @@ opaque
     ⊩ΠΣ⇔ .proj₂
       ( ≅-ΠΣ-cong (escape-⊩≡ $ refl-⊩≡ ⊩A)
           (≅-Lift-cong
-             (wk-⊢≅∷L (stepʷ id ⊢A) (escapeLevelEq (reflLevel ⊩l))) $
+             (wk-⊢≅∷L (C.⊢ʷᵏdrop (∙ ⊢A))
+                (escapeLevelEq (reflLevel ⊩l))) $
            ≅-Unit-refl (∙ ⊢A) Unit-ok)
           Σ-ok
-      , λ ∇′⊇∇ ρ⊇ →
-            wk-⊩ ρ⊇ (defn-wk ∇′⊇∇ ⊩A)
-          , λ _ → wk-Lift-Unit[]₀≡ (reflLevel ⊩l) ∇′⊇∇ ρ⊇
+      , λ ⊢ρ →
+            wk-⊩ ⊢ρ ⊩A
+          , λ _ → wk-Lift-Unit[]₀≡ (reflLevel ⊩l) ⊢ρ
       )
 
 opaque
@@ -128,12 +128,13 @@ opaque
       , ⊩Erased ⊩l₂ ⊩A₂
       , ≅-ΠΣ-cong (escape-⊩≡ A₁≡A₂)
           (≅-Lift-cong
-             (wk-⊢≅∷L (stepʷ id (escape-⊩ ⊩A₁)) (escapeLevelEq l₁≡l₂)) $
+             (wk-⊢≅∷L (C.⊢ʷᵏdrop (∙ escape-⊩ ⊩A₁))
+                (escapeLevelEq l₁≡l₂)) $
            ≅-Unit-refl (∙ escape-⊩ ⊩A₁) Unit-ok) Σ-ok
       , PE.refl , PE.refl , PE.refl
-      , λ ∇′⊇∇ ρ⊇ →
-            wk-⊩≡ ρ⊇ (defn-wk-⊩≡ ∇′⊇∇ A₁≡A₂)
-          , λ _ → wk-Lift-Unit[]₀≡ l₁≡l₂ ∇′⊇∇ ρ⊇
+      , λ ⊢ρ →
+            wk-⊩≡ ⊢ρ A₁≡A₂
+          , λ _ → wk-Lift-Unit[]₀≡ l₁≡l₂ ⊢ρ
       )
 
 opaque

@@ -24,6 +24,7 @@ open import Definition.Typed.Properties.Admissible.Lift R
 open import Definition.Typed.Properties.Admissible.Nat R
 open import Definition.Typed.Properties.Admissible.Pi-Sigma R
 open import Definition.Typed.Properties.Admissible.Pi R
+open import Definition.Typed.Properties.Admissible.Quotient R
 open import Definition.Typed.Properties.Admissible.Sigma R
 open import Definition.Typed.Properties.Admissible.U R
 open import Definition.Typed.Properties.Admissible.Unit R
@@ -43,6 +44,7 @@ open import Definition.Untyped.Allowed-literal R
 open import Definition.Untyped.Erased 𝕄
 open import Definition.Untyped.Pi M
 open import Definition.Untyped.Properties M
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Whnf M type-variant
 
 open import Tools.Empty
@@ -225,6 +227,19 @@ opaque
   inline-Transᵉ ([]-cong s l A t u v) =
     PE.cong₅ ([]-cong _) (inline-Transᵉ l) (inline-Transᵉ A)
       (inline-Transᵉ t) (inline-Transᵉ u) (inline-Transᵉ v)
+  inline-Transᵉ (Quot A B) =
+    PE.cong₂ Quot (inline-Transᵉ A) (inline-Transᵉ B)
+  inline-Transᵉ (class t) =
+    PE.cong class (inline-Transᵉ t)
+  inline-Transᵉ (resp A B t u v) =
+    PE.cong₅ resp (inline-Transᵉ A) (inline-Transᵉ B) (inline-Transᵉ t)
+      (inline-Transᵉ u) (inline-Transᵉ v)
+  inline-Transᵉ (set A B t u v w) =
+    PE.cong₆ set (inline-Transᵉ A) (inline-Transᵉ B) (inline-Transᵉ t)
+      (inline-Transᵉ u) (inline-Transᵉ v) (inline-Transᵉ w)
+  inline-Transᵉ (qrec C t u v w) =
+    PE.cong₅ qrec (inline-Transᵉ C) (inline-Transᵉ t) (inline-Transᵉ u)
+      (inline-Transᵉ v) (inline-Transᵉ w)
 
 ------------------------------------------------------------------------
 -- Properties related to inlining and »_⊇_
@@ -290,7 +305,7 @@ opaque
     ⊥-elim (α≮n′ (<⇒<′ (≤-trans (<′⇒< α<n) (⊇→≤ ξ′⊇ξ))))
 
 opaque
- unfolding inline
+ unfolding Quot-rel-Con inline
  mutual
 
   -- The result of inline is invariant under a certain kind of
@@ -312,6 +327,9 @@ opaque
   inline-⊇-⊢ ∇′⊇∇ (Idⱼ ⊢A ⊢t ⊢u) =
     PE.cong₃ Id (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
       (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
+  inline-⊇-⊢ ∇′⊇∇ (Quot _ ⊢B) =
+    let _ , (⊢A , _) , _ = ∙∙⊢→⊢-<ˢ ⊢B in
+    PE.cong₂ Quot (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢ ∇′⊇∇ ⊢B)
 
   -- The result of inline is invariant under a certain kind of
   -- extension (for well-typed terms).
@@ -350,7 +368,7 @@ opaque
     PE.refl
   inline-⊇-⊢∷ _ (starⱼ _ _) =
     PE.refl
-  inline-⊇-⊢∷ ∇′⊇∇ (unitrecⱼ ⊢A ⊢t ⊢u _) =
+  inline-⊇-⊢∷ ∇′⊇∇ (unitrecⱼ ⊢A ⊢t ⊢u) =
     PE.cong₃ (unitrec _ _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
       (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
   inline-⊇-⊢∷ ∇′⊇∇ (ΠΣⱼ _ ⊢A ⊢B _) =
@@ -366,7 +384,7 @@ opaque
     PE.cong (fst _) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
   inline-⊇-⊢∷ ∇′⊇∇ (sndⱼ _ ⊢t) =
     PE.cong (snd _) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
-  inline-⊇-⊢∷ ∇′⊇∇ (prodrecⱼ ⊢A ⊢t ⊢u _) =
+  inline-⊇-⊢∷ ∇′⊇∇ (prodrecⱼ ⊢A ⊢t ⊢u) =
     PE.cong₃ (prodrec _ _ _) (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
       (inline-⊇-⊢∷ ∇′⊇∇ ⊢u)
   inline-⊇-⊢∷ _ (ℕⱼ _) =
@@ -394,6 +412,22 @@ opaque
   inline-⊇-⊢∷ ∇′⊇∇ ([]-congⱼ ⊢l ⊢A ⊢t ⊢u ⊢v _) =
     PE.cong₅ ([]-cong _) (inline-⊇-⊢∷L ∇′⊇∇ ⊢l) (inline-⊇-⊢ ∇′⊇∇ ⊢A)
       (inline-⊇-⊢∷ ∇′⊇∇ ⊢t) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
+  inline-⊇-⊢∷ ∇′⊇∇ (Quot _ _ ⊢A ⊢B) =
+    PE.cong₂ Quot (inline-⊇-⊢∷ ∇′⊇∇ ⊢A) (inline-⊇-⊢∷ ∇′⊇∇ ⊢B)
+  inline-⊇-⊢∷ ∇′⊇∇ (class _ ⊢t) =
+    PE.cong class (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+  inline-⊇-⊢∷ ∇′⊇∇ (resp ⊢Q ⊢t ⊢u ⊢v) =
+    let _ , ⊢A , ⊢B = inversion-Quot ⊢Q in
+    PE.cong₅ resp (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢ ∇′⊇∇ ⊢B)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢t) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
+  inline-⊇-⊢∷ ∇′⊇∇ (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+    let _ , ⊢A , ⊢B = inversion-Quot ⊢Q in
+    PE.cong₆ set (inline-⊇-⊢ ∇′⊇∇ ⊢A) (inline-⊇-⊢ ∇′⊇∇ ⊢B)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢t) (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢w)
+  inline-⊇-⊢∷ ∇′⊇∇ (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    PE.cong₅ qrec (inline-⊇-⊢ ∇′⊇∇ ⊢C) (inline-⊇-⊢∷ ∇′⊇∇ ⊢t)
+      (inline-⊇-⊢∷ ∇′⊇∇ ⊢u) (inline-⊇-⊢∷ ∇′⊇∇ ⊢v) (inline-⊇-⊢∷ ∇′⊇∇ ⊢w)
 
   -- The result of inline is invariant under a certain kind of
   -- extension (for well-formed levels).
@@ -694,6 +728,10 @@ opaque
       ΠΣⱼ (⊢inline′ ⊢B) ok
     ⊢inline′ (Idⱼ ⊢A ⊢t ⊢u) =
       Idⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
+    ⊢inline′ (Quot ok ⊢B) =
+      Quot ok
+        (PE.subst (flip _⊢_ _) inline-Quot-rel-Cons $
+         ⊢inline′ ⊢B)
 
     -- Inlining preserves well-typedness.
 
@@ -733,10 +771,10 @@ opaque
       Unitⱼ (⊢inline-Con ⊢Γ) ok
     ⊢inline∷ (starⱼ ⊢Γ ok) =
       starⱼ (⊢inline-Con ⊢Γ) ok
-    ⊢inline∷ (unitrecⱼ {A} ⊢A ⊢t ⊢u ok) =
+    ⊢inline∷ (unitrecⱼ {A} ⊢A ⊢t ⊢u) =
       PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
       unitrecⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
-        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) ok
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u))
     ⊢inline∷ (ΠΣⱼ {l} _ ⊢A ⊢B ok) =
       ΠΣⱼ′ (⊢inline∷ ⊢A)
         (PE.subst (_⊢_∷_ _ _) (PE.sym $ wk-inline (U l)) $
@@ -755,10 +793,10 @@ opaque
     ⊢inline∷ (sndⱼ {G = B} ⊢B ⊢t) =
       PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ B) $
       sndⱼ (⊢inline′ ⊢B) (⊢inline∷ ⊢t)
-    ⊢inline∷ (prodrecⱼ {A} ⊢A ⊢t ⊢u ok) =
+    ⊢inline∷ (prodrecⱼ {A} ⊢A ⊢t ⊢u) =
       PE.subst (_⊢_∷_ _ _) (PE.sym $ inline-[]₀ A) $
       prodrecⱼ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
-        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u)) ok
+        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ A) (⊢inline∷ ⊢u))
     ⊢inline∷ (ℕⱼ ⊢Γ) =
       ℕⱼ (⊢inline-Con ⊢Γ)
     ⊢inline∷ (zeroⱼ ⊢Γ) =
@@ -791,6 +829,30 @@ opaque
     ⊢inline∷ ([]-congⱼ ⊢l _ _ _ ⊢v ok) =
       PE.subst (_⊢_∷_ _ _) (inline-Id-Erased _) $
       []-congⱼ′ ok (⊢inline∷L ⊢l) (⊢inline∷ ⊢v)
+    ⊢inline∷ (Quot {l} ok ⊢l ⊢A ⊢B) =
+      Quot ok (⊢inline∷L ⊢l) (⊢inline∷ ⊢A)
+        (PE.subst₃ _⊢_∷_ inline-Quot-rel-Cons PE.refl
+           (PE.sym (wk-inline (U l))) $
+         ⊢inline∷ ⊢B)
+    ⊢inline∷ (class ⊢Q ⊢t) =
+      class (⊢inline′ ⊢Q) (⊢inline∷ ⊢t)
+    ⊢inline∷ (resp {B} ⊢Q ⊢t ⊢u ⊢v) =
+      resp (⊢inline′ ⊢Q) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
+        (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) $
+         ⊢inline∷ ⊢v)
+    ⊢inline∷ (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+      set (⊢inline′ ⊢Q) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u) (⊢inline∷ ⊢v)
+        (⊢inline∷ ⊢w)
+    ⊢inline∷ (qrec {C} ⊢C ⊢t ⊢u ⊢v ⊢w) =
+      PE.subst (_⊢_∷_ _ _) (PE.sym (inline-[]₀ C)) $
+      qrec (⊢inline′ ⊢C)
+        (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) $
+         ⊢inline∷ ⊢t)
+        (PE.subst₃ _⊢_∷_ inline-Resp-Cons PE.refl inline-Resp-type $
+         ⊢inline∷ ⊢u)
+        (PE.subst₃ _⊢_∷_ inline-Is-set-Cons PE.refl inline-Is-set-type $
+         ⊢inline∷ ⊢v)
+        (⊢inline∷ ⊢w)
 
     -- Inlining preserves well-formedness for levels.
 
@@ -826,6 +888,10 @@ opaque
       (Id-cong A≡B t₁≡u₁ t₂≡u₂) →
         Id-cong (⊢inline≡inline A≡B) (⊢inline≡inline∷ t₁≡u₁)
           (⊢inline≡inline∷ t₂≡u₂)
+      (Quot-cong ok A₁≡A₂ B₁≡B₂) →
+        Quot-cong ok (⊢inline≡inline A₁≡A₂)
+          (PE.subst₃ _⊢_≡_ inline-Quot-rel-Cons PE.refl PE.refl $
+           ⊢inline≡inline B₁≡B₂)
 
     -- Inlining preserves definitional equality.
 
@@ -876,18 +942,18 @@ opaque
           (⊢inline≡inline∷ lower-t≡lower-u)
       (emptyrec-cong A₁≡A₂ t₁≡t₂) →
         emptyrec-cong (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
-      (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
+      (unitrec-cong {A = A₁} A₁≡A₂ t₁≡t₂ u₁≡u₂ _) →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A₁) $
         unitrec-cong′ (⊢inline≡inline A₁≡A₂) (⊢inline≡inline∷ t₁≡t₂)
           (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ A₁) $
            ⊢inline≡inline∷ u₁≡u₂)
-      (unitrec-β {A} ⊢A ⊢t _ _) →
+      (unitrec-β {A} ⊢A ⊢t _) →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
         unitrec-β-≡ (⊢inline′ ⊢A)
           (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢t))
-      (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) →
+      (unitrec-β-η {A} ⊢A ⊢t ⊢u η) →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-        unitrec-β-η-≡ (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
+        unitrec-β-η (⊢inline′ ⊢A) (⊢inline∷ ⊢t)
           (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline∷ ⊢u)) η
       (η-unit ⊢t₁ ⊢t₂ η) →
         η-unit (⊢inline∷ ⊢t₁) (⊢inline∷ ⊢t₂) η
@@ -930,12 +996,12 @@ opaque
           (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₀ B) $
            ⊢inline≡inline∷ u₁≡u₂)
           ok
-      (prodrec-cong {G = B} {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
+      (prodrec-cong {G = B} {A = C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂) →
         PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym $ inline-[]₀ C₁) $
-        prodrec-cong′ (⊢inline≡inline C₁≡C₂) (⊢inline≡inline∷ t₁≡t₂)
+        prodrec-cong (⊢inline≡inline C₁≡C₂) (⊢inline≡inline∷ t₁≡t₂)
           (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ C₁) $
            ⊢inline≡inline∷ u₁≡u₂)
-      (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
+      (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl) →
         PE.subst₂ (_⊢_≡_∷_ _ _)
           (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
         prodrec-β-≡ (⊢inline′ ⊢C) (⊢inline∷ ⊢t)
@@ -1005,6 +1071,50 @@ opaque
         []-cong-β-≡ (⊢inline∷L ⊢l) (refl (⊢inline∷ ⊢t)) ok
       (equality-reflection ok ⊢Id ⊢v) →
         equality-reflection ok (⊢inline′ ⊢Id) (⊢inline∷ ⊢v)
+      (Quot-cong {l} ok ⊢l A₁≡A₂ B₁≡B₂) →
+        Quot-cong ok (⊢inline∷L ⊢l) (⊢inline≡inline∷ A₁≡A₂)
+          (PE.subst₄ _⊢_≡_∷_ inline-Quot-rel-Cons PE.refl PE.refl
+             (PE.sym (wk-inline (U l))) $
+           ⊢inline≡inline∷ B₁≡B₂)
+      (class-cong ⊢Q t₁≡t₂) →
+        class-cong (⊢inline′ ⊢Q) (⊢inline≡inline∷ t₁≡t₂)
+      (resp-cong {B₁} ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+        resp-cong ok (⊢inline≡inline A₁≡A₂)
+          (PE.subst₃ _⊢_≡_ inline-Quot-rel-Cons PE.refl PE.refl $
+           ⊢inline≡inline B₁≡B₂)
+          (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ u₁≡u₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[]₁₀ B₁) $
+           ⊢inline≡inline∷ v₁≡v₂)
+      (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        set-cong (⊢inline≡inline A₁≡A₂)
+          (PE.subst₃ _⊢_≡_ inline-Quot-rel-Cons PE.refl PE.refl $
+           ⊢inline≡inline B₁≡B₂)
+          (⊢inline≡inline∷ t₁≡t₂) (⊢inline≡inline∷ u₁≡u₂)
+          (⊢inline≡inline∷ v₁≡v₂) (⊢inline≡inline∷ w₁≡w₂)
+      (qrec-cong {C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        PE.subst (_⊢_≡_∷_ _ _ _) (PE.sym (inline-[]₀ C₁)) $
+        qrec-cong (⊢inline≡inline C₁≡C₂)
+          (PE.subst (_⊢_≡_∷_ _ _ _) (inline-[][]↑ C₁) $
+           ⊢inline≡inline∷ t₁≡t₂)
+          (PE.subst₄ _⊢_≡_∷_ inline-Resp-Cons PE.refl PE.refl
+             inline-Resp-type $
+           ⊢inline≡inline∷ u₁≡u₂)
+          (PE.subst₄ _⊢_≡_∷_ inline-Is-set-Cons PE.refl PE.refl
+             inline-Is-set-type $
+           ⊢inline≡inline∷ v₁≡v₂)
+          (⊢inline≡inline∷ w₁≡w₂)
+      (qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) →
+        PE.subst₂ (_⊢_≡_∷_ _ _)
+          (PE.sym (inline-[]₀ t)) (PE.sym (inline-[]₀ C)) $
+        qrec-β (⊢inline′ ⊢C)
+          (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) $
+           ⊢inline∷ ⊢t)
+          (PE.subst₃ _⊢_∷_ inline-Resp-Cons PE.refl inline-Resp-type $
+           ⊢inline∷ ⊢u)
+          (PE.subst₃ _⊢_∷_ inline-Is-set-Cons PE.refl
+             inline-Is-set-type $
+           ⊢inline∷ ⊢v)
+          (⊢inline∷ ⊢w)
 
     -- Inlining preserves definitional equality.
 
@@ -1067,20 +1177,20 @@ opaque
     Lift-β⇒ (⊢inline ⊢t)
   ⊢inline⇒inline∷ (emptyrec-subst ⊢A t₁⇒t₂) =
     emptyrec-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢A)
-  ⊢inline⇒inline∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ _ no-η) =
+  ⊢inline⇒inline∷ (unitrec-subst {A} ⊢A ⊢u t₁⇒t₂ no-η) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
     unitrec-subst* (⊢inline⇒inline∷ t₁⇒t₂) (⊢inline ⊢A)
       (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u))
       no-η
-  ⊢inline⇒inline∷ (unitrec-β {A} ⊢A ⊢u _ _) =
+  ⊢inline⇒inline∷ (unitrec-β {A} ⊢A ⊢u _) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
     unitrec-β-⇒ (⊢inline ⊢A)
       (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u))
-  ⊢inline⇒inline∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u _ η) =
+  ⊢inline⇒inline∷ (unitrec-β-η {A} ⊢A ⊢t ⊢u η) =
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ A) $
-    unitrec-β-η-⇒ (⊢inline ⊢A) (⊢inline ⊢t)
+    unitrec-β-η (⊢inline ⊢A) (⊢inline ⊢t)
       (PE.subst (_⊢_∷_ _ _) (inline-[]₀ A) (⊢inline ⊢u)) η
   ⊢inline⇒inline∷ (app-subst {B} t₁⇒t₂ ⊢u) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
@@ -1104,12 +1214,12 @@ opaque
     PE.subst (_⊢_⇒_∷_ _ _ _) (PE.sym $ inline-[]₀ B) $
     Σ-β₂-⇒ (⊢inline ⊢B) (⊢inline ⊢t)
       (PE.subst (_⊢_∷_ _ _) (inline-[]₀ B) (⊢inline ⊢u)) ok
-  ⊢inline⇒inline∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂ _) =
+  ⊢inline⇒inline∷ (prodrec-subst {A = C} ⊢C ⊢u t₁⇒t₂) =
     PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym $ inline-[]₀ C) $
     prodrec-subst* (⊢inline ⊢C) (⊢inline⇒inline∷ t₁⇒t₂)
       (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) (⊢inline ⊢u))
   ⊢inline⇒inline∷
-    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl _) =
+    (prodrec-β {G = B} {A = C} {u = v} ⊢C ⊢t ⊢u ⊢v PE.refl) =
     redMany $
     PE.subst₂ (_⊢_⇒_∷_ _ _)
       (PE.sym $ inline-[]₁₀ v) (PE.sym $ inline-[]₀ C) $
@@ -1170,6 +1280,36 @@ opaque
     redMany $
     PE.subst (_⊢_⇒_∷_ _ _ _) (inline-Id-Erased _) $
     []-cong-β (⊢inline ⊢l) (⊢inline t≡t′) ok
+  ⊢inline⇒inline∷ (resp-η {B} ok ⊢Q ⊢t ⊢u ⊢v) =
+    redMany $
+    resp-η ok (⊢inline′ ⊢Q) (⊢inline∷ ⊢t) (⊢inline∷ ⊢u)
+      (PE.subst (_⊢_∷_ _ _) (inline-[]₁₀ B) $
+       ⊢inline∷ ⊢v)
+  ⊢inline⇒inline∷ (set-η ok ⊢t ⊢u ⊢v ⊢w) =
+    redMany $
+    set-η ok (⊢inline∷ ⊢t) (⊢inline∷ ⊢u) (⊢inline∷ ⊢v) (⊢inline∷ ⊢w)
+  ⊢inline⇒inline∷ (qrec-subst {C} ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) =
+    PE.subst (_⊢_⇒*_∷_ _ _ _) (PE.sym (inline-[]₀ C)) $
+    qrec-subst* (⊢inline′ ⊢C)
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) $
+       ⊢inline∷ ⊢t)
+      (PE.subst₃ _⊢_∷_ inline-Resp-Cons PE.refl inline-Resp-type $
+       ⊢inline∷ ⊢u)
+      (PE.subst₃ _⊢_∷_ inline-Is-set-Cons PE.refl inline-Is-set-type $
+       ⊢inline∷ ⊢v)
+      (⊢inline⇒inline∷ w₁⇒w₂)
+  ⊢inline⇒inline∷ (qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    PE.subst₂ (_⊢_⇒*_∷_ _ _)
+      (PE.sym (inline-[]₀ t)) (PE.sym (inline-[]₀ C)) $
+    redMany $
+    qrec-β (⊢inline′ ⊢C)
+      (PE.subst (_⊢_∷_ _ _) (inline-[][]↑ C) $
+       ⊢inline∷ ⊢t)
+      (PE.subst₃ _⊢_∷_ inline-Resp-Cons PE.refl inline-Resp-type $
+       ⊢inline∷ ⊢u)
+      (PE.subst₃ _⊢_∷_ inline-Is-set-Cons PE.refl inline-Is-set-type $
+       ⊢inline∷ ⊢v)
+      (⊢inline∷ ⊢w)
 
 opaque
 
@@ -1335,7 +1475,7 @@ opaque
 -- Inlining produces definitionally equal terms
 
 opaque
- unfolding inline _ᵈ•_
+ unfolding Quot-rel-Con Resp-Con inline _ᵈ•_
  mutual
 
   -- Inlining produces definitionally equal terms, given certain
@@ -1431,6 +1571,9 @@ opaque
     let ≡A = ⊢inline≡ ⊢A in
     Id-cong ≡A (conv (⊢inline≡∷ ⊢t) (sym ≡A))
       (conv (⊢inline≡∷ ⊢u) (sym ≡A))
+  ⊢inline≡ (Quot ok ⊢B) =
+    let _ , (⊢A , _) , _ = ∙∙⊢→⊢-<ˢ ⊢B in
+    sym (Quot-cong ok (sym (⊢inline≡ ⊢A)) (sym (⊢inline≡ ⊢B)))
 
   -- Inlining produces definitionally equal terms, given a certain
   -- assumption.
@@ -1472,8 +1615,9 @@ opaque
     refl (Unitⱼ (glassify-⊢ ⊢Γ) ok)
   ⊢inline≡∷ (starⱼ ⊢Γ ok) =
     refl (starⱼ (glassify-⊢ ⊢Γ) ok)
-  ⊢inline≡∷ (unitrecⱼ ⊢A ⊢t ⊢u ok) =
-    let ≡A = ⊢inline≡ ⊢A
+  ⊢inline≡∷ (unitrecⱼ ⊢A ⊢t ⊢u) =
+    let ok = inversion-Unit (⊢∙→⊢ (wf ⊢A))
+        ≡A = ⊢inline≡ ⊢A
         ≡t = ⊢inline≡∷ ⊢t
     in
     conv
@@ -1506,12 +1650,12 @@ opaque
     let ≡t = ⊢inline≡∷ ⊢t in
     conv (snd-cong′ ≡t)
       (subst-⊢≡₀ (glassify-⊢ ⊢B) (fst-cong′ ≡t))
-  ⊢inline≡∷ (prodrecⱼ ⊢A ⊢t ⊢u _) =
+  ⊢inline≡∷ (prodrecⱼ ⊢A ⊢t ⊢u) =
     let ≡A = ⊢inline≡ ⊢A
         ≡t = ⊢inline≡∷ ⊢t
     in
     conv
-      (prodrec-cong′ ≡A ≡t
+      (prodrec-cong ≡A ≡t
          (conv (⊢inline≡∷ ⊢u) (subst↑²TypeEq-prod (sym ≡A))))
       (subst-⊢≡₀ ≡A ≡t)
   ⊢inline≡∷ (ℕⱼ ⊢Γ) =
@@ -1599,6 +1743,27 @@ opaque
          (conv (⊢inline≡∷ ⊢v) (sym (Id-cong ≡A ≡t ≡u))) ok)
       (Id-cong (Erased-cong ok′ ≡l ≡A) ([]-cong′ ok′ ⊢l ≡t)
          ([]-cong′ ok′ ⊢l ≡u))
+  ⊢inline≡∷ (Quot ok ⊢l ⊢A ⊢B) =
+    sym′ $
+    Quot-cong ok (glassify-⊢ ⊢l) (sym′ (⊢inline≡∷ ⊢A))
+      (sym′ (⊢inline≡∷ ⊢B))
+  ⊢inline≡∷ (class ⊢Q ⊢t) =
+    class-cong (glassify-⊢ ⊢Q) (⊢inline≡∷ ⊢t)
+  ⊢inline≡∷ (resp ⊢Q ⊢t ⊢u ⊢v) =
+    let ok , ⊢A , ⊢B = inversion-Quot ⊢Q in
+    sym′ $
+    resp-cong ok (sym (⊢inline≡ ⊢A)) (sym (⊢inline≡ ⊢B))
+      (sym′ (⊢inline≡∷ ⊢t)) (sym′ (⊢inline≡∷ ⊢u)) (sym′ (⊢inline≡∷ ⊢v))
+  ⊢inline≡∷ (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+    let ok , ⊢A , ⊢B = inversion-Quot ⊢Q in
+    sym′ $
+    set-cong (sym (⊢inline≡ ⊢A)) (sym (⊢inline≡ ⊢B))
+      (sym′ (⊢inline≡∷ ⊢t)) (sym′ (⊢inline≡∷ ⊢u)) (sym′ (⊢inline≡∷ ⊢v))
+      (sym′ (⊢inline≡∷ ⊢w))
+  ⊢inline≡∷ (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    sym′ $
+    qrec-cong (sym (⊢inline≡ ⊢C)) (sym′ (⊢inline≡∷ ⊢t))
+      (sym′ (⊢inline≡∷ ⊢u)) (sym′ (⊢inline≡∷ ⊢v)) (sym′ (⊢inline≡∷ ⊢w))
 
   -- Inlining produces definitionally equal levels, given a certain
   -- assumption.
@@ -1807,6 +1972,8 @@ module _
     definition-irrelevant-⊢ (Idⱼ ⊢A ⊢t ⊢u) =
       Idⱼ (definition-irrelevant-⊢ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
         (definition-irrelevant-⊢∷ ⊢u)
+    definition-irrelevant-⊢ (Quot ok ⊢B) =
+      Quot ok (definition-irrelevant-⊢ ⊢B)
 
     -- Any term that is well-typed under Opaque[ t ∷ A ] is also
     -- well-typed under Opaque[ u ∷ A ].
@@ -1848,9 +2015,9 @@ module _
       Unitⱼ (definition-irrelevant-»⊢ ⊢Γ) ok
     definition-irrelevant-⊢∷ (starⱼ ⊢Γ ok) =
       starⱼ (definition-irrelevant-»⊢ ⊢Γ) ok
-    definition-irrelevant-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u ok) =
+    definition-irrelevant-⊢∷ (unitrecⱼ ⊢A ⊢t ⊢u) =
       unitrecⱼ (definition-irrelevant-⊢ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
-        (definition-irrelevant-⊢∷ ⊢u) ok
+        (definition-irrelevant-⊢∷ ⊢u)
     definition-irrelevant-⊢∷ (ΠΣⱼ _ ⊢A ⊢B ok) =
       ΠΣⱼ′ (definition-irrelevant-⊢∷ ⊢A) (definition-irrelevant-⊢∷ ⊢B)
         ok
@@ -1865,9 +2032,9 @@ module _
       fstⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢t)
     definition-irrelevant-⊢∷ (sndⱼ ⊢B ⊢t) =
       sndⱼ (definition-irrelevant-⊢ ⊢B) (definition-irrelevant-⊢∷ ⊢t)
-    definition-irrelevant-⊢∷ (prodrecⱼ ⊢A ⊢t ⊢u ok) =
+    definition-irrelevant-⊢∷ (prodrecⱼ ⊢A ⊢t ⊢u) =
       prodrecⱼ (definition-irrelevant-⊢ ⊢A) (definition-irrelevant-⊢∷ ⊢t)
-        (definition-irrelevant-⊢∷ ⊢u) ok
+        (definition-irrelevant-⊢∷ ⊢u)
     definition-irrelevant-⊢∷ (ℕⱼ ⊢Γ) =
       ℕⱼ (definition-irrelevant-»⊢ ⊢Γ)
     definition-irrelevant-⊢∷ (zeroⱼ ⊢Γ) =
@@ -1891,6 +2058,22 @@ module _
     definition-irrelevant-⊢∷ ([]-congⱼ ⊢l _ _ _ ⊢v ok) =
       []-congⱼ′ ok (definition-irrelevant-⊢∷L ⊢l)
         (definition-irrelevant-⊢∷ ⊢v)
+    definition-irrelevant-⊢∷ (Quot ok ⊢l ⊢A ⊢B) =
+      Quot ok (definition-irrelevant-⊢∷L ⊢l)
+        (definition-irrelevant-⊢∷ ⊢A) (definition-irrelevant-⊢∷ ⊢B)
+    definition-irrelevant-⊢∷ (class ⊢Q ⊢t) =
+      class (definition-irrelevant-⊢ ⊢Q) (definition-irrelevant-⊢∷ ⊢t)
+    definition-irrelevant-⊢∷ (resp ⊢Q ⊢t ⊢u ⊢v) =
+      resp (definition-irrelevant-⊢ ⊢Q) (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u) (definition-irrelevant-⊢∷ ⊢v)
+    definition-irrelevant-⊢∷ (set ⊢Q ⊢t ⊢u ⊢v ⊢w) =
+      set (definition-irrelevant-⊢ ⊢Q) (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u) (definition-irrelevant-⊢∷ ⊢v)
+        (definition-irrelevant-⊢∷ ⊢w)
+    definition-irrelevant-⊢∷ (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
+      qrec (definition-irrelevant-⊢ ⊢C) (definition-irrelevant-⊢∷ ⊢t)
+        (definition-irrelevant-⊢∷ ⊢u) (definition-irrelevant-⊢∷ ⊢v)
+        (definition-irrelevant-⊢∷ ⊢w)
 
     -- Any level that is well-formed under Opaque[ t ∷ A ] is also
     -- well-formed under Opaque[ u ∷ A ].
@@ -1932,6 +2115,9 @@ module _
         Id-cong (definition-irrelevant-⊢≡ A≡B)
           (definition-irrelevant-⊢≡∷ t₁≡u₁)
           (definition-irrelevant-⊢≡∷ t₂≡u₂)
+      (Quot-cong ok A₁≡A₂ B₁≡B₂) →
+        Quot-cong ok (definition-irrelevant-⊢≡ A₁≡A₂)
+          (definition-irrelevant-⊢≡ B₁≡B₂)
 
     -- Definitional equalities that hold under Opaque[ t ∷ A ] also
     -- hold under Opaque[ u ∷ A ].
@@ -1989,15 +2175,15 @@ module _
       (emptyrec-cong A₁≡A₂ t₁≡t₂) →
         emptyrec-cong (definition-irrelevant-⊢≡ A₁≡A₂)
          (definition-irrelevant-⊢≡∷ t₁≡t₂)
-      (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _ _) →
+      (unitrec-cong A₁≡A₂ t₁≡t₂ u₁≡u₂ _) →
         unitrec-cong′ (definition-irrelevant-⊢≡ A₁≡A₂)
           (definition-irrelevant-⊢≡∷ t₁≡t₂)
           (definition-irrelevant-⊢≡∷ u₁≡u₂)
-      (unitrec-β ⊢A ⊢t _ _) →
+      (unitrec-β ⊢A ⊢t _) →
         unitrec-β-≡ (definition-irrelevant-⊢ ⊢A)
           (definition-irrelevant-⊢∷ ⊢t)
-      (unitrec-β-η ⊢A ⊢t ⊢u _ η) →
-        unitrec-β-η-≡ (definition-irrelevant-⊢ ⊢A)
+      (unitrec-β-η ⊢A ⊢t ⊢u η) →
+        unitrec-β-η (definition-irrelevant-⊢ ⊢A)
           (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢∷ ⊢u) η
       (η-unit ⊢t₁ ⊢t₂ η) →
         η-unit (definition-irrelevant-⊢∷ ⊢t₁)
@@ -2037,11 +2223,11 @@ module _
         prod-cong (definition-irrelevant-⊢ ⊢B)
           (definition-irrelevant-⊢≡∷ t₁≡t₂)
           (definition-irrelevant-⊢≡∷ u₁≡u₂) ok
-      (prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ ok) →
-        prodrec-cong′ (definition-irrelevant-⊢≡ C₁≡C₂)
+      (prodrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂) →
+        prodrec-cong (definition-irrelevant-⊢≡ C₁≡C₂)
           (definition-irrelevant-⊢≡∷ t₁≡t₂)
           (definition-irrelevant-⊢≡∷ u₁≡u₂)
-      (prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl ok) →
+      (prodrec-β ⊢C ⊢t ⊢u ⊢v PE.refl) →
         prodrec-β-≡ (definition-irrelevant-⊢ ⊢C)
           (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢∷ ⊢u)
           (definition-irrelevant-⊢∷ ⊢v)
@@ -2093,6 +2279,36 @@ module _
       (equality-reflection ok ⊢Id ⊢v) →
         equality-reflection ok (definition-irrelevant-⊢ ⊢Id)
           (definition-irrelevant-⊢∷ ⊢v)
+      (Quot-cong ok ⊢l A₁≡A₂ B₁≡B₂) →
+        Quot-cong ok (definition-irrelevant-⊢∷L ⊢l)
+          (definition-irrelevant-⊢≡∷ A₁≡A₂)
+          (definition-irrelevant-⊢≡∷ B₁≡B₂)
+      (class-cong ⊢Q t₁≡t₂) →
+        class-cong (definition-irrelevant-⊢ ⊢Q)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+      (resp-cong ok A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂) →
+        resp-cong ok (definition-irrelevant-⊢≡ A₁≡A₂)
+          (definition-irrelevant-⊢≡ B₁≡B₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+          (definition-irrelevant-⊢≡∷ v₁≡v₂)
+      (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        set-cong (definition-irrelevant-⊢≡ A₁≡A₂)
+          (definition-irrelevant-⊢≡ B₁≡B₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+          (definition-irrelevant-⊢≡∷ v₁≡v₂)
+          (definition-irrelevant-⊢≡∷ w₁≡w₂)
+      (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) →
+        qrec-cong (definition-irrelevant-⊢≡ C₁≡C₂)
+          (definition-irrelevant-⊢≡∷ t₁≡t₂)
+          (definition-irrelevant-⊢≡∷ u₁≡u₂)
+          (definition-irrelevant-⊢≡∷ v₁≡v₂)
+          (definition-irrelevant-⊢≡∷ w₁≡w₂)
+      (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) →
+        qrec-β (definition-irrelevant-⊢ ⊢C)
+          (definition-irrelevant-⊢∷ ⊢t) (definition-irrelevant-⊢∷ ⊢u)
+          (definition-irrelevant-⊢∷ ⊢v) (definition-irrelevant-⊢∷ ⊢w)
 
     -- Definitional equalities that hold under Opaque[ t ∷ A ] also
     -- hold under Opaque[ u ∷ A ].

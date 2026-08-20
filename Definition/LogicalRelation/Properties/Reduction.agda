@@ -34,6 +34,7 @@ open import Definition.LogicalRelation R ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Irrelevance R
 open import Definition.LogicalRelation.Properties.Kit R
 open import Definition.LogicalRelation.Properties.Primitive R
+open import Definition.LogicalRelation.Properties.Quotient eqrel
 open import Definition.LogicalRelation.Properties.Reflexivity R
 open import Definition.LogicalRelation.Properties.Transitivity R
 open import Definition.LogicalRelation.Properties.Whnf R
@@ -78,7 +79,7 @@ redSubst* D (ne′ _ D′ neK K≡K) =
 redSubst*
   D (Bᵣ′ W F G D′ A≡A [F] [G] G-ext ok) =
     Bᵣ′ W F G (D ⇨* D′) A≡A [F] [G] G-ext ok
-  , B₌ _ _ D′ A≡A (λ ξ⊇ ρ → reflEq ([F] ξ⊇ ρ)) (λ ξ⊇ ρ [a] → reflEq ([G] ξ⊇ ρ [a]))
+  , B₌ _ _ D′ A≡A (λ ρ → reflEq ([F] ρ)) (λ ρ [a] → reflEq ([G] ρ [a]))
 redSubst* A⇒*B (Idᵣ ⊩B) =
     Idᵣ record
       { ⇒*Id  = A⇒*B ⇨* ⇒*Id
@@ -89,6 +90,23 @@ redSubst* A⇒*B (Idᵣ ⊩B) =
   , Id₌′ ⇒*Id (reflEq ⊩Ty) (reflEqTerm ⊩Ty ⊩lhs) (reflEqTerm ⊩Ty ⊩rhs)
   where
   open _⊩ₗId_ ⊩B
+redSubst* A⇒*B (Quot ⊩B) =
+  Quot record
+    { ⇒*Quot  = A⇒*B ⇨* ⇒*Quot
+    ; ≅Quot   = ≅Quot
+    ; ⊩Data   = ⊩Data
+    ; ⊩Rel    = ⊩Rel
+    ; Rel≡Rel = Rel≡Rel
+    } ,
+  record
+    { ⇒*Quot′   = ⇒*Quot
+    ; Quot≅Quot = ≅Quot
+    ; Data≡Data = reflEq ∘→ ⊩Data
+    ; Rel≡Rel   = λ ⊢ρ ⊩t ⊩u →
+        Rel≡Rel ⊢ρ ⊩t ⊩t ⊩u ⊩u ⊩t ⊩u
+    }
+  where
+  open _⊩ₗQuot_ ⊩B
 
 opaque
 
@@ -141,7 +159,7 @@ opaque
         d′   = conv* t⇒u (subset* D) ⇨∷* d
     in
     Πₜ₌ f f d′ d funcF funcF f≡f
-      (λ [ξ] [ρ] [a] → [f] [ξ] [ρ] (reflEqTerm ([F] [ξ] [ρ]) [a]))
+      (λ [ρ] [a] → [f] [ρ] (reflEqTerm ([F] [ρ]) [a]))
   redSubst*Term t⇒u (Bᵣ BΣˢ ⊩A@(Bᵣ F G D A≡A [F] [G] G-ext _)) [u] =
     let Σₜ p d pProd p≅p pProp = ⊩Σ∷⇔⊩Σ≡∷ ⊩A .proj₂ [u]
         d′ = conv* t⇒u (subset* D) ⇨∷* d
@@ -162,6 +180,12 @@ opaque
     u′-id , ⊩Id∷-view⇔ .proj₁ prop
     where
     open _⊩ₗId_ ⊩A
+  redSubst*Term t⇒*u (Quot ⊩A) ⊩u =
+    _ , _ , conv* t⇒*u (subset* ⇒*Quot) ⇨∷* Q.⇒*w , Q.⇒*w ,
+    Q.w-q , Q.w-q , Quot-view₁⇔ .proj₁ Q.prop
+    where
+    open _⊩ₗQuot_ ⊩A
+    module Q = _⊩⟨_⟩Quot_∷_/_ (⊩Quot∷⇔⊩Quot≡∷ ⊩A .proj₂ ⊩u)
 
 -- Weak head expansion of reducible types with single reduction step.
 redSubst : ∀ {A B : Term n} {l}
@@ -220,13 +244,31 @@ opaque
     case whrDet↘ (A⇒*ΠΣ , ⟦ W ⟧ₙ) A⇒*B of λ
       B⇒*ΠΣ →
       Bᵣ′ _ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ ⊩C ⊩D D≡D ok
-    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ _ → reflEq (⊩C _ _)) (λ _ _ _ → reflEq (⊩D _ _ _))
+    , B₌ _ _ B⇒*ΠΣ ΠΣ≡ΠΣ (λ _ → reflEq (⊩C _)) (λ _ _ → reflEq (⊩D _ _))
   redSubst*′ A⇒*B (Idᵣ (Idᵣ Ty lhs rhs A⇒*Id ⊩Ty ⊩lhs ⊩rhs)) =
     case whrDet↘ (A⇒*Id , Idₙ) A⇒*B of λ
       B⇒*Id →
       Idᵣ (Idᵣ Ty lhs rhs B⇒*Id ⊩Ty ⊩lhs ⊩rhs)
     , Id₌′ B⇒*Id (reflEq ⊩Ty) (reflEqTerm ⊩Ty ⊩lhs)
         (reflEqTerm ⊩Ty ⊩rhs)
+  redSubst*′ A⇒*B (Quot ⊩A) =
+    let B⇒*Quot = whrDet↘ (_⊩ₗQuot_.⇒*Quot ⊩A , Quot) A⇒*B in
+    Quot record
+      { ⇒*Quot  = B⇒*Quot
+      ; ≅Quot   = ≅Quot
+      ; ⊩Data   = ⊩Data
+      ; ⊩Rel    = ⊩Rel
+      ; Rel≡Rel = Rel≡Rel
+      } ,
+    record
+      { ⇒*Quot′   = B⇒*Quot
+      ; Quot≅Quot = ≅Quot
+      ; Data≡Data = reflEq ∘→ ⊩Data
+      ; Rel≡Rel   = λ ⊢ρ ⊩t ⊩u →
+          Rel≡Rel ⊢ρ ⊩t ⊩t ⊩u ⊩u ⊩t ⊩u
+      }
+    where
+    open _⊩ₗQuot_ ⊩A
 
 opaque
 
@@ -301,3 +343,11 @@ opaque
                  (conv* t⇒*u (subset* A⇒*Id))
     in
     v , v , t⇒*v , u⇒*v , v-id , v-id , ⊩Id∷-view⇔ .proj₁ prop
+  redSubst*Term′ t⇒*u (Quot ⊩A) ⊩t =
+    let u⇒*v = whrDet↘Term (Q.⇒*w , Quotientᵃ→Whnf Q.w-q)
+                 (conv* t⇒*u (subset* ⇒*Quot))
+    in
+    _ , _ , Q.⇒*w , u⇒*v , Q.w-q , Q.w-q , Quot-view₁⇔ .proj₁ Q.prop
+    where
+    open _⊩ₗQuot_ ⊩A
+    module Q = _⊩⟨_⟩Quot_∷_/_ (⊩Quot∷⇔⊩Quot≡∷ ⊩A .proj₂ ⊩t)

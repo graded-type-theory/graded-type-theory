@@ -30,7 +30,7 @@ import Tools.Level as L
 open import Tools.Nat
 open import Tools.Product
 import Tools.PropositionalEquality as PE
-open import Tools.Relation
+open import Tools.Relation hiding (Rel)
 
 
 private
@@ -123,6 +123,12 @@ mutual
   t ® v ∷ A / Idᵣ ⊨A = t ® v ∷Id⟨ Ty ⟩⟨ lhs ⟩⟨ rhs ⟩
     where
     open _⊨Id_ ⊨A
+
+  -- Quotient types.
+  t ® v ∷ A / Quot ⊨A =
+    ∃ λ t′ → t ⇛ U.class t′ ∷ Quot Data Rel × t′ ® v ∷ Data / ⊨Data
+    where
+    open _⊨Quot_ ⊨A
 
   -- Extra data for Π-types, depending on whether the function argument
   -- is erased or not.

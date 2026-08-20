@@ -11,12 +11,15 @@ module Definition.Typed
   (R : Type-restrictions 𝕄)
   where
 
+open Modality 𝕄 using (𝟘)
 open Type-restrictions R
 
 open import Definition.Typed.Variant
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
+open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Quotient 𝕄
 open import Definition.Untyped.Sup R
 open import Definition.Untyped.Whnf M type-variant
 
@@ -37,7 +40,7 @@ private
     φ φ′ : Unfolding _
     ω : Opacity _
     Γ : Con Term _
-    A A₁ A₂ A′ B B₁ B₂ C E F F′ G H : Term _
+    A A₁ A₂ A′ B B₁ B₂ C C₁ C₂ E F F′ G H : Term _
     f g n′ s s′ t t′ t₁ t₂ t₃ u u′ u₁ u₂ v v′ v₁ v₂ w w′ w₁ w₂ z z′ :
       Term _
     l l′ l₁ l₂ l₂′ : Lvl _
@@ -130,6 +133,9 @@ mutual
            → Γ ⊢ t ∷ A
            → Γ ⊢ u ∷ A
            → Γ ⊢ Id A t u
+    Quot   : Quot-allowed
+           → Quot-rel-Cons Γ A ⊢ B
+           → Γ ⊢ Quot A B
 
   -- Well-typed terms.
 
@@ -182,7 +188,6 @@ mutual
     unitrecⱼ  : Γ »∙ Unitʷ ⊢ A
               → Γ ⊢ t ∷ Unitʷ
               → Γ ⊢ u ∷ A [ starʷ ]₀
-              → Unitʷ-allowed
               → Γ ⊢ unitrec p q A t u ∷ A [ t ]₀
 
     ΠΣⱼ       : Γ ⊢ l ∷Level
@@ -213,7 +218,6 @@ mutual
     prodrecⱼ  : Γ »∙ (Σʷ p , q′ ▷ F ▹ G) ⊢ A
               → Γ ⊢ t ∷ Σʷ p , q′ ▷ F ▹ G
               → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
-              → Σʷ-allowed p q′
               → Γ ⊢ prodrec r p q A t u ∷ A [ t ]₀
 
     ℕⱼ        : ⊢ Γ → Γ ⊢ ℕ ∷ U₀
@@ -254,6 +258,42 @@ mutual
               → let open Erased k in
                 Γ ⊢ []-cong k l A t u v ∷
                   Id (Erased l A) ([ t ]) ([ u ])
+
+    -- The rules for quotients are partly based on those in Hofmann's
+    -- PhD thesis and partly based on the set quotient HIT in the
+    -- cubical library (that HIT was, at least originally, implemented
+    -- by Zesen Qian and Anders Mörtberg). The rules are similar to
+    -- those in the HoTT book, but there is no requirement that the
+    -- quotienting relation is propositional. If equality reflection
+    -- is allowed, then the type of the eliminator can be simplified,
+    -- see
+    -- Definition.Typed.Properties.Admissible.Quotient.qrec-with-equality-reflection.
+
+    Quot      : Quot-allowed
+              → Γ ⊢ l ∷Level
+              → Γ ⊢ A ∷ U l
+              → Quot-rel-Cons Γ A ⊢ B ∷ U (wk[ 2 ]′ l)
+              → Γ ⊢ Quot A B ∷ U l
+    class     : Γ ⊢ Quot A B
+              → Γ ⊢ t ∷ A
+              → Γ ⊢ class t ∷ Quot A B
+    resp      : Γ ⊢ Quot A B
+              → Γ ⊢ t ∷ A
+              → Γ ⊢ u ∷ A
+              → Γ ⊢ v ∷ B [ t , u ]₁₀
+              → Γ ⊢ resp A B t u v ∷ Id (Quot A B) (class t) (class u)
+    set       : Γ ⊢ Quot A B
+              → Γ ⊢ t ∷ Quot A B
+              → Γ ⊢ u ∷ Quot A B
+              → Γ ⊢ v ∷ Id (Quot A B) t u
+              → Γ ⊢ w ∷ Id (Quot A B) t u
+              → Γ ⊢ set A B t u v w ∷ Id (Id (Quot A B) t u) v w
+    qrec      : Γ »∙ Quot A B ⊢ C
+              → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
+              → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
+              → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
+              → Γ ⊢ w ∷ Quot A B
+              → Γ ⊢ qrec C t u v w ∷ C [ w ]₀
 
   -- Well-formed levels.
 
@@ -297,6 +337,11 @@ mutual
            → Γ ⊢ t₁ ≡ t₂ ∷ A₁
            → Γ ⊢ u₁ ≡ u₂ ∷ A₁
            → Γ ⊢ Id A₁ t₁ u₁ ≡ Id A₂ t₂ u₂
+    Quot-cong
+           : Quot-allowed
+           → Γ ⊢ A₁ ≡ A₂
+           → Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂
+           → Γ ⊢ Quot A₁ B₁ ≡ Quot A₂ B₂
 
   -- Term equality.
 
@@ -380,19 +425,16 @@ mutual
     unitrec-cong  : Γ »∙ Unitʷ ⊢ A ≡ A′
                   → Γ ⊢ t ≡ t′ ∷ Unitʷ
                   → Γ ⊢ u ≡ u′ ∷ A [ starʷ ]₀
-                  → Unitʷ-allowed
                   → ¬ Unitʷ-η
                   → Γ ⊢ unitrec p q A t u ≡ unitrec p q A′ t′ u′ ∷
                       A [ t ]₀
     unitrec-β     : Γ »∙ Unitʷ ⊢ A
                   → Γ ⊢ u ∷ A [ starʷ ]₀
-                  → Unitʷ-allowed
                   → ¬ Unitʷ-η
                   → Γ ⊢ unitrec p q A starʷ u ≡ u ∷ A [ starʷ ]₀
     unitrec-β-η   : Γ »∙ Unitʷ ⊢ A
                   → Γ ⊢ t ∷ Unitʷ
                   → Γ ⊢ u ∷ A [ starʷ ]₀
-                  → Unitʷ-allowed
                   → Unitʷ-η
                   → Γ ⊢ unitrec p q A t u ≡ u ∷ A [ t ]₀
 
@@ -458,14 +500,12 @@ mutual
                   → Γ ⊢ t ≡ t′ ∷ Σʷ p , q′ ▷ F ▹ G
                   → Γ »∙ F »∙ G ⊢ u ≡ u′ ∷
                       A [ prodʷ p (var x1) (var x0) ]↑²
-                  → Σʷ-allowed p q′
                   → Γ ⊢ prodrec r p q A t u ≡ prodrec r p q A′ t′ u′ ∷ A [ t ]₀
     prodrec-β     : Γ »∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                   → Γ ⊢ t ∷ F
                   → Γ ⊢ t′ ∷ G [ t ]₀
                   → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                   → p PE.≡ p′
-                  → Σʷ-allowed p q′
                   → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ≡
                         u [ t , t′ ]₁₀ ∷ A [ prodʷ p′ t t′ ]₀
 
@@ -542,6 +582,45 @@ mutual
                   → Γ ⊢ v ∷ Id A t u
                   → Γ ⊢ t ≡ u ∷ A
 
+    Quot-cong     : Quot-allowed
+                  → Γ ⊢ l ∷Level
+                  → Γ ⊢ A₁ ≡ A₂ ∷ U l
+                  → Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂ ∷ U (wk[ 2 ]′ l)
+                  → Γ ⊢ Quot A₁ B₁ ≡ Quot A₂ B₂ ∷ U l
+    class-cong    : Γ ⊢ Quot A B
+                  → Γ ⊢ t₁ ≡ t₂ ∷ A
+                  → Γ ⊢ class t₁ ≡ class t₂ ∷ Quot A B
+    resp-cong     : Quot-allowed
+                  → Γ ⊢ A₁ ≡ A₂
+                  → Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂
+                  → Γ ⊢ t₁ ≡ t₂ ∷ A₁
+                  → Γ ⊢ u₁ ≡ u₂ ∷ A₁
+                  → Γ ⊢ v₁ ≡ v₂ ∷ B₁ [ t₁ , u₁ ]₁₀
+                  → Γ ⊢ resp A₁ B₁ t₁ u₁ v₁ ≡ resp A₂ B₂ t₂ u₂ v₂ ∷
+                    Id (Quot A₁ B₁) (class t₁) (class u₁)
+    set-cong      : Γ ⊢ A₁ ≡ A₂
+                  → Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂
+                  → Γ ⊢ t₁ ≡ t₂ ∷ Quot A₁ B₁
+                  → Γ ⊢ u₁ ≡ u₂ ∷ Quot A₁ B₁
+                  → Γ ⊢ v₁ ≡ v₂ ∷ Id (Quot A₁ B₁) t₁ u₁
+                  → Γ ⊢ w₁ ≡ w₂ ∷ Id (Quot A₁ B₁) t₁ u₁
+                  → Γ ⊢ set A₁ B₁ t₁ u₁ v₁ w₁ ≡ set A₂ B₂ t₂ u₂ v₂ w₂ ∷
+                    Id (Id (Quot A₁ B₁) t₁ u₁) v₁ w₁
+    qrec-cong     : Γ »∙ Quot A B ⊢ C₁ ≡ C₂
+                  → Γ »∙ A ⊢ t₁ ≡ t₂ ∷ C₁ [ class (var x0) ]↑
+                  → Resp-Cons Γ A B ⊢ u₁ ≡ u₂ ∷ Resp-type A B C₁ t₁
+                  → Is-set-Cons Γ A B C₁ ⊢ v₁ ≡ v₂ ∷ Is-set-type C₁
+                  → Γ ⊢ w₁ ≡ w₂ ∷ Quot A B
+                  → Γ ⊢ qrec C₁ t₁ u₁ v₁ w₁ ≡ qrec C₂ t₂ u₂ v₂ w₂ ∷
+                    C₁ [ w₁ ]₀
+    qrec-β        : Γ »∙ Quot A B ⊢ C
+                  → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
+                  → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
+                  → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
+                  → Γ ⊢ w ∷ A
+                  → Γ ⊢ qrec C t u v (class w) ≡ t [ w ]₀ ∷
+                    C [ class w ]₀
+
   -- Level equality.
 
   infix 4 _⊢_≡_∷Level
@@ -597,19 +676,16 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a wher
   unitrec-subst : Γ »∙ Unitʷ ⊢ A
                 → Γ ⊢ u ∷ A [ starʷ ]₀
                 → Γ ⊢ t ⇒ t′ ∷ Unitʷ
-                → Unitʷ-allowed
                 → ¬ Unitʷ-η
                 → Γ ⊢ unitrec p q A t u ⇒ unitrec p q A t′ u ∷
                     A [ t ]₀
   unitrec-β     : Γ »∙ Unitʷ ⊢ A
                 → Γ ⊢ u ∷ A [ starʷ ]₀
-                → Unitʷ-allowed
                 → ¬ Unitʷ-η
                 → Γ ⊢ unitrec p q A starʷ u ⇒ u ∷ A [ starʷ ]₀
   unitrec-β-η   : Γ »∙ Unitʷ ⊢ A
                 → Γ ⊢ t ∷ Unitʷ
                 → Γ ⊢ u ∷ A [ starʷ ]₀
-                → Unitʷ-allowed
                 → Unitʷ-η
                 → Γ ⊢ unitrec p q A t u ⇒ u ∷ A [ t ]₀
 
@@ -648,14 +724,12 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a wher
   prodrec-subst  : Γ »∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                  → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                  → Γ ⊢ t ⇒ t′ ∷ Σʷ p , q′ ▷ F ▹ G
-                 → Σʷ-allowed p q′
                  → Γ ⊢ prodrec r p q A t u ⇒ prodrec r p q A t′ u ∷ A [ t ]₀
   prodrec-β      : Γ »∙ Σʷ p , q′ ▷ F ▹ G ⊢ A
                  → Γ ⊢ t ∷ F
                  → Γ ⊢ t′ ∷ G [ t ]₀
                  → Γ »∙ F »∙ G ⊢ u ∷ A [ prodʷ p (var x1) (var x0) ]↑²
                  → p PE.≡ p′
-                 → Σʷ-allowed p q′
                  → Γ ⊢ prodrec r p q A (prodʷ p′ t t′) u ⇒
                        u [ t , t′ ]₁₀ ∷ A [ prodʷ p′ t t′ ]₀
 
@@ -710,6 +784,34 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a wher
                  → let open Erased k in
                    Γ ⊢ []-cong k l A t t′ rfl ⇒ rfl ∷
                      Id (Erased l A) ([ t ]) ([ t′ ])
+
+  resp-η         : Equality-reflection
+                 → Γ ⊢ Quot A B
+                 → Γ ⊢ t ∷ A
+                 → Γ ⊢ u ∷ A
+                 → Γ ⊢ v ∷ B [ t , u ]₁₀
+                 → Γ ⊢ resp A B t u v ⇒ rfl ∷
+                   Id (Quot A B) (class t) (class u)
+  set-η          : Equality-reflection
+                 → Γ ⊢ t ∷ Quot A B
+                 → Γ ⊢ u ∷ Quot A B
+                 → Γ ⊢ v ∷ Id (Quot A B) t u
+                 → Γ ⊢ w ∷ Id (Quot A B) t u
+                 → Γ ⊢ set A B t u v w ⇒ rfl ∷
+                   Id (Id (Quot A B) t u) v w
+  qrec-subst     : Γ »∙ Quot A B ⊢ C
+                 → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
+                 → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
+                 → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
+                 → Γ ⊢ w₁ ⇒ w₂ ∷ Quot A B
+                 → Γ ⊢ qrec C t u v w₁ ⇒ qrec C t u v w₂ ∷ C [ w₁ ]₀
+  qrec-β         : Γ »∙ Quot A B ⊢ C
+                 → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
+                 → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
+                 → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
+                 → Γ ⊢ w ∷ A
+                 → Γ ⊢ qrec C t u v (class w) ⇒ t [ w ]₀ ∷
+                   C [ class w ]₀
 
 -- Type reduction.
 
