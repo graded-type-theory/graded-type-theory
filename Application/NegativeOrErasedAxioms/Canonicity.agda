@@ -37,6 +37,7 @@ open Usage-restrictions UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Reduction.Zero-one variant TR UR
 open import Graded.Usage UR
 open import Graded.Usage.Inversion UR
@@ -208,7 +209,7 @@ neNeg
   NegativeType Γ (A [ t ]₀)               □ }
 neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
   case inv-usage-J ▸J of λ where
-    (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ _ ▸w γ≤) →
+    (invUsageJ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ ▸w γ≤) →
       NegativeErasedContext Γ γ                                    →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
       NegativeErasedContext Γ (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆))  →⟨ NegativeErasedContext-upwards-closed $
                                                                       ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
@@ -220,19 +221,19 @@ neNeg {γ} (Jⱼ {t} {A} {B} {v} {w} ⊢t _ _ ⊢v ⊢w) (Jₙ w-ne) ▸J =
       NegativeType Γ (Id A t v)                                    →⟨ flip ¬negId (refl (Idⱼ′ ⊢t ⊢v)) ⟩
       ⊥                                                            →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v , w ]₁₀)                               □
-    (invUsageJ₀₁ em _ _ _ _ _ _ _ _ _) →
+    (invUsageJ₀₁ ⦃ (em) ⦄ _ _ _ _ _ _ _ _ _) →
       case
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
       of λ ()
-    (invUsageJ₀₂ em _ _ _ _ _ _ _) →
+    (invUsageJ₀₂ ⦃ (em) ⦄ _ _ _ _ _ _ _) →
       case
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₁)
         of λ ()
 neNeg {γ} (Kⱼ {A} {t} {B} {v} _ _ ⊢v ok) (Kₙ v-ne) ▸K =
   case inv-usage-K ▸K of λ where
-    (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ _ ▸v γ≤) →
+    (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} _ _ _ _ _ ▸v γ≤) →
       NegativeErasedContext Γ γ                              →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
       NegativeErasedContext Γ (ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅))  →⟨ NegativeErasedContext-upwards-closed $
                                                                 ≤ᶜ-trans ω·ᶜ+ᶜ≤ω·ᶜʳ $
@@ -243,12 +244,12 @@ neNeg {γ} (Kⱼ {A} {t} {B} {v} _ _ ⊢v ok) (Kₙ v-ne) ▸K =
       NegativeType Γ (Id A t t)                              →⟨ flip ¬negId (refl (wf-⊢ ⊢v)) ⟩
       ⊥                                                      →⟨ ⊥-elim ⟩
       NegativeType Γ (B [ v ]₀)                              □
-    (invUsageK₀₁ em _ _ _ _ _ _ _) →
+    (invUsageK₀₁ ⦃ (em) ⦄ _ _ _ _ _ _ _) →
       case
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
       of λ ()
-    (invUsageK₀₂ em _ _ _ _ _ _) →
+    (invUsageK₀₂ ⦃ (em) ⦄ _ _ _ _ _ _) →
       case
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)

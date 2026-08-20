@@ -30,7 +30,7 @@ open import Graded.Modality.Instances.Linearity
   using (linearityModality)
 open import Graded.Modality.Instances.Unit using (UnitModality)
 open import Graded.Modality.Instances.Zero-one-many
-  using (𝟘; 𝟙; ω; zero-one-many-modality)
+  using (𝟘; 𝟙; ω; zero-one-many-modality; zero-one-many-has-omega)
 open import Graded.Modality.Morphism.Examples
 open import Graded.Modality.Morphism.Type-restrictions
 import Graded.Modality.Properties
@@ -52,6 +52,14 @@ private variable
   𝐌₁ 𝐌₂     : IsMode _ _
   tr tr-Σ     : M₁ → M₂
   v₁-ok v₂-ok : ¬ _
+
+-- An instance used below
+
+private instance
+  zero-one-many-has-omega′ : Has-omega _ (zero-one-many-modality 𝟙≤𝟘)
+  zero-one-many-has-omega′ = zero-one-many-has-omega _
+
+  {-# OVERLAPPABLE zero-one-many-has-omega′ #-}
 
 ------------------------------------------------------------------------
 -- Preserving/reflecting no type restrictions
@@ -231,17 +239,18 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘 tr-𝟘 r = record
 -- second-ΠΣ-quantities-𝟘-or-ω, given that certain assumptions hold.
 
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
+  ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄ ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
   (Modality.𝟙 𝕄₁ ≢ Modality.𝟘 𝕄₁ →
    tr (Modality.𝟘 𝕄₁) ≡ Modality.𝟘 𝕄₂) →
-  (∀ {p} → tr p ≡ Modality.ω 𝕄₂ ⇔ p ≡ Modality.ω 𝕄₁) →
-  (∀ {p} → tr-Σ p ≡ Modality.ω 𝕄₂ ⇔ p ≡ Modality.ω 𝕄₁) →
+  (∀ {p} → tr p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
+  (∀ {p} → tr-Σ p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
   Are-preserving-type-restrictions R₁ R₂ tr tr-Σ →
   Are-preserving-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
     tr tr-Σ
 Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {𝕄₁} {tr} {𝕄₂} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
+  {𝕄₁} {𝕄₂} {tr} {tr-Σ} ⦃ has-ω₁ ⦄ ⦃ has-ω₂ ⦄ tr-𝟘 tr-ω tr-Σ-ω r = record
   { unfolding-mode-preserved = unfolding-mode-preserved
   ; level-support-preserved  = level-support-preserved
   ; Omega-plus-preserved     = Omega-plus-preserved
@@ -262,23 +271,23 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
 
   lemma₁ :
     ∀ {p q} b →
-    (p ≡ M₁.ω → q ≡ M₁.ω) →
-    tr-BinderMode tr tr-Σ b p ≡ M₂.ω → tr q ≡ M₂.ω
+    (p ≡ Has-omega.ω has-ω₁ → q ≡ Has-omega.ω has-ω₁) →
+    tr-BinderMode tr tr-Σ b p ≡ Has-omega.ω has-ω₂ → tr q ≡ Has-omega.ω has-ω₂
   lemma₁ {p = p} {q = q} BMΠ hyp =
-    tr p ≡ M₂.ω  →⟨ tr-ω .proj₁ ⟩
-    p ≡ M₁.ω     →⟨ hyp ⟩
-    q ≡ M₁.ω     →⟨ tr-ω .proj₂ ⟩
-    tr q ≡ M₂.ω  □
+    tr p ≡ Has-omega.ω has-ω₂  →⟨ tr-ω .proj₁ ⟩
+    p ≡ Has-omega.ω has-ω₁    →⟨ hyp ⟩
+    q ≡ Has-omega.ω has-ω₁    →⟨ tr-ω .proj₂ ⟩
+    tr q ≡ Has-omega.ω has-ω₂ □
   lemma₁ {p = p} {q = q} (BMΣ _) hyp =
-    tr-Σ p ≡ M₂.ω  →⟨ tr-Σ-ω .proj₁ ⟩
-    p ≡ M₁.ω       →⟨ hyp ⟩
-    q ≡ M₁.ω       →⟨ tr-ω .proj₂ ⟩
-    tr q ≡ M₂.ω    □
+    tr-Σ p ≡ Has-omega.ω has-ω₂ →⟨ tr-Σ-ω .proj₁ ⟩
+    p ≡ Has-omega.ω has-ω₁      →⟨ hyp ⟩
+    q ≡ Has-omega.ω has-ω₁      →⟨ tr-ω .proj₂ ⟩
+    tr q ≡ Has-omega.ω has-ω₂   □
 
   lemma₂ :
     ∀ {p q} →
-    (p ≢ M₁.ω → q ≡ M₁.𝟘) →
-    p ≢ M₁.ω → tr q ≡ M₂.𝟘
+    (p ≢ Has-omega.ω has-ω₁ → q ≡ M₁.𝟘) →
+    p ≢ Has-omega.ω has-ω₁ → tr q ≡ M₂.𝟘
   lemma₂ {p = p} {q = q} hyp p≢ω₁ =
     case hyp p≢ω₁ of λ {
       refl →
@@ -286,32 +295,33 @@ Are-preserving-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
 
   lemma₃ :
     ∀ {p q} b →
-    (p ≢ M₁.ω → q ≡ M₁.𝟘) →
-    tr-BinderMode tr tr-Σ b p ≢ M₂.ω → tr q ≡ M₂.𝟘
+    (p ≢ Has-omega.ω has-ω₁ → q ≡ M₁.𝟘) →
+    tr-BinderMode tr tr-Σ b p ≢ Has-omega.ω has-ω₂ → tr q ≡ M₂.𝟘
   lemma₃ {p = p} {q = q} BMΠ hyp =
-    tr p ≢ M₂.ω  →⟨ _∘→ tr-ω .proj₂ ⟩
-    p ≢ M₁.ω     →⟨ lemma₂ hyp ⟩
-    tr q ≡ M₂.𝟘  □
+    tr p ≢ Has-omega.ω has-ω₂ →⟨ _∘→ tr-ω .proj₂ ⟩
+    p ≢ Has-omega.ω has-ω₁    →⟨ lemma₂ hyp ⟩
+    tr q ≡ M₂.𝟘               □
   lemma₃ {p = p} {q = q} (BMΣ _) hyp =
-    tr-Σ p ≢ M₂.ω  →⟨ _∘→ tr-Σ-ω .proj₂ ⟩
-    p ≢ M₁.ω       →⟨ lemma₂ hyp ⟩
-    tr q ≡ M₂.𝟘    □
+    tr-Σ p ≢ Has-omega.ω has-ω₂ →⟨ _∘→ tr-Σ-ω .proj₂ ⟩
+    p ≢ Has-omega.ω has-ω₁      →⟨ lemma₂ hyp ⟩
+    tr q ≡ M₂.𝟘                 □
 
 -- If the functions tr and tr-Σ reflect certain type restrictions,
 -- then they also do this for certain type restrictions obtained using
 -- second-ΠΣ-quantities-𝟘-or-ω, given that certain assumptions hold.
 
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω :
+  ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄ ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
   (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) →
-  (∀ {p} → tr p ≡ Modality.ω 𝕄₂ ⇔ p ≡ Modality.ω 𝕄₁) →
-  (∀ {p} → tr-Σ p ≡ Modality.ω 𝕄₂ ⇔ p ≡ Modality.ω 𝕄₁) →
+  (∀ {p} → tr p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
+  (∀ {p} → tr-Σ p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
   Are-reflecting-type-restrictions R₁ R₂ tr tr-Σ →
   Are-reflecting-type-restrictions
     (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ 𝐌₂ R₂)
     tr tr-Σ
 Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
-  {tr} {𝕄₂} {𝕄₁} {tr-Σ} tr-𝟘 tr-ω tr-Σ-ω r = record
+  {𝕄₁} {𝕄₂} {tr} {tr-Σ} ⦃ has-ω₁ ⦄ ⦃ has-ω₂ ⦄ tr-𝟘 tr-ω tr-Σ-ω r = record
   { unfolding-mode-reflected = unfolding-mode-reflected
   ; level-support-reflected  = level-support-reflected
   ; Unitʷ-η-reflected        = Unitʷ-η-reflected
@@ -330,33 +340,33 @@ Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
 
   lemma₁ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≡ M₂.ω → tr q ≡ M₂.ω) →
-    p ≡ M₁.ω → q ≡ M₁.ω
+    (tr-BinderMode tr tr-Σ b p ≡ Has-omega.ω has-ω₂ → tr q ≡ Has-omega.ω has-ω₂) →
+    p ≡ Has-omega.ω has-ω₁ → q ≡ Has-omega.ω has-ω₁
   lemma₁ {p = p} {q = q} BMΠ hyp =
-    p ≡ M₁.ω     →⟨ tr-ω .proj₂ ⟩
-    tr p ≡ M₂.ω  →⟨ hyp ⟩
-    tr q ≡ M₂.ω  →⟨ tr-ω .proj₁ ⟩
-    q ≡ M₁.ω     □
+    p ≡ Has-omega.ω has-ω₁    →⟨ tr-ω .proj₂ ⟩
+    tr p ≡ Has-omega.ω has-ω₂ →⟨ hyp ⟩
+    tr q ≡ Has-omega.ω has-ω₂ →⟨ tr-ω .proj₁ ⟩
+    q ≡ Has-omega.ω has-ω₁    □
   lemma₁ {p = p} {q = q} (BMΣ _) hyp =
-    p ≡ M₁.ω       →⟨ tr-Σ-ω .proj₂ ⟩
-    tr-Σ p ≡ M₂.ω  →⟨ hyp ⟩
-    tr q ≡ M₂.ω    →⟨ tr-ω .proj₁ ⟩
-    q ≡ M₁.ω       □
+    p ≡ Has-omega.ω has-ω₁      →⟨ tr-Σ-ω .proj₂ ⟩
+    tr-Σ p ≡ Has-omega.ω has-ω₂ →⟨ hyp ⟩
+    tr q ≡ Has-omega.ω has-ω₂   →⟨ tr-ω .proj₁ ⟩
+    q ≡ Has-omega.ω has-ω₁      □
 
   lemma₂ :
     ∀ {p q} b →
-    (tr-BinderMode tr tr-Σ b p ≢ M₂.ω → tr q ≡ M₂.𝟘) →
-    p ≢ M₁.ω → q ≡ M₁.𝟘
+    (tr-BinderMode tr tr-Σ b p ≢ Has-omega.ω has-ω₂ → tr q ≡ M₂.𝟘) →
+    p ≢ Has-omega.ω has-ω₁ → q ≡ M₁.𝟘
   lemma₂ {p = p} {q = q} BMΠ hyp =
-    p ≢ M₁.ω     →⟨ _∘→ tr-ω .proj₁ ⟩
-    tr p ≢ M₂.ω  →⟨ hyp ⟩
-    tr q ≡ M₂.𝟘  →⟨ tr-𝟘 ⟩
-    q ≡ M₁.𝟘     □
+    p ≢ Has-omega.ω has-ω₁    →⟨ _∘→ tr-ω .proj₁ ⟩
+    tr p ≢ Has-omega.ω has-ω₂ →⟨ hyp ⟩
+    tr q ≡ M₂.𝟘               →⟨ tr-𝟘 ⟩
+    q ≡ M₁.𝟘                  □
   lemma₂ {p = p} {q = q} (BMΣ _) hyp =
-    p ≢ M₁.ω       →⟨ _∘→ tr-Σ-ω .proj₁ ⟩
-    tr-Σ p ≢ M₂.ω  →⟨ hyp ⟩
-    tr q ≡ M₂.𝟘    →⟨ tr-𝟘 ⟩
-    q ≡ M₁.𝟘       □
+    p ≢ Has-omega.ω has-ω₁      →⟨ _∘→ tr-Σ-ω .proj₁ ⟩
+    tr-Σ p ≢ Has-omega.ω has-ω₂ →⟨ hyp ⟩
+    tr q ≡ M₂.𝟘                 →⟨ tr-𝟘 ⟩
+    q ≡ M₁.𝟘                    □
 
 opaque
 
@@ -970,7 +980,7 @@ erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω :
     (second-ΠΣ-quantities-𝟘-or-ω ErasureModality 𝐌₁ R₁)
     (second-ΠΣ-quantities-𝟘-or-ω (zero-one-many-modality 𝟙≤𝟘) 𝐌₂ R₂)
     erasure→zero-one-many erasure→zero-one-many
-erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω {𝐌₁} {𝐌₂} =
+erasure→zero-one-many-reflects-second-ΠΣ-quantities-𝟘-or-ω  {𝐌₁} {𝐌₂} =
   Are-reflecting-type-restrictions-second-ΠΣ-quantities-𝟘-or-ω
     {𝐌₁ = 𝐌₁} {𝐌₂ = 𝐌₂}
     (λ where

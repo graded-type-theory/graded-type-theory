@@ -45,9 +45,11 @@ open import Definition.Untyped M hiding (head)
 open import Definition.Untyped.Names-below M using (No-names)
 
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Mode
 open import Graded.Modality.Properties.Subtraction 𝕄
 open import Graded.Usage.Erased-matches
+open import Graded.Usage.Restrictions.Instance UR
 
 private variable
   n n′ m m′ m″ n″ k : Nat
@@ -169,9 +171,11 @@ data ∣J_,_,_∣≡_ : Erased-matches → M → M → M → Set a where
   J-all   : ∣J all  , p , q ∣≡ 𝟘
   J-some₀ : p ≡ 𝟘 → q ≡ 𝟘 →
             ∣J some , p , q ∣≡ 𝟘
-  J-some  : ¬ (p ≡ 𝟘 × q ≡ 𝟘) →
+  J-some  : ⦃ ok : JK-with-omega ⦄ →
+            ¬ (p ≡ 𝟘 × q ≡ 𝟘) →
             ∣J some , p , q ∣≡ ω
-  J-none  : ∣J none , p , q ∣≡ ω
+  J-none  : ⦃ ok : JK-with-omega ⦄ →
+            ∣J none , p , q ∣≡ ω
 
 -- The multiplicity of the Kₑ continuation, depending on which
 -- erased matches are used.
@@ -180,9 +184,11 @@ data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
   K-all   : ∣K all  , p ∣≡ 𝟘
   K-some₀ : p ≡ 𝟘 →
             ∣K some , p ∣≡ 𝟘
-  K-some  : p ≢ 𝟘 →
+  K-some  : ⦃ ok : JK-with-omega ⦄ →
+            p ≢ 𝟘 →
             ∣K some , p ∣≡ ω
-  K-none  : ∣K none , p ∣≡ ω
+  K-none  : ⦃ ok : JK-with-omega ⦄ →
+            ∣K none , p ∣≡ ω
 
 -- Multiplicity of an continuation, representing how many copies need to
 -- be evaluated.

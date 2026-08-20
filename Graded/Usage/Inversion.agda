@@ -21,6 +21,7 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Usage R
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Instance R
@@ -639,7 +640,7 @@ data InvUsageJ
        (B : Term (2+ n)) (u t′ v : Term n) : Set (a ⊔ a′) where
   invUsageJ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
-    erased-matches-for-J m ≤ᵉᵐ some →
+    ⦃ ≤some : erased-matches-for-J m ≤ᵉᵐ some ⦄ →
     (erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘)) →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
@@ -651,7 +652,7 @@ data InvUsageJ
     InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀₁ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
-    erased-matches-for-J m ≡ some →
+    ⦃ ≡some : erased-matches-for-J m ≡ some ⦄ →
     p ≡ 𝟘 →
     q ≡ 𝟘 →
     γ₁ ▸[ 𝟘ᵐ ] A →
@@ -664,7 +665,7 @@ data InvUsageJ
     InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀₂ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
-    erased-matches-for-J m ≡ all →
+    ⦃ ≡all : erased-matches-for-J m ≡ all ⦄ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] B →
@@ -678,19 +679,19 @@ data InvUsageJ
 
 inv-usage-J :
   γ ▸[ m ] J p q A t B u t′ v → InvUsageJ γ m p q A t B u t′ v
-inv-usage-J (Jₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸t′ ▸v) =
-  invUsageJ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
-inv-usage-J (J₀ₘ₁ ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′ ▸v) =
-  invUsageJ₀₁ ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
-inv-usage-J (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) =
-  invUsageJ₀₂ ok ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
+inv-usage-J (Jₘ ok ▸A ▸t ▸B ▸u ▸t′ ▸v) =
+  invUsageJ ok ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
+inv-usage-J (J₀ₘ₁ p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′ ▸v) =
+  invUsageJ₀₁ p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
+inv-usage-J (J₀ₘ₂ ▸A ▸t ▸B ▸u ▸t′ ▸v) =
+  invUsageJ₀₂ ▸A ▸t ▸B ▸u ▸t′ ▸v ≤ᶜ-refl
 inv-usage-J (sub γ′▸ γ≤γ′) with inv-usage-J γ′▸
-... | invUsageJ ok₁ ok₂ ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
-  invUsageJ ok₁ ok₂ ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
-... | invUsageJ₀₁ ok p≡𝟘 q≡𝟘 ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
-  invUsageJ₀₁ ok p≡𝟘 q≡𝟘 ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
-... | invUsageJ₀₂ ok ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
-  invUsageJ₀₂ ok ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageJ ok ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
+  invUsageJ ok ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageJ₀₁ p≡𝟘 q≡𝟘 ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
+  invUsageJ₀₁ p≡𝟘 q≡𝟘 ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageJ₀₂ ▸t ▸B ▸u ▸t′ ▸v ▸A γ′≤ =
+  invUsageJ₀₂ ▸t ▸B ▸u ▸t′ ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
 
 -- A type used to state inv-usage-K.
 
@@ -699,7 +700,7 @@ data InvUsageK
        (B : Term (1+ n)) (u v : Term n) : Set (a ⊔ a′) where
   invUsageK :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
-    erased-matches-for-K m ≤ᵉᵐ some →
+    ⦃ ≤some : erased-matches-for-K m ≤ᵉᵐ some ⦄ →
     (erased-matches-for-K m ≡ some → p ≢ 𝟘) →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
@@ -710,7 +711,7 @@ data InvUsageK
     InvUsageK γ m p A t B u v
   invUsageK₀₁ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
-    erased-matches-for-K m ≡ some →
+    ⦃ ≡some : erased-matches-for-K m ≡ some ⦄ →
     p ≡ 𝟘 →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ 𝟘ᵐ ] t →
@@ -721,7 +722,7 @@ data InvUsageK
     InvUsageK γ m p A t B u v
   invUsageK₀₂ :
     {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
-    erased-matches-for-K m ≡ all →
+    ⦃ ≡all : erased-matches-for-K m ≡ all ⦄ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ 𝟘ᵐ ] t →
     γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] B →
@@ -733,19 +734,19 @@ data InvUsageK
 -- A usage inversion lemma for K.
 
 inv-usage-K : γ ▸[ m ] K p A t B u v → InvUsageK γ m p A t B u v
-inv-usage-K (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v) =
-  invUsageK ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
-inv-usage-K (K₀ₘ₁ ok p≡𝟘 ▸A ▸t ▸B ▸u ▸v) =
-  invUsageK₀₁ ok p≡𝟘 ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
-inv-usage-K (K₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸v) =
-  invUsageK₀₂ ok ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
+inv-usage-K (Kₘ ok ▸A ▸t ▸B ▸u ▸v) =
+  invUsageK ok ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
+inv-usage-K (K₀ₘ₁ p≡𝟘 ▸A ▸t ▸B ▸u ▸v) =
+  invUsageK₀₁ p≡𝟘 ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
+inv-usage-K (K₀ₘ₂ ▸A ▸t ▸B ▸u ▸v) =
+  invUsageK₀₂ ▸A ▸t ▸B ▸u ▸v ≤ᶜ-refl
 inv-usage-K (sub γ′▸ γ≤γ′) with inv-usage-K γ′▸
-... | invUsageK ok₁ ok₂ ▸t ▸B ▸u ▸v ▸A γ′≤ =
-  invUsageK ok₁ ok₂ ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
-... | invUsageK₀₁ ok p≡𝟘 ▸t ▸B ▸u ▸v ▸A γ′≤ =
-  invUsageK₀₁ ok p≡𝟘 ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
-... | invUsageK₀₂ ok ▸t ▸B ▸u ▸v ▸A γ′≤ =
-  invUsageK₀₂ ok ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageK ok ▸t ▸B ▸u ▸v ▸A γ′≤ =
+  invUsageK ok ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageK₀₁ p≡𝟘 ▸t ▸B ▸u ▸v ▸A γ′≤ =
+  invUsageK₀₁ p≡𝟘 ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
+... | invUsageK₀₂ ▸t ▸B ▸u ▸v ▸A γ′≤ =
+  invUsageK₀₂ ▸t ▸B ▸u ▸v ▸A (≤ᶜ-trans γ≤γ′ γ′≤)
 
 -- A type used to state inv-usage-[]-cong.
 

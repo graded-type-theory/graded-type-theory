@@ -131,3 +131,29 @@ opaque
   some≤ᵉᵐ→ {(none)} ()
   some≤ᵉᵐ→ {(all)}  _ = inj₁ refl
   some≤ᵉᵐ→ {(some)} _ = inj₂ refl
+
+opaque
+
+  -- Erased-matches is a set.
+
+  Erased-matches-set :
+    (p q : em₁ ≡ em₂) → p ≡ q
+  Erased-matches-set {(none)} {(none)} refl refl = refl
+  Erased-matches-set {(all)} {not-none x₁} refl refl = refl
+  Erased-matches-set {(some)} {not-none x₁} refl refl = refl
+  Erased-matches-set {(none)} {not-none x} ()
+  Erased-matches-set {not-none x} {(none)} ()
+
+opaque
+
+  -- The order for Erased-matches is propositional
+
+  ≤ᵉᵐ-propositional :
+    (p q : em₁ ≤ᵉᵐ em₂) → p ≡ q
+  ≤ᵉᵐ-propositional {(none)} tt tt = refl
+  ≤ᵉᵐ-propositional {(all)} {(none)} ()
+  ≤ᵉᵐ-propositional {(some)} {(none)} ()
+  ≤ᵉᵐ-propositional {(all)} {(all)} tt tt = refl
+  ≤ᵉᵐ-propositional {(all)} {(some)} ()
+  ≤ᵉᵐ-propositional {(some)} {(all)} tt tt = refl
+  ≤ᵉᵐ-propositional {(some)} {(some)} tt tt = refl

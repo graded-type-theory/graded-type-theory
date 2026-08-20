@@ -19,11 +19,13 @@ open Usage-restrictions UR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Substitution.Properties UR
 open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Properties UR
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Usage.Weakening UR
 
 open import Definition.Untyped M
@@ -50,6 +52,7 @@ opaque
   -- A usage rule for subst.
 
   ▸subst :
+    ⦃ ok : JK-with-omega ⦄ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ∙ ⌜ m ⌝ · p ▸[ m ] B →
     γ₃ ▸[ m ] t →
@@ -80,6 +83,7 @@ opaque
   -- A usage rule for subst 𝟘.
 
   ▸subst-𝟘 :
+    ⦃ ok : JK-with-omega ⦄ →
     erased-matches-for-J m ≡ not-none sem →
     γ₁ ▸[ m₁ ] A →
     γ₂ ∙ 𝟘 ▸[ m ] B →
@@ -98,6 +102,7 @@ opaque
   -- A usage rule for cong.
 
   ▸cong :
+    ⦃ ok : JK-with-omega ⦄ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
@@ -166,6 +171,7 @@ opaque
   -- A usage rule for cong 𝟘.
 
   ▸cong-𝟘 :
+    ⦃ ok : JK-with-omega ⦄ →
     erased-matches-for-J m ≡ not-none sem →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →

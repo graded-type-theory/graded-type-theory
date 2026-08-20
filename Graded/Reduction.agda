@@ -24,6 +24,7 @@ open Usage-restrictions UR
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Substitution.Properties UR
 open import Graded.Usage UR
@@ -382,29 +383,29 @@ module Subject-reduction
 
   usagePresTerm ▸∇ γ▸ (J-subst _ _ _ _ v⇒v′) =
     case inv-usage-J γ▸ of λ where
-      (invUsageJ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
-        (Jₘ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸t′ (usagePresTerm ▸∇ ▸v v⇒v′))
+      (invUsageJ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
+        (Jₘ ok ▸A ▸t ▸B ▸u ▸t′ (usagePresTerm ▸∇ ▸v v⇒v′))
         γ≤
-      (invUsageJ₀₁ ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
-        (J₀ₘ₁ ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′
+      (invUsageJ₀₁ p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
+        (J₀ₘ₁ p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸t′
            (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
         γ≤
-      (invUsageJ₀₂ ok ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
-        (J₀ₘ₂ ok ▸A ▸t ▸B ▸u ▸t′
+      (invUsageJ₀₂ ▸A ▸t ▸B ▸u ▸t′ ▸v γ≤) → sub
+        (J₀ₘ₂ ▸A ▸t ▸B ▸u ▸t′
            (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
         γ≤
 
   usagePresTerm ▸∇ γ▸ (K-subst _ _ v⇒v′ _) =
     case inv-usage-K γ▸ of λ where
-      (invUsageK ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v γ≤) → sub
-        (Kₘ ok₁ ok₂ ▸A ▸t ▸B ▸u (usagePresTerm ▸∇ ▸v v⇒v′))
+      (invUsageK ok ▸A ▸t ▸B ▸u ▸v γ≤) → sub
+        (Kₘ ok ▸A ▸t ▸B ▸u (usagePresTerm ▸∇ ▸v v⇒v′))
         γ≤
-      (invUsageK₀₁ ok p≡𝟘 ▸A ▸t ▸B ▸u ▸v γ≤) → sub
-        (K₀ₘ₁ ok p≡𝟘 ▸A ▸t ▸B ▸u
+      (invUsageK₀₁ p≡𝟘 ▸A ▸t ▸B ▸u ▸v γ≤) → sub
+        (K₀ₘ₁ p≡𝟘 ▸A ▸t ▸B ▸u
            (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
         γ≤
-      (invUsageK₀₂ ok ▸A ▸t ▸B ▸u ▸v γ≤) → sub
-        (K₀ₘ₂ ok ▸A ▸t ▸B ▸u (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
+      (invUsageK₀₂ ▸A ▸t ▸B ▸u ▸v γ≤) → sub
+        (K₀ₘ₂ ▸A ▸t ▸B ▸u (usagePresTerm (ε-▸-𝟘ᵐ ∘→ ▸∇) ▸v v⇒v′))
         γ≤
 
   usagePresTerm ▸∇ γ▸ ([]-cong-subst _ v⇒v′ _) =
@@ -417,7 +418,7 @@ module Subject-reduction
   usagePresTerm {γ} _ γ▸ (J-β _ _ _ _ _ _) =
     case inv-usage-J γ▸ of λ where
       (invUsageJ {γ₂ = γ₂} {γ₃ = γ₃} {γ₄ = γ₄} {γ₅ = γ₅} {γ₆ = γ₆}
-         _ _ _ _ _ ▸u _ _ γ≤) → sub
+         _ _ _ _ ▸u _ _ γ≤) → sub
         ▸u
         (begin
            γ                                  ≤⟨ γ≤ ⟩
@@ -426,14 +427,14 @@ module Subject-reduction
                                                  ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
            ω ·ᶜ γ₄                            ≤⟨ ω·ᶜ-decreasing ⟩
            γ₄                                 ∎)
-      (invUsageJ₀₁ {γ₃} {γ₄} _ _ _ _ _ _ ▸u _ _ γ≤) → sub
+      (invUsageJ₀₁ {γ₃} {γ₄} _ _ _ _ _ ▸u _ _ γ≤) → sub
         ▸u
         (begin
            γ                ≤⟨ γ≤ ⟩
            ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
            ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
            γ₄               ∎)
-      (invUsageJ₀₂ _ _ _ _ ▸u _ _ γ≤) →
+      (invUsageJ₀₂ _ _ _ ▸u _ _ γ≤) →
         sub ▸u γ≤
     where
     open import Tools.Reasoning.PartialOrder ≤ᶜ-poset
@@ -441,7 +442,7 @@ module Subject-reduction
   usagePresTerm {γ} _ γ▸ (K-β _ _ _) =
     case inv-usage-K γ▸ of λ where
       (invUsageK {γ₂ = γ₂} {γ₃ = γ₃} {γ₄ = γ₄} {γ₅ = γ₅}
-         _ _ _ _ _ ▸u _ γ≤) → sub
+         _ _ _ _ ▸u _ γ≤) → sub
         ▸u
         (begin
            γ                            ≤⟨ γ≤ ⟩
@@ -450,14 +451,14 @@ module Subject-reduction
                                            ω·ᶜ+ᶜ≤ω·ᶜˡ ⟩
            ω ·ᶜ γ₄                      ≤⟨ ω·ᶜ-decreasing ⟩
            γ₄                           ∎)
-      (invUsageK₀₁ {γ₃} {γ₄} _ _ _ _ _ ▸u _ γ≤) → sub
+      (invUsageK₀₁ {γ₃} {γ₄} _ _ _ _ ▸u _ γ≤) → sub
         ▸u
         (begin
            γ                ≤⟨ γ≤ ⟩
            ω ·ᶜ (γ₃ +ᶜ γ₄)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
            ω ·ᶜ γ₄          ≤⟨ ω·ᶜ-decreasing ⟩
            γ₄               ∎)
-      (invUsageK₀₂ _ _ _ _ ▸u _ γ≤) →
+      (invUsageK₀₂ _ _ _ ▸u _ γ≤) →
         sub ▸u γ≤
     where
     open import Tools.Reasoning.PartialOrder ≤ᶜ-poset

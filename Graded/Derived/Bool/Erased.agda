@@ -16,6 +16,8 @@ module Graded.Derived.Bool.Erased
   (open Usage-restrictions R)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Nr-available ⦄
+  -- It is assumed that the modality has a grade ω.
+  ⦃ has-ω : Has-omega 𝕄 ⦄
   where
 
 open Modality 𝕄
@@ -35,6 +37,7 @@ open import Graded.Derived.Empty R
 open import Graded.Derived.Erased.Usage R 𝕨
 open import Graded.Derived.Nat R
 open import Graded.Usage.Restrictions.Instance R
+  hiding (JK-with-omega-has-omega)
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
 open import Graded.Substitution.Properties R

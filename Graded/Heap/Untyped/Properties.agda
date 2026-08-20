@@ -36,9 +36,12 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
+open import Graded.Usage UR
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Instance UR
+open import Graded.Usage.Restrictions.JK 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Names-below M
@@ -593,8 +596,8 @@ opaque
     ⊥-elim (false (p≡𝟘 , q≡𝟘))
   ∣J∣ᶜ-functional (J-some false) (J-some₀ p≡𝟘 q≡𝟘) =
     ⊥-elim (false (p≡𝟘 , q≡𝟘))
-  ∣J∣ᶜ-functional (J-some _) (J-some _) = refl
-  ∣J∣ᶜ-functional J-none J-none = refl
+  ∣J∣ᶜ-functional (J-some ⦃ (ok) ⦄ _) (J-some ⦃ (ok′) ⦄ _) = ω≡ω ok ok′
+  ∣J∣ᶜ-functional (J-none ⦃ (ok) ⦄) (J-none ⦃ (ok′) ⦄) = ω≡ω ok ok′
 
 opaque
 
@@ -607,8 +610,8 @@ opaque
     ⊥-elim (p≢𝟘 p≡𝟘)
   ∣K∣ᶜ-functional (K-some p≢𝟘) (K-some₀ p≡𝟘) =
     ⊥-elim (p≢𝟘 p≡𝟘)
-  ∣K∣ᶜ-functional (K-some _) (K-some _) = refl
-  ∣K∣ᶜ-functional K-none K-none = refl
+  ∣K∣ᶜ-functional (K-some ⦃ (ok) ⦄ _) (K-some ⦃ (ok′) ⦄ _) = ω≡ω ok ok′
+  ∣K∣ᶜ-functional (K-none ⦃ (ok) ⦄) (K-none ⦃ (ok′) ⦄) = ω≡ω ok ok′
 
 opaque
 
@@ -650,35 +653,43 @@ opaque
 
 opaque
 
-  -- The multiplicity relation for Jₑ is always inhabited
+  -- The multiplicity relation for Jₑ is always inhabited.
 
-  ∣J∣≡ : ∃ λ r → ∣J em , p , q ∣≡ r
-  ∣J∣≡ {em = none} = _ , J-none
-  ∣J∣≡ {em = all} = _ , J-all
-  ∣J∣≡ {em = some} {p} {q} =
+  ∣J∣≡ : ∃ λ r → ∣J erased-matches-for-J mo , p , q ∣≡ r
+  ∣J∣≡ {mo} {p} {q} with erased-matches-for-J mo in ok
+  … | all  = 𝟘 , J-all
+  … | none = _ , J-none ⦃ erased-matches-for-JK-supports-ω (subst (_≤ᵉᵐ some) (sym ok) _) ⦄
+  … | some =
     case is-𝟘? p of λ where
       (yes p≡𝟘) →
         case is-𝟘? q of λ where
-          (yes q≡𝟘) → _ , J-some₀ p≡𝟘 q≡𝟘
-          (no q≢𝟘) → _ , J-some λ (_ , q≡𝟘) → q≢𝟘 q≡𝟘
-      (no p≢𝟘) → _ , J-some (λ (p≡𝟘 , _) → p≢𝟘 p≡𝟘)
+          (yes q≡𝟘) →
+            𝟘 , J-some₀ p≡𝟘 q≡𝟘
+          (no q≢𝟘) →
+            _ , J-some ⦃ erased-matches-for-JK-supports-ω (subst (_≤ᵉᵐ some) (sym ok) _) ⦄ (q≢𝟘 ∘→ proj₂)
+      (no p≢𝟘) →
+        _ , J-some ⦃ erased-matches-for-JK-supports-ω (subst (_≤ᵉᵐ some) (sym ok) _) ⦄ (p≢𝟘 ∘→ proj₁)
 
 opaque
 
-  -- The multiplicity relation for Kₑ is always inhabited
+  -- The multiplicity relation for Kₑ is always inhabited.
 
-  ∣K∣≡ : ∃ λ r → ∣K em , p ∣≡ r
-  ∣K∣≡ {em = none} = _ , K-none
-  ∣K∣≡ {em = all} = _ , K-all
-  ∣K∣≡ {em = some} {p} =
+  ∣K∣≡ : ∃ λ r → ∣K erased-matches-for-K mo , p ∣≡ r
+  ∣K∣≡ {mo} {p} with erased-matches-for-K mo in ok
+  … | all = 𝟘 , K-all
+  … | none = _ , K-none ⦃ erased-matches-for-JK-supports-ω (subst (_≤ᵉᵐ some) (sym ok) _) ⦄
+  … | some =
     case is-𝟘? p of λ where
-      (yes p≡𝟘) → _ , K-some₀ p≡𝟘
-      (no p≢𝟘) → _ , K-some p≢𝟘
+      (yes p≡𝟘) →
+        𝟘 , K-some₀ p≡𝟘
+      (no p≢𝟘) →
+        _ , K-some ⦃ erased-matches-for-JK-supports-ω (subst (_≤ᵉᵐ some) (sym ok) _) ⦄ p≢𝟘
 
 opaque
 
   -- The multiplicity for a continuation c always exists if when c is
-  -- natrecₑ then the usage rule for natrec using an nr function is used.
+  -- natrecₑ then the usage rule for natrec using an nr function is used
+  -- and the usage restrictions allow all kinds of erased matches for J and K.
 
   ∣∣ᶜ≡ :
     (∀ {n p q r A u v ρ} → c ≡ natrecₑ {n = n} p q r A u v ρ → Nr-available) →
@@ -701,9 +712,11 @@ opaque
 
   -- The multiplicity relation for stacks is always inhabited is whenever
   -- the stack contains natrecₑ the usage rule for natrec using nr
-  -- functions is used.
+  -- functions is used and the usage restrictions allow all kinds of
+  -- erased matches for J and K.
 
-  ∣∣≡ : (∀ {p r} → natrec p , r ∈ S → Nr-available) → ∃ ∣ S ∣≡_
+  ∣∣≡ :
+    (∀ {p r} → natrec p , r ∈ S → Nr-available) → ∃ ∣ S ∣≡_
   ∣∣≡ {S = ε} _ = ∣ε∣ , ε
   ∣∣≡ {S = e ∙ S} has-nr =
     let _ , ∣S∣≡ = ∣∣≡ (has-nr ∘→ there)
@@ -715,7 +728,8 @@ opaque
   -- A variant of the above for it assumed that the stack does not
   -- contain any occurences of natrecₑ.
 
-  nr∉-∣∣≡ : (∀ {p r} → ¬ natrec p , r ∈ S) → ∃ ∣ S ∣≡_
+  nr∉-∣∣≡ :
+    (∀ {p r} → ¬ natrec p , r ∈ S) → ∃ ∣ S ∣≡_
   nr∉-∣∣≡ nr∉ = ∣∣≡ (λ nr∈ → ⊥-elim (nr∉ nr∈))
 
 opaque
@@ -731,42 +745,56 @@ opaque
   -- Under some conditions, the multiplicity of Jₑ is ω
 
   ∣J∣≡ω :
-    em ≤ᵉᵐ some → (em ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘)) →
-    ∣J em , p , q ∣≡ ω
-  ∣J∣≡ω {(none)} _ _ = J-none
-  ∣J∣≡ω {(all)} () _
-  ∣J∣≡ω {(some)} _ ≢𝟘 = J-some (≢𝟘 refl)
+    ⦃ ok : erased-matches-for-J mo ≤ᵉᵐ some ⦄ →
+    (erased-matches-for-J mo ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘)) →
+    ∣J erased-matches-for-J mo , p , q ∣≡ ω
+  ∣J∣≡ω ⦃ ok ⦄ ≢𝟘 = lemma _ ok ≢𝟘
+    where
+    lemma :
+      ∀ em → em ≤ᵉᵐ some →
+      (em ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘)) →
+      ∣J em , p , q ∣≡ ω
+    lemma none _ _ = J-none
+    lemma all () _
+    lemma some _ ≢𝟘 = J-some (≢𝟘 refl)
 
 opaque
 
   -- Under some conditions, the multiplicity of Kₑ is ω
 
   ∣K∣≡ω :
-    em ≤ᵉᵐ some → (em ≡ some → p ≢ 𝟘) →
-    ∣K em , p ∣≡ ω
-  ∣K∣≡ω {(none)} _ _ = K-none
-  ∣K∣≡ω {(all)} () _
-  ∣K∣≡ω {(some)} _ ≢𝟘 = K-some (≢𝟘 refl)
+    ⦃ ok : erased-matches-for-K mo ≤ᵉᵐ some ⦄ →
+    (erased-matches-for-K mo ≡ some → ¬ (p ≡ 𝟘)) →
+    ∣K erased-matches-for-K mo , p ∣≡ ω
+  ∣K∣≡ω ⦃ ok ⦄ ≢𝟘 = lemma _ ok ≢𝟘
+    where
+    lemma :
+      ∀ em → em ≤ᵉᵐ some →
+      (em ≡ some → ¬ (p ≡ 𝟘)) →
+      ∣K em , p ∣≡ ω
+    lemma none _ _ = K-none
+    lemma all () _
+    lemma some _ ≢𝟘 = K-some (≢𝟘 refl)
 
 opaque
 
   -- The multiplicity of Kₑ is either 𝟘 or ω
 
-  ∣K∣≡𝟘⊎ω : ∣K em , p ∣≡ q → q ≡ 𝟘 ⊎ q ≡ ω
+  ∣K∣≡𝟘⊎ω : ⦃ ok : JK-with-omega ⦄ → ∣K em , p ∣≡ q → q ≡ 𝟘 ⊎ q ≡ ω
   ∣K∣≡𝟘⊎ω K-all = inj₁ refl
   ∣K∣≡𝟘⊎ω (K-some₀ x) = inj₁ refl
-  ∣K∣≡𝟘⊎ω (K-some x) = inj₂ refl
-  ∣K∣≡𝟘⊎ω K-none = inj₂ refl
+  ∣K∣≡𝟘⊎ω ⦃ ok ⦄ (K-some ⦃ (ok′) ⦄ x) = inj₂ (ω≡ω ok′ ok)
+  ∣K∣≡𝟘⊎ω ⦃ ok ⦄ (K-none ⦃ (ok′) ⦄) = inj₂ (ω≡ω ok′ ok)
 
 opaque
 
   -- The multiplicity of Jₑ is either 𝟘 or ω
 
-  ∣J∣≡𝟘⊎ω : ∣J em , p , q ∣≡ r → r ≡ 𝟘 ⊎ r ≡ ω
+  ∣J∣≡𝟘⊎ω : ⦃ ok : JK-with-omega ⦄ → ∣J em , p , q ∣≡ r → r ≡ 𝟘 ⊎ r ≡ ω
   ∣J∣≡𝟘⊎ω J-all = inj₁ refl
   ∣J∣≡𝟘⊎ω (J-some₀ x x₁) = inj₁ refl
-  ∣J∣≡𝟘⊎ω (J-some x) = inj₂ refl
-  ∣J∣≡𝟘⊎ω J-none = inj₂ refl
+  ∣J∣≡𝟘⊎ω ⦃ ok ⦄ (J-some ⦃ (ok′) ⦄ x) = inj₂ (ω≡ω ok′ ok)
+  ∣J∣≡𝟘⊎ω ⦃ ok ⦄ (J-none ⦃ (ok′) ⦄) = inj₂ (ω≡ω ok′ ok)
 
 opaque
 

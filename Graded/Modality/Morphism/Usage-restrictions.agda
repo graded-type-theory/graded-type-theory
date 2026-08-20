@@ -24,6 +24,7 @@ open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions
 open import Graded.Usage.Restrictions.Natrec
+open import Graded.Usage.Restrictions.JK
 open import Graded.Usage.Restrictions.Instance as RI
 
 open import Definition.Untyped.NotParametrised
@@ -363,6 +364,10 @@ record Common-properties
       m₁ ≈ᵐ m₂ →
       R₁.erased-matches-for-K m₁ ≤ᵉᵐ R₂.erased-matches-for-K m₂
 
+    -- The usage rules for J and K that use grade ω are allowed in
+    -- the target iff it is allowed in the source.
+    JK-with-omega-preserved : R₁.JK-with-omega ⇔ R₂.JK-with-omega
+
   opaque
 
     -- If Nr-available holds in the source usage restrictions then it
@@ -441,6 +446,7 @@ opaque
       .Id-erased-preserved            → id⇔
       .erased-matches-for-J-preserved → ≈ᵐ→≤ᵉᵐ₁
       .erased-matches-for-K-preserved → ≈ᵐ→≤ᵉᵐ₁
+      .JK-with-omega-preserved        → id⇔
     where
     open Common-properties
 
@@ -467,6 +473,8 @@ opaque
       .erased-matches-for-K-preserved →
         ≈ᵐ→≤ᵉᵐ₂ CP₁.𝟘ᵐ-preserved CP₁.erased-matches-for-K-preserved
           CP₂.erased-matches-for-K-preserved
+      .JK-with-omega-preserved →
+        CP₂.JK-with-omega-preserved ∘⇔ CP₁.JK-with-omega-preserved
     where
     open Common-properties
     module CP₁ = Common-properties cp₁
@@ -550,9 +558,16 @@ record Are-preserving-usage-restrictions
       R₁.[]-cong-allowed-mode s m₁ →
       R₂.[]-cong-allowed-mode s m₂
 
+    -- If the source modality supports grade ω then the morphism
+    -- must be omega preserving
+    omega-preserving :
+      ⦃ ok₁ : R₁.JK-with-omega ⦄ ⦃ ok₂ : R₂.JK-with-omega ⦄ →
+      Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr
+
   open Common-properties common-properties public
 
 opaque
+  unfolding Common-properties-reflexive
 
   -- For every value R the identity function preserves
   -- Usage-restrictions for R and R.
@@ -570,6 +585,9 @@ opaque
       .Unitrec-preserved       → ≈ᵐ→→₁
       .Emptyrec-preserved      → ≈ᵐ→→₁
       .[]-cong-mode-preserved  → ≈ᵐ→→₁
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case JK-with-omega-propositional ok₁ ok₂ of λ where
+          refl → Is-omega-preserving-morphism-id
     where
     open Are-preserving-usage-restrictions
     open Usage-restrictions R
@@ -577,6 +595,7 @@ opaque
     open Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
 
 opaque
+  unfolding Common-properties-transitive
 
   -- Composition preserves Are-preserving-usage-restrictions (in a
   -- certain sense).
@@ -622,6 +641,13 @@ opaque
       .[]-cong-mode-preserved →
         ≈ᵐ→→₂ P₂.𝟘ᵐ-preserved P₂.[]-cong-mode-preserved
           P₁.[]-cong-mode-preserved
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ (ok₃) ⦄ →
+        let ok₂ = P₂.JK-with-omega-preserved .proj₁ ok₁
+        in  Is-omega-preserving-morphism-∘ ⦃ _ ⦄
+              ⦃ has-ω₂ = JK-Any-erased-matches-has-omega _ ok₂ ⦄ ⦃ _ ⦄
+              m₁ (P₁.omega-preserving ⦃ ok₁ = ok₂ ⦄)
+                 (P₂.omega-preserving ⦃ ok₂ = ok₂ ⦄)
+
     where
     open Are-preserving-usage-restrictions
     open RI R₁
@@ -728,6 +754,12 @@ record Are-reflecting-usage-restrictions
       m₁ ≈ᵐ m₂ →
       R₂.erased-matches-for-K m₂ ≤ᵉᵐ R₁.erased-matches-for-K m₁
 
+    -- If the target modality supports grade ω then the morphism
+    -- must be omega reflecting.
+    omega-reflecting :
+      ⦃ ok₁ : R₁.JK-with-omega ⦄ ⦃ ok₂ : R₂.JK-with-omega ⦄ →
+      Is-omega-reflecting-morphism 𝕄₁ 𝕄₂ tr
+
   open Common-properties common-properties public
 
   opaque
@@ -762,6 +794,9 @@ opaque
       .[]-cong-mode-reflected         → ≳ᵐ→←₁
       .erased-matches-for-J-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
       .erased-matches-for-K-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
+      .omega-reflecting ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case JK-with-omega-propositional ok₁ ok₂ of λ where
+          refl → Is-omega-reflecting-morphism-id
     where
     open Are-reflecting-usage-restrictions
     open Graded.Modality.Properties 𝕄
@@ -825,6 +860,11 @@ opaque
       .erased-matches-for-K-reflected →
         ≈ᵐ→≥ᵉᵐ₂ R₂.𝟘ᵐ-preserved R₁.erased-matches-for-K-reflected
           R₂.erased-matches-for-K-reflected
+      .omega-reflecting ⦃ ok₁ ⦄ ⦃ (ok₃) ⦄ →
+        let ok₂ = R₂.JK-with-omega-preserved .proj₁ ok₁
+        in  Is-omega-reflecting-morphism-∘ ⦃ _ ⦄
+             ⦃ has-ω₂ = JK-Any-erased-matches-has-omega _ ok₂ ⦄
+             ⦃ _ ⦄ (R₁.omega-reflecting ⦃ ok₁ = ok₂ ⦄) (R₂.omega-reflecting ⦃ ok₂ = ok₂ ⦄)
     where
     open Are-reflecting-usage-restrictions
     module M₁ = Modality 𝕄₁

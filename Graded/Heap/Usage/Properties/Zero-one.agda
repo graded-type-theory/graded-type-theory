@@ -27,7 +27,10 @@ open Modality 𝕄
 open import Definition.Untyped M
 open import Graded.Context 𝕄
 open import Graded.Modality.Nr-instances
+open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
+open import Graded.Usage.Erased-matches
+open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Restrictions.Zero-one 𝕄 mode-variant
 
 open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
@@ -62,8 +65,17 @@ private variable
   e′ : Entry _ _
 
 -- Some properties proven under some assumptions about erased matches
+-- and a well-behaved zero.
 
-module _ (nem : No-erased-matches′ type-variant UR) where
+module _
+  (nem : No-erased-matches′ type-variant UR)
+  ⦃ ok : Has-well-behaved-zero M 𝕄 ⦄
+  where
+
+  private opaque instance
+    jk-ok : JK-with-omega
+    jk-ok = erased-matches-for-JK-supports-ω (subst (_≤ᵉᵐ some)
+              (sym $ nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁) _)
 
   opaque
 
@@ -71,7 +83,6 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- unless it is an erased emptyrec
 
     ▸∣∣ᶜ≢𝟘 :
-      ⦃ Has-well-behaved-zero M 𝕄 ⦄ →
       γ ▸ᶜ[ 𝟙ᵐ ] c →
       ¬ ∣ c ∣ᶜ[ 𝟙ᵐ ]≡ 𝟘 ⊎
       ∃₃ λ n (A : Term n) ρ → c ≡ emptyrecₑ 𝟘 A ρ × Emptyrec-allowed 𝟙ᵐ 𝟘
@@ -95,12 +106,12 @@ module _ (nem : No-erased-matches′ type-variant UR) where
             (no p≢𝟘) → inj₁ (lemma p≢𝟘 emptyrecₑ)
         (Jₑ _) →
           inj₁ (lemma ω≢𝟘
-            (Jₑ (subst (∣J_, _ , _ ∣≡ _)
+            (Jₑ (subst (∣J_, _ , _ ∣≡ ω)
                   (sym (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁))
                   J-none)))
         (Kₑ _) →
           inj₁ (lemma ω≢𝟘
-            (Kₑ (subst (∣K_, _ ∣≡ _)
+            (Kₑ (subst (∣K_, _ ∣≡ ω)
                   (sym (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂))
                   K-none)))
         ([]-congₑ ok) →
@@ -117,8 +128,7 @@ module _ (nem : No-erased-matches′ type-variant UR) where
     -- The multiplicity of a well-resourced stack is either not zero
     -- or contains an erased application of emptyrec
 
-    ▸∣∣≢𝟘 : ⦃ Has-well-behaved-zero M 𝕄 ⦄
-           → γ ▸ˢ S → ¬ ∣ S ∣≡ 𝟘 ⊎ (emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
+    ▸∣∣≢𝟘 :  γ ▸ˢ S → ¬ ∣ S ∣≡ 𝟘 ⊎ (emptyrec 𝟘 ∈ S × Emptyrec-allowed 𝟙ᵐ 𝟘)
     ▸∣∣≢𝟘 ε = inj₁ λ ≡𝟘 → non-trivial (∣∣-functional ε ≡𝟘)
     ▸∣∣≢𝟘 (▸ˢ∙ ∣S∣≡ ▸c ▸S) =
       case ▸∣∣≢𝟘 ▸S of λ where

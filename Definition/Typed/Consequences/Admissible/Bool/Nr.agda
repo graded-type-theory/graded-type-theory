@@ -6,6 +6,7 @@
 open import Definition.Typed.Restrictions
 import Definition.Untyped.Bool.Nr
 open import Graded.Modality
+open import Graded.Modality.Omega-instances
 open import Graded.Mode
 
 module Definition.Typed.Consequences.Admissible.Bool.Nr
@@ -18,6 +19,8 @@ module Definition.Typed.Consequences.Admissible.Bool.Nr
   (open Definition.Untyped.Bool.Nr 𝕄 𝐌)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr _ 𝕄 ⦄
+  -- It is assumed that the modality has grade ω.
+  ⦃ has-ω : Has-omega M 𝕄 ⦄
   -- It is assumed that certain Σ-types are allowed.
   (Σ-ok : Σʷ-allowed ω Boolᵍ)
   -- It is assumed that weak unit types are allowed.

@@ -188,16 +188,6 @@ L≤M≤H = record
   ; _∧_     = _∧_
   ; 𝟘       = H
   ; 𝟙       = L
-  ; ω       = L
-  ; ω≤𝟙     = refl
-  ; ω·+≤ω·ʳ = λ where
-      {p = L}         → refl
-      {p = M} {q = L} → refl
-      {p = M} {q = M} → refl
-      {p = M} {q = H} → refl
-      {p = H} {q = L} → refl
-      {p = H} {q = M} → refl
-      {p = H} {q = H} → refl
   ; is-𝟘? = λ where
       L → no (λ ())
       M → no (λ ())
@@ -441,6 +431,22 @@ instance
         {p = M} {q = H} ()
         {p = H}         _  → refl
     }
+
+-- L≤M≤H has grade ω.
+
+L≤M≤H-has-omega : Has-omega L≤M≤H
+L≤M≤H-has-omega = record
+  { ω       = L
+  ; ω≤𝟙     = refl
+  ; ω·+≤ω·ʳ = λ where
+      {p = L}         → refl
+      {p = M} {q = L} → refl
+      {p = M} {q = M} → refl
+      {p = M} {q = H} → refl
+      {p = H} {q = L} → refl
+      {p = H} {q = M} → refl
+      {p = H} {q = H} → refl
+  }
 
 -- A natrec-star operator can be defined for L≤M≤H.
 

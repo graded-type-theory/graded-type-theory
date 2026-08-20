@@ -43,6 +43,13 @@ private variable
   v₁-ok v₂-ok     : A
   p q₁ q₂ q₃ q₄ r : M
 
+-- An instance used below
+
+private instance
+
+  zero-one-many-has-omega′ : Has-omega _ (zero-one-many-modality 𝟙≤𝟘)
+  zero-one-many-has-omega′ = ZOM.zero-one-many-has-omega _
+
 ------------------------------------------------------------------------
 -- Some translation functions
 
@@ -154,7 +161,6 @@ unit⇨erasure = λ where
     .tr-order-reflecting _ → refl
     .tr-≤                  → _ , refl
     .tr-≤-𝟙 _              → refl
-    .tr-ω                  → refl
     .tr-≤-+ _              → _ , _ , refl , refl , refl
     .tr-≤-· _              → _ , refl , refl
     .tr-≤-∧ _              → _ , _ , refl , refl , refl
@@ -164,7 +170,6 @@ unit⇨erasure = λ where
       .tr-𝟘-≤                               → refl
       .trivial-⊎-tr-≡-𝟘-⇔                   → inj₁ refl
       .tr-𝟙                                 → refl
-      .tr-ω                                 → refl
       .tr-+                                 → refl
       .tr-·                                 → refl
       .tr-∧                                 → refl
@@ -195,7 +200,6 @@ erasure⇨zero-one-many {𝟙≤𝟘} =
   λ where
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-ω                → refl
     .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
     .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
     .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
@@ -209,7 +213,6 @@ erasure⇨zero-one-many {𝟙≤𝟘} =
                                                     , λ { refl → refl }
                                                     )
       .Is-morphism.tr-𝟙                      → refl
-      .Is-morphism.tr-ω                      → refl
       .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-· {p = p}              → tr-· p _
       .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
@@ -311,7 +314,6 @@ zero-one-many⇨erasure {𝟙≤𝟘} = λ where
                                                   , λ { refl → refl }
                                                   )
     .Is-morphism.tr-𝟙                      → refl
-    .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-· {p = p}              → tr-· p _
     .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
@@ -449,7 +451,6 @@ linearity⇨linear-or-affine :
 linearity⇨linear-or-affine = λ where
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-ω                → refl
     .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
     .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
     .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
@@ -462,7 +463,6 @@ linearity⇨linear-or-affine = λ where
                                                     , λ { refl → refl }
                                                     )
       .Is-morphism.tr-𝟙                      → refl
-      .Is-morphism.tr-ω                      → refl
       .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-·                      → tr-· _ _
       .Is-morphism.tr-∧                      → tr-∧ _ _
@@ -651,7 +651,6 @@ linear-or-affine⇨linearity = λ where
                                                   , λ { refl → refl }
                                                   )
     .Is-morphism.tr-𝟙                      → refl
-    .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
@@ -742,7 +741,6 @@ affine⇨linear-or-affine :
 affine⇨linear-or-affine = λ where
     .Is-order-embedding.tr-≤                → ω , refl
     .Is-order-embedding.tr-≤-𝟙              → tr-≤-𝟙 _
-    .Is-order-embedding.tr-ω                → refl
     .Is-order-embedding.tr-≤-+              → tr-≤-+ _ _ _
     .Is-order-embedding.tr-≤-·              → tr-≤-· _ _ _
     .Is-order-embedding.tr-≤-∧              → tr-≤-∧ _ _ _
@@ -755,7 +753,6 @@ affine⇨linear-or-affine = λ where
                                                     , λ { refl → refl }
                                                     )
       .Is-morphism.tr-𝟙                      → refl
-      .Is-morphism.tr-ω                      → refl
       .Is-morphism.tr-+ {p = p}              → tr-+ p _
       .Is-morphism.tr-·                      → tr-· _ _
       .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
@@ -945,7 +942,6 @@ linear-or-affine⇨affine = λ where
                                                   , λ { refl → refl }
                                                   )
     .Is-morphism.tr-𝟙                      → refl
-    .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧                      → ≤-reflexive (tr-∧ _ _)
@@ -1039,7 +1035,6 @@ affine⇨linearity = λ where
                                                   , λ { refl → refl }
                                                   )
     .Is-morphism.tr-𝟙                      → refl
-    .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧ {p = p}              → ≤-reflexive (tr-∧ p _)
@@ -1111,7 +1106,6 @@ linearity⇨affine = λ where
                                                   , λ { refl → refl }
                                                   )
     .Is-morphism.tr-𝟙                      → refl
-    .Is-morphism.tr-ω                      → refl
     .Is-morphism.tr-+ {p = p}              → tr-+ p _
     .Is-morphism.tr-·                      → tr-· _ _
     .Is-morphism.tr-∧ {p = p}              → tr-∧ p _
@@ -1381,6 +1375,252 @@ affine→linearity-Σ-not-monotone mono =
     (𝟘 , () , _)
     (𝟙 , _  , ())
     (ω , _  , ())
+
+------------------------------------------------------------------------
+-- omega-preserving morphisms
+
+opaque
+
+  unit⇨erasure-omega-preserving :
+    Is-omega-preserving-morphism
+      UnitModality
+      ErasureModality
+      unit→erasure
+  unit⇨erasure-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  erasure⇨unit-omega-preserving :
+    Is-omega-preserving-morphism
+      ErasureModality
+      UnitModality
+      erasure→unit
+  erasure⇨unit-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  erasure⇨zero-one-many-omega-preserving :
+    Is-omega-preserving-morphism
+      ErasureModality
+      (zero-one-many-modality 𝟙≤𝟘)
+      erasure→zero-one-many
+  erasure⇨zero-one-many-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  zero-one-many⇨erasure-omega-preserving :
+    Is-omega-preserving-morphism
+      (zero-one-many-modality 𝟙≤𝟘)
+      ErasureModality
+      zero-one-many→erasure
+  zero-one-many⇨erasure-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  linearity⇨linear-or-affine-omega-preserving :
+    Is-omega-preserving-morphism
+      linearityModality
+      linear-or-affine
+      linearity→linear-or-affine
+  linearity⇨linear-or-affine-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  linear-or-affine⇨linearity-omega-preserving :
+    Is-omega-preserving-morphism
+      linear-or-affine
+      linearityModality
+      linear-or-affine→linearity
+  linear-or-affine⇨linearity-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  affine⇨linear-or-affine-omega-preserving :
+    Is-omega-preserving-morphism
+      affineModality
+      linear-or-affine
+      affine→linear-or-affine
+  affine⇨linear-or-affine-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  linear-or-affine⇨affine-omega-preserving :
+    Is-omega-preserving-morphism
+      linear-or-affine
+      affineModality
+      linear-or-affine→affine
+  linear-or-affine⇨affine-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  affine⇨linearity-omega-preserving :
+    Is-omega-preserving-morphism
+      affineModality
+      linearityModality
+      affine→linearity
+  affine⇨linearity-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+opaque
+
+  linearity⇨affine-omega-preserving :
+    Is-omega-preserving-morphism
+      linearityModality
+      affineModality
+      linearity→affine
+  linearity⇨affine-omega-preserving = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-preserving-morphism
+
+------------------------------------------------------------------------
+-- omega-reflecting morphisms
+
+opaque
+
+  unit⇨erasure-omega-reflecting :
+    Is-omega-reflecting-morphism
+      UnitModality
+      ErasureModality
+      unit→erasure
+  unit⇨erasure-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  erasure⇨unit-omega-reflecting :
+    Is-omega-reflecting-morphism
+      ErasureModality
+      UnitModality
+      erasure→unit
+  erasure⇨unit-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  erasure⇨zero-one-many-omega-reflecting :
+    Is-omega-reflecting-morphism
+      ErasureModality
+      (zero-one-many-modality 𝟙≤𝟘)
+      erasure→zero-one-many
+  erasure⇨zero-one-many-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  zero-one-many⇨erasure-omega-reflecting :
+    Is-omega-reflecting-morphism
+      (zero-one-many-modality 𝟙≤𝟘)
+      ErasureModality
+      zero-one-many→erasure
+  zero-one-many⇨erasure-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  linearity⇨linear-or-affine-omega-reflecting :
+    Is-omega-reflecting-morphism
+      linearityModality
+      linear-or-affine
+      linearity→linear-or-affine
+  linearity⇨linear-or-affine-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  linear-or-affine⇨linearity-omega-reflecting :
+    Is-omega-reflecting-morphism
+      linear-or-affine
+      linearityModality
+      linear-or-affine→linearity
+  linear-or-affine⇨linearity-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  affine⇨linear-or-affine-omega-reflecting :
+    Is-omega-reflecting-morphism
+      affineModality
+      linear-or-affine
+      affine→linear-or-affine
+  affine⇨linear-or-affine-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  linear-or-affine⇨affine-omega-reflecting :
+    Is-omega-reflecting-morphism
+      linear-or-affine
+      affineModality
+      linear-or-affine→affine
+  linear-or-affine⇨affine-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  affine⇨linearity-omega-reflecting :
+    Is-omega-reflecting-morphism
+      affineModality
+      linearityModality
+      affine→linearity
+  affine⇨linearity-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
+
+opaque
+
+  linearity⇨affine-omega-reflecting :
+    Is-omega-reflecting-morphism
+      linearityModality
+      affineModality
+      linearity→affine
+  linearity⇨affine-omega-reflecting = λ where
+      .tr-ω → refl
+    where
+    open Is-omega-reflecting-morphism
 
 ------------------------------------------------------------------------
 -- nr-preserving, no-nr-preserving and no-nr-glb-preserving morphisms

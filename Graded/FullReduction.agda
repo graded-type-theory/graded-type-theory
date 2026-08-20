@@ -252,21 +252,21 @@ module _ (as : Full-reduction-assumptions) where
             γ≤ }
       (J-cong A↑ t↑ B↑ u↑ v↑ w~ _) ▸∇ ▸J →
         case inv-usage-J ▸J of λ where
-          (invUsageJ ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
-            sub (Jₘ ok₁ ok₂ (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
+          (invUsageJ ok ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
+            sub (Jₘ ok (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
                    (fullRedTermConv↑ t↑ ▸∇ ▸t) (fullRedConv↑ B↑ ▸∇ ▸B)
                    (fullRedTermConv↑ u↑ ▸∇ ▸u)
                    (fullRedTermConv↑ v↑ ▸∇ ▸v) (fullRedNe~↓ w~ ▸∇ ▸w))
               γ≤
-          (invUsageJ₀₁ ok p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
-            sub (J₀ₘ₁ ok p≡𝟘 q≡𝟘 (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
+          (invUsageJ₀₁ p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
+            sub (J₀ₘ₁ p≡𝟘 q≡𝟘 (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
                    (fullRedTermConv↑ t↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸t)
                    (fullRedConv↑ B↑ ▸∇ ▸B) (fullRedTermConv↑ u↑ ▸∇ ▸u)
                    (fullRedTermConv↑ v↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v)
                    (fullRedNe~↓ w~ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸w))
               γ≤
-          (invUsageJ₀₂ ok ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
-            sub (J₀ₘ₂ ok (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
+          (invUsageJ₀₂ ▸A ▸t ▸B ▸u ▸v ▸w γ≤) →
+            sub (J₀ₘ₂ (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
                    (fullRedTermConv↑ t↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸t)
                    (fullRedConv↑ B↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸B)
                    (fullRedTermConv↑ u↑ ▸∇ ▸u)
@@ -275,19 +275,19 @@ module _ (as : Full-reduction-assumptions) where
               γ≤
       (K-cong A↑ t↑ B↑ u↑ v~ _ _) ▸∇ ▸K →
         case inv-usage-K ▸K of λ where
-          (invUsageK ok₁ ok₂ ▸A ▸t ▸B ▸u ▸v γ≤) →
-            sub (Kₘ ok₁ ok₂ (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
+          (invUsageK ok ▸A ▸t ▸B ▸u ▸v γ≤) →
+            sub (Kₘ ok (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
                    (fullRedTermConv↑ t↑ ▸∇ ▸t) (fullRedConv↑ B↑ ▸∇ ▸B)
                    (fullRedTermConv↑ u↑ ▸∇ ▸u) (fullRedNe~↓ v~ ▸∇ ▸v))
               γ≤
-          (invUsageK₀₁ ok p≡𝟘 ▸A ▸t ▸B ▸u ▸v γ≤) →
-            sub (K₀ₘ₁ ok p≡𝟘 (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
+          (invUsageK₀₁ p≡𝟘 ▸A ▸t ▸B ▸u ▸v γ≤) →
+            sub (K₀ₘ₁ p≡𝟘 (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
                    (fullRedTermConv↑ t↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸t)
                    (fullRedConv↑ B↑ ▸∇ ▸B) (fullRedTermConv↑ u↑ ▸∇ ▸u)
                    (fullRedNe~↓ v~ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v))
               γ≤
-          (invUsageK₀₂ ok ▸A ▸t ▸B ▸u ▸v γ≤) →
-            sub (K₀ₘ₂ ok (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
+          (invUsageK₀₂ ▸A ▸t ▸B ▸u ▸v γ≤) →
+            sub (K₀ₘ₂ (fullRedConv↑ A↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸A)
                    (fullRedTermConv↑ t↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸t)
                    (fullRedConv↑ B↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸B)
                    (fullRedTermConv↑ u↑ ▸∇ ▸u)

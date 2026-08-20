@@ -36,6 +36,8 @@ import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 
+open import Graded.Modality.Omega-instances
+
 open import Tools.Fin
 open import Tools.Function
 open import Tools.Nat as N using (Nat; 1+)
@@ -559,6 +561,7 @@ opaque
   -- An equality rule for transitivity.
 
   transitivity-cong :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
@@ -578,6 +581,7 @@ opaque
   -- A typing rule for transitivity.
 
   ⊢transitivity :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ eq₁ ∷ Id A t u →
     Γ ⊢ eq₂ ∷ Id A u v →
     Γ ⊢ transitivity A t u v eq₁ eq₂ ∷ Id A t v
@@ -596,6 +600,7 @@ opaque
   -- A reduction rule for transitivity.
 
   transitivity-⇒ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ transitivity A t u u eq rfl ⇒ eq ∷ Id A t u
   transitivity-⇒ ⊢eq =
@@ -614,6 +619,7 @@ opaque
   -- An equality rule for transitivity.
 
   transitivity-≡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ transitivity A t u u eq rfl ≡ eq ∷ Id A t u
   transitivity-≡ ⊢eq =
@@ -761,6 +767,7 @@ opaque
   -- An equality rule for cong₂.
 
   cong₂-cong :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ A₁₁ ≡ A₁₂ →
     Γ ⊢ t₁₁ ≡ t₁₂ ∷ A₁₁ →
     Γ ⊢ u₁₁ ≡ u₁₂ ∷ A₁₁ →
@@ -812,6 +819,7 @@ opaque
   -- A typing rule for cong₂.
 
   ⊢cong₂ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ »∙ A₁ »∙ wk1 A₂ ⊢ v ∷ wk[ 2 ]′ B →
     Γ ⊢ w₁ ∷ Id A₁ t₁ u₁ →
     Γ ⊢ w₂ ∷ Id A₂ t₂ u₂ →
@@ -837,6 +845,7 @@ opaque
   -- A β-rule for cong₂.
 
   cong₂-β :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t₁ ∷ A₁ →
     Γ ⊢ t₂ ∷ A₂ →
     Γ »∙ A₁ »∙ wk1 A₂ ⊢ u ∷ wk[ 2 ]′ B →
@@ -881,6 +890,7 @@ opaque
   -- A typing rule for pointwise-equality.
 
   ⊢pointwise-equality :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ v ∷ Id (Π p , q ▷ A ▹ B) t u →
     Γ ⊢ w ∷ A →
     Γ ⊢ pointwise-equality p q A B t u v w ∷
@@ -903,6 +913,7 @@ opaque
   -- A reduction rule for pointwise-equality.
 
   pointwise-equality-⇒ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     Γ ⊢ u ∷ A →
     Γ ⊢ pointwise-equality p q A B t t rfl u ⇒ rfl ∷
@@ -924,6 +935,7 @@ opaque
   -- An equality rule for pointwise-equality.
 
   pointwise-equality-≡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ∷ Π p , q ▷ A ▹ B →
     Γ ⊢ u ∷ A →
     Γ ⊢ pointwise-equality p q A B t t rfl u ≡ rfl ∷
@@ -940,6 +952,7 @@ opaque
   -- An equality rule for symmetry.
 
   symmetry-cong :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ A₁ ≡ A₂ →
     Γ ⊢ t₁ ≡ t₂ ∷ A₁ →
     Γ ⊢ u₁ ≡ u₂ ∷ A₁ →
@@ -963,6 +976,7 @@ opaque
   -- A typing rule for symmetry.
 
   ⊢symmetry :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ symmetry A t u eq ∷ Id A u t
   ⊢symmetry ⊢eq =
@@ -976,6 +990,7 @@ opaque
   -- A reduction rule for symmetry.
 
   symmetry-⇒′ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ≡ t′ ∷ A →
     Γ ⊢ symmetry A t t′ rfl ⇒ rfl ∷ Id A t t
   symmetry-⇒′ t≡t′ =
@@ -995,6 +1010,7 @@ opaque
   -- A reduction rule for symmetry.
 
   symmetry-⇒ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ∷ A →
     Γ ⊢ symmetry A t t rfl ⇒ rfl ∷ Id A t t
   symmetry-⇒ ⊢t =
@@ -1005,6 +1021,7 @@ opaque
   -- An equality rule for symmetry.
 
   symmetry-≡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ∷ A →
     Γ ⊢ symmetry A t t rfl ≡ rfl ∷ Id A t t
   symmetry-≡ ⊢t =
@@ -1016,6 +1033,7 @@ opaque
   -- A reduction rule for symmetry.
 
   symmetry-subst :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ v₁ ⇒ v₂ ∷ Id A t u →
     Γ ⊢ symmetry A t u v₁ ⇒ symmetry A t u v₂ ∷ Id A u t
   symmetry-subst v₁⇒v₂ =
@@ -1036,6 +1054,7 @@ opaque
   -- A reduction rule for symmetry.
 
   symmetry-subst* :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ v₁ ⇒* v₂ ∷ Id A t u →
     Γ ⊢ symmetry A t u v₁ ⇒* symmetry A t u v₂ ∷ Id A u t
   symmetry-subst* (id ⊢v)          = id (⊢symmetry ⊢v)
@@ -1048,6 +1067,7 @@ opaque
   -- An inversion lemma for symmetry.
 
   inversion-symmetry :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ symmetry A t u v ∷ B →
     Γ ⊢ v ∷ Id A t u ×
     Γ ⊢ B ≡ Id A u t
@@ -1062,6 +1082,7 @@ opaque
   -- A preservation lemma for symmetry.
 
   symmetry-cong-Id :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ w ∷ Id (Id A t u) v₁ v₂ →
     ∃ λ eq →
       Γ ⊢ eq ∷ Id (Id A u t) (symmetry A t u v₁) (symmetry A t u v₂)
@@ -1087,6 +1108,7 @@ opaque
   -- A simplification lemma for symmetry.
 
   Id-symmetry-symmetry :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ v ∷ Id A t u →
     ∃ λ w → Γ ⊢ w ∷ Id (Id A t u) (symmetry A u t (symmetry A t u v)) v
   Id-symmetry-symmetry {v} {A} {t} {u} ⊢v =
@@ -1138,6 +1160,7 @@ opaque
   -- A typing rule for transitivity-symmetryˡ.
 
   ⊢transitivity-symmetryˡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ eq ∷ Id A t u →
     Γ ⊢ transitivity-symmetryˡ A t u eq ∷
       Id (Id A u u) (transitivity A u t u (symmetry A t u eq) eq) rfl
@@ -1312,6 +1335,7 @@ opaque
   -- A preservation lemma for cast.
 
   cast-cong-Id :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ v ∷ Id (Id (U l) A B) t₁ t₂ →
     Γ ⊢ w ∷ Id A u₁ u₂ →
     ∃ λ eq → Γ ⊢ eq ∷ Id B (cast l A B t₁ u₁) (cast l A B t₂ u₂)
@@ -1347,6 +1371,7 @@ opaque
   -- An equality rule for cast⁻¹.
 
   cast⁻¹-cong :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ l₁ ≡ l₂ ∷Level →
     Γ ⊢ A₁ ≡ A₂ ∷ U l₁ →
     Γ ⊢ B₁ ≡ B₂ ∷ U l₁ →
@@ -1362,6 +1387,7 @@ opaque
   -- A typing rule for cast⁻¹.
 
   ⊢cast⁻¹ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ∷ Id (U l) A B →
     Γ ⊢ u ∷ B →
     Γ ⊢ cast⁻¹ l A B t u ∷ A
@@ -1380,6 +1406,7 @@ opaque
   -- A reduction rule for cast⁻¹.
 
   cast⁻¹-⇒′ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ A ≡ A′ ∷ U l →
     Γ ⊢ t ∷ A′ →
     Γ ⊢ cast⁻¹ l A A′ rfl t ⇒* t ∷ A
@@ -1394,6 +1421,7 @@ opaque
   -- Another reduction rule for cast⁻¹.
 
   cast⁻¹-⇒ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast⁻¹ l A A rfl t ⇒* t ∷ A
@@ -1405,6 +1433,7 @@ opaque
   -- An equality rule for cast⁻¹.
 
   cast⁻¹-≡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ A ∷ U l →
     Γ ⊢ t ∷ A →
     Γ ⊢ cast⁻¹ l A A rfl t ≡ t ∷ A
@@ -1417,6 +1446,7 @@ opaque
   -- A reduction rule for cast⁻¹.
 
   cast⁻¹-subst :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t₁ ⇒ t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ B →
     Γ ⊢ cast⁻¹ l A B t₁ u ⇒ cast⁻¹ l A B t₂ u ∷ A
@@ -1428,6 +1458,7 @@ opaque
   -- A reduction rule for cast⁻¹.
 
   cast⁻¹-subst* :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t₁ ⇒* t₂ ∷ Id (U l) A B →
     Γ ⊢ u ∷ B →
     Γ ⊢ cast⁻¹ l A B t₁ u ⇒* cast⁻¹ l A B t₂ u ∷ A
@@ -1442,6 +1473,7 @@ opaque
   -- An inversion lemma for cast⁻¹.
 
   inversion-cast⁻¹ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ cast⁻¹ l A B t u ∷ C →
     Γ ⊢ t ∷ Id (U l) A B ×
     Γ ⊢ u ∷ B ×
@@ -1456,6 +1488,7 @@ opaque
   -- A preservation lemma for cast⁻¹.
 
   cast⁻¹-cong-Id :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ v ∷ Id (Id (U l) A B) t₁ t₂ →
     Γ ⊢ w ∷ Id B u₁ u₂ →
     ∃ λ eq → Γ ⊢ eq ∷ Id A (cast⁻¹ l A B t₁ u₁) (cast⁻¹ l A B t₂ u₂)
@@ -1470,6 +1503,7 @@ opaque
   -- A simplification lemma involving cast⁻¹ and cast.
 
   Id-cast⁻¹-cast :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     ∃ λ v → Γ ⊢ v ∷ Id A (cast⁻¹ l A B t (cast l A B t u)) u
@@ -1531,6 +1565,7 @@ opaque
   -- A simplification lemma involving cast and cast⁻¹.
 
   Id-cast-cast⁻¹ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ∷ Id (U l) A B →
     Γ ⊢ u ∷ B →
     ∃ λ v → Γ ⊢ v ∷ Id B (cast l A B t (cast⁻¹ l A B t u)) u
@@ -1548,6 +1583,7 @@ opaque
   -- A simplification lemma involving cast⁻¹, symmetry and cast.
 
   Id-cast⁻¹-symmetry :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ t ∷ Id (U l) A B →
     Γ ⊢ u ∷ A →
     ∃ λ v →
@@ -1563,6 +1599,7 @@ opaque
   -- t₂".
 
   cast-right-left :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ u ∷ Id (U l) A₁ A₂ →
     Γ ⊢ v ∷ Id A₂ t₁ (cast l A₁ A₂ u t₂) →
     ∃ λ v → Γ ⊢ v ∷ Id A₁ (cast⁻¹ l A₁ A₂ u t₁) t₂
@@ -1599,6 +1636,7 @@ opaque
   -- A variant of cast-right-left.
 
   cast-right-left′ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ u ∷ Id (U l) A₁ A₂ →
     Γ ⊢ v ∷ Id A₁ t₁ (cast⁻¹ l A₁ A₂ u t₂) →
     ∃ λ v → Γ ⊢ v ∷ Id A₂ (cast l A₁ A₂ u t₁) t₂
@@ -1615,6 +1653,7 @@ opaque
   -- t₂".
 
   cast-left-right :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ u ∷ Id (U l) A₁ A₂ →
     Γ ⊢ v ∷ Id A₂ (cast l A₁ A₂ u t₁) t₂ →
     ∃ λ v → Γ ⊢ v ∷ Id A₁ t₁ (cast⁻¹ l A₁ A₂ u t₂)
@@ -1627,6 +1666,7 @@ opaque
   -- A variant of cast-left-right.
 
   cast-left-right′ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Γ ⊢ u ∷ Id (U l) A₁ A₂ →
     Γ ⊢ v ∷ Id A₁ (cast⁻¹ l A₁ A₂ u t₁) t₂ →
     ∃ λ v → Γ ⊢ v ∷ Id A₂ t₁ (cast l A₁ A₂ u t₂)
@@ -1646,6 +1686,7 @@ opaque
   -- is allowed.
 
   ⊢uip :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     K-allowed →
     Γ ⊢ eq₁ ∷ Id A t u →
     Γ ⊢ eq₂ ∷ Id A t u →
@@ -1907,7 +1948,7 @@ opaque
     Γ ⊢ v ∷ A →
     Γ ⊢ u ≡ v ∷ A
   ⊢∷Empty→⊢≡∷ ok ⊢t ⊢u ⊢v =
-    equality-reflection′ ok (emptyrecⱼ {p = ω} (Idⱼ′ ⊢u ⊢v) ⊢t)
+    equality-reflection′ ok (emptyrecⱼ {p = 𝟘} (Idⱼ′ ⊢u ⊢v) ⊢t)
 
 opaque
 
@@ -2019,6 +2060,7 @@ opaque
   -- definitional variant of UIP.
 
   uip-with-equality-reflection-≡ :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Equality-reflection →
     Γ ⊢ eq₁ ∷ Id A t u →
     Γ ⊢ eq₂ ∷ Id A t u →
@@ -2049,6 +2091,7 @@ opaque
   -- UIP.
 
   uip-with-equality-reflection-Id :
+    ⦃ ok : Has-omega _ 𝕄 ⦄ →
     Equality-reflection →
     Γ ⊢ eq₁ ∷ Id A t u →
     Γ ⊢ eq₂ ∷ Id A t u →

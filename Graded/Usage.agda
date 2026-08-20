@@ -21,6 +21,7 @@ open Usage-restrictions R
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
+open import Graded.Modality.Omega-instances
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions.Instance R
 open import Graded.Usage.Restrictions.Natrec 𝕄
@@ -55,26 +56,27 @@ private
 -- A view used in the implementation of ⌈_⌉.
 
 data ⌈⌉-view (A : Set a) (em : Erased-matches) : Set a where
-  is-all      : em ≡ all → ⌈⌉-view A em
-  is-some-yes : em ≡ some → A → ⌈⌉-view A em
-  is-other    : em ≤ᵉᵐ some → (em ≡ some → ¬ A) → ⌈⌉-view A em
+  is-all      : ⦃ ok : em ≡ all ⦄ → ⌈⌉-view A em
+  is-some-yes : ⦃ ok : em ≡ some ⦄ → A → ⌈⌉-view A em
+  is-other    : ⦃ ok : em ≤ᵉᵐ some ⦄ → (em ≡ some → ¬ A) → ⌈⌉-view A em
 
 opaque
 
   -- The view ⌈⌉-view A em is inhabited if A is decided.
 
   ⌈⌉-view-inhabited : {A : Set a} → Dec A → ∀ em → ⌈⌉-view A em
-  ⌈⌉-view-inhabited _       all  = is-all refl
-  ⌈⌉-view-inhabited (yes p) some = is-some-yes refl p
-  ⌈⌉-view-inhabited (no p)  some = is-other _ (λ _ → p)
-  ⌈⌉-view-inhabited _       none = is-other _ (λ ())
+  ⌈⌉-view-inhabited _       all  = is-all
+  ⌈⌉-view-inhabited (yes p) some = is-some-yes p
+  ⌈⌉-view-inhabited (no p)  some = is-other ⦃ _ ⦄ (λ _ → p)
+  ⌈⌉-view-inhabited _       none = is-other ⦃ _ ⦄ (λ ())
 
-opaque
+
 
   -- An instantiation of ⌈⌉-view-inhabited used for J.
 
-  J-view : ∀ p q m → ⌈⌉-view (p ≡ 𝟘 × q ≡ 𝟘) (erased-matches-for-J m)
-  J-view p q _ = ⌈⌉-view-inhabited (is-𝟘? p ×-dec is-𝟘? q) _
+J-view : ∀ p q m → ⌈⌉-view (p ≡ 𝟘 × q ≡ 𝟘) (erased-matches-for-J m)
+J-view p q _ = ⌈⌉-view-inhabited (is-𝟘? p ×-dec is-𝟘? q) _
+
 
 opaque
 
@@ -138,16 +140,16 @@ mutual
     (no _)  → ⌈ A ⌉ m +ᶜ ⌈ t ⌉ m +ᶜ ⌈ u ⌉ m
   ⌈ rfl ⌉ _ = 𝟘ᶜ
   ⌈ J p q _ t B u v w ⌉ m with J-view p q m
-  … | is-all _        = ⌈ u ⌉ m
-  … | is-some-yes _ _ = ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)
-  … | is-other _ _    =
+  … | is-all        = ⌈ u ⌉ m
+  … | is-some-yes _ = ω ·ᶜ (tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ ⌈ u ⌉ m)
+  … | is-other _    =
         ω ·ᶜ
         (⌈ t ⌉ m +ᶜ tailₘ (tailₘ (⌈ B ⌉ m)) +ᶜ
          ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m +ᶜ ⌈ w ⌉ m)
   ⌈ K p _ t B u v ⌉ m with K-view p m
-  … | is-all _        = ⌈ u ⌉ m
-  … | is-some-yes _ _ = ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)
-  … | is-other _ _    =
+  … | is-all        = ⌈ u ⌉ m
+  … | is-some-yes _ = ω ·ᶜ (tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m)
+  … | is-other _    =
         ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m)
   ⌈ []-cong _ _ _ _ _ _ ⌉ _ = 𝟘ᶜ
 
@@ -478,7 +480,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
 
   rflₘ      : 𝟘ᶜ ▸[ m ] rfl
 
-  Jₘ        : erased-matches-for-J m ≤ᵉᵐ some
+  Jₘ        : ⦃ ok : erased-matches-for-J m ≤ᵉᵐ some ⦄
             → (erased-matches-for-J m ≡ some → ¬ (p ≡ 𝟘 × q ≡ 𝟘))
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ m ] t
@@ -488,7 +490,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → γ₆ ▸[ m ] w
             → ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ▸[ m ] J p q A t B u v w
 
-  J₀ₘ₁      : erased-matches-for-J m ≡ some
+  J₀ₘ₁      : ⦃ ok : erased-matches-for-J m ≡ some ⦄
             → p ≡ 𝟘
             → q ≡ 𝟘
             → γ₁ ▸[ 𝟘ᵐ ] A
@@ -499,7 +501,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → γ₆ ▸[ 𝟘ᵐ ] w
             → ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] J p q A t B u v w
 
-  J₀ₘ₂      : erased-matches-for-J m ≡ all
+  J₀ₘ₂      : ⦃ ok : erased-matches-for-J m ≡ all ⦄
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] t
             → γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] B
@@ -508,7 +510,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → γ₆ ▸[ 𝟘ᵐ ] w
             → γ₄ ▸[ m ] J p q A t B u v w
 
-  Kₘ        : erased-matches-for-K m ≤ᵉᵐ some
+  Kₘ        : ⦃ ok : erased-matches-for-K m ≤ᵉᵐ some ⦄
             → (erased-matches-for-K m ≡ some → p ≢ 𝟘)
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ m ] t
@@ -517,7 +519,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → γ₅ ▸[ m ] v
             → ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ▸[ m ] K p A t B u v
 
-  K₀ₘ₁      : erased-matches-for-K m ≡ some
+  K₀ₘ₁      : ⦃ ok : erased-matches-for-K m ≡ some ⦄
             → p ≡ 𝟘
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] t
@@ -526,7 +528,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → γ₅ ▸[ 𝟘ᵐ ] v
             → ω ·ᶜ (γ₃ +ᶜ γ₄) ▸[ m ] K p A t B u v
 
-  K₀ₘ₂      : erased-matches-for-K m ≡ all
+  K₀ₘ₂      : ⦃ ok : erased-matches-for-K m ≡ all ⦄
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] t
             → γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] B

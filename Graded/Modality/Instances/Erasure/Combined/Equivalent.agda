@@ -13,6 +13,7 @@ open import Definition.Typed.Restrictions
 
 open import Graded.Modality.Instances.Erasure.Modality
 open import Graded.Usage.Restrictions
+open import Graded.Usage.Restrictions.JK ErasureModality
 open import Graded.Mode.Instances.Zero-one.Variant ErasureModality
 open import Graded.Mode.Instances.Zero-one 𝟘ᵐ-Allowed
 
@@ -32,6 +33,9 @@ private
   𝕄 = ErasureModality
 
   module M = Modality 𝕄
+
+  ω′ : ⦃ ok : JK-Any-erased-matches JK-supported-erased-matches ⦄ → _
+  ω′ ⦃ ok ⦄ = Has-omega.ω (JK-Any-erased-matches-has-omega ok)
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Instances.Erasure
@@ -158,6 +162,12 @@ private opaque
   [⌞⌟≡𝟙ᵐ→≤ω]→≤ : (⌞ p ⌟ PE.≡ 𝟙ᵐ → q ≤ ω) → q ≤ p
   [⌞⌟≡𝟙ᵐ→≤ω]→≤ {p = 𝟘} _   = greatest-elem _
   [⌞⌟≡𝟙ᵐ→≤ω]→≤ {p = ω} hyp = hyp ⌞𝟙⌟
+
+  ω′≡ω :
+    ⦃ ok : JK-Any-erased-matches JK-supported-erased-matches ⦄ →
+    ω′ PE.≡ ω
+  ω′≡ω ⦃ ok ⦄ =
+    erasure-has-omega-unique (JK-Any-erased-matches-has-omega ok)
 
 ------------------------------------------------------------------------
 -- From the combined system to the other ones
@@ -392,33 +402,34 @@ opaque mutual
         ▸w = ⊢∷[]→▸ ⊢w
     in
     case J-view p′ q ⌞ p ⌟ of λ where
-      (is-all ≡all) →
+      (is-all ⦃ (≡all) ⦄) →
         case hyp₃ ≡all of λ {
           (PE.refl , _ , PE.refl , PE.refl) →
-        J₀ₘ₂ ≡all ▸A
+        J₀ₘ₂ ▸A
           (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t)
           (PE.subst₂ (_▸[_] B)
              (PE.cong₂ _∙_ (PE.cong (_∙_ _) 𝟘≡⌜𝟘ᵐ?⌝·) 𝟘≡⌜𝟘ᵐ?⌝·) ⌞𝟘⌟≡𝟘ᵐ?
              (⊢[]→▸ ⊢B))
           ▸u (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v)
           (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸w) }
-      (is-some-yes ≡some (p′≡𝟘 , q≡𝟘)) →
+      (is-some-yes ⦃ (≡some) ⦄ (p′≡𝟘 , q≡𝟘)) →
         case hyp₂ ≡some p′≡𝟘 q≡𝟘 of λ {
           (PE.refl , _ , PE.refl , PE.refl) →
         sub
-          (J₀ₘ₁ ≡some p′≡𝟘 q≡𝟘 ▸A
+          (J₀ₘ₁ p′≡𝟘 q≡𝟘 ▸A
              (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t) ▸B ▸u
              (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v)
              (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸w))
-          (begin
+          ((begin
              γ              ≡˘⟨ +ᶜ-idem _ ⟩
              γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-             ω ·ᶜ (γ +ᶜ γ)  ∎) }
-      (is-other ≤some ¬[p′≡𝟘×q≡𝟘]) →
+             ω ·ᶜ (γ +ᶜ γ)  ≈˘⟨ ·ᶜ-congʳ ω′≡ω ⟩
+             ω′ ·ᶜ (γ +ᶜ γ)  ∎)) }
+      (is-other ⦃ (≤some) ⦄ ¬[p′≡𝟘×q≡𝟘]) →
         case hyp₁ ≤some ¬[p′≡𝟘×q≡𝟘] of λ {
           (PE.refl , PE.refl , PE.refl , PE.refl) →
-        sub (Jₘ ≤some ¬[p′≡𝟘×q≡𝟘] ▸A ▸t (∙∙▸→∙⌜⌝·∙⌜⌝·▸ ▸B) ▸u ▸v ▸w)
-          (begin
+        sub (Jₘ ¬[p′≡𝟘×q≡𝟘] ▸A ▸t (∙∙▸→∙⌜⌝·∙⌜⌝·▸ ▸B) ▸u ▸v ▸w)
+          ((begin
              γ                             ≡˘⟨ PE.trans
                                                  (PE.cong (_ +ᶜ_)
                                                     (PE.trans
@@ -428,7 +439,8 @@ opaque mutual
                                                      +ᶜ-idem _)) $
                                                +ᶜ-idem _ ⟩
              γ +ᶜ γ +ᶜ γ +ᶜ γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-             ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ +ᶜ γ)  ∎) }
+             ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ +ᶜ γ)  ≈˘⟨ ·ᶜ-congʳ ω′≡ω ⟩
+             ω′ ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ +ᶜ γ) ∎)) }
     where
     open ≤ᶜ-reasoning
   ⊢∷[]→▸
@@ -442,37 +454,39 @@ opaque mutual
         ▸v = ⊢∷[]→▸ ⊢v
     in
     case K-view p′ ⌞ p ⌟ of λ where
-      (is-all ≡all) →
+      (is-all ⦃ (≡all) ⦄) →
         case hyp₃ ≡all of λ {
           (PE.refl , _ , PE.refl , PE.refl) →
-        K₀ₘ₂ ≡all ▸A
+        K₀ₘ₂ ▸A
           (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t)
           (PE.subst₂ (_▸[_] B) (PE.cong (_∙_ _) 𝟘≡⌜𝟘ᵐ?⌝·) ⌞𝟘⌟≡𝟘ᵐ?
              (⊢[]→▸ ⊢B))
           ▸u (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v) }
-      (is-some-yes ≡some p′≡𝟘) →
+      (is-some-yes ⦃ (≡some) ⦄ p′≡𝟘) →
         case hyp₂ ≡some p′≡𝟘 of λ {
           (PE.refl , _ , PE.refl , PE.refl) →
         sub
-          (K₀ₘ₁ ≡some p′≡𝟘 ▸A
+          (K₀ₘ₁ p′≡𝟘 ▸A
              (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t) ▸B ▸u
              (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v))
           (begin
              γ              ≡˘⟨ +ᶜ-idem _ ⟩
              γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-             ω ·ᶜ (γ +ᶜ γ)  ∎) }
-      (is-other ≤some p′≢𝟘) →
+             ω ·ᶜ (γ +ᶜ γ) ≈˘⟨ ·ᶜ-congʳ ω′≡ω ⟩
+             ω′ ·ᶜ (γ +ᶜ γ)  ∎) }
+      (is-other ⦃ (≤some) ⦄ p′≢𝟘) →
         case hyp₁ ≤some p′≢𝟘 of λ {
           (PE.refl , PE.refl , PE.refl , PE.refl) →
-        sub (Kₘ ≤some p′≢𝟘 ▸A ▸t (∙▸→∙⌜⌝·▸ ▸B) ▸u ▸v)
-          (begin
+        sub (Kₘ p′≢𝟘 ▸A ▸t (∙▸→∙⌜⌝·▸ ▸B) ▸u ▸v)
+          ((begin
              γ                        ≡˘⟨ PE.trans
                                             (PE.cong (_ +ᶜ_)
                                                (PE.trans (PE.cong (_ +ᶜ_) (+ᶜ-idem _)) $
                                                 +ᶜ-idem _)) $
                                           +ᶜ-idem _ ⟩
              γ +ᶜ γ +ᶜ γ +ᶜ γ         ≈˘⟨ ·ᶜ-identityˡ _ ⟩
-             ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ)  ∎) }
+             ω ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ)  ≈˘⟨ ·ᶜ-congʳ ω′≡ω ⟩
+             ω′ ·ᶜ (γ +ᶜ γ +ᶜ γ +ᶜ γ) ∎)) }
     where
     open ≤ᶜ-reasoning
   ⊢∷[]→▸ ([]-cong _ ok ⊢l ⊢A ⊢t ⊢u ⊢v) =
@@ -1040,20 +1054,20 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         (Jⱼ {p} {q} ⊢t ⊢B ⊢u ⊢v ⊢w) PE.refl →
           let _ , ⊢A , _  = ∙∙⊢→⊢-<ˢ ⊢B in
           case J-view p q ⌞ 𝟘 ⌟ of λ where
-            (is-all ≡all) →
+            (is-all ⦃ (≡all) ⦄) →
               J (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
                 (λ ≡some _ _ →
                    case PE.trans (PE.sym ≡some) ≡all of λ ())
                 (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
                 (⊢∷←⊢∷ ⊢w)
-            (is-some-yes ≡some p≡𝟘×q≡𝟘) →
+            (is-some-yes ⦃ (≡some) ⦄ p≡𝟘×q≡𝟘) →
               J (λ _ ¬[p≡𝟘×q≡𝟘] → ⊥-elim (¬[p≡𝟘×q≡𝟘] ≡some p≡𝟘×q≡𝟘))
                 (λ _ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
                 (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
                 (⊢∷←⊢∷ ⊢w)
-            (is-other ≤some ¬[p≡𝟘×q≡𝟘]) →
+            (is-other ⦃ (≤some) ⦄ ¬[p≡𝟘×q≡𝟘]) →
               J (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (λ ≡some p≡𝟘 q≡𝟘 → ⊥-elim (¬[p≡𝟘×q≡𝟘] ≡some (p≡𝟘 , q≡𝟘)))
                 (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
@@ -1064,19 +1078,19 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
               ⊢A , ⊢t , _ = inversion-Id-⊢-<ˢ ⊢Id
           in
           case K-view p ⌞ 𝟘 ⌟ of λ where
-            (is-all ≡all) →
+            (is-all ⦃ (≡all) ⦄) →
               K (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
                 (λ ≡some _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
                 (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 ok (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷-<ˢ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u)
                 (⊢∷←⊢∷ ⊢v)
-            (is-some-yes ≡some p≡𝟘) →
+            (is-some-yes ⦃ (≡some) ⦄ p≡𝟘) →
               K (λ _ p≢𝟘 → ⊥-elim (p≢𝟘 ≡some p≡𝟘))
                 (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (λ ≡all → case PE.trans (PE.sym ≡some) ≡all of λ ())
                 ok (⊢←⊢-<ˢ ⊢A) (⊢∷←⊢∷-<ˢ ⊢t) (⊢←⊢ ⊢B) (⊢∷←⊢∷ ⊢u)
                 (⊢∷←⊢∷ ⊢v)
-            (is-other ≤some p≢𝟘) →
+            (is-other ⦃ (≤some) ⦄ p≢𝟘) →
               K (λ _ _ → PE.refl , PE.refl , PE.refl , PE.refl)
                 (λ ≡some p≡𝟘 → ⊥-elim (p≢𝟘 ≡some p≡𝟘))
                 (λ ≡all → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
@@ -1660,11 +1674,12 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         case inv-usage-J ▸J of λ where
           (invUsageJ
              {γ₂} {γ₃} {γ₄} {γ₅} {γ₆}
-             ≤some ¬[p≡𝟘×q≡𝟘] _ ▸t ▸B ▸u ▸v ▸w γ≤) →
+             ⦃ (≤some) ⦄ ¬[p≡𝟘×q≡𝟘] _ ▸t ▸B ▸u ▸v ▸w γ≤) →
             let γ≤ = begin
-                  γ                                    ≤⟨ γ≤ ⟩
-                  M.ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)  ≈⟨ ·ᶜ-identityˡ _ ⟩
-                  γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆           ∎
+                  γ                                  ≤⟨ γ≤ ⟩
+                  ω′ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆) ≈⟨ ·ᶜ-congʳ ω′≡ω ⟩
+                  ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆)  ≈⟨ ·ᶜ-identityˡ _ ⟩
+                  γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆         ∎
                 γ≤′ = begin
                   γ                           ≤⟨ γ≤ ⟩
                   γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
@@ -1708,9 +1723,10 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
                  γ₅ +ᶜ γ₆  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
                  γ₆        ∎)
           (invUsageJ₀₁
-             {γ₃} {γ₄} ≡some PE.refl PE.refl _ _ ▸B ▸u _ _ γ≤) →
+             {γ₃} {γ₄} ⦃ (≡some) ⦄ PE.refl PE.refl _ _ ▸B ▸u _ _ γ≤) →
             let γ≤γ₃+γ₄ = begin
                   γ                ≤⟨ γ≤ ⟩
+                  ω′ ·ᶜ (γ₃ +ᶜ γ₄) ≈⟨ ·ᶜ-congʳ ω′≡ω ⟩
                   ω ·ᶜ (γ₃ +ᶜ γ₄)  ≈⟨ ·ᶜ-identityˡ _ ⟩
                   γ₃ +ᶜ γ₄         ∎
             in
@@ -1730,7 +1746,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
                  γ₃ +ᶜ γ₄  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
                  γ₄        ∎)
               (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
-          (invUsageJ₀₂ ≡all _ _ _ ▸u _ _ γ≤) →
+          (invUsageJ₀₂ ⦃ (≡all) ⦄ _ _ _ ▸u _ _ γ≤) →
             J (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
               (λ ≡some _ _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
               (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)
@@ -1742,11 +1758,12 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
             ⊢A          = ⊢←⊢ ⊢A
         in
         case inv-usage-K ▸K of λ where
-          (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} ≤some p≢𝟘 _ ▸t ▸B ▸u ▸v γ≤) →
+          (invUsageK {γ₂} {γ₃} {γ₄} {γ₅} ⦃ (≤some) ⦄ p≢𝟘 _ ▸t ▸B ▸u ▸v γ≤) →
             let γ≤ = begin
-                  γ                              ≤⟨ γ≤ ⟩
-                  M.ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)  ≈⟨ ·ᶜ-identityˡ _ ⟩
-                  γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅           ∎
+                  γ                            ≤⟨ γ≤ ⟩
+                  ω′ ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅) ≈⟨ ·ᶜ-congʳ ω′≡ω ⟩
+                  ω ·ᶜ (γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅)  ≈⟨ ·ᶜ-identityˡ _ ⟩
+                  γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅         ∎
                 γ≤′ = begin
                   γ                     ≤⟨ γ≤ ⟩
                   γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
@@ -1780,9 +1797,10 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
                  γ         ≤⟨ γ≤″ ⟩
                  γ₄ +ᶜ γ₅  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
                  γ₅        ∎)
-          (invUsageK₀₁ {γ₃} {γ₄} ≡some PE.refl _ _ ▸B ▸u _ γ≤) →
+          (invUsageK₀₁ {γ₃} {γ₄} ⦃ (≡some) ⦄ PE.refl _ _ ▸B ▸u _ γ≤) →
             let γ≤γ₃+γ₄ = begin
                   γ                ≤⟨ γ≤ ⟩
+                  ω′ ·ᶜ (γ₃ +ᶜ γ₄) ≈⟨ ·ᶜ-congʳ ω′≡ω ⟩
                   ω ·ᶜ (γ₃ +ᶜ γ₄)  ≈⟨ ·ᶜ-identityˡ _ ⟩
                   γ₃ +ᶜ γ₄         ∎
             in
@@ -1801,7 +1819,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
                  γ₃ +ᶜ γ₄  ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
                  γ₄        ∎)
               (⊢∷←⊢∷ ⊢v)
-          (invUsageK₀₂ ≡all _ _ _ ▸u _ γ≤) →
+          (invUsageK₀₂ ⦃ (≡all) ⦄ _ _ _ ▸u _ γ≤) →
             K (λ ≤some → case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ())
               (λ ≡some _ → case PE.trans (PE.sym ≡some) ≡all of λ ())
               (λ _ → PE.refl , PE.refl , PE.refl , PE.refl)

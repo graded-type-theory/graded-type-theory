@@ -111,6 +111,7 @@ private variable
   ℓ ℓ₁ ℓ₂                              : Universe-level⁻
   k                                    : Term-kind
   σ σ′ σ₁ σ₂                           : Subst _ _ _
+  p p₁ p₂ p₃ p₄ p₅ p₆                  : Termᵍ _
 
 ------------------------------------------------------------------------
 -- A lemma
@@ -2073,7 +2074,7 @@ opaque
     Equality-reflection →
     let n = 3 N.+ n
         Γ = record { defs = ε; vars = ε ∙ Empty }
-        t = emptyrec ω ℕ zero
+        t = emptyrec p ℕ zero
         u = t
         A = ℕ
     in
@@ -2109,8 +2110,8 @@ opaque
     Unitʷ-η →
     let n = 4 N.+ n
         Γ = emptyᶜ »∙ Unit 𝕨
-        t = unitrec ω ω ℕ (unitrec ω ω (Unit 𝕨) (star 𝕨) (var x0)) zero
-        u = unitrec ω ω ℕ (var x0) zero
+        t = unitrec p₁ p₂ ℕ (unitrec p₃ p₄ (Unit 𝕨) (star 𝕨) (var x0)) zero
+        u = unitrec p₁ p₂ ℕ (var x0) zero
         A = ℕ
     in
     ⌜ Γ ⌝ᶜ γ ⊢ ⌜ t ⌝ γ ∷ ⌜ A ⌝ γ ×
