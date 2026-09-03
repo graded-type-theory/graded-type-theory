@@ -44,6 +44,7 @@ open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
 import Graded.Erasure.Target as T
 open import Graded.Modality.Omega-instances
+import Graded.Modality.Properties 𝕄 as M
 open import Graded.Restrictions.Zero-one 𝕄 variant
 import Graded.Usage
 open import Graded.Usage.Erased-matches
@@ -51,6 +52,7 @@ import Graded.Usage.Properties
 import Graded.Usage.Properties.Zero-one
 import Graded.Usage.Restrictions.Instance
 open import Graded.Usage.Restrictions.Omega 𝕄
+import Graded.Usage.Restrictions.Satisfied
 
 open import Tools.Bool hiding (_∧_)
 open import Tools.Empty
@@ -274,7 +276,7 @@ record Configuration : Set (lsuc a) where
       ⦃ ok : URₛ.erased-matches-for-J m PE.≡ all ⦄ →
       γ₁ ▸[ 𝟘ᵐ? ] A →
       γ₂ ▸[ 𝟘ᵐ? ] t →
-      γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B →
+      γ₃ ▸[ 𝟘ᵐ? ] B →
       γ₄ ▸[ m ] u →
       γ₅ ▸[ 𝟘ᵐ? ] v →
       γ₆ ▸[ 𝟘ᵐ? ] w →
@@ -722,7 +724,7 @@ opaque
       .▸J′₀₁ ▸A ▸t ▸B ▸u ▸v ▸w →
         sub-≈ᶜ (▸J″₀₁ (is-𝟘? _ ×-dec _) ▸A ▸t ▸B ▸u ▸v ▸w)
           (·ᶜ-congʳ (ω≡ω (erased-matches-JK-≤-some-Usage-allows-omega URₛ ⦃ erased-matches-JK-≡-some-≤-some URₛ ⦄) ω-ok))
-      .▸J′₀₂ ⦃ ok ⦄ → ▸J″₀₂ (is-𝟘? _ ×-dec _) ok
+      .▸J′₀₂       → ▸J″₀₂ (is-𝟘? _ ×-dec _)
       .J′-cong     → J″-cong  (is-𝟘? _ ×-dec _)
       .J′-subst ()
       .J′-β-≡′ _   → J″-β-≡′  (is-𝟘? _ ×-dec _)
@@ -746,6 +748,7 @@ opaque
     open Graded.Usage.Properties URₜ
     open Graded.Usage.Properties.Zero-one variant URₜ
     open Graded.Usage.Restrictions.Instance URₜ
+    open Graded.Usage.Restrictions.Satisfied URₜ
     open ≤ᶜ-reasoning
 
     instance
@@ -837,40 +840,40 @@ opaque
     opaque
 
       ▸J″₀₂ :
+        ⦃ ok : erased-matches-for-J URₛ m PE.≡ all ⦄ →
         (d : Dec (p PE.≡ 𝟘 × q PE.≡ 𝟘)) →
-        erased-matches-for-J URₛ m PE.≡ all →
         γ₁ ▸[ 𝟘ᵐ? ] A →
         γ₂ ▸[ 𝟘ᵐ? ] t →
-        γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] B →
+        γ₃ ▸[ 𝟘ᵐ? ] B →
         γ₄ ▸[ m ] u →
         γ₅ ▸[ 𝟘ᵐ? ] v →
         γ₆ ▸[ 𝟘ᵐ? ] w →
         γ₄ ▸[ m ] J″ d A t B u v w
-      ▸J″₀₂ {m = 𝟙ᵐ} _ ok =
+      ▸J″₀₂ {m = 𝟙ᵐ} ⦃ ok ⦄ =
         ⊥-elim $ PE.subst (flip _≤ᵉᵐ_ _) ok ≤some
-      ▸J″₀₂ {p} {q} {m = 𝟘ᵐ[ ok ]} {A} {t} {γ₃} {B} {γ₄} {u} {v} {w}
-        d _ ▸A ▸t ▸B ▸u ▸v ▸w =
-        let 𝟘·∙𝟘·-lemma = begin
-              γ₃ ∙ 𝟘 · p ∙ 𝟘 · q              ≈˘⟨ ≈ᶜ-refl ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ∙ ·-congʳ (⌜𝟘ᵐ?⌝≡𝟘 ok) ⟩
-              γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ∎
-
-            ▸J″ :
+      ▸J″₀₂ {m = 𝟘ᵐ[ ok ]} {p} {q} {A} {t} {γ₃} {B} {γ₄} {u} {v} {w}
+        d ▸A ▸t ▸B ▸u ▸v ▸w =
+        let ▸J″ :
               (d : Dec (p PE.≡ 𝟘 × q PE.≡ 𝟘)) →
               𝟘ᶜ ▸[ 𝟘ᵐ[ ok ] ] J″ d A t B u v w
             ▸J″ = λ where
               (yes _) →
-                ▸-𝟘₀₁ $ ▸Jᵉ (λ _ → ⊥-elim ∘→ 𝟘ᵐ-allowed→¬Trivialᵐ 𝟘ᵐ-ok) (λ _ → P-ok) (λ ())
+                let non-triv    = 𝟘ᵐ-allowed→¬Trivialᵐ 𝟘ᵐ-ok
+                    γ₃≤𝟘 , B-ok = ▸[𝟘ᵐ]⇔ non-triv .proj₁ ▸B
+                in
+                ▸-𝟘₀₁ $
+                ▸Jᵉ (λ _ → ⊥-elim ∘→ non-triv) (λ _ → P-ok) (λ ())
                   ([]-cong-ok 𝟘ᵐ[ ok ]) ▸A ▸t
-                  (sub (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸B) $ begin
-                     γ₃ ∙ 𝟘 ∙ 𝟘                      ≈˘⟨ ≈ᶜ-refl ∙ ·-zeroˡ _ ∙ ·-zeroˡ _ ⟩
-                     γ₃ ∙ 𝟘 · p ∙ 𝟘 · q              ≤⟨ 𝟘·∙𝟘·-lemma ⟩
-                     γ₃ ∙ ⌜ 𝟘ᵐ? ⌝ · p ∙ ⌜ 𝟘ᵐ? ⌝ · q  ∎)
+                  (▸-cong 𝟘ᵐ?≡𝟘ᵐ $
+                   ▸[𝟘ᵐ]⇔ non-triv .proj₂
+                     ( (begin
+                          tailₘ (tailₘ γ₃) ∙ 𝟘 ∙ 𝟘  ≤⟨ tailₘ-monotone (tailₘ-monotone γ₃≤𝟘) ∙ M.≤-refl ∙ M.≤-refl ⟩
+                          𝟘ᶜ                        ∎)
+                     , B-ok
+                     ))
                   ▸u ▸v ▸w
               (no _) →
-                ▸-𝟘₀₁ $
-                Jₘ-generalised (▸-𝟘ᵐ? ▸A .proj₂) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸t)
-                  (sub (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸B) 𝟘·∙𝟘·-lemma) ▸u
-                  (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸v) (▸-cong 𝟘ᵐ?≡𝟘ᵐ ▸w)
+                ▸-𝟘₀₁ (J₀ₘ₂ (▸-𝟘ᵐ? ▸A .proj₂) ▸t ▸B ▸u ▸v ▸w)
         in
         sub (▸J″ d) $ begin
           γ₄  ≤⟨ ▸-𝟘ᵐ₀₁ ▸u ⟩

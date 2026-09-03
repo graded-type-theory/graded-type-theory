@@ -481,7 +481,7 @@ module Is-morphism
       open Graded.Usage.Restrictions.Instance R₂
     tr-▸ (J₀ₘ₂ ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v ▸w) = J₀ₘ₂
       ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-J-preserved ≈ᵐ-tr-Mode) ≡all ⦄
-      (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
+      (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
       (tr-▸[𝟘ᵐ?] ▸v) (tr-▸[𝟘ᵐ?] ▸w)
     tr-▸ (Kₘ {m} {p} {γ₂} {γ₃} {γ₄} {γ₅} _ ▸A ▸t ▸B ▸u ▸v) = sub
       (Kₘ-generalised (tr-▸[𝟘ᵐ?] ▸A) (tr-▸ ▸t)
@@ -550,7 +550,7 @@ module Is-morphism
       open Graded.Usage.Restrictions.Instance R₂
     tr-▸ (K₀ₘ₂ ⦃ (≡none) ⦄ ▸A ▸t ▸B ▸u ▸v) = K₀ₘ₂
       ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡none ⦄
-      (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-∙▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
+      (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
       (tr-▸[𝟘ᵐ?] ▸v)
     tr-▸ ([]-congₘ {m} ▸l ▸A ▸t ▸u ▸v ok) = sub
       ([]-congₘ (tr-▸[𝟘ᵐ?] ▸l) (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t)
@@ -1520,7 +1520,7 @@ module Is-order-embedding
       (J _ _ _ _ _ _ _ _) (J₀ₘ₂ ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v ▸w) refl ≤γ′ = J₀ₘ₂
       ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-J-reflected ≈ᵐ-tr-Mode) ≡all ⦄
       (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
-      (tr-∙∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
+      (tr-▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸w .proj₂)
 
     tr-▸⁻¹′
@@ -1574,7 +1574,7 @@ module Is-order-embedding
     tr-▸⁻¹′ (K _ _ _ _ _ _) (K₀ₘ₂ ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v) refl ≤γ′ = K₀ₘ₂
       ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-K-reflected ≈ᵐ-tr-Mode) ≡all ⦄
       (tr-▸[𝟘ᵐ?]⁻¹ ▸A .proj₂) (tr-▸[𝟘ᵐ?]⁻¹ ▸t .proj₂)
-      (tr-∙▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
+      (tr-▸[𝟘ᵐ?]⁻¹ ▸B .proj₂) (tr-▸⁻¹′ _ ▸u refl ≤γ′)
       (tr-▸[𝟘ᵐ?]⁻¹ ▸v .proj₂)
 
     tr-▸⁻¹′

@@ -664,11 +664,11 @@ data InvUsageJ
     γ ≤ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) →
     InvUsageJ γ m p q A t B u t′ v
   invUsageJ₀₂ :
-    {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ : Conₘ n} →
+    ∀ {γ₁ γ₂ γ₃ γ₄ γ₅ γ₆} →
     ⦃ ≡all : erased-matches-for-J m ≡ all ⦄ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ 𝟘ᵐ ] t →
-    γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] B →
+    γ₃ ▸[ 𝟘ᵐ ] B →
     γ₄ ▸[ m ] u →
     γ₅ ▸[ 𝟘ᵐ ] t′ →
     γ₆ ▸[ 𝟘ᵐ ] v →
@@ -721,11 +721,11 @@ data InvUsageK
     γ ≤ᶜ ω ·ᶜ (γ₃ +ᶜ γ₄) →
     InvUsageK γ m p A t B u v
   invUsageK₀₂ :
-    {γ₁ γ₂ γ₃ γ₄ γ₅ : Conₘ n} →
+    ∀ {γ₁ γ₂ γ₃ γ₄ γ₅} →
     ⦃ ≡all : erased-matches-for-K m ≡ all ⦄ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ 𝟘ᵐ ] t →
-    γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] B →
+    γ₃ ▸[ 𝟘ᵐ ] B →
     γ₄ ▸[ m ] u →
     γ₅ ▸[ 𝟘ᵐ ] v →
     γ ≤ᶜ γ₄ →

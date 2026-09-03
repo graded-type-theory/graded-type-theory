@@ -1339,7 +1339,8 @@ opaque mutual
     J₀ₘ₂
       (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
-      (substₘ-lemma-𝟘ᵐ-⇑² ▶σ ▸B)
+      (substₘ-lemma-𝟘ᵐ
+         (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)) ▸B)
       (substₘ-lemma ▶σ ▸u)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸v)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸w)
@@ -1372,7 +1373,7 @@ opaque mutual
   substₘ-lemma ▶σ (K₀ₘ₂ ▸A ▸t ▸B ▸u ▸v) =
     K₀ₘ₂ (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
-      (substₘ-lemma-𝟘ᵐ-⇑ ▶σ ▸B)
+      (substₘ-lemma-𝟘ᵐ (wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ) ▸B)
       (substₘ-lemma ▶σ ▸u)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸v)
   substₘ-lemma {Ψ} ▶σ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =

@@ -411,9 +411,7 @@ opaque mutual
           (PE.refl , _ , PE.refl , PE.refl) →
         J₀ₘ₂ ▸A
           (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t)
-          (PE.subst₂ (_▸[_] B)
-             (PE.cong₂ _∙_ (PE.cong (_∙_ _) 𝟘≡⌜𝟘ᵐ?⌝·) 𝟘≡⌜𝟘ᵐ?⌝·) ⌞𝟘⌟≡𝟘ᵐ?
-             (⊢[]→▸ ⊢B))
+          (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? (⊢[]→▸ ⊢B))
           ▸u (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v)
           (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸w) }
       (is-some-yes ⦃ (≡some) ⦄ (p′≡𝟘 , q≡𝟘)) →
@@ -463,8 +461,7 @@ opaque mutual
           (PE.refl , _ , PE.refl , PE.refl) →
         K₀ₘ₂ ▸A
           (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸t)
-          (PE.subst₂ (_▸[_] B) (PE.cong (_∙_ _) 𝟘≡⌜𝟘ᵐ?⌝·) ⌞𝟘⌟≡𝟘ᵐ?
-             (⊢[]→▸ ⊢B))
+          (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? (⊢[]→▸ ⊢B))
           ▸u (PE.subst (flip (_▸[_]_ _) _) ⌞𝟘⌟≡𝟘ᵐ? ▸v) }
       (is-some-yes ⦃ (≡some) ⦄ p′≡𝟘) →
         case hyp₂ ≡some p′≡𝟘 of λ {

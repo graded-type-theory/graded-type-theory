@@ -327,30 +327,13 @@ infix 10 ⌈⌉▸[_]?_
 ⌈⌉▸[ m ]? J p q A t B u v w with J-view p q m
 … | is-all ⦃ ok = ≡all ⦄ =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
-       ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀
-       Dec→Dec-∀ (⌜ 𝟘ᵐ ⌝ · p ≤? headₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ))) ×-Dec-∀
-       Dec→Dec-∀ (⌜ 𝟘ᵐ ⌝ · q ≤? headₘ (⌈ B ⌉ 𝟘ᵐ)) of λ where
-    (inj₁ (▸A , ▸t , ▸u , ▸v , ▸w , ▸B , 𝟘ᵐp≤ , 𝟘ᵐq≤)) →
-      let lemma = begin
-            tailₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ)) ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q    ≤⟨ ≤ᶜ-refl ∙ 𝟘ᵐp≤ ∙ 𝟘ᵐq≤ ⟩
-
-            tailₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ)) ∙ headₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ)) ∙
-            headₘ (⌈ B ⌉ 𝟘ᵐ)                                        ≡⟨ cong (_∙ headₘ (⌈ B ⌉ _)) (headₘ-tailₘ-correct _) ⟩
-
-            tailₘ (⌈ B ⌉ 𝟘ᵐ) ∙ headₘ (⌈ B ⌉ 𝟘ᵐ)                    ≡⟨ headₘ-tailₘ-correct _ ⟩
-
-            ⌈ B ⌉ 𝟘ᵐ                                                ∎
-      in
-      inj₁ (J₀ₘ₂ ▸A ▸t (sub ▸B lemma) ▸u ▸v ▸w)
+       ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B of λ where
+    (inj₁ (▸A , ▸t , ▸u , ▸v , ▸w , ▸B)) →
+      inj₁ (J₀ₘ₂ ▸A ▸t ▸B ▸u ▸v ▸w)
     (inj₂ problem) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
         (invUsageJ₀₂ ▸A ▸t ▸B ▸u ▸v ▸w _) →
-          let ≤⌈B⌉𝟘ᵐ = usage-upper-bound no-sink-or-≤𝟘 ▸B in
-          problem _
-            ( ▸A , ▸t , ▸u , ▸v , ▸w , ▸B
-            , headₘ-monotone (tailₘ-monotone ≤⌈B⌉𝟘ᵐ)
-            , headₘ-monotone ≤⌈B⌉𝟘ᵐ
-            )
+          problem _ (▸A , ▸t , ▸u , ▸v , ▸w , ▸B)
         (invUsageJ ⦃ ≤some ⦄ _ _ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
         (invUsageJ₀₁ ⦃ ≡some ⦄ _ _ _ _ _ _ _ _ _) →
@@ -425,22 +408,13 @@ infix 10 ⌈⌉▸[_]?_
 ⌈⌉▸[ m ]? K p A t B u v with K-view p m
 … | is-all ⦃ ok = ≡all ⦄ =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
-       ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀
-       Dec→Dec-∀ (⌜ 𝟘ᵐ ⌝ · p ≤? headₘ (⌈ B ⌉ 𝟘ᵐ)) of λ where
-    (inj₁ (▸A , ▸t , ▸u , ▸v , ▸B , 𝟘ᵐp≤)) →
-      let lemma = begin
-            tailₘ (⌈ B ⌉ 𝟘ᵐ) ∙ ⌜ 𝟘ᵐ ⌝ · p        ≤⟨ ≤ᶜ-refl ∙ 𝟘ᵐp≤ ⟩
-            tailₘ (⌈ B ⌉ 𝟘ᵐ) ∙ headₘ (⌈ B ⌉ 𝟘ᵐ)  ≡⟨ headₘ-tailₘ-correct _ ⟩
-            ⌈ B ⌉ 𝟘ᵐ                              ∎
-      in
-      inj₁ (K₀ₘ₂ ▸A ▸t (sub ▸B lemma) ▸u ▸v)
+       ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B of λ where
+    (inj₁ (▸A , ▸t , ▸u , ▸v , ▸B)) →
+      inj₁ (K₀ₘ₂ ▸A ▸t ▸B ▸u ▸v)
     (inj₂ problem) → inj₂ λ _ ▸K →
       case inv-usage-K ▸K of λ where
         (invUsageK₀₂ ▸A ▸t ▸B ▸u ▸v _) →
-          problem _
-            ( ▸A , ▸t , ▸u , ▸v , ▸B
-            , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B)
-            )
+          problem _ (▸A , ▸t , ▸u , ▸v , ▸B)
         (invUsageK ⦃ ≤some ⦄ _ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
         (invUsageK₀₁ ⦃ ≡some ⦄ _ _ _ _ _ _ _) →

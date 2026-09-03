@@ -521,7 +521,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
   J₀ₘ₂      : ⦃ ok : erased-matches-for-J m ≡ all ⦄
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] t
-            → γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] B
+            → γ₃ ▸[ 𝟘ᵐ ] B
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ 𝟘ᵐ ] v
             → γ₆ ▸[ 𝟘ᵐ ] w
@@ -548,7 +548,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
   K₀ₘ₂      : ⦃ ok : erased-matches-for-K m ≡ all ⦄
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] t
-            → γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] B
+            → γ₃ ▸[ 𝟘ᵐ ] B
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ 𝟘ᵐ ] v
             → γ₄ ▸[ m ] K p A t B u v
