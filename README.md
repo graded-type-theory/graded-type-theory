@@ -1,4 +1,4 @@
-# An Agda Formalization of a Graded Modal Type Theory with Erasure, First-Class Universe Levels, Quotient Types and Opaque Definitions
+# An Agda Formalization of Graded Modal Type Theory with Erasure, First-Class Universe Levels, Quotient Types and Opaque Definitions
 
 ## Project history
 
@@ -57,14 +57,15 @@ Later other additions were made. Some highlights:
   '25)_, 2025
   ([doi:10.1145/3759538.3759653](https://doi.org/10.1145/3759538.3759653)).
 
-- A different approach to grades for recursion over natural numbers and
-  an abstract machine used to show correctness for quantitative modalities
-  (e.g. linear/affine types) was added by Oskar Eriksson, Andreas Abel and
-  Nils Anders Danielsson, see [README.Recursion](README/Recursion.agda)
-  for more details. This addition is also described in the paper
-  _On Recursion in Graded Modal Type Theory_, Oskar Eriksson, Andreas Abel
-  and Nils Anders Danielsson, _Proceedings of the ACM on Programming
-  Languages_, Volume 10, Issue ICFP, 2026
+- A different approach to grades for recursion over natural numbers
+  and an abstract machine used to show correctness for quantitative
+  modalities (e.g. linear/affine types) were added by Oskar Eriksson,
+  Andreas Abel and Nils Anders Danielsson, see
+  [README.Recursion](README/Recursion.agda) for more details. This
+  addition is also described in the paper _On Recursion in Graded
+  Modal Type Theory_, Oskar Eriksson, Andreas Abel and Nils Anders
+  Danielsson, _Proceedings of the ACM on Programming Languages_,
+  Volume 10, Issue ICFP, 2026
   ([doi:10.1145/3828677](https://doi.org/10.1145/3828677)).
 
 - Quotient types were added by Nils Anders Danielsson (@nad, 2026).
