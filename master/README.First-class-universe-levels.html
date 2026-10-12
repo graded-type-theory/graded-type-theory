@@ -706,9 +706,9 @@ The usage relation. This relation is parametrised by a value of type
 several forms of erased matches.
 </a><a id="21115" class="Markup">```agda
 </a><a id="21123" class="Keyword">import</a> <a id="21130" href="Graded.Usage.html" class="Module">Graded.Usage</a>
-  <a id="21145" class="Keyword">using</a> <a id="21151" class="Symbol">(</a><a id="21152" href="Graded.Usage.html#9326" class="Datatype Operator">_▸[_]_</a><a id="21158" class="Symbol">)</a>
+  <a id="21145" class="Keyword">using</a> <a id="21151" class="Symbol">(</a><a id="21152" href="Graded.Usage.html#9683" class="Datatype Operator">_▸[_]_</a><a id="21158" class="Symbol">)</a>
 <a id="21160" class="Keyword">import</a> <a id="21167" href="Graded.Usage.Restrictions.html" class="Module">Graded.Usage.Restrictions</a>
-  <a id="21195" class="Keyword">using</a> <a id="21201" class="Symbol">(</a><a id="21202" href="Graded.Usage.Restrictions.html#974" class="Record">Usage-restrictions</a><a id="21220" class="Symbol">)</a>
+  <a id="21195" class="Keyword">using</a> <a id="21201" class="Symbol">(</a><a id="21202" href="Graded.Usage.Restrictions.html#1136" class="Record">Usage-restrictions</a><a id="21220" class="Symbol">)</a>
 <a id="21222" class="Markup">```
 </a><a id="21226" class="Background">
 Usage contexts.
@@ -766,7 +766,7 @@ Complete removal of all arguments can, in the strict setting, lead to
 non-termination for the extracted program.
 </a><a id="22835" class="Markup">```agda
 </a><a id="22843" class="Keyword">import</a> <a id="22850" href="Graded.Erasure.Extraction.Non-terminating.html" class="Module">Graded.Erasure.Extraction.Non-terminating</a>
-  <a id="22894" class="Keyword">using</a> <a id="22900" class="Symbol">(</a><a id="22901" href="Graded.Erasure.Extraction.Non-terminating.html#12636" class="Function">loops-reduces-forever</a><a id="22922" class="Symbol">;</a> <a id="22924" href="Graded.Erasure.Extraction.Non-terminating.html#13655" class="Function">⊢loops</a><a id="22930" class="Symbol">;</a> <a id="22932" href="Graded.Erasure.Extraction.Non-terminating.html#13968" class="Function">▸loops</a><a id="22938" class="Symbol">)</a>
+  <a id="22894" class="Keyword">using</a> <a id="22900" class="Symbol">(</a><a id="22901" href="Graded.Erasure.Extraction.Non-terminating.html#12766" class="Function">loops-reduces-forever</a><a id="22922" class="Symbol">;</a> <a id="22924" href="Graded.Erasure.Extraction.Non-terminating.html#13785" class="Function">⊢loops</a><a id="22930" class="Symbol">;</a> <a id="22932" href="Graded.Erasure.Extraction.Non-terminating.html#14098" class="Function">▸loops</a><a id="22938" class="Symbol">)</a>
 <a id="22940" class="Markup">```
 </a><a id="22944" class="Background">
 Theorem 5.1: Soundness of erasure. The paper uses the formulation
@@ -779,14 +779,14 @@ statement in the code also has the condition &quot;equality reflection is
 disallowed or the context is empty&quot;.
 </a><a id="23455" class="Markup">```agda
 </a><a id="23463" class="Keyword">open</a> <a id="23468" class="Keyword">import</a> <a id="23475" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a>
-<a id="23513" class="Keyword">open</a> <a id="23518" href="Graded.Erasure.Consequences.Soundness.html#3662" class="Module">Soundness</a>
-  <a id="23530" class="Keyword">using</a> <a id="23536" class="Symbol">(</a><a id="23537" href="Graded.Erasure.Consequences.Soundness.html#6097" class="Function">soundness-ℕ</a><a id="23548" class="Symbol">)</a>
+<a id="23513" class="Keyword">open</a> <a id="23518" href="Graded.Erasure.Consequences.Soundness.html#3756" class="Module">Soundness</a>
+  <a id="23530" class="Keyword">using</a> <a id="23536" class="Symbol">(</a><a id="23537" href="Graded.Erasure.Consequences.Soundness.html#6191" class="Function">soundness-ℕ</a><a id="23548" class="Symbol">)</a>
 <a id="23550" class="Markup">```
 </a><a id="23554" class="Background">
 Corollary 5.2: Soundness of erasure for closed terms.
 </a><a id="23609" class="Markup">```agda
-</a><a id="23617" class="Keyword">open</a> <a id="23622" href="Graded.Erasure.Consequences.Soundness.html#8380" class="Module">Soundness₀</a>
-  <a id="23635" class="Keyword">using</a> <a id="23641" class="Symbol">(</a><a id="23642" href="Graded.Erasure.Consequences.Soundness.html#8679" class="Function">soundness-ℕ</a><a id="23653" class="Symbol">)</a>
+</a><a id="23617" class="Keyword">open</a> <a id="23622" href="Graded.Erasure.Consequences.Soundness.html#8474" class="Module">Soundness₀</a>
+  <a id="23635" class="Keyword">using</a> <a id="23641" class="Symbol">(</a><a id="23642" href="Graded.Erasure.Consequences.Soundness.html#8773" class="Function">soundness-ℕ</a><a id="23653" class="Symbol">)</a>
 <a id="23655" class="Markup">```
 </a><a id="23659" class="Background">
 Some counterexamples to variants of Theorem 5.1, one for the case
@@ -795,7 +795,7 @@ case where erased matches are allowed for the empty type and the
 context is allowed to be inconsistent.
 </a><a id="23897" class="Markup">```agda
 </a><a id="23905" class="Keyword">import</a> <a id="23912" href="Graded.Erasure.Consequences.Soundness.html" class="Module">Graded.Erasure.Consequences.Soundness</a> <a id="23950" class="Keyword">using</a>
-  <a id="23958" class="Symbol">(</a><a id="23959" href="Graded.Erasure.Consequences.Soundness.html#10264" class="Function">soundness-ℕ-only-source-counterexample₁</a><a id="23998" class="Symbol">;</a> <a id="24000" href="Graded.Erasure.Consequences.Soundness.html#22937" class="Function">soundness-ℕ-counterexample₆</a><a id="24027" class="Symbol">)</a>
+  <a id="23958" class="Symbol">(</a><a id="23959" href="Graded.Erasure.Consequences.Soundness.html#10358" class="Function">soundness-ℕ-only-source-counterexample₁</a><a id="23998" class="Symbol">;</a> <a id="24000" href="Graded.Erasure.Consequences.Soundness.html#22888" class="Function">soundness-ℕ-counterexample₆</a><a id="24027" class="Symbol">)</a>
 <a id="24029" class="Markup">```
 </a><a id="24033" class="Background">
 ### 6: Discussion and Future Work
