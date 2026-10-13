@@ -22,7 +22,7 @@ module Graded.Heap.Usage.Properties
 open Modality 𝕄
 open IsMode 𝐌
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Untyped M
 open import Graded.Context 𝕄

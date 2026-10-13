@@ -39,12 +39,12 @@ module Graded.Erasure.Extraction.Non-terminating
   (open Graded.Mode.Instances.Zero-one variant)
   (C : Configuration Zero-one-isMode)
   (open Configuration C)
-  ⦃ jk-ω : Usage-allows-omega ⦄
+  ⦃ jk-ω : Omega-allowed ⦄
   where
 
 open Modality 𝕄
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Typed TC
 open import Definition.Typed.Properties TC hiding (⊢cast)

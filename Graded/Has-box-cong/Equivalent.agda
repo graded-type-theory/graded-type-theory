@@ -21,7 +21,7 @@ open Modality 𝕄
 open Mode-variant variant
 open Configuration C
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Typed TC
 open import Definition.Typed.Inversion TC
@@ -390,7 +390,7 @@ opaque
   -- erasure modality with 𝟘ᵐ.
 
   Has-[]-cong-stronger :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     {Γ : Con Term n} →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
@@ -579,7 +579,7 @@ opaque
   -- erasure modality with 𝟘ᵐ.
 
   Has-computing-[]-cong-stronger :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     {Γ : Con Term n} →
     (s PE.≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s PE.≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →

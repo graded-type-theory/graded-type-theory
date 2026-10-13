@@ -284,7 +284,7 @@ opaque
 
   negation-of-fundamental-lemma-with-erased-matches₃′ :
     ⦃ ok : No-equality-reflection ⦄ →
-    ⦃ ok-ω : Usage-allows-omega ⦄ →
+    ⦃ ok-ω : Omega-allowed ⦄ →
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
     Higher-quotient-constructors-neutral →
     ¬ (∀ {o k} {Δ : Con Term k} {∇ : DCon (Term 0) o}

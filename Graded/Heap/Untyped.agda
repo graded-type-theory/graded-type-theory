@@ -39,7 +39,7 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Untyped M hiding (head)
 open import Definition.Untyped.Names-below M using (No-names)
@@ -172,10 +172,10 @@ data ∣J_,_,_∣≡_ : Erased-matches → M → M → M → Set a where
   J-all   : ∣J all  , p , q ∣≡ 𝟘
   J-some₀ : p ≡ 𝟘 → q ≡ 𝟘 →
             ∣J some , p , q ∣≡ 𝟘
-  J-some  : ⦃ ok : Usage-allows-omega ⦄ →
+  J-some  : ⦃ ok : Omega-allowed ⦄ →
             ¬ (p ≡ 𝟘 × q ≡ 𝟘) →
             ∣J some , p , q ∣≡ ω
-  J-none  : ⦃ ok : Usage-allows-omega ⦄ →
+  J-none  : ⦃ ok : Omega-allowed ⦄ →
             ∣J none , p , q ∣≡ ω
 
 -- The multiplicity of the Kₑ continuation, depending on which
@@ -185,10 +185,10 @@ data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
   K-all   : ∣K all  , p ∣≡ 𝟘
   K-some₀ : p ≡ 𝟘 →
             ∣K some , p ∣≡ 𝟘
-  K-some  : ⦃ ok : Usage-allows-omega ⦄ →
+  K-some  : ⦃ ok : Omega-allowed ⦄ →
             p ≢ 𝟘 →
             ∣K some , p ∣≡ ω
-  K-none  : ⦃ ok : Usage-allows-omega ⦄ →
+  K-none  : ⦃ ok : Omega-allowed ⦄ →
             ∣K none , p ∣≡ ω
 
 -- Multiplicity of an continuation, representing how many copies need to

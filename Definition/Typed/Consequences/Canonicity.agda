@@ -319,8 +319,8 @@ opaque
     let ok , _ = Higher-quotient-constructors-neutral⇔ .proj₁ ok in
     ⊥-elim (not-ok ok)
   Only-Level-or-U→Neutral→≡Level⊎≡U not-ok tr only ⊢qr (qrec w-ne) =
-    let _ , _ , _ , _ , _ , _ , ⊢w , A≡ = inversion-qrec ⊢qr
-        Quot≡ , _                       =
+    let _ , _ , _ , _ , _ , _ , _ , ⊢w , A≡ = inversion-qrec ⊢qr
+        Quot≡ , _                           =
           Only-Level-or-U→Neutral→≡Level⊎≡U not-ok tr only ⊢w w-ne
     in
     case Quot≡ of λ where

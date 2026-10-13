@@ -25,6 +25,10 @@ open Is-morphism m
 open Is-Σ-morphism m-Σ
 open Is-Σ-morphism-TC m-TC
 
+import Configuration-types.Instance.Type-configuration
+open Configuration-types.Instance.Type-configuration TC₁
+open Configuration-types.Instance.Type-configuration TC₂
+
 open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
@@ -420,13 +424,17 @@ mutual
   tr-⊢∷ (set _ _ _ ⊢v ⊢w) =
     P₂.⊢set (tr-⊢∷ ⊢v) (tr-⊢∷ ⊢w)
   tr-⊢∷ (qrec {C} ⊢C ⊢t ⊢u ⊢v ⊢w) =
-    let ok , _ = inversion-Is-set-Cons ⊢v in
+    let q-ok , _ = inversion-Is-set-Cons ⊢v
+        ok       = TC₂.Quot-allowed→Omega-allowed (Quot-preserved q-ok)
+    in
     PE.subst (T₂._⊢_∷_ _ _) (tr-Term-[] C) $
-    qrec (tr-⊢′ ⊢C)
+    qrec ⦃ ok = ok ⦄
+      (tr-⊢′ ⊢C)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ C)) $
        tr-⊢∷ ⊢t)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Resp-Cons PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
+         (tr-Term-Resp-type ⦃ ok₂ = _ ⦄ (Quot-allowed→tr-𝟘≡𝟘 q-ok)
+            (tr-ω ⦃ ok₂ = ok ⦄)) $
        tr-⊢∷ ⊢u)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
          tr-Term-Is-set-type $
@@ -675,26 +683,32 @@ mutual
        tr-⊢≡ B₁≡B₂)
       (tr-⊢≡∷ t₁≡t₂) (tr-⊢≡∷ u₁≡u₂) (tr-⊢≡∷ v₁≡v₂) (tr-⊢≡∷ w₁≡w₂)
   tr-⊢≡∷ (qrec-cong {C₁} C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
-    let ok , _ = inversion-Is-set-Cons v₁≡v₂ in
+    let q-ok , _ = inversion-Is-set-Cons v₁≡v₂
+        ok       = TC₂.Quot-allowed→Omega-allowed (Quot-preserved q-ok)
+    in
     PE.subst (T₂._⊢_≡_∷_ _ _ _) (tr-Term-[] C₁) $
-    qrec-cong (tr-⊢≡ C₁≡C₂)
+    qrec-cong ⦃ ok = ok ⦄ (tr-⊢≡ C₁≡C₂)
       (PE.subst (T₂._⊢_≡_∷_ _ _ _) (PE.sym (tr-Term-[]↑ C₁)) $
        tr-⊢≡∷ t₁≡t₂)
       (PE.subst₄ T₂._⊢_≡_∷_ tr-Cons-Resp-Cons PE.refl PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
+         (tr-Term-Resp-type ⦃ ok₂ = _ ⦄ (Quot-allowed→tr-𝟘≡𝟘 q-ok)
+            (tr-ω ⦃ ok₂ = ok ⦄)) $
        tr-⊢≡∷ u₁≡u₂)
       (PE.subst₄ T₂._⊢_≡_∷_ tr-Cons-Is-set-Cons PE.refl PE.refl
          tr-Term-Is-set-type $
        tr-⊢≡∷ v₁≡v₂)
       (tr-⊢≡∷ w₁≡w₂)
   tr-⊢≡∷ (qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) =
-    let ok , _ = inversion-Is-set-Cons ⊢v in
+    let q-ok , _ = inversion-Is-set-Cons ⊢v
+        ok       = TC₂.Quot-allowed→Omega-allowed (Quot-preserved q-ok)
+    in
     PE.subst₂ (T₂._⊢_≡_∷_ _ _) (tr-Term-[] t) (tr-Term-[] C) $
-    qrec-β (tr-⊢′ ⊢C)
+    qrec-β ⦃ ok = ok ⦄ (tr-⊢′ ⊢C)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ C)) $
        tr-⊢∷ ⊢t)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Resp-Cons PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
+         (tr-Term-Resp-type ⦃ ok₂ = _ ⦄ (Quot-allowed→tr-𝟘≡𝟘 q-ok)
+            (tr-ω ⦃ ok₂ = ok ⦄)) $
        tr-⊢∷ ⊢u)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
          tr-Term-Is-set-type $
@@ -894,26 +908,32 @@ module _
     set-η (Equality-reflection-preserved ok) (tr-⊢∷ ⊢t) (tr-⊢∷ ⊢u)
       (tr-⊢∷ ⊢v) (tr-⊢∷ ⊢w)
   tr-⊢⇒∷ (qrec-subst {C} ⊢C ⊢t ⊢u ⊢v w₁⇒w₂) =
-    let ok , _ = inversion-Is-set-Cons ⊢v in
+    let q-ok , _ = inversion-Is-set-Cons ⊢v
+        ok       = TC₂.Quot-allowed→Omega-allowed (Quot-preserved q-ok)
+    in
     PE.subst (T₂._⊢_⇒_∷_ _ _ _) (tr-Term-[] C) $
-    qrec-subst (tr-⊢′ ⊢C)
+    qrec-subst ⦃ ok = ok ⦄ (tr-⊢′ ⊢C)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ C)) $
        tr-⊢∷ ⊢t)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Resp-Cons PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
+         (tr-Term-Resp-type ⦃ ok₂ = _ ⦄ (Quot-allowed→tr-𝟘≡𝟘 q-ok)
+            (tr-ω ⦃ ok₂ = ok ⦄)) $
        tr-⊢∷ ⊢u)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
          tr-Term-Is-set-type $
        tr-⊢∷ ⊢v)
       (tr-⊢⇒∷ w₁⇒w₂)
   tr-⊢⇒∷ (qrec-β {C} {t} ⊢C ⊢t ⊢u ⊢v ⊢w) =
-    let ok , _ = inversion-Is-set-Cons ⊢v in
+    let q-ok , _ = inversion-Is-set-Cons ⊢v
+        ok       = TC₂.Quot-allowed→Omega-allowed (Quot-preserved q-ok)
+    in
     PE.subst₂ (T₂._⊢_⇒_∷_ _ _) (tr-Term-[] t) (tr-Term-[] C) $
-    qrec-β (tr-⊢′ ⊢C)
+    qrec-β ⦃ ok = ok ⦄ (tr-⊢′ ⊢C)
       (PE.subst (T₂._⊢_∷_ _ _) (PE.sym (tr-Term-[]↑ C)) $
        tr-⊢∷ ⊢t)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Resp-Cons PE.refl
-         (tr-Term-Resp-type (Quot-allowed→tr-𝟘≡𝟘 ok)) $
+         (tr-Term-Resp-type ⦃ ok₂ = _ ⦄ (Quot-allowed→tr-𝟘≡𝟘 q-ok)
+            (tr-ω ⦃ ok₂ = ok ⦄)) $
        tr-⊢∷ ⊢u)
       (PE.subst₃ T₂._⊢_∷_ tr-Cons-Is-set-Cons PE.refl
          tr-Term-Is-set-type $

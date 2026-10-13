@@ -39,7 +39,7 @@ import Tools.Reasoning.PropositionalEquality as RPe
 import Tools.Reasoning.Equivalence as REq
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Untyped M
 

@@ -28,7 +28,7 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Untyped M
 open import Graded.Heap.Untyped C factoring-nr ∣ε∣

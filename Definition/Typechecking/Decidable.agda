@@ -17,6 +17,8 @@ module Definition.Typechecking.Decidable
 open Assumptions as
 open Type-configuration TC
 
+open import Configuration-types.Omega 𝕄
+
 open import Definition.Typechecking TC
 open import Definition.Typechecking.Soundness TC
 open import Definition.Typechecking.Deterministic TC
@@ -761,15 +763,31 @@ opaque
       Checkable v → Inferable w →
       Dec (∃ λ D → Γ ⊢ qrec C t u v w ⇉ D)
     dec⇉-qrec ⊢Γ C t u v w =
+      let ω-ok : ∀ {C} → Γ ⊢ A ↘ Quot B C → Omega-allowed
+          ω-ok (A⇒*Q , _) =
+             let A≡Q    = subset* A⇒*Q
+                 _ , ⊢Q = wf-⊢ A≡Q
+                 ok , _ = inversion-Quot ⊢Q
+             in
+             Quot-allowed→Omega-allowed ok
+      in
       case
         (dec⇉-with-cont ⊢Γ w λ ⊢A _ →
          Σ-dec (↘Quot? ⊢A)
            (λ (_ , _ , ↘Q₁) (_ , _ , ↘Q₂) →
               case whrDet* ↘Q₁ ↘Q₂ of λ {
                 PE.refl →
-              idᶠ })
-           λ (_ , _ , A⇒*Q , _) →
-         let A≡Q         = subset* A⇒*Q
+              Σ.map idᶠ $ Σ.map idᶠ $
+              Σ.map
+                (PE.subst (_⊢_⇇_ _ _) $
+                 PE.cong
+                   (λ ok →
+                      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄
+                        _ _ _ _) $
+                 Omega-allowed-propositional (ω-ok ↘Q₁) (ω-ok ↘Q₂))
+                idᶠ })
+           λ (_ , _ , ↘Q) →
+         let A≡Q         = subset* (↘Q .proj₁)
              _ , ⊢Q      = wf-⊢ A≡Q
              _ , ⊢Q₁ , _ = inversion-Quot ⊢Q
          in
@@ -777,14 +795,16 @@ opaque
          dec⇇-with-cont t
            (subst-⊢ ⊢C $
             ⊢ˢʷ∷-[][]↑ (class (wk₁ ⊢Q₁ ⊢Q) (var₀ ⊢Q₁))) λ ⊢t →
-         dec⇇ u (⊢Resp-type ⊢C ⊢t) ×-dec
+         dec⇇ u (⊢Resp-type ⦃ ok = ω-ok ↘Q ⦄ ⊢C ⊢t) ×-dec
          dec⇇ v (⊢Is-set-type ⊢C))
       of λ where
         (yes ((_ , w) , (_ , _ , ↘Q) , C , t , u , v)) →
-          yes (_ , qrec w ↘Q C t u v)
+          yes (_ , qrec ⦃ ok = ω-ok ↘Q ⦄ w ↘Q C t u v)
         (no not) → no λ where
-          (_ , qrec w ↘Q C t u v) →
-            not ((_ , w) , (_ , _ , ↘Q) , C , t , u , v)
+          (_ , qrec ⦃ ok ⦄ w ↘Q C t u v) →
+            case Omega-allowed-propositional ok (ω-ok ↘Q) of λ {
+              PE.refl →
+            not ((_ , w) , (_ , _ , ↘Q) , C , t , u , v) }
 
   -- Decidability of checking that an inferable term is a type
 

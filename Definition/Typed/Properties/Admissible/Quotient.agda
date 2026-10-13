@@ -3,16 +3,20 @@
 ------------------------------------------------------------------------
 
 open import Configuration-types
-open import Graded.Modality
+import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Quotient
   {ℓ} {M : Set ℓ}
-  {𝕄 : Modality M}
+  (open Graded.Modality M)
+  {𝕄 : Modality}
   (TC : Type-configuration 𝕄)
   where
 
+open Has-omega ⦃ … ⦄
 open Modality 𝕄
 open Type-configuration TC
+
+open import Configuration-types.Instance.Type-configuration TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
@@ -153,6 +157,7 @@ opaque
   -- A congruence lemma for Resp-type.
 
   Resp-type-cong :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ ⊢ A₁ ≡ A₂ →
     Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂ →
     Γ »∙ Quot A₁ B₁ ⊢ C₁ ≡ C₂ →
@@ -167,6 +172,7 @@ opaque
   -- A typing rule for Resp-type.
 
   ⊢Resp-type :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ »∙ Quot A B ⊢ C →
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
     Resp-Cons Γ A B ⊢ Resp-type A B C t
@@ -196,6 +202,7 @@ opaque
   -- equivalence, be expressed as a judgemental equality.
 
   ∷Resp-type⇔≡∷ :
+    ⦃ ok : Omega-allowed ⦄ →
     Equality-reflection →
     Γ »∙ Quot A B ⊢ C →
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
@@ -230,7 +237,7 @@ opaque
 
         lemma₃ :
           Resp-Cons Γ A B ⊢
-          subst 𝟘 (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
+          subst ω (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
             (class (var x2)) (class (var x1))
             (resp (wk[ 3 ]′ A) (wk (liftn (stepn id 3) 2) B) (var x2)
                (var x1) (var x0))
@@ -259,7 +266,7 @@ opaque
     (λ t≡t →
        rfl ,
        rflⱼ′
-         (subst 𝟘 (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
+         (subst ω (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
             (class (var x2)) (class (var x1))
             (resp (wk[ 3 ]′ A) (wk (liftn (stepn id 3) 2) B)
                (var x2) (var x1) (var x0))
@@ -396,6 +403,7 @@ opaque
   -- A variant of qrec-subst.
 
   qrec-subst* :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ »∙ Quot A B ⊢ C →
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
     Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t →
@@ -421,6 +429,7 @@ opaque
   -- his PhD thesis.
 
   qrec-with-equality-reflection :
+    ⦃ ok : Omega-allowed ⦄ →
     Equality-reflection →
     Γ »∙ Quot A B ⊢ C →
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →

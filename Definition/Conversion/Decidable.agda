@@ -17,6 +17,8 @@ module Definition.Conversion.Decidable
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal TC
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -691,6 +693,7 @@ private opaque
   -- A lemma used below.
 
   dec~↑-qrec-cong :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ ⊢ w₁ ∷ Quot A B →
     Dec
       ((∃ λ D → Γ ⊢ w₁ ~ w₂ ↓ D) ×
@@ -722,10 +725,12 @@ private opaque
          (stabilityConv↑Term (Is-set-Con-cong Γ≡Γ A≡ B≡ (refl ⊢C₁))
             v₁≡v₂)
          w₁~w₂) }
-  dec~↑-qrec-cong ⊢w₁ (no not-all-OK) = no λ (_ , qrec~qrec) →
+  dec~↑-qrec-cong ⦃ ok ⦄ ⊢w₁ (no not-all-OK) = no λ (_ , qrec~qrec) →
     case inv-qrec~ qrec~qrec of λ {
-      (_ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+      (_ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl , ok′ ,
        C₁≡C₂ , t₁≡t₂ , u₁≡u₂ , v₁≡v₂ , w₁~w₂) →
+    case Omega-allowed-propositional ok ok′ of λ {
+      PE.refl →
     let _ , w₁-ne , _ = ne~↓ w₁~w₂
         ≡Q            = neTypeEq (ne⁻ w₁-ne) (~↓→∷ w₁~w₂) ⊢w₁
         ≡A , ≡B       = Quot-injectivity-no-equality-reflection ≡Q
@@ -741,7 +746,7 @@ private opaque
           (convConv↑Term (Resp-type-cong ≡A ≡B (refl ⊢C₁) (refl ⊢t₁))
              u₁≡u₂)
       , stabilityConv↑Term (Is-set-Con-cong Γ≡Γ ≡A ≡B (refl ⊢C₁)) v₁≡v₂
-      ) }
+      ) }}
 
 private opaque
 
@@ -1021,14 +1026,15 @@ opaque
        in
        decConv↑TermConv Id≡Id v₁≡ v₂≡ ×-dec
        decConv↑TermConv Id≡Id w₁≡ w₂≡)
-  dec~↑ (qrec-cong C₁≡ t₁≡ u₁≡ v₁≡ w₁~) u~
+  dec~↑ (qrec-cong ⦃ ok ⦄ C₁≡ t₁≡ u₁≡ v₁≡ w₁~) u~
     with inv-~-qrec u~
   … | inj₂ (u≢qrec , _) = no λ (_ , t~u) →
     let _ , _ , _ , _ , _ , _ , _ , _ , u≡qrec , _ = inv-qrec~ t~u in
     u≢qrec (_ , _ , _ , _ , _ , u≡qrec)
   … | inj₁
         (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
-         PE.refl , PE.refl , _ , C₂≡ , t₂≡ , u₂≡ , v₂≡ , w₂~) =
+         PE.refl , PE.refl , _ , ok′ , C₂≡ , t₂≡ , u₂≡ , v₂≡ , w₂~)
+    rewrite PE.sym (Omega-allowed-propositional ok ok′) =
     dec~↑-qrec-cong (~↓→∷ w₁~)
       (dec~↓ w₁~ w₂~ ×-dec′ λ (_ , w₁~w₂) →
        let _ , w₁-ne , w₂-ne = ne~↓ w₁~w₂

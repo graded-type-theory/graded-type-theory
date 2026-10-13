@@ -21,7 +21,7 @@ open Modality 𝕄
 open IsMode 𝐌
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 open import Configuration-types.Natrec 𝕄
 open import Configuration-types.Omega 𝕄
 
@@ -528,7 +528,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v , ▸w)
 
 ⌈⌉▸[ m ]? qrec C t u v w
-  with Usage-allows-omega? | Qrec-motive-erased?
+  with Omega-allowed? | Qrec-motive-erased?
 … | no ω-not-ok | _ = inj₂ λ _ ▸q →
   case inv-usage-qrec ▸q of λ where
     (invUsageQrec₀ ⦃ ok = ω-ok ⦄ _ _ _ _ _ _ _ _) → ω-not-ok ω-ok

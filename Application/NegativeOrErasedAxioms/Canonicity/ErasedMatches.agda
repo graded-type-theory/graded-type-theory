@@ -21,6 +21,7 @@ import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 open import Configuration-types
 import Configuration-types.Configuration.Zero-one
 open import Configuration-types.Natrec
+open import Configuration-types.Omega
 
 import Definition.Conversion
 import Definition.Conversion.Consequences.Completeness
@@ -65,7 +66,7 @@ module Counterexample
     -- The configuration used in this local module.
 
     C : Configuration Zero-one-isMode
-    C = no-restrictions Nr true false true true true
+    C = no-restrictions with-ω Nr true false true true true
 
   open Configuration C
 

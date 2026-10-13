@@ -46,6 +46,7 @@ private
   module UW₂ = Definition.Untyped.Whnf M₂
 
 open import Graded.Modality
+open Has-omega ⦃ … ⦄
 
 private variable
   α m n                                        : Nat
@@ -591,10 +592,12 @@ module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
     -- assumptions).
 
     tr-Term-Resp-type :
+      ⦃ ok₁ : Has-omega _ 𝕄₁ ⦄ ⦃ ok₂ : Has-omega _ 𝕄₂ ⦄ →
       tr M₁.𝟘 ≡ M₂.𝟘 →
+      tr ω ≡ ω →
       tr-Term (UQ₁.Resp-type A B C t) ≡
       UQ₂.Resp-type (tr-Term A) (tr-Term B) (tr-Term C) (tr-Term t)
-    tr-Term-Resp-type {C} {t} hyp₁ =
+    tr-Term-Resp-type {C} {t} hyp₁ hyp₂ =
       cong₃ Id
         (sym (tr-Term-[]↑ C))
         (trans (tr-Term-subst′ hyp₁) $
@@ -603,7 +606,7 @@ module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
               UI₂.subst p A B (U₂.class (U₂.var x2))
                 (U₂.class (U₂.var x1))
                 (U₂.resp C D (U₂.var x2) (U₂.var x1) (U₂.var x0)) w)
-           hyp₁ (sym (tr-Term-wk {t = Quot _ _})) (sym (tr-Term-[]↑ C))
+           hyp₂ (sym (tr-Term-wk {t = Quot _ _})) (sym (tr-Term-[]↑ C))
            (sym tr-Term-wk) (sym tr-Term-wk) (sym tr-Term-wk))
         (sym (tr-Term-[]↑ t))
 

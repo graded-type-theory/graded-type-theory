@@ -23,7 +23,7 @@ module Graded.Erasure.LogicalRelation.Fundamental.Quotient
 open Assumptions as
 open Has-well-behaved-zero 𝟘-well-behaved
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Typed TC
 open import Definition.Typed.Consequences.Inversion TC
@@ -131,7 +131,7 @@ opaque
   -- Validity of qrec.
 
   qrecʳ :
-    ∀ {C} ⦃ ok : Usage-allows-omega ⦄ →
+    ∀ {C} ⦃ ok : Omega-allowed ⦄ →
     ts » Γ ∙ Quot A B ⊢ C →
     ts » Γ ∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
     δ ∙ ⌜ m ⌝ · ω ▸ Γ ∙ A ⊩ʳ t ∷[ m ∣ n ] C [ class (var x0) ]↑ →

@@ -19,7 +19,7 @@ module Graded.Heap.Usage.Inversion
   (∣ε∣ : M)
   where
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Untyped M
 

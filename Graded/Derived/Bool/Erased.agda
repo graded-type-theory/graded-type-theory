@@ -23,8 +23,8 @@ module Graded.Derived.Bool.Erased
 open Modality 𝕄
 open IsMode 𝐌
 
-open import Configuration-types.Instance C
-  hiding (Usage-allows-omega-has-omega)
+open import Configuration-types.Instance.Configuration C
+  hiding (Omega-allowed→Has-omega)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool.Nr 𝕄 𝐌

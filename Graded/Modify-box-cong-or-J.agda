@@ -27,7 +27,6 @@ open Translation-config conf
 open Modality 𝕄
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance Cₛ
 open import Configuration-types.Natrec 𝕄
 open import Configuration-types.Omega 𝕄
 
@@ -803,14 +802,18 @@ opaque
   -- Translation commutes with Resp-type.
 
   tr-Resp-type :
+    ⦃ okₛ : Cₛ.Omega-allowed ⦄ ⦃ okₜ : Cₜ.Omega-allowed ⦄ →
     Cₛ.Quot-allowed →
-    tr (Resp-type A B C t) PE.≡ Resp-type (tr A) (tr B) (tr C) (tr t)
-  tr-Resp-type {A} {B} {C} {t} ok =
+    tr (Resp-type ⦃ ok = With-omega→Has-omega okₛ ⦄ A B C t) PE.≡
+    Resp-type ⦃ ok = With-omega→Has-omega okₜ ⦄ (tr A) (tr B) (tr C)
+      (tr t)
+  tr-Resp-type {A} {B} {C} {t} ⦃ okₛ ⦄ ⦃ okₜ ⦄ ok =
     PE.cong₃ Id
       (tr-[]↑ C)
-      (PE.trans (J′-𝟘-𝟘 ok) $
-       PE.cong₆ (J _ _) (tr-wk (Quot A B)) PE.refl
-         (PE.trans (tr-wk (C [ _ ][ _ ]↑)) $
+      (PE.trans (J′-ω-𝟘 ok) $
+       PE.cong₆ (λ p A → J p 𝟘 A (class (var x2))) (ωₛ≡ωₜ okₛ okₜ)
+         (tr-wk (Quot A B))
+         (PE.trans (tr-wk (C [ _ ][ var _ ]↑)) $
           PE.cong wk1 (tr-[]↑ C))
          (tr-wk t) PE.refl
          (PE.cong₅ resp (tr-wk A) (tr-wk B) PE.refl PE.refl PE.refl))
@@ -952,8 +955,8 @@ opaque
        (Uₜ.Kₘ ⦃ PE.subst (_≤ᵉᵐ _) erased-matches-for-K-≡ ok₁ ⦄
          (ok₂ ∘→ PE.trans erased-matches-for-K-≡)
          (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v))
-       (·ᶜ-congʳ (ωₛ≡ωₜ Cₛ.erased-matches-JK-≤-some-Usage-allows-omega
-          (Cₜ.erased-matches-JK-≤-some-Usage-allows-omega
+       (·ᶜ-congʳ (ωₛ≡ωₜ Cₛ.erased-matches-JK-≤-some-Omega-allowed
+          (Cₜ.erased-matches-JK-≤-some-Omega-allowed
              ⦃ PE.subst (_≤ᵉᵐ _) erased-matches-for-K-≡ ok₁ ⦄)))
     (Uₛ.K₀ₘ₁ ⦃ (ok₁) ⦄ ok₂ A t B u v) →
       Uₜ.sub-≈ᶜ
@@ -961,9 +964,9 @@ opaque
           (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v))
         (·ᶜ-congʳ
            (ωₛ≡ωₜ
-              (Cₛ.erased-matches-JK-≤-some-Usage-allows-omega
+              (Cₛ.erased-matches-JK-≤-some-Omega-allowed
                  ⦃ Cₛ.erased-matches-JK-≡-some-≤-some ⦄)
-              (Cₜ.erased-matches-JK-≤-some-Usage-allows-omega
+              (Cₜ.erased-matches-JK-≤-some-Omega-allowed
                  ⦃ Cₜ.erased-matches-JK-≡-some-≤-some
                      ⦃ PE.trans (PE.sym erased-matches-for-K-≡) ok₁ ⦄
                  ⦄)))
@@ -982,20 +985,28 @@ opaque
       Uₜ.set (Quot-allowed-→ ok) (tr-▸ A) (tr-▸ B) (tr-▸ t) (tr-▸ u)
         (tr-▸ v) (tr-▸ w) eq
     (Uₛ.qrec₀ ⦃ ok = ω-ok ⦄ ok₁ ok₂ C t u v w) →
-      let ωₛ≡ωₜ′ = ωₛ≡ωₜ ω-ok (PE.subst Usage-with-omega (omega-in-second-if-in-first ω-ok) ω-ok)
+      let ωₛ≡ωₜ′ =
+            ωₛ≡ωₜ ω-ok $
+            PE.subst With-omega (omega-in-second-if-in-first ω-ok) ω-ok
       in
       Uₜ.sub-≈ᶜ
-        (Uₜ.qrec₀ ⦃ PE.subst Usage-with-omega (omega-in-second-if-in-first ω-ok) ω-ok ⦄
+        (Uₜ.qrec₀
+           ⦃ PE.subst With-omega (omega-in-second-if-in-first ω-ok)
+               ω-ok ⦄
            (Quot-allowed-→ ok₁) (Qrec-motive-erased-⇔ .proj₁ ok₂)
            (tr-▸ C)
            (Uₜ.sub-≈ᶜ (tr-▸ t) (≈ᶜ-refl ∙ ·-congˡ (PE.sym ωₛ≡ωₜ′)))
            (tr-▸ u) (tr-▸ v) (tr-▸ w))
         (+ᶜ-congˡ (·ᶜ-congʳ ωₛ≡ωₜ′))
     (Uₛ.qrec₁ ⦃ ok = ω-ok ⦄ ok₁ ok₂ C t u v w) →
-      let ωₛ≡ωₜ′ = ωₛ≡ωₜ ω-ok (PE.subst Usage-with-omega (omega-in-second-if-in-first ω-ok) ω-ok)
+      let ωₛ≡ωₜ′ =
+            ωₛ≡ωₜ ω-ok $
+            PE.subst With-omega (omega-in-second-if-in-first ω-ok) ω-ok
       in
       Uₜ.sub-≈ᶜ
-        (Uₜ.qrec₁ ⦃ PE.subst Usage-with-omega (omega-in-second-if-in-first ω-ok) ω-ok ⦄
+        (Uₜ.qrec₁
+           ⦃ PE.subst With-omega (omega-in-second-if-in-first ω-ok)
+               ω-ok ⦄
           (Quot-allowed-→ ok₁) (ok₂ ∘→ Qrec-motive-erased-⇔ .proj₂)
           (Uₜ.sub-≈ᶜ (tr-▸ C) (≈ᶜ-refl ∙ ·-congˡ (PE.sym ωₛ≡ωₜ′)))
           (Uₜ.sub-≈ᶜ (tr-▸ t) (≈ᶜ-refl ∙ ·-congˡ (PE.sym ωₛ≡ωₜ′)))

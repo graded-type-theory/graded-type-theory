@@ -14,6 +14,8 @@ module Definition.Typechecking
 open Modality 𝕄
 open Type-configuration TC
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal TC
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -194,7 +196,8 @@ mutual
         → Γ ⊢ v ⇇ Id (Quot A B) t u
         → Γ ⊢ w ⇇ Id (Quot A B) t u
         → Γ ⊢ set A B t u v w ⇉ Id (Id (Quot A B) t u) v w
-    qrec : Γ ⊢ w ⇉ A
+    qrec : ⦃ ok : Omega-allowed ⦄
+         → Γ ⊢ w ⇉ A
          → Γ ⊢ A ↘ Quot B C
          → Γ »∙ Quot B C ⊢ D ⇇Type
          → Γ »∙ B ⊢ t ⇇ D [ class (var x0) ]↑

@@ -14,6 +14,8 @@ module Definition.Conversion.Transitivity
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
+open import Configuration-types.Omega 𝕄
+
 open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Neutral M TC⁻
@@ -237,8 +239,8 @@ opaque
       (transConv↑Term Id≡Id v₁≡v₂ v₂≡v₃)
       (transConv↑Term Id≡Id w₁≡w₂ w₂≡w₃) ,
     Id-cong Id≡Id ⊢v₁≡v₂ ⊢w₁≡w₂
-  trans~↑ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂)
-    (qrec-cong C₂≡C₃ t₂≡t₃ u₂≡u₃ v₂≡v₃ w₂~w₃) =
+  trans~↑ (qrec-cong ⦃ ok = ω-ok₁ ⦄ C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂)
+    (qrec-cong ⦃ ok = ω-ok₂ ⦄ C₂≡C₃ t₂≡t₃ u₂≡u₃ v₂≡v₃ w₂~w₃) =
     let ok , (⊢A , _) , (⊢B , _) , _ =
           inversion-Is-set-Cons (soundnessConv↑Term v₁≡v₂)
         Γ≡Γ         = reflConEq (wf ⊢A)
@@ -250,7 +252,8 @@ opaque
         Q≡Q         = sym Q≡Q
         ≡A , ≡B     = Quot-injectivity-no-equality-reflection Q≡Q
     in
-    qrec-cong (transConv↑ C₁≡C₂ (stabilityConv↑ (refl-∙ Q≡Q) C₂≡C₃))
+    qrec-cong ⦃ ok = ω-ok₁ ⦄
+      (transConv↑ C₁≡C₂ (stabilityConv↑ (refl-∙ Q≡Q) C₂≡C₃))
       (transConv↑Term
          (subst-⊢ ⊢C₁≡C₂ $ ⊢ˢʷ∷-[][]↑ $
           class
@@ -258,8 +261,14 @@ opaque
              wk-⊢ (Quot-rel-Cons-⊢ʷᵏ-liftn (⊢ʷᵏdrop (∙ ⊢A)) ⊢A) ⊢B)
             (var₀ ⊢A))
          t₁≡t₂ (stabilityConv↑Term (refl-∙ ≡A) t₂≡t₃))
-      (transConv↑Term (Resp-type-cong A≡ B≡ ⊢C₁≡C₂ ⊢t₁≡t₂) u₁≡u₂
-         (stabilityConv↑Term (Resp-Con-cong Γ≡Γ ≡A ≡B) u₂≡u₃))
+      (transConv↑Term
+         (Resp-type-cong ⦃ ok = ω-ok₁ ⦄ A≡ B≡ ⊢C₁≡C₂ ⊢t₁≡t₂) u₁≡u₂
+         (PE.subst (_⊢_[conv↑]_∷_ _ _ _)
+            (PE.cong
+               (λ ok →
+                  Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ _ _ _ _)
+               (Omega-allowed-propositional ω-ok₂ ω-ok₁)) $
+          stabilityConv↑Term (Resp-Con-cong Γ≡Γ ≡A ≡B) u₂≡u₃))
       (transConv↑Term (Is-set-type-cong ⊢C₁≡C₂) v₁≡v₂
          (stabilityConv↑Term
             (symConEq (Is-set-Con-cong Γ≡Γ A≡ B≡ ⊢C₁≡C₂))

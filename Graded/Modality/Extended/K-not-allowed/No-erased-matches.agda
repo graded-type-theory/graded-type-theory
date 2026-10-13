@@ -23,6 +23,7 @@ open import Configuration-types
 open import Configuration-types.Configuration.Zero-one
 open import Configuration-types.Erased-matches
 open import Configuration-types.Natrec
+open import Configuration-types.Omega
 
 import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Untyped.NotParametrised
@@ -133,7 +134,8 @@ private
     no-quotients _ _ $
     no-strong-types _ _ $
     second-ΠΣ-quantities-𝟘-or-ω _ _ $
-    no-restrictions _ _ (Nr ⦃ has-nr ⦄) false false false false false
+    no-restrictions _ _ with-ω (Nr ⦃ has-nr ⦄) false false false false
+      false
 
   opaque
 
@@ -149,7 +151,8 @@ private
       Assumptions-no-quotients _ _ ∘→
       Assumptions-no-strong-types _ _ ∘→
       Assumptions-second-ΠΣ-quantities-𝟘-or-ω _ _ ∘→
-      Assumptions-no-restrictions _ _ ⦃ Nr ⦃ Nr ⦃ has-nr ⦄ ⦄ ⦄
+      Assumptions-no-restrictions _ _ {omega = with-ω}
+        ⦃ Nr ⦃ Nr ⦃ has-nr ⦄ ⦄ ⦄
 
 -- A trivial modality.
 
@@ -548,8 +551,6 @@ Trivial⇨Erasure = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.is-Σ-morphism-C →
-      is-Σ-morphism-C
     ._⇨_.is-Σ-order-embedding-C →
       is-Σ-order-embedding-C
   where
@@ -557,9 +558,6 @@ Trivial⇨Erasure = λ where
   module E₂ = Extended-modality Erasure
 
   tr = unit→erasure
-
-  Nr≈Nr : _ ≈ⁿᵐ _
-  Nr≈Nr = Nr ⦃ U.unit-has-nr ⦄ ⦃ EM.erasure-has-nr ⦄
 
   opaque
 
@@ -571,44 +569,30 @@ Trivial⇨Erasure = λ where
     is-Σ-order-embedding =
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
-    is-Σ-morphism-C :
-      Is-Σ-morphism-C false E₁.C E₂.C tr tr
-    is-Σ-morphism-C =
-      M-no-erased-matches
-        (λ _ → inj₂ (λ ())) unit⇨erasure-omega-preserving $
-      M-no-quotients $
-      M-no-strong-types $
-      M-second-ΠΣ-quantities-𝟘-or-ω (⊥-elim ∘→ (_$ refl))
-        ((λ _ → refl) , (λ _ → refl)) ((λ _ → refl) , (λ _ → refl)) $
-      M-no-restrictions (λ _ ()) (λ ()) _ Nr≈Nr
-        (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ U.unit-has-nr ⦄) of λ {
-            refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
-            refl →
-          unit⇒erasure-nr-preserving }})
-        unit⇒erasure-no-nr-preserving
-        unit⇒erasure-no-nr-glb-preserving
-
     is-Σ-order-embedding-C :
       Is-Σ-order-embedding-C false E₁.C E₂.C tr tr
     is-Σ-order-embedding-C =
-      OE-no-erased-matches
-        (⊥-elim ∘→ (_$ refl)) unit⇨erasure-omega-preserving $
+      OE-no-erased-matches (⊥-elim ∘→ (_$ refl)) (λ _ → inj₂ (λ _ ()))
+        unit⇨erasure-omega-preserving $
       OE-no-quotients (λ _ → refl) $
       OE-no-strong-types (λ ()) $
-      OE-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
-        ((λ _ → refl) , (λ _ → refl)) ((λ _ → refl) , (λ _ → refl)) $
-      OE-no-restrictions
-        (λ ()) _ (λ _ → inj₂ refl) Nr≈Nr
+      OE-second-ΠΣ-quantities-𝟘-or-ω (⊥-elim ∘→ (_$ refl))
+        (λ _ _ → refl) (λ _ → (λ _ → refl) , (λ _ → refl))
+        (λ _ → (λ _ → refl) , (λ _ → refl)) $
+      OE-no-restrictions (λ _ → refl) (λ _ ()) (λ { _ with-ω → refl })
+        ((λ _ → with-ω) , (λ _ → with-ω)) _ (λ _ → inj₂ refl)
+        (Nr ⦃ U.unit-has-nr ⦄ ⦃ EM.erasure-has-nr ⦄)
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ U.unit-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₁
+                 (Nr ⦃ U.unit-has-nr ⦄) of λ {
             refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₂
+                 (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
             refl →
-          unit⇒erasure-nr-reflecting }})
-        unit⇒erasure-no-nr-reflecting
-        unit⇒erasure-no-nr-glb-reflecting
+          unit⇒erasure-nr-preserving , unit⇒erasure-nr-reflecting }})
+        (unit⇒erasure-no-nr-preserving , unit⇒erasure-no-nr-reflecting)
+        (unit⇒erasure-no-nr-glb-preserving ,
+         unit⇒erasure-no-nr-glb-reflecting)
 
 -- A morphism from Erasure to Affine-types.
 
@@ -624,8 +608,6 @@ Erasure⇨Affine-types = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.is-Σ-morphism-C →
-      is-Σ-morphism-C
     ._⇨_.is-Σ-order-embedding-C →
       is-Σ-order-embedding-C
   where
@@ -633,9 +615,6 @@ Erasure⇨Affine-types = λ where
   module E₂ = Extended-modality Affine-types
 
   tr = erasure→zero-one-many
-
-  Nr≈Nr : _ ≈ⁿᵐ _
-  Nr≈Nr = Nr ⦃ EM.erasure-has-nr ⦄ ⦃ A.zero-one-many-has-nr ⦄
 
   opaque
 
@@ -647,63 +626,47 @@ Erasure⇨Affine-types = λ where
     is-Σ-order-embedding =
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
-    is-Σ-morphism-C :
-      Is-Σ-morphism-C false E₁.C E₂.C tr tr
-    is-Σ-morphism-C =
-      M-no-erased-matches
-        (λ _ →
-           inj₁ ( (λ ())
-                , (λ where
-                     {p = E.𝟘} refl → refl
-                     {p = E.ω} ())
-                ))
-      erasure⇨zero-one-many-omega-preserving $
-      M-no-quotients $
-      M-no-strong-types $
-      M-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
-        (λ where
-           {p = E.𝟘} → (λ ()) , (λ ())
-           {p = E.ω} → (λ _ → refl) , (λ _ → refl))
-        (λ where
-           {p = E.𝟘} → (λ ()) , (λ ())
-           {p = E.ω} → (λ _ → refl) , (λ _ → refl)) $
-      M-no-restrictions (λ _ ()) (λ _ → refl) _ Nr≈Nr
-        (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
-            refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ A.zero-one-many-has-nr ⦄) of λ {
-            refl →
-          erasure⇒affine-nr-preserving }})
-        (erasure⇒affine-no-nr-preserving _)
-        erasure⇒affine-no-nr-glb-preserving
-
     is-Σ-order-embedding-C :
       Is-Σ-order-embedding-C false E₁.C E₂.C tr tr
     is-Σ-order-embedding-C =
-      OE-no-erased-matches
-        (λ _ → (λ ()) , (λ { refl → refl })) erasure⇨zero-one-many-omega-preserving $
+      OE-no-erased-matches (λ _ → (λ ()) , (λ { refl → refl }))
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     E.𝟘 refl → refl
+                     E.ω ())
+                ))
+        erasure⇨zero-one-many-omega-preserving $
       OE-no-quotients (λ ()) $
       OE-no-strong-types (λ ()) $
-      OE-second-ΠΣ-quantities-𝟘-or-ω
+      OE-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
         (λ where
-           {p = E.𝟘} _  → refl
-           {p = E.ω} ())
+           E.𝟘 _  → refl
+           E.ω ())
         (λ where
-           {p = E.𝟘} → (λ ()) , (λ ())
-           {p = E.ω} → (λ _ → refl) , (λ _ → refl))
+           E.𝟘 → (λ ()) , (λ ())
+           E.ω → (λ _ → refl) , (λ _ → refl))
         (λ where
-           {p = E.𝟘} → (λ ()) , (λ ())
-           {p = E.ω} → (λ _ → refl) , (λ _ → refl)) $
-      OE-no-restrictions
-        (λ ()) _ (λ _ → inj₁ _) Nr≈Nr
+           E.𝟘 → (λ ()) , (λ ())
+           E.ω → (λ _ → refl) , (λ _ → refl)) $
+      OE-no-restrictions (λ ()) (λ _ _ → refl)
+        (λ { with-ω with-ω → refl }) ((λ _ → with-ω) , (λ _ → with-ω)) _
+        (λ _ → inj₁ _)
+        (Nr ⦃ EM.erasure-has-nr ⦄ ⦃ A.zero-one-many-has-nr ⦄)
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₁
+                 (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
             refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ A.zero-one-many-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₂
+                 (Nr ⦃ A.zero-one-many-has-nr ⦄) of λ {
             refl →
+          erasure⇒affine-nr-preserving ,
           erasure⇒affine-nr-reflecting }})
-        (erasure⇒affine-no-nr-reflecting _)
-        (λ ⦃ no-nr ⦄ → ⊥-elim (¬[Nr∧No-nr-glb] _ Nr no-nr))
+        (erasure⇒affine-no-nr-preserving _ ,
+         erasure⇒affine-no-nr-reflecting _)
+        (λ ⦃ no-nr ⦄ →
+           erasure⇒affine-no-nr-glb-preserving ,
+           ⊥-elim (¬[Nr∧No-nr-glb] _ Nr no-nr))
 
 -- A morphism from Erasure to Linearity.
 
@@ -719,8 +682,6 @@ Erasure⇨Linearity = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.is-Σ-morphism-C →
-      is-Σ-morphism-C
     ._⇨_.is-Σ-order-embedding-C →
       is-Σ-order-embedding-C
   where
@@ -728,9 +689,6 @@ Erasure⇨Linearity = λ where
   module E₂ = Extended-modality Linearity
 
   tr = erasure→zero-one-many
-
-  Nr≈Nr : _ ≈ⁿᵐ _
-  Nr≈Nr = Nr ⦃ EM.erasure-has-nr ⦄ ⦃ L.zero-one-many-has-nr ⦄
 
   opaque
 
@@ -742,63 +700,47 @@ Erasure⇨Linearity = λ where
     is-Σ-order-embedding =
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
-    is-Σ-morphism-C :
-      Is-Σ-morphism-C false E₁.C E₂.C tr tr
-    is-Σ-morphism-C =
-      M-no-erased-matches
-        (λ _ →
-           inj₁ ( (λ ())
-                , (λ where
-                     {p = E.𝟘} refl → refl
-                     {p = E.ω} ())
-                ))
-      erasure⇨zero-one-many-omega-preserving $
-      M-no-quotients $
-      M-no-strong-types $
-      M-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
-        (λ where
-           {p = E.𝟘} → (λ ()) , (λ ())
-           {p = E.ω} → (λ _ → refl) , (λ _ → refl))
-        (λ where
-           {p = E.𝟘} → (λ ()) , (λ ())
-           {p = E.ω} → (λ _ → refl) , (λ _ → refl)) $
-      M-no-restrictions (λ _ ()) (λ _ → refl) _ Nr≈Nr
-        (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
-            refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ L.zero-one-many-has-nr ⦄) of λ {
-            refl →
-          erasure⇒linearity-nr-preserving }})
-        (erasure⇒linearity-no-nr-preserving _)
-        erasure⇒linearity-no-nr-glb-preserving
-
     is-Σ-order-embedding-C :
       Is-Σ-order-embedding-C false E₁.C E₂.C tr tr
     is-Σ-order-embedding-C =
-      OE-no-erased-matches
-        (λ _ → (λ ()) , (λ { refl → refl })) erasure⇨zero-one-many-omega-preserving $
+      OE-no-erased-matches (λ _ → (λ ()) , (λ { refl → refl }))
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     E.𝟘 refl → refl
+                     E.ω ())
+                ))
+        erasure⇨zero-one-many-omega-preserving $
       OE-no-quotients (λ ()) $
       OE-no-strong-types (λ ()) $
-      OE-second-ΠΣ-quantities-𝟘-or-ω
+      OE-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
         (λ where
-           {p = E.𝟘} _  → refl
-           {p = E.ω} ())
+           E.𝟘 _  → refl
+           E.ω ())
         (λ where
-           {p = E.𝟘} → (λ ()) , (λ ())
-           {p = E.ω} → (λ _ → refl) , (λ _ → refl))
+           E.𝟘 → (λ ()) , (λ ())
+           E.ω → (λ _ → refl) , (λ _ → refl))
         (λ where
-           {p = E.𝟘} → (λ ()) , (λ ())
-           {p = E.ω} → (λ _ → refl) , (λ _ → refl)) $
-      OE-no-restrictions
-        (λ ()) _ (λ _ → inj₁ _) Nr≈Nr
+           E.𝟘 → (λ ()) , (λ ())
+           E.ω → (λ _ → refl) , (λ _ → refl)) $
+      OE-no-restrictions (λ ()) (λ _ _ → refl)
+        (λ { with-ω with-ω → refl }) ((λ _ → with-ω) , (λ _ → with-ω)) _
+        (λ _ → inj₁ _)
+        (Nr ⦃ EM.erasure-has-nr ⦄ ⦃ L.zero-one-many-has-nr ⦄)
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₁
+                 (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
             refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ L.zero-one-many-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₂
+                 (Nr ⦃ L.zero-one-many-has-nr ⦄) of λ {
             refl →
+          erasure⇒linearity-nr-preserving ,
           erasure⇒linearity-nr-reflecting }})
-        (erasure⇒linearity-no-nr-reflecting _)
-        (λ ⦃ no-nr ⦄ → ⊥-elim (¬[Nr∧No-nr-glb] _ Nr no-nr))
+        (erasure⇒linearity-no-nr-preserving _ ,
+         erasure⇒linearity-no-nr-reflecting _)
+        (λ ⦃ no-nr ⦄ →
+           erasure⇒linearity-no-nr-glb-preserving ,
+           ⊥-elim (¬[Nr∧No-nr-glb] _ Nr no-nr))
 
 -- A morphism from Affine-types to Linear-or-affine-types.
 
@@ -815,8 +757,6 @@ Affine-types⇨Linear-or-affine-types = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.is-Σ-morphism-C →
-      is-Σ-morphism-C
     ._⇨_.is-Σ-order-embedding-C →
       is-Σ-order-embedding-C
   where
@@ -824,9 +764,6 @@ Affine-types⇨Linear-or-affine-types = λ where
   module E₂ = Extended-modality Linear-or-affine-types
 
   tr = affine→linear-or-affine
-
-  Nr≈Nr : _ ≈ⁿᵐ _
-  Nr≈Nr = Nr ⦃ A.zero-one-many-has-nr ⦄ ⦃ LA.linear-or-affine-has-nr ⦄
 
   opaque
 
@@ -838,69 +775,52 @@ Affine-types⇨Linear-or-affine-types = λ where
     is-Σ-order-embedding =
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
-    is-Σ-morphism-C :
-      Is-Σ-morphism-C false E₁.C E₂.C tr tr
-    is-Σ-morphism-C =
-      M-no-erased-matches
-        (λ _ →
-           inj₁ ( (λ ())
-                , (λ where
-                     {p = A.𝟘} refl → refl
-                     {p = A.𝟙} ()
-                     {p = A.ω} ())
-                ))
-      affine⇨linear-or-affine-omega-preserving $
-      M-no-quotients $
-      M-no-strong-types $
-      M-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
-        (λ where
-           {p = A.𝟘} → (λ ()) , (λ ())
-           {p = A.𝟙} → (λ ()) , (λ ())
-           {p = A.ω} → (λ _ → refl) , (λ _ → refl))
-        (λ where
-           {p = A.𝟘} → (λ ()) , (λ ())
-           {p = A.𝟙} → (λ ()) , (λ ())
-           {p = A.ω} → (λ _ → refl) , (λ _ → refl)) $
-      M-no-restrictions (λ _ ()) (λ _ → refl) _ Nr≈Nr
-        (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ A.zero-one-many-has-nr ⦄) of λ {
-            refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ LA.linear-or-affine-has-nr ⦄) of λ {
-            refl →
-          affine⇨linear-or-affine-nr-preserving }})
-        (affine⇨linear-or-affine-no-nr-preserving _)
-        affine⇨linear-or-affine-no-nr-glb-preserving
-
     is-Σ-order-embedding-C :
       Is-Σ-order-embedding-C false E₁.C E₂.C tr tr
     is-Σ-order-embedding-C =
-      OE-no-erased-matches
-        (λ _ → (λ ()) , (λ { refl → refl })) affine⇨linear-or-affine-omega-preserving $
+      OE-no-erased-matches (λ _ → (λ ()) , (λ { refl → refl }))
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     A.𝟘 refl → refl
+                     A.𝟙 ()
+                     A.ω ())
+                ))
+        affine⇨linear-or-affine-omega-preserving $
       OE-no-quotients (λ ()) $
       OE-no-strong-types (λ ()) $
-      OE-second-ΠΣ-quantities-𝟘-or-ω
+      OE-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
         (λ where
-           {p = A.𝟘} _  → refl
-           {p = A.𝟙} ()
-           {p = A.ω} ())
+           A.𝟘 _  → refl
+           A.𝟙 ()
+           A.ω ())
         (λ where
-           {p = A.𝟘} → (λ ()) , (λ ())
-           {p = A.𝟙} → (λ ()) , (λ ())
-           {p = A.ω} → (λ _ → refl) , (λ _ → refl))
+           A.𝟘 → (λ ()) , (λ ())
+           A.𝟙 → (λ ()) , (λ ())
+           A.ω → (λ _ → refl) , (λ _ → refl))
         (λ where
-           {p = A.𝟘} → (λ ()) , (λ ())
-           {p = A.𝟙} → (λ ()) , (λ ())
-           {p = A.ω} → (λ _ → refl) , (λ _ → refl)) $
-      OE-no-restrictions
-        (λ ()) _ (λ _ → inj₁ _) Nr≈Nr
+           A.𝟘 → (λ ()) , (λ ())
+           A.𝟙 → (λ ()) , (λ ())
+           A.ω → (λ _ → refl) , (λ _ → refl)) $
+      OE-no-restrictions (λ ()) (λ _ _ → refl)
+        (λ { with-ω with-ω → refl }) ((λ _ → with-ω) , (λ _ → with-ω)) _
+        (λ _ → inj₁ _)
+        (Nr ⦃ A.zero-one-many-has-nr ⦄ ⦃ LA.linear-or-affine-has-nr ⦄)
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ A.zero-one-many-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₁
+                 (Nr ⦃ A.zero-one-many-has-nr ⦄) of λ {
             refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ LA.linear-or-affine-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₂
+                 (Nr ⦃ LA.linear-or-affine-has-nr ⦄) of λ {
             refl →
+          affine⇨linear-or-affine-nr-preserving ,
           affine⇨linear-or-affine-nr-reflecting }})
-        (affine⇨linear-or-affine-no-nr-reflecting _)
-        (λ ⦃ no-nr ⦄ → ⊥-elim (¬[Nr∧No-nr-glb] _ (Nr ⦃ A.zero-one-many-has-nr ⦄) no-nr))
+        (affine⇨linear-or-affine-no-nr-preserving _ ,
+         affine⇨linear-or-affine-no-nr-reflecting _)
+        (λ ⦃ no-nr ⦄ →
+           affine⇨linear-or-affine-no-nr-glb-preserving ,
+           ⊥-elim
+             (¬[Nr∧No-nr-glb] _ (Nr ⦃ A.zero-one-many-has-nr ⦄) no-nr))
 
 -- A morphism from Linearity to Linear-or-affine-types.
 
@@ -917,8 +837,6 @@ Linearity⇨Linear-or-affine-types = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.is-Σ-morphism-C →
-      is-Σ-morphism-C
     ._⇨_.is-Σ-order-embedding-C →
       is-Σ-order-embedding-C
   where
@@ -926,9 +844,6 @@ Linearity⇨Linear-or-affine-types = λ where
   module E₂ = Extended-modality Linear-or-affine-types
 
   tr = linearity→linear-or-affine
-
-  Nr≈Nr : _ ≈ⁿᵐ _
-  Nr≈Nr = Nr ⦃ L.zero-one-many-has-nr ⦄ ⦃ LA.linear-or-affine-has-nr ⦄
 
   opaque
 
@@ -940,66 +855,49 @@ Linearity⇨Linear-or-affine-types = λ where
     is-Σ-order-embedding =
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
-    is-Σ-morphism-C :
-      Is-Σ-morphism-C false E₁.C E₂.C tr tr
-    is-Σ-morphism-C =
-      M-no-erased-matches
-        (λ _ →
-           inj₁ ( (λ ())
-                , (λ where
-                     {p = L.𝟘} refl → refl
-                     {p = L.𝟙} ()
-                     {p = L.ω} ())
-                ))
-      linearity⇨linear-or-affine-omega-preserving $
-      M-no-quotients $
-      M-no-strong-types $
-      M-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
-        (λ where
-           {p = L.𝟘} → (λ ()) , (λ ())
-           {p = L.𝟙} → (λ ()) , (λ ())
-           {p = L.ω} → (λ _ → refl) , (λ _ → refl))
-        (λ where
-           {p = L.𝟘} → (λ ()) , (λ ())
-           {p = L.𝟙} → (λ ()) , (λ ())
-           {p = L.ω} → (λ _ → refl) , (λ _ → refl)) $
-      M-no-restrictions (λ _ ()) (λ _ → refl) _ Nr≈Nr
-        (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ L.zero-one-many-has-nr ⦄) of λ {
-            refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ LA.linear-or-affine-has-nr ⦄) of λ {
-            refl →
-          linearity⇨linear-or-affine-nr-preserving }})
-        (linearity⇨linear-or-affine-no-nr-preserving _)
-        linearity⇨linear-or-affine-no-nr-glb-preserving
-
     is-Σ-order-embedding-C :
       Is-Σ-order-embedding-C false E₁.C E₂.C tr tr
     is-Σ-order-embedding-C =
-      OE-no-erased-matches
-        (λ _ → (λ ()) , (λ { refl → refl })) linearity⇨linear-or-affine-omega-preserving $
+      OE-no-erased-matches (λ _ → (λ ()) , (λ { refl → refl }))
+        (λ _ →
+           inj₁ ( (λ ())
+                , (λ where
+                     L.𝟘 refl → refl
+                     L.𝟙 ()
+                     L.ω ())
+                ))
+        linearity⇨linear-or-affine-omega-preserving $
       OE-no-quotients (λ ()) $
       OE-no-strong-types (λ ()) $
-      OE-second-ΠΣ-quantities-𝟘-or-ω
+      OE-second-ΠΣ-quantities-𝟘-or-ω (λ _ → refl)
         (λ where
-           {p = L.𝟘} _  → refl
-           {p = L.𝟙} ()
-           {p = L.ω} ())
+           L.𝟘 _  → refl
+           L.𝟙 ()
+           L.ω ())
         (λ where
-           {p = L.𝟘} → (λ ()) , (λ ())
-           {p = L.𝟙} → (λ ()) , (λ ())
-           {p = L.ω} → (λ _ → refl) , (λ _ → refl))
+           L.𝟘 → (λ ()) , (λ ())
+           L.𝟙 → (λ ()) , (λ ())
+           L.ω → (λ _ → refl) , (λ _ → refl))
         (λ where
-           {p = L.𝟘} → (λ ()) , (λ ())
-           {p = L.𝟙} → (λ ()) , (λ ())
-           {p = L.ω} → (λ _ → refl) , (λ _ → refl)) $
-      OE-no-restrictions
-        (λ ()) _ (λ _ → inj₁ _) Nr≈Nr
+           L.𝟘 → (λ ()) , (λ ())
+           L.𝟙 → (λ ()) , (λ ())
+           L.ω → (λ _ → refl) , (λ _ → refl)) $
+      OE-no-restrictions (λ ()) (λ _ _ → refl)
+        (λ { with-ω with-ω → refl }) ((λ _ → with-ω) , (λ _ → with-ω)) _
+        (λ _ → inj₁ _)
+        (Nr ⦃ L.zero-one-many-has-nr ⦄ ⦃ LA.linear-or-affine-has-nr ⦄)
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
-          case Nr-available-propositional _ has-nr₁ (Nr ⦃ L.zero-one-many-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₁
+                 (Nr ⦃ L.zero-one-many-has-nr ⦄) of λ {
             refl →
-          case Nr-available-propositional _ has-nr₂ (Nr ⦃ LA.linear-or-affine-has-nr ⦄) of λ {
+          case Nr-available-propositional _ has-nr₂
+                 (Nr ⦃ LA.linear-or-affine-has-nr ⦄) of λ {
             refl →
+          linearity⇨linear-or-affine-nr-preserving ,
           linearity⇨linear-or-affine-nr-reflecting }})
-        (linearity⇨linear-or-affine-no-nr-reflecting _)
-        (λ ⦃ no-nr ⦄ → ⊥-elim (¬[Nr∧No-nr-glb] _ (Nr ⦃ L.zero-one-many-has-nr ⦄) no-nr))
+        (linearity⇨linear-or-affine-no-nr-preserving _ ,
+         linearity⇨linear-or-affine-no-nr-reflecting _)
+        (λ ⦃ no-nr ⦄ →
+           linearity⇨linear-or-affine-no-nr-glb-preserving ,
+           ⊥-elim
+             (¬[Nr∧No-nr-glb] _ (Nr ⦃ L.zero-one-many-has-nr ⦄) no-nr))

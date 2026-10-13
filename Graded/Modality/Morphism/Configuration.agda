@@ -16,7 +16,7 @@ open import Tools.Sum as ⊎
 
 open import Configuration-types
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance as C
+open import Configuration-types.Instance.Configuration as C
 open import Configuration-types.Natrec
 open import Configuration-types.Omega
 
@@ -329,26 +329,32 @@ opaque
    Natrec-mode-no-nr-glb-≈ⁿᵐ No-nr ()
 
 ------------------------------------------------------------------------
--- Common-properties
+-- Is-Σ-morphism-C
 
--- Properties common to Is-Σ-morphism-C and Is-Σ-order-embedding-C.
+-- A collection of properties relating the configurations and
+-- functions. The type is called "Is-Σ-morphism-C" because it is used
+-- together with Is-morphism and Is-Σ-morphism, see Is-morphism in
+-- Graded.Usage.QuantityTranslation.
 
-record Common-properties
-  {M₁ : Set a₁} {M₂ : Set a₂}
-  {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
-  {v₁ : Mode-variant 𝕄₁} {v₂ : Mode-variant 𝕄₂}
-  (C₁ : Configuration (Zero-one-isMode v₁))
-  (C₂ : Configuration (Zero-one-isMode v₂)) :
-  Set (a₁ ⊔ a₂) where
+record Is-Σ-morphism-C
+         {M₁ : Set a₁} {M₂ : Set a₂}
+         {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
+         {v₁ : Mode-variant 𝕄₁} {v₂ : Mode-variant 𝕄₂}
+         (transparent : Bool)
+         (C₁ : Configuration (Zero-one-isMode v₁))
+         (C₂ : Configuration (Zero-one-isMode v₂))
+         (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
   no-eta-equality
 
   private
-    module M₁ = Modality 𝕄₁
-    module M₂ = Modality 𝕄₂
-    module V₁ = Mode-variant v₁
-    module V₂ = Mode-variant v₂
     module C₁ = Configuration C₁
     module C₂ = Configuration C₂
+    module V₁ = Mode-variant v₁
+    module V₂ = Mode-variant v₂
+    module Mo = Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
+
+  open C C₁
+  open C C₂
 
   field
     -- If 𝟘ᵐ is allowed for 𝕄₁, then 𝟘ᵐ is allowed for 𝕄₂.
@@ -383,10 +389,59 @@ record Common-properties
     Qrec-motive-erased-preserved :
       C₁.Qrec-motive-erased ⇔ C₂.Qrec-motive-erased
 
-    -- The usage rules that use grade ω are allowed in
-    -- the target iff it is allowed in the source.
-    Usage-allows-omega-preserved :
-      C₁.Usage-allows-omega ⇔ C₂.Usage-allows-omega
+    -- Is-Σ-morphism-TC transparent holds for the type configurations
+    -- and the functions.
+    is-Σ-morphism-TC : Is-Σ-morphism-TC transparent C₁.TC C₂.TC tr tr-Σ
+
+  open Is-Σ-morphism-TC is-Σ-morphism-TC public
+
+  field
+    -- The function tr is assumed to satisfy some properties depending
+    -- on the chosen Natrec-mode. Note that by common-properties, the
+    -- source and target configurations have the same Natrec-mode.
+
+    nr-preserving :
+      ⦃ has-nr₁ : C₁.Nr-available ⦄ →
+      ⦃ has-nr₂ : C₂.Nr-available ⦄ →
+      Is-nr-preserving-morphism 𝕄₁ 𝕄₂ tr
+
+    no-nr-preserving :
+      ⦃ no-nr₁ : C₁.Nr-not-available ⦄ →
+      ⦃ no-nr₂ : C₂.Nr-not-available ⦄ →
+      Mo.Is-no-nr-preserving 𝕄₁ 𝕄₂ v₁ v₂
+
+    no-nr-glb-preserving :
+      ⦃ no-nr₁ : C₁.Nr-not-available-GLB ⦄ →
+      ⦃ no-nr₂ : C₂.Nr-not-available-GLB ⦄ →
+      Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr
+
+    -- The functions tr and tr-Σ preserve the Prodrec-allowed
+    -- property in a certain way.
+    Prodrec-preserved :
+      m₁ ≈ᵐ m₂ →
+      C₁.Prodrec-allowed m₁ r p q →
+      C₂.Prodrec-allowed m₂ (tr r) (tr-Σ p) (tr q)
+
+    -- The function tr preserves the Unitrec-allowed property in a
+    -- certain way.
+    Unitrec-preserved :
+      m₁ ≈ᵐ m₂ →
+      C₁.Unitrec-allowed m₁ p q →
+      C₂.Unitrec-allowed m₂ (tr p) (tr q)
+
+    -- The function tr preserves the Emptyrec-allowed property in a
+    -- certain way.
+    Emptyrec-preserved :
+      m₁ ≈ᵐ m₂ →
+      C₁.Emptyrec-allowed m₁ p →
+      C₂.Emptyrec-allowed m₂ (tr p)
+
+    -- The function tr preserves the []-cong-allowed-mode property in a
+    -- certain way.
+    []-cong-mode-preserved :
+      m₁ ≈ᵐ m₂ →
+      C₁.[]-cong-allowed-mode s m₁ →
+      C₂.[]-cong-allowed-mode s m₂
 
   opaque
 
@@ -479,155 +534,18 @@ record Common-properties
 
 opaque
 
-  -- The relation Common-properties is reflexive.
-
-  Common-properties-reflexive : Common-properties {v₁ = v} {v₂ = v} C C
-  Common-properties-reflexive = λ where
-      .𝟘ᵐ-preserved                   → idᶠ
-      .natrec-mode-preserved          → ≈ⁿᵐ-refl
-      .starˢ-sink-preserved           → refl
-      .Id-erased-preserved            → id⇔
-      .erased-matches-for-J-preserved → ≈ᵐ→≤ᵉᵐ₁
-      .erased-matches-for-K-preserved → ≈ᵐ→≤ᵉᵐ₁
-      .Qrec-motive-erased-preserved   → id⇔
-      .Usage-allows-omega-preserved   → id⇔
-    where
-    open Common-properties
-
-opaque
-
-  -- The relation Common-properties is transitive.
-
-  Common-properties-transitive :
-    Common-properties {v₁ = v₁} {v₂ = v₂} C₁ C₂ →
-    Common-properties {v₁ = v₂} {v₂ = v₃} C₂ C₃ →
-    Common-properties {v₁ = v₁} {v₂ = v₃} C₁ C₃
-  Common-properties-transitive cp₁ cp₂ = λ where
-      .𝟘ᵐ-preserved →
-        CP₂.𝟘ᵐ-preserved ∘→ CP₁.𝟘ᵐ-preserved
-      .natrec-mode-preserved →
-        ≈ⁿᵐ-trans CP₁.natrec-mode-preserved CP₂.natrec-mode-preserved
-      .starˢ-sink-preserved →
-        trans CP₁.starˢ-sink-preserved CP₂.starˢ-sink-preserved
-      .Id-erased-preserved →
-        CP₂.Id-erased-preserved ∘⇔ CP₁.Id-erased-preserved
-      .erased-matches-for-J-preserved →
-        ≈ᵐ→≤ᵉᵐ₂ CP₁.𝟘ᵐ-preserved CP₁.erased-matches-for-J-preserved
-          CP₂.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved →
-        ≈ᵐ→≤ᵉᵐ₂ CP₁.𝟘ᵐ-preserved CP₁.erased-matches-for-K-preserved
-          CP₂.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved →
-        CP₂.Qrec-motive-erased-preserved ∘⇔
-        CP₁.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved →
-        CP₂.Usage-allows-omega-preserved ∘⇔ CP₁.Usage-allows-omega-preserved
-    where
-    open Common-properties
-    module CP₁ = Common-properties cp₁
-    module CP₂ = Common-properties cp₂
-
-------------------------------------------------------------------------
--- Is-Σ-morphism-C
-
--- A collection of properties relating the configurations and
--- functions. The type is called "Is-Σ-morphism-C" because it is used
--- together with Is-morphism and Is-Σ-morphism, see Is-morphism in
--- Graded.Usage.QuantityTranslation.
-
-record Is-Σ-morphism-C
-         {M₁ : Set a₁} {M₂ : Set a₂}
-         {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
-         {v₁ : Mode-variant 𝕄₁} {v₂ : Mode-variant 𝕄₂}
-         (transparent : Bool)
-         (C₁ : Configuration (Zero-one-isMode v₁))
-         (C₂ : Configuration (Zero-one-isMode v₂))
-         (tr tr-Σ : M₁ → M₂) : Set (a₁ ⊔ a₂) where
-  no-eta-equality
-
-  private
-    module C₁ = Configuration C₁
-    module C₂ = Configuration C₂
-    module Mo = Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
-
-  open C C₁
-  open C C₂
-
-  field
-    -- Common properties.
-    common-properties : Common-properties C₁ C₂
-
-  field
-    -- Is-Σ-morphism-TC transparent holds for the type configurations
-    -- and the functions.
-    is-Σ-morphism-TC : Is-Σ-morphism-TC transparent C₁.TC C₂.TC tr tr-Σ
-
-  open Common-properties common-properties public
-  open Is-Σ-morphism-TC is-Σ-morphism-TC public
-
-  field
-    -- The function tr is assumed to satisfy some properties depending
-    -- on the chosen Natrec-mode. Note that by common-properties, the
-    -- source and target configurations have the same Natrec-mode.
-
-    nr-preserving :
-      ⦃ has-nr₁ : C₁.Nr-available ⦄ →
-      ⦃ has-nr₂ : C₂.Nr-available ⦄ →
-      Is-nr-preserving-morphism 𝕄₁ 𝕄₂ tr
-
-    no-nr-preserving :
-      ⦃ no-nr₁ : C₁.Nr-not-available ⦄ →
-      ⦃ no-nr₂ : C₂.Nr-not-available ⦄ →
-      Mo.Is-no-nr-preserving 𝕄₁ 𝕄₂ v₁ v₂
-
-    no-nr-glb-preserving :
-      ⦃ no-nr₁ : C₁.Nr-not-available-GLB ⦄ →
-      ⦃ no-nr₂ : C₂.Nr-not-available-GLB ⦄ →
-      Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr
-
-    -- The functions tr and tr-Σ preserve the Prodrec-allowed
-    -- property in a certain way.
-    Prodrec-preserved :
-      m₁ ≈ᵐ m₂ →
-      C₁.Prodrec-allowed m₁ r p q →
-      C₂.Prodrec-allowed m₂ (tr r) (tr-Σ p) (tr q)
-
-    -- The function tr preserves the Unitrec-allowed property in a
-    -- certain way.
-    Unitrec-preserved :
-      m₁ ≈ᵐ m₂ →
-      C₁.Unitrec-allowed m₁ p q →
-      C₂.Unitrec-allowed m₂ (tr p) (tr q)
-
-    -- The function tr preserves the Emptyrec-allowed property in a
-    -- certain way.
-    Emptyrec-preserved :
-      m₁ ≈ᵐ m₂ →
-      C₁.Emptyrec-allowed m₁ p →
-      C₂.Emptyrec-allowed m₂ (tr p)
-
-    -- The function tr preserves the []-cong-allowed-mode property in a
-    -- certain way.
-    []-cong-mode-preserved :
-      m₁ ≈ᵐ m₂ →
-      C₁.[]-cong-allowed-mode s m₁ →
-      C₂.[]-cong-allowed-mode s m₂
-
-    -- If the source modality supports grade ω then the morphism
-    -- must be omega preserving
-    omega-preserving :
-      ⦃ ok₁ : C₁.Usage-allows-omega ⦄ ⦃ ok₂ : C₂.Usage-allows-omega ⦄ →
-      Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr
-
-opaque
-  unfolding Common-properties-reflexive
-
   -- An identity lemma for Is-Σ-morphism-C.
 
   Is-Σ-morphism-C-id : Is-Σ-morphism-C {v₁ = v} {v₂ = v} trp C C idᶠ idᶠ
   Is-Σ-morphism-C-id {C} = λ where
-      .common-properties → Common-properties-reflexive
-      .is-Σ-morphism-TC  → Is-Σ-morphism-TC-id
+      .𝟘ᵐ-preserved                          → idᶠ
+      .natrec-mode-preserved                 → ≈ⁿᵐ-refl
+      .starˢ-sink-preserved                  → refl
+      .Id-erased-preserved                   → id⇔
+      .erased-matches-for-J-preserved        → ≈ᵐ→≤ᵉᵐ₁
+      .erased-matches-for-K-preserved        → ≈ᵐ→≤ᵉᵐ₁
+      .Qrec-motive-erased-preserved          → id⇔
+      .is-Σ-morphism-TC                      → Is-Σ-morphism-TC-id
       .nr-preserving ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
         case Nr-available-propositional _ has-nr₁ has-nr₂ of λ where
           refl → Is-nr-preserving-morphism-id
@@ -638,17 +556,12 @@ opaque
       .Emptyrec-preserved     → ≈ᵐ→→₁
       .[]-cong-mode-preserved →
         ≈ᵐ→→₁
-      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
-        case Usage-allows-omega-propositional ok₁ ok₂ of λ where
-          refl → Is-omega-preserving-morphism-id
     where
     open Is-Σ-morphism-C
-    open Configuration C
     open C C
     open Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
 
 opaque
-  unfolding Common-properties-transitive
 
   -- A composition lemma for Is-Σ-morphism-C.
 
@@ -666,11 +579,25 @@ opaque
     Is-Σ-morphism-C (trp₁ ∨ trp₂) C₁ C₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
   Is-Σ-morphism-C-∘ {C₁} {C₂} {C₃} m₁ m₂ u₁ u₂ =
     λ where
-      .common-properties →
-        Common-properties-transitive M₂.common-properties
-          M₁.common-properties
+      .𝟘ᵐ-preserved →
+        M₁.𝟘ᵐ-preserved ∘→ M₂.𝟘ᵐ-preserved
+      .natrec-mode-preserved →
+        ≈ⁿᵐ-trans M₂.natrec-mode-preserved M₁.natrec-mode-preserved
+      .starˢ-sink-preserved →
+        trans M₂.starˢ-sink-preserved M₁.starˢ-sink-preserved
+      .Id-erased-preserved →
+        M₁.Id-erased-preserved ∘⇔ M₂.Id-erased-preserved
+      .erased-matches-for-J-preserved →
+        ≈ᵐ→≤ᵉᵐ₂ M₂.𝟘ᵐ-preserved M₂.erased-matches-for-J-preserved
+          M₁.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved →
+        ≈ᵐ→≤ᵉᵐ₂ M₂.𝟘ᵐ-preserved M₂.erased-matches-for-K-preserved
+          M₁.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved →
+        M₁.Qrec-motive-erased-preserved ∘⇔
+        M₂.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
-        Is-Σ-morphism-TC-∘ M₁.is-Σ-morphism-TC M₂.is-Σ-morphism-TC
+        Is-Σ-morphism-TC-∘ m₁ M₁.is-Σ-morphism-TC M₂.is-Σ-morphism-TC
       .nr-preserving →
         let has-nr = M₂.nr-in-second-if-in-first
         in  Is-nr-preserving-morphism-∘
@@ -698,13 +625,6 @@ opaque
       .[]-cong-mode-preserved →
         ≈ᵐ→→₂ M₂.𝟘ᵐ-preserved M₂.[]-cong-mode-preserved
           M₁.[]-cong-mode-preserved
-      .omega-preserving ⦃ ok₁ ⦄ ⦃ (ok₃) ⦄ →
-        let ok₂ = M₂.Usage-allows-omega-preserved .proj₁ ok₁
-        in  Is-omega-preserving-morphism-∘ ⦃ _ ⦄
-              ⦃ has-ω₂ = Usage-with-omega-has-omega _ ok₂ ⦄ ⦃ _ ⦄
-              m₁ (M₁.omega-preserving ⦃ ok₁ = ok₂ ⦄)
-                 (M₂.omega-preserving ⦃ ok₂ = ok₂ ⦄)
-
     where
     open Is-Σ-morphism-C
     open C C₁
@@ -722,9 +642,7 @@ opaque
 -- A collection of properties relating the configurations and
 -- functions. The type is called "Is-Σ-order-embedding-C" because it
 -- is used together with Is-order-embedding and Is-Σ-order-embedding,
--- see Is-order-embedding in Graded.Usage.QuantityTranslation. Note,
--- however, that the type does not include a field of type
--- Is-Σ-morphism-C something.
+-- see Is-order-embedding in Graded.Usage.QuantityTranslation.
 
 record Is-Σ-order-embedding-C
          {M₁ : Set a₁} {M₂ : Set a₂}
@@ -749,16 +667,21 @@ record Is-Σ-order-embedding-C
   open C C₂
 
   field
-    -- Common properties.
-    common-properties : Common-properties C₁ C₂
+    -- "Order embeddings" have to be "morphisms".
+    is-Σ-morphism-C : Is-Σ-morphism-C transparent C₁ C₂ tr tr-Σ
 
     -- Is-Σ-order-embedding-TC transparent holds for the type
     -- configurations and the functions.
+    --
+    -- Note that a value of type
+    -- Is-Σ-morphism-TC transparent C₁.TC C₂.TC tr tr-Σ is included
+    -- both via this field and via is-Σ-morphism-C.
     is-Σ-order-embedding-TC :
       Is-Σ-order-embedding-TC transparent C₁.TC C₂.TC tr tr-Σ
 
-  open Common-properties common-properties public
+  open Is-Σ-morphism-C is-Σ-morphism-C public
   open Is-Σ-order-embedding-TC is-Σ-order-embedding-TC public
+    hiding (is-Σ-morphism-TC)
 
   field
     -- If 𝟘ᵐ is allowed for 𝕄₂ or 𝕄₂ is trivial, then 𝟘ᵐ is allowed
@@ -825,12 +748,6 @@ record Is-Σ-order-embedding-C
       m₁ ≈ᵐ m₂ →
       C₂.erased-matches-for-K m₂ ≤ᵉᵐ C₁.erased-matches-for-K m₁
 
-    -- If the target modality supports grade ω then the morphism
-    -- must be omega preserving.
-    omega-preserving :
-      ⦃ ok₁ : C₁.Usage-allows-omega ⦄ ⦃ ok₂ : C₂.Usage-allows-omega ⦄ →
-      Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr
-
   opaque
 
     -- If 𝟘ᵐ is allowed in the target modality but not the source
@@ -864,7 +781,7 @@ opaque
     {C : Configuration (Zero-one-isMode v)} →
     Is-Σ-order-embedding-C trp C C idᶠ idᶠ
   Is-Σ-order-embedding-C-id {𝕄} {v} {C} = λ where
-      .common-properties              → Common-properties-reflexive
+      .is-Σ-morphism-C                → Is-Σ-morphism-C-id
       .is-Σ-order-embedding-TC        → Is-Σ-order-embedding-TC-id
       .𝟘ᵐ-reflected                   → idᶠ
       .nr-reflected ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
@@ -879,9 +796,6 @@ opaque
       .erased-matches-for-J-reflected → ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
       .erased-matches-for-K-reflected →
         ≈ᵐ→≤ᵉᵐ₁ ∘→ ≈ᵐ-symmetric
-      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
-        case Usage-allows-omega-propositional ok₁ ok₂ of λ where
-          refl → Is-omega-preserving-morphism-id
     where
     open Is-Σ-order-embedding-C
     open Graded.Modality.Properties 𝕄
@@ -902,17 +816,17 @@ opaque
     {C₂ : Configuration (Zero-one-isMode v₂)} →
     {C₃ : Configuration (Zero-one-isMode v₃)} →
     Is-morphism 𝕄₂ 𝕄₃ tr₁ →
+    Is-morphism 𝕄₁ 𝕄₂ tr₂ →
     Is-Σ-order-embedding-C trp₁ C₂ C₃ tr₁ tr-Σ₁ →
     Is-Σ-order-embedding-C trp₂ C₁ C₂ tr₂ tr-Σ₂ →
     Is-Σ-order-embedding-C
       (trp₁ ∨ trp₂) C₁ C₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
-  Is-Σ-order-embedding-C-∘ {𝕄₁} {𝕄₂} {𝕄₃} {C₁} {C₂} {C₃} m m₁ m₂ =
-    λ where
-      .common-properties →
-        Common-properties-transitive OE₂.common-properties
-          OE₁.common-properties
+  Is-Σ-order-embedding-C-∘
+    {𝕄₁} {𝕄₂} {𝕄₃} {C₁} {C₂} {C₃} m₁ m₂ oe₁ oe₂ = λ where
+      .is-Σ-morphism-C →
+        Is-Σ-morphism-C-∘ m₁ m₂ OE₁.is-Σ-morphism-C OE₂.is-Σ-morphism-C
       .is-Σ-order-embedding-TC →
-        Is-Σ-order-embedding-TC-∘ OE₁.is-Σ-order-embedding-TC
+        Is-Σ-order-embedding-TC-∘ m₁ OE₁.is-Σ-order-embedding-TC
           OE₂.is-Σ-order-embedding-TC
       .𝟘ᵐ-reflected →
         OE₂.𝟘ᵐ-reflected ∘→ OE₁.𝟘ᵐ-reflected
@@ -920,17 +834,17 @@ opaque
         let has-nr = OE₂.nr-in-second-if-in-first
         in  Is-nr-reflecting-morphism-∘
               ⦃ has-nr₂ = C.Nr-available-Has-nr C₂ ⦃ has-nr ⦄ ⦄
-              m (OE₁.nr-reflected ⦃ has-nr ⦄)
+              m₁ (OE₁.nr-reflected ⦃ has-nr ⦄)
               (OE₂.nr-reflected ⦃ has-nr₂ = has-nr ⦄)
       .no-nr-reflected →
         let no-nr = OE₂.no-nr-in-second-if-in-first
         in  Is-no-nr-reflecting-morphism-∘
-              m (OE₁.no-nr-reflected ⦃ no-nr ⦄)
+              m₁ (OE₁.no-nr-reflected ⦃ no-nr ⦄)
               (OE₂.no-nr-reflected ⦃ no-nr₂ = no-nr ⦄)
       .no-nr-glb-reflected →
         let no-nr = OE₂.no-nr-glb-in-second-if-in-first
         in  Is-no-nr-glb-reflecting-morphism-∘
-              m (OE₁.no-nr-glb-reflected ⦃ no-nr ⦄)
+              m₁ (OE₁.no-nr-glb-reflected ⦃ no-nr ⦄)
               (OE₂.no-nr-glb-reflected ⦃ no-nr₂ = no-nr ⦄)
       .Prodrec-reflected →
         ≳ᵐ→←₂ OE₂.𝟘ᵐ-preserved OE₁.𝟘ᵐ-reflected OE₁.Prodrec-reflected
@@ -950,19 +864,13 @@ opaque
       .erased-matches-for-K-reflected →
         ≈ᵐ→≥ᵉᵐ₂ OE₂.𝟘ᵐ-preserved OE₁.erased-matches-for-K-reflected
           OE₂.erased-matches-for-K-reflected
-      .omega-preserving ⦃ ok₁ ⦄ ⦃ (ok₃) ⦄ →
-        let ok₂ = OE₂.Usage-allows-omega-preserved .proj₁ ok₁
-        in  Is-omega-preserving-morphism-∘ ⦃ _ ⦄
-              ⦃ has-ω₂ = Usage-with-omega-has-omega _ ok₂ ⦄ ⦃ _ ⦄
-              m (OE₁.omega-preserving ⦃ ok₁ = ok₂ ⦄)
-              (OE₂.omega-preserving ⦃ ok₂ = ok₂ ⦄)
     where
     open Is-Σ-order-embedding-C
     module M₁  = Modality 𝕄₁
     module M₂  = Modality 𝕄₂
     module M₃  = Modality 𝕄₃
-    module OE₁ = Is-Σ-order-embedding-C m₁
-    module OE₂ = Is-Σ-order-embedding-C m₂
+    module OE₁ = Is-Σ-order-embedding-C oe₁
+    module OE₂ = Is-Σ-order-embedding-C oe₂
     open C C₁
     open C C₃
     open Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive

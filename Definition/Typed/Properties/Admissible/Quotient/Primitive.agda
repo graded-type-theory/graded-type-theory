@@ -3,13 +3,18 @@
 ------------------------------------------------------------------------
 
 open import Configuration-types
-open import Graded.Modality
+import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Quotient.Primitive
   {ℓ} {M : Set ℓ}
-  {𝕄 : Modality M}
+  (open Graded.Modality M)
+  {𝕄 : Modality}
   (TC : Type-configuration 𝕄)
   where
+
+open Type-configuration TC
+
+open import Configuration-types.Instance.Type-configuration TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
@@ -96,6 +101,7 @@ opaque
   -- A congruence lemma for Resp-type.
 
   Resp-type-cong :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ ⊢ A₁ ≡ A₂ →
     Quot-rel-Cons Γ A₁ ⊢ B₁ →
     Quot-rel-Cons Γ A₁ ⊢ B₁ ≡ B₂ →

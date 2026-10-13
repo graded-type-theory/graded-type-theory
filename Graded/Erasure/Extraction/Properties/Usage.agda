@@ -18,7 +18,7 @@ module Graded.Erasure.Extraction.Properties.Usage
 open Modality 𝕄
 open Configuration C
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄

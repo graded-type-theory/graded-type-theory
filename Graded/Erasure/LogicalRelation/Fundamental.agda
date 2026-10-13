@@ -23,7 +23,8 @@ module Graded.Erasure.LogicalRelation.Fundamental
 
 open Configuration C
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
+open import Configuration-types.Omega 𝕄
 
 open Definition.Untyped M
 open Definition.Typed TC
@@ -458,9 +459,12 @@ module Fundamental
     fundamental′ (set _ _ _ _ _) ▸set _ =
       let _ , eq , ok , _ = inv-usage-set ▸set in
       setʳ ok eq
-    fundamental′ {γ} (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) ▸qrec (qrec _ <n₂ _ _ <n₅)
+    fundamental′
+      {γ} (qrec ⦃ ok = ok₁ ⦄ ⊢C ⊢t ⊢u ⊢v ⊢w) ▸qrec (qrec _ <n₂ _ _ <n₅)
       with inv-usage-qrec ▸qrec
-    … | invUsageQrec₀ {δ₂} {δ₅} _ _ ▸C ▸t ▸u ▸v ▸w γ≤ =
+    … | invUsageQrec₀ {δ₂} {δ₅} ⦃ ok = ok₂ ⦄ _ _ ▸C ▸t ▸u ▸v ▸w γ≤ =
+      case Omega-allowed-propositional ok₁ ok₂ of λ {
+        PE.refl →
       subsumption-▸⊩ʳ∷[]
         (λ x →
            γ ⟨ x ⟩ PE.≡ 𝟘                →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
@@ -474,10 +478,13 @@ module Fundamental
         (begin
            δ₂ ∧ᶜ ω ·ᶜ δ₅  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
            ω ·ᶜ δ₅        ≤⟨ ω·ᶜ-decreasing ⟩
-           δ₅             ∎)
+           δ₅             ∎) }
       where
       open ≤ᶜ-reasoning
-    … | invUsageQrec₁ {δ₁} {δ₂} {δ₅} _ _ ▸C ▸t ▸u ▸v ▸w γ≤ =
+    … | invUsageQrec₁
+          {δ₁} {δ₂} {δ₅} ⦃ ok = ok₂ ⦄ _ _ ▸C ▸t ▸u ▸v ▸w γ≤ =
+      case Omega-allowed-propositional ok₁ ok₂ of λ {
+        PE.refl →
       subsumption-▸⊩ʳ∷[]
         (λ x →
            γ ⟨ x ⟩ PE.≡ 𝟘                            →⟨ ≤ᶜ→⟨⟩≡𝟘→⟨⟩≡𝟘 γ≤ ⟩
@@ -493,7 +500,7 @@ module Fundamental
            δ₂        ∎)
         (begin
            δ₂ ∧ᶜ δ₅  ≤⟨ ∧ᶜ-decreasingʳ _ _ ⟩
-           δ₅        ∎)
+           δ₅        ∎) }
       where
       open ≤ᶜ-reasoning
     fundamental′ (conv ⊢t A≡B) γ▸t <n =

@@ -489,7 +489,7 @@ opaque
        ⊢S)
   ⊢ₛ-⇒ₑ ⊢s qrecₕ =
     let _ , _ , _ , ⊢qrec , _ = ⊢ₛ-inv ⊢s
-        _ , _ , ⊢C , _        = inversion-qrec ⊢qrec
+        _ , _ , _ , ⊢C , _    = inversion-qrec ⊢qrec
         ⊢Q                    = ⊢∙→⊢ (wf ⊢C)
         ok , _                = inversion-Quot ⊢Q
     in

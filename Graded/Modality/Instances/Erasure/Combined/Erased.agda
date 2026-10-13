@@ -62,14 +62,14 @@ private variable
 
 private
 
-  ω′ : ⦃ ok : Usage-allows-omega ⦄ → _
-  ω′ ⦃ ok ⦄ = Has-omega.ω (Usage-with-omega-has-omega ok)
+  ω′ : ⦃ ok : Omega-allowed ⦄ → _
+  ω′ ⦃ ok ⦄ = Has-omega.ω (With-omega→Has-omega ok)
 
   ω′≡ω :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     ω′ PE.≡ ω
   ω′≡ω ⦃ ok ⦄ =
-    erasure-has-omega-unique (Usage-with-omega-has-omega ok)
+    erasure-has-omega-unique (With-omega→Has-omega ok)
 
 -- The following properties are proven under the asuumption that certain
 -- things must always be allowed when the mode is 𝟘ᵐ[ ok ].
@@ -326,7 +326,7 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
     -- A typing/usage rule for Jᵉ.
 
     ⊢∷-Jᵉ :
-      ⦃ ok : Usage-allows-omega ⦄ →
+      ⦃ ok : Omega-allowed ⦄ →
       let open Erased s in
       []-cong-allowed s →
       []-cong-allowed-mode s ⌞ p ⌟ →

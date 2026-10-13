@@ -20,7 +20,7 @@ open Configuration C
 
 open import Configuration-types.Configuration.Zero-one 𝕄 variant
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -472,7 +472,7 @@ opaque
   -- closed context, implemented under some additional assumptions.
 
   soundness-ℕ-only-source-counterexample₃′ :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     erased-matches-for-J 𝟙ᵐ PE.≡ not-none sem →
     Higher-quotient-constructors-neutral →
     let ∇ = ε
@@ -1096,7 +1096,7 @@ opaque
 
   no-run-time-canonicity-if-strict-and-arguments-removed :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄ →
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     Emptyrec-allowed 𝟙ᵐ 𝟘 →
     Π-allowed 𝟘 p →
     Π-allowed ω q →

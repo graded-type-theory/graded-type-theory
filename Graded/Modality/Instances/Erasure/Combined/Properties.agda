@@ -264,13 +264,13 @@ opaque mutual
     resp ok ⊢Q ⊢t ⊢u ⊢v
   sub-⊢∷ (set ok ⊢Q ⊢t ⊢u ⊢v ⊢w) _ =
     set ok ⊢Q ⊢t ⊢u ⊢v ⊢w
-  sub-⊢∷ (qrec ok₁ ok₂ ok₃ ok₄ ⊢C ⊢t ⊢u ⊢v ⊢w) δ≤γ
+  sub-⊢∷ (qrec ok₁ ok₂ ok₃ ⊢C ⊢t ⊢u ⊢v ⊢w) δ≤γ
     with Qrec-motive-erased?
   … | yes erased =
-    qrec ok₁ ok₂ ok₃ (⊥-elim ∘→ (_$ erased)) ⊢C
+    qrec ok₁ ok₂ (⊥-elim ∘→ (_$ erased)) ⊢C
       (sub-⊢∷ ⊢t (δ≤γ ∙ PE.refl)) ⊢u ⊢v (sub-⊢∷ ⊢w δ≤γ)
-  … | no not-erased with ok₄ not-erased
+  … | no not-erased with ok₃ not-erased
   …   | PE.refl , PE.refl =
-    qrec ok₁ ok₂ (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
+    qrec ok₁ (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
       (sub-⊢ ⊢C (δ≤γ ∙ PE.refl)) (sub-⊢∷ ⊢t (δ≤γ ∙ PE.refl)) ⊢u ⊢v
       (sub-⊢∷ ⊢w δ≤γ)

@@ -22,6 +22,7 @@ open import Configuration-types
 open import Configuration-types.Configuration.Zero-one
 open import Configuration-types.Erased-matches
 open import Configuration-types.Natrec
+open import Configuration-types.Omega
 
 import Definition.Typechecking.Decidable.Assumptions as TD
 open import Definition.Untyped.NotParametrised
@@ -118,7 +119,8 @@ private
   C′ has-nr =
     not-all-erased-matches-JK _ _ $
     second-ΠΣ-quantities-𝟘-or-ω _ _ $
-    no-restrictions _ _ (Nr ⦃ has-nr ⦄) false false false false false
+    no-restrictions _ _ with-ω (Nr ⦃ has-nr ⦄) false false false false
+      false
 
   opaque
 
@@ -132,7 +134,8 @@ private
     Assumptions-C′ {has-nr} =
       Assumptions-not-all-erased-matches-JK _ _ ∘→
       Assumptions-second-ΠΣ-quantities-𝟘-or-ω _ _ ∘→
-      Assumptions-no-restrictions _ _ ⦃ Nr ⦃ Nr ⦃ has-nr ⦄ ⦄ ⦄
+      Assumptions-no-restrictions _ _ {omega = with-ω}
+        ⦃ Nr ⦃ Nr ⦃ has-nr ⦄ ⦄ ⦄
 
 -- An erasure modality.
 
@@ -183,7 +186,7 @@ opaque
     , Lift.lower
     , Level-is-small⇔ .proj₂ refl
     , _
-    , (λ ())
+    , ((λ ()) , with-ω)
     , (λ ())
     , _
     where

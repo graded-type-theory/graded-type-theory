@@ -14,6 +14,8 @@ module Definition.Conversion.Weakening
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Erased 𝕄
 open import Definition.Untyped.Neutral M TC⁻

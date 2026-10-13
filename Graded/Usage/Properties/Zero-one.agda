@@ -21,7 +21,7 @@ module Graded.Usage.Properties.Zero-one
 open Configuration C
 open Mode-variant mode-variant
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 open import Configuration-types.Natrec 𝕄
 
 open import Definition.Untyped M

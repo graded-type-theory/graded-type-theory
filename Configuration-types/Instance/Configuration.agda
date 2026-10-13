@@ -6,18 +6,18 @@ open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
-module Configuration-types.Instance
+module Configuration-types.Instance.Configuration
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
   (C : Configuration 𝐌)
   where
 
-open import Configuration-types.Natrec 𝕄
-open import Configuration-types.Omega 𝕄
-
 open Configuration-types.Configuration C
-open Modality 𝕄
+
+open import Configuration-types.Natrec 𝕄
+
+open import Configuration-types.Instance.Type-configuration TC public
 
 instance
 
@@ -34,11 +34,3 @@ instance
     Has-well-behaved-GLBs M 𝕄
   Nr-not-available-Has-well-behaved-GLBs ⦃ no-nr ⦄ =
     Natrec-mode-Has-well-behaved-GLBs no-nr
-
-instance
-
-  Usage-allows-omega-has-omega :
-    ⦃ ok : Usage-allows-omega ⦄ →
-    Has-omega M 𝕄
-  Usage-allows-omega-has-omega ⦃ ok ⦄ =
-    Usage-with-omega-has-omega ok

@@ -71,21 +71,24 @@ opaque
 ------------------------------------------------------------------------
 -- Functions that construct configurations
 
--- No type restrictions (see no-type-restrictions, which takes the
--- first two booleans), no restrictions for prodrec, unitrec or
--- emptyrec, all erased matches are allowed for J and K, the natrec
--- mode can be anything, the higher quotient constructors are allowed
--- exactly if the mode structure is non-trivial, Id-erased is
--- inhabited if the first boolean is true, starˢ is treated as a sink
--- if the second boolean is true, and Qrec-motive-erased is inhabited
--- if the third boolean is true. Usage rules that require the use of ω
--- are not allowed.
+-- No type restrictions (see TC.no-type-restrictions, which takes the
+-- argument of type With-or-without-omega and the first two booleans;
+-- quotients are not allowed if the mode structure is trivial), no
+-- restrictions for prodrec, unitrec or emptyrec, all erased matches
+-- are allowed for J and K, the natrec mode can be anything, the
+-- higher quotient constructors are allowed exactly if the mode
+-- structure is non-trivial, Id-erased is inhabited if the first
+-- boolean is true, starˢ is treated as a sink if the second boolean
+-- is true, and Qrec-motive-erased is inhabited if the third boolean
+-- is true.
 
 no-restrictions :
+  With-or-without-omega →
   (nm : Natrec-mode) →
-  (_ _ _ _ _ : Bool) → Configuration Zero-one-isMode
-no-restrictions nm =
-  C.no-restrictions nm
+  (_ _ _ _ _ : Bool) →
+  Configuration Zero-one-isMode
+no-restrictions omega nm =
+  C.no-restrictions omega nm
     (λ { ⦃ (Nr) ⦄ → Zero-one-supports-nr ⦃ Natrec-mode-Has-nr Nr ⦄ })
 
 -- A function used to define not-all-erased-matches-JK.
@@ -98,12 +101,19 @@ not-all-for-𝟙ᵐ f 𝟙ᵐ with f 𝟙ᵐ
 
 -- The function adds the restriction that, for the mode 𝟙ᵐ, "all"
 -- erased matches are not allowed for J and K.
+--
+-- Support for a dedicated ω grade is enabled, and the given argument
+-- is used as the dedicated ω grade.
 
 not-all-erased-matches-JK :
   ⦃ ok : Has-omega 𝕄 ⦄ →
   Configuration Zero-one-isMode → Configuration Zero-one-isMode
 not-all-erased-matches-JK C = record C
-  { usage-rules-with-ω = with-ω
+  { TC =
+      record (Configuration.TC C)
+        { with-or-without-omega      = with-ω
+        ; Quot-allowed→Omega-allowed = λ _ → with-ω
+        }
   ; erased-matches-for-JK = λ jk m → not-all-for-𝟙ᵐ (erased-matches-for-JK jk) m
   ; erased-matches-for-JK-≤ᵉᵐ =
       𝟙ᵐ𝟘ᵐ→≤ᵐ
@@ -130,12 +140,20 @@ not-all-erased-matches-JK C = record C
 -- not allowed for the mode 𝟙ᵐ. No restriction is added for emptyrec
 -- or unitrec. For prodrec the added restriction only applies to
 -- non-trivial modalities.
+--
+-- Support for a dedicated ω grade is enabled, and the given argument
+-- is used as the dedicated ω grade.
 
 only-some-erased-matches :
   ⦃ ok : Has-omega 𝕄 ⦄ →
   Configuration Zero-one-isMode → Configuration Zero-one-isMode
 only-some-erased-matches C = record C
-  { []-cong-allowed-mode = λ s m →
+  { TC =
+      record (Configuration.TC C)
+        { with-or-without-omega      = with-ω
+        ; Quot-allowed→Omega-allowed = λ _ → with-ω
+        }
+  ; []-cong-allowed-mode = λ s m →
       []-cong-allowed-mode s m × m ≢ 𝟙ᵐ
   ; []-cong-allowed-mode→[]-cong-allowed =
       []-cong-allowed-mode→[]-cong-allowed ∘→ proj₁
@@ -147,7 +165,6 @@ only-some-erased-matches C = record C
       (m ≡ 𝟙ᵐ → ¬ Trivial → r ≢ 𝟘)
   ; Prodrec-allowed-upwards-closed = λ (ok , r≢𝟘) m≤m′ →
       Prodrec-allowed-upwards-closed ok m≤m′ , λ { refl → r≢𝟘 (≤ᵐ-𝟙ᵐ→ m≤m′) }
-  ; usage-rules-with-ω = with-ω
   ; erased-matches-for-JK =
       λ jk → f (erased-matches-for-JK jk 𝟘ᵐ?)
   ; erased-matches-for-JK-≤ᵉᵐ =
@@ -236,13 +253,19 @@ none-for-𝟙ᵐ f 𝟘ᵐ = f 𝟘ᵐ
 -- The function enables support for []-cong (if the modality is
 -- non-trivial), but disables support for erased matches for J (when
 -- the mode is 𝟙ᵐ).
+--
+-- Support for a dedicated ω grade is enabled, and the given argument
+-- is used as the dedicated ω grade.
 
 with-[]-cong :
   ⦃ ok : Has-omega 𝕄 ⦄ →
   Configuration Zero-one-isMode → Configuration Zero-one-isMode
 with-[]-cong ⦃ ok ⦄ C = record C
   { TC =
-      TC.with-[]-cong (C .Configuration.TC)
+      record (TC.with-[]-cong (C .Configuration.TC))
+        { with-or-without-omega      = with-ω
+        ; Quot-allowed→Omega-allowed = λ _ → with-ω
+        }
   ; []-cong-allowed-mode =
       λ m s → []-cong-allowed-mode m s ⊎ ¬ Trivial
   ; []-cong-allowed-mode→[]-cong-allowed =
@@ -250,7 +273,6 @@ with-[]-cong ⦃ ok ⦄ C = record C
   ; []-cong-allowed-mode-upwards-closed = λ where
       (inj₁ ok) m≤m′ → inj₁ ([]-cong-allowed-mode-upwards-closed ok m≤m′)
       (inj₂ 𝟙≢𝟘) _   → inj₂ 𝟙≢𝟘
-  ; usage-rules-with-ω = with-ω ⦃ ok ⦄
   ; erased-matches-for-JK = λ where
       J m → none-for-𝟙ᵐ erased-matches-for-J m
       K m → erased-matches-for-JK K m
@@ -335,7 +357,15 @@ opaque
     ⦃ ok : Has-omega 𝕄 ⦄ →
     UD.Assumptions C → UD.Assumptions (not-all-erased-matches-JK C)
   Assumptions-not-all-erased-matches-JK as = λ where
-      .assumptions           → A.assumptions
+      .assumptions → λ where
+        ._≟_                    → A._≟_
+        .Omega-plus-allowed?    → A.Omega-plus-allowed?
+        .Unit-allowed?          → A.Unit-allowed?
+        .ΠΣ-allowed?            → A.ΠΣ-allowed?
+        .K-allowed?             → A.K-allowed?
+        .[]-cong-allowed?       → A.[]-cong-allowed?
+        .Quot-allowed?          → A.Quot-allowed?
+        .no-equality-reflection → A.no-equality-reflection
       .Prodrec-allowed?      → A.Prodrec-allowed?
       .Unitrec-allowed?      → A.Unitrec-allowed?
       .Emptyrec-allowed?     → A.Emptyrec-allowed?
@@ -343,6 +373,7 @@ opaque
       .no-sink-or-≤𝟘         → A.no-sink-or-≤𝟘
     where
     module A = UD.Assumptions as
+    open TD.Assumptions
     open UD.Assumptions
 
 opaque
@@ -353,7 +384,15 @@ opaque
     ⦃ ok : Has-omega 𝕄 ⦄ →
     UD.Assumptions C → UD.Assumptions (only-some-erased-matches C)
   Assumptions-only-some-erased-matches as = λ where
-      .assumptions              → A.assumptions
+      .assumptions → λ where
+        ._≟_                    → A._≟_
+        .Omega-plus-allowed?    → A.Omega-plus-allowed?
+        .Unit-allowed?          → A.Unit-allowed?
+        .ΠΣ-allowed?            → A.ΠΣ-allowed?
+        .K-allowed?             → A.K-allowed?
+        .[]-cong-allowed?       → A.[]-cong-allowed?
+        .Quot-allowed?          → A.Quot-allowed?
+        .no-equality-reflection → A.no-equality-reflection
       .Prodrec-allowed? m r p q → A.Prodrec-allowed? m r p q
                                     ×-dec
                                   m M.≟ 𝟙ᵐ
@@ -370,6 +409,7 @@ opaque
       .no-sink-or-≤𝟘            → A.no-sink-or-≤𝟘
     where
     module A = UD.Assumptions as
+    open TD.Assumptions
     open UD.Assumptions
 
 opaque

@@ -35,7 +35,7 @@ module Application.NegativeOrErasedAxioms.Canonicity
   (consistent : Consistent Γ)
   where
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -271,9 +271,12 @@ neNeg (resp _ _ _ _) (resp ok) =
   ⊥-elim (not-neutral ok)
 neNeg (set _ _ _ _ _) (set ok) =
   ⊥-elim (not-neutral ok)
-neNeg {γ} (qrec {A} {B} {C} {w} _ _ _ ⊢v ⊢w) (qrec w-ne) ▸qrec
+neNeg
+  {γ} (qrec {A} {B} {C} {w} ⦃ ok = ok₁ ⦄ _ _ _ ⊢v ⊢w) (qrec w-ne) ▸qrec
   with inv-usage-qrec ▸qrec
-… | invUsageQrec₀ {δ₂} {δ₅} _ _ _ _ _ _ ▸w γ≤ =
+… | invUsageQrec₀ {δ₂} {δ₅} ⦃ ok = ok₂ ⦄ _ _ _ _ _ _ ▸w γ≤ =
+  case Omega-allowed-propositional ok₁ ok₂ of λ {
+    PE.refl →
   let _ , _ , _ , _ , (⊢Q , _) = inversion-Is-set-Cons ⊢v in
   NegativeErasedContext Γ γ                →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
   NegativeErasedContext Γ (δ₂ +ᶜ ω ·ᶜ δ₅)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₂ ∘→ +ᶜ-positive-⟨⟩ δ₂) ⟩
@@ -285,8 +288,10 @@ neNeg {γ} (qrec {A} {B} {C} {w} _ _ _ ⊢v ⊢w) (qrec w-ne) ▸qrec
   NegativeErasedContext Γ δ₅               →⟨ neNeg ⊢w w-ne ▸w ⟩
   NegativeType Γ (Quot A B)                →⟨ flip ¬negQuot (refl ⊢Q) ⟩
   ⊥                                        →⟨ ⊥-elim ⟩
-  NegativeType Γ (C [ w ]₀)                □
-… | invUsageQrec₁ {δ₁} {δ₂} {δ₅} _ _ _ _ _ _ ▸w γ≤ =
+  NegativeType Γ (C [ w ]₀)                □ }
+… | invUsageQrec₁ {δ₁} {δ₂} {δ₅} ⦃ ok = ok₂ ⦄ _ _ _ _ _ _ ▸w γ≤ =
+  case Omega-allowed-propositional ok₁ ok₂ of λ {
+    PE.refl →
   let _ , _ , _ , _ , (⊢Q , _) = inversion-Is-set-Cons ⊢v in
   NegativeErasedContext Γ γ                        →⟨ NegativeErasedContext-upwards-closed γ≤ ⟩
   NegativeErasedContext Γ (ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅))  →⟨ (NegativeErasedContext-𝟘 λ _ →
@@ -300,7 +305,7 @@ neNeg {γ} (qrec {A} {B} {C} {w} _ _ _ ⊢v ⊢w) (qrec w-ne) ▸qrec
   NegativeErasedContext Γ δ₅                       →⟨ neNeg ⊢w w-ne ▸w ⟩
   NegativeType Γ (Quot A B)                        →⟨ flip ¬negQuot (refl ⊢Q) ⟩
   ⊥                                                →⟨ ⊥-elim ⟩
-  NegativeType Γ (C [ w ]₀)                        □
+  NegativeType Γ (C [ w ]₀)                        □ }
 neNeg (conv d c) n γ▸u nΓγ =
   conv (neNeg d n γ▸u nΓγ) c
 neNeg (Uⱼ _)          ()

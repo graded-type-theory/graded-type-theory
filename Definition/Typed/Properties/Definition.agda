@@ -13,6 +13,8 @@ module Definition.Typed.Properties.Definition
 
 open Type-configuration TC
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Typed TC
 open import Definition.Typed.Inversion TC
 open import Definition.Typed.Properties.Admissible.Empty TC

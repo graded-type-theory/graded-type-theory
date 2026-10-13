@@ -20,7 +20,7 @@ open IsMode 𝐌
 open Configuration Conf
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance Conf
+open import Configuration-types.Instance.Configuration Conf
 open import Configuration-types.Natrec 𝕄
 open import Configuration-types.Omega 𝕄
 
@@ -101,7 +101,8 @@ opaque
 -- A function used for context infrerence for qrec.
 
 ⌈⌉-qrec :
-  {A : Set a} → Usage-with-or-without-omega → Dec A → (γ δ η : Conₘ n) → Conₘ n
+  {A : Set a} →
+  With-or-without-omega → Dec A → (γ δ η : Conₘ n) → Conₘ n
 ⌈⌉-qrec without-ω _ _ _ _ = 𝟘ᶜ
 ⌈⌉-qrec (with-ω ⦃ ok ⦄) (yes _) γ δ η =
   δ +ᶜ ω ⦃ ok ⦄ ·ᶜ η
@@ -167,7 +168,7 @@ mutual
   ⌈ resp _ _ _ _ _ ⌉ _ = 𝟘ᶜ
   ⌈ set _ _ _ _ _ _ ⌉ _ = 𝟘ᶜ
   ⌈ qrec C t _ _ w ⌉ m =
-    ⌈⌉-qrec usage-rules-with-ω Qrec-motive-erased?
+    ⌈⌉-qrec with-or-without-omega Qrec-motive-erased?
       (tailₘ (⌈ C ⌉ m)) (tailₘ (⌈ t ⌉ m)) (⌈ w ⌉ m)
 
 -- Well-usage of variables
@@ -600,7 +601,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
   -- For simplicity the code uses a fixed grade ω. One could perhaps
   -- imagine being more flexible.
 
-  qrec₀     : ⦃ ok : Usage-allows-omega ⦄
+  qrec₀     : ⦃ ok : Omega-allowed ⦄
             → Quot-allowed
             → Qrec-motive-erased
             → γ₁ ▸[ 𝟘ᵐ ] C
@@ -610,7 +611,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → γ₅ ▸[ m ] w
             → γ₂ +ᶜ ω ·ᶜ γ₅ ▸[ m ] qrec C t u v w
 
-  qrec₁     : ⦃ ok : Usage-allows-omega ⦄
+  qrec₁     : ⦃ ok : Omega-allowed ⦄
             → Quot-allowed
             → ¬ Qrec-motive-erased
             → γ₁ ∙ ⌜ m ⌝ · ω ▸[ m ] C

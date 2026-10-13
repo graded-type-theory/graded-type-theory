@@ -18,7 +18,7 @@ open Modality 𝕄
 open IsMode 𝐌
 open Configuration C
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 open import Configuration-types.Natrec 𝕄
 
 open import Graded.Context 𝕄

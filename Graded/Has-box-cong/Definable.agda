@@ -22,7 +22,7 @@ open Configuration C
 
 open import Configuration-types.Configuration.Zero-one 𝕄 variant
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Conversion.Consequences.Var TC
 open import Definition.Typed TC
@@ -103,7 +103,7 @@ private variable
 
 private
   module []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong
-    ⦃ has-ω : Usage-allows-omega ⦄
+    ⦃ has-ω : Omega-allowed ⦄
     (ok : ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
           Erased-allowed s ×
           (erased-matches-for-J m ≢ none × T 𝟘ᵐ-allowed ⊎
@@ -325,7 +325,7 @@ opaque
   --   * equality reflection is allowed.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong-for-level :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     {Γ : Con Term n} →
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
     Erased-allowed s ×
@@ -387,7 +387,7 @@ opaque
   --   * equality reflection is allowed.
 
   []-cong⊎J⊎𝟘ᵐ⊎Trivial⊎Equality-reflection→[]-cong :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     {Γ : Con Term n} →
     Level-allowed →
     ([]-cong-allowed s × []-cong-allowed-mode s m) ⊎
@@ -702,7 +702,7 @@ opaque
   -- Consistent (ε » Δ) also holds.
 
   ¬-[]-cong-for-level′ :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches →
@@ -743,7 +743,7 @@ opaque
   -- be consistent in their absence).
 
   ¬-[]-cong-for-level-with-funext :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches →
@@ -824,7 +824,7 @@ opaque
   -- holds.
 
   ¬-[]-cong′ :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches →
@@ -865,7 +865,7 @@ opaque
   -- be consistent in their absence).
 
   ¬-[]-cong-with-funext :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     No-erased-matches →

@@ -323,17 +323,18 @@ module _ (as : Full-reduction-assumptions) where
           γ≤ }
       (qrec-cong C↑ t↑ u↑ v↑ w~) ▸∇ ▸qrec →
         case inv-usage-qrec ▸qrec of λ where
-          (invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
+          (invUsageQrec₀ ⦃ ok ⦄ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
             sub
-              (qrec₀ ok₁ ok₂ (fullRedConv↑ C↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸C)
+              (qrec₀ ⦃ ok = ok ⦄ ok₁ ok₂
+                 (fullRedConv↑ C↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸C)
                  (fullRedTermConv↑ t↑ ▸∇ ▸t)
                  (fullRedTermConv↑ u↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸u)
                  (fullRedTermConv↑ v↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v)
                  (fullRedNe~↓ w~ ▸∇ ▸w))
               γ≤
-          (invUsageQrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
+          (invUsageQrec₁ ⦃ ok ⦄ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
             sub
-              (qrec₁ ok₁ ok₂ (fullRedConv↑ C↑ ▸∇ ▸C)
+              (qrec₁ ⦃ ok = ok ⦄ ok₁ ok₂ (fullRedConv↑ C↑ ▸∇ ▸C)
                  (fullRedTermConv↑ t↑ ▸∇ ▸t)
                  (fullRedTermConv↑ u↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸u)
                  (fullRedTermConv↑ v↑ (ε-▸-𝟘ᵐ? ∘→ ▸∇) ▸v)

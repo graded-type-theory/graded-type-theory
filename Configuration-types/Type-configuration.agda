@@ -23,6 +23,7 @@ open import Tools.Sum
 open import Tools.Unit
 
 open import Configuration-types
+open import Configuration-types.Omega 𝕄
 
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
@@ -40,6 +41,9 @@ private variable
 -- Functions that construct type configurations
 
 -- No type restrictions except that
+-- * there is a dedicated grade omega if and only if such a grade is
+--   supplied, and if no such grade is supplied, then quotient types
+--   are not allowed,
 -- * if the modality is trivial, then []-cong and quotient types are
 --   not allowed,
 -- * the K rule is allowed if and only if the first boolean is true,
@@ -50,8 +54,9 @@ private variable
 --   is true.
 -- Furthermore transitive unfolding is used.
 
-no-type-restrictions : Bool → Bool → Type-configuration 𝕄
-no-type-restrictions k equality-reflection = λ where
+no-type-restrictions :
+  With-or-without-omega → Bool → Bool → Type-configuration 𝕄
+no-type-restrictions omega k equality-reflection = λ where
     .TC⁻ → λ where
       .level-support                 → level-type small
       .Omega-plus-allowed            → Lift _ ⊤
@@ -60,16 +65,18 @@ no-type-restrictions k equality-reflection = λ where
       .K-allowed                     → Lift _ (T k)
       .Equality-reflection           → Lift _ (T equality-reflection)
       .Equality-reflection?          → Lift? (T? equality-reflection)
-      .Quot-allowed                  → ¬ Trivial
+      .Quot-allowed                  → ¬ Trivial × With-omega omega
       .Opacity-allowed               → Lift _ (¬ T equality-reflection)
       .Opacity-allowed?              → Lift?
                                          (¬? (T? equality-reflection))
       .no-opaque-equality-reflection → (_∘→ Lift.lower) ∘→ Lift.lower
       .unfolding-mode                → transitive
-    .ΠΣ-allowed       → λ _ _ _ → Lift _ ⊤
-    .[]-cong-allowed  → λ _ → ¬ Trivial
-    .[]-cong→Erased   → _
-    .[]-cong→¬Trivial → idᶠ
+    .with-or-without-omega      → omega
+    .Quot-allowed→Omega-allowed → proj₂
+    .ΠΣ-allowed                 → λ _ _ _ → Lift _ ⊤
+    .[]-cong-allowed            → λ _ → ¬ Trivial
+    .[]-cong→Erased             → _
+    .[]-cong→¬Trivial           → idᶠ
   where
   open Type-configuration
   open Type-configuration⁻
@@ -238,6 +245,7 @@ no-quotients TC = record TC
     record (TC .Type-configuration.TC⁻)
       { Quot-allowed = Lift _ ⊥
       }
+  ; Quot-allowed→Omega-allowed = λ ()
   }
 
 ------------------------------------------------------------------------
@@ -246,11 +254,12 @@ no-quotients TC = record TC
 opaque
 
   -- If grade equality is decidable, then TD.Assumptions holds for
-  -- no-type-restrictions b false.
+  -- no-type-restrictions omega b false.
 
   Assumptions-no-type-restrictions :
+    {omega : With-or-without-omega} →
     Decidable (_≡_ {A = M}) →
-    TD.Assumptions (no-type-restrictions b false)
+    TD.Assumptions (no-type-restrictions omega b false)
   Assumptions-no-type-restrictions {b} dec = λ where
       ._≟_                 → dec
       .Omega-plus-allowed? → yes _
@@ -262,7 +271,7 @@ opaque
       .[]-cong-allowed? _ →
         ¬? trivial?
       .Quot-allowed? →
-        ¬? trivial?
+        ¬? trivial? ×-dec With-omega?
       .no-equality-reflection (lift ())
     where
     open TD.Assumptions

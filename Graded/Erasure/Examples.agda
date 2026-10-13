@@ -74,7 +74,7 @@ private
   module EM = Modality EM
 
 open import Configuration-types.Configuration.Zero-one EM variant
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 open import Configuration-types.Natrec EM
 
 open import Graded.Context EM

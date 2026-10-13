@@ -24,7 +24,7 @@ open Modality 𝕄
 
 open import Configuration-types.Configuration.Zero-one 𝕄 mode-variant
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Untyped M
 open import Graded.Context 𝕄
@@ -72,7 +72,7 @@ module _
   where
 
   private opaque instance
-    jk-ok : Usage-allows-omega
+    jk-ok : Omega-allowed
     jk-ok = erased-matches-for-JK-supports-ω (subst (_≤ᵉᵐ some)
               (sym $ nem non-trivial .proj₂ .proj₂ .proj₂ .proj₁) _)
 

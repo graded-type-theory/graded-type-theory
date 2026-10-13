@@ -13,12 +13,15 @@ open import Tools.Relation
 open import Tools.Sum as ⊎
 
 open import Configuration-types
+import Configuration-types.Instance.Type-configuration
+open import Configuration-types.Omega
 
 open import Definition.Untyped.NotParametrised
 open import Definition.Untyped.Properties.NotParametrised
 open import Definition.Untyped.QuantityTranslation
 
 open import Graded.Modality
+open import Graded.Modality.Morphism
 import Graded.Modality.Properties
 
 private variable
@@ -26,6 +29,7 @@ private variable
   TC TC₁ TC₂ TC₃      : Type-configuration _
   b                   : BinderMode
   M M₁ M₂             : Set _
+  𝕄₂ 𝕄₃               : Modality _
   tr₁ tr₂ tr-Σ₁ tr-Σ₂ : M₁ → M₂
   p q                 : M
   s                   : Strength
@@ -51,6 +55,9 @@ record Is-Σ-morphism-TC
     module M₂  = Modality 𝕄₂
     module TC₁ = Type-configuration TC₁
     module TC₂ = Type-configuration TC₂
+
+  open Configuration-types.Instance.Type-configuration TC₁
+  open Configuration-types.Instance.Type-configuration TC₂
 
   field
     -- The flag TC₁.unfolding-mode is equal to TC₂.unfolding-mode.
@@ -106,6 +113,23 @@ record Is-Σ-morphism-TC
     Quot-allowed→tr-𝟘≡𝟘 :
       TC₁.Quot-allowed → tr M₁.𝟘 ≡ M₂.𝟘
 
+    -- If TC₁.Omega-allowed holds, then TC₂.Omega-allowed holds.
+    Omega-allowed-preserved :
+      TC₁.Omega-allowed → TC₂.Omega-allowed
+
+    -- If both modalities support a dedicated ω grade, then the
+    -- morphism must be omega-preserving.
+    omega-preserving :
+      ⦃ ok₁ : TC₁.Omega-allowed ⦄ ⦃ ok₂ : TC₂.Omega-allowed ⦄ →
+      Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr
+
+  private
+    open
+      module OP ⦃ ok₁ : TC₁.Omega-allowed ⦄
+                ⦃ ok₂ : TC₂.Omega-allowed ⦄ =
+        Is-omega-preserving-morphism omega-preserving
+      public
+
   opaque
     unfolding Type-configuration.Level-is-small
 
@@ -124,8 +148,7 @@ record Is-Σ-morphism-TC
       ≤LS→≢only-literals⇔≢only-literals level-support-preserved
 
 -- A collection of properties relating the type configurations and
--- functions. Note that the type does not include a field of type
--- Is-Σ-morphism-TC something.
+-- functions.
 
 record Is-Σ-order-embedding-TC
          {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
@@ -142,6 +165,15 @@ record Is-Σ-order-embedding-TC
     module TC₂ = Type-configuration TC₂
 
   field
+    -- "Order embeddings" have to be "morphisms".
+    --
+    -- The contents of this record type are not re-exported, because
+    -- the type
+    -- Graded.Modality.Morphism.Configuration.Is-Σ-order-embedding-C
+    -- includes two values of this type, reachable via different
+    -- fields.
+    is-Σ-morphism-TC : Is-Σ-morphism-TC transparent TC₁ TC₂ tr tr-Σ
+
     -- The flag TC₁.unfolding-mode is equal to TC₂.unfolding-mode.
     unfolding-mode-reflected :
       TC₁.unfolding-mode ≡ TC₂.unfolding-mode
@@ -188,6 +220,10 @@ record Is-Σ-order-embedding-TC
     Quot-reflected :
       TC₂.Quot-allowed ⊎ M₂.Trivial → TC₁.Quot-allowed ⊎ M₁.Trivial
 
+    -- If TC₂.Omega-allowed holds, then TC₁.Omega-allowed holds.
+    Omega-allowed-reflected :
+      TC₂.Omega-allowed → TC₁.Omega-allowed
+
   opaque
     unfolding Type-configuration.Level-is-small
 
@@ -195,16 +231,6 @@ record Is-Σ-order-embedding-TC
 
     Level-is-small-reflected : TC₂.Level-is-small → TC₁.Level-is-small
     Level-is-small-reflected = ≤LS→≡small→≡small level-support-reflected
-
-  opaque
-    unfolding Type-configuration.Level-allowed
-
-    -- TC₁.Level-allowed holds iff TC₂.Level-allowed holds.
-
-    Level-allowed⇔ : TC₁.Level-allowed ⇔ TC₂.Level-allowed
-    Level-allowed⇔ =
-      sym⇔ $
-      ≤LS→≢only-literals⇔≢only-literals level-support-reflected
 
   opaque
 
@@ -224,20 +250,26 @@ record Is-Σ-order-embedding-TC
 
 Is-Σ-morphism-TC-id : Is-Σ-morphism-TC trp TC TC idᶠ idᶠ
 Is-Σ-morphism-TC-id {TC} = λ where
-    .unfolding-mode-preserved      → refl
-    .level-support-preserved       → refl-≤LS
-    .Omega-plus-preserved          → idᶠ
-    .Unitʷ-η-preserved             → idᶠ
-    .Unit-preserved                → idᶠ
-    .ΠΣ-preserved {b = BMΠ}        → idᶠ
-    .ΠΣ-preserved {b = BMΣ _}      → idᶠ
-    .Opacity-preserved             → λ _ → idᶠ
-    .K-preserved                   → idᶠ
-    .[]-cong-preserved             → idᶠ
-    .Equality-reflection-preserved → idᶠ
-    .Quot-preserved                → idᶠ
-    .Quot-allowed→tr-𝟘≡𝟘           → λ _ → refl
+    .unfolding-mode-preserved         → refl
+    .level-support-preserved          → refl-≤LS
+    .Omega-plus-preserved             → idᶠ
+    .Unitʷ-η-preserved                → idᶠ
+    .Unit-preserved                   → idᶠ
+    .ΠΣ-preserved {b = BMΠ}           → idᶠ
+    .ΠΣ-preserved {b = BMΣ _}         → idᶠ
+    .Opacity-preserved                → λ _ → idᶠ
+    .K-preserved                      → idᶠ
+    .[]-cong-preserved                → idᶠ
+    .Equality-reflection-preserved    → idᶠ
+    .Quot-preserved                   → idᶠ
+    .Quot-allowed→tr-𝟘≡𝟘              → λ _ → refl
+    .Omega-allowed-preserved          → idᶠ
+    .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+      case With-omega-propositional _ ok₁ ok₂ of λ {
+        refl →
+      Is-omega-preserving-morphism-id }
   where
+  open Configuration-types.Instance.Type-configuration TC
   open Is-Σ-morphism-TC
   open Type-configuration TC
 
@@ -245,6 +277,7 @@ Is-Σ-morphism-TC-id {TC} = λ where
 
 Is-Σ-order-embedding-TC-id : Is-Σ-order-embedding-TC trp TC TC idᶠ idᶠ
 Is-Σ-order-embedding-TC-id {TC} = λ where
+    .is-Σ-morphism-TC              → Is-Σ-morphism-TC-id
     .unfolding-mode-reflected      → refl
     .level-support-reflected       → refl-≤LS
     .Unitʷ-η-reflected             → idᶠ
@@ -256,6 +289,7 @@ Is-Σ-order-embedding-TC-id {TC} = λ where
     .[]-cong-reflected             → idᶠ
     .Equality-reflection-reflected → idᶠ
     .Quot-reflected                → idᶠ
+    .Omega-allowed-reflected       → idᶠ
   where
   open Is-Σ-order-embedding-TC
   open Type-configuration TC
@@ -266,10 +300,13 @@ Is-Σ-order-embedding-TC-id {TC} = λ where
 -- A composition lemma for Is-Σ-morphism-TC.
 
 Is-Σ-morphism-TC-∘ :
+  {TC₂ : Type-configuration 𝕄₂}
+  {TC₃ : Type-configuration 𝕄₃} →
+  Is-morphism 𝕄₂ 𝕄₃ tr₁ →
   Is-Σ-morphism-TC trp₁ TC₂ TC₃ tr₁ tr-Σ₁ →
   Is-Σ-morphism-TC trp₂ TC₁ TC₂ tr₂ tr-Σ₂ →
   Is-Σ-morphism-TC (trp₁ ∨ trp₂) TC₁ TC₃ (tr₁ ∘→ tr₂) (tr-Σ₁ ∘→ tr-Σ₂)
-Is-Σ-morphism-TC-∘ {tr₁} m₁ m₂ = λ where
+Is-Σ-morphism-TC-∘ {tr₁} {TC₂} m m₁ m₂ = λ where
     .unfolding-mode-preserved →
        trans M₂.unfolding-mode-preserved M₁.unfolding-mode-preserved
     .level-support-preserved →
@@ -300,7 +337,16 @@ Is-Σ-morphism-TC-∘ {tr₁} m₁ m₂ = λ where
     .Quot-allowed→tr-𝟘≡𝟘 ok →
       trans (cong tr₁ (M₂.Quot-allowed→tr-𝟘≡𝟘 ok))
         (M₁.Quot-allowed→tr-𝟘≡𝟘 (M₂.Quot-preserved ok))
+    .Omega-allowed-preserved →
+      M₁.Omega-allowed-preserved ∘→ M₂.Omega-allowed-preserved
+    .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ = ok₃ ⦄ →
+      let ok₂ = M₂.Omega-allowed-preserved ok₁ in
+      Is-omega-preserving-morphism-∘ ⦃ has-ω₁ = _ ⦄
+        ⦃ has-ω₂ = Omega-allowed→Has-omega ⦃ ok = ok₂ ⦄ ⦄ ⦃ has-ω₃ = _ ⦄
+        m (M₁.omega-preserving ⦃ ok₁ = ok₂ ⦄)
+        (M₂.omega-preserving ⦃ ok₂ = ok₂ ⦄)
   where
+  open Configuration-types.Instance.Type-configuration TC₂
   open Is-Σ-morphism-TC
   module M₁ = Is-Σ-morphism-TC m₁
   module M₂ = Is-Σ-morphism-TC m₂
@@ -308,11 +354,16 @@ Is-Σ-morphism-TC-∘ {tr₁} m₁ m₂ = λ where
 -- A composition lemma for Is-Σ-order-embedding-TC.
 
 Is-Σ-order-embedding-TC-∘ :
+  {TC₂ : Type-configuration 𝕄₂}
+  {TC₃ : Type-configuration 𝕄₃} →
+  Is-morphism 𝕄₂ 𝕄₃ tr₁ →
   Is-Σ-order-embedding-TC trp₁ TC₂ TC₃ tr₁ tr-Σ₁ →
   Is-Σ-order-embedding-TC trp₂ TC₁ TC₂ tr₂ tr-Σ₂ →
   Is-Σ-order-embedding-TC (trp₁ ∨ trp₂) TC₁ TC₃ (tr₁ ∘→ tr₂)
     (tr-Σ₁ ∘→ tr-Σ₂)
-Is-Σ-order-embedding-TC-∘ m₁ m₂ = λ where
+Is-Σ-order-embedding-TC-∘ m m₁ m₂ = λ where
+    .is-Σ-morphism-TC →
+      Is-Σ-morphism-TC-∘ m M₁.is-Σ-morphism-TC M₂.is-Σ-morphism-TC
     .unfolding-mode-reflected →
        trans M₂.unfolding-mode-reflected M₁.unfolding-mode-reflected
     .level-support-reflected →
@@ -336,6 +387,8 @@ Is-Σ-order-embedding-TC-∘ m₁ m₂ = λ where
       M₁.Equality-reflection-reflected
     .Quot-reflected →
       M₂.Quot-reflected ∘→ M₁.Quot-reflected
+    .Omega-allowed-reflected →
+      M₂.Omega-allowed-reflected ∘→ M₁.Omega-allowed-reflected
   where
   open Is-Σ-order-embedding-TC
   module M₁ = Is-Σ-order-embedding-TC m₁

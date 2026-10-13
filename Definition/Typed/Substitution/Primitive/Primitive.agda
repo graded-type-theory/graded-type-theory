@@ -15,6 +15,8 @@ module Definition.Typed.Substitution.Primitive.Primitive
 
 open Type-configuration TC
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Typed TC
 open import Definition.Typed.Inversion.Primitive TC
 open import Definition.Typed.Properties.Admissible.Level.Primitive TC

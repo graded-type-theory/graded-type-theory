@@ -17,6 +17,8 @@ module Definition.Conversion.Inversion
 
 open Type-configuration TC
 
+open import Configuration-types.Omega 𝕄
+
 open import Definition.Conversion TC
 open import Definition.Conversion.Whnf TC
 
@@ -1222,19 +1224,21 @@ opaque
      A PE.≡ D [ v₄ ]₀ ×
      t PE.≡ qrec D v₁ v₂ v₃ v₄ ×
      u PE.≡ qrec E w₁ w₂ w₃ w₄ ×
+     ∃ λ (ok : Omega-allowed) →
      (Γ »∙ Quot B C ⊢ D [conv↑] E) ×
      Γ »∙ B ⊢ v₁ [conv↑] w₁ ∷ D [ class (var x0) ]↑ ×
-     Resp-Cons Γ B C ⊢ v₂ [conv↑] w₂ ∷ Resp-type B C D v₁ ×
+     Resp-Cons Γ B C ⊢ v₂ [conv↑] w₂ ∷
+       Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ B C D v₁ ×
      Is-set-Cons Γ B C D ⊢ v₃ [conv↑] w₃ ∷ Is-set-type D ×
      Γ ⊢ v₄ ~ w₄ ↓ Quot B C) ⊎
     ¬ (∃₅ λ D v₁ v₂ v₃ v₄ → t PE.≡ qrec D v₁ v₂ v₃ v₄) ×
     ¬ (∃₅ λ E w₁ w₂ w₃ w₄ → u PE.≡ qrec E w₁ w₂ w₃ w₄)
   inv-~-qrec = λ where
-    (qrec-cong D≡ v₁≡ v₂≡ v₃≡ v₄≡) →
+    (qrec-cong ⦃ ok ⦄ D≡ v₁≡ v₂≡ v₃≡ v₄≡) →
       inj₁ $
       _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
       PE.refl , PE.refl , PE.refl ,
-      D≡ , v₁≡ , v₂≡ , v₃≡ , v₄≡
+      ok , D≡ , v₁≡ , v₂≡ , v₃≡ , v₄≡
     (var-refl _ _)               → inj₂ ((λ ()) , (λ ()))
     (defn-refl _ _ _)            → inj₂ ((λ ()) , (λ ()))
     (lower-cong _)               → inj₂ ((λ ()) , (λ ()))
@@ -1260,14 +1264,16 @@ opaque
     ∃₇ λ C D E v₁ v₂ v₃ v₄ →
     B PE.≡ A [ t₄ ]₀ ×
     u PE.≡ qrec E v₁ v₂ v₃ v₄ ×
+    ∃ λ (ok : Omega-allowed) →
     (Γ »∙ Quot C D ⊢ A [conv↑] E) ×
     Γ »∙ C ⊢ t₁ [conv↑] v₁ ∷ A [ class (var x0) ]↑ ×
-    Resp-Cons Γ C D ⊢ t₂ [conv↑] v₂ ∷ Resp-type C D A t₁ ×
+    Resp-Cons Γ C D ⊢ t₂ [conv↑] v₂ ∷
+      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ C D A t₁ ×
     Is-set-Cons Γ C D A ⊢ t₃ [conv↑] v₃ ∷ Is-set-type A ×
     Γ ⊢ t₄ ~ v₄ ↓ Quot C D
-  inv-qrec~ (qrec-cong A≡ t₁≡ t₂≡ t₃≡ t₄≡) =
+  inv-qrec~ (qrec-cong ⦃ ok ⦄ A≡ t₁≡ t₂≡ t₃≡ t₄≡) =
     _ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
-    A≡ , t₁≡ , t₂≡ , t₃≡ , t₄≡
+    ok , A≡ , t₁≡ , t₂≡ , t₃≡ , t₄≡
 
 opaque
 
@@ -1278,14 +1284,16 @@ opaque
     ∃₇ λ C D E v₁ v₂ v₃ v₄ →
     B PE.≡ E [ v₄ ]₀ ×
     t PE.≡ qrec E v₁ v₂ v₃ v₄ ×
+    ∃ λ (ok : Omega-allowed) →
     (Γ »∙ Quot C D ⊢ E [conv↑] A) ×
     Γ »∙ C ⊢ v₁ [conv↑] u₁ ∷ E [ class (var x0) ]↑ ×
-    Resp-Cons Γ C D ⊢ v₂ [conv↑] u₂ ∷ Resp-type C D E v₁ ×
+    Resp-Cons Γ C D ⊢ v₂ [conv↑] u₂ ∷
+      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ C D E v₁ ×
     Is-set-Cons Γ C D E ⊢ v₃ [conv↑] u₃ ∷ Is-set-type E ×
     Γ ⊢ v₄ ~ u₄ ↓ Quot C D
-  inv-~qrec (qrec-cong ≡A ≡u₁ ≡u₂ ≡u₃ ≡u₄) =
+  inv-~qrec (qrec-cong ⦃ ok ⦄ ≡A ≡u₁ ≡u₂ ≡u₃ ≡u₄) =
     _ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
-    ≡A , ≡u₁ , ≡u₂ , ≡u₃ , ≡u₄
+    ok , ≡A , ≡u₁ , ≡u₂ , ≡u₃ , ≡u₄
 
 ------------------------------------------------------------------------
 -- Inversion and similar lemmas for _⊢_[conv↓]_

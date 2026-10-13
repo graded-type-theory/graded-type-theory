@@ -32,8 +32,8 @@ private
 
   module M = Modality 𝕄
 
-  ω′ : ⦃ ok : Usage-allows-omega ⦄ → _
-  ω′ ⦃ ok ⦄ = Has-omega.ω (Usage-with-omega-has-omega ok)
+  ω′ : ⦃ ok : Omega-allowed ⦄ → _
+  ω′ ⦃ ok ⦄ = Has-omega.ω (With-omega→Has-omega ok)
 
 open import Configuration-types.Erased-matches
 open import Configuration-types.Natrec 𝕄
@@ -164,10 +164,15 @@ private opaque
   [⌞⌟≡𝟙ᵐ→≤ω]→≤ {p = ω} hyp = hyp ⌞𝟙⌟
 
   ω′≡ω :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     ω′ PE.≡ ω
   ω′≡ω ⦃ ok ⦄ =
-    erasure-has-omega-unique (Usage-with-omega-has-omega ok)
+    erasure-has-omega-unique (With-omega→Has-omega ok)
+
+  ω′≡ω′ :
+    (ok : Omega-allowed) →
+    ω′ ⦃ ok = ok ⦄ PE.≡ ω
+  ω′≡ω′ ok = ω′≡ω ⦃ ok = ok ⦄
 
 ------------------------------------------------------------------------
 -- From the combined system to the other ones
@@ -512,27 +517,35 @@ opaque mutual
       (set ok ▸A ▸B (⊢∷[]→▸? ⊢t) (⊢∷[]→▸? ⊢u) (⊢∷[]→▸? ⊢v) (⊢∷[]→▸? ⊢w)
          ⌞𝟘⌟≡𝟘ᵐ?)
       (greatest-elemᶜ _)
-  ⊢∷[]→▸ {γ} (qrec ok₁ ok₂ ok₃ ok₄ ⊢C ⊢t ⊢u ⊢v ⊢w) with Qrec-motive-erased?
+  ⊢∷[]→▸ {γ} (qrec ok₁ ok₂ ok₃ ⊢C ⊢t ⊢u ⊢v ⊢w) with Qrec-motive-erased?
   … | yes erased =
-    case ok₃ erased of λ {
+    let instance
+          ok : Omega-allowed
+          ok = Quot-allowed→Omega-allowed ok₁
+    in
+    case ok₂ erased of λ {
       (PE.refl , PE.refl) →
     sub
-      (qrec₀ ⦃ ok₁ ⦄ ok₂ erased (⊢[]→▸? ⊢C)
-        (sub-≈ᶜ (∙▸→∙⌜⌝·▸ (⊢∷[]→▸ ⊢t)) (≈ᶜ-refl ∙ M.·-congˡ (ω′≡ω ⦃ ok₁ ⦄)))
-        (⊢∷[]→▸? ⊢u) (⊢∷[]→▸? ⊢v) (⊢∷[]→▸ ⊢w))
+      (qrec₀ ok₁ erased (⊢[]→▸? ⊢C)
+         (sub-≈ᶜ (∙▸→∙⌜⌝·▸ (⊢∷[]→▸ ⊢t)) (≈ᶜ-refl ∙ M.·-congˡ ω′≡ω))
+         (⊢∷[]→▸? ⊢u) (⊢∷[]→▸? ⊢v) (⊢∷[]→▸ ⊢w))
       ≤ᶜ+ᶜ·ᶜ }
   … | no not-erased =
-    case ok₄ not-erased of λ {
+    let instance
+          ok : Omega-allowed
+          ok = Quot-allowed→Omega-allowed ok₁
+    in
+    case ok₃ not-erased of λ {
       (PE.refl , PE.refl) →
     sub
-      (qrec₁ ⦃ ok₁ ⦄ ok₂ not-erased
-        (sub-≈ᶜ (∙▸→∙⌜⌝·▸ (⊢[]→▸ ⊢C)) (≈ᶜ-refl ∙ M.·-congˡ (ω′≡ω ⦃ ok₁ ⦄)))
-        (sub-≈ᶜ (∙▸→∙⌜⌝·▸ (⊢∷[]→▸ ⊢t)) (≈ᶜ-refl ∙ M.·-congˡ (ω′≡ω ⦃ ok₁ ⦄)))
-        (⊢∷[]→▸? ⊢u) (⊢∷[]→▸? ⊢v) (⊢∷[]→▸ ⊢w))
+      (qrec₁ ok₁ not-erased
+         (sub-≈ᶜ (∙▸→∙⌜⌝·▸ (⊢[]→▸ ⊢C)) (≈ᶜ-refl ∙ M.·-congˡ ω′≡ω))
+         (sub-≈ᶜ (∙▸→∙⌜⌝·▸ (⊢∷[]→▸ ⊢t)) (≈ᶜ-refl ∙ M.·-congˡ ω′≡ω))
+         (⊢∷[]→▸? ⊢u) (⊢∷[]→▸? ⊢v) (⊢∷[]→▸ ⊢w))
       (begin
-         γ                           ≡˘⟨ PE.trans (PE.cong (_+ᶜ_ _) (+ᶜ-idem _)) (+ᶜ-idem _) ⟩
-         γ +ᶜ γ +ᶜ γ                 ≤⟨ ·ᶜ-increasingˡ ⟩
-         ω′ ⦃ ok₁ ⦄ ·ᶜ (γ +ᶜ γ +ᶜ γ)  ∎) }
+         γ                    ≡˘⟨ PE.trans (PE.cong (_+ᶜ_ _) (+ᶜ-idem _)) (+ᶜ-idem _) ⟩
+         γ +ᶜ γ +ᶜ γ          ≤⟨ ·ᶜ-increasingˡ ⟩
+         ω′ ·ᶜ (γ +ᶜ γ +ᶜ γ)  ∎) }
     where
     open ≤ᶜ-reasoning
 
@@ -681,8 +694,16 @@ opaque mutual
     resp (⊢[]→⊢ ⊢Q) (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u) (⊢∷[]→⊢∷ ⊢v)
   ⊢∷[]→⊢∷ (set _ ⊢Q ⊢t ⊢u ⊢v ⊢w) =
     set (⊢[]→⊢ ⊢Q) (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u) (⊢∷[]→⊢∷ ⊢v) (⊢∷[]→⊢∷ ⊢w)
-  ⊢∷[]→⊢∷ (qrec _ _ _ _ ⊢C ⊢t ⊢u ⊢v ⊢w) =
-    qrec (⊢[]→⊢ ⊢C) (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u) (⊢∷[]→⊢∷ ⊢v) (⊢∷[]→⊢∷ ⊢w)
+  ⊢∷[]→⊢∷ (qrec ok _ _ ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    let instance
+          ok′ : Omega-allowed
+          ok′ = Quot-allowed→Omega-allowed ok
+    in
+    qrec (⊢[]→⊢ ⊢C) (⊢∷[]→⊢∷ ⊢t)
+      (PE.subst (T._⊢_∷_ _ _)
+         (ω≡ω→Resp-type≡Resp-type (PE.sym (ω′≡ω′ ok′))) $
+       ⊢∷[]→⊢∷ ⊢u)
+      (⊢∷[]→⊢∷ ⊢v) (⊢∷[]→⊢∷ ⊢w)
 
   -- If l is well-formed, then l is well-formed.
 
@@ -827,11 +848,30 @@ opaque mutual
     set-cong (⊢≡→⊢≡ A₁≡A₂) (⊢≡→⊢≡ B₁≡B₂) (⊢≡∷→⊢≡∷ t₁≡t₂) (⊢≡∷→⊢≡∷ u₁≡u₂)
       (⊢≡∷→⊢≡∷ v₁≡v₂) (⊢≡∷→⊢≡∷ w₁≡w₂)
   ⊢≡∷→⊢≡∷ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) =
-    qrec-cong (⊢≡→⊢≡ C₁≡C₂) (⊢≡∷→⊢≡∷ t₁≡t₂) (⊢≡∷→⊢≡∷ u₁≡u₂)
-      (⊢≡∷→⊢≡∷ v₁≡v₂) (⊢≡∷→⊢≡∷ w₁≡w₂)
+    let v₁≡v₂  = ⊢≡∷→⊢≡∷ v₁≡v₂
+        ok , _ = inversion-Is-set-Cons v₁≡v₂
+
+        instance
+          ok : Omega-allowed
+          ok = Quot-allowed→Omega-allowed ok
+    in
+    qrec-cong (⊢≡→⊢≡ C₁≡C₂) (⊢≡∷→⊢≡∷ t₁≡t₂)
+      (PE.subst (T._⊢_≡_∷_ _ _ _)
+         (ω≡ω→Resp-type≡Resp-type (PE.sym ω′≡ω)) $
+       ⊢≡∷→⊢≡∷ u₁≡u₂)
+      v₁≡v₂ (⊢≡∷→⊢≡∷ w₁≡w₂)
   ⊢≡∷→⊢≡∷ (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) =
-    qrec-β (⊢[]→⊢ ⊢C) (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u) (⊢∷[]→⊢∷ ⊢v)
-      (⊢∷[]→⊢∷ ⊢w)
+    let ⊢v     = ⊢∷[]→⊢∷ ⊢v
+        ok , _ = inversion-Is-set-Cons ⊢v
+
+        instance
+          ok : Omega-allowed
+          ok = Quot-allowed→Omega-allowed ok
+    in
+    qrec-β (⊢[]→⊢ ⊢C) (⊢∷[]→⊢∷ ⊢t)
+      (PE.subst (T._⊢_∷_ _ _) (ω≡ω→Resp-type≡Resp-type (PE.sym ω′≡ω)) $
+       ⊢∷[]→⊢∷ ⊢u)
+      ⊢v (⊢∷[]→⊢∷ ⊢w)
 
   -- Definitional equality implies definitional equality.
 
@@ -854,8 +894,7 @@ opaque
 -- From the other systems to the combined one
 
 -- The translation in this direction makes use of some assumptions:
--- certain things must always be allowed when the mode is 𝟘ᵐ[ ok ],
--- and if quotient types are allowed, then Usage-allows-omega holds.
+-- certain things must always be allowed when the mode is 𝟘ᵐ[ ok ].
 
 record Allowed-at-𝟘ᵐ : Set where
   no-eta-equality
@@ -864,7 +903,6 @@ record Allowed-at-𝟘ᵐ : Set where
     ur : ∀ {ok} p q   → Unitrec-allowed        𝟘ᵐ[ ok ] p q
     pr : ∀ {ok} r p q → Prodrec-allowed        𝟘ᵐ[ ok ] r p q
     bc : ∀ {ok} p     → []-cong-allowed-mode p 𝟘ᵐ[ ok ]
-    qω : Quot-allowed → Usage-allows-omega
 
 module _ (ok : Allowed-at-𝟘ᵐ) where
 
@@ -1186,17 +1224,23 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         (set ⊢Q ⊢t ⊢u ⊢v ⊢w) PE.refl →
           let ok , _ = inversion-Quot ⊢Q in
           set ok (⊢←⊢ ⊢Q) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
-        (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
-          let ok , _ = inversion-Quot (⊢∙→⊢ (wf ⊢C)) in
+        (qrec ⦃ ok ⦄ ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
+          let ok′ , _ = inversion-Quot (⊢∙→⊢ (wf ⊢C)) in
           case Qrec-motive-erased? of λ where
             (yes erased) →
-              qrec (qω ok) ok (λ _ → PE.refl , PE.refl)
-                (⊥-elim ∘→ (_$ erased)) (▸⊢[𝟘]←⊢ ⊢C) (▸⊢∷[𝟘]←⊢∷ ⊢t)
-                (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
+              qrec ok′ (λ _ → PE.refl , PE.refl) (⊥-elim ∘→ (_$ erased))
+                (▸⊢[𝟘]←⊢ ⊢C) (▸⊢∷[𝟘]←⊢∷ ⊢t)
+                (PE.subst (C._⊢_∷_ _ _)
+                   (ω≡ω→Resp-type≡Resp-type (ω′≡ω′ ok)) $
+                 ⊢∷←⊢∷ ⊢u)
+                (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
             (no not-erased) →
-              qrec (qω ok) ok (⊥-elim ∘→ not-erased)
-                (λ _ → PE.refl , PE.refl) (▸⊢[𝟘]←⊢ ⊢C) (▸⊢∷[𝟘]←⊢∷ ⊢t)
-                (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
+              qrec ok′ (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
+                (▸⊢[𝟘]←⊢ ⊢C) (▸⊢∷[𝟘]←⊢∷ ⊢t)
+                (PE.subst (C._⊢_∷_ _ _)
+                   (ω≡ω→Resp-type≡Resp-type (ω′≡ω′ ok)) $
+                 ⊢∷←⊢∷ ⊢u)
+                (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
 
       -- If l is well-typed, then l is well-typed.
 
@@ -1356,11 +1400,18 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         (set-cong A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
           set-cong (⊢≡←⊢≡ A₁≡A₂) (⊢≡←⊢≡ B₁≡B₂) (⊢≡∷←⊢≡∷ t₁≡t₂)
             (⊢≡∷←⊢≡∷ u₁≡u₂) (⊢≡∷←⊢≡∷ v₁≡v₂) (⊢≡∷←⊢≡∷ w₁≡w₂)
-        (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
-          qrec-cong (⊢≡←⊢≡ C₁≡C₂) (⊢≡∷←⊢≡∷ t₁≡t₂) (⊢≡∷←⊢≡∷ u₁≡u₂)
+        (qrec-cong ⦃ ok ⦄ C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂) PE.refl →
+          qrec-cong (⊢≡←⊢≡ C₁≡C₂) (⊢≡∷←⊢≡∷ t₁≡t₂)
+            (PE.subst (C._⊢_≡_∷_ _ _ _)
+               (ω≡ω→Resp-type≡Resp-type (ω′≡ω′ ok)) $
+             ⊢≡∷←⊢≡∷ u₁≡u₂)
             (⊢≡∷←⊢≡∷ v₁≡v₂) (⊢≡∷←⊢≡∷ w₁≡w₂)
-        (qrec-β ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
-          qrec-β (⊢←⊢ ⊢C) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
+        (qrec-β ⦃ ok ⦄ ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
+          qrec-β (⊢←⊢ ⊢C) (⊢∷←⊢∷ ⊢t)
+            (PE.subst (C._⊢_∷_ _ _)
+               (ω≡ω→Resp-type≡Resp-type (ω′≡ω′ ok)) $
+             ⊢∷←⊢∷ ⊢u)
+            (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
 
       -- Definitional equality implies definitional equality.
 
@@ -1979,42 +2030,52 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
            ⌜ ⌞ o ⌟ ⌝  ≡⟨ ⌜⌞⌟⌝ _ ⟩
            o          ∎) $
         set ok (⊢←⊢ ⊢Q) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
-      (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) ▸q →
+      (qrec ⦃ ok ⦄ ⊢C ⊢t ⊢u ⊢v ⊢w) ▸q →
         let open ≤ᶜ-reasoning in
         case inv-usage-qrec ▸q of λ where
-          (invUsageQrec₀ {δ₂} {δ₅} ⦃ ok = ω-ok ⦄ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
-            qrec ω-ok ok₁ (λ _ → PE.refl , PE.refl) (⊥-elim ∘→ (_$ ok₂))
+          (invUsageQrec₀ {δ₂} {δ₅} ⦃ ok = ok₀ ⦄
+             ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
+            let ω′ = ω′ ⦃ ok = ok₀ ⦄ in
+            qrec ok₁ (λ _ → PE.refl , PE.refl) (⊥-elim ∘→ (_$ ok₂))
               (⊢←⊢ ⊢C)
               (⊢∷[]←⊢∷▸ ⊢t $ sub ▸t $ begin
                  γ ∙ ω                 ≤⟨ γ≤ ∙ ≤-refl ⟩
-                 (δ₂ +ᶜ ω′ ·ᶜ δ₅) ∙ ω  ≈⟨ +ᶜ-congˡ (·ᶜ-congʳ ω′≡ω) ∙ PE.refl ⟩
+                 (δ₂ +ᶜ ω′ ·ᶜ δ₅) ∙ ω  ≈⟨ +ᶜ-congˡ (·ᶜ-congʳ (ω′≡ω′ ok₀)) ∙ PE.refl ⟩
                  (δ₂ +ᶜ ω ·ᶜ δ₅) ∙ ω   ≤⟨ +ᶜ-decreasingˡ _ _ ∙ PE.refl ⟩
                  δ₂ ∙ ⌜ ⌞ o ⌟ ⌝ · ω    ∎)
-              (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
+              (PE.subst (C._⊢_∷_ _ _)
+                 (ω≡ω→Resp-type≡Resp-type (ω′≡ω′ ok)) $
+               ⊢∷←⊢∷ ⊢u)
+              (⊢∷←⊢∷ ⊢v)
               (⊢∷[]←⊢∷▸ ⊢w $ sub ▸w $ begin
                  γ               ≤⟨ γ≤ ⟩
-                 δ₂ +ᶜ ω′ ·ᶜ δ₅  ≈⟨ +ᶜ-congˡ (·ᶜ-congʳ ω′≡ω) ⟩
+                 δ₂ +ᶜ ω′ ·ᶜ δ₅  ≈⟨ +ᶜ-congˡ (·ᶜ-congʳ (ω′≡ω′ ok₀)) ⟩
                  δ₂ +ᶜ ω ·ᶜ δ₅   ≤⟨ +ᶜ-decreasingʳ _ _ ⟩
                  ω ·ᶜ δ₅         ≤⟨ ω·ᶜ-decreasing ⟩
                  δ₅              ∎)
-          (invUsageQrec₁ {δ₁} {δ₂} {δ₅} ⦃ ok = ω-ok ⦄ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
-            qrec ω-ok ok₁ (⊥-elim ∘→ ok₂) (λ _ → PE.refl , PE.refl)
+          (invUsageQrec₁ {δ₁} {δ₂} {δ₅} ⦃ ok = ok₀ ⦄
+             ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w γ≤) →
+            let ω′ = ω′ ⦃ ok = ok₀ ⦄ in
+            qrec ok₁ (⊥-elim ∘→ ok₂) (λ _ → PE.refl , PE.refl)
               (⊢[]←⊢▸ ⊢C $ sub ▸C $ begin
                  γ ∙ ω                       ≤⟨ γ≤ ∙ ≤-refl ⟩
-                 ω′ ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅) ∙ ω  ≈⟨ ·ᶜ-congʳ ω′≡ω ∙ PE.refl ⟩
+                 ω′ ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅) ∙ ω  ≈⟨ ·ᶜ-congʳ (ω′≡ω′ ok₀) ∙ PE.refl ⟩
                  ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅) ∙ ω   ≤⟨ ω·ᶜ-decreasing ∙ ≤-refl ⟩
                  (δ₁ +ᶜ δ₂ +ᶜ δ₅) ∙ ω        ≤⟨ +ᶜ-decreasingˡ _ _ ∙ ≤-refl ⟩
                  δ₁ ∙ ω                      ∎)
               (⊢∷[]←⊢∷▸ ⊢t $ sub ▸t $ begin
                  γ ∙ ω                       ≤⟨ γ≤ ∙ ≤-refl ⟩
-                 ω′ ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅) ∙ ω  ≈⟨ ·ᶜ-congʳ ω′≡ω ∙ PE.refl ⟩
+                 ω′ ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅) ∙ ω  ≈⟨ ·ᶜ-congʳ (ω′≡ω′ ok₀) ∙ PE.refl ⟩
                  ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅) ∙ ω   ≤⟨ ω·ᶜ-decreasing ∙ ≤-refl ⟩
                  δ₁ +ᶜ δ₂ +ᶜ δ₅ ∙ ω          ≤⟨ ≤ᶜ-trans (+ᶜ-decreasingʳ _ _) (+ᶜ-decreasingˡ _ _) ∙ ≤-refl ⟩
                  δ₂ ∙ ω                      ∎)
-              (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
+              (PE.subst (C._⊢_∷_ _ _)
+                 (ω≡ω→Resp-type≡Resp-type (ω′≡ω′ ok)) $
+               ⊢∷←⊢∷ ⊢u)
+              (⊢∷←⊢∷ ⊢v)
               (⊢∷[]←⊢∷▸ ⊢w $ sub ▸w $ begin
                  γ                       ≤⟨ γ≤ ⟩
-                 ω′ ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)  ≈⟨ ·ᶜ-congʳ ω′≡ω ⟩
+                 ω′ ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)  ≈⟨ ·ᶜ-congʳ (ω′≡ω′ ok₀) ⟩
                  ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)   ≤⟨ ω·ᶜ-decreasing ⟩
                  δ₁ +ᶜ δ₂ +ᶜ δ₅          ≤⟨ ≤ᶜ-trans (+ᶜ-decreasingʳ _ _) (+ᶜ-decreasingʳ _ _) ⟩
                  δ₅                      ∎)

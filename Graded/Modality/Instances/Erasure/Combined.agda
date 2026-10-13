@@ -306,7 +306,6 @@ mutual
               → γ ▸ Γ ⊢ set A B t u v w ∷[ 𝟘 ]
                 Id (Id (Quot A B) t u) v w
     qrec      : ∀ {C}
-              → Usage-allows-omega
               → Quot-allowed
               → (Qrec-motive-erased → q PE.≡ 𝟘 × δ PE.≡ 𝟘ᶜ)
               → (¬ Qrec-motive-erased → q PE.≡ p × δ PE.≡ γ ∙ ω)

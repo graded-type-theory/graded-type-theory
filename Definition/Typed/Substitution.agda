@@ -11,6 +11,8 @@ module Definition.Typed.Substitution
   (TC : Type-configuration 𝕄)
   where
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Typed TC
 open import Definition.Typed.Properties.Admissible.Identity TC
 open import Definition.Typed.Properties.Admissible.Pi TC

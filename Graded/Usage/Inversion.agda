@@ -20,7 +20,7 @@ open IsMode 𝐌
 open Configuration C
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 open import Configuration-types.Natrec 𝕄
 
 open import Graded.Context 𝕄
@@ -832,7 +832,7 @@ data InvUsage-qrec
        (γ : Conₘ n) (m : Mode) (C t : Term (1+ n)) (u : Term (3+ n))
        (v : Term (5+ n)) (w : Term n) : Set (a ⊔ a′) where
   invUsageQrec₀ :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     Quot-allowed →
     Qrec-motive-erased →
     δ₁ ▸[ 𝟘ᵐ ] C →
@@ -843,7 +843,7 @@ data InvUsage-qrec
     γ ≤ᶜ δ₂ +ᶜ ω ·ᶜ δ₅ →
     InvUsage-qrec γ m C t u v w
   invUsageQrec₁ :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     Quot-allowed →
     ¬ Qrec-motive-erased →
     δ₁ ∙ ⌜ m ⌝ · ω ▸[ m ] C →

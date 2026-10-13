@@ -3,15 +3,18 @@
 ------------------------------------------------------------------------
 
 open import Configuration-types
-open import Graded.Modality
+import Graded.Modality
 
 module Definition.Typed.Inversion
   {ℓ} {M : Set ℓ}
-  {𝕄 : Modality M}
+  (open Graded.Modality M)
+  {𝕄 : Modality}
   (TC : Type-configuration 𝕄)
   where
 
 open Type-configuration TC
+
+open import Configuration-types.Omega 𝕄
 
 open import Definition.Typed TC
 import Definition.Typed.Inversion.Primitive TC as I
@@ -636,14 +639,18 @@ opaque
   inversion-qrec :
     Γ ⊢ qrec C t u v w ∷ D →
     ∃₂ λ A B →
+    ∃ λ (ok : Omega-allowed) →
     (Γ »∙ Quot A B ⊢ C) ×
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ ×
-    Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t ×
+    Resp-Cons Γ A B ⊢ u ∷
+      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ A B C t ×
     Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C ×
     Γ ⊢ w ∷ Quot A B ×
     Γ ⊢ D ≡ C [ w ]₀
-  inversion-qrec (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
-    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , refl (subst-⊢₀ ⊢C ⊢w)
+  inversion-qrec (qrec ⦃ ok ⦄ ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , refl (subst-⊢₀ ⊢C ⊢w)
   inversion-qrec (conv ⊢q ≡D) =
-    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ = inversion-qrec ⊢q in
-    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀
+    let _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ =
+          inversion-qrec ⊢q
+    in
+    _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀

@@ -20,7 +20,7 @@ open IsMode 𝐌
 open Configuration C
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 open import Configuration-types.Natrec 𝕄
 
 open import Graded.Context 𝕄
@@ -265,7 +265,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     m ≡ 𝟘ᵐ →
     Usage-restrictions-satisfied m (set A B t u v w)
   qrec₀ :
-    ∀ {C} ⦃ ok : Usage-allows-omega ⦄ →
+    ∀ {C} ⦃ ok : Omega-allowed ⦄ →
     Quot-allowed →
     Qrec-motive-erased →
     Usage-restrictions-satisfied 𝟘ᵐ C →
@@ -275,7 +275,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied m w →
     Usage-restrictions-satisfied m (qrec C t u v w)
   qrec₁ :
-    ∀ {C} ⦃ ok : Usage-allows-omega ⦄ →
+    ∀ {C} ⦃ ok : Omega-allowed ⦄ →
     Quot-allowed →
     ¬ Qrec-motive-erased →
     Usage-restrictions-satisfied m C →
@@ -1076,7 +1076,7 @@ opaque
     (∀ r p q → Prodrec-allowed 𝟘ᵐ r p q) →
     (∀ p → []-cong-allowed-mode p 𝟘ᵐ) →
     Quot-allowed →
-    Usage-allows-omega →
+    Omega-allowed →
     Usage-restrictions-satisfied 𝟘ᵐ t
   Usage-restrictions-satisfied-𝟘ᵐ glb er ur pr bc qt ω-ok = lemma _
     where

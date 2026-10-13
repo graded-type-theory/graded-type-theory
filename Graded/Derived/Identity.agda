@@ -18,7 +18,7 @@ open IsMode 𝐌
 open Configuration C
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -53,7 +53,7 @@ opaque
   -- A usage rule for subst.
 
   ▸subst :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ∙ ⌜ m ⌝ · p ▸[ m ] B →
     γ₃ ▸[ m ] t →
@@ -84,7 +84,7 @@ opaque
   -- A usage rule for subst 𝟘.
 
   ▸subst-𝟘 :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     erased-matches-for-J m ≡ not-none sem →
     γ₁ ▸[ m₁ ] A →
     γ₂ ∙ 𝟘 ▸[ m ] B →
@@ -103,7 +103,7 @@ opaque
   -- A usage rule for cong.
 
   ▸cong :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →
     γ₃ ▸[ m ] u →
@@ -172,7 +172,7 @@ opaque
   -- A usage rule for cong 𝟘.
 
   ▸cong-𝟘 :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     erased-matches-for-J m ≡ not-none sem →
     γ₁ ▸[ 𝟘ᵐ ] A →
     γ₂ ▸[ m ] t →

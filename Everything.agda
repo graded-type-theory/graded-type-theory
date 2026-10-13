@@ -100,12 +100,6 @@ import Definition.Untyped.Properties
 import Definition.Untyped.No-box-cong-Quot
 
 ------------------------------------------------------------------------
--- Assumptions used to decide typing (for a class of terms) and usage
-
-import Definition.Typechecking.Decidable.Assumptions
-import Graded.Usage.Decidable.Assumptions
-
-------------------------------------------------------------------------
 -- Configuration of the type and usage systems
 
 import Configuration-types.Erased-matches
@@ -113,7 +107,8 @@ import Configuration-types.Natrec
 import Configuration-types.Natrec.Instance
 import Configuration-types.Omega
 import Configuration-types
-import Configuration-types.Instance
+import Configuration-types.Instance.Type-configuration
+import Configuration-types.Instance.Configuration
 
 ------------------------------------------------------------------------
 -- Assumptions used to decide typing (for a class of terms) and usage

@@ -7,6 +7,7 @@ open import Graded.Modality
 open import Graded.Modality.Morphism.Configuration
 open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Mode.Instances.Zero-one
+open import Tools.Bool
 
 module Graded.Modality.Morphism.Forward-instances
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
@@ -14,12 +15,14 @@ module Graded.Modality.Morphism.Forward-instances
   {v₁ : Mode-variant 𝕄₁} {v₂ : Mode-variant 𝕄₂}
   {C₁ : Configuration (Zero-one-isMode v₁)}
   {C₂ : Configuration (Zero-one-isMode v₂)}
-  (cp : Common-properties C₁ C₂)
+  {transparent : Bool}
+  {tr tr-Σ : M₁ → M₂}
+  (m : Is-Σ-morphism-C transparent C₁ C₂ tr tr-Σ)
   where
 
 open import Tools.Product
 
-open Common-properties cp
+open Is-Σ-morphism-C m
 
 module C₁ = Configuration C₁
 module C₂ = Configuration C₂
@@ -48,10 +51,10 @@ instance
     ⦃ no-nr : C₁.Nr-not-available-GLB ⦄ → C₂.Nr-not-available-GLB
   no-nr-glb-in-second-if-in-first′ = no-nr-glb-in-second-if-in-first
 
-  -- If the source modality allows grade ω for usage rules then so does
-  -- the target one.
+  -- If Omega-allowed holds for the source modality, then it holds for
+  -- the target modality.
 
-  Usage-allows-omega-in-second-if-in-first :
-    ⦃ ok : C₁.Usage-allows-omega ⦄ → C₂.Usage-allows-omega
-  Usage-allows-omega-in-second-if-in-first ⦃ ok ⦄ =
-    Usage-allows-omega-preserved .proj₁ ok
+  Omega-allowed-in-second-if-in-first :
+    ⦃ ok : C₁.Omega-allowed ⦄ → C₂.Omega-allowed
+  Omega-allowed-in-second-if-in-first ⦃ ok ⦄ =
+    Omega-allowed-preserved ok

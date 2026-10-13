@@ -4,15 +4,18 @@
 ------------------------------------------------------------------------
 
 open import Configuration-types
-open import Graded.Modality
+import Graded.Modality
 
 module Definition.Typed.EqualityRelation
   {ℓ} {M : Set ℓ}
-  {𝕄 : Modality M}
+  (open Graded.Modality M)
+  {𝕄 : Modality}
   (TC : Type-configuration 𝕄)
   where
 
 open Type-configuration TC
+
+open import Configuration-types.Instance.Type-configuration TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Neutral M TC⁻
@@ -476,7 +479,8 @@ record Equality-relations
 
     -- Congruence for qrec.
     ~-qrec-cong
-      : Γ »∙ Quot A B ⊢ C₁ ≅ C₂
+      : ⦃ ok : Omega-allowed ⦄
+      → Γ »∙ Quot A B ⊢ C₁ ≅ C₂
       → Γ »∙ A ⊢ t₁ ≅ t₂ ∷ C₁ [ class (var x0) ]↑
       → Resp-Cons Γ A B ⊢ u₁ ≅ u₂ ∷ Resp-type A B C₁ t₁
       → Is-set-Cons Γ A B C₁ ⊢ v₁ ≅ v₂ ∷ Is-set-type C₁

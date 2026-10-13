@@ -33,7 +33,7 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 open import Configuration-types.Omega 𝕄
 
 open import Graded.Modality.Nr-instances
@@ -814,7 +814,7 @@ opaque
 
   -- The multiplicity of Kₑ is either 𝟘 or ω
 
-  ∣K∣≡𝟘⊎ω : ⦃ ok : Usage-allows-omega ⦄ → ∣K em , p ∣≡ q → q ≡ 𝟘 ⊎ q ≡ ω
+  ∣K∣≡𝟘⊎ω : ⦃ ok : Omega-allowed ⦄ → ∣K em , p ∣≡ q → q ≡ 𝟘 ⊎ q ≡ ω
   ∣K∣≡𝟘⊎ω K-all = inj₁ refl
   ∣K∣≡𝟘⊎ω (K-some₀ x) = inj₁ refl
   ∣K∣≡𝟘⊎ω ⦃ ok ⦄ (K-some ⦃ (ok′) ⦄ x) = inj₂ (ω≡ω ok′ ok)
@@ -824,7 +824,7 @@ opaque
 
   -- The multiplicity of Jₑ is either 𝟘 or ω
 
-  ∣J∣≡𝟘⊎ω : ⦃ ok : Usage-allows-omega ⦄ → ∣J em , p , q ∣≡ r → r ≡ 𝟘 ⊎ r ≡ ω
+  ∣J∣≡𝟘⊎ω : ⦃ ok : Omega-allowed ⦄ → ∣J em , p , q ∣≡ r → r ≡ 𝟘 ⊎ r ≡ ω
   ∣J∣≡𝟘⊎ω J-all = inj₁ refl
   ∣J∣≡𝟘⊎ω (J-some₀ x x₁) = inj₁ refl
   ∣J∣≡𝟘⊎ω ⦃ ok ⦄ (J-some ⦃ (ok′) ⦄ x) = inj₂ (ω≡ω ok′ ok)

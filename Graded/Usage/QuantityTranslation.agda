@@ -24,7 +24,7 @@ module Graded.Usage.QuantityTranslation
   where
 
 open import Configuration-types.Erased-matches
-import Configuration-types.Instance
+import Configuration-types.Instance.Configuration
 
 open import Definition.Untyped
 open import Definition.Untyped.No-box-cong-Quot M₁
@@ -273,9 +273,9 @@ module Is-morphism
          (tr-∙▸[𝟘ᵐ?] ▸P))
       tr-Conₘ-nrᶜ
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Forward-instances mc
       open CQ.Is-nr-preserving-morphism nr-preserving
       open CR₂
     tr-▸
@@ -314,7 +314,7 @@ module Is-morphism
            tr-Conₘ δ C₂.+ᶜ tr p C₂.·ᶜ tr-Conₘ η C₂.+ᶜ
            tr r C₂.·ᶜ tr-Conₘ χ                         ∎)
       where
-      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Modality.Morphism.Forward-instances mc
       open Is-no-nr-preserving no-nr-preserving
       open CR₂
     tr-▸
@@ -341,7 +341,7 @@ module Is-morphism
                                                                                  (≤ᶜ-reflexive tr-Conₘ-nrᵢᶜ))) ⟩
                x′ C₂.·ᶜ tr-Conₘ η C₂.+ᶜ χ′ ∎)
       where
-      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Modality.Morphism.Forward-instances mc
       open Is-no-nr-glb-preserving-morphism no-nr-glb-preserving
       open CQ.Is-no-nr-glb-preserving-morphism no-nr-glb-preserving
       open CR₂
@@ -422,10 +422,10 @@ module Is-morphism
          (tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄ C₂.+ᶜ
           tr-Conₘ γ₅ C₂.+ᶜ tr-Conₘ γ₆)                                ∎)
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
       open CR₂
-      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Modality.Morphism.Forward-instances mc
 
     tr-▸
       (J₀ₘ₁ {m} {γ₂} {γ₃} {γ₄} {γ₅} {γ₆}
@@ -479,10 +479,10 @@ module Is-morphism
                                                        tr-Conₘ-+ᶜ ⟩
              ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄)  ∎)
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
       open CR₂
-      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Modality.Morphism.Forward-instances mc
     tr-▸ (J₀ₘ₂ ⦃ (≡all) ⦄ ▸A ▸t ▸B ▸u ▸v ▸w) = J₀ₘ₂
       ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-J-preserved ≈ᵐ-tr-Mode) ≡all ⦄
       (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
@@ -505,10 +505,10 @@ module Is-morphism
          (tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄ C₂.+ᶜ
           tr-Conₘ γ₅)                                        ∎)
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
       open CR₂
-      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Modality.Morphism.Forward-instances mc
     tr-▸ (K₀ₘ₁ {m} {γ₂} {γ₃} {γ₄} {γ₅} ⦃ (≡some) ⦄ refl ▸A ▸t ▸B ▸u ▸v) =
       case trivial-⊎-tr-𝟘 of λ where
         (inj₁ trivial₁) → sub
@@ -548,10 +548,10 @@ module Is-morphism
                                                         tr-Conₘ-+ᶜ ⟩
              ω C₂.·ᶜ (tr-Conₘ γ₃ C₂.+ᶜ tr-Conₘ γ₄)  ∎)
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
       open CR₂
-      open Graded.Modality.Morphism.Forward-instances common-properties
+      open Graded.Modality.Morphism.Forward-instances mc
     tr-▸ (K₀ₘ₂ ⦃ (≡none) ⦄ ▸A ▸t ▸B ▸u ▸v) = K₀ₘ₂
       ⦃ ≤ᵉᵐ→≡all→≡all (erased-matches-for-K-preserved ≈ᵐ-tr-Mode) ≡none ⦄
       (tr-▸[𝟘ᵐ?] ▸A) (tr-▸[𝟘ᵐ?] ▸t) (tr-▸[𝟘ᵐ?] ▸B) (tr-▸ ▸u)
@@ -596,10 +596,9 @@ module Is-morphism
 
       where
       open ≤ᶜ-reasoning
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Forward-instances common-properties
-      open M.Is-omega-preserving-morphism omega-preserving
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Forward-instances mc
     tr-▸ (qrec₁ {γ₁} {m} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
       sub
         (qrec₁ (Quot-preserved ok₁)
@@ -620,10 +619,9 @@ module Is-morphism
            ω C₂.·ᶜ (tr-Conₘ γ₁ C₂.+ᶜ tr-Conₘ γ₂ C₂.+ᶜ tr-Conₘ γ₅)  ∎)
       where
       open ≤ᶜ-reasoning
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Forward-instances common-properties
-      open M.Is-omega-preserving-morphism omega-preserving
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Forward-instances mc
     tr-▸ (sub ▸t γ≤δ) =
       sub (tr-▸ ▸t) (tr-Conₘ-monotone γ≤δ)
 
@@ -984,7 +982,8 @@ module Is-order-embedding
           RS₁.sucᵤ (lemma m₁≳m₂ _ ok t)
         (natrec _ _ _ _ _ _ _) (A-ok , t-ok , u-ok , v-ok)
           (natrecᵤ x A t u v) →
-          let open Graded.Modality.Morphism.Forward-instances common-properties
+          let open Graded.Modality.Morphism.Forward-instances
+                     is-Σ-morphism-C
           in  RS₁.natrecᵤ
                 (M.Is-no-nr-glb-reflecting-morphism.tr-nrᵢ-glb no-nr-glb-reflected (x .proj₂))
                 (lemma-𝟘ᵐ?-𝟘ᵐ? A-ok A) (lemma m₁≳m₂ _ t-ok t)
@@ -1143,7 +1142,7 @@ module Is-order-embedding
                 (lemma-𝟘ᵐ?-𝟘ᵐ? (¬→No-[]-cong-Quot′ not w) w′)
                 (≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ? m₁≳m₂ eq)
         (qrec C t u v w) ok (qrec₀ ok₁ ok₂ C′ t′ u′ v′ w′) →
-          let open Graded.Modality.Morphism.Backward-instances common-properties in
+          let open Graded.Modality.Morphism.Backward-instances embc in
           case Quot-reflected′ ok₁ of λ where
             (inj₂ triv)        → ⊥-elim (ok triv)
             (inj₁ (ok₁ , not)) →
@@ -1154,7 +1153,7 @@ module Is-order-embedding
                 (lemma-𝟘ᵐ?-𝟘ᵐ? (¬→No-[]-cong-Quot′ not v) v′)
                 (lemma m₁≳m₂ _ (¬→No-[]-cong-Quot′ not w) w′)
         (qrec C t u v w) ok (qrec₁ ok₁ ok₂ C′ t′ u′ v′ w′) →
-          let open Graded.Modality.Morphism.Backward-instances common-properties in
+          let open Graded.Modality.Morphism.Backward-instances embc in
           case Quot-reflected′ ok₁ of λ where
             (inj₂ triv)        → ⊥-elim (ok triv)
             (inj₁ (ok₁ , not)) →
@@ -1445,9 +1444,9 @@ module Is-order-embedding
            (tr-∙▸[𝟘ᵐ?]⁻¹ P-ok ▸P .proj₂))
         γ≤nr-prθ′δ′η′
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Backward-instances embc
       open CQ.Is-nr-reflecting-morphism nr-reflected
 
     tr-▸⁻¹′
@@ -1472,7 +1471,7 @@ module Is-order-embedding
            fix′)
         γ≤γ″ }
       where
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Graded.Modality.Morphism.Backward-instances embc
       open MQP.Is-no-nr-reflecting-morphism no-nr-reflected
 
     tr-▸⁻¹′
@@ -1492,7 +1491,7 @@ module Is-order-embedding
               (tr-▸⁻¹′ _ n-ok ▸n refl ≤η)
               (tr-∙▸[𝟘ᵐ?]⁻¹ P-ok ▸P .proj₂) x′-glb χ′-glb) θ≤
       where
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Graded.Modality.Morphism.Backward-instances embc
       open CQ.Is-no-nr-glb-reflecting-morphism no-nr-glb-reflected
     tr-▸⁻¹′
       {m} {γ} (emptyrec p _ _) (A-ok , t-ok)
@@ -1570,9 +1569,9 @@ module Is-order-embedding
          (tr-▸⁻¹′ _ w-ok ▸w refl γ₆′≤γ₆))
       γ≤ω[γ₂′+γ₃′+γ₄′+γ₅′+γ₆′]
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Backward-instances embc
       open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
@@ -1605,9 +1604,9 @@ module Is-order-embedding
          (tr-▸[𝟘ᵐ?]⁻¹ w-ok ▸w .proj₂))
       γ≤ω[γ₃′+γ₄′]
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Backward-instances embc
       open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
@@ -1634,9 +1633,9 @@ module Is-order-embedding
          (tr-▸⁻¹′ _ v-ok ▸v refl γ₅′≤γ₅))
       γ≤ω[γ₂′+γ₃′+γ₄′+γ₅′]
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Backward-instances embc
       open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
@@ -1662,9 +1661,9 @@ module Is-order-embedding
          (tr-▸⁻¹′ _ u-ok ▸u refl γ₄′≤γ₄) (tr-▸[𝟘ᵐ?]⁻¹ v-ok ▸v .proj₂))
       γ≤ω[γ₃′+γ₄′]
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Backward-instances embc
       open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
@@ -1757,9 +1756,9 @@ module Is-order-embedding
                γ₂′ C₁.+ᶜ δ′           ≤⟨ CP₁.+ᶜ-monotoneʳ δ′≤′ ⟩
                γ₂′ C₁.+ᶜ ω C₁.·ᶜ γ₅′  ∎)
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Backward-instances embc
       open CQ.Is-omega-preserving tr-emb omega-preserving
 
     tr-▸⁻¹′
@@ -1786,9 +1785,9 @@ module Is-order-embedding
                (tr-▸⁻¹′ _ (¬→No-[]-cong-Quot′ not w) ▸w refl ≤γ₅))
             γ≤
       where
-      open Configuration-types.Instance C₁
-      open Configuration-types.Instance C₂
-      open Graded.Modality.Morphism.Backward-instances common-properties
+      open Configuration-types.Instance.Configuration C₁
+      open Configuration-types.Instance.Configuration C₂
+      open Graded.Modality.Morphism.Backward-instances embc
       open CQ.Is-omega-preserving tr-emb omega-preserving
       open CP₂.≤ᶜ-reasoning
       -- open M.Is-omega-preserving-morphism.tr-ω omega-preserving

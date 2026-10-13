@@ -13,6 +13,8 @@ module Definition.Conversion
 
 open Type-configuration TC
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Neutral M TC⁻
@@ -169,7 +171,7 @@ mutual
                   → Γ ⊢ set A₁ B₁ t₁ u₁ v₁ w₁ ~ set A₂ B₂ t₂ u₂ v₂ w₂ ↑
                     Id (Id (Quot A₁ B₁) t₁ u₁) v₁ w₁
 
-    qrec-cong     : ∀ {A B}
+    qrec-cong     : ∀ {A B} ⦃ ok : Omega-allowed ⦄
                   → Γ »∙ Quot A B ⊢ C₁ [conv↑] C₂
                   → Γ »∙ A ⊢ t₁ [conv↑] t₂ ∷ C₁ [ class (var x0) ]↑
                   → Resp-Cons Γ A B ⊢ u₁ [conv↑] u₂ ∷

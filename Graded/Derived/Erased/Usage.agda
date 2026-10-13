@@ -19,7 +19,7 @@ open Modality 𝕄
 open IsMode 𝐌
 open Configuration C
 
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -370,7 +370,7 @@ opaque
   -- A usage rule for substᵉ.
 
   ▸substᵉ :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     (s ≡ 𝕨 → Trivialᵐ → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕤 → Trivialᵐ → 𝟘 ≤ 𝟙) →
@@ -419,7 +419,7 @@ opaque
   -- A usage rule for Jᵉ.
 
   ▸Jᵉ :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     (s ≡ 𝕨 → Trivialᵐ → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕤 → Trivialᵐ → 𝟘 ≤ 𝟙) →

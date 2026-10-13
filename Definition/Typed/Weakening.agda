@@ -16,6 +16,8 @@ module Definition.Typed.Weakening
 open Modality 𝕄
 open Type-configuration TC
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Untyped M as U hiding (wk; wk′)
 open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Erased 𝕄 hiding ([_])

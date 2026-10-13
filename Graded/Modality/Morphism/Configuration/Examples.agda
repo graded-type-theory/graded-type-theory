@@ -59,6 +59,7 @@ private variable
   A M₁ M₂                   : Set _
   𝕄₁ 𝕄₂                     : Modality _
   m₁ m₂                     : Mode _
+  o₁ o₂                     : With-or-without-omega _
   tr tr-Σ                   : M₁ → M₂
   v₁-ok v₂-ok               : A
   nm₁ nm₂                   : Natrec-mode _
@@ -74,29 +75,59 @@ private instance
 ------------------------------------------------------------------------
 -- Lemmas related to no-restrictions
 
-opaque
+private opaque
 
-  -- A lemma related to Common-properties and no-restrictions.
+  -- A lemma used below.
 
-  Common-properties-no-restrictions :
+  M-TC-no-restrictions :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    ∀ nm₁ nm₂ b₃ b₄ b₅ →
+    (M₂.Trivial → M₁.Trivial) →
+    (With-omega 𝕄₁ o₁ → T (Mode-variant.𝟘ᵐ-allowed v₁) →
+     tr M₁.𝟘 ≡ M₂.𝟘) →
+    ((ok₁ : With-omega 𝕄₁ o₁) (ok₂ : With-omega 𝕄₂ o₂) →
+     tr (Has-omega.ω (With-omega→Has-omega _ ok₁)) ≡
+     Has-omega.ω (With-omega→Has-omega _ ok₂)) →
+    (With-omega 𝕄₁ o₁ → With-omega 𝕄₂ o₂) →
     (T (Mode-variant.𝟘ᵐ-allowed v₁) → T (Mode-variant.𝟘ᵐ-allowed v₂)) →
-    nm₁ ≈ⁿᵐ nm₂ →
-    Common-properties
-      (no-restrictions 𝕄₁ v₁ nm₁ b₁ b₂ b₃ b₄ b₅)
-      (no-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃ b₄ b₅)
-  Common-properties-no-restrictions hyp nm₁≈nm₂ = λ where
-      .𝟘ᵐ-preserved                   → hyp
-      .natrec-mode-preserved          → nm₁≈nm₂
-      .starˢ-sink-preserved           → refl
-      .Id-erased-preserved            → lift ∘→ Lift.lower
-                                      , lift ∘→ Lift.lower
-      .erased-matches-for-J-preserved → _
-      .erased-matches-for-K-preserved → _
-      .Qrec-motive-erased-preserved   → lift ∘→ Lift.lower
-                                      , lift ∘→ Lift.lower
-      .Usage-allows-omega-preserved        → (λ ()) , (λ ())
+    Is-Σ-morphism-TC trp
+      (no-restrictions 𝕄₁ v₁ o₁ nm₁ b₁ b₂ b₃ b₄ b₅ .Configuration.TC)
+      (no-restrictions 𝕄₂ v₂ o₂ nm₂ b₁ b₂ b₃ b₄ b₅ .Configuration.TC)
+      tr tr-Σ
+  M-TC-no-restrictions _ _ _ _ _ hyp₁ hyp₂ hyp₃ hyp₄ hyp₅ = λ where
+      .unfolding-mode-preserved      → refl
+      .level-support-preserved       → level-type small≤small
+      .Omega-plus-preserved          → _
+      .Unitʷ-η-preserved ()
+      .Unit-preserved                → _
+      .ΠΣ-preserved                  → _
+      .Opacity-preserved _           → lift ∘→ Lift.lower
+      .K-preserved                   → lift ∘→ Lift.lower
+      .[]-cong-preserved             → _∘→ hyp₁
+      .Equality-reflection-preserved → lift ∘→ Lift.lower
+      .Quot-preserved                →
+        Σ.map
+          (_∘→
+             (Trivialᵐ′⇔Trivialᵐ _ .proj₂ ∘→
+              ¬𝟘ᵐ-allowed→Trivialᵐ _ ∘→
+              (_∘→ hyp₅) ∘→
+              Trivialᵐ→¬𝟘ᵐ-allowed _ ∘→
+              Trivialᵐ′⇔Trivialᵐ _ .proj₁))
+          hyp₄
+      .Quot-allowed→tr-𝟘≡𝟘 →
+        uncurry (flip hyp₂) ∘→
+        Σ.map
+          (¬Trivialᵐ→𝟘ᵐ-allowed _ ∘→
+           (_∘→ Trivialᵐ′⇔Trivialᵐ _ .proj₂))
+          idᶠ
+      .Omega-allowed-preserved          → hyp₄
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ → λ where
+        .tr-ω → hyp₃ ok₁ ok₂
     where
-    open Common-properties
+    open Is-omega-preserving-morphism
+    open Is-Σ-morphism-TC
 
 opaque
 
@@ -106,8 +137,13 @@ opaque
     let module M₁ = Modality 𝕄₁
         module M₂ = Modality 𝕄₂
     in
-    (¬ Modality.Trivial 𝕄₁ → ¬ Modality.Trivial 𝕄₂) →
-    (T (Mode-variant.𝟘ᵐ-allowed v₁) → tr M₁.𝟘 ≡ M₂.𝟘) →
+    (M₂.Trivial → M₁.Trivial) →
+    (With-omega 𝕄₁ o₁ → T (Mode-variant.𝟘ᵐ-allowed v₁) →
+     tr M₁.𝟘 ≡ M₂.𝟘) →
+    ((ok₁ : With-omega 𝕄₁ o₁) (ok₂ : With-omega 𝕄₂ o₂) →
+     tr (Has-omega.ω (With-omega→Has-omega _ ok₁)) ≡
+     Has-omega.ω (With-omega→Has-omega _ ok₂)) →
+    (With-omega 𝕄₁ o₁ → With-omega 𝕄₂ o₂) →
     (T (Mode-variant.𝟘ᵐ-allowed v₁) → T (Mode-variant.𝟘ᵐ-allowed v₂)) →
     nm₁ ≈ⁿᵐ nm₂ →
     (⦃ has-nr₁ : Natrec-mode-has-nr _ nm₁ ⦄ →
@@ -122,44 +158,31 @@ opaque
      ⦃ no-nr₂ : Natrec-mode-no-nr-glb _ nm₂ ⦄ →
      Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr) →
     Is-Σ-morphism-C trp
-      (no-restrictions 𝕄₁ v₁ nm₁ b₁ b₂ b₃ b₄ b₅)
-      (no-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃ b₄ b₅)
+      (no-restrictions 𝕄₁ v₁ o₁ nm₁ b₁ b₂ b₃ b₄ b₅)
+      (no-restrictions 𝕄₂ v₂ o₂ nm₂ b₁ b₂ b₃ b₄ b₅)
       tr tr-Σ
-  M-no-restrictions hyp₁ hyp₂ hyp₃ nm₁≈nm₂ hyp₄ hyp₅ hyp₆ = λ where
-      .common-properties →
-        Common-properties-no-restrictions hyp₃ nm₁≈nm₂
-      .is-Σ-morphism-TC → λ where
-        .unfolding-mode-preserved → refl
-        .level-support-preserved → level-type small≤small
-        .Omega-plus-preserved → _
-        .Unitʷ-η-preserved ()
-        .Unit-preserved → _
-        .ΠΣ-preserved → _
-        .Opacity-preserved _ → lift ∘→ Lift.lower
-        .K-preserved → lift ∘→ Lift.lower
-        .[]-cong-preserved → hyp₁
-        .Equality-reflection-preserved → lift ∘→ Lift.lower
-        .Quot-preserved →
-          _∘→
-            (Trivialᵐ′⇔Trivialᵐ _ .proj₂ ∘→
-             ¬𝟘ᵐ-allowed→Trivialᵐ _ ∘→
-             (_∘→ hyp₃) ∘→
-             Trivialᵐ→¬𝟘ᵐ-allowed _ ∘→
-             Trivialᵐ′⇔Trivialᵐ _ .proj₁)
-        .Quot-allowed→tr-𝟘≡𝟘 →
-          hyp₂ ∘→
-          ¬Trivialᵐ→𝟘ᵐ-allowed _ ∘→
-          (_∘→ Trivialᵐ′⇔Trivialᵐ _ .proj₂)
-      .nr-preserving → hyp₄
-      .no-nr-preserving → hyp₅
-      .no-nr-glb-preserving → hyp₆
+  M-no-restrictions
+    {nm₁} {nm₂} {b₃} {b₄} {b₅}
+    hyp₁ hyp₂ hyp₃ hyp₄ hyp₅ nm₁≈nm₂ hyp₆ hyp₇ hyp₈ = λ where
+      .𝟘ᵐ-preserved → hyp₅
+      .natrec-mode-preserved → nm₁≈nm₂
+      .starˢ-sink-preserved → refl
+      .Id-erased-preserved → lift ∘→ Lift.lower , lift ∘→ Lift.lower
+      .erased-matches-for-J-preserved → _
+      .erased-matches-for-K-preserved → _
+      .Qrec-motive-erased-preserved →
+        lift ∘→ Lift.lower , lift ∘→ Lift.lower
+      .is-Σ-morphism-TC →
+        M-TC-no-restrictions nm₁ nm₂ b₃ b₄ b₅ hyp₁ hyp₂ hyp₃ hyp₄ hyp₅
+      .nr-preserving → hyp₆
+      .no-nr-preserving → hyp₇
+      .no-nr-glb-preserving → hyp₈
       .Prodrec-preserved → _
       .Unitrec-preserved → _
       .Emptyrec-preserved → _
-      .[]-cong-mode-preserved _ → hyp₁
-      .omega-preserving ⦃ () ⦄
+      .[]-cong-mode-preserved _ → _∘→ hyp₁
     where
-    open Is-Σ-morphism-TC
+    open Is-omega-preserving-morphism
     open Is-Σ-morphism-C
 
 opaque
@@ -173,29 +196,44 @@ opaque
         module V₂ = Mode-variant v₂
     in
     (M₂.Trivial → M₁.Trivial) →
+    (With-omega 𝕄₁ o₁ → T V₁.𝟘ᵐ-allowed → tr M₁.𝟘 ≡ M₂.𝟘) →
+    ((ok₁ : With-omega 𝕄₁ o₁) (ok₂ : With-omega 𝕄₂ o₂) →
+     tr (Has-omega.ω (With-omega→Has-omega _ ok₁)) ≡
+     Has-omega.ω (With-omega→Has-omega _ ok₂)) →
+    With-omega 𝕄₁ o₁ ⇔ With-omega 𝕄₂ o₂ →
     (T V₁.𝟘ᵐ-allowed → T V₂.𝟘ᵐ-allowed) →
     (T V₂.𝟘ᵐ-allowed → T V₁.𝟘ᵐ-allowed ⊎ M₁.Trivial) →
     nm₁ ≈ⁿᵐ nm₂ →
     (⦃ has-nr₁ : Natrec-mode-has-nr _ nm₁ ⦄ →
      ⦃ has-nr₂ : Natrec-mode-has-nr _ nm₂ ⦄ →
+     Is-nr-preserving-morphism 𝕄₁ 𝕄₂
+       ⦃ has-nr₁ = Natrec-mode-Has-nr 𝕄₁ has-nr₁ ⦄
+       ⦃ has-nr₂ = Natrec-mode-Has-nr 𝕄₂ has-nr₂ ⦄ tr ×
      Is-nr-reflecting-morphism 𝕄₁ 𝕄₂
        ⦃ has-nr₁ = Natrec-mode-Has-nr 𝕄₁ has-nr₁ ⦄
        ⦃ has-nr₂ = Natrec-mode-Has-nr 𝕄₂ has-nr₂ ⦄ tr) →
     (⦃ no-nr₁ : Natrec-mode-no-nr _ nm₁ ⦄ →
      ⦃ no-nr₂ : Natrec-mode-no-nr _ nm₂ ⦄ →
+     Is-no-nr-preserving 𝕄₁ 𝕄₂ v₁ v₂ ×
      Is-no-nr-reflecting-morphism 𝕄₁ 𝕄₂ v₁ v₂ tr) →
     (⦃ no-nr₁ : Natrec-mode-no-nr-glb _ nm₁ ⦄ →
      ⦃ no-nr₂ : Natrec-mode-no-nr-glb _ nm₂ ⦄ →
+     Is-no-nr-glb-preserving-morphism 𝕄₁ 𝕄₂ tr ×
      Is-no-nr-glb-reflecting-morphism 𝕄₁ 𝕄₂ tr) →
     Is-Σ-order-embedding-C trp
-      (no-restrictions 𝕄₁ v₁ nm₁ b₁ b₂ b₃ b₄ b₅)
-      (no-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃ b₄ b₅)
+      (no-restrictions 𝕄₁ v₁ o₁ nm₁ b₁ b₂ b₃ b₄ b₅)
+      (no-restrictions 𝕄₂ v₂ o₂ nm₂ b₁ b₂ b₃ b₄ b₅)
       tr tr-Σ
-  OE-no-restrictions {𝕄₁} hyp₁ hyp₂ hyp₃ nm₁≈nm₂ hyp₄ hyp₅ hyp₆ =
-    λ where
-      .common-properties →
-        Common-properties-no-restrictions hyp₂ nm₁≈nm₂
+  OE-no-restrictions
+    {𝕄₁} {nm₁} {nm₂} {b₃} {b₄} {b₅}
+    hyp₁ hyp₂ hyp₃ hyp₄ hyp₅ hyp₆ nm₁≈nm₂ hyp₇ hyp₈ hyp₉ = λ where
+      .is-Σ-morphism-C →
+        M-no-restrictions hyp₁ hyp₂ hyp₃ (hyp₄ .proj₁) hyp₅ nm₁≈nm₂
+          (hyp₇ .proj₁) (hyp₈ .proj₁) (hyp₉ .proj₁)
       .is-Σ-order-embedding-TC → λ where
+        .is-Σ-morphism-TC →
+          M-TC-no-restrictions nm₁ nm₂ b₃ b₄ b₅ hyp₁ hyp₂ hyp₃
+            (hyp₄ .proj₁) hyp₅
         .unfolding-mode-reflected → refl
         .level-support-reflected → level-type small≤small
         .Unitʷ-η-reflected ()
@@ -208,26 +246,29 @@ opaque
           (no not)   → inj₁ not
         .Equality-reflection-reflected → lift ∘→ Lift.lower
         .Quot-reflected →
-          ⊎.[ (λ not-triv →
+          ⊎.[ (λ (not-triv , ok₁) →
                  ⊎.map
-                   (λ ok →
-                      (_$ ok) ∘→
+                   (λ ok₂ →
+                      (_$ ok₂) ∘→
                       Trivialᵐ→¬𝟘ᵐ-allowed _ ∘→
-                      Trivialᵐ′⇔Trivialᵐ _ .proj₁)
+                      Trivialᵐ′⇔Trivialᵐ _ .proj₁ ,
+                      hyp₄ .proj₂ ok₁)
                    idᶠ
-                   (hyp₃ $
+                   (hyp₆ $
                     ¬Trivialᵐ→𝟘ᵐ-allowed _ $
                     not-triv ∘→ Trivialᵐ′⇔Trivialᵐ _ .proj₂))
             , inj₂ ∘→ hyp₁
             ]
+        .Omega-allowed-reflected →
+          hyp₄ .proj₂
       .𝟘ᵐ-reflected →
-        ⊎.[ hyp₃ , inj₂ ∘→ hyp₁ ]
+        ⊎.[ hyp₆ , inj₂ ∘→ hyp₁ ]
       .nr-reflected →
-        hyp₄
+        hyp₇ .proj₂
       .no-nr-reflected →
-        hyp₅
+        hyp₈ .proj₂
       .no-nr-glb-reflected →
-        hyp₆
+        hyp₉ .proj₂
       .Prodrec-reflected →
         _
       .Unitrec-reflected →
@@ -242,36 +283,14 @@ opaque
         _
       .erased-matches-for-K-reflected →
         _
-      .omega-preserving ⦃ () ⦄
     where
     module MP₁ = Graded.Modality.Properties 𝕄₁
+    open Is-Σ-morphism-TC
     open Is-Σ-order-embedding-TC
     open Is-Σ-order-embedding-C
 
 ------------------------------------------------------------------------
 -- Lemmas related to certain configuration transformers
-
-opaque
-
-  -- A lemma related to Is-Σ-morphism-C and equal-binder-quantities.
-
-  Common-properties-equal-binder-quantities :
-    Common-properties C₁ C₂ →
-    Common-properties
-      (equal-binder-quantities 𝕄₁ v₁ C₁)
-      (equal-binder-quantities 𝕄₂ v₂ C₂)
-  Common-properties-equal-binder-quantities cp = λ where
-      .𝟘ᵐ-preserved                   → C.𝟘ᵐ-preserved
-      .natrec-mode-preserved          → C.natrec-mode-preserved
-      .starˢ-sink-preserved           → C.starˢ-sink-preserved
-      .Id-erased-preserved            → C.Id-erased-preserved
-      .erased-matches-for-J-preserved → C.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved → C.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved   → C.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved   → C.Usage-allows-omega-preserved
-    where
-    module C = Common-properties cp
-    open Common-properties
 
 opaque
 
@@ -284,8 +303,13 @@ opaque
       (equal-binder-quantities 𝕄₂ v₂ C₂)
       tr tr
   M-equal-binder-quantities m = λ where
-      .common-properties →
-        Common-properties-equal-binder-quantities M.common-properties
+      .𝟘ᵐ-preserved                   → M.𝟘ᵐ-preserved
+      .natrec-mode-preserved          → M.natrec-mode-preserved
+      .starˢ-sink-preserved           → M.starˢ-sink-preserved
+      .Id-erased-preserved            → M.Id-erased-preserved
+      .erased-matches-for-J-preserved → M.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved → M.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved   → M.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
         Ex.M-equal-binder-quantities M.is-Σ-morphism-TC
       .nr-preserving          → M.nr-preserving
@@ -295,7 +319,6 @@ opaque
       .Unitrec-preserved      → M.Unitrec-preserved
       .Emptyrec-preserved     → M.Emptyrec-preserved
       .[]-cong-mode-preserved → M.[]-cong-mode-preserved
-      .omega-preserving       → M.omega-preserving
     where
     module M = Is-Σ-morphism-C m
     open Is-Σ-morphism-C
@@ -313,8 +336,8 @@ opaque
       (equal-binder-quantities 𝕄₂ v₂ C₂)
       tr tr
   OE-equal-binder-quantities inj oe = λ where
-      .common-properties →
-        Common-properties-equal-binder-quantities E.common-properties
+      .is-Σ-morphism-C →
+        M-equal-binder-quantities E.is-Σ-morphism-C
       .is-Σ-order-embedding-TC →
         Ex.OE-equal-binder-quantities inj E.is-Σ-order-embedding-TC
       .𝟘ᵐ-reflected                   → E.𝟘ᵐ-reflected
@@ -327,32 +350,9 @@ opaque
       .[]-cong-mode-reflected         → E.[]-cong-mode-reflected
       .erased-matches-for-J-reflected → E.erased-matches-for-J-reflected
       .erased-matches-for-K-reflected → E.erased-matches-for-K-reflected
-      .omega-preserving               → E.omega-preserving
     where
     module E = Is-Σ-order-embedding-C oe
     open Is-Σ-order-embedding-C
-
-opaque
-
-  -- A lemma related to Is-Σ-morphism-C and second-ΠΣ-quantities-𝟘.
-
-  Common-properties-second-ΠΣ-quantities-𝟘 :
-    Common-properties C₁ C₂ →
-    Common-properties
-      (second-ΠΣ-quantities-𝟘 𝕄₁ v₁ C₁)
-      (second-ΠΣ-quantities-𝟘 𝕄₂ v₂ C₂)
-  Common-properties-second-ΠΣ-quantities-𝟘 cp = λ where
-      .𝟘ᵐ-preserved                   → C.𝟘ᵐ-preserved
-      .natrec-mode-preserved          → C.natrec-mode-preserved
-      .starˢ-sink-preserved           → C.starˢ-sink-preserved
-      .Id-erased-preserved            → C.Id-erased-preserved
-      .erased-matches-for-J-preserved → C.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved → C.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved   → C.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved   → C.Usage-allows-omega-preserved
-    where
-    module C = Common-properties cp
-    open Common-properties
 
 opaque
 
@@ -366,8 +366,13 @@ opaque
       (second-ΠΣ-quantities-𝟘 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-second-ΠΣ-quantities-𝟘 hyp m = λ where
-      .common-properties →
-        Common-properties-second-ΠΣ-quantities-𝟘 M.common-properties
+      .𝟘ᵐ-preserved                   → M.𝟘ᵐ-preserved
+      .natrec-mode-preserved          → M.natrec-mode-preserved
+      .starˢ-sink-preserved           → M.starˢ-sink-preserved
+      .Id-erased-preserved            → M.Id-erased-preserved
+      .erased-matches-for-J-preserved → M.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved → M.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved   → M.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
         Ex.M-second-ΠΣ-quantities-𝟘 hyp M.is-Σ-morphism-TC
       .nr-preserving          → M.nr-preserving
@@ -377,7 +382,6 @@ opaque
       .Unitrec-preserved      → M.Unitrec-preserved
       .Emptyrec-preserved     → M.Emptyrec-preserved
       .[]-cong-mode-preserved → M.[]-cong-mode-preserved
-      .omega-preserving       → M.omega-preserving
     where
     module M = Is-Σ-morphism-C m
     open Is-Σ-morphism-C
@@ -388,15 +392,15 @@ opaque
   -- second-ΠΣ-quantities-𝟘.
 
   OE-second-ΠΣ-quantities-𝟘 :
-    (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) →
+    (∀ p → p ≡ Modality.𝟘 𝕄₁ ⇔ tr p ≡ Modality.𝟘 𝕄₂) →
     Is-Σ-order-embedding-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-order-embedding-C trp
       (second-ΠΣ-quantities-𝟘 𝕄₁ v₁ C₁)
       (second-ΠΣ-quantities-𝟘 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-second-ΠΣ-quantities-𝟘 hyp oe = λ where
-      .common-properties →
-        Common-properties-second-ΠΣ-quantities-𝟘 E.common-properties
+      .is-Σ-morphism-C →
+        M-second-ΠΣ-quantities-𝟘 (hyp _ .proj₁ refl) E.is-Σ-morphism-C
       .is-Σ-order-embedding-TC →
         Ex.OE-second-ΠΣ-quantities-𝟘 hyp E.is-Σ-order-embedding-TC
       .𝟘ᵐ-reflected                   → E.𝟘ᵐ-reflected
@@ -409,35 +413,9 @@ opaque
       .[]-cong-mode-reflected         → E.[]-cong-mode-reflected
       .erased-matches-for-J-reflected → E.erased-matches-for-J-reflected
       .erased-matches-for-K-reflected → E.erased-matches-for-K-reflected
-      .omega-preserving               → E.omega-preserving
     where
     module E = Is-Σ-order-embedding-C oe
     open Is-Σ-order-embedding-C
-
-opaque
-
-  -- A lemma related to Is-Σ-morphism-C and
-  -- second-ΠΣ-quantities-𝟘-or-ω.
-
-  Common-properties-second-ΠΣ-quantities-𝟘-or-ω :
-    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
-    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    Common-properties C₁ C₂ →
-    Common-properties
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ v₁ C₁)
-      (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ v₂ C₂)
-  Common-properties-second-ΠΣ-quantities-𝟘-or-ω cp = λ where
-      .𝟘ᵐ-preserved                   → C.𝟘ᵐ-preserved
-      .natrec-mode-preserved          → C.natrec-mode-preserved
-      .starˢ-sink-preserved           → C.starˢ-sink-preserved
-      .Id-erased-preserved            → C.Id-erased-preserved
-      .erased-matches-for-J-preserved → C.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved → C.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved   → C.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved   → C.Usage-allows-omega-preserved
-    where
-    module C = Common-properties cp
-    open Common-properties
 
 opaque
 
@@ -448,17 +426,21 @@ opaque
     ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
     ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     (¬ Modality.Trivial 𝕄₁ → tr (Modality.𝟘 𝕄₁) ≡ Modality.𝟘 𝕄₂) →
-    (∀ {p} → tr p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
-    (∀ {p} → tr-Σ p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
+    (∀ p → tr p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
+    (∀ p → tr-Σ p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
     Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-morphism-C trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ v₁ C₁)
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-second-ΠΣ-quantities-𝟘-or-ω hyp₁ hyp₂ hyp₃ m = λ where
-      .common-properties →
-        Common-properties-second-ΠΣ-quantities-𝟘-or-ω
-          M.common-properties
+      .𝟘ᵐ-preserved                   → M.𝟘ᵐ-preserved
+      .natrec-mode-preserved          → M.natrec-mode-preserved
+      .starˢ-sink-preserved           → M.starˢ-sink-preserved
+      .Id-erased-preserved            → M.Id-erased-preserved
+      .erased-matches-for-J-preserved → M.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved → M.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved   → M.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
         Ex.M-second-ΠΣ-quantities-𝟘-or-ω hyp₁ hyp₂ hyp₃
           M.is-Σ-morphism-TC
@@ -469,7 +451,6 @@ opaque
       .Unitrec-preserved      → M.Unitrec-preserved
       .Emptyrec-preserved     → M.Emptyrec-preserved
       .[]-cong-mode-preserved → M.[]-cong-mode-preserved
-      .omega-preserving       → M.omega-preserving
     where
     module M = Is-Σ-morphism-C m
     open Is-Σ-morphism-C
@@ -480,21 +461,25 @@ opaque
   -- second-ΠΣ-quantities-𝟘-or-ω.
 
   OE-second-ΠΣ-quantities-𝟘-or-ω :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
     ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
     ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) →
-    (∀ {p} → tr p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
-    (∀ {p} → tr-Σ p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
+    (¬ M₁.Trivial → tr M₁.𝟘 ≡ M₂.𝟘) →
+    (∀ p → tr p ≡ M₂.𝟘 → p ≡ M₁.𝟘) →
+    (∀ p → tr p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
+    (∀ p → tr-Σ p ≡ Has-omega.ω has-ω₂ ⇔ p ≡ Has-omega.ω has-ω₁) →
     Is-Σ-order-embedding-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-order-embedding-C trp
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₁ v₁ C₁)
       (second-ΠΣ-quantities-𝟘-or-ω 𝕄₂ v₂ C₂)
       tr tr-Σ
-  OE-second-ΠΣ-quantities-𝟘-or-ω hyp₁ hyp₂ hyp₃ oe = λ where
-      .common-properties →
-        Common-properties-second-ΠΣ-quantities-𝟘-or-ω E.common-properties
+  OE-second-ΠΣ-quantities-𝟘-or-ω hyp₁ hyp₂ hyp₃ hyp₄ oe = λ where
+      .is-Σ-morphism-C →
+        M-second-ΠΣ-quantities-𝟘-or-ω hyp₁ hyp₃ hyp₄ E.is-Σ-morphism-C
       .is-Σ-order-embedding-TC →
-        Ex.OE-second-ΠΣ-quantities-𝟘-or-ω hyp₁ hyp₂ hyp₃
+        Ex.OE-second-ΠΣ-quantities-𝟘-or-ω hyp₁ hyp₂ hyp₃ hyp₄
           E.is-Σ-order-embedding-TC
       .𝟘ᵐ-reflected                   → E.𝟘ᵐ-reflected
       .nr-reflected                   → E.nr-reflected
@@ -506,32 +491,9 @@ opaque
       .[]-cong-mode-reflected         → E.[]-cong-mode-reflected
       .erased-matches-for-J-reflected → E.erased-matches-for-J-reflected
       .erased-matches-for-K-reflected → E.erased-matches-for-K-reflected
-      .omega-preserving               → E.omega-preserving
     where
     module E = Is-Σ-order-embedding-C oe
     open Is-Σ-order-embedding-C
-
-opaque
-
-  -- A lemma related to Common-properties and strong-types-restricted.
-
-  Common-properties-strong-types-restricted :
-    Common-properties C₁ C₂ →
-    Common-properties
-      (strong-types-restricted 𝕄₁ v₁ C₁)
-      (strong-types-restricted 𝕄₂ v₂ C₂)
-  Common-properties-strong-types-restricted cp = record
-    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
-    ; natrec-mode-preserved          = natrec-mode-preserved
-    ; starˢ-sink-preserved           = starˢ-sink-preserved
-    ; Id-erased-preserved            = Id-erased-preserved
-    ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
-    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
-    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
-    ; Usage-allows-omega-preserved   = Usage-allows-omega-preserved
-    }
-    where
-    open Common-properties cp
 
 opaque
 
@@ -545,27 +507,23 @@ opaque
       (strong-types-restricted 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-strong-types-restricted hyp m = record
-    { common-properties =
-        Common-properties-strong-types-restricted
-          common-properties
+    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
+    ; starˢ-sink-preserved           = starˢ-sink-preserved
+    ; Id-erased-preserved            = Id-erased-preserved
+    ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
+    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
     ; is-Σ-morphism-TC =
         Ex.M-strong-types-restricted hyp is-Σ-morphism-TC
-    ; nr-preserving =
-        nr-preserving
-    ; no-nr-preserving =
-        no-nr-preserving
-    ; no-nr-glb-preserving =
-        no-nr-glb-preserving
-    ; Prodrec-preserved =
-        Prodrec-preserved
-    ; Unitrec-preserved =
-        Unitrec-preserved
-    ; Emptyrec-preserved =
-        Emptyrec-preserved
+    ; nr-preserving          = nr-preserving
+    ; no-nr-preserving       = no-nr-preserving
+    ; no-nr-glb-preserving   = no-nr-glb-preserving
+    ; Prodrec-preserved      = Prodrec-preserved
+    ; Unitrec-preserved      = Unitrec-preserved
+    ; Emptyrec-preserved     = Emptyrec-preserved
     ; []-cong-mode-preserved =
         λ m₁≈m₂ → Σ.map ([]-cong-mode-preserved m₁≈m₂) idᶠ
-    ; omega-preserving =
-        omega-preserving
     }
     where
     open Is-Σ-morphism-C m
@@ -576,7 +534,7 @@ opaque
   -- strong-types-restricted.
 
   OE-strong-types-restricted :
-    (∀ {p} → tr-Σ p ≡ Modality.𝟙 𝕄₂ → p ≡ Modality.𝟙 𝕄₁) →
+    (∀ p → p ≡ Modality.𝟙 𝕄₁ ⇔ tr-Σ p ≡ Modality.𝟙 𝕄₂) →
     (Modality.Trivial 𝕄₂ → Modality.Trivial 𝕄₁) →
     Is-Σ-order-embedding-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-order-embedding-C trp
@@ -584,9 +542,8 @@ opaque
       (strong-types-restricted 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-strong-types-restricted {C₁} hyp₁ hyp₂ oe = record
-    { common-properties =
-        Common-properties-strong-types-restricted
-          common-properties
+    { is-Σ-morphism-C =
+        M-strong-types-restricted (hyp₁ _ .proj₁ refl) is-Σ-morphism-C
     ; is-Σ-order-embedding-TC =
         Ex.OE-strong-types-restricted hyp₁
           (flip C₁.[]-cong→¬Trivial ∘→ hyp₂) is-Σ-order-embedding-TC
@@ -612,34 +569,10 @@ opaque
         erased-matches-for-J-reflected
     ; erased-matches-for-K-reflected =
         erased-matches-for-K-reflected
-    ; omega-preserving =
-        omega-preserving
     }
     where
     module C₁ = Configuration C₁
     open Is-Σ-order-embedding-C oe
-
-opaque
-
-  -- A lemma related to Common-properties and no-strong-types.
-
-  Common-properties-no-strong-types :
-    Common-properties C₁ C₂ →
-    Common-properties
-      (no-strong-types 𝕄₁ v₁ C₁)
-      (no-strong-types 𝕄₂ v₂ C₂)
-  Common-properties-no-strong-types cp = λ where
-      .𝟘ᵐ-preserved                   → C.𝟘ᵐ-preserved
-      .natrec-mode-preserved          → C.natrec-mode-preserved
-      .starˢ-sink-preserved           → C.starˢ-sink-preserved
-      .Id-erased-preserved            → C.Id-erased-preserved
-      .erased-matches-for-J-preserved → C.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved → C.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved   → C.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved   → C.Usage-allows-omega-preserved
-    where
-    module C = Common-properties cp
-    open Common-properties
 
 opaque
 
@@ -652,8 +585,13 @@ opaque
       (no-strong-types 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-no-strong-types m = λ where
-      .common-properties →
-        Common-properties-no-strong-types M.common-properties
+      .𝟘ᵐ-preserved                   → M.𝟘ᵐ-preserved
+      .natrec-mode-preserved          → M.natrec-mode-preserved
+      .starˢ-sink-preserved           → M.starˢ-sink-preserved
+      .Id-erased-preserved            → M.Id-erased-preserved
+      .erased-matches-for-J-preserved → M.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved → M.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved   → M.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
         Ex.M-no-strong-types M.is-Σ-morphism-TC
       .nr-preserving                → M.nr-preserving
@@ -664,7 +602,6 @@ opaque
       .Emptyrec-preserved           → M.Emptyrec-preserved
       .[]-cong-mode-preserved m₁≈m₂ →
         Σ.map (M.[]-cong-mode-preserved m₁≈m₂) idᶠ
-      .omega-preserving → M.omega-preserving
     where
     module M = Is-Σ-morphism-C m
     open Is-Σ-morphism-C
@@ -683,8 +620,7 @@ opaque
       (no-strong-types 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-no-strong-types {C₁} hyp oe = λ where
-      .common-properties →
-        Common-properties-no-strong-types E.common-properties
+      .is-Σ-morphism-C         → M-no-strong-types E.is-Σ-morphism-C
       .is-Σ-order-embedding-TC →
         Ex.OE-no-strong-types hyp E.is-Σ-order-embedding-TC
       .𝟘ᵐ-reflected                   → E.𝟘ᵐ-reflected
@@ -708,31 +644,10 @@ opaque
              hyp trivial₂ (C₁.[]-cong-allowed-mode→[]-cong-allowed ok₁)
       .erased-matches-for-J-reflected → E.erased-matches-for-J-reflected
       .erased-matches-for-K-reflected → E.erased-matches-for-K-reflected
-      .omega-preserving               → E.omega-preserving
     where
     module C₁ = Configuration C₁
     module E  = Is-Σ-order-embedding-C oe
     open Is-Σ-order-embedding-C
-
-opaque
-
-  -- A lemma related to Common-properties and _with-η-for-Unitʷ.
-
-  Common-properties-with-η-for-Unitʷʳ :
-    Common-properties C₁ C₂ →
-    Common-properties C₁ (_with-η-for-Unitʷ 𝕄₂ v₂ C₂)
-  Common-properties-with-η-for-Unitʷʳ cp = λ where
-      .𝟘ᵐ-preserved                   → C.𝟘ᵐ-preserved
-      .natrec-mode-preserved          → C.natrec-mode-preserved
-      .starˢ-sink-preserved           → C.starˢ-sink-preserved
-      .Id-erased-preserved            → C.Id-erased-preserved
-      .erased-matches-for-J-preserved → C.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved → C.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved   → C.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved   → C.Usage-allows-omega-preserved
-    where
-    module C = Common-properties cp
-    open Common-properties
 
 opaque
 
@@ -742,8 +657,13 @@ opaque
     Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-morphism-C trp C₁ (_with-η-for-Unitʷ 𝕄₂ v₂ C₂) tr tr-Σ
   M-with-η-for-Unitʷʳ m = λ where
-      .common-properties →
-        Common-properties-with-η-for-Unitʷʳ M.common-properties
+      .𝟘ᵐ-preserved                   → M.𝟘ᵐ-preserved
+      .natrec-mode-preserved          → M.natrec-mode-preserved
+      .starˢ-sink-preserved           → M.starˢ-sink-preserved
+      .Id-erased-preserved            → M.Id-erased-preserved
+      .erased-matches-for-J-preserved → M.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved → M.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved   → M.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
         Ex.M-with-η-for-Unitʷʳ M.is-Σ-morphism-TC
       .nr-preserving          → M.nr-preserving
@@ -753,32 +673,9 @@ opaque
       .Unitrec-preserved      → M.Unitrec-preserved
       .Emptyrec-preserved     → M.Emptyrec-preserved
       .[]-cong-mode-preserved → M.[]-cong-mode-preserved
-      .omega-preserving       → M.omega-preserving
     where
     module M = Is-Σ-morphism-C m
     open Is-Σ-morphism-C
-
-opaque
-
-  -- A lemma related to Common-properties and _with-η-for-Unitʷ.
-
-  Common-properties-with-η-for-Unitʷ :
-    Common-properties C₁ C₂ →
-    Common-properties
-      (_with-η-for-Unitʷ 𝕄₁ v₁ C₁)
-      (_with-η-for-Unitʷ 𝕄₂ v₂ C₂)
-  Common-properties-with-η-for-Unitʷ cp = λ where
-      .𝟘ᵐ-preserved                   → C.𝟘ᵐ-preserved
-      .natrec-mode-preserved          → C.natrec-mode-preserved
-      .starˢ-sink-preserved           → C.starˢ-sink-preserved
-      .Id-erased-preserved            → C.Id-erased-preserved
-      .erased-matches-for-J-preserved → C.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved → C.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved   → C.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved   → C.Usage-allows-omega-preserved
-    where
-    module C = Common-properties cp
-    open Common-properties
 
 opaque
 
@@ -791,8 +688,13 @@ opaque
       (_with-η-for-Unitʷ 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-with-η-for-Unitʷ m = λ where
-      .common-properties →
-        Common-properties-with-η-for-Unitʷ M.common-properties
+      .𝟘ᵐ-preserved                   → M.𝟘ᵐ-preserved
+      .natrec-mode-preserved          → M.natrec-mode-preserved
+      .starˢ-sink-preserved           → M.starˢ-sink-preserved
+      .Id-erased-preserved            → M.Id-erased-preserved
+      .erased-matches-for-J-preserved → M.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved → M.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved   → M.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
         Ex.M-with-η-for-Unitʷ M.is-Σ-morphism-TC
       .nr-preserving          → M.nr-preserving
@@ -802,7 +704,6 @@ opaque
       .Unitrec-preserved      → M.Unitrec-preserved
       .Emptyrec-preserved     → M.Emptyrec-preserved
       .[]-cong-mode-preserved → M.[]-cong-mode-preserved
-      .omega-preserving       → M.omega-preserving
     where
     module M = Is-Σ-morphism-C m
     open Is-Σ-morphism-C
@@ -818,8 +719,7 @@ opaque
       (_with-η-for-Unitʷ 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-with-η-for-Unitʷ oe = λ where
-      .common-properties →
-        Common-properties-with-η-for-Unitʷ E.common-properties
+      .is-Σ-morphism-C         → M-with-η-for-Unitʷ E.is-Σ-morphism-C
       .is-Σ-order-embedding-TC →
         Ex.OE-with-η-for-Unitʷ E.is-Σ-order-embedding-TC
       .𝟘ᵐ-reflected                   → E.𝟘ᵐ-reflected
@@ -832,31 +732,9 @@ opaque
       .[]-cong-mode-reflected         → E.[]-cong-mode-reflected
       .erased-matches-for-J-reflected → E.erased-matches-for-J-reflected
       .erased-matches-for-K-reflected → E.erased-matches-for-K-reflected
-      .omega-preserving               → E.omega-preserving
     where
     module E = Is-Σ-order-embedding-C oe
     open Is-Σ-order-embedding-C
-
-opaque
-
-  -- A lemma related to Common-properties and
-  -- with-equality-reflection.
-
-  Common-properties-with-equality-reflectionʳ :
-    Common-properties C₁ C₂ →
-    Common-properties C₁ (with-equality-reflection 𝕄₂ v₂ C₂)
-  Common-properties-with-equality-reflectionʳ cp = λ where
-      .𝟘ᵐ-preserved                   → C.𝟘ᵐ-preserved
-      .natrec-mode-preserved          → C.natrec-mode-preserved
-      .starˢ-sink-preserved           → C.starˢ-sink-preserved
-      .Id-erased-preserved            → C.Id-erased-preserved
-      .erased-matches-for-J-preserved → C.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved → C.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved   → C.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved   → C.Usage-allows-omega-preserved
-    where
-    module C = Common-properties cp
-    open Common-properties
 
 opaque
 
@@ -868,8 +746,13 @@ opaque
       (with-equality-reflection 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-with-equality-reflectionʳ m = λ where
-      .common-properties →
-        Common-properties-with-equality-reflectionʳ M.common-properties
+      .𝟘ᵐ-preserved                   → M.𝟘ᵐ-preserved
+      .natrec-mode-preserved          → M.natrec-mode-preserved
+      .starˢ-sink-preserved           → M.starˢ-sink-preserved
+      .Id-erased-preserved            → M.Id-erased-preserved
+      .erased-matches-for-J-preserved → M.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved → M.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved   → M.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
         Ex.M-with-equality-reflectionʳ M.is-Σ-morphism-TC
       .nr-preserving          → M.nr-preserving
@@ -879,32 +762,9 @@ opaque
       .Unitrec-preserved      → M.Unitrec-preserved
       .Emptyrec-preserved     → M.Emptyrec-preserved
       .[]-cong-mode-preserved → M.[]-cong-mode-preserved
-      .omega-preserving       → M.omega-preserving
     where
     module M = Is-Σ-morphism-C m
     open Is-Σ-morphism-C
-
-opaque
-
-  -- A lemma related to Common-properties and with-equality-reflection.
-
-  Common-properties-with-equality-reflection :
-    Common-properties C₁ C₂ →
-    Common-properties
-      (with-equality-reflection 𝕄₁ v₁ C₁)
-      (with-equality-reflection 𝕄₂ v₂ C₂)
-  Common-properties-with-equality-reflection cp = λ where
-      .𝟘ᵐ-preserved                   → C.𝟘ᵐ-preserved
-      .natrec-mode-preserved          → C.natrec-mode-preserved
-      .starˢ-sink-preserved           → C.starˢ-sink-preserved
-      .Id-erased-preserved            → C.Id-erased-preserved
-      .erased-matches-for-J-preserved → C.erased-matches-for-J-preserved
-      .erased-matches-for-K-preserved → C.erased-matches-for-K-preserved
-      .Qrec-motive-erased-preserved   → C.Qrec-motive-erased-preserved
-      .Usage-allows-omega-preserved   → C.Usage-allows-omega-preserved
-    where
-    module C = Common-properties cp
-    open Common-properties
 
 opaque
 
@@ -917,8 +777,13 @@ opaque
       (with-equality-reflection 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-with-equality-reflection m = λ where
-      .common-properties →
-        Common-properties-with-equality-reflection M.common-properties
+      .𝟘ᵐ-preserved                   → M.𝟘ᵐ-preserved
+      .natrec-mode-preserved          → M.natrec-mode-preserved
+      .starˢ-sink-preserved           → M.starˢ-sink-preserved
+      .Id-erased-preserved            → M.Id-erased-preserved
+      .erased-matches-for-J-preserved → M.erased-matches-for-J-preserved
+      .erased-matches-for-K-preserved → M.erased-matches-for-K-preserved
+      .Qrec-motive-erased-preserved   → M.Qrec-motive-erased-preserved
       .is-Σ-morphism-TC →
         Ex.M-with-equality-reflection M.is-Σ-morphism-TC
       .nr-preserving          → M.nr-preserving
@@ -928,7 +793,6 @@ opaque
       .Unitrec-preserved      → M.Unitrec-preserved
       .Emptyrec-preserved     → M.Emptyrec-preserved
       .[]-cong-mode-preserved → M.[]-cong-mode-preserved
-      .omega-preserving       → M.omega-preserving
     where
     module M = Is-Σ-morphism-C m
     open Is-Σ-morphism-C
@@ -948,8 +812,8 @@ opaque
       (with-equality-reflection 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-with-equality-reflection hyp oe = λ where
-      .common-properties →
-        Common-properties-with-equality-reflection E.common-properties
+      .is-Σ-morphism-C →
+        M-with-equality-reflection E.is-Σ-morphism-C
       .is-Σ-order-embedding-TC →
         Ex.OE-with-equality-reflection hyp E.is-Σ-order-embedding-TC
       .𝟘ᵐ-reflected                   → E.𝟘ᵐ-reflected
@@ -962,32 +826,9 @@ opaque
       .[]-cong-mode-reflected         → E.[]-cong-mode-reflected
       .erased-matches-for-J-reflected → E.erased-matches-for-J-reflected
       .erased-matches-for-K-reflected → E.erased-matches-for-K-reflected
-      .omega-preserving               → E.omega-preserving
     where
     module E = Is-Σ-order-embedding-C oe
     open Is-Σ-order-embedding-C
-
-opaque
-
-  -- A lemma related to Common-properties and no-quotients.
-
-  Common-properties-no-quotients :
-    Common-properties C₁ C₂ →
-    Common-properties
-      (no-quotients 𝕄₁ v₁ C₁)
-      (no-quotients 𝕄₂ v₂ C₂)
-  Common-properties-no-quotients cp = record
-    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
-    ; natrec-mode-preserved          = natrec-mode-preserved
-    ; starˢ-sink-preserved           = starˢ-sink-preserved
-    ; Id-erased-preserved            = Id-erased-preserved
-    ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
-    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
-    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
-    ; Usage-allows-omega-preserved   = Usage-allows-omega-preserved
-    }
-    where
-    open Common-properties cp
 
 opaque
 
@@ -1000,27 +841,22 @@ opaque
       (no-quotients 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-no-quotients r = record
-    { common-properties =
-        Common-properties-no-quotients
-          common-properties
+    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
+    ; starˢ-sink-preserved           = starˢ-sink-preserved
+    ; Id-erased-preserved            = Id-erased-preserved
+    ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
+    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
     ; is-Σ-morphism-TC =
         Ex.M-no-quotients is-Σ-morphism-TC
-    ; nr-preserving =
-        nr-preserving
-    ; no-nr-preserving =
-        no-nr-preserving
-    ; no-nr-glb-preserving =
-        no-nr-glb-preserving
-    ; Prodrec-preserved =
-        Prodrec-preserved
-    ; Unitrec-preserved =
-        Unitrec-preserved
-    ; Emptyrec-preserved =
-        Emptyrec-preserved
-    ; []-cong-mode-preserved =
-        []-cong-mode-preserved
-    ; omega-preserving =
-        omega-preserving
+    ; nr-preserving          = nr-preserving
+    ; no-nr-preserving       = no-nr-preserving
+    ; no-nr-glb-preserving   = no-nr-glb-preserving
+    ; Prodrec-preserved      = Prodrec-preserved
+    ; Unitrec-preserved      = Unitrec-preserved
+    ; Emptyrec-preserved     = Emptyrec-preserved
+    ; []-cong-mode-preserved = []-cong-mode-preserved
     }
     where
     open Is-Σ-morphism-C r
@@ -1037,8 +873,8 @@ opaque
       (no-quotients 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-no-quotients hyp r = record
-    { common-properties =
-        Common-properties-no-quotients common-properties
+    { is-Σ-morphism-C =
+        M-no-quotients is-Σ-morphism-C
     ; is-Σ-order-embedding-TC =
         Ex.OE-no-quotients hyp is-Σ-order-embedding-TC
     ; 𝟘ᵐ-reflected =
@@ -1061,8 +897,6 @@ opaque
         erased-matches-for-J-reflected
     ; erased-matches-for-K-reflected =
         erased-matches-for-K-reflected
-    ; omega-preserving =
-        omega-preserving
     }
     where
     open Is-Σ-order-embedding-C r
@@ -1087,19 +921,62 @@ private opaque
   … | all  | some = _
   … | all  | all  = _
 
-opaque
+private opaque
 
-  -- A lemma related to Common-properties and
-  -- not-all-erased-matches-JK.
+  -- A lemma used below.
 
-  Common-properties-not-all-erased-matches-JK :
+  M-TC-not-all-erased-matches-JK :
     ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
     ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    Common-properties C₁ C₂ →
-    Common-properties
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
+    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
+    Is-Σ-morphism-TC trp
+      (not-all-erased-matches-JK 𝕄₁ v₁ C₁ .Configuration.TC)
+      (not-all-erased-matches-JK 𝕄₂ v₂ C₂ .Configuration.TC)
+      tr tr-Σ
+  M-TC-not-all-erased-matches-JK {C₁} {C₂} hyp m = λ where
+      .unfolding-mode-preserved      → M.unfolding-mode-preserved
+      .level-support-preserved       → M.level-support-preserved
+      .Omega-plus-preserved          → M.Omega-plus-preserved
+      .Unitʷ-η-preserved             → M.Unitʷ-η-preserved
+      .Unit-preserved                → M.Unit-preserved
+      .ΠΣ-preserved                  → M.ΠΣ-preserved
+      .Opacity-preserved             → M.Opacity-preserved
+      .K-preserved                   → M.K-preserved
+      .[]-cong-preserved             → M.[]-cong-preserved
+      .Equality-reflection-preserved → M.Equality-reflection-preserved
+      .Quot-preserved                → M.Quot-preserved
+      .Quot-allowed→tr-𝟘≡𝟘           → M.Quot-allowed→tr-𝟘≡𝟘
+      .Omega-allowed-preserved _     →
+        with-ω
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Omega-allowed-propositional
+               (not-all-erased-matches-JK _ _ C₁) ok₁
+               with-ω of λ {
+          refl →
+        case Omega-allowed-propositional
+               (not-all-erased-matches-JK _ _ C₂) ok₂
+               with-ω of λ {
+          refl →
+        hyp }}
+    where
+    module M = Is-Σ-morphism-C m
+    open Is-Σ-morphism-TC
+
+opaque
+
+  -- A lemma related to Is-Σ-morphism-C and not-all-erased-matches-JK.
+
+  M-not-all-erased-matches-JK :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
+    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
+    Is-Σ-morphism-C trp
       (not-all-erased-matches-JK 𝕄₁ v₁ C₁)
       (not-all-erased-matches-JK 𝕄₂ v₂ C₂)
-  Common-properties-not-all-erased-matches-JK {C₁} {C₂} cp = record
+      tr tr-Σ
+  M-not-all-erased-matches-JK {C₁} {C₂} hyp m = record
     { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
     ; natrec-mode-preserved          = natrec-mode-preserved
     ; starˢ-sink-preserved           = starˢ-sink-preserved
@@ -1117,30 +994,8 @@ opaque
             C₂.erased-matches-for-K (erased-matches-for-K-preserved 𝟙ᵐ)
             𝟙ᵐ
     ; Qrec-motive-erased-preserved = Qrec-motive-erased-preserved
-    ; Usage-allows-omega-preserved = (λ _ → with-ω) , (λ _ → with-ω)
-    }
-    where
-    module C₁ = Configuration C₁
-    module C₂ = Configuration C₂
-    open Common-properties cp
-
-opaque
-
-  -- A lemma related to Is-Σ-morphism-C and not-all-erased-matches-JK.
-
-  M-not-all-erased-matches-JK :
-    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
-    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
-    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
-    Is-Σ-morphism-C trp
-      (not-all-erased-matches-JK 𝕄₁ v₁ C₁)
-      (not-all-erased-matches-JK 𝕄₂ v₂ C₂)
-      tr tr-Σ
-  M-not-all-erased-matches-JK {C₁} {C₂} hyp r = record
-    { common-properties =
-        Common-properties-not-all-erased-matches-JK common-properties
-    ; is-Σ-morphism-TC = is-Σ-morphism-TC
+    ; is-Σ-morphism-TC =
+        M-TC-not-all-erased-matches-JK hyp m
     ; nr-preserving = nr-preserving
     ; no-nr-preserving = no-nr-preserving
     ; no-nr-glb-preserving = no-nr-glb-preserving
@@ -1152,17 +1007,11 @@ opaque
         Emptyrec-preserved
     ; []-cong-mode-preserved =
         []-cong-mode-preserved
-    ; omega-preserving =  λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
-        case Usage-allows-omega-propositional
-               (not-all-erased-matches-JK _ _ C₁) ok₁ with-ω of λ {
-          refl →
-        case Usage-allows-omega-propositional
-               (not-all-erased-matches-JK _ _ C₂) ok₂ with-ω of λ {
-          refl →
-        hyp }}
     }
     where
-    open Is-Σ-morphism-C r
+    module C₁ = Configuration C₁
+    module C₂ = Configuration C₂
+    open Is-Σ-morphism-C m
 
 opaque
 
@@ -1179,10 +1028,23 @@ opaque
       (not-all-erased-matches-JK 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-not-all-erased-matches-JK {𝕄₁} {𝕄₂} {C₁} {C₂} hyp r = record
-    { common-properties =
-        Common-properties-not-all-erased-matches-JK common-properties
-    ; is-Σ-order-embedding-TC =
-        is-Σ-order-embedding-TC
+    { is-Σ-morphism-C =
+        M-not-all-erased-matches-JK hyp is-Σ-morphism-C
+    ; is-Σ-order-embedding-TC = record
+        { is-Σ-morphism-TC              = M-TC-not-all-erased-matches-JK
+                                            hyp is-Σ-morphism-C
+        ; unfolding-mode-reflected      = unfolding-mode-reflected
+        ; level-support-reflected       = level-support-reflected
+        ; Unitʷ-η-reflected             = Unitʷ-η-reflected
+        ; Unit-reflected                = Unit-reflected
+        ; ΠΣ-reflected                  = ΠΣ-reflected
+        ; Opacity-reflected             = Opacity-reflected
+        ; K-reflected                   = K-reflected
+        ; []-cong-reflected             = []-cong-reflected
+        ; Equality-reflection-reflected = Equality-reflection-reflected
+        ; Quot-reflected                = Quot-reflected
+        ; Omega-allowed-reflected       = λ _ → with-ω
+        }
     ; 𝟘ᵐ-reflected =
         𝟘ᵐ-reflected
     ; nr-reflected = nr-reflected
@@ -1208,14 +1070,6 @@ opaque
           not-all-for-𝟙ᵐ-≤ᵉᵐ C₂.erased-matches-for-K
             C₁.erased-matches-for-K (erased-matches-for-K-reflected 𝟙ᵐ)
             𝟙ᵐ
-    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
-        case Usage-allows-omega-propositional
-               (not-all-erased-matches-JK _ _ C₁) ok₁ with-ω of λ {
-          refl →
-        case Usage-allows-omega-propositional
-               (not-all-erased-matches-JK _ _ C₂) ok₂ with-ω of λ {
-          refl →
-        hyp }}
     }
     where
     module M₁ = Modality 𝕄₁
@@ -1224,19 +1078,67 @@ opaque
     module C₂ = Configuration C₂
     open Is-Σ-order-embedding-C r
 
-opaque
+private opaque
 
-  -- A lemma related to Common-properties and
-  -- only-some-erased-matches.
+  -- A lemma used below.
 
-  Common-properties-only-some-erased-matches :
+  M-TC-only-some-erased-matches :
     ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
     ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    Common-properties C₁ C₂ →
-    Common-properties
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
+    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
+    Is-Σ-morphism-TC trp
+      (only-some-erased-matches 𝕄₁ v₁ C₁ .Configuration.TC)
+      (only-some-erased-matches 𝕄₂ v₂ C₂ .Configuration.TC)
+      tr tr-Σ
+  M-TC-only-some-erased-matches {C₁} {C₂} hyp m = λ where
+      .unfolding-mode-preserved      → M.unfolding-mode-preserved
+      .level-support-preserved       → M.level-support-preserved
+      .Omega-plus-preserved          → M.Omega-plus-preserved
+      .Unitʷ-η-preserved             → M.Unitʷ-η-preserved
+      .Unit-preserved                → M.Unit-preserved
+      .ΠΣ-preserved                  → M.ΠΣ-preserved
+      .Opacity-preserved             → M.Opacity-preserved
+      .K-preserved                   → M.K-preserved
+      .[]-cong-preserved             → M.[]-cong-preserved
+      .Equality-reflection-preserved → M.Equality-reflection-preserved
+      .Quot-preserved                → M.Quot-preserved
+      .Quot-allowed→tr-𝟘≡𝟘           → M.Quot-allowed→tr-𝟘≡𝟘
+      .Omega-allowed-preserved _     →
+        with-ω
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Omega-allowed-propositional
+               (not-all-erased-matches-JK _ _ C₁) ok₁
+               with-ω of λ {
+          refl →
+        case Omega-allowed-propositional
+               (not-all-erased-matches-JK _ _ C₂) ok₂
+               with-ω of λ {
+          refl →
+        hyp }}
+    where
+    module M = Is-Σ-morphism-C m
+    open Is-Σ-morphism-TC
+
+opaque
+
+  -- A lemma related to Is-Σ-morphism-C and only-some-erased-matches.
+
+  M-only-some-erased-matches :
+    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
+    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
+    (¬ Modality.Trivial 𝕄₂ →
+     ¬ Modality.Trivial 𝕄₁ ×
+     (∀ p → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
+     (∀ p → tr p ≢ Modality.𝟘 𝕄₂)) →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
+    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
+    Is-Σ-morphism-C trp
       (only-some-erased-matches 𝕄₁ v₁ C₁)
       (only-some-erased-matches 𝕄₂ v₂ C₂)
-  Common-properties-only-some-erased-matches cp = record
+      tr tr-Σ
+  M-only-some-erased-matches
+    {𝕄₁} {𝕄₂} {tr} {C₁} {C₂} hyp hyp′ r = record
     { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
     ; natrec-mode-preserved          = natrec-mode-preserved
     ; starˢ-sink-preserved           = starˢ-sink-preserved
@@ -1248,63 +1150,28 @@ opaque
         𝟙ᵐ → _
         𝟘ᵐ → erased-matches-for-K-preserved 𝟘ᵐ?≈𝟘ᵐ?′
     ; Qrec-motive-erased-preserved = Qrec-motive-erased-preserved
-    ; Usage-allows-omega-preserved = (λ _ → with-ω) , (λ _ → with-ω)
-    }
-    where
-    open Common-properties cp
-
-opaque
-
-  -- A lemma related to Is-Σ-morphism-C and only-some-erased-matches.
-
-  M-only-some-erased-matches :
-    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
-    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    (¬ Modality.Trivial 𝕄₂ →
-     ¬ Modality.Trivial 𝕄₁ ×
-     (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
-     (∀ {p} → tr p ≢ Modality.𝟘 𝕄₂)) →
-    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
-    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
-    Is-Σ-morphism-C trp
-      (only-some-erased-matches 𝕄₁ v₁ C₁)
-      (only-some-erased-matches 𝕄₂ v₂ C₂)
-      tr tr-Σ
-  M-only-some-erased-matches
-    {𝕄₁} {𝕄₂} {tr} {C₁} {C₂} hyp hyp′ r = record
-    { common-properties =
-        Common-properties-only-some-erased-matches common-properties
-    ; is-Σ-morphism-TC = is-Σ-morphism-TC
-    ; nr-preserving = nr-preserving
-    ; no-nr-preserving = no-nr-preserving
+    ; is-Σ-morphism-TC             =
+        M-TC-only-some-erased-matches hyp′ r
+    ; nr-preserving        = nr-preserving
+    ; no-nr-preserving     = no-nr-preserving
     ; no-nr-glb-preserving = no-nr-glb-preserving
-    ; Prodrec-preserved = λ {r = r} m₁≈m₂ (p , ≢𝟘) →
+    ; Prodrec-preserved    = λ {r = r} m₁≈m₂ (p , ≢𝟘) →
           Prodrec-preserved m₁≈m₂ p
         , (λ ≡𝟙ᵐ 𝟙≢𝟘 → case hyp 𝟙≢𝟘 of λ where
              (inj₁ (𝟙≢𝟘 , tr-≡-𝟘-→)) →
-               tr r ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ ⟩
+               tr r ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ _ ⟩
                r ≡ M₁.𝟘     →⟨ ≢𝟘 (≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ m₁≈m₂ ≡𝟙ᵐ) 𝟙≢𝟘 ⟩
                ⊥            □
              (inj₂ ≢𝟘) →
-               tr r ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
+               tr r ≡ M₂.𝟘  →⟨ ≢𝟘 _ ⟩
                ⊥            □)
-    ; Unitrec-preserved =
-        Unitrec-preserved
-    ; Emptyrec-preserved =
-        Emptyrec-preserved
+    ; Unitrec-preserved      = Unitrec-preserved
+    ; Emptyrec-preserved     = Emptyrec-preserved
     ; []-cong-mode-preserved = λ m₁≈m₂ (ok , hyp) →
         []-cong-mode-preserved m₁≈m₂ ok ,
         (case m₁≈m₂ of λ where
            𝟘ᵐ → λ ()
            𝟙ᵐ → λ _ → hyp refl)
-    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
-        case Usage-allows-omega-propositional
-               (only-some-erased-matches 𝕄₁ _ C₁) ok₁ with-ω of λ {
-          refl →
-        case Usage-allows-omega-propositional
-               (only-some-erased-matches 𝕄₂ _ C₂) ok₂ with-ω of λ {
-          refl →
-        hyp′ }}
     }
     where
     module M₁ = Modality 𝕄₁
@@ -1317,11 +1184,16 @@ opaque
   -- only-some-erased-matches.
 
   OE-only-some-erased-matches :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
     ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
     ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    (¬ Modality.Trivial 𝕄₁ →
-     ¬ Modality.Trivial 𝕄₂ ×
-     (∀ {p} → p ≡ Modality.𝟘 𝕄₁ → tr p ≡ Modality.𝟘 𝕄₂)) →
+    (¬ M₁.Trivial →
+     ¬ M₂.Trivial × (∀ {p} → p ≡ M₁.𝟘 → tr p ≡ M₂.𝟘)) →
+    (¬ M₂.Trivial →
+     ¬ M₁.Trivial × (∀ p → tr p ≡ M₂.𝟘 → p ≡ M₁.𝟘) ⊎
+      (∀ p → tr p ≢ M₂.𝟘)) →
     Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Is-Σ-order-embedding-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-order-embedding-C trp
@@ -1329,11 +1201,24 @@ opaque
       (only-some-erased-matches 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-only-some-erased-matches
-    {𝕄₁} {𝕄₂} {tr} {C₁} {C₂} hyp hyp′ r = record
-    { common-properties =
-        Common-properties-only-some-erased-matches common-properties
-    ; is-Σ-order-embedding-TC =
-        is-Σ-order-embedding-TC
+    {𝕄₁} {𝕄₂} {tr} {C₁} {C₂} hyp₁ hyp₂ hyp₃ r = record
+    { is-Σ-morphism-C =
+        M-only-some-erased-matches hyp₂ hyp₃ is-Σ-morphism-C
+    ; is-Σ-order-embedding-TC = record
+        { is-Σ-morphism-TC              = M-TC-only-some-erased-matches
+                                            hyp₃ is-Σ-morphism-C
+        ; unfolding-mode-reflected      = unfolding-mode-reflected
+        ; level-support-reflected       = level-support-reflected
+        ; Unitʷ-η-reflected             = Unitʷ-η-reflected
+        ; Unit-reflected                = Unit-reflected
+        ; ΠΣ-reflected                  = ΠΣ-reflected
+        ; Opacity-reflected             = Opacity-reflected
+        ; K-reflected                   = K-reflected
+        ; []-cong-reflected             = []-cong-reflected
+        ; Equality-reflection-reflected = Equality-reflection-reflected
+        ; Quot-reflected                = Quot-reflected
+        ; Omega-allowed-reflected       = λ _ → with-ω
+        }
     ; 𝟘ᵐ-reflected =
         𝟘ᵐ-reflected
     ; nr-reflected = nr-reflected
@@ -1344,8 +1229,8 @@ opaque
         , (λ m₁≡𝟙ᵐ non-trivial₁ →
              case m₁≲m₂ of λ where
                [ m₁≈m₂ ] →
-                 r ≡ M₁.𝟘     →⟨ hyp non-trivial₁ .proj₂ ⟩
-                 tr r ≡ M₂.𝟘  →⟨ tr-r≢𝟘 (≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ m₁≈m₂ m₁≡𝟙ᵐ) (hyp non-trivial₁ .proj₁) ⟩
+                 r ≡ M₁.𝟘     →⟨ hyp₁ non-trivial₁ .proj₂ ⟩
+                 tr r ≡ M₂.𝟘  →⟨ tr-r≢𝟘 (≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ m₁≈m₂ m₁≡𝟙ᵐ) (hyp₁ non-trivial₁ .proj₁) ⟩
                  ⊥            □
                (𝟙ᵐ≳𝟘ᵐ trivial₁) _ →
                  non-trivial₁ trivial₁)
@@ -1356,7 +1241,7 @@ opaque
     ; []-cong-mode-reflected = λ m₁≳m₂ ok →
         case ok of λ where
           (inj₂ triv) →
-            inj₂ (contrapositive→ MP₁.trivial? (proj₁ ∘→ hyp) triv)
+            inj₂ (contrapositive→ MP₁.trivial? (proj₁ ∘→ hyp₁) triv)
           (inj₁ (ok , ≢𝟙ᵐ)) →
             case []-cong-mode-reflected m₁≳m₂ (inj₁ ok) of λ where
               (inj₂ triv) → inj₂ triv
@@ -1371,45 +1256,12 @@ opaque
     ; erased-matches-for-K-reflected = λ where
         𝟙ᵐ → _
         𝟘ᵐ → erased-matches-for-K-reflected 𝟘ᵐ?≈𝟘ᵐ?′
-    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
-        case Usage-allows-omega-propositional
-               (only-some-erased-matches 𝕄₁ _ C₁) ok₁ with-ω of λ {
-          refl →
-        case Usage-allows-omega-propositional
-               (only-some-erased-matches 𝕄₂ _ C₂) ok₂ with-ω of λ {
-          refl →
-        hyp′ }}
     }
     where
     module M₁  = Modality 𝕄₁
     module M₂  = Modality 𝕄₂
     module MP₁ = Graded.Modality.Properties 𝕄₁
     open Is-Σ-order-embedding-C r
-
-opaque
-
-  -- A lemma related to Common-properties and no-erased-matches.
-
-  Common-properties-no-erased-matches :
-    ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
-    ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    Common-properties C₁ C₂ →
-    Common-properties
-      (no-erased-matches 𝕄₁ v₁ C₁)
-      (no-erased-matches 𝕄₂ v₂ C₂)
-  Common-properties-no-erased-matches cp = record
-    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
-    ; natrec-mode-preserved          = natrec-mode-preserved
-    ; starˢ-sink-preserved           = starˢ-sink-preserved
-    ; Id-erased-preserved            = Id-erased-preserved
-    ; erased-matches-for-J-preserved = erased-matches-for-J-preserved
-    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
-    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
-    ; Usage-allows-omega-preserved   = (λ _ → with-ω) , (λ _ → with-ω)
-    }
-    where
-    open Common-properties
-           (Common-properties-only-some-erased-matches cp)
 
 opaque
 
@@ -1420,8 +1272,8 @@ opaque
     ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
     (¬ Modality.Trivial 𝕄₂ →
      ¬ Modality.Trivial 𝕄₁ ×
-     (∀ {p} → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
-     (∀ {p} → tr p ≢ Modality.𝟘 𝕄₂)) →
+     (∀ p → tr p ≡ Modality.𝟘 𝕄₂ → p ≡ Modality.𝟘 𝕄₁) ⊎
+     (∀ p → tr p ≢ Modality.𝟘 𝕄₂)) →
     Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-morphism-C trp
@@ -1429,38 +1281,35 @@ opaque
       (no-erased-matches 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-no-erased-matches {𝕄₁} {𝕄₂} {tr} {C₁} {C₂} hyp hyp′ m = record
-    { common-properties =
-        Common-properties-no-erased-matches M.common-properties
-    ; is-Σ-morphism-TC = M.is-Σ-morphism-TC
-    ; nr-preserving = M.nr-preserving
-    ; no-nr-preserving = M.no-nr-preserving
-    ; no-nr-glb-preserving = M.no-nr-glb-preserving
-    ; Prodrec-preserved =
-        Is-Σ-morphism-C.Prodrec-preserved
-          (M-only-some-erased-matches hyp hyp′ m)
-    ; Unitrec-preserved = λ {p = p} m₁≈m₂ (P , η) →
+    { 𝟘ᵐ-preserved                   = M.𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = M.natrec-mode-preserved
+    ; starˢ-sink-preserved           = M.starˢ-sink-preserved
+    ; Id-erased-preserved            = M.Id-erased-preserved
+    ; erased-matches-for-J-preserved = M.erased-matches-for-J-preserved
+    ; erased-matches-for-K-preserved = M.erased-matches-for-K-preserved
+    ; Qrec-motive-erased-preserved   = M.Qrec-motive-erased-preserved
+    ; is-Σ-morphism-TC               = M.is-Σ-morphism-TC
+    ; nr-preserving                  = M.nr-preserving
+    ; no-nr-preserving               = M.no-nr-preserving
+    ; no-nr-glb-preserving           = M.no-nr-glb-preserving
+    ; Prodrec-preserved              = M.Prodrec-preserved
+    ; Unitrec-preserved              = λ {p = p} m₁≈m₂ (P , η) →
           M.Unitrec-preserved m₁≈m₂ P
         , (λ ≡𝟙ᵐ 𝟙≢𝟘 → case hyp 𝟙≢𝟘 of λ where
              (inj₁ (𝟙≢𝟘 , tr-≡-𝟘-→)) →
-               tr p ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ ⟩
+               tr p ≡ M₂.𝟘  →⟨ tr-≡-𝟘-→ _ ⟩
                p ≡ M₁.𝟘     →⟨ η (≈ᵐ→≡𝟙ᵐ→≡𝟙ᵐ m₁≈m₂ ≡𝟙ᵐ) 𝟙≢𝟘 ⟩
                C₁.Unitʷ-η   →⟨ M.Unitʷ-η-preserved ⟩
                C₂.Unitʷ-η   □
              (inj₂ ≢𝟘) →
-               tr p ≡ M₂.𝟘  →⟨ ≢𝟘 ⟩
+               tr p ≡ M₂.𝟘  →⟨ ≢𝟘 _ ⟩
                ⊥            →⟨ ⊥-elim ⟩
                C₂.Unitʷ-η   □)
-    ; Emptyrec-preserved =
-        M.Emptyrec-preserved
-    ; []-cong-mode-preserved =
-        Is-Σ-morphism-C.[]-cong-mode-preserved
-          (M-only-some-erased-matches hyp hyp′ m)
-    ; omega-preserving =
-        Is-Σ-morphism-C.omega-preserving
-          (M-only-some-erased-matches hyp hyp′ m)
+    ; Emptyrec-preserved     = M.Emptyrec-preserved
+    ; []-cong-mode-preserved = M.[]-cong-mode-preserved
     }
     where
-    module M  = Is-Σ-morphism-C m
+    module M  = Is-Σ-morphism-C (M-only-some-erased-matches hyp hyp′ m)
     module M₁ = Modality 𝕄₁
     module M₂ = Modality 𝕄₂
     module C₁ = Configuration C₁
@@ -1471,21 +1320,27 @@ opaque
   -- A lemma related to Is-Σ-order-embedding-C and no-erased-matches.
 
   OE-no-erased-matches :
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
     ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
     ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    (¬ Modality.Trivial 𝕄₁ →
-     ¬ Modality.Trivial 𝕄₂ ×
-     (∀ {p} → p ≡ Modality.𝟘 𝕄₁ → tr p ≡ Modality.𝟘 𝕄₂)) →
+    (¬ M₁.Trivial →
+     ¬ M₂.Trivial × (∀ {p} → p ≡ M₁.𝟘 → tr p ≡ M₂.𝟘)) →
+    (¬ M₂.Trivial →
+     ¬ M₁.Trivial × (∀ p → tr p ≡ M₂.𝟘 → p ≡ M₁.𝟘) ⊎
+      (∀ p → tr p ≢ M₂.𝟘)) →
     Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Is-Σ-order-embedding-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-order-embedding-C trp
       (no-erased-matches 𝕄₁ v₁ C₁)
       (no-erased-matches 𝕄₂ v₂ C₂)
       tr tr-Σ
-  OE-no-erased-matches {𝕄₁} {𝕄₂} {tr} {C₁} {C₂} hyp hyp′ oe = record
-    { common-properties =
-        Common-properties-no-erased-matches
-          (Is-Σ-order-embedding-C.common-properties oe)
+  OE-no-erased-matches
+    {𝕄₁} {𝕄₂} {tr} {C₁} {C₂} hyp₁ hyp₂ hyp₃ oe = record
+    { is-Σ-morphism-C =
+        M-no-erased-matches hyp₂ hyp₃
+          (Is-Σ-order-embedding-C.is-Σ-morphism-C oe)
     ; is-Σ-order-embedding-TC =
         C.is-Σ-order-embedding-TC
     ; 𝟘ᵐ-reflected =
@@ -1500,8 +1355,8 @@ opaque
         , (λ m₁≡𝟙ᵐ non-trivial₁ →
              case m₁≲m₂ of λ where
                [ m₁≈m₂ ] →
-                 p ≡ M₁.𝟘     →⟨ hyp non-trivial₁ .proj₂ ⟩
-                 tr p ≡ M₂.𝟘  →⟨ tr-p≢𝟘 (≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ m₁≈m₂ m₁≡𝟙ᵐ) (hyp non-trivial₁ .proj₁) ⟩
+                 p ≡ M₁.𝟘     →⟨ hyp₁ non-trivial₁ .proj₂ ⟩
+                 tr p ≡ M₂.𝟘  →⟨ tr-p≢𝟘 (≈ᵐ→≡𝟙ᵐ←≡𝟙ᵐ m₁≈m₂ m₁≡𝟙ᵐ) (hyp₁ non-trivial₁ .proj₁) ⟩
                  C₂.Unitʷ-η   →⟨ C.Unitʷ-η-reflected ⟩
                  C₁.Unitʷ-η   □
                (𝟙ᵐ≳𝟘ᵐ trivial₁) _ →
@@ -1514,12 +1369,11 @@ opaque
         C.erased-matches-for-K-reflected
     ; []-cong-mode-reflected =
         C.[]-cong-mode-reflected
-    ; omega-preserving =
-        C.omega-preserving
     }
     where
     module C =
-      Is-Σ-order-embedding-C (OE-only-some-erased-matches hyp hyp′ oe)
+      Is-Σ-order-embedding-C
+        (OE-only-some-erased-matches hyp₁ hyp₂ hyp₃ oe)
     module M₁  = Modality 𝕄₁
     module M₂  = Modality 𝕄₂
     module C₁  = Configuration C₁
@@ -1537,30 +1391,65 @@ private opaque
   none-for-𝟙ᵐ-≤ᵉᵐ hyp 𝟘ᵐ = hyp 𝟘ᵐ
   none-for-𝟙ᵐ-≤ᵉᵐ _   𝟙ᵐ = _
 
-opaque
+private opaque
 
-  -- A lemma related to Common-properties and with-[]-cong.
+  -- A lemma used below.
 
-  Common-properties-with-[]-cong :
+  M-TC-with-[]-cong :
     ⦃ has-ω₁ : Has-omega _ 𝕄₁ ⦄
     ⦃ has-ω₂ : Has-omega _ 𝕄₂ ⦄ →
-    Common-properties C₁ C₂ →
-    Common-properties
-      (with-[]-cong 𝕄₁ v₁ C₁)
-      (with-[]-cong 𝕄₂ v₂ C₂)
-  Common-properties-with-[]-cong cp = record
-    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
-    ; natrec-mode-preserved          = natrec-mode-preserved
-    ; starˢ-sink-preserved           = starˢ-sink-preserved
-    ; Id-erased-preserved            = Id-erased-preserved
-    ; erased-matches-for-J-preserved =
-        none-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-J-preserved
-    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
-    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
-    ; Usage-allows-omega-preserved        = (λ _ → with-ω) , (λ _ → with-ω)
-    }
+    let module M₁ = Modality 𝕄₁
+        module M₂ = Modality 𝕄₂
+    in
+    (¬ Modality.Trivial 𝕄₁ →
+     ¬ Modality.Trivial 𝕄₂ ×
+     tr M₁.𝟘 ≡ M₂.𝟘 ×
+     tr-Σ M₁.𝟘 ≡ M₂.𝟘) →
+    Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
+    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
+    Is-Σ-morphism-TC trp
+      (with-[]-cong 𝕄₁ v₁ C₁ .Configuration.TC)
+      (with-[]-cong 𝕄₂ v₂ C₂ .Configuration.TC)
+      tr tr-Σ
+  M-TC-with-[]-cong {𝕄₁} {C₁} {C₂} hyp₁ hyp₂ m = λ where
+      .unfolding-mode-preserved  → M.unfolding-mode-preserved
+      .level-support-preserved   → M.level-support-preserved
+      .Omega-plus-preserved      → M.Omega-plus-preserved
+      .Unitʷ-η-preserved         → M.Unitʷ-η-preserved
+      .Unit-preserved            →
+        ⊎.map M.Unit-preserved (proj₁ ∘→ hyp₁)
+      .ΠΣ-preserved {b = BMΠ}   ok → M.ΠΣ-preserved ok
+      .ΠΣ-preserved {b = BMΣ s} ok →
+        ⊎.map
+          M.ΠΣ-preserved
+          (λ { (non-trivial , refl , refl) →
+               let non-trivial , tr-𝟘≡𝟘 , tr-Σ-𝟘≡𝟘 =
+                     hyp₁ non-trivial
+               in
+               non-trivial , tr-Σ-𝟘≡𝟘 , tr-𝟘≡𝟘 })
+          ok
+      .Opacity-preserved → M.Opacity-preserved
+      .K-preserved       → M.K-preserved
+      .[]-cong-preserved →
+        ⊎.map M.[]-cong-preserved (proj₁ ∘→ hyp₁)
+      .Equality-reflection-preserved → M.Equality-reflection-preserved
+      .Quot-preserved                → M.Quot-preserved
+      .Quot-allowed→tr-𝟘≡𝟘           → M.Quot-allowed→tr-𝟘≡𝟘
+      .Omega-allowed-preserved _     →
+          with-ω
+      .omega-preserving ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
+        case Omega-allowed-propositional
+               (not-all-erased-matches-JK _ _ C₁) ok₁
+               with-ω of λ {
+          refl →
+        case Omega-allowed-propositional
+               (not-all-erased-matches-JK _ _ C₂) ok₂
+               with-ω of λ {
+          refl →
+        hyp₂ }}
     where
-    open Common-properties cp
+    module M = Is-Σ-morphism-C m
+    open Is-Σ-morphism-TC
 
 opaque
 
@@ -1583,33 +1472,24 @@ opaque
       (with-[]-cong 𝕄₂ v₂ C₂)
       tr tr-Σ
   M-with-[]-cong {𝕄₁} {C₁} {C₂} hyp hyp′ r = record
-    { common-properties =
-        Common-properties-with-[]-cong common-properties
-    ; is-Σ-morphism-TC =
-        Ex.M-with-[]-cong hyp is-Σ-morphism-TC
-    ; nr-preserving =
-        nr-preserving
-    ; no-nr-preserving =
-        no-nr-preserving
-    ; no-nr-glb-preserving =
-        no-nr-glb-preserving
-    ; Prodrec-preserved =
-        Prodrec-preserved
-    ; Unitrec-preserved =
-        Unitrec-preserved
-    ; Emptyrec-preserved =
-        Emptyrec-preserved
-    ; []-cong-mode-preserved = λ m₁≈m₂ →
+    { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
+    ; natrec-mode-preserved          = natrec-mode-preserved
+    ; starˢ-sink-preserved           = starˢ-sink-preserved
+    ; Id-erased-preserved            = Id-erased-preserved
+    ; erased-matches-for-J-preserved =
+        none-for-𝟙ᵐ-≤ᵉᵐ erased-matches-for-J-preserved
+    ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
+    ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
+    ; is-Σ-morphism-TC               = M-TC-with-[]-cong hyp hyp′ r
+    ; nr-preserving                  = nr-preserving
+    ; no-nr-preserving               = no-nr-preserving
+    ; no-nr-glb-preserving           = no-nr-glb-preserving
+    ; Prodrec-preserved              = Prodrec-preserved
+    ; Unitrec-preserved              = Unitrec-preserved
+    ; Emptyrec-preserved             = Emptyrec-preserved
+    ; []-cong-mode-preserved         = λ m₁≈m₂ →
         ⊎.map ([]-cong-mode-preserved m₁≈m₂)
           (_∘→ contrapositive→ MP₁.trivial? (proj₁ ∘→ hyp))
-    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
-        case Usage-allows-omega-propositional (with-[]-cong _ _ C₁) ok₁
-               with-ω of λ {
-          refl →
-        case Usage-allows-omega-propositional (with-[]-cong _ _ C₂) ok₂
-               with-ω of λ {
-          refl →
-        hyp′ }}
     }
     where
     module MP₁ = Graded.Modality.Properties 𝕄₁
@@ -1625,21 +1505,56 @@ opaque
     let module M₁ = Modality 𝕄₁
         module M₂ = Modality 𝕄₂
     in
-    (¬ M₂.Trivial →
-     ¬ M₁.Trivial ×
-     (∀ p → tr p ≡ M₂.𝟘 → p ≡ M₁.𝟘) ×
-     (∀ p → tr-Σ p ≡ M₂.𝟘 → p ≡ M₁.𝟘)) →
+    M₁.Trivial ⇔ M₂.Trivial →
+    (¬ M₁.Trivial →
+     (∀ p → p ≡ M₁.𝟘 ⇔ tr p ≡ M₂.𝟘) ×
+     (∀ p → p ≡ M₁.𝟘 ⇔ tr-Σ p ≡ M₂.𝟘)) →
     Is-omega-preserving-morphism 𝕄₁ 𝕄₂ tr →
     Is-Σ-order-embedding-C trp C₁ C₂ tr tr-Σ →
     Is-Σ-order-embedding-C trp
       (with-[]-cong 𝕄₁ v₁ C₁)
       (with-[]-cong 𝕄₂ v₂ C₂)
       tr tr-Σ
-  OE-with-[]-cong {𝕄₁} {C₁} {C₂} hyp hyp′ r = record
-    { common-properties =
-        Common-properties-with-[]-cong common-properties
-    ; is-Σ-order-embedding-TC =
-        Ex.OE-with-[]-cong hyp is-Σ-order-embedding-TC
+  OE-with-[]-cong {𝕄₁} {C₁} {C₂} hyp₁ hyp₂ hyp₃ r =
+    let hyp₁₂ = λ non-triv →
+                  non-triv ∘→ hyp₁ .proj₂ ,
+                  let hyp₂₁ , hyp₂₂ = hyp₂ non-triv in
+                  hyp₂₁ _ .proj₁ refl , hyp₂₂ _ .proj₁ refl
+    in record
+    { is-Σ-morphism-C =
+        M-with-[]-cong hyp₁₂ hyp₃ is-Σ-morphism-C
+    ; is-Σ-order-embedding-TC = record
+        { is-Σ-morphism-TC =
+            M-TC-with-[]-cong hyp₁₂ hyp₃ is-Σ-morphism-C
+        ; unfolding-mode-reflected = unfolding-mode-reflected
+        ; level-support-reflected  = level-support-reflected
+        ; Unitʷ-η-reflected        = Unitʷ-η-reflected
+        ; Unit-reflected           =
+            ⊎.map Unit-reflected (_∘→ hyp₁ .proj₁)
+        ; ΠΣ-reflected = λ {b = b} ok →
+            case singleton b of λ where
+              (BMΠ , refl) →
+                ΠΣ-reflected ok
+              (BMΣ s , refl) →
+                ⊎.map
+                  ΠΣ-reflected
+                  (λ (non-triv , tr-Σ-p≡𝟘 , tr-q≡𝟘) →
+                     let ≡𝟘⇔tr≡𝟘 , ≡𝟘⇔tr-Σ≡𝟘 =
+                           hyp₂ (non-triv ∘→ hyp₁ .proj₁)
+                     in
+                     non-triv ∘→ hyp₁ .proj₁ ,
+                     ≡𝟘⇔tr-Σ≡𝟘 _ .proj₂ tr-Σ-p≡𝟘 ,
+                     ≡𝟘⇔tr≡𝟘 _ .proj₂ tr-q≡𝟘)
+                  ok
+        ; Opacity-reflected = Opacity-reflected
+        ; K-reflected       = K-reflected
+        ; []-cong-reflected = λ _ → case MP₁.trivial? of λ where
+            (yes trivial)    → inj₂ trivial
+            (no non-trivial) → inj₁ (inj₂ non-trivial)
+        ; Equality-reflection-reflected = Equality-reflection-reflected
+        ; Quot-reflected                = Quot-reflected
+        ; Omega-allowed-reflected       = λ _ → with-ω
+        }
     ; 𝟘ᵐ-reflected =
         𝟘ᵐ-reflected
     ; nr-reflected =
@@ -1663,14 +1578,6 @@ opaque
         ≈ᵐ-symmetric
     ; erased-matches-for-K-reflected =
         erased-matches-for-K-reflected
-    ; omega-preserving = λ ⦃ ok₁ ⦄ ⦃ ok₂ ⦄ →
-        case Usage-allows-omega-propositional (with-[]-cong _ _ C₁) ok₁
-               with-ω of λ {
-          refl →
-        case Usage-allows-omega-propositional (with-[]-cong _ _ C₂) ok₂
-               with-ω of λ {
-          refl →
-        hyp′ }}
     }
     where
     module MP₁ = Graded.Modality.Properties 𝕄₁
@@ -1695,14 +1602,15 @@ private opaque
 
 opaque
 
-  -- A lemma related to Common-properties and no-[]-cong.
+  -- A lemma related to Is-Σ-morphism-C and no-[]-cong.
 
-  Common-properties-no-[]-cong :
-    Common-properties C₁ C₂ →
-    Common-properties
+  M-no-[]-cong :
+    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
+    Is-Σ-morphism-C trp
       (no-[]-cong 𝕄₁ v₁ C₁)
       (no-[]-cong 𝕄₂ v₂ C₂)
-  Common-properties-no-[]-cong {C₁} {C₂} cp = record
+      tr tr-Σ
+  M-no-[]-cong {C₁} {C₂} m = record
     { 𝟘ᵐ-preserved                   = 𝟘ᵐ-preserved
     ; natrec-mode-preserved          = natrec-mode-preserved
     ; starˢ-sink-preserved           = starˢ-sink-preserved
@@ -1713,47 +1621,19 @@ opaque
           m₁≈m₂
     ; erased-matches-for-K-preserved = erased-matches-for-K-preserved
     ; Qrec-motive-erased-preserved   = Qrec-motive-erased-preserved
-    ; Usage-allows-omega-preserved        = Usage-allows-omega-preserved
+    ; is-Σ-morphism-TC               = Ex.M-no-[]-cong is-Σ-morphism-TC
+    ; nr-preserving                  = nr-preserving
+    ; no-nr-preserving               = no-nr-preserving
+    ; no-nr-glb-preserving           = no-nr-glb-preserving
+    ; Prodrec-preserved              = Prodrec-preserved
+    ; Unitrec-preserved              = Unitrec-preserved
+    ; Emptyrec-preserved             = Emptyrec-preserved
+    ; []-cong-mode-preserved         = λ _ ()
     }
     where
     module C₁ = Configuration C₁
     module C₂ = Configuration C₂
-    open Common-properties cp
-
-opaque
-
-  -- A lemma related to Is-Σ-morphism-C and no-[]-cong.
-
-  M-no-[]-cong :
-    Is-Σ-morphism-C trp C₁ C₂ tr tr-Σ →
-    Is-Σ-morphism-C trp
-      (no-[]-cong 𝕄₁ v₁ C₁)
-      (no-[]-cong 𝕄₂ v₂ C₂)
-      tr tr-Σ
-  M-no-[]-cong r = record
-    { common-properties =
-        Common-properties-no-[]-cong common-properties
-    ; is-Σ-morphism-TC =
-        Ex.M-no-[]-cong is-Σ-morphism-TC
-    ; nr-preserving =
-        nr-preserving
-    ; no-nr-preserving =
-        no-nr-preserving
-    ; no-nr-glb-preserving =
-        no-nr-glb-preserving
-    ; Prodrec-preserved =
-        Prodrec-preserved
-    ; Unitrec-preserved =
-        Unitrec-preserved
-    ; Emptyrec-preserved =
-        Emptyrec-preserved
-    ; []-cong-mode-preserved =
-        λ _ ()
-    ; omega-preserving =
-        omega-preserving
-    }
-    where
-    open Is-Σ-morphism-C r
+    open Is-Σ-morphism-C m
 
 opaque
 
@@ -1772,8 +1652,8 @@ opaque
       (no-[]-cong 𝕄₂ v₂ C₂)
       tr tr-Σ
   OE-no-[]-cong {C₁} {C₂} hyp r = record
-    { common-properties =
-        Common-properties-no-[]-cong common-properties
+    { is-Σ-morphism-C =
+        M-no-[]-cong is-Σ-morphism-C
     ; is-Σ-order-embedding-TC =
         Ex.OE-no-[]-cong (flip C₁.[]-cong→¬Trivial ∘→ hyp)
           is-Σ-order-embedding-TC
@@ -1797,8 +1677,6 @@ opaque
           (erased-matches-for-J-reflected m₁≈m₂) (≈ᵐ-symmetric m₁≈m₂)
     ; erased-matches-for-K-reflected =
         erased-matches-for-K-reflected
-    ; omega-preserving =
-        omega-preserving
     }
     where
     module C₁ = Configuration C₁
@@ -1821,7 +1699,7 @@ opaque
       unit→erasure tr
   M-only-some-erased-matches-unit→erasure =
     M-only-some-erased-matches
-      (λ _ → inj₂ (λ ())) unit⇨erasure-omega-preserving
+      (λ _ → inj₂ (λ _ ())) unit⇨erasure-omega-preserving
 
 opaque
 
@@ -1835,7 +1713,8 @@ opaque
       unit→erasure tr
   OE-only-some-erased-matches-unit→erasure =
     OE-only-some-erased-matches
-      (λ tt≢tt → ⊥-elim $ tt≢tt refl) unit⇨erasure-omega-preserving
+      (λ tt≢tt → ⊥-elim $ tt≢tt refl) (λ _ → inj₂ (λ _ ()))
+      unit⇨erasure-omega-preserving
 
 opaque
 
@@ -1861,7 +1740,7 @@ opaque
     ¬ Is-Σ-order-embedding-C trp
         (only-some-erased-matches ErasureModality v₁ C)
         (only-some-erased-matches 𝕄₂ v₂
-           (no-restrictions 𝕄₂ v₂ nm₁ b₁ b₂ b₃ b₄ b₅))
+           (no-restrictions 𝕄₂ v₂ o₂ nm₁ b₁ b₂ b₃ b₄ b₅))
         erasure→unit tr
   ¬-OE-only-some-erased-matches-erasure→unit _ r =
     Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , (λ _ tt≢tt → tt≢tt))
@@ -1884,8 +1763,8 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = ω} ())
+              𝟘 _  → refl
+              ω ())
          ))
       erasure⇨zero-one-many-omega-preserving
 
@@ -1902,11 +1781,13 @@ opaque
       erasure→zero-one-many tr
   OE-only-some-erased-matches-erasure→zero-one-many =
     OE-only-some-erased-matches
-      (λ _ →
-           (λ ())
+      (λ _ → (λ ()) , (λ { refl → refl }))
+      (λ _ → inj₁
+         ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = ω} ()))
+              𝟘 _  → refl
+              ω ())
+         ))
       erasure⇨zero-one-many-omega-preserving
 
 opaque
@@ -1924,9 +1805,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ())
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
          ))
       zero-one-many⇨erasure-omega-preserving
 
@@ -1943,12 +1824,14 @@ opaque
       zero-one-many→erasure tr
   OE-only-some-erased-matches-zero-one-many→erasure =
     OE-only-some-erased-matches
-      (λ _ →
-           (λ ())
+      (λ _ → (λ ()) , (λ { refl → refl }))
+      (λ _ → inj₁
+         ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ()))
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
+         ))
       zero-one-many⇨erasure-omega-preserving
 
 opaque
@@ -1967,9 +1850,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ())
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
          ))
       linearity⇨linear-or-affine-omega-preserving
 
@@ -1986,12 +1869,14 @@ opaque
       linearity→linear-or-affine tr
   OE-only-some-erased-matches-linearity→linear-or-affine =
     OE-only-some-erased-matches
-      (λ _ →
-           (λ ())
+      (λ _ → (λ ()) , (λ { refl → refl }))
+      (λ _ → inj₁
+         ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ()))
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
+         ))
       linearity⇨linear-or-affine-omega-preserving
 
 opaque
@@ -2010,10 +1895,10 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘}  _  → refl
-              {p = 𝟙}  ()
-              {p = ≤𝟙} ()
-              {p = ≤ω} ())
+              𝟘  _  → refl
+              𝟙  ()
+              ≤𝟙 ()
+              ≤ω ())
          ))
       linear-or-affine⇨linearity-omega-preserving
 
@@ -2030,13 +1915,15 @@ opaque
       linear-or-affine→linearity tr
   OE-only-some-erased-matches-linear-or-affine→linearity =
     OE-only-some-erased-matches
-      (λ _ →
-           (λ ())
+      (λ _ → (λ ()) , (λ { refl → refl }))
+      (λ _ → inj₁
+         ( (λ ())
          , (λ where
-              {p = 𝟘}  _  → refl
-              {p = 𝟙}  ()
-              {p = ≤𝟙} ()
-              {p = ≤ω} ()))
+              𝟘  _  → refl
+              𝟙  ()
+              ≤𝟙 ()
+              ≤ω ())
+         ))
       linear-or-affine⇨linearity-omega-preserving
 
 opaque
@@ -2054,9 +1941,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ())
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
          ))
       affine⇨linear-or-affine-omega-preserving
 
@@ -2073,12 +1960,14 @@ opaque
       affine→linear-or-affine tr
   OE-only-some-erased-matches-affine→linear-or-affine =
     OE-only-some-erased-matches
-      (λ _ →
-           (λ ())
+      (λ _ → (λ ()) , (λ { refl → refl }))
+      (λ _ → inj₁
+         ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ()))
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
+         ))
       affine⇨linear-or-affine-omega-preserving
 
 opaque
@@ -2096,10 +1985,10 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘}  _  → refl
-              {p = 𝟙}  ()
-              {p = ≤𝟙} ()
-              {p = ≤ω} ())
+              𝟘  _  → refl
+              𝟙  ()
+              ≤𝟙 ()
+              ≤ω ())
          ))
       linear-or-affine⇨affine-omega-preserving
 
@@ -2116,13 +2005,15 @@ opaque
       linear-or-affine→affine tr
   OE-only-some-erased-matches-linear-or-affine→affine =
     OE-only-some-erased-matches
-      (λ _ →
-           (λ ())
+      (λ _ → (λ ()) , (λ { refl → refl }))
+      (λ _ → inj₁
+         ( (λ ())
          , (λ where
-              {p = 𝟘}  _  → refl
-              {p = 𝟙}  ()
-              {p = ≤𝟙} ()
-              {p = ≤ω} ()))
+              𝟘  _  → refl
+              𝟙  ()
+              ≤𝟙 ()
+              ≤ω ())
+         ))
       linear-or-affine⇨affine-omega-preserving
 
 opaque
@@ -2140,9 +2031,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ())
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
          ))
       affine⇨linearity-omega-preserving
 
@@ -2158,12 +2049,14 @@ opaque
       affine→linearity tr
   OE-only-some-erased-matches-affine→linearity =
     OE-only-some-erased-matches
-      (λ _ →
-           (λ ())
+      (λ _ → (λ ()) , (λ { refl → refl }))
+      (λ _ → inj₁
+         ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ()))
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
+         ))
       affine⇨linearity-omega-preserving
 
 opaque
@@ -2181,9 +2074,9 @@ opaque
       (λ _ → inj₁
          ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ())
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
          ))
       linearity⇨affine-omega-preserving
 
@@ -2199,12 +2092,14 @@ opaque
       linearity→affine tr
   OE-only-some-erased-matches-linearity→affine =
     OE-only-some-erased-matches
-      (λ _ →
-           (λ ())
+      (λ _ → (λ ()) , (λ { refl → refl }))
+      (λ _ → inj₁
+         ( (λ ())
          , (λ where
-              {p = 𝟘} _  → refl
-              {p = 𝟙} ()
-              {p = ω} ()))
+              𝟘 _  → refl
+              𝟙 ()
+              ω ())
+         ))
       linearity⇨affine-omega-preserving
 
 ------------------------------------------------------------------------
@@ -2221,7 +2116,7 @@ M-no-erased-matches-unit→erasure :
     unit→erasure tr
 M-no-erased-matches-unit→erasure =
   M-no-erased-matches
-    (λ _ → inj₂ (λ ()))
+    (λ _ → inj₂ (λ _ ()))
     unit⇨erasure-omega-preserving
 
 -- A lemma related to Is-Σ-order-embedding-C and unit→erasure.
@@ -2235,6 +2130,7 @@ OE-no-erased-matches-unit→erasure :
 OE-no-erased-matches-unit→erasure =
   OE-no-erased-matches
     (λ tt≢tt → ⊥-elim $ tt≢tt refl)
+    (λ _ → inj₂ (λ _ ()))
     unit⇨erasure-omega-preserving
 
 -- A lemma related to Is-Σ-morphism-C and erasure→unit.
@@ -2258,7 +2154,7 @@ M-no-erased-matches-erasure→unit =
   ¬ Is-Σ-order-embedding-C trp
       (no-erased-matches ErasureModality v₁ C)
       (no-erased-matches 𝕄₂ v₂
-         (no-restrictions 𝕄₂ v₂ nm₂ b₁ b₂ b₃ b₄ b₅))
+         (no-restrictions 𝕄₂ v₂ o₂ nm₂ b₁ b₂ b₃ b₄ b₅))
       erasure→unit tr
 ¬-OE-no-erased-matches-erasure→unit _ r =
   Prodrec-reflected {p = 𝟘} {q = 𝟘} [ 𝟙ᵐ ] (_ , λ _ tt≢tt → tt≢tt)
@@ -2279,8 +2175,8 @@ M-no-erased-matches-erasure→zero-one-many =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = ω} ())
+            𝟘 _  → refl
+            ω ())
        ))
     erasure⇨zero-one-many-omega-preserving
 
@@ -2295,11 +2191,13 @@ OE-no-erased-matches-erasure→zero-one-many :
     erasure→zero-one-many tr
 OE-no-erased-matches-erasure→zero-one-many =
   OE-no-erased-matches
-    (λ _ →
-         (λ ())
+    (λ _ → (λ ()) , (λ { refl → refl }))
+    (λ _ → inj₁
+       ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = ω} ()))
+            𝟘 _  → refl
+            ω ())
+       ))
     erasure⇨zero-one-many-omega-preserving
 
 -- A lemma related to Is-Σ-morphism-C and zero-one-many→erasure.
@@ -2315,9 +2213,9 @@ M-no-erased-matches-zero-one-many→erasure =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ())
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
        ))
     zero-one-many⇨erasure-omega-preserving
 
@@ -2332,12 +2230,14 @@ OE-no-erased-matches-zero-one-many→erasure :
     zero-one-many→erasure tr
 OE-no-erased-matches-zero-one-many→erasure =
   OE-no-erased-matches
-    (λ _ →
-         (λ ())
+    (λ _ → (λ ()) , (λ { refl → refl }))
+    (λ _ → inj₁
+       ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ()))
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
+       ))
     zero-one-many⇨erasure-omega-preserving
 
 -- A lemma related to Is-Σ-morphism-C and linearity→linear-or-affine.
@@ -2353,9 +2253,9 @@ M-no-erased-matches-linearity→linear-or-affine =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ())
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
        ))
     linearity⇨linear-or-affine-omega-preserving
 
@@ -2370,12 +2270,14 @@ OE-no-erased-matches-linearity→linear-or-affine :
     linearity→linear-or-affine tr
 OE-no-erased-matches-linearity→linear-or-affine =
   OE-no-erased-matches
-    (λ _ →
-         (λ ())
+    (λ _ → (λ ()) , (λ { refl → refl }))
+    (λ _ → inj₁
+       ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ()))
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
+       ))
     linearity⇨linear-or-affine-omega-preserving
 
 -- A lemma related to Is-Σ-morphism-C and linear-or-affine→linearity.
@@ -2391,10 +2293,10 @@ M-no-erased-matches-linear-or-affine→linearity =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘}  _  → refl
-            {p = 𝟙}  ()
-            {p = ≤𝟙} ()
-            {p = ≤ω} ())
+            𝟘  _  → refl
+            𝟙  ()
+            ≤𝟙 ()
+            ≤ω ())
        ))
     linear-or-affine⇨linearity-omega-preserving
 
@@ -2409,13 +2311,15 @@ OE-no-erased-matches-linear-or-affine→linearity :
     linear-or-affine→linearity tr
 OE-no-erased-matches-linear-or-affine→linearity =
   OE-no-erased-matches
-    (λ _ →
-         (λ ())
+    (λ _ → (λ ()) , (λ { refl → refl }))
+    (λ _ → inj₁
+       ( (λ ())
        , (λ where
-            {p = 𝟘}  _  → refl
-            {p = 𝟙}  ()
-            {p = ≤𝟙} ()
-            {p = ≤ω} ()))
+            𝟘  _  → refl
+            𝟙  ()
+            ≤𝟙 ()
+            ≤ω ())
+       ))
     linear-or-affine⇨linearity-omega-preserving
 
 -- A lemma related to Is-Σ-morphism-C and affine→linear-or-affine.
@@ -2431,9 +2335,9 @@ M-no-erased-matches-affine→linear-or-affine =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ())
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
        ))
     affine⇨linear-or-affine-omega-preserving
 
@@ -2448,12 +2352,14 @@ OE-no-erased-matches-affine→linear-or-affine :
     affine→linear-or-affine tr
 OE-no-erased-matches-affine→linear-or-affine =
   OE-no-erased-matches
-    (λ _ →
-         (λ ())
+    (λ _ → (λ ()) , (λ { refl → refl }))
+    (λ _ → inj₁
+       ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ()))
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
+       ))
     affine⇨linear-or-affine-omega-preserving
 
 -- A lemma related to Is-Σ-morphism-C and linear-or-affine→affine.
@@ -2469,10 +2375,10 @@ M-no-erased-matches-linear-or-affine→affine =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘}  _  → refl
-            {p = 𝟙}  ()
-            {p = ≤𝟙} ()
-            {p = ≤ω} ())
+            𝟘  _  → refl
+            𝟙  ()
+            ≤𝟙 ()
+            ≤ω ())
        ))
     linear-or-affine⇨affine-omega-preserving
 
@@ -2487,13 +2393,15 @@ OE-no-erased-matches-linear-or-affine→affine :
     linear-or-affine→affine tr
 OE-no-erased-matches-linear-or-affine→affine =
   OE-no-erased-matches
-    (λ _ →
-         (λ ())
+    (λ _ → (λ ()) , (λ { refl → refl }))
+    (λ _ → inj₁
+       ( (λ ())
        , (λ where
-            {p = 𝟘}  _  → refl
-            {p = 𝟙}  ()
-            {p = ≤𝟙} ()
-            {p = ≤ω} ()))
+            𝟘  _  → refl
+            𝟙  ()
+            ≤𝟙 ()
+            ≤ω ())
+       ))
     linear-or-affine⇨affine-omega-preserving
 
 -- A lemma related to Is-Σ-morphism-C and affine→linearity.
@@ -2509,9 +2417,9 @@ M-no-erased-matches-affine→linearity =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ())
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
        ))
     affine⇨linearity-omega-preserving
 
@@ -2525,12 +2433,14 @@ OE-no-erased-matches-affine→linearity :
     affine→linearity tr
 OE-no-erased-matches-affine→linearity =
   OE-no-erased-matches
-    (λ _ →
-         (λ ())
+    (λ _ → (λ ()) , (λ { refl → refl }))
+    (λ _ → inj₁
+       ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ()))
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
+       ))
     affine⇨linearity-omega-preserving
 
 -- A lemma related to Is-Σ-morphism-C and linearity→affine.
@@ -2546,9 +2456,9 @@ M-no-erased-matches-linearity→affine =
     (λ _ → inj₁
        ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ())
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
        ))
     linearity⇨affine-omega-preserving
 
@@ -2562,12 +2472,14 @@ OE-no-erased-matches-linearity→affine :
     linearity→affine tr
 OE-no-erased-matches-linearity→affine =
   OE-no-erased-matches
-    (λ _ →
-         (λ ())
+    (λ _ → (λ ()) , (λ { refl → refl }))
+    (λ _ → inj₁
+       ( (λ ())
        , (λ where
-            {p = 𝟘} _  → refl
-            {p = 𝟙} ()
-            {p = ω} ()))
+            𝟘 _  → refl
+            𝟙 ()
+            ω ())
+       ))
     linearity⇨affine-omega-preserving
 
 ------------------------------------------------------------------------

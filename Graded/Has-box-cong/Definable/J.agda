@@ -20,7 +20,7 @@ open Modality 𝕄
 open Configuration C
 
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Typed TC
 open import Definition.Typed.Inversion TC
@@ -113,7 +113,7 @@ opaque
   -- A usage rule for []-cong-J.
 
   ▸[]-cong-J :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     erased-matches-for-J m PE.≡ not-none sem →
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] l →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] A →
@@ -153,7 +153,7 @@ opaque
   -- Another usage rule for []-cong-J.
 
   ▸[]-cong-J-𝟘ᵐ :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] l →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] A →
     γ₃ ▸[ 𝟘ᵐ[ ok ] ] t →
@@ -189,7 +189,7 @@ opaque
   -- trivial.
 
   ▸[]-cong-J-trivial :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     Trivial →
     γ₁ ▸[ 𝟘ᵐ? ] l →
     γ₂ ▸[ 𝟘ᵐ? ] A →

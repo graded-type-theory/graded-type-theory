@@ -48,31 +48,34 @@ private variable
 -- Functions that construct configurations
 
 -- No type restrictions (see TC.no-type-restrictions, which takes the
--- first two booleans; quotients are allowed if and only if the mode
--- structure is non-trivial), no restrictions for prodrec, unitrec or
--- emptyrec, all erased matches are allowed for J and K, the natrec
--- mode can be anything, Id-erased is inhabited if the third boolean
--- is true, starˢ is treated as a sink if the fourth boolean is true,
--- and Qrec-motive-erased is inhabited if the fifth boolean is true.
--- Usage rules that require the use of ω are not allowed.
+-- argument of type With-or-without-omega and the first two booleans;
+-- quotients are not allowed if the mode structure is trivial), no
+-- restrictions for prodrec, unitrec or emptyrec, all erased matches
+-- are allowed for J and K, the natrec mode can be anything, Id-erased
+-- is inhabited if the third boolean is true, starˢ is treated as a
+-- sink if the fourth boolean is true, and Qrec-motive-erased is
+-- inhabited if the fifth boolean is true.
 
 no-restrictions :
+  With-or-without-omega →
   (nm : Natrec-mode) →
   (⦃ has-nr : Natrec-mode-has-nr nm ⦄ →
      Mode-supports-nr ⦃ Natrec-mode-Has-nr has-nr ⦄ 𝐌) →
-  (_ _ _ _ _ : Bool) → Configuration 𝐌
-no-restrictions nm nr-ok k er erased sink qrec = λ where
+  (_ _ _ _ _ : Bool) →
+  Configuration 𝐌
+no-restrictions omega nm nr-ok k er erased sink qrec = λ where
     .Configuration.TC →
-      let TC = TC.no-type-restrictions k er in
+      let TC = TC.no-type-restrictions omega k er in
       record TC
         { TC⁻ = record (Type-configuration.TC⁻ TC)
-            { Quot-allowed = ¬ Trivialᵐ′ }
+            { Quot-allowed = ¬ Trivialᵐ′ × With-omega omega }
         ; []-cong→Erased = λ {s = s} →
             Type-configuration.[]-cong→Erased TC {s = s}
         ; []-cong→¬Trivial = λ {s = s} →
             Type-configuration.[]-cong→¬Trivial TC {s = s}
+        ; Quot-allowed→Omega-allowed =
+            proj₂
         }
-    .usage-rules-with-ω                   → without-ω
     .Emptyrec-allowed                     → λ _ _ → Lift _ ⊤
     .Emptyrec-allowed-upwards-closed      → λ _ _ → _
     .Unitrec-allowed                      → λ _ _ _ → Lift _ ⊤
@@ -93,7 +96,7 @@ no-restrictions nm nr-ok k er erased sink qrec = λ where
     .[]-cong-allowed-mode-upwards-closed  →
       λ non-trivial _ → non-trivial
     .Quot-allowed→¬Trivialᵐ →
-      _∘→ Trivialᵐ′⇔Trivialᵐ .proj₂
+      (_∘→ Trivialᵐ′⇔Trivialᵐ .proj₂) ∘→ proj₁
     .Qrec-motive-erased →
       Lift _ (T qrec)
     .Qrec-motive-erased? →
@@ -238,11 +241,12 @@ opaque
   -- for certain instances of no-restrictions.
 
   Assumptions-no-restrictions :
+    {omega : With-or-without-omega} →
     {nr : ⦃ has-nr : Natrec-mode-has-nr nm ⦄ →
           Mode-supports-nr ⦃ Natrec-mode-Has-nr has-nr ⦄ 𝐌}
     ⦃ ok : Natrec-mode-supports-usage-inference nm ⦄ →
     Decidable (_≡_ {A = M}) →
-    UD.Assumptions (no-restrictions nm nr b₁ false b₂ false b₃)
+    UD.Assumptions (no-restrictions omega nm nr b₁ false b₂ false b₃)
   Assumptions-no-restrictions {b₁} dec = λ where
       .assumptions → λ where
         ._≟_                              → dec
@@ -251,6 +255,8 @@ opaque
         .ΠΣ-allowed? _ _ _                → yes _
         .[]-cong-allowed? _               → ¬? trivial?
         .Quot-allowed?                    → ¬? Trivialᵐ′?
+                                              ×-dec
+                                            With-omega?
         .no-equality-reflection (lift ())
         .K-allowed?                       →
           case singleton b₁ of λ where

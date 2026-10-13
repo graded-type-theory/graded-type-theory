@@ -13,6 +13,9 @@ module Definition.Typed.Eta-long-normal-form
 
 open Type-configuration TC
 
+open import Configuration-types.Instance.Type-configuration TC
+open import Configuration-types.Omega 𝕄
+
 open import Definition.Conversion TC
 open import Definition.Conversion.Consequences.Completeness TC
 open import Definition.Conversion.Consequences.InverseUniv TC
@@ -261,7 +264,8 @@ mutual
               → Γ ⊢nf v ∷ Id (Quot A B) t u
               → Γ ⊢nf w ∷ Id (Quot A B) t u
               → Γ ⊢ne set A B t u v w ∷ Id (Id (Quot A B) t u) v w
-    qrec      : Γ »∙ Quot A B ⊢nf C
+    qrec      : ⦃ ok : Omega-allowed ⦄
+              → Γ »∙ Quot A B ⊢nf C
               → Γ »∙ A ⊢nf t ∷ C [ class (var x0) ]↑
               → Resp-Cons Γ A B ⊢nf u ∷ Resp-type A B C t
               → Is-set-Cons Γ A B C ⊢nf v ∷ Is-set-type C
@@ -1461,18 +1465,22 @@ opaque
   inversion-ne-qrec :
     Γ ⊢ne qrec C t u v w ∷ D →
     ∃₂ λ A B →
+    ∃ λ (ok : Omega-allowed) →
     (Γ »∙ Quot A B ⊢nf C) ×
     Γ »∙ A ⊢nf t ∷ C [ class (var x0) ]↑ ×
-    Resp-Cons Γ A B ⊢nf u ∷ Resp-type A B C t ×
+    Resp-Cons Γ A B ⊢nf u ∷
+      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ A B C t ×
     Is-set-Cons Γ A B C ⊢nf v ∷ Is-set-type C ×
     Γ ⊢ne w ∷ Quot A B ×
     Γ ⊢ D ≡ C [ w ]₀
-  inversion-ne-qrec (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
-    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w ,
+  inversion-ne-qrec (qrec ⦃ ok ⦄ ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w ,
     refl (subst-⊢₀ (⊢nf→⊢ ⊢C) (⊢ne∷→⊢∷ ⊢w))
   inversion-ne-qrec (convₙ ⊢q ≡D) =
-    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ = inversion-ne-qrec ⊢q in
-    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀
+    let _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ =
+          inversion-ne-qrec ⊢q
+    in
+    _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀
 
 opaque
 
@@ -1481,17 +1489,21 @@ opaque
   inversion-nf-qrec :
     Γ ⊢nf qrec C t u v w ∷ D →
     ∃₂ λ A B →
+    ∃ λ (ok : Omega-allowed) →
     (Γ »∙ Quot A B ⊢nf C) ×
     Γ »∙ A ⊢nf t ∷ C [ class (var x0) ]↑ ×
-    Resp-Cons Γ A B ⊢nf u ∷ Resp-type A B C t ×
+    Resp-Cons Γ A B ⊢nf u ∷
+      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ A B C t ×
     Is-set-Cons Γ A B C ⊢nf v ∷ Is-set-type C ×
     Γ ⊢ne w ∷ Quot A B ×
     Γ ⊢ D ≡ C [ w ]₀
   inversion-nf-qrec (neₙ _ ⊢q) =
     inversion-ne-qrec ⊢q
   inversion-nf-qrec (convₙ ⊢q ≡D) =
-    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ = inversion-nf-qrec ⊢q in
-    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀
+    let _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ =
+          inversion-nf-qrec ⊢q
+    in
+    _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀
 
 opaque
 
@@ -1500,9 +1512,11 @@ opaque
   inversion-nf-ne-qrec :
     Γ ⊢nf qrec C t u v w ∷ D ⊎ Γ ⊢ne qrec C t u v w ∷ D →
     ∃₂ λ A B →
+    ∃ λ (ok : Omega-allowed) →
     (Γ »∙ Quot A B ⊢nf C) ×
     Γ »∙ A ⊢nf t ∷ C [ class (var x0) ]↑ ×
-    Resp-Cons Γ A B ⊢nf u ∷ Resp-type A B C t ×
+    Resp-Cons Γ A B ⊢nf u ∷
+      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ A B C t ×
     Is-set-Cons Γ A B C ⊢nf v ∷ Is-set-type C ×
     Γ ⊢ne w ∷ Quot A B ×
     Γ ⊢ D ≡ C [ w ]₀
@@ -2010,12 +2024,17 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
           (normal-terms-unique-[conv↑]∷ ⊢u₁ (convₙ ⊢u₂ (sym Q≡Q)) u₁≡u₂)
           (normal-terms-unique-[conv↑]∷ ⊢v₁ (convₙ ⊢v₂ Id≡Id) v₁≡v₂)
           (normal-terms-unique-[conv↑]∷ ⊢w₁ (convₙ ⊢w₂ Id≡Id) w₁≡w₂)
-      (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂) →
-        let _ , _ , ⊢C₁ , ⊢t₁ , ⊢u₁ , ⊢v₁ , ⊢w₁ , _ =
+      (qrec-cong ⦃ ok ⦄ C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂) →
+        let _ , _ , ok₁ , ⊢C₁ , ⊢t₁ , ⊢u₁ , ⊢v₁ , ⊢w₁ , _ =
               inversion-nf-ne-qrec ⊢u
-            _ , _ , ⊢C₂ , ⊢t₂ , ⊢u₂ , ⊢v₂ , ⊢w₂ , _ =
-              inversion-nf-ne-qrec ⊢v
-            _ , ⊢w₁′ , ⊢w₂′ = wf-⊢ (soundness~↓ w₁~w₂)
+        in
+        case inversion-nf-ne-qrec ⊢v of λ
+          (_ , _ , ok₂ , ⊢C₂ , ⊢t₂ , ⊢u₂ , ⊢v₂ , ⊢w₂ , _) →
+        case Omega-allowed-propositional ok ok₁ of λ {
+          PE.refl →
+        case Omega-allowed-propositional ok ok₂ of λ {
+          PE.refl →
+        let _ , ⊢w₁′ , ⊢w₂′ = wf-⊢ (soundness~↓ w₁~w₂)
             w₁-ne           = nfNeutral (⊢ne∷→NfNeutral ⊢w₁)
             w₂-ne           = nfNeutral (⊢ne∷→NfNeutral ⊢w₂)
             Q≡₁             =
@@ -2062,7 +2081,7 @@ private module _ (Level-not-allowed : ¬ Level-allowed) where
                    (symConEq (Is-set-Con-cong Γ≡Γ A≡₂ B≡₂ ⊢C₁≡C₂)) ⊢v₂)
                 (sym (Is-set-type-cong ⊢C₁≡C₂)))
              v₁≡v₂)
-          (neutral-terms-unique-~↓ ⊢w₁ ⊢w₂ w₁~w₂)
+          (neutral-terms-unique-~↓ ⊢w₁ ⊢w₂ w₁~w₂) }}
 
     neutral-terms-unique-~↑ :
       ⦃ not-ok : No-equality-reflection ⦄ →

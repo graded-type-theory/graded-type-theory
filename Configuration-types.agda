@@ -374,6 +374,7 @@ record Type-configuration {M : Set a} (𝕄 : Modality M) :
   no-eta-equality
 
   open Configuration-types.Natrec 𝕄
+  open Configuration-types.Omega 𝕄
   open Definition.Untyped M
   open Modality 𝕄
 
@@ -451,6 +452,25 @@ record Type-configuration {M : Set a} (𝕄 : Modality M) :
   []-congʷ-allowed : Set a
   []-congʷ-allowed = []-cong-allowed 𝕨
 
+  --------------------------------------------------------------------
+  -- Omega grades
+
+  field
+    -- Can parts of the language that require a (dedicated) grade ω be
+    -- allowed? In that case, how should ω be defined?
+    with-or-without-omega : With-or-without-omega
+
+  -- A type that is inhabited iff the parts of the language that
+  -- require a dedicated grade ω are allowed.
+
+  Omega-allowed : Set a
+  Omega-allowed = With-omega with-or-without-omega
+
+  field
+    -- If quotients are allowed, then there is a dedicated grade ω.
+    Quot-allowed→Omega-allowed :
+      Quot-allowed → Omega-allowed
+
   ----------------------------------------------------------------------
   -- A derived definition related to universe levels
 
@@ -470,6 +490,24 @@ record Type-configuration {M : Set a} (𝕄 : Modality M) :
   BindingType-allowed : BindingType → Set a
   BindingType-allowed (BM b p q) = ΠΣ-allowed b p q
 
+  ----------------------------------------------------------------------
+  -- Some derived definitions related to ω
+
+  opaque
+
+    -- Omega-allowed is propositional.
+
+    Omega-allowed-propositional :
+      (p q : Omega-allowed) → p ≡ q
+    Omega-allowed-propositional = With-omega-propositional
+
+  opaque
+
+    -- Omega-allowed is decided.
+
+    Omega-allowed? : Dec Omega-allowed
+    Omega-allowed? = With-omega?
+
 ------------------------------------------------------------------------
 -- Configuration of the type and usage systems
 
@@ -480,7 +518,6 @@ record Configuration {M : Set a} {Mode : Set b} {𝕄 : Modality M}
   no-eta-equality
 
   open Configuration-types.Natrec 𝕄
-  open Configuration-types.Omega 𝕄
   open Definition.Untyped M
   open Graded.Context 𝕄
   open Graded.Mode Mode 𝕄
@@ -492,19 +529,6 @@ record Configuration {M : Set a} {Mode : Set b} {𝕄 : Modality M}
     TC : Type-configuration 𝕄
 
   open Type-configuration TC public
-
-  ----------------------------------------------------------------------
-  -- The grade ω
-
-  field
-    -- Should the usage rules that require the grade ω be allowed?
-    usage-rules-with-ω : Usage-with-or-without-omega
-
-  -- A type that is inhabited iff the usage rules that require the
-  -- grade ω are allowed.
-
-  Usage-allows-omega : Set a
-  Usage-allows-omega = Usage-with-omega usage-rules-with-ω
 
   ----------------------------------------------------------------------
   -- The empty type
@@ -607,9 +631,9 @@ record Configuration {M : Set a} {Mode : Set b} {𝕄 : Modality M}
       erased-matches-for-JK jk m ≤ᵉᵐ erased-matches-for-JK jk m′
 
     -- If at most some erased matches are allowed for either J or K
-    -- for some mode, then Usage-allows-omega holds.
+    -- for some mode, then Omega-allowed holds.
     erased-matches-for-JK-supports-ω :
-      erased-matches-for-JK jk m ≤ᵉᵐ some → Usage-allows-omega
+      erased-matches-for-JK jk m ≤ᵉᵐ some → Omega-allowed
 
     -- Does the usage relation allow []-cong for the given strength,
     -- at the given mode? (The formalisation supports variants of
@@ -640,24 +664,6 @@ record Configuration {M : Set a} {Mode : Set b} {𝕄 : Modality M}
 
     -- Qrec-motive-erased is decided.
     Qrec-motive-erased? : Dec Qrec-motive-erased
-
-  ----------------------------------------------------------------------
-  -- Some derived definitions related to ω
-
-  opaque
-
-    -- Usage-allows-omega is propositional.
-
-    Usage-allows-omega-propositional :
-      (p q : Usage-allows-omega) → p ≡ q
-    Usage-allows-omega-propositional = Usage-with-omega-propositional
-
-  opaque
-
-    -- Usage-allows-omega is decided.
-
-    Usage-allows-omega? : Dec Usage-allows-omega
-    Usage-allows-omega? = Usage-with-omega?
 
   ----------------------------------------------------------------------
   -- A derived definition related to the empty type
@@ -785,16 +791,16 @@ record Configuration {M : Set a} {Mode : Set b} {𝕄 : Modality M}
   instance
 
     -- If at most some erased matches are allowed for either J or K
-    -- for some mode, then Usage-allows-omega holds.
+    -- for some mode, then Omega-allowed holds.
 
-    erased-matches-JK-≤-some-Usage-allows-omega :
+    erased-matches-JK-≤-some-Omega-allowed :
       ⦃ ok : erased-matches-for-JK jk m ≤ᵉᵐ some ⦄ →
-      Usage-allows-omega
-    erased-matches-JK-≤-some-Usage-allows-omega ⦃ ok ⦄ =
+      Omega-allowed
+    erased-matches-JK-≤-some-Omega-allowed ⦃ ok ⦄ =
       erased-matches-for-JK-supports-ω
         (≤ᵉᵐ-transitive (erased-matches-for-JK-≤ᵉᵐ 𝟙ᵐ≤) ok)
 
-    {-# INCOHERENT erased-matches-JK-≤-some-Usage-allows-omega #-}
+    {-# INCOHERENT erased-matches-JK-≤-some-Omega-allowed #-}
 
   instance
 

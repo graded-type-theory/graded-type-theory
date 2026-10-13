@@ -170,8 +170,8 @@ record No-secret-matches : Set a where
 
   opaque instance
 
-    usage-with-omega : Usage-allows-omega
-    usage-with-omega =
+    omega-allowed : Omega-allowed
+    omega-allowed =
       erased-matches-for-JK-supports-ω
         (PE.subst (_≤ᵉᵐ some) (PE.sym (no-secret-J ≤-refl)) _)
 
@@ -184,7 +184,7 @@ record No-secret-matches : Set a where
   ∣J∣≡𝟙 {p} {q} m≤ℓ₀ =
     PE.subst₂ (λ x y → ∣J x , p , q ∣≡ y)
       (PE.sym $ no-secret-J m≤ℓ₀)
-      (≤-antisym (ω≤𝟙 ⦃ Usage-with-omega-has-omega usage-with-omega ⦄) 𝟙≤)
+      (≤-antisym (ω≤𝟙 ⦃ With-omega→Has-omega omega-allowed ⦄) 𝟙≤)
       J-none
 
   -- If there are no secret matches then the multiplicity for Kₑ
@@ -195,7 +195,7 @@ record No-secret-matches : Set a where
   ∣K∣≡𝟙 {p} m≤ℓ₀ =
     PE.subst₂ (λ x y → ∣K x , p ∣≡ y)
       (PE.sym $ no-secret-K m≤ℓ₀)
-      (≤-antisym (ω≤𝟙 ⦃ Usage-with-omega-has-omega usage-with-omega ⦄) 𝟙≤)
+      (≤-antisym (ω≤𝟙 ⦃ With-omega→Has-omega omega-allowed ⦄) 𝟙≤)
       K-none
 
 opaque

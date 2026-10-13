@@ -14,6 +14,8 @@ module Definition.Conversion.EqRelInstance
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Untyped M
 open import Definition.Untyped.Allowed-literal TC
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -359,6 +361,7 @@ module Lemmas where
            A₁≡A₂ B₁≡B₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁≡w₂)
 
     ~-qrec :
+      ⦃ ok : Omega-allowed ⦄ →
       Γ »∙ Quot A B ⊢ C₁ [conv↑] C₂ →
       Γ »∙ A ⊢ t₁ [conv↑] t₂ ∷ C₁ [ class (var x0) ]↑ →
       Resp-Cons Γ A B ⊢ u₁ [conv↑] u₂ ∷ Resp-type A B C₁ t₁ →

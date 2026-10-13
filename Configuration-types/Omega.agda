@@ -18,30 +18,29 @@ open import Tools.Relation
 
 open Modality 𝕄
 
--- The type Usage-with-or-without-omega represents whether usage rules
--- that require the modality to have grade ω should be allowed.
+-- Can parts of the language that require the grade ω be allowed? In
+-- that case, how should ω be defined?
 
-data Usage-with-or-without-omega : Set a where
-  with-ω    : ⦃ ok : Has-omega 𝕄 ⦄ → Usage-with-or-without-omega
-  without-ω : Usage-with-or-without-omega
+data With-or-without-omega : Set a where
+  with-ω    : ⦃ ok : Has-omega 𝕄 ⦄ → With-or-without-omega
+  without-ω : With-or-without-omega
 
--- A predicate on Usage-with-or-without-omega corresponding to allowing
--- rules with ω.
+-- If With-omega w holds, then w allows omega.
 
-data Usage-with-omega : Usage-with-or-without-omega → Set a where
-  with-ω : ⦃ ok : Has-omega 𝕄 ⦄ → Usage-with-omega with-ω
+data With-omega : With-or-without-omega → Set a where
+  with-ω : ⦃ ok : Has-omega 𝕄 ⦄ → With-omega with-ω
 
-Usage-with-omega-has-omega :
-  ∀ {x} → Usage-with-omega x → Has-omega 𝕄
-Usage-with-omega-has-omega (with-ω ⦃ ok ⦄) = ok
+With-omega→Has-omega :
+  ∀ {x} → With-omega x → Has-omega 𝕄
+With-omega→Has-omega (with-ω ⦃ ok ⦄) = ok
 
 opaque
 
-  -- Usage-with-omega is propistional
+  -- With-omega is propositional.
 
-  Usage-with-omega-propositional :
-    ∀ {x} → (p q : Usage-with-omega x) → p ≡ q
-  Usage-with-omega-propositional with-ω with-ω = refl
+  With-omega-propositional :
+    ∀ {x} → (p q : With-omega x) → p ≡ q
+  With-omega-propositional with-ω with-ω = refl
 
 opaque
 
@@ -49,24 +48,24 @@ opaque
   -- are equal
 
   ω≡ω :
-    ∀ {x} (ok₁ ok₂ : Usage-with-omega x) →
-    Has-omega.ω (Usage-with-omega-has-omega ok₁) ≡
-    Has-omega.ω (Usage-with-omega-has-omega ok₂)
+    ∀ {x} (ok₁ ok₂ : With-omega x) →
+    Has-omega.ω (With-omega→Has-omega ok₁) ≡
+    Has-omega.ω (With-omega→Has-omega ok₂)
   ω≡ω with-ω with-ω = refl
 
 opaque
 
   ω≡ω′ :
     ∀ {x y} → x ≡ y →
-    (ok₁ : Usage-with-omega x) (ok₂ : Usage-with-omega y) →
-    Has-omega.ω (Usage-with-omega-has-omega ok₁) ≡
-    Has-omega.ω (Usage-with-omega-has-omega ok₂)
+    (ok₁ : With-omega x) (ok₂ : With-omega y) →
+    Has-omega.ω (With-omega→Has-omega ok₁) ≡
+    Has-omega.ω (With-omega→Has-omega ok₂)
   ω≡ω′ refl = ω≡ω
 
 opaque
 
-  -- The predicate Usage-with-omega is decidable
+  -- The predicate With-omega is decidable
 
-  Usage-with-omega? : ∀ {x} → Dec (Usage-with-omega x)
-  Usage-with-omega? {x = with-ω} = yes with-ω
-  Usage-with-omega? {x = without-ω} = no (λ ())
+  With-omega? : ∀ {x} → Dec (With-omega x)
+  With-omega? {x = with-ω} = yes with-ω
+  With-omega? {x = without-ω} = no (λ ())

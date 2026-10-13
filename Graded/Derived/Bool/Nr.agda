@@ -25,8 +25,8 @@ open Modality 𝕄
 open IsMode 𝐌
 open Has-omega has-ω
 
-open import Configuration-types.Instance C
-  hiding (Usage-allows-omega-has-omega)
+open import Configuration-types.Instance.Configuration C
+  hiding (Omega-allowed→Has-omega)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

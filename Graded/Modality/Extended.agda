@@ -107,24 +107,12 @@ record _⇨_
       Is-order-embedding M₁.𝕄 M₂.𝕄 tr
     is-Σ-order-embedding :
       Is-Σ-order-embedding M₁.𝕄 M₂.𝕄 tr tr-Σ
-    is-Σ-morphism-C :
-      Is-Σ-morphism-C transparent M₁.C M₂.C tr tr-Σ
     is-Σ-order-embedding-C :
       Is-Σ-order-embedding-C transparent M₁.C M₂.C tr tr-Σ
 
   open Is-order-embedding is-order-embedding public
   open Is-Σ-order-embedding is-Σ-order-embedding public
-  open Is-Σ-morphism-C is-Σ-morphism-C public
-    hiding (Level-allowed⇔)
   open Is-Σ-order-embedding-C is-Σ-order-embedding-C public
-    hiding
-      (common-properties; 𝟘ᵐ-preserved; starˢ-sink-preserved;
-       Id-erased-preserved; erased-matches-for-J-preserved;
-       erased-matches-for-K-preserved;
-       nr-in-first-if-in-second; nr-in-second-if-in-first;
-       no-nr-in-first-if-in-second; no-nr-in-second-if-in-first;
-       no-nr-glb-in-first-if-in-second; no-nr-glb-in-second-if-in-first;
-       ≳ᵐ→≡𝟘ᵐ?→≡𝟘ᵐ?)
 
 -- An identity morphism.
 
@@ -140,8 +128,6 @@ id = λ where
     Is-order-embedding-id
   ._⇨_.is-Σ-order-embedding →
     Is-order-embedding→Is-Σ-order-embedding Is-order-embedding-id
-  ._⇨_.is-Σ-morphism-C →
-    Is-Σ-morphism-C-id
   ._⇨_.is-Σ-order-embedding-C →
     Is-Σ-order-embedding-C-id
 
@@ -162,15 +148,10 @@ m₁ ∘ m₂ = λ where
         (Is-order-embedding.tr-morphism M₁.is-order-embedding)
         (Is-order-embedding.tr-morphism M₂.is-order-embedding)
         M₁.is-Σ-order-embedding M₂.is-Σ-order-embedding
-    ._⇨_.is-Σ-morphism-C →
-      Is-Σ-morphism-C-∘
-        M₁.tr-morphism
-        M₂.tr-morphism
-        M₁.is-Σ-morphism-C
-        M₂.is-Σ-morphism-C
     ._⇨_.is-Σ-order-embedding-C →
       Is-Σ-order-embedding-C-∘
         M₁.tr-morphism
+        M₂.tr-morphism
         M₁.is-Σ-order-embedding-C
         M₂.is-Σ-order-embedding-C
   where

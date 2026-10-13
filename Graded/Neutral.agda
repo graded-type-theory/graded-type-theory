@@ -21,7 +21,7 @@ open Configuration C
 
 open import Configuration-types.Configuration.Zero-one 𝕄 variant
 open import Configuration-types.Erased-matches
-open import Configuration-types.Instance C
+open import Configuration-types.Instance.Configuration C
 
 open import Definition.Typed TC
 open import Definition.Typed.Inversion TC
@@ -222,7 +222,7 @@ opaque
         ¬Trivialᵐ→𝟘ᵐ-allowed $
         Quot-allowed→¬Trivialᵐ ok
       (qrec n) ⊢qrec (qrec₀ {γ₂} {γ₅} _ _ _ _ _ _ ▸w) →
-        let _ , _ , _ , _ , _ , _ , ⊢w , _ = inversion-qrec ⊢qrec in
+        let _ , _ , _ , _ , _ , _ , _ , ⊢w , _ = inversion-qrec ⊢qrec in
         γ₂ +ᶜ ω ·ᶜ γ₅ ≈ᶜ 𝟘ᶜ  →⟨ proj₂ ∘→ +ᶜ-positive ⟩
         ω ·ᶜ γ₅ ≈ᶜ 𝟘ᶜ        →⟨ ·ᶜ-zero-product ⟩
         ω ≡ 𝟘 ⊎ γ₅ ≈ᶜ 𝟘ᶜ     →⟨ (λ where
@@ -231,7 +231,7 @@ opaque
         γ₅ ≈ᶜ 𝟘ᶜ             →⟨ helper n ⊢w ▸w ⟩
         ⊥                    □
       (qrec n) ⊢qrec (qrec₁ {γ₁} {γ₂} {γ₅} _ _ _ _ _ _ ▸w) →
-        let _ , _ , _ , _ , _ , _ , ⊢w , _ = inversion-qrec ⊢qrec in
+        let _ , _ , _ , _ , _ , _ , _ , ⊢w , _ = inversion-qrec ⊢qrec in
         ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅) ≈ᶜ 𝟘ᶜ   →⟨ ·ᶜ-zero-product ⟩
         ω ≡ 𝟘 ⊎ γ₁ +ᶜ γ₂ +ᶜ γ₅ ≈ᶜ 𝟘ᶜ  →⟨ (λ where
                                             (inj₁ ω≡𝟘) → ⊥-elim (ω≢𝟘 ω≡𝟘)

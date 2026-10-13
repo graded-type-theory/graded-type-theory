@@ -13,6 +13,8 @@ module Graded.Erasure.LogicalRelation.Assumptions
 
 open Type-configuration TC
 
+open import Configuration-types.Omega 𝕄
+
 open import Definition.Typed TC
 open import Definition.Typed.Consequences.Canonicity TC
 open import Definition.Typed.Inversion TC
@@ -119,9 +121,11 @@ record Is-reduction-relation
       K p A t B u v₁ ⇛ K p A t B u v₂ ∷ B [ v₁ ]₀
 
     qrec-⇛ :
+      ⦃ ok : Omega-allowed ⦄ →
       Γ »∙ Quot A B ⊢ C →
       Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
-      Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t →
+      Resp-Cons Γ A B ⊢ u ∷
+        Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ A B C t →
       Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C →
       w₁ ⇛ w₂ ∷ Quot A B →
       qrec C t u v w₁ ⇛ qrec C t u v w₂ ∷ C [ w₁ ]₀

@@ -345,19 +345,22 @@ opaque
       (completeness⇇ w ⊢w) ,
     ≡Id
   completeness⇉ (qrec C t u v w) ⊢q =
-    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡C[]₀ = inversion-qrec ⊢q
-        _ , w , Q≡                             = completeness⇉ w ⊢w
-        _ , _ , ⇒*Q , A≡A , B≡B , _            = Quot-norm (sym Q≡)
-        Q≡Q                                    = trans Q≡ (subset* ⇒*Q)
-        Γ≡Γ                                    = reflConEq (wf ⊢w)
+    let _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡C[]₀ = inversion-qrec ⊢q
+        _ , w , Q≡                                  = completeness⇉ w ⊢w
+        _ , _ , ⇒*Q , A≡A , B≡B , _                 = Quot-norm (sym Q≡)
+        Q≡Q                                         = trans Q≡
+                                                        (subset* ⇒*Q)
+        Γ≡Γ                                         = reflConEq (wf ⊢w)
     in
     _ ,
-    qrec w (⇒*Q , Quot)
+    qrec ⦃ ok = ok ⦄ w (⇒*Q , Quot)
       (completeness⇇Type C (stability (refl-∙ Q≡Q) ⊢C))
       (completeness⇇ t (stability (refl-∙ A≡A) ⊢t))
       (completeness⇇ u
          (stability (Resp-Con-cong Γ≡Γ A≡A B≡B)
-            (conv ⊢u (Resp-type-cong A≡A B≡B (refl ⊢C) (refl ⊢t)))))
+            (conv ⊢u
+               (Resp-type-cong ⦃ ok = ok ⦄ A≡A B≡B (refl ⊢C)
+                  (refl ⊢t)))))
       (completeness⇇ v
          (stability (Is-set-Con-cong Γ≡Γ A≡A B≡B (refl ⊢C)) ⊢v)) ,
     ≡C[]₀
