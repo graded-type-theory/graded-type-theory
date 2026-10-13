@@ -109,8 +109,6 @@ opaque
 
 -- Modality context inference (for modalities with nr functions).
 
-infix 50 ⌈_⌉
-
 mutual
   ⌈_⌉ :
     ⦃ ok : Natrec-mode-supports-usage-inference natrec-mode ⦄ →

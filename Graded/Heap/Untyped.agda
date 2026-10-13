@@ -445,8 +445,6 @@ toWkₕ (H ∙●) = lift (toWkₕ H)
 -- Indexed by the number of dummy entries in the heap, the size
 -- of the heap and the number of free variables in the head term.
 
-infix 2 ⟨_,_,_,_⟩
-
 record State (k m n : Nat) : Set a where
   no-eta-equality
   pattern
@@ -494,8 +492,6 @@ infixr 28 ⦅_⦆ˢ_
 ⦅ c ∙ S ⦆ˢ t = ⦅ S ⦆ˢ ⦅ c ⦆ᶜ t
 
 -- Converting states back to terms
-
-infix 28 ⦅_⦆
 
 ⦅_⦆ : (s : State k m n) → Term k
 ⦅ ⟨ H , t , ρ , S ⟩ ⦆ = ⦅ S ⦆ˢ (wk ρ t) [ H ]ₕ

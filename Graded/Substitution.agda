@@ -33,7 +33,6 @@ open import Tools.Nat as N using (Nat; 1+; 2+)
 
 infixl 50 _<*_
 infixr 50 _*>_
-infix  20 ∥_∥
 infixl 30 _⊙_
 
 private
