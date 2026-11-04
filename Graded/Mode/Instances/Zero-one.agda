@@ -926,6 +926,18 @@ Zero-one-supports-nr = record
         ⌞ q ⌟            ∎
 
 ------------------------------------------------------------------------
+-- Properties related to _≤ᵐ_
+
+opaque
+
+  -- "Is not equal to 𝟙ᵐ" is upwards closed.
+
+  ≢𝟙ᵐ-upwards-closed : m₁ ≤ᵐ m₂ → m₁ ≢ 𝟙ᵐ → m₂ ≢ 𝟙ᵐ
+  ≢𝟙ᵐ-upwards-closed {m₁ = 𝟘ᵐ} {m₂ = 𝟘ᵐ} _  _     = λ ()
+  ≢𝟙ᵐ-upwards-closed {m₁ = 𝟘ᵐ} {m₂ = 𝟙ᵐ} ()
+  ≢𝟙ᵐ-upwards-closed {m₁ = 𝟙ᵐ}           _  𝟙ᵐ≢𝟙ᵐ = ⊥-elim (𝟙ᵐ≢𝟙ᵐ refl)
+
+------------------------------------------------------------------------
 -- Properties related to _ᵐ·_
 
 opaque
