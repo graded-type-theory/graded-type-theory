@@ -27,7 +27,7 @@ open import Tools.Sum
 open import Tools.Unit
 
 open import Graded.Modality.Properties 𝕄
-open import Graded.Mode.Instances.Zero-one variant hiding (_≟_)
+open import Graded.Mode.Instances.Zero-one variant as M hiding (_≟_)
 import Graded.Usage.Decidable.Assumptions as UD
 open import Graded.Usage.Erased-matches
 open import Graded.Usage.Restrictions 𝕄 Zero-one-isMode
@@ -433,8 +433,7 @@ opaque
       ._≟_                      → A._≟_
       .Prodrec-allowed? m r p q → A.Prodrec-allowed? m r p q
                                    ×-dec
-                                 Dec.map (λ ≡𝟙 → trans (sym (⌞⌜⌝⌟ _)) (trans (⌞⌟-cong ≡𝟙) ⌞𝟙⌟))
-                                   (λ { refl → ⌜𝟙ᵐ⌝}) (⌜ m ⌝ A.≟ 𝟙)
+                                 m M.≟ 𝟙ᵐ
                                    →-dec
                                  ¬? trivial?
                                    →-dec
@@ -464,11 +463,7 @@ opaque
       .Prodrec-allowed?        → A.Prodrec-allowed?
       .Unitrec-allowed? m p q  → A.Unitrec-allowed? m p q
                                    ×-dec
-                                 (Dec.map
-                                    (λ ≡𝟙 →
-                                       trans (sym (⌞⌜⌝⌟ _)) $
-                                       trans (⌞⌟-cong ≡𝟙) ⌞𝟙⌟)
-                                    (λ { refl → ⌜𝟙ᵐ⌝}) (⌜ m ⌝ A.≟ 𝟙)
+                                 (m M.≟ 𝟙ᵐ
                                     →-dec
                                   ¬? trivial?
                                     →-dec
