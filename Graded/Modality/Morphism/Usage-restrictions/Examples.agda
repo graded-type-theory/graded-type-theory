@@ -921,21 +921,19 @@ opaque
 
   -- If the functions tr and tr-Σ reflect certain usage restrictions,
   -- then they also do this for certain usage restrictions obtained
-  -- using no-[]-cong-UR, given a certain assumption.
+  -- using no-[]-cong-UR.
 
   Are-reflecting-usage-restrictions-no-[]-cong-UR :
     let module M₁ = Modality 𝕄₁
         module M₂ = Modality 𝕄₂
         module V₂ = Mode-variant v₂
     in
-    ¬ (M₁.Trivial × T V₂.𝟘ᵐ-allowed) →
     Are-reflecting-usage-restrictions R₁ R₂ tr tr-Σ →
     Are-reflecting-usage-restrictions
       (no-[]-cong-UR 𝕄₁ v₁ R₁)
       (no-[]-cong-UR 𝕄₂ v₂ R₂)
       tr tr-Σ
-  Are-reflecting-usage-restrictions-no-[]-cong-UR
-    {R₁} {R₂} hyp r = record
+  Are-reflecting-usage-restrictions-no-[]-cong-UR {R₁} {R₂} r = record
     { common-properties =
         Common-properties-no-[]-cong-UR common-properties
     ; 𝟘ᵐ-reflected =
