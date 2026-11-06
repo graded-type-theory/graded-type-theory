@@ -605,7 +605,6 @@ Trivial⇨Erasure = λ where
       Are-reflecting-type-restrictions-no-type-restrictions
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₁ refl)
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
@@ -717,7 +716,6 @@ Erasure⇨Affine-types = λ where
       Are-reflecting-type-restrictions-no-type-restrictions
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₂ (λ ()))
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
@@ -830,7 +828,6 @@ Erasure⇨Linearity = λ where
       Are-reflecting-type-restrictions-no-type-restrictions
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₂ (λ ()))
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
@@ -945,7 +942,6 @@ Affine-types⇨Linear-or-affine-types = λ where
       Are-reflecting-type-restrictions-no-type-restrictions
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₂ (λ ()))
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
@@ -1059,7 +1055,6 @@ Linearity⇨Linear-or-affine-types = λ where
       Are-reflecting-type-restrictions-no-type-restrictions
         {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₂ (λ ()))
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr

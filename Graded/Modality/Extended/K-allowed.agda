@@ -520,8 +520,8 @@ Trivial⇨Erasure = λ where
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
       unit→erasure-reflects-strong-types-restricted $
       Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)} {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₁ refl)
+        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
+        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
@@ -613,8 +613,8 @@ Erasure⇨Affine-types = λ where
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
       erasure→zero-one-many-Σ-reflects-strong-types-restricted $
       Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)} {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₂ (λ ()))
+        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
+        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr-Σ
@@ -705,8 +705,8 @@ Erasure⇨Linearity = λ where
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
       erasure→zero-one-many-Σ-reflects-strong-types-restricted $
       Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)} {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₂ (λ ()))
+        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
+        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr-Σ
@@ -798,8 +798,8 @@ Affine-types⇨Linear-or-affine-types = λ where
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
       affine→linear-or-affine-Σ-reflects-strong-types-restricted $
       Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)} {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₂ (λ ()))
+        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
+        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr-Σ
@@ -890,8 +890,8 @@ Linearity⇨Linear-or-affine-types = λ where
         {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
       linearity→linear-or-affine-reflects-strong-types-restricted $
       Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)} {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ → inj₂ (λ ()))
+        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
+        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
 
     are-preserving-usage-restrictions :
       Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr

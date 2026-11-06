@@ -102,13 +102,11 @@ opaque
   -- obtained from no-type-restrictions, given a certain assumption.
 
   Are-reflecting-type-restrictions-no-type-restrictions :
-    (Modality.Trivial 𝕄₂ ⊎ ¬ Modality.Trivial 𝕄₂ →
-     Modality.Trivial 𝕄₁ ⊎ ¬ Modality.Trivial 𝕄₁) →
     Are-reflecting-type-restrictions trp
       (no-type-restrictions 𝕄₁ 𝐌₁ b₁ b₂)
       (no-type-restrictions 𝕄₂ 𝐌₂ b₁ b₂)
       tr tr-Σ
-  Are-reflecting-type-restrictions-no-type-restrictions hyp = λ where
+  Are-reflecting-type-restrictions-no-type-restrictions {𝕄₁} = λ where
       .unfolding-mode-reflected      → refl
       .level-support-reflected       → level-type small≤small
       .Unitʷ-η-reflected ()
@@ -116,10 +114,15 @@ opaque
       .ΠΣ-reflected                  → _
       .Opacity-reflected             → lift ∘→ Lift.lower
       .K-reflected                   → lift ∘→ Lift.lower
-      .[]-cong-reflected             → ⊎.comm ∘→ hyp ∘→ ⊎.comm
+      .[]-cong-reflected _           → case MP₁.trivial? of λ where
+        (yes triv) → inj₂ triv
+        (no not)   → inj₁ not
       .Equality-reflection-reflected → lift ∘→ Lift.lower
-      .Quot-reflected                → ⊎.comm ∘→ hyp ∘→ ⊎.comm
+      .Quot-reflected _              → case MP₁.trivial? of λ where
+        (yes triv) → inj₂ triv
+        (no not)   → inj₁ not
     where
+    module MP₁ = Graded.Modality.Properties 𝕄₁
     open Are-reflecting-type-restrictions
 
 ------------------------------------------------------------------------
