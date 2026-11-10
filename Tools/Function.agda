@@ -234,6 +234,11 @@ A⇔B ⊎-cong-⇔ C⇔D =
 ⊎-idem-⇔ : (A ⊎ A) ⇔ A
 ⊎-idem-⇔ = ⊎.idem , inj₁
 
+-- Lift a A is logically equivalent to A.
+
+Lift⇔ : Lift a A ⇔ A
+Lift⇔ = Lift.lower , lift
+
 -- If A and B are logically equivalent, then Dec A implies Dec B.
 
 Dec-map : A ⇔ B → Dec A → Dec B

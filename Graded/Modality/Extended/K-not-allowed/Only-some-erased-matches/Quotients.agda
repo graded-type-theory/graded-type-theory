@@ -199,7 +199,7 @@ Erasure = λ where
   open Extended-modality
 
 opaque
-  unfolding trivialᵐ? 𝟘ᵐ?
+  unfolding Trivialᵐ′ trivialᵐ? 𝟘ᵐ?
 
   -- The properties listed above all hold for Erasure.
 
@@ -240,7 +240,7 @@ opaque
     , _
     , (λ ())
     , _
-    , _
+    , (λ ())
     , (λ ())
     , _
     where
@@ -278,7 +278,7 @@ Affine-types = λ where
         (_ , (λ _ (_ , hyp) → case Lift.lower hyp refl of λ ()))
 
 opaque
-  unfolding trivialᵐ? 𝟘ᵐ?
+  unfolding Trivialᵐ′ trivialᵐ? 𝟘ᵐ?
 
   -- The properties listed above all hold for Affine-types.
 
@@ -320,7 +320,7 @@ opaque
     , _
     , (λ ())
     , _
-    , _
+    , (λ ())
     , (λ ())
     , _
     where
@@ -362,7 +362,7 @@ Linearity = λ where
         )
 
 opaque
-  unfolding trivialᵐ? 𝟘ᵐ?
+  unfolding Trivialᵐ′ trivialᵐ? 𝟘ᵐ?
 
   -- The properties listed above all hold for Linearity.
 
@@ -404,7 +404,7 @@ opaque
     , _
     , (λ ())
     , _
-    , _
+    , (λ ())
     , (λ ())
     , _
     where
@@ -447,7 +447,7 @@ Linear-or-affine-types = λ where
         )
 
 opaque
-  unfolding trivialᵐ? 𝟘ᵐ?
+  unfolding Trivialᵐ′ trivialᵐ? 𝟘ᵐ?
 
   -- The properties listed above all hold for Linear-or-affine-types.
 
@@ -489,7 +489,7 @@ opaque
     , _
     , (λ ())
     , _
-    , _
+    , (λ ())
     , (λ ())
     , _
     where

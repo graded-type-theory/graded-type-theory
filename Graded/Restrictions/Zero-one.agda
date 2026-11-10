@@ -395,8 +395,7 @@ opaque
       .[]-cong-allowed-mode? _ _             → yes _
       .no-sink-or-≤𝟘                         → inj₁ idᶠ
       .Quotient-terms-allowed?               → yes _
-      .Higher-quotient-constructors-allowed? →
-        Lift? (Resize-Dec (¬? trivialᵐ?) .proj₂ .proj₂)
+      .Higher-quotient-constructors-allowed? → ¬? Trivialᵐ′?
     where
     open UD.Assumptions
 

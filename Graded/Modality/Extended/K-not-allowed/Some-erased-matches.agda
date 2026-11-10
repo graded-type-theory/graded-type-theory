@@ -179,7 +179,7 @@ Erasure = λ where
   open Extended-modality
 
 opaque
-  unfolding trivialᵐ? 𝟘ᵐ?
+  unfolding Trivialᵐ′ trivialᵐ? 𝟘ᵐ?
 
   -- The properties listed above all hold for Erasure.
 
@@ -210,7 +210,7 @@ opaque
     , _
     , (λ ())
     , _
-    , _
+    , (λ ())
     , (λ ())
     , _
     where

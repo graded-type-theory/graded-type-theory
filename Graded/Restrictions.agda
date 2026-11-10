@@ -293,9 +293,9 @@ no-usage-restrictions nm nr-ok erased sink qrec = λ where
     .mode-supports-nr                        → nr-ok
     .Quotient-terms-allowed                → Lift _ ⊤
     .Higher-quotient-constructors-allowed  →
-      HQC-allowed
+      ¬ Trivialᵐ′
     .Higher-quotient-constructors-allowed→¬Trivialᵐ →
-      HQC-allowed→¬Trivialᵐ
+      _∘→ Trivialᵐ′⇔Trivialᵐ .proj₂
     .Higher-quotient-constructors→Quotient-terms →
       _
     .Qrec-motive-erased →
@@ -304,15 +304,6 @@ no-usage-restrictions nm nr-ok erased sink qrec = λ where
       Dec.map lift Lift.lower (T? qrec)
   where
   open Usage-restrictions
-
-  ¬Trivialᵐ′ : ∃ λ (T : Set) → (¬ Trivialᵐ) ⇔ T × Dec T
-  ¬Trivialᵐ′ = Resize-Dec (¬? trivialᵐ?)
-
-  HQC-allowed : Set a
-  HQC-allowed = Lift _ (¬Trivialᵐ′ .proj₁)
-
-  HQC-allowed→¬Trivialᵐ : HQC-allowed → ¬ Trivialᵐ
-  HQC-allowed→¬Trivialᵐ = ¬Trivialᵐ′ .proj₂ .proj₁ .proj₂ ∘→ Lift.lower
 
 -- The function updates the usage restrictions to use the usage rule
 -- natrecₘ for natrec using a given nr function.

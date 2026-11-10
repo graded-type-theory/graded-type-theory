@@ -138,14 +138,12 @@ opaque
       .[]-cong-mode-preserved → _
       .Quotient-terms-preserved → _
       .Higher-quotient-constructors-preserved →
-        lift ∘→
-        Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₁ ∘→
-        (_∘→
-           (¬𝟘ᵐ-allowed→Trivialᵐ _ ∘→
-            (_∘→ hyp₁) ∘→
-            Trivialᵐ→¬𝟘ᵐ-allowed _)) ∘→
-        Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₂ ∘→
-        Lift.lower
+        _∘→
+          (Trivialᵐ′⇔Trivialᵐ _ .proj₂ ∘→
+           ¬𝟘ᵐ-allowed→Trivialᵐ _ ∘→
+           (_∘→ hyp₁) ∘→
+           Trivialᵐ→¬𝟘ᵐ-allowed _ ∘→
+           Trivialᵐ′⇔Trivialᵐ _ .proj₁)
       .omega-preserving ⦃ () ⦄
     where
     open Are-preserving-usage-restrictions
@@ -197,13 +195,12 @@ opaque
       .erased-matches-for-K-reflected         → _
       .Quotient-terms-reflected               → _
       .Higher-quotient-constructors-reflected →
-        lift ∘→
-        Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₁ ∘→
-        𝟘ᵐ-allowed→¬Trivialᵐ _ ∘→
-        hyp₁ .proj₂ ∘→
-        ¬Trivialᵐ→𝟘ᵐ-allowed _ ∘→
-        Resize-Dec (¬? (trivialᵐ? _)) .proj₂ .proj₁ .proj₂ ∘→
-        Lift.lower
+        _∘→
+          (Trivialᵐ′⇔Trivialᵐ _ .proj₂ ∘→
+           ¬𝟘ᵐ-allowed→Trivialᵐ _ ∘→
+           (_∘→ hyp₁ .proj₂) ∘→
+           Trivialᵐ→¬𝟘ᵐ-allowed _ ∘→
+           Trivialᵐ′⇔Trivialᵐ _ .proj₁)
       .omega-preserving ⦃ () ⦄
     where
     open Are-reflecting-usage-restrictions
