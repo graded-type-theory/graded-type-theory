@@ -3,21 +3,18 @@
 -- In particular type preservation/subject reduction.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 open import Tools.Relation
 
 module Graded.Heap.Typed.Reduction
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (TR : Type-restrictions 𝕄)
-  (open Usage-restrictions UR)
-  (open Type-restrictions TR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
@@ -31,27 +28,27 @@ open Modality 𝕄
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
-import Definition.Untyped.Whnf M type-variant as WHNF
-open import Definition.Typed TR as T
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-import Definition.Typed.Reasoning.Term TR as TmR
-import Definition.Typed.Reasoning.Type TR as TyR
-open import Definition.Typed.Substitution TR
-open import Definition.Typed.Well-formed TR
-open import Definition.Typed.Consequences.Admissible 𝐌 TR
-import Definition.Typed.Consequences.Inequality TR as I
-open import Definition.Typed.Consequences.Injectivity TR
-open import Definition.Typed.Consequences.Inversion TR
+import Definition.Untyped.Whnf M TC⁻ as WHNF
+open import Definition.Typed TC as T
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+import Definition.Typed.Reasoning.Term TC as TmR
+import Definition.Typed.Reasoning.Type TC as TyR
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.Consequences.Admissible 𝐌 TC
+import Definition.Typed.Consequences.Inequality TC as I
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.Inversion TC
 
-open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Typed.Inversion UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Typed.Properties UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Typed.Weakening UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Reduction C factoring-nr ∣ε∣
+open import Graded.Heap.Reduction.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Typed C factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Inversion C factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Weakening C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties C factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin
@@ -67,7 +64,7 @@ private variable
   Γ Δ : Con Term _
   H H′ : Heap _ _
   c : Cont _
-  t t′ u A B C : Term _
+  t t′ u A B : Term _
   y : Ptr _
   e : Entry _ _
   S S′ : Stack _

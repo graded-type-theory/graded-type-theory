@@ -2,38 +2,38 @@
 -- Some admissible rules related to identity types and quotients
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Quotient
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Admissible.Identity R
-import Definition.Typed.Properties.Admissible.Quotient.Primitive R as Q
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Reasoning.Term R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Weakening R as W hiding (wk)
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Identity TC
+import Definition.Typed.Properties.Admissible.Quotient.Primitive TC as Q
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Reduction TC
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Weakening TC as W hiding (wk)
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Fin
 open import Tools.Function

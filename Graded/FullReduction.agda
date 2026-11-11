@@ -5,25 +5,22 @@
 -- "Zero-one" mode structure.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.FullReduction
   {a} {M : Set a}
   {𝕄 : Modality M}
   (mode-variant : Mode-variant 𝕄)
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Mode-variant mode-variant
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
 open import Tools.Bool
 open import Tools.Empty
@@ -38,27 +35,27 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 open import Definition.Untyped M as U
-open import Definition.Typed TR
-open import Definition.Typed.Eta-long-normal-form TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Eta-long-normal-form TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
 
-open import Definition.Conversion TR
-open import Definition.Conversion.Consequences.Completeness TR
-import Definition.Conversion.FullReduction TR as FR
+open import Definition.Conversion TC
+open import Definition.Conversion.Consequences.Completeness TC
+import Definition.Conversion.FullReduction TC as FR
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.FullReduction.Assumptions mode-variant TR UR
+open import Graded.FullReduction.Assumptions mode-variant C
 open import Graded.Modality.Properties 𝕄
-open import Graded.Reduction TR UR
-open import Graded.Reduction.Zero-one mode-variant TR UR
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one mode-variant UR
-open import Graded.Usage.Weakening UR
+open import Graded.Reduction C
+open import Graded.Reduction.Zero-one mode-variant C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one mode-variant C
+open import Graded.Usage.Weakening C
 
 private
   variable

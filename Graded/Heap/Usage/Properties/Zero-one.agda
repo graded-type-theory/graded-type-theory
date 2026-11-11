@@ -2,21 +2,19 @@
 -- Properties of the usage relation for Heaps, Stacks and States.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Variant
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage.Properties.Zero-one
   {a} {M : Set a}
   {𝕄 : Modality M}
   {mode-variant : Mode-variant 𝕄}
-  (type-variant : Type-variant a)
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (open Usage-restrictions UR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
@@ -24,18 +22,19 @@ module Graded.Heap.Usage.Properties.Zero-one
 
 open Modality 𝕄
 
+open import Configuration-types.Configuration.Zero-one 𝕄 mode-variant
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance C
+
 open import Definition.Untyped M
 open import Graded.Context 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Restrictions.Zero-one 𝕄 mode-variant
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Untyped C factoring-nr 𝟙
+open import Graded.Heap.Untyped.Properties C factoring-nr 𝟙
+open import Graded.Heap.Usage C factoring-nr 𝟙
 
 open import Tools.Empty
 open import Tools.Fin
@@ -68,7 +67,7 @@ private variable
 -- and a well-behaved zero.
 
 module _
-  (nem : No-erased-matches′ type-variant UR)
+  (nem : No-erased-matches)
   ⦃ ok : Has-well-behaved-zero M 𝕄 ⦄
   where
 
@@ -93,13 +92,18 @@ module _
         (fstₑ _) → inj₁ (lemma non-trivial fstₑ)
         sndₑ → inj₁ (lemma non-trivial sndₑ)
         (prodrecₑ _ ok) →
-          inj₁ (lemma (nem non-trivial .proj₁ ok) prodrecₑ)
+          inj₁ $
+          lemma (non-trivial ∘→ nem non-trivial .proj₁ ok) prodrecₑ
         (natrecₑ _ _ _) →
           inj₁ (lemma nr₂≢𝟘 (natrecₑ has-nrₑ))
         (natrec-no-nrₑ _ _ _ _) →
           inj₁ λ { (natrecₑ x) → lemma-nr x refl}
         (unitrecₑ _ ok no-η) →
-          inj₁ (lemma (no-η ∘→ nem non-trivial .proj₂ .proj₁ ok) unitrecₑ)
+          inj₁ $
+          lemma
+            (no-η ∘→
+             flip (nem non-trivial .proj₂ .proj₁ ok) non-trivial)
+            unitrecₑ
         (emptyrecₑ {p} ok) →
           case is-𝟘? p of λ where
             (yes refl) → inj₂ (_ , _ , _ , refl , ok)
@@ -115,7 +119,8 @@ module _
                   (sym (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂))
                   K-none)))
         ([]-congₑ ok) →
-          inj₁ λ _ → nem non-trivial .proj₂ .proj₂ .proj₁ ok
+          inj₁ λ _ →
+          non-trivial (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
       where
       lemma :  p ≢ r → ∣ c ∣ᶜ[ m ]≡ p → ∣ c ∣ᶜ[ m ]≡ r → ⊥
       lemma p≢r ≡p ≡r = p≢r (∣∣ᶜ-functional ≡p ≡r)

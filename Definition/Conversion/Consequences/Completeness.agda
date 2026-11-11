@@ -3,26 +3,26 @@
 -- equality reflection)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Consequences.Completeness
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
 open import Definition.Untyped M
-open import Definition.Typed R
-open import Definition.Conversion R
+open import Definition.Typed TC
+open import Definition.Conversion TC
 
-open import Definition.Conversion.EqRelInstance R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.Conversion.EqRelInstance TC
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Hidden TC
+open import Definition.LogicalRelation.Properties TC
+open import Definition.LogicalRelation.Fundamental.Reducibility TC
 
 open import Tools.Function
 open import Tools.Nat

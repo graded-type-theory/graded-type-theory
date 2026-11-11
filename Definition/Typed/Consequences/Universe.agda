@@ -2,28 +2,28 @@
 -- Some results about universes
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Universe
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Well-formed R
-open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Type TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.Consequences.Injectivity TC
 
 open import Tools.Fin
 open import Tools.Function

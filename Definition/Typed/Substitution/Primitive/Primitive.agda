@@ -4,35 +4,35 @@
 
 {-# OPTIONS --backtracking-instance-search #-}
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Substitution.Primitive.Primitive
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Admissible.Level.Primitive R
-open import Definition.Typed.Properties.Admissible.U.Primitive R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Definition.Primitive R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Term.Primitive R
-open import Definition.Typed.Size R
-open import Definition.Typed.Weakening R as W hiding (wk)
-open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion.Primitive TC
+open import Definition.Typed.Properties.Admissible.Level.Primitive TC
+open import Definition.Typed.Properties.Admissible.U.Primitive TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Definition.Primitive TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Term.Primitive TC
+open import Definition.Typed.Size TC
+open import Definition.Typed.Weakening TC as W hiding (wk)
+open import Definition.Typed.Weakening.Definition TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 
 open import Tools.Empty
 open import Tools.Fin

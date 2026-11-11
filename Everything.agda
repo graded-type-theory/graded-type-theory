@@ -91,14 +91,46 @@ import Graded.Mode.Instances.Zero-one
 import Graded.Mode.Instances.Trivial
 
 ------------------------------------------------------------------------
--- The type theory's syntax (as well as type restrictions)
+-- The type theory's syntax
 
 import Definition.Untyped
 import Definition.Untyped.Inversion
 import Definition.Untyped.Properties.NotParametrised
 import Definition.Untyped.Properties
-import Definition.Typed.Variant
-import Definition.Typed.Restrictions
+import Definition.Untyped.No-box-cong-Quot
+
+------------------------------------------------------------------------
+-- Assumptions used to decide typing (for a class of terms) and usage
+
+import Definition.Typechecking.Decidable.Assumptions
+import Graded.Usage.Decidable.Assumptions
+
+------------------------------------------------------------------------
+-- Configuration of the type and usage systems
+
+import Configuration-types.Erased-matches
+import Configuration-types.Natrec
+import Configuration-types.Natrec.Instance
+import Configuration-types.Omega
+import Configuration-types
+import Configuration-types.Instance
+
+------------------------------------------------------------------------
+-- Assumptions used to decide typing (for a class of terms) and usage
+
+import Definition.Typechecking.Decidable.Assumptions
+import Graded.Usage.Decidable.Assumptions
+
+------------------------------------------------------------------------
+-- Functions that construct configurations
+
+import Configuration-types.Type-configuration
+import Configuration-types.Configuration
+import Configuration-types.Configuration.Zero-one
+
+------------------------------------------------------------------------
+-- More definitions related to syntax
+
 import Definition.Untyped.Allowed-literal
 import Definition.Untyped.Sup
 import Definition.Typed.Decidable.Internal.Term
@@ -194,12 +226,6 @@ import Definition.Typed.EqRelInstance
 ------------------------------------------------------------------------
 -- The usage relation
 
-import Graded.Usage.Erased-matches
-import Graded.Usage.Restrictions.Natrec
-import Graded.Usage.Restrictions.Natrec.Instance
-import Graded.Usage.Restrictions.Omega
-import Graded.Usage.Restrictions
-import Graded.Usage.Restrictions.Instance
 import Graded.Usage
 import Graded.Usage.Weakening
 import Graded.Usage.Inversion
@@ -207,8 +233,6 @@ import Graded.Usage.Properties
 import Graded.Usage.Properties.Zero-one
 import Graded.Usage.Restrictions.Satisfied
 import Graded.Usage.Properties.Has-well-behaved-zero
-import Graded.Usage.Decidable.Assumptions
-import Graded.Usage.Decidable
 
 ------------------------------------------------------------------------
 -- Grade substitutions
@@ -216,7 +240,6 @@ import Graded.Usage.Decidable
 import Graded.Substitution
 import Graded.Substitution.Properties
 import Graded.Substitution.Properties.Zero-one
-import Graded.Substitution.Decidable
 
 ------------------------------------------------------------------------
 -- Some derived definitions related to usage
@@ -429,9 +452,14 @@ import Definition.Typechecking.Completeness
 -- Decidability of typing (given certain assumptions).
 import Definition.Typed.Decidable.Equality
 import Definition.Typed.Decidable.Reduction
-import Definition.Typechecking.Decidable.Assumptions
 import Definition.Typechecking.Decidable
 import Definition.Typed.Decidable
+
+------------------------------------------------------------------------
+-- Decidability of usage (given certain assumptions)
+
+import Graded.Usage.Decidable
+import Graded.Substitution.Decidable
 
 ------------------------------------------------------------------------
 -- A combination of typing and usage
@@ -443,12 +471,6 @@ import Graded.Modality.Instances.Erasure.Combined
 import Graded.Modality.Instances.Erasure.Combined.Properties
 import Graded.Modality.Instances.Erasure.Combined.Equivalent
 import Graded.Modality.Instances.Erasure.Combined.Erased
-
-------------------------------------------------------------------------
--- Definitions related to type and usage restrictions
-
-import Graded.Restrictions
-import Graded.Restrictions.Zero-one
 
 ------------------------------------------------------------------------
 -- Some examples related to some modality instances
@@ -484,10 +506,10 @@ import Graded.Modality.Morphism
 import Graded.Modality.Morphism.Examples
 import Graded.Context.QuantityTranslation
 import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
-import Graded.Modality.Morphism.Type-restrictions
-import Graded.Modality.Morphism.Type-restrictions.Examples
-import Graded.Modality.Morphism.Usage-restrictions
-import Graded.Modality.Morphism.Usage-restrictions.Examples
+import Graded.Modality.Morphism.Type-configuration
+import Graded.Modality.Morphism.Type-configuration.Examples
+import Graded.Modality.Morphism.Configuration
+import Graded.Modality.Morphism.Configuration.Examples
 import Graded.Mode.Instances.Zero-one.QuantityTranslation
 import Graded.Mode.Instances.Zero-one.QuantityTranslation.Identity
 import Graded.Modality.Morphism.Forward-instances

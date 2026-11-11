@@ -2,27 +2,27 @@
 -- Weakening lemmas for the definition context
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Weakening.Definition
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Definition.Primitive R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Weakening R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Definition.Primitive TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Weakening TC
 
 open import Tools.Function
 open import Tools.Nat

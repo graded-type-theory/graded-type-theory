@@ -26,7 +26,7 @@ open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
-open import Definition.Typed.Variant
+open import Configuration-types
 
 open import Definition.Untyped
 import Definition.Untyped.Identity
@@ -254,16 +254,17 @@ opaque
 -- Lemmas related to Neutral and Whnf
 
 module _
-  {tv₁ : Type-variant a₁} {tv₂ : Type-variant a₂}
+  {TC₁ : Type-configuration⁻ a₁} {TC₂ : Type-configuration⁻ a₂}
   -- It is assumed that definitions are not made transparent.
   (not-transparent : ¬ T transparent)
   -- It is assumed that Higher-quotient-constructors-neutral holds for
-  -- tv₂ if it holds for tv₁.
+  -- TC₂ if it holds for TC₁.
   (Higher-quotient-constructors-neutral→ :
-     Type-variant.Higher-quotient-constructors-neutral tv₁ →
-     Type-variant.Higher-quotient-constructors-neutral tv₂)
-  -- It is assumed that Unitʷ-η holds for tv₁ if it holds for tv₂.
-  (Unitʷ-η→ : Type-variant.Unitʷ-η tv₂ → Type-variant.Unitʷ-η tv₁)
+     Type-configuration⁻.Higher-quotient-constructors-neutral TC₁ →
+     Type-configuration⁻.Higher-quotient-constructors-neutral TC₂)
+  -- It is assumed that Unitʷ-η holds for TC₁ if it holds for TC₂.
+  (Unitʷ-η→ :
+     Type-configuration⁻.Unitʷ-η TC₂ → Type-configuration⁻.Unitʷ-η TC₁)
   where
 
   -- The function tr-Term preserves neutrality (given a certain
@@ -271,7 +272,7 @@ module _
 
   tr-Neutral :
     (V₁ → V₂) →
-    UN₁.Neutral tv₁ V₁ ∇ t → UN₂.Neutral tv₂ V₂ (tr-DCon ∇) (tr-Term t)
+    UN₁.Neutral TC₁ V₁ ∇ t → UN₂.Neutral TC₂ V₂ (tr-DCon ∇) (tr-Term t)
   tr-Neutral f = λ where
     (defn α∈)           → defn (tr-↦⊘∷ not-transparent α∈)
     (var p x)           → var (f p) x
@@ -296,7 +297,7 @@ module _
 
   -- The function tr-Term takes WHNFs to WHNFs.
 
-  tr-Whnf : UW₁.Whnf tv₁ ∇ t → UW₂.Whnf tv₂ (tr-DCon ∇) (tr-Term t)
+  tr-Whnf : UW₁.Whnf TC₁ ∇ t → UW₂.Whnf TC₂ (tr-DCon ∇) (tr-Term t)
   tr-Whnf Uₙ                = Uₙ
   tr-Whnf (ΠΣₙ {b = BMΠ})   = ΠΣₙ
   tr-Whnf (ΠΣₙ {b = BMΣ _}) = ΠΣₙ

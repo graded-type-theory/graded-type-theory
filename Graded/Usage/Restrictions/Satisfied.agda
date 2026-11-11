@@ -4,7 +4,7 @@
 
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
+open import Configuration-types
 
 module Graded.Usage.Restrictions.Satisfied
   {a a′} {M : Set a} {Mode : Set a′}
@@ -12,22 +12,23 @@ module Graded.Usage.Restrictions.Satisfied
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance C
+open import Configuration-types.Natrec 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
 open import Graded.Modality.Omega-instances
-open import Graded.Usage R
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Restrictions.Instance R
-open import Graded.Usage.Properties R
+open import Graded.Usage C
+open import Graded.Usage.Properties C
 
 open import Definition.Untyped M
 
@@ -42,26 +43,26 @@ open import Tools.PropositionalEquality
 open import Tools.Relation
 
 private variable
-  α n o           : Nat
-  x               : Fin _
-  A B C l t u v w : Term[ _ ] _
-  k               : Term-kind
-  p q r           : M
-  γ               : Conₘ _
-  s               : Strength
-  b               : BinderMode
-  m m′            : Mode
-  sem             : Some-erased-matches
-  ok              : T _
+  α n o         : Nat
+  x             : Fin _
+  A B l t u v w : Term[ _ ] _
+  k             : Term-kind
+  p q r         : M
+  γ             : Conₘ _
+  s             : Strength
+  b             : BinderMode
+  m m′          : Mode
+  sem           : Some-erased-matches
+  ok            : T _
 
 ------------------------------------------------------------------------
 -- Usage-restrictions-satisfied
 
--- Usage-restrictions-satisfied m t means that the usage restrictions
--- for emptyrec, unitrec, prodrec, []-cong and the quotient term
--- formers hold, sometimes for certain modes, for every subterm in t,
--- and that a certain condition holds for every application of natrec
--- in t.
+-- Usage-restrictions-satisfied m t means that the "usage
+-- restrictions" for emptyrec, unitrec, prodrec, []-cong and the
+-- quotient term formers hold, sometimes for certain modes, for every
+-- subterm in t, and that a certain condition holds for every
+-- application of natrec in t.
 
 data Usage-restrictions-satisfied {n} (m : Mode) :
        Term[ k ] n → Set (a ⊔ a′) where
@@ -236,16 +237,16 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied 𝟘ᵐ v →
     Usage-restrictions-satisfied m ([]-cong s l A t u v)
   Quot :
-    Quotient-terms-allowed →
+    Quot-allowed →
     Usage-restrictions-satisfied m A →
     Usage-restrictions-satisfied 𝟘ᵐ B →
     Usage-restrictions-satisfied m (Quot A B)
   class :
-    Quotient-terms-allowed →
+    Quot-allowed →
     Usage-restrictions-satisfied m t →
     Usage-restrictions-satisfied m (class t)
   resp :
-    Higher-quotient-constructors-allowed →
+    Quot-allowed →
     Usage-restrictions-satisfied 𝟘ᵐ A →
     Usage-restrictions-satisfied 𝟘ᵐ B →
     Usage-restrictions-satisfied 𝟘ᵐ t →
@@ -254,7 +255,7 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     m ≡ 𝟘ᵐ →
     Usage-restrictions-satisfied m (resp A B t u v)
   set :
-    Higher-quotient-constructors-allowed →
+    Quot-allowed →
     Usage-restrictions-satisfied 𝟘ᵐ A →
     Usage-restrictions-satisfied 𝟘ᵐ B →
     Usage-restrictions-satisfied 𝟘ᵐ t →
@@ -264,8 +265,8 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     m ≡ 𝟘ᵐ →
     Usage-restrictions-satisfied m (set A B t u v w)
   qrec₀ :
-    ⦃ ok : Usage-allows-omega ⦄ →
-    Quotient-terms-allowed →
+    ∀ {C} ⦃ ok : Usage-allows-omega ⦄ →
+    Quot-allowed →
     Qrec-motive-erased →
     Usage-restrictions-satisfied 𝟘ᵐ C →
     Usage-restrictions-satisfied m t →
@@ -274,8 +275,8 @@ data Usage-restrictions-satisfied {n} (m : Mode) :
     Usage-restrictions-satisfied m w →
     Usage-restrictions-satisfied m (qrec C t u v w)
   qrec₁ :
-    ⦃ ok : Usage-allows-omega ⦄ →
-    Quotient-terms-allowed →
+    ∀ {C} ⦃ ok : Usage-allows-omega ⦄ →
+    Quot-allowed →
     ¬ Qrec-motive-erased →
     Usage-restrictions-satisfied m C →
     Usage-restrictions-satisfied m t →
@@ -1074,11 +1075,10 @@ opaque
     (∀ p q → Unitrec-allowed 𝟘ᵐ p q) →
     (∀ r p q → Prodrec-allowed 𝟘ᵐ r p q) →
     (∀ p → []-cong-allowed-mode p 𝟘ᵐ) →
-    Quotient-terms-allowed →
-    Higher-quotient-constructors-allowed →
+    Quot-allowed →
     Usage-allows-omega →
     Usage-restrictions-satisfied 𝟘ᵐ t
-  Usage-restrictions-satisfied-𝟘ᵐ glb er ur pr bc qt qc ω-ok = lemma _
+  Usage-restrictions-satisfied-𝟘ᵐ glb er ur pr bc qt ω-ok = lemma _
     where
     mutual
 
@@ -1163,9 +1163,9 @@ opaque
       lemma (class _) =
         class qt (lemma _)
       lemma (resp _ _ _ _ _) =
-        resp qc (lemma _) (lemma _) (lemma _) (lemma _) (lemma _) refl
+        resp qt (lemma _) (lemma _) (lemma _) (lemma _) (lemma _) refl
       lemma (set _ _ _ _ _ _) =
-        set qc (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
+        set qt (lemma _) (lemma _) (lemma _) (lemma _) (lemma _)
           (lemma _) refl
       lemma (qrec _ _ _ _ _) with Qrec-motive-erased?
       … | yes ok =

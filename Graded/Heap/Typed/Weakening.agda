@@ -2,35 +2,31 @@
 -- Weakening properties of Heap typing
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed.Weakening
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (TR : Type-restrictions 𝕄)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-restrictions TR
-
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
-open import Definition.Typed TR
+open import Definition.Typed TC
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Typed C factoring-nr ∣ε∣
 
 open import Tools.Fin
 open import Tools.Function

@@ -2,36 +2,37 @@
 -- Inequality lemmata.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Inequality
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Neutral M type-variant as U
+open import Definition.Untyped.Allowed-literal TC
+open import Definition.Untyped.Neutral M TC⁻ as U
   using (Neutral)
-open import Definition.Untyped.Neutral.Atomic M type-variant
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Well-formed R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
-open import Definition.LogicalRelation.Substitution.Introductions.Level R
+open import Definition.Untyped.Neutral.Atomic M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Hidden TC
+open import Definition.LogicalRelation.Irrelevance TC
+open import Definition.LogicalRelation.Properties TC
+open import Definition.LogicalRelation.ShapeView TC
+open import Definition.LogicalRelation.Fundamental.Reducibility TC
+open import Definition.LogicalRelation.Substitution.Introductions.Level
+  TC
 
 open import Tools.Fin
 open import Tools.Function

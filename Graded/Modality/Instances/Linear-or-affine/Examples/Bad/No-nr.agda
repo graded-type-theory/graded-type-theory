@@ -3,8 +3,8 @@
 -- without a dedicated nr function
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality.Instances.Linear-or-affine
-open import Graded.Usage.Restrictions
 open import Graded.Mode
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant linear-or-affine
@@ -12,8 +12,8 @@ open import Graded.Mode.Instances.Zero-one.Variant linear-or-affine
 module Graded.Modality.Instances.Linear-or-affine.Examples.Bad.No-nr
   {variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions linear-or-affine Zero-one-isMode)
-  (open Usage-restrictions UR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
   -- There is no dedicated nr function.
   ⦃ no-nr : Nr-not-available ⦄
   where
@@ -36,9 +36,9 @@ private
 open import Graded.Context linear-or-affine
 open import Graded.Context.Properties linear-or-affine
 open import Graded.Modality.Properties linear-or-affine
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties.Zero-one variant UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties.Zero-one variant C
 
 open import Definition.Untyped.Nat linear-or-affine
 

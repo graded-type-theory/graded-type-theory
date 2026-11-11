@@ -4,24 +4,26 @@
 -- definitions are made transparent
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.With-equality-reflection
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Tools.Bool
 open import Tools.Function
 import Tools.PropositionalEquality as PE
 
+open import Configuration-types.Type-configuration 𝕄
+
 import Definition.Typed
-open Definition.Typed R
+open Definition.Typed TC
 import Definition.Typed.QuantityTranslation
 import Definition.Typed.Substitution
-open Definition.Typed.Substitution R
+open Definition.Typed.Substitution TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.QuantityTranslation.Identity M true as Id
@@ -29,10 +31,8 @@ open import Definition.Untyped.QuantityTranslation.Identity M true as Id
 open Id.Transparent _
 
 open import Graded.Modality.Morphism
-open import Graded.Modality.Morphism.Type-restrictions
-open import Graded.Modality.Morphism.Type-restrictions.Examples
-import Graded.Mode.Instances.Trivial 𝕄 as Triv
-open import Graded.Restrictions 𝕄 Triv.trivial
+open import Graded.Modality.Morphism.Type-configuration
+open import Graded.Modality.Morphism.Type-configuration.Examples
 
 private variable
   ∇       : DCon _ _
@@ -41,10 +41,10 @@ private variable
   l l₁ l₂ : Lvl _
   σ σ₁ σ₂ : Subst _ _
 
--- The type restrictions used for the target.
+-- The type configuration used for the target.
 
-With-refl : Type-restrictions 𝕄
-With-refl = with-equality-reflection R
+With-refl : Type-configuration 𝕄
+With-refl = with-equality-reflection TC
 
 -- Some definitions are re-exported.
 
@@ -56,13 +56,11 @@ module With-refl where
 private
 
   module QT = Definition.Typed.QuantityTranslation
-    R With-refl true idᶠ idᶠ
+    TC With-refl true idᶠ idᶠ
     (Is-order-embedding.tr-morphism Is-order-embedding-id)
     (Is-morphism→Is-Σ-morphism
        (Is-order-embedding.tr-morphism Is-order-embedding-id))
-    (Are-preserving-type-restrictions-with-equality-reflectionʳ
-       {trp = false} {𝐌₂ = Triv.trivial}
-       Are-preserving-type-restrictions-id)
+    (M-with-equality-reflectionʳ {trp = false} Is-Σ-morphism-TC-id)
 
 opaque
 

@@ -2,16 +2,16 @@
 -- Some admissible typing rules related to variables
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Var
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open import Definition.Typed R
+open import Definition.Typed TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M

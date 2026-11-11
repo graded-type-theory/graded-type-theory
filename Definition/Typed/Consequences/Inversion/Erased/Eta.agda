@@ -3,25 +3,25 @@
 -- Erased
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 
 module Definition.Typed.Consequences.Inversion.Erased.Eta
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Erased 𝕄 𝕤 hiding (erased)
@@ -33,7 +33,7 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
-open import Definition.Typed.Consequences.Inversion.Erased R 𝕤 public
+open import Definition.Typed.Consequences.Inversion.Erased TC 𝕤 public
 
 opaque
   unfolding erased

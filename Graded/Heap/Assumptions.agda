@@ -3,34 +3,32 @@
 -- In particular used for Bisimilarity, Termination and Soundness.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Heap.Assumptions
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (TR : Type-restrictions 𝕄)
+  (C : Configuration 𝐌)
   (∣ε∣ : M)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
+
+open import Configuration-types.Natrec 𝕄
 
 open import Graded.Modality.Properties.Subtraction 𝕄
 import Graded.Heap.Reduction
 import Graded.Heap.Typed
 import Graded.Heap.Untyped
 import Graded.Heap.Usage
-open import Graded.Usage.Restrictions.Natrec 𝕄
 
 open import Definition.Untyped M
-open import Definition.Typed TR
+open import Definition.Typed TC
 
 open import Tools.Empty
 open import Tools.Function
@@ -48,8 +46,7 @@ record Assumptions : Set (a ⊔ b) where
     -- The type Level is not allowed.
     Level-not-allowed : ¬ Level-allowed
     -- Quotients are not allowed.
-    Quot-not-allowed           : ¬ Quot-allowed
-    Quotient-terms-not-allowed : ¬ Quotient-terms-allowed
+    Quot-not-allowed : ¬ Quot-allowed
     -- The modality supports subtraction.
     subtraction-ok : Supports-subtraction
     -- An assumption related to the weak unit type when η-equality is
@@ -89,10 +86,10 @@ record Assumptions : Set (a ⊔ b) where
             refl → factoring
         (inj₂ no-nr) → ⊥-elim (¬[Nr∧No-nr-glb] has-nr no-nr)
 
-  open Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
-  open Graded.Heap.Typed UR TR factoring-nr ∣ε∣
-  open Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-  open Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
+  open Graded.Heap.Reduction C factoring-nr ∣ε∣
+  open Graded.Heap.Typed C factoring-nr ∣ε∣
+  open Graded.Heap.Untyped C factoring-nr ∣ε∣
+  open Graded.Heap.Usage C factoring-nr ∣ε∣
 
   -- A type that is used as an assumption in some proofs
 

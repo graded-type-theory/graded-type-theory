@@ -2,18 +2,18 @@
 -- Weak head-normal forms of terms.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Variant
+open import Configuration-types
 
 module Definition.Untyped.Whnf
   {a} (M : Set a)
-  (type-variant : Type-variant a)
+  (TC : Type-configuration⁻ a)
   where
 
-open Type-variant type-variant
+open Type-configuration⁻ TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty

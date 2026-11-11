@@ -2,31 +2,33 @@
 -- Injectivity lemmas
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Injectivity
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M hiding (wk)
 import Definition.Untyped M as U
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.EqRelInstance R
-open import Definition.LogicalRelation.Hidden R ⦃ eqRelInstance ⦄
-open import Definition.LogicalRelation.Properties R ⦃ eqRelInstance ⦄
-open import Definition.LogicalRelation.Fundamental.Reducibility R ⦃ eqRelInstance ⦄
-open import Definition.LogicalRelation.Substitution.Introductions R ⦃ eqRelInstance ⦄
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.LogicalRelation.Hidden TC ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Properties TC ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Fundamental.Reducibility
+  TC ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Substitution.Introductions
+  TC ⦃ eqRelInstance ⦄
 open import
-  Definition.LogicalRelation.Weakening.Restricted R ⦃ eqRelInstance ⦄
+  Definition.LogicalRelation.Weakening.Restricted TC ⦃ eqRelInstance ⦄
 
 open import Tools.Function
 open import Tools.Nat using (Nat)

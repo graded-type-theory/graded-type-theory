@@ -4,23 +4,22 @@
 
 open import Tools.Level hiding (Level; Lift)
 
+open import Configuration-types
+
+open import Configuration-types
 open import Graded.Modality.Instances.Erasure
 import Graded.Modality.Instances.Erasure.Modality as GMIEM
   hiding (nr; erasure-has-nr)
 open GMIEM
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Examples
   {p q r s}
   (variant : Mode-variant ErasureModality)
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions ErasureModality)
-  (open Type-restrictions TR)
-  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
-  (open Usage-restrictions UR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
   -- It is assumed that "Π 𝟘 , p" is allowed.
   (Π-𝟘-ok : Π-allowed 𝟘 p)
   -- It is assumed that "Π ω , q" is allowed.
@@ -52,17 +51,17 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
-open import Definition.Typed TR as DT hiding (id)
-open import Definition.Typed.Eta-long-normal-form TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-import Definition.Typed.Reasoning.Reduction TR as RR
-import Definition.Typed.Reasoning.Term TR as TmR
-import Definition.Typed.Reasoning.Type TR as TyR
-open import Definition.Typed.Substitution TR hiding (id)
-import Definition.Typed.Weakening TR as W
-import Definition.Typed.Weakening.Definition TR as WD
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC as DT hiding (id)
+open import Definition.Typed.Eta-long-normal-form TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+import Definition.Typed.Reasoning.Reduction TC as RR
+import Definition.Typed.Reasoning.Term TC as TmR
+import Definition.Typed.Reasoning.Type TC as TyR
+open import Definition.Typed.Substitution TC hiding (id)
+import Definition.Typed.Weakening TC as W
+import Definition.Typed.Weakening.Definition TC as WD
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped Erasure as U hiding (id; head)
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties Erasure
@@ -74,24 +73,25 @@ private
 
   module EM = Modality EM
 
+open import Configuration-types.Configuration.Zero-one EM variant
+open import Configuration-types.Instance C
+open import Configuration-types.Natrec EM
+
 open import Graded.Context EM
-open import Graded.Derived.Nat UR
-open import Graded.Erasure.Consequences.Soundness TR UR
+open import Graded.Derived.Nat C
+open import Graded.Erasure.Consequences.Soundness C
 open import Graded.Erasure.Extraction EM
-import Graded.Erasure.SucRed TR as S
+import Graded.Erasure.SucRed TC as S
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
 open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Nr-instances
-open import Graded.Usage.Restrictions.Instance UR
 open import Graded.Modality.Instances.Erasure.Properties
-open import Graded.Restrictions.Zero-one EM variant
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Restrictions.Natrec EM
-open import Graded.Usage.Weakening UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 
 private variable
   n         : Nat
@@ -1087,7 +1087,7 @@ opaque
   -- enable this proof).
 
   head-[0]⇒*zero :
-    No-erased-matches TR UR ⊎ ¬ Higher-quotient-constructors-neutral →
+    No-erased-matches ⊎ ¬ Higher-quotient-constructors-neutral →
     Level-allowed →
     ε » ε ⊢ head-[0] ⇒* zero ∷ ℕ
   head-[0]⇒*zero ok₁ ok₂ =

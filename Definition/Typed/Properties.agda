@@ -2,51 +2,51 @@
 -- Properties of the typing and reduction relations
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Tools.Nat
 
 module Definition.Typed.Properties
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
 
 open import Tools.Fin
 open import Tools.Product
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
 
-open import Definition.Typed.Properties.Admissible.Empty R public
-open import Definition.Typed.Properties.Admissible.Equality R public
-open import Definition.Typed.Properties.Admissible.Erased R public
-open import Definition.Typed.Properties.Admissible.Identity R public
-open import Definition.Typed.Properties.Admissible.Level R public
-open import Definition.Typed.Properties.Admissible.Lift R public
-open import Definition.Typed.Properties.Admissible.Nat R public
-open import Definition.Typed.Properties.Admissible.Non-dependent R
+open import Definition.Typed.Properties.Admissible.Empty TC public
+open import Definition.Typed.Properties.Admissible.Equality TC public
+open import Definition.Typed.Properties.Admissible.Erased TC public
+open import Definition.Typed.Properties.Admissible.Identity TC public
+open import Definition.Typed.Properties.Admissible.Level TC public
+open import Definition.Typed.Properties.Admissible.Lift TC public
+open import Definition.Typed.Properties.Admissible.Nat TC public
+open import Definition.Typed.Properties.Admissible.Non-dependent TC
   public
-open import Definition.Typed.Properties.Admissible.Omega R public
-open import Definition.Typed.Properties.Admissible.Pi-Sigma R public
-open import Definition.Typed.Properties.Admissible.Pi R public
-open import Definition.Typed.Properties.Admissible.Quotient R public
-open import Definition.Typed.Properties.Admissible.Sigma R public
-open import Definition.Typed.Properties.Admissible.U R public
-open import Definition.Typed.Properties.Admissible.Unit R public
-open import Definition.Typed.Properties.Admissible.Var R public
-open import Definition.Typed.Properties.Definition R public
-open import Definition.Typed.Properties.Reduction R public
-open import Definition.Typed.Properties.Transparentisation R public
-open import Definition.Typed.Properties.Well-formed R public
+open import Definition.Typed.Properties.Admissible.Omega TC public
+open import Definition.Typed.Properties.Admissible.Pi-Sigma TC public
+open import Definition.Typed.Properties.Admissible.Pi TC public
+open import Definition.Typed.Properties.Admissible.Quotient TC public
+open import Definition.Typed.Properties.Admissible.Sigma TC public
+open import Definition.Typed.Properties.Admissible.U TC public
+open import Definition.Typed.Properties.Admissible.Unit TC public
+open import Definition.Typed.Properties.Admissible.Var TC public
+open import Definition.Typed.Properties.Definition TC public
+open import Definition.Typed.Properties.Reduction TC public
+open import Definition.Typed.Properties.Transparentisation TC public
+open import Definition.Typed.Properties.Well-formed TC public
 
 private variable
   V                   : Set _

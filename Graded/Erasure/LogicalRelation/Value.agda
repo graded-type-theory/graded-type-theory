@@ -2,30 +2,29 @@
 -- Target terms in the logical relation reduce to values
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Value
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (as : Assumptions R)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (as : Assumptions TC)
   where
 
 open Assumptions as
 
-open import Definition.LogicalRelation.Simplified R
+open import Definition.LogicalRelation.Simplified TC
 open import Definition.Untyped M
 
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden UR as
+open import Graded.Erasure.LogicalRelation.Hidden C as
 open import Graded.Erasure.Target as T using (strict)
 open import Graded.Erasure.Target.Properties
 

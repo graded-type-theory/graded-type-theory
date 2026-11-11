@@ -2,31 +2,32 @@
 -- The fundamental lemma of the logical relation for validity.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Fundamental
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Well-formed R
-open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Substitution.Introductions R ⦃ eqrel ⦄
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
+open import Definition.LogicalRelation.Substitution TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions
+  TC ⦃ eqrel ⦄
 
 open import Tools.Product
 open import Tools.Nat using (Nat)

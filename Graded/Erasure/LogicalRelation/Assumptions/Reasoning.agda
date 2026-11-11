@@ -2,7 +2,7 @@
 -- "Equational" reasoning combinators for _⇛_∷_
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Definition.Untyped
 import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
@@ -11,8 +11,8 @@ module Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   {a} {M : Set a}
   (open Definition.Untyped M)
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (open Graded.Erasure.LogicalRelation.Assumptions R)
+  {TC : Type-configuration 𝕄}
+  (open Graded.Erasure.LogicalRelation.Assumptions TC)
   {m n} {Δ : Cons m n}
   {_⇛_∷_ : Term n → Term n → Term n → Set a}
   (is-reduction-relation : Is-reduction-relation Δ _⇛_∷_)
@@ -20,8 +20,8 @@ module Graded.Erasure.LogicalRelation.Assumptions.Reasoning
 
 open Is-reduction-relation is-reduction-relation
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Reduction R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Reduction TC
 
 open import Tools.Function
 import Tools.PropositionalEquality as PE

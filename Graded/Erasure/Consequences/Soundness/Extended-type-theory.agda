@@ -2,11 +2,10 @@
 -- Soundness via extended type theories
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Consequences.Soundness.Extended-type-theory
   {a} {M : Set a}
@@ -14,42 +13,12 @@ module Graded.Erasure.Consequences.Soundness.Extended-type-theory
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Mode-variant variant
-open Type-restrictions TR
-
-import Definition.Typed
-open Definition.Typed TR
-import Definition.Typed.Inversion
-import Definition.Typed.Properties
-import Definition.Typed.Properties.Definition
-import Definition.Typed.Substitution
-
-open import Definition.Untyped M
-open import Definition.Untyped.Identity 𝕄
-open import Definition.Untyped.Properties M
-
-open import Graded.Context 𝕄
-open import Graded.Derived.Identity UR
-import Graded.Erasure.Consequences.Soundness
-open import Graded.Erasure.Extraction 𝕄
-open import Graded.Erasure.Extraction.Properties 𝕄
-import Graded.Erasure.Extraction.Properties.Usage
-import Graded.Erasure.SucRed
-open Graded.Erasure.SucRed TR
-open import Graded.Erasure.Target as T using (Strictness)
-import Graded.Erasure.Target.Properties as TP
-open import Graded.Modality.Properties 𝕄
-import Graded.Modify-box-cong-or-J
-open import Graded.Modify-box-cong-or-J.Configuration TR UR
-open import Graded.Restrictions.Zero-one 𝕄 variant
-import Graded.Usage
-open Graded.Usage UR
-import Graded.Substitution.Properties
+open Configuration C
 
 open import Tools.Bool
 open import Tools.Fin
@@ -62,6 +31,44 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
+
+import Configuration-types.Configuration.Zero-one 𝕄 variant as CC
+open import Configuration-types.Type-configuration 𝕄
+
+import Definition.Typed
+open Definition.Typed TC
+import Definition.Typed.Inversion
+import Definition.Typed.Properties
+import Definition.Typed.Properties.Definition
+import Definition.Typed.Substitution
+
+open import Definition.Untyped M
+open import Definition.Untyped.Identity 𝕄
+open import Definition.Untyped.Properties M
+open import Definition.Untyped.QuantityTranslation.Identity M true
+
+open import Graded.Context 𝕄
+open import Graded.Derived.Identity C
+import Graded.Erasure.Consequences.Soundness
+open import Graded.Erasure.Extraction 𝕄
+open import Graded.Erasure.Extraction.Properties 𝕄
+import Graded.Erasure.Extraction.Properties.Usage
+import Graded.Erasure.SucRed
+open Graded.Erasure.SucRed TC
+open import Graded.Erasure.Target as T using (Strictness)
+import Graded.Erasure.Target.Properties as TP
+open import Graded.Modality.Properties 𝕄
+open import Graded.Modality.Morphism
+open import Graded.Modality.Morphism.Configuration hiding ([_])
+open import Graded.Modality.Morphism.Configuration.Examples
+import Graded.Mode.Instances.Zero-one.QuantityTranslation.Identity
+open import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
+import Graded.Modify-box-cong-or-J
+open import Graded.Modify-box-cong-or-J.Configuration C
+import Graded.Usage
+open Graded.Usage C
+import Graded.Usage.QuantityTranslation
+import Graded.Substitution.Properties
 
 private variable
   k l n     : Nat
@@ -290,7 +297,7 @@ opaque
   -- the record type's fields make at least some sense.
 
   Trivial-extended-type-theory :
-    No-erased-matches TR UR ⊎ ¬ Higher-quotient-constructors-neutral →
+    No-erased-matches ⊎ ¬ Higher-quotient-constructors-neutral →
     Extended-type-theory
   Trivial-extended-type-theory ok = λ where
       .Termᴱ                 → Term
@@ -322,11 +329,11 @@ opaque
         in
         _ , subset*Termˢ t⇒n , erase-t⇒n _
     where
-    open Definition.Typed.Substitution TR
+    open Definition.Typed.Substitution TC
     open Extended-type-theory
-    open Graded.Erasure.Consequences.Soundness TR UR
-    open Graded.Substitution.Properties UR
-    open Graded.Erasure.Extraction.Properties.Usage UR
+    open Graded.Erasure.Consequences.Soundness C
+    open Graded.Substitution.Properties C
+    open Graded.Erasure.Extraction.Properties.Usage C
 
 ------------------------------------------------------------------------
 -- An instance that uses equality reflection
@@ -335,14 +342,18 @@ opaque
 
 private module Extended-type-theory-with-equality-reflection where
 
-  module Conf = Configuration turn-on-equality-reflection
-  module DT   = Definition.Typed Conf.TRₜ
-  module DP   = Definition.Typed.Properties TR
-  module DP′  = Definition.Typed.Properties Conf.TRₜ
-  module DD   = Definition.Typed.Properties.Definition Conf.TRₜ
-  module GS   = Graded.Erasure.SucRed Conf.TRₜ
-  module GM   = Graded.Modify-box-cong-or-J turn-on-equality-reflection
-  module GU   = Graded.Usage Conf.URₜ
+  module Conf = Translation-config turn-on-equality-reflection
+
+  TCₜ : Type-configuration 𝕄
+  TCₜ = Conf.Cₜ .Configuration.TC
+
+  module DT  = Definition.Typed TCₜ
+  module DP  = Definition.Typed.Properties TC
+  module DP′ = Definition.Typed.Properties TCₜ
+  module DD  = Definition.Typed.Properties.Definition TCₜ
+  module GS  = Graded.Erasure.SucRed TCₜ
+  module GM  = Graded.Modify-box-cong-or-J turn-on-equality-reflection
+  module GU  = Graded.Usage Conf.Cₜ
 
   opaque
     unfolding turn-on-equality-reflection
@@ -410,7 +421,7 @@ opaque
               Soundness₀.soundness-ℕ
                 (inj₂
                    ((_$ _) ∘→ proj₂ ∘→
-                    Conf.TRₜ.Higher-quotient-constructors-neutral⇔
+                    Conf.Cₜ.Higher-quotient-constructors-neutral⇔
                       .proj₁))
                 ▸∇ ⊢t ▸t
         in
@@ -418,10 +429,10 @@ opaque
     where
     open Extended-type-theory
     open Extended-type-theory-with-equality-reflection
-    open Definition.Typed.Substitution Conf.TRₜ
-    open Graded.Erasure.Consequences.Soundness Conf.TRₜ Conf.URₜ
-    open Graded.Substitution.Properties Conf.URₜ
-    open Graded.Erasure.Extraction.Properties.Usage Conf.URₜ
+    open Definition.Typed.Substitution TCₜ
+    open Graded.Erasure.Consequences.Soundness Conf.Cₜ
+    open Graded.Substitution.Properties Conf.Cₜ
+    open Graded.Erasure.Extraction.Properties.Usage Conf.Cₜ
 
 opaque
   unfolding
@@ -438,9 +449,9 @@ opaque
   -- means for "the numeral" to be "correct".
 
   soundness-ℕ-using-equality-reflection :
-    let TR′         = with-equality-reflection TR
-        module Ext  = Definition.Typed TR′
-        module Extˢ = Definition.Typed.Substitution TR′
+    let TC′         = with-equality-reflection TC
+        module Ext  = Definition.Typed TC′
+        module Extˢ = Definition.Typed.Substitution TC′
     in
     {σ : Subst 0 n}
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
@@ -455,7 +466,9 @@ opaque
   soundness-ℕ-using-equality-reflection {∇} ⊢σ ▸σ ⊢t ▸∇ ▸t =
     let _ , eq , d =
           soundness-ℕ
-            (PE.subst (_⊢ˢʷ_∷_ _ _ _) (PE.sym map-Con-id) ⊢σ , ▸σ)
+            (PE.subst (_⊢ˢʷ_∷_ _ _ _) (PE.sym map-Con-id) ⊢σ ,
+             PE.subst₂ (GU._▸[_]_ _) tr-Mode-id tr-Term-id ∘→
+             tr-▸ ∘→ ▸σ)
             ⊢t ▸∇ ▸t
     in
     _ ,
@@ -466,7 +479,24 @@ opaque
     where
     open Extended-type-theory
            Extended-type-theory-with-equality-reflection
+    open Extended-type-theory-with-equality-reflection
     open Definition.Typed.Substitution
+
+    opaque
+
+      id-m : Is-morphism 𝕄 𝕄 idᶠ
+      id-m = Is-order-embedding.tr-morphism Is-order-embedding-id
+
+      id-Σ-m : Is-Σ-morphism 𝕄 𝕄 idᶠ idᶠ
+      id-Σ-m = Is-morphism→Is-Σ-morphism id-m
+
+    open Graded.Mode.Instances.Zero-one.QuantityTranslation.Identity
+           variant true idᶠ idᶠ id-m id-Σ-m
+           Are-mode-respecting-morphisms-id
+    open Graded.Usage.QuantityTranslation.Is-morphism
+           C (CC.with-equality-reflection C) true idᶠ idᶠ
+           id-m id-Σ-m Are-mode-respecting-morphisms-id
+           (M-with-equality-reflectionʳ {trp = true} Is-Σ-morphism-C-id)
 
 opaque
   unfolding
@@ -481,7 +511,7 @@ opaque
   -- assumptions).
 
   soundness-ℕ-with-function-extensionality :
-    let module Ext = Definition.Typed (with-equality-reflection TR) in
+    let module Ext = Definition.Typed (with-equality-reflection TC) in
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
     Level-allowed →
     Π-allowed p q →
@@ -504,9 +534,9 @@ opaque
     where
     open Extended-type-theory-with-equality-reflection
 
-    open Definition.Typed.Inversion TR
-    open Definition.Typed.Properties TR
-    open Definition.Typed.Substitution Conf.TRₜ
+    open Definition.Typed.Inversion TC
+    open Definition.Typed.Properties TC
+    open Definition.Typed.Substitution (Configuration.TC Conf.Cₜ)
     open Extended-type-theory
            Extended-type-theory-with-equality-reflection
 
@@ -519,7 +549,7 @@ opaque
   -- used if 𝟘ᵐ is allowed.
 
   soundness-ℕ-with-function-extensionality-𝟘ᵐ :
-    let module Ext = Definition.Typed (with-equality-reflection TR) in
+    let module Ext = Definition.Typed (with-equality-reflection TC) in
     ⦃ ok : T 𝟘ᵐ-allowed ⦄ →
     Level-allowed →
     Π-allowed p q →

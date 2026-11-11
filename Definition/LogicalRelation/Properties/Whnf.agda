@@ -2,28 +2,28 @@
 -- Some lemmas related to the logical relation and WHNFs
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Whnf
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Well-formed TC
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Product
 

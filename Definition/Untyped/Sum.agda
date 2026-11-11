@@ -2,14 +2,14 @@
 -- Binary sums, defined using other types
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
-open import Definition.Typed.Restrictions
 
 module Definition.Untyped.Sum
   {ℓ} {M : Set ℓ}
   (open Graded.Modality M)
   {𝕄 : Modality}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
@@ -20,7 +20,7 @@ open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Bool.Greatest-lower-bound 𝕄 as UB
   hiding (Target; module Internal)
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Weakening
@@ -175,15 +175,15 @@ module Internal
   (𝐌 : IsMode Mode 𝕄)
   where
 
-  open UB.Internal 𝐌 R
+  open UB.Internal 𝐌 TC
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term 𝐌 R
+      Definition.Typed.Decidable.Internal.Term 𝐌 TC
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 TC
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
 
   private variable
     c : I.Constants

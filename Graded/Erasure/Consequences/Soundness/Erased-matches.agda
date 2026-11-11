@@ -3,30 +3,28 @@
 -- kinds of erased matches
 ------------------------------------------------------------------------
 
+open import Configuration-types
+import Configuration-types.Configuration.Zero-one
+import Configuration-types.Type-configuration as TC
 import Definition.Typed
-open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-import Graded.Restrictions.Zero-one
 import Graded.Usage
-open import Graded.Usage.Restrictions
 open import Tools.Nat
 
 module Graded.Erasure.Consequences.Soundness.Erased-matches
   {a} {M : Set a}
   (open Definition.Untyped M)
   {𝕄 : Modality M}
-  {variant : Mode-variant 𝕄}
   (open Modality 𝕄)
+  {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (open Graded.Restrictions.Zero-one 𝕄 variant)
-  (TR : Type-restrictions 𝕄)
-  (open Type-restrictions TR)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (open Graded.Usage UR)
-  (open Usage-restrictions UR)
+  (open Configuration-types.Configuration.Zero-one 𝕄 variant)
+  (C : Configuration Zero-one-isMode)
+  (open Graded.Usage C)
+  (open Configuration C)
   {kᵈ k : Nat}
   -- A definition context.
   (∇ : DCon (Term 0) kᵈ)
@@ -39,11 +37,11 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
   -- the type system for which η-equality is allowed for weak unit
   -- types.
   (consistent :
-     let open Definition.Typed (TR with-η-for-Unitʷ) in
+     let open Definition.Typed (TC._with-η-for-Unitʷ 𝕄 TC) in
      Emptyrec-allowed 𝟙ᵐ 𝟘 →
      Consistent (glassify ∇ » Δ))
   -- Certain erased matches are not allowed.
-  (only-some-erased-matches : Only-some-erased-matches TR UR)
+  (only-some-erased-matches : Only-some-erased-matches)
   -- Equality reflection is not allowed or Δ is empty.
   ⦃ ok : No-equality-reflection or-empty Δ ⦄
   -- The modality's zero is well-behaved.
@@ -53,18 +51,23 @@ module Graded.Erasure.Consequences.Soundness.Erased-matches
 open import Tools.Bool
 open import Tools.Function
 open import Tools.Product
-open import Tools.PropositionalEquality as PE
+open import Tools.PropositionalEquality
 open import Tools.Sum
 
-import Definition.Typed.QuantityTranslation as QT
-open import Definition.Untyped.Properties M
+import Definition.Typed.QuantityTranslation
 open import Definition.Untyped.QuantityTranslation.Identity M false
 
 open import Graded.Context 𝕄
+open import Graded.Context.QuantityTranslation.Identity 𝕄
 open import Graded.Modality.Morphism
+open import Graded.Modality.Morphism.Configuration
+open import Graded.Modality.Morphism.Configuration.Examples
+open import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
+import Graded.Usage.QuantityTranslation
 
 import Graded.Erasure.Consequences.Soundness
 open import Graded.Erasure.Extraction 𝕄
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions C
 import Graded.Erasure.SucRed
 import Graded.Erasure.Target as T
 
@@ -74,37 +77,65 @@ private variable
   s   : Strength
   l   : Universe-level
 
--- A variant of the type restrictions for which η-equality is allowed
--- for weak unit types.
+-- A variant of the configuration for which η-equality is allowed for
+-- weak unit types.
 
-TR-η : Type-restrictions 𝕄
-TR-η = TR with-η-for-Unitʷ
+C-η : Configuration Zero-one-isMode
+C-η = C with-η-for-Unitʷ
 
--- TR is used by default.
+-- C is used by default.
 
-open Definition.Typed TR
-open Graded.Erasure.SucRed TR
+open Definition.Typed (C .Configuration.TC)
+open Graded.Erasure.SucRed (C .Configuration.TC)
 
--- The modules T-η and SR-η use TR-η.
+-- The modules T-η and SR-η use C-η.
 
 private
-  module T-η         = Definition.Typed TR-η
-  module SR-η        = Graded.Erasure.SucRed TR-η
+  module T-η  = Definition.Typed (C-η .Configuration.TC)
+  module SR-η = Graded.Erasure.SucRed (C-η .Configuration.TC)
+
+private
+
+  -- Some lemmas used below.
+
+  id-morphism : Is-morphism 𝕄 𝕄 idᶠ
+  id-morphism = Is-order-embedding.tr-morphism Is-order-embedding-id
+
+  id-Σ-morphism-C : Is-Σ-morphism-C false C C-η idᶠ idᶠ
+  id-Σ-morphism-C = M-with-η-for-Unitʷʳ Is-Σ-morphism-C-id
+
+-- Some modules used below.
+
+private
+  module U-η = Graded.Usage C-η
+
+  module QTT = Definition.Typed.QuantityTranslation
+    TC (C-η .Configuration.TC) false idᶠ idᶠ id-morphism
+    (Is-morphism→Is-Σ-morphism id-morphism)
+    (id-Σ-morphism-C .Is-Σ-morphism-C.is-Σ-morphism-TC)
+
+  module QTU = Graded.Usage.QuantityTranslation.Is-morphism
+    C C-η false idᶠ idᶠ id-morphism
+    (Is-morphism→Is-Σ-morphism id-morphism)
+    Are-mode-respecting-morphisms-id id-Σ-morphism-C
+
   module Soundness-η =
-    Graded.Erasure.Consequences.Soundness.Soundness TR-η UR
-      (record
-         { well-resourced              = well-resourced
-         ; consistent                  = consistent
-         ; closed-or-no-erased-matches =
-             inj₁ $
-             Only-some-erased-matches→No-erased-matches
-               TR-η UR _ only-some-erased-matches
-         ; no-equality-reflection-or-empty =
-             Type-restrictions.No-equality-reflection-or-empty⇔ TR-η
-               .proj₂ $
-             No-equality-reflection-or-empty⇔ .proj₁ $
-             ok
-         })
+    Graded.Erasure.Consequences.Soundness.Soundness C-η
+      (λ where
+         .Fundamental-assumptions⁻.well-resourced →
+           subst (U-η.▸[_]_ _) (Not-transparent.tr-DCon-id idᶠ) $
+           QTU.tr-▸-DCon (λ ()) well-resourced
+         .Fundamental-assumptions⁻.consistent →
+           consistent
+         .Fundamental-assumptions⁻.closed-or-no-erased-matches →
+           inj₁ $
+           Configuration.Only-some-erased-matches→No-erased-matches
+             C-η _ only-some-erased-matches
+         .Fundamental-assumptions⁻.no-equality-reflection-or-empty →
+           Type-configuration.No-equality-reflection-or-empty⇔
+             (C-η .Configuration.TC) .proj₂ $
+           No-equality-reflection-or-empty⇔ .proj₁ $
+           ok)
 
 opaque
 
@@ -112,28 +143,9 @@ opaque
 
   ⊢∷→⊢∷-η : Γ ⊢ t ∷ A → Γ T-η.⊢ t ∷ A
   ⊢∷→⊢∷-η ⊢t =
-    case Is-order-embedding.tr-morphism Is-order-embedding-id of λ
-      (m : Is-morphism 𝕄 𝕄 idᶠ) →
     subst₃ T-η._⊢_∷_ (Not-transparent.tr-Cons-id idᶠ) tr-Term-id
       tr-Term-id $
-    QT.tr-⊢∷ TR TR-η false idᶠ idᶠ m (Is-morphism→Is-Σ-morphism m)
-      (record
-         { unfolding-mode-preserved = refl
-         ; level-support-preserved  = refl-≤LS
-         ; Omega-plus-preserved     = idᶠ
-         ; Unit-preserved           = idᶠ
-         ; ΠΣ-preserved             =
-             λ {b = b} →
-               subst (flip (ΠΣ-allowed _) _) $
-               PE.sym $ tr-BinderMode-id b
-         ; Opacity-preserved             = λ _ → idᶠ
-         ; K-preserved                   = idᶠ
-         ; []-cong-preserved             = idᶠ
-         ; Equality-reflection-preserved = idᶠ
-         ; Quot-preserved                = idᶠ
-         ; Quot-allowed→tr-𝟘≡𝟘           = λ _ → refl
-         })
-      ⊢t
+    QTT.tr-⊢∷ ⊢t
 
 opaque
 
@@ -148,7 +160,10 @@ opaque
     ∃ λ n →
     glassify ∇ » Δ SR-η.⊢ t ⇒ˢ* sucⁿ n ∷ℕ ×
     (∀ str → eraseDCon str ∇ ⊢ erase str t ⇒ˢ⟨ str ⟩* T.sucⁿ n)
-  soundness-ℕ = Soundness-η.soundness-ℕ ∘→ ⊢∷→⊢∷-η
+  soundness-ℕ ⊢t ▸t =
+    Soundness-η.soundness-ℕ (⊢∷→⊢∷-η ⊢t)
+      (subst₃ (U-η._▸[_]_) tr-Conₘ-id refl tr-Term-id $
+       QTU.tr-▸ ▸t)
 
 opaque
 
@@ -162,4 +177,7 @@ opaque
     ∇ » Δ ⊢ t ∷ Unit s → 𝟘ᶜ ▸[ 𝟙ᵐ ] t →
     glassify ∇ » Δ T-η.⊢ t ⇒* star s ∷ Unit s ×
     (∀ str → eraseDCon str ∇ T.⊢ erase str t ⇒* T.star)
-  soundness-Unit = Soundness-η.soundness-Unit ∘→ ⊢∷→⊢∷-η
+  soundness-Unit ⊢t ▸t =
+    Soundness-η.soundness-Unit (⊢∷→⊢∷-η ⊢t)
+      (subst₃ (U-η._▸[_]_) tr-Conₘ-id refl tr-Term-id $
+       QTU.tr-▸ ▸t)

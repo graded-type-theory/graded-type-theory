@@ -2,20 +2,20 @@
 -- Atomic neutral terms
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Variant
+open import Configuration-types
 
 module Definition.Untyped.Neutral.Atomic
   {a}
   (M : Set a)
-  (type-variant : Type-variant a)
+  (TC : Type-configuration⁻ a)
   where
 
-open Type-variant type-variant
+open Type-configuration⁻ TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Neutral M TC
+open import Definition.Untyped.Whnf M TC
 
 open import Tools.Empty
 open import Tools.Fin

@@ -2,37 +2,33 @@
 -- Inversion lemmata for Heap typing
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed.Inversion
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (TR : Type-restrictions 𝕄)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-restrictions TR
-
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as E
-open import Definition.Typed TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
 
-open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Typed C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin
@@ -44,7 +40,7 @@ open import Tools.Relation
 private variable
   H : Heap _ _
   Δ : Con Term _
-  A B C D F G s t u v w z : Term _
+  A B D F G s t u v w z : Term _
   l : Lvl _
   p q q′ r : M
   ρ : Wk _ _
@@ -120,6 +116,7 @@ opaque
   -- Inversion or prodrec
 
   inversion-prodrecₑ :
+    ∀ {C} →
     Δ ⨾ H ⊢ᶜ prodrecₑ r p q A u ρ ⟨ t ⟩∷ B ↝ C →
     ∃₃ λ F G q′
     → ε » Δ ∙ F ∙ G ⊢
@@ -141,6 +138,7 @@ opaque
   -- Inversion of natrec
 
   inversion-natrecₑ :
+    ∀ {C} →
     Δ ⨾ H ⊢ᶜ natrecₑ p q r A z s ρ ⟨ t ⟩∷ B ↝ C
     → ε » Δ ⊢ wk ρ z [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ zero ]₀
     × ε » Δ ∙ ℕ ∙ wk (lift ρ) A [ H ]⇑ₕ ⊢ wk (liftn ρ 2) s [ H ]⇑²ₕ ∷
@@ -160,6 +158,7 @@ opaque
   -- Inversion of unitrec
 
   inversion-unitrecₑ :
+    ∀ {C} →
     Δ ⨾ H ⊢ᶜ unitrecₑ p q A u ρ ⟨ t ⟩∷ B ↝ C →
     ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) A [ H ]⇑ₕ [ starʷ ]₀ ×
     (ε » Δ ∙ Unitʷ ⊢ wk (lift ρ) A [ H ]⇑ₕ) ×
@@ -179,7 +178,8 @@ opaque
 
   -- Inversion of emptyrec
 
-  inversion-emptyrecₑ : Δ ⨾ H ⊢ᶜ emptyrecₑ p A ρ ⟨ t ⟩∷ B ↝ C
+  inversion-emptyrecₑ : ∀ {C}
+                      → Δ ⨾ H ⊢ᶜ emptyrecₑ p A ρ ⟨ t ⟩∷ B ↝ C
                       → ε » Δ ⊢ wk ρ A [ H ]ₕ
                       × B PE.≡ Empty
                       × (ε » Δ ⊢ C ≡ wk ρ A [ H ]ₕ)
@@ -195,6 +195,7 @@ opaque
   -- Inversion of J
 
   inversion-Jₑ :
+    ∀ {C} →
     Δ ⨾ H ⊢ᶜ Jₑ p q A t B u v ρ ⟨ w ⟩∷ C ↝ D
     → ε » Δ ⊢ wk ρ u [ H ]ₕ ∷
         wk (liftn ρ 2) B [ liftSubstn (toSubstₕ H) 2 ]
@@ -220,6 +221,7 @@ opaque
   -- Inversion of K
 
   inversion-Kₑ :
+    ∀ {C} →
     Δ ⨾ H ⊢ᶜ Kₑ p A t B u ρ ⟨ v ⟩∷ C ↝ D
     → ε » Δ ⊢ wk ρ u [ H ]ₕ ∷ wk (lift ρ) B [ H ]⇑ₕ [ rfl ]₀
     × ε » Δ ∙ wk ρ (Id A t t) [ H ]ₕ ⊢ wk (lift ρ) B [ H ]⇑ₕ
@@ -239,6 +241,7 @@ opaque
   -- Inversion of []-cong
 
   inversion-[]-congₑ :
+    ∀ {C} →
     Δ ⨾ H ⊢ᶜ []-congₑ s′ l A t u ρ ⟨ v ⟩∷ B ↝ C →
     let module E′ = E s′ in
     []-cong-allowed s′ ×

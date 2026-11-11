@@ -2,35 +2,36 @@
 -- The usage relation can be decided (given certain assumptions)
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 open import Graded.Usage.Decidable.Assumptions
 
 module Graded.Usage.Decidable
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  {R : Usage-restrictions 𝕄 𝐌}
-  (as : Assumptions R)
+  {C : Configuration 𝐌}
+  (as : Assumptions C)
   where
 
 open Assumptions as
+open Configuration C
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance C
+open import Configuration-types.Natrec 𝕄
+open import Configuration-types.Omega 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Inversion R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Restrictions.Omega 𝕄
-open import Graded.Usage.Restrictions.Instance R
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
 open import Definition.Untyped M
 
 open import Tools.Empty
@@ -483,7 +484,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (▸l , ▸A , ▸t , ▸u , ▸v , ok)
 
 ⌈⌉▸[ m ]? Quot A B =
-  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀
        ⌈⌉▸[ m ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B of λ where
     (inj₁ (ok , ▸A , ▸B)) → inj₁ (Quot ok ▸A ▸B)
     (inj₂ problem) → inj₂ λ _ ▸Q →
@@ -491,7 +492,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , ▸A , ▸B)
 
 ⌈⌉▸[ m ]? class t =
-  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀
        ⌈⌉▸[ m ]? t of λ where
     (inj₁ (ok , ▸t)) → inj₁ (class ok ▸t)
     (inj₂ problem)   → inj₂ λ _ ▸c →
@@ -499,8 +500,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , ▸t)
 
 ⌈⌉▸[ m ]? resp A B t u v =
-  case Dec→Dec-∀ Higher-quotient-constructors-allowed? ×-Dec-∀
-       Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀ Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v
   of λ where
@@ -514,8 +514,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v)
 
 ⌈⌉▸[ m ]? set A B t u v w =
-  case Dec→Dec-∀ Higher-quotient-constructors-allowed? ×-Dec-∀
-       Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀ Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w
   of λ where
@@ -535,7 +534,7 @@ infix 10 ⌈⌉▸[_]?_
     (invUsageQrec₀ ⦃ ok = ω-ok ⦄ _ _ _ _ _ _ _ _) → ω-not-ok ω-ok
     (invUsageQrec₁ ⦃ ok = ω-ok ⦄ _ _ _ _ _ _ _ _) → ω-not-ok ω-ok
 … | yes ω-ok | yes erased =
-  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? C ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀
        Dec→Dec-∀ (⌜ m ⌝ · ω ≤? headₘ ⌈t⌉)
@@ -568,7 +567,7 @@ infix 10 ⌈⌉▸[_]?_
 
   ⌈t⌉ = ⌈ t ⌉ m
 … | yes ω-ok | no not-erased =
-  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀
        ⌈⌉▸[ m ]? C ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀
        Dec→Dec-∀ (⌜ m ⌝ · ω ≤? headₘ ⌈C⌉) ×-Dec-∀

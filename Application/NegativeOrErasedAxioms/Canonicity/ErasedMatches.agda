@@ -18,13 +18,16 @@ open import Tools.Unit
 
 import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
 
+open import Configuration-types
+import Configuration-types.Configuration.Zero-one
+open import Configuration-types.Natrec
+
 import Definition.Conversion
 import Definition.Conversion.Consequences.Completeness
 import Definition.Typed
 import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Consistency
 import Definition.Typed.Properties
-open import Definition.Typed.Restrictions
 import Definition.Typed.Substitution
 import Definition.Untyped
 import Definition.Untyped.Neutral
@@ -36,10 +39,7 @@ import Graded.Erasure.SucRed
 import Graded.Modality
 import Graded.Modality.Properties
 import Graded.Mode.Instances.Zero-one
-import Graded.Restrictions.Zero-one
 import Graded.Usage
-open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 open import Graded.Mode.Instances.Zero-one.Variant
 
 open import Graded.Modality.Instances.Erasure as E using (Erasure)
@@ -60,18 +60,14 @@ module Counterexample
 
     module M = Modality 𝕄
 
-    open Graded.Restrictions.Zero-one 𝕄 variant
+    open Configuration-types.Configuration.Zero-one 𝕄 variant
 
-    -- The type and usage restrictions used in this local module.
+    -- The configuration used in this local module.
 
-    TR : Type-restrictions 𝕄
-    TR = no-type-restrictions true false
+    C : Configuration Zero-one-isMode
+    C = no-restrictions Nr true false true true true
 
-    UR : Usage-restrictions 𝕄 Zero-one-isMode
-    UR = no-usage-restrictions Nr true true true
-
-  open Type-restrictions TR
-  open Usage-restrictions UR
+  open Configuration C
 
   private instance
 
@@ -80,31 +76,30 @@ module Counterexample
     not-ok : No-equality-reflection
     not-ok = No-equality-reflection⇔ .proj₂ (λ { (lift ()) })
 
-  open Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
+  open Application.NegativeOrErasedAxioms.NegativeOrErasedContext TC
 
-  open Definition.Conversion TR
-  open Definition.Conversion.Consequences.Completeness TR
-  open Definition.Typed TR
-  open Definition.Typed.Consequences.Canonicity TR
-  open Definition.Typed.Consequences.Consistency TR
-  open Definition.Typed.Properties TR
-  open Definition.Typed.Substitution TR
+  open Definition.Conversion TC
+  open Definition.Conversion.Consequences.Completeness TC
+  open Definition.Typed TC
+  open Definition.Typed.Consequences.Canonicity TC
+  open Definition.Typed.Consequences.Consistency TC
+  open Definition.Typed.Properties TC
+  open Definition.Typed.Substitution TC
   open Definition.Untyped Erasure
-  open Definition.Untyped.Neutral Erasure type-variant
-  open Definition.Untyped.Whnf Erasure type-variant
+  open Definition.Untyped.Neutral Erasure TC⁻
+  open Definition.Untyped.Whnf Erasure TC⁻
 
   open Graded.Context 𝕄
   open Graded.Context.Properties 𝕄
-  open Graded.Erasure.SucRed TR
+  open Graded.Erasure.SucRed TC
   open Graded.Modality.Properties 𝕄
-  open Graded.Usage UR
+  open Graded.Usage C
 
   private variable
     t : Term _
 
   -- A counterexample to canonicity. Note that the use of
-  -- no-type-restrictions and no-usage-restrictions above means that
-  -- erased eliminations are allowed.
+  -- no-restrictions above means that erased eliminations are allowed.
 
   cEx :
     ∃₅ λ (m n : Nat) (Γ : Cons m n) (γ : Conₘ n) (t : Term n)
@@ -199,20 +194,17 @@ not-canonicityEq :
    in
    {𝕄 : Modality} →
    {variant : Mode-variant 𝕄} →
-   let open Graded.Restrictions.Zero-one 𝕄 variant
+   let open Configuration-types.Configuration.Zero-one 𝕄 variant
        open Modality 𝕄
        open Graded.Mode.Instances.Zero-one variant
    in
    ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
-   (TR : Type-restrictions 𝕄) →
-   let open Type-restrictions TR
+   (C : Configuration Zero-one-isMode) →
+   let open Configuration C
        open
-         Application.NegativeOrErasedAxioms.NegativeOrErasedContext TR
-       open Definition.Typed TR
-   in
-   (UR : Usage-restrictions 𝕄 Zero-one-isMode) →
-   let open Usage-restrictions UR
-       open Graded.Usage UR
+         Application.NegativeOrErasedAxioms.NegativeOrErasedContext TC
+       open Definition.Typed TC
+       open Graded.Usage C
    in
    ∀ {m n} {Γ : Cons m n} →
    Consistent Γ →
@@ -225,8 +217,9 @@ not-canonicityEq :
    ∃ λ u → Numeral u × Γ ⊢ t ≡ u ∷ ℕ) →
   ⊥
 not-canonicityEq hyp =
-  case Counterexample.cEx (𝟘ᵐ-Allowed _) of λ {
-    (_ , _ , _ , _ , _ ,
-     ⊢t , ▸Γ , ▸t , _ , nec , con , ok₁ , ok₂ , not-numeral , _) →
+  let _ , _ , _ , _ , _ ,
+        ⊢t , ▸Γ , ▸t , _ , nec , con , ok₁ , ok₂ , not-numeral , _ =
+        Counterexample.cEx (𝟘ᵐ-Allowed _)
+  in
   not-numeral $
-  hyp _ _ con (λ {q = q} → ok₁ {q = q}) ⦃ ok = ok₂ ⦄ ▸Γ ⊢t ▸t nec }
+  hyp _ con (λ {q = q} → ok₁ {q = q}) ⦃ ok = ok₂ ⦄ ▸Γ ⊢t ▸t nec

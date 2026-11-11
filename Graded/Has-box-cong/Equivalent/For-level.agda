@@ -4,11 +4,10 @@
 -- equivalent
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Has-box-cong.Equivalent.For-level
   {a} {M : Set a}
@@ -16,50 +15,49 @@ module Graded.Has-box-cong.Equivalent.For-level
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Mode-variant variant
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
-open import Definition.Typed TR
-open import Definition.Typed.Decidable.Internal Zero-one-isMode TR
-import Definition.Typed.Decidable.Internal.Context Zero-one-isMode TR
+open import Configuration-types.Instance C
+
+open import Definition.Typed TC
+open import Definition.Typed.Decidable.Internal Zero-one-isMode TC
+import Definition.Typed.Decidable.Internal.Context Zero-one-isMode TC
   as IC
 import Definition.Typed.Decidable.Internal.Substitution
-  Zero-one-isMode TR as IS
-import Definition.Typed.Decidable.Internal.Term Zero-one-isMode TR as I
-import Definition.Typed.Decidable.Internal.Weakening Zero-one-isMode TR
+  Zero-one-isMode TC as IS
+import Definition.Typed.Decidable.Internal.Term Zero-one-isMode TC as I
+import Definition.Typed.Decidable.Internal.Weakening Zero-one-isMode TC
   as IW
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Reasoning.Term TR
-open import Definition.Typed.Weakening TR as W using (_»_∷ʷ_⊇_)
-import Definition.Typed.Weakening.Definition TR as WD
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Weakening TC as W using (_»_∷ʷ_⊇_)
+import Definition.Typed.Weakening.Definition TC as WD
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped M as U
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄 as UI
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 
-open UI.Internal Zero-one-isMode TR
+open UI.Internal Zero-one-isMode TC
 
-open import Graded.Has-box-cong TR UR
-open import Graded.Has-box-cong.Lemmas TR variant
+open import Graded.Has-box-cong C
+open import Graded.Has-box-cong.Lemmas TC variant
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-import Graded.Derived.Erased.Usage UR as ErasedU
-import Graded.Derived.Erased.Usage.Zero-one UR as ErasedU₀₁
-open import Graded.Derived.Identity UR
+import Graded.Derived.Erased.Usage C as ErasedU
+import Graded.Derived.Erased.Usage.Zero-one C as ErasedU₀₁
+open import Graded.Derived.Identity C
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Weakening UR
+open import Graded.Usage C
+open import Graded.Usage.Weakening C
 
 open import Tools.Bool using (T; true)
 open import Tools.Fin
@@ -305,7 +303,7 @@ private
     where
 
     open Erased s
-    open Erased.Internal s Zero-one-isMode TR hiding (sᵢ)
+    open Erased.Internal s Zero-one-isMode TC hiding (sᵢ)
 
     []-cong″ : Term n
     []-cong″ =
@@ -672,7 +670,7 @@ opaque
     has-[]-cong′ , []-cong″-computes
     where
     open Erased s
-    open Erased.Internal s Zero-one-isMode TR
+    open Erased.Internal s Zero-one-isMode TC
     open Has-[]-cong-for-level-stronger
            hyp₁ hyp₂ hyp₃ hyp₄ has-[]-cong
 

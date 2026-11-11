@@ -2,27 +2,27 @@
 -- The logical relation is clsoed under reduction (in both directions).
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 
 module Graded.Erasure.LogicalRelation.Reduction
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (as : Assumptions R)
+  {TC : Type-configuration 𝕄}
+  (as : Assumptions TC)
   where
 
 open Assumptions as
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.LogicalRelation.Simplified R
+open import Definition.LogicalRelation.Simplified TC
 
 open import Definition.Untyped M as U
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
 
 open import Definition.Untyped.Properties M as UP using (wk-id ; wk-lift-id)
 

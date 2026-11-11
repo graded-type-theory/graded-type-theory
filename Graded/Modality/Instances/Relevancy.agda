@@ -11,15 +11,15 @@ open import Tools.Function
 open import Tools.Level
 open import Tools.Nat using (1+; Sequence)
 open import Tools.PropositionalEquality
-open import Tools.Product
+open import Tools.Product as Σ
 import Tools.Reasoning.PropositionalEquality
 import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 open import Tools.Sum
 
+open import Configuration-types
+
 import Graded.FullReduction.Assumptions
-import Graded.Usage.Restrictions
-import Definition.Typed.Restrictions
 open import Definition.Untyped.NotParametrised
 
 import Graded.Modality
@@ -797,67 +797,76 @@ module _ {𝟘ᵐ-allowed : Bool} where
 
   open Graded.FullReduction.Assumptions variant
   open Graded.Mode.Instances.Zero-one variant
-  open Graded.Usage.Restrictions 𝕄 Zero-one-isMode
-  open Definition.Typed.Restrictions 𝕄
 
   private variable
-    TR : Type-restrictions
-    UR : Usage-restrictions
+    C : Configuration Zero-one-isMode
 
-  -- Instances of Type-restrictions and Usage-restrictions are suitable
-  -- for the full reduction theorem if
+  -- Configurations are suitable for the full reduction theorem if
   -- * whenever Unitˢ-allowed holds, then Starˢ-sink holds,
   -- * Unitʷ-allowed and Unitʷ-η do not both hold,
   -- * Σˢ-allowed 𝟘 p does not hold, and
   -- * Σˢ-allowed ω p does not hold.
 
-  Suitable-for-full-reduction : Type-restrictions → Usage-restrictions → Set
-  Suitable-for-full-reduction TR UR =
+  Suitable-for-full-reduction : Configuration Zero-one-isMode → Set
+  Suitable-for-full-reduction C =
     (Unitˢ-allowed → Starˢ-sink) ×
     (Unitʷ-allowed → ¬ Unitʷ-η) ×
     (∀ p → ¬ Σˢ-allowed 𝟘 p) ×
     (∀ p → ¬ Σˢ-allowed ω p)
     where
-    open Type-restrictions TR
-    open Usage-restrictions UR
+    open Configuration C
 
-  -- Given an instance of Type-restrictions one can create a "suitable"
-  -- instance.
+  -- One can transform any configuration to a "suitable" one.
 
   suitable-for-full-reduction :
-    Type-restrictions → ∃ λ TR → Suitable-for-full-reduction TR UR
-  suitable-for-full-reduction {UR} TR =
-      record TR
-        { Unit-allowed = λ where
-            𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
-            𝕤 → Unitˢ-allowed × Starˢ-sink
-        ; ΠΣ-allowed = λ b p q →
-            ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
-        ; []-cong-allowed = λ where
-            𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
-            𝕤 → ⊥
-        ; []-cong→Erased = λ where
-            {s = 𝕨} (ok , no-η) →
-                ([]-cong→Erased ok .proj₁ , no-η)
-              , []-cong→Erased ok .proj₂
-              , λ ()
-            {s = 𝕤} ()
-        ; []-cong→¬Trivial = λ { {s = 𝕨} _ (); {s = 𝕤} () }
+    Configuration Zero-one-isMode → ∃ Suitable-for-full-reduction
+  suitable-for-full-reduction C =
+      record C
+        { TC = record TC
+          { TC⁻ = record TC⁻
+            { Unit-allowed = λ where
+                𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
+                𝕤 → Unitˢ-allowed × Starˢ-sink
+            }
+          ; ΠΣ-allowed = λ b p q →
+              ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
+          ; []-cong-allowed = λ where
+              𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
+              𝕤 → ⊥
+          ; []-cong→Erased = λ where
+              {s = 𝕨} (ok , no-η) →
+                  ([]-cong→Erased ok .proj₁ , no-η)
+                , []-cong→Erased ok .proj₂
+                , λ ()
+              {s = 𝕤} ()
+          ; []-cong→¬Trivial = λ { {s = 𝕨} _ (); {s = 𝕤} () }
+          }
+        ; []-cong-allowed-mode = λ where
+              𝕨 m → []-cong-allowed-mode 𝕨 m × _
+              𝕤 _ → _
+        ; []-cong-allowed-mode→[]-cong-allowed = λ where
+              {s = 𝕨} → Σ.map []-cong-allowed-mode→[]-cong-allowed idᶠ
+              {s = 𝕤} → idᶠ
+        ; []-cong-allowed-mode-upwards-closed = λ where
+              {s = 𝕨} →
+                flip λ m≤m′ →
+                Σ.map (flip []-cong-allowed-mode-upwards-closed m≤m′)
+                  idᶠ
+              {s = 𝕤} ()
         }
     , proj₂
     , proj₂
     , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
     , (λ _ → ((λ ()) ∘→ (_$ refl)) ∘→ proj₂)
     where
-    open Type-restrictions TR
-    open Usage-restrictions UR
+    open Configuration C
 
-  -- The full reduction assumptions hold for linearityModality and any
-  -- "suitable" Type-restrictions and Usage-restrictions.
+  -- The full reduction assumptions hold for any "suitable"
+  -- configuration.
 
   full-reduction-assumptions :
-    Suitable-for-full-reduction TR UR →
-    Full-reduction-assumptions TR UR
+    Suitable-for-full-reduction C →
+    Full-reduction-assumptions C
   full-reduction-assumptions (sink , no-η , ¬𝟘 , ¬ω) = record
     { sink⊎𝟙≤𝟘 = λ where
         {s = 𝕤} ok _         → inj₁ (refl , sink ok)
@@ -869,12 +878,12 @@ module _ {𝟘ᵐ-allowed : Bool} where
         {p = ≥𝟙} _  → inj₁ refl
     }
 
-  -- Type and usage restrictions that satisfy the full reduction
-  -- assumptions are "suitable".
+  -- Configurations that satisfy the full reduction assumptions are
+  -- "suitable".
 
   full-reduction-assumptions-suitable :
-    Full-reduction-assumptions TR UR → Suitable-for-full-reduction TR UR
-  full-reduction-assumptions-suitable {UR} as =
+    Full-reduction-assumptions C → Suitable-for-full-reduction C
+  full-reduction-assumptions-suitable as =
       (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
          (inj₁ (_ , sink)) → sink
          (inj₂ ()))
@@ -888,5 +897,4 @@ module _ {𝟘ᵐ-allowed : Bool} where
         (inj₁ ())
         (inj₂ (() , _)))
     where
-    open Full-reduction-assumptions _ _ as
-    open Usage-restrictions UR
+    open Full-reduction-assumptions _ as

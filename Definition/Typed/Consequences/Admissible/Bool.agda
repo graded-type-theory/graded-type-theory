@@ -2,7 +2,7 @@
 -- Typing and equality rules related to Bool
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -11,36 +11,36 @@ module Definition.Typed.Consequences.Admissible.Bool
   {𝕄 : Modality M}
   (open Modality 𝕄)
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
    -- The three grades used in the Σ-type used to encode the type Bool
   (Boolᵍ₁ Boolᵍ₂ OKᵍ : M)
-  (open Type-restrictions R)
+  (open Type-configuration TC)
   -- It is assumed that certain Σ-types are allowed.
   (Σ-ok : Σʷ-allowed Boolᵍ₁ Boolᵍ₂)
   -- It is assumed that weak unit types are allowed.
   (Unitʷ-ok : Unitʷ-allowed)
   where
 
-open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal 𝐌 R
-import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
-import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
-import Definition.Typed.Decidable.Internal.Tests 𝐌 R as IT
-import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
+open import Definition.Typed TC
+open import Definition.Typed.Decidable.Internal 𝐌 TC
+import Definition.Typed.Decidable.Internal.Context 𝐌 TC as IC
+import Definition.Typed.Decidable.Internal.Term 𝐌 TC as I
+import Definition.Typed.Decidable.Internal.Tests 𝐌 TC as IT
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 TC as IS
 open import Definition.Typed.Properties.Admissible.Bool.OK
-  OKᵍ R Unitʷ-ok
-open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.Nat R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Well-formed R
+  OKᵍ TC Unitʷ-ok
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Admissible.Nat TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Type TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool 𝕄 Boolᵍ₁ Boolᵍ₂ OKᵍ
-open Internal 𝐌 R
+open Internal 𝐌 TC
 open import Definition.Untyped.Empty 𝕄
 open import Definition.Untyped.Nat 𝕄
 

@@ -2,25 +2,25 @@
 -- Admissible rules related to Π-types
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Admissible.Pi
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R as W hiding (wk)
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Reduction TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC as W hiding (wk)
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M

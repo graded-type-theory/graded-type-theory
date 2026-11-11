@@ -2,12 +2,11 @@
 -- Examples related to non-interference for the abstract machine
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 import Graded.Mode.Instances.Bounded-distributive-lattice
-open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
 import Graded.Modality.Instances.Bounded-distributive-lattice
-open import Definition.Typed.Restrictions
 import Tools.PropositionalEquality as PE
 open import Tools.Algebra
 open import Tools.Relation
@@ -19,14 +18,11 @@ module Graded.Heap.Non-interference.Examples
   (is-⊤? : ∀ p → Dec (p PE.≡ ⊤))
   (open Graded.Modality.Instances.Bounded-distributive-lattice M L is-⊤?)
   (open Graded.Mode.Instances.Bounded-distributive-lattice L is-⊤?)
-  (UR : Usage-restrictions modality bounded-distributive-lattice-isMode)
-  (TR : Type-restrictions modality)
-  (open Usage-restrictions UR)
-  (open Type-restrictions TR)
+  (C : Configuration bounded-distributive-lattice-isMode)
+  (open Configuration C)
   (Level-not-allowed : ¬ Level-allowed)
   -- Quotients are not allowed.
   (Quot-not-allowed : ¬ Quot-allowed)
-  (Quotient-terms-not-allowed : ¬ Quotient-terms-allowed)
   -- The security level programs should be run in
   (ℓ₀ : M)
   ⦃ no-nr : Nr-not-available-GLB ⦄
@@ -42,37 +38,36 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
-open import Graded.Usage.Restrictions.Natrec modality
+open import Configuration-types.Natrec modality
 
 open import Graded.Heap.Non-interference
-  L is-⊤? UR TR Level-not-allowed Quot-not-allowed
-  Quotient-terms-not-allowed ℓ₀
+  L is-⊤? C Level-not-allowed Quot-not-allowed ℓ₀
 
 open Assumptions non-interference-assumptions
 
-open import Graded.Heap.Reduction type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ℓ₀
-import Graded.Heap.Reduction.Reasoning type-variant UR factoring-nr ℓ₀ as R
-open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
-open import Graded.Heap.Untyped type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Usage type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Reduction C factoring-nr ℓ₀
+open import Graded.Heap.Reduction.Inversion C factoring-nr ℓ₀
+open import Graded.Heap.Reduction.Properties C factoring-nr ℓ₀
+import Graded.Heap.Reduction.Reasoning C factoring-nr ℓ₀ as R
+open import Graded.Heap.Typed C factoring-nr ℓ₀
+open import Graded.Heap.Untyped C factoring-nr ℓ₀
+open import Graded.Heap.Untyped.Properties C factoring-nr ℓ₀
+open import Graded.Heap.Usage C factoring-nr ℓ₀
 
 open import Graded.Context modality hiding (_⟨_⟩)
 open import Graded.Context.Properties modality
-open import Graded.Derived.Nat UR
+open import Graded.Derived.Nat C
 open import Graded.Modality.Properties modality
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
 
 open import Definition.Untyped M
 open import Definition.Untyped.Nat modality
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
 
 private variable
   m n : Nat

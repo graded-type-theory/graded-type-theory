@@ -2,13 +2,13 @@
 -- Some admissible rules related to identity types and quotients
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Quotient.Primitive
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Definition.Untyped M
@@ -16,13 +16,13 @@ open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Stability.Primitive R
-open import Definition.Typed.Substitution.Primitive.Primitive R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Weakening R as W hiding (wk)
+open import Definition.Typed TC
+open import Definition.Typed.Inversion.Primitive TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Stability.Primitive TC
+open import Definition.Typed.Substitution.Primitive.Primitive TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Weakening TC as W hiding (wk)
 
 open import Tools.Fin
 open import Tools.Function

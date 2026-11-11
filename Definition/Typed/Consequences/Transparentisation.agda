@@ -2,26 +2,25 @@
 -- Typing is not necessarily preserved by transparentisation
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Variant
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Transparentisation
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant hiding (ℕ≢ne)
+open import Definition.Untyped.Neutral M TC⁻ hiding (ℕ≢ne)
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Function
 import Tools.Level as L

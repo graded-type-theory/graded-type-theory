@@ -3,7 +3,7 @@
 -- translation to regular terms
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -11,13 +11,13 @@ module Definition.Typed.Decidable.Internal.Term
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Definition.Untyped M as U
   using (BinderMode; Opacity; Strength; Term-kind; Unfolding; Wk; _»_)
 open import Definition.Untyped.Properties M
-import Definition.Untyped.Sup R as S
+import Definition.Untyped.Sup TC as S
 
 open U.Con
 open U.DCon

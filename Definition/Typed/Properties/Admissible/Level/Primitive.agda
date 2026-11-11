@@ -3,24 +3,24 @@
 -- _⊢_≡_∷Level
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Level.Primitive
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 
 open import Tools.Empty
 open import Tools.Function

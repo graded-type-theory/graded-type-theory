@@ -19,6 +19,8 @@ module Definition.Untyped.Bool.Greatest-lower-bound
 private
   open module M = Modality 𝕄 using (𝟘; 𝟙; _+_; _·_; _∧_)
 
+open import Configuration-types
+
 open import Definition.Untyped M
 open import Definition.Untyped.Empty 𝕄
   hiding (module Internal)
@@ -28,7 +30,6 @@ open import Definition.Untyped.Properties M
 import Definition.Untyped.Bool
 
 import Definition.Typed.Decidable.Internal.Term
-open import Definition.Typed.Restrictions 𝕄
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
@@ -107,13 +108,13 @@ opaque
 module Internal
   {b} {Mode : Set b}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions)
+  (TC : Type-configuration 𝕄)
   where
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term 𝐌 R
-    module IB = B.Internal 𝐌 R
+      Definition.Typed.Decidable.Internal.Term 𝐌 TC
+    module IB = B.Internal 𝐌 TC
 
   private variable
     c           : I.Constants

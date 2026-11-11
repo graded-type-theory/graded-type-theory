@@ -9,10 +9,12 @@ open import Tools.Bool using (T; Bool)
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level using (lzero)
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
+
+open import Configuration-types
 
 import Graded.FullReduction.Assumptions
 import Graded.Modality
@@ -23,9 +25,6 @@ import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
 
 open import Definition.Untyped hiding (Level)
-
-import Definition.Typed.Restrictions
-import Graded.Usage.Restrictions
 
 -- Three information levels: low (public), medium (private), and high
 -- (more private).
@@ -742,57 +741,59 @@ module _ {𝟘ᵐ-allowed : Bool} where
 
   open Graded.Mode.Instances.Zero-one variant
   open Graded.FullReduction.Assumptions variant
-  open Graded.Usage.Restrictions L≤M≤H Zero-one-isMode
-  open Definition.Typed.Restrictions L≤M≤H
 
   private variable
-    trs : Type-restrictions
-    urs : Usage-restrictions
+    C : Configuration Zero-one-isMode
 
-  -- An instance of Type-restrictions L≤M≤H is suitable for
-  -- the full reduction theorem if
+  -- A configuration is suitable for the full reduction theorem if
   -- * Σˢ-allowed M p does not hold, and
   -- * Σˢ-allowed H p implies that 𝟘ᵐ is allowed.
 
-  Suitable-for-full-reduction :
-    Type-restrictions → Set
-  Suitable-for-full-reduction trs =
+  Suitable-for-full-reduction : Configuration Zero-one-isMode → Set
+  Suitable-for-full-reduction C =
     (∀ p → ¬ Σˢ-allowed M p) ×
     (∀ p → Σˢ-allowed H p → T 𝟘ᵐ-allowed)
     where
-    open Type-restrictions trs
+    open Configuration C
 
-  -- Given an instance of Type-restrictions L≤M≤H one can
-  -- create a "suitable" instance of Type-restrictions.
+  -- One can transform any configuration to a "suitable" one.
 
   suitable-for-full-reduction :
-    Type-restrictions →
-    ∃ Suitable-for-full-reduction
-  suitable-for-full-reduction trs =
-      record trs
-        { ΠΣ-allowed = λ b p q →
-            ΠΣ-allowed b p q ×
-            ¬ (b ≡ BMΣ 𝕤 × p ≡ M) ×
-            (b ≡ BMΣ 𝕤 × p ≡ H → T 𝟘ᵐ-allowed)
-        ; []-cong-allowed = λ s →
-            []-cong-allowed s × T 𝟘ᵐ-allowed
-        ; []-cong→Erased = λ (ok₁ , ok₂) →
-              []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
-            , (λ { (_ , ()) }) , (λ _ → ok₂)
-        ; []-cong→¬Trivial =
-            λ _ ()
+    Configuration Zero-one-isMode → ∃ Suitable-for-full-reduction
+  suitable-for-full-reduction C =
+      record C
+        { TC = record TC
+          { ΠΣ-allowed = λ b p q →
+              ΠΣ-allowed b p q ×
+              ¬ (b ≡ BMΣ 𝕤 × p ≡ M) ×
+              (b ≡ BMΣ 𝕤 × p ≡ H → T 𝟘ᵐ-allowed)
+          ; []-cong-allowed = λ s →
+              []-cong-allowed s × T 𝟘ᵐ-allowed
+          ; []-cong→Erased = λ (ok₁ , ok₂) →
+                []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+              , (λ { (_ , ()) }) , (λ _ → ok₂)
+          ; []-cong→¬Trivial =
+              λ _ ()
+          }
+        ; []-cong-allowed-mode = λ s m →
+            []-cong-allowed-mode s m × _
+        ; []-cong-allowed-mode→[]-cong-allowed =
+            Σ.map []-cong-allowed-mode→[]-cong-allowed idᶠ
+        ; []-cong-allowed-mode-upwards-closed =
+            flip λ m≤m′ →
+            Σ.map (flip []-cong-allowed-mode-upwards-closed m≤m′) idᶠ
         }
     , (λ _ → (_$ (refl , refl)) ∘→ proj₁ ∘→ proj₂)
     , (λ _ → (_$ (refl , refl)) ∘→ proj₂ ∘→ proj₂)
     where
-    open Type-restrictions trs
+    open Configuration C
 
-  -- The full reduction assumptions hold for L≤M≤H and any
-  -- "suitable" instance of Type-restrictions.
+  -- The full reduction assumptions hold for any "suitable"
+  -- configuration.
 
   full-reduction-assumptions :
-    Suitable-for-full-reduction trs →
-    Full-reduction-assumptions trs urs
+    Suitable-for-full-reduction C →
+    Full-reduction-assumptions C
   full-reduction-assumptions (¬M , H→𝟘ᵐ) = record
     { sink⊎𝟙≤𝟘    = λ _ _ → inj₂ refl
     ; ≡𝟙⊎𝟙≤𝟘 = λ where
@@ -801,12 +802,12 @@ module _ {𝟘ᵐ-allowed : Bool} where
         {p = H} ok → inj₂ (refl , H→𝟘ᵐ _ ok , refl)
     }
 
-  -- Type and usage restrictions that satisfy the full reduction
-  -- assumptions are "suitable".
+  -- Configurations that satisfy the full reduction assumptions are
+  -- "suitable".
 
   full-reduction-assumptions-suitable :
-    Full-reduction-assumptions trs urs →
-    Suitable-for-full-reduction trs
+    Full-reduction-assumptions C →
+    Suitable-for-full-reduction C
   full-reduction-assumptions-suitable as =
       (λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
         (inj₁ ())
@@ -815,7 +816,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
         (inj₁ ())
         (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
     where
-    open Full-reduction-assumptions _ _ as
+    open Full-reduction-assumptions _ as
 
 open import Graded.Modality.Properties.Subtraction L≤M≤H
 

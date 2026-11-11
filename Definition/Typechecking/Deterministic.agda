@@ -2,18 +2,18 @@
 -- Type inference is deterministic.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typechecking.Deterministic
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open import Definition.Typechecking R
-open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Typechecking TC
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 

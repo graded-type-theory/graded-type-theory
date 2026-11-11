@@ -3,41 +3,39 @@
 -- to hold.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Reduction.Necessary
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
-open Type-restrictions TR
-open Usage-restrictions UR
 open Modality 𝕄
 open IsMode 𝐌
+open Configuration C
+
+open import Configuration-types.Instance C
+open import Configuration-types.Natrec 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Restrictions.Natrec 𝕄
-import Graded.Reduction TR UR as R
-import Graded.Usage UR as U
-import Graded.Usage.Inversion UR as UI
-import Graded.Usage.Properties UR as UP
-import Graded.Usage.Weakening UR as UW
+import Graded.Reduction C as R
+import Graded.Usage C as U
+import Graded.Usage.Inversion C as UI
+import Graded.Usage.Properties C as UP
+import Graded.Usage.Weakening C as UW
 
-open import Definition.Typed TR
-open import Definition.Typed.Properties TR
-import Definition.Typed.Reasoning.Type TR as TEq
-open import Definition.Typed.Substitution TR
-open import Definition.Typed.Weakening TR as W hiding (wk)
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+import Definition.Typed.Reasoning.Type TC as TEq
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC as W hiding (wk)
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -555,7 +553,7 @@ module Usage (usage : Usage-relation) where
 
 ------------------------------------------------------------------------
 -- Usage properties that hold for "arbitrary" usage relations with a
--- certain anstaz for the natrec rule (and some type restrictions).
+-- certain ansatz for the natrec rule (given some assumptions)
 
 module Natrec₁
   (usage-relation-natrec : Usage-relation-natrec₁)
@@ -1165,7 +1163,7 @@ module Natrec₁
 
 ------------------------------------------------------------------------
 -- Usage properties that hold for "arbitrary" usage relations with a
--- certain anstaz for the natrec rule (and some type restrictions).
+-- certain ansatz for the natrec rule (given some assumptions)
 
 module Natrec₂
   (usage-relation-natrec : Usage-relation-natrec₂)
@@ -1182,7 +1180,7 @@ module Natrec₂
 
 ------------------------------------------------------------------------
 -- Usage properties that hold for "arbitrary" usage relations with a
--- certain anstaz for the unitrec rule (and some type restrictions).
+-- certain ansatz for the unitrec rule (given some assumptions)
 
 module Unitrec
   (usage-relation-unitrec : Usage-relation-unitrec)
@@ -1257,7 +1255,7 @@ module Unitrec
 
 ------------------------------------------------------------------------
 -- Usage properties that hold for "arbitrary" usage relations with a
--- certain anstaz for the prodrec rule (and some type restrictions).
+-- certain ansatz for the prodrec rule (given some assumptions)
 
 module Prodrec
   (usage-relation-prodrec : Usage-relation-prodrec)

@@ -2,37 +2,38 @@
 -- Irrelevance lemmata for the logical relation
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 
 module Definition.LogicalRelation.Irrelevance
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M hiding (Wk; K)
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Escape R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Escape TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Kit TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Primitive TC ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Quotient eqrel
-open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Reflexivity
+  TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Whnf TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.ShapeView TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted TC ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Level hiding (_⊔_)

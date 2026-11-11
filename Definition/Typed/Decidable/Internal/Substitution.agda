@@ -2,7 +2,7 @@
 -- Substitution operations used by Definition.Typed.Decidable.Internal
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -10,24 +10,24 @@ module Definition.Typed.Decidable.Internal.Substitution
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal.Monad 𝐌 R
+open import Definition.Typed TC
+open import Definition.Typed.Decidable.Internal.Monad 𝐌 TC
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
-open import Definition.Typed.Decidable.Internal.Term 𝐌 R
-open import Definition.Typed.Decidable.Internal.Weakening 𝐌 R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed.Decidable.Internal.Term 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M as U
   using (Infinite; Level-literal; Term-kind; Wk)
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Properties M hiding (is-var?)
-import Definition.Untyped.Sup R as S
+import Definition.Untyped.Sup TC as S
 
 open Term-kind
 open Wk
@@ -45,7 +45,8 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
 
-open Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R public
+open Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 TC
+  public
 
 private variable
   b b₁ b₂                         : Bool

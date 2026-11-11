@@ -3,46 +3,46 @@
 -- assumptions)
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typechecking.Decidable.Assumptions
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typechecking.Decidable
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (as : Assumptions R)
+  {TC : Type-configuration 𝕄}
+  (as : Assumptions TC)
   where
 
 open Assumptions as
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typechecking R
-open import Definition.Typechecking.Soundness R
-open import Definition.Typechecking.Deterministic R
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
-open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Well-formed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.NeTypeEq R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Decidable.Equality R _≟_
-open import Definition.Typed.Decidable.Reduction R _≟_
+open import Definition.Typechecking TC
+open import Definition.Typechecking.Soundness TC
+open import Definition.Typechecking.Deterministic TC
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.EqualityRelation.Instance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Type TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Syntactic TC
+open import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.NeTypeEq TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.Decidable.Equality TC _≟_
+open import Definition.Typed.Decidable.Reduction TC _≟_
 open import Definition.Untyped M as U
-open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Allowed-literal TC
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Empty
 open import Tools.Fin

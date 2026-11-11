@@ -9,21 +9,18 @@
 open import Tools.Bool using (true; T)
 open import Tools.Level using (lzero)
 
-open import Definition.Typed.Restrictions
-
 open import Graded.Modality.Instances.Erasure.Modality
-open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Omega ErasureModality
 open import Graded.Mode.Instances.Zero-one.Variant ErasureModality
 open import Graded.Mode.Instances.Zero-one 𝟘ᵐ-Allowed
 
+open import Configuration-types
+open import Configuration-types.Omega ErasureModality
+
 module Graded.Modality.Instances.Erasure.Combined.Equivalent
-  (TR : Type-restrictions ErasureModality)
-  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 open Mode-variant 𝟘ᵐ-Allowed
 
 private
@@ -38,26 +35,27 @@ private
   ω′ : ⦃ ok : Usage-allows-omega ⦄ → _
   ω′ ⦃ ok ⦄ = Has-omega.ω (Usage-with-omega-has-omega ok)
 
+open import Configuration-types.Erased-matches
+open import Configuration-types.Natrec 𝕄
+
 open import Graded.Context 𝕄
 open import Graded.Modality.Instances.Erasure
-open import Graded.Modality.Instances.Erasure.Combined TR UR as C
-open import Graded.Modality.Instances.Erasure.Combined.Properties TR UR
+open import Graded.Modality.Instances.Erasure.Combined C as C
+open import Graded.Modality.Instances.Erasure.Combined.Properties C
 open import Graded.Modality.Instances.Erasure.Properties
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one 𝟘ᵐ-Allowed UR
-open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one 𝟘ᵐ-Allowed C
 
-open import Definition.Typed TR as T
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Size TR
-open import Definition.Typed.Substitution TR as S
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC as T
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Size TC
+open import Definition.Typed.Substitution TC as S
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped Erasure
-open import Definition.Untyped.Allowed-literal TR
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Quotient 𝕄
 
 open import Tools.Empty
@@ -218,7 +216,7 @@ opaque mutual
       δ +ᶜ δ +ᶜ δ  ∎ }
     where
     open ≤ᶜ-reasoning
-  ⊢[]→▸ (Quot _ ok ⊢A ⊢B) =
+  ⊢[]→▸ (Quot ok ⊢A ⊢B) =
     Quot ok (⊢[]→▸ ⊢A) (⊢[]→▸? ⊢B)
 
   -- A variant of ⊢∷[]→▸.
@@ -495,7 +493,7 @@ opaque mutual
       ([]-congₘ (⊢∷L→▸? ⊢l) (⊢[]→▸? ⊢A) (⊢∷[]→▸? ⊢t) (⊢∷[]→▸? ⊢u)
          (⊢∷[]→▸? ⊢v) ok)
       (greatest-elemᶜ _)
-  ⊢∷[]→▸ (Quot _ ok ⊢A ⊢B) =
+  ⊢∷[]→▸ (Quot ok ⊢A ⊢B) =
     Quot ok (⊢∷[]→▸ ⊢A) (⊢∷[]→▸? ⊢B)
   ⊢∷[]→▸ (class ok _ ⊢t) =
     class ok (⊢∷[]→▸ ⊢t)
@@ -605,7 +603,7 @@ opaque mutual
     ΠΣⱼ (⊢[]→⊢ ⊢B) ok
   ⊢[]→⊢ (Id _ _ _ ⊢t ⊢u) =
     Idⱼ′ (⊢∷[]→⊢∷ ⊢t) (⊢∷[]→⊢∷ ⊢u)
-  ⊢[]→⊢ (Quot ok _ _ ⊢B) =
+  ⊢[]→⊢ (Quot ok _ ⊢B) =
     Quot ok (⊢[]→⊢ ⊢B)
 
   -- If t is well-typed and well-resourced, then t is well-typed.
@@ -675,7 +673,7 @@ opaque mutual
     Kⱼ (⊢[]→⊢ ⊢B) (⊢∷[]→⊢∷ ⊢u) (⊢∷[]→⊢∷ ⊢v) ok
   ⊢∷[]→⊢∷ ([]-cong ok _ ⊢l _ _ _ ⊢v) =
     []-congⱼ′ ok (⊢∷L→⊢∷L ⊢l) (⊢∷[]→⊢∷ ⊢v)
-  ⊢∷[]→⊢∷ (Quot ok _ ⊢A ⊢B) =
+  ⊢∷[]→⊢∷ (Quot ok ⊢A ⊢B) =
     ⊢Quot ok (⊢∷[]→⊢∷ ⊢A) (⊢∷[]→⊢∷ ⊢B)
   ⊢∷[]→⊢∷ (class _ ⊢Q ⊢t) =
     class (⊢[]→⊢ ⊢Q) (⊢∷[]→⊢∷ ⊢t)
@@ -857,9 +855,7 @@ opaque
 
 -- The translation in this direction makes use of some assumptions:
 -- certain things must always be allowed when the mode is 𝟘ᵐ[ ok ],
--- and if quotient types are allowed, then Usage-allows-omega holds
--- and higher quotient constructors are allowed. (Note that higher
--- quotient constructors cannot be allowed when the mode is 𝟙ᵐ.)
+-- and if quotient types are allowed, then Usage-allows-omega holds.
 
 record Allowed-at-𝟘ᵐ : Set where
   no-eta-equality
@@ -868,14 +864,7 @@ record Allowed-at-𝟘ᵐ : Set where
     ur : ∀ {ok} p q   → Unitrec-allowed        𝟘ᵐ[ ok ] p q
     pr : ∀ {ok} r p q → Prodrec-allowed        𝟘ᵐ[ ok ] r p q
     bc : ∀ {ok} p     → []-cong-allowed-mode p 𝟘ᵐ[ ok ]
-    qc : Quot-allowed → Higher-quotient-constructors-allowed
     qω : Quot-allowed → Usage-allows-omega
-
-  -- If quotient types are allowed, then quotient term formers are
-  -- allowed.
-
-  qt : Quot-allowed → Quotient-terms-allowed
-  qt = Higher-quotient-constructors→Quotient-terms ∘→ qc
 
 module _ (ok : Allowed-at-𝟘ᵐ) where
 
@@ -1059,7 +1048,7 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
                 (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u)
         (Quot ok ⊢B) PE.refl →
           let _ , ⊢A , _ = ∙∙⊢→⊢-<ˢ ⊢B in
-          Quot ok (qt ok) (⊢←⊢-<ˢ ⊢A) (⊢←⊢ ⊢B)
+          Quot ok (⊢←⊢-<ˢ ⊢A) (⊢←⊢ ⊢B)
 
       -- If t is well-typed, then t is well-typed.
 
@@ -1187,25 +1176,25 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
           []-cong ok (PE.subst ([]-cong-allowed-mode _) (PE.sym ⌞𝟘⌟′) (bc _))
             (⊢∷L←⊢∷L ⊢l) (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
         (Quot ok _ ⊢A ⊢B) PE.refl →
-          Quot ok (qt ok) (⊢∷←⊢∷ ⊢A) (⊢∷←⊢∷ ⊢B)
+          Quot ok (⊢∷←⊢∷ ⊢A) (⊢∷←⊢∷ ⊢B)
         (class ⊢Q ⊢t) PE.refl →
           let ok , _ = inversion-Quot ⊢Q in
-          class (qt ok) (⊢←⊢ ⊢Q) (⊢∷←⊢∷ ⊢t)
+          class ok (⊢←⊢ ⊢Q) (⊢∷←⊢∷ ⊢t)
         (resp ⊢Q ⊢t ⊢u ⊢v) PE.refl →
           let ok , _ = inversion-Quot ⊢Q in
-          resp (qc ok) (⊢←⊢ ⊢Q) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
+          resp ok (⊢←⊢ ⊢Q) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v)
         (set ⊢Q ⊢t ⊢u ⊢v ⊢w) PE.refl →
           let ok , _ = inversion-Quot ⊢Q in
-          set (qc ok) (⊢←⊢ ⊢Q) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
+          set ok (⊢←⊢ ⊢Q) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
         (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) PE.refl →
           let ok , _ = inversion-Quot (⊢∙→⊢ (wf ⊢C)) in
           case Qrec-motive-erased? of λ where
             (yes erased) →
-              qrec (qω ok) (qt ok) (λ _ → PE.refl , PE.refl)
+              qrec (qω ok) ok (λ _ → PE.refl , PE.refl)
                 (⊥-elim ∘→ (_$ erased)) (▸⊢[𝟘]←⊢ ⊢C) (▸⊢∷[𝟘]←⊢∷ ⊢t)
                 (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
             (no not-erased) →
-              qrec (qω ok) (qt ok) (⊥-elim ∘→ not-erased)
+              qrec (qω ok) ok (⊥-elim ∘→ not-erased)
                 (λ _ → PE.refl , PE.refl) (▸⊢[𝟘]←⊢ ⊢C) (▸⊢∷[𝟘]←⊢∷ ⊢t)
                 (⊢∷←⊢∷ ⊢u) (⊢∷←⊢∷ ⊢v) (⊢∷←⊢∷ ⊢w)
 
@@ -1520,8 +1509,8 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
       where
       open ≤ᶜ-reasoning
     ⊢[]←⊢▸ (Quot ok ⊢B) ▸Q =
-      let ok′ , ▸A , _ = inv-usage-Quot ▸Q in
-      Quot ok ok′ (⊢[]←⊢▸ (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B)))) ▸A) (⊢←⊢ ⊢B)
+      let _ , ▸A , _ = inv-usage-Quot ▸Q in
+      Quot ok (⊢[]←⊢▸ (⊢∙→⊢ (wf (⊢∙→⊢ (wf ⊢B)))) ▸A) (⊢←⊢ ⊢B)
 
     -- If t is well-typed and well-resourced, then t is well-typed and
     -- well-resourced.
@@ -1961,8 +1950,8 @@ module _ (ok : Allowed-at-𝟘ᵐ) where
         []-cong ok ok′ (⊢∷L←⊢∷L ⊢l) (⊢←⊢ ⊢A) (⊢∷←⊢∷ ⊢t) (⊢∷←⊢∷ ⊢u)
           (⊢∷←⊢∷ ⊢v)
       (Quot ok _ ⊢A ⊢B) ▸Q →
-        let ok′ , ▸A , _ = inv-usage-Quot ▸Q in
-        Quot ok ok′ (⊢∷[]←⊢∷▸ ⊢A ▸A) (⊢∷←⊢∷ ⊢B)
+        let _ , ▸A , _ = inv-usage-Quot ▸Q in
+        Quot ok (⊢∷[]←⊢∷▸ ⊢A ▸A) (⊢∷←⊢∷ ⊢B)
       (class ⊢Q ⊢t) ▸c →
         let ok , ▸t = inv-usage-class ▸c in
         class ok (⊢←⊢ ⊢Q) (⊢∷[]←⊢∷▸ ⊢t ▸t)

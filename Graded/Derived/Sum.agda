@@ -2,19 +2,17 @@
 -- Some properties related to usage and Sum.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Derived.Sum
   {ℓ ℓ′} {M : Set ℓ} {Mode : Set ℓ′}
   (open Graded.Modality M)
   {𝕄 : Modality}
   {𝐌 : IsMode Mode 𝕄}
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   ⦃ no-nr : Nr-not-available-GLB ⦄
   where
 
@@ -24,17 +22,17 @@ open IsMode 𝐌
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Derived.Bool.Greatest-lower-bound UR
-open import Graded.Derived.Sup TR UR
+open import Graded.Derived.Bool.Greatest-lower-bound C
+open import Graded.Derived.Sup C
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution.Properties UR
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Weakening UR
+open import Graded.Substitution.Properties C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 
 open import Definition.Untyped M
-open import Definition.Untyped.Sum TR
+open import Definition.Untyped.Sum TC
 
 open import Tools.Fin
 open import Tools.Function
@@ -52,8 +50,8 @@ private variable
 ------------------------------------------------------------------------
 -- The type Sum-allowed
 
--- A collection of usage restrictions that are used to show that the
--- Sum type is well-resourced.
+-- A collection of assumptions that are used to show that the Sum type
+-- is well-resourced.
 
 record Sum-allowed (m : Mode) : Set ℓ where
   no-eta-equality

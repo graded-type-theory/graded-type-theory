@@ -3,36 +3,37 @@
 -- greatest lower bounds in the usage rule for natrec.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Bool.Greatest-lower-bound
   {a b} {M : Set a} {Mode : Set b}
   (open Graded.Modality M)
   {𝕄 : Modality}
   {𝐌 : IsMode Mode 𝕄}
-  (R : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions R)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   ⦃ no-nr : Nr-not-available-GLB ⦄
   where
 
 open Modality 𝕄
 open IsMode 𝐌
 
+open import Configuration-types.Instance C
+
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Derived.Empty R
-open import Graded.Derived.Nat R
+open import Graded.Derived.Empty C
+open import Graded.Derived.Nat C
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution.Properties R
-open import Graded.Usage R
-open import Graded.Usage.Inversion R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Restrictions.Instance R
-open import Graded.Usage.Weakening R
+open import Graded.Substitution.Properties C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool.Greatest-lower-bound 𝕄

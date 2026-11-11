@@ -4,7 +4,7 @@
 -- contexts)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Definition.Untyped
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
@@ -14,23 +14,23 @@ module Definition.Typed.Decidable.Reduction
   {a} {M : Set a}
   (open Definition.Untyped M)
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   (_≟_ : Decidable (PE._≡_ {A = M}))
   {m n} {Γ : Cons m n}
   ⦃ ok : No-equality-reflection or-empty (Γ .vars) ⦄
   where
 
-open import Definition.Untyped.Neutral M type-variant as N
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Consequences.Equality R
-open import Definition.Typed.Consequences.Inequality R as I
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.Untyped.Neutral M TC⁻ as N
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Consequences.Equality TC
+open import Definition.Typed.Consequences.Inequality TC as I
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Fundamental.Reducibility TC
 
 open import Tools.Function
 open import Tools.Product

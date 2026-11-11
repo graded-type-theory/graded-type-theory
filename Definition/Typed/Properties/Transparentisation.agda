@@ -2,30 +2,30 @@
 -- Some properties related to transparentisation
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Variant
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Transparentisation
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant hiding (ℕ≢ne)
+open import Definition.Untyped.Neutral M TC⁻
+  hiding (ℕ≢ne)
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Admissible.Identity R
-open import Definition.Typed.Properties.Admissible.Lift R
-open import Definition.Typed.Properties.Admissible.Pi-Sigma R
-open import Definition.Typed.Properties.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Identity TC
+open import Definition.Typed.Properties.Admissible.Lift TC
+open import Definition.Typed.Properties.Admissible.Pi-Sigma TC
+open import Definition.Typed.Properties.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Function
 import Tools.Level as L

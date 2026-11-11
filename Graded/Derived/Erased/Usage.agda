@@ -2,43 +2,44 @@
 -- Some properties related to usage and Erased
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 open import Definition.Untyped.NotParametrised using (Strength)
 
 module Graded.Derived.Erased.Usage
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   (s : Strength)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types.Instance C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution R
-open import Graded.Substitution.Properties R
-open import Graded.Usage R
-open import Graded.Usage.Inversion R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Restrictions.Instance R
-open import Graded.Usage.Weakening R
+open import Graded.Substitution C
+open import Graded.Substitution.Properties C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 s
 open import Definition.Untyped.Properties M
-import Graded.Derived.Erased.Usage.Eta R as Eta
-import Graded.Derived.Erased.Usage.No-eta R as NoEta
-open import Graded.Derived.Identity R
-open import Graded.Derived.Sigma R
-open import Graded.Derived.Unit R
+import Graded.Derived.Erased.Usage.Eta C as Eta
+import Graded.Derived.Erased.Usage.No-eta C as NoEta
+open import Graded.Derived.Identity C
+open import Graded.Derived.Sigma C
+open import Graded.Derived.Unit C
 
 open import Tools.Bool using (T)
 open import Tools.Empty

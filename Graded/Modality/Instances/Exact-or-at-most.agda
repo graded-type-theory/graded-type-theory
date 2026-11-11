@@ -15,18 +15,18 @@ import Tools.Bool as B
 open import Tools.Empty
 open import Tools.Function
 open import Tools.Level using (ℓ₀)
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality
 open import Tools.Relation
 import Tools.Reasoning.PropositionalEquality as RPe
 import Tools.Reasoning.PartialOrder as RPo
 open import Tools.Sum
 
-open import Definition.Untyped.NotParametrised
-import Definition.Typed.Restrictions
-import Graded.Usage.Restrictions
-import Graded.FullReduction.Assumptions
+open import Configuration-types
 
+open import Definition.Untyped.NotParametrised
+
+import Graded.FullReduction.Assumptions
 import Graded.Modality.Properties.Addition
 import Graded.Modality.Properties.Has-well-behaved-zero
 import Graded.Modality.Properties.Meet
@@ -1191,76 +1191,80 @@ module _ {𝟘ᵐ-allowed : Bool} where
       }
 
   open Graded.Mode.Instances.Zero-one   variant
-  open Definition.Typed.Restrictions    exact-or-at-most-modality
-  open Graded.Usage.Restrictions        exact-or-at-most-modality Zero-one-isMode
   open Graded.FullReduction.Assumptions variant
 
   private variable
-    TR : Type-restrictions
-    UR : Usage-restrictions
+    C : Configuration Zero-one-isMode
 
-  -- Instances of Type-restrictions and Usage-restrictions are suitable
-  -- for the full reduction theorem if
+  -- Configurations are suitable for the full reduction theorem if
   -- * whenever Unitˢ-allowed holds, then Starˢ-sink holds,
   -- * Unitʷ-allowed and Unitʷ-η do not both hold,
   -- * Σˢ-allowed p q holds only if p ≡ 𝟙.
 
-  Suitable-for-full-reduction :
-    Type-restrictions →
-    Usage-restrictions →
-    Set
-  Suitable-for-full-reduction TR UR =
+  Suitable-for-full-reduction : Configuration Zero-one-isMode → Set
+  Suitable-for-full-reduction C =
     (Unitˢ-allowed → Starˢ-sink) ×
     (Unitʷ-allowed → ¬ Unitʷ-η) ×
     (∀ p q → Σˢ-allowed p q → p ≡ 𝟙)
     where
-    open Type-restrictions  TR
-    open Usage-restrictions UR
+    open Configuration C
 
   opaque
 
-    -- Given an instance of Type-restrictions exact-or-at-most-modality
-    -- one can create a "suitable" instance.
+    -- One can transform any configuration to a "suitable" one.
 
     suitable-for-full-reduction :
-      Type-restrictions →
-      ∃ λ TR → Suitable-for-full-reduction TR UR
-    suitable-for-full-reduction {UR} TR =
-        record TR
-          { Unit-allowed = λ where
-              𝕤 → Unitˢ-allowed × Starˢ-sink
-              𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
-          ; ΠΣ-allowed = λ b p q →
-              ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
-          ; []-cong-allowed = λ where
-              𝕤 → ⊥
-              𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
-          ; []-cong→Erased = λ where
+      Configuration Zero-one-isMode → ∃ Suitable-for-full-reduction
+    suitable-for-full-reduction C =
+        record C
+          { TC = record TC
+            { TC⁻ = record TC⁻
+              { Unit-allowed = λ where
+                  𝕤 → Unitˢ-allowed × Starˢ-sink
+                  𝕨 → Unitʷ-allowed × ¬ Unitʷ-η
+              }
+            ; ΠΣ-allowed = λ b p q →
+                ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 𝟙)
+            ; []-cong-allowed = λ where
+                𝕤 → ⊥
+                𝕨 → []-congʷ-allowed × ¬ Unitʷ-η
+            ; []-cong→Erased = λ where
+                {s = 𝕤} ()
+                {s = 𝕨} (ok , no-η) →
+                  case []-cong→Erased ok of λ
+                    (ok₁ , ok₂) →
+                  (ok₁ , no-η) , ok₂ , λ ()
+            ; []-cong→¬Trivial = λ where
+                {s = 𝕤} ()
+                {s = 𝕨} (ok , no-η) → []-cong→¬Trivial ok
+            }
+          ; []-cong-allowed-mode = λ where
+              𝕤 _ → _
+              𝕨 m → []-cong-allowed-mode 𝕨 m × _
+          ; []-cong-allowed-mode→[]-cong-allowed = λ where
+              {s = 𝕤} → idᶠ
+              {s = 𝕨} → Σ.map []-cong-allowed-mode→[]-cong-allowed idᶠ
+          ; []-cong-allowed-mode-upwards-closed = λ where
               {s = 𝕤} ()
-              {s = 𝕨} (ok , no-η) →
-                case []-cong→Erased ok of λ
-                  (ok₁ , ok₂) →
-                (ok₁ , no-η) , ok₂ , λ ()
-          ; []-cong→¬Trivial = λ where
-              {s = 𝕤} ()
-              {s = 𝕨} (ok , no-η) → []-cong→¬Trivial ok
+              {s = 𝕨}    →
+                flip λ m≤m′ →
+                Σ.map (flip []-cong-allowed-mode-upwards-closed m≤m′)
+                  idᶠ
           }
       , proj₂
       , proj₂
       , λ _ _ ok → proj₂ ok refl
       where
-      open Type-restrictions  TR
-      open Usage-restrictions UR
+      open Configuration C
 
   opaque
 
-    -- The full reduction assumptions hold for any instance of
-    -- exact-or-at-most-modality and any "suitable" Type-restrictions and
-    -- Usage-restrictions.
+    -- The full reduction assumptions hold for any "suitable"
+    -- configuration.
 
     full-reduction-assumptions :
-      Suitable-for-full-reduction TR UR →
-      Full-reduction-assumptions TR UR
+      Suitable-for-full-reduction C →
+      Full-reduction-assumptions C
     full-reduction-assumptions (sink , no-η , Σ-ok) = record
       { sink⊎𝟙≤𝟘 = λ where
           {s = 𝕤} ok η-ok → inj₁ (refl , sink ok)
@@ -1272,12 +1276,12 @@ module _ {𝟘ᵐ-allowed : Bool} where
 
   opaque
 
-    -- Type and usage restrictions that satisfy the full reduction
-    -- assumptions are "suitable".
+    -- Configurations that satisfy the full reduction assumptions are
+    -- "suitable".
 
     full-reduction-assumptions-suitable :
-      Full-reduction-assumptions TR UR →
-      Suitable-for-full-reduction TR UR
+      Full-reduction-assumptions C →
+      Suitable-for-full-reduction C
     full-reduction-assumptions-suitable as =
         (λ ok → case sink⊎𝟙≤𝟘 ok (inj₁ refl) of λ where
            (inj₁ (_ , sink)) → sink
@@ -1289,7 +1293,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
           (inj₁ p≡𝟙) → p≡𝟙
           (inj₂ ())
       where
-      open Full-reduction-assumptions _ _ as
+      open Full-reduction-assumptions _ as
 
 ------------------------------------------------------------------------
 -- Subtraction

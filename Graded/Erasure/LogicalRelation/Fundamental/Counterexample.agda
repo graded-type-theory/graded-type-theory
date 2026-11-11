@@ -4,12 +4,11 @@
 -- empty and higher quotient constructors are not neutral
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
   {a} {M : Set a}
@@ -17,35 +16,34 @@ module Graded.Erasure.LogicalRelation.Fundamental.Counterexample
   {variant : Mode-variant 𝕄}
   (open Modality 𝕄)
    (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
+
+open import Configuration-types.Configuration.Zero-one 𝕄 variant
+open import Configuration-types.Erased-matches
 
 open import Graded.Context 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Restrictions.Zero-one 𝕄 variant
+open import Graded.Usage C
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed TR
-open import Definition.Typed.EqRelInstance TR
-open import Definition.Typed.Consequences.Consistency TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Consequences.Consistency TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
 
-open import Graded.Erasure.Consequences.Soundness TR UR
+open import Graded.Erasure.Consequences.Soundness C
 open import Graded.Erasure.Extraction 𝕄
-open import Graded.Erasure.LogicalRelation.Assumptions TR
+open import Graded.Erasure.LogicalRelation.Assumptions TC
 import Graded.Erasure.LogicalRelation
-open import Graded.Erasure.LogicalRelation.Fundamental TR UR
+open import Graded.Erasure.LogicalRelation.Fundamental C
 import Graded.Erasure.LogicalRelation.Hidden
 open import Graded.Erasure.Target using (Strictness)
 
@@ -85,7 +83,7 @@ private
       as = assumptions ⊢Δ str is-reduction-relation
 
     open Graded.Erasure.LogicalRelation as public
-    open Graded.Erasure.LogicalRelation.Hidden UR as public
+    open Graded.Erasure.LogicalRelation.Hidden C as public
 
   -- A variant of LR.
 
@@ -111,7 +109,7 @@ private
         }
 
     open Graded.Erasure.LogicalRelation as public
-    open Graded.Erasure.LogicalRelation.Hidden UR as public
+    open Graded.Erasure.LogicalRelation.Hidden C as public
 
 -- Below negations of variants of the statement of the fundamental
 -- lemma are proved. In each case the variants are given for the
@@ -288,7 +286,6 @@ opaque
     ⦃ ok : No-equality-reflection ⦄ →
     ⦃ ok-ω : Usage-allows-omega ⦄ →
     erased-matches-for-J 𝟙ᵐ ≡ not-none sem →
-    Higher-quotient-constructors-allowed →
     Higher-quotient-constructors-neutral →
     ¬ (∀ {o k} {Δ : Con Term k} {∇ : DCon (Term 0) o}
        (⊢Δ : glassify ∇ »⊢ Δ) →
@@ -304,10 +301,9 @@ opaque
        glassify ∇ » Γ ⊢ t ∷ A → γ ▸[ m ] t →
        γ ▸ Γ ⊩ʳ t ∷[ m ] A)
   negation-of-fundamental-lemma-with-erased-matches₃′
-    {str} ≡not-none allowed neutral hyp =
+    {str} ≡not-none neutral hyp =
     let consistent , _ , ⊢t , ▸∇ , ▸t , _ =
-          soundness-ℕ-only-source-counterexample₃′ ≡not-none allowed
-            neutral
+          soundness-ℕ-only-source-counterexample₃′ ≡not-none neutral
     in
     ¬t®t $ ▸⊩ʳ∷[𝟙ᵐ]→®∷ $
     hyp ⊢Δ ▸∇ consistent ε ⦃ ok = possibly-nonempty ⦄ ⊢t ▸t
@@ -496,7 +492,7 @@ opaque
        (⊢Δ : ∇ »⊢ Δ) →
        ▸[ 𝟙ᵐ ] ∇ →
        Consistent (∇ » Δ) →
-       No-erased-matches TR UR ⊎ Empty-con Δ →
+       No-erased-matches ⊎ Empty-con Δ →
        ∀ ⦃ ok : No-equality-reflection or-empty Δ ⦄
          {_⇛_∷_}
          ⦃ is-reduction-relation :

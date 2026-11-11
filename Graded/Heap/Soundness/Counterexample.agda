@@ -3,26 +3,23 @@
 -- dropped.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
-open import Definition.Typed.Restrictions
 
 module Graded.Heap.Soundness.Counterexample
   {a} {M : Set a} {𝕄 : Modality M}
   {mode-variant : Mode-variant 𝕄}
   (open Modality 𝕄)
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (TR : Type-restrictions 𝕄)
-  (As : Assumptions UR TR 𝟙)
+  (C : Configuration Zero-one-isMode)
+  (As : Assumptions C 𝟙)
   where
 
 open Assumptions As
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
 open import Tools.Empty
 open import Tools.Fin
@@ -34,23 +31,23 @@ open import Tools.Relation
 open import Tools.Reasoning.PropositionalEquality
 
 open import Definition.Untyped M
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Canonicity TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Canonicity TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
+open import Graded.Usage C
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
+open import Graded.Heap.Untyped C factoring-nr 𝟙
+open import Graded.Heap.Untyped.Properties C factoring-nr 𝟙
+open import Graded.Heap.Usage C factoring-nr 𝟙
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
-open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr 𝟙
+  C factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
+open import Graded.Heap.Reduction C factoring-nr 𝟙
+open import Graded.Heap.Reduction.Inversion C factoring-nr 𝟙
 
 private variable
   Δ : Con Term _

@@ -2,26 +2,23 @@
 -- Properties of machine states.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Variant
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Untyped.Properties
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant a)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-variant type-variant
 open Modality 𝕄
 open IsMode 𝐌
 
@@ -35,21 +32,22 @@ open import Tools.Relation
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Sum
 
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance C
+open import Configuration-types.Omega 𝕄
+
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Restrictions.Omega 𝕄
+open import Graded.Usage C
 
 open import Definition.Untyped M
 open import Definition.Untyped.Names-below M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
 
 private variable
   k n n′ n″ m m′ m″ : Nat
@@ -721,9 +719,10 @@ opaque
 
 opaque
 
-  -- The multiplicity for a continuation c always exists if when c is
-  -- natrecₑ then the usage rule for natrec using an nr function is used
-  -- and the usage restrictions allow all kinds of erased matches for J and K.
+  -- The multiplicity for a continuation c always exists if, when c is
+  -- natrecₑ, then the usage rule for natrec with an nr function is
+  -- used, and the configuration allows all kinds of erased matches
+  -- for J and K.
 
   ∣∣ᶜ≡ :
     (∀ {n p q r A u v ρ} → c ≡ natrecₑ {n = n} p q r A u v ρ → Nr-available) →

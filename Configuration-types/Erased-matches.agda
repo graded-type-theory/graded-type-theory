@@ -2,7 +2,7 @@
 -- The type Erased-matches
 ------------------------------------------------------------------------
 
-module Graded.Usage.Erased-matches where
+module Configuration-types.Erased-matches where
 
 open import Tools.Empty
 open import Tools.Product

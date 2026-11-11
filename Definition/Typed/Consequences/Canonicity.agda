@@ -2,34 +2,33 @@
 -- Canonicity theorems for natural numbers and the empty type
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Definition.Untyped
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Canonicity
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   (open Definition.Untyped M)
   where
 
 open Modality 𝕄
 
 open import Definition.Untyped.Identity 𝕄
-open import Definition.Untyped.Neutral
-  M (Type-restrictions.type-variant R)
+open import Definition.Untyped.Neutral M (Type-configuration.TC⁻ TC)
 import Definition.Untyped.Neutral.Atomic
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed R
-import Definition.Typed.Consequences.Inequality R as I
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Inversion R
+open import Definition.Typed TC
+import Definition.Typed.Consequences.Inequality TC as I
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Inversion TC
 import Definition.Typed.Properties
-open import Definition.Typed.Well-formed R
+open import Definition.Typed.Well-formed TC
 import Definition.Typed.EqRelInstance
-open import Definition.Typed.With-equality-reflection R
-open import Definition.LogicalRelation R
+open import Definition.Typed.With-equality-reflection TC
+open import Definition.LogicalRelation TC
 import Definition.LogicalRelation.Fundamental.Reducibility
 import Definition.LogicalRelation.Substitution.Introductions
 import Definition.LogicalRelation.Unary
@@ -38,7 +37,7 @@ import Definition.LogicalRelation.Unary
 -- a type theory with equality reflection.
 
 private module Refl where
-  open Type-restrictions With-refl public
+  open Type-configuration With-refl public
   open Definition.LogicalRelation.Fundamental.Reducibility With-refl
     public
   open Definition.LogicalRelation.Substitution.Introductions With-refl
@@ -46,16 +45,16 @@ private module Refl where
   open Definition.LogicalRelation.Unary With-refl public
   open Definition.Typed.EqRelInstance With-refl public
   open Definition.Typed.Properties With-refl public
-  open Definition.Untyped.Neutral.Atomic M type-variant public
+  open Definition.Untyped.Neutral.Atomic M TC⁻ public
 
-open Type-restrictions R
+open Type-configuration TC
 
-open Definition.LogicalRelation.Fundamental.Reducibility R
-open Definition.LogicalRelation.Substitution.Introductions R
-open Definition.LogicalRelation.Unary R
-open Definition.Typed.EqRelInstance R
-open Definition.Typed.Properties R
-open Definition.Untyped.Neutral.Atomic M type-variant
+open Definition.LogicalRelation.Fundamental.Reducibility TC
+open Definition.LogicalRelation.Substitution.Introductions TC
+open Definition.LogicalRelation.Unary TC
+open Definition.Typed.EqRelInstance TC
+open Definition.Typed.Properties TC
+open Definition.Untyped.Neutral.Atomic M TC⁻
 
 open import Tools.Empty
 open import Tools.Fin

@@ -2,29 +2,27 @@
 -- Some properties related to usage and sup and some related terms.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Derived.Sup
   {ℓ ℓ′} {M : Set ℓ} {Mode : Set ℓ′}
   (open Graded.Modality M)
   {𝕄 : Modality}
   {𝐌 : IsMode Mode 𝕄}
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
-open Type-restrictions TR
+open Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
 
 open import Definition.Untyped M
-open import Definition.Untyped.Sup TR
+open import Definition.Untyped.Sup TC
 
 open import Tools.Product
 open import Tools.Relation

@@ -2,15 +2,15 @@
 -- The Logical relation for erasure.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 
 module Graded.Erasure.LogicalRelation
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (as : Assumptions R)
+  {TC : Type-configuration 𝕄}
+  (as : Assumptions TC)
   where
 
 open Assumptions as
@@ -18,8 +18,8 @@ open Modality 𝕄
 
 open import Definition.Untyped M as U hiding (_∘_; K)
 
-open import Definition.LogicalRelation.Simplified R
-open import Definition.Typed R
+open import Definition.LogicalRelation.Simplified TC
+open import Definition.Typed TC
 
 open import Graded.Erasure.Target as T hiding (_⊢_⇒*_)
 open import Graded.Erasure.Extraction 𝕄

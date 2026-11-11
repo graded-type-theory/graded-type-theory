@@ -2,12 +2,11 @@
 -- Examples
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
-open import Definition.Typed.Restrictions
 
 module Graded.Heap.Examples
   {a} {M : Set a}
@@ -15,12 +14,11 @@ module Graded.Heap.Examples
   (open Modality 𝕄)
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (TR : Type-restrictions 𝕄)
-  (As : Assumptions UR TR 𝟙)
+  (C : Configuration Zero-one-isMode)
+  (As : Assumptions C 𝟙)
   where
 
-open Type-restrictions TR
+open Configuration C
 open Assumptions As
 
 open import Tools.Fin
@@ -30,20 +28,20 @@ open import Tools.PropositionalEquality as PE
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties.Subtraction 𝕄
-open import Graded.Usage UR
+open import Graded.Usage C
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Usage.Properties type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Soundness UR TR As
+open import Graded.Heap.Untyped C factoring-nr 𝟙
+open import Graded.Heap.Usage C factoring-nr 𝟙
+open import Graded.Heap.Usage.Properties C factoring-nr 𝟙
+open import Graded.Heap.Reduction C factoring-nr 𝟙
+open import Graded.Heap.Reduction.Inversion C factoring-nr 𝟙
+open import Graded.Heap.Reduction.Properties C factoring-nr 𝟙
+open import Graded.Heap.Soundness C As
 
 open import Definition.Untyped M
 open import Definition.Untyped.Sigma 𝕄 hiding (fstʷ)
-open import Definition.Typed TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
 
 private variable
   k n : Nat

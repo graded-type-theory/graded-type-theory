@@ -2,24 +2,24 @@
 -- Soundness of the bi-directional typechecking relations.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typechecking.Soundness
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typechecking R
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Substitution R
-import Definition.Typed.Weakening R as W
-open import Definition.Typed.Well-formed R
+open import Definition.Typechecking TC
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 

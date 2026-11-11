@@ -1,22 +1,22 @@
 ------------------------------------------------------------------------
--- Instances related to Usage-restrictions
+-- Instances related to Configuration
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 
-module Graded.Usage.Restrictions.Instance
+module Configuration-types.Instance
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
-open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Restrictions.Omega 𝕄
+open import Configuration-types.Natrec 𝕄
+open import Configuration-types.Omega 𝕄
 
-open Usage-restrictions R
+open Configuration-types.Configuration C
 open Modality 𝕄
 
 instance

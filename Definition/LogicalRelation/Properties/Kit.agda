@@ -2,23 +2,23 @@
 -- Some definitions related to kit and kit′
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Kit
   {a} {Mod : Set a}
   {𝕄 : Modality Mod}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped Mod as U hiding (K)
 open import Definition.Untyped.Properties Mod
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Nat

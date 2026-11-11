@@ -24,6 +24,8 @@
 
 module README.Graded-type-theory where
 
+import Configuration-types
+
 import Definition.LogicalRelation
 import Definition.LogicalRelation.Fundamental
 import Definition.LogicalRelation.Fundamental.Reducibility
@@ -39,7 +41,6 @@ import Definition.Typed.Eta-long-normal-form
 import Definition.Typed.Inversion
 import Definition.Typed.Properties
 import Definition.Typed.Properties.Admissible.Nat
-import Definition.Typed.Restrictions
 import Definition.Typed.Substitution
 import Definition.Typed.Syntactic
 import Definition.Typed.Weakening
@@ -93,7 +94,7 @@ import Graded.Mode
 import Graded.Mode.Instances.Zero-one
 import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Reduction.Zero-one
-import Graded.Restrictions.Zero-one
+import Configuration-types.Configuration.Zero-one
 import Graded.Substitution
 import Graded.Substitution.Properties
 import Graded.Usage
@@ -101,7 +102,6 @@ import Graded.Usage.Decidable
 import Graded.Usage.Inversion
 import Graded.Usage.Properties
 import Graded.Usage.Properties.Has-well-behaved-zero
-import Graded.Usage.Restrictions
 import Graded.Usage.Restrictions.Satisfied
 
 ------------------------------------------------------------------------
@@ -340,7 +340,7 @@ Mode-variant = Graded.Mode.Instances.Zero-one.Variant.Mode-variant
 --   one can choose whether to allow binders of the form B_p^q, where
 --   p and q are grades and B is "Π", "strong Σ" or "weak Σ":
 
-types = Definition.Typed.Restrictions.Type-restrictions
+types = Configuration-types.Type-configuration
 
 --   This parameter does not affect the syntax, but if a term has a
 --   certain type ("Unit" or "B_p^q C D"), then this type must be
@@ -352,7 +352,7 @@ Unit-allowed = Definition.Typed.Inversion.⊢∷Unit→Unit-allowed
 -- * One can choose whether to allow the term prodrec_r,p^q (and one
 --   can choose to only allow this term for the mode 𝟘ᵐ):
 
-prodrec = Graded.Usage.Restrictions.Usage-restrictions
+prodrec = Configuration-types.Configuration.Prodrec-allowed
 
 --   This only affects the usage relation. If prodrec_r,p^q A t u is
 --   well-resourced (with respect to a given mode), then the term is
@@ -363,7 +363,8 @@ prodrec-allowed = Graded.Usage.Inversion.inv-usage-prodrec
 --   One can use this parameter to rule out erased matches for weak
 --   Σ-types:
 
-no-erased-matches = Graded.Restrictions.Zero-one.no-erased-matches-UR
+no-erased-matches =
+  Configuration-types.Configuration.Zero-one.no-erased-matches
 
 -- * One can choose which usage rule to use for natrec, either
 --   using the one defined using natrec-star, or the alternative
@@ -377,9 +378,9 @@ no-erased-matches = Graded.Restrictions.Zero-one.no-erased-matches-UR
 --   Section 7.1.4 is used.
 
 Nr-available =
-  Graded.Usage.Restrictions.Usage-restrictions.Nr-available
+  Configuration-types.Configuration.Nr-available
 Nr-not-available =
-  Graded.Usage.Restrictions.Usage-restrictions.Nr-not-available
+  Configuration-types.Configuration.Nr-not-available
 
 -- Note that some results have only been proved for certain variants
 -- of the theory.
@@ -409,7 +410,7 @@ Nr-not-available =
 -- A relation which can be used to force the two grade annotations on
 -- Π- and Σ-types to be equal.
 
-ΠΣ-allowed′ = Definition.Typed.Restrictions.Type-restrictions.ΠΣ-allowed
+ΠΣ-allowed′ = Configuration-types.Type-configuration.ΠΣ-allowed
 
 ------------------------------------------------------------------------
 -- 3: Modalities as Ordered Semirings
@@ -581,7 +582,7 @@ tail      = Definition.Untyped.tail
 -- The typing relations.
 --
 -- These relations are parametrised by a value of type
--- Type-restrictions, which can be used to restrict certain types, as
+-- Type-configuration, which can be used to restrict certain types, as
 -- discussed above.
 --
 -- Note also that some rules for Π and Σ have been merged.

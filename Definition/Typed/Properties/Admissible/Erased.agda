@@ -2,8 +2,8 @@
 -- Some properties related to typing and Erased
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
-open import Definition.Typed.Restrictions
 import Definition.Untyped hiding (_[_])
 
 module Definition.Typed.Properties.Admissible.Erased
@@ -11,41 +11,41 @@ module Definition.Typed.Properties.Admissible.Erased
   (open Graded.Modality M)
   {𝕄 : Modality}
   (open Definition.Untyped M)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Admissible.Equality R
-import Definition.Typed.Properties.Admissible.Erased.Eta R as Eta
-import Definition.Typed.Properties.Admissible.Erased.No-eta R as NoEta
-import Definition.Typed.Properties.Admissible.Erased.Primitive R as P
-open import Definition.Typed.Properties.Admissible.Identity R
-open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.Lift R
-open import Definition.Typed.Properties.Admissible.Nat R
-open import Definition.Typed.Properties.Admissible.Pi-Sigma R
-open import Definition.Typed.Properties.Admissible.Sigma R
-open import Definition.Typed.Properties.Admissible.Unit R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Reduction R
-import Definition.Typed.Reasoning.Term R as TermR
-import Definition.Typed.Reasoning.Type R as TypeR
-open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Equality TC
+import Definition.Typed.Properties.Admissible.Erased.Eta TC as Eta
+import Definition.Typed.Properties.Admissible.Erased.No-eta TC as NoEta
+import Definition.Typed.Properties.Admissible.Erased.Primitive TC as P
+open import Definition.Typed.Properties.Admissible.Identity TC
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Admissible.Lift TC
+open import Definition.Typed.Properties.Admissible.Nat TC
+open import Definition.Typed.Properties.Admissible.Pi-Sigma TC
+open import Definition.Typed.Properties.Admissible.Sigma TC
+open import Definition.Typed.Properties.Admissible.Unit TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Reduction TC
+import Definition.Typed.Reasoning.Term TC as TermR
+import Definition.Typed.Reasoning.Type TC as TypeR
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 
 import Definition.Untyped M as U
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 open import Definition.Untyped.Unit 𝕄
 open import Definition.Untyped.Whnf M
 

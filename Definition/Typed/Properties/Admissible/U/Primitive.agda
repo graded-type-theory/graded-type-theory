@@ -2,17 +2,17 @@
 -- Admissible rules related to U
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.U.Primitive
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open import Definition.Typed TR
-open import Definition.Typed.Properties.Admissible.Level.Primitive TR
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Level.Primitive TC
 
 open import Definition.Untyped M hiding (wk)
 

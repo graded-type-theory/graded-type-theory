@@ -6,8 +6,8 @@
 -- some cases with fewer arguments, can (at the time of writing) be
 -- found in Definition.Typed.Properties.Admissible.Erased.
 
+open import Configuration-types
 import Graded.Modality
-open import Definition.Typed.Restrictions
 open import Tools.Product
 
 module Definition.Typed.Properties.Admissible.Erased.Primitive
@@ -15,19 +15,19 @@ module Definition.Typed.Properties.Admissible.Erased.Primitive
   (open Graded.Modality M)
   {𝕄 : Modality}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   -- Erased is assumed to be allowed.
   {s}
   ((Unit-ok , Σ-ok) : Erased-allowed s)
   where
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Level.Primitive R
-open import Definition.Typed.Properties.Admissible.U.Primitive R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Substitution.Primitive.Primitive R
-open import Definition.Typed.Weakening R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Level.Primitive TC
+open import Definition.Typed.Properties.Admissible.U.Primitive TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Substitution.Primitive.Primitive TC
+open import Definition.Typed.Weakening TC
 
 open import Definition.Untyped M hiding (_[_])
 open import Definition.Untyped.Erased 𝕄 s

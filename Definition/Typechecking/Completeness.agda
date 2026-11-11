@@ -3,35 +3,35 @@
 -- absence of equality reflection)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typechecking.Completeness
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
-open import Definition.Typechecking R
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
-import Definition.Typed.Weakening R as W
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Well-formed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Reduction R
+open import Definition.Typechecking TC
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.EqualityRelation.Instance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.Reduction TC
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Empty
 open import Tools.Function

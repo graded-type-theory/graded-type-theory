@@ -189,6 +189,14 @@ instance-Π-cong-⇔ eq =
     (λ (x , y) → x , eq x .proj₁ y)
   , (λ (x , y) → x , eq x .proj₂ y)
 
+-- Σ is "associative" up to _⇔_.
+
+Σ-assoc-⇔ :
+  (Σ A λ x → Σ (P x) λ y → Q (x , y)) ⇔ Σ (Σ A P) Q
+Σ-assoc-⇔ =
+  (λ (x , (y , z)) → (x , y) , z) ,
+  (λ ((x , y) , z) → x , y , z)
+
 -- The operator _×_ preserves logical equivalences.
 
 infixr 2 _×-cong-⇔_
@@ -197,6 +205,11 @@ _×-cong-⇔_ : A ⇔ B → C ⇔ D → (A × C) ⇔ (B × D)
 (f₁ , g₁) ×-cong-⇔ (f₂ , g₂) =
     (λ (x , y) → f₁ x , f₂ y)
   , (λ (x , y) → g₁ x , g₂ y)
+
+-- The operator _×_ is commutative up to _⇔_.
+
+×-comm-⇔ : (A × B) ⇔ (B × A)
+×-comm-⇔ = (λ (x , y) → y , x) , (λ (x , y) → y , x)
 
 -- The operator _⊎_ preserves logical equivalences.
 

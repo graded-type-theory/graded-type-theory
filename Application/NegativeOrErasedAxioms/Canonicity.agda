@@ -4,13 +4,12 @@
 -- are not neutral
 ------------------------------------------------------------------------
 
+open import Configuration-types
+import Configuration-types.Configuration.Zero-one
 import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-import Graded.Restrictions.Zero-one
-open import Graded.Usage.Restrictions
 import Definition.Typed
-open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Tools.Relation
 
@@ -21,58 +20,56 @@ module Application.NegativeOrErasedAxioms.Canonicity
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (open Graded.Restrictions.Zero-one 𝕄 variant)
+  (open Configuration-types.Configuration.Zero-one 𝕄 variant)
   (open Modality 𝕄)
   -- The modality has a well-behaved zero.
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
-  (TR : Type-restrictions 𝕄)
-  (open Type-restrictions TR)
-  (open Definition.Typed TR)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (open Definition.Typed TC)
   -- Erased matches are not allowed.
-  (no-erased-matches : No-erased-matches TR UR)
+  (no-erased-matches : No-erased-matches)
   -- Higher quotient constructors are not neutral.
   (not-neutral : ¬ Higher-quotient-constructors-neutral)
   {m n} {Γ : Cons m n}
   (consistent : Consistent Γ)
   where
 
-open Usage-restrictions UR
+open import Configuration-types.Instance C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Omega-instances
-open import Graded.Reduction.Zero-one variant TR UR
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one variant UR
-open import Graded.Usage.Restrictions.Instance UR
+open import Graded.Reduction.Zero-one variant C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one variant C
 open import Graded.Modality.Properties 𝕄
 
 open import Application.NegativeOrErasedAxioms.NegativeOrErasedContext
-  TR
-open import Application.NegativeOrErasedAxioms.NegativeOrErasedType TR
-open import Graded.Erasure.SucRed TR
+  TC
+open import Application.NegativeOrErasedAxioms.NegativeOrErasedType TC
+open import Graded.Erasure.SucRed TC
 
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
-open import Definition.Untyped.Normal-form M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
+open import Definition.Untyped.Normal-form M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Definition.Typed.EqRelInstance TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Consequences.Inequality TR
-open import Definition.Typed.Consequences.Reduction TR
-import Definition.Typed.Weakening TR as W
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Reduction TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 
-open import Definition.LogicalRelation TR
-open import Definition.LogicalRelation.Fundamental.Reducibility TR
-open import Definition.LogicalRelation.Substitution.Introductions TR
-open import Definition.LogicalRelation.Unary TR
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Fundamental.Reducibility TC
+open import Definition.LogicalRelation.Substitution.Introductions TC
+open import Definition.LogicalRelation.Unary TC
 
 open import Tools.Empty
 open import Tools.Function
@@ -86,10 +83,10 @@ open import Tools.Sum using (_⊎_; inj₁; inj₂)
 ---------------------------------------------------------------------------
 
 private variable
-  A B C : Term n
-  t u   : Term n
-  γ     : Conₘ n
-  l     : Universe-level
+  A B : Term n
+  t u : Term n
+  γ   : Conₘ n
+  l   : Universe-level
 
 -- Main results
 ---------------------------------------------------------------------------
@@ -182,7 +179,7 @@ neNeg
       invUsageProdrec {δ} {η} δ▸t _ _ ok γ≤rδ+η =
         inv-usage-prodrec γ▸prodrec
       r≢𝟘 =
-        no-erased-matches non-trivial .proj₁ ok
+        non-trivial ∘→ no-erased-matches non-trivial .proj₁ ok
   in
   NegativeErasedContext Γ γ              →⟨ NegativeErasedContext-upwards-closed γ≤rδ+η ⟩
   NegativeErasedContext Γ (r ·ᶜ δ +ᶜ η)  →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (_ ·ᶜ δ)) ⟩
@@ -203,9 +200,11 @@ neNeg
         inversion-Unit (⊢∙→⊢ (wf ⊢A))
       invUsageUnitrec {δ} {η} δ▸t _ _ ok γ≤pδ+η =
         inv-usage-unitrec γ▸unitrec
+      p≢𝟘 =
+        no-η ∘→
+        flip (no-erased-matches non-trivial .proj₂ .proj₁ ok)
+          non-trivial
   in
-  case no-η ∘→ no-erased-matches non-trivial .proj₂ .proj₁ ok of λ
-    p≢𝟘 →
   NegativeErasedContext Γ γ               →⟨ NegativeErasedContext-upwards-closed γ≤pδ+η ⟩
   NegativeErasedContext Γ (p ·ᶜ δ +ᶜ η)   →⟨ NegativeErasedContext-𝟘 (λ _ → proj₁ ∘→ +ᶜ-positive-⟨⟩ (p ·ᶜ δ)) ⟩
   NegativeErasedContext Γ (p ·ᶜ δ)        →⟨ NegativeErasedContext-𝟘 (λ _ →
@@ -264,8 +263,10 @@ neNeg {γ} (Kⱼ {A} {t} {B} {v} _ _ ⊢v ok) (Kₙ v-ne) ▸K =
         PE.trans (PE.sym em)
           (no-erased-matches non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
       of λ ()
-neNeg ([]-congⱼ _ _ _ _ _ ok) ([]-congₙ _) _ =
-  ⊥-elim (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
+neNeg ([]-congⱼ _ _ _ _ _ _) _ ▸bc =
+  let invUsage-[]-cong _ _ _ _ _ ok _ = inv-usage-[]-cong ▸bc in
+  ⊥-elim $
+  non-trivial (no-erased-matches non-trivial .proj₂ .proj₂ .proj₁ ok)
 neNeg (resp _ _ _ _) (resp ok) =
   ⊥-elim (not-neutral ok)
 neNeg (set _ _ _ _ _) (set ok) =

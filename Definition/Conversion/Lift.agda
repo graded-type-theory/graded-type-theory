@@ -3,45 +3,47 @@
 -- relations.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Lift
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   -- Equality reflection is not allowed.
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Syntactic R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Properties R
-open import Definition.Typed.EqRelInstance R using (eqRelInstance)
-open import Definition.Typed.Well-formed R
-open import Definition.Conversion R
-open import Definition.Conversion.Whnf R
-open import Definition.Conversion.Soundness R
-open import Definition.Conversion.Symmetry R
-open import Definition.Conversion.Transitivity R
-open import Definition.Conversion.Weakening R
-open import Definition.LogicalRelation R ⦃ eqRelInstance ⦄
-open import Definition.LogicalRelation.Properties R ⦃ eqRelInstance ⦄
-open import Definition.LogicalRelation.Fundamental.Reducibility R ⦃ eqRelInstance ⦄
-open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqRelInstance ⦄
-open import Definition.Typed.Consequences.Reduction R
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.EqualityRelation.Instance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Syntactic TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.EqRelInstance TC using (eqRelInstance)
+open import Definition.Typed.Well-formed TC
+open import Definition.Conversion TC
+open import Definition.Conversion.Whnf TC
+open import Definition.Conversion.Soundness TC
+open import Definition.Conversion.Symmetry TC
+open import Definition.Conversion.Transitivity TC
+open import Definition.Conversion.Weakening TC
+open import Definition.LogicalRelation TC ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Properties TC ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Fundamental.Reducibility
+  TC ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Weakening.Restricted
+  TC ⦃ eqRelInstance ⦄
+open import Definition.Typed.Consequences.Reduction TC
 
 open import Tools.Fin
 open import Tools.Function

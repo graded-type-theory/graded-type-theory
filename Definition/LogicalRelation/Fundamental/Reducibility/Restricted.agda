@@ -3,27 +3,27 @@
 -- Definition.LogicalRelation.Fundamental.Reducibility
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Fundamental.Reducibility.Restricted
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
 
 open import Definition.Untyped M
-open import Definition.Typed R
-open import Definition.LogicalRelation R
+open import Definition.Typed TC
+open import Definition.LogicalRelation TC
   using (_⊩Level_∷Level; _⊩Level_≡_∷Level)
-open import Definition.LogicalRelation.Hidden.Restricted R
-open import Definition.LogicalRelation.Fundamental R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions R
+open import Definition.LogicalRelation.Hidden.Restricted TC
+open import Definition.LogicalRelation.Fundamental TC
+open import Definition.LogicalRelation.Substitution TC
+open import Definition.LogicalRelation.Substitution.Introductions TC
 
 open import Tools.Product
 

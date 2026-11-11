@@ -3,43 +3,41 @@
 -- Notably, subject reduction.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Reduction
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
+
+open import Configuration-types.Instance C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution.Properties UR
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Restrictions.Satisfied UR
-open import Graded.Usage.Weakening UR
-open import Definition.Typed TR
-open import Definition.Typed.Eta-long-normal-form TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
+open import Graded.Substitution.Properties C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Restrictions.Satisfied C
+open import Graded.Usage.Weakening C
+open import Definition.Typed TC
+open import Definition.Typed.Eta-long-normal-form TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
 open import Definition.Untyped M
-open import Definition.Untyped.Normal-form M type-variant
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Normal-form M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Bool using (T; true; false)
 open import Tools.Empty

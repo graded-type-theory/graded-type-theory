@@ -2,21 +2,21 @@
 -- Substitution lemmas
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Substitution
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Identity R
-open import Definition.Typed.Properties.Admissible.Pi R
-open import Definition.Typed.Properties.Admissible.Sigma R
-open import Definition.Typed.Properties.Well-formed R
-import Definition.Typed.Substitution.Primitive R as P
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Identity TC
+open import Definition.Typed.Properties.Admissible.Pi TC
+open import Definition.Typed.Properties.Admissible.Sigma TC
+open import Definition.Typed.Properties.Well-formed TC
+import Definition.Typed.Substitution.Primitive TC as P
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as E

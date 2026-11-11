@@ -3,27 +3,27 @@
 -- reflection)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Stability
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
 open import Definition.Untyped M
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Stability R
-import Definition.Typed.Weakening R as W
-open import Definition.Typed.Well-formed R
-open import Definition.Conversion R
-open import Definition.Conversion.Level R
-open import Definition.Conversion.Soundness R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Stability TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
+open import Definition.Conversion TC
+open import Definition.Conversion.Level TC
+open import Definition.Conversion.Soundness TC
 
 open import Tools.Bool
 open import Tools.Function

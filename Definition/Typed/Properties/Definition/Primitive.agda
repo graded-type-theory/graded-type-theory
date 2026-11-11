@@ -2,23 +2,22 @@
 -- Some lemmas related to definitions
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Definition.Primitive
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Variant
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
 

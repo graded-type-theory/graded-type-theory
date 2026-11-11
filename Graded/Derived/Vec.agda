@@ -2,9 +2,9 @@
 -- Some properties related to usage and Vec
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 import Definition.Untyped
 
 module Graded.Derived.Vec
@@ -16,24 +16,25 @@ module Graded.Derived.Vec
   (open Definition.Untyped M)
   (s : Strength)
   (p : M)
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+import Configuration-types.Instance
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Inversion R
-open import Graded.Usage.Properties R
-import Graded.Usage.Restrictions.Instance
-open import Graded.Usage.Weakening R
-open import Graded.Substitution R
-open import Graded.Substitution.Properties R
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
+open import Graded.Substitution C
+open import Graded.Substitution.Properties C
 
 open import Definition.Untyped.Vec 𝕄 𝐌 s p
 
@@ -333,7 +334,7 @@ opaque
       vecrec′ p₁ p₄ r₂ q₁ q₂ l A P nl cs k xs
   ▸vecrec′ {δ₁} {δ₂} {r₂} {η₃} {q₁} {r₁} {θ₁} {θ₂}
     ▸nl ▸cs ▸k ▸xs ▸l ▸A ▸P r₁-GLB r₂-GLB θ₁-GLB θ₂-GLB ok₁ ok₂ =
-    let open Graded.Usage.Restrictions.Instance R
+    let open Configuration-types.Instance C
         open ≈ᶜ-reasoning
         ▸wk1A = wkUsage (step id) (▸-cong (sym (trans (ᵐ·-congʳ ᵐ·-zeroˡ) ᵐ·-zeroˡ)) ▸A)
         θ₂-GLB′ = GLBᶜ-congˡ (λ i → ≈ᶜ-refl ∙ sym (trans (cong (λ x → nrᵢ 𝟙 𝟘 x i) (·-zeroʳ _)) (nrᵢ-𝟘 i)))

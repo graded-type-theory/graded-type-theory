@@ -19,8 +19,13 @@ open import Tools.Relation
 open import Tools.Sum
 open import Tools.Unit
 
+open import Configuration-types
+open import Configuration-types.Configuration.Zero-one
+open import Configuration-types.Erased-matches
+open import Configuration-types.Natrec
+import Configuration-types.Type-configuration as TC
+
 import Definition.Typechecking.Decidable.Assumptions as TD
-open import Definition.Typed.Restrictions
 open import Definition.Untyped.NotParametrised
 
 open import Graded.FullReduction.Assumptions
@@ -34,18 +39,12 @@ import Graded.Modality.Instances.Linearity as L
 import Graded.Modality.Instances.Linear-or-affine as LA
 import Graded.Modality.Instances.Unit as U
 open import Graded.Modality.Morphism
+open import Graded.Modality.Morphism.Configuration
+open import Graded.Modality.Morphism.Configuration.Examples
 open import Graded.Modality.Morphism.Examples
-open import Graded.Modality.Morphism.Type-restrictions
-open import Graded.Modality.Morphism.Type-restrictions.Examples
-open import Graded.Modality.Morphism.Usage-restrictions
-open import Graded.Modality.Morphism.Usage-restrictions.Examples
 open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Mode.Instances.Zero-one
-open import Graded.Restrictions.Zero-one
 import Graded.Usage.Decidable.Assumptions as UD
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 private variable
   a : Level
@@ -73,9 +72,8 @@ private variable
 -- * Equality reflection is not allowed.
 -- * Level is small.
 -- * Omega-plus-allowed is inhabited.
--- * Quotients and quotient terms are not allowed, higher quotient
---   constructors are not allowed, and the motive of qrec is not
---   treated as erased.
+-- * Quotients are not allowed and the motive of qrec is not treated
+--   as erased.
 -- * 𝟘ᵐ is allowed exactly when the modality is non-trivial.
 
 All-properties-hold-for : Extended-modality a → Set a
@@ -94,13 +92,12 @@ All-properties-hold-for M =
   K-allowed ×
   ¬ []-cong-allowed 𝕤 ×
   ([]-cong-allowed 𝕨 ⇔ (¬ Trivial)) ×
+  (∀ {m} → []-cong-allowed-mode 𝕨 m ⇔ (¬ Trivial)) ×
   Opacity-allowed ×
   ¬ Equality-reflection ×
   Level-is-small ×
   Omega-plus-allowed ×
   ¬ Quot-allowed ×
-  ¬ Quotient-terms-allowed ×
-  ¬ Higher-quotient-constructors-allowed ×
   ¬ Qrec-motive-erased ×
   (T 𝟘ᵐ-allowed ⇔ (¬ Trivial))
   where
@@ -111,47 +108,28 @@ private
 
   -- Functions used to construct the modalities below.
 
-  TR′ :
-    {M : Set} {𝕄 : Modality M} →
-    Mode-variant 𝕄 →
-    Type-restrictions 𝕄
-  TR′ v =
-    no-quotients _ v $
-    strong-types-restricted _ v $
-    no-type-restrictions _ v true false
-
-  opaque
-
-    Assumptions-TR′ :
-      {M : Set} {𝕄 : Modality M}
-      {v : Mode-variant 𝕄} →
-      Decidable (_≡_ {A = M}) →
-      TD.Assumptions (TR′ {𝕄 = 𝕄} v)
-    Assumptions-TR′ {v} =
-      Assumptions-no-quotients _ v ∘→
-      Assumptions-strong-types-restricted _ _ ∘→
-      Assumptions-no-type-restrictions _ v
-
-  UR′ :
+  C′ :
     {M : Set} {𝕄 : Modality M}
     {v : Mode-variant 𝕄} →
     Has-nr M 𝕄 →
-    Usage-restrictions 𝕄 (Zero-one-isMode v)
-  UR′ has-nr =
-    no-quotient-terms _ _ $
-    no-usage-restrictions _ _ (Nr ⦃ has-nr ⦄) false false false
+    Configuration (Zero-one-isMode v)
+  C′ has-nr =
+    no-quotients _ _ $
+    strong-types-restricted _ _ $
+    no-restrictions _ _ (Nr ⦃ has-nr ⦄) true false false false false
 
   opaque
 
-    Assumptions-UR′ :
+    Assumptions-C′ :
       {M : Set} {𝕄 : Modality M}
       {v : Mode-variant 𝕄} →
       {has-nr : Has-nr _ 𝕄} →
       Decidable (_≡_ {A = M}) →
-      UD.Assumptions (UR′ {𝕄 = 𝕄} {v = v} has-nr)
-    Assumptions-UR′ {has-nr} =
-      Assumptions-no-quotient-terms _ _ ∘→
-      Assumptions-no-usage-restrictions _ _ ⦃ Nr ⦃ Nr ⦃ has-nr ⦄ ⦄ ⦄
+      UD.Assumptions (C′ {𝕄 = 𝕄} {v = v} has-nr)
+    Assumptions-C′ {has-nr} =
+      Assumptions-no-quotients _ _ ∘→
+      Assumptions-strong-types-restricted _ _ ∘→
+      Assumptions-no-restrictions _ _ ⦃ Nr ⦃ Nr ⦃ has-nr ⦄ ⦄ ⦄
 
 -- A trivial modality.
 
@@ -160,11 +138,9 @@ Trivial = λ where
     .M   → ⊤
     .𝕄   → U.UnitModality
     .MV  → 𝟘ᵐ-Not-Allowed _
-    .TR  → TR′ (𝟘ᵐ-Not-Allowed _)
-    .UR  → UR′ U.unit-has-nr
+    .C   → C′ U.unit-has-nr
     .FA  → U.full-reduction-assumptions
-    .TA  → Assumptions-TR′ U._≟_
-    .UA  → Assumptions-UR′ U._≟_
+    .DA  → Assumptions-C′ U._≟_
     .NR  → Nr ⦃ U.unit-has-nr ⦄
     .NO-NR-GLB → U.unit-supports-glb-for-nr
     .NR₀ → U.nr-linearity-like-for-𝟘
@@ -194,12 +170,11 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
     , _
-    , (λ ())
-    , (λ ())
     , (λ ())
     , (λ ())
     , ((λ ()) , (_$ refl))
@@ -213,11 +188,9 @@ Erasure = λ where
     .M       → E.Erasure
     .𝕄       → EM.ErasureModality
     .MV      → 𝟘ᵐ-Allowed _
-    .TR      → TR′ (𝟘ᵐ-Allowed _)
-    .UR      → UR′ EM.erasure-has-nr
+    .C       → C′ EM.erasure-has-nr
     .FA      → EP.full-reduction-assumptions _
-    .TA      → Assumptions-TR′ E._≟_
-    .UA      → Assumptions-UR′ E._≟_
+    .DA      → Assumptions-C′ E._≟_
     .NR      → Nr ⦃ EM.erasure-has-nr ⦄
     .NO-NR-GLB → EP.Erasure-supports-factoring-nr-rule
     .HAS-ω   → EM.erasure-has-omega
@@ -247,12 +220,11 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
     , _
-    , (λ ())
-    , (λ ())
     , (λ ())
     , (λ ())
     , ((λ _ ()) , _)
@@ -266,11 +238,9 @@ Affine-types = λ where
     .M           → A.Affine
     .𝕄           → A.affineModality
     .MV          → 𝟘ᵐ-Allowed _
-    .TR          → TR″
-    .UR          → UR″
+    .C           → C″
     .FA          → FA′
-    .TA          → Assumptions-TR′ A._≟_
-    .UA          → Assumptions-UR′ A._≟_
+    .DA          → Assumptions-C′ A._≟_
     .NR          → Nr ⦃ A.zero-one-many-has-nr ⦄
     .NO-NR-GLB   → A.zero-one-many-supports-glb-for-natrec
     .HAS-ω       → A.zero-one-many-has-omega
@@ -280,12 +250,11 @@ Affine-types = λ where
   where
   open Extended-modality
 
-  TR″ = TR′ (𝟘ᵐ-Allowed _)
-  UR″ = UR′ A.zero-one-many-has-nr
+  C″ = C′ A.zero-one-many-has-nr
 
   opaque
 
-    FA′ : Full-reduction-assumptions _ TR″ UR″
+    FA′ : Full-reduction-assumptions _ C″
     FA′ =
       A.full-reduction-assumptions
         (_ , (λ _ (_ , hyp) → case hyp refl of λ ()))
@@ -311,12 +280,11 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
     , _
-    , (λ ())
-    , (λ ())
     , (λ ())
     , (λ ())
     , ((λ _ ()) , _)
@@ -330,11 +298,9 @@ Linearity = λ where
     .M           → L.Linearity
     .𝕄           → L.linearityModality
     .MV          → 𝟘ᵐ-Allowed _
-    .TR          → TR″
-    .UR          → UR″
+    .C           → C″
     .FA          → FA′
-    .TA          → Assumptions-TR′ L._≟_
-    .UA          → Assumptions-UR′ L._≟_
+    .DA          → Assumptions-C′ L._≟_
     .NR          → Nr ⦃ L.zero-one-many-has-nr ⦄
     .NO-NR-GLB   → L.zero-one-many-supports-glb-for-natrec
     .HAS-ω       → L.zero-one-many-has-omega
@@ -344,12 +310,11 @@ Linearity = λ where
   where
   open Extended-modality
 
-  UR″ = UR′ L.zero-one-many-has-nr
-  TR″ = TR′ (𝟘ᵐ-Allowed _)
+  C″ = C′ L.zero-one-many-has-nr
 
   opaque
 
-    FA′ : Full-reduction-assumptions _ TR″ UR″
+    FA′ : Full-reduction-assumptions _ C″
     FA′ =
       L.full-reduction-assumptions
         ( (_$ refl) ∘→ proj₂
@@ -379,12 +344,11 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
     , _
-    , (λ ())
-    , (λ ())
     , (λ ())
     , (λ ())
     , ((λ _ ()) , _)
@@ -398,11 +362,9 @@ Linear-or-affine-types = λ where
     .M           → LA.Linear-or-affine
     .𝕄           → LA.linear-or-affine
     .MV          → 𝟘ᵐ-Allowed _
-    .TR          → TR″
-    .UR          → UR″
+    .C           → C″
     .FA          → FA′
-    .TA          → Assumptions-TR′ LA._≟_
-    .UA          → Assumptions-UR′ LA._≟_
+    .DA          → Assumptions-C′ LA._≟_
     .NR          → Nr ⦃ LA.linear-or-affine-has-nr ⦄
     .NO-NR-GLB   → LA.linear-or-affine-supports-glb-for-natrec
     .HAS-ω       → LA.linear-or-affine-has-omega
@@ -412,12 +374,11 @@ Linear-or-affine-types = λ where
   where
   open Extended-modality
 
-  UR″ = UR′ LA.linear-or-affine-has-nr
-  TR″ = TR′ (𝟘ᵐ-Allowed _)
+  C″ = C′ LA.linear-or-affine-has-nr
 
   opaque
 
-    FA′ : Full-reduction-assumptions _ TR″ UR″
+    FA′ : Full-reduction-assumptions _ C″
     FA′ =
       LA.full-reduction-assumptions
         ( (_$ refl) ∘→ proj₂
@@ -448,12 +409,11 @@ opaque
     , _
     , (_$ refl) ∘→ proj₂
     , (proj₁ , (λ hyp → hyp , (λ ())))
+    , (proj₁ , (λ hyp → hyp , (λ ())))
     , lift (λ ())
     , (λ { (lift ()) })
     , Level-is-small⇔ .proj₂ refl
     , _
-    , (λ ())
-    , (λ ())
     , (λ ())
     , (λ ())
     , ((λ _ ()) , _)
@@ -477,14 +437,10 @@ Trivial⇨Erasure = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.are-preserving-type-restrictions →
-      are-preserving-type-restrictions
-    ._⇨_.are-reflecting-type-restrictions →
-      are-reflecting-type-restrictions
-    ._⇨_.are-preserving-usage-restrictions →
-      are-preserving-usage-restrictions
-    ._⇨_.are-reflecting-usage-restrictions →
-      are-reflecting-usage-restrictions
+    ._⇨_.is-Σ-morphism-C →
+      is-Σ-morphism-C
+    ._⇨_.is-Σ-order-embedding-C →
+      is-Σ-order-embedding-C
   where
   module E₁ = Extended-modality Trivial
   module E₂ = Extended-modality Erasure
@@ -501,34 +457,14 @@ Trivial⇨Erasure = λ where
     is-Σ-order-embedding =
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
-    are-preserving-type-restrictions :
-      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr
-    are-preserving-type-restrictions =
-      Are-preserving-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} $
-      unit→erasure-preserves-strong-types-restricted $
-      Are-preserving-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)} {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        (λ _ ()) (⊥-elim ∘→ (_$ refl))
-
-    are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr
-    are-reflecting-type-restrictions =
-      Are-reflecting-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
-      unit→erasure-reflects-strong-types-restricted $
-      Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-
-    are-preserving-usage-restrictions :
-      Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
-    are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-no-quotient-terms $
-      Are-preserving-usage-restrictions-no-usage-restrictions
-        _ (Nr ⦃ U.unit-has-nr ⦄ ⦃ EM.erasure-has-nr ⦄)
+    is-Σ-morphism-C :
+      Is-Σ-morphism-C false E₁.C E₂.C tr tr
+    is-Σ-morphism-C =
+      M-no-quotients $
+      M-strong-types-restricted refl $
+      M-no-restrictions
+        (λ _ ()) (λ ()) ⊥-elim
+        (Nr ⦃ U.unit-has-nr ⦄ ⦃ EM.erasure-has-nr ⦄)
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ U.unit-has-nr ⦄) of λ {
             refl →
@@ -538,11 +474,12 @@ Trivial⇨Erasure = λ where
         unit⇒erasure-no-nr-preserving
         unit⇒erasure-no-nr-glb-preserving
 
-    are-reflecting-usage-restrictions :
-      Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
-    are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-no-quotient-terms′
-        (λ ()) (λ _ → inj₂ refl)
+    is-Σ-order-embedding-C :
+      Is-Σ-order-embedding-C false E₁.C E₂.C tr tr
+    is-Σ-order-embedding-C =
+      OE-no-quotients (λ ()) $
+      OE-strong-types-restricted (λ _ → refl) (λ ()) $
+      OE-no-restrictions (λ ()) (λ ()) (λ _ → inj₂ refl)
         (Nr ⦃ U.unit-has-nr ⦄ ⦃ EM.erasure-has-nr ⦄)
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ U.unit-has-nr ⦄) of λ {
@@ -567,14 +504,10 @@ Erasure⇨Affine-types = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.are-preserving-type-restrictions →
-      are-preserving-type-restrictions
-    ._⇨_.are-reflecting-type-restrictions →
-      are-reflecting-type-restrictions
-    ._⇨_.are-preserving-usage-restrictions →
-      are-preserving-usage-restrictions
-    ._⇨_.are-reflecting-usage-restrictions →
-      are-reflecting-usage-restrictions
+    ._⇨_.is-Σ-morphism-C →
+      is-Σ-morphism-C
+    ._⇨_.is-Σ-order-embedding-C →
+      is-Σ-order-embedding-C
   where
   module E₁ = Extended-modality Erasure
   module E₂ = Extended-modality Affine-types
@@ -594,33 +527,12 @@ Erasure⇨Affine-types = λ where
     is-Σ-order-embedding =
       erasure⇨zero-one-many-Σ
 
-    are-preserving-type-restrictions :
-      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr-Σ
-    are-preserving-type-restrictions =
-      Are-preserving-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} $
-      erasure→zero-one-many-Σ-preserves-strong-types-restricted $
-      Are-preserving-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ _ ()) (λ _ → refl)
-
-    are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr-Σ
-    are-reflecting-type-restrictions =
-      Are-reflecting-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
-      erasure→zero-one-many-Σ-reflects-strong-types-restricted $
-      Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-
-    are-preserving-usage-restrictions :
-      Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr-Σ
-    are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-no-quotient-terms $
-      Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
+    is-Σ-morphism-C :
+      Is-Σ-morphism-C false E₁.C E₂.C tr tr-Σ
+    is-Σ-morphism-C =
+      M-no-quotients $
+      M-strong-types-restricted refl $
+      M-no-restrictions (λ _ ()) (λ _ → refl) _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
             refl →
@@ -630,11 +542,16 @@ Erasure⇨Affine-types = λ where
         (erasure⇒affine-no-nr-preserving _)
         erasure⇒affine-no-nr-glb-preserving
 
-    are-reflecting-usage-restrictions :
-      Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr-Σ
-    are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-no-quotient-terms′
-        _ (λ _ → inj₁ _) Nr≈Nr
+    is-Σ-order-embedding-C :
+      Is-Σ-order-embedding-C false E₁.C E₂.C tr tr-Σ
+    is-Σ-order-embedding-C =
+      OE-no-quotients (λ ()) $
+      OE-strong-types-restricted
+        (λ where
+           {p = E.𝟘} ()
+           {p = E.ω} _  → refl)
+        (λ ()) $
+      OE-no-restrictions (λ ()) _ (λ _ → inj₁ _) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
             refl →
@@ -658,14 +575,10 @@ Erasure⇨Linearity = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.are-preserving-type-restrictions →
-      are-preserving-type-restrictions
-    ._⇨_.are-reflecting-type-restrictions →
-      are-reflecting-type-restrictions
-    ._⇨_.are-preserving-usage-restrictions →
-      are-preserving-usage-restrictions
-    ._⇨_.are-reflecting-usage-restrictions →
-      are-reflecting-usage-restrictions
+    ._⇨_.is-Σ-morphism-C →
+      is-Σ-morphism-C
+    ._⇨_.is-Σ-order-embedding-C →
+      is-Σ-order-embedding-C
   where
   module E₁ = Extended-modality Erasure
   module E₂ = Extended-modality Linearity
@@ -686,33 +599,12 @@ Erasure⇨Linearity = λ where
     is-Σ-order-embedding =
       erasure⇨zero-one-many-Σ
 
-    are-preserving-type-restrictions :
-      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr-Σ
-    are-preserving-type-restrictions =
-      Are-preserving-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} $
-      erasure→zero-one-many-Σ-preserves-strong-types-restricted $
-      Are-preserving-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ _ ()) (λ _ → refl)
-
-    are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr-Σ
-    are-reflecting-type-restrictions =
-      Are-reflecting-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
-      erasure→zero-one-many-Σ-reflects-strong-types-restricted $
-      Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-
-    are-preserving-usage-restrictions :
-      Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr-Σ
-    are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-no-quotient-terms $
-      Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
+    is-Σ-morphism-C :
+      Is-Σ-morphism-C false E₁.C E₂.C tr tr-Σ
+    is-Σ-morphism-C =
+      M-no-quotients $
+      M-strong-types-restricted refl $
+      M-no-restrictions (λ _ ()) (λ _ → refl) _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
             refl →
@@ -722,11 +614,16 @@ Erasure⇨Linearity = λ where
         (erasure⇒linearity-no-nr-preserving _)
         erasure⇒linearity-no-nr-glb-preserving
 
-    are-reflecting-usage-restrictions :
-      Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr-Σ
-    are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-no-quotient-terms′
-        _ (λ _ → inj₁ _) Nr≈Nr
+    is-Σ-order-embedding-C :
+      Is-Σ-order-embedding-C false E₁.C E₂.C tr tr-Σ
+    is-Σ-order-embedding-C =
+      OE-no-quotients (λ ()) $
+      OE-strong-types-restricted
+        (λ where
+           {p = E.𝟘} ()
+           {p = E.ω} _  → refl)
+        (λ ()) $
+      OE-no-restrictions (λ ()) _ (λ _ → inj₁ _) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ EM.erasure-has-nr ⦄) of λ {
             refl →
@@ -751,14 +648,10 @@ Affine-types⇨Linear-or-affine-types = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.are-preserving-type-restrictions →
-      are-preserving-type-restrictions
-    ._⇨_.are-reflecting-type-restrictions →
-      are-reflecting-type-restrictions
-    ._⇨_.are-preserving-usage-restrictions →
-      are-preserving-usage-restrictions
-    ._⇨_.are-reflecting-usage-restrictions →
-      are-reflecting-usage-restrictions
+    ._⇨_.is-Σ-morphism-C →
+      is-Σ-morphism-C
+    ._⇨_.is-Σ-order-embedding-C →
+      is-Σ-order-embedding-C
   where
   module E₁ = Extended-modality Affine-types
   module E₂ = Extended-modality Linear-or-affine-types
@@ -779,33 +672,12 @@ Affine-types⇨Linear-or-affine-types = λ where
     is-Σ-order-embedding =
       affine⇨linear-or-affine-Σ
 
-    are-preserving-type-restrictions :
-      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr-Σ
-    are-preserving-type-restrictions =
-      Are-preserving-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} $
-      affine→linear-or-affine-Σ-preserves-strong-types-restricted $
-      Are-preserving-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ _ ()) (λ _ → refl)
-
-    are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr-Σ
-    are-reflecting-type-restrictions =
-      Are-reflecting-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
-      affine→linear-or-affine-Σ-reflects-strong-types-restricted $
-      Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-
-    are-preserving-usage-restrictions :
-      Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr-Σ
-    are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-no-quotient-terms $
-      Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
+    is-Σ-morphism-C :
+      Is-Σ-morphism-C false E₁.C E₂.C tr tr-Σ
+    is-Σ-morphism-C =
+      M-no-quotients $
+      M-strong-types-restricted refl $
+      M-no-restrictions (λ _ ()) (λ _ → refl) _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ A.zero-one-many-has-nr ⦄) of λ {
             refl →
@@ -815,11 +687,17 @@ Affine-types⇨Linear-or-affine-types = λ where
         (affine⇨linear-or-affine-no-nr-preserving _)
         affine⇨linear-or-affine-no-nr-glb-preserving
 
-    are-reflecting-usage-restrictions :
-      Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr-Σ
-    are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-no-quotient-terms′
-        _ (λ _ → inj₁ _) Nr≈Nr
+    is-Σ-order-embedding-C :
+      Is-Σ-order-embedding-C false E₁.C E₂.C tr tr-Σ
+    is-Σ-order-embedding-C =
+      OE-no-quotients (λ ()) $
+      OE-strong-types-restricted
+        (λ where
+           {p = A.𝟘} ()
+           {p = A.ω} ()
+           {p = A.𝟙} _  → refl)
+        (λ ()) $
+      OE-no-restrictions (λ ()) _ (λ _ → inj₁ _) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ A.zero-one-many-has-nr ⦄) of λ {
             refl →
@@ -844,14 +722,10 @@ Linearity⇨Linear-or-affine-types = λ where
       is-order-embedding
     ._⇨_.is-Σ-order-embedding →
       is-Σ-order-embedding
-    ._⇨_.are-preserving-type-restrictions →
-      are-preserving-type-restrictions
-    ._⇨_.are-reflecting-type-restrictions →
-      are-reflecting-type-restrictions
-    ._⇨_.are-preserving-usage-restrictions →
-      are-preserving-usage-restrictions
-    ._⇨_.are-reflecting-usage-restrictions →
-      are-reflecting-usage-restrictions
+    ._⇨_.is-Σ-morphism-C →
+      is-Σ-morphism-C
+    ._⇨_.is-Σ-order-embedding-C →
+      is-Σ-order-embedding-C
   where
   module E₁ = Extended-modality Linearity
   module E₂ = Extended-modality Linear-or-affine-types
@@ -871,33 +745,12 @@ Linearity⇨Linear-or-affine-types = λ where
     is-Σ-order-embedding =
       Is-order-embedding→Is-Σ-order-embedding is-order-embedding
 
-    are-preserving-type-restrictions :
-      Are-preserving-type-restrictions false E₁.TR E₂.TR tr tr
-    are-preserving-type-restrictions =
-      Are-preserving-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} $
-      linearity→linear-or-affine-preserves-strong-types-restricted $
-      Are-preserving-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ _ ()) (λ _ → refl)
-
-    are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions false E₁.TR E₂.TR tr tr
-    are-reflecting-type-restrictions =
-      Are-reflecting-type-restrictions-no-quotients
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Not-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)} (λ ()) $
-      linearity→linear-or-affine-reflects-strong-types-restricted $
-      Are-reflecting-type-restrictions-no-type-restrictions
-        {𝐌₁ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-        {𝐌₂ = Zero-one-isMode (𝟘ᵐ-Allowed _)}
-
-    are-preserving-usage-restrictions :
-      Are-preserving-usage-restrictions E₁.UR E₂.UR tr tr
-    are-preserving-usage-restrictions =
-      Are-preserving-usage-restrictions-no-quotient-terms $
-      Are-preserving-usage-restrictions-no-usage-restrictions _ Nr≈Nr
+    is-Σ-morphism-C :
+      Is-Σ-morphism-C false E₁.C E₂.C tr tr
+    is-Σ-morphism-C =
+      M-no-quotients $
+      M-strong-types-restricted refl $
+      M-no-restrictions (λ _ ()) (λ _ → refl) _ Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ L.zero-one-many-has-nr ⦄) of λ {
             refl →
@@ -907,11 +760,17 @@ Linearity⇨Linear-or-affine-types = λ where
         (linearity⇨linear-or-affine-no-nr-preserving _)
         linearity⇨linear-or-affine-no-nr-glb-preserving
 
-    are-reflecting-usage-restrictions :
-      Are-reflecting-usage-restrictions E₁.UR E₂.UR tr tr
-    are-reflecting-usage-restrictions =
-      Are-reflecting-usage-restrictions-no-quotient-terms′
-        _ (λ _ → inj₁ _) Nr≈Nr
+    is-Σ-order-embedding-C :
+      Is-Σ-order-embedding-C false E₁.C E₂.C tr tr
+    is-Σ-order-embedding-C =
+      OE-no-quotients (λ ()) $
+      OE-strong-types-restricted
+        (λ where
+           {p = L.𝟘} ()
+           {p = L.ω} ()
+           {p = L.𝟙} _  → refl)
+        (λ ()) $
+      OE-no-restrictions (λ ()) _ (λ _ → inj₁ _) Nr≈Nr
         (λ ⦃ has-nr₁ ⦄ ⦃ has-nr₂ ⦄ →
           case Nr-available-propositional _ has-nr₁ (Nr ⦃ L.zero-one-many-has-nr ⦄) of λ {
             refl →

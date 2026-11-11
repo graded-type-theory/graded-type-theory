@@ -5,7 +5,7 @@
 -- This "monad" may or may not satisfy the monad laws, no such proof
 -- is included here.
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -13,11 +13,11 @@ module Definition.Typed.Decidable.Internal.Monad
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   (𝐌 : IsMode Mode 𝕄)
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open import Definition.Typed.Decidable.Internal.Constraint 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Term 𝐌 TR
+open import Definition.Typed.Decidable.Internal.Constraint 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Term 𝐌 TC
 
 open import Definition.Untyped M using (Term-kind)
 

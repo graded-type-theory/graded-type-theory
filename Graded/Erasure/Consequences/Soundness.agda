@@ -2,11 +2,10 @@
 -- Soundness of the extraction function.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Erasure.Consequences.Soundness
   {a} {M : Set a}
@@ -14,60 +13,59 @@ module Graded.Erasure.Consequences.Soundness
   (open Modality 𝕄)
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
+
+open import Configuration-types.Configuration.Zero-one 𝕄 variant
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance C
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Omega M using (Ω)
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Sigma 𝕄
 open import Definition.Untyped.Unit 𝕄
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Consistency TR
-import Definition.Typed.Consequences.Canonicity TR as TC
-open import Definition.Typed.Consequences.Inequality TR
-open import Definition.Typed.EqRelInstance TR
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Consistency TC
+import Definition.Typed.Consequences.Canonicity TC as TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.EqRelInstance TC
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Reasoning.Term TR
-open import Definition.Typed.Substitution TR
-open import Definition.Typed.Weakening.Definition TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Graded.Context 𝕄
-open import Graded.Derived.Erased.Usage UR
-open import Graded.Derived.Identity UR
-open import Graded.Derived.Omega UR
+open import Graded.Derived.Erased.Usage C
+open import Graded.Derived.Identity C
+open import Graded.Derived.Omega C
 open import Graded.Modality.Omega-instances
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Restrictions.Instance UR
+open import Graded.Usage C
+open import Graded.Usage.Properties C
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Restrictions.Zero-one 𝕄 variant
 
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 open import Graded.Erasure.Extraction 𝕄
-open import Graded.Erasure.Extraction.Non-terminating TR UR
+open import Graded.Erasure.Extraction.Non-terminating C
 open import Graded.Erasure.Extraction.Properties 𝕄
-open import Graded.Erasure.SucRed TR
+open import Graded.Erasure.SucRed TC
 import Graded.Erasure.LogicalRelation
-open import Graded.Erasure.LogicalRelation.Assumptions TR
-open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
+open import Graded.Erasure.LogicalRelation.Assumptions TC
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions C
 import Graded.Erasure.LogicalRelation.Fundamental
 import Graded.Erasure.LogicalRelation.Hidden
 import Graded.Erasure.LogicalRelation.Irrelevance
@@ -117,7 +115,7 @@ module Soundness′
 
     private module L (str : Strictness) (⊢Δ : glassify ∇ »⊢ Δ) where
 
-      open Graded.Erasure.LogicalRelation.Fundamental TR UR
+      open Graded.Erasure.LogicalRelation.Fundamental C
 
       FA : Fundamental-assumptions (glassify ∇ » Δ)
       FA = record
@@ -134,7 +132,7 @@ module Soundness′
 
       open Fundamental FA public
       open Graded.Erasure.LogicalRelation as public
-      open Graded.Erasure.LogicalRelation.Hidden UR as public
+      open Graded.Erasure.LogicalRelation.Hidden C as public
       open Graded.Erasure.LogicalRelation.Irrelevance as public
 
     private opaque
@@ -259,7 +257,7 @@ module Soundness′
   -- variable context is empty.
 
   module Soundness₀
-    (ok : No-erased-matches TR UR ⊎
+    (ok : No-erased-matches ⊎
           ¬ Higher-quotient-constructors-neutral)
     (▸∇ : ▸[ 𝟙ᵐ ] glassify ∇)
     where
@@ -476,7 +474,6 @@ opaque
   soundness-ℕ-only-source-counterexample₃′ :
     ⦃ has-ω : Usage-allows-omega ⦄ →
     erased-matches-for-J 𝟙ᵐ PE.≡ not-none sem →
-    Higher-quotient-constructors-allowed →
     Higher-quotient-constructors-neutral →
     let ∇ = ε
         Δ = ε
@@ -490,27 +487,26 @@ opaque
     𝟘ᶜ ▸[ 𝟙ᵐ ] t ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ⇒ˢ* sucⁿ n ∷ℕ) ×
     (¬ ∃ λ n → glassify ∇ » Δ ⊢ t ≡ sucⁿ n ∷ ℕ)
-  soundness-ℕ-only-source-counterexample₃′ ok₁ ok₂ ok₃ =
-    let ok₄          = Higher-quotient-constructors→Quotient-terms ok₂
-        ok₅ , not-ok = Higher-quotient-constructors-neutral⇔ .proj₁ ok₃
+  soundness-ℕ-only-source-counterexample₃′ ok₁ ok₂ =
+    let ok₃ , not-ok = Higher-quotient-constructors-neutral⇔ .proj₁ ok₂
         ⊢zero        = zeroⱼ εε
-        ⊢Q           = Quot ok₅ (⊢ℕ (⊢Quot-rel-Con (⊢ℕ εε)))
+        ⊢Q           = Quot ok₃ (⊢ℕ (⊢Quot-rel-Con (⊢ℕ εε)))
     in
     (λ _ → TC.¬Empty) ,
     ε ,
     ⊢subst (⊢ℕ (∙ ⊢Q)) (resp ⊢Q ⊢zero ⊢zero ⊢zero) ⊢zero ,
     (λ ()) ,
-    ▸subst-𝟘 {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ} ok₁ (Quot ok₄ ℕₘ ℕₘ) ℕₘ
-      (class ok₄ zeroₘ) (class ok₄ zeroₘ)
-      (resp ok₂ ℕₘ ℕₘ zeroₘ zeroₘ zeroₘ PE.refl) zeroₘ ,
+    ▸subst-𝟘 {m₁ = 𝟙ᵐ} {m₂ = 𝟙ᵐ} {m₃ = 𝟙ᵐ} ok₁ (Quot ok₃ ℕₘ ℕₘ) ℕₘ
+      (class ok₃ zeroₘ) (class ok₃ zeroₘ)
+      (resp ok₃ ℕₘ ℕₘ zeroₘ zeroₘ zeroₘ PE.refl) zeroₘ ,
     (λ where
-       (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne (Jₙ (resp ok₃)))
-       (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (Jₙ (resp ok₃)))) ,
+       (0    , whred d ⇨ˢ _) → whnfRedTerm d (ne (Jₙ (resp ok₂)))
+       (1+ _ , whred d ⇨ˢ _) → whnfRedTerm d (ne (Jₙ (resp ok₂)))) ,
     sucⁿ≢ne {V = TL.Lift _ ⊤}
       ⦃ ok = possibly-nonempty
                ⦃ ok = No-equality-reflection⇔ .proj₂ not-ok ⦄
       ⦄
-      _ (Jₙ (resp ok₃)) ∘→
+      _ (Jₙ (resp ok₂)) ∘→
     sym′ ∘→ proj₂
 
 opaque

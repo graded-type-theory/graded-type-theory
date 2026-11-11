@@ -3,36 +3,36 @@
 -- reflection)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Soundness
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral.Atomic M type-variant
-open import Definition.Untyped.Sup R
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R using (eqRelInstance)
-open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-import Definition.Typed.Reasoning.Term R as TmR
-import Definition.Typed.Reasoning.Type R as TyR
-open import Definition.Typed.Stability R
-open import Definition.Typed.Well-formed R
-open import Definition.Conversion R
-open import Definition.Conversion.Whnf R
-open import Definition.Conversion.Level R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Untyped.Neutral.Atomic M TC⁻
+open import Definition.Untyped.Sup TC
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC using (eqRelInstance)
+open import Definition.Typed.EqualityRelation.Instance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+import Definition.Typed.Reasoning.Term TC as TmR
+import Definition.Typed.Reasoning.Type TC as TyR
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Conversion TC
+open import Definition.Conversion.Whnf TC
+open import Definition.Conversion.Level TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.Consequences.NeTypeEq TC
 
 open import Tools.Bool
 open import Tools.Function

@@ -2,9 +2,9 @@
 -- Inversion lemmata for γ ▸[ m ] t
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Usage.Inversion
   {a a′} {M : Set a} {Mode : Set a′}
@@ -12,20 +12,21 @@ module Graded.Usage.Inversion
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance C
+open import Configuration-types.Natrec 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Omega-instances
-open import Graded.Usage R
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Instance R
-open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage C
 open import Definition.Untyped M hiding (_∙_)
 
 open import Tools.Bool using (T)
@@ -42,7 +43,7 @@ private
     α k n : Nat
     γ δ₁ δ₂ δ₃ δ₄ δ₅ χ : Conₘ n
     p q r : M
-    A B C F l t t′ u v w z n' : Term[ _ ] n
+    A B F l t t′ u v w z n' : Term[ _ ] n
     G : Term[ _ ] (1+ n)
     m : Mode
     b : BinderMode
@@ -780,7 +781,7 @@ inv-usage-[]-cong (sub γ′▸ γ≤γ′) with inv-usage-[]-cong γ′▸
 
 inv-usage-Quot :
   γ ▸[ m ] Quot A B →
-  Quotient-terms-allowed × γ ▸[ m ] A × ∃ (_▸[ 𝟘ᵐ ] B)
+  Quot-allowed × γ ▸[ m ] A × ∃ (_▸[ 𝟘ᵐ ] B)
 inv-usage-Quot (Quot ok ▸A ▸B) =
   ok , ▸A , _ , ▸B
 inv-usage-Quot (sub δ▸ γ≤δ) =
@@ -790,7 +791,7 @@ inv-usage-Quot (sub δ▸ γ≤δ) =
 -- A usage inversion lemma for class.
 
 inv-usage-class :
-  γ ▸[ m ] class t → Quotient-terms-allowed × γ ▸[ m ] t
+  γ ▸[ m ] class t → Quot-allowed × γ ▸[ m ] t
 inv-usage-class (class ok ▸t) =
   ok , ▸t
 inv-usage-class (sub δ▸ γ≤δ) =
@@ -801,7 +802,7 @@ inv-usage-class (sub δ▸ γ≤δ) =
 
 inv-usage-resp :
   γ ▸[ m ] resp A B t u v →
-  γ ≤ᶜ 𝟘ᶜ × m ≡ 𝟘ᵐ × Higher-quotient-constructors-allowed ×
+  γ ≤ᶜ 𝟘ᶜ × m ≡ 𝟘ᵐ × Quot-allowed ×
   ∃ (_▸[ 𝟘ᵐ ] A) × ∃ (_▸[ 𝟘ᵐ ] B) × ∃ (_▸[ 𝟘ᵐ ] t) × ∃ (_▸[ 𝟘ᵐ ] u) ×
   ∃ (_▸[ 𝟘ᵐ ] v)
 inv-usage-resp (resp ok ▸A ▸B ▸t ▸u ▸v eq) =
@@ -815,7 +816,7 @@ inv-usage-resp (sub δ▸ γ≤δ) =
 
 inv-usage-set :
   γ ▸[ m ] set A B t u v w →
-  γ ≤ᶜ 𝟘ᶜ × m ≡ 𝟘ᵐ × Higher-quotient-constructors-allowed ×
+  γ ≤ᶜ 𝟘ᶜ × m ≡ 𝟘ᵐ × Quot-allowed ×
   ∃ (_▸[ 𝟘ᵐ ] A) × ∃ (_▸[ 𝟘ᵐ ] B) × ∃ (_▸[ 𝟘ᵐ ] t) × ∃ (_▸[ 𝟘ᵐ ] u) ×
   ∃ (_▸[ 𝟘ᵐ ] v) × ∃ (_▸[ 𝟘ᵐ ] w)
 inv-usage-set (set ok ▸A ▸B ▸t ▸u ▸v ▸w eq) =
@@ -832,7 +833,7 @@ data InvUsage-qrec
        (v : Term (5+ n)) (w : Term n) : Set (a ⊔ a′) where
   invUsageQrec₀ :
     ⦃ ok : Usage-allows-omega ⦄ →
-    Quotient-terms-allowed →
+    Quot-allowed →
     Qrec-motive-erased →
     δ₁ ▸[ 𝟘ᵐ ] C →
     δ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] t →
@@ -843,7 +844,7 @@ data InvUsage-qrec
     InvUsage-qrec γ m C t u v w
   invUsageQrec₁ :
     ⦃ ok : Usage-allows-omega ⦄ →
-    Quotient-terms-allowed →
+    Quot-allowed →
     ¬ Qrec-motive-erased →
     δ₁ ∙ ⌜ m ⌝ · ω ▸[ m ] C →
     δ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] t →
@@ -856,7 +857,7 @@ data InvUsage-qrec
 -- A usage inversion lemma for qrec.
 
 inv-usage-qrec :
-  γ ▸[ m ] qrec C t u v w → InvUsage-qrec γ m C t u v w
+  ∀ {C} → γ ▸[ m ] qrec C t u v w → InvUsage-qrec γ m C t u v w
 inv-usage-qrec (qrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
   invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w ≤ᶜ-refl
 inv-usage-qrec (qrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =

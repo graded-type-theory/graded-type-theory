@@ -3,7 +3,7 @@
 -- using greatest lower bounds in the usage rule for natrec.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Definition.Untyped.Bool.Greatest-lower-bound
 open import Graded.Modality
 open import Graded.Mode
@@ -12,8 +12,8 @@ module Definition.Typed.Consequences.Admissible.Bool.Greatest-lower-bound
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   (open Modality 𝕄)
   (open Definition.Untyped.Bool.Greatest-lower-bound 𝕄)
   -- It is assumed that certain Σ-types are allowed.
@@ -22,11 +22,11 @@ module Definition.Typed.Consequences.Admissible.Bool.Greatest-lower-bound
   (Unitʷ-ok : Unitʷ-allowed)
   where
 
-open import Definition.Typed R
+open import Definition.Typed TC
 open import Definition.Untyped M
 
 import Definition.Typed.Consequences.Admissible.Bool
-  𝐌 R 𝟙 (𝟙 ∧ 𝟘) (𝟙 ∧ 𝟘) Σ-ok Unitʷ-ok as B
+  𝐌 TC 𝟙 (𝟙 ∧ 𝟘) (𝟙 ∧ 𝟘) Σ-ok Unitʷ-ok as B
 
 private variable
   Γ                                 : Cons _ _

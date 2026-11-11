@@ -2,7 +2,7 @@
 -- Typing and equality rules related to Bool
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Definition.Untyped
 import Definition.Untyped.Bool.Erased
 open import Graded.Modality
@@ -15,8 +15,8 @@ module Definition.Typed.Consequences.Admissible.Bool.Erased
   (𝐌 : IsMode Mode 𝕄)
   (open Definition.Untyped.Bool.Erased 𝕄 𝐌)
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Has-nr M 𝕄 ⦄
   -- It is assumed that the modality has grade ω.
@@ -27,23 +27,23 @@ module Definition.Typed.Consequences.Admissible.Bool.Erased
   (Erased-ok : Erased-allowed 𝕨)
   where
 
-open Internal R
+open Internal TC
 
-open import Definition.Typed R
-open import Definition.Typed.Decidable.Internal 𝐌 R
-import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
-import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
-import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
-import Definition.Typed.Decidable.Internal.Tests 𝐌 R as IT
+open import Definition.Typed TC
+open import Definition.Typed.Decidable.Internal 𝐌 TC
+import Definition.Typed.Decidable.Internal.Context 𝐌 TC as IC
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 TC as IS
+import Definition.Typed.Decidable.Internal.Term 𝐌 TC as I
+import Definition.Typed.Decidable.Internal.Tests 𝐌 TC as IT
 import Definition.Typed.Properties.Admissible.Bool.OK
-open import Definition.Typed.Properties.Admissible.Erased R
-open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.Nat R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed.Properties.Admissible.Erased TC
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Admissible.Nat TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped.Bool.Nr 𝕄 𝐌 as B using (OK; OKᵍ)
 open import Definition.Untyped.Empty 𝕄
@@ -81,7 +81,7 @@ private opaque
   Σʷ-𝟘-𝟘-ok : Σʷ-allowed 𝟘 𝟘
   Σʷ-𝟘-𝟘-ok = Erased-ok .proj₂
 
-open Definition.Typed.Properties.Admissible.Bool.OK OKᵍ R Unitʷ-ok
+open Definition.Typed.Properties.Admissible.Bool.OK OKᵍ TC Unitʷ-ok
 
 private opaque
 

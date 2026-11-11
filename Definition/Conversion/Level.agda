@@ -2,23 +2,23 @@
 -- Some lemmas related to algorithmic conversion of levels.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Level
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral.Atomic M type-variant
-open import Definition.Conversion R
-open import Definition.Conversion.Whnf R
-open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Untyped.Neutral.Atomic M TC⁻
+open import Definition.Conversion TC
+open import Definition.Conversion.Whnf TC
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
 
 open import Tools.Bool
 open import Tools.Function

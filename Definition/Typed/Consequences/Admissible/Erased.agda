@@ -2,7 +2,7 @@
 -- Admissible rules related to Erased
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -10,25 +10,25 @@ module Definition.Typed.Consequences.Admissible.Erased
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Admissible.Sigma R
-open import Definition.Typed.Decidable.Internal 𝐌 R
-import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
-import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
-import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
-import Definition.Typed.Decidable.Internal.Tests 𝐌 R as IT
-import Definition.Typed.Decidable.Internal.Weakening 𝐌 R as IW
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Admissible.Sigma TC
+open import Definition.Typed.Decidable.Internal 𝐌 TC
+import Definition.Typed.Decidable.Internal.Context 𝐌 TC as IC
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 TC as IS
+import Definition.Typed.Decidable.Internal.Term 𝐌 TC as I
+import Definition.Typed.Decidable.Internal.Tests 𝐌 TC as IT
+import Definition.Typed.Decidable.Internal.Weakening 𝐌 TC as IW
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
@@ -74,7 +74,7 @@ opaque
 module _ (ok : []-cong-allowed s) where
 
   open Erased s
-  open Erased.Internal s 𝐌 R
+  open Erased.Internal s 𝐌 TC
 
   opaque
     unfolding Erased Jᵉ erased fst⟨_⟩ snd⟨_⟩ subst substᵉ [_]

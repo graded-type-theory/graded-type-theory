@@ -4,24 +4,23 @@
 -- Graded.Has-box-cong.Definable
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Has-box-cong.Lemmas
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   (variant : Mode-variant 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions TR
+open Type-configuration TC
 
-open import Definition.Typed TR
-open import Definition.Typed.Properties TR
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
 open import Definition.Untyped M
 
 open import Graded.Context 𝕄

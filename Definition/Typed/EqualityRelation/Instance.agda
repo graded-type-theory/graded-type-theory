@@ -3,14 +3,14 @@
 ------------------------------------------------------------------------
 
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.EqualityRelation.Instance
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eq : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eq : EqRelSet TC ⦄
   where
 
 open EqRelSet eq

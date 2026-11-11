@@ -2,19 +2,19 @@
 -- The term former _supᵘₗ_
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Untyped.Sup
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty

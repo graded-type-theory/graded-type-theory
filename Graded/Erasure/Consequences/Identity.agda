@@ -3,11 +3,10 @@
 -- identity types
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.Consequences.Identity
   {a} {M : Set a}
@@ -15,35 +14,33 @@ module Graded.Erasure.Consequences.Identity
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Mode-variant variant
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
-open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Admissible Zero-one-isMode TC
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Usage.Zero-one UR
+open import Graded.Derived.Erased.Usage.Zero-one C
 import Graded.Erasure.LogicalRelation as L
-open import Graded.Erasure.LogicalRelation.Assumptions TR
-open import Graded.Erasure.LogicalRelation.Fundamental TR UR
-open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
+open import Graded.Erasure.LogicalRelation.Assumptions TC
+open import Graded.Erasure.LogicalRelation.Fundamental C
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions C
 import Graded.Erasure.LogicalRelation.Hidden as H
 import Graded.Erasure.Target as T
-open import Graded.Usage UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one variant UR
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one variant C
 
 open import Tools.Bool using (T)
 open import Tools.Function
@@ -90,7 +87,7 @@ opaque
     as : Assumptions
     as = record { ⊢Δ = wf ⊢v; str = T.non-strict }
 
-    open H UR as
+    open H C as
     open L as
 
 opaque

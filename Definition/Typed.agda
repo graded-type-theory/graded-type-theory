@@ -2,26 +2,24 @@
 -- Typing and reduction relations
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄 using (𝟘)
-open Type-restrictions R
-
-open import Definition.Typed.Variant
+open Type-configuration TC
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Sup R
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Sup TC
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Fin
 open import Tools.Nat

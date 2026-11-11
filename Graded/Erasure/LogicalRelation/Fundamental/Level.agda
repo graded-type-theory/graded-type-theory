@@ -2,34 +2,32 @@
 -- Validity for Level
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Level
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (as : Assumptions R)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (as : Assumptions TC)
   where
 
 open Assumptions as
-open Type-restrictions R
 
-open import Definition.LogicalRelation.Substitution R
-open import Definition.Typed R
-open import Definition.Typed.Substitution R
+open import Definition.LogicalRelation.Substitution TC
+open import Definition.Typed TC
+open import Definition.Typed.Substitution TC
 open import Definition.Untyped M
 
 open import Graded.Context 𝕄
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden UR as
+open import Graded.Erasure.LogicalRelation.Hidden C as
 import Graded.Erasure.Target as T
 
 open import Tools.Function

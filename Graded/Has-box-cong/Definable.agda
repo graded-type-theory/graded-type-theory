@@ -2,11 +2,10 @@
 -- Sometimes []-cong can be defined, sometimes it cannot be defined
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Has-box-cong.Definable
   {a} {M : Set a}
@@ -14,63 +13,62 @@ module Graded.Has-box-cong.Definable
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Mode-variant variant
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
-open import Definition.Conversion.Consequences.Var TR
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
+open import Configuration-types.Configuration.Zero-one 𝕄 variant
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance C
+
+open import Definition.Conversion.Consequences.Var TC
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Admissible Zero-one-isMode TC
 import Definition.Typed.Consequences.Consistency
-open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.EqRelInstance TR
-open import Definition.Typed.Inversion TR
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Inversion TC
 import Definition.Typed.Properties
-open import Definition.Typed.Reasoning.Term TR
-open import Definition.Typed.Substitution TR
-import Definition.Typed.Weakening TR as W
-import Definition.Typed.Weakening.Definition TR as WD
-open import Definition.Typed.Well-formed TR
-open import Definition.Typed.With-equality-reflection TR
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Substitution TC
+import Definition.Typed.Weakening TC as W
+import Definition.Typed.Weakening.Definition TC as WD
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.With-equality-reflection TC
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Inversion M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
-open Definition.Typed.Consequences.Consistency TR
-open Definition.Typed.Properties TR hiding ([]-cong′)
+open Definition.Typed.Consequences.Consistency TC
+open Definition.Typed.Properties TC hiding ([]-cong′)
 
 private
   module CR = Definition.Typed.Consequences.Consistency With-refl
   module PR = Definition.Typed.Properties With-refl
-  module TR = Type-restrictions With-refl
+  module TC = Type-configuration With-refl
 
-open import Graded.Has-box-cong TR UR
-open import Graded.Has-box-cong.Definable.J TR UR
-open import Graded.Has-box-cong.Equivalent TR UR
-open import Graded.Has-box-cong.Equivalent.For-level TR UR
-open import Graded.Has-box-cong.Lemmas TR variant
+open import Graded.Has-box-cong C
+open import Graded.Has-box-cong.Definable.J C
+open import Graded.Has-box-cong.Equivalent C
+open import Graded.Has-box-cong.Equivalent.For-level C
+open import Graded.Has-box-cong.Lemmas TC variant
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Neutral TR UR
-open import Graded.Reduction.Zero-one variant TR UR
-open import Graded.Restrictions.Zero-one 𝕄 variant
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Weakening UR
+open import Graded.Neutral C
+open import Graded.Reduction.Zero-one variant C
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -88,7 +86,7 @@ private variable
   n n′                                                    : Nat
   Δ                                                       : Con Term _
   Γ                                                       : Cons _ _
-  A B C t u v                                             : Term _
+  A B t u v                                               : Term _
   l l₁ l₂                                                 : Lvl _
   σ                                                       : Subst _ _
   p p₁ p₂ p₃ p₄ p₅ p₆ p₇ q₁ q₂ q₂′ q₃ q₃′ q₄ q₄′ q₅ q₆ q₇ : M
@@ -445,6 +443,7 @@ private opaque
   -- A lemma used below.
 
   ¬-[]-cong-lemma :
+    ∀ {C} →
     𝟘ᶜ ▸[ 𝟙ᵐ ] t × ε » Δ ⊢ t ∷ Π 𝟘 , p ▷ B ▹ C →
     let t0 = wk1 t ∘⟨ 𝟘 ⟩ var x0 in
     𝟘ᶜ ▸[ 𝟙ᵐ ] t0 × ε » Δ ∙ B ⊢ t0 ∷ C
@@ -489,7 +488,7 @@ opaque
     {Γ : Con Term n}
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -539,7 +538,7 @@ opaque
     {Γ : Con Term n}
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -567,7 +566,7 @@ opaque
     {Γ : Con Term n}
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -631,7 +630,7 @@ opaque
     {Γ : Con Term n}
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -706,7 +705,7 @@ opaque
     ⦃ has-ω : Usage-allows-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -747,7 +746,7 @@ opaque
     ⦃ has-ω : Usage-allows-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -787,7 +786,7 @@ opaque
     {Γ : Con Term n}
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -828,7 +827,7 @@ opaque
     ⦃ has-ω : Usage-allows-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -869,7 +868,7 @@ opaque
     ⦃ has-ω : Usage-allows-omega ⦄ →
     ⦃ not-ok : No-equality-reflection ⦄
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (∀ {p q} →
      Unitʷ-η → Unitʷ-allowed → Unitrec-allowed 𝟙ᵐ p q →
      p ≤ 𝟘) →
@@ -893,5 +892,5 @@ opaque
          Consistent-with-equality-reflection→Consistent $
          CR.inhabited-consistent $ With-refl.⊢ˢʷ∷-sgSubst $
          PR.⊢poly-funext _
-           (TR.Level-allowed⇔≢ .proj₂ (Level-allowed⇔≢ .proj₁ Level-ok))
+           (TC.Level-allowed⇔≢ .proj₂ (Level-allowed⇔≢ .proj₁ Level-ok))
            Π-ok₆ Π-ok₇ εε)

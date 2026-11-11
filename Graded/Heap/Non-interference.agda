@@ -8,12 +8,11 @@
 -- information. The same lattice is used for the modes to represent the
 -- security clearence of the user.
 
+open import Configuration-types
 open import Graded.Modality
 import Graded.Mode.Instances.Bounded-distributive-lattice
-open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
 import Graded.Modality.Instances.Bounded-distributive-lattice
-open import Definition.Typed.Restrictions
 import Tools.PropositionalEquality as PE
 open import Tools.Algebra
 open import Tools.Relation
@@ -26,14 +25,11 @@ module Graded.Heap.Non-interference
   (open Graded.Modality.Instances.Bounded-distributive-lattice M L is-⊤?
     hiding (supports-subtraction))
   (open Graded.Mode.Instances.Bounded-distributive-lattice L is-⊤?)
-  (UR : Usage-restrictions modality bounded-distributive-lattice-isMode)
-  (TR : Type-restrictions modality)
-  (open Usage-restrictions UR)
-  (open Type-restrictions TR)
+  (C : Configuration bounded-distributive-lattice-isMode)
+  (open Configuration C)
   (Level-not-allowed : ¬ Level-allowed)
   -- Quotients are not allowed.
   (Quot-not-allowed : ¬ Quot-allowed)
-  (Quotient-terms-not-allowed : ¬ Quotient-terms-allowed)
   -- The security level programs should be run in
   (ℓ₀ : M)
   ⦃ no-nr : Nr-not-available-GLB ⦄
@@ -54,68 +50,67 @@ private
 
 open Modality 𝕄
 
+open import Configuration-types.Erased-matches
+open import Configuration-types.Natrec modality
+open import Configuration-types.Omega modality
+
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Canonicity TR
-open import Definition.Typed.EqRelInstance TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.LogicalRelation.Fundamental.Reducibility TR
-open import Definition.LogicalRelation.Substitution.Introductions.Nat TR
-open import Definition.LogicalRelation.Unary TR
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Canonicity TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.LogicalRelation.Fundamental.Reducibility TC
+open import Definition.LogicalRelation.Substitution.Introductions.Nat TC
+open import Definition.LogicalRelation.Unary TC
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Restrictions.Omega modality
-open import Graded.Usage.Restrictions.Natrec modality
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
 
 open Addition≡Meet +≡∧
 
 -- The assumptions used to prove termination hold.
 
-non-interference-assumptions : Assumptions UR TR ℓ₀
+non-interference-assumptions : Assumptions C ℓ₀
 non-interference-assumptions = record
    { Level-not-allowed = Level-not-allowed
    ; Quot-not-allowed = Quot-not-allowed
-   ; Quotient-terms-not-allowed = Quotient-terms-not-allowed
    ; subtraction-ok = supports-subtraction
    ; Unitʷ-η→ = λ _ _ _ → ≤⊤ _
    ; natrec-mode-ok = inj₂ no-nr
    }
 
 open Assumptions non-interference-assumptions
-  hiding (Quot-not-allowed; Quotient-terms-not-allowed)
+  hiding (Quot-not-allowed)
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Usage type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ℓ₀
+open import Graded.Heap.Untyped C factoring-nr ℓ₀
+open import Graded.Heap.Untyped.Properties C factoring-nr ℓ₀
+open import Graded.Heap.Usage C factoring-nr ℓ₀
+open import Graded.Heap.Usage.Inversion C factoring-nr ℓ₀
+open import Graded.Heap.Usage.Properties C factoring-nr ℓ₀
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr ℓ₀ Unitʷ-η→
+  C factoring-nr ℓ₀ Unitʷ-η→
   (flip ¬[No-nr∧No-nr-glb] no-nr) Quot-not-allowed
-  Quotient-terms-not-allowed
-open import Graded.Heap.Termination UR TR ℓ₀ non-interference-assumptions
-open import Graded.Heap.Typed UR TR factoring-nr ℓ₀
-open import Graded.Heap.Typed.Inversion UR TR factoring-nr ℓ₀
+open import Graded.Heap.Termination C ℓ₀ non-interference-assumptions
+open import Graded.Heap.Typed C factoring-nr ℓ₀
+open import Graded.Heap.Typed.Inversion C factoring-nr ℓ₀
 open import Graded.Heap.Typed.Reduction
-  UR TR factoring-nr ℓ₀ Quot-not-allowed
-open import Graded.Heap.Typed.Properties UR TR factoring-nr ℓ₀
-open import Graded.Heap.Typed.Substitution UR TR factoring-nr ℓ₀
-open import Graded.Heap.Reduction type-variant UR factoring-nr ℓ₀
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ℓ₀
+  C factoring-nr ℓ₀ Quot-not-allowed
+open import Graded.Heap.Typed.Properties C factoring-nr ℓ₀
+open import Graded.Heap.Typed.Substitution C factoring-nr ℓ₀
+open import Graded.Heap.Reduction C factoring-nr ℓ₀
+open import Graded.Heap.Reduction.Properties C factoring-nr ℓ₀
 
 private variable
   k : Nat

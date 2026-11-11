@@ -2,34 +2,32 @@
 -- Graded.Erasure validity of the unit type.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Unit
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  {R : Type-restrictions 𝕄}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (as : Assumptions R)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (as : Assumptions TC)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open Assumptions as
-open Type-restrictions R
 
 open import Graded.Modality.Properties.Has-well-behaved-zero 𝕄
 
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   is-reduction-relation
-open import Graded.Erasure.LogicalRelation.Hidden UR as
+open import Graded.Erasure.LogicalRelation.Hidden C as
 
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
@@ -39,21 +37,21 @@ import Graded.Erasure.Target.Properties as TP
 import Graded.Erasure.Target.Reasoning
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Term R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Syntactic TC
+open import Definition.Typed.Well-formed TC
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄

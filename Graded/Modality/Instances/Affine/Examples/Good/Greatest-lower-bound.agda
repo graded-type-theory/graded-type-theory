@@ -3,19 +3,20 @@
 -- rule for natrec using greatest lower bounds.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality.Instances.Affine
-open import Graded.Usage.Restrictions
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant affineModality
 
 module Graded.Modality.Instances.Affine.Examples.Good.Greatest-lower-bound
   {variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions affineModality Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open import Graded.Restrictions affineModality Zero-one-isMode
-open import Graded.Usage.Restrictions.Natrec affineModality
+open import Configuration-types.Configuration Zero-one-isMode
+open import Configuration-types.Natrec affineModality
+
 open import Graded.Modality Affine
 open import Graded.Mode Mode affineModality
 
@@ -23,8 +24,8 @@ private
   module M = Modality affineModality
 
   -- The usage rule for natrec with greatest lower bounds is used
-  UR′ = nr-not-available-glb-UR zero-one-many-supports-glb-for-natrec UR
-  open Usage-restrictions UR′
+  C′ = nr-not-available-glb zero-one-many-supports-glb-for-natrec C
+  open Configuration C′
   instance
     no-nr : Nr-not-available-GLB
     no-nr = No-nr-glb ⦃ zero-one-many-supports-glb-for-natrec ⦄
@@ -40,19 +41,19 @@ open import Tools.Relation
 
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
-import Graded.Derived.Nat UR′ as N
+import Graded.Derived.Nat C′ as N
+import Graded.Derived.Sum C′ as S
 open import Graded.Modality.Properties affineModality
   hiding (nrᵢ-𝟘-GLB)
 open import Graded.Mode Mode affineModality
-open import Graded.Usage UR′
-open import Graded.Usage.Inversion UR′
-open import Graded.Usage.Properties UR′
-open import Graded.Usage.Weakening UR′
+open import Graded.Usage C′
+open import Graded.Usage.Inversion C′
+open import Graded.Usage.Properties C′
+open import Graded.Usage.Weakening C′
 
 open import Definition.Untyped Affine
 open import Definition.Untyped.Nat affineModality
-open import Definition.Typed.Restrictions affineModality
-
+open import Definition.Untyped.Sum TC
 
 private variable
   n : Nat
@@ -153,7 +154,7 @@ module Vec
 
   open import Definition.Untyped.Vec
     affineModality Zero-one-isMode s p
-  import Graded.Derived.Vec s p UR′ as ▸V
+  import Graded.Derived.Vec s p C′ as ▸V
 
   opaque
 
@@ -295,7 +296,7 @@ module List
 
   open import Definition.Untyped.List
     affineModality Zero-one-isMode pₕ pₗ
-  import Graded.Derived.List pₕ pₗ UR′ as ▸L
+  import Graded.Derived.List pₕ pₗ C′ as ▸L
 
   opaque
 
@@ -518,47 +519,42 @@ module List-pₗ≡𝟙
 ------------------------------------------------------------------------
 -- Usage rules for Sum, see also Graded.Derived.Sum
 
-module Sum
-  (TR : Type-restrictions)
-  where
+opaque
+  unfolding sumrec
 
-  open import Definition.Untyped.Sum TR
-  import Graded.Derived.Sum TR UR′ as S
+  -- A usage lemma for sumrec
+  -- The uses p of the scrutinee must be less than its uses of either
+  -- branch but not 𝟘.
 
-  opaque
-    unfolding sumrec
-
-    -- A usage lemma for sumrec
-    -- The uses p of the scrutinee must be less than its uses of either
-    -- branch but not 𝟘.
-
-    ▸sumrec :
-      γ₁ ▸[ 𝟘ᵐ? ] a →
-      γ₂ ▸[ 𝟘ᵐ? ] b →
-      γ₃ ▸[ 𝟘ᵐ? ] A →
-      γ₄ ▸[ 𝟘ᵐ? ] B →
-      γ₅ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
-      δ₁ ∙ ⌜ m ⌝ · p₁ ▸[ m ] t₁ →
-      δ₂ ∙ ⌜ m ⌝ · p₂ ▸[ m ] t₂ →
-      η ▸[ m ] t₃ →
-      p ≤ p₁ →
-      p ≤ p₂ →
-      p ≢ 𝟘 →
-      S.Sum-allowed 𝟘ᵐ? →
-      Prodrec-allowed m p 𝟙 q →
-      Prodrec-allowed m 𝟙 𝟙 (q + p) →
-      Unitrec-allowed m 𝟙 (q + p) →
-      Emptyrec-allowed m 𝟘 →
-      p ·ᶜ η +ᶜ δ₁ ∧ᶜ δ₂ ▸[ m ] sumrec q p a b A B P t₁ t₂ t₃
-    ▸sumrec {m} {p₁} {p₂} ▸a ▸b ▸A ▸B ▸P ▸l ▸r ▸t p≤p₁ p≤p₂ p≢𝟘 ok₁ ok₂ ok₃ ok₄ ok₅ =
-      S.▸sumrec ▸a ▸b ▸A ▸B ▸P ▸l ▸r (▸-cong (lemma₂ _ p≢𝟘) ▸t) p≤p₁ p≤p₂ (lemma₁ _ p≢𝟘)
-        ok₁ ok₂ ok₃ ok₄ ok₅
-      where
-      lemma₁ : ∀ p → p ≢ 𝟘 → ⌜ m ⌝ · p ≤ ⌜ m ⌝
-      lemma₁ 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
-      lemma₁ 𝟙 _ = ≤-reflexive (M.·-identityʳ _)
-      lemma₁ ω _ = ·ω-decreasing
-      lemma₂ : ∀ p → p ≢ 𝟘 → m ≡ m ᵐ· p
-      lemma₂ 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
-      lemma₂ 𝟙 _ = sym ᵐ·-identityʳ
-      lemma₂ ω _ = sym (ᵐ·-identityʳ-≤𝟙 (ω≤ 𝟙))
+  ▸sumrec :
+    γ₁ ▸[ 𝟘ᵐ? ] a →
+    γ₂ ▸[ 𝟘ᵐ? ] b →
+    γ₃ ▸[ 𝟘ᵐ? ] A →
+    γ₄ ▸[ 𝟘ᵐ? ] B →
+    γ₅ ∙ ⌜ 𝟘ᵐ? ⌝ · q ▸[ 𝟘ᵐ? ] P →
+    δ₁ ∙ ⌜ m ⌝ · p₁ ▸[ m ] t₁ →
+    δ₂ ∙ ⌜ m ⌝ · p₂ ▸[ m ] t₂ →
+    η ▸[ m ] t₃ →
+    p ≤ p₁ →
+    p ≤ p₂ →
+    p ≢ 𝟘 →
+    S.Sum-allowed 𝟘ᵐ? →
+    Prodrec-allowed m p 𝟙 q →
+    Prodrec-allowed m 𝟙 𝟙 (q + p) →
+    Unitrec-allowed m 𝟙 (q + p) →
+    Emptyrec-allowed m 𝟘 →
+    p ·ᶜ η +ᶜ δ₁ ∧ᶜ δ₂ ▸[ m ] sumrec q p a b A B P t₁ t₂ t₃
+  ▸sumrec
+    {m} {p₁} {p₂}
+    ▸a ▸b ▸A ▸B ▸P ▸l ▸r ▸t p≤p₁ p≤p₂ p≢𝟘 ok₁ ok₂ ok₃ ok₄ ok₅ =
+    S.▸sumrec ▸a ▸b ▸A ▸B ▸P ▸l ▸r (▸-cong (lemma₂ _ p≢𝟘) ▸t) p≤p₁ p≤p₂
+      (lemma₁ _ p≢𝟘) ok₁ ok₂ ok₃ ok₄ ok₅
+    where
+    lemma₁ : ∀ p → p ≢ 𝟘 → ⌜ m ⌝ · p ≤ ⌜ m ⌝
+    lemma₁ 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+    lemma₁ 𝟙 _ = ≤-reflexive (M.·-identityʳ _)
+    lemma₁ ω _ = ·ω-decreasing
+    lemma₂ : ∀ p → p ≢ 𝟘 → m ≡ m ᵐ· p
+    lemma₂ 𝟘 p≢𝟘 = ⊥-elim (p≢𝟘 refl)
+    lemma₂ 𝟙 _ = sym ᵐ·-identityʳ
+    lemma₂ ω _ = sym (ᵐ·-identityʳ-≤𝟙 (ω≤ 𝟙))

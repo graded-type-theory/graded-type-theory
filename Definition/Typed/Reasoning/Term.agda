@@ -2,23 +2,23 @@
 -- Equational reasoning combinators for definitional equality of terms
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Reasoning.Term
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Equality R
-open import Definition.Typed.Properties.Reduction R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Equality TC
+open import Definition.Typed.Properties.Reduction TC
 open import Definition.Untyped M
 
 import Tools.PropositionalEquality as PE
 
-open import Definition.Typed.Reasoning.Term.Primitive R public
+open import Definition.Typed.Reasoning.Term.Primitive TC public
 
 private variable
   A B t u v : Term _

@@ -2,11 +2,10 @@
 -- Resurrectable types
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.Consequences.Resurrectable
   {a} {M : Set a}
@@ -14,45 +13,43 @@ module Graded.Erasure.Consequences.Resurrectable
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Mode-variant variant
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Canonicity TR
-open import Definition.Typed.Consequences.Consistency TR
-open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Reasoning.Term TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Canonicity TC
+open import Definition.Typed.Consequences.Consistency TC
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 as Erased using (Erased)
 open import Definition.Untyped.Unit 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Erased.Usage UR
-open import Graded.Derived.Sigma UR
-open import Graded.Derived.Unit UR
-open import Graded.Erasure.Consequences.Identity TR UR
+open import Graded.Derived.Erased.Usage C
+open import Graded.Derived.Sigma C
+open import Graded.Derived.Unit C
+open import Graded.Erasure.Consequences.Identity C
 import Graded.Erasure.LogicalRelation as L
-open import Graded.Erasure.LogicalRelation.Assumptions TR
-open import Graded.Erasure.LogicalRelation.Fundamental TR UR
-open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
+open import Graded.Erasure.LogicalRelation.Assumptions TC
+open import Graded.Erasure.LogicalRelation.Fundamental C
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions C
 import Graded.Erasure.LogicalRelation.Hidden as H
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Modality.Properties 𝕄
-open import Graded.Reduction.Zero-one variant TR UR
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one variant UR
+open import Graded.Reduction.Zero-one variant C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one variant C
 
 open import Tools.Bool using (T)
 open import Tools.Fin
@@ -328,7 +325,7 @@ opaque
     as : Assumptions
     as = record { ⊢Δ = well-formed; str = T.non-strict }
 
-    open H UR as
+    open H C as
     open L as
 
 opaque
@@ -457,7 +454,7 @@ opaque
     as′ : Assumptions
     as′ = record { ⊢Δ = wf ⊢t; str = T.non-strict }
 
-    open H UR as′
+    open H C as′
     open L as′
 
     instance

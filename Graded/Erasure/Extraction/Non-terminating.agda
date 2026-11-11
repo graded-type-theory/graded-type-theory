@@ -27,34 +27,33 @@
 -- If strict applications are used, then this program does not
 -- terminate.
 
+
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
-
 module Graded.Erasure.Extraction.Non-terminating
   {a} {M : Set a}
   {𝕄 : Modality M}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (open Usage-restrictions UR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
   ⦃ jk-ω : Usage-allows-omega ⦄
   where
 
 open Modality 𝕄
-open Type-restrictions TR
 
-open import Definition.Typed TR
-open import Definition.Typed.Properties TR hiding (⊢cast)
+open import Configuration-types.Instance C
+
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC hiding (⊢cast)
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄 hiding (cast)
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Derived.Identity UR
+open import Graded.Derived.Identity C
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.Target as T using (Strictness; strict)
@@ -62,10 +61,9 @@ open import Graded.Erasure.Target.Non-terminating
 open import Graded.Erasure.Target.Properties
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one variant UR
-open import Graded.Usage.Restrictions.Instance UR
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one variant C
 
 open import Tools.Bool using (Bool; true)
 open import Tools.Empty

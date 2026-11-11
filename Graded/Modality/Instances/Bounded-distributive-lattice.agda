@@ -15,13 +15,14 @@ module Graded.Modality.Instances.Bounded-distributive-lattice
   (is-⊤? : (p : M) → Dec (p ≡ ⊤))
   where
 
+open import Configuration-types
+
 open import Graded.Modality M
 import Graded.Context
 import Graded.Context.Properties
 import Graded.Modality.Instances.LowerBounded as L
 import Graded.Modality.Properties
 import Graded.Modality.Properties.Star as Star
-open import Graded.Usage.Restrictions
 
 open import Tools.Bool using (T; false)
 open import Tools.Function

@@ -2,35 +2,35 @@
 -- Admissible rules related to Σ
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Sigma
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Admissible.Equality R
-open import Definition.Typed.Properties.Admissible.Identity R
-open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.Lift R
-open import Definition.Typed.Properties.Admissible.Pi-Sigma R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Reduction R
-import Definition.Typed.Reasoning.Term R as TmR
-import Definition.Typed.Reasoning.Type R as TyR
-open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Weakening R as W hiding (wk)
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Equality TC
+open import Definition.Typed.Properties.Admissible.Identity TC
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Admissible.Lift TC
+open import Definition.Typed.Properties.Admissible.Pi-Sigma TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Reduction TC
+import Definition.Typed.Reasoning.Term TC as TmR
+import Definition.Typed.Reasoning.Type TC as TyR
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Weakening TC as W hiding (wk)
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped.Lift M
 open import Definition.Untyped.Pi-Sigma M

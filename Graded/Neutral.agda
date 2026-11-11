@@ -2,11 +2,10 @@
 -- A result related to neutral terms and usage
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Neutral
   {a} {M : Set a}
@@ -14,33 +13,32 @@ module Graded.Neutral
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
-open import Definition.Typed TR
-open import Definition.Typed.Inversion TR
+open import Configuration-types.Configuration.Zero-one 𝕄 variant
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance C
+
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Erasure.Consequences.Soundness TR UR
+open import Graded.Erasure.Consequences.Soundness C
 open import Graded.Erasure.Target using (non-strict)
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Restrictions.Zero-one 𝕄 variant
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one variant UR
-open import Graded.Usage.Restrictions.Instance UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one variant C
 
 open import Tools.Empty
 open import Tools.Function
@@ -67,7 +65,7 @@ opaque
 
   neutral-not-well-resourced :
     ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄ →
-    No-erased-matches TR UR →
+    No-erased-matches →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent Γ) →
     Transparent (Γ .defs) →
     Neutral⁺ (Γ .defs) t →
@@ -114,7 +112,7 @@ opaque
       (prodrecₙ t-n) ⊢pr (prodrecₘ {γ} {r} {δ} ▸t _ _ ok) →
         case inversion-prodrec ⊢pr of λ {
           (_ , _ , _ , _ , _ , _ , ⊢t , _) →
-        case nem non-trivial .proj₁ ok of λ {
+        case non-trivial ∘→ nem non-trivial .proj₁ ok of λ {
           r≢𝟘 →
         r ·ᶜ γ +ᶜ δ ≈ᶜ 𝟘ᶜ  →⟨ proj₁ ∘→ +ᶜ-positive ⟩
         r ·ᶜ γ ≈ᶜ 𝟘ᶜ       →⟨ ·ᶜ-zero-product ⟩
@@ -153,17 +151,18 @@ opaque
             γ ≈ᶜ 𝟘ᶜ          →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) γ▸t) ⟩
             ⊥                □
       (unitrecₙ no-η t-n) ⊢ur (unitrecₘ {γ} {p} {δ} ▸t _ _ ok) →
-        case inversion-unitrec ⊢ur of λ {
-          (_ , ⊢t , _ , _) →
-        case no-η ∘→ nem non-trivial .proj₂ .proj₁ ok of λ
-          p≢𝟘 →
-          p ·ᶜ γ +ᶜ δ ≈ᶜ 𝟘ᶜ →⟨ proj₁ ∘→ +ᶜ-positive ⟩
-          p ·ᶜ γ ≈ᶜ 𝟘ᶜ  →⟨ ·ᶜ-zero-product ⟩
-          p ≡ 𝟘 ⊎ γ ≈ᶜ 𝟘ᶜ →⟨ (λ where
-                                (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
-                                (inj₂ γ≈𝟘) → γ≈𝟘) ⟩
-          γ ≈ᶜ 𝟘ᶜ →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t) ⟩
-          ⊥ □ }
+        let _ , ⊢t , _ , _ = inversion-unitrec ⊢ur
+            p≢𝟘            =
+              no-η ∘→
+              flip (nem non-trivial .proj₂ .proj₁ ok) non-trivial
+        in
+        p ·ᶜ γ +ᶜ δ ≈ᶜ 𝟘ᶜ  →⟨ proj₁ ∘→ +ᶜ-positive ⟩
+        p ·ᶜ γ ≈ᶜ 𝟘ᶜ       →⟨ ·ᶜ-zero-product ⟩
+        p ≡ 𝟘 ⊎ γ ≈ᶜ 𝟘ᶜ    →⟨ (λ where
+                                 (inj₁ p≡𝟘) → ⊥-elim (p≢𝟘 p≡𝟘)
+                                 (inj₂ γ≈𝟘) → γ≈𝟘) ⟩
+        γ ≈ᶜ 𝟘ᶜ            →⟨ helper t-n ⊢t (▸-cong (≢𝟘→⌞⌟≡𝟙ᵐ p≢𝟘) ▸t) ⟩
+        ⊥                  □
       (Jₙ w-n) ⊢J (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} _ _ _ _ _ _ ▸w) →
         case inversion-J ⊢J of λ {
           (_ , _ , _ , _ , _ , ⊢w , _) →
@@ -209,20 +208,19 @@ opaque
           PE.trans (PE.sym em)
             (nem non-trivial .proj₂ .proj₂ .proj₂ .proj₂)
         of λ ()
-      ([]-congₙ _) ⊢bc _ →
-        case inversion-[]-cong ⊢bc of λ {
-          (_ , _ , _ , _ , _ , ok , _) →
-        ⊥-elim $ nem non-trivial .proj₂ .proj₂ .proj₁ ok }
+      ([]-congₙ _) _ ▸bc →
+        let invUsage-[]-cong _ _ _ _ _ ok _ = inv-usage-[]-cong ▸bc in
+        ⊥-elim $ non-trivial (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
       (resp _) _ ▸resp _ →
         let _ , 𝟙≡𝟘ᵐ? , ok , _ = inv-usage-resp ▸resp in
         𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ (PE.sym 𝟙≡𝟘ᵐ?) $
         ¬Trivialᵐ→𝟘ᵐ-allowed $
-        Higher-quotient-constructors-allowed→¬Trivialᵐ ok
+        Quot-allowed→¬Trivialᵐ ok
       (set _) _ ▸set _ →
         let _ , 𝟙≡𝟘ᵐ? , ok , _ = inv-usage-set ▸set in
         𝟘ᵐ?≡𝟙ᵐ⇔ .proj₁ (PE.sym 𝟙≡𝟘ᵐ?) $
         ¬Trivialᵐ→𝟘ᵐ-allowed $
-        Higher-quotient-constructors-allowed→¬Trivialᵐ ok
+        Quot-allowed→¬Trivialᵐ ok
       (qrec n) ⊢qrec (qrec₀ {γ₂} {γ₅} _ _ _ _ _ _ ▸w) →
         let _ , _ , _ , _ , _ , _ , ⊢w , _ = inversion-qrec ⊢qrec in
         γ₂ +ᶜ ω ·ᶜ γ₅ ≈ᶜ 𝟘ᶜ  →⟨ proj₂ ∘→ +ᶜ-positive ⟩

@@ -2,26 +2,26 @@
 -- Combined weakening for definition and variable contexts
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Weakening.Combined
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Weakening R as W hiding (wk; _•ₜ_)
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Weakening TC as W hiding (wk; _•ₜ_)
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Properties.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Function
 open import Tools.Nat

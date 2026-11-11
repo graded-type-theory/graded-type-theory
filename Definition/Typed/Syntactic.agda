@@ -2,19 +2,19 @@
 -- Syntactic validity of the reduction relations
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Syntactic
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Definition.Untyped M
-open import Definition.Typed R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Function
 open import Tools.Product

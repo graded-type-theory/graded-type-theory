@@ -17,7 +17,7 @@ module Graded.Mode.Instances.Zero-one.QuantityTranslation
   (tr tr-Σ : M₁ → M₂)
   where
 
-open import Graded.Modality.Morphism.Usage-restrictions
+open import Graded.Modality.Morphism.Configuration
 import Graded.Modality.Properties
 open import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive

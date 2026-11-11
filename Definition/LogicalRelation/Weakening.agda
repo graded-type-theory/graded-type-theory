@@ -2,37 +2,37 @@
 -- The logical relation is closed under weakening
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Weakening
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M as U hiding (wk; K)
-open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Allowed-literal TC
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Inversion M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R hiding (wk)
-open import Definition.Typed.Weakening.Combined R as C using (_⊢ʷᵏ_∷_)
-open import Definition.Typed.Well-formed R
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening TC hiding (wk)
+open import Definition.Typed.Weakening.Combined TC as C using (_⊢ʷᵏ_∷_)
+open import Definition.Typed.Well-formed TC
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Irrelevance TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted TC ⦃ eqrel ⦄
 
 open import Tools.Empty
 open import Tools.Function

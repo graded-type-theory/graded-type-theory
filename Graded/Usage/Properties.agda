@@ -2,9 +2,9 @@
 -- Properties of the usage relation.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Usage.Properties
   {a b} {M : Set a} {Mode : Set b}
@@ -12,30 +12,31 @@ module Graded.Usage.Properties
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types
+open import Configuration-types.Erased-matches
+import Configuration-types.Instance
+open import Configuration-types.Natrec 𝕄
+open import Configuration-types.Omega 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Inversion R
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Restrictions.Omega 𝕄
-import Graded.Usage.Restrictions.Instance
-open import Graded.Usage.Weakening R
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Weakening C
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
 
 import Definition.Typed
-import Definition.Typed.Properties
-open import Definition.Typed.Restrictions 𝕄
+open import Definition.Typed.Properties TC
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
@@ -61,7 +62,7 @@ private
     ∇ : DCon (Term 0) n
     ξ : DExt _ _ _
     Γ : Con Term n
-    A B C F t u v w : Term[ _ ] n
+    A B F t u v w : Term[ _ ] n
     G : Term[ _ ] (1+ n)
     k : Term-kind
     γ γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ δ η θ χ : Conₘ n
@@ -425,7 +426,7 @@ opaque mutual
        ⌜ m′ ⌝ · ⌜ m ⌝       ≈˘⟨ ⌜·ᵐ⌝ _ ⟩
        ⌜ m′ ·ᵐ m ⌝          ∎
     open ≤ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
 
 opaque
 
@@ -681,7 +682,7 @@ opaque mutual
         ⌜ m ⌝ ·ᶜ ω ·ᶜ (γ₁ +ᶜ γ₂ +ᶜ γ₅)                    ∎
     where
     open ≤ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
     𝟘ᶜ≤ᶜm𝟘ᶜ : 𝟘ᶜ {n} ≤ᶜ ⌜ m ⌝ ·ᶜ 𝟘ᶜ
     𝟘ᶜ≤ᶜm𝟘ᶜ = ≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-zeroʳ _))
     lemma :
@@ -801,7 +802,7 @@ opaque
 
   ▸-⌞nr⌟₁ :
     ∀ {n} ⦃ ok : Nr-available ⦄ →
-    let open Graded.Usage.Restrictions.Instance R in
+    let open Configuration-types.Instance C in
     ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
     ⌜ ⌞ z ⌟ ⌝ ·ᶜ γ ▸[ ⌞ z ⌟ ] t
   ▸-⌞nr⌟₁ {p} {r} {z} {s} {γ} {n} ▸t =
@@ -811,7 +812,7 @@ opaque
       (⌜ ⌞ z ⌟ ⌝ · ⌜ ⌞ nr p r z s n ⌟ ⌝) ·ᶜ γ ≈⟨ ·ᶜ-assoc _ _ _ ⟩
       ⌜ ⌞ z ⌟ ⌝ ·ᶜ ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ  ∎
     where
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
     open ≈ᶜ-reasoning
 
 opaque
@@ -830,7 +831,7 @@ opaque
 
   ▸-⌞nr⌟₃ :
     ∀ {n} ⦃ ok : Nr-available ⦄ →
-    let open Graded.Usage.Restrictions.Instance R in
+    let open Configuration-types.Instance C in
     ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ nr p r z s n ⌟ ] t →
     ⌜ ⌞ n ⌟ ⌝ ·ᶜ γ ▸[ ⌞ n ⌟ ] t
   ▸-⌞nr⌟₃ {p} {r} {z} {s} {γ} {n} ▸t =
@@ -840,7 +841,7 @@ opaque
       (⌜ ⌞ n ⌟ ⌝ · ⌜ ⌞ nr p r z s n ⌟ ⌝) ·ᶜ γ ≈⟨ ·ᶜ-assoc _ _ _ ⟩
       ⌜ ⌞ n ⌟ ⌝ ·ᶜ ⌜ ⌞ nr p r z s n ⌟ ⌝ ·ᶜ γ  ∎
     where
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
     open ≈ᶜ-reasoning
 
 ------------------------------------------------------------------------
@@ -1245,7 +1246,7 @@ opaque
                 (η , x ≔ η′ ⟨ x ⟩)                                         ∎)
     where
     open CR
-    open import Graded.Usage.Restrictions.Instance R
+    open import Configuration-types.Instance C
 
   Conₘ-interchange
     {δ = θ}
@@ -1387,7 +1388,7 @@ opaque
             (γ₆ , x ≔ δ₆ ⟨ x ⟩))                            ∎) }
     where
     open CR
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
 
   Conₘ-interchange
     {δ = η} (J₀ₘ₁ {γ₃} {γ₄} ⦃ (≡some) ⦄ p≡𝟘 q≡𝟘 ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
@@ -1410,7 +1411,7 @@ opaque
             ω ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))  ∎) }
     where
     open CR
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
 
   Conₘ-interchange {δ} (J₀ₘ₂ {γ₄} ⦃ (≡all) ⦄ ▸A ▸t ▸F ▸u ▸v ▸w) ▸J x =
     case inv-usage-J ▸J of λ where
@@ -1451,7 +1452,7 @@ opaque
             (γ₄ , x ≔ δ₄ ⟨ x ⟩) +ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩))    ∎) }
     where
     open CR
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
 
   Conₘ-interchange
     {δ = η} (K₀ₘ₁ {γ₃} {γ₄} ⦃ (≡some) ⦄ p≡𝟘 ▸A ▸t ▸F ▸u ▸v) ▸K x =
@@ -1472,7 +1473,7 @@ opaque
            ω ·ᶜ ((γ₃ , x ≔ δ₃ ⟨ x ⟩) +ᶜ (γ₄ , x ≔ δ₄ ⟨ x ⟩))  ∎) }
     where
     open CR
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
 
   Conₘ-interchange {δ} (K₀ₘ₂ {γ₄} ⦃ (≡all) ⦄ ▸A ▸t ▸F ▸u ▸v) ▸K x =
     case inv-usage-K ▸K of λ where
@@ -1543,7 +1544,7 @@ opaque
          (γ₂ , x ≔ δ₂ ⟨ x ⟩) +ᶜ ω ·ᶜ (γ₅ , x ≔ δ₅ ⟨ x ⟩)  ∎)}
     where
     open ≤ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
   … | invUsageQrec₁ _ not-ok _ _ _ _ _ _ =
     ⊥-elim (not-ok ok₂)
 
@@ -1576,7 +1577,7 @@ opaque
             (γ₅ , x ≔ δ₅ ⟨ x ⟩))                                    ∎)}
     where
     open ≤ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
 
 -- Some variants of Conₘ-interchange
 
@@ -1627,7 +1628,7 @@ opaque
 
 module _ where
 
-  open Graded.Usage.Restrictions.Instance R
+  open Configuration-types.Instance C
 
   -- A variant of natrecₘ, natrec-no-nrₘ and natrec-no-nr-glbₘ.
 
@@ -2121,10 +2122,10 @@ opaque
       (set _ _ _ _ _ _) →
         ·ᶜ-zeroʳ _
       (qrec C t u v w) →
-        ·-⌈⌉-qrec {C = C} {t = t} {w = w} u v
+        ·-⌈⌉-qrec {t = t} {w = w} {C = C} u v
     where
     open ≈ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance C
 
     ·-⌈⌉-natrec :
       ∀ {k} (z : Term k) (s : Term _) (n : Term _) →
@@ -2216,8 +2217,8 @@ opaque
       ω ·ᶜ (⌈ t ⌉ m +ᶜ tailₘ (⌈ B ⌉ m) +ᶜ ⌈ u ⌉ m +ᶜ ⌈ v ⌉ m) ∎
 
     ·-⌈⌉-qrec :
-      ∀ u v → ⌜ m ⌝ ·ᶜ ⌈ qrec C t u v w ⌉ m ≈ᶜ ⌈ qrec C t u v w ⌉ m
-    ·-⌈⌉-qrec {C} {t} {w} _ _ with usage-rules-with-ω
+      ∀ {C} u v → ⌜ m ⌝ ·ᶜ ⌈ qrec C t u v w ⌉ m ≈ᶜ ⌈ qrec C t u v w ⌉ m
+    ·-⌈⌉-qrec {t} {w} {C} _ _ with usage-rules-with-ω
     … | without-ω = ·ᶜ-zeroʳ _
     … | with-ω ⦃ ok ⦄ with Qrec-motive-erased?
     … | yes _ = let ω′ = ω ⦃ ok ⦄ in begin
@@ -2363,7 +2364,7 @@ usage-upper-bound ⦃ ok ⦄ ok′ = usage-upper-bound′
   usage-upper-bound′ {m}
     (natrecₘ {γ} {z} {δ} {p} {r} {η} {q} {A} {s} {n} ⦃ has-nr ⦄ γ▸z δ▸s η▸n θ▸A) =
     let open ≤ᶜ-reasoning
-        open Graded.Usage.Restrictions.Instance R
+        open Configuration-types.Instance C
         γ≤γ′ = usage-upper-bound′ γ▸z
         δ≤δ′ = tailₘ-monotone $ tailₘ-monotone $ usage-upper-bound′ δ▸s
         η≤η′ = usage-upper-bound′ η▸n
@@ -2824,10 +2825,9 @@ opaque
 ------------------------------------------------------------------------
 -- A negative result
 
-module _ (TR : Type-restrictions) where
+open Definition.Typed TC
 
-  open Definition.Typed TR
-  open Definition.Typed.Properties TR
+opaque
 
   -- It is always the case that ∇ » Γ ⊢ t ∷ A implies ∇ » Γ ⊢ A (see
   -- Definition.Typed.Well-formed.wf-⊢), but if ε » Γ ⊢ t ∷ A and
@@ -2839,23 +2839,23 @@ module _ (TR : Type-restrictions) where
        ε » Γ ⊢ t ∷ A → γ ▸[ 𝟙ᵐ ] t → γ ▸[ 𝟙ᵐ ] A) →
     Trivial
   ▸-term→▸-type hyp =
+    let Γ′ = ε ∙ U₀ ∙ var x0
+        t′ = var x0
+        A′ = var x1
+        γ′ = ε ∙ 𝟘 ∙ ⌜ 𝟙ᵐ ⌝
+
+        ⊢∙U : ε »⊢ ε ∙ U₀
+        ⊢∙U = ∙ ⊢U₀ εε
+
+        ⊢Γ : ε »⊢ Γ′
+        ⊢Γ = ∙ univ (var ⊢∙U here)
+
+        ⊢t : ε » Γ′ ⊢ t′ ∷ A′
+        ⊢t = var ⊢Γ here
+
+        ▸t : γ′ ▸[ 𝟙ᵐ ] t′
+        ▸t = var
+    in
     case inv-usage-var (hyp ⊢t ▸t) of λ {
       (ε ∙ 𝟘≤𝟙 ∙ 𝟙≤𝟘) →
     PE.trans (PE.sym ⌜𝟙ᵐ⌝) (≤-antisym 𝟙≤𝟘 𝟘≤𝟙) }
-    where
-    Γ′ = ε ∙ U₀ ∙ var x0
-    t′ = var x0
-    A′ = var x1
-    γ′ = ε ∙ 𝟘 ∙ ⌜ 𝟙ᵐ ⌝
-
-    ⊢∙U : ε »⊢ ε ∙ U₀
-    ⊢∙U = ∙ ⊢U₀ εε
-
-    ⊢Γ : ε »⊢ Γ′
-    ⊢Γ = ∙ univ (var ⊢∙U here)
-
-    ⊢t : ε » Γ′ ⊢ t′ ∷ A′
-    ⊢t = var ⊢Γ here
-
-    ▸t : γ′ ▸[ 𝟙ᵐ ] t′
-    ▸t = var

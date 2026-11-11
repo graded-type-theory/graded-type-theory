@@ -2,8 +2,8 @@
 -- Validity for Erased and [_]
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 open import Tools.Product
 
@@ -11,39 +11,42 @@ module Definition.LogicalRelation.Substitution.Introductions.Erased
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   -- Erased is assumed to be allowed.
   {s}
   (Erased-ok@(Unit-ok , Σ-ok) : Erased-allowed s)
-  ⦃ eqrel : EqRelSet R ⦄
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
 
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
-import Definition.LogicalRelation.Hidden.Restricted R ⦃ eqrel ⦄ as R
-open import Definition.LogicalRelation.Properties R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Substitution.Introductions.Level R ⦃ eqrel ⦄
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Hidden TC ⦃ eqrel ⦄
+import Definition.LogicalRelation.Hidden.Restricted TC ⦃ eqrel ⦄ as R
+open import Definition.LogicalRelation.Properties TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions.Level
+  TC ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Substitution.Introductions.Lift
-  R ⦃ eqrel ⦄
+  TC ⦃ eqrel ⦄
 open import
-  Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R ⦃ eqrel ⦄
-open import
-  Definition.LogicalRelation.Substitution.Introductions.Sigma R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Substitution.Introductions.Unit R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Weakening R
+  Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
+    TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions.Sigma
+    TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions.Unit
+  TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening TC
 open import Definition.LogicalRelation.Weakening.Definition
-  R ⦃ eqrel = eqrel ⦄
-open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R as W
-import Definition.Typed.Weakening.Combined R as C
-open import Definition.Typed.Weakening.Definition R using (»_⊇_)
-open import Definition.Typed.Well-formed R
+  TC ⦃ eqrel = eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted TC ⦃ eqrel ⦄
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening TC as W
+import Definition.Typed.Weakening.Combined TC as C
+open import Definition.Typed.Weakening.Definition TC using (»_⊇_)
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped M as U
 open import Definition.Untyped.Erased 𝕄 s
 open import Definition.Untyped.Properties M

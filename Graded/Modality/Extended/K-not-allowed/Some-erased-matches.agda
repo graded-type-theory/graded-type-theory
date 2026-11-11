@@ -18,8 +18,12 @@ open import Tools.Relation
 open import Tools.Sum
 open import Tools.Unit
 
+open import Configuration-types
+open import Configuration-types.Configuration.Zero-one
+open import Configuration-types.Erased-matches
+open import Configuration-types.Natrec
+
 import Definition.Typechecking.Decidable.Assumptions as TD
-open import Definition.Typed.Restrictions
 open import Definition.Untyped.NotParametrised
 
 open import Graded.FullReduction.Assumptions
@@ -33,19 +37,13 @@ import Graded.Modality.Instances.Linearity as L
 import Graded.Modality.Instances.Linear-or-affine as LA
 import Graded.Modality.Instances.Unit as U
 open import Graded.Modality.Morphism
+open import Graded.Modality.Morphism.Configuration
+open import Graded.Modality.Morphism.Configuration.Examples
 open import Graded.Modality.Morphism.Examples
-open import Graded.Modality.Morphism.Type-restrictions
-open import Graded.Modality.Morphism.Type-restrictions.Examples
-open import Graded.Modality.Morphism.Usage-restrictions
-open import Graded.Modality.Morphism.Usage-restrictions.Examples
 open import Graded.Modality.Omega-instances
 open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Mode.Instances.Zero-one
-open import Graded.Restrictions.Zero-one
 import Graded.Usage.Decidable.Assumptions as UD
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 private variable
   a : Level
@@ -75,8 +73,8 @@ private variable
 -- * Equality reflection is not allowed.
 -- * Level is small.
 -- * Omega-plus-allowed is inhabited.
--- * Quotients, quotient terms and higher quotient constructors are
---   allowed. The motive of qrec is not treated as erased.
+-- * Quotients are allowed. The motive of qrec is not treated as
+--   erased.
 -- * 𝟘ᵐ is allowed.
 
 All-properties-hold-for : Extended-modality a → Set a
@@ -101,8 +99,6 @@ All-properties-hold-for M =
   Level-is-small ×
   Omega-plus-allowed ×
   Quot-allowed ×
-  Quotient-terms-allowed ×
-  Higher-quotient-constructors-allowed ×
   ¬ Qrec-motive-erased ×
   T 𝟘ᵐ-allowed
   where
@@ -113,49 +109,30 @@ private
 
   -- Functions used to construct the modality below.
 
-  TR′ :
-    {M : Set} {𝕄 : Modality M} →
-    ⦃ ok : Has-omega M 𝕄 ⦄ →
-    Mode-variant 𝕄 →
-    Type-restrictions 𝕄
-  TR′ v =
-    second-ΠΣ-quantities-𝟘-or-ω _ v $
-    no-type-restrictions _ v false false
-
-  opaque
-
-    Assumptions-TR′ :
-      {M : Set} {𝕄 : Modality M} →
-      ⦃ ok : Has-omega M 𝕄 ⦄ →
-      (v : Mode-variant 𝕄) →
-      Decidable (_≡_ {A = M}) →
-      TD.Assumptions (TR′ {𝕄 = 𝕄} v)
-    Assumptions-TR′ v =
-      Assumptions-second-ΠΣ-quantities-𝟘-or-ω _ v ∘→
-      Assumptions-no-type-restrictions _ v
-
-  UR′ :
+  C′ :
     {M : Set} {𝕄 : Modality M}
     {v : Mode-variant 𝕄} →
     ⦃ ok : Has-omega M 𝕄 ⦄ →
     Has-nr M 𝕄 →
-    Usage-restrictions 𝕄 (Zero-one-isMode v)
-  UR′ has-nr =
+    Configuration (Zero-one-isMode v)
+  C′ has-nr =
     not-all-erased-matches-JK _ _ $
-    no-usage-restrictions _ _ (Nr ⦃ has-nr ⦄) false false false
+    second-ΠΣ-quantities-𝟘-or-ω _ _ $
+    no-restrictions _ _ (Nr ⦃ has-nr ⦄) false false false false false
 
   opaque
 
-    Assumptions-UR′ :
+    Assumptions-C′ :
       {M : Set} {𝕄 : Modality M}
       {v : Mode-variant 𝕄} →
       {has-nr : Has-nr _ 𝕄} →
       ⦃ ok : Has-omega M 𝕄 ⦄ →
       Decidable (_≡_ {A = M}) →
-      UD.Assumptions (UR′ {𝕄 = 𝕄} {v = v} has-nr)
-    Assumptions-UR′ {has-nr} =
+      UD.Assumptions (C′ {𝕄 = 𝕄} {v = v} has-nr)
+    Assumptions-C′ {has-nr} =
       Assumptions-not-all-erased-matches-JK _ _ ∘→
-      Assumptions-no-usage-restrictions _ _ ⦃ Nr ⦃ Nr ⦃ has-nr ⦄ ⦄ ⦄
+      Assumptions-second-ΠΣ-quantities-𝟘-or-ω _ _ ∘→
+      Assumptions-no-restrictions _ _ ⦃ Nr ⦃ Nr ⦃ has-nr ⦄ ⦄ ⦄
 
 -- An erasure modality.
 
@@ -164,11 +141,9 @@ Erasure = λ where
     .M       → E.Erasure
     .𝕄       → EM.ErasureModality
     .MV      → 𝟘ᵐ-Allowed _
-    .TR      → TR′ (𝟘ᵐ-Allowed _)
-    .UR      → UR′ EM.erasure-has-nr
+    .C       → C′ EM.erasure-has-nr
     .FA      → EP.full-reduction-assumptions _
-    .TA      → Assumptions-TR′ (𝟘ᵐ-Allowed _) E._≟_
-    .UA      → Assumptions-UR′ E._≟_
+    .DA      → Assumptions-C′ E._≟_
     .NR      → Nr ⦃ EM.erasure-has-nr ⦄
     .NO-NR-GLB → EP.Erasure-supports-factoring-nr-rule
     .HAS-ω   → EM.erasure-has-omega
@@ -203,12 +178,10 @@ opaque
     , (proj₂ , (_ ,_))
     , (λ ())
     , (λ ())
-    , _
+    , (λ ())
     , lift (λ ())
     , Lift.lower
     , Level-is-small⇔ .proj₂ refl
-    , _
-    , (λ ())
     , _
     , (λ ())
     , (λ ())

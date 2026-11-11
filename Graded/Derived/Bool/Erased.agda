@@ -2,9 +2,9 @@
 -- Some properties related to usage and Bool
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Bool.Erased
   {a b} {M : Set a} {Mode : Set b}
@@ -12,8 +12,8 @@ module Graded.Derived.Bool.Erased
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions R)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   -- It is assumed that the modality has an nr function.
   ⦃ has-nr : Nr-available ⦄
   -- It is assumed that the modality has a grade ω.
@@ -22,6 +22,9 @@ module Graded.Derived.Bool.Erased
 
 open Modality 𝕄
 open IsMode 𝐌
+
+open import Configuration-types.Instance C
+  hiding (Usage-allows-omega-has-omega)
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool.Nr 𝕄 𝐌
@@ -32,18 +35,16 @@ open import Definition.Untyped.Erased 𝕄 𝕨 as E
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-import Graded.Derived.Bool.Nr R as B
-open import Graded.Derived.Empty R
-open import Graded.Derived.Erased.Usage R 𝕨
-open import Graded.Derived.Nat R
-open import Graded.Usage.Restrictions.Instance R
-  hiding (Usage-allows-omega-has-omega)
+import Graded.Derived.Bool.Nr C as B
+open import Graded.Derived.Empty C
+open import Graded.Derived.Erased.Usage C 𝕨
+open import Graded.Derived.Nat C
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution.Properties R
-open import Graded.Usage R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Weakening R
+open import Graded.Substitution.Properties C
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 
 open import Tools.Fin
 open import Tools.Function

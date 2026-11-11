@@ -25,10 +25,10 @@ module Definition.Untyped.Bool
 
 open Modality 𝕄
 
+open import Configuration-types
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
 import Definition.Typed.Decidable.Internal.Weakening
-open import Definition.Typed.Restrictions
 
 import Definition.Untyped.Bool.OK 𝕄 OKᵍ as B-OK
 
@@ -183,19 +183,19 @@ opaque
 module Internal
   {b} {Mode : Set b}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-  open UE.Internal 𝐌 R
-  open UN.Internal 𝐌 R
+  open UE.Internal 𝐌 TC
+  open UN.Internal 𝐌 TC
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term 𝐌 R
+      Definition.Typed.Decidable.Internal.Term 𝐌 TC
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 TC
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
 
   private variable
     c                                              : I.Constants

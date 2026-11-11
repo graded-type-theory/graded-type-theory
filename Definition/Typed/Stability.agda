@@ -2,26 +2,26 @@
 -- Stability
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Stability
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open import Definition.Typed R
+open import Definition.Typed TC
 open import
-  Definition.Typed.Properties.Admissible.Identity.Primitive R
-open import Definition.Typed.Properties.Admissible.Nat.Primitive R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Well-formed R
-import Definition.Typed.Stability.Primitive R as S
-open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Well-formed R
-open import Definition.Typed.Weakening R
+  Definition.Typed.Properties.Admissible.Identity.Primitive TC
+open import Definition.Typed.Properties.Admissible.Nat.Primitive TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Inversion.Primitive TC
+open import Definition.Typed.Properties.Well-formed TC
+import Definition.Typed.Stability.Primitive TC as S
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.Weakening TC
 
 open import Definition.Untyped M
 

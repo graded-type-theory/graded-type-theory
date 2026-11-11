@@ -2,36 +2,36 @@
 -- Type conversion lemmata for the algorithmic equality relations.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Conversion
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   -- Equality reflection is not allowed.
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R using (eqRelInstance)
-open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Well-formed R
-open import Definition.Conversion R
-open import Definition.Conversion.Soundness R
-open import Definition.Conversion.Stability R
-open import Definition.Conversion.Whnf R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Equality R
-open import Definition.Typed.Consequences.Reduction R
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC using (eqRelInstance)
+open import Definition.Typed.EqualityRelation.Instance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Conversion TC
+open import Definition.Conversion.Soundness TC
+open import Definition.Conversion.Stability TC
+open import Definition.Conversion.Whnf TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.Equality TC
+open import Definition.Typed.Consequences.Reduction TC
 
 open import Tools.Function
 open import Tools.Nat

@@ -3,10 +3,10 @@
 -- and the Zero-one mode structure.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Erased.Usage.No-eta.Zero-one
   {a} {M : Set a}
@@ -14,23 +14,23 @@ module Graded.Derived.Erased.Usage.No-eta.Zero-one
   (open Graded.Mode.Instances.Zero-one.Variant 𝕄)
   {mode-variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (R : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Mode-variant mode-variant
-open Usage-restrictions R
+open Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Properties R
+open import Graded.Usage C
+open import Graded.Usage.Properties C
 open import Graded.Modality.Properties 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased.No-eta 𝕄
 
-import Graded.Derived.Erased.Usage.No-eta R as U
+import Graded.Derived.Erased.Usage.No-eta C as U
 
 open import Tools.Bool using (T)
 open import Tools.Empty

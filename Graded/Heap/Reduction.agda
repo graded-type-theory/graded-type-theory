@@ -2,19 +2,17 @@
 -- A resource aware heap semantics. The reduction relations.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Variant
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Reduction
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant a)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
@@ -29,16 +27,15 @@ open import Tools.Product
 open import Tools.Relation
 
 open import Definition.Untyped M
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
 
-open Type-variant type-variant
 open Modality 𝕄
 
 private variable
   m m′ n n′ k ℓ : Nat
   H H′ : Heap _ _
   ρ ρ′ : Wk _ _
-  A B C s t t′ t₁ t₂ u v w z : Term _
+  A B s t t′ t₁ t₂ u v w z : Term _
   l : Lvl _
   x : Fin _
   S S′ : Stack _
@@ -85,7 +82,8 @@ data _⇒ₑ_ {k m n} : State k m n → State k m n → Set a where
        ⟨ H , v , ρ , Kₑ p A t B u ρ ∙ S ⟩
   []-congₕ : ⟨ H , []-cong str l A t u v , ρ , S ⟩ ⇒ₑ
              ⟨ H , v , ρ , []-congₑ str l A t u ρ ∙ S ⟩
-  qrecₕ : ⟨ H , qrec C t u v w , ρ , S ⟩ ⇒ₑ
+  qrecₕ : ∀ {C} →
+          ⟨ H , qrec C t u v w , ρ , S ⟩ ⇒ₑ
           ⟨ H , w , ρ , qrecₑ C t u v ρ ∙ S ⟩
 
 -- The relation _⇾ₑ_ describes evaluation of states with an eliminator
@@ -171,7 +169,8 @@ data _⇒ᵥ_ {k m n} : State k m n → State k m′ n′ → Set (a ⊔ b) wher
   rflₕₖ : ⟨ H , rfl , ρ ,  Kₑ p A t B u ρ′ ∙ S ⟩ ⇒ᵥ ⟨ H , u , ρ′ , S ⟩
   rflₕₑ : ⟨ H , rfl , ρ  , []-congₑ str l A t u ρ′ ∙ S ⟩ ⇒ᵥ
           ⟨ H , rfl , ρ′ , S ⟩
-  classₕ : ∣ S ∣≡ q →
+  classₕ : ∀ {C} →
+           ∣ S ∣≡ q →
            ⟨ H , class w , ρ  , qrecₑ C t u v ρ′ ∙ S ⟩ ⇒ᵥ
            ⟨ H ∙ (q , w , ρ) , t , lift ρ′ , wk1ˢ S ⟩
   respₕ : Equality-reflection →

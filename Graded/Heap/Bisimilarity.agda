@@ -3,24 +3,21 @@
 -- abstract machine and the weak head reduction.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Bisimilarity
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (TR : Type-restrictions 𝕄)
+  (C : Configuration 𝐌)
   (∣ε∣ : M)
   where
 
 open Modality 𝕄
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
 open import Tools.Empty
 open import Tools.Function
@@ -31,18 +28,18 @@ open import Tools.Relation
 open import Tools.Sum
 open import Tools.Unit
 
-open import Graded.Heap.Assumptions UR TR ∣ε∣
-import Graded.Heap.Typed.Reduction UR TR as GHTR
+open import Graded.Heap.Assumptions C ∣ε∣
+import Graded.Heap.Typed.Reduction C as GHTR
 
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Definition.Typed TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR hiding (_⇨*_)
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC hiding (_⇨*_)
+open import Definition.Typed.Well-formed TC
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
 
@@ -60,17 +57,17 @@ private
       ⦃ has-nr : Nr-available ⦄ →
       Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
     where
-    open import Graded.Heap.Untyped              type-variant UR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Untyped.Properties   type-variant UR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Usage                type-variant UR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Usage.Inversion      type-variant UR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Usage.Properties     type-variant UR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Normalization        type-variant UR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Reduction            type-variant UR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Typed                          UR TR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Typed.Inversion                UR TR factoring-nr ∣ε∣ public
-    open import Graded.Heap.Typed.Properties               UR TR factoring-nr ∣ε∣ public
+    open import Graded.Heap.Untyped              C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Untyped.Properties   C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Usage                C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Usage.Inversion      C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Usage.Properties     C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Normalization        C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Reduction            C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Reduction.Properties C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Typed                C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Typed.Inversion      C factoring-nr ∣ε∣ public
+    open import Graded.Heap.Typed.Properties     C factoring-nr ∣ε∣ public
 
     variable
       s s′ : State _ _ _
@@ -125,8 +122,7 @@ module _ (As : Assumptions) where
   open Assumptions As
   open Imports factoring-nr
   open import Graded.Heap.Usage.Reduction
-    type-variant UR factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available
-    Quot-not-allowed Quotient-terms-not-allowed
+    C factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available Quot-not-allowed
 
   opaque
 
@@ -298,8 +294,7 @@ module _ (As : Assumptions) where
   open Assumptions As
   open Imports factoring-nr
   open import Graded.Heap.Usage.Reduction
-    type-variant UR factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available
-    Quot-not-allowed Quotient-terms-not-allowed
+    C factoring-nr ∣ε∣ Unitʷ-η→ ¬Nr-not-available Quot-not-allowed
   open GHTR factoring-nr ∣ε∣ Quot-not-allowed
 
   opaque

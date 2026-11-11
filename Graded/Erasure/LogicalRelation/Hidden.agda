@@ -3,39 +3,36 @@
 -- argument
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Hidden
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {TR : Type-restrictions 𝕄}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (as : Assumptions TR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (as : Assumptions TC)
   where
 
 open Assumptions as
 open Modality 𝕄 hiding (_≤_; _<_)
 open Mode-variant variant
-open Type-restrictions TR
-open Usage-restrictions UR
 
-open import Definition.LogicalRelation.Simplified TR
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
-open import Definition.Typed.Well-formed TR
+open import Definition.LogicalRelation.Simplified TC
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -728,18 +725,18 @@ opaque
 
 opaque
 
-  -- If higher quotient constructors are allowed, then the type
-  -- γ ▸ Γ ⊩ʳ t ∷[ 𝟘ᵐ? ∣ n ] A is inhabited.
+  -- If quotients are allowed, then the type γ ▸ Γ ⊩ʳ t ∷[ 𝟘ᵐ? ∣ n ] A
+  -- is inhabited.
 
   ▸⊩ʳ∷[𝟘ᵐ?] :
-    Higher-quotient-constructors-allowed →
+    Quot-allowed →
     γ ▸ Γ ⊩ʳ t ∷[ 𝟘ᵐ? ∣ n ] A
   ▸⊩ʳ∷[𝟘ᵐ?] ok =
     let instance
           ok : T 𝟘ᵐ-allowed
           ok =
             ¬Trivialᵐ→𝟘ᵐ-allowed $
-            Higher-quotient-constructors-allowed→¬Trivialᵐ ok
+            Quot-allowed→¬Trivialᵐ ok
     in
     PE.subst₃ (_▸_⊩ʳ_∷[_∣_]_ _ _ _)
       (PE.sym (𝟘ᵐ?≡𝟘ᵐ {ok = ok})) PE.refl PE.refl

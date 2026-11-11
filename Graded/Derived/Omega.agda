@@ -2,15 +2,15 @@
 -- Properties related to usage, ω and Ω
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Omega
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
@@ -19,7 +19,7 @@ open IsMode 𝐌
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
+open import Graded.Usage C
 
 open import Definition.Untyped.Omega M
 

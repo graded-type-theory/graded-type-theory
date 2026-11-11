@@ -2,33 +2,30 @@
 -- Inversion properties of the heap reduction relations.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Variant
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Reduction.Inversion
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant a)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-variant type-variant
 open Modality 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
+open import Graded.Heap.Reduction C factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin
@@ -43,7 +40,7 @@ private variable
   m n m′ n′ n″ k : Nat
   H : Heap _ _
   x : Fin _
-  A B C t u v w : Term _
+  A B t u v w : Term _
   l : Lvl _
   ρ ρ′ : Wk _ _
   S : Stack _
@@ -177,6 +174,7 @@ opaque
   -- Inversion for qrec.
 
   ⇒ₑ-inv-qrec :
+    ∀ {C} →
     ⟨ H , qrec C t u v w , ρ , S ⟩ ⇒ₑ s →
     s ≡ ⟨ H , w , ρ , qrecₑ C t u v ρ ∙ S ⟩
   ⇒ₑ-inv-qrec qrecₕ = refl
@@ -507,6 +505,7 @@ opaque
   -- Inversion for class with qrec on top of the stack.
 
   ⇒ᵥ-inv-class-qrecₑ :
+    ∀ {C} →
     ⟨ H , class w , ρ , qrecₑ C t u v ρ′ ∙ S ⟩ ⇒ᵥ s →
     ∃₃ λ q (m≡ : m ≡ 1+ m′) (n≡ : n ≡ 1+ n′) →
     ∣ S ∣≡ q ×

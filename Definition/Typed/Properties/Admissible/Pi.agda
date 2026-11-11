@@ -2,42 +2,42 @@
 -- Admissible rules related to Π
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Pi
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Lift M
 open import Definition.Untyped.Pi M
 open import Definition.Untyped.Pi-Sigma M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Admissible.Equality R
-open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.Lift R
-open import Definition.Typed.Properties.Admissible.Pi-Sigma R
-open import Definition.Typed.Properties.Admissible.U R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Reduction R
-import Definition.Typed.Reasoning.Term R as TmR
-import Definition.Typed.Reasoning.Type R as TyR
-open import Definition.Typed.Substitution.Primitive R
-import Definition.Typed.Substitution.Primitive.Primitive R as S
-open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion.Primitive TC
+open import Definition.Typed.Properties.Admissible.Equality TC
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Admissible.Lift TC
+open import Definition.Typed.Properties.Admissible.Pi-Sigma TC
+open import Definition.Typed.Properties.Admissible.U TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Reduction TC
+import Definition.Typed.Reasoning.Term TC as TmR
+import Definition.Typed.Reasoning.Type TC as TyR
+open import Definition.Typed.Substitution.Primitive TC
+import Definition.Typed.Substitution.Primitive.Primitive TC as S
+open import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Fin
 open import Tools.Function

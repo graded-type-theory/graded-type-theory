@@ -3,28 +3,30 @@
 -- function.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality.Instances.Affine
-open import Graded.Usage.Restrictions
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant affineModality
 
 module Graded.Modality.Instances.Affine.Examples.Bad.Nr
   {variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions affineModality Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open import Graded.Restrictions.Zero-one affineModality variant
+open import Configuration-types.Configuration.Zero-one
+  affineModality variant
+open import Configuration-types.Natrec affineModality
+
 open import Graded.Modality Affine
 open import Graded.Mode Mode affineModality
-open import Graded.Usage.Restrictions.Natrec affineModality
 
 private
   module M = Modality affineModality
 
   -- The "bad" nr function is used
-  UR′ = nr-available-UR zero-one-many-greatest-star-nr UR
-  open Usage-restrictions UR′
+  C′ = nr-available zero-one-many-greatest-star-nr C
+  open Configuration C′
   instance
     has-nr : Nr-available
     has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-greatest-star-nr ⦄
@@ -34,7 +36,7 @@ import Tools.Reasoning.PartialOrder
 
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
-open import Graded.Usage UR′
+open import Graded.Usage C′
 
 open import Definition.Untyped.Nat affineModality
 

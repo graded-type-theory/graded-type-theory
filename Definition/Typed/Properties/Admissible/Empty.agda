@@ -2,25 +2,25 @@
 -- Admissible rules related to the empty type
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Empty
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions TR
+open Type-configuration TC
 
 open import Definition.Untyped M hiding (wk)
 open import Definition.Untyped.Properties M
-open import Definition.Typed TR
-open import Definition.Typed.Weakening TR
-open import Definition.Typed.Properties.Admissible.Unit TR
-open import Definition.Typed.Properties.Well-formed TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Properties.Admissible.Unit TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped.Empty 𝕄
 
 open import Tools.Function

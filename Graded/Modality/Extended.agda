@@ -9,26 +9,25 @@ open import Tools.Bool
 open import Tools.Function
 open import Tools.Level
 
+open import Configuration-types
+open import Configuration-types.Natrec
+
 import Definition.Typechecking.Decidable.Assumptions as TD
-open import Definition.Typed.Restrictions
 
 open import Graded.FullReduction.Assumptions
 open import Graded.Modality
 open import Graded.Modality.Morphism
-open import Graded.Modality.Morphism.Type-restrictions
-open import Graded.Modality.Morphism.Usage-restrictions
+open import Graded.Modality.Morphism.Configuration
+open import Graded.Modality.Morphism.Type-configuration
 open import Graded.Modality.Properties.Subtraction
 open import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Usage.Decidable.Assumptions as UD
-open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 private variable
   a₁ a₂ : Level
 
--- A modality along with type and usage restrictions as well as some
--- other things.
+-- A modality along with a configuration as well as some other things.
 
 record Extended-modality a : Set (lsuc a) where
   no-eta-equality
@@ -45,25 +44,21 @@ record Extended-modality a : Set (lsuc a) where
   open Modality 𝕄 public
 
   field
-    -- Type restrictions for 𝕄.
-    TR : Type-restrictions 𝕄
+    -- Configuration for Zero-one-isMode.
+    C : Configuration (Zero-one-isMode MV)
 
-    -- Usage restrictions for 𝕄 and Zero-one-isMode.
-    UR : Usage-restrictions 𝕄 (Zero-one-isMode MV)
+  open Configuration C
 
-    -- The full reduction assumptions hold for TR and UR.
-    FA : Full-reduction-assumptions MV TR UR
+  field
+    -- The full reduction assumptions hold for C.
+    FA : Full-reduction-assumptions MV C
 
-    -- The assumptions used to prove decidability of type-checking
-    -- (for certain contexts, types and terms) hold for TR.
-    TA : TD.Assumptions TR
-
-    -- The assumptions used to prove that the usage relation is
-    -- decidable hold for UR.
-    UA : UD.Assumptions UR
+    -- The assumptions used to prove decidability of typing (for
+    -- certain contexts, types and terms) and usage hold for C.
+    DA : UD.Assumptions C
 
     -- The modality supports nr functions.
-    NR : Usage-restrictions.Nr-available UR
+    NR : Configuration.Nr-available C
 
     -- The modality has well-behaved GLBs.
     NO-NR-GLB : Has-well-behaved-GLBs _ 𝕄
@@ -83,8 +78,7 @@ record Extended-modality a : Set (lsuc a) where
     -- The modality supports subtraction
     SUB : Supports-subtraction 𝕄
 
-  open Type-restrictions TR public
-  open Usage-restrictions UR public
+  open Configuration C public
   open Full-reduction-assumptions FA public
 
   instance
@@ -113,30 +107,16 @@ record _⇨_
       Is-order-embedding M₁.𝕄 M₂.𝕄 tr
     is-Σ-order-embedding :
       Is-Σ-order-embedding M₁.𝕄 M₂.𝕄 tr tr-Σ
-    are-preserving-type-restrictions :
-      Are-preserving-type-restrictions transparent M₁.TR M₂.TR tr tr-Σ
-    are-reflecting-type-restrictions :
-      Are-reflecting-type-restrictions transparent M₁.TR M₂.TR tr tr-Σ
-    are-preserving-usage-restrictions :
-      Are-preserving-usage-restrictions M₁.UR M₂.UR tr tr-Σ
-    are-reflecting-usage-restrictions :
-      Are-reflecting-usage-restrictions M₁.UR M₂.UR tr tr-Σ
+    is-Σ-morphism-C :
+      Is-Σ-morphism-C transparent M₁.C M₂.C tr tr-Σ
+    is-Σ-order-embedding-C :
+      Is-Σ-order-embedding-C transparent M₁.C M₂.C tr tr-Σ
 
   open Is-order-embedding is-order-embedding public
   open Is-Σ-order-embedding is-Σ-order-embedding public
-  open Are-preserving-type-restrictions
-         are-preserving-type-restrictions
-    public
+  open Is-Σ-morphism-C is-Σ-morphism-C public
     hiding (Level-allowed⇔)
-  open Are-reflecting-type-restrictions
-         are-reflecting-type-restrictions
-    public
-  open Are-preserving-usage-restrictions
-         are-preserving-usage-restrictions
-    public
-  open Are-reflecting-usage-restrictions
-         are-reflecting-usage-restrictions
-    public
+  open Is-Σ-order-embedding-C is-Σ-order-embedding-C public
     hiding
       (common-properties; 𝟘ᵐ-preserved; starˢ-sink-preserved;
        Id-erased-preserved; erased-matches-for-J-preserved;
@@ -160,14 +140,10 @@ id = λ where
     Is-order-embedding-id
   ._⇨_.is-Σ-order-embedding →
     Is-order-embedding→Is-Σ-order-embedding Is-order-embedding-id
-  ._⇨_.are-preserving-type-restrictions →
-    Are-preserving-type-restrictions-id
-  ._⇨_.are-reflecting-type-restrictions →
-    Are-reflecting-type-restrictions-id
-  ._⇨_.are-preserving-usage-restrictions →
-    Are-preserving-usage-restrictions-id
-  ._⇨_.are-reflecting-usage-restrictions →
-    Are-reflecting-usage-restrictions-id
+  ._⇨_.is-Σ-morphism-C →
+    Is-Σ-morphism-C-id
+  ._⇨_.is-Σ-order-embedding-C →
+    Is-Σ-order-embedding-C-id
 
 -- Composition of morphisms.
 
@@ -186,25 +162,17 @@ m₁ ∘ m₂ = λ where
         (Is-order-embedding.tr-morphism M₁.is-order-embedding)
         (Is-order-embedding.tr-morphism M₂.is-order-embedding)
         M₁.is-Σ-order-embedding M₂.is-Σ-order-embedding
-    ._⇨_.are-preserving-type-restrictions →
-      Are-preserving-type-restrictions-∘
-        M₁.are-preserving-type-restrictions
-        M₂.are-preserving-type-restrictions
-    ._⇨_.are-reflecting-type-restrictions →
-      Are-reflecting-type-restrictions-∘
-        M₁.are-reflecting-type-restrictions
-        M₂.are-reflecting-type-restrictions
-    ._⇨_.are-preserving-usage-restrictions →
-      Are-preserving-usage-restrictions-∘
+    ._⇨_.is-Σ-morphism-C →
+      Is-Σ-morphism-C-∘
         M₁.tr-morphism
         M₂.tr-morphism
-        M₁.are-preserving-usage-restrictions
-        M₂.are-preserving-usage-restrictions
-    ._⇨_.are-reflecting-usage-restrictions →
-      Are-reflecting-usage-restrictions-∘
+        M₁.is-Σ-morphism-C
+        M₂.is-Σ-morphism-C
+    ._⇨_.is-Σ-order-embedding-C →
+      Is-Σ-order-embedding-C-∘
         M₁.tr-morphism
-        M₁.are-reflecting-usage-restrictions
-        M₂.are-reflecting-usage-restrictions
+        M₁.is-Σ-order-embedding-C
+        M₂.is-Σ-order-embedding-C
   where
   module M₁ = _⇨_ m₁
   module M₂ = _⇨_ m₂

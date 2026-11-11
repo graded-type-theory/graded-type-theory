@@ -1,10 +1,11 @@
 ------------------------------------------------------------------------
--- Definitions related to usage restrictions related to the grade ω
+-- Definitions related to the parts of the configuration that are
+-- related to ω grades
 ------------------------------------------------------------------------
 
 import Graded.Modality
 
-module Graded.Usage.Restrictions.Omega
+module Configuration-types.Omega
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)

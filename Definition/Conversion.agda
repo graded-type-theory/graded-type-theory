@@ -2,28 +2,28 @@
 -- Algorithmic equality.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Syntactic R
-open import Definition.Typed.Properties R
-open import Definition.Typed.EqRelInstance R hiding (_⊢_~_∷_)
-open import Definition.LogicalRelation R ⦃ eqRelInstance ⦄
-open import Definition.LogicalRelation.Properties R ⦃ eqRelInstance ⦄
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Syntactic TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.EqRelInstance TC hiding (_⊢_~_∷_)
+open import Definition.LogicalRelation TC ⦃ eqRelInstance ⦄
+open import Definition.LogicalRelation.Properties TC ⦃ eqRelInstance ⦄
 
 open import Tools.Bool
 open import Tools.Fin

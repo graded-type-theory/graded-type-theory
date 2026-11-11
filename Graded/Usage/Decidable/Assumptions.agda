@@ -2,25 +2,28 @@
 -- Assumptions used to prove that the usage relation is decidable
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Usage.Decidable.Assumptions
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types.Natrec 𝕄
+
+import Definition.Typechecking.Decidable.Assumptions TC as TC
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄 hiding (has-nr)
-open import Graded.Usage.Restrictions.Natrec 𝕄
 
 open import Tools.Level
 open import Tools.Nat using (Nat)
@@ -34,11 +37,16 @@ private variable
 
 record Assumptions : Set (a ⊔ b) where
   no-eta-equality
-  infix 10 _≟_ _≤?_ _≤ᶜ?_
   field
-    -- Equality is assumed to be decidable for M.
-    _≟_ : Decidable (_≡_ {A = M})
+    -- Assumptions used to decide typing.
+    --
+    -- Most of these are not needed to decide usage, but in practice
+    -- one is likely to decide usage together with typing.
+    assumptions : TC.Assumptions
 
+  open TC.Assumptions assumptions public
+
+  field
     -- The relation Prodrec-allowed is assumed to be decidable.
     Prodrec-allowed? : ∀ m r p q → Dec (Prodrec-allowed m r p q)
 
@@ -52,13 +60,6 @@ record Assumptions : Set (a ⊔ b) where
     -- decidable.
     []-cong-allowed-mode? : ∀ s m → Dec ([]-cong-allowed-mode s m)
 
-    -- Quotient-terms is decided.
-    Quotient-terms-allowed? : Dec Quotient-terms-allowed
-
-    -- Higher-quotient-constructors-allowed is decided.
-    Higher-quotient-constructors-allowed? :
-      Dec Higher-quotient-constructors-allowed
-
     instance
       -- The inference function is supported
       ⦃ inference-ok ⦄ : Natrec-mode-supports-usage-inference natrec-mode
@@ -69,10 +70,14 @@ record Assumptions : Set (a ⊔ b) where
 
   -- Inequality is decidable.
 
+  infix 10 _≤?_
+
   _≤?_ : Decidable _≤_
   _≤?_ = ≡-decidable→≤-decidable _≟_
 
   -- Context inequality is decidable.
+
+  infix 10 _≤ᶜ?_
 
   _≤ᶜ?_ : Decidable (_≤ᶜ_ {n = n})
   _≤ᶜ?_ = ≤ᶜ-decidable _≤?_

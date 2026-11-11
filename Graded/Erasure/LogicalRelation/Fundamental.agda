@@ -2,13 +2,12 @@
 -- The fundamental lemma of the logical relation.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
 import Definition.Typed
-open import Definition.Typed.Restrictions
 import Definition.Untyped
 import Tools.PropositionalEquality as PE
 
@@ -18,16 +17,16 @@ module Graded.Erasure.LogicalRelation.Fundamental
   {variant : Mode-variant 𝕄}
   (open Modality 𝕄)
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
+
+open import Configuration-types.Instance C
 
 open Definition.Untyped M
-open Definition.Typed TR
+open Definition.Typed TC
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -35,25 +34,24 @@ open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties.Zero-one variant UR
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Weakening UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties.Zero-one variant C
+open import Graded.Usage.Weakening C
 
 open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Properties M
-open import Definition.Typed.EqRelInstance TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Names-below TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Weakening TR as W hiding (wk)
-open import Definition.Typed.Weakening.Definition TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Names-below TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening TC as W hiding (wk)
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 import Graded.Erasure.LogicalRelation
-open import Graded.Erasure.LogicalRelation.Assumptions TR
-open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions TR UR
+open import Graded.Erasure.LogicalRelation.Assumptions TC
+open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions C
 import Graded.Erasure.LogicalRelation.Fundamental.Empty
 import Graded.Erasure.LogicalRelation.Fundamental.Identity
 import Graded.Erasure.LogicalRelation.Fundamental.Level
@@ -118,7 +116,7 @@ module _
       Is-reduction-relation (glassify ∇ » Δ) _⇛_∷_ ⦄
   where
 
-  open Graded.Erasure.LogicalRelation.Hidden UR
+  open Graded.Erasure.LogicalRelation.Hidden C
          (assumptions ⊢Δ s is-reduction-relation)
 
   opaque
@@ -169,16 +167,16 @@ module Fundamental
     as : Assumptions
     as = assumptions well-formed s is-reduction-relation
 
-  open Graded.Erasure.LogicalRelation.Fundamental.Empty UR as consistent
-  open Graded.Erasure.LogicalRelation.Fundamental.Identity UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Level UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Lift UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Nat UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Quotient UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Unit UR as
-  open Graded.Erasure.LogicalRelation.Fundamental.Universe UR as
-  open Graded.Erasure.LogicalRelation.Hidden UR as
+  open Graded.Erasure.LogicalRelation.Fundamental.Empty C as consistent
+  open Graded.Erasure.LogicalRelation.Fundamental.Identity C as
+  open Graded.Erasure.LogicalRelation.Fundamental.Level C as
+  open Graded.Erasure.LogicalRelation.Fundamental.Lift C as
+  open Graded.Erasure.LogicalRelation.Fundamental.Nat C as
+  open Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma C as
+  open Graded.Erasure.LogicalRelation.Fundamental.Quotient C as
+  open Graded.Erasure.LogicalRelation.Fundamental.Unit C as
+  open Graded.Erasure.LogicalRelation.Fundamental.Universe C as
+  open Graded.Erasure.LogicalRelation.Hidden C as
 
   -- A lemma used to prove the fundamental lemma.
   --
@@ -283,7 +281,7 @@ module Fundamental
         (fundamental′ ⊢u ▸u <n₃)
         (case closed-or-no-erased-matches of λ where
            (inj₁ nem) r≡𝟘 →
-             ⊥-elim (nem non-trivial .proj₁ ok r≡𝟘)
+             ⊥-elim (non-trivial (nem non-trivial .proj₁ ok r≡𝟘))
            (inj₂ (k≡0 , not-ok)) _ →
              k≡0 , PE.sym (glassify-idem _) , not-ok)
     fundamental′ (zeroⱼ _) _ _ =
@@ -342,7 +340,7 @@ module Fundamental
         (fundamental′ ⊢u η▸u <n₃)
         (λ p≡𝟘 → case closed-or-no-erased-matches of λ where
            (inj₁ nem) →
-             inj₂ (nem non-trivial .proj₂ .proj₁ ok p≡𝟘)
+             inj₂ (nem non-trivial .proj₂ .proj₁ ok p≡𝟘 non-trivial)
            (inj₂ (k≡0 , not-ok)) →
              inj₁ (k≡0 , PE.sym (glassify-idem _) , not-ok))
     fundamental′ (Idⱼ ⊢A _ _) _ _ =
@@ -439,11 +437,13 @@ module Fundamental
                (γ₄ ∧ᶜ γ₅) ⟨ x ⟩ PE.≡ 𝟘                         □) $
           Kʳ ⊢B ⊢u ⊢v ok (∧ᶜ-decreasingˡ γ₄ _) (fundamental′ ⊢u ▸u <n₄)
             (inj₂ (_ , ∧ᶜ-decreasingʳ γ₄ _ , fundamental′ ⊢v ▸v <n₅))
-    fundamental′ ([]-congⱼ ⊢l _ _ _ ⊢v ok) _ _ =
+    fundamental′ {m = 𝟙ᵐ} ([]-congⱼ ⊢l _ _ _ ⊢v ok) ▸bc _ =
+      let invUsage-[]-cong _ _ _ _ _ ok′ _ = inv-usage-[]-cong ▸bc in
       []-congʳ
         (case closed-or-no-erased-matches of λ where
            (inj₁ nem) →
-             ⊥-elim (nem non-trivial .proj₂ .proj₂ .proj₁ ok)
+             ⊥-elim $
+             non-trivial (nem non-trivial .proj₂ .proj₂ .proj₁ ok′)
            (inj₂ (k≡0 , not-ok)) →
              k≡0 , PE.sym (glassify-idem _) , not-ok)
         ⊢l ⊢v ok

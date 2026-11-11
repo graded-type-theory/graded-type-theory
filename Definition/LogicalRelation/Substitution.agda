@@ -2,34 +2,34 @@
 -- The logical relation for validity
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Substitution
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
-open Type-restrictions R
+open Type-configuration TC
 
-import Definition.LogicalRelation.Hidden R as H
-open import Definition.LogicalRelation.Hidden.Restricted R
+import Definition.LogicalRelation.Hidden TC as H
+open import Definition.LogicalRelation.Hidden.Restricted TC
 
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R as TW using (_∷_⊇_; _»_∷ʷ_⊇_)
-import Definition.Typed.Weakening.Combined R as C
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC as TW using (_∷_⊇_; _»_∷ʷ_⊇_)
+import Definition.Typed.Weakening.Combined TC as C
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Allowed-literal TC
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
 
 open import Tools.Empty

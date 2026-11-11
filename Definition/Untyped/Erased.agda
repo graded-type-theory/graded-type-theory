@@ -13,10 +13,11 @@ module Definition.Untyped.Erased
 
 open Modality 𝕄
 
+open import Configuration-types
+
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
 import Definition.Typed.Decidable.Internal.Weakening
-open import Definition.Typed.Restrictions
 
 open import Definition.Untyped M as U hiding (_[_])
 import Definition.Untyped.Erased.Eta 𝕄 as Eta
@@ -546,20 +547,20 @@ opaque
 module Internal
   {b} {Mode : Set b}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-  open UI.Internal 𝐌 R
-  open US.Internal 𝐌 R
-  open UU.Internal 𝐌 R
+  open UI.Internal 𝐌 TC
+  open US.Internal 𝐌 TC
+  open UU.Internal 𝐌 TC
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term 𝐌 R
+      Definition.Typed.Decidable.Internal.Term 𝐌 TC
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 TC
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
 
   private variable
     c                 : I.Constants

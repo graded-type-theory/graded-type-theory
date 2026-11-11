@@ -3,27 +3,27 @@
 -- to typing (given certain assumptions)
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Modality.Morphism
-open import Graded.Modality.Morphism.Type-restrictions
-open import Definition.Typed.Restrictions
+open import Graded.Modality.Morphism.Type-configuration
 open import Tools.Bool
 
 module Definition.Typed.QuantityTranslation
   {a₁ a₂} {M₁ : Set a₁} {M₂ : Set a₂}
   {𝕄₁ : Modality M₁} {𝕄₂ : Modality M₂}
-  (R₁ : Type-restrictions 𝕄₁)
-  (R₂ : Type-restrictions 𝕄₂)
+  (TC₁ : Type-configuration 𝕄₁)
+  (TC₂ : Type-configuration 𝕄₂)
   (transparent : Bool)
   (tr tr-Σ : M₁ → M₂)
   (m : Is-morphism 𝕄₁ 𝕄₂ tr)
   (m-Σ : Is-Σ-morphism 𝕄₁ 𝕄₂ tr tr-Σ)
-  (pres : Are-preserving-type-restrictions transparent R₁ R₂ tr tr-Σ)
+  (m-TC : Is-Σ-morphism-TC transparent TC₁ TC₂ tr tr-Σ)
   where
 
 open Is-morphism m
 open Is-Σ-morphism m-Σ
-open Are-preserving-type-restrictions pres
+open Is-Σ-morphism-TC m-TC
 
 open import Tools.Empty
 open import Tools.Fin
@@ -36,7 +36,7 @@ open import Tools.Relation
 open import Tools.Sum using (inj₁; inj₂)
 
 open import Definition.Typed
-open import Definition.Typed.Inversion R₁
+open import Definition.Typed.Inversion TC₁
 import Definition.Typed.Properties
 import Definition.Typed.Substitution
 open import Definition.Untyped
@@ -49,22 +49,22 @@ import Definition.Untyped.Sup
 open Modality-lemmas 𝕄₁ 𝕄₂
 
 private
-  module A₁  = Definition.Untyped.Allowed-literal R₁
-  module A₂  = Definition.Untyped.Allowed-literal R₂
+  module A₁  = Definition.Untyped.Allowed-literal TC₁
+  module A₂  = Definition.Untyped.Allowed-literal TC₂
   module E₁  = Definition.Untyped.Erased 𝕄₁
   module E₂  = Definition.Untyped.Erased 𝕄₂
-  module R₁  = Type-restrictions R₁
-  module R₂  = Type-restrictions R₂
-  module T₁  = Definition.Typed R₁
-  module T₂  = Definition.Typed R₂
-  module P₁  = Definition.Typed.Properties R₁
-  module P₂  = Definition.Typed.Properties R₂
-  module S₁  = Definition.Typed.Substitution R₁
-  module S₂  = Definition.Typed.Substitution R₂
+  module TC₁ = Type-configuration TC₁
+  module TC₂ = Type-configuration TC₂
+  module T₁  = Definition.Typed TC₁
+  module T₂  = Definition.Typed TC₂
+  module P₁  = Definition.Typed.Properties TC₁
+  module P₂  = Definition.Typed.Properties TC₂
+  module S₁  = Definition.Typed.Substitution TC₁
+  module S₂  = Definition.Typed.Substitution TC₂
   module U₁  = Definition.Untyped M₁
   module U₂  = Definition.Untyped M₂
-  module US₁ = Definition.Untyped.Sup R₁
-  module US₂ = Definition.Untyped.Sup R₂
+  module US₁ = Definition.Untyped.Sup TC₁
+  module US₂ = Definition.Untyped.Sup TC₂
 
 private variable
   n             : Nat
@@ -86,17 +86,17 @@ opaque
   -- Translation preserves Allowed-literal.
 
   tr-Term-Allowed-literal :
-    R₁.Allowed-literal l → R₂.Allowed-literal (tr-Term l)
+    TC₁.Allowed-literal l → TC₂.Allowed-literal (tr-Term l)
   tr-Term-Allowed-literal {l = ωᵘ+ m} =
-    R₁.Allowed-literal (U₁.ωᵘ+ m)            ⇔⟨ A₁.Allowed-literal-ωᵘ+-⇔ ⟩→
-    R₁.Omega-plus-allowed                    →⟨ Omega-plus-preserved ⟩
-    R₂.Omega-plus-allowed                    ⇔˘⟨ A₂.Allowed-literal-ωᵘ+-⇔ ⟩→
-    R₂.Allowed-literal (tr-Term (U₁.ωᵘ+ m))  □
+    TC₁.Allowed-literal (U₁.ωᵘ+ m)            ⇔⟨ A₁.Allowed-literal-ωᵘ+-⇔ ⟩→
+    TC₁.Omega-plus-allowed                    →⟨ Omega-plus-preserved ⟩
+    TC₂.Omega-plus-allowed                    ⇔˘⟨ A₂.Allowed-literal-ωᵘ+-⇔ ⟩→
+    TC₂.Allowed-literal (tr-Term (U₁.ωᵘ+ m))  □
   tr-Term-Allowed-literal {l = level t} =
-    R₁.Allowed-literal (U₁.level t)                    ⇔⟨ A₁.Allowed-literal-level-⇔ ⟩→
-    U₁.Level-literal t × ¬ R₁.Level-allowed            ⇔⟨ tr-Level-literal ×-cong-⇔ Level-allowed⇔ →-cong-⇔ id⇔ ⟩→
-    U₂.Level-literal (tr-Term t) × ¬ R₂.Level-allowed  ⇔˘⟨ A₂.Allowed-literal-level-⇔ ⟩→
-    R₂.Allowed-literal (U₂.level (tr-Term t))          □
+    TC₁.Allowed-literal (U₁.level t)                    ⇔⟨ A₁.Allowed-literal-level-⇔ ⟩→
+    U₁.Level-literal t × ¬ TC₁.Level-allowed            ⇔⟨ tr-Level-literal ×-cong-⇔ Level-allowed⇔ →-cong-⇔ id⇔ ⟩→
+    U₂.Level-literal (tr-Term t) × ¬ TC₂.Level-allowed  ⇔˘⟨ A₂.Allowed-literal-level-⇔ ⟩→
+    TC₂.Allowed-literal (U₂.level (tr-Term t))          □
 
 opaque
   unfolding Definition.Untyped.Sup._supᵘₗ_
@@ -113,7 +113,7 @@ opaque
   tr-Term-supᵘₗ {l₁ = level _} {l₂ = level _} =
     PE.cong level tr-Term-supᵘₗ
   tr-Term-supᵘₗ {k = tm} {l₁ = t₁} {l₂ = t₂}
-    with R₁.Level-allowed? | R₂.Level-allowed?
+    with TC₁.Level-allowed? | TC₂.Level-allowed?
   … | yes ok₁ | yes ok₂ =
     tr-Term t₁ US₂.supᵘₗ tr-Term t₂  ≡⟨ US₂.supᵘₗ≡supᵘ-tm ok₂ ⟩
     tr-Term t₁ supᵘ tr-Term t₂       ≡⟨⟩
@@ -136,12 +136,12 @@ opaque
   -- commutes with Erased.
 
   tr-Term-Erased :
-    R₁.[]-cong-allowed s →
+    TC₁.[]-cong-allowed s →
     E₂.Erased s (tr-Term l) (tr-Term A) PE.≡ tr-Term (E₁.Erased s l A)
   tr-Term-Erased {s} ok =
     PE.cong₄ Σ⟨ s ⟩_,_▷_▹_
-      (PE.sym $ tr-Σ-𝟘-≡ (R₁.[]-cong→¬Trivial ok))
-      (PE.sym $ tr-𝟘-≡ (R₁.[]-cong→¬Trivial ok))
+      (PE.sym $ tr-Σ-𝟘-≡ (TC₁.[]-cong→¬Trivial ok))
+      (PE.sym $ tr-𝟘-≡ (TC₁.[]-cong→¬Trivial ok))
       PE.refl
       (PE.cong (flip Lift _) tr-Term-wk)
 
@@ -152,18 +152,18 @@ opaque
   -- commutes with [_].
 
   tr-Term-[]′ :
-    R₁.[]-cong-allowed s →
+    TC₁.[]-cong-allowed s →
     E₂.[_] s (tr-Term t) PE.≡ tr-Term (E₁.[_] s t)
   tr-Term-[]′ ok =
     PE.sym $ PE.cong (λ p → prod _ p _ _) $
-    tr-Σ-𝟘-≡ (R₁.[]-cong→¬Trivial ok)
+    tr-Σ-𝟘-≡ (TC₁.[]-cong→¬Trivial ok)
 
 opaque
 
   -- A combination of the previous two lemmas.
 
   tr-Term-Id-Erased-[]-[] :
-    R₁.[]-cong-allowed s →
+    TC₁.[]-cong-allowed s →
     Id (E₂.Erased s (tr-Term l) (tr-Term A)) (E₂.[_] s (tr-Term t))
       (E₂.[_] s (tr-Term u)) PE.≡
     tr-Term (Id (E₁.Erased s l A) (E₁.[_] s t) (E₁.[_] s u))
@@ -294,7 +294,7 @@ mutual
   tr-⊢′ : Γ T₁.⊢ A → tr-Cons Γ T₂.⊢ tr-Term A
   tr-⊢′ (Levelⱼ ok Γ) =
     P₂.Levelⱼ′
-      (Level-allowed⇔ .proj₁ (R₁.Level-allowed⇔⊎ .proj₂ (inj₂ ok)))
+      (Level-allowed⇔ .proj₁ (TC₁.Level-allowed⇔⊎ .proj₂ (inj₂ ok)))
       (tr-⊢ Γ)
   tr-⊢′ (Liftⱼ l A) =
     Liftⱼ (tr-⊢∷L l) (tr-⊢′ A)
@@ -751,7 +751,7 @@ opaque
 -- The following results make use of another assumption.
 
 module _
-  (Unitʷ-η-reflected : R₂.Unitʷ-η → R₁.Unitʷ-η)
+  (Unitʷ-η-reflected : TC₂.Unitʷ-η → TC₁.Unitʷ-η)
   where
 
   -- Preservation of _⊢_⇒_∷_.
@@ -944,8 +944,8 @@ module _
   module _
     (not-transparent : ¬ T transparent)
     (Higher-quotient-constructors-neutral-preserved :
-       R₁.Higher-quotient-constructors-neutral →
-       R₂.Higher-quotient-constructors-neutral)
+       TC₁.Higher-quotient-constructors-neutral →
+       TC₂.Higher-quotient-constructors-neutral)
     where
 
     -- Preservation of _⊢_↘_.

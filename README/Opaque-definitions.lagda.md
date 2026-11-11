@@ -1,7 +1,7 @@
 ```
 {-# OPTIONS --infer-absurd-clauses #-}
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module README.Opaque-definitions where
@@ -211,7 +211,7 @@ the target context (the one on the left).
 
 The type system is parametrised by a record type that makes it possible to include or exclude certain features:
 ```
-import Definition.Typed.Restrictions using (Type-restrictions)
+import Configuration-types using (Type-configuration)
 ```
 For instance, one can choose whether or not to include equality reflection.
 
@@ -271,12 +271,14 @@ import Definition.Typed.Properties.Reduction using
 Theorem 3.9 states that the term reduction relation enjoys subject reduction. The statement as it appears in the paper
 follows directly from the above:
 ```
-module SubjectReduction {a} {M : Set a} {𝕄 : Modality M} (R : Type-restrictions 𝕄) where
+module SubjectReduction
+         {a} {M : Set a} {𝕄 : Modality M}
+         (TC : Type-configuration 𝕄) where
   open import Tools.Product
   open import Definition.Untyped M
-  open import Definition.Typed R
-  open import Definition.Typed.Properties.Reduction R
-  open import Definition.Typed.Syntactic R
+  open import Definition.Typed TC
+  open import Definition.Typed.Properties.Reduction TC
+  open import Definition.Typed.Syntactic TC
 
   subject-reduction :
     ∀ {m n} {Γ : Cons m n} {t u A : Term n} →
@@ -710,7 +712,7 @@ In the paper, the "⊔" operator refers exclusively to bitwise disjunction, wher
 an alternative operator that always returns the left unfolding vector and discards the right one. A consequence of the
 use of this operator is shown later in Counterexample 5.13. The operators are defined here:
 ```
-import Definition.Typed.Variant using
+import Configuration-types using
   ( UnfoldingMode  -- The enumeration of available unfolding operators
   )
 import Definition.Typed using
@@ -730,13 +732,13 @@ import Definition.Typed using
 Note the `Opacity-allowed` parameter to the opaque case: this is a type system parameter that specifies whether opaque
 definitions are allowed at all:
 ```
-_ = Definition.Typed.Restrictions.Type-restrictions.Opacity-allowed
+_ = Configuration-types.Type-configuration.Opacity-allowed
 ```
 If this is set to the empty type, then the `∙ᵒ⟨_,_⟩[_∷_]` constructor becomes unusable, meaning that contexts with
 opaque definitions cannot be well-formed. In particular, we use this to prohibit opaque definitions in the presence of
 equality reflection:
 ```
-_ = Definition.Typed.Restrictions.Type-restrictions.no-opaque-equality-reflection
+_ = Configuration-types.Type-configuration.no-opaque-equality-reflection
 ```
 This is used in the proof of validity for equality reflection: if all definitions are transparent, then any closed
 term of an identity type must reduce to reflexivity.

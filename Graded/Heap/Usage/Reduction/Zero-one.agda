@@ -4,12 +4,11 @@
 -- mode structure.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Natrec
-open import Definition.Typed.Variant
 open import Tools.Relation
 open import Tools.PropositionalEquality
 
@@ -17,11 +16,9 @@ module Graded.Heap.Usage.Reduction.Zero-one
   {a} {M : Set a}
   {𝕄 : Modality M}
   {mode-variant : Mode-variant 𝕄}
-  (type-variant : Type-variant a)
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (open Type-variant type-variant)
-  (open Usage-restrictions UR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
   (open Modality 𝕄)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
@@ -29,8 +26,7 @@ module Graded.Heap.Usage.Reduction.Zero-one
   (Unitʷ-η→ : ∀ {m p q} → Unitʷ-η → Unitrec-allowed m p q → ⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟘)
   (¬Nr-not-available : ¬ Nr-not-available)
   -- Quotient term formers are not allowed.
-  (¬Quot-allowed           : ¬ Quot-allowed)
-  (¬Quotient-terms-allowed : ¬ Quotient-terms-allowed)
+  (¬Quot-allowed : ¬ Quot-allowed)
   where
 
 open import Tools.Empty
@@ -42,21 +38,21 @@ import Tools.Reasoning.PartialOrder as RPo
 import Tools.Reasoning.PropositionalEquality as RPe
 import Tools.Reasoning.Equivalence as REq
 
+open import Configuration-types.Configuration.Zero-one 𝕄 mode-variant
+
 open import Definition.Untyped M
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Usage.Properties.Zero-one type-variant UR factoring-nr
+open import Graded.Heap.Untyped C factoring-nr 𝟙
+open import Graded.Heap.Untyped.Properties C factoring-nr 𝟙
+open import Graded.Heap.Reduction C factoring-nr 𝟙
+open import Graded.Heap.Usage C factoring-nr 𝟙
+open import Graded.Heap.Usage.Inversion C factoring-nr 𝟙
+open import Graded.Heap.Usage.Properties.Zero-one C factoring-nr
 open import Graded.Heap.Usage.Reduction
-  type-variant UR factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available
-  ¬Quot-allowed ¬Quotient-terms-allowed
+  C factoring-nr 𝟙 Unitʷ-η→ ¬Nr-not-available ¬Quot-allowed
 
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Restrictions.Zero-one 𝕄 mode-variant
 
 private variable
   k : Nat
@@ -85,7 +81,7 @@ opaque
   ▸Final-reasons′ :
     ∀ {k} {H : Heap k _} →
     Supports-subtraction →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final (⟨_,_,_,_⟩ H t ρ S) →
     ((∃ λ x → t ≡ var x × H ⊢ wkVar ρ x ↦● × emptyrec 𝟘 ∈ S ×

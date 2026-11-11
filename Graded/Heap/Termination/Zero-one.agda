@@ -3,11 +3,10 @@
 -- mode structure. See also Graded.Heap.Termination
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 open import Graded.Heap.Assumptions
 
 module Graded.Heap.Termination.Zero-one
@@ -16,14 +15,12 @@ module Graded.Heap.Termination.Zero-one
   {mode-variant : Mode-variant 𝕄}
   (open Modality 𝕄)
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (TR : Type-restrictions 𝕄)
-  (As : Assumptions UR TR 𝟙)
+  (C : Configuration Zero-one-isMode)
+  (As : Assumptions C 𝟙)
   where
 
 open Assumptions As
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
 open import Tools.Empty
 open import Tools.Function
@@ -32,33 +29,33 @@ open import Tools.Product
 open import Tools.PropositionalEquality as PE hiding (sym)
 open import Tools.Sum
 
+open import Configuration-types.Configuration.Zero-one 𝕄 mode-variant
+
 open import Definition.Untyped M
 open import Definition.Untyped.Names-below M
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Names-below TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Names-below TC
+open import Definition.Typed.Well-formed TC
 
 open import Graded.Context 𝕄 hiding (_⟨_⟩)
-open import Graded.Usage UR
-open import Graded.Usage.Properties UR
-open import Graded.Restrictions.Zero-one 𝕄 mode-variant
+open import Graded.Usage C
+open import Graded.Usage.Properties C
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Termination UR TR 𝟙 As
-open import Graded.Heap.Typed UR TR factoring-nr 𝟙
-open import Graded.Heap.Typed.Inversion UR TR factoring-nr 𝟙
-open import Graded.Heap.Typed.Properties UR TR factoring-nr 𝟙
+open import Graded.Heap.Untyped C factoring-nr 𝟙
+open import Graded.Heap.Termination C 𝟙 As
+open import Graded.Heap.Typed C factoring-nr 𝟙
+open import Graded.Heap.Typed.Inversion C factoring-nr 𝟙
+open import Graded.Heap.Typed.Properties C factoring-nr 𝟙
 open import Graded.Heap.Typed.Reduction
-  UR TR factoring-nr 𝟙 Quot-not-allowed
-open import Graded.Heap.Usage type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr 𝟙
+  C factoring-nr 𝟙 Quot-not-allowed
+open import Graded.Heap.Usage C factoring-nr 𝟙
+open import Graded.Heap.Usage.Inversion C factoring-nr 𝟙
 open import Graded.Heap.Usage.Reduction.Zero-one
-  type-variant UR factoring-nr Unitʷ-η→ ¬Nr-not-available
-  Quot-not-allowed Quotient-terms-not-allowed
-open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
+  C factoring-nr Unitʷ-η→ ¬Nr-not-available Quot-not-allowed
+open import Graded.Heap.Reduction C factoring-nr 𝟙
 
 private variable
   t t′ u A B : Term _
@@ -87,7 +84,7 @@ opaque
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     ⊢▸Final-Reasons Δ H t ρ S
   ⊢▸Final-reasons consistent prop ⊢s ▸s f =
     let _ , _ , _ , _ , ∣S∣≡ , _ = ▸ₛ-inv ▸s in
@@ -116,7 +113,7 @@ opaque
     {Δ : Con Term k}
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     Δ ⊢ₛ ⟨ H , t , ρ , S ⟩ ∷ A →
     ▸ ⟨ H , t , ρ , S ⟩ →
     Final ⟨ H , t , ρ , S ⟩ →
@@ -133,7 +130,7 @@ opaque
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     ε » Δ ⊢ ⦅ s ⦆ ↘ u ∷ A →
@@ -147,9 +144,7 @@ opaque
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 →
-     No-erased-matches′ type-variant UR ×
-     Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     𝟘ᶜ ▸ t →
     ε » Δ ⊢ t ↘ u ∷ A →
     ∃₅ λ m n H u′ (ρ : Wk m n) → initial t ⇘ ⟨ H , u′ , ρ , ε ⟩ × wk ρ u′ [ H ]ₕ ≡ u × Value u′
@@ -166,9 +161,7 @@ opaque
     {Γ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Γ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Conᵈ ∇ Γ)) →
-    (k ≢ 0 →
-     No-erased-matches′ type-variant UR ×
-     Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸ t →
     glassify ∇ » Γ ⊢ t ↘ u ∷ A →
@@ -186,7 +179,7 @@ opaque
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 → No-erased-matches′ type-variant UR × Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     Δ ⊢ₛ s ∷ B →
     ▸ s →
     ∃₅ λ m n H t (ρ : Wk m n) → s ⇘ ⟨ H , t , ρ , ε ⟩ × Value t
@@ -199,9 +192,7 @@ opaque
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » Δ)) →
-    (k ≢ 0 →
-     No-erased-matches′ type-variant UR ×
-     Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     ε » Δ ⊢ t ∷ A → 𝟘ᶜ ▸ t →
     ∃₅ λ m n H u (ρ : Wk m n)→ initial t ⇘ ⟨ H , u , ρ , ε ⟩ × Value u
   initial-⇘-ε consistent prop ⊢t ▸t =
@@ -217,9 +208,7 @@ opaque
     {Δ : Con Term k} →
     ⦃ ok : No-equality-reflection or-empty Δ ⦄ →
     (Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ε » inline-Conᵈ ∇ Δ)) →
-    (k ≢ 0 →
-     No-erased-matches′ type-variant UR ×
-     Has-well-behaved-zero M 𝕄) →
+    (k ≢ 0 → No-erased-matches × Has-well-behaved-zero M 𝕄) →
     ∇ » Δ ⊢ t ∷ A →
     ▸[ 𝟙ᵐ ] glassify ∇ →
     𝟘ᶜ ▸ t →
