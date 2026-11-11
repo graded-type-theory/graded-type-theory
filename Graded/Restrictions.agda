@@ -265,7 +265,7 @@ no-quotients R = record R
 -- structure is non-trivial, Id-erased is inhabited if the first
 -- boolean is true, starˢ is treated as a sink if the second boolean
 -- is true, and Qrec-motive-erased is inhabited if the third boolean
--- is true.
+-- is true. Usage rules that require the use of ω are not allowed.
 
 no-usage-restrictions :
   (nm : Natrec-mode) →
