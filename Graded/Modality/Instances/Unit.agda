@@ -200,10 +200,12 @@ unit-has-star = record
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
   }
 
--- An nr function can be defined for UnitModality.
+instance
 
-unit-has-nr : Has-nr UnitModality
-unit-has-nr = Star.has-nr _ ⦃ has-star = unit-has-star ⦄
+  -- An nr function can be defined for UnitModality.
+
+  unit-has-nr : Has-nr UnitModality
+  unit-has-nr = Star.has-nr _ ⦃ has-star = unit-has-star ⦄
 
 opaque
 
