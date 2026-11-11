@@ -95,6 +95,7 @@ private variable
   x          : Fin _
   p q        : M₁
   p′         : M₂
+  ∇          : DCon _ _
   γ γ′ δ     : Conₘ _ _
   m m₁ m₂ m′ : Mode _
   t          : Term[ _ ] _ _
@@ -811,6 +812,17 @@ module Is-morphism
                tr-Conₘ γ ∙ tr (M₁.𝟙 M₁.· p) ∙ tr (M₁.𝟙 M₁.· q)  ∎))
         where
         open CR₂
+
+  opaque
+
+    -- Preservation of ▸[_] (if transparent is false).
+
+    tr-▸-DCon :
+      ¬ T transparent →
+      U₁.▸[ m ] ∇ → U₂.▸[ tr-Mode m ] tr-DCon ∇
+    tr-▸-DCon ok ▸∇ α∈ with tr-↦∷⁻¹ ok α∈
+    … | _ , _ , eq , _ , α∈∇ =
+      PE.subst (U₂._▸[_]_ _ _) (sym eq) (tr-▸ (▸∇ α∈∇))
 
 ------------------------------------------------------------------------
 -- If certain properties hold after translation by order embeddings
@@ -1772,3 +1784,12 @@ module Is-order-embedding
            C₁.𝟘ᶜ , sub (tr-▸⁻¹-trivial triv ▸t) (CP₁.≈ᶜ-trivial triv))
       where
       open CR₂
+
+  opaque
+
+    -- Preservation of ▸[_].
+
+    tr-▸-DCon⁻¹ :
+      U₂.▸[ tr-Mode m ] tr-DCon ∇ → U₁.▸[ m ] ∇
+    tr-▸-DCon⁻¹ ▸∇ α∈∇ =
+      tr-▸⁻¹ (▸∇ (tr-↦∷ α∈∇))
