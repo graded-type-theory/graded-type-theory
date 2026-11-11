@@ -494,6 +494,7 @@ import Graded.Modality.Morphism.Backward-instances
 import Definition.Typed.QuantityTranslation
 import Definition.Typed.With-equality-reflection
 import Graded.Usage.QuantityTranslation
+import Graded.Context.QuantityTranslation.Identity
 
 ------------------------------------------------------------------------
 -- Extended modalities
