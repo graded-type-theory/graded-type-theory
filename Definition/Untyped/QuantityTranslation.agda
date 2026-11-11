@@ -16,6 +16,7 @@ module Definition.Untyped.QuantityTranslation
   (tr-Σ : M₁ → M₂)
   where
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.List
@@ -212,6 +213,29 @@ opaque
   tr-↦∷ : α ↦ t ∷ A ∈ ∇ → α ↦ tr-Term t ∷ tr-Term A ∈ tr-DCon ∇
   tr-↦∷ here       = here
   tr-↦∷ (there α∈) = there (tr-↦∷ α∈)
+
+opaque
+
+  -- If transparent is false and tr-DCon ∇ maps α to t and A, then ∇
+  -- maps α to a term that is translated to t and a type that is
+  -- translated to A.
+
+  tr-↦∷⁻¹ :
+    ¬ T transparent →
+    α ↦ t ∷ A ∈ tr-DCon ∇ →
+    ∃₂ λ t′ A′ → t ≡ tr-Term t′ × A ≡ tr-Term A′ × α ↦ t′ ∷ A′ ∈ ∇
+  tr-↦∷⁻¹ {∇ = ε} _ ()
+  tr-↦∷⁻¹ {∇ = _ ∙⟨ tra ⟩!} _ here =
+    _ # _ # refl # refl # U₂.here
+  tr-↦∷⁻¹ {∇ = _ ∙⟨ tra ⟩!} ok (there α∈) =
+    let _ # _ # eq₁ # eq₂ # α∈ = tr-↦∷⁻¹ ok α∈ in
+    _ # _ # eq₁ # eq₂ # U₂.there α∈
+  tr-↦∷⁻¹ {∇ = _ ∙⟨ opa _ ⟩!} _ _ with singleton transparent
+  tr-↦∷⁻¹ ok _ | true # refl =
+    ⊥-elim (ok _)
+  tr-↦∷⁻¹ {∇ = _ ∙⟨ opa _ ⟩!} ok (there α∈) | false # refl =
+    let _ # _ # eq₁ # eq₂ # α∈ = tr-↦∷⁻¹ ok α∈ in
+    _ # _ # eq₁ # eq₂ # U₂.there α∈
 
 opaque
 
