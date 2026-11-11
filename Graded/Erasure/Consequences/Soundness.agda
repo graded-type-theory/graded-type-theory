@@ -471,8 +471,7 @@ opaque
   unfolding subst
 
   -- A variant of soundness-ℕ-only-source-counterexample₃ with a
-  -- closed context, implemented under the additional assumption that
-  -- higher quotient constructors are allowed and neutral.
+  -- closed context, implemented under some additional assumptions.
 
   soundness-ℕ-only-source-counterexample₃′ :
     ⦃ has-ω : Usage-allows-omega ⦄ →

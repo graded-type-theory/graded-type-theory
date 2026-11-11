@@ -857,9 +857,9 @@ opaque
 
 -- The translation in this direction makes use of some assumptions:
 -- certain things must always be allowed when the mode is 𝟘ᵐ[ ok ],
--- and if quotient types are allowed, then higher quotient
--- constructors are also allowed. (Note that higher quotient
--- constructors cannot be allowed when the mode is 𝟙ᵐ.)
+-- and if quotient types are allowed, then Usage-allows-omega holds
+-- and higher quotient constructors are allowed. (Note that higher
+-- quotient constructors cannot be allowed when the mode is 𝟙ᵐ.)
 
 record Allowed-at-𝟘ᵐ : Set where
   no-eta-equality
