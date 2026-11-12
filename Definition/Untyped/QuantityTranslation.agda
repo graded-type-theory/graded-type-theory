@@ -593,7 +593,7 @@ module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
     tr-Term-Resp-type :
       tr M₁.𝟘 ≡ M₂.𝟘 →
       tr-Term (UQ₁.Resp-type A B C t) ≡
-      UQ₂.Resp-type(tr-Term A) (tr-Term B) (tr-Term C) (tr-Term t)
+      UQ₂.Resp-type (tr-Term A) (tr-Term B) (tr-Term C) (tr-Term t)
     tr-Term-Resp-type {C} {t} hyp₁ =
       cong₃ Id
         (sym (tr-Term-[]↑ C))
