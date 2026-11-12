@@ -28,7 +28,7 @@ private variable
   a₁ a₂ : Level
 
 -- A modality along with type and usage restrictions as well as some
--- proofs.
+-- other things.
 
 record Extended-modality a : Set (lsuc a) where
   no-eta-equality
