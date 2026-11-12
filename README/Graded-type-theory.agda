@@ -375,7 +375,8 @@ no-erased-matches =
 --   are used to control which usage rules are available for natrec.
 --   If Nr-available is inhabited then the rule with the nr function is
 --   used and if Nr-not-available is inhabited then the rule from
---   Section 7.1.4 is used.
+--   Section 7.1.4 is used. (There is also a third option which is not
+--   presented here.)
 
 Nr-available =
   Configuration-types.Configuration.Nr-available
