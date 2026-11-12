@@ -489,6 +489,7 @@ import Graded.Modality.Morphism.Type-restrictions.Examples
 import Graded.Modality.Morphism.Usage-restrictions
 import Graded.Modality.Morphism.Usage-restrictions.Examples
 import Graded.Mode.Instances.Zero-one.QuantityTranslation
+import Graded.Mode.Instances.Zero-one.QuantityTranslation.Identity
 import Graded.Modality.Morphism.Forward-instances
 import Graded.Modality.Morphism.Backward-instances
 import Definition.Typed.QuantityTranslation
