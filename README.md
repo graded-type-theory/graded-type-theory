@@ -73,4 +73,4 @@ Later other additions were made. Some highlights:
 ## Dependencies ##
 
 This project is written in Agda. It has been tested to be working with
-Agda version 2.8.0 and its standard library version 2.4.
+Agda version 2.9.0 and its standard library version 2.4.1.

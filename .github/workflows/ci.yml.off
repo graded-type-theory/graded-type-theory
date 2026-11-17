@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
 
 env:
-  AGDA_VERSION: 2.8.0
-  STDLIB_VERSION: 2.4
+  AGDA_VERSION: 2.9.0
+  STDLIB_VERSION: 2.4.1
 
 jobs:
   build:

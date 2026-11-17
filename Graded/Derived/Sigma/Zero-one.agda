@@ -283,7 +283,8 @@ opaque
   fstʷₘ-𝟘ᵐ  ok ▸t ▸A =
     ▸-cong 𝟘ᵐ?≡𝟘ᵐ
       (Σ.fstʷₘ-𝟘ᵐ 𝟘ᵐ-allowed→¬Trivialᵐ′
-        (PE.subst (λ m → Prodrec-allowed m _ _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ok)
+        (PE.subst (λ m → Prodrec-allowed m (𝟘 ∧ 𝟙) _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ)
+           ok)
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A))
 
@@ -366,7 +367,9 @@ opaque
   sndʷₘ-𝟘ᵐ ok B ▸t ▸B =
     ▸-cong 𝟘ᵐ?≡𝟘ᵐ
       (Σ.sndʷₘ-𝟘ᵐ 𝟘ᵐ-allowed→¬Trivialᵐ′
-        (PE.subst (λ m → Prodrec-allowed m _ _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ok) B
+        (PE.subst (λ m → Prodrec-allowed m (𝟘 ∧ 𝟙) _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ)
+           ok)
+        B
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸B))
 
