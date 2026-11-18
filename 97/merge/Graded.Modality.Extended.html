@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Modality.Extended</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Modalities packaged with other things, and morphisms between these</a>
+<a id="144" class="Comment">-- packages</a>
+<a id="156" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="230" class="Keyword">module</a> <a id="237" href="Graded.Modality.Extended.html" class="Module">Graded.Modality.Extended</a> <a id="262" class="Keyword">where</a>
+
+<a id="269" class="Keyword">open</a> <a id="274" class="Keyword">import</a> <a id="281" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="292" class="Keyword">open</a> <a id="297" class="Keyword">import</a> <a id="304" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="319" class="Keyword">open</a> <a id="324" class="Keyword">import</a> <a id="331" href="Tools.Level.html" class="Module">Tools.Level</a>
+
+<a id="344" class="Keyword">open</a> <a id="349" class="Keyword">import</a> <a id="356" href="Configuration-types.html" class="Module">Configuration-types</a>
+<a id="376" class="Keyword">import</a> <a id="383" href="Configuration-types.Instance.Configuration.html" class="Module">Configuration-types.Instance.Configuration</a>
+<a id="426" class="Keyword">open</a> <a id="431" class="Keyword">import</a> <a id="438" href="Configuration-types.Natrec.html" class="Module">Configuration-types.Natrec</a>
+<a id="465" class="Keyword">open</a> <a id="470" class="Keyword">import</a> <a id="477" href="Configuration-types.Omega.html" class="Module">Configuration-types.Omega</a>
+
+<a id="504" class="Keyword">import</a> <a id="511" href="Definition.Typechecking.Decidable.Assumptions.html" class="Module">Definition.Typechecking.Decidable.Assumptions</a> <a id="557" class="Symbol">as</a> <a id="560" class="Module">TD</a>
+
+<a id="564" class="Keyword">open</a> <a id="569" class="Keyword">import</a> <a id="576" href="Graded.FullReduction.Assumptions.html" class="Module">Graded.FullReduction.Assumptions</a>
+<a id="609" class="Keyword">open</a> <a id="614" class="Keyword">import</a> <a id="621" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="637" class="Keyword">open</a> <a id="642" class="Keyword">import</a> <a id="649" href="Graded.Modality.Morphism.html" class="Module">Graded.Modality.Morphism</a>
+<a id="674" class="Keyword">open</a> <a id="679" class="Keyword">import</a> <a id="686" href="Graded.Modality.Morphism.Configuration.html" class="Module">Graded.Modality.Morphism.Configuration</a>
+<a id="725" class="Keyword">open</a> <a id="730" class="Keyword">import</a> <a id="737" href="Graded.Modality.Morphism.Type-configuration.html" class="Module">Graded.Modality.Morphism.Type-configuration</a>
+<a id="781" class="Keyword">open</a> <a id="786" class="Keyword">import</a> <a id="793" href="Graded.Modality.Properties.Subtraction.html" class="Module">Graded.Modality.Properties.Subtraction</a>
+<a id="832" class="Keyword">open</a> <a id="837" class="Keyword">import</a> <a id="844" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a>
+<a id="875" class="Keyword">open</a> <a id="880" class="Keyword">import</a> <a id="887" href="Graded.Mode.Instances.Zero-one.Variant.html" class="Module">Graded.Mode.Instances.Zero-one.Variant</a>
+<a id="926" class="Keyword">import</a> <a id="933" href="Graded.Usage.Decidable.Assumptions.html" class="Module">Graded.Usage.Decidable.Assumptions</a> <a id="968" class="Symbol">as</a> <a id="971" class="Module">UD</a>
+
+<a id="975" class="Keyword">private</a> <a id="983" class="Keyword">variable</a>
+  <a id="994" href="Graded.Modality.Extended.html#994" class="Generalizable">a₁</a> <a id="997" href="Graded.Modality.Extended.html#997" class="Generalizable">a₂</a> <a id="1000" class="Symbol">:</a> <a id="1002" href="Agda.Primitive.html#800" class="Postulate">Level</a>
+
+<a id="1009" class="Comment">-- A modality along with a configuration as well as some other things.</a>
+
+<a id="1081" class="Keyword">record</a> <a id="Extended-modality"></a><a id="1088" href="Graded.Modality.Extended.html#1088" class="Record">Extended-modality</a> <a id="1106" href="Graded.Modality.Extended.html#1106" class="Bound">a</a> <a id="1108" class="Symbol">:</a> <a id="1110" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="1114" class="Symbol">(</a><a id="1115" href="Agda.Primitive.html#989" class="Primitive">lsuc</a> <a id="1120" href="Graded.Modality.Extended.html#1106" class="Bound">a</a><a id="1121" class="Symbol">)</a> <a id="1123" class="Keyword">where</a>
+  <a id="1131" class="Keyword">no-eta-equality</a>
+  <a id="1149" class="Keyword">field</a>
+    <a id="1159" class="Comment">-- The type of grades.</a>
+    <a id="Extended-modality.M"></a><a id="1186" href="Graded.Modality.Extended.html#1186" class="Field">M</a>  <a id="1189" class="Symbol">:</a> <a id="1191" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="1195" href="Graded.Modality.Extended.html#1106" class="Bound">a</a>
+
+    <a id="1202" class="Comment">-- M is a modality.</a>
+    <a id="Extended-modality.𝕄"></a><a id="1226" href="Graded.Modality.Extended.html#1226" class="Field">𝕄</a>  <a id="1229" class="Symbol">:</a> <a id="1231" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="1240" href="Graded.Modality.Extended.html#1186" class="Field">M</a>
+
+    <a id="1247" class="Comment">-- The mode variant.</a>
+    <a id="Extended-modality.MV"></a><a id="1272" href="Graded.Modality.Extended.html#1272" class="Field">MV</a> <a id="1275" class="Symbol">:</a> <a id="1277" href="Graded.Mode.Instances.Zero-one.Variant.html#522" class="Record">Mode-variant</a> <a id="1290" href="Graded.Modality.Extended.html#1226" class="Field">𝕄</a>
+
+  <a id="1295" class="Keyword">open</a> <a id="1300" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="1309" href="Graded.Modality.Extended.html#1226" class="Field">𝕄</a> <a id="1311" class="Keyword">public</a>
+
+  <a id="1321" class="Keyword">field</a>
+    <a id="1331" class="Comment">-- Configuration for Zero-one-isMode.</a>
+    <a id="Extended-modality.C"></a><a id="1373" href="Graded.Modality.Extended.html#1373" class="Field">C</a> <a id="1375" class="Symbol">:</a> <a id="1377" href="Configuration-types.html#14568" class="Record">Configuration</a> <a id="1391" class="Symbol">(</a><a id="1392" href="Graded.Mode.Instances.Zero-one.html#18686" class="Function">Zero-one-isMode</a> <a id="1408" href="Graded.Modality.Extended.html#1272" class="Field">MV</a><a id="1410" class="Symbol">)</a>
+
+  <a id="1415" class="Keyword">open</a> <a id="1420" href="Configuration-types.html#14568" class="Module">Configuration</a> <a id="1434" href="Graded.Modality.Extended.html#1373" class="Field">C</a>
+  <a id="1438" class="Keyword">open</a> <a id="1443" href="Configuration-types.Instance.Configuration.html" class="Module">Configuration-types.Instance.Configuration</a> <a id="1486" href="Graded.Modality.Extended.html#1373" class="Field">C</a>
+
+  <a id="1491" class="Keyword">field</a>
+    <a id="1501" class="Comment">-- The full reduction assumptions hold for C.</a>
+    <a id="Extended-modality.FA"></a><a id="1551" href="Graded.Modality.Extended.html#1551" class="Field">FA</a> <a id="1554" class="Symbol">:</a> <a id="1556" href="Graded.FullReduction.Assumptions.html#1068" class="Record">Full-reduction-assumptions</a> <a id="1583" href="Graded.Modality.Extended.html#1272" class="Field">MV</a> <a id="1586" href="Graded.Modality.Extended.html#1373" class="Field">C</a>
+
+    <a id="1593" class="Comment">-- The assumptions used to prove decidability of typing (for</a>
+    <a id="1658" class="Comment">-- certain contexts, types and terms) and usage hold for C.</a>
+    <a id="Extended-modality.DA"></a><a id="1722" href="Graded.Modality.Extended.html#1722" class="Field">DA</a> <a id="1725" class="Symbol">:</a> <a id="1727" href="Graded.Usage.Decidable.Assumptions.html#943" class="Record">UD.Assumptions</a> <a id="1742" href="Graded.Modality.Extended.html#1373" class="Field">C</a>
+
+    <a id="1749" class="Comment">-- The modality supports nr functions.</a>
+    <a id="Extended-modality.NR"></a><a id="1792" href="Graded.Modality.Extended.html#1792" class="Field">NR</a> <a id="1795" class="Symbol">:</a> <a id="1797" href="Configuration-types.html#16530" class="Function">Configuration.Nr-available</a> <a id="1824" href="Graded.Modality.Extended.html#1373" class="Field">C</a>
+
+    <a id="1831" class="Comment">-- The modality has well-behaved GLBs.</a>
+    <a id="Extended-modality.NO-NR-GLB"></a><a id="1874" href="Graded.Modality.Extended.html#1874" class="Field">NO-NR-GLB</a> <a id="1884" class="Symbol">:</a> <a id="1886" href="Graded.Modality.html#7806" class="Record">Has-well-behaved-GLBs</a> <a id="1908" class="Symbol">_</a> <a id="1910" href="Graded.Modality.Extended.html#1226" class="Field">𝕄</a>
+
+    <a id="1917" class="Comment">-- The modality has a dedicated grade ω.</a>
+    <a id="1962" class="Symbol">⦃</a> <a id="Extended-modality.HAS-ω"></a><a id="1964" href="Graded.Modality.Extended.html#1964" class="Field">HAS-ω</a> <a id="1970" class="Symbol">⦄</a> <a id="1972" class="Symbol">:</a> <a id="1974" href="Configuration-types.html#13137" class="Function">Omega-allowed</a>
+
+  <a id="1991" class="Keyword">open</a> <a id="1996" href="Graded.Modality.html#5686" class="Module">Has-nr</a> <a id="2003" class="Symbol">(</a><a id="2004" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="2023" href="Graded.Modality.Extended.html#1226" class="Field">𝕄</a> <a id="2025" href="Graded.Modality.Extended.html#1792" class="Field">NR</a><a id="2027" class="Symbol">)</a> <a id="2029" class="Keyword">public</a>
+
+  <a id="2039" class="Keyword">field</a>
+    <a id="2049" class="Comment">-- The dedicated nr function satisfies Linearity-like-nr-for-𝟘.</a>
+    <a id="Extended-modality.NR₀"></a><a id="2117" href="Graded.Modality.Extended.html#2117" class="Field">NR₀</a> <a id="2121" class="Symbol">:</a> <a id="2123" href="Graded.Modality.html#6948" class="Function">Linearity-like-nr-for-𝟘</a>
+
+    <a id="2152" class="Comment">-- The dedicated nr function satisfies Linearity-like-nr-for-𝟙.</a>
+    <a id="Extended-modality.NR₁"></a><a id="2220" href="Graded.Modality.Extended.html#2220" class="Field">NR₁</a> <a id="2224" class="Symbol">:</a> <a id="2226" href="Graded.Modality.html#7130" class="Function">Linearity-like-nr-for-𝟙</a>
+
+    <a id="2255" class="Comment">-- The modality supports subtraction</a>
+    <a id="Extended-modality.SUB"></a><a id="2296" href="Graded.Modality.Extended.html#2296" class="Field">SUB</a> <a id="2300" class="Symbol">:</a> <a id="2302" href="Graded.Modality.Properties.Subtraction.html#4732" class="Function">Supports-subtraction</a> <a id="2323" href="Graded.Modality.Extended.html#1226" class="Field">𝕄</a>
+
+  <a id="2328" class="Keyword">open</a> <a id="2333" href="Configuration-types.html#14568" class="Module">Configuration</a> <a id="2347" href="Graded.Modality.Extended.html#1373" class="Field">C</a> <a id="2349" class="Keyword">public</a>
+  <a id="2358" class="Keyword">open</a> <a id="2363" href="Graded.FullReduction.Assumptions.html#1068" class="Module">Full-reduction-assumptions</a> <a id="2390" href="Graded.Modality.Extended.html#1551" class="Field">FA</a> <a id="2393" class="Keyword">public</a>
+
+  <a id="2403" class="Keyword">instance</a>
+    <a id="Extended-modality.has-omega"></a><a id="2416" href="Graded.Modality.Extended.html#2416" class="Function">has-omega</a> <a id="2426" class="Symbol">:</a> <a id="2428" href="Graded.Modality.html#5178" class="Record">Has-omega</a> <a id="2438" class="Symbol">_</a> <a id="2440" href="Graded.Modality.Extended.html#1226" class="Field">𝕄</a>
+    <a id="2446" href="Graded.Modality.Extended.html#2416" class="Function">has-omega</a> <a id="2456" class="Symbol">=</a> <a id="2458" href="Configuration-types.Instance.Type-configuration.html#484" class="Function">Omega-allowed→Has-omega</a>
+
+<a id="2483" class="Keyword">private</a> <a id="2491" class="Keyword">variable</a>
+  <a id="2502" href="Graded.Modality.Extended.html#2502" class="Generalizable">𝕄</a> <a id="2504" href="Graded.Modality.Extended.html#2504" class="Generalizable">𝕄₁</a> <a id="2507" href="Graded.Modality.Extended.html#2507" class="Generalizable">𝕄₂</a> <a id="2510" href="Graded.Modality.Extended.html#2510" class="Generalizable">𝕄₃</a> <a id="2513" class="Symbol">:</a> <a id="2515" href="Graded.Modality.Extended.html#1088" class="Record">Extended-modality</a> <a id="2533" class="Symbol">_</a>
+
+<a id="2536" class="Comment">-- A morphism from one extended modality to another.</a>
+
+<a id="2590" class="Keyword">infix</a> <a id="2596" class="Number">4</a> <a id="2598" href="Graded.Modality.Extended.html#2610" class="Record Operator">_⇨_</a>
+
+<a id="2603" class="Keyword">record</a> <a id="_⇨_"></a><a id="2610" href="Graded.Modality.Extended.html#2610" class="Record Operator">_⇨_</a>
+  <a id="2616" class="Symbol">(</a><a id="2617" href="Graded.Modality.Extended.html#2617" class="Bound">𝕄₁</a> <a id="2620" class="Symbol">:</a> <a id="2622" href="Graded.Modality.Extended.html#1088" class="Record">Extended-modality</a> <a id="2640" href="Graded.Modality.Extended.html#994" class="Generalizable">a₁</a><a id="2642" class="Symbol">)</a> <a id="2644" class="Symbol">(</a><a id="2645" href="Graded.Modality.Extended.html#2645" class="Bound">𝕄₂</a> <a id="2648" class="Symbol">:</a> <a id="2650" href="Graded.Modality.Extended.html#1088" class="Record">Extended-modality</a> <a id="2668" href="Graded.Modality.Extended.html#997" class="Generalizable">a₂</a><a id="2670" class="Symbol">)</a> <a id="2672" class="Symbol">:</a>
+  <a id="2676" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="2680" class="Symbol">(</a><a id="2681" href="Graded.Modality.Extended.html#2640" class="Bound">a₁</a> <a id="2684" href="Agda.Primitive.html#1019" class="Primitive Operator">⊔</a> <a id="2686" href="Graded.Modality.Extended.html#2668" class="Bound">a₂</a><a id="2688" class="Symbol">)</a> <a id="2690" class="Keyword">where</a>
+  <a id="2698" class="Keyword">no-eta-equality</a>
+  <a id="2716" class="Keyword">module</a> <a id="_⇨_.M₁"></a><a id="2723" href="Graded.Modality.Extended.html#2723" class="Module">M₁</a> <a id="2726" class="Symbol">=</a> <a id="2728" href="Graded.Modality.Extended.html#1088" class="Module">Extended-modality</a> <a id="2746" href="Graded.Modality.Extended.html#2617" class="Bound">𝕄₁</a>
+  <a id="2751" class="Keyword">module</a> <a id="_⇨_.M₂"></a><a id="2758" href="Graded.Modality.Extended.html#2758" class="Module">M₂</a> <a id="2761" class="Symbol">=</a> <a id="2763" href="Graded.Modality.Extended.html#1088" class="Module">Extended-modality</a> <a id="2781" href="Graded.Modality.Extended.html#2645" class="Bound">𝕄₂</a>
+  <a id="2786" class="Keyword">field</a>
+    <a id="_⇨_.transparent"></a><a id="2796" href="Graded.Modality.Extended.html#2796" class="Field">transparent</a> <a id="2808" class="Symbol">:</a>
+      <a id="2816" href="Agda.Builtin.Bool.html#190" class="Datatype">Bool</a>
+    <a id="_⇨_.tr"></a><a id="2825" href="Graded.Modality.Extended.html#2825" class="Field">tr</a> <a id="_⇨_.tr-Σ"></a><a id="2828" href="Graded.Modality.Extended.html#2828" class="Field">tr-Σ</a> <a id="2833" class="Symbol">:</a>
+      <a id="2841" href="Graded.Modality.Extended.html#1186" class="Function">M₁.M</a> <a id="2846" class="Symbol">→</a> <a id="2848" href="Graded.Modality.Extended.html#1186" class="Function">M₂.M</a>
+    <a id="_⇨_.is-order-embedding"></a><a id="2857" href="Graded.Modality.Extended.html#2857" class="Field">is-order-embedding</a> <a id="2876" class="Symbol">:</a>
+      <a id="2884" href="Graded.Modality.Morphism.html#4927" class="Record">Is-order-embedding</a> <a id="2903" href="Graded.Modality.Extended.html#1226" class="Function">M₁.𝕄</a> <a id="2908" href="Graded.Modality.Extended.html#1226" class="Function">M₂.𝕄</a> <a id="2913" href="Graded.Modality.Extended.html#2825" class="Field">tr</a>
+    <a id="_⇨_.is-Σ-order-embedding"></a><a id="2920" href="Graded.Modality.Extended.html#2920" class="Field">is-Σ-order-embedding</a> <a id="2941" class="Symbol">:</a>
+      <a id="2949" href="Graded.Modality.Morphism.html#9179" class="Record">Is-Σ-order-embedding</a> <a id="2970" href="Graded.Modality.Extended.html#1226" class="Function">M₁.𝕄</a> <a id="2975" href="Graded.Modality.Extended.html#1226" class="Function">M₂.𝕄</a> <a id="2980" href="Graded.Modality.Extended.html#2825" class="Field">tr</a> <a id="2983" href="Graded.Modality.Extended.html#2828" class="Field">tr-Σ</a>
+    <a id="_⇨_.is-Σ-order-embedding-C"></a><a id="2992" href="Graded.Modality.Extended.html#2992" class="Field">is-Σ-order-embedding-C</a> <a id="3015" class="Symbol">:</a>
+      <a id="3023" href="Graded.Modality.Morphism.Configuration.html#20765" class="Record">Is-Σ-order-embedding-C</a> <a id="3046" href="Graded.Modality.Extended.html#2796" class="Field">transparent</a> <a id="3058" href="Graded.Modality.Extended.html#1373" class="Function">M₁.C</a> <a id="3063" href="Graded.Modality.Extended.html#1373" class="Function">M₂.C</a> <a id="3068" href="Graded.Modality.Extended.html#2825" class="Field">tr</a> <a id="3071" href="Graded.Modality.Extended.html#2828" class="Field">tr-Σ</a>
+
+  <a id="3079" class="Keyword">open</a> <a id="3084" href="Graded.Modality.Morphism.html#4927" class="Module">Is-order-embedding</a> <a id="3103" href="Graded.Modality.Extended.html#2857" class="Field">is-order-embedding</a> <a id="3122" class="Keyword">public</a>
+  <a id="3131" class="Keyword">open</a> <a id="3136" href="Graded.Modality.Morphism.html#9179" class="Module">Is-Σ-order-embedding</a> <a id="3157" href="Graded.Modality.Extended.html#2920" class="Field">is-Σ-order-embedding</a> <a id="3178" class="Keyword">public</a>
+  <a id="3187" class="Keyword">open</a> <a id="3192" href="Graded.Modality.Morphism.Configuration.html#20765" class="Module">Is-Σ-order-embedding-C</a> <a id="3215" href="Graded.Modality.Extended.html#2992" class="Field">is-Σ-order-embedding-C</a> <a id="3238" class="Keyword">public</a>
+
+<a id="3246" class="Comment">-- An identity morphism.</a>
+
+<a id="id"></a><a id="3272" href="Graded.Modality.Extended.html#3272" class="Function">id</a> <a id="3275" class="Symbol">:</a> <a id="3277" href="Graded.Modality.Extended.html#2502" class="Generalizable">𝕄</a> <a id="3279" href="Graded.Modality.Extended.html#2610" class="Record Operator">⇨</a> <a id="3281" href="Graded.Modality.Extended.html#2502" class="Generalizable">𝕄</a>
+<a id="3283" href="Graded.Modality.Extended.html#3272" class="Function">id</a> <a id="3286" class="Symbol">=</a> <a id="3288" class="Symbol">λ</a> <a id="3290" class="Keyword">where</a>
+  <a id="3298" class="Symbol">.</a><a id="3299" href="Graded.Modality.Extended.html#2796" class="Field">_⇨_.transparent</a> <a id="3315" class="Symbol">→</a>
+    <a id="3321" href="Agda.Builtin.Bool.html#209" class="InductiveConstructor">false</a>
+  <a id="3329" class="Symbol">.</a><a id="3330" href="Graded.Modality.Extended.html#2825" class="Field">_⇨_.tr</a> <a id="3337" class="Symbol">→</a>
+    <a id="3343" href="Tools.Function.html#287" class="Function">idᶠ</a>
+  <a id="3349" class="Symbol">.</a><a id="3350" href="Graded.Modality.Extended.html#2828" class="Field">_⇨_.tr-Σ</a> <a id="3359" class="Symbol">→</a>
+    <a id="3365" href="Tools.Function.html#287" class="Function">idᶠ</a>
+  <a id="3371" class="Symbol">.</a><a id="3372" href="Graded.Modality.Extended.html#2857" class="Field">_⇨_.is-order-embedding</a> <a id="3395" class="Symbol">→</a>
+    <a id="3401" href="Graded.Modality.Morphism.html#16523" class="Function">Is-order-embedding-id</a>
+  <a id="3425" class="Symbol">.</a><a id="3426" href="Graded.Modality.Extended.html#2920" class="Field">_⇨_.is-Σ-order-embedding</a> <a id="3451" class="Symbol">→</a>
+    <a id="3457" href="Graded.Modality.Morphism.html#16032" class="Function">Is-order-embedding→Is-Σ-order-embedding</a> <a id="3497" href="Graded.Modality.Morphism.html#16523" class="Function">Is-order-embedding-id</a>
+  <a id="3521" class="Symbol">.</a><a id="3522" href="Graded.Modality.Extended.html#2992" class="Field">_⇨_.is-Σ-order-embedding-C</a> <a id="3549" class="Symbol">→</a>
+    <a id="3555" href="Graded.Modality.Morphism.Configuration.html#25013" class="Function">Is-Σ-order-embedding-C-id</a>
+
+<a id="3582" class="Comment">-- Composition of morphisms.</a>
+
+<a id="_∘_"></a><a id="3612" href="Graded.Modality.Extended.html#3612" class="Function Operator">_∘_</a> <a id="3616" class="Symbol">:</a> <a id="3618" href="Graded.Modality.Extended.html#2507" class="Generalizable">𝕄₂</a> <a id="3621" href="Graded.Modality.Extended.html#2610" class="Record Operator">⇨</a> <a id="3623" href="Graded.Modality.Extended.html#2510" class="Generalizable">𝕄₃</a> <a id="3626" class="Symbol">→</a> <a id="3628" href="Graded.Modality.Extended.html#2504" class="Generalizable">𝕄₁</a> <a id="3631" href="Graded.Modality.Extended.html#2610" class="Record Operator">⇨</a> <a id="3633" href="Graded.Modality.Extended.html#2507" class="Generalizable">𝕄₂</a> <a id="3636" class="Symbol">→</a> <a id="3638" href="Graded.Modality.Extended.html#2504" class="Generalizable">𝕄₁</a> <a id="3641" href="Graded.Modality.Extended.html#2610" class="Record Operator">⇨</a> <a id="3643" href="Graded.Modality.Extended.html#2510" class="Generalizable">𝕄₃</a>
+<a id="3646" href="Graded.Modality.Extended.html#3646" class="Bound">m₁</a> <a id="3649" href="Graded.Modality.Extended.html#3612" class="Function Operator">∘</a> <a id="3651" href="Graded.Modality.Extended.html#3651" class="Bound">m₂</a> <a id="3654" class="Symbol">=</a> <a id="3656" class="Symbol">λ</a> <a id="3658" class="Keyword">where</a>
+    <a id="3668" class="Symbol">.</a><a id="3669" href="Graded.Modality.Extended.html#2796" class="Field">_⇨_.transparent</a> <a id="3685" class="Symbol">→</a>
+      <a id="3693" href="Graded.Modality.Extended.html#2796" class="Function">M₁.transparent</a> <a id="3708" href="Data.Bool.Base.html#1063" class="Function Operator">∨</a> <a id="3710" href="Graded.Modality.Extended.html#2796" class="Field">M₂.transparent</a>
+    <a id="3729" class="Symbol">.</a><a id="3730" href="Graded.Modality.Extended.html#2825" class="Field">_⇨_.tr</a> <a id="3737" class="Symbol">→</a>
+      <a id="3745" href="Graded.Modality.Extended.html#2825" class="Function">M₁.tr</a> <a id="3751" href="Tools.Function.html#299" class="Function Operator">∘→</a> <a id="3754" href="Graded.Modality.Extended.html#2825" class="Field">M₂.tr</a>
+    <a id="3764" class="Symbol">.</a><a id="3765" href="Graded.Modality.Extended.html#2828" class="Field">_⇨_.tr-Σ</a> <a id="3774" class="Symbol">→</a>
+      <a id="3782" href="Graded.Modality.Extended.html#2828" class="Function">M₁.tr-Σ</a> <a id="3790" href="Tools.Function.html#299" class="Function Operator">∘→</a> <a id="3793" href="Graded.Modality.Extended.html#2828" class="Field">M₂.tr-Σ</a>
+    <a id="3805" class="Symbol">.</a><a id="3806" href="Graded.Modality.Extended.html#2857" class="Field">_⇨_.is-order-embedding</a> <a id="3829" class="Symbol">→</a>
+      <a id="3837" href="Graded.Modality.Morphism.html#20822" class="Function">Is-order-embedding-∘</a> <a id="3858" href="Graded.Modality.Extended.html#2857" class="Function">M₁.is-order-embedding</a> <a id="3880" href="Graded.Modality.Extended.html#2857" class="Field">M₂.is-order-embedding</a>
+    <a id="3906" class="Symbol">.</a><a id="3907" href="Graded.Modality.Extended.html#2920" class="Field">_⇨_.is-Σ-order-embedding</a> <a id="3932" class="Symbol">→</a>
+      <a id="3940" href="Graded.Modality.Morphism.html#24886" class="Function">Is-Σ-order-embedding-∘</a>
+        <a id="3971" class="Symbol">(</a><a id="3972" href="Graded.Modality.Morphism.html#5286" class="Field">Is-order-embedding.tr-morphism</a> <a id="4003" href="Graded.Modality.Extended.html#2857" class="Function">M₁.is-order-embedding</a><a id="4024" class="Symbol">)</a>
+        <a id="4034" class="Symbol">(</a><a id="4035" href="Graded.Modality.Morphism.html#5286" class="Field">Is-order-embedding.tr-morphism</a> <a id="4066" href="Graded.Modality.Extended.html#2857" class="Field">M₂.is-order-embedding</a><a id="4087" class="Symbol">)</a>
+        <a id="4097" href="Graded.Modality.Extended.html#2920" class="Function">M₁.is-Σ-order-embedding</a> <a id="4121" href="Graded.Modality.Extended.html#2920" class="Field">M₂.is-Σ-order-embedding</a>
+    <a id="4149" class="Symbol">.</a><a id="4150" href="Graded.Modality.Extended.html#2992" class="Field">_⇨_.is-Σ-order-embedding-C</a> <a id="4177" class="Symbol">→</a>
+      <a id="4185" href="Graded.Modality.Morphism.Configuration.html#26277" class="Function">Is-Σ-order-embedding-C-∘</a>
+        <a id="4218" href="Graded.Modality.Morphism.html#5286" class="Function">M₁.tr-morphism</a>
+        <a id="4241" href="Graded.Modality.Morphism.html#5286" class="Function">M₂.tr-morphism</a>
+        <a id="4264" href="Graded.Modality.Extended.html#2992" class="Function">M₁.is-Σ-order-embedding-C</a>
+        <a id="4298" href="Graded.Modality.Extended.html#2992" class="Field">M₂.is-Σ-order-embedding-C</a>
+  <a id="4326" class="Keyword">where</a>
+  <a id="4334" class="Keyword">module</a> <a id="4341" href="Graded.Modality.Extended.html#4341" class="Module">M₁</a> <a id="4344" class="Symbol">=</a> <a id="4346" href="Graded.Modality.Extended.html#2610" class="Module Operator">_⇨_</a> <a id="4350" href="Graded.Modality.Extended.html#3646" class="Bound">m₁</a>
+  <a id="4355" class="Keyword">module</a> <a id="4362" href="Graded.Modality.Extended.html#4362" class="Module">M₂</a> <a id="4365" class="Symbol">=</a> <a id="4367" href="Graded.Modality.Extended.html#2610" class="Module Operator">_⇨_</a> <a id="4371" href="Graded.Modality.Extended.html#3651" class="Bound">m₂</a>
+</pre></body></html>

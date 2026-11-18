@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Typechecking.Decidable.Assumptions</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Assumptions used to prove decidability of type-checking (for</a>
+<a id="138" class="Comment">-- certain contexts, types and terms)</a>
+<a id="176" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="250" class="Keyword">open</a> <a id="255" class="Keyword">import</a> <a id="262" href="Configuration-types.html" class="Module">Configuration-types</a>
+<a id="282" class="Keyword">open</a> <a id="287" class="Keyword">import</a> <a id="294" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="311" class="Keyword">module</a> <a id="318" href="Definition.Typechecking.Decidable.Assumptions.html" class="Module">Definition.Typechecking.Decidable.Assumptions</a>
+  <a id="366" class="Symbol">{</a><a id="367" href="Definition.Typechecking.Decidable.Assumptions.html#367" class="Bound">a</a><a id="368" class="Symbol">}</a> <a id="370" class="Symbol">{</a><a id="371" href="Definition.Typechecking.Decidable.Assumptions.html#371" class="Bound">M</a> <a id="373" class="Symbol">:</a> <a id="375" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="379" href="Definition.Typechecking.Decidable.Assumptions.html#367" class="Bound">a</a><a id="380" class="Symbol">}</a>
+  <a id="384" class="Symbol">{</a><a id="385" href="Definition.Typechecking.Decidable.Assumptions.html#385" class="Bound">𝕄</a> <a id="387" class="Symbol">:</a> <a id="389" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="398" href="Definition.Typechecking.Decidable.Assumptions.html#371" class="Bound">M</a><a id="399" class="Symbol">}</a>
+  <a id="403" class="Symbol">(</a><a id="404" href="Definition.Typechecking.Decidable.Assumptions.html#404" class="Bound">TC</a> <a id="407" class="Symbol">:</a> <a id="409" href="Configuration-types.html#10610" class="Record">Type-configuration</a> <a id="428" href="Definition.Typechecking.Decidable.Assumptions.html#385" class="Bound">𝕄</a><a id="429" class="Symbol">)</a>
+  <a id="433" class="Keyword">where</a>
+
+<a id="440" class="Keyword">open</a> <a id="445" href="Configuration-types.html#10610" class="Module">Type-configuration</a> <a id="464" href="Definition.Typechecking.Decidable.Assumptions.html#404" class="Bound">TC</a> <a id="467" class="Keyword">hiding</a> <a id="474" class="Symbol">(</a><a id="475" href="Configuration-types.html#8268" class="InductiveConstructor">no-equality-reflection</a><a id="497" class="Symbol">)</a>
+
+<a id="500" class="Keyword">open</a> <a id="505" class="Keyword">import</a> <a id="512" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="526" class="Keyword">open</a> <a id="531" class="Keyword">import</a> <a id="538" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="566" class="Keyword">open</a> <a id="571" class="Keyword">import</a> <a id="578" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+
+<a id="594" class="Keyword">record</a> <a id="Assumptions"></a><a id="601" href="Definition.Typechecking.Decidable.Assumptions.html#601" class="Record">Assumptions</a> <a id="613" class="Symbol">:</a> <a id="615" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="619" href="Definition.Typechecking.Decidable.Assumptions.html#367" class="Bound">a</a> <a id="621" class="Keyword">where</a>
+  <a id="629" class="Keyword">no-eta-equality</a>
+  <a id="647" class="Keyword">infix</a> <a id="653" class="Number">10</a> _≟_
+  <a id="662" class="Keyword">field</a>
+    <a id="672" class="Comment">-- Equality is assumed to be decidable for M.</a>
+    <a id="Assumptions._≟_"></a><a id="722" href="Definition.Typechecking.Decidable.Assumptions.html#722" class="Field Operator">_≟_</a> <a id="726" class="Symbol">:</a> <a id="728" href="Relation.Binary.Definitions.html#6907" class="Function">Decidable</a> <a id="738" class="Symbol">(</a><a id="739" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">_≡_</a> <a id="743" class="Symbol">{</a><a id="744" class="Argument">A</a> <a id="746" class="Symbol">=</a> <a id="748" href="Definition.Typechecking.Decidable.Assumptions.html#371" class="Bound">M</a><a id="749" class="Symbol">})</a>
+
+    <a id="757" class="Comment">-- Is Omega-plus-allowed inhabited?</a>
+    <a id="Assumptions.Omega-plus-allowed?"></a><a id="797" href="Definition.Typechecking.Decidable.Assumptions.html#797" class="Field">Omega-plus-allowed?</a> <a id="817" class="Symbol">:</a> <a id="819" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="823" href="Configuration-types.html#2328" class="Function">Omega-plus-allowed</a>
+
+    <a id="847" class="Comment">-- It is decidable whether the Unit types are allowed.</a>
+    <a id="Assumptions.Unit-allowed?"></a><a id="906" href="Definition.Typechecking.Decidable.Assumptions.html#906" class="Field">Unit-allowed?</a> <a id="920" class="Symbol">:</a> <a id="922" class="Symbol">∀</a> <a id="924" href="Definition.Typechecking.Decidable.Assumptions.html#924" class="Bound">s</a> <a id="926" class="Symbol">→</a> <a id="928" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="932" class="Symbol">(</a><a id="933" href="Configuration-types.html#2505" class="Function">Unit-allowed</a> <a id="946" href="Definition.Typechecking.Decidable.Assumptions.html#924" class="Bound">s</a><a id="947" class="Symbol">)</a>
+
+    <a id="954" class="Comment">-- ΠΣ-allowed is pointwise decidable.</a>
+    <a id="Assumptions.ΠΣ-allowed?"></a><a id="996" href="Definition.Typechecking.Decidable.Assumptions.html#996" class="Field">ΠΣ-allowed?</a> <a id="1008" class="Symbol">:</a> <a id="1010" class="Symbol">∀</a> <a id="1012" href="Definition.Typechecking.Decidable.Assumptions.html#1012" class="Bound">b</a> <a id="1014" href="Definition.Typechecking.Decidable.Assumptions.html#1014" class="Bound">p</a> <a id="1016" href="Definition.Typechecking.Decidable.Assumptions.html#1016" class="Bound">q</a> <a id="1018" class="Symbol">→</a> <a id="1020" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="1024" class="Symbol">(</a><a id="1025" href="Configuration-types.html#11144" class="Field">ΠΣ-allowed</a> <a id="1036" href="Definition.Typechecking.Decidable.Assumptions.html#1012" class="Bound">b</a> <a id="1038" href="Definition.Typechecking.Decidable.Assumptions.html#1014" class="Bound">p</a> <a id="1040" href="Definition.Typechecking.Decidable.Assumptions.html#1016" class="Bound">q</a><a id="1041" class="Symbol">)</a>
+
+    <a id="1048" class="Comment">-- It is decidable whether the K rule is allowed.</a>
+    <a id="Assumptions.K-allowed?"></a><a id="1102" href="Definition.Typechecking.Decidable.Assumptions.html#1102" class="Field">K-allowed?</a> <a id="1113" class="Symbol">:</a> <a id="1115" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="1119" href="Configuration-types.html#2924" class="Function">K-allowed</a>
+
+    <a id="1134" class="Comment">-- It is decidable whether []-cong is allowed for a given</a>
+    <a id="1196" class="Comment">-- strength.</a>
+    <a id="Assumptions.[]-cong-allowed?"></a><a id="1213" href="Definition.Typechecking.Decidable.Assumptions.html#1213" class="Field">[]-cong-allowed?</a> <a id="1230" class="Symbol">:</a> <a id="1232" class="Symbol">∀</a> <a id="1234" href="Definition.Typechecking.Decidable.Assumptions.html#1234" class="Bound">s</a> <a id="1236" class="Symbol">→</a> <a id="1238" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="1242" class="Symbol">(</a><a id="1243" href="Configuration-types.html#12177" class="Field">[]-cong-allowed</a> <a id="1259" href="Definition.Typechecking.Decidable.Assumptions.html#1234" class="Bound">s</a><a id="1260" class="Symbol">)</a>
+
+    <a id="1267" class="Comment">-- It is decidable whether quotient types are allowed.</a>
+    <a id="Assumptions.Quot-allowed?"></a><a id="1326" href="Definition.Typechecking.Decidable.Assumptions.html#1326" class="Field">Quot-allowed?</a> <a id="1340" class="Symbol">:</a> <a id="1342" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="1346" href="Configuration-types.html#3241" class="Function">Quot-allowed</a>
+
+    <a id="1364" class="Comment">-- Equality reflection is not allowed.</a>
+    <a id="Assumptions.no-equality-reflection"></a><a id="1407" href="Definition.Typechecking.Decidable.Assumptions.html#1407" class="Field">no-equality-reflection</a> <a id="1430" class="Symbol">:</a> <a id="1432" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="1434" href="Configuration-types.html#2986" class="Function">Equality-reflection</a>
+
+  <a id="1457" class="Keyword">instance</a>
+
+    <a id="1471" class="Comment">-- Equality reflection is not allowed.</a>
+
+    <a id="Assumptions.no-equality-reflection′"></a><a id="1515" href="Definition.Typechecking.Decidable.Assumptions.html#1515" class="Function">no-equality-reflection′</a> <a id="1539" class="Symbol">:</a> <a id="1541" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a>
+    <a id="1568" href="Definition.Typechecking.Decidable.Assumptions.html#1515" class="Function">no-equality-reflection′</a> <a id="1592" class="Symbol">=</a>
+      <a id="1600" href="Configuration-types.html#8422" class="Function">No-equality-reflection⇔</a> <a id="1624" class="Symbol">.</a><a id="1625" href="Data.Product.Base.html#650" class="Field">proj₂</a> <a id="1631" href="Definition.Typechecking.Decidable.Assumptions.html#1407" class="Field">no-equality-reflection</a>
+</pre></body></html>

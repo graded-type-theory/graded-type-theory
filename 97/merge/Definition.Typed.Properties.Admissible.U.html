@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Typed.Properties.Admissible.U</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Admissible rules related to U</a>
+<a id="107" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="181" class="Keyword">open</a> <a id="186" class="Keyword">import</a> <a id="193" href="Configuration-types.html" class="Module">Configuration-types</a>
+<a id="213" class="Keyword">open</a> <a id="218" class="Keyword">import</a> <a id="225" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="242" class="Keyword">module</a> <a id="249" href="Definition.Typed.Properties.Admissible.U.html" class="Module">Definition.Typed.Properties.Admissible.U</a>
+  <a id="292" class="Symbol">{</a><a id="293" href="Definition.Typed.Properties.Admissible.U.html#293" class="Bound">a</a><a id="294" class="Symbol">}</a> <a id="296" class="Symbol">{</a><a id="297" href="Definition.Typed.Properties.Admissible.U.html#297" class="Bound">M</a> <a id="299" class="Symbol">:</a> <a id="301" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="305" href="Definition.Typed.Properties.Admissible.U.html#293" class="Bound">a</a><a id="306" class="Symbol">}</a>
+  <a id="310" class="Symbol">{</a><a id="311" href="Definition.Typed.Properties.Admissible.U.html#311" class="Bound">𝕄</a> <a id="313" class="Symbol">:</a> <a id="315" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="324" href="Definition.Typed.Properties.Admissible.U.html#297" class="Bound">M</a><a id="325" class="Symbol">}</a>
+  <a id="329" class="Symbol">(</a><a id="330" href="Definition.Typed.Properties.Admissible.U.html#330" class="Bound">TC</a> <a id="333" class="Symbol">:</a> <a id="335" href="Configuration-types.html#10610" class="Record">Type-configuration</a> <a id="354" href="Definition.Typed.Properties.Admissible.U.html#311" class="Bound">𝕄</a><a id="355" class="Symbol">)</a>
+  <a id="359" class="Keyword">where</a>
+
+<a id="366" class="Keyword">open</a> <a id="371" class="Keyword">import</a> <a id="378" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="395" href="Definition.Typed.Properties.Admissible.U.html#330" class="Bound">TC</a>
+<a id="398" class="Keyword">open</a> <a id="403" class="Keyword">import</a> <a id="410" href="Definition.Typed.Inversion.Primitive.html" class="Module">Definition.Typed.Inversion.Primitive</a> <a id="447" href="Definition.Typed.Properties.Admissible.U.html#330" class="Bound">TC</a>
+<a id="450" class="Keyword">import</a> <a id="457" href="Definition.Typed.Properties.Admissible.U.Primitive.html" class="Module">Definition.Typed.Properties.Admissible.U.Primitive</a> <a id="508" href="Definition.Typed.Properties.Admissible.U.html#330" class="Bound">TC</a> <a id="511" class="Symbol">as</a> <a id="UP"></a><a id="514" href="Definition.Typed.Properties.Admissible.U.html#514" class="Module">UP</a>
+<a id="517" class="Keyword">open</a> <a id="522" class="Keyword">import</a> <a id="529" href="Definition.Typed.Properties.Well-formed.html" class="Module">Definition.Typed.Properties.Well-formed</a> <a id="569" href="Definition.Typed.Properties.Admissible.U.html#330" class="Bound">TC</a>
+<a id="572" class="Keyword">open</a> <a id="577" class="Keyword">import</a> <a id="584" href="Definition.Typed.Well-formed.html" class="Module">Definition.Typed.Well-formed</a> <a id="613" href="Definition.Typed.Properties.Admissible.U.html#330" class="Bound">TC</a>
+
+<a id="617" class="Keyword">open</a> <a id="622" class="Keyword">import</a> <a id="629" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="648" href="Definition.Typed.Properties.Admissible.U.html#297" class="Bound">M</a>
+
+<a id="651" class="Keyword">open</a> <a id="656" href="Definition.Typed.Properties.Admissible.U.html#514" class="Module">UP</a> <a id="659" class="Keyword">public</a>
+
+<a id="667" class="Keyword">private</a> <a id="675" class="Keyword">variable</a>
+  <a id="686" href="Definition.Typed.Properties.Admissible.U.html#686" class="Generalizable">Γ</a> <a id="688" class="Symbol">:</a> <a id="690" href="Definition.Untyped.html#5002" class="Function">Cons</a> <a id="695" class="Symbol">_</a> <a id="697" class="Symbol">_</a>
+  <a id="701" href="Definition.Typed.Properties.Admissible.U.html#701" class="Generalizable">t</a> <a id="703" class="Symbol">:</a> <a id="705" href="Definition.Untyped.html#1210" class="Function">Term</a> <a id="710" class="Symbol">_</a>
+
+<a id="713" class="Keyword">opaque</a>
+
+  <a id="723" class="Comment">-- A variant of Uⱼ.</a>
+
+  <a id="⊢U′"></a><a id="746" href="Definition.Typed.Properties.Admissible.U.html#746" class="Function">⊢U′</a> <a id="750" class="Symbol">:</a> <a id="752" href="Definition.Typed.Properties.Admissible.U.html#686" class="Generalizable">Γ</a> <a id="754" href="Definition.Typed.html#3196" class="Datatype Operator">⊢</a> <a id="756" href="Definition.Typed.Properties.Admissible.U.html#701" class="Generalizable">t</a> <a id="758" href="Definition.Typed.html#3196" class="Datatype Operator">∷</a> <a id="760" href="Definition.Untyped.html#2032" class="InductiveConstructor">Level</a> <a id="766" class="Symbol">→</a> <a id="768" href="Definition.Typed.Properties.Admissible.U.html#686" class="Generalizable">Γ</a> <a id="770" href="Definition.Typed.html#2645" class="Datatype Operator">⊢</a> <a id="772" href="Definition.Untyped.html#2240" class="InductiveConstructor">U</a> <a id="774" class="Symbol">(</a><a id="775" href="Definition.Untyped.html#2200" class="InductiveConstructor">level</a> <a id="781" href="Definition.Typed.Properties.Admissible.U.html#701" class="Generalizable">t</a><a id="782" class="Symbol">)</a>
+  <a id="786" href="Definition.Typed.Properties.Admissible.U.html#746" class="Function">⊢U′</a> <a id="790" href="Definition.Typed.Properties.Admissible.U.html#790" class="Bound">⊢t</a> <a id="793" class="Symbol">=</a>
+    <a id="799" class="Keyword">let</a> <a id="803" href="Definition.Typed.Properties.Admissible.U.html#803" class="Bound">ok</a> <a id="806" class="Symbol">=</a> <a id="808" href="Definition.Typed.Inversion.Primitive.html#2036" class="Function">inversion-Level-⊢</a> <a id="826" class="Symbol">(</a><a id="827" href="Definition.Typed.Well-formed.html#24903" class="Function">wf-⊢</a> <a id="832" href="Definition.Typed.Properties.Admissible.U.html#790" class="Bound">⊢t</a><a id="834" class="Symbol">)</a> <a id="836" class="Keyword">in</a>
+    <a id="843" href="Definition.Typed.Properties.Admissible.U.Primitive.html#713" class="Function">⊢U</a> <a id="846" class="Symbol">(</a><a id="847" href="Definition.Typed.html#8574" class="InductiveConstructor">term</a> <a id="852" href="Definition.Typed.Properties.Admissible.U.html#803" class="Bound">ok</a> <a id="855" href="Definition.Typed.Properties.Admissible.U.html#790" class="Bound">⊢t</a><a id="857" class="Symbol">)</a>
+</pre></body></html>

@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Definition.Typed.Properties.Admissible.Equality</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- An admissible rule related to definitional equality</a>
+<a id="129" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="203" class="Keyword">open</a> <a id="208" class="Keyword">import</a> <a id="215" href="Configuration-types.html" class="Module">Configuration-types</a>
+<a id="235" class="Keyword">open</a> <a id="240" class="Keyword">import</a> <a id="247" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="264" class="Keyword">module</a> <a id="271" href="Definition.Typed.Properties.Admissible.Equality.html" class="Module">Definition.Typed.Properties.Admissible.Equality</a>
+  <a id="321" class="Symbol">{</a><a id="322" href="Definition.Typed.Properties.Admissible.Equality.html#322" class="Bound">ℓ</a><a id="323" class="Symbol">}</a> <a id="325" class="Symbol">{</a><a id="326" href="Definition.Typed.Properties.Admissible.Equality.html#326" class="Bound">M</a> <a id="328" class="Symbol">:</a> <a id="330" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="334" href="Definition.Typed.Properties.Admissible.Equality.html#322" class="Bound">ℓ</a><a id="335" class="Symbol">}</a>
+  <a id="339" class="Symbol">{</a><a id="340" href="Definition.Typed.Properties.Admissible.Equality.html#340" class="Bound">𝕄</a> <a id="342" class="Symbol">:</a> <a id="344" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="353" href="Definition.Typed.Properties.Admissible.Equality.html#326" class="Bound">M</a><a id="354" class="Symbol">}</a>
+  <a id="358" class="Symbol">(</a><a id="359" href="Definition.Typed.Properties.Admissible.Equality.html#359" class="Bound">TC</a> <a id="362" class="Symbol">:</a> <a id="364" href="Configuration-types.html#10610" class="Record">Type-configuration</a> <a id="383" href="Definition.Typed.Properties.Admissible.Equality.html#340" class="Bound">𝕄</a><a id="384" class="Symbol">)</a>
+  <a id="388" class="Keyword">where</a>
+
+<a id="395" class="Keyword">open</a> <a id="400" href="Configuration-types.html#10610" class="Module">Type-configuration</a> <a id="419" href="Definition.Typed.Properties.Admissible.Equality.html#359" class="Bound">TC</a>
+
+<a id="423" class="Keyword">open</a> <a id="428" class="Keyword">import</a> <a id="435" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="454" href="Definition.Typed.Properties.Admissible.Equality.html#326" class="Bound">M</a>
+
+<a id="457" class="Keyword">open</a> <a id="462" class="Keyword">import</a> <a id="469" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="486" href="Definition.Typed.Properties.Admissible.Equality.html#359" class="Bound">TC</a>
+<a id="489" class="Keyword">open</a> <a id="494" class="Keyword">import</a> <a id="501" href="Definition.Typed.Well-formed.html" class="Module">Definition.Typed.Well-formed</a> <a id="530" href="Definition.Typed.Properties.Admissible.Equality.html#359" class="Bound">TC</a>
+
+<a id="534" class="Keyword">open</a> <a id="539" class="Keyword">import</a> <a id="546" href="Tools.Product.html" class="Module">Tools.Product</a>
+
+<a id="561" class="Keyword">private</a> <a id="569" class="Keyword">variable</a>
+  <a id="580" href="Definition.Typed.Properties.Admissible.Equality.html#580" class="Generalizable">Γ</a>     <a id="586" class="Symbol">:</a> <a id="588" href="Definition.Untyped.html#5002" class="Function">Cons</a> <a id="593" class="Symbol">_</a> <a id="595" class="Symbol">_</a>
+  <a id="599" href="Definition.Typed.Properties.Admissible.Equality.html#599" class="Generalizable">A</a> <a id="601" href="Definition.Typed.Properties.Admissible.Equality.html#601" class="Generalizable">t</a> <a id="603" href="Definition.Typed.Properties.Admissible.Equality.html#603" class="Generalizable">u</a> <a id="605" class="Symbol">:</a> <a id="607" href="Definition.Untyped.html#1210" class="Function">Term</a> <a id="612" class="Symbol">_</a>
+
+<a id="615" class="Keyword">opaque</a>
+
+  <a id="625" class="Comment">-- A variant of sym.</a>
+
+  <a id="sym′"></a><a id="649" href="Definition.Typed.Properties.Admissible.Equality.html#649" class="Function">sym′</a> <a id="654" class="Symbol">:</a> <a id="656" href="Definition.Typed.Properties.Admissible.Equality.html#580" class="Generalizable">Γ</a> <a id="658" href="Definition.Typed.html#9724" class="Datatype Operator">⊢</a> <a id="660" href="Definition.Typed.Properties.Admissible.Equality.html#601" class="Generalizable">t</a> <a id="662" href="Definition.Typed.html#9724" class="Datatype Operator">≡</a> <a id="664" href="Definition.Typed.Properties.Admissible.Equality.html#603" class="Generalizable">u</a> <a id="666" href="Definition.Typed.html#9724" class="Datatype Operator">∷</a> <a id="668" href="Definition.Typed.Properties.Admissible.Equality.html#599" class="Generalizable">A</a> <a id="670" class="Symbol">→</a> <a id="672" href="Definition.Typed.Properties.Admissible.Equality.html#580" class="Generalizable">Γ</a> <a id="674" href="Definition.Typed.html#9724" class="Datatype Operator">⊢</a> <a id="676" href="Definition.Typed.Properties.Admissible.Equality.html#603" class="Generalizable">u</a> <a id="678" href="Definition.Typed.html#9724" class="Datatype Operator">≡</a> <a id="680" href="Definition.Typed.Properties.Admissible.Equality.html#601" class="Generalizable">t</a> <a id="682" href="Definition.Typed.html#9724" class="Datatype Operator">∷</a> <a id="684" href="Definition.Typed.Properties.Admissible.Equality.html#599" class="Generalizable">A</a>
+  <a id="688" href="Definition.Typed.Properties.Admissible.Equality.html#649" class="Function">sym′</a> <a id="693" href="Definition.Typed.Properties.Admissible.Equality.html#693" class="Bound">t≡u</a> <a id="697" class="Symbol">=</a> <a id="699" href="Definition.Typed.html#9955" class="InductiveConstructor">sym</a> <a id="703" class="Symbol">(</a><a id="704" href="Definition.Typed.Well-formed.html#24903" class="Function">wf-⊢</a> <a id="709" href="Definition.Typed.Properties.Admissible.Equality.html#693" class="Bound">t≡u</a> <a id="713" class="Symbol">.</a><a id="714" href="Data.Product.Base.html#636" class="Field">proj₁</a><a id="719" class="Symbol">)</a> <a id="721" href="Definition.Typed.Properties.Admissible.Equality.html#693" class="Bound">t≡u</a>
+</pre></body></html>

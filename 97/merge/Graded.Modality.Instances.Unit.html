@@ -1,0 +1,263 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Modality.Instances.Unit</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- The trivial (unit) modality</a>
+<a id="105" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="179" class="Keyword">open</a> <a id="184" class="Keyword">import</a> <a id="191" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="202" class="Keyword">open</a> <a id="207" class="Keyword">import</a> <a id="214" href="Tools.Unit.html" class="Module">Tools.Unit</a>
+
+<a id="226" class="Keyword">module</a> <a id="233" href="Graded.Modality.Instances.Unit.html" class="Module">Graded.Modality.Instances.Unit</a> <a id="264" class="Keyword">where</a>
+
+<a id="271" class="Keyword">open</a> <a id="276" class="Keyword">import</a> <a id="283" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="295" class="Keyword">open</a> <a id="300" class="Keyword">import</a> <a id="307" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="322" class="Keyword">open</a> <a id="327" class="Keyword">import</a> <a id="334" href="Tools.Level.html" class="Module">Tools.Level</a>
+<a id="346" class="Keyword">open</a> <a id="351" class="Keyword">import</a> <a id="358" href="Tools.Product.html" class="Module">Tools.Product</a>
+<a id="372" class="Keyword">open</a> <a id="377" class="Keyword">import</a> <a id="384" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="412" class="Keyword">open</a> <a id="417" class="Keyword">import</a> <a id="424" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="439" class="Keyword">open</a> <a id="444" class="Keyword">import</a> <a id="451" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+
+<a id="462" class="Keyword">open</a> <a id="467" class="Keyword">import</a> <a id="474" href="Tools.Algebra.html" class="Module">Tools.Algebra</a> <a id="488" href="Agda.Builtin.Unit.html#192" class="Record">⊤</a>
+
+<a id="491" class="Keyword">open</a> <a id="496" class="Keyword">import</a> <a id="503" href="Configuration-types.html" class="Module">Configuration-types</a>
+
+<a id="524" class="Keyword">open</a> <a id="529" class="Keyword">import</a> <a id="536" href="Graded.Modality.html" class="Module">Graded.Modality</a> <a id="552" href="Agda.Builtin.Unit.html#192" class="Record">⊤</a> <a id="554" class="Keyword">public</a>
+<a id="561" class="Keyword">open</a> <a id="566" class="Keyword">import</a> <a id="573" href="Graded.Mode.Instances.Zero-one.Variant.html" class="Module">Graded.Mode.Instances.Zero-one.Variant</a>
+<a id="612" class="Keyword">open</a> <a id="617" class="Keyword">import</a> <a id="624" href="Graded.Mode.Instances.Zero-one.html" class="Module">Graded.Mode.Instances.Zero-one</a> <a id="655" class="Keyword">hiding</a> <a id="662" class="Symbol">(</a><a id="663" href="Graded.Mode.Instances.Zero-one.html#6183" class="Function Operator">_≟_</a><a id="666" class="Symbol">)</a>
+<a id="668" class="Keyword">import</a> <a id="675" href="Graded.Modality.Properties.Star.html" class="Module">Graded.Modality.Properties.Star</a> <a id="707" class="Symbol">as</a> <a id="710" class="Module">Star</a>
+<a id="715" class="Keyword">open</a> <a id="720" class="Keyword">import</a> <a id="727" href="Graded.Modality.Properties.Subtraction.html" class="Module">Graded.Modality.Properties.Subtraction</a>
+<a id="766" class="Keyword">open</a> <a id="771" class="Keyword">import</a> <a id="778" href="Graded.FullReduction.Assumptions.html" class="Module">Graded.FullReduction.Assumptions</a>
+
+<a id="812" class="Comment">-- Trivial addition (and multiplication and meet) operation</a>
+
+<a id="_+_"></a><a id="873" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="877" class="Symbol">:</a> <a id="879" href="Algebra.Core.html#527" class="Function">Op₂</a> <a id="883" href="Agda.Builtin.Unit.html#192" class="Record">⊤</a>
+<a id="885" class="Symbol">_</a> <a id="887" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">+</a> <a id="889" class="Symbol">_</a> <a id="891" class="Symbol">=</a> <a id="893" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+
+<a id="897" class="Keyword">infixr</a> <a id="904" class="Number">20</a> <a id="907" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+
+<a id="_⊛_▷_"></a><a id="912" href="Graded.Modality.Instances.Unit.html#912" class="Function Operator">_⊛_▷_</a> <a id="918" class="Symbol">:</a> <a id="920" href="Tools.Algebra.html#1472" class="Function">Op₃</a> <a id="924" href="Agda.Builtin.Unit.html#192" class="Record">⊤</a>
+<a id="926" class="Symbol">_</a> <a id="928" href="Graded.Modality.Instances.Unit.html#912" class="Function Operator">⊛</a> <a id="930" class="Symbol">_</a> <a id="932" href="Graded.Modality.Instances.Unit.html#912" class="Function Operator">▷</a> <a id="934" class="Symbol">_</a> <a id="936" class="Symbol">=</a> <a id="938" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+
+<a id="942" class="Comment">-- A decision procedure for equality.</a>
+
+<a id="981" class="Keyword">infix</a> <a id="987" class="Number">10</a> <a id="990" href="Graded.Modality.Instances.Unit.html#995" class="Function Operator">_≟_</a>
+
+<a id="_≟_"></a><a id="995" href="Graded.Modality.Instances.Unit.html#995" class="Function Operator">_≟_</a> <a id="999" class="Symbol">:</a> <a id="1001" href="Relation.Binary.Definitions.html#6907" class="Function">Decidable</a> <a id="1011" class="Symbol">(</a><a id="1012" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">_≡_</a> <a id="1016" class="Symbol">{</a><a id="1017" class="Argument">A</a> <a id="1019" class="Symbol">=</a> <a id="1021" href="Agda.Builtin.Unit.html#192" class="Record">⊤</a><a id="1022" class="Symbol">})</a>
+<a id="1025" class="Symbol">_</a> <a id="1027" href="Graded.Modality.Instances.Unit.html#995" class="Function Operator">≟</a> <a id="1029" class="Symbol">_</a> <a id="1031" class="Symbol">=</a> <a id="1033" href="Relation.Nullary.Decidable.Core.html#2105" class="InductiveConstructor">yes</a> <a id="1037" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="1043" class="Comment">-- Properties of +</a>
+
+<a id="1063" class="Comment">-- Addition is commutative</a>
+<a id="1090" class="Comment">-- p + q ≡ q + p</a>
+
+<a id="+-Commutative"></a><a id="1108" href="Graded.Modality.Instances.Unit.html#1108" class="Function">+-Commutative</a> <a id="1122" class="Symbol">:</a> <a id="1124" href="Algebra.Definitions.html#1643" class="Function">Commutative</a> <a id="1136" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="1140" href="Graded.Modality.Instances.Unit.html#1108" class="Function">+-Commutative</a> <a id="1154" href="Graded.Modality.Instances.Unit.html#1154" class="Bound">x</a> <a id="1156" href="Graded.Modality.Instances.Unit.html#1156" class="Bound">y</a> <a id="1158" class="Symbol">=</a> <a id="1160" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="1166" class="Comment">-- Addition is associative</a>
+<a id="1193" class="Comment">-- p + (q + r) ≡ (p + q) + r</a>
+
+<a id="+-Associative"></a><a id="1223" href="Graded.Modality.Instances.Unit.html#1223" class="Function">+-Associative</a> <a id="1237" class="Symbol">:</a> <a id="1239" href="Algebra.Definitions.html#1556" class="Function">Associative</a> <a id="1251" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="1255" href="Graded.Modality.Instances.Unit.html#1223" class="Function">+-Associative</a> <a id="1269" href="Graded.Modality.Instances.Unit.html#1269" class="Bound">x</a> <a id="1271" href="Graded.Modality.Instances.Unit.html#1271" class="Bound">y</a> <a id="1273" href="Graded.Modality.Instances.Unit.html#1273" class="Bound">z</a> <a id="1275" class="Symbol">=</a> <a id="1277" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="1283" class="Comment">-- Addition is left distributive of itself</a>
+<a id="1326" class="Comment">-- p + (q + r) ≡ (p + q) + (p + r)</a>
+
+<a id="+-Distributiveˡ"></a><a id="1362" href="Graded.Modality.Instances.Unit.html#1362" class="Function">+-Distributiveˡ</a> <a id="1378" class="Symbol">:</a> <a id="1380" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="1384" href="Algebra.Definitions.html#3397" class="Function Operator">DistributesOverˡ</a> <a id="1401" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="1405" href="Graded.Modality.Instances.Unit.html#1362" class="Function">+-Distributiveˡ</a> <a id="1421" href="Graded.Modality.Instances.Unit.html#1421" class="Bound">x</a> <a id="1423" href="Graded.Modality.Instances.Unit.html#1423" class="Bound">y</a> <a id="1425" href="Graded.Modality.Instances.Unit.html#1425" class="Bound">z</a> <a id="1427" class="Symbol">=</a> <a id="1429" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="1435" class="Comment">-- Addition is right distributive over itself</a>
+<a id="1481" class="Comment">-- (q + r) + p ≡ (q + p) + (r + p)</a>
+
+<a id="+-Distributiveʳ"></a><a id="1517" href="Graded.Modality.Instances.Unit.html#1517" class="Function">+-Distributiveʳ</a> <a id="1533" class="Symbol">:</a> <a id="1535" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="1539" href="Algebra.Definitions.html#3516" class="Function Operator">DistributesOverʳ</a> <a id="1556" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="1560" href="Graded.Modality.Instances.Unit.html#1517" class="Function">+-Distributiveʳ</a> <a id="1576" href="Graded.Modality.Instances.Unit.html#1576" class="Bound">x</a> <a id="1578" href="Graded.Modality.Instances.Unit.html#1578" class="Bound">y</a> <a id="1580" href="Graded.Modality.Instances.Unit.html#1580" class="Bound">z</a> <a id="1582" class="Symbol">=</a> <a id="1584" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="1590" class="Comment">-- tt is the left identity of addition</a>
+<a id="1629" class="Comment">-- tt + p ≡ p</a>
+
+<a id="+-LeftIdentity"></a><a id="1644" href="Graded.Modality.Instances.Unit.html#1644" class="Function">+-LeftIdentity</a> <a id="1659" class="Symbol">:</a> <a id="1661" href="Algebra.Definitions.html#1885" class="Function">LeftIdentity</a> <a id="1674" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a> <a id="1677" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="1681" href="Graded.Modality.Instances.Unit.html#1644" class="Function">+-LeftIdentity</a> <a id="1696" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a> <a id="1699" class="Symbol">=</a> <a id="1701" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="1707" class="Comment">-- tt is the right identity of addition</a>
+<a id="1747" class="Comment">-- p + tt ≡ p</a>
+
+<a id="+-RightIdentity"></a><a id="1762" href="Graded.Modality.Instances.Unit.html#1762" class="Function">+-RightIdentity</a> <a id="1778" class="Symbol">:</a> <a id="1780" href="Algebra.Definitions.html#1958" class="Function">RightIdentity</a> <a id="1794" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a> <a id="1797" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="1801" href="Graded.Modality.Instances.Unit.html#1762" class="Function">+-RightIdentity</a> <a id="1817" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a> <a id="1820" class="Symbol">=</a> <a id="1822" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="1828" class="Comment">-- tt is the identity of addition</a>
+<a id="1862" class="Comment">-- tt + p ≡ p ≡ p + tt</a>
+
+<a id="+-Identity"></a><a id="1886" href="Graded.Modality.Instances.Unit.html#1886" class="Function">+-Identity</a> <a id="1897" class="Symbol">:</a> <a id="1899" href="Algebra.Definitions.html#2033" class="Function">Identity</a> <a id="1908" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a> <a id="1911" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="1915" href="Graded.Modality.Instances.Unit.html#1886" class="Function">+-Identity</a> <a id="1926" class="Symbol">=</a> <a id="1928" href="Graded.Modality.Instances.Unit.html#1644" class="Function">+-LeftIdentity</a> <a id="1943" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="1945" href="Graded.Modality.Instances.Unit.html#1762" class="Function">+-RightIdentity</a>
+
+<a id="1962" class="Comment">-- Addition is idempotent</a>
+<a id="1988" class="Comment">-- p + p ≡ p</a>
+
+<a id="+-Idempotent"></a><a id="2002" href="Graded.Modality.Instances.Unit.html#2002" class="Function">+-Idempotent</a> <a id="2015" class="Symbol">:</a> <a id="2017" href="Algebra.Definitions.html#4003" class="Function">Idempotent</a> <a id="2028" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="2032" href="Graded.Modality.Instances.Unit.html#2002" class="Function">+-Idempotent</a> <a id="2045" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a> <a id="2048" class="Symbol">=</a> <a id="2050" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="2056" class="Comment">------------------------------------</a>
+<a id="2093" class="Comment">-- + forms the following algebras --</a>
+<a id="2130" class="Comment">------------------------------------</a>
+
+<a id="2168" class="Comment">-- Addition forms a magma</a>
+
+<a id="+-Magma"></a><a id="2195" href="Graded.Modality.Instances.Unit.html#2195" class="Function">+-Magma</a> <a id="2203" class="Symbol">:</a> <a id="2205" href="Algebra.Structures.html#1763" class="Record">IsMagma</a> <a id="2213" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="2217" href="Graded.Modality.Instances.Unit.html#2195" class="Function">+-Magma</a> <a id="2225" class="Symbol">=</a> <a id="2227" class="Keyword">record</a>
+  <a id="2236" class="Symbol">{</a> <a id="2238" href="Algebra.Structures.html#1815" class="Field">isEquivalence</a> <a id="2252" class="Symbol">=</a> <a id="2254" href="Relation.Binary.PropositionalEquality.Properties.html#5530" class="Function">isEquivalence</a>
+  <a id="2270" class="Symbol">;</a> <a id="2272" href="Algebra.Structures.html#1853" class="Field">∙-cong</a>        <a id="2286" class="Symbol">=</a> <a id="2288" href="Relation.Binary.PropositionalEquality.Core.html#1782" class="Function">cong₂</a> <a id="2294" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+  <a id="2300" class="Symbol">}</a>
+
+<a id="2303" class="Comment">-- Addition forms a semigroup</a>
+
+<a id="+-Semigroup"></a><a id="2334" href="Graded.Modality.Instances.Unit.html#2334" class="Function">+-Semigroup</a> <a id="2346" class="Symbol">:</a> <a id="2348" href="Algebra.Structures.html#3364" class="Record">IsSemigroup</a> <a id="2360" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="2364" href="Graded.Modality.Instances.Unit.html#2334" class="Function">+-Semigroup</a> <a id="2376" class="Symbol">=</a> <a id="2378" class="Keyword">record</a>
+  <a id="2387" class="Symbol">{</a> <a id="2389" href="Algebra.Structures.html#3420" class="Field">isMagma</a> <a id="2397" class="Symbol">=</a> <a id="2399" href="Graded.Modality.Instances.Unit.html#2195" class="Function">+-Magma</a>
+  <a id="2409" class="Symbol">;</a> <a id="2411" href="Algebra.Structures.html#3444" class="Field">assoc</a>   <a id="2419" class="Symbol">=</a> <a id="2421" href="Graded.Modality.Instances.Unit.html#1223" class="Function">+-Associative</a>
+  <a id="2437" class="Symbol">}</a>
+
+<a id="2440" class="Comment">-- Addition forms a monoid with tt as identity</a>
+
+<a id="+-Monoid"></a><a id="2488" href="Graded.Modality.Instances.Unit.html#2488" class="Function">+-Monoid</a> <a id="2497" class="Symbol">:</a> <a id="2499" href="Algebra.Structures.html#4809" class="Record">IsMonoid</a> <a id="2508" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="2512" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+<a id="2515" href="Graded.Modality.Instances.Unit.html#2488" class="Function">+-Monoid</a> <a id="2524" class="Symbol">=</a> <a id="2526" class="Keyword">record</a>
+  <a id="2535" class="Symbol">{</a> <a id="2537" href="Algebra.Structures.html#4870" class="Field">isSemigroup</a> <a id="2549" class="Symbol">=</a> <a id="2551" href="Graded.Modality.Instances.Unit.html#2334" class="Function">+-Semigroup</a>
+  <a id="2565" class="Symbol">;</a> <a id="2567" href="Algebra.Structures.html#4902" class="Field">identity</a>    <a id="2579" class="Symbol">=</a> <a id="2581" href="Graded.Modality.Instances.Unit.html#1886" class="Function">+-Identity</a>
+  <a id="2594" class="Symbol">}</a>
+
+<a id="2597" class="Comment">-- Addition forms a commutative monoid with tt as identity</a>
+
+<a id="+-CommutativeMonoid"></a><a id="2657" href="Graded.Modality.Instances.Unit.html#2657" class="Function">+-CommutativeMonoid</a> <a id="2677" class="Symbol">:</a> <a id="2679" href="Algebra.Structures.html#5219" class="Record">IsCommutativeMonoid</a> <a id="2699" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="2703" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+<a id="2706" href="Graded.Modality.Instances.Unit.html#2657" class="Function">+-CommutativeMonoid</a> <a id="2726" class="Symbol">=</a> <a id="2728" class="Keyword">record</a>
+  <a id="2737" class="Symbol">{</a> <a id="2739" href="Algebra.Structures.html#5291" class="Field">isMonoid</a> <a id="2748" class="Symbol">=</a> <a id="2750" href="Graded.Modality.Instances.Unit.html#2488" class="Function">+-Monoid</a>
+  <a id="2761" class="Symbol">;</a> <a id="2763" href="Algebra.Structures.html#5319" class="Field">comm</a>     <a id="2772" class="Symbol">=</a> <a id="2774" href="Graded.Modality.Instances.Unit.html#1108" class="Function">+-Commutative</a>
+  <a id="2790" class="Symbol">}</a>
+
+<a id="2793" class="Comment">-- Addition forms a band</a>
+
+<a id="+-Band"></a><a id="2819" href="Graded.Modality.Instances.Unit.html#2819" class="Function">+-Band</a> <a id="2826" class="Symbol">:</a> <a id="2828" href="Algebra.Structures.html#3508" class="Record">IsBand</a> <a id="2835" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="2839" href="Graded.Modality.Instances.Unit.html#2819" class="Function">+-Band</a> <a id="2846" class="Symbol">=</a> <a id="2848" class="Keyword">record</a>
+  <a id="2857" class="Symbol">{</a> <a id="2859" href="Algebra.Structures.html#3559" class="Field">isSemigroup</a> <a id="2871" class="Symbol">=</a> <a id="2873" href="Graded.Modality.Instances.Unit.html#2334" class="Function">+-Semigroup</a>
+  <a id="2887" class="Symbol">;</a> <a id="2889" href="Algebra.Structures.html#3591" class="Field">idem</a>        <a id="2901" class="Symbol">=</a> <a id="2903" href="Graded.Modality.Instances.Unit.html#2002" class="Function">+-Idempotent</a>
+  <a id="2918" class="Symbol">}</a>
+
+<a id="2921" class="Comment">-- Addition forms a semilattice</a>
+
+<a id="+-Semilattice"></a><a id="2954" href="Graded.Modality.Instances.Unit.html#2954" class="Function">+-Semilattice</a> <a id="2968" class="Symbol">:</a> <a id="2970" href="Algebra.Lattice.Structures.html#1415" class="Function">IsMeetSemilattice</a> <a id="2988" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+<a id="2992" href="Graded.Modality.Instances.Unit.html#2954" class="Function">+-Semilattice</a> <a id="3006" class="Symbol">=</a> <a id="3008" class="Keyword">record</a>
+  <a id="3017" class="Symbol">{</a> <a id="3019" href="Algebra.Structures.html#4029" class="Field">isBand</a> <a id="3026" class="Symbol">=</a> <a id="3028" href="Graded.Modality.Instances.Unit.html#2819" class="Function">+-Band</a>
+  <a id="3037" class="Symbol">;</a> <a id="3039" href="Algebra.Structures.html#4051" class="Field">comm</a>   <a id="3046" class="Symbol">=</a> <a id="3048" href="Graded.Modality.Instances.Unit.html#1108" class="Function">+-Commutative</a>
+  <a id="3064" class="Symbol">}</a>
+
+<a id="+-+-SemiringWithoutAnnihilatingZero"></a><a id="3067" href="Graded.Modality.Instances.Unit.html#3067" class="Function">+-+-SemiringWithoutAnnihilatingZero</a> <a id="3103" class="Symbol">:</a> <a id="3105" href="Algebra.Structures.html#14143" class="Record">IsSemiringWithoutAnnihilatingZero</a> <a id="3139" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="3143" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="3147" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a> <a id="3150" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+<a id="3153" href="Graded.Modality.Instances.Unit.html#3067" class="Function">+-+-SemiringWithoutAnnihilatingZero</a> <a id="3189" class="Symbol">=</a> <a id="3191" class="Keyword">record</a>
+  <a id="3200" class="Symbol">{</a> <a id="3202" href="Algebra.Structures.html#14405" class="Field">+-isCommutativeMonoid</a> <a id="3224" class="Symbol">=</a> <a id="3226" href="Graded.Modality.Instances.Unit.html#2657" class="Function">+-CommutativeMonoid</a>
+  <a id="3248" class="Symbol">;</a> <a id="3250" href="Algebra.Structures.html#14458" class="Field">*-cong</a> <a id="3257" class="Symbol">=</a> <a id="3259" href="Relation.Binary.PropositionalEquality.Core.html#1782" class="Function">cong₂</a> <a id="3265" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+  <a id="3271" class="Symbol">;</a> <a id="3273" href="Algebra.Structures.html#14499" class="Field">*-assoc</a> <a id="3281" class="Symbol">=</a> <a id="3283" href="Graded.Modality.Instances.Unit.html#1223" class="Function">+-Associative</a>
+  <a id="3299" class="Symbol">;</a> <a id="3301" href="Algebra.Structures.html#14541" class="Field">*-identity</a> <a id="3312" class="Symbol">=</a> <a id="3314" href="Graded.Modality.Instances.Unit.html#1886" class="Function">+-Identity</a>
+  <a id="3327" class="Symbol">;</a> <a id="3329" href="Algebra.Structures.html#14583" class="Field">distrib</a> <a id="3337" class="Symbol">=</a> <a id="3339" href="Graded.Modality.Instances.Unit.html#1362" class="Function">+-Distributiveˡ</a> <a id="3355" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="3357" href="Graded.Modality.Instances.Unit.html#1517" class="Function">+-Distributiveʳ</a>
+  <a id="3375" class="Symbol">}</a>
+
+<a id="+-+-Semiring"></a><a id="3378" href="Graded.Modality.Instances.Unit.html#3378" class="Function">+-+-Semiring</a> <a id="3391" class="Symbol">:</a> <a id="3393" href="Algebra.Structures.html#15999" class="Record">IsSemiring</a> <a id="3404" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="3408" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a> <a id="3412" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a> <a id="3415" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+<a id="3418" href="Graded.Modality.Instances.Unit.html#3378" class="Function">+-+-Semiring</a> <a id="3431" class="Symbol">=</a> <a id="3433" class="Keyword">record</a>
+  <a id="3442" class="Symbol">{</a> <a id="3444" href="Algebra.Structures.html#16068" class="Field">isSemiringWithoutAnnihilatingZero</a> <a id="3478" class="Symbol">=</a> <a id="3480" href="Graded.Modality.Instances.Unit.html#3067" class="Function">+-+-SemiringWithoutAnnihilatingZero</a>
+  <a id="3518" class="Symbol">;</a> <a id="3520" href="Algebra.Structures.html#16158" class="Field">zero</a> <a id="3525" class="Symbol">=</a> <a id="3527" class="Symbol">(λ</a> <a id="3530" href="Graded.Modality.Instances.Unit.html#3530" class="Bound">x</a> <a id="3532" class="Symbol">→</a> <a id="3534" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="3538" class="Symbol">)</a> <a id="3540" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="3542" class="Symbol">(λ</a> <a id="3545" href="Graded.Modality.Instances.Unit.html#3545" class="Bound">x</a> <a id="3547" class="Symbol">→</a> <a id="3549" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="3553" class="Symbol">)</a>
+  <a id="3557" class="Symbol">}</a>
+
+<a id="3560" class="Comment">-- The trivial modality structure</a>
+
+<a id="UnitModality"></a><a id="3595" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a> <a id="3608" class="Symbol">:</a> <a id="3610" href="Graded.Modality.html#581" class="Record">Modality</a>
+<a id="3619" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a> <a id="3632" class="Symbol">=</a> <a id="3634" class="Keyword">record</a>
+  <a id="3643" class="Symbol">{</a> <a id="3645" href="Graded.Modality.html#870" class="Field Operator">_+_</a> <a id="3649" class="Symbol">=</a> <a id="3651" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+  <a id="3657" class="Symbol">;</a> <a id="3659" href="Graded.Modality.html#874" class="Field Operator">_·_</a> <a id="3663" class="Symbol">=</a> <a id="3665" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+  <a id="3671" class="Symbol">;</a> <a id="3673" href="Graded.Modality.html#878" class="Field Operator">_∧_</a> <a id="3677" class="Symbol">=</a> <a id="3679" href="Graded.Modality.Instances.Unit.html#873" class="Function Operator">_+_</a>
+  <a id="3685" class="Symbol">;</a> <a id="3687" href="Graded.Modality.html#894" class="Field">𝟘</a> <a id="3689" class="Symbol">=</a> <a id="3691" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+  <a id="3696" class="Symbol">;</a> <a id="3698" href="Graded.Modality.html#896" class="Field">𝟙</a> <a id="3700" class="Symbol">=</a> <a id="3702" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+  <a id="3707" class="Symbol">;</a> <a id="3709" href="Graded.Modality.html#1525" class="Field">is-𝟘?</a> <a id="3715" class="Symbol">=</a> <a id="3717" href="Graded.Modality.Instances.Unit.html#995" class="Function Operator">_≟</a> <a id="3720" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+  <a id="3725" class="Symbol">;</a> <a id="3727" href="Graded.Modality.html#997" class="Field">+-·-Semiring</a> <a id="3740" class="Symbol">=</a> <a id="3742" href="Graded.Modality.Instances.Unit.html#3378" class="Function">+-+-Semiring</a>
+  <a id="3757" class="Symbol">;</a> <a id="3759" href="Graded.Modality.html#1069" class="Field">∧-Semilattice</a> <a id="3773" class="Symbol">=</a> <a id="3775" href="Graded.Modality.Instances.Unit.html#2954" class="Function">+-Semilattice</a>
+  <a id="3791" class="Symbol">;</a> <a id="3793" href="Graded.Modality.html#1154" class="Field">·-distrib-∧</a> <a id="3805" class="Symbol">=</a> <a id="3807" href="Graded.Modality.Instances.Unit.html#1362" class="Function">+-Distributiveˡ</a> <a id="3823" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="3825" href="Graded.Modality.Instances.Unit.html#1517" class="Function">+-Distributiveʳ</a>
+  <a id="3843" class="Symbol">;</a> <a id="3845" href="Graded.Modality.html#1242" class="Field">+-distrib-∧</a> <a id="3857" class="Symbol">=</a> <a id="3859" href="Graded.Modality.Instances.Unit.html#1362" class="Function">+-Distributiveˡ</a> <a id="3875" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="3877" href="Graded.Modality.Instances.Unit.html#1517" class="Function">+-Distributiveʳ</a>
+  <a id="3895" class="Symbol">}</a>
+
+<a id="3898" class="Keyword">instance</a>
+
+  <a id="3910" class="Comment">-- The unit modality has grade ω.</a>
+
+  <a id="unit-has-omega"></a><a id="3947" href="Graded.Modality.Instances.Unit.html#3947" class="Function">unit-has-omega</a> <a id="3962" class="Symbol">:</a> <a id="3964" href="Graded.Modality.html#5178" class="Record">Has-omega</a> <a id="3974" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a>
+  <a id="3989" href="Graded.Modality.Instances.Unit.html#3947" class="Function">unit-has-omega</a> <a id="4004" class="Symbol">=</a> <a id="4006" class="Keyword">record</a>
+    <a id="4017" class="Symbol">{</a> <a id="4019" href="Graded.Modality.html#5295" class="Field">ω</a> <a id="4021" class="Symbol">=</a> <a id="4023" href="Agda.Builtin.Unit.html#229" class="InductiveConstructor">tt</a>
+    <a id="4030" class="Symbol">;</a> <a id="4032" href="Graded.Modality.html#5437" class="Field">ω≤𝟙</a> <a id="4036" class="Symbol">=</a> <a id="4038" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+    <a id="4047" class="Symbol">;</a> <a id="4049" href="Graded.Modality.html#5511" class="Field">ω·+≤ω·ʳ</a> <a id="4057" class="Symbol">=</a> <a id="4059" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+    <a id="4068" class="Symbol">}</a>
+
+<a id="4071" class="Comment">-- A natrec-star operator can be defined for the trivial modality</a>
+<a id="4137" class="Comment">-- structure</a>
+
+<a id="unit-has-star"></a><a id="4151" href="Graded.Modality.Instances.Unit.html#4151" class="Function">unit-has-star</a> <a id="4165" class="Symbol">:</a> <a id="4167" href="Graded.Modality.html#8445" class="Record">Has-star</a> <a id="4176" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a>
+<a id="4189" href="Graded.Modality.Instances.Unit.html#4151" class="Function">unit-has-star</a> <a id="4203" class="Symbol">=</a> <a id="4205" class="Keyword">record</a>
+  <a id="4214" class="Symbol">{</a> <a id="4216" href="Graded.Modality.html#8594" class="Field Operator">_⊛_▷_</a> <a id="4222" class="Symbol">=</a> <a id="4224" href="Graded.Modality.Instances.Unit.html#912" class="Function Operator">_⊛_▷_</a>
+  <a id="4232" class="Symbol">;</a> <a id="4234" href="Graded.Modality.html#8676" class="Field">⊛-ineq</a> <a id="4241" class="Symbol">=</a> <a id="4243" class="Symbol">(λ</a> <a id="4246" href="Graded.Modality.Instances.Unit.html#4246" class="Bound">p</a> <a id="4248" href="Graded.Modality.Instances.Unit.html#4248" class="Bound">q</a> <a id="4250" href="Graded.Modality.Instances.Unit.html#4250" class="Bound">r</a> <a id="4252" class="Symbol">→</a> <a id="4254" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="4258" class="Symbol">)</a> <a id="4260" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="4262" class="Symbol">(λ</a> <a id="4265" href="Graded.Modality.Instances.Unit.html#4265" class="Bound">p</a> <a id="4267" href="Graded.Modality.Instances.Unit.html#4267" class="Bound">q</a> <a id="4269" href="Graded.Modality.Instances.Unit.html#4269" class="Bound">r</a> <a id="4271" class="Symbol">→</a> <a id="4273" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="4277" class="Symbol">)</a>
+  <a id="4281" class="Symbol">;</a> <a id="4283" href="Graded.Modality.html#8855" class="Field">+-sub-interchangeable-⊛</a> <a id="4307" class="Symbol">=</a> <a id="4309" class="Symbol">λ</a> <a id="4311" href="Graded.Modality.Instances.Unit.html#4311" class="Bound">r</a> <a id="4313" href="Graded.Modality.Instances.Unit.html#4313" class="Bound">p</a> <a id="4315" href="Graded.Modality.Instances.Unit.html#4315" class="Bound">q</a> <a id="4317" href="Graded.Modality.Instances.Unit.html#4317" class="Bound">p′</a> <a id="4320" href="Graded.Modality.Instances.Unit.html#4320" class="Bound">q′</a> <a id="4323" class="Symbol">→</a> <a id="4325" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+  <a id="4332" class="Symbol">;</a> <a id="4334" href="Graded.Modality.html#9019" class="Field">·-sub-distribʳ-⊛</a> <a id="4351" class="Symbol">=</a> <a id="4353" class="Symbol">λ</a> <a id="4355" href="Graded.Modality.Instances.Unit.html#4355" class="Bound">r</a> <a id="4357" href="Graded.Modality.Instances.Unit.html#4357" class="Bound">q</a> <a id="4359" href="Graded.Modality.Instances.Unit.html#4359" class="Bound">p</a> <a id="4361" href="Graded.Modality.Instances.Unit.html#4361" class="Bound">p′</a> <a id="4364" class="Symbol">→</a> <a id="4366" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+  <a id="4373" class="Symbol">;</a> <a id="4375" href="Graded.Modality.html#9161" class="Field">⊛-sub-distrib-∧</a> <a id="4391" class="Symbol">=</a> <a id="4393" class="Symbol">λ</a> <a id="4395" href="Graded.Modality.Instances.Unit.html#4395" class="Bound">r</a> <a id="4397" class="Symbol">→</a> <a id="4399" class="Symbol">(λ</a> <a id="4402" href="Graded.Modality.Instances.Unit.html#4402" class="Bound">p</a> <a id="4404" href="Graded.Modality.Instances.Unit.html#4404" class="Bound">q</a> <a id="4406" href="Graded.Modality.Instances.Unit.html#4406" class="Bound">q′</a> <a id="4409" class="Symbol">→</a> <a id="4411" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="4415" class="Symbol">)</a> <a id="4417" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="4419" class="Symbol">(λ</a> <a id="4422" href="Graded.Modality.Instances.Unit.html#4422" class="Bound">q</a> <a id="4424" href="Graded.Modality.Instances.Unit.html#4424" class="Bound">p</a> <a id="4426" href="Graded.Modality.Instances.Unit.html#4426" class="Bound">p′</a> <a id="4429" class="Symbol">→</a> <a id="4431" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="4435" class="Symbol">)</a>
+  <a id="4439" class="Symbol">}</a>
+
+<a id="4442" class="Keyword">instance</a>
+
+  <a id="4454" class="Comment">-- An nr function can be defined for UnitModality.</a>
+
+  <a id="unit-has-nr"></a><a id="4508" href="Graded.Modality.Instances.Unit.html#4508" class="Function">unit-has-nr</a> <a id="4520" class="Symbol">:</a> <a id="4522" href="Graded.Modality.html#5686" class="Record">Has-nr</a> <a id="4529" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a>
+  <a id="4544" href="Graded.Modality.Instances.Unit.html#4508" class="Function">unit-has-nr</a> <a id="4556" class="Symbol">=</a> <a id="4558" href="Graded.Modality.Properties.Star.html#2531" class="Function">Star.has-nr</a> <a id="4570" class="Symbol">_</a> <a id="4572" class="Symbol">⦃</a> <a id="4574" class="Argument">has-star</a> <a id="4583" class="Symbol">=</a> <a id="4585" href="Graded.Modality.Instances.Unit.html#4151" class="Function">unit-has-star</a> <a id="4599" class="Symbol">⦄</a>
+
+<a id="4602" class="Keyword">opaque</a>
+
+  <a id="4612" class="Comment">-- The nr function satisfies Linearity-like-nr-for-𝟘.</a>
+
+  <a id="nr-linearity-like-for-𝟘"></a><a id="4669" href="Graded.Modality.Instances.Unit.html#4669" class="Function">nr-linearity-like-for-𝟘</a> <a id="4693" class="Symbol">:</a>
+    <a id="4699" href="Graded.Modality.html#6948" class="Function">Has-nr.Linearity-like-nr-for-𝟘</a> <a id="4730" href="Graded.Modality.Instances.Unit.html#4508" class="Function">unit-has-nr</a>
+  <a id="4744" href="Graded.Modality.Instances.Unit.html#4669" class="Function">nr-linearity-like-for-𝟘</a> <a id="4768" class="Symbol">=</a> <a id="4770" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="4776" class="Keyword">opaque</a>
+
+  <a id="4786" class="Comment">-- The nr function satisfies Linearity-like-nr-for-𝟙.</a>
+
+  <a id="nr-linearity-like-for-𝟙"></a><a id="4843" href="Graded.Modality.Instances.Unit.html#4843" class="Function">nr-linearity-like-for-𝟙</a> <a id="4867" class="Symbol">:</a>
+    <a id="4873" href="Graded.Modality.html#7130" class="Function">Has-nr.Linearity-like-nr-for-𝟙</a> <a id="4904" href="Graded.Modality.Instances.Unit.html#4508" class="Function">unit-has-nr</a>
+  <a id="4918" href="Graded.Modality.Instances.Unit.html#4843" class="Function">nr-linearity-like-for-𝟙</a> <a id="4942" class="Symbol">=</a> <a id="4944" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="4950" class="Keyword">opaque</a>
+
+  <a id="4960" class="Comment">-- The modality has well-behaved GLBs.</a>
+  <a id="unit-supports-glb-for-nr"></a><a id="5001" href="Graded.Modality.Instances.Unit.html#5001" class="Function">unit-supports-glb-for-nr</a> <a id="5026" class="Symbol">:</a>
+    <a id="5032" href="Graded.Modality.html#7806" class="Record">Has-well-behaved-GLBs</a> <a id="5054" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a>
+  <a id="5069" href="Graded.Modality.Instances.Unit.html#5001" class="Function">unit-supports-glb-for-nr</a> <a id="5094" class="Symbol">=</a> <a id="5096" class="Keyword">record</a>
+    <a id="5107" class="Symbol">{</a> <a id="5109" href="Graded.Modality.html#7907" class="Field">+-GLBˡ</a> <a id="5116" class="Symbol">=</a> <a id="5118" class="Symbol">λ</a> <a id="5120" href="Graded.Modality.Instances.Unit.html#5120" class="Bound">_</a> <a id="5122" class="Symbol">→</a> <a id="5124" class="Symbol">(λ</a> <a id="5127" href="Graded.Modality.Instances.Unit.html#5127" class="Bound">_</a> <a id="5129" class="Symbol">→</a> <a id="5131" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="5135" class="Symbol">)</a> <a id="5137" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="5139" class="Symbol">λ</a> <a id="5141" href="Graded.Modality.Instances.Unit.html#5141" class="Bound">_</a> <a id="5143" href="Graded.Modality.Instances.Unit.html#5143" class="Bound">_</a> <a id="5145" class="Symbol">→</a> <a id="5147" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+    <a id="5156" class="Symbol">;</a> <a id="5158" href="Graded.Modality.html#8007" class="Field">·-GLBˡ</a> <a id="5165" class="Symbol">=</a> <a id="5167" class="Symbol">λ</a> <a id="5169" href="Graded.Modality.Instances.Unit.html#5169" class="Bound">_</a> <a id="5171" class="Symbol">→</a> <a id="5173" class="Symbol">(λ</a> <a id="5176" href="Graded.Modality.Instances.Unit.html#5176" class="Bound">_</a> <a id="5178" class="Symbol">→</a> <a id="5180" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="5184" class="Symbol">)</a> <a id="5186" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="5188" class="Symbol">λ</a> <a id="5190" href="Graded.Modality.Instances.Unit.html#5190" class="Bound">_</a> <a id="5192" href="Graded.Modality.Instances.Unit.html#5192" class="Bound">_</a> <a id="5194" class="Symbol">→</a> <a id="5196" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+    <a id="5205" class="Symbol">;</a> <a id="5207" href="Graded.Modality.html#8107" class="Field">·-GLBʳ</a> <a id="5214" class="Symbol">=</a> <a id="5216" class="Symbol">λ</a> <a id="5218" href="Graded.Modality.Instances.Unit.html#5218" class="Bound">_</a> <a id="5220" class="Symbol">→</a> <a id="5222" class="Symbol">(λ</a> <a id="5225" href="Graded.Modality.Instances.Unit.html#5225" class="Bound">_</a> <a id="5227" class="Symbol">→</a> <a id="5229" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="5233" class="Symbol">)</a> <a id="5235" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="5237" class="Symbol">λ</a> <a id="5239" href="Graded.Modality.Instances.Unit.html#5239" class="Bound">_</a> <a id="5241" href="Graded.Modality.Instances.Unit.html#5241" class="Bound">_</a> <a id="5243" class="Symbol">→</a> <a id="5245" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+    <a id="5254" class="Symbol">;</a> <a id="5256" href="Graded.Modality.html#8207" class="Field">+nrᵢ-GLB</a> <a id="5265" class="Symbol">=</a> <a id="5267" class="Symbol">λ</a> <a id="5269" href="Graded.Modality.Instances.Unit.html#5269" class="Bound">_</a> <a id="5271" href="Graded.Modality.Instances.Unit.html#5271" class="Bound">_</a> <a id="5273" class="Symbol">→</a> <a id="5275" class="Symbol">_</a> <a id="5277" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="5279" class="Symbol">((λ</a> <a id="5283" href="Graded.Modality.Instances.Unit.html#5283" class="Bound">_</a> <a id="5285" class="Symbol">→</a> <a id="5287" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="5291" class="Symbol">)</a> <a id="5293" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="5295" class="Symbol">(λ</a> <a id="5298" href="Graded.Modality.Instances.Unit.html#5298" class="Bound">_</a> <a id="5300" href="Graded.Modality.Instances.Unit.html#5300" class="Bound">_</a> <a id="5302" class="Symbol">→</a> <a id="5304" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="5308" class="Symbol">))</a> <a id="5311" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="5313" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+    <a id="5322" class="Symbol">}</a>
+
+<a id="5325" class="Comment">-- The full reduction assumptions hold for any instance of</a>
+<a id="5384" class="Comment">-- UnitModality and any configuration.</a>
+
+<a id="full-reduction-assumptions"></a><a id="5424" href="Graded.Modality.Instances.Unit.html#5424" class="Function">full-reduction-assumptions</a> <a id="5451" class="Symbol">:</a>
+  <a id="5455" class="Symbol">{</a><a id="5456" href="Graded.Modality.Instances.Unit.html#5456" class="Bound">mv</a> <a id="5459" class="Symbol">:</a> <a id="5461" href="Graded.Mode.Instances.Zero-one.Variant.html#522" class="Record">Mode-variant</a> <a id="5474" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a><a id="5486" class="Symbol">}</a> <a id="5488" class="Symbol">→</a>
+  <a id="5492" class="Symbol">{</a><a id="5493" href="Graded.Modality.Instances.Unit.html#5493" class="Bound">C</a> <a id="5495" class="Symbol">:</a> <a id="5497" href="Configuration-types.html#14568" class="Record">Configuration</a> <a id="5511" class="Symbol">(</a><a id="5512" href="Graded.Mode.Instances.Zero-one.html#18686" class="Function">Zero-one-isMode</a> <a id="5528" href="Graded.Modality.Instances.Unit.html#5456" class="Bound">mv</a><a id="5530" class="Symbol">)}</a> <a id="5533" class="Symbol">→</a>
+  <a id="5537" href="Graded.FullReduction.Assumptions.html#1068" class="Record">Full-reduction-assumptions</a> <a id="5564" href="Graded.Modality.Instances.Unit.html#5456" class="Bound">mv</a> <a id="5567" href="Graded.Modality.Instances.Unit.html#5493" class="Bound">C</a>
+<a id="5569" href="Graded.Modality.Instances.Unit.html#5424" class="Function">full-reduction-assumptions</a> <a id="5596" class="Symbol">=</a> <a id="5598" class="Keyword">record</a>
+  <a id="5607" class="Symbol">{</a> <a id="5609" href="Graded.FullReduction.Assumptions.html#1295" class="Field">sink⊎𝟙≤𝟘</a> <a id="5618" class="Symbol">=</a> <a id="5620" class="Symbol">λ</a> <a id="5622" href="Graded.Modality.Instances.Unit.html#5622" class="Bound">_</a> <a id="5624" href="Graded.Modality.Instances.Unit.html#5624" class="Bound">_</a> <a id="5626" class="Symbol">→</a> <a id="5628" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="5633" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+  <a id="5640" class="Symbol">;</a> <a id="5642" href="Graded.FullReduction.Assumptions.html#1514" class="Field">≡𝟙⊎𝟙≤𝟘</a>   <a id="5651" class="Symbol">=</a> <a id="5653" class="Symbol">λ</a> <a id="5655" href="Graded.Modality.Instances.Unit.html#5655" class="Bound">_</a> <a id="5657" class="Symbol">→</a> <a id="5659" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="5664" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+  <a id="5671" class="Symbol">}</a>
+
+<a id="5674" class="Keyword">opaque</a>
+
+  <a id="5684" class="Comment">-- The modality supports subtraction</a>
+
+  <a id="unit-supports-subtraction"></a><a id="5724" href="Graded.Modality.Instances.Unit.html#5724" class="Function">unit-supports-subtraction</a> <a id="5750" class="Symbol">:</a> <a id="5752" href="Graded.Modality.Properties.Subtraction.html#4732" class="Function">Supports-subtraction</a> <a id="5773" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a>
+  <a id="5788" href="Graded.Modality.Instances.Unit.html#5724" class="Function">unit-supports-subtraction</a> <a id="5814" class="Symbol">_</a> <a id="5816" class="Symbol">=</a> <a id="5818" class="Symbol">_</a> <a id="5820" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="5822" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a> <a id="5827" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="5829" class="Symbol">λ</a> <a id="5831" href="Graded.Modality.Instances.Unit.html#5831" class="Bound">_</a> <a id="5833" href="Graded.Modality.Instances.Unit.html#5833" class="Bound">_</a> <a id="5835" class="Symbol">→</a> <a id="5837" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+
+<a id="5843" class="Keyword">opaque</a>
+
+  <a id="5853" class="Comment">-- The unit modality does not have a well-behaved zero</a>
+
+  <a id="¬unit-has-well-behaved-zero"></a><a id="5911" href="Graded.Modality.Instances.Unit.html#5911" class="Function">¬unit-has-well-behaved-zero</a> <a id="5939" class="Symbol">:</a> <a id="5941" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="5943" href="Graded.Modality.html#4057" class="Record">Has-well-behaved-zero</a> <a id="5965" href="Graded.Modality.Instances.Unit.html#3595" class="Function">UnitModality</a>
+  <a id="5980" href="Graded.Modality.Instances.Unit.html#5911" class="Function">¬unit-has-well-behaved-zero</a> <a id="6008" href="Graded.Modality.Instances.Unit.html#6008" class="Bound">ok</a> <a id="6011" class="Symbol">=</a> <a id="6013" href="Graded.Modality.html#4191" class="Field">Has-well-behaved-zero.non-trivial</a> <a id="6047" href="Graded.Modality.Instances.Unit.html#6008" class="Bound">ok</a> <a id="6050" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a>
+</pre></body></html>

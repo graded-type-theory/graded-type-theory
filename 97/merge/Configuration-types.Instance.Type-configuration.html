@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Configuration-types.Instance.Type-configuration</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Instances related to Type-configuration</a>
+<a id="117" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="191" class="Keyword">open</a> <a id="196" class="Keyword">import</a> <a id="203" href="Configuration-types.html" class="Module">Configuration-types</a>
+<a id="223" class="Keyword">open</a> <a id="228" class="Keyword">import</a> <a id="235" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+
+<a id="252" class="Keyword">module</a> <a id="259" href="Configuration-types.Instance.Type-configuration.html" class="Module">Configuration-types.Instance.Type-configuration</a>
+  <a id="309" class="Symbol">{</a><a id="310" href="Configuration-types.Instance.Type-configuration.html#310" class="Bound">a</a><a id="311" class="Symbol">}</a> <a id="313" class="Symbol">{</a><a id="314" href="Configuration-types.Instance.Type-configuration.html#314" class="Bound">M</a> <a id="316" class="Symbol">:</a> <a id="318" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="322" href="Configuration-types.Instance.Type-configuration.html#310" class="Bound">a</a><a id="323" class="Symbol">}</a>
+  <a id="327" class="Symbol">{</a><a id="328" href="Configuration-types.Instance.Type-configuration.html#328" class="Bound">𝕄</a> <a id="330" class="Symbol">:</a> <a id="332" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="341" href="Configuration-types.Instance.Type-configuration.html#314" class="Bound">M</a><a id="342" class="Symbol">}</a>
+  <a id="346" class="Symbol">(</a><a id="347" href="Configuration-types.Instance.Type-configuration.html#347" class="Bound">TC</a> <a id="350" class="Symbol">:</a> <a id="352" href="Configuration-types.html#10610" class="Record">Type-configuration</a> <a id="371" href="Configuration-types.Instance.Type-configuration.html#328" class="Bound">𝕄</a><a id="372" class="Symbol">)</a>
+  <a id="376" class="Keyword">where</a>
+
+<a id="383" class="Keyword">open</a> <a id="388" href="Configuration-types.html#10610" class="Module">Configuration-types.Type-configuration</a> <a id="427" href="Configuration-types.Instance.Type-configuration.html#347" class="Bound">TC</a>
+
+<a id="431" class="Keyword">open</a> <a id="436" class="Keyword">import</a> <a id="443" href="Configuration-types.Omega.html" class="Module">Configuration-types.Omega</a> <a id="469" href="Configuration-types.Instance.Type-configuration.html#328" class="Bound">𝕄</a>
+
+<a id="472" class="Keyword">instance</a>
+
+  <a id="Omega-allowed→Has-omega"></a><a id="484" href="Configuration-types.Instance.Type-configuration.html#484" class="Function">Omega-allowed→Has-omega</a> <a id="508" class="Symbol">:</a>
+    <a id="514" class="Symbol">⦃</a> <a id="516" href="Configuration-types.Instance.Type-configuration.html#516" class="Bound">ok</a> <a id="519" class="Symbol">:</a> <a id="521" href="Configuration-types.html#13137" class="Function">Omega-allowed</a> <a id="535" class="Symbol">⦄</a> <a id="537" class="Symbol">→</a>
+    <a id="543" href="Graded.Modality.html#5178" class="Record">Has-omega</a> <a id="553" href="Configuration-types.Instance.Type-configuration.html#314" class="Bound">M</a> <a id="555" href="Configuration-types.Instance.Type-configuration.html#328" class="Bound">𝕄</a>
+  <a id="559" href="Configuration-types.Instance.Type-configuration.html#484" class="Function">Omega-allowed→Has-omega</a> <a id="583" class="Symbol">⦃</a> <a id="585" href="Configuration-types.Instance.Type-configuration.html#585" class="Bound">ok</a> <a id="588" class="Symbol">⦄</a> <a id="590" class="Symbol">=</a>
+    <a id="596" href="Configuration-types.Omega.html#901" class="Function">With-omega→Has-omega</a> <a id="617" href="Configuration-types.Instance.Type-configuration.html#585" class="Bound">ok</a>
+</pre></body></html>

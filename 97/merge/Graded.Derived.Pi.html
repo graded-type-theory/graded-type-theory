@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Graded.Derived.Pi</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Properties related to usage and Π</a>
+<a id="111" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="185" class="Keyword">open</a> <a id="190" class="Keyword">import</a> <a id="197" href="Configuration-types.html" class="Module">Configuration-types</a>
+<a id="217" class="Keyword">open</a> <a id="222" class="Keyword">import</a> <a id="229" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="245" class="Keyword">open</a> <a id="250" class="Keyword">import</a> <a id="257" href="Graded.Mode.html" class="Module">Graded.Mode</a>
+
+<a id="270" class="Keyword">module</a> <a id="277" href="Graded.Derived.Pi.html" class="Module">Graded.Derived.Pi</a>
+  <a id="297" class="Symbol">{</a><a id="298" href="Graded.Derived.Pi.html#298" class="Bound">a</a> <a id="300" href="Graded.Derived.Pi.html#300" class="Bound">b</a><a id="301" class="Symbol">}</a> <a id="303" class="Symbol">{</a><a id="304" href="Graded.Derived.Pi.html#304" class="Bound">M</a> <a id="306" class="Symbol">:</a> <a id="308" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="312" href="Graded.Derived.Pi.html#298" class="Bound">a</a><a id="313" class="Symbol">}</a> <a id="315" class="Symbol">{</a><a id="316" href="Graded.Derived.Pi.html#316" class="Bound">Mode</a> <a id="321" class="Symbol">:</a> <a id="323" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="327" href="Graded.Derived.Pi.html#300" class="Bound">b</a><a id="328" class="Symbol">}</a>
+  <a id="332" class="Symbol">{</a><a id="333" href="Graded.Derived.Pi.html#333" class="Bound">𝕄</a> <a id="335" class="Symbol">:</a> <a id="337" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="346" href="Graded.Derived.Pi.html#304" class="Bound">M</a><a id="347" class="Symbol">}</a>
+  <a id="351" class="Symbol">{</a><a id="352" href="Graded.Derived.Pi.html#352" class="Bound">𝐌</a> <a id="354" class="Symbol">:</a> <a id="356" href="Graded.Mode.html#1754" class="Record">IsMode</a> <a id="363" href="Graded.Derived.Pi.html#316" class="Bound">Mode</a> <a id="368" href="Graded.Derived.Pi.html#333" class="Bound">𝕄</a><a id="369" class="Symbol">}</a>
+  <a id="373" class="Symbol">(</a><a id="374" href="Graded.Derived.Pi.html#374" class="Bound">C</a> <a id="376" class="Symbol">:</a> <a id="378" href="Configuration-types.html#14568" class="Record">Configuration</a> <a id="392" href="Graded.Derived.Pi.html#352" class="Bound">𝐌</a><a id="393" class="Symbol">)</a>
+  <a id="397" class="Keyword">where</a>
+
+<a id="404" class="Keyword">open</a> <a id="409" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="418" href="Graded.Derived.Pi.html#333" class="Bound">𝕄</a>
+<a id="420" class="Keyword">open</a> <a id="425" href="Graded.Mode.html#1754" class="Module">IsMode</a> <a id="432" href="Graded.Derived.Pi.html#352" class="Bound">𝐌</a>
+
+<a id="435" class="Keyword">open</a> <a id="440" class="Keyword">import</a> <a id="447" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="466" href="Graded.Derived.Pi.html#304" class="Bound">M</a>
+<a id="468" class="Keyword">open</a> <a id="473" class="Keyword">import</a> <a id="480" href="Definition.Untyped.Pi.html" class="Module">Definition.Untyped.Pi</a> <a id="502" href="Graded.Derived.Pi.html#304" class="Bound">M</a>
+
+<a id="505" class="Keyword">open</a> <a id="510" class="Keyword">import</a> <a id="517" href="Graded.Context.html" class="Module">Graded.Context</a> <a id="532" href="Graded.Derived.Pi.html#333" class="Bound">𝕄</a>
+<a id="534" class="Keyword">open</a> <a id="539" class="Keyword">import</a> <a id="546" href="Graded.Derived.Lift.html" class="Module">Graded.Derived.Lift</a> <a id="566" href="Graded.Derived.Pi.html#374" class="Bound">C</a>
+<a id="568" class="Keyword">open</a> <a id="573" class="Keyword">import</a> <a id="580" href="Graded.Usage.html" class="Module">Graded.Usage</a> <a id="593" href="Graded.Derived.Pi.html#374" class="Bound">C</a>
+
+<a id="596" class="Keyword">private</a> <a id="604" class="Keyword">variable</a>
+  <a id="615" href="Graded.Derived.Pi.html#615" class="Generalizable">t</a> <a id="617" href="Graded.Derived.Pi.html#617" class="Generalizable">u</a> <a id="619" class="Symbol">:</a> <a id="621" href="Definition.Untyped.html#1210" class="Function">Term</a> <a id="626" class="Symbol">_</a>
+  <a id="630" href="Graded.Derived.Pi.html#630" class="Generalizable">γ</a> <a id="632" href="Graded.Derived.Pi.html#632" class="Generalizable">δ</a> <a id="634" class="Symbol">:</a> <a id="636" href="Graded.Context.html#729" class="Datatype">Conₘ</a> <a id="641" class="Symbol">_</a>
+  <a id="645" href="Graded.Derived.Pi.html#645" class="Generalizable">p</a>   <a id="649" class="Symbol">:</a> <a id="651" href="Graded.Derived.Pi.html#304" class="Bound">M</a>
+  <a id="655" href="Graded.Derived.Pi.html#655" class="Generalizable">m</a>   <a id="659" class="Symbol">:</a> <a id="661" href="Graded.Derived.Pi.html#316" class="Bound">Mode</a>
+
+<a id="667" class="Keyword">opaque</a>
+  <a id="676" class="Keyword">unfolding</a> <a id="686" href="Definition.Untyped.Pi.html#1421" class="Function">lamʰ</a>
+
+  <a id="694" class="Comment">-- A usage lemma for lamʰ.</a>
+
+  <a id="▸lamʰ"></a><a id="724" href="Graded.Derived.Pi.html#724" class="Function">▸lamʰ</a> <a id="730" class="Symbol">:</a>
+    <a id="736" href="Graded.Derived.Pi.html#630" class="Generalizable">γ</a> <a id="738" href="Graded.Context.html#771" class="InductiveConstructor Operator">∙</a> <a id="740" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="742" href="Graded.Derived.Pi.html#655" class="Generalizable">m</a> <a id="744" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="746" href="Graded.Modality.html#874" class="Function Operator">·</a> <a id="748" href="Graded.Derived.Pi.html#645" class="Generalizable">p</a> <a id="750" href="Graded.Usage.html#9654" class="Datatype Operator">▸[</a> <a id="753" href="Graded.Derived.Pi.html#655" class="Generalizable">m</a> <a id="755" href="Graded.Usage.html#9654" class="Datatype Operator">]</a> <a id="757" href="Graded.Derived.Pi.html#615" class="Generalizable">t</a> <a id="759" class="Symbol">→</a>
+    <a id="765" href="Graded.Derived.Pi.html#630" class="Generalizable">γ</a> <a id="767" href="Graded.Usage.html#9654" class="Datatype Operator">▸[</a> <a id="770" href="Graded.Derived.Pi.html#655" class="Generalizable">m</a> <a id="772" href="Graded.Usage.html#9654" class="Datatype Operator">]</a> <a id="774" href="Definition.Untyped.Pi.html#1421" class="Function">lamʰ</a> <a id="779" href="Graded.Derived.Pi.html#645" class="Generalizable">p</a> <a id="781" href="Graded.Derived.Pi.html#615" class="Generalizable">t</a>
+  <a id="785" href="Graded.Derived.Pi.html#724" class="Function">▸lamʰ</a> <a id="791" href="Graded.Derived.Pi.html#791" class="Bound">▸t</a> <a id="794" class="Symbol">=</a> <a id="796" href="Graded.Usage.html#11101" class="InductiveConstructor">lamₘ</a> <a id="801" class="Symbol">(</a><a id="802" href="Graded.Usage.html#10294" class="InductiveConstructor">liftₘ</a> <a id="808" class="Symbol">(</a><a id="809" href="Graded.Derived.Lift.html#908" class="Function">▸lower₀</a> <a id="817" href="Graded.Derived.Pi.html#791" class="Bound">▸t</a><a id="819" class="Symbol">))</a>
+
+<a id="823" class="Keyword">opaque</a>
+  <a id="832" class="Keyword">unfolding</a> <a id="842" href="Definition.Untyped.Pi.html#2219" class="Function">∘ʰ</a>
+
+  <a id="848" class="Comment">-- A usage lemma for ∘ʰ.</a>
+
+  <a id="▸∘ʰ"></a><a id="876" href="Graded.Derived.Pi.html#876" class="Function">▸∘ʰ</a> <a id="880" class="Symbol">:</a>
+    <a id="886" href="Graded.Derived.Pi.html#630" class="Generalizable">γ</a> <a id="888" href="Graded.Usage.html#9654" class="Datatype Operator">▸[</a> <a id="891" href="Graded.Derived.Pi.html#655" class="Generalizable">m</a> <a id="893" href="Graded.Usage.html#9654" class="Datatype Operator">]</a> <a id="895" href="Graded.Derived.Pi.html#615" class="Generalizable">t</a> <a id="897" class="Symbol">→</a>
+    <a id="903" href="Graded.Derived.Pi.html#632" class="Generalizable">δ</a> <a id="905" href="Graded.Usage.html#9654" class="Datatype Operator">▸[</a> <a id="908" href="Graded.Derived.Pi.html#655" class="Generalizable">m</a> <a id="910" href="Graded.Mode.html#3282" class="Function Operator">ᵐ·</a> <a id="913" href="Graded.Derived.Pi.html#645" class="Generalizable">p</a> <a id="915" href="Graded.Usage.html#9654" class="Datatype Operator">]</a> <a id="917" href="Graded.Derived.Pi.html#617" class="Generalizable">u</a> <a id="919" class="Symbol">→</a>
+    <a id="925" href="Graded.Derived.Pi.html#630" class="Generalizable">γ</a> <a id="927" href="Graded.Context.html#1574" class="Function Operator">+ᶜ</a> <a id="930" href="Graded.Derived.Pi.html#645" class="Generalizable">p</a> <a id="932" href="Graded.Context.html#1806" class="Function Operator">·ᶜ</a> <a id="935" href="Graded.Derived.Pi.html#632" class="Generalizable">δ</a> <a id="937" href="Graded.Usage.html#9654" class="Datatype Operator">▸[</a> <a id="940" href="Graded.Derived.Pi.html#655" class="Generalizable">m</a> <a id="942" href="Graded.Usage.html#9654" class="Datatype Operator">]</a> <a id="944" href="Definition.Untyped.Pi.html#2219" class="Function">∘ʰ</a> <a id="947" href="Graded.Derived.Pi.html#645" class="Generalizable">p</a> <a id="949" href="Graded.Derived.Pi.html#615" class="Generalizable">t</a> <a id="951" href="Graded.Derived.Pi.html#617" class="Generalizable">u</a>
+  <a id="955" href="Graded.Derived.Pi.html#876" class="Function">▸∘ʰ</a> <a id="959" href="Graded.Derived.Pi.html#959" class="Bound">▸t</a> <a id="962" href="Graded.Derived.Pi.html#962" class="Bound">▸u</a> <a id="965" class="Symbol">=</a> <a id="967" href="Graded.Usage.html#10350" class="InductiveConstructor">lowerₘ</a> <a id="974" class="Symbol">(</a><a id="975" href="Graded.Derived.Pi.html#959" class="Bound">▸t</a> <a id="978" href="Graded.Usage.html#11170" class="InductiveConstructor Operator">∘ₘ</a> <a id="981" href="Graded.Usage.html#10294" class="InductiveConstructor">liftₘ</a> <a id="987" href="Graded.Derived.Pi.html#962" class="Bound">▸u</a><a id="989" class="Symbol">)</a>
+</pre></body></html>

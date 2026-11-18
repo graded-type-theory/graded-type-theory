@@ -1,0 +1,947 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Configuration-types</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">------------------------------------------------------------------------</a>
+<a id="74" class="Comment">-- Configuration types for the type and usage systems</a>
+<a id="128" class="Comment">------------------------------------------------------------------------</a>
+
+<a id="202" class="Comment">-- This formalisation supports a family of graded type theories: one</a>
+<a id="271" class="Comment">-- can to some degree choose between different features. Some record</a>
+<a id="340" class="Comment">-- types are used to control these choices.</a>
+
+<a id="385" class="Keyword">module</a> <a id="392" href="Configuration-types.html" class="Module">Configuration-types</a> <a id="412" class="Keyword">where</a>
+
+<a id="419" class="Keyword">open</a> <a id="424" class="Keyword">import</a> <a id="431" href="Configuration-types.Erased-matches.html" class="Module">Configuration-types.Erased-matches</a>
+<a id="466" class="Keyword">import</a> <a id="473" href="Configuration-types.Natrec.html" class="Module">Configuration-types.Natrec</a>
+<a id="500" class="Keyword">import</a> <a id="507" href="Configuration-types.Omega.html" class="Module">Configuration-types.Omega</a>
+<a id="533" class="Keyword">import</a> <a id="540" href="Graded.Context.html" class="Module">Graded.Context</a>
+<a id="555" class="Keyword">open</a> <a id="560" class="Keyword">import</a> <a id="567" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="583" class="Keyword">import</a> <a id="590" href="Graded.Mode.html" class="Module">Graded.Mode</a>
+
+<a id="603" class="Keyword">import</a> <a id="610" href="Definition.Untyped.html" class="Module">Definition.Untyped</a>
+<a id="629" class="Keyword">import</a> <a id="636" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
+<a id="671" class="Keyword">open</a> <a id="676" class="Keyword">import</a> <a id="683" href="Definition.Untyped.Properties.NotParametrised.html" class="Module">Definition.Untyped.Properties.NotParametrised</a>
+
+<a id="730" class="Keyword">open</a> <a id="735" class="Keyword">import</a> <a id="742" href="Tools.Bool.html" class="Module">Tools.Bool</a>
+<a id="753" class="Keyword">open</a> <a id="758" class="Keyword">import</a> <a id="765" href="Tools.Empty.html" class="Module">Tools.Empty</a>
+<a id="777" class="Keyword">open</a> <a id="782" class="Keyword">import</a> <a id="789" href="Tools.Function.html" class="Module">Tools.Function</a>
+<a id="804" class="Keyword">open</a> <a id="809" class="Keyword">import</a> <a id="816" href="Tools.Level.html" class="Module">Tools.Level</a>
+<a id="828" class="Keyword">open</a> <a id="833" class="Keyword">import</a> <a id="840" href="Tools.Nat.html" class="Module">Tools.Nat</a> <a id="850" class="Keyword">using</a> <a id="856" class="Symbol">(</a><a id="857" href="Agda.Builtin.Nat.html#220" class="Datatype">Nat</a><a id="860" class="Symbol">)</a>
+<a id="862" class="Keyword">open</a> <a id="867" class="Keyword">import</a> <a id="874" href="Tools.Product.html" class="Module">Tools.Product</a> <a id="888" class="Symbol">as</a> <a id="891" class="Module">Σ</a>
+<a id="893" class="Keyword">open</a> <a id="898" class="Keyword">import</a> <a id="905" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="920" class="Keyword">open</a> <a id="925" class="Keyword">import</a> <a id="932" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="960" class="Keyword">open</a> <a id="965" class="Keyword">import</a> <a id="972" href="Tools.Sum.html" class="Module">Tools.Sum</a>
+
+<a id="983" class="Keyword">private</a> <a id="991" class="Keyword">variable</a>
+  <a id="1002" href="Configuration-types.html#1002" class="Generalizable">a</a> <a id="1004" href="Configuration-types.html#1004" class="Generalizable">b</a>        <a id="1013" class="Symbol">:</a> <a id="1015" href="Agda.Primitive.html#800" class="Postulate">Level</a>
+  <a id="1023" href="Configuration-types.html#1023" class="Generalizable">A</a>          <a id="1034" class="Symbol">:</a> <a id="1036" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="1040" class="Symbol">_</a>
+  <a id="1044" href="Configuration-types.html#1044" class="Generalizable">n</a>          <a id="1055" class="Symbol">:</a> <a id="1057" href="Agda.Builtin.Nat.html#220" class="Datatype">Nat</a>
+  <a id="1063" href="Configuration-types.html#1063" class="Generalizable">s</a>          <a id="1074" class="Symbol">:</a> <a id="1076" href="Definition.Untyped.NotParametrised.html#1830" class="Datatype">Definition.Untyped.NotParametrised.Strength</a>
+  <a id="1122" href="Configuration-types.html#1122" class="Generalizable">Γ</a>          <a id="1133" class="Symbol">:</a> <a id="1135" href="Definition.Untyped.NotParametrised.html#957" class="Datatype">Definition.Untyped.NotParametrised.Con</a> <a id="1174" class="Symbol">_</a> <a id="1176" class="Symbol">_</a>
+  <a id="1180" href="Configuration-types.html#1180" class="Generalizable">γ</a> <a id="1182" href="Configuration-types.html#1182" class="Generalizable">δ</a> <a id="1184" href="Configuration-types.html#1184" class="Generalizable">η</a>      <a id="1191" class="Symbol">:</a> <a id="1193" href="Graded.Context.html#729" class="Datatype">Graded.Context.Conₘ</a> <a id="1213" class="Symbol">_</a> <a id="1215" class="Symbol">_</a>
+  <a id="1219" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="1221" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="1224" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="1226" href="Configuration-types.html#1226" class="Generalizable">q</a> <a id="1228" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="1230" class="Symbol">:</a> <a id="1232" href="Configuration-types.html#1023" class="Generalizable">A</a>
+
+<a id="1235" class="Comment">------------------------------------------------------------------------</a>
+<a id="1308" class="Comment">-- Auxiliary definitions</a>
+
+<a id="1334" class="Comment">-- What kind of unfolding is used?</a>
+
+<a id="1370" class="Keyword">data</a> <a id="UnfoldingMode"></a><a id="1375" href="Configuration-types.html#1375" class="Datatype">UnfoldingMode</a> <a id="1389" class="Symbol">:</a> <a id="1391" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="1395" class="Keyword">where</a>
+  <a id="1403" class="Comment">-- Unfold only explicitly specified definitions.</a>
+  <a id="UnfoldingMode.explicit"></a><a id="1454" href="Configuration-types.html#1454" class="InductiveConstructor">explicit</a> <a id="1463" class="Symbol">:</a> <a id="1465" href="Configuration-types.html#1375" class="Datatype">UnfoldingMode</a>
+  <a id="1481" class="Comment">-- Unfold all transitive dependencies of definitions.</a>
+  <a id="UnfoldingMode.transitive"></a><a id="1537" href="Configuration-types.html#1537" class="InductiveConstructor">transitive</a> <a id="1548" class="Symbol">:</a> <a id="1550" href="Configuration-types.html#1375" class="Datatype">UnfoldingMode</a>
+
+<a id="1565" class="Comment">-- The type JK corresponds to the eliminators J and K.</a>
+
+<a id="1621" class="Keyword">data</a> <a id="JK"></a><a id="1626" href="Configuration-types.html#1626" class="Datatype">JK</a> <a id="1629" class="Symbol">:</a> <a id="1631" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="1635" class="Keyword">where</a>
+  <a id="JK.J"></a><a id="1643" href="Configuration-types.html#1643" class="InductiveConstructor">J</a> <a id="JK.K"></a><a id="1645" href="Configuration-types.html#1645" class="InductiveConstructor">K</a> <a id="1647" class="Symbol">:</a> <a id="1649" href="Configuration-types.html#1626" class="Datatype">JK</a>
+
+<a id="1653" class="Keyword">private</a> <a id="1661" class="Keyword">variable</a>
+  <a id="1672" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="1675" class="Symbol">:</a> <a id="1677" href="Configuration-types.html#1626" class="Datatype">JK</a>
+
+<a id="1681" class="Comment">------------------------------------------------------------------------</a>
+<a id="1754" class="Comment">-- Configuration of the type system</a>
+
+<a id="1791" class="Comment">-- There are two configuration types for the type system: one that</a>
+<a id="1858" class="Comment">-- only depends on a universe level, and one that additionally depends</a>
+<a id="1929" class="Comment">-- on a grade semiring.</a>
+
+<a id="1954" class="Keyword">record</a> <a id="Type-configuration⁻"></a><a id="1961" href="Configuration-types.html#1961" class="Record">Type-configuration⁻</a> <a id="1981" class="Symbol">(</a><a id="1982" href="Configuration-types.html#1982" class="Bound">a</a> <a id="1984" class="Symbol">:</a> <a id="1986" href="Agda.Primitive.html#800" class="Postulate">Level</a><a id="1991" class="Symbol">)</a> <a id="1993" class="Symbol">:</a> <a id="1995" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="1999" class="Symbol">(</a><a id="2000" href="Agda.Primitive.html#989" class="Primitive">lsuc</a> <a id="2005" href="Configuration-types.html#1982" class="Bound">a</a><a id="2006" class="Symbol">)</a> <a id="2008" class="Keyword">where</a>
+  <a id="2016" class="Keyword">no-eta-equality</a>
+
+  <a id="2035" class="Keyword">open</a> <a id="2040" href="Definition.Untyped.NotParametrised.html" class="Module">Definition.Untyped.NotParametrised</a>
+
+  <a id="2078" class="Keyword">field</a>
+
+    <a id="2089" class="Comment">--------------------------------------------------------------------</a>
+    <a id="2162" class="Comment">-- Universe levels</a>
+
+    <a id="2186" class="Comment">-- Is Level a type, and in that case is the type small?</a>
+    <a id="Type-configuration⁻.level-support"></a><a id="2246" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="2260" class="Symbol">:</a> <a id="2262" href="Definition.Untyped.NotParametrised.html#6295" class="Datatype">Level-support</a>
+
+    <a id="2281" class="Comment">-- Are levels of the form &quot;ω + n&quot; allowed?</a>
+    <a id="Type-configuration⁻.Omega-plus-allowed"></a><a id="2328" href="Configuration-types.html#2328" class="Field">Omega-plus-allowed</a> <a id="2347" class="Symbol">:</a> <a id="2349" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="2353" href="Configuration-types.html#1982" class="Bound">a</a>
+
+    <a id="2360" class="Comment">--------------------------------------------------------------------</a>
+    <a id="2433" class="Comment">-- Unit types</a>
+
+    <a id="2452" class="Comment">-- Are unit types of the given strength allowed?</a>
+    <a id="Type-configuration⁻.Unit-allowed"></a><a id="2505" href="Configuration-types.html#2505" class="Field">Unit-allowed</a> <a id="2518" class="Symbol">:</a> <a id="2520" href="Definition.Untyped.NotParametrised.html#1830" class="Datatype">Strength</a> <a id="2529" class="Symbol">→</a> <a id="2531" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="2535" href="Configuration-types.html#1982" class="Bound">a</a>
+
+    <a id="2542" class="Comment">-- Should η-equality be enabled for weak unit types?</a>
+    <a id="2599" class="Comment">--</a>
+    <a id="2606" class="Comment">-- This variant of the type system is used to state some soundness</a>
+    <a id="2677" class="Comment">-- theorems for extraction, see</a>
+    <a id="2713" class="Comment">-- Graded.Erasure.Consequences.Soundness.Erased-matches.</a>
+    <a id="Type-configuration⁻.η-for-Unitʷ"></a><a id="2774" href="Configuration-types.html#2774" class="Field">η-for-Unitʷ</a> <a id="2786" class="Symbol">:</a> <a id="2788" href="Agda.Builtin.Bool.html#190" class="Datatype">Bool</a>
+
+    <a id="2798" class="Comment">--------------------------------------------------------------------</a>
+    <a id="2871" class="Comment">-- Identity types</a>
+
+    <a id="2894" class="Comment">-- Is the K rule allowed?</a>
+    <a id="Type-configuration⁻.K-allowed"></a><a id="2924" href="Configuration-types.html#2924" class="Field">K-allowed</a> <a id="2934" class="Symbol">:</a> <a id="2936" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="2940" href="Configuration-types.html#1982" class="Bound">a</a>
+
+    <a id="2947" class="Comment">-- Is equality reflection allowed?</a>
+    <a id="Type-configuration⁻.Equality-reflection"></a><a id="2986" href="Configuration-types.html#2986" class="Field">Equality-reflection</a> <a id="3006" class="Symbol">:</a> <a id="3008" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="3012" href="Configuration-types.html#1982" class="Bound">a</a>
+
+    <a id="3019" class="Comment">-- Equality-reflection is decided.</a>
+    <a id="Type-configuration⁻.Equality-reflection?"></a><a id="3058" href="Configuration-types.html#3058" class="Field">Equality-reflection?</a> <a id="3079" class="Symbol">:</a> <a id="3081" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="3085" href="Configuration-types.html#2986" class="Field">Equality-reflection</a>
+
+    <a id="3110" class="Comment">--------------------------------------------------------------------</a>
+    <a id="3183" class="Comment">-- Quotient types</a>
+
+    <a id="3206" class="Comment">-- Are quotient types allowed?</a>
+    <a id="Type-configuration⁻.Quot-allowed"></a><a id="3241" href="Configuration-types.html#3241" class="Field">Quot-allowed</a> <a id="3254" class="Symbol">:</a> <a id="3256" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="3260" href="Configuration-types.html#1982" class="Bound">a</a>
+
+    <a id="3267" class="Comment">--------------------------------------------------------------------</a>
+    <a id="3340" class="Comment">-- Opaque definitions</a>
+
+    <a id="3367" class="Comment">-- Are opaque definitions allowed?</a>
+    <a id="Type-configuration⁻.Opacity-allowed"></a><a id="3406" href="Configuration-types.html#3406" class="Field">Opacity-allowed</a> <a id="3422" class="Symbol">:</a> <a id="3424" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="3428" href="Configuration-types.html#1982" class="Bound">a</a>
+
+    <a id="3435" class="Comment">-- Opacity-allowed is decided.</a>
+    <a id="Type-configuration⁻.Opacity-allowed?"></a><a id="3470" href="Configuration-types.html#3470" class="Field">Opacity-allowed?</a> <a id="3487" class="Symbol">:</a> <a id="3489" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="3493" href="Configuration-types.html#3406" class="Field">Opacity-allowed</a>
+
+    <a id="3514" class="Comment">-- Equality reflection is incompatible with opaque definitions.</a>
+    <a id="Type-configuration⁻.no-opaque-equality-reflection"></a><a id="3582" href="Configuration-types.html#3582" class="Field">no-opaque-equality-reflection</a> <a id="3612" class="Symbol">:</a>
+      <a id="3620" href="Configuration-types.html#3406" class="Field">Opacity-allowed</a> <a id="3636" class="Symbol">→</a> <a id="3638" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="3640" href="Configuration-types.html#2986" class="Field">Equality-reflection</a>
+
+    <a id="3665" class="Comment">-- How should transitive dependencies of definitions be unfolded?</a>
+    <a id="Type-configuration⁻.unfolding-mode"></a><a id="3735" href="Configuration-types.html#3735" class="Field">unfolding-mode</a> <a id="3750" class="Symbol">:</a> <a id="3752" href="Configuration-types.html#1375" class="Datatype">UnfoldingMode</a>
+
+  <a id="3769" class="Comment">----------------------------------------------------------------------</a>
+  <a id="3842" class="Comment">-- Some derived definitions relation to universe levels</a>
+
+  <a id="3901" class="Keyword">opaque</a>
+
+    <a id="3913" class="Comment">-- Is the type Level allowed?</a>
+
+    <a id="Type-configuration⁻.Level-allowed"></a><a id="3948" href="Configuration-types.html#3948" class="Function">Level-allowed</a> <a id="3962" class="Symbol">:</a> <a id="3964" href="Agda.Primitive.html#446" class="Primitive">Set</a>
+    <a id="3972" href="Configuration-types.html#3948" class="Function">Level-allowed</a> <a id="3986" class="Symbol">=</a> <a id="3988" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="4002" href="Relation.Binary.PropositionalEquality.Core.html#1064" class="Function Operator">≢</a> <a id="4004" href="Definition.Untyped.NotParametrised.html#6382" class="InductiveConstructor">only-literals</a>
+
+  <a id="4021" class="Keyword">opaque</a>
+    <a id="4032" class="Keyword">unfolding</a> <a id="4042" href="Configuration-types.html#3948" class="Function">Level-allowed</a>
+
+    <a id="4061" class="Comment">-- Is Level-allowed inhabited?</a>
+
+    <a id="Type-configuration⁻.Level-allowed?"></a><a id="4097" href="Configuration-types.html#4097" class="Function">Level-allowed?</a> <a id="4112" class="Symbol">:</a> <a id="4114" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="4118" href="Configuration-types.html#3948" class="Function">Level-allowed</a>
+    <a id="4136" href="Configuration-types.html#4097" class="Function">Level-allowed?</a> <a id="4151" class="Symbol">=</a> <a id="4153" href="Relation.Nullary.Decidable.Core.html#3274" class="Function">¬?</a> <a id="4156" class="Symbol">(_</a> <a id="4159" href="Definition.Untyped.Properties.NotParametrised.html#12185" class="Function Operator">≟-Level-support</a> <a id="4175" class="Symbol">_)</a>
+
+  <a id="4181" class="Keyword">opaque</a>
+    <a id="4192" class="Keyword">unfolding</a> <a id="4202" href="Configuration-types.html#3948" class="Function">Level-allowed</a>
+
+    <a id="4221" class="Comment">-- A characterisation lemma for Level-allowed.</a>
+
+    <a id="Type-configuration⁻.Level-allowed⇔≢"></a><a id="4273" href="Configuration-types.html#4273" class="Function">Level-allowed⇔≢</a> <a id="4289" class="Symbol">:</a> <a id="4291" href="Configuration-types.html#3948" class="Function">Level-allowed</a> <a id="4305" href="Tools.Function.html#1310" class="Function Operator">⇔</a> <a id="4307" class="Symbol">(</a><a id="4308" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="4322" href="Relation.Binary.PropositionalEquality.Core.html#1064" class="Function Operator">≢</a> <a id="4324" href="Definition.Untyped.NotParametrised.html#6382" class="InductiveConstructor">only-literals</a><a id="4337" class="Symbol">)</a>
+    <a id="4343" href="Configuration-types.html#4273" class="Function">Level-allowed⇔≢</a> <a id="4359" class="Symbol">=</a> <a id="4361" href="Tools.Function.html#1409" class="Function">id⇔</a>
+
+  <a id="4368" class="Keyword">opaque</a>
+
+    <a id="4380" class="Comment">-- A characterisation lemma for ¬ Level-allowed.</a>
+
+    <a id="Type-configuration⁻.¬Level-allowed⇔"></a><a id="4434" href="Configuration-types.html#4434" class="Function">¬Level-allowed⇔</a> <a id="4450" class="Symbol">:</a>
+      <a id="4458" class="Symbol">(</a><a id="4459" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="4461" href="Configuration-types.html#3948" class="Function">Level-allowed</a><a id="4474" class="Symbol">)</a> <a id="4476" href="Tools.Function.html#1310" class="Function Operator">⇔</a> <a id="4478" class="Symbol">(</a><a id="4479" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="4493" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="4495" href="Definition.Untyped.NotParametrised.html#6382" class="InductiveConstructor">only-literals</a><a id="4508" class="Symbol">)</a>
+    <a id="4514" href="Configuration-types.html#4434" class="Function">¬Level-allowed⇔</a> <a id="4530" class="Symbol">=</a>
+      <a id="4538" class="Symbol">(</a><a id="4539" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="4541" href="Configuration-types.html#3948" class="Function">Level-allowed</a><a id="4554" class="Symbol">)</a>                  <a id="4573" href="Tools.Function.html#1792" class="Function">⇔⟨</a> <a id="4576" href="Configuration-types.html#4273" class="Function">Level-allowed⇔≢</a> <a id="4592" href="Tools.Function.html#2983" class="Function Operator">→-cong-⇔</a> <a id="4601" href="Tools.Function.html#1409" class="Function">id⇔</a> <a id="4605" href="Tools.Function.html#1792" class="Function">⟩</a>
+      <a id="4613" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="4615" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="4617" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="4631" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="4633" href="Definition.Untyped.NotParametrised.html#6382" class="InductiveConstructor">only-literals</a>  <a id="4648" href="Tools.Function.html#1792" class="Function">⇔⟨</a> <a id="4651" href="Relation.Nullary.Decidable.Core.html#6636" class="Function">decidable-stable</a> <a id="4668" class="Symbol">(_</a> <a id="4671" href="Definition.Untyped.Properties.NotParametrised.html#12185" class="Function Operator">≟-Level-support</a> <a id="4687" class="Symbol">_)</a> <a id="4690" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="4692" href="Function.Base.html#1657" class="Function">flip</a> <a id="4697" href="Function.Base.html#1993" class="Function Operator">_$_</a> <a id="4701" href="Tools.Function.html#1792" class="Function">⟩</a>
+      <a id="4709" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="4723" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="4725" href="Definition.Untyped.NotParametrised.html#6382" class="InductiveConstructor">only-literals</a>      <a id="4744" href="Tools.Function.html#2511" class="Function Operator">□⇔</a>
+
+  <a id="4750" class="Keyword">opaque</a>
+
+    <a id="4762" class="Comment">-- Is Level a small type?</a>
+
+    <a id="Type-configuration⁻.Level-is-small"></a><a id="4793" href="Configuration-types.html#4793" class="Function">Level-is-small</a> <a id="4808" class="Symbol">:</a> <a id="4810" href="Agda.Primitive.html#446" class="Primitive">Set</a>
+    <a id="4818" href="Configuration-types.html#4793" class="Function">Level-is-small</a> <a id="4833" class="Symbol">=</a> <a id="4835" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="4849" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="4851" href="Definition.Untyped.NotParametrised.html#6436" class="InductiveConstructor">level-type</a> <a id="4862" href="Definition.Untyped.NotParametrised.html#6202" class="InductiveConstructor">small</a>
+
+  <a id="4871" class="Keyword">opaque</a>
+    <a id="4882" class="Keyword">unfolding</a> <a id="4892" href="Configuration-types.html#4793" class="Function">Level-is-small</a>
+
+    <a id="4912" class="Comment">-- A characterisation lemma for Level-is-small.</a>
+
+    <a id="Type-configuration⁻.Level-is-small⇔"></a><a id="4965" href="Configuration-types.html#4965" class="Function">Level-is-small⇔</a> <a id="4981" class="Symbol">:</a>
+      <a id="4989" href="Configuration-types.html#4793" class="Function">Level-is-small</a> <a id="5004" href="Tools.Function.html#1310" class="Function Operator">⇔</a> <a id="5006" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="5020" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="5022" href="Definition.Untyped.NotParametrised.html#6436" class="InductiveConstructor">level-type</a> <a id="5033" href="Definition.Untyped.NotParametrised.html#6202" class="InductiveConstructor">small</a>
+    <a id="5043" href="Configuration-types.html#4965" class="Function">Level-is-small⇔</a> <a id="5059" class="Symbol">=</a> <a id="5061" href="Tools.Function.html#1409" class="Function">id⇔</a>
+
+  <a id="5068" class="Keyword">opaque</a>
+    <a id="5079" class="Keyword">unfolding</a> <a id="5089" href="Configuration-types.html#4793" class="Function">Level-is-small</a>
+
+    <a id="5109" class="Comment">-- Is Level-is-small inhabited?</a>
+
+    <a id="Type-configuration⁻.Level-is-small?"></a><a id="5146" href="Configuration-types.html#5146" class="Function">Level-is-small?</a> <a id="5162" class="Symbol">:</a> <a id="5164" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="5168" href="Configuration-types.html#4793" class="Function">Level-is-small</a>
+    <a id="5187" href="Configuration-types.html#5146" class="Function">Level-is-small?</a> <a id="5203" class="Symbol">=</a> <a id="5205" class="Symbol">_</a> <a id="5207" href="Definition.Untyped.Properties.NotParametrised.html#12185" class="Function Operator">≟-Level-support</a> <a id="5223" class="Symbol">_</a>
+
+  <a id="5228" class="Keyword">opaque</a>
+
+    <a id="5240" class="Comment">-- Is Level a type that is not small?</a>
+
+    <a id="Type-configuration⁻.Level-is-not-small"></a><a id="5283" href="Configuration-types.html#5283" class="Function">Level-is-not-small</a> <a id="5302" class="Symbol">:</a> <a id="5304" href="Agda.Primitive.html#446" class="Primitive">Set</a>
+    <a id="5312" href="Configuration-types.html#5283" class="Function">Level-is-not-small</a> <a id="5331" class="Symbol">=</a> <a id="5333" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="5347" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="5349" href="Definition.Untyped.NotParametrised.html#6436" class="InductiveConstructor">level-type</a> <a id="5360" href="Definition.Untyped.NotParametrised.html#6208" class="InductiveConstructor">not-small</a>
+
+  <a id="5373" class="Keyword">opaque</a>
+    <a id="5384" class="Keyword">unfolding</a> <a id="5394" href="Configuration-types.html#5283" class="Function">Level-is-not-small</a>
+
+    <a id="5418" class="Comment">-- A characterisation lemma for Level-is-not-small.</a>
+
+    <a id="Type-configuration⁻.Level-is-not-small⇔"></a><a id="5475" href="Configuration-types.html#5475" class="Function">Level-is-not-small⇔</a> <a id="5495" class="Symbol">:</a>
+      <a id="5503" href="Configuration-types.html#5283" class="Function">Level-is-not-small</a> <a id="5522" href="Tools.Function.html#1310" class="Function Operator">⇔</a> <a id="5524" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="5538" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="5540" href="Definition.Untyped.NotParametrised.html#6436" class="InductiveConstructor">level-type</a> <a id="5551" href="Definition.Untyped.NotParametrised.html#6208" class="InductiveConstructor">not-small</a>
+    <a id="5565" href="Configuration-types.html#5475" class="Function">Level-is-not-small⇔</a> <a id="5585" class="Symbol">=</a> <a id="5587" href="Tools.Function.html#1409" class="Function">id⇔</a>
+
+  <a id="5594" class="Keyword">opaque</a>
+    <a id="5605" class="Keyword">unfolding</a> <a id="5615" href="Configuration-types.html#5283" class="Function">Level-is-not-small</a>
+
+    <a id="5639" class="Comment">-- Is Level-is-not-small inhabited?</a>
+
+    <a id="Type-configuration⁻.Level-is-not-small?"></a><a id="5680" href="Configuration-types.html#5680" class="Function">Level-is-not-small?</a> <a id="5700" class="Symbol">:</a> <a id="5702" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="5706" href="Configuration-types.html#5283" class="Function">Level-is-not-small</a>
+    <a id="5729" href="Configuration-types.html#5680" class="Function">Level-is-not-small?</a> <a id="5749" class="Symbol">=</a> <a id="5751" class="Symbol">_</a> <a id="5753" href="Definition.Untyped.Properties.NotParametrised.html#12185" class="Function Operator">≟-Level-support</a> <a id="5769" class="Symbol">_</a>
+
+  <a id="5774" class="Keyword">opaque</a>
+
+    <a id="5786" class="Comment">-- A characterisation lemma for Level-allowed.</a>
+
+    <a id="Type-configuration⁻.Level-allowed⇔⊎"></a><a id="5838" href="Configuration-types.html#5838" class="Function">Level-allowed⇔⊎</a> <a id="5854" class="Symbol">:</a>
+      <a id="5862" href="Configuration-types.html#3948" class="Function">Level-allowed</a> <a id="5876" href="Tools.Function.html#1310" class="Function Operator">⇔</a> <a id="5878" class="Symbol">(</a><a id="5879" href="Configuration-types.html#4793" class="Function">Level-is-small</a> <a id="5894" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="5896" href="Configuration-types.html#5283" class="Function">Level-is-not-small</a><a id="5914" class="Symbol">)</a>
+    <a id="5920" href="Configuration-types.html#5838" class="Function">Level-allowed⇔⊎</a> <a id="5936" class="Symbol">=</a>
+      <a id="5944" href="Configuration-types.html#3948" class="Function">Level-allowed</a>                         <a id="5982" href="Tools.Function.html#1792" class="Function">⇔⟨</a> <a id="5985" href="Configuration-types.html#4273" class="Function">Level-allowed⇔≢</a> <a id="6001" href="Tools.Function.html#1792" class="Function">⟩</a>
+
+      <a id="6010" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="6024" href="Relation.Binary.PropositionalEquality.Core.html#1064" class="Function Operator">≢</a> <a id="6026" href="Definition.Untyped.NotParametrised.html#6382" class="InductiveConstructor">only-literals</a>         <a id="6048" href="Tools.Function.html#1792" class="Function">⇔⟨</a> <a id="6051" class="Symbol">(λ</a> <a id="6054" href="Configuration-types.html#6054" class="Bound">neq</a> <a id="6058" class="Symbol">→</a> <a id="6060" href="Function.Base.html#4170" class="Function Operator">case</a> <a id="6065" href="Tools.PropositionalEquality.html#2390" class="Function">singleton</a> <a id="6075" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="6089" href="Function.Base.html#4170" class="Function Operator">of</a> <a id="6092" class="Symbol">λ</a> <a id="6094" class="Keyword">where</a>
+                                                  <a id="6150" class="Symbol">(</a><a id="6151" href="Definition.Untyped.NotParametrised.html#6382" class="InductiveConstructor">only-literals</a>        <a id="6172" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="6174" href="Configuration-types.html#6174" class="Bound">eq</a><a id="6176" class="Symbol">)</a> <a id="6178" class="Symbol">→</a> <a id="6180" href="Data.Empty.html#1069" class="Function">⊥-elim</a> <a id="6187" class="Symbol">(</a><a id="6188" href="Configuration-types.html#6054" class="Bound">neq</a> <a id="6192" href="Configuration-types.html#6174" class="Bound">eq</a><a id="6194" class="Symbol">)</a>
+                                                  <a id="6246" class="Symbol">(</a><a id="6247" href="Definition.Untyped.NotParametrised.html#6436" class="InductiveConstructor">level-type</a> <a id="6258" href="Definition.Untyped.NotParametrised.html#6202" class="InductiveConstructor">small</a>     <a id="6268" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="6270" href="Configuration-types.html#6270" class="Bound">eq</a><a id="6272" class="Symbol">)</a> <a id="6274" class="Symbol">→</a> <a id="6276" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="6281" href="Configuration-types.html#6270" class="Bound">eq</a>
+                                                  <a id="6334" class="Symbol">(</a><a id="6335" href="Definition.Untyped.NotParametrised.html#6436" class="InductiveConstructor">level-type</a> <a id="6346" href="Definition.Untyped.NotParametrised.html#6208" class="InductiveConstructor">not-small</a> <a id="6356" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="6358" href="Configuration-types.html#6358" class="Bound">eq</a><a id="6360" class="Symbol">)</a> <a id="6362" class="Symbol">→</a> <a id="6364" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="6369" href="Configuration-types.html#6358" class="Bound">eq</a><a id="6371" class="Symbol">)</a>
+                                             <a id="6418" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="6420" href="Data.Sum.Base.html#811" class="Function Operator">[</a> <a id="6422" class="Symbol">(λ</a> <a id="6425" href="Configuration-types.html#6425" class="Bound">eq₁</a> <a id="6429" href="Configuration-types.html#6429" class="Bound">eq₂</a> <a id="6433" class="Symbol">→</a> <a id="6435" href="Function.Base.html#4170" class="Function Operator">case</a> <a id="6440" href="Relation.Binary.PropositionalEquality.Core.html#2144" class="Function">trans</a> <a id="6446" class="Symbol">(</a><a id="6447" href="Relation.Binary.PropositionalEquality.Core.html#2099" class="Function">sym</a> <a id="6451" href="Configuration-types.html#6425" class="Bound">eq₁</a><a id="6454" class="Symbol">)</a> <a id="6456" href="Configuration-types.html#6429" class="Bound">eq₂</a> <a id="6460" href="Function.Base.html#4170" class="Function Operator">of</a> <a id="6463" class="Symbol">λ</a> <a id="6465" class="Symbol">())</a>
+                                               <a id="6516" href="Data.Sum.Base.html#811" class="Function Operator">,</a> <a id="6518" class="Symbol">(λ</a> <a id="6521" href="Configuration-types.html#6521" class="Bound">eq₁</a> <a id="6525" href="Configuration-types.html#6525" class="Bound">eq₂</a> <a id="6529" class="Symbol">→</a> <a id="6531" href="Function.Base.html#4170" class="Function Operator">case</a> <a id="6536" href="Relation.Binary.PropositionalEquality.Core.html#2144" class="Function">trans</a> <a id="6542" class="Symbol">(</a><a id="6543" href="Relation.Binary.PropositionalEquality.Core.html#2099" class="Function">sym</a> <a id="6547" href="Configuration-types.html#6521" class="Bound">eq₁</a><a id="6550" class="Symbol">)</a> <a id="6552" href="Configuration-types.html#6525" class="Bound">eq₂</a> <a id="6556" href="Function.Base.html#4170" class="Function Operator">of</a> <a id="6559" class="Symbol">λ</a> <a id="6561" class="Symbol">())</a>
+                                               <a id="6612" href="Data.Sum.Base.html#811" class="Function Operator">]</a>
+                                             <a id="6659" href="Tools.Function.html#1792" class="Function">⟩</a>
+      <a id="6667" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="6681" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="6683" href="Definition.Untyped.NotParametrised.html#6436" class="InductiveConstructor">level-type</a> <a id="6694" href="Definition.Untyped.NotParametrised.html#6202" class="InductiveConstructor">small</a> <a id="6700" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a>
+      <a id="6708" href="Configuration-types.html#2246" class="Field">level-support</a> <a id="6722" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="6724" href="Definition.Untyped.NotParametrised.html#6436" class="InductiveConstructor">level-type</a> <a id="6735" href="Definition.Untyped.NotParametrised.html#6208" class="InductiveConstructor">not-small</a>  <a id="6746" href="Tools.Function.html#1906" class="Function">⇔˘⟨</a> <a id="6750" href="Configuration-types.html#4965" class="Function">Level-is-small⇔</a> <a id="6766" href="Tools.Function.html#4915" class="Function Operator">⊎-cong-⇔</a> <a id="6775" href="Configuration-types.html#5475" class="Function">Level-is-not-small⇔</a> <a id="6795" href="Tools.Function.html#1906" class="Function">⟩</a>
+
+      <a id="6804" href="Configuration-types.html#4793" class="Function">Level-is-small</a> <a id="6819" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="6821" href="Configuration-types.html#5283" class="Function">Level-is-not-small</a>   <a id="6842" href="Tools.Function.html#2511" class="Function Operator">□⇔</a>
+
+  <a id="6848" class="Comment">----------------------------------------------------------------------</a>
+  <a id="6921" class="Comment">-- Some derived definitions related to unit types</a>
+
+  <a id="6974" class="Comment">-- The strong unit types are only allowed if the following predicate</a>
+  <a id="7045" class="Comment">-- holds.</a>
+
+  <a id="Type-configuration⁻.Unitˢ-allowed"></a><a id="7058" href="Configuration-types.html#7058" class="Function">Unitˢ-allowed</a> <a id="7072" class="Symbol">:</a> <a id="7074" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="7078" href="Configuration-types.html#1982" class="Bound">a</a>
+  <a id="7082" href="Configuration-types.html#7058" class="Function">Unitˢ-allowed</a> <a id="7096" class="Symbol">=</a> <a id="7098" href="Configuration-types.html#2505" class="Field">Unit-allowed</a> <a id="7111" href="Definition.Untyped.NotParametrised.html#1853" class="InductiveConstructor">𝕤</a>
+
+  <a id="7116" class="Comment">-- The weak unit types are only allowed if the following predicate</a>
+  <a id="7185" class="Comment">-- holds.</a>
+
+  <a id="Type-configuration⁻.Unitʷ-allowed"></a><a id="7198" href="Configuration-types.html#7198" class="Function">Unitʷ-allowed</a> <a id="7212" class="Symbol">:</a> <a id="7214" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="7218" href="Configuration-types.html#1982" class="Bound">a</a>
+  <a id="7222" href="Configuration-types.html#7198" class="Function">Unitʷ-allowed</a> <a id="7236" class="Symbol">=</a> <a id="7238" href="Configuration-types.html#2505" class="Field">Unit-allowed</a> <a id="7251" href="Definition.Untyped.NotParametrised.html#1855" class="InductiveConstructor">𝕨</a>
+
+  <a id="7256" class="Comment">-- Unitʷ-η holds exactly when η-for-Unitʷ is true.</a>
+
+  <a id="Type-configuration⁻.Unitʷ-η"></a><a id="7310" href="Configuration-types.html#7310" class="Function">Unitʷ-η</a> <a id="7318" class="Symbol">:</a> <a id="7320" href="Agda.Primitive.html#446" class="Primitive">Set</a>
+  <a id="7326" href="Configuration-types.html#7310" class="Function">Unitʷ-η</a> <a id="7334" class="Symbol">=</a> <a id="7336" href="Data.Bool.Base.html#1358" class="Function">T</a> <a id="7338" href="Configuration-types.html#2774" class="Field">η-for-Unitʷ</a>
+
+  <a id="7353" class="Keyword">opaque</a>
+
+    <a id="7365" class="Comment">-- Unitʷ-η is decided.</a>
+
+    <a id="Type-configuration⁻.Unitʷ-η?"></a><a id="7393" href="Configuration-types.html#7393" class="Function">Unitʷ-η?</a> <a id="7402" class="Symbol">:</a> <a id="7404" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="7408" href="Configuration-types.html#7310" class="Function">Unitʷ-η</a>
+    <a id="7420" href="Configuration-types.html#7393" class="Function">Unitʷ-η?</a> <a id="7429" class="Symbol">=</a> <a id="7431" href="Relation.Nullary.Decidable.Core.html#3222" class="Function">T?</a> <a id="7434" class="Symbol">_</a>
+
+  <a id="7439" class="Comment">-- Some typing rules use the following condition.</a>
+
+  <a id="Type-configuration⁻.Unit-with-η"></a><a id="7492" href="Configuration-types.html#7492" class="Function">Unit-with-η</a> <a id="7504" class="Symbol">:</a> <a id="7506" href="Definition.Untyped.NotParametrised.html#1830" class="Datatype">Strength</a> <a id="7515" class="Symbol">→</a> <a id="7517" href="Agda.Primitive.html#446" class="Primitive">Set</a>
+  <a id="7523" href="Configuration-types.html#7492" class="Function">Unit-with-η</a> <a id="7535" href="Configuration-types.html#7535" class="Bound">s</a> <a id="7537" class="Symbol">=</a> <a id="7539" href="Configuration-types.html#7535" class="Bound">s</a> <a id="7541" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="7543" href="Definition.Untyped.NotParametrised.html#1853" class="InductiveConstructor">𝕤</a> <a id="7545" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="7547" href="Configuration-types.html#7310" class="Function">Unitʷ-η</a>
+
+  <a id="7558" class="Keyword">opaque</a>
+
+    <a id="7570" class="Comment">-- A decision procedure related to Unit-with-η.</a>
+
+    <a id="Type-configuration⁻.Unit-with-η?"></a><a id="7623" href="Configuration-types.html#7623" class="Function">Unit-with-η?</a> <a id="7636" class="Symbol">:</a> <a id="7638" class="Symbol">∀</a> <a id="7640" href="Configuration-types.html#7640" class="Bound">s</a> <a id="7642" class="Symbol">→</a> <a id="7644" href="Configuration-types.html#7492" class="Function">Unit-with-η</a> <a id="7656" href="Configuration-types.html#7640" class="Bound">s</a> <a id="7658" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="7660" href="Configuration-types.html#7640" class="Bound">s</a> <a id="7662" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="7664" href="Definition.Untyped.NotParametrised.html#1855" class="InductiveConstructor">𝕨</a> <a id="7666" href="Data.Product.Base.html#1752" class="Function Operator">×</a> <a id="7668" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="7670" href="Configuration-types.html#7310" class="Function">Unitʷ-η</a>
+    <a id="7682" href="Configuration-types.html#7623" class="Function">Unit-with-η?</a> <a id="7695" href="Definition.Untyped.NotParametrised.html#1853" class="InductiveConstructor">𝕤</a> <a id="7697" class="Symbol">=</a> <a id="7699" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="7704" class="Symbol">(</a><a id="7705" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="7710" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a><a id="7714" class="Symbol">)</a>
+    <a id="7720" href="Configuration-types.html#7623" class="Function">Unit-with-η?</a> <a id="7733" href="Definition.Untyped.NotParametrised.html#1855" class="InductiveConstructor">𝕨</a> <a id="7735" class="Symbol">=</a> <a id="7737" href="Function.Base.html#4170" class="Function Operator">case</a> <a id="7742" href="Configuration-types.html#7393" class="Function">Unitʷ-η?</a> <a id="7751" href="Function.Base.html#4170" class="Function Operator">of</a> <a id="7754" class="Symbol">λ</a> <a id="7756" class="Keyword">where</a>
+      <a id="7768" class="Symbol">(</a><a id="7769" href="Relation.Nullary.Decidable.Core.html#2105" class="InductiveConstructor">yes</a> <a id="7773" href="Configuration-types.html#7773" class="Bound">η</a><a id="7774" class="Symbol">)</a>   <a id="7778" class="Symbol">→</a> <a id="7780" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="7785" class="Symbol">(</a><a id="7786" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="7791" href="Configuration-types.html#7773" class="Bound">η</a><a id="7792" class="Symbol">)</a>
+      <a id="7800" class="Symbol">(</a><a id="7801" href="Relation.Nullary.Decidable.Core.html#2142" class="InductiveConstructor">no</a> <a id="7804" href="Configuration-types.html#7804" class="Bound">no-η</a><a id="7808" class="Symbol">)</a> <a id="7810" class="Symbol">→</a> <a id="7812" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="7817" class="Symbol">(</a><a id="7818" href="Agda.Builtin.Equality.html#224" class="InductiveConstructor">refl</a> <a id="7823" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a> <a id="7825" href="Configuration-types.html#7804" class="Bound">no-η</a><a id="7829" class="Symbol">)</a>
+
+  <a id="7834" class="Keyword">opaque</a>
+
+    <a id="7846" class="Comment">-- Unit-with-η 𝕨 implies Unitʷ-η.</a>
+
+    <a id="Type-configuration⁻.Unit-with-η-𝕨→Unitʷ-η"></a><a id="7885" href="Configuration-types.html#7885" class="Function">Unit-with-η-𝕨→Unitʷ-η</a> <a id="7907" class="Symbol">:</a> <a id="7909" href="Configuration-types.html#7492" class="Function">Unit-with-η</a> <a id="7921" href="Definition.Untyped.NotParametrised.html#1855" class="InductiveConstructor">𝕨</a> <a id="7923" class="Symbol">→</a> <a id="7925" href="Configuration-types.html#7310" class="Function">Unitʷ-η</a>
+    <a id="7937" href="Configuration-types.html#7885" class="Function">Unit-with-η-𝕨→Unitʷ-η</a> <a id="7959" class="Symbol">(</a><a id="7960" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="7965" href="Configuration-types.html#7965" class="Bound">η</a><a id="7966" class="Symbol">)</a>  <a id="7969" class="Symbol">=</a> <a id="7971" href="Configuration-types.html#7965" class="Bound">η</a>
+    <a id="7977" href="Configuration-types.html#7885" class="Function">Unit-with-η-𝕨→Unitʷ-η</a> <a id="7999" class="Symbol">(</a><a id="8000" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="8005" class="Symbol">())</a>
+
+  <a id="8012" class="Comment">----------------------------------------------------------------------</a>
+  <a id="8085" class="Comment">-- Some derived definitions relation to identity types</a>
+
+  <a id="8143" class="Comment">-- No-equality-reflection holds if equality reflection is not</a>
+  <a id="8207" class="Comment">-- allowed.</a>
+
+  <a id="8222" class="Keyword">data</a> <a id="Type-configuration⁻.No-equality-reflection"></a><a id="8227" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a> <a id="8250" class="Symbol">:</a> <a id="8252" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="8256" href="Configuration-types.html#1982" class="Bound">a</a> <a id="8258" class="Keyword">where</a>
+    <a id="Type-configuration⁻.No-equality-reflection.no-equality-reflection"></a><a id="8268" href="Configuration-types.html#8268" class="InductiveConstructor">no-equality-reflection</a> <a id="8291" class="Symbol">:</a>
+      <a id="8299" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="8301" href="Configuration-types.html#2986" class="Field">Equality-reflection</a> <a id="8321" class="Symbol">→</a> <a id="8323" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a>
+
+  <a id="8349" class="Keyword">opaque</a>
+
+    <a id="8361" class="Comment">-- A characterisation lemma for No-equality-reflection.</a>
+
+    <a id="Type-configuration⁻.No-equality-reflection⇔"></a><a id="8422" href="Configuration-types.html#8422" class="Function">No-equality-reflection⇔</a> <a id="8446" class="Symbol">:</a>
+      <a id="8454" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a> <a id="8477" href="Tools.Function.html#1310" class="Function Operator">⇔</a> <a id="8479" class="Symbol">(</a><a id="8480" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="8482" href="Configuration-types.html#2986" class="Field">Equality-reflection</a><a id="8501" class="Symbol">)</a>
+    <a id="8507" href="Configuration-types.html#8422" class="Function">No-equality-reflection⇔</a> <a id="8531" class="Symbol">=</a>
+      <a id="8539" class="Symbol">(λ</a> <a id="8542" class="Symbol">{</a> <a id="8544" class="Symbol">(</a><a id="8545" href="Configuration-types.html#8268" class="InductiveConstructor">no-equality-reflection</a> <a id="8568" href="Configuration-types.html#8568" class="Bound">not-ok</a><a id="8574" class="Symbol">)</a> <a id="8576" class="Symbol">→</a> <a id="8578" href="Configuration-types.html#8568" class="Bound">not-ok</a> <a id="8585" class="Symbol">})</a> <a id="8588" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,</a>
+      <a id="8596" href="Configuration-types.html#8268" class="InductiveConstructor">no-equality-reflection</a>
+
+  <a id="8622" class="Keyword">opaque</a>
+
+    <a id="8634" class="Comment">-- No-equality-reflection is decided.</a>
+
+    <a id="Type-configuration⁻.No-equality-reflection?"></a><a id="8677" href="Configuration-types.html#8677" class="Function">No-equality-reflection?</a> <a id="8701" class="Symbol">:</a> <a id="8703" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="8707" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a>
+    <a id="8734" href="Configuration-types.html#8677" class="Function">No-equality-reflection?</a> <a id="8758" class="Symbol">=</a>
+      <a id="8766" href="Tools.Function.html#5869" class="Function">Dec-map</a> <a id="8774" class="Symbol">(</a><a id="8775" href="Tools.Function.html#1473" class="Function">sym⇔</a> <a id="8780" href="Configuration-types.html#8422" class="Function">No-equality-reflection⇔</a><a id="8803" class="Symbol">)</a> <a id="8805" class="Symbol">(</a><a id="8806" href="Relation.Nullary.Decidable.Core.html#3274" class="Function">¬?</a> <a id="8809" href="Configuration-types.html#3058" class="Field">Equality-reflection?</a><a id="8829" class="Symbol">)</a>
+
+  <a id="8834" class="Keyword">opaque</a>
+
+    <a id="8846" class="Comment">-- A characterisation lemma for No-equality-reflection or-empty_.</a>
+
+    <a id="Type-configuration⁻.No-equality-reflection-or-empty⇔"></a><a id="8917" href="Configuration-types.html#8917" class="Function">No-equality-reflection-or-empty⇔</a> <a id="8950" class="Symbol">:</a>
+      <a id="8958" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a> <a id="8981" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="8990" href="Configuration-types.html#1122" class="Generalizable">Γ</a> <a id="8992" href="Tools.Function.html#1310" class="Function Operator">⇔</a>
+      <a id="9000" class="Symbol">(</a><a id="9001" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="9003" href="Configuration-types.html#2986" class="Field">Equality-reflection</a> <a id="9023" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="9025" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="9035" href="Configuration-types.html#1122" class="Generalizable">Γ</a><a id="9036" class="Symbol">)</a>
+    <a id="9042" href="Configuration-types.html#8917" class="Function">No-equality-reflection-or-empty⇔</a> <a id="9075" class="Symbol">{</a><a id="9076" href="Configuration-types.html#9076" class="Bound">Γ</a><a id="9077" class="Symbol">}</a> <a id="9079" class="Symbol">=</a>
+      <a id="9087" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a> <a id="9110" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="9119" href="Configuration-types.html#9076" class="Bound">Γ</a>     <a id="9125" href="Tools.Function.html#1792" class="Function">⇔⟨</a> <a id="9128" href="Definition.Untyped.Properties.NotParametrised.html#17684" class="Function">or-empty⇔</a> <a id="9138" href="Tools.Function.html#1792" class="Function">⟩</a>
+      <a id="9146" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a> <a id="9169" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="9171" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="9181" href="Configuration-types.html#9076" class="Bound">Γ</a>  <a id="9184" href="Tools.Function.html#1792" class="Function">⇔⟨</a> <a id="9187" href="Configuration-types.html#8422" class="Function">No-equality-reflection⇔</a> <a id="9211" href="Tools.Function.html#4915" class="Function Operator">⊎-cong-⇔</a> <a id="9220" href="Tools.Function.html#1409" class="Function">id⇔</a> <a id="9224" href="Tools.Function.html#1792" class="Function">⟩</a>
+      <a id="9232" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="9234" href="Configuration-types.html#2986" class="Field">Equality-reflection</a> <a id="9254" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="9256" href="Definition.Untyped.NotParametrised.html#1216" class="Datatype">Empty-con</a> <a id="9266" href="Configuration-types.html#9076" class="Bound">Γ</a>   <a id="9270" href="Tools.Function.html#2511" class="Function Operator">□⇔</a>
+
+  <a id="9276" class="Keyword">opaque</a>
+
+    <a id="9288" class="Comment">-- No-equality-reflection or-empty_ is decidable.</a>
+
+    <a id="Type-configuration⁻.No-equality-reflection-or-empty?"></a><a id="9343" href="Configuration-types.html#9343" class="Function">No-equality-reflection-or-empty?</a> <a id="9376" class="Symbol">:</a>
+      <a id="9384" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="9388" class="Symbol">(</a><a id="9389" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a> <a id="9412" href="Definition.Untyped.NotParametrised.html#1340" class="Datatype Operator">or-empty</a> <a id="9421" href="Configuration-types.html#1122" class="Generalizable">Γ</a><a id="9422" class="Symbol">)</a>
+    <a id="9428" href="Configuration-types.html#9343" class="Function">No-equality-reflection-or-empty?</a> <a id="9461" class="Symbol">=</a>
+      <a id="9469" href="Configuration-types.html#8677" class="Function">No-equality-reflection?</a> <a id="9493" href="Definition.Untyped.Properties.NotParametrised.html#18024" class="Function Operator">or-empty?</a>
+
+  <a id="9506" class="Comment">----------------------------------------------------------------------</a>
+  <a id="9579" class="Comment">-- Some derived definitions related to quotient types</a>
+
+  <a id="9636" class="Keyword">opaque</a>
+
+    <a id="9648" class="Comment">-- Are the higher quotient constructors neutral?</a>
+
+    <a id="Type-configuration⁻.Higher-quotient-constructors-neutral"></a><a id="9702" href="Configuration-types.html#9702" class="Function">Higher-quotient-constructors-neutral</a> <a id="9739" class="Symbol">:</a> <a id="9741" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="9745" href="Configuration-types.html#1982" class="Bound">a</a>
+    <a id="9751" href="Configuration-types.html#9702" class="Function">Higher-quotient-constructors-neutral</a> <a id="9788" class="Symbol">=</a>
+      <a id="9796" href="Configuration-types.html#3241" class="Field">Quot-allowed</a> <a id="9809" href="Data.Product.Base.html#1752" class="Function Operator">×</a> <a id="9811" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="9813" href="Configuration-types.html#2986" class="Field">Equality-reflection</a>
+
+  <a id="9836" class="Keyword">opaque</a>
+    <a id="9847" class="Keyword">unfolding</a> <a id="9857" href="Configuration-types.html#9702" class="Function">Higher-quotient-constructors-neutral</a>
+
+    <a id="9899" class="Comment">-- A characterisation lemma for</a>
+    <a id="9935" class="Comment">-- Higher-quotient-constructors-neutral.</a>
+
+    <a id="Type-configuration⁻.Higher-quotient-constructors-neutral⇔"></a><a id="9981" href="Configuration-types.html#9981" class="Function">Higher-quotient-constructors-neutral⇔</a> <a id="10019" class="Symbol">:</a>
+      <a id="10027" href="Configuration-types.html#9702" class="Function">Higher-quotient-constructors-neutral</a> <a id="10064" href="Tools.Function.html#1310" class="Function Operator">⇔</a>
+      <a id="10072" class="Symbol">(</a><a id="10073" href="Configuration-types.html#3241" class="Field">Quot-allowed</a> <a id="10086" href="Data.Product.Base.html#1752" class="Function Operator">×</a> <a id="10088" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="10090" href="Configuration-types.html#2986" class="Field">Equality-reflection</a><a id="10109" class="Symbol">)</a>
+    <a id="10115" href="Configuration-types.html#9981" class="Function">Higher-quotient-constructors-neutral⇔</a> <a id="10153" class="Symbol">=</a> <a id="10155" href="Tools.Function.html#1409" class="Function">id⇔</a>
+
+  <a id="10162" class="Comment">----------------------------------------------------------------------</a>
+  <a id="10235" class="Comment">-- A derived definition related to opaque definitions</a>
+
+  <a id="10292" class="Keyword">opaque</a>
+
+    <a id="10304" class="Comment">-- No-equality-reflection holds if opacity is allowed.</a>
+
+    <a id="Type-configuration⁻.Opacity-allowed→No-equality-reflection"></a><a id="10364" href="Configuration-types.html#10364" class="Function">Opacity-allowed→No-equality-reflection</a> <a id="10403" class="Symbol">:</a>
+      <a id="10411" href="Configuration-types.html#3406" class="Field">Opacity-allowed</a> <a id="10427" class="Symbol">→</a> <a id="10429" href="Configuration-types.html#8227" class="Datatype">No-equality-reflection</a>
+    <a id="10456" href="Configuration-types.html#10364" class="Function">Opacity-allowed→No-equality-reflection</a> <a id="10495" class="Symbol">=</a>
+      <a id="10503" href="Configuration-types.html#8268" class="InductiveConstructor">no-equality-reflection</a> <a id="10526" href="Tools.Function.html#299" class="Function Operator">∘→</a> <a id="10529" href="Configuration-types.html#3582" class="Field">no-opaque-equality-reflection</a>
+
+<a id="10560" class="Comment">-- This type depends on a grade semiring.</a>
+
+<a id="10603" class="Keyword">record</a> <a id="Type-configuration"></a><a id="10610" href="Configuration-types.html#10610" class="Record">Type-configuration</a> <a id="10629" class="Symbol">{</a><a id="10630" href="Configuration-types.html#10630" class="Bound">M</a> <a id="10632" class="Symbol">:</a> <a id="10634" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="10638" href="Configuration-types.html#1002" class="Generalizable">a</a><a id="10639" class="Symbol">}</a> <a id="10641" class="Symbol">(</a><a id="10642" href="Configuration-types.html#10642" class="Bound">𝕄</a> <a id="10644" class="Symbol">:</a> <a id="10646" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="10655" href="Configuration-types.html#10630" class="Bound">M</a><a id="10656" class="Symbol">)</a> <a id="10658" class="Symbol">:</a>
+         <a id="10669" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="10673" class="Symbol">(</a><a id="10674" href="Agda.Primitive.html#989" class="Primitive">lsuc</a> <a id="10679" href="Configuration-types.html#10638" class="Bound">a</a><a id="10680" class="Symbol">)</a> <a id="10682" class="Keyword">where</a>
+  <a id="10690" class="Keyword">no-eta-equality</a>
+
+  <a id="10709" class="Keyword">open</a> <a id="10714" href="Configuration-types.Natrec.html" class="Module">Configuration-types.Natrec</a> <a id="10741" href="Configuration-types.html#10642" class="Bound">𝕄</a>
+  <a id="10745" class="Keyword">open</a> <a id="10750" href="Configuration-types.Omega.html" class="Module">Configuration-types.Omega</a> <a id="10776" href="Configuration-types.html#10642" class="Bound">𝕄</a>
+  <a id="10780" class="Keyword">open</a> <a id="10785" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="10804" href="Configuration-types.html#10630" class="Bound">M</a>
+  <a id="10808" class="Keyword">open</a> <a id="10813" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="10822" href="Configuration-types.html#10642" class="Bound">𝕄</a>
+
+  <a id="10827" class="Keyword">field</a>
+    <a id="10837" class="Comment">-- Configuration parameters that do not depend on the grade</a>
+    <a id="10901" class="Comment">-- semiring.</a>
+    <a id="Type-configuration.TC⁻"></a><a id="10918" href="Configuration-types.html#10918" class="Field">TC⁻</a> <a id="10922" class="Symbol">:</a> <a id="10924" href="Configuration-types.html#1961" class="Record">Type-configuration⁻</a> <a id="10944" href="Configuration-types.html#10638" class="Bound">a</a>
+
+  <a id="10949" class="Keyword">open</a> <a id="10954" href="Configuration-types.html#1961" class="Module">Type-configuration⁻</a> <a id="10974" href="Configuration-types.html#10918" class="Field">TC⁻</a> <a id="10978" class="Keyword">public</a>
+
+  <a id="10988" class="Comment">----------------------------------------------------------------------</a>
+  <a id="11061" class="Comment">-- Π- and Σ-types</a>
+
+  <a id="11082" class="Keyword">field</a>
+    <a id="11092" class="Comment">-- Are Π- or Σ-types of the given kind allowed?</a>
+    <a id="Type-configuration.ΠΣ-allowed"></a><a id="11144" href="Configuration-types.html#11144" class="Field">ΠΣ-allowed</a> <a id="11155" class="Symbol">:</a> <a id="11157" href="Definition.Untyped.NotParametrised.html#1893" class="Datatype">BinderMode</a> <a id="11168" class="Symbol">→</a> <a id="11170" class="Symbol">(</a><a id="11171" href="Configuration-types.html#11171" class="Bound">p</a> <a id="11173" href="Configuration-types.html#11173" class="Bound">q</a> <a id="11175" class="Symbol">:</a> <a id="11177" href="Configuration-types.html#10630" class="Bound">M</a><a id="11178" class="Symbol">)</a> <a id="11180" class="Symbol">→</a> <a id="11182" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="11186" href="Configuration-types.html#10638" class="Bound">a</a>
+
+  <a id="11191" class="Comment">-- Are Π-types of the given kind allowed?</a>
+
+  <a id="Type-configuration.Π-allowed"></a><a id="11236" href="Configuration-types.html#11236" class="Function">Π-allowed</a> <a id="11246" class="Symbol">:</a> <a id="11248" href="Configuration-types.html#10630" class="Bound">M</a> <a id="11250" class="Symbol">→</a> <a id="11252" href="Configuration-types.html#10630" class="Bound">M</a> <a id="11254" class="Symbol">→</a> <a id="11256" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="11260" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="11264" href="Configuration-types.html#11236" class="Function">Π-allowed</a> <a id="11274" class="Symbol">=</a> <a id="11276" href="Configuration-types.html#11144" class="Field">ΠΣ-allowed</a> <a id="11287" href="Definition.Untyped.NotParametrised.html#1918" class="InductiveConstructor">BMΠ</a>
+
+  <a id="11294" class="Comment">-- Are Σ-types of the given kind allowed?</a>
+
+  <a id="Type-configuration.Σ-allowed"></a><a id="11339" href="Configuration-types.html#11339" class="Function">Σ-allowed</a> <a id="11349" class="Symbol">:</a> <a id="11351" href="Definition.Untyped.NotParametrised.html#1830" class="Datatype">Strength</a> <a id="11360" class="Symbol">→</a> <a id="11362" href="Configuration-types.html#10630" class="Bound">M</a> <a id="11364" class="Symbol">→</a> <a id="11366" href="Configuration-types.html#10630" class="Bound">M</a> <a id="11368" class="Symbol">→</a> <a id="11370" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="11374" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="11378" href="Configuration-types.html#11339" class="Function">Σ-allowed</a> <a id="11388" class="Symbol">=</a> <a id="11390" href="Configuration-types.html#11144" class="Field">ΠΣ-allowed</a> <a id="11401" href="Tools.Function.html#299" class="Function Operator">∘→</a> <a id="11404" href="Definition.Untyped.NotParametrised.html#1937" class="InductiveConstructor">BMΣ</a>
+
+  <a id="11411" class="Comment">-- Are strong Σ-types of the given kind allowed?</a>
+
+  <a id="Type-configuration.Σˢ-allowed"></a><a id="11463" href="Configuration-types.html#11463" class="Function">Σˢ-allowed</a> <a id="11474" class="Symbol">:</a> <a id="11476" href="Configuration-types.html#10630" class="Bound">M</a> <a id="11478" class="Symbol">→</a> <a id="11480" href="Configuration-types.html#10630" class="Bound">M</a> <a id="11482" class="Symbol">→</a> <a id="11484" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="11488" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="11492" href="Configuration-types.html#11463" class="Function">Σˢ-allowed</a> <a id="11503" class="Symbol">=</a> <a id="11505" href="Configuration-types.html#11339" class="Function">Σ-allowed</a> <a id="11515" href="Definition.Untyped.NotParametrised.html#1853" class="InductiveConstructor">𝕤</a>
+
+  <a id="11520" class="Comment">-- Are weak Σ-types of the given kind allowed?</a>
+
+  <a id="Type-configuration.Σʷ-allowed"></a><a id="11570" href="Configuration-types.html#11570" class="Function">Σʷ-allowed</a> <a id="11581" class="Symbol">:</a> <a id="11583" href="Configuration-types.html#10630" class="Bound">M</a> <a id="11585" class="Symbol">→</a> <a id="11587" href="Configuration-types.html#10630" class="Bound">M</a> <a id="11589" class="Symbol">→</a> <a id="11591" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="11595" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="11599" href="Configuration-types.html#11570" class="Function">Σʷ-allowed</a> <a id="11610" class="Symbol">=</a> <a id="11612" href="Configuration-types.html#11339" class="Function">Σ-allowed</a> <a id="11622" href="Definition.Untyped.NotParametrised.html#1855" class="InductiveConstructor">𝕨</a>
+
+  <a id="11627" class="Comment">-- Is the type Erased, defined using the given strength, allowed?</a>
+
+  <a id="Type-configuration.Erased-allowed"></a><a id="11696" href="Configuration-types.html#11696" class="Function">Erased-allowed</a> <a id="11711" class="Symbol">:</a> <a id="11713" href="Definition.Untyped.NotParametrised.html#1830" class="Datatype">Strength</a> <a id="11722" class="Symbol">→</a> <a id="11724" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="11728" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="11732" href="Configuration-types.html#11696" class="Function">Erased-allowed</a> <a id="11747" href="Configuration-types.html#11747" class="Bound">s</a> <a id="11749" class="Symbol">=</a> <a id="11751" href="Configuration-types.html#2505" class="Function">Unit-allowed</a> <a id="11764" href="Configuration-types.html#11747" class="Bound">s</a> <a id="11766" href="Data.Product.Base.html#1752" class="Function Operator">×</a> <a id="11768" href="Configuration-types.html#11339" class="Function">Σ-allowed</a> <a id="11778" href="Configuration-types.html#11747" class="Bound">s</a> <a id="11780" href="Graded.Modality.html#894" class="Function">𝟘</a> <a id="11782" href="Graded.Modality.html#894" class="Function">𝟘</a>
+
+  <a id="11787" class="Comment">-- Is the strong variant of Erased allowed?</a>
+
+  <a id="Type-configuration.Erasedˢ-allowed"></a><a id="11834" href="Configuration-types.html#11834" class="Function">Erasedˢ-allowed</a> <a id="11850" class="Symbol">:</a> <a id="11852" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="11856" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="11860" href="Configuration-types.html#11834" class="Function">Erasedˢ-allowed</a> <a id="11876" class="Symbol">=</a> <a id="11878" href="Configuration-types.html#11696" class="Function">Erased-allowed</a> <a id="11893" href="Definition.Untyped.NotParametrised.html#1853" class="InductiveConstructor">𝕤</a>
+
+  <a id="11898" class="Comment">-- Is the weak variant of Erased allowed?</a>
+
+  <a id="Type-configuration.Erasedʷ-allowed"></a><a id="11943" href="Configuration-types.html#11943" class="Function">Erasedʷ-allowed</a> <a id="11959" class="Symbol">:</a> <a id="11961" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="11965" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="11969" href="Configuration-types.html#11943" class="Function">Erasedʷ-allowed</a> <a id="11985" class="Symbol">=</a> <a id="11987" href="Configuration-types.html#11696" class="Function">Erased-allowed</a> <a id="12002" href="Definition.Untyped.NotParametrised.html#1855" class="InductiveConstructor">𝕨</a>
+
+  <a id="12007" class="Comment">----------------------------------------------------------------------</a>
+  <a id="12080" class="Comment">-- Identity types</a>
+
+  <a id="12101" class="Keyword">field</a>
+    <a id="12111" class="Comment">-- Does the type system allow []-cong for the given strength?</a>
+    <a id="Type-configuration.[]-cong-allowed"></a><a id="12177" href="Configuration-types.html#12177" class="Field">[]-cong-allowed</a> <a id="12193" class="Symbol">:</a> <a id="12195" href="Definition.Untyped.NotParametrised.html#1830" class="Datatype">Strength</a> <a id="12204" class="Symbol">→</a> <a id="12206" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="12210" href="Configuration-types.html#10638" class="Bound">a</a>
+
+    <a id="12217" class="Comment">-- If []-cong is allowed for a given strength, then Erased is</a>
+    <a id="12283" class="Comment">-- allowed for the same strength.</a>
+    <a id="Type-configuration.[]-cong→Erased"></a><a id="12321" href="Configuration-types.html#12321" class="Field">[]-cong→Erased</a> <a id="12336" class="Symbol">:</a> <a id="12338" href="Configuration-types.html#12177" class="Field">[]-cong-allowed</a> <a id="12354" href="Configuration-types.html#1063" class="Generalizable">s</a> <a id="12356" class="Symbol">→</a> <a id="12358" href="Configuration-types.html#11696" class="Function">Erased-allowed</a> <a id="12373" href="Configuration-types.html#1063" class="Generalizable">s</a>
+
+    <a id="12380" class="Comment">-- If []-cong is allowed (for any strength), then the modality is</a>
+    <a id="12450" class="Comment">-- not trivial.</a>
+    <a id="Type-configuration.[]-cong→¬Trivial"></a><a id="12470" href="Configuration-types.html#12470" class="Field">[]-cong→¬Trivial</a> <a id="12487" class="Symbol">:</a> <a id="12489" href="Configuration-types.html#12177" class="Field">[]-cong-allowed</a> <a id="12505" href="Configuration-types.html#1063" class="Generalizable">s</a> <a id="12507" class="Symbol">→</a> <a id="12509" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="12511" href="Graded.Modality.html#1736" class="Function">Trivial</a>
+
+  <a id="12522" class="Comment">-- Is the strong variant of []-cong allowed?</a>
+
+  <a id="Type-configuration.[]-congˢ-allowed"></a><a id="12570" href="Configuration-types.html#12570" class="Function">[]-congˢ-allowed</a> <a id="12587" class="Symbol">:</a> <a id="12589" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="12593" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="12597" href="Configuration-types.html#12570" class="Function">[]-congˢ-allowed</a> <a id="12614" class="Symbol">=</a> <a id="12616" href="Configuration-types.html#12177" class="Field">[]-cong-allowed</a> <a id="12632" href="Definition.Untyped.NotParametrised.html#1853" class="InductiveConstructor">𝕤</a>
+
+  <a id="12637" class="Comment">-- Is the weak variant of []-cong allowed?</a>
+
+  <a id="Type-configuration.[]-congʷ-allowed"></a><a id="12683" href="Configuration-types.html#12683" class="Function">[]-congʷ-allowed</a> <a id="12700" class="Symbol">:</a> <a id="12702" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="12706" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="12710" href="Configuration-types.html#12683" class="Function">[]-congʷ-allowed</a> <a id="12727" class="Symbol">=</a> <a id="12729" href="Configuration-types.html#12177" class="Field">[]-cong-allowed</a> <a id="12745" href="Definition.Untyped.NotParametrised.html#1855" class="InductiveConstructor">𝕨</a>
+
+  <a id="12750" class="Comment">--------------------------------------------------------------------</a>
+  <a id="12821" class="Comment">-- Omega grades</a>
+
+  <a id="12840" class="Keyword">field</a>
+    <a id="12850" class="Comment">-- Can parts of the language that require a (dedicated) grade ω be</a>
+    <a id="12921" class="Comment">-- allowed? In that case, how should ω be defined?</a>
+    <a id="Type-configuration.with-or-without-omega"></a><a id="12976" href="Configuration-types.html#12976" class="Field">with-or-without-omega</a> <a id="12998" class="Symbol">:</a> <a id="13000" href="Configuration-types.Omega.html#614" class="Datatype">With-or-without-omega</a>
+
+  <a id="13025" class="Comment">-- A type that is inhabited iff the parts of the language that</a>
+  <a id="13090" class="Comment">-- require a dedicated grade ω are allowed.</a>
+
+  <a id="Type-configuration.Omega-allowed"></a><a id="13137" href="Configuration-types.html#13137" class="Function">Omega-allowed</a> <a id="13151" class="Symbol">:</a> <a id="13153" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="13157" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="13161" href="Configuration-types.html#13137" class="Function">Omega-allowed</a> <a id="13175" class="Symbol">=</a> <a id="13177" href="Configuration-types.Omega.html#799" class="Datatype">With-omega</a> <a id="13188" href="Configuration-types.html#12976" class="Field">with-or-without-omega</a>
+
+  <a id="13213" class="Keyword">field</a>
+    <a id="13223" class="Comment">-- If quotients are allowed, then there is a dedicated grade ω.</a>
+    <a id="Type-configuration.Quot-allowed→Omega-allowed"></a><a id="13291" href="Configuration-types.html#13291" class="Field">Quot-allowed→Omega-allowed</a> <a id="13318" class="Symbol">:</a>
+      <a id="13326" href="Configuration-types.html#3241" class="Function">Quot-allowed</a> <a id="13339" class="Symbol">→</a> <a id="13341" href="Configuration-types.html#13137" class="Function">Omega-allowed</a>
+
+  <a id="13358" class="Comment">----------------------------------------------------------------------</a>
+  <a id="13431" class="Comment">-- A derived definition related to universe levels</a>
+
+  <a id="13485" class="Keyword">opaque</a>
+
+    <a id="13497" class="Comment">-- Is the given level allowed to be used as a level literal?</a>
+
+    <a id="Type-configuration.Allowed-literal"></a><a id="13563" href="Configuration-types.html#13563" class="Function">Allowed-literal</a> <a id="13579" class="Symbol">:</a> <a id="13581" href="Definition.Untyped.html#1266" class="Function">Lvl</a> <a id="13585" href="Configuration-types.html#1044" class="Generalizable">n</a> <a id="13587" class="Symbol">→</a> <a id="13589" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="13593" href="Configuration-types.html#10638" class="Bound">a</a>
+    <a id="13599" href="Configuration-types.html#13563" class="Function">Allowed-literal</a> <a id="13615" class="Symbol">(</a><a id="13616" href="Definition.Untyped.html#2163" class="InductiveConstructor">ωᵘ+</a> <a id="13620" class="Symbol">_)</a>   <a id="13625" class="Symbol">=</a> <a id="13627" href="Configuration-types.html#2328" class="Function">Omega-plus-allowed</a>
+    <a id="13650" href="Configuration-types.html#13563" class="Function">Allowed-literal</a> <a id="13666" class="Symbol">(</a><a id="13667" href="Definition.Untyped.html#2200" class="InductiveConstructor">level</a> <a id="13673" href="Configuration-types.html#13673" class="Bound">t</a><a id="13674" class="Symbol">)</a> <a id="13676" class="Symbol">=</a> <a id="13678" href="Definition.Untyped.html#5807" class="Datatype">Level-literal</a> <a id="13692" href="Configuration-types.html#13673" class="Bound">t</a> <a id="13694" href="Data.Product.Base.html#1752" class="Function Operator">×</a> <a id="13696" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="13698" href="Configuration-types.html#3948" class="Function">Level-allowed</a>
+
+  <a id="13715" class="Comment">----------------------------------------------------------------------</a>
+  <a id="13788" class="Comment">-- A derived definition related to Π- and Σ-types</a>
+
+  <a id="13841" class="Comment">-- A variant of ΠΣ-allowed for BindingType.</a>
+
+  <a id="Type-configuration.BindingType-allowed"></a><a id="13888" href="Configuration-types.html#13888" class="Function">BindingType-allowed</a> <a id="13908" class="Symbol">:</a> <a id="13910" href="Definition.Untyped.html#5083" class="Datatype">BindingType</a> <a id="13922" class="Symbol">→</a> <a id="13924" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="13928" href="Configuration-types.html#10638" class="Bound">a</a>
+  <a id="13932" href="Configuration-types.html#13888" class="Function">BindingType-allowed</a> <a id="13952" class="Symbol">(</a><a id="13953" href="Definition.Untyped.html#5111" class="InductiveConstructor">BM</a> <a id="13956" href="Configuration-types.html#13956" class="Bound">b</a> <a id="13958" href="Configuration-types.html#13958" class="Bound">p</a> <a id="13960" href="Configuration-types.html#13960" class="Bound">q</a><a id="13961" class="Symbol">)</a> <a id="13963" class="Symbol">=</a> <a id="13965" href="Configuration-types.html#11144" class="Field">ΠΣ-allowed</a> <a id="13976" href="Configuration-types.html#13956" class="Bound">b</a> <a id="13978" href="Configuration-types.html#13958" class="Bound">p</a> <a id="13980" href="Configuration-types.html#13960" class="Bound">q</a>
+
+  <a id="13985" class="Comment">----------------------------------------------------------------------</a>
+  <a id="14058" class="Comment">-- Some derived definitions related to ω</a>
+
+  <a id="14102" class="Keyword">opaque</a>
+
+    <a id="14114" class="Comment">-- Omega-allowed is propositional.</a>
+
+    <a id="Type-configuration.Omega-allowed-propositional"></a><a id="14154" href="Configuration-types.html#14154" class="Function">Omega-allowed-propositional</a> <a id="14182" class="Symbol">:</a>
+      <a id="14190" class="Symbol">(</a><a id="14191" href="Configuration-types.html#14191" class="Bound">p</a> <a id="14193" href="Configuration-types.html#14193" class="Bound">q</a> <a id="14195" class="Symbol">:</a> <a id="14197" href="Configuration-types.html#13137" class="Function">Omega-allowed</a><a id="14210" class="Symbol">)</a> <a id="14212" class="Symbol">→</a> <a id="14214" href="Configuration-types.html#14191" class="Bound">p</a> <a id="14216" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="14218" href="Configuration-types.html#14193" class="Bound">q</a>
+    <a id="14224" href="Configuration-types.html#14154" class="Function">Omega-allowed-propositional</a> <a id="14252" class="Symbol">=</a> <a id="14254" href="Configuration-types.Omega.html#1049" class="Function">With-omega-propositional</a>
+
+  <a id="14282" class="Keyword">opaque</a>
+
+    <a id="14294" class="Comment">-- Omega-allowed is decided.</a>
+
+    <a id="Type-configuration.Omega-allowed?"></a><a id="14328" href="Configuration-types.html#14328" class="Function">Omega-allowed?</a> <a id="14343" class="Symbol">:</a> <a id="14345" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="14349" href="Configuration-types.html#13137" class="Function">Omega-allowed</a>
+    <a id="14367" href="Configuration-types.html#14328" class="Function">Omega-allowed?</a> <a id="14382" class="Symbol">=</a> <a id="14384" href="Configuration-types.Omega.html#1666" class="Function">With-omega?</a>
+
+<a id="14397" class="Comment">------------------------------------------------------------------------</a>
+<a id="14470" class="Comment">-- Configuration of the type and usage systems</a>
+
+<a id="14518" class="Comment">-- This type depends on a mode structure.</a>
+
+<a id="14561" class="Keyword">record</a> <a id="Configuration"></a><a id="14568" href="Configuration-types.html#14568" class="Record">Configuration</a> <a id="14582" class="Symbol">{</a><a id="14583" href="Configuration-types.html#14583" class="Bound">M</a> <a id="14585" class="Symbol">:</a> <a id="14587" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="14591" href="Configuration-types.html#1002" class="Generalizable">a</a><a id="14592" class="Symbol">}</a> <a id="14594" class="Symbol">{</a><a id="14595" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="14600" class="Symbol">:</a> <a id="14602" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="14606" href="Configuration-types.html#1004" class="Generalizable">b</a><a id="14607" class="Symbol">}</a> <a id="14609" class="Symbol">{</a><a id="14610" href="Configuration-types.html#14610" class="Bound">𝕄</a> <a id="14612" class="Symbol">:</a> <a id="14614" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="14623" href="Configuration-types.html#14583" class="Bound">M</a><a id="14624" class="Symbol">}</a>
+         <a id="14635" class="Symbol">(</a><a id="14636" href="Configuration-types.html#14636" class="Bound">𝐌</a> <a id="14638" class="Symbol">:</a> <a id="14640" href="Graded.Mode.html#1754" class="Record">Graded.Mode.IsMode</a> <a id="14659" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="14664" href="Configuration-types.html#14610" class="Bound">𝕄</a><a id="14665" class="Symbol">)</a> <a id="14667" class="Symbol">:</a> <a id="14669" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="14673" class="Symbol">(</a><a id="14674" href="Agda.Primitive.html#989" class="Primitive">lsuc</a> <a id="14679" href="Configuration-types.html#14591" class="Bound">a</a> <a id="14681" href="Agda.Primitive.html#1019" class="Primitive Operator">⊔</a> <a id="14683" href="Configuration-types.html#14606" class="Bound">b</a><a id="14684" class="Symbol">)</a> <a id="14686" class="Keyword">where</a>
+  <a id="14694" class="Keyword">no-eta-equality</a>
+
+  <a id="14713" class="Keyword">open</a> <a id="14718" href="Configuration-types.Natrec.html" class="Module">Configuration-types.Natrec</a> <a id="14745" href="Configuration-types.html#14610" class="Bound">𝕄</a>
+  <a id="14749" class="Keyword">open</a> <a id="14754" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="14773" href="Configuration-types.html#14583" class="Bound">M</a>
+  <a id="14777" class="Keyword">open</a> <a id="14782" href="Graded.Context.html" class="Module">Graded.Context</a> <a id="14797" href="Configuration-types.html#14610" class="Bound">𝕄</a>
+  <a id="14801" class="Keyword">open</a> <a id="14806" href="Graded.Mode.html" class="Module">Graded.Mode</a> <a id="14818" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="14823" href="Configuration-types.html#14610" class="Bound">𝕄</a>
+  <a id="14827" class="Keyword">open</a> <a id="14832" href="Graded.Mode.html#1754" class="Module">IsMode</a> <a id="14839" href="Configuration-types.html#14636" class="Bound">𝐌</a>
+  <a id="14843" class="Keyword">open</a> <a id="14848" href="Graded.Modality.html#581" class="Module">Modality</a> <a id="14857" href="Configuration-types.html#14610" class="Bound">𝕄</a>
+
+  <a id="14862" class="Keyword">field</a>
+    <a id="14872" class="Comment">-- Configuration of the type system.</a>
+    <a id="Configuration.TC"></a><a id="14913" href="Configuration-types.html#14913" class="Field">TC</a> <a id="14916" class="Symbol">:</a> <a id="14918" href="Configuration-types.html#10610" class="Record">Type-configuration</a> <a id="14937" href="Configuration-types.html#14610" class="Bound">𝕄</a>
+
+  <a id="14942" class="Keyword">open</a> <a id="14947" href="Configuration-types.html#10610" class="Module">Type-configuration</a> <a id="14966" href="Configuration-types.html#14913" class="Field">TC</a> <a id="14969" class="Keyword">public</a>
+
+  <a id="14979" class="Comment">----------------------------------------------------------------------</a>
+  <a id="15052" class="Comment">-- The empty type</a>
+
+  <a id="15073" class="Keyword">field</a>
+    <a id="15083" class="Comment">-- Does the usage relation allow emptyrec with the given grade, at</a>
+    <a id="15154" class="Comment">-- the given mode?</a>
+    <a id="Configuration.Emptyrec-allowed"></a><a id="15177" href="Configuration-types.html#15177" class="Field">Emptyrec-allowed</a> <a id="15194" class="Symbol">:</a> <a id="15196" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="15201" class="Symbol">→</a> <a id="15203" href="Configuration-types.html#14583" class="Bound">M</a> <a id="15205" class="Symbol">→</a> <a id="15207" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="15211" href="Configuration-types.html#14591" class="Bound">a</a>
+
+    <a id="15218" class="Comment">-- Emptyrec-allowed is upwards closed in the mode.</a>
+    <a id="Configuration.Emptyrec-allowed-upwards-closed"></a><a id="15273" href="Configuration-types.html#15273" class="Field">Emptyrec-allowed-upwards-closed</a> <a id="15305" class="Symbol">:</a>
+      <a id="15313" href="Configuration-types.html#15177" class="Field">Emptyrec-allowed</a> <a id="15330" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="15332" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="15334" class="Symbol">→</a> <a id="15336" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="15338" href="Graded.Mode.html#3186" class="Function Operator">≤ᵐ</a> <a id="15341" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="15344" class="Symbol">→</a> <a id="15346" href="Configuration-types.html#15177" class="Field">Emptyrec-allowed</a> <a id="15363" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="15366" href="Configuration-types.html#1224" class="Generalizable">p</a>
+
+  <a id="15371" class="Comment">----------------------------------------------------------------------</a>
+  <a id="15444" class="Comment">-- Unit types</a>
+
+  <a id="15461" class="Keyword">field</a>
+    <a id="15471" class="Comment">-- Does the usage relation allow unitrec with the given grades, at</a>
+    <a id="15542" class="Comment">-- the given mode?</a>
+    <a id="Configuration.Unitrec-allowed"></a><a id="15565" href="Configuration-types.html#15565" class="Field">Unitrec-allowed</a> <a id="15581" class="Symbol">:</a> <a id="15583" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="15588" class="Symbol">→</a> <a id="15590" class="Symbol">(</a><a id="15591" href="Configuration-types.html#15591" class="Bound">p</a> <a id="15593" href="Configuration-types.html#15593" class="Bound">q</a> <a id="15595" class="Symbol">:</a> <a id="15597" href="Configuration-types.html#14583" class="Bound">M</a><a id="15598" class="Symbol">)</a> <a id="15600" class="Symbol">→</a> <a id="15602" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="15606" href="Configuration-types.html#14591" class="Bound">a</a>
+
+    <a id="15613" class="Comment">-- Unitrec-allowed is upwards closed in the mode.</a>
+    <a id="Configuration.Unitrec-allowed-upwards-closed"></a><a id="15667" href="Configuration-types.html#15667" class="Field">Unitrec-allowed-upwards-closed</a> <a id="15698" class="Symbol">:</a>
+      <a id="15706" href="Configuration-types.html#15565" class="Field">Unitrec-allowed</a> <a id="15722" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="15724" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="15726" href="Configuration-types.html#1226" class="Generalizable">q</a> <a id="15728" class="Symbol">→</a> <a id="15730" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="15732" href="Graded.Mode.html#3186" class="Function Operator">≤ᵐ</a> <a id="15735" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="15738" class="Symbol">→</a> <a id="15740" href="Configuration-types.html#15565" class="Field">Unitrec-allowed</a> <a id="15756" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="15759" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="15761" href="Configuration-types.html#1226" class="Generalizable">q</a>
+
+    <a id="15768" class="Comment">-- Should strong unit types act as &quot;sinks&quot;?</a>
+    <a id="Configuration.starˢ-sink"></a><a id="15816" href="Configuration-types.html#15816" class="Field">starˢ-sink</a> <a id="15827" class="Symbol">:</a> <a id="15829" href="Agda.Builtin.Bool.html#190" class="Datatype">Bool</a>
+
+  <a id="15837" class="Comment">----------------------------------------------------------------------</a>
+  <a id="15910" class="Comment">-- Σ-types</a>
+
+  <a id="15924" class="Keyword">field</a>
+    <a id="15934" class="Comment">-- Does the usage relation allow prodrec for the given grades, at</a>
+    <a id="16004" class="Comment">-- the given mode?</a>
+    <a id="Configuration.Prodrec-allowed"></a><a id="16027" href="Configuration-types.html#16027" class="Field">Prodrec-allowed</a> <a id="16043" class="Symbol">:</a> <a id="16045" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="16050" class="Symbol">→</a> <a id="16052" class="Symbol">(</a><a id="16053" href="Configuration-types.html#16053" class="Bound">r</a> <a id="16055" href="Configuration-types.html#16055" class="Bound">p</a> <a id="16057" href="Configuration-types.html#16057" class="Bound">q</a> <a id="16059" class="Symbol">:</a> <a id="16061" href="Configuration-types.html#14583" class="Bound">M</a><a id="16062" class="Symbol">)</a> <a id="16064" class="Symbol">→</a> <a id="16066" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="16070" href="Configuration-types.html#14591" class="Bound">a</a>
+
+    <a id="16077" class="Comment">-- Prodrec-allowed is upwards closed in the mode.</a>
+    <a id="Configuration.Prodrec-allowed-upwards-closed"></a><a id="16131" href="Configuration-types.html#16131" class="Field">Prodrec-allowed-upwards-closed</a> <a id="16162" class="Symbol">:</a>
+      <a id="16170" href="Configuration-types.html#16027" class="Field">Prodrec-allowed</a> <a id="16186" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="16188" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="16190" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="16192" href="Configuration-types.html#1226" class="Generalizable">q</a> <a id="16194" class="Symbol">→</a> <a id="16196" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="16198" href="Graded.Mode.html#3186" class="Function Operator">≤ᵐ</a> <a id="16201" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="16204" class="Symbol">→</a> <a id="16206" href="Configuration-types.html#16027" class="Field">Prodrec-allowed</a> <a id="16222" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="16225" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="16227" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="16229" href="Configuration-types.html#1226" class="Generalizable">q</a>
+
+  <a id="16234" class="Comment">----------------------------------------------------------------------</a>
+  <a id="16307" class="Comment">-- Natural numbers</a>
+
+  <a id="16329" class="Keyword">field</a>
+    <a id="16339" class="Comment">-- Which usage rule for natrec should be used?</a>
+    <a id="Configuration.natrec-mode"></a><a id="16390" href="Configuration-types.html#16390" class="Field">natrec-mode</a> <a id="16402" class="Symbol">:</a> <a id="16404" href="Configuration-types.Natrec.html#937" class="Datatype">Natrec-mode</a>
+
+  <a id="16419" class="Comment">-- Three mutually exclusive types which correspond to each of the</a>
+  <a id="16487" class="Comment">-- three possibilities for natrec-mode.</a>
+
+  <a id="Configuration.Nr-available"></a><a id="16530" href="Configuration-types.html#16530" class="Function">Nr-available</a> <a id="16543" class="Symbol">:</a> <a id="16545" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="16549" href="Configuration-types.html#14591" class="Bound">a</a>
+  <a id="16553" href="Configuration-types.html#16530" class="Function">Nr-available</a> <a id="16566" class="Symbol">=</a> <a id="16568" href="Configuration-types.Natrec.html#1235" class="Datatype">Natrec-mode-has-nr</a> <a id="16587" href="Configuration-types.html#16390" class="Field">natrec-mode</a>
+
+  <a id="Configuration.Nr-not-available"></a><a id="16602" href="Configuration-types.html#16602" class="Function">Nr-not-available</a> <a id="16619" class="Symbol">:</a> <a id="16621" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="16625" href="Configuration-types.html#14591" class="Bound">a</a>
+  <a id="16629" href="Configuration-types.html#16602" class="Function">Nr-not-available</a> <a id="16646" class="Symbol">=</a> <a id="16648" href="Configuration-types.Natrec.html#1349" class="Datatype">Natrec-mode-no-nr</a> <a id="16666" href="Configuration-types.html#16390" class="Field">natrec-mode</a>
+
+  <a id="Configuration.Nr-not-available-GLB"></a><a id="16681" href="Configuration-types.html#16681" class="Function">Nr-not-available-GLB</a> <a id="16702" class="Symbol">:</a> <a id="16704" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="16708" href="Configuration-types.html#14591" class="Bound">a</a>
+  <a id="16712" href="Configuration-types.html#16681" class="Function">Nr-not-available-GLB</a> <a id="16733" class="Symbol">=</a> <a id="16735" href="Configuration-types.Natrec.html#1435" class="Datatype">Natrec-mode-no-nr-glb</a> <a id="16757" href="Configuration-types.html#16390" class="Field">natrec-mode</a>
+
+  <a id="16772" class="Keyword">field</a>
+    <a id="16782" class="Comment">-- If nr functions are used, then they must be compatible with the</a>
+    <a id="16853" class="Comment">-- modes.</a>
+    <a id="Configuration.mode-supports-nr"></a><a id="16867" href="Configuration-types.html#16867" class="Field">mode-supports-nr</a> <a id="16884" class="Symbol">:</a>
+      <a id="16892" class="Symbol">⦃</a> <a id="16894" href="Configuration-types.html#16894" class="Bound">ok</a> <a id="16897" class="Symbol">:</a> <a id="16899" href="Configuration-types.html#16530" class="Function">Nr-available</a> <a id="16912" class="Symbol">⦄</a> <a id="16914" class="Symbol">→</a>
+      <a id="16922" href="Graded.Mode.html#28959" class="Record">Mode-supports-nr</a> <a id="16939" class="Symbol">⦃</a> <a id="16941" class="Argument">has-nr</a> <a id="16948" class="Symbol">=</a> <a id="16950" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="16969" href="Configuration-types.html#16894" class="Bound">ok</a> <a id="16972" class="Symbol">⦄</a> <a id="16974" href="Configuration-types.html#14636" class="Bound">𝐌</a>
+
+  <a id="16979" class="Comment">----------------------------------------------------------------------</a>
+  <a id="17052" class="Comment">-- Identity types</a>
+
+  <a id="17073" class="Keyword">field</a>
+    <a id="17083" class="Comment">-- Is everything erased in the usage rule for Id?</a>
+    <a id="Configuration.Id-erased"></a><a id="17137" href="Configuration-types.html#17137" class="Field">Id-erased</a> <a id="17147" class="Symbol">:</a> <a id="17149" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="17153" href="Configuration-types.html#14591" class="Bound">a</a>
+
+    <a id="17160" class="Comment">-- Id-erased is decided.</a>
+    <a id="Configuration.Id-erased?"></a><a id="17189" href="Configuration-types.html#17189" class="Field">Id-erased?</a> <a id="17200" class="Symbol">:</a> <a id="17202" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="17206" href="Configuration-types.html#17137" class="Field">Id-erased</a>
+
+    <a id="17221" class="Comment">-- What kinds of erased matches are allowed for J and K (for the</a>
+    <a id="17290" class="Comment">-- given mode)?</a>
+    <a id="Configuration.erased-matches-for-JK"></a><a id="17310" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="17332" class="Symbol">:</a> <a id="17334" href="Configuration-types.html#1626" class="Datatype">JK</a> <a id="17337" class="Symbol">→</a> <a id="17339" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="17344" class="Symbol">→</a> <a id="17346" href="Configuration-types.Erased-matches.html#850" class="Datatype">Erased-matches</a>
+
+  <a id="17364" class="Comment">-- What kinds of erased matches are allowed for J (for the given</a>
+  <a id="17431" class="Comment">-- mode)?</a>
+
+  <a id="Configuration.erased-matches-for-J"></a><a id="17444" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="17465" class="Symbol">:</a> <a id="17467" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="17472" class="Symbol">→</a> <a id="17474" href="Configuration-types.Erased-matches.html#850" class="Datatype">Erased-matches</a>
+  <a id="17491" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="17512" class="Symbol">=</a> <a id="17514" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="17536" href="Configuration-types.html#1643" class="InductiveConstructor">J</a>
+
+  <a id="17541" class="Comment">-- What kinds of erased matches are allowed for K (for the given</a>
+  <a id="17608" class="Comment">-- mode)?</a>
+
+  <a id="Configuration.erased-matches-for-K"></a><a id="17621" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="17642" class="Symbol">:</a> <a id="17644" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="17649" class="Symbol">→</a> <a id="17651" href="Configuration-types.Erased-matches.html#850" class="Datatype">Erased-matches</a>
+  <a id="17668" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="17689" class="Symbol">=</a> <a id="17691" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="17713" href="Configuration-types.html#1645" class="InductiveConstructor">K</a>
+
+  <a id="17718" class="Keyword">field</a>
+    <a id="17728" class="Comment">-- If m ≤ᵐ m′, then the usage rules for J and K are at least as</a>
+    <a id="17796" class="Comment">-- permissive for m′ as for m. (See Jₘ-generalised,</a>
+    <a id="17852" class="Comment">-- J₀ₘ₁-generalised, Kₘ-generalised and K₀ₘ₁-generalised in</a>
+    <a id="17916" class="Comment">-- Graded.Usage.Properties.)</a>
+    <a id="Configuration.erased-matches-for-JK-≤ᵉᵐ"></a><a id="17949" href="Configuration-types.html#17949" class="Field">erased-matches-for-JK-≤ᵉᵐ</a> <a id="17975" class="Symbol">:</a>
+      <a id="17983" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="17985" href="Graded.Mode.html#3186" class="Function Operator">≤ᵐ</a> <a id="17988" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="17991" class="Symbol">→</a>
+      <a id="17999" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="18021" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="18024" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="18026" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">≤ᵉᵐ</a> <a id="18030" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="18052" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="18055" href="Configuration-types.html#1221" class="Generalizable">m′</a>
+
+    <a id="18063" class="Comment">-- If at most some erased matches are allowed for either J or K</a>
+    <a id="18131" class="Comment">-- for some mode, then Omega-allowed holds.</a>
+    <a id="Configuration.erased-matches-for-JK-supports-ω"></a><a id="18179" href="Configuration-types.html#18179" class="Field">erased-matches-for-JK-supports-ω</a> <a id="18212" class="Symbol">:</a>
+      <a id="18220" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="18242" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="18245" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="18247" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">≤ᵉᵐ</a> <a id="18251" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a> <a id="18256" class="Symbol">→</a> <a id="18258" href="Configuration-types.html#13137" class="Function">Omega-allowed</a>
+
+    <a id="18277" class="Comment">-- Does the usage relation allow []-cong for the given strength,</a>
+    <a id="18346" class="Comment">-- at the given mode? (The formalisation supports variants of</a>
+    <a id="18412" class="Comment">-- []-cong for both strong and weak variants of Erased.)</a>
+    <a id="Configuration.[]-cong-allowed-mode"></a><a id="18473" href="Configuration-types.html#18473" class="Field">[]-cong-allowed-mode</a> <a id="18494" class="Symbol">:</a> <a id="18496" href="Definition.Untyped.NotParametrised.html#1830" class="Datatype">Strength</a> <a id="18505" class="Symbol">→</a> <a id="18507" href="Configuration-types.html#14595" class="Bound">Mode</a> <a id="18512" class="Symbol">→</a> <a id="18514" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="18518" href="Configuration-types.html#14591" class="Bound">a</a>
+
+    <a id="18525" class="Comment">-- If []-cong-allowed-mode holds for a given strength, then</a>
+    <a id="18589" class="Comment">-- []-cong-allowed holds.</a>
+    <a id="Configuration.[]-cong-allowed-mode→[]-cong-allowed"></a><a id="18619" href="Configuration-types.html#18619" class="Field">[]-cong-allowed-mode→[]-cong-allowed</a> <a id="18656" class="Symbol">:</a>
+      <a id="18664" href="Configuration-types.html#18473" class="Field">[]-cong-allowed-mode</a> <a id="18685" href="Configuration-types.html#1063" class="Generalizable">s</a> <a id="18687" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="18689" class="Symbol">→</a> <a id="18691" href="Configuration-types.html#12177" class="Function">[]-cong-allowed</a> <a id="18707" href="Configuration-types.html#1063" class="Generalizable">s</a>
+
+    <a id="18714" class="Comment">-- []-cong-allowed-mode is upwards closed in the mode.</a>
+    <a id="Configuration.[]-cong-allowed-mode-upwards-closed"></a><a id="18773" href="Configuration-types.html#18773" class="Field">[]-cong-allowed-mode-upwards-closed</a> <a id="18809" class="Symbol">:</a>
+      <a id="18817" href="Configuration-types.html#18473" class="Field">[]-cong-allowed-mode</a> <a id="18838" href="Configuration-types.html#1063" class="Generalizable">s</a> <a id="18840" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="18842" class="Symbol">→</a> <a id="18844" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="18846" href="Graded.Mode.html#3186" class="Function Operator">≤ᵐ</a> <a id="18849" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="18852" class="Symbol">→</a> <a id="18854" href="Configuration-types.html#18473" class="Field">[]-cong-allowed-mode</a> <a id="18875" href="Configuration-types.html#1063" class="Generalizable">s</a> <a id="18877" href="Configuration-types.html#1221" class="Generalizable">m′</a>
+
+  <a id="18883" class="Comment">----------------------------------------------------------------------</a>
+  <a id="18956" class="Comment">-- Quotient types</a>
+
+  <a id="18977" class="Keyword">field</a>
+    <a id="18987" class="Comment">-- If quotients are allowed, then the mode structure is</a>
+    <a id="19047" class="Comment">-- non-trivial: the higher quotient constructors are only allowed</a>
+    <a id="19117" class="Comment">-- in erased contexts.</a>
+    <a id="Configuration.Quot-allowed→¬Trivialᵐ"></a><a id="19144" href="Configuration-types.html#19144" class="Field">Quot-allowed→¬Trivialᵐ</a> <a id="19167" class="Symbol">:</a>
+      <a id="19175" href="Configuration-types.html#3241" class="Function">Quot-allowed</a> <a id="19188" class="Symbol">→</a> <a id="19190" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="19192" href="Graded.Mode.html#2961" class="Function">Trivialᵐ</a>
+
+    <a id="19206" class="Comment">-- Is the motive of qrec erased?</a>
+    <a id="Configuration.Qrec-motive-erased"></a><a id="19243" href="Configuration-types.html#19243" class="Field">Qrec-motive-erased</a> <a id="19262" class="Symbol">:</a> <a id="19264" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="19268" href="Configuration-types.html#14591" class="Bound">a</a>
+
+    <a id="19275" class="Comment">-- Qrec-motive-erased is decided.</a>
+    <a id="Configuration.Qrec-motive-erased?"></a><a id="19313" href="Configuration-types.html#19313" class="Field">Qrec-motive-erased?</a> <a id="19333" class="Symbol">:</a> <a id="19335" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="19339" href="Configuration-types.html#19243" class="Field">Qrec-motive-erased</a>
+
+  <a id="19361" class="Comment">----------------------------------------------------------------------</a>
+  <a id="19434" class="Comment">-- A derived definition related to the empty type</a>
+
+  <a id="19487" class="Keyword">opaque</a>
+
+    <a id="19499" class="Comment">-- If emptyrec is allowed at mode m (for some grade) then it is</a>
+    <a id="19567" class="Comment">-- also allowed at mode m′ ·ᵐ m.</a>
+
+    <a id="Configuration.Emptyrec-allowed-·ᵐ"></a><a id="19605" href="Configuration-types.html#19605" class="Function">Emptyrec-allowed-·ᵐ</a> <a id="19625" class="Symbol">:</a>
+      <a id="19633" href="Configuration-types.html#15177" class="Field">Emptyrec-allowed</a> <a id="19650" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="19652" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="19654" class="Symbol">→</a>
+      <a id="19662" href="Configuration-types.html#15177" class="Field">Emptyrec-allowed</a> <a id="19679" class="Symbol">(</a><a id="19680" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="19683" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="19686" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="19687" class="Symbol">)</a> <a id="19689" href="Configuration-types.html#1224" class="Generalizable">p</a>
+    <a id="19695" href="Configuration-types.html#19605" class="Function">Emptyrec-allowed-·ᵐ</a> <a id="19715" href="Configuration-types.html#19715" class="Bound">ok</a> <a id="19718" class="Symbol">=</a>
+      <a id="19726" href="Configuration-types.html#15273" class="Field">Emptyrec-allowed-upwards-closed</a> <a id="19758" href="Configuration-types.html#19715" class="Bound">ok</a> <a id="19761" href="Graded.Mode.html#16097" class="Function">·ᵐ-increasingˡ</a>
+
+  <a id="19779" class="Comment">----------------------------------------------------------------------</a>
+  <a id="19852" class="Comment">-- Some derived definition related to unit types</a>
+
+  <a id="19904" class="Keyword">opaque</a>
+
+    <a id="19916" class="Comment">-- If emptyrec is allowed at mode m (for some grades) then it</a>
+    <a id="19982" class="Comment">-- is also allowed at mode m′ ·ᵐ m.</a>
+
+    <a id="Configuration.Unitrec-allowed-·ᵐ"></a><a id="20023" href="Configuration-types.html#20023" class="Function">Unitrec-allowed-·ᵐ</a> <a id="20042" class="Symbol">:</a>
+      <a id="20050" href="Configuration-types.html#15565" class="Field">Unitrec-allowed</a> <a id="20066" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="20068" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="20070" href="Configuration-types.html#1226" class="Generalizable">q</a> <a id="20072" class="Symbol">→</a>
+      <a id="20080" href="Configuration-types.html#15565" class="Field">Unitrec-allowed</a> <a id="20096" class="Symbol">(</a><a id="20097" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="20100" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="20103" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="20104" class="Symbol">)</a> <a id="20106" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="20108" href="Configuration-types.html#1226" class="Generalizable">q</a>
+    <a id="20114" href="Configuration-types.html#20023" class="Function">Unitrec-allowed-·ᵐ</a> <a id="20133" href="Configuration-types.html#20133" class="Bound">ok</a> <a id="20136" class="Symbol">=</a>
+      <a id="20144" href="Configuration-types.html#15667" class="Field">Unitrec-allowed-upwards-closed</a> <a id="20175" href="Configuration-types.html#20133" class="Bound">ok</a> <a id="20178" href="Graded.Mode.html#16097" class="Function">·ᵐ-increasingˡ</a>
+
+  <a id="20196" class="Comment">-- Do strong unit types act as &quot;sinks&quot;?</a>
+
+  <a id="Configuration.Starˢ-sink"></a><a id="20239" href="Configuration-types.html#20239" class="Function">Starˢ-sink</a> <a id="20250" class="Symbol">:</a> <a id="20252" href="Agda.Primitive.html#446" class="Primitive">Set</a>
+  <a id="20258" href="Configuration-types.html#20239" class="Function">Starˢ-sink</a> <a id="20269" class="Symbol">=</a> <a id="20271" href="Data.Bool.Base.html#1358" class="Function">T</a> <a id="20273" href="Configuration-types.html#15816" class="Field">starˢ-sink</a>
+
+  <a id="20287" class="Comment">-- Strong unit types are not allowed to both act and not act as</a>
+  <a id="20353" class="Comment">-- sinks.</a>
+
+  <a id="Configuration.not-sink-and-no-sink"></a><a id="20366" href="Configuration-types.html#20366" class="Function">not-sink-and-no-sink</a> <a id="20387" class="Symbol">:</a> <a id="20389" href="Configuration-types.html#20239" class="Function">Starˢ-sink</a> <a id="20400" class="Symbol">→</a> <a id="20402" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="20404" href="Configuration-types.html#20239" class="Function">Starˢ-sink</a> <a id="20415" class="Symbol">→</a> <a id="20417" href="Data.Empty.html#914" class="Function">⊥</a>
+  <a id="20421" href="Configuration-types.html#20366" class="Function">not-sink-and-no-sink</a> <a id="20442" href="Configuration-types.html#20442" class="Bound">sink</a> <a id="20447" href="Configuration-types.html#20447" class="Bound">¬sink</a> <a id="20453" class="Keyword">with</a> <a id="20458" href="Configuration-types.html#15816" class="Field">starˢ-sink</a>
+  <a id="20471" class="Symbol">…</a> <a id="20473" class="Symbol">|</a> <a id="20475" href="Agda.Builtin.Bool.html#209" class="InductiveConstructor">false</a> <a id="20481" class="Symbol">=</a> <a id="20483" class="Bound">sink</a>
+  <a id="20490" class="Symbol">…</a> <a id="20492" class="Symbol">|</a> <a id="20494" href="Agda.Builtin.Bool.html#215" class="InductiveConstructor">true</a> <a id="20499" class="Symbol">=</a> <a id="20501" class="Bound">¬sink</a> <a id="20507" class="Symbol">_</a>
+
+  <a id="20512" class="Comment">-- Strong unit types either act or do not act as sinks.</a>
+
+  <a id="Configuration.sink-or-no-sink"></a><a id="20571" href="Configuration-types.html#20571" class="Function">sink-or-no-sink</a> <a id="20587" class="Symbol">:</a> <a id="20589" href="Configuration-types.html#20239" class="Function">Starˢ-sink</a> <a id="20600" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a> <a id="20602" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="20604" href="Configuration-types.html#20239" class="Function">Starˢ-sink</a>
+  <a id="20617" href="Configuration-types.html#20571" class="Function">sink-or-no-sink</a> <a id="20633" class="Keyword">with</a> <a id="20638" href="Configuration-types.html#15816" class="Field">starˢ-sink</a>
+  <a id="20651" href="Configuration-types.html#20571" class="Function">…</a> <a id="20653" class="Symbol">|</a> <a id="20655" href="Agda.Builtin.Bool.html#209" class="InductiveConstructor">false</a> <a id="20661" class="Symbol">=</a> <a id="20663" href="Data.Sum.Base.html#700" class="InductiveConstructor">inj₂</a> <a id="20668" href="Tools.Function.html#287" class="Function">idᶠ</a>
+  <a id="20674" href="Configuration-types.html#20571" class="Function">…</a> <a id="20676" class="Symbol">|</a> <a id="20678" href="Agda.Builtin.Bool.html#215" class="InductiveConstructor">true</a> <a id="20683" class="Symbol">=</a> <a id="20685" href="Data.Sum.Base.html#675" class="InductiveConstructor">inj₁</a> <a id="20690" class="Symbol">_</a>
+
+  <a id="20695" class="Comment">----------------------------------------------------------------------</a>
+  <a id="20768" class="Comment">-- A derived definition related to Σ-types</a>
+
+  <a id="20814" class="Keyword">opaque</a>
+
+    <a id="20826" class="Comment">-- If prodrec is allowed at mode m (for some grade) then it is</a>
+    <a id="20893" class="Comment">-- also allowed at mode m′ ·ᵐ m.</a>
+
+    <a id="Configuration.Prodrec-allowed-·ᵐ"></a><a id="20931" href="Configuration-types.html#20931" class="Function">Prodrec-allowed-·ᵐ</a> <a id="20950" class="Symbol">:</a>
+      <a id="20958" href="Configuration-types.html#16027" class="Field">Prodrec-allowed</a> <a id="20974" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="20976" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="20978" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="20980" href="Configuration-types.html#1226" class="Generalizable">q</a> <a id="20982" class="Symbol">→</a>
+      <a id="20990" href="Configuration-types.html#16027" class="Field">Prodrec-allowed</a> <a id="21006" class="Symbol">(</a><a id="21007" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="21010" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="21013" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="21014" class="Symbol">)</a> <a id="21016" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="21018" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="21020" href="Configuration-types.html#1226" class="Generalizable">q</a>
+    <a id="21026" href="Configuration-types.html#20931" class="Function">Prodrec-allowed-·ᵐ</a> <a id="21045" href="Configuration-types.html#21045" class="Bound">ok</a> <a id="21048" class="Symbol">=</a>
+      <a id="21056" href="Configuration-types.html#16131" class="Field">Prodrec-allowed-upwards-closed</a> <a id="21087" href="Configuration-types.html#21045" class="Bound">ok</a> <a id="21090" href="Graded.Mode.html#16097" class="Function">·ᵐ-increasingˡ</a>
+
+  <a id="21108" class="Comment">----------------------------------------------------------------------</a>
+  <a id="21181" class="Comment">-- Some derived definitions related to natural numbers</a>
+
+  <a id="21239" class="Keyword">opaque</a>
+
+    <a id="21251" class="Comment">-- Multiplication by a mode distributes over nrᶜ.</a>
+
+    <a id="Configuration.⌜⌝-·ᶜ-nrᶜ"></a><a id="21306" href="Configuration-types.html#21306" class="Function">⌜⌝-·ᶜ-nrᶜ</a> <a id="21316" class="Symbol">:</a>
+      <a id="21324" class="Symbol">⦃</a> <a id="21326" href="Configuration-types.html#21326" class="Bound">ok</a> <a id="21329" class="Symbol">:</a> <a id="21331" href="Configuration-types.html#16530" class="Function">Nr-available</a> <a id="21344" class="Symbol">⦄</a> <a id="21346" class="Symbol">→</a>
+      <a id="21354" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="21356" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="21358" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="21360" href="Graded.Context.html#1806" class="Function Operator">·ᶜ</a> <a id="21363" href="Graded.Context.html#2083" class="Function">nrᶜ</a> <a id="21367" class="Symbol">⦃</a> <a id="21369" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="21388" href="Configuration-types.html#21326" class="Bound">ok</a> <a id="21391" class="Symbol">⦄</a> <a id="21393" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="21395" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="21397" href="Configuration-types.html#1180" class="Generalizable">γ</a> <a id="21399" href="Configuration-types.html#1182" class="Generalizable">δ</a> <a id="21401" href="Configuration-types.html#1184" class="Generalizable">η</a> <a id="21403" href="Graded.Context.html#871" class="Datatype Operator">≈ᶜ</a>
+      <a id="21412" href="Graded.Context.html#2083" class="Function">nrᶜ</a> <a id="21416" class="Symbol">⦃</a> <a id="21418" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="21437" href="Configuration-types.html#21326" class="Bound">ok</a> <a id="21440" class="Symbol">⦄</a> <a id="21442" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="21444" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="21446" class="Symbol">(</a><a id="21447" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="21449" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="21451" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="21453" href="Graded.Context.html#1806" class="Function Operator">·ᶜ</a> <a id="21456" href="Configuration-types.html#1180" class="Generalizable">γ</a><a id="21457" class="Symbol">)</a> <a id="21459" class="Symbol">(</a><a id="21460" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="21462" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="21464" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="21466" href="Graded.Context.html#1806" class="Function Operator">·ᶜ</a> <a id="21469" href="Configuration-types.html#1182" class="Generalizable">δ</a><a id="21470" class="Symbol">)</a>
+        <a id="21480" class="Symbol">(</a><a id="21481" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="21483" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="21485" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="21487" href="Graded.Context.html#1806" class="Function Operator">·ᶜ</a> <a id="21490" href="Configuration-types.html#1184" class="Generalizable">η</a><a id="21491" class="Symbol">)</a>
+    <a id="21497" href="Configuration-types.html#21306" class="Function">⌜⌝-·ᶜ-nrᶜ</a> <a id="21507" class="Symbol">{</a><a id="21508" class="Argument">γ</a> <a id="21510" class="Symbol">=</a> <a id="21512" href="Graded.Context.html#756" class="InductiveConstructor">ε</a><a id="21513" class="Symbol">}</a> <a id="21515" class="Symbol">{(</a><a id="21517" href="Graded.Context.html#756" class="InductiveConstructor">ε</a><a id="21518" class="Symbol">)}</a> <a id="21521" class="Symbol">{(</a><a id="21523" href="Graded.Context.html#756" class="InductiveConstructor">ε</a><a id="21524" class="Symbol">)}</a> <a id="21527" class="Symbol">=</a> <a id="21529" href="Graded.Context.html#909" class="InductiveConstructor">ε</a>
+    <a id="21535" href="Configuration-types.html#21306" class="Function">⌜⌝-·ᶜ-nrᶜ</a> <a id="21545" class="Symbol">{</a><a id="21546" class="Argument">γ</a> <a id="21548" class="Symbol">=</a> <a id="21550" class="Symbol">_</a> <a id="21552" href="Graded.Context.html#771" class="InductiveConstructor Operator">∙</a> <a id="21554" class="Symbol">_}</a> <a id="21557" class="Symbol">{_</a> <a id="21560" href="Graded.Context.html#771" class="InductiveConstructor Operator">∙</a> <a id="21562" class="Symbol">_}</a> <a id="21565" class="Symbol">{_</a> <a id="21568" href="Graded.Context.html#771" class="InductiveConstructor Operator">∙</a> <a id="21570" class="Symbol">_}</a> <a id="21573" class="Symbol">⦃</a> <a id="21575" href="Configuration-types.html#21575" class="Bound">ok</a> <a id="21578" class="Symbol">⦄</a> <a id="21580" class="Symbol">=</a>
+      <a id="21588" href="Configuration-types.html#21306" class="Function">⌜⌝-·ᶜ-nrᶜ</a> <a id="21598" href="Graded.Context.html#922" class="InductiveConstructor Operator">∙</a>
+      <a id="21606" href="Graded.Mode.html#29137" class="Field">Mode-supports-nr.⌜⌝-·-nr</a> <a id="21631" class="Symbol">⦃</a> <a id="21633" class="Argument">has-nr</a> <a id="21640" class="Symbol">=</a> <a id="21642" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="21661" href="Configuration-types.html#21575" class="Bound">ok</a> <a id="21664" class="Symbol">⦄</a>
+        <a id="21674" href="Configuration-types.html#16867" class="Field">mode-supports-nr</a>
+
+  <a id="21694" class="Keyword">opaque</a>
+
+    <a id="21706" class="Comment">-- A variant of ⌞nr⌟-decreasing₁.</a>
+
+    <a id="Configuration.⌞⌟·ᵐ⌞nr⌟₁"></a><a id="21745" href="Configuration-types.html#21745" class="Function">⌞⌟·ᵐ⌞nr⌟₁</a> <a id="21755" class="Symbol">:</a>
+      <a id="21763" class="Symbol">⦃</a> <a id="21765" href="Configuration-types.html#21765" class="Bound">ok</a> <a id="21768" class="Symbol">:</a> <a id="21770" href="Configuration-types.html#16530" class="Function">Nr-available</a> <a id="21783" class="Symbol">⦄</a> <a id="21785" class="Symbol">{</a><a id="21786" href="Configuration-types.html#21786" class="Bound">z</a> <a id="21788" href="Configuration-types.html#21788" class="Bound">s</a> <a id="21790" href="Configuration-types.html#21790" class="Bound">n</a> <a id="21792" class="Symbol">:</a> <a id="21794" href="Configuration-types.html#14583" class="Bound">M</a><a id="21795" class="Symbol">}</a> <a id="21797" class="Symbol">→</a>
+      <a id="21805" href="Graded.Mode.html#2064" class="Function Operator">⌞</a> <a id="21807" href="Configuration-types.html#21786" class="Bound">z</a> <a id="21809" href="Graded.Mode.html#2064" class="Function Operator">⌟</a> <a id="21811" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="21814" href="Graded.Mode.html#2064" class="Function Operator">⌞</a> <a id="21816" href="Graded.Modality.html#5806" class="Field">Has-nr.nr</a> <a id="21826" class="Symbol">(</a><a id="21827" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="21846" href="Configuration-types.html#21765" class="Bound">ok</a><a id="21848" class="Symbol">)</a> <a id="21850" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="21852" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="21854" href="Configuration-types.html#21786" class="Bound">z</a> <a id="21856" href="Configuration-types.html#21788" class="Bound">s</a> <a id="21858" href="Configuration-types.html#21790" class="Bound">n</a> <a id="21860" href="Graded.Mode.html#2064" class="Function Operator">⌟</a> <a id="21862" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="21864" href="Graded.Mode.html#2064" class="Function Operator">⌞</a> <a id="21866" href="Configuration-types.html#21786" class="Bound">z</a> <a id="21868" href="Graded.Mode.html#2064" class="Function Operator">⌟</a>
+    <a id="21874" href="Configuration-types.html#21745" class="Function">⌞⌟·ᵐ⌞nr⌟₁</a> <a id="21884" class="Symbol">⦃</a> <a id="21886" href="Configuration-types.html#21886" class="Bound">ok</a> <a id="21889" class="Symbol">⦄</a> <a id="21891" class="Symbol">=</a>
+      <a id="21899" href="Relation.Binary.PropositionalEquality.Core.html#2099" class="Function">sym</a> <a id="21903" href="Function.Base.html#1993" class="Function Operator">$</a>
+      <a id="21911" href="Graded.Mode.html#29302" class="Field">Mode-supports-nr.⌞nr⌟-decreasing₁</a>
+        <a id="21953" class="Symbol">⦃</a> <a id="21955" class="Argument">has-nr</a> <a id="21962" class="Symbol">=</a> <a id="21964" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="21983" href="Configuration-types.html#21886" class="Bound">ok</a> <a id="21986" class="Symbol">⦄</a> <a id="21988" href="Configuration-types.html#16867" class="Field">mode-supports-nr</a>
+
+  <a id="22008" class="Keyword">opaque</a>
+
+    <a id="22020" class="Comment">-- A variant of ⌞nr⌟-decreasing₃.</a>
+
+    <a id="Configuration.⌞⌟·ᵐ⌞nr⌟₃"></a><a id="22059" href="Configuration-types.html#22059" class="Function">⌞⌟·ᵐ⌞nr⌟₃</a> <a id="22069" class="Symbol">:</a>
+      <a id="22077" class="Symbol">⦃</a> <a id="22079" href="Configuration-types.html#22079" class="Bound">ok</a> <a id="22082" class="Symbol">:</a> <a id="22084" href="Configuration-types.html#16530" class="Function">Nr-available</a> <a id="22097" class="Symbol">⦄</a> <a id="22099" class="Symbol">{</a><a id="22100" href="Configuration-types.html#22100" class="Bound">z</a> <a id="22102" href="Configuration-types.html#22102" class="Bound">s</a> <a id="22104" href="Configuration-types.html#22104" class="Bound">n</a> <a id="22106" class="Symbol">:</a> <a id="22108" href="Configuration-types.html#14583" class="Bound">M</a><a id="22109" class="Symbol">}</a> <a id="22111" class="Symbol">→</a>
+      <a id="22119" href="Graded.Mode.html#2064" class="Function Operator">⌞</a> <a id="22121" href="Configuration-types.html#22104" class="Bound">n</a> <a id="22123" href="Graded.Mode.html#2064" class="Function Operator">⌟</a> <a id="22125" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="22128" href="Graded.Mode.html#2064" class="Function Operator">⌞</a> <a id="22130" href="Graded.Modality.html#5806" class="Field">Has-nr.nr</a> <a id="22140" class="Symbol">(</a><a id="22141" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="22160" href="Configuration-types.html#22079" class="Bound">ok</a><a id="22162" class="Symbol">)</a> <a id="22164" href="Configuration-types.html#1224" class="Generalizable">p</a> <a id="22166" href="Configuration-types.html#1228" class="Generalizable">r</a> <a id="22168" href="Configuration-types.html#22100" class="Bound">z</a> <a id="22170" href="Configuration-types.html#22102" class="Bound">s</a> <a id="22172" href="Configuration-types.html#22104" class="Bound">n</a> <a id="22174" href="Graded.Mode.html#2064" class="Function Operator">⌟</a> <a id="22176" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="22178" href="Graded.Mode.html#2064" class="Function Operator">⌞</a> <a id="22180" href="Configuration-types.html#22104" class="Bound">n</a> <a id="22182" href="Graded.Mode.html#2064" class="Function Operator">⌟</a>
+    <a id="22188" href="Configuration-types.html#22059" class="Function">⌞⌟·ᵐ⌞nr⌟₃</a> <a id="22198" class="Symbol">⦃</a> <a id="22200" href="Configuration-types.html#22200" class="Bound">ok</a> <a id="22203" class="Symbol">⦄</a> <a id="22205" class="Symbol">=</a>
+      <a id="22213" href="Relation.Binary.PropositionalEquality.Core.html#2099" class="Function">sym</a> <a id="22217" href="Function.Base.html#1993" class="Function Operator">$</a>
+      <a id="22225" href="Graded.Mode.html#29430" class="Field">Mode-supports-nr.⌞nr⌟-decreasing₃</a>
+        <a id="22267" class="Symbol">⦃</a> <a id="22269" class="Argument">has-nr</a> <a id="22276" class="Symbol">=</a> <a id="22278" href="Configuration-types.Natrec.html#2107" class="Function">Natrec-mode-Has-nr</a> <a id="22297" href="Configuration-types.html#22200" class="Bound">ok</a> <a id="22300" class="Symbol">⦄</a> <a id="22302" href="Configuration-types.html#16867" class="Field">mode-supports-nr</a>
+
+  <a id="22322" class="Comment">----------------------------------------------------------------------</a>
+  <a id="22395" class="Comment">-- Some derived definitions related to identity types</a>
+
+  <a id="22452" class="Keyword">opaque</a>
+
+    <a id="22464" class="Comment">-- A variant of erased-matches-for-JK-≤ᵉᵐ for J.</a>
+
+    <a id="Configuration.erased-matches-for-J-≤ᵉᵐ"></a><a id="22518" href="Configuration-types.html#22518" class="Function">erased-matches-for-J-≤ᵉᵐ</a> <a id="22543" class="Symbol">:</a>
+      <a id="22551" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="22553" href="Graded.Mode.html#3186" class="Function Operator">≤ᵐ</a> <a id="22556" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="22559" class="Symbol">→</a> <a id="22561" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="22582" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="22584" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">≤ᵉᵐ</a> <a id="22588" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="22609" href="Configuration-types.html#1221" class="Generalizable">m′</a>
+    <a id="22616" href="Configuration-types.html#22518" class="Function">erased-matches-for-J-≤ᵉᵐ</a> <a id="22641" class="Symbol">=</a> <a id="22643" href="Configuration-types.html#17949" class="Field">erased-matches-for-JK-≤ᵉᵐ</a>
+
+  <a id="22672" class="Keyword">opaque</a>
+
+    <a id="22684" class="Comment">-- A variant of erased-matches-for-JK-≤ᵉᵐ for K.</a>
+
+    <a id="Configuration.erased-matches-for-K-≤ᵉᵐ"></a><a id="22738" href="Configuration-types.html#22738" class="Function">erased-matches-for-K-≤ᵉᵐ</a> <a id="22763" class="Symbol">:</a>
+      <a id="22771" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="22773" href="Graded.Mode.html#3186" class="Function Operator">≤ᵐ</a> <a id="22776" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="22779" class="Symbol">→</a> <a id="22781" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="22802" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="22804" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">≤ᵉᵐ</a> <a id="22808" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="22829" href="Configuration-types.html#1221" class="Generalizable">m′</a>
+    <a id="22836" href="Configuration-types.html#22738" class="Function">erased-matches-for-K-≤ᵉᵐ</a> <a id="22861" class="Symbol">=</a> <a id="22863" href="Configuration-types.html#17949" class="Field">erased-matches-for-JK-≤ᵉᵐ</a>
+
+  <a id="22892" class="Keyword">instance</a>
+
+    <a id="22906" class="Comment">-- If at most some erased matches are allowed for either J or K</a>
+    <a id="22974" class="Comment">-- for some mode, then Omega-allowed holds.</a>
+
+    <a id="Configuration.erased-matches-JK-≤-some-Omega-allowed"></a><a id="23023" href="Configuration-types.html#23023" class="Function">erased-matches-JK-≤-some-Omega-allowed</a> <a id="23062" class="Symbol">:</a>
+      <a id="23070" class="Symbol">⦃</a> <a id="23072" href="Configuration-types.html#23072" class="Bound">ok</a> <a id="23075" class="Symbol">:</a> <a id="23077" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="23099" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="23102" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="23104" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">≤ᵉᵐ</a> <a id="23108" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a> <a id="23113" class="Symbol">⦄</a> <a id="23115" class="Symbol">→</a>
+      <a id="23123" href="Configuration-types.html#13137" class="Function">Omega-allowed</a>
+    <a id="23141" href="Configuration-types.html#23023" class="Function">erased-matches-JK-≤-some-Omega-allowed</a> <a id="23180" class="Symbol">⦃</a> <a id="23182" href="Configuration-types.html#23182" class="Bound">ok</a> <a id="23185" class="Symbol">⦄</a> <a id="23187" class="Symbol">=</a>
+      <a id="23195" href="Configuration-types.html#18179" class="Field">erased-matches-for-JK-supports-ω</a>
+        <a id="23236" class="Symbol">(</a><a id="23237" href="Configuration-types.Erased-matches.html#1469" class="Function">≤ᵉᵐ-transitive</a> <a id="23252" class="Symbol">(</a><a id="23253" href="Configuration-types.html#17949" class="Field">erased-matches-for-JK-≤ᵉᵐ</a> <a id="23279" href="Graded.Mode.html#12013" class="Function">𝟙ᵐ≤</a><a id="23282" class="Symbol">)</a> <a id="23284" href="Configuration-types.html#23182" class="Bound">ok</a><a id="23286" class="Symbol">)</a>
+
+    <a id="23293" class="Symbol">{-#</a> <a id="23297" class="Keyword">INCOHERENT</a> <a id="23308" href="Configuration-types.html#23023" class="Function">erased-matches-JK-≤-some-Omega-allowed</a> <a id="23347" class="Symbol">#-}</a>
+
+  <a id="23354" class="Keyword">instance</a>
+
+    <a id="23368" class="Comment">-- If some erased matches are allowed for either J or K for some</a>
+    <a id="23437" class="Comment">-- mode, then at most some matches are allowed.</a>
+
+    <a id="Configuration.erased-matches-JK-≡-some-≤-some"></a><a id="23490" href="Configuration-types.html#23490" class="Function">erased-matches-JK-≡-some-≤-some</a> <a id="23522" class="Symbol">:</a>
+      <a id="23530" class="Symbol">⦃</a> <a id="23532" href="Configuration-types.html#23532" class="Bound">ok</a> <a id="23535" class="Symbol">:</a> <a id="23537" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="23559" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="23562" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="23564" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="23566" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a> <a id="23571" class="Symbol">⦄</a> <a id="23573" class="Symbol">→</a>
+      <a id="23581" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="23603" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="23606" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="23608" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">≤ᵉᵐ</a> <a id="23612" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a>
+    <a id="23621" href="Configuration-types.html#23490" class="Function">erased-matches-JK-≡-some-≤-some</a> <a id="23653" class="Symbol">⦃</a> <a id="23655" href="Configuration-types.html#23655" class="Bound">ok</a> <a id="23658" class="Symbol">⦄</a> <a id="23660" class="Symbol">=</a>
+      <a id="23668" href="Relation.Binary.PropositionalEquality.Core.html#2195" class="Function">subst</a> <a id="23674" class="Symbol">(</a><a id="23675" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">_≤ᵉᵐ</a> <a id="23680" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a><a id="23684" class="Symbol">)</a> <a id="23686" class="Symbol">(</a><a id="23687" href="Relation.Binary.PropositionalEquality.Core.html#2099" class="Function">sym</a> <a id="23691" href="Configuration-types.html#23655" class="Bound">ok</a><a id="23693" class="Symbol">)</a> <a id="23695" class="Symbol">_</a>
+
+    <a id="23702" class="Symbol">{-#</a> <a id="23706" class="Keyword">INCOHERENT</a> <a id="23717" href="Configuration-types.html#23490" class="Function">erased-matches-JK-≡-some-≤-some</a> <a id="23749" class="Symbol">#-}</a>
+
+  <a id="23756" class="Keyword">opaque</a>
+
+    <a id="23768" class="Comment">-- The usage rules for J and K are at least as permissive for</a>
+    <a id="23834" class="Comment">-- m′ ·ᵐ m as for m.</a>
+
+    <a id="Configuration.erased-matches-for-JK-≤ᵉᵐ·ᵐ"></a><a id="23860" href="Configuration-types.html#23860" class="Function">erased-matches-for-JK-≤ᵉᵐ·ᵐ</a> <a id="23888" class="Symbol">:</a>
+      <a id="23896" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="23918" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="23921" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="23923" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">≤ᵉᵐ</a> <a id="23927" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="23949" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="23952" class="Symbol">(</a><a id="23953" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="23956" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="23959" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="23960" class="Symbol">)</a>
+    <a id="23966" href="Configuration-types.html#23860" class="Function">erased-matches-for-JK-≤ᵉᵐ·ᵐ</a> <a id="23994" class="Symbol">=</a>
+      <a id="24002" href="Configuration-types.html#17949" class="Field">erased-matches-for-JK-≤ᵉᵐ</a> <a id="24028" href="Graded.Mode.html#16097" class="Function">·ᵐ-increasingˡ</a>
+
+  <a id="24046" class="Keyword">opaque</a>
+
+    <a id="24058" class="Comment">-- If all erased matches are allowed for J or K for m, then they</a>
+    <a id="24127" class="Comment">-- are allowed for m′ ·ᵐ m.</a>
+
+    <a id="Configuration.erased-matches-for-JK-all·ᵐ"></a><a id="24160" href="Configuration-types.html#24160" class="Function">erased-matches-for-JK-all·ᵐ</a> <a id="24188" class="Symbol">:</a>
+      <a id="24196" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="24218" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="24221" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="24223" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="24225" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a> <a id="24229" class="Symbol">→</a>
+      <a id="24237" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="24259" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="24262" class="Symbol">(</a><a id="24263" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="24266" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="24269" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="24270" class="Symbol">)</a> <a id="24272" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="24274" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a>
+    <a id="24282" href="Configuration-types.html#24160" class="Function">erased-matches-for-JK-all·ᵐ</a> <a id="24310" href="Configuration-types.html#24310" class="Bound">≡all</a> <a id="24315" class="Symbol">=</a>
+      <a id="24323" href="Configuration-types.Erased-matches.html#3587" class="Function">≤ᵉᵐ→≡all→≡all</a> <a id="24337" href="Configuration-types.html#23860" class="Function">erased-matches-for-JK-≤ᵉᵐ·ᵐ</a> <a id="24365" href="Configuration-types.html#24310" class="Bound">≡all</a>
+
+  <a id="24373" class="Keyword">opaque</a>
+
+    <a id="24385" class="Comment">-- If all erased matches are allowed for J for m, then they are</a>
+    <a id="24453" class="Comment">-- allowed for m′ ·ᵐ m.</a>
+
+    <a id="Configuration.erased-matches-for-J-all·ᵐ"></a><a id="24482" href="Configuration-types.html#24482" class="Function">erased-matches-for-J-all·ᵐ</a> <a id="24509" class="Symbol">:</a>
+      <a id="24517" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="24538" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="24540" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="24542" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a> <a id="24546" class="Symbol">→</a>
+      <a id="24554" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="24575" class="Symbol">(</a><a id="24576" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="24579" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="24582" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="24583" class="Symbol">)</a> <a id="24585" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="24587" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a>
+    <a id="24595" href="Configuration-types.html#24482" class="Function">erased-matches-for-J-all·ᵐ</a> <a id="24622" class="Symbol">=</a> <a id="24624" href="Configuration-types.html#24160" class="Function">erased-matches-for-JK-all·ᵐ</a>
+
+  <a id="24655" class="Keyword">opaque</a>
+
+    <a id="24667" class="Comment">-- If all erased matches are allowed for K for m, then they are</a>
+    <a id="24735" class="Comment">-- allowed for m′ ·ᵐ m.</a>
+
+    <a id="Configuration.erased-matches-for-K-all·ᵐ"></a><a id="24764" href="Configuration-types.html#24764" class="Function">erased-matches-for-K-all·ᵐ</a> <a id="24791" class="Symbol">:</a>
+      <a id="24799" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="24820" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="24822" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="24824" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a> <a id="24828" class="Symbol">→</a>
+      <a id="24836" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="24857" class="Symbol">(</a><a id="24858" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="24861" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="24864" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="24865" class="Symbol">)</a> <a id="24867" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="24869" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a>
+    <a id="24877" href="Configuration-types.html#24764" class="Function">erased-matches-for-K-all·ᵐ</a> <a id="24904" class="Symbol">=</a> <a id="24906" href="Configuration-types.html#24160" class="Function">erased-matches-for-JK-all·ᵐ</a>
+
+  <a id="24937" class="Keyword">opaque</a>
+
+    <a id="24949" class="Comment">-- If some erased matches are allowed for J or K for the mode m,</a>
+    <a id="25018" class="Comment">-- then some or all erased matches are allowed for m′ ·ᵐ m.</a>
+
+    <a id="Configuration.erased-matches-for-JK-some·ᵐ"></a><a id="25083" href="Configuration-types.html#25083" class="Function">erased-matches-for-JK-some·ᵐ</a> <a id="25112" class="Symbol">:</a>
+      <a id="25120" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="25142" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="25145" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="25147" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="25149" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a> <a id="25154" class="Symbol">→</a>
+      <a id="25162" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="25184" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="25187" class="Symbol">(</a><a id="25188" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="25191" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="25194" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="25195" class="Symbol">)</a> <a id="25197" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="25199" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a> <a id="25203" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a>
+      <a id="25211" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="25233" href="Configuration-types.html#1672" class="Generalizable">jk</a> <a id="25236" class="Symbol">(</a><a id="25237" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="25240" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="25243" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="25244" class="Symbol">)</a> <a id="25246" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="25248" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a>
+    <a id="25257" href="Configuration-types.html#25083" class="Function">erased-matches-for-JK-some·ᵐ</a> <a id="25286" class="Symbol">{</a><a id="25287" href="Configuration-types.html#25287" class="Bound">m</a><a id="25288" class="Symbol">}</a> <a id="25290" class="Symbol">{</a><a id="25291" href="Configuration-types.html#25291" class="Bound">m′</a><a id="25293" class="Symbol">}</a> <a id="25295" href="Configuration-types.html#25295" class="Bound">≡-some</a> <a id="25302" class="Symbol">=</a>
+      <a id="25310" href="Configuration-types.Erased-matches.html#4026" class="Function">some≤ᵉᵐ→</a> <a id="25319" class="Symbol">(</a><a id="25320" href="Relation.Binary.PropositionalEquality.Core.html#2195" class="Function">subst</a> <a id="25326" class="Symbol">(</a><a id="25327" href="Configuration-types.Erased-matches.html#1128" class="Function Operator">_≤ᵉᵐ</a> <a id="25332" href="Configuration-types.html#17310" class="Field">erased-matches-for-JK</a> <a id="25354" class="Symbol">_</a> <a id="25356" class="Symbol">(</a><a id="25357" href="Configuration-types.html#25291" class="Bound">m′</a> <a id="25360" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="25363" href="Configuration-types.html#25287" class="Bound">m</a><a id="25364" class="Symbol">))</a>
+                 <a id="25384" href="Configuration-types.html#25295" class="Bound">≡-some</a> <a id="25391" href="Configuration-types.html#23860" class="Function">erased-matches-for-JK-≤ᵉᵐ·ᵐ</a><a id="25418" class="Symbol">)</a>
+
+  <a id="25423" class="Keyword">opaque</a>
+
+    <a id="25435" class="Comment">-- If some erased matches are allowed for J for the mode m, then</a>
+    <a id="25504" class="Comment">-- some or all erased matches are allowed for m′ ·ᵐ m.</a>
+
+    <a id="Configuration.erased-matches-for-J-some·ᵐ"></a><a id="25564" href="Configuration-types.html#25564" class="Function">erased-matches-for-J-some·ᵐ</a> <a id="25592" class="Symbol">:</a>
+      <a id="25600" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="25621" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="25623" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="25625" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a> <a id="25630" class="Symbol">→</a>
+      <a id="25638" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="25659" class="Symbol">(</a><a id="25660" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="25663" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="25666" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="25667" class="Symbol">)</a> <a id="25669" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="25671" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a> <a id="25675" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a>
+      <a id="25683" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="25704" class="Symbol">(</a><a id="25705" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="25708" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="25711" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="25712" class="Symbol">)</a> <a id="25714" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="25716" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a>
+    <a id="25725" href="Configuration-types.html#25564" class="Function">erased-matches-for-J-some·ᵐ</a> <a id="25753" class="Symbol">=</a> <a id="25755" href="Configuration-types.html#25083" class="Function">erased-matches-for-JK-some·ᵐ</a>
+
+  <a id="25787" class="Keyword">opaque</a>
+
+    <a id="25799" class="Comment">-- If some erased matches are allowed for K for the mode m, then</a>
+    <a id="25868" class="Comment">-- some or all erased matches are allowed for m′ ·ᵐ m.</a>
+
+    <a id="Configuration.erased-matches-for-K-some·ᵐ"></a><a id="25928" href="Configuration-types.html#25928" class="Function">erased-matches-for-K-some·ᵐ</a> <a id="25956" class="Symbol">:</a>
+      <a id="25964" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="25985" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="25987" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="25989" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a> <a id="25994" class="Symbol">→</a>
+      <a id="26002" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="26023" class="Symbol">(</a><a id="26024" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="26027" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="26030" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="26031" class="Symbol">)</a> <a id="26033" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="26035" href="Configuration-types.Erased-matches.html#964" class="InductiveConstructor">all</a> <a id="26039" href="Data.Sum.Base.html#625" class="Datatype Operator">⊎</a>
+      <a id="26047" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="26068" class="Symbol">(</a><a id="26069" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="26072" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="26075" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="26076" class="Symbol">)</a> <a id="26078" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="26080" href="Configuration-types.Erased-matches.html#993" class="InductiveConstructor">some</a>
+    <a id="26089" href="Configuration-types.html#25928" class="Function">erased-matches-for-K-some·ᵐ</a> <a id="26117" class="Symbol">=</a> <a id="26119" href="Configuration-types.html#25083" class="Function">erased-matches-for-JK-some·ᵐ</a>
+
+  <a id="26151" class="Keyword">opaque</a>
+
+    <a id="26163" class="Comment">-- If []-cong is allowed for a given strength and the mode m, then</a>
+    <a id="26234" class="Comment">-- []-cong is allowed for m′ ·ᵐ m.</a>
+
+    <a id="Configuration.[]-cong-allowed-mode-·ᵐ"></a><a id="26274" href="Configuration-types.html#26274" class="Function">[]-cong-allowed-mode-·ᵐ</a> <a id="26298" class="Symbol">:</a>
+      <a id="26306" href="Configuration-types.html#18473" class="Field">[]-cong-allowed-mode</a> <a id="26327" href="Configuration-types.html#1063" class="Generalizable">s</a> <a id="26329" href="Configuration-types.html#1219" class="Generalizable">m</a> <a id="26331" class="Symbol">→</a>
+      <a id="26339" href="Configuration-types.html#18473" class="Field">[]-cong-allowed-mode</a> <a id="26360" href="Configuration-types.html#1063" class="Generalizable">s</a> <a id="26362" class="Symbol">(</a><a id="26363" href="Configuration-types.html#1221" class="Generalizable">m′</a> <a id="26366" href="Graded.Mode.html#2026" class="Function Operator">·ᵐ</a> <a id="26369" href="Configuration-types.html#1219" class="Generalizable">m</a><a id="26370" class="Symbol">)</a>
+    <a id="26376" href="Configuration-types.html#26274" class="Function">[]-cong-allowed-mode-·ᵐ</a> <a id="26400" href="Configuration-types.html#26400" class="Bound">ok</a> <a id="26403" class="Symbol">=</a>
+      <a id="26411" href="Configuration-types.html#18773" class="Field">[]-cong-allowed-mode-upwards-closed</a> <a id="26447" href="Configuration-types.html#26400" class="Bound">ok</a> <a id="26450" href="Graded.Mode.html#16097" class="Function">·ᵐ-increasingˡ</a>
+
+  <a id="26468" class="Comment">----------------------------------------------------------------------</a>
+  <a id="26541" class="Comment">-- Some definitions related to erased matches</a>
+
+  <a id="26590" class="Comment">-- The property of not allowing (certain) erased matches:</a>
+  <a id="26650" class="Comment">-- * Erased matches are allowed for emptyrec.</a>
+  <a id="26698" class="Comment">-- * &quot;Erased&quot; matches are allowed for unitrec if η-equality is allowed</a>
+  <a id="26771" class="Comment">--   for weak unit types.</a>
+  <a id="26799" class="Comment">-- * &quot;Erased&quot; matches are allowed for trivial modalities.</a>
+  <a id="26859" class="Comment">-- * Erased matches are allowed when the mode is ⌜ 𝟘 ⌝.</a>
+
+  <a id="Configuration.No-erased-matches"></a><a id="26918" href="Configuration-types.html#26918" class="Function">No-erased-matches</a> <a id="26936" class="Symbol">:</a> <a id="26938" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="26942" class="Symbol">(</a><a id="26943" href="Configuration-types.html#14591" class="Bound">a</a> <a id="26945" href="Agda.Primitive.html#1019" class="Primitive Operator">⊔</a> <a id="26947" href="Configuration-types.html#14606" class="Bound">b</a><a id="26948" class="Symbol">)</a>
+  <a id="26952" href="Configuration-types.html#26918" class="Function">No-erased-matches</a> <a id="26970" class="Symbol">=</a>
+    <a id="26976" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="26978" href="Graded.Modality.html#1736" class="Function">Trivial</a> <a id="26986" class="Symbol">→</a>
+    <a id="26992" class="Symbol">(∀</a> <a id="26995" class="Symbol">{</a><a id="26996" href="Configuration-types.html#26996" class="Bound">m</a> <a id="26998" href="Configuration-types.html#26998" class="Bound">r</a> <a id="27000" href="Configuration-types.html#27000" class="Bound">p</a> <a id="27002" href="Configuration-types.html#27002" class="Bound">q</a><a id="27003" class="Symbol">}</a> <a id="27005" class="Symbol">→</a> <a id="27007" href="Configuration-types.html#16027" class="Field">Prodrec-allowed</a> <a id="27023" href="Configuration-types.html#26996" class="Bound">m</a> <a id="27025" href="Configuration-types.html#26998" class="Bound">r</a> <a id="27027" href="Configuration-types.html#27000" class="Bound">p</a> <a id="27029" href="Configuration-types.html#27002" class="Bound">q</a> <a id="27031" class="Symbol">→</a> <a id="27033" href="Configuration-types.html#26998" class="Bound">r</a> <a id="27035" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27037" href="Graded.Modality.html#894" class="Function">𝟘</a> <a id="27039" class="Symbol">→</a> <a id="27041" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="27043" href="Configuration-types.html#26996" class="Bound">m</a> <a id="27045" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="27047" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27049" href="Graded.Modality.html#894" class="Function">𝟘</a><a id="27050" class="Symbol">)</a> <a id="27052" href="Data.Product.Base.html#1752" class="Function Operator">×</a>
+    <a id="27058" class="Symbol">(∀</a> <a id="27061" class="Symbol">{</a><a id="27062" href="Configuration-types.html#27062" class="Bound">m</a> <a id="27064" href="Configuration-types.html#27064" class="Bound">p</a> <a id="27066" href="Configuration-types.html#27066" class="Bound">q</a><a id="27067" class="Symbol">}</a> <a id="27069" class="Symbol">→</a> <a id="27071" href="Configuration-types.html#15565" class="Field">Unitrec-allowed</a> <a id="27087" href="Configuration-types.html#27062" class="Bound">m</a> <a id="27089" href="Configuration-types.html#27064" class="Bound">p</a> <a id="27091" href="Configuration-types.html#27066" class="Bound">q</a> <a id="27093" class="Symbol">→</a> <a id="27095" href="Configuration-types.html#27064" class="Bound">p</a> <a id="27097" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27099" href="Graded.Modality.html#894" class="Function">𝟘</a> <a id="27101" class="Symbol">→</a> <a id="27103" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="27105" href="Configuration-types.html#27062" class="Bound">m</a> <a id="27107" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="27109" href="Relation.Binary.PropositionalEquality.Core.html#1064" class="Function Operator">≢</a> <a id="27111" href="Graded.Modality.html#894" class="Function">𝟘</a> <a id="27113" class="Symbol">→</a> <a id="27115" href="Configuration-types.html#7310" class="Function">Unitʷ-η</a><a id="27122" class="Symbol">)</a> <a id="27124" href="Data.Product.Base.html#1752" class="Function Operator">×</a>
+    <a id="27130" class="Symbol">(∀</a> <a id="27133" class="Symbol">{</a><a id="27134" href="Configuration-types.html#27134" class="Bound">s</a> <a id="27136" href="Configuration-types.html#27136" class="Bound">m</a><a id="27137" class="Symbol">}</a> <a id="27139" class="Symbol">→</a> <a id="27141" href="Configuration-types.html#18473" class="Field">[]-cong-allowed-mode</a> <a id="27162" href="Configuration-types.html#27134" class="Bound">s</a> <a id="27164" href="Configuration-types.html#27136" class="Bound">m</a> <a id="27166" class="Symbol">→</a> <a id="27168" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="27170" href="Configuration-types.html#27136" class="Bound">m</a> <a id="27172" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="27174" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27176" href="Graded.Modality.html#894" class="Function">𝟘</a><a id="27177" class="Symbol">)</a> <a id="27179" href="Data.Product.Base.html#1752" class="Function Operator">×</a>
+    <a id="27185" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="27206" href="Graded.Mode.html#2049" class="Function">𝟙ᵐ</a> <a id="27209" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27211" href="Configuration-types.Erased-matches.html#879" class="InductiveConstructor">none</a> <a id="27216" href="Data.Product.Base.html#1752" class="Function Operator">×</a>
+    <a id="27222" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="27243" href="Graded.Mode.html#2049" class="Function">𝟙ᵐ</a> <a id="27246" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27248" href="Configuration-types.Erased-matches.html#879" class="InductiveConstructor">none</a>
+
+  <a id="27256" class="Comment">-- The property of not allowing certain erased matches:</a>
+  <a id="27314" class="Comment">-- * Erased matches are allowed for emptyrec and unitrec.</a>
+  <a id="27374" class="Comment">-- * &quot;Erased&quot; matches are allowed for trivial modalities.</a>
+  <a id="27434" class="Comment">-- * Erased matches are allowed when the mode is ⌜ 𝟘 ⌝.</a>
+
+  <a id="Configuration.Only-some-erased-matches"></a><a id="27493" href="Configuration-types.html#27493" class="Function">Only-some-erased-matches</a> <a id="27518" class="Symbol">:</a> <a id="27520" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="27524" class="Symbol">(</a><a id="27525" href="Configuration-types.html#14591" class="Bound">a</a> <a id="27527" href="Agda.Primitive.html#1019" class="Primitive Operator">⊔</a> <a id="27529" href="Configuration-types.html#14606" class="Bound">b</a><a id="27530" class="Symbol">)</a>
+  <a id="27534" href="Configuration-types.html#27493" class="Function">Only-some-erased-matches</a> <a id="27559" class="Symbol">=</a>
+    <a id="27565" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="27567" href="Graded.Modality.html#1736" class="Function">Trivial</a> <a id="27575" class="Symbol">→</a>
+    <a id="27581" class="Symbol">(∀</a> <a id="27584" class="Symbol">{</a><a id="27585" href="Configuration-types.html#27585" class="Bound">m</a> <a id="27587" href="Configuration-types.html#27587" class="Bound">r</a> <a id="27589" href="Configuration-types.html#27589" class="Bound">p</a> <a id="27591" href="Configuration-types.html#27591" class="Bound">q</a><a id="27592" class="Symbol">}</a> <a id="27594" class="Symbol">→</a> <a id="27596" href="Configuration-types.html#16027" class="Field">Prodrec-allowed</a> <a id="27612" href="Configuration-types.html#27585" class="Bound">m</a> <a id="27614" href="Configuration-types.html#27587" class="Bound">r</a> <a id="27616" href="Configuration-types.html#27589" class="Bound">p</a> <a id="27618" href="Configuration-types.html#27591" class="Bound">q</a> <a id="27620" class="Symbol">→</a> <a id="27622" href="Configuration-types.html#27587" class="Bound">r</a> <a id="27624" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27626" href="Graded.Modality.html#894" class="Function">𝟘</a> <a id="27628" class="Symbol">→</a> <a id="27630" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="27632" href="Configuration-types.html#27585" class="Bound">m</a> <a id="27634" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="27636" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27638" href="Graded.Modality.html#894" class="Function">𝟘</a><a id="27639" class="Symbol">)</a> <a id="27641" href="Data.Product.Base.html#1752" class="Function Operator">×</a>
+    <a id="27647" class="Symbol">(∀</a> <a id="27650" class="Symbol">{</a><a id="27651" href="Configuration-types.html#27651" class="Bound">s</a> <a id="27653" href="Configuration-types.html#27653" class="Bound">m</a><a id="27654" class="Symbol">}</a> <a id="27656" class="Symbol">→</a> <a id="27658" href="Configuration-types.html#18473" class="Field">[]-cong-allowed-mode</a> <a id="27679" href="Configuration-types.html#27651" class="Bound">s</a> <a id="27681" href="Configuration-types.html#27653" class="Bound">m</a> <a id="27683" class="Symbol">→</a> <a id="27685" href="Graded.Mode.html#2083" class="Function Operator">⌜</a> <a id="27687" href="Configuration-types.html#27653" class="Bound">m</a> <a id="27689" href="Graded.Mode.html#2083" class="Function Operator">⌝</a> <a id="27691" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27693" href="Graded.Modality.html#894" class="Function">𝟘</a><a id="27694" class="Symbol">)</a> <a id="27696" href="Data.Product.Base.html#1752" class="Function Operator">×</a>
+    <a id="27702" href="Configuration-types.html#17444" class="Function">erased-matches-for-J</a> <a id="27723" href="Graded.Mode.html#2049" class="Function">𝟙ᵐ</a> <a id="27726" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27728" href="Configuration-types.Erased-matches.html#879" class="InductiveConstructor">none</a> <a id="27733" href="Data.Product.Base.html#1752" class="Function Operator">×</a>
+    <a id="27739" href="Configuration-types.html#17621" class="Function">erased-matches-for-K</a> <a id="27760" href="Graded.Mode.html#2049" class="Function">𝟙ᵐ</a> <a id="27763" href="Agda.Builtin.Equality.html#167" class="Datatype Operator">≡</a> <a id="27765" href="Configuration-types.Erased-matches.html#879" class="InductiveConstructor">none</a>
+
+  <a id="27773" class="Keyword">opaque</a>
+
+    <a id="27785" class="Comment">-- If Unitʷ-η holds for C, then Only-some-erased-matches C implies</a>
+    <a id="27856" class="Comment">-- No-erased-matches C.</a>
+
+    <a id="Configuration.Only-some-erased-matches→No-erased-matches"></a><a id="27885" href="Configuration-types.html#27885" class="Function">Only-some-erased-matches→No-erased-matches</a> <a id="27928" class="Symbol">:</a>
+      <a id="27936" href="Configuration-types.html#7310" class="Function">Unitʷ-η</a> <a id="27944" class="Symbol">→</a> <a id="27946" href="Configuration-types.html#27493" class="Function">Only-some-erased-matches</a> <a id="27971" class="Symbol">→</a> <a id="27973" href="Configuration-types.html#26918" class="Function">No-erased-matches</a>
+    <a id="27995" href="Configuration-types.html#27885" class="Function">Only-some-erased-matches→No-erased-matches</a> <a id="28038" href="Configuration-types.html#28038" class="Bound">η</a> <a id="28040" class="Symbol">=</a>
+      <a id="28048" href="Data.Product.Base.html#2307" class="Function">Σ.map</a> <a id="28054" href="Tools.Function.html#287" class="Function">idᶠ</a> <a id="28058" class="Symbol">((λ</a> <a id="28062" class="Symbol">{</a><a id="28063" href="Configuration-types.html#28063" class="Bound">_</a> <a id="28065" href="Configuration-types.html#28065" class="Bound">_</a> <a id="28067" href="Configuration-types.html#28067" class="Bound">_</a><a id="28068" class="Symbol">}</a> <a id="28070" href="Configuration-types.html#28070" class="Bound">_</a> <a id="28072" href="Configuration-types.html#28072" class="Bound">_</a> <a id="28074" href="Configuration-types.html#28074" class="Bound">_</a> <a id="28076" class="Symbol">→</a> <a id="28078" href="Configuration-types.html#28038" class="Bound">η</a><a id="28079" class="Symbol">)</a> <a id="28081" href="Agda.Builtin.Sigma.html#252" class="InductiveConstructor Operator">,_</a><a id="28083" class="Symbol">)</a> <a id="28085" href="Tools.Function.html#299" class="Function Operator">∘→_</a>
+</pre></body></html>
