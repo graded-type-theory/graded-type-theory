@@ -1,11 +1,11 @@
 ------------------------------------------------------------------------
--- Definitions related to usage restrictions controling which usage
--- rule for natrec should be used.
+-- Definitions related to the parts of the configuration that control
+-- which usage rule for natrec is used
 ------------------------------------------------------------------------
 
 import Graded.Modality
 
-module Graded.Usage.Restrictions.Natrec
+module Configuration-types.Natrec
   {a} {M : Set a}
   (open Graded.Modality M)
   (𝕄 : Modality)

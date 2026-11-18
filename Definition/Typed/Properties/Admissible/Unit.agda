@@ -2,32 +2,32 @@
 -- Admissible rules related to the unit types
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Unit
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions TR
+open Type-configuration TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Typed TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties.Admissible.Equality TR
-open import Definition.Typed.Properties.Admissible.Identity.Primitive TR
-open import Definition.Typed.Properties.Admissible.Var TR
-open import Definition.Typed.Properties.Reduction TR
-open import Definition.Typed.Properties.Well-formed TR
-open import Definition.Typed.Reasoning.Reduction TR
-open import Definition.Typed.Reasoning.Term TR
-open import Definition.Typed.Stability TR
-open import Definition.Typed.Substitution.Primitive TR
-open import Definition.Typed.Weakening TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Equality TC
+open import Definition.Typed.Properties.Admissible.Identity.Primitive TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Reduction TC
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped.Unit 𝕄
 
 open import Tools.Function

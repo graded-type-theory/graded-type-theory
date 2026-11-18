@@ -3,29 +3,32 @@
 -- is parameterized.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
-open import Graded.Modality
+open import Configuration-types
+import Graded.Modality
 
 module Definition.Typed.EqualityRelation
   {ℓ} {M : Set ℓ}
-  {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (open Graded.Modality M)
+  {𝕄 : Modality}
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
+
+open import Configuration-types.Instance.Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Sup R
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Sup TC
+open import Definition.Untyped.Whnf M TC⁻
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Empty
 open import Tools.Fin
@@ -476,7 +479,8 @@ record Equality-relations
 
     -- Congruence for qrec.
     ~-qrec-cong
-      : Γ »∙ Quot A B ⊢ C₁ ≅ C₂
+      : ⦃ ok : Omega-allowed ⦄
+      → Γ »∙ Quot A B ⊢ C₁ ≅ C₂
       → Γ »∙ A ⊢ t₁ ≅ t₂ ∷ C₁ [ class (var x0) ]↑
       → Resp-Cons Γ A B ⊢ u₁ ≅ u₂ ∷ Resp-type A B C₁ t₁
       → Is-set-Cons Γ A B C₁ ⊢ v₁ ≅ v₂ ∷ Is-set-type C₁

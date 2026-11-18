@@ -2,48 +2,48 @@
 -- Validity for Π-types
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Substitution.Introductions.Pi
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
-import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Hidden TC
+import Definition.LogicalRelation.Hidden.Restricted TC as R
+open import Definition.LogicalRelation.Irrelevance TC
+open import Definition.LogicalRelation.Properties TC
+open import Definition.LogicalRelation.ShapeView TC
+open import Definition.LogicalRelation.Substitution TC
 open import
-  Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma R
-open import Definition.LogicalRelation.Substitution.Introductions.Var R
-open import Definition.LogicalRelation.Weakening.Restricted R
+  Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma TC
+open import Definition.LogicalRelation.Substitution.Introductions.Var TC
+open import Definition.LogicalRelation.Weakening.Restricted TC
 
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Reasoning.Term R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R as W using (_»_∷ʷ_⊇_)
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Reduction TC
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC as W using (_»_∷ʷ_⊇_)
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Fin
 open import Tools.Function

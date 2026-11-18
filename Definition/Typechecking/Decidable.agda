@@ -3,46 +3,48 @@
 -- assumptions)
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typechecking.Decidable.Assumptions
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typechecking.Decidable
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (as : Assumptions R)
+  {TC : Type-configuration 𝕄}
+  (as : Assumptions TC)
   where
 
 open Assumptions as
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typechecking R
-open import Definition.Typechecking.Soundness R
-open import Definition.Typechecking.Deterministic R
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Syntactic R
-open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Well-formed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.NeTypeEq R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Decidable.Equality R _≟_
-open import Definition.Typed.Decidable.Reduction R _≟_
+open import Configuration-types.Omega 𝕄
+
+open import Definition.Typechecking TC
+open import Definition.Typechecking.Soundness TC
+open import Definition.Typechecking.Deterministic TC
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.EqualityRelation.Instance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Type TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Syntactic TC
+open import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.NeTypeEq TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.Decidable.Equality TC _≟_
+open import Definition.Typed.Decidable.Reduction TC _≟_
 open import Definition.Untyped M as U
-open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Allowed-literal TC
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Empty
 open import Tools.Fin
@@ -761,15 +763,31 @@ opaque
       Checkable v → Inferable w →
       Dec (∃ λ D → Γ ⊢ qrec C t u v w ⇉ D)
     dec⇉-qrec ⊢Γ C t u v w =
+      let ω-ok : ∀ {C} → Γ ⊢ A ↘ Quot B C → Omega-allowed
+          ω-ok (A⇒*Q , _) =
+             let A≡Q    = subset* A⇒*Q
+                 _ , ⊢Q = wf-⊢ A≡Q
+                 ok , _ = inversion-Quot ⊢Q
+             in
+             Quot-allowed→Omega-allowed ok
+      in
       case
         (dec⇉-with-cont ⊢Γ w λ ⊢A _ →
          Σ-dec (↘Quot? ⊢A)
            (λ (_ , _ , ↘Q₁) (_ , _ , ↘Q₂) →
               case whrDet* ↘Q₁ ↘Q₂ of λ {
                 PE.refl →
-              idᶠ })
-           λ (_ , _ , A⇒*Q , _) →
-         let A≡Q         = subset* A⇒*Q
+              Σ.map idᶠ $ Σ.map idᶠ $
+              Σ.map
+                (PE.subst (_⊢_⇇_ _ _) $
+                 PE.cong
+                   (λ ok →
+                      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄
+                        _ _ _ _) $
+                 Omega-allowed-propositional (ω-ok ↘Q₁) (ω-ok ↘Q₂))
+                idᶠ })
+           λ (_ , _ , ↘Q) →
+         let A≡Q         = subset* (↘Q .proj₁)
              _ , ⊢Q      = wf-⊢ A≡Q
              _ , ⊢Q₁ , _ = inversion-Quot ⊢Q
          in
@@ -777,14 +795,16 @@ opaque
          dec⇇-with-cont t
            (subst-⊢ ⊢C $
             ⊢ˢʷ∷-[][]↑ (class (wk₁ ⊢Q₁ ⊢Q) (var₀ ⊢Q₁))) λ ⊢t →
-         dec⇇ u (⊢Resp-type ⊢C ⊢t) ×-dec
+         dec⇇ u (⊢Resp-type ⦃ ok = ω-ok ↘Q ⦄ ⊢C ⊢t) ×-dec
          dec⇇ v (⊢Is-set-type ⊢C))
       of λ where
         (yes ((_ , w) , (_ , _ , ↘Q) , C , t , u , v)) →
-          yes (_ , qrec w ↘Q C t u v)
+          yes (_ , qrec ⦃ ok = ω-ok ↘Q ⦄ w ↘Q C t u v)
         (no not) → no λ where
-          (_ , qrec w ↘Q C t u v) →
-            not ((_ , w) , (_ , _ , ↘Q) , C , t , u , v)
+          (_ , qrec ⦃ ok ⦄ w ↘Q C t u v) →
+            case Omega-allowed-propositional ok (ω-ok ↘Q) of λ {
+              PE.refl →
+            not ((_ , w) , (_ , _ , ↘Q) , C , t , u , v) }
 
   -- Decidability of checking that an inferable term is a type
 

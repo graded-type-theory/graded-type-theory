@@ -2,24 +2,24 @@
 -- Properties related to usage, ω and Ω for the Zero-one mode structure
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Omega.Zero-one
   {a} {M : Set a}
   {𝕄 : Modality M}
   {mode-variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 
 open import Graded.Context 𝕄
-import Graded.Derived.Omega UR as O
-open import Graded.Usage UR
+import Graded.Derived.Omega C as O
+open import Graded.Usage C
 
 open import Definition.Untyped.Omega M
 

@@ -2,12 +2,11 @@
 -- A non-interference result.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 import Definition.Untyped
-open import Definition.Typed.Restrictions
 open import Graded.Erasure.LogicalRelation.Fundamental.Assumptions
 open import Graded.Erasure.Target as T using (Strictness)
 open import Tools.Nat using (Nat)
@@ -19,30 +18,30 @@ module Graded.Erasure.Consequences.Non-interference
   {variant : Mode-variant 𝕄}
   (open Modality 𝕄)
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   {kᵈ k : Nat}
   {∇ : DCon (Term 0) kᵈ}
   {Δ : Con Term k}
-  (FA : Fundamental-assumptions TR UR (glassify ∇ » Δ))
+  (FA : Fundamental-assumptions C (glassify ∇ » Δ))
   {str : Strictness}
   where
 
+open Configuration C
 open Fundamental-assumptions FA
 
-open import Definition.Typed TR
-open import Definition.Typed.EqRelInstance TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
 
 open import Graded.Context 𝕄
-open import Graded.Usage UR
+open import Graded.Usage C
 open import Graded.Modality.Properties 𝕄
 
 open import Graded.Erasure.Extraction 𝕄
-open import Graded.Erasure.LogicalRelation.Assumptions TR
-open import Graded.Erasure.LogicalRelation.Fundamental TR UR
+open import Graded.Erasure.LogicalRelation.Assumptions TC
+open import Graded.Erasure.LogicalRelation.Fundamental C
 
 private
 
@@ -50,7 +49,7 @@ private
   as = assumptions well-formed str ⇒*-is-reduction-relation
 
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden UR as
+open import Graded.Erasure.LogicalRelation.Hidden C as
 
 open Fundamental FA
 

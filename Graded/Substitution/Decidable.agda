@@ -3,9 +3,9 @@
 -- (given certain assumptions)
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 open import Graded.Usage.Decidable.Assumptions
 
 module Graded.Substitution.Decidable
@@ -13,8 +13,8 @@ module Graded.Substitution.Decidable
   {𝕄 : Modality M}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  {R : Usage-restrictions 𝕄 𝐌}
-  (as : Assumptions R)
+  {C : Configuration 𝐌}
+  (as : Assumptions C)
   where
 
 open Assumptions as
@@ -24,12 +24,12 @@ open IsMode 𝐌
 open import Definition.Untyped M
 
 open import Graded.Context 𝕄
-open import Graded.Substitution R
-open import Graded.Substitution.Properties R
+open import Graded.Substitution C
+open import Graded.Substitution.Properties C
 open import Graded.Context.Properties 𝕄
-open import Graded.Usage R
+open import Graded.Usage C
 open import Graded.Usage.Decidable as
-open import Graded.Usage.Properties R
+open import Graded.Usage.Properties C
 
 open import Tools.Fin
 open import Tools.Function

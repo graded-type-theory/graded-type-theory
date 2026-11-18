@@ -2,25 +2,25 @@
 -- Admissible rules related to _⟶×⟨_⟩[_]_
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Non-dependent
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Pi R
-open import Definition.Typed.Properties.Admissible.Pi-Sigma R
-open import Definition.Typed.Properties.Admissible.Sigma R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Pi TC
+open import Definition.Typed.Properties.Admissible.Pi-Sigma TC
+open import Definition.Typed.Properties.Admissible.Sigma TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Non-dependent 𝕄

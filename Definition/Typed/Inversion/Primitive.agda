@@ -4,26 +4,26 @@
 
 {-# OPTIONS --backtracking-instance-search #-}
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Inversion.Primitive
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Level.Primitive R
-open import Definition.Typed.Properties.Admissible.U.Primitive R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Size R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Level.Primitive TC
+open import Definition.Typed.Properties.Admissible.U.Primitive TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Size TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 
 open import Tools.Empty
 open import Tools.Fin

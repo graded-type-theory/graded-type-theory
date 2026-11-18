@@ -20,6 +20,8 @@ import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum as ⊎ using (_⊎_; inj₁; inj₂)
 
+open import Configuration-types
+
 import Graded.FullReduction.Assumptions
 import Graded.Modality
 import Graded.Modality.Instances.BoundedStar as BoundedStar
@@ -36,9 +38,7 @@ import Graded.Modality.Properties.Subtraction
 import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
 
-import Definition.Typed.Restrictions
 open import Definition.Untyped using (BMΣ; 𝕤; 𝕨)
-import Graded.Usage.Restrictions
 
 -- The grades are the natural numbers extended with ∞.
 
@@ -1505,17 +1505,12 @@ module _ {𝟘ᵐ-allowed : Bool} where
 
   open Graded.Mode.Instances.Zero-one   variant
     hiding (⌞_⌟)
-  open Definition.Typed.Restrictions    ℕ⊎∞-modality
-  open Graded.Usage.Restrictions        ℕ⊎∞-modality Zero-one-isMode
   open Graded.FullReduction.Assumptions variant
 
   private variable
-    TRs : Type-restrictions
-    URs : Usage-restrictions
+    C : Configuration Zero-one-isMode
 
-  -- Instances of Type-restrictions ℕ⊎∞-modality and
-  -- Usage-restrictions ℕ⊎∞-modality are suitable for the full
-  -- reduction theorem if
+  -- Configurations are suitable for the full reduction theorem if
   -- * whenever Σˢ-allowed m n holds, then m is ⌞ 1 ⌟, or the total
   --   ordering is used, m is ⌞ 0 ⌟, and 𝟘ᵐ is allowed, and
   -- * if the "flat" ordering is used, then strong unit types are
@@ -1523,49 +1518,54 @@ module _ {𝟘ᵐ-allowed : Bool} where
   --   η-equality is not allowed for weak unit types (if such types are
   --   allowed).
 
-  Suitable-for-full-reduction :
-    Type-restrictions →
-    Usage-restrictions → Set
-  Suitable-for-full-reduction TRs URs =
+  Suitable-for-full-reduction : Configuration Zero-one-isMode → Set
+  Suitable-for-full-reduction C =
     (∀ m n → Σˢ-allowed m n →
      m ≡ ⌞ 1 ⌟ ⊎ T total × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed) ×
     (¬ T total →
      (Unitˢ-allowed → Starˢ-sink) ×
      (Unitʷ-allowed → ¬ Unitʷ-η))
     where
-    open Type-restrictions TRs
-    open Usage-restrictions URs
+    open Configuration C
 
-  -- Given instances of Type-restrictions ℕ⊎∞-modality and
-  -- Usage-restrictions ℕ⊎∞-modality one can create
-  -- "suitable" instances.
+  -- One can transform any configuration to a "suitable" one.
 
   suitable-for-full-reduction :
-    Type-restrictions →
-    Usage-restrictions →
-    ∃₂ Suitable-for-full-reduction
-  suitable-for-full-reduction TRs URs =
-      record TRs
-        { Unit-allowed = λ s →
-            Unit-allowed s ×
-            (¬ T total → s ≡ 𝕨 → ¬ Unitʷ-η)
-        ; ΠΣ-allowed = λ b m n →
-            ΠΣ-allowed b m n ×
-            (b ≡ BMΣ 𝕤 → m ≡ ⌞ 1 ⌟ ⊎ T total × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
-        ; []-cong-allowed = λ s →
-            []-cong-allowed s ×
-            (T total → T 𝟘ᵐ-allowed) ×
-            (¬ T total → s ≢ 𝕤 × (s ≡ 𝕨 → ¬ Unitʷ-η))
-        ; []-cong→Erased = λ (ok , hyp₁ , hyp₂) →
-            let ok₁ , ok₂ = []-cong→Erased ok in
-              (ok₁ , proj₂ ∘→ hyp₂)
-            , ok₂
-            , (case PE.singleton total of λ where
-                 (true  , refl) _    → inj₂ (_ , refl , hyp₁ _)
-                 (false , refl) refl → ⊥-elim (hyp₂ idᶠ .proj₁ refl))
-        ; []-cong→¬Trivial = λ _ ()
+    Configuration Zero-one-isMode → ∃ Suitable-for-full-reduction
+  suitable-for-full-reduction C =
+      record C
+        { TC = record TC
+          { TC⁻ = record TC⁻
+            { Unit-allowed = λ s →
+                Unit-allowed s ×
+                (¬ T total → s ≡ 𝕨 → ¬ Unitʷ-η)
+            }
+          ; ΠΣ-allowed = λ b m n →
+              ΠΣ-allowed b m n ×
+              (b ≡ BMΣ 𝕤 → m ≡ ⌞ 1 ⌟ ⊎ T total × m ≡ ⌞ 0 ⌟ × T 𝟘ᵐ-allowed)
+          ; []-cong-allowed = λ s →
+              []-cong-allowed s ×
+              (T total → T 𝟘ᵐ-allowed) ×
+              (¬ T total → s ≢ 𝕤 × (s ≡ 𝕨 → ¬ Unitʷ-η))
+          ; []-cong→Erased = λ (ok , hyp₁ , hyp₂) →
+              let ok₁ , ok₂ = []-cong→Erased ok in
+                (ok₁ , proj₂ ∘→ hyp₂)
+              , ok₂
+              , (case PE.singleton total of λ where
+                   (true  , refl) _    → inj₂ (_ , refl , hyp₁ _)
+                   (false , refl) refl → ⊥-elim (hyp₂ idᶠ .proj₁ refl))
+          ; []-cong→¬Trivial = λ _ ()
+          }
+        ; []-cong-allowed-mode = λ s m →
+            []-cong-allowed-mode s m × _
+        ; []-cong-allowed-mode→[]-cong-allowed =
+            Σ.map []-cong-allowed-mode→[]-cong-allowed idᶠ
+        ; []-cong-allowed-mode-upwards-closed =
+            flip λ m≤m′ →
+            Σ.map (flip []-cong-allowed-mode-upwards-closed m≤m′) idᶠ
+        ; starˢ-sink =
+            not total ∨ starˢ-sink
         }
-    , record URs { starˢ-sink = not total ∨ starˢ-sink }
     , (λ _ _ (_ , hyp) → hyp refl)
     , (λ not-total →
            (λ (_ , hyp) → case PE.singleton total of λ where
@@ -1573,15 +1573,14 @@ module _ {𝟘ᵐ-allowed : Bool} where
               (false , refl) → _)
          , (λ (_ , hyp) → hyp not-total refl))
     where
-    open Type-restrictions TRs
-    open Usage-restrictions URs
+    open Configuration C
 
-  -- The full reduction assumptions hold for ℕ⊎∞-modality and
-  -- any "suitable" instance of Type-restrictions.
+  -- The full reduction assumptions hold for any "suitable"
+  -- configuration.
 
   full-reduction-assumptions :
-    Suitable-for-full-reduction TRs URs →
-    Full-reduction-assumptions TRs URs
+    Suitable-for-full-reduction C →
+    Full-reduction-assumptions C
   full-reduction-assumptions (hyp₁ , hyp₂) =
     case PE.singleton total of λ where
       (true , refl) → record
@@ -1596,12 +1595,12 @@ module _ {𝟘ᵐ-allowed : Bool} where
         ; ≡𝟙⊎𝟙≤𝟘 = ⊎.map idᶠ (⊥-elim ∘→ proj₁) ∘→ hyp₁ _ _
         }
 
-  -- Type and usage restrictions that satisfy the full reduction
-  -- assumptions are "suitable".
+  -- Configurations that satisfy the full reduction assumptions are
+  -- "suitable".
 
   full-reduction-assumptions-suitable :
-    Full-reduction-assumptions TRs URs →
-    Suitable-for-full-reduction TRs URs
+    Full-reduction-assumptions C →
+    Suitable-for-full-reduction C
   full-reduction-assumptions-suitable as =
     case PE.singleton total of λ where
       (true , refl) →
@@ -1614,7 +1613,7 @@ module _ {𝟘ᵐ-allowed : Bool} where
              , (λ ok η →
                   ⊎.[ (λ { (() , _) }) , (λ ()) ] (sink⊎𝟙≤𝟘 ok (inj₂ η))))
     where
-    open Full-reduction-assumptions _ _ as
+    open Full-reduction-assumptions _ as
 
 ------------------------------------------------------------------------
 -- Subtraction

@@ -2,20 +2,24 @@
 -- Validity for quotient types
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
-open import Graded.Modality
+import Graded.Modality
 
 module Definition.LogicalRelation.Substitution.Introductions.Quotient
   {a} {M : Set a}
-  {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (Eq : EqRelSet R)
+  (open Graded.Modality M)
+  {𝕄 : Modality}
+  {TC : Type-configuration 𝕄}
+  (Eq : EqRelSet TC)
   where
 
 open EqRelSet Eq
+open Has-omega ⦃ … ⦄
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
+
+open import Configuration-types.Instance.Type-configuration TC
 
 open import Definition.LogicalRelation _ ⦃ eqrel = Eq ⦄
 open import Definition.LogicalRelation.Hidden _ ⦃ eqrel = Eq ⦄
@@ -40,23 +44,23 @@ open import Definition.LogicalRelation.Weakening.Definition
 open import Definition.LogicalRelation.Weakening.Restricted
   _ ⦃ eqrel = Eq ⦄
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
-import Definition.Typed.Weakening R as W
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Reduction TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Empty
 open import Tools.Fin
@@ -1320,6 +1324,7 @@ opaque
   -- A simplification lemma for Resp-type.
 
   Equality-reflection→Resp-type-[]₂₁₀≡ :
+    ⦃ ok : Omega-allowed ⦄ →
     Equality-reflection →
     Γ ⊩ᵛ⟨ ℓ′ ⟩ A →
     Quot-rel-Cons Γ A ⊩ᵛ⟨ ℓ′ ⟩ B →
@@ -1358,14 +1363,14 @@ opaque
     ⊩Id≡Id⇔ .proj₂
       ( sym-⊩≡ C[σ⇑][u]≡C[σ⇑][v]
       , ⊩∷-⇐*
-          (subst 𝟘 (Quot A B [ σ ]) (C [ σ ⇑ ]) (class u) (class v)
+          (subst ω (Quot A B [ σ ]) (C [ σ ⇑ ]) (class u) (class v)
              (resp (A [ σ ]) (B [ σ ⇑[ 2 ] ]) u v w)
              (t [ σ ⇑ ] [ u ]₀) ∷ C [ σ ⇑ ] [ class v ]₀             ⇒⟨ subst-subst ⊢C[σ⇑]
                                                                           (resp-η ok (⊢∙→⊢ (wf ⊢C[σ⇑])) (escape-⊩∷ ⊩u) (escape-⊩∷ ⊩v)
                                                                              (escape-⊩∷ ⊩w))
                                                                           ⊢t[σ⇑][u] ⟩∷
                                                                      ˘⟨ ≅-eq (escape-⊩≡ C[σ⇑][u]≡C[σ⇑][v]) ⟩⇒
-           subst 𝟘 (Quot A B [ σ ]) (C [ σ ⇑ ]) (class u) (class v)
+           subst ω (Quot A B [ σ ]) (C [ σ ⇑ ]) (class u) (class v)
              rfl (t [ σ ⇑ ] [ u ]₀) ∷ C [ σ ⇑ ] [ class u ]₀         ⇒⟨ subst-⇒′ ⊢C[σ⇑] (≅ₜ-eq (escape-⊩≡∷ u≡v)) ⊢t[σ⇑][u] ⟩∎∷
 
            t [ σ ⇑ ] [ u ]₀                                          ∎)
@@ -1567,7 +1572,8 @@ opaque
   -- A congruence lemma for qrec.
 
   ⊩qrec≡qrec :
-    {σ₁ σ₂ : Subst m n} →
+    {σ₁ σ₂ : Subst m n}
+    ⦃ ok : Omega-allowed ⦄ →
     Γ »∙ Quot A B ⊢ C₁ ≡ C₂ →
     Γ »∙ Quot A B ⊩ᵛ⟨ ℓ₁ ⟩ C₁ ≡ C₂ →
     Γ »∙ A ⊢ t₁ ≡ t₂ ∷ C₁ [ class (var x0) ]↑ →
@@ -1833,6 +1839,7 @@ opaque
   -- Validity for qrec-cong.
 
   qrec-congᵛ :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ »∙ Quot A B ⊢ C₁ ≡ C₂ →
     Γ »∙ Quot A B ⊩ᵛ⟨ ℓ₁ ⟩ C₁ ≡ C₂ →
     Γ »∙ A ⊢ t₁ ≡ t₂ ∷ C₁ [ class (var x0) ]↑ →
@@ -1865,6 +1872,7 @@ opaque
   -- A variant of qrec-congᵛ.
 
   qrec-congᵛ′ :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ »∙ Quot A B ⊢ C₁ ≡ C₂ →
     Γ »∙ Quot A B ⊩ᵛ⟨ ℓ₁ ⟩ C₁ ≡ C₂ →
     Γ »∙ A ⊢ t₁ ≡ t₂ ∷ C₁ [ class (var x0) ]↑ →
@@ -1886,6 +1894,7 @@ opaque
   -- Validity for qrec.
 
   qrecᵛ :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ »∙ Quot A B ⊢ C →
     Γ »∙ Quot A B ⊩ᵛ⟨ ℓ₁ ⟩ C →
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
@@ -1906,6 +1915,7 @@ opaque
   -- A variant of qrecᵛ.
 
   qrecᵛ′ :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ »∙ Quot A B ⊢ C →
     Γ »∙ Quot A B ⊩ᵛ⟨ ℓ₁ ⟩ C →
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
@@ -1926,6 +1936,7 @@ opaque
   -- Validity for qrec-β.
 
   qrec-βᵛ :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ »∙ Quot A B ⊢ C →
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
     Γ »∙ A ⊩ᵛ⟨ ℓ₁ ⟩ t ∷ C [ class (var x0) ]↑ →

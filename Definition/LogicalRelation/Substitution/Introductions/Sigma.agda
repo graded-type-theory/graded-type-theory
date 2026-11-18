@@ -2,29 +2,29 @@
 -- Validity for Σ-types
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module
   Definition.LogicalRelation.Substitution.Introductions.Sigma
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Substitution R
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Hidden TC
+open import Definition.LogicalRelation.Substitution TC
 open import
-  Definition.LogicalRelation.Substitution.Introductions.Sigma.Strong R
+  Definition.LogicalRelation.Substitution.Introductions.Sigma.Strong TC
 open import
-  Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak R
+  Definition.LogicalRelation.Substitution.Introductions.Sigma.Weak TC
 
-open import Definition.Typed R
+open import Definition.Typed TC
 open import Definition.Untyped M
 
 private variable

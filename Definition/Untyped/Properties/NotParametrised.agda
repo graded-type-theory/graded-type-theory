@@ -673,6 +673,15 @@ opaque
 ------------------------------------------------------------------------
 -- Other properties
 
+opaque
+
+  -- "The strength s is not equal to 𝕤" is logically equivalent to "s
+  -- is equal to 𝕨".
+
+  ≢𝕤⇔≡𝕨 : ∀ {s} → s ≢ 𝕤 ⇔ s ≡ 𝕨
+  ≢𝕤⇔≡𝕨 {s = 𝕨} = (λ _ → refl) , (λ _ ())
+  ≢𝕤⇔≡𝕨 {s = 𝕤} = ⊥-elim ∘→ (_$ refl) , (λ ())
+
 -- Decidability of Strength equality
 decStrength : Decidable (_≡_ {A = Strength})
 decStrength 𝕤 𝕤 = yes refl

@@ -2,33 +2,36 @@
 -- Inversion lemmas
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
-open import Graded.Modality
+open import Configuration-types
+import Graded.Modality
 
 module Definition.Typed.Inversion
   {ℓ} {M : Set ℓ}
-  {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (open Graded.Modality M)
+  {𝕄 : Modality}
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-import Definition.Typed.Inversion.Primitive R as I
-open import Definition.Typed.Properties.Admissible.Identity.Primitive R
-open import Definition.Typed.Properties.Admissible.Level.Primitive R
-open import Definition.Typed.Properties.Admissible.U.Primitive R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Substitution.Primitive R
-import Definition.Typed.Weakening R as W
-open import Definition.Typed.Well-formed R
+open import Configuration-types.Omega 𝕄
+
+open import Definition.Typed TC
+import Definition.Typed.Inversion.Primitive TC as I
+open import Definition.Typed.Properties.Admissible.Identity.Primitive TC
+open import Definition.Typed.Properties.Admissible.Level.Primitive TC
+open import Definition.Typed.Properties.Admissible.U.Primitive TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Substitution.Primitive TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 
 open import Tools.Empty
 open import Tools.Fin
@@ -636,14 +639,18 @@ opaque
   inversion-qrec :
     Γ ⊢ qrec C t u v w ∷ D →
     ∃₂ λ A B →
+    ∃ λ (ok : Omega-allowed) →
     (Γ »∙ Quot A B ⊢ C) ×
     Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑ ×
-    Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t ×
+    Resp-Cons Γ A B ⊢ u ∷
+      Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ A B C t ×
     Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C ×
     Γ ⊢ w ∷ Quot A B ×
     Γ ⊢ D ≡ C [ w ]₀
-  inversion-qrec (qrec ⊢C ⊢t ⊢u ⊢v ⊢w) =
-    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , refl (subst-⊢₀ ⊢C ⊢w)
+  inversion-qrec (qrec ⦃ ok ⦄ ⊢C ⊢t ⊢u ⊢v ⊢w) =
+    _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , refl (subst-⊢₀ ⊢C ⊢w)
   inversion-qrec (conv ⊢q ≡D) =
-    let _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ = inversion-qrec ⊢q in
-    _ , _ , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀
+    let _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , ≡[]₀ =
+          inversion-qrec ⊢q
+    in
+    _ , _ , ok , ⊢C , ⊢t , ⊢u , ⊢v , ⊢w , trans (sym ≡D) ≡[]₀

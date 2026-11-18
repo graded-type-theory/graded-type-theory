@@ -2,28 +2,27 @@
 -- Decidability of typing.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typechecking.Decidable.Assumptions
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.Typed.Decidable
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (as : Assumptions R)
+  {TC : Type-configuration 𝕄}
+  (as : Assumptions TC)
   where
 
 open Assumptions as
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Variant
-open import Definition.Typed.Well-formed R
-open import Definition.Typechecking R
-open import Definition.Typechecking.Soundness R
-open import Definition.Typechecking.Completeness R
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typechecking TC
+open import Definition.Typechecking.Soundness TC
+open import Definition.Typechecking.Completeness TC
 open import Definition.Typechecking.Decidable as
 
 open import Tools.Function
@@ -42,7 +41,7 @@ private
     A t : Term n
 
 -- Re-export decidability of type and term equality
-open import Definition.Typed.Decidable.Equality R _≟_ public
+open import Definition.Typed.Decidable.Equality TC _≟_ public
 
 -- If Γ is well-formed and A is checkable, then Γ ⊢ A is decidable.
 

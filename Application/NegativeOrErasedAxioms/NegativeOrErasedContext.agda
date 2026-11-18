@@ -2,25 +2,25 @@
 -- Contexts in which all types either are negative or erased.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
-open import Definition.Typed.Restrictions
 
 module Application.NegativeOrErasedAxioms.NegativeOrErasedContext
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Definition.Untyped M
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Weakening.Definition TC
 open import Graded.Context 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Application.NegativeOrErasedAxioms.NegativeOrErasedType R
+open import Application.NegativeOrErasedAxioms.NegativeOrErasedType TC
 
 open import Tools.Empty
 open import Tools.Fin

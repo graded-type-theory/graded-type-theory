@@ -3,11 +3,10 @@
 -- and the reduction relation with resource tracking.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Graded.Usage.Restrictions.Natrec
-open import Definition.Typed.Variant
 open import Tools.Relation
 open import Tools.PropositionalEquality
 
@@ -15,10 +14,8 @@ module Graded.Heap.Usage.Reduction
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant a)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Type-variant type-variant)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (open Modality 𝕄)
   (open IsMode 𝐌)
   (factoring-nr :
@@ -27,9 +24,8 @@ module Graded.Heap.Usage.Reduction
   (∣ε∣ : M)
   (Unitʷ-η→ : ∀ {m p q} → Unitʷ-η → Unitrec-allowed m p q → ⌜ m ⌝ ≢ 𝟘 → p ≤ 𝟘)
   (¬Nr-not-available : ¬ Nr-not-available)
-  -- Quotient term formers are not allowed.
-  (¬Quot-allowed           : ¬ Quot-allowed)
-  (¬Quotient-terms-allowed : ¬ Quotient-terms-allowed)
+  -- Quotients are not allowed.
+  (¬Quot-allowed : ¬ Quot-allowed)
   where
 
 open import Tools.Empty
@@ -42,16 +38,19 @@ import Tools.Reasoning.PartialOrder as RPo
 import Tools.Reasoning.PropositionalEquality as RPe
 import Tools.Reasoning.Equivalence as REq
 
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance.Configuration C
+
 open import Definition.Untyped M
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Usage.Properties type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Usage.Weakening type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Reduction C factoring-nr ∣ε∣
+open import Graded.Heap.Reduction.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Usage C factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Inversion C factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Weakening C factoring-nr ∣ε∣
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -59,13 +58,10 @@ open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Weakening UR
-open import Graded.Restrictions 𝕄 𝐌
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 
 private variable
   k : Nat
@@ -459,21 +455,19 @@ opaque
     let _ , _ , _ , _ , _ , _ , ▸class , _ = ▸ₛ-inv ▸s
         ok , _                             = inv-usage-class ▸class
     in
-    ⊥-elim (¬Quotient-terms-allowed ok)
+    ⊥-elim (¬Quot-allowed ok)
 
   ▸-⇒ᵥ ▸s (respₕ _) =
     let _ , _ , _ , _ , _ , _ , ▸resp , _ = ▸ₛ-inv ▸s
         _ , _ , ok , _                    = inv-usage-resp ▸resp
     in
-    ⊥-elim $ ¬Quotient-terms-allowed $
-    Higher-quotient-constructors→Quotient-terms ok
+    ⊥-elim (¬Quot-allowed ok)
 
   ▸-⇒ᵥ ▸s (setₕ _) =
     let _ , _ , _ , _ , _ , _ , ▸set , _ = ▸ₛ-inv ▸s
         _ , _ , ok , _                   = inv-usage-set ▸set
     in
-    ⊥-elim $ ¬Quotient-terms-allowed $
-    Higher-quotient-constructors→Quotient-terms ok
+    ⊥-elim (¬Quot-allowed ok)
 
 opaque
 
@@ -761,9 +755,9 @@ opaque
     let _ , _ , _ , _ , _ , _ , ▸qrec , _ = ▸ₛ-inv ▸s in
     case inv-usage-qrec ▸qrec of λ where
       (invUsageQrec₀ ok _ _ _ _ _ _ _) →
-        ⊥-elim (¬Quotient-terms-allowed ok)
+        ⊥-elim (¬Quot-allowed ok)
       (invUsageQrec₁ ok _ _ _ _ _ _ _) →
-        ⊥-elim (¬Quotient-terms-allowed ok)
+        ⊥-elim (¬Quot-allowed ok)
 
 opaque
 

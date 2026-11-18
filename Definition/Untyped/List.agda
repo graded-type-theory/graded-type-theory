@@ -21,10 +21,11 @@ module Definition.Untyped.List
   (pₕ pₗ : M)
   where
 
+open import Configuration-types
+
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
 import Definition.Typed.Decidable.Internal.Weakening
-open import Definition.Typed.Restrictions
 
 -- Use vectors defined using weak Unit and Σ-types.
 import Definition.Untyped.Vec 𝕄 𝐌 𝕨 pₕ as V
@@ -216,16 +217,16 @@ opaque
 -- Variants of the term formers, intended to be used with the internal
 -- type-checker
 
-module Internal (R : Type-restrictions 𝕄) where
+module Internal (TC : Type-configuration 𝕄) where
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term 𝐌 R
+      Definition.Typed.Decidable.Internal.Term 𝐌 TC
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 TC
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
-    module IV = V.Internal R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
+    module IV = V.Internal TC
 
   private variable
     c : I.Constants

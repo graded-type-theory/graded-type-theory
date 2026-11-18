@@ -10,18 +10,21 @@
 --
 -- The code also depends on some libraries:
 --
--- * Agda's standard library, version 2.4.
--- * The builtin modules that are shipped with Agda 2.8.0.
+-- * Agda's standard library, version 2.4.1.
+-- * The builtin modules that are shipped with Agda 2.9.0.
 --
 -- When HTML code is generated from this file code is also generated
 -- for the two libraries above, so URLs for their licences are
 -- included here. At the time of writing the licence texts can be
 -- found at the following URLs:
 --
--- * https://github.com/agda/agda-stdlib/blob/v2.4/LICENCE
--- * https://github.com/agda/agda/blob/v2.8.0/LICENSE
+-- * https://github.com/agda/agda-stdlib/blob/v2.4.1/LICENCE
+-- * https://github.com/agda/agda/blob/v2.9.0/LICENSE
 
 module README.Recursion where
+
+import Configuration-types
+import Configuration-types.Natrec
 
 import Definition.LogicalRelation
 import Definition.Typed
@@ -31,7 +34,6 @@ import Definition.Typed.Consequences.Inversion
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Inversion
 import Definition.Typed.Properties.Reduction
-import Definition.Typed.Restrictions
 import Definition.Untyped
 import Definition.Untyped.Bool.Greatest-lower-bound
 import Definition.Untyped.Nat
@@ -94,8 +96,6 @@ import Graded.Substitution.Properties
 import Graded.Usage
 import Graded.Usage.Decidable
 import Graded.Usage.Inversion
-import Graded.Usage.Restrictions
-import Graded.Usage.Restrictions.Natrec
 import Graded.Usage.Weakening
 
 import Tools.Algebra
@@ -150,8 +150,8 @@ import Tools.Nat
 -- Another notable difference is that the formalization contains
 -- parameters that make it possible to control whether certain features
 -- should be included or not as well as choose what grade semiring and
--- mode structure to use. The four most prominent parameters are
--- `Modality`, `IsMode`, `Type-restrictions`, and `Usage-restrictions`.
+-- mode structure to use. The three most prominent parameters are
+-- `Modality`, `IsMode`, and `Configuration`.
 -- Parts of the presentation in the paper is done for certain
 -- instantiations of these parameters as discussed below:
 
@@ -188,17 +188,17 @@ Mode-variant = Graded.Mode.Instances.Zero-one.Variant.Mode-variant
 Bounded-distributive-lattice-isMode =
   Graded.Mode.Instances.Bounded-distributive-lattice.bounded-distributive-lattice-isMode
 
--- `Type-restrictions` control the typing judgments and the reduction
--- relation.
+-- The type "Type-configuration" controls the typing judgments and the
+-- reduction relation.
 
-Type-restrictions = Definition.Typed.Restrictions.Type-restrictions
+Type-configuration = Configuration-types.Type-configuration
 
 -- One can choose whether to allow strong and/or weak unit types as well
 -- as binders of the form B_p^q, where p and q are grades and B is "Π",
 -- "strong Σ" or "weak Σ".
 --
 -- If a term has a certain type ("Unit" or "B_p^q C D"), then this type
--- must be allowed by the Type-restrictions:
+-- must be allowed by the Type-configuration:
 
 Unit-allowed = Definition.Typed.Inversion.⊢∷Unit→Unit-allowed
 ΠΣ-allowed   = Definition.Typed.Inversion.⊢∷ΠΣ→ΠΣ-allowed
@@ -216,23 +216,23 @@ Unit-allowed = Definition.Typed.Inversion.⊢∷Unit→Unit-allowed
 -- η-equality but the semantics of the abstract machine are slightly
 -- different.
 
-η-for-Unitʷ = Definition.Typed.Restrictions.Type-restrictions.η-for-Unitʷ
+η-for-Unitʷ = Configuration-types.Type-configuration.η-for-Unitʷ
 
 -- One can choose whether the eliminators K and []-cong are allowed. We
 -- do not include these in the paper but our results hold with them
 -- enabled.
 
 K-allowed =
-  Definition.Typed.Restrictions.Type-restrictions.K-allowed
+  Configuration-types.Type-configuration.K-allowed
 []-cong-allowed =
-  Definition.Typed.Restrictions.Type-restrictions.[]-cong-allowed
+  Configuration-types.Type-configuration.[]-cong-allowed
 
 -- One can choose how opaque definitions are unfolded. Since we do not
 -- discuss definitions in the paper this is of no consequence to our
 -- results.
 
 unfolding-mode =
-  Definition.Typed.Restrictions.Type-restrictions.unfolding-mode
+  Configuration-types.Type-configuration.unfolding-mode
 
 -- One can choose whether to allow equality reflection. We do not
 -- discuss equality types in the paper so this is of no consequence in
@@ -241,11 +241,11 @@ unfolding-mode =
 -- equality reflection turned off.
 
 Equality-reflection =
-  Definition.Typed.Restrictions.Type-restrictions.Equality-reflection
+  Configuration-types.Type-configuration.Equality-reflection
 
--- `Usage-restrictions` control the usage relation.
+-- A `Configuration` controls the usage relation.
 
-Usage-restrictions = Graded.Usage.Restrictions.Usage-restrictions
+Configuration = Configuration-types.Configuration
 
 -- One can choose for some terms which grade annotations should be
 -- allowed (for a given mode). This corresponds to the side conditions
@@ -255,9 +255,9 @@ Usage-restrictions = Graded.Usage.Restrictions.Usage-restrictions
 -- e.g. exclude erased matches also for these.
 
 Prodrec-allowed =
-  Graded.Usage.Restrictions.Usage-restrictions.Prodrec-allowed
+  Configuration-types.Configuration.Prodrec-allowed
 Emptyrec-allowed =
-  Graded.Usage.Restrictions.Usage-restrictions.Emptyrec-allowed
+  Configuration-types.Configuration.Emptyrec-allowed
 
 -- If a certain term is well-resourced then (with respect to a given
 -- mode) then the term is allowed for that mode.
@@ -272,7 +272,7 @@ emptyrec-allowed = Graded.Usage.Inversion.inv-usage-emptyrec
 -- have not shown that our results hold when the third usage rule is
 -- used.
 
-Natrec-mode = Graded.Usage.Restrictions.Natrec.Natrec-mode
+Natrec-mode = Configuration-types.Natrec.Natrec-mode
 
 ------------------------------------------------------------------------
 -- Pointers to results from the paper
@@ -444,8 +444,8 @@ Term = Definition.Untyped.Term
 --
 -- Like the syntax, the typing judgements are defined for the whole
 -- language, including those terms which are not covered by this
--- section or the paper (though Type-restrictions can be used to exclude
--- certain types).
+-- section or the paper (though the type Type-configuration can be
+-- used to exclude certain types).
 --
 -- The contexts used in these judgements are pairs of a typing context
 -- as introduced above and a "definition context", containing the
@@ -1009,8 +1009,8 @@ heap-lookup-succeeds = Graded.Heap.Usage.Properties.▸↦[]-closed
 --
 -- Note that unlike the similar properties discussed above, this theorem
 -- holds as stated in the paper. The cases related to levels and
--- definitions are ruled out due to type restrictions and enforcing an
--- empty definition context.
+-- definitions are ruled out using the type configuration and by
+-- enforcing that the definition context is empty.
 
 ⊢▸Final-reasons = Graded.Heap.Termination.⊢▸Final-reasons-closed
 
@@ -1705,7 +1705,7 @@ non-interference = Graded.Heap.Non-interference.non-interference
 -- The property of not allowing secret matches.
 --
 -- Like erased matches, this is done by disallowing certain matches
--- using the Usage-restrictions.
+-- using the Configuration.
 --
 -- Note that the formalized definition also includes matches related to
 -- eliminators not discussed in the paper.

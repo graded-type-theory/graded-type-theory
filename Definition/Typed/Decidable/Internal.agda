@@ -4,13 +4,14 @@
 -- sense that it is implemented inside the object theory)
 ------------------------------------------------------------------------
 
--- This type-checker should work even if the Type-restrictions record,
--- and perhaps also some other things, are variables. The type-checker
--- uses terms defined in Definition.Typed.Decidable.Internal.Term. See
+-- This type-checker should work even if the Type-configuration
+-- record, and perhaps also some other things, are variables. The
+-- type-checker uses terms defined in
+-- Definition.Typed.Decidable.Internal.Term. See
 -- Definition.Typed.Decidable.Internal.Examples for some examples of
 -- how the type-checker can be used.
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -18,57 +19,57 @@ module Definition.Typed.Decidable.Internal
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   (𝐌 : IsMode Mode 𝕄)
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions TR
+open Type-configuration TC
 
-open import Definition.Conversion.Consequences.InverseUniv TR
+open import Definition.Conversion.Consequences.InverseUniv TC
 
-open import Definition.Typed TR hiding (Trans)
-open import Definition.Typed.Consequences.Inequality TR
-open import Definition.Typed.Consequences.Injectivity TR
-open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Decidable.Internal.Constraint 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Context 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Equality 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Monad 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Substitution 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Term 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Tests 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Universe-level TR
-open import Definition.Typed.Decidable.Internal.Weakening 𝐌 TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties.Admissible.Empty TR
-open import Definition.Typed.Properties.Admissible.Equality TR
-open import Definition.Typed.Properties.Admissible.Erased TR
-open import Definition.Typed.Properties.Admissible.Identity TR
-open import Definition.Typed.Properties.Admissible.Level TR
-open import Definition.Typed.Properties.Admissible.Lift TR
-open import Definition.Typed.Properties.Admissible.Nat TR
-open import Definition.Typed.Properties.Admissible.Pi TR
-open import Definition.Typed.Properties.Admissible.Sigma TR
-open import Definition.Typed.Properties.Admissible.U TR
-open import Definition.Typed.Properties.Admissible.Unit TR
-open import Definition.Typed.Properties.Admissible.Var TR
-open import Definition.Typed.Properties.Reduction TR
-open import Definition.Typed.Properties.Transparentisation TR
-open import Definition.Typed.Properties.Well-formed TR
-import Definition.Typed.Reasoning.Level TR as LvlR
-import Definition.Typed.Reasoning.Term TR as TmR
-import Definition.Typed.Reasoning.Type TR as TyR
-open import Definition.Typed.Stability TR
-open import Definition.Typed.Substitution.Primitive TR
-import Definition.Typed.Weakening TR as W
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC hiding (Trans)
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Decidable.Internal.Constraint 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Context 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Equality 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Monad 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Substitution 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Term 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Tests 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Universe-level TC
+open import Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Empty TC
+open import Definition.Typed.Properties.Admissible.Equality TC
+open import Definition.Typed.Properties.Admissible.Erased TC
+open import Definition.Typed.Properties.Admissible.Identity TC
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Admissible.Lift TC
+open import Definition.Typed.Properties.Admissible.Nat TC
+open import Definition.Typed.Properties.Admissible.Pi TC
+open import Definition.Typed.Properties.Admissible.Sigma TC
+open import Definition.Typed.Properties.Admissible.U TC
+open import Definition.Typed.Properties.Admissible.Unit TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Transparentisation TC
+open import Definition.Typed.Properties.Well-formed TC
+import Definition.Typed.Reasoning.Level TC as LvlR
+import Definition.Typed.Reasoning.Term TC as TmR
+import Definition.Typed.Reasoning.Type TC as TyR
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution.Primitive TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M as U
   using (Term-kind; Universe-level; _or-empty_; _»_; _≤ᵘ_)
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
-import Definition.Untyped.Sup TR as S
-open import Definition.Untyped.Whnf M type-variant
+import Definition.Untyped.Sup TC as S
+open import Definition.Untyped.Whnf M TC⁻
 
 open U.Con
 open U.Context-pair

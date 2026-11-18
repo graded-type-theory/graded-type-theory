@@ -2,19 +2,17 @@
 -- A resource aware heap semantics. Some basic definitions.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Variant
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Untyped
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant a)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   -- If the usage rules use an nr function is assumed to be factoring
   -- This is used to get the quantity representing the uses of the
   -- natural number argument, i.e. how many copies of it that should
@@ -31,7 +29,6 @@ module Graded.Heap.Untyped
 
 open Modality 𝕄
 open IsMode 𝐌
-open Type-variant type-variant
 
 open import Tools.Fin
 open import Tools.Function
@@ -41,6 +38,9 @@ open import Tools.Product
 open import Tools.PropositionalEquality
 open import Tools.Relation
 
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance.Configuration C
+
 open import Definition.Untyped M hiding (head)
 open import Definition.Untyped.Names-below M using (No-names)
 
@@ -48,13 +48,11 @@ open import Graded.Modality.Nr-instances
 open import Graded.Modality.Omega-instances
 open import Graded.Mode
 open import Graded.Modality.Properties.Subtraction 𝕄
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Instance UR
 
 private variable
   n n′ m m′ m″ n″ k : Nat
   Γ : Con Term _
-  A B C t t′ t₁ t₂ u v w : Term _
+  A B t t′ t₁ t₂ u v w : Term _
   l : Lvl _
   kₜ : Term-kind
   x : Fin _
@@ -174,10 +172,10 @@ data ∣J_,_,_∣≡_ : Erased-matches → M → M → M → Set a where
   J-all   : ∣J all  , p , q ∣≡ 𝟘
   J-some₀ : p ≡ 𝟘 → q ≡ 𝟘 →
             ∣J some , p , q ∣≡ 𝟘
-  J-some  : ⦃ ok : Usage-allows-omega ⦄ →
+  J-some  : ⦃ ok : Omega-allowed ⦄ →
             ¬ (p ≡ 𝟘 × q ≡ 𝟘) →
             ∣J some , p , q ∣≡ ω
-  J-none  : ⦃ ok : Usage-allows-omega ⦄ →
+  J-none  : ⦃ ok : Omega-allowed ⦄ →
             ∣J none , p , q ∣≡ ω
 
 -- The multiplicity of the Kₑ continuation, depending on which
@@ -187,10 +185,10 @@ data ∣K_,_∣≡_ : Erased-matches → M → M → Set a where
   K-all   : ∣K all  , p ∣≡ 𝟘
   K-some₀ : p ≡ 𝟘 →
             ∣K some , p ∣≡ 𝟘
-  K-some  : ⦃ ok : Usage-allows-omega ⦄ →
+  K-some  : ⦃ ok : Omega-allowed ⦄ →
             p ≢ 𝟘 →
             ∣K some , p ∣≡ ω
-  K-none  : ⦃ ok : Usage-allows-omega ⦄ →
+  K-none  : ⦃ ok : Omega-allowed ⦄ →
             ∣K none , p ∣≡ ω
 
 -- Multiplicity of an continuation, representing how many copies need to
@@ -214,7 +212,7 @@ data ∣_∣ᶜ[_]≡_ {m} : Cont m → Mode → M → Set (a ⊔ a′) where
     ∣K erased-matches-for-K mo , p ∣≡ r →
     ∣ Kₑ p A t B u ρ ∣ᶜ[ mo ]≡ r
   []-congₑ : ∣ []-congₑ s l A t u ρ ∣ᶜ[ mo ]≡ 𝟘
-  qrecₑ : ∣ qrecₑ C t u v ρ ∣ᶜ[ mo ]≡ 𝟙
+  qrecₑ : ∀ {C} → ∣ qrecₑ C t u v ρ ∣ᶜ[ mo ]≡ 𝟙
   sucₑ : ∣ sucₑ ∣ᶜ[ mo ]≡ 𝟙
 
 -- Evaluation stacks, indexed by the size of the heap
@@ -445,8 +443,6 @@ toWkₕ (H ∙●) = lift (toWkₕ H)
 -- Indexed by the number of dummy entries in the heap, the size
 -- of the heap and the number of free variables in the head term.
 
-infix 2 ⟨_,_,_,_⟩
-
 record State (k m n : Nat) : Set a where
   no-eta-equality
   pattern
@@ -495,8 +491,6 @@ infixr 28 ⦅_⦆ˢ_
 
 -- Converting states back to terms
 
-infix 28 ⦅_⦆
-
 ⦅_⦆ : (s : State k m n) → Term k
 ⦅ ⟨ H , t , ρ , S ⟩ ⦆ = ⦅ S ⦆ˢ (wk ρ t) [ H ]ₕ
 
@@ -526,7 +520,8 @@ data No-namesᶜ : Cont m → Set a where
   ∘ₑ        : No-names u → No-namesᶜ (∘ₑ p u ρ)
   fstₑ      : No-namesᶜ {m = m} (fstₑ p)
   sndₑ      : No-namesᶜ {m = m} (sndₑ p)
-  prodrecₑ  : No-names C → No-names u → No-namesᶜ (prodrecₑ r p q C u ρ)
+  prodrecₑ  : ∀ {C} → No-names C → No-names u →
+              No-namesᶜ (prodrecₑ r p q C u ρ)
   sucₑ      : No-namesᶜ {m = m} sucₑ
   natrecₑ   : No-names A → No-names t → No-names u →
               No-namesᶜ (natrecₑ p q r A t u ρ)
@@ -536,8 +531,8 @@ data No-namesᶜ : Cont m → Set a where
               No-namesᶜ (Kₑ p A t B u ρ)
   []-congₑ  : No-names l → No-names A → No-names t → No-names u →
               No-namesᶜ ([]-congₑ s l A t u ρ)
-  qrecₑ     : No-names C → No-names t → No-names u → No-names v →
-              No-namesᶜ (qrecₑ C t u v ρ)
+  qrecₑ     : ∀ {C} → No-names C → No-names t → No-names u →
+              No-names v → No-namesᶜ (qrecₑ C t u v ρ)
 
 -- No-namesˢ holds for a stack if it does not contain any names.
 
@@ -620,6 +615,6 @@ data Matching {m n} : Term n → Stack m → Set a where
   Jₑ : Matching rfl (Jₑ p q A t B u v ρ ∙ S)
   Kₑ : Matching rfl (Kₑ p A t B u ρ ∙ S)
   []-congₑ : Matching rfl ([]-congₑ s l A t u ρ ∙ S)
-  qrecₑ : Matching (class w) (qrecₑ C t u v ρ ∙ S)
+  qrecₑ : ∀ {C} → Matching (class w) (qrecₑ C t u v ρ ∙ S)
   respₑ : Equality-reflection → Matching (resp A B t u v) S
   setₑ : Equality-reflection → Matching (set A B t u v w) S

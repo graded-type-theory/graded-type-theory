@@ -16,6 +16,7 @@ module Definition.Untyped.QuantityTranslation
   (tr-Σ : M₁ → M₂)
   where
 
+open import Tools.Empty
 open import Tools.Fin
 open import Tools.Function
 open import Tools.List
@@ -25,7 +26,7 @@ open import Tools.PropositionalEquality
 open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 
-open import Definition.Typed.Variant
+open import Configuration-types
 
 open import Definition.Untyped
 import Definition.Untyped.Identity
@@ -45,6 +46,7 @@ private
   module UW₂ = Definition.Untyped.Whnf M₂
 
 open import Graded.Modality
+open Has-omega ⦃ … ⦄
 
 private variable
   α m n                                        : Nat
@@ -215,6 +217,29 @@ opaque
 
 opaque
 
+  -- If transparent is false and tr-DCon ∇ maps α to t and A, then ∇
+  -- maps α to a term that is translated to t and a type that is
+  -- translated to A.
+
+  tr-↦∷⁻¹ :
+    ¬ T transparent →
+    α ↦ t ∷ A ∈ tr-DCon ∇ →
+    ∃₂ λ t′ A′ → t ≡ tr-Term t′ × A ≡ tr-Term A′ × α ↦ t′ ∷ A′ ∈ ∇
+  tr-↦∷⁻¹ {∇ = ε} _ ()
+  tr-↦∷⁻¹ {∇ = _ ∙⟨ tra ⟩!} _ here =
+    _ # _ # refl # refl # U₂.here
+  tr-↦∷⁻¹ {∇ = _ ∙⟨ tra ⟩!} ok (there α∈) =
+    let _ # _ # eq₁ # eq₂ # α∈ = tr-↦∷⁻¹ ok α∈ in
+    _ # _ # eq₁ # eq₂ # U₂.there α∈
+  tr-↦∷⁻¹ {∇ = _ ∙⟨ opa _ ⟩!} _ _ with singleton transparent
+  tr-↦∷⁻¹ ok _ | true # refl =
+    ⊥-elim (ok _)
+  tr-↦∷⁻¹ {∇ = _ ∙⟨ opa _ ⟩!} ok (there α∈) | false # refl =
+    let _ # _ # eq₁ # eq₂ # α∈ = tr-↦∷⁻¹ ok α∈ in
+    _ # _ # eq₁ # eq₂ # U₂.there α∈
+
+opaque
+
   -- The relation _↦⊘∷_∈_ is preserved by tr-Term/tr-DCon unless
   -- transparent is true.
 
@@ -230,16 +255,17 @@ opaque
 -- Lemmas related to Neutral and Whnf
 
 module _
-  {tv₁ : Type-variant a₁} {tv₂ : Type-variant a₂}
+  {TC₁ : Type-configuration⁻ a₁} {TC₂ : Type-configuration⁻ a₂}
   -- It is assumed that definitions are not made transparent.
   (not-transparent : ¬ T transparent)
   -- It is assumed that Higher-quotient-constructors-neutral holds for
-  -- tv₂ if it holds for tv₁.
+  -- TC₂ if it holds for TC₁.
   (Higher-quotient-constructors-neutral→ :
-     Type-variant.Higher-quotient-constructors-neutral tv₁ →
-     Type-variant.Higher-quotient-constructors-neutral tv₂)
-  -- It is assumed that Unitʷ-η holds for tv₁ if it holds for tv₂.
-  (Unitʷ-η→ : Type-variant.Unitʷ-η tv₂ → Type-variant.Unitʷ-η tv₁)
+     Type-configuration⁻.Higher-quotient-constructors-neutral TC₁ →
+     Type-configuration⁻.Higher-quotient-constructors-neutral TC₂)
+  -- It is assumed that Unitʷ-η holds for TC₁ if it holds for TC₂.
+  (Unitʷ-η→ :
+     Type-configuration⁻.Unitʷ-η TC₂ → Type-configuration⁻.Unitʷ-η TC₁)
   where
 
   -- The function tr-Term preserves neutrality (given a certain
@@ -247,7 +273,7 @@ module _
 
   tr-Neutral :
     (V₁ → V₂) →
-    UN₁.Neutral tv₁ V₁ ∇ t → UN₂.Neutral tv₂ V₂ (tr-DCon ∇) (tr-Term t)
+    UN₁.Neutral TC₁ V₁ ∇ t → UN₂.Neutral TC₂ V₂ (tr-DCon ∇) (tr-Term t)
   tr-Neutral f = λ where
     (defn α∈)           → defn (tr-↦⊘∷ not-transparent α∈)
     (var p x)           → var (f p) x
@@ -272,7 +298,7 @@ module _
 
   -- The function tr-Term takes WHNFs to WHNFs.
 
-  tr-Whnf : UW₁.Whnf tv₁ ∇ t → UW₂.Whnf tv₂ (tr-DCon ∇) (tr-Term t)
+  tr-Whnf : UW₁.Whnf TC₁ ∇ t → UW₂.Whnf TC₂ (tr-DCon ∇) (tr-Term t)
   tr-Whnf Uₙ                = Uₙ
   tr-Whnf (ΠΣₙ {b = BMΠ})   = ΠΣₙ
   tr-Whnf (ΠΣₙ {b = BMΣ _}) = ΠΣₙ
@@ -566,10 +592,12 @@ module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
     -- assumptions).
 
     tr-Term-Resp-type :
+      ⦃ ok₁ : Has-omega _ 𝕄₁ ⦄ ⦃ ok₂ : Has-omega _ 𝕄₂ ⦄ →
       tr M₁.𝟘 ≡ M₂.𝟘 →
+      tr ω ≡ ω →
       tr-Term (UQ₁.Resp-type A B C t) ≡
-      UQ₂.Resp-type(tr-Term A) (tr-Term B) (tr-Term C) (tr-Term t)
-    tr-Term-Resp-type {C} {t} hyp₁ =
+      UQ₂.Resp-type (tr-Term A) (tr-Term B) (tr-Term C) (tr-Term t)
+    tr-Term-Resp-type {C} {t} hyp₁ hyp₂ =
       cong₃ Id
         (sym (tr-Term-[]↑ C))
         (trans (tr-Term-subst′ hyp₁) $
@@ -578,7 +606,7 @@ module Modality-lemmas (𝕄₁ : Modality M₁) (𝕄₂ : Modality M₂) where
               UI₂.subst p A B (U₂.class (U₂.var x2))
                 (U₂.class (U₂.var x1))
                 (U₂.resp C D (U₂.var x2) (U₂.var x1) (U₂.var x0)) w)
-           hyp₁ (sym (tr-Term-wk {t = Quot _ _})) (sym (tr-Term-[]↑ C))
+           hyp₂ (sym (tr-Term-wk {t = Quot _ _})) (sym (tr-Term-[]↑ C))
            (sym tr-Term-wk) (sym tr-Term-wk) (sym tr-Term-wk))
         (sym (tr-Term-[]↑ t))
 

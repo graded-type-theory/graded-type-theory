@@ -2,11 +2,10 @@
 -- []-cong-J
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Has-box-cong.Definable.J
   {a} {M : Set a}
@@ -14,19 +13,20 @@ module Graded.Has-box-cong.Definable.J
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
-open import Definition.Typed TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-import Definition.Typed.Weakening TR as W
-open import Definition.Typed.Well-formed TR
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance.Configuration C
+
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped M as U
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
@@ -34,18 +34,16 @@ open import Definition.Untyped.Properties M
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-import Graded.Derived.Erased.Usage UR as ErasedU
-open import Graded.Derived.Identity UR
+import Graded.Derived.Erased.Usage C as ErasedU
+open import Graded.Derived.Identity C
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.Target as T
 open import Graded.Modality.Properties 𝕄
 open import Graded.Modality.Omega-instances
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one variant UR
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Weakening UR
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one variant C
+open import Graded.Usage.Weakening C
 
 open import Tools.Bool using (Bool; T)
 open import Tools.Fin
@@ -115,7 +113,7 @@ opaque
   -- A usage rule for []-cong-J.
 
   ▸[]-cong-J :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     erased-matches-for-J m PE.≡ not-none sem →
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] l →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] A →
@@ -155,7 +153,7 @@ opaque
   -- Another usage rule for []-cong-J.
 
   ▸[]-cong-J-𝟘ᵐ :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     γ₁ ▸[ 𝟘ᵐ[ ok ] ] l →
     γ₂ ▸[ 𝟘ᵐ[ ok ] ] A →
     γ₃ ▸[ 𝟘ᵐ[ ok ] ] t →
@@ -191,7 +189,7 @@ opaque
   -- trivial.
 
   ▸[]-cong-J-trivial :
-    ⦃ has-ω : Usage-allows-omega ⦄ →
+    ⦃ has-ω : Omega-allowed ⦄ →
     Trivial →
     γ₁ ▸[ 𝟘ᵐ? ] l →
     γ₂ ▸[ 𝟘ᵐ? ] A →

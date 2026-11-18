@@ -2,14 +2,14 @@
 -- Terms blocked on variables and opaque definitions.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Variant
+open import Configuration-types
 
 module Definition.Untyped.Neutral
   {a} (M : Set a)
-  (type-variant : Type-variant a)
+  (TC : Type-configuration⁻ a)
   where
 
-open Type-variant type-variant
+open Type-configuration⁻ TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M

@@ -2,24 +2,24 @@
 -- Some embedding lemmas
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Embedding
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Properties.Kit R
-open import Definition.LogicalRelation.Irrelevance R
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Properties.Kit TC
+open import Definition.LogicalRelation.Irrelevance TC
 
 open import Tools.Function
 open import Tools.Nat using (Nat)

@@ -2,24 +2,24 @@
 -- Equality in the logical relation is reflexive
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Reflexivity
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M hiding (K)
-open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.Typed.Properties TC
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Kit TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Primitive TC ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Nat using (Nat)

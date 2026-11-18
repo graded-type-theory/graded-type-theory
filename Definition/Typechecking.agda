@@ -2,30 +2,32 @@
 -- Bi-directional typechecking
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typechecking
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
+
+open import Configuration-types.Instance.Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Sup R
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Sup TC
+open import Definition.Untyped.Whnf M TC⁻
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
 
 open import Tools.Empty
 open import Tools.Fin
@@ -194,7 +196,8 @@ mutual
         → Γ ⊢ v ⇇ Id (Quot A B) t u
         → Γ ⊢ w ⇇ Id (Quot A B) t u
         → Γ ⊢ set A B t u v w ⇉ Id (Id (Quot A B) t u) v w
-    qrec : Γ ⊢ w ⇉ A
+    qrec : ⦃ ok : Omega-allowed ⦄
+         → Γ ⊢ w ⇉ A
          → Γ ⊢ A ↘ Quot B C
          → Γ »∙ Quot B C ⊢ D ⇇Type
          → Γ »∙ B ⊢ t ⇇ D [ class (var x0) ]↑

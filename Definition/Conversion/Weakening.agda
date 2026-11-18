@@ -3,36 +3,38 @@
 -- of equality reflection)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Weakening
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Untyped M as U hiding (wk)
 open import Definition.Untyped.Erased 𝕄
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
-open import Definition.Typed.EqRelInstance R using (eqRelInstance)
-open import Definition.Conversion R
-open import Definition.Conversion.Level R
-open import Definition.Conversion.Soundness R
-open import Definition.LogicalRelation R ⦃ eqRelInstance ⦄
-import Definition.LogicalRelation.Weakening R ⦃ eqRelInstance ⦄ as W
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.EqRelInstance TC using (eqRelInstance)
+open import Definition.Conversion TC
+open import Definition.Conversion.Level TC
+open import Definition.Conversion.Soundness TC
+open import Definition.LogicalRelation TC ⦃ eqRelInstance ⦄
+import Definition.LogicalRelation.Weakening TC ⦃ eqRelInstance ⦄ as W
 
 open import Tools.Bool
 open import Tools.Fin

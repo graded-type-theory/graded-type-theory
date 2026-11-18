@@ -4,12 +4,12 @@
 
 open import Graded.Modality
 
-module Graded.Usage.Restrictions.Natrec.Instance
+module Configuration-types.Natrec.Instance
   {a} {M : Set a}
   (𝕄 : Modality M)
   where
 
-open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Configuration-types.Natrec 𝕄
 
 open Modality 𝕄
 

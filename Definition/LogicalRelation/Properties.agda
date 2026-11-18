@@ -2,26 +2,26 @@
 -- Properties of the logical relation
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Properties
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
-open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Kit TC ⦃ eqrel ⦄ public
 open import Definition.LogicalRelation.Properties.Quotient eqrel public
-open import Definition.LogicalRelation.Properties.Whnf R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Reflexivity R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Symmetry R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Transitivity R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Conversion R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Escape R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Neutral R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Reduction R ⦃ eqrel ⦄ public
-open import Definition.LogicalRelation.Properties.Embedding R ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Whnf TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Primitive TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Reflexivity TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Symmetry TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Transitivity TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Conversion TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Escape TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Neutral TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Reduction TC ⦃ eqrel ⦄ public
+open import Definition.LogicalRelation.Properties.Embedding TC ⦃ eqrel ⦄ public

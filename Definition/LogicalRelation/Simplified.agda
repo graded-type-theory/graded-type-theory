@@ -3,36 +3,36 @@
 -- assumptions.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.LogicalRelation.Simplified
   {a} {Mod : Set a}
   {𝕄 : Modality Mod}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped Mod
-open import Definition.Untyped.Neutral Mod type-variant
+open import Definition.Untyped.Neutral Mod TC⁻
 open import Definition.Untyped.Properties Mod
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf Mod type-variant
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Consequences.Inequality R as I
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.LogicalRelation R as L
+open import Definition.Untyped.Whnf Mod TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Consequences.Inequality TC as I
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.LogicalRelation TC as L
   hiding (Uᵣ′; Liftᵣ′; Unitᵣ′; ne′; Bᵣ′)
-open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Properties.Escape R
-open import Definition.LogicalRelation.Weakening.Restricted R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.LogicalRelation.Hidden TC
+open import Definition.LogicalRelation.Properties.Escape TC
+open import Definition.LogicalRelation.Weakening.Restricted TC
+open import Definition.LogicalRelation.Fundamental.Reducibility TC
 
 open import Tools.Empty
 open import Tools.Function

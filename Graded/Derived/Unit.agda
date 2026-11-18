@@ -2,28 +2,28 @@
 -- Properties related to usage and Unit
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Unit
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions UR
+open Configuration C
 
 open import Definition.Untyped M
 open import Definition.Untyped.Unit 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Properties UR
+open import Graded.Usage C
+open import Graded.Usage.Properties C
 
 open import Tools.Nat
 open import Tools.Fin

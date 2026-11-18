@@ -2,35 +2,36 @@
 -- Equality in the logical relation is symmetric
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Symmetry
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M hiding (K)
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Conversion R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Kit R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties.Primitive R ⦃ eqrel ⦄
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.ShapeView TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Irrelevance TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Conversion
+  TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Kit TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties.Primitive TC ⦃ eqrel ⦄
 open import Definition.LogicalRelation.Properties.Quotient eqrel
-open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted TC ⦃ eqrel ⦄
 
 open import Tools.Function
 open import Tools.Nat hiding (_<_)

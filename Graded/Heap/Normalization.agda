@@ -2,26 +2,23 @@
 -- A normalization procedure for evaluating states to normal form.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Variant
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Normalization
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant a)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-variant type-variant
 open Modality 𝕄
 
 open import Tools.Fin
@@ -32,10 +29,10 @@ open import Tools.PropositionalEquality as PE
 open import Tools.Relation
 open import Tools.Sum
 
-open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Reduction.Properties type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Reduction C factoring-nr ∣ε∣
+open import Graded.Heap.Reduction.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties C factoring-nr ∣ε∣
 
 open import Definition.Untyped M hiding (head)
 open import Definition.Untyped.Names-below M as B using (No-names)

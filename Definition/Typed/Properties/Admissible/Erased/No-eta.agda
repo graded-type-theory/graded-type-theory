@@ -2,27 +2,27 @@
 -- Some properties related to typing and the weak variant of Erased
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
-open import Definition.Typed.Restrictions
 
 module Definition.Typed.Properties.Admissible.Erased.No-eta
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.Lift R
-open import Definition.Typed.Properties.Admissible.Sigma R
-open import Definition.Typed.Properties.Admissible.Unit R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Admissible.Lift TC
+open import Definition.Typed.Properties.Admissible.Sigma TC
+open import Definition.Typed.Properties.Admissible.Unit TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M hiding (_[_])
 open import Definition.Untyped.Erased 𝕄 𝕨 hiding (erased)

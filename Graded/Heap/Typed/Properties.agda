@@ -2,46 +2,43 @@
 -- Properties of stack and continuation typing
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed.Properties
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (TR : Type-restrictions 𝕄)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-restrictions TR
 open Modality 𝕄
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as E
 open import Definition.Untyped.Names-below M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Names-below TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
-open import Definition.Typed.Well-formed TR
-open import Definition.Typed.Consequences.Inequality TR
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Names-below TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.Consequences.Inequality TC
 
-open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Typed.Inversion UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Typed C factoring-nr ∣ε∣
+open import Graded.Heap.Typed.Inversion C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties C factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin
@@ -257,7 +254,7 @@ opaque
   ⊢ᶜ-convₜ (sndₑ ⊢B) t≡u =
     conv (sndₑ ⊢B) (subst-⊢≡₀ ⊢B (fst-cong′ (sym′ t≡u)))
   ⊢ᶜ-convₜ (prodrecₑ {B} {C} ⊢v ⊢A) t≡u =
-    conv (prodrecₑ {B = B} {C} ⊢v ⊢A)
+    conv (prodrecₑ {B = B} {C = C} ⊢v ⊢A)
       (subst-⊢≡₀ ⊢A (sym′ t≡u))
   ⊢ᶜ-convₜ (natrecₑ ⊢z ⊢s) t≡u =
     conv (natrecₑ ⊢z ⊢s) (subst-⊢≡₀ (⊢∙→⊢ (wf ⊢s)) (sym′ t≡u))

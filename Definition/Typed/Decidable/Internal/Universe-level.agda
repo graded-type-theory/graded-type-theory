@@ -2,24 +2,24 @@
 -- Universe-level⁻
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
 module Definition.Typed.Decidable.Internal.Universe-level
   {a} {M : Set a} {𝕄 : Modality M}
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Definition.Untyped M
-open import Definition.Untyped.Sup TR
+open import Definition.Untyped.Sup TC
 
-open import Definition.Typed TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties.Admissible.Level TR
-open import Definition.Typed.Properties.Well-formed TR
-open import Definition.Typed.Reasoning.Level TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Level TC
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Function
 open import Tools.Nat as N

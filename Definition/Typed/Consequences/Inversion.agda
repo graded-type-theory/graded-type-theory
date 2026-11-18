@@ -4,30 +4,30 @@
 
 -- See also Definition.Typed.Inversion.
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Inversion
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Stability R
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Stability TC
 
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Inequality R as I
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.Inequality TC as I
 
-open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Allowed-literal TC
+open import Definition.Untyped.Sup TC
 
 open import Tools.Empty using (⊥; ⊥-elim)
 open import Tools.Function

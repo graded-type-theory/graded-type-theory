@@ -3,10 +3,10 @@
 -- structure. See also Graded.Derived.Erased.Usage
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 open import Definition.Untyped.NotParametrised using (Strength)
 
 module Graded.Derived.Erased.Usage.Zero-one
@@ -14,26 +14,27 @@ module Graded.Derived.Erased.Usage.Zero-one
   {𝕄 : Modality M}
   {mode-variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (R : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   (s : Strength)
   where
 
 open Modality 𝕄
 open Mode-variant mode-variant
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types.Instance.Configuration C
 
 open import Graded.Context 𝕄
-import Graded.Derived.Erased.Usage R s as U
+import Graded.Derived.Erased.Usage C s as U
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Restrictions.Instance R
+open import Graded.Usage C
+open import Graded.Usage.Properties C
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 s
-import Graded.Derived.Erased.Usage.Eta R as Eta
-import Graded.Derived.Erased.Usage.No-eta R as NoEta
+import Graded.Derived.Erased.Usage.Eta C as Eta
+import Graded.Derived.Erased.Usage.No-eta C as NoEta
 
 open import Tools.Bool using (T)
 open import Tools.Empty
@@ -136,7 +137,7 @@ opaque
   -- A usage rule for substᵉ.
 
   ▸substᵉ :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →
@@ -158,7 +159,7 @@ opaque
   -- A usage rule for Jᵉ.
 
   ▸Jᵉ :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     (s ≡ 𝕨 → ¬ T 𝟘ᵐ-allowed → Trivial) →
     (s ≡ 𝕨 → Prodrec-allowed 𝟘ᵐ? (𝟘 ∧ 𝟙) 𝟘 𝟘) →
     (s ≡ 𝕤 → ¬ T 𝟘ᵐ-allowed → 𝟘 ≤ 𝟙) →

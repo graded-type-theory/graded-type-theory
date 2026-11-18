@@ -3,42 +3,44 @@
 -- reflection)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Transitivity
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
+open import Configuration-types.Omega 𝕄
+
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Allowed-literal TC
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R using (eqRelInstance)
-open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening.Combined R
-open import Definition.Typed.Well-formed R
-open import Definition.Conversion R
-open import Definition.Conversion.Inversion R
-open import Definition.Conversion.Soundness R
-open import Definition.Conversion.Stability R
-open import Definition.Conversion.Whnf R
-open import Definition.Conversion.Conversion R
-open import Definition.Conversion.Level R
-open import Definition.Typed.Consequences.Injectivity R
-import Definition.Typed.Consequences.Inequality R as WF
-open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC using (eqRelInstance)
+open import Definition.Typed.EqualityRelation.Instance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening.Combined TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Conversion TC
+open import Definition.Conversion.Inversion TC
+open import Definition.Conversion.Soundness TC
+open import Definition.Conversion.Stability TC
+open import Definition.Conversion.Whnf TC
+open import Definition.Conversion.Conversion TC
+open import Definition.Conversion.Level TC
+open import Definition.Typed.Consequences.Injectivity TC
+import Definition.Typed.Consequences.Inequality TC as WF
+open import Definition.Typed.Consequences.NeTypeEq TC
 
 open import Tools.Bool
 open import Tools.Empty
@@ -237,8 +239,8 @@ opaque
       (transConv↑Term Id≡Id v₁≡v₂ v₂≡v₃)
       (transConv↑Term Id≡Id w₁≡w₂ w₂≡w₃) ,
     Id-cong Id≡Id ⊢v₁≡v₂ ⊢w₁≡w₂
-  trans~↑ (qrec-cong C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂)
-    (qrec-cong C₂≡C₃ t₂≡t₃ u₂≡u₃ v₂≡v₃ w₂~w₃) =
+  trans~↑ (qrec-cong ⦃ ok = ω-ok₁ ⦄ C₁≡C₂ t₁≡t₂ u₁≡u₂ v₁≡v₂ w₁~w₂)
+    (qrec-cong ⦃ ok = ω-ok₂ ⦄ C₂≡C₃ t₂≡t₃ u₂≡u₃ v₂≡v₃ w₂~w₃) =
     let ok , (⊢A , _) , (⊢B , _) , _ =
           inversion-Is-set-Cons (soundnessConv↑Term v₁≡v₂)
         Γ≡Γ         = reflConEq (wf ⊢A)
@@ -250,7 +252,8 @@ opaque
         Q≡Q         = sym Q≡Q
         ≡A , ≡B     = Quot-injectivity-no-equality-reflection Q≡Q
     in
-    qrec-cong (transConv↑ C₁≡C₂ (stabilityConv↑ (refl-∙ Q≡Q) C₂≡C₃))
+    qrec-cong ⦃ ok = ω-ok₁ ⦄
+      (transConv↑ C₁≡C₂ (stabilityConv↑ (refl-∙ Q≡Q) C₂≡C₃))
       (transConv↑Term
          (subst-⊢ ⊢C₁≡C₂ $ ⊢ˢʷ∷-[][]↑ $
           class
@@ -258,8 +261,14 @@ opaque
              wk-⊢ (Quot-rel-Cons-⊢ʷᵏ-liftn (⊢ʷᵏdrop (∙ ⊢A)) ⊢A) ⊢B)
             (var₀ ⊢A))
          t₁≡t₂ (stabilityConv↑Term (refl-∙ ≡A) t₂≡t₃))
-      (transConv↑Term (Resp-type-cong A≡ B≡ ⊢C₁≡C₂ ⊢t₁≡t₂) u₁≡u₂
-         (stabilityConv↑Term (Resp-Con-cong Γ≡Γ ≡A ≡B) u₂≡u₃))
+      (transConv↑Term
+         (Resp-type-cong ⦃ ok = ω-ok₁ ⦄ A≡ B≡ ⊢C₁≡C₂ ⊢t₁≡t₂) u₁≡u₂
+         (PE.subst (_⊢_[conv↑]_∷_ _ _ _)
+            (PE.cong
+               (λ ok →
+                  Resp-type ⦃ ok = With-omega→Has-omega ok ⦄ _ _ _ _)
+               (Omega-allowed-propositional ω-ok₂ ω-ok₁)) $
+          stabilityConv↑Term (Resp-Con-cong Γ≡Γ ≡A ≡B) u₂≡u₃))
       (transConv↑Term (Is-set-type-cong ⊢C₁≡C₂) v₁≡v₂
          (stabilityConv↑Term
             (symConEq (Is-set-Con-cong Γ≡Γ A≡ B≡ ⊢C₁≡C₂))

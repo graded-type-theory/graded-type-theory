@@ -11,9 +11,10 @@ module Definition.Untyped.Empty
 
 open Modality 𝕄
 
+open import Configuration-types
+
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Weakening
-open import Definition.Typed.Restrictions
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -61,12 +62,12 @@ opaque
 module Internal
   {b} {Mode : Set b}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
   private
-    module I  = Definition.Typed.Decidable.Internal.Term 𝐌 R
-    module IW = Definition.Typed.Decidable.Internal.Weakening 𝐌 R
+    module I  = Definition.Typed.Decidable.Internal.Term 𝐌 TC
+    module IW = Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
 
   private variable
     c     : I.Constants

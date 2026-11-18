@@ -15,11 +15,13 @@ open import Tools.Function
 open import Tools.Level using (lzero)
 import Tools.Nat as N
 open import Tools.Nat using (Nat; 1+; 2+; _⊔_; _∸_; Sequence)
-open import Tools.Product
+open import Tools.Product as Σ
 open import Tools.PropositionalEquality
 open import Tools.Relation
 open import Tools.Sum
 import Tools.Reasoning.PartialOrder as RPo
+
+open import Configuration-types
 
 open import Graded.Modality Nat
 
@@ -33,9 +35,7 @@ import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
 
 open import Definition.Untyped Nat
-import Definition.Typed.Restrictions
 import Graded.FullReduction.Assumptions
-import Graded.Usage.Restrictions
 
 private variable
   p q r z z₁ z₂ s s₁ s₂ : Nat
@@ -150,59 +150,64 @@ module _ {𝟘ᵐ-allowed : Bool} where
       }
 
   open Graded.Mode.Instances.Zero-one   variant
-  open Definition.Typed.Restrictions    Nat-modality
-  open Graded.Usage.Restrictions        Nat-modality Zero-one-isMode
   open Graded.FullReduction.Assumptions variant
 
   private variable
-    TR : Type-restrictions
-    UR : Usage-restrictions
+    C : Configuration Zero-one-isMode
 
-  -- Instances of Type-restrictions Nat-modality and are
-  -- suitable for the full reduction theorem if
+  -- Configurations are suitable for the full reduction theorem if
   -- * whenever Σˢ-allowed m n holds, then m is ⌞ 1 ⌟, or
   --   m is ⌞ 0 ⌟, and 𝟘ᵐ is allowed.
 
   Suitable-for-full-reduction :
-    Type-restrictions → Set
-  Suitable-for-full-reduction TRs =
+    Configuration Zero-one-isMode → Set
+  Suitable-for-full-reduction C =
     ∀ p q → Σˢ-allowed p q → p ≡ 1 ⊎ p ≡ 0 × T 𝟘ᵐ-allowed
     where
-    open Type-restrictions TRs
+    open Configuration C
 
   opaque
     unfolding Nat-modality Nat-modality
 
-    -- Given an instance of Type-restrictions ℕ⊎∞-modality one
-    -- can create a "suitable" instance.
+    -- One can transform any configuration to a "suitable" one.
 
     suitable-for-full-reduction :
-      Type-restrictions →
-      ∃ Suitable-for-full-reduction
-    suitable-for-full-reduction TR =
-      record TR
-        { ΠΣ-allowed = λ b p q →
-            ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 → p ≡ 1 ⊎ p ≡ 0 × T 𝟘ᵐ-allowed)
-        ; []-cong-allowed = λ s →
-            []-cong-allowed s × T 𝟘ᵐ-allowed
-        ; []-cong→Erased = λ (hyp₁ , hyp₂) →
-            let ok₁ , ok₂ = []-cong→Erased hyp₁
-            in  ok₁ , ok₂ , λ { refl → inj₂ (refl , hyp₂) }
-        ; []-cong→¬Trivial = λ _ ()
-        }
+      Configuration Zero-one-isMode → ∃ Suitable-for-full-reduction
+    suitable-for-full-reduction C =
+        record C
+          { TC = record TC
+            { ΠΣ-allowed = λ b p q →
+                ΠΣ-allowed b p q ×
+                (b ≡ BMΣ 𝕤 → p ≡ 1 ⊎ p ≡ 0 × T 𝟘ᵐ-allowed)
+            ; []-cong-allowed = λ s →
+                []-cong-allowed s × T 𝟘ᵐ-allowed
+            ; []-cong→Erased = λ (hyp₁ , hyp₂) →
+                let ok₁ , ok₂ = []-cong→Erased hyp₁
+                in  ok₁ , ok₂ , λ { refl → inj₂ (refl , hyp₂) }
+            ; []-cong→¬Trivial =
+                λ _ ()
+            }
+          ; []-cong-allowed-mode = λ s m →
+              []-cong-allowed-mode s m × _
+          ; []-cong-allowed-mode→[]-cong-allowed =
+              Σ.map []-cong-allowed-mode→[]-cong-allowed idᶠ
+          ; []-cong-allowed-mode-upwards-closed =
+              flip λ m≤m′ →
+              Σ.map (flip []-cong-allowed-mode-upwards-closed m≤m′) idᶠ
+          }
       , λ _ _ (_ , hyp) → hyp refl
       where
-      open Type-restrictions TR
+      open Configuration C
 
   opaque
     unfolding Nat-modality Nat-modality variant
 
-    -- The full reduction assumptions hold for Nat-modality and
-    -- any "suitable" instance of Type-restrictions.
+    -- The full reduction assumptions hold for any "suitable"
+    -- configuration.
 
     full-reduction-assumptions :
-      Suitable-for-full-reduction TR →
-      Full-reduction-assumptions TR UR
+      Suitable-for-full-reduction C →
+      Full-reduction-assumptions C
     full-reduction-assumptions hyp = record
       { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
       ; ≡𝟙⊎𝟙≤𝟘 = λ {p} {q} ok →
@@ -214,18 +219,18 @@ module _ {𝟘ᵐ-allowed : Bool} where
   opaque
     unfolding Nat-modality Nat-modality variant
 
-    -- Type and usage restrictions that satisfy the full reduction
-    -- assumptions are "suitable".
+    -- Configurations that satisfy the full reduction assumptions are
+    -- "suitable".
 
     full-reduction-assumptions-suitable :
-      Full-reduction-assumptions TR UR →
-      Suitable-for-full-reduction TR
+      Full-reduction-assumptions C →
+      Suitable-for-full-reduction C
     full-reduction-assumptions-suitable as p q ok =
       case ≡𝟙⊎𝟙≤𝟘 ok of λ where
         (inj₁ p≡1) → inj₁ p≡1
         (inj₂ (p≡0 , ok , _)) → inj₂ (p≡0 , ok)
       where
-      open Full-reduction-assumptions _ _ as
+      open Full-reduction-assumptions _ as
 
 ------------------------------------------------------------------------
 -- Subtraction

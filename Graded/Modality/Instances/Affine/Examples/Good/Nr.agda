@@ -5,25 +5,27 @@
 
 open import Tools.Level
 
+open import Configuration-types
 open import Graded.Modality.Instances.Affine
-open import Graded.Usage.Restrictions
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant affineModality
 
 module Graded.Modality.Instances.Affine.Examples.Good.Nr
   {variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions affineModality Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open import Graded.Restrictions.Zero-one affineModality variant
-open import Graded.Usage.Restrictions.Natrec affineModality
+open import Configuration-types.Configuration.Zero-one
+  affineModality variant
+open import Configuration-types.Natrec affineModality
+
 open import Graded.Modality Affine
 
 private
   -- The "good" nr function is used
-  UR′ = nr-available-UR zero-one-many-has-nr UR
-  open Usage-restrictions UR′
+  C′ = nr-available zero-one-many-has-nr C
+  open Configuration C′
   instance
     has-nr : Nr-available
     has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-has-nr ⦄
@@ -37,10 +39,10 @@ open import Tools.Relation
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
 open import Graded.Modality.Properties affineModality
-open import Graded.Usage UR′
-open import Graded.Usage.Inversion UR′
-open import Graded.Usage.Properties UR′
-open import Graded.Usage.Weakening UR′
+open import Graded.Usage C′
+open import Graded.Usage.Inversion C′
+open import Graded.Usage.Properties C′
+open import Graded.Usage.Weakening C′
 
 open import Definition.Untyped Affine
 open import Definition.Untyped.Nat affineModality

@@ -2,15 +2,15 @@
 -- Some properties related to typing and Unrestricted
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
-open import Definition.Typed.Restrictions
 
 module Graded.Derived.Unrestricted.Eta.Typed
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   -- The modality is assumed to have grade ω.
   ⦃ has-omega : Has-omega _ 𝕄 ⦄
   (open Has-omega has-omega)
@@ -21,21 +21,21 @@ module Graded.Derived.Unrestricted.Eta.Typed
   (Σˢ-ok : Σˢ-allowed ω ω)
   where
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
   hiding ([]ⱼ; []-cong′; inversion-[])
-open import Definition.Typed.Reasoning.Level R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed.Reasoning.Level TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M hiding (_[_])
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄
 
 open import Tools.Empty

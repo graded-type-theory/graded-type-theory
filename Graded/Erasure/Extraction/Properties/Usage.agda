@@ -2,21 +2,23 @@
 -- Properties of the extraction function related to usage.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.Extraction.Properties.Usage
   {a} {M : Set a}
   {𝕄 : Modality M}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (R : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types.Instance.Configuration C
 
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
@@ -33,10 +35,9 @@ import Definition.Untyped.Properties M as UP
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Properties.Has-well-behaved-zero R
-open import Graded.Usage.Restrictions.Instance R
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Has-well-behaved-zero C
 
 open import Tools.Bool
 open import Tools.Empty

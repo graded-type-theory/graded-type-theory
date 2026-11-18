@@ -2,17 +2,17 @@
 -- "Equational" reasoning combinators for _⊢_⇒*_∷_
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Reasoning.Reduction
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Reduction R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Reduction TC
 open import Definition.Untyped M
 
 open import Tools.Function

@@ -2,7 +2,7 @@
 -- Admissible rules related to identity types
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -10,33 +10,33 @@ module Definition.Typed.Consequences.Admissible.Identity
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   (𝐌 : IsMode Mode 𝕄)
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
 open import Graded.Modality.Omega-instances
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Decidable.Internal 𝐌 R
-import Definition.Typed.Decidable.Internal.Context 𝐌 R as IC
-import Definition.Typed.Decidable.Internal.Term 𝐌 R as I
-import Definition.Typed.Decidable.Internal.Substitution 𝐌 R as IS
-import Definition.Typed.Decidable.Internal.Weakening 𝐌 R as IW
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Well-formed R
-open import Definition.Typed.With-equality-reflection R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.Decidable.Internal 𝐌 TC
+import Definition.Typed.Decidable.Internal.Context 𝐌 TC as IC
+import Definition.Typed.Decidable.Internal.Term 𝐌 TC as I
+import Definition.Typed.Decidable.Internal.Substitution 𝐌 TC as IS
+import Definition.Typed.Decidable.Internal.Weakening 𝐌 TC as IW
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
+open import Definition.Typed.With-equality-reflection TC
 
 open import Definition.Untyped M as U
 open import Definition.Untyped.Identity 𝕄 as Id
-open import Definition.Untyped.Sup R
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Sup TC
+open import Definition.Untyped.Whnf M TC⁻
 
-open Id.Internal 𝐌 R
+open Id.Internal 𝐌 TC
 
 open import Tools.Bool
 open import Tools.Fin

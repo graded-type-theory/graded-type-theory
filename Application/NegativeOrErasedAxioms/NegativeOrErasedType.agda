@@ -2,26 +2,26 @@
 -- Negative types (with support for erasure)
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
-open import Definition.Typed.Restrictions
 
 module Application.NegativeOrErasedAxioms.NegativeOrErasedType
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M as U
 
-open import Definition.Typed R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R as T
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Consequences.Inequality R as I
-open import Definition.Typed.Consequences.Injectivity R
+open import Definition.Typed TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC as T
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Consequences.Inequality TC as I
+open import Definition.Typed.Consequences.Injectivity TC
 
 open import Tools.Empty
 open import Tools.Function

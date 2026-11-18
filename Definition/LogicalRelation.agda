@@ -2,38 +2,38 @@
 -- The logical relation for reducibility
 ------------------------------------------------------------------------
 
+open import Configuration-types hiding (K)
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation
   {a} {Mod : Set a}
   {𝕄 : Modality Mod}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Weakening.Restricted TC ⦃ eqrel ⦄
 open import Definition.Untyped Mod as U hiding (K)
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Properties Mod
-open import Definition.Untyped.Neutral Mod type-variant
-open import Definition.Untyped.Neutral.Atomic Mod type-variant
-open import Definition.Untyped.Whnf Mod type-variant
-open import Definition.Typed.Properties R
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
+open import Definition.Untyped.Neutral Mod TC⁻
+open import Definition.Untyped.Neutral.Atomic Mod TC⁻
+open import Definition.Untyped.Whnf Mod TC⁻
+open import Definition.Typed.Properties TC
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
 -- The imported operator _,_ is not "supposed" to be used below, but
 -- "," is used in some pattern synonyms, and if this import statement
 -- is removed, then some code in
 -- Definition.LogicalRelation.Properties.Reduction fails to type-check
 -- (at the time of writing).
-open import Definition.Typed.Substitution R using (_,_)
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed.Substitution TC using (_,_)
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Empty
 open import Tools.Fin

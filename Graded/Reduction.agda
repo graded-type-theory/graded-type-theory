@@ -3,43 +3,41 @@
 -- Notably, subject reduction.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 
 module Graded.Reduction
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
+
+open import Configuration-types.Instance.Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Substitution.Properties UR
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Restrictions.Satisfied UR
-open import Graded.Usage.Weakening UR
-open import Definition.Typed TR
-open import Definition.Typed.Eta-long-normal-form TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
+open import Graded.Substitution.Properties C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Restrictions.Satisfied C
+open import Graded.Usage.Weakening C
+open import Definition.Typed TC
+open import Definition.Typed.Eta-long-normal-form TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
 open import Definition.Untyped M
-open import Definition.Untyped.Normal-form M type-variant
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Normal-form M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Bool using (T; true; false)
 open import Tools.Empty
@@ -506,21 +504,30 @@ module Subject-reduction
     sub rflₘ (inv-usage-set ▸set .proj₁)
   usagePresTerm ▸Γ ▸qrec (qrec-subst ⊢C ⊢t ⊢u ⊢v w₁⇒w₂)
     with inv-usage-qrec ▸qrec
-  … | invUsageQrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w₁ γ≤ =
-    sub (qrec₀ ok₁ ok₂ ▸C ▸t ▸u ▸v (usagePresTerm ▸Γ ▸w₁ w₁⇒w₂)) γ≤
-  … | invUsageQrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w₁ γ≤ =
-    sub (qrec₁ ok₁ ok₂ ▸C ▸t ▸u ▸v (usagePresTerm ▸Γ ▸w₁ w₁⇒w₂)) γ≤
+  … | invUsageQrec₀ ⦃ ok ⦄ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w₁ γ≤ =
+    sub
+      (qrec₀ ⦃ ok = ok ⦄ ok₁ ok₂ ▸C ▸t ▸u ▸v
+         (usagePresTerm ▸Γ ▸w₁ w₁⇒w₂))
+      γ≤
+  … | invUsageQrec₁ ⦃ ok ⦄ ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w₁ γ≤ =
+    sub
+      (qrec₁ ⦃ ok = ok ⦄ ok₁ ok₂ ▸C ▸t ▸u ▸v
+         (usagePresTerm ▸Γ ▸w₁ w₁⇒w₂))
+      γ≤
   usagePresTerm {γ} _ ▸qrec (qrec-β _ _ _ _ _)
     with inv-usage-qrec ▸qrec
   … | invUsageQrec₀ _ _ _ ▸t _ _ ▸class-w γ≤ =
     sub (sgSubstₘ-lemma₃ ▸t (inv-usage-class ▸class-w .proj₂)) γ≤
-  … | invUsageQrec₁ {δ₁} {δ₂} {δ₅} _ _ _ ▸t _ _ ▸class-w γ≤ =
+  … | invUsageQrec₁ {δ₁} {δ₂} {δ₅} ⦃ ok ⦄ _ _ _ ▸t _ _ ▸class-w γ≤ =
+    let ok = Omega-allowed→Has-omega ⦃ ok = ok ⦄
+        ω  = Has-omega.ω ok
+    in
     sub (sgSubstₘ-lemma₃ ▸t (inv-usage-class ▸class-w .proj₂))
       (begin
          γ                      ≤⟨ γ≤ ⟩
-         ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⟩
+         ω ·ᶜ (δ₁ +ᶜ δ₂ +ᶜ δ₅)  ≤⟨ ω·ᶜ+ᶜ≤ω·ᶜʳ ⦃ ok = ok ⦄ ⟩
          ω ·ᶜ (δ₂ +ᶜ δ₅)        ≈⟨ ·ᶜ-distribˡ-+ᶜ _ _ _ ⟩
-         ω ·ᶜ δ₂ +ᶜ ω ·ᶜ δ₅     ≤⟨ +ᶜ-monotoneˡ ω·ᶜ-decreasing ⟩
+         ω ·ᶜ δ₂ +ᶜ ω ·ᶜ δ₅     ≤⟨ +ᶜ-monotoneˡ (ω·ᶜ-decreasing ⦃ ok = ok ⦄) ⟩
          δ₂ +ᶜ ω ·ᶜ δ₅          ∎)
     where
     open ≤ᶜ-reasoning

@@ -3,31 +3,31 @@
 -- Level
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Level
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-import Definition.Typed.Substitution.Primitive.Primitive R as S
-open import Definition.Typed.Properties.Admissible.Equality R
-import Definition.Typed.Properties.Admissible.Level.Primitive R as LP
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Level R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+import Definition.Typed.Substitution.Primitive.Primitive TC as S
+open import Definition.Typed.Properties.Admissible.Equality TC
+import Definition.Typed.Properties.Admissible.Level.Primitive TC as LP
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Level TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 
 open import Tools.Empty
 open import Tools.Fin

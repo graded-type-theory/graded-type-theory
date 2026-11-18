@@ -2,13 +2,15 @@
 -- Definitions related to quotients
 ------------------------------------------------------------------------
 
-open import Graded.Modality
+import Graded.Modality
 
 module Definition.Untyped.Quotient
   {a} {M : Set a}
-  (𝕄 : Modality M)
+  (open Graded.Modality M)
+  (𝕄 : Modality)
   where
 
+open Has-omega ⦃ … ⦄
 open Modality 𝕄
 
 open import Definition.Untyped M
@@ -133,10 +135,12 @@ opaque
 
   -- The type of qrec's "the relation is respected" argument.
 
-  Resp-type : Term n → Term (2+ n) → (_ _ : Term (1+ n)) → Term (3+ n)
+  Resp-type :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
+    Term n → Term (2+ n) → (_ _ : Term (1+ n)) → Term (3+ n)
   Resp-type A B C t =
     Id (C [ 3 ][ class (var x1) ]↑)
-      (subst 𝟘 (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
+      (subst ω (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
          (class (var x2)) (class (var x1))
          (resp (wk[ 3 ]′ A) (wk (liftn (stepn id 3) 2) B) (var x2)
             (var x1) (var x0))
@@ -146,14 +150,27 @@ opaque
 opaque
   unfolding Resp-type
 
+  -- It does not matter what Has-omega proof is used, as long as the ω
+  -- grades are the same.
+
+  ω≡ω→Resp-type≡Resp-type :
+    {ok₁ ok₂ : Has-omega 𝕄} →
+    Has-omega.ω ok₁ ≡ Has-omega.ω ok₂ →
+    Resp-type ⦃ ok = ok₁ ⦄ A B C t ≡ Resp-type ⦃ ok = ok₂ ⦄ A B C t
+  ω≡ω→Resp-type≡Resp-type {ok₁ = record{}} refl = refl
+
+opaque
+  unfolding Resp-type
+
   -- A substitution lemma for Resp-type.
 
   Resp-type-[] :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     Resp-type A B C t [ σ ⇑[ 3 ] ] ≡
     Resp-type (A [ σ ]) (B [ σ ⇑[ 2 ] ]) (C [ σ ⇑ ]) (t [ σ ⇑ ])
   Resp-type-[] {A} {B} {C} {t} {σ} =
     Id (C [ 3 ][ class (var x1) ]↑ [ σ ⇑[ 3 ] ])
-      (subst 𝟘 (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
+      (subst ω (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
          (class (var x2)) (class (var x1))
          (resp (wk[ 3 ]′ A) (wk (liftn (stepn id 3) 2) B)
             (var x2) (var x1) (var x0))
@@ -162,7 +179,7 @@ opaque
 
     Id
       (C [ σ ⇑ ] [ 3 ][ class (var x1) ]↑)
-      (subst 𝟘 (wk[ 3 ]′ (Quot A B) [ σ ⇑[ 3 ] ])
+      (subst ω (wk[ 3 ]′ (Quot A B) [ σ ⇑[ 3 ] ])
          (C [ 4 ][ var x0 ]↑ [ σ ⇑[ 4 ] ])
          (class (var x2)) (class (var x1))
          (resp (wk[ 3 ]′ A [ σ ⇑[ 3 ] ])
@@ -172,7 +189,7 @@ opaque
       (t [ σ ⇑ ] [ 3 ][ var x1 ]↑)                           ≡⟨ (PE.cong (flip (Id _) _) $
                                                                 cong₅
                                                                   (λ A B C Q t →
-                                                                     subst 𝟘 Q C (class (var x2)) (class (var x1))
+                                                                     subst ω Q C (class (var x2)) (class (var x1))
                                                                        (resp A B (var x2) (var x1) (var x0)) t)
                                                                   (wk[]′-[⇑] A) (wk-liftn-stepn-[⇑]₂ 2 B)
                                                                   ([][]↑-commutes C)
@@ -180,7 +197,7 @@ opaque
                                                                   (wk[]′-[⇑] t)) ⟩
     Id
       (C [ σ ⇑ ] [ 3 ][ class (var x1) ]↑)
-      (subst 𝟘 (wk[ 3 ]′ (Quot A B [ σ ]))
+      (subst ω (wk[ 3 ]′ (Quot A B [ σ ]))
          (C [ σ ⇑ ] [ 4 ][ var x0 ]↑)
          (class (var x2)) (class (var x1))
          (resp (wk[ 3 ]′ (A [ σ ]))
@@ -195,9 +212,10 @@ opaque
   -- Another substitution lemma for Resp-type.
 
   Resp-type-[]₂₁₀ :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     Resp-type A B C t [ u , v , w ]₂₁₀ ≡
     Id (C [ class v ]₀)
-      (subst 𝟘 (Quot A B) C (class u) (class v) (resp A B u v w)
+      (subst ω (Quot A B) C (class u) (class v) (resp A B u v w)
          (t [ u ]₀))
       (t [ v ]₀)
   Resp-type-[]₂₁₀ {A} {B} {C} {t} =
@@ -217,6 +235,7 @@ opaque
   -- A weakening lemma for Resp-type.
 
   wk-Resp-type :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     wk (liftn ρ 3) (Resp-type A B C t) ≡
     Resp-type (wk ρ A) (wk (liftn ρ 2) B) (wk (lift ρ) C)
       (wk (lift ρ) t)
@@ -237,18 +256,19 @@ opaque
   -- Inlining commutes with Resp-type.
 
   inline-Resp-type :
+    ⦃ ok : Has-omega 𝕄 ⦄ →
     inline ξ (Resp-type A B C t) PE.≡
     Resp-type (inline ξ A) (inline ξ B) (inline ξ C) (inline ξ t)
   inline-Resp-type {ξ} {A} {B} {C} {t} =
     PE.cong₃ Id (inline-[][]↑ C)
       (inline ξ
-         (subst 𝟘 (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
+         (subst ω (wk[ 3 ]′ (Quot A B)) (C [ 4 ][ var x0 ]↑)
             (class (var x2)) (class (var x1))
             (resp (wk[ 3 ]′ A) (wk (liftn (stepn id 3) 2) B) (var x2)
                (var x1) (var x0))
             (wk[ 2 ]′ t))                                               ≡⟨ inline-subst ⟩
 
-       subst 𝟘 (inline ξ (wk[ 3 ]′ (Quot A B)))
+       subst ω (inline ξ (wk[ 3 ]′ (Quot A B)))
          (inline ξ (C [ 4 ][ var x0 ]↑))
          (class (var x2)) (class (var x1))
          (resp (inline ξ (wk[ 3 ]′ A))
@@ -258,7 +278,7 @@ opaque
                                                                              (inline-[][]↑ C) refl refl
                                                                              (cong₅ resp (sym (wk-inline A)) (sym (wk-inline B)) refl refl refl)
                                                                              (sym (wk-inline t)) ⟩
-       subst 𝟘 (wk[ 3 ]′ (inline ξ (Quot A B)))
+       subst ω (wk[ 3 ]′ (inline ξ (Quot A B)))
          (inline ξ C [ 4 ][ var x0 ]↑) (class (var x2))
          (class (var x1))
          (resp (wk[ 3 ]′ (inline ξ A))

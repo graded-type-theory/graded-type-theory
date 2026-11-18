@@ -2,26 +2,26 @@
 -- A lemma related to definitional equality for variables
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Conversion.Consequences.Var
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   -- Equality reflection is not allowed.
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
-open import Definition.Conversion R
-open import Definition.Conversion.Soundness R
-open import Definition.Conversion.Consequences.Completeness R
-open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Conversion TC
+open import Definition.Conversion.Soundness TC
+open import Definition.Conversion.Consequences.Completeness TC
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Empty
 open import Tools.Fin

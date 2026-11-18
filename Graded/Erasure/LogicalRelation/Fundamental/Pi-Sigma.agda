@@ -2,12 +2,11 @@
 -- Validity for Π- and Σ-types
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
   {a} {M : Set a}
@@ -15,27 +14,26 @@ module Graded.Erasure.LogicalRelation.Fundamental.Pi-Sigma
   (open Modality 𝕄)
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  {TR : Type-restrictions 𝕄}
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (as : Assumptions TR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (as : Assumptions TC)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open Assumptions as
-open Type-restrictions TR
 
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Inversion TR
-open import Definition.Typed.Consequences.Reduction TR
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
-open import Definition.Typed.Well-formed TR
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
@@ -45,8 +43,8 @@ open import Graded.Erasure.Extraction.Properties 𝕄
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   is-reduction-relation
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden UR as
-open import Graded.Erasure.LogicalRelation.Value UR as
+open import Graded.Erasure.LogicalRelation.Hidden C as
+open import Graded.Erasure.LogicalRelation.Value C as
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Target.Non-terminating
 import Graded.Erasure.Target.Properties as TP
@@ -54,9 +52,9 @@ import Graded.Erasure.Target.Reasoning
 
 open import Graded.Modality.Properties 𝕄
 
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties.Zero-one variant UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties.Zero-one variant C
 
 open import Tools.Empty
 open import Tools.Fin
@@ -70,17 +68,17 @@ open import Tools.Relation
 open import Tools.Sum using (_⊎_; inj₁; inj₂)
 
 private variable
-  n o       : Nat
-  Γ         : Con Term _
-  σ         : Subst _ _
-  σ′        : T.Subst _ _
-  A B C t u : Term _
-  l         : Lvl _
-  γ δ       : Conₘ _
-  p q q′ r  : M
-  m         : Mode
-  b         : BinderMode
-  s         : Strength
+  n o      : Nat
+  Γ        : Con Term _
+  σ        : Subst _ _
+  σ′       : T.Subst _ _
+  A B t u  : Term _
+  l        : Lvl _
+  γ δ      : Conₘ _
+  p q q′ r : M
+  m        : Mode
+  b        : BinderMode
+  s        : Strength
 
 ------------------------------------------------------------------------
 -- A lemma related to Π and Σ
@@ -602,7 +600,7 @@ opaque
   -- Validity of prodrec.
 
   prodrecʳ :
-    {Γ : Con Term o} →
+    ∀ {Γ : Con Term o} {C} →
     ts » Γ ∙ Σʷ p , q ▷ A ▹ B ⊢ C →
     ts » Γ ⊢ t ∷ Σʷ p , q ▷ A ▹ B →
     ts » Γ ∙ A ∙ B ⊢ u ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
@@ -616,8 +614,8 @@ opaque
   prodrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
   prodrecʳ
-    {o} {p} {q} {A} {B} {C} {t} {u} {γ} {m = 𝟙ᵐ} {r} {n} {δ}
-    {q′} {Γ} ⊢C ⊢t ⊢u ⊩ʳt ⊩ʳu r≡𝟘→ε =
+    {o} {p} {q} {A} {B} {t} {u} {γ} {m = 𝟙ᵐ} {r} {n} {δ} {q′} {Γ} {C}
+    ⊢C ⊢t ⊢u ⊩ʳt ⊩ʳu r≡𝟘→ε =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     let open Lemmas ⊢σ σ®σ′ in                                 $⟨ σ®σ′ ⟩
 

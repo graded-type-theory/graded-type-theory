@@ -2,22 +2,21 @@
 -- Validity for natural numbers
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Nat
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  {R : Type-restrictions 𝕄}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (as : Assumptions R)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (as : Assumptions TC)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
@@ -26,17 +25,17 @@ open Has-well-behaved-zero 𝟘-well-behaved
 
 open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden UR as
-open import Graded.Erasure.LogicalRelation.Value UR as
+open import Graded.Erasure.LogicalRelation.Hidden C as
+open import Graded.Erasure.LogicalRelation.Value C as
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-import Definition.Typed.Reasoning.Reduction R as RR
-open import Definition.Typed.Substitution R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+import Definition.Typed.Reasoning.Reduction TC as RR
+open import Definition.Typed.Substitution TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M

@@ -2,38 +2,38 @@
 -- Consistency of equality of natural numbers.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Consequences.Consistency
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
 open import Graded.Mode.Instances.Trivial 𝕄
 
 open import Definition.Untyped M
 open import Definition.Untyped.Identity 𝕄 as Id
 open import Definition.Untyped.Properties M
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Canonicity R
-open import Definition.Typed.Decidable.Internal trivial R
-import Definition.Typed.Decidable.Internal.Context trivial R as IC
-import Definition.Typed.Decidable.Internal.Term trivial R as I
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
-open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Substitution.Introductions R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Canonicity TC
+open import Definition.Typed.Decidable.Internal trivial TC
+import Definition.Typed.Decidable.Internal.Context trivial TC as IC
+import Definition.Typed.Decidable.Internal.Term trivial TC as I
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
+open import Definition.LogicalRelation.Hidden TC
+open import Definition.LogicalRelation.Substitution.Introductions TC
+open import Definition.LogicalRelation.Fundamental.Reducibility TC
 
 open import Tools.Bool
 open import Tools.Empty
@@ -48,7 +48,7 @@ open import Tools.Reasoning.PropositionalEquality
 open import Tools.Relation
 open import Tools.Vec as V using (ε)
 
-open Id.Internal trivial R
+open Id.Internal trivial TC
 
 private
   variable

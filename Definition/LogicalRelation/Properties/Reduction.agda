@@ -2,43 +2,43 @@
 -- The logical relation is backwards-closed under reductions
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Reduction
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M hiding (Wk; K)
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
 -- The imported operator _,_ is not "supposed" to be used below, but
 -- another operator with the same name is used, and if this import
 -- statement is removed, then some code below fails to type-check (at
 -- the time of writing).
-open import Definition.Typed.Substitution R using (_,_)
-import Definition.Typed.Weakening R as Wk
-open import Definition.Typed.Well-formed R
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Properties.Kit R
-open import Definition.LogicalRelation.Properties.Primitive R
+open import Definition.Typed.Substitution TC using (_,_)
+import Definition.Typed.Weakening TC as Wk
+open import Definition.Typed.Well-formed TC
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Irrelevance TC
+open import Definition.LogicalRelation.Properties.Kit TC
+open import Definition.LogicalRelation.Properties.Primitive TC
 open import Definition.LogicalRelation.Properties.Quotient eqrel
-open import Definition.LogicalRelation.Properties.Reflexivity R
-open import Definition.LogicalRelation.Properties.Transitivity R
-open import Definition.LogicalRelation.Properties.Whnf R
-open import Definition.LogicalRelation.Unary R
+open import Definition.LogicalRelation.Properties.Reflexivity TC
+open import Definition.LogicalRelation.Properties.Transitivity TC
+open import Definition.LogicalRelation.Properties.Whnf TC
+open import Definition.LogicalRelation.Unary TC
 
 open import Tools.Empty
 open import Tools.Function

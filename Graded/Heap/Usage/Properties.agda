@@ -2,19 +2,17 @@
 -- Properties of the usage relation for Heaps, Stacks and States.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Variant
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Usage.Properties
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant a)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
@@ -24,22 +22,22 @@ module Graded.Heap.Usage.Properties
 open Modality 𝕄
 open IsMode 𝐌
 
+open import Configuration-types.Instance.Configuration C
+
 open import Definition.Untyped M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Restrictions 𝕄 𝐌
-open import Graded.Usage UR
-open import Graded.Usage.Restrictions.Instance UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Usage type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Usage.Inversion type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Usage C factoring-nr ∣ε∣
+open import Graded.Heap.Usage.Inversion C factoring-nr ∣ε∣
 
 open import Tools.Empty
 open import Tools.Fin

@@ -2,39 +2,39 @@
 -- Validity for levels
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Substitution.Introductions.Level
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
-import Definition.LogicalRelation.Hidden.Restricted R ⦃ eqrel ⦄ as R
-open import Definition.LogicalRelation.Properties R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Hidden TC ⦃ eqrel ⦄
+import Definition.LogicalRelation.Hidden.Restricted TC ⦃ eqrel ⦄ as R
+open import Definition.LogicalRelation.Properties TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.ShapeView TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution TC ⦃ eqrel ⦄
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Allowed-literal TC
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Sup R
+open import Definition.Untyped.Sup TC
 
 open import Tools.Empty
 open import Tools.Function

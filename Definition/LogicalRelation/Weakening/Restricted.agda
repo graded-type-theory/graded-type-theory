@@ -3,31 +3,31 @@
 -- logical relation
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Weakening.Restricted
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-import Definition.Typed.Weakening R as W
-open import Definition.Typed.Weakening.Combined R as C using (_⊢ʷᵏ_∷_)
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Properties.Well-formed R
+open import Definition.Typed TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Weakening.Combined TC as C using (_⊢ʷᵏ_∷_)
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Properties.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Function
 open import Tools.Nat

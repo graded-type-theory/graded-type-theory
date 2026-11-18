@@ -2,15 +2,15 @@
 -- Properties related to usage, Π and Σ
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Pi-Sigma
   {a a′} {M : Set a} {Mode : Set a′}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
@@ -20,9 +20,9 @@ open import Definition.Untyped M
 open import Definition.Untyped.Pi-Sigma M
 
 open import Graded.Context 𝕄
-open import Graded.Derived.Lift UR
-open import Graded.Usage UR
-open import Graded.Usage.Weakening UR
+open import Graded.Derived.Lift C
+open import Graded.Usage C
+open import Graded.Usage.Weakening C
 
 private variable
   A B         : Term _

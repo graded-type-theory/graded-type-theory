@@ -2,9 +2,9 @@
 -- The usage relation is closed under weakening.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Mode
 import Graded.Modality
-open import Graded.Usage.Restrictions
 
 module Graded.Usage.Weakening
   {a b} {M : Set a} {Mode : Set b}
@@ -12,19 +12,20 @@ module Graded.Usage.Weakening
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types.Instance.Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
 open import Graded.Modality.Omega-instances
-open import Graded.Usage R
-open import Graded.Usage.Restrictions.Instance R
+open import Graded.Usage C
 open import Definition.Untyped M
 open import Definition.Untyped.Inversion M
 

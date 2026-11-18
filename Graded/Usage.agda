@@ -2,9 +2,9 @@
 -- The usage relation.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Usage
   {a a′} {M : Set a} {Mode : Set a′}
@@ -12,20 +12,21 @@ module Graded.Usage
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (Conf : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration Conf
+
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance.Configuration Conf
+open import Configuration-types.Natrec 𝕄
+open import Configuration-types.Omega 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Omega-instances
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Instance R
-open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Restrictions.Omega 𝕄
 open import Definition.Untyped M
 
 open import Tools.Bool using (T; true; false)
@@ -100,7 +101,8 @@ opaque
 -- A function used for context infrerence for qrec.
 
 ⌈⌉-qrec :
-  {A : Set a} → Usage-with-or-without-omega → Dec A → (γ δ η : Conₘ n) → Conₘ n
+  {A : Set a} →
+  With-or-without-omega → Dec A → (γ δ η : Conₘ n) → Conₘ n
 ⌈⌉-qrec without-ω _ _ _ _ = 𝟘ᶜ
 ⌈⌉-qrec (with-ω ⦃ ok ⦄) (yes _) γ δ η =
   δ +ᶜ ω ⦃ ok ⦄ ·ᶜ η
@@ -108,8 +110,6 @@ opaque
   ω ⦃ ok ⦄ ·ᶜ (γ +ᶜ δ +ᶜ η)
 
 -- Modality context inference (for modalities with nr functions).
-
-infix 50 ⌈_⌉
 
 mutual
   ⌈_⌉ :
@@ -168,7 +168,7 @@ mutual
   ⌈ resp _ _ _ _ _ ⌉ _ = 𝟘ᶜ
   ⌈ set _ _ _ _ _ _ ⌉ _ = 𝟘ᶜ
   ⌈ qrec C t _ _ w ⌉ m =
-    ⌈⌉-qrec usage-rules-with-ω Qrec-motive-erased?
+    ⌈⌉-qrec with-or-without-omega Qrec-motive-erased?
       (tailₘ (⌈ C ⌉ m)) (tailₘ (⌈ t ⌉ m)) (⌈ w ⌉ m)
 
 -- Well-usage of variables
@@ -291,9 +291,9 @@ data _◂_∈_  : (x : Fin n) (p : M) (γ : Conₘ n) → Set a where
 -- * Definition.Untyped.Erased.Jᵉ is a variant of J that is defined
 --   using []-cong. If []-cong is allowed (which at the time of
 --   writing implies that the modality is non-trivial, see
---   Definition.Typed.Restrictions.Type-restrictions.[]-cong→¬Trivial),
---   then this term former satisfies typing rules that are similar to
---   those for J (see Definition.Typed.Properties.Admissible.Erased).
+--   Configuration-types.Type-configuration.[]-cong→¬Trivial), then
+--   this term former satisfies typing rules that are similar to those
+--   for J (see Definition.Typed.Properties.Admissible.Erased).
 --   Furthermore the term former satisfies a usage rule that is
 --   similar to J₀ₘ₁ if 𝟘ᵐ is allowed (see
 --   Graded.Derived.Erased.Usage.▸Jᵉ).
@@ -523,7 +523,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
   J₀ₘ₂      : ⦃ ok : erased-matches-for-J m ≡ all ⦄
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] t
-            → γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q ▸[ 𝟘ᵐ ] B
+            → γ₃ ▸[ 𝟘ᵐ ] B
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ 𝟘ᵐ ] v
             → γ₆ ▸[ 𝟘ᵐ ] w
@@ -550,7 +550,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
   K₀ₘ₂      : ⦃ ok : erased-matches-for-K m ≡ all ⦄
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] t
-            → γ₃ ∙ ⌜ 𝟘ᵐ ⌝ · p ▸[ 𝟘ᵐ ] B
+            → γ₃ ▸[ 𝟘ᵐ ] B
             → γ₄ ▸[ m ] u
             → γ₅ ▸[ 𝟘ᵐ ] v
             → γ₄ ▸[ m ] K p A t B u v
@@ -563,16 +563,16 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → []-cong-allowed-mode s m
             → 𝟘ᶜ ▸[ m ] []-cong s l A t u v
 
-  Quot      : Quotient-terms-allowed
+  Quot      : Quot-allowed
             → γ₁ ▸[ m ] A
             → γ₂ ▸[ 𝟘ᵐ ] B
             → γ₁ ▸[ m ] Quot A B
 
-  class     : Quotient-terms-allowed
+  class     : Quot-allowed
             → γ ▸[ m ] t
             → γ ▸[ m ] class t
 
-  resp      : Higher-quotient-constructors-allowed
+  resp      : Quot-allowed
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] B
             → γ₃ ▸[ 𝟘ᵐ ] t
@@ -581,7 +581,7 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → m ≡ 𝟘ᵐ
             → 𝟘ᶜ ▸[ m ] resp A B t u v
 
-  set       : Higher-quotient-constructors-allowed
+  set       : Quot-allowed
             → γ₁ ▸[ 𝟘ᵐ ] A
             → γ₂ ▸[ 𝟘ᵐ ] B
             → γ₃ ▸[ 𝟘ᵐ ] t
@@ -601,8 +601,8 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
   -- For simplicity the code uses a fixed grade ω. One could perhaps
   -- imagine being more flexible.
 
-  qrec₀     : ⦃ ok : Usage-allows-omega ⦄
-            → Quotient-terms-allowed
+  qrec₀     : ⦃ ok : Omega-allowed ⦄
+            → Quot-allowed
             → Qrec-motive-erased
             → γ₁ ▸[ 𝟘ᵐ ] C
             → γ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] t
@@ -611,8 +611,8 @@ data _▸[_]_ {n : Nat} : Conₘ n → Mode → Term[ k ] n → Set (a ⊔ a′)
             → γ₅ ▸[ m ] w
             → γ₂ +ᶜ ω ·ᶜ γ₅ ▸[ m ] qrec C t u v w
 
-  qrec₁     : ⦃ ok : Usage-allows-omega ⦄
-            → Quotient-terms-allowed
+  qrec₁     : ⦃ ok : Omega-allowed ⦄
+            → Quot-allowed
             → ¬ Qrec-motive-erased
             → γ₁ ∙ ⌜ m ⌝ · ω ▸[ m ] C
             → γ₂ ∙ ⌜ m ⌝ · ω ▸[ m ] t

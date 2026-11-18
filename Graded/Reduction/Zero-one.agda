@@ -3,10 +3,9 @@
 -- "Zero-one" mode structure.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
 open import Graded.Mode.Instances.Zero-one.Variant
 
 module Graded.Reduction.Zero-one
@@ -15,27 +14,25 @@ module Graded.Reduction.Zero-one
   (open Modality 𝕄)
   (mode-variant : Mode-variant 𝕄)
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Mode-variant mode-variant
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Reduction TR UR
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties.Zero-one mode-variant UR
-open import Definition.Typed TR
-open import Definition.Typed.Eta-long-normal-form TR
-open import Definition.Typed.Properties TR
+open import Graded.Reduction C
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties.Zero-one mode-variant C
+open import Definition.Typed TC
+open import Definition.Typed.Eta-long-normal-form TC
+open import Definition.Typed.Properties TC
 open import Definition.Untyped M
-open import Definition.Untyped.Normal-form M type-variant
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Normal-form M TC⁻
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Bool using (T)
 open import Tools.Empty

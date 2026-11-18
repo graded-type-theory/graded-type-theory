@@ -4,10 +4,9 @@
 -- of the fundamental lemma.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
-open import Graded.Usage.Restrictions
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
 
@@ -16,22 +15,19 @@ module Graded.Erasure.LogicalRelation.Fundamental.Assumptions
   {𝕄 : Modality M}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (TR : Type-restrictions 𝕄)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
 open import Definition.Untyped M
-open import Definition.Typed TR
-open import Definition.Typed.Consequences.Consistency TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Substitution TR
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Consistency TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
 
-open import Graded.Usage UR
-open import Graded.Restrictions.Zero-one 𝕄 variant
+open import Graded.Usage C
 
 open import Tools.Function
 open import Tools.Nat
@@ -57,7 +53,7 @@ record Fundamental-assumptions⁻ (Δ : Cons kᵈ k) : Set a where
     -- Erased matches are not allowed unless the variable context is
     -- empty and higher quotient constructors are not allowed.
     closed-or-no-erased-matches :
-      No-erased-matches TR UR ⊎
+      No-erased-matches ⊎
       Empty-con (Δ .vars) × ¬ Higher-quotient-constructors-neutral
     instance
       -- No-equality-reflection holds or the variable context is
@@ -84,7 +80,7 @@ record Fundamental-assumptions (Δ : Cons kᵈ k) : Set a where
 -- not neutral.
 
 fundamental-assumptions⁻₀ :
-  No-erased-matches TR UR ⊎ ¬ Higher-quotient-constructors-neutral →
+  No-erased-matches ⊎ ¬ Higher-quotient-constructors-neutral →
   » ∇ → ▸[ 𝟙ᵐ ] ∇ → Fundamental-assumptions⁻ (∇ » ε)
 fundamental-assumptions⁻₀ ok ≫∇ ▸∇ = record
   { well-resourced =
@@ -103,7 +99,7 @@ fundamental-assumptions⁻₀ ok ≫∇ ▸∇ = record
 -- not neutral.
 
 fundamental-assumptions₀ :
-  No-erased-matches TR UR ⊎ ¬ Higher-quotient-constructors-neutral →
+  No-erased-matches ⊎ ¬ Higher-quotient-constructors-neutral →
   » ∇ → ▸[ 𝟙ᵐ ] ∇ → Fundamental-assumptions (∇ » ε)
 fundamental-assumptions₀ ok ≫∇ ▸∇ = record
   { well-formed       = ε ≫∇

@@ -3,7 +3,7 @@
 -- reflection)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 import Tools.PropositionalEquality as PE
 open import Tools.Relation
@@ -11,44 +11,46 @@ open import Tools.Relation
 module Definition.Conversion.Decidable
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   (_≟_ : Decidable (PE._≡_ {A = M}))
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
+open import Configuration-types.Instance.Type-configuration TC
+
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.EqRelInstance R using (eqRelInstance)
-open import Definition.Typed.EqualityRelation.Instance R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Well-formed R
-open import Definition.Conversion R
-open import Definition.Conversion.Level R
-open import Definition.Conversion.Inversion R
-open import Definition.Conversion.Whnf R
-open import Definition.Conversion.Soundness R
-open import Definition.Conversion.Symmetry R
-open import Definition.Conversion.Transitivity R
-open import Definition.Conversion.Stability R
-open import Definition.Conversion.Conversion R
-open import Definition.Conversion.Lift R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Consequences.Reduction R
-open import Definition.Typed.Consequences.Equality R
-open import Definition.Typed.Consequences.NeTypeEq R
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.EqRelInstance TC using (eqRelInstance)
+open import Definition.Typed.EqualityRelation.Instance TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Type TC
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Well-formed TC
+open import Definition.Conversion TC
+open import Definition.Conversion.Level TC
+open import Definition.Conversion.Inversion TC
+open import Definition.Conversion.Whnf TC
+open import Definition.Conversion.Soundness TC
+open import Definition.Conversion.Symmetry TC
+open import Definition.Conversion.Transitivity TC
+open import Definition.Conversion.Stability TC
+open import Definition.Conversion.Conversion TC
+open import Definition.Conversion.Lift TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Consequences.Reduction TC
+open import Definition.Typed.Consequences.Equality TC
+open import Definition.Typed.Consequences.NeTypeEq TC
 
 open import Tools.Bool
 open import Tools.Fin
@@ -691,6 +693,7 @@ private opaque
   -- A lemma used below.
 
   dec~↑-qrec-cong :
+    ⦃ ok : Omega-allowed ⦄ →
     Γ ⊢ w₁ ∷ Quot A B →
     Dec
       ((∃ λ D → Γ ⊢ w₁ ~ w₂ ↓ D) ×
@@ -722,10 +725,12 @@ private opaque
          (stabilityConv↑Term (Is-set-Con-cong Γ≡Γ A≡ B≡ (refl ⊢C₁))
             v₁≡v₂)
          w₁~w₂) }
-  dec~↑-qrec-cong ⊢w₁ (no not-all-OK) = no λ (_ , qrec~qrec) →
+  dec~↑-qrec-cong ⦃ ok ⦄ ⊢w₁ (no not-all-OK) = no λ (_ , qrec~qrec) →
     case inv-qrec~ qrec~qrec of λ {
-      (_ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl ,
+      (_ , _ , _ , _ , _ , _ , _ , PE.refl , PE.refl , ok′ ,
        C₁≡C₂ , t₁≡t₂ , u₁≡u₂ , v₁≡v₂ , w₁~w₂) →
+    case Omega-allowed-propositional ok ok′ of λ {
+      PE.refl →
     let _ , w₁-ne , _ = ne~↓ w₁~w₂
         ≡Q            = neTypeEq (ne⁻ w₁-ne) (~↓→∷ w₁~w₂) ⊢w₁
         ≡A , ≡B       = Quot-injectivity-no-equality-reflection ≡Q
@@ -741,7 +746,7 @@ private opaque
           (convConv↑Term (Resp-type-cong ≡A ≡B (refl ⊢C₁) (refl ⊢t₁))
              u₁≡u₂)
       , stabilityConv↑Term (Is-set-Con-cong Γ≡Γ ≡A ≡B (refl ⊢C₁)) v₁≡v₂
-      ) }
+      ) }}
 
 private opaque
 
@@ -1021,14 +1026,15 @@ opaque
        in
        decConv↑TermConv Id≡Id v₁≡ v₂≡ ×-dec
        decConv↑TermConv Id≡Id w₁≡ w₂≡)
-  dec~↑ (qrec-cong C₁≡ t₁≡ u₁≡ v₁≡ w₁~) u~
+  dec~↑ (qrec-cong ⦃ ok ⦄ C₁≡ t₁≡ u₁≡ v₁≡ w₁~) u~
     with inv-~-qrec u~
   … | inj₂ (u≢qrec , _) = no λ (_ , t~u) →
     let _ , _ , _ , _ , _ , _ , _ , _ , u≡qrec , _ = inv-qrec~ t~u in
     u≢qrec (_ , _ , _ , _ , _ , u≡qrec)
   … | inj₁
         (_ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ , _ ,
-         PE.refl , PE.refl , _ , C₂≡ , t₂≡ , u₂≡ , v₂≡ , w₂~) =
+         PE.refl , PE.refl , _ , ok′ , C₂≡ , t₂≡ , u₂≡ , v₂≡ , w₂~)
+    rewrite PE.sym (Omega-allowed-propositional ok ok′) =
     dec~↑-qrec-cong (~↓→∷ w₁~)
       (dec~↓ w₁~ w₂~ ×-dec′ λ (_ , w₁~w₂) →
        let _ , w₁-ne , w₂-ne = ne~↓ w₁~w₂

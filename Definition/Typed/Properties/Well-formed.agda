@@ -4,20 +4,20 @@
 
 {-# OPTIONS --backtracking-instance-search #-}
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Well-formed
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Definition.Untyped M
 open import Definition.Untyped.Quotient 𝕄
 
-open import Definition.Typed R
-open import Definition.Typed.Size R
+open import Definition.Typed TC
+open import Definition.Typed.Size TC
 
 open import Tools.Empty
 open import Tools.Function

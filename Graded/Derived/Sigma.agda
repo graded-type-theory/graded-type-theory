@@ -12,9 +12,9 @@
 -- properties related to usage. See also Graded.Derivied.Sigma.Zero-one
 -- for properties related to the Zero-one mode instance.
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Sigma
   {a b} {M : Set a} {Mode : Set b}
@@ -22,22 +22,22 @@ module Graded.Derived.Sigma
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (UR : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions UR
+open Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Weakening UR
-open import Graded.Substitution UR
-open import Graded.Substitution.Properties UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
+open import Graded.Substitution C
+open import Graded.Substitution.Properties C
 
 open import Definition.Untyped M
 open import Definition.Untyped.Sigma 𝕄

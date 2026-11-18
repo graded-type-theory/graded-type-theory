@@ -4,7 +4,8 @@
 
 open import Tools.Level
 
-open import Graded.Usage.Restrictions
+open import Configuration-types
+
 open import Graded.Modality.Instances.Linearity
 open import Graded.Mode.Instances.Zero-one.Variant linearityModality
 import Graded.Mode.Instances.Zero-one
@@ -12,16 +13,16 @@ import Graded.Mode.Instances.Zero-one
 module Graded.Modality.Instances.Linearity.Properties
   {mode-variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (UR : Usage-restrictions linearityModality Zero-one-isMode) where
+  (C : Configuration Zero-one-isMode) where
 
-open Usage-restrictions UR
+open Configuration C
 
 open import Definition.Untyped Linearity
 open import Definition.Untyped.Sigma linearityModality
 
 open import Graded.Context linearityModality
-import Graded.Derived.Sigma UR as S
-open import Graded.Usage UR
+import Graded.Derived.Sigma C as S
+open import Graded.Usage C
 
 open import Tools.PropositionalEquality
 open import Tools.Relation

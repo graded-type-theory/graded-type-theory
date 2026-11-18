@@ -2,50 +2,52 @@
 -- Lemmas related to definitions
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Definition
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties.Admissible.Empty R
-open import Definition.Typed.Properties.Admissible.Equality R
-open import Definition.Typed.Properties.Admissible.Erased R
-open import Definition.Typed.Properties.Admissible.Identity R
-open import Definition.Typed.Properties.Admissible.Level R
-open import Definition.Typed.Properties.Admissible.Lift R
-open import Definition.Typed.Properties.Admissible.Nat R
-open import Definition.Typed.Properties.Admissible.Pi-Sigma R
-open import Definition.Typed.Properties.Admissible.Pi R
-open import Definition.Typed.Properties.Admissible.Quotient R
-open import Definition.Typed.Properties.Admissible.Sigma R
-open import Definition.Typed.Properties.Admissible.U R
-open import Definition.Typed.Properties.Admissible.Unit R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Properties.Well-formed R
-import Definition.Typed.Reasoning.Term R as TmR
-import Definition.Typed.Reasoning.Type R as TyR
-open import Definition.Typed.Stability R
-open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Weakening R as W hiding (wk)
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Configuration-types.Instance.Type-configuration TC
+
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties.Admissible.Empty TC
+open import Definition.Typed.Properties.Admissible.Equality TC
+open import Definition.Typed.Properties.Admissible.Erased TC
+open import Definition.Typed.Properties.Admissible.Identity TC
+open import Definition.Typed.Properties.Admissible.Level TC
+open import Definition.Typed.Properties.Admissible.Lift TC
+open import Definition.Typed.Properties.Admissible.Nat TC
+open import Definition.Typed.Properties.Admissible.Pi-Sigma TC
+open import Definition.Typed.Properties.Admissible.Pi TC
+open import Definition.Typed.Properties.Admissible.Quotient TC
+open import Definition.Typed.Properties.Admissible.Sigma TC
+open import Definition.Typed.Properties.Admissible.U TC
+open import Definition.Typed.Properties.Admissible.Unit TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Well-formed TC
+import Definition.Typed.Reasoning.Term TC as TmR
+import Definition.Typed.Reasoning.Type TC as TyR
+open import Definition.Typed.Stability TC
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Weakening TC as W hiding (wk)
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Allowed-literal R
+open import Definition.Untyped.Allowed-literal TC
 open import Definition.Untyped.Erased 𝕄
 open import Definition.Untyped.Pi M
 open import Definition.Untyped.Properties M
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Empty
 open import Tools.Fin
@@ -58,7 +60,7 @@ open import Tools.Relation
 open import Tools.Sum
 open import Tools.Vec using (ε)
 
-open import Definition.Typed.Properties.Definition.Primitive R
+open import Definition.Typed.Properties.Definition.Primitive TC
   public
 
 private variable

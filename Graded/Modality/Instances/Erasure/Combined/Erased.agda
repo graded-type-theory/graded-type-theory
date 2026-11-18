@@ -5,20 +5,17 @@
 open import Tools.Bool using (true; T)
 open import Tools.Level
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 
 open import Graded.Modality.Instances.Erasure.Modality
-open import Graded.Usage.Restrictions
 open import Graded.Mode.Instances.Zero-one.Variant ErasureModality
 open import Graded.Mode.Instances.Zero-one 𝟘ᵐ-Allowed
 
 module Graded.Modality.Instances.Erasure.Combined.Erased
-  (TR : Type-restrictions ErasureModality)
-  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
 private
 
@@ -29,22 +26,23 @@ private
 
   open module M = Modality 𝕄 using (Trivial)
 
-open import Graded.Context 𝕄
-open import Graded.Derived.Erased.Usage UR using (▸Erased; ▸[])
-open import Graded.Derived.Erased.Usage.Zero-one UR
-open import Graded.Modality.Instances.Erasure
-open import Graded.Modality.Instances.Erasure.Combined TR UR
-open import Graded.Modality.Instances.Erasure.Combined.Equivalent TR UR
-open import Graded.Modality.Instances.Erasure.Combined.Properties TR UR
-open import Graded.Modality.Instances.Erasure.Properties
-open import Graded.Usage UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Restrictions.Omega 𝕄
+open import Configuration-types.Omega 𝕄
 
-open import Definition.Typed.Inversion TR
-open import Definition.Typed.Consequences.Admissible Zero-one-isMode TR
-open import Definition.Typed.Properties TR
-open import Definition.Typed.Well-formed TR
+open import Graded.Context 𝕄
+open import Graded.Derived.Erased.Usage C using (▸Erased; ▸[])
+open import Graded.Derived.Erased.Usage.Zero-one C
+open import Graded.Modality.Instances.Erasure
+open import Graded.Modality.Instances.Erasure.Combined C
+open import Graded.Modality.Instances.Erasure.Combined.Equivalent C
+open import Graded.Modality.Instances.Erasure.Combined.Properties C
+open import Graded.Modality.Instances.Erasure.Properties
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Consequences.Admissible Zero-one-isMode TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
 open import Definition.Untyped Erasure hiding (_[_])
 import Definition.Untyped.Erased 𝕄 as Erased
 
@@ -64,14 +62,14 @@ private variable
 
 private
 
-  ω′ : ⦃ ok : Usage-allows-omega ⦄ → _
-  ω′ ⦃ ok ⦄ = Has-omega.ω (Usage-with-omega-has-omega ok)
+  ω′ : ⦃ ok : Omega-allowed ⦄ → _
+  ω′ ⦃ ok ⦄ = Has-omega.ω (With-omega→Has-omega ok)
 
   ω′≡ω :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ⦃ ok : Omega-allowed ⦄ →
     ω′ PE.≡ ω
   ω′≡ω ⦃ ok ⦄ =
-    erasure-has-omega-unique (Usage-with-omega-has-omega ok)
+    erasure-has-omega-unique (With-omega→Has-omega ok)
 
 -- The following properties are proven under the asuumption that certain
 -- things must always be allowed when the mode is 𝟘ᵐ[ ok ].
@@ -328,7 +326,7 @@ module _ (ok-𝟘ᵐ : Allowed-at-𝟘ᵐ) where
     -- A typing/usage rule for Jᵉ.
 
     ⊢∷-Jᵉ :
-      ⦃ ok : Usage-allows-omega ⦄ →
+      ⦃ ok : Omega-allowed ⦄ →
       let open Erased s in
       []-cong-allowed s →
       []-cong-allowed-mode s ⌞ p ⌟ →

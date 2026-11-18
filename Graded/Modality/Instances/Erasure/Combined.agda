@@ -10,20 +10,17 @@
 open import Tools.Bool
 open import Tools.Level using (lzero)
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 
 open import Graded.Modality.Instances.Erasure.Modality
-open import Graded.Usage.Restrictions
 open import Graded.Mode.Instances.Zero-one.Variant ErasureModality
 open import Graded.Mode.Instances.Zero-one 𝟘ᵐ-Allowed
 
 module Graded.Modality.Instances.Erasure.Combined
-  (TR : Type-restrictions ErasureModality)
-  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open Type-restrictions TR
-open Usage-restrictions UR
+open Configuration C
 
 private
 
@@ -32,15 +29,16 @@ private
   𝕄 : Modality
   𝕄 = ErasureModality
 
+open import Configuration-types.Erased-matches
+
 open import Graded.Context 𝕄
 open import Graded.Modality.Instances.Erasure
-open import Graded.Usage.Erased-matches
 
-open import Definition.Typed TR using (_∷_∈_; Trans)
+open import Definition.Typed TC using (_∷_∈_; Trans)
 open import Definition.Untyped Erasure
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Sup TR
+open import Definition.Untyped.Sup TC
 
 open import Tools.Fin
 open import Tools.Nat using (Nat; 1+)
@@ -55,7 +53,7 @@ private variable
   ∇ ∇′                                                    : DCon _ _
   φ                                                       : Unfolding _
   Γ                                                       : Cons _ _
-  A A′ A₁ A₂ A₃ B B₁ B₂ C C₁ C₂
+  A A′ A₁ A₂ A₃ B B₁ B₂ C₁ C₂
     t t′ t₁ t₁₁ t₁₂ t₂ t₂₁ t₂₂ t₃ u u₁ u₂ v v₁ v₂ w w₁ w₂ : Term _
   l l₁ l₂ l₂₁ l₂₂                                         : Lvl _
   σ                                                       : Subst _ _
@@ -117,7 +115,6 @@ mutual
             δ ▸ Γ ⊢ u ∷[ r′ ] A →
             γ ▸ Γ ⊢[ r ] Id A t u
     Quot   : Quot-allowed
-           → Quotient-terms-allowed
            → γ ▸ Γ ⊢[ r ] A
            → Quot-rel-Cons Γ A ⊢ B
            → γ ▸ Γ ⊢[ r ] Quot A B
@@ -209,7 +206,8 @@ mutual
                γ ▸ Γ ⊢ fst p t ∷[ r ] A
     snd      : γ ▸ Γ ⊢ t ∷[ r ] Σˢ p , q ▷ A ▹ B →
                γ ▸ Γ ⊢ snd p t ∷[ r ] B [ fst p t ]₀
-    prodrec  : Prodrec-allowed ⌞ o ⌟ r p q →
+    prodrec  : ∀ {C} →
+               Prodrec-allowed ⌞ o ⌟ r p q →
                Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
                γ ▸ Γ ⊢ t ∷[ o · r ] Σʷ p , q′ ▷ A ▹ B →
                γ ∙ r · p ∙ r ▸ Γ »∙ A »∙ B ⊢ u ∷[ o ]
@@ -285,22 +283,21 @@ mutual
                  Id (Erased l A) [ t ] ([ u ])
 
     Quot      : Quot-allowed
-              → Quotient-terms-allowed
               → γ ▸ Γ ⊢ A ∷[ p ] U l
               → Quot-rel-Cons Γ A ⊢ B ∷ U (wk[ 2 ]′ l)
               → γ ▸ Γ ⊢ Quot A B ∷[ p ] U l
-    class     : Quotient-terms-allowed
+    class     : Quot-allowed
               → Γ ⊢ Quot A B
               → γ ▸ Γ ⊢ t ∷[ p ] A
               → γ ▸ Γ ⊢ class t ∷[ p ] Quot A B
-    resp      : Higher-quotient-constructors-allowed
+    resp      : Quot-allowed
               → Γ ⊢ Quot A B
               → Γ ⊢ t ∷ A
               → Γ ⊢ u ∷ A
               → Γ ⊢ v ∷ B [ t , u ]₁₀
               → γ ▸ Γ ⊢ resp A B t u v ∷[ 𝟘 ]
                 Id (Quot A B) (class t) (class u)
-    set       : Higher-quotient-constructors-allowed
+    set       : Quot-allowed
               → Γ ⊢ Quot A B
               → Γ ⊢ t ∷ Quot A B
               → Γ ⊢ u ∷ Quot A B
@@ -308,8 +305,8 @@ mutual
               → Γ ⊢ w ∷ Id (Quot A B) t u
               → γ ▸ Γ ⊢ set A B t u v w ∷[ 𝟘 ]
                 Id (Id (Quot A B) t u) v w
-    qrec      : Usage-allows-omega
-              → Quotient-terms-allowed
+    qrec      : ∀ {C}
+              → Quot-allowed
               → (Qrec-motive-erased → q PE.≡ 𝟘 × δ PE.≡ 𝟘ᶜ)
               → (¬ Qrec-motive-erased → q PE.≡ p × δ PE.≡ γ ∙ ω)
               → δ ▸ Γ »∙ Quot A B ⊢[ q ] C
@@ -490,7 +487,8 @@ mutual
                      C₁ [ prodʷ p (var x1) (var x0) ]↑² →
                    Γ ⊢ prodrec r p q C₁ t₁ u₁ ≡ prodrec r p q C₂ t₂ u₂ ∷
                      C₁ [ t₁ ]₀
-    prodrec-β    : Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
+    prodrec-β    : ∀ {C} →
+                   Γ »∙ Σʷ p , q′ ▷ A ▹ B ⊢ C →
                    Γ ⊢ t ∷ A →
                    Γ ⊢ u ∷ B [ t ]₀ →
                    Γ »∙ A »∙ B ⊢ v ∷ C [ prodʷ p (var x1) (var x0) ]↑² →
@@ -597,7 +595,8 @@ mutual
                   → Γ ⊢ w₁ ≡ w₂ ∷ Quot A B
                   → Γ ⊢ qrec C₁ t₁ u₁ v₁ w₁ ≡ qrec C₂ t₂ u₂ v₂ w₂ ∷
                     C₁ [ w₁ ]₀
-    qrec-β        : Γ »∙ Quot A B ⊢ C
+    qrec-β        : ∀ {C}
+                  → Γ »∙ Quot A B ⊢ C
                   → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
                   → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
                   → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C

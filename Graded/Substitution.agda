@@ -2,9 +2,9 @@
 -- Substitution matrices (action of substitutions on modality contexts).
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Substitution
   {a b} {M : Set a} {Mode : Set b}
@@ -12,19 +12,20 @@ module Graded.Substitution
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+open import Configuration-types.Natrec 𝕄
 
 open import Definition.Untyped M
   using (Subst ; tail ; head ; Wk ; id ; step ; lift)
 open import Graded.Context 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Restrictions.Natrec 𝕄
+open import Graded.Usage C
 
 open import Tools.Fin
 open import Tools.Function
@@ -33,7 +34,6 @@ open import Tools.Nat as N using (Nat; 1+; 2+)
 
 infixl 50 _<*_
 infixr 50 _*>_
-infix  20 ∥_∥
 infixl 30 _⊙_
 
 private

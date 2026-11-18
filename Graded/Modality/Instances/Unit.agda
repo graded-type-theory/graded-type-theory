@@ -17,15 +17,14 @@ open import Tools.Sum
 
 open import Tools.Algebra ⊤
 
+open import Configuration-types
+
 open import Graded.Modality ⊤ public
 open import Graded.Mode.Instances.Zero-one.Variant
 open import Graded.Mode.Instances.Zero-one hiding (_≟_)
 import Graded.Modality.Properties.Star as Star
 open import Graded.Modality.Properties.Subtraction
 open import Graded.FullReduction.Assumptions
-open import Graded.Usage.Restrictions
-
-open import Definition.Typed.Restrictions
 
 -- Trivial addition (and multiplication and meet) operation
 
@@ -200,10 +199,12 @@ unit-has-star = record
   ; ⊛-sub-distrib-∧ = λ r → (λ p q q′ → refl) , (λ q p p′ → refl)
   }
 
--- An nr function can be defined for UnitModality.
+instance
 
-unit-has-nr : Has-nr UnitModality
-unit-has-nr = Star.has-nr _ ⦃ has-star = unit-has-star ⦄
+  -- An nr function can be defined for UnitModality.
+
+  unit-has-nr : Has-nr UnitModality
+  unit-has-nr = Star.has-nr _ ⦃ has-star = unit-has-star ⦄
 
 opaque
 
@@ -234,13 +235,12 @@ opaque
     }
 
 -- The full reduction assumptions hold for any instance of
--- UnitModality and any type restrictions.
+-- UnitModality and any configuration.
 
 full-reduction-assumptions :
   {mv : Mode-variant UnitModality} →
-  {rs : Type-restrictions UnitModality} →
-  {us : Usage-restrictions UnitModality (Zero-one-isMode mv)} →
-  Full-reduction-assumptions mv rs us
+  {C : Configuration (Zero-one-isMode mv)} →
+  Full-reduction-assumptions mv C
 full-reduction-assumptions = record
   { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ refl
   ; ≡𝟙⊎𝟙≤𝟘   = λ _ → inj₁ refl

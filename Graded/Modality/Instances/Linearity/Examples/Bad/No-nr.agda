@@ -3,16 +3,16 @@
 -- nr function
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality.Instances.Linearity
-open import Graded.Usage.Restrictions
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant linearityModality
 
 module Graded.Modality.Instances.Linearity.Examples.Bad.No-nr
   {variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions linearityModality Zero-one-isMode)
-  (open Usage-restrictions UR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
   -- There is no dedicated nr function.
   ⦃ no-nr : Nr-not-available ⦄
   where
@@ -30,9 +30,9 @@ open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
 open import Graded.Modality Linearity
 open import Graded.Modality.Properties linearityModality
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
-open import Graded.Usage.Properties.Zero-one variant UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties.Zero-one variant C
 
 open import Definition.Untyped.Nat linearityModality
 

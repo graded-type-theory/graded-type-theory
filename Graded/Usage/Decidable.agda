@@ -2,35 +2,36 @@
 -- The usage relation can be decided (given certain assumptions)
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 open import Graded.Usage.Decidable.Assumptions
 
 module Graded.Usage.Decidable
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  {R : Usage-restrictions 𝕄 𝐌}
-  (as : Assumptions R)
+  {C : Configuration 𝐌}
+  (as : Assumptions C)
   where
 
 open Assumptions as
+open Configuration C
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+
+open import Configuration-types.Erased-matches
+open import Configuration-types.Instance.Configuration C
+open import Configuration-types.Natrec 𝕄
+open import Configuration-types.Omega 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Inversion R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Restrictions.Omega 𝕄
-open import Graded.Usage.Restrictions.Instance R
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
 open import Definition.Untyped M
 
 open import Tools.Empty
@@ -327,30 +328,13 @@ infix 10 ⌈⌉▸[_]?_
 ⌈⌉▸[ m ]? J p q A t B u v w with J-view p q m
 … | is-all ⦃ ok = ≡all ⦄ =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
-       ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀
-       Dec→Dec-∀ (⌜ 𝟘ᵐ ⌝ · p ≤? headₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ))) ×-Dec-∀
-       Dec→Dec-∀ (⌜ 𝟘ᵐ ⌝ · q ≤? headₘ (⌈ B ⌉ 𝟘ᵐ)) of λ where
-    (inj₁ (▸A , ▸t , ▸u , ▸v , ▸w , ▸B , 𝟘ᵐp≤ , 𝟘ᵐq≤)) →
-      let lemma = begin
-            tailₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ)) ∙ ⌜ 𝟘ᵐ ⌝ · p ∙ ⌜ 𝟘ᵐ ⌝ · q    ≤⟨ ≤ᶜ-refl ∙ 𝟘ᵐp≤ ∙ 𝟘ᵐq≤ ⟩
-
-            tailₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ)) ∙ headₘ (tailₘ (⌈ B ⌉ 𝟘ᵐ)) ∙
-            headₘ (⌈ B ⌉ 𝟘ᵐ)                                        ≡⟨ cong (_∙ headₘ (⌈ B ⌉ _)) (headₘ-tailₘ-correct _) ⟩
-
-            tailₘ (⌈ B ⌉ 𝟘ᵐ) ∙ headₘ (⌈ B ⌉ 𝟘ᵐ)                    ≡⟨ headₘ-tailₘ-correct _ ⟩
-
-            ⌈ B ⌉ 𝟘ᵐ                                                ∎
-      in
-      inj₁ (J₀ₘ₂ ▸A ▸t (sub ▸B lemma) ▸u ▸v ▸w)
+       ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B of λ where
+    (inj₁ (▸A , ▸t , ▸u , ▸v , ▸w , ▸B)) →
+      inj₁ (J₀ₘ₂ ▸A ▸t ▸B ▸u ▸v ▸w)
     (inj₂ problem) → inj₂ λ _ ▸J →
       case inv-usage-J ▸J of λ where
         (invUsageJ₀₂ ▸A ▸t ▸B ▸u ▸v ▸w _) →
-          let ≤⌈B⌉𝟘ᵐ = usage-upper-bound no-sink-or-≤𝟘 ▸B in
-          problem _
-            ( ▸A , ▸t , ▸u , ▸v , ▸w , ▸B
-            , headₘ-monotone (tailₘ-monotone ≤⌈B⌉𝟘ᵐ)
-            , headₘ-monotone ≤⌈B⌉𝟘ᵐ
-            )
+          problem _ (▸A , ▸t , ▸u , ▸v , ▸w , ▸B)
         (invUsageJ ⦃ ≤some ⦄ _ _ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
         (invUsageJ₀₁ ⦃ ≡some ⦄ _ _ _ _ _ _ _ _ _) →
@@ -425,22 +409,13 @@ infix 10 ⌈⌉▸[_]?_
 ⌈⌉▸[ m ]? K p A t B u v with K-view p m
 … | is-all ⦃ ok = ≡all ⦄ =
   case ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀ ⌈⌉▸[ m ]? u ×-Dec-∀
-       ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀
-       Dec→Dec-∀ (⌜ 𝟘ᵐ ⌝ · p ≤? headₘ (⌈ B ⌉ 𝟘ᵐ)) of λ where
-    (inj₁ (▸A , ▸t , ▸u , ▸v , ▸B , 𝟘ᵐp≤)) →
-      let lemma = begin
-            tailₘ (⌈ B ⌉ 𝟘ᵐ) ∙ ⌜ 𝟘ᵐ ⌝ · p        ≤⟨ ≤ᶜ-refl ∙ 𝟘ᵐp≤ ⟩
-            tailₘ (⌈ B ⌉ 𝟘ᵐ) ∙ headₘ (⌈ B ⌉ 𝟘ᵐ)  ≡⟨ headₘ-tailₘ-correct _ ⟩
-            ⌈ B ⌉ 𝟘ᵐ                              ∎
-      in
-      inj₁ (K₀ₘ₂ ▸A ▸t (sub ▸B lemma) ▸u ▸v)
+       ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B of λ where
+    (inj₁ (▸A , ▸t , ▸u , ▸v , ▸B)) →
+      inj₁ (K₀ₘ₂ ▸A ▸t ▸B ▸u ▸v)
     (inj₂ problem) → inj₂ λ _ ▸K →
       case inv-usage-K ▸K of λ where
         (invUsageK₀₂ ▸A ▸t ▸B ▸u ▸v _) →
-          problem _
-            ( ▸A , ▸t , ▸u , ▸v , ▸B
-            , headₘ-monotone (usage-upper-bound no-sink-or-≤𝟘 ▸B)
-            )
+          problem _ (▸A , ▸t , ▸u , ▸v , ▸B)
         (invUsageK ⦃ ≤some ⦄ _ _ _ _ _ _ _) →
           case ≤ᵉᵐ→≡all→≡all ≤some ≡all of λ ()
         (invUsageK₀₁ ⦃ ≡some ⦄ _ _ _ _ _ _ _) →
@@ -509,7 +484,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (▸l , ▸A , ▸t , ▸u , ▸v , ok)
 
 ⌈⌉▸[ m ]? Quot A B =
-  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀
        ⌈⌉▸[ m ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B of λ where
     (inj₁ (ok , ▸A , ▸B)) → inj₁ (Quot ok ▸A ▸B)
     (inj₂ problem) → inj₂ λ _ ▸Q →
@@ -517,7 +492,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , ▸A , ▸B)
 
 ⌈⌉▸[ m ]? class t =
-  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀
        ⌈⌉▸[ m ]? t of λ where
     (inj₁ (ok , ▸t)) → inj₁ (class ok ▸t)
     (inj₂ problem)   → inj₂ λ _ ▸c →
@@ -525,8 +500,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , ▸t)
 
 ⌈⌉▸[ m ]? resp A B t u v =
-  case Dec→Dec-∀ Higher-quotient-constructors-allowed? ×-Dec-∀
-       Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀ Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v
   of λ where
@@ -540,8 +514,7 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v)
 
 ⌈⌉▸[ m ]? set A B t u v w =
-  case Dec→Dec-∀ Higher-quotient-constructors-allowed? ×-Dec-∀
-       Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀ Dec→Dec-∀ (is-𝟘ᵐ? m) ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? A ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? B ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? w
   of λ where
@@ -555,13 +528,13 @@ infix 10 ⌈⌉▸[_]?_
       problem _ (ok , eq , ▸A , ▸B , ▸t , ▸u , ▸v , ▸w)
 
 ⌈⌉▸[ m ]? qrec C t u v w
-  with Usage-allows-omega? | Qrec-motive-erased?
+  with Omega-allowed? | Qrec-motive-erased?
 … | no ω-not-ok | _ = inj₂ λ _ ▸q →
   case inv-usage-qrec ▸q of λ where
     (invUsageQrec₀ ⦃ ok = ω-ok ⦄ _ _ _ _ _ _ _ _) → ω-not-ok ω-ok
     (invUsageQrec₁ ⦃ ok = ω-ok ⦄ _ _ _ _ _ _ _ _) → ω-not-ok ω-ok
 … | yes ω-ok | yes erased =
-  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? C ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀
        Dec→Dec-∀ (⌜ m ⌝ · ω ≤? headₘ ⌈t⌉)
@@ -594,7 +567,7 @@ infix 10 ⌈⌉▸[_]?_
 
   ⌈t⌉ = ⌈ t ⌉ m
 … | yes ω-ok | no not-erased =
-  case Dec→Dec-∀ Quotient-terms-allowed? ×-Dec-∀
+  case Dec→Dec-∀ Quot-allowed? ×-Dec-∀
        ⌈⌉▸[ m ]? C ×-Dec-∀ ⌈⌉▸[ m ]? t ×-Dec-∀
        ⌈⌉▸[ 𝟘ᵐ ]? u ×-Dec-∀ ⌈⌉▸[ 𝟘ᵐ ]? v ×-Dec-∀ ⌈⌉▸[ m ]? w ×-Dec-∀
        Dec→Dec-∀ (⌜ m ⌝ · ω ≤? headₘ ⌈C⌉) ×-Dec-∀

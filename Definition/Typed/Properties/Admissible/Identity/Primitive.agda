@@ -2,28 +2,28 @@
 -- Some admissible rules related to Id
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Identity.Primitive
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Properties M
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion.Primitive R
-open import Definition.Typed.Properties.Admissible.Equality R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Weakening R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion.Primitive TC
+open import Definition.Typed.Properties.Admissible.Equality TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Weakening TC
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Fin
 open import Tools.Function

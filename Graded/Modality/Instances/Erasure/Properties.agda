@@ -8,6 +8,7 @@ open import Graded.Modality.Instances.Erasure
 
 module Graded.Modality.Instances.Erasure.Properties where
 
+open import Configuration-types
 
 open import Graded.Modality.Instances.Erasure.Modality
 
@@ -655,12 +656,9 @@ module Zero-one {𝟘ᵐ-allowed : Bool} where
 
   open import Graded.FullReduction.Assumptions variant
   open import Graded.Mode.Instances.Zero-one variant
-  open import Graded.Usage.Restrictions ErasureModality Zero-one-isMode
-  open import Definition.Typed.Restrictions ErasureModality
 
   private variable
-    TR : Type-restrictions
-    UR : Usage-restrictions
+    C : Configuration Zero-one-isMode
 
   opaque
 
@@ -681,44 +679,51 @@ module Zero-one {𝟘ᵐ-allowed : Bool} where
     ⌞ω⌟≡𝟙ᵐ : ⌞ ω ⌟ ≡ 𝟙ᵐ
     ⌞ω⌟≡𝟙ᵐ = ≢𝟘→⌞⌟≡𝟙ᵐ (λ ())
 
-  -- Instances of Type-restrictions and Usage-restrictions are suitable for
-  -- the full reduction theorem if Σˢ-allowed 𝟘 p implies that 𝟘ᵐ is allowed.
+  -- Instances of Configuration Zero-one-isMode are suitable for the
+  -- full reduction theorem if Σˢ-allowed 𝟘 p implies that 𝟘ᵐ is
+  -- allowed.
 
-  Suitable-for-full-reduction :
-    Type-restrictions → Usage-restrictions → Set
-  Suitable-for-full-reduction TR UR =
+  Suitable-for-full-reduction : Configuration Zero-one-isMode → Set
+  Suitable-for-full-reduction C =
     ∀ p → Σˢ-allowed 𝟘 p → T 𝟘ᵐ-allowed
     where
-    open Type-restrictions TR
-    open Usage-restrictions UR
+    open Configuration C
 
-  -- Given an instance of Type-restrictions one can create a "suitable"
-  -- instance for any Usage-restrictions.
+  -- One can transform any configuration to a "suitable" one.
 
   suitable-for-full-reduction :
-    Type-restrictions → ∃ λ TR → Suitable-for-full-reduction TR UR
-  suitable-for-full-reduction {UR} TR =
-      record TR
-        { ΠΣ-allowed = λ b p q →
-            ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
-        ; []-cong-allowed = λ s →
-            []-cong-allowed s × T 𝟘ᵐ-allowed
-        ; []-cong→Erased = λ (ok₁ , ok₂) →
-              []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
-            , (λ _ → ok₂)
-        ; []-cong→¬Trivial = λ _ → non-trivial ⦃ erasure-has-well-behaved-zero ⦄
+    Configuration Zero-one-isMode →
+    ∃ λ C → Suitable-for-full-reduction C
+  suitable-for-full-reduction C =
+      record C
+        { TC = record TC
+          { ΠΣ-allowed = λ b p q →
+              ΠΣ-allowed b p q × (b ≡ BMΣ 𝕤 × p ≡ 𝟘 → T 𝟘ᵐ-allowed)
+          ; []-cong-allowed = λ s →
+              []-cong-allowed s × T 𝟘ᵐ-allowed
+          ; []-cong→Erased = λ (ok₁ , ok₂) →
+                []-cong→Erased ok₁ .proj₁ , []-cong→Erased ok₁ .proj₂
+              , (λ _ → ok₂)
+          ; []-cong→¬Trivial = λ _ → non-trivial ⦃ erasure-has-well-behaved-zero ⦄
+          }
+        ; []-cong-allowed-mode = λ s m →
+            []-cong-allowed-mode s m × _
+        ; []-cong-allowed-mode→[]-cong-allowed =
+            Σ.map []-cong-allowed-mode→[]-cong-allowed idᶠ
+        ; []-cong-allowed-mode-upwards-closed =
+            flip λ m≤m′ →
+            Σ.map (flip []-cong-allowed-mode-upwards-closed m≤m′) idᶠ
         }
     , (λ _ → (_$ (PE.refl , PE.refl)) ∘→ proj₂)
     where
-    open Type-restrictions TR
-    open Usage-restrictions UR
+    open Configuration C
 
-  -- The full reduction assumptions hold for ErasureModality and
-  -- any "suitable" Type-restrictions and Usage-restrictions.
+  -- The full reduction assumptions hold for any "suitable"
+  -- configuration.
 
   full-reduction-assumptions :
-    Suitable-for-full-reduction TR UR →
-    Full-reduction-assumptions TR UR
+    Suitable-for-full-reduction C →
+    Full-reduction-assumptions C
   full-reduction-assumptions 𝟘→𝟘ᵐ = record
     { sink⊎𝟙≤𝟘 = λ _ _ → inj₂ PE.refl
     ; ≡𝟙⊎𝟙≤𝟘   = λ where
@@ -726,16 +731,16 @@ module Zero-one {𝟘ᵐ-allowed : Bool} where
         {p = 𝟘} ok → inj₂ (PE.refl , 𝟘→𝟘ᵐ _ ok , PE.refl)
     }
 
-  -- Type and usage restrictions that satisfy the full reduction
-  -- assumptions are "suitable".
+  -- Configurations that satisfy the full reduction assumptions are
+  -- "suitable".
 
   full-reduction-assumptions-suitable :
-    Full-reduction-assumptions TR UR → Suitable-for-full-reduction TR UR
+    Full-reduction-assumptions C → Suitable-for-full-reduction C
   full-reduction-assumptions-suitable as =
       λ p Σ-ok → case ≡𝟙⊎𝟙≤𝟘 Σ-ok of λ where
         (inj₁ ())
         (inj₂ (_ , 𝟘ᵐ-ok , _)) → 𝟘ᵐ-ok
     where
-    open Full-reduction-assumptions _ _ as
+    open Full-reduction-assumptions _ as
 
 open Zero-one public

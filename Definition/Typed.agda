@@ -2,26 +2,26 @@
 -- Typing and reduction relations
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open Modality 𝕄 using (𝟘)
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed.Variant
+open import Configuration-types.Instance.Type-configuration TC
 
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
 open import Definition.Untyped.Identity 𝕄
 open import Definition.Untyped.Quotient 𝕄
-open import Definition.Untyped.Sup R
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Sup TC
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Fin
 open import Tools.Nat
@@ -38,7 +38,6 @@ private
     α ℓ m n : Nat
     ∇ ∇′ : DCon (Term 0) _
     φ φ′ : Unfolding _
-    ω : Opacity _
     Γ : Con Term _
     A A₁ A₂ A′ B B₁ B₂ C C₁ C₂ E F F′ G H : Term _
     f g n′ s s′ t t′ t₁ t₂ t₃ u u′ u₁ u₂ v v′ v₁ v₂ w w′ w₁ w₂ z z′ :
@@ -288,7 +287,8 @@ mutual
               → Γ ⊢ v ∷ Id (Quot A B) t u
               → Γ ⊢ w ∷ Id (Quot A B) t u
               → Γ ⊢ set A B t u v w ∷ Id (Id (Quot A B) t u) v w
-    qrec      : Γ »∙ Quot A B ⊢ C
+    qrec      : ⦃ ok : Omega-allowed ⦄
+              → Γ »∙ Quot A B ⊢ C
               → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
               → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
               → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
@@ -606,14 +606,16 @@ mutual
                   → Γ ⊢ w₁ ≡ w₂ ∷ Id (Quot A₁ B₁) t₁ u₁
                   → Γ ⊢ set A₁ B₁ t₁ u₁ v₁ w₁ ≡ set A₂ B₂ t₂ u₂ v₂ w₂ ∷
                     Id (Id (Quot A₁ B₁) t₁ u₁) v₁ w₁
-    qrec-cong     : Γ »∙ Quot A B ⊢ C₁ ≡ C₂
+    qrec-cong     : ⦃ ok : Omega-allowed ⦄
+                  → Γ »∙ Quot A B ⊢ C₁ ≡ C₂
                   → Γ »∙ A ⊢ t₁ ≡ t₂ ∷ C₁ [ class (var x0) ]↑
                   → Resp-Cons Γ A B ⊢ u₁ ≡ u₂ ∷ Resp-type A B C₁ t₁
                   → Is-set-Cons Γ A B C₁ ⊢ v₁ ≡ v₂ ∷ Is-set-type C₁
                   → Γ ⊢ w₁ ≡ w₂ ∷ Quot A B
                   → Γ ⊢ qrec C₁ t₁ u₁ v₁ w₁ ≡ qrec C₂ t₂ u₂ v₂ w₂ ∷
                     C₁ [ w₁ ]₀
-    qrec-β        : Γ »∙ Quot A B ⊢ C
+    qrec-β        : ⦃ ok : Omega-allowed ⦄
+                  → Γ »∙ Quot A B ⊢ C
                   → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
                   → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
                   → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
@@ -799,13 +801,15 @@ data _⊢_⇒_∷_ (Γ : Cons m n) : Term n → Term n → Term n → Set a wher
                  → Γ ⊢ w ∷ Id (Quot A B) t u
                  → Γ ⊢ set A B t u v w ⇒ rfl ∷
                    Id (Id (Quot A B) t u) v w
-  qrec-subst     : Γ »∙ Quot A B ⊢ C
+  qrec-subst     : ⦃ ok : Omega-allowed ⦄
+                 → Γ »∙ Quot A B ⊢ C
                  → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
                  → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
                  → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C
                  → Γ ⊢ w₁ ⇒ w₂ ∷ Quot A B
                  → Γ ⊢ qrec C t u v w₁ ⇒ qrec C t u v w₂ ∷ C [ w₁ ]₀
-  qrec-β         : Γ »∙ Quot A B ⊢ C
+  qrec-β         : ⦃ ok : Omega-allowed ⦄
+                 → Γ »∙ Quot A B ⊢ C
                  → Γ »∙ A ⊢ t ∷ C [ class (var x0) ]↑
                  → Resp-Cons Γ A B ⊢ u ∷ Resp-type A B C t
                  → Is-set-Cons Γ A B C ⊢ v ∷ Is-set-type C

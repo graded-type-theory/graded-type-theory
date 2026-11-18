@@ -2,34 +2,34 @@
 -- Restricted variants of the logical relations
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Hidden.Restricted
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
-open Type-restrictions R
+open Type-configuration TC
 
-import Definition.LogicalRelation R as L
+import Definition.LogicalRelation TC as L
 open L public using
   (Neutralₗ; Neutralᵃₗ; varᵃₗ; varᵃₗ′;
    Typeₗ; Functionᵃₗ; Productᵃₗ; Identityᵃₗ)
-import Definition.LogicalRelation.Hidden R as H
-open import Definition.LogicalRelation.Weakening.Restricted R
+import Definition.LogicalRelation.Hidden TC as H
+open import Definition.LogicalRelation.Weakening.Restricted TC
 
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Weakening.Combined R using (_⊢ʷᵏ_∷_)
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Weakening.Combined TC using (_⊢ʷᵏ_∷_)
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 
 open import Tools.Function
 open import Tools.Nat using (Nat)

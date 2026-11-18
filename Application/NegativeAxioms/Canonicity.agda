@@ -3,41 +3,41 @@
 -- quotient constructors are not neutral)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Application.NegativeAxioms.Canonicity
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Application.NegativeAxioms.NegativeType R
-open import Graded.Erasure.SucRed R
+open import Application.NegativeAxioms.NegativeType TC
+open import Graded.Erasure.SucRed TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
-open import Definition.Untyped.Neutral.Atomic M type-variant
-open import Definition.Untyped.Normal-form M type-variant
+open import Definition.Untyped.Neutral M TC⁻
+open import Definition.Untyped.Neutral.Atomic M TC⁻
+open import Definition.Untyped.Normal-form M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.EqRelInstance R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Reduction R
-import Definition.Typed.Weakening R as W
-open import Definition.Typed.Well-formed R
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.EqRelInstance TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Reduction TC
+import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Fundamental.Reducibility R
-open import Definition.LogicalRelation.Substitution.Introductions R
-open import Definition.LogicalRelation.Unary R
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Fundamental.Reducibility TC
+open import Definition.LogicalRelation.Substitution.Introductions TC
+open import Definition.LogicalRelation.Unary TC
 
-open import Application.NegativeAxioms.NegativeContext R
+open import Application.NegativeAxioms.NegativeContext TC
 
 open import Tools.Empty
 open import Tools.Function

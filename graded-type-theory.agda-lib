@@ -6,5 +6,5 @@ flags:
   --safe
   --hidden-argument-puns
   --no-infer-absurd-clauses
+  -WnoShadowingInTelescope
   -WnoUnsupportedIndexedMatch
-

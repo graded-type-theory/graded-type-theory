@@ -5,10 +5,9 @@
 -- Graded.Modify-box-cong-or-J.Configuration.
 ------------------------------------------------------------------------
 
-import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 import Graded.Modify-box-cong-or-J.Configuration
-import Graded.Usage.Restrictions
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
 
@@ -18,20 +17,21 @@ module Graded.Modify-box-cong-or-J
   {𝕄 : Modality}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (open Definition.Typed.Restrictions 𝕄)
-  (open Graded.Usage.Restrictions 𝕄 Zero-one-isMode)
-  {TRₛ : Type-restrictions}
-  {URₛ : Usage-restrictions}
-  (open Graded.Modify-box-cong-or-J.Configuration TRₛ URₛ)
+  {Cₛ : Configuration Zero-one-isMode}
+  (open Graded.Modify-box-cong-or-J.Configuration Cₛ)
   -- A record that configures the translation.
-  (conf : Configuration)
+  (conf : Translation-config)
   where
 
-open Configuration conf
+open Translation-config conf
 open Modality 𝕄
 
+open import Configuration-types.Erased-matches
+open import Configuration-types.Natrec 𝕄
+open import Configuration-types.Omega 𝕄
+
 import Definition.Typed
-open import Definition.Typed.Inversion TRₛ
+open import Definition.Typed.Inversion Cₛ.TC
 import Definition.Typed.Properties
 
 open import Definition.Untyped M
@@ -47,10 +47,6 @@ open import Graded.Context.Properties 𝕄
 open import Graded.Erasure.Extraction 𝕄
 import Graded.Erasure.SucRed
 import Graded.Erasure.Target as T
-open import Graded.Usage.Erased-matches
-open import Graded.Usage.Restrictions.Instance URₛ
-open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Restrictions.Omega 𝕄
 
 open import Tools.Bool
 open import Tools.Empty
@@ -64,14 +60,14 @@ open import Tools.Relation
 open import Tools.Sum
 
 private
-  module Sₛ  = Graded.Erasure.SucRed TRₛ
-  module Sₜ  = Graded.Erasure.SucRed TRₜ
-  module TPₛ = Definition.Typed.Properties TRₛ
-  module TPₜ = Definition.Typed.Properties TRₜ
-  module UAₛ = Definition.Untyped.Allowed-literal TRₛ
-  module UAₜ = Definition.Untyped.Allowed-literal TRₜ
-  module USₛ = Definition.Untyped.Sup TRₛ
-  module USₜ = Definition.Untyped.Sup TRₜ
+  module Sₛ  = Graded.Erasure.SucRed Cₛ.TC
+  module Sₜ  = Graded.Erasure.SucRed Cₜ.TC
+  module TPₛ = Definition.Typed.Properties Cₛ.TC
+  module TPₜ = Definition.Typed.Properties Cₜ.TC
+  module UAₛ = Definition.Untyped.Allowed-literal Cₛ.TC
+  module UAₜ = Definition.Untyped.Allowed-literal Cₜ.TC
+  module USₛ = Definition.Untyped.Sup Cₛ.TC
+  module USₜ = Definition.Untyped.Sup Cₜ.TC
 
 private variable
   b                   : Bool
@@ -249,17 +245,17 @@ opaque
   -- literal.
 
   tr-Allowed-literal :
-    TRₛ.Allowed-literal l → TRₜ.Allowed-literal (tr l)
+    Cₛ.Allowed-literal l → Cₜ.Allowed-literal (tr l)
   tr-Allowed-literal {l = ωᵘ+ m} =
-    TRₛ.Allowed-literal (ωᵘ+ m)  ⇔⟨ UAₛ.Allowed-literal-ωᵘ+-⇔ ⟩→
-    TRₛ.Omega-plus-allowed       →⟨ Omega-plus-allowed-→ ⟩
-    TRₜ.Omega-plus-allowed       ⇔˘⟨ UAₜ.Allowed-literal-ωᵘ+-⇔ ⟩→
-    TRₜ.Allowed-literal (ωᵘ+ m)  □
+    Cₛ.Allowed-literal (ωᵘ+ m)  ⇔⟨ UAₛ.Allowed-literal-ωᵘ+-⇔ ⟩→
+    Cₛ.Omega-plus-allowed       →⟨ Omega-plus-allowed-→ ⟩
+    Cₜ.Omega-plus-allowed       ⇔˘⟨ UAₜ.Allowed-literal-ωᵘ+-⇔ ⟩→
+    Cₜ.Allowed-literal (ωᵘ+ m)  □
   tr-Allowed-literal {l = level t} =
-    TRₛ.Allowed-literal (level t)               ⇔⟨ UAₛ.Allowed-literal-level-⇔ ⟩→
-    Level-literal t × ¬ TRₛ.Level-allowed       →⟨ Σ.map tr-Level-literal (_∘→ Level-allowed-⇔ .proj₂) ⟩
-    Level-literal (tr t) × ¬ TRₜ.Level-allowed  ⇔˘⟨ UAₜ.Allowed-literal-level-⇔ ⟩→
-    TRₜ.Allowed-literal (level (tr t))          □
+    Cₛ.Allowed-literal (level t)               ⇔⟨ UAₛ.Allowed-literal-level-⇔ ⟩→
+    Level-literal t × ¬ Cₛ.Level-allowed       →⟨ Σ.map tr-Level-literal (_∘→ Level-allowed-⇔ .proj₂) ⟩
+    Level-literal (tr t) × ¬ Cₜ.Level-allowed  ⇔˘⟨ UAₜ.Allowed-literal-level-⇔ ⟩→
+    Cₜ.Allowed-literal (level (tr t))          □
 
 opaque
   unfolding tr
@@ -285,7 +281,7 @@ opaque
     Γ Tₛ.⊢ l₁ ∷Level → Γ Tₛ.⊢ l₂ ∷Level →
     tr (l₁ USₛ.supᵘₗ l₂) PE.≡ tr l₁ USₜ.supᵘₗ tr l₂
   tr-supᵘₗ {l₁ = level t₁} {l₂ = level t₂} ⊢t₁ ⊢t₂
-    with TRₛ.Level-allowed? | TRₜ.Level-allowed?
+    with Cₛ.Level-allowed? | Cₜ.Level-allowed?
   … | yes ok₁ | yes ok₂ =
     PE.cong level
       (tr (t₁ USₛ.supᵘₗ t₂)   ≡⟨ PE.cong tr $ USₛ.supᵘₗ≡supᵘ-tm ok₁ ⟩
@@ -806,14 +802,18 @@ opaque
   -- Translation commutes with Resp-type.
 
   tr-Resp-type :
-    TRₛ.Quot-allowed →
-    tr (Resp-type A B C t) PE.≡ Resp-type (tr A) (tr B) (tr C) (tr t)
-  tr-Resp-type {A} {B} {C} {t} ok =
+    ⦃ okₛ : Cₛ.Omega-allowed ⦄ ⦃ okₜ : Cₜ.Omega-allowed ⦄ →
+    Cₛ.Quot-allowed →
+    tr (Resp-type ⦃ ok = With-omega→Has-omega okₛ ⦄ A B C t) PE.≡
+    Resp-type ⦃ ok = With-omega→Has-omega okₜ ⦄ (tr A) (tr B) (tr C)
+      (tr t)
+  tr-Resp-type {A} {B} {C} {t} ⦃ okₛ ⦄ ⦃ okₜ ⦄ ok =
     PE.cong₃ Id
       (tr-[]↑ C)
-      (PE.trans (J′-𝟘-𝟘 ok) $
-       PE.cong₆ (J _ _) (tr-wk (Quot A B)) PE.refl
-         (PE.trans (tr-wk (C [ _ ][ _ ]↑)) $
+      (PE.trans (J′-ω-𝟘 ok) $
+       PE.cong₆ (λ p A → J p 𝟘 A (class (var x2))) (ωₛ≡ωₜ okₛ okₜ)
+         (tr-wk (Quot A B))
+         (PE.trans (tr-wk (C [ _ ][ var _ ]↑)) $
           PE.cong wk1 (tr-[]↑ C))
          (tr-wk t) PE.refl
          (PE.cong₅ resp (tr-wk A) (tr-wk B) PE.refl PE.refl PE.refl))
@@ -955,43 +955,59 @@ opaque
        (Uₜ.Kₘ ⦃ PE.subst (_≤ᵉᵐ _) erased-matches-for-K-≡ ok₁ ⦄
          (ok₂ ∘→ PE.trans erased-matches-for-K-≡)
          (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v))
-       (·ᶜ-congʳ (ωₛ≡ωₜ URₛ.erased-matches-JK-≤-some-Usage-allows-omega
-         (URₜ.erased-matches-JK-≤-some-Usage-allows-omega ⦃ PE.subst (_≤ᵉᵐ _) erased-matches-for-K-≡ ok₁ ⦄)))
+       (·ᶜ-congʳ (ωₛ≡ωₜ Cₛ.erased-matches-JK-≤-some-Omega-allowed
+          (Cₜ.erased-matches-JK-≤-some-Omega-allowed
+             ⦃ PE.subst (_≤ᵉᵐ _) erased-matches-for-K-≡ ok₁ ⦄)))
     (Uₛ.K₀ₘ₁ ⦃ (ok₁) ⦄ ok₂ A t B u v) →
       Uₜ.sub-≈ᶜ
         (Uₜ.K₀ₘ₁ ⦃ PE.trans (PE.sym erased-matches-for-K-≡) ok₁ ⦄ ok₂
           (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v))
-        (·ᶜ-congʳ (ωₛ≡ωₜ (URₛ.erased-matches-JK-≤-some-Usage-allows-omega ⦃ URₛ.erased-matches-JK-≡-some-≤-some ⦄)
-          (URₜ.erased-matches-JK-≤-some-Usage-allows-omega ⦃ URₜ.erased-matches-JK-≡-some-≤-some
-            ⦃ PE.trans (PE.sym erased-matches-for-K-≡) ok₁ ⦄ ⦄)))
+        (·ᶜ-congʳ
+           (ωₛ≡ωₜ
+              (Cₛ.erased-matches-JK-≤-some-Omega-allowed
+                 ⦃ Cₛ.erased-matches-JK-≡-some-≤-some ⦄)
+              (Cₜ.erased-matches-JK-≤-some-Omega-allowed
+                 ⦃ Cₜ.erased-matches-JK-≡-some-≤-some
+                     ⦃ PE.trans (PE.sym erased-matches-for-K-≡) ok₁ ⦄
+                 ⦄)))
     (Uₛ.K₀ₘ₂ ⦃ (ok) ⦄ A t B u v) →
       Uₜ.K₀ₘ₂ ⦃ PE.trans (PE.sym erased-matches-for-K-≡) ok ⦄ (tr-▸ A) (tr-▸ t) (tr-▸ B) (tr-▸ u) (tr-▸ v)
     (Uₛ.[]-congₘ l A t u v ok) →
       ▸[]-cong′ ok (tr-▸ l) (tr-▸ A) (tr-▸ t) (tr-▸ u) (tr-▸ v)
     (Uₛ.Quot ok A B) →
-      Uₜ.Quot (Quotient-terms-allowed-→ ok) (tr-▸ A) (tr-▸ B)
+      Uₜ.Quot (Quot-allowed-→ ok) (tr-▸ A) (tr-▸ B)
     (Uₛ.class ok t) →
-      Uₜ.class (Quotient-terms-allowed-→ ok) (tr-▸ t)
+      Uₜ.class (Quot-allowed-→ ok) (tr-▸ t)
     (Uₛ.resp ok A B t u v eq) →
-      Uₜ.resp (Higher-quotient-constructors-allowed-→ ok) (tr-▸ A)
-        (tr-▸ B) (tr-▸ t) (tr-▸ u) (tr-▸ v) eq
+      Uₜ.resp (Quot-allowed-→ ok) (tr-▸ A) (tr-▸ B) (tr-▸ t) (tr-▸ u)
+        (tr-▸ v) eq
     (Uₛ.set ok A B t u v w eq) →
-      Uₜ.set (Higher-quotient-constructors-allowed-→ ok) (tr-▸ A)
-        (tr-▸ B) (tr-▸ t) (tr-▸ u) (tr-▸ v) (tr-▸ w) eq
+      Uₜ.set (Quot-allowed-→ ok) (tr-▸ A) (tr-▸ B) (tr-▸ t) (tr-▸ u)
+        (tr-▸ v) (tr-▸ w) eq
     (Uₛ.qrec₀ ⦃ ok = ω-ok ⦄ ok₁ ok₂ C t u v w) →
-      let ωₛ≡ωₜ′ = ωₛ≡ωₜ ω-ok (PE.subst Usage-with-omega (omega-in-second-if-in-first ω-ok) ω-ok)
+      let ωₛ≡ωₜ′ =
+            ωₛ≡ωₜ ω-ok $
+            PE.subst With-omega (omega-in-second-if-in-first ω-ok) ω-ok
       in
       Uₜ.sub-≈ᶜ
-        (Uₜ.qrec₀ ⦃ PE.subst Usage-with-omega (omega-in-second-if-in-first ω-ok) ω-ok ⦄
-          (Quotient-terms-allowed-→ ok₁) (Qrec-motive-erased-⇔ .proj₁ ok₂) (tr-▸ C)
-          (Uₜ.sub-≈ᶜ (tr-▸ t) (≈ᶜ-refl ∙ ·-congˡ (PE.sym ωₛ≡ωₜ′))) (tr-▸ u) (tr-▸ v) (tr-▸ w))
+        (Uₜ.qrec₀
+           ⦃ PE.subst With-omega (omega-in-second-if-in-first ω-ok)
+               ω-ok ⦄
+           (Quot-allowed-→ ok₁) (Qrec-motive-erased-⇔ .proj₁ ok₂)
+           (tr-▸ C)
+           (Uₜ.sub-≈ᶜ (tr-▸ t) (≈ᶜ-refl ∙ ·-congˡ (PE.sym ωₛ≡ωₜ′)))
+           (tr-▸ u) (tr-▸ v) (tr-▸ w))
         (+ᶜ-congˡ (·ᶜ-congʳ ωₛ≡ωₜ′))
     (Uₛ.qrec₁ ⦃ ok = ω-ok ⦄ ok₁ ok₂ C t u v w) →
-      let ωₛ≡ωₜ′ = ωₛ≡ωₜ ω-ok (PE.subst Usage-with-omega (omega-in-second-if-in-first ω-ok) ω-ok)
+      let ωₛ≡ωₜ′ =
+            ωₛ≡ωₜ ω-ok $
+            PE.subst With-omega (omega-in-second-if-in-first ω-ok) ω-ok
       in
       Uₜ.sub-≈ᶜ
-        (Uₜ.qrec₁ ⦃ PE.subst Usage-with-omega (omega-in-second-if-in-first ω-ok) ω-ok ⦄
-          (Quotient-terms-allowed-→ ok₁) (ok₂ ∘→ Qrec-motive-erased-⇔ .proj₂)
+        (Uₜ.qrec₁
+           ⦃ PE.subst With-omega (omega-in-second-if-in-first ω-ok)
+               ω-ok ⦄
+          (Quot-allowed-→ ok₁) (ok₂ ∘→ Qrec-motive-erased-⇔ .proj₂)
           (Uₜ.sub-≈ᶜ (tr-▸ C) (≈ᶜ-refl ∙ ·-congˡ (PE.sym ωₛ≡ωₜ′)))
           (Uₜ.sub-≈ᶜ (tr-▸ t) (≈ᶜ-refl ∙ ·-congˡ (PE.sym ωₛ≡ωₜ′)))
           (tr-▸ u) (tr-▸ v) (tr-▸ w))
@@ -1129,7 +1145,7 @@ opaque
   tr-⊢ = λ where
     (Tₛ.Levelⱼ ok ⊢Γ) →
       TPₜ.Levelⱼ′
-        (Level-allowed-⇔ .proj₁ (TRₛ.Level-allowed⇔⊎ .proj₂ (inj₂ ok)))
+        (Level-allowed-⇔ .proj₁ (Cₛ.Level-allowed⇔⊎ .proj₂ (inj₂ ok)))
         (tr-⊢′ ⊢Γ)
     (Tₛ.univ ⊢A) →
       Tₜ.univ (tr-⊢∷ ⊢A)

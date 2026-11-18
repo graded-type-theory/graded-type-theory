@@ -3,8 +3,8 @@
 -- dedicated nr function
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality.Instances.Affine
-open import Graded.Usage.Restrictions
 open import Graded.Mode
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant affineModality
@@ -12,8 +12,8 @@ open import Graded.Mode.Instances.Zero-one.Variant affineModality
 module Graded.Modality.Instances.Affine.Examples.Bad.No-nr
   {variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions affineModality Zero-one-isMode)
-  (open Usage-restrictions UR)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
   -- There is no dedicated nr function.
   ⦃ no-nr : Nr-not-available ⦄
   where
@@ -24,7 +24,7 @@ import Tools.Reasoning.PartialOrder
 open import Graded.Context affineModality
 open import Graded.Context.Properties affineModality
 open import Graded.Modality Affine
-open import Graded.Usage UR
+open import Graded.Usage C
 
 open import Definition.Untyped.Nat affineModality
 

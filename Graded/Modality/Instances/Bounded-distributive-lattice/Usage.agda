@@ -3,10 +3,10 @@
 -- usage.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Tools.Algebra
 open import Tools.PropositionalEquality as PE
 open import Tools.Relation
-open import Graded.Usage.Restrictions
 import Graded.Modality.Instances.Bounded-distributive-lattice
 import Graded.Mode.Instances.Bounded-distributive-lattice
 
@@ -18,16 +18,16 @@ module Graded.Modality.Instances.Bounded-distributive-lattice.Usage
   (is-⊤? : (p : M) → Dec (p ≡ ⊤))
   (open Graded.Modality.Instances.Bounded-distributive-lattice _ bl is-⊤?)
   (open Graded.Mode.Instances.Bounded-distributive-lattice bl is-⊤?)
-  (UR : Usage-restrictions modality bounded-distributive-lattice-isMode)
+  (C : Configuration bounded-distributive-lattice-isMode)
   where
 
-open Usage-restrictions UR
+open Configuration C
 
 open import Graded.Context modality
 open import Graded.Context.Properties modality
 open import Graded.Modality M
-open import Graded.Usage UR
-open import Graded.Usage.Inversion UR
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
 
 open import Definition.Untyped M
 

@@ -2,17 +2,17 @@
 -- Sizes of derivations
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Size
   {ℓ} {M : Set ℓ}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Definition.Untyped M
-open import Definition.Typed R
+open import Definition.Typed TC
 
 open import Tools.Size
 

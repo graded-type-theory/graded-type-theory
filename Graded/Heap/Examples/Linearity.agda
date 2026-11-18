@@ -2,20 +2,18 @@
 -- Examples
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 open import Graded.Heap.Assumptions
-open import Definition.Typed.Restrictions
 open import Graded.Modality.Instances.Linearity
 
 module Graded.Heap.Examples.Linearity
   {variant : Mode-variant linearityModality}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions linearityModality Zero-one-isMode)
-  (TR : Type-restrictions linearityModality)
-  (As : Assumptions UR TR 𝟙)
+  (C : Configuration Zero-one-isMode)
+  (As : Assumptions C 𝟙)
   where
 
 private
@@ -23,7 +21,7 @@ private
   𝕄 : Modality _
   𝕄 = linearityModality
 
-open Type-restrictions TR
+open Configuration C
 open Assumptions As
 
 open import Tools.Empty
@@ -33,10 +31,10 @@ open import Tools.Product
 open import Definition.Untyped Linearity
 
 open import Graded.Context 𝕄
-open import Graded.Usage UR
-open import Graded.Heap.Untyped type-variant UR factoring-nr 𝟙
-open import Graded.Heap.Reduction type-variant UR factoring-nr 𝟙
-import Graded.Heap.Examples UR TR As as Ex
+open import Graded.Usage C
+open import Graded.Heap.Untyped C factoring-nr 𝟙
+open import Graded.Heap.Reduction C factoring-nr 𝟙
+import Graded.Heap.Examples C As as Ex
 
 opaque
 

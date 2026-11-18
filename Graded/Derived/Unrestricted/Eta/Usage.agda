@@ -2,15 +2,15 @@
 -- Some properties related to usage and Unrestricted
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Unrestricted.Eta.Usage
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
    -- It is assumed that the modality has a grade ω.
   ⦃ has-ω : Has-omega _ 𝕄 ⦄
   where
@@ -22,10 +22,10 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Inversion R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Weakening R
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 
 open import Definition.Untyped M
 open import Graded.Derived.Unrestricted.Eta.Untyped 𝕄

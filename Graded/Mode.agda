@@ -405,6 +405,30 @@ record IsMode : Set (a ⊔ b) where
           ok₃ m≢𝟘
 
   ----------------------------------------------------------------------
+  -- An alternative to Trivialᵐ
+
+  opaque
+
+    -- An alternative to Trivialᵐ. Note that the type is Set a rather
+    -- than Set b.
+
+    Trivialᵐ′ : Set a
+    Trivialᵐ′ = Lift _ (Resize-Dec trivialᵐ? .proj₁)
+
+    -- Trivialᵐ′ is logically equivalent to Trivialᵐ.
+
+    Trivialᵐ′⇔Trivialᵐ : Trivialᵐ′ ⇔ Trivialᵐ
+    Trivialᵐ′⇔Trivialᵐ =
+      Lift _ (Resize-Dec trivialᵐ? .proj₁)  ⇔⟨ Lift⇔ ⟩
+      Resize-Dec trivialᵐ? .proj₁           ⇔˘⟨ Resize-Dec trivialᵐ? .proj₂ .proj₁ ⟩
+      Trivialᵐ                              □⇔
+
+    -- Trivialᵐ′ is decided.
+
+    Trivialᵐ′? : Dec Trivialᵐ′
+    Trivialᵐ′? = Lift? (Resize-Dec trivialᵐ? .proj₂ .proj₂)
+
+  ----------------------------------------------------------------------
   -- Properties of the order relation
 
   opaque

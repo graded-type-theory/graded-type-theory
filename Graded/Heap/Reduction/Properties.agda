@@ -2,27 +2,24 @@
 -- Properties of the heap reduction relation.
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Variant
 open import Tools.Relation
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Reduction.Properties
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (type-variant : Type-variant a)
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-variant type-variant
 open Modality 𝕄
 
 open import Tools.Empty
@@ -36,10 +33,10 @@ open import Tools.Sum
 open import Definition.Untyped M
 open import Definition.Untyped.Names-below M as B using (No-names)
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped.Properties type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Reduction type-variant UR factoring-nr ∣ε∣
-open import Graded.Heap.Reduction.Inversion type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped.Properties C factoring-nr ∣ε∣
+open import Graded.Heap.Reduction C factoring-nr ∣ε∣
+open import Graded.Heap.Reduction.Inversion C factoring-nr ∣ε∣
 open import Graded.Modality.Properties 𝕄
 
 private variable
@@ -591,7 +588,7 @@ opaque
   ++sucₛ-⇒ᵥ rflₕⱼ = rflₕⱼ
   ++sucₛ-⇒ᵥ rflₕₖ = rflₕₖ
   ++sucₛ-⇒ᵥ rflₕₑ = rflₕₑ
-  ++sucₛ-⇒ᵥ {k} (classₕ {S} {q} {H} {w} {ρ} {C} {t} {u} {v} {ρ′} eq) =
+  ++sucₛ-⇒ᵥ {k} (classₕ {S} {q} {H} {w} {ρ} {t} {u} {v} {ρ′} {C} eq) =
     subst
       (λ S′ →
          ⟨ H , class w , ρ , (qrecₑ C t u v ρ′ ∙ S) ++ sucₛ k ⟩ ⇒ᵥ

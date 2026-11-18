@@ -2,9 +2,9 @@
 -- Properties of the usage relation that hold when zero is well behaved.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Usage.Properties.Has-well-behaved-zero
   {a b} {M : Set a} {Mode : Set b}
@@ -12,7 +12,7 @@ module Graded.Usage.Properties.Has-well-behaved-zero
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   (open Modality 𝕄)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero 𝕄 ⦄
   where
@@ -25,8 +25,8 @@ open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Inversion R
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
 
 open import Tools.Empty
 open import Tools.Fin

@@ -3,16 +3,16 @@
 -- certain contexts, types and terms)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typechecking.Decidable.Assumptions
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R hiding (no-equality-reflection)
+open Type-configuration TC hiding (no-equality-reflection)
 
 open import Tools.Product
 open import Tools.PropositionalEquality

@@ -2,30 +2,30 @@
 -- Admissible rules related to ω and Ω
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Omega
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions TR
+open Type-configuration TC
 
-open import Definition.Typed TR
-open import Definition.Typed.Properties.Admissible.Identity TR
-open import Definition.Typed.Properties.Admissible.Pi TR
-open import Definition.Typed.Properties.Admissible.Pi-Sigma TR
-open import Definition.Typed.Properties.Admissible.Var TR
-open import Definition.Typed.Properties.Reduction TR
-open import Definition.Typed.Weakening TR
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Identity TC
+open import Definition.Typed.Properties.Admissible.Pi TC
+open import Definition.Typed.Properties.Admissible.Pi-Sigma TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Weakening TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral M type-variant
+open import Definition.Untyped.Neutral M TC⁻
 open import Definition.Untyped.Omega M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Empty
 open import Tools.Function

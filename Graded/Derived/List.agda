@@ -2,9 +2,9 @@
 -- Some properties related to usage and List
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 import Definition.Untyped
 
 module Graded.Derived.List
@@ -15,24 +15,24 @@ module Graded.Derived.List
   {𝐌 : IsMode}
   (open Definition.Untyped M)
   (pₕ pₗ : M)
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-import Graded.Derived.Vec 𝕨 pₕ R as V
+import Graded.Derived.Vec 𝕨 pₕ C as V
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Inversion R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Weakening R
-open import Graded.Substitution R
-open import Graded.Substitution.Properties R
+open import Graded.Usage C
+open import Graded.Usage.Inversion C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
+open import Graded.Substitution C
+open import Graded.Substitution.Properties C
 
 import Definition.Untyped.Vec 𝕄 𝐌 𝕨 pₕ as UV
 open import Definition.Untyped.List 𝕄 𝐌 pₕ pₗ

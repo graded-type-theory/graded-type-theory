@@ -3,7 +3,7 @@
 -- Definition.Typed.Decidable.Internal
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -11,14 +11,13 @@ module Definition.Typed.Decidable.Internal.Constraint
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   (𝐌 : IsMode Mode 𝕄)
-  (TR : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions TR hiding (no-equality-reflection)
+open Type-configuration TC hiding (no-equality-reflection)
 
-open import Definition.Typed.Decidable.Internal.Equality 𝐌 TR
-open import Definition.Typed.Decidable.Internal.Term 𝐌 TR
-open import Definition.Typed.Variant
+open import Definition.Typed.Decidable.Internal.Equality 𝐌 TC
+open import Definition.Typed.Decidable.Internal.Term 𝐌 TC
 
 open import Tools.Bool
 open import Tools.Function

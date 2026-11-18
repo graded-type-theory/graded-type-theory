@@ -2,9 +2,9 @@
 -- Properties of substitution matrices.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Substitution.Properties
   {a b} {M : Set a} {Mode : Set b}
@@ -12,25 +12,26 @@ module Graded.Substitution.Properties
   {𝕄 : Modality}
   (open Graded.Mode Mode 𝕄)
   {𝐌 : IsMode}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
 open IsMode 𝐌
-open Usage-restrictions R
+open Configuration C
+
+import Configuration-types.Instance.Configuration
+open import Configuration-types.Natrec 𝕄
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Context.Weakening 𝕄
-open import Graded.Substitution R
+open import Graded.Substitution C
 open import Graded.Modality.Nr-instances
 open import Graded.Modality.Omega-instances
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage R
-open import Graded.Usage.Properties R
-import Graded.Usage.Restrictions.Instance
-open import Graded.Usage.Restrictions.Natrec 𝕄
-open import Graded.Usage.Weakening R
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Weakening C
 open import Definition.Untyped M
 
 open import Tools.Bool using (T)
@@ -316,7 +317,7 @@ opaque
           χ ∎)
     where
     open ≤ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance.Configuration C
 
 opaque
 
@@ -842,7 +843,7 @@ opaque
 
   ▶-⌞nrᶜ⌟₁ :
     ⦃ has-nr : Nr-available ⦄ →
-    let open Graded.Usage.Restrictions.Instance R in
+    let open Configuration-types.Instance.Configuration C in
     (Ψ : Substₘ m n) (γ : Conₘ n) →
     Ψ ▶[ ⌞ nrᶜ p r γ δ η ⌟ᶜ ] σ → Ψ ▶[ ⌞ γ ⌟ᶜ ] σ
   ▶-⌞nrᶜ⌟₁ {p = p} {r = r} {δ = δ} {η = η} Ψ γ Ψ▶ x = sub
@@ -856,7 +857,7 @@ opaque
     (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
     where
     open ≤ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance.Configuration C
 
 opaque
 
@@ -884,7 +885,7 @@ opaque
 
   ▶-⌞nrᶜ⌟₃ :
     ⦃ has-nr : Nr-available ⦄ →
-    let open Graded.Usage.Restrictions.Instance R in
+    let open Configuration-types.Instance.Configuration C in
     (Ψ : Substₘ m n) (γ : Conₘ n) →
     Ψ ▶[ ⌞ nrᶜ p r γ δ η ⌟ᶜ ] σ → Ψ ▶[ ⌞ η ⌟ᶜ ] σ
   ▶-⌞nrᶜ⌟₃ {p = p} {r = r} {δ = δ} {η = η} Ψ γ Ψ▶ x = sub
@@ -898,7 +899,7 @@ opaque
     (≤ᶜ-reflexive (≈ᶜ-sym (·ᶜ-<*-𝟘ᶜ,≔𝟙 Ψ)))
     where
     open ≤ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance.Configuration C
 
 opaque
 
@@ -1239,7 +1240,7 @@ opaque mutual
         (substₘ-lemma-𝟘ᵐ-⇑ ▶σ ▸A))
       (<*-sub-distrib-nrᶜ Ψ γ)
     where
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance.Configuration C
   substₘ-lemma {σ} {γ = γ₀} {Ψ} ▶σ (natrec-no-nrₘ {γ} {δ} {p} {r} {η} ▸z ▸s ▸n ▸A le₁ le₂ le₃ le₄) =
     natrec-no-nrₘ (substₘ-lemma (▶-≤ Ψ le₁ ▶σ) ▸z)
       (substₘ-lemma-⇑² (▶-⌞+ᶜ⌟ˡ δ (▶-≤ Ψ le₄ ▶σ)) ▸s)
@@ -1305,7 +1306,7 @@ opaque mutual
     sub-≈ᶜ rflₘ (<*-zeroˡ Ψ)
   substₘ-lemma {Ψ} ▶σ (Jₘ {γ₂} {γ₃} {γ₄} {γ₅} {γ₆} ok ▸A ▸t ▸B ▸u ▸v ▸w) =
     let open ≤ᶜ-reasoning
-        open Graded.Usage.Restrictions.Instance R
+        open Configuration-types.Instance.Configuration C
         ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅ +ᶜ γ₆}) ▶σ
         ▶σ₂ = ▶-⌞+ᶜ⌟ˡ γ₂ ▶σ′
         ▶σ₃ = ▶-⌞+ᶜ⌟ˡ γ₃ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ′)
@@ -1322,7 +1323,7 @@ opaque mutual
             (substₘ-lemma ▶σ₆ ▸w))
           (·ᶜ+ᶜ⁵<* γ₂)
   substₘ-lemma {Ψ} ▶σ (J₀ₘ₁ {γ₃} {γ₄} p≡𝟘 q≡𝟘 ▸A ▸t ▸B ▸u ▸v ▸w) =
-    let open Graded.Usage.Restrictions.Instance R
+    let open Configuration-types.Instance.Configuration C
         ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₃ +ᶜ γ₄}) ▶σ
         ▶σ₃ = ▶-⌞+ᶜ⌟ˡ γ₃ ▶σ′
         ▶σ₄ = ▶-⌞+ᶜ⌟ʳ γ₃ ▶σ′
@@ -1339,12 +1340,13 @@ opaque mutual
     J₀ₘ₂
       (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
-      (substₘ-lemma-𝟘ᵐ-⇑² ▶σ ▸B)
+      (substₘ-lemma-𝟘ᵐ
+         (wf-liftSubstₘ {mo = 𝟘ᵐ} (wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ)) ▸B)
       (substₘ-lemma ▶σ ▸u)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸v)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸w)
   substₘ-lemma {Ψ} ▶σ (Kₘ {γ₂} {γ₃} {γ₄} {γ₅} ok ▸A ▸t ▸B ▸u ▸v) =
-    let open Graded.Usage.Restrictions.Instance R
+    let open Configuration-types.Instance.Configuration C
         ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₂ +ᶜ γ₃ +ᶜ γ₄ +ᶜ γ₅}) ▶σ
         ▶σ₂ = ▶-⌞+ᶜ⌟ˡ γ₂ ▶σ′
         ▶σ₃ = ▶-⌞+ᶜ⌟ˡ γ₃ (▶-⌞+ᶜ⌟ʳ γ₂ ▶σ′)
@@ -1358,7 +1360,7 @@ opaque mutual
             (substₘ-lemma ▶σ₅ ▸v))
           (·ᶜ+ᶜ⁴<* γ₂)
   substₘ-lemma {Ψ} ▶σ (K₀ₘ₁ {γ₃} {γ₄} p≡𝟘 ▸A ▸t ▸B ▸u ▸v) =
-    let open Graded.Usage.Restrictions.Instance R
+    let open Configuration-types.Instance.Configuration C
         ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₃ +ᶜ γ₄}) ▶σ
         ▶σ₃ = ▶-⌞+ᶜ⌟ˡ γ₃ ▶σ′
         ▶σ₄ = ▶-⌞+ᶜ⌟ʳ γ₃ ▶σ′
@@ -1372,7 +1374,7 @@ opaque mutual
   substₘ-lemma ▶σ (K₀ₘ₂ ▸A ▸t ▸B ▸u ▸v) =
     K₀ₘ₂ (substₘ-lemma-𝟘ᵐ ▶σ ▸A)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸t)
-      (substₘ-lemma-𝟘ᵐ-⇑ ▶σ ▸B)
+      (substₘ-lemma-𝟘ᵐ (wf-liftSubstₘ {mo = 𝟘ᵐ} ▶σ) ▸B)
       (substₘ-lemma ▶σ ▸u)
       (substₘ-lemma-𝟘ᵐ ▶σ ▸v)
   substₘ-lemma {Ψ} ▶σ ([]-congₘ ▸l ▸A ▸t ▸u ▸v ok) =
@@ -1437,9 +1439,9 @@ opaque mutual
          γ₂ <* Ψ +ᶜ ω ·ᶜ (⌜ ⌞ ω ⌟ ⌝ ·ᶜ γ₅) <* Ψ   ∎)
     where
     open ≈ᶜ-reasoning
-    open Graded.Usage.Restrictions.Instance R
+    open Configuration-types.Instance.Configuration C
   substₘ-lemma {Ψ} ▶σ (qrec₁ {γ₁} {γ₂} {γ₅} ok₁ ok₂ ▸C ▸t ▸u ▸v ▸w) =
-    let open Graded.Usage.Restrictions.Instance R
+    let open Configuration-types.Instance.Configuration C
         ▶σ′ = ▶-≤ Ψ (ω·ᶜ-decreasing {γ = γ₁ +ᶜ γ₂ +ᶜ γ₅}) ▶σ
         ▶σ₁ = ▶-⌞+ᶜ⌟ˡ γ₁ ▶σ′
         ▶σ₂ = ▶-⌞+ᶜ⌟ˡ γ₂ (▶-⌞+ᶜ⌟ʳ γ₁ ▶σ′)

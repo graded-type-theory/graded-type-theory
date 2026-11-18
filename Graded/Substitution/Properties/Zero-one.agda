@@ -3,10 +3,10 @@
 -- structure.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Substitution.Properties.Zero-one
   {a} {M : Set a}
@@ -15,7 +15,7 @@ module Graded.Substitution.Properties.Zero-one
   (open Modality 𝕄)
   (mode-variant : Mode-variant 𝕄)
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (R : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open import Definition.Untyped M
@@ -23,12 +23,12 @@ open import Definition.Untyped M
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
 open import Graded.Mode Mode 𝕄
-open import Graded.Substitution R
-open import Graded.Substitution.Properties R as S
+open import Graded.Substitution C
+open import Graded.Substitution.Properties C as S
   hiding (substₘ-lemma₀; substₘ-lemma₁)
-open import Graded.Usage R
-open import Graded.Usage.Properties R
-open import Graded.Usage.Properties.Zero-one mode-variant R
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one mode-variant C
 
 open import Tools.Bool
 open import Tools.Function

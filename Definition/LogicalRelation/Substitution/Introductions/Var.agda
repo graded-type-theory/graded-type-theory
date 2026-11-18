@@ -2,29 +2,29 @@
 -- Validity of variables.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Substitution.Introductions.Var
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet eqrel
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 open import Definition.Untyped.Properties M
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
-import Definition.LogicalRelation.Hidden.Restricted R as R
-open import Definition.LogicalRelation.Substitution R
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Hidden TC
+import Definition.LogicalRelation.Hidden.Restricted TC as R
+open import Definition.LogicalRelation.Substitution TC
 
 open import Tools.Fin
 open import Tools.Function

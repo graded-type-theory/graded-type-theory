@@ -2,31 +2,31 @@
 -- Well-formedness lemmas
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Tools.Nat
 
 module Definition.Typed.Well-formed
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion.Primitive R
-import Definition.Typed.Properties.Admissible.Erased.Primitive R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion.Primitive TC
+import Definition.Typed.Properties.Admissible.Erased.Primitive TC
   as Erased
-open import Definition.Typed.Properties.Admissible.Level.Primitive R
-open import Definition.Typed.Properties.Admissible.Quotient.Primitive R
-open import Definition.Typed.Properties.Admissible.U.Primitive R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Stability.Primitive R
-open import Definition.Typed.Substitution.Primitive.Primitive R
-open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed.Properties.Admissible.Level.Primitive TC
+open import Definition.Typed.Properties.Admissible.Quotient.Primitive TC
+open import Definition.Typed.Properties.Admissible.U.Primitive TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Stability.Primitive TC
+open import Definition.Typed.Substitution.Primitive.Primitive TC
+open import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Weakening.Definition TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M

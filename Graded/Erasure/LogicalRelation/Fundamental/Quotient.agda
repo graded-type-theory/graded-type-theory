@@ -2,36 +2,36 @@
 -- Validity for quotient types
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Quotient
   {a} {M : Set a}
   {𝕄 : Modality M}
   (open Modality 𝕄)
-  {R : Type-restrictions 𝕄}
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (as : Assumptions R)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (as : Assumptions TC)
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open Assumptions as
 open Has-well-behaved-zero 𝟘-well-behaved
-open Usage-restrictions UR
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inversion R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Well-formed R
+open import Configuration-types.Instance.Configuration C
+
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inversion TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Type TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
@@ -43,13 +43,12 @@ open import Graded.Erasure.Extraction 𝕄
 open import Graded.Erasure.LogicalRelation as
 open import Graded.Erasure.LogicalRelation.Assumptions.Reasoning
   is-reduction-relation
-open import Graded.Erasure.LogicalRelation.Hidden UR as
-open import Graded.Erasure.LogicalRelation.Value UR as
+open import Graded.Erasure.LogicalRelation.Hidden C as
+open import Graded.Erasure.LogicalRelation.Value C as
 import Graded.Erasure.Target as T
 import Graded.Erasure.Target.Properties as TP
 open import Graded.Erasure.Target.Reasoning
 open import Graded.Modality.Omega-instances
-open import Graded.Usage.Restrictions.Instance UR
 
 open import Tools.Fin
 open import Tools.Function
@@ -59,12 +58,12 @@ import Tools.PropositionalEquality as PE
 open import Tools.Reasoning.PropositionalEquality
 
 private variable
-  n             : Nat
-  Γ             : Con _ _
-  γ δ η         : Conₘ _
-  A B C t u v w : Term _
-  l             : Lvl _
-  m             : Mode
+  n           : Nat
+  Γ           : Con _ _
+  γ δ η       : Conₘ _
+  A B t u v w : Term _
+  l           : Lvl _
+  m           : Mode
 
 opaque
 
@@ -107,7 +106,8 @@ opaque
   -- Validity of resp.
 
   respʳ :
-    Higher-quotient-constructors-allowed →
+    ∀ {C} →
+    Quot-allowed →
     m PE.≡ 𝟘ᵐ? →
     γ ▸ Γ ⊩ʳ resp A B t u v ∷[ m ∣ n ] C
   respʳ ok PE.refl =
@@ -118,7 +118,8 @@ opaque
   -- Validity of set.
 
   setʳ :
-    Higher-quotient-constructors-allowed →
+    ∀ {C} →
+    Quot-allowed →
     m PE.≡ 𝟘ᵐ? →
     γ ▸ Γ ⊩ʳ set A B t u v w ∷[ m ∣ n ] C
   setʳ ok PE.refl =
@@ -130,7 +131,7 @@ opaque
   -- Validity of qrec.
 
   qrecʳ :
-    ⦃ ok : Usage-allows-omega ⦄ →
+    ∀ {C} ⦃ ok : Omega-allowed ⦄ →
     ts » Γ ∙ Quot A B ⊢ C →
     ts » Γ ∙ A ⊢ t ∷ C [ class (var x0) ]↑ →
     δ ∙ ⌜ m ⌝ · ω ▸ Γ ∙ A ⊩ʳ t ∷[ m ∣ n ] C [ class (var x0) ]↑ →
@@ -143,7 +144,7 @@ opaque
   qrecʳ {m = 𝟘ᵐ} _ _ _ _ _ _ _ _ =
     ▸⊩ʳ∷[𝟘ᵐ]
   qrecʳ
-    {Γ} {A} {B} {C} {t} {m = 𝟙ᵐ} {u} {v} {w}
+    {Γ} {A} {B} {t} {m = 𝟙ᵐ} {u} {v} {w} {C}
     ⊢C ⊢t ⊩ʳt ⊢u ⊢v ⊩ʳw γ≤δ γ≤η =
     ▸⊩ʳ∷⇔ .proj₂ λ {σ = σ} {σ′ = σ′} ⊢σ σ®σ′ →
     let w′ , w[σ]⇛class-w′ , w′® =

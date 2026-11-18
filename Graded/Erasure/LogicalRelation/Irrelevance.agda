@@ -2,33 +2,33 @@
 -- Irrelevance lemmata for the logical relation
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 
 module Graded.Erasure.LogicalRelation.Irrelevance
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (as : Assumptions R)
+  {TC : Type-configuration 𝕄}
+  (as : Assumptions TC)
   where
 
 open Assumptions as
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
 open import Graded.Erasure.LogicalRelation as
 
-open import Definition.LogicalRelation.Simplified R
+open import Definition.LogicalRelation.Simplified TC
 
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Reasoning.Type R
-open import Definition.Typed.Weakening.Definition R
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Reasoning.Type TC
+open import Definition.Typed.Weakening.Definition TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Function
 open import Tools.Nat

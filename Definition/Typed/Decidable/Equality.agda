@@ -3,7 +3,7 @@
 -- reflection)
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Tools.Relation
 import Tools.PropositionalEquality as PE
@@ -11,18 +11,18 @@ import Tools.PropositionalEquality as PE
 module Definition.Typed.Decidable.Equality
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   (_≟_ : Decidable (PE._≡_ {A = M}))
   ⦃ no-equality-reflection : No-equality-reflection ⦄
   where
 
 
 open import Definition.Untyped M
-open import Definition.Typed R
-open import Definition.Conversion.Decidable R _≟_
-open import Definition.Conversion.Soundness R
-open import Definition.Conversion.Consequences.Completeness R
+open import Definition.Typed TC
+open import Definition.Conversion.Decidable TC _≟_
+open import Definition.Conversion.Soundness TC
+open import Definition.Conversion.Consequences.Completeness TC
 
 open import Tools.Nat
 

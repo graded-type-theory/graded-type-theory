@@ -26,10 +26,11 @@ module Definition.Untyped.Bool.Erased
 open Modality 𝕄
 open IsMode 𝐌
 
+open import Configuration-types
+
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
 import Definition.Typed.Decidable.Internal.Weakening
-open import Definition.Typed.Restrictions
 
 open import Definition.Untyped M hiding (_[_]′)
 open import Definition.Untyped.Bool.Nr 𝕄 𝐌 as B
@@ -266,20 +267,20 @@ opaque
 -- Variants of the term formers, intended to be used with the internal
 -- type-checker
 
-module Internal (R : Type-restrictions 𝕄) where
+module Internal (TC : Type-configuration 𝕄) where
 
-  open B.Internal 𝐌 R using (OKᵢ)
-  open E.Internal 𝐌 R
-  open UE.Internal 𝐌 R
-  open UN.Internal 𝐌 R
+  open B.Internal 𝐌 TC using (OKᵢ)
+  open E.Internal 𝐌 TC
+  open UE.Internal 𝐌 TC
+  open UN.Internal 𝐌 TC
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term 𝐌 R
+      Definition.Typed.Decidable.Internal.Term 𝐌 TC
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 TC
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
 
   private variable
     c                              : I.Constants

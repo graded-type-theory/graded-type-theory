@@ -2,7 +2,7 @@
 -- Typing and equality rules related to OK
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
 
@@ -11,19 +11,19 @@ module Definition.Typed.Properties.Admissible.Bool.OK
   {𝕄 : Modality M}
   (OKᵍ : M)
   (open Modality 𝕄)
-  (R : Type-restrictions 𝕄)
-  (open Type-restrictions R)
+  (TC : Type-configuration 𝕄)
+  (open Type-configuration TC)
   -- It is assumed that weak unit types are allowed.
   (Unitʷ-ok : Unitʷ-allowed)
   where
 
-open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Nat R
-open import Definition.Typed.Properties.Admissible.U.Primitive R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Term R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Nat TC
+open import Definition.Typed.Properties.Admissible.U.Primitive TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Term TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Bool.OK 𝕄 OKᵍ

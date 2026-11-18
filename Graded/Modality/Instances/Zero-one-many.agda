@@ -711,6 +711,32 @@ instance
     ; ω·+≤ω·ʳ = λ {p = p} → ω·+≤ω·ʳ p
     }
 
+opaque
+
+  -- If 𝟙≤𝟘 is true, then the choice of ω grade is not unique (𝟙 is
+  -- also an ω grade).
+
+  omega-not-unique :
+    T 𝟙≤𝟘 →
+    ∃ λ (has-omega : Has-omega zero-one-many-modality) →
+      Has-omega.ω has-omega ≢ Has-omega.ω zero-one-many-has-omega
+  omega-not-unique 𝟙≤𝟘 =
+    record
+      { ω       = 𝟙
+      ; ω≤𝟙     = refl
+      ; ω·+≤ω·ʳ = λ where
+          {p = 𝟘} {q = 𝟘} → refl
+          {p = 𝟘} {q = 𝟙} → refl
+          {p = 𝟘} {q = ω} → refl
+          {p = 𝟙} {q = 𝟘} → 𝟙≤𝟘→𝟙≤𝟘 𝟙≤𝟘
+          {p = 𝟙} {q = 𝟙} → refl
+          {p = 𝟙} {q = ω} → refl
+          {p = ω} {q = 𝟘} → refl
+          {p = ω} {q = 𝟙} → refl
+          {p = ω} {q = ω} → refl
+      } ,
+    λ ()
+
 instance
 
   zero-one-many-has-well-behaved-zero :

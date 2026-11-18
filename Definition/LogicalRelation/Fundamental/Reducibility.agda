@@ -2,8 +2,8 @@
 -- The fundamental lemma of the logical relation for reducibility.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Graded.Modality
 
@@ -11,20 +11,20 @@ module Definition.LogicalRelation.Fundamental.Reducibility
   {a} {M : Set a}
   (open Definition.Untyped M)
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   (open EqRelSet eqrel)
   {m n} {Γ : Cons m n}
   -- Neutrals are included or Γ .vars is empty.
   ⦃ inc : Var-included or-empty (Γ .vars) ⦄
   where
 
-open import Definition.Typed R
-open import Definition.LogicalRelation R
-import Definition.LogicalRelation.Fundamental.Reducibility.Restricted R
+open import Definition.Typed TC
+open import Definition.LogicalRelation TC
+import Definition.LogicalRelation.Fundamental.Reducibility.Restricted TC
   as RR
-open import Definition.LogicalRelation.Hidden R
-import Definition.LogicalRelation.Hidden.Restricted R as R
+open import Definition.LogicalRelation.Hidden TC
+import Definition.LogicalRelation.Hidden.Restricted TC as R
 
 open import Tools.Function
 open import Tools.Product as Σ

@@ -96,13 +96,13 @@ import Definition.Typed.Weakening
 #### 2.2: Typing Rules
 
 Unlike in the paper the type system is parametrised by a value of type
-`Type-restrictions` that makes it possible to disallow certain things,
+`Type-configuration` that makes it possible to disallow certain things,
 like certain (graded) Π- or Σ-types, the K rule or equality
 reflection. For instance, the two typing rules for Π and Σ include the
 assumption `ΠΣ-allowed b p q`.
 ```agda
-import Definition.Typed.Restrictions
-  using (Type-restrictions)
+import Configuration-types
+  using (Type-configuration)
 ```
 
 It is also possible to restrict the `Level` type so that it is not an
@@ -123,7 +123,7 @@ element of a universe, or not allowed at all. There is a parameter
 If either of the two last settings are used, then the type
 `Level-allowed` is inhabited.
 ```agda
-open Definition.Typed.Restrictions.Type-restrictions
+open Configuration-types.Type-configuration
   using
     (level-support; Level-is-small; Level-is-not-small; Level-allowed)
 ```
@@ -132,7 +132,7 @@ One can also choose whether the levels ω, ω + 1 and so on are allowed
 or not. That is the case if the parameter `Omega-plus-allowed` is
 inhabited.
 ```agda
-open Definition.Typed.Restrictions.Type-restrictions
+open Configuration-types.Type-configuration
   using (Omega-plus-allowed)
 ```
 
@@ -701,13 +701,13 @@ import Definition.Typed.Decidable
 ### 5: Erasing Levels Is Safe
 
 The usage relation. This relation is parametrised by a value of type
-`Usage-restrictions`, which for instance makes it possible to disallow
+`Configuration`, which for instance makes it possible to disallow
 several forms of erased matches.
 ```agda
 import Graded.Usage
   using (_▸[_]_)
-import Graded.Usage.Restrictions
-  using (Usage-restrictions)
+import Configuration-types
+  using (Configuration)
 ```
 
 Usage contexts.

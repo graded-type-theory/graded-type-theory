@@ -2,48 +2,51 @@
 -- Validity for Π- and Σ-types
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Substitution.Introductions.Pi-Sigma
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  ⦃ eqrel : EqRelSet R ⦄
+  (TC : Type-configuration 𝕄)
+  ⦃ eqrel : EqRelSet TC ⦄
   where
 
 open EqRelSet eqrel
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.LogicalRelation R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Hidden R ⦃ eqrel ⦄
-import Definition.LogicalRelation.Hidden.Restricted R ⦃ eqrel ⦄ as R
-open import Definition.LogicalRelation.Irrelevance R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Properties R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.ShapeView R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Substitution R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Substitution.Introductions.Level R ⦃ eqrel ⦄
+open import Definition.LogicalRelation TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Hidden TC ⦃ eqrel ⦄
+import Definition.LogicalRelation.Hidden.Restricted TC ⦃ eqrel ⦄ as R
+open import Definition.LogicalRelation.Irrelevance TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Properties TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.ShapeView TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions.Level
+  TC ⦃ eqrel ⦄
 open import
-  Definition.LogicalRelation.Substitution.Introductions.Universe R ⦃ eqrel ⦄
-open import Definition.LogicalRelation.Substitution.Introductions.Var R ⦃ eqrel ⦄
-import Definition.LogicalRelation.Weakening R ⦃ eqrel ⦄ as W
+  Definition.LogicalRelation.Substitution.Introductions.Universe
+    TC ⦃ eqrel ⦄
+open import Definition.LogicalRelation.Substitution.Introductions.Var
+     TC ⦃ eqrel ⦄
+import Definition.LogicalRelation.Weakening TC ⦃ eqrel ⦄ as W
 import Definition.LogicalRelation.Weakening.Definition
-  R ⦃ eqrel = eqrel ⦄ as WD
-open import Definition.LogicalRelation.Weakening.Restricted R ⦃ eqrel ⦄
+  TC ⦃ eqrel = eqrel ⦄ as WD
+open import Definition.LogicalRelation.Weakening.Restricted TC ⦃ eqrel ⦄
 
-open import Definition.Typed R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Substitution R
-import Definition.Typed.Weakening R as TW
-import Definition.Typed.Weakening.Combined R as C
-open import Definition.Typed.Weakening.Definition R
-open import Definition.Typed.Well-formed R
+open import Definition.Typed TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+import Definition.Typed.Weakening TC as TW
+import Definition.Typed.Weakening.Combined TC as C
+open import Definition.Typed.Weakening.Definition TC
+open import Definition.Typed.Well-formed TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Untyped.Whnf M type-variant
+open import Definition.Untyped.Whnf M TC⁻
 
 open import Tools.Function
 open import Tools.Nat using (Nat; 1+)

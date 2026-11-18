@@ -2,7 +2,7 @@
 -- Lemmas related to inversion for typing for Erased
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 import Graded.Modality
 open import Definition.Untyped.NotParametrised using (Strength)
 
@@ -10,20 +10,20 @@ module Definition.Typed.Consequences.Inversion.Erased
   {a} {M : Set a}
   (open Graded.Modality M)
   {𝕄 : Modality}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   (s : Strength)
   where
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Inequality R
-open import Definition.Typed.Consequences.Injectivity R
-open import Definition.Typed.Inversion R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Substitution R
-open import Definition.Typed.Weakening R
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Inequality TC
+open import Definition.Typed.Consequences.Injectivity TC
+open import Definition.Typed.Inversion TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
+open import Definition.Typed.Weakening TC
 
 open import Definition.Untyped M
 open import Definition.Untyped.Erased 𝕄 s

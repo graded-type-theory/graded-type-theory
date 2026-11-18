@@ -2,33 +2,35 @@
 -- Validity of the empty type.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Substitution.Introductions.Empty
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
-  {{eqrel : EqRelSet R}}
+  (TC : Type-configuration 𝕄)
+  {{eqrel : EqRelSet TC}}
   where
 
 open EqRelSet {{...}}
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Properties R
-open import Definition.LogicalRelation R
-open import Definition.LogicalRelation.Hidden R
-open import Definition.LogicalRelation.Irrelevance R
-open import Definition.LogicalRelation.Properties R
-open import Definition.LogicalRelation.ShapeView R
-open import Definition.LogicalRelation.Substitution R
-open import Definition.LogicalRelation.Substitution.Introductions.Level R
-open import Definition.LogicalRelation.Substitution.Introductions.Universe R
-open import Definition.LogicalRelation.Unary R
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
+open import Definition.LogicalRelation TC
+open import Definition.LogicalRelation.Hidden TC
+open import Definition.LogicalRelation.Irrelevance TC
+open import Definition.LogicalRelation.Properties TC
+open import Definition.LogicalRelation.ShapeView TC
+open import Definition.LogicalRelation.Substitution TC
+open import Definition.LogicalRelation.Substitution.Introductions.Level
+  TC
+open import
+  Definition.LogicalRelation.Substitution.Introductions.Universe TC
+open import Definition.LogicalRelation.Unary TC
 
 open import Tools.Function
 open import Tools.Product

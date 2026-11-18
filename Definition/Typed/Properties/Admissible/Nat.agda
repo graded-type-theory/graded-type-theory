@@ -2,29 +2,29 @@
 -- Admissible rules related to the natural number type
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Definition.Typed.Properties.Admissible.Nat
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
 open import Definition.Untyped M
 open import Definition.Untyped.Nat 𝕄
 open import Definition.Untyped.Properties M
-open import Definition.Typed R
-open import Definition.Typed.Properties.Admissible.Equality R
+open import Definition.Typed TC
+open import Definition.Typed.Properties.Admissible.Equality TC
 import Definition.Typed.Properties.Admissible.Nat.Primitive
-open import Definition.Typed.Properties.Admissible.Pi R
-open import Definition.Typed.Properties.Admissible.Var R
-open import Definition.Typed.Properties.Reduction R
-open import Definition.Typed.Properties.Well-formed R
-open import Definition.Typed.Reasoning.Reduction R
-open import Definition.Typed.Substitution.Primitive R
-open import Definition.Typed.Weakening R as W
-open import Definition.Typed.Well-formed R
+open import Definition.Typed.Properties.Admissible.Pi TC
+open import Definition.Typed.Properties.Admissible.Var TC
+open import Definition.Typed.Properties.Reduction TC
+open import Definition.Typed.Properties.Well-formed TC
+open import Definition.Typed.Reasoning.Reduction TC
+open import Definition.Typed.Substitution.Primitive TC
+open import Definition.Typed.Weakening TC as W
+open import Definition.Typed.Well-formed TC
 
 open import Tools.Fin
 open import Tools.Function
@@ -33,9 +33,9 @@ open import Tools.Product
 import Tools.PropositionalEquality as PE
 
 open Modality 𝕄
-open Type-restrictions R
+open Type-configuration TC
 
-open Definition.Typed.Properties.Admissible.Nat.Primitive R public
+open Definition.Typed.Properties.Admissible.Nat.Primitive TC public
 
 private
   variable

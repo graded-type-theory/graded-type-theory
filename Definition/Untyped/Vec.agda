@@ -23,10 +23,11 @@ module Definition.Untyped.Vec
   (p : M)
   where
 
+open import Configuration-types
+
 import Definition.Typed.Decidable.Internal.Term
 import Definition.Typed.Decidable.Internal.Substitution.Primitive
 import Definition.Typed.Decidable.Internal.Weakening
-open import Definition.Typed.Restrictions
 
 open IsMode 𝐌
 
@@ -269,15 +270,15 @@ opaque
 -- Variants of some of the term formers, intended to be used with the
 -- internal type-checker
 
-module Internal (R : Type-restrictions 𝕄) where
+module Internal (TC : Type-configuration 𝕄) where
 
   private
     module I =
-      Definition.Typed.Decidable.Internal.Term 𝐌 R
+      Definition.Typed.Decidable.Internal.Term 𝐌 TC
     module IS =
-      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 R
+      Definition.Typed.Decidable.Internal.Substitution.Primitive 𝐌 TC
     module IW =
-      Definition.Typed.Decidable.Internal.Weakening 𝐌 R
+      Definition.Typed.Decidable.Internal.Weakening 𝐌 TC
 
   private variable
     c : I.Constants

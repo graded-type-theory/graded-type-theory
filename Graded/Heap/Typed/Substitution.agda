@@ -2,34 +2,30 @@
 -- Properties of well-formed heaps as substitutions
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed.Substitution
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (TR : Type-restrictions 𝕄)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-restrictions TR
-
 open import Definition.Untyped M
 open import Definition.Untyped.Properties M
-open import Definition.Typed TR
-open import Definition.Typed.Substitution TR
+open import Definition.Typed TC
+open import Definition.Typed.Substitution TC
 
-open import Graded.Heap.Typed UR TR factoring-nr ∣ε∣
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Typed C factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
 
 open import Tools.Function
 open import Tools.Product

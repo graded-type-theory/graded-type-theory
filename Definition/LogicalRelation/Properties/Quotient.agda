@@ -2,29 +2,29 @@
 -- Some definitions related to quotients
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Definition.Typed.EqualityRelation
-open import Definition.Typed.Restrictions
 open import Graded.Modality
 
 module Definition.LogicalRelation.Properties.Quotient
   {a} {M : Set a}
   {𝕄 : Modality M}
-  {R : Type-restrictions 𝕄}
-  (Eq : EqRelSet R)
+  {TC : Type-configuration 𝕄}
+  (Eq : EqRelSet TC)
   where
 
 open EqRelSet Eq
-open Type-restrictions R
+open Type-configuration TC
 
 open import Definition.LogicalRelation _ ⦃ eqrel = Eq ⦄
 open import Definition.LogicalRelation.Weakening.Restricted
   _ ⦃ eqrel = Eq ⦄
 
-open import Definition.Typed R
-open import Definition.Typed.Properties R
+open import Definition.Typed TC
+open import Definition.Typed.Properties TC
 
 open import Definition.Untyped M
-open import Definition.Untyped.Neutral.Atomic M type-variant
+open import Definition.Untyped.Neutral.Atomic M TC⁻
 
 open import Tools.Empty
 open import Tools.Function

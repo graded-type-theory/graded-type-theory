@@ -2,32 +2,28 @@
 -- Typing for heaps, stacks and states
 ------------------------------------------------------------------------
 
+open import Configuration-types
+open import Configuration-types.Natrec
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
-open import Definition.Typed.Restrictions
-open import Graded.Usage.Restrictions.Natrec
 
 module Graded.Heap.Typed
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (UR : Usage-restrictions 𝕄 𝐌)
-  (TR : Type-restrictions 𝕄)
-  (open Usage-restrictions UR)
+  (C : Configuration 𝐌)
+  (open Configuration C)
   (factoring-nr :
     ⦃ has-nr : Nr-available ⦄ →
     Is-factoring-nr M (Natrec-mode-Has-nr 𝕄 has-nr))
   (∣ε∣ : M)
   where
 
-open Type-restrictions TR
-
 open import Definition.Untyped M
 import Definition.Untyped.Erased 𝕄 as Erased
-open import Definition.Typed TR
+open import Definition.Typed TC
 
-open import Graded.Heap.Untyped type-variant UR factoring-nr ∣ε∣
+open import Graded.Heap.Untyped C factoring-nr ∣ε∣
 
 open import Tools.Fin
 open import Tools.Nat
@@ -42,7 +38,7 @@ private variable
   ρ : Wk _ _
   c : Cont _
   S : Stack _
-  A B B′ C s t u v w z : Term _
+  A B B′ s t u v w z : Term _
   l : Lvl _
   p q q′ r : M
   s′ : Strength
@@ -70,7 +66,8 @@ data _⨾_⊢ᶜ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
        → Δ ⨾ H ⊢ᶜ fstₑ p ⟨ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ A
   sndₑ : ε » Δ ∙ A ⊢ B
        → Δ ⨾ H ⊢ᶜ sndₑ p ⟨ t ⟩∷ Σˢ p , q ▷ A ▹ B ↝ B [ fst p t [ H ]ₕ ]₀
-  prodrecₑ : ε » Δ ∙ B ∙ C ⊢ wk (liftn ρ 2) u [ H ]⇑²ₕ ∷
+  prodrecₑ : ∀ {C}
+           → ε » Δ ∙ B ∙ C ⊢ wk (liftn ρ 2) u [ H ]⇑²ₕ ∷
                (wk (lift ρ) A [ H ]⇑ₕ [ prodʷ p (var x1) (var x0) ]↑²)
            → ε » Δ ∙ Σʷ p , q′ ▷ B ▹ C ⊢ wk (lift ρ) A [ H ]⇑ₕ
            → Δ ⨾ H ⊢ᶜ prodrecₑ r p q A u ρ ⟨ t ⟩∷ Σʷ p , q′ ▷ B ▹ C ↝ (wk (lift ρ) A [ H ]⇑ₕ [ t [ H ]ₕ ]₀)
@@ -113,7 +110,8 @@ data _⨾_⊢ᶜ_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) :
 
 data _⨾_⊢_⟨_⟩∷_↝_ (Δ : Con Term k) (H : Heap k m) : (S : Stack m) (t : Term m) (A B : Term k) → Set a where
   ε : Δ ⨾ H ⊢ ε ⟨ t ⟩∷ A ↝ A
-  _∙_ : (⊢c : Δ ⨾ H ⊢ᶜ c ⟨ t ⟩∷ A ↝ B)
+  _∙_ : ∀ {C}
+      → (⊢c : Δ ⨾ H ⊢ᶜ c ⟨ t ⟩∷ A ↝ B)
       → (⊢S : Δ ⨾ H ⊢ S ⟨ ⦅ c ⦆ᶜ t ⟩∷ B ↝ C)
       → Δ ⨾ H ⊢ c ∙ S ⟨ t ⟩∷ A ↝ C
 

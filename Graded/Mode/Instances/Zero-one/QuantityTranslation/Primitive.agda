@@ -17,6 +17,7 @@ import Graded.Context.QuantityTranslation as CQ
 import Graded.Modality.Properties
 
 open import Tools.Bool
+open import Tools.Empty
 open import Tools.Function
 open import Tools.Level
 open import Tools.Product
@@ -30,7 +31,7 @@ private variable
   γ δ₁ δ₂ δ₃ δ₄ : Conₘ _ _
   p q : M₁
   𝕄 𝕄₁ 𝕄₂ 𝕄₃ : Modality _
-  v₁ v₂ v₃ : Mode-variant _
+  v v₁ v₂ v₃ : Mode-variant _
 
 ------------------------------------------------------------------------
 -- The property of being "no-nr-preserving" (related to
@@ -316,6 +317,19 @@ record Are-mode-respecting-morphisms
     tr-Conₘ-≤ᶜ-𝟘ᶜ {γ = ε}     _      _  = ε
     tr-Conₘ-≤ᶜ-𝟘ᶜ {γ = _ ∙ _} not-ok ok =
       tr-Conₘ-≤ᶜ-𝟘ᶜ not-ok ok ∙ tr-<-𝟘 not-ok ok .proj₁
+
+opaque
+
+  -- An identity lemma for Are-mode-respecting-morphisms.
+
+  Are-mode-respecting-morphisms-id :
+    Are-mode-respecting-morphisms v v idᶠ idᶠ
+  Are-mode-respecting-morphisms-id = λ where
+      .𝟘ᵐ-in-second-if-in-first → idᶠ
+      .tr-<-𝟘 not-ok ok         → ⊥-elim (not-ok ok)
+      .tr-Σ-≡-𝟘-→               → _,_
+    where
+    open Are-mode-respecting-morphisms
 
 ------------------------------------------------------------------------
 -- Properties that are made under the assumptions that tr is a

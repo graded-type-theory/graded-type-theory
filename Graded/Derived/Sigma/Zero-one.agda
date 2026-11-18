@@ -14,10 +14,10 @@
 -- usage properties that are not specific to the Zero-one mode
 -- structure.
 
+open import Configuration-types
 import Graded.Modality
 import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Sigma.Zero-one
   {a} {M : Set a}
@@ -26,19 +26,19 @@ module Graded.Derived.Sigma.Zero-one
   (open Graded.Mode.Instances.Zero-one.Variant 𝕄)
   {mode-variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one mode-variant)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open Modality 𝕄
 open Mode-variant mode-variant
-open Usage-restrictions UR
+open Configuration C
 
 open import Graded.Context 𝕄
-import Graded.Derived.Sigma UR as Σ
+import Graded.Derived.Sigma C as Σ
 open import Graded.Modality.Properties 𝕄
-open import Graded.Usage UR
-open import Graded.Usage.Properties UR
-open import Graded.Usage.Properties.Zero-one mode-variant UR
+open import Graded.Usage C
+open import Graded.Usage.Properties C
+open import Graded.Usage.Properties.Zero-one mode-variant C
 
 open import Definition.Untyped M
 open import Definition.Untyped.Sigma 𝕄
@@ -283,7 +283,8 @@ opaque
   fstʷₘ-𝟘ᵐ  ok ▸t ▸A =
     ▸-cong 𝟘ᵐ?≡𝟘ᵐ
       (Σ.fstʷₘ-𝟘ᵐ 𝟘ᵐ-allowed→¬Trivialᵐ′
-        (PE.subst (λ m → Prodrec-allowed m _ _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ok)
+        (PE.subst (λ m → Prodrec-allowed m (𝟘 ∧ 𝟙) _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ)
+           ok)
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸A))
 
@@ -366,7 +367,9 @@ opaque
   sndʷₘ-𝟘ᵐ ok B ▸t ▸B =
     ▸-cong 𝟘ᵐ?≡𝟘ᵐ
       (Σ.sndʷₘ-𝟘ᵐ 𝟘ᵐ-allowed→¬Trivialᵐ′
-        (PE.subst (λ m → Prodrec-allowed m _ _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ok) B
+        (PE.subst (λ m → Prodrec-allowed m (𝟘 ∧ 𝟙) _ _) (PE.sym 𝟘ᵐ?≡𝟘ᵐ)
+           ok)
+        B
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸t)
         (▸-cong (PE.sym 𝟘ᵐ?≡𝟘ᵐ) ▸B))
 

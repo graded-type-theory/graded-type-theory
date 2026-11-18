@@ -5,15 +5,15 @@
 
 open import Tools.Level
 
+open import Configuration-types
 open import Graded.Modality.Instances.Linear-or-affine
-open import Graded.Usage.Restrictions
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant linear-or-affine
 
 module Graded.Modality.Instances.Linear-or-affine.Examples.Bad.Nr
   {variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions linear-or-affine Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
 open import Tools.Function
@@ -22,18 +22,20 @@ import Tools.Reasoning.PartialOrder
 open import Tools.Relation
 open import Tools.Sum
 
+open import Configuration-types.Configuration.Zero-one
+  linear-or-affine variant
+open import Configuration-types.Natrec linear-or-affine
+
 open import Graded.Modality Linear-or-affine
 open import Graded.Mode Mode linear-or-affine
-open import Graded.Restrictions.Zero-one linear-or-affine variant
-open import Graded.Usage.Restrictions.Natrec linear-or-affine
 
 private
 
   module M = Modality linear-or-affine
 
   -- The "bad" nr function is used
-  UR′ = nr-available-UR bad-linear-or-affine-has-nr UR
-  open Usage-restrictions UR′
+  C′ = nr-available bad-linear-or-affine-has-nr C
+  open Configuration C′
   instance
     has-nr : Nr-available
     has-nr = Natrec-mode-has-nr.Nr ⦃ bad-linear-or-affine-has-nr ⦄
@@ -41,8 +43,8 @@ private
 open import Graded.Context linear-or-affine
 open import Graded.Context.Properties linear-or-affine
 open import Graded.Modality.Properties linear-or-affine
-open import Graded.Usage UR′
-open import Graded.Usage.Inversion UR′
+open import Graded.Usage C′
+open import Graded.Usage.Inversion C′
 
 open import Definition.Untyped.Nat linear-or-affine
 

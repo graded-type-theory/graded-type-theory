@@ -3,27 +3,29 @@
 -- function.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality.Instances.Linearity
-open import Graded.Usage.Restrictions
 import Graded.Mode.Instances.Zero-one
 open import Graded.Mode.Instances.Zero-one.Variant linearityModality
 
 module Graded.Modality.Instances.Linearity.Examples.Bad.Nr
   {variant : Mode-variant}
   (open Graded.Mode.Instances.Zero-one variant)
-  (UR : Usage-restrictions linearityModality Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open import Graded.Restrictions.Zero-one linearityModality variant
-open import Graded.Usage.Restrictions.Natrec linearityModality
+open import Configuration-types.Configuration.Zero-one
+  linearityModality variant
+open import Configuration-types.Natrec linearityModality
+
 open import Graded.Modality Linearity
 
 private
   module M = Modality linearityModality
 
   -- The "bad" nr function is used
-  UR′ = nr-available-UR zero-one-many-greatest-star-nr UR
-  open Usage-restrictions UR′
+  C′ = nr-available zero-one-many-greatest-star-nr C
+  open Configuration C′
   instance
     has-nr : Nr-available
     has-nr = Natrec-mode-has-nr.Nr ⦃ zero-one-many-greatest-star-nr ⦄
@@ -44,9 +46,9 @@ open import Definition.Untyped.Nat linearityModality
 open import Graded.Context linearityModality
 open import Graded.Context.Properties linearityModality
 open import Graded.Modality.Properties linearityModality
-open import Graded.Usage UR′
-open import Graded.Usage.Inversion UR′
-open import Graded.Usage.Properties UR′
+open import Graded.Usage C′
+open import Graded.Usage.Inversion C′
+open import Graded.Usage.Properties C′
 
 private variable
   γ δ : Conₘ _

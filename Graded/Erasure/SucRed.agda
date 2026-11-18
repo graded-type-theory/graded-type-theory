@@ -2,16 +2,16 @@
 -- Extended reduction relations allowing reduction under suc.
 ------------------------------------------------------------------------
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 open import Graded.Modality
 
 module Graded.Erasure.SucRed
   {a} {M : Set a}
   {𝕄 : Modality M}
-  (R : Type-restrictions 𝕄)
+  (TC : Type-configuration 𝕄)
   where
 
-open Type-restrictions R
+open Type-configuration TC
 
 open import Tools.Empty
 open import Tools.Function
@@ -24,11 +24,11 @@ open import Tools.Sum
 open import Tools.Unit
 
 open import Definition.Untyped M
-open import Definition.Untyped.Whnf M type-variant
-open import Definition.Typed R
-open import Definition.Typed.Consequences.Consistency R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Well-formed R
+open import Definition.Untyped.Whnf M TC⁻
+open import Definition.Typed TC
+open import Definition.Typed.Consequences.Consistency TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Well-formed TC
 
 open import Graded.Erasure.Target as T
   using (Strictness; strict; non-strict)

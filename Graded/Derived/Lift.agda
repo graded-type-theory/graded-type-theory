@@ -2,15 +2,15 @@
 -- Properties related to usage and Lift
 ------------------------------------------------------------------------
 
+open import Configuration-types
 open import Graded.Modality
 open import Graded.Mode
-open import Graded.Usage.Restrictions
 
 module Graded.Derived.Lift
   {a b} {M : Set a} {Mode : Set b}
   {𝕄 : Modality M}
   {𝐌 : IsMode Mode 𝕄}
-  (R : Usage-restrictions 𝕄 𝐌)
+  (C : Configuration 𝐌)
   where
 
 open Modality 𝕄
@@ -18,9 +18,9 @@ open IsMode 𝐌
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
-open import Graded.Substitution R
-open import Graded.Substitution.Properties R
-open import Graded.Usage R
+open import Graded.Substitution C
+open import Graded.Substitution.Properties C
+open import Graded.Usage C
 
 open import Definition.Untyped M hiding (lift)
 open import Definition.Untyped.Lift M

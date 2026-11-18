@@ -5,19 +5,17 @@
 open import Tools.Bool
 open import Tools.Level using (lzero)
 
-open import Definition.Typed.Restrictions
+open import Configuration-types
 
 open import Graded.Modality.Instances.Erasure.Modality
-open import Graded.Usage.Restrictions
 open import Graded.Mode.Instances.Zero-one.Variant ErasureModality
 open import Graded.Mode.Instances.Zero-one 𝟘ᵐ-Allowed
 
 module Graded.Modality.Instances.Erasure.Combined.Properties
-  (TR : Type-restrictions ErasureModality)
-  (UR : Usage-restrictions ErasureModality Zero-one-isMode)
+  (C : Configuration Zero-one-isMode)
   where
 
-open Usage-restrictions UR
+open Configuration C
 
 private
 
@@ -26,12 +24,13 @@ private
   𝕄 : Modality
   𝕄 = ErasureModality
 
+open import Configuration-types.Erased-matches
+
 open import Graded.Context 𝕄
 open import Graded.Modality.Instances.Erasure
-open import Graded.Modality.Instances.Erasure.Combined TR UR
+open import Graded.Modality.Instances.Erasure.Combined C
 open import Graded.Modality.Instances.Erasure.Properties
-open import Graded.Usage UR
-open import Graded.Usage.Erased-matches
+open import Graded.Usage C
 
 open import Definition.Untyped Erasure
 
@@ -98,8 +97,8 @@ opaque mutual
              η  ∎)
     where
     open ≤ᶜ-reasoning
-  sub-⊢ (Quot ok₁ ok₂ ⊢A ⊢B) δ≤γ =
-    Quot ok₁ ok₂ (sub-⊢ ⊢A δ≤γ) ⊢B
+  sub-⊢ (Quot ok ⊢A ⊢B) δ≤γ =
+    Quot ok (sub-⊢ ⊢A δ≤γ) ⊢B
 
   -- Subsumption for _▸_⊢_∷[_]_.
 
@@ -257,21 +256,21 @@ opaque mutual
           (sub-⊢∷ ⊢u δ≤γ) (sub-⊢∷ ⊢v δ≤γ) }
   sub-⊢∷ ([]-cong ok₁ ok₂ ⊢l ⊢A ⊢t ⊢u ⊢v) _ =
     []-cong ok₁ ok₂ ⊢l ⊢A ⊢t ⊢u ⊢v
-  sub-⊢∷ (Quot ok₁ ok₂ ⊢A ⊢B) δ≤γ =
-    Quot ok₁ ok₂ (sub-⊢∷ ⊢A δ≤γ) ⊢B
+  sub-⊢∷ (Quot ok ⊢A ⊢B) δ≤γ =
+    Quot ok (sub-⊢∷ ⊢A δ≤γ) ⊢B
   sub-⊢∷ (class ok ⊢Q ⊢t) δ≤γ =
     class ok ⊢Q (sub-⊢∷ ⊢t δ≤γ)
   sub-⊢∷ (resp ok ⊢Q ⊢t ⊢u ⊢v) _ =
     resp ok ⊢Q ⊢t ⊢u ⊢v
   sub-⊢∷ (set ok ⊢Q ⊢t ⊢u ⊢v ⊢w) _ =
     set ok ⊢Q ⊢t ⊢u ⊢v ⊢w
-  sub-⊢∷ (qrec ok₁ ok₂ ok₃ ok₄ ⊢C ⊢t ⊢u ⊢v ⊢w) δ≤γ
+  sub-⊢∷ (qrec ok₁ ok₂ ok₃ ⊢C ⊢t ⊢u ⊢v ⊢w) δ≤γ
     with Qrec-motive-erased?
   … | yes erased =
-    qrec ok₁ ok₂ ok₃ (⊥-elim ∘→ (_$ erased)) ⊢C
+    qrec ok₁ ok₂ (⊥-elim ∘→ (_$ erased)) ⊢C
       (sub-⊢∷ ⊢t (δ≤γ ∙ PE.refl)) ⊢u ⊢v (sub-⊢∷ ⊢w δ≤γ)
-  … | no not-erased with ok₄ not-erased
+  … | no not-erased with ok₃ not-erased
   …   | PE.refl , PE.refl =
-    qrec ok₁ ok₂ (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
+    qrec ok₁ (⊥-elim ∘→ not-erased) (λ _ → PE.refl , PE.refl)
       (sub-⊢ ⊢C (δ≤γ ∙ PE.refl)) (sub-⊢∷ ⊢t (δ≤γ ∙ PE.refl)) ⊢u ⊢v
       (sub-⊢∷ ⊢w δ≤γ)

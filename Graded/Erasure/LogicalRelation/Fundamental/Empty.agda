@@ -2,14 +2,13 @@
 -- Graded.Erasure validity of the empty type.
 ------------------------------------------------------------------------
 
+open import Configuration-types
 import Definition.Typed
-open import Definition.Typed.Restrictions
 import Definition.Untyped
 open import Graded.Erasure.LogicalRelation.Assumptions
 open import Graded.Modality
 open import Graded.Mode.Instances.Zero-one.Variant
 import Graded.Mode.Instances.Zero-one
-open import Graded.Usage.Restrictions
 
 module Graded.Erasure.LogicalRelation.Fundamental.Empty
   {a} {M : Set a}
@@ -18,24 +17,23 @@ module Graded.Erasure.LogicalRelation.Fundamental.Empty
   {variant : Mode-variant 𝕄}
   (open Graded.Mode.Instances.Zero-one variant)
   (open Modality 𝕄)
-  {R : Type-restrictions 𝕄}
-  (open Definition.Typed R)
-  (UR : Usage-restrictions 𝕄 Zero-one-isMode)
-  (open Usage-restrictions UR)
-  (as : Assumptions R)
+  (C : Configuration Zero-one-isMode)
+  (open Configuration C)
+  (open Definition.Typed TC)
+  (as : Assumptions TC)
   (open Assumptions as)
   (consistent : Emptyrec-allowed 𝟙ᵐ 𝟘 → Consistent (ts » Δ))
   ⦃ 𝟘-well-behaved : Has-well-behaved-zero M 𝕄 ⦄
   where
 
 open import Graded.Erasure.LogicalRelation as
-open import Graded.Erasure.LogicalRelation.Hidden UR as
+open import Graded.Erasure.LogicalRelation.Hidden C as
 import Graded.Erasure.Target as T
 open import Graded.Erasure.Extraction 𝕄
 
-open import Definition.LogicalRelation.Substitution R
-open import Definition.Typed.Properties R
-open import Definition.Typed.Substitution R
+open import Definition.LogicalRelation.Substitution TC
+open import Definition.Typed.Properties TC
+open import Definition.Typed.Substitution TC
 
 open import Graded.Context 𝕄
 open import Graded.Context.Properties 𝕄
