@@ -319,6 +319,28 @@ import Graded.Mode.Instances.Bounded-distributive-lattice
 import Graded.Modality.Instances.Bounded-distributive-lattice.Usage
 
 ------------------------------------------------------------------------
+-- Modality morphisms and quantity translations
+
+import Definition.Untyped.QuantityTranslation
+import Definition.Untyped.QuantityTranslation.Identity
+import Graded.Modality.Morphism
+import Graded.Modality.Morphism.Examples
+import Graded.Context.QuantityTranslation
+import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
+import Graded.Modality.Morphism.Type-configuration
+import Graded.Modality.Morphism.Type-configuration.Examples
+import Graded.Modality.Morphism.Configuration
+import Graded.Modality.Morphism.Configuration.Examples
+import Graded.Mode.Instances.Zero-one.QuantityTranslation
+import Graded.Mode.Instances.Zero-one.QuantityTranslation.Identity
+import Graded.Modality.Morphism.Forward-instances
+import Graded.Modality.Morphism.Backward-instances
+import Definition.Typed.QuantityTranslation
+import Definition.Typed.With-equality-reflection
+import Graded.Usage.QuantityTranslation
+import Graded.Context.QuantityTranslation.Identity
+
+------------------------------------------------------------------------
 -- Properties of the type theory
 
 -- The logical relation for reducibility.
@@ -381,7 +403,6 @@ import Definition.Typed.Consequences.Canonicity
 import Definition.Typed.Consequences.Reduction
 import Definition.Typed.Consequences.Admissible.Pi
 import Definition.Typed.Consequences.Admissible.Sigma
-import Definition.Typed.Consequences.Admissible.Erased
 import Definition.Typed.Consequences.Inversion.Erased
 import Definition.Typed.Consequences.Inversion.Erased.Eta
 import Definition.Typed.Consequences.Inversion.Erased.No-eta
@@ -428,6 +449,7 @@ import Definition.Typed.Decidable.Internal.Examples
 
 -- Some code that uses the internal type-checker.
 import Definition.Typed.Consequences.Consistency
+import Definition.Typed.Consequences.Admissible.Erased
 import Definition.Typed.Consequences.Admissible.Identity
 import Definition.Typed.Consequences.Admissible.Bool
 import Definition.Typed.Consequences.Admissible.Bool.Erased
@@ -491,28 +513,6 @@ import Graded.Reduction
 import Graded.Reduction.Zero-one
 import Graded.Reduction.Necessary
 import Graded.FullReduction
-
-------------------------------------------------------------------------
--- Modality morphisms and quantity translations
-
-import Definition.Untyped.QuantityTranslation
-import Definition.Untyped.QuantityTranslation.Identity
-import Graded.Modality.Morphism
-import Graded.Modality.Morphism.Examples
-import Graded.Context.QuantityTranslation
-import Graded.Mode.Instances.Zero-one.QuantityTranslation.Primitive
-import Graded.Modality.Morphism.Type-configuration
-import Graded.Modality.Morphism.Type-configuration.Examples
-import Graded.Modality.Morphism.Configuration
-import Graded.Modality.Morphism.Configuration.Examples
-import Graded.Mode.Instances.Zero-one.QuantityTranslation
-import Graded.Mode.Instances.Zero-one.QuantityTranslation.Identity
-import Graded.Modality.Morphism.Forward-instances
-import Graded.Modality.Morphism.Backward-instances
-import Definition.Typed.QuantityTranslation
-import Definition.Typed.With-equality-reflection
-import Graded.Usage.QuantityTranslation
-import Graded.Context.QuantityTranslation.Identity
 
 ------------------------------------------------------------------------
 -- Extended modalities
