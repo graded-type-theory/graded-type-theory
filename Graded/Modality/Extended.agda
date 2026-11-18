@@ -10,7 +10,9 @@ open import Tools.Function
 open import Tools.Level
 
 open import Configuration-types
+import Configuration-types.Instance.Configuration
 open import Configuration-types.Natrec
+open import Configuration-types.Omega
 
 import Definition.Typechecking.Decidable.Assumptions as TD
 
@@ -48,6 +50,7 @@ record Extended-modality a : Set (lsuc a) where
     C : Configuration (Zero-one-isMode MV)
 
   open Configuration C
+  open Configuration-types.Instance.Configuration C
 
   field
     -- The full reduction assumptions hold for C.
@@ -63,8 +66,8 @@ record Extended-modality a : Set (lsuc a) where
     -- The modality has well-behaved GLBs.
     NO-NR-GLB : Has-well-behaved-GLBs _ 𝕄
 
-    -- The modality has grade ω.
-    HAS-ω : Has-omega _ 𝕄
+    -- The modality has a dedicated grade ω.
+    ⦃ HAS-ω ⦄ : Omega-allowed
 
   open Has-nr (Natrec-mode-Has-nr 𝕄 NR) public
 
@@ -73,7 +76,7 @@ record Extended-modality a : Set (lsuc a) where
     NR₀ : Linearity-like-nr-for-𝟘
 
     -- The dedicated nr function satisfies Linearity-like-nr-for-𝟙.
-    NR₁ : Linearity-like-nr-for-𝟙 ⦃ HAS-ω ⦄
+    NR₁ : Linearity-like-nr-for-𝟙
 
     -- The modality supports subtraction
     SUB : Supports-subtraction 𝕄
@@ -83,7 +86,7 @@ record Extended-modality a : Set (lsuc a) where
 
   instance
     has-omega : Has-omega _ 𝕄
-    has-omega = HAS-ω
+    has-omega = Omega-allowed→Has-omega
 
 private variable
   𝕄 𝕄₁ 𝕄₂ 𝕄₃ : Extended-modality _

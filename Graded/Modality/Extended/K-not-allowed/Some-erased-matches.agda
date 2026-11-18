@@ -149,7 +149,7 @@ Erasure = λ where
     .DA      → Assumptions-C′ E._≟_
     .NR      → Nr ⦃ EM.erasure-has-nr ⦄
     .NO-NR-GLB → EP.Erasure-supports-factoring-nr-rule
-    .HAS-ω   → EM.erasure-has-omega
+    .HAS-ω   → with-ω
     .NR₀ {z} → EP.nr-linearity-like-for-𝟘 {z = z}
     .NR₁ {z} → EP.nr-linearity-like-for-𝟙 {z = z}
     .SUB     → EP.supports-subtraction
