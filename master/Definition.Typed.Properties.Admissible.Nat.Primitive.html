@@ -3,27 +3,27 @@
 <a id="74" class="Comment">-- An admissible rule related to the natural number type</a>
 <a id="131" class="Comment">------------------------------------------------------------------------</a>
 
-<a id="205" class="Keyword">open</a> <a id="210" class="Keyword">import</a> <a id="217" href="Definition.Typed.Restrictions.html" class="Module">Definition.Typed.Restrictions</a>
-<a id="247" class="Keyword">open</a> <a id="252" class="Keyword">import</a> <a id="259" href="Graded.Modality.html" class="Module">Graded.Modality</a>
+<a id="205" class="Keyword">open</a> <a id="210" class="Keyword">import</a> <a id="217" href="Configuration-types.html" class="Module">Configuration-types</a>
+<a id="237" class="Keyword">open</a> <a id="242" class="Keyword">import</a> <a id="249" href="Graded.Modality.html" class="Module">Graded.Modality</a>
 
-<a id="276" class="Keyword">module</a> <a id="283" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html" class="Module">Definition.Typed.Properties.Admissible.Nat.Primitive</a>
-  <a id="338" class="Symbol">{</a><a id="339" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#339" class="Bound">a</a><a id="340" class="Symbol">}</a> <a id="342" class="Symbol">{</a><a id="343" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#343" class="Bound">M</a> <a id="345" class="Symbol">:</a> <a id="347" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="351" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#339" class="Bound">a</a><a id="352" class="Symbol">}</a>
-  <a id="356" class="Symbol">{</a><a id="357" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#357" class="Bound">𝕄</a> <a id="359" class="Symbol">:</a> <a id="361" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="370" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#343" class="Bound">M</a><a id="371" class="Symbol">}</a>
-  <a id="375" class="Symbol">(</a><a id="376" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#376" class="Bound">R</a> <a id="378" class="Symbol">:</a> <a id="380" href="Definition.Typed.Restrictions.html#964" class="Record">Type-restrictions</a> <a id="398" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#357" class="Bound">𝕄</a><a id="399" class="Symbol">)</a>
-  <a id="403" class="Keyword">where</a>
+<a id="266" class="Keyword">module</a> <a id="273" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html" class="Module">Definition.Typed.Properties.Admissible.Nat.Primitive</a>
+  <a id="328" class="Symbol">{</a><a id="329" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#329" class="Bound">a</a><a id="330" class="Symbol">}</a> <a id="332" class="Symbol">{</a><a id="333" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#333" class="Bound">M</a> <a id="335" class="Symbol">:</a> <a id="337" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="341" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#329" class="Bound">a</a><a id="342" class="Symbol">}</a>
+  <a id="346" class="Symbol">{</a><a id="347" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#347" class="Bound">𝕄</a> <a id="349" class="Symbol">:</a> <a id="351" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="360" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#333" class="Bound">M</a><a id="361" class="Symbol">}</a>
+  <a id="365" class="Symbol">(</a><a id="366" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#366" class="Bound">TC</a> <a id="369" class="Symbol">:</a> <a id="371" href="Configuration-types.html#10610" class="Record">Type-configuration</a> <a id="390" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#347" class="Bound">𝕄</a><a id="391" class="Symbol">)</a>
+  <a id="395" class="Keyword">where</a>
 
-<a id="410" class="Keyword">open</a> <a id="415" class="Keyword">import</a> <a id="422" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="441" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#343" class="Bound">M</a>
-<a id="443" class="Keyword">open</a> <a id="448" class="Keyword">import</a> <a id="455" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="472" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#376" class="Bound">R</a>
+<a id="402" class="Keyword">open</a> <a id="407" class="Keyword">import</a> <a id="414" href="Definition.Untyped.html" class="Module">Definition.Untyped</a> <a id="433" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#333" class="Bound">M</a>
+<a id="435" class="Keyword">open</a> <a id="440" class="Keyword">import</a> <a id="447" href="Definition.Typed.html" class="Module">Definition.Typed</a> <a id="464" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#366" class="Bound">TC</a>
 
-<a id="475" class="Keyword">import</a> <a id="482" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a> <a id="510" class="Symbol">as</a> <a id="513" class="Module">PE</a>
+<a id="468" class="Keyword">import</a> <a id="475" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a> <a id="503" class="Symbol">as</a> <a id="506" class="Module">PE</a>
 
-<a id="517" class="Keyword">private</a> <a id="525" class="Keyword">variable</a>
-  <a id="536" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#536" class="Generalizable">Γ</a> <a id="538" class="Symbol">:</a> <a id="540" href="Definition.Untyped.html#5002" class="Function">Cons</a> <a id="545" class="Symbol">_</a> <a id="547" class="Symbol">_</a>
+<a id="510" class="Keyword">private</a> <a id="518" class="Keyword">variable</a>
+  <a id="529" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#529" class="Generalizable">Γ</a> <a id="531" class="Symbol">:</a> <a id="533" href="Definition.Untyped.html#5002" class="Function">Cons</a> <a id="538" class="Symbol">_</a> <a id="540" class="Symbol">_</a>
 
-<a id="550" class="Keyword">opaque</a>
+<a id="543" class="Keyword">opaque</a>
 
-  <a id="560" class="Comment">-- A variant of ℕⱼ.</a>
+  <a id="553" class="Comment">-- A variant of ℕⱼ.</a>
 
-  <a id="⊢ℕ"></a><a id="583" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#583" class="Function">⊢ℕ</a> <a id="586" class="Symbol">:</a> <a id="588" href="Definition.Typed.html#2562" class="Function Operator">⊢</a> <a id="590" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#536" class="Generalizable">Γ</a> <a id="592" class="Symbol">→</a> <a id="594" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#536" class="Generalizable">Γ</a> <a id="596" href="Definition.Typed.html#2651" class="Datatype Operator">⊢</a> <a id="598" href="Definition.Untyped.html#3136" class="InductiveConstructor">ℕ</a>
-  <a id="602" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#583" class="Function">⊢ℕ</a> <a id="605" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#605" class="Bound">⊢Γ</a> <a id="608" class="Symbol">=</a> <a id="610" href="Definition.Typed.html#2769" class="InductiveConstructor">univ</a> <a id="615" class="Symbol">(</a><a id="616" href="Definition.Typed.html#5637" class="InductiveConstructor">ℕⱼ</a> <a id="619" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#605" class="Bound">⊢Γ</a><a id="621" class="Symbol">)</a>
+  <a id="⊢ℕ"></a><a id="576" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#576" class="Function">⊢ℕ</a> <a id="579" class="Symbol">:</a> <a id="581" href="Definition.Typed.html#2556" class="Function Operator">⊢</a> <a id="583" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#529" class="Generalizable">Γ</a> <a id="585" class="Symbol">→</a> <a id="587" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#529" class="Generalizable">Γ</a> <a id="589" href="Definition.Typed.html#2645" class="Datatype Operator">⊢</a> <a id="591" href="Definition.Untyped.html#3136" class="InductiveConstructor">ℕ</a>
+  <a id="595" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#576" class="Function">⊢ℕ</a> <a id="598" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#598" class="Bound">⊢Γ</a> <a id="601" class="Symbol">=</a> <a id="603" href="Definition.Typed.html#2763" class="InductiveConstructor">univ</a> <a id="608" class="Symbol">(</a><a id="609" href="Definition.Typed.html#5631" class="InductiveConstructor">ℕⱼ</a> <a id="612" href="Definition.Typed.Properties.Admissible.Nat.Primitive.html#598" class="Bound">⊢Γ</a><a id="614" class="Symbol">)</a>
 </pre></body></html>

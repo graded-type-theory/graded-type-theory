@@ -6,14 +6,14 @@
 <a id="193" class="Keyword">open</a> <a id="198" class="Keyword">import</a> <a id="205" href="Graded.Modality.html" class="Module">Graded.Modality</a>
 
 <a id="222" class="Keyword">module</a> <a id="229" href="Graded.Context.Properties.PartialOrder.html" class="Module">Graded.Context.Properties.PartialOrder</a>
-  <a id="270" class="Symbol">{</a><a id="271" href="Graded.Context.Properties.PartialOrder.html#271" class="Bound">a</a><a id="272" class="Symbol">}</a> <a id="274" class="Symbol">{</a><a id="275" href="Graded.Context.Properties.PartialOrder.html#275" class="Bound">M</a> <a id="277" class="Symbol">:</a> <a id="279" href="Agda.Primitive.html#388" class="Primitive">Set</a> <a id="283" href="Graded.Context.Properties.PartialOrder.html#271" class="Bound">a</a><a id="284" class="Symbol">}</a> <a id="286" class="Symbol">(</a><a id="287" href="Graded.Context.Properties.PartialOrder.html#287" class="Bound">𝕄</a> <a id="289" class="Symbol">:</a> <a id="291" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="300" href="Graded.Context.Properties.PartialOrder.html#275" class="Bound">M</a><a id="301" class="Symbol">)</a> <a id="303" class="Keyword">where</a>
+  <a id="270" class="Symbol">{</a><a id="271" href="Graded.Context.Properties.PartialOrder.html#271" class="Bound">a</a><a id="272" class="Symbol">}</a> <a id="274" class="Symbol">{</a><a id="275" href="Graded.Context.Properties.PartialOrder.html#275" class="Bound">M</a> <a id="277" class="Symbol">:</a> <a id="279" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="283" href="Graded.Context.Properties.PartialOrder.html#271" class="Bound">a</a><a id="284" class="Symbol">}</a> <a id="286" class="Symbol">(</a><a id="287" href="Graded.Context.Properties.PartialOrder.html#287" class="Bound">𝕄</a> <a id="289" class="Symbol">:</a> <a id="291" href="Graded.Modality.html#581" class="Record">Modality</a> <a id="300" href="Graded.Context.Properties.PartialOrder.html#275" class="Bound">M</a><a id="301" class="Symbol">)</a> <a id="303" class="Keyword">where</a>
 
 <a id="310" class="Keyword">open</a> <a id="315" class="Keyword">import</a> <a id="322" href="Graded.Context.html" class="Module">Graded.Context</a> <a id="337" href="Graded.Context.Properties.PartialOrder.html#287" class="Bound">𝕄</a>
 <a id="339" class="Keyword">open</a> <a id="344" class="Keyword">import</a> <a id="351" href="Graded.Context.Properties.Equivalence.html" class="Module">Graded.Context.Properties.Equivalence</a> <a id="389" href="Graded.Context.Properties.PartialOrder.html#287" class="Bound">𝕄</a>
 <a id="391" class="Keyword">open</a> <a id="396" class="Keyword">import</a> <a id="403" href="Graded.Modality.Properties.html" class="Module">Graded.Modality.Properties</a> <a id="430" href="Graded.Context.Properties.PartialOrder.html#287" class="Bound">𝕄</a>
 
 <a id="433" class="Keyword">open</a> <a id="438" class="Keyword">import</a> <a id="445" href="Tools.Function.html" class="Module">Tools.Function</a>
-<a id="460" class="Keyword">open</a> <a id="465" class="Keyword">import</a> <a id="472" href="Tools.Nat.html" class="Module">Tools.Nat</a> <a id="482" class="Keyword">using</a> <a id="488" class="Symbol">(</a><a id="489" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="492" class="Symbol">)</a>
+<a id="460" class="Keyword">open</a> <a id="465" class="Keyword">import</a> <a id="472" href="Tools.Nat.html" class="Module">Tools.Nat</a> <a id="482" class="Keyword">using</a> <a id="488" class="Symbol">(</a><a id="489" href="Agda.Builtin.Nat.html#220" class="Datatype">Nat</a><a id="492" class="Symbol">)</a>
 <a id="494" class="Keyword">import</a> <a id="501" href="Tools.Reasoning.PartialOrder.html" class="Module">Tools.Reasoning.PartialOrder</a>
 <a id="530" class="Keyword">open</a> <a id="535" class="Keyword">import</a> <a id="542" href="Tools.Relation.html" class="Module">Tools.Relation</a>
 
@@ -21,7 +21,7 @@
 
 <a id="575" class="Keyword">private</a>
   <a id="585" class="Keyword">variable</a>
-    <a id="598" href="Graded.Context.Properties.PartialOrder.html#598" class="Generalizable">n</a> <a id="600" class="Symbol">:</a> <a id="602" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a>
+    <a id="598" href="Graded.Context.Properties.PartialOrder.html#598" class="Generalizable">n</a> <a id="600" class="Symbol">:</a> <a id="602" href="Agda.Builtin.Nat.html#220" class="Datatype">Nat</a>
     <a id="610" href="Graded.Context.Properties.PartialOrder.html#610" class="Generalizable">γ</a> <a id="612" href="Graded.Context.Properties.PartialOrder.html#612" class="Generalizable">δ</a> <a id="614" href="Graded.Context.Properties.PartialOrder.html#614" class="Generalizable">η</a> <a id="616" class="Symbol">:</a> <a id="618" href="Graded.Context.html#729" class="Datatype">Conₘ</a> <a id="623" href="Graded.Context.Properties.PartialOrder.html#598" class="Generalizable">n</a>
 
 <a id="626" class="Comment">-- ≤ᶜ is reflexive</a>
@@ -74,7 +74,7 @@
 
 <a id="1849" class="Comment">-- (Conₘ, ≤ᶜ) is a poset</a>
 
-<a id="≤ᶜ-poset"></a><a id="1875" href="Graded.Context.Properties.PartialOrder.html#1875" class="Function">≤ᶜ-poset</a> <a id="1884" class="Symbol">:</a> <a id="1886" class="Symbol">{</a><a id="1887" href="Graded.Context.Properties.PartialOrder.html#1887" class="Bound">n</a> <a id="1889" class="Symbol">:</a> <a id="1891" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="1894" class="Symbol">}</a> <a id="1896" class="Symbol">→</a> <a id="1898" href="Relation.Binary.Bundles.html#4449" class="Record">Poset</a> <a id="1904" class="Symbol">_</a> <a id="1906" class="Symbol">_</a> <a id="1908" class="Symbol">_</a>
+<a id="≤ᶜ-poset"></a><a id="1875" href="Graded.Context.Properties.PartialOrder.html#1875" class="Function">≤ᶜ-poset</a> <a id="1884" class="Symbol">:</a> <a id="1886" class="Symbol">{</a><a id="1887" href="Graded.Context.Properties.PartialOrder.html#1887" class="Bound">n</a> <a id="1889" class="Symbol">:</a> <a id="1891" href="Agda.Builtin.Nat.html#220" class="Datatype">Nat</a><a id="1894" class="Symbol">}</a> <a id="1896" class="Symbol">→</a> <a id="1898" href="Relation.Binary.Bundles.html#4449" class="Record">Poset</a> <a id="1904" class="Symbol">_</a> <a id="1906" class="Symbol">_</a> <a id="1908" class="Symbol">_</a>
 <a id="1910" href="Graded.Context.Properties.PartialOrder.html#1875" class="Function">≤ᶜ-poset</a> <a id="1919" class="Symbol">{</a><a id="1920" href="Graded.Context.Properties.PartialOrder.html#1920" class="Bound">n</a><a id="1921" class="Symbol">}</a> <a id="1923" class="Symbol">=</a> <a id="1925" class="Keyword">record</a>
   <a id="1934" class="Symbol">{</a> <a id="1936" href="Relation.Binary.Bundles.html#4525" class="Field">Carrier</a> <a id="1944" class="Symbol">=</a> <a id="1946" href="Graded.Context.html#729" class="Datatype">Conₘ</a> <a id="1951" href="Graded.Context.Properties.PartialOrder.html#1920" class="Bound">n</a>
   <a id="1955" class="Symbol">;</a> <a id="1957" href="Relation.Binary.Bundles.html#4552" class="Field Operator">_≈_</a> <a id="1961" class="Symbol">=</a> <a id="1963" href="Graded.Context.html#871" class="Datatype Operator">_≈ᶜ_</a>
@@ -84,7 +84,7 @@
 
 <a id="2020" class="Comment">-- Partial order reasoning for _≤ᶜ_.</a>
 
-<a id="2058" class="Keyword">module</a> <a id="≤ᶜ-reasoning"></a><a id="2065" href="Graded.Context.Properties.PartialOrder.html#2065" class="Module">≤ᶜ-reasoning</a> <a id="2078" class="Symbol">{</a><a id="2079" href="Graded.Context.Properties.PartialOrder.html#2079" class="Bound">n</a> <a id="2081" class="Symbol">:</a> <a id="2083" href="Agda.Builtin.Nat.html#203" class="Datatype">Nat</a><a id="2086" class="Symbol">}</a> <a id="2088" class="Symbol">=</a>
+<a id="2058" class="Keyword">module</a> <a id="≤ᶜ-reasoning"></a><a id="2065" href="Graded.Context.Properties.PartialOrder.html#2065" class="Module">≤ᶜ-reasoning</a> <a id="2078" class="Symbol">{</a><a id="2079" href="Graded.Context.Properties.PartialOrder.html#2079" class="Bound">n</a> <a id="2081" class="Symbol">:</a> <a id="2083" href="Agda.Builtin.Nat.html#220" class="Datatype">Nat</a><a id="2086" class="Symbol">}</a> <a id="2088" class="Symbol">=</a>
   <a id="2092" href="Tools.Reasoning.PartialOrder.html" class="Module">Tools.Reasoning.PartialOrder</a> <a id="2121" class="Symbol">(</a><a id="2122" href="Graded.Context.Properties.PartialOrder.html#1875" class="Function">≤ᶜ-poset</a> <a id="2131" class="Symbol">{</a><a id="2132" class="Argument">n</a> <a id="2134" class="Symbol">=</a> <a id="2136" href="Graded.Context.Properties.PartialOrder.html#2079" class="Bound">n</a><a id="2137" class="Symbol">})</a>
 
 <a id="2141" class="Comment">-- If _≤_ is decidable, then _≤ᶜ_ is decidable.</a>

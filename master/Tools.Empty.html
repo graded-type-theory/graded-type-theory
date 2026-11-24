@@ -7,10 +7,23 @@
 
 <a id="240" class="Keyword">open</a> <a id="245" class="Keyword">import</a> <a id="252" href="Data.Empty.html" class="Module">Data.Empty</a> <a id="263" class="Keyword">public</a>
 
-<a id="271" class="Keyword">open</a> <a id="276" class="Keyword">import</a> <a id="283" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
+<a id="271" class="Keyword">open</a> <a id="276" class="Keyword">import</a> <a id="283" href="Tools.Relation.html" class="Module">Tools.Relation</a>
+<a id="298" class="Keyword">open</a> <a id="303" class="Keyword">import</a> <a id="310" href="Tools.PropositionalEquality.html" class="Module">Tools.PropositionalEquality</a>
 
-<a id="312" class="Comment">-- The type ⊥ is a proposition.</a>
+<a id="339" class="Keyword">private</a> <a id="347" class="Keyword">variable</a>
+  <a id="358" href="Tools.Empty.html#358" class="Generalizable">A</a> <a id="360" href="Tools.Empty.html#360" class="Generalizable">B</a> <a id="362" class="Symbol">:</a> <a id="364" href="Agda.Primitive.html#446" class="Primitive">Set</a> <a id="368" class="Symbol">_</a>
 
-<a id="⊥-propositional"></a><a id="345" href="Tools.Empty.html#345" class="Function">⊥-propositional</a> <a id="361" class="Symbol">:</a> <a id="363" href="Tools.PropositionalEquality.html#2010" class="Function">Is-proposition</a> <a id="378" href="Data.Empty.html#914" class="Function">⊥</a>
-<a id="380" href="Tools.Empty.html#345" class="Function">⊥-propositional</a> <a id="396" class="Symbol">{</a><a id="397" class="Argument">x</a> <a id="399" class="Symbol">=</a> <a id="401" class="Symbol">()}</a>
+<a id="371" class="Comment">-- The type ⊥ is a proposition.</a>
+
+<a id="⊥-propositional"></a><a id="404" href="Tools.Empty.html#404" class="Function">⊥-propositional</a> <a id="420" class="Symbol">:</a> <a id="422" href="Tools.PropositionalEquality.html#2010" class="Function">Is-proposition</a> <a id="437" href="Data.Empty.html#914" class="Function">⊥</a>
+<a id="439" href="Tools.Empty.html#404" class="Function">⊥-propositional</a> <a id="455" class="Symbol">{</a><a id="456" class="Argument">x</a> <a id="458" class="Symbol">=</a> <a id="460" class="Symbol">()}</a>
+
+<a id="465" class="Keyword">opaque</a>
+
+  <a id="475" class="Comment">-- If A is decided, then B → A follows from the contrapositive</a>
+  <a id="540" class="Comment">-- statement ¬ A → ¬ B.</a>
+
+  <a id="contrapositive→"></a><a id="567" href="Tools.Empty.html#567" class="Function">contrapositive→</a> <a id="583" class="Symbol">:</a> <a id="585" href="Relation.Nullary.Decidable.Core.html#1972" class="Record">Dec</a> <a id="589" href="Tools.Empty.html#358" class="Generalizable">A</a> <a id="591" class="Symbol">→</a> <a id="593" class="Symbol">(</a><a id="594" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="596" href="Tools.Empty.html#358" class="Generalizable">A</a> <a id="598" class="Symbol">→</a> <a id="600" href="Relation.Nullary.Negation.Core.html#669" class="Function Operator">¬</a> <a id="602" href="Tools.Empty.html#360" class="Generalizable">B</a><a id="603" class="Symbol">)</a> <a id="605" class="Symbol">→</a> <a id="607" href="Tools.Empty.html#360" class="Generalizable">B</a> <a id="609" class="Symbol">→</a> <a id="611" href="Tools.Empty.html#358" class="Generalizable">A</a>
+  <a id="615" href="Tools.Empty.html#567" class="Function">contrapositive→</a> <a id="631" class="Symbol">(</a><a id="632" href="Relation.Nullary.Decidable.Core.html#2105" class="InductiveConstructor">yes</a> <a id="636" href="Tools.Empty.html#636" class="Bound">x</a><a id="637" class="Symbol">)</a>  <a id="640" class="Symbol">_</a>   <a id="644" class="Symbol">_</a> <a id="646" class="Symbol">=</a> <a id="648" href="Tools.Empty.html#636" class="Bound">x</a>
+  <a id="652" href="Tools.Empty.html#567" class="Function">contrapositive→</a> <a id="668" class="Symbol">(</a><a id="669" href="Relation.Nullary.Decidable.Core.html#2142" class="InductiveConstructor">no</a> <a id="672" href="Tools.Empty.html#672" class="Bound">not</a><a id="675" class="Symbol">)</a> <a id="677" href="Tools.Empty.html#677" class="Bound">hyp</a> <a id="681" href="Tools.Empty.html#681" class="Bound">y</a> <a id="683" class="Symbol">=</a> <a id="685" href="Data.Empty.html#1069" class="Function">⊥-elim</a> <a id="692" class="Symbol">(</a><a id="693" href="Tools.Empty.html#677" class="Bound">hyp</a> <a id="697" href="Tools.Empty.html#672" class="Bound">not</a> <a id="701" href="Tools.Empty.html#681" class="Bound">y</a><a id="702" class="Symbol">)</a>
 </pre></body></html>
